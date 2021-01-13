@@ -1,4 +1,4 @@
-@symbol("main") fn main() int;
+@symbol("main") fn main() void;
 
 const @symbol("__init_array_start") init_start: [*]*fn() void;
 const @symbol("__init_array_end") init_end: [*]*fn() void;
