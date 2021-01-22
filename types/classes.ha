@@ -1,16 +1,16 @@
-// A tagged union of all signed integer types
+// A tagged union of all signed integer types.
 export type signed = (i8 | i16 | i32 | i64 | int);
 
-// A tagged union of all unsigned integer types, excluding uintptr
+// A tagged union of all unsigned integer types, excluding uintptr.
 export type unsigned = (u8 | u16 | u32 | u64 | uint | size);
 
-// A tagged union of all integer types
+// A tagged union of all integer types.
 export type integer = (...signed | ...unsigned);
 
-// A tagged union of all floating point numeric types
+// A tagged union of all floating point numeric types.
 export type floating = (f32 | f64);
 
-// A tagged union of all numeric types
+// A tagged union of all numeric types.
 export type numeric = (...integer | ...floating);
 
 // A type representing the internal structure of strings, useful for low-level
@@ -20,23 +20,23 @@ export type string = struct {
 	data: *[*]u8,
 
 	// The length capacity, in octets of UTF-8 data, not including the NUL
-	// terminator
+	// terminator.
 	length: size,
 
 	// The allocated capacity, in octets of UTF-8 data, not including the
-	// NUL terminator
+	// NUL terminator.
 	capacity: size,
 };
 
 // A type representing the internal structure of slices, useful for low-level
 // slice manipulation.
 export type slice = struct {
-	// The slice contents
+	// The slice contents.
 	data: *void,
 
-	// The allocated capacity (in members) of data
+	// The allocated capacity (in members) of data.
 	capacity: size,
 
-	// The number of members of the slice
+	// The number of members of the slice.
 	length: size,
 };
