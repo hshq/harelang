@@ -1,0 +1,23 @@
+image: alpine/latest
+sources:
+- https://git.sr.ht/~sircmpwn/qbe
+- https://git.sr.ht/~sircmpwn/harec
+- https://git.sr.ht/~sircmpwn/stdlib
+- https://git.sr.ht/~sircmpwn/hare
+tasks:
+- qbe: |
+    cd qbe
+    make PREFIX=/usr
+    sudo make install PREFIX=/usr
+- harec: |
+    mkdir harec/build
+    cd harec/build
+    ../configure --prefix=/usr
+    make -j2
+    sudo make install
+- hare: |
+    cd hare
+    cp config.example.mk config.mk
+    ln -s ../stdlib ./
+    make
+    ./hare -v
