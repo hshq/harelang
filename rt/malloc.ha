@@ -116,7 +116,7 @@ fn list_from_block(s: size, p: uintptr) nullable *void = {
 	return (p + WASTE: uintptr + WORD: uintptr): *void;
 };
 
-// Frees a pointer previously allocated with [malloc] or [must_malloc].
+// Frees a pointer previously allocated with [malloc].
 export @symbol("rt.free") fn free_(_p: nullable *void) void = {
 	if (_p != null: nullable *void) {
 		let p = _p: *void;
@@ -169,11 +169,4 @@ export fn realloc(_p: nullable *void, n: size) nullable *void = {
 	};
 
 	return new;
-};
-
-// Like [realloc], but aborts the program if there is insufficient memory.
-export fn must_realloc(p: nullable *void, n: size) *void = {
-	let new = realloc(p, n);
-	assert(new != null: nullable *void, "out of memory");
-	return new: *void;
 };
