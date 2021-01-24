@@ -36,14 +36,7 @@ def WORD: size = size(size);
 def WASTE: size = WORD * ALIGN - WORD;
 def BIGBLOCK: size = (2z << 16z) * WORD;
 
-// TODO: Expandable arrays
-let bins: [50]nullable *void = [
-	null, null, null, null, null, null, null, null, null, null, null, null,
-	null, null, null, null, null, null, null, null, null, null, null, null,
-	null, null, null, null, null, null, null, null, null, null, null, null,
-	null, null, null, null, null, null, null, null, null, null, null, null,
-	null, null,
-];
+let bins: [50]nullable *void = [null...];
 
 fn bin2size(b: size) size = ((b + 1z) * ALIGN - 1z) * WORD;
 
