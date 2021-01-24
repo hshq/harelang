@@ -24,14 +24,17 @@ $(HARECACHE)/hare.ssa: $(hare_srcs)
 	@$(HAREC) -o $@ $(hare_srcs)
 
 hare_deps=\
-	$(stdlib_io)
+	$(stdlib_io) \
+	$(stdlib_strconv) \
+	$(stdlib_bytes)
 
 hare: $(hare_deps) $(stdlib_rt) $(stdlib_start) $(HARECACHE)/hare.o
 	@printf 'LD\t$@\n'
 	@$(LD) -o $@ $(stdlib_start) $(HARECACHE)/hare.o $(stdlib_rt) $(hare_deps)
 
 clean:
-	false # TODO
+	@rm -rf cache
+	@rm hare
 
 all: hare
 

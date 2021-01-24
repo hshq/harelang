@@ -1,3 +1,5 @@
+# TODO: Write a script to generate this file
+
 # rt
 librt_srcs=$(STDLIB)/rt/$(PLATFORM)/abort.ha \
 	$(STDLIB)/rt/$(PLATFORM)/env.ha \
@@ -30,6 +32,45 @@ $(HARECACHE)/rt/rt.a: $(HARECACHE)/rt/rt.o $(HARECACHE)/rt/syscall.o
 
 stdlib_rt=$(HARECACHE)/rt/rt.a
 stdlib_start=$(HARECACHE)/rt/start.o
+
+# bytes
+libbytes_srcs=\
+	$(STDLIB)/bytes/reverse.ha
+
+$(HARECACHE)/bytes/bytes.ssa: $(libbytes_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/bytes
+	@$(HAREC) -o $@ -Nbytes -t$(HARECACHE)/bytes/bytes.td $(libbytes_srcs)
+
+stdlib_bytes=$(HARECACHE)/bytes/bytes.o
+
+# types
+libtypes_srcs=\
+	$(STDLIB)/types/limits.ha \
+	$(STDLIB)/types/classes.ha
+	# $(STDLIB)/types/arch$(ARCH).ha
+
+$(HARECACHE)/types/types.ssa: $(libtypes_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/types
+	@$(HAREC) -o $@ -Ntypes -t$(HARECACHE)/types/types.td $(libtypes_srcs)
+
+stdlib_types=$(HARECACHE)/types/types.o
+
+# strconv
+libstrconv_srcs=\
+	$(STDLIB)/strconv/itos.ha \
+	$(STDLIB)/strconv/utos.ha \
+	$(STDLIB)/strconv/numeric.ha
+
+$(HARECACHE)/strconv/strconv.ssa: $(libstrconv_srcs)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/strconv
+	@$(HAREC) -o $@ -Nstrconv -t$(HARECACHE)/strconv/strconv.td $(libstrconv_srcs)
+
+$(HARECACHE)/strconv/strconv.ssa: $(stdlib_rt) $(stdlib_bytes) $(stdlib_types)
+
+stdlib_strconv=$(HARECACHE)/strconv/strconv.o
 
 # io
 libio_srcs=\
