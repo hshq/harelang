@@ -47,8 +47,8 @@ stdlib_bytes=$(HARECACHE)/bytes/bytes.o
 # types
 libtypes_srcs=\
 	$(STDLIB)/types/limits.ha \
-	$(STDLIB)/types/classes.ha
-	# $(STDLIB)/types/arch$(ARCH).ha
+	$(STDLIB)/types/classes.ha \
+	$(STDLIB)/types/arch$(ARCH).ha
 
 $(HARECACHE)/types/types.ssa: $(libtypes_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
