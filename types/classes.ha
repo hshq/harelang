@@ -34,9 +34,9 @@ export type slice = struct {
 	// The slice contents.
 	data: *void,
 
-	// The allocated capacity (in members) of data.
-	capacity: size,
-
 	// The number of members of the slice.
 	length: size,
+
+	// The allocated capacity (in members) of data.
+	capacity: size,
 };
