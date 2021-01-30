@@ -3,7 +3,7 @@ use types;
 
 // Converts an i64 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
-// duplicate the result, or [strconv::itosb] to pass your own string buffer.
+// duplicate the result.
 //
 //      let a = strconv::i64tos(1234);
 //      io::printf("%s", a); // 1234
@@ -47,7 +47,7 @@ export fn i64tos(i: i64) const str = {
 
 // Converts an i8 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
-// duplicate the result, or [strconv::itosb] to pass your own string buffer.
+// duplicate the result.
 //
 //	let a = strconv::i8tos(123);
 //	io::printf("%s", a); // 123
@@ -59,7 +59,7 @@ export fn i8tos(i: i8) const str = i64tos(i: i64);
 
 // Converts an i16 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
-// duplicate the result, or [strconv::itosb] to pass your own string buffer.
+// duplicate the result.
 //
 //	let a = strconv::i16tos(1234);
 //	io::printf("%s", a); // 1234
@@ -71,7 +71,7 @@ export fn i16tos(i: i16) const str = i64tos(i: i64);
 
 // Converts an i32 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
-// duplicate the result, or [strconv::itosb] to pass your own string buffer.
+// duplicate the result.
 //
 //	let a = strconv::i32tos(1234);
 //	io::printf("%s", a); // 1234
@@ -83,7 +83,7 @@ export fn i32tos(i: i32) const str = i64tos(i: i64);
 
 // Converts an int to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
-// duplicate the result, or [strconv::itosb] to pass your own string buffer.
+// duplicate the result.
 //
 //	let a = strconv::itos(1234);
 //	io::printf("%s", a); // 1234

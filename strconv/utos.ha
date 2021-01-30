@@ -3,7 +3,7 @@ use types;
 
 // Converts a u64 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
-// duplicate the result, or [strconv::itosb] to pass your own string buffer.
+// duplicate the result.
 //
 //	let a = strconv::u64tos(1234u);
 //	io::printf("%s", a); // 1234
@@ -40,7 +40,7 @@ export fn u64tos(u: u64) const str = {
 
 // Converts a u8 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
-// duplicate the result, or [strconv::itosb] to pass your own string buffer.
+// duplicate the result.
 //
 //	let a = strconv::u64tos(123u);
 //	io::printf("%s", a); // 123
@@ -52,7 +52,7 @@ export fn u8tos(u: u8) const str = u64tos(u: u64);
 
 // Converts a u16 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
-// duplicate the result, or [strconv::itosb] to pass your own string buffer.
+// duplicate the result.
 //
 //	let a = strconv::u16tos(1234u);
 //	io::printf("%s", a); // 1234
@@ -64,7 +64,7 @@ export fn u16tos(u: u16) const str = u64tos(u: u64);
 
 // Converts a u32 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
-// duplicate the result, or [strconv::itosb] to pass your own string buffer.
+// duplicate the result.
 //
 //	let a = strconv::u32tos(1234u);
 //	io::printf("%s", a); // 1234
@@ -76,7 +76,7 @@ export fn u32tos(u: u32) const str = u64tos(u: u64);
 
 // Converts a uint to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
-// duplicate the result, or [strconv::itosb] to pass your own string buffer.
+// duplicate the result.
 //
 //	let a = strconv::utos(1234u);
 //	io::printf("%s", a); // 1234
@@ -100,7 +100,7 @@ export fn ztos(z: size) const str = u64tos(z: u64);
 
 // Converts a uintptr to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
-// duplicate the result, or [strconv::itosb] to pass your own string buffer.
+// duplicate the result.
 //
 //	let a = strconv::uptrtos(1234u);
 //	io::printf("%s", a); // 1234
