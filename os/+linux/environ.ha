@@ -24,5 +24,7 @@ let args_static: [32]str = [""...];
 };
 
 @fini fn fini() void = {
-	free(args);
+	if (rt::argc >= len(args_static)) {
+		free(args);
+	};
 };
