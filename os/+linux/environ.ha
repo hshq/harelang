@@ -6,9 +6,18 @@ use types;
 // member is usually the name of the program.
 export let args: []str = [];
 
+// Statically allocate arg strings if there are few enough arguments, saves a
+// syscall if we don't need it.
+let args_static: [32]str = [""...];
+
 @init fn init() void = {
-	args = alloc([]str, [], rt::argc);
-	(&args: *types::slice).length = rt::argc; // HORRIBLE HACK
+	if (rt::argc < len(args_static)) {
+		args = args_static[..rt::argc];
+	} else {
+		args = alloc([]str, [], rt::argc);
+		(&args: *types::slice).length = rt::argc; // HORRIBLE HACK
+	};
+
 	for (let i = 0z; i < rt::argc; i += 1z) {
 		args[i] = strings::from_c(rt::argv[i]);
 	};
