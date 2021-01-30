@@ -44,5 +44,4 @@ export fn getenv(name: str) (str | void) = {
 			return strings::from_utf8(item[eq+1z..ln]);
 		};
 	};
-	return void;
 };
