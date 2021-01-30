@@ -1,7 +1,9 @@
 use io;
-use strconv;
+use os;
 
 export fn main() void = {
 	io::println("Hello, world!");
-	io::println(strconv::unsignedtos(1337u));
+	for (let i = 0z; i < len(os::args); i += 1z) {
+		io::println(os::args[i]);
+	};
 };

@@ -24,9 +24,11 @@ $(HARECACHE)/hare.ssa: $(hare_srcs)
 	@$(HAREC) -o $@ $(hare_srcs)
 
 hare_deps=\
+	$(stdlib_bytes) \
 	$(stdlib_io) \
+	$(stdlib_os) \
 	$(stdlib_strconv) \
-	$(stdlib_bytes)
+	$(stdlib_strings)
 
 hare: $(hare_deps) $(stdlib_rt) $(stdlib_start) $(HARECACHE)/hare.o
 	@printf 'LD\t$@\n'

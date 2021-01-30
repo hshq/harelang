@@ -75,6 +75,9 @@ stdlib_strconv=$(HARECACHE)/strconv/strconv.o
 # io
 libio_srcs=\
 	$(STDLIB)/io/println.ha
+	# TODO:
+	#$(STDLIB)/io/types.ha \
+	#$(STDLIB)/io/stream.ha
 
 $(HARECACHE)/io/io.ssa: $(libio_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -82,3 +85,28 @@ $(HARECACHE)/io/io.ssa: $(libio_srcs) $(stdlib_rt)
 	@$(HAREC) -o $@ -Nio -t$(HARECACHE)/io/io.td $(libio_srcs)
 
 stdlib_io=$(HARECACHE)/io/io.o
+
+# strings
+libstrings_srcs=\
+	$(STDLIB)/strings/cstrings.ha
+
+$(HARECACHE)/strings/strings.ssa: $(libstrings_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/strings
+	@$(HAREC) -o $@ -Nstrings -t$(HARECACHE)/strings/strings.td $(libstrings_srcs)
+
+stdlib_strings=$(HARECACHE)/strings/strings.o
+
+# os
+libos_srcs=\
+	$(STDLIB)/os/$(PLATFORM)/environ.ha \
+	$(STDLIB)/os/$(PLATFORM)/exit.ha
+
+libos_deps=$(stdlib_rt) $(stdlib_strings) $(stdlib_types)
+
+$(HARECACHE)/os/os.ssa: $(libos_srcs) $(libos_deps)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/os
+	@$(HAREC) -o $@ -Nos -t$(HARECACHE)/os/os.td $(libos_srcs)
+
+stdlib_os=$(HARECACHE)/os/os.o
