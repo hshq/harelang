@@ -10,10 +10,10 @@
 //	fn open(path: str) *io::stream = {
 //		let fd = // ...
 //		let stream = alloc(*my_stream, my_stream {
-//			name: strings::dup(path),
-//			reader: &my_stream_read,
-//			writer: &my_stream_write,
-//			closer: &my_stream_close,
+//			name   = strings::dup(path),
+//			reader = &my_stream_read,
+//			writer = &my_stream_write,
+//			closer = null,
 //			fd: fd,
 //			...
 //		});
