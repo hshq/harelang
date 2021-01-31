@@ -11,7 +11,7 @@ export let args: []str = [];
 // syscall if we don't need it.
 let args_static: [32]str = [""...];
 
-@init fn init() void = {
+@init fn init_environ() void = {
 	if (rt::argc < len(args_static)) {
 		args = args_static[..rt::argc];
 	} else {
@@ -24,7 +24,7 @@ let args_static: [32]str = [""...];
 	};
 };
 
-@fini fn fini() void = {
+@fini fn fini_environ() void = {
 	if (rt::argc >= len(args_static)) {
 		free(args);
 	};
