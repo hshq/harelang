@@ -45,7 +45,7 @@ export fn write(s: *stream, buf: const []u8) (size | error) = {
 };
 
 // Closes the stream.
-export fn close(s: *stream, buf: []u8) (error | void) = {
+export fn close(s: *stream) (error | void) = {
 	return match (s.closer) {
 		null => unsupported: error,
 		c: *closer => c(s),
