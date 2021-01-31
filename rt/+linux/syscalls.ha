@@ -6,6 +6,11 @@ fn syscall4(u64, u64, u64, u64, u64) u64;
 fn syscall5(u64, u64, u64, u64, u64, u64) u64;
 fn syscall6(u64, u64, u64, u64, u64, u64, u64) u64;
 
+export fn close(fd: int) int = syscall1(SYS_close, fd: u64): int;
+
+export fn read(fd: int, buf: *void, count: size) size =
+	syscall3(SYS_read, fd: u64, buf: uintptr: u64, count: u64): size;
+
 export fn write(fd: int, buf: *const void, count: size) size =
 	syscall3(SYS_write, fd: u64, buf: uintptr: u64, count: u64): size;
 
