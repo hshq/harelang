@@ -1,5 +1,6 @@
 use io;
 use rt;
+use strings;
 
 type fd_stream = struct {
 	stream: io::stream,
@@ -9,19 +10,16 @@ type fd_stream = struct {
 // Opens a Unix file descriptor as an io::stream. If 'name' is an empty string,
 // a name will be generated based on the file descriptor number.
 export fn fdopen(fd: int, name: str) *io::stream = {
-	// TODO: strings::dup the name, and if empty, generate a name from the
-	// file descriptor number.
-	//
-	// Also TODO: consider making the caller specify what subset of
-	// operations should be supported
-	let stream = alloc(*fd_stream, struct {
-		stream: io::stream = struct {
-			name: str = name,
-			reader: nullable *io::reader = &fd_read,
-			writer: nullable *io::writer = &fd_write,
-			closer: nullable *io::closer = &fd_close,
+	// TODO: consider making the caller specify what subset of operations
+	// should be supported
+	let stream = alloc(*fd_stream, fd_stream {
+		stream = io::stream {
+			name = strings::dup(name),
+			reader = &fd_read,
+			writer = &fd_write,
+			closer = &fd_close,
 		},
-		fd: int = fd,
+		fd = fd,
 	});
 	return &stream.stream;
 };
@@ -57,11 +55,11 @@ fn fd_close(s: *io::stream) void = {
 };
 
 fn static_fdopen(fd: int, name: str, stream: *fd_stream) void = {
-	stream.stream = struct {
-		name: str = name,
-		reader: nullable *io::reader = &fd_read,
-		writer: nullable *io::writer = &fd_write,
-		closer: nullable *io::closer = &fd_close,
+	stream.stream = io::stream {
+		name   = name,
+		reader = &fd_read,
+		writer = &fd_write,
+		closer = &fd_close,
 	};
 	stream.fd = fd;
 };

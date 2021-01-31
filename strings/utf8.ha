@@ -3,10 +3,10 @@ use types;
 // Converts a byte slice into a string WITHOUT checking that the byte slice is a
 // valid UTF-8 string.
 export fn from_utf8_unsafe(in: []u8) str = {
-	const s = struct { // TODO: Use types::string
-		data: *[*]u8   = (&in: *types::slice).data: *[*]u8,
-		length: size   = len(in),
-		capacity: size = len(in),
+	const s = types::string {
+		data     = (&in: *types::slice).data: *[*]u8,
+		length   = len(in),
+		capacity = len(in),
 	};
 	return *(&s: *const str);
 };

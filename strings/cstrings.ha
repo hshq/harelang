@@ -1,3 +1,5 @@
+use types;
+
 // Computes the length of a NUL-terminated C string, in octets, in O(n). The
 // computed length not include the NUL terminator in the length.
 export fn c_strlen(cstr: *const char) size = {
@@ -10,10 +12,10 @@ export fn c_strlen(cstr: *const char) size = {
 // Converts a C string to a Hare string in O(n).
 export fn from_c(cstr: *const char) const str = {
 	const l = c_strlen(cstr);
-	const s = struct { // TODO: Use types::string
-		data: *[*]u8   = cstr: *[*]u8,
-		length: size   = l,
-		capacity: size = l,
+	const s = types::string {
+		data     = cstr: *[*]u8,
+		length   = l,
+		capacity = l,
 	};
 	return *(&s: *const str);
 };
