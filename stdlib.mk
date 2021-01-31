@@ -35,6 +35,8 @@ stdlib_start=$(HARECACHE)/rt/start.o
 
 # bytes
 libbytes_srcs=\
+	$(STDLIB)/bytes/equal.ha \
+	$(STDLIB)/bytes/index.ha \
 	$(STDLIB)/bytes/reverse.ha
 
 $(HARECACHE)/bytes/bytes.ssa: $(libbytes_srcs) $(stdlib_rt)
@@ -88,9 +90,12 @@ stdlib_io=$(HARECACHE)/io/io.o
 
 # strings
 libstrings_srcs=\
-	$(STDLIB)/strings/cstrings.ha
+	$(STDLIB)/strings/cstrings.ha \
+	$(STDLIB)/strings/utf8.ha
 
-$(HARECACHE)/strings/strings.ssa: $(libstrings_srcs) $(stdlib_rt)
+libstrings_deps=$(stdlib_rt) $(stdlib_types)
+
+$(HARECACHE)/strings/strings.ssa: $(libstrings_srcs) $(libstrings_deps)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/strings
 	@$(HAREC) -o $@ -Nstrings -t$(HARECACHE)/strings/strings.td $(libstrings_srcs)
@@ -100,7 +105,8 @@ stdlib_strings=$(HARECACHE)/strings/strings.o
 # os
 libos_srcs=\
 	$(STDLIB)/os/$(PLATFORM)/environ.ha \
-	$(STDLIB)/os/$(PLATFORM)/exit.ha
+	$(STDLIB)/os/$(PLATFORM)/exit.ha \
+	$(STDLIB)/os/environ.ha
 
 libos_deps=$(stdlib_rt) $(stdlib_strings) $(stdlib_types)
 

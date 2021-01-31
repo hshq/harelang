@@ -2,8 +2,12 @@ use io;
 use os;
 
 export fn main() void = {
-	io::println("Hello, world!");
-	for (let i = 0z; i < len(os::args); i += 1z) {
-		io::println(os::args[i]);
+	if (len(os::args) < 2z) {
+		return;
+	};
+
+	match (os::getenv(os::args[1])) {
+		void => io::println("variable unset"),
+		var: str => io::println(var),
 	};
 };
