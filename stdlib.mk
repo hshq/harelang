@@ -35,6 +35,7 @@ stdlib_start=$(HARECACHE)/rt/start.o
 
 # bytes
 libbytes_srcs=\
+	$(STDLIB)/bytes/copy.ha \
 	$(STDLIB)/bytes/equal.ha \
 	$(STDLIB)/bytes/index.ha \
 	$(STDLIB)/bytes/reverse.ha
@@ -90,6 +91,7 @@ stdlib_io=$(HARECACHE)/io/io.o
 # strings
 libstrings_srcs=\
 	$(STDLIB)/strings/cstrings.ha \
+	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/utf8.ha
 
 libstrings_deps=$(stdlib_rt) $(stdlib_types)
