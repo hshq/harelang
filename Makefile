@@ -36,7 +36,7 @@ hare: $(hare_deps) $(stdlib_rt) $(stdlib_start) $(HARECACHE)/hare.o
 
 clean:
 	@rm -rf cache
-	@rm hare
+	@rm -f hare
 
 all: hare
 
