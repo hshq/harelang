@@ -65,3 +65,13 @@ fn static_fdopen(fd: int, name: str, stream: *fd_stream) void = {
 	};
 	stream.fd = fd;
 };
+
+// Returns the file descriptor for a given [io::stream]. If there is no fd
+// associated with this stream, void is returned.
+export fn streamfd(s: *io::stream) (int | void) = {
+	if (s.reader != &fd_read) {
+		return void;
+	};
+	let stream = s: *fd_stream;
+	return stream.fd;
+};
