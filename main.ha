@@ -2,12 +2,18 @@ use io;
 use os;
 
 export fn main() void = {
-	if (len(os::args) < 2z) {
-		return;
-	};
-
-	match (os::getenv(os::args[1])) {
-		void => io::println("variable unset"),
-		var: str => io::println(var),
+	let buf: [1024]u8 = [0u8...];
+	for (true) {
+		match (io::read(os::stdin, buf[..])) {
+			err: io::error => {
+				match (err) {
+					err: io::closed => {
+						break;
+					},
+					* => abort(),
+				};
+			},
+			n: size => io::write(os::stdout, buf[..n]),
+		};
 	};
 };

@@ -76,10 +76,9 @@ stdlib_strconv=$(HARECACHE)/strconv/strconv.o
 
 # io
 libio_srcs=\
-	$(STDLIB)/io/println.ha
-	# TODO:
-	#$(STDLIB)/io/types.ha \
-	#$(STDLIB)/io/stream.ha
+	$(STDLIB)/io/println.ha \
+	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/stream.ha
 
 $(HARECACHE)/io/io.ssa: $(libio_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -105,8 +104,12 @@ stdlib_strings=$(HARECACHE)/strings/strings.o
 # os
 libos_srcs=\
 	$(STDLIB)/os/$(PLATFORM)/environ.ha \
+	$(STDLIB)/os/$(PLATFORM)/errors.ha \
 	$(STDLIB)/os/$(PLATFORM)/exit.ha \
-	$(STDLIB)/os/environ.ha
+	$(STDLIB)/os/$(PLATFORM)/fdstream.ha \
+	$(STDLIB)/os/$(PLATFORM)/stdfd.ha \
+	$(STDLIB)/os/environ.ha \
+	$(STDLIB)/os/stdfd.ha
 
 libos_deps=$(stdlib_rt) $(stdlib_strings) $(stdlib_types)
 
