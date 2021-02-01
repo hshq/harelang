@@ -91,28 +91,13 @@ $(HARECACHE)/io/io.ssa: $(libio_srcs) $(stdlib_rt)
 
 stdlib_io=$(HARECACHE)/io/io.o
 
-# strings
-libstrings_srcs=\
-	$(STDLIB)/strings/cstrings.ha \
-	$(STDLIB)/strings/dup.ha \
-	$(STDLIB)/strings/utf8.ha
-
-libstrings_deps=$(stdlib_rt) $(stdlib_types)
-
-$(HARECACHE)/strings/strings.ssa: $(libstrings_srcs) $(libstrings_deps)
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/strings
-	@$(HAREC) -o $@ -Nstrings -t$(HARECACHE)/strings/strings.td $(libstrings_srcs)
-
-stdlib_strings=$(HARECACHE)/strings/strings.o
-
 # encoding/utf8
 # XXX: Also has ordering issues
 libencoding_utf8_srcs=\
 	$(STDLIB)/encoding/utf8/rune.ha \
 	$(STDLIB)/encoding/utf8/decode.ha
 
-libencoding_utf8_deps=$(stdlib_rt) $(stdlib_types) $(stdlib_strings)
+libencoding_utf8_deps=$(stdlib_rt) $(stdlib_types)
 
 $(HARECACHE)/encoding/utf8/encoding.utf8.ssa: $(libencoding_utf8_srcs) $(libencoding_utf8_deps)
 	@printf 'HAREC \t$@\n'
@@ -120,6 +105,22 @@ $(HARECACHE)/encoding/utf8/encoding.utf8.ssa: $(libencoding_utf8_srcs) $(libenco
 	@$(HAREC) -o $@ -Nencoding::utf8 -t$(HARECACHE)/encoding/utf8/encoding.utf8.td $(libencoding_utf8_srcs)
 
 stdlib_encoding_utf8=$(HARECACHE)/encoding/utf8/encoding.utf8.o
+
+# strings
+libstrings_srcs=\
+	$(STDLIB)/strings/cstrings.ha \
+	$(STDLIB)/strings/dup.ha \
+	$(STDLIB)/strings/iter.ha \
+	$(STDLIB)/strings/utf8.ha
+
+libstrings_deps=$(stdlib_rt) $(stdlib_types) $(stdlib_encoding_utf8)
+
+$(HARECACHE)/strings/strings.ssa: $(libstrings_srcs) $(libstrings_deps)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/strings
+	@$(HAREC) -o $@ -Nstrings -t$(HARECACHE)/strings/strings.td $(libstrings_srcs)
+
+stdlib_strings=$(HARECACHE)/strings/strings.o
 
 # fmt
 libfmt_srcs=\
