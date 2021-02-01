@@ -14,7 +14,7 @@ export fn fdopen(fd: int, name: str) *io::stream = {
 	// should be supported
 	let stream = alloc(*fd_stream, fd_stream {
 		stream = io::stream {
-			name = strings::dup(name),
+			name   = strings::dup(name),
 			reader = &fd_read,
 			writer = &fd_write,
 			closer = &fd_close,
@@ -49,11 +49,9 @@ fn fd_read(s: *io::stream, buf: []u8) (size | io::error) = {
 	let r = rt::read(stream.fd, (&buf: *types::slice).data: *[*]u8, len(buf));
 	return match (rt::wrap_return(r)) {
 		err: rt::errno => errno_to_io(err),
-		n: size => {
-			switch (n) {
-				0z => io::closed: io::error,
-				*  => n,
-			};
+		n: size => switch (n) {
+			0z => io::closed: io::error,
+			*  => n,
 		},
 	};
 };
