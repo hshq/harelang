@@ -15,7 +15,7 @@ export fn main() void = {
 	for (true) {
 		match (io::read(in, buf[..])) {
 			err: io::error => match (err) {
-				err: io::closed => break,
+				io::closed => break,
 				* => fatal(io::errstr(err)),
 			},
 			n: size => match (io::write(os::stdout, buf[..n])) {
