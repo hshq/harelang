@@ -28,7 +28,7 @@ export type stream = struct {
 
 // Reads up to len(buf) bytes from the reader into the given buffer, returning
 // the number of bytes read.
-export fn read(s: *stream, buf: []u8) (size | error) = {
+export fn read(s: *stream, buf: []u8) (size | EOF | error) = {
 	return match (s.reader) {
 		null => unsupported: error,
 		r: *reader => r(s, buf),

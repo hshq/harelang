@@ -5,10 +5,7 @@ export fn copy(dest: *stream, src: *stream) (error | size) = {
 	let buf: [4096]u8 = [0u8...];
 	for (true) {
 		match (read(src, buf[..])) {
-			err: error => match (err) {
-				closed => break,
-				* => return err,
-			},
+			err: error => return err,
 			n: size => match (write(dest, buf[..n])) {
 				err: error => return err,
 				r: size => {
@@ -16,6 +13,7 @@ export fn copy(dest: *stream, src: *stream) (error | size) = {
 					w += n;
 				},
 			},
+			EOF => break,
 		};
 	};
 	return w;

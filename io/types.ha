@@ -13,6 +13,9 @@ export type unsupported = void;
 // Any error which may be returned from an I/O function.
 export type error = (os_error | closed | unsupported);
 
+// Indicates an end-of-file condition.
+export type EOF = void;
+
 // Converts an I/O error into a user-friendly string.
 export fn errstr(err: error) str = {
 	return match (err) {
@@ -31,7 +34,7 @@ export type mode = enum uint {
 // The interface for a stream which can be read from. Reads up to len(buf)
 // bytes from the reader into the given buffer, returning the number of bytes
 // read or an error.
-export type reader = fn(s: *stream, buf: []u8) (size | error);
+export type reader = fn(s: *stream, buf: []u8) (size | EOF | error);
 
 // The interface for a stream which can be written to. Writes up to len(buf)
 // bytes to the writer from the given buffer, returning the number of bytes

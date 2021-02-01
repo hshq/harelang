@@ -44,14 +44,15 @@ fn static_fdopen(fd: int, name: str, stream: *fd_stream) void = {
 	stream.fd = fd;
 };
 
-fn fd_read(s: *io::stream, buf: []u8) (size | io::error) = {
+fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let stream = s: *fd_stream;
 	let r = rt::read(stream.fd, (&buf: *types::slice).data: *[*]u8, len(buf));
 	return match (rt::wrap_return(r)) {
 		err: rt::errno => errno_to_io(err),
 		n: size => switch (n) {
-			0z => io::closed: io::error,
-			*  => n,
+			// TODO: Fix me when swich is fixed up
+			0z => io::EOF: (size | io::EOF | io::error),
+			*  => n: (size | io::EOF | io::error),
 		},
 	};
 };
