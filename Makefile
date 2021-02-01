@@ -12,7 +12,7 @@ hare:
 
 .s.o:
 	@printf 'AS\t$@\n'
-	@$(AS) -o $@ $<
+	@$(AS) -g -o $@ $<
 
 include stdlib.mk
 
@@ -25,6 +25,7 @@ $(HARECACHE)/hare.ssa: $(hare_srcs)
 
 hare_deps=\
 	$(stdlib_bytes) \
+	$(stdlib_fmt) \
 	$(stdlib_io) \
 	$(stdlib_os) \
 	$(stdlib_strconv) \

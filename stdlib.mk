@@ -103,12 +103,26 @@ $(HARECACHE)/strings/strings.ssa: $(libstrings_srcs) $(libstrings_deps)
 
 stdlib_strings=$(HARECACHE)/strings/strings.o
 
+# fmt
+libfmt_srcs=\
+	$(STDLIB)/fmt/fmt.ha
+
+libfmt_deps=$(stdlib_rt) $(stdlib_types) $(stdlib_io)
+
+$(HARECACHE)/fmt/fmt.ssa: $(libfmt_srcs) $(libfmt_deps)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/fmt
+	@$(HAREC) -o $@ -Nfmt -t$(HARECACHE)/fmt/fmt.td $(libfmt_srcs)
+
+stdlib_fmt=$(HARECACHE)/fmt/fmt.o
+
 # os
 libos_srcs=\
 	$(STDLIB)/os/$(PLATFORM)/environ.ha \
 	$(STDLIB)/os/$(PLATFORM)/errors.ha \
 	$(STDLIB)/os/$(PLATFORM)/exit.ha \
 	$(STDLIB)/os/$(PLATFORM)/fdstream.ha \
+	$(STDLIB)/os/$(PLATFORM)/open.ha \
 	$(STDLIB)/os/$(PLATFORM)/stdfd.ha \
 	$(STDLIB)/os/environ.ha \
 	$(STDLIB)/os/stdfd.ha
