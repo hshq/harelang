@@ -25,6 +25,7 @@ $(HARECACHE)/hare.ssa: $(hare_srcs)
 
 hare_deps=\
 	$(stdlib_bytes) \
+	$(stdlib_encoding_utf8) \
 	$(stdlib_fmt) \
 	$(stdlib_io) \
 	$(stdlib_os) \

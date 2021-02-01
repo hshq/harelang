@@ -106,6 +106,21 @@ $(HARECACHE)/strings/strings.ssa: $(libstrings_srcs) $(libstrings_deps)
 
 stdlib_strings=$(HARECACHE)/strings/strings.o
 
+# encoding/utf8
+# XXX: Also has ordering issues
+libencoding_utf8_srcs=\
+	$(STDLIB)/encoding/utf8/rune.ha \
+	$(STDLIB)/encoding/utf8/decode.ha
+
+libencoding_utf8_deps=$(stdlib_rt) $(stdlib_types) $(stdlib_strings)
+
+$(HARECACHE)/encoding/utf8/encoding.utf8.ssa: $(libencoding_utf8_srcs) $(libencoding_utf8_deps)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/encoding/utf8
+	@$(HAREC) -o $@ -Nencoding::utf8 -t$(HARECACHE)/encoding/utf8/encoding.utf8.td $(libencoding_utf8_srcs)
+
+stdlib_encoding_utf8=$(HARECACHE)/encoding/utf8/encoding.utf8.o
+
 # fmt
 libfmt_srcs=\
 	$(STDLIB)/fmt/fmt.ha
