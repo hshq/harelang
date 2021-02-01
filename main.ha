@@ -6,10 +6,7 @@ export fn main() void = {
 	if (len(os::args) > 1z) {
 		in = match (os::open(os::args[1], io::mode::RDONLY)) {
 			stream: *io::stream => stream,
-			err: io::error => {
-				io::errorln(io::errstr(err));
-				os::exit(1);
-			},
+			err: io::error => fatal(io::errstr(err)),
 		};
 	};
 	defer io::close(in);
@@ -19,18 +16,17 @@ export fn main() void = {
 		match (io::read(in, buf[..])) {
 			err: io::error => match (err) {
 				err: io::closed => break,
-				* => {
-					io::errorln(io::errstr(err));
-					os::exit(1);
-				},
+				* => fatal(io::errstr(err)),
 			},
 			n: size => match (io::write(os::stdout, buf[..n])) {
-				err: io::error => {
-					io::errorln(io::errstr(err));
-					os::exit(1);
-				},
+				err: io::error => fatal(io::errstr(err)),
 				* => void,
 			},
 		};
 	};
+};
+
+@noreturn fn fatal(why: str) void = {
+	io::errorln(why);
+	os::exit(1);
 };
