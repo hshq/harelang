@@ -44,30 +44,30 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 	let bytes = d.src[d.offs..d.offs+n];
 	d.offs += n;
 
-	let cp = 0u32;
+	let r = 0u32;
 	if (bytes[0] < 128u8) {
 		// ASCII
 		return bytes[0]: u32: rune;
 	};
 
 	const mask = masks[n - 1z];
-	cp = bytes[0] & mask;
+	r = bytes[0] & mask;
 	for (let i = 1z; i < len(bytes); i += 1z) {
-		cp <<= 6u8;
-		cp |= bytes[i] & 0x3Fu8;
+		r <<= 6u8;
+		r |= bytes[i] & 0x3Fu8;
 	};
-	return cp: rune;
+	return r: rune;
 };
 
 fn utf8sz(src: []u8) size = {
-	assert(sizes[0].octets == 1z);
-
 	assert(len(src) > 0z);
+
 	let c = src[0];
 	for (let i = 0z; i < len(sizes); i += 1z) {
 		if (c & sizes[i].mask == sizes[i].result) {
 			return sizes[i].octets;
 		};
 	};
+
 	return types::SIZE_MAX;
 };
