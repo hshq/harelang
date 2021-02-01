@@ -4,7 +4,7 @@ use types;
 // valid UTF-8 string.
 export fn from_utf8_unsafe(in: []u8) str = {
 	const s = types::string {
-		data     = (&in: *types::slice).data: *[*]u8,
+		data     = in: *[*]u8,
 		length   = len(in),
 		capacity = len(in),
 	};

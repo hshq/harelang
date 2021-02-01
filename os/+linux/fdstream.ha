@@ -46,7 +46,7 @@ fn static_fdopen(fd: int, name: str, stream: *fd_stream) void = {
 
 fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let stream = s: *fd_stream;
-	let r = rt::read(stream.fd, (&buf: *types::slice).data: *[*]u8, len(buf));
+	let r = rt::read(stream.fd, buf: *[*]u8, len(buf));
 	return match (rt::wrap_return(r)) {
 		err: rt::errno => errno_to_io(err),
 		n: size => switch (n) {
@@ -59,8 +59,7 @@ fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 
 fn fd_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let stream = s: *fd_stream;
-	let r = rt::write(stream.fd,
-		(&buf: *types::slice).data: *const [*]u8, len(buf));
+	let r = rt::write(stream.fd, buf: *const [*]u8, len(buf));
 	return match (rt::wrap_return(r)) {
 		err: rt::errno => errno_to_io(err),
 		n: size => n,

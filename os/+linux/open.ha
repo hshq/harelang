@@ -18,8 +18,7 @@ export fn open(path: (str | []u8), mode: io::mode) (*io::stream | io::error) = {
 		b: []u8 => "<open([]u8)>", // TODO: try to decode it?
 	};
 
-	// TODO: Cast slice to array
-	let r = rt::open((&p: *types::slice).data: *const char, mode: int, 0u);
+	let r = rt::open(p: *[*]u8: *const char, mode: int, 0u);
 	let fd: int = match (rt::wrap_return(r)) {
 		err: rt::errno => return errno_to_io(err),
 		n: size => n: int,
