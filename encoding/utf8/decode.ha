@@ -1,5 +1,6 @@
-use strings;
 use types;
+
+fn to_utf8(in: str) []u8 = *(&in: *[]u8);
 
 // The state for the UTF-8 decoder.
 export type decoder = struct {
@@ -11,7 +12,7 @@ export type decoder = struct {
 export fn decode(src: (str | []u8)) decoder = match (src) {
 	s: str => decoder {
 		offs = 0z,
-		src  = strings::to_utf8(s),
+		src  = to_utf8(s),
 	},
 	b: []u8 => decoder {
 		offs = 0z,
