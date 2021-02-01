@@ -1,7 +1,7 @@
 use types;
 
 // Computes the length of a NUL-terminated C string, in octets, in O(n). The
-// computed length not include the NUL terminator in the length.
+// computed length does not include the NUL terminator.
 export fn c_strlen(cstr: *const char) size = {
 	const ptr = cstr: *[*]u8;
 	let ln = 0z;
@@ -11,6 +11,7 @@ export fn c_strlen(cstr: *const char) size = {
 
 // Converts a C string to a Hare string in O(n).
 export fn from_c(cstr: *const char) const str = {
+	// TODO: Validate UTF-8?
 	const l = c_strlen(cstr);
 	const s = types::string {
 		data     = cstr: *[*]u8,
