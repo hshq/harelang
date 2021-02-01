@@ -9,13 +9,11 @@ export fn copy(dest: *stream, src: *stream) (error | size) = {
 				closed => break,
 				* => return err,
 			},
-			n: size => {
-				match (write(dest, buf[..n])) {
-					err: error => return err,
-					size => {
-						w += n;
-					},
-				};
+			n: size => match (write(dest, buf[..n])) {
+				err: error => return err,
+				size => {
+					w += n;
+				},
 			},
 		};
 	};
