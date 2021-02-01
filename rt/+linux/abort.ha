@@ -7,7 +7,7 @@ export @noreturn @symbol("rt.abort") fn _abort(msg: str) void = {
 };
 
 // See harec:include/gen.h
-const reasons: [3]str = [
+const reasons: [_]str = [
 	"slice or array access out of bounds",	// 0
 	"type assertion failed",		// 1
 	"out of memory",			// 2

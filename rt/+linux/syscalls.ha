@@ -6,13 +6,16 @@ fn syscall4(u64, u64, u64, u64, u64) u64;
 fn syscall5(u64, u64, u64, u64, u64, u64) u64;
 fn syscall6(u64, u64, u64, u64, u64, u64, u64) u64;
 
-export fn close(fd: int) int = syscall1(SYS_close, fd: u64): int;
-
 export fn read(fd: int, buf: *void, count: size) size =
 	syscall3(SYS_read, fd: u64, buf: uintptr: u64, count: u64): size;
 
 export fn write(fd: int, buf: *const void, count: size) size =
 	syscall3(SYS_write, fd: u64, buf: uintptr: u64, count: u64): size;
+
+export fn open(path: *const char, flags: int, mode: uint) size =
+	syscall3(SYS_open, path: uintptr: u64, flags: u64, mode: u64): size;
+
+export fn close(fd: int) int = syscall1(SYS_close, fd: u64): int;
 
 export fn getpid() int = syscall0(SYS_getpid): int;
 

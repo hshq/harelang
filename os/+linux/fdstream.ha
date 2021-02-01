@@ -24,6 +24,26 @@ export fn fdopen(fd: int, name: str) *io::stream = {
 	return &stream.stream;
 };
 
+// Returns the file descriptor for a given [io::stream]. If there is no fd
+// associated with this stream, void is returned.
+export fn streamfd(s: *io::stream) (int | void) = {
+	if (s.reader != &fd_read) {
+		return void;
+	};
+	let stream = s: *fd_stream;
+	return stream.fd;
+};
+
+fn static_fdopen(fd: int, name: str, stream: *fd_stream) void = {
+	stream.stream = io::stream {
+		name   = name,
+		reader = &fd_read,
+		writer = &fd_write,
+		closer = &fd_close,
+	};
+	stream.fd = fd;
+};
+
 fn fd_read(s: *io::stream, buf: []u8) (size | io::error) = {
 	let stream = s: *fd_stream;
 	let r = rt::read(stream.fd, (&buf: *types::slice).data: *[*]u8, len(buf));
@@ -52,24 +72,4 @@ fn fd_close(s: *io::stream) void = {
 	let stream = s: *fd_stream;
 	rt::close(stream.fd);
 	free(stream);
-};
-
-fn static_fdopen(fd: int, name: str, stream: *fd_stream) void = {
-	stream.stream = io::stream {
-		name   = name,
-		reader = &fd_read,
-		writer = &fd_write,
-		closer = &fd_close,
-	};
-	stream.fd = fd;
-};
-
-// Returns the file descriptor for a given [io::stream]. If there is no fd
-// associated with this stream, void is returned.
-export fn streamfd(s: *io::stream) (int | void) = {
-	if (s.reader != &fd_read) {
-		return void;
-	};
-	let stream = s: *fd_stream;
-	return stream.fd;
 };
