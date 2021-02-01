@@ -2,6 +2,7 @@ use io;
 use rt;
 use strings;
 
+// Opens a file from the filesystem.
 export fn open(path: (str | []u8), mode: io::mode) (*io::stream | io::error) = {
 	// Verify that these line up with the Linux ABI:
 	static assert(io::mode::RDONLY: uint == 0u);
