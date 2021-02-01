@@ -22,6 +22,12 @@ export fn errstr(err: error) str = {
 	};
 };
 
+export type mode = enum uint {
+	RDONLY = 0u,
+	WRONLY = 1u,
+	RDWR   = 2u,
+};
+
 // The interface for a stream which can be read from. Reads up to len(buf)
 // bytes from the reader into the given buffer, returning the number of bytes
 // read or an error.
