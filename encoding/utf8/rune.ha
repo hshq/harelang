@@ -1,8 +1,5 @@
 use types;
 
-// An error indicating that an invalid UTF-8 sequence was found.
-export type invalid = void;
-
 const masks: [_]u8 = [0x7Fu8, 0x1Fu8, 0x0Fu8, 0x07u8, 0x03u8, 0x01u8];
 
 type rsize = struct {

@@ -7,20 +7,24 @@ export type decoder = struct {
 	src: []u8,
 };
 
-export fn decode(src: str) decoder = decoder {
-	offs = 0z,
-	src  = strings::to_utf8(src),
+// Initializes a new UTF-8 decoder.
+export fn decode(src: (str | []u8)) decoder = match (src) {
+	s: str => decoder {
+		offs = 0z,
+		src  = strings::to_utf8(s),
+	},
+	b: []u8 => decoder {
+		offs = 0z,
+		src  = b,
+	},
 };
 
-// Initializes a new UTF-8 decoder for a byte slice.
-export fn decode_bytes(src: []u8) decoder = decoder {
-	offs = 0z,
-	src  = src,
-};
-
-// Indicates that more data is needed, or that a partial UTF-8 sequence was
+// Indicates that more data is needed, i.e. that a partial UTF-8 sequence was
 // encountered.
 export type more = void;
+
+// An error indicating that an invalid UTF-8 sequence was found.
+export type invalid = void;
 
 // Returns the next rune from a decoder. If the slice ends with a complete UTF-8
 // sequence, void is returned. If an incomplete sequence is encountered, more is
