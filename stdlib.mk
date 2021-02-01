@@ -76,9 +76,12 @@ $(HARECACHE)/strconv/strconv.ssa: $(stdlib_rt) $(stdlib_bytes) $(stdlib_types)
 stdlib_strconv=$(HARECACHE)/strconv/strconv.o
 
 # io
+# XXX: Sort me only after fixing forward references to alias types
+# Sort it to see what the problem is if you don't understand
 libio_srcs=\
-	$(STDLIB)/io/println.ha \
 	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/copy.ha \
+	$(STDLIB)/io/println.ha \
 	$(STDLIB)/io/stream.ha
 
 $(HARECACHE)/io/io.ssa: $(libio_srcs) $(stdlib_rt)

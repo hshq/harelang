@@ -2,26 +2,24 @@ use io;
 use os;
 
 export fn main() void = {
-	let in = os::stdin;
-	if (len(os::args) > 1z) {
-		in = match (os::open(os::args[1], io::mode::RDONLY)) {
+	if (len(os::args) == 1z) {
+		match (io::copy(os::stdout, os::stdin)) {
+			err: io::error => fatal(io::errstr(err)),
+			size => void,
+		};
+		return;
+	};
+
+	for (let i = 1z; i < len(os::args); i += 1z) {
+		let in: *io::stream = match (os::open(os::args[i], io::mode::RDONLY)) {
 			stream: *io::stream => stream,
 			err: io::error => fatal(io::errstr(err)),
 		};
-	};
-	defer io::close(in);
+		defer io::close(in);
 
-	let buf: [1024]u8 = [0u8...];
-	for (true) {
-		match (io::read(in, buf[..])) {
-			err: io::error => match (err) {
-				io::closed => break,
-				* => fatal(io::errstr(err)),
-			},
-			n: size => match (io::write(os::stdout, buf[..n])) {
-				err: io::error => fatal(io::errstr(err)),
-				* => void,
-			},
+		match (io::copy(os::stdout, in)) {
+			err: io::error => fatal(io::errstr(err)),
+			size => void,
 		};
 	};
 };
