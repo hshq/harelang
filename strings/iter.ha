@@ -1,13 +1,6 @@
 use encoding::utf8;
 
 // An iterator which yields each rune from a string.
-//
-// [iterator] is very similar to [encoding::utf8::decoder], and in fact is based
-// on it. However, an invariant of Hare is that a 'str' type always contains a
-// complete, valid UTF-8 string. [iterator] differs from
-// [encoding::utf8::decoder] in that it assumes that the string is valid, and
-// aborts the program otherwise. This reduces the number of error cases your
-// code has to handle when you know you're only dealing with valid strings.
 export type iterator = utf8::decoder;
 
 // Initializes a string iterator.
