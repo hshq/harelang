@@ -11,7 +11,8 @@ export fn copy(dest: *stream, src: *stream) (error | size) = {
 			},
 			n: size => match (write(dest, buf[..n])) {
 				err: error => return err,
-				size => {
+				r: size => {
+					assert(r == n); // TODO?
 					w += n;
 				},
 			},
