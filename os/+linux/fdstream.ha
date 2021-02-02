@@ -91,7 +91,7 @@ def SENDFILE_MAX: size = 2147479552z;
 
 fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
 	if (!is_fdstream(_from)) {
-		return copy_fallback(_to, _from);
+		return io::unsupported;
 	};
 
 	let to = _to: *fd_stream, from = _from: *fd_stream;
@@ -102,8 +102,10 @@ fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
 		let n = match(rt::wrap_return(r)) {
 			err: rt::errno => switch (err) {
 				rt::EINVAL => {
-					assert(sum == 0z);
-					return copy_fallback(_to, _from);
+					if (sum == 0z) {
+						return io::unsupported;
+					};
+					return errno_to_io(err);
 				},
 				* => return errno_to_io(err),
 			},
@@ -118,10 +120,4 @@ fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
 		from.offs += n;
 	};
 	return sum;
-};
-
-fn copy_fallback(_to: *io::stream, _from: *io::stream) (size | io::error) = {
-	let to = _to: *fd_stream, temp = *to;
-	temp.stream.copier = null;
-	return io::copy(&temp.stream, _from);
 };

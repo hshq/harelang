@@ -3,7 +3,13 @@
 export fn copy(dest: *stream, src: *stream) (error | size) = {
 	match (dest.copier) {
 		null       => void,
-		c: *copier => return c(dest, src),
+		c: *copier => match (c(dest, src)) {
+			err: error => match (err) {
+				unsupported => void, // Use fallback
+				* => return err,
+			},
+			s: size    => return s,
+		},
 	};
 
 	let w = 0z;

@@ -53,6 +53,8 @@ export type closer = fn(s: *stream) void;
 // with a stream which does not implement this (it falls back to calling read
 // and write in a loop).
 //
-// Returns the number of bytes copied, or an error if one occured. Does not
-// close either stream.
+// Returns the number of bytes copied, or an error if one occured. Do not close
+// either stream. If the operation is unsupported for this particular pair of
+// streams, return [io::unsupported] to have [io::copy] proceed with its
+// fallback implementation.
 export type copier = fn(to: *stream, from: *stream) (size | error);
