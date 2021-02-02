@@ -24,6 +24,7 @@ $(HARECACHE)/hare.ssa: $(hare_srcs)
 	@$(HAREC) -o $@ $(hare_srcs)
 
 hare_deps=\
+	$(stdlib_ascii) \
 	$(stdlib_bytes) \
 	$(stdlib_encoding_utf8) \
 	$(stdlib_fmt) \

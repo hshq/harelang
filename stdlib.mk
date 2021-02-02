@@ -33,6 +33,17 @@ $(HARECACHE)/rt/rt.a: $(HARECACHE)/rt/rt.o $(HARECACHE)/rt/syscall.o
 stdlib_rt=$(HARECACHE)/rt/rt.a
 stdlib_start=$(HARECACHE)/rt/start.o
 
+# ascii
+libascii_srcs=\
+	$(STDLIB)/ascii/ctype.ha
+
+$(HARECACHE)/ascii/ascii.ssa: $(libascii_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/ascii
+	@$(HAREC) -o $@ -Nascii -t$(HARECACHE)/ascii/ascii.td $(libascii_srcs)
+
+stdlib_ascii=$(HARECACHE)/ascii/ascii.o
+
 # bytes
 libbytes_srcs=\
 	$(STDLIB)/bytes/copy.ha \
@@ -95,7 +106,8 @@ stdlib_io=$(HARECACHE)/io/io.o
 # XXX: Also has ordering issues
 libencoding_utf8_srcs=\
 	$(STDLIB)/encoding/utf8/rune.ha \
-	$(STDLIB)/encoding/utf8/decode.ha
+	$(STDLIB)/encoding/utf8/decode.ha \
+	$(STDLIB)/encoding/utf8/encode.ha
 
 libencoding_utf8_deps=$(stdlib_rt) $(stdlib_types)
 
@@ -126,7 +138,11 @@ stdlib_strings=$(HARECACHE)/strings/strings.o
 libfmt_srcs=\
 	$(STDLIB)/fmt/fmt.ha
 
-libfmt_deps=$(stdlib_rt) $(stdlib_types) $(stdlib_io)
+libfmt_deps=$(stdlib_rt) \
+	    $(stdlib_io) \
+	    $(stdlib_strconv) \
+	    $(stdlib_strings) \
+	    $(stdlib_types)
 
 $(HARECACHE)/fmt/fmt.ssa: $(libfmt_srcs) $(libfmt_deps)
 	@printf 'HAREC \t$@\n'
