@@ -1,3 +1,4 @@
+use encoding::utf8;
 use types;
 
 // Converts a byte slice into a string WITHOUT checking that the byte slice is a
@@ -15,8 +16,9 @@ export fn from_utf8_unsafe(in: []u8) str = {
 // UTF-8. To handle such an error without aborting, see
 // [encoding::utf8::decode] instead.
 export fn from_utf8(in: []u8) str = {
-	// TODO: Validate string
-	return from_utf8_unsafe(in);
+	let s = from_utf8_unsafe(in);
+	assert(utf8::valid(s));
+	return s;
 };
 
 // Converts a string to a UTF-8 slice.

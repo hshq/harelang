@@ -1,3 +1,4 @@
+use encoding::utf8;
 use types;
 
 // Computes the length of a NUL-terminated C string, in octets, in O(n). The
@@ -9,9 +10,9 @@ export fn c_strlen(cstr: *const char) size = {
 	return ln;
 };
 
-// Converts a C string to a Hare string in O(n).
-export fn from_c(cstr: *const char) const str = {
-	// TODO: Validate UTF-8?
+// Converts a C string to a Hare string in O(n), and does not check if it's
+// valid UTF-8.
+export fn from_c_unsafe(cstr: *const char) const str = {
 	const l = c_strlen(cstr);
 	const s = types::string {
 		data     = cstr: *[*]u8,
@@ -19,4 +20,12 @@ export fn from_c(cstr: *const char) const str = {
 		capacity = l,
 	};
 	return *(&s: *const str);
+};
+
+// Converts a C string to a Hare string in O(n). If the string is not valid
+// UTF-8, abort.
+export fn from_c(cstr: *const char) const str = {
+	let s = from_c_unsafe(cstr);
+	assert(utf8::valid(s));
+	return s;
 };
