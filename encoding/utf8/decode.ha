@@ -60,6 +60,19 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 	return r: rune;
 };
 
+export fn valid(src: (str | []u8)) bool = {
+	let decoder = decode(src);
+	for (true) {
+		match (next(&decoder)) {
+			void    => return true,
+			invalid => return false,
+			more    => return false,
+			rune    => void,
+		};
+	};
+	abort();
+};
+
 fn utf8sz(src: []u8) size = {
 	assert(len(src) > 0z);
 
