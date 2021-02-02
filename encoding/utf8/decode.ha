@@ -61,9 +61,8 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 };
 
 // Returns true if a given string or byte slice contains only valid UTF-8
-// sequences. Note that a Hare invariant states that all strings are valid
-// UTF-8 - if this ever returns false for a str type, someone is doing something
-// funny.
+// sequences. Note that Hare strings (str) are always valid UTF-8 - if this
+// returns false for a str type, something funny is going on.
 export fn valid(src: (str | []u8)) bool = {
 	let decoder = decode(src);
 	for (true) {
