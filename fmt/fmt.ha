@@ -54,15 +54,13 @@ export fn fprintf(
 	return n;
 };
 
-fn format(out: *io::stream, arg: formattable) void = {
-	match (arg) {
-		// TODO: Use types::numeric (and strconv::numtos) when match is
-		// more fleshed out
-		i: int => {
-			let s = strconv::itos(i);
-			io::write(out, strings::to_utf8(s));
-		},
-		s: str => io::write(out, strings::to_utf8(s)),
-		* => abort("TODO: implement more formattable values"),
-	};
+fn format(out: *io::stream, arg: formattable) void = match (arg) {
+	// TODO: Use types::numeric (and strconv::numtos) when match is
+	// more fleshed out
+	i: int => {
+		let s = strconv::itos(i);
+		io::write(out, strings::to_utf8(s));
+	},
+	s: str => io::write(out, strings::to_utf8(s)),
+	* => abort("TODO: implement more formattable values"),
 };
