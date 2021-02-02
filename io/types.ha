@@ -46,3 +46,13 @@ export type writer = fn(s: *stream, buf: const []u8) (size | error);
 // itself. The other stream functions may be called after close is called; it is
 // their responsibility to return [io::closed] in this case.
 export type closer = fn(s: *stream) void;
+
+// The interface for a stream which has first-class support for copying data
+// from another stream. Often this only works if the second stream is of the
+// same underlying stream type. This is optional, [io::copy] still works even
+// with a stream which does not implement this (it falls back to calling read
+// and write in a loop).
+//
+// Returns the number of bytes copied, or an error if one occured. Does not
+// close either stream.
+export type copier = fn(to: *stream, from: *stream) (size | error);

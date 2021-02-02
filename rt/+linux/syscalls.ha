@@ -19,6 +19,9 @@ export fn close(fd: int) int = syscall1(SYS_close, fd: u64): int;
 
 export fn getpid() int = syscall0(SYS_getpid): int;
 
+export fn sendfile(out: int, in: int, offs: *size, count: size) size =
+	syscall4(SYS_sendfile, out: u64, in: u64, offs: uintptr: u64, count: u64): size;
+
 export @noreturn fn exit(status: int) void = syscall1(SYS_exit, status: u64);
 
 export fn kill(pid: int, signal: int) int =

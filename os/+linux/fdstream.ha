@@ -5,6 +5,7 @@ use strings;
 type fd_stream = struct {
 	stream: io::stream,
 	fd: int,
+	offs: size,
 };
 
 // Opens a Unix file descriptor as an io::stream. If 'name' is an empty string,
@@ -18,16 +19,25 @@ export fn fdopen(fd: int, name: str) *io::stream = {
 			reader = &fd_read,
 			writer = &fd_write,
 			closer = &fd_close,
+			copier = &fd_copy,
 		},
 		fd = fd,
+		offs = 0z,
 	});
 	return &stream.stream;
+};
+
+fn is_fdstream(s: *io::stream) bool = {
+	return s.reader == &fd_read
+		|| s.writer == &fd_write
+		|| s.closer == &fd_close
+		|| s.copier == &fd_copy;
 };
 
 // Returns the file descriptor for a given [io::stream]. If there is no fd
 // associated with this stream, void is returned.
 export fn streamfd(s: *io::stream) (int | void) = {
-	if (s.reader != &fd_read) {
+	if (!is_fdstream(s)) {
 		return void;
 	};
 	let stream = s: *fd_stream;
@@ -51,7 +61,10 @@ fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 		err: rt::errno => errno_to_io(err),
 		n: size => switch (n) {
 			0z => io::EOF,
-			*  => n,
+			*  => {
+				stream.offs += n;
+				n;
+			},
 		},
 	};
 };
@@ -61,7 +74,10 @@ fn fd_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let r = rt::write(stream.fd, buf: *const [*]u8, len(buf));
 	return match (rt::wrap_return(r)) {
 		err: rt::errno => errno_to_io(err),
-		n: size => n,
+		n: size => {
+			stream.offs += n;
+			n;
+		},
 	};
 };
 
@@ -69,4 +85,43 @@ fn fd_close(s: *io::stream) void = {
 	let stream = s: *fd_stream;
 	rt::close(stream.fd);
 	free(stream);
+};
+
+def SENDFILE_MAX: size = 2147479552z;
+
+fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
+	if (!is_fdstream(_from)) {
+		return copy_fallback(_to, _from);
+	};
+
+	let to = _to: *fd_stream, from = _from: *fd_stream;
+	let offs = to.offs;
+	let sum = 0z;
+	for (true) {
+		let r = rt::sendfile(to.fd, from.fd, &offs, SENDFILE_MAX);
+		let n = match(rt::wrap_return(r)) {
+			err: rt::errno => switch (err) {
+				rt::EINVAL => {
+					assert(sum == 0z);
+					return copy_fallback(_to, _from);
+				},
+				* => return errno_to_io(err),
+			},
+			n: size => switch (n) {
+				0z => return sum,
+				*  => n,
+			},
+		};
+		let w = offs - n;
+		sum += w;
+		to.offs += n;
+		from.offs += n;
+	};
+	return sum;
+};
+
+fn copy_fallback(_to: *io::stream, _from: *io::stream) (size | io::error) = {
+	let to = _to: *fd_stream, temp = *to;
+	temp.stream.copier = null;
+	return io::copy(&temp.stream, _from);
 };

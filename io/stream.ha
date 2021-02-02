@@ -24,6 +24,7 @@ export type stream = struct {
 	reader: nullable *reader,
 	writer: nullable *writer,
 	closer: nullable *closer,
+	copier: nullable *copier,
 };
 
 // Reads up to len(buf) bytes from the reader into the given buffer, returning
