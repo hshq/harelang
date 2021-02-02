@@ -8,15 +8,61 @@
 // used to specify additional constraints on the format in a type-specific
 // manner: '{0:x} will print a number in hexadecimal.
 //
-// TODO: Document this more I guess
+// TODO: More detail
+use encoding::utf8;
 use io;
+use strings;
+use strconv;
 use types;
 
 // Tagged union of all types which are formattable.
 export type formattable = (...types::numeric | uintptr | str | *void);
 
 // Formats text for printing and writes it to an [io::stream].
-export fn fprintf(s: *io::stream, fmt: str,
-		args: formattable...) (io::error | size) = {
-	return io::unsupported: io::error; // TODO: Blocked on rune picking
+export fn fprintf(
+	s: *io::stream,
+	fmt: str,
+	args: formattable...
+) (io::error | size) = {
+	let n = 0z, i = 0z;
+	let iter = strings::iter(fmt);
+	for (true) {
+		let r: rune = match (strings::next(&iter)) {
+			void => break,
+			r: rune => r,
+		};
+
+		if (r  == '{') {
+			r = match (strings::next(&iter)) {
+				void => abort("Invalid format string (unterminated '{')"),
+				r: rune => r,
+			};
+			assert(r == '}'); // TODO
+			format(s, args[i]);
+			i += 1z;
+			continue;
+		};
+
+		match (io::write(s, utf8::encode_rune(r))) {
+			err: io::error => return err,
+			w: size => {
+				n += w;
+			},
+		};
+	};
+
+	return n;
+};
+
+fn format(out: *io::stream, arg: formattable) void = {
+	match (arg) {
+		// TODO: Use types::numeric (and strconv::numtos) when match is
+		// more fleshed out
+		i: int => {
+			let s = strconv::itos(i);
+			io::write(out, strings::to_utf8(s));
+		},
+		s: str => io::write(out, strings::to_utf8(s)),
+		* => abort("TODO: implement more formattable values"),
+	};
 };
