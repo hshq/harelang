@@ -50,9 +50,8 @@ fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	return match (rt::wrap_return(r)) {
 		err: rt::errno => errno_to_io(err),
 		n: size => switch (n) {
-			// TODO: Fix me when swich is fixed up
-			0z => io::EOF: (size | io::EOF | io::error),
-			*  => n: (size | io::EOF | io::error),
+			0z => io::EOF,
+			*  => n,
 		},
 	};
 };
