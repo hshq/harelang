@@ -30,7 +30,7 @@ export type stream = struct {
 // the number of bytes read.
 export fn read(s: *stream, buf: []u8) (size | EOF | error) = {
 	return match (s.reader) {
-		null => unsupported: error,
+		null => unsupported,
 		r: *reader => r(s, buf),
 	};
 };
@@ -39,7 +39,7 @@ export fn read(s: *stream, buf: []u8) (size | EOF | error) = {
 // the number of bytes written.
 export fn write(s: *stream, buf: const []u8) (size | error) = {
 	return match (s.writer) {
-		null => unsupported: error,
+		null => unsupported,
 		w: *writer => w(s, buf),
 	};
 };
@@ -47,7 +47,7 @@ export fn write(s: *stream, buf: const []u8) (size | error) = {
 // Closes the stream.
 export fn close(s: *stream) (error | void) = {
 	return match (s.closer) {
-		null => unsupported: error,
+		null => unsupported,
 		c: *closer => c(s),
 	};
 };

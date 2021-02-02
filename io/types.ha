@@ -20,8 +20,8 @@ export type EOF = void;
 export fn errstr(err: error) str = {
 	return match (err) {
 		err: os_error => err.string(err.data),
-		closed        => "This stream has been closed",
 		unsupported   => "The requested operation is not supported",
+		closed        => "This stream has been closed",
 	};
 };
 
