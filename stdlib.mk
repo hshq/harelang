@@ -8,9 +8,10 @@ librt_srcs=$(STDLIB)/rt/$(PLATFORM)/abort.ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
+	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
 	$(STDLIB)/rt/memset.ha \
-	$(STDLIB)/rt/malloc.ha
+	$(STDLIB)/rt/strcmp.ha
 
 $(HARECACHE)/rt/rt.ssa: $(librt_srcs)
 	@printf 'HAREC \t$@\n'
