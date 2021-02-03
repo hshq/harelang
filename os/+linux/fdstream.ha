@@ -20,6 +20,7 @@ export fn fdopen(fd: int, name: str) *io::stream = {
 			writer = &fd_write,
 			closer = &fd_close,
 			copier = &fd_copy,
+			...
 		},
 		fd = fd,
 		offs = 0z,
@@ -52,6 +53,7 @@ fn static_fdopen(fd: int, name: str, stream: *fd_stream) *io::stream = {
 		writer = &fd_write,
 		closer = &fd_close_static,
 		copier = &fd_copy,
+		...
 	};
 	stream.fd = fd;
 	return &stream.stream;
