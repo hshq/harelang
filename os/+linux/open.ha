@@ -54,6 +54,5 @@ export fn open(
 		n: size => n: int,
 	};
 
-	// TODO: Pass stream mode to fd_stream
-	return fdopen(fd, name);
+	return fdopen(fd, name, mode);
 };

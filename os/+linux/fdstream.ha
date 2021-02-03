@@ -8,23 +8,34 @@ type fd_stream = struct {
 	offs: size,
 };
 
-// Opens a Unix file descriptor as an io::stream. If 'name' is an empty string,
-// a name will be generated based on the file descriptor number.
-export fn fdopen(fd: int, name: str) *io::stream = {
-	// TODO: consider making the caller specify what subset of operations
-	// should be supported
-	let stream = alloc(*fd_stream, fd_stream {
+fn static_fdopen(
+	fd: int, name: str, mode: io::mode, stream: *fd_stream,
+) *io::stream = {
+	*stream = fd_stream {
 		stream = io::stream {
-			name   = strings::dup(name),
-			reader = &fd_read,
-			writer = &fd_write,
-			closer = &fd_close,
+			name   = name,
+			closer = &fd_close_static,
 			copier = &fd_copy,
 			...
 		},
 		fd = fd,
 		offs = 0z,
-	});
+	};
+	if (mode == io::mode::RDONLY || mode == io::mode::RDWR) {
+		stream.stream.reader = &fd_read;
+	};
+	if (mode == io::mode::WRONLY || mode == io::mode::RDWR) {
+		stream.stream.writer = &fd_write;
+	};
+	return &stream.stream;
+};
+
+// Opens a Unix file descriptor as an io::stream. If 'name' is an empty string,
+// a name will be generated based on the file descriptor number.
+export fn fdopen(fd: int, name: str, mode: io::mode) *io::stream = {
+	let stream = alloc(*fd_stream, fd_stream { ... });
+	static_fdopen(fd, name, mode, stream);
+	stream.stream.closer = &fd_close;
 	return &stream.stream;
 };
 
@@ -44,19 +55,6 @@ export fn streamfd(s: *io::stream) (int | void) = {
 	};
 	let stream = s: *fd_stream;
 	return stream.fd;
-};
-
-fn static_fdopen(fd: int, name: str, stream: *fd_stream) *io::stream = {
-	stream.stream = io::stream {
-		name   = name,
-		reader = &fd_read,
-		writer = &fd_write,
-		closer = &fd_close_static,
-		copier = &fd_copy,
-		...
-	};
-	stream.fd = fd;
-	return &stream.stream;
 };
 
 fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
