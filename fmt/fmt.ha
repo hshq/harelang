@@ -11,8 +11,9 @@
 // TODO: More detail
 use encoding::utf8;
 use io;
-use strings;
+use os;
 use strconv;
+use strings;
 use types;
 
 // Tagged union of all types which are formattable.
@@ -53,6 +54,14 @@ export fn fprintf(
 
 	return n;
 };
+
+// Formats text for printing writes it to [os::stdout].
+export fn printf(fmt: str, args: formattable...) (io::error | size) =
+	fprintf(os::stdout, fmt, args...);
+
+// Formats text for printing writes it to [os::stderr].
+export fn errorf(fmt: str, args: formattable...) (io::error | size) =
+	fprintf(os::stderr, fmt, args...);
 
 fn format(out: *io::stream, arg: formattable) void = match (arg) {
 	s: str => io::write(out, strings::to_utf8(s)),
