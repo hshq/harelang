@@ -148,7 +148,7 @@ export fn realloc(_p: nullable *void, n: size) nullable *void = {
 	let p = _p: *void;
 	let bsize = (p: uintptr - size(size): uintptr): *size;
 	let s = *bsize;
-	if (s < n) {
+	if (s > n) {
 		return p;
 	};
 
@@ -159,6 +159,7 @@ export fn realloc(_p: nullable *void, n: size) nullable *void = {
 	let new = malloc(n);
 	if (new != null: nullable *void) {
 		memcpy(new: *void, p, s);
+		free(p);
 	};
 
 	return new;
