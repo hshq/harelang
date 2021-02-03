@@ -44,7 +44,7 @@ export fn streamfd(s: *io::stream) (int | void) = {
 	return stream.fd;
 };
 
-fn static_fdopen(fd: int, name: str, stream: *fd_stream) void = {
+fn static_fdopen(fd: int, name: str, stream: *fd_stream) *io::stream = {
 	stream.stream = io::stream {
 		name   = name,
 		reader = &fd_read,
@@ -52,6 +52,7 @@ fn static_fdopen(fd: int, name: str, stream: *fd_stream) void = {
 		closer = &fd_close,
 	};
 	stream.fd = fd;
+	return &stream.stream;
 };
 
 fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
