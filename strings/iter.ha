@@ -20,3 +20,15 @@ export fn next(iter: *iterator) (rune | void) = {
 export fn iterstr(iter: *iterator) str = {
 	return from_utf8(iter.src[iter.offs..]);
 };
+
+@test fn iter_test() void = {
+	let i = iter("こんにちは");
+	assert(next(&i) as rune == 'こ');
+	assert(next(&i) as rune == 'ん');
+	assert(iterstr(&i) == "にちは");
+	assert(next(&i) as rune == 'に');
+	assert(next(&i) as rune == 'ち');
+	assert(next(&i) as rune == 'は');
+	assert(next(&i) is void);
+	assert(next(&i) is void);
+};
