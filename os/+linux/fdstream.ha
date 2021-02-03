@@ -51,6 +51,7 @@ fn static_fdopen(fd: int, name: str, stream: *fd_stream) *io::stream = {
 		reader = &fd_read,
 		writer = &fd_write,
 		closer = &fd_close_static,
+		copier = &fd_copy,
 	};
 	stream.fd = fd;
 	return &stream.stream;
