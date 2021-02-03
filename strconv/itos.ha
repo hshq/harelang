@@ -4,13 +4,6 @@ use types;
 // Converts an i64 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // duplicate the result.
-//
-//      let a = strconv::i64tos(1234);
-//      io::printf("%s", a); // 1234
-//
-//      let a = strconv::i64tos(1234);
-//      let b = strconv::i64tos(4321);
-//      io::printf("%s %s", a, b); // 4321 4321
 export fn i64tos(i: i64) const str = {
 	static assert(types::I64_MAX == 9223372036854775807i64);
 	static let buf: [22]u8 = [0u8...]; // 20 chars plus NUL and -
@@ -48,47 +41,19 @@ export fn i64tos(i: i64) const str = {
 // Converts an i8 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // duplicate the result.
-//
-//	let a = strconv::i8tos(123);
-//	io::printf("%s", a); // 123
-//
-//	let a = strconv::i8tos(123);
-//	let b = strconv::i8tos(321);
-//	io::printf("%s %s", a, b); // 321 321
 export fn i8tos(i: i8) const str = i64tos(i: i64);
 
 // Converts an i16 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // duplicate the result.
-//
-//	let a = strconv::i16tos(1234);
-//	io::printf("%s", a); // 1234
-//
-//	let a = strconv::i16tos(1234);
-//	let b = strconv::i16tos(4321);
-//	io::printf("%s %s", a, b); // 4321 4321
 export fn i16tos(i: i16) const str = i64tos(i: i64);
 
 // Converts an i32 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // duplicate the result.
-//
-//	let a = strconv::i32tos(1234);
-//	io::printf("%s", a); // 1234
-//
-//	let a = strconv::i32tos(1234);
-//	let b = strconv::i32tos(4321);
-//	io::printf("%s %s", a, b); // 4321 4321
 export fn i32tos(i: i32) const str = i64tos(i: i64);
 
 // Converts an int to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // duplicate the result.
-//
-//	let a = strconv::itos(1234);
-//	io::printf("%s", a); // 1234
-//
-//	let a = strconv::itos(1234);
-//	let b = strconv::itos(4321);
-//	io::printf("%s %s", a, b); // 4321 4321
 export fn itos(i: int) const str = i64tos(i: i64);
