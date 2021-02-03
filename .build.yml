@@ -20,4 +20,3 @@ tasks:
     cp config.example.mk config.mk
     ln -s ../stdlib ./
     make
-    ./hare -v
