@@ -32,7 +32,7 @@ fn static_fdopen(
 // a name will be generated based on the file descriptor number.
 export fn fdopen(fd: int, name: str, mode: io::mode) *io::stream = {
 	let stream = alloc(*fd_stream, fd_stream { ... });
-	static_fdopen(fd, name, mode, stream);
+	static_fdopen(fd, strings::dup(name), mode, stream);
 	stream.stream.closer = &fd_close;
 	return &stream.stream;
 };
