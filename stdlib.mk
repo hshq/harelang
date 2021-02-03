@@ -9,6 +9,7 @@ librt_srcs=$(STDLIB)/rt/$(PLATFORM)/abort.ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/malloc.ha
 
 $(HARECACHE)/rt/rt.ssa: $(librt_srcs)
@@ -134,23 +135,6 @@ $(HARECACHE)/strings/strings.ssa: $(libstrings_srcs) $(libstrings_deps)
 
 stdlib_strings=$(HARECACHE)/strings/strings.o
 
-# fmt
-libfmt_srcs=\
-	$(STDLIB)/fmt/fmt.ha
-
-libfmt_deps=$(stdlib_rt) \
-	    $(stdlib_io) \
-	    $(stdlib_strconv) \
-	    $(stdlib_strings) \
-	    $(stdlib_types)
-
-$(HARECACHE)/fmt/fmt.ssa: $(libfmt_srcs) $(libfmt_deps)
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/fmt
-	@$(HAREC) -o $@ -Nfmt -t$(HARECACHE)/fmt/fmt.td $(libfmt_srcs)
-
-stdlib_fmt=$(HARECACHE)/fmt/fmt.o
-
 # os
 libos_srcs=\
 	$(STDLIB)/os/$(PLATFORM)/environ.ha \
@@ -170,3 +154,21 @@ $(HARECACHE)/os/os.ssa: $(libos_srcs) $(libos_deps)
 	@$(HAREC) -o $@ -Nos -t$(HARECACHE)/os/os.td $(libos_srcs)
 
 stdlib_os=$(HARECACHE)/os/os.o
+
+# fmt
+libfmt_srcs=\
+	$(STDLIB)/fmt/fmt.ha
+
+libfmt_deps=$(stdlib_rt) \
+	    $(stdlib_io) \
+	    $(stdlib_os) \
+	    $(stdlib_strconv) \
+	    $(stdlib_strings) \
+	    $(stdlib_types)
+
+$(HARECACHE)/fmt/fmt.ssa: $(libfmt_srcs) $(libfmt_deps)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/fmt
+	@$(HAREC) -o $@ -Nfmt -t$(HARECACHE)/fmt/fmt.td $(libfmt_srcs)
+
+stdlib_fmt=$(HARECACHE)/fmt/fmt.o
