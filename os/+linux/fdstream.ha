@@ -31,6 +31,7 @@ fn is_fdstream(s: *io::stream) bool = {
 	return s.reader == &fd_read
 		|| s.writer == &fd_write
 		|| s.closer == &fd_close
+		|| s.closer == &fd_close_static
 		|| s.copier == &fd_copy;
 };
 
@@ -49,7 +50,7 @@ fn static_fdopen(fd: int, name: str, stream: *fd_stream) *io::stream = {
 		name   = name,
 		reader = &fd_read,
 		writer = &fd_write,
-		closer = &fd_close,
+		closer = &fd_close_static,
 	};
 	stream.fd = fd;
 	return &stream.stream;
@@ -83,6 +84,13 @@ fn fd_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 };
 
 fn fd_close(s: *io::stream) void = {
+	let stream = s: *fd_stream;
+	rt::close(stream.fd);
+	free(s.name);
+	free(stream);
+};
+
+fn fd_close_static(s: *io::stream) void = {
 	let stream = s: *fd_stream;
 	rt::close(stream.fd);
 	free(stream);
