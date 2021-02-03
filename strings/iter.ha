@@ -15,3 +15,8 @@ export fn next(iter: *iterator) (rune | void) = {
 		utf8::invalid => abort("Invalid UTF-8 string (this should not happen)"),
 	};
 };
+
+// Return a substring from the next rune to the end of the string.
+export fn iterstr(iter: *iterator) str = {
+	return from_utf8(iter.src[iter.offs..]);
+};
