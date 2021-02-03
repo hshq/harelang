@@ -28,8 +28,7 @@ fn static_fdopen(
 	return &stream.stream;
 };
 
-// Opens a Unix file descriptor as an io::stream. If 'name' is an empty string,
-// a name will be generated based on the file descriptor number.
+// Opens a Unix file descriptor as an io::stream.
 export fn fdopen(fd: int, name: str, mode: io::mode) *io::stream = {
 	let stream = alloc(*fd_stream, fd_stream { ... });
 	static_fdopen(fd, strings::dup(name), mode, stream);
