@@ -37,7 +37,7 @@ export fn open(
 	};
 	const name: str = match (path) {
 		s: str  => s,
-		b: []u8 => "<open([]u8)>", // TODO: try to decode it?
+		b: []u8 => "<open([]u8)>",
 	};
 
 	let m = mode: int;
