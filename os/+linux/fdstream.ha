@@ -5,7 +5,6 @@ use strings;
 type fd_stream = struct {
 	stream: io::stream,
 	fd: int,
-	offs: size,
 };
 
 fn static_fdopen(
@@ -19,7 +18,6 @@ fn static_fdopen(
 			...
 		},
 		fd = fd,
-		offs = 0z,
 	};
 	if (mode == io::mode::RDONLY || mode == io::mode::RDWR) {
 		stream.stream.reader = &fd_read;
@@ -64,10 +62,7 @@ fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 		err: rt::errno => errno_to_io(err),
 		n: size => switch (n) {
 			0z => io::EOF,
-			*  => {
-				stream.offs += n;
-				n;
-			},
+			*  => n,
 		},
 	};
 };
@@ -77,10 +72,7 @@ fn fd_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let r = rt::write(stream.fd, buf: *const [*]u8, len(buf));
 	return match (rt::wrap_return(r)) {
 		err: rt::errno => errno_to_io(err),
-		n: size => {
-			stream.offs += n;
-			n;
-		},
+		n: size => n,
 	};
 };
 
@@ -105,10 +97,9 @@ fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
 	};
 
 	let to = _to: *fd_stream, from = _from: *fd_stream;
-	let offs = to.offs;
 	let sum = 0z;
 	for (true) {
-		let r = rt::sendfile(to.fd, from.fd, &offs, SENDFILE_MAX);
+		let r = rt::sendfile(to.fd, from.fd, null, SENDFILE_MAX);
 		let n = match(rt::wrap_return(r)) {
 			err: rt::errno => switch (err) {
 				rt::EINVAL => {
@@ -124,10 +115,7 @@ fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
 				*  => n,
 			},
 		};
-		let w = offs - n;
-		sum += w;
-		to.offs += n;
-		from.offs += n;
+		sum += n;
 	};
 	return sum;
 };
