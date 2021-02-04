@@ -20,3 +20,9 @@ tasks:
     cp config.example.mk config.mk
     ln -s ../stdlib ./
     make
+- tests: |
+    cd hare
+    make hare-tests
+- check: |
+    cd hare
+    make check
