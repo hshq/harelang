@@ -7,3 +7,19 @@ export fn index(haystack: []u8, needle: u8) (size | void) = {
 		};
 	};
 };
+
+@test fn index() void = {
+	let a: [4]u8 = [1u8, 3u8, 3u8, 7u8];
+	match (index(a, 7u8)) {
+		n: size => assert(n == 3z),
+		void => abort(),
+	};
+	match (index(a, 42u8)) {
+		size => abort(),
+		void => void,
+	};
+	match (index([], 42u8)) {
+		size => abort(),
+		void => void,
+	};
+};
