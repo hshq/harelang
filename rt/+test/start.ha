@@ -1,24 +1,14 @@
-const @symbol("__init_array_start") init_start: [*]*fn() void;
-const @symbol("__init_array_end") init_end: [*]*fn() void;
-const @symbol("__fini_array_start") fini_start: [*]*fn() void;
-const @symbol("__fini_array_end") fini_end: [*]*fn() void;
-
 type test = struct {
 	name: str,
 	func: *fn() void,
 };
 
+const @symbol("__init_array_start") init_start: [*]*fn() void;
+const @symbol("__init_array_end") init_end: [*]*fn() void;
+const @symbol("__fini_array_start") fini_start: [*]*fn() void;
+const @symbol("__fini_array_end") fini_end: [*]*fn() void;
 const @symbol("__test_array_start") test_start: [*]test;
 const @symbol("__test_array_end") test_end: [*]test;
-
-fn print(msg: str) void = write(1, msg: *const char, len(msg));
-
-fn dots(n: size) void = {
-	// XXX: this is slow, I guess
-	for (let i = 0z; i < n; i += 1z) {
-		print(".");
-	};
-};
 
 let jmp: jmpbuf = jmpbuf { ... };
 let reason: str = "";
@@ -74,4 +64,13 @@ export fn start_ha() void = {
 	};
 
 	exit(if (nfail > 0z) 1 else 0);
+};
+
+fn print(msg: str) void = write(1, msg: *const char, len(msg));
+
+fn dots(n: size) void = {
+	// XXX: this is slow, I guess
+	for (let i = 0z; i < n; i += 1z) {
+		print(".");
+	};
 };
