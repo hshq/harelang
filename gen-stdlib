@@ -18,14 +18,15 @@ eval ". $srcdir/mk/gen-stdlib.sh"
 
 gensrcs_rt() {
 	gen_srcs rt \
-		'$(PLATFORM)/abort.ha' \
 		'$(PLATFORM)/env.ha' \
 		'$(PLATFORM)/errno.ha' \
 		'$(PLATFORM)/start.ha' \
 		'$(PLATFORM)/syscallno$(ARCH).ha' \
 		'$(PLATFORM)/syscalls.ha' \
 		'$(PLATFORM)/segmalloc.ha' \
+		'$(ARCH)/jmp.ha' \
 		ensure.ha \
+		jmp.ha \
 		malloc.ha \
 		memcpy.ha \
 		memset.ha \
@@ -39,27 +40,44 @@ rt() {
 	if [ $testing -eq 0 ]
 	then
 		printf '%s\n' 'rtscript=$(STDLIB)/rt/hare.sc'
-		gensrcs_rt start-test.ha
+		gensrcs_rt \
+			'$(PLATFORM)/abort.ha' \
+			start.ha
 	else
 		gensrcs_rt \
+			+test/abort.ha \
 			+test/start.ha \
 			+test/ztos.ha
 	fi
 	gen_ssa rt
 	cat <<EOF
-\$($cache)/rt/syscall.o: \$(STDLIB)/rt/\$(PLATFORM)/syscall\$(ARCH).s
-	@printf 'AS \t\$@\n'
-	@mkdir -p \$($cache)/rt
-	@as -o \$@ \$<
-
 \$($cache)/rt/start.o: \$(STDLIB)/rt/\$(PLATFORM)/start.s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
 	@as -o \$@ \$<
 
-\$($cache)/rt/rt.a: \$($cache)/rt/rt.o \$($cache)/rt/syscall.o
+${stdlib}_asm=\$($cache)/rt/syscall.o \\
+	\$($cache)/rt/setjmp.o \\
+	\$($cache)/rt/longjmp.o
+
+\$($cache)/rt/syscall.o: \$(STDLIB)/rt/\$(PLATFORM)/syscall\$(ARCH).s
+	@printf 'AS \t\$@\n'
+	@mkdir -p \$($cache)/rt
+	@as -o \$@ \$<
+
+\$($cache)/rt/setjmp.o: \$(STDLIB)/rt/\$(ARCH)/setjmp.s
+	@printf 'AS \t\$@\n'
+	@mkdir -p \$($cache)/rt
+	@as -o \$@ \$<
+
+\$($cache)/rt/longjmp.o: \$(STDLIB)/rt/\$(ARCH)/longjmp.s
+	@printf 'AS \t\$@\n'
+	@mkdir -p \$($cache)/rt
+	@as -o \$@ \$<
+
+\$($cache)/rt/rt.a: \$($cache)/rt/rt.o \$(${stdlib}_asm)
 	@printf 'AR\t\$@\n'
-	@\$(AR) -csr \$@ \$($cache)/rt/rt.o \$($cache)/rt/syscall.o
+	@\$(AR) -csr \$@ \$($cache)/rt/rt.o \$(${stdlib}_asm)
 
 ${stdlib}_rt=\$($cache)/rt/rt.a
 ${stdlib}_start=\$($cache)/rt/start.o

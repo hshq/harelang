@@ -3,19 +3,21 @@
 # rt
 rtscript=$(STDLIB)/rt/hare.sc
 stdlib_rt_srcs= \
-	$(STDLIB)/rt/$(PLATFORM)/abort.ha \
 	$(STDLIB)/rt/$(PLATFORM)/env.ha \
 	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
 	$(STDLIB)/rt/$(PLATFORM)/start.ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
+	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/ensure.ha \
+	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
-	$(STDLIB)/rt/start-test.ha 
+	$(STDLIB)/rt/$(PLATFORM)/abort.ha \
+	$(STDLIB)/rt/start.ha 
 
 $(HARECACHE)/rt/rt.ssa: $(stdlib_rt_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -23,19 +25,33 @@ $(HARECACHE)/rt/rt.ssa: $(stdlib_rt_srcs) $(stdlib_rt)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nrt \
 		-t$(HARECACHE)/rt/rt.td $(stdlib_rt_srcs)
 
-$(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
-	@printf 'AS \t$@\n'
-	@mkdir -p $(HARECACHE)/rt
-	@as -o $@ $<
-
 $(HARECACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
 	@as -o $@ $<
 
-$(HARECACHE)/rt/rt.a: $(HARECACHE)/rt/rt.o $(HARECACHE)/rt/syscall.o
+stdlib_asm=$(HARECACHE)/rt/syscall.o \
+	$(HARECACHE)/rt/setjmp.o \
+	$(HARECACHE)/rt/longjmp.o
+
+$(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(HARECACHE)/rt
+	@as -o $@ $<
+
+$(HARECACHE)/rt/setjmp.o: $(STDLIB)/rt/$(ARCH)/setjmp.s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(HARECACHE)/rt
+	@as -o $@ $<
+
+$(HARECACHE)/rt/longjmp.o: $(STDLIB)/rt/$(ARCH)/longjmp.s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(HARECACHE)/rt
+	@as -o $@ $<
+
+$(HARECACHE)/rt/rt.a: $(HARECACHE)/rt/rt.o $(stdlib_asm)
 	@printf 'AR\t$@\n'
-	@$(AR) -csr $@ $(HARECACHE)/rt/rt.o $(HARECACHE)/rt/syscall.o
+	@$(AR) -csr $@ $(HARECACHE)/rt/rt.o $(stdlib_asm)
 
 stdlib_rt=$(HARECACHE)/rt/rt.a
 stdlib_start=$(HARECACHE)/rt/start.o
@@ -183,18 +199,20 @@ hare_stdlib_deps+=$(stdlib_stdlib_fmt)
 
 # rt
 testlib_rt_srcs= \
-	$(STDLIB)/rt/$(PLATFORM)/abort.ha \
 	$(STDLIB)/rt/$(PLATFORM)/env.ha \
 	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
 	$(STDLIB)/rt/$(PLATFORM)/start.ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
+	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/ensure.ha \
+	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
+	$(STDLIB)/rt/+test/abort.ha \
 	$(STDLIB)/rt/+test/start.ha \
 	$(STDLIB)/rt/+test/ztos.ha 
 
@@ -204,19 +222,33 @@ $(TESTCACHE)/rt/rt.ssa: $(testlib_rt_srcs) $(testlib_rt)
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nrt \
 		-t$(TESTCACHE)/rt/rt.td $(testlib_rt_srcs)
 
-$(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
-	@printf 'AS \t$@\n'
-	@mkdir -p $(TESTCACHE)/rt
-	@as -o $@ $<
-
 $(TESTCACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
 	@as -o $@ $<
 
-$(TESTCACHE)/rt/rt.a: $(TESTCACHE)/rt/rt.o $(TESTCACHE)/rt/syscall.o
+testlib_asm=$(TESTCACHE)/rt/syscall.o \
+	$(TESTCACHE)/rt/setjmp.o \
+	$(TESTCACHE)/rt/longjmp.o
+
+$(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(TESTCACHE)/rt
+	@as -o $@ $<
+
+$(TESTCACHE)/rt/setjmp.o: $(STDLIB)/rt/$(ARCH)/setjmp.s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(TESTCACHE)/rt
+	@as -o $@ $<
+
+$(TESTCACHE)/rt/longjmp.o: $(STDLIB)/rt/$(ARCH)/longjmp.s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(TESTCACHE)/rt
+	@as -o $@ $<
+
+$(TESTCACHE)/rt/rt.a: $(TESTCACHE)/rt/rt.o $(testlib_asm)
 	@printf 'AR\t$@\n'
-	@$(AR) -csr $@ $(TESTCACHE)/rt/rt.o $(TESTCACHE)/rt/syscall.o
+	@$(AR) -csr $@ $(TESTCACHE)/rt/rt.o $(testlib_asm)
 
 testlib_rt=$(TESTCACHE)/rt/rt.a
 testlib_start=$(TESTCACHE)/rt/start.o
