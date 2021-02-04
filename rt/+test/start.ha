@@ -13,6 +13,13 @@ const @symbol("__test_array_end") test_end: [*]test;
 
 fn print(msg: str) void = write(1, msg: *const char, len(msg));
 
+fn dots(n: size) void = {
+	// XXX: this is slow, I guess
+	for (let i = 0z; i < n; i += 1z) {
+		print(".");
+	};
+};
+
 export fn start_ha() void = {
 	const ninit = (&init_end: uintptr - &init_start: uintptr): size
 		/ size(*fn() void);
@@ -21,9 +28,17 @@ export fn start_ha() void = {
 	};
 
 	const ntest = (&test_end: uintptr - &test_start: uintptr): size / size(test);
+	let maxname = 0z;
+	for (let i = 0z; i < ntest; i += 1z) {
+		if (len(test_start[i].name) > maxname) {
+			maxname = len(test_start[i].name);
+		};
+	};
+
 	for (let i = 0z; i < ntest; i += 1z) {
 		print(test_start[i].name);
-		print("...");
+		dots(maxname - len(test_start[i].name) + 3z);
+		print(" ");
 		test_start[i].func();
 		print("OK\n");
 	};
