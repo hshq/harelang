@@ -14,14 +14,16 @@ let args_static: [32]str = [""...];
 @init fn init_environ() void = {
 	if (rt::argc < len(args_static)) {
 		args = args_static[..rt::argc];
+		for (let i = 0z; i < rt::argc; i += 1z) {
+			args[i] = strings::from_c(rt::argv[i]);
+		};
 	} else {
 		args = alloc([]str, [], rt::argc);
-		(&args: *types::slice).length = rt::argc; // HORRIBLE HACK
+		for (let i = 0z; i < rt::argc; i += 1z) {
+			append(args, strings::from_c(rt::argv[i]));
+		};
 	};
 
-	for (let i = 0z; i < rt::argc; i += 1z) {
-		args[i] = strings::from_c(rt::argv[i]);
-	};
 };
 
 @fini fn fini_environ() void = {
