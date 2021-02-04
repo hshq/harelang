@@ -41,7 +41,7 @@ let bins: [50]nullable *void = [null...];
 fn bin2size(b: size) size = ((b + 1z) * ALIGN - 1z) * WORD;
 
 fn size2bin(s: size) size = {
-	assert(s < bin2size(len(bins) - 1z), "Size exceeds maximum for bin");
+	assert(s <= bin2size(len(bins) - 1z), "Size exceeds maximum for bin");
 	return (s + (WORD * (ALIGN - 1z) - 1z)) / (WORD * ALIGN);
 };
 
