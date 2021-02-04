@@ -61,6 +61,5 @@ export fn start_ha() void = {
 		fini_start[i]();
 	};
 
-	exit(0);
+	exit(if (nfail > 0z) 1 else 0);
 };
-
