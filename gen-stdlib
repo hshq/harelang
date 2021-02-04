@@ -25,6 +25,7 @@ gensrcs_rt() {
 		'$(PLATFORM)/syscallno$(ARCH).ha' \
 		'$(PLATFORM)/syscalls.ha' \
 		'$(PLATFORM)/segmalloc.ha' \
+		ensure.ha \
 		malloc.ha \
 		memcpy.ha \
 		memset.ha \
@@ -109,6 +110,7 @@ io() {
 	# Sort it to see what the problem is if you don't understand
 	printf '# io\n'
 	gen_srcs io \
+		'arch$(ARCH).ha' \
 		types.ha \
 		copy.ha \
 		println.ha \

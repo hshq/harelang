@@ -10,6 +10,7 @@ stdlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
+	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
 	$(STDLIB)/rt/memset.ha \
@@ -101,6 +102,7 @@ hare_stdlib_deps+=$(stdlib_stdlib_strconv)
 
 # io
 stdlib_io_srcs= \
+	$(STDLIB)/io/arch$(ARCH).ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/println.ha \
@@ -188,6 +190,7 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
+	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
 	$(STDLIB)/rt/memset.ha \
@@ -279,6 +282,7 @@ hare_testlib_deps+=$(testlib_testlib_strconv)
 
 # io
 testlib_io_srcs= \
+	$(STDLIB)/io/arch$(ARCH).ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/println.ha \
