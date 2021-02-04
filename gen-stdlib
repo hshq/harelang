@@ -41,7 +41,9 @@ rt() {
 		printf '%s\n' 'rtscript=$(STDLIB)/rt/hare.sc'
 		gensrcs_rt start-test.ha
 	else
-		gensrcs_rt +test/start.ha
+		gensrcs_rt \
+			+test/start.ha \
+			+test/ztos.ha
 	fi
 	gen_ssa rt
 	cat <<EOF

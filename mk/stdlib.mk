@@ -195,7 +195,8 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/memcpy.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
-	$(STDLIB)/rt/+test/start.ha 
+	$(STDLIB)/rt/+test/start.ha \
+	$(STDLIB)/rt/+test/ztos.ha 
 
 $(TESTCACHE)/rt/rt.ssa: $(testlib_rt_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
