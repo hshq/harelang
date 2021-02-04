@@ -35,13 +35,25 @@ export fn start_ha() void = {
 		};
 	};
 
+	let npass = 0z, nfail = 0z;
+	print("Running ");
+	print(ztos(ntest));
+	print(" tests:\n\n");
 	for (let i = 0z; i < ntest; i += 1z) {
 		print(test_start[i].name);
 		dots(maxname - len(test_start[i].name) + 3z);
 		print(" ");
 		test_start[i].func();
+		npass += 1z;
 		print("OK\n");
 	};
+	print("\n");
+	print(ztos(npass));
+	print(" passed; ");
+	print(ztos(nfail));
+	print(" failed; ");
+	print(ztos(ntest));
+	print(" tests completed.\n");
 
 	const nfini = (&fini_end: uintptr - &fini_start: uintptr): size
 		/ size(*fn() void);
