@@ -5,7 +5,7 @@ mod_file() {
 	printf '%s\n' "$1" | tr -s '::' '.'
 }
 mod_var() {
-	printf '%s\n' "$1" | tr -s '::' '_'
+	printf '%s_%s\n' "$stdlib" "$1" | tr -s '::' '_'
 }
 
 gen_srcs() {
@@ -13,7 +13,7 @@ gen_srcs() {
 	path="$(mod_path "$mod")"
 	var="$(mod_var "$mod")"
 	shift
-	printf 'lib%s_srcs= \\\n' "$var"
+	printf '%s_srcs= \\\n' "$var"
 	while [ $# -ne 0 ]
 	do
 		if [ $# -eq 1 ]
@@ -33,18 +33,18 @@ gen_ssa() {
 	var=$(mod_var "$mod")
 	shift
 
-	printf "\$($cache)/$path/$file.ssa: \$(lib${var}_srcs) \$(stdlib_rt)"
+	printf "\$($cache)/$path/$file.ssa: \$(${var}_srcs) \$(${stdlib}_rt)"
 	for dep in $*
 	do
-		printf ' $(stdlib_%s)' "$(mod_var "$dep")"
+		printf ' $(%s_%s)' "$stdlib" "$(mod_var "$dep")"
 	done
 	printf '\n'
 
 	cat <<EOF
 	@printf 'HAREC \t\$@\n'
 	@mkdir -p \$($cache)/$path
-	@\$(HAREC) \$(HAREFLAGS) -o \$@ -N$mod \\
-		-t\$($cache)/$path/$file.td \$(lib${var}_srcs)
+	@HARECACHE=\$($cache) \$(HAREC) \$($flags) -o \$@ -N$mod \\
+		-t\$($cache)/$path/$file.td \$(${var}_srcs)
 
 EOF
 }
@@ -54,7 +54,22 @@ gen_lib() {
 	path=$(mod_path "$mod")
 	file=$(mod_file "$mod")
 	var=$(mod_var "$mod")
-	printf "stdlib_$var=\$($cache)/$path/$file.o\n"
-	printf 'hare_deps+=$(stdlib_%s)\n\n' "$var"
+	printf "${stdlib}_$var=\$($cache)/$path/$file.o\n"
+	printf 'hare_%s_deps+=$(%s_%s)\n\n' "$stdlib" "$stdlib" "$var"
 }
 
+genrules() {
+	if [ $# -gt 0 ] && [ "$1" = "test" ]
+	then
+		cache=TESTCACHE
+		flags=TESTHAREFLAGS
+		testing=1
+		stdlib=testlib
+	else
+		cache=HARECACHE
+		flags=HAREFLAGS
+		testing=0
+		stdlib=stdlib
+	fi
+	stdlib
+}

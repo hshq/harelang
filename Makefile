@@ -1,7 +1,8 @@
 .POSIX:
 .SUFFIXES:
 include config.mk
-HAREC:=HARECACHE=$(HARECACHE) $(HAREC)
+TESTCACHE=$(HARECACHE)/+test
+TESTHAREFLAGS=$(HAREFLAGS) -T +test
 
 hare:
 
@@ -21,17 +22,29 @@ hare_srcs=\
 
 $(HARECACHE)/hare.ssa: $(hare_srcs)
 	@printf 'HAREC\t$@\n'
-	@$(HAREC) -o $@ $(hare_srcs)
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ $(hare_srcs)
 
-hare: $(stdlib_start) $(hare_deps) $(HARECACHE)/hare.o
+$(TESTCACHE)/hare.ssa: $(hare_srcs)
+	@printf 'HAREC\t$@\n'
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ $(hare_srcs)
+
+hare: $(stdlib_start) $(hare_stdlib_deps) $(HARECACHE)/hare.o
 	@printf 'LD\t$@\n'
 	@$(LD) -T $(rtscript) -o $@ \
-		$(stdlib_start) $(HARECACHE)/hare.o $(hare_deps)
+		$(stdlib_start) $(HARECACHE)/hare.o $(hare_stdlib_deps)
+
+hare-tests: $(testlib_start) $(hare_testlib_deps) $(TESTCACHE)/hare.o
+	@printf 'LD\t$@\n'
+	@$(LD) -T $(rtscript) -o $@ \
+		$(testlib_start) $(TESTCACHE)/hare.o $(hare_testlib_deps)
 
 clean:
 	@rm -rf cache
-	@rm -f hare
+	@rm -f hare hare-tests
+
+check: hare-tests
+	@./hare-tests
 
 all: hare
 
-.PHONY: all clean
+.PHONY: all clean check
