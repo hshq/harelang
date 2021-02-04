@@ -20,6 +20,9 @@ fn dots(n: size) void = {
 	};
 };
 
+let jmp: jmpbuf = jmpbuf { ... };
+let reason: str = "";
+
 export fn start_ha() void = {
 	const ninit = (&init_end: uintptr - &init_start: uintptr): size
 		/ size(*fn() void);
@@ -43,7 +46,16 @@ export fn start_ha() void = {
 		print(test_start[i].name);
 		dots(maxname - len(test_start[i].name) + 3z);
 		print(" ");
+
+		if (setjmp(&jmp) != 0) {
+			nfail += 1z;
+			print("FAIL: ");
+			print(reason);
+			print("\n");
+			continue;
+		};
 		test_start[i].func();
+
 		npass += 1z;
 		print("OK\n");
 	};
