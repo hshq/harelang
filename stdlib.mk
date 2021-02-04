@@ -1,6 +1,7 @@
 # TODO: Write a script to generate this file
 
 # rt
+rtscript=$(STDLIB)/rt/hare.sc
 librt_srcs=$(STDLIB)/rt/$(PLATFORM)/abort.ha \
 	$(STDLIB)/rt/$(PLATFORM)/env.ha \
 	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
@@ -11,12 +12,13 @@ librt_srcs=$(STDLIB)/rt/$(PLATFORM)/abort.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
 	$(STDLIB)/rt/memset.ha \
+	$(STDLIB)/rt/start.ha \
 	$(STDLIB)/rt/strcmp.ha
 
 $(HARECACHE)/rt/rt.ssa: $(librt_srcs)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@$(HAREC) -o $@ -Nrt -t$(HARECACHE)/rt/rt.td $(librt_srcs)
+	@$(HAREC) $(HAREFLAGS) -o $@ -Nrt -t$(HARECACHE)/rt/rt.td $(librt_srcs)
 
 $(HARECACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start.s
 	@printf 'AS \t$@\n'
@@ -42,7 +44,7 @@ libascii_srcs=\
 $(HARECACHE)/ascii/ascii.ssa: $(libascii_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/ascii
-	@$(HAREC) -o $@ -Nascii -t$(HARECACHE)/ascii/ascii.td $(libascii_srcs)
+	@$(HAREC) $(HAREFLAGS) -o $@ -Nascii -t$(HARECACHE)/ascii/ascii.td $(libascii_srcs)
 
 stdlib_ascii=$(HARECACHE)/ascii/ascii.o
 
@@ -56,7 +58,7 @@ libbytes_srcs=\
 $(HARECACHE)/bytes/bytes.ssa: $(libbytes_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/bytes
-	@$(HAREC) -o $@ -Nbytes -t$(HARECACHE)/bytes/bytes.td $(libbytes_srcs)
+	@$(HAREC) $(HAREFLAGS) -o $@ -Nbytes -t$(HARECACHE)/bytes/bytes.td $(libbytes_srcs)
 
 stdlib_bytes=$(HARECACHE)/bytes/bytes.o
 
@@ -69,7 +71,7 @@ libtypes_srcs=\
 $(HARECACHE)/types/types.ssa: $(libtypes_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/types
-	@$(HAREC) -o $@ -Ntypes -t$(HARECACHE)/types/types.td $(libtypes_srcs)
+	@$(HAREC) $(HAREFLAGS) -o $@ -Ntypes -t$(HARECACHE)/types/types.td $(libtypes_srcs)
 
 stdlib_types=$(HARECACHE)/types/types.o
 
@@ -82,7 +84,7 @@ libstrconv_srcs=\
 $(HARECACHE)/strconv/strconv.ssa: $(libstrconv_srcs)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/strconv
-	@$(HAREC) -o $@ -Nstrconv -t$(HARECACHE)/strconv/strconv.td $(libstrconv_srcs)
+	@$(HAREC) $(HAREFLAGS) -o $@ -Nstrconv -t$(HARECACHE)/strconv/strconv.td $(libstrconv_srcs)
 
 $(HARECACHE)/strconv/strconv.ssa: $(stdlib_rt) $(stdlib_bytes) $(stdlib_types)
 
@@ -100,7 +102,7 @@ libio_srcs=\
 $(HARECACHE)/io/io.ssa: $(libio_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/io
-	@$(HAREC) -o $@ -Nio -t$(HARECACHE)/io/io.td $(libio_srcs)
+	@$(HAREC) $(HAREFLAGS) -o $@ -Nio -t$(HARECACHE)/io/io.td $(libio_srcs)
 
 stdlib_io=$(HARECACHE)/io/io.o
 
@@ -116,7 +118,7 @@ libencoding_utf8_deps=$(stdlib_rt) $(stdlib_types)
 $(HARECACHE)/encoding/utf8/encoding.utf8.ssa: $(libencoding_utf8_srcs) $(libencoding_utf8_deps)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/utf8
-	@$(HAREC) -o $@ -Nencoding::utf8 -t$(HARECACHE)/encoding/utf8/encoding.utf8.td $(libencoding_utf8_srcs)
+	@$(HAREC) $(HAREFLAGS) -o $@ -Nencoding::utf8 -t$(HARECACHE)/encoding/utf8/encoding.utf8.td $(libencoding_utf8_srcs)
 
 stdlib_encoding_utf8=$(HARECACHE)/encoding/utf8/encoding.utf8.o
 
@@ -132,7 +134,7 @@ libstrings_deps=$(stdlib_rt) $(stdlib_types) $(stdlib_encoding_utf8)
 $(HARECACHE)/strings/strings.ssa: $(libstrings_srcs) $(libstrings_deps)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/strings
-	@$(HAREC) -o $@ -Nstrings -t$(HARECACHE)/strings/strings.td $(libstrings_srcs)
+	@$(HAREC) $(HAREFLAGS) -o $@ -Nstrings -t$(HARECACHE)/strings/strings.td $(libstrings_srcs)
 
 stdlib_strings=$(HARECACHE)/strings/strings.o
 
@@ -152,7 +154,7 @@ libos_deps=$(stdlib_rt) $(stdlib_strings) $(stdlib_types)
 $(HARECACHE)/os/os.ssa: $(libos_srcs) $(libos_deps)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
-	@$(HAREC) -o $@ -Nos -t$(HARECACHE)/os/os.td $(libos_srcs)
+	@$(HAREC) $(HAREFLAGS) -o $@ -Nos -t$(HARECACHE)/os/os.td $(libos_srcs)
 
 stdlib_os=$(HARECACHE)/os/os.o
 
@@ -170,6 +172,6 @@ libfmt_deps=$(stdlib_rt) \
 $(HARECACHE)/fmt/fmt.ssa: $(libfmt_srcs) $(libfmt_deps)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/fmt
-	@$(HAREC) -o $@ -Nfmt -t$(HARECACHE)/fmt/fmt.td $(libfmt_srcs)
+	@$(HAREC) $(HAREFLAGS) -o $@ -Nfmt -t$(HARECACHE)/fmt/fmt.td $(libfmt_srcs)
 
 stdlib_fmt=$(HARECACHE)/fmt/fmt.o

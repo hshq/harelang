@@ -35,7 +35,9 @@ hare_deps=\
 
 hare: $(hare_deps) $(stdlib_rt) $(stdlib_start) $(HARECACHE)/hare.o
 	@printf 'LD\t$@\n'
-	@$(LD) -o $@ $(stdlib_start) $(HARECACHE)/hare.o $(stdlib_rt) $(hare_deps)
+	@$(LD) -T $(rtscript) -o $@ \
+		$(stdlib_start) $(HARECACHE)/hare.o $(stdlib_rt) \
+		$(hare_deps)
 
 clean:
 	@rm -rf cache
