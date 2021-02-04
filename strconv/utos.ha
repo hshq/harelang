@@ -61,7 +61,7 @@ export fn ztos(z: size) const str = u64tos(z: u64);
 // duplicate the result.
 export fn uptrtos(uptr: uintptr) const str = u64tos(uptr: u64);
 
-@test fn test_utos() void = {
+@test fn utos() void = {
 	// U64_MAX: https://todo.sr.ht/~sircmpwn/hare-v2/185
 	const samples = [
 		1234u64,

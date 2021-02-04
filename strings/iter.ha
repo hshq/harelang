@@ -21,7 +21,7 @@ export fn iter_str(iter: *iterator) str = {
 	return from_utf8(iter.src[iter.offs..]);
 };
 
-@test fn iter_test() void = {
+@test fn iter() void = {
 	let s = iter("こんにちは");
 	const expected1 = ['こ', 'ん'];
 	for (let i = 0z; i < len(expected1); i += 1z) {

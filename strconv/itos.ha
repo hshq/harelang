@@ -58,7 +58,7 @@ export fn i32tos(i: i32) const str = i64tos(i: i64);
 // duplicate the result.
 export fn itos(i: int) const str = i64tos(i: i64);
 
-@test fn test_itos() void = {
+@test fn itos() void = {
 	// I64_MAX: https://todo.sr.ht/~sircmpwn/hare-v2/185
 	const samples = [
 		1234i64,
