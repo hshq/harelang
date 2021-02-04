@@ -54,6 +54,7 @@ gen_lib() {
 	path=$(mod_path "$mod")
 	file=$(mod_file "$mod")
 	var=$(mod_var "$mod")
-	printf "stdlib_$var=\$($cache)/$path/$file.o\n\n"
+	printf "stdlib_$var=\$($cache)/$path/$file.o\n"
+	printf 'hare_deps+=$(stdlib_%s)\n\n' "$var"
 }
 

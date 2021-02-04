@@ -23,21 +23,10 @@ $(HARECACHE)/hare.ssa: $(hare_srcs)
 	@printf 'HAREC\t$@\n'
 	@$(HAREC) -o $@ $(hare_srcs)
 
-hare_deps=\
-	$(stdlib_ascii) \
-	$(stdlib_bytes) \
-	$(stdlib_encoding_utf8) \
-	$(stdlib_fmt) \
-	$(stdlib_io) \
-	$(stdlib_os) \
-	$(stdlib_strconv) \
-	$(stdlib_strings)
-
-hare: $(hare_deps) $(stdlib_rt) $(stdlib_start) $(HARECACHE)/hare.o
+hare: $(stdlib_start) $(hare_deps) $(HARECACHE)/hare.o
 	@printf 'LD\t$@\n'
 	@$(LD) -T $(rtscript) -o $@ \
-		$(stdlib_start) $(HARECACHE)/hare.o $(stdlib_rt) \
-		$(hare_deps)
+		$(stdlib_start) $(HARECACHE)/hare.o $(hare_deps)
 
 clean:
 	@rm -rf cache

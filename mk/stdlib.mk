@@ -38,6 +38,7 @@ $(HARECACHE)/rt/rt.a: $(HARECACHE)/rt/rt.o $(HARECACHE)/rt/syscall.o
 
 stdlib_rt=$(HARECACHE)/rt/rt.a
 stdlib_start=$(HARECACHE)/rt/start.o
+hare_deps+=$(stdlib_rt)
 
 # ascii
 libascii_srcs= \
@@ -50,6 +51,7 @@ $(HARECACHE)/ascii/ascii.ssa: $(libascii_srcs) $(stdlib_rt)
 		-t$(HARECACHE)/ascii/ascii.td $(libascii_srcs)
 
 stdlib_ascii=$(HARECACHE)/ascii/ascii.o
+hare_deps+=$(stdlib_ascii)
 
 # bytes
 libbytes_srcs= \
@@ -65,6 +67,7 @@ $(HARECACHE)/bytes/bytes.ssa: $(libbytes_srcs) $(stdlib_rt)
 		-t$(HARECACHE)/bytes/bytes.td $(libbytes_srcs)
 
 stdlib_bytes=$(HARECACHE)/bytes/bytes.o
+hare_deps+=$(stdlib_bytes)
 
 # types
 libtypes_srcs= \
@@ -79,6 +82,7 @@ $(HARECACHE)/types/types.ssa: $(libtypes_srcs) $(stdlib_rt)
 		-t$(HARECACHE)/types/types.td $(libtypes_srcs)
 
 stdlib_types=$(HARECACHE)/types/types.o
+hare_deps+=$(stdlib_types)
 
 # strconv
 libstrconv_srcs= \
@@ -93,6 +97,7 @@ $(HARECACHE)/strconv/strconv.ssa: $(libstrconv_srcs) $(stdlib_rt) $(stdlib_types
 		-t$(HARECACHE)/strconv/strconv.td $(libstrconv_srcs)
 
 stdlib_strconv=$(HARECACHE)/strconv/strconv.o
+hare_deps+=$(stdlib_strconv)
 
 # io
 libio_srcs= \
@@ -108,6 +113,7 @@ $(HARECACHE)/io/io.ssa: $(libio_srcs) $(stdlib_rt)
 		-t$(HARECACHE)/io/io.td $(libio_srcs)
 
 stdlib_io=$(HARECACHE)/io/io.o
+hare_deps+=$(stdlib_io)
 
 # encoding::utf8
 libencoding_utf8_srcs= \
@@ -122,6 +128,7 @@ $(HARECACHE)/encoding/utf8/encoding.utf8.ssa: $(libencoding_utf8_srcs) $(stdlib_
 		-t$(HARECACHE)/encoding/utf8/encoding.utf8.td $(libencoding_utf8_srcs)
 
 stdlib_encoding_utf8=$(HARECACHE)/encoding/utf8/encoding.utf8.o
+hare_deps+=$(stdlib_encoding_utf8)
 
 # strings
 libstrings_srcs= \
@@ -137,6 +144,7 @@ $(HARECACHE)/strings/strings.ssa: $(libstrings_srcs) $(stdlib_rt) $(stdlib_encod
 		-t$(HARECACHE)/strings/strings.td $(libstrings_srcs)
 
 stdlib_strings=$(HARECACHE)/strings/strings.o
+hare_deps+=$(stdlib_strings)
 
 # os
 libos_srcs= \
@@ -156,6 +164,7 @@ $(HARECACHE)/os/os.ssa: $(libos_srcs) $(stdlib_rt) $(stdlib_strings) $(stdlib_ty
 		-t$(HARECACHE)/os/os.td $(libos_srcs)
 
 stdlib_os=$(HARECACHE)/os/os.o
+hare_deps+=$(stdlib_os)
 
 # fmt
 libfmt_srcs= \
@@ -168,4 +177,5 @@ $(HARECACHE)/fmt/fmt.ssa: $(libfmt_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_os) 
 		-t$(HARECACHE)/fmt/fmt.td $(libfmt_srcs)
 
 stdlib_fmt=$(HARECACHE)/fmt/fmt.o
+hare_deps+=$(stdlib_fmt)
 

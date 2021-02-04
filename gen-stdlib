@@ -52,6 +52,7 @@ rt() {
 
 stdlib_rt=\$($cache)/rt/rt.a
 stdlib_start=\$($cache)/rt/start.o
+hare_deps+=\$(stdlib_rt)
 
 EOF
 }
