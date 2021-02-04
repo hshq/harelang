@@ -57,3 +57,28 @@ export fn i32tos(i: i32) const str = i64tos(i: i64);
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // duplicate the result.
 export fn itos(i: int) const str = i64tos(i: i64);
+
+@test fn test_itos() void = {
+	// I64_MAX: https://todo.sr.ht/~sircmpwn/hare-v2/185
+	const samples = [
+		1234i64,
+		4321i64,
+		-1337i64,
+		0,
+		types::I64_MAX,
+		//types::I64_MIN,
+	];
+	const expected = [
+		"1234",
+		"4321",
+		"-1337",
+		"0",
+		"9223372036854775807",
+		//"-9223372036854775808",
+	];
+
+	for (let i = 0z; i < len(samples); i += 1z) {
+		const s = i64tos(samples[i]);
+		assert(s == expected[i]);
+	};
+};

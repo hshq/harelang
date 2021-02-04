@@ -60,3 +60,24 @@ export fn ztos(z: size) const str = u64tos(z: u64);
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // duplicate the result.
 export fn uptrtos(uptr: uintptr) const str = u64tos(uptr: u64);
+
+@test fn test_utos() void = {
+	// U64_MAX: https://todo.sr.ht/~sircmpwn/hare-v2/185
+	const samples = [
+		1234u64,
+		4321u64,
+		types::U64_MIN,
+		//types::U64_MAX,
+	];
+	const expected = [
+		"1234",
+		"4321",
+		"0",
+		//"18446744073709551615",
+	];
+
+	for (let i = 0z; i < len(samples); i += 1z) {
+		const s = u64tos(samples[i]);
+		assert(s == expected[i]);
+	};
+};
