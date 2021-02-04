@@ -14,7 +14,7 @@ hare:
 	@printf 'AS\t$@\n'
 	@$(AS) -g -o $@ $<
 
-include stdlib.mk
+include mk/stdlib.mk
 
 hare_srcs=\
 	main.ha
