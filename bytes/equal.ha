@@ -10,3 +10,15 @@ export fn equal(a: []u8, b: []u8) bool = {
 	};
 	return true;
 };
+
+@test fn equal() void = {
+	let a: []u8 = [1u8, 2u8, 3u8];
+	let b: []u8 = [1u8, 2u8, 3u8];
+	let c: []u8 = [1u8, 4u8, 5u8];
+	let d: []u8 = [1u8, 2u8, 3u8, 4u8];
+	let e: []u8 = [1u8, 2u8];
+	assert(equal(a, b));
+	assert(!equal(a, c));
+	assert(!equal(a, d));
+	assert(!equal(a, e));
+};
