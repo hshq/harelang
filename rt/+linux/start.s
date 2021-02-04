@@ -3,4 +3,4 @@
 _start:
 	xor %rbp, %rbp
 	movq %rsp, %rdi
-	call rt.start_ha
+	call rt.start_linux
