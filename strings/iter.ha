@@ -17,18 +17,27 @@ export fn next(iter: *iterator) (rune | void) = {
 };
 
 // Return a substring from the next rune to the end of the string.
-export fn iterstr(iter: *iterator) str = {
+export fn iter_str(iter: *iterator) str = {
 	return from_utf8(iter.src[iter.offs..]);
 };
 
 @test fn iter_test() void = {
-	let i = iter("こんにちは");
-	assert(next(&i) as rune == 'こ');
-	assert(next(&i) as rune == 'ん');
-	assert(iterstr(&i) == "にちは");
-	assert(next(&i) as rune == 'に');
-	assert(next(&i) as rune == 'ち');
-	assert(next(&i) as rune == 'は');
-	assert(next(&i) is void);
-	assert(next(&i) is void);
+	let s = iter("こんにちは");
+	const expected1 = ['こ', 'ん'];
+	for (let i = 0z; i < len(expected1); i += 1z) {
+		match (next(&s)) {
+		r: rune => assert(r == expected1[i]),
+		void    => abort(),
+		};
+	};
+	assert(iter_str(&s) == "にちは");
+	const expected2 = ['に', 'ち', 'は'];
+	for (let i = 0z; i < len(expected2); i += 1z) {
+		match (next(&s)) {
+		r: rune => assert(r == expected2[i]),
+		void    => abort(),
+		};
+	};
+	assert(next(&s) is void);
+	assert(next(&s) is void);
 };
