@@ -120,7 +120,11 @@ fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
 	return sum;
 };
 
-fn fd_seek(s: *io::stream, off: io::off, whence: io::whence) (io::off | io::error) = {
+fn fd_seek(
+	s: *io::stream,
+	off: io::off,
+	whence: io::whence,
+) (io::off | io::error) = {
 	let stream = s: *fd_stream;
 	let r = rt::lseek(stream.fd, off: i64, whence: uint);
 	return match (rt::wrap_return(r: size)) {
