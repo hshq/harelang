@@ -125,16 +125,27 @@ strconv() {
 	gen_lib strconv
 }
 
-io() {
-	# XXX: Sort me only after fixing forward references to alias types
-	# Sort it to see what the problem is if you don't understand
-	printf '# io\n'
+gensrcs_io() {
 	gen_srcs io \
 		'arch$(ARCH).ha' \
 		types.ha \
 		copy.ha \
 		println.ha \
-		stream.ha
+		stream.ha \
+		$*
+}
+
+io() {
+	# XXX: Sort me only after fixing forward references to alias types
+	# Sort it to see what the problem is if you don't understand
+	printf '# io\n'
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_io
+	else
+		gensrcs_io \
+			copy+test.ha
+	fi
 	gen_ssa io
 	gen_lib io
 }
