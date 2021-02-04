@@ -25,6 +25,7 @@ export type stream = struct {
 	writer: nullable *writer,
 	closer: nullable *closer,
 	copier: nullable *copier,
+	seeker: nullable *seeker,
 };
 
 // Reads up to len(buf) bytes from the reader into the given buffer, returning
@@ -50,5 +51,21 @@ export fn close(s: *stream) (error | void) = {
 	return match (s.closer) {
 		null => unsupported,
 		c: *closer => c(s),
+	};
+};
+
+// Sets the offset within the stream.
+export fn seek(s: *stream, off: off, w: whence) (off | error) = {
+	return match (s.seeker) {
+		null => unsupported,
+		sk: *seeker => sk(s, off, w),
+	};
+};
+
+// Returns the current offset within the stream.
+export fn tell(s: *stream) (off | error) = {
+	return match (s.seeker) {
+		null => unsupported,
+		sk: *seeker => sk(s, 0, whence::CUR),
 	};
 };

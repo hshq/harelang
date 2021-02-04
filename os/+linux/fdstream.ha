@@ -15,6 +15,7 @@ fn static_fdopen(
 			name   = name,
 			closer = &fd_close_static,
 			copier = &fd_copy,
+			seeker = &fd_seek,
 			...
 		},
 		fd = fd,
@@ -117,4 +118,13 @@ fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
 		sum += n;
 	};
 	return sum;
+};
+
+fn fd_seek(s: *io::stream, off: io::off, whence: io::whence) (io::off | io::error) = {
+	let stream = s: *fd_stream;
+	let r = rt::lseek(stream.fd, off: i64, whence: uint);
+	return match (rt::wrap_return(r: size)) {
+		err: rt::errno => errno_to_io(err),
+		n: size => n: io::off,
+	};
 };

@@ -31,6 +31,12 @@ export type mode = enum uint {
 	RDWR   = 2u,
 };
 
+export type whence = enum {
+	SET = 0,
+	CUR = 1,
+	END = 2,
+};
+
 // The interface for a stream which can be read from. Reads up to len(buf)
 // bytes from the reader into the given buffer, returning the number of bytes
 // read or an error.
@@ -58,3 +64,12 @@ export type closer = fn(s: *stream) void;
 // streams, return [io::unsupported] to have [io::copy] proceed with its
 // fallback implementation.
 export type copier = fn(to: *stream, from: *stream) (size | error);
+
+// The interface for a stream which can be seeked. Sets the offset for the next
+// read or write to offset, interpreted according to whence:
+// whence::SET means relative to the start of the file,
+// whence::CUR means relative to the current offset, and
+// whence::END means relative to the end.
+//
+// Returns the new offset relative to the start or an error.
+export type seeker = fn(s: *stream, off: off, w: whence) (off | error);

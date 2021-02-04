@@ -121,3 +121,6 @@ export fn munmap(addr: *void, length: size) int =
 
 export fn mprotect(addr: *void, length: size, prot: uint) int =
 	syscall3(SYS_mprotect, addr: uintptr: u64, length: u64, prot: u64): int;
+
+export fn lseek(fd: int, off: i64, whence: uint) i64 =
+	syscall3(SYS_lseek, fd: u64, off: u64, whence: u64): i64;
