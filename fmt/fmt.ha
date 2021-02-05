@@ -18,7 +18,7 @@ use strings;
 use types;
 
 // Tagged union of all types which are formattable.
-export type formattable = (...types::numeric | uintptr | str | *void);
+export type formattable = (...types::numeric | uintptr | str | rune | *void);
 
 // Formats text for printing writes it to [os::stdout].
 export fn printf(fmt: str, args: formattable...) (io::error | size) =
@@ -97,6 +97,7 @@ fn scan_uint(r: rune, iter: *strings::iterator) uint = {
 
 fn format(out: *io::stream, arg: formattable) void = match (arg) {
 	s: str => io::write(out, strings::to_utf8(s)),
+	r: rune => io::write(out, utf8::encode_rune(r)),
 	n: types::numeric => {
 		let s = strconv::numerictos(n);
 		io::write(out, strings::to_utf8(s));
