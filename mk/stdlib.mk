@@ -101,21 +101,6 @@ $(HARECACHE)/types/types.ssa: $(stdlib_types_srcs) $(stdlib_rt)
 stdlib_stdlib_types=$(HARECACHE)/types/types.o
 hare_stdlib_deps+=$(stdlib_stdlib_types)
 
-# strconv
-stdlib_strconv_srcs= \
-	$(STDLIB)/strconv/itos.ha \
-	$(STDLIB)/strconv/utos.ha \
-	$(STDLIB)/strconv/numeric.ha 
-
-$(HARECACHE)/strconv/strconv.ssa: $(stdlib_strconv_srcs) $(stdlib_rt) $(stdlib_stdlib_types)
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/strconv
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nstrconv \
-		-t$(HARECACHE)/strconv/strconv.td $(stdlib_strconv_srcs)
-
-stdlib_stdlib_strconv=$(HARECACHE)/strconv/strconv.o
-hare_stdlib_deps+=$(stdlib_stdlib_strconv)
-
 # io
 stdlib_io_srcs= \
 	$(STDLIB)/io/arch$(ARCH).ha \
@@ -163,6 +148,22 @@ $(HARECACHE)/strings/strings.ssa: $(stdlib_strings_srcs) $(stdlib_rt) $(stdlib_s
 
 stdlib_stdlib_strings=$(HARECACHE)/strings/strings.o
 hare_stdlib_deps+=$(stdlib_stdlib_strings)
+
+# strconv
+stdlib_strconv_srcs= \
+	$(STDLIB)/strconv/itos.ha \
+	$(STDLIB)/strconv/utos.ha \
+	$(STDLIB)/strconv/stou.ha \
+	$(STDLIB)/strconv/numeric.ha 
+
+$(HARECACHE)/strconv/strconv.ssa: $(stdlib_strconv_srcs) $(stdlib_rt) $(stdlib_stdlib_types) $(stdlib_stdlib_strings) $(stdlib_stdlib_ascii)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/strconv
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nstrconv \
+		-t$(HARECACHE)/strconv/strconv.td $(stdlib_strconv_srcs)
+
+stdlib_stdlib_strconv=$(HARECACHE)/strconv/strconv.o
+hare_stdlib_deps+=$(stdlib_stdlib_strconv)
 
 # os
 stdlib_os_srcs= \
@@ -298,21 +299,6 @@ $(TESTCACHE)/types/types.ssa: $(testlib_types_srcs) $(testlib_rt)
 testlib_testlib_types=$(TESTCACHE)/types/types.o
 hare_testlib_deps+=$(testlib_testlib_types)
 
-# strconv
-testlib_strconv_srcs= \
-	$(STDLIB)/strconv/itos.ha \
-	$(STDLIB)/strconv/utos.ha \
-	$(STDLIB)/strconv/numeric.ha 
-
-$(TESTCACHE)/strconv/strconv.ssa: $(testlib_strconv_srcs) $(testlib_rt) $(testlib_testlib_types)
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/strconv
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrconv \
-		-t$(TESTCACHE)/strconv/strconv.td $(testlib_strconv_srcs)
-
-testlib_testlib_strconv=$(TESTCACHE)/strconv/strconv.o
-hare_testlib_deps+=$(testlib_testlib_strconv)
-
 # io
 testlib_io_srcs= \
 	$(STDLIB)/io/arch$(ARCH).ha \
@@ -361,6 +347,23 @@ $(TESTCACHE)/strings/strings.ssa: $(testlib_strings_srcs) $(testlib_rt) $(testli
 
 testlib_testlib_strings=$(TESTCACHE)/strings/strings.o
 hare_testlib_deps+=$(testlib_testlib_strings)
+
+# strconv
+testlib_strconv_srcs= \
+	$(STDLIB)/strconv/itos.ha \
+	$(STDLIB)/strconv/utos.ha \
+	$(STDLIB)/strconv/stou.ha \
+	$(STDLIB)/strconv/numeric.ha \
+	$(STDLIB)/strconv/stou+test.ha 
+
+$(TESTCACHE)/strconv/strconv.ssa: $(testlib_strconv_srcs) $(testlib_rt) $(testlib_testlib_types) $(testlib_testlib_strings) $(testlib_testlib_ascii)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/strconv
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrconv \
+		-t$(TESTCACHE)/strconv/strconv.td $(testlib_strconv_srcs)
+
+testlib_testlib_strconv=$(TESTCACHE)/strconv/strconv.o
+hare_testlib_deps+=$(testlib_testlib_strconv)
 
 # os
 testlib_os_srcs= \

@@ -115,13 +115,25 @@ types() {
 	gen_lib types
 }
 
-strconv() {
-	printf '# strconv\n'
+gensrcs_strconv() {
 	gen_srcs strconv \
 		itos.ha \
 		utos.ha \
-		numeric.ha
-	gen_ssa strconv types
+		stou.ha \
+		numeric.ha \
+		$*
+}
+
+strconv() {
+	printf '# strconv\n'
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_strconv
+	else
+		gensrcs_strconv \
+			stou+test.ha
+	fi
+	gen_ssa strconv types strings ascii
 	gen_lib strconv
 }
 
@@ -203,10 +215,10 @@ stdlib() {
 	ascii
 	bytes
 	types
-	strconv
 	io
 	encoding_utf8
 	strings
+	strconv
 	os
 	fmt
 }
