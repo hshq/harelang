@@ -36,7 +36,7 @@ gen_ssa() {
 	printf "\$($cache)/$path/$file.ssa: \$(${var}_srcs) \$(${stdlib}_rt)"
 	for dep in $*
 	do
-		printf ' $(%s_%s)' "$stdlib" "$(mod_var "$dep")"
+		printf ' $(%s)' "$(mod_var "$dep")"
 	done
 	printf '\n'
 
@@ -54,8 +54,8 @@ gen_lib() {
 	path=$(mod_path "$mod")
 	file=$(mod_file "$mod")
 	var=$(mod_var "$mod")
-	printf "${stdlib}_$var=\$($cache)/$path/$file.o\n"
-	printf 'hare_%s_deps+=$(%s_%s)\n\n' "$stdlib" "$stdlib" "$var"
+	printf "%s=\$(%s)/%s/%s.o\n" "$var" "$cache" "$path" "$file"
+	printf 'hare_%s_deps+=$(%s)\n\n' "$stdlib" "$var"
 }
 
 genrules() {
