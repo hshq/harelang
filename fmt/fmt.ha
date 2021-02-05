@@ -3,12 +3,14 @@
 // a set of variadic parameters for printing.
 //
 // A format sequence is enclosed in curly braces '{}'. An empty sequence takes
-// the next argument from the parameter list, in order. A specific parameter can
-// be used by numbering it from zero: '{0}', '{1}', and so on. A colon may be
-// used to specify additional constraints on the format in a type-specific
-// manner: '{0:x} will print a number in hexadecimal.
+// the next argument from the parameter list, in order. A specific parameter may
+// be selected by indexing it from zero: '{0}', '{1}', and so on.
 //
-// TODO: More detail
+// You may use a colon to add format modifiers; for example, '{:x}' will format
+// an argument in hexadecimal, and '{3:10}' will pad the 3rd argument to 10
+// characters.
+//
+// TODO: Expand on format modifiers.
 use ascii;
 use encoding::utf8;
 use io;
@@ -43,32 +45,29 @@ export fn fprintf(
 			r: rune => r,
 		};
 
-		if (r  == '{') {
+		if (r == '{') {
 			r = match (strings::next(&iter)) {
 				void => abort("Invalid format string (unterminated '{')"),
 				r: rune => r,
 			};
 
-			let arg = args[i];
-			switch (r) {
-				':' => abort(), // TODO: format specifiers
-				'}' => void,
-				*   => {
-					i -= 1z;
-					arg = args[scan_uint(r, &iter)];
+			const arg = switch (r) {
+				':' => abort(), // TODO: format modifiers
+				'}' => {
+					i += 1z;
+					args[i - 1z];
 				},
+				* => args[scan_uint(r, &iter)],
 			};
 
 			format(s, arg);
-			i += 1z;
-			continue;
-		};
-
-		match (io::write(s, utf8::encode_rune(r))) {
-			err: io::error => return err,
-			w: size => {
-				n += w;
-			},
+		} else {
+			match (io::write(s, utf8::encode_rune(r))) {
+				err: io::error => return err,
+				w: size => {
+					n += w;
+				},
+			};
 		};
 	};
 
@@ -78,6 +77,7 @@ export fn fprintf(
 fn scan_uint(r: rune, iter: *strings::iterator) uint = {
 	assert(ascii::isdigit(r));
 	let num = alloc([]u8, [r: u32: u8], 1z); // XXX: alloc slice w/o cap
+	defer free(num);
 	for (true) {
 		r = match (strings::next(iter)) {
 			void => abort("Invalid format string (unterminated '(')"),
@@ -85,7 +85,7 @@ fn scan_uint(r: rune, iter: *strings::iterator) uint = {
 		};
 		switch (r) {
 			*   => append(num, r: u32: u8),
-			':' => abort(), // TODO: Format specifiers
+			':' => abort(), // TODO: Format modifiers
 			'}' => match (strconv::stou(strings::from_utf8(num))) {
 				(strconv::invalid | strconv::overflow) =>
 					abort("Invalid format string (invalid index)"),
