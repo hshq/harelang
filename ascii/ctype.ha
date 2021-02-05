@@ -1,11 +1,11 @@
-def U: u8 = 01u8;
-def L: u8 = 02u8;
-def N: u8 = 04u8;
-def S: u8 = 010u8;
-def P: u8 = 020u8;
-def C: u8 = 040u8;
-def B: u8 = 0100u8;
-def X: u8 = 0200u8;
+def U: u8 = 0o1u8;
+def L: u8 = 0o2u8;
+def N: u8 = 0o4u8;
+def S: u8 = 0o10u8;
+def P: u8 = 0o20u8;
+def C: u8 = 0o40u8;
+def B: u8 = 0o100u8;
+def X: u8 = 0o200u8;
 
 // LUT of bitfields with character attributes
 const cclass: []u8 = [
@@ -62,7 +62,7 @@ export fn isgraph(c: u8) bool = cclass[c]&(P|U|L|N) > 0u8;
 export fn iscntrl(c: u8) bool = cclass[c]&C > 0u8;
 
 // True if a u8 is a valid ASCII character.
-export fn isascii(c: u8) bool = c <= 0177u8;
+export fn isascii(c: u8) bool = c <= 0o177u8;
 
 // Returns the uppercase form of an ASCII character, or the original character
 // if it was not a lowercase letter.
@@ -77,4 +77,4 @@ export fn tolower(c: u8) u8 = {
 };
 
 // Converts a u8 to ASCII by truncating the most significant bit.
-export fn toascii(c: u8) u8 = c & 0177u8;
+export fn toascii(c: u8) u8 = c & 0o177u8;
