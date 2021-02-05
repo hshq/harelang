@@ -25,7 +25,7 @@ export fn stou64(s: str) (u64 | invalid | overflow) = {
 			r: rune => r,
 		};
 
-		if (!ascii::isascii(r: u32: u8) || !ascii::isdigit(r: u32: u8)) {
+		if (!ascii::isascii(r) || !ascii::isdigit(r)) {
 			return invalid;
 		};
 

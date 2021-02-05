@@ -29,52 +29,64 @@ const cclass: []u8 = [
 ];
 
 // True if an ASCII character is a letter
-export fn isalpha(c: u8) bool = cclass[c]&(U|L) > 0u8;
+export fn isalpha(c: rune) bool =
+	if (!isascii(c)) false else cclass[c: u32]&(U|L) > 0u8;
 
 // True if an ASCII character is uppercase
-export fn isupper(c: u8) bool = cclass[c]&U > 0u8;
+export fn isupper(c: rune) bool =
+	if (!isascii(c)) false else cclass[c: u32]&U > 0u8;
 
 // True if an ASCII character is lowercase
-export fn islower(c: u8) bool = cclass[c]&L > 0u8;
+export fn islower(c: rune) bool =
+	if (!isascii(c)) false else cclass[c: u32]&L > 0u8;
 
 // True if an ASCII character is a digit
-export fn isdigit(c: u8) bool = cclass[c]&N > 0u8;
+export fn isdigit(c: rune) bool =
+	if (!isascii(c)) false else cclass[c: u32]&N > 0u8;
 
 // True if an ASCII character is a hexadecimal digit
-export fn isxdigit(c: u8) bool = cclass[c]&X > 0u8;
+export fn isxdigit(c: rune) bool =
+	if (!isascii(c)) false else cclass[c: u32]&X > 0u8;
 
 // True if an ASCII character is a space.
-export fn isspace(c: u8) bool = cclass[c]&S > 0u8;
+export fn isspace(c: rune) bool =
+	if (!isascii(c)) false else cclass[c: u32]&S > 0u8;
 
 // True if an ASCII character is punctuation.
-export fn ispunct(c: u8) bool = cclass[c]&P > 0u8;
+export fn ispunct(c: rune) bool =
+	if (!isascii(c)) false else cclass[c: u32]&P > 0u8;
 
 // True if an ASCII character is alphanumeric.
-export fn isalnum(c: u8) bool = cclass[c]&(U|L|N) > 0u8;
+export fn isalnum(c: rune) bool =
+	if (!isascii(c)) false else cclass[c: u32]&(U|L|N) > 0u8;
 
 // True if an ASCII character is printable.
-export fn isprint(c: u8) bool = cclass[c]&(P|U|L|N|B) > 0u8;
+export fn isprint(c: rune) bool =
+	if (!isascii(c)) false else cclass[c: u32]&(P|U|L|N|B) > 0u8;
 
 // True if an ASCII character is any printable character other than space.
-export fn isgraph(c: u8) bool = cclass[c]&(P|U|L|N) > 0u8;
+export fn isgraph(c: rune) bool =
+	if (!isascii(c)) false else cclass[c: u32]&(P|U|L|N) > 0u8;
 
 // True if an ASCII character is a control character.
-export fn iscntrl(c: u8) bool = cclass[c]&C > 0u8;
+export fn iscntrl(c: rune) bool =
+	if (!isascii(c)) false else cclass[c: u32]&C > 0u8;
 
-// True if a u8 is a valid ASCII character.
-export fn isascii(c: u8) bool = c <= 0o177u8;
+// True if a rune is a valid ASCII character.
+export fn isascii(c: rune) bool = c: u32 <= 0o177u32;
 
 // Returns the uppercase form of an ASCII character, or the original character
 // if it was not a lowercase letter.
-export fn toupper(c: u8) u8 = {
-	return if (islower(c)) c - ('a': u32: u8) + ('A': u32: u8) else c;
+export fn toupper(c: rune) rune = {
+	return if (islower(c)) {
+		(c: u32 - ('a': u32) + ('A': u32)): rune;
+	} else c;
 };
 
 // Returns the lowercase form of an ASCII character, or the original character
 // if it was not an uppercase letter.
-export fn tolower(c: u8) u8 = {
-	return if (isupper(c)) c - ('A': u32: u8) + ('a': u32: u8) else c;
+export fn tolower(c: rune) rune = {
+	return if (isupper(c)) {
+		(c: u32 - ('A': u32) + ('a': u32)): rune;
+	} else c;
 };
-
-// Converts a u8 to ASCII by truncating the most significant bit.
-export fn toascii(c: u8) u8 = c & 0o177u8;
