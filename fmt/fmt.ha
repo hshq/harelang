@@ -18,7 +18,8 @@ use strings;
 use types;
 
 // Tagged union of all types which are formattable.
-export type formattable = (...types::numeric | uintptr | str | rune | *void);
+export type formattable = (...types::numeric | uintptr
+	| str | rune | nullable *void);
 
 // Formats text for printing writes it to [os::stdout].
 export fn printf(fmt: str, args: formattable...) (io::error | size) =
@@ -106,5 +107,8 @@ fn format(out: *io::stream, arg: formattable) void = match (arg) {
 		let s = strconv::uptrtos(p);
 		io::write(out, strings::to_utf8(s));
 	},
-	v: *void => format(out, v: uintptr), // TODO: Hexadecimal
+	v: nullable *void => match (v) {
+		v: *void => format(out, v: uintptr), // TODO: Hexadecimal
+		null => format(out, "(null)"),
+	},
 };
