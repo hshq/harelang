@@ -104,25 +104,31 @@ export fn fprintf(
 				r: rune => r,
 			};
 
+			const arg = if (r == '{') match (io::write(
+					s, utf8::encode_rune('{'))) {
+				err: io::error => return err,
+				w: size => {
+					n += w;
+					continue;
+				},
+			} else if (ascii::isdigit(r)) {
+				strings::push(&iter, r);
+				args[scan_uint(&iter)];
+			} else {
+				strings::push(&iter, r);
+				i += 1z;
+				args[i - 1z];
+			};
+
 			let mod = modifiers { ... };
-			const arg = switch (r) {
-				'{' => match (io::write(s, utf8::encode_rune('{'))) {
-					err: io::error => return err,
-					w: size => {
-						n += w;
-						continue;
-					},
-				},
-				'}' => {
-					i += 1z;
-					args[i - 1z];
-				},
-				':' => {
-					scan_modifiers(&iter, &mod);
-					i += 1z;
-					args[i - 1z];
-				},
-				*   => args[scan_uint(r, &iter)],
+			r = match (strings::next(&iter)) {
+				void => abort("Invalid format string (unterminated '{')"),
+				r: rune => r,
+			};
+			switch (r) {
+				':' => scan_modifiers(&iter, &mod),
+				'}' => void,
+				*   => abort("Invalid format string"),
 			};
 
 			format(s, arg, &mod);
@@ -173,29 +179,29 @@ fn format(
 	},
 };
 
-fn scan_uint(r: rune, iter: *strings::iterator) uint = {
-	assert(ascii::isdigit(r));
-	let num = alloc([]u8, [r: u32: u8], 1z); // XXX: alloc slice w/o cap
+fn scan_uint(iter: *strings::iterator) uint = {
+	let num = alloc([]u8, [], 1z); // TODO: alloc slice w/o cap
 	defer free(num);
 	for (true) {
-		r = match (strings::next(iter)) {
-			void => abort("Invalid format string (unterminated '(')"),
+		let r = match (strings::next(iter)) {
+			void => abort("Invalid format string (unterminated '{')"),
 			r: rune => r,
 		};
 
-		switch (r) {
-			*   => append(num, r: u32: u8),
-			':' => abort(), // TODO: Format modifiers
-			'}' => match (strconv::stou(strings::from_utf8(num))) {
+		if (ascii::isdigit(r)) {
+			append(num, r: u32: u8);
+		} else {
+			strings::push(iter, r);
+			match (strconv::stou(strings::from_utf8(num))) {
 				(strconv::invalid | strconv::overflow) =>
 					abort("Invalid format string (invalid index)"),
 				u: uint => return u,
-			},
+			};
 		};
 	};
 	abort("unreachable");
 };
 
 fn scan_modifiers(iter: *strings::iterator, mod: *modifiers) void = {
-	abort(); // TODO
+	abort("TODO: format modifiers");
 };
