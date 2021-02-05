@@ -1,14 +1,27 @@
 use encoding::utf8;
 
 // An iterator which yields each rune from a string.
-export type iterator = utf8::decoder;
+export type iterator = struct {
+	dec:  utf8::decoder,
+	push: (rune | void),
+};
 
 // Initializes a string iterator.
-export fn iter(src: str) iterator = utf8::decode(src);
+export fn iter(src: str) iterator = iterator {
+	dec = utf8::decode(src),
+	push = void,
+};
 
 // Get the next rune from an iterator, or void if there are none left.
 export fn next(iter: *iterator) (rune | void) = {
-	return match (utf8::next(iter)) {
+	match (iter.push) {
+		r: rune => {
+			iter.push = void;
+			return r;
+		},
+		void => void,
+	};
+	return match (utf8::next(&iter.dec)) {
 		r: rune       => r,
 		void          => void,
 		utf8::more    => abort("Invalid UTF-8 string (this should not happen)"),
@@ -16,9 +29,17 @@ export fn next(iter: *iterator) (rune | void) = {
 	};
 };
 
+// Pushes a rune back to the iterator, effectively un-reading it. The given rune
+// will be returned on the next call to 'next'. Only one rune can be pushed at a
+// time.
+export fn push(iter: *iterator, r: rune) void = {
+	assert(iter.push is void);
+	iter.push = r;
+};
+
 // Return a substring from the next rune to the end of the string.
 export fn iter_str(iter: *iterator) str = {
-	return from_utf8(iter.src[iter.offs..]);
+	return from_utf8(iter.dec.src[iter.dec.offs..]);
 };
 
 @test fn iter() void = {
@@ -40,4 +61,6 @@ export fn iter_str(iter: *iterator) str = {
 	};
 	assert(next(&s) is void);
 	assert(next(&s) is void);
+	push(&s, 'q');
+	assert(next(&s) as rune == 'q');
 };
