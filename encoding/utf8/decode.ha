@@ -60,6 +60,33 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 	return r: rune;
 };
 
+@test fn decode() void = {
+	const input = [
+		0xE3u8, 0x81u8, 0x93u8, 0xE3u8, 0x82u8, 0x93u8, 0xE3u8, 0x81u8,
+		0xABu8, 0xE3u8, 0x81u8, 0xA1u8, 0xE3u8, 0x81u8, 0xAFu8, 0x00u8,
+	];
+	const expected = ['こ', 'ん', 'に', 'ち', 'は', '\0'];
+	let decoder = decode(input);
+	for (let i = 0z; i < len(expected); i += 1z) {
+		match (next(&decoder)) {
+			r: rune => assert(r == expected[i]),
+			invalid => abort(),
+			more    => abort(),
+			void    => abort(),
+		};
+	};
+	assert(next(&decoder) is void);
+
+	// TODO: Test more invalid sequences
+	const invalid = [0xA0u8, 0xA1u8];
+	decoder = decode(invalid);
+	assert(next(&decoder) is invalid);
+
+	const incomplete = [0xE3u8, 0x81u8];
+	decoder = decode(incomplete);
+	assert(next(&decoder) is more);
+};
+
 // Returns true if a given string or byte slice contains only valid UTF-8
 // sequences. Note that Hare strings (str) are always valid UTF-8 - if this
 // returns false for a str type, something funny is going on.
