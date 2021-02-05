@@ -65,13 +65,13 @@ export fn errorf(fmt: str, args: formattable...) (io::error | size) =
 
 fn format(out: *io::stream, arg: formattable) void = match (arg) {
 	s: str => io::write(out, strings::to_utf8(s)),
-	v: *void => format(out, v: uintptr), // TODO: Hexadecimal
-	p: uintptr => {
-		let s = strconv::uptrtos(p);
-		io::write(out, strings::to_utf8(s));
-	},
 	n: types::numeric => {
 		let s = strconv::numerictos(n);
 		io::write(out, strings::to_utf8(s));
 	},
+	p: uintptr => {
+		let s = strconv::uptrtos(p);
+		io::write(out, strings::to_utf8(s));
+	},
+	v: *void => format(out, v: uintptr), // TODO: Hexadecimal
 };
