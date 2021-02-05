@@ -90,3 +90,13 @@ export fn tolower(c: rune) rune = {
 		(c: u32 - ('A': u32) + ('a': u32)): rune;
 	} else c;
 };
+
+@test fn test() void = {
+	// Just some simple tests
+	assert(isspace(' ') && !isspace('x') && !isspace('こ'));
+	assert(isalnum('a') && isalnum('8') && !isalnum('こ'));
+	assert(!ispunct('\0') && iscntrl('\b'));
+	assert(isascii('a') && isascii('\0') && isascii('\x7F'));
+	assert(!isascii('\x80') && !isascii('こ'));
+	assert(tolower('A') == 'a' && tolower('こ') == 'こ');
+};
