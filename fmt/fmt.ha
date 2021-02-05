@@ -9,6 +9,7 @@
 // manner: '{0:x} will print a number in hexadecimal.
 //
 // TODO: More detail
+use ascii;
 use encoding::utf8;
 use io;
 use os;
@@ -18,6 +19,14 @@ use types;
 
 // Tagged union of all types which are formattable.
 export type formattable = (...types::numeric | uintptr | str | *void);
+
+// Formats text for printing writes it to [os::stdout].
+export fn printf(fmt: str, args: formattable...) (io::error | size) =
+	fprintf(os::stdout, fmt, args...);
+
+// Formats text for printing writes it to [os::stderr].
+export fn errorf(fmt: str, args: formattable...) (io::error | size) =
+	fprintf(os::stderr, fmt, args...);
 
 // Formats text for printing and writes it to an [io::stream].
 export fn fprintf(
@@ -38,8 +47,18 @@ export fn fprintf(
 				void => abort("Invalid format string (unterminated '{')"),
 				r: rune => r,
 			};
-			assert(r == '}'); // TODO
-			format(s, args[i]);
+
+			let arg = args[i];
+			switch (r) {
+				':' => abort(), // TODO: format specifiers
+				'}' => void,
+				*   => {
+					i -= 1z;
+					arg = args[scan_uint(r, &iter)];
+				},
+			};
+
+			format(s, arg);
 			i += 1z;
 			continue;
 		};
@@ -55,13 +74,26 @@ export fn fprintf(
 	return n;
 };
 
-// Formats text for printing writes it to [os::stdout].
-export fn printf(fmt: str, args: formattable...) (io::error | size) =
-	fprintf(os::stdout, fmt, args...);
-
-// Formats text for printing writes it to [os::stderr].
-export fn errorf(fmt: str, args: formattable...) (io::error | size) =
-	fprintf(os::stderr, fmt, args...);
+fn scan_uint(r: rune, iter: *strings::iterator) uint = {
+	assert(ascii::isdigit(r));
+	let num = alloc([]u8, [r: u32: u8], 1z); // XXX: alloc slice w/o cap
+	for (true) {
+		r = match (strings::next(iter)) {
+			void => abort("Invalid format string (unterminated '(')"),
+			r: rune => r,
+		};
+		switch (r) {
+			*   => append(num, r: u32: u8),
+			':' => abort(), // TODO: Format specifiers
+			'}' => match (strconv::stou(strings::from_utf8(num))) {
+				(strconv::invalid | strconv::overflow) =>
+					abort("Invalid format string (invalid index)"),
+				u: uint => return u,
+			},
+		};
+	};
+	abort("unreachable");
+};
 
 fn format(out: *io::stream, arg: formattable) void = match (arg) {
 	s: str => io::write(out, strings::to_utf8(s)),
