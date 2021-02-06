@@ -17,3 +17,11 @@ export fn dup(s: const str) str = {
 	};
 	return *(&out: *str);
 };
+
+// Duplicates every string of a slice in place, returning the same slice with
+// new strings.
+export fn dup_all(s: []str) void = {
+	for (let i = 0z; i < len(s); i += 1z) {
+		s[i] = strings::dup(s[i]);
+	};
+};
