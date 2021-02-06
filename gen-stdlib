@@ -97,7 +97,8 @@ bytes() {
 		copy.ha \
 		equal.ha \
 		index.ha \
-		reverse.ha
+		reverse.ha \
+		tokenize.ha
 	gen_ssa bytes
 }
 
@@ -120,9 +121,11 @@ fmt() {
 
 gensrcs_strconv() {
 	gen_srcs strconv \
+		types.ha \
 		itos.ha \
 		utos.ha \
 		stou.ha \
+		stoi.ha \
 		numeric.ha \
 		$*
 }
@@ -172,7 +175,8 @@ strconv() {
 		gensrcs_strconv
 	else
 		gensrcs_strconv \
-			stou+test.ha
+			+test/stou.ha \
+			+test/stoi.ha
 	fi
 	gen_ssa strconv types strings ascii
 }
@@ -183,6 +187,7 @@ strings() {
 		cstrings.ha \
 		dup.ha \
 		iter.ha \
+		tokenize.ha \
 		utf8.ha
 	gen_ssa strings encoding::utf8 types
 }

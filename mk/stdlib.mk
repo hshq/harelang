@@ -99,7 +99,8 @@ stdlib_bytes_srcs= \
 	$(STDLIB)/bytes/copy.ha \
 	$(STDLIB)/bytes/equal.ha \
 	$(STDLIB)/bytes/index.ha \
-	$(STDLIB)/bytes/reverse.ha
+	$(STDLIB)/bytes/reverse.ha \
+	$(STDLIB)/bytes/tokenize.ha
 
 $(HARECACHE)/bytes/bytes.ssa: $(stdlib_bytes_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -162,9 +163,11 @@ $(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_strings) $(stdli
 
 # strconv
 stdlib_strconv_srcs= \
+	$(STDLIB)/strconv/types.ha \
 	$(STDLIB)/strconv/itos.ha \
 	$(STDLIB)/strconv/utos.ha \
 	$(STDLIB)/strconv/stou.ha \
+	$(STDLIB)/strconv/stoi.ha \
 	$(STDLIB)/strconv/numeric.ha
 
 $(HARECACHE)/strconv/strconv.ssa: $(stdlib_strconv_srcs) $(stdlib_rt) $(stdlib_types) $(stdlib_strings) $(stdlib_ascii)
@@ -178,6 +181,7 @@ stdlib_strings_srcs= \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/iter.ha \
+	$(STDLIB)/strings/tokenize.ha \
 	$(STDLIB)/strings/utf8.ha
 
 $(HARECACHE)/strings/strings.ssa: $(stdlib_strings_srcs) $(stdlib_rt) $(stdlib_encoding_utf8) $(stdlib_types)
@@ -297,7 +301,8 @@ testlib_bytes_srcs= \
 	$(STDLIB)/bytes/copy.ha \
 	$(STDLIB)/bytes/equal.ha \
 	$(STDLIB)/bytes/index.ha \
-	$(STDLIB)/bytes/reverse.ha
+	$(STDLIB)/bytes/reverse.ha \
+	$(STDLIB)/bytes/tokenize.ha
 
 $(TESTCACHE)/bytes/bytes.ssa: $(testlib_bytes_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -361,11 +366,14 @@ $(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_strings) $(te
 
 # strconv
 testlib_strconv_srcs= \
+	$(STDLIB)/strconv/types.ha \
 	$(STDLIB)/strconv/itos.ha \
 	$(STDLIB)/strconv/utos.ha \
 	$(STDLIB)/strconv/stou.ha \
+	$(STDLIB)/strconv/stoi.ha \
 	$(STDLIB)/strconv/numeric.ha \
-	$(STDLIB)/strconv/stou+test.ha
+	$(STDLIB)/strconv/+test/stou.ha \
+	$(STDLIB)/strconv/+test/stoi.ha
 
 $(TESTCACHE)/strconv/strconv.ssa: $(testlib_strconv_srcs) $(testlib_rt) $(testlib_types) $(testlib_strings) $(testlib_ascii)
 	@printf 'HAREC \t$@\n'
@@ -378,6 +386,7 @@ testlib_strings_srcs= \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/iter.ha \
+	$(STDLIB)/strings/tokenize.ha \
 	$(STDLIB)/strings/utf8.ha
 
 $(TESTCACHE)/strings/strings.ssa: $(testlib_strings_srcs) $(testlib_rt) $(testlib_encoding_utf8) $(testlib_types)
