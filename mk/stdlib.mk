@@ -17,7 +17,7 @@ stdlib_rt_srcs= \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/$(PLATFORM)/abort.ha \
-	$(STDLIB)/rt/start.ha 
+	$(STDLIB)/rt/start.ha
 
 $(HARECACHE)/rt/rt.ssa: $(stdlib_rt_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -86,7 +86,7 @@ hare_stdlib_deps+=$(stdlib_types)
 
 # ascii
 stdlib_ascii_srcs= \
-	$(STDLIB)/ascii/ctype.ha 
+	$(STDLIB)/ascii/ctype.ha
 
 $(HARECACHE)/ascii/ascii.ssa: $(stdlib_ascii_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -99,7 +99,7 @@ stdlib_bytes_srcs= \
 	$(STDLIB)/bytes/copy.ha \
 	$(STDLIB)/bytes/equal.ha \
 	$(STDLIB)/bytes/index.ha \
-	$(STDLIB)/bytes/reverse.ha 
+	$(STDLIB)/bytes/reverse.ha
 
 $(HARECACHE)/bytes/bytes.ssa: $(stdlib_bytes_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -111,7 +111,7 @@ $(HARECACHE)/bytes/bytes.ssa: $(stdlib_bytes_srcs) $(stdlib_rt)
 stdlib_encoding_utf8_srcs= \
 	$(STDLIB)/encoding/utf8/rune.ha \
 	$(STDLIB)/encoding/utf8/decode.ha \
-	$(STDLIB)/encoding/utf8/encode.ha 
+	$(STDLIB)/encoding/utf8/encode.ha
 
 $(HARECACHE)/encoding/utf8/encoding.utf8.ssa: $(stdlib_encoding_utf8_srcs) $(stdlib_rt) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
@@ -121,7 +121,7 @@ $(HARECACHE)/encoding/utf8/encoding.utf8.ssa: $(stdlib_encoding_utf8_srcs) $(std
 
 # fmt
 stdlib_fmt_srcs= \
-	$(STDLIB)/fmt/fmt.ha 
+	$(STDLIB)/fmt/fmt.ha
 
 $(HARECACHE)/fmt/fmt.ssa: $(stdlib_fmt_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_os) $(stdlib_strconv) $(stdlib_strings) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
@@ -135,7 +135,7 @@ stdlib_io_srcs= \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/println.ha \
-	$(STDLIB)/io/stream.ha 
+	$(STDLIB)/io/stream.ha
 
 $(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -152,7 +152,7 @@ stdlib_os_srcs= \
 	$(STDLIB)/os/$(PLATFORM)/open.ha \
 	$(STDLIB)/os/$(PLATFORM)/stdfd.ha \
 	$(STDLIB)/os/environ.ha \
-	$(STDLIB)/os/stdfd.ha 
+	$(STDLIB)/os/stdfd.ha
 
 $(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_strings) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
@@ -165,7 +165,7 @@ stdlib_strconv_srcs= \
 	$(STDLIB)/strconv/itos.ha \
 	$(STDLIB)/strconv/utos.ha \
 	$(STDLIB)/strconv/stou.ha \
-	$(STDLIB)/strconv/numeric.ha 
+	$(STDLIB)/strconv/numeric.ha
 
 $(HARECACHE)/strconv/strconv.ssa: $(stdlib_strconv_srcs) $(stdlib_rt) $(stdlib_types) $(stdlib_strings) $(stdlib_ascii)
 	@printf 'HAREC \t$@\n'
@@ -178,7 +178,7 @@ stdlib_strings_srcs= \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/iter.ha \
-	$(STDLIB)/strings/utf8.ha 
+	$(STDLIB)/strings/utf8.ha
 
 $(HARECACHE)/strings/strings.ssa: $(stdlib_strings_srcs) $(stdlib_rt) $(stdlib_encoding_utf8) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
@@ -190,7 +190,7 @@ $(HARECACHE)/strings/strings.ssa: $(stdlib_strings_srcs) $(stdlib_rt) $(stdlib_e
 stdlib_types_srcs= \
 	$(STDLIB)/types/limits.ha \
 	$(STDLIB)/types/classes.ha \
-	$(STDLIB)/types/arch$(ARCH).ha 
+	$(STDLIB)/types/arch$(ARCH).ha
 
 $(HARECACHE)/types/types.ssa: $(stdlib_types_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -215,7 +215,7 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/+test/abort.ha \
 	$(STDLIB)/rt/+test/start.ha \
-	$(STDLIB)/rt/+test/ztos.ha 
+	$(STDLIB)/rt/+test/ztos.ha
 
 $(TESTCACHE)/rt/rt.ssa: $(testlib_rt_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -284,7 +284,7 @@ hare_testlib_deps+=$(testlib_types)
 
 # ascii
 testlib_ascii_srcs= \
-	$(STDLIB)/ascii/ctype.ha 
+	$(STDLIB)/ascii/ctype.ha
 
 $(TESTCACHE)/ascii/ascii.ssa: $(testlib_ascii_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -297,7 +297,7 @@ testlib_bytes_srcs= \
 	$(STDLIB)/bytes/copy.ha \
 	$(STDLIB)/bytes/equal.ha \
 	$(STDLIB)/bytes/index.ha \
-	$(STDLIB)/bytes/reverse.ha 
+	$(STDLIB)/bytes/reverse.ha
 
 $(TESTCACHE)/bytes/bytes.ssa: $(testlib_bytes_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -309,7 +309,7 @@ $(TESTCACHE)/bytes/bytes.ssa: $(testlib_bytes_srcs) $(testlib_rt)
 testlib_encoding_utf8_srcs= \
 	$(STDLIB)/encoding/utf8/rune.ha \
 	$(STDLIB)/encoding/utf8/decode.ha \
-	$(STDLIB)/encoding/utf8/encode.ha 
+	$(STDLIB)/encoding/utf8/encode.ha
 
 $(TESTCACHE)/encoding/utf8/encoding.utf8.ssa: $(testlib_encoding_utf8_srcs) $(testlib_rt) $(testlib_types)
 	@printf 'HAREC \t$@\n'
@@ -319,7 +319,7 @@ $(TESTCACHE)/encoding/utf8/encoding.utf8.ssa: $(testlib_encoding_utf8_srcs) $(te
 
 # fmt
 testlib_fmt_srcs= \
-	$(STDLIB)/fmt/fmt.ha 
+	$(STDLIB)/fmt/fmt.ha
 
 $(TESTCACHE)/fmt/fmt.ssa: $(testlib_fmt_srcs) $(testlib_rt) $(testlib_io) $(testlib_os) $(testlib_strconv) $(testlib_strings) $(testlib_types)
 	@printf 'HAREC \t$@\n'
@@ -334,7 +334,7 @@ testlib_io_srcs= \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/println.ha \
 	$(STDLIB)/io/stream.ha \
-	$(STDLIB)/io/copy+test.ha 
+	$(STDLIB)/io/copy+test.ha
 
 $(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -351,7 +351,7 @@ testlib_os_srcs= \
 	$(STDLIB)/os/$(PLATFORM)/open.ha \
 	$(STDLIB)/os/$(PLATFORM)/stdfd.ha \
 	$(STDLIB)/os/environ.ha \
-	$(STDLIB)/os/stdfd.ha 
+	$(STDLIB)/os/stdfd.ha
 
 $(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_strings) $(testlib_types)
 	@printf 'HAREC \t$@\n'
@@ -365,7 +365,7 @@ testlib_strconv_srcs= \
 	$(STDLIB)/strconv/utos.ha \
 	$(STDLIB)/strconv/stou.ha \
 	$(STDLIB)/strconv/numeric.ha \
-	$(STDLIB)/strconv/stou+test.ha 
+	$(STDLIB)/strconv/stou+test.ha
 
 $(TESTCACHE)/strconv/strconv.ssa: $(testlib_strconv_srcs) $(testlib_rt) $(testlib_types) $(testlib_strings) $(testlib_ascii)
 	@printf 'HAREC \t$@\n'
@@ -378,7 +378,7 @@ testlib_strings_srcs= \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/iter.ha \
-	$(STDLIB)/strings/utf8.ha 
+	$(STDLIB)/strings/utf8.ha
 
 $(TESTCACHE)/strings/strings.ssa: $(testlib_strings_srcs) $(testlib_rt) $(testlib_encoding_utf8) $(testlib_types)
 	@printf 'HAREC \t$@\n'
@@ -390,7 +390,7 @@ $(TESTCACHE)/strings/strings.ssa: $(testlib_strings_srcs) $(testlib_rt) $(testli
 testlib_types_srcs= \
 	$(STDLIB)/types/limits.ha \
 	$(STDLIB)/types/classes.ha \
-	$(STDLIB)/types/arch$(ARCH).ha 
+	$(STDLIB)/types/arch$(ARCH).ha
 
 $(TESTCACHE)/types/types.ssa: $(testlib_types_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'

@@ -18,7 +18,7 @@ gen_srcs() {
 	do
 		if [ $# -eq 1 ]
 		then
-			printf '\t$(STDLIB)/%s/%s \n\n' "$path" "$1"
+			printf '\t$(STDLIB)/%s/%s\n\n' "$path" "$1"
 		else
 			printf '\t$(STDLIB)/%s/%s \\\n' "$path" "$1"
 		fi
