@@ -6,6 +6,10 @@ use types;
 // duplicate the result.
 export fn i64tos(i: i64) const str = {
 	static assert(types::I64_MAX == 9223372036854775807i64);
+	if (i == types::I64_MIN) {
+		return "-9223372036854775808";
+	};
+
 	static let buf: [22]u8 = [0u8...]; // 20 chars plus NUL and -
 	buf = [0u8...];
 
@@ -59,14 +63,13 @@ export fn i32tos(i: i32) const str = i64tos(i: i64);
 export fn itos(i: int) const str = i64tos(i: i64);
 
 @test fn itos() void = {
-	// I64_MAX: https://todo.sr.ht/~sircmpwn/hare-v2/185
 	const samples = [
 		1234i64,
 		4321i64,
 		-1337i64,
 		0,
 		types::I64_MAX,
-		//types::I64_MIN,
+		types::I64_MIN,
 	];
 	const expected = [
 		"1234",
@@ -74,7 +77,7 @@ export fn itos(i: int) const str = i64tos(i: i64);
 		"-1337",
 		"0",
 		"9223372036854775807",
-		//"-9223372036854775808",
+		"-9223372036854775808",
 	];
 
 	for (let i = 0z; i < len(samples); i += 1z) {
