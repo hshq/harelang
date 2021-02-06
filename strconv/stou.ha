@@ -3,13 +3,6 @@ use types;
 use ascii;
 use encoding::utf8;
 
-// Indicates that the input string is not an integer
-export type invalid = void;
-
-// Indicates that the input number is too large to be represented by the
-// requested data type
-export type overflow = void;
-
 // Converts a string to a u64 in base 10. If the string contains any non-numeric
 // characters, or if it's empty, [strconv::invalid] is returned. If the number
 // is too large to be represented by a u64, [strconv::overflow] is returned.
