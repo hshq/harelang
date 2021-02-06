@@ -52,9 +52,24 @@ export type formattable = (...types::numeric | uintptr
 export fn printf(fmt: str, args: formattable...) (io::error | size) =
 	fprintf(os::stdout, fmt, args...);
 
+// Formats text for printing writes it to [os::stdout], followed by a line feed.
+export fn println(fmt: str, args: formattable...) (io::error | size) =
+	fprintln(os::stdout, fmt, args...);
+
 // Formats text for printing writes it to [os::stderr].
 export fn errorf(fmt: str, args: formattable...) (io::error | size) =
 	fprintf(os::stderr, fmt, args...);
+
+// Formats text for printing writes it to [os::stderr], followed by a line feed.
+export fn errorln(fmt: str, args: formattable...) (io::error | size) =
+	fprintln(os::stderr, fmt, args...);
+
+// Formats text for printing writes it to [os::stderr], followed by a line feed,
+// then exits the program with an error status.
+export @noreturn fn fatal(fmt: str, args: formattable...) void = {
+	fprintln(os::stderr, fmt, args...);
+	os::exit(1);
+};
 
 type base = enum {
 	DECIMAL,
@@ -153,6 +168,24 @@ export fn fprintf(
 	};
 
 	return n;
+};
+
+// Formats text for printing and writes it to an [io::stream], followed by a
+// line feed.
+export fn fprintln(
+	s: *io::stream,
+	fmt: str,
+	args: formattable...
+) (io::error | size) = {
+	let z = match(fprintf(s, fmt, args...)) {
+		z: size => z,
+		err: io::error => return err,
+	};
+	z += match (io::write(s, ['\n': u32: u8])) {
+		z: size => z,
+		err: io::error => return err,
+	};
+	return z;
 };
 
 fn format(
