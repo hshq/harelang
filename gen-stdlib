@@ -16,7 +16,6 @@ eval ". $srcdir/mk/gen-stdlib.sh"
 
 gensrcs_rt() {
 	gen_srcs rt \
-		'$(PLATFORM)/arch$(ARCH).ha' \
 		'$(PLATFORM)/env.ha' \
 		'$(PLATFORM)/errno.ha' \
 		'$(PLATFORM)/segmalloc.ha' \
