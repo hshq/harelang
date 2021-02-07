@@ -14,7 +14,7 @@ fn fstatat_statx(
 		SYS_statx, dirfd: u64, path: uintptr: u64, flags: u64,
 		mask: u64, statbuf: uintptr: u64))) {
 	err: errno => err,
-	size       => void,
+	u64        => void,
 };
 
 export fn fstatat(

@@ -48,10 +48,9 @@ export fn open(
 		m |= flag[i]: int;
 	};
 
-	let r = rt::open(p: *[*]u8: *const char, m, 0u);
-	let fd: int = match (rt::wrap_return(r)) {
+	let fd: int = match (rt::open(p: *[*]u8: *const char, m, 0u)) {
 		err: rt::errno => return errno_to_io(err),
-		n: size => n: int,
+		n: int => n,
 	};
 
 	return fdopen(fd, name, mode);

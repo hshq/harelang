@@ -122,8 +122,7 @@ export @symbol("rt.free") fn free_(_p: nullable *void) void = {
 
 fn free_large(_p: *void, s: size) void = {
 	let p = (_p: uintptr - (WASTE: uintptr + WORD: uintptr)): *void;
-	let r = segfree(p, s + WASTE + WORD);
-	assert(r == 0, "free: munmap failed");
+	segfree(p, s + WASTE + WORD);
 };
 
 fn free_small(p: *void, s: size) void = {

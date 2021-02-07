@@ -57,8 +57,7 @@ export fn streamfd(s: *io::stream) (int | void) = {
 
 fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let stream = s: *fd_stream;
-	let r = rt::read(stream.fd, buf: *[*]u8, len(buf));
-	return match (rt::wrap_return(r)) {
+	return match (rt::read(stream.fd, buf: *[*]u8, len(buf))) {
 		err: rt::errno => errno_to_io(err),
 		n: size => switch (n) {
 			0z => io::EOF,
@@ -69,8 +68,7 @@ fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 
 fn fd_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let stream = s: *fd_stream;
-	let r = rt::write(stream.fd, buf: *const [*]u8, len(buf));
-	return match (rt::wrap_return(r)) {
+	return match (rt::write(stream.fd, buf: *const [*]u8, len(buf))) {
 		err: rt::errno => errno_to_io(err),
 		n: size => n,
 	};
@@ -99,8 +97,8 @@ fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
 	let to = _to: *fd_stream, from = _from: *fd_stream;
 	let sum = 0z;
 	for (true) {
-		let r = rt::sendfile(to.fd, from.fd, null, SENDFILE_MAX);
-		let n = match(rt::wrap_return(r)) {
+		let n = match(rt::sendfile(to.fd, from.fd,
+				null, SENDFILE_MAX)) {
 			err: rt::errno => switch (err) {
 				rt::EINVAL => {
 					if (sum == 0z) {
@@ -126,9 +124,8 @@ fn fd_seek(
 	whence: io::whence,
 ) (io::off | io::error) = {
 	let stream = s: *fd_stream;
-	let r = rt::lseek(stream.fd, off: i64, whence: uint);
-	return match (rt::wrap_return(r: size)) {
+	return match (rt::lseek(stream.fd, off: i64, whence: uint)) {
 		err: rt::errno => errno_to_io(err),
-		n: size => n: io::off,
+		n: i64 => n: io::off,
 	};
 };
