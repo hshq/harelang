@@ -188,7 +188,8 @@ strings() {
 		dup.ha \
 		iter.ha \
 		tokenize.ha \
-		utf8.ha
+		utf8.ha \
+		sub.ha
 	gen_ssa strings encoding::utf8 types
 }
 

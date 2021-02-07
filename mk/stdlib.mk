@@ -182,7 +182,8 @@ stdlib_strings_srcs= \
 	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/iter.ha \
 	$(STDLIB)/strings/tokenize.ha \
-	$(STDLIB)/strings/utf8.ha
+	$(STDLIB)/strings/utf8.ha \
+	$(STDLIB)/strings/sub.ha
 
 $(HARECACHE)/strings/strings.ssa: $(stdlib_strings_srcs) $(stdlib_rt) $(stdlib_encoding_utf8) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
@@ -387,7 +388,8 @@ testlib_strings_srcs= \
 	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/iter.ha \
 	$(STDLIB)/strings/tokenize.ha \
-	$(STDLIB)/strings/utf8.ha
+	$(STDLIB)/strings/utf8.ha \
+	$(STDLIB)/strings/sub.ha
 
 $(TESTCACHE)/strings/strings.ssa: $(testlib_strings_srcs) $(testlib_rt) $(testlib_encoding_utf8) $(testlib_types)
 	@printf 'HAREC \t$@\n'
