@@ -1,6 +1,3 @@
-use rt;
-use types;
-
 // Concatenates two or more strings. The caller must free the return value.
 export fn concat(strs: str...) str = {
 	let z = 0z;
@@ -8,14 +5,12 @@ export fn concat(strs: str...) str = {
 		z += len(strs[i]);
 	};
 	let new = alloc([]u8, [], z + 1z);
-	let buf = new: *[*]u8;
 	for (let i = 0z, j = 0z; i < len(strs); i += 1z) {
-		rt::memcpy(&buf[j], strs[i]: *const char: *[*]u8, len(strs[i]));
+		append(new, ...to_utf8(strs[i]));
 		j += len(strs[i]);
 	};
-	buf[z + 1z] = 0u8;
-	(&new: *types::string).length = z;
-	return *(&new: *str);
+	append(new, 0u8);
+	return from_utf8(new[..z]);
 };
 
 @test fn concat() void = {
