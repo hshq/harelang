@@ -138,7 +138,8 @@ stdlib_io_srcs= \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/println.ha \
-	$(STDLIB)/io/stream.ha
+	$(STDLIB)/io/stream.ha \
+	$(STDLIB)/io/limit.ha
 
 $(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -344,7 +345,10 @@ testlib_io_srcs= \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/println.ha \
 	$(STDLIB)/io/stream.ha \
-	$(STDLIB)/io/copy+test.ha
+	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/+test/copy.ha \
+	$(STDLIB)/io/+test/limit.ha \
+	$(STDLIB)/io/+test/stream.ha
 
 $(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'

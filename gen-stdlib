@@ -139,6 +139,7 @@ gensrcs_io() {
 		copy.ha \
 		println.ha \
 		stream.ha \
+		limit.ha \
 		$*
 }
 
@@ -154,10 +155,13 @@ io() {
 		then
 			# Test is broken on aarch64, temporarily disabled
 			# https://todo.sr.ht/~sircmpwn/hare-v2/196
-			gensrcs_io
+			gensrcs_io \
+				+test/limit.ha
 		else
 			gensrcs_io \
-				copy+test.ha
+				+test/copy.ha \
+				+test/limit.ha \
+				+test/stream.ha
 		fi
 	fi
 	gen_ssa io
