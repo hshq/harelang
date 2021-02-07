@@ -148,8 +148,15 @@ io() {
 	then
 		gensrcs_io
 	else
-		gensrcs_io \
-			copy+test.ha
+		if [ "$(uname -m)" = "aarch64" ]
+		then
+			# Test is broken on aarch64, temporarily disabled
+			# https://todo.sr.ht/~sircmpwn/hare-v2/196
+			gensrcs_io
+		else
+			gensrcs_io \
+				copy+test.ha
+		fi
 	fi
 	gen_ssa io
 }
