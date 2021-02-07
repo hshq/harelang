@@ -96,6 +96,7 @@ ascii() {
 bytes() {
 	printf '# bytes\n'
 	gen_srcs bytes \
+		contains.ha \
 		copy.ha \
 		equal.ha \
 		index.ha \
@@ -197,6 +198,7 @@ strconv() {
 strings() {
 	printf '# strings\n'
 	gen_srcs strings \
+		contains.ha \
 		cstrings.ha \
 		dup.ha \
 		iter.ha \

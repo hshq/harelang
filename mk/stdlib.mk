@@ -98,6 +98,7 @@ $(HARECACHE)/ascii/ascii.ssa: $(stdlib_ascii_srcs) $(stdlib_rt)
 
 # bytes
 stdlib_bytes_srcs= \
+	$(STDLIB)/bytes/contains.ha \
 	$(STDLIB)/bytes/copy.ha \
 	$(STDLIB)/bytes/equal.ha \
 	$(STDLIB)/bytes/index.ha \
@@ -181,6 +182,7 @@ $(HARECACHE)/strconv/strconv.ssa: $(stdlib_strconv_srcs) $(stdlib_rt) $(stdlib_t
 
 # strings
 stdlib_strings_srcs= \
+	$(STDLIB)/strings/contains.ha \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/iter.ha \
@@ -305,6 +307,7 @@ $(TESTCACHE)/ascii/ascii.ssa: $(testlib_ascii_srcs) $(testlib_rt)
 
 # bytes
 testlib_bytes_srcs= \
+	$(STDLIB)/bytes/contains.ha \
 	$(STDLIB)/bytes/copy.ha \
 	$(STDLIB)/bytes/equal.ha \
 	$(STDLIB)/bytes/index.ha \
@@ -393,6 +396,7 @@ $(TESTCACHE)/strconv/strconv.ssa: $(testlib_strconv_srcs) $(testlib_rt) $(testli
 
 # strings
 testlib_strings_srcs= \
+	$(STDLIB)/strings/contains.ha \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/iter.ha \
