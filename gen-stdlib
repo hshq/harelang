@@ -200,9 +200,10 @@ strings() {
 		cstrings.ha \
 		dup.ha \
 		iter.ha \
+		sub.ha \
+		suffix.ha \
 		tokenize.ha \
-		utf8.ha \
-		sub.ha
+		utf8.ha
 	gen_ssa strings encoding::utf8 types
 }
 
