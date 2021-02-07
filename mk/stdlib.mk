@@ -77,6 +77,9 @@ hare_stdlib_deps+=$(stdlib_io)
 stdlib_os=$(HARECACHE)/os/os.o
 hare_stdlib_deps+=$(stdlib_os)
 
+stdlib_os_exec=$(HARECACHE)/os/exec/os.exec.o
+hare_stdlib_deps+=$(stdlib_os_exec)
+
 stdlib_strconv=$(HARECACHE)/strconv/strconv.o
 hare_stdlib_deps+=$(stdlib_strconv)
 
@@ -164,6 +167,17 @@ $(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_strings) $(stdli
 	@mkdir -p $(HARECACHE)/os
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
 		-t$(HARECACHE)/os/os.td $(stdlib_os_srcs)
+
+# os::exec
+stdlib_os_exec_srcs= \
+	$(STDLIB)/os/exec/$(PLATFORM).ha \
+	$(STDLIB)/os/exec/cmd.ha
+
+$(HARECACHE)/os/exec/os.exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/os/exec
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
+		-t$(HARECACHE)/os/exec/os.exec.td $(stdlib_os_exec_srcs)
 
 # strconv
 stdlib_strconv_srcs= \
@@ -287,6 +301,9 @@ hare_testlib_deps+=$(testlib_io)
 testlib_os=$(TESTCACHE)/os/os.o
 hare_testlib_deps+=$(testlib_os)
 
+testlib_os_exec=$(TESTCACHE)/os/exec/os.exec.o
+hare_testlib_deps+=$(testlib_os_exec)
+
 testlib_strconv=$(TESTCACHE)/strconv/strconv.o
 hare_testlib_deps+=$(testlib_strconv)
 
@@ -377,6 +394,17 @@ $(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_strings) $(te
 	@mkdir -p $(TESTCACHE)/os
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
 		-t$(TESTCACHE)/os/os.td $(testlib_os_srcs)
+
+# os::exec
+testlib_os_exec_srcs= \
+	$(STDLIB)/os/exec/$(PLATFORM).ha \
+	$(STDLIB)/os/exec/cmd.ha
+
+$(TESTCACHE)/os/exec/os.exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testlib_os) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/os/exec
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
+		-t$(TESTCACHE)/os/exec/os.exec.td $(testlib_os_exec_srcs)
 
 # strconv
 testlib_strconv_srcs= \

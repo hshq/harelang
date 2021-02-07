@@ -182,6 +182,14 @@ os() {
 	gen_ssa os strings types
 }
 
+os_exec() {
+	printf '# os::exec\n'
+	gen_srcs os::exec \
+		'$(PLATFORM).ha' \
+		cmd.ha
+	gen_ssa os::exec os strings
+}
+
 strconv() {
 	printf '# strconv\n'
 	if [ $testing -eq 0 ]
@@ -227,6 +235,7 @@ encoding_utf8
 fmt
 io
 os
+os_exec
 strconv
 strings
 types"
