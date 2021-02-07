@@ -34,16 +34,13 @@ fn utf8_byte_len_unbounded(iter: *iterator) size = {
 // string.
 export fn sub(s: str, start: size, end: (size | end)) str = {
 	let iter = iter(s);
-
-	let start_pos = utf8_byte_len_bounded(&iter, start);
-
-	let end_pos = match (end) {
-		sz: size => start_pos + utf8_byte_len_bounded(&iter, sz - start),
-		end => start_pos + utf8_byte_len_unbounded(&iter),
+	let starti = utf8_byte_len_bounded(&iter, start);
+	let endi = match (end) {
+		sz: size => starti + utf8_byte_len_bounded(&iter, sz - start),
+		end => starti + utf8_byte_len_unbounded(&iter),
 	};
-
 	let bytes = to_utf8(s);
-	return from_utf8_unsafe(bytes[start_pos..end_pos]);
+	return from_utf8_unsafe(bytes[starti..endi]);
 };
 
 @test fn sub() void = {
