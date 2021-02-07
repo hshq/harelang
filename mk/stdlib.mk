@@ -25,7 +25,7 @@ $(HARECACHE)/rt/rt.ssa: $(stdlib_rt_srcs) $(stdlib_rt)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nrt \
 		-t$(HARECACHE)/rt/rt.td $(stdlib_rt_srcs)
 
-$(HARECACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start.s
+$(HARECACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start$(ARCH).s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
 	@as -o $@ $<
@@ -228,7 +228,7 @@ $(TESTCACHE)/rt/rt.ssa: $(testlib_rt_srcs) $(testlib_rt)
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nrt \
 		-t$(TESTCACHE)/rt/rt.td $(testlib_rt_srcs)
 
-$(TESTCACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start.s
+$(TESTCACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start$(ARCH).s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
 	@as -o $@ $<

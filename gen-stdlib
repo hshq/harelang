@@ -49,7 +49,7 @@ rt() {
 	fi
 	gen_ssa rt
 	cat <<EOF
-\$($cache)/rt/start.o: \$(STDLIB)/rt/\$(PLATFORM)/start.s
+\$($cache)/rt/start.o: \$(STDLIB)/rt/\$(PLATFORM)/start\$(ARCH).s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
 	@as -o \$@ \$<
