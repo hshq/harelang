@@ -35,16 +35,15 @@ export fn fstatat(
 	statbuf.uid = statxbuf.uid;
 	statbuf.gid = statxbuf.gid;
 	statbuf.rdev = mkdev(statxbuf.dev_major, statxbuf.dev_minor);
-	statbuf.sz = statxbuf.sz: i64;
-	statbuf.blksz = statxbuf.blksize: i64;
-	statbuf.blocks = statxbuf.blocks: i64;
+	statbuf.sz = statxbuf.sz;
+	statbuf.blksz = statxbuf.blksize;
+	statbuf.blocks = statxbuf.blocks;
 	statbuf.atime.tv_sec = statxbuf.atime.tv_sec;
 	statbuf.atime.tv_nsec = statxbuf.atime.tv_nsec: i64;
 	statbuf.mtime.tv_sec = statxbuf.mtime.tv_sec;
 	statbuf.mtime.tv_nsec = statxbuf.mtime.tv_nsec: i64;
 	statbuf.ctime.tv_sec = statxbuf.ctime.tv_sec;
 	statbuf.ctime.tv_nsec = statxbuf.ctime.tv_nsec: i64;
-	return void;
 };
 
 export fn stat(path: *const char, statbuf: *st) (errno | void) =

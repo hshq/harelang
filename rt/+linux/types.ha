@@ -55,22 +55,43 @@ type stx = struct {
 	rdev_minor: u32,
 	dev_major:  u32,
 	dev_minor:  u32,
+	__reserved: [14]u64,
 };
 
-def STATX_TYPE: uint = 0x00000001u;
-def STATX_MODE: uint = 0x00000002u;
-def STATX_NLINK: uint = 0x00000004u;
-def STATX_UID: uint = 0x00000008u;
-def STATX_GID: uint = 0x00000010u;
-def STATX_ATIME: uint = 0x00000020u;
-def STATX_MTIME: uint = 0x00000040u;
-def STATX_CTIME: uint = 0x00000080u;
-def STATX_INO: uint = 0x00000100u;
-def STATX_SIZE: uint = 0x00000200u;
-def STATX_BLOCKS: uint = 0x00000400u;
-def STATX_BASIC_STATS: uint = 0x000007FFu;
-def STATX_BTIME: uint = 0x00000800u;
-def STATX_MNT_ID: uint = 0x00001000u;
+// Note: the st type does not match the kernel API. The kernel API has a stat
+// buffer which varies from arch to arch, but because we always use statx(2) and
+// copy the data from the stx type, we don't have to deal with that nonsense.
+
+export type st = struct {
+	dev:    dev_t,
+	ino:    ino_t,
+	mode:   mode_t,
+	nlink:  nlink_t,
+	uid:    uid_t,
+	gid:    gid_t,
+	rdev:   dev_t,
+	sz:     u64,
+	blksz:  u64,
+	blocks: u64,
+	atime:  timespec,
+	mtime:  timespec,
+	ctime:  timespec,
+};
+
+def STATX_TYPE: uint		= 0x00000001u;
+def STATX_MODE: uint		= 0x00000002u;
+def STATX_NLINK: uint		= 0x00000004u;
+def STATX_UID: uint		= 0x00000008u;
+def STATX_GID: uint		= 0x00000010u;
+def STATX_ATIME: uint		= 0x00000020u;
+def STATX_MTIME: uint		= 0x00000040u;
+def STATX_CTIME: uint		= 0x00000080u;
+def STATX_INO: uint		= 0x00000100u;
+def STATX_SIZE: uint		= 0x00000200u;
+def STATX_BLOCKS: uint		= 0x00000400u;
+def STATX_BASIC_STATS: uint	= 0x000007FFu;
+def STATX_BTIME: uint		= 0x00000800u;
+def STATX_MNT_ID: uint		= 0x00001000u;
 
 export def SIGHUP: int		= 1;
 export def SIGINT: int		= 2;
