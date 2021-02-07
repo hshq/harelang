@@ -12,8 +12,12 @@ export fn read(fd: int, buf: *void, count: size) size =
 export fn write(fd: int, buf: *const void, count: size) size =
 	syscall3(SYS_write, fd: u64, buf: uintptr: u64, count: u64): size;
 
-export fn open(path: *const char, flags: int, mode: uint) size =
-	syscall3(SYS_open, path: uintptr: u64, flags: u64, mode: u64): size;
+export fn open(path: *const char, flags: int, mode: uint) size = {
+	return syscall4(SYS_openat, AT_FDCWD: u64,
+		path: uintptr: u64, flags: u64, mode: u64): size;
+};
+
+export def AT_FDCWD: int = -100;
 
 export fn close(fd: int) int = syscall1(SYS_close, fd: u64): int;
 
