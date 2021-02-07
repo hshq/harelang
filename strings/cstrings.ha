@@ -1,6 +1,15 @@
 use encoding::utf8;
 use types;
 
+// A C-compatible empty string. Empty Hare strings have a null pointer instead
+// of containing only '\0', so a special string is needed for this case.
+export let c_empty: *const char = null: *const char;
+
+@init fn init() void = {
+	static let buf: [1]u8 = [0u8];
+	c_empty = &buf: *[*]u8: *const char;
+};
+
 // Computes the length of a NUL-terminated C string, in octets, in O(n). The
 // computed length does not include the NUL terminator.
 export fn c_strlen(cstr: *const char) size = {

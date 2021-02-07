@@ -30,6 +30,10 @@ export def AT_STATX_FORCE_SYNC: int	= 0x2000;
 export def AT_STATX_DONT_SYNC: int	= 0x4000;
 export def AT_RECURSIVE: int		= 0x8000;
 
+export def O_RDONLY: int	= 0;
+export def O_WRONLY: int	= 1;
+export def O_RDWR: int		= 2;
+
 type statx_timestamp = struct {
 	tv_sec:  i64,
 	tv_nsec: u32,

@@ -27,9 +27,9 @@ export fn open(
 	flag: flags...
 ) (*io::stream | io::error) = {
 	// Verify that these line up with the Linux ABI:
-	static assert(io::mode::RDONLY: int == 0);
-	static assert(io::mode::WRONLY: int == 1);
-	static assert(io::mode::RDWR: int == 2);
+	static assert(io::mode::RDONLY: int == rt::O_RDONLY);
+	static assert(io::mode::WRONLY: int == rt::O_WRONLY);
+	static assert(io::mode::RDWR: int == rt::O_RDWR);
 
 	const p: []u8 = match (path) {
 		s: str  => strings::to_utf8(s),

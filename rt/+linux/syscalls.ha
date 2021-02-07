@@ -37,6 +37,28 @@ export fn close(fd: int) (void | errno) = {
 	};
 };
 
+export fn execveat(dirfd: int, path: *const char, argv: *[*]nullable *const char,
+		envp: *[*]nullable *const char, flags: int) errno = {
+	return match (wrap_return(syscall5(SYS_execveat, dirfd: u64,
+			path: uintptr: u64, argv: uintptr: u64,
+			envp: uintptr: u64, flags: u64))) {
+		err: errno => err,
+		u64 => abort("unreachable"),
+	};
+};
+
+// Returns the new PID to the parent, void to the child, or errno if something
+// goes wrong.
+export fn fork() (int | void | errno) = {
+	return match (wrap_return(syscall0(SYS_fork))) {
+		u: u64 => switch (u) {
+			0u64 => void,
+			*    => u: int,
+		},
+		err: errno => err,
+	};
+};
+
 export fn getpid() int = syscall0(SYS_getpid): int;
 
 export fn sendfile(
