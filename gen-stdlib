@@ -165,7 +165,7 @@ io() {
 				+test/stream.ha
 		fi
 	fi
-	gen_ssa io
+	gen_ssa io strings
 }
 
 os() {

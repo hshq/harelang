@@ -142,7 +142,7 @@ stdlib_io_srcs= \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/limit.ha
 
-$(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt)
+$(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/io
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
@@ -355,7 +355,7 @@ testlib_io_srcs= \
 	$(STDLIB)/io/+test/limit.ha \
 	$(STDLIB)/io/+test/stream.ha
 
-$(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt)
+$(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/io
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
