@@ -3,12 +3,15 @@
 # rt
 rtscript=$(STDLIB)/rt/hare.sc
 stdlib_rt_srcs= \
+	$(STDLIB)/rt/$(PLATFORM)/arch$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/env.ha \
 	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
+	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
 	$(STDLIB)/rt/$(PLATFORM)/start.ha \
+	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
-	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
+	$(STDLIB)/rt/$(PLATFORM)/types.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
@@ -205,12 +208,15 @@ $(HARECACHE)/types/types.ssa: $(stdlib_types_srcs) $(stdlib_rt)
 
 # rt
 testlib_rt_srcs= \
+	$(STDLIB)/rt/$(PLATFORM)/arch$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/env.ha \
 	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
+	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
 	$(STDLIB)/rt/$(PLATFORM)/start.ha \
+	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
-	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
+	$(STDLIB)/rt/$(PLATFORM)/types.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
