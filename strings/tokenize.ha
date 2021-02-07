@@ -2,7 +2,7 @@ use bytes;
 use types;
 
 // The state for a tokenizer.
-type tokenizer = bytes::tokenizer;
+export type tokenizer = bytes::tokenizer;
 
 // Returns a tokenizer which yields sub-strings tokenized by a delimiter.
 //
