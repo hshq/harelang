@@ -28,17 +28,17 @@ fn utf8_byte_len_unbounded(iter: *iterator) size = {
 	return pos;
 };
 
-// Returns a substring with an inclusive range given by the start and end
-// arguments. If the end argument is given as [strings::end], the end of the
-// substring is the end of the original string. The lifetime of the substring is
-// the same as that of the original string.
+// Returns a substring in the range [start, end - 1]. If the end argument is
+// given as [strings::end], the end of the substring is the end of the original
+// string. The lifetime of the substring is the same as that of the original
+// string.
 export fn sub(s: str, start: size, end: (size | end)) str = {
 	let iter = iter(s);
 
 	let start_pos = utf8_byte_len_bounded(&iter, start);
 
 	let end_pos = match (end) {
-		sz: size => start_pos + utf8_byte_len_bounded(&iter, sz - start + 1z),
+		sz: size => start_pos + utf8_byte_len_bounded(&iter, sz - start),
 		end => start_pos + utf8_byte_len_unbounded(&iter),
 	};
 
@@ -48,7 +48,7 @@ export fn sub(s: str, start: size, end: (size | end)) str = {
 
 @test fn sub() void = {
 	assert(sub("a string", 2z, end) == "string");
-	assert(sub("a string", 0z, 0z) == "a");
-	assert(sub("a string", 0z, 2z) == "a s");
-	assert(sub("a string", 2z, 7z) == "string");
+	assert(sub("a string", 0z, 1z) == "a");
+	assert(sub("a string", 0z, 3z) == "a s");
+	assert(sub("a string", 2z, 8z) == "string");
 };
