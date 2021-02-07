@@ -10,7 +10,7 @@ export fn concat(strs: str...) str = {
 		j += len(strs[i]);
 	};
 	append(new, 0u8);
-	return from_utf8(new[..z]);
+	return from_utf8_unsafe(new[..z]);
 };
 
 @test fn concat() void = {
