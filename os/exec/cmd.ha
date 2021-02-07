@@ -65,10 +65,13 @@ export fn finish(cmd: *command) void = {
 // running process with the new command.
 export fn exec(cmd: *command) os_error = platform_exec(cmd);
 
-// Starts a prepared command in a new process.
+// Starts a prepared command in a new process and calls [finish] on the command.
 //
 // TODO: Return a handle which gives information about the new process.
-export fn start(cmd: *command) (os_error | void) = platform_start(cmd);
+export fn start(cmd: *command) (os_error | void) = {
+	defer finish(cmd);
+	platform_start(cmd);
+};
 
 fn lookup(name: str) (platform | void) = {
 	const path = match (os::getenv("PATH")) {
