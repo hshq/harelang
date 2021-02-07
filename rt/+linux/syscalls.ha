@@ -50,7 +50,7 @@ export fn execveat(dirfd: int, path: *const char, argv: *[*]nullable *const char
 // Returns the new PID to the parent, void to the child, or errno if something
 // goes wrong.
 export fn fork() (int | void | errno) = {
-	return match (wrap_return(syscall0(SYS_fork))) {
+	return match (wrap_return(syscall2(SYS_clone, SIGCHLD: u64, 0u64))) {
 		u: u64 => switch (u) {
 			0u64 => void,
 			*    => u: int,
