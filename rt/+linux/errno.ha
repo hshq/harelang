@@ -6,8 +6,8 @@ export fn wrap_errno(err: int) errno = err: errno;
 
 // Checks the return value from a Linux syscall and, if found to be in error,
 // returns the appropriate error. Otherwise, returns the original value.
-export fn wrap_return(r: size) (errno | size) = {
-	if (r > -4096z) {
+export fn wrap_return(r: u64) (errno | size) = {
+	if (r > -4096u64) {
 		return (-(r: i64)): int: errno;
 	};
 	return r;

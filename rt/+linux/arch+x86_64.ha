@@ -1,0 +1,17 @@
+export type st = struct {
+	dev:    dev_t,
+	ino:    ino_t,
+	nlink:  nlink_t,
+	mode:   mode_t,
+	uid:    uid_t,
+	gid:    gid_t,
+	__pad0: uint,
+	rdev:   dev_t,
+	sz:     i64,
+	blksz:  i64,
+	blocks: i64,
+	atime:  timespec,
+	mtime:  timespec,
+	ctime:  timespec,
+	__pad1: [3]i64,
+};
