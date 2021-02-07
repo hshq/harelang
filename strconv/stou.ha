@@ -3,14 +3,30 @@ use types;
 use ascii;
 use encoding::utf8;
 
-// Converts a string to a u64 in base 10. If the string contains any non-numeric
-// characters, or if it's empty, [strconv::invalid] is returned. If the number
-// is too large to be represented by a u64, [strconv::overflow] is returned.
-export fn stou64(s: str) (u64 | invalid | overflow) = {
+fn rune_to_integer(r: rune) (u64 | void) = {
+	if (ascii::isdigit(r))
+		return (r: u32 - '0': u32): u64
+	else if (ascii::isalpha(r) && ascii::islower(r))
+		return (r: u32 - 'a': u32): u64 + 10u64
+	else if (ascii::isalpha(r) && ascii::isupper(r))
+		return (r: u32 - 'A': u32): u64 + 10u64;
+
+	return void;
+};
+
+// Converts a string to a u64 in the given base, If the string contains any
+// non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
+// the number is too large to be represented by a u64, [strconv::overflow] is
+// returned. Supported bases are 2, 8, 10 and 16.
+export fn stou64b(s: str, base: uint) (u64 | invalid | overflow) = {
+	assert(base == 2u || base == 8u || base == 10u || base == 16u);
+
 	if (len(s) == 0z) {
 		return invalid;
 	};
+
 	let n = 0u64;
+
 	let iter = strings::iter(s);
 	for (true) {
 		let r: rune = match (strings::next(&iter)) {
@@ -18,14 +34,17 @@ export fn stou64(s: str) (u64 | invalid | overflow) = {
 			r: rune => r,
 		};
 
-		if (!ascii::isascii(r) || !ascii::isdigit(r)) {
-			return invalid;
+		let digit = match (rune_to_integer(r)) {
+			void => return invalid,
+			d: u64 => d,
 		};
+
+		if (digit >= base: u64) return invalid;
 
 		let old = n;
 
-		n *= 10u64;
-		n += (r: u32 - '0': u32): u64;
+		n *= base;
+		n += digit;
 
 		if (n < old) {
 			return overflow;
@@ -34,11 +53,12 @@ export fn stou64(s: str) (u64 | invalid | overflow) = {
 	return n;
 };
 
-// Converts a string to a u32 in base 10. If the string contains any non-numeric
-// characters, or if it's empty, [strconv::invalid] is returned. If the number
-// is too large to be represented by a u32, [strconv::overflow] is returned.
-export fn stou32(s: str) (u32 | invalid | overflow) = {
-	match (stou64(s)) {
+// Converts a string to a u32 in the given base, If the string contains any
+// non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
+// the number is too large to be represented by a u32, [strconv::overflow] is
+// returned. Supported bases are 2, 8, 10 and 16.
+export fn stou32b(s: str, base: uint) (u32 | invalid | overflow) = {
+	match (stou64b(s, base)) {
 		v: (invalid | overflow) => return v,
 		n: u64 => {
 			if (n <= types::U32_MAX: u64) {
@@ -49,11 +69,12 @@ export fn stou32(s: str) (u32 | invalid | overflow) = {
 	};
 };
 
-// Converts a string to a u16 in base 10. If the string contains any non-numeric
-// characters, or if it's empty, [strconv::invalid] is returned. If the number
-// is too large to be represented by a u16, [strconv::overflow] is returned.
-export fn stou16(s: str) (u16 | invalid | overflow) = {
-	match (stou64(s)) {
+// Converts a string to a u16 in the given base, If the string contains any
+// non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
+// the number is too large to be represented by a u16, [strconv::overflow] is
+// returned. Supported bases are 2, 8, 10 and 16.
+export fn stou16b(s: str, base: uint) (u16 | invalid | overflow) = {
+	match (stou64b(s, base)) {
 		v: (invalid | overflow) => return v,
 		n: u64 => {
 			if (n <= types::U16_MAX: u64) {
@@ -64,11 +85,12 @@ export fn stou16(s: str) (u16 | invalid | overflow) = {
 	};
 };
 
-// Converts a string to a u8 in base 10. If the string contains any non-numeric
-// characters, or if it's empty, [strconv::invalid] is returned. If the number
-// is too large to be represented by a u8, [strconv::overflow] is returned.
-export fn stou8(s: str) (u8 | invalid | overflow) = {
-	match (stou64(s)) {
+// Converts a string to a u8 in the given base, If the string contains any
+// non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
+// the number is too large to be represented by a u8, [strconv::overflow] is
+// returned. Supported bases are 2, 8, 10 and 16.
+export fn stou8b(s: str, base: uint) (u8 | invalid | overflow) = {
+	match (stou64b(s, base)) {
 		v: (invalid | overflow) => return v,
 		n: u64 => {
 			if (n <= types::U8_MAX: u64) {
@@ -79,32 +101,68 @@ export fn stou8(s: str) (u8 | invalid | overflow) = {
 	};
 };
 
-// Converts a string to a uint in base 10. If the string contains any
+// Converts a string to a uint in the given base, If the string contains any
 // non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
 // the number is too large to be represented by a uint, [strconv::overflow] is
-// returned.
-export fn stou(s: str) (uint | invalid | overflow) = {
+// returned. Supported bases are 2, 8, 10 and 16.
+export fn stoub(s: str, base: uint) (uint | invalid | overflow) = {
 	static assert(size(uint) == size(u32) || size(uint) == size(u64));
-	return if (size(uint) == size(u32)) match (stou32(s)) {
+	return if (size(uint) == size(u32)) match (stou32b(s, base)) {
 		v: (invalid | overflow) => v,
 		n: u32 => n: uint,
-	} else match (stou64(s)) {
+	} else match (stou64b(s, base)) {
 		v: (invalid | overflow) => v,
 		n: u64 => n: uint,
 	};
 };
 
-// Converts a string to a size in base 10. If the string contains any
+// Converts a string to a size in the given base, If the string contains any
 // non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
 // the number is too large to be represented by a size, [strconv::overflow] is
-// returned.
-export fn stoz(s: str) (size | invalid | overflow) = {
+// returned. Supported bases are 2, 8, 10 and 16.
+export fn stozb(s: str, base: uint) (size | invalid | overflow) = {
 	static assert(size(size) == size(u32) || size(size) == size(u64));
-	return if (size(size) == size(u32)) match (stou32(s)) {
+	return if (size(size) == size(u32)) match (stou32b(s, base)) {
 		v: (invalid | overflow) => v,
 		n: u32 => n: size,
-	} else match (stou64(s)) {
+	} else match (stou64b(s, base)) {
 		v: (invalid | overflow) => v,
 		n: u64 => n: size,
 	};
 };
+
+// Converts a string to a u64 in base 10, If the string contains any
+// non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
+// the number is too large to be represented by a u64, [strconv::overflow] is
+// returned.
+export fn stou64(s: str) (u64 | invalid | overflow) = stou64b(s, 10u);
+
+// Converts a string to a u32 in base 10, If the string contains any
+// non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
+// the number is too large to be represented by a u32, [strconv::overflow] is
+// returned.
+export fn stou32(s: str) (u32 | invalid | overflow) = stou32b(s, 10u);
+
+// Converts a string to a u16 in base 10, If the string contains any
+// non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
+// the number is too large to be represented by a u16, [strconv::overflow] is
+// returned.
+export fn stou16(s: str) (u16 | invalid | overflow) = stou16b(s, 10u);
+
+// Converts a string to a u8 in base 10, If the string contains any
+// non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
+// the number is too large to be represented by a u8, [strconv::overflow] is
+// returned.
+export fn stou8(s: str) (u8 | invalid | overflow) = stou8b(s, 10u);
+
+// Converts a string to a uint in base 10, If the string contains any
+// non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
+// the number is too large to be represented by a uint, [strconv::overflow] is
+// returned.
+export fn stou(s: str) (uint | invalid | overflow) = stoub(s, 10u);
+
+// Converts a string to a u64 in base 10, If the string contains any
+// non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
+// the number is too large to be represented by a u64, [strconv::overflow] is
+// returned.
+export fn stoz(s: str) (size | invalid | overflow) = stozb(s, 10u);
