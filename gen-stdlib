@@ -156,8 +156,7 @@ io() {
 		then
 			# Test is broken on aarch64, temporarily disabled
 			# https://todo.sr.ht/~sircmpwn/hare-v2/196
-			gensrcs_io \
-				+test/limit.ha
+			gensrcs_io
 		else
 			gensrcs_io \
 				+test/copy.ha \

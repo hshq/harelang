@@ -367,10 +367,7 @@ testlib_io_srcs= \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/println.ha \
 	$(STDLIB)/io/stream.ha \
-	$(STDLIB)/io/limit.ha \
-	$(STDLIB)/io/+test/copy.ha \
-	$(STDLIB)/io/+test/limit.ha \
-	$(STDLIB)/io/+test/stream.ha
+	$(STDLIB)/io/limit.ha
 
 $(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
