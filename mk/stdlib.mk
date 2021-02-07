@@ -182,6 +182,7 @@ $(HARECACHE)/strconv/strconv.ssa: $(stdlib_strconv_srcs) $(stdlib_rt) $(stdlib_t
 
 # strings
 stdlib_strings_srcs= \
+	$(STDLIB)/strings/concat.ha \
 	$(STDLIB)/strings/contains.ha \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
@@ -396,6 +397,7 @@ $(TESTCACHE)/strconv/strconv.ssa: $(testlib_strconv_srcs) $(testlib_rt) $(testli
 
 # strings
 testlib_strings_srcs= \
+	$(STDLIB)/strings/concat.ha \
 	$(STDLIB)/strings/contains.ha \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \

@@ -198,6 +198,7 @@ strconv() {
 strings() {
 	printf '# strings\n'
 	gen_srcs strings \
+		concat.ha \
 		contains.ha \
 		cstrings.ha \
 		dup.ha \
