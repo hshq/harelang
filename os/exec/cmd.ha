@@ -23,7 +23,9 @@ export fn errstr(err: error) const str = {
 };
 
 // Prepares a [command] based on its name and a list of arguments. The argument
-// list should not start with the command name; it will be added for you.
+// list should not start with the command name; it will be added for you. The
+// arguments are borrowed, the caller must free them only after calling [finish]
+// or [start].
 //
 // If 'name' does not contain a '/', the $PATH will be consulted to find the
 // correct executable. If path resolution fails, nocmd is returned.

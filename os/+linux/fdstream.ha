@@ -97,7 +97,7 @@ fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
 	let to = _to: *fd_stream, from = _from: *fd_stream;
 	let sum = 0z;
 	for (true) {
-		let n = match(rt::sendfile(to.fd, from.fd,
+		let n = match (rt::sendfile(to.fd, from.fd,
 				null, SENDFILE_MAX)) {
 			err: rt::errno => switch (err) {
 				rt::EINVAL => {
