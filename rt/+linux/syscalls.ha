@@ -131,3 +131,25 @@ export fn lseek(fd: int, off: i64, whence: uint) (i64 | errno) = {
 		n: u64 => n: i64,
 	};
 };
+
+export fn faccessat(
+	dirfd: int,
+	path: *const char,
+	mode: int,
+	flags: int,
+) (bool | errno) = {
+	return match (wrap_return(syscall4(SYS_faccessat2, dirfd: u64,
+			path: uintptr: u64, mode: u64, flags: u64))) {
+		err: errno => switch (err) {
+			EACCES => false,
+			* => err,
+		},
+		n: u64 => {
+			assert(n == 0u64);
+			true;
+		},
+	};
+};
+
+export fn access(path: *const char, mode: int) (bool | errno) =
+	faccessat(AT_FDCWD, path, mode, 0);

@@ -170,3 +170,8 @@ export def PROT_WRITE: uint	= 2u;
 export def PROT_EXEC: uint	= 4u;
 export def PROT_GROWSDOWN: uint	= 0x01000000u;
 export def PROT_GROWSUP: uint	= 0x02000000u;
+
+export def F_OK: int = 0;
+export def R_OK: int = 4;
+export def W_OK: int = 2;
+export def X_OK: int = 1;

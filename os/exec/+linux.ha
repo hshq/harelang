@@ -31,6 +31,12 @@ fn errno_to_os(err: rt::errno) os_error = {
 };
 
 fn open(path: str) (platform | os_error) = {
+	match (rt::access(path, rt::X_OK)) {
+		err: rt::errno => errno_to_os(err),
+		b: bool => if (!b) {
+			return errno_to_os(rt::EACCES);
+		},
+	};
 	return match (rt::open(path: *const char, rt::O_RDONLY, 0u)) {
 		fd: int => fd,
 		err: rt::errno => errno_to_os(err),

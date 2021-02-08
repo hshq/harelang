@@ -343,3 +343,4 @@ export def SYS_fsopen: u64			= 430u64;
 export def SYS_fsconfig: u64			= 431u64;
 export def SYS_fsmount: u64			= 432u64;
 export def SYS_fspick: u64			= 433u64;
+export def SYS_faccessat2: u64			= 439u64;
