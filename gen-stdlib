@@ -21,6 +21,7 @@ gensrcs_rt() {
 		'$(PLATFORM)/segmalloc.ha' \
 		'$(PLATFORM)/start.ha' \
 		'$(PLATFORM)/stat.ha' \
+		'$(PLATFORM)/$(ARCH).ha' \
 		'$(PLATFORM)/syscallno$(ARCH).ha' \
 		'$(PLATFORM)/syscalls.ha' \
 		'$(PLATFORM)/types.ha' \

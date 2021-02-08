@@ -8,6 +8,7 @@ stdlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
 	$(STDLIB)/rt/$(PLATFORM)/start.ha \
 	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
+	$(STDLIB)/rt/$(PLATFORM)/$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
 	$(STDLIB)/rt/$(PLATFORM)/types.ha \
@@ -231,6 +232,7 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
 	$(STDLIB)/rt/$(PLATFORM)/start.ha \
 	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
+	$(STDLIB)/rt/$(PLATFORM)/$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
 	$(STDLIB)/rt/$(PLATFORM)/types.ha \
@@ -367,7 +369,10 @@ testlib_io_srcs= \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/println.ha \
 	$(STDLIB)/io/stream.ha \
-	$(STDLIB)/io/limit.ha
+	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/+test/copy.ha \
+	$(STDLIB)/io/+test/limit.ha \
+	$(STDLIB)/io/+test/stream.ha
 
 $(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
