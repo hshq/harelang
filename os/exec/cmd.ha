@@ -24,8 +24,7 @@ export fn errstr(err: error) const str = {
 
 // Prepares a [command] based on its name and a list of arguments. The argument
 // list should not start with the command name; it will be added for you. The
-// arguments are borrowed, the caller must free them only after calling [finish]
-// or [start].
+// argument list is borrowed from the strings you pass into this command.
 //
 // If 'name' does not contain a '/', the $PATH will be consulted to find the
 // correct executable. If path resolution fails, nocmd is returned.
@@ -56,7 +55,9 @@ export fn cmd(name: str, args: str...) (command | error) = {
 	return cmd;
 };
 
-// Frees state associated with a command.
+// Frees state associated with a command. You only need to call this if you do
+// not execute the command with [exec] or [start]; in those cases the state is
+// cleaned up for you.
 export fn finish(cmd: *command) void = {
 	platform_finish(cmd);
 	free(cmd.argv);
@@ -66,10 +67,9 @@ export fn finish(cmd: *command) void = {
 // running process with the new command.
 export fn exec(cmd: *command) os_error = platform_exec(cmd);
 
-// Starts a prepared command in a new process and calls [finish] on the command.
-//
-// TODO: Return a handle which gives information about the new process.
+// Starts a prepared command in a new process.
 export fn start(cmd: *command) (error | void) = {
+	// TODO: Return a handle which gives information about the new process.
 	defer finish(cmd);
 	return match (platform_start(cmd)) {
 		err: os_error => err,
