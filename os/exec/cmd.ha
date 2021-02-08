@@ -1,4 +1,3 @@
-use fmt;
 use os;
 use strings;
 
