@@ -178,7 +178,7 @@ os() {
 		'$(PLATFORM)/stdfd.ha' \
 		environ.ha \
 		stdfd.ha
-	gen_ssa os strings types
+	gen_ssa os io strings types
 }
 
 os_exec() {
