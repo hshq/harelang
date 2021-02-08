@@ -69,9 +69,12 @@ export fn exec(cmd: *command) os_error = platform_exec(cmd);
 // Starts a prepared command in a new process and calls [finish] on the command.
 //
 // TODO: Return a handle which gives information about the new process.
-export fn start(cmd: *command) (os_error | void) = {
+export fn start(cmd: *command) (error | void) = {
 	defer finish(cmd);
-	platform_start(cmd);
+	return match (platform_start(cmd)) {
+		err: os_error => err,
+		void => void,
+	};
 };
 
 fn lookup(name: str) (platform | void) = {

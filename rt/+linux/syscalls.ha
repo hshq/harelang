@@ -49,15 +49,7 @@ export fn execveat(dirfd: int, path: *const char, argv: *[*]nullable *const char
 
 // Returns the new PID to the parent, void to the child, or errno if something
 // goes wrong.
-export fn fork() (int | void | errno) = {
-	return match (wrap_return(syscall2(SYS_clone, SIGCHLD: u64, 0u64))) {
-		u: u64 => switch (u) {
-			0u64 => void,
-			*    => u: int,
-		},
-		err: errno => err,
-	};
-};
+export fn fork() (int | void | errno) = clone(null, SIGCHLD, null, null, 0u64);
 
 export fn getpid() int = syscall0(SYS_getpid): int;
 
@@ -72,11 +64,18 @@ export fn sendfile(
 	err: errno => err,
 };
 	
-
 export @noreturn fn exit(status: int) void = syscall1(SYS_exit, status: u64);
 
 export fn kill(pid: int, signal: int) (void | errno) = {
 	return match (wrap_return(syscall2(SYS_kill, pid: u64, signal: u64))) {
+		err: errno => err,
+		u64 => void,
+	};
+};
+
+export fn pipe2(pipefd: *[2]int, flags: int) (void | errno) = {
+	return match (wrap_return(syscall2(SYS_pipe2,
+			pipefd: uintptr: u64, flags: u64))) {
 		err: errno => err,
 		u64 => void,
 	};

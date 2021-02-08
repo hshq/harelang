@@ -1,5 +1,6 @@
 use rt;
 use strings;
+use os;
 
 export type platform = int;
 
@@ -54,15 +55,35 @@ fn platform_exec(cmd: *command) os_error = {
 };
 
 fn platform_start(cmd: *command) (os_error | void) = {
-	// TODO: Set aside a pipe to fetch errno from child process if exec
-	// fails
-	match (rt::fork()) {
+	// TODO: Let the user configure clone more to their taste (e.g. SIGCHLD)
+	let pipe: [2]int = [0...];
+	match (rt::pipe2(&pipe, 0)) {
 		err: rt::errno => return errno_to_os(err),
-		int => {
-			// TODO: Fill in some kind of process structure
-			return;
-		},
 		void => void,
 	};
-	platform_exec(cmd);
+
+	match (rt::clone(null, 0, null, null, 0u64)) {
+		err: rt::errno => return errno_to_os(err),
+		pid: int => {
+			// TODO: Fill in some kind of process structure
+			rt::close(pipe[1]);
+			let errno: int = 0;
+			match (rt::read(pipe[0], &errno, size(int))) {
+				err: rt::errno => return errno_to_os(err),
+				n: size => switch (n) {
+					size(int) => return errno_to_os(errno),
+					* => abort("Unexpected rt::read result"),
+					0z => void,
+				},
+			};
+			return;
+		},
+		void => {
+			rt::close(pipe[0]);
+			let err = platform_exec(cmd);
+			let errno = err.data: uintptr: int;
+			rt::write(pipe[1], &errno, size(int));
+			rt::exit(1);
+		},
+	};
 };
