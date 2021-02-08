@@ -57,7 +57,7 @@ fn platform_exec(cmd: *command) os_error = {
 fn platform_start(cmd: *command) (os_error | void) = {
 	// TODO: Let the user configure clone more to their taste (e.g. SIGCHLD)
 	let pipe: [2]int = [0...];
-	match (rt::pipe2(&pipe, 0)) {
+	match (rt::pipe2(&pipe, rt::O_CLOEXEC)) {
 		err: rt::errno => return errno_to_os(err),
 		void => void,
 	};

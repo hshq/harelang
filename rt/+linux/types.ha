@@ -33,6 +33,8 @@ export def AT_RECURSIVE: int		= 0x8000;
 export def O_RDONLY: int	= 0;
 export def O_WRONLY: int	= 1;
 export def O_RDWR: int		= 2;
+// TODO: Add the other flags:
+export def O_CLOEXEC: int	= 0o2000000;
 
 type statx_timestamp = struct {
 	tv_sec:  i64,
