@@ -153,3 +153,19 @@ export fn faccessat(
 
 export fn access(path: *const char, mode: int) (bool | errno) =
 	faccessat(AT_FDCWD, path, mode, 0);
+
+export type fcntl_arg = (void | int | *st_flock | *f_owner_ex | *u64);
+
+export fn fcntl(fd: int, cmd: int, arg: fcntl_arg) (int | errno) = {
+	let _fd = fd: u64, _cmd = cmd: u64;
+	return match (wrap_return(match (arg) {
+		void => syscall2(SYS_fcntl, _fd, _cmd),
+		i: int => syscall3(SYS_fcntl, _fd, _cmd, i: u64),
+		l: *st_flock => syscall3(SYS_fcntl, _fd, _cmd, l: uintptr: u64),
+		o: *f_owner_ex => syscall3(SYS_fcntl, _fd, _cmd, o: uintptr: u64),
+		u: *u64 => syscall3(SYS_fcntl, _fd, _cmd, u: uintptr: u64),
+	})) {
+		err: errno => err,
+		n: u64 => n: int,
+	};
+};

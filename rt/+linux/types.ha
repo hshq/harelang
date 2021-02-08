@@ -175,3 +175,32 @@ export def F_OK: int = 0;
 export def R_OK: int = 4;
 export def W_OK: int = 2;
 export def X_OK: int = 1;
+
+export def F_DUPFD: int = 0;
+export def F_GETFD: int = 1;
+export def F_SETFD: int = 2;
+export def F_GETFL: int = 3;
+export def F_SETFL: int = 4;
+export def F_SETOWN: int = 8;
+export def F_GETOWN: int = 9;
+export def F_SETSIG: int = 10;
+export def F_GETSIG: int = 11;
+export def F_GETLK: int = 12;
+export def F_SETLK: int = 13;
+export def F_SETLKW: int = 14;
+export def F_SETOWN_EX: int = 15;
+export def F_GETOWN_EX: int = 16;
+export def F_GETOWNER_UIDS: int = 17;
+
+export type st_flock = struct {
+	l_type: i16,
+	l_whence: i16,
+	l_start: i64,
+	l_len: i64,
+	pid: int,
+};
+
+export type f_owner_ex = struct {
+	_type: int,
+	pid: int,
+};
