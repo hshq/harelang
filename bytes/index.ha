@@ -16,18 +16,9 @@ fn index_byte(haystack: []u8, needle: u8) (size | void) = {
 };
 
 fn index_slice(haystack: []u8, needle: []u8) (size | void) = {
-	if (len(needle) > len(haystack)) {
-		return;
-	};
-	let i = 0z;
-	for (i < len(haystack)) {
-		let n = nequal(haystack[i..], needle);
-		if (n == len(needle)) {
+	for (let i = 0z; i + len(needle) <= len(haystack); i += 1z) {
+		if (equal(haystack[i..i + len(needle)], needle)) {
 			return i;
-		} else if (n != 0z) {
-			i += n;
-		} else {
-			i += 1z;
 		};
 	};
 };
@@ -35,7 +26,7 @@ fn index_slice(haystack: []u8, needle: []u8) (size | void) = {
 
 @test fn index() void = {
 	// Bytes
-	let a: [4]u8 = [1u8, 3u8, 3u8, 7u8];
+	const a: [4]u8 = [1u8, 3u8, 3u8, 7u8];
 	match (index(a, 7u8)) {
 		n: size => assert(n == 3z),
 		void => abort(),
@@ -61,5 +52,11 @@ fn index_slice(haystack: []u8, needle: []u8) (size | void) = {
 	match(index(a, [4u8, 2u8])) {
 		size => abort(),
 		void => void,
+	};
+
+	const special: []u8 = [1u8, 1u8, 1u8, 2u8];
+	match (index(special, [1u8, 1u8, 2u8])) {
+		n: size => assert(n == 1z),
+		void => abort(),
 	};
 };
