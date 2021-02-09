@@ -7,26 +7,17 @@ export fn tokenize(s: []u8, delim: []u8) tokenizer = tokenizer {
 	d = delim,
 };
 
-// Returns the number of bytes in a which are equal to bytes in b.
-fn nequal(a: []u8, b: []u8) size = {
-	let i = 0z;
-	for (i < len(a) && i < len(b); i += 1z) {
-		if (a[i] != b[i]) {
-			break;
-		};
-	};
-	return i;
-};
-
 // Returns the next slice from a tokenizer, and advances the cursor. Returns
-// void if there are no tokens left. If a string starts with, or ends with, a
-// token, an empty slice is returned at the beginning or end of the sequence,
-// respectively.
+// void if there are no tokens left and on all subsequent invocations. If a
+// string starts with, or ends with, a token, an empty slice is returned at the
+// beginning or end of the sequence, respectively.
 export fn next_token(s: *tokenizer) ([]u8 | void) = {
-	let i = 0z;
-	for (i < len(s.s)) {
-		let n = nequal(s.s[i..], s.d);
-		if (n == len(s.d)) {
+	if (len(s.s) == 0z) {
+		return void;
+	};
+
+	match (index(s.s, s.d)) {
+		i: size => {
 			let tok = s.s[..i];
 			if (len(tok) + len(s.d) == len(s.s) && len(tok) != 0z) {
 				s.s = s.s[i..];
@@ -34,20 +25,14 @@ export fn next_token(s: *tokenizer) ([]u8 | void) = {
 				s.s = s.s[i+len(s.d)..];
 			};
 			return tok;
-		} else if (n != 0z) {
-			i += n;
-		} else {
-			i += 1z;
-		};
+		},
+		void => {
+			let tok = s.s[..];
+			s.s = s.s[..0];
+			return tok;
+		},
 	};
 
-	if (len(s.s) != 0z) {
-		let tok = s.s[..];
-		s.s = s.s[..0];
-		return tok;
-	};
-
-	return void;
 };
 
 // Returns the remainder of the slice associated with a tokenizer, without doing
