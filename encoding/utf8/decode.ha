@@ -30,7 +30,7 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 	};
 
 	// XXX: It would be faster if we decoded and measured at the same time.
-	const n = utf8sz(d.src[d.offs..]);
+	const n = utf8sz(d.src[d.offs]);
 	if (n == types::SIZE_MAX) {
 		return invalid;
 	} else if (d.offs + n > len(d.src)) {
@@ -97,15 +97,12 @@ export fn valid(src: (str | []u8)) bool = {
 	abort();
 };
 
-fn utf8sz(src: []u8) size = {
-	assert(len(src) > 0);
-
-	let c = src[0];
+// Returns the expected length of a UTF-8 character in bytes.
+export fn utf8sz(c: u8) size = {
 	for (let i = 0z; i < len(sizes); i += 1) {
 		if (c & sizes[i].mask == sizes[i].result) {
 			return sizes[i].octets;
 		};
 	};
-
 	return types::SIZE_MAX;
 };
