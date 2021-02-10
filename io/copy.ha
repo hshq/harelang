@@ -13,7 +13,7 @@ export fn copy(dest: *stream, src: *stream) (error | size) = {
 	};
 
 	let w = 0z;
-	static let buf: [4096]u8 = [0u8...];
+	static let buf: [4096]u8 = [0...];
 	for (true) {
 		match (read(src, buf[..])) {
 			err: error => return err,

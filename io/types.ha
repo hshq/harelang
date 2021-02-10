@@ -26,9 +26,9 @@ export fn errstr(err: error) str = {
 };
 
 export type mode = enum uint {
-	RDONLY = 0u,
-	WRONLY = 1u,
-	RDWR   = 2u,
+	RDONLY = 0,
+	WRONLY = 1,
+	RDWR   = 2,
 };
 
 export type whence = enum {

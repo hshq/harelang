@@ -1,6 +1,6 @@
 use types;
 
-const masks: [_]u8 = [0x7Fu8, 0x1Fu8, 0x0Fu8, 0x07u8, 0x03u8, 0x01u8];
+const masks: [_]u8 = [0x7F, 0x1F, 0x0F, 0x07, 0x03, 0x01];
 
 type rsize = struct {
 	mask: u8,
@@ -9,19 +9,19 @@ type rsize = struct {
 };
 
 const sizes: [_]rsize = [
-	rsize { mask = 0x80u8, result = 0x00u8, octets = 1z },
-	rsize { mask = 0xE0u8, result = 0xC0u8, octets = 2z },
-	rsize { mask = 0xF0u8, result = 0xE0u8, octets = 3z },
-	rsize { mask = 0xF8u8, result = 0xF0u8, octets = 4z },
-	rsize { mask = 0xFCu8, result = 0xF8u8, octets = 5z },
-	rsize { mask = 0xFEu8, result = 0xF8u8, octets = 6z },
+	rsize { mask = 0x80, result = 0x00, octets = 1 },
+	rsize { mask = 0xE0, result = 0xC0, octets = 2 },
+	rsize { mask = 0xF0, result = 0xE0, octets = 3 },
+	rsize { mask = 0xF8, result = 0xF0, octets = 4 },
+	rsize { mask = 0xFC, result = 0xF8, octets = 5 },
+	rsize { mask = 0xFE, result = 0xF8, octets = 6 },
 ];
 
 // Returns the size of a rune, in octets, when encoded as UTF-8.
 export fn runesz(r: rune) size = {
 	const ch = r: u32;
-	return if (ch < 0x80u32) 1z
-		else if (ch < 0x800u32) 2z
-		else if (ch < 0x10000u32) 3z
-		else 4z;
+	return if (ch < 0x80) 1
+		else if (ch < 0x800) 2
+		else if (ch < 0x10000) 3
+		else 4;
 };

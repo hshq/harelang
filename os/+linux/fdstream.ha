@@ -60,8 +60,8 @@ fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	return match (rt::read(stream.fd, buf: *[*]u8, len(buf))) {
 		err: rt::errno => errno_to_io(err),
 		n: size => switch (n) {
-			0z => io::EOF,
-			*  => n,
+			0 => io::EOF,
+			* => n,
 		},
 	};
 };
@@ -101,7 +101,7 @@ fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
 				null, SENDFILE_MAX)) {
 			err: rt::errno => switch (err) {
 				rt::EINVAL => {
-					if (sum == 0z) {
+					if (sum == 0) {
 						return io::unsupported;
 					};
 					return errno_to_io(err);
@@ -109,8 +109,8 @@ fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
 				* => return errno_to_io(err),
 			},
 			n: size => switch (n) {
-				0z => return sum,
-				*  => n,
+				0 => return sum,
+				* => n,
 			},
 		};
 		sum += n;

@@ -25,7 +25,7 @@ fn test_stream_open() test_stream = test_stream {
 		closer = &test_stream_close,
 		...
 	},
-	n = 0z,
+	n = 0,
 };
 
 fn test_stream_close(s: *stream) void = {

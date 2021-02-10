@@ -54,9 +54,9 @@ export fn remaining_tokens(s: *tokenizer) str = {
 // borrowed from 'in', and needn't be freed - but should be [strings::dup_all]'d
 // if they should outlive 'in'.
 export fn splitN(in: str, delim: str, n: size) []str = {
-	let toks = alloc([]str, [], 8z); // TODO: Drop explicit capacity
+	let toks = alloc([]str, [], 8); // TODO: Drop explicit capacity
 	let tok = tokenize(in, delim);
-	for (let i = 0z; i < n - 1z; i += 1z) {
+	for (let i = 0z; i < n - 1z; i += 1) {
 		match (next_token(&tok)) {
 			s: str => {
 				append(toks, s);
@@ -78,14 +78,14 @@ export fn split(in: str, delim: str) []str = splitN(in, delim, types::SIZE_MAX);
 	const expected = ["Hello,", "my", "name", "is Drew"];
 	const actual = splitN("Hello, my name is Drew", " ", 4z);
 	assert(len(expected) == len(actual));
-	for (let i = 0z; i < len(expected); i += 1z) {
+	for (let i = 0z; i < len(expected); i += 1) {
 		assert(expected[i] == actual[i]);
 	};
 
 	const expected2 = ["Hello,", "my", "name", "is", "Drew"];
 	const actual2 = split("Hello, my name is Drew", " ");
 	assert(len(expected2) == len(actual2));
-	for (let i = 0z; i < len(expected2); i += 1z) {
+	for (let i = 0z; i < len(expected2); i += 1) {
 		assert(expected2[i] == actual2[i]);
 	};
 };

@@ -131,8 +131,8 @@ export fn fprintf(
 				args[scan_uint(&iter)];
 			} else {
 				strings::push(&iter, r);
-				i += 1z;
-				args[i - 1z];
+				i += 1;
+				args[i - 1];
 			};
 
 			let mod = modifiers { ... };
@@ -213,7 +213,7 @@ fn format(
 };
 
 fn scan_uint(iter: *strings::iterator) uint = {
-	let num = alloc([]u8, [], 1z); // TODO: alloc slice w/o cap
+	let num = alloc([]u8, [], 1); // TODO: alloc slice w/o cap
 	defer free(num);
 	for (true) {
 		let r = match (strings::next(iter)) {

@@ -7,9 +7,9 @@ export type slice = struct {
 export fn ensure(s: *slice, membsz: size, length: size) void = {
 	// TODO: make sure length * membsz < SIZE_MAX
 	for (s.capacity < length) {
-		s.capacity *= 2z;
+		s.capacity *= 2;
 	};
 	let data = realloc(s.data, s.capacity * membsz);
-	assert(data != null: nullable *void);
+	assert(data != null);
 	s.data = data;
 };

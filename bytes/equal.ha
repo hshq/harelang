@@ -3,7 +3,7 @@ export fn equal(a: []u8, b: []u8) bool = {
 	if (len(a) != len(b)) {
 		return false;
 	};
-	for (let i = 0z; i < len(a); i += 1z) {
+	for (let i = 0z; i < len(a); i += 1) {
 		if (a[i] != b[i]) {
 			return false;
 		};
@@ -12,11 +12,11 @@ export fn equal(a: []u8, b: []u8) bool = {
 };
 
 @test fn equal() void = {
-	let a: []u8 = [1u8, 2u8, 3u8];
-	let b: []u8 = [1u8, 2u8, 3u8];
-	let c: []u8 = [1u8, 4u8, 5u8];
-	let d: []u8 = [1u8, 2u8, 3u8, 4u8];
-	let e: []u8 = [1u8, 2u8];
+	let a: []u8 = [1, 2, 3];
+	let b: []u8 = [1, 2, 3];
+	let c: []u8 = [1, 4, 5];
+	let d: []u8 = [1, 2, 3, 4];
+	let e: []u8 = [1, 2];
 	assert(equal(a, b));
 	assert(!equal(a, c));
 	assert(!equal(a, d));

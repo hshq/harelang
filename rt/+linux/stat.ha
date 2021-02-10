@@ -1,8 +1,8 @@
 fn mkdev(major: u32, minor: u32) dev_t =
-	((major: u64 & 0xFFFFF000u64) << 32u64) |
-	((major: u64 & 0x00000FFFu64) << 8u64)  |
-	((minor: u64 & 0xFFFFFF00u64) << 12u64) |
-	 (minor: u64 & 0x000000FFu64);
+	((major: u64 & 0xFFFFF000) << 32) |
+	((major: u64 & 0x00000FFF) << 8)  |
+	((minor: u64 & 0xFFFFFF00) << 12) |
+	 (minor: u64 & 0x000000FF);
 
 fn fstatat_statx(
 	dirfd: int,

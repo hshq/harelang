@@ -30,34 +30,31 @@
 // bin to become non-continuous. This has no consequences for performance or
 // correctness.
 
-// TODO: Type promotion
-def ALIGN: size = 2z;
+def ALIGN: size = 2;
 def WORD: size = size(size);
 def WASTE: size = WORD * ALIGN - WORD;
-def BIGBLOCK: size = (2z << 16z) * WORD;
+def BIGBLOCK: size = (2 << 16) * WORD;
 
 let bins: [50]nullable *void = [null...];
 
-fn bin2size(b: size) size = ((b + 1z) * ALIGN - 1z) * WORD;
+fn bin2size(b: size) size = ((b + 1) * ALIGN - 1) * WORD;
 
 fn size2bin(s: size) size = {
-	assert(s <= bin2size(len(bins) - 1z), "Size exceeds maximum for bin");
-	return (s + (WORD * (ALIGN - 1z) - 1z)) / (WORD * ALIGN);
+	assert(s <= bin2size(len(bins) - 1), "Size exceeds maximum for bin");
+	return (s + (WORD * (ALIGN - 1) - 1)) / (WORD * ALIGN);
 };
 
 // Allocates n bytes of memory and returns a pointer to them, or null if there
 // is insufficient memory.
 export fn malloc(n: size) nullable *void = {
-	assert(n > 0z);
-	let r: nullable *void =
-		if (n > bin2size(len(bins) - 1z)) malloc_large(n)
+	assert(n > 0);
+	return if (n > bin2size(len(bins) - 1)) malloc_large(n)
 		else malloc_small(n);
-	return r;
 };
 
 fn malloc_large(n: size) nullable *void = {
 	let p = segmalloc(n + WASTE + WORD);
-	if (p == null: nullable *void) {
+	if (p == null) {
 		return null;
 	};
 	let bsize = (p: uintptr + WASTE: uintptr): *[1]size;
@@ -68,13 +65,13 @@ fn malloc_large(n: size) nullable *void = {
 fn malloc_small(n: size) nullable *void = {
 	const b = size2bin(n);
 	let p = bins[b];
-	if (p == null: nullable *void) {
+	if (p == null) {
 		p = fill_bin(b);
-		if (p != null: nullable *void) {
+		if (p != null) {
 			bins[b] = p;
 		};
 	};
-	return if (p != null: nullable *void) {
+	return if (p != null) {
 		let q = *(p: **void);
 		bins[b] = q;
 		p;
@@ -84,15 +81,14 @@ fn malloc_small(n: size) nullable *void = {
 fn fill_bin(b: size) nullable *void = {
 	const s = bin2size(b);
 	let p = segmalloc(BIGBLOCK);
-	return if (p == null: nullable *void) null
-	else list_from_block(s, p: uintptr);
+	return if (p == null) null else list_from_block(s, p: uintptr);
 };
 
 fn list_from_block(s: size, p: uintptr) nullable *void = {
 	const nblocks = (BIGBLOCK - WASTE) / (s + WORD);
 
 	let q = p + WASTE: uintptr; // align q+WORD
-	for (let j = 0z; j != nblocks - 1z; j += 1z) {
+	for (let j = 0z; j != nblocks - 1; j += 1) {
 		let sz = q: *size;
 		let useralloc = q + WORD: uintptr; // aligned
 		let next = (useralloc + s: uintptr + WORD: uintptr): *void;
@@ -111,11 +107,11 @@ fn list_from_block(s: size, p: uintptr) nullable *void = {
 
 // Frees a pointer previously allocated with [malloc].
 export @symbol("rt.free") fn free_(_p: nullable *void) void = {
-	if (_p != null: nullable *void) {
+	if (_p != null) {
 		let p = _p: *void;
 		let bsize = (p: uintptr - size(size): uintptr): *[1]size;
 		let s = bsize[0];
-		if (s <= bin2size(len(bins) - 1z)) free_small(p, s)
+		if (s <= bin2size(len(bins) - 1)) free_small(p, s)
 		else free_large(p, s);
 	};
 };
@@ -139,8 +135,8 @@ fn free_small(p: *void, s: size) void = {
 // in-place. Returns null if there is insufficient memory to support the
 // request.
 export fn realloc(_p: nullable *void, n: size) nullable *void = {
-	assert(n > 0z);
-	if (_p == null: nullable *void) {
+	assert(n > 0);
+	if (_p == null) {
 		return malloc(n);
 	};
 
@@ -151,12 +147,12 @@ export fn realloc(_p: nullable *void, n: size) nullable *void = {
 		return p;
 	};
 
-	if (n < bin2size(len(bins) - 1z) && size2bin(n) == size2bin(s)) {
+	if (n < bin2size(len(bins) - 1) && size2bin(n) == size2bin(s)) {
 		return p;
 	};
 
 	let new = malloc(n);
-	if (new != null: nullable *void) {
+	if (new != null) {
 		memcpy(new: *void, p, s);
 		free(p);
 	};

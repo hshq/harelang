@@ -45,18 +45,18 @@ export fn iter_str(iter: *iterator) str = {
 @test fn iter() void = {
 	let s = iter("こんにちは");
 	const expected1 = ['こ', 'ん'];
-	for (let i = 0z; i < len(expected1); i += 1z) {
+	for (let i = 0z; i < len(expected1); i += 1) {
 		match (next(&s)) {
-		r: rune => assert(r == expected1[i]),
-		void    => abort(),
+			r: rune => assert(r == expected1[i]),
+			void    => abort(),
 		};
 	};
 	assert(iter_str(&s) == "にちは");
 	const expected2 = ['に', 'ち', 'は'];
-	for (let i = 0z; i < len(expected2); i += 1z) {
+	for (let i = 0z; i < len(expected2); i += 1) {
 		match (next(&s)) {
-		r: rune => assert(r == expected2[i]),
-		void    => abort(),
+			r: rune => assert(r == expected2[i]),
+			void    => abort(),
 		};
 	};
 	assert(next(&s) is void);

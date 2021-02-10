@@ -4,7 +4,7 @@ export type end = void;
 
 fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {
 	let pos = 0z;
-	for (let i = 0z; i < end; i += 1z) {
+	for (let i = 0z; i < end; i += 1) {
 		let r: rune = match (strings::next(iter)) {
 			void => break,
 			r: rune => r,
@@ -44,8 +44,8 @@ export fn sub(s: str, start: size, end: (size | end)) str = {
 };
 
 @test fn sub() void = {
-	assert(sub("a string", 2z, end) == "string");
-	assert(sub("a string", 0z, 1z) == "a");
-	assert(sub("a string", 0z, 3z) == "a s");
-	assert(sub("a string", 2z, 8z) == "string");
+	assert(sub("a string", 2, end) == "string");
+	assert(sub("a string", 0, 1) == "a");
+	assert(sub("a string", 0, 3) == "a s");
+	assert(sub("a string", 2, 8) == "string");
 };

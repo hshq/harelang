@@ -1,7 +1,7 @@
 type jmpbuf = struct {
 	__jb: arch_jmpbuf,
 	__fl: size,
-	__ss: [128z / size(size)]size,
+	__ss: [128 / size(size)]size,
 };
 
 fn setjmp(buf: *jmpbuf) int;

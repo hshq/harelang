@@ -6,7 +6,7 @@ use types;
 export let c_empty: *const char = null: *const char;
 
 @init fn init() void = {
-	static let buf: [1]u8 = [0u8];
+	static let buf: [1]u8 = [0];
 	c_empty = &buf: *[*]u8: *const char;
 };
 
@@ -15,7 +15,7 @@ export let c_empty: *const char = null: *const char;
 export fn c_strlen(cstr: *const char) size = {
 	const ptr = cstr: *[*]u8;
 	let ln = 0z;
-	for (ptr[ln] != 0u8; ln += 1z) void;
+	for (ptr[ln] != 0; ln += 1) void;
 	return ln;
 };
 

@@ -5,29 +5,24 @@ use types;
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // duplicate the result.
 export fn u64tos(u: u64) const str = {
-	static assert(types::U64_MAX == 18446744073709551615u64);
-	static let buf: [21]u8 = [0u8...]; // 20 digits plus NUL
-	buf = [0u8...];
+	static assert(types::U64_MAX == 18446744073709551615);
+	static let buf: [21]u8 = [0...]; // 20 digits plus NUL
+	buf = [0...];
 
-	let s = struct {
-		b: *[*]u8 = &buf,
-		l: size = 0z,
-		c: size = 0z,
-	};
-
-	if (u == 0u64) {
-		s.b[s.l] = '0': u32: u8;
-		s.l += 1z;
+	let s = types::string { data = &buf, ... };
+	if (u == 0) {
+		s.data[s.length] = '0': u32: u8;
+		s.length += 1z;
 	};
 
 	for (u > 0u64) {
-		s.b[s.l] = '0': u32: u8 + (u % 10u64): u8;
-		s.l += 1z;
-		u /= 10u64;
+		s.data[s.length] = '0': u32: u8 + (u % 10): u8;
+		s.length += 1;
+		u /= 10;
 	};
 
-	bytes::reverse(s.b[..s.l]);
-	s.b[s.l] = 0u8;
+	bytes::reverse(s.data[..s.length]);
+	s.data[s.length] = 0;
 	return *(&s: *str);
 };
 
@@ -62,9 +57,9 @@ export fn ztos(z: size) const str = u64tos(z: u64);
 export fn uptrtos(uptr: uintptr) const str = u64tos(uptr: u64);
 
 @test fn utos() void = {
-	const samples = [
-		1234u64,
-		4321u64,
+	const samples: [_]u64 = [
+		1234,
+		4321,
 		types::U64_MIN,
 		types::U64_MAX,
 	];
@@ -75,7 +70,7 @@ export fn uptrtos(uptr: uintptr) const str = u64tos(uptr: u64);
 		"18446744073709551615",
 	];
 
-	for (let i = 0z; i < len(samples); i += 1z) {
+	for (let i = 0z; i < len(samples); i += 1) {
 		const s = u64tos(samples[i]);
 		assert(s == expected[i]);
 	};

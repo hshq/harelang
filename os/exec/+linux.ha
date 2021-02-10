@@ -55,9 +55,9 @@ fn platform_exec(cmd: *command) os_error = {
 	append(argv, null);
 
 	let envp: nullable *[*]nullable *const char = null;
-	if (len(cmd.envp) != 0z) {
-		let env = alloc([]nullable *const char, [], len(cmd.envp) + 1z);
-		for (let i = 0z; i < len(cmd.envp); i += 1z) {
+	if (len(cmd.envp) != 0) {
+		let env = alloc([]nullable *const char, [], len(cmd.envp) + 1);
+		for (let i = 0z; i < len(cmd.envp); i += 1) {
 			append(env, cmd.envp[i]: *const char);
 		};
 		append(env, null);
@@ -76,7 +76,7 @@ fn platform_start(cmd: *command) (os_error | void) = {
 		void => void,
 	};
 
-	match (rt::clone(null, 0, null, null, 0u64)) {
+	match (rt::clone(null, 0, null, null, 0)) {
 		err: rt::errno => return errno_to_os(err),
 		pid: int => {
 			// TODO: Fill in some kind of process structure
@@ -87,7 +87,7 @@ fn platform_start(cmd: *command) (os_error | void) = {
 				n: size => switch (n) {
 					size(int) => return errno_to_os(errno),
 					* => abort("Unexpected rt::read result"),
-					0z => void,
+					0 => void,
 				},
 			};
 			return;

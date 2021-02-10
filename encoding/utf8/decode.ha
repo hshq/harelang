@@ -10,14 +10,8 @@ export type decoder = struct {
 
 // Initializes a new UTF-8 decoder.
 export fn decode(src: (str | []u8)) decoder = match (src) {
-	s: str => decoder {
-		offs = 0z,
-		src  = to_utf8(s),
-	},
-	b: []u8 => decoder {
-		offs = 0z,
-		src  = b,
-	},
+	s: str  => decoder { src = to_utf8(s), ...  },
+	b: []u8 => decoder { src = b, ...  },
 };
 
 // Indicates that more data is needed, i.e. that a partial UTF-8 sequence was
@@ -46,28 +40,28 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 	d.offs += n;
 
 	let r = 0u32;
-	if (bytes[0] < 128u8) {
+	if (bytes[0] < 128) {
 		// ASCII
 		return bytes[0]: u32: rune;
 	};
 
-	const mask = masks[n - 1z];
+	const mask = masks[n - 1];
 	r = bytes[0] & mask;
-	for (let i = 1z; i < len(bytes); i += 1z) {
-		r <<= 6u8;
-		r |= bytes[i] & 0x3Fu8;
+	for (let i = 1z; i < len(bytes); i += 1) {
+		r <<= 6;
+		r |= bytes[i] & 0x3F;
 	};
 	return r: rune;
 };
 
 @test fn decode() void = {
-	const input = [
-		0xE3u8, 0x81u8, 0x93u8, 0xE3u8, 0x82u8, 0x93u8, 0xE3u8, 0x81u8,
-		0xABu8, 0xE3u8, 0x81u8, 0xA1u8, 0xE3u8, 0x81u8, 0xAFu8, 0x00u8,
+	const input: [_]u8 = [
+		0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3, 0x81,
+		0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0x00,
 	];
 	const expected = ['こ', 'ん', 'に', 'ち', 'は', '\0'];
 	let decoder = decode(input);
-	for (let i = 0z; i < len(expected); i += 1z) {
+	for (let i = 0z; i < len(expected); i += 1) {
 		match (next(&decoder)) {
 			r: rune => assert(r == expected[i]),
 			invalid => abort(),
@@ -78,11 +72,11 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 	assert(next(&decoder) is void);
 
 	// TODO: Test more invalid sequences
-	const invalid = [0xA0u8, 0xA1u8];
+	const invalid: [_]u8 = [0xA0, 0xA1];
 	decoder = decode(invalid);
 	assert(next(&decoder) is invalid);
 
-	const incomplete = [0xE3u8, 0x81u8];
+	const incomplete: [_]u8 = [0xE3, 0x81];
 	decoder = decode(incomplete);
 	assert(next(&decoder) is more);
 };
@@ -104,10 +98,10 @@ export fn valid(src: (str | []u8)) bool = {
 };
 
 fn utf8sz(src: []u8) size = {
-	assert(len(src) > 0z);
+	assert(len(src) > 0);
 
 	let c = src[0];
-	for (let i = 0z; i < len(sizes); i += 1z) {
+	for (let i = 0z; i < len(sizes); i += 1) {
 		if (c & sizes[i].mask == sizes[i].result) {
 			return sizes[i].octets;
 		};

@@ -14,8 +14,8 @@ export fn clone(
 			child_tid: uintptr: u64,
 			tls))) {
 		u: u64 => switch (u) {
-			0u64 => void,
-			*    => u: int,
+			0 => void,
+			* => u: int,
 		},
 		err: errno => err,
 	};

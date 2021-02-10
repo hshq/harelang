@@ -1,7 +1,7 @@
 export fn start_linux(iv: *[*]uintptr) void = {
 	// TODO: Find & parse auxv
-	argc = iv[0z]: size;
-	argv = &iv[1z]: *[*]*char;
-	envp = &iv[1z + argc * size(*char) + 1z]: *[*]nullable *char;
+	argc = iv[0]: size;
+	argv = &iv[1]: *[*]*char;
+	envp = &iv[1 + argc * size(*char) + 1]: *[*]nullable *char;
 	start_ha();
 };

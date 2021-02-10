@@ -4,7 +4,7 @@ export fn has_prefix(in: str, prefix: str) bool = {
 	if (len(a) < len(b)) {
 		return false;
 	};
-	for (let i = 0z; i < len(b); i += 1z) {
+	for (let i = 0z; i < len(b); i += 1) {
 		if (a[i] != b[i]) {
 			return false;
 		};
@@ -28,7 +28,7 @@ export fn has_suffix(in: str, suff: str) bool = {
 	if (len(a) < len(b)) {
 		return false;
 	};
-	for (let i = 0z; i < len(b); i += 1z) {
+	for (let i = 0z; i < len(b); i += 1) {
 		if (a[len(a) - len(b) + i] != b[i]) {
 			return false;
 		};

@@ -12,14 +12,14 @@ export fn tokenize(s: []u8, delim: []u8) tokenizer = tokenizer {
 // string starts with, or ends with, a token, an empty slice is returned at the
 // beginning or end of the sequence, respectively.
 export fn next_token(s: *tokenizer) ([]u8 | void) = {
-	if (len(s.s) == 0z) {
+	if (len(s.s) == 0) {
 		return void;
 	};
 
 	match (index(s.s, s.d)) {
 		i: size => {
 			let tok = s.s[..i];
-			if (len(tok) + len(s.d) == len(s.s) && len(tok) != 0z) {
+			if (len(tok) + len(s.d) == len(s.s) && len(tok) != 0) {
 				s.s = s.s[i..];
 			} else {
 				s.s = s.s[i+len(s.d)..];
@@ -42,28 +42,28 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 };
 
 @test fn tokenize() void = {
-	const input = [1u8, 2u8, 24u8, 42u8, 3u8, 24u8, 24u8, 42u8, 4u8, 5u8];
-	let t = tokenize(input, [24u8, 42u8]);
+	const input: [_]u8 = [1, 2, 24, 42, 3, 24, 24, 42, 4, 5];
+	let t = tokenize(input, [24, 42]);
 
 	match (next_token(&t)) {
-		b: []u8 => assert(equal([1u8, 2u8], b)),
+		b: []u8 => assert(equal([1, 2], b)),
 		void    => abort(),
 	};
 
 	match (next_token(&t)) {
-		b: []u8 => assert(equal([3u8, 24u8], b)),
+		b: []u8 => assert(equal([3, 24], b)),
 		void    => abort(),
 	};
 
 	match (next_token(&t)) {
-		b: []u8 => assert(equal([4u8, 5u8], b)),
+		b: []u8 => assert(equal([4, 5], b)),
 		void    => abort(),
 	};
 
 	assert(next_token(&t) is void);
 
-	const input2 = [24u8, 42u8, 1u8, 24u8, 42u8];
-	t = tokenize(input2, [24u8, 42u8]);
+	const input2: [_]u8 = [24, 42, 1, 24, 42];
+	t = tokenize(input2, [24, 42]);
 
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([], b)),
@@ -71,7 +71,7 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	};
 
 	match (next_token(&t)) {
-		b: []u8 => assert(equal([1u8], b)),
+		b: []u8 => assert(equal([1], b)),
 		void    => abort(),
 	};
 
@@ -82,21 +82,21 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 
 	assert(next_token(&t) is void);
 
-	const input3 = [1u8, 1u8, 1u8, 2u8, 1u8, 1u8, 2u8, 2u8];
-	t = tokenize(input3, [1u8, 2u8]);
+	const input3: [_]u8 = [1, 1, 1, 2, 1, 1, 2, 2];
+	t = tokenize(input3, [1, 2]);
 
 	match (next_token(&t)) {
-		b: []u8 => assert(equal([1u8, 1u8], b)),
+		b: []u8 => assert(equal([1, 1], b)),
 		void    => abort(),
 	};
 
 	match (next_token(&t)) {
-		b: []u8 => assert(equal([1u8], b)),
+		b: []u8 => assert(equal([1], b)),
 		void    => abort(),
 	};
 
 	match (next_token(&t)) {
-		b: []u8 => assert(equal([2u8], b)),
+		b: []u8 => assert(equal([2], b)),
 		void    => abort(),
 	};
 

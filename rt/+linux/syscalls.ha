@@ -49,7 +49,7 @@ export fn execveat(dirfd: int, path: *const char, argv: *[*]nullable *const char
 
 // Returns the new PID to the parent, void to the child, or errno if something
 // goes wrong.
-export fn fork() (int | void | errno) = clone(null, SIGCHLD, null, null, 0u64);
+export fn fork() (int | void | errno) = clone(null, SIGCHLD, null, null, 0);
 
 export fn getpid() int = syscall0(SYS_getpid): int;
 
@@ -96,8 +96,8 @@ export fn mmap(
 			// XXX: Type promotion would simplify this
 			return if (r: int == -EPERM
 					&& addr: uintptr == null: uintptr
-					&& (flags & MAP_ANON) > 0u
-					&& (flags & MAP_FIXED) == 0u) {
+					&& (flags & MAP_ANON) > 0
+					&& (flags & MAP_FIXED) == 0) {
 				 // Fix up incorrect EPERM from kernel:
 				wrap_errno(ENOMEM);
 			} else err;
@@ -145,7 +145,7 @@ export fn faccessat(
 			* => err,
 		},
 		n: u64 => {
-			assert(n == 0u64);
+			assert(n == 0);
 			true;
 		},
 	};

@@ -8,7 +8,7 @@ const @symbol("__fini_array_end") fini_end: [*]*fn() void;
 export fn start_ha() void = {
 	const ninit = (&init_end: uintptr - &init_start: uintptr): size
 		/ size(*fn() void);
-	for (let i = 0z; i < ninit; i += 1z) {
+	for (let i = 0z; i < ninit; i += 1) {
 		init_start[i]();
 	};
 
@@ -16,7 +16,7 @@ export fn start_ha() void = {
 
 	const nfini = (&fini_end: uintptr - &fini_start: uintptr): size
 		/ size(*fn() void);
-	for (let i = 0z; i < nfini; i += 1z) {
+	for (let i = 0z; i < nfini; i += 1) {
 		fini_start[i]();
 	};
 

@@ -6,15 +6,15 @@ use strings;
 // [strconv::invalid] is returned. If the number is too large to be represented
 // by an i64, [strconv::overflow] is returned.
 export fn stoi64(s: str) (i64 | invalid | overflow) = {
-	if (len(s) == 0z) return invalid;
+	if (len(s) == 0) return invalid;
 	let b = strings::to_utf8(s);
 	let sign = 1i64;
 	let max = types::I64_MAX: u64;
 	if (b[0] == '-': u32: u8) {
-		sign = -1i64;
-		max += 1u64;
+		sign = -1;
+		max += 1;
 	};
-	let u = if (sign < 0i64) stou64(strings::from_utf8_unsafe(b[1..]))
+	let u = if (sign < 0) stou64(strings::from_utf8_unsafe(b[1..]))
 		else stou64(s);
 	match(u) {
 		v: (invalid | overflow) => return v,
