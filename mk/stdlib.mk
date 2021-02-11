@@ -66,6 +66,9 @@ hare_stdlib_deps+=$(stdlib_ascii)
 stdlib_bytes=$(HARECACHE)/bytes/bytes.o
 hare_stdlib_deps+=$(stdlib_bytes)
 
+stdlib_crypto_random=$(HARECACHE)/crypto/random/crypto.random.o
+hare_stdlib_deps+=$(stdlib_crypto_random)
+
 stdlib_encoding_utf8=$(HARECACHE)/encoding/utf8/encoding.utf8.o
 hare_stdlib_deps+=$(stdlib_encoding_utf8)
 
@@ -114,6 +117,17 @@ $(HARECACHE)/bytes/bytes.ssa: $(stdlib_bytes_srcs) $(stdlib_rt)
 	@mkdir -p $(HARECACHE)/bytes
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbytes \
 		-t$(HARECACHE)/bytes/bytes.td $(stdlib_bytes_srcs)
+
+# crypto::random
+stdlib_crypto_random_srcs= \
+	$(STDLIB)/crypto/random/$(PLATFORM).ha \
+	$(STDLIB)/crypto/random/random.ha
+
+$(HARECACHE)/crypto/random/crypto.random.ssa: $(stdlib_crypto_random_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_io)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/random
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
+		-t$(HARECACHE)/crypto/random/crypto.random.td $(stdlib_crypto_random_srcs)
 
 # encoding::utf8
 stdlib_encoding_utf8_srcs= \
@@ -291,6 +305,9 @@ hare_testlib_deps+=$(testlib_ascii)
 testlib_bytes=$(TESTCACHE)/bytes/bytes.o
 hare_testlib_deps+=$(testlib_bytes)
 
+testlib_crypto_random=$(TESTCACHE)/crypto/random/crypto.random.o
+hare_testlib_deps+=$(testlib_crypto_random)
+
 testlib_encoding_utf8=$(TESTCACHE)/encoding/utf8/encoding.utf8.o
 hare_testlib_deps+=$(testlib_encoding_utf8)
 
@@ -339,6 +356,17 @@ $(TESTCACHE)/bytes/bytes.ssa: $(testlib_bytes_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/bytes
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbytes \
 		-t$(TESTCACHE)/bytes/bytes.td $(testlib_bytes_srcs)
+
+# crypto::random
+testlib_crypto_random_srcs= \
+	$(STDLIB)/crypto/random/$(PLATFORM).ha \
+	$(STDLIB)/crypto/random/random.ha
+
+$(TESTCACHE)/crypto/random/crypto.random.ssa: $(testlib_crypto_random_srcs) $(testlib_rt) $(testlib_rt) $(testlib_io)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/random
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
+		-t$(TESTCACHE)/crypto/random/crypto.random.td $(testlib_crypto_random_srcs)
 
 # encoding::utf8
 testlib_encoding_utf8_srcs= \
