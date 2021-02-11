@@ -30,7 +30,7 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(hare_testlib_deps)
 
 hare: $(stdlib_start) $(HARECACHE)/hare.o
 	@printf 'LD\t$@\n'
-	@$(LD) -T $(rtscript) -o $@ \
+	@$(LD) -T $(rtscript) --gc-sections -o $@ \
 		$(stdlib_start) $(HARECACHE)/hare.o $(hare_stdlib_deps)
 
 hare-tests: $(testlib_start) $(TESTCACHE)/hare.o
