@@ -169,3 +169,11 @@ export fn fcntl(fd: int, cmd: int, arg: fcntl_arg) (int | errno) = {
 		n: u64 => n: int,
 	};
 };
+
+export fn getrandom(buf: *void, bufln: size, flags: uint) (size | errno) = {
+	return match (wrap_return(syscall3(SYS_getrandom,
+			buf: uintptr: u64, bufln: u64, flags: u64))) {
+		err: errno => err,
+		n: u64 => n: size,
+	};
+};
