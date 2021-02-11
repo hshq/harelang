@@ -17,12 +17,14 @@ export fn copy(dest: *stream, src: *stream) (error | size) = {
 	for (true) {
 		match (read(src, buf[..])) {
 			err: error => return err,
-			n: size => match (write(dest, buf[..n])) {
-				err: error => return err,
-				r: size => {
-					assert(r == n); // TODO?
-					w += n;
-				},
+			n: size => for (let i = 0z; i < n) {
+				match (write(dest, buf[i..n])) {
+					err: error => return err,
+					r: size => {
+						w += r;
+						i += r;
+					},
+				};
 			},
 			EOF => break,
 		};
