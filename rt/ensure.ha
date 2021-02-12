@@ -5,10 +5,16 @@ export type slice = struct {
 };
 
 export fn ensure(s: *slice, membsz: size, length: size) void = {
-	// TODO: make sure length * membsz < SIZE_MAX
-	for (s.capacity < length) {
-		s.capacity *= 2;
+	let cap = s.capacity;
+	for (cap < length) {
+		assert(cap >= s.capacity, "slice out of memory (overflow)");
+		if (cap == 0) {
+			cap = length;
+		} else {
+			cap *= 2;
+		};
 	};
+	s.capacity = cap;
 	let data = realloc(s.data, s.capacity * membsz);
 	assert(data != null);
 	s.data = data;

@@ -47,8 +47,8 @@ fn size2bin(s: size) size = {
 // Allocates n bytes of memory and returns a pointer to them, or null if there
 // is insufficient memory.
 export fn malloc(n: size) nullable *void = {
-	assert(n > 0);
-	return if (n > bin2size(len(bins) - 1)) malloc_large(n)
+	return if (n == 0) null
+		else if (n > bin2size(len(bins) - 1)) malloc_large(n)
 		else malloc_small(n);
 };
 
@@ -135,8 +135,9 @@ fn free_small(p: *void, s: size) void = {
 // in-place. Returns null if there is insufficient memory to support the
 // request.
 export fn realloc(_p: nullable *void, n: size) nullable *void = {
-	assert(n > 0);
-	if (_p == null) {
+	if (n == 0) {
+		return null;
+	} else if (_p == null) {
 		return malloc(n);
 	};
 

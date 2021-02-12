@@ -207,7 +207,7 @@ fn format(
 };
 
 fn scan_uint(iter: *strings::iterator) uint = {
-	let num = alloc([]u8, [], 1); // TODO: alloc slice w/o cap
+	let num = alloc([]u8, []);
 	defer free(num);
 	for (true) {
 		let r = match (strings::next(iter)) {
