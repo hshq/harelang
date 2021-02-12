@@ -4,15 +4,19 @@ use types;
 
 // Duplicates a string. Aborts on allocation failure.
 export fn dup(s: const str) str = {
-	let in = &s: *types::string;
+	const in = &s: *types::string;
+	const id = match (in.data) {
+		null => return "", // Empty string
+		b: *[*]u8 => b,
+	};
 	let buf: *[*]u8 = match (rt::malloc(in.length + 1)) {
 		null => abort("Out of memory"),
 		v: *void => v,
 	};
-	bytes::copy(buf[..in.length + 1z], in.data[..in.length + 1]);
+	bytes::copy(buf[..in.length + 1z], id[..in.length + 1]);
 	let out = types::string {
-		data     = buf,
-		length   = in.length,
+		data = buf,
+		length = in.length,
 		capacity = in.length,
 	};
 	return *(&out: *str);
@@ -24,4 +28,14 @@ export fn dup_all(s: []str) void = {
 	for (let i = 0z; i < len(s); i += 1) {
 		s[i] = strings::dup(s[i]);
 	};
+};
+
+@test fn dup() void = {
+	let s = dup("");
+	assert(s == "");
+	free(s);
+
+	s = dup("hello");
+	assert(s == "hello");
+	free(s);
 };

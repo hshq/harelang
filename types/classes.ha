@@ -17,7 +17,7 @@ export type numeric = (...integer | ...floating);
 // string manipulation.
 export type string = struct {
 	// UTF-8 encoded octets, plus a NUL terminator.
-	data: *[*]u8,
+	data: nullable *[*]u8,
 
 	// The length capacity, in octets of UTF-8 data, not including the NUL
 	// terminator.
@@ -32,7 +32,7 @@ export type string = struct {
 // slice manipulation.
 export type slice = struct {
 	// The slice contents.
-	data: *void,
+	data: nullable *void,
 
 	// The number of members of the slice.
 	length: size,

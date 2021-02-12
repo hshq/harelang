@@ -17,24 +17,24 @@ export fn i64tos(i: i64) const str = {
 
 	const isneg = i < 0;
 	if (isneg) {
-		s.data[s.length] = '-': u32: u8;
+		buf[s.length] = '-': u32: u8;
 		s.length += 1;
 		i = -i;
 	} else if (i == 0) {
-		s.data[s.length] = '0': u32: u8;
+		buf[s.length] = '0': u32: u8;
 		s.length += 1;
 	};
 
 	for (i > 0) {
-		s.data[s.length] = '0': u32: u8 + (i % 10): u8;
+		buf[s.length] = '0': u32: u8 + (i % 10): u8;
 		s.length += 1;
 		i /= 10;
 	};
 
 	const x: size = if (isneg) 1 else 0;
-	bytes::reverse(s.data[x..s.length]);
+	bytes::reverse(buf[x..s.length]);
 
-	s.data[s.length] = 0;
+	buf[s.length] = 0;
 	return *(&s: *str);
 };
 

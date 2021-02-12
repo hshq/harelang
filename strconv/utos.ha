@@ -18,18 +18,18 @@ export fn u64tosb(u: u64, base: uint) const str = {
 
 	let s = types::string { data = &buf, ... };
 	if (u == 0) {
-		s.data[s.length] = '0': u32: u8;
+		buf[s.length] = '0': u32: u8;
 		s.length += 1z;
 	};
 
 	for (u > 0u64) {
-		s.data[s.length] = lut[(u % base: u64)]: u32: u8;
+		buf[s.length] = lut[(u % base: u64)]: u32: u8;
 		s.length += 1;
 		u /= base;
 	};
 
-	bytes::reverse(s.data[..s.length]);
-	s.data[s.length] = 0;
+	bytes::reverse(buf[..s.length]);
+	buf[s.length] = 0;
 	return *(&s: *str);
 };
 
