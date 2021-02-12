@@ -174,7 +174,6 @@ stdlib_os_srcs= \
 	$(STDLIB)/os/$(PLATFORM)/fdstream.ha \
 	$(STDLIB)/os/$(PLATFORM)/open.ha \
 	$(STDLIB)/os/$(PLATFORM)/stdfd.ha \
-	$(STDLIB)/os/environ.ha \
 	$(STDLIB)/os/stdfd.ha
 
 $(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_types)
@@ -416,7 +415,6 @@ testlib_os_srcs= \
 	$(STDLIB)/os/$(PLATFORM)/fdstream.ha \
 	$(STDLIB)/os/$(PLATFORM)/open.ha \
 	$(STDLIB)/os/$(PLATFORM)/stdfd.ha \
-	$(STDLIB)/os/environ.ha \
 	$(STDLIB)/os/stdfd.ha
 
 $(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_types)

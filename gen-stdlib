@@ -185,7 +185,6 @@ os() {
 		'$(PLATFORM)/fdstream.ha' \
 		'$(PLATFORM)/open.ha' \
 		'$(PLATFORM)/stdfd.ha' \
-		environ.ha \
 		stdfd.ha
 	gen_ssa os io strings types
 }
