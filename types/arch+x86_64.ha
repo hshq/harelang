@@ -17,7 +17,7 @@ export def SIZE_MIN: size = U64_MIN;
 export def SIZE_MAX: size = U64_MAX;
 
 // Minimum value which can be stored in a uintptr type
-export def UINTPTR_MIN: uintptr = U64_MIN;
+export def UINTPTR_MIN: uintptr = U64_MIN: uintptr;
 
 // Maximum value which can be stored in a uintptr type.
-export def UINTPTR_MAX: uintptr = U64_MAX;
+export def UINTPTR_MAX: uintptr = U64_MAX: uintptr;
