@@ -55,14 +55,6 @@ export fn streamfd(s: *io::stream) (int | void) = {
 	return stream.fd;
 };
 
-// Returns the file descriptor for a given [io::stream]. If there is no fd
-// associated with this stream, abort.
-export fn must_streamfd(s: *io::stream) int = {
-	assert(is_fdstream(s));
-	let stream = s: *fd_stream;
-	return stream.fd;
-};
-
 fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let stream = s: *fd_stream;
 	return match (rt::read(stream.fd, buf: *[*]u8, len(buf))) {
