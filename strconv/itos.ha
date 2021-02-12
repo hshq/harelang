@@ -18,17 +18,16 @@ export fn i64tosb(i: i64, b: base) const str = {
 	static let buf: [66]u8 = [0...]; // 64 binary digits plus NUL and -
 	buf = [0...];
 
-	static const lut_upper: [_]rune = [
+	static const lut_upper = [
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
-	];
-	static const lut_lower: [_]rune = [
+	], lut_lower = [
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
 	];
-	let lut = if (b != base::HEX_LOWER) lut_upper else {
+	const lut = if (b != base::HEX_LOWER) &lut_upper else {
 		b = base::HEX_UPPER;
-		lut_lower;
+		&lut_lower;
 	};
 
 	let s = types::string { data = &buf, ... };
