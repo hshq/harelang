@@ -71,14 +71,6 @@ export @noreturn fn fatal(fmt: str, args: formattable...) void = {
 	os::exit(1);
 };
 
-type base = enum {
-	DECIMAL,
-	LOWER_HEX,
-	UPPER_HEX,
-	OCTAL,
-	BINARY,
-};
-
 type negation = enum {
 	NONE,
 	SPACE,
@@ -96,7 +88,7 @@ type modifiers = struct {
 	negation:  negation,
 	width:     uint,
 	precision: uint,
-	base:      base,
+	base:      strconv::base,
 };
 
 // Formats text for printing and writes it to an [io::stream].
@@ -135,7 +127,7 @@ export fn fprintf(
 				args[i - 1];
 			};
 
-			let mod = modifiers { ... };
+			let mod = modifiers { base = strconv::base::DEC, ... };
 			r = match (strings::next(&iter)) {
 				void => abort("Invalid format string (unterminated '{')"),
 				r: rune => r,
@@ -196,17 +188,19 @@ fn format(
 	s: str => io::write(out, strings::to_utf8(s)),
 	r: rune => io::write(out, utf8::encode_rune(r)),
 	n: types::numeric => {
-		let s = strconv::numerictos(n);
+		let s = strconv::numerictosb(n, mod.base);
 		io::write(out, strings::to_utf8(s));
 	},
 	p: uintptr => {
-		let s = strconv::uptrtos(p);
+		let s = strconv::uptrtosb(p, mod.base);
 		io::write(out, strings::to_utf8(s));
 	},
 	v: nullable *void => match (v) {
 		v: *void => {
-			let mod = modifiers { base = base::LOWER_HEX, ... };
-			format(out, v: uintptr, &mod);
+			let s = strconv::uptrtosb(v: uintptr,
+				strconv::base::HEX_LOWER);
+			io::write(out, strings::to_utf8("0x"));
+			io::write(out, strings::to_utf8(s));
 		},
 		null => format(out, "(null)", mod),
 	},

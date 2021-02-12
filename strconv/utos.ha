@@ -62,7 +62,12 @@ export fn utosb(u: uint, b: base) const str = u64tosb(u: uint, b);
 // Converts a size to a string, in the given base. The return value is
 // statically allocated and will be overwritten on subsequent calls; see
 // [strings::dup] to duplicate the result.
-export fn ztosb(u: size, b: base) const str = u64tosb(u: uint, b);
+export fn ztosb(u: size, b: base) const str = u64tosb(u: u64, b);
+
+// Converts a size to a string, in the given base. The return value is
+// statically allocated and will be overwritten on subsequent calls; see
+// [strings::dup] to duplicate the result.
+export fn uptrtosb(uptr: uintptr, b: base) const str = u64tosb(uptr: u64, b);
 
 // Converts a u64 to a string, in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
