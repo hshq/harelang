@@ -26,7 +26,7 @@ export type invalid = void;
 // returned. And if an invalid sequence is encountered, invalid returned.
 export fn next(d: *decoder) (rune | void | more | invalid) = {
 	if (d.offs >= len(d.src)) {
-		return void;
+		return;
 	};
 
 	// XXX: It would be faster if we decoded and measured at the same time.

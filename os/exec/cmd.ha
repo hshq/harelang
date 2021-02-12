@@ -82,7 +82,7 @@ export fn start(cmd: *command) (error | void) = {
 
 fn lookup(name: str) (platform | void) = {
 	const path = match (os::getenv("PATH")) {
-		void   => return void,
+		void   => return,
 		s: str => s,
 	};
 	let tok = strings::tokenize(path, ":");

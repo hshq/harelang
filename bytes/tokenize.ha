@@ -13,7 +13,7 @@ export fn tokenize(s: []u8, delim: []u8) tokenizer = tokenizer {
 // beginning or end of the sequence, respectively.
 export fn next_token(s: *tokenizer) ([]u8 | void) = {
 	if (len(s.s) == 0) {
-		return void;
+		return;
 	};
 
 	match (index(s.s, s.d)) {

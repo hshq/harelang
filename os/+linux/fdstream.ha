@@ -49,7 +49,7 @@ fn is_fdstream(s: *io::stream) bool = {
 // associated with this stream, void is returned.
 export fn streamfd(s: *io::stream) (int | void) = {
 	if (!is_fdstream(s)) {
-		return void;
+		return;
 	};
 	let stream = s: *fd_stream;
 	return stream.fd;

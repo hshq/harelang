@@ -10,8 +10,6 @@ fn rune_to_integer(r: rune) (u64 | void) = {
 		return (r: u32 - 'a': u32): u64 + 10
 	else if (ascii::isalpha(r) && ascii::isupper(r))
 		return (r: u32 - 'A': u32): u64 + 10;
-
-	return void;
 };
 
 // Converts a string to a u64 in the given base, If the string contains any
