@@ -23,3 +23,10 @@ export fn from_utf8(in: []u8) str = {
 
 // Converts a string to a UTF-8 slice.
 export fn to_utf8(in: str) []u8 = *(&in: *[]u8);
+
+@test fn utf8() void = {
+	assert(from_utf8([
+		0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64,
+	]) == "hello world");
+	assert(from_utf8([]) == "");
+};
