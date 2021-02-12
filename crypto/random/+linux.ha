@@ -10,7 +10,7 @@ export fn buffer(buf: []u8) void = {
 	for (n < len(buf)) {
 		match (rt::getrandom(buf[n..]: *[*]u8, len(buf), 0)) {
 			err: rt::errno => switch (err) {
-				rt::EINTR, rt::EAGAIN => void,
+				rt::EINTR => void,
 				* => abort(),
 			},
 			z: size => {
