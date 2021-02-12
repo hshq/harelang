@@ -136,6 +136,7 @@ fn free_small(p: *void, s: size) void = {
 // request.
 export fn realloc(_p: nullable *void, n: size) nullable *void = {
 	if (n == 0) {
+		free_(_p);
 		return null;
 	} else if (_p == null) {
 		return malloc(n);
