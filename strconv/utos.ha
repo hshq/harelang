@@ -6,10 +6,18 @@ use types;
 // duplicate the result.
 export fn u64tosb(u: u64, b: base) const str = {
 	static assert(types::U64_MAX == 18446744073709551615);
-	static const lut: [_]rune = [
+	static const lut_upper: [_]rune = [
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
 	];
+	static const lut_lower: [_]rune = [
+		'0', '1', '2', '3', '4', '5', '6', '7',
+		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+	];
+	let lut = if (b != base::HEX_LOWER) lut_upper else {
+		b = base::HEX_UPPER;
+		lut_lower;
+	};
 
 	static let buf: [21]u8 = [0...]; // 20 digits plus NUL
 	buf = [0...];
@@ -96,6 +104,8 @@ export fn uptrtos(uptr: uintptr) const str = u64tos(uptr: u64);
 	assert("1234567" == u64tosb(0o1234567, base::OCT));
 	assert("123456789" == u64tosb(123456789, base::DEC));
 	assert("123456789ABCDEF" == u64tosb(0x123456789ABCDEF, base::HEX));
+	assert("123456789ABCDEF" == u64tosb(0x123456789ABCDEF, base::HEX_UPPER));
+	assert("123456789abcdef" == u64tosb(0x123456789ABCDEF, base::HEX_LOWER));
 };
 
 @test fn utos() void = {
