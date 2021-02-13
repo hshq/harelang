@@ -1,0 +1,161 @@
+// A token with no additional context, such as '+'
+export type base_token = enum {
+	// Alpha shorted
+	ATTR_FINI,
+	ATTR_INIT,
+	ATTR_NORETURN,
+	ATTR_SYMBOL,
+	ATTR_TEST,
+	UNDERSCORE,
+	ABORT,
+	ALLOC,
+	APPEND,
+	AS,
+	ASSERT,
+	BOOL,
+	BREAK,
+	CHAR,
+	CONST,
+	CONTINUE,
+	DEF,
+	DEFER,
+	ELSE,
+	ENUM,
+	EXPORT,
+	F32,
+	F64,
+	FALSE,
+	FN,
+	FOR,
+	FREE,
+	I16,
+	I32,
+	I64,
+	I8,
+	IF,
+	INT,
+	IS,
+	LEN,
+	LET,
+	MATCH,
+	NULL,
+	NULLABLE,
+	OFFSET,
+	RETURN,
+	RUNE,
+	SIZE,
+	STATIC,
+	STR,
+	STRUCT,
+	SWITCH,
+	TRUE,
+	TYPE,
+	U16,
+	U32,
+	U64,
+	U8,
+	UINT,
+	UINTPTR,
+	UNION,
+	USE,
+	VOID,
+
+	// Operators
+	ANDEQ,
+	BAND,
+	BNOT,
+	BOR,
+	CASE,
+	COLON,
+	COMMA,
+	DIV,
+	DIVEQ,
+	DOT,
+	DOUBLE_COLON,
+	ELLIPSIS,
+	EQUAL,
+	GREATER,
+	GREATEREQ,
+	LAND,
+	LBRACE,
+	LBRACKET,
+	LEQUAL,
+	LESS,
+	LESSEQ,
+	LNOT,
+	LOR,
+	LPAREN,
+	LSHIFT,
+	LSHIFTEQ,
+	LXOR,
+	MINUS,
+	MINUSEQ,
+	MINUSMINUS,
+	MODEQ,
+	MODULO,
+	NEQUAL,
+	OREQ,
+	PLUS,
+	PLUSEQ,
+	PLUSPLUS,
+	RBRACE,
+	RBRACKET,
+	RPAREN,
+	RSHIFT,
+	RSHIFTEQ,
+	SEMICOLON,
+	SLICE,
+	TIMES,
+	TIMESEQ,
+	BXOR,
+	BXOREQ,
+};
+
+// A loop label, such as ':example'
+export type label = str;
+
+// A name, such as 'example'
+export type name = str;
+
+// The type of a literal token, such as '1337u32' (U32)
+export type literal_type = enum {
+	U8,
+	U16,
+	U32,
+	U64,
+	UINT,
+	UINTPTR,
+	I8,
+	I16,
+	I32,
+	I64,
+	INT,
+	F32,
+	F64,
+	VOID,
+};
+
+// A token for a literal value, such as '1337u32'
+export type literal = struct {
+	storage: literal_type,
+	union {
+		string: str,
+		_rune: rune,
+		_int: i64,
+		_uint: u64,
+		float: f64,
+	},
+};
+
+// A tuple of a line number and column number, counting from 1.
+export type linecol = (uint, uint);
+
+// A location within a source file.
+export type location = struct {
+	path: str,
+	start: linecol,
+	end: linecol,
+};
+
+// A single lexical token.
+export type token = (base_token | label | name | literal);
