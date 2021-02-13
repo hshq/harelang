@@ -1,5 +1,6 @@
 // A token with no additional context, such as '+'
-export type base_token = enum {
+export type btoken = enum {
+	// Keep ordered with bmap
 	// Alpha shorted
 	ATTR_FINI,
 	ATTR_INIT,
@@ -111,6 +112,116 @@ export type base_token = enum {
 	BXOREQ,
 };
 
+const bmap: [_]str = [
+	// Keep ordered with btoken
+	"@fini",
+	"@init",
+	"@noreturn",
+	"@symbol",
+	"@test",
+	"_",
+	"abort",
+	"alloc",
+	"append",
+	"as",
+	"assert",
+	"bool",
+	"break",
+	"char",
+	"const",
+	"continue",
+	"def",
+	"defer",
+	"else",
+	"enum",
+	"export",
+	"f32",
+	"f64",
+	"false",
+	"fn",
+	"for",
+	"free",
+	"i16",
+	"i32",
+	"i64",
+	"i8",
+	"if",
+	"int",
+	"is",
+	"len",
+	"let",
+	"match",
+	"null",
+	"nullable",
+	"offset",
+	"return",
+	"rune",
+	"size",
+	"static",
+	"str",
+	"struct",
+	"switch",
+	"true",
+	"type",
+	"u16",
+	"u32",
+	"u64",
+	"u8",
+	"uint",
+	"uintptr",
+	"union",
+	"use",
+	"void",
+	"&=",
+	"&",
+	"~",
+	"|",
+	"case",
+	":",
+	",",
+	"/",
+	"/=",
+	".",
+	"::",
+	"...",
+	"=",
+	">",
+	">=",
+	"&&",
+	"{",
+	"[",
+	"==",
+	"<",
+	"<=",
+	"!",
+	"||",
+	"(",
+	"<<",
+	"<<=",
+	"^^",
+	"-",
+	"-=",
+	"--",
+	"%=",
+	"%",
+	"!=",
+	"|=",
+	"+",
+	"+=",
+	"++",
+	"}",
+	"]",
+	")",
+	">>",
+	">>=",
+	";",
+	"..",
+	"*",
+	"*=",
+	"^",
+	"^=",
+];
+
 // A loop label, such as ':example'
 export type label = str;
 
@@ -147,15 +258,20 @@ export type literal = struct {
 	},
 };
 
-// A tuple of a line number and column number, counting from 1.
-export type linecol = struct { line: uint, col: uint };
-
 // A location within a source file.
 export type location = struct {
 	path: str,
-	start: linecol,
-	end: linecol,
+	line: uint,
+	col: uint
 };
 
 // A single lexical token.
-export type token = (base_token | label | name | literal);
+export type token = (btoken | label | name | literal);
+
+// Converts a token to its string representation
+export fn tokstr(tok: token) const str = {
+	return match (tok) {
+		b: btoken => bmap[b: int],
+		* => abort(), // TODO
+	};
+};
