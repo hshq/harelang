@@ -63,6 +63,9 @@ hare_stdlib_deps+=$(stdlib_rt)
 stdlib_ascii=$(HARECACHE)/ascii/ascii.o
 hare_stdlib_deps+=$(stdlib_ascii)
 
+stdlib_bufio=$(HARECACHE)/bufio/bufio.o
+hare_stdlib_deps+=$(stdlib_bufio)
+
 stdlib_bytes=$(HARECACHE)/bytes/bytes.o
 hare_stdlib_deps+=$(stdlib_bytes)
 
@@ -74,6 +77,9 @@ hare_stdlib_deps+=$(stdlib_encoding_utf8)
 
 stdlib_fmt=$(HARECACHE)/fmt/fmt.o
 hare_stdlib_deps+=$(stdlib_fmt)
+
+stdlib_hare_lex=$(HARECACHE)/hare/lex/hare.lex.o
+hare_stdlib_deps+=$(stdlib_hare_lex)
 
 stdlib_io=$(HARECACHE)/io/io.o
 hare_stdlib_deps+=$(stdlib_io)
@@ -102,6 +108,16 @@ $(HARECACHE)/ascii/ascii.ssa: $(stdlib_ascii_srcs) $(stdlib_rt)
 	@mkdir -p $(HARECACHE)/ascii
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nascii \
 		-t$(HARECACHE)/ascii/ascii.td $(stdlib_ascii_srcs)
+
+# bufio
+stdlib_bufio_srcs= \
+	$(STDLIB)/bufio/fixed.ha
+
+$(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/bufio
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbufio \
+		-t$(HARECACHE)/bufio/bufio.td $(stdlib_bufio_srcs)
 
 # bytes
 stdlib_bytes_srcs= \
@@ -151,6 +167,17 @@ $(HARECACHE)/fmt/fmt.ssa: $(stdlib_fmt_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfmt \
 		-t$(HARECACHE)/fmt/fmt.td $(stdlib_fmt_srcs)
 
+# hare::lex
+stdlib_hare_lex_srcs= \
+	$(STDLIB)/hare/lex/token.ha \
+	$(STDLIB)/hare/lex/lex.ha
+
+$(HARECACHE)/hare/lex/hare.lex.ssa: $(stdlib_hare_lex_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fmt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hare/lex
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::lex \
+		-t$(HARECACHE)/hare/lex/hare.lex.td $(stdlib_hare_lex_srcs)
+
 # io
 stdlib_io_srcs= \
 	$(STDLIB)/io/arch$(ARCH).ha \
@@ -158,7 +185,8 @@ stdlib_io_srcs= \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/println.ha \
 	$(STDLIB)/io/stream.ha \
-	$(STDLIB)/io/limit.ha
+	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/strings.ha
 
 $(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
@@ -301,6 +329,9 @@ hare_testlib_deps+=$(testlib_rt)
 testlib_ascii=$(TESTCACHE)/ascii/ascii.o
 hare_testlib_deps+=$(testlib_ascii)
 
+testlib_bufio=$(TESTCACHE)/bufio/bufio.o
+hare_testlib_deps+=$(testlib_bufio)
+
 testlib_bytes=$(TESTCACHE)/bytes/bytes.o
 hare_testlib_deps+=$(testlib_bytes)
 
@@ -312,6 +343,9 @@ hare_testlib_deps+=$(testlib_encoding_utf8)
 
 testlib_fmt=$(TESTCACHE)/fmt/fmt.o
 hare_testlib_deps+=$(testlib_fmt)
+
+testlib_hare_lex=$(TESTCACHE)/hare/lex/hare.lex.o
+hare_testlib_deps+=$(testlib_hare_lex)
 
 testlib_io=$(TESTCACHE)/io/io.o
 hare_testlib_deps+=$(testlib_io)
@@ -340,6 +374,16 @@ $(TESTCACHE)/ascii/ascii.ssa: $(testlib_ascii_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/ascii
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nascii \
 		-t$(TESTCACHE)/ascii/ascii.td $(testlib_ascii_srcs)
+
+# bufio
+testlib_bufio_srcs= \
+	$(STDLIB)/bufio/fixed.ha
+
+$(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/bufio
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbufio \
+		-t$(TESTCACHE)/bufio/bufio.td $(testlib_bufio_srcs)
 
 # bytes
 testlib_bytes_srcs= \
@@ -389,6 +433,17 @@ $(TESTCACHE)/fmt/fmt.ssa: $(testlib_fmt_srcs) $(testlib_rt) $(testlib_io) $(test
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfmt \
 		-t$(TESTCACHE)/fmt/fmt.td $(testlib_fmt_srcs)
 
+# hare::lex
+testlib_hare_lex_srcs= \
+	$(STDLIB)/hare/lex/token.ha \
+	$(STDLIB)/hare/lex/lex.ha
+
+$(TESTCACHE)/hare/lex/hare.lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fmt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/lex
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::lex \
+		-t$(TESTCACHE)/hare/lex/hare.lex.td $(testlib_hare_lex_srcs)
+
 # io
 testlib_io_srcs= \
 	$(STDLIB)/io/arch$(ARCH).ha \
@@ -397,9 +452,11 @@ testlib_io_srcs= \
 	$(STDLIB)/io/println.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/strings.ha \
 	$(STDLIB)/io/+test/copy.ha \
 	$(STDLIB)/io/+test/limit.ha \
-	$(STDLIB)/io/+test/stream.ha
+	$(STDLIB)/io/+test/stream.ha \
+	$(STDLIB)/io/+test/strings.ha
 
 $(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
