@@ -172,7 +172,7 @@ stdlib_hare_lex_srcs= \
 	$(STDLIB)/hare/lex/token.ha \
 	$(STDLIB)/hare/lex/lex.ha
 
-$(HARECACHE)/hare/lex/hare.lex.ssa: $(stdlib_hare_lex_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fmt)
+$(HARECACHE)/hare/lex/hare.lex.ssa: $(stdlib_hare_lex_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_io) $(stdlib_strings) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/lex
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::lex \
@@ -248,7 +248,7 @@ stdlib_strings_srcs= \
 	$(STDLIB)/strings/tokenize.ha \
 	$(STDLIB)/strings/utf8.ha
 
-$(HARECACHE)/strings/strings.ssa: $(stdlib_strings_srcs) $(stdlib_rt) $(stdlib_encoding_utf8) $(stdlib_types)
+$(HARECACHE)/strings/strings.ssa: $(stdlib_strings_srcs) $(stdlib_rt) $(stdlib_bytes) $(stdlib_encoding_utf8) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/strings
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nstrings \
@@ -438,7 +438,7 @@ testlib_hare_lex_srcs= \
 	$(STDLIB)/hare/lex/token.ha \
 	$(STDLIB)/hare/lex/lex.ha
 
-$(TESTCACHE)/hare/lex/hare.lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fmt)
+$(TESTCACHE)/hare/lex/hare.lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_io) $(testlib_strings) $(testlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/lex
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::lex \
@@ -520,7 +520,7 @@ testlib_strings_srcs= \
 	$(STDLIB)/strings/tokenize.ha \
 	$(STDLIB)/strings/utf8.ha
 
-$(TESTCACHE)/strings/strings.ssa: $(testlib_strings_srcs) $(testlib_rt) $(testlib_encoding_utf8) $(testlib_types)
+$(TESTCACHE)/strings/strings.ssa: $(testlib_strings_srcs) $(testlib_rt) $(testlib_bytes) $(testlib_encoding_utf8) $(testlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/strings
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrings \

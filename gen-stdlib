@@ -143,7 +143,7 @@ hare_lex() {
 	gen_srcs hare::lex \
 		token.ha \
 		lex.ha
-	gen_ssa hare::lex bufio io strings types fmt
+	gen_ssa hare::lex bufio io strings types
 }
 
 gensrcs_io() {
@@ -239,7 +239,7 @@ strings() {
 		suffix.ha \
 		tokenize.ha \
 		utf8.ha
-	gen_ssa strings encoding::utf8 types
+	gen_ssa strings bytes encoding::utf8 types
 }
 
 types() {
