@@ -73,20 +73,20 @@ export fn uptrtosb(uptr: uintptr, b: base) const str = u64tosb(uptr: u64, b);
 // duplicate the result.
 export fn u64tos(u: u64) const str = u64tosb(u, base::DEC);
 
-// Converts a u8 to a string in base 10. The return value is statically
+// Converts a u32 to a string in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // duplicate the result.
-export fn u8tos(u: u8) const str = u64tos(u);
+export fn u32tos(u: u32) const str = u64tos(u);
 
 // Converts a u16 to a string in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // duplicate the result.
 export fn u16tos(u: u16) const str = u64tos(u);
 
-// Converts a u32 to a string in base 10. The return value is statically
+// Converts a u8 to a string in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // duplicate the result.
-export fn u32tos(u: u32) const str = u64tos(u);
+export fn u8tos(u: u8) const str = u64tos(u);
 
 // Converts a uint to a string in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
