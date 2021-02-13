@@ -75,3 +75,18 @@ fn unget(lex: *lexer, r: (rune | io::EOF)) void = {
 	assert(next(&lexer) as rune == 'x');
 	assert(next(&lexer) is io::EOF);
 };
+
+@test fn unlex() void = {
+	let lexer = lexer_init(bufio::fixed([]), "<test>");
+	unlex(&lexer, (base_token::IF, location {
+		path = "<test>",
+		start = (1234, 1234),
+		end = (1234, 1234),
+	}));
+	let t = lex(&lexer) as (token, location);
+	assert(t.0 is base_token);
+	assert(t.0 as base_token == base_token::IF);
+	assert(t.1.path == "<test>");
+	assert(t.1.start.0 == 1234 && t.1.start.1 == 1234);
+	assert(t.1.end.0 == 1234 && t.1.end.1 == 1234);
+};
