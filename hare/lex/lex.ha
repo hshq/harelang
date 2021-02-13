@@ -1,5 +1,4 @@
 // hare::lex provides a lexer for Hare source code.
-use bufio;
 use io;
 use strings;
 use types;
@@ -68,7 +67,7 @@ fn unget(lex: *lexer, r: (rune | io::EOF)) void = {
 };
 
 @test fn unget() void = {
-	let lexer = lexer_init(bufio::fixed([]), "<test>");
+	let lexer = lexer_init(io::empty, "<test>");
 	unget(&lexer, 'x');
 	unget(&lexer, 'y');
 	assert(next(&lexer) as rune == 'y');
@@ -77,7 +76,7 @@ fn unget(lex: *lexer, r: (rune | io::EOF)) void = {
 };
 
 @test fn unlex() void = {
-	let lexer = lexer_init(bufio::fixed([]), "<test>");
+	let lexer = lexer_init(io::empty, "<test>");
 	unlex(&lexer, (base_token::IF, location {
 		path = "<test>",
 		start = linecol { line = 1234, col = 1234 },

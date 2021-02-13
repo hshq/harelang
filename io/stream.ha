@@ -69,3 +69,15 @@ export fn tell(s: *stream) (off | error) = {
 		sk: *seeker => sk(s, 0, whence::CUR),
 	};
 };
+
+// A [stream] which always returns EOF.
+export let empty: *io::stream = null: *io::stream;
+
+// TODO: This can be removed when globals can reference other globals
+@init fn init() void = {
+	static let s = io::stream { ...  };
+	s.reader = &empty_read;
+	empty = &s;
+};
+
+fn empty_read(s: *stream, buf: []u8) (size | EOF | error) = EOF;
