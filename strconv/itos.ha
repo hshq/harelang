@@ -1,57 +1,28 @@
 use bytes;
 use types;
+use strings;
 
 // Converts an i64 to a string in the given base. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // duplicate the result.
 export fn i64tosb(i: i64, b: base) const str = {
-	if (i == types::I64_MIN) {
-		return switch (b) {
-			base::BIN => "-1000000000000000000000000000000000000000000000000000000000000000",
-			base::OCT => "-1000000000000000000000",
-			base::DEC => "-9223372036854775808",
-			base::HEX_LOWER, base::HEX_UPPER => "-8000000000000000",
-		};
-	};
-
 	static assert(types::I64_MAX == 9223372036854775807);
+	if (i >= 0) return u64tosb(i: u64, b);
+
 	static let buf: [66]u8 = [0...]; // 64 binary digits plus NUL and -
 	buf = [0...];
 
-	static const lut_upper = [
-		'0', '1', '2', '3', '4', '5', '6', '7',
-		'8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
-	], lut_lower = [
-		'0', '1', '2', '3', '4', '5', '6', '7',
-		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
-	];
-	const lut = if (b != base::HEX_LOWER) &lut_upper else {
-		b = base::HEX_UPPER;
-		&lut_lower;
-	};
-
 	let s = types::string { data = &buf, ... };
 
-	const isneg = i < 0;
-	if (isneg) {
-		buf[s.length] = '-': u32: u8;
-		s.length += 1;
-		i = -i;
-	} else if (i == 0) {
-		buf[s.length] = '0': u32: u8;
-		s.length += 1;
-	};
+	buf[0] = '-': u32: u8;
+	s.length = 1;
 
-	for (i > 0) {
-		buf[s.length] = lut[i % b: i64]: u32: u8;
-		s.length += 1;
-		i /= b: i64;
-	};
+	let u = strings::to_utf8(u64tosb((-i): u64, b));
+	assert(len(u) + 1 < len(buf));
 
-	const x: size = if (isneg) 1 else 0;
-	bytes::reverse(buf[x..s.length]);
+	bytes::copy(buf[1..len(u) + 1], u);
+	s.length += len(u);
 
-	buf[s.length] = 0;
 	return *(&s: *str);
 };
 
