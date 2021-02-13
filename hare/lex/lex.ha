@@ -17,7 +17,7 @@ export type lexer = struct {
 export fn lexer_init(in: *io::stream, path: str) lexer = lexer {
 	in = in,
 	path = path,
-	loc = (1, 1),
+	loc = linecol { line = 1, col = 1 },
 	un = void,
 	rb = [void...],
 };
@@ -80,13 +80,13 @@ fn unget(lex: *lexer, r: (rune | io::EOF)) void = {
 	let lexer = lexer_init(bufio::fixed([]), "<test>");
 	unlex(&lexer, (base_token::IF, location {
 		path = "<test>",
-		start = (1234, 1234),
-		end = (1234, 1234),
+		start = linecol { line = 1234, col = 1234 },
+		end = linecol { line = 1234, col = 1234 },
 	}));
 	let t = lex(&lexer) as (token, location);
 	assert(t.0 is base_token);
 	assert(t.0 as base_token == base_token::IF);
 	assert(t.1.path == "<test>");
-	assert(t.1.start.0 == 1234 && t.1.start.1 == 1234);
-	assert(t.1.end.0 == 1234 && t.1.end.1 == 1234);
+	assert(t.1.start.line == 1234 && t.1.start.col == 1234);
+	assert(t.1.end.line == 1234 && t.1.end.col == 1234);
 };

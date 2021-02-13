@@ -148,7 +148,7 @@ export type literal = struct {
 };
 
 // A tuple of a line number and column number, counting from 1.
-export type linecol = (uint, uint);
+export type linecol = struct { line: uint, col: uint };
 
 // A location within a source file.
 export type location = struct {
