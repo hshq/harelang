@@ -3,7 +3,6 @@ use bufio;
 use io;
 use strings;
 use types;
-use fmt;
 
 // State associated with a lexer.
 export type lexer = struct {
