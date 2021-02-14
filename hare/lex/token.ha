@@ -5,6 +5,7 @@ export type btoken = enum {
 	ATTR_FINI,
 	ATTR_INIT,
 	ATTR_NORETURN,
+	ATTR_OFFSET,
 	ATTR_SYMBOL,
 	ATTR_TEST,
 	UNDERSCORE,
@@ -117,6 +118,7 @@ const bmap: [_]str = [
 	"@fini",
 	"@init",
 	"@noreturn",
+	"@offset",
 	"@symbol",
 	"@test",
 	"_",
@@ -241,8 +243,10 @@ export type literal_type = enum {
 	I32,
 	I64,
 	INT,
+	ICONST,
 	F32,
 	F64,
+	FCONST,
 	VOID,
 };
 
