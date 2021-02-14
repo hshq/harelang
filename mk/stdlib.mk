@@ -63,6 +63,9 @@ hare_stdlib_deps+=$(stdlib_rt)
 stdlib_ascii=$(HARECACHE)/ascii/ascii.o
 hare_stdlib_deps+=$(stdlib_ascii)
 
+stdlib_bufio=$(HARECACHE)/bufio/bufio.o
+hare_stdlib_deps+=$(stdlib_bufio)
+
 stdlib_bytes=$(HARECACHE)/bytes/bytes.o
 hare_stdlib_deps+=$(stdlib_bytes)
 
@@ -105,6 +108,16 @@ $(HARECACHE)/ascii/ascii.ssa: $(stdlib_ascii_srcs) $(stdlib_rt)
 	@mkdir -p $(HARECACHE)/ascii
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nascii \
 		-t$(HARECACHE)/ascii/ascii.td $(stdlib_ascii_srcs)
+
+# bufio
+stdlib_bufio_srcs= \
+	$(STDLIB)/bufio/fixed.ha
+
+$(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/bufio
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbufio \
+		-t$(HARECACHE)/bufio/bufio.td $(stdlib_bufio_srcs)
 
 # bytes
 stdlib_bytes_srcs= \
@@ -159,7 +172,7 @@ stdlib_hare_lex_srcs= \
 	$(STDLIB)/hare/lex/token.ha \
 	$(STDLIB)/hare/lex/lex.ha
 
-$(HARECACHE)/hare/lex/hare.lex.ssa: $(stdlib_hare_lex_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_types)
+$(HARECACHE)/hare/lex/hare.lex.ssa: $(stdlib_hare_lex_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bufio) $(stdlib_strings) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/lex
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::lex \
@@ -316,6 +329,9 @@ hare_testlib_deps+=$(testlib_rt)
 testlib_ascii=$(TESTCACHE)/ascii/ascii.o
 hare_testlib_deps+=$(testlib_ascii)
 
+testlib_bufio=$(TESTCACHE)/bufio/bufio.o
+hare_testlib_deps+=$(testlib_bufio)
+
 testlib_bytes=$(TESTCACHE)/bytes/bytes.o
 hare_testlib_deps+=$(testlib_bytes)
 
@@ -358,6 +374,16 @@ $(TESTCACHE)/ascii/ascii.ssa: $(testlib_ascii_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/ascii
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nascii \
 		-t$(TESTCACHE)/ascii/ascii.td $(testlib_ascii_srcs)
+
+# bufio
+testlib_bufio_srcs= \
+	$(STDLIB)/bufio/fixed.ha
+
+$(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/bufio
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbufio \
+		-t$(TESTCACHE)/bufio/bufio.td $(testlib_bufio_srcs)
 
 # bytes
 testlib_bytes_srcs= \
@@ -412,7 +438,7 @@ testlib_hare_lex_srcs= \
 	$(STDLIB)/hare/lex/token.ha \
 	$(STDLIB)/hare/lex/lex.ha
 
-$(TESTCACHE)/hare/lex/hare.lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_types)
+$(TESTCACHE)/hare/lex/hare.lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings) $(testlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/lex
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::lex \
