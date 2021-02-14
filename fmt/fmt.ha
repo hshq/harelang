@@ -91,6 +91,14 @@ type modifiers = struct {
 	base:      strconv::base,
 };
 
+type modflags = enum uint {
+	NONE  = 0,
+	ZERO  = 1 << 0,
+	MINUS = 1 << 1,
+	SPACE = 1 << 2,
+	PLUS  = 1 << 3,
+};
+
 // Formats text for printing and writes it to an [io::stream].
 export fn fprintf(
 	s: *io::stream,
@@ -229,6 +237,115 @@ fn scan_uint(iter: *strings::iterator) uint = {
 	abort("unreachable");
 };
 
+fn scan_modifier_flags(iter: *strings::iterator, mod: *modifiers) void = {
+	let flags = modflags::NONE;
+
+	for (true) {
+		let r = match (strings::next(iter)) {
+			void => abort("Invalid format string (unterminated '{')"),
+			r: rune => r,
+		};
+
+		switch (r) {
+			'0' => {
+				flags |= modflags::ZERO;
+			},
+			'-' => {
+				flags |= modflags::MINUS;
+			},
+			' ' => {
+				flags |= modflags::SPACE;
+			},
+			'+' => {
+				flags |= modflags::PLUS;
+			},
+			* => {
+				strings::push(iter, r);
+				break;
+			},
+		};
+	};
+
+	mod.padding = if (flags & modflags::MINUS != 0)
+		padding::ALIGN_LEFT
+	else if (flags & modflags::ZERO != 0)
+		padding::ZEROES
+	else
+		padding::ALIGN_RIGHT;
+
+	mod.negation = if (flags & modflags::PLUS != 0)
+		negation::PLUS
+	else if (flags & modflags::SPACE != 0)
+		negation::SPACE
+	else
+		negation::NONE;
+};
+
+fn scan_modifier_width(iter: *strings::iterator, mod: *modifiers) void = {
+	let r = match (strings::next(iter)) {
+		void => abort("Invalid format string (unterminated '{')"),
+		r: rune => r,
+	};
+
+	let is_digit = ascii::isdigit(r);
+	strings::push(iter, r);
+
+	if (is_digit) {
+		mod.width = scan_uint(iter);
+	};
+};
+
+fn scan_modifier_precision(iter: *strings::iterator, mod: *modifiers) void = {
+	let r = match (strings::next(iter)) {
+		void => abort("Invalid format string (unterminated '{')"),
+		r: rune => r,
+	};
+
+	if (r == '.') {
+		mod.precision = scan_uint(iter);
+	} else {
+		strings::push(iter, r);
+	};
+};
+
+fn scan_modifier_base(iter: *strings::iterator, mod: *modifiers) void = {
+	let r = match (strings::next(iter)) {
+		void => abort("Invalid format string (unterminated '{')"),
+		r: rune => r,
+	};
+
+	switch (r) {
+		'x' => {
+			mod.base = strconv::base::HEX_LOWER;
+		},
+		'X' => {
+			mod.base = strconv::base::HEX_UPPER;
+		},
+		'o' => {
+			mod.base = strconv::base::OCT;
+		},
+		'b' => {
+			mod.base = strconv::base::BIN;
+		},
+		* => {
+			strings::push(iter, r);
+		},
+	};
+};
+
 fn scan_modifiers(iter: *strings::iterator, mod: *modifiers) void = {
-	abort("TODO: format modifiers");
+	scan_modifier_flags(iter, mod);
+	scan_modifier_width(iter, mod);
+	scan_modifier_precision(iter, mod);
+	scan_modifier_base(iter, mod);
+
+	// eat '}'
+	let r = match (strings::next(iter)) {
+		void => abort("Invalid format string (unterminated '{')"),
+		     r: rune => r,
+	};
+
+	if (r != '}') {
+		strings::push(iter, r);
+	};
 };
