@@ -1,9 +1,8 @@
 // hare::lex provides a lexer for Hare source code.
 use ascii;
-use bufio;
 use io;
 use strings;
-use types;
+use fmt;
 
 // State associated with a lexer.
 export type lexer = struct {
@@ -46,11 +45,14 @@ export fn lex(lex: *lexer) ((token, location) | io::EOF | error) = {
 		void => void,
 	};
 
-	let loc = mkloc(lex);
-	let r: rune = match (next(lex)) {
+	let loc = location { ... };
+	let r: rune = match (nextw(lex)) {
 		e: io::error => return e,
 		io::EOF => return io::EOF,
-		r: rune => r,
+		r: (rune, location) => {
+			loc = r.1;
+			r.0;
+		},
 	};
 
 	if (ascii::isalpha(r) || r == '_' || r == '@') {
@@ -63,11 +65,11 @@ export fn lex(lex: *lexer) ((token, location) | io::EOF | error) = {
 	};
 
 	let tok: token = switch (r) {
-		* => return mkloc(lex),
+		* => return syntaxerr(loc),
 		'"', '\'' => abort(), // TODO: Strings/runes
 		'.', '<', '>' => return lex3(lex, r),
 		'^', '*', '%', '/', '+', '-', ':', '!', '&', '|', '=' => {
-			return lex2(lex, r);
+			return lex2(lex, loc, r);
 		},
 		'~' => btoken::BNOT,
 		',' => btoken::COMMA,
@@ -82,12 +84,90 @@ export fn lex(lex: *lexer) ((token, location) | io::EOF | error) = {
 	return (tok, loc);
 };
 
-fn lex3(lex: *lexer, r: rune) ((token, location) | io::EOF | error) = {
-	abort();
-	return io::EOF; // TODO
+fn lex2(
+	lex: *lexer,
+	loc: location,
+	r: rune,
+) ((token, location) | io::EOF | error) = {
+	let n = match (next(lex)) {
+		err: io::error => return err,
+		io::EOF => io::EOF,
+		r: rune => r,
+	};
+	let tok: token = switch (r) {
+		'^' => match (n) {
+			r: rune => switch (r) {
+				'^' => return (btoken::LXOR: token, loc),
+				'=' => return (btoken::BXOREQ: token, loc),
+				*   => btoken::BXOR,
+			},
+			io::EOF => btoken::BXOR,
+		},
+		'*' => match (n) {
+			r: rune => switch (r) {
+				'=' => return (btoken::TIMESEQ: token, loc),
+				*   => btoken::TIMES,
+			},
+			io::EOF => btoken::TIMES,
+		},
+		'%' => match (n) {
+			r: rune => switch (r) {
+				'=' => return (btoken::MODEQ: token, loc),
+				*   => btoken::MODULO,
+			},
+			io::EOF => btoken::MODULO,
+		},
+		'+' => match (n) {
+			r: rune => switch (r) {
+				'=' => return (btoken::PLUSEQ: token, loc),
+				*   => btoken::PLUS,
+			},
+			io::EOF => btoken::PLUS,
+		},
+		'-' => match (n) {
+			r: rune => switch (r) {
+				'=' => return (btoken::MINUSEQ: token, loc),
+				*   => btoken::MINUS,
+			},
+			io::EOF => btoken::MINUS,
+		},
+		':' => match (n) {
+			r: rune => switch (r) {
+				':' => return (btoken::DOUBLE_COLON: token, loc),
+				*   => btoken::COLON,
+			},
+			io::EOF => btoken::COLON,
+		},
+		'&' => match (n) {
+			r: rune => switch (r) {
+				'&' => return (btoken::LAND: token, loc),
+				'=' => return (btoken::ANDEQ: token, loc),
+				*   => btoken::BAND,
+			},
+			io::EOF => btoken::BAND,
+		},
+		'|' => match (n) {
+			r: rune => switch (r) {
+				'|' => return (btoken::LOR: token, loc),
+				'=' => return (btoken::OREQ: token, loc),
+				*   => btoken::BOR,
+			},
+			io::EOF => btoken::BOR,
+		},
+		'=' => match (n) {
+			r: rune => switch (r) {
+				'=' => return (btoken::LEQUAL: token, loc),
+				*   => btoken::EQUAL,
+			},
+			io::EOF => btoken::EQUAL,
+		},
+		* => return syntaxerr(loc),
+	};
+	unget(lex, n);
+	return (tok, loc);
 };
 
-fn lex2(lex: *lexer, r: rune) ((token, location) | io::EOF | error) = {
+fn lex3(lex: *lexer, r: rune) ((token, location) | io::EOF | error) = {
 	abort();
 	return io::EOF; // TODO
 };
@@ -116,13 +196,26 @@ fn next(lex: *lexer) (rune | io::EOF | io::error) = {
 			err: io::error => err,
 			r: rune => {
 				lexloc(lex, r);
-				if (ascii::isspace(r)) continue;
 				r;
 			},
 		};
 	};
 
 	abort("unreachable");
+};
+
+fn nextw(lex: *lexer) ((rune, location) | io::EOF | io::error) = {
+	for (true) {
+		let loc = mkloc(lex);
+		match (next(lex)) {
+			err: io::error => return err,
+			io::EOF => return io::EOF,
+			r: rune => if (!ascii::isspace(r)) {
+				return (r, loc);
+			},
+		};
+	};
+	abort();
 };
 
 fn lexloc(lex: *lexer, r: rune) void = {
@@ -154,48 +247,4 @@ fn mkloc(lex: *lexer) location = location {
 	col = lex.loc.1,
 };
 
-@test fn unget() void = {
-	let lexer = lexer_init(io::empty, "<test>");
-	unget(&lexer, 'x');
-	unget(&lexer, 'y');
-	assert(next(&lexer) as rune == 'y');
-	assert(next(&lexer) as rune == 'x');
-	assert(next(&lexer) is io::EOF);
-};
-
-@test fn unlex() void = {
-	let lexer = lexer_init(io::empty, "<test>");
-	unlex(&lexer, (btoken::IF, location {
-		path = "<test>",
-		line = 1234,
-		col = 1234,
-	}));
-	let t = lex(&lexer) as (token, location);
-	assert(t.0 is btoken);
-	assert(t.0 as btoken == btoken::IF);
-	assert(t.1.path == "<test>");
-	assert(t.1.line == 1234 && t.1.col == 1234);
-};
-
-@test fn lex1() void = {
-	const in = "~,{[(}]);";
-	const expected = [
-		btoken::BNOT,
-		btoken::COMMA,
-		btoken::LBRACE,
-		btoken::LBRACKET,
-		btoken::LPAREN,
-		btoken::RBRACE,
-		btoken::RBRACKET,
-		btoken::RPAREN,
-		btoken::SEMICOLON,
-	];
-	let lexer = lexer_init(bufio::fixed(strings::to_utf8(in)), "<test>");
-	for (let i = 0z; i < len(expected); i += 1) {
-		let tl = lex(&lexer) as (token, location);
-		let tok = tl.0, loc = tl.1;
-		assert(tok as btoken == expected[i]);
-		assert(loc.path == "<test>");
-		assert(loc.line == 1 && loc.col == i + 1);
-	};
-};
+fn syntaxerr(loc: location) error = loc: syntax: error;
