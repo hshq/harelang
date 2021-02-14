@@ -1,9 +1,7 @@
 use fmt;
-use types;
 use hare::lex;
 use io;
 use os;
-use strconv;
 
 export fn main() void = {
 	let lexer = lex::lexer_init(os::stdin, "<stdin>");
