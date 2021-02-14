@@ -436,7 +436,8 @@ $(TESTCACHE)/fmt/fmt.ssa: $(testlib_fmt_srcs) $(testlib_rt) $(testlib_io) $(test
 # hare::lex
 testlib_hare_lex_srcs= \
 	$(STDLIB)/hare/lex/token.ha \
-	$(STDLIB)/hare/lex/lex.ha
+	$(STDLIB)/hare/lex/lex.ha \
+	$(STDLIB)/hare/lex/+test.ha
 
 $(TESTCACHE)/hare/lex/hare.lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings) $(testlib_types)
 	@printf 'HAREC \t$@\n'

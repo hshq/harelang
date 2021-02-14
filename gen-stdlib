@@ -138,12 +138,23 @@ fmt() {
 	gen_ssa fmt io os strconv strings types
 }
 
-hare_lex() {
-	printf '# hare::lex\n'
+gensrcs_hare_lex() {
 	gen_srcs hare::lex \
 		token.ha \
-		lex.ha
-	gen_ssa hare::lex io bufio strings types
+		lex.ha \
+		$*
+}
+
+hare_lex() {
+	printf '# hare::lex\n'
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_hare_lex
+	else
+		gensrcs_hare_lex \
+			+test.ha
+	fi
+	gen_ssa hare::lex io bufio strings types fmt
 }
 
 gensrcs_io() {
