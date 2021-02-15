@@ -46,6 +46,7 @@ rt() {
 			start.ha
 	else
 		gensrcs_rt \
+			'+test/$(PLATFORM).ha' \
 			+test/abort.ha \
 			+test/start.ha \
 			+test/ztos.ha
