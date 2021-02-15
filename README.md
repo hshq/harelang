@@ -58,3 +58,14 @@ Some examples of on-topic features include:
 - JSON, XML, INI, HTML
 - tar, zip, cpio
 - MIME, RFC 2822
+
+## Conventions
+
+See also the [Hare style guide](https://harelang.org/style/)
+
+1. Tagged unions should be written from most to least common case, which
+   generally puts the error cases last.
+2. Prefer to design APIs which avoid allocation if it can be done without being
+   at the expense of good API design.
+3. Whatever the semantics, document the allocation and lifetime behaviors and
+   expectations of each function to which they apply.
