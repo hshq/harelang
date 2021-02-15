@@ -1,4 +1,4 @@
-.text
+.section .text.rt.syscall0
 .global rt.syscall0
 rt.syscall0:
 	sub	sp, sp, #16
@@ -8,6 +8,7 @@ rt.syscall0:
 	add	sp, sp, 16
 	ret
 
+.section .text.rt.syscall1
 .global rt.syscall1
 rt.syscall1:
 	sub	sp, sp, #16
@@ -19,6 +20,7 @@ rt.syscall1:
 	add	sp, sp, 16
 	ret
 
+.section .text.rt.syscall2
 .global rt.syscall2
 rt.syscall2:
 	sub	sp, sp, #32
@@ -32,6 +34,7 @@ rt.syscall2:
 	add	sp, sp, 32
 	ret
 
+.section .text.rt.syscall3
 .global rt.syscall3
 rt.syscall3:
 	sub	sp, sp, #32
@@ -47,6 +50,7 @@ rt.syscall3:
 	add	sp, sp, 32
 	ret
 
+.section .text.rt.syscall4
 .global rt.syscall4
 rt.syscall4:
 	sub	sp, sp, #48
@@ -64,6 +68,7 @@ rt.syscall4:
 	add	sp, sp, 48
 	ret
 
+.section .text.rt.syscall5
 .global rt.syscall5
 rt.syscall5:
 	sub	sp, sp, #48
@@ -83,6 +88,7 @@ rt.syscall5:
 	add	sp, sp, 48
 	ret
 
+.section .text.rt.syscall6
 .global rt.syscall6
 rt.syscall6:
 	sub	sp, sp, #64

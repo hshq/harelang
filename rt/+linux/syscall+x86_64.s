@@ -1,10 +1,11 @@
-.text
+.section .text.rt.syscall0
 .global rt.syscall0
 rt.syscall0:
 	movq %rdi, %rax
 	syscall
 	ret
 
+.section .text.rt.syscall1
 .global rt.syscall1
 rt.syscall1:
 	movq %rdi, %rax
@@ -12,6 +13,7 @@ rt.syscall1:
 	syscall
 	ret
 
+.section .text.rt.syscall2
 .global rt.syscall2
 rt.syscall2:
 	movq %rdi, %rax
@@ -20,6 +22,7 @@ rt.syscall2:
 	syscall
 	ret
 
+.section .text.rt.syscall3
 .global rt.syscall3
 rt.syscall3:
 	movq %rdi, %rax
@@ -29,6 +32,7 @@ rt.syscall3:
 	syscall
 	ret
 
+.section .text.rt.syscall4
 .global rt.syscall4
 rt.syscall4:
 	movq %rdi, %rax
@@ -39,6 +43,7 @@ rt.syscall4:
 	syscall
 	ret
 
+.section .text.rt.syscall5
 .global rt.syscall5
 rt.syscall5:
 	movq %rdi, %rax
@@ -50,6 +55,7 @@ rt.syscall5:
 	syscall
 	ret
 
+.section .text.rt.syscall6
 .global rt.syscall6
 rt.syscall6:
 	movq %rdi, %rax
