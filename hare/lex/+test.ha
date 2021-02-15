@@ -34,7 +34,10 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 	for (let i = 0z; i < len(expected); i += 1) {
 		let eline = expected[i].0, ecol = expected[i].1,
 			etok = expected[i].2;
-		let tl = lex(&lexer) as (token, location);
+		let tl = match (lex(&lexer)) {
+			tl: (token, location) => tl,
+			* => abort(),
+		};
 		let tok = tl.0, loc = tl.1;
 		match (tok) {
 			b: btoken => if (etok as btoken != b) {
@@ -96,6 +99,25 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 		(1, 50, btoken::EQUAL),
 		(1, 52, btoken::LEQUAL),
 		(1, 55, btoken::EQUAL),
+	];
+	lextest(in, expected);
+};
+
+@test fn lex3() void = {
+	const in = ". .. ... < << <= <<= > >> >= >>= >>";
+	const expected: [_](uint, uint, token) = [
+		(1, 1,  btoken::DOT),
+		(1, 3,  btoken::SLICE),
+		(1, 6,  btoken::ELLIPSIS),
+		(1, 10, btoken::LESS),
+		(1, 12, btoken::LSHIFT),
+		(1, 15, btoken::LESSEQ),
+		(1, 18, btoken::LSHIFTEQ),
+		(1, 22, btoken::GREATER),
+		(1, 24, btoken::RSHIFT),
+		(1, 27, btoken::GREATEREQ),
+		(1, 30, btoken::RSHIFTEQ),
+		(1, 34, btoken::RSHIFT),
 	];
 	lextest(in, expected);
 };

@@ -2,7 +2,6 @@
 use ascii;
 use io;
 use strings;
-use fmt;
 
 // State associated with a lexer.
 export type lexer = struct {
@@ -67,7 +66,7 @@ export fn lex(lex: *lexer) ((token, location) | io::EOF | error) = {
 	let tok: token = switch (r) {
 		* => return syntaxerr(loc),
 		'"', '\'' => abort(), // TODO: Strings/runes
-		'.', '<', '>' => return lex3(lex, r),
+		'.', '<', '>' => return lex3(lex, loc, r),
 		'^', '*', '%', '/', '+', '-', ':', '!', '&', '|', '=' => {
 			return lex2(lex, loc, r);
 		},
@@ -167,9 +166,118 @@ fn lex2(
 	return (tok, loc);
 };
 
-fn lex3(lex: *lexer, r: rune) ((token, location) | io::EOF | error) = {
-	abort();
-	return io::EOF; // TODO
+fn lex3(
+	lex: *lexer,
+	loc: location,
+	r: rune,
+) ((token, location) | io::EOF | error) = {
+	let n = match (next(lex)) {
+		err: io::error => return err,
+		io::EOF => return switch (r) {
+			'.' => (btoken::DOT: token, loc),
+			'<' => (btoken::LESS: token, loc),
+			'>' => (btoken::GREATER: token, loc),
+		},
+		r: rune => r,
+	};
+	return switch (r) {
+		'.' => lex3dot(lex, loc, n),
+		'<' => lex3lt(lex, loc, n),
+		'>' => lex3gt(lex, loc, n),
+		* => syntaxerr(loc),
+	};
+};
+
+fn lex3dot(
+	lex: *lexer,
+	loc: location,
+	n: rune,
+) ((token, location) | io::EOF | error) = {
+	let tok: token = switch (n) {
+		'.' => {
+			let q = match (next(lex)) {
+				err: io::error => return err,
+				io::EOF => io::EOF,
+				r: rune => r,
+			};
+			let t = match (q) {
+				r: rune => switch (r) {
+					'.' => return (btoken::ELLIPSIS: token, loc),
+					*   => btoken::SLICE,
+				},
+				io::EOF => btoken::SLICE,
+			};
+			unget(lex, q);
+			t;
+		},
+		* => {
+			unget(lex, n);
+			btoken::DOT;
+		}
+	};
+	return (tok, loc);
+};
+
+fn lex3lt(
+	lex: *lexer,
+	loc: location,
+	n: rune,
+) ((token, location) | io::EOF | error) = {
+	let tok: token = switch (n) {
+		'<' => {
+			let q = match (next(lex)) {
+				err: io::error => return err,
+				io::EOF => io::EOF,
+				r: rune => r,
+			};
+			let t = match (q) {
+				r: rune => switch (r) {
+					'=' => return (btoken::LSHIFTEQ: token, loc),
+					*   => btoken::LSHIFT,
+				},
+				io::EOF => btoken::LSHIFT,
+			};
+			unget(lex, q);
+			t;
+		},
+		'=' => btoken::LESSEQ,
+		* => {
+			unget(lex, n);
+			btoken::LESS;
+		}
+	};
+	return (tok, loc);
+};
+
+fn lex3gt(
+	lex: *lexer,
+	loc: location,
+	n: rune,
+) ((token, location) | io::EOF | error) = {
+	let tok: token = switch (n) {
+		'>' => {
+			let q = match (next(lex)) {
+				err: io::error => return err,
+				io::EOF => io::EOF,
+				r: rune => r,
+			};
+			let t = match (q) {
+				r: rune => switch (r) {
+					'=' => return (btoken::RSHIFTEQ: token, loc),
+					*   => btoken::RSHIFT,
+				},
+				io::EOF => btoken::RSHIFT,
+			};
+			unget(lex, q);
+			t;
+		},
+		'=' => btoken::GREATEREQ,
+		* => {
+			unget(lex, n);
+			btoken::GREATER;
+		}
+	};
+	return (tok, loc);
 };
 
 // Unlex a single token. The next call to [lex] will return this token, location
