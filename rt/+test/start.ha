@@ -28,6 +28,7 @@ export fn start_ha() void = {
 		};
 	};
 
+	let failures: [](str, str) = [];
 	let npass = 0z, nfail = 0z;
 	print("Running ");
 	print(ztos(ntest));
@@ -39,9 +40,8 @@ export fn start_ha() void = {
 
 		if (setjmp(&jmp) != 0) {
 			nfail += 1;
-			print("FAIL: ");
-			print(reason);
-			print("\n");
+			append(failures, (test_start[i].name, reason));
+			print("FAIL\n");
 			continue;
 		};
 		test_start[i].func();
@@ -49,6 +49,23 @@ export fn start_ha() void = {
 		npass += 1;
 		print("OK\n");
 	};
+
+	if (nfail != 0) {
+		print("\n");
+		print(ztos(nfail));
+		if (nfail == 1) {
+			print(" test failed:\n");
+		} else {
+			print(" tests failed:\n");
+		};
+		for (let i = 0z; i < nfail; i += 1) {
+			print(failures[i].0);
+			print(": ");
+			print(failures[i].1);
+			print("\n");
+		};
+	};
+
 	print("\n");
 	print(ztos(npass));
 	print(" passed; ");
