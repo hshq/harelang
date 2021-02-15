@@ -4,7 +4,7 @@ fn time_start() void = {
 	clock_gettime(CLOCK_MONOTONIC, &start) as void;
 };
 
-// Returns ellapsed time as (seconds, milliseconds)
+// Returns elapsed time as (seconds, milliseconds)
 fn time_stop() (size, size) = {
 	let end: timespec = timespec { ... };
 	clock_gettime(CLOCK_MONOTONIC, &end) as void;
