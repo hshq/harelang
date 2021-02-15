@@ -33,6 +33,7 @@ export fn start_ha() void = {
 	print("Running ");
 	print(ztos(ntest));
 	print(" tests:\n\n");
+	time_start();
 	for (let i = 0z; i < ntest; i += 1) {
 		print(test_start[i].name);
 		dots(maxname - len(test_start[i].name) + 3);
@@ -49,6 +50,7 @@ export fn start_ha() void = {
 		npass += 1;
 		print("OK\n");
 	};
+	let end = time_stop();
 
 	if (nfail != 0) {
 		print("\n");
@@ -72,7 +74,11 @@ export fn start_ha() void = {
 	print(ztos(nfail));
 	print(" failed; ");
 	print(ztos(ntest));
-	print(" tests completed.\n");
+	print(" tests completed in ");
+	print(ztos(end.0));
+	print(".");
+	print(ztos(end.1));
+	print("s\n");
 
 	const nfini = (&fini_end: uintptr - &fini_start: uintptr): size
 		/ size(*fn() void);

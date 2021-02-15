@@ -177,3 +177,12 @@ export fn getrandom(buf: *void, bufln: size, flags: uint) (size | errno) = {
 		n: u64 => n: size,
 	};
 };
+
+// TODO: Implement me with VDSO
+export fn clock_gettime(clock_id: int, tp: *timespec) (void | errno) = {
+	return match (wrap_return(syscall2(SYS_clock_gettime,
+			clock_id: u64, tp: uintptr: u64))) {
+		err: errno => err,
+		u64 => void,
+	};
+};

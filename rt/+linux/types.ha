@@ -204,3 +204,16 @@ export type f_owner_ex = struct {
 	_type: int,
 	pid: int,
 };
+
+export def CLOCK_REALTIME: int			= 0;
+export def CLOCK_MONOTONIC: int			= 1;
+export def CLOCK_PROCESS_CPUTIME_ID: int	= 2;
+export def CLOCK_THREAD_CPUTIME_ID: int		= 3;
+export def CLOCK_MONOTONIC_RAW: int		= 4;
+export def CLOCK_REALTIME_COARSE: int		= 5;
+export def CLOCK_MONOTONIC_COARSE: int		= 6;
+export def CLOCK_BOOTTIME: int			= 7;
+export def CLOCK_REALTIME_ALARM: int		= 8;
+export def CLOCK_BOOTTIME_ALARM: int		= 9;
+export def CLOCK_SGI_CYCLE: int			= 10;
+export def CLOCK_TAI: int			= 11;
