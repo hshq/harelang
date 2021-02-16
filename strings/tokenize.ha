@@ -47,6 +47,20 @@ export fn remaining_tokens(s: *tokenizer) str = {
 	};
 
 	assert(remaining_tokens(&tok) == "is drew");
+
+	tok = tokenize("foo", "foo");
+	match (next_token(&tok)) {
+		s: str => assert(s == ""),
+		void   => abort(),
+	};
+	match (next_token(&tok)) {
+		s: str => assert(s == ""),
+		void   => abort(),
+	};
+	match (next_token(&tok)) {
+		s: str => abort(),
+		void   => void,
+	};
 };
 
 // Splits a string into tokens delimited by 'delim', returning a slice of up to
