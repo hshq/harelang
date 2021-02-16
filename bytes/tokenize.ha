@@ -119,4 +119,19 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	};
 
 	assert(next_token(&t) is void);
+
+	const input5: [_]u8 = [24, 42, 1, 24, 42, 2, 3, 4];
+	t = tokenize(input5, [24, 42]);
+
+	match (next_token(&t)) {
+		b: []u8 => assert(equal([], b)),
+		void    => abort(),
+	};
+
+	match (next_token(&t)) {
+		b: []u8 => assert(equal([1], b)),
+		void    => abort(),
+	};
+
+	assert(equal(remaining_tokens(&t), [2, 3, 4]));
 };
