@@ -13,9 +13,8 @@ export type os_error = struct {
 // Forks the current process, returning the pid of the child (to the parent) and
 // void (to the child), or an error.
 export fn fork() (int | void | error) = match (rt::fork()) {
-	err: rt::errno => errno_to_os(err),
-	i: int => i,
-	void   => void,
+	err: rt::errno  => errno_to_os(err),
+	i: (int | void) => i,
 };
 
 fn errno_errstr(data: *void) str = {

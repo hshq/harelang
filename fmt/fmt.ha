@@ -178,12 +178,12 @@ export fn fprintln(
 	args: formattable...
 ) (io::error | size) = {
 	let z = match(fprintf(s, fmt, args...)) {
-		z: size => z,
 		err: io::error => return err,
+		z: size => z,
 	};
 	z += match (io::write(s, ['\n': u32: u8])) {
-		z: size => z,
 		err: io::error => return err,
+		z: size => z,
 	};
 	return z;
 };

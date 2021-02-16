@@ -63,10 +63,8 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 	let decoder = decode(input);
 	for (let i = 0z; i < len(expected); i += 1) {
 		match (next(&decoder)) {
+			(invalid | more | void ) => abort(),
 			r: rune => assert(r == expected[i]),
-			invalid => abort(),
-			more    => abort(),
-			void    => abort(),
 		};
 	};
 	assert(next(&decoder) is void);

@@ -23,12 +23,12 @@ export fn signedtos(n: types::signed) const str = signedtosb(n, base::DEC);
 // [strings::dup] to duplicate the result.
 export fn unsignedtosb(n: types::unsigned, b: base) const str = {
 	return match (n) {
-		u: size    => ztosb(u, b),
-		u: uint    => utosb(u, b),
-		u: u8      => u8tosb(u, b),
-		u: u16     => u16tosb(u, b),
-		u: u32     => u32tosb(u, b),
-		u: u64     => u64tosb(u, b),
+		u: size => ztosb(u, b),
+		u: uint => utosb(u, b),
+		u: u8   => u8tosb(u, b),
+		u: u16  => u16tosb(u, b),
+		u: u32  => u32tosb(u, b),
+		u: u64  => u64tosb(u, b),
 	};
 };
 

@@ -22,10 +22,10 @@ export fn next(iter: *iterator) (rune | void) = {
 		void => void,
 	};
 	return match (utf8::next(&iter.dec)) {
-		r: rune       => r,
-		void          => void,
-		utf8::more    => abort("Invalid UTF-8 string (this should not happen)"),
-		utf8::invalid => abort("Invalid UTF-8 string (this should not happen)"),
+		r: rune => r,
+		void    => void,
+		(utf8::more | utf8::invalid) =>
+			abort("Invalid UTF-8 string (this should not happen)"),
 	};
 };
 
@@ -56,7 +56,7 @@ export fn iter_str(iter: *iterator) str = {
 	for (let i = 0z; i < len(expected2); i += 1) {
 		match (next(&s)) {
 			r: rune => assert(r == expected2[i]),
-			void    => abort(),
+			void => abort(),
 		};
 	};
 	assert(next(&s) is void);

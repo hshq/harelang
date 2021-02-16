@@ -72,9 +72,7 @@ export fn splitN(in: str, delim: str, n: size) []str = {
 	let tok = tokenize(in, delim);
 	for (let i = 0z; i < n - 1z; i += 1) {
 		match (next_token(&tok)) {
-			s: str => {
-				append(toks, s);
-			},
+			s: str => append(toks, s),
 			void => return toks,
 		};
 	};

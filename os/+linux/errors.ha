@@ -10,7 +10,7 @@ fn io_errstr(data: *void) str = {
 fn errno_to_io(err: rt::errno) io::error = {
 	let e = io::os_error {
 		string = &io_errstr,
-		data   = err: uintptr: *void,
+		data = err: uintptr: *void,
 	};
 	return e: io::error;
 };

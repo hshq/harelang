@@ -39,11 +39,11 @@ export fn cmd(name: str, args: str...) (command | error) = {
 	let cmd = command {
 		data: platform =
 			if (strings::contains(name, '/')) match (open(name)) {
-				p: platform => p,
 				err: os_error => return nocmd,
-			} else match (lookup(name)) {
 				p: platform => p,
+			} else match (lookup(name)) {
 				void => return nocmd,
+				p: platform => p,
 			},
 		argv = alloc([]str, [], len(args) + 1z),
 		...
@@ -82,13 +82,13 @@ export fn start(cmd: *command) (error | void) = {
 
 fn lookup(name: str) (platform | void) = {
 	const path = match (os::getenv("PATH")) {
-		void   => return,
+		void => return,
 		s: str => s,
 	};
 	let tok = strings::tokenize(path, ":");
 	for (true) {
 		const item = match (strings::next_token(&tok)) {
-			void   => break,
+			void => break,
 			s: str => s,
 		};
 		let path = strings::concat(item, "/", name);

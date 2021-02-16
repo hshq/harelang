@@ -1,5 +1,6 @@
 // hare::lex provides a lexer for Hare source code.
 use ascii;
+use encoding::utf8;
 use io;
 use strings;
 
@@ -54,9 +55,9 @@ export fn lex(lex: *lexer) ((token, location) | io::EOF | error) = {
 		},
 	};
 
-	if (ascii::isalpha(r) || r == '_' || r == '@') {
+	if (is_name(r, false)) {
 		unget(lex, r);
-		abort(); // TODO: Keywords/names
+		return lex_name(lex);
 	};
 	if (ascii::isdigit(r)) {
 		unget(lex, r);
@@ -81,6 +82,43 @@ export fn lex(lex: *lexer) ((token, location) | io::EOF | error) = {
 		';' => btoken::SEMICOLON,
 	};
 	return (tok, loc);
+};
+
+fn is_name(r: rune, num: bool) bool =
+	ascii::isalpha(r) || r == '_' || r == '@' || (num && ascii::isdigit(r));
+
+fn lex_name(lex: *lexer) ((token, location) | io::EOF | error) = {
+	let chars: []u8 = [];
+	match (next(lex)) {
+		r: rune => {
+			assert(is_name(r, false));
+			let enc = utf8::encode_rune(r);
+			for (let i = 0z; i < len(enc); i += 1) {
+				append(chars, enc[i]);
+			};
+		},
+		(io::EOF | io::error) => abort(),
+	};
+
+	for (true) match (next(lex)) {
+		io::EOF => break,
+		err: io::error => return err,
+		r: rune => {
+			if (!is_name(r, true)) {
+				unget(lex, r);
+				break;
+			};
+			let enc = utf8::encode_rune(r);
+			for (let i = 0z; i < len(enc); i += 1) {
+				append(chars, enc[i]);
+			};
+		},
+	};
+
+	let name = strings::from_utf8(chars);
+	io::println(name);
+
+	abort();
 };
 
 fn lex2(
@@ -300,8 +338,7 @@ fn next(lex: *lexer) (rune | io::EOF | io::error) = {
 
 	for (true) {
 		return match (io::getrune(lex.in)) {
-			io::EOF => io::EOF,
-			err: io::error => err,
+			e: (io::EOF | io::error) => e,
 			r: rune => {
 				lexloc(lex, r);
 				r;
@@ -316,8 +353,7 @@ fn nextw(lex: *lexer) ((rune, location) | io::EOF | io::error) = {
 	for (true) {
 		let loc = mkloc(lex);
 		match (next(lex)) {
-			err: io::error => return err,
-			io::EOF => return io::EOF,
+			e: (io::error | io::EOF) => return e,
 			r: rune => if (!ascii::isspace(r)) {
 				return (r, loc);
 			},
