@@ -78,6 +78,9 @@ hare_stdlib_deps+=$(stdlib_encoding_utf8)
 stdlib_fmt=$(HARECACHE)/fmt/fmt.o
 hare_stdlib_deps+=$(stdlib_fmt)
 
+stdlib_format_elf=$(HARECACHE)/format/elf/format.elf.o
+hare_stdlib_deps+=$(stdlib_format_elf)
+
 stdlib_hare_lex=$(HARECACHE)/hare/lex/hare.lex.o
 hare_stdlib_deps+=$(stdlib_hare_lex)
 
@@ -166,6 +169,16 @@ $(HARECACHE)/fmt/fmt.ssa: $(stdlib_fmt_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_
 	@mkdir -p $(HARECACHE)/fmt
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfmt \
 		-t$(HARECACHE)/fmt/fmt.td $(stdlib_fmt_srcs)
+
+# format::elf
+stdlib_format_elf_srcs= \
+	$(STDLIB)/format/elf/types.ha
+
+$(HARECACHE)/format/elf/format.elf.ssa: $(stdlib_format_elf_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/format/elf
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::elf \
+		-t$(HARECACHE)/format/elf/format.elf.td $(stdlib_format_elf_srcs)
 
 # hare::lex
 stdlib_hare_lex_srcs= \
@@ -345,6 +358,9 @@ hare_testlib_deps+=$(testlib_encoding_utf8)
 testlib_fmt=$(TESTCACHE)/fmt/fmt.o
 hare_testlib_deps+=$(testlib_fmt)
 
+testlib_format_elf=$(TESTCACHE)/format/elf/format.elf.o
+hare_testlib_deps+=$(testlib_format_elf)
+
 testlib_hare_lex=$(TESTCACHE)/hare/lex/hare.lex.o
 hare_testlib_deps+=$(testlib_hare_lex)
 
@@ -433,6 +449,16 @@ $(TESTCACHE)/fmt/fmt.ssa: $(testlib_fmt_srcs) $(testlib_rt) $(testlib_io) $(test
 	@mkdir -p $(TESTCACHE)/fmt
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfmt \
 		-t$(TESTCACHE)/fmt/fmt.td $(testlib_fmt_srcs)
+
+# format::elf
+testlib_format_elf_srcs= \
+	$(STDLIB)/format/elf/types.ha
+
+$(TESTCACHE)/format/elf/format.elf.ssa: $(testlib_format_elf_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/format/elf
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::elf \
+		-t$(TESTCACHE)/format/elf/format.elf.td $(testlib_format_elf_srcs)
 
 # hare::lex
 testlib_hare_lex_srcs= \
