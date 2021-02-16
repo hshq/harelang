@@ -1,10 +1,11 @@
 // The state for a tokenizer.
-export type tokenizer = struct { s: []u8, d: []u8 };
+export type tokenizer = struct { s: []u8, d: []u8, end: bool };
 
 // Returns a tokenizer which yields sub-slices tokenized by a delimiter.
 export fn tokenize(s: []u8, delim: []u8) tokenizer = tokenizer {
 	s = s,
 	d = delim,
+	end = false,
 };
 
 // Returns the next slice from a tokenizer, and advances the cursor. Returns
@@ -12,21 +13,18 @@ export fn tokenize(s: []u8, delim: []u8) tokenizer = tokenizer {
 // string starts with, or ends with, a token, an empty slice is returned at the
 // beginning or end of the sequence, respectively.
 export fn next_token(s: *tokenizer) ([]u8 | void) = {
-	if (len(s.s) == 0) {
+	if (s.end) {
 		return;
 	};
 
 	match (index(s.s, s.d)) {
 		i: size => {
 			let tok = s.s[..i];
-			if (len(tok) + len(s.d) == len(s.s) && len(tok) != 0) {
-				s.s = s.s[i..];
-			} else {
-				s.s = s.s[i+len(s.d)..];
-			};
+			s.s = s.s[i+len(s.d)..];
 			return tok;
 		},
 		void => {
+			s.end = true;
 			let tok = s.s[..];
 			s.s = s.s[..0];
 			return tok;
@@ -98,6 +96,26 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([2], b)),
 		void    => abort(),
+	};
+
+	assert(next_token(&t) is void);
+
+	const input4: [_]u8 = [1, 2];
+	t = tokenize(input4, [1, 2]);
+
+	match (next_token(&t)) {
+		b: []u8 => assert(equal([], b)),
+		void    => abort(),
+	};
+
+	match (next_token(&t)) {
+		b: []u8 => assert(equal([], b)),
+		void    => abort(),
+	};
+
+	match (next_token(&t)) {
+		b: []u8 => abort(),
+		void    => void,
 	};
 
 	assert(next_token(&t) is void);
