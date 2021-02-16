@@ -8,7 +8,7 @@ export fn copy(dest: *stream, src: *stream) (error | size) = {
 				unsupported => void, // Use fallback
 				* => return err,
 			},
-			s: size    => return s,
+			s: size => return s,
 		},
 	};
 

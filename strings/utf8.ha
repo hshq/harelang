@@ -17,7 +17,7 @@ export fn from_utf8_unsafe(in: []u8) str = {
 // [encoding::utf8::decode] instead.
 export fn from_utf8(in: []u8) str = {
 	let s = from_utf8_unsafe(in);
-	assert(utf8::valid(s));
+	assert(utf8::valid(s), "attempted to load invalid UTF-8 string");
 	return s;
 };
 

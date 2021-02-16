@@ -7,9 +7,8 @@ use types;
 export fn getrune(in: *io::stream) (rune | utf8::invalid | EOF | error) = {
 	let b: [4]u8 = [0...];
 	match (read(in, b[..1])) {
+		e: (error | EOF) => return e,
 		n: size => assert(n == 1),
-		err: error => return err,
-		EOF => return EOF,
 	};
 
 	const sz = utf8::utf8sz(b[0]);
@@ -22,9 +21,8 @@ export fn getrune(in: *io::stream) (rune | utf8::invalid | EOF | error) = {
 	};
 
 	match (read(in, b[1..sz])) {
+		e: (error | EOF) => return e,
 		n: size => assert(n == sz - 1),
-		err: error => return err,
-		EOF => return EOF,
 	};
 
 	let dec = utf8::decode(b[..sz]);

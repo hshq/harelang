@@ -70,14 +70,17 @@ export fn tell(s: *stream) (off | error) = {
 	};
 };
 
-// A [stream] which always returns EOF.
+// A [stream] which always reads EOF and discards any writes.
 export let empty: *io::stream = null: *io::stream;
 
 // TODO: This can be removed when globals can reference other globals
 @init fn init() void = {
 	static let s = io::stream { ...  };
 	s.reader = &empty_read;
+	s.writer = &empty_write;
 	empty = &s;
 };
 
 fn empty_read(s: *stream, buf: []u8) (size | EOF | error) = EOF;
+
+fn empty_write(s: *stream, buf: const []u8) (size | error) = len(buf);
