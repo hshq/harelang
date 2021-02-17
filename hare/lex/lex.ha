@@ -92,10 +92,7 @@ fn lex_name(lex: *lexer) ((token, location) | io::EOF | error) = {
 	match (next(lex)) {
 		r: rune => {
 			assert(is_name(r, false));
-			let enc = utf8::encode_rune(r);
-			for (let i = 0z; i < len(enc); i += 1) {
-				append(chars, enc[i]);
-			};
+			append(chars, ...utf8::encode_rune(r));
 		},
 		(io::EOF | io::error) => abort(),
 	};
@@ -108,10 +105,7 @@ fn lex_name(lex: *lexer) ((token, location) | io::EOF | error) = {
 				unget(lex, r);
 				break;
 			};
-			let enc = utf8::encode_rune(r);
-			for (let i = 0z; i < len(enc); i += 1) {
-				append(chars, enc[i]);
-			};
+			append(chars, ...utf8::encode_rune(r));
 		},
 	};
 
