@@ -56,7 +56,7 @@ rt() {
 \$($cache)/rt/start.o: \$(STDLIB)/rt/\$(PLATFORM)/start\$(ARCH).s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
-	@as -o \$@ \$<
+	@\$(AS) -o \$@ \$<
 
 ${stdlib}_asm=\$($cache)/rt/syscall.o \\
 	\$($cache)/rt/setjmp.o \\
@@ -65,17 +65,17 @@ ${stdlib}_asm=\$($cache)/rt/syscall.o \\
 \$($cache)/rt/syscall.o: \$(STDLIB)/rt/\$(PLATFORM)/syscall\$(ARCH).s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
-	@as -o \$@ \$<
+	@\$(AS) -o \$@ \$<
 
 \$($cache)/rt/setjmp.o: \$(STDLIB)/rt/\$(ARCH)/setjmp.s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
-	@as -o \$@ \$<
+	@\$(AS) -o \$@ \$<
 
 \$($cache)/rt/longjmp.o: \$(STDLIB)/rt/\$(ARCH)/longjmp.s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
-	@as -o \$@ \$<
+	@\$(AS) -o \$@ \$<
 
 \$($cache)/rt/rt.a: \$($cache)/rt/rt.o \$(${stdlib}_asm)
 	@printf 'AR\t\$@\n'

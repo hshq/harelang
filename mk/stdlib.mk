@@ -31,7 +31,7 @@ $(HARECACHE)/rt/rt.ssa: $(stdlib_rt_srcs) $(stdlib_rt)
 $(HARECACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start$(ARCH).s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@as -o $@ $<
+	@$(AS) -o $@ $<
 
 stdlib_asm=$(HARECACHE)/rt/syscall.o \
 	$(HARECACHE)/rt/setjmp.o \
@@ -40,17 +40,17 @@ stdlib_asm=$(HARECACHE)/rt/syscall.o \
 $(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@as -o $@ $<
+	@$(AS) -o $@ $<
 
 $(HARECACHE)/rt/setjmp.o: $(STDLIB)/rt/$(ARCH)/setjmp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@as -o $@ $<
+	@$(AS) -o $@ $<
 
 $(HARECACHE)/rt/longjmp.o: $(STDLIB)/rt/$(ARCH)/longjmp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@as -o $@ $<
+	@$(AS) -o $@ $<
 
 $(HARECACHE)/rt/rt.a: $(HARECACHE)/rt/rt.o $(stdlib_asm)
 	@printf 'AR\t$@\n'
@@ -311,7 +311,7 @@ $(TESTCACHE)/rt/rt.ssa: $(testlib_rt_srcs) $(testlib_rt)
 $(TESTCACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start$(ARCH).s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@as -o $@ $<
+	@$(AS) -o $@ $<
 
 testlib_asm=$(TESTCACHE)/rt/syscall.o \
 	$(TESTCACHE)/rt/setjmp.o \
@@ -320,17 +320,17 @@ testlib_asm=$(TESTCACHE)/rt/syscall.o \
 $(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@as -o $@ $<
+	@$(AS) -o $@ $<
 
 $(TESTCACHE)/rt/setjmp.o: $(STDLIB)/rt/$(ARCH)/setjmp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@as -o $@ $<
+	@$(AS) -o $@ $<
 
 $(TESTCACHE)/rt/longjmp.o: $(STDLIB)/rt/$(ARCH)/longjmp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@as -o $@ $<
+	@$(AS) -o $@ $<
 
 $(TESTCACHE)/rt/rt.a: $(TESTCACHE)/rt/rt.o $(testlib_asm)
 	@printf 'AR\t$@\n'
