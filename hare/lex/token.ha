@@ -277,6 +277,7 @@ export type token = (btoken | label | name | literal);
 export fn tokstr(tok: token) const str = {
 	return match (tok) {
 		b: btoken => bmap[b: int],
+		n: name => n: str,
 		* => abort(), // TODO
 	};
 };

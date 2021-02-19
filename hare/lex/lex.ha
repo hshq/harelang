@@ -87,6 +87,14 @@ export fn lex(lex: *lexer) ((token, location) | io::EOF | error) = {
 fn is_name(r: rune, num: bool) bool =
 	ascii::isalpha(r) || r == '_' || r == '@' || (num && ascii::isdigit(r));
 
+fn ncmp(a: const *void, b: const *void) int = {
+	let a = a: const *str, b = b: const *str;
+	return match (ascii::strcmp(*a, *b)) {
+		void => abort("non-ascii name"), // TODO: Bubble me up
+		i: int => i,
+	};
+};
+
 fn lex_name(lex: *lexer, loc: location) ((token, location) | io::EOF | error) = {
 	let chars: []u8 = [];
 	match (next(lex)) {
