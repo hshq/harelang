@@ -2,6 +2,7 @@
 use ascii;
 use encoding::utf8;
 use io;
+use sort;
 use strings;
 
 // State associated with a lexer.
@@ -118,7 +119,17 @@ fn lex_name(lex: *lexer, loc: location) ((token, location) | io::EOF | error) = 
 	};
 
 	let n = strings::from_utf8(chars);
-	return (n: name: token, loc);
+	return match (sort::search(bmap[..btoken::NAMED_LAST],
+			size(str), &n, &ncmp)) {
+		// TODO: Validate that names are ASCII
+		null => (n: name: token, loc),
+		v: *void => {
+			let tok = v: uintptr - &bmap[0]: uintptr;
+			tok /= size(str): uintptr;
+			(tok: btoken: token, loc);
+		},
+	};
+
 };
 
 fn lex2(
