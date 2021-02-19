@@ -40,7 +40,12 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 		};
 		let tok = tl.0, loc = tl.1;
 		match (tok) {
-			b: btoken => if (etok as btoken != b) {
+			b: btoken => if (!(etok is btoken) || etok as btoken != b) {
+				fmt::errorln("bad token at {}: got {}, wanted {}",
+					i, tokstr(tok), tokstr(etok));
+				abort();
+			},
+			n: name => if (!(etok is name) || etok as name != n) {
 				fmt::errorln("bad token at {}: got {}, wanted {}",
 					i, tokstr(tok), tokstr(etok));
 				abort();
@@ -118,6 +123,18 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 		(1, 27, btoken::GREATEREQ),
 		(1, 30, btoken::RSHIFTEQ),
 		(1, 34, btoken::RSHIFT),
+	];
+	lextest(in, expected);
+};
+
+@test fn lexname() void = {
+	const in = "hello world return void foobar";
+	const expected: [_](uint, uint, token) = [
+		(1, 1,  "hello": name),
+		(1, 7,  "world": name),
+		(1, 13, btoken::RETURN),
+		(1, 20, btoken::VOID),
+		(1, 25, "foobar": name),
 	];
 	lextest(in, expected);
 };

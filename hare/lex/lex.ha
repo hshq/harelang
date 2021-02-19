@@ -119,7 +119,7 @@ fn lex_name(lex: *lexer, loc: location) ((token, location) | io::EOF | error) = 
 	};
 
 	let n = strings::from_utf8(chars);
-	return match (sort::search(bmap[..btoken::NAMED_LAST],
+	return match (sort::search(bmap[..btoken::NAMED_LAST+1],
 			size(str), &n, &ncmp)) {
 		// TODO: Validate that names are ASCII
 		null => (n: name: token, loc),
