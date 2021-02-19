@@ -69,7 +69,7 @@ export fn lex(lex: *lexer) ((token, location) | io::EOF | error) = {
 		* => return syntaxerr(loc, "invalid character"),
 		'"', '\'' => {
 			unget(lex, r);
-			return lex_string(lex, loc);
+			return lex_rn_str(lex, loc);
 		},
 		'.', '<', '>' => return lex3(lex, loc, r),
 		'^', '*', '%', '/', '+', '-', ':', '!', '&', '|', '=' => {
@@ -107,13 +107,6 @@ fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 		r: rune => r,
 	};
 	if (r != '\\') {
-		match (next(lex)) {
-			io::EOF => return syntaxerr(loc,
-				"unexpected EOF scanning rune, expected \"\'\""),
-			err: io::error => return err,
-			r: rune => if (r != '\'')
-				return syntaxerr(loc, "expected \"\'\" after rune"),
-		};
 		return r;
 	};
 	r = match (next(lex)) {
@@ -137,13 +130,6 @@ fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 		'x' => abort(), // TODO
 		'u' => abort(), // TODO
 	};
-	match (next(lex)) {
-		io::EOF => return syntaxerr(loc,
-			"unexpected EOF scanning escape sequence, expected \"\'\""),
-		err: io::error => return err,
-		r: rune => if (r != '\'') return syntaxerr(loc,
-			"expected \"\'\" after escape sequence"),
-	};
 	return r;
 };
 
@@ -151,24 +137,59 @@ fn lex_string(
 	lex: *lexer,
 	loc: location,
 ) ((token, location) | io::EOF | error) = {
+	// TODO: test me
+	let chars: []u8 = [];
+	for (true) match (next(lex)) {
+		err: io::error => return err,
+		io::EOF => return syntaxerr(loc, "unexpected EOF scanning string literal"),
+		r: rune =>
+			if (r == '"') break
+			else {
+				unget(lex, r);
+				r = match (lex_rune(lex, loc)) {
+					err: error => return err,
+					r: rune => r,
+				};
+				append(chars, ...utf8::encode_rune(r));
+			},
+	};
+	return (literal {
+		storage = literal_type::STR,
+		string = strings::from_utf8(chars),
+	}: token, loc);
+};
+
+fn lex_rn_str(
+	lex: *lexer,
+	loc: location,
+) ((token, location) | io::EOF | error) = {
 	let r = match (next(lex)) {
 		r: rune => r,
 		(io::EOF | io::error) => abort(),
 	};
-	return switch (r) {
-		'\'' => match (lex_rune(lex, loc)) {
-			err: error => err,
-			r: rune => (literal {
-				storage = literal_type::RUNE,
-				_rune   = r,
-			}: token, loc),
-		},
-		'\"' => {
-			let chars: []u8 = [];
-			abort(); // TODO
-		},
+	switch (r) {
+		'\"' => return lex_string(lex, loc),
+		'\'' => void,
 		* => abort(), // Invariant
 	};
+
+	// Rune literal
+	let ret = match (lex_rune(lex, loc)) {
+		err: error => return err,
+		r: rune => (literal {
+			storage = literal_type::RUNE,
+			_rune   = r,
+		}: token, loc),
+	};
+	match (next(lex)) {
+		err: io::error =>
+			return err,
+		io::EOF =>
+			return syntaxerr(loc, "unexpected EOF"),
+		n: rune => if (n != '\'')
+			return syntaxerr(loc, "expected \"\'\""),
+	};
+	return ret;
 };
 
 fn lex_name(

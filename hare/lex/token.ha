@@ -252,6 +252,7 @@ export type literal_type = enum {
 	F64,
 	FCONST,
 	RUNE,
+	STR,
 };
 
 // A token for a literal value, such as '1337u32'
@@ -283,6 +284,7 @@ export fn tokstr(tok: token) const str = {
 		n: name => n: str,
 		l: literal => switch (l.storage) {
 			literal_type::RUNE => "rune",
+			literal_type::STR => "string",
 			* => abort(), // TODO
 		},
 		* => abort(), // TODO
