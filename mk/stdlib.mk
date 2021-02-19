@@ -93,6 +93,9 @@ hare_stdlib_deps+=$(stdlib_os)
 stdlib_os_exec=$(HARECACHE)/os/exec/os.exec.o
 hare_stdlib_deps+=$(stdlib_os_exec)
 
+stdlib_sort=$(HARECACHE)/sort/sort.o
+hare_stdlib_deps+=$(stdlib_sort)
+
 stdlib_strconv=$(HARECACHE)/strconv/strconv.o
 hare_stdlib_deps+=$(stdlib_strconv)
 
@@ -234,6 +237,16 @@ $(HARECACHE)/os/exec/os.exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_o
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
 		-t$(HARECACHE)/os/exec/os.exec.td $(stdlib_os_exec_srcs)
 
+# sort
+stdlib_sort_srcs= \
+	$(STDLIB)/sort/search.ha
+
+$(HARECACHE)/sort/sort.ssa: $(stdlib_sort_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/sort
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nsort \
+		-t$(HARECACHE)/sort/sort.td $(stdlib_sort_srcs)
+
 # strconv
 stdlib_strconv_srcs= \
 	$(STDLIB)/strconv/types.ha \
@@ -372,6 +385,9 @@ hare_testlib_deps+=$(testlib_os)
 
 testlib_os_exec=$(TESTCACHE)/os/exec/os.exec.o
 hare_testlib_deps+=$(testlib_os_exec)
+
+testlib_sort=$(TESTCACHE)/sort/sort.o
+hare_testlib_deps+=$(testlib_sort)
 
 testlib_strconv=$(TESTCACHE)/strconv/strconv.o
 hare_testlib_deps+=$(testlib_strconv)
@@ -518,6 +534,17 @@ $(TESTCACHE)/os/exec/os.exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testli
 	@mkdir -p $(TESTCACHE)/os/exec
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
 		-t$(TESTCACHE)/os/exec/os.exec.td $(testlib_os_exec_srcs)
+
+# sort
+testlib_sort_srcs= \
+	$(STDLIB)/sort/search.ha \
+	$(STDLIB)/sort/+test.ha
+
+$(TESTCACHE)/sort/sort.ssa: $(testlib_sort_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/sort
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nsort \
+		-t$(TESTCACHE)/sort/sort.td $(testlib_sort_srcs)
 
 # strconv
 testlib_strconv_srcs= \

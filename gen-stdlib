@@ -233,6 +233,24 @@ gensrcs_strconv() {
 		$*
 }
 
+gensrcs_sort() {
+	gen_srcs sort \
+		search.ha \
+		$*
+}
+
+sort() {
+	printf '# sort\n'
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_sort
+	else
+		gensrcs_sort \
+			+test.ha
+	fi
+	gen_ssa sort
+}
+
 strconv() {
 	printf '# strconv\n'
 	if [ $testing -eq 0 ]
@@ -283,6 +301,7 @@ hare_lex
 io
 os
 os_exec
+sort
 strconv
 strings
 types"
