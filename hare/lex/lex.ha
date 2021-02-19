@@ -129,15 +129,14 @@ fn lex_name(lex: *lexer, loc: location) ((token, location) | io::EOF | error) = 
 			(tok: btoken: token, loc);
 		},
 	};
-
 };
 
 fn lex2(
-	lex: *lexer,
+	lexr: *lexer,
 	loc: location,
 	r: rune,
 ) ((token, location) | io::EOF | error) = {
-	let n = match (next(lex)) {
+	let n = match (next(lexr)) {
 		err: io::error => return err,
 		io::EOF => io::EOF,
 		r: rune => r,
@@ -161,6 +160,17 @@ fn lex2(
 		'/' => match (n) {
 			r: rune => switch (r) {
 				'=' => return (btoken::DIVEQ: token, loc),
+				'/' => {
+					// Comment
+					for (true) match (next(lexr)) {
+						err: io::error => return err,
+						io::EOF => break,
+						r: rune => if (r == '\n') {
+							break;
+						},
+					};
+					return lex(lexr);
+				},
 				*   => btoken::DIV,
 			},
 			io::EOF => btoken::DIV,
@@ -218,7 +228,7 @@ fn lex2(
 		},
 		* => return syntaxerr(loc),
 	};
-	unget(lex, n);
+	unget(lexr, n);
 	return (tok, loc);
 };
 

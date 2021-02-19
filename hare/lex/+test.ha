@@ -140,3 +140,13 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 	];
 	lextest(in, expected);
 };
+
+@test fn comments() void = {
+	const in = "hello world // foo\nbar";
+	const expected: [_](uint, uint, token) = [
+		(1, 1,  "hello": name),
+		(1, 7,  "world": name),
+		(2, 1, "bar": name),
+	];
+	lextest(in, expected);
+};
