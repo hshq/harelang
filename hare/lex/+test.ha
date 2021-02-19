@@ -80,7 +80,7 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 
 @test fn lex2() void = {
 	// Ends with = to test =, EOF
-	const in = "^ ^^ ^= * *= % %= + += - -= : :: & && &= | || |= = == =";
+	const in = "^ ^^ ^= * *= % %= + += - -= : :: & && &= | || |= = == / /= =";
 	const expected: [_](uint, uint, token) = [
 		(1, 1,  btoken::BXOR),
 		(1, 3,  btoken::LXOR),
@@ -103,7 +103,9 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 		(1, 47, btoken::OREQ),
 		(1, 50, btoken::EQUAL),
 		(1, 52, btoken::LEQUAL),
-		(1, 55, btoken::EQUAL),
+		(1, 55,  btoken::DIV),
+		(1, 57, btoken::DIVEQ),
+		(1, 60, btoken::EQUAL),
 	];
 	lextest(in, expected);
 };

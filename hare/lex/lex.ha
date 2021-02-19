@@ -158,6 +158,13 @@ fn lex2(
 			},
 			io::EOF => btoken::TIMES,
 		},
+		'/' => match (n) {
+			r: rune => switch (r) {
+				'=' => return (btoken::DIVEQ: token, loc),
+				*   => btoken::DIV,
+			},
+			io::EOF => btoken::DIV,
+		},
 		'%' => match (n) {
 			r: rune => switch (r) {
 				'=' => return (btoken::MODEQ: token, loc),
