@@ -91,7 +91,7 @@ export fn tolower(c: rune) rune = {
 	} else c;
 };
 
-@test fn test() void = {
+@test fn ctype() void = {
 	// Just some simple tests
 	assert(isspace(' ') && !isspace('x') && !isspace('こ'));
 	assert(isalnum('a') && isalnum('8') && !isalnum('こ'));
