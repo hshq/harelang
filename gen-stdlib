@@ -91,8 +91,9 @@ EOF
 ascii() {
 	printf '# ascii\n'
 	gen_srcs ascii \
-		ctype.ha
-	gen_ssa ascii
+		ctype.ha \
+		strcmp.ha
+	gen_ssa ascii strings
 }
 
 bufio() {

@@ -107,9 +107,10 @@ hare_stdlib_deps+=$(stdlib_types)
 
 # ascii
 stdlib_ascii_srcs= \
-	$(STDLIB)/ascii/ctype.ha
+	$(STDLIB)/ascii/ctype.ha \
+	$(STDLIB)/ascii/strcmp.ha
 
-$(HARECACHE)/ascii/ascii.ssa: $(stdlib_ascii_srcs) $(stdlib_rt)
+$(HARECACHE)/ascii/ascii.ssa: $(stdlib_ascii_srcs) $(stdlib_rt) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/ascii
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nascii \
@@ -400,9 +401,10 @@ hare_testlib_deps+=$(testlib_types)
 
 # ascii
 testlib_ascii_srcs= \
-	$(STDLIB)/ascii/ctype.ha
+	$(STDLIB)/ascii/ctype.ha \
+	$(STDLIB)/ascii/strcmp.ha
 
-$(TESTCACHE)/ascii/ascii.ssa: $(testlib_ascii_srcs) $(testlib_rt)
+$(TESTCACHE)/ascii/ascii.ssa: $(testlib_ascii_srcs) $(testlib_rt) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/ascii
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nascii \
