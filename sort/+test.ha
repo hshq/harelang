@@ -1,6 +1,6 @@
 fn ncmp(a: const *void, b: const *void) int = {
-	let _a = a: const *int, _b = b: const *int;
-	return *_a - *_b;
+	let a = a: const *int, b = b: const *int;
+	return *a - *b;
 };
 
 @test fn search() void = {
