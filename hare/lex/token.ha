@@ -64,7 +64,7 @@ export type btoken = enum {
 	UNION,
 	USE,
 	VOID,
-	NAMED_LAST = VOID,
+	LAST_KEYWORD = VOID,
 
 	// Operators
 	ANDEQ,
@@ -182,7 +182,7 @@ const bmap: [_]str = [
 	"&",
 	"~",
 	"|",
-	"case",
+	"=>",
 	":",
 	",",
 	"/",

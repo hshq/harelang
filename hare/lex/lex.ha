@@ -197,7 +197,7 @@ fn lex_name(
 	};
 
 	let n = strings::from_utf8(chars);
-	return match (sort::search(bmap[..btoken::NAMED_LAST+1],
+	return match (sort::search(bmap[..btoken::LAST_KEYWORD+1],
 			size(str), &n, &ncmp)) {
 		// TODO: Validate that names are ASCII
 		null => (n: name: token, loc),

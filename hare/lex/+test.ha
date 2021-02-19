@@ -184,6 +184,21 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 	lextest(in, expected);
 };
 
+@test fn keywords() void = {
+	let keywords = bmap[..btoken::LAST_KEYWORD+1];
+	for (let i = 0z; i < len(keywords); i += 1) {
+		let lexer = lexer_init(bufio::fixed(
+			strings::to_utf8(keywords[i])), "<test>");
+		let tl = match (lex(&lexer)) {
+			tl: (token, location) => tl,
+			* => abort(),
+		};
+		let tok = tl.0;
+		assert(tok is btoken);
+		assert(tok as btoken == i: btoken);
+	};
+};
+
 @test fn comments() void = {
 	const in = "hello world // foo\nbar";
 	const expected: [_](uint, uint, token) = [
