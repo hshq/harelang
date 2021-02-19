@@ -8,9 +8,10 @@ export fn main() void = {
 	for (true) match (lex::lex(&lexer)) {
 		t: (lex::token, lex::location) => {
 			let tok = t.0, loc = t.1;
-			fmt::println("{}@{},{}: '{}'",
+			fmt::println("{}@{},{}: {4}{}{4}",
 				loc.path, loc.line, loc.col,
-				lex::tokstr(tok));
+				lex::tokstr(tok),
+				if (tok is lex::name) "'" else "");
 		},
 		err: lex::error => fmt::fatal("Error: {}", lex::errstr(err)),
 		io::EOF => break,

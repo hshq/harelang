@@ -163,7 +163,7 @@ hare_lex() {
 		gensrcs_hare_lex \
 			+test.ha
 	fi
-	gen_ssa hare::lex io bufio strings types fmt
+	gen_ssa hare::lex io bufio strings types fmt sort
 }
 
 gensrcs_io() {
