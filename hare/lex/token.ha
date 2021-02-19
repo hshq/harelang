@@ -1,3 +1,6 @@
+use encoding::utf8;
+use strings;
+
 // A token with no additional context, such as '+'
 export type btoken = enum {
 	// Keep ordered with bmap
@@ -248,7 +251,7 @@ export type literal_type = enum {
 	F32,
 	F64,
 	FCONST,
-	VOID,
+	RUNE,
 };
 
 // A token for a literal value, such as '1337u32'
@@ -278,6 +281,10 @@ export fn tokstr(tok: token) const str = {
 	return match (tok) {
 		b: btoken => bmap[b: int],
 		n: name => n: str,
+		l: literal => switch (l.storage) {
+			literal_type::RUNE => "rune",
+			* => abort(), // TODO
+		},
 		* => abort(), // TODO
 	};
 };

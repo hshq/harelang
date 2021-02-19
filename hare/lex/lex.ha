@@ -15,7 +15,7 @@ export type lexer = struct {
 };
 
 // A syntax error
-export type syntax = location;
+export type syntax = (location, str);
 
 // All possible lexer errors
 export type error = (io::error | syntax);
@@ -23,7 +23,7 @@ export type error = (io::error | syntax);
 export fn errstr(err: error) const str = {
 	return match (err) {
 		err: io::error => io::errstr(err),
-		syntax => "Syntax error", // TODO: add line info
+		s: syntax => s.1, // TODO: format me
 	};
 };
 
@@ -66,8 +66,11 @@ export fn lex(lex: *lexer) ((token, location) | io::EOF | error) = {
 	};
 
 	let tok: token = switch (r) {
-		* => return syntaxerr(loc),
-		'"', '\'' => abort(), // TODO: Strings/runes
+		* => return syntaxerr(loc, "invalid character"),
+		'"', '\'' => {
+			unget(lex, r);
+			return lex_string(lex, loc);
+		},
 		'.', '<', '>' => return lex3(lex, loc, r),
 		'^', '*', '%', '/', '+', '-', ':', '!', '&', '|', '=' => {
 			return lex2(lex, loc, r);
@@ -96,7 +99,82 @@ fn ncmp(a: const *void, b: const *void) int = {
 	};
 };
 
-fn lex_name(lex: *lexer, loc: location) ((token, location) | io::EOF | error) = {
+fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
+	let r = match (next(lex)) {
+		io::EOF => return syntaxerr(loc,
+			"unexpected EOF scanning for rune"),
+		err: io::error => return err,
+		r: rune => r,
+	};
+	if (r != '\\') {
+		match (next(lex)) {
+			io::EOF => return syntaxerr(loc,
+				"unexpected EOF scanning rune, expected \"\'\""),
+			err: io::error => return err,
+			r: rune => if (r != '\'')
+				return syntaxerr(loc, "expected \"\'\" after rune"),
+		};
+		return r;
+	};
+	r = match (next(lex)) {
+		io::EOF => return syntaxerr(loc,
+			"unexpected EOF scanning for escape"),
+		err: io::error => return err,
+		r: rune => r,
+	};
+	let r = switch (r) {
+		'\\' => '\\',
+		'\'' => '\'',
+		'0' => '\0',
+		'a' => '\a',
+		'b' => '\b',
+		'f' => '\f',
+		'n' => '\n',
+		'r' => '\r',
+		't' => '\t',
+		'v' => '\v',
+		'"' => '\"',
+		'x' => abort(), // TODO
+		'u' => abort(), // TODO
+	};
+	match (next(lex)) {
+		io::EOF => return syntaxerr(loc,
+			"unexpected EOF scanning escape sequence, expected \"\'\""),
+		err: io::error => return err,
+		r: rune => if (r != '\'') return syntaxerr(loc,
+			"expected \"\'\" after escape sequence"),
+	};
+	return r;
+};
+
+fn lex_string(
+	lex: *lexer,
+	loc: location,
+) ((token, location) | io::EOF | error) = {
+	let r = match (next(lex)) {
+		r: rune => r,
+		(io::EOF | io::error) => abort(),
+	};
+	return switch (r) {
+		'\'' => match (lex_rune(lex, loc)) {
+			err: error => err,
+			r: rune => (literal {
+				storage = literal_type::RUNE,
+				_rune   = r,
+			}: token, loc),
+		},
+		'\"' => {
+			let chars: []u8 = [];
+			abort(); // TODO
+		},
+		* => abort(), // Invariant
+	};
+};
+
+fn lex_name(
+	lex: *lexer,
+	loc: location,
+) ((token, location) | io::EOF | error) = {
 	let chars: []u8 = [];
 	match (next(lex)) {
 		r: rune => {
@@ -226,7 +304,7 @@ fn lex2(
 			},
 			io::EOF => btoken::EQUAL,
 		},
-		* => return syntaxerr(loc),
+		* => return syntaxerr(loc, "unknown token sequence"),
 	};
 	unget(lexr, n);
 	return (tok, loc);
@@ -250,7 +328,7 @@ fn lex3(
 		'.' => lex3dot(lex, loc, n),
 		'<' => lex3lt(lex, loc, n),
 		'>' => lex3gt(lex, loc, n),
-		* => syntaxerr(loc),
+		* => syntaxerr(loc, "unknown token sequence"),
 	};
 };
 
@@ -419,4 +497,4 @@ fn mkloc(lex: *lexer) location = location {
 	col = lex.loc.1,
 };
 
-fn syntaxerr(loc: location) error = loc: syntax: error;
+fn syntaxerr(loc: location, why: str) error = (loc, why): syntax: error;

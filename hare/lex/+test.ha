@@ -29,6 +29,30 @@ use strings;
 	assert(t.1.line == 1234 && t.1.col == 1234);
 };
 
+fn liteq(expected: literal, actual: literal) bool = {
+	if (expected.storage != actual.storage) {
+		return false;
+	};
+	return switch (expected.storage) {
+		literal_type::U8,
+		literal_type::U16,
+		literal_type::U32,
+		literal_type::U64,
+		literal_type::UINT,
+		literal_type::UINTPTR => expected._uint == actual._uint,
+		literal_type::I8,
+		literal_type::I16,
+		literal_type::I32,
+		literal_type::I64,
+		literal_type::INT,
+		literal_type::ICONST => expected._int == actual._int,
+		literal_type::F32,
+		literal_type::F64,
+		literal_type::FCONST => expected.float == actual.float,
+		literal_type::RUNE => expected._rune == actual._rune,
+	};
+};
+
 fn lextest(in: str, expected: [](uint, uint, token)) void = {
 	let lexer = lexer_init(bufio::fixed(strings::to_utf8(in)), "<test>");
 	for (let i = 0z; i < len(expected); i += 1) {
@@ -36,7 +60,14 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 			etok = expected[i].2;
 		let tl = match (lex(&lexer)) {
 			tl: (token, location) => tl,
-			* => abort(),
+			io::EOF => {
+				fmt::errorln("unexpected EOF at {}", i);
+				abort();
+			},
+			err: error => {
+				fmt::errorln("{}: {}", i, errstr(err));
+				abort();
+			},
 		};
 		let tok = tl.0, loc = tl.1;
 		match (tok) {
@@ -49,6 +80,18 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 				fmt::errorln("bad token at {}: got {}, wanted {}",
 					i, tokstr(tok), tokstr(etok));
 				abort();
+			},
+			l: literal => if (!(etok is literal)) {
+				fmt::errorln("bad token at {}: got {}, wanted {}",
+					i, tokstr(tok), tokstr(etok));
+				abort();
+			} else {
+				let e = etok as literal;
+				if (!liteq(l, e)) {
+					fmt::errorln("bad token at {}: got '{}', wanted '{}'",
+						i, tokstr(tok), tokstr(etok));
+					abort();
+				};
 			},
 			* => abort("TODO"),
 		};
@@ -148,5 +191,26 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 		(1, 7,  "world": name),
 		(2, 1, "bar": name),
 	];
+	lextest(in, expected);
+};
+
+@test fn runes() void = {
+	const in = "'a' 'b' '\\a' '\\b' '\\f' '\\n' '\\r' '\\t' '\\v' '\\0' "
+		"'\\\\' '\\\''";
+	const expected: [_](uint, uint, token) = [
+		(1, 1,  literal { storage = literal_type::RUNE, _rune = 'a' }),
+		(1, 5,  literal { storage = literal_type::RUNE, _rune = 'b' }),
+		(1, 9,  literal { storage = literal_type::RUNE, _rune = '\a' }),
+		(1, 14, literal { storage = literal_type::RUNE, _rune = '\b' }),
+		(1, 19, literal { storage = literal_type::RUNE, _rune = '\f' }),
+		(1, 24, literal { storage = literal_type::RUNE, _rune = '\n' }),
+		(1, 29, literal { storage = literal_type::RUNE, _rune = '\r' }),
+		(1, 34, literal { storage = literal_type::RUNE, _rune = '\t' }),
+		(1, 39, literal { storage = literal_type::RUNE, _rune = '\v' }),
+		(1, 44, literal { storage = literal_type::RUNE, _rune = '\0' }),
+		(1, 49, literal { storage = literal_type::RUNE, _rune = '\\' }),
+		(1, 54, literal { storage = literal_type::RUNE, _rune = '\'' }),
+	];
+	// TODO: test \x and \u and \U
 	lextest(in, expected);
 };
