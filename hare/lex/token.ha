@@ -61,6 +61,7 @@ export type btoken = enum {
 	UNION,
 	USE,
 	VOID,
+	NAMED_LAST = VOID,
 
 	// Operators
 	ANDEQ,

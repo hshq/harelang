@@ -57,7 +57,7 @@ export fn lex(lex: *lexer) ((token, location) | io::EOF | error) = {
 
 	if (is_name(r, false)) {
 		unget(lex, r);
-		return lex_name(lex);
+		return lex_name(lex, loc);
 	};
 	if (ascii::isdigit(r)) {
 		unget(lex, r);
@@ -87,7 +87,7 @@ export fn lex(lex: *lexer) ((token, location) | io::EOF | error) = {
 fn is_name(r: rune, num: bool) bool =
 	ascii::isalpha(r) || r == '_' || r == '@' || (num && ascii::isdigit(r));
 
-fn lex_name(lex: *lexer) ((token, location) | io::EOF | error) = {
+fn lex_name(lex: *lexer, loc: location) ((token, location) | io::EOF | error) = {
 	let chars: []u8 = [];
 	match (next(lex)) {
 		r: rune => {
@@ -109,10 +109,8 @@ fn lex_name(lex: *lexer) ((token, location) | io::EOF | error) = {
 		},
 	};
 
-	let name = strings::from_utf8(chars);
-	io::println(name);
-
-	abort();
+	let n = strings::from_utf8(chars);
+	return (n: name: token, loc);
 };
 
 fn lex2(
