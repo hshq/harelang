@@ -50,6 +50,7 @@ fn liteq(expected: literal, actual: literal) bool = {
 		literal_type::F64,
 		literal_type::FCONST => expected.float == actual.float,
 		literal_type::RUNE => expected._rune == actual._rune,
+		literal_type::STR => expected.string == actual.string,
 	};
 };
 
@@ -227,5 +228,54 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 		(1, 54, literal { storage = literal_type::RUNE, _rune = '\'' }),
 	];
 	// TODO: test \x and \u and \U
+	lextest(in, expected);
+};
+
+@test fn strings() void = {
+	const in = "\"a\" \"b\" \"\\a\" \"\\b\" \"\\f\" \"\\n\" \"\\r\" "
+		"\"\\t\" \"\\v\" \"\\0\" \"\\\\\" \"\\\'\"";
+	const expected: [_](uint, uint, token) = [
+		(1, 1,  literal { storage = literal_type::STR, string = "a" }),
+		(1, 5,  literal { storage = literal_type::STR, string = "b" }),
+		(1, 9,  literal { storage = literal_type::STR, string = "\a" }),
+		(1, 14, literal { storage = literal_type::STR, string = "\b" }),
+		(1, 19, literal { storage = literal_type::STR, string = "\f" }),
+		(1, 24, literal { storage = literal_type::STR, string = "\n" }),
+		(1, 29, literal { storage = literal_type::STR, string = "\r" }),
+		(1, 34, literal { storage = literal_type::STR, string = "\t" }),
+		(1, 39, literal { storage = literal_type::STR, string = "\v" }),
+		(1, 44, literal { storage = literal_type::STR, string = "\0" }),
+		(1, 49, literal { storage = literal_type::STR, string = "\\" }),
+		(1, 54, literal { storage = literal_type::STR, string = "\'" }),
+	];
+	// TODO: test \x and \u and \U
+	lextest(in, expected);
+	const in = "\"ab\\a\\b\\f\\n\\r\\t\\v\\0\\\\\\'\"";
+	const expected: [_](uint, uint, token) = [
+		(1, 1, literal {
+			storage = literal_type::STR,
+			string = "ab\a\b\f\n\r\t\v\0\\\'",
+		}),
+	];
+	lextest(in, expected);
+	const in = "\"hello world\" \"こんにちは\" \"return\" \"foo\"";
+	const expected: [_](uint, uint, token) = [
+		(1, 1, literal {
+			storage = literal_type::STR,
+			string = "hello world",
+		}),
+		(1, 15, literal {
+			storage = literal_type::STR,
+			string = "こんにちは",
+		}),
+		(1, 23, literal {
+			storage = literal_type::STR,
+			string = "return",
+		}),
+		(1, 32, literal {
+			storage = literal_type::STR,
+			string = "foo",
+		}),
+	];
 	lextest(in, expected);
 };
