@@ -13,7 +13,7 @@ const @symbol("__test_array_end") test_end: [*]test;
 let jmp: jmpbuf = jmpbuf { ... };
 let reason: str = "";
 
-export fn start_ha() void = {
+export @noreturn fn start_ha() void = {
 	const ninit = (&init_end: uintptr - &init_start: uintptr): size
 		/ size(*fn() void);
 	for (let i = 0z; i < ninit; i += 1) {
