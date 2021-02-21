@@ -212,7 +212,7 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 
 @test fn runes() void = {
 	const in = "'a' 'b' '\\a' '\\b' '\\f' '\\n' '\\r' '\\t' '\\v' '\\0' "
-		"'\\\\' '\\\''";
+		"'\\\\' '\\\'' '\\x0A' '\\u1234' '\\U12345678'";
 	const expected: [_](uint, uint, token) = [
 		(1, 1,  literal { storage = literal_type::RUNE, _rune = 'a' }),
 		(1, 5,  literal { storage = literal_type::RUNE, _rune = 'b' }),
@@ -226,8 +226,10 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 		(1, 44, literal { storage = literal_type::RUNE, _rune = '\0' }),
 		(1, 49, literal { storage = literal_type::RUNE, _rune = '\\' }),
 		(1, 54, literal { storage = literal_type::RUNE, _rune = '\'' }),
+		(1, 59, literal { storage = literal_type::RUNE, _rune = '\x0A' }),
+		(1, 66, literal { storage = literal_type::RUNE, _rune = '\u1234' }),
+		(1, 75, literal { storage = literal_type::RUNE, _rune = '\U12345678' }),
 	];
-	// TODO: test \x and \u and \U
 	lextest(in, expected);
 };
 

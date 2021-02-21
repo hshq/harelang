@@ -3,6 +3,7 @@ use ascii;
 use encoding::utf8;
 use io;
 use sort;
+use strconv;
 use strings;
 
 // State associated with a lexer.
@@ -99,6 +100,29 @@ fn ncmp(a: const *void, b: const *void) int = {
 	};
 };
 
+fn lex_unicode(lex: *lexer, loc: location, n: size) (rune | error) = {
+	assert(n < 9);
+	let buf: [9]u8 = [0...];
+	for (let i = 0z; i < n; i += 1z) {
+		let r = match (next(lex)) {
+			io::EOF => return syntaxerr(loc,
+				"unexpected EOF scanning for escape"),
+			err: io::error => return err,
+			r: rune => r,
+		};
+		if (!ascii::isxdigit(r)) {
+			return syntaxerr(loc,
+				"unexpected rune scanning for escape");
+		};
+		buf[i] = r: u32: u8;
+	};
+	let s = strings::from_utf8_unsafe(buf[..n]);
+	return match (strconv::stou32b(s, strconv::base::HEX)) {
+		(strconv::overflow | strconv::invalid) => abort(), // Invariant
+		u: u32 => u: rune,
+	};
+};
+
 fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 	let r = match (next(lex)) {
 		io::EOF => return syntaxerr(loc,
@@ -115,7 +139,7 @@ fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 		err: io::error => return err,
 		r: rune => r,
 	};
-	let r = switch (r) {
+	return switch (r) {
 		'\\' => '\\',
 		'\'' => '\'',
 		'0' => '\0',
@@ -127,17 +151,16 @@ fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 		't' => '\t',
 		'v' => '\v',
 		'"' => '\"',
-		'x' => abort(), // TODO
-		'u' => abort(), // TODO
+		'x' => lex_unicode(lex, loc, 2),
+		'u' => lex_unicode(lex, loc, 4),
+		'U' => lex_unicode(lex, loc, 8),
 	};
-	return r;
 };
 
 fn lex_string(
 	lex: *lexer,
 	loc: location,
 ) ((token, location) | io::EOF | error) = {
-	// TODO: test me
 	let chars: []u8 = [];
 	for (true) match (next(lex)) {
 		err: io::error => return err,
