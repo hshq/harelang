@@ -15,7 +15,19 @@ export fn ensure(s: *slice, membsz: size, length: size) void = {
 		};
 	};
 	s.capacity = cap;
-	let data = realloc(s.data, s.capacity * membsz);
-	assert(data != null);
+	const data = realloc(s.data, s.capacity * membsz);
+	assert(data != null || s.capacity * membsz == 0);
+	s.data = data;
+};
+
+export fn unensure(s: *slice, membsz: size, length: size) void = {
+	let cap = s.capacity;
+	for (cap > length) {
+		cap /= 2;
+	};
+	cap *= 2;
+	s.capacity = cap;
+	const data = realloc(s.data, s.capacity * membsz);
+	assert(data != null || s.capacity * membsz == 0);
 	s.data = data;
 };
