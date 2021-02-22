@@ -213,6 +213,8 @@ $(HARECACHE)/hare/lex/hare.lex.ssa: $(stdlib_hare_lex_srcs) $(stdlib_rt) $(stdli
 
 # hare::parse
 stdlib_hare_parse_srcs= \
+	$(STDLIB)/hare/parse/types.ha \
+	$(STDLIB)/hare/parse/util.ha \
 	$(STDLIB)/hare/parse/parse.ha
 
 $(HARECACHE)/hare/parse/hare.parse.ssa: $(stdlib_hare_parse_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex)
@@ -534,6 +536,8 @@ $(TESTCACHE)/hare/lex/hare.lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(tes
 
 # hare::parse
 testlib_hare_parse_srcs= \
+	$(STDLIB)/hare/parse/types.ha \
+	$(STDLIB)/hare/parse/util.ha \
 	$(STDLIB)/hare/parse/parse.ha \
 	$(STDLIB)/hare/parse/+test.ha
 

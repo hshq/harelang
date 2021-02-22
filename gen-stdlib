@@ -175,6 +175,8 @@ hare_lex() {
 
 gensrcs_hare_parse() {
 	gen_srcs hare::parse \
+		types.ha \
+		util.ha \
 		parse.ha \
 		$*
 }
