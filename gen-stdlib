@@ -190,7 +190,7 @@ hare_parse() {
 		gensrcs_hare_parse \
 			+test.ha
 	fi
-	gen_ssa hare::parse hare::ast hare::lex
+	gen_ssa hare::parse hare::ast hare::lex slice
 }
 
 gensrcs_io() {
