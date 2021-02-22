@@ -3,13 +3,13 @@ use hare::ast;
 use hare::lex;
 use strings;
 
-@test fn identifier() void = {
+@test fn ident() void = {
 	{
 		const in = "foo";
 		let buf = bufio::fixed(strings::to_utf8(in));
 		let lexer = lex::lexer_init(buf, "<test>");
-		let ident = identifier(&lexer) as ast::identifier;
-		defer ast::identifier_finish(&ident);
+		let ident = ident(&lexer) as ast::ident;
+		defer ast::ident_finish(&ident);
 		assert(ident.name == "foo");
 		assert(ident.ns == null);
 		assert(lex::lex(&lexer) is io::EOF);
@@ -19,12 +19,12 @@ use strings;
 		const in = "foo::bar";
 		let buf = bufio::fixed(strings::to_utf8(in));
 		let lexer = lex::lexer_init(buf, "<test>");
-		let ident = identifier(&lexer) as ast::identifier;
-		defer ast::identifier_finish(&ident);
+		let ident = ident(&lexer) as ast::ident;
+		defer ast::ident_finish(&ident);
 		assert(ident.name == "foo");
 		match (ident.ns) {
 			null => abort(),
-			ns: *ast::identifier => {
+			ns: *ast::ident => {
 				assert(ns.name == "bar");
 				assert(ns.ns == null);
 			},
@@ -36,16 +36,16 @@ use strings;
 		const in = "foo::bar::baz";
 		let buf = bufio::fixed(strings::to_utf8(in));
 		let lexer = lex::lexer_init(buf, "<test>");
-		let ident = identifier(&lexer) as ast::identifier;
-		defer ast::identifier_finish(&ident);
+		let ident = ident(&lexer) as ast::ident;
+		defer ast::ident_finish(&ident);
 		assert(ident.name == "foo");
 		match (ident.ns) {
 			null => abort(),
-			ns: *ast::identifier => {
+			ns: *ast::ident => {
 				assert(ns.name == "bar");
 				match (ns.ns) {
 					null => abort(),
-					ns: *ast::identifier => {
+					ns: *ast::ident => {
 						assert(ns.name == "baz");
 						assert(ns.ns == null);
 					},
@@ -59,12 +59,12 @@ use strings;
 		const in = "foo::bar;";
 		let buf = bufio::fixed(strings::to_utf8(in));
 		let lexer = lex::lexer_init(buf, "<test>");
-		let ident = identifier(&lexer) as ast::identifier;
-		defer ast::identifier_finish(&ident);
+		let ident = ident(&lexer) as ast::ident;
+		defer ast::ident_finish(&ident);
 		assert(ident.name == "foo");
 		match (ident.ns) {
 			null => abort(),
-			ns: *ast::identifier => {
+			ns: *ast::ident => {
 				assert(ns.name == "bar");
 				assert(ns.ns == null);
 			},

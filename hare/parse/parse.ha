@@ -8,8 +8,8 @@ export type error = lex::error;
 export fn errstr(err: error) const str = lex::errstr(err: lex::error);
 
 // Parses a single identifier, i.e. foo::bar::baz
-export fn identifier(lexer: *lex::lexer) (ast::identifier | error) = {
-	let ident = ast::identifier { ... }, cur = &ident;
+export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
+	let ident = ast::ident { ... }, cur = &ident;
 	for (true) {
 		let tok = lex::lex(lexer);
 		match (tok) {
@@ -31,8 +31,8 @@ export fn identifier(lexer: *lex::lexer) (ast::identifier | error) = {
 			t: (lex::token, lex::location) => match (t.0) {
 				b: lex::btoken => switch (b) {
 					hare::lex::btoken::DOUBLE_COLON => {
-						let new = alloc(*ast::identifier,
-							ast::identifier { ... });
+						let new = alloc(*ast::ident,
+							ast::ident { ... });
 						cur.ns = new;
 						cur = new;
 					},

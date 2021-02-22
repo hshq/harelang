@@ -1,13 +1,14 @@
 // Identifies a single object, e.g. foo::bar::baz
-export type identifier = struct {
+export type ident = struct {
 	name: str,
-	ns: nullable *identifier,
+	ns: nullable *ident,
 };
 
-export fn identifier_finish(ident: *identifier) void = {
+// Frees resources associated with an identifier
+export fn ident_finish(ident: *ident) void = {
 	match (ident.ns) {
 		null => void,
-		ns: *identifier => identifier_finish(ns),
+		ns: *ident => ident_finish(ns),
 	};
 	free(ident.name);
 };
@@ -19,17 +20,17 @@ export type subunit = struct {
 };
 
 // use module;
-export type import_module = identifier;
+export type import_module = ident;
 
 // use alias = module;
 export type import_alias = struct {
-	ident: identifier,
+	ident: ident,
 	alias: str,
 };
 
 // use module::{foo, bar, baz};
 export type import_objects = struct {
-	ident: identifier,
+	ident: ident,
 	objects: []str,
 };
 
