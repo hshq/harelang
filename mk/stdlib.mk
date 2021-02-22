@@ -99,6 +99,9 @@ hare_stdlib_deps+=$(stdlib_os)
 stdlib_os_exec=$(HARECACHE)/os/exec/os.exec.o
 hare_stdlib_deps+=$(stdlib_os_exec)
 
+stdlib_slice=$(HARECACHE)/slice/slice.o
+hare_stdlib_deps+=$(stdlib_slice)
+
 stdlib_sort=$(HARECACHE)/sort/sort.o
 hare_stdlib_deps+=$(stdlib_sort)
 
@@ -266,6 +269,16 @@ $(HARECACHE)/os/exec/os.exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_o
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
 		-t$(HARECACHE)/os/exec/os.exec.td $(stdlib_os_exec_srcs)
 
+# slice
+stdlib_slice_srcs= \
+	$(STDLIB)/slice/reverse.ha
+
+$(HARECACHE)/slice/slice.ssa: $(stdlib_slice_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/slice
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nslice \
+		-t$(HARECACHE)/slice/slice.td $(stdlib_slice_srcs)
+
 # sort
 stdlib_sort_srcs= \
 	$(STDLIB)/sort/search.ha
@@ -420,6 +433,9 @@ hare_testlib_deps+=$(testlib_os)
 
 testlib_os_exec=$(TESTCACHE)/os/exec/os.exec.o
 hare_testlib_deps+=$(testlib_os_exec)
+
+testlib_slice=$(TESTCACHE)/slice/slice.o
+hare_testlib_deps+=$(testlib_slice)
 
 testlib_sort=$(TESTCACHE)/sort/sort.o
 hare_testlib_deps+=$(testlib_sort)
@@ -593,6 +609,16 @@ $(TESTCACHE)/os/exec/os.exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testli
 	@mkdir -p $(TESTCACHE)/os/exec
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
 		-t$(TESTCACHE)/os/exec/os.exec.td $(testlib_os_exec_srcs)
+
+# slice
+testlib_slice_srcs= \
+	$(STDLIB)/slice/reverse.ha
+
+$(TESTCACHE)/slice/slice.ssa: $(testlib_slice_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/slice
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nslice \
+		-t$(TESTCACHE)/slice/slice.td $(testlib_slice_srcs)
 
 # sort
 testlib_sort_srcs= \

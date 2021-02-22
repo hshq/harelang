@@ -261,6 +261,13 @@ gensrcs_strconv() {
 		$*
 }
 
+slice() {
+	printf '# slice\n'
+	gen_srcs slice \
+		reverse.ha
+	gen_ssa slice
+}
+
 gensrcs_sort() {
 	gen_srcs sort \
 		search.ha \
@@ -331,6 +338,7 @@ hare_parse
 io
 os
 os_exec
+slice
 sort
 strconv
 strings
