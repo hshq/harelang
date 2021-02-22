@@ -23,9 +23,10 @@ export type invalid = void;
 
 // Returns the next rune from a decoder. If the slice ends with a complete UTF-8
 // sequence, void is returned. If an incomplete sequence is encountered, more is
-// returned. And if an invalid sequence is encountered, invalid returned.
+// returned. And if an invalid sequence is encountered, invalid is returned.
 export fn next(d: *decoder) (rune | void | more | invalid) = {
-	if (d.offs >= len(d.src)) {
+	assert(d.offs <= len(d.src));
+	if (d.offs == len(d.src)) {
 		return;
 	};
 
@@ -54,6 +55,38 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 	return r: rune;
 };
 
+// Returns the previous rune from a decoder. If the slice starts with a complete UTF-8
+// sequence, void is returned. If an incomplete sequence is encountered, more is
+// returned. And if an invalid sequence is encountered, invalid is returned.
+export fn prev(d: *decoder) (rune | void | more | invalid) = {
+	if (d.offs == 0) {
+		return;
+	};
+
+	let n = 0z;
+	let r = 0u32;
+
+	for (let i = 0z; i < d.offs; i += 1) {
+		if ((d.src[d.offs - i - 1] & 0xC0) == 0x80) {
+			let tmp: u32 = d.src[d.offs - i - 1] & 0x3F;
+			r |= tmp << (i * 6): u32;
+		} else {
+			n = i + 1;
+			let tmp: u32 = d.src[d.offs - i - 1] & masks[i];
+			r |=  tmp << (i * 6): u32;
+			break;
+		};
+	};
+	if (n == 0) {
+		return more;
+	};
+	d.offs -= n;
+	if (n != utf8sz(d.src[d.offs])) {
+		return invalid;
+	};
+	return r: rune;
+};
+
 @test fn decode() void = {
 	const input: [_]u8 = [
 		0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3, 0x81,
@@ -68,15 +101,27 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 		};
 	};
 	assert(next(&decoder) is void);
+	assert(decoder.offs == len(decoder.src));
+	for (let i = 0z; i < len(expected); i += 1) {
+		match (prev(&decoder)) {
+			(invalid | more | void ) => abort(),
+			r: rune => assert(r == expected[len(expected) - i - 1]),
+		};
+	};
+	assert(prev(&decoder) is void);
 
 	// TODO: Test more invalid sequences
 	const invalid: [_]u8 = [0xA0, 0xA1];
 	decoder = decode(invalid);
 	assert(next(&decoder) is invalid);
+	decoder.offs = 2;
+	assert(prev(&decoder) is more);
 
 	const incomplete: [_]u8 = [0xE3, 0x81];
 	decoder = decode(incomplete);
 	assert(next(&decoder) is more);
+	decoder.offs = 2;
+	assert(prev(&decoder) is invalid);
 };
 
 // Returns true if a given string or byte slice contains only valid UTF-8
