@@ -6,10 +6,9 @@ export fn reverse(b: []void, membsz: size) void = {
 	let a = b: *[*]u8;
 	for (let s = 0z, e = len(b) - 1; s < e) {
 		for (let i = 0z; i < membsz; i += 1z) {
-			// XOR swap
-			a[s * membsz + i] ^= a[e * membsz + i];
-			a[e * membsz + i] ^= a[s * membsz + i];
-			a[s * membsz + i] ^= a[e * membsz + i];
+			let z = a[s * membsz + i];
+			a[s * membsz + i] = a[e * membsz + i];
+			a[e * membsz + i] = z;
 		};
 		s += 1;
 		e -= 1;
