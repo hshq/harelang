@@ -81,8 +81,14 @@ hare_stdlib_deps+=$(stdlib_fmt)
 stdlib_format_elf=$(HARECACHE)/format/elf/format.elf.o
 hare_stdlib_deps+=$(stdlib_format_elf)
 
+stdlib_hare_ast=$(HARECACHE)/hare/ast/hare.ast.o
+hare_stdlib_deps+=$(stdlib_hare_ast)
+
 stdlib_hare_lex=$(HARECACHE)/hare/lex/hare.lex.o
 hare_stdlib_deps+=$(stdlib_hare_lex)
+
+stdlib_hare_parse=$(HARECACHE)/hare/parse/hare.parse.o
+hare_stdlib_deps+=$(stdlib_hare_parse)
 
 stdlib_io=$(HARECACHE)/io/io.o
 hare_stdlib_deps+=$(stdlib_io)
@@ -184,6 +190,16 @@ $(HARECACHE)/format/elf/format.elf.ssa: $(stdlib_format_elf_srcs) $(stdlib_rt)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::elf \
 		-t$(HARECACHE)/format/elf/format.elf.td $(stdlib_format_elf_srcs)
 
+# hare::ast
+stdlib_hare_ast_srcs= \
+	$(STDLIB)/hare/ast/types.ha
+
+$(HARECACHE)/hare/ast/hare.ast.ssa: $(stdlib_hare_ast_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hare/ast
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::ast \
+		-t$(HARECACHE)/hare/ast/hare.ast.td $(stdlib_hare_ast_srcs)
+
 # hare::lex
 stdlib_hare_lex_srcs= \
 	$(STDLIB)/hare/lex/token.ha \
@@ -194,6 +210,16 @@ $(HARECACHE)/hare/lex/hare.lex.ssa: $(stdlib_hare_lex_srcs) $(stdlib_rt) $(stdli
 	@mkdir -p $(HARECACHE)/hare/lex
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::lex \
 		-t$(HARECACHE)/hare/lex/hare.lex.td $(stdlib_hare_lex_srcs)
+
+# hare::parse
+stdlib_hare_parse_srcs= \
+	$(STDLIB)/hare/parse/parse.ha
+
+$(HARECACHE)/hare/parse/hare.parse.ssa: $(stdlib_hare_parse_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hare/parse
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::parse \
+		-t$(HARECACHE)/hare/parse/hare.parse.td $(stdlib_hare_parse_srcs)
 
 # io
 stdlib_io_srcs= \
@@ -375,8 +401,14 @@ hare_testlib_deps+=$(testlib_fmt)
 testlib_format_elf=$(TESTCACHE)/format/elf/format.elf.o
 hare_testlib_deps+=$(testlib_format_elf)
 
+testlib_hare_ast=$(TESTCACHE)/hare/ast/hare.ast.o
+hare_testlib_deps+=$(testlib_hare_ast)
+
 testlib_hare_lex=$(TESTCACHE)/hare/lex/hare.lex.o
 hare_testlib_deps+=$(testlib_hare_lex)
+
+testlib_hare_parse=$(TESTCACHE)/hare/parse/hare.parse.o
+hare_testlib_deps+=$(testlib_hare_parse)
 
 testlib_io=$(TESTCACHE)/io/io.o
 hare_testlib_deps+=$(testlib_io)
@@ -478,6 +510,16 @@ $(TESTCACHE)/format/elf/format.elf.ssa: $(testlib_format_elf_srcs) $(testlib_rt)
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::elf \
 		-t$(TESTCACHE)/format/elf/format.elf.td $(testlib_format_elf_srcs)
 
+# hare::ast
+testlib_hare_ast_srcs= \
+	$(STDLIB)/hare/ast/types.ha
+
+$(TESTCACHE)/hare/ast/hare.ast.ssa: $(testlib_hare_ast_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/ast
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::ast \
+		-t$(TESTCACHE)/hare/ast/hare.ast.td $(testlib_hare_ast_srcs)
+
 # hare::lex
 testlib_hare_lex_srcs= \
 	$(STDLIB)/hare/lex/token.ha \
@@ -489,6 +531,17 @@ $(TESTCACHE)/hare/lex/hare.lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(tes
 	@mkdir -p $(TESTCACHE)/hare/lex
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::lex \
 		-t$(TESTCACHE)/hare/lex/hare.lex.td $(testlib_hare_lex_srcs)
+
+# hare::parse
+testlib_hare_parse_srcs= \
+	$(STDLIB)/hare/parse/parse.ha \
+	$(STDLIB)/hare/parse/+test.ha
+
+$(TESTCACHE)/hare/parse/hare.parse.ssa: $(testlib_hare_parse_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/parse
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::parse \
+		-t$(TESTCACHE)/hare/parse/hare.parse.td $(testlib_hare_parse_srcs)
 
 # io
 testlib_io_srcs= \

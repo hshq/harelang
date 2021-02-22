@@ -147,6 +147,13 @@ format_elf() {
 	gen_ssa format::elf
 }
 
+hare_ast() {
+	printf '# hare::ast\n'
+	gen_srcs hare::ast \
+		types.ha
+	gen_ssa hare::ast
+}
+
 gensrcs_hare_lex() {
 	gen_srcs hare::lex \
 		token.ha \
@@ -164,6 +171,24 @@ hare_lex() {
 			+test.ha
 	fi
 	gen_ssa hare::lex io bufio strings types fmt sort
+}
+
+gensrcs_hare_parse() {
+	gen_srcs hare::parse \
+		parse.ha \
+		$*
+}
+
+hare_parse() {
+	printf '# hare::parse\n'
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_hare_parse
+	else
+		gensrcs_hare_parse \
+			+test.ha
+	fi
+	gen_ssa hare::parse hare::ast hare::lex
 }
 
 gensrcs_io() {
@@ -298,7 +323,9 @@ crypto_random
 encoding_utf8
 fmt
 format_elf
+hare_ast
 hare_lex
+hare_parse
 io
 os
 os_exec
