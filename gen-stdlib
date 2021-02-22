@@ -112,7 +112,7 @@ bytes() {
 		index.ha \
 		reverse.ha \
 		tokenize.ha
-	gen_ssa bytes
+	gen_ssa bytes types
 }
 
 crypto_random() {

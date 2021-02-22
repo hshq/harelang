@@ -141,7 +141,7 @@ stdlib_bytes_srcs= \
 	$(STDLIB)/bytes/reverse.ha \
 	$(STDLIB)/bytes/tokenize.ha
 
-$(HARECACHE)/bytes/bytes.ssa: $(stdlib_bytes_srcs) $(stdlib_rt)
+$(HARECACHE)/bytes/bytes.ssa: $(stdlib_bytes_srcs) $(stdlib_rt) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/bytes
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbytes \
@@ -461,7 +461,7 @@ testlib_bytes_srcs= \
 	$(STDLIB)/bytes/reverse.ha \
 	$(STDLIB)/bytes/tokenize.ha
 
-$(TESTCACHE)/bytes/bytes.ssa: $(testlib_bytes_srcs) $(testlib_rt)
+$(TESTCACHE)/bytes/bytes.ssa: $(testlib_bytes_srcs) $(testlib_rt) $(testlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/bytes
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbytes \
