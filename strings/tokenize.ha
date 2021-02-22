@@ -23,6 +23,14 @@ export fn next_token(s: *tokenizer) (str | void) = {
 	};
 };
 
+// Same as next_token(), but does not advance the cursor
+export fn peek_token(s: *tokenizer) (str | void) = {
+	return match (bytes::peek_token(s)) {
+		b: []u8 => from_utf8(b),
+		void => void,
+	};
+};
+
 // Returns the remainder of the string associated with a tokenizer, without doing
 // any further tokenization.
 export fn remaining_tokens(s: *tokenizer) str = {
@@ -41,26 +49,31 @@ export fn remaining_tokens(s: *tokenizer) str = {
 		void   => abort(),
 	};
 
+	match (peek_token(&tok)) {
+		s: str => assert(s == "name"),
+		void   => abort(),
+	};
+
+
 	match (next_token(&tok)) {
 		s: str => assert(s == "name"),
 		void   => abort(),
 	};
 
 	assert(remaining_tokens(&tok) == "is drew");
+	assert(peek_token(&tok) as str == "is");
+	assert(remaining_tokens(&tok) == "is drew");
 
 	tok = tokenize("foo", "foo");
-	match (next_token(&tok)) {
-		s: str => assert(s == ""),
-		void   => abort(),
-	};
-	match (next_token(&tok)) {
-		s: str => assert(s == ""),
-		void   => abort(),
-	};
-	match (next_token(&tok)) {
-		s: str => abort(),
-		void   => void,
-	};
+
+	assert(peek_token(&tok) as str == "");
+	assert(next_token(&tok) as str == "");
+
+	assert(peek_token(&tok) as str == "");
+	assert(next_token(&tok) as str == "");
+
+	assert(peek_token(&tok) is void);
+	assert(next_token(&tok) is void);
 };
 
 // Splits a string into tokens delimited by 'delim', returning a slice of up to
