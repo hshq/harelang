@@ -1,52 +1,24 @@
 use hare::ast;
 use hare::lex;
 
-// All possible error types
-export type error = lex::error;
-
-// Convert an error into a human-friendly string
-export fn errstr(err: error) const str = lex::errstr(err: lex::error);
-
 // Parses a single identifier, i.e. foo::bar::baz
 export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 	let ident = ast::ident { ... }, cur = &ident;
 	for (true) {
-		let tok = lex::lex(lexer);
-		match (tok) {
-			io::EOF => abort(), // TODO: Syntax error
-			err: lex::error => return err,
-			t: (lex::token, lex::location) => match (t.0) {
-				n: lex::name => cur.name = n: str,
-				* => {
-					lex::unlex(lexer, t);
-					break;
-				},
-			},
+		cur.name = match (want_name(lexer)) {
+			err: error => return err,
+			n: lex::name => n: str,
 		};
 
-		tok = lex::lex(lexer);
-		match (tok) {
-			io::EOF => break,
-			err: lex::error => return err,
-			t: (lex::token, lex::location) => match (t.0) {
-				b: lex::btoken => switch (b) {
-					hare::lex::btoken::DOUBLE_COLON => {
-						let new = alloc(*ast::ident,
-							ast::ident { ... });
-						cur.ns = new;
-						cur = new;
-					},
-					* => {
-						lex::unlex(lexer, t);
-						break;
-					},
-				},
-				* => {
-					lex::unlex(lexer, t);
-					break;
-				},
-			},
+		match (try_btoken(lexer, hare::lex::btoken::DOUBLE_COLON)) {
+			err: error => return err,
+			void => break,
+			* => void, // Grab the next ident
 		};
+
+		let new = alloc(*ast::ident, ast::ident { ... });
+		cur.ns = new;
+		cur = new;
 	};
 	return ident;
 };
