@@ -16,6 +16,33 @@ fn want_name(lexer: *lex::lexer) (lex::name | error) = {
 	};
 };
 
+// Requires the next token to be a name. Returns that name, or an error.
+fn want_btoken(
+	lexer: *lex::lexer,
+	want: lex::btoken...
+) (lex::btoken | error) = {
+	match (lex::lex(lexer)) {
+		io::EOF => return syntaxerr(mkloc(lexer),
+			"Expected name, found EOF"),
+		err: lex::error => return err,
+		t: (lex::token, lex::location) => match (t.0) {
+			b: lex::btoken => {
+				for (let i = 0z; i < len(want); i += 1) {
+					if (b == want[i]) {
+						return b;
+					};
+				};
+				// TODO: Use fmt+lex::tokstr here:
+				return syntaxerr(mkloc(lexer),
+					"Expected <something>, got <something else>");
+			},
+			// TODO: Use fmt+lex::tokstr here:
+			* => return syntaxerr(mkloc(lexer),
+				"Expected <something>, got <something else>"),
+		},
+	};
+};
+
 // Looks for a matching btoken from the lexer, and if not present, unlexes the
 // token and returns void. If found, the token is consumed from the lexer and is
 // returned.
