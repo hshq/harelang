@@ -1,26 +1,25 @@
 use hare::ast;
 use hare::lex;
+use slice;
 
 // Parses a single identifier, i.e. foo::bar::baz
 export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
-	// TODO: This is actually wrong, it builds the idents backwards. Whoops
-	let ident = ast::ident { ... }, cur = &ident;
+	let ident: []str = [];
 	for (true) {
-		cur.name = match (want_name(lexer)) {
+		let name = match (want_name(lexer)) {
 			err: error => return err,
 			n: lex::name => n: str,
 		};
+
+		append(ident, name);
 
 		match (try_btoken(lexer, hare::lex::btoken::DOUBLE_COLON)) {
 			err: error => return err,
 			void => break,
 			* => void, // Grab the next ident
 		};
-
-		let new = alloc(*ast::ident, ast::ident { ... });
-		cur.ns = new;
-		cur = new;
 	};
+	slice::reverse(ident, size(ast::ident));
 	return ident;
 };
 

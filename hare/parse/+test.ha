@@ -10,9 +10,9 @@ use fmt;
 		let buf = bufio::fixed(strings::to_utf8(in));
 		let lexer = lex::lexer_init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
-		defer ast::ident_finish(&ident);
-		assert(ident.name == "foo");
-		assert(ident.ns == null);
+		defer ast::ident_free(ident);
+		assert(len(ident) == 1);
+		assert(ident[0] == "foo");
 		assert(lex::lex(&lexer) is io::EOF);
 	};
 
@@ -21,15 +21,9 @@ use fmt;
 		let buf = bufio::fixed(strings::to_utf8(in));
 		let lexer = lex::lexer_init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
-		defer ast::ident_finish(&ident);
-		assert(ident.name == "foo");
-		match (ident.ns) {
-			null => abort(),
-			ns: *ast::ident => {
-				assert(ns.name == "bar");
-				assert(ns.ns == null);
-			},
-		};
+		defer ast::ident_free(ident);
+		assert(len(ident) == 2);
+		assert(ident[0] == "bar" && ident[1] == "foo");
 		assert(lex::lex(&lexer) is io::EOF);
 	};
 
@@ -38,21 +32,10 @@ use fmt;
 		let buf = bufio::fixed(strings::to_utf8(in));
 		let lexer = lex::lexer_init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
-		defer ast::ident_finish(&ident);
-		assert(ident.name == "foo");
-		match (ident.ns) {
-			null => abort(),
-			ns: *ast::ident => {
-				assert(ns.name == "bar");
-				match (ns.ns) {
-					null => abort(),
-					ns: *ast::ident => {
-						assert(ns.name == "baz");
-						assert(ns.ns == null);
-					},
-				};
-			},
-		};
+		defer ast::ident_free(ident);
+		assert(len(ident) == 3);
+		assert(ident[0] == "baz" && ident[1] == "bar"
+			&& ident[2] == "foo");
 		assert(lex::lex(&lexer) is io::EOF);
 	};
 
@@ -61,15 +44,9 @@ use fmt;
 		let buf = bufio::fixed(strings::to_utf8(in));
 		let lexer = lex::lexer_init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
-		defer ast::ident_finish(&ident);
-		assert(ident.name == "foo");
-		match (ident.ns) {
-			null => abort(),
-			ns: *ast::ident => {
-				assert(ns.name == "bar");
-				assert(ns.ns == null);
-			},
-		};
+		defer ast::ident_free(ident);
+		assert(len(ident) == 2);
+		assert(ident[0] == "bar" && ident[1] == "foo");
 		let tok = lex::lex(&lexer) as (lex::token, lex::location);
 		assert(tok.0 as lex::btoken == hare::lex::btoken::SEMICOLON);
 	};
@@ -84,7 +61,7 @@ use fmt;
 		assert(len(mods) == 1);
 		assert(mods[0] is ast::import_module);
 		let mod = mods[0] as ast::import_module;
-		assert(mod.name == "foo");
+		assert(len(mod) == 1 && mod[0] == "foo");
 		assert(lex::lex(&lexer) is io::EOF);
 	};
 
@@ -99,12 +76,15 @@ use fmt;
 		let mods = imports(&lexer) as []ast::import;
 
 		assert(len(mods) == 3);
-		let expected = ["foo", "bar", "baz"];
+		let expected: [_][]str = [["foo"], ["bar"], ["bat", "baz"]];
 
 		for (let i = 0z; i < len(mods); i += 1) {
 			assert(mods[i] is ast::import_module);
 			let mod = mods[i] as ast::import_module;
-			assert(mod.name == expected[i]);
+			assert(len(mod) == len(expected[i]));
+			for (let j = 0z; j < len(expected[i]); j += 1z) {
+				assert(mod[j] == expected[i][j]);
+			};
 		};
 
 		let tok = lex::lex(&lexer) as (lex::token, lex::location);

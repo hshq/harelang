@@ -1,16 +1,13 @@
-// Identifies a single object, e.g. foo::bar::baz
-export type ident = struct {
-	name: str,
-	ns: nullable *ident,
-};
+// Identifies a single object, e.g. foo::bar::baz, ordered from least to most
+// significant part (foo::bar::baz becomes ["baz", "bar", "foo"].
+export type ident = []str;
 
 // Frees resources associated with an identifier
-export fn ident_finish(ident: *ident) void = {
-	match (ident.ns) {
-		null => void,
-		ns: *ident => ident_finish(ns),
+export fn ident_free(ident: ident) void = {
+	for (let i = 0z; i < len(ident); i += 1) {
+		free(ident[i]);
 	};
-	free(ident.name);
+	free(ident);
 };
 
 // A sub-unit, typically representing a single source file
