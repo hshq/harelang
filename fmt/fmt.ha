@@ -155,15 +155,11 @@ export fn fprintf(
 
 			match (io::write(s, utf8::encode_rune('}'))) {
 				err: io::error => return err,
-				w: size => {
-					n += w;
-				},
+				w: size => n += w,
 			};
 		} else match (io::write(s, utf8::encode_rune(r))) {
 			err: io::error => return err,
-			w: size => {
-				n += w;
-			},
+			w: size => n += w,
 		};
 	};
 
@@ -247,18 +243,10 @@ fn scan_modifier_flags(iter: *strings::iterator, mod: *modifiers) void = {
 		};
 
 		switch (r) {
-			'0' => {
-				flags |= modflags::ZERO;
-			},
-			'-' => {
-				flags |= modflags::MINUS;
-			},
-			' ' => {
-				flags |= modflags::SPACE;
-			},
-			'+' => {
-				flags |= modflags::PLUS;
-			},
+			'0' => flags |= modflags::ZERO,
+			'-' => flags |= modflags::MINUS,
+			' ' => flags |= modflags::SPACE,
+			'+' => flags |= modflags::PLUS,
 			* => {
 				strings::push(iter, r);
 				break;
@@ -315,21 +303,11 @@ fn scan_modifier_base(iter: *strings::iterator, mod: *modifiers) void = {
 	};
 
 	switch (r) {
-		'x' => {
-			mod.base = strconv::base::HEX_LOWER;
-		},
-		'X' => {
-			mod.base = strconv::base::HEX_UPPER;
-		},
-		'o' => {
-			mod.base = strconv::base::OCT;
-		},
-		'b' => {
-			mod.base = strconv::base::BIN;
-		},
-		* => {
-			strings::push(iter, r);
-		},
+		'x' => mod.base = strconv::base::HEX_LOWER,
+		'X' => mod.base = strconv::base::HEX_UPPER,
+		'o' => mod.base = strconv::base::OCT,
+		'b' => mod.base = strconv::base::BIN,
+		* => strings::push(iter, r),
 	};
 };
 

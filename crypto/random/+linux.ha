@@ -13,9 +13,7 @@ export fn buffer(buf: []u8) void = {
 				rt::EINTR => void,
 				* => abort(),
 			},
-			z: size => {
-				n += z;
-			},
+			z: size => n += z,
 		};
 	};
 };

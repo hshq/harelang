@@ -518,12 +518,8 @@ fn lexloc(lex: *lexer, r: rune) void = {
 			lex.loc.0 += 1;
 			lex.loc.1 = 1;
 		},
-		'\t' => {
-			lex.loc.1 += 8;
-		},
-		* => {
-			lex.loc.1 += 1;
-		},
+		'\t' => lex.loc.1 += 8,
+		*    => lex.loc.1 += 1,
 	};
 };
 

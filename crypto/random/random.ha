@@ -32,9 +32,7 @@ export let stream: *io::stream = null: *io::stream;
 	let test: []u8 = [];
 	match (io::read(stream, buf[..])) {
 		(io::error | io::EOF) => abort(),
-		n: size => {
-			test = buf[..n];
-		},
+		n: size => test = buf[..n],
 	};
 
 	assert(len(test) > 0);
