@@ -2,7 +2,7 @@
 // significant part (foo::bar::baz becomes ["baz", "bar", "foo"].
 export type ident = []str;
 
-// Frees resources associated with an identifier
+// Frees resources associated with an identifier.
 export fn ident_free(ident: ident) void = {
 	for (let i = 0z; i < len(ident); i += 1) {
 		free(ident[i]);
@@ -10,7 +10,7 @@ export fn ident_free(ident: ident) void = {
 	free(ident);
 };
 
-// A sub-unit, typically representing a single source file
+// A sub-unit, typically representing a single source file.
 export type subunit = struct {
 	imports: []import,
 	declarations: []declaration,
@@ -33,6 +33,24 @@ export type import_objects = struct {
 
 // An imported module
 export type import = (import_module | import_alias | import_objects);
+
+// Frees resources associated with an import.
+export fn import_free(import: import) void = {
+	match (import) {
+		m: import_module => ident_free(m: ident),
+		a: import_alias => {
+			ident_free(a.ident);
+			free(a.alias);
+		},
+		o: import_objects => {
+			ident_free(o.ident);
+			for (let i = 0z; i < len(o.objects); i += 1) {
+				free(o.objects[i]);
+			};
+			free(o.objects);
+		},
+	};
+};
 
 // TODO
 export type declaration = void;

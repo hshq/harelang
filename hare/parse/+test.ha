@@ -58,8 +58,13 @@ use fmt;
 		let buf = bufio::fixed(strings::to_utf8(in));
 		let lexer = lex::lexer_init(buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
+		defer for (let i = 0z; i < len(mods); i += 1) {
+			ast::import_free(mods[i]);
+		};
+
 		assert(len(mods) == 1);
 		assert(mods[0] is ast::import_module);
+
 		let mod = mods[0] as ast::import_module;
 		assert(len(mod) == 1 && mod[0] == "foo");
 		assert(lex::lex(&lexer) is io::EOF);
@@ -74,6 +79,9 @@ use fmt;
 		let buf = bufio::fixed(strings::to_utf8(in));
 		let lexer = lex::lexer_init(buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
+		defer for (let i = 0z; i < len(mods); i += 1) {
+			ast::import_free(mods[i]);
+		};
 
 		assert(len(mods) == 3);
 		let expected: [_][]str = [["foo"], ["bar"], ["bat", "baz"]];
