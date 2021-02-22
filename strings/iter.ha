@@ -29,9 +29,22 @@ export fn next(iter: *iterator) (rune | void) = {
 	};
 };
 
+// Get the previous rune from an iterator, or void when at the start of the
+// string.
+export fn prev(iter: *iterator) (rune | void) = {
+	assert(iter.push is void);
+	return match (utf8::prev(&iter.dec)) {
+		r: rune => r,
+		void => void,
+		(utf8::more | utf8::invalid) =>
+			abort("Invalid UTF-8 string (this should not happen)"),
+	};
+};
+
+
 // Pushes a rune back to the iterator, effectively un-reading it. The given rune
-// will be returned on the next call to 'next'. Only one rune can be pushed at a
-// time.
+// will be returned on the next call to 'next'. First operation on
+// the iterator after pushing must be a next() call
 export fn push(iter: *iterator, r: rune) void = {
 	assert(iter.push is void);
 	iter.push = r;
@@ -39,11 +52,13 @@ export fn push(iter: *iterator, r: rune) void = {
 
 // Return a substring from the next rune to the end of the string.
 export fn iter_str(iter: *iterator) str = {
+	assert(iter.push is void);
 	return from_utf8(iter.dec.src[iter.dec.offs..]);
 };
 
 @test fn iter() void = {
 	let s = iter("こんにちは");
+	assert(prev(&s) is void);
 	const expected1 = ['こ', 'ん'];
 	for (let i = 0z; i < len(expected1); i += 1) {
 		match (next(&s)) {
@@ -52,7 +67,8 @@ export fn iter_str(iter: *iterator) str = {
 		};
 	};
 	assert(iter_str(&s) == "にちは");
-	const expected2 = ['に', 'ち', 'は'];
+	assert(prev(&s) as rune == 'ん');
+	const expected2 = ['ん', 'に', 'ち', 'は'];
 	for (let i = 0z; i < len(expected2); i += 1) {
 		match (next(&s)) {
 			r: rune => assert(r == expected2[i]),
@@ -63,4 +79,5 @@ export fn iter_str(iter: *iterator) str = {
 	assert(next(&s) is void);
 	push(&s, 'q');
 	assert(next(&s) as rune == 'q');
+	assert(prev(&s) as rune == 'は');
 };
