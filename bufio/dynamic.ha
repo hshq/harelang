@@ -1,0 +1,80 @@
+use bytes;
+use io;
+
+type dynamic_stream = struct {
+	stream: io::stream,
+	buf: []u8,
+};
+
+fn dynamic_write(_s: *io::stream, buf: const []u8) (size | io::error) = {
+	const s = _s: *dynamic_stream;
+	append(s.buf, ...buf);
+	return len(buf);
+};
+
+fn dynamic_read(_s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
+	const s = _s: *dynamic_stream;
+	const sz = if (len(buf) > len(s.buf)) len(s.buf) else len(buf);
+	buf[..sz] = s.buf[..sz];
+	delete(s.buf[..sz]);
+	return if (sz == 0) io::EOF else sz;
+};
+
+fn dynamic_close(_s: *io::stream) void = {
+	const s = _s: *dynamic_stream;
+	free(s.buf);
+};
+
+export fn buffer(_s: *io::stream) ([]u8 | io::unsupported) = {
+	if (_s.writer != &dynamic_write || _s.closer != &dynamic_close) {
+		return io::unsupported;
+	};
+	const s = _s: *dynamic_stream;
+	return s.buf;
+};
+
+export fn reset(_s: *io::stream) (void | io::unsupported) = {
+	if (_s.writer != &dynamic_write || _s.closer != &dynamic_close) {
+		return io::unsupported;
+	};
+	const s = _s: *dynamic_stream;
+	s.buf = s.buf[..0];
+};
+
+export fn truncate(_s: *io::stream) (void | io::unsupported) = {
+	if (_s.writer != &dynamic_write || _s.closer != &dynamic_close) {
+		return io::unsupported;
+	};
+	const s = _s: *dynamic_stream;
+	delete(s.buf[..]);
+};
+
+export fn dynamic() *io::stream = alloc(dynamic_stream {
+	stream = io::stream {
+		writer = &dynamic_write,
+		closer = &dynamic_close,
+		reader = &dynamic_read,
+		...
+	},
+	buf = [],
+}): *io::stream;
+
+@test fn dynamic() void = {
+	// TODO: slice/array equality
+	let s = dynamic();
+	assert(io::write(s, [1, 2, 3]) as size == 3);
+	assert(bytes::equal(buffer(s) as []u8, [1, 2, 3]));
+	assert(io::write(s, [4, 5]) as size == 2);
+	assert(bytes::equal(buffer(s) as []u8, [1, 2, 3, 4, 5]));
+	let buf: [2]u8 = [0...];
+	assert(io::read(s, buf[..]) as size == 2 && bytes::equal(buf, [1, 2]));
+	assert(io::read(s, buf[..]) as size == 2 && bytes::equal(buf, [3, 4]));
+	assert(io::read(s, buf[..]) as size == 1 && buf[0] == 5);
+	assert(io::read(s, buf[..]) is io::EOF);
+	assert(io::write(s, [1, 2, 3]) as size == 3);
+	assert(reset(s) is void);
+	assert(len(buffer(s) as []u8) == 0);
+	assert(io::write(s, [1, 2, 3]) as size == 3);
+	assert(truncate(s) is void);
+	assert(len(buffer(s) as []u8) == 0);
+};
