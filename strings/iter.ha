@@ -13,7 +13,7 @@ export fn iter(src: str) iterator = iterator {
 };
 
 // Initializes a string iterator, starting at the end of the string.
-export fn iter_reverse(src: str) iterator = {
+export fn riter(src: str) iterator = {
 	let ret = iterator {
 		dec = utf8::decode(src),
 		push = void,
@@ -91,7 +91,7 @@ export fn iter_str(iter: *iterator) str = {
 	assert(next(&s) as rune == 'q');
 	assert(prev(&s) as rune == 'は');
 
-	s = iter_reverse("にちは");
+	s = riter("にちは");
 	const expected3 = ['は', 'ち', 'に'];
 	for (let i = 0z; i< len(expected3); i += 1) {
 		match (prev(&s)) {
