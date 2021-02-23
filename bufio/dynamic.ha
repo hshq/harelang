@@ -25,6 +25,7 @@ fn dynamic_close(_s: *io::stream) void = {
 	free(s.buf);
 };
 
+// Returns the current buffer.
 export fn buffer(_s: *io::stream) ([]u8 | io::unsupported) = {
 	if (_s.writer != &dynamic_write || _s.closer != &dynamic_close) {
 		return io::unsupported;
@@ -33,6 +34,8 @@ export fn buffer(_s: *io::stream) ([]u8 | io::unsupported) = {
 	return s.buf;
 };
 
+// Resets the buffer's length to zero, but keeps the allocated memory around for
+// future writes.
 export fn reset(_s: *io::stream) (void | io::unsupported) = {
 	if (_s.writer != &dynamic_write || _s.closer != &dynamic_close) {
 		return io::unsupported;
@@ -41,6 +44,8 @@ export fn reset(_s: *io::stream) (void | io::unsupported) = {
 	s.buf = s.buf[..0];
 };
 
+// Truncates the buffer, freeing memory associated with it and setting its
+// length to zero.
 export fn truncate(_s: *io::stream) (void | io::unsupported) = {
 	if (_s.writer != &dynamic_write || _s.closer != &dynamic_close) {
 		return io::unsupported;
@@ -49,6 +54,9 @@ export fn truncate(_s: *io::stream) (void | io::unsupported) = {
 	delete(s.buf[..]);
 };
 
+// Creates an [io::stream] which dynamically allocates a buffer to store writes
+// into. Subsequent reads will consume the buffered data. Upon failure to
+// allocate sufficient memory to store writes, the program aborts.
 export fn dynamic() *io::stream = alloc(dynamic_stream {
 	stream = io::stream {
 		writer = &dynamic_write,
