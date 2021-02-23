@@ -127,6 +127,7 @@ $(HARECACHE)/ascii/ascii.ssa: $(stdlib_ascii_srcs) $(stdlib_rt) $(stdlib_strings
 
 # bufio
 stdlib_bufio_srcs= \
+	$(STDLIB)/bufio/dynamic.ha \
 	$(STDLIB)/bufio/fixed.ha
 
 $(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io)
@@ -462,6 +463,7 @@ $(TESTCACHE)/ascii/ascii.ssa: $(testlib_ascii_srcs) $(testlib_rt) $(testlib_stri
 
 # bufio
 testlib_bufio_srcs= \
+	$(STDLIB)/bufio/dynamic.ha \
 	$(STDLIB)/bufio/fixed.ha
 
 $(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io)

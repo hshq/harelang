@@ -99,6 +99,7 @@ ascii() {
 bufio() {
 	printf '# bufio\n'
 	gen_srcs bufio \
+		dynamic.ha \
 		fixed.ha
 	gen_ssa bufio io
 }
