@@ -48,7 +48,7 @@ use fmt;
 		assert(len(ident) == 2);
 		assert(ident[0] == "bar" && ident[1] == "foo");
 		let tok = lex::lex(&lexer) as (lex::token, lex::location);
-		assert(tok.0 as lex::btoken == hare::lex::btoken::SEMICOLON);
+		assert(tok.0 as lex::btoken == lex::btoken::SEMICOLON);
 	};
 };
 
@@ -96,6 +96,6 @@ use fmt;
 		};
 
 		let tok = lex::lex(&lexer) as (lex::token, lex::location);
-		assert(tok.0 as lex::btoken == hare::lex::btoken::EXPORT);
+		assert(tok.0 as lex::btoken == lex::btoken::EXPORT);
 	};
 };

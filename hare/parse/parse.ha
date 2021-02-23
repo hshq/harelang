@@ -13,7 +13,7 @@ export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 
 		append(ident, name);
 
-		match (try_btoken(lexer, hare::lex::btoken::DOUBLE_COLON)) {
+		match (try_btoken(lexer, lex::btoken::DOUBLE_COLON)) {
 			err: error => return err,
 			void => break,
 			* => void, // Grab the next ident
@@ -27,7 +27,7 @@ export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 	let imports: []ast::import = [];
 	for (true) {
-		match (try_btoken(lexer, hare::lex::btoken::USE)) {
+		match (try_btoken(lexer, lex::btoken::USE)) {
 			err: error => return err,
 			void => break,
 			* => void,
@@ -39,7 +39,7 @@ export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 		};
 
 		// TODO: Parse alternate import syntaxes
-		match (want_btoken(lexer, hare::lex::btoken::SEMICOLON)) {
+		match (want_btoken(lexer, lex::btoken::SEMICOLON)) {
 			err: error => return err,
 			lex::btoken => void,
 		};
