@@ -8,9 +8,9 @@ fn io_errstr(data: *void) str = {
 
 // TODO: Implement the inverse of this and make it public
 fn errno_to_io(err: rt::errno) io::error = {
-	let e = io::os_error {
+	let err = io::os_error {
 		string = &io_errstr,
 		data = err: uintptr: *void,
 	};
-	return e: io::error;
+	return err: io::error;
 };

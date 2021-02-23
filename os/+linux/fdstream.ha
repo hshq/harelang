@@ -89,12 +89,12 @@ fn fd_close_static(s: *io::stream) void = {
 
 def SENDFILE_MAX: size = 2147479552z;
 
-fn fd_copy(_to: *io::stream, _from: *io::stream) (size | io::error) = {
-	if (!is_fdstream(_from)) {
+fn fd_copy(to: *io::stream, from: *io::stream) (size | io::error) = {
+	if (!is_fdstream(from)) {
 		return io::unsupported;
 	};
 
-	let to = _to: *fd_stream, from = _from: *fd_stream;
+	let to = to: *fd_stream, from = from: *fd_stream;
 	let sum = 0z;
 	for (true) {
 		let n = match (rt::sendfile(to.fd, from.fd,
