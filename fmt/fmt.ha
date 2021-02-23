@@ -37,6 +37,7 @@
 //
 // TODO: Expand this with more format modifiers
 use ascii;
+use bufio;
 use encoding::utf8;
 use io;
 use os;
@@ -48,24 +49,34 @@ use types;
 export type formattable = (...types::numeric | uintptr
 	| str | rune | nullable *void);
 
-// Formats text for printing writes it to [os::stdout].
+// Formats text for printing and writes it to [os::stdout].
 export fn printf(fmt: str, args: formattable...) (io::error | size) =
 	fprintf(os::stdout, fmt, args...);
 
-// Formats text for printing writes it to [os::stdout], followed by a line feed.
+// Formats text for printing and writes it to [os::stdout], followed by a line
+// feed.
 export fn println(fmt: str, args: formattable...) (io::error | size) =
 	fprintln(os::stdout, fmt, args...);
 
-// Formats text for printing writes it to [os::stderr].
+// Formats text for printing and writes it to [os::stderr].
 export fn errorf(fmt: str, args: formattable...) (io::error | size) =
 	fprintf(os::stderr, fmt, args...);
 
-// Formats text for printing writes it to [os::stderr], followed by a line feed.
+// Formats text for printing and writes it to [os::stderr], followed by a line
+// feed.
 export fn errorln(fmt: str, args: formattable...) (io::error | size) =
 	fprintln(os::stderr, fmt, args...);
 
-// Formats text for printing writes it to [os::stderr], followed by a line feed,
-// then exits the program with an error status.
+// Formats text for printing and writes it into a heap-allocated string. The
+// caller must free the return value.
+export fn asprintf(fmt: str, args: formattable...) str = {
+	let buf = bufio::dynamic();
+	assert(fprintf(buf, fmt, args...) is size);
+	return strings::from_utf8_unsafe(bufio::buffer(buf) as []u8);
+};
+
+// Formats text for printing and writes it to [os::stderr], followed by a line
+// feed, then exits the program with an error status.
 export @noreturn fn fatal(fmt: str, args: formattable...) void = {
 	fprintln(os::stderr, fmt, args...);
 	os::exit(1);
