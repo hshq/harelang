@@ -3,10 +3,9 @@ use hare::lex;
 
 // Requires the next token to be a name. Returns that name, or an error.
 fn want_name(lexer: *lex::lexer) (lex::name | error) = {
-	match (lex::lex(lexer)) {
+	match (lex::lex(lexer)?) {
 		io::EOF => return syntaxerr(mkloc(lexer),
 			"Expected name, found EOF"),
-		err: lex::error => return err,
 		t: (lex::token, lex::location) => match (t.0) {
 			n: lex::name => return n,
 			// TODO: Use fmt+lex::tokstr here:
@@ -21,10 +20,9 @@ fn want_btoken(
 	lexer: *lex::lexer,
 	want: lex::btoken...
 ) (lex::btoken | error) = {
-	match (lex::lex(lexer)) {
+	match (lex::lex(lexer)?) {
 		io::EOF => return syntaxerr(mkloc(lexer),
 			"Expected name, found EOF"),
-		err: lex::error => return err,
 		t: (lex::token, lex::location) => match (t.0) {
 			b: lex::btoken => {
 				for (let i = 0z; i < len(want); i += 1) {
@@ -51,9 +49,8 @@ fn try_btoken(
 	want: lex::btoken...
 ) (lex::btoken | error | void) = {
 	let tok = lex::lex(lexer);
-	let tuple = match (tok) {
+	let tuple = match (tok?) {
 		io::EOF => return,
-		err: lex::error => return err,
 		t: (lex::token, lex::location) => {
 			match (t.0) {
 				b: lex::btoken =>

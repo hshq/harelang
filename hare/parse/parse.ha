@@ -6,15 +6,9 @@ use slice;
 export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 	let ident: []str = [];
 	for (true) {
-		let name = match (want_name(lexer)) {
-			err: error => return err,
-			n: lex::name => n: str,
-		};
-
-		append(ident, name);
-
-		match (try_btoken(lexer, lex::btoken::DOUBLE_COLON)) {
-			err: error => return err,
+		let name = want_name(lexer)?;
+		append(ident, name: str);
+		match (try_btoken(lexer, lex::btoken::DOUBLE_COLON)?) {
 			void => break,
 			* => void, // Grab the next ident
 		};
@@ -27,22 +21,15 @@ export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 	let imports: []ast::import = [];
 	for (true) {
-		match (try_btoken(lexer, lex::btoken::USE)) {
-			err: error => return err,
+		match (try_btoken(lexer, lex::btoken::USE)?) {
 			void => break,
 			* => void,
 		};
 
-		let name = match (ident(lexer)) {
-			err: error => return err,
-			ident: ast::ident => ident,
-		};
+		let name = ident(lexer)?;
 
 		// TODO: Parse alternate import syntaxes
-		match (want_btoken(lexer, lex::btoken::SEMICOLON)) {
-			err: error => return err,
-			lex::btoken => void,
-		};
+		want_btoken(lexer, lex::btoken::SEMICOLON)?;
 
 		append(imports, name: ast::import_module);
 	};
