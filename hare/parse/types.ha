@@ -1,7 +1,7 @@
 use hare::lex;
 
 // All possible error types
-export type error = lex::error;
+export type error = lex::error!;
 
 // Convert an error into a human-friendly string
 export fn errstr(err: error) const str = lex::errstr(err: lex::error);
