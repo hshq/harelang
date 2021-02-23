@@ -138,7 +138,7 @@ fmt() {
 	printf '# fmt\n'
 	gen_srcs fmt \
 		fmt.ha
-	gen_ssa fmt io os strconv strings types
+	gen_ssa fmt bufio io os strconv strings types
 }
 
 format_elf() {

@@ -178,7 +178,7 @@ $(HARECACHE)/encoding/utf8/encoding.utf8.ssa: $(stdlib_encoding_utf8_srcs) $(std
 stdlib_fmt_srcs= \
 	$(STDLIB)/fmt/fmt.ha
 
-$(HARECACHE)/fmt/fmt.ssa: $(stdlib_fmt_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_os) $(stdlib_strconv) $(stdlib_strings) $(stdlib_types)
+$(HARECACHE)/fmt/fmt.ssa: $(stdlib_fmt_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_io) $(stdlib_os) $(stdlib_strconv) $(stdlib_strings) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/fmt
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfmt \
@@ -514,7 +514,7 @@ $(TESTCACHE)/encoding/utf8/encoding.utf8.ssa: $(testlib_encoding_utf8_srcs) $(te
 testlib_fmt_srcs= \
 	$(STDLIB)/fmt/fmt.ha
 
-$(TESTCACHE)/fmt/fmt.ssa: $(testlib_fmt_srcs) $(testlib_rt) $(testlib_io) $(testlib_os) $(testlib_strconv) $(testlib_strings) $(testlib_types)
+$(TESTCACHE)/fmt/fmt.ssa: $(testlib_fmt_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_io) $(testlib_os) $(testlib_strconv) $(testlib_strings) $(testlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/fmt
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfmt \
