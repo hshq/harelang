@@ -2,16 +2,16 @@
 export type os_error = struct {
 	string: *fn(data: *void) str,
 	data: *void,
-};
+}!;
 
 // An error indicating that the underlying stream has been closed.
-export type closed = void;
+export type closed = void!;
 
 // An error indicating that the requested operation is not supported.
-export type unsupported = void;
+export type unsupported = void!;
 
 // Any error which may be returned from an I/O function.
-export type error = (os_error | closed | unsupported);
+export type error = (os_error | closed | unsupported)!;
 
 // Indicates an end-of-file condition.
 export type EOF = void;

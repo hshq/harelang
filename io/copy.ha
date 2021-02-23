@@ -15,16 +15,11 @@ export fn copy(dest: *stream, src: *stream) (error | size) = {
 	let w = 0z;
 	static let buf: [4096]u8 = [0...];
 	for (true) {
-		match (read(src, buf[..])) {
-			err: error => return err,
+		match (read(src, buf[..])?) {
 			n: size => for (let i = 0z; i < n) {
-				match (write(dest, buf[i..n])) {
-					err: error => return err,
-					r: size => {
-						w += r;
-						i += r;
-					},
-				};
+				let r = write(dest, buf[i..n])?;
+				w += r;
+				i += r;
 			},
 			EOF => break,
 		};

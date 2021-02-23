@@ -82,6 +82,16 @@ export @noreturn fn fatal(fmt: str, args: formattable...) void = {
 	os::exit(1);
 };
 
+// Formats text for printing and writes it to an [io::stream], followed by a
+// line feed.
+export fn fprintln(
+	s: *io::stream,
+	fmt: str,
+	args: formattable...
+) (io::error | size) = {
+	return fprintf(s, fmt, args...)? + io::write(s, ['\n': u32: u8])?;
+};
+
 type negation = enum {
 	NONE,
 	SPACE,
@@ -130,13 +140,9 @@ export fn fprintf(
 				r: rune => r,
 			};
 
-			const arg = if (r == '{') match (io::write(
-					s, utf8::encode_rune('{'))) {
-				err: io::error => return err,
-				w: size => {
-					n += w;
-					continue;
-				},
+			const arg = if (r == '{') {
+				n += io::write(s, utf8::encode_rune('{'))?;
+				continue;
 			} else if (ascii::isdigit(r)) {
 				strings::push(&iter, r);
 				args[scan_uint(&iter)];
@@ -164,35 +170,13 @@ export fn fprintf(
 				r: rune => assert(r == '}', "Invalid format string (hanging '}')"),
 			};
 
-			match (io::write(s, utf8::encode_rune('}'))) {
-				err: io::error => return err,
-				w: size => n += w,
-			};
-		} else match (io::write(s, utf8::encode_rune(r))) {
-			err: io::error => return err,
-			w: size => n += w,
+			n += io::write(s, utf8::encode_rune('}'))?;
+		} else {
+			n += io::write(s, utf8::encode_rune(r))?;
 		};
 	};
 
 	return n;
-};
-
-// Formats text for printing and writes it to an [io::stream], followed by a
-// line feed.
-export fn fprintln(
-	s: *io::stream,
-	fmt: str,
-	args: formattable...
-) (io::error | size) = {
-	let z = match(fprintf(s, fmt, args...)) {
-		err: io::error => return err,
-		z: size => z,
-	};
-	z += match (io::write(s, ['\n': u32: u8])) {
-		err: io::error => return err,
-		z: size => z,
-	};
-	return z;
 };
 
 fn format(

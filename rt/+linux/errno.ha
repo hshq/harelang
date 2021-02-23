@@ -1,5 +1,5 @@
 // Represents an error returned from the Linux kernel.
-export type errno = int;
+export type errno = int!;
 
 // Given an integer error number, wraps it in an error type.
 export fn wrap_errno(err: int) errno = err: errno;

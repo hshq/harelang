@@ -19,7 +19,7 @@ export fn decode(src: (str | []u8)) decoder = match (src) {
 export type more = void;
 
 // An error indicating that an invalid UTF-8 sequence was found.
-export type invalid = void;
+export type invalid = void!;
 
 // Returns the next rune from a decoder. If the slice ends with a complete UTF-8
 // sequence, void is returned. If an incomplete sequence is encountered, more is
@@ -96,7 +96,7 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	let decoder = decode(input);
 	for (let i = 0z; i < len(expected); i += 1) {
 		match (next(&decoder)) {
-			(invalid | more | void ) => abort(),
+			(invalid | more | void) => abort(),
 			r: rune => assert(r == expected[i]),
 		};
 	};
@@ -104,7 +104,7 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	assert(decoder.offs == len(decoder.src));
 	for (let i = 0z; i < len(expected); i += 1) {
 		match (prev(&decoder)) {
-			(invalid | more | void ) => abort(),
+			(invalid | more | void) => abort(),
 			r: rune => assert(r == expected[len(expected) - i - 1]),
 		};
 	};

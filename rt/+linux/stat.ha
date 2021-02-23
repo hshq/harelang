@@ -10,11 +10,11 @@ fn fstatat_statx(
 	flags: int,
 	mask: uint,
 	statbuf: *stx,
-) (void | errno) = match (wrap_return(syscall5(
-		SYS_statx, dirfd: u64, path: uintptr: u64, flags: u64,
-		mask: u64, statbuf: uintptr: u64))) {
-	err: errno => err,
-	u64        => void,
+) (void | errno) = {
+	wrap_return(syscall5(SYS_statx,
+		dirfd: u64, path: uintptr: u64, flags: u64,
+		mask: u64, statbuf: uintptr: u64))?;
+	return;
 };
 
 export fn fstatat(
@@ -24,10 +24,7 @@ export fn fstatat(
 	flags: int,
 ) (errno | void) = {
 	let statxbuf = stx { ... };
-	match (fstatat_statx(dirfd, path, flags, STATX_BASIC_STATS, &statxbuf)) {
-		err: errno => return err,
-		void       => void,
-	};
+	fstatat_statx(dirfd, path, flags, STATX_BASIC_STATS, &statxbuf)?;
 	statbuf.dev = mkdev(statxbuf.dev_major, statxbuf.dev_minor);
 	statbuf.ino = statxbuf.ino;
 	statbuf.mode = statxbuf.mode;

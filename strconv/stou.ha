@@ -55,15 +55,11 @@ export fn stou64b(s: str, base: uint) (u64 | invalid | overflow) = {
 // the number is too large to be represented by a u32, [strconv::overflow] is
 // returned. Supported bases are 2, 8, 10 and 16.
 export fn stou32b(s: str, base: uint) (u32 | invalid | overflow) = {
-	match (stou64b(s, base)) {
-		v: (invalid | overflow) => return v,
-		n: u64 => {
-			if (n <= types::U32_MAX: u64) {
-				return n: u32;
-			};
-			return overflow;
-		},
+	let n = stou64b(s, base)?;
+	if (n <= types::U32_MAX: u64) {
+		return n: u32;
 	};
+	return overflow;
 };
 
 // Converts a string to a u16 in the given base, If the string contains any
@@ -71,15 +67,11 @@ export fn stou32b(s: str, base: uint) (u32 | invalid | overflow) = {
 // the number is too large to be represented by a u16, [strconv::overflow] is
 // returned. Supported bases are 2, 8, 10 and 16.
 export fn stou16b(s: str, base: uint) (u16 | invalid | overflow) = {
-	match (stou64b(s, base)) {
-		v: (invalid | overflow) => return v,
-		n: u64 => {
-			if (n <= types::U16_MAX: u64) {
-				return n: u16;
-			};
-			return overflow;
-		},
+	let n = stou64b(s, base)?;
+	if (n <= types::U16_MAX: u64) {
+		return n: u16;
 	};
+	return overflow;
 };
 
 // Converts a string to a u8 in the given base, If the string contains any
@@ -87,15 +79,11 @@ export fn stou16b(s: str, base: uint) (u16 | invalid | overflow) = {
 // the number is too large to be represented by a u8, [strconv::overflow] is
 // returned. Supported bases are 2, 8, 10 and 16.
 export fn stou8b(s: str, base: uint) (u8 | invalid | overflow) = {
-	match (stou64b(s, base)) {
-		v: (invalid | overflow) => return v,
-		n: u64 => {
-			if (n <= types::U8_MAX: u64) {
-				return n: u8;
-			};
-			return overflow;
-		},
+	let n = stou64b(s, base)?;
+	if (n <= types::U8_MAX: u64) {
+		return n: u8;
 	};
+	return overflow;
 };
 
 // Converts a string to a uint in the given base, If the string contains any
@@ -104,13 +92,9 @@ export fn stou8b(s: str, base: uint) (u8 | invalid | overflow) = {
 // returned. Supported bases are 2, 8, 10 and 16.
 export fn stoub(s: str, base: uint) (uint | invalid | overflow) = {
 	static assert(size(uint) == size(u32) || size(uint) == size(u64));
-	return if (size(uint) == size(u32)) match (stou32b(s, base)) {
-		v: (invalid | overflow) => v,
-		n: u32 => n: uint,
-	} else match (stou64b(s, base)) {
-		v: (invalid | overflow) => v,
-		n: u64 => n: uint,
-	};
+	return
+		if (size(uint) == size(u32)) stou32b(s, base)?: uint
+		else stou64b(s, base)?: uint;
 };
 
 // Converts a string to a size in the given base, If the string contains any
