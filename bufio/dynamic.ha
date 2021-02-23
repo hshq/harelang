@@ -6,57 +6,74 @@ type dynamic_stream = struct {
 	buf: []u8,
 };
 
-fn dynamic_write(_s: *io::stream, buf: const []u8) (size | io::error) = {
-	const s = _s: *dynamic_stream;
+fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
+	let s = s: *dynamic_stream;
 	append(s.buf, ...buf);
 	return len(buf);
 };
 
-fn dynamic_read(_s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
-	const s = _s: *dynamic_stream;
+fn dynamic_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
+	let s = s: *dynamic_stream;
 	const sz = if (len(buf) > len(s.buf)) len(s.buf) else len(buf);
 	buf[..sz] = s.buf[..sz];
 	delete(s.buf[..sz]);
 	return if (sz == 0) io::EOF else sz;
 };
 
-fn dynamic_close(_s: *io::stream) void = {
-	const s = _s: *dynamic_stream;
+fn dynamic_close(s: *io::stream) void = {
+	const s = s: *dynamic_stream;
 	free(s.buf);
+	free(s);
+};
+
+// Closes the stream without freeing the buffer, instead transferring ownership
+// of it to the caller.
+export fn finish(s: *io::stream) ([]u8 | io::unsupported) = {
+	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
+		return io::unsupported;
+	};
+	let s = s: *dynamic_stream;
+	let buf = s.buf;
+	free(s);
+	return s.buf;
 };
 
 // Returns the current buffer.
-export fn buffer(_s: *io::stream) ([]u8 | io::unsupported) = {
-	if (_s.writer != &dynamic_write || _s.closer != &dynamic_close) {
+export fn buffer(s: *io::stream) ([]u8 | io::unsupported) = {
+	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
 		return io::unsupported;
 	};
-	const s = _s: *dynamic_stream;
+	let s = s: *dynamic_stream;
 	return s.buf;
 };
 
 // Resets the buffer's length to zero, but keeps the allocated memory around for
 // future writes.
-export fn reset(_s: *io::stream) (void | io::unsupported) = {
-	if (_s.writer != &dynamic_write || _s.closer != &dynamic_close) {
+export fn reset(s: *io::stream) (void | io::unsupported) = {
+	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
 		return io::unsupported;
 	};
-	const s = _s: *dynamic_stream;
+	const s = s: *dynamic_stream;
 	s.buf = s.buf[..0];
 };
 
 // Truncates the buffer, freeing memory associated with it and setting its
 // length to zero.
-export fn truncate(_s: *io::stream) (void | io::unsupported) = {
-	if (_s.writer != &dynamic_write || _s.closer != &dynamic_close) {
+export fn truncate(s: *io::stream) (void | io::unsupported) = {
+	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
 		return io::unsupported;
 	};
-	const s = _s: *dynamic_stream;
+	let s = s: *dynamic_stream;
 	delete(s.buf[..]);
 };
 
 // Creates an [io::stream] which dynamically allocates a buffer to store writes
 // into. Subsequent reads will consume the buffered data. Upon failure to
 // allocate sufficient memory to store writes, the program aborts.
+//
+// Calling [io::close] on this stream will free the buffer. Call [bufio::finish]
+// instead to free up resources associated with the stream, but transfer
+// ownership of the buffer to the caller.
 export fn dynamic() *io::stream = alloc(dynamic_stream {
 	stream = io::stream {
 		writer = &dynamic_write,
