@@ -45,7 +45,7 @@ export fn cmd(name: str, args: str...) (command | error) = {
 				void => return nocmd,
 				p: platform => p,
 			},
-		argv = alloc([]str, [], len(args) + 1z),
+		argv = alloc([], len(args) + 1z),
 		...
 	};
 	append(cmd.argv, name);

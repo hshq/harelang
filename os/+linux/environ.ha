@@ -18,7 +18,7 @@ let args_static: [32]str = [""...];
 			args[i] = strings::from_c(rt::argv[i]);
 		};
 	} else {
-		args = alloc([]str, [], rt::argc);
+		args = alloc([], rt::argc);
 		for (let i = 0z; i < rt::argc; i += 1) {
 			append(args, strings::from_c(rt::argv[i]));
 		};

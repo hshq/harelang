@@ -47,7 +47,7 @@ fn platform_finish(cmd: *command) void = {
 };
 
 fn platform_exec(cmd: *command) os_error = {
-	let argv = alloc([]nullable *const char, [], len(cmd.argv) + 1z);
+	let argv: []nullable *const char = alloc([], len(cmd.argv) + 1z);
 	for (let i = 0z; i < len(cmd.argv); i += 1z) {
 		append(argv, cmd.argv[i]: *const char);
 	};
@@ -55,7 +55,7 @@ fn platform_exec(cmd: *command) os_error = {
 
 	let envp: nullable *[*]nullable *const char = null;
 	if (len(cmd.envp) != 0) {
-		let env = alloc([]nullable *const char, [], len(cmd.envp) + 1);
+		let env: []nullable *const char = alloc([], len(cmd.envp) + 1);
 		for (let i = 0z; i < len(cmd.envp); i += 1) {
 			append(env, cmd.envp[i]: *const char);
 		};

@@ -8,7 +8,7 @@ export type fixed_stream = struct {
 };
 
 export fn fixed(in: []u8) *io::stream = {
-	let s = alloc(*fixed_stream, fixed_stream {
+	let s = alloc(fixed_stream {
 		stream = io::stream {
 			name = "<bufio::fixed>",
 			reader = &fixed_read,

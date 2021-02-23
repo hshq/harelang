@@ -4,7 +4,7 @@ export fn concat(strs: str...) str = {
 	for (let i = 0z; i < len(strs); i += 1) {
 		z += len(strs[i]);
 	};
-	let new = alloc([]u8, [], z + 1);
+	let new: []u8 = alloc([], z + 1);
 	for (let i = 0z; i < len(strs); i += 1) {
 		append(new, ...to_utf8(strs[i]));
 	};

@@ -7,15 +7,14 @@ type limited_stream = struct {
 };
 
 fn limited_stream_new(source: *stream, limit: size) *limited_stream = {
-	return alloc(*limited_stream,
-		limited_stream {
-			stream = stream {
-				name = strings::dup(source.name),
-				closer = &limited_close,
-				...
-			},
-			source = source,
-			limit = limit,
+	return alloc(limited_stream {
+		stream = stream {
+			name = strings::dup(source.name),
+			closer = &limited_close,
+			...
+		},
+		source = source,
+		limit = limit,
 	});
 };
 

@@ -211,7 +211,7 @@ fn format(
 };
 
 fn scan_uint(iter: *strings::iterator) uint = {
-	let num = alloc([]u8, []);
+	let num: []u8 = [];
 	defer free(num);
 	for (true) {
 		let r = match (strings::next(iter)) {

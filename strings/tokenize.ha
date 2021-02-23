@@ -81,7 +81,7 @@ export fn remaining_tokens(s: *tokenizer) str = {
 // borrowed from 'in', and needn't be freed - but should be [strings::dup_all]'d
 // if they should outlive 'in'.
 export fn splitN(in: str, delim: str, n: size) []str = {
-	let toks = alloc([]str, []);
+	let toks: []str = alloc([]);
 	let tok = tokenize(in, delim);
 	for (let i = 0z; i < n - 1z; i += 1) {
 		match (next_token(&tok)) {
