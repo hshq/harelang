@@ -242,3 +242,20 @@ export def RESOLVE_NO_MAGICLINKS: u64	= 0x02;
 export def RESOLVE_NO_SYMLINKS: u64	= 0x04;
 export def RESOLVE_BENEATH: u64		= 0x08;
 export def RESOLVE_IN_ROOT: u64		= 0x10;
+
+export def DT_UNKNOWN: u8	= 0;
+export def DT_FIFO: u8		= 1;
+export def DT_CHR: u8		= 2;
+export def DT_DIR: u8		= 4;
+export def DT_BLK: u8		= 6;
+export def DT_REG: u8		= 8;
+export def DT_LNK: u8		= 10;
+export def DT_SOCK: u8		= 12;
+
+export type dirent64 = struct {
+	d_ino: ino_t,
+	d_off: off_t,
+	d_reclen: u16,
+	d_type: u8,
+	d_name: [*]char,
+};

@@ -64,6 +64,8 @@ export type mode = enum uint {
 	// Entry has the sticky bit set
 	STICKY	= 0o1000,
 
+	// Entry is of an unknown type
+	UNKNOWN	= 0,
 	// Entry is a FIFO (named pipe)
 	FIFO	= 0o010000,
 	// Entry is a directory

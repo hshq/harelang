@@ -152,6 +152,11 @@ export fn faccessat(
 	};
 };
 
+export fn getdents64(dirfd: int, dirp: *void, count: size) (size | errno) = {
+	return wrap_return(syscall3(SYS_getdents64, dirfd: u64,
+		dirp: uintptr: u64, count: u64))?: size;
+};
+
 // The use of this function is discouraged, as it can create race conditions.
 // TOCTOU is preferred: attempt to simply use the resource you need and handle
 // any access errors which occur.

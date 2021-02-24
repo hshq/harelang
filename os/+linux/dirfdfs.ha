@@ -1,7 +1,9 @@
+use encoding::utf8;
 use fs;
 use io;
 use rt;
 use strings;
+use strconv;
 
 // Controls how symlinks are followed (or not) in a dirfd filesystem. Support
 // for this feature varies, you should gate usage of this enum behind a build
@@ -155,12 +157,8 @@ fn fs_create(fs: *fs::fs, path: fs::path, mode: io::mode) (*io::stream | fs::err
 	return _fs_open(fs, path, mode, &oh);
 };
 
-fn fs_iter(fs: *fs::fs, path: fs::path) (*fs::iterator | fs::error) = {
-	abort();
-};
-
 fn fs_stat(fs: *fs::fs, path: fs::path) (fs::filestat | fs::error) = {
-	abort();
+	abort(); // TODO
 };
 
 fn fs_subdir(fs: *fs::fs, path: fs::path) (*fs::fs | fs::error) = {
@@ -187,4 +185,80 @@ fn fs_subdir(fs: *fs::fs, path: fs::path) (*fs::fs | fs::error) = {
 fn fs_close(fs: *fs::fs) void = {
 	let fs = fs: *os_filesystem;
 	rt::close(fs.dirfd);
+};
+
+def BUFSIZ: size = 2048;
+
+// Based on musl's readdir
+type os_iterator = struct {
+	iter: fs::iterator,
+	fd: int,
+	buf_pos: size,
+	buf_end: size,
+	buf: [BUFSIZ]u8,
+};
+
+fn fs_iter(fs: *fs::fs, path: fs::path) (*fs::iterator | fs::error) = {
+	let fs = fs: *os_filesystem;
+	const p: []u8 = match (path) {
+		s: str  => strings::to_utf8(s),
+		b: []u8 => b,
+	};
+	let oh = rt::open_how {
+		flags = (rt::O_RDONLY | rt::O_CLOEXEC | rt::O_DIRECTORY): u64,
+		...
+	};
+	let fd: int = match (rt::openat2(fs.dirfd, p: *[*]u8: *const char,
+			&oh, size(rt::open_how))) {
+		err: rt::errno => return errno_to_io(err),
+		n: int => n,
+	};
+
+	let iter = alloc(os_iterator {
+		iter = fs::iterator {
+			next = &iter_next,
+		},
+		fd = fd,
+		...
+	});
+	return &iter.iter;
+};
+
+fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
+	let iter = iter: *os_iterator;
+	if (iter.buf_pos >= iter.buf_end) {
+		let n = rt::getdents64(iter.fd, &iter.buf, BUFSIZ) as size;
+		if (n == 0) {
+			rt::close(iter.fd);
+			free(iter);
+			return;
+		};
+		iter.buf_end = n;
+		iter.buf_pos = 0;
+	};
+	let de = &iter.buf[iter.buf_pos]: *rt::dirent64;
+	iter.buf_pos += de.d_reclen;
+	let ln = strings::c_strlen(&de.d_name: *const char);
+	let name = &de.d_name: *[*]u8;
+	let name = if (!utf8::valid(name[..ln])) {
+		name[..ln];
+	} else {
+		strings::from_utf8_unsafe(name[..ln]);
+	};
+
+	let ftype: fs::mode = switch (de.d_type) {
+		rt::DT_UNKNOWN => fs::mode::UNKNOWN,
+		rt::DT_FIFO => fs::mode::FIFO,
+		rt::DT_CHR  => fs::mode::CHR,
+		rt::DT_DIR  => fs::mode::DIR,
+		rt::DT_BLK  => fs::mode::BLK,
+		rt::DT_REG  => fs::mode::REG,
+		rt::DT_LNK  => fs::mode::LINK,
+		rt::DT_SOCK => fs::mode::SOCK,
+		* => fs::mode::UNKNOWN,
+	};
+	return fs::dirent {
+		name = name,
+		ftype = ftype,
+	};
 };
