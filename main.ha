@@ -4,12 +4,13 @@ use hare::lex;
 use hare::parse;
 use io;
 use os;
+use fs;
 
 export fn main() void = {
 	let in = switch (len(os::args)) {
 		1 => (os::stdin, "<stdin>"),
 		2 => {
-			let fd = match (os::open(os::args[1])) {
+			let fd = match (fs::open(os::cwd, os::args[1], io::mode::READ)) {
 				err: io::error => fmt::fatal("Error opening '{}': {}",
 					os::args[1], io::errstr(err)),
 				fd: *io::stream => fd,

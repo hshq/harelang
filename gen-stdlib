@@ -245,11 +245,14 @@ os() {
 		'$(PLATFORM)/environ.ha' \
 		'$(PLATFORM)/errors.ha' \
 		'$(PLATFORM)/exit.ha' \
+		'$(PLATFORM)/dirfdfs.ha' \
 		'$(PLATFORM)/fdstream.ha' \
 		'$(PLATFORM)/open.ha' \
 		'$(PLATFORM)/stdfd.ha' \
-		stdfd.ha
-	gen_ssa os io strings types
+		'$(PLATFORM)/fs.ha' \
+		stdfd.ha \
+		fs.ha
+	gen_ssa os io strings types fs
 }
 
 os_exec() {
