@@ -25,6 +25,9 @@ export fn main() void = {
 		err: parse::error => fmt::fatal("{}", parse::errstr(err)),
 		i: []ast::import => i,
 	};
+	defer for (let i = 0z; i < len(imports); i += 1) {
+		ast::import_free(imports[i]);
+	};
 
 	fmt::errorln("{} has {} imports:", in.1, len(imports));
 	for (let i = 0z; i < len(imports); i += 1) {
