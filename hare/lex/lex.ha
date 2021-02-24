@@ -1,6 +1,7 @@
 // hare::lex provides a lexer for Hare source code.
 use ascii;
 use encoding::utf8;
+use fmt;
 use io;
 use sort;
 use strconv;
@@ -21,10 +22,13 @@ export type syntax = (location, str)!;
 // All possible lexer errors
 export type error = (io::error | syntax)!;
 
+// Returns a human-friendly string for a given error
 export fn errstr(err: error) const str = {
+	static let buf: [2048]u8 = [0...];
 	return match (err) {
 		err: io::error => io::errstr(err),
-		s: syntax => s.1, // TODO: format me
+		s: syntax => fmt::bsprintf(buf, "Syntax error @{}:{},{}: {}",
+			s.0.path, s.0.line, s.0.col, s.1),
 	};
 };
 

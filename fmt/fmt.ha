@@ -75,6 +75,14 @@ export fn asprintf(fmt: str, args: formattable...) str = {
 	return strings::from_utf8_unsafe(bufio::buffer(buf) as []u8);
 };
 
+// Formats text for printing and writes it into a caller supplied buffer. The
+// returned string is borrowed from this buffer.
+export fn bsprintf(buf: []u8, fmt: str, args: formattable...) str = {
+	let sink = bufio::fixed(buf, io::mode::WRITE);
+	assert(fprintf(sink, fmt, args...) is size);
+	return strings::from_utf8_unsafe(buf);
+};
+
 // Formats text for printing and writes it to [os::stderr], followed by a line
 // feed, then exits the program with an error status.
 export @noreturn fn fatal(fmt: str, args: formattable...) void = {

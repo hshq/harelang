@@ -8,7 +8,8 @@ type fixed_stream = struct {
 };
 
 // Creates an [io::stream] for a fixed, caller-supplied buffer. Supports either
-// read or write, but not both.
+// read or write, but not both. The program aborts if writes would exceed the
+// buffer's capacity.
 export fn fixed(in: []u8, mode: io::mode) *io::stream = {
 	let s = alloc(fixed_stream {
 		stream = io::stream {
@@ -42,7 +43,7 @@ fn fixed_read(s: *io::stream, buf: []u8) (size | io::error | io::EOF) = {
 fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let stream = s: *fixed_stream;
 	if (len(stream.buf) == 0) {
-		return 0z;
+		abort("bufio::fixed buffer exceeded");
 	};
 	const n = if (len(buf) > len(stream.buf)) len(stream.buf) else len(buf);
 	stream.buf[..n] = buf[..n];

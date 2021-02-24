@@ -8,7 +8,7 @@ type fixed_stream = struct {
 };
 
 // Creates a write-only string stream using the provided buffer for storage.
-// The buffer will not be expanded if the writes exceed its capacity.
+// The program aborts if writes would exceed the buffer's capacity.
 export fn fixed(in: []u8) *io::stream = {
 	let s = alloc(fixed_stream {
 		stream = io::stream {
@@ -34,7 +34,7 @@ export fn string(s: *io::stream) str = {
 fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let stream = s: *fixed_stream;
 	if (len(stream.cur) == 0) {
-		return 0z;
+		abort("strio::fixed buffer exceeded");
 	};
 	const n = if (len(buf) > len(stream.cur)) len(stream.cur) else len(buf);
 	stream.cur[..n] = buf[..n];
