@@ -116,6 +116,9 @@ export fn lseek(fd: int, off: i64, whence: uint) (i64 | errno) = {
 		fd: u64, off: u64, whence: u64))?: i64;
 };
 
+// The use of this function is discouraged, as it can create race conditions.
+// TOCTOU is preferred: attempt to simply use the resource you need and handle
+// any access errors which occur.
 export fn faccessat(
 	dirfd: int,
 	path: *const char,
@@ -135,6 +138,9 @@ export fn faccessat(
 	};
 };
 
+// The use of this function is discouraged, as it can create race conditions.
+// TOCTOU is preferred: attempt to simply use the resource you need and handle
+// any access errors which occur.
 export fn access(path: *const char, mode: int) (bool | errno) =
 	faccessat(AT_FDCWD, path, mode, 0);
 
