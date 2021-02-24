@@ -8,10 +8,16 @@ export fn errstr(err: error) const str = match (err) {
 };
 
 // Converts a mode into a Unix-like mode string (e.g. "-rw-r--r--")
-export fn modestr(mode: mode) const str = {
+export fn mode_str(m: mode) const str = {
 	// TODO: blocked on bufio::fixed
 	abort();
 };
+
+// Returns the permission bits of a file mode.
+export fn mode_perm(m: mode) mode = (m: uint & 0o777u): mode;
+
+// Returns the type bits of a file mode.
+export fn mode_type(m: mode) mode = (m: uint & ~0o777u): mode;
 
 // Returns true if this item is a regular file.
 export fn is_file(mode: mode) bool = mode & mode::REG == mode::REG;
