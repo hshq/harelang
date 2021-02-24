@@ -7,12 +7,28 @@ use strings;
 // for this feature varies, you should gate usage of this enum behind a build
 // tag.
 //
-// TODO: Document these
+// Note that on Linux, specifying BENEATH or IN_ROOT will also disable magic
+// symlinks.
 export type resolve = enum {
 	NONE,
+
+	// Does not allow symlink resolution to occur for any symlinks which
+	// would refer to any anscestor of the fd directory. This disables all
+	// absolute symlinks, and any call to open or create with an absolute
+	// path.
 	BENEATH,
+
+	// Treat the directory fd as the root directory. This affects
+	// open/create for absolute paths, as well as absolute path resolution
+	// of symlinks. The effects are similar to chroot.
 	IN_ROOT,
+
+	// Disables symlink resolution entirely.
 	NO_SYMLINKS,
+
+	// Disallows traversal of mountpoints during path resolution. This is
+	// not recommended for general use, as bind mounts are extensively used
+	// on many systems.
 	NO_XDEV,
 };
 
@@ -65,10 +81,10 @@ fn _fs_open(
 
 	oh.resolve = 0u64;
 	if (fs.resolve & resolve::BENEATH == resolve::BENEATH) {
-		oh.resolve |= rt::RESOLVE_BENEATH;
+		oh.resolve |= rt::RESOLVE_BENEATH | rt::RESOLVE_NO_MAGICLINKS;
 	};
 	if (fs.resolve & resolve::IN_ROOT == resolve::IN_ROOT) {
-		oh.resolve |= rt::RESOLVE_IN_ROOT;
+		oh.resolve |= rt::RESOLVE_IN_ROOT | rt::RESOLVE_NO_MAGICLINKS;
 	};
 	if (fs.resolve & resolve::NO_SYMLINKS == resolve::NO_SYMLINKS) {
 		oh.resolve |= rt::RESOLVE_NO_SYMLINKS;
