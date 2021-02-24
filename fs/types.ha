@@ -21,7 +21,9 @@ export type mode = enum uint {
 	// Read, write, and execute permissions for the file owner
 	USER_RWX	= 0o700,
 	// Read and write permissions for the file owner
-	USER_RW		= 0o500,
+	USER_RW		= 0o600,
+	// Read and execute permissions for the file owner
+	USER_RX		= 0o500,
 	// Read permissions for the file owner
 	USER_R		= 0o400,
 	// Write permissions for the file owner
@@ -32,7 +34,9 @@ export type mode = enum uint {
 	// Read, write, and execute permissions for group members
 	GROUP_RWX	= 0o070,
 	// Read and write permissions for group members
-	GROUP_RW	= 0o050,
+	GROUP_RW	= 0o060,
+	// Read and execute permissions for group members
+	GROUP_RX	= 0o050,
 	// Read permissions for group members
 	GROUP_R		= 0o040,
 	// Write permissions for group members
@@ -43,7 +47,9 @@ export type mode = enum uint {
 	// Read, write, and execute permissions for other users
 	OTHER_RWX	= 0o007,
 	// Read and write permissions for other users
-	OTHER_RW	= 0o005,
+	OTHER_RW	= 0o006,
+	// Read and execute permissions for other users
+	OTHER_RX	= 0o005,
 	// Read permissions for other users
 	OTHER_R		= 0o004,
 	// Write permissions for other users
