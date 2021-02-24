@@ -27,7 +27,7 @@ export fn main() void = {
 				lex::tokstr(tok),
 				if (tok is lex::name) "'" else "");
 		},
-		err: lex::error => fmt::fatal("Error: {}", lex::errstr(err)),
+		err: lex::error => fmt::fatal("{}", lex::errstr(err)),
 		io::EOF => break,
 		* => abort(),
 	};
