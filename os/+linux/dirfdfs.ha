@@ -67,9 +67,6 @@ export fn dirfdopen(fd: int, resolve: resolve...) *fs::fs = {
 	return fs;
 };
 
-// Opens a directory as a filesystem.
-export fn diropen(path: fs::path) (*fs::fs | fs::error) = fs::subdir(cwd, path);
-
 // Clones a dirfd filesystem, optionally adding additional [resolve]
 // constraints.
 export fn dirfs_clone(fs: *fs::fs, resolve: resolve...) *fs::fs = {
