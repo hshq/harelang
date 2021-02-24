@@ -4,7 +4,21 @@ use io;
 use os;
 
 export fn main() void = {
-	let lexer = lex::lexer_init(os::stdin, "<stdin>");
+	let in: (*io::stream, str) = switch (len(os::args)) {
+		1 => (os::stdin, "<stdin>"),
+		2 => {
+			let fd = match (os::open(os::args[1])) {
+				err: io::error => fmt::fatal("Error opening '{}': {}",
+					os::args[1], io::errstr(err)),
+				fd: *io::stream => fd,
+			};
+			(fd, os::args[1]);
+		},
+		* => fmt::fatal("Usage: {} [<input>]", os::args[0]),
+	};
+	defer io::close(in.0);
+	let lexer = lex::lexer_init(in.0, in.1);
+
 	for (true) match (lex::lex(&lexer)) {
 		t: (lex::token, lex::location) => {
 			let tok = t.0, loc = t.1;
