@@ -53,9 +53,15 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 	return &filesystem.fs;
 };
 
-export fn dirfdopen(fd: int) *fs::fs = {
+// Opens a file descriptor as an [fs::fs]. This file descriptor must be a
+// directory file.
+export fn dirfdopen(fd: int, resolve: resolve...) *fs::fs = {
 	let fs = alloc(os_filesystem { ... });
-	return static_dirfdopen(fd, fs);
+	let fsfs = static_dirfdopen(fd, fs);
+	for (let i = 0z; i < len(resolve); i += 1) {
+		fs.resolve |= resolve[i];
+	};
+	return fsfs;
 };
 
 // Clones a dirfd filesystem, optionally adding additional [resolve]
