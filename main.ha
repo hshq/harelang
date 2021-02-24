@@ -4,7 +4,7 @@ use io;
 use os;
 
 export fn main() void = {
-	let in: (*io::stream, str) = switch (len(os::args)) {
+	let in = switch (len(os::args)) {
 		1 => (os::stdin, "<stdin>"),
 		2 => {
 			let fd = match (os::open(os::args[1])) {
