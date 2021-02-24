@@ -1,5 +1,6 @@
 use hare::ast;
 use hare::lex;
+use hare::lex::{btoken};
 use slice;
 
 // Parses a single identifier, i.e. foo::bar::baz
@@ -8,7 +9,7 @@ export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 	for (true) {
 		let name = want_name(lexer)?;
 		append(ident, name: str);
-		match (try_btoken(lexer, lex::btoken::DOUBLE_COLON)?) {
+		match (try_btoken(lexer, btoken::DOUBLE_COLON)?) {
 			void => break,
 			* => void, // Grab the next ident
 		};
@@ -21,7 +22,7 @@ export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 	let imports: []ast::import = [];
 	for (true) {
-		match (try_btoken(lexer, lex::btoken::USE)?) {
+		match (try_btoken(lexer, btoken::USE)?) {
 			void => break,
 			* => void,
 		};
@@ -29,7 +30,7 @@ export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 		let name = ident(lexer)?;
 
 		// TODO: Parse alternate import syntaxes
-		want_btoken(lexer, lex::btoken::SEMICOLON)?;
+		want_btoken(lexer, btoken::SEMICOLON)?;
 
 		append(imports, name: ast::import_module);
 	};
