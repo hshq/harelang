@@ -1,5 +1,7 @@
 use fmt;
+use hare::ast;
 use hare::lex;
+use hare::parse;
 use io;
 use os;
 
@@ -17,18 +19,24 @@ export fn main() void = {
 		* => fmt::fatal("Usage: {} [<input>]", os::args[0]),
 	};
 	defer io::close(in.0);
-	let lexer = lex::lexer_init(in.0, in.1);
 
-	for (true) match (lex::lex(&lexer)) {
-		t: (lex::token, lex::location) => {
-			let tok = t.0, loc = t.1;
-			fmt::println("{}@{},{}: {4}{}{4}",
-				loc.path, loc.line, loc.col,
-				lex::tokstr(tok),
-				if (tok is lex::name) "'" else "");
-		},
-		err: lex::error => fmt::fatal("{}", lex::errstr(err)),
-		io::EOF => break,
-		* => abort(),
+	let lexer = lex::lexer_init(in.0, in.1);
+	let imports = match (parse::imports(&lexer)) {
+		err: parse::error => fmt::fatal("{}", parse::errstr(err)),
+		i: []ast::import => i,
+	};
+
+	fmt::errorln("{} has {} imports:", in.1, len(imports));
+	for (let i = 0z; i < len(imports); i += 1) {
+		let name = match (imports[i]) {
+			m: ast::import_module => m: ast::ident,
+			a: ast::import_alias => a.ident,
+			o: ast::import_objects => o.ident,
+		};
+		fmt::printf("use ");
+		for (let i = len(name): int - 1; i >= 0; i -= 1) {
+			fmt::printf("{}{}", name[i],
+				if (i != 0) "::" else ";\n");
+		};
 	};
 };
