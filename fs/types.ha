@@ -89,12 +89,8 @@ export type stat_mask = enum uint {
 
 // Information about a file or directory. The mask field defines what other
 // fields are set; mode and path are always set.
-//
-// The path string may be borrowed from the filesystem's internal state; if you
-// want to keep this around for any length of time you should use [stat_dup].
 export type filestat = struct {
 	mask: stat_mask,
-	path: path,
 	mode: mode,
 	uid: uint,
 	gid: uint,
@@ -102,10 +98,22 @@ export type filestat = struct {
 	// TODO: atime et al
 };
 
-// Duplicates a [filestat] object. Call [stat_free] to get rid of it later.
-export fn stat_dup(f: filestat) filestat = {
-	let new = f;
-	new.path = match (new.path) {
+// An entry in a directory. This may be borrowed from the filesystem's internal
+// state; if you want to keep this around beyond one call to [next], use
+// [dirent_dup].
+export type dirent = struct {
+	// The name of this entry. Not fully qualified: for example,
+	// "foo/bar/baz.txt" would store "baz.txt" here.
+	name: path,
+
+	// The type of this entry. The permission bits may be unset.
+	ftype: mode,
+};
+
+// Duplicates a [dirent] object. Call [dirent_free] to get rid of it later.
+export fn dirent_dup(e: dirent) dirent = {
+	let new = e;
+	new.name = match (new.name) {
 		s: str => strings::dup(s),
 		b: []u8 => {
 			let n: []u8 = [];
@@ -116,8 +124,8 @@ export fn stat_dup(f: filestat) filestat = {
 	return new;
 };
 
-// Frees a [filestat] object which was duplicated with [stat_dup].
-export fn stat_free(f: filestat) void = match (f.path) {
+// Frees a [dirent] object which was duplicated with [dirent_dup].
+export fn dirent_free(e: dirent) void = match (e.name) {
 	s: str => free(s),
 	b: []u8 => free(b),
 };
@@ -157,7 +165,7 @@ export type fs = struct {
 	subdir: nullable *subdirfunc,
 };
 
-export type nextfunc = fn(iter: *iterator) (filestat | void);
+export type nextfunc = fn(iter: *iterator) (dirent | void);
 
 export type iterator = struct {
 	// Returns the next member of the directory, or void if there are none

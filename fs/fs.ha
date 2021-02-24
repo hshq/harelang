@@ -55,7 +55,4 @@ export fn subdir(fs: *fs, path: path) (*fs | error) = {
 // It is a programming error to call this again after it has returned void. The
 // file stat returned may only have the type bits set on the file mode; callers
 // should call [fs::stat] to obtain the detailed file mode.
-//
-// Use [stat_dup] if you need to keep the filestat around for longer than the
-// next call to [next].
-export fn next(iter: *iterator) (filestat | void) = iter.next(iter);
+export fn next(iter: *iterator) (dirent | void) = iter.next(iter);

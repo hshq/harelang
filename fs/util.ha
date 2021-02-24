@@ -78,15 +78,23 @@ export fn is_link(mode: mode) bool = mode & mode::LINK == mode::LINK;
 // Returns true if this item is a Unix socket.
 export fn is_socket(mode: mode) bool = mode & mode::SOCK == mode::SOCK;
 
-// Reads all entries from a directory.
-export fn readdir(fs: *fs, path: path) ([]filestat | error) = {
+// Reads all entries from a directory. The caller must free the return value
+// with [dirents_free].
+export fn readdir(fs: *fs, path: path) ([]dirent | error) = {
 	let i = iter(fs, path)?;
-	let ents: []filestat = [];
+	let ents: []dirent = [];
 	for (true) {
 		match (next(i)) {
-			f: filestat => append(ents, stat_dup(f)),
+			d: dirent => append(ents, dirent_dup(d)),
 			void => break,
 		};
 	};
 	return ents;
+};
+
+// Frees a slice of [dirent]s.
+export fn dirents_free(d: []dirent) void = {
+	for (let i = 0z; i < len(d); i += 1) {
+		dirent_free(d[i]);
+	};
 };
