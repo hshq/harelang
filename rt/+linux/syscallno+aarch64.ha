@@ -289,4 +289,5 @@ export def SYS_fsmount: u64			= 432;
 export def SYS_fspick: u64			= 433;
 export def SYS_pidfd_open: u64			= 434;
 export def SYS_clone3: u64			= 435;
+export def SYS_openat2: u64			= 437;
 export def SYS_faccessat2: u64			= 439;

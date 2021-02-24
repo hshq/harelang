@@ -21,6 +21,20 @@ export fn open(path: *const char, flags: int, mode: uint) (int | errno) = {
 		path: uintptr: u64, flags: u64, mode: u64))?: int;
 };
 
+export fn openat2(
+	dirfd: int,
+	path: *const char,
+	how: *open_how,
+	how_sz: size,
+) (int | errno) = {
+	return wrap_return(syscall4(SYS_openat2, dirfd: u64,
+		path: uintptr: u64, how: uintptr: u64, how_sz: u64))?: int;
+};
+
+export fn dup(fd: int) (int | errno) = {
+	return wrap_return(syscall1(SYS_dup, fd: u64))?: int;
+};
+
 export fn close(fd: int) (void | errno) = {
 	wrap_return(syscall1(SYS_close, fd: u64))?;
 	return;

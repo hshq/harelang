@@ -230,3 +230,15 @@ export def CLOCK_REALTIME_ALARM: int		= 8;
 export def CLOCK_BOOTTIME_ALARM: int		= 9;
 export def CLOCK_SGI_CYCLE: int			= 10;
 export def CLOCK_TAI: int			= 11;
+
+export type open_how = struct {
+	flags: u64,
+	mode: u64,
+	resolve: u64,
+};
+
+export def RESOLVE_NO_XDEV: u64		= 0x01;
+export def RESOLVE_NO_MAGICLINKS: u64	= 0x02;
+export def RESOLVE_NO_SYMLINKS: u64	= 0x04;
+export def RESOLVE_BENEATH: u64		= 0x08;
+export def RESOLVE_IN_ROOT: u64		= 0x10;
