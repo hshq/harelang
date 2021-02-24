@@ -25,7 +25,8 @@ export fn create(fs: *fs, path: path, mode: io::mode) (*io::stream | error) = {
 };
 
 // Returns an iterator for a path, which yields the contents of a directory.
-// Pass empty string to yield from the root.
+// Pass empty string to yield from the root. The order in which entries are
+// returned is undefined.
 export fn iter(fs: *fs, path: path) (*iterator | error) = {
 	return match (fs.iter) {
 		null => io::unsupported,
@@ -49,3 +50,9 @@ export fn subdir(fs: *fs, path: path) (*fs | error) = {
 		f: *subdirfunc => f(fs, path),
 	};
 };
+
+// Returns the next directory entry from an interator, or void if none remain.
+//
+// Use [stat_dup] if you need to keep the filestat around for longer than the
+// next call to [next].
+export fn next(iter: *iterator) (filestat | void) = iter.next(iter);

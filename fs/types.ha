@@ -1,4 +1,5 @@
 use io;
+use strings;
 
 // A path or path component.
 export type path = (str | []u8);
@@ -81,15 +82,30 @@ export type stat_mask = enum uint {
 };
 
 // Information about a file or directory. The mask field defines what other
-// fields are set; mode is always set.
+// fields are set; mode and path are always set.
+//
+// The path string is typically borrowed from the filesystem's internal state;
+// if you want to keep this around for any length of time you should use
+// [stat_dup].
 export type filestat = struct {
 	mask: stat_mask,
+	path: str,
 	mode: mode,
 	uid: uint,
 	gid: uint,
 	sz: size,
 	// TODO: atime et al
 };
+
+// Duplicates a [filestat] object. Call [stat_free] to get rid of it later.
+export fn stat_dup(f: filestat) filestat = {
+	let new = f;
+	new.path = strings::dup(new.path);
+	return new;
+};
+
+// Frees a [filestat] object which was duplicated with [stat_dup].
+export fn stat_free(f: filestat) void = free(f.path);
 
 export type closefunc = fn(fs: *fs) void;
 export type openfunc = fn(fs: *fs, path: path, mode: io::mode) (*io::stream | error);
@@ -111,6 +127,9 @@ export type fs = struct {
 
 	// Returns an iterator for a path, which yields the contents of a
 	// directory. Pass empty string to yield from the root.
+	//
+	// The iterator must return all entries without error. If an error would
+	// occur, it should be identified here and returned upfront.
 	iter: nullable *iterfunc,
 
 	// Obtains information about a file or directory. If the target is a
@@ -121,7 +140,10 @@ export type fs = struct {
 	subdir: nullable *subdirfunc,
 };
 
-// TODO
+export type nextfunc = fn(iter: *iterator) (filestat | void);
+
 export type iterator = struct {
-	placeholder: int,
+	// Returns the next member of the directory, or void if there are none
+	// remaining.
+	next: *nextfunc,
 };

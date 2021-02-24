@@ -33,3 +33,16 @@ export fn is_link(mode: mode) bool = mode & mode::LINK == mode::LINK;
 
 // Returns true if this item is a Unix socket.
 export fn is_socket(mode: mode) bool = mode & mode::SOCK == mode::SOCK;
+
+// Reads all entries from a directory.
+export fn readdir(fs: *fs, path: path) ([]filestat | error) = {
+	let i = iter(fs, path)?;
+	let ents: []filestat = [];
+	for (true) {
+		match (next(i)) {
+			f: filestat => append(ents, stat_dup(f)),
+			void => break,
+		};
+	};
+	return ents;
+};
