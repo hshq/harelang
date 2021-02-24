@@ -25,12 +25,15 @@ export fn errstr(err: error) str = {
 	};
 };
 
-export type mode = enum uint {
-	RDONLY = 0,
-	WRONLY = 1,
-	RDWR   = 2,
+// Used to indicate if a stream should be used for reading, or writing, or both.
+export type mode = enum u8 {
+	NONE	= 0,
+	READ	= 1 << 0,
+	WRITE	= 1 << 1,
+	RDWR	= READ | WRITE,
 };
 
+// From "whence" a seek operation should occur.
 export type whence = enum {
 	SET = 0,
 	CUR = 1,

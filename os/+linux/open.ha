@@ -2,8 +2,12 @@ use io;
 use rt;
 use strings;
 
-export type flags = enum {
-	NONE		= 0,
+// Flags to use for opening a file. Not all operating systems support all flags;
+// at a minimum, RDONLY, WRONLY, RDWR, and CREATE will be supported.
+export type flags = enum int {
+	RDONLY		= 0,
+	WRONLY		= 1,
+	RDWR		= 2,
 	CREATE		= 0o100,
 	EXCLUSIVE	= 0o200,
 	NOCTTY		= 0o400,
@@ -20,17 +24,11 @@ export type flags = enum {
 
 // Opens a file from the filesystem.
 //
-// If no flags are provided, the default is NOCTTY | CLOEXEC.
+// If no flags are provided, the default for +linux is RDONLY | NOCTTY | CLOEXEC.
 export fn open(
 	path: (str | []u8),
-	mode: io::mode,
 	flag: flags...
 ) (*io::stream | io::error) = {
-	// Verify that these line up with the Linux ABI:
-	static assert(io::mode::RDONLY: int == rt::O_RDONLY);
-	static assert(io::mode::WRONLY: int == rt::O_WRONLY);
-	static assert(io::mode::RDWR: int == rt::O_RDWR);
-
 	const p: []u8 = match (path) {
 		s: str  => strings::to_utf8(s),
 		b: []u8 => b,
@@ -40,18 +38,69 @@ export fn open(
 		b: []u8 => "<open([]u8)>",
 	};
 
-	let m = mode: int;
+	let oflags = 0;
+	let iomode = io::mode::NONE;
 	if (len(flag) == 0z) {
-		m |= flags::NOCTTY: int | flags::CLOEXEC: int;
+		oflags |= (flags::NOCTTY | flags::CLOEXEC | flags::RDONLY): int;
 	};
 	for (let i = 0z; i < len(flag); i += 1z) {
-		m |= flag[i]: int;
+		oflags |= flag[i]: int;
 	};
 
-	let fd: int = match (rt::open(p: *[*]u8: *const char, m, 0u)) {
+	if (oflags: flags & flags::RDWR == flags::RDWR) {
+		iomode = io::mode::RDWR;
+	} else if (oflags: flags & flags::RDONLY == flags::RDONLY) {
+		iomode = io::mode::READ;
+	} else if (oflags: flags & flags::RDONLY == flags::RDONLY) {
+		iomode = io::mode::WRITE;
+	};
+
+	let fd: int = match (rt::open(p: *[*]u8: *const char, oflags, 0u)) {
 		err: rt::errno => return errno_to_io(err),
 		n: int => n,
 	};
 
-	return fdopen(fd, name, mode);
+	return fdopen(fd, name, iomode);
+};
+
+// Equivalent to [open], but allows the caller to specify a file mode for the
+// new file. If no other flag is given, the default read/write mode is WRONLY.
+export fn create(
+	path: (str | []u8),
+	mode: uint,
+	flag: flags...
+) (*io::stream | io::error) = {
+	const p: []u8 = match (path) {
+		s: str  => strings::to_utf8(s),
+		b: []u8 => b,
+	};
+	const name: str = match (path) {
+		s: str  => s,
+		b: []u8 => "<open([]u8)>",
+	};
+
+	let oflags = 0;
+	let iomode = io::mode::NONE;
+	if (len(flag) == 0z) {
+		oflags |= (flags::NOCTTY | flags::CLOEXEC | flags::WRONLY): int;
+	};
+	for (let i = 0z; i < len(flag); i += 1z) {
+		oflags |= flag[i]: int;
+	};
+	oflags |= flags::CREATE: int;
+
+	if (oflags: flags & flags::RDWR == flags::RDWR) {
+		iomode = io::mode::RDWR;
+	} else if (oflags: flags & flags::RDONLY == flags::RDONLY) {
+		iomode = io::mode::READ;
+	} else if (oflags: flags & flags::RDONLY == flags::RDONLY) {
+		iomode = io::mode::WRITE;
+	};
+
+	let fd: int = match (rt::open(p: *[*]u8: *const char, oflags, mode)) {
+		err: rt::errno => return errno_to_io(err),
+		n: int => n,
+	};
+
+	return fdopen(fd, name, iomode);
 };

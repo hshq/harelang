@@ -20,10 +20,10 @@ fn static_fdopen(
 		},
 		fd = fd,
 	};
-	if (mode == io::mode::RDONLY || mode == io::mode::RDWR) {
+	if (mode & io::mode::READ == io::mode::READ) {
 		stream.stream.reader = &fd_read;
 	};
-	if (mode == io::mode::WRONLY || mode == io::mode::RDWR) {
+	if (mode & io::mode::WRITE == io::mode::WRITE) {
 		stream.stream.writer = &fd_write;
 	};
 	return &stream.stream;

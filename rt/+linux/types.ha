@@ -30,11 +30,24 @@ export def AT_STATX_FORCE_SYNC: int	= 0x2000;
 export def AT_STATX_DONT_SYNC: int	= 0x4000;
 export def AT_RECURSIVE: int		= 0x8000;
 
-export def O_RDONLY: int	= 0;
-export def O_WRONLY: int	= 1;
-export def O_RDWR: int		= 2;
-// TODO: Add the other flags:
+export def O_RDONLY: int	= 0o0;
+export def O_WRONLY: int	= 0o1;
+export def O_RDWR: int		= 0o2;
+export def O_CREATE: int	= 0o100;
+export def O_EXCLUSIVE: int	= 0o200;
+export def O_NOCTTY: int	= 0o400;
+export def O_TRUNC: int		= 0o1000;
+export def O_APPEND: int	= 0o2000;
+export def O_NONBLOCK: int	= 0o4000;
+export def O_DSYNC: int		= 0o10000;
+export def O_SYNC: int		= 0o4010000;
+export def O_RSYNC: int		= 0o4010000;
+export def O_DIRECTORY: int	= 0o200000;
+export def O_NOFOLLOW: int	= 0o400000;
+export def O_NOATIME: int	= 0o1000000;
 export def O_CLOEXEC: int	= 0o2000000;
+export def O_PATH: int		= 0o10000000;
+export def O_TMPFILE: int	= 0o20000000;
 
 type statx_timestamp = struct {
 	tv_sec:  i64,
