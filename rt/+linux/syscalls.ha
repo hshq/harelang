@@ -26,6 +26,16 @@ export fn close(fd: int) (void | errno) = {
 	return;
 };
 
+export fn chdir(path: *const char) (void | errno) = {
+	wrap_return(syscall1(SYS_chdir, path: uintptr: u64))?;
+	return;
+};
+
+export fn fchdir(fd: int) (void | errno) = {
+	wrap_return(syscall1(SYS_fchdir, fd: u64))?;
+	return;
+};
+
 export fn execveat(dirfd: int, path: *const char, argv: *[*]nullable *const char,
 		envp: *[*]nullable *const char, flags: int) errno = {
 	return match (wrap_return(syscall5(SYS_execveat, dirfd: u64,
