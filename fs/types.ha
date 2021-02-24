@@ -120,7 +120,9 @@ export type iterfunc = fn(fs: *fs, path: path) (*iterator | error);
 export type statfunc = fn(fs: *fs, path: path) (filestat | error);
 export type subdirfunc = fn(fs: *fs, path: path) (*fs | error);
 
-// An abstract implementation of a filesystem.
+// An abstract implementation of a filesystem. To create a custom stream, embed
+// this type as the first member of a struct with user-specific data and fill
+// out these fields as appropriate.
 export type fs = struct {
 	// Frees resources associated with this filesystem.
 	close: nullable *closefunc,
