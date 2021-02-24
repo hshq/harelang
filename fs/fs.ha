@@ -16,7 +16,7 @@ export fn open(fs: *fs, path: path, mode: io::mode) (*io::stream | error) = {
 	};
 };
 
-// Creates a new file.
+// Creates a new file. The default file permissions are implementation defined.
 export fn create(fs: *fs, path: path, mode: io::mode) (*io::stream | error) = {
 	return match (fs.create) {
 		null => io::unsupported,

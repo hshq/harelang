@@ -1,13 +1,14 @@
 use bufio;
+use fmt;
 use hare::ast;
 use hare::lex;
+use io::{mode};
 use strings;
-use fmt;
 
 @test fn ident() void = {
 	{
 		const in = "foo";
-		let buf = bufio::fixed(strings::to_utf8(in));
+		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
 		let lexer = lex::lexer_init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
@@ -18,7 +19,7 @@ use fmt;
 
 	{
 		const in = "foo::bar";
-		let buf = bufio::fixed(strings::to_utf8(in));
+		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
 		let lexer = lex::lexer_init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
@@ -29,7 +30,7 @@ use fmt;
 
 	{
 		const in = "foo::bar::baz";
-		let buf = bufio::fixed(strings::to_utf8(in));
+		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
 		let lexer = lex::lexer_init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
@@ -41,7 +42,7 @@ use fmt;
 
 	{
 		const in = "foo::bar;";
-		let buf = bufio::fixed(strings::to_utf8(in));
+		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
 		let lexer = lex::lexer_init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
@@ -55,7 +56,7 @@ use fmt;
 @test fn imports() void = {
 	{
 		const in = "use foo;";
-		let buf = bufio::fixed(strings::to_utf8(in));
+		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
 		let lexer = lex::lexer_init(buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
@@ -76,7 +77,7 @@ use fmt;
 			"use bar;\n"
 			"use baz::bat;\n\n"
 			"export fn main() void = void;";
-		let buf = bufio::fixed(strings::to_utf8(in));
+		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
 		let lexer = lex::lexer_init(buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
