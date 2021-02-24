@@ -16,18 +16,18 @@ export type error = (noentry | noaccess | io::error)!;
 // File mode information. These bits do not necessarily reflect the underlying
 // operating system's mode representation, though they were chosen to be
 // consistent with typical Unix file permissions. All implementations shall
-// support at least OWNER_RW, DIR, and REG.
+// support at least USER_RW, DIR, and REG.
 export type mode = enum uint {
 	// Read, write, and execute permissions for the file owner
-	OWNER_RWX	= 0o700,
+	USER_RWX	= 0o700,
 	// Read and write permissions for the file owner
-	OWNER_RW	= 0o500,
+	USER_RW		= 0o500,
 	// Read permissions for the file owner
-	OWNER_R		= 0o400,
+	USER_R		= 0o400,
 	// Write permissions for the file owner
-	OWNER_W		= 0o200,
+	USER_W		= 0o200,
 	// Execute permissions for the file owner
-	OWNER_X		= 0o100,
+	USER_X		= 0o100,
 
 	// Read, write, and execute permissions for group members
 	GROUP_RWX	= 0o070,
