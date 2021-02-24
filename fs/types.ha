@@ -90,12 +90,11 @@ export type stat_mask = enum uint {
 // Information about a file or directory. The mask field defines what other
 // fields are set; mode and path are always set.
 //
-// The path string is typically borrowed from the filesystem's internal state;
-// if you want to keep this around for any length of time you should use
-// [stat_dup].
+// The path string may be borrowed from the filesystem's internal state; if you
+// want to keep this around for any length of time you should use [stat_dup].
 export type filestat = struct {
 	mask: stat_mask,
-	path: str,
+	path: path,
 	mode: mode,
 	uid: uint,
 	gid: uint,
@@ -106,12 +105,22 @@ export type filestat = struct {
 // Duplicates a [filestat] object. Call [stat_free] to get rid of it later.
 export fn stat_dup(f: filestat) filestat = {
 	let new = f;
-	new.path = strings::dup(new.path);
+	new.path = match (new.path) {
+		s: str => strings::dup(s),
+		b: []u8 => {
+			let n: []u8 = [];
+			append(n, ...b);
+			n;
+		},
+	};
 	return new;
 };
 
 // Frees a [filestat] object which was duplicated with [stat_dup].
-export fn stat_free(f: filestat) void = free(f.path);
+export fn stat_free(f: filestat) void = match (f.path) {
+	s: str => free(s),
+	b: []u8 => free(b),
+};
 
 export type closefunc = fn(fs: *fs) void;
 export type openfunc = fn(fs: *fs, path: path, mode: io::mode) (*io::stream | error);
