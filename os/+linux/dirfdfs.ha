@@ -10,7 +10,7 @@ use strings;
 // Note that on Linux, specifying BENEATH or IN_ROOT will also disable magic
 // symlinks.
 export type resolve = enum {
-	NONE,
+	NORMAL,
 
 	// Does not allow symlink resolution to occur for any symlinks which
 	// would refer to any anscestor of the fd directory. This disables all
