@@ -148,6 +148,15 @@ format_elf() {
 	gen_ssa format::elf
 }
 
+fs() {
+	printf '# fs\n'
+	gen_srcs fs \
+		types.ha \
+		fs.ha \
+		util.ha
+	gen_ssa fs io
+}
+
 hare_ast() {
 	printf '# hare::ast\n'
 	gen_srcs hare::ast \
@@ -333,6 +342,7 @@ crypto_random
 encoding_utf8
 fmt
 format_elf
+fs
 hare_ast
 hare_lex
 hare_parse

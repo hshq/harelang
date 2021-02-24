@@ -81,6 +81,9 @@ hare_stdlib_deps+=$(stdlib_fmt)
 stdlib_format_elf=$(HARECACHE)/format/elf/format.elf.o
 hare_stdlib_deps+=$(stdlib_format_elf)
 
+stdlib_fs=$(HARECACHE)/fs/fs.o
+hare_stdlib_deps+=$(stdlib_fs)
+
 stdlib_hare_ast=$(HARECACHE)/hare/ast/hare.ast.o
 hare_stdlib_deps+=$(stdlib_hare_ast)
 
@@ -193,6 +196,18 @@ $(HARECACHE)/format/elf/format.elf.ssa: $(stdlib_format_elf_srcs) $(stdlib_rt)
 	@mkdir -p $(HARECACHE)/format/elf
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::elf \
 		-t$(HARECACHE)/format/elf/format.elf.td $(stdlib_format_elf_srcs)
+
+# fs
+stdlib_fs_srcs= \
+	$(STDLIB)/fs/types.ha \
+	$(STDLIB)/fs/fs.ha \
+	$(STDLIB)/fs/util.ha
+
+$(HARECACHE)/fs/fs.ssa: $(stdlib_fs_srcs) $(stdlib_rt) $(stdlib_io)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/fs
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfs \
+		-t$(HARECACHE)/fs/fs.td $(stdlib_fs_srcs)
 
 # hare::ast
 stdlib_hare_ast_srcs= \
@@ -417,6 +432,9 @@ hare_testlib_deps+=$(testlib_fmt)
 testlib_format_elf=$(TESTCACHE)/format/elf/format.elf.o
 hare_testlib_deps+=$(testlib_format_elf)
 
+testlib_fs=$(TESTCACHE)/fs/fs.o
+hare_testlib_deps+=$(testlib_fs)
+
 testlib_hare_ast=$(TESTCACHE)/hare/ast/hare.ast.o
 hare_testlib_deps+=$(testlib_hare_ast)
 
@@ -529,6 +547,18 @@ $(TESTCACHE)/format/elf/format.elf.ssa: $(testlib_format_elf_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/format/elf
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::elf \
 		-t$(TESTCACHE)/format/elf/format.elf.td $(testlib_format_elf_srcs)
+
+# fs
+testlib_fs_srcs= \
+	$(STDLIB)/fs/types.ha \
+	$(STDLIB)/fs/fs.ha \
+	$(STDLIB)/fs/util.ha
+
+$(TESTCACHE)/fs/fs.ssa: $(testlib_fs_srcs) $(testlib_rt) $(testlib_io)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/fs
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs \
+		-t$(TESTCACHE)/fs/fs.td $(testlib_fs_srcs)
 
 # hare::ast
 testlib_hare_ast_srcs= \
