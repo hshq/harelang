@@ -154,7 +154,7 @@ fs() {
 		types.ha \
 		fs.ha \
 		util.ha
-	gen_ssa fs io strings
+	gen_ssa fs io strings strio
 }
 
 hare_ast() {

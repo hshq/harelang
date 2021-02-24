@@ -136,7 +136,7 @@ stdlib_bufio_srcs= \
 	$(STDLIB)/bufio/dynamic.ha \
 	$(STDLIB)/bufio/fixed.ha
 
-$(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bytes)
+$(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bytes) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/bufio
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbufio \
@@ -206,7 +206,7 @@ stdlib_fs_srcs= \
 	$(STDLIB)/fs/fs.ha \
 	$(STDLIB)/fs/util.ha
 
-$(HARECACHE)/fs/fs.ssa: $(stdlib_fs_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings)
+$(HARECACHE)/fs/fs.ssa: $(stdlib_fs_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_strio)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/fs
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfs \
@@ -500,7 +500,7 @@ testlib_bufio_srcs= \
 	$(STDLIB)/bufio/dynamic.ha \
 	$(STDLIB)/bufio/fixed.ha
 
-$(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io) $(testlib_bytes)
+$(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io) $(testlib_bytes) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/bufio
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbufio \
@@ -570,7 +570,7 @@ testlib_fs_srcs= \
 	$(STDLIB)/fs/fs.ha \
 	$(STDLIB)/fs/util.ha
 
-$(TESTCACHE)/fs/fs.ssa: $(testlib_fs_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings)
+$(TESTCACHE)/fs/fs.ssa: $(testlib_fs_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_strio)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/fs
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs \
