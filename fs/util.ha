@@ -20,6 +20,9 @@ export fn mode_str(m: mode) const str = {
 		if (m & mode::DIR == mode::DIR) "d"
 			else if (m & mode::FIFO == mode::FIFO) "p"
 			else if (m & mode::SOCK == mode::SOCK) "s"
+			else if (m & mode::BLK == mode::BLK) "b"
+			else if (m & mode::LINK == mode::LINK) "l"
+			else if (m & mode::CHR == mode::CHR) "c"
 			else "-",
 		if (m & mode::USER_R == mode::USER_R) "r" else "-",
 		if (m & mode::USER_W == mode::USER_W) "w" else "-",
