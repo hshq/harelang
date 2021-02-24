@@ -54,15 +54,19 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 };
 
 // Opens a file descriptor as an [fs::fs]. This file descriptor must be a
-// directory file.
+// directory file. The file will be closed when the fs is closed.
 export fn dirfdopen(fd: int, resolve: resolve...) *fs::fs = {
-	let fs = alloc(os_filesystem { ... });
-	let fsfs = static_dirfdopen(fd, fs);
+	let ofs = alloc(os_filesystem { ... });
+	let fs = static_dirfdopen(fd, ofs);
 	for (let i = 0z; i < len(resolve); i += 1) {
-		fs.resolve |= resolve[i];
+		ofs.resolve |= resolve[i];
 	};
-	return fsfs;
+	fs.close = &fs_close;
+	return fs;
 };
+
+// Opens a directory as a filesystem.
+export fn diropen(path: fs::path) (*fs::fs | fs::error) = fs::subdir(cwd, path);
 
 // Clones a dirfd filesystem, optionally adding additional [resolve]
 // constraints.
@@ -160,5 +164,27 @@ fn fs_stat(fs: *fs::fs, path: fs::path) (fs::filestat | fs::error) = {
 };
 
 fn fs_subdir(fs: *fs::fs, path: fs::path) (*fs::fs | fs::error) = {
-	abort();
+	let fs = fs: *os_filesystem;
+	const p: []u8 = match (path) {
+		s: str  => strings::to_utf8(s),
+		b: []u8 => b,
+	};
+
+	let oh = rt::open_how {
+		flags = (rt::O_RDONLY | rt::O_CLOEXEC | rt::O_DIRECTORY): u64,
+		...
+	};
+
+	let fd: int = match (rt::openat2(fs.dirfd, p: *[*]u8: *const char,
+			&oh, size(rt::open_how))) {
+		err: rt::errno => return errno_to_io(err),
+		n: int => n,
+	};
+
+	return dirfdopen(fd);
+};
+
+fn fs_close(fs: *fs::fs) void = {
+	let fs = fs: *os_filesystem;
+	rt::close(fs.dirfd);
 };
