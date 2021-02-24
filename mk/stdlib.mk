@@ -114,6 +114,9 @@ hare_stdlib_deps+=$(stdlib_strconv)
 stdlib_strings=$(HARECACHE)/strings/strings.o
 hare_stdlib_deps+=$(stdlib_strings)
 
+stdlib_strio=$(HARECACHE)/strio/strio.o
+hare_stdlib_deps+=$(stdlib_strio)
+
 stdlib_types=$(HARECACHE)/types/types.o
 hare_stdlib_deps+=$(stdlib_types)
 
@@ -133,7 +136,7 @@ stdlib_bufio_srcs= \
 	$(STDLIB)/bufio/dynamic.ha \
 	$(STDLIB)/bufio/fixed.ha
 
-$(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io)
+$(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bytes)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/bufio
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbufio \
@@ -338,6 +341,16 @@ $(HARECACHE)/strings/strings.ssa: $(stdlib_strings_srcs) $(stdlib_rt) $(stdlib_b
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nstrings \
 		-t$(HARECACHE)/strings/strings.td $(stdlib_strings_srcs)
 
+# strio
+stdlib_strio_srcs= \
+	$(STDLIB)/strio/buffer.ha
+
+$(HARECACHE)/strio/strio.ssa: $(stdlib_strio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/strio
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nstrio \
+		-t$(HARECACHE)/strio/strio.td $(stdlib_strio_srcs)
+
 # types
 stdlib_types_srcs= \
 	$(STDLIB)/types/limits.ha \
@@ -465,6 +478,9 @@ hare_testlib_deps+=$(testlib_strconv)
 testlib_strings=$(TESTCACHE)/strings/strings.o
 hare_testlib_deps+=$(testlib_strings)
 
+testlib_strio=$(TESTCACHE)/strio/strio.o
+hare_testlib_deps+=$(testlib_strio)
+
 testlib_types=$(TESTCACHE)/types/types.o
 hare_testlib_deps+=$(testlib_types)
 
@@ -484,7 +500,7 @@ testlib_bufio_srcs= \
 	$(STDLIB)/bufio/dynamic.ha \
 	$(STDLIB)/bufio/fixed.ha
 
-$(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io)
+$(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io) $(testlib_bytes)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/bufio
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbufio \
@@ -697,6 +713,16 @@ $(TESTCACHE)/strings/strings.ssa: $(testlib_strings_srcs) $(testlib_rt) $(testli
 	@mkdir -p $(TESTCACHE)/strings
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrings \
 		-t$(TESTCACHE)/strings/strings.td $(testlib_strings_srcs)
+
+# strio
+testlib_strio_srcs= \
+	$(STDLIB)/strio/buffer.ha
+
+$(TESTCACHE)/strio/strio.ssa: $(testlib_strio_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/strio
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrio \
+		-t$(TESTCACHE)/strio/strio.td $(testlib_strio_srcs)
 
 # types
 testlib_types_srcs= \

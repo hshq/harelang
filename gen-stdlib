@@ -101,7 +101,7 @@ bufio() {
 	gen_srcs bufio \
 		dynamic.ha \
 		fixed.ha
-	gen_ssa bufio io
+	gen_ssa bufio io bytes strings
 }
 
 bytes() {
@@ -324,6 +324,13 @@ strings() {
 	gen_ssa strings bytes encoding::utf8 types
 }
 
+strio() {
+	printf '# strio\n'
+	gen_srcs strio \
+		buffer.ha
+	gen_ssa strio io strings
+}
+
 types() {
 	printf '# types\n'
 	gen_srcs types \
@@ -353,6 +360,7 @@ slice
 sort
 strconv
 strings
+strio
 types"
 stdlib() {
 	rt
