@@ -36,7 +36,9 @@ fn open(path: str) (platform | os_error) = {
 			return errno_to_os(rt::EACCES);
 		},
 	};
-	return match (rt::open(path: *const char, rt::O_RDONLY, 0u)) {
+	// O_PATH is used because it allows us to use an executable for which we
+	// have execute permissions, but not read permissions.
+	return match (rt::open(path: *const char, rt::O_PATH, 0u)) {
 		fd: int => fd,
 		err: rt::errno => errno_to_os(err),
 	};
