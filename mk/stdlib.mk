@@ -274,7 +274,7 @@ stdlib_os_srcs= \
 	$(STDLIB)/os/stdfd.ha \
 	$(STDLIB)/os/fs.ha
 
-$(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fs)
+$(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fs) $(stdlib_encoding_utf8)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
@@ -647,7 +647,7 @@ testlib_os_srcs= \
 	$(STDLIB)/os/stdfd.ha \
 	$(STDLIB)/os/fs.ha
 
-$(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fs)
+$(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fs) $(testlib_encoding_utf8)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
