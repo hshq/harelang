@@ -3,7 +3,6 @@ use fs;
 use io;
 use rt;
 use strings;
-use strconv;
 
 // Controls how symlinks are followed (or not) in a dirfd filesystem. Support
 // for this feature varies, you should gate usage of this enum behind a build
