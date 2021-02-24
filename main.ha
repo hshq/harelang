@@ -32,15 +32,31 @@ export fn main() void = {
 
 	fmt::errorln("{} has {} imports:", in.1, len(imports));
 	for (let i = 0z; i < len(imports); i += 1) {
+		fmt::printf("use ");
 		let name = match (imports[i]) {
 			m: ast::import_module => m: ast::ident,
-			a: ast::import_alias => a.ident,
+			a: ast::import_alias => {
+				fmt::printf("{} = ", a.alias);
+				a.ident;
+			},
 			o: ast::import_objects => o.ident,
 		};
-		fmt::printf("use ");
 		for (let i = len(name): int - 1; i >= 0; i -= 1) {
 			fmt::printf("{}{}", name[i],
-				if (i != 0) "::" else ";\n");
+				if (i != 0) "::" else "");
 		};
+		match (imports[i]) {
+			o: ast::import_objects => {
+				for (let i = 0z; i < len(o.objects); i += 1) {
+					fmt::printf("{}{}{}",
+						if (i == 0) "::{" else "",
+						o.objects[i],
+						if (i == len(o.objects) - 1) "}"
+						else ", ");
+				};
+			},
+			* => void,
+		};
+		fmt::println(";");
 	};
 };
