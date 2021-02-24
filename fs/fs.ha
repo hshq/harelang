@@ -52,6 +52,7 @@ export fn subdir(fs: *fs, path: path) (*fs | error) = {
 };
 
 // Returns the next directory entry from an interator, or void if none remain.
+// It is a programming error to call this again after it has returned void.
 //
 // Use [stat_dup] if you need to keep the filestat around for longer than the
 // next call to [next].
