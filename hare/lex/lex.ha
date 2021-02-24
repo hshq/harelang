@@ -27,7 +27,7 @@ export fn errstr(err: error) const str = {
 	static let buf: [2048]u8 = [0...];
 	return match (err) {
 		err: io::error => io::errstr(err),
-		s: syntax => fmt::bsprintf(buf, "Syntax error @{}:{},{}: {}",
+		s: syntax => fmt::bsprintf(buf, "{}:{},{}: Syntax error: {}",
 			s.0.path, s.0.line, s.0.col, s.1),
 	};
 };
