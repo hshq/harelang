@@ -4,12 +4,12 @@ export type slice = struct {
 	capacity: size,
 };
 
-export fn ensure(s: *slice, membsz: size, length: size) void = {
+export fn ensure(s: *slice, membsz: size) void = {
 	let cap = s.capacity;
-	for (cap < length) {
+	for (cap < s.length) {
 		assert(cap >= s.capacity, "slice out of memory (overflow)");
 		if (cap == 0) {
-			cap = length;
+			cap = s.length;
 		} else {
 			cap *= 2;
 		};
@@ -20,9 +20,9 @@ export fn ensure(s: *slice, membsz: size, length: size) void = {
 	s.data = data;
 };
 
-export fn unensure(s: *slice, membsz: size, length: size) void = {
+export fn unensure(s: *slice, membsz: size) void = {
 	let cap = s.capacity;
-	for (cap > length) {
+	for (cap > s.length) {
 		cap /= 2;
 	};
 	cap *= 2;
