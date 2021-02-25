@@ -1,3 +1,4 @@
+use fs;
 use io;
 use rt;
 use strings;
@@ -26,13 +27,9 @@ export type flags = enum int {
 //
 // If no flags are provided, the default for +linux is RDONLY | NOCTTY | CLOEXEC.
 export fn open(
-	path: (str | []u8),
+	path: fs::path,
 	flag: flags...
 ) (*io::stream | io::error) = {
-	const p: []u8 = match (path) {
-		s: str  => strings::to_utf8(s),
-		b: []u8 => b,
-	};
 	const name: str = match (path) {
 		s: str  => s,
 		b: []u8 => "<open([]u8)>",
@@ -55,7 +52,7 @@ export fn open(
 		iomode = io::mode::WRITE;
 	};
 
-	let fd: int = match (rt::open(p: *[*]u8: *const char, oflags, 0u)) {
+	let fd: int = match (rt::open(pathbytes(path), oflags, 0u)) {
 		err: rt::errno => return errno_to_io(err),
 		n: int => n,
 	};
@@ -66,14 +63,10 @@ export fn open(
 // Equivalent to [open], but allows the caller to specify a file mode for the
 // new file. If no other flag is given, the default read/write mode is WRONLY.
 export fn create(
-	path: (str | []u8),
+	path: fs::path,
 	mode: uint,
 	flag: flags...
 ) (*io::stream | io::error) = {
-	const p: []u8 = match (path) {
-		s: str  => strings::to_utf8(s),
-		b: []u8 => b,
-	};
 	const name: str = match (path) {
 		s: str  => s,
 		b: []u8 => "<open([]u8)>",
@@ -97,7 +90,7 @@ export fn create(
 		iomode = io::mode::WRITE;
 	};
 
-	let fd: int = match (rt::open(p: *[*]u8: *const char, oflags, mode)) {
+	let fd: int = match (rt::open(pathbytes(path), oflags, mode)) {
 		err: rt::errno => return errno_to_io(err),
 		n: int => n,
 	};

@@ -87,6 +87,7 @@ export type stat_mask = enum uint {
 	UID	= 1 << 0,
 	GID	= 1 << 1,
 	SIZE	= 1 << 2,
+	INODE	= 1 << 3,
 };
 
 // Information about a file or directory. The mask field defines what other
@@ -97,6 +98,7 @@ export type filestat = struct {
 	uid: uint,
 	gid: uint,
 	sz: size,
+	inode: u64,
 	// TODO: atime et al
 };
 

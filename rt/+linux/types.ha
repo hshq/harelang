@@ -80,7 +80,6 @@ type stx = struct {
 // Note: the st type does not match the kernel API. The kernel API has a stat
 // buffer which varies from arch to arch, but because we always use statx(2) and
 // copy the data from the stx type, we don't have to deal with that nonsense.
-
 export type st = struct {
 	dev:    dev_t,
 	ino:    ino_t,

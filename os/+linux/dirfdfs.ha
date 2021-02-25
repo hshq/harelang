@@ -54,6 +54,14 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 	return &filesystem.fs;
 };
 
+fn pathbytes(path: fs::path) *const char = {
+	let p = match (path) {
+		s: str  => strings::to_utf8(s),
+		b: []u8 => b,
+	};
+	return p: *[*]u8: *const char;
+};
+
 // Opens a file descriptor as an [fs::fs]. This file descriptor must be a
 // directory file. The file will be closed when the fs is closed.
 export fn dirfdopen(fd: int, resolve: resolve...) *fs::fs = {
@@ -101,16 +109,12 @@ fn _fs_open(
 		oh.resolve |= rt::RESOLVE_NO_XDEV;
 	};
 
-	const p: []u8 = match (path) {
-		s: str  => strings::to_utf8(s),
-		b: []u8 => b,
-	};
 	const name: str = match (path) {
 		s: str  => s,
 		b: []u8 => "<open([]u8)>",
 	};
 
-	let fd = match (rt::openat2(fs.dirfd, p: *[*]u8: *const char,
+	let fd = match (rt::openat2(fs.dirfd, pathbytes(path),
 			oh, size(rt::open_how))) {
 		err: rt::errno => return errno_to_io(err),
 		fd: int => fd,
@@ -154,22 +158,34 @@ fn fs_create(fs: *fs::fs, path: fs::path, mode: io::mode) (*io::stream | fs::err
 };
 
 fn fs_stat(fs: *fs::fs, path: fs::path) (fs::filestat | fs::error) = {
-	abort(); // TODO
+	let fs = fs: *os_filesystem;
+	let st = rt::st { ... };
+	match (rt::fstatat(fs.dirfd, pathbytes(path),
+			&st, rt::AT_SYMLINK_NOFOLLOW)) {
+		err: rt::errno => return errno_to_io(err),
+		void => void,
+	};
+	return fs::filestat {
+		mask = fs::stat_mask::UID
+			| fs::stat_mask::GID
+			| fs::stat_mask::SIZE
+			| fs::stat_mask::INODE,
+		mode = st.mode: fs::mode,
+		uid = st.uid,
+		uid = st.gid,
+		sz = st.sz,
+		inode = st.ino,
+	};
 };
 
 fn fs_subdir(fs: *fs::fs, path: fs::path) (*fs::fs | fs::error) = {
 	let fs = fs: *os_filesystem;
-	const p: []u8 = match (path) {
-		s: str  => strings::to_utf8(s),
-		b: []u8 => b,
-	};
-
 	let oh = rt::open_how {
 		flags = (rt::O_RDONLY | rt::O_CLOEXEC | rt::O_DIRECTORY): u64,
 		...
 	};
 
-	let fd: int = match (rt::openat2(fs.dirfd, p: *[*]u8: *const char,
+	let fd: int = match (rt::openat2(fs.dirfd, pathbytes(path),
 			&oh, size(rt::open_how))) {
 		err: rt::errno => return errno_to_io(err),
 		n: int => n,
@@ -196,15 +212,11 @@ type os_iterator = struct {
 
 fn fs_iter(fs: *fs::fs, path: fs::path) (*fs::iterator | fs::error) = {
 	let fs = fs: *os_filesystem;
-	const p: []u8 = match (path) {
-		s: str  => strings::to_utf8(s),
-		b: []u8 => b,
-	};
 	let oh = rt::open_how {
 		flags = (rt::O_RDONLY | rt::O_CLOEXEC | rt::O_DIRECTORY): u64,
 		...
 	};
-	let fd: int = match (rt::openat2(fs.dirfd, p: *[*]u8: *const char,
+	let fd: int = match (rt::openat2(fs.dirfd, pathbytes(path),
 			&oh, size(rt::open_how))) {
 		err: rt::errno => return errno_to_io(err),
 		n: int => n,
