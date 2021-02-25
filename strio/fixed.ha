@@ -14,6 +14,7 @@ export fn fixed(in: []u8) *io::stream = {
 		stream = io::stream {
 			name = "<strio::fixed>",
 			writer = &fixed_write,
+			closer = &fixed_close,
 			...
 		},
 		buf = in,
@@ -25,10 +26,17 @@ export fn fixed(in: []u8) *io::stream = {
 // Returns the current contents of the buffer as a string. Aborts the program if
 // invalid UTF-8 has been written to the buffer.
 export fn string(s: *io::stream) str = {
-	assert(s.writer == &fixed_write);
-	let stream = s: *fixed_stream;
-	const n = len(stream.buf) - len(stream.cur);
-	return strings::from_utf8(stream.buf[..n]);
+	if (s.writer == &fixed_write) {
+		let stream = s: *fixed_stream;
+		const n = len(stream.buf) - len(stream.cur);
+		return strings::from_utf8(stream.buf[..n]);
+	} else if (s.writer == &dynamic_write) {
+		let s = s: *dynamic_stream;
+		let buf = s.buf;
+		return strings::from_utf8(buf);
+	} else {
+		abort("strio::string called on non-strio stream");
+	};
 };
 
 fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
@@ -40,6 +48,10 @@ fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	stream.cur[..n] = buf[..n];
 	stream.cur = stream.cur[n..];
 	return n;
+};
+
+fn fixed_close(s: *io::stream) void = {
+	free(s);
 };
 
 @test fn fixed() void = {
