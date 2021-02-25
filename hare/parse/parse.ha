@@ -5,6 +5,7 @@ use slice;
 
 fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	let ident: []str = [];
+	let z = 0z;
 	for (true) {
 		let name = match (try_name(lexer)?) {
 			n: lex::name => n,
@@ -14,10 +15,17 @@ fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 			},
 		};
 		append(ident, name: str);
+		z += len(name);
 		match (try_btoken(lexer, btoken::DOUBLE_COLON)?) {
 			void => break,
 			* => void, // Grab the next ident
 		};
+		z += 1;
+	};
+	if (z > ast::IDENT_MAX) {
+		ast::ident_free(ident: ast::ident);
+		return syntaxerr(mkloc(lexer),
+			"Identifier exceeds maximum length");
 	};
 	slice::reverse(ident, size(ast::ident));
 	return (ident: ast::ident, false);

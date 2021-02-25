@@ -2,6 +2,12 @@
 // significant part (foo::bar::baz becomes ["baz", "bar", "foo"].
 export type ident = []str;
 
+// Maximum length of an identifier, as the sum of the lengths of its parts plus
+// one for each namespace deliniation.
+//
+// In other words, the length of "a::b::c" is 5.
+export def IDENT_MAX: size = 255;
+
 // Frees resources associated with an identifier.
 export fn ident_free(ident: ident) void = {
 	for (let i = 0z; i < len(ident); i += 1) {
