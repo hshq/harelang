@@ -331,7 +331,8 @@ strio() {
 	printf '# strio\n'
 	gen_srcs strio \
 		dynamic.ha \
-		fixed.ha
+		fixed.ha \
+		ops.ha
 	gen_ssa strio io strings
 }
 

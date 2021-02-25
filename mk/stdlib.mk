@@ -347,7 +347,8 @@ $(HARECACHE)/strings/strings.ssa: $(stdlib_strings_srcs) $(stdlib_rt) $(stdlib_b
 # strio
 stdlib_strio_srcs= \
 	$(STDLIB)/strio/dynamic.ha \
-	$(STDLIB)/strio/fixed.ha
+	$(STDLIB)/strio/fixed.ha \
+	$(STDLIB)/strio/ops.ha
 
 $(HARECACHE)/strio/strio.ssa: $(stdlib_strio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
@@ -724,7 +725,8 @@ $(TESTCACHE)/strings/strings.ssa: $(testlib_strings_srcs) $(testlib_rt) $(testli
 # strio
 testlib_strio_srcs= \
 	$(STDLIB)/strio/dynamic.ha \
-	$(STDLIB)/strio/fixed.ha
+	$(STDLIB)/strio/fixed.ha \
+	$(STDLIB)/strio/ops.ha
 
 $(TESTCACHE)/strio/strio.ssa: $(testlib_strio_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
