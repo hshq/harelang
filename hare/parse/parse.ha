@@ -35,7 +35,10 @@ fn parse_name_list(lexer: *lex::lexer) ([]str | error) = {
 	for (true) {
 		append(names, want_name(lexer)?: str);
 		switch (want_btoken(lexer, btoken::COMMA, btoken::RBRACE)?) {
-			btoken::COMMA => void,
+			btoken::COMMA => match (try_btoken(lexer, btoken::RBRACE)?) {
+				void => void,
+				* => return names,
+			},
 			btoken::RBRACE => return names,
 			* => abort(), // Unreachable
 		};

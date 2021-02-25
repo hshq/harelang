@@ -135,7 +135,7 @@ use strings;
 		const in =
 			"use foo::{bar};\n"
 			"use baz::{bat, qux};\n"
-			"use quux::corge::{grault, garply};\n"
+			"use quux::corge::{grault, garply,};\n"
 			"export fn main() void = void;";
 		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
 		let lexer = lex::lexer_init(buf, "<test>");
