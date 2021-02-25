@@ -56,7 +56,7 @@ export fn finish(s: *io::stream) []u8 = {
 };
 
 // Returns the current buffer.
-export fn buffer(s: *io::stream) ([]u8 | io::unsupported) = {
+export fn buffer(s: *io::stream) []u8 = {
 	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
 		abort("bufio::buffer called on non-bufio stream");
 	};
@@ -66,9 +66,9 @@ export fn buffer(s: *io::stream) ([]u8 | io::unsupported) = {
 
 // Resets the buffer's length to zero, but keeps the allocated memory around for
 // future writes.
-export fn reset(s: *io::stream) (void | io::unsupported) = {
+export fn reset(s: *io::stream) void = {
 	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
-		return io::unsupported;
+		abort("bufio::reset called on non-bufio stream");
 	};
 	const s = s: *dynamic_stream;
 	s.buf = s.buf[..0];
@@ -88,18 +88,18 @@ export fn truncate(s: *io::stream) (void | io::unsupported) = {
 	// TODO: slice/array equality
 	let s = dynamic();
 	assert(io::write(s, [1, 2, 3]) as size == 3);
-	assert(bytes::equal(buffer(s) as []u8, [1, 2, 3]));
+	assert(bytes::equal(buffer(s), [1, 2, 3]));
 	assert(io::write(s, [4, 5]) as size == 2);
-	assert(bytes::equal(buffer(s) as []u8, [1, 2, 3, 4, 5]));
+	assert(bytes::equal(buffer(s), [1, 2, 3, 4, 5]));
 	let buf: [2]u8 = [0...];
 	assert(io::read(s, buf[..]) as size == 2 && bytes::equal(buf, [1, 2]));
 	assert(io::read(s, buf[..]) as size == 2 && bytes::equal(buf, [3, 4]));
 	assert(io::read(s, buf[..]) as size == 1 && buf[0] == 5);
 	assert(io::read(s, buf[..]) is io::EOF);
 	assert(io::write(s, [1, 2, 3]) as size == 3);
-	assert(reset(s) is void);
-	assert(len(buffer(s) as []u8) == 0);
+	reset(s);
+	assert(len(buffer(s)) == 0);
 	assert(io::write(s, [1, 2, 3]) as size == 3);
 	assert(truncate(s) is void);
-	assert(len(buffer(s) as []u8) == 0);
+	assert(len(buffer(s)) == 0);
 };
