@@ -99,4 +99,69 @@ use strings;
 		let tok = lex::lex(&lexer) as (lex::token, lex::location);
 		assert(tok.0 as lex::btoken == lex::btoken::EXPORT);
 	};
+
+	{
+		const in =
+			"use foo = bar;\n"
+			"use baz = bat;\n"
+			"use qux = quux::corge;\n"
+			"export fn main() void = void;";
+		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
+		let lexer = lex::lexer_init(buf, "<test>");
+		let mods = imports(&lexer) as []ast::import;
+		defer for (let i = 0z; i < len(mods); i += 1) {
+			ast::import_free(mods[i]);
+		};
+
+		assert(len(mods) == 3);
+		let expected: [_](str, []str) = [
+			("foo", ["bar"]),
+			("baz", ["bat"]),
+			("qux", ["corge", "quux"])
+		];
+
+		for (let i = 0z; i < len(mods); i += 1) {
+			assert(mods[i] is ast::import_alias);
+			let mod = mods[i] as ast::import_alias;
+			assert(mod.alias == expected[i].0);
+			assert(len(mod.ident) == len(expected[i].1));
+			for (let j = 0z; j < len(expected[i].1); j += 1z) {
+				assert(mod.ident[j] == expected[i].1[j]);
+			};
+		};
+	};
+
+	{
+		const in =
+			"use foo::{bar};\n"
+			"use baz::{bat, qux};\n"
+			"use quux::corge::{grault, garply};\n"
+			"export fn main() void = void;";
+		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
+		let lexer = lex::lexer_init(buf, "<test>");
+		let mods = imports(&lexer) as []ast::import;
+		defer for (let i = 0z; i < len(mods); i += 1) {
+			ast::import_free(mods[i]);
+		};
+
+		assert(len(mods) == 3);
+		let expected: [_]([]str, []str) = [
+			(["foo"], ["bar"]),
+			(["baz"], ["bat", "qux"]),
+			(["corge", "quux"], ["grault", "garply"])
+		];
+
+		for (let i = 0z; i < len(mods); i += 1) {
+			assert(mods[i] is ast::import_objects);
+			let mod = mods[i] as ast::import_objects;
+			assert(len(mod.objects) == len(expected[i].1));
+			for (let j = 0z; j < len(expected[i].0); j += 1z) {
+				assert(mod.objects[j] == expected[i].1[j]);
+			};
+			assert(len(mod.ident) == len(expected[i].0));
+			for (let j = 0z; j < len(expected[i].0); j += 1z) {
+				assert(mod.ident[j] == expected[i].0[j]);
+			};
+		};
+	};
 };

@@ -15,6 +15,20 @@ fn want_name(lexer: *lex::lexer) (lex::name | error) = {
 	};
 };
 
+// Looks for a matching name from the lexer, and if not present, unlexes the
+// token and returns void. If found, the token is consumed from the lexer and is
+// returned.
+fn try_name(lexer: *lex::lexer) (lex::name | error | void) = {
+	let tuple = match (lex::lex(lexer)?) {
+		io::EOF => return,
+		t: (lex::token, lex::location) => match (t.0) {
+			n: lex::name => return n,
+			* => t,
+		},
+	};
+	lex::unlex(lexer, tuple);
+};
+
 // Requires the next token to be a name. Returns that name, or an error.
 fn want_btoken(
 	lexer: *lex::lexer,
@@ -65,4 +79,11 @@ fn try_btoken(
 		},
 	};
 	lex::unlex(lexer, tuple);
+};
+
+// Returns a syntax error if cond is false and void otherwise
+fn synassert(loc: lex::location, cond: bool, msg: str) (void | error) = {
+	if (!cond) {
+		return syntaxerr(loc, msg);
+	};
 };
