@@ -64,3 +64,42 @@ export fn join(st: *io::stream, delim: str, strs: str...) (size | io::error) = {
 	join(st, "::", "foo") as size;
 	assert(string(st) == "foo");
 };
+
+// Joins several strings together by a delimiter and writes them to a stream, in
+// reverse order. The stream needn't be a strio stream, but it's often more
+// efficient if it is. Returns the number of bytes written, or an error.
+export fn rjoin(st: *io::stream, delim: str, strs: str...) (size | io::error) = {
+	let n = 0z;
+	let delim = strings::to_utf8(delim);
+	for (let i = len(strs); i > 0; i -= 1) {
+		let q = 0z;
+		let buf = strings::to_utf8(strs[i - 1]);
+		for (q < len(buf)) {
+			let w = io::write(st, buf[q..])?;
+			n += w;
+			q -= w;
+		};
+		if (i - 1 > 0) {
+			let q = 0z;
+			for (q < len(delim)) {
+				let w = io::write(st, delim[q..])?;
+				n += w;
+				q -= w;
+			};
+		};
+	};
+	return n;
+};
+
+@test fn rjoin() void = {
+	let st = dynamic();
+	defer io::close(st);
+	rjoin(st, "::", "hello", "world") as size;
+	assert(string(st) == "world::hello");
+	truncate(st);
+	rjoin(st, "::") as size;
+	assert(string(st) == "");
+	truncate(st);
+	rjoin(st, "::", "foo") as size;
+	assert(string(st) == "foo");
+};
