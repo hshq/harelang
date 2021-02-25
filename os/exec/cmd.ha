@@ -48,10 +48,7 @@ export fn cmd(name: str, args: str...) (command | error) = {
 		argv = alloc([], len(args) + 1z),
 		...
 	};
-	append(cmd.argv, name);
-	for (let i = 0z; i < len(args); i += 1z) {
-		append(cmd.argv, args[i]);
-	};
+	append(cmd.argv, name, ...args);
 	return cmd;
 };
 
