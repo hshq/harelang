@@ -36,6 +36,26 @@ export fn finish(s: *io::stream) str = {
 	return strings::from_utf8(buf);
 };
 
+// Resets the buffer's length to zero, but keeps the allocated memory around for
+// future writes.
+export fn reset(s: *io::stream) (void | io::unsupported) = {
+	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
+		return io::unsupported;
+	};
+	const s = s: *dynamic_stream;
+	s.buf = s.buf[..0];
+};
+
+// Truncates the buffer, freeing memory associated with it and setting its
+// length to zero.
+export fn truncate(s: *io::stream) (void | io::unsupported) = {
+	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
+		return io::unsupported;
+	};
+	let s = s: *dynamic_stream;
+	delete(s.buf[..]);
+};
+
 fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *dynamic_stream;
 	append(s.buf, ...buf);
