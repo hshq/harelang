@@ -171,7 +171,7 @@ export fn fprintf(
 				*   => abort("Invalid format string"),
 			};
 
-			format(s, arg, &mod);
+			n += format(s, arg, &mod)?;
 		} else if (r == '}') {
 			match (strings::next(&iter)) {
 				void => abort("Invalid format string (hanging '}')"),
@@ -187,11 +187,37 @@ export fn fprintf(
 	return n;
 };
 
-fn format(
+fn format(out: *io::stream, arg: formattable, mod: *modifiers) (size | io::error) = {
+	let z = format_raw(io::empty, arg, mod)?;
+
+	let pad: []u8 = [];
+	if (z < mod.width: size) {
+		pad = utf8::encode_rune(switch (mod.padding) {
+			padding::ZEROES => '0',
+			* => ' ',
+		});
+	};
+
+	if (mod.padding == padding::ALIGN_RIGHT) {
+		format_raw(out, arg, mod);
+	};
+
+	for (z < mod.width: size) {
+		z += io::write(out, pad)?;
+	};
+
+	if (mod.padding != padding::ALIGN_RIGHT) {
+		format_raw(out, arg, mod);
+	};
+
+	return z;
+};
+
+fn format_raw(
 	out: *io::stream,
 	arg: formattable,
 	mod: *modifiers,
-) void = match (arg) {
+) (size | io::error) = match (arg) {
 	s: str => io::write(out, strings::to_utf8(s)),
 	r: rune => io::write(out, utf8::encode_rune(r)),
 	n: types::numeric => {
@@ -206,12 +232,14 @@ fn format(
 		v: *void => {
 			let s = strconv::uptrtosb(v: uintptr,
 				strconv::base::HEX_LOWER);
-			io::write(out, strings::to_utf8("0x"));
-			io::write(out, strings::to_utf8(s));
+			let n = io::write(out, strings::to_utf8("0x"))?;
+			n += io::write(out, strings::to_utf8(s))?;
+			n;
 		},
 		null => format(out, "(null)", mod),
 	},
 };
+
 
 fn scan_uint(iter: *strings::iterator) uint = {
 	let num: []u8 = [];
