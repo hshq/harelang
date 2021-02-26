@@ -177,7 +177,8 @@ endian() {
 	gen_srcs endian \
 		big.ha \
 		little.ha \
-		endian.ha
+		endian.ha \
+		'host$(ARCH).ha'
 	gen_ssa endian
 }
 
@@ -266,6 +267,13 @@ hash() {
 	gen_srcs hash \
 		hash.ha
 	gen_ssa hash io
+}
+
+hash_fnv() {
+	printf '# hash::fnv\n'
+	gen_srcs hash::fnv \
+		fnv.ha
+	gen_ssa hash::fnv hash io strings
 }
 
 gensrcs_io() {
@@ -439,6 +447,7 @@ hare_lex
 hare_module
 hare_parse
 hash
+hash_fnv
 io
 os
 os_exec

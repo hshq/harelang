@@ -111,6 +111,9 @@ hare_stdlib_deps+=$(stdlib_hare_parse)
 stdlib_hash=$(HARECACHE)/hash/hash.o
 hare_stdlib_deps+=$(stdlib_hash)
 
+stdlib_hash_fnv=$(HARECACHE)/hash/fnv/hash.fnv.o
+hare_stdlib_deps+=$(stdlib_hash_fnv)
+
 stdlib_io=$(HARECACHE)/io/io.o
 hare_stdlib_deps+=$(stdlib_io)
 
@@ -235,7 +238,8 @@ $(HARECACHE)/encoding/utf8/encoding.utf8.ssa: $(stdlib_encoding_utf8_srcs) $(std
 stdlib_endian_srcs= \
 	$(STDLIB)/endian/big.ha \
 	$(STDLIB)/endian/little.ha \
-	$(STDLIB)/endian/endian.ha
+	$(STDLIB)/endian/endian.ha \
+	$(STDLIB)/endian/host$(ARCH).ha
 
 $(HARECACHE)/endian/endian.ssa: $(stdlib_endian_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -329,6 +333,16 @@ $(HARECACHE)/hash/hash.ssa: $(stdlib_hash_srcs) $(stdlib_rt) $(stdlib_io)
 	@mkdir -p $(HARECACHE)/hash
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash \
 		-t$(HARECACHE)/hash/hash.td $(stdlib_hash_srcs)
+
+# hash::fnv
+stdlib_hash_fnv_srcs= \
+	$(STDLIB)/hash/fnv/fnv.ha
+
+$(HARECACHE)/hash/fnv/hash.fnv.ssa: $(stdlib_hash_fnv_srcs) $(stdlib_rt) $(stdlib_hash) $(stdlib_io) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hash/fnv
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::fnv \
+		-t$(HARECACHE)/hash/fnv/hash.fnv.td $(stdlib_hash_fnv_srcs)
 
 # io
 stdlib_io_srcs= \
@@ -579,6 +593,9 @@ hare_testlib_deps+=$(testlib_hare_parse)
 testlib_hash=$(TESTCACHE)/hash/hash.o
 hare_testlib_deps+=$(testlib_hash)
 
+testlib_hash_fnv=$(TESTCACHE)/hash/fnv/hash.fnv.o
+hare_testlib_deps+=$(testlib_hash_fnv)
+
 testlib_io=$(TESTCACHE)/io/io.o
 hare_testlib_deps+=$(testlib_io)
 
@@ -704,7 +721,8 @@ $(TESTCACHE)/encoding/utf8/encoding.utf8.ssa: $(testlib_encoding_utf8_srcs) $(te
 testlib_endian_srcs= \
 	$(STDLIB)/endian/big.ha \
 	$(STDLIB)/endian/little.ha \
-	$(STDLIB)/endian/endian.ha
+	$(STDLIB)/endian/endian.ha \
+	$(STDLIB)/endian/host$(ARCH).ha
 
 $(TESTCACHE)/endian/endian.ssa: $(testlib_endian_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -800,6 +818,16 @@ $(TESTCACHE)/hash/hash.ssa: $(testlib_hash_srcs) $(testlib_rt) $(testlib_io)
 	@mkdir -p $(TESTCACHE)/hash
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash \
 		-t$(TESTCACHE)/hash/hash.td $(testlib_hash_srcs)
+
+# hash::fnv
+testlib_hash_fnv_srcs= \
+	$(STDLIB)/hash/fnv/fnv.ha
+
+$(TESTCACHE)/hash/fnv/hash.fnv.ssa: $(testlib_hash_fnv_srcs) $(testlib_rt) $(testlib_hash) $(testlib_io) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash/fnv
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::fnv \
+		-t$(TESTCACHE)/hash/fnv/hash.fnv.td $(testlib_hash_fnv_srcs)
 
 # io
 testlib_io_srcs= \
