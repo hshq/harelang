@@ -78,6 +78,9 @@ hare_stdlib_deps+=$(stdlib_crypto_random)
 stdlib_crypto_sha256=$(HARECACHE)/crypto/sha256/crypto.sha256.o
 hare_stdlib_deps+=$(stdlib_crypto_sha256)
 
+stdlib_encoding_hex=$(HARECACHE)/encoding/hex/encoding.hex.o
+hare_stdlib_deps+=$(stdlib_encoding_hex)
+
 stdlib_encoding_utf8=$(HARECACHE)/encoding/utf8/encoding.utf8.o
 hare_stdlib_deps+=$(stdlib_encoding_utf8)
 
@@ -205,6 +208,16 @@ $(HARECACHE)/crypto/sha256/crypto.sha256.ssa: $(stdlib_crypto_sha256_srcs) $(std
 	@mkdir -p $(HARECACHE)/crypto/sha256
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::sha256 \
 		-t$(HARECACHE)/crypto/sha256/crypto.sha256.td $(stdlib_crypto_sha256_srcs)
+
+# encoding::hex
+stdlib_encoding_hex_srcs= \
+	$(STDLIB)/encoding/hex/hex.ha
+
+$(HARECACHE)/encoding/hex/encoding.hex.ssa: $(stdlib_encoding_hex_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strconv) $(stdlib_strio) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/encoding/hex
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::hex \
+		-t$(HARECACHE)/encoding/hex/encoding.hex.td $(stdlib_encoding_hex_srcs)
 
 # encoding::utf8
 stdlib_encoding_utf8_srcs= \
@@ -530,6 +543,9 @@ hare_testlib_deps+=$(testlib_crypto_random)
 testlib_crypto_sha256=$(TESTCACHE)/crypto/sha256/crypto.sha256.o
 hare_testlib_deps+=$(testlib_crypto_sha256)
 
+testlib_encoding_hex=$(TESTCACHE)/encoding/hex/encoding.hex.o
+hare_testlib_deps+=$(testlib_encoding_hex)
+
 testlib_encoding_utf8=$(TESTCACHE)/encoding/utf8/encoding.utf8.o
 hare_testlib_deps+=$(testlib_encoding_utf8)
 
@@ -658,6 +674,16 @@ $(TESTCACHE)/crypto/sha256/crypto.sha256.ssa: $(testlib_crypto_sha256_srcs) $(te
 	@mkdir -p $(TESTCACHE)/crypto/sha256
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha256 \
 		-t$(TESTCACHE)/crypto/sha256/crypto.sha256.td $(testlib_crypto_sha256_srcs)
+
+# encoding::hex
+testlib_encoding_hex_srcs= \
+	$(STDLIB)/encoding/hex/hex.ha
+
+$(TESTCACHE)/encoding/hex/encoding.hex.ssa: $(testlib_encoding_hex_srcs) $(testlib_rt) $(testlib_io) $(testlib_strconv) $(testlib_strio) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/encoding/hex
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::hex \
+		-t$(TESTCACHE)/encoding/hex/encoding.hex.td $(testlib_encoding_hex_srcs)
 
 # encoding::utf8
 testlib_encoding_utf8_srcs= \

@@ -155,6 +155,13 @@ crypto_sha256() {
 	fi
 }
 
+encoding_hex() {
+	printf '# encoding::hex\n'
+	gen_srcs encoding::hex \
+		hex.ha
+	gen_ssa encoding::hex io strconv strio strings
+}
+
 encoding_utf8() {
 	# XXX: Also has ordering issues
 	printf '# encoding::utf8\n'
@@ -416,6 +423,7 @@ bytes
 crypto_math
 crypto_random
 crypto_sha256
+encoding_hex
 encoding_utf8
 endian
 fmt
