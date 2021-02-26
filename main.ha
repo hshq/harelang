@@ -1,62 +1,19 @@
 use fmt;
-use hare::ast;
-use hare::lex;
-use hare::parse;
-use io;
+use hare::module;
 use os;
-use fs;
 
 export fn main() void = {
-	let in = switch (len(os::args)) {
-		1 => (os::stdin, "<stdin>"),
-		2 => {
-			let fd = match (fs::open(os::cwd, os::args[1], io::mode::READ)) {
-				err: io::error => fmt::fatal("Error opening '{}': {}",
-					os::args[1], io::errstr(err)),
-				fd: *io::stream => fd,
-			};
-			(fd, os::args[1]);
-		},
-		* => fmt::fatal("Usage: {} [<input>]", os::args[0]),
-	};
-	defer io::close(in.0);
-
-	let lexer = lex::lexer_init(in.0, in.1);
-	let imports = match (parse::imports(&lexer)) {
-		err: parse::error => fmt::fatal("{}", parse::errstr(err)),
-		i: []ast::import => i,
-	};
-	defer for (let i = 0z; i < len(imports); i += 1) {
-		ast::import_free(imports[i]);
+	if (len(os::args) == 1) {
+		fmt::fatal("Usage: {} <path>", os::args[0]);
 	};
 
-	fmt::errorln("{} has {} imports:", in.1, len(imports));
-	for (let i = 0z; i < len(imports); i += 1) {
-		fmt::printf("use ");
-		let name = match (imports[i]) {
-			m: ast::import_module => m: ast::ident,
-			a: ast::import_alias => {
-				fmt::printf("{} = ", a.alias);
-				a.ident;
-			},
-			o: ast::import_objects => o.ident,
-		};
-		for (let i = len(name): int - 1; i >= 0; i -= 1) {
-			fmt::printf("{}{}", name[i],
-				if (i != 0) "::" else "");
-		};
-		match (imports[i]) {
-			o: ast::import_objects => {
-				for (let i = 0z; i < len(o.objects); i += 1) {
-					fmt::printf("{}{}{}",
-						if (i == 0) "::{" else "",
-						o.objects[i],
-						if (i == len(o.objects) - 1) "}"
-						else ", ");
-				};
-			},
-			* => void,
-		};
-		fmt::println(";");
+	let ctx = module::context_init([]);
+	let ver = match (module::scan(&ctx, os::args[1])) {
+		ver: module::version => ver,
+		err: module::error => fmt::fatal("Error scanning module: {}",
+			module::errstr(err)),
+	};
+	for (let i = 0z; i < len(ver.inputs); i += 1) {
+		fmt::println("in: {}", ver.inputs[i].path as str);
 	};
 };
