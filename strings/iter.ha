@@ -51,10 +51,11 @@ export fn prev(iter: *iterator) (rune | void) = {
 	};
 };
 
-
-// Pushes a rune back to the iterator, effectively un-reading it. The given rune
-// will be returned on the next call to 'next'. First operation on
-// the iterator after pushing must be a next() call
+// Causes the next call to [next] to return the provided rune, effectively
+// un-reading it. The next call using this iterator *must* be [next]; all other
+// functions will cause the program to abort until the pushed rune is consumed.
+// This does not modify the underlying string, and as such, subsequent calls to
+// functions like [prev] or [iter_str] will behave as if push were never called.
 export fn push(iter: *iterator, r: rune) void = {
 	assert(iter.push is void);
 	iter.push = r;
