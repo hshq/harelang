@@ -155,7 +155,7 @@ fs() {
 		types.ha \
 		fs.ha \
 		util.ha
-	gen_ssa fs io strings
+	gen_ssa fs io strings path
 }
 
 hare_ast() {
@@ -182,6 +182,15 @@ hare_lex() {
 			+test.ha
 	fi
 	gen_ssa hare::lex io bufio strings types fmt sort
+}
+
+hare_module() {
+	printf '# hare::module\n'
+	gen_srcs hare::module \
+		types.ha \
+		context.ha \
+		scan.ha
+	gen_ssa hare::module hare::ast hare::lex hare::parse strio fs io strings
 }
 
 gensrcs_hare_parse() {
@@ -262,6 +271,15 @@ os_exec() {
 		'$(PLATFORM).ha' \
 		cmd.ha
 	gen_ssa os::exec os strings
+}
+
+path() {
+	printf '# path\n'
+	gen_srcs path \
+		'$(PLATFORM).ha' \
+		util.ha \
+		join.ha
+	gen_ssa path strings bufio
 }
 
 gensrcs_strconv() {
@@ -358,10 +376,12 @@ format_elf
 fs
 hare_ast
 hare_lex
+hare_module
 hare_parse
 io
 os
 os_exec
+path
 slice
 sort
 strconv

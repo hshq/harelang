@@ -90,6 +90,9 @@ hare_stdlib_deps+=$(stdlib_hare_ast)
 stdlib_hare_lex=$(HARECACHE)/hare/lex/hare.lex.o
 hare_stdlib_deps+=$(stdlib_hare_lex)
 
+stdlib_hare_module=$(HARECACHE)/hare/module/hare.module.o
+hare_stdlib_deps+=$(stdlib_hare_module)
+
 stdlib_hare_parse=$(HARECACHE)/hare/parse/hare.parse.o
 hare_stdlib_deps+=$(stdlib_hare_parse)
 
@@ -101,6 +104,9 @@ hare_stdlib_deps+=$(stdlib_os)
 
 stdlib_os_exec=$(HARECACHE)/os/exec/os.exec.o
 hare_stdlib_deps+=$(stdlib_os_exec)
+
+stdlib_path=$(HARECACHE)/path/path.o
+hare_stdlib_deps+=$(stdlib_path)
 
 stdlib_slice=$(HARECACHE)/slice/slice.o
 hare_stdlib_deps+=$(stdlib_slice)
@@ -206,7 +212,7 @@ stdlib_fs_srcs= \
 	$(STDLIB)/fs/fs.ha \
 	$(STDLIB)/fs/util.ha
 
-$(HARECACHE)/fs/fs.ssa: $(stdlib_fs_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings)
+$(HARECACHE)/fs/fs.ssa: $(stdlib_fs_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_path)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/fs
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfs \
@@ -232,6 +238,18 @@ $(HARECACHE)/hare/lex/hare.lex.ssa: $(stdlib_hare_lex_srcs) $(stdlib_rt) $(stdli
 	@mkdir -p $(HARECACHE)/hare/lex
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::lex \
 		-t$(HARECACHE)/hare/lex/hare.lex.td $(stdlib_hare_lex_srcs)
+
+# hare::module
+stdlib_hare_module_srcs= \
+	$(STDLIB)/hare/module/types.ha \
+	$(STDLIB)/hare/module/context.ha \
+	$(STDLIB)/hare/module/scan.ha
+
+$(HARECACHE)/hare/module/hare.module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hare/module
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::module \
+		-t$(HARECACHE)/hare/module/hare.module.td $(stdlib_hare_module_srcs)
 
 # hare::parse
 stdlib_hare_parse_srcs= \
@@ -290,6 +308,18 @@ $(HARECACHE)/os/exec/os.exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_o
 	@mkdir -p $(HARECACHE)/os/exec
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
 		-t$(HARECACHE)/os/exec/os.exec.td $(stdlib_os_exec_srcs)
+
+# path
+stdlib_path_srcs= \
+	$(STDLIB)/path/$(PLATFORM).ha \
+	$(STDLIB)/path/util.ha \
+	$(STDLIB)/path/join.ha
+
+$(HARECACHE)/path/path.ssa: $(stdlib_path_srcs) $(stdlib_rt) $(stdlib_strings) $(stdlib_bufio)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/path
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Npath \
+		-t$(HARECACHE)/path/path.td $(stdlib_path_srcs)
 
 # slice
 stdlib_slice_srcs= \
@@ -460,6 +490,9 @@ hare_testlib_deps+=$(testlib_hare_ast)
 testlib_hare_lex=$(TESTCACHE)/hare/lex/hare.lex.o
 hare_testlib_deps+=$(testlib_hare_lex)
 
+testlib_hare_module=$(TESTCACHE)/hare/module/hare.module.o
+hare_testlib_deps+=$(testlib_hare_module)
+
 testlib_hare_parse=$(TESTCACHE)/hare/parse/hare.parse.o
 hare_testlib_deps+=$(testlib_hare_parse)
 
@@ -471,6 +504,9 @@ hare_testlib_deps+=$(testlib_os)
 
 testlib_os_exec=$(TESTCACHE)/os/exec/os.exec.o
 hare_testlib_deps+=$(testlib_os_exec)
+
+testlib_path=$(TESTCACHE)/path/path.o
+hare_testlib_deps+=$(testlib_path)
 
 testlib_slice=$(TESTCACHE)/slice/slice.o
 hare_testlib_deps+=$(testlib_slice)
@@ -576,7 +612,7 @@ testlib_fs_srcs= \
 	$(STDLIB)/fs/fs.ha \
 	$(STDLIB)/fs/util.ha
 
-$(TESTCACHE)/fs/fs.ssa: $(testlib_fs_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings)
+$(TESTCACHE)/fs/fs.ssa: $(testlib_fs_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_path)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/fs
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs \
@@ -603,6 +639,18 @@ $(TESTCACHE)/hare/lex/hare.lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(tes
 	@mkdir -p $(TESTCACHE)/hare/lex
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::lex \
 		-t$(TESTCACHE)/hare/lex/hare.lex.td $(testlib_hare_lex_srcs)
+
+# hare::module
+testlib_hare_module_srcs= \
+	$(STDLIB)/hare/module/types.ha \
+	$(STDLIB)/hare/module/context.ha \
+	$(STDLIB)/hare/module/scan.ha
+
+$(TESTCACHE)/hare/module/hare.module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/module
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module \
+		-t$(TESTCACHE)/hare/module/hare.module.td $(testlib_hare_module_srcs)
 
 # hare::parse
 testlib_hare_parse_srcs= \
@@ -666,6 +714,18 @@ $(TESTCACHE)/os/exec/os.exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testli
 	@mkdir -p $(TESTCACHE)/os/exec
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
 		-t$(TESTCACHE)/os/exec/os.exec.td $(testlib_os_exec_srcs)
+
+# path
+testlib_path_srcs= \
+	$(STDLIB)/path/$(PLATFORM).ha \
+	$(STDLIB)/path/util.ha \
+	$(STDLIB)/path/join.ha
+
+$(TESTCACHE)/path/path.ssa: $(testlib_path_srcs) $(testlib_rt) $(testlib_strings) $(testlib_bufio)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/path
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Npath \
+		-t$(TESTCACHE)/path/path.td $(testlib_path_srcs)
 
 # slice
 testlib_slice_srcs= \
