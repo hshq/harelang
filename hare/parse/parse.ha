@@ -9,10 +9,7 @@ fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	for (true) {
 		let name = match (try_name(lexer)?) {
 			n: lex::name => n,
-			void => {
-				slice::reverse(ident, size(ast::ident));
-				return (ident: ast::ident, true);
-			},
+			void => return (ident: ast::ident, true),
 		};
 		append(ident, name: str);
 		z += len(name);
@@ -27,7 +24,6 @@ fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 		return syntaxerr(mkloc(lexer),
 			"Identifier exceeds maximum length");
 	};
-	slice::reverse(ident, size(ast::ident));
 	return (ident: ast::ident, false);
 };
 

@@ -1,5 +1,4 @@
-// Identifies a single object, e.g. foo::bar::baz, ordered from least to most
-// significant part (foo::bar::baz becomes ["baz", "bar", "foo"].
+// Identifies a single object, e.g. foo::bar::baz.
 export type ident = []str;
 
 // Maximum length of an identifier, as the sum of the lengths of its parts plus

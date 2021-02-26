@@ -24,7 +24,7 @@ use strings;
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 2);
-		assert(ident[0] == "bar" && ident[1] == "foo");
+		assert(ident[0] == "foo" && ident[1] == "bar");
 		assert(lex::lex(&lexer) is io::EOF);
 	};
 
@@ -35,8 +35,8 @@ use strings;
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 3);
-		assert(ident[0] == "baz" && ident[1] == "bar"
-			&& ident[2] == "foo");
+		assert(ident[0] == "foo" && ident[1] == "bar"
+			&& ident[2] == "baz");
 		assert(lex::lex(&lexer) is io::EOF);
 	};
 
@@ -47,7 +47,7 @@ use strings;
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 2);
-		assert(ident[0] == "bar" && ident[1] == "foo");
+		assert(ident[0] == "foo" && ident[1] == "bar");
 		let tok = lex::lex(&lexer) as (lex::token, lex::location);
 		assert(tok.0 as lex::btoken == lex::btoken::SEMICOLON);
 	};
@@ -85,7 +85,7 @@ use strings;
 		};
 
 		assert(len(mods) == 3);
-		let expected: [_][]str = [["foo"], ["bar"], ["bat", "baz"]];
+		let expected: [_][]str = [["foo"], ["bar"], ["baz", "bat"]];
 
 		for (let i = 0z; i < len(mods); i += 1) {
 			assert(mods[i] is ast::import_module);
@@ -117,7 +117,7 @@ use strings;
 		let expected: [_](str, []str) = [
 			("foo", ["bar"]),
 			("baz", ["bat"]),
-			("qux", ["corge", "quux"])
+			("qux", ["quux", "corge"])
 		];
 
 		for (let i = 0z; i < len(mods); i += 1) {
@@ -148,7 +148,7 @@ use strings;
 		let expected: [_]([]str, []str) = [
 			(["foo"], ["bar"]),
 			(["baz"], ["bat", "qux"]),
-			(["corge", "quux"], ["grault", "garply"])
+			(["quux", "corge"], ["grault", "garply"])
 		];
 
 		for (let i = 0z; i < len(mods); i += 1) {
