@@ -4,9 +4,6 @@ export type slice = struct {
 	capacity: size,
 };
 
-fn io::println(msgs: str...) void;
-fn strconv::ztos(z: size) str;
-
 export fn ensure(s: *slice, membsz: size) void = {
 	let cap = s.capacity;
 	if (cap > s.length) {
