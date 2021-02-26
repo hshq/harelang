@@ -8,8 +8,12 @@ export type noentry = void!;
 // The user does not have permission to use this resource.
 export type noaccess = void!;
 
+// An entry of a particular type was sought, but is something else in practice.
+// For example, opening a file with [iter].
+export type wrongtype = void!;
+
 // All possible fs error types.
-export type error = (noentry | noaccess | io::error)!;
+export type error = (noentry | noaccess | wrongtype | io::error)!;
 
 // File mode information. These bits do not necessarily reflect the underlying
 // operating system's mode representation, though they were chosen to be

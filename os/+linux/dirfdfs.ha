@@ -219,7 +219,12 @@ fn fs_iter(fs: *fs::fs, path: path::path) (*fs::iterator | fs::error) = {
 	};
 	let fd: int = match (rt::openat2(fs.dirfd, pathbytes(path),
 			&oh, size(rt::open_how))) {
-		err: rt::errno => return errno_to_io(err),
+		err: rt::errno => {
+			if (err: int == rt::ENOTDIR) {
+				return fs::wrongtype;
+			};
+			return errno_to_io(err);
+		},
 		n: int => n,
 	};
 
