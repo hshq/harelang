@@ -275,6 +275,7 @@ gensrcs_io() {
 		stream.ha \
 		limit.ha \
 		strings.ha \
+		tee.ha \
 		$*
 }
 
