@@ -1,3 +1,4 @@
+use encoding::hex;
 use fmt;
 use hare::module;
 use os;
@@ -14,7 +15,8 @@ export fn main() void = {
 			module::errstr(err)),
 	};
 	for (let i = 0z; i < len(ver.inputs); i += 1) {
-		fmt::println("in: {}\t{}", ver.inputs[i].path as str,
-			ver.inputs[i].hash);
+		let hash = hex::encode(ver.inputs[i].hash);
+		defer free(hash);
+		fmt::println("in: {}\t{}", ver.inputs[i].path as str, hash);
 	};
 };
