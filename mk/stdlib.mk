@@ -233,7 +233,9 @@ $(HARECACHE)/encoding/utf8/encoding.utf8.ssa: $(stdlib_encoding_utf8_srcs) $(std
 
 # endian
 stdlib_endian_srcs= \
-	$(STDLIB)/endian/big.ha
+	$(STDLIB)/endian/big.ha \
+	$(STDLIB)/endian/little.ha \
+	$(STDLIB)/endian/endian.ha
 
 $(HARECACHE)/endian/endian.ssa: $(stdlib_endian_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -700,7 +702,9 @@ $(TESTCACHE)/encoding/utf8/encoding.utf8.ssa: $(testlib_encoding_utf8_srcs) $(te
 
 # endian
 testlib_endian_srcs= \
-	$(STDLIB)/endian/big.ha
+	$(STDLIB)/endian/big.ha \
+	$(STDLIB)/endian/little.ha \
+	$(STDLIB)/endian/endian.ha
 
 $(TESTCACHE)/endian/endian.ssa: $(testlib_endian_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'

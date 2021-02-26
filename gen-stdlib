@@ -174,8 +174,10 @@ encoding_utf8() {
 
 endian() {
 	printf '# endian\n'
-	gen_srcs endian\
-		big.ha
+	gen_srcs endian \
+		big.ha \
+		little.ha \
+		endian.ha
 	gen_ssa endian
 }
 
