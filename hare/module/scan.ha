@@ -1,24 +1,44 @@
+use crypto::sha256;
+use encoding::hex;
 use fs;
 use hare::ast;
+use hash;
 use io;
 use path;
 use slice;
 use strings;
 
+fn hash_file(ctx: *context, path: path::path) (str | error) = {
+	let sha = sha256::sha256();
+	//defer! hash::close(sha);
+	let f = fs::open(ctx.fs, path, io::mode::READ)?;
+	io::copy(hash::writer(sha), f)?;
+	let sum = hash::finish(sha);
+	defer free(sum);
+	return hex::encode(sum);
+};
+
 // Scans the files in a directory for eligible build inputs and returns a
 // [version] which includes all applicable files.
 export fn scan(ctx: *context, path: path::path) (version | error) = {
+	let sha = sha256::sha256();
+	//defer! hash::close(sha);
 	let inputs: []input = [];
 	let iter = match (fs::iter(ctx.fs, path)) {
 		fs::wrongtype => {
 			let st = fs::stat(ctx.fs, path)?;
-			append(inputs, input {
+			let in = input {
 				path = path,
 				stat = st,
+				hash = hash_file(ctx, path)?,
 				...
-			});
+			};
+			append(inputs, in);
+			hash::write(sha, strings::to_utf8(in.hash));
+			let sum = hash::finish(sha);
+			defer free(sum);
 			return version {
-				hash = "", // TODO
+				hash = hex::encode(sum),
 				inputs = inputs,
 			};
 		},
@@ -33,17 +53,22 @@ export fn scan(ctx: *context, path: path::path) (version | error) = {
 			fs::mode::REG => if (eligible(ctx, ent.name)) {
 				let p = path::join(path, ent.name);
 				let st = fs::stat(ctx.fs, p)?;
-				append(inputs, input {
+				let in = input {
 					path = p,
 					stat = st,
+					hash = hash_file(ctx, p)?,
 					...
-				});
+				};
+				append(inputs, in);
+				hash::write(sha, strings::to_utf8(in.hash));
 			},
 			* => void,
 		},
 	};
+	let sum = hash::finish(sha);
+	defer free(sum);
 	return version {
-		hash = "", // TODO
+		hash = hex::encode(sum),
 		inputs = inputs,
 	};
 };

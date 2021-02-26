@@ -31,6 +31,9 @@ export fn finish(h: *hash) []u8 = {
 	return sum;
 };
 
+// Closes a hash, freeing its resources and discarding the checksum.
+export fn close(h: *hash) void = io::close(&h.stream);
+
 // Returns the current sum. The return value is heap allocated, the caller
 // needs to free it.
 export fn sum(h: *hash) []u8 = h.sum(h);

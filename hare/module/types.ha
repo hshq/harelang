@@ -38,7 +38,7 @@ export type input = struct {
 export type module_not_found = void!;
 
 // All possible error types.
-export type error = (fs::error | io::error | module_not_found);
+export type error = (fs::error | io::error | module_not_found)!;
 
 export fn errstr(err: error) const str = match (err) {
 	err: fs::error => fs::errstr(err),
