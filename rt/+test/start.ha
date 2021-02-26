@@ -35,6 +35,9 @@ export @noreturn fn start_ha() void = {
 	print(" tests:\n\n");
 	time_start();
 	for (let i = 0z; i < ntest; i += 1) {
+		if (!should_test(test_start[i].name)) {
+			continue;
+		};
 		print(test_start[i].name);
 		dots(maxname - len(test_start[i].name) + 3);
 		print(" ");
@@ -96,4 +99,17 @@ fn dots(n: size) void = {
 	for (let i = 0z; i < n; i += 1) {
 		print(".");
 	};
+};
+
+fn should_test(name: str) bool = {
+	if (argc == 1) {
+		return true;
+	};
+	for (let i = 1z; i < argc; i += 1) {
+		let s = from_c_unsafe(argv[i]);
+		if (name == s) {
+			return true;
+		};
+	};
+	return false;
 };
