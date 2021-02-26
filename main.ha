@@ -14,9 +14,11 @@ export fn main() void = {
 		err: module::error => fmt::fatal("Error scanning module: {}",
 			module::errstr(err)),
 	};
+	let hash = hex::encode(ver.hash);
+	fmt::println("{}: {}", hash, os::args[1]);
 	for (let i = 0z; i < len(ver.inputs); i += 1) {
 		let hash = hex::encode(ver.inputs[i].hash);
 		defer free(hash);
-		fmt::println("in: {}\t{}", ver.inputs[i].path as str, hash);
+		fmt::println("\t {} {}", hash, ver.inputs[i].path as str);
 	};
 };
