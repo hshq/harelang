@@ -1,5 +1,4 @@
 use crypto::sha256;
-use encoding::hex;
 use fs;
 use hare::ast;
 use hash;
@@ -8,14 +7,12 @@ use path;
 use slice;
 use strings;
 
-fn hash_file(ctx: *context, path: path::path) (str | error) = {
+fn hash_file(ctx: *context, path: path::path) ([]u8 | error) = {
 	let sha = sha256::sha256();
 	//defer! hash::close(sha);
 	let f = fs::open(ctx.fs, path, io::mode::READ)?;
 	io::copy(hash::writer(sha), f)?;
-	let sum = hash::finish(sha);
-	defer free(sum);
-	return hex::encode(sum);
+	return hash::finish(sha);
 };
 
 // Scans the files in a directory for eligible build inputs and returns a
@@ -34,11 +31,9 @@ export fn scan(ctx: *context, path: path::path) (version | error) = {
 				...
 			};
 			append(inputs, in);
-			hash::write(sha, strings::to_utf8(in.hash));
-			let sum = hash::finish(sha);
-			defer free(sum);
+			hash::write(sha, in.hash);
 			return version {
-				hash = hex::encode(sum),
+				hash = hash::finish(sha),
 				inputs = inputs,
 			};
 		},
@@ -60,15 +55,13 @@ export fn scan(ctx: *context, path: path::path) (version | error) = {
 					...
 				};
 				append(inputs, in);
-				hash::write(sha, strings::to_utf8(in.hash));
+				hash::write(sha, in.hash);
 			},
 			* => void,
 		},
 	};
-	let sum = hash::finish(sha);
-	defer free(sum);
 	return version {
-		hash = hex::encode(sum),
+		hash = hash::finish(sha),
 		inputs = inputs,
 	};
 };

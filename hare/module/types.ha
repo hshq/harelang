@@ -23,13 +23,13 @@ export type manifest = struct {
 
 // A module version: a set of possible input files for that module.
 export type version = struct {
-	hash: str,
+	hash: []u8,
 	inputs: []input,
 };
 
 // An input to a module, generally a source file.
 export type input = struct {
-	hash: str,
+	hash: []u8,
 	path: path::path,
 	stat: fs::filestat,
 };
