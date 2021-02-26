@@ -6,7 +6,7 @@ use strings;
 
 @test fn unget() void = {
 	let buf = bufio::fixed(strings::to_utf8("z"), mode::READ);
-	let lexer = lexer_init(buf, "<test>");
+	let lexer = init(buf, "<test>");
 	unget(&lexer, 'x');
 	unget(&lexer, 'y');
 	assert(next(&lexer) as rune == 'y');
@@ -18,7 +18,7 @@ use strings;
 };
 
 @test fn unlex() void = {
-	let lexer = lexer_init(io::empty, "<test>");
+	let lexer = init(io::empty, "<test>");
 	unlex(&lexer, (btoken::IF, location {
 		path = "<test>",
 		line = 1234,
@@ -58,7 +58,7 @@ fn liteq(expected: literal, actual: literal) bool = {
 
 fn lextest(in: str, expected: [](uint, uint, token)) void = {
 	let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
-	let lexer = lexer_init(buf, "<test>");
+	let lexer = init(buf, "<test>");
 	for (let i = 0z; i < len(expected); i += 1) {
 		let eline = expected[i].0, ecol = expected[i].1,
 			etok = expected[i].2;
@@ -191,7 +191,7 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 @test fn keywords() void = {
 	let keywords = bmap[..btoken::LAST_KEYWORD+1];
 	for (let i = 0z; i < len(keywords); i += 1) {
-		let lexer = lexer_init(bufio::fixed(
+		let lexer = init(bufio::fixed(
 			strings::to_utf8(keywords[i]), mode::READ),
 			"<test>");
 		let tl = match (lex(&lexer)) {

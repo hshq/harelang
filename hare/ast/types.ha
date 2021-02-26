@@ -15,6 +15,19 @@ export fn ident_free(ident: ident) void = {
 	free(ident);
 };
 
+// Returns true if two idents are identical.
+export fn ident_eq(a: ident, b: ident) bool = {
+	if (len(a) != len(b)) {
+		return false;
+	};
+	for (let i = 0z; i < len(a); i += 1) {
+		if (a[i] != b[i]) {
+			return false;
+		};
+	};
+	return true;
+};
+
 // A sub-unit, typically representing a single source file.
 export type subunit = struct {
 	imports: []import,

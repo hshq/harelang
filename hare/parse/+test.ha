@@ -9,7 +9,7 @@ use strings;
 	{
 		const in = "foo";
 		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
-		let lexer = lex::lexer_init(buf, "<test>");
+		let lexer = lex::init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 1);
@@ -20,7 +20,7 @@ use strings;
 	{
 		const in = "foo::bar";
 		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
-		let lexer = lex::lexer_init(buf, "<test>");
+		let lexer = lex::init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 2);
@@ -31,7 +31,7 @@ use strings;
 	{
 		const in = "foo::bar::baz";
 		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
-		let lexer = lex::lexer_init(buf, "<test>");
+		let lexer = lex::init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 3);
@@ -43,7 +43,7 @@ use strings;
 	{
 		const in = "foo::bar;";
 		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
-		let lexer = lex::lexer_init(buf, "<test>");
+		let lexer = lex::init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 2);
@@ -57,7 +57,7 @@ use strings;
 	{
 		const in = "use foo;";
 		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
-		let lexer = lex::lexer_init(buf, "<test>");
+		let lexer = lex::init(buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
 			ast::import_free(mods[i]);
@@ -78,7 +78,7 @@ use strings;
 			"use baz::bat;\n\n"
 			"export fn main() void = void;";
 		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
-		let lexer = lex::lexer_init(buf, "<test>");
+		let lexer = lex::init(buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
 			ast::import_free(mods[i]);
@@ -107,7 +107,7 @@ use strings;
 			"use qux = quux::corge;\n"
 			"export fn main() void = void;";
 		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
-		let lexer = lex::lexer_init(buf, "<test>");
+		let lexer = lex::init(buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
 			ast::import_free(mods[i]);
@@ -138,7 +138,7 @@ use strings;
 			"use quux::corge::{grault, garply,};\n"
 			"export fn main() void = void;";
 		let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
-		let lexer = lex::lexer_init(buf, "<test>");
+		let lexer = lex::init(buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
 			ast::import_free(mods[i]);

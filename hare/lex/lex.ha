@@ -33,7 +33,7 @@ export fn errstr(err: error) const str = {
 };
 
 // Initializes a new lexer for the given input stream. The path is borrowed.
-export fn lexer_init(in: *io::stream, path: str) lexer = lexer {
+export fn init(in: *io::stream, path: str) lexer = lexer {
 	in = in,
 	path = path,
 	loc = (1, 1),

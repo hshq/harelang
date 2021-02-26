@@ -1,4 +1,6 @@
 use fs;
+use hare::ast;
+use hare::parse;
 use io;
 use path;
 
@@ -24,6 +26,7 @@ export type manifest = struct {
 // A module version: a set of possible input files for that module.
 export type version = struct {
 	hash: []u8,
+	depends: []ast::ident,
 	inputs: []input,
 };
 
@@ -38,10 +41,11 @@ export type input = struct {
 export type module_not_found = void!;
 
 // All possible error types.
-export type error = (fs::error | io::error | module_not_found)!;
+export type error = (fs::error | io::error | parse::error | module_not_found)!;
 
 export fn errstr(err: error) const str = match (err) {
 	err: fs::error => fs::errstr(err),
 	err: io::error => io::errstr(err),
+	err: parse::error => parse::errstr(err),
 	module_not_found => "Module not found",
 };
