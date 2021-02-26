@@ -48,6 +48,7 @@ rt() {
 		gensrcs_rt \
 			'+test/$(PLATFORM).ha' \
 			+test/abort.ha \
+			+test/cstring.ha \
 			+test/start.ha \
 			+test/ztos.ha
 	fi

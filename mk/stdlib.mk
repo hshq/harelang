@@ -388,6 +388,7 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/+test/$(PLATFORM).ha \
 	$(STDLIB)/rt/+test/abort.ha \
+	$(STDLIB)/rt/+test/cstring.ha \
 	$(STDLIB)/rt/+test/start.ha \
 	$(STDLIB)/rt/+test/ztos.ha
 
