@@ -1,6 +1,7 @@
 use encoding::utf8;
 use fs;
 use io;
+use path;
 use rt;
 use strings;
 
@@ -54,7 +55,7 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 	return &filesystem.fs;
 };
 
-fn pathbytes(path: fs::path) *const char = {
+fn pathbytes(path: path::path) *const char = {
 	let p = match (path) {
 		s: str  => strings::to_utf8(s),
 		b: []u8 => b,
@@ -89,7 +90,7 @@ export fn dirfs_clone(fs: *fs::fs, resolve: resolve...) *fs::fs = {
 
 fn _fs_open(
 	fs: *fs::fs,
-	path: fs::path,
+	path: path::path,
 	mode: io::mode,
 	oh: *rt::open_how,
 ) (*io::stream | fs::error) = {
@@ -123,7 +124,7 @@ fn _fs_open(
 	return fdopen(fd, name, mode);
 };
 
-fn fs_open(fs: *fs::fs, path: fs::path, mode: io::mode) (*io::stream | fs::error) = {
+fn fs_open(fs: *fs::fs, path: path::path, mode: io::mode) (*io::stream | fs::error) = {
 	let oflags = rt::O_NOCTTY | rt::O_CLOEXEC;
 	if (mode & io::mode::RDWR == io::mode::RDWR) {
 		oflags |= rt::O_RDWR;
@@ -140,7 +141,7 @@ fn fs_open(fs: *fs::fs, path: fs::path, mode: io::mode) (*io::stream | fs::error
 	return _fs_open(fs, path, mode, &oh);
 };
 
-fn fs_create(fs: *fs::fs, path: fs::path, mode: io::mode) (*io::stream | fs::error) = {
+fn fs_create(fs: *fs::fs, path: path::path, mode: io::mode) (*io::stream | fs::error) = {
 	let oflags = rt::O_NOCTTY | rt::O_CLOEXEC | rt::O_CREATE;
 	if (mode & io::mode::RDWR == io::mode::RDWR) {
 		oflags |= rt::O_RDWR;
@@ -157,7 +158,7 @@ fn fs_create(fs: *fs::fs, path: fs::path, mode: io::mode) (*io::stream | fs::err
 	return _fs_open(fs, path, mode, &oh);
 };
 
-fn fs_stat(fs: *fs::fs, path: fs::path) (fs::filestat | fs::error) = {
+fn fs_stat(fs: *fs::fs, path: path::path) (fs::filestat | fs::error) = {
 	let fs = fs: *os_filesystem;
 	let st = rt::st { ... };
 	match (rt::fstatat(fs.dirfd, pathbytes(path),
@@ -178,7 +179,7 @@ fn fs_stat(fs: *fs::fs, path: fs::path) (fs::filestat | fs::error) = {
 	};
 };
 
-fn fs_subdir(fs: *fs::fs, path: fs::path) (*fs::fs | fs::error) = {
+fn fs_subdir(fs: *fs::fs, path: path::path) (*fs::fs | fs::error) = {
 	let fs = fs: *os_filesystem;
 	let oh = rt::open_how {
 		flags = (rt::O_RDONLY | rt::O_CLOEXEC | rt::O_DIRECTORY): u64,
@@ -210,7 +211,7 @@ type os_iterator = struct {
 	buf: [BUFSIZ]u8,
 };
 
-fn fs_iter(fs: *fs::fs, path: fs::path) (*fs::iterator | fs::error) = {
+fn fs_iter(fs: *fs::fs, path: path::path) (*fs::iterator | fs::error) = {
 	let fs = fs: *os_filesystem;
 	let oh = rt::open_how {
 		flags = (rt::O_RDONLY | rt::O_CLOEXEC | rt::O_DIRECTORY): u64,

@@ -1,5 +1,6 @@
 use fs;
 use io;
+use path;
 use rt;
 use strings;
 
@@ -27,7 +28,7 @@ export type flags = enum int {
 //
 // If no flags are provided, the default for +linux is RDONLY | NOCTTY | CLOEXEC.
 export fn open(
-	path: fs::path,
+	path: path::path,
 	flag: flags...
 ) (*io::stream | io::error) = {
 	const name: str = match (path) {
@@ -63,7 +64,7 @@ export fn open(
 // Equivalent to [open], but allows the caller to specify a file mode for the
 // new file. If no other flag is given, the default read/write mode is WRONLY.
 export fn create(
-	path: fs::path,
+	path: path::path,
 	mode: uint,
 	flag: flags...
 ) (*io::stream | io::error) = {

@@ -1,8 +1,6 @@
 use io;
 use strings;
-
-// A path or path component.
-export type path = (str | []u8);
+use path;
 
 // An entry was requested which does not exist.
 export type noentry = void!;
@@ -108,7 +106,7 @@ export type filestat = struct {
 export type dirent = struct {
 	// The name of this entry. Not fully qualified: for example,
 	// "foo/bar/baz.txt" would store "baz.txt" here.
-	name: path,
+	name: path::path,
 
 	// The type of this entry. The permission bits may be unset.
 	ftype: mode,
@@ -135,11 +133,11 @@ export fn dirent_free(e: dirent) void = match (e.name) {
 };
 
 export type closefunc = fn(fs: *fs) void;
-export type openfunc = fn(fs: *fs, path: path, mode: io::mode) (*io::stream | error);
-export type createfunc = fn(fs: *fs, path: path, mode: io::mode) (*io::stream | error);
-export type iterfunc = fn(fs: *fs, path: path) (*iterator | error);
-export type statfunc = fn(fs: *fs, path: path) (filestat | error);
-export type subdirfunc = fn(fs: *fs, path: path) (*fs | error);
+export type openfunc = fn(fs: *fs, path: path::path, mode: io::mode) (*io::stream | error);
+export type createfunc = fn(fs: *fs, path: path::path, mode: io::mode) (*io::stream | error);
+export type iterfunc = fn(fs: *fs, path: path::path) (*iterator | error);
+export type statfunc = fn(fs: *fs, path: path::path) (filestat | error);
+export type subdirfunc = fn(fs: *fs, path: path::path) (*fs | error);
 
 // An abstract implementation of a filesystem. To create a custom stream, embed
 // this type as the first member of a struct with user-specific data and fill

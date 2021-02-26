@@ -1,4 +1,5 @@
 use fs;
+use path;
 use rt;
 use strings;
 
@@ -13,7 +14,7 @@ use strings;
 };
 
 // Change the current working directory.
-export fn chdir(target: (*fs::fs | ...fs::path)) (void | fs::error) = {
+export fn chdir(target: (*fs::fs | ...path::path)) (void | fs::error) = {
 	const path: []u8 = match (target) {
 		fs: *fs::fs => {
 			assert(fs.open == &fs_open);
@@ -36,7 +37,7 @@ export fn chdir(target: (*fs::fs | ...fs::path)) (void | fs::error) = {
 // have root or otherwise elevated permissions.
 //
 // This function is not appropriate for sandboxing.
-export fn chroot(target: fs::path) (void | fs::error) = {
+export fn chroot(target: path::path) (void | fs::error) = {
 	const path: []u8 = match (target) {
 		s: str  => strings::to_utf8(s),
 		b: []u8 => b,

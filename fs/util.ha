@@ -1,4 +1,5 @@
 use io;
+use path;
 use strings;
 
 // Returns a human-friendly representation of an error.
@@ -77,7 +78,7 @@ export fn is_socket(mode: mode) bool = mode & mode::SOCK == mode::SOCK;
 
 // Reads all entries from a directory. The caller must free the return value
 // with [dirents_free].
-export fn readdir(fs: *fs, path: path) ([]dirent | error) = {
+export fn readdir(fs: *fs, path: path::path) ([]dirent | error) = {
 	let i = iter(fs, path)?;
 	let ents: []dirent = [];
 	for (true) {
