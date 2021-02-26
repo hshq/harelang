@@ -234,7 +234,9 @@ hare_module() {
 		types.ha \
 		context.ha \
 		scan.ha
-	gen_ssa hare::module hare::ast hare::lex hare::parse strio fs io strings
+	gen_ssa hare::module \
+		hare::ast hare::lex hare::parse strio fs io strings hash \
+		crypto::sha256 encoding::hex
 }
 
 gensrcs_hare_parse() {

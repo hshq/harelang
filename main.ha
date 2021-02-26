@@ -14,6 +14,7 @@ export fn main() void = {
 			module::errstr(err)),
 	};
 	for (let i = 0z; i < len(ver.inputs); i += 1) {
-		fmt::println("in: {}", ver.inputs[i].path as str);
+		fmt::println("in: {}\t{}", ver.inputs[i].path as str,
+			ver.inputs[i].hash);
 	};
 };
