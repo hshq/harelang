@@ -23,6 +23,20 @@ export fn dynamic() *io::stream = alloc(dynamic_stream {
 	buf = [],
 }): *io::stream;
 
+// Like [dynamic], but takes an existing slice as input. Writes are appended to
+// it and reads consume bytes from the initial buffer, plus any additional
+// writes. Like [dynamic], calling [io::close] will free the buffer, and
+// [bufio::finish] can be used to return ownership of the buffer to the caller.
+export fn dynamic_from(in: []u8) *io::stream = alloc(dynamic_stream {
+	stream = io::stream {
+		writer = &dynamic_write,
+		closer = &dynamic_close,
+		reader = &dynamic_read,
+		...
+	},
+	buf = in,
+}): *io::stream;
+
 fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *dynamic_stream;
 	append(s.buf, ...buf);
@@ -102,4 +116,10 @@ export fn truncate(s: *io::stream) (void | io::unsupported) = {
 	assert(io::write(s, [1, 2, 3]) as size == 3);
 	assert(truncate(s) is void);
 	assert(len(buffer(s)) == 0);
+
+	let sl: []u8 = alloc([1, 2, 3]);
+	let s = dynamic_from(sl);
+	assert(io::write(s, [4, 5, 6]) as size == 3);
+	assert(bytes::equal(buffer(s), [1, 2, 3, 4, 5, 6]));
+	io::close(s);
 };
