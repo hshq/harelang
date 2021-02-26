@@ -69,11 +69,20 @@ hare_stdlib_deps+=$(stdlib_bufio)
 stdlib_bytes=$(HARECACHE)/bytes/bytes.o
 hare_stdlib_deps+=$(stdlib_bytes)
 
+stdlib_crypto_math=$(HARECACHE)/crypto/math/crypto.math.o
+hare_stdlib_deps+=$(stdlib_crypto_math)
+
 stdlib_crypto_random=$(HARECACHE)/crypto/random/crypto.random.o
 hare_stdlib_deps+=$(stdlib_crypto_random)
 
+stdlib_crypto_sha256=$(HARECACHE)/crypto/sha256/crypto.sha256.o
+hare_stdlib_deps+=$(stdlib_crypto_sha256)
+
 stdlib_encoding_utf8=$(HARECACHE)/encoding/utf8/encoding.utf8.o
 hare_stdlib_deps+=$(stdlib_encoding_utf8)
+
+stdlib_endian=$(HARECACHE)/endian/endian.o
+hare_stdlib_deps+=$(stdlib_endian)
 
 stdlib_fmt=$(HARECACHE)/fmt/fmt.o
 hare_stdlib_deps+=$(stdlib_fmt)
@@ -95,6 +104,9 @@ hare_stdlib_deps+=$(stdlib_hare_module)
 
 stdlib_hare_parse=$(HARECACHE)/hare/parse/hare.parse.o
 hare_stdlib_deps+=$(stdlib_hare_parse)
+
+stdlib_hash=$(HARECACHE)/hash/hash.o
+hare_stdlib_deps+=$(stdlib_hash)
 
 stdlib_io=$(HARECACHE)/io/io.o
 hare_stdlib_deps+=$(stdlib_io)
@@ -163,6 +175,16 @@ $(HARECACHE)/bytes/bytes.ssa: $(stdlib_bytes_srcs) $(stdlib_rt) $(stdlib_types)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbytes \
 		-t$(HARECACHE)/bytes/bytes.td $(stdlib_bytes_srcs)
 
+# crypto::math
+stdlib_crypto_math_srcs= \
+	$(STDLIB)/crypto/math/bits.ha
+
+$(HARECACHE)/crypto/math/crypto.math.ssa: $(stdlib_crypto_math_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/math
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::math \
+		-t$(HARECACHE)/crypto/math/crypto.math.td $(stdlib_crypto_math_srcs)
+
 # crypto::random
 stdlib_crypto_random_srcs= \
 	$(STDLIB)/crypto/random/$(PLATFORM).ha \
@@ -173,6 +195,16 @@ $(HARECACHE)/crypto/random/crypto.random.ssa: $(stdlib_crypto_random_srcs) $(std
 	@mkdir -p $(HARECACHE)/crypto/random
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(HARECACHE)/crypto/random/crypto.random.td $(stdlib_crypto_random_srcs)
+
+# crypto::sha256
+stdlib_crypto_sha256_srcs= \
+	$(STDLIB)/crypto/sha256/sha256.ha
+
+$(HARECACHE)/crypto/sha256/crypto.sha256.ssa: $(stdlib_crypto_sha256_srcs) $(stdlib_rt) $(stdlib_hash) $(stdlib_io) $(stdlib_endian)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/sha256
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::sha256 \
+		-t$(HARECACHE)/crypto/sha256/crypto.sha256.td $(stdlib_crypto_sha256_srcs)
 
 # encoding::utf8
 stdlib_encoding_utf8_srcs= \
@@ -185,6 +217,16 @@ $(HARECACHE)/encoding/utf8/encoding.utf8.ssa: $(stdlib_encoding_utf8_srcs) $(std
 	@mkdir -p $(HARECACHE)/encoding/utf8
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::utf8 \
 		-t$(HARECACHE)/encoding/utf8/encoding.utf8.td $(stdlib_encoding_utf8_srcs)
+
+# endian
+stdlib_endian_srcs= \
+	$(STDLIB)/endian/big.ha
+
+$(HARECACHE)/endian/endian.ssa: $(stdlib_endian_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/endian
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nendian \
+		-t$(HARECACHE)/endian/endian.td $(stdlib_endian_srcs)
 
 # fmt
 stdlib_fmt_srcs= \
@@ -262,6 +304,16 @@ $(HARECACHE)/hare/parse/hare.parse.ssa: $(stdlib_hare_parse_srcs) $(stdlib_rt) $
 	@mkdir -p $(HARECACHE)/hare/parse
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::parse \
 		-t$(HARECACHE)/hare/parse/hare.parse.td $(stdlib_hare_parse_srcs)
+
+# hash
+stdlib_hash_srcs= \
+	$(STDLIB)/hash/hash.ha
+
+$(HARECACHE)/hash/hash.ssa: $(stdlib_hash_srcs) $(stdlib_rt) $(stdlib_io)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hash
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash \
+		-t$(HARECACHE)/hash/hash.td $(stdlib_hash_srcs)
 
 # io
 stdlib_io_srcs= \
@@ -469,11 +521,20 @@ hare_testlib_deps+=$(testlib_bufio)
 testlib_bytes=$(TESTCACHE)/bytes/bytes.o
 hare_testlib_deps+=$(testlib_bytes)
 
+testlib_crypto_math=$(TESTCACHE)/crypto/math/crypto.math.o
+hare_testlib_deps+=$(testlib_crypto_math)
+
 testlib_crypto_random=$(TESTCACHE)/crypto/random/crypto.random.o
 hare_testlib_deps+=$(testlib_crypto_random)
 
+testlib_crypto_sha256=$(TESTCACHE)/crypto/sha256/crypto.sha256.o
+hare_testlib_deps+=$(testlib_crypto_sha256)
+
 testlib_encoding_utf8=$(TESTCACHE)/encoding/utf8/encoding.utf8.o
 hare_testlib_deps+=$(testlib_encoding_utf8)
+
+testlib_endian=$(TESTCACHE)/endian/endian.o
+hare_testlib_deps+=$(testlib_endian)
 
 testlib_fmt=$(TESTCACHE)/fmt/fmt.o
 hare_testlib_deps+=$(testlib_fmt)
@@ -495,6 +556,9 @@ hare_testlib_deps+=$(testlib_hare_module)
 
 testlib_hare_parse=$(TESTCACHE)/hare/parse/hare.parse.o
 hare_testlib_deps+=$(testlib_hare_parse)
+
+testlib_hash=$(TESTCACHE)/hash/hash.o
+hare_testlib_deps+=$(testlib_hash)
 
 testlib_io=$(TESTCACHE)/io/io.o
 hare_testlib_deps+=$(testlib_io)
@@ -563,6 +627,16 @@ $(TESTCACHE)/bytes/bytes.ssa: $(testlib_bytes_srcs) $(testlib_rt) $(testlib_type
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbytes \
 		-t$(TESTCACHE)/bytes/bytes.td $(testlib_bytes_srcs)
 
+# crypto::math
+testlib_crypto_math_srcs= \
+	$(STDLIB)/crypto/math/bits.ha
+
+$(TESTCACHE)/crypto/math/crypto.math.ssa: $(testlib_crypto_math_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/math
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::math \
+		-t$(TESTCACHE)/crypto/math/crypto.math.td $(testlib_crypto_math_srcs)
+
 # crypto::random
 testlib_crypto_random_srcs= \
 	$(STDLIB)/crypto/random/$(PLATFORM).ha \
@@ -573,6 +647,17 @@ $(TESTCACHE)/crypto/random/crypto.random.ssa: $(testlib_crypto_random_srcs) $(te
 	@mkdir -p $(TESTCACHE)/crypto/random
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(TESTCACHE)/crypto/random/crypto.random.td $(testlib_crypto_random_srcs)
+
+# crypto::sha256
+testlib_crypto_sha256_srcs= \
+	$(STDLIB)/crypto/sha256/sha256.ha \
+	$(STDLIB)/crypto/sha256/+test.ha
+
+$(TESTCACHE)/crypto/sha256/crypto.sha256.ssa: $(testlib_crypto_sha256_srcs) $(testlib_rt) $(testlib_hash) $(testlib_io) $(testlib_endian) $(testlib_fmt) $(testlib_strio) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/sha256
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha256 \
+		-t$(TESTCACHE)/crypto/sha256/crypto.sha256.td $(testlib_crypto_sha256_srcs)
 
 # encoding::utf8
 testlib_encoding_utf8_srcs= \
@@ -585,6 +670,16 @@ $(TESTCACHE)/encoding/utf8/encoding.utf8.ssa: $(testlib_encoding_utf8_srcs) $(te
 	@mkdir -p $(TESTCACHE)/encoding/utf8
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::utf8 \
 		-t$(TESTCACHE)/encoding/utf8/encoding.utf8.td $(testlib_encoding_utf8_srcs)
+
+# endian
+testlib_endian_srcs= \
+	$(STDLIB)/endian/big.ha
+
+$(TESTCACHE)/endian/endian.ssa: $(testlib_endian_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/endian
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nendian \
+		-t$(TESTCACHE)/endian/endian.td $(testlib_endian_srcs)
 
 # fmt
 testlib_fmt_srcs= \
@@ -664,6 +759,16 @@ $(TESTCACHE)/hare/parse/hare.parse.ssa: $(testlib_hare_parse_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/hare/parse
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::parse \
 		-t$(TESTCACHE)/hare/parse/hare.parse.td $(testlib_hare_parse_srcs)
+
+# hash
+testlib_hash_srcs= \
+	$(STDLIB)/hash/hash.ha
+
+$(TESTCACHE)/hash/hash.ssa: $(testlib_hash_srcs) $(testlib_rt) $(testlib_io)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash \
+		-t$(TESTCACHE)/hash/hash.td $(testlib_hash_srcs)
 
 # io
 testlib_io_srcs= \
