@@ -16,18 +16,18 @@ export fn main() void = {
 	};
 
 	let hash = hex::encode(ver.hash);
-	fmt::println("{}: {}", hash, os::args[1]);
-	fmt::println("{} inputs", len(ver.inputs));
+	fmt::printfln("{}: {}", hash, os::args[1]);
+	fmt::println(len(ver.inputs), "inputs");
 	for (let i = 0z; i < len(ver.inputs); i += 1) {
 		let hash = hex::encode(ver.inputs[i].hash);
 		defer free(hash);
-		fmt::println("\t{} {}", hash, ver.inputs[i].path as str);
+		fmt::printfln("\t{} {}", hash, ver.inputs[i].path as str);
 	};
 
-	fmt::println("{} dependencies", len(ver.depends));
+	fmt::println(len(ver.depends), "dependencies");
 	for (let i = 0z; i < len(ver.depends); i += 1) {
 		let ident = ver.depends[i];
-		fmt::printf("\t");
+		fmt::print("\t");
 		for (let j = 0z; j < len(ident); j += 1) {
 			fmt::printf("{}{}", ident[j],
 				if (j + 1 < len(ident)) "::"
