@@ -395,9 +395,11 @@ $(HARECACHE)/os/exec/os.exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_o
 stdlib_path_srcs= \
 	$(STDLIB)/path/$(PLATFORM).ha \
 	$(STDLIB)/path/util.ha \
-	$(STDLIB)/path/join.ha
+	$(STDLIB)/path/join.ha \
+	$(STDLIB)/path/norm.ha \
+	$(STDLIB)/path/names.ha
 
-$(HARECACHE)/path/path.ssa: $(stdlib_path_srcs) $(stdlib_rt) $(stdlib_strings) $(stdlib_bufio)
+$(HARECACHE)/path/path.ssa: $(stdlib_path_srcs) $(stdlib_rt) $(stdlib_strings) $(stdlib_bufio) $(stdlib_bytes)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/path
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Npath \
@@ -884,9 +886,11 @@ $(TESTCACHE)/os/exec/os.exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testli
 testlib_path_srcs= \
 	$(STDLIB)/path/$(PLATFORM).ha \
 	$(STDLIB)/path/util.ha \
-	$(STDLIB)/path/join.ha
+	$(STDLIB)/path/join.ha \
+	$(STDLIB)/path/norm.ha \
+	$(STDLIB)/path/names.ha
 
-$(TESTCACHE)/path/path.ssa: $(testlib_path_srcs) $(testlib_rt) $(testlib_strings) $(testlib_bufio)
+$(TESTCACHE)/path/path.ssa: $(testlib_path_srcs) $(testlib_rt) $(testlib_strings) $(testlib_bufio) $(testlib_bytes)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/path
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Npath \

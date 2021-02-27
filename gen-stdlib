@@ -342,8 +342,10 @@ path() {
 	gen_srcs path \
 		'$(PLATFORM).ha' \
 		util.ha \
-		join.ha
-	gen_ssa path strings bufio
+		join.ha \
+		norm.ha \
+		names.ha
+	gen_ssa path strings bufio bytes
 }
 
 gensrcs_strconv() {
