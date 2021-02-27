@@ -142,6 +142,8 @@ export type createfunc = fn(fs: *fs, path: path::path, mode: io::mode) (*io::str
 export type iterfunc = fn(fs: *fs, path: path::path) (*iterator | error);
 export type statfunc = fn(fs: *fs, path: path::path) (filestat | error);
 export type subdirfunc = fn(fs: *fs, path: path::path) (*fs | error);
+export type mkdirfunc = fn(fs: *fs, path: path::path) (void | error);
+export type mksubdirfunc = fn(fs: *fs, path: path::path) (*fs | error);
 
 // An abstract implementation of a filesystem. To create a custom stream, embed
 // this type as the first member of a struct with user-specific data and fill
@@ -169,6 +171,12 @@ export type fs = struct {
 
 	// Opens a new filesystem for a subdirectory.
 	subdir: nullable *subdirfunc,
+
+	// Creates a directory.
+	mkdir: nullable *mkdirfunc,
+
+	// Creates a directory and returns a subdir for it.
+	mksubdir: nullable *mksubdirfunc,
 };
 
 export type nextfunc = fn(iter: *iterator) (dirent | void);

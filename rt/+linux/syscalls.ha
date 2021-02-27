@@ -85,6 +85,19 @@ export fn chroot(path: path) (void | errno) = {
 	return;
 };
 
+export fn mkdir(path: path, mode: uint) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_return(syscall2(SYS_mkdir, path: uintptr: u64, mode: u64))?;
+	return;
+};
+
+export fn mkdirat(dirfd: int, path: path, mode: uint) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_return(syscall3(SYS_mkdirat,
+		dirfd: u64, path: uintptr: u64, mode: u64))?;
+	return;
+};
+
 export fn execveat(dirfd: int, path: path, argv: *[*]nullable *const char,
 		envp: *[*]nullable *const char, flags: int) errno = {
 	let path = kpath(path)?;

@@ -48,6 +48,7 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 			iter = &fs_iter,
 			stat = &fs_stat,
 			subdir = &fs_subdir,
+			mkdir = &fs_mkdir,
 			...
 		},
 		dirfd = fd,
@@ -183,6 +184,14 @@ fn fs_subdir(fs: *fs::fs, path: path::path) (*fs::fs | fs::error) = {
 	};
 
 	return dirfdopen(fd);
+};
+
+fn fs_mkdir(fs: *fs::fs, path: path::path) (void | fs::error) = {
+	let fs = fs: *os_filesystem;
+	return match (rt::mkdirat(fs.dirfd, path, 0o755)) {
+		err: rt::errno => return errno_to_io(err),
+		void => void,
+	};
 };
 
 fn fs_close(fs: *fs::fs) void = {

@@ -1,4 +1,5 @@
 use io;
+use path;
 
 // Closes a filesystem. The fs cannot be used after this function is called.
 export fn close(fs: *fs) void = {
@@ -43,11 +44,46 @@ export fn stat(fs: *fs, path: path::path) (filestat | error) = {
 	};
 };
 
-// Opens a new filesystem for a subdirectory.
+// Opens a new filesystem for a subdirectory. The subdirectory must be closed
+// separately from the parent filesystem, and its lifetime can outlive that of
+// its parent.
 export fn subdir(fs: *fs, path: path::path) (*fs | error) = {
 	return match (fs.subdir) {
 		null => io::unsupported,
 		f: *subdirfunc => f(fs, path),
+	};
+};
+
+// Creates a directory.
+export fn mkdir(fs: *fs, path: path::path) (void | error) = {
+	return match (fs.mkdir) {
+		null => io::unsupported,
+		f: *mkdirfunc => f(fs, path),
+	};
+};
+
+// Makes a directory, and all non-extant directories in its path.
+export fn mkdirs(fs: *fs, path: path::path) (void | error) = {
+	let parent = path::dirname(path);
+	if (!path::equal(path, parent)) {
+		match (mkdirs(fs, parent)) {
+			noaccess => void,
+			err: error => return err,
+			void => void,
+		};
+	};
+	return mkdir(fs, path);
+};
+
+// Creates a directory and returns a subdir for it. Some filesystems support
+// doing this operation atomically, but if not, a fallback is used.
+export fn mksubdir(fs: *fs, path: path::path) (*fs | error) = {
+	return match (fs.mksubdir) {
+		null => {
+			mkdir(fs, path)?;
+			subdir(fs, path);
+		},
+		f: *mksubdirfunc => f(fs, path),
 	};
 };
 

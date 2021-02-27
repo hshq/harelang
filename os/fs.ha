@@ -21,3 +21,14 @@ export fn stat(path: path::path) (fs::filestat | fs::error) = fs::stat(cwd, path
 
 // Opens a directory as a filesystem.
 export fn diropen(path: path::path) (*fs::fs | fs::error) = fs::subdir(cwd, path);
+
+// Creates a directory.
+export fn mkdir(path: path::path) (void | fs::error) = fs::mkdir(cwd, path);
+
+// Creates a directory, and all non-extant directories in its path.
+export fn mkdirs(path: path::path) (void | fs::error) = fs::mkdirs(cwd, path);
+
+// Creates a directory and returns a subdir for it. Some filesystems support
+// doing this operation atomically, but if not, a fallback is used.
+export fn mksubdir(path: path::path) (*fs::fs | fs::error) =
+	fs::mksubdir(cwd, path);
