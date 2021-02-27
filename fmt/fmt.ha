@@ -55,8 +55,8 @@ export fn printf(fmt: str, args: formattable...) (io::error | size) =
 
 // Formats text for printing and writes it to [os::stdout], followed by a line
 // feed.
-export fn println(fmt: str, args: formattable...) (io::error | size) =
-	fprintln(os::stdout, fmt, args...);
+export fn printfln(fmt: str, args: formattable...) (io::error | size) =
+	fprintfln(os::stdout, fmt, args...);
 
 // Formats text for printing and writes it to [os::stderr].
 export fn errorf(fmt: str, args: formattable...) (io::error | size) =
@@ -64,8 +64,8 @@ export fn errorf(fmt: str, args: formattable...) (io::error | size) =
 
 // Formats text for printing and writes it to [os::stderr], followed by a line
 // feed.
-export fn errorln(fmt: str, args: formattable...) (io::error | size) =
-	fprintln(os::stderr, fmt, args...);
+export fn errorfln(fmt: str, args: formattable...) (io::error | size) =
+	fprintfln(os::stderr, fmt, args...);
 
 // Formats text for printing and writes it into a heap-allocated string. The
 // caller must free the return value.
@@ -86,18 +86,76 @@ export fn bsprintf(buf: []u8, fmt: str, args: formattable...) str = {
 // Formats text for printing and writes it to [os::stderr], followed by a line
 // feed, then exits the program with an error status.
 export @noreturn fn fatal(fmt: str, args: formattable...) void = {
-	fprintln(os::stderr, fmt, args...);
+	fprintfln(os::stderr, fmt, args...);
 	os::exit(1);
 };
 
 // Formats text for printing and writes it to an [io::stream], followed by a
 // line feed.
-export fn fprintln(
+export fn fprintfln(
 	s: *io::stream,
 	fmt: str,
 	args: formattable...
 ) (io::error | size) = {
 	return fprintf(s, fmt, args...)? + io::write(s, ['\n': u32: u8])?;
+};
+
+// Formats values for printing using the default format modifiers and writes
+// them to [os::stdout] separated by spaces 
+export fn print(args: formattable...) (io::error | size) =
+	fprint(os::stdout, args...);
+
+// Formats values for printing using the default format modifiers and writes
+// them to [os::stdout] separated by spaces and followed by a line feed
+export fn println(args: formattable...) (io::error | size) =
+	fprintln(os::stdout, args...);
+
+// Formats values for printing using the default format modifiers and writes
+// them to [os::stderr] separated by spaces 
+export fn error(args: formattable...) (io::error | size) =
+	fprint(os::stderr, args...);
+
+// Formats values for printing using the default format modifiers and writes
+// them to [os::stderr] separated by spaces and followed by a line feed
+export fn errorln(args: formattable...) (io::error | size) =
+	fprintln(os::stderr, args...);
+
+// Formats values for printing using the default format modifiers and writes
+// them into a heap-allocated string separated by spaces. The caller must free
+// the return value.
+export fn asprint(args: formattable...) str = {
+	let buf = bufio::dynamic();
+	assert(fprint(buf, args...) is size);
+	return strings::from_utf8_unsafe(bufio::buffer(buf));
+};
+
+// Formats values for printing using the default format modifiers and writes
+// them into a caller supplied buffer separated by spaces. The returned string
+// is borrowed from this buffer.
+export fn bsprint(buf: []u8, args: formattable...) str = {
+	let sink = bufio::fixed(buf, io::mode::WRITE);
+	assert(fprint(sink, args...) is size);
+	return strings::from_utf8_unsafe(buf);
+};
+
+// Formats values for printing using the default format modifiers and writes
+// them to an [io::stream] separated by spaces and followed by a line feed
+export fn fprintln(s: *io::stream, args: formattable...) (io::error | size) = {
+	return fprint(s, args...)? + io::write(s, ['\n': u32: u8])?;
+};
+
+// Formats values for printing using the default format modifiers and writes
+// them to an [io::stream] separated by spaces 
+export fn fprint(s: *io::stream, args: formattable...) (io::error | size) = {
+	let mod = modifiers { base = strconv::base::DEC, ... };
+	let n = 0z;
+	for (let i = 0z; i < len(args); i += 1) {
+		n += format(s, args[i], &mod)?;
+		if (i != len(args) - 1) {
+			n += io::write(s, [' ': u32: u8])?;
+		};
+	};
+	return n;
 };
 
 type negation = enum {
