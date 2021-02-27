@@ -6,11 +6,12 @@ fn mkdev(major: u32, minor: u32) dev_t =
 
 fn fstatat_statx(
 	dirfd: int,
-	path: *const char,
+	path: path,
 	flags: int,
 	mask: uint,
 	statbuf: *stx,
 ) (void | errno) = {
+	let path = kpath(path)?;
 	wrap_return(syscall5(SYS_statx,
 		dirfd: u64, path: uintptr: u64, flags: u64,
 		mask: u64, statbuf: uintptr: u64))?;
@@ -19,10 +20,11 @@ fn fstatat_statx(
 
 export fn fstatat(
 	dirfd: int,
-	path: *const char,
+	path: path,
 	statbuf: *st,
 	flags: int,
 ) (errno | void) = {
+	let path = kpath(path)?;
 	let statxbuf = stx { ... };
 	fstatat_statx(dirfd, path, flags, STATX_BASIC_STATS, &statxbuf)?;
 	statbuf.dev = mkdev(statxbuf.dev_major, statxbuf.dev_minor);
@@ -43,11 +45,11 @@ export fn fstatat(
 	statbuf.ctime.tv_nsec = statxbuf.ctime.tv_nsec: i64;
 };
 
-export fn stat(path: *const char, statbuf: *st) (errno | void) =
+export fn stat(path: path, statbuf: *st) (errno | void) =
 	fstatat(AT_FDCWD, path, statbuf, 0);
 
 export fn fstat(fd: int, statbuf: *st) (errno | void) =
 	fstatat(fd, "", statbuf, AT_EMPTY_PATH);
 
-export fn lstat(path: *const char, statbuf: *st) (errno | void) =
+export fn lstat(path: path, statbuf: *st) (errno | void) =
 	fstatat(AT_FDCWD, path, statbuf, AT_SYMLINK_NOFOLLOW);

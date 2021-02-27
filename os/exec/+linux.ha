@@ -38,7 +38,7 @@ fn open(path: str) (platform | os_error) = {
 	};
 	// O_PATH is used because it allows us to use an executable for which we
 	// have execute permissions, but not read permissions.
-	return match (rt::open(path: *const char, rt::O_PATH, 0u)) {
+	return match (rt::open(path, rt::O_PATH, 0u)) {
 		fd: int => fd,
 		err: rt::errno => errno_to_os(err),
 	};
@@ -49,6 +49,7 @@ fn platform_finish(cmd: *command) void = {
 };
 
 fn platform_exec(cmd: *command) os_error = {
+	// TODO: These strings need to be NUL terminated
 	let argv: []nullable *const char = alloc([], len(cmd.argv) + 1z);
 	for (let i = 0z; i < len(cmd.argv); i += 1z) {
 		append(argv, cmd.argv[i]: *const char);

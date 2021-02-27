@@ -55,14 +55,6 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 	return &filesystem.fs;
 };
 
-fn pathbytes(path: path::path) *const char = {
-	let p = match (path) {
-		s: str  => strings::to_utf8(s),
-		b: []u8 => b,
-	};
-	return p: *[*]u8: *const char;
-};
-
 // Opens a file descriptor as an [fs::fs]. This file descriptor must be a
 // directory file. The file will be closed when the fs is closed.
 export fn dirfdopen(fd: int, resolve: resolve...) *fs::fs = {
@@ -115,8 +107,7 @@ fn _fs_open(
 		b: []u8 => "<open([]u8)>",
 	};
 
-	let fd = match (rt::openat2(fs.dirfd, pathbytes(path),
-			oh, size(rt::open_how))) {
+	let fd = match (rt::openat2(fs.dirfd, path, oh, size(rt::open_how))) {
 		err: rt::errno => return errno_to_io(err),
 		fd: int => fd,
 	};
@@ -161,8 +152,7 @@ fn fs_create(fs: *fs::fs, path: path::path, mode: io::mode) (*io::stream | fs::e
 fn fs_stat(fs: *fs::fs, path: path::path) (fs::filestat | fs::error) = {
 	let fs = fs: *os_filesystem;
 	let st = rt::st { ... };
-	match (rt::fstatat(fs.dirfd, pathbytes(path),
-			&st, rt::AT_SYMLINK_NOFOLLOW)) {
+	match (rt::fstatat(fs.dirfd, path, &st, rt::AT_SYMLINK_NOFOLLOW)) {
 		err: rt::errno => return errno_to_io(err),
 		void => void,
 	};
@@ -186,7 +176,7 @@ fn fs_subdir(fs: *fs::fs, path: path::path) (*fs::fs | fs::error) = {
 		...
 	};
 
-	let fd: int = match (rt::openat2(fs.dirfd, pathbytes(path),
+	let fd: int = match (rt::openat2(fs.dirfd, path,
 			&oh, size(rt::open_how))) {
 		err: rt::errno => return errno_to_io(err),
 		n: int => n,
@@ -217,7 +207,7 @@ fn fs_iter(fs: *fs::fs, path: path::path) (*fs::iterator | fs::error) = {
 		flags = (rt::O_RDONLY | rt::O_CLOEXEC | rt::O_DIRECTORY): u64,
 		...
 	};
-	let fd: int = match (rt::openat2(fs.dirfd, pathbytes(path),
+	let fd: int = match (rt::openat2(fs.dirfd, path,
 			&oh, size(rt::open_how))) {
 		err: rt::errno => {
 			if (err: int == rt::ENOTDIR) {

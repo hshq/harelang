@@ -53,7 +53,7 @@ export fn open(
 		iomode = io::mode::WRITE;
 	};
 
-	let fd: int = match (rt::open(pathbytes(path), oflags, 0u)) {
+	let fd: int = match (rt::open(path, oflags, 0u)) {
 		err: rt::errno => return errno_to_io(err),
 		n: int => n,
 	};
@@ -91,7 +91,7 @@ export fn create(
 		iomode = io::mode::WRITE;
 	};
 
-	let fd: int = match (rt::open(pathbytes(path), oflags, mode)) {
+	let fd: int = match (rt::open(path, oflags, mode)) {
 		err: rt::errno => return errno_to_io(err),
 		n: int => n,
 	};
