@@ -4,7 +4,6 @@ use endian;
 use hash;
 use io;
 use strings;
-use fmt;
 
 def prime32: u32 = 16777619;
 def prime64: u64 = 1099511628211;
