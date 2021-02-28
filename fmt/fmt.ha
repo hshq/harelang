@@ -46,8 +46,8 @@ use strings;
 use types;
 
 // Tagged union of all types which are formattable.
-export type formattable = (...types::numeric | uintptr
-	| str | rune | nullable *void);
+export type formattable =
+	(...types::numeric | uintptr | str | rune | bool | nullable *void);
 
 // Formats text for printing and writes it to [os::stdout].
 export fn printf(fmt: str, args: formattable...) (io::error | size) =
@@ -278,6 +278,7 @@ fn format_raw(
 ) (size | io::error) = match (arg) {
 	s: str => io::write(out, strings::to_utf8(s)),
 	r: rune => io::write(out, utf8::encode_rune(r)),
+	b: bool => io::write(out, strings::to_utf8(if (b) "true" else "false")),
 	n: types::numeric => {
 		let s = strconv::numerictosb(n, mod.base);
 		io::write(out, strings::to_utf8(s));
