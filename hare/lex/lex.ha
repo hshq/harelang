@@ -521,4 +521,4 @@ fn mkloc(lex: *lexer) location = location {
 	col = lex.loc.1,
 };
 
-fn syntaxerr(loc: location, why: str) error = (loc, why): syntax: error;
+fn syntaxerr(loc: location, why: str) error = (loc, why);
