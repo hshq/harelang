@@ -34,9 +34,9 @@ export fn rindex(haystack: []u8, needle: (u8 | []u8)) (size | void) = {
 };
 
 fn rindex_byte(haystack: []u8, needle: u8) (size | void) = {
-	for (let i = 0z; i < len(haystack); i += 1) {
-		if (haystack[len(haystack) - i - 1] == needle) {
-			return len(haystack) - i - 1;
+	for (let i = len(haystack); i > 0; i -= 1) {
+		if (haystack[i - 1] == needle) {
+			return i - 1;
 		};
 	};
 };
