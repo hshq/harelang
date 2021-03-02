@@ -5,6 +5,9 @@ use path;
 // An entry was requested which does not exist.
 export type noentry = void!;
 
+// An attempt was made to create a file or directory which already exists.
+export type exists = void!;
+
 // The user does not have permission to use this resource.
 export type noaccess = void!;
 
@@ -13,7 +16,7 @@ export type noaccess = void!;
 export type wrongtype = void!;
 
 // All possible fs error types.
-export type error = (noentry | noaccess | wrongtype | io::error)!;
+export type error = (noentry | noaccess | exists | wrongtype | io::error)!;
 
 // File mode information. These bits do not necessarily reflect the underlying
 // operating system's mode representation, though they were chosen to be

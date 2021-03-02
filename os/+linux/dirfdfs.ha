@@ -189,7 +189,10 @@ fn fs_subdir(fs: *fs::fs, path: path::path) (*fs::fs | fs::error) = {
 fn fs_mkdir(fs: *fs::fs, path: path::path) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	return match (rt::mkdirat(fs.dirfd, path, 0o755)) {
-		err: rt::errno => return errno_to_io(err),
+		err: rt::errno => switch (err) {
+			rt::EEXIST => fs::exists,
+			* => errno_to_io(err),
+		},
 		void => void,
 	};
 };

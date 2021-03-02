@@ -67,7 +67,7 @@ export fn mkdirs(fs: *fs, path: path::path) (void | error) = {
 	let parent = path::dirname(path);
 	if (!path::equal(path, parent)) {
 		match (mkdirs(fs, parent)) {
-			noaccess => void,
+			exists => void,
 			err: error => return err,
 			void => void,
 		};
