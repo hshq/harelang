@@ -1,17 +1,22 @@
+use dirs;
 use fs;
 use hare::ast;
 use os;
 use path;
+use strings;
+
+// TODO: Specify this at build time once harec supports -D
+def DEFAULT_HAREPATH: str = "/usr/src/hare";
 
 export type context = struct {
 	// Filesystem to use for the cache and source files.
 	fs: *fs::fs,
 	// List of paths to search, generally populated from HAREPATH plus some
 	// baked-in default.
-	paths: []str,
+	paths: []path::path,
 	// Path to the Hare cache, generally populated from HARECACHE and
 	// defaulting to $XDG_CACHE_HOME/hare.
-	cache: str,
+	cache: path::path,
 	// Build tags to apply to this context.
 	tags: []tag,
 };
@@ -21,9 +26,30 @@ export fn context_init(tags: []tag) context = {
 	let ctx = context {
 		fs = os::cwd,
 		tags = tags,
+		paths: []path::path = match (os::getenv("HAREPATH")) {
+			void => {
+				let path: []path::path = alloc([
+					DEFAULT_HAREPATH,
+					dirs::config("hare"),
+				]);
+				path;
+			},
+			s: str => {
+				let sl = strings::split(s, ":");
+				let path: []path::path = alloc([], len(sl));
+				for (let i = 0z; i < len(sl); i += 1) {
+					path[i] = sl[i];
+				};
+				free(sl);
+				path;
+			},
+		},
+		cache: path::path = match (os::getenv("HARECACHE")) {
+			void => dirs::cache("hare"),
+			s: str => s,
+		},
 		...
 	};
-	// TODO: Insert default variables, look up environment, w/e
 	return ctx;
 };
 
