@@ -1,6 +1,5 @@
 use bytes;
 use strings;
-use io;
 
 // Returns the directory name for a given path. For a path to a file name, this
 // returns the directory in which that file resides. For a path to a directory,
@@ -13,7 +12,6 @@ export fn dirname(path: path::path) path::path = {
 		z: size => z,
 	};
 	if (i == 0) {
-		b = [PATHSEP];
 		i += 1;
 	};
 	return
@@ -40,12 +38,9 @@ export fn dirname(path: path::path) path::path = {
 // lifetime.
 export fn basename(path: path::path) path::path = {
 	let b = pathbytes(normalize(path));
-	let i = if (len(b) == 1) {
-		b = [PATHSEP];
-		0z;
-	} else match (bytes::rindex(b, PATHSEP)) {
+	let i = match (bytes::rindex(b, PATHSEP)) {
 		void => return path,
-		z: size => z + 1,
+		z: size => if (z + 1 < len(b)) z + 1z else 0z,
 	};
 	return
 		if (path is str) strings::from_utf8_unsafe(b[i..])
