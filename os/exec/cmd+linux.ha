@@ -39,11 +39,11 @@ fn open(path: str) (platform_cmd | os_error) = {
 fn platform_finish(cmd: *command) void = rt::close(cmd.platform);
 
 fn platform_exec(cmd: *command) os_error = {
+	// We don't worry about freeing the return values from strings::to_c
+	// because once we exec(2) our heap is fried anyway
 	let argv: []nullable *const char = alloc([], len(cmd.argv) + 1z);
 	for (let i = 0z; i < len(cmd.argv); i += 1z) {
-		append(argv, cmd.argv[i]: *const char);
-		// TODO: These strings need to be NUL terminated
-		assert((argv[i]: *[*]u8)[len(cmd.argv[i])] == 0);
+		append(argv, strings::to_c(cmd.argv[i]));
 	};
 	append(argv, null);
 
@@ -51,9 +51,7 @@ fn platform_exec(cmd: *command) os_error = {
 	if (len(cmd.envp) != 0) {
 		let env: []nullable *const char = alloc([], len(cmd.envp) + 1);
 		for (let i = 0z; i < len(cmd.envp); i += 1) {
-			append(env, cmd.envp[i]: *const char);
-			// TODO: These strings need to be NUL terminated
-			assert((env[i]: *[*]u8)[len(cmd.argv[i])] == 0);
+			append(env, strings::to_c(cmd.envp[i]));
 		};
 		append(env, null);
 		envp = env: *[*]nullable *const char;
