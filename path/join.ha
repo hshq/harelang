@@ -14,9 +14,10 @@ export fn join(paths: path...) path = {
 
 		let buf = pathbytes(paths[i]);
 		let l = len(buf);
-		for (buf[l - 1] == PATHSEP) {
+		for (l > 0 && buf[l - 1] == PATHSEP) {
 			l -= 1;
 		};
+		if (l == 0) continue;
 		for (let q = 0z; q < l) {
 			let w = io::write(sink, buf[q..l]) as size;
 			q += w;
@@ -54,6 +55,10 @@ export fn join(paths: path...) path = {
 	assert(p as str == "foo/bar");
 
 	let p = join("foo///", "bar");
+	defer path_free(p);
+	assert(p as str == "foo/bar");
+
+	let p = join("foo", "", "bar");
 	defer path_free(p);
 	assert(p as str == "foo/bar");
 };
