@@ -1,27 +1,6 @@
 use os;
 use strings;
 
-// An executable command.
-export type command = struct {
-	data: platform,
-	argv: []str,
-	envp: []str,
-};
-
-// Returned when path resolution fails to find a command by its name.
-export type nocmd = void;
-
-// All errors that can be returned from os::exec.
-export type error = (nocmd | os_error);
-
-// Returns a human-readable message for the given error.
-export fn errstr(err: error) const str = {
-	return match (err) {
-		err: os_error => err.string(err.data),
-		nocmd         => "Command not found",
-	};
-};
-
 // Prepares a [command] based on its name and a list of arguments. The argument
 // list should not start with the command name; it will be added for you. The
 // argument list is borrowed from the strings you pass into this command.
@@ -37,13 +16,13 @@ export fn errstr(err: error) const str = {
 // By default, the new command will inherit the current process's environment.
 export fn cmd(name: str, args: str...) (command | error) = {
 	let cmd = command {
-		data: platform =
+		platform: platform_cmd =
 			if (strings::contains(name, '/')) match (open(name)) {
 				err: os_error => return nocmd,
-				p: platform => p,
+				p: platform_cmd => p,
 			} else match (lookup(name)) {
 				void => return nocmd,
-				p: platform => p,
+				p: platform_cmd => p,
 			},
 		argv = alloc([], len(args) + 1z),
 		...
@@ -68,16 +47,15 @@ export fn exec(cmd: *command) error = {
 };
 
 // Starts a prepared command in a new process.
-export fn start(cmd: *command) (error | void) = {
-	// TODO: Return a handle which gives information about the new process.
+export fn start(cmd: *command) (error | process) = {
 	defer finish(cmd);
 	return match (platform_start(cmd)) {
 		err: os_error => err,
-		void => void,
+		proc: process => proc,
 	};
 };
 
-fn lookup(name: str) (platform | void) = {
+fn lookup(name: str) (platform_cmd | void) = {
 	const path = match (os::getenv("PATH")) {
 		void => return,
 		s: str => s,
@@ -92,7 +70,7 @@ fn lookup(name: str) (platform | void) = {
 		defer free(path);
 		match (open(path)) {
 			err: os_error => continue,
-			p: platform => return p,
+			p: platform_cmd => return p,
 		};
 	};
 };

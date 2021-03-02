@@ -1,3 +1,4 @@
+export type off_t = u64;
 export type dev_t = u64;
 export type ino_t = u64;
 export type nlink_t = u64;
@@ -257,4 +258,40 @@ export type dirent64 = struct {
 	d_reclen: u16,
 	d_type: u8,
 	d_name: [*]char,
+};
+
+export def WNOHANG: int		= 1;
+export def WUNTRACED: int	= 2;
+export def WSTOPPED: int	= 2;
+export def WEXITED: int		= 4;
+export def WCONTINUED: int	= 8;
+export def WNOWAIT: int		= 0x1000000;
+
+export fn wexitstatus(s: int) int = (s & 0xff00) >> 8;
+export fn wtermsig(s: int) int = s & 0x7f;
+export fn wstopsig(s: int) int = wexitstatus(s);
+export fn wcoredump(s: int) int = s & 0x80;
+export fn wifexited(s: int) bool = wtermsig(s) <= 0;
+export fn wifstopped(s: int) bool = (((s & 0xFFFF) * 0x10001) >> 8) > 0x7f00;
+export fn wifsignaled(s: int) bool = (s & 0xFFFF) - 1 < 0xFF;
+export fn wifcontinued(s: int) bool = s == 0xFFFF;
+
+export type rusage = struct {
+	ru_utime: timeval,
+	ru_stime: timeval,
+	ru_maxrss: u64,
+	ru_ixrss: u64,
+	ru_idrss: u64,
+	ru_isrss: u64,
+	ru_minflt: u64,
+	ru_majflt: u64,
+	ru_nswap: u64,
+	ru_inblock: u64,
+	ru_oublock: u64,
+	ru_msgsnd: u64,
+	ru_msgrcv: u64,
+	ru_nsignals: u64,
+	ru_nvcsw: u64,
+	ru_nivcsw: u64,
+	__reserved: [16]u64,
 };

@@ -115,6 +115,17 @@ export fn fork() (int | void | errno) = clone(null, SIGCHLD, null, null, 0);
 
 export fn getpid() int = syscall0(SYS_getpid): int;
 
+export fn wait4(
+	pid: int,
+	wstatus: *int,
+	options: int,
+	rusage: *rusage,
+) (int | errno) = {
+	return wrap_return(syscall4(SYS_wait4,
+		pid: u64, wstatus: uintptr: u64,
+		options: u64, rusage: uintptr: u64))?: int;
+};
+
 export fn sendfile(
 	out: int,
 	in: int,
