@@ -383,9 +383,12 @@ $(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_str
 # os::exec
 stdlib_os_exec_srcs= \
 	$(STDLIB)/os/exec/$(PLATFORM).ha \
+	$(STDLIB)/os/exec/types.ha \
+	$(STDLIB)/os/exec/process$(PLATFORM).ha \
+	$(STDLIB)/os/exec/cmd$(PLATFORM).ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(HARECACHE)/os/exec/os.exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_strings)
+$(HARECACHE)/os/exec/os.exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_strings) $(stdlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os/exec
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
@@ -874,9 +877,12 @@ $(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib
 # os::exec
 testlib_os_exec_srcs= \
 	$(STDLIB)/os/exec/$(PLATFORM).ha \
+	$(STDLIB)/os/exec/types.ha \
+	$(STDLIB)/os/exec/process$(PLATFORM).ha \
+	$(STDLIB)/os/exec/cmd$(PLATFORM).ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(TESTCACHE)/os/exec/os.exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testlib_os) $(testlib_strings)
+$(TESTCACHE)/os/exec/os.exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testlib_os) $(testlib_strings) $(testlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os/exec
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \

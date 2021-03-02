@@ -1,6 +1,7 @@
-use encoding::hex;
 use fmt;
 use hare::module;
+use io;
+use os::exec;
 use os;
 
 export fn main() void = {
@@ -15,23 +16,62 @@ export fn main() void = {
 			module::errstr(err)),
 	};
 
-	let hash = hex::encode(ver.hash);
-	fmt::printfln("{}: {}", hash, os::args[1]);
-	fmt::println(len(ver.inputs), "inputs");
+	let plan = plan { ... };
+
+	let harec = alloc(task {
+		status = status::SCHEDULED,
+		inputs = ver.inputs,
+		output = "hare.ssa",
+		cmd = alloc(["harec"]),
+		...
+	});
+
 	for (let i = 0z; i < len(ver.inputs); i += 1) {
-		let hash = hex::encode(ver.inputs[i].hash);
-		defer free(hash);
-		fmt::printfln("\t{} {}", hash, ver.inputs[i].path as str);
+		let path = ver.inputs[i].path as str;
+		append(harec.cmd, path);
 	};
 
-	fmt::println(len(ver.depends), "dependencies");
-	for (let i = 0z; i < len(ver.depends); i += 1) {
-		let ident = ver.depends[i];
-		fmt::print("\t");
-		for (let j = 0z; j < len(ident); j += 1) {
-			fmt::printf("{}{}", ident[j],
-				if (j + 1 < len(ident)) "::"
-				else "\n");
+	append(plan.scheduled, harec);
+
+	for (len(plan.scheduled) != 0) {
+		let next: nullable *task = null;
+		let i = 0z;
+		for (i < len(plan.scheduled); i += 1) {
+			// TODO: Check dependencies and pick the next eligible
+			// task instead
+			next = plan.scheduled[i];
+			break;
 		};
+		// TODO: This can be a type assertion
+		let task = match (next) {
+			null => abort(),
+			t: *task => t,
+		};
+
+		let cmd = match (exec::cmd(task.cmd[0], task.cmd[1..]...)) {
+			cmd: exec::command => cmd,
+			err: exec::error => fmt::fatal("Error: exec {}: {}",
+				task.cmd[0], exec::errstr(err)),
+		};
+		let proc = match (exec::start(&cmd)) {
+			err: exec::error => fmt::fatal("Error: start {}: {}",
+				task.cmd[0], exec::errstr(err)),
+			proc: exec::process => proc,
+		};
+		match (exec::wait(&proc)) {
+			err: exec::error => fmt::fatal("Error: wait {}: {}",
+				task.cmd[0], exec::errstr(err)),
+			st: exec::status => match (exec::check(&st)) {
+				err: exec::exit_status! => {
+					fmt::fatal("Error: {}: {}", task.cmd[0],
+						exec::exitstr(err));
+				},
+				void => void,
+			},
+		};
+
+		task.status = status::COMPLETE;
+		delete(plan.scheduled[i]);
+		append(plan.complete, task);
 	};
 };

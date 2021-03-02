@@ -333,8 +333,11 @@ os_exec() {
 	printf '# os::exec\n'
 	gen_srcs os::exec \
 		'$(PLATFORM).ha' \
+		types.ha \
+		'process$(PLATFORM).ha' \
+		'cmd$(PLATFORM).ha' \
 		cmd.ha
-	gen_ssa os::exec os strings
+	gen_ssa os::exec os strings fmt
 }
 
 path() {

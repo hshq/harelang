@@ -18,6 +18,7 @@ hare:
 include mk/stdlib.mk
 
 hare_srcs=\
+	plan.ha \
 	main.ha
 
 $(HARECACHE)/hare.ssa: $(hare_srcs) $(hare_stdlib_deps)
