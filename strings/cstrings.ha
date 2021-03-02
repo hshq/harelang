@@ -1,5 +1,6 @@
 use encoding::utf8;
 use types;
+use rt;
 
 let emptybuf: [1]u8 = [0];
 
@@ -34,4 +35,17 @@ export fn from_c(cstr: *const char) const str = {
 	let s = from_c_unsafe(cstr);
 	assert(utf8::valid(s));
 	return s;
+};
+
+// Converts a Hare string to a C string. The result is allocated, the caller
+// must free it when they're done.
+export fn to_c(s: const str) *char = {
+	let ptr = rt::malloc(len(s) + 1): nullable *[*]u8;
+	let ptr = match (ptr) {
+		null => abort("Out of memory"),
+		p: *[*]u8 => p,
+	};
+	rt::memcpy(ptr, (&s: *types::string).data, len(s));
+	ptr[len(s)] = 0;
+	return ptr: *char;
 };
