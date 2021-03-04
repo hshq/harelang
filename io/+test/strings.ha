@@ -38,8 +38,7 @@ fn bs_read(s: *stream, buf: []u8) (size | error | EOF) = {
 		return EOF;
 	};
 	const n = if (len(buf) > len(stream.buf)) len(stream.buf) else len(buf);
-	// TODO: Fix me up once slice copying is in
-	rt::memcpy(buf: *[*]u8, stream.buf: *[*]u8, n);
+	buf[..n] = stream.buf[..n];
 	stream.buf = stream.buf[n..];
 	return n;
 };
