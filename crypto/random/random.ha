@@ -1,19 +1,15 @@
 use io;
 use rt;
 
+export let _stream: io::stream = io::stream {
+	name = "<random>",
+	reader = &rand_reader,
+	...
+};
+
 // An [io::stream] which returns cryptographically random data on reads. Be
 // aware, it may return less than you asked for!
-export let stream: *io::stream = null: *io::stream;
-
-@init fn init() void = {
-	static let s = io::stream {
-		name = "<random>",
-		...
-	};
-	// TODO: Globals referencing other globals
-	s.reader = &rand_reader;
-	stream = &s;
-};
+export let stream: *io::stream = &_stream;
 
 @test fn buffer() void = {
 	let buf: [4096]u8 = [0...];
