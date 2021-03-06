@@ -66,7 +66,17 @@ export fn scan(ctx: *context, path: path::path) (version | error) = {
 // Looks up a module by its identifier from HAREPATH, and returns a [version]
 // which includes all eligible build inputs.
 export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
-	abort();
+	let ipath = ident_path(name);
+	defer ast::ident_free(name);
+	for (let i = len(ctx.paths); i > 0; i -= 1) {
+		let cand = path::join(ctx.paths[i - 1], ipath);
+		defer path::path_free(cand);
+		match (scan(ctx, cand)) {
+			v: version => return v,
+			e: error => void,
+		};
+	};
+	return module_not_found;
 };
 
 // TODO: Filter inputs by build tags
