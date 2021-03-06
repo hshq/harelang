@@ -15,6 +15,7 @@ use strings;
 // 
 // By default, the new command will inherit the current process's environment.
 export fn cmd(name: str, args: str...) (command | error) = {
+	let env = os::getenvs();
 	let cmd = command {
 		platform: platform_cmd =
 			if (strings::contains(name, '/')) match (open(name)) {
@@ -25,9 +26,11 @@ export fn cmd(name: str, args: str...) (command | error) = {
 				p: platform_cmd => p,
 			},
 		argv = alloc([], len(args) + 1z),
+		envp = alloc([], len(env)),
 		...
 	};
 	append(cmd.argv, name, ...args);
+	append(cmd.envp, ...env);
 	return cmd;
 };
 
@@ -53,6 +56,12 @@ export fn start(cmd: *command) (error | process) = {
 		err: os_error => err,
 		proc: process => proc,
 	};
+};
+
+// Empties the environment variables for the command. By default, the command
+// inherits the environment of the parent process.
+export fn clearenv(cmd: *command) void = {
+	cmd.envp = [];
 };
 
 fn lookup(name: str) (platform_cmd | void) = {

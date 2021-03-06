@@ -47,3 +47,16 @@ export fn getenv(name: const str) (str | void) = {
 		};
 	};
 };
+
+let envp: []str = [];
+
+// Returns a slice of the environment strings in the form KEY=VALUE.
+export fn getenvs() []str = {
+	if (len(envp) != 0) {
+		return envp;
+	};
+	for (let i = 0z; rt::envp[i] != null; i += 1) {
+		append(envp, strings::from_c(rt::envp[i]: *const char));
+	};
+	return envp;
+};
