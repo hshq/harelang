@@ -13,8 +13,10 @@ export fn main() void = {
 	};
 
 	fmt::printfln("Building for {}", os::machine());
-
-	let ctx = module::context_init([]);
+	let ctx = module::context_init([module::tag{
+		name = os::machine(),
+		mode = module::tag_mode::INCLUSIVE,
+	}]);
 	let ver = match (module::scan(&ctx, os::args[1])) {
 		ver: module::version => ver,
 		err: module::error => fmt::fatal("Error scanning module: {}",
