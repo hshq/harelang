@@ -36,10 +36,12 @@ export fn context_init(tags: []tag) context = {
 			},
 			s: str => {
 				let sl = strings::split(s, ":");
-				let path: []path::path = alloc([], len(sl));
-				for (let i = 0z; i < len(sl); i += 1) {
-					path[i] = sl[i];
+				let path: []path::path = alloc([], len(sl) + 1);
+				let i = 0z;
+				for (i < len(sl); i += 1) {
+					append(path, sl[i]);
 				};
+				append(path, ".");
 				free(sl);
 				path;
 			},
