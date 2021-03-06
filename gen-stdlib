@@ -100,6 +100,7 @@ ascii() {
 bufio() {
 	printf '# bufio\n'
 	gen_srcs bufio \
+		buffered.ha \
 		dynamic.ha \
 		fixed.ha
 	gen_ssa bufio io bytes strings
@@ -215,8 +216,9 @@ fs() {
 hare_ast() {
 	printf '# hare::ast\n'
 	gen_srcs hare::ast \
-		types.ha
-	gen_ssa hare::ast
+		types.ha \
+		unparse.ha
+	gen_ssa hare::ast io fmt strio
 }
 
 gensrcs_hare_lex() {

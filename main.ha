@@ -1,8 +1,11 @@
+use encoding::hex;
 use fmt;
+use hare::ast;
 use hare::module;
 use io;
 use os::exec;
 use os;
+use strio;
 
 export fn main() void = {
 	if (len(os::args) == 1) {
@@ -17,6 +20,26 @@ export fn main() void = {
 	};
 
 	let plan = plan { ... };
+
+	for (let i = 0z; i < len(ver.depends); i += 1z) {
+		const dep = ver.depends[i];
+		let ident = ast::ident_unparse_s(dep);
+		defer free(ident);
+		match (module::lookup(&ctx, dep)) {
+			err: module::error => fmt::fatal("Error resolving {}: {}",
+				ident, module::errstr(err)),
+			ver: module::version => {
+				let hash = hex::encode(ver.hash);
+				defer free(hash);
+				fmt::printfln("{}: selecting version {}",
+					ident, hash);
+				for (let i = 0z; i < len(ver.inputs); i += 1) {
+					fmt::printfln("\t{}",
+						ver.inputs[i].path as str);
+				};
+			},
+		};
+	};
 
 	let harec = alloc(task {
 		status = status::SCHEDULED,
@@ -53,6 +76,11 @@ export fn main() void = {
 			err: exec::error => fmt::fatal("Error: exec {}: {}",
 				task.cmd[0], exec::errstr(err)),
 		};
+		for (let i = 0z; i < len(cmd.argv); i += 1) {
+			fmt::errorf("{} ", cmd.argv[i]);
+		};
+		fmt::errorln();
+
 		let proc = match (exec::start(&cmd)) {
 			err: exec::error => fmt::fatal("Error: start {}: {}",
 				task.cmd[0], exec::errstr(err)),
