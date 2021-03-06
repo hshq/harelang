@@ -102,5 +102,5 @@ fn execute(
 
 	let proc = exec::start(&cmd)?;
 	let st = exec::wait(&proc)?;
-	exec::check(&st)?;
+	return exec::check(&st)?;
 };
