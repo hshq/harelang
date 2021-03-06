@@ -12,17 +12,17 @@ export fn main() void = {
 		fmt::fatal("Usage: {} <path>", os::args[0]);
 	};
 
+	let plan = plan { ... };
 	let ctx = module::context_init([module::tag{
 		name = os::machine(),
 		mode = module::tag_mode::INCLUSIVE,
 	}]);
+
 	let ver = match (module::scan(&ctx, os::args[1])) {
 		ver: module::version => ver,
 		err: module::error => fmt::fatal("Error scanning module: {}",
 			module::errstr(err)),
 	};
-
-	let plan = plan { ... };
 
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
 		const dep = ver.depends[i];
@@ -44,20 +44,7 @@ export fn main() void = {
 		};
 	};
 
-	let harec = alloc(task {
-		status = status::SCHEDULED,
-		inputs = ver.inputs,
-		output = "hare.ssa",
-		cmd = alloc(["harec"]),
-		...
-	});
-
-	for (let i = 0z; i < len(ver.inputs); i += 1) {
-		let path = ver.inputs[i].path as str;
-		append(harec.cmd, path);
-	};
-
-	append(plan.scheduled, harec);
+	sched_hare_exe(&plan, ver.inputs, "hare.ssa", []);
 
 	for (len(plan.scheduled) != 0) {
 		let next: nullable *task = null;
@@ -86,21 +73,4 @@ export fn main() void = {
 		delete(plan.scheduled[i]);
 		append(plan.complete, task);
 	};
-};
-
-fn execute(
-	ctx: *module::context,
-	task: *task,
-) (void | exec::error | exec::exit_status!) = {
-	for (let i = 0z; i < len(task.cmd); i += 1) {
-		fmt::errorf("{} ", task.cmd[i]);
-	};
-	fmt::errorln();
-
-	let cmd = exec::cmd(task.cmd[0], task.cmd[1..]...)?;
-	exec::setenv(&cmd, "HARECACHE", ctx.cache as str);
-
-	let proc = exec::start(&cmd)?;
-	let st = exec::wait(&proc)?;
-	return exec::check(&st)?;
 };
