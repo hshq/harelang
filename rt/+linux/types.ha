@@ -295,3 +295,12 @@ export type rusage = struct {
 	ru_nivcsw: u64,
 	__reserved: [16]u64,
 };
+
+export type utsname = struct {
+	sysname:    [65]char,
+	nodename:   [65]char,
+	release:    [65]char,
+	version:    [65]char,
+	machine:    [65]char,
+	domainname: [65]char,
+};

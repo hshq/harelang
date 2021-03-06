@@ -248,3 +248,8 @@ export fn clock_gettime(clock_id: int, tp: *timespec) (void | errno) = {
 		clock_id: u64, tp: uintptr: u64))?;
 	return;
 };
+
+export fn uname(uts: *utsname) (void | errno) = {
+	wrap_return(syscall1(SYS_uname, uts: uintptr: u64))?;
+	return;
+};

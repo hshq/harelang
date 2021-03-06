@@ -60,3 +60,46 @@ export fn getenvs() []str = {
 	};
 	return envp;
 };
+
+let uts: rt::utsname = rt::utsname { ... };
+let uts_valid: bool = false;
+
+// Returns the host kernel name
+export fn sysname() const str = {
+	if (!uts_valid) {
+		rt::uname(&uts) as void;
+	};
+	return strings::from_c(&uts.sysname: *const char);
+};
+
+// Returns the host system hostname
+export fn hostname() const str = {
+	if (!uts_valid) {
+		rt::uname(&uts) as void;
+	};
+	return strings::from_c(&uts.nodename: *const char);
+};
+
+// Returns the host kernel version
+export fn release() const str = {
+	if (!uts_valid) {
+		rt::uname(&uts) as void;
+	};
+	return strings::from_c(&uts.release: *const char);
+};
+
+// Returns the host operating system version
+export fn version() const str = {
+	if (!uts_valid) {
+		rt::uname(&uts) as void;
+	};
+	return strings::from_c(&uts.version: *const char);
+};
+
+// Returns the host CPU architecture
+export fn machine() const str = {
+	if (!uts_valid) {
+		rt::uname(&uts) as void;
+	};
+	return strings::from_c(&uts.machine: *const char);
+};
