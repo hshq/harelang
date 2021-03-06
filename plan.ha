@@ -1,5 +1,6 @@
 use fmt;
 use hare::module;
+use os;
 use os::exec;
 
 type status = enum {
@@ -32,8 +33,7 @@ fn sched_hare_exe(
 		inputs = inputs,
 		output = output,
 		depend = depend,
-		// TODO: Get harec from environment
-		cmd = alloc(["harec", "-o", output as str]),
+		cmd = alloc([os::tryenv("HAREC", "harec"), "-o", output as str]),
 	});
 	for (let i = 0z; i < len(inputs); i += 1) {
 		let path = inputs[i].path as str;
