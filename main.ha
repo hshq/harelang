@@ -12,7 +12,6 @@ export fn main() void = {
 		fmt::fatal("Usage: {} <path>", os::args[0]);
 	};
 
-	fmt::printfln("Building for {}", os::machine());
 	let ctx = module::context_init([module::tag{
 		name = os::machine(),
 		mode = module::tag_mode::INCLUSIVE,
@@ -35,10 +34,10 @@ export fn main() void = {
 			ver: module::version => {
 				let hash = hex::encode(ver.hash);
 				defer free(hash);
-				fmt::printfln("{}: selecting version {}",
+				fmt::errorfln("{}: selecting version {}",
 					ident, hash);
 				for (let i = 0z; i < len(ver.inputs); i += 1) {
-					fmt::printfln("\t{}",
+					fmt::errorfln("\t{}",
 						ver.inputs[i].path as str);
 				};
 			},
@@ -75,35 +74,33 @@ export fn main() void = {
 			t: *task => t,
 		};
 
-		let cmd = match (exec::cmd(task.cmd[0], task.cmd[1..]...)) {
-			cmd: exec::command => cmd,
-			err: exec::error => fmt::fatal("Error: exec {}: {}",
+		match (execute(&ctx, task)) {
+			err: exec::error => fmt::fatal("Error: {}: {}",
 				task.cmd[0], exec::errstr(err)),
-		};
-		for (let i = 0z; i < len(cmd.argv); i += 1) {
-			fmt::errorf("{} ", cmd.argv[i]);
-		};
-		fmt::errorln();
-
-		let proc = match (exec::start(&cmd)) {
-			err: exec::error => fmt::fatal("Error: start {}: {}",
-				task.cmd[0], exec::errstr(err)),
-			proc: exec::process => proc,
-		};
-		match (exec::wait(&proc)) {
-			err: exec::error => fmt::fatal("Error: wait {}: {}",
-				task.cmd[0], exec::errstr(err)),
-			st: exec::status => match (exec::check(&st)) {
-				err: exec::exit_status! => {
-					fmt::fatal("Error: {}: {}", task.cmd[0],
-						exec::exitstr(err));
-				},
-				void => void,
-			},
+			err: exec::exit_status! => fmt::fatal("Error: {}: {}",
+				task.cmd[0], exec::exitstr(err)),
+			void => void,
 		};
 
 		task.status = status::COMPLETE;
 		delete(plan.scheduled[i]);
 		append(plan.complete, task);
 	};
+};
+
+fn execute(
+	ctx: *module::context,
+	task: *task,
+) (void | exec::error | exec::exit_status!) = {
+	for (let i = 0z; i < len(task.cmd); i += 1) {
+		fmt::errorf("{} ", task.cmd[i]);
+	};
+	fmt::errorln();
+
+	let cmd = exec::cmd(task.cmd[0], task.cmd[1..]...)?;
+	exec::setenv(&cmd, "HARECACHE", ctx.cache as str);
+
+	let proc = exec::start(&cmd)?;
+	let st = exec::wait(&proc)?;
+	exec::check(&st)?;
 };
