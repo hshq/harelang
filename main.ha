@@ -12,6 +12,8 @@ export fn main() void = {
 		fmt::fatal("Usage: {} <path>", os::args[0]);
 	};
 
+	fmt::printfln("Building for {}", os::machine());
+
 	let ctx = module::context_init([]);
 	let ver = match (module::scan(&ctx, os::args[1])) {
 		ver: module::version => ver,
