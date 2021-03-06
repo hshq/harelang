@@ -48,10 +48,10 @@ fn platform_exec(cmd: *command) os_error = {
 	append(argv, null);
 
 	let envp: nullable *[*]nullable *const char = null;
-	if (len(cmd.envp) != 0) {
-		let env: []nullable *const char = alloc([], len(cmd.envp) + 1);
-		for (let i = 0z; i < len(cmd.envp); i += 1) {
-			append(env, strings::to_c(cmd.envp[i]));
+	if (len(cmd.env) != 0) {
+		let env: []nullable *const char = alloc([], len(cmd.env) + 1);
+		for (let i = 0z; i < len(cmd.env); i += 1) {
+			append(env, strings::to_c(cmd.env[i]));
 		};
 		append(env, null);
 		envp = env: *[*]nullable *const char;

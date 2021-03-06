@@ -1,3 +1,4 @@
+use ascii;
 use os;
 use strings;
 
@@ -26,11 +27,11 @@ export fn cmd(name: str, args: str...) (command | error) = {
 				p: platform_cmd => p,
 			},
 		argv = alloc([], len(args) + 1z),
-		envp = alloc([], len(env)),
+		env = alloc([], len(env)),
 		...
 	};
 	append(cmd.argv, name, ...args);
-	append(cmd.envp, ...env);
+	append(cmd.env, ...env);
 	return cmd;
 };
 
@@ -61,7 +62,33 @@ export fn start(cmd: *command) (error | process) = {
 // Empties the environment variables for the command. By default, the command
 // inherits the environment of the parent process.
 export fn clearenv(cmd: *command) void = {
-	cmd.envp = [];
+	cmd.env = [];
+};
+
+// Adds or sets a variable in the command environment. This does not affect the
+// current process environment. The 'key' must be a valid environment variable
+// name per POSIX definition 3.235. This includes underscores and alphanumeric
+// ASCII characters, and cannot begin with a number.
+export fn setenv(cmd: *command, key: str, value: str) void = {
+	let iter = strings::iter(key);
+	for (let i = 0z; true; i += 1) match (strings::next(&iter)) {
+		void => break,
+		r: rune => if (i == 0) assert(r == '_' || ascii::isalpha(r),
+			"Invalid environment variable")
+		else assert(r == '_' || ascii::isalnum(r),
+			"Invalid environment variable"),
+	};
+
+	// XXX: This can be a binary search
+	let fullkey = strings::concat(key, "=");
+	defer free(fullkey);
+	for (let i = 0z; i < len(cmd.env); i += 1) {
+		if (strings::has_prefix(cmd.env[i], fullkey)) {
+			delete(cmd.env[i]);
+			break;
+		};
+	};
+	append(cmd.env, strings::concat(fullkey, value));
 };
 
 fn lookup(name: str) (platform_cmd | void) = {
