@@ -48,6 +48,13 @@ export fn getenv(name: const str) (str | void) = {
 	};
 };
 
+// Looks up an environment variable and returns its value, or a default value if
+// unset.
+export fn tryenv(name: const str, default: str) str = match (getenv(name)) {
+	s: str => s,
+	void => default,
+};
+
 let envp: []str = [];
 
 // Returns a slice of the environment strings in the form KEY=VALUE.
