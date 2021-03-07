@@ -18,10 +18,11 @@ use strio;
 export fn scan(ctx: *context, path: path::path) (version | error) = {
 	let sha = sha256::sha256();
 	//defer! hash::close(sha);
-	let inputs: []input = [];
-	let deps: []ast::ident = [];
 	let iter = match (fs::iter(ctx.fs, path)) {
 		fs::wrongtype => {
+			// Single file case
+			let inputs: []input = [];
+			let deps: []ast::ident = [];
 			let ft = match (type_for_ext(path)) {
 				void => return module_not_found,
 				ft: filetype => ft,
@@ -45,31 +46,51 @@ export fn scan(ctx: *context, path: path::path) (version | error) = {
 		err: fs::error => return err,
 		iter: *fs::iterator => iter,
 	};
+	let ver = version { ...  };
+	scan_directory(ctx, &ver, sha, path, iter)?;
+	ver.hash = hash::finish(sha);
+	return ver;
+};
+
+fn scan_directory(
+	ctx: *context,
+	ver: *version,
+	sha: *hash::hash,
+	path: path::path,
+	iter: *fs::iterator,
+) (void | error) = {
 	for (true) match (fs::next(iter)) {
 		void => break,
 		ent: fs::dirent => switch (ent.ftype) {
-			fs::mode::DIR => void, // TODO
 			fs::mode::LINK => abort(), // TODO
-			fs::mode::REG => if (eligible(ctx, ent.name)) {
+			fs::mode::DIR => {
+				let d = ent.name: []u8;
+				if (len(d) == 0 || (d[0] != '+': u32: u8
+						&& d[0] != '-': u32: u8)) {
+					continue;
+				};
+				if (!eligible(ctx, ent.name, true)) {
+					continue;
+				};
+				let p = path::join(path, ent.name);
+				let iter = fs::iter(ctx.fs, p)?;
+				scan_directory(ctx, ver, sha, p, iter)?;
+			},
+			fs::mode::REG => if (eligible(ctx, ent.name, false)) {
 				let p = path::join(path, ent.name);
 				let st = fs::stat(ctx.fs, p)?;
 				let in = input {
 					path = p,
 					stat = st,
 					ft = type_for_ext(ent.name) as filetype,
-					hash = scan_file(ctx, p, &deps)?,
+					hash = scan_file(ctx, p, &ver.depends)?,
 					...
 				};
-				append(inputs, in);
+				append(ver.inputs, in);
 				hash::write(sha, in.hash);
 			},
 			* => void,
 		},
-	};
-	return version {
-		hash = hash::finish(sha),
-		depends = deps,
-		inputs = inputs,
 	};
 };
 
@@ -89,21 +110,23 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 	return module_not_found;
 };
 
-fn eligible(ctx: *context, name: path::path) bool = {
+fn eligible(ctx: *context, name: path::path, dir: bool) bool = {
 	if (!utf8::valid(name: []u8)) {
 		return false;
 	};
-	let eligible = false;
-	const ext = path::extension(name);
-	static const exts = [".ha", ".s"];
-	for (let i = 0z; i < len(exts); i += 1) {
-		if (exts[i] == ext) {
-			eligible = true;
-			break;
+	if (!dir) {
+		let eligible = false;
+		const ext = path::extension(name);
+		static const exts = [".ha", ".s"];
+		for (let i = 0z; i < len(exts); i += 1) {
+			if (exts[i] == ext) {
+				eligible = true;
+				break;
+			};
 		};
-	};
-	if (!eligible) {
-		return false;
+		if (!eligible) {
+			return false;
+		};
 	};
 
 	// XXX: It might be nice if the stdlib offered search functions which
@@ -119,7 +142,10 @@ fn eligible(ctx: *context, name: path::path) bool = {
 		else if (m is void && p is size) p: size
 		else if (m: size < p: size) m: size
 		else p: size;
-	let tags = b[i..(bytes::index(b, '.': u32: u8) as size)];
+	let tags = match (bytes::index(b, '.': u32: u8)) {
+		void => b[i..],
+		e: size => b[i..e],
+	};
 	let tags = match (parse_tags(strings::from_utf8_unsafe(tags))) {
 		void => return false,
 		t: []tag => t,
