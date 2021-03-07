@@ -1,11 +1,8 @@
-use ascii;
 use fs;
 use hare::ast;
 use hare::parse;
 use io;
 use path;
-use strings;
-use strio;
 
 // The inclusive/exclusive state for a build tag.
 export type tag_mode = enum {
@@ -17,49 +14,6 @@ export type tag_mode = enum {
 export type tag = struct {
 	name: str,
 	mode: tag_mode,
-};
-
-// Parses a set of build tags, returning void if the string is an invalid tag
-// set. The caller must free the return value with [tags_free].
-export fn parse_tags(in: str) ([]tag | void) = {
-	let tags: []tag = [];
-	// defer! tags_free(tags);
-	let iter = strings::iter(in);
-	for (true) {
-		let t = tag { ... };
-		let m = match (strings::next(&iter)) {
-			void => break,
-			r: rune => r,
-		};
-		t.mode = switch (m) {
-			*   => return,
-			'+' => tag_mode::INCLUSIVE,
-			'-' => tag_mode::EXCLUSIVE,
-		};
-		let buf = strio::dynamic();
-		for (true) match (strings::next(&iter)) {
-			void => break,
-			r: rune => {
-				if (ascii::isalnum(r) || r == '_') {
-					strio::append_rune(buf, r);
-				} else {
-					strings::push(&iter, r);
-					break;
-				};
-			},
-		};
-		t.name = strio::finish(buf);
-		append(tags, t);
-	};
-	return tags;
-};
-
-// Frees a set of tags.
-export fn tags_free(tags: []tag) void = {
-	for (let i = 0z; i < len(tags); i += 1) {
-		free(tags[i].name);
-	};
-	free(tags);
 };
 
 // The manifest for a particular module, with some number of inputs, and

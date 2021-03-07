@@ -1,3 +1,4 @@
+use ascii;
 use bytes;
 use crypto::sha256;
 use encoding::utf8;
@@ -10,6 +11,7 @@ use io;
 use path;
 use slice;
 use strings;
+use strio;
 
 // Scans the files in a directory for eligible build inputs and returns a
 // [version] which includes all applicable files and their dependencies.
@@ -172,4 +174,47 @@ fn have_ident(sl: *[]ast::ident, id: ast::ident) bool = {
 		};
 	};
 	return false;
+};
+
+// Parses a set of build tags, returning void if the string is an invalid tag
+// set. The caller must free the return value with [tags_free].
+export fn parse_tags(in: str) ([]tag | void) = {
+	let tags: []tag = [];
+	// defer! tags_free(tags);
+	let iter = strings::iter(in);
+	for (true) {
+		let t = tag { ... };
+		let m = match (strings::next(&iter)) {
+			void => break,
+			r: rune => r,
+		};
+		t.mode = switch (m) {
+			*   => return,
+			'+' => tag_mode::INCLUSIVE,
+			'-' => tag_mode::EXCLUSIVE,
+		};
+		let buf = strio::dynamic();
+		for (true) match (strings::next(&iter)) {
+			void => break,
+			r: rune => {
+				if (ascii::isalnum(r) || r == '_') {
+					strio::append_rune(buf, r);
+				} else {
+					strings::push(&iter, r);
+					break;
+				};
+			},
+		};
+		t.name = strio::finish(buf);
+		append(tags, t);
+	};
+	return tags;
+};
+
+// Frees a set of tags.
+export fn tags_free(tags: []tag) void = {
+	for (let i = 0z; i < len(tags); i += 1) {
+		free(tags[i].name);
+	};
+	free(tags);
 };
