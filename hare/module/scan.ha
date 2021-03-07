@@ -125,8 +125,7 @@ fn eligible(ctx: *context, name: path::path) bool = {
 		t: []tag => t,
 	};
 	defer tags_free(tags);
-	// TODO: Check tag compatibility
-	return true;
+	return tags_compat(ctx.tags, tags);
 };
 
 fn type_for_ext(name: path::path) (filetype | void) = {
@@ -217,4 +216,23 @@ export fn tags_free(tags: []tag) void = {
 		free(tags[i].name);
 	};
 	free(tags);
+};
+
+// Compares two tag sets and tells you if they are compatible.
+export fn tags_compat(have: []tag, want: []tag) bool = {
+	// XXX: O(n²), lame
+	for (let i = 0z; i < len(want); i += 1) {
+		let present = false;
+		for (let j = 0z; j < len(have); j += 1) {
+			if (have[j].name == want[i].name) {
+				present = true;
+				break;
+			};
+		};
+		switch (want[i].mode) {
+			tag_mode::INCLUSIVE => if (!present) return false,
+			tag_mode::EXCLUSIVE => if (present) return false,
+		};
+	};
+	return true;
 };
