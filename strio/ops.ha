@@ -1,3 +1,4 @@
+use encoding::utf8;
 use io;
 use strings;
 
@@ -103,3 +104,7 @@ export fn rjoin(st: *io::stream, delim: str, strs: str...) (size | io::error) = 
 	rjoin(st, "::", "foo") as size;
 	assert(string(st) == "foo");
 };
+
+// Appends a rune to a stream.
+export fn append_rune(st: *io::stream, r: rune) (size | io::error) =
+	io::write(st, utf8::encode_rune(r));
