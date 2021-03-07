@@ -79,8 +79,8 @@ export fn asprintf(fmt: str, args: formattable...) str = {
 // returned string is borrowed from this buffer.
 export fn bsprintf(buf: []u8, fmt: str, args: formattable...) str = {
 	let sink = bufio::fixed(buf, io::mode::WRITE);
-	assert(fprintf(sink, fmt, args...) is size);
-	return strings::from_utf8_unsafe(buf);
+	let l = fprintf(sink, fmt, args...) as size;
+	return strings::from_utf8_unsafe(buf[..l]);
 };
 
 // Formats text for printing and writes it to [os::stderr], followed by a line
@@ -256,7 +256,7 @@ fn format(out: *io::stream, arg: formattable, mod: *modifiers) (size | io::error
 		});
 	};
 
-	if (mod.padding == padding::ALIGN_RIGHT) {
+	if (mod.padding == padding::ALIGN_LEFT) {
 		format_raw(out, arg, mod);
 	};
 
@@ -264,7 +264,7 @@ fn format(out: *io::stream, arg: formattable, mod: *modifiers) (size | io::error
 		z += io::write(out, pad)?;
 	};
 
-	if (mod.padding != padding::ALIGN_RIGHT) {
+	if (mod.padding != padding::ALIGN_LEFT) {
 		format_raw(out, arg, mod);
 	};
 
@@ -408,12 +408,25 @@ fn scan_modifiers(iter: *strings::iterator, mod: *modifiers) void = {
 	scan_modifier_base(iter, mod);
 
 	// eat '}'
-	let r = match (strings::next(iter)) {
-		void => abort("Invalid format string (unterminated '{')"),
-		     r: rune => r,
+	let terminated = match (strings::next(iter)) {
+		void => false,
+		r: rune => r == '}',
 	};
+	assert(terminated, "Invalid format string (unterminated '{')");
+};
 
-	if (r != '}') {
-		strings::push(iter, r);
-	};
+@test fn fmt() void = {
+	let buf: [1024]u8 = [0...];
+	assert(bsprintf(buf, "hello world") == "hello world");
+	assert(bsprintf(buf, "{} {}", "hello", "world") == "hello world");
+	assert(bsprintf(buf, "{0} {1}", "hello", "world") == "hello world");
+	assert(bsprintf(buf, "{0} {0}", "hello", "world") == "hello hello");
+	assert(bsprintf(buf, "{1} {0} {1}", "hello", "world") == "world hello world");
+	assert(bsprintf(buf, "x: {:08x}", 0xBEEF) == "x: 0000beef");
+	assert(bsprintf(buf, "x: {:8X}", 0xBEEF) == "x:     BEEF");
+	assert(bsprintf(buf, "x: {:-8X}", 0xBEEF) == "x: BEEF    ");
+	assert(bsprintf(buf, "x: {:o}", 0o755) == "x: 755");
+	assert(bsprintf(buf, "x: {:b}", 0b11011) == "x: 11011");
+	assert(bsprintf(buf, "{} {} {} {}", true, false, null, 'x')
+		== "true false (null) x");
 };
