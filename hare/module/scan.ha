@@ -1,4 +1,6 @@
+use bytes;
 use crypto::sha256;
+use encoding::utf8;
 use fs;
 use hare::ast;
 use hare::lex;
@@ -86,7 +88,7 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 };
 
 fn eligible(ctx: *context, name: path::path) bool = {
-	if (!(name is str)) {
+	if (!utf8::valid(name: []u8)) {
 		return false;
 	};
 	let eligible = false;
@@ -98,8 +100,31 @@ fn eligible(ctx: *context, name: path::path) bool = {
 			break;
 		};
 	};
-	// TODO: Check build tags as well
-	return eligible;
+	if (!eligible) {
+		return false;
+	};
+
+	// XXX: It might be nice if the stdlib offered search functions which
+	// support multiple needles
+	let b = name: []u8;
+	let p = bytes::index(b, '+': u32: u8);
+	let m = bytes::index(b, '-': u32: u8);
+	if (p is void && m is void) {
+		return true;
+	};
+	let i: size =
+		if (p is void && m is size) m: size
+		else if (m is void && p is size) p: size
+		else if (m: size < p: size) m: size
+		else p: size;
+	let tags = b[i..(bytes::index(b, '.': u32: u8) as size)];
+	let tags = match (parse_tags(strings::from_utf8_unsafe(tags))) {
+		void => return false,
+		t: []tag => t,
+	};
+	defer tags_free(tags);
+	// TODO: Check tag compatibility
+	return true;
 };
 
 fn type_for_ext(name: path::path) (filetype | void) = {
