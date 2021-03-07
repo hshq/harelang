@@ -30,10 +30,16 @@ export type version = struct {
 	inputs: []input,
 };
 
+export type filetype = enum {
+	HARE,
+	ASSEMBLY,
+};
+
 // An input to a module, generally a source file.
 export type input = struct {
 	hash: []u8,
 	path: path::path,
+	ft: filetype,
 	stat: fs::filestat,
 };
 

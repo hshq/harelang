@@ -18,10 +18,15 @@ export fn scan(ctx: *context, path: path::path) (version | error) = {
 	let deps: []ast::ident = [];
 	let iter = match (fs::iter(ctx.fs, path)) {
 		fs::wrongtype => {
+			let ft = match (type_for_ext(path)) {
+				void => return module_not_found,
+				ft: filetype => ft,
+			};
 			let st = fs::stat(ctx.fs, path)?;
 			let in = input {
 				path = path,
 				stat = st,
+				ft = ft,
 				hash = scan_file(ctx, path, &deps)?,
 				...
 			};
@@ -47,6 +52,7 @@ export fn scan(ctx: *context, path: path::path) (version | error) = {
 				let in = input {
 					path = p,
 					stat = st,
+					ft = type_for_ext(ent.name) as filetype,
 					hash = scan_file(ctx, p, &deps)?,
 					...
 				};
@@ -94,6 +100,14 @@ fn eligible(ctx: *context, name: path::path) bool = {
 	};
 	// TODO: Check build tags as well
 	return eligible;
+};
+
+fn type_for_ext(name: path::path) (filetype | void) = {
+	const ext = path::extension(name);
+	return
+		if (ext == ".ha") filetype::HARE
+		else if (ext == ".s") filetype::ASSEMBLY
+		else void;
 };
 
 fn scan_file(
