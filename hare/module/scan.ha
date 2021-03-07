@@ -79,19 +79,21 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 	return module_not_found;
 };
 
-// TODO: Filter inputs by build tags
 fn eligible(ctx: *context, name: path::path) bool = {
 	if (!(name is str)) {
 		return false;
 	};
-	let name = name as str;
+	let eligible = false;
+	const ext = path::extension(name);
 	static const exts = [".ha", ".s"];
 	for (let i = 0z; i < len(exts); i += 1) {
-		if (strings::has_suffix(name, exts[i])) {
-			return true;
+		if (exts[i] == ext) {
+			eligible = true;
+			break;
 		};
 	};
-	return false;
+	// TODO: Check build tags as well
+	return eligible;
 };
 
 fn scan_file(

@@ -1,4 +1,5 @@
 use bytes;
+use encoding::utf8;
 use strings;
 
 // Returns the directory name for a given path. For a path to a file name, this
@@ -61,4 +62,45 @@ export fn basename(path: path::path) path::path = {
 };
 
 // Returns true if the given path is a root directory.
-export fn is_root(path: path::path) bool = len(pathbytes(path)) == 1;
+export fn is_root(path: path::path) bool = {
+	let b = pathbytes(path);
+	if (len(b) == 0) {
+		return false;
+	};
+	return b[0] == PATHSEP;
+};
+
+// Returns the file extension for a path. This presumes that the file extension
+// is a valid UTF-8 string, if not, it will return an empty string. The return
+// value is borrowed from the input, see [strings::dup] to extend its lifetime.
+//
+// The return value includes the '.' character.
+//
+// extension("foo/example") => ""
+// extension("foo/example.txt") => ".txt"
+// extension("foo/example.tar.gz") => ".tar.gz"
+export fn extension(p: path::path) str = {
+	let b = pathbytes(p);
+	if (len(b) == 0 || b[len(b) - 1] == PATHSEP) {
+		return "";
+	};
+	let b = pathbytes(basename(p));
+	let i = match (bytes::index(b, '.': u32: u8)) {
+		void => return "",
+		z: size => z,
+	};
+	let e = b[i..];
+	return match (strings::try_from_utf8(e)) {
+		utf8::invalid => "",
+		s: str => s,
+	};
+};
+
+@test fn extension() void = {
+	assert(extension("") == "");
+	assert(extension("foo/") == "");
+	assert(extension("foo/bar") == "");
+	assert(extension("foo/bar.txt") == ".txt");
+	assert(extension("foo/bar.tar.gz") == ".tar.gz");
+	assert(extension("foo.bar/baz.ha") == ".ha");
+};
