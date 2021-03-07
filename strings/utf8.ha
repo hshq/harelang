@@ -21,6 +21,16 @@ export fn from_utf8(in: []u8) str = {
 	return s;
 };
 
+// Converts a byte slice into a string. If the slice contains invalid UTF-8
+// sequences, void is returned instead.
+export fn try_from_utf8(in: []u8) (str | utf8::invalid) = {
+	let s = from_utf8_unsafe(in);
+	if (!utf8::valid(s)) {
+		return utf8::invalid;
+	};
+	return s;
+};
+
 // Converts a string to a UTF-8 slice.
 export fn to_utf8(in: str) []u8 = *(&in: *[]u8);
 
