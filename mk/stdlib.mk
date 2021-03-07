@@ -35,7 +35,8 @@ $(HARECACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start$(ARCH).s
 
 stdlib_asm=$(HARECACHE)/rt/syscall.o \
 	$(HARECACHE)/rt/setjmp.o \
-	$(HARECACHE)/rt/longjmp.o
+	$(HARECACHE)/rt/longjmp.o \
+	$(HARECACHE)/rt/start.o
 
 $(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
 	@printf 'AS \t$@\n'
@@ -57,7 +58,6 @@ $(HARECACHE)/rt/rt.a: $(HARECACHE)/rt/rt.o $(stdlib_asm)
 	@$(AR) -csr $@ $(HARECACHE)/rt/rt.o $(stdlib_asm)
 
 stdlib_rt=$(HARECACHE)/rt/rt.a
-stdlib_start=$(HARECACHE)/rt/start.o
 hare_stdlib_deps+=$(stdlib_rt)
 
 stdlib_ascii=$(HARECACHE)/ascii/ascii.o
@@ -321,7 +321,7 @@ stdlib_hare_module_srcs= \
 	$(STDLIB)/hare/module/context.ha \
 	$(STDLIB)/hare/module/scan.ha
 
-$(HARECACHE)/hare/module/hare.module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings) $(stdlib_hash) $(stdlib_crypto_sha256) $(stdlib_dirs) $(stdlib_bytes) $(stdlib_encoding_utf8)
+$(HARECACHE)/hare/module/hare.module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings) $(stdlib_hash) $(stdlib_crypto_sha256) $(stdlib_dirs) $(stdlib_bytes) $(stdlib_encoding_utf8) $(stdlib_ascii)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/module
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::module \
@@ -482,7 +482,7 @@ stdlib_strio_srcs= \
 	$(STDLIB)/strio/fixed.ha \
 	$(STDLIB)/strio/ops.ha
 
-$(HARECACHE)/strio/strio.ssa: $(stdlib_strio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings)
+$(HARECACHE)/strio/strio.ssa: $(stdlib_strio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_encoding_utf8)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/strio
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nstrio \
@@ -537,7 +537,8 @@ $(TESTCACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start$(ARCH).s
 
 testlib_asm=$(TESTCACHE)/rt/syscall.o \
 	$(TESTCACHE)/rt/setjmp.o \
-	$(TESTCACHE)/rt/longjmp.o
+	$(TESTCACHE)/rt/longjmp.o \
+	$(TESTCACHE)/rt/start.o
 
 $(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
 	@printf 'AS \t$@\n'
@@ -559,7 +560,6 @@ $(TESTCACHE)/rt/rt.a: $(TESTCACHE)/rt/rt.o $(testlib_asm)
 	@$(AR) -csr $@ $(TESTCACHE)/rt/rt.o $(testlib_asm)
 
 testlib_rt=$(TESTCACHE)/rt/rt.a
-testlib_start=$(TESTCACHE)/rt/start.o
 hare_testlib_deps+=$(testlib_rt)
 
 testlib_ascii=$(TESTCACHE)/ascii/ascii.o
@@ -825,7 +825,7 @@ testlib_hare_module_srcs= \
 	$(STDLIB)/hare/module/context.ha \
 	$(STDLIB)/hare/module/scan.ha
 
-$(TESTCACHE)/hare/module/hare.module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings) $(testlib_hash) $(testlib_crypto_sha256) $(testlib_dirs) $(testlib_bytes) $(testlib_encoding_utf8)
+$(TESTCACHE)/hare/module/hare.module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings) $(testlib_hash) $(testlib_crypto_sha256) $(testlib_dirs) $(testlib_bytes) $(testlib_encoding_utf8) $(testlib_ascii)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/module
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module \
@@ -994,7 +994,7 @@ testlib_strio_srcs= \
 	$(STDLIB)/strio/fixed.ha \
 	$(STDLIB)/strio/ops.ha
 
-$(TESTCACHE)/strio/strio.ssa: $(testlib_strio_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings)
+$(TESTCACHE)/strio/strio.ssa: $(testlib_strio_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_encoding_utf8)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/strio
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrio \

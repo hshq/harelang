@@ -13,8 +13,12 @@ export fn main() void = {
 	};
 
 	let plan = plan { ... };
-	let ctx = module::context_init([module::tag{
+	let ctx = module::context_init([module::tag {
 		name = os::machine(),
+		mode = module::tag_mode::INCLUSIVE,
+	}, module::tag {
+		// TEMP:
+		name = "linux",
 		mode = module::tag_mode::INCLUSIVE,
 	}]);
 

@@ -61,7 +61,8 @@ rt() {
 
 ${stdlib}_asm=\$($cache)/rt/syscall.o \\
 	\$($cache)/rt/setjmp.o \\
-	\$($cache)/rt/longjmp.o
+	\$($cache)/rt/longjmp.o \\
+	\$($cache)/rt/start.o
 
 \$($cache)/rt/syscall.o: \$(STDLIB)/rt/\$(PLATFORM)/syscall\$(ARCH).s
 	@printf 'AS \t\$@\n'
@@ -83,7 +84,6 @@ ${stdlib}_asm=\$($cache)/rt/syscall.o \\
 	@\$(AR) -csr \$@ \$($cache)/rt/rt.o \$(${stdlib}_asm)
 
 ${stdlib}_rt=\$($cache)/rt/rt.a
-${stdlib}_start=\$($cache)/rt/start.o
 hare_${stdlib}_deps+=\$(${stdlib}_rt)
 
 EOF
