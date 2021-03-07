@@ -61,15 +61,6 @@ export fn basename(path: path::path) path::path = {
 	assert(basename(p) as str == "foo");
 };
 
-// Returns true if the given path is a root directory.
-export fn is_root(path: path::path) bool = {
-	let b = pathbytes(path);
-	if (len(b) == 0) {
-		return false;
-	};
-	return b[0] == PATHSEP;
-};
-
 // Returns the file extension for a path. This presumes that the file extension
 // is a valid UTF-8 string, if not, it will return an empty string. The return
 // value is borrowed from the input, see [strings::dup] to extend its lifetime.
