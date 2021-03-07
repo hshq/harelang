@@ -35,7 +35,7 @@ use strio;
 		};
 
 		if (strio::string(hex) != vector.1) {
-			fmt::errorln("Vector {}: {} != {}",
+			fmt::errorfln("Vector {}: {} != {}",
 				i, strio::string(hex), vector.1);
 			abort();
 		};
@@ -59,7 +59,7 @@ use strio;
 	//};
 
 	//if (strio::string(hex) != expected) {
-	//	fmt::errorln("Biggo vector: {} != {}",
+	//	fmt::errorfln("Biggo vector: {} != {}",
 	//		strio::string(hex), expected);
 	//	abort();
 	//};
