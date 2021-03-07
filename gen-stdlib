@@ -248,7 +248,7 @@ hare_module() {
 		scan.ha
 	gen_ssa hare::module \
 		hare::ast hare::lex hare::parse strio fs io strings hash \
-		crypto::sha256 dirs
+		crypto::sha256 dirs bytes encoding::utf8 ascii
 }
 
 gensrcs_hare_parse() {
@@ -430,7 +430,7 @@ strio() {
 		dynamic.ha \
 		fixed.ha \
 		ops.ha
-	gen_ssa strio io strings
+	gen_ssa strio io strings encoding::utf8
 }
 
 types() {
