@@ -389,7 +389,7 @@ stdlib_os_srcs= \
 	$(STDLIB)/os/stdfd.ha \
 	$(STDLIB)/os/fs.ha
 
-$(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fs) $(stdlib_encoding_utf8)
+$(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fs) $(stdlib_encoding_utf8) $(stdlib_bytes)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
@@ -415,7 +415,8 @@ stdlib_path_srcs= \
 	$(STDLIB)/path/util.ha \
 	$(STDLIB)/path/join.ha \
 	$(STDLIB)/path/norm.ha \
-	$(STDLIB)/path/names.ha
+	$(STDLIB)/path/names.ha \
+	$(STDLIB)/path/iter.ha
 
 $(HARECACHE)/path/path.ssa: $(stdlib_path_srcs) $(stdlib_rt) $(stdlib_strings) $(stdlib_bufio) $(stdlib_bytes)
 	@printf 'HAREC \t$@\n'
@@ -898,7 +899,7 @@ testlib_os_srcs= \
 	$(STDLIB)/os/stdfd.ha \
 	$(STDLIB)/os/fs.ha
 
-$(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fs) $(testlib_encoding_utf8)
+$(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fs) $(testlib_encoding_utf8) $(testlib_bytes)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
@@ -924,7 +925,8 @@ testlib_path_srcs= \
 	$(STDLIB)/path/util.ha \
 	$(STDLIB)/path/join.ha \
 	$(STDLIB)/path/norm.ha \
-	$(STDLIB)/path/names.ha
+	$(STDLIB)/path/names.ha \
+	$(STDLIB)/path/iter.ha
 
 $(TESTCACHE)/path/path.ssa: $(testlib_path_srcs) $(testlib_rt) $(testlib_strings) $(testlib_bufio) $(testlib_bytes)
 	@printf 'HAREC \t$@\n'

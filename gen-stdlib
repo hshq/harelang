@@ -335,7 +335,7 @@ os() {
 		'$(PLATFORM)/fs.ha' \
 		stdfd.ha \
 		fs.ha
-	gen_ssa os io strings types fs encoding::utf8
+	gen_ssa os io strings types fs encoding::utf8 bytes
 }
 
 os_exec() {
@@ -356,7 +356,8 @@ path() {
 		util.ha \
 		join.ha \
 		norm.ha \
-		names.ha
+		names.ha \
+		iter.ha
 	gen_ssa path strings bufio bytes
 }
 
