@@ -14,6 +14,11 @@ use strings;
 	cwd = static_dirfdopen(rt::AT_FDCWD, &cwd_fs);
 };
 
+// Returns the current working directory. The return value is statically
+// allocated and must be duplicated (see [strings::dup]) before calling getcwd
+// again.
+export fn getcwd() path::path = strings::from_c(rt::getcwd() as *const char);
+
 // Change the current working directory.
 export fn chdir(target: (*fs::fs | ...path::path)) (void | fs::error) = {
 	const path: []u8 = match (target) {

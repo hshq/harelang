@@ -1,3 +1,4 @@
+use bytes;
 use encoding::utf8;
 use fs;
 use io;
@@ -49,6 +50,7 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 			stat = &fs_stat,
 			subdir = &fs_subdir,
 			mkdir = &fs_mkdir,
+			resolve = &fs_resolve,
 			...
 		},
 		dirfd = fd,
@@ -195,6 +197,42 @@ fn fs_mkdir(fs: *fs::fs, path: path::path) (void | fs::error) = {
 		},
 		void => void,
 	};
+};
+
+fn resolve_part(parts: *[]path::path, part: path::path) void = {
+	const dot = strings::to_utf8("."), dotdot = strings::to_utf8("..");
+	let b = match (part) {
+		b: []u8 => b,
+		s: str => strings::to_utf8(s),
+	};
+	if (bytes::equal(b, dot)) {
+		// no-op
+		void;
+	} else if (bytes::equal(b, dotdot)) {
+		// XXX: We should not have to dereference this
+		if (len(*parts) != 0) {
+			delete(parts[len(*parts) - 1]);
+		};
+	} else {
+		append(*parts, part);
+	};
+};
+
+fn fs_resolve(fs: *fs::fs, path: path::path) path::path = {
+	let parts: []path::path = [];
+	if (!path::abs(path)) {
+		let iter = path::iter(getcwd());
+		for (true) match (path::next(&iter)) {
+			void => break,
+			p: path::path => resolve_part(&parts, p),
+		};
+	};
+	let iter = path::iter(path);
+	for (true) match (path::next(&iter)) {
+		void => break,
+		p: path::path => resolve_part(&parts, p),
+	};
+	return path::join(parts...);
 };
 
 fn fs_close(fs: *fs::fs) void = {

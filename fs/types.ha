@@ -96,7 +96,7 @@ export type stat_mask = enum uint {
 };
 
 // Information about a file or directory. The mask field defines what other
-// fields are set; mode and path are always set.
+// fields are set; mode is always set.
 export type filestat = struct {
 	mask: stat_mask,
 	mode: mode,
@@ -147,6 +147,7 @@ export type statfunc = fn(fs: *fs, path: path::path) (filestat | error);
 export type subdirfunc = fn(fs: *fs, path: path::path) (*fs | error);
 export type mkdirfunc = fn(fs: *fs, path: path::path) (void | error);
 export type mksubdirfunc = fn(fs: *fs, path: path::path) (*fs | error);
+export type resolvefunc = fn(fs: *fs, path: path::path) path::path;
 
 // An abstract implementation of a filesystem. To create a custom stream, embed
 // this type as the first member of a struct with user-specific data and fill
@@ -180,6 +181,11 @@ export type fs = struct {
 
 	// Creates a directory and returns a subdir for it.
 	mksubdir: nullable *mksubdirfunc,
+
+	// Resolves a path to its absolute, normalized value. If the fs
+	// implementation does not provide this, [resolve] presumes that
+	// relative paths are rooted (i.e. "foo" == "/foo").
+	resolve: nullable *resolvefunc,
 };
 
 export type nextfunc = fn(iter: *iterator) (dirent | void);

@@ -6,12 +6,13 @@ fn syscall4(u64, u64, u64, u64, u64) u64;
 fn syscall5(u64, u64, u64, u64, u64, u64) u64;
 fn syscall6(u64, u64, u64, u64, u64, u64, u64) u64;
 
+def PATH_MAX: size = 4096z;
 export type path = (str | []u8 | *const char);
+let pathbuf: [PATH_MAX + 1]u8 = [0...];
 
 // NUL terminates a string and stores it in a static buffer of PATH_MAX+1 bytes
 // in length.
 fn kpath(path: path) (*const char | errno) = {
-	static let buf: [4097]u8 = [0...];
 	let path = match (path) {
 		c: *const char => return c,
 		s: str => {
@@ -24,12 +25,12 @@ fn kpath(path: path) (*const char | errno) = {
 		},
 		b: []u8 => b,
 	};
-	if (len(path) + 1 >= len(buf)) {
+	if (len(path) + 1 >= len(pathbuf)) {
 		return ENAMETOOLONG;
 	};
-	memcpy(&buf, path: *[*]u8, len(path));
-	buf[len(path)] = 0;
-	return &buf: *const char;
+	memcpy(&pathbuf, path: *[*]u8, len(path));
+	pathbuf[len(path)] = 0;
+	return &pathbuf: *const char;
 };
 
 export fn read(fd: int, buf: *void, count: size) (size | errno) = {
@@ -252,4 +253,12 @@ export fn clock_gettime(clock_id: int, tp: *timespec) (void | errno) = {
 export fn uname(uts: *utsname) (void | errno) = {
 	wrap_return(syscall1(SYS_uname, uts: uintptr: u64))?;
 	return;
+};
+
+// The return value is statically allocated and must be duplicated before
+// calling any other syscall.
+export fn getcwd() (*const char | errno) = {
+	static let pathbuf: [PATH_MAX + 1]u8 = [0...];
+	wrap_return(syscall1(SYS_getcwd, &pathbuf: *[*]u8: uintptr: u64))?;
+	return &pathbuf: *const char;
 };

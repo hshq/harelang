@@ -87,6 +87,17 @@ export fn mksubdir(fs: *fs, path: path::path) (*fs | error) = {
 	};
 };
 
+// Resolves a path to its absolute, normalized value. This consoldates ./ and
+// ../ sequences, roots the path, and returns a new [path::path]. The caller
+// must free the return value.
+export fn resolve(fs: *fs, path: path::path) path::path = {
+	match (fs.resolve) {
+		f: *resolvefunc => return f(fs, path),
+		null => void,
+	};
+	abort(); // TODO
+};
+
 // Returns the next directory entry from an interator, or void if none remain.
 // It is a programming error to call this again after it has returned void. The
 // file stat returned may only have the type bits set on the file mode; callers
