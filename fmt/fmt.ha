@@ -70,7 +70,7 @@ export fn errorfln(fmt: str, args: formattable...) (io::error | size) =
 // Formats text for printing and writes it into a heap-allocated string. The
 // caller must free the return value.
 export fn asprintf(fmt: str, args: formattable...) str = {
-	let buf = bufio::dynamic();
+	let buf = bufio::dynamic(io::mode::WRITE);
 	assert(fprintf(buf, fmt, args...) is size);
 	return strings::from_utf8_unsafe(bufio::buffer(buf));
 };
@@ -124,7 +124,7 @@ export fn errorln(args: formattable...) (io::error | size) =
 // them into a heap-allocated string separated by spaces. The caller must free
 // the return value.
 export fn asprint(args: formattable...) str = {
-	let buf = bufio::dynamic();
+	let buf = bufio::dynamic(io::mode::WRITE);
 	assert(fprint(buf, args...) is size);
 	return strings::from_utf8_unsafe(bufio::buffer(buf));
 };

@@ -13,29 +13,28 @@ type dynamic_stream = struct {
 // Calling [io::close] on this stream will free the buffer. Call [bufio::finish]
 // instead to free up resources associated with the stream, but transfer
 // ownership of the buffer to the caller.
-export fn dynamic() *io::stream = alloc(dynamic_stream {
-	stream = io::stream {
-		writer = &dynamic_write,
-		closer = &dynamic_close,
-		reader = &dynamic_read,
-		...
-	},
-	buf = [],
-}): *io::stream;
+export fn dynamic(mode: io::mode) *io::stream = dynamic_from([], mode);
 
 // Like [dynamic], but takes an existing slice as input. Writes are appended to
 // it and reads consume bytes from the initial buffer, plus any additional
 // writes. Like [dynamic], calling [io::close] will free the buffer, and
 // [bufio::finish] can be used to return ownership of the buffer to the caller.
-export fn dynamic_from(in: []u8) *io::stream = alloc(dynamic_stream {
-	stream = io::stream {
-		writer = &dynamic_write,
-		closer = &dynamic_close,
-		reader = &dynamic_read,
-		...
-	},
-	buf = in,
-}): *io::stream;
+export fn dynamic_from(in: []u8, mode: io::mode) *io::stream = {
+	let s = alloc(dynamic_stream {
+		stream = io::stream {
+			closer = &dynamic_close,
+			...
+		},
+		buf = in,
+	}): *io::stream;
+	if (mode & io::mode::READ == io::mode::READ) {
+		s.reader = &dynamic_read;
+	};
+	if (mode & io::mode::WRITE == io::mode::WRITE) {
+		s.writer = &dynamic_write;
+	};
+	return s;
+};
 
 fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *dynamic_stream;
@@ -60,7 +59,7 @@ fn dynamic_close(s: *io::stream) void = {
 // Closes the stream without freeing the buffer, instead transferring ownership
 // of it to the caller.
 export fn finish(s: *io::stream) []u8 = {
-	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
+	if (s.closer != &dynamic_close) {
 		abort("bufio::finish called on non-bufio stream");
 	};
 	let s = s: *dynamic_stream;
@@ -71,7 +70,7 @@ export fn finish(s: *io::stream) []u8 = {
 
 // Returns the current buffer.
 export fn buffer(s: *io::stream) []u8 = {
-	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
+	if (s.closer != &dynamic_close) {
 		abort("bufio::buffer called on non-bufio stream");
 	};
 	let s = s: *dynamic_stream;
@@ -81,7 +80,7 @@ export fn buffer(s: *io::stream) []u8 = {
 // Resets the buffer's length to zero, but keeps the allocated memory around for
 // future writes.
 export fn reset(s: *io::stream) void = {
-	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
+	if (s.closer != &dynamic_close) {
 		abort("bufio::reset called on non-bufio stream");
 	};
 	const s = s: *dynamic_stream;
@@ -91,7 +90,7 @@ export fn reset(s: *io::stream) void = {
 // Truncates the buffer, freeing memory associated with it and setting its
 // length to zero.
 export fn truncate(s: *io::stream) (void | io::unsupported) = {
-	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
+	if (s.closer != &dynamic_close) {
 		return io::unsupported;
 	};
 	let s = s: *dynamic_stream;
@@ -100,7 +99,7 @@ export fn truncate(s: *io::stream) (void | io::unsupported) = {
 
 @test fn dynamic() void = {
 	// TODO: slice/array equality
-	let s = dynamic();
+	let s = dynamic(io::mode::RDWR);
 	assert(io::write(s, [1, 2, 3]) as size == 3);
 	assert(bytes::equal(buffer(s), [1, 2, 3]));
 	assert(io::write(s, [4, 5]) as size == 2);
@@ -118,8 +117,17 @@ export fn truncate(s: *io::stream) (void | io::unsupported) = {
 	assert(len(buffer(s)) == 0);
 
 	let sl: []u8 = alloc([1, 2, 3]);
-	let s = dynamic_from(sl);
+	let s = dynamic_from(sl, io::mode::WRITE);
 	assert(io::write(s, [4, 5, 6]) as size == 3);
 	assert(bytes::equal(buffer(s), [1, 2, 3, 4, 5, 6]));
+	// TODO: this should check for io::unsupported (harec bug prevents that)
+	assert(io::read(s, buf[..]) is io::error);
 	io::close(s);
+
+	sl = alloc([1, 2]);
+	let s = dynamic_from(sl, io::mode::READ);
+	assert(io::read(s, buf[..]) as size == 2 && bytes::equal(buf, [1, 2]));
+	assert(io::read(s, buf[..]) is io::EOF);
+	// TODO: this should check for io::unsupported (harec bug prevents that)
+	assert(io::write(s, [1, 2]) is io::error);
 };

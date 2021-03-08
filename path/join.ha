@@ -8,7 +8,7 @@ use io;
 export fn join(paths: path...) path = {
 	// TODO: Normalize inputs so that if they end with a / we don't double
 	// up on delimiters
-	let sink = bufio::dynamic();
+	let sink = bufio::dynamic(io::mode::WRITE);
 	let utf8 = true;
 	for (let i = 0z; i < len(paths); i += 1) {
 		utf8 = utf8 && paths[i] is str;
