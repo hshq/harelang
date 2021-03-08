@@ -18,3 +18,12 @@ export fn path_free(p: path) void = match (p) {
 // Returns true if two paths are equal.
 export fn equal(a: path, b: path) bool =
 	bytes::equal(pathbytes(a), pathbytes(b));
+
+// Returns true if a path is an absolute path.
+export fn abs(path: path::path) bool = {
+	let b = pathbytes(path);
+	if (len(b) == 0) {
+		return false;
+	};
+	return b[0] == PATHSEP;
+};
