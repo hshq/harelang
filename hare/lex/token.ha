@@ -255,17 +255,12 @@ export type literal_type = enum {
 	STR,
 };
 
+export type iconst = i64;
+export type fconst = f64;
+
 // A token for a literal value, such as '1337u32'
-export type literal = struct {
-	storage: literal_type,
-	union {
-		string: str,
-		_rune: rune,
-		_int: i64,
-		_uint: u64,
-		float: f64,
-	},
-};
+export type literal = (u8 | u16 | u32 | u64 | uint | uintptr | i8 | i16 | i32 |
+	i64 | int | iconst | f32 | f64 | fconst | rune | str);
 
 // A location within a source file.
 export type location = struct {
@@ -278,15 +273,27 @@ export type location = struct {
 export type token = (btoken | label | name | literal);
 
 // Converts a token to its string representation
-export fn tokstr(tok: token) const str = {
-	return match (tok) {
-		b: btoken => bmap[b: int],
-		n: name => n: str,
-		l: literal => switch (l.storage) {
-			literal_type::RUNE => "rune",
-			literal_type::STR => "string",
-			* => abort(), // TODO
-		},
-		* => abort(), // TODO
-	};
+export fn tokstr(tok: token) const str = match (tok) {
+	b: btoken => bmap[b: int],
+	n: name => n: str,
+	l: literal => match (l) {
+		u8 => "u8",
+		u16 => "u16",
+		u32 => "u32",
+		u64 => "u64",
+		uint => "uint",
+		uintptr => "uintptr",
+		i8 => "i8",
+		i16 => "i16",
+		i32 => "i32",
+		i64 => "i64",
+		int => "int",
+		iconst => "iconst",
+		f32 => "f32",
+		f64 => "f64",
+		fconst => "fconst",
+		rune => "rune",
+		str => "str",
+	},
+	* => abort(), // TODO
 };

@@ -31,29 +31,24 @@ use strings;
 	assert(t.1.line == 1234 && t.1.col == 1234);
 };
 
-fn liteq(expected: literal, actual: literal) bool = {
-	if (expected.storage != actual.storage) {
-		return false;
-	};
-	return switch (expected.storage) {
-		literal_type::U8,
-		literal_type::U16,
-		literal_type::U32,
-		literal_type::U64,
-		literal_type::UINT,
-		literal_type::UINTPTR => expected._uint == actual._uint,
-		literal_type::I8,
-		literal_type::I16,
-		literal_type::I32,
-		literal_type::I64,
-		literal_type::INT,
-		literal_type::ICONST => expected._int == actual._int,
-		literal_type::F32,
-		literal_type::F64,
-		literal_type::FCONST => expected.float == actual.float,
-		literal_type::RUNE => expected._rune == actual._rune,
-		literal_type::STR => expected.string == actual.string,
-	};
+fn litassert(expected: literal, actual: literal) void = match (expected) {
+	e: u8 => assert(actual as u8 == e),
+	e: u16 => assert(actual as u16 == e),
+	e: u32 => assert(actual as u32 == e),
+	e: u64 => assert(actual as u64 == e),
+	e: uint => assert(actual as uint == e),
+	e: uintptr => assert(actual as uintptr == e),
+	e: i8 => assert(actual as i8 == e),
+	e: i16 => assert(actual as i16 == e),
+	e: i32 => assert(actual as i32 == e),
+	e: i64 => assert(actual as i64 == e),
+	e: int => assert(actual as int == e),
+	e: iconst => assert(actual as iconst == e),
+	e: f32 => assert(actual as f32 == e),
+	e: f64 => assert(actual as f64 == e),
+	e: fconst => assert(actual as fconst == e),
+	e: rune => assert(actual as rune == e),
+	e: str => assert(actual as str == e),
 };
 
 fn lextest(in: str, expected: [](uint, uint, token)) void = {
@@ -90,12 +85,7 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 					i, tokstr(tok), tokstr(etok));
 				abort();
 			} else {
-				let e = etok as literal;
-				if (!liteq(l, e)) {
-					fmt::errorfln("bad token at {}: got '{}', wanted '{}'",
-						i, tokstr(tok), tokstr(etok));
-					abort();
-				};
+				litassert(l, etok as literal);
 			},
 			* => abort("TODO"),
 		};
@@ -218,21 +208,21 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 	const in = "'a' 'b' '\\a' '\\b' '\\f' '\\n' '\\r' '\\t' '\\v' '\\0' "
 		"'\\\\' '\\\'' '\\x0A' '\\u1234' '\\U12345678'";
 	const expected: [_](uint, uint, token) = [
-		(1, 1,  literal { storage = literal_type::RUNE, _rune = 'a' }),
-		(1, 5,  literal { storage = literal_type::RUNE, _rune = 'b' }),
-		(1, 9,  literal { storage = literal_type::RUNE, _rune = '\a' }),
-		(1, 14, literal { storage = literal_type::RUNE, _rune = '\b' }),
-		(1, 19, literal { storage = literal_type::RUNE, _rune = '\f' }),
-		(1, 24, literal { storage = literal_type::RUNE, _rune = '\n' }),
-		(1, 29, literal { storage = literal_type::RUNE, _rune = '\r' }),
-		(1, 34, literal { storage = literal_type::RUNE, _rune = '\t' }),
-		(1, 39, literal { storage = literal_type::RUNE, _rune = '\v' }),
-		(1, 44, literal { storage = literal_type::RUNE, _rune = '\0' }),
-		(1, 49, literal { storage = literal_type::RUNE, _rune = '\\' }),
-		(1, 54, literal { storage = literal_type::RUNE, _rune = '\'' }),
-		(1, 59, literal { storage = literal_type::RUNE, _rune = '\x0A' }),
-		(1, 66, literal { storage = literal_type::RUNE, _rune = '\u1234' }),
-		(1, 75, literal { storage = literal_type::RUNE, _rune = '\U12345678' }),
+		(1, 1,  'a'),
+		(1, 5,  'b'),
+		(1, 9,  '\a'),
+		(1, 14, '\b'),
+		(1, 19, '\f'),
+		(1, 24, '\n'),
+		(1, 29, '\r'),
+		(1, 34, '\t'),
+		(1, 39, '\v'),
+		(1, 44, '\0'),
+		(1, 49, '\\'),
+		(1, 54, '\''),
+		(1, 59, '\x0A'),
+		(1, 66, '\u1234'),
+		(1, 75, '\U12345678'),
 	];
 	lextest(in, expected);
 };
@@ -241,47 +231,32 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 	const in = "\"a\" \"b\" \"\\a\" \"\\b\" \"\\f\" \"\\n\" \"\\r\" "
 		"\"\\t\" \"\\v\" \"\\0\" \"\\\\\" \"\\\'\"";
 	const expected: [_](uint, uint, token) = [
-		(1, 1,  literal { storage = literal_type::STR, string = "a" }),
-		(1, 5,  literal { storage = literal_type::STR, string = "b" }),
-		(1, 9,  literal { storage = literal_type::STR, string = "\a" }),
-		(1, 14, literal { storage = literal_type::STR, string = "\b" }),
-		(1, 19, literal { storage = literal_type::STR, string = "\f" }),
-		(1, 24, literal { storage = literal_type::STR, string = "\n" }),
-		(1, 29, literal { storage = literal_type::STR, string = "\r" }),
-		(1, 34, literal { storage = literal_type::STR, string = "\t" }),
-		(1, 39, literal { storage = literal_type::STR, string = "\v" }),
-		(1, 44, literal { storage = literal_type::STR, string = "\0" }),
-		(1, 49, literal { storage = literal_type::STR, string = "\\" }),
-		(1, 54, literal { storage = literal_type::STR, string = "\'" }),
+		(1, 1,  "a": literal),
+		(1, 5,  "b": literal),
+		(1, 9,  "\a": literal),
+		(1, 14, "\b": literal),
+		(1, 19, "\f": literal),
+		(1, 24, "\n": literal),
+		(1, 29, "\r": literal),
+		(1, 34, "\t": literal),
+		(1, 39, "\v": literal),
+		(1, 44, "\0": literal),
+		(1, 49, "\\": literal),
+		(1, 54, "\'": literal),
 	];
 	// TODO: test \x and \u and \U
 	lextest(in, expected);
 	const in = "\"ab\\a\\b\\f\\n\\r\\t\\v\\0\\\\\\'\"";
 	const expected: [_](uint, uint, token) = [
-		(1, 1, literal {
-			storage = literal_type::STR,
-			string = "ab\a\b\f\n\r\t\v\0\\\'",
-		}),
+		(1, 1,  "ab\a\b\f\n\r\t\v\0\\\'": literal),
 	];
 	lextest(in, expected);
 	const in = "\"hello world\" \"こんにちは\" \"return\" \"foo\"";
 	const expected: [_](uint, uint, token) = [
-		(1, 1, literal {
-			storage = literal_type::STR,
-			string = "hello world",
-		}),
-		(1, 15, literal {
-			storage = literal_type::STR,
-			string = "こんにちは",
-		}),
-		(1, 23, literal {
-			storage = literal_type::STR,
-			string = "return",
-		}),
-		(1, 32, literal {
-			storage = literal_type::STR,
-			string = "foo",
-		}),
+		(1, 1, "hello world": literal),
+		(1, 15, "こんにちは": literal),
+		(1, 23, "return": literal),
+		(1, 32, "foo": literal),
 	];
 	lextest(in, expected);
 };

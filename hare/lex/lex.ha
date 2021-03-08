@@ -172,10 +172,7 @@ fn lex_string(
 				append(chars, ...utf8::encode_rune(r));
 			},
 	};
-	return (literal {
-		storage = literal_type::STR,
-		string = strings::from_utf8(chars),
-	}: token, loc);
+	return (strings::from_utf8(chars): literal, loc);
 };
 
 fn lex_rn_str(
@@ -193,10 +190,7 @@ fn lex_rn_str(
 	};
 
 	// Rune literal
-	let ret = (literal {
-		storage = literal_type::RUNE,
-		_rune = lex_rune(lex, loc)?,
-	}: token, loc);
+	let ret: (token, location) = (lex_rune(lex, loc)?: literal, loc);
 	match (next(lex)?) {
 		io::EOF =>
 			return syntaxerr(loc, "unexpected EOF"),
