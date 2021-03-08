@@ -65,34 +65,34 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 		let tl = match (lex(&lexer)) {
 			tl: (token, location) => tl,
 			io::EOF => {
-				fmt::errorln("unexpected EOF at {}", i);
+				fmt::errorfln("unexpected EOF at {}", i);
 				abort();
 			},
 			err: error => {
-				fmt::errorln("{}: {}", i, errstr(err));
+				fmt::errorfln("{}: {}", i, errstr(err));
 				abort();
 			},
 		};
 		let tok = tl.0, loc = tl.1;
 		match (tok) {
 			b: btoken => if (!(etok is btoken) || etok as btoken != b) {
-				fmt::errorln("bad token at {}: got {}, wanted {}",
+				fmt::errorfln("bad token at {}: got {}, wanted {}",
 					i, tokstr(tok), tokstr(etok));
 				abort();
 			},
 			n: name => if (!(etok is name) || etok as name != n) {
-				fmt::errorln("bad token at {}: got {}, wanted {}",
+				fmt::errorfln("bad token at {}: got {}, wanted {}",
 					i, tokstr(tok), tokstr(etok));
 				abort();
 			},
 			l: literal => if (!(etok is literal)) {
-				fmt::errorln("bad token at {}: got {}, wanted {}",
+				fmt::errorfln("bad token at {}: got {}, wanted {}",
 					i, tokstr(tok), tokstr(etok));
 				abort();
 			} else {
 				let e = etok as literal;
 				if (!liteq(l, e)) {
-					fmt::errorln("bad token at {}: got '{}', wanted '{}'",
+					fmt::errorfln("bad token at {}: got '{}', wanted '{}'",
 						i, tokstr(tok), tokstr(etok));
 					abort();
 				};
@@ -101,7 +101,7 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 		};
 		assert(loc.path == "<test>");
 		if (loc.line != eline || loc.col != ecol) {
-			fmt::errorln("bad line/col at {}: got {},{}; wanted {},{}",
+			fmt::errorfln("bad line/col at {}: got {},{}; wanted {},{}",
 				i, loc.line, loc.col, eline, ecol);
 			abort();
 		};
