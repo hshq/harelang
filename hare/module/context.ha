@@ -30,7 +30,7 @@ export fn context_init(tags: []tag) context = {
 			void => {
 				let path: []path::path = alloc([
 					DEFAULT_HAREPATH,
-					dirs::config("hare"),
+					dirs::data("hare"),
 				]);
 				path;
 			},
