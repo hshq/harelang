@@ -1,8 +1,6 @@
 use bytes;
 use strings;
 
-use io;
-
 const pathsep: []u8 = [PATHSEP];
 
 export type iflags = enum uint {
