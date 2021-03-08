@@ -69,8 +69,8 @@ export fn next(iter: *iterator) (path | void) = {
 	let i = iter("foo");
 	assert(equal(next(&i) as path, "foo"));
 	assert(next(&i) is void);
-	// Hm?
-	//let i = iter("/");
-	//assert(equal(next(&i) as path, "/"));
-	//assert(next(&i) is void);
+
+	let i = iter("/");
+	assert(equal(next(&i) as path, "/"));
+	assert(next(&i) is void);
 };

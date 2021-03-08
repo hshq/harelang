@@ -74,6 +74,10 @@ export fn remaining_tokens(s: *tokenizer) str = {
 
 	assert(peek_token(&tok) is void);
 	assert(next_token(&tok) is void);
+
+	tok = tokenize("", "foo");
+	assert(peek_token(&tok) is void);
+	assert(next_token(&tok) is void);
 };
 
 // Splits a string into tokens delimited by 'delim', returning a slice of up to

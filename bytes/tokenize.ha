@@ -7,6 +7,9 @@ export type tokenizer = struct { s: []u8, d: []u8, p: size };
 // Caller should ensure delim is not an empty slice
 export fn tokenize(s: []u8, delim: []u8) tokenizer = {
 	assert(len(delim) > 0);
+	if (len(s) == 0) {
+		delim = [];
+	};
 	return tokenizer {
 		s = s,
 		d = delim,
@@ -153,4 +156,8 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	assert(equal(remaining_tokens(&t), [2, 3, 4]));
 	assert(equal(peek_token(&t) as []u8, [2, 3, 4]));
 	assert(equal(remaining_tokens(&t), [2, 3, 4]));
+
+	t = tokenize([]: []u8, [42]);
+	assert(peek_token(&t) is void);
+	assert(next_token(&t) is void);
 };
