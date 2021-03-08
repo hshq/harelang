@@ -120,6 +120,9 @@ hare_stdlib_deps+=$(stdlib_hash_fnv)
 stdlib_io=$(HARECACHE)/io/io.o
 hare_stdlib_deps+=$(stdlib_io)
 
+stdlib_math_random=$(HARECACHE)/math/random/math.random.o
+hare_stdlib_deps+=$(stdlib_math_random)
+
 stdlib_os=$(HARECACHE)/os/os.o
 hare_stdlib_deps+=$(stdlib_os)
 
@@ -376,6 +379,16 @@ $(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt) $(stdlib_strings)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
 		-t$(HARECACHE)/io/io.td $(stdlib_io_srcs)
 
+# math::random
+stdlib_math_random_srcs= \
+	$(STDLIB)/math/random/random.ha
+
+$(HARECACHE)/math/random/math.random.ssa: $(stdlib_math_random_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/math/random
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nmath::random \
+		-t$(HARECACHE)/math/random/math.random.td $(stdlib_math_random_srcs)
+
 # os
 stdlib_os_srcs= \
 	$(STDLIB)/os/$(PLATFORM)/environ.ha \
@@ -622,6 +635,9 @@ hare_testlib_deps+=$(testlib_hash_fnv)
 
 testlib_io=$(TESTCACHE)/io/io.o
 hare_testlib_deps+=$(testlib_io)
+
+testlib_math_random=$(TESTCACHE)/math/random/math.random.o
+hare_testlib_deps+=$(testlib_math_random)
 
 testlib_os=$(TESTCACHE)/os/os.o
 hare_testlib_deps+=$(testlib_os)
@@ -885,6 +901,16 @@ $(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt) $(testlib_strings)
 	@mkdir -p $(TESTCACHE)/io
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
 		-t$(TESTCACHE)/io/io.td $(testlib_io_srcs)
+
+# math::random
+testlib_math_random_srcs= \
+	$(STDLIB)/math/random/random.ha
+
+$(TESTCACHE)/math/random/math.random.ssa: $(testlib_math_random_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/math/random
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath::random \
+		-t$(TESTCACHE)/math/random/math.random.td $(testlib_math_random_srcs)
 
 # os
 testlib_os_srcs= \

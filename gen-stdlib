@@ -322,6 +322,13 @@ io() {
 	gen_ssa io strings
 }
 
+math_random() {
+	printf '# math::random\n'
+	gen_srcs math::random \
+		random.ha
+	gen_ssa math::random
+}
+
 os() {
 	printf '# os\n'
 	gen_srcs os \
@@ -465,6 +472,7 @@ hare_parse
 hash
 hash_fnv
 io
+math_random
 os
 os_exec
 path
