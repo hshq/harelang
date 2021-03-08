@@ -256,7 +256,7 @@ export fn uname(uts: *utsname) (void | errno) = {
 };
 
 // The return value is statically allocated and must be duplicated before
-// calling any other syscall.
+// calling getcwd again.
 export fn getcwd() (*const char | errno) = {
 	static let pathbuf: [PATH_MAX + 1]u8 = [0...];
 	wrap_return(syscall1(SYS_getcwd, &pathbuf: *[*]u8: uintptr: u64))?;
