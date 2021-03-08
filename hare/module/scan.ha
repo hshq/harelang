@@ -29,7 +29,7 @@ export fn scan(ctx: *context, path: path::path) (version | error) = {
 			};
 			let st = fs::stat(ctx.fs, path)?;
 			let in = input {
-				path = path,
+				path = fs::resolve(ctx.fs, path),
 				stat = st,
 				ft = ft,
 				hash = scan_file(ctx, path, &deps)?,
@@ -80,7 +80,7 @@ fn scan_directory(
 				let p = path::join(path, ent.name);
 				let st = fs::stat(ctx.fs, p)?;
 				let in = input {
-					path = p,
+					path = fs::resolve(ctx.fs, p),
 					stat = st,
 					ft = type_for_ext(ent.name) as filetype,
 					hash = scan_file(ctx, p, &ver.depends)?,
