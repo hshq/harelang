@@ -50,11 +50,11 @@ export fn cache(prog: str) path::path =
 // this program to store data will be returned.
 export fn cache_fs(prog: str) *fs::fs = os::diropen(cache(prog)) as *fs::fs;
 
-// Returns a directory suitable for cache files. If 'prog' is given, a unique
-// path for this program to store data will be returned.
+// Returns a directory suitable for persistent data files. If 'prog' is given, a
+// unique path for this program to store data will be returned.
 export fn data(prog: str) path::path =
 	lookup(prog, "XDG_DATA_HOME", path::join(".local", "share"));
 
-// Returns an [fs::fs] for cache files. If 'prog' is given, a unique path for
-// this program to store data will be returned.
+// Returns an [fs::fs] for persistent data files. If 'prog' is given, a unique
+// path for this program to store data will be returned.
 export fn data_fs(prog: str) *fs::fs = os::diropen(data(prog)) as *fs::fs;
