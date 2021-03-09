@@ -9,9 +9,8 @@ export fn close(fs: *fs) void = {
 	};
 };
 
-// Opens a file.
-//
-// If no flags are provided, the default read/write mode is RDONLY.
+// Opens a file. If no flags are provided, the default read/write mode is
+// RDONLY.
 export fn open(
 	fs: *fs,
 	path: path::path,
@@ -23,14 +22,18 @@ export fn open(
 	};
 };
 
-// Equivalent to [open], but allows the caller to specify a file mode for the
-// new file. If no other flag is given, the default read/write mode is WRONLY.
+// Creates a new file and opens it for writing. If no flags are provided, the
+// default read/write mode is WRONLY.
+//
+// Only the permission bits of the mode are used. If other bits are set, they
+// are discarded.
 export fn create(
 	fs: *fs,
 	path: path::path,
-	mode: uint,
+	mode: mode,
 	flags: flags...
 ) (*io::stream | error) = {
+	mode = mode & 0o777;
 	return match (fs.create) {
 		null => io::unsupported,
 		f: *createfunc => f(fs, path, mode, flags...),

@@ -176,7 +176,7 @@ export type openfunc = fn(
 export type createfunc = fn(
 	fs: *fs,
 	path: path::path,
-	mode: uint,
+	mode: mode,
 	flags: flags...
 ) (*io::stream | error);
 

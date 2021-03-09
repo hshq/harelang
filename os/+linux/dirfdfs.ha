@@ -157,7 +157,7 @@ fn fs_open(
 fn fs_create(
 	fs: *fs::fs,
 	path: path::path,
-	mode: uint,
+	mode: fs::mode,
 	flags: fs::flags...
 ) (*io::stream | fs::error) = {
 	let oflags = 0;
