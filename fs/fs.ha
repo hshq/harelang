@@ -109,7 +109,29 @@ export fn rmdir(fs: *fs, path: path::path) (void | error) = {
 
 // Removes a directory, and anything in it.
 export fn rmdirall(fs: *fs, path: path::path) (void | error) = {
-	abort(); // TODO
+	let it = iter(fs, path)?;
+	for (true) match (next(it)) {
+		ent: dirent => {
+			if (path::equal(ent.name, ".")
+					|| path::equal(ent.name, "..")) {
+				continue;
+			};
+			switch (ent.ftype) {
+				mode::DIR => {
+					let p = path::join(path, ent.name);
+					defer path::path_free(p);
+					rmdirall(fs, p)?;
+				},
+				* => {
+					let p = path::join(path, ent.name);
+					defer path::path_free(p);
+					remove(fs, p)?;
+				},
+			};
+		},
+		void => break,
+	};
+	return rmdir(fs, path);
 };
 
 // Creates a directory and returns a subdir for it. Some filesystems support
