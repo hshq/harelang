@@ -7,6 +7,9 @@ export let root: *fs::fs = null: *fs::fs;
 // Provides an implementation of [fs::fs] for the current working directory.
 export let cwd: *fs::fs = null: *fs::fs;
 
+// Removes a file.
+export fn remove(path: path::path) (void | fs::error) = fs::remove(cwd, path);
+
 // Creates an [fs::iterator] for a given directory to read its contents.
 export fn iterdir(path: path::path) (*fs::iterator | fs::error) =
 	fs::iter(cwd, path);
@@ -27,6 +30,14 @@ export fn mkdir(path: path::path) (void | fs::error) = fs::mkdir(cwd, path);
 
 // Creates a directory, and all non-extant directories in its path.
 export fn mkdirs(path: path::path) (void | fs::error) = fs::mkdirs(cwd, path);
+
+// Removes a directory. The target directory must be empty; see [rmdirall] to
+// remove its contents as well.
+export fn rmdir(path: path::path) (void | fs::error) = fs::rmdir(cwd, path);
+
+// Removes a directory, and anything in it.
+export fn rmdirall(path: path::path) (void | fs::error) =
+	fs::rmdirall(cwd, path);
 
 // Creates a directory and returns a subdir for it. Some filesystems support
 // doing this operation atomically, but if not, a fallback is used.
