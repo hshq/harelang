@@ -5,14 +5,21 @@ use hare::module;
 use io;
 use os::exec;
 use os;
+use path;
 use strio;
+use temp;
 
 export fn main() void = {
 	if (len(os::args) == 1) {
 		fmt::fatal("Usage: {} <path>", os::args[0]);
 	};
 
-	let plan = plan { ... };
+	let plan = plan {
+		workdir = temp::dir(),
+		...
+	};
+	defer os::rmdirall(plan.workdir);
+	defer path::path_free(plan.workdir);
 	let ctx = module::context_init([module::tag {
 		name = os::machine(),
 		mode = module::tag_mode::INCLUSIVE,

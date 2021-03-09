@@ -441,6 +441,13 @@ strio() {
 	gen_ssa strio io strings encoding::utf8
 }
 
+temp() {
+	printf '# temp\n'
+	gen_srcs temp \
+		'$(PLATFORM).ha'
+	gen_ssa temp
+}
+
 types() {
 	printf '# types\n'
 	gen_srcs types \
@@ -481,6 +488,7 @@ sort
 strconv
 strings
 strio
+temp
 types"
 stdlib() {
 	rt

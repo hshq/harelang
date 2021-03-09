@@ -1,7 +1,8 @@
 use fmt;
 use hare::module;
-use os;
 use os::exec;
+use os;
+use path;
 
 type status = enum {
 	SCHEDULED,
@@ -17,6 +18,7 @@ type task = struct {
 };
 
 type plan = struct {
+	workdir: path::path,
 	scheduled: []*task,
 	complete: []*task,
 };

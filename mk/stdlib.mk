@@ -147,6 +147,9 @@ hare_stdlib_deps+=$(stdlib_strings)
 stdlib_strio=$(HARECACHE)/strio/strio.o
 hare_stdlib_deps+=$(stdlib_strio)
 
+stdlib_temp=$(HARECACHE)/temp/temp.o
+hare_stdlib_deps+=$(stdlib_temp)
+
 stdlib_types=$(HARECACHE)/types/types.o
 hare_stdlib_deps+=$(stdlib_types)
 
@@ -502,6 +505,16 @@ $(HARECACHE)/strio/strio.ssa: $(stdlib_strio_srcs) $(stdlib_rt) $(stdlib_io) $(s
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nstrio \
 		-t$(HARECACHE)/strio/strio.td $(stdlib_strio_srcs)
 
+# temp
+stdlib_temp_srcs= \
+	$(STDLIB)/temp/$(PLATFORM).ha
+
+$(HARECACHE)/temp/temp.ssa: $(stdlib_temp_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/temp
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntemp \
+		-t$(HARECACHE)/temp/temp.td $(stdlib_temp_srcs)
+
 # types
 stdlib_types_srcs= \
 	$(STDLIB)/types/limits.ha \
@@ -662,6 +675,9 @@ hare_testlib_deps+=$(testlib_strings)
 
 testlib_strio=$(TESTCACHE)/strio/strio.o
 hare_testlib_deps+=$(testlib_strio)
+
+testlib_temp=$(TESTCACHE)/temp/temp.o
+hare_testlib_deps+=$(testlib_temp)
 
 testlib_types=$(TESTCACHE)/types/types.o
 hare_testlib_deps+=$(testlib_types)
@@ -1027,6 +1043,16 @@ $(TESTCACHE)/strio/strio.ssa: $(testlib_strio_srcs) $(testlib_rt) $(testlib_io) 
 	@mkdir -p $(TESTCACHE)/strio
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrio \
 		-t$(TESTCACHE)/strio/strio.td $(testlib_strio_srcs)
+
+# temp
+testlib_temp_srcs= \
+	$(STDLIB)/temp/$(PLATFORM).ha
+
+$(TESTCACHE)/temp/temp.ssa: $(testlib_temp_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/temp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
+		-t$(TESTCACHE)/temp/temp.td $(testlib_temp_srcs)
 
 # types
 testlib_types_srcs= \
