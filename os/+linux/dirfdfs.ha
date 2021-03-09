@@ -46,10 +46,12 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 		fs = fs::fs {
 			open = &fs_open,
 			create = &fs_create,
+			remove = &fs_remove,
 			iter = &fs_iter,
 			stat = &fs_stat,
 			subdir = &fs_subdir,
 			mkdir = &fs_mkdir,
+			rmdir = &fs_rmdir,
 			resolve = &fs_resolve,
 			...
 		},
@@ -188,6 +190,14 @@ fn fs_create(
 	return _fs_open(fs, path, iomode, &oh);
 };
 
+fn fs_remove(fs: *fs::fs, path: path::path) (void | fs::error) = {
+	let fs = fs: *os_filesystem;
+	match (rt::unlinkat(fs.dirfd, path, 0)) {
+		err: rt::errno => return errno_to_io(err),
+		void => void,
+	};
+};
+
 fn fs_stat(fs: *fs::fs, path: path::path) (fs::filestat | fs::error) = {
 	let fs = fs: *os_filesystem;
 	let st = rt::st { ... };
@@ -222,6 +232,14 @@ fn fs_subdir(fs: *fs::fs, path: path::path) (*fs::fs | fs::error) = {
 	};
 
 	return dirfdopen(fd);
+};
+
+fn fs_rmdir(fs: *fs::fs, path: path::path) (void | fs::error) = {
+	let fs = fs: *os_filesystem;
+	match (rt::unlinkat(fs.dirfd, path, rt::AT_REMOVEDIR)) {
+		err: rt::errno => return errno_to_io(err),
+		void => void,
+	};
 };
 
 fn fs_mkdir(fs: *fs::fs, path: path::path) (void | fs::error) = {

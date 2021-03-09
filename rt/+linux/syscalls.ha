@@ -60,6 +60,20 @@ export fn openat2(
 		path: uintptr: u64, how: uintptr: u64, how_sz: u64))?: int;
 };
 
+export fn unlink(path: path) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_return(syscall3(SYS_unlinkat,
+		AT_FDCWD: u64, path: uintptr: u64, 0u64));
+	return;
+};
+
+export fn unlinkat(dirfd: int, path: path, flags: int) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_return(syscall3(SYS_unlinkat,
+		dirfd: u64, path: uintptr: u64, flags: u64));
+	return;
+};
+
 export fn dup(fd: int) (int | errno) = {
 	return wrap_return(syscall1(SYS_dup, fd: u64))?: int;
 };
