@@ -60,6 +60,11 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 
 // Opens a file descriptor as an [fs::fs]. This file descriptor must be a
 // directory file. The file will be closed when the fs is closed.
+//
+// If no other flags are provided to [fs::open] and [fs::create] when used with
+// a dirfdfs, [fs::flags::NOCTTY] and [fs::flags::CLOEXEC] are used when opening
+// the file. If you pass your own flags, it is recommended that you add these
+// unless you know that you do not want them.
 export fn dirfdopen(fd: int, resolve: resolve...) *fs::fs = {
 	let ofs = alloc(os_filesystem { ... });
 	let fs = static_dirfdopen(fd, ofs);
@@ -118,38 +123,69 @@ fn _fs_open(
 	return fdopen(fd, name, mode);
 };
 
-fn fs_open(fs: *fs::fs, path: path::path, mode: io::mode) (*io::stream | fs::error) = {
-	let oflags = rt::O_NOCTTY | rt::O_CLOEXEC;
-	if (mode & io::mode::RDWR == io::mode::RDWR) {
-		oflags |= rt::O_RDWR;
-	} else if (mode & io::mode::READ == io::mode::READ) {
-		oflags |= rt::O_RDONLY;
-	} else if (mode & io::mode::WRITE == io::mode::WRITE) {
-		oflags |= rt::O_WRONLY;
+fn fs_open(
+	fs: *fs::fs,
+	path: path::path,
+	flags: fs::flags...
+) (*io::stream | fs::error) = {
+	let oflags = 0;
+	let iomode = io::mode::NONE;
+	if (len(flags) == 0z) {
+		oflags |= (fs::flags::NOCTTY
+			| fs::flags::CLOEXEC
+			| fs::flags::RDONLY): int;
+	};
+	for (let i = 0z; i < len(flags); i += 1z) {
+		oflags |= flags[i]: int;
+	};
+
+	if (oflags: fs::flags & fs::flags::RDWR == fs::flags::RDWR) {
+		iomode = io::mode::RDWR;
+	} else if (oflags: fs::flags & fs::flags::RDONLY == fs::flags::RDONLY) {
+		iomode = io::mode::READ;
+	} else if (oflags: fs::flags & fs::flags::RDONLY == fs::flags::RDONLY) {
+		iomode = io::mode::WRITE;
 	};
 
 	let oh = rt::open_how {
 		flags = oflags: u64,
 		...
 	};
-	return _fs_open(fs, path, mode, &oh);
+	return _fs_open(fs, path, iomode, &oh);
 };
 
-fn fs_create(fs: *fs::fs, path: path::path, mode: io::mode) (*io::stream | fs::error) = {
-	let oflags = rt::O_NOCTTY | rt::O_CLOEXEC | rt::O_CREATE;
-	if (mode & io::mode::RDWR == io::mode::RDWR) {
-		oflags |= rt::O_RDWR;
-	} else if (mode & io::mode::READ == io::mode::READ) {
-		oflags |= rt::O_RDONLY;
-	} else if (mode & io::mode::WRITE == io::mode::WRITE) {
-		oflags |= rt::O_WRONLY;
+fn fs_create(
+	fs: *fs::fs,
+	path: path::path,
+	mode: uint,
+	flags: fs::flags...
+) (*io::stream | fs::error) = {
+	let oflags = 0;
+	let iomode = io::mode::NONE;
+	if (len(flags) == 0z) {
+		oflags |= (fs::flags::NOCTTY
+			| fs::flags::CLOEXEC
+			| fs::flags::WRONLY): int;
+	};
+	for (let i = 0z; i < len(flags); i += 1z) {
+		oflags |= flags[i]: int;
+	};
+	oflags |= fs::flags::CREATE: int;
+
+	if (oflags: fs::flags & fs::flags::RDWR == fs::flags::RDWR) {
+		iomode = io::mode::RDWR;
+	} else if (oflags: fs::flags & fs::flags::RDONLY == fs::flags::RDONLY) {
+		iomode = io::mode::READ;
+	} else if (oflags: fs::flags & fs::flags::RDONLY == fs::flags::RDONLY) {
+		iomode = io::mode::WRITE;
 	};
 
 	let oh = rt::open_how {
 		flags = oflags: u64,
+		mode = mode: u64,
 		...
 	};
-	return _fs_open(fs, path, mode, &oh);
+	return _fs_open(fs, path, iomode, &oh);
 };
 
 fn fs_stat(fs: *fs::fs, path: path::path) (fs::filestat | fs::error) = {

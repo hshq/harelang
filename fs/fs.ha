@@ -10,18 +10,30 @@ export fn close(fs: *fs) void = {
 };
 
 // Opens a file.
-export fn open(fs: *fs, path: path::path, mode: io::mode) (*io::stream | error) = {
+//
+// If no flags are provided, the default read/write mode is RDONLY.
+export fn open(
+	fs: *fs,
+	path: path::path,
+	flags: flags...
+) (*io::stream | error) = {
 	return match (fs.open) {
 		null => io::unsupported,
-		f: *openfunc => f(fs, path, mode),
+		f: *openfunc => f(fs, path, flags...),
 	};
 };
 
-// Creates a new file. The default file permissions are implementation defined.
-export fn create(fs: *fs, path: path::path, mode: io::mode) (*io::stream | error) = {
+// Equivalent to [open], but allows the caller to specify a file mode for the
+// new file. If no other flag is given, the default read/write mode is WRONLY.
+export fn create(
+	fs: *fs,
+	path: path::path,
+	mode: uint,
+	flags: flags...
+) (*io::stream | error) = {
 	return match (fs.create) {
 		null => io::unsupported,
-		f: *createfunc => f(fs, path, mode),
+		f: *createfunc => f(fs, path, mode, flags...),
 	};
 };
 

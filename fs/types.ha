@@ -139,15 +139,46 @@ export fn dirent_free(e: dirent) void = match (e.name) {
 	b: []u8 => free(b),
 };
 
+// Flags to use for opening a file. Not all operating systems support all flags;
+// at a minimum, RDONLY, WRONLY, RDWR, and CREATE will be supported.
+export type flags = enum int {
+	RDONLY		= 0,
+	WRONLY		= 1,
+	RDWR		= 2,
+	CREATE		= 0o100,
+	EXCLUSIVE	= 0o200,
+	NOCTTY		= 0o400,
+	TRUNC		= 0o1000,
+	APPEND		= 0o2000,
+	NONBLOCK	= 0o4000,
+	DSYNC		= 0o10000,
+	SYNC		= 0o4010000,
+	RSYNC		= 0o4010000,
+	DIRECTORY	= 0o200000,
+	NOFOLLOW	= 0o400000,
+	CLOEXEC		= 0o2000000,
+};
+
 export type closefunc = fn(fs: *fs) void;
-export type openfunc = fn(fs: *fs, path: path::path, mode: io::mode) (*io::stream | error);
-export type createfunc = fn(fs: *fs, path: path::path, mode: io::mode) (*io::stream | error);
 export type iterfunc = fn(fs: *fs, path: path::path) (*iterator | error);
 export type statfunc = fn(fs: *fs, path: path::path) (filestat | error);
 export type subdirfunc = fn(fs: *fs, path: path::path) (*fs | error);
 export type mkdirfunc = fn(fs: *fs, path: path::path) (void | error);
 export type mksubdirfunc = fn(fs: *fs, path: path::path) (*fs | error);
 export type resolvefunc = fn(fs: *fs, path: path::path) path::path;
+
+export type openfunc = fn(
+	fs: *fs,
+	path: path::path,
+	flags: flags...
+) (*io::stream | error);
+
+export type createfunc = fn(
+	fs: *fs,
+	path: path::path,
+	mode: uint,
+	flags: flags...
+) (*io::stream | error);
 
 // An abstract implementation of a filesystem. To create a custom stream, embed
 // this type as the first member of a struct with user-specific data and fill

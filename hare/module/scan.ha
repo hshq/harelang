@@ -167,7 +167,7 @@ fn scan_file(
 	path: path::path,
 	deps: *[]ast::ident,
 ) ([]u8 | error) = {
-	let f = fs::open(ctx.fs, path, io::mode::READ)?;
+	let f = fs::open(ctx.fs, path)?;
 	defer io::close(f);
 	let sha = sha256::sha256();
 	//defer! hash::close(sha);
