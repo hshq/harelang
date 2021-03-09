@@ -40,6 +40,14 @@ export fn create(
 	};
 };
 
+// Removes a file.
+export fn remove(fs: *fs, path: path::path) (void | error) = {
+	return match (fs.remove) {
+		null => io::unsupported,
+		f: *removefunc => f(fs, path),
+	};
+};
+
 // Returns an iterator for a path, which yields the contents of a directory.
 // Pass empty string to yield from the root. The order in which entries are
 // returned is undefined.
@@ -88,6 +96,20 @@ export fn mkdirs(fs: *fs, path: path::path) (void | error) = {
 		};
 	};
 	return mkdir(fs, path);
+};
+
+// Removes a directory. The target directory must be empty; see [rmdirall] to
+// remove its contents as well.
+export fn rmdir(fs: *fs, path: path::path) (void | error) = {
+	return match (fs.rmdir) {
+		null => io::unsupported,
+		f: *rmdirfunc => f(fs, path),
+	};
+};
+
+// Removes a directory, and anything in it.
+export fn rmdirall(fs: *fs, path: path::path) (void | error) = {
+	abort(); // TODO
 };
 
 // Creates a directory and returns a subdir for it. Some filesystems support

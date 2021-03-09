@@ -146,7 +146,7 @@ export type flags = enum int {
 	WRONLY		= 1,
 	RDWR		= 2,
 	CREATE		= 0o100,
-	EXCLUSIVE	= 0o200,
+	EXCL		= 0o200,
 	NOCTTY		= 0o400,
 	TRUNC		= 0o1000,
 	APPEND		= 0o2000,
@@ -157,13 +157,16 @@ export type flags = enum int {
 	DIRECTORY	= 0o200000,
 	NOFOLLOW	= 0o400000,
 	CLOEXEC		= 0o2000000,
+	TMPFILE		= 0o20200000,
 };
 
 export type closefunc = fn(fs: *fs) void;
+export type removefunc = fn(fs: *fs, path: path::path) (void | error);
 export type iterfunc = fn(fs: *fs, path: path::path) (*iterator | error);
 export type statfunc = fn(fs: *fs, path: path::path) (filestat | error);
 export type subdirfunc = fn(fs: *fs, path: path::path) (*fs | error);
 export type mkdirfunc = fn(fs: *fs, path: path::path) (void | error);
+export type rmdirfunc = fn(fs: *fs, path: path::path) (void | error);
 export type mksubdirfunc = fn(fs: *fs, path: path::path) (*fs | error);
 export type resolvefunc = fn(fs: *fs, path: path::path) path::path;
 
@@ -193,6 +196,9 @@ export type fs = struct {
 	// Creates a new file.
 	create: nullable *createfunc,
 
+	// Removes a file.
+	remove: nullable *removefunc,
+
 	// Returns an iterator for a path, which yields the contents of a
 	// directory. Pass empty string to yield from the root.
 	//
@@ -209,6 +215,9 @@ export type fs = struct {
 
 	// Creates a directory.
 	mkdir: nullable *mkdirfunc,
+
+	// Removes a directory. The target directory must be empty.
+	rmdir: nullable *rmdirfunc,
 
 	// Creates a directory and returns a subdir for it.
 	mksubdir: nullable *mksubdirfunc,
