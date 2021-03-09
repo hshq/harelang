@@ -445,7 +445,7 @@ temp() {
 	printf '# temp\n'
 	gen_srcs temp \
 		'$(PLATFORM).ha'
-	gen_ssa temp
+	gen_ssa temp crypto::random encoding::hex fs io os path
 }
 
 types() {

@@ -509,7 +509,7 @@ $(HARECACHE)/strio/strio.ssa: $(stdlib_strio_srcs) $(stdlib_rt) $(stdlib_io) $(s
 stdlib_temp_srcs= \
 	$(STDLIB)/temp/$(PLATFORM).ha
 
-$(HARECACHE)/temp/temp.ssa: $(stdlib_temp_srcs) $(stdlib_rt)
+$(HARECACHE)/temp/temp.ssa: $(stdlib_temp_srcs) $(stdlib_rt) $(stdlib_crypto_random) $(stdlib_encoding_hex) $(stdlib_fs) $(stdlib_io) $(stdlib_os) $(stdlib_path)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/temp
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntemp \
@@ -1048,7 +1048,7 @@ $(TESTCACHE)/strio/strio.ssa: $(testlib_strio_srcs) $(testlib_rt) $(testlib_io) 
 testlib_temp_srcs= \
 	$(STDLIB)/temp/$(PLATFORM).ha
 
-$(TESTCACHE)/temp/temp.ssa: $(testlib_temp_srcs) $(testlib_rt)
+$(TESTCACHE)/temp/temp.ssa: $(testlib_temp_srcs) $(testlib_rt) $(testlib_crypto_random) $(testlib_encoding_hex) $(testlib_fs) $(testlib_io) $(testlib_os) $(testlib_path)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/temp
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
