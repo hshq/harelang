@@ -7,6 +7,7 @@ export type uid_t = uint;
 export type gid_t = uint;
 export type time_t = i64;
 export type suseconds_t = i64;
+export type nfds_t = u64;
 
 export type timeval = struct {
 	tv_sec:  time_t,
@@ -16,6 +17,11 @@ export type timeval = struct {
 export type timespec = struct {
 	tv_sec:  time_t,
 	tv_nsec: i64,
+};
+
+export type itimerspec = struct {
+	it_interval: timespec,
+	it_value: timespec,
 };
 
 export def AT_FDCWD: int		= -100;
@@ -304,3 +310,16 @@ export type utsname = struct {
 	machine:    [65]char,
 	domainname: [65]char,
 };
+
+export def POLLIN: i16 = 0x001;
+export def POLLPRI: i16 = 0x002;
+export def POLLOUT: i16 = 0x004;
+
+export type pollfd = struct {
+	fd: int,
+	events: i16,
+	revents: i16,
+};
+
+export def TFD_TIMER_ABSTIME: int = 1;
+export def TFD_TIMER_CANCEL_ON_SET: int = 2;

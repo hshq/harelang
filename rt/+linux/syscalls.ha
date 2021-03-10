@@ -302,3 +302,29 @@ export fn getcwd() (*const char | errno) = {
 		PATH_MAX + 1))?;
 	return &pathbuf: *const char;
 };
+
+export fn poll(fds: *pollfd, nfds: nfds_t, timeout: int) (int | errno) = {
+	return wrap_return(syscall3(SYS_poll,
+		fds: uintptr: u64, nfds: u64, timeout: u64))?: int;
+};
+
+export fn timerfd_create(clock_id: int, flags: int) (int | errno) = {
+	return wrap_return(syscall2(SYS_timerfd_create,
+		clock_id: u64, flags: u64))?: int;
+};
+
+export fn timerfd_settime(
+	fd: int,
+	flags: int,
+	new_value: *itimerspec,
+	old_value: *itimerspec
+) (int | errno) = {
+	return wrap_return(syscall4(SYS_timerfd_settime,
+		fd: u64, flags: u64,
+		new_value: uintptr: u64, old_value: uintptr: u64))?: int;
+};
+
+export fn timerfd_gettime(fd: int, curr_value: *itimerspec) (int | errno) = {
+	return wrap_return(syscall2(SYS_timerfd_gettime,
+		fd: u64, curr_value: uintptr: u64))?: int;
+};
