@@ -67,10 +67,18 @@ export fn main() void = {
 		let next: nullable *task = null;
 		let i = 0z;
 		for (i < len(plan.scheduled); i += 1) {
-			// TODO: Check dependencies and pick the next eligible
-			// task instead
-			next = plan.scheduled[i];
-			break;
+			let task = plan.scheduled[i];
+			let eligible = true;
+			for (let j = 0z; j < len(task.depend); j += 1) {
+				if (task.depend[j].status != status::COMPLETE) {
+					eligible = false;
+					break;
+				};
+			};
+			if (eligible) {
+				next = task;
+				break;
+			};
 		};
 		// TODO: This can be a type assertion
 		let task = match (next) {
