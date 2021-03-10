@@ -18,7 +18,19 @@ export fn main() void = {
 		workdir = temp::dir(),
 		...
 	};
-	defer os::rmdirall(plan.workdir);
+	defer {
+		os::rmdirall(plan.workdir);
+		free(plan.workdir);
+
+		for (let i = 0z; i < len(plan.complete); i += 1) {
+			let task = plan.complete[i];
+			task_free(task);
+		};
+
+		free(plan.scheduled);
+		free(plan.complete);
+	};
+
 	let ctx = module::context_init([module::tag {
 		name = os::machine(),
 		mode = module::tag_mode::INCLUSIVE,
@@ -27,6 +39,7 @@ export fn main() void = {
 		name = "linux",
 		mode = module::tag_mode::INCLUSIVE,
 	}]);
+	//defer module::context_free(&ctx); // TODO
 
 	const rtdir = match (module::lookup(&ctx, ["rt"])) {
 		err: module::error => fmt::fatal("Error resolving rt: {}",

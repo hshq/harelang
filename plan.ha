@@ -3,6 +3,7 @@ use hare::module;
 use os::exec;
 use os;
 use path;
+use strings;
 
 type status = enum {
 	SCHEDULED,
@@ -22,6 +23,13 @@ type plan = struct {
 	scheduled: []*task,
 	complete: []*task,
 	script: str,
+};
+
+fn task_free(task: *task) void = {
+	free(task.depend);
+	free(task.output);
+	free(task.cmd);
+	free(task);
 };
 
 // Schedules a task which compiles objects into an executable.
@@ -100,7 +108,7 @@ fn sched_hare_exe(
 
 	let qbe = sched_qbe(plan, s, harec);
 	let asm = sched_as(plan, o, qbe);
-	return sched_ld(plan, output, asm);
+	return sched_ld(plan, strings::dup(output), asm);
 };
 
 fn execute(
