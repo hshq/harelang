@@ -427,7 +427,8 @@ strings() {
 		sub.ha \
 		suffix.ha \
 		tokenize.ha \
-		utf8.ha
+		utf8.ha \
+		index.ha
 	gen_ssa strings bytes encoding::utf8 types
 }
 
