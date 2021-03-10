@@ -1,5 +1,5 @@
 export @noreturn @symbol("rt.abort") fn _abort(msg: str) void = {
-	reason = msg;
+	reason = abort_reason { loc = "", msg = msg };
 	longjmp(&jmp, 1);
 };
 
@@ -10,4 +10,7 @@ const reasons: [_]str = [
 	"out of memory",			// 2
 ];
 
-export @noreturn fn abort_fixed(i: int) void = _abort(reasons[i]);
+export @noreturn fn abort_fixed(loc: str, i: int) void = {
+	reason = abort_reason { loc = loc, msg = reasons[i] };
+	longjmp(&jmp, 1);
+};

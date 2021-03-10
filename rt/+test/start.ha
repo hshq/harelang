@@ -3,6 +3,11 @@ type test = struct {
 	func: *fn() void,
 };
 
+type abort_reason = struct {
+	loc: str,
+	msg: str,
+};
+
 const @symbol("__init_array_start") init_start: [*]*fn() void;
 const @symbol("__init_array_end") init_end: [*]*fn() void;
 const @symbol("__fini_array_start") fini_start: [*]*fn() void;
@@ -11,7 +16,7 @@ const @symbol("__test_array_start") test_start: [*]test;
 const @symbol("__test_array_end") test_end: [*]test;
 
 let jmp: jmpbuf = jmpbuf { ... };
-let reason: str = "";
+let reason: abort_reason = abort_reason { ... };
 
 export @noreturn fn start_ha() void = {
 	const ninit = (&init_end: uintptr - &init_start: uintptr): size
@@ -28,7 +33,7 @@ export @noreturn fn start_ha() void = {
 		};
 	};
 
-	let failures: [](str, str) = [];
+	let failures: [](str, abort_reason) = [];
 	let npass = 0z, nfail = 0z;
 	print("Running ");
 	print(ztos(ntest));
@@ -66,7 +71,11 @@ export @noreturn fn start_ha() void = {
 		for (let i = 0z; i < nfail; i += 1) {
 			print(failures[i].0);
 			print(": ");
-			print(failures[i].1);
+			if (len(failures[i].1.loc) != 0) {
+				print(failures[i].1.loc);
+				print(": ");
+			};
+			print(failures[i].1.msg);
 			print("\n");
 		};
 	};
