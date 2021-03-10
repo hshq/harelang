@@ -15,6 +15,17 @@ export fn path_free(p: path) void = match (p) {
 	b: []u8 => free(b),
 };
 
+// Duplicates a path.
+export fn dup(p: path) path = match (p) {
+	s: str => strings::dup(s),
+	b: []u8 => {
+		// TODO: alloc from another slice
+		let new: []u8 = alloc([], len(b));
+		append(new, ...b);
+		new;
+	},
+};
+
 // Returns true if two paths are equal.
 export fn equal(a: path, b: path) bool =
 	bytes::equal(pathbytes(a), pathbytes(b));
