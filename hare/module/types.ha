@@ -26,6 +26,7 @@ export type manifest = struct {
 // A module version: a set of possible input files for that module.
 export type version = struct {
 	hash: []u8,
+	basedir: path::path,
 	depends: []ast::ident,
 	inputs: []input,
 };

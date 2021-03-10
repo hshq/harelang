@@ -39,6 +39,7 @@ export fn scan(ctx: *context, path: path::path) (version | error) = {
 			hash::write(sha, in.hash);
 			return version {
 				hash = hash::finish(sha),
+				basedir = path::dup(path::dirname(path)),
 				depends = deps,
 				inputs = inputs,
 			};
@@ -46,7 +47,10 @@ export fn scan(ctx: *context, path: path::path) (version | error) = {
 		err: fs::error => return err,
 		iter: *fs::iterator => iter,
 	};
-	let ver = version { ...  };
+	let ver = version {
+		basedir = path::dup(path),
+		...
+	};
 	scan_directory(ctx, &ver, sha, path, iter)?;
 	ver.hash = hash::finish(sha);
 	return ver;
@@ -98,7 +102,6 @@ fn scan_directory(
 // which includes all eligible build inputs.
 export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 	let ipath = ident_path(name);
-	defer ast::ident_free(name);
 	for (let i = len(ctx.paths); i > 0; i -= 1) {
 		let cand = path::join(ctx.paths[i - 1], ipath);
 		defer path::path_free(cand);
