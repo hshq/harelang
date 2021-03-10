@@ -13,10 +13,10 @@ export type context = struct {
 	fs: *fs::fs,
 	// List of paths to search, generally populated from HAREPATH plus some
 	// baked-in default.
-	paths: []path::path,
+	paths: []str,
 	// Path to the Hare cache, generally populated from HARECACHE and
 	// defaulting to $XDG_CACHE_HOME/hare.
-	cache: path::path,
+	cache: str,
 	// Build tags to apply to this context.
 	tags: []tag,
 };
@@ -26,9 +26,9 @@ export fn context_init(tags: []tag) context = {
 	let ctx = context {
 		fs = os::cwd,
 		tags = tags,
-		paths: []path::path = match (os::getenv("HAREPATH")) {
+		paths: []str = match (os::getenv("HAREPATH")) {
 			void => {
-				let path: []path::path = alloc([
+				let path: []str = alloc([
 					DEFAULT_HAREPATH,
 					dirs::data("hare"),
 				]);
@@ -36,7 +36,7 @@ export fn context_init(tags: []tag) context = {
 			},
 			s: str => {
 				let sl = strings::split(s, ":");
-				let path: []path::path = alloc([], len(sl) + 1);
+				let path: []str = alloc([], len(sl) + 1);
 				let i = 0z;
 				for (i < len(sl); i += 1) {
 					append(path, sl[i]);
@@ -46,7 +46,7 @@ export fn context_init(tags: []tag) context = {
 				path;
 			},
 		},
-		cache: path::path = match (os::getenv("HARECACHE")) {
+		cache: str = match (os::getenv("HARECACHE")) {
 			void => dirs::cache("hare"),
 			s: str => s,
 		},
@@ -57,11 +57,11 @@ export fn context_init(tags: []tag) context = {
 
 // Converts an identifier to a partial path (e.g. foo::bar becomes foo/bar). The
 // return value must be freed by the caller.
-export fn ident_path(name: ast::ident) path::path = {
+export fn ident_path(name: ast::ident) str = {
 	let p = path::join(name[0]);
 	for (let i = 1z; i < len(name); i += 1) {
 		let q = path::join(p, name[i]);
-		path::path_free(p);
+		free(p);
 		p = q;
 	};
 	return p;
@@ -70,6 +70,6 @@ export fn ident_path(name: ast::ident) path::path = {
 @test fn ident_path() void = {
 	let ident: ast::ident = ["foo", "bar", "baz"];
 	let p = ident_path(ident);
-	defer path::path_free(p);
-	assert(path::equal(p, "foo/bar/baz"));
+	defer free(p);
+	assert(p == "foo/bar/baz");
 };

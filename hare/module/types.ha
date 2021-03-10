@@ -2,7 +2,6 @@ use fs;
 use hare::ast;
 use hare::parse;
 use io;
-use path;
 
 // The inclusive/exclusive state for a build tag.
 export type tag_mode = enum {
@@ -26,7 +25,7 @@ export type manifest = struct {
 // A module version: a set of possible input files for that module.
 export type version = struct {
 	hash: []u8,
-	basedir: path::path,
+	basedir: str,
 	depends: []ast::ident,
 	inputs: []input,
 };
@@ -39,7 +38,7 @@ export type filetype = enum {
 // An input to a module, generally a source file.
 export type input = struct {
 	hash: []u8,
-	path: path::path,
+	path: str,
 	ft: filetype,
 	stat: fs::filestat,
 };

@@ -11,11 +11,7 @@ export fn close(fs: *fs) void = {
 
 // Opens a file. If no flags are provided, the default read/write mode is
 // RDONLY.
-export fn open(
-	fs: *fs,
-	path: path::path,
-	flags: flags...
-) (*io::stream | error) = {
+export fn open(fs: *fs, path: str, flags: flags...) (*io::stream | error) = {
 	return match (fs.open) {
 		null => io::unsupported,
 		f: *openfunc => f(fs, path, flags...),
@@ -29,7 +25,7 @@ export fn open(
 // are discarded.
 export fn create(
 	fs: *fs,
-	path: path::path,
+	path: str,
 	mode: mode,
 	flags: flags...
 ) (*io::stream | error) = {
@@ -41,7 +37,7 @@ export fn create(
 };
 
 // Removes a file.
-export fn remove(fs: *fs, path: path::path) (void | error) = {
+export fn remove(fs: *fs, path: str) (void | error) = {
 	return match (fs.remove) {
 		null => io::unsupported,
 		f: *removefunc => f(fs, path),
@@ -51,7 +47,7 @@ export fn remove(fs: *fs, path: path::path) (void | error) = {
 // Returns an iterator for a path, which yields the contents of a directory.
 // Pass empty string to yield from the root. The order in which entries are
 // returned is undefined.
-export fn iter(fs: *fs, path: path::path) (*iterator | error) = {
+export fn iter(fs: *fs, path: str) (*iterator | error) = {
 	return match (fs.iter) {
 		null => io::unsupported,
 		f: *iterfunc => f(fs, path),
@@ -60,7 +56,7 @@ export fn iter(fs: *fs, path: path::path) (*iterator | error) = {
 
 // Obtains information about a file or directory. If the target is a symlink,
 // information is returned about the link, not its target.
-export fn stat(fs: *fs, path: path::path) (filestat | error) = {
+export fn stat(fs: *fs, path: str) (filestat | error) = {
 	return match (fs.stat) {
 		null => io::unsupported,
 		f: *statfunc => f(fs, path),
@@ -70,7 +66,7 @@ export fn stat(fs: *fs, path: path::path) (filestat | error) = {
 // Opens a new filesystem for a subdirectory. The subdirectory must be closed
 // separately from the parent filesystem, and its lifetime can outlive that of
 // its parent.
-export fn subdir(fs: *fs, path: path::path) (*fs | error) = {
+export fn subdir(fs: *fs, path: str) (*fs | error) = {
 	return match (fs.subdir) {
 		null => io::unsupported,
 		f: *subdirfunc => f(fs, path),
@@ -78,7 +74,7 @@ export fn subdir(fs: *fs, path: path::path) (*fs | error) = {
 };
 
 // Creates a directory.
-export fn mkdir(fs: *fs, path: path::path) (void | error) = {
+export fn mkdir(fs: *fs, path: str) (void | error) = {
 	return match (fs.mkdir) {
 		null => io::unsupported,
 		f: *mkdirfunc => f(fs, path),
@@ -86,9 +82,9 @@ export fn mkdir(fs: *fs, path: path::path) (void | error) = {
 };
 
 // Makes a directory, and all non-extant directories in its path.
-export fn mkdirs(fs: *fs, path: path::path) (void | error) = {
+export fn mkdirs(fs: *fs, path: str) (void | error) = {
 	let parent = path::dirname(path);
-	if (!path::equal(path, parent)) {
+	if (path != parent) {
 		match (mkdirs(fs, parent)) {
 			exists => void,
 			err: error => return err,
@@ -100,7 +96,7 @@ export fn mkdirs(fs: *fs, path: path::path) (void | error) = {
 
 // Removes a directory. The target directory must be empty; see [rmdirall] to
 // remove its contents as well.
-export fn rmdir(fs: *fs, path: path::path) (void | error) = {
+export fn rmdir(fs: *fs, path: str) (void | error) = {
 	return match (fs.rmdir) {
 		null => io::unsupported,
 		f: *rmdirfunc => f(fs, path),
@@ -108,23 +104,22 @@ export fn rmdir(fs: *fs, path: path::path) (void | error) = {
 };
 
 // Removes a directory, and anything in it.
-export fn rmdirall(fs: *fs, path: path::path) (void | error) = {
+export fn rmdirall(fs: *fs, path: str) (void | error) = {
 	let it = iter(fs, path)?;
 	for (true) match (next(it)) {
 		ent: dirent => {
-			if (path::equal(ent.name, ".")
-					|| path::equal(ent.name, "..")) {
+			if (ent.name == "." || ent.name == "..") {
 				continue;
 			};
 			switch (ent.ftype) {
 				mode::DIR => {
 					let p = path::join(path, ent.name);
-					defer path::path_free(p);
+					defer free(p);
 					rmdirall(fs, p)?;
 				},
 				* => {
 					let p = path::join(path, ent.name);
-					defer path::path_free(p);
+					defer free(p);
 					remove(fs, p)?;
 				},
 			};
@@ -136,7 +131,7 @@ export fn rmdirall(fs: *fs, path: path::path) (void | error) = {
 
 // Creates a directory and returns a subdir for it. Some filesystems support
 // doing this operation atomically, but if not, a fallback is used.
-export fn mksubdir(fs: *fs, path: path::path) (*fs | error) = {
+export fn mksubdir(fs: *fs, path: str) (*fs | error) = {
 	return match (fs.mksubdir) {
 		null => {
 			mkdir(fs, path)?;
@@ -147,9 +142,9 @@ export fn mksubdir(fs: *fs, path: path::path) (*fs | error) = {
 };
 
 // Resolves a path to its absolute, normalized value. This consoldates ./ and
-// ../ sequences, roots the path, and returns a new [path::path]. The caller
-// must free the return value.
-export fn resolve(fs: *fs, path: path::path) path::path = {
+// ../ sequences, roots the path, and returns a new path. The caller must free
+// the return value.
+export fn resolve(fs: *fs, path: str) str = {
 	match (fs.resolve) {
 		f: *resolvefunc => return f(fs, path),
 		null => void,

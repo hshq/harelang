@@ -4,16 +4,14 @@ use strings;
 use io;
 
 // Joins together several path components with the path separator. The caller
-// must free the return value with [path_free].
-export fn join(paths: path...) path = {
+// must free the return value.
+export fn join(paths: str...) str = {
 	// TODO: Normalize inputs so that if they end with a / we don't double
 	// up on delimiters
 	let sink = bufio::dynamic(io::mode::WRITE);
 	let utf8 = true;
 	for (let i = 0z; i < len(paths); i += 1) {
-		utf8 = utf8 && paths[i] is str;
-
-		let buf = pathbytes(paths[i]);
+		let buf = strings::to_utf8(paths[i]);
 		let l = len(buf);
 		if (l == 0) continue;
 		for (l > 0 && buf[l - 1] == PATHSEP) {
@@ -28,42 +26,40 @@ export fn join(paths: path...) path = {
 		};
 	};
 
-	return
-		if (utf8) strings::from_utf8_unsafe(bufio::finish(sink))
-		else bufio::finish(sink);
+	return strings::from_utf8_unsafe(bufio::finish(sink));
 };
 
 @test fn join() void = {
 	assert(PATHSEP == '/': u32: u8); // TODO: meh
 	let i = join("foo");
-	defer path_free(i);
-	assert(i as str == "foo");
+	defer free(i);
+	assert(i == "foo");
 
 	let p = join(i, "bar", "baz");
-	defer path_free(p);
-	assert(p as str == "foo/bar/baz");
+	defer free(p);
+	assert(p == "foo/bar/baz");
 
 	let q = join(p, "bat", "bad");
-	defer path_free(q);
-	assert(q as str == "foo/bar/baz/bat/bad");
+	defer free(q);
+	assert(q == "foo/bar/baz/bat/bad");
 
 	let r = join(p, q);
-	defer path_free(r);
-	assert(r as str == "foo/bar/baz/foo/bar/baz/bat/bad");
+	defer free(r);
+	assert(r == "foo/bar/baz/foo/bar/baz/bat/bad");
 
 	let p = join("foo/", "bar");
-	defer path_free(p);
-	assert(p as str == "foo/bar");
+	defer free(p);
+	assert(p == "foo/bar");
 
 	let p = join("foo///", "bar");
-	defer path_free(p);
-	assert(p as str == "foo/bar");
+	defer free(p);
+	assert(p == "foo/bar");
 
 	let p = join("foo", "", "bar");
-	defer path_free(p);
-	assert(p as str == "foo/bar");
+	defer free(p);
+	assert(p == "foo/bar");
 
 	let p = join("/", "foo", "bar", "baz");
-	defer path_free(p);
-	assert(p as str == "/foo/bar/baz");
+	defer free(p);
+	assert(p == "/foo/bar/baz");
 };

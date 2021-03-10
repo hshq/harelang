@@ -6,8 +6,8 @@ use strings;
 // returns the directory in which that file resides. For a path to a directory,
 // this returns the path to its parent directory. The return value is borrowed
 // from the input, use [dup] to extend its lifetime.
-export fn dirname(path: path::path) path::path = {
-	let b = pathbytes(normalize(path));
+export fn dirname(path: str) str = {
+	let b = strings::to_utf8(path);
 	let i = match (bytes::rindex(b, PATHSEP)) {
 		void => return path,
 		z: size => z,
@@ -15,76 +15,58 @@ export fn dirname(path: path::path) path::path = {
 	if (i == 0) {
 		i += 1;
 	};
-	return
-		if (path is str) strings::from_utf8_unsafe(b[..i])
-		else b[..i];
+	return strings::from_utf8_unsafe(b[..i]);
 };
 
 @test fn dirname() void = {
-	let p: path = "/foo/bar";
-	assert(dirname(p) as str == "/foo");
-	let p: path = "/foo";
-	assert(dirname(p) as str == "/");
-	let p: path = "/";
-	assert(dirname(p) as str == "/");
-	let p: path = "foo/bar";
-	assert(dirname(p) as str == "foo");
-	let p: path = "foo";
-	assert(dirname(p) as str == "foo");
+	assert(dirname("/foo/bar") == "/foo");
+	assert(dirname("/foo") == "/");
+	assert(dirname("/") == "/");
+	assert(dirname("foo/bar") == "foo");
+	assert(dirname("foo") == "foo");
 };
 
 // Returns the final component of a given path. For a path to a file name, this
 // returns the file name. For a path to a directory, this returns the directory
 // name. The return value is borrowed from the input, use [dup] to extend its
 // lifetime.
-export fn basename(path: path::path) path::path = {
-	let b = pathbytes(normalize(path));
+export fn basename(path: str) str = {
+	let b = strings::to_utf8(path);
 	let i = match (bytes::rindex(b, PATHSEP)) {
 		void => return path,
 		z: size => if (z + 1 < len(b)) z + 1z else 0z,
 	};
-	return
-		if (path is str) strings::from_utf8_unsafe(b[i..])
-		else b[i..];
+	return strings::from_utf8_unsafe(b[i..]);
 };
 
 @test fn basename() void = {
-	let p: path = "/foo/bar";
-	assert(basename(p) as str == "bar");
-	let p: path = "/foo";
-	assert(basename(p) as str == "foo");
-	let p: path = "/";
-	assert(basename(p) as str == "/");
-	let p: path = "foo/bar";
-	assert(basename(p) as str == "bar");
-	let p: path = "foo";
-	assert(basename(p) as str == "foo");
+	assert(basename("/foo/bar") == "bar");
+	assert(basename("/foo") == "foo");
+	assert(basename("/") == "/");
+	assert(basename("foo/bar") == "bar");
+	assert(basename("foo") == "foo");
 };
 
-// Returns the file extension for a path. This presumes that the file extension
-// is a valid UTF-8 string, if not, it will return an empty string. The return
-// value is borrowed from the input, see [strings::dup] to extend its lifetime.
+// Returns the file extension for a path. The return value is borrowed from the
+// input, see [strings::dup] to extend its lifetime.
 //
 // The return value includes the '.' character.
 //
 // extension("foo/example") => ""
 // extension("foo/example.txt") => ".txt"
 // extension("foo/example.tar.gz") => ".tar.gz"
-export fn extension(p: path::path) str = {
-	let b = pathbytes(p);
+export fn extension(p: str) str = {
+	let b = strings::to_utf8(p);
 	if (len(b) == 0 || b[len(b) - 1] == PATHSEP) {
 		return "";
 	};
-	let b = pathbytes(basename(p));
+	let b = strings::to_utf8(basename(p));
 	let i = match (bytes::index(b, '.': u32: u8)) {
 		void => return "",
 		z: size => z,
 	};
 	let e = b[i..];
-	return match (strings::try_from_utf8(e)) {
-		utf8::invalid => "",
-		s: str => s,
-	};
+	return strings::from_utf8_unsafe(e);
 };
 
 @test fn extension() void = {

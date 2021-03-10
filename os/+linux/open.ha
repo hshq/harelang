@@ -8,10 +8,8 @@ use path;
 // [fs::flags::CLOEXEC] are used when opening the file. If you pass your own
 // flags, it is recommended that you add the latter two unless you know that you
 // do not want them.
-export fn open(
-	path: path::path,
-	flags: fs::flags...
-) (*io::stream | fs::error) = fs::open(cwd, path, flags...);
+export fn open(path: str, flags: fs::flags...) (*io::stream | fs::error) =
+	fs::open(cwd, path, flags...);
 
 // Creates a new file and opens it for writing.
 //
@@ -23,7 +21,7 @@ export fn open(
 // Only the permission bits of the mode are used. If other bits are set, they
 // are discarded.
 export fn create(
-	path: path::path,
+	path: str,
 	mode: fs::mode,
 	flags: fs::flags...
 ) (*io::stream | fs::error) = fs::create(cwd, path, mode, flags...);

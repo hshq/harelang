@@ -15,7 +15,7 @@ use strio;
 
 // Scans the files in a directory for eligible build inputs and returns a
 // [version] which includes all applicable files and their dependencies.
-export fn scan(ctx: *context, path: path::path) (version | error) = {
+export fn scan(ctx: *context, path: str) (version | error) = {
 	let sha = sha256::sha256();
 	//defer! hash::close(sha);
 	let iter = match (fs::iter(ctx.fs, path)) {
@@ -39,7 +39,7 @@ export fn scan(ctx: *context, path: path::path) (version | error) = {
 			hash::write(sha, in.hash);
 			return version {
 				hash = hash::finish(sha),
-				basedir = path::dup(path::dirname(path)),
+				basedir = strings::dup(path::dirname(path)),
 				depends = deps,
 				inputs = inputs,
 			};
@@ -48,7 +48,7 @@ export fn scan(ctx: *context, path: path::path) (version | error) = {
 		iter: *fs::iterator => iter,
 	};
 	let ver = version {
-		basedir = path::dup(path),
+		basedir = strings::dup(path),
 		...
 	};
 	scan_directory(ctx, &ver, sha, path, iter)?;
@@ -60,7 +60,7 @@ fn scan_directory(
 	ctx: *context,
 	ver: *version,
 	sha: *hash::hash,
-	path: path::path,
+	path: str,
 	iter: *fs::iterator,
 ) (void | error) = {
 	for (true) match (fs::next(iter)) {
@@ -68,9 +68,10 @@ fn scan_directory(
 		ent: fs::dirent => switch (ent.ftype) {
 			fs::mode::LINK => abort(), // TODO
 			fs::mode::DIR => {
-				let d = ent.name: []u8;
-				if (len(d) == 0 || (d[0] != '+': u32: u8
-						&& d[0] != '-': u32: u8)) {
+				let d = strings::to_utf8(ent.name);
+				if (len(d) == 0 || (
+					!strings::has_prefix(ent.name, "+") &&
+					!strings::has_prefix(ent.name, "-"))) {
 					continue;
 				};
 				if (!eligible(ctx, ent.name, true)) {
@@ -104,7 +105,7 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 	let ipath = ident_path(name);
 	for (let i = len(ctx.paths); i > 0; i -= 1) {
 		let cand = path::join(ctx.paths[i - 1], ipath);
-		defer path::path_free(cand);
+		defer free(cand);
 		match (scan(ctx, cand)) {
 			v: version => return v,
 			e: error => void,
@@ -113,10 +114,9 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 	return module_not_found;
 };
 
-fn eligible(ctx: *context, name: path::path, dir: bool) bool = {
-	if (!utf8::valid(name: []u8)) {
-		return false;
-	};
+fn eligible(ctx: *context, name: str, dir: bool) bool = {
+	// TODO: Rewrite me to use string manipulation rather than byte slices
+	// This pre-dates the change from path as (str | []u8) to just str
 	if (!dir) {
 		let eligible = false;
 		const ext = path::extension(name);
@@ -134,7 +134,7 @@ fn eligible(ctx: *context, name: path::path, dir: bool) bool = {
 
 	// XXX: It might be nice if the stdlib offered search functions which
 	// support multiple needles
-	let b = name: []u8;
+	let b = strings::to_utf8(name);
 	let p = bytes::index(b, '+': u32: u8);
 	let m = bytes::index(b, '-': u32: u8);
 	if (p is void && m is void) {
@@ -157,7 +157,7 @@ fn eligible(ctx: *context, name: path::path, dir: bool) bool = {
 	return tags_compat(ctx.tags, tags);
 };
 
-fn type_for_ext(name: path::path) (filetype | void) = {
+fn type_for_ext(name: str) (filetype | void) = {
 	const ext = path::extension(name);
 	return
 		if (ext == ".ha") filetype::HARE
@@ -167,7 +167,7 @@ fn type_for_ext(name: path::path) (filetype | void) = {
 
 fn scan_file(
 	ctx: *context,
-	path: path::path,
+	path: str,
 	deps: *[]ast::ident,
 ) ([]u8 | error) = {
 	let f = fs::open(ctx.fs, path)?;
@@ -177,7 +177,7 @@ fn scan_file(
 	let tee = io::tee(f, hash::writer(sha));
 	defer io::close(tee);
 
-	let lexer = lex::init(tee, path as str);
+	let lexer = lex::init(tee, path);
 	let imports = parse::imports(&lexer)?;
 	for (let i = 0z; i < len(imports); i += 1) {
 		let ident = match (imports[i]) {

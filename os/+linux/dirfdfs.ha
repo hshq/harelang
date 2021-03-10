@@ -92,7 +92,7 @@ export fn dirfs_clone(fs: *fs::fs, resolve: resolve...) *fs::fs = {
 
 fn _fs_open(
 	fs: *fs::fs,
-	path: path::path,
+	path: str,
 	mode: io::mode,
 	oh: *rt::open_how,
 ) (*io::stream | fs::error) = {
@@ -112,22 +112,17 @@ fn _fs_open(
 		oh.resolve |= rt::RESOLVE_NO_XDEV;
 	};
 
-	const name: str = match (path) {
-		s: str  => s,
-		b: []u8 => "<open([]u8)>",
-	};
-
 	let fd = match (rt::openat2(fs.dirfd, path, oh, size(rt::open_how))) {
 		err: rt::errno => return errno_to_io(err),
 		fd: int => fd,
 	};
 
-	return fdopen(fd, name, mode);
+	return fdopen(fd, path, mode);
 };
 
 fn fs_open(
 	fs: *fs::fs,
-	path: path::path,
+	path: str,
 	flags: fs::flags...
 ) (*io::stream | fs::error) = {
 	let oflags = 0;
@@ -158,7 +153,7 @@ fn fs_open(
 
 fn fs_create(
 	fs: *fs::fs,
-	path: path::path,
+	path: str,
 	mode: fs::mode,
 	flags: fs::flags...
 ) (*io::stream | fs::error) = {
@@ -190,7 +185,7 @@ fn fs_create(
 	return _fs_open(fs, path, iomode, &oh);
 };
 
-fn fs_remove(fs: *fs::fs, path: path::path) (void | fs::error) = {
+fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::unlinkat(fs.dirfd, path, 0)) {
 		err: rt::errno => return errno_to_io(err),
@@ -198,7 +193,7 @@ fn fs_remove(fs: *fs::fs, path: path::path) (void | fs::error) = {
 	};
 };
 
-fn fs_stat(fs: *fs::fs, path: path::path) (fs::filestat | fs::error) = {
+fn fs_stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 	let fs = fs: *os_filesystem;
 	let st = rt::st { ... };
 	match (rt::fstatat(fs.dirfd, path, &st, rt::AT_SYMLINK_NOFOLLOW)) {
@@ -218,7 +213,7 @@ fn fs_stat(fs: *fs::fs, path: path::path) (fs::filestat | fs::error) = {
 	};
 };
 
-fn fs_subdir(fs: *fs::fs, path: path::path) (*fs::fs | fs::error) = {
+fn fs_subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 	let fs = fs: *os_filesystem;
 	let oh = rt::open_how {
 		flags = (rt::O_RDONLY | rt::O_CLOEXEC | rt::O_DIRECTORY): u64,
@@ -234,7 +229,7 @@ fn fs_subdir(fs: *fs::fs, path: path::path) (*fs::fs | fs::error) = {
 	return dirfdopen(fd);
 };
 
-fn fs_rmdir(fs: *fs::fs, path: path::path) (void | fs::error) = {
+fn fs_rmdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::unlinkat(fs.dirfd, path, rt::AT_REMOVEDIR)) {
 		err: rt::errno => return errno_to_io(err),
@@ -242,7 +237,7 @@ fn fs_rmdir(fs: *fs::fs, path: path::path) (void | fs::error) = {
 	};
 };
 
-fn fs_mkdir(fs: *fs::fs, path: path::path) (void | fs::error) = {
+fn fs_mkdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	return match (rt::mkdirat(fs.dirfd, path, 0o755)) {
 		err: rt::errno => switch (err) {
@@ -253,16 +248,11 @@ fn fs_mkdir(fs: *fs::fs, path: path::path) (void | fs::error) = {
 	};
 };
 
-fn resolve_part(parts: *[]path::path, part: path::path) void = {
-	const dot = strings::to_utf8("."), dotdot = strings::to_utf8("..");
-	let b = match (part) {
-		b: []u8 => b,
-		s: str => strings::to_utf8(s),
-	};
-	if (bytes::equal(b, dot)) {
+fn resolve_part(parts: *[]str, part: str) void = {
+	if (part == ".") {
 		// no-op
 		void;
-	} else if (bytes::equal(b, dotdot)) {
+	} else if (part == "..") {
 		// XXX: We should not have to dereference this
 		if (len(*parts) != 0) {
 			delete(parts[len(*parts) - 1]);
@@ -272,19 +262,19 @@ fn resolve_part(parts: *[]path::path, part: path::path) void = {
 	};
 };
 
-fn fs_resolve(fs: *fs::fs, path: path::path) path::path = {
-	let parts: []path::path = [];
+fn fs_resolve(fs: *fs::fs, path: str) str = {
+	let parts: []str = [];
 	if (!path::abs(path)) {
 		let iter = path::iter(getcwd());
 		for (true) match (path::next(&iter)) {
 			void => break,
-			p: path::path => resolve_part(&parts, p),
+			p: str => resolve_part(&parts, p),
 		};
 	};
 	let iter = path::iter(path);
 	for (true) match (path::next(&iter)) {
 		void => break,
-		p: path::path => resolve_part(&parts, p),
+		p: str => resolve_part(&parts, p),
 	};
 	return path::join(parts...);
 };
@@ -305,7 +295,7 @@ type os_iterator = struct {
 	buf: [BUFSIZ]u8,
 };
 
-fn fs_iter(fs: *fs::fs, path: path::path) (*fs::iterator | fs::error) = {
+fn fs_iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 	let fs = fs: *os_filesystem;
 	let oh = rt::open_how {
 		flags = (rt::O_RDONLY | rt::O_CLOEXEC | rt::O_DIRECTORY): u64,
@@ -346,13 +336,7 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 	};
 	let de = &iter.buf[iter.buf_pos]: *rt::dirent64;
 	iter.buf_pos += de.d_reclen;
-	let ln = strings::c_strlen(&de.d_name: *const char);
-	let name = &de.d_name: *[*]u8;
-	let name = if (!utf8::valid(name[..ln])) {
-		name[..ln];
-	} else {
-		strings::from_utf8_unsafe(name[..ln]);
-	};
+	let name = strings::from_c(&de.d_name: *const char);
 
 	let ftype: fs::mode = switch (de.d_type) {
 		rt::DT_UNKNOWN => fs::mode::UNKNOWN,

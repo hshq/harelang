@@ -113,31 +113,21 @@ export type filestat = struct {
 export type dirent = struct {
 	// The name of this entry. Not fully qualified: for example,
 	// "foo/bar/baz.txt" would store "baz.txt" here.
-	name: path::path,
+	name: str,
 
 	// The type of this entry. The permission bits may be unset.
 	ftype: mode,
 };
 
 // Duplicates a [dirent] object. Call [dirent_free] to get rid of it later.
-export fn dirent_dup(e: dirent) dirent = {
-	let new = e;
-	new.name = match (new.name) {
-		s: str => strings::dup(s),
-		b: []u8 => {
-			let n: []u8 = [];
-			append(n, ...b);
-			n;
-		},
-	};
+export fn dirent_dup(e: *dirent) dirent = {
+	let new = *e;
+	new.name = strings::dup(e.name);
 	return new;
 };
 
 // Frees a [dirent] object which was duplicated with [dirent_dup].
-export fn dirent_free(e: dirent) void = match (e.name) {
-	s: str => free(s),
-	b: []u8 => free(b),
-};
+export fn dirent_free(e: *dirent) void = free(e.name);
 
 // Flags to use for opening a file. Not all operating systems support all flags;
 // at a minimum, RDONLY, WRONLY, RDWR, and CREATE will be supported.
@@ -161,24 +151,24 @@ export type flags = enum int {
 };
 
 export type closefunc = fn(fs: *fs) void;
-export type removefunc = fn(fs: *fs, path: path::path) (void | error);
-export type iterfunc = fn(fs: *fs, path: path::path) (*iterator | error);
-export type statfunc = fn(fs: *fs, path: path::path) (filestat | error);
-export type subdirfunc = fn(fs: *fs, path: path::path) (*fs | error);
-export type mkdirfunc = fn(fs: *fs, path: path::path) (void | error);
-export type rmdirfunc = fn(fs: *fs, path: path::path) (void | error);
-export type mksubdirfunc = fn(fs: *fs, path: path::path) (*fs | error);
-export type resolvefunc = fn(fs: *fs, path: path::path) path::path;
+export type removefunc = fn(fs: *fs, path: str) (void | error);
+export type iterfunc = fn(fs: *fs, path: str) (*iterator | error);
+export type statfunc = fn(fs: *fs, path: str) (filestat | error);
+export type subdirfunc = fn(fs: *fs, path: str) (*fs | error);
+export type mkdirfunc = fn(fs: *fs, path: str) (void | error);
+export type rmdirfunc = fn(fs: *fs, path: str) (void | error);
+export type mksubdirfunc = fn(fs: *fs, path: str) (*fs | error);
+export type resolvefunc = fn(fs: *fs, path: str) str;
 
 export type openfunc = fn(
 	fs: *fs,
-	path: path::path,
+	path: str,
 	flags: flags...
 ) (*io::stream | error);
 
 export type createfunc = fn(
 	fs: *fs,
-	path: path::path,
+	path: str,
 	mode: mode,
 	flags: flags...
 ) (*io::stream | error);

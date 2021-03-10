@@ -5,7 +5,7 @@ use io;
 use os;
 use path;
 
-fn get_tmpdir() path::path = os::tryenv("TMPDIR", "/tmp");
+fn get_tmpdir() str = os::tryenv("TMPDIR", "/tmp");
 
 // Creates an unnamed temporary file. The file may or may not have a name; not
 // all systems support the creation of temporary inodes which are not linked to
@@ -53,8 +53,8 @@ export fn named(
 // but not that it will be removed automatically; the caller must remove it when
 // they're done using it via [os::rmdir] or [os::rmdirall].
 //
-// The caller must free the return value with [path::path_free].
-export fn dir() path::path = {
+// The caller must free the return value.
+export fn dir() str = {
 	let buf: [8]u8 = [0...];
 	random::buffer(buf[..]);
 	let name = hex::encode(buf);
