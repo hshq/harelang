@@ -21,7 +21,8 @@ export type context = struct {
 	tags: []tag,
 };
 
-// Initializes a new context with the system default configuration.
+// Initializes a new context with the system default configuration. The tag list
+// is borrowed from the caller.
 export fn context_init(tags: []tag) context = {
 	let ctx = context {
 		fs = os::cwd,
@@ -53,6 +54,15 @@ export fn context_init(tags: []tag) context = {
 		...
 	};
 	return ctx;
+};
+
+// Frees resources associated with this context.
+export fn context_finish(ctx: *context) void = {
+	for (let i = 0z; i < len(ctx.paths); i += 1) {
+		free(ctx.paths[i]);
+	};
+	free(ctx.paths);
+	free(ctx.cache);
 };
 
 // Converts an identifier to a partial path (e.g. foo::bar becomes foo/bar). The
