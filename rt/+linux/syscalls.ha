@@ -49,6 +49,14 @@ export fn open(path: path, flags: int, mode: uint) (int | errno) = {
 		path: uintptr: u64, flags: u64, mode: u64))?: int;
 };
 
+fn openat(
+	dirfd: int,
+	path: *const char,
+	flags: int,
+	mode: uint,
+) (int | errno) = wrap_return(syscall4(SYS_openat, dirfd: u64,
+	path: uintptr: u64, flags: u64, mode: u64))?: int;
+
 export fn openat2(
 	dirfd: int,
 	path: path,
@@ -56,8 +64,7 @@ export fn openat2(
 	how_sz: size,
 ) (int | errno) = {
 	let path = kpath(path)?;
-	return wrap_return(syscall4(SYS_openat2, dirfd: u64,
-		path: uintptr: u64, how: uintptr: u64, how_sz: u64))?: int;
+	return openat(dirfd, path, how.flags: int, how.mode: uint);
 };
 
 export fn unlink(path: path) (void | errno) = {
@@ -205,6 +212,20 @@ export fn lseek(fd: int, off: i64, whence: uint) (i64 | errno) = {
 		fd: u64, off: u64, whence: u64))?: i64;
 };
 
+fn faccessat1(dirfd: int, path: *const char, mode: int) (bool | errno) = {
+	return match (wrap_return(syscall3(SYS_faccessat, dirfd: u64,
+			path: uintptr: u64, mode: u64))) {
+		err: errno => switch (err) {
+			EACCES => false,
+			* => err,
+		},
+		n: u64 => {
+			assert(n == 0);
+			true;
+		},
+	};
+};
+
 // The use of this function is discouraged, as it can create race conditions.
 // TOCTOU is preferred: attempt to simply use the resource you need and handle
 // any access errors which occur.
@@ -219,6 +240,9 @@ export fn faccessat(
 			path: uintptr: u64, mode: u64, flags: u64))) {
 		err: errno => switch (err) {
 			EACCES => false,
+			ENOSYS =>
+				if (flags == 0) faccessat1(dirfd, path, mode)
+				else err,
 			* => err,
 		},
 		n: u64 => {
