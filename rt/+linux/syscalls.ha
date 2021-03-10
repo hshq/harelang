@@ -273,6 +273,8 @@ export fn uname(uts: *utsname) (void | errno) = {
 // calling getcwd again.
 export fn getcwd() (*const char | errno) = {
 	static let pathbuf: [PATH_MAX + 1]u8 = [0...];
-	wrap_return(syscall1(SYS_getcwd, &pathbuf: *[*]u8: uintptr: u64))?;
+	wrap_return(syscall2(SYS_getcwd,
+		&pathbuf: *[*]u8: uintptr: u64,
+		PATH_MAX + 1))?;
 	return &pathbuf: *const char;
 };
