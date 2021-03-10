@@ -51,14 +51,33 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 	return task;
 };
 
-// Schedules a task which compiles assembly into an object.
-fn sched_as(plan: *plan, output: str, depend: *task) *task = {
+// Schedules a task which merges objects into an archive.
+fn sched_ar(plan: *plan, output: str, depend: *task...) *task = {
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
-		depend = mkdepends(depend),
+		depend = mkdepends(depend...),
 		cmd = alloc([
-			os::tryenv("AS", "as"), "-o", output, depend.output,
+			os::tryenv("AR", "ar"),
+			"-csr", output,
+		]),
+	});
+	for (let i = 0z; i < len(depend); i += 1) {
+		assert(strings::has_suffix(depend[i].output, ".o"));
+		append(task.cmd, depend[i].output);
+	};
+	append(plan.scheduled, task);
+	return task;
+};
+
+// Schedules a task which compiles assembly into an object.
+fn sched_as(plan: *plan, output: str, input: str, depend: *task...) *task = {
+	let task = alloc(task {
+		status = status::SCHEDULED,
+		output = output,
+		depend = mkdepends(depend...),
+		cmd = alloc([
+			os::tryenv("AS", "as"), "-o", output, input,
 		]),
 	});
 	append(plan.scheduled, task);
@@ -80,13 +99,24 @@ fn sched_qbe(plan: *plan, output: str, depend: *task) *task = {
 };
 
 // Schedules tasks which compiles a Hare module into an object or archive.
+// Returns the output path, generated as an object or archive name.
+//
+// Takes ownership over namespace, if provided.
 fn sched_hare_object(
 	plan: *plan,
 	inputs: []module::input,
-	output: str,
+	namespace: (str | void),
 	depend: *task...
 ) *task = {
-	// TODO: Handle mixed sources
+	// XXX: Do we care to support assembly-only modules?
+	let mixed = false;
+	for (let i = 0z; i < len(inputs); i += 1) {
+		if (strings::has_suffix(inputs[i].path, ".s")) {
+			mixed = true;
+			break;
+		};
+	};
+
 	let ssa = mkfile(plan, "ssa");
 	let s = mkfile(plan, "s");
 
@@ -98,14 +128,39 @@ fn sched_hare_object(
 			os::tryenv("HAREC", "harec"), "-o", ssa,
 		]),
 	});
+	match (namespace) {
+		void => void,
+		ns: str => append(harec.cmd, "-N", ns),
+	};
 
 	for (let i = 0z; i < len(inputs); i += 1) {
 		let path = inputs[i].path;
-		append(harec.cmd, path);
+		if (strings::has_suffix(path, ".ha")) {
+			append(harec.cmd, path);
+		};
 	};
 	append(plan.scheduled, harec);
 
-	return sched_as(plan, output, sched_qbe(plan, s, harec));
+	let as_out = mkfile(plan, "o");
+	let qbe = sched_qbe(plan, s, harec);
+	let hare_obj = sched_as(plan, as_out, s, qbe);
+	if (!mixed) {
+		return hare_obj;
+	};
+
+	let objs: []*task = alloc([hare_obj]);
+	defer free(objs);
+	for (let i = 0z; i < len(inputs); i += 1) {
+		// XXX: All of our assembly files don't depend on anything else,
+		// but that may not be generally true. We may have to address
+		// this at some point.
+		let path = inputs[i].path;
+		if (!strings::has_suffix(path, ".s")) {
+			continue;
+		};
+		append(objs, sched_as(plan, mkfile(plan, "o"), path));
+	};
+	return sched_ar(plan, mkfile(plan, "a"), objs...);
 };
 
 // Schedules tasks which compiles hare sources into an executable.
@@ -115,8 +170,12 @@ fn sched_hare_exe(
 	output: str,
 	depend: *task...
 ) *task = {
-	let o = sched_hare_object(plan, inputs, mkfile(plan, "o"), depend...);
-	return sched_ld(plan, strings::dup(output), o);
+	let obj = sched_hare_object(plan, inputs, void, depend...);
+	// TODO: We should be able to use partial variadic application
+	let link: []*task = alloc([], len(depend));
+	defer free(link);
+	append(link, obj, ...depend);
+	return sched_ld(plan, strings::dup(output), link...);
 };
 
 fn execute(

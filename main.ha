@@ -54,27 +54,29 @@ export fn main() void = {
 			module::errstr(err)),
 	};
 
+	let depends: []*task = [];
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
 		const dep = ver.depends[i];
-		let ident = ast::ident_unparse_s(dep);
-		defer free(ident);
 		match (module::lookup(&ctx, dep)) {
-			err: module::error => fmt::fatal("Error resolving {}: {}",
-				ident, module::errstr(err)),
+			err: module::error => {
+				let ident = ast::ident_unparse_s(dep);
+				fmt::fatal("Error resolving {}: {}",
+					ident, module::errstr(err));
+			},
 			ver: module::version => {
-				let hash = hex::encode(ver.hash);
-				defer free(hash);
-				fmt::errorfln("{}: selecting version {}",
-					ident, hash);
-				for (let i = 0z; i < len(ver.inputs); i += 1) {
-					fmt::errorfln("\t{}", ver.inputs[i].path);
-				};
+				let ns = ast::ident_unparse_s(dep);
+				// TODO:
+				// - Use the cache
+				// - Transitive dependencies
+				let obj = sched_hare_object(&plan,
+					ver.inputs, ns);
+				append(depends, obj);
 			},
 		};
 	};
 
 	// TODO: Choose less stupid output name
-	sched_hare_exe(&plan, ver.inputs, "a.out");
+	sched_hare_exe(&plan, ver.inputs, "a.out", depends...);
 
 	for (len(plan.scheduled) != 0) {
 		let next: nullable *task = null;
