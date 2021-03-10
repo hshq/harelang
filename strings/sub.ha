@@ -28,10 +28,10 @@ fn utf8_byte_len_unbounded(iter: *iterator) size = {
 	return pos;
 };
 
-// Returns a substring in the range [start, end - 1]. If the end argument is
-// given as [strings::end], the end of the substring is the end of the original
-// string. The lifetime of the substring is the same as that of the original
-// string.
+// Returns a substring in the range [start, end - 1], where each argument is the
+// index of the Nth rune. If the end argument is given as [strings::end], the
+// end of the substring is the end of the original string. The lifetime of the
+// substring is the same as that of the original string.
 export fn sub(s: str, start: size, end: (size | end)) str = {
 	let iter = iter(s);
 	let starti = utf8_byte_len_bounded(&iter, start);
