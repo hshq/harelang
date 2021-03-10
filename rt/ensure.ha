@@ -6,7 +6,7 @@ export type slice = struct {
 
 export fn ensure(s: *slice, membsz: size) void = {
 	let cap = s.capacity;
-	if (cap > s.length) {
+	if (cap >= s.length) {
 		return;
 	};
 	for (cap < s.length) {
