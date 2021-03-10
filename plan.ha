@@ -133,7 +133,7 @@ fn execute(
 
 	let proc = exec::start(&cmd)?;
 	let st = exec::wait(&proc)?;
-	return exec::check(&st)?;
+	return exec::check(&st);
 };
 
 fn mkfile(plan: *plan, ext: str) str = {
