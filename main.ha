@@ -19,7 +19,6 @@ export fn main() void = {
 		...
 	};
 	defer os::rmdirall(plan.workdir);
-	defer path::path_free(plan.workdir);
 	let ctx = module::context_init([module::tag {
 		name = os::machine(),
 		mode = module::tag_mode::INCLUSIVE,
@@ -28,6 +27,13 @@ export fn main() void = {
 		name = "linux",
 		mode = module::tag_mode::INCLUSIVE,
 	}]);
+
+	const rtdir = match (module::lookup(&ctx, ["rt"])) {
+		err: module::error => fmt::fatal("Error resolving rt: {}",
+			module::errstr(err)),
+		ver: module::version => ver.basedir,
+	};
+	plan.script = path::join(rtdir, "hare.sc");
 
 	let ver = match (module::scan(&ctx, os::args[1])) {
 		ver: module::version => ver,
@@ -48,14 +54,14 @@ export fn main() void = {
 				fmt::errorfln("{}: selecting version {}",
 					ident, hash);
 				for (let i = 0z; i < len(ver.inputs); i += 1) {
-					fmt::errorfln("\t{}",
-						ver.inputs[i].path as str);
+					fmt::errorfln("\t{}", ver.inputs[i].path);
 				};
 			},
 		};
 	};
 
-	sched_hare_exe(&plan, ver.inputs, "hare.ssa", []);
+	// TODO: Choose less stupid output name
+	sched_hare_exe(&plan, ver.inputs, "a.out");
 
 	for (len(plan.scheduled) != 0) {
 		let next: nullable *task = null;
@@ -81,6 +87,7 @@ export fn main() void = {
 		};
 
 		task.status = status::COMPLETE;
+
 		delete(plan.scheduled[i]);
 		append(plan.complete, task);
 	};

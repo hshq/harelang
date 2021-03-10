@@ -419,7 +419,7 @@ stdlib_os_exec_srcs= \
 	$(STDLIB)/os/exec/cmd$(PLATFORM).ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(HARECACHE)/os/exec/os.exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_strings) $(stdlib_fmt)
+$(HARECACHE)/os/exec/os.exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_strings) $(stdlib_fmt) $(stdlib_bytes) $(stdlib_path)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os/exec
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
@@ -430,7 +430,6 @@ stdlib_path_srcs= \
 	$(STDLIB)/path/$(PLATFORM).ha \
 	$(STDLIB)/path/util.ha \
 	$(STDLIB)/path/join.ha \
-	$(STDLIB)/path/norm.ha \
 	$(STDLIB)/path/names.ha \
 	$(STDLIB)/path/iter.ha
 
@@ -955,7 +954,7 @@ testlib_os_exec_srcs= \
 	$(STDLIB)/os/exec/cmd$(PLATFORM).ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(TESTCACHE)/os/exec/os.exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testlib_os) $(testlib_strings) $(testlib_fmt)
+$(TESTCACHE)/os/exec/os.exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testlib_os) $(testlib_strings) $(testlib_fmt) $(testlib_bytes) $(testlib_path)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os/exec
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
@@ -966,7 +965,6 @@ testlib_path_srcs= \
 	$(STDLIB)/path/$(PLATFORM).ha \
 	$(STDLIB)/path/util.ha \
 	$(STDLIB)/path/join.ha \
-	$(STDLIB)/path/norm.ha \
 	$(STDLIB)/path/names.ha \
 	$(STDLIB)/path/iter.ha
 

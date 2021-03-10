@@ -353,7 +353,7 @@ os_exec() {
 		'process$(PLATFORM).ha' \
 		'cmd$(PLATFORM).ha' \
 		cmd.ha
-	gen_ssa os::exec os strings fmt
+	gen_ssa os::exec os strings fmt bytes path
 }
 
 path() {
@@ -362,7 +362,6 @@ path() {
 		'$(PLATFORM).ha' \
 		util.ha \
 		join.ha \
-		norm.ha \
 		names.ha \
 		iter.ha
 	gen_ssa path strings bufio bytes
