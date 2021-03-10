@@ -4,6 +4,7 @@ use io;
 type dynamic_stream = struct {
 	stream: io::stream,
 	buf: []u8,
+	pos: size,
 };
 
 // Creates an [io::stream] which dynamically allocates a buffer to store writes
@@ -23,9 +24,11 @@ export fn dynamic_from(in: []u8, mode: io::mode) *io::stream = {
 	let s = alloc(dynamic_stream {
 		stream = io::stream {
 			closer = &dynamic_close,
+			seeker = &dynamic_seek,
 			...
 		},
 		buf = in,
+		pos = 0,
 	}): *io::stream;
 	if (mode & io::mode::READ == io::mode::READ) {
 		s.reader = &dynamic_read;
@@ -38,16 +41,64 @@ export fn dynamic_from(in: []u8, mode: io::mode) *io::stream = {
 
 fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *dynamic_stream;
-	append(s.buf, ...buf);
+	if (s.pos == len(s.buf)) {
+		append(s.buf, ...buf);
+	} else {
+		// TODO: update this after we add insert
+		let new: []u8 = alloc([], len(s.buf) + len(buf));
+		new[..s.pos] = s.buf[..s.pos];
+		new[s.pos..s.pos + len(buf)] = buf[..];
+		new[s.pos + len(buf)..] = s.buf[s.pos..];
+		free(s.buf);
+		s.buf = new;
+	};
+
+	s.pos += len(buf);
 	return len(buf);
 };
 
 fn dynamic_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let s = s: *dynamic_stream;
-	const sz = if (len(buf) > len(s.buf)) len(s.buf) else len(buf);
-	buf[..sz] = s.buf[..sz];
-	delete(s.buf[..sz]);
-	return if (sz == 0) io::EOF else sz;
+	if (len(s.buf) == s.pos && len(buf) != 0) {
+		return io::EOF;
+	};
+	const n = if (len(s.buf) - s.pos < len(buf)) {
+		len(s.buf) - s.pos;
+	} else {
+		len(buf);
+	};
+	buf[..n] = s.buf[s.pos..s.pos + n];
+	s.pos += n;
+	return n;
+};
+
+fn dynamic_seek(
+	s: *io::stream,
+	off: io::off,
+	w: io::whence
+) (io::off | io::error) = {
+	let stream = s: *dynamic_stream;
+	switch (w) {
+		io::whence::SET => {
+			if (len(stream.buf) < off: size) {
+				abort("invalid offset");
+			};
+			stream.pos = off: size;
+		},
+		io::whence::CUR => {
+			if (stream.pos + off: size > len(stream.buf)) {
+				abort("invalid offset");
+			};
+			stream.pos += off: size;
+		},
+		io::whence::END => {
+			if (len(stream.buf) - (-off): size < len(stream.buf)) {
+				abort("invalid offset");
+			};
+			stream.pos = len(stream.buf) - (-off): size;
+		},
+	};
+	return stream.pos: io::off;
 };
 
 fn dynamic_close(s: *io::stream) void = {
@@ -84,6 +135,7 @@ export fn reset(s: *io::stream) void = {
 		abort("bufio::reset called on non-bufio stream");
 	};
 	const s = s: *dynamic_stream;
+	s.pos = 0;
 	s.buf = s.buf[..0];
 };
 
@@ -94,6 +146,7 @@ export fn truncate(s: *io::stream) (void | io::unsupported) = {
 		return io::unsupported;
 	};
 	let s = s: *dynamic_stream;
+	s.pos = 0;
 	delete(s.buf[..]);
 };
 
@@ -105,11 +158,13 @@ export fn truncate(s: *io::stream) (void | io::unsupported) = {
 	assert(io::write(s, [4, 5]) as size == 2);
 	assert(bytes::equal(buffer(s), [1, 2, 3, 4, 5]));
 	let buf: [2]u8 = [0...];
+	assert(io::seek(s, 0, io::whence::SET) as io::off == 0: io::off);
 	assert(io::read(s, buf[..]) as size == 2 && bytes::equal(buf, [1, 2]));
 	assert(io::read(s, buf[..]) as size == 2 && bytes::equal(buf, [3, 4]));
 	assert(io::read(s, buf[..]) as size == 1 && buf[0] == 5);
 	assert(io::read(s, buf[..]) is io::EOF);
-	assert(io::write(s, [1, 2, 3]) as size == 3);
+	assert(io::write(s, [6, 7, 8]) as size == 3);
+	assert(bytes::equal(buffer(s), [1, 2, 3, 4, 5, 6, 7, 8]));
 	reset(s);
 	assert(len(buffer(s)) == 0);
 	assert(io::write(s, [1, 2, 3]) as size == 3);
@@ -118,6 +173,7 @@ export fn truncate(s: *io::stream) (void | io::unsupported) = {
 
 	let sl: []u8 = alloc([1, 2, 3]);
 	let s = dynamic_from(sl, io::mode::WRITE);
+	assert(io::seek(s, 0, io::whence::END) as io::off == 3: io::off);
 	assert(io::write(s, [4, 5, 6]) as size == 3);
 	assert(bytes::equal(buffer(s), [1, 2, 3, 4, 5, 6]));
 	// TODO: this should check for io::unsupported (harec bug prevents that)
@@ -126,7 +182,8 @@ export fn truncate(s: *io::stream) (void | io::unsupported) = {
 
 	sl = alloc([1, 2]);
 	let s = dynamic_from(sl, io::mode::READ);
-	assert(io::read(s, buf[..]) as size == 2 && bytes::equal(buf, [1, 2]));
+	assert(io::read(s, buf[..1]) as size == 1 && buf[0] == 1);
+	assert(io::seek(s, 1, io::whence::CUR) as io::off == 2: io::off);
 	assert(io::read(s, buf[..]) is io::EOF);
 	// TODO: this should check for io::unsupported (harec bug prevents that)
 	assert(io::write(s, [1, 2]) is io::error);
