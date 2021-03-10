@@ -39,7 +39,7 @@ export fn main() void = {
 		name = "linux",
 		mode = module::tag_mode::INCLUSIVE,
 	}]);
-	//defer module::context_free(&ctx); // TODO
+	defer module::context_finish(&ctx);
 
 	const rtdir = match (module::lookup(&ctx, ["rt"])) {
 		err: module::error => fmt::fatal("Error resolving rt: {}",

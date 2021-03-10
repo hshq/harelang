@@ -79,8 +79,8 @@ fn sched_qbe(plan: *plan, output: str, depend: *task) *task = {
 	return task;
 };
 
-// Schedules tasks which compiles hare sources into an executable.
-fn sched_hare_exe(
+// Schedules tasks which compiles a Hare module into an object or archive.
+fn sched_hare_object(
 	plan: *plan,
 	inputs: []module::input,
 	output: str,
@@ -89,7 +89,6 @@ fn sched_hare_exe(
 	// TODO: Handle mixed sources
 	let ssa = mkfile(plan, "ssa");
 	let s = mkfile(plan, "s");
-	let o = mkfile(plan, "o");
 
 	let harec = alloc(task {
 		status = status::SCHEDULED,
@@ -106,9 +105,18 @@ fn sched_hare_exe(
 	};
 	append(plan.scheduled, harec);
 
-	let qbe = sched_qbe(plan, s, harec);
-	let asm = sched_as(plan, o, qbe);
-	return sched_ld(plan, strings::dup(output), asm);
+	return sched_as(plan, output, sched_qbe(plan, s, harec));
+};
+
+// Schedules tasks which compiles hare sources into an executable.
+fn sched_hare_exe(
+	plan: *plan,
+	inputs: []module::input,
+	output: str,
+	depend: *task...
+) *task = {
+	let o = sched_hare_object(plan, inputs, mkfile(plan, "o"), depend...);
+	return sched_ld(plan, strings::dup(output), o);
 };
 
 fn execute(
