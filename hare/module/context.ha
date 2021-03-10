@@ -30,7 +30,7 @@ export fn context_init(tags: []tag) context = {
 		paths: []str = match (os::getenv("HAREPATH")) {
 			void => {
 				let path: []str = alloc([
-					DEFAULT_HAREPATH,
+					strings::dup(DEFAULT_HAREPATH),
 					dirs::data("hare"),
 				]);
 				path;
@@ -38,18 +38,17 @@ export fn context_init(tags: []tag) context = {
 			s: str => {
 				let sl = strings::split(s, ":");
 				let path: []str = alloc([], len(sl) + 1);
-				let i = 0z;
-				for (i < len(sl); i += 1) {
-					append(path, sl[i]);
+				for (let i = 0z; i < len(sl); i += 1) {
+					append(path, strings::dup(sl[i]));
 				};
-				append(path, ".");
+				append(path, strings::dup("."));
 				free(sl);
 				path;
 			},
 		},
 		cache: str = match (os::getenv("HARECACHE")) {
 			void => dirs::cache("hare"),
-			s: str => s,
+			s: str => strings::dup(s),
 		},
 		...
 	};
