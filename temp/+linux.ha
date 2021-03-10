@@ -55,7 +55,7 @@ export fn named(
 //
 // The caller must free the return value with [path::path_free].
 export fn dir() path::path = {
-	let buf: [16]u8 = [0...];
+	let buf: [8]u8 = [0...];
 	random::buffer(buf[..]);
 	let name = hex::encode(buf);
 	defer free(name);
