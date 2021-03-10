@@ -115,8 +115,6 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 };
 
 fn eligible(ctx: *context, name: str, dir: bool) bool = {
-	// TODO: Rewrite me to use string manipulation rather than byte slices
-	// This pre-dates the change from path as (str | []u8) to just str
 	if (!dir) {
 		let eligible = false;
 		const ext = path::extension(name);
@@ -134,9 +132,8 @@ fn eligible(ctx: *context, name: str, dir: bool) bool = {
 
 	// XXX: It might be nice if the stdlib offered search functions which
 	// support multiple needles
-	let b = strings::to_utf8(name);
-	let p = bytes::index(b, '+': u32: u8);
-	let m = bytes::index(b, '-': u32: u8);
+	let p = strings::index(name, '+');
+	let m = strings::index(name, '-');
 	if (p is void && m is void) {
 		return true;
 	};
@@ -145,16 +142,42 @@ fn eligible(ctx: *context, name: str, dir: bool) bool = {
 		else if (m is void && p is size) p: size
 		else if (m: size < p: size) m: size
 		else p: size;
-	let tags = match (bytes::index(b, '.': u32: u8)) {
-		void => b[i..],
-		e: size => b[i..e],
+	let tags = match (strings::index(name, '.')) {
+		void => strings::sub(name, i, strings::end),
+		e: size => strings::sub(name, i, e),
 	};
-	let tags = match (parse_tags(strings::from_utf8_unsafe(tags))) {
+	let tags = match (parse_tags(tags)) {
 		void => return false,
 		t: []tag => t,
 	};
 	defer tags_free(tags);
 	return tags_compat(ctx.tags, tags);
+};
+
+@test fn eligible() void = {
+	let ctx = context {
+		tags = [
+			tag { name = "incl", mode = tag_mode::INCLUSIVE },
+			tag { name = "excl", mode = tag_mode::EXCLUSIVE },
+		],
+	};
+	assert(eligible(&ctx, "foo.ha", false));
+	assert(eligible(&ctx, "foo.s", false));
+	assert(eligible(&ctx, "foo+incl.ha", false));
+	assert(eligible(&ctx, "foo-excl.ha", false));
+	assert(eligible(&ctx, "foo-other.ha", false));
+	assert(eligible(&ctx, "foo+incl-excl.ha", false));
+
+	assert(!eligible(&ctx, "foo.txt", false));
+	assert(!eligible(&ctx, "foo-incl.ha", false));
+	assert(!eligible(&ctx, "foo+excl.ha", false));
+	assert(!eligible(&ctx, "foo+other.ha", false));
+	assert(!eligible(&ctx, "foo-incl+excl.ha", false));
+
+	assert(eligible(&ctx, "+incl", true));
+	assert(eligible(&ctx, "-excl", true));
+	assert(!eligible(&ctx, "-incl", true));
+	assert(!eligible(&ctx, "+excl", true));
 };
 
 fn type_for_ext(name: str) (filetype | void) = {
@@ -254,7 +277,7 @@ export fn tags_compat(have: []tag, want: []tag) bool = {
 		let present = false;
 		for (let j = 0z; j < len(have); j += 1) {
 			if (have[j].name == want[i].name) {
-				present = true;
+				present = have[j].mode == tag_mode::INCLUSIVE;
 				break;
 			};
 		};
