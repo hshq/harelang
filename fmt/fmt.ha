@@ -72,7 +72,7 @@ export fn errorfln(fmt: str, args: formattable...) (io::error | size) =
 export fn asprintf(fmt: str, args: formattable...) str = {
 	let buf = bufio::dynamic(io::mode::WRITE);
 	assert(fprintf(buf, fmt, args...) is size);
-	return strings::from_utf8_unsafe(bufio::buffer(buf));
+	return strings::from_utf8_unsafe(bufio::finish(buf));
 };
 
 // Formats text for printing and writes it into a caller supplied buffer. The
@@ -126,7 +126,7 @@ export fn errorln(args: formattable...) (io::error | size) =
 export fn asprint(args: formattable...) str = {
 	let buf = bufio::dynamic(io::mode::WRITE);
 	assert(fprint(buf, args...) is size);
-	return strings::from_utf8_unsafe(bufio::buffer(buf));
+	return strings::from_utf8_unsafe(bufio::finish(buf));
 };
 
 // Formats values for printing using the default format modifiers and writes
