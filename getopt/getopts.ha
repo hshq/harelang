@@ -226,12 +226,11 @@ export fn print_usage(s: *io::stream, name: str, help: []help) void = {
 
 // Prints command help to the provided stream.
 export fn print_help(s: *io::stream, name: str, help: []help) void = {
-	print_usage(s, name, help);
-	fmt::fprintln(s);
-
 	if (help[0] is cmd_help) {
-		fmt::fprintfln(s, "{}: {}", name, help[0] as cmd_help: str);
+		fmt::fprintfln(s, "{}: {}\n", name, help[0] as cmd_help: str);
 	};
+
+	print_usage(s, name, help);
 
 	fmt::fprint(s, "\n");
 
