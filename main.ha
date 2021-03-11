@@ -150,7 +150,7 @@ export fn main() void = {
 	};
 
 	if (output == "") {
-		output = path::basename(os::resolve(ver.basedir));
+		output = path::basename(ver.basedir);
 	};
 	sched_hare_exe(&plan, ver.inputs, output, depends...);
 
