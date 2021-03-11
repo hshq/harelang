@@ -7,11 +7,11 @@ stdlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
 	$(STDLIB)/rt/$(PLATFORM)/start.ha \
-	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
 	$(STDLIB)/rt/$(PLATFORM)/$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
 	$(STDLIB)/rt/$(PLATFORM)/types.ha \
+	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
@@ -533,11 +533,11 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
 	$(STDLIB)/rt/$(PLATFORM)/start.ha \
-	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
 	$(STDLIB)/rt/$(PLATFORM)/$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
 	$(STDLIB)/rt/$(PLATFORM)/types.ha \
+	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \

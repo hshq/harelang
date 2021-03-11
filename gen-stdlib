@@ -18,13 +18,13 @@ gensrcs_rt() {
 	gen_srcs rt \
 		'$(PLATFORM)/env.ha' \
 		'$(PLATFORM)/errno.ha' \
+		'$(PLATFORM)/types.ha' \
 		'$(PLATFORM)/segmalloc.ha' \
 		'$(PLATFORM)/start.ha' \
-		'$(PLATFORM)/stat.ha' \
 		'$(PLATFORM)/$(ARCH).ha' \
 		'$(PLATFORM)/syscallno$(ARCH).ha' \
 		'$(PLATFORM)/syscalls.ha' \
-		'$(PLATFORM)/types.ha' \
+		'$(PLATFORM)/stat.ha' \
 		'$(ARCH)/jmp.ha' \
 		ensure.ha \
 		jmp.ha \

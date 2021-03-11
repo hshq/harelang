@@ -58,8 +58,7 @@ fn sched_ar(plan: *plan, output: str, depend: *task...) *task = {
 		output = output,
 		depend = mkdepends(depend...),
 		cmd = alloc([
-			os::tryenv("AR", "ar"),
-			"-csr", output,
+			os::tryenv("AR", "ar"), "-csr", output,
 		]),
 	});
 	for (let i = 0z; i < len(depend); i += 1) {
