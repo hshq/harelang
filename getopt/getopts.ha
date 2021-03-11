@@ -1,6 +1,6 @@
 // getopt provides an interface for parsing command line arguments and
 // automatically generates a brief help message explaining the command usage.
-// See [getopts] for the main entry point.
+// See [parse] for the main entry point.
 // 
 // The help text is brief and should serve only as a reminder. It is recommended
 // that your command line program be accompanied by a man page to provide
@@ -82,7 +82,7 @@ export type help = (cmd_help | flag_help | parameter_help);
 // rune.
 //
 //	// Usage for sed
-// 	let cmd = getopt::getopts(os::args
+// 	let cmd = getopt::parse(os::args
 // 		"stream editor",
 // 		('E', "use extended regular expressions"),
 // 		('s', "treat files as separate, rather than one continuous stream"),
@@ -100,8 +100,8 @@ export type help = (cmd_help | flag_help | parameter_help);
 // 			'E' => extended = true,
 // 			's' => continuous = false,
 // 			// ...
-// 			'e' => script = opt.1 as parameter,
-// 			'f' => file = opt.1 as parameter,
+// 			'e' => script = opt.1 as getopt::parameter,
+// 			'f' => file = opt.1 as getopt::parameter,
 // 		};
 // 	};
 //
@@ -113,7 +113,7 @@ export type help = (cmd_help | flag_help | parameter_help);
 // If "-h" is not among the options defined by the caller, the "-h" option will
 // will cause a summary of the command usage to be printed to stderr, and
 // [os::exit] will be called with a successful exit status.
-export fn getopts(args: []str, help: help...) command = {
+export fn parse(args: []str, help: help...) command = {
 	let opts: []option = [];
 	let i = 1z;
 	:arg for (i < len(args); i += 1) {
@@ -179,41 +179,55 @@ export fn getopts(args: []str, help: help...) command = {
 	};
 };
 
-// Frees resources associated with the return value of [getopts].
+// Frees resources associated with the return value of [parse].
 export fn finish(cmd: *command) void = {
 	if (cmd == null) return;
 	free(cmd.opts);
 };
 
-fn print_usage(s: *io::stream, name: str, help: []help) void = {
-	fmt::fprint(s, "Usage:", name);
+fn _print_usage(s: *io::stream, name: str, indent: bool, help: []help) size = {
+	let z = fmt::fprint(s, "Usage:", name) as size;
 
 	let started_flags = false;
 	for (let i = 0z; i < len(help); i += 1) if (help[i] is flag_help) {
 		if (!started_flags) {
-			fmt::fprint(s, " [-");
+			z += fmt::fprint(s, " [-") as size;
 			started_flags = true;
 		};
 		const help = help[i] as flag_help;
-		fmt::fprint(s, help.0: rune);
+		z += fmt::fprint(s, help.0: rune) as size;
 	};
 	if (started_flags) {
-		fmt::fprint(s, "]");
+		z += fmt::fprint(s, "]") as size;
 	};
 
 	for (let i = 0z; i < len(help); i += 1) if (help[i] is parameter_help) {
 		const help = help[i] as parameter_help;
-		fmt::fprintf(s, " [-{} <{}>]", help.0: rune, help.1);
+		if (indent) {
+			z += fmt::fprintf(s, "\n\t") as size;
+		};
+		z += fmt::fprintf(s, " [-{} <{}>]", help.0: rune, help.1) as size;
+	};
+	if (indent) {
+		z += fmt::fprintf(s, "\n\t") as size;
 	};
 	for (let i = 1z; i < len(help); i += 1) if (help[i] is cmd_help) {
-		fmt::fprintf(s, " {}", help[i] as cmd_help: str);
+		z += fmt::fprintf(s, " {}", help[i] as cmd_help: str) as size;
 	};
 
-	fmt::fprint(s, "\n");
+	return z + fmt::fprint(s, "\n") as size;
 };
 
-fn print_help(s: *io::stream, name: str, help: []help) void = {
+// Prints command usage to the provided stream.
+export fn print_usage(s: *io::stream, name: str, help: []help) void = {
+	let z = _print_usage(io::empty, name, false, help);
+	_print_usage(s, name, if (z > 72) true else false, help);
+};
+
+// Prints command help to the provided stream.
+export fn print_help(s: *io::stream, name: str, help: []help) void = {
 	print_usage(s, name, help);
+	fmt::fprintln(s);
 
 	if (help[0] is cmd_help) {
 		fmt::fprintfln(s, "{}: {}", name, help[0] as cmd_help: str);
@@ -240,9 +254,9 @@ fn errmsg(name: str, err: str, opt: (rune | void), help: []help) void = {
 	print_usage(os::stderr, name, help);
 };
 
-@test fn getopts() void = {
+@test fn parse() void = {
 	let args: []str = ["cat", "-v", "a.out"];
-	let cat = getopts(args,
+	let cat = parse(args,
 		"concatenate files",
 		('v', "cause Rob Pike to make a USENIX presentation"),
 		"files...",
@@ -252,7 +266,7 @@ fn errmsg(name: str, err: str, opt: (rune | void), help: []help) void = {
 	assert(len(cat.opts) == 1 && cat.opts[0].0 == 'v' && cat.opts[0].1 is void);
 
 	args = ["ls", "-Fahs", "--", "-j"];
-	let ls = getopts(args,
+	let ls = parse(args,
 		"list files",
 		('F', "Do some stuff"),
 		('h', "Do some other stuff"),
@@ -269,7 +283,7 @@ fn errmsg(name: str, err: str, opt: (rune | void), help: []help) void = {
 	assert(ls.opts[3].0 == 's' && ls.opts[3].1 is void);
 
 	args = ["sed", "-e", "s/C++//g", "-f/tmp/turing.sed", "-"];
-	let sed = getopts(args,
+	let sed = parse(args,
 		"edit streams",
 		('e', "script", "Add the editing commands specified by the "
 			"script option to the end of the script of editing "
