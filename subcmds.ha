@@ -27,7 +27,7 @@ fn build(args: []str) void = {
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
-			'c' => goal::OBJ,
+			'c' => goal = goal::OBJ,
 			'v' => verbose = true,
 			'D' => abort(), // TODO
 			'l' => abort(), // TODO
