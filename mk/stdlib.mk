@@ -5,12 +5,12 @@ rtscript=$(STDLIB)/rt/hare.sc
 stdlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/env.ha \
 	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
+	$(STDLIB)/rt/$(PLATFORM)/types.ha \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
 	$(STDLIB)/rt/$(PLATFORM)/start.ha \
 	$(STDLIB)/rt/$(PLATFORM)/$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
-	$(STDLIB)/rt/$(PLATFORM)/types.ha \
 	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/ensure.ha \
@@ -98,6 +98,9 @@ hare_stdlib_deps+=$(stdlib_format_elf)
 
 stdlib_fs=$(HARECACHE)/fs/fs.o
 hare_stdlib_deps+=$(stdlib_fs)
+
+stdlib_getopt=$(HARECACHE)/getopt/getopt.o
+hare_stdlib_deps+=$(stdlib_getopt)
 
 stdlib_hare_ast=$(HARECACHE)/hare/ast/hare.ast.o
 hare_stdlib_deps+=$(stdlib_hare_ast)
@@ -298,6 +301,16 @@ $(HARECACHE)/fs/fs.ssa: $(stdlib_fs_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_str
 	@mkdir -p $(HARECACHE)/fs
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfs \
 		-t$(HARECACHE)/fs/fs.td $(stdlib_fs_srcs)
+
+# getopt
+stdlib_getopt_srcs= \
+	$(STDLIB)/getopt/getopts.ha
+
+$(HARECACHE)/getopt/getopt.ssa: $(stdlib_getopt_srcs) $(stdlib_rt) $(stdlib_encoding_utf8) $(stdlib_fmt) $(stdlib_io) $(stdlib_os) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/getopt
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ngetopt \
+		-t$(HARECACHE)/getopt/getopt.td $(stdlib_getopt_srcs)
 
 # hare::ast
 stdlib_hare_ast_srcs= \
@@ -531,12 +544,12 @@ $(HARECACHE)/types/types.ssa: $(stdlib_types_srcs) $(stdlib_rt)
 testlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/env.ha \
 	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
+	$(STDLIB)/rt/$(PLATFORM)/types.ha \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
 	$(STDLIB)/rt/$(PLATFORM)/start.ha \
 	$(STDLIB)/rt/$(PLATFORM)/$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
-	$(STDLIB)/rt/$(PLATFORM)/types.ha \
 	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/ensure.ha \
@@ -627,6 +640,9 @@ hare_testlib_deps+=$(testlib_format_elf)
 
 testlib_fs=$(TESTCACHE)/fs/fs.o
 hare_testlib_deps+=$(testlib_fs)
+
+testlib_getopt=$(TESTCACHE)/getopt/getopt.o
+hare_testlib_deps+=$(testlib_getopt)
 
 testlib_hare_ast=$(TESTCACHE)/hare/ast/hare.ast.o
 hare_testlib_deps+=$(testlib_hare_ast)
@@ -828,6 +844,16 @@ $(TESTCACHE)/fs/fs.ssa: $(testlib_fs_srcs) $(testlib_rt) $(testlib_io) $(testlib
 	@mkdir -p $(TESTCACHE)/fs
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs \
 		-t$(TESTCACHE)/fs/fs.td $(testlib_fs_srcs)
+
+# getopt
+testlib_getopt_srcs= \
+	$(STDLIB)/getopt/getopts.ha
+
+$(TESTCACHE)/getopt/getopt.ssa: $(testlib_getopt_srcs) $(testlib_rt) $(testlib_encoding_utf8) $(testlib_fmt) $(testlib_io) $(testlib_os) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/getopt
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ngetopt \
+		-t$(TESTCACHE)/getopt/getopt.td $(testlib_getopt_srcs)
 
 # hare::ast
 testlib_hare_ast_srcs= \

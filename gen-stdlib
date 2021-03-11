@@ -213,6 +213,13 @@ fs() {
 	gen_ssa fs io strings path
 }
 
+getopt() {
+	printf '# getopt\n'
+	gen_srcs getopt \
+		getopts.ha
+	gen_ssa getopt encoding::utf8 fmt io os strings
+}
+
 hare_ast() {
 	printf '# hare::ast\n'
 	gen_srcs hare::ast \
@@ -472,6 +479,7 @@ endian
 fmt
 format_elf
 fs
+getopt
 hare_ast
 hare_lex
 hare_module
