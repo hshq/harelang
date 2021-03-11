@@ -1,5 +1,6 @@
 use encoding::hex;
 use fmt;
+use getopt;
 use hare::ast;
 use hare::module;
 use io;
@@ -9,9 +10,82 @@ use path;
 use strio;
 use temp;
 
+type goal = enum {
+	// Print dependency graph
+	DEP,
+	// Build executable
+	EXE,
+	// Build object
+	OBJ,
+	// Run program
+	RUN,
+	// Run tests
+	TEST,
+};
+
 export fn main() void = {
-	if (len(os::args) == 1) {
-		fmt::fatal("Usage: {} <path>", os::args[0]);
+	let verbose = false, goal = goal::EXE;
+	let output = "";
+
+	let help: []getopt::help = [
+		"compile, run, and test Hare programs",
+		('c', "produce an object instead of an executable"),
+		('u', "print dependency graph"),
+		('v', "enable verbose logging"),
+		('D', "ident:type=value", "define a constant"),
+		('l', "name", "link with a system library"),
+		('o', "path", "set output path"),
+		('t', "arch", "set target architecture"),
+		('T', "tags...", "set build tags"),
+		('X', "tags...", "unset build tags"),
+		"subcommand", "args..."
+	];
+	let cmd = getopt::parse(os::args, help...);
+	defer getopt::finish(&cmd);
+
+	for (let i = 0z; i < len(cmd.opts); i += 1) {
+		let opt = cmd.opts[i];
+		switch (opt.0) {
+			'c' => goal = goal::OBJ,
+			'u' => goal = goal::DEP,
+			'v' => verbose = true,
+			'D' => abort(), // TODO
+			'l' => abort(), // TODO
+			'o' => output = opt.1 as getopt::parameter,
+			't' => abort(), // TODO
+			'T' => abort(), // TODO
+			'X' => abort(), // TODO
+		};
+	};
+
+	if (len(cmd.args) < 1) {
+		getopt::print_usage(os::stderr, os::args[0], help...);
+		os::exit(1);
+	};
+	let newgoal =
+		if (cmd.args[0] == "build") goal::EXE
+		else if (cmd.args[0] == "run") {
+			if (output != "") {
+				fmt::fatal("Cannot combine -o and run command");
+			};
+			goal::RUN;
+		}
+		else if (cmd.args[0] == "test") goal::TEST
+		else if (cmd.args[0] == "version") abort() // TODO
+		else {
+			getopt::print_usage(os::stderr, os::args[0], help...);
+			os::exit(1);
+		};
+	if (goal != goal::DEP && goal != goal::OBJ) {
+		newgoal = goal;
+	};
+	cmd.args = cmd.args[1..];
+
+	let input = if (len(cmd.args) == 0) {
+		os::getcwd();
+	} else {
+		assert(len(cmd.args) == 1); // TODO?
+		cmd.args[0];
 	};
 
 	let plan = plan {
@@ -48,7 +122,7 @@ export fn main() void = {
 	};
 	plan.script = path::join(rtdir, "hare.sc");
 
-	let ver = match (module::scan(&ctx, os::args[1])) {
+	let ver = match (module::scan(&ctx, input)) {
 		ver: module::version => ver,
 		err: module::error => fmt::fatal("Error scanning module: {}",
 			module::errstr(err)),
@@ -75,8 +149,10 @@ export fn main() void = {
 		};
 	};
 
-	// TODO: Choose less stupid output name
-	sched_hare_exe(&plan, ver.inputs, "a.out", depends...);
+	if (output == "") {
+		output = path::basename(os::resolve(ver.basedir));
+	};
+	sched_hare_exe(&plan, ver.inputs, output, depends...);
 
 	for (len(plan.scheduled) != 0) {
 		let next: nullable *task = null;
@@ -101,7 +177,7 @@ export fn main() void = {
 			t: *task => t,
 		};
 
-		match (execute(&ctx, task)) {
+		match (execute(&ctx, task, verbose)) {
 			err: exec::error => fmt::fatal("Error: {}: {}",
 				task.cmd[0], exec::errstr(err)),
 			err: exec::exit_status! => fmt::fatal("Error: {}: {}",

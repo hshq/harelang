@@ -180,11 +180,14 @@ fn sched_hare_exe(
 fn execute(
 	ctx: *module::context,
 	task: *task,
+	verbose: bool,
 ) (void | exec::error | exec::exit_status!) = {
-	for (let i = 0z; i < len(task.cmd); i += 1) {
-		fmt::errorf("{} ", task.cmd[i]);
+	if (verbose) {
+		for (let i = 0z; i < len(task.cmd); i += 1) {
+			fmt::errorf("{} ", task.cmd[i]);
+		};
+		fmt::errorln();
 	};
-	fmt::errorln();
 
 	let cmd = exec::cmd(task.cmd[0], task.cmd[1..]...)?;
 	exec::setenv(&cmd, "HARECACHE", ctx.cache);
