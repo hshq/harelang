@@ -1,19 +1,7 @@
-use encoding::hex;
-use fmt;
 use getopt;
-use hare::ast;
-use hare::module;
-use io;
-use os::exec;
 use os;
-use path;
-use strio;
-use temp;
 
 export fn main() void = {
-	let verbose = false, goal = goal::EXE;
-	let output = "";
-
 	let help: []getopt::help = [
 		"compile, run, and test Hare programs",
 		"<build | run | test | version>", "args...",
