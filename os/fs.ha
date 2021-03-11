@@ -39,3 +39,8 @@ export fn rmdirall(path: str) (void | fs::error) = fs::rmdirall(cwd, path);
 // Creates a directory and returns a subdir for it. Some filesystems support
 // doing this operation atomically, but if not, a fallback is used.
 export fn mksubdir(path: str) (*fs::fs | fs::error) = fs::mksubdir(cwd, path);
+
+// Resolves a path to its absolute, normalized value. This consoldates ./ and
+// ../ sequences, roots the path, and returns a new path. The caller must free
+// the return value.
+export fn resolve(path: str) str = fs::resolve(cwd, path);

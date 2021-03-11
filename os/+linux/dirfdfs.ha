@@ -12,7 +12,7 @@ use strings;
 //
 // Note that on Linux, specifying BENEATH or IN_ROOT will also disable magic
 // symlinks.
-export type resolve = enum {
+export type resolve_flags = enum {
 	NORMAL,
 
 	// Does not allow symlink resolution to occur for any symlinks which
@@ -38,7 +38,7 @@ export type resolve = enum {
 type os_filesystem = struct {
 	fs: fs::fs,
 	dirfd: int,
-	resolve: resolve,
+	resolve: resolve_flags,
 };
 
 fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
@@ -67,7 +67,7 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 // a dirfdfs, [fs::flags::NOCTTY] and [fs::flags::CLOEXEC] are used when opening
 // the file. If you pass your own flags, it is recommended that you add these
 // unless you know that you do not want them.
-export fn dirfdopen(fd: int, resolve: resolve...) *fs::fs = {
+export fn dirfdopen(fd: int, resolve: resolve_flags...) *fs::fs = {
 	let ofs = alloc(os_filesystem { ... });
 	let fs = static_dirfdopen(fd, ofs);
 	for (let i = 0z; i < len(resolve); i += 1) {
@@ -77,9 +77,9 @@ export fn dirfdopen(fd: int, resolve: resolve...) *fs::fs = {
 	return fs;
 };
 
-// Clones a dirfd filesystem, optionally adding additional [resolve]
+// Clones a dirfd filesystem, optionally adding additional [resolve_flags]
 // constraints.
-export fn dirfs_clone(fs: *fs::fs, resolve: resolve...) *fs::fs = {
+export fn dirfs_clone(fs: *fs::fs, resolve: resolve_flags...) *fs::fs = {
 	assert(fs.open == &fs_open);
 	let fs = fs: *os_filesystem;
 	let new = alloc(*fs);
@@ -99,16 +99,16 @@ fn _fs_open(
 	let fs = fs: *os_filesystem;
 
 	oh.resolve = 0u64;
-	if (fs.resolve & resolve::BENEATH == resolve::BENEATH) {
+	if (fs.resolve & resolve_flags::BENEATH == resolve_flags::BENEATH) {
 		oh.resolve |= rt::RESOLVE_BENEATH | rt::RESOLVE_NO_MAGICLINKS;
 	};
-	if (fs.resolve & resolve::IN_ROOT == resolve::IN_ROOT) {
+	if (fs.resolve & resolve_flags::IN_ROOT == resolve_flags::IN_ROOT) {
 		oh.resolve |= rt::RESOLVE_IN_ROOT | rt::RESOLVE_NO_MAGICLINKS;
 	};
-	if (fs.resolve & resolve::NO_SYMLINKS == resolve::NO_SYMLINKS) {
+	if (fs.resolve & resolve_flags::NO_SYMLINKS == resolve_flags::NO_SYMLINKS) {
 		oh.resolve |= rt::RESOLVE_NO_SYMLINKS;
 	};
-	if (fs.resolve & resolve::NO_XDEV == resolve::NO_XDEV) {
+	if (fs.resolve & resolve_flags::NO_XDEV == resolve_flags::NO_XDEV) {
 		oh.resolve |= rt::RESOLVE_NO_XDEV;
 	};
 
