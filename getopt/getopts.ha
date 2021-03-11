@@ -232,7 +232,14 @@ export fn print_help(s: *io::stream, name: str, help: []help) void = {
 
 	print_usage(s, name, help);
 
-	fmt::fprint(s, "\n");
+	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
+		cmd_help => void,
+		(flag_help | parameter_help) => {
+			// Only print this if there are flags to show
+			fmt::fprint(s, "\n");
+			break;
+		},
+	};
 
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
 		cmd_help => void,
