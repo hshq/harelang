@@ -4,6 +4,7 @@ use os::exec;
 use os;
 use path;
 use strings;
+use temp;
 
 type status = enum {
 	SCHEDULED,
@@ -25,11 +26,44 @@ type plan = struct {
 	script: str,
 };
 
+type goal = enum {
+	OBJ,
+	EXE,
+	RUN,
+	TEST,
+};
+
 fn task_free(task: *task) void = {
 	free(task.depend);
 	free(task.output);
 	free(task.cmd);
 	free(task);
+};
+
+fn mkplan(ctx: *module::context) plan = {
+	const rtdir = match (module::lookup(ctx, ["rt"])) {
+		err: module::error => fmt::fatal("Error resolving rt: {}",
+			module::errstr(err)),
+		ver: module::version => ver.basedir,
+	};
+	return plan {
+		workdir = temp::dir(),
+		script = path::join(rtdir, "hare.sc"),
+		...
+	};
+};
+
+fn plan_finish(plan: *plan) void = {
+	os::rmdirall(plan.workdir);
+	free(plan.workdir);
+
+	for (let i = 0z; i < len(plan.complete); i += 1) {
+		let task = plan.complete[i];
+		task_free(task);
+	};
+
+	free(plan.scheduled);
+	free(plan.complete);
 };
 
 // Schedules a task which compiles objects into an executable.
@@ -210,4 +244,43 @@ fn mkdepends(t: *task...) []*task = {
 	let deps: []*task = alloc([], len(t));
 	append(deps, ...t);
 	return deps;
+};
+
+fn plan_execute(ctx: *module::context, plan: *plan, verbose: bool) void = {
+	for (len(plan.scheduled) != 0) {
+		let next: nullable *task = null;
+		let i = 0z;
+		for (i < len(plan.scheduled); i += 1) {
+			let task = plan.scheduled[i];
+			let eligible = true;
+			for (let j = 0z; j < len(task.depend); j += 1) {
+				if (task.depend[j].status != status::COMPLETE) {
+					eligible = false;
+					break;
+				};
+			};
+			if (eligible) {
+				next = task;
+				break;
+			};
+		};
+		// TODO: This can be a type assertion
+		let task = match (next) {
+			null => abort(),
+			t: *task => t,
+		};
+
+		match (execute(ctx, task, verbose)) {
+			err: exec::error => fmt::fatal("Error: {}: {}",
+				task.cmd[0], exec::errstr(err)),
+			err: exec::exit_status! => fmt::fatal("Error: {}: {}",
+				task.cmd[0], exec::exitstr(err)),
+			void => void,
+		};
+
+		task.status = status::COMPLETE;
+
+		delete(plan.scheduled[i]);
+		append(plan.complete, task);
+	};
 };
