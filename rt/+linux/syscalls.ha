@@ -316,7 +316,7 @@ export fn timerfd_create(clock_id: int, flags: int) (int | errno) = {
 export fn timerfd_settime(
 	fd: int,
 	flags: int,
-	new_value: *itimerspec,
+	new_value: *const itimerspec,
 	old_value: *itimerspec
 ) (int | errno) = {
 	return wrap_return(syscall4(SYS_timerfd_settime,
