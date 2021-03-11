@@ -39,7 +39,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 			hash::write(sha, in.hash);
 			return version {
 				hash = hash::finish(sha),
-				basedir = strings::dup(path::dirname(path)),
+				basedir = path::dirname(fs::resolve(ctx.fs, path)),
 				depends = deps,
 				inputs = inputs,
 			};
