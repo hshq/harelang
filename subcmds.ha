@@ -98,6 +98,21 @@ fn build(args: []str) void = {
 	plan_execute(&plan, verbose);
 };
 
+fn deps(args: []str) void = {
+	let help: []getopt::help = [
+		"prints dependency information for Hare programs",
+		('M', "print rules for POSIX make"),
+		('m', "print module names only"),
+		('T', "tags...", "set build tags"),
+		('X', "tags...", "unset build tags"),
+		"path",
+	];
+	let cmd = getopt::parse(args, help...);
+	defer getopt::finish(&cmd);
+
+	abort(); // TODO
+};
+
 fn run(args: []str) void = {
 	let help: []getopt::help = [
 		"compiles and runs Hare programs",
