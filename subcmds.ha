@@ -86,8 +86,7 @@ fn build(args: []str) void = {
 	let depends: []*task = [];
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
 		const dep = ver.depends[i];
-		let obj = sched_module(&plan, dep);
-		append(depends, obj);
+		sched_module(&plan, dep, &depends);
 	};
 
 	// TODO: Choose this more intelligently
@@ -169,8 +168,7 @@ fn run(args: []str) void = {
 	let depends: []*task = [];
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
 		const dep = ver.depends[i];
-		let obj = sched_module(&plan, dep);
-		append(depends, obj);
+		sched_module(&plan, dep, &depends);
 	};
 
 	let output = mkfile(&plan, "out");

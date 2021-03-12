@@ -100,7 +100,7 @@ fn ident_hash(ident: ast::ident) u32 = {
 	return fnv::sum32(hash);
 };
 
-fn sched_module(plan: *plan, ident: ast::ident) *task = {
+fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 	let hash = ident_hash(ident);
 	// TODO: We should not have to dereference the bucket for len or append
 	// TODO: We should not have to cast the length to u32
@@ -123,12 +123,13 @@ fn sched_module(plan: *plan, ident: ast::ident) *task = {
 	let depends: []*task = [];
 	for (let i = 0z; i < len(ver.depends); i += 1) {
 		const dep = ver.depends[i];
-		let obj = sched_module(plan, dep);
+		let obj = sched_module(plan, dep, link);
 		append(depends, obj);
 	};
 
 	let obj = sched_hare_object(plan, ver, ident, depends...);
 	append(*bucket, modcache { hash = hash, task = obj });
+	append(*link, obj);
 	free(depends);
 	return obj;
 };
