@@ -81,7 +81,7 @@ fn build(args: []str) void = {
 	if (output == "") {
 		output = path::basename(ver.basedir);
 	};
-	sched_hare_exe(&plan, ver.inputs, output, depends...);
+	sched_hare_exe(&plan, ver, output, depends...);
 	plan_execute(&ctx, &plan, verbose);
 };
 

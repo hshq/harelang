@@ -39,6 +39,7 @@ type plan = struct {
 	scheduled: []*task,
 	complete: []*task,
 	script: str,
+	environ: [](str, str),
 	modset: [64][]modcache,
 };
 
@@ -118,8 +119,7 @@ fn sched_module(
 	};
 
 	// TODO: Place object in the hare cache
-	let ns = ast::ident_unparse_s(ident);
-	let obj = sched_hare_object(plan, ver.inputs, ns, depends...);
+	let obj = sched_hare_object(plan, ver, ident, depends...);
 	append(*bucket, modcache { hash = hash, task = obj });
 	free(depends);
 	return obj;
@@ -191,19 +191,16 @@ fn sched_qbe(plan: *plan, output: str, depend: *task) *task = {
 };
 
 // Schedules tasks which compiles a Hare module into an object or archive.
-// Returns the output path, generated as an object or archive name.
-//
-// Takes ownership over namespace, if provided.
 fn sched_hare_object(
 	plan: *plan,
-	inputs: []module::input,
-	namespace: (str | void),
+	ver: module::version,
+	namespace: ast::ident,
 	depend: *task...
 ) *task = {
 	// XXX: Do we care to support assembly-only modules?
 	let mixed = false;
-	for (let i = 0z; i < len(inputs); i += 1) {
-		if (strings::has_suffix(inputs[i].path, ".s")) {
+	for (let i = 0z; i < len(ver.inputs); i += 1) {
+		if (strings::has_suffix(ver.inputs[i].path, ".s")) {
 			mixed = true;
 			break;
 		};
@@ -220,13 +217,13 @@ fn sched_hare_object(
 			os::tryenv("HAREC", "harec"), "-o", ssa,
 		]),
 	});
-	match (namespace) {
-		void => void,
-		ns: str => append(harec.cmd, "-N", ns),
+	if (len(namespace) != 0) {
+		let ns = ast::ident_unparse_s(namespace);
+		append(harec.cmd, "-N", ns);
 	};
 
-	for (let i = 0z; i < len(inputs); i += 1) {
-		let path = inputs[i].path;
+	for (let i = 0z; i < len(ver.inputs); i += 1) {
+		let path = ver.inputs[i].path;
 		if (strings::has_suffix(path, ".ha")) {
 			append(harec.cmd, path);
 		};
@@ -242,11 +239,11 @@ fn sched_hare_object(
 
 	let objs: []*task = alloc([hare_obj]);
 	defer free(objs);
-	for (let i = 0z; i < len(inputs); i += 1) {
+	for (let i = 0z; i < len(ver.inputs); i += 1) {
 		// XXX: All of our assembly files don't depend on anything else,
 		// but that may not be generally true. We may have to address
 		// this at some point.
-		let path = inputs[i].path;
+		let path = ver.inputs[i].path;
 		if (!strings::has_suffix(path, ".s")) {
 			continue;
 		};
@@ -258,11 +255,11 @@ fn sched_hare_object(
 // Schedules tasks which compiles hare sources into an executable.
 fn sched_hare_exe(
 	plan: *plan,
-	inputs: []module::input,
+	ver: module::version,
 	output: str,
 	depend: *task...
 ) *task = {
-	let obj = sched_hare_object(plan, inputs, void, depend...);
+	let obj = sched_hare_object(plan, ver, [], depend...);
 	// TODO: We should be able to use partial variadic application
 	let link: []*task = alloc([], len(depend));
 	defer free(link);
