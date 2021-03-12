@@ -1,6 +1,5 @@
 use fmt;
 use getopt;
-use hare::ast;
 use hare::module;
 use os;
 use path;
@@ -78,6 +77,7 @@ fn build(args: []str) void = {
 		append(depends, obj);
 	};
 
+	// TODO: Choose this more intelligently
 	if (output == "") {
 		output = path::basename(ver.basedir);
 	};
