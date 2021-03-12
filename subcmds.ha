@@ -23,7 +23,7 @@ fn build(args: []str) void = {
 		('t', "arch", "set target architecture"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
-		"<path | files...>"
+		"path"
 	];
 	let cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
@@ -94,7 +94,7 @@ fn run(args: []str) void = {
 		('l', "name", "link with a system library"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
-		"[path]", "[--]", "[args...]",
+		"path", "args...",
 	];
 	let cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
@@ -117,17 +117,8 @@ fn run(args: []str) void = {
 	if (len(cmd.args) == 0) {
 		input = os::getcwd();
 	} else {
-		for (let i = 0z; i < len(cmd.args); i += 1) {
-			if (cmd.args[i] == "--") {
-				runargs = cmd.args[i + 1..];
-				break;
-			};
-			assert(input == ""); // TODO: Multiple inputs?
-			input = cmd.args[i];
-		};
-		if (input == "") {
-			input = os::getcwd();
-		};
+		input = cmd.args[0];
+		runargs = cmd.args[1..];
 	};
 
 	let ctx = module::context_init([module::tag {
@@ -163,6 +154,7 @@ fn run(args: []str) void = {
 		err: exec::error => fmt::fatal("exec: {}", exec::errstr(err)),
 		cmd: exec::command => cmd,
 	};
+	exec::setname(&cmd, input);
 	exec::exec(&cmd);
 };
 
