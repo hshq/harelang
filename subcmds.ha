@@ -2,6 +2,7 @@ use fmt;
 use getopt;
 use hare::module;
 use os;
+use os::exec;
 use path;
 
 type goal = enum {
@@ -93,12 +94,76 @@ fn run(args: []str) void = {
 		('l', "name", "link with a system library"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
-		"<path | files...>"
+		"[path]", "[--]", "[args...]",
 	];
 	let cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
-	abort(); // TODO
+	let verbose = false;
+	for (let i = 0z; i < len(cmd.opts); i += 1) {
+		let opt = cmd.opts[i];
+		switch (opt.0) {
+			'v' => verbose = true,
+			'D' => abort(), // TODO
+			'l' => abort(), // TODO
+			't' => abort(), // TODO
+			'T' => abort(), // TODO
+			'X' => abort(), // TODO
+		};
+	};
+
+	let input = "";
+	let runargs: []str = [];
+	if (len(cmd.args) == 0) {
+		input = os::getcwd();
+	} else {
+		for (let i = 0z; i < len(cmd.args); i += 1) {
+			if (cmd.args[i] == "--") {
+				runargs = cmd.args[i + 1..];
+				break;
+			};
+			assert(input == ""); // TODO: Multiple inputs?
+			input = cmd.args[i];
+		};
+		if (input == "") {
+			input = os::getcwd();
+		};
+	};
+
+	let ctx = module::context_init([module::tag {
+		name = os::machine(),
+		mode = module::tag_mode::INCLUSIVE,
+	}, module::tag {
+		// TEMP:
+		name = "linux",
+		mode = module::tag_mode::INCLUSIVE,
+	}]);
+	defer module::context_finish(&ctx);
+
+	let plan = mkplan(&ctx);
+	defer plan_finish(&plan);
+
+	let ver = match (module::scan(&ctx, input)) {
+		ver: module::version => ver,
+		err: module::error => fmt::fatal("Error scanning module: {}",
+			module::errstr(err)),
+	};
+
+	let depends: []*task = [];
+	for (let i = 0z; i < len(ver.depends); i += 1z) {
+		const dep = ver.depends[i];
+		let obj = sched_module(&plan, dep);
+		append(depends, obj);
+	};
+
+	let output = mkfile(&plan, "out");
+	sched_hare_exe(&plan, ver, output, depends...);
+	plan_execute(&plan, verbose);
+	let cmd = match (exec::cmd(output, runargs...)) {
+		err: exec::error => fmt::fatal("exec: {}", exec::errstr(err)),
+		cmd: exec::command => cmd,
+	};
+	exec::exec(&cmd);
 };
 
 fn test(args: []str) void = {
