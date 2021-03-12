@@ -86,10 +86,34 @@ fn build(args: []str) void = {
 };
 
 fn run(args: []str) void = {
+	let help: []getopt::help = [
+		"compiles and runs Hare programs",
+		('v', "print executed commands"),
+		('D', "ident:type=value", "define a constant"),
+		('l', "name", "link with a system library"),
+		('T', "tags...", "set build tags"),
+		('X', "tags...", "unset build tags"),
+		"<path | files...>"
+	];
+	let cmd = getopt::parse(args, help...);
+	defer getopt::finish(&cmd);
+
 	abort(); // TODO
 };
 
 fn test(args: []str) void = {
+	let help: []getopt::help = [
+		"compiles and runs tests for Hare programs",
+		('v', "print executed commands"),
+		('D', "ident:type=value", "define a constant"),
+		('l', "name", "link with a system library"),
+		('T', "tags...", "set build tags"),
+		('X', "tags...", "unset build tags"),
+		"<path | files...>", "--", "<tests...>"
+	];
+	let cmd = getopt::parse(args, help...);
+	defer getopt::finish(&cmd);
+
 	abort(); // TODO
 };
 
