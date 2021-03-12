@@ -35,6 +35,12 @@ export fn cmd(name: str, args: str...) (command | error) = {
 	return cmd;
 };
 
+// Sets the 0th value of argv for this command. It is uncommon to need this.
+export fn setname(cmd: *command, name: str) void = {
+	free(cmd.argv[0]);
+	cmd.argv[0] = name;
+};
+
 // Frees state associated with a command. You only need to call this if you do
 // not execute the command with [exec] or [start]; in those cases the state is
 // cleaned up for you.
