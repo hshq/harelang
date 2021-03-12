@@ -38,7 +38,7 @@ fn build(args: []str) void = {
 			'v' => verbose = true,
 			'D' => abort(), // TODO
 			'l' => abort(), // TODO
-			'o' => output = opt.1 as getopt::parameter,
+			'o' => output = opt.1,
 			't' => abort(), // TODO
 			'T' => abort(), // TODO
 			'X' => abort(), // TODO
