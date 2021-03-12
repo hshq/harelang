@@ -225,8 +225,6 @@ fn sched_hare_object(
 	};
 
 	let ssa = mkfile(plan, "ssa");
-	let s = mkfile(plan, "s");
-
 	let harec = alloc(task {
 		status = status::SCHEDULED,
 		output = ssa,
@@ -271,6 +269,7 @@ fn sched_hare_object(
 	};
 	append(plan.scheduled, harec);
 
+	let s = mkfile(plan, "s");
 	let qbe = sched_qbe(plan, s, harec);
 	let hare_obj = sched_as(plan,
 		if (mixed) mkfile(plan, "o") else output,
