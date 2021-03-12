@@ -47,10 +47,13 @@ fn build(args: []str) void = {
 
 	assert(goal == goal::EXE); // TODO
 
-	let input = if (len(cmd.args) == 0) os::getcwd() else {
-		assert(len(cmd.args) == 1); // TODO?
-		cmd.args[0];
-	};
+	let input =
+		if (len(cmd.args) == 0) os::getcwd()
+		else if (len(cmd.args) == 1) cmd.args[0]
+		else {
+			getopt::print_usage(os::stderr, args[0], help...);
+			os::exit(1);
+		};
 
 	let ctx = module::context_init([module::tag {
 		name = os::machine(),
