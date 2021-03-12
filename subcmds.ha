@@ -19,6 +19,7 @@ fn build(args: []str) void = {
 		('v', "print executed commands"),
 		('D', "ident:type=value", "define a constant"),
 		('l', "name", "link with a system library"),
+		('j', "jobs", "set parallelism for build"),
 		('o', "path", "set output file name"),
 		('t', "arch", "set target architecture"),
 		('T', "tags...", "set build tags"),
@@ -37,11 +38,13 @@ fn build(args: []str) void = {
 			'c' => goal = goal::OBJ,
 			'v' => verbose = true,
 			'D' => abort(), // TODO
+			'j' => abort(), // TODO
 			'l' => abort(), // TODO
 			'o' => output = opt.1,
 			't' => abort(), // TODO
 			'T' => abort(), // TODO
 			'X' => abort(), // TODO
+			*   => abort(),
 		};
 	};
 
@@ -94,6 +97,7 @@ fn run(args: []str) void = {
 		"compiles and runs Hare programs",
 		('v', "print executed commands"),
 		('D', "ident:type=value", "define a constant"),
+		('j', "jobs", "set parallelism for build"),
 		('l', "name", "link with a system library"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
@@ -108,10 +112,12 @@ fn run(args: []str) void = {
 		switch (opt.0) {
 			'v' => verbose = true,
 			'D' => abort(), // TODO
+			'j' => abort(), // TODO
 			'l' => abort(), // TODO
 			't' => abort(), // TODO
 			'T' => abort(), // TODO
 			'X' => abort(), // TODO
+			*   => abort(),
 		};
 	};
 
