@@ -11,6 +11,7 @@ stdlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
+	$(STDLIB)/rt/$(PLATFORM)/signal.ha \
 	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/ensure.ha \
@@ -36,6 +37,7 @@ $(HARECACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start$(ARCH).s
 stdlib_asm=$(HARECACHE)/rt/syscall.o \
 	$(HARECACHE)/rt/setjmp.o \
 	$(HARECACHE)/rt/longjmp.o \
+	$(HARECACHE)/rt/restore.o \
 	$(HARECACHE)/rt/start.o
 
 $(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
@@ -49,6 +51,11 @@ $(HARECACHE)/rt/setjmp.o: $(STDLIB)/rt/$(ARCH)/setjmp.s
 	@$(AS) -o $@ $<
 
 $(HARECACHE)/rt/longjmp.o: $(STDLIB)/rt/$(ARCH)/longjmp.s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(HARECACHE)/rt
+	@$(AS) -o $@ $<
+
+$(HARECACHE)/rt/restore.o: $(STDLIB)/rt/$(ARCH)/restore.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $<
@@ -550,6 +557,7 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
+	$(STDLIB)/rt/$(PLATFORM)/signal.ha \
 	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/ensure.ha \
@@ -578,6 +586,7 @@ $(TESTCACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start$(ARCH).s
 testlib_asm=$(TESTCACHE)/rt/syscall.o \
 	$(TESTCACHE)/rt/setjmp.o \
 	$(TESTCACHE)/rt/longjmp.o \
+	$(TESTCACHE)/rt/restore.o \
 	$(TESTCACHE)/rt/start.o
 
 $(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
@@ -591,6 +600,11 @@ $(TESTCACHE)/rt/setjmp.o: $(STDLIB)/rt/$(ARCH)/setjmp.s
 	@$(AS) -o $@ $<
 
 $(TESTCACHE)/rt/longjmp.o: $(STDLIB)/rt/$(ARCH)/longjmp.s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(TESTCACHE)/rt
+	@$(AS) -o $@ $<
+
+$(TESTCACHE)/rt/restore.o: $(STDLIB)/rt/$(ARCH)/restore.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $<
