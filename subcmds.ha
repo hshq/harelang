@@ -71,13 +71,11 @@ fn build(args: []str) void = {
 			module::errstr(err)),
 	};
 
-	// TODO:
-	// - Use the hare cache
-	// - Transitive dependencies
 	let depends: []*task = [];
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
 		const dep = ver.depends[i];
-		sched_module(&plan, &ctx, &depends, dep);
+		let obj = sched_module(&plan, &ctx, dep);
+		append(depends, obj);
 	};
 
 	if (output == "") {

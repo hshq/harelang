@@ -28,13 +28,18 @@ fn task_free(task: *task) void = {
 	free(task);
 };
 
+type modcache = struct {
+	hash: u32,
+	task: *task,
+};
+
 type plan = struct {
 	workdir: str,
 	counter: uint,
 	scheduled: []*task,
 	complete: []*task,
 	script: str,
-	modset: [64][]u32,
+	modset: [64][]modcache,
 };
 
 fn mkplan(ctx: *module::context) plan = {
@@ -84,21 +89,17 @@ fn ident_hash(ident: ast::ident) u32 = {
 fn sched_module(
 	plan: *plan,
 	ctx: *module::context,
-	depends: *[]*task,
 	ident: ast::ident,
-) void = {
+) *task = {
 	let hash = ident_hash(ident);
-	// TODO: We should not have to dereference the bucket
-	// TODO: We should not have to cast the length
+	// TODO: We should not have to dereference the bucket for len or append
+	// TODO: We should not have to cast the length to u32
 	let bucket = &plan.modset[hash % len(plan.modset): u32];
 	for (let i = 0z; i < len(*bucket); i += 1) {
-		if (bucket[i] == hash) {
-			fmt::println("mod cache hit");
-			return;
+		if (bucket[i].hash == hash) {
+			return bucket[i].task;
 		};
 	};
-	fmt::println("mod cache miss");
-	append(*bucket, hash);
 
 	let ver = match (module::lookup(ctx, ident)) {
 		err: module::error => {
@@ -108,10 +109,20 @@ fn sched_module(
 		},
 		ver: module::version => ver,
 	};
+
+	let depends: []*task = [];
+	for (let i = 0z; i < len(ver.depends); i += 1) {
+		const dep = ver.depends[i];
+		let obj = sched_module(plan, ctx, dep);
+		append(depends, obj);
+	};
+
+	// TODO: Place object in the hare cache
 	let ns = ast::ident_unparse_s(ident);
-	let obj = sched_hare_object(plan, ver.inputs, ns);
-	// TODO: Unnecessary dereference
-	append(*depends, obj);
+	let obj = sched_hare_object(plan, ver.inputs, ns, depends...);
+	append(*bucket, modcache { hash = hash, task = obj });
+	free(depends);
+	return obj;
 };
 
 // Schedules a task which compiles objects into an executable.
