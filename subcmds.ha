@@ -5,6 +5,13 @@ use hare::module;
 use os;
 use path;
 
+type goal = enum {
+	OBJ,
+	EXE,
+	RUN,
+	TEST,
+};
+
 fn build(args: []str) void = {
 	let help: []getopt::help = [
 		"compiles Hare programs",
@@ -67,23 +74,10 @@ fn build(args: []str) void = {
 	// TODO:
 	// - Use the hare cache
 	// - Transitive dependencies
-	// - Move this into a separate function, e.g. plan_module
 	let depends: []*task = [];
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
 		const dep = ver.depends[i];
-		match (module::lookup(&ctx, dep)) {
-			err: module::error => {
-				let ident = ast::ident_unparse_s(dep);
-				fmt::fatal("Error resolving {}: {}",
-					ident, module::errstr(err));
-			},
-			ver: module::version => {
-				let ns = ast::ident_unparse_s(dep);
-				let obj = sched_hare_object(
-					&plan, ver.inputs, ns);
-				append(depends, obj);
-			},
-		};
+		sched_module(&plan, &ctx, &depends, dep);
 	};
 
 	if (output == "") {

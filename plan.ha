@@ -1,5 +1,8 @@
 use fmt;
+use hare::ast;
 use hare::module;
+use hash::fnv;
+use hash;
 use os::exec;
 use os;
 use path;
@@ -18,26 +21,20 @@ type task = struct {
 	cmd: []str,
 };
 
+fn task_free(task: *task) void = {
+	free(task.depend);
+	free(task.output);
+	free(task.cmd);
+	free(task);
+};
+
 type plan = struct {
 	workdir: str,
 	counter: uint,
 	scheduled: []*task,
 	complete: []*task,
 	script: str,
-};
-
-type goal = enum {
-	OBJ,
-	EXE,
-	RUN,
-	TEST,
-};
-
-fn task_free(task: *task) void = {
-	free(task.depend);
-	free(task.output);
-	free(task.cmd);
-	free(task);
+	modset: [64][]u32,
 };
 
 fn mkplan(ctx: *module::context) plan = {
@@ -61,9 +58,60 @@ fn plan_finish(plan: *plan) void = {
 		let task = plan.complete[i];
 		task_free(task);
 	};
-
-	free(plan.scheduled);
 	free(plan.complete);
+
+	for (let i = 0z; i < len(plan.scheduled); i += 1) {
+		let task = plan.scheduled[i];
+		task_free(task);
+	};
+	free(plan.scheduled);
+
+	for (let i = 0z; i < len(plan.modset); i += 1) {
+		free(plan.modset[i]);
+	};
+};
+
+fn ident_hash(ident: ast::ident) u32 = {
+	let hash = fnv::fnv32();
+	defer hash::close(hash);
+	for (let i = 0z; i < len(ident); i += 1) {
+		hash::write(hash, strings::to_utf8(ident[i]));
+		hash::write(hash, [0]);
+	};
+	return fnv::sum32(hash);
+};
+
+fn sched_module(
+	plan: *plan,
+	ctx: *module::context,
+	depends: *[]*task,
+	ident: ast::ident,
+) void = {
+	let hash = ident_hash(ident);
+	// TODO: We should not have to dereference the bucket
+	// TODO: We should not have to cast the length
+	let bucket = &plan.modset[hash % len(plan.modset): u32];
+	for (let i = 0z; i < len(*bucket); i += 1) {
+		if (bucket[i] == hash) {
+			fmt::println("mod cache hit");
+			return;
+		};
+	};
+	fmt::println("mod cache miss");
+	append(*bucket, hash);
+
+	let ver = match (module::lookup(ctx, ident)) {
+		err: module::error => {
+			let ident = ast::ident_unparse_s(ident);
+			fmt::fatal("Error resolving {}: {}",
+				ident, module::errstr(err));
+		},
+		ver: module::version => ver,
+	};
+	let ns = ast::ident_unparse_s(ident);
+	let obj = sched_hare_object(plan, ver.inputs, ns);
+	// TODO: Unnecessary dereference
+	append(*depends, obj);
 };
 
 // Schedules a task which compiles objects into an executable.
