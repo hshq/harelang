@@ -127,7 +127,6 @@ fn sched_module(plan: *plan, ident: ast::ident) *task = {
 		append(depends, obj);
 	};
 
-	// TODO: Place object in the hare cache
 	let obj = sched_hare_object(plan, ver, ident, depends...);
 	append(*bucket, modcache { hash = hash, task = obj });
 	free(depends);
@@ -236,17 +235,33 @@ fn sched_hare_object(
 			os::tryenv("HAREC", "harec"), "-o", ssa,
 		]),
 	});
-	if (len(namespace) != 0) {
+	let output = if (len(namespace) != 0) {
+		// TODO: consult/update cache manifest
+		let version = hex::encode(ver.hash);
 		let ns = ast::ident_unparse_s(namespace);
 		let env = ident_to_env(namespace);
 		defer free(env);
 
 		append(harec.cmd, "-N", ns);
 		append(plan.environ, (
-			fmt::asprintf("HARE_VERSION_{}", env),
-			hex::encode(ver.hash),
+			fmt::asprintf("HARE_VERSION_{}", env), version,
 		));
-	};
+
+		let name = fmt::asprintf("{}.{}", version,
+			if (mixed) "a" else "o");
+		defer free(name);
+
+		let td = fmt::asprintf("{}.td", version);
+		defer free(td);
+
+		let path = plan.context.cache;
+		for (let i = 0z; i < len(namespace); i += 1) {
+			path = path::join(path, namespace[i]);
+		};
+		os::mkdirs(path);
+		append(harec.cmd, "-t", path::join(path, td));
+		path::join(path, name);
+	} else mkfile(plan, "o"); // TODO: Should exes go in the cache?
 
 	for (let i = 0z; i < len(ver.inputs); i += 1) {
 		let path = ver.inputs[i].path;
@@ -256,9 +271,10 @@ fn sched_hare_object(
 	};
 	append(plan.scheduled, harec);
 
-	let as_out = mkfile(plan, "o");
 	let qbe = sched_qbe(plan, s, harec);
-	let hare_obj = sched_as(plan, as_out, s, qbe);
+	let hare_obj = sched_as(plan,
+		if (mixed) mkfile(plan, "o") else output,
+		s, qbe);
 	if (!mixed) {
 		return hare_obj;
 	};
@@ -275,7 +291,7 @@ fn sched_hare_object(
 		};
 		append(objs, sched_as(plan, mkfile(plan, "o"), path));
 	};
-	return sched_ar(plan, mkfile(plan, "a"), objs...);
+	return sched_ar(plan, output, objs...);
 };
 
 // Schedules tasks which compiles hare sources into an executable.
