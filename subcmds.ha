@@ -191,7 +191,7 @@ fn test(args: []str) void = {
 		('l', "name", "link with a system library"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
-		"<path | files...>", "--", "<tests...>"
+		"[tests...]"
 	];
 	let cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
