@@ -18,7 +18,7 @@ export type flag = rune;
 export type parameter = str;
 
 // A command line option.
-export type option = (flag, (parameter | void));
+export type option = (flag, parameter);
 
 // The result of parsing the set of command line arguments, including any
 // options specified and the list of non-option arguments.
@@ -100,8 +100,8 @@ export type help = (cmd_help | flag_help | parameter_help);
 // 			'E' => extended = true,
 // 			's' => continuous = false,
 // 			// ...
-// 			'e' => script = opt.1 as getopt::parameter,
-// 			'f' => file = opt.1 as getopt::parameter,
+// 			'e' => script = opt.1,
+// 			'f' => file = opt.1,
 // 		};
 // 	};
 //
@@ -136,7 +136,7 @@ export fn parse(args: []str, help: help...) command = {
 				let p: parameter_help = match (help[j]) {
 					cmd_help => continue :help,
 					f: flag_help => if (r == f.0) {
-						append(opts, (r, void));
+						append(opts, (r, ""));
 						continue :flag;
 					} else continue :help,
 					p: parameter_help => if (r == p.0) p
@@ -269,7 +269,7 @@ fn errmsg(name: str, err: str, opt: (rune | void), help: []help) void = {
 	);
 	defer finish(&cat);
 	assert(len(cat.args) == 1 && cat.args[0] == "a.out");
-	assert(len(cat.opts) == 1 && cat.opts[0].0 == 'v' && cat.opts[0].1 is void);
+	assert(len(cat.opts) == 1 && cat.opts[0].0 == 'v' && cat.opts[0].1 == "");
 
 	args = ["ls", "-Fahs", "--", "-j"];
 	let ls = parse(args,
@@ -283,10 +283,10 @@ fn errmsg(name: str, err: str, opt: (rune | void), help: []help) void = {
 	defer finish(&ls);
 	assert(len(ls.args) == 1 && ls.args[0] == "-j");
 	assert(len(ls.opts) == 4);
-	assert(ls.opts[0].0 == 'F' && ls.opts[0].1 is void);
-	assert(ls.opts[1].0 == 'a' && ls.opts[1].1 is void);
-	assert(ls.opts[2].0 == 'h' && ls.opts[2].1 is void);
-	assert(ls.opts[3].0 == 's' && ls.opts[3].1 is void);
+	assert(ls.opts[0].0 == 'F' && ls.opts[0].1 == "");
+	assert(ls.opts[1].0 == 'a' && ls.opts[1].1 == "");
+	assert(ls.opts[2].0 == 'h' && ls.opts[2].1 == "");
+	assert(ls.opts[3].0 == 's' && ls.opts[3].1 == "");
 
 	args = ["sed", "-e", "s/C++//g", "-f/tmp/turing.sed", "-"];
 	let sed = parse(args,
@@ -302,6 +302,6 @@ fn errmsg(name: str, err: str, opt: (rune | void), help: []help) void = {
 	defer finish(&sed);
 	assert(len(sed.args) == 1 && sed.args[0] == "-");
 	assert(len(sed.opts) == 2);
-	assert(sed.opts[0].0 == 'e' && sed.opts[0].1 as parameter == "s/C++//g");
-	assert(sed.opts[1].0 == 'f' && sed.opts[1].1 as parameter == "/tmp/turing.sed");
+	assert(sed.opts[0].0 == 'e' && sed.opts[0].1 == "s/C++//g");
+	assert(sed.opts[1].0 == 'f' && sed.opts[1].1 == "/tmp/turing.sed");
 };
