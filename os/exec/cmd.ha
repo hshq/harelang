@@ -45,9 +45,10 @@ export fn finish(cmd: *command) void = {
 
 // Executes a prepared command in the current address space, overwriting the
 // running process with the new command.
-export fn exec(cmd: *command) error = {
+export @noreturn fn exec(cmd: *command) void = {
 	defer finish(cmd); // Note: doesn't happen if exec succeeds
-	return platform_exec(cmd);
+	platform_exec(cmd);
+	abort("os::exec::exec failed");
 };
 
 // Starts a prepared command in a new process.
