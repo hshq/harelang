@@ -5,11 +5,21 @@ use os;
 use os::exec;
 use path;
 
+fn default_tags() []module::tag = {
+	// TODO: Bake me into the executable once harec -D works
+	return alloc([module::tag {
+		name = os::machine(),
+		mode = module::tag_mode::INCLUSIVE,
+	}, module::tag {
+		// TEMP:
+		name = "linux",
+		mode = module::tag_mode::INCLUSIVE,
+	}]);
+};
+
 type goal = enum {
 	OBJ,
 	EXE,
-	RUN,
-	TEST,
 };
 
 fn build(args: []str) void = {
@@ -58,14 +68,10 @@ fn build(args: []str) void = {
 			os::exit(1);
 		};
 
-	let ctx = module::context_init([module::tag {
-		name = os::machine(),
-		mode = module::tag_mode::INCLUSIVE,
-	}, module::tag {
-		// TEMP:
-		name = "linux",
-		mode = module::tag_mode::INCLUSIVE,
-	}]);
+	let tags = default_tags();
+	defer free(tags);
+
+	let ctx = module::context_init(tags);
 	defer module::context_finish(&ctx);
 
 	let plan = mkplan(&ctx);
@@ -130,14 +136,10 @@ fn run(args: []str) void = {
 		runargs = cmd.args[1..];
 	};
 
-	let ctx = module::context_init([module::tag {
-		name = os::machine(),
-		mode = module::tag_mode::INCLUSIVE,
-	}, module::tag {
-		// TEMP:
-		name = "linux",
-		mode = module::tag_mode::INCLUSIVE,
-	}]);
+	let tags = default_tags();
+	defer free(tags);
+
+	let ctx = module::context_init(tags);
 	defer module::context_finish(&ctx);
 
 	let plan = mkplan(&ctx);
