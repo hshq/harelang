@@ -74,7 +74,7 @@ fn build(args: []str) void = {
 	let depends: []*task = [];
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
 		const dep = ver.depends[i];
-		let obj = sched_module(&plan, &ctx, dep);
+		let obj = sched_module(&plan, dep);
 		append(depends, obj);
 	};
 
@@ -82,7 +82,7 @@ fn build(args: []str) void = {
 		output = path::basename(ver.basedir);
 	};
 	sched_hare_exe(&plan, ver, output, depends...);
-	plan_execute(&ctx, &plan, verbose);
+	plan_execute(&plan, verbose);
 };
 
 fn run(args: []str) void = {

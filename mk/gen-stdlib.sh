@@ -2,7 +2,7 @@ mod_path() {
 	printf '%s\n' "$1" | tr -s '::' '/'
 }
 mod_file() {
-	printf '%s\n' "$1" | tr -s '::' '.'
+	printf '%s\n' "$1" | tr -s '::' '_'
 }
 mod_var() {
 	printf '%s_%s\n' "$stdlib" "$1" | tr -s '::' '_'

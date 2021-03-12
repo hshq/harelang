@@ -69,22 +69,22 @@ hare_stdlib_deps+=$(stdlib_bufio)
 stdlib_bytes=$(HARECACHE)/bytes/bytes.o
 hare_stdlib_deps+=$(stdlib_bytes)
 
-stdlib_crypto_math=$(HARECACHE)/crypto/math/crypto.math.o
+stdlib_crypto_math=$(HARECACHE)/crypto/math/crypto_math.o
 hare_stdlib_deps+=$(stdlib_crypto_math)
 
-stdlib_crypto_random=$(HARECACHE)/crypto/random/crypto.random.o
+stdlib_crypto_random=$(HARECACHE)/crypto/random/crypto_random.o
 hare_stdlib_deps+=$(stdlib_crypto_random)
 
-stdlib_crypto_sha256=$(HARECACHE)/crypto/sha256/crypto.sha256.o
+stdlib_crypto_sha256=$(HARECACHE)/crypto/sha256/crypto_sha256.o
 hare_stdlib_deps+=$(stdlib_crypto_sha256)
 
 stdlib_dirs=$(HARECACHE)/dirs/dirs.o
 hare_stdlib_deps+=$(stdlib_dirs)
 
-stdlib_encoding_hex=$(HARECACHE)/encoding/hex/encoding.hex.o
+stdlib_encoding_hex=$(HARECACHE)/encoding/hex/encoding_hex.o
 hare_stdlib_deps+=$(stdlib_encoding_hex)
 
-stdlib_encoding_utf8=$(HARECACHE)/encoding/utf8/encoding.utf8.o
+stdlib_encoding_utf8=$(HARECACHE)/encoding/utf8/encoding_utf8.o
 hare_stdlib_deps+=$(stdlib_encoding_utf8)
 
 stdlib_endian=$(HARECACHE)/endian/endian.o
@@ -93,7 +93,7 @@ hare_stdlib_deps+=$(stdlib_endian)
 stdlib_fmt=$(HARECACHE)/fmt/fmt.o
 hare_stdlib_deps+=$(stdlib_fmt)
 
-stdlib_format_elf=$(HARECACHE)/format/elf/format.elf.o
+stdlib_format_elf=$(HARECACHE)/format/elf/format_elf.o
 hare_stdlib_deps+=$(stdlib_format_elf)
 
 stdlib_fs=$(HARECACHE)/fs/fs.o
@@ -102,34 +102,34 @@ hare_stdlib_deps+=$(stdlib_fs)
 stdlib_getopt=$(HARECACHE)/getopt/getopt.o
 hare_stdlib_deps+=$(stdlib_getopt)
 
-stdlib_hare_ast=$(HARECACHE)/hare/ast/hare.ast.o
+stdlib_hare_ast=$(HARECACHE)/hare/ast/hare_ast.o
 hare_stdlib_deps+=$(stdlib_hare_ast)
 
-stdlib_hare_lex=$(HARECACHE)/hare/lex/hare.lex.o
+stdlib_hare_lex=$(HARECACHE)/hare/lex/hare_lex.o
 hare_stdlib_deps+=$(stdlib_hare_lex)
 
-stdlib_hare_module=$(HARECACHE)/hare/module/hare.module.o
+stdlib_hare_module=$(HARECACHE)/hare/module/hare_module.o
 hare_stdlib_deps+=$(stdlib_hare_module)
 
-stdlib_hare_parse=$(HARECACHE)/hare/parse/hare.parse.o
+stdlib_hare_parse=$(HARECACHE)/hare/parse/hare_parse.o
 hare_stdlib_deps+=$(stdlib_hare_parse)
 
 stdlib_hash=$(HARECACHE)/hash/hash.o
 hare_stdlib_deps+=$(stdlib_hash)
 
-stdlib_hash_fnv=$(HARECACHE)/hash/fnv/hash.fnv.o
+stdlib_hash_fnv=$(HARECACHE)/hash/fnv/hash_fnv.o
 hare_stdlib_deps+=$(stdlib_hash_fnv)
 
 stdlib_io=$(HARECACHE)/io/io.o
 hare_stdlib_deps+=$(stdlib_io)
 
-stdlib_math_random=$(HARECACHE)/math/random/math.random.o
+stdlib_math_random=$(HARECACHE)/math/random/math_random.o
 hare_stdlib_deps+=$(stdlib_math_random)
 
 stdlib_os=$(HARECACHE)/os/os.o
 hare_stdlib_deps+=$(stdlib_os)
 
-stdlib_os_exec=$(HARECACHE)/os/exec/os.exec.o
+stdlib_os_exec=$(HARECACHE)/os/exec/os_exec.o
 hare_stdlib_deps+=$(stdlib_os_exec)
 
 stdlib_path=$(HARECACHE)/path/path.o
@@ -198,32 +198,32 @@ $(HARECACHE)/bytes/bytes.ssa: $(stdlib_bytes_srcs) $(stdlib_rt) $(stdlib_types)
 stdlib_crypto_math_srcs= \
 	$(STDLIB)/crypto/math/bits.ha
 
-$(HARECACHE)/crypto/math/crypto.math.ssa: $(stdlib_crypto_math_srcs) $(stdlib_rt)
+$(HARECACHE)/crypto/math/crypto_math.ssa: $(stdlib_crypto_math_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/math
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::math \
-		-t$(HARECACHE)/crypto/math/crypto.math.td $(stdlib_crypto_math_srcs)
+		-t$(HARECACHE)/crypto/math/crypto_math.td $(stdlib_crypto_math_srcs)
 
 # crypto::random
 stdlib_crypto_random_srcs= \
 	$(STDLIB)/crypto/random/$(PLATFORM).ha \
 	$(STDLIB)/crypto/random/random.ha
 
-$(HARECACHE)/crypto/random/crypto.random.ssa: $(stdlib_crypto_random_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_io)
+$(HARECACHE)/crypto/random/crypto_random.ssa: $(stdlib_crypto_random_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_io)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/random
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
-		-t$(HARECACHE)/crypto/random/crypto.random.td $(stdlib_crypto_random_srcs)
+		-t$(HARECACHE)/crypto/random/crypto_random.td $(stdlib_crypto_random_srcs)
 
 # crypto::sha256
 stdlib_crypto_sha256_srcs= \
 	$(STDLIB)/crypto/sha256/sha256.ha
 
-$(HARECACHE)/crypto/sha256/crypto.sha256.ssa: $(stdlib_crypto_sha256_srcs) $(stdlib_rt) $(stdlib_hash) $(stdlib_io) $(stdlib_endian)
+$(HARECACHE)/crypto/sha256/crypto_sha256.ssa: $(stdlib_crypto_sha256_srcs) $(stdlib_rt) $(stdlib_hash) $(stdlib_io) $(stdlib_endian)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/sha256
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::sha256 \
-		-t$(HARECACHE)/crypto/sha256/crypto.sha256.td $(stdlib_crypto_sha256_srcs)
+		-t$(HARECACHE)/crypto/sha256/crypto_sha256.td $(stdlib_crypto_sha256_srcs)
 
 # dirs
 stdlib_dirs_srcs= \
@@ -239,11 +239,11 @@ $(HARECACHE)/dirs/dirs.ssa: $(stdlib_dirs_srcs) $(stdlib_rt) $(stdlib_fs) $(stdl
 stdlib_encoding_hex_srcs= \
 	$(STDLIB)/encoding/hex/hex.ha
 
-$(HARECACHE)/encoding/hex/encoding.hex.ssa: $(stdlib_encoding_hex_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strconv) $(stdlib_strio) $(stdlib_strings)
+$(HARECACHE)/encoding/hex/encoding_hex.ssa: $(stdlib_encoding_hex_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strconv) $(stdlib_strio) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/hex
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::hex \
-		-t$(HARECACHE)/encoding/hex/encoding.hex.td $(stdlib_encoding_hex_srcs)
+		-t$(HARECACHE)/encoding/hex/encoding_hex.td $(stdlib_encoding_hex_srcs)
 
 # encoding::utf8
 stdlib_encoding_utf8_srcs= \
@@ -251,11 +251,11 @@ stdlib_encoding_utf8_srcs= \
 	$(STDLIB)/encoding/utf8/decode.ha \
 	$(STDLIB)/encoding/utf8/encode.ha
 
-$(HARECACHE)/encoding/utf8/encoding.utf8.ssa: $(stdlib_encoding_utf8_srcs) $(stdlib_rt) $(stdlib_types)
+$(HARECACHE)/encoding/utf8/encoding_utf8.ssa: $(stdlib_encoding_utf8_srcs) $(stdlib_rt) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/utf8
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::utf8 \
-		-t$(HARECACHE)/encoding/utf8/encoding.utf8.td $(stdlib_encoding_utf8_srcs)
+		-t$(HARECACHE)/encoding/utf8/encoding_utf8.td $(stdlib_encoding_utf8_srcs)
 
 # endian
 stdlib_endian_srcs= \
@@ -284,11 +284,11 @@ $(HARECACHE)/fmt/fmt.ssa: $(stdlib_fmt_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdl
 stdlib_format_elf_srcs= \
 	$(STDLIB)/format/elf/types.ha
 
-$(HARECACHE)/format/elf/format.elf.ssa: $(stdlib_format_elf_srcs) $(stdlib_rt)
+$(HARECACHE)/format/elf/format_elf.ssa: $(stdlib_format_elf_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/format/elf
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::elf \
-		-t$(HARECACHE)/format/elf/format.elf.td $(stdlib_format_elf_srcs)
+		-t$(HARECACHE)/format/elf/format_elf.td $(stdlib_format_elf_srcs)
 
 # fs
 stdlib_fs_srcs= \
@@ -317,22 +317,22 @@ stdlib_hare_ast_srcs= \
 	$(STDLIB)/hare/ast/types.ha \
 	$(STDLIB)/hare/ast/unparse.ha
 
-$(HARECACHE)/hare/ast/hare.ast.ssa: $(stdlib_hare_ast_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_fmt) $(stdlib_strio)
+$(HARECACHE)/hare/ast/hare_ast.ssa: $(stdlib_hare_ast_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_fmt) $(stdlib_strio)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/ast
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::ast \
-		-t$(HARECACHE)/hare/ast/hare.ast.td $(stdlib_hare_ast_srcs)
+		-t$(HARECACHE)/hare/ast/hare_ast.td $(stdlib_hare_ast_srcs)
 
 # hare::lex
 stdlib_hare_lex_srcs= \
 	$(STDLIB)/hare/lex/token.ha \
 	$(STDLIB)/hare/lex/lex.ha
 
-$(HARECACHE)/hare/lex/hare.lex.ssa: $(stdlib_hare_lex_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bufio) $(stdlib_strings) $(stdlib_types) $(stdlib_fmt) $(stdlib_sort)
+$(HARECACHE)/hare/lex/hare_lex.ssa: $(stdlib_hare_lex_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bufio) $(stdlib_strings) $(stdlib_types) $(stdlib_fmt) $(stdlib_sort)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/lex
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::lex \
-		-t$(HARECACHE)/hare/lex/hare.lex.td $(stdlib_hare_lex_srcs)
+		-t$(HARECACHE)/hare/lex/hare_lex.td $(stdlib_hare_lex_srcs)
 
 # hare::module
 stdlib_hare_module_srcs= \
@@ -340,11 +340,11 @@ stdlib_hare_module_srcs= \
 	$(STDLIB)/hare/module/context.ha \
 	$(STDLIB)/hare/module/scan.ha
 
-$(HARECACHE)/hare/module/hare.module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings) $(stdlib_hash) $(stdlib_crypto_sha256) $(stdlib_dirs) $(stdlib_bytes) $(stdlib_encoding_utf8) $(stdlib_ascii)
+$(HARECACHE)/hare/module/hare_module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings) $(stdlib_hash) $(stdlib_crypto_sha256) $(stdlib_dirs) $(stdlib_bytes) $(stdlib_encoding_utf8) $(stdlib_ascii)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/module
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::module \
-		-t$(HARECACHE)/hare/module/hare.module.td $(stdlib_hare_module_srcs)
+		-t$(HARECACHE)/hare/module/hare_module.td $(stdlib_hare_module_srcs)
 
 # hare::parse
 stdlib_hare_parse_srcs= \
@@ -352,11 +352,11 @@ stdlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/util.ha \
 	$(STDLIB)/hare/parse/parse.ha
 
-$(HARECACHE)/hare/parse/hare.parse.ssa: $(stdlib_hare_parse_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_slice)
+$(HARECACHE)/hare/parse/hare_parse.ssa: $(stdlib_hare_parse_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_slice)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/parse
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::parse \
-		-t$(HARECACHE)/hare/parse/hare.parse.td $(stdlib_hare_parse_srcs)
+		-t$(HARECACHE)/hare/parse/hare_parse.td $(stdlib_hare_parse_srcs)
 
 # hash
 stdlib_hash_srcs= \
@@ -372,11 +372,11 @@ $(HARECACHE)/hash/hash.ssa: $(stdlib_hash_srcs) $(stdlib_rt) $(stdlib_io)
 stdlib_hash_fnv_srcs= \
 	$(STDLIB)/hash/fnv/fnv.ha
 
-$(HARECACHE)/hash/fnv/hash.fnv.ssa: $(stdlib_hash_fnv_srcs) $(stdlib_rt) $(stdlib_hash) $(stdlib_io) $(stdlib_strings)
+$(HARECACHE)/hash/fnv/hash_fnv.ssa: $(stdlib_hash_fnv_srcs) $(stdlib_rt) $(stdlib_hash) $(stdlib_io) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hash/fnv
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::fnv \
-		-t$(HARECACHE)/hash/fnv/hash.fnv.td $(stdlib_hash_fnv_srcs)
+		-t$(HARECACHE)/hash/fnv/hash_fnv.td $(stdlib_hash_fnv_srcs)
 
 # io
 stdlib_io_srcs= \
@@ -399,11 +399,11 @@ $(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt) $(stdlib_strings)
 stdlib_math_random_srcs= \
 	$(STDLIB)/math/random/random.ha
 
-$(HARECACHE)/math/random/math.random.ssa: $(stdlib_math_random_srcs) $(stdlib_rt)
+$(HARECACHE)/math/random/math_random.ssa: $(stdlib_math_random_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/math/random
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nmath::random \
-		-t$(HARECACHE)/math/random/math.random.td $(stdlib_math_random_srcs)
+		-t$(HARECACHE)/math/random/math_random.td $(stdlib_math_random_srcs)
 
 # os
 stdlib_os_srcs= \
@@ -432,11 +432,11 @@ stdlib_os_exec_srcs= \
 	$(STDLIB)/os/exec/cmd$(PLATFORM).ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(HARECACHE)/os/exec/os.exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_strings) $(stdlib_fmt) $(stdlib_bytes) $(stdlib_path)
+$(HARECACHE)/os/exec/os_exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_strings) $(stdlib_fmt) $(stdlib_bytes) $(stdlib_path)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os/exec
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
-		-t$(HARECACHE)/os/exec/os.exec.td $(stdlib_os_exec_srcs)
+		-t$(HARECACHE)/os/exec/os_exec.td $(stdlib_os_exec_srcs)
 
 # path
 stdlib_path_srcs= \
@@ -611,22 +611,22 @@ hare_testlib_deps+=$(testlib_bufio)
 testlib_bytes=$(TESTCACHE)/bytes/bytes.o
 hare_testlib_deps+=$(testlib_bytes)
 
-testlib_crypto_math=$(TESTCACHE)/crypto/math/crypto.math.o
+testlib_crypto_math=$(TESTCACHE)/crypto/math/crypto_math.o
 hare_testlib_deps+=$(testlib_crypto_math)
 
-testlib_crypto_random=$(TESTCACHE)/crypto/random/crypto.random.o
+testlib_crypto_random=$(TESTCACHE)/crypto/random/crypto_random.o
 hare_testlib_deps+=$(testlib_crypto_random)
 
-testlib_crypto_sha256=$(TESTCACHE)/crypto/sha256/crypto.sha256.o
+testlib_crypto_sha256=$(TESTCACHE)/crypto/sha256/crypto_sha256.o
 hare_testlib_deps+=$(testlib_crypto_sha256)
 
 testlib_dirs=$(TESTCACHE)/dirs/dirs.o
 hare_testlib_deps+=$(testlib_dirs)
 
-testlib_encoding_hex=$(TESTCACHE)/encoding/hex/encoding.hex.o
+testlib_encoding_hex=$(TESTCACHE)/encoding/hex/encoding_hex.o
 hare_testlib_deps+=$(testlib_encoding_hex)
 
-testlib_encoding_utf8=$(TESTCACHE)/encoding/utf8/encoding.utf8.o
+testlib_encoding_utf8=$(TESTCACHE)/encoding/utf8/encoding_utf8.o
 hare_testlib_deps+=$(testlib_encoding_utf8)
 
 testlib_endian=$(TESTCACHE)/endian/endian.o
@@ -635,7 +635,7 @@ hare_testlib_deps+=$(testlib_endian)
 testlib_fmt=$(TESTCACHE)/fmt/fmt.o
 hare_testlib_deps+=$(testlib_fmt)
 
-testlib_format_elf=$(TESTCACHE)/format/elf/format.elf.o
+testlib_format_elf=$(TESTCACHE)/format/elf/format_elf.o
 hare_testlib_deps+=$(testlib_format_elf)
 
 testlib_fs=$(TESTCACHE)/fs/fs.o
@@ -644,34 +644,34 @@ hare_testlib_deps+=$(testlib_fs)
 testlib_getopt=$(TESTCACHE)/getopt/getopt.o
 hare_testlib_deps+=$(testlib_getopt)
 
-testlib_hare_ast=$(TESTCACHE)/hare/ast/hare.ast.o
+testlib_hare_ast=$(TESTCACHE)/hare/ast/hare_ast.o
 hare_testlib_deps+=$(testlib_hare_ast)
 
-testlib_hare_lex=$(TESTCACHE)/hare/lex/hare.lex.o
+testlib_hare_lex=$(TESTCACHE)/hare/lex/hare_lex.o
 hare_testlib_deps+=$(testlib_hare_lex)
 
-testlib_hare_module=$(TESTCACHE)/hare/module/hare.module.o
+testlib_hare_module=$(TESTCACHE)/hare/module/hare_module.o
 hare_testlib_deps+=$(testlib_hare_module)
 
-testlib_hare_parse=$(TESTCACHE)/hare/parse/hare.parse.o
+testlib_hare_parse=$(TESTCACHE)/hare/parse/hare_parse.o
 hare_testlib_deps+=$(testlib_hare_parse)
 
 testlib_hash=$(TESTCACHE)/hash/hash.o
 hare_testlib_deps+=$(testlib_hash)
 
-testlib_hash_fnv=$(TESTCACHE)/hash/fnv/hash.fnv.o
+testlib_hash_fnv=$(TESTCACHE)/hash/fnv/hash_fnv.o
 hare_testlib_deps+=$(testlib_hash_fnv)
 
 testlib_io=$(TESTCACHE)/io/io.o
 hare_testlib_deps+=$(testlib_io)
 
-testlib_math_random=$(TESTCACHE)/math/random/math.random.o
+testlib_math_random=$(TESTCACHE)/math/random/math_random.o
 hare_testlib_deps+=$(testlib_math_random)
 
 testlib_os=$(TESTCACHE)/os/os.o
 hare_testlib_deps+=$(testlib_os)
 
-testlib_os_exec=$(TESTCACHE)/os/exec/os.exec.o
+testlib_os_exec=$(TESTCACHE)/os/exec/os_exec.o
 hare_testlib_deps+=$(testlib_os_exec)
 
 testlib_path=$(TESTCACHE)/path/path.o
@@ -740,33 +740,33 @@ $(TESTCACHE)/bytes/bytes.ssa: $(testlib_bytes_srcs) $(testlib_rt) $(testlib_type
 testlib_crypto_math_srcs= \
 	$(STDLIB)/crypto/math/bits.ha
 
-$(TESTCACHE)/crypto/math/crypto.math.ssa: $(testlib_crypto_math_srcs) $(testlib_rt)
+$(TESTCACHE)/crypto/math/crypto_math.ssa: $(testlib_crypto_math_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/math
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::math \
-		-t$(TESTCACHE)/crypto/math/crypto.math.td $(testlib_crypto_math_srcs)
+		-t$(TESTCACHE)/crypto/math/crypto_math.td $(testlib_crypto_math_srcs)
 
 # crypto::random
 testlib_crypto_random_srcs= \
 	$(STDLIB)/crypto/random/$(PLATFORM).ha \
 	$(STDLIB)/crypto/random/random.ha
 
-$(TESTCACHE)/crypto/random/crypto.random.ssa: $(testlib_crypto_random_srcs) $(testlib_rt) $(testlib_rt) $(testlib_io)
+$(TESTCACHE)/crypto/random/crypto_random.ssa: $(testlib_crypto_random_srcs) $(testlib_rt) $(testlib_rt) $(testlib_io)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/random
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
-		-t$(TESTCACHE)/crypto/random/crypto.random.td $(testlib_crypto_random_srcs)
+		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_srcs)
 
 # crypto::sha256
 testlib_crypto_sha256_srcs= \
 	$(STDLIB)/crypto/sha256/sha256.ha \
 	$(STDLIB)/crypto/sha256/+test.ha
 
-$(TESTCACHE)/crypto/sha256/crypto.sha256.ssa: $(testlib_crypto_sha256_srcs) $(testlib_rt) $(testlib_hash) $(testlib_io) $(testlib_endian) $(testlib_fmt) $(testlib_strio) $(testlib_strings)
+$(TESTCACHE)/crypto/sha256/crypto_sha256.ssa: $(testlib_crypto_sha256_srcs) $(testlib_rt) $(testlib_hash) $(testlib_io) $(testlib_endian) $(testlib_fmt) $(testlib_strio) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/sha256
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha256 \
-		-t$(TESTCACHE)/crypto/sha256/crypto.sha256.td $(testlib_crypto_sha256_srcs)
+		-t$(TESTCACHE)/crypto/sha256/crypto_sha256.td $(testlib_crypto_sha256_srcs)
 
 # dirs
 testlib_dirs_srcs= \
@@ -782,11 +782,11 @@ $(TESTCACHE)/dirs/dirs.ssa: $(testlib_dirs_srcs) $(testlib_rt) $(testlib_fs) $(t
 testlib_encoding_hex_srcs= \
 	$(STDLIB)/encoding/hex/hex.ha
 
-$(TESTCACHE)/encoding/hex/encoding.hex.ssa: $(testlib_encoding_hex_srcs) $(testlib_rt) $(testlib_io) $(testlib_strconv) $(testlib_strio) $(testlib_strings)
+$(TESTCACHE)/encoding/hex/encoding_hex.ssa: $(testlib_encoding_hex_srcs) $(testlib_rt) $(testlib_io) $(testlib_strconv) $(testlib_strio) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/encoding/hex
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::hex \
-		-t$(TESTCACHE)/encoding/hex/encoding.hex.td $(testlib_encoding_hex_srcs)
+		-t$(TESTCACHE)/encoding/hex/encoding_hex.td $(testlib_encoding_hex_srcs)
 
 # encoding::utf8
 testlib_encoding_utf8_srcs= \
@@ -794,11 +794,11 @@ testlib_encoding_utf8_srcs= \
 	$(STDLIB)/encoding/utf8/decode.ha \
 	$(STDLIB)/encoding/utf8/encode.ha
 
-$(TESTCACHE)/encoding/utf8/encoding.utf8.ssa: $(testlib_encoding_utf8_srcs) $(testlib_rt) $(testlib_types)
+$(TESTCACHE)/encoding/utf8/encoding_utf8.ssa: $(testlib_encoding_utf8_srcs) $(testlib_rt) $(testlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/encoding/utf8
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::utf8 \
-		-t$(TESTCACHE)/encoding/utf8/encoding.utf8.td $(testlib_encoding_utf8_srcs)
+		-t$(TESTCACHE)/encoding/utf8/encoding_utf8.td $(testlib_encoding_utf8_srcs)
 
 # endian
 testlib_endian_srcs= \
@@ -827,11 +827,11 @@ $(TESTCACHE)/fmt/fmt.ssa: $(testlib_fmt_srcs) $(testlib_rt) $(testlib_bufio) $(t
 testlib_format_elf_srcs= \
 	$(STDLIB)/format/elf/types.ha
 
-$(TESTCACHE)/format/elf/format.elf.ssa: $(testlib_format_elf_srcs) $(testlib_rt)
+$(TESTCACHE)/format/elf/format_elf.ssa: $(testlib_format_elf_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/format/elf
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::elf \
-		-t$(TESTCACHE)/format/elf/format.elf.td $(testlib_format_elf_srcs)
+		-t$(TESTCACHE)/format/elf/format_elf.td $(testlib_format_elf_srcs)
 
 # fs
 testlib_fs_srcs= \
@@ -860,11 +860,11 @@ testlib_hare_ast_srcs= \
 	$(STDLIB)/hare/ast/types.ha \
 	$(STDLIB)/hare/ast/unparse.ha
 
-$(TESTCACHE)/hare/ast/hare.ast.ssa: $(testlib_hare_ast_srcs) $(testlib_rt) $(testlib_io) $(testlib_fmt) $(testlib_strio)
+$(TESTCACHE)/hare/ast/hare_ast.ssa: $(testlib_hare_ast_srcs) $(testlib_rt) $(testlib_io) $(testlib_fmt) $(testlib_strio)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/ast
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::ast \
-		-t$(TESTCACHE)/hare/ast/hare.ast.td $(testlib_hare_ast_srcs)
+		-t$(TESTCACHE)/hare/ast/hare_ast.td $(testlib_hare_ast_srcs)
 
 # hare::lex
 testlib_hare_lex_srcs= \
@@ -872,11 +872,11 @@ testlib_hare_lex_srcs= \
 	$(STDLIB)/hare/lex/lex.ha \
 	$(STDLIB)/hare/lex/+test.ha
 
-$(TESTCACHE)/hare/lex/hare.lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings) $(testlib_types) $(testlib_fmt) $(testlib_sort)
+$(TESTCACHE)/hare/lex/hare_lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings) $(testlib_types) $(testlib_fmt) $(testlib_sort)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/lex
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::lex \
-		-t$(TESTCACHE)/hare/lex/hare.lex.td $(testlib_hare_lex_srcs)
+		-t$(TESTCACHE)/hare/lex/hare_lex.td $(testlib_hare_lex_srcs)
 
 # hare::module
 testlib_hare_module_srcs= \
@@ -884,11 +884,11 @@ testlib_hare_module_srcs= \
 	$(STDLIB)/hare/module/context.ha \
 	$(STDLIB)/hare/module/scan.ha
 
-$(TESTCACHE)/hare/module/hare.module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings) $(testlib_hash) $(testlib_crypto_sha256) $(testlib_dirs) $(testlib_bytes) $(testlib_encoding_utf8) $(testlib_ascii)
+$(TESTCACHE)/hare/module/hare_module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings) $(testlib_hash) $(testlib_crypto_sha256) $(testlib_dirs) $(testlib_bytes) $(testlib_encoding_utf8) $(testlib_ascii)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/module
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module \
-		-t$(TESTCACHE)/hare/module/hare.module.td $(testlib_hare_module_srcs)
+		-t$(TESTCACHE)/hare/module/hare_module.td $(testlib_hare_module_srcs)
 
 # hare::parse
 testlib_hare_parse_srcs= \
@@ -897,11 +897,11 @@ testlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/parse.ha \
 	$(STDLIB)/hare/parse/+test.ha
 
-$(TESTCACHE)/hare/parse/hare.parse.ssa: $(testlib_hare_parse_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_slice)
+$(TESTCACHE)/hare/parse/hare_parse.ssa: $(testlib_hare_parse_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_slice)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/parse
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::parse \
-		-t$(TESTCACHE)/hare/parse/hare.parse.td $(testlib_hare_parse_srcs)
+		-t$(TESTCACHE)/hare/parse/hare_parse.td $(testlib_hare_parse_srcs)
 
 # hash
 testlib_hash_srcs= \
@@ -917,11 +917,11 @@ $(TESTCACHE)/hash/hash.ssa: $(testlib_hash_srcs) $(testlib_rt) $(testlib_io)
 testlib_hash_fnv_srcs= \
 	$(STDLIB)/hash/fnv/fnv.ha
 
-$(TESTCACHE)/hash/fnv/hash.fnv.ssa: $(testlib_hash_fnv_srcs) $(testlib_rt) $(testlib_hash) $(testlib_io) $(testlib_strings)
+$(TESTCACHE)/hash/fnv/hash_fnv.ssa: $(testlib_hash_fnv_srcs) $(testlib_rt) $(testlib_hash) $(testlib_io) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hash/fnv
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::fnv \
-		-t$(TESTCACHE)/hash/fnv/hash.fnv.td $(testlib_hash_fnv_srcs)
+		-t$(TESTCACHE)/hash/fnv/hash_fnv.td $(testlib_hash_fnv_srcs)
 
 # io
 testlib_io_srcs= \
@@ -948,11 +948,11 @@ $(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt) $(testlib_strings)
 testlib_math_random_srcs= \
 	$(STDLIB)/math/random/random.ha
 
-$(TESTCACHE)/math/random/math.random.ssa: $(testlib_math_random_srcs) $(testlib_rt)
+$(TESTCACHE)/math/random/math_random.ssa: $(testlib_math_random_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/math/random
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath::random \
-		-t$(TESTCACHE)/math/random/math.random.td $(testlib_math_random_srcs)
+		-t$(TESTCACHE)/math/random/math_random.td $(testlib_math_random_srcs)
 
 # os
 testlib_os_srcs= \
@@ -981,11 +981,11 @@ testlib_os_exec_srcs= \
 	$(STDLIB)/os/exec/cmd$(PLATFORM).ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(TESTCACHE)/os/exec/os.exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testlib_os) $(testlib_strings) $(testlib_fmt) $(testlib_bytes) $(testlib_path)
+$(TESTCACHE)/os/exec/os_exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testlib_os) $(testlib_strings) $(testlib_fmt) $(testlib_bytes) $(testlib_path)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os/exec
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
-		-t$(TESTCACHE)/os/exec/os.exec.td $(testlib_os_exec_srcs)
+		-t$(TESTCACHE)/os/exec/os_exec.td $(testlib_os_exec_srcs)
 
 # path
 testlib_path_srcs= \

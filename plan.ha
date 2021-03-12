@@ -1,3 +1,4 @@
+use encoding::hex;
 use fmt;
 use hare::ast;
 use hare::module;
@@ -7,6 +8,7 @@ use os::exec;
 use os;
 use path;
 use strings;
+use strio;
 use temp;
 
 type status = enum {
@@ -34,13 +36,14 @@ type modcache = struct {
 };
 
 type plan = struct {
+	context: *module::context,
 	workdir: str,
 	counter: uint,
 	scheduled: []*task,
 	complete: []*task,
 	script: str,
 	environ: [](str, str),
-	modset: [64][]modcache,
+	modmap: [64][]modcache,
 };
 
 fn mkplan(ctx: *module::context) plan = {
@@ -50,8 +53,12 @@ fn mkplan(ctx: *module::context) plan = {
 		ver: module::version => ver.basedir,
 	};
 	return plan {
+		context = ctx,
 		workdir = temp::dir(),
 		script = path::join(rtdir, "hare.sc"),
+		environ = alloc([
+			(strings::dup("HARECACHE"), strings::dup(ctx.cache)),
+		]),
 		...
 	};
 };
@@ -72,8 +79,14 @@ fn plan_finish(plan: *plan) void = {
 	};
 	free(plan.scheduled);
 
-	for (let i = 0z; i < len(plan.modset); i += 1) {
-		free(plan.modset[i]);
+	for (let i = 0z; i < len(plan.environ); i += 1) {
+		free(plan.environ[i].0);
+		free(plan.environ[i].1);
+	};
+	free(plan.environ);
+
+	for (let i = 0z; i < len(plan.modmap); i += 1) {
+		free(plan.modmap[i]);
 	};
 };
 
@@ -87,22 +100,18 @@ fn ident_hash(ident: ast::ident) u32 = {
 	return fnv::sum32(hash);
 };
 
-fn sched_module(
-	plan: *plan,
-	ctx: *module::context,
-	ident: ast::ident,
-) *task = {
+fn sched_module(plan: *plan, ident: ast::ident) *task = {
 	let hash = ident_hash(ident);
 	// TODO: We should not have to dereference the bucket for len or append
 	// TODO: We should not have to cast the length to u32
-	let bucket = &plan.modset[hash % len(plan.modset): u32];
+	let bucket = &plan.modmap[hash % len(plan.modmap): u32];
 	for (let i = 0z; i < len(*bucket); i += 1) {
 		if (bucket[i].hash == hash) {
 			return bucket[i].task;
 		};
 	};
 
-	let ver = match (module::lookup(ctx, ident)) {
+	let ver = match (module::lookup(plan.context, ident)) {
 		err: module::error => {
 			let ident = ast::ident_unparse_s(ident);
 			fmt::fatal("Error resolving {}: {}",
@@ -114,7 +123,7 @@ fn sched_module(
 	let depends: []*task = [];
 	for (let i = 0z; i < len(ver.depends); i += 1) {
 		const dep = ver.depends[i];
-		let obj = sched_module(plan, ctx, dep);
+		let obj = sched_module(plan, dep);
 		append(depends, obj);
 	};
 
@@ -190,6 +199,16 @@ fn sched_qbe(plan: *plan, output: str, depend: *task) *task = {
 	return task;
 };
 
+export fn ident_to_env(ident: ast::ident) str = {
+	let buf = strio::dynamic();
+	for (let i = 0z; i < len(ident); i += 1) {
+		fmt::fprintf(buf, "{}{}", ident[i],
+			if (i + 1 < len(ident)) "_"
+			else "") as size;
+	};
+	return strio::finish(buf);
+};
+
 // Schedules tasks which compiles a Hare module into an object or archive.
 fn sched_hare_object(
 	plan: *plan,
@@ -219,7 +238,14 @@ fn sched_hare_object(
 	});
 	if (len(namespace) != 0) {
 		let ns = ast::ident_unparse_s(namespace);
+		let env = ident_to_env(namespace);
+		defer free(env);
+
 		append(harec.cmd, "-N", ns);
+		append(plan.environ, (
+			fmt::asprintf("HARE_VERSION_{}", env),
+			hex::encode(ver.hash),
+		));
 	};
 
 	for (let i = 0z; i < len(ver.inputs); i += 1) {
@@ -267,42 +293,7 @@ fn sched_hare_exe(
 	return sched_ld(plan, strings::dup(output), link...);
 };
 
-fn execute(
-	ctx: *module::context,
-	task: *task,
-	verbose: bool,
-) (void | exec::error | exec::exit_status!) = {
-	if (verbose) {
-		for (let i = 0z; i < len(task.cmd); i += 1) {
-			fmt::errorf("{} ", task.cmd[i]);
-		};
-		fmt::errorln();
-	};
-
-	let cmd = exec::cmd(task.cmd[0], task.cmd[1..]...)?;
-	exec::setenv(&cmd, "HARECACHE", ctx.cache);
-
-	let proc = exec::start(&cmd)?;
-	let st = exec::wait(&proc)?;
-	return exec::check(&st);
-};
-
-fn mkfile(plan: *plan, ext: str) str = {
-	static let namebuf: [32]u8 = [0...];
-	const name = fmt::bsprintf(namebuf, "temp.{}.{}",
-		plan.counter, ext);
-	plan.counter += 1;
-	return path::join(plan.workdir, name);
-};
-
-fn mkdepends(t: *task...) []*task = {
-	// XXX: This should just be one alloc call
-	let deps: []*task = alloc([], len(t));
-	append(deps, ...t);
-	return deps;
-};
-
-fn plan_execute(ctx: *module::context, plan: *plan, verbose: bool) void = {
+fn plan_execute(plan: *plan, verbose: bool) void = {
 	for (len(plan.scheduled) != 0) {
 		let next: nullable *task = null;
 		let i = 0z;
@@ -326,7 +317,7 @@ fn plan_execute(ctx: *module::context, plan: *plan, verbose: bool) void = {
 			t: *task => t,
 		};
 
-		match (execute(ctx, task, verbose)) {
+		match (execute(plan, task, verbose)) {
 			err: exec::error => fmt::fatal("Error: {}: {}",
 				task.cmd[0], exec::errstr(err)),
 			err: exec::exit_status! => fmt::fatal("Error: {}: {}",
@@ -339,4 +330,42 @@ fn plan_execute(ctx: *module::context, plan: *plan, verbose: bool) void = {
 		delete(plan.scheduled[i]);
 		append(plan.complete, task);
 	};
+};
+
+fn execute(
+	plan: *plan,
+	task: *task,
+	verbose: bool,
+) (void | exec::error | exec::exit_status!) = {
+	if (verbose) {
+		for (let i = 0z; i < len(task.cmd); i += 1) {
+			fmt::errorf("{} ", task.cmd[i]);
+		};
+		fmt::errorln();
+	};
+
+	let cmd = exec::cmd(task.cmd[0], task.cmd[1..]...)?;
+	for (let i = 0z; i < len(plan.environ); i += 1) {
+		let e = plan.environ[i];
+		exec::setenv(&cmd, e.0, e.1);
+	};
+
+	let proc = exec::start(&cmd)?;
+	let st = exec::wait(&proc)?;
+	return exec::check(&st);
+};
+
+fn mkfile(plan: *plan, ext: str) str = {
+	static let namebuf: [32]u8 = [0...];
+	const name = fmt::bsprintf(namebuf, "temp.{}.{}",
+		plan.counter, ext);
+	plan.counter += 1;
+	return path::join(plan.workdir, name);
+};
+
+fn mkdepends(t: *task...) []*task = {
+	// XXX: This should just be one alloc call
+	let deps: []*task = alloc([], len(t));
+	append(deps, ...t);
+	return deps;
 };
