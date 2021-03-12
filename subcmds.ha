@@ -187,6 +187,7 @@ fn test(args: []str) void = {
 		"compiles and runs tests for Hare programs",
 		('v', "print executed commands"),
 		('D', "ident:type=value", "define a constant"),
+		('j', "jobs", "set parallelism for build"),
 		('l', "name", "link with a system library"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
