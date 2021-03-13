@@ -84,6 +84,10 @@ fn build(args: []str) void = {
 	};
 
 	let depends: []*task = [];
+
+	// Always add rt (TODO: maybe a flag to turn this off?)
+	sched_module(&plan, ["rt"], &depends);
+
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
 		const dep = ver.depends[i];
 		sched_module(&plan, dep, &depends);
@@ -166,6 +170,10 @@ fn run(args: []str) void = {
 	};
 
 	let depends: []*task = [];
+
+	// Always add rt (TODO: maybe a flag to turn this off?)
+	sched_module(&plan, ["rt"], &depends);
+
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
 		const dep = ver.depends[i];
 		sched_module(&plan, dep, &depends);
