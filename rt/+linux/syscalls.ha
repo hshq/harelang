@@ -334,3 +334,13 @@ export fn signalfd(fd: int, mask: *const sigset, flags: int) (int | errno) = {
 		fd: u64, mask: uintptr: u64, size(sigset): u64,
 		flags: u64))?: int;
 };
+
+export fn sigprocmask(
+	how: int,
+	set: *const sigset,
+	old: nullable *sigset
+) (int | errno) = {
+	return wrap_return(syscall4(SYS_rt_sigprocmask,
+		how: u64, set: uintptr: u64, old: uintptr: u64,
+		size(sigset): u64))?: int;
+};
