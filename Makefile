@@ -21,6 +21,7 @@ include stdlib.mk
 hare_srcs=\
 	./cmd/hare/plan.ha \
 	./cmd/hare/subcmds.ha \
+	./cmd/hare/schedule.ha \
 	./cmd/hare/main.ha
 
 $(HARECACHE)/hare.ssa: $(hare_srcs) $(hare_stdlib_deps)
