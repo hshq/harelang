@@ -317,7 +317,7 @@ export fn timerfd_settime(
 	fd: int,
 	flags: int,
 	new_value: *const itimerspec,
-	old_value: *itimerspec
+	old_value: nullable *itimerspec
 ) (int | errno) = {
 	return wrap_return(syscall4(SYS_timerfd_settime,
 		fd: u64, flags: u64,
