@@ -1,4 +1,4 @@
 cache
 config.mk
-./hare
-./hare-tests
+./cmd/hare/hare
+./cmd/hare/hare-tests

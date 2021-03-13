@@ -1,5 +1,4 @@
 HARECACHE=cache
-STDLIB=stdlib
 PLATFORM=+linux
 ARCH=+x86_64
 
