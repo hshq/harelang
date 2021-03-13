@@ -344,3 +344,20 @@ export fn sigprocmask(
 		how: u64, set: uintptr: u64, old: uintptr: u64,
 		size(sigset): u64))?: int;
 };
+
+fn restore() void;
+fn restore_si() void;
+
+export fn sigaction(
+	signum: int,
+	act: *const sigact,
+	old: nullable *sigact
+) (int | errno) = {
+	let real_act = *act;
+	real_act.sa_flags |= SA_RESTORER;
+	let restore_fn = if ((act.sa_flags & SA_SIGINFO) != 0) &restore_si else &restore;
+	real_act.sa_restorer = &restore;
+	return wrap_return(syscall4(SYS_rt_sigaction,
+		signum: u64, &real_act: uintptr: u64, old: uintptr: u64,
+		size(sigset): u64))?: int;
+};

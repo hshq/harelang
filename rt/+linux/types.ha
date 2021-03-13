@@ -8,6 +8,12 @@ export type gid_t = uint;
 export type time_t = i64;
 export type suseconds_t = i64;
 export type nfds_t = u64;
+export type pid_t = int;
+export type timer_t = int;
+export type clock_t = i64;
+export type si_band_t = i64;
+
+export def NSIG: int = 64;
 
 export type sigset = struct {
 	__val: [1]u64,
@@ -330,6 +336,127 @@ export type pollfd = struct {
 
 export def TFD_TIMER_ABSTIME: int = 1;
 export def TFD_TIMER_CANCEL_ON_SET: int = 2;
+
+export def SIG_BLOCK: int = 0;
+export def SIG_UNBLOCK: int = 1;
+export def SIG_SETMASK: int = 2;
+
+def SI_MAX_SIZE: size = 128 / size(u8);
+
+export type sigval_t = union {
+	sival_t: int,
+	sival_ptr: *void,
+};
+
+
+//#define __ADDR_BND_PKEY_PAD (__alignof__(void *) < sizeof(short) ? sizeof(short) : __alignof__(void *))
+def __ADDR_BND_PKEY_PAD: size = 8;
+
+export type siginfo = union {
+	struct {
+		si_signo: int,
+		si_errno: int,
+		si_code: int,
+
+		union {
+			// kill()
+			struct {
+				si_pid: pid_t,
+				si_uid: u32,
+			},
+
+			// POSIX.1b timers
+			struct {
+				si_tid: timer_t,
+				si_overrun: int,
+				_sigval: sigval_t, // @ signals
+				si_sys_private: int,
+			},
+
+			// POSIX.1b signals
+			struct {
+				_sig_pid: pid_t, // @kill
+				_sig_uid: u32, // @ kill
+				union {
+					si_value: sigval_t,
+					si_int: int,
+					si_ptr: *void,
+				}
+			},
+
+			// SIGCHLD
+			struct {
+				_chld_pid: pid_t, // @ kill
+				_chld_uid: u32, // @ kill
+				si_status: int,
+				si_utime: clock_t,
+				si_stime: clock_t,
+			},
+
+			// SIGILL, SIGFPE, SIGSEGV, SIGBUS, SIGTRAP, SIGEMT
+			struct {
+				si_addr: *void,
+
+				union {
+
+					// used when si_code=BUS_MCEERR_AR or
+					// used when si_code=BUS_MCEERR_AO
+					si_addr_lsb: i16,
+
+					struct {
+						_dummy_bnd: [__ADDR_BND_PKEY_PAD]u8,
+						si_lower: *void,
+						si_upper: *void,
+					},
+
+					struct {
+						_dummy_pkey: [__ADDR_BND_PKEY_PAD]u8,
+						si_pkey: u32,
+					},
+				},
+			},
+
+			// SIGPOLL
+			struct {
+				si_band: si_band_t,
+				si_fd: int,
+			},
+
+			// SIGSYS
+			struct {
+				si_call_addr: *void,
+				si_syscall: int,
+				si_arch: uint,
+			},
+
+		},
+	},
+	_si_pad: [SI_MAX_SIZE - 3 * size(int)]u8,
+};
+
+export def SA_NOCLDSTOP: u64 = 0x00000001;
+export def SA_NOCLDWAIT: u64 = 0x00000002;
+export def SA_SIGINFO: u64 = 0x00000004;
+export def SA_ONSTACK: u64 = 0x08000000;
+export def SA_RESTART: u64 = 0x10000000;
+export def SA_NODEFER: u64 = 0x40000000;
+export def SA_RESETHAND: u64 = 0x80000000;
+export def SA_NOMASK: u64 = SA_NODEFER;
+export def SA_ONESHOT: u64 = SA_RESETHAND;
+export def SA_RESTORER: u64 = 0x04000000;
+
+export type sigact = struct {
+	union {
+		sa_handler: *fn (int) void,
+		sa_sigaction: *fn (int, *siginfo, *void) void,
+	},
+	sa_flags: u64,
+	sa_restorer: *fn () void,
+	sa_mask: sigset,
+};
+
+export def SFD_NONBLOCK: int = O_NONBLOCK;
+export def SFD_CLOEXEC: int = O_CLOEXEC;
 
 export type signalfd_siginfo = struct {
 	ssi_signo: u32,
