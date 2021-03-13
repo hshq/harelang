@@ -18,7 +18,6 @@ tasks:
 - hare: |
     cd hare
     cp config.example.mk config.mk
-    ln -s ../stdlib ./
     make
 - tests: |
     cd hare
