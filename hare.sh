@@ -1,3 +1,2 @@
-PATH=$PATH:$(pwd)/cmd/hare
-HAREPATH=$(pwd)
-export PATH HAREPATH
+export PATH=$PATH:$(pwd)/cmd/hare
+export HAREPATH=$(pwd)
