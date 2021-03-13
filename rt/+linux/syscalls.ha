@@ -361,3 +361,8 @@ export fn sigaction(
 		signum: u64, &real_act: uintptr: u64, old: uintptr: u64,
 		size(sigset): u64))?: int;
 };
+
+export fn socket(domain: int, type_: int, protocol: int) (int | errno) = {
+	return wrap_return(syscall3(SYS_socket,
+		domain: u64, type_: u64, protocol: u64))?: int;
+};
