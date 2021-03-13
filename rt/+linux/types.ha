@@ -330,3 +330,29 @@ export type pollfd = struct {
 
 export def TFD_TIMER_ABSTIME: int = 1;
 export def TFD_TIMER_CANCEL_ON_SET: int = 2;
+
+export type signalfd_siginfo = struct {
+	ssi_signo: u32,
+	ssi_errno: i32,
+	ssi_code: i32,
+	ssi_pid: u32,
+	ssi_uid: u32,
+	ssi_fd: i32 ,
+	ssi_tid: u32,
+	ssi_band: u32,
+	ssi_overrun: u32,
+	ssi_trapno: u32,
+	ssi_status: i32,
+	ssi_int: i32,
+	ssi_ptr: u64,
+	ssi_utime: u64,
+	ssi_stime: u64,
+	ssi_addr: u64,
+	ssi_addr_lsb: u16,
+	__pad2: u16,
+	ssi_syscall: i32,
+	ssi_call_addr: u64,
+	ssi_arch: u32,
+
+	__pad: [28]u8, // pad to 128 bytes
+};

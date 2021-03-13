@@ -328,3 +328,9 @@ export fn timerfd_gettime(fd: int, curr_value: *itimerspec) (int | errno) = {
 	return wrap_return(syscall2(SYS_timerfd_gettime,
 		fd: u64, curr_value: uintptr: u64))?: int;
 };
+
+export fn signalfd(fd: int, mask: *const sigset, flags: int) (int | errno) = {
+	return wrap_return(syscall4(SYS_signalfd4,
+		fd: u64, mask: uintptr: u64, size(sigset): u64,
+		flags: u64))?: int;
+};
