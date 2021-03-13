@@ -13,6 +13,7 @@ stdlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
 	$(STDLIB)/rt/$(PLATFORM)/signal.ha \
 	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
+	$(STDLIB)/rt/$(PLATFORM)/socket.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
@@ -559,6 +560,7 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
 	$(STDLIB)/rt/$(PLATFORM)/signal.ha \
 	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
+	$(STDLIB)/rt/$(PLATFORM)/socket.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \

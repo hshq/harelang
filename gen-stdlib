@@ -9,10 +9,10 @@
 #
 # Then add your module to the list of modules at the bottom.
 #
-# Then run ./gen-stdlib > mk/stdlib.mk to generate new rules.
+# Then run ./gen-stdlib > stdlib.mk to generate new rules.
 
 srcdir="$(dirname "$0")"
-eval ". $srcdir/mk/gen-stdlib.sh"
+eval ". $srcdir/gen-stdlib.sh"
 
 gensrcs_rt() {
 	gen_srcs rt \
@@ -26,6 +26,7 @@ gensrcs_rt() {
 		'$(PLATFORM)/syscalls.ha' \
 		'$(PLATFORM)/signal.ha' \
 		'$(PLATFORM)/stat.ha' \
+		'$(PLATFORM)/socket.ha' \
 		'$(ARCH)/jmp.ha' \
 		ensure.ha \
 		jmp.ha \
