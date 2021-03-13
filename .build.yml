@@ -2,7 +2,6 @@ image: alpine/latest
 sources:
 - https://git.sr.ht/~sircmpwn/qbe
 - https://git.sr.ht/~sircmpwn/harec
-- https://git.sr.ht/~sircmpwn/stdlib
 - https://git.sr.ht/~sircmpwn/hare
 tasks:
 - qbe: |
@@ -21,7 +20,7 @@ tasks:
     make
 - tests: |
     cd hare
-    make hare-tests
+    make cmd/hare/hare-tests
 - check: |
     cd hare
     make check

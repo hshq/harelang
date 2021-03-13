@@ -1,71 +1,57 @@
-# The Hare standard library [![builds.sr.ht status](https://builds.sr.ht/~sircmpwn/stdlib/commits.svg)](https://builds.sr.ht/~sircmpwn/stdlib/commits?)
+# The Hare programming language [![builds.sr.ht status](https://builds.sr.ht/~sircmpwn/hare/commits.svg)](https://builds.sr.ht/~sircmpwn/hare/commits?)
 
-This is the standard library for the [Hare](https://harelang.org) programming
-language.
+Hare is a systems programming language and **a work-in-progress**.
 
-## Hare stdlib mandate
+## Principles
 
-The Hare standard library shall provide:
+1. Trust the programmer.
+2. Provide tools the programmer may use when they don't trust themselves.
+3. Prefer explicit behavior over implicit behavior.
+4. A good program must be both correct and simple.
 
-1. Useful features to complement Hare language features
-2. An interface to the host operating system
-3. Implementations of broadly useful algorithms
-4. Implementations of broadly useful formats and protocols
-5. Introspective meta-features for Hare-aware programs
+## Early development secrecy
 
-Each of these services shall:
+Hello, onlooker! Please keep this project a secret. Feel free to mess around
+with it and send feedback (we're in #hare on irc.freenode.net), but please keep
+it to yourself. We don't want to announce this project until it's much, much
+more mature.
 
-1. Have a concise and straightforward interface
-2. Correctly and completely implement the useful subset of the required behavior*
-3. Provide complete documentation for each exported symbol
-4. Be sufficiently tested to provide confidence in the implementation
+Ask in the IRC channel to get access to the private bug tracker and mailing
+lists.
 
-\* This means read the RFC before you start writing the code
+## Installation
 
-Some examples of on-topic features include:
+For information about bootstrapping a working Hare toolchain from scratch, see
+[Hare Installation][5] on the website.
 
-### Language features
+[5]: https://harelang.org/installation/
 
-- Memory allocation
-- High-level string manipulation (e.g. concat, replace, split)
-- High-level slice manipulation (e.g. sort)
-- Test harness and testing support code
+## Status
 
-### Introspection
+This is a work in progress! The process for bootstrapping Hare is as follows:
 
-- Hare lexing, parsing (and unparsing), and type checking
-- ELF, DWARF
-- Stack unwinding
+1. Write the [bootstrap compiler][0] in C, and a [specification][1] which
+   describes the language.
+2. Write the [build driver][2] in Hare, and at least as much of the
+   [standard library][3] which is necessary to make it work.
+3. Write the hosted compiler in Hare. At this point, Hare is fully bootstrapped.
+4. Expand the standard library until it's useful for general purpose systems
+   programming. Write programs in Hare. Provide benefit to society.
 
-### Operating system interface
+Right now, stage 1 is mostly complete. We've started on stage 2, and we're
+closing loose ends in stage 1 as we run into blockers during the development of
+stage 2.
 
-- I/O support
-- Filesystem access
-- Sockets
+[0]: https://git.sr.ht/~sircmpwn/harec
+[1]: https://harelang.org/specification
+[2]: https://git.sr.ht/~sircmpwn/hare/tree/master/item/cmd/hare
+[3]: https://git.sr.ht/~sircmpwn/hare
 
-### Useful algorithms
+Explanation of terms:
 
-- Sorting, searching
-- Cryptography
-- Hashing
-- Compression
-- Date & time support
-- Regex
-
-### Useful formats & protocols
-
-- Internet protocol suite
-- JSON, XML, INI, HTML
-- tar, zip, cpio
-- MIME, RFC 2822
-
-## Conventions
-
-See also the [Hare style guide](https://harelang.org/style/)
-
-1. Tagged unions should be written from most to least common case, which
-   generally puts the error cases last.
-2. Prefer to design APIs which avoid allocation if it can be done without being
-   at the expense of good API design.
-3. Whatever the semantics, document the allocation and lifetime behaviors and
-   expectations of each function to which they apply.
+- bootstrap compiler: a Hare compiler written in C, primarily used for the
+  purpose of bringing up a working Hare toolchain from scratch.
+- hosted compiler: a more sophisticted Hare compiler, written in Hare,
+  designed to be the compiler used for day-to-day langauge use.
+- build driver: similar to make, its purpose is to collect source files, track
+  their dependencies, and build them into Hare programs.
