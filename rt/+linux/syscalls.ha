@@ -308,6 +308,46 @@ export fn poll(fds: *pollfd, nfds: nfds_t, timeout: int) (int | errno) = {
 		fds: uintptr: u64, nfds: u64, timeout: u64))?: int;
 };
 
+export fn epoll_create1(flags: int) (int | errno) = {
+	return wrap_return(syscall1(SYS_epoll_create1, flags: u64))?: int;
+};
+
+export fn epoll_create(size_: int) (int | errno) = {
+	return epoll_create1(0);
+};
+
+export fn epoll_ctl(
+	epfd: int,
+	op: int,
+	fd: int,
+	event: nullable *epoll_event
+) (int | errno) = {
+	return wrap_return(syscall4(SYS_epoll_ctl,
+		epfd: u64, op: u64, fd: u64, event: uintptr: u64))?: int;
+};
+
+export fn epoll_pwait(
+	epfd: int,
+	events: *epoll_event,
+	maxevents: int,
+	timeout: int,
+	sigmask: nullable *sigset
+) (int | errno) = {
+	return wrap_return(syscall6(SYS_epoll_pwait,
+		epfd: u64, events: uintptr: u64,
+		maxevents: u64, timeout: u64,
+		sigmask: uintptr: u64, size(sigset): u64))?: int;
+};
+
+export fn epoll_wait(
+	epfd: int,
+	events: *epoll_event,
+	maxevents: int,
+	timeout: int,
+) (int | errno) = {
+	return epoll_pwait(epfd, events, maxevents, timeout, null);
+};
+
 export fn timerfd_create(clock_id: int, flags: int) (int | errno) = {
 	return wrap_return(syscall2(SYS_timerfd_create,
 		clock_id: u64, flags: u64))?: int;

@@ -334,6 +334,42 @@ export type pollfd = struct {
 	revents: i16,
 };
 
+export def EPOLL_CLOEXEC: int = O_CLOEXEC;
+
+// Valid opcodes to issue to sys_epoll_ctl()
+export def EPOLL_CTL_ADD: int = 1;
+export def EPOLL_CTL_DEL: int = 2;
+export def EPOLL_CTL_MOD: int = 3;
+
+// Epoll event masks
+export def EPOLLIN: u32 = 0x00000001;
+export def EPOLLPRI: u32 = 0x00000002;
+export def EPOLLOUT: u32 = 0x00000004;
+export def EPOLLERR: u32 = 0x00000008;
+export def EPOLLHUP: u32 = 0x00000010;
+export def EPOLLNVAL: u32 = 0x00000020;
+export def EPOLLRDNORM: u32 = 0x00000040;
+export def EPOLLRDBAND: u32 = 0x00000080;
+export def EPOLLWRNORM: u32 = 0x00000100;
+export def EPOLLWRBAND: u32 = 0x00000200;
+export def EPOLLMSG: u32 = 0x00000400;
+export def EPOLLRDHUP: u32 = 0x00002000;
+export def EPOLLWAKEUP: u32 = 1 << 29;
+export def EPOLLONESHOT: u32 = 1 << 30;
+export def EPOLLET: u32 = 1 << 31;
+
+export type epoll_data = union {
+	ptr: *void,
+	fd: int,
+	u32_: u32,
+	u64_: u64,
+};
+
+export type epoll_event = struct {
+	events: u32,
+	data: epoll_data,
+};
+
 export def TFD_TIMER_ABSTIME: int = 1;
 export def TFD_TIMER_CANCEL_ON_SET: int = 2;
 
