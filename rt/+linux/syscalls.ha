@@ -410,3 +410,15 @@ export fn recv(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) =
 export fn send(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) = {
 	return sendto(sockfd, buf, len_, flags, null, null);
 };
+
+export fn getsockopt(sockfd: int, level: int, optname: int, optval: nullable *void, optlen: nullable *u32) (int | errno) = {
+	return wrap_return(syscall5(SYS_getsockopt,
+		sockfd: u64, level: u64, optname: u64,
+		optval: uintptr: u64, optlen: uintptr: u64))?: int;
+};
+
+export fn setsockopt(sockfd: int, level: int, optname: int, optval: *void, optlen: u32) (int | errno) = {
+	return wrap_return(syscall5(SYS_setsockopt,
+		sockfd: u64, level: u64, optname: u64,
+		optval: uintptr: u64, optlen: u64))?: int;
+};

@@ -155,3 +155,33 @@ export def MSG_SENDPAGE_DECRYPTED: int = 0x100000; // sendpage() internal : page
 export def MSG_ZEROCOPY: int = 0x4000000;	// Use user data in kernel path
 export def MSG_FASTOPEN: int = 0x20000000;	// Send data in TCP SYN
 export def MSG_CMSG_CLOEXEC: int = 0x40000000;	// Set close_on_exec for file descriptor received through SCM_RIGHTS
+
+// setsockopt levels
+export def SOL_SOCKET: int = 1;
+
+// setsockopt options
+export def SO_DEBUG: int = 1;
+export def SO_REUSEADDR: int = 2;
+export def SO_TYPE: int = 3;
+export def SO_ERROR: int = 4;
+export def SO_DONTROUTE: int = 5;
+export def SO_BROADCAST: int = 6;
+export def SO_SNDBUF: int = 7;
+export def SO_RCVBUF: int = 8;
+export def SO_SNDBUFFORCE: int = 32;
+export def SO_RCVBUFFORCE: int = 33;
+export def SO_KEEPALIVE: int = 9;
+export def SO_OOBINLINE: int = 10;
+export def SO_NO_CHECK: int = 11;
+export def SO_PRIORITY: int = 12;
+export def SO_LINGER: int = 13;
+export def SO_BSDCOMPAT: int = 14;
+export def SO_REUSEPORT: int = 15;
+
+// the following differ on ppc
+export def SO_PASSCRED: int = 16;
+export def SO_PEERCRED: int = 17;
+export def SO_RCVLOWAT: int = 18;
+export def SO_SNDLOWAT: int = 19;
+export def SO_RCVTIMEO_OLD: int = 20;
+export def SO_SNDTIMEO_OLD: int = 21;
