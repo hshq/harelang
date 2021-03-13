@@ -367,7 +367,7 @@ export type epoll_data = union {
 
 export type epoll_event = struct {
 	events: u32,
-	data: epoll_data,
+	@offset(4) data: epoll_data,
 };
 
 export def TFD_TIMER_ABSTIME: int = 1;
