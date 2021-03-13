@@ -1,3 +1,45 @@
+export type sa_family_t = u16;
+
+export type in_addr = struct {
+	s_addr: u32
+};
+
+export type sockaddr_in = struct {
+	sin_family: sa_family_t,
+	sin_port: u16,
+	sin_addr: in_addr,
+	__pad: [16]char,
+};
+
+export type in6_addr = struct {
+	union {
+		s6_addr: [16]u8,
+		s6_addr16: [8]u16,
+		s6_addr32: [4]u32,
+	}
+};
+
+export type sockaddr_in6 = struct {
+	sin6_family: sa_family_t,
+	sin6_port: u16,
+	sin6_flowinfo: u32,
+	sin6_addr: in_addr,
+	sin6_scope_id: u32,
+};
+
+export def UNIX_PATH_MAX: int = 108;
+
+export type sockaddr_un = struct {
+	sin_family: sa_family_t,
+	sun_path: [UNIX_PATH_MAX]char,
+};
+
+export type sockaddr = union {
+	in: sockaddr_in,
+	in6: sockaddr_in6,
+	un: sockaddr_un,
+};
+
 // domain for socket(2)
 export def AF_UNSPEC: u16 = 0;
 export def AF_UNIX: u16 = 1;	// Unix domain sockets
