@@ -9,6 +9,10 @@ export type time_t = i64;
 export type suseconds_t = i64;
 export type nfds_t = u64;
 
+export type sigset = struct {
+	__val: [1]u64,
+};
+
 export type timeval = struct {
 	tv_sec:  time_t,
 	tv_usec: suseconds_t,
