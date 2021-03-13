@@ -5,7 +5,7 @@ TESTCACHE=$(HARECACHE)/+test
 TESTHAREFLAGS=$(HAREFLAGS) -T +test
 STDLIB=./
 
-cmd/hare/hare:
+.bin/hare:
 
 .SUFFIXES: .ha .ssa .s .o
 .ssa.s:
@@ -32,23 +32,24 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(hare_testlib_deps)
 	@printf 'HAREC\t$@\n'
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ $(hare_srcs)
 
-cmd/hare/hare: $(HARECACHE)/hare.o
+.bin/hare: $(HARECACHE)/hare.o
+	@mkdir -p .bin
 	@printf 'LD\t$@\n'
 	@$(LD) -T $(rtscript) --gc-sections -o $@ \
 		$(HARECACHE)/hare.o $(hare_stdlib_deps)
 
-cmd/hare/hare-tests: $(TESTCACHE)/hare.o
+.bin/hare-tests: $(TESTCACHE)/hare.o
+	@mkdir -p .bin
 	@printf 'LD\t$@\n'
 	@$(LD) -T $(rtscript) -o $@ \
 		$(TESTCACHE)/hare.o $(hare_testlib_deps)
 
 clean:
-	@rm -rf cache
-	@rm -f hare hare-tests
+	@rm -rf cache .bin
 
-check: cmd/hare/hare-tests
-	@./cmd/hare/hare-tests
+check: .bin/hare-tests
+	@./.bin/hare-tests
 
-all: cmd/hare/hare
+all: .bin/hare
 
 .PHONY: all clean check

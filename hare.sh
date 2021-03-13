@@ -1,2 +1,2 @@
-export PATH=$PATH:$(pwd)/cmd/hare
+export PATH=$PATH:$(pwd)/.bin
 export HAREPATH=$(pwd)
