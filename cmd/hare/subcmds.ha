@@ -79,7 +79,8 @@ fn build(args: []str) void = {
 
 	let ver = match (module::scan(&ctx, input)) {
 		ver: module::version => ver,
-		err: module::error => fmt::fatal("Error scanning module: {}",
+		err: module::error => fmt::fatal(
+			"Error scanning input module: {}",
 			module::errstr(err)),
 	};
 
@@ -165,7 +166,8 @@ fn run(args: []str) void = {
 
 	let ver = match (module::scan(&ctx, input)) {
 		ver: module::version => ver,
-		err: module::error => fmt::fatal("Error scanning module: {}",
+		err: module::error => fmt::fatal(
+			"Error scanning input module: {}",
 			module::errstr(err)),
 	};
 
