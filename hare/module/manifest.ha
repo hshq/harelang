@@ -43,9 +43,9 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 		defer free(hash);
 
 		assert(input.stat.mask & fs::stat_mask::INODE == fs::stat_mask::INODE);
-		// TODO: Add mtime
-		fmt::fprintfln(fd, "input {} {} {}",
-			hash, input.path, input.stat.inode);
+		fmt::fprintfln(fd, "input {} {} {} {}",
+			hash, input.path, input.stat.inode,
+			time::unix(input.stat.mtime));
 	};
 
 	for (let i = 0z; i < len(manifest.versions); i += 1) {

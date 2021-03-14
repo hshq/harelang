@@ -22,6 +22,15 @@ export fn compare(a: time, b: time) int = {
 		if (a.nsec < b.nsec) -1 else if (a.nsec > b.nsec) 1 else 0;
 };
 
+// Converts the given [time] to a Unix timestamp.
+export fn unix(a: time) i64 = a.sec;
+
+// Returns a [time] from a Unix timestamp.
+export fn from_unix(u: i64) time = time {
+	sec = u,
+	nsec = 0,
+};
+
 @test fn compare() void = {
 	let a = now(clock::MONOTONIC);
 	sleep(1 * MILLISECOND);
