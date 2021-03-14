@@ -136,7 +136,6 @@ fn update_cache(plan: *plan, mod: modcache) void = {
 		inputs = mod.version.inputs,
 		versions = [mod.version],
 	};
-	fmt::errorfln("Updating module {}", ast::ident_unparse_s(mod.ident));
 	match (module::manifest_write(plan.context, &manifest)) {
 		err: module::error => fmt::fatal(
 			"Error updating module cache: {}",

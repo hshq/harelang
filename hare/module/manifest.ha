@@ -1,8 +1,19 @@
+use encoding::hex;
 use fmt;
 use fs;
+use hare::ast;
 use io;
 use path;
 use time;
+
+// The manifest file format is a series of line-oriented records. Lines starting
+// with # are ignored.
+//
+// - "version" indicates the manifest format version, currently 1.
+// - "input" is an input file, and its fields are the file hash, path, inode,
+//   and mtime as a Unix timestamp.
+// - "module" is a version of a module, and includes the module hash and the set
+//   of input hashes which produce it.
 
 // Writes a module manifest to the build cache.
 export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
@@ -20,8 +31,38 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 	let fd = fs::create(ctx.fs, mpath, 0o644)?;
 	defer io::close(fd);
 
+	let ident = ast::ident_unparse_s(manifest.ident);
+	defer free(ident);
+	fmt::fprintfln(fd, "# {}", ident)?;
+	fmt::fprintln(fd, "# This file is an internal Hare implementation detail.")?;
+	fmt::fprintln(fd, "# The format is not stable.")?;
+	fmt::fprintln(fd, "version 1")?;
 	for (let i = 0z; i < len(manifest.inputs); i += 1) {
-		void; // TODO: Write manifest
+		const input = manifest.inputs[i];
+		let hash = hex::encode(input.hash);
+		defer free(hash);
+
+		assert(input.stat.mask & fs::stat_mask::INODE == fs::stat_mask::INODE);
+		// TODO: Add mtime
+		fmt::fprintfln(fd, "input {} {} {}",
+			hash, input.path, input.stat.inode);
+	};
+
+	for (let i = 0z; i < len(manifest.versions); i += 1) {
+		const ver = manifest.versions[i];
+		let hash = hex::encode(ver.hash);
+		defer free(hash);
+
+		fmt::fprintf(fd, "module {}", hash);
+
+		for (let j = 0z; j < len(ver.inputs); j += 1) {
+			let hash = hex::encode(ver.inputs[i].hash);
+			defer free(hash);
+
+			fmt::fprintf(fd, " {}", hash);
+		};
+
+		fmt::fprintln(fd);
 	};
 };
 
