@@ -1,9 +1,11 @@
 use dirs;
+use fmt;
 use fs;
 use hare::ast;
 use os;
 use path;
 use strings;
+use strio;
 
 // TODO: Specify this at build time once harec supports -D
 def DEFAULT_HAREPATH: str = "/usr/src/hare";
@@ -81,4 +83,25 @@ export fn ident_path(name: ast::ident) str = {
 	let p = ident_path(ident);
 	defer free(p);
 	assert(p == "foo/bar/baz");
+};
+
+// Joins an ident string with underscores instead of double colons. The return
+// value must be freed by the caller.
+//
+// This is used for module names in environment variables and some file names.
+export fn ident_underscore(ident: ast::ident) str = {
+	let buf = strio::dynamic();
+	for (let i = 0z; i < len(ident); i += 1) {
+		fmt::fprintf(buf, "{}{}", ident[i],
+			if (i + 1 < len(ident)) "_"
+			else "") as size;
+	};
+	return strio::finish(buf);
+};
+
+@test fn ident_underscore() void = {
+	let ident: ast::ident = ["foo", "bar", "baz"];
+	let p = ident_underscore(ident);
+	defer free(p);
+	assert(p == "foo_bar_baz");
 };

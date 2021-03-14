@@ -18,6 +18,7 @@ export type tag = struct {
 // The manifest for a particular module, with some number of inputs, and
 // versions.
 export type manifest = struct {
+	ident: ast::ident,
 	inputs: []input,
 	versions: []version,
 };

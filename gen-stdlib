@@ -259,10 +259,11 @@ hare_module() {
 	gen_srcs hare::module \
 		types.ha \
 		context.ha \
-		scan.ha
+		scan.ha \
+		manifest.ha
 	gen_ssa hare::module \
 		hare::ast hare::lex hare::parse strio fs io strings hash \
-		crypto::sha256 dirs bytes encoding::utf8 ascii
+		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time
 }
 
 gensrcs_hare_parse() {

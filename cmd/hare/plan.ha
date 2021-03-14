@@ -131,7 +131,18 @@ fn plan_execute(plan: *plan, verbose: bool) void = {
 };
 
 fn update_cache(plan: *plan, mod: modcache) void = {
-	void; // TODO: Add module to cache manifest
+	let manifest = module::manifest {
+		ident = mod.ident,
+		inputs = mod.version.inputs,
+		versions = [mod.version],
+	};
+	fmt::errorfln("Updating module {}", ast::ident_unparse_s(mod.ident));
+	match (module::manifest_write(plan.context, &manifest)) {
+		err: module::error => fmt::fatal(
+			"Error updating module cache: {}",
+			module::errstr(err)),
+		void => void,
+	};
 };
 
 fn update_modcache(plan: *plan) void = {

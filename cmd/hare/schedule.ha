@@ -123,16 +123,6 @@ fn sched_qbe(plan: *plan, output: str, depend: *task) *task = {
 	return task;
 };
 
-export fn ident_to_env(ident: ast::ident) str = {
-	let buf = strio::dynamic();
-	for (let i = 0z; i < len(ident); i += 1) {
-		fmt::fprintf(buf, "{}{}", ident[i],
-			if (i + 1 < len(ident)) "_"
-			else "") as size;
-	};
-	return strio::finish(buf);
-};
-
 // Schedules tasks which compiles a Hare module into an object or archive.
 fn sched_hare_object(
 	plan: *plan,
@@ -162,7 +152,7 @@ fn sched_hare_object(
 		// TODO: consult/update cache manifest
 		let version = hex::encode(ver.hash);
 		let ns = ast::ident_unparse_s(namespace);
-		let env = ident_to_env(namespace);
+		let env = module::ident_underscore(namespace);
 		defer free(env);
 
 		append(harec.cmd, "-N", ns);
