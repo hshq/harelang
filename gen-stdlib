@@ -355,7 +355,7 @@ os() {
 		'$(PLATFORM)/fs.ha' \
 		stdfd.ha \
 		fs.ha
-	gen_ssa os io strings types fs encoding::utf8 bytes
+	gen_ssa os io strings types fs encoding::utf8 bytes bufio
 }
 
 os_exec() {
