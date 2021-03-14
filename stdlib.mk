@@ -255,9 +255,9 @@ $(HARECACHE)/encoding/hex/encoding_hex.ssa: $(stdlib_encoding_hex_srcs) $(stdlib
 
 # encoding::utf8
 stdlib_encoding_utf8_srcs= \
-	$(STDLIB)/encoding/utf8/rune.ha \
 	$(STDLIB)/encoding/utf8/decode.ha \
-	$(STDLIB)/encoding/utf8/encode.ha
+	$(STDLIB)/encoding/utf8/encode.ha \
+	$(STDLIB)/encoding/utf8/rune.ha
 
 $(HARECACHE)/encoding/utf8/encoding_utf8.ssa: $(stdlib_encoding_utf8_srcs) $(stdlib_rt) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
@@ -389,13 +389,13 @@ $(HARECACHE)/hash/fnv/hash_fnv.ssa: $(stdlib_hash_fnv_srcs) $(stdlib_rt) $(stdli
 # io
 stdlib_io_srcs= \
 	$(STDLIB)/io/arch$(ARCH).ha \
-	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/copy.ha \
+	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/println.ha \
 	$(STDLIB)/io/stream.ha \
-	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/strings.ha \
-	$(STDLIB)/io/tee.ha
+	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/types.ha
 
 $(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
@@ -806,9 +806,9 @@ $(TESTCACHE)/encoding/hex/encoding_hex.ssa: $(testlib_encoding_hex_srcs) $(testl
 
 # encoding::utf8
 testlib_encoding_utf8_srcs= \
-	$(STDLIB)/encoding/utf8/rune.ha \
 	$(STDLIB)/encoding/utf8/decode.ha \
-	$(STDLIB)/encoding/utf8/encode.ha
+	$(STDLIB)/encoding/utf8/encode.ha \
+	$(STDLIB)/encoding/utf8/rune.ha
 
 $(TESTCACHE)/encoding/utf8/encoding_utf8.ssa: $(testlib_encoding_utf8_srcs) $(testlib_rt) $(testlib_types)
 	@printf 'HAREC \t$@\n'
@@ -942,13 +942,13 @@ $(TESTCACHE)/hash/fnv/hash_fnv.ssa: $(testlib_hash_fnv_srcs) $(testlib_rt) $(tes
 # io
 testlib_io_srcs= \
 	$(STDLIB)/io/arch$(ARCH).ha \
-	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/copy.ha \
+	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/println.ha \
 	$(STDLIB)/io/stream.ha \
-	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/strings.ha \
 	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/+test/copy.ha \
 	$(STDLIB)/io/+test/limit.ha \
 	$(STDLIB)/io/+test/stream.ha \

@@ -179,12 +179,11 @@ encoding_hex() {
 }
 
 encoding_utf8() {
-	# XXX: Also has ordering issues
 	printf '# encoding::utf8\n'
 	gen_srcs encoding::utf8 \
-		rune.ha \
 		decode.ha \
-		encode.ha
+		encode.ha \
+		rune.ha
 	gen_ssa encoding::utf8 types
 }
 
@@ -303,19 +302,17 @@ hash_fnv() {
 gensrcs_io() {
 	gen_srcs io \
 		'arch$(ARCH).ha' \
-		types.ha \
 		copy.ha \
+		limit.ha \
 		println.ha \
 		stream.ha \
-		limit.ha \
 		strings.ha \
 		tee.ha \
+		types.ha \
 		$*
 }
 
 io() {
-	# XXX: Sort me only after fixing forward references to alias types
-	# Sort it to see what the problem is if you don't understand
 	printf '# io\n'
 	if [ $testing -eq 0 ]
 	then
