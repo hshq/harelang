@@ -90,6 +90,16 @@ export fn dirfs_clone(fs: *fs::fs, resolve: resolve_flags...) *fs::fs = {
 	return &new.fs;
 };
 
+fn errno_to_fs(err: rt::errno) fs::error = switch (err) {
+	rt::ENOENT  => fs::noentry,
+	rt::EEXIST  => fs::exists,
+	rt::EACCES  => fs::noaccess,
+	rt::EBUSY   => fs::busy,
+	rt::ENOTDIR => fs::wrongtype,
+	rt::EOPNOTSUPP, rt::ENOSYS => io::unsupported,
+	* => errno_to_io(err),
+};
+
 fn _fs_open(
 	fs: *fs::fs,
 	path: str,
@@ -113,7 +123,7 @@ fn _fs_open(
 	};
 
 	let fd = match (rt::openat2(fs.dirfd, path, oh, size(rt::open_how))) {
-		err: rt::errno => return errno_to_io(err),
+		err: rt::errno => return errno_to_fs(err),
 		fd: int => fd,
 	};
 
@@ -188,7 +198,7 @@ fn fs_create(
 fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::unlinkat(fs.dirfd, path, 0)) {
-		err: rt::errno => return errno_to_io(err),
+		err: rt::errno => return errno_to_fs(err),
 		void => void,
 	};
 };
@@ -197,7 +207,7 @@ fn fs_stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 	let fs = fs: *os_filesystem;
 	let st = rt::st { ... };
 	match (rt::fstatat(fs.dirfd, path, &st, rt::AT_SYMLINK_NOFOLLOW)) {
-		err: rt::errno => return errno_to_io(err),
+		err: rt::errno => return errno_to_fs(err),
 		void => void,
 	};
 	return fs::filestat {
@@ -222,7 +232,7 @@ fn fs_subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 
 	let fd: int = match (rt::openat2(fs.dirfd, path,
 			&oh, size(rt::open_how))) {
-		err: rt::errno => return errno_to_io(err),
+		err: rt::errno => return errno_to_fs(err),
 		n: int => n,
 	};
 
@@ -232,7 +242,7 @@ fn fs_subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 fn fs_rmdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::unlinkat(fs.dirfd, path, rt::AT_REMOVEDIR)) {
-		err: rt::errno => return errno_to_io(err),
+		err: rt::errno => return errno_to_fs(err),
 		void => void,
 	};
 };
@@ -240,10 +250,7 @@ fn fs_rmdir(fs: *fs::fs, path: str) (void | fs::error) = {
 fn fs_mkdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	return match (rt::mkdirat(fs.dirfd, path, 0o755)) {
-		err: rt::errno => switch (err) {
-			rt::EEXIST => fs::exists,
-			* => errno_to_io(err),
-		},
+		err: rt::errno => errno_to_fs(err),
 		void => void,
 	};
 };
@@ -303,12 +310,7 @@ fn fs_iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 	};
 	let fd: int = match (rt::openat2(fs.dirfd, path,
 			&oh, size(rt::open_how))) {
-		err: rt::errno => {
-			if (err: int == rt::ENOTDIR) {
-				return fs::wrongtype;
-			};
-			return errno_to_io(err);
-		},
+		err: rt::errno => return errno_to_fs(err),
 		n: int => n,
 	};
 
