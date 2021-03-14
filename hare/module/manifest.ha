@@ -42,7 +42,8 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 		let hash = hex::encode(input.hash);
 		defer free(hash);
 
-		assert(input.stat.mask & fs::stat_mask::INODE == fs::stat_mask::INODE);
+		const want = fs::stat_mask::INODE | fs::stat_mask::MTIME;
+		assert(input.stat.mask & want == want);
 		fmt::fprintfln(fd, "input {} {} {} {}",
 			hash, input.path, input.stat.inode,
 			time::unix(input.stat.mtime));
