@@ -45,7 +45,7 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(hare_testlib_deps)
 		$(TESTCACHE)/hare.o $(hare_testlib_deps)
 
 clean:
-	@rm -rf cache .bin
+	@rm -rf .cache .bin
 
 check: .bin/hare-tests
 	@./.bin/hare-tests
