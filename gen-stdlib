@@ -319,18 +319,11 @@ io() {
 	then
 		gensrcs_io
 	else
-		if [ "$(uname -m)" = "aarch64" ]
-		then
-			# Test is broken on aarch64, temporarily disabled
-			# https://todo.sr.ht/~sircmpwn/hare-v2/196
-			gensrcs_io
-		else
-			gensrcs_io \
-				+test/copy.ha \
-				+test/limit.ha \
-				+test/stream.ha \
-				+test/strings.ha
-		fi
+		gensrcs_io \
+			+test/copy.ha \
+			+test/limit.ha \
+			+test/stream.ha \
+			+test/strings.ha
 	fi
 	gen_ssa io strings
 }
