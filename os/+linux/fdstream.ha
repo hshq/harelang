@@ -48,8 +48,11 @@ fn is_fdstream(s: *io::stream) bool = {
 // Returns the file descriptor for a given [io::stream]. If there is no fd
 // associated with this stream, void is returned.
 export fn streamfd(s: *io::stream) (int | void) = {
-	if (!is_fdstream(s)) {
-		return;
+	for (!is_fdstream(s)) {
+		s = match (io::source(s)) {
+			io::unsupported => return,
+			s: *io::stream  => s,
+		};
 	};
 	let stream = s: *fd_stream;
 	return stream.fd;

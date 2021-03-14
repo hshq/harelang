@@ -1,7 +1,7 @@
 use bytes;
 use io;
 
-type bufstream = struct {
+export type bufstream = struct {
 	stream: io::stream,
 	source: *io::stream,
 	rbuffer: []u8,
@@ -9,6 +9,39 @@ type bufstream = struct {
 	rfilled: []u8,
 	wfilled: []u8,
 	flush: []u8,
+};
+
+export fn static_buffered(
+	src: *io::stream,
+	rbuf: []u8,
+	wbuf: []u8,
+	s: *bufstream,
+) *io::stream = {
+	*s = bufstream {
+		stream = io::stream {
+			name = src.name,
+			closer = &buffered_close,
+			unwrap = &buffered_unwrap,
+		},
+		source = src,
+		rbuffer = rbuf,
+		wbuffer = wbuf,
+		flush   = ['\n': u32: u8],
+		...
+	};
+	if (len(rbuf) != 0) {
+		s.rfilled = rbuf[..0];
+		s.stream.reader = &buffered_read;
+	};
+	if (len(wbuf) != 0) {
+		s.wfilled = wbuf[..0];
+		s.stream.writer = &buffered_write;
+	};
+	if (len(rbuf) != 0 && len(wbuf) != 0) {
+		assert(rbuf: *[*]u8 != wbuf: *[*]u8,
+			"Cannot use bufio::buffered with same buffer for reads and writes");
+	};
+	return &s.stream;
 };
 
 // Creates a stream which buffers reads and writes for the underlying stream.
@@ -27,30 +60,8 @@ export fn buffered(
 	rbuf: []u8,
 	wbuf: []u8,
 ) *io::stream = {
-	let s = alloc(bufstream {
-		stream = io::stream {
-			name = src.name,
-			closer = &buffered_close,
-		},
-		source = src,
-		rbuffer = rbuf,
-		wbuffer = wbuf,
-		flush   = ['\n': u32: u8],
-		...
-	});
-	if (len(rbuf) != 0) {
-		s.rfilled = rbuf[..0];
-		s.stream.reader = &buffered_read;
-	};
-	if (len(wbuf) != 0) {
-		s.wfilled = wbuf[..0];
-		s.stream.writer = &buffered_write;
-	};
-	if (len(rbuf) != 0 && len(wbuf) != 0) {
-		assert(rbuf: *[*]u8 != wbuf: *[*]u8,
-			"Cannot use bufio::buffered with same buffer for reads and writes");
-	};
-	return &s.stream;
+	let s = alloc(bufstream { ... });
+	return static_buffered(src, rbuf, wbuf, s);
 };
 
 // Flushes pending writes to the underlying stream.
@@ -75,6 +86,12 @@ fn buffered_close(s: *io::stream) void = {
 	let s = s: *bufstream;
 	io::close(s.source);
 	free(s);
+};
+
+fn buffered_unwrap(s: *io::stream) *io::stream = {
+	assert(s.unwrap == &buffered_unwrap);
+	let s = s: *bufstream;
+	return s.source;
 };
 
 fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
@@ -113,9 +130,11 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let sourcebuf: []u8 = [1, 3, 3, 7];
 	let source = fixed(sourcebuf, io::mode::READ);
 	let fb = source: *fixed_stream;
+	defer io::close(source);
 
 	let rbuf: [1024]u8 = [0...];
 	let f = buffered(source, rbuf, []);
+	defer io::close(f);
 
 	let buf: [1024]u8 = [0...];
 	assert(io::read(f, buf[..2]) as size == 2);
@@ -130,9 +149,11 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	sourcebuf[32..36] = [7, 3, 3, 1];
 	let source = fixed(sourcebuf, io::mode::READ);
 	let fb = source: *fixed_stream;
+	defer io::close(source);
 
 	let rbuf: [16]u8 = [0...];
 	let f = buffered(source, rbuf, []);
+	defer io::close(f);
 
 	let buf: [32]u8 = [0...];
 	assert(io::read(f, buf) as size == 16);

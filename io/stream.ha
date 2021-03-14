@@ -26,6 +26,7 @@ export type stream = struct {
 	closer: nullable *closer,
 	copier: nullable *copier,
 	seeker: nullable *seeker,
+	unwrap: nullable *unwrap,
 };
 
 // Reads up to len(buf) bytes from the reader into the given buffer, returning
@@ -67,6 +68,14 @@ export fn tell(s: *stream) (off | error) = {
 	return match (s.seeker) {
 		null => unsupported,
 		sk: *seeker => sk(s, 0, whence::CUR),
+	};
+};
+
+// Returns the underlying stream for a stream which wraps another stream.
+export fn source(s: *stream) (*io::stream | unsupported) = {
+	return match (s.unwrap) {
+		null => unsupported,
+		uw: *unwrap => uw(s),
 	};
 };
 

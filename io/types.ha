@@ -76,3 +76,7 @@ export type copier = fn(to: *stream, from: *stream) (size | error);
 //
 // Returns the new offset relative to the start or an error.
 export type seeker = fn(s: *stream, off: off, w: whence) (off | error);
+
+// The interface for a stream which wraps another kind of stream. Returns the
+// underlying stream.
+export type unwrap = fn(s: *stream) *stream;
