@@ -20,7 +20,7 @@ tasks:
     make
 - tests: |
     cd hare
-    make cmd/hare/hare-tests
+    make .bin/hare-tests
 - check: |
     cd hare
     make check
