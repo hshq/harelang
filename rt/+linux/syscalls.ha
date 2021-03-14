@@ -109,7 +109,8 @@ export fn chroot(path: path) (void | errno) = {
 
 export fn mkdir(path: path, mode: uint) (void | errno) = {
 	let path = kpath(path)?;
-	wrap_return(syscall2(SYS_mkdir, path: uintptr: u64, mode: u64))?;
+	wrap_return(syscall3(SYS_mkdirat, AT_FDCWD: u64,
+		path: uintptr: u64, mode: u64))?;
 	return;
 };
 
