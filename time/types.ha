@@ -15,3 +15,18 @@ export def HOUR: duration		= 60 * MINUTE;
 // epoch. For [clock::REALTIME], the epoch is the Unix epoch: January 1st, 1970,
 // at midnight, UTC.
 export type time = struct { sec: i64, nsec: i64 };
+
+// The return value is negative if a < b, zero if a == b, and positive if a > b.
+export fn compare(a: time, b: time) int = {
+	return if (a.sec < b.sec) -1 else if (a.sec > b.sec) 1 else
+		if (a.nsec < b.nsec) -1 else if (a.nsec > b.nsec) 1 else 0;
+};
+
+@test fn compare() void = {
+	let a = now(clock::MONOTONIC);
+	sleep(1 * MILLISECOND);
+	let b = now(clock::MONOTONIC);
+	assert(compare(a, b) < 0);
+	assert(compare(b, a) > 0);
+	assert(compare(a, a) == 0);
+};
