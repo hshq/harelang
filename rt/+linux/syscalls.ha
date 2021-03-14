@@ -288,6 +288,12 @@ export fn clock_gettime(clock_id: int, tp: *timespec) (void | errno) = {
 	return;
 };
 
+export fn nanosleep(req: *const timespec, rem: *timespec) (void | errno) = {
+	wrap_return(syscall2(SYS_nanosleep,
+		req: uintptr: u64, rem: uintptr: u64))?;
+	return;
+};
+
 export fn uname(uts: *utsname) (void | errno) = {
 	wrap_return(syscall1(SYS_uname, uts: uintptr: u64))?;
 	return;

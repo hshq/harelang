@@ -161,6 +161,9 @@ hare_stdlib_deps+=$(stdlib_strio)
 stdlib_temp=$(HARECACHE)/temp/temp.o
 hare_stdlib_deps+=$(stdlib_temp)
 
+stdlib_time=$(HARECACHE)/time/time.o
+hare_stdlib_deps+=$(stdlib_time)
+
 stdlib_types=$(HARECACHE)/types/types.o
 hare_stdlib_deps+=$(stdlib_types)
 
@@ -536,6 +539,17 @@ $(HARECACHE)/temp/temp.ssa: $(stdlib_temp_srcs) $(stdlib_rt) $(stdlib_crypto_ran
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntemp \
 		-t$(HARECACHE)/temp/temp.td $(stdlib_temp_srcs)
 
+# time
+stdlib_time_srcs= \
+	$(STDLIB)/time/$(PLATFORM).ha \
+	$(STDLIB)/time/types.ha
+
+$(HARECACHE)/time/time.ssa: $(stdlib_time_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/time
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime \
+		-t$(HARECACHE)/time/time.td $(stdlib_time_srcs)
+
 # types
 stdlib_types_srcs= \
 	$(STDLIB)/types/limits.ha \
@@ -710,6 +724,9 @@ hare_testlib_deps+=$(testlib_strio)
 
 testlib_temp=$(TESTCACHE)/temp/temp.o
 hare_testlib_deps+=$(testlib_temp)
+
+testlib_time=$(TESTCACHE)/time/time.o
+hare_testlib_deps+=$(testlib_time)
 
 testlib_types=$(TESTCACHE)/types/types.o
 hare_testlib_deps+=$(testlib_types)
@@ -1095,6 +1112,17 @@ $(TESTCACHE)/temp/temp.ssa: $(testlib_temp_srcs) $(testlib_rt) $(testlib_crypto_
 	@mkdir -p $(TESTCACHE)/temp
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
 		-t$(TESTCACHE)/temp/temp.td $(testlib_temp_srcs)
+
+# time
+testlib_time_srcs= \
+	$(STDLIB)/time/$(PLATFORM).ha \
+	$(STDLIB)/time/types.ha
+
+$(TESTCACHE)/time/time.ssa: $(testlib_time_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
+		-t$(TESTCACHE)/time/time.td $(testlib_time_srcs)
 
 # types
 testlib_types_srcs= \

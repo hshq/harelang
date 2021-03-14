@@ -453,6 +453,14 @@ strio() {
 	gen_ssa strio io strings encoding::utf8
 }
 
+time() {
+	printf '# time\n'
+	gen_srcs time \
+		'$(PLATFORM).ha' \
+		types.ha
+	gen_ssa time
+}
+
 temp() {
 	printf '# temp\n'
 	gen_srcs temp \
@@ -502,6 +510,7 @@ strconv
 strings
 strio
 temp
+time
 types"
 stdlib() {
 	rt
