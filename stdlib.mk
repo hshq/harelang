@@ -307,7 +307,7 @@ stdlib_fs_srcs= \
 	$(STDLIB)/fs/fs.ha \
 	$(STDLIB)/fs/util.ha
 
-$(HARECACHE)/fs/fs.ssa: $(stdlib_fs_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_path)
+$(HARECACHE)/fs/fs.ssa: $(stdlib_fs_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_path) $(stdlib_time)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/fs
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfs \
@@ -873,7 +873,7 @@ testlib_fs_srcs= \
 	$(STDLIB)/fs/fs.ha \
 	$(STDLIB)/fs/util.ha
 
-$(TESTCACHE)/fs/fs.ssa: $(testlib_fs_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_path)
+$(TESTCACHE)/fs/fs.ssa: $(testlib_fs_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_path) $(testlib_time)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/fs
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs \

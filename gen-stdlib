@@ -217,7 +217,7 @@ fs() {
 		types.ha \
 		fs.ha \
 		util.ha
-	gen_ssa fs io strings path
+	gen_ssa fs io strings path time
 }
 
 getopt() {

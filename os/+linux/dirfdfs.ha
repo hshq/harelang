@@ -5,8 +5,7 @@ use io;
 use path;
 use rt;
 use strings;
-
-use strconv;
+use time;
 
 // Controls how symlinks are followed (or not) in a dirfd filesystem. Support
 // for this feature varies, you should gate usage of this enum behind a build
@@ -216,12 +215,27 @@ fn fs_stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 		mask = fs::stat_mask::UID
 			| fs::stat_mask::GID
 			| fs::stat_mask::SIZE
-			| fs::stat_mask::INODE,
+			| fs::stat_mask::INODE
+			| fs::stat_mask::ATIME
+			| fs::stat_mask::MTIME
+			| fs::stat_mask::CTIME,
 		mode = st.mode: fs::mode,
 		uid = st.uid,
 		uid = st.gid,
 		sz = st.sz,
 		inode = st.ino,
+		atime = time::time {
+			sec = st.atime.tv_sec,
+			nsec = st.atime.tv_nsec,
+		},
+		mtime = time::time {
+			sec = st.mtime.tv_sec,
+			nsec = st.mtime.tv_nsec,
+		},
+		ctime = time::time {
+			sec = st.ctime.tv_sec,
+			nsec = st.ctime.tv_nsec,
+		},
 	};
 };
 

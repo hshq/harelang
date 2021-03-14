@@ -1,6 +1,7 @@
 use io;
 use strings;
 use path;
+use time;
 
 // An entry was requested which does not exist.
 export type noentry = void!;
@@ -101,6 +102,9 @@ export type stat_mask = enum uint {
 	GID	= 1 << 1,
 	SIZE	= 1 << 2,
 	INODE	= 1 << 3,
+	ATIME	= 1 << 4,
+	MTIME	= 1 << 5,
+	CTIME	= 1 << 6,
 };
 
 // Information about a file or directory. The mask field defines what other
@@ -112,7 +116,9 @@ export type filestat = struct {
 	gid: uint,
 	sz: size,
 	inode: u64,
-	// TODO: atime et al
+	atime: time::time,
+	mtime: time::time,
+	ctime: time::time,
 };
 
 // An entry in a directory. This may be borrowed from the filesystem's internal
