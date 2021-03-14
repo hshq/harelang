@@ -8,3 +8,10 @@ export def MILLISECOND: duration	= 1000 * MICROSECOND;
 export def SECOND: duration		= 1000 * MILLISECOND;
 export def MINUTE: duration		= 60 * SECOND;
 export def HOUR: duration		= 60 * MINUTE;
+
+// TEMPORARY; MAY CHANGE
+//
+// Represents a specific instant in time as seconds (+nanoseconds) since a given
+// epoch. For [clock::REALTIME], the epoch is the Unix epoch: January 1st, 1970,
+// at midnight, UTC.
+export type time = struct { sec: i64, nsec: i64 };
