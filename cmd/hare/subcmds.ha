@@ -102,6 +102,18 @@ fn build(args: []str) void = {
 	plan_execute(&plan, verbose);
 };
 
+fn cache(args: []str) void = {
+	let help: []getopt::help = [
+		"manages the build cache",
+		('c', "cleans the specified modules"),
+		"modules...",
+	];
+	let cmd = getopt::parse(args, help...);
+	defer getopt::finish(&cmd);
+
+	abort(); // TODO
+};
+
 fn deps(args: []str) void = {
 	let help: []getopt::help = [
 		"prints dependency information for Hare programs",
