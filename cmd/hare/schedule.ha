@@ -47,7 +47,12 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 	};
 
 	let obj = sched_hare_object(plan, ver, ident, depends...);
-	append(*bucket, modcache { hash = hash, task = obj });
+	append(*bucket, modcache {
+		hash = hash,
+		task = obj,
+		ident = ident,
+		version = ver,
+	});
 	append(*link, obj);
 	free(depends);
 	return obj;

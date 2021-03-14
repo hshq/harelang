@@ -10,6 +10,7 @@ use temp;
 type status = enum {
 	SCHEDULED,
 	COMPLETE,
+	SKIP,
 };
 
 type task = struct {
@@ -29,6 +30,8 @@ fn task_free(task: *task) void = {
 type modcache = struct {
 	hash: u32,
 	task: *task,
+	ident: ast::ident,
+	version: module::version,
 };
 
 type plan = struct {
@@ -94,7 +97,7 @@ fn plan_execute(plan: *plan, verbose: bool) void = {
 			let task = plan.scheduled[i];
 			let eligible = true;
 			for (let j = 0z; j < len(task.depend); j += 1) {
-				if (task.depend[j].status != status::COMPLETE) {
+				if (task.depend[j].status == status::SCHEDULED) {
 					eligible = false;
 					break;
 				};
@@ -122,6 +125,26 @@ fn plan_execute(plan: *plan, verbose: bool) void = {
 
 		delete(plan.scheduled[i]);
 		append(plan.complete, task);
+	};
+
+	update_modcache(plan);
+};
+
+fn update_cache(plan: *plan, mod: modcache) void = {
+	void; // TODO: Add module to cache manifest
+};
+
+fn update_modcache(plan: *plan) void = {
+	for (let i = 0z; i < len(plan.modmap); i += 1) {
+		let mods = plan.modmap[i];
+		if (len(mods) == 0) {
+			continue;
+		};
+		for (let j = 0z; j < len(mods); j += 1) {
+			if (mods[j].task.status == status::COMPLETE) {
+				update_cache(plan, mods[j]);
+			};
+		};
 	};
 };
 
