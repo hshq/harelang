@@ -1,4 +1,4 @@
-HARECACHE=cache
+HARECACHE=.cache
 PLATFORM=+linux
 ARCH=+x86_64
 
