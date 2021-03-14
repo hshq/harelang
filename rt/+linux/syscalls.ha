@@ -310,9 +310,22 @@ export fn getcwd() (*const char | errno) = {
 	return &pathbuf: *const char;
 };
 
+export fn ppoll(
+	fds: *pollfd,
+	nfds: nfds_t,
+	timeout: const nullable *timespec,
+	sigmask: const nullable *sigset,
+) (int | errno) = {
+	return wrap_return(syscall4(SYS_ppoll, fds: uintptr: u64, nfds: u64,
+		timeout: uintptr: u64, sigmask: uintptr: u64))?: int;
+};
+
 export fn poll(fds: *pollfd, nfds: nfds_t, timeout: int) (int | errno) = {
-	return wrap_return(syscall3(SYS_poll,
-		fds: uintptr: u64, nfds: u64, timeout: u64))?: int;
+	const ts = timespec {
+		tv_sec = timeout % 1000,
+		tv_nsec = timeout * 1000000,
+	};
+	return ppoll(fds, nfds, (if (timeout != -1) &ts else null), null);
 };
 
 export fn epoll_create1(flags: int) (int | errno) = {
