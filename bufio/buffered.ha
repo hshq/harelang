@@ -1,3 +1,4 @@
+use bytes;
 use io;
 
 type bufstream = struct {
@@ -16,8 +17,8 @@ type bufstream = struct {
 // take place over the network.
 //
 // The caller should supply one or both of a read and write buffer as a slice of
-// the desired buffer slice, or empty slices if read or write functionality is
-// disabled (in which case the 'mode' argument must be set accordingly).
+// the desired buffer, or empty slices if read or write functionality is
+// disabled. The same buffer may not be used for both reads and writes.
 //
 // When the buffered stream is closed, the underlying stream is also closed. The
 // provided buffers are not freed.
@@ -25,7 +26,6 @@ export fn buffered(
 	src: *io::stream,
 	rbuf: []u8,
 	wbuf: []u8,
-	mode: io::mode,
 ) *io::stream = {
 	let s = alloc(bufstream {
 		stream = io::stream {
@@ -35,19 +35,22 @@ export fn buffered(
 		source = src,
 		rbuffer = rbuf,
 		wbuffer = wbuf,
-		rfilled = rbuf[..0],
-		wfilled = wbuf[..0],
-		flush  = ['\n': u32: u8],
-	}): *io::stream;
-	if (mode & io::mode::READ == io::mode::READ) {
-		assert(len(rbuf) != 0);
-		s.reader = &buffered_read;
+		flush   = ['\n': u32: u8],
+		...
+	});
+	if (len(rbuf) != 0) {
+		s.rfilled = rbuf[..0];
+		s.stream.reader = &buffered_read;
 	};
-	if (mode & io::mode::WRITE == io::mode::WRITE) {
-		assert(len(wbuf) != 0);
-		s.writer = &buffered_write;
+	if (len(wbuf) != 0) {
+		s.wfilled = wbuf[..0];
+		s.stream.writer = &buffered_write;
 	};
-	return s;
+	if (len(rbuf) != 0 && len(wbuf) != 0) {
+		assert(rbuf: *[*]u8 != wbuf: *[*]u8,
+			"Cannot use bufio::buffered with same buffer for reads and writes");
+	};
+	return &s.stream;
 };
 
 // Flushes pending writes to the underlying stream.
@@ -76,10 +79,67 @@ fn buffered_close(s: *io::stream) void = {
 
 fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	assert(s.reader == &buffered_read);
-	return io::unsupported; // TODO
+	let s = s: *bufstream;
+
+	let n = if (len(buf) < len(s.rbuffer)) len(buf) else len(s.rbuffer);
+	if (n > len(s.rfilled)) {
+		let z = match (io::read(s.source, s.rbuffer[len(s.rfilled)..])) {
+			err: io::error => return err,
+			io::EOF => {
+				if (len(s.rfilled) == 0) {
+					return io::EOF;
+				};
+				0z;
+			},
+			z: size => z,
+		};
+		s.rfilled = s.rbuffer[..len(s.rfilled) + z];
+		n = if (n > len(s.rfilled)) len(s.rfilled) else n;
+		assert(n != 0);
+	};
+
+	buf[..n] = s.rfilled[..n];
+	s.rbuffer[..len(s.rbuffer) - n] = s.rbuffer[n..];
+	s.rfilled = s.rfilled[n..];
+	return n;
 };
 
 fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	assert(s.writer == &buffered_write);
 	return io::unsupported; // TODO
+};
+
+@test fn buffered_read() void = {
+	let sourcebuf: []u8 = [1, 3, 3, 7];
+	let source = fixed(sourcebuf, io::mode::READ);
+	let fb = source: *fixed_stream;
+
+	let rbuf: [1024]u8 = [0...];
+	let f = buffered(source, rbuf, []);
+
+	let buf: [1024]u8 = [0...];
+	assert(io::read(f, buf[..2]) as size == 2);
+	assert(len(fb.buf) == 0, "fixed stream was not fully consumed");
+	assert(bytes::equal(buf[..2], [1, 3]));
+
+	assert(io::read(f, buf[2..]) as size == 2);
+	assert(bytes::equal(buf[..4], [1, 3, 3, 7]));
+	assert(io::read(f, buf) is io::EOF);
+
+	let sourcebuf: [32]u8 = [1, 3, 3, 7, 0...];
+	sourcebuf[32..36] = [7, 3, 3, 1];
+	let source = fixed(sourcebuf, io::mode::READ);
+	let fb = source: *fixed_stream;
+
+	let rbuf: [16]u8 = [0...];
+	let f = buffered(source, rbuf, []);
+
+	let buf: [32]u8 = [0...];
+	assert(io::read(f, buf) as size == 16);
+	assert(len(fb.buf) == 16);
+
+	assert(io::read(f, buf[16..]) as size == 16);
+	assert(bytes::equal(buf, sourcebuf));
+	assert(io::read(f, buf) is io::EOF);
+	assert(len(fb.buf) == 0);
 };

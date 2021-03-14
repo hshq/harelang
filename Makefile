@@ -3,7 +3,7 @@
 include config.mk
 TESTCACHE=$(HARECACHE)/+test
 TESTHAREFLAGS=$(HAREFLAGS) -T +test
-STDLIB=./
+STDLIB=.
 
 .bin/hare:
 
