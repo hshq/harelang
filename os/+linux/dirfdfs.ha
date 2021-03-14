@@ -6,6 +6,8 @@ use path;
 use rt;
 use strings;
 
+use strconv;
+
 // Controls how symlinks are followed (or not) in a dirfd filesystem. Support
 // for this feature varies, you should gate usage of this enum behind a build
 // tag.
@@ -146,12 +148,12 @@ fn fs_open(
 		oflags |= flags[i]: int;
 	};
 
-	if (oflags: fs::flags & fs::flags::RDWR == fs::flags::RDWR) {
+	if ((oflags: fs::flags & fs::flags::RDWR) == fs::flags::RDWR) {
 		iomode = io::mode::RDWR;
-	} else if (oflags: fs::flags & fs::flags::RDONLY == fs::flags::RDONLY) {
-		iomode = io::mode::READ;
-	} else if (oflags: fs::flags & fs::flags::RDONLY == fs::flags::RDONLY) {
+	} else if ((oflags: fs::flags & fs::flags::WRONLY) == fs::flags::WRONLY) {
 		iomode = io::mode::WRITE;
+	} else if ((oflags: fs::flags & fs::flags::PATH) != fs::flags::PATH) {
+		iomode = io::mode::READ;
 	};
 
 	let oh = rt::open_how {
@@ -179,12 +181,12 @@ fn fs_create(
 	};
 	oflags |= fs::flags::CREATE: int;
 
-	if (oflags: fs::flags & fs::flags::RDWR == fs::flags::RDWR) {
+	if ((oflags: fs::flags & fs::flags::RDWR) == fs::flags::RDWR) {
 		iomode = io::mode::RDWR;
-	} else if (oflags: fs::flags & fs::flags::RDONLY == fs::flags::RDONLY) {
-		iomode = io::mode::READ;
-	} else if (oflags: fs::flags & fs::flags::RDONLY == fs::flags::RDONLY) {
+	} else if ((oflags: fs::flags & fs::flags::WRONLY) == fs::flags::WRONLY) {
 		iomode = io::mode::WRITE;
+	} else if ((oflags: fs::flags & fs::flags::PATH) != fs::flags::PATH) {
+		iomode = io::mode::READ;
 	};
 
 	let oh = rt::open_how {
