@@ -307,6 +307,13 @@ fn lex2(
 			},
 			io::EOF => btoken::COLON,
 		},
+		'!' => match (n) {
+			r: rune => switch (r) {
+				'=' => return (btoken::NEQUAL: token, loc),
+				*   => btoken::LNOT,
+			},
+			io::EOF => btoken::LNOT,
+		},
 		'&' => match (n) {
 			r: rune => switch (r) {
 				'&' => return (btoken::LAND: token, loc),
