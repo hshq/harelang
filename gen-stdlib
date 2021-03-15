@@ -164,6 +164,18 @@ crypto_sha256() {
 	fi
 }
 
+crypto_sha1() {
+	printf '# crypto::sha1\n'
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::sha1 sha1.ha
+		gen_ssa crypto::sha1 hash io endian
+	else
+		gen_srcs crypto::sha1 sha1.ha +test.ha
+		gen_ssa crypto::sha1 hash io endian fmt strio strings
+	fi
+}
+
 dirs() {
 	printf '# dirs\n'
 	gen_srcs dirs \
@@ -478,6 +490,7 @@ bufio
 bytes
 crypto_math
 crypto_random
+crypto_sha1
 crypto_sha256
 dirs
 encoding_hex

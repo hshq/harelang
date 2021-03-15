@@ -83,6 +83,9 @@ hare_stdlib_deps+=$(stdlib_crypto_math)
 stdlib_crypto_random=$(HARECACHE)/crypto/random/crypto_random.o
 hare_stdlib_deps+=$(stdlib_crypto_random)
 
+stdlib_crypto_sha1=$(HARECACHE)/crypto/sha1/crypto_sha1.o
+hare_stdlib_deps+=$(stdlib_crypto_sha1)
+
 stdlib_crypto_sha256=$(HARECACHE)/crypto/sha256/crypto_sha256.o
 hare_stdlib_deps+=$(stdlib_crypto_sha256)
 
@@ -225,6 +228,16 @@ $(HARECACHE)/crypto/random/crypto_random.ssa: $(stdlib_crypto_random_srcs) $(std
 	@mkdir -p $(HARECACHE)/crypto/random
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(HARECACHE)/crypto/random/crypto_random.td $(stdlib_crypto_random_srcs)
+
+# crypto::sha1
+stdlib_crypto_sha1_srcs= \
+	$(STDLIB)/crypto/sha1/sha1.ha
+
+$(HARECACHE)/crypto/sha1/crypto_sha1.ssa: $(stdlib_crypto_sha1_srcs) $(stdlib_rt) $(stdlib_hash) $(stdlib_io) $(stdlib_endian)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/sha1
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::sha1 \
+		-t$(HARECACHE)/crypto/sha1/crypto_sha1.td $(stdlib_crypto_sha1_srcs)
 
 # crypto::sha256
 stdlib_crypto_sha256_srcs= \
@@ -648,6 +661,9 @@ hare_testlib_deps+=$(testlib_crypto_math)
 testlib_crypto_random=$(TESTCACHE)/crypto/random/crypto_random.o
 hare_testlib_deps+=$(testlib_crypto_random)
 
+testlib_crypto_sha1=$(TESTCACHE)/crypto/sha1/crypto_sha1.o
+hare_testlib_deps+=$(testlib_crypto_sha1)
+
 testlib_crypto_sha256=$(TESTCACHE)/crypto/sha256/crypto_sha256.o
 hare_testlib_deps+=$(testlib_crypto_sha256)
 
@@ -790,6 +806,17 @@ $(TESTCACHE)/crypto/random/crypto_random.ssa: $(testlib_crypto_random_srcs) $(te
 	@mkdir -p $(TESTCACHE)/crypto/random
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_srcs)
+
+# crypto::sha1
+testlib_crypto_sha1_srcs= \
+	$(STDLIB)/crypto/sha1/sha1.ha \
+	$(STDLIB)/crypto/sha1/+test.ha
+
+$(TESTCACHE)/crypto/sha1/crypto_sha1.ssa: $(testlib_crypto_sha1_srcs) $(testlib_rt) $(testlib_hash) $(testlib_io) $(testlib_endian) $(testlib_fmt) $(testlib_strio) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/sha1
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha1 \
+		-t$(TESTCACHE)/crypto/sha1/crypto_sha1.td $(testlib_crypto_sha1_srcs)
 
 # crypto::sha256
 testlib_crypto_sha256_srcs= \
