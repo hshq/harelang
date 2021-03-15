@@ -30,7 +30,7 @@ fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 // Parses a single identifier, i.e. foo::bar::baz
 export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 	let ident = ident_trailing(lexer)?;
-	synassert(mkloc(lexer), !ident.1, "Unexpected trailing :: in ident");
+	synassert(mkloc(lexer), !ident.1, "Unexpected trailing :: in ident")?;
 	return ident.0;
 };
 
