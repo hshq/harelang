@@ -234,27 +234,6 @@ export type label = str;
 // A name, such as 'example'
 export type name = str;
 
-// The type of a literal token, such as '1337u32' (U32)
-export type literal_type = enum {
-	U8,
-	U16,
-	U32,
-	U64,
-	UINT,
-	UINTPTR,
-	I8,
-	I16,
-	I32,
-	I64,
-	INT,
-	ICONST,
-	F32,
-	F64,
-	FCONST,
-	RUNE,
-	STR,
-};
-
 export type iconst = i64;
 export type fconst = f64;
 
