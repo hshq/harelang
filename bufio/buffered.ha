@@ -81,6 +81,22 @@ export fn set_flush_bytes(s: *io::stream, b: []u8) void = {
 	s.flush = b;
 };
 
+// Returns true if this is a buffered stream.
+export fn is_buffered(s: *io::stream) bool = {
+	return s.closer == &buffered_close;
+};
+
+// Returns true if this stream or any underlying streams are buffered.
+export fn is_buffered_any(s: *io::stream) bool = {
+	for (!is_buffered(s)) {
+		s = match (io::source(s)) {
+			io::unsupported => return false,
+			s: *io::stream  => s,
+		};
+	};
+	return true;
+};
+
 fn buffered_close(s: *io::stream) void = {
 	assert(s.closer == &buffered_close);
 	let s = s: *bufstream;
