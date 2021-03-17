@@ -6,7 +6,7 @@ use strings;
 // [strconv::invalid] is returned. If the number is too large to be represented
 // by an i64, [strconv::overflow] is returned.
 export fn stoi64(s: str) (i64 | invalid | overflow) = {
-	if (len(s) == 0) return invalid;
+	if (len(s) == 0) return 0: invalid;
 	let b = strings::to_utf8(s);
 	let sign = 1i64;
 	let max = types::I64_MAX: u64;

@@ -20,10 +20,10 @@ export fn stou64b(s: str, base: uint) (u64 | invalid | overflow) = {
 	assert(base == 2 || base == 8 || base == 10 || base == 16);
 
 	if (len(s) == 0) {
-		return invalid;
+		return 0: invalid;
 	};
 
-	let n = 0z;
+	let n = 0u64;
 	let iter = strings::iter(s);
 	for (true) {
 		let r: rune = match (strings::next(&iter)) {
@@ -32,11 +32,11 @@ export fn stou64b(s: str, base: uint) (u64 | invalid | overflow) = {
 		};
 
 		let digit = match (rune_to_integer(r)) {
-			void => return invalid,
+			void => return (iter.dec.offs - 1): invalid,
 			d: u64 => d,
 		};
 
-		if (digit >= base: u64) return invalid;
+		if (digit >= base: u64) return (iter.dec.offs - 1): invalid;
 
 		let old = n;
 
