@@ -117,7 +117,7 @@ fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 
 	buf[..n] = s.rfilled[..n];
 	s.rbuffer[..len(s.rbuffer) - n] = s.rbuffer[n..];
-	s.rfilled = s.rfilled[n..];
+	s.rfilled = s.rbuffer[..len(s.rfilled) - n];
 	return n;
 };
 
