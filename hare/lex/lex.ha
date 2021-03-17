@@ -119,10 +119,7 @@ fn lex_unicode(lex: *lexer, loc: location, n: size) (rune | error) = {
 		buf[i] = r: u32: u8;
 	};
 	let s = strings::from_utf8_unsafe(buf[..n]);
-	return match (strconv::stou32b(s, strconv::base::HEX)) {
-		(strconv::overflow | strconv::invalid) => abort(), // Invariant
-		u: u32 => u: rune,
-	};
+	return strconv::stou32b(s, strconv::base::HEX) as u32: rune;
 };
 
 fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
