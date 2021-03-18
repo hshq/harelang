@@ -51,7 +51,7 @@ Explanation of terms:
 
 - bootstrap compiler: a Hare compiler written in C, primarily used for the
   purpose of bringing up a working Hare toolchain from scratch.
-- hosted compiler: a more sophisticted Hare compiler, written in Hare,
-  designed to be the compiler used for day-to-day langauge use.
+- hosted compiler: a more sophisticated Hare compiler, written in Hare,
+  designed to be the compiler used for day-to-day language use.
 - build driver: similar to make, its purpose is to collect source files, track
   their dependencies, and build them into Hare programs.
