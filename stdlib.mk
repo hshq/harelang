@@ -479,9 +479,9 @@ $(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_str
 # os::exec
 stdlib_os_exec_srcs= \
 	$(STDLIB)/os/exec/$(PLATFORM).ha \
-	$(STDLIB)/os/exec/types.ha \
+	$(STDLIB)/os/exec/exec$(PLATFORM).ha \
 	$(STDLIB)/os/exec/process$(PLATFORM).ha \
-	$(STDLIB)/os/exec/cmd$(PLATFORM).ha \
+	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
 $(HARECACHE)/os/exec/os_exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_strings) $(stdlib_fmt) $(stdlib_bytes) $(stdlib_path)
@@ -1093,9 +1093,9 @@ $(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib
 # os::exec
 testlib_os_exec_srcs= \
 	$(STDLIB)/os/exec/$(PLATFORM).ha \
-	$(STDLIB)/os/exec/types.ha \
+	$(STDLIB)/os/exec/exec$(PLATFORM).ha \
 	$(STDLIB)/os/exec/process$(PLATFORM).ha \
-	$(STDLIB)/os/exec/cmd$(PLATFORM).ha \
+	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
 $(TESTCACHE)/os/exec/os_exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testlib_os) $(testlib_strings) $(testlib_fmt) $(testlib_bytes) $(testlib_path)

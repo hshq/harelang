@@ -382,9 +382,9 @@ os_exec() {
 	printf '# os::exec\n'
 	gen_srcs os::exec \
 		'$(PLATFORM).ha' \
-		types.ha \
+		'exec$(PLATFORM).ha' \
 		'process$(PLATFORM).ha' \
-		'cmd$(PLATFORM).ha' \
+		types.ha \
 		cmd.ha
 	gen_ssa os::exec os strings fmt bytes path
 }
