@@ -240,6 +240,8 @@ export type stt = enum u8 {
 	SECTION = 3,
 	// Source file associated with the object
 	FILE = 4,
+	// Symbol is a common data object
+	COMMON = 5,
 	// Environment-specific use
 	LOOS = 10,
 	// Environment-specific use
@@ -437,10 +439,176 @@ export type dt = enum i64 {
 	FINI_ARRAYSZ = 28,
 	// Reserved for environment-specific use.
 	LOOS = 0x60000000,
+
+	// Symbol versioning entry types, GNU extension
+	// Version table records
+	// .gnu.version  section address
+	VERSYM = 0x6FFFFFF0,
+	// .gnu.version_d section address
+	VERDEF = 0x6FFFFFFC,
+	// Number of version definitions
+	VERDEFNUM = 0x6FFFFFFD,
+	// .gnu.version_r section address
+	VERNEED = 0x6FFFFFFE,
+	// Number of needed versions
+	VERNEEDNUM = 0x6FFFFFFF,
+
 	// Reserved for environment-specific use.
 	HIOS = 0x6FFFFFFF,
 	// Reserved for processor-specific use.
 	LOPROC = 0x70000000,
 	// Reserved for processor-specific use.
 	HIPROC = 0x7FFFFFFF,
+};
+
+// Auxillary vector
+export type auxv64 = struct {
+	a_type: u64, // Entry type
+	union {
+		a_val: u64, // Integer value
+	}
+};
+
+// Legal auxillary vector entry types
+export type at = enum u32 {
+	// End of vector
+	NULL = 0, 
+	// Entry should be ignored
+	IGNORE = 1, 
+	// File descriptor of program
+	EXECFD = 2, 
+	// Program headers for program
+	PHDR = 3, 
+	// Size of program header entry
+	PHENT = 4, 
+	// Number of program headers
+	PHNUM = 5, 
+	// System page size
+	PAGESZ = 6, 
+	// Base address of interpreter
+	BASE = 7, 
+	// Flags
+	FLAGS = 8, 
+	// Entry point of program
+	ENTRY = 9, 
+	// Program is not ELF
+	NOTELF = 10, 
+	// Real uid
+	UID = 11, 
+	// Effective uid
+	EUID = 12, 
+	// Real gid
+	GID = 13, 
+	// Effective gid
+	EGID = 14, 
+	// Frequency of times()
+	CLKTCK = 17, 
+
+	// String identifying platform.
+	PLATFORM = 15, 
+	// Machine-dependent hints about processor capabilities.
+	HWCAP = 16, 
+
+	// Used FPU control word.
+	FPUCW = 18, 
+
+	// Data cache block size.
+	DCACHEBSIZE = 19, 
+	// Instruction cache block size.
+	ICACHEBSIZE = 20, 
+	// Unified cache block size.
+	UCACHEBSIZE = 21, 
+
+	// A special ignored value for PPC, used by the kernel to control the
+	// interpretation of the AUXV. Must be > 16.
+	// Entry should be ignored.
+	IGNOREPPC = 22, 
+	// Boolean, was exec setuid-like?
+	SECURE = 23, 
+	// String identifying real platforms.
+	BASE_PLATFORM = 24, 
+	// Address of 16 random bytes.
+	RANDOM = 25, 
+	// More machine-dependent hints about processor capabilities.
+	HWCAP2 = 26, 
+	// Filename of executable.
+	EXECFN = 31, 
+
+	// Pointer to the global system page used for system calls and other
+	// nice things.
+	SYSINFO = 32,
+	SYSINFO_EHDR = 33,
+
+	// Shapes of the caches.  Bits 0-3 contains associativity, bits 4-7 contains
+	// log2 of line size, mask those to get cache size.
+	L1I_CACHESHAPE = 34,
+	L1D_CACHESHAPE = 35,
+	L2_CACHESHAPE = 36,
+	L3_CACHESHAPE = 37,
+
+	// Shapes of the caches, with more room to describe them.
+	// *GEOMETRY are comprised of cache line size in bytes in the bottom 16 bits
+	// and the cache associativity in the next 16 bits.
+	L1I_CACHESIZE = 40,
+	L1I_CACHEGEOMETRY = 41,
+	L1D_CACHESIZE = 42,
+	L1D_CACHEGEOMETRY = 43,
+	L2_CACHESIZE = 44,
+	L2_CACHEGEOMETRY = 45,
+	L3_CACHESIZE = 46,
+	L3_CACHEGEOMETRY = 47,
+
+	// Stack needed for signal delivery (AArch64).
+	MINSIGSTKSZ = 51, 
+};
+
+// Version definition section
+export type verdef64 = struct {
+	// Version revision
+	vd_version: u16, 
+	// Version information
+	vd_flags: u16, 
+	// Version Index
+	vd_ndx: u16, 
+	// Number of associated aux entries
+	vd_cnt: u16, 
+	// Version name hash value
+	vd_hash: u32, 
+	// Offset in bytes to verdaux array
+	vd_aux: u32, 
+	// Offset in bytes to next verdef entry
+	vd_next: u32, 
+};
+
+// Auxillary version information
+export type verdaux64 = struct {
+	vda_name: u32,
+	vda_next: u32,
+};
+
+// Version revision values
+export type ver_def = enum u16 {
+	NONE = 0,
+	CURRENT = 1,
+	NUM = 2,
+};
+
+// Version information flags
+export type ver_flg = enum u16 {
+	BASE = 0x1,
+	WEAK = 0x2,
+};
+
+// Versym index values
+export type ver_ndx = enum u16 {
+	LOCAL = 0,
+	GLOBAL = 1,
+	LORESERVE = 0xff00,
+	ELIMINATE = 0xff01,
+};
+
+// DT_HASH section header
+export type hashhdr = struct {
+	nbucket: u32,
+	nchain: u32,
 };
