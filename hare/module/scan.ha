@@ -162,6 +162,7 @@ fn scan_directory(
 			stat = st,
 			ft = type_for_ext(name) as filetype,
 			hash = scan_file(ctx, p, &ver.depends)?,
+			basename = base,
 			tags = tags,
 			...
 		};
