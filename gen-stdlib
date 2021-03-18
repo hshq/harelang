@@ -477,9 +477,10 @@ strio() {
 time() {
 	printf '# time\n'
 	gen_srcs time \
-		'$(PLATFORM).ha' \
+		'$(PLATFORM)/functions.ha' \
+		'$(PLATFORM)/$(ARCH).ha' \
 		types.ha
-	gen_ssa time
+	gen_ssa time linux::vdso
 }
 
 temp() {

@@ -1,4 +1,6 @@
 use rt;
+use linux::vdso;
+
 
 fn duration_to_timespec(n: duration, ts: *rt::timespec) void = {
 	ts.tv_sec = n / SECOND;
@@ -54,9 +56,41 @@ export type clock = enum {
 	BOOT = 7,
 };
 
+let cgt_vdso: nullable *fn(int, *rt::timespec) int = null;
+
+fn get_cgt_vdso() nullable *fn(int, *rt::timespec) int = {
+	static let vdso_checked: bool = false;
+	if (vdso_checked)
+		return cgt_vdso;
+	vdso_checked = true;
+
+	cgt_vdso = vdso::get_vdso_sym(VDSO_CGT_SYM, VDSO_CGT_VER)
+		: nullable *fn(int, *rt::timespec) int;
+	return cgt_vdso;
+};
+
+fn now_vdso(clock: clock, tp: *rt::timespec) (void | rt::errno) = {
+	let vfn = match (get_cgt_vdso()) {
+		null => return rt::wrap_errno(rt::ENOSYS),
+		vfn: *fn(int, *rt::timespec) int => vfn,
+	};
+	let ret = vfn(clock, tp);
+	if (ret == 0) {
+		return;
+	};
+	return rt::wrap_errno(ret);
+};
+
 // Returns the current time for a given clock.
 export fn now(clock: clock) time = {
 	let tp = rt::timespec { ... };
+	let err = match (now_vdso(clock, &tp)) {
+		void => return timespec_to_time(tp),
+		err: rt::errno => err
+	};
+	if (err != rt::wrap_errno(rt::ENOSYS)) {
+		abort("Unexpected error from clock_gettime");
+	};
 	return match (rt::clock_gettime(clock, &tp)) {
 		void => timespec_to_time(tp),
 		err: rt::errno => abort("Unexpected error from clock_gettime"),

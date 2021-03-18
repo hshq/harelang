@@ -582,10 +582,11 @@ $(HARECACHE)/temp/temp.ssa: $(stdlib_temp_srcs) $(stdlib_rt) $(stdlib_crypto_ran
 
 # time
 stdlib_time_srcs= \
-	$(STDLIB)/time/$(PLATFORM).ha \
+	$(STDLIB)/time/$(PLATFORM)/functions.ha \
+	$(STDLIB)/time/$(PLATFORM)/$(ARCH).ha \
 	$(STDLIB)/time/types.ha
 
-$(HARECACHE)/time/time.ssa: $(stdlib_time_srcs) $(stdlib_rt)
+$(HARECACHE)/time/time.ssa: $(stdlib_time_srcs) $(stdlib_rt) $(stdlib_linux_vdso)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime \
@@ -1198,10 +1199,11 @@ $(TESTCACHE)/temp/temp.ssa: $(testlib_temp_srcs) $(testlib_rt) $(testlib_crypto_
 
 # time
 testlib_time_srcs= \
-	$(STDLIB)/time/$(PLATFORM).ha \
+	$(STDLIB)/time/$(PLATFORM)/functions.ha \
+	$(STDLIB)/time/$(PLATFORM)/$(ARCH).ha \
 	$(STDLIB)/time/types.ha
 
-$(TESTCACHE)/time/time.ssa: $(testlib_time_srcs) $(testlib_rt)
+$(TESTCACHE)/time/time.ssa: $(testlib_time_srcs) $(testlib_rt) $(testlib_linux_vdso)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
