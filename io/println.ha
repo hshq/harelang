@@ -1,6 +1,9 @@
 use rt;
 
-// TEMP: This is due to be rewritten to be less shit
+// Prints strings to stdout, separated by spaces, and followed by a newline.
+//
+// The output is unbuffered, and may not have good performance. This is only
+// recommended for debugging purposes. See [fmt::println] instead.
 export fn println(msgs: str...) void = {
 	for (let i = 0z; i < len(msgs); i += 1) {
 		let msg = msgs[i];
@@ -12,6 +15,10 @@ export fn println(msgs: str...) void = {
 	rt::write(1, "\n": *const char, 1);
 };
 
+// Prints strings to stderr, separated by spaces, and followed by a newline.
+//
+// The output is unbuffered, and may not have good performance. This is only
+// recommended for debugging purposes. See [fmt::errorln] instead.
 export fn errorln(msgs: str...) void = {
 	for (let i = 0z; i < len(msgs); i += 1) {
 		let msg = msgs[i];
