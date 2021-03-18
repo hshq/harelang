@@ -47,33 +47,39 @@ export fn basename(path: str) str = {
 	assert(basename("foo") == "foo");
 };
 
-// Returns the file extension for a path. The return value is borrowed from the
-// input, see [strings::dup] to extend its lifetime.
+// Returns the file name and extension for a path. The return value is borrowed
+// from the input, see [strings::dup] to extend its lifetime.
 //
-// The return value includes the '.' character.
+// The extension includes the '.' character.
 //
-// extension("foo/example") => ""
-// extension("foo/example.txt") => ".txt"
-// extension("foo/example.tar.gz") => ".tar.gz"
-export fn extension(p: str) str = {
+// extension("foo/example") => ("example", "")
+// extension("foo/example.txt") => ("example", ".txt")
+// extension("foo/example.tar.gz") => ("example", ".tar.gz")
+export fn extension(p: str) (str, str) = {
+	let p = basename(p);
 	let b = strings::to_utf8(p);
 	if (len(b) == 0 || b[len(b) - 1] == PATHSEP) {
-		return "";
+		return (p, "");
 	};
-	let b = strings::to_utf8(basename(p));
+	let b = strings::to_utf8(p);
 	let i = match (bytes::index(b, '.': u32: u8)) {
-		void => return "",
+		void => return (p, ""),
 		z: size => z,
 	};
 	let e = b[i..];
-	return strings::from_utf8_unsafe(e);
+	let n = b[..i];
+	return (strings::from_utf8_unsafe(n), strings::from_utf8_unsafe(e));
 };
 
 @test fn extension() void = {
-	assert(extension("") == "");
-	assert(extension("foo/") == "");
-	assert(extension("foo/bar") == "");
-	assert(extension("foo/bar.txt") == ".txt");
-	assert(extension("foo/bar.tar.gz") == ".tar.gz");
-	assert(extension("foo.bar/baz.ha") == ".ha");
+	assert(extension("").0 == "");
+	assert(extension("").1 == "");
+	assert(extension("foo/bar").0 == "bar");
+	assert(extension("foo/bar").1 == "");
+	assert(extension("foo/bar.txt").0 == "bar");
+	assert(extension("foo/bar.txt").1 == ".txt");
+	assert(extension("foo/bar.tar.gz").0 == "bar");
+	assert(extension("foo/bar.tar.gz").1 == ".tar.gz");
+	assert(extension("foo.bar/baz.ha").0 == "baz");
+	assert(extension("foo.bar/baz.ha").1 == ".ha");
 };

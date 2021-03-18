@@ -42,6 +42,11 @@ export type input = struct {
 	path: str,
 	ft: filetype,
 	stat: fs::filestat,
+
+	// Name without any tags
+	basename: str,
+	// Tags applicable to input
+	tags: []tag,
 };
 
 // The requested module could not be found.

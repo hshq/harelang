@@ -56,6 +56,31 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 	return ver;
 };
 
+// Given a name and whether or not it represents a directory, parses it into the
+// basename, extension, and tag set.
+fn parse_name(name: str) (str, str, []tag) = {
+	let ext = path::extension(name);
+	let base = ext.0, ext = ext.1;
+
+	let p = strings::index(base, '+');
+	let m = strings::index(base, '-');
+	if (p is void && m is void) {
+		return (base, ext, []);
+	};
+	let i: size =
+		if (p is void && m is size) m: size
+		else if (m is void && p is size) p: size
+		else if (m: size < p: size) m: size
+		else p: size;
+	let tags = strings::sub(base, i, strings::end);
+	let tags = match (parse_tags(tags)) {
+		void => return (base, ext, []),
+		t: []tag => t,
+	};
+	let base = strings::sub(base, 0, i);
+	return (base, ext, tags);
+};
+
 fn scan_directory(
 	ctx: *context,
 	ver: *version,
@@ -63,39 +88,85 @@ fn scan_directory(
 	path: str,
 	iter: *fs::iterator,
 ) (void | error) = {
-	for (true) match (fs::next(iter)) {
-		void => break,
-		ent: fs::dirent => switch (ent.ftype) {
+	let files: []str = [], dirs: []str = [];
+	defer {
+		for (let i = 0z; i < len(files); i += 1) {
+			free(files[i]);
+		};
+		free(files);
+
+		for (let i = 0z; i < len(dirs); i += 1) {
+			free(dirs[i]);
+		};
+		free(dirs);
+	};
+
+	for (true) {
+		let ent = match (fs::next(iter)) {
+			void => break,
+			ent: fs::dirent => ent,
+		};
+
+		switch (ent.ftype) {
 			fs::mode::LINK => abort(), // TODO
-			fs::mode::DIR => {
-				let d = strings::to_utf8(ent.name);
-				if (len(d) == 0 || (
-					!strings::has_prefix(ent.name, "+") &&
-					!strings::has_prefix(ent.name, "-"))) {
-					continue;
-				};
-				if (!eligible(ctx, ent.name, true)) {
-					continue;
-				};
-				let p = path::join(path, ent.name);
-				let iter = fs::iter(ctx.fs, p)?;
-				scan_directory(ctx, ver, sha, p, iter)?;
-			},
-			fs::mode::REG => if (eligible(ctx, ent.name, false)) {
-				let p = path::join(path, ent.name);
-				let st = fs::stat(ctx.fs, p)?;
-				let in = input {
-					path = fs::resolve(ctx.fs, p),
-					stat = st,
-					ft = type_for_ext(ent.name) as filetype,
-					hash = scan_file(ctx, p, &ver.depends)?,
-					...
-				};
-				append(ver.inputs, in);
-				hash::write(sha, in.hash);
-			},
-			* => void,
-		},
+			fs::mode::DIR => append(dirs, strings::dup(ent.name)),
+			fs::mode::REG => append(files, strings::dup(ent.name)),
+		};
+	};
+
+	// TODO:
+	// - sort entries (for a consistent module hash)
+	// - filter out less specific tag sets for a given basename
+	for (let i = 0z; i < len(dirs); i += 1) {
+		let name = dirs[i];
+		let tags = parse_name(name).2;
+		defer tags_free(tags);
+
+		let d = strings::to_utf8(name);
+		if (len(d) == 0 || (
+			!strings::has_prefix(name, "+") &&
+			!strings::has_prefix(name, "-"))) {
+			continue;
+		};
+		if (!tags_compat(ctx.tags, tags)) {
+			continue;
+		};
+
+		let p = path::join(path, name);
+		let iter = fs::iter(ctx.fs, p)?;
+		scan_directory(ctx, ver, sha, p, iter)?;
+	};
+
+	for (let i = 0z; i < len(files); i += 1) {
+		let name = files[i];
+		let parsed = parse_name(name);
+		let base = parsed.0, ext = parsed.1, tags = parsed.2;
+
+		let eligible = false;
+		static const exts = [".ha", ".s"];
+		for (let i = 0z; i < len(exts); i += 1) {
+			if (exts[i] == ext) {
+				eligible = true;
+				break;
+			};
+		};
+		if (!eligible || !tags_compat(ctx.tags, tags)) {
+			tags_free(tags);
+			continue;
+		};
+
+		let p = path::join(path, name);
+		let st = fs::stat(ctx.fs, p)?;
+		let in = input {
+			path = fs::resolve(ctx.fs, p),
+			stat = st,
+			ft = type_for_ext(name) as filetype,
+			hash = scan_file(ctx, p, &ver.depends)?,
+			tags = tags,
+			...
+		};
+		append(ver.inputs, in);
+		hash::write(sha, in.hash);
 	};
 };
 
@@ -114,74 +185,8 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 	return module_not_found;
 };
 
-fn eligible(ctx: *context, name: str, dir: bool) bool = {
-	if (!dir) {
-		let eligible = false;
-		const ext = path::extension(name);
-		static const exts = [".ha", ".s"];
-		for (let i = 0z; i < len(exts); i += 1) {
-			if (exts[i] == ext) {
-				eligible = true;
-				break;
-			};
-		};
-		if (!eligible) {
-			return false;
-		};
-	};
-
-	// XXX: It might be nice if the stdlib offered search functions which
-	// support multiple needles
-	let p = strings::index(name, '+');
-	let m = strings::index(name, '-');
-	if (p is void && m is void) {
-		return true;
-	};
-	let i: size =
-		if (p is void && m is size) m: size
-		else if (m is void && p is size) p: size
-		else if (m: size < p: size) m: size
-		else p: size;
-	let tags = match (strings::index(name, '.')) {
-		void => strings::sub(name, i, strings::end),
-		e: size => strings::sub(name, i, e),
-	};
-	let tags = match (parse_tags(tags)) {
-		void => return false,
-		t: []tag => t,
-	};
-	defer tags_free(tags);
-	return tags_compat(ctx.tags, tags);
-};
-
-@test fn eligible() void = {
-	let ctx = context {
-		tags = [
-			tag { name = "incl", mode = tag_mode::INCLUSIVE },
-			tag { name = "excl", mode = tag_mode::EXCLUSIVE },
-		],
-	};
-	assert(eligible(&ctx, "foo.ha", false));
-	assert(eligible(&ctx, "foo.s", false));
-	assert(eligible(&ctx, "foo+incl.ha", false));
-	assert(eligible(&ctx, "foo-excl.ha", false));
-	assert(eligible(&ctx, "foo-other.ha", false));
-	assert(eligible(&ctx, "foo+incl-excl.ha", false));
-
-	assert(!eligible(&ctx, "foo.txt", false));
-	assert(!eligible(&ctx, "foo-incl.ha", false));
-	assert(!eligible(&ctx, "foo+excl.ha", false));
-	assert(!eligible(&ctx, "foo+other.ha", false));
-	assert(!eligible(&ctx, "foo-incl+excl.ha", false));
-
-	assert(eligible(&ctx, "+incl", true));
-	assert(eligible(&ctx, "-excl", true));
-	assert(!eligible(&ctx, "-incl", true));
-	assert(!eligible(&ctx, "+excl", true));
-};
-
 fn type_for_ext(name: str) (filetype | void) = {
-	const ext = path::extension(name);
+	const ext = path::extension(name).1;
 	return
 		if (ext == ".ha") filetype::HARE
 		else if (ext == ".s") filetype::ASSEMBLY
