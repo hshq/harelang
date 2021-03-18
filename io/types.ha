@@ -4,14 +4,11 @@ export type os_error = struct {
 	data: *void,
 }!;
 
-// An error indicating that the underlying stream has been closed.
-export type closed = void!;
-
 // An error indicating that the requested operation is not supported.
 export type unsupported = void!;
 
 // Any error which may be returned from an I/O function.
-export type error = (os_error | closed | unsupported)!;
+export type error = (os_error | unsupported)!;
 
 // Indicates an end-of-file condition.
 export type EOF = void;
@@ -21,7 +18,6 @@ export fn errstr(err: error) str = {
 	return match (err) {
 		err: os_error => err.string(err.data),
 		unsupported   => "The requested operation is not supported",
-		closed        => "This stream has been closed",
 	};
 };
 
@@ -51,9 +47,7 @@ export type reader = fn(s: *stream, buf: []u8) (size | EOF | error);
 export type writer = fn(s: *stream, buf: const []u8) (size | error);
 
 // The interface for a stream which can be closed. This function should close
-// the underlying resources and free everything except for the stream pointer
-// itself. The other stream functions may be called after close is called; it is
-// their responsibility to return [io::closed] in this case.
+// and free any underlying resources, and cannot be used again.
 export type closer = fn(s: *stream) void;
 
 // The interface for a stream which has first-class support for copying data
