@@ -134,6 +134,12 @@ hare_stdlib_deps+=$(stdlib_hash_fnv)
 stdlib_io=$(HARECACHE)/io/io.o
 hare_stdlib_deps+=$(stdlib_io)
 
+stdlib_linux=$(HARECACHE)/linux/linux.o
+hare_stdlib_deps+=$(stdlib_linux)
+
+stdlib_linux_vdso=$(HARECACHE)/linux/vdso/linux_vdso.o
+hare_stdlib_deps+=$(stdlib_linux_vdso)
+
 stdlib_math_random=$(HARECACHE)/math/random/math_random.o
 hare_stdlib_deps+=$(stdlib_math_random)
 
@@ -419,6 +425,27 @@ $(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt) $(stdlib_strings)
 	@mkdir -p $(HARECACHE)/io
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
 		-t$(HARECACHE)/io/io.td $(stdlib_io_srcs)
+
+# linux
+stdlib_linux_srcs= \
+	$(STDLIB)/linux/start.ha \
+	$(STDLIB)/linux/env.ha
+
+$(HARECACHE)/linux/linux.ssa: $(stdlib_linux_srcs) $(stdlib_rt) $(stdlib_format_elf)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/linux
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux \
+		-t$(HARECACHE)/linux/linux.td $(stdlib_linux_srcs)
+
+# linux::vdso
+stdlib_linux_vdso_srcs= \
+	$(STDLIB)/linux/vdso/vdso.ha
+
+$(HARECACHE)/linux/vdso/linux_vdso.ssa: $(stdlib_linux_vdso_srcs) $(stdlib_rt) $(stdlib_linux) $(stdlib_strings) $(stdlib_format_elf)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/linux/vdso
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::vdso \
+		-t$(HARECACHE)/linux/vdso/linux_vdso.td $(stdlib_linux_vdso_srcs)
 
 # math::random
 stdlib_math_random_srcs= \
@@ -711,6 +738,12 @@ hare_testlib_deps+=$(testlib_hash_fnv)
 
 testlib_io=$(TESTCACHE)/io/io.o
 hare_testlib_deps+=$(testlib_io)
+
+testlib_linux=$(TESTCACHE)/linux/linux.o
+hare_testlib_deps+=$(testlib_linux)
+
+testlib_linux_vdso=$(TESTCACHE)/linux/vdso/linux_vdso.o
+hare_testlib_deps+=$(testlib_linux_vdso)
 
 testlib_math_random=$(TESTCACHE)/math/random/math_random.o
 hare_testlib_deps+=$(testlib_math_random)
@@ -1005,6 +1038,27 @@ $(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt) $(testlib_strings)
 	@mkdir -p $(TESTCACHE)/io
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
 		-t$(TESTCACHE)/io/io.td $(testlib_io_srcs)
+
+# linux
+testlib_linux_srcs= \
+	$(STDLIB)/linux/start.ha \
+	$(STDLIB)/linux/env.ha
+
+$(TESTCACHE)/linux/linux.ssa: $(testlib_linux_srcs) $(testlib_rt) $(testlib_format_elf)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/linux
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux \
+		-t$(TESTCACHE)/linux/linux.td $(testlib_linux_srcs)
+
+# linux::vdso
+testlib_linux_vdso_srcs= \
+	$(STDLIB)/linux/vdso/vdso.ha
+
+$(TESTCACHE)/linux/vdso/linux_vdso.ssa: $(testlib_linux_vdso_srcs) $(testlib_rt) $(testlib_linux) $(testlib_strings) $(testlib_format_elf)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/linux/vdso
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::vdso \
+		-t$(TESTCACHE)/linux/vdso/linux_vdso.td $(testlib_linux_vdso_srcs)
 
 # math::random
 testlib_math_random_srcs= \

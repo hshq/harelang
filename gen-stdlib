@@ -340,6 +340,21 @@ io() {
 	gen_ssa io strings
 }
 
+linux() {
+	printf '# linux\n'
+	gen_srcs linux \
+		start.ha \
+		env.ha
+	gen_ssa linux format::elf
+}
+
+linux_vdso() {
+	printf '# linux::vdso\n'
+	gen_srcs linux::vdso \
+		vdso.ha
+	gen_ssa linux::vdso linux strings format::elf
+}
+
 math_random() {
 	printf '# math::random\n'
 	gen_srcs math::random \
@@ -507,6 +522,8 @@ hare_parse
 hash
 hash_fnv
 io
+linux
+linux_vdso
 math_random
 os
 os_exec
