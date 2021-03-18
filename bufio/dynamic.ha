@@ -46,9 +46,9 @@ fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	} else {
 		// TODO: update this after we add insert
 		let new: []u8 = alloc([], len(s.buf) + len(buf));
-		new[..s.pos] = s.buf[..s.pos];
-		new[s.pos..s.pos + len(buf)] = buf[..];
-		new[s.pos + len(buf)..] = s.buf[s.pos..];
+		append(new, ...s.buf[..s.pos]);
+		append(new, ...buf[..]);
+		append(new, ...s.buf[s.pos..]);
 		free(s.buf);
 		s.buf = new;
 	};
@@ -173,9 +173,10 @@ export fn truncate(s: *io::stream) (void | io::unsupported) = {
 
 	let sl: []u8 = alloc([1, 2, 3]);
 	let s = dynamic_from(sl, io::mode::WRITE);
-	assert(io::seek(s, 0, io::whence::END) as io::off == 3: io::off);
+	assert(io::write(s, [0, 0]) as size == 2);
+	assert(io::seek(s, 0, io::whence::END) as io::off == 5: io::off);
 	assert(io::write(s, [4, 5, 6]) as size == 3);
-	assert(bytes::equal(buffer(s), [1, 2, 3, 4, 5, 6]));
+	assert(bytes::equal(buffer(s), [0, 0, 1, 2, 3, 4, 5, 6]));
 	// TODO: this should check for io::unsupported (harec bug prevents that)
 	assert(io::read(s, buf[..]) is io::error);
 	io::close(s);
