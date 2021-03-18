@@ -6,6 +6,8 @@ use strings;
 export fn errstr(err: error) const str = match (err) {
 	noentry => "File or directory not found",
 	noaccess => "Permission denied",
+	exists => "File or directory exists",
+	invalid => "Invalid argument",
 	err: io::error => io::errstr(err),
 };
 

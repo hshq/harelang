@@ -97,6 +97,9 @@ export fn mkdirs(fs: *fs, path: str) (void | error) = {
 // Removes a directory. The target directory must be empty; see [rmdirall] to
 // remove its contents as well.
 export fn rmdir(fs: *fs, path: str) (void | error) = {
+	if (path == "") {
+		return invalid;
+	};
 	return match (fs.rmdir) {
 		null => io::unsupported,
 		f: *rmdirfunc => f(fs, path),
@@ -126,7 +129,9 @@ export fn rmdirall(fs: *fs, path: str) (void | error) = {
 		},
 		void => break,
 	};
-	return rmdir(fs, path);
+	if (path != "") {
+		return rmdir(fs, path);
+	};
 };
 
 // Creates a directory and returns a subdir for it. Some filesystems support

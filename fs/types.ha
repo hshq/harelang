@@ -19,12 +19,17 @@ export type busy = void!;
 // For example, opening a file with [iter].
 export type wrongtype = void!;
 
+// An function was called with an invalid combination of arguments
+// For example, calling [rmdir] with empty path
+export type invalid = void!;
+
 // All possible fs error types.
 export type error = (noentry
 	| noaccess
 	| exists
 	| busy
 	| wrongtype
+	| invalid
 	| io::error)!;
 
 // File mode information. These bits do not necessarily reflect the underlying
