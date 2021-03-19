@@ -8,3 +8,4 @@ QBE=qbe
 AS=as
 LD=ld
 AR=ar
+SCDOC=scdoc

@@ -7,7 +7,7 @@ STDLIB=.
 
 .bin/hare:
 
-.SUFFIXES: .ha .ssa .s .o
+.SUFFIXES: .ha .ssa .s .o .scd .1
 .ssa.s:
 	@printf 'QBE\t$@\n'
 	@$(QBE) -o $@ $<
@@ -15,6 +15,10 @@ STDLIB=.
 .s.o:
 	@printf 'AS\t$@\n'
 	@$(AS) -g -o $@ $<
+
+.scd.1:
+	@printf 'SCDOC\t$@\n'
+	@$(SCDOC) < $< > $@
 
 include stdlib.mk
 
@@ -43,6 +47,10 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(hare_testlib_deps)
 	@printf 'LD\t$@\n'
 	@$(LD) -T $(rtscript) -o $@ \
 		$(TESTCACHE)/hare.o $(hare_testlib_deps)
+
+docs/hare.1: docs/hare.scd
+
+docs: docs/hare.1
 
 clean:
 	@rm -rf .cache .bin
