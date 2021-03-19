@@ -176,15 +176,91 @@ some information about the build parameters.
 
 # MODULES
 
-todo
+The _path_ argument to *hare build* and *hare run* are used to identify the
+inputs for the build. If this path is a file, it is treated as a single Hare
+source file. If it is a directory, the directory is treated as a module, and is
+placed in the global namespace for the build.
+
+All files which end in *.ha* and *.s* are treated as inputs to the module, and
+are respectively treated as Hare sources and assembly sources. A module with a
+mix of assembly and Hare sources are considered *mixed* modules, and have some
+special semantics.
+
+The list of files considered eligible may be filtered by build tags. The format
+for the filename is _name_[+_tags_]._ext_, where the _name_ is user-defined, the
+_ext_ is either 'ha' or 's', and a list of tags are provided after the name. A
+plus symbol ('+') will cause a file to be included only if that tag is present,
+and a minus symbol ('-') will cause a file to be excluded if that tag is
+present. Only one file for a given _name_ will be selected for the build, and
+among files with eligible tags, the one with the most tag specifiers is
+selected.
+
+For example, if the following files are present in a directory:
+
+	foo.ha
+	bar.ha
+	bar+linux.ha
+	bar+plan9.ha
+	baz+x86_64.s
+	bat-x86_64.ha
+
+If the build tags are +linux+x86_64, then the files which are included in the
+module are foo.ha, bar+linux.ha, and bar+x86_64.s.
+
+Additionally, subdirectories in a module will be considered part of that module
+if their name consists *only* of a tag set, e.g. "+linux" or "-x86_64". A
+directory with a name *and* tag set is never considered as part of any module,
+such as "example+linux". A directory with only a name (e.g. "example") is
+considered a sub-module of its parent directory and must be imported separately,
+so "foo::bar" refers to foo/bar/.
+
+# DEPENDENCY RESOLUTION
+
+The "use" statements in each source file which is used as an input to *hare
+build* or *hare run* are scanned and used to determine the dependencies for the
+program, and this process is repeated for each dependency to obtain a complete
+dependency graph.
+
+Dependencies are searched for by examining first the current working directory,
+then each component of the *HAREPATH* environment variable in order, which is a
+list of paths separated by colons. The default value of the *HAREPATH* may be
+found with the *hare version* command. Typically, it is set to include the path
+to the standard library installed on the system, as well as a system-provided
+storage location for third-party modules installed via the system package
+manager.
 
 # ARCHITECTURES
 
-todo
+The *-t* flag for *hare build* is used for cross-compilation, and selects a
+architecture different from the host to target. The list of supported
+architectures is:
+
+- x86_64
+- aarch64
+
+The system usually provides reasonable defaults for the *AR*, *AS*, and *LD*
+tools based on the desired target. However, you may wish to set these variables
+yourself to control the cross toolchain in use.
+; TODO: sysroots
 
 # ENVIRONMENT
 
-todo
+The following environment variables affect *hare*'s execution:
+
+|[ *HARECACHE*
+:< The path to the object cache. Defaults to _~/.cache/hare_.
+|  *HAREPATH*
+:  See *DEPENDENCY RESOLUTION*.
+|  *HAREFLAGS*
+:  Applies additional flags to the command line arguments.
+|  *HAREC*
+:  Name of the *harec*(1) command to use.
+|  *AR*
+:  Name of the *ar*(1) command to use.
+|  *AS*
+:  Name of the *as*(1) command to use.
+|  *LD*
+:  Name of the *ld*(1) command to use.
 
 # SEE ALSO
 
