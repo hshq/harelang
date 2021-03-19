@@ -56,23 +56,23 @@ export type clock = enum {
 	BOOT = 7,
 };
 
-let cgt_vdso: nullable *fn(int, *rt::timespec) int = null;
+let cgt_vdso: nullable *fn(_: int, _: *rt::timespec) int = null;
 
-fn get_cgt_vdso() nullable *fn(int, *rt::timespec) int = {
+fn get_cgt_vdso() nullable *fn(_: int, _: *rt::timespec) int = {
 	static let vdso_checked: bool = false;
 	if (vdso_checked)
 		return cgt_vdso;
 	vdso_checked = true;
 
 	cgt_vdso = vdso::get_vdso_sym(VDSO_CGT_SYM, VDSO_CGT_VER)
-		: nullable *fn(int, *rt::timespec) int;
+		: nullable *fn(_: int, _: *rt::timespec) int;
 	return cgt_vdso;
 };
 
 fn now_vdso(clock: clock, tp: *rt::timespec) (void | rt::errno) = {
 	let vfn = match (get_cgt_vdso()) {
 		null => return rt::wrap_errno(rt::ENOSYS),
-		vfn: *fn(int, *rt::timespec) int => vfn,
+		vfn: *fn(_: int, _: *rt::timespec) int => vfn,
 	};
 	let ret = vfn(clock, tp);
 	if (ret == 0) {

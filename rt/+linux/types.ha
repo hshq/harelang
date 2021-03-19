@@ -483,8 +483,8 @@ export def SA_RESTORER: u64 = 0x04000000;
 
 export type sigact = struct {
 	union {
-		sa_handler: *fn (int) void,
-		sa_sigaction: *fn (int, *siginfo, *void) void,
+		sa_handler: *fn (_: int) void,
+		sa_sigaction: *fn (_: int, _: *siginfo, _: *void) void,
 	},
 	sa_flags: u64,
 	sa_restorer: *fn () void,
