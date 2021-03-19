@@ -242,6 +242,7 @@ export type literal = (u8 | u16 | u32 | u64 | uint | uintptr | i8 | i16 | i32 |
 	i64 | int | iconst | f32 | f64 | fconst | rune | str);
 
 // A location within a source file.
+// The path is borrowed from the file name given to the lexer.
 export type location = struct {
 	path: str,
 	line: uint,
