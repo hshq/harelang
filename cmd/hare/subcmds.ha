@@ -28,8 +28,8 @@ fn build(args: []str) void = {
 		('c', "build object instead of executable"),
 		('v', "print executed commands"),
 		('D', "ident:type=value", "define a constant"),
-		('l', "name", "link with a system library"),
 		('j', "jobs", "set parallelism for build"),
+		('l', "name", "link with a system library"),
 		('o', "path", "set output file name"),
 		('t', "arch", "set target architecture"),
 		('T', "tags...", "set build tags"),
@@ -117,8 +117,8 @@ fn cache(args: []str) void = {
 fn deps(args: []str) void = {
 	let help: []getopt::help = [
 		"prints dependency information for Hare programs",
+		('d', "print dot syntax for use with graphviz"),
 		('M', "print rules for POSIX make"),
-		('m', "print module names only"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
 		"path",
