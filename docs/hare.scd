@@ -12,23 +12,23 @@ hare - compiles, runs, and tests Hare programs
 	[-l _name_]++
 	[-o _path_]++
 	[-t _arch_]++
-	[-T _tags_] [-X _tags_ ]++
+	[-T _tags_] [-X _tags_]++
 	[_path_]
 
-*hare* deps [-Mm] [-T _tags_] [-X _tags_ ] _path_
+*hare* deps [-Mm] [-T _tags_] [-X _tags_] _path_
 
 *hare* run [-v]++
 	[-D _ident:type=value_]++
 	[-l _name_]++
 	[-j _jobs_]++
-	[-T _tags_] [-X _tags_ ]++
+	[-T _tags_] [-X _tags_]++
 	[_path_] [_args_...]
 
 *hare* test [-v]++
 	[-D _ident:type=value_]++
 	[-l _name_]++
 	[-j _jobs_]++
-	[-T _tags_] [-X _tags_ ]++
+	[-T _tags_] [-X _tags_]++
 	_tests_
 
 *hare* version
@@ -257,10 +257,16 @@ The following environment variables affect *hare*'s execution:
 :  Name of the *harec*(1) command to use.
 |  *AR*
 :  Name of the *ar*(1) command to use.
+|  *ARFLAGS*
+:  Additional flags to pass to *ar*(1).
 |  *AS*
 :  Name of the *as*(1) command to use.
+|  *ASFLAGS*
+:  Additional flags to pass to *as*(1).
 |  *LD*
 :  Name of the *ld*(1) command to use.
+|  *LDFLAGS*
+:  Additional flags to pass to *ld*(1).
 
 # SEE ALSO
 
