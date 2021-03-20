@@ -97,11 +97,10 @@ separated by tabs.
 	for supported architecture names.
 
 *-T* _tags_
-	Adds additional build tags, separated by commas.
+	Adds additional build tags. See *CUSTOMIZING BUILD TAGS*.
 
 *-X* _tags_
-	Unsets build tags, separated by commas. See *hare version* for the list
-	of tags available by default.
+	Unsets build tags. See *CUSTOMIZING BUILD TAGS*.
 
 ## hare deps
 
@@ -112,11 +111,10 @@ separated by tabs.
 	Print rules compatible with POSIX *make*(1).
 
 *-T* _tags_
-	Adds additional build tags, separated by commas.
+	Adds additional build tags. See *CUSTOMIZING BUILD TAGS*.
 
 *-X* _tags_
-	Unsets build tags, separated by commas. See *hare version* for the list
-	of tags available by default.
+	Unsets build tags. See *CUSTOMIZING BUILD TAGS*.
 
 ## hare run
 
@@ -142,11 +140,10 @@ separated by tabs.
 	linker flags.
 
 *-T* _tags_
-	Adds additional build tags, separated by commas.
+	Adds additional build tags. See *CUSTOMIZING BUILD TAGS*.
 
 *-X* _tags_
-	Unsets build tags, separated by commas. See *hare version* for the list
-	of tags available by default.
+	Unsets build tags. See *CUSTOMIZING BUILD TAGS*.
 
 ## hare test
 
@@ -172,11 +169,10 @@ separated by tabs.
 	linker flags.
 
 *-T* _tags_
-	Adds additional build tags, separated by commas.
+	Adds additional build tags. See *CUSTOMIZING BUILD TAGS*.
 
 *-X* _tags_
-	Unsets build tags, separated by commas. See *hare version* for the list
-	of tags available by default.
+	Unsets build tags. See *CUSTOMIZING BUILD TAGS*.
 
 # MODULES
 
@@ -246,6 +242,22 @@ The system usually provides reasonable defaults for the *AR*, *AS*, and *LD*
 tools based on the desired target. However, you may wish to set these variables
 yourself to control the cross toolchain in use.
 ; TODO: sysroots
+
+# CUSTOMIZING BUILD TAGS
+
+Build tags allow you to add constraints on what features or platforms are
+enabled for your build. A tag is a name, consisting of alphanumeric characters
+and underscores, and a + or - prefix to signal inclusivity or exclusivity. See
+*MODULES* for details on how build tags affect module input selection.
+
+To add new tag constraints, inclusive or exclusive, use the *-T* flag. "-T
++foo-bar" will include the 'foo' tag and exclude the 'bar' tag. To remove
+constraints, use the *-X* in a similar fashion; "-X +foo-bar" will reverse the
+previous *-T* example.
+
+Some tags are enabled by default, enabling features for the host platform. You
+can view the default tagset by running *hare version*. To remove all default
+tags, use "-X^".
 
 # ENVIRONMENT
 
