@@ -147,6 +147,12 @@ fn fs_open(
 		oflags |= flags[i]: int;
 	};
 
+	if ((oflags: fs::flags & fs::flags::DIRECTORY) == fs::flags::DIRECTORY) {
+		// This is arch-specific
+		oflags &= ~fs::flags::DIRECTORY: int;
+		oflags |= rt::O_DIRECTORY: int;
+	};
+
 	if ((oflags: fs::flags & fs::flags::RDWR) == fs::flags::RDWR) {
 		iomode = io::mode::RDWR;
 	} else if ((oflags: fs::flags & fs::flags::WRONLY) == fs::flags::WRONLY) {

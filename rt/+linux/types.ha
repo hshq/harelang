@@ -47,6 +47,7 @@ export def AT_STATX_FORCE_SYNC: int	= 0x2000;
 export def AT_STATX_DONT_SYNC: int	= 0x4000;
 export def AT_RECURSIVE: int		= 0x8000;
 
+// O_DIRECTORY is arch specific
 export def O_RDONLY: int	= 0o0;
 export def O_WRONLY: int	= 0o1;
 export def O_RDWR: int		= 0o2;
@@ -59,7 +60,6 @@ export def O_NONBLOCK: int	= 0o4000;
 export def O_DSYNC: int		= 0o10000;
 export def O_SYNC: int		= 0o4010000;
 export def O_RSYNC: int		= 0o4010000;
-export def O_DIRECTORY: int	= 0o200000;
 export def O_NOFOLLOW: int	= 0o400000;
 export def O_NOATIME: int	= 0o1000000;
 export def O_CLOEXEC: int	= 0o2000000;

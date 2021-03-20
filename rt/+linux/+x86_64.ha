@@ -20,3 +20,5 @@ export fn clone(
 		err: errno => err,
 	};
 };
+
+export def O_DIRECTORY: int = 0o40000;
