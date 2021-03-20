@@ -37,7 +37,10 @@ $(HARECACHE)/hare.ssa: $(hare_srcs) $(hare_stdlib_deps)
 
 $(TESTCACHE)/hare.ssa: $(hare_srcs) $(hare_testlib_deps)
 	@printf 'HAREC\t$@\n'
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ $(hare_srcs)
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) \
+		-D VERSION:str='"'"$$(./version)"'"' \
+		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
+		-o $@ $(hare_srcs)
 
 .bin/hare: $(HARECACHE)/hare.o
 	@mkdir -p .bin
