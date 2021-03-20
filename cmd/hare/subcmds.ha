@@ -42,12 +42,13 @@ fn build(args: []str) void = {
 	let verbose = false;
 	let output = "";
 	let goal = goal::EXE;
+	let defines: []str = [];
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
 			'c' => goal = goal::OBJ,
 			'v' => verbose = true,
-			'D' => abort(), // TODO
+			'D' => append(defines, opt.1),
 			'j' => abort(), // TODO
 			'l' => abort(), // TODO
 			'o' => output = opt.1,
@@ -71,7 +72,7 @@ fn build(args: []str) void = {
 	let tags = default_tags();
 	defer free(tags);
 
-	let ctx = module::context_init(tags, HAREPATH);
+	let ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
 	let plan = mkplan(&ctx);
@@ -144,11 +145,12 @@ fn run(args: []str) void = {
 	defer getopt::finish(&cmd);
 
 	let verbose = false;
+	let defines: []str = [];
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
 			'v' => verbose = true,
-			'D' => abort(), // TODO
+			'D' => append(defines, opt.1),
 			'j' => abort(), // TODO
 			'l' => abort(), // TODO
 			't' => abort(), // TODO
@@ -170,7 +172,7 @@ fn run(args: []str) void = {
 	let tags = default_tags();
 	defer free(tags);
 
-	let ctx = module::context_init(tags, HAREPATH);
+	let ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
 	let plan = mkplan(&ctx);

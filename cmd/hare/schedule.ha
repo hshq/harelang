@@ -148,6 +148,11 @@ fn sched_hare_object(
 			os::tryenv("HAREC", "harec"), "-o", ssa,
 		]),
 	});
+
+	for (let i = 0z; i < len(plan.context.defines); i += 1) {
+		append(harec.cmd, "-D", plan.context.defines[i]);
+	};
+
 	let output = if (len(namespace) != 0) {
 		// TODO: consult/update cache manifest
 		let version = hex::encode(ver.hash);

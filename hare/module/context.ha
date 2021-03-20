@@ -18,15 +18,19 @@ export type context = struct {
 	cache: str,
 	// Build tags to apply to this context.
 	tags: []tag,
+	// List of -D arguments passed to harec
+	defines: []str,
 };
 
 // Initializes a new context with the system default configuration. The tag list
-// is borrowed from the caller. The harepath parameter is not borrowed, but it
-// is ignored if HAREPATH is set in the process environment.
-export fn context_init(tags: []tag, harepath: str) context = {
+// and list of defines (arguments passed with harec -D) is borrowed from the
+// caller. The harepath parameter is not borrowed, but it is ignored if HAREPATH
+// is set in the process environment.
+export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 	let ctx = context {
 		fs = os::cwd,
 		tags = tags,
+		defines = defs,
 		paths: []str = match (os::getenv("HAREPATH")) {
 			void => {
 				let path: []str = alloc([

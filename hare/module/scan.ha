@@ -16,6 +16,7 @@ use strio;
 // Scans the files in a directory for eligible build inputs and returns a
 // [version] which includes all applicable files and their dependencies.
 export fn scan(ctx: *context, path: str) (version | error) = {
+	// TODO: Incorporate defines into the hash
 	let sha = sha256::sha256();
 	//defer! hash::close(sha);
 	let iter = match (fs::iter(ctx.fs, path)) {
