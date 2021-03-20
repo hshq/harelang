@@ -225,10 +225,10 @@ fn version(args: []str) void = {
 	fmt::printfln("Hare version {}", VERSION);
 	fmt::errorln();
 	fmt::printf("Build tags\t");
-	let tags = default_tags();
+	const tags = default_tags();
 	for (let i = 0z; i < len(tags); i += 1) {
-		let tag = tags[i];
-		let inclusive = (tag.mode & module::tag_mode::INCLUSIVE) == module::tag_mode::INCLUSIVE;
+		const tag = tags[i];
+		const inclusive = (tag.mode & module::tag_mode::INCLUSIVE) == module::tag_mode::INCLUSIVE;
 		fmt::printf("{}{}", if (inclusive) '+' else '-', tag.name);
 	};
 	fmt::println();
