@@ -1,10 +1,15 @@
 ## Install configuration
 
+PREFIX=/usr
+BINDIR=$(PREFIX)/bin
+MANDIR=$(PREFIX)/share/man
+SRCDIR=$(PREFIX)/src
+
 # Where to install the stdlib tree
-STDLIB=/usr/src/hare
+STDLIB=$(SRCDIR)/hare/stdlib
 
 # Default HAREPATH
-HAREPATH=/usr/src/hare/stdlib:/usr/src/hare/third-party
+HAREPATH=$(SRCDIR)/hare/stdlib:$(SRCDIR)/hare/third-party
 
 ## Build configuration
 
