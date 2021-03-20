@@ -71,7 +71,7 @@ fn build(args: []str) void = {
 	let tags = default_tags();
 	defer free(tags);
 
-	let ctx = module::context_init(tags);
+	let ctx = module::context_init(tags, HAREPATH);
 	defer module::context_finish(&ctx);
 
 	let plan = mkplan(&ctx);
@@ -170,7 +170,7 @@ fn run(args: []str) void = {
 	let tags = default_tags();
 	defer free(tags);
 
-	let ctx = module::context_init(tags);
+	let ctx = module::context_init(tags, HAREPATH);
 	defer module::context_finish(&ctx);
 
 	let plan = mkplan(&ctx);
@@ -222,5 +222,19 @@ fn test(args: []str) void = {
 };
 
 fn version(args: []str) void = {
-	abort(); // TODO
+	fmt::printfln("Hare version {}", VERSION);
+	fmt::errorln();
+	fmt::printf("Build tags\t");
+	let tags = default_tags();
+	for (let i = 0z; i < len(tags); i += 1) {
+		let tag = tags[i];
+		let inclusive = (tag.mode & module::tag_mode::INCLUSIVE) == module::tag_mode::INCLUSIVE;
+		fmt::printf("{}{}", if (inclusive) '+' else '-', tag.name);
+	};
+	fmt::println();
+
+	match (os::getenv("HAREPATH")) {
+		void => fmt::printfln("HAREPATH\t{}", HAREPATH),
+		s: str => fmt::printfln("HAREPATH\t{}\t(from environment)", s),
+	};
 };

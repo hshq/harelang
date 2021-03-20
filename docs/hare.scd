@@ -54,7 +54,10 @@ made eligible for the test run. If the _test_ argument is omitted, all tests are
 run. Otherwise, the list of named tests are run.
 
 *hare version* prints version information for the *hare* program, as well as
-some information about the build parameters.
+some information about the build parameters. The output format is consistent for
+machine reading: the first line is "Hare version $version". Subsequent lines
+give configuration values in the form of a name, value, and optional context,
+separated by tabs.
 
 # OPTIONS
 

@@ -7,9 +7,6 @@ use path;
 use strings;
 use strio;
 
-// TODO: Specify this at build time once harec supports -D
-def DEFAULT_HAREPATH: str = "/usr/src/hare";
-
 export type context = struct {
 	// Filesystem to use for the cache and source files.
 	fs: *fs::fs,
@@ -24,15 +21,16 @@ export type context = struct {
 };
 
 // Initializes a new context with the system default configuration. The tag list
-// is borrowed from the caller.
-export fn context_init(tags: []tag) context = {
+// is borrowed from the caller. The harepath parameter is not borrowed, but it
+// is ignored if HAREPATH is set in the process environment.
+export fn context_init(tags: []tag, harepath: str) context = {
 	let ctx = context {
 		fs = os::cwd,
 		tags = tags,
 		paths: []str = match (os::getenv("HAREPATH")) {
 			void => {
 				let path: []str = alloc([
-					strings::dup(DEFAULT_HAREPATH),
+					strings::dup(harepath),
 					dirs::data("hare"),
 				]);
 				path;

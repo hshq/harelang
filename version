@@ -1,0 +1,22 @@
+#!/bin/sh
+# Distro packagers may set the LOCALVER variable to add their distribution to
+# the version, e.g. 1.0-alpine.
+VERSION=dev
+
+ver=$(git describe 2>/dev/null)
+if [ $? -ne 0 ]
+then
+	ver="dev+$(git log -1 --format='%h')"
+	if [ $? -ne 0 ]
+	then
+		# git presumed unavailable
+		ver=$VERSION
+	fi
+fi
+
+localver=${LOCALVER:-}
+if [ ${#localver} != 0 ]
+then
+	ver="$ver-$localver"
+fi
+echo $ver
