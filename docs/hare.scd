@@ -51,7 +51,8 @@ Hare program which is run. os::args[0] is set to the _path_ argument.
 *hare test* compiles and runs tests for Hare code. All Hare modules in the
 current working directory are recursively discovered, built, and their tests
 made eligible for the test run. If the _test_ argument is omitted, all tests are
-run. Otherwise, the list of named tests are run.
+run. Otherwise, the list of named tests are run. *hare test* adds the +test and
++debug tags to the default build tags.
 
 *hare version* prints version information for the *hare* program, as well as
 some information about the build parameters. The output format is consistent for
