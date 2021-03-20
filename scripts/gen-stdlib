@@ -9,7 +9,7 @@
 #
 # Then add your module to the list of modules at the bottom.
 #
-# Then run ./gen-stdlib > stdlib.mk to generate new rules.
+# Then run ./scripts/gen-stdlib > stdlib.mk to generate new rules.
 
 srcdir="$(dirname "$0")"
 eval ". $srcdir/gen-stdlib.sh"
