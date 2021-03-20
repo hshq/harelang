@@ -1,0 +1,13 @@
+#!/bin/sh
+# Prints the default build tags for the host
+case $(uname) in
+	Linux)
+		platform="linux"
+		;;
+	*)
+		printf "Warning: unknown target %s\n" "$(uname)" >&2
+		platform="unknown"
+		;;
+esac
+
+printf "%s\n" "$platform"

@@ -6,13 +6,11 @@ use os::exec;
 use path;
 
 fn default_tags() []module::tag = {
-	// TODO: Bake me into the executable once harec -D works
 	return alloc([module::tag {
 		name = os::machine(),
 		mode = module::tag_mode::INCLUSIVE,
 	}, module::tag {
-		// TEMP:
-		name = "linux",
+		name = PLATFORM,
 		mode = module::tag_mode::INCLUSIVE,
 	}]);
 };
