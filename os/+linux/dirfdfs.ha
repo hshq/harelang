@@ -54,6 +54,7 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 			mkdir = &fs_mkdir,
 			rmdir = &fs_rmdir,
 			chmod = &fs_chmod,
+			chown = &fs_chown,
 			resolve = &fs_resolve,
 			...
 		},
@@ -281,6 +282,14 @@ fn fs_mkdir(fs: *fs::fs, path: str) (void | fs::error) = {
 fn fs_chmod(fs: *fs::fs, path: str, mode: fs::mode) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	return match (rt::fchmodat(fs.dirfd, path, mode: uint)) {
+		err: rt::errno => return errno_to_fs(err),
+		void => void,
+	};
+};
+
+fn fs_chown(fs: *fs::fs, path: str, uid: uint, gid: uint) (void | fs::error) = {
+	let fs = fs: *os_filesystem;
+	return match (rt::fchownat(fs.dirfd, path, uid, gid)) {
 		err: rt::errno => return errno_to_fs(err),
 		void => void,
 	};

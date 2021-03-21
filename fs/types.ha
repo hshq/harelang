@@ -180,6 +180,7 @@ export type mkdirfunc = fn(fs: *fs, path: str) (void | error);
 export type rmdirfunc = fn(fs: *fs, path: str) (void | error);
 export type mksubdirfunc = fn(fs: *fs, path: str) (*fs | error);
 export type chmodfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
+export type chownfunc = fn(fs: *fs, path: str, uid: uint, gid: uint) (void | error);
 export type resolvefunc = fn(fs: *fs, path: str) str;
 
 export type openfunc = fn(
@@ -236,6 +237,9 @@ export type fs = struct {
 
 	// Changes mode flags on a file or directory.
 	chmod: nullable *chmodfunc,
+
+	// Changes ownership of a file.
+	chown: nullable *chownfunc,
 
 	// Resolves a path to its absolute, normalized value. If the fs
 	// implementation does not provide this, [resolve] presumes that

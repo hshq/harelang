@@ -95,6 +95,20 @@ export fn fchmodat(dirfd: int, path: path, mode: uint) (void | errno) = {
 	return;
 };
 
+export fn chown(path: path, uid: uint, gid: uint) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_return(syscall4(SYS_fchownat,
+		AT_FDCWD: u64, path: uintptr: u64, uid: u32, gid: u32));
+	return;
+};
+
+export fn fchownat(dirfd: int, path: path, uid: uint, gid: uint) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_return(syscall4(SYS_fchownat,
+		dirfd: u64, path: uintptr: u64, uid: u32, gid: u32))?;
+	return;
+};
+
 export fn dup(fd: int) (int | errno) = {
 	return wrap_return(syscall1(SYS_dup, fd: u64))?: int;
 };

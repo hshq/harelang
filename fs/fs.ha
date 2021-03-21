@@ -156,6 +156,14 @@ export fn chmod(fs: *fs, path: str, mode: mode) (void | error) = {
 	};
 };
 
+// Changes ownership of a file.
+export fn chown(fs: *fs, path: str, uid: uint, gid: uint) (void | error) = {
+	return match (fs.chown) {
+		f: *chownfunc => f(fs, path, uid, gid),
+		null => abort(),
+	};
+};
+
 // Resolves a path to its absolute, normalized value. This consoldates ./ and
 // ../ sequences, roots the path, and returns a new path. The caller must free
 // the return value.
