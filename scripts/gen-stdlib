@@ -203,6 +203,7 @@ endian() {
 	printf '# endian\n'
 	gen_srcs endian \
 		big.ha \
+		network.ha \
 		little.ha \
 		endian.ha \
 		'host$(ARCH).ha'
