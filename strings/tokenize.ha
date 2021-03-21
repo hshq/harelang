@@ -7,9 +7,9 @@ export type tokenizer = bytes::tokenizer;
 // Returns a tokenizer which yields sub-strings tokenized by a delimiter.
 //
 // 	let tok = strings::tokenize("hello, my name is drew", " ");
-// 	assert(strings::token(tok) == "hello,");
-// 	assert(strings::token(tok) == "my");
-// 	assert(strings::token(tok) == "name");
+// 	assert(strings::next_token(tok) == "hello,");
+// 	assert(strings::next_token(tok) == "my");
+// 	assert(strings::next_token(tok) == "name");
 // 	assert(strings::remaining_tokens(tok) == "is drew");
 export fn tokenize(s: str, delim: str) tokenizer =
 	bytes::tokenize(to_utf8(s), to_utf8(delim));
