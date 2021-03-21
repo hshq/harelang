@@ -176,6 +176,9 @@ hare_stdlib_deps+=$(stdlib_time)
 stdlib_types=$(HARECACHE)/types/types.o
 hare_stdlib_deps+=$(stdlib_types)
 
+stdlib_unicode=$(HARECACHE)/unicode/unicode.o
+hare_stdlib_deps+=$(stdlib_unicode)
+
 # ascii
 stdlib_ascii_srcs= \
 	$(STDLIB)/ascii/ctype.ha \
@@ -604,6 +607,17 @@ $(HARECACHE)/types/types.ssa: $(stdlib_types_srcs) $(stdlib_rt)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntypes \
 		-t$(HARECACHE)/types/types.td $(stdlib_types_srcs)
 
+# unicode
+stdlib_unicode_srcs= \
+	$(STDLIB)/unicode/properties.ha \
+	$(STDLIB)/unicode/unicode.ha
+
+$(HARECACHE)/unicode/unicode.ssa: $(stdlib_unicode_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unicode
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunicode \
+		-t$(HARECACHE)/unicode/unicode.td $(stdlib_unicode_srcs)
+
 # rt
 testlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/env.ha \
@@ -781,6 +795,9 @@ hare_testlib_deps+=$(testlib_time)
 
 testlib_types=$(TESTCACHE)/types/types.o
 hare_testlib_deps+=$(testlib_types)
+
+testlib_unicode=$(TESTCACHE)/unicode/unicode.o
+hare_testlib_deps+=$(testlib_unicode)
 
 # ascii
 testlib_ascii_srcs= \
@@ -1220,4 +1237,15 @@ $(TESTCACHE)/types/types.ssa: $(testlib_types_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/types
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntypes \
 		-t$(TESTCACHE)/types/types.td $(testlib_types_srcs)
+
+# unicode
+testlib_unicode_srcs= \
+	$(STDLIB)/unicode/properties.ha \
+	$(STDLIB)/unicode/unicode.ha
+
+$(TESTCACHE)/unicode/unicode.ssa: $(testlib_unicode_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unicode
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunicode \
+		-t$(TESTCACHE)/unicode/unicode.td $(testlib_unicode_srcs)
 
