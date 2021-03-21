@@ -146,6 +146,16 @@ export fn mksubdir(fs: *fs, path: str) (*fs | error) = {
 	};
 };
 
+// Changes mode flags on a file or directory. Type bits are discared.
+export fn chmod(fs: *fs, path: str, mode: mode) (void | error) = {
+	mode &= 0o755;
+
+	return match (fs.chmod) {
+		f: *chmodfunc => f(fs, path, mode),
+		null => abort(),
+	};
+};
+
 // Resolves a path to its absolute, normalized value. This consoldates ./ and
 // ../ sequences, roots the path, and returns a new path. The caller must free
 // the return value.

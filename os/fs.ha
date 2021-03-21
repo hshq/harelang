@@ -40,6 +40,9 @@ export fn rmdirall(path: str) (void | fs::error) = fs::rmdirall(cwd, path);
 // doing this operation atomically, but if not, a fallback is used.
 export fn mksubdir(path: str) (*fs::fs | fs::error) = fs::mksubdir(cwd, path);
 
+// Changes mode flags on a file or directory. Type bits are discared.
+export fn chmod(path: str, mode: fs::mode) (void | fs::error) = fs::chmod(cwd, path, mode);
+
 // Resolves a path to its absolute, normalized value. This consoldates ./ and
 // ../ sequences, roots the path, and returns a new path. The caller must free
 // the return value.

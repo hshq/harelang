@@ -81,6 +81,20 @@ export fn unlinkat(dirfd: int, path: path, flags: int) (void | errno) = {
 	return;
 };
 
+export fn chmod(path: path, mode: uint) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_return(syscall3(SYS_fchmodat,
+		AT_FDCWD: u64, path: uintptr: u64, mode: u64));
+	return;
+};
+
+export fn fchmodat(dirfd: int, path: path, mode: uint) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_return(syscall3(SYS_fchmodat,
+		dirfd: u64, path: uintptr: u64, mode: u64))?;
+	return;
+};
+
 export fn dup(fd: int) (int | errno) = {
 	return wrap_return(syscall1(SYS_dup, fd: u64))?: int;
 };
