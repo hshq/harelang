@@ -4,7 +4,7 @@ use strings;
 // A token with no additional context, such as '+'
 export type btoken = enum {
 	// Keep ordered with bmap
-	// Alpha shorted
+	// Alpha sorted
 	ATTR_FINI,
 	ATTR_INIT,
 	ATTR_NORETURN,
