@@ -1,5 +1,6 @@
 // hare::lex provides a lexer for Hare source code.
 use ascii;
+use bufio;
 use encoding::utf8;
 use fmt;
 use io;
@@ -469,7 +470,7 @@ fn next(lex: *lexer) (rune | io::EOF | io::error) = {
 	};
 
 	for (true) {
-		return match (io::getrune(lex.in)) {
+		return match (bufio::scanrune(lex.in)) {
 			e: (io::EOF | io::error) => e,
 			r: rune => {
 				lexloc(lex, r);

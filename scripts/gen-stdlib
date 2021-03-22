@@ -321,7 +321,6 @@ gensrcs_io() {
 		limit.ha \
 		println.ha \
 		stream.ha \
-		strings.ha \
 		tee.ha \
 		types.ha \
 		$*
@@ -336,8 +335,7 @@ io() {
 		gensrcs_io \
 			+test/copy.ha \
 			+test/limit.ha \
-			+test/stream.ha \
-			+test/strings.ha
+			+test/stream.ha
 	fi
 	gen_ssa io strings
 }
