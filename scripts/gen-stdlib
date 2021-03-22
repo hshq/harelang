@@ -110,8 +110,9 @@ bufio() {
 	gen_srcs bufio \
 		buffered.ha \
 		dynamic.ha \
-		fixed.ha
-	gen_ssa bufio io bytes strings
+		fixed.ha \
+		scanner.ha
+	gen_ssa bufio io bytes strings encoding::utf8
 }
 
 bytes() {

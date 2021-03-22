@@ -194,9 +194,10 @@ $(HARECACHE)/ascii/ascii.ssa: $(stdlib_ascii_srcs) $(stdlib_rt) $(stdlib_strings
 stdlib_bufio_srcs= \
 	$(STDLIB)/bufio/buffered.ha \
 	$(STDLIB)/bufio/dynamic.ha \
-	$(STDLIB)/bufio/fixed.ha
+	$(STDLIB)/bufio/fixed.ha \
+	$(STDLIB)/bufio/scanner.ha
 
-$(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bytes) $(stdlib_strings)
+$(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bytes) $(stdlib_strings) $(stdlib_encoding_utf8)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/bufio
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbufio \
@@ -815,9 +816,10 @@ $(TESTCACHE)/ascii/ascii.ssa: $(testlib_ascii_srcs) $(testlib_rt) $(testlib_stri
 testlib_bufio_srcs= \
 	$(STDLIB)/bufio/buffered.ha \
 	$(STDLIB)/bufio/dynamic.ha \
-	$(STDLIB)/bufio/fixed.ha
+	$(STDLIB)/bufio/fixed.ha \
+	$(STDLIB)/bufio/scanner.ha
 
-$(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io) $(testlib_bytes) $(testlib_strings)
+$(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io) $(testlib_bytes) $(testlib_strings) $(testlib_encoding_utf8)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/bufio
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbufio \
