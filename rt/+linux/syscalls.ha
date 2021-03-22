@@ -510,3 +510,8 @@ export fn setsockopt(sockfd: int, level: int, optname: int, optval: *void, optle
 		sockfd: u64, level: u64, optname: u64,
 		optval: uintptr: u64, optlen: u64))?: int;
 };
+
+export fn ioctl(fd: int, req: u64, arg: nullable *void) (int | errno) = {
+	return wrap_return(syscall3(SYS_ioctl, fd: u64,
+		req, arg: uintptr: u64))?: int;
+};
