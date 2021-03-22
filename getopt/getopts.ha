@@ -92,7 +92,7 @@ export type help = (cmd_help | flag_help | parameter_help);
 // 		('f', "file", "execute commands from a file"),
 // 		"files...",
 // 	);
-// 	defer getopts::finish(&cmd);
+// 	defer getopt::finish(&cmd);
 //
 // 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 // 		let opt = cmd.opts[i];
