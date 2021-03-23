@@ -14,7 +14,9 @@ export fn scanbyte(stream: *io::stream) (u8 | io::EOF | io::error) = {
 	};
 };
 
-// Reads a slice of bytes until the delimiter. Delimiter is not included.
+// Reads a slice of bytes until the delimiter. Delimiter is not
+// included. [io::EOF] is returned when stream emits EOF but nothing was
+// read. Returned buffer has to be freed by the caller.
 export fn scantok(stream: *io::stream, delim: u8) ([]u8 | io::EOF | io::error) = {
 	let buf: []u8 = [];
 
@@ -26,7 +28,12 @@ export fn scantok(stream: *io::stream, delim: u8) ([]u8 | io::EOF | io::error) =
 				};
 				append(buf, res);
 			},
-			io::EOF => break,
+			io::EOF => {
+				if (len(buf) == 0) {
+					return io::EOF;
+				};
+				break;
+			},
 		};
 	};
 
@@ -34,7 +41,8 @@ export fn scantok(stream: *io::stream, delim: u8) ([]u8 | io::EOF | io::error) =
 };
 
 // Reads a slice of bytes until a newline character (\n, 0x10). Newline itself
-// is not included.
+// is not included. [io::EOF] is returned when stream emits EOF but nothing was
+// read. Returned buffer has to be freed by the caller.
 export fn scanline(stream: *io::stream) ([]u8 | io::EOF | io::error) = scantok(stream, '\n': u32: u8);
 
 // Reads a rune from a UTF-8 stream.
@@ -80,18 +88,30 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 @test fn scantok() void = {
 	let buf = fixed([1, 3, 4, 5, 3, 7], io::mode::READ);
 
-	assert(bytes::equal(scantok(buf, 4) as []u8, [1, 3]));
-	assert(bytes::equal(scantok(buf, 7) as []u8, [5, 3]));
-	assert(bytes::equal(scantok(buf, 1) as []u8, []));
+	let tok = scantok(buf, 4) as []u8;
+	defer free(tok);
+	assert(bytes::equal(tok, [1, 3]));
+
+	let tok = scantok(buf, 7) as []u8;
+	defer free(tok);
+	assert(bytes::equal(tok, [5, 3]));
+
+	assert(scantok(buf, 1) is io::EOF);
 };
 
 @test fn scanline() void = {
 	let helloworld = strings::to_utf8("hello\nworld");
 	let buf = fixed(helloworld, io::mode::READ);
 
-	assert(bytes::equal(scanline(buf) as []u8, strings::to_utf8("hello")));
-	assert(bytes::equal(scanline(buf) as []u8, strings::to_utf8("world")));
-	assert(bytes::equal(scanline(buf) as []u8, []));
+	let line = scanline(buf) as []u8;
+	defer free(line);
+	assert(bytes::equal(line, strings::to_utf8("hello")));
+
+	let line = scanline(buf) as []u8;
+	defer free(line);
+	assert(bytes::equal(line, strings::to_utf8("world")));
+
+	assert(scanline(buf) is io::EOF);
 };
 
 @test fn scanrune() void = {
