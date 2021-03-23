@@ -23,7 +23,7 @@ export type sockaddr_in6 = struct {
 	sin6_family: sa_family_t,
 	sin6_port: u16,
 	sin6_flowinfo: u32,
-	sin6_addr: in_addr,
+	sin6_addr: in6_addr,
 	sin6_scope_id: u32,
 };
 
@@ -34,10 +34,12 @@ export type sockaddr_un = struct {
 	sun_path: [UNIX_PATH_MAX]char,
 };
 
-export type sockaddr = union {
-	in: sockaddr_in,
-	in6: sockaddr_in6,
-	un: sockaddr_un,
+export type sockaddr = struct {
+	union {
+		in: sockaddr_in,
+		in6: sockaddr_in6,
+		un: sockaddr_un,
+	},
 };
 
 // domain for socket(2)
