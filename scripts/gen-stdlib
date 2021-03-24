@@ -249,9 +249,21 @@ hare_ast() {
 		ident.ha \
 		import.ha \
 		type.ha \
+		unit.ha
+	gen_ssa hare::ast hare::lex
+}
+
+hare_unparse() {
+	printf '# hare::unparse\n'
+	gen_srcs hare::unparse \
+		expr.ha \
+		decl.ha \
+		ident.ha \
+		import.ha \
+		type.ha \
 		unit.ha \
-		unparse.ha
-	gen_ssa hare::ast hare::lex io fmt strio
+		util.ha
+	gen_ssa hare::unparse fmt io strio hare::ast
 }
 
 gensrcs_hare_lex() {
@@ -281,7 +293,7 @@ hare_module() {
 		scan.ha \
 		manifest.ha
 	gen_ssa hare::module \
-		hare::ast hare::lex hare::parse strio fs io strings hash \
+		hare::ast hare::lex hare::parse hare::unparse strio fs io strings hash \
 		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time
 }
 
@@ -533,6 +545,7 @@ hare_ast
 hare_lex
 hare_module
 hare_parse
+hare_unparse
 hash
 hash_fnv
 io

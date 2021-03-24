@@ -125,6 +125,9 @@ hare_stdlib_deps+=$(stdlib_hare_module)
 stdlib_hare_parse=$(HARECACHE)/hare/parse/hare_parse.o
 hare_stdlib_deps+=$(stdlib_hare_parse)
 
+stdlib_hare_unparse=$(HARECACHE)/hare/unparse/hare_unparse.o
+hare_stdlib_deps+=$(stdlib_hare_unparse)
+
 stdlib_hash=$(HARECACHE)/hash/hash.o
 hare_stdlib_deps+=$(stdlib_hash)
 
@@ -354,10 +357,9 @@ stdlib_hare_ast_srcs= \
 	$(STDLIB)/hare/ast/ident.ha \
 	$(STDLIB)/hare/ast/import.ha \
 	$(STDLIB)/hare/ast/type.ha \
-	$(STDLIB)/hare/ast/unit.ha \
-	$(STDLIB)/hare/ast/unparse.ha
+	$(STDLIB)/hare/ast/unit.ha
 
-$(HARECACHE)/hare/ast/hare_ast.ssa: $(stdlib_hare_ast_srcs) $(stdlib_rt) $(stdlib_hare_lex) $(stdlib_io) $(stdlib_fmt) $(stdlib_strio)
+$(HARECACHE)/hare/ast/hare_ast.ssa: $(stdlib_hare_ast_srcs) $(stdlib_rt) $(stdlib_hare_lex)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/ast
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::ast \
@@ -381,7 +383,7 @@ stdlib_hare_module_srcs= \
 	$(STDLIB)/hare/module/scan.ha \
 	$(STDLIB)/hare/module/manifest.ha
 
-$(HARECACHE)/hare/module/hare_module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings) $(stdlib_hash) $(stdlib_crypto_sha256) $(stdlib_dirs) $(stdlib_bytes) $(stdlib_encoding_utf8) $(stdlib_ascii) $(stdlib_fmt) $(stdlib_time)
+$(HARECACHE)/hare/module/hare_module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_hare_unparse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings) $(stdlib_hash) $(stdlib_crypto_sha256) $(stdlib_dirs) $(stdlib_bytes) $(stdlib_encoding_utf8) $(stdlib_ascii) $(stdlib_fmt) $(stdlib_time)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/module
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::module \
@@ -398,6 +400,22 @@ $(HARECACHE)/hare/parse/hare_parse.ssa: $(stdlib_hare_parse_srcs) $(stdlib_rt) $
 	@mkdir -p $(HARECACHE)/hare/parse
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::parse \
 		-t$(HARECACHE)/hare/parse/hare_parse.td $(stdlib_hare_parse_srcs)
+
+# hare::unparse
+stdlib_hare_unparse_srcs= \
+	$(STDLIB)/hare/unparse/expr.ha \
+	$(STDLIB)/hare/unparse/decl.ha \
+	$(STDLIB)/hare/unparse/ident.ha \
+	$(STDLIB)/hare/unparse/import.ha \
+	$(STDLIB)/hare/unparse/type.ha \
+	$(STDLIB)/hare/unparse/unit.ha \
+	$(STDLIB)/hare/unparse/util.ha
+
+$(HARECACHE)/hare/unparse/hare_unparse.ssa: $(stdlib_hare_unparse_srcs) $(stdlib_rt) $(stdlib_fmt) $(stdlib_io) $(stdlib_strio) $(stdlib_hare_ast)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hare/unparse
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::unparse \
+		-t$(HARECACHE)/hare/unparse/hare_unparse.td $(stdlib_hare_unparse_srcs)
 
 # hash
 stdlib_hash_srcs= \
@@ -751,6 +769,9 @@ hare_testlib_deps+=$(testlib_hare_module)
 testlib_hare_parse=$(TESTCACHE)/hare/parse/hare_parse.o
 hare_testlib_deps+=$(testlib_hare_parse)
 
+testlib_hare_unparse=$(TESTCACHE)/hare/unparse/hare_unparse.o
+hare_testlib_deps+=$(testlib_hare_unparse)
+
 testlib_hash=$(TESTCACHE)/hash/hash.o
 hare_testlib_deps+=$(testlib_hash)
 
@@ -982,10 +1003,9 @@ testlib_hare_ast_srcs= \
 	$(STDLIB)/hare/ast/ident.ha \
 	$(STDLIB)/hare/ast/import.ha \
 	$(STDLIB)/hare/ast/type.ha \
-	$(STDLIB)/hare/ast/unit.ha \
-	$(STDLIB)/hare/ast/unparse.ha
+	$(STDLIB)/hare/ast/unit.ha
 
-$(TESTCACHE)/hare/ast/hare_ast.ssa: $(testlib_hare_ast_srcs) $(testlib_rt) $(testlib_hare_lex) $(testlib_io) $(testlib_fmt) $(testlib_strio)
+$(TESTCACHE)/hare/ast/hare_ast.ssa: $(testlib_hare_ast_srcs) $(testlib_rt) $(testlib_hare_lex)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/ast
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::ast \
@@ -1010,7 +1030,7 @@ testlib_hare_module_srcs= \
 	$(STDLIB)/hare/module/scan.ha \
 	$(STDLIB)/hare/module/manifest.ha
 
-$(TESTCACHE)/hare/module/hare_module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings) $(testlib_hash) $(testlib_crypto_sha256) $(testlib_dirs) $(testlib_bytes) $(testlib_encoding_utf8) $(testlib_ascii) $(testlib_fmt) $(testlib_time)
+$(TESTCACHE)/hare/module/hare_module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_hare_unparse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings) $(testlib_hash) $(testlib_crypto_sha256) $(testlib_dirs) $(testlib_bytes) $(testlib_encoding_utf8) $(testlib_ascii) $(testlib_fmt) $(testlib_time)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/module
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module \
@@ -1028,6 +1048,22 @@ $(TESTCACHE)/hare/parse/hare_parse.ssa: $(testlib_hare_parse_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/hare/parse
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::parse \
 		-t$(TESTCACHE)/hare/parse/hare_parse.td $(testlib_hare_parse_srcs)
+
+# hare::unparse
+testlib_hare_unparse_srcs= \
+	$(STDLIB)/hare/unparse/expr.ha \
+	$(STDLIB)/hare/unparse/decl.ha \
+	$(STDLIB)/hare/unparse/ident.ha \
+	$(STDLIB)/hare/unparse/import.ha \
+	$(STDLIB)/hare/unparse/type.ha \
+	$(STDLIB)/hare/unparse/unit.ha \
+	$(STDLIB)/hare/unparse/util.ha
+
+$(TESTCACHE)/hare/unparse/hare_unparse.ssa: $(testlib_hare_unparse_srcs) $(testlib_rt) $(testlib_fmt) $(testlib_io) $(testlib_strio) $(testlib_hare_ast)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/unparse
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::unparse \
+		-t$(TESTCACHE)/hare/unparse/hare_unparse.td $(testlib_hare_unparse_srcs)
 
 # hash
 testlib_hash_srcs= \

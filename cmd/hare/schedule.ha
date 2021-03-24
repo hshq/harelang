@@ -2,6 +2,7 @@ use encoding::hex;
 use fmt;
 use hare::ast;
 use hare::module;
+use hare::unparse;
 use hash::fnv;
 use hash;
 use os;
@@ -32,7 +33,7 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 
 	let ver = match (module::lookup(plan.context, ident)) {
 		err: module::error => {
-			let ident = ast::ident_unparse_s(ident);
+			let ident = unparse::ident_s(ident);
 			fmt::fatal("Error resolving {}: {}",
 				ident, module::errstr(err));
 		},
@@ -156,7 +157,7 @@ fn sched_hare_object(
 	let output = if (len(namespace) != 0) {
 		// TODO: consult/update cache manifest
 		let version = hex::encode(ver.hash);
-		let ns = ast::ident_unparse_s(namespace);
+		let ns = unparse::ident_s(namespace);
 		let env = module::ident_underscore(namespace);
 		defer free(env);
 

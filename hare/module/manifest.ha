@@ -2,6 +2,7 @@ use encoding::hex;
 use fmt;
 use fs;
 use hare::ast;
+use hare::unparse;
 use io;
 use path;
 use time;
@@ -31,7 +32,7 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 	let fd = fs::create(ctx.fs, mpath, 0o644)?;
 	defer io::close(fd);
 
-	let ident = ast::ident_unparse_s(manifest.ident);
+	let ident = unparse::ident_s(manifest.ident);
 	defer free(ident);
 	fmt::fprintfln(fd, "# {}", ident)?;
 	fmt::fprintln(fd, "# This file is an internal Hare implementation detail.")?;
