@@ -5,7 +5,7 @@ TESTCACHE=$(HARECACHE)/+test
 TESTHAREFLAGS=$(HAREFLAGS) -T +test
 STDLIB=.
 
-.bin/hare:
+all:
 
 .SUFFIXES: .ha .ssa .s .o .scd .1
 .ssa.s:
@@ -60,12 +60,17 @@ docs/hare.1: docs/hare.scd
 
 docs: docs/hare.1
 
+.bin/harec: .bin/hare
+	@mkdir -p .bin
+	@printf 'HARE\t$@\n'
+	@env HAREPATH=. ./.bin/hare build -o .bin/harec ./cmd/harec
+
 clean:
 	@rm -rf .cache .bin
 
 check: .bin/hare-tests
 	@./.bin/hare-tests
 
-all: .bin/hare
+all: .bin/hare .bin/harec
 
 .PHONY: all clean check
