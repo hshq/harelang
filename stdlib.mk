@@ -400,7 +400,7 @@ stdlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/unit.ha \
 	$(STDLIB)/hare/parse/util.ha
 
-$(HARECACHE)/hare/parse/hare_parse.ssa: $(stdlib_hare_parse_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex)
+$(HARECACHE)/hare/parse/hare_parse.ssa: $(stdlib_hare_parse_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_unparse) $(stdlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/parse
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::parse \
@@ -1053,7 +1053,7 @@ testlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/util.ha \
 	$(STDLIB)/hare/parse/+test.ha
 
-$(TESTCACHE)/hare/parse/hare_parse.ssa: $(testlib_hare_parse_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_fmt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_unparse) $(testlib_io) $(testlib_strings) $(testlib_strio)
+$(TESTCACHE)/hare/parse/hare_parse.ssa: $(testlib_hare_parse_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_fmt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_unparse) $(testlib_io) $(testlib_strings) $(testlib_strio) $(testlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/parse
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::parse \

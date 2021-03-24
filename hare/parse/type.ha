@@ -86,7 +86,8 @@ fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 	let b = match (t.0) {
 		b: lex::btoken => b,
 		* => return syntaxerr(mkloc(lexer),
-			"Expected primitive type, got <something else>"),
+			"Unexpected {}, was expecting primitive type",
+			lex::tokstr(t.0)),
 	};
 	let builtin = switch (b) {
 		btoken::CHAR, btoken::I16, btoken::I32, btoken::I64,
@@ -211,7 +212,7 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 	};
 	let t = match (lex::lex(lexer)?) {
 		io::EOF => return syntaxerr(mkloc(lexer),
-			"Expected type, found EOF"),
+			"Unexpected EOF, was expecting type"),
 		t: (lex::token, lex::location) => t,
 	};
 	lex::unlex(lexer, t);
@@ -243,7 +244,8 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 		},
 		lex::name => alias_type(lexer)?,
 		* => return syntaxerr(mkloc(lexer),
-			"Expected type, found <something>"),
+			"Unexpected {}, was expecting type",
+			lex::tokstr(t.0)),
 	};
 
 	match (try_btoken(lexer, btoken::LNOT)?) {

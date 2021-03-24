@@ -1,16 +1,19 @@
+use fmt;
 use hare::ast;
 use hare::lex;
+use io;
+use strio;
 
 // Requires the next token to be a name. Returns that name, or an error.
 fn want_name(lexer: *lex::lexer) (lex::name | error) = {
 	match (lex::lex(lexer)?) {
 		io::EOF => return syntaxerr(mkloc(lexer),
-			"Expected name, found EOF"),
+			"Unexpected EOF, was expecting name"),
 		t: (lex::token, lex::location) => match (t.0) {
 			n: lex::name => return n,
-			// TODO: Use fmt+lex::tokstr here:
 			* => return syntaxerr(mkloc(lexer),
-				"Expected name, got <something else>"),
+				"Unexpected {}, was expecting name",
+				lex::tokstr(t.0)),
 		},
 	};
 };
@@ -34,9 +37,8 @@ fn want_btoken(
 	lexer: *lex::lexer,
 	want: lex::btoken...
 ) (lex::btoken | error) = {
-	match (lex::lex(lexer)?) {
-		io::EOF => return syntaxerr(mkloc(lexer),
-			"Expected name, found EOF"),
+	let tok: lex::token = match (lex::lex(lexer)?) {
+		io::EOF => return syntaxerr(mkloc(lexer), "Unexpected EOF"),
 		t: (lex::token, lex::location) => match (t.0) {
 			b: lex::btoken => {
 				if (len(want) == 0) {
@@ -47,15 +49,22 @@ fn want_btoken(
 						return b;
 					};
 				};
-				// TODO: Use fmt+lex::tokstr here:
-				return syntaxerr(mkloc(lexer),
-					"Expected <something>, got <something else>");
+				t.0;
 			},
-			// TODO: Use fmt+lex::tokstr here:
-			* => return syntaxerr(mkloc(lexer),
-				"Expected <something>, got <something else>"),
+			* => t.0,
 		},
 	};
+
+	let buf = strio::dynamic();
+	defer io::close(buf);
+	for (let i = 0z; i < len(want); i += 1) {
+		fmt::fprintf(buf, lex::tokstr(want[i]));
+		if (i + 1 < len(want)) {
+			fmt::fprint(buf, ", ");
+		};
+	};
+	return syntaxerr(mkloc(lexer), "Unexpected {}, was expecting {}",
+		lex::tokstr(tok), strio::string(buf));
 };
 
 // Looks for a matching btoken from the lexer, and if not present, unlexes the

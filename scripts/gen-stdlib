@@ -315,12 +315,12 @@ hare_parse() {
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_hare_parse
-		gen_ssa hare::parse hare::ast hare::lex
+		gen_ssa hare::parse hare::ast hare::lex hare::unparse fmt
 	else
 		gensrcs_hare_parse \
 			+test.ha
 		gen_ssa hare::parse bufio fmt hare::ast hare::lex hare::unparse io \
-			strings strio
+			strings strio fmt
 	fi
 }
 

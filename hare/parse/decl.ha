@@ -1,7 +1,8 @@
 use ascii;
-use hare::lex;
-use hare::lex::{btoken};
 use hare::ast;
+use hare::lex::{btoken};
+use hare::lex;
+use hare::unparse;
 use strings;
 
 fn attr_symbol(lexer: *lex::lexer) (str | error) = {
@@ -13,10 +14,12 @@ fn attr_symbol(lexer: *lex::lexer) (str | error) = {
 			l: lex::literal => match (l) {
 				s: str => (s, t.1),
 				* => return syntaxerr(t.1,
-					"Expected string, got <something else>"),
+					"Unexpected {}, was expecting string",
+					lex::tokstr(t.0)),
 			},
 			* => return syntaxerr(t.1,
-				"Expected string, got <something else>"),
+				"Unexpected {}, was expecting string",
+				lex::tokstr(t.0)),
 		},
 	};
 	let d = strings::iter(s.0);
@@ -122,7 +125,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 	let body = switch (tok) {
 		btoken::EQUAL => {
 			synassert(ident_loc, len(ident) == 1,
-				"Expected name, found identifier")?;
+				"Unexpected identifier, was expecting name")?;
 			const params = prototype.params;
 			for (let i = 0z; i < len(params); i += 1) {
 				synassert(params[i].loc,
@@ -158,14 +161,14 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 		};
 		let tok = match(lex::lex(lexer)?) {
 			io::EOF => return syntaxerr(mkloc(lexer),
-				"Expected declaration, found EOF"),
+				"Unexpected EOF, was expecting declaration"),
 			t: (lex::token, lex::location) => t,
 		};
 		let btok = match (tok.0) {
 			b: lex::btoken => b,
-			// TODO: Use fmt+lex::tokstr here:
 			* => return syntaxerr(mkloc(lexer),
-				"Expected declaration, found <something else>"),
+				"Unexpected {}, was expecting declaration",
+				lex::tokstr(tok.0)),
 		};
 		let decl = switch (btok) {
 			btoken::CONST, btoken::LET, btoken::DEF =>
