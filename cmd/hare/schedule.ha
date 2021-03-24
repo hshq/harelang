@@ -166,6 +166,8 @@ fn sched_hare_object(
 			fmt::asprintf("HARE_VERSION_{}", env), version,
 		));
 
+		// TODO: Keep this around and append new versions, rather than
+		// overwriting with just the latest
 		let manifest = match (module::manifest_load(
 				plan.context, namespace)) {
 			err: module::error => fmt::fatal(
