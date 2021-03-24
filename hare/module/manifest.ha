@@ -1,10 +1,15 @@
+use bufio;
+use bytes;
 use encoding::hex;
+use encoding::utf8;
 use fmt;
 use fs;
 use hare::ast;
 use hare::unparse;
 use io;
 use path;
+use strconv;
+use strings;
 use time;
 
 // The manifest file format is a series of line-oriented records. Lines starting
@@ -15,6 +20,173 @@ use time;
 //   and mtime as a Unix timestamp.
 // - "module" is a version of a module, and includes the module hash and the set
 //   of input hashes which produce it.
+
+def VERSION: int = 1;
+
+fn getinput(m: *manifest, hash: []u8) nullable *input = {
+	for (let i = 0z; i < len(m.inputs); i += 1) {
+		if (bytes::equal(m.inputs[i].hash, hash)) {
+			return &m.inputs[i];
+		};
+	};
+	return null;
+};
+
+// Loads the module manifest from the build cache for the given ident. The
+// return value borrows the ident parameter. If the module is not found, an
+// empty manifest is returned.
+export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
+	let manifest = manifest {
+		ident = ident,
+		inputs = [],
+		versions = [],
+	};
+	let ipath = ident_path(manifest.ident);
+	defer free(ipath);
+	let cachedir = path::join(ctx.cache, ipath);
+	defer free(cachedir);
+
+	let mpath = path::join(cachedir, "manifest");
+	defer free(mpath);
+
+	// TODO: We can probably eliminate these locks by using atomic writes
+	// instead
+	let l = lock(ctx.fs, cachedir)?;
+	defer unlock(ctx.fs, cachedir, l);
+
+	let file = match (fs::open(ctx.fs, mpath, fs::flags::RDONLY)) {
+		fs::noentry => return manifest,
+		err: fs::error => return err,
+		file: *io::stream => file,
+	};
+	defer io::close(file);
+
+	let inputs: []input = [], versions: []version = [];
+
+	let buf: [4096]u8 = [0...];
+	let file = bufio::buffered(file, buf, []);
+	for (true) {
+		let line = match (bufio::scanline(file)?) {
+			io::EOF => break,
+			line: []u8 => match (strings::try_from_utf8(line)) {
+				// Treat an invalid manifest as empty
+				utf8::invalid => return manifest,
+				s: str => s,
+			},
+		};
+		defer free(line);
+
+		if (strings::has_prefix(line, "#")) {
+			continue;
+		};
+
+		let tok = strings::tokenize(line, " ");
+		let kind = match (strings::next_token(&tok)) {
+			void => continue,
+			s: str => s,
+		};
+
+		if (kind == "version") {
+			let ver = match (strings::next_token(&tok)) {
+				void => return manifest,
+				s: str => s,
+			};
+			match (strconv::stoi(ver)) {
+				v: int => if (v != VERSION) {
+					return manifest;
+				},
+				* => return manifest,
+			};
+		} else if (kind == "input") {
+			let hash = match (strings::next_token(&tok)) {
+				void => return manifest, s: str => s,
+			}, path = match (strings::next_token(&tok)) {
+				void => return manifest, s: str => s,
+			}, inode = match (strings::next_token(&tok)) {
+				void => return manifest, s: str => s,
+			}, mtime = match (strings::next_token(&tok)) {
+				void => return manifest, s: str => s,
+			};
+
+			let hash = match (hex::decode(hash)) {
+				* => return manifest,
+				b: []u8 => b,
+			};
+			let inode = match (strconv::stoz(inode)) {
+				* => return manifest,
+				z: size => z,
+			};
+			let mtime = match (strconv::stoi64(mtime)) {
+				* => return manifest,
+				i: i64 => time::from_unix(i),
+			};
+
+			let parsed = parse_name(path);
+			let ftype = match (type_for_ext(path)) {
+				void => return manifest,
+				ft: filetype => ft,
+			};
+
+			append(inputs, input {
+				hash = hash,
+				path = strings::dup(path),
+				ft = ftype,
+				stat = fs::filestat {
+					mask = fs::stat_mask::MTIME | fs::stat_mask::INODE,
+					mtime = mtime,
+					inode = inode,
+				},
+				basename = strings::dup(parsed.0),
+				tags = parsed.2,
+			});
+		} else if (kind == "module") {
+			let modhash = match (strings::next_token(&tok)) {
+				void => return manifest, s: str => s,
+			};
+			let modhash = match (hex::decode(modhash)) {
+				* => return manifest,
+				b: []u8 => b,
+			};
+
+			let inputs: []input = [];
+			for (true) {
+				let hash = match (strings::next_token(&tok)) {
+					void => break,
+					s: str => s,
+				};
+				let hash = match (hex::decode(hash)) {
+					* => return manifest,
+					b: []u8 => b,
+				};
+				defer free(hash);
+
+				let input = match (getinput(&manifest, hash)) {
+					null => return manifest,
+					i: *input => i,
+				};
+
+				append(inputs, *input);
+			};
+
+			append(versions, version {
+				hash = modhash,
+				inputs = inputs,
+			});
+		} else {
+			return manifest;
+		};
+
+		// Check for extra tokens
+		match (strings::next_token(&tok)) {
+			void => void,
+			s: str => return manifest,
+		};
+	};
+
+	manifest.inputs = inputs;
+	manifest.versions = versions;
+	return manifest;
+};
 
 // Writes a module manifest to the build cache.
 export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
@@ -37,7 +209,7 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 	fmt::fprintfln(fd, "# {}", ident)?;
 	fmt::fprintln(fd, "# This file is an internal Hare implementation detail.")?;
 	fmt::fprintln(fd, "# The format is not stable.")?;
-	fmt::fprintln(fd, "version 1")?;
+	fmt::fprintfln(fd, "version {}", VERSION)?;
 	for (let i = 0z; i < len(manifest.inputs); i += 1) {
 		const input = manifest.inputs[i];
 		let hash = hex::encode(input.hash);
@@ -97,5 +269,23 @@ fn unlock(fs: *fs::fs, cachedir: str, s: *io::stream) void = {
 	match (fs::remove(fs, lockpath)) {
 		void => void,
 		err: fs::error => abort("Error removing module lock"),
+	};
+};
+
+fn input_finish(in: *input) void = {
+	free(in.hash);
+	free(in.path);
+	free(in.basename);
+	tags_free(in.tags);
+};
+
+// Frees resources associated with this manifest.
+export fn manifest_finish(m: *manifest) void = {
+	for (let i = 0z; i < len(m.inputs); i += 1) {
+		input_finish(&m.inputs[i]);
+	};
+
+	for (let i = 0z; i < len(m.versions); i += 1) {
+		free(m.versions[i].inputs);
 	};
 };

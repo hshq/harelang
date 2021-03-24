@@ -276,7 +276,7 @@ $(HARECACHE)/dirs/dirs.ssa: $(stdlib_dirs_srcs) $(stdlib_rt) $(stdlib_fs) $(stdl
 stdlib_encoding_hex_srcs= \
 	$(STDLIB)/encoding/hex/hex.ha
 
-$(HARECACHE)/encoding/hex/encoding_hex.ssa: $(stdlib_encoding_hex_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strconv) $(stdlib_strio) $(stdlib_strings)
+$(HARECACHE)/encoding/hex/encoding_hex.ssa: $(stdlib_encoding_hex_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strconv) $(stdlib_strio) $(stdlib_strings) $(stdlib_bytes)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/hex
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::hex \
@@ -383,7 +383,7 @@ stdlib_hare_module_srcs= \
 	$(STDLIB)/hare/module/scan.ha \
 	$(STDLIB)/hare/module/manifest.ha
 
-$(HARECACHE)/hare/module/hare_module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_hare_unparse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings) $(stdlib_hash) $(stdlib_crypto_sha256) $(stdlib_dirs) $(stdlib_bytes) $(stdlib_encoding_utf8) $(stdlib_ascii) $(stdlib_fmt) $(stdlib_time) $(stdlib_slice)
+$(HARECACHE)/hare/module/hare_module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_hare_unparse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings) $(stdlib_hash) $(stdlib_crypto_sha256) $(stdlib_dirs) $(stdlib_bytes) $(stdlib_encoding_utf8) $(stdlib_ascii) $(stdlib_fmt) $(stdlib_time) $(stdlib_slice) $(stdlib_bufio) $(stdlib_strconv)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/module
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::module \
@@ -927,7 +927,7 @@ $(TESTCACHE)/dirs/dirs.ssa: $(testlib_dirs_srcs) $(testlib_rt) $(testlib_fs) $(t
 testlib_encoding_hex_srcs= \
 	$(STDLIB)/encoding/hex/hex.ha
 
-$(TESTCACHE)/encoding/hex/encoding_hex.ssa: $(testlib_encoding_hex_srcs) $(testlib_rt) $(testlib_io) $(testlib_strconv) $(testlib_strio) $(testlib_strings)
+$(TESTCACHE)/encoding/hex/encoding_hex.ssa: $(testlib_encoding_hex_srcs) $(testlib_rt) $(testlib_io) $(testlib_strconv) $(testlib_strio) $(testlib_strings) $(testlib_bytes)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/encoding/hex
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::hex \
@@ -1035,7 +1035,7 @@ testlib_hare_module_srcs= \
 	$(STDLIB)/hare/module/scan.ha \
 	$(STDLIB)/hare/module/manifest.ha
 
-$(TESTCACHE)/hare/module/hare_module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_hare_unparse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings) $(testlib_hash) $(testlib_crypto_sha256) $(testlib_dirs) $(testlib_bytes) $(testlib_encoding_utf8) $(testlib_ascii) $(testlib_fmt) $(testlib_time) $(testlib_slice)
+$(TESTCACHE)/hare/module/hare_module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_hare_unparse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings) $(testlib_hash) $(testlib_crypto_sha256) $(testlib_dirs) $(testlib_bytes) $(testlib_encoding_utf8) $(testlib_ascii) $(testlib_fmt) $(testlib_time) $(testlib_slice) $(testlib_bufio) $(testlib_strconv)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/module
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module \

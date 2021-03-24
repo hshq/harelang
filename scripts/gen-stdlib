@@ -188,7 +188,7 @@ encoding_hex() {
 	printf '# encoding::hex\n'
 	gen_srcs encoding::hex \
 		hex.ha
-	gen_ssa encoding::hex io strconv strio strings
+	gen_ssa encoding::hex io strconv strio strings bytes
 }
 
 encoding_utf8() {
@@ -294,7 +294,8 @@ hare_module() {
 		manifest.ha
 	gen_ssa hare::module \
 		hare::ast hare::lex hare::parse hare::unparse strio fs io strings hash \
-		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time slice
+		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time slice bufio \
+		strconv
 }
 
 gensrcs_hare_parse() {

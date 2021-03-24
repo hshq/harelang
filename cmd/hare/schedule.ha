@@ -155,7 +155,6 @@ fn sched_hare_object(
 	};
 
 	let output = if (len(namespace) != 0) {
-		// TODO: consult/update cache manifest
 		let version = hex::encode(ver.hash);
 		let ns = unparse::ident_s(namespace);
 		let env = module::ident_underscore(namespace);
@@ -165,6 +164,15 @@ fn sched_hare_object(
 		append(plan.environ, (
 			fmt::asprintf("HARE_VERSION_{}", env), version,
 		));
+
+		let manifest = match (module::manifest_load(
+				plan.context, namespace)) {
+			err: module::error => fmt::fatal(
+				"Error reading cache entry for {}: {}",
+				ns, module::errstr(err)),
+			m: module::manifest => m,
+		};
+		defer module::manifest_finish(&manifest);
 
 		let name = fmt::asprintf("{}.{}", version,
 			if (mixed) "a" else "o");
@@ -188,6 +196,7 @@ fn sched_hare_object(
 			append(harec.cmd, path);
 		};
 	};
+
 	append(plan.scheduled, harec);
 
 	let s = mkfile(plan, "s");
