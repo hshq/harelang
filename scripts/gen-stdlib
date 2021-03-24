@@ -294,14 +294,19 @@ hare_module() {
 		manifest.ha
 	gen_ssa hare::module \
 		hare::ast hare::lex hare::parse hare::unparse strio fs io strings hash \
-		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time
+		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time slice
 }
 
 gensrcs_hare_parse() {
 	gen_srcs hare::parse \
+		decl.ha \
+		expr.ha \
+		ident.ha \
+		import.ha \
+		type.ha \
 		types.ha \
+		unit.ha \
 		util.ha \
-		parse.ha \
 		$*
 }
 
@@ -310,11 +315,13 @@ hare_parse() {
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_hare_parse
+		gen_ssa hare::parse hare::ast hare::lex
 	else
 		gensrcs_hare_parse \
 			+test.ha
+		gen_ssa hare::parse bufio fmt hare::ast hare::lex hare::unparse io \
+			strings strio
 	fi
-	gen_ssa hare::parse hare::ast hare::lex slice
 }
 
 hash() {

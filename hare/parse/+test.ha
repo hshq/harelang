@@ -2,8 +2,10 @@ use bufio;
 use fmt;
 use hare::ast;
 use hare::lex;
+use hare::unparse;
 use io::{mode};
 use strings;
+use strio;
 
 @test fn ident() void = {
 	{
@@ -164,4 +166,27 @@ use strings;
 			};
 		};
 	};
+};
+
+@test fn decls() void = {
+	const in = "export type foo::bar = *int, baz = const void;\n"
+		"type foo = ...bar;\n"
+		"type foo = nullable *fn(x: rune, _: int) void;\n"
+		"export let @symbol(\"_\") foo::bar: int = void, baz: int = void;\n"
+		"def foo::bar: int = void;\n"
+		"@symbol(\".f9$oo\") fn foo(bar: int, baz: int...) void;\n"
+		"@test fn foo(_: int, ...) void;\n"
+		"export fn main() void = void;\n";
+	let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
+	let lexer = lex::init(buf, "<test>");
+	let u = ast::subunit {
+		imports = [],
+		decls = decls(&lexer) as []ast::decl,
+	};
+	defer ast::subunit_free(u);
+	let out = strio::dynamic();
+	unparse::subunit(out, u) as size;
+	let s = strio::finish(out);
+	defer free(s);
+	assert(s == in);
 };

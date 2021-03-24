@@ -39,6 +39,9 @@ fn want_btoken(
 			"Expected name, found EOF"),
 		t: (lex::token, lex::location) => match (t.0) {
 			b: lex::btoken => {
+				if (len(want) == 0) {
+					return b;
+				};
 				for (let i = 0z; i < len(want); i += 1) {
 					if (b == want[i]) {
 						return b;
