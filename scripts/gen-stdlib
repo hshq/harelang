@@ -244,9 +244,14 @@ getopt() {
 hare_ast() {
 	printf '# hare::ast\n'
 	gen_srcs hare::ast \
-		types.ha \
+		decl.ha \
+		expr.ha \
+		ident.ha \
+		import.ha \
+		type.ha \
+		unit.ha \
 		unparse.ha
-	gen_ssa hare::ast io fmt strio
+	gen_ssa hare::ast hare::lex io fmt strio
 }
 
 gensrcs_hare_lex() {

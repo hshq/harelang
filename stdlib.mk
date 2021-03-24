@@ -349,10 +349,15 @@ $(HARECACHE)/getopt/getopt.ssa: $(stdlib_getopt_srcs) $(stdlib_rt) $(stdlib_enco
 
 # hare::ast
 stdlib_hare_ast_srcs= \
-	$(STDLIB)/hare/ast/types.ha \
+	$(STDLIB)/hare/ast/decl.ha \
+	$(STDLIB)/hare/ast/expr.ha \
+	$(STDLIB)/hare/ast/ident.ha \
+	$(STDLIB)/hare/ast/import.ha \
+	$(STDLIB)/hare/ast/type.ha \
+	$(STDLIB)/hare/ast/unit.ha \
 	$(STDLIB)/hare/ast/unparse.ha
 
-$(HARECACHE)/hare/ast/hare_ast.ssa: $(stdlib_hare_ast_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_fmt) $(stdlib_strio)
+$(HARECACHE)/hare/ast/hare_ast.ssa: $(stdlib_hare_ast_srcs) $(stdlib_rt) $(stdlib_hare_lex) $(stdlib_io) $(stdlib_fmt) $(stdlib_strio)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/ast
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::ast \
@@ -972,10 +977,15 @@ $(TESTCACHE)/getopt/getopt.ssa: $(testlib_getopt_srcs) $(testlib_rt) $(testlib_e
 
 # hare::ast
 testlib_hare_ast_srcs= \
-	$(STDLIB)/hare/ast/types.ha \
+	$(STDLIB)/hare/ast/decl.ha \
+	$(STDLIB)/hare/ast/expr.ha \
+	$(STDLIB)/hare/ast/ident.ha \
+	$(STDLIB)/hare/ast/import.ha \
+	$(STDLIB)/hare/ast/type.ha \
+	$(STDLIB)/hare/ast/unit.ha \
 	$(STDLIB)/hare/ast/unparse.ha
 
-$(TESTCACHE)/hare/ast/hare_ast.ssa: $(testlib_hare_ast_srcs) $(testlib_rt) $(testlib_io) $(testlib_fmt) $(testlib_strio)
+$(TESTCACHE)/hare/ast/hare_ast.ssa: $(testlib_hare_ast_srcs) $(testlib_rt) $(testlib_hare_lex) $(testlib_io) $(testlib_fmt) $(testlib_strio)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/ast
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::ast \
