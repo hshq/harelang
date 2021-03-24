@@ -154,6 +154,7 @@ fn sched_hare_object(
 		append(harec.cmd, "-D", plan.context.defines[i]);
 	};
 
+	let current = false;
 	let output = if (len(namespace) != 0) {
 		let version = hex::encode(ver.hash);
 		let ns = unparse::ident_s(namespace);
@@ -173,6 +174,7 @@ fn sched_hare_object(
 			m: module::manifest => m,
 		};
 		defer module::manifest_finish(&manifest);
+		current = module::current(&manifest, &ver);
 
 		let name = fmt::asprintf("{}.{}", version,
 			if (mixed) "a" else "o");
@@ -197,7 +199,14 @@ fn sched_hare_object(
 		};
 	};
 
-	append(plan.scheduled, harec);
+	if (current) {
+		harec.status = status::COMPLETE;
+		harec.output = output;
+		append(plan.complete, harec);
+		return harec;
+	} else {
+		append(plan.scheduled, harec);
+	};
 
 	let s = mkfile(plan, "s");
 	let qbe = sched_qbe(plan, s, harec);

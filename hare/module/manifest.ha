@@ -23,10 +23,10 @@ use time;
 
 def VERSION: int = 1;
 
-fn getinput(m: *manifest, hash: []u8) nullable *input = {
-	for (let i = 0z; i < len(m.inputs); i += 1) {
-		if (bytes::equal(m.inputs[i].hash, hash)) {
-			return &m.inputs[i];
+fn getinput(in: []input, hash: []u8) nullable *input = {
+	for (let i = 0z; i < len(in); i += 1) {
+		if (bytes::equal(in[i].hash, hash)) {
+			return &in[i];
 		};
 	};
 	return null;
@@ -148,7 +148,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 				b: []u8 => b,
 			};
 
-			let inputs: []input = [];
+			let minputs: []input = [];
 			for (true) {
 				let hash = match (strings::next_token(&tok)) {
 					void => break,
@@ -160,17 +160,16 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 				};
 				defer free(hash);
 
-				let input = match (getinput(&manifest, hash)) {
+				let input = match (getinput(inputs, hash)) {
 					null => return manifest,
 					i: *input => i,
 				};
-
-				append(inputs, *input);
+				append(minputs, *input);
 			};
 
 			append(versions, version {
 				hash = modhash,
-				inputs = inputs,
+				inputs = minputs,
 			});
 		} else {
 			return manifest;
@@ -186,6 +185,25 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	manifest.inputs = inputs;
 	manifest.versions = versions;
 	return manifest;
+};
+
+// Returns true if the desired module version is present and current in this
+// manifest.
+export fn current(manifest: *manifest, version: *version) bool = {
+	let cached: nullable *version = null;
+	for (let i = 0z; i < len(manifest.versions); i += 1) {
+		if (bytes::equal(manifest.versions[i].hash, version.hash)) {
+			cached = &manifest.versions[i];
+			break;
+		};
+	};
+	let cached = match (cached) {
+		null => return false,
+		v: *version => v,
+	};
+
+	// TODO: Blocked on sort
+	return false;
 };
 
 // Writes a module manifest to the build cache.
