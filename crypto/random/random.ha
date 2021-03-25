@@ -1,7 +1,7 @@
 use io;
 use rt;
 
-export let _stream: io::stream = io::stream {
+let _stream: io::stream = io::stream {
 	name = "<random>",
 	reader = &rand_reader,
 	...
