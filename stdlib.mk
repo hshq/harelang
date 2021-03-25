@@ -182,6 +182,9 @@ hare_stdlib_deps+=$(stdlib_types)
 stdlib_unicode=$(HARECACHE)/unicode/unicode.o
 hare_stdlib_deps+=$(stdlib_unicode)
 
+stdlib_unix_passwd=$(HARECACHE)/unix/passwd/unix_passwd.o
+hare_stdlib_deps+=$(stdlib_unix_passwd)
+
 # ascii
 stdlib_ascii_srcs= \
 	$(STDLIB)/ascii/ctype.ha \
@@ -647,6 +650,16 @@ $(HARECACHE)/unicode/unicode.ssa: $(stdlib_unicode_srcs) $(stdlib_rt)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunicode \
 		-t$(HARECACHE)/unicode/unicode.td $(stdlib_unicode_srcs)
 
+# unix::passwd
+stdlib_unix_passwd_srcs= \
+	$(STDLIB)/unix/passwd/passwd.ha
+
+$(HARECACHE)/unix/passwd/unix_passwd.ssa: $(stdlib_unix_passwd_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_io) $(stdlib_os) $(stdlib_strconv) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/passwd
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::passwd \
+		-t$(HARECACHE)/unix/passwd/unix_passwd.td $(stdlib_unix_passwd_srcs)
+
 # rt
 testlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/env.ha \
@@ -830,6 +843,9 @@ hare_testlib_deps+=$(testlib_types)
 
 testlib_unicode=$(TESTCACHE)/unicode/unicode.o
 hare_testlib_deps+=$(testlib_unicode)
+
+testlib_unix_passwd=$(TESTCACHE)/unix/passwd/unix_passwd.o
+hare_testlib_deps+=$(testlib_unix_passwd)
 
 # ascii
 testlib_ascii_srcs= \
@@ -1305,4 +1321,14 @@ $(TESTCACHE)/unicode/unicode.ssa: $(testlib_unicode_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/unicode
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunicode \
 		-t$(TESTCACHE)/unicode/unicode.td $(testlib_unicode_srcs)
+
+# unix::passwd
+testlib_unix_passwd_srcs= \
+	$(STDLIB)/unix/passwd/passwd.ha
+
+$(TESTCACHE)/unix/passwd/unix_passwd.ssa: $(testlib_unix_passwd_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_io) $(testlib_os) $(testlib_strconv) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/passwd
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::passwd \
+		-t$(TESTCACHE)/unix/passwd/unix_passwd.td $(testlib_unix_passwd_srcs)
 
