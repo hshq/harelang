@@ -1,6 +1,6 @@
 // Encodes a rune as UTF-8 and returns the result as a slice. The result is
 // statically allocated; duplicate it if you aren't using it right away.
-export fn encode_rune(r: rune) []u8 = {
+export fn encoderune(r: rune) []u8 = {
 	let ch = r: u32, n = 0z, first = 0u8;
 	if (ch < 0x80) {
 		first = 0;
@@ -33,7 +33,7 @@ export fn encode_rune(r: rune) []u8 = {
 	];
 	const inputs = ['\0', '%', 'こ'];
 	for (let i = 0z; i < len(inputs); i += 1) {
-		const out = encode_rune(inputs[i]);
+		const out = encoderune(inputs[i]);
 		for (let j = 0z; j < len(expected[i]); j += 1) {
 			assert(out[j] == expected[i][j]);
 		};

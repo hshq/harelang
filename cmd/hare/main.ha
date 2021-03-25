@@ -9,7 +9,7 @@ export fn main() void = {
 	let cmd = getopt::parse(os::args, help...);
 	defer getopt::finish(&cmd);
 	if (len(cmd.args) < 1) {
-		getopt::print_usage(os::stderr, os::args[0], help...);
+		getopt::printusage(os::stderr, os::args[0], help...);
 		os::exit(1);
 	};
 	if (cmd.args[0] == "build") build(cmd.args)
@@ -19,7 +19,7 @@ export fn main() void = {
 	else if (cmd.args[0] == "test") test(cmd.args)
 	else if (cmd.args[0] == "version") version(cmd.args)
 	else {
-		getopt::print_usage(os::stderr, os::args[0], help...);
+		getopt::printusage(os::stderr, os::args[0], help...);
 		os::exit(1);
 	};
 };

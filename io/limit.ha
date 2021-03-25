@@ -20,7 +20,7 @@ fn limited_stream_new(source: *stream, limit: size) *limited_stream = {
 
 // Create an overlay stream that only allows a limited amount of bytes to be
 // read from the underlying stream.
-export fn limit_reader(source: *stream, limit: size) *stream = {
+export fn limitreader(source: *stream, limit: size) *stream = {
 	let stream = limited_stream_new(source, limit);
 	stream.stream.reader = &limited_read;
 	return &stream.stream;
@@ -28,7 +28,7 @@ export fn limit_reader(source: *stream, limit: size) *stream = {
 
 // Create an overlay stream that only allows a limited amount of bytes to be
 // written to the underlying stream.
-export fn limit_writer(source: *stream, limit: size) *stream = {
+export fn limitwriter(source: *stream, limit: size) *stream = {
 	let stream = limited_stream_new(source, limit);
 	stream.stream.writer = &limited_write;
 	return &stream.stream;

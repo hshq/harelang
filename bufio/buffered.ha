@@ -78,21 +78,21 @@ export fn flush(s: *io::stream) (io::error | void) = {
 
 // Sets the list of bytes which will cause the stream to flush when written. By
 // default, the stream will flush when a newline (\n) is written.
-export fn set_flush_bytes(s: *io::stream, b: []u8) void = {
+export fn setflush(s: *io::stream, b: []u8) void = {
 	assert(s.writer == &buffered_write,
-		"bufio::set_flush_bytes used on non-buffered stream");
+		"bufio: setflush used on non-buffered stream");
 	let s = s: *bufstream;
 	s.flush = b;
 };
 
 // Returns true if this is a buffered stream.
-export fn is_buffered(s: *io::stream) bool = {
+export fn isbuffered(s: *io::stream) bool = {
 	return s.reader == &buffered_read || s.writer == &buffered_write;
 };
 
 // Returns true if this stream or any underlying streams are buffered.
-export fn is_buffered_any(s: *io::stream) bool = {
-	for (!is_buffered(s)) {
+export fn any_isbuffered(s: *io::stream) bool = {
+	for (!isbuffered(s)) {
 		s = match (io::source(s)) {
 			io::unsupported => return false,
 			s: *io::stream  => s,

@@ -17,7 +17,7 @@ use strings;
 // Returns the current working directory. The return value is statically
 // allocated and must be duplicated (see [strings::dup]) before calling getcwd
 // again.
-export fn getcwd() str = strings::from_c(rt::getcwd() as *const char);
+export fn getcwd() str = strings::fromc(rt::getcwd() as *const char);
 
 // Change the current working directory.
 export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {

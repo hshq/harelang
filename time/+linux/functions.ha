@@ -64,7 +64,7 @@ fn get_cgt_vdso() nullable *fn(_: int, _: *rt::timespec) int = {
 		return cgt_vdso;
 	vdso_checked = true;
 
-	cgt_vdso = vdso::get_vdso_sym(VDSO_CGT_SYM, VDSO_CGT_VER)
+	cgt_vdso = vdso::getsym(VDSO_CGT_SYM, VDSO_CGT_VER)
 		: nullable *fn(_: int, _: *rt::timespec) int;
 	return cgt_vdso;
 };

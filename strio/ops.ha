@@ -107,4 +107,4 @@ export fn rjoin(st: *io::stream, delim: str, strs: str...) (size | io::error) = 
 
 // Appends a rune to a stream.
 export fn append_rune(st: *io::stream, r: rune) (size | io::error) =
-	io::write(st, utf8::encode_rune(r));
+	io::write(st, utf8::encoderune(r));

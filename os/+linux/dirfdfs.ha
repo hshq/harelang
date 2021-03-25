@@ -378,7 +378,7 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 	};
 	let de = &iter.buf[iter.buf_pos]: *rt::dirent64;
 	iter.buf_pos += de.d_reclen;
-	let name = strings::from_c(&de.d_name: *const char);
+	let name = strings::fromc(&de.d_name: *const char);
 
 	let ftype: fs::mode = switch (de.d_type) {
 		rt::DT_UNKNOWN => fs::mode::UNKNOWN,

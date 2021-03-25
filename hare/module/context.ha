@@ -70,7 +70,7 @@ export fn context_finish(ctx: *context) void = {
 
 // Converts an identifier to a partial path (e.g. foo::bar becomes foo/bar). The
 // return value must be freed by the caller.
-export fn ident_path(name: ast::ident) str = {
+export fn identpath(name: ast::ident) str = {
 	let p = path::join(name[0]);
 	for (let i = 1z; i < len(name); i += 1) {
 		let q = path::join(p, name[i]);
@@ -80,9 +80,9 @@ export fn ident_path(name: ast::ident) str = {
 	return p;
 };
 
-@test fn ident_path() void = {
+@test fn identpath() void = {
 	let ident: ast::ident = ["foo", "bar", "baz"];
-	let p = ident_path(ident);
+	let p = identpath(ident);
 	defer free(p);
 	assert(p == "foo/bar/baz");
 };
@@ -91,7 +91,7 @@ export fn ident_path(name: ast::ident) str = {
 // value must be freed by the caller.
 //
 // This is used for module names in environment variables and some file names.
-export fn ident_underscore(ident: ast::ident) str = {
+export fn identuscore(ident: ast::ident) str = {
 	let buf = strio::dynamic();
 	for (let i = 0z; i < len(ident); i += 1) {
 		fmt::fprintf(buf, "{}{}", ident[i],
@@ -101,9 +101,9 @@ export fn ident_underscore(ident: ast::ident) str = {
 	return strio::finish(buf);
 };
 
-@test fn ident_underscore() void = {
+@test fn identuscore() void = {
 	let ident: ast::ident = ["foo", "bar", "baz"];
-	let p = ident_underscore(ident);
+	let p = identuscore(ident);
 	defer free(p);
 	assert(p == "foo_bar_baz");
 };

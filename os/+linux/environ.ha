@@ -15,12 +15,12 @@ let args_static: [32]str = [""...];
 	if (rt::argc < len(args_static)) {
 		args = args_static[..rt::argc];
 		for (let i = 0z; i < rt::argc; i += 1) {
-			args[i] = strings::from_c(rt::argv[i]);
+			args[i] = strings::fromc(rt::argv[i]);
 		};
 	} else {
 		args = alloc([], rt::argc);
 		for (let i = 0z; i < rt::argc; i += 1) {
-			append(args, strings::from_c(rt::argv[i]));
+			append(args, strings::fromc(rt::argv[i]));
 		};
 	};
 
@@ -42,7 +42,7 @@ export fn getenv(name: const str) (str | void) = {
 			i: size => i,
 		};
 		if (bytes::equal(name_b, item[..eq])) {
-			const ln = strings::c_strlen(item: *const char);
+			const ln = strings::cstrlen(item: *const char);
 			return strings::from_utf8(item[eq+1..ln]);
 		};
 	};
@@ -63,7 +63,7 @@ export fn getenvs() []str = {
 		return envp;
 	};
 	for (let i = 0z; rt::envp[i] != null; i += 1) {
-		append(envp, strings::from_c(rt::envp[i]: *const char));
+		append(envp, strings::fromc(rt::envp[i]: *const char));
 	};
 	return envp;
 };
@@ -76,7 +76,7 @@ export fn sysname() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
 	};
-	return strings::from_c(&uts.sysname: *const char);
+	return strings::fromc(&uts.sysname: *const char);
 };
 
 // Returns the host system hostname
@@ -84,7 +84,7 @@ export fn hostname() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
 	};
-	return strings::from_c(&uts.nodename: *const char);
+	return strings::fromc(&uts.nodename: *const char);
 };
 
 // Returns the host kernel version
@@ -92,7 +92,7 @@ export fn release() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
 	};
-	return strings::from_c(&uts.release: *const char);
+	return strings::fromc(&uts.release: *const char);
 };
 
 // Returns the host operating system version
@@ -100,7 +100,7 @@ export fn version() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
 	};
-	return strings::from_c(&uts.version: *const char);
+	return strings::fromc(&uts.version: *const char);
 };
 
 // Returns the host CPU architecture
@@ -108,5 +108,5 @@ export fn machine() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
 	};
-	return strings::from_c(&uts.machine: *const char);
+	return strings::fromc(&uts.machine: *const char);
 };

@@ -42,7 +42,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 		inputs = [],
 		versions = [],
 	};
-	let ipath = ident_path(manifest.ident);
+	let ipath = identpath(manifest.ident);
 	defer free(ipath);
 	let cachedir = path::join(ctx.cache, ipath);
 	defer free(cachedir);
@@ -209,7 +209,7 @@ export fn current(manifest: *manifest, version: *version) bool = {
 
 // Writes a module manifest to the build cache.
 export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
-	let ipath = ident_path(manifest.ident);
+	let ipath = identpath(manifest.ident);
 	defer free(ipath);
 	let cachedir = path::join(ctx.cache, ipath);
 	defer free(cachedir);
@@ -223,7 +223,7 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 	let fd = fs::create(ctx.fs, mpath, 0o644)?;
 	defer io::close(fd);
 
-	let ident = unparse::ident_s(manifest.ident);
+	let ident = unparse::identstr(manifest.ident);
 	defer free(ident);
 	fmt::fprintfln(fd, "# {}", ident)?;
 	fmt::fprintln(fd, "# This file is an internal Hare implementation detail.")?;

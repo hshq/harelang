@@ -24,7 +24,7 @@ export fn dup(s: const str) str = {
 
 // Duplicates every string of a slice in place, returning the same slice with
 // new strings.
-export fn dup_all(s: []str) void = {
+export fn dupall(s: []str) void = {
 	for (let i = 0z; i < len(s); i += 1) {
 		s[i] = strings::dup(s[i]);
 	};

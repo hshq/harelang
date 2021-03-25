@@ -63,7 +63,7 @@ fn build(args: []str) void = {
 		if (len(cmd.args) == 0) os::getcwd()
 		else if (len(cmd.args) == 1) cmd.args[0]
 		else {
-			getopt::print_usage(os::stderr, args[0], help...);
+			getopt::printusage(os::stderr, args[0], help...);
 			os::exit(1);
 		};
 

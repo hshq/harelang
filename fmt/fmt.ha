@@ -207,7 +207,7 @@ export fn fprintf(
 			};
 
 			const arg = if (r == '{') {
-				n += io::write(s, utf8::encode_rune('{'))?;
+				n += io::write(s, utf8::encoderune('{'))?;
 				continue;
 			} else if (ascii::isdigit(r)) {
 				strings::push(&iter, r);
@@ -236,9 +236,9 @@ export fn fprintf(
 				r: rune => assert(r == '}', "Invalid format string (hanging '}')"),
 			};
 
-			n += io::write(s, utf8::encode_rune('}'))?;
+			n += io::write(s, utf8::encoderune('}'))?;
 		} else {
-			n += io::write(s, utf8::encode_rune(r))?;
+			n += io::write(s, utf8::encoderune(r))?;
 		};
 	};
 
@@ -250,7 +250,7 @@ fn format(out: *io::stream, arg: formattable, mod: *modifiers) (size | io::error
 
 	let pad: []u8 = [];
 	if (z < mod.width: size) {
-		pad = utf8::encode_rune(switch (mod.padding) {
+		pad = utf8::encoderune(switch (mod.padding) {
 			padding::ZEROES => '0',
 			* => ' ',
 		});
@@ -277,7 +277,7 @@ fn format_raw(
 	mod: *modifiers,
 ) (size | io::error) = match (arg) {
 	s: str => io::write(out, strings::to_utf8(s)),
-	r: rune => io::write(out, utf8::encode_rune(r)),
+	r: rune => io::write(out, utf8::encoderune(r)),
 	b: bool => io::write(out, strings::to_utf8(if (b) "true" else "false")),
 	n: types::numeric => {
 		let s = strconv::numerictosb(n, mod.base);

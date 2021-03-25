@@ -10,7 +10,7 @@ export let c_empty: *const char = &emptybuf: *[*]u8: *const char;
 
 // Computes the length of a NUL-terminated C string, in octets, in O(n). The
 // computed length does not include the NUL terminator.
-export fn c_strlen(cstr: *const char) size = {
+export fn cstrlen(cstr: *const char) size = {
 	const ptr = cstr: *[*]u8;
 	let ln = 0z;
 	for (ptr[ln] != 0; ln += 1) void;
@@ -19,8 +19,8 @@ export fn c_strlen(cstr: *const char) size = {
 
 // Converts a C string to a Hare string in O(n), and does not check if it's
 // valid UTF-8.
-export fn from_c_unsafe(cstr: *const char) const str = {
-	const l = c_strlen(cstr);
+export fn fromc_unsafe(cstr: *const char) const str = {
+	const l = cstrlen(cstr);
 	const s = types::string {
 		data     = cstr: *[*]u8,
 		length   = l,
@@ -31,8 +31,8 @@ export fn from_c_unsafe(cstr: *const char) const str = {
 
 // Converts a C string to a Hare string in O(n). If the string is not valid
 // UTF-8, abort.
-export fn from_c(cstr: *const char) const str = {
-	let s = from_c_unsafe(cstr);
+export fn fromc(cstr: *const char) const str = {
+	let s = fromc_unsafe(cstr);
 	assert(utf8::valid(s));
 	return s;
 };

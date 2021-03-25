@@ -15,17 +15,17 @@ export fn ident(out: *io::stream, id: ast::ident) (size | io::error) = {
 };
 
 // Unparses an identifier into a string. The caller must free the return value.
-export fn ident_s(id: ast::ident) str = {
+export fn identstr(id: ast::ident) str = {
 	let buf = strio::dynamic();
 	ident(buf, id);
 	return strio::finish(buf);
 };
 
 @test fn ident() void = {
-	let s = ident_s(["foo", "bar", "baz"]);
+	let s = identstr(["foo", "bar", "baz"]);
 	assert(s == "foo::bar::baz");
 	free(s);
-	s = ident_s(["foo"]);
+	s = identstr(["foo"]);
 	assert(s == "foo");
 	free(s);
 };

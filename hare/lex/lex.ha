@@ -167,7 +167,7 @@ fn lex_string(
 			else {
 				unget(lex, r);
 				r = lex_rune(lex, loc)?;
-				append(chars, ...utf8::encode_rune(r));
+				append(chars, ...utf8::encoderune(r));
 			},
 	};
 	return (strings::from_utf8(chars): literal, loc);
@@ -206,7 +206,7 @@ fn lex_name(
 	match (next(lex)) {
 		r: rune => {
 			assert(is_name(r, false));
-			append(chars, ...utf8::encode_rune(r));
+			append(chars, ...utf8::encoderune(r));
 		},
 		(io::EOF | io::error) => abort(),
 	};
@@ -218,7 +218,7 @@ fn lex_name(
 				unget(lex, r);
 				break;
 			};
-			append(chars, ...utf8::encode_rune(r));
+			append(chars, ...utf8::encoderune(r));
 		},
 	};
 

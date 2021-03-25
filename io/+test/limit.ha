@@ -3,7 +3,7 @@
 	let source_stream = test_stream_open();
 	defer close(&source_stream.stream);
 
-	let r_stream = limit_reader(&source_stream.stream, 20);
+	let r_stream = limitreader(&source_stream.stream, 20);
 	match (write(r_stream, buf)) {
 		unsupported => void,
 		* => abort(),
@@ -18,7 +18,7 @@
 	};
 	close(r_stream);
 
-	let w_stream = limit_writer(&source_stream.stream, 20);
+	let w_stream = limitwriter(&source_stream.stream, 20);
 	match (read(w_stream, buf)) {
 		unsupported => void,
 		* => abort(),

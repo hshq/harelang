@@ -157,7 +157,7 @@ export fn parse(args: []str, help: help...) command = {
 				continue :arg;
 			};
 			if (r =='h') {
-				print_help(os::stderr, args[0], help);
+				printhelp(os::stderr, args[0], help);
 				os::exit(0);
 			};
 			errmsg(args[0], "unrecognized option: ", r, help);
@@ -185,7 +185,7 @@ export fn finish(cmd: *command) void = {
 	free(cmd.opts);
 };
 
-fn _print_usage(s: *io::stream, name: str, indent: bool, help: []help) size = {
+fn _printusage(s: *io::stream, name: str, indent: bool, help: []help) size = {
 	let z = fmt::fprint(s, "Usage:", name) as size;
 
 	let started_flags = false;
@@ -219,18 +219,18 @@ fn _print_usage(s: *io::stream, name: str, indent: bool, help: []help) size = {
 };
 
 // Prints command usage to the provided stream.
-export fn print_usage(s: *io::stream, name: str, help: []help) void = {
-	let z = _print_usage(io::empty, name, false, help);
-	_print_usage(s, name, if (z > 72) true else false, help);
+export fn printusage(s: *io::stream, name: str, help: []help) void = {
+	let z = _printusage(io::empty, name, false, help);
+	_printusage(s, name, if (z > 72) true else false, help);
 };
 
 // Prints command help to the provided stream.
-export fn print_help(s: *io::stream, name: str, help: []help) void = {
+export fn printhelp(s: *io::stream, name: str, help: []help) void = {
 	if (help[0] is cmd_help) {
 		fmt::fprintfln(s, "{}: {}\n", name, help[0] as cmd_help: str);
 	};
 
-	print_usage(s, name, help);
+	printusage(s, name, help);
 
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
 		cmd_help => void,
@@ -257,7 +257,7 @@ fn errmsg(name: str, err: str, opt: (rune | void), help: []help) void = {
 		r: rune => r,
 		void => "",
 	});
-	print_usage(os::stderr, name, help);
+	printusage(os::stderr, name, help);
 };
 
 @test fn parse() void = {

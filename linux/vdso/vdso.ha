@@ -124,7 +124,7 @@ fn vdso_checkver(ctx: *vdso_ctx, version: str, num: u32) bool = {
 				cur.vd_aux: uintptr): *elf::verdaux64;
 			const name = ctx.stringtab +
 				aux.vda_name: uintptr: *char;
-			return version == strings::from_c(name);
+			return version == strings::fromc(name);
 		};
 		prev = cur;
 		cur += cur.vd_next: uintptr;
@@ -132,7 +132,7 @@ fn vdso_checkver(ctx: *vdso_ctx, version: str, num: u32) bool = {
 	return false;
 };
 
-export fn get_vdso_sym(symname: str, symver: str) nullable *void = {
+export fn getsym(symname: str, symver: str) nullable *void = {
 	const ctx = match (get_vdso_ctx()) {
 		null => return null,
 		x: *vdso_ctx => x,
@@ -155,7 +155,7 @@ export fn get_vdso_sym(symname: str, symver: str) nullable *void = {
 			continue;
 		};
 		const name = ctx.stringtab + sym.st_name: uintptr: *char;
-		const s: str = strings::from_c(name);
+		const s: str = strings::fromc(name);
 		if (s != symname)
 			continue;
 		if (!vdso_checkver(ctx, symver, i))

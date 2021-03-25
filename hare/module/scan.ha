@@ -74,7 +74,7 @@ fn parse_name(name: str) (str, str, []tag) = {
 		else if (m: size < p: size) m: size
 		else p: size;
 	let tags = strings::sub(base, i, strings::end);
-	let tags = match (parse_tags(tags)) {
+	let tags = match (parsetags(tags)) {
 		void => return (base, ext, []),
 		t: []tag => t,
 	};
@@ -129,7 +129,7 @@ fn scan_directory(
 			!strings::has_prefix(name, "-"))) {
 			continue;
 		};
-		if (!tags_compat(ctx.tags, tags)) {
+		if (!tagcompat(ctx.tags, tags)) {
 			continue;
 		};
 
@@ -151,7 +151,7 @@ fn scan_directory(
 				break;
 			};
 		};
-		if (!eligible || !tags_compat(ctx.tags, tags)) {
+		if (!eligible || !tagcompat(ctx.tags, tags)) {
 			tags_free(tags);
 			continue;
 		};
@@ -175,7 +175,7 @@ fn scan_directory(
 // Looks up a module by its identifier from HAREPATH, and returns a [version]
 // which includes all eligible build inputs.
 export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
-	let ipath = ident_path(name);
+	let ipath = identpath(name);
 	for (let i = len(ctx.paths); i > 0; i -= 1) {
 		let cand = path::join(ctx.paths[i - 1], ipath);
 		defer free(cand);
@@ -236,7 +236,7 @@ fn have_ident(sl: *[]ast::ident, id: ast::ident) bool = {
 
 // Parses a set of build tags, returning void if the string is an invalid tag
 // set. The caller must free the return value with [tags_free].
-export fn parse_tags(in: str) ([]tag | void) = {
+export fn parsetags(in: str) ([]tag | void) = {
 	let tags: []tag = [];
 	// defer! tags_free(tags);
 	let iter = strings::iter(in);
@@ -278,7 +278,7 @@ export fn tags_free(tags: []tag) void = {
 };
 
 // Compares two tag sets and tells you if they are compatible.
-export fn tags_compat(have: []tag, want: []tag) bool = {
+export fn tagcompat(have: []tag, want: []tag) bool = {
 	// XXX: O(n²), lame
 	for (let i = 0z; i < len(want); i += 1) {
 		let present = false;

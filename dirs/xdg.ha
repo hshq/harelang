@@ -38,7 +38,7 @@ export fn config(prog: str) str = lookup(prog, "XDG_CONFIG_HOME", ".config");
 
 // Returns an [fs::fs] for storing config files. If 'prog' is given, a unique
 // path for this program to store data will be returned.
-export fn config_fs(prog: str) *fs::fs = os::diropen(config(prog)) as *fs::fs;
+export fn configfs(prog: str) *fs::fs = os::diropen(config(prog)) as *fs::fs;
 
 // Returns a directory suitable for cache files. If 'prog' is given, a unique
 // path for this program to store data will be returned.
@@ -46,7 +46,7 @@ export fn cache(prog: str) str = lookup(prog, "XDG_CACHE_HOME", ".cache");
 
 // Returns an [fs::fs] for cache files. If 'prog' is given, a unique path for
 // this program to store data will be returned.
-export fn cache_fs(prog: str) *fs::fs = os::diropen(cache(prog)) as *fs::fs;
+export fn cachefs(prog: str) *fs::fs = os::diropen(cache(prog)) as *fs::fs;
 
 // Returns a directory suitable for persistent data files. If 'prog' is given, a
 // unique path for this program to store data will be returned.
@@ -55,4 +55,4 @@ export fn data(prog: str) str =
 
 // Returns an [fs::fs] for persistent data files. If 'prog' is given, a unique
 // path for this program to store data will be returned.
-export fn data_fs(prog: str) *fs::fs = os::diropen(data(prog)) as *fs::fs;
+export fn datafs(prog: str) *fs::fs = os::diropen(data(prog)) as *fs::fs;

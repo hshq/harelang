@@ -33,7 +33,7 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 
 	let ver = match (module::lookup(plan.context, ident)) {
 		err: module::error => {
-			let ident = unparse::ident_s(ident);
+			let ident = unparse::identstr(ident);
 			fmt::fatal("Error resolving {}: {}",
 				ident, module::errstr(err));
 		},
@@ -157,8 +157,8 @@ fn sched_hare_object(
 	let current = false;
 	let output = if (len(namespace) != 0) {
 		let version = hex::encode(ver.hash);
-		let ns = unparse::ident_s(namespace);
-		let env = module::ident_underscore(namespace);
+		let ns = unparse::identstr(namespace);
+		let env = module::identuscore(namespace);
 		defer free(env);
 
 		append(harec.cmd, "-N", ns);
