@@ -156,7 +156,7 @@ fn sched_hare_object(
 
 	let current = false;
 	let output = if (len(namespace) != 0) {
-		let version = hex::encode(ver.hash);
+		let version = hex::encodestr(ver.hash);
 		let ns = unparse::identstr(namespace);
 		let env = module::identuscore(namespace);
 		defer free(env);

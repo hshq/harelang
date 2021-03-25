@@ -4,6 +4,7 @@ use fs;
 use io;
 use os;
 use path;
+use strio;
 
 fn get_tmpdir() str = os::tryenv("TMPDIR", "/tmp");
 
@@ -55,10 +56,14 @@ export fn named(
 //
 // The caller must free the return value.
 export fn dir() str = {
-	let buf: [8]u8 = [0...];
+	let buf: [8]u8 = [0...], name: [16]u8 = [0...];
 	random::buffer(buf[..]);
-	let name = hex::encode(buf);
-	defer free(name);
+
+	let sink = strio::fixed(name);
+	defer io::close(sink);
+	hex::encode(sink, buf) as size;
+	let name = strio::string(sink);
+
 	let path = path::join(get_tmpdir(), name);
 	match (os::mkdir(path)) {
 		err: fs::error => abort("Could not create temp directory"),

@@ -231,7 +231,7 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 	fmt::fprintfln(fd, "version {}", VERSION)?;
 	for (let i = 0z; i < len(manifest.inputs); i += 1) {
 		const input = manifest.inputs[i];
-		let hash = hex::encode(input.hash);
+		let hash = hex::encodestr(input.hash);
 		defer free(hash);
 
 		const want = fs::stat_mask::INODE | fs::stat_mask::MTIME;
@@ -243,13 +243,13 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 
 	for (let i = 0z; i < len(manifest.versions); i += 1) {
 		const ver = manifest.versions[i];
-		let hash = hex::encode(ver.hash);
+		let hash = hex::encodestr(ver.hash);
 		defer free(hash);
 
 		fmt::fprintf(fd, "module {}", hash);
 
 		for (let j = 0z; j < len(ver.inputs); j += 1) {
-			let hash = hex::encode(ver.inputs[i].hash);
+			let hash = hex::encodestr(ver.inputs[i].hash);
 			defer free(hash);
 
 			fmt::fprintf(fd, " {}", hash);
