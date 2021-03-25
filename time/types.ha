@@ -9,24 +9,22 @@ export def SECOND: duration		= 1000 * MILLISECOND;
 export def MINUTE: duration		= 60 * SECOND;
 export def HOUR: duration		= 60 * MINUTE;
 
-// TEMPORARY; MAY CHANGE
-//
-// Represents a specific instant in time as seconds (+nanoseconds) since a given
-// epoch. For [clock::REALTIME], the epoch is the Unix epoch: January 1st, 1970,
-// at midnight, UTC.
-export type time = struct { sec: i64, nsec: i64 };
+// Represents a specific instant in time as seconds (+nanoseconds) since an
+// arbitrary epoch. Instants may only be meaningfully compared with other
+// instants sourced from the same clock.
+export type instant = struct { sec: i64, nsec: i64 };
 
 // The return value is negative if a < b, zero if a == b, and positive if a > b.
-export fn compare(a: time, b: time) int = {
+export fn compare(a: instant, b: instant) int = {
 	return if (a.sec < b.sec) -1 else if (a.sec > b.sec) 1 else
 		if (a.nsec < b.nsec) -1 else if (a.nsec > b.nsec) 1 else 0;
 };
 
-// Converts the given [time] to a Unix timestamp.
-export fn unix(a: time) i64 = a.sec;
+// Converts the given [instant] to a Unix timestamp.
+export fn unix(a: instant) i64 = a.sec;
 
-// Returns a [time] from a Unix timestamp.
-export fn from_unix(u: i64) time = time {
+// Returns a [instant] from a Unix timestamp.
+export fn from_unix(u: i64) instant = instant {
 	sec = u,
 	nsec = 0,
 };

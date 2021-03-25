@@ -232,15 +232,15 @@ fn fs_stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 		uid = st.gid,
 		sz = st.sz,
 		inode = st.ino,
-		atime = time::time {
+		atime = time::instant {
 			sec = st.atime.tv_sec,
 			nsec = st.atime.tv_nsec,
 		},
-		mtime = time::time {
+		mtime = time::instant {
 			sec = st.mtime.tv_sec,
 			nsec = st.mtime.tv_nsec,
 		},
-		ctime = time::time {
+		ctime = time::instant {
 			sec = st.ctime.tv_sec,
 			nsec = st.ctime.tv_nsec,
 		},

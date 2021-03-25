@@ -121,9 +121,9 @@ export type filestat = struct {
 	gid: uint,
 	sz: size,
 	inode: u64,
-	atime: time::time,
-	mtime: time::time,
-	ctime: time::time,
+	atime: time::instant,
+	mtime: time::instant,
+	ctime: time::instant,
 };
 
 // An entry in a directory. This may be borrowed from the filesystem's internal

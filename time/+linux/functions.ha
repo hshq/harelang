@@ -7,12 +7,12 @@ fn duration_to_timespec(n: duration, ts: *rt::timespec) void = {
 	ts.tv_nsec = n % SECOND;
 };
 
-fn time_to_timespec(t: time, ts: *rt::timespec) void = {
+fn instant_to_timespec(t: instant, ts: *rt::timespec) void = {
 	ts.tv_sec = t.sec;
 	ts.tv_nsec = t.nsec;
 };
 
-fn timespec_to_time(ts: rt::timespec) time = time {
+fn timespec_to_instant(ts: rt::timespec) instant = instant {
 	sec = ts.tv_sec,
 	nsec = ts.tv_nsec,
 };
@@ -82,17 +82,17 @@ fn now_vdso(clock: clock, tp: *rt::timespec) (void | rt::errno) = {
 };
 
 // Returns the current time for a given clock.
-export fn now(clock: clock) time = {
+export fn now(clock: clock) instant = {
 	let tp = rt::timespec { ... };
 	let err = match (now_vdso(clock, &tp)) {
-		void => return timespec_to_time(tp),
+		void => return timespec_to_instant(tp),
 		err: rt::errno => err
 	};
 	if (err != rt::wrap_errno(rt::ENOSYS)) {
 		abort("Unexpected error from clock_gettime");
 	};
 	return match (rt::clock_gettime(clock, &tp)) {
-		void => timespec_to_time(tp),
+		void => timespec_to_instant(tp),
 		err: rt::errno => abort("Unexpected error from clock_gettime"),
 	};
 };
