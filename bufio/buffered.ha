@@ -262,8 +262,8 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let wbuf: [1024]u8 = [0...];
 	let f = buffered(sink, [], wbuf);
 
-	assert(io::write(f, strings::to_utf8("hello")) as size == 5);
+	assert(io::write(f, strings::toutf8("hello")) as size == 5);
 	assert(len(buffer(sink)) == 0);
-	assert(io::write(f, strings::to_utf8(" world!\n")) as size == 8);
-	assert(bytes::equal(buffer(sink), strings::to_utf8("hello world!\n")));
+	assert(io::write(f, strings::toutf8(" world!\n")) as size == 8);
+	assert(bytes::equal(buffer(sink), strings::toutf8("hello world!\n")));
 };

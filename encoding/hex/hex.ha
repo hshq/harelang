@@ -16,7 +16,7 @@ export fn encode(b: []u8) str = {
 		if (len(s) == 1) {
 			io::write(buf, ['0': u32: u8]);
 		};
-		io::write(buf, strings::to_utf8(s)) as size;
+		io::write(buf, strings::toutf8(s)) as size;
 	};
 	return strio::finish(buf);
 };
@@ -35,9 +35,9 @@ export fn decode(s: str) ([]u8 | invalid) = {
 		return invalid;
 	};
 	let buf: []u8 = alloc([], len(s) / 2);
-	let s = strings::to_utf8(s);
+	let s = strings::toutf8(s);
 	for (let i = 0z; i < len(s) / 2; i += 1) {
-		let oct = strings::from_utf8_unsafe(s[i * 2..i * 2 + 2]);
+		let oct = strings::fromutf8_unsafe(s[i * 2..i * 2 + 2]);
 		let u = match (strconv::stou8b(oct, 16)) {
 			(strconv::invalid | strconv::overflow) => return invalid,
 			u: u8 => u,

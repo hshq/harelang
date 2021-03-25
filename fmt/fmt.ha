@@ -72,7 +72,7 @@ export fn errorfln(fmt: str, args: formattable...) (io::error | size) =
 export fn asprintf(fmt: str, args: formattable...) str = {
 	let buf = bufio::dynamic(io::mode::WRITE);
 	assert(fprintf(buf, fmt, args...) is size);
-	return strings::from_utf8_unsafe(bufio::finish(buf));
+	return strings::fromutf8_unsafe(bufio::finish(buf));
 };
 
 // Formats text for printing and writes it into a caller supplied buffer. The
@@ -80,7 +80,7 @@ export fn asprintf(fmt: str, args: formattable...) str = {
 export fn bsprintf(buf: []u8, fmt: str, args: formattable...) str = {
 	let sink = bufio::fixed(buf, io::mode::WRITE);
 	let l = fprintf(sink, fmt, args...) as size;
-	return strings::from_utf8_unsafe(buf[..l]);
+	return strings::fromutf8_unsafe(buf[..l]);
 };
 
 // Formats text for printing and writes it to [os::stderr], followed by a line
@@ -126,7 +126,7 @@ export fn errorln(args: formattable...) (io::error | size) =
 export fn asprint(args: formattable...) str = {
 	let buf = bufio::dynamic(io::mode::WRITE);
 	assert(fprint(buf, args...) is size);
-	return strings::from_utf8_unsafe(bufio::finish(buf));
+	return strings::fromutf8_unsafe(bufio::finish(buf));
 };
 
 // Formats values for printing using the default format modifiers and writes
@@ -135,7 +135,7 @@ export fn asprint(args: formattable...) str = {
 export fn bsprint(buf: []u8, args: formattable...) str = {
 	let sink = bufio::fixed(buf, io::mode::WRITE);
 	assert(fprint(sink, args...) is size);
-	return strings::from_utf8_unsafe(buf);
+	return strings::fromutf8_unsafe(buf);
 };
 
 // Formats values for printing using the default format modifiers and writes
@@ -276,23 +276,23 @@ fn format_raw(
 	arg: formattable,
 	mod: *modifiers,
 ) (size | io::error) = match (arg) {
-	s: str => io::write(out, strings::to_utf8(s)),
+	s: str => io::write(out, strings::toutf8(s)),
 	r: rune => io::write(out, utf8::encoderune(r)),
-	b: bool => io::write(out, strings::to_utf8(if (b) "true" else "false")),
+	b: bool => io::write(out, strings::toutf8(if (b) "true" else "false")),
 	n: types::numeric => {
 		let s = strconv::numerictosb(n, mod.base);
-		io::write(out, strings::to_utf8(s));
+		io::write(out, strings::toutf8(s));
 	},
 	p: uintptr => {
 		let s = strconv::uptrtosb(p, mod.base);
-		io::write(out, strings::to_utf8(s));
+		io::write(out, strings::toutf8(s));
 	},
 	v: nullable *void => match (v) {
 		v: *void => {
 			let s = strconv::uptrtosb(v: uintptr,
 				strconv::base::HEX_LOWER);
-			let n = io::write(out, strings::to_utf8("0x"))?;
-			n += io::write(out, strings::to_utf8(s))?;
+			let n = io::write(out, strings::toutf8("0x"))?;
+			n += io::write(out, strings::toutf8(s))?;
 			n;
 		},
 		null => format(out, "(null)", mod),
@@ -313,7 +313,7 @@ fn scan_uint(iter: *strings::iterator) uint = {
 			append(num, r: u32: u8);
 		} else {
 			strings::push(iter, r);
-			match (strconv::stou(strings::from_utf8(num))) {
+			match (strconv::stou(strings::fromutf8(num))) {
 				(strconv::invalid | strconv::overflow) =>
 					abort("Invalid format string (invalid index)"),
 				u: uint => return u,

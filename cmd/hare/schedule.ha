@@ -14,7 +14,7 @@ fn ident_hash(ident: ast::ident) u32 = {
 	let hash = fnv::fnv32();
 	defer hash::close(hash);
 	for (let i = 0z; i < len(ident); i += 1) {
-		hash::write(hash, strings::to_utf8(ident[i]));
+		hash::write(hash, strings::toutf8(ident[i]));
 		hash::write(hash, [0]);
 	};
 	return fnv::sum32(hash);

@@ -27,7 +27,7 @@ use io;
 	for (let i = 0z; i < len(vectors); i += 1) {
 		const vector = vectors[i];
 		hash::reset(sha);
-		hash::write(sha, strings::to_utf8(vector.0));
+		hash::write(sha, strings::toutf8(vector.0));
 		let sum = hash::sum(sha);
 		defer free(sum);
 
@@ -54,7 +54,7 @@ use io;
 //	defer hash::finish(sha);
 //
 //	for (let i = 0z; i < 16777216; i += 1)
-//		hash::write(sha, strings::to_utf8(input));
+//		hash::write(sha, strings::toutf8(input));
 //
 //	let sum = hash::sum(sha);
 //	defer free(sum);

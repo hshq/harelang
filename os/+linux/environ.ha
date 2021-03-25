@@ -34,7 +34,7 @@ let args_static: [32]str = [""...];
 
 // Looks up an environment variable and returns its value, or void if unset.
 export fn getenv(name: const str) (str | void) = {
-	const name_b = strings::to_utf8(name);
+	const name_b = strings::toutf8(name);
 	for (let i = 0z; rt::envp[i] != null; i += 1) {
 		const item = rt::envp[i]: *[*]u8;
 		const eq: size = match (bytes::index(item[..], '=': u32: u8)) {
@@ -43,7 +43,7 @@ export fn getenv(name: const str) (str | void) = {
 		};
 		if (bytes::equal(name_b, item[..eq])) {
 			const ln = strings::cstrlen(item: *const char);
-			return strings::from_utf8(item[eq+1..ln]);
+			return strings::fromutf8(item[eq+1..ln]);
 		};
 	};
 };

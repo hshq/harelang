@@ -1,6 +1,6 @@
 // Returns true if 'in' has the given prefix.
 export fn has_prefix(in: str, prefix: str) bool = {
-	let a = to_utf8(in), b = to_utf8(prefix);
+	let a = toutf8(in), b = toutf8(prefix);
 	if (len(a) < len(b)) {
 		return false;
 	};
@@ -24,7 +24,7 @@ export fn has_prefix(in: str, prefix: str) bool = {
 
 // Returns true if 'in' has the given prefix.
 export fn has_suffix(in: str, suff: str) bool = {
-	let a = to_utf8(in), b = to_utf8(suff);
+	let a = toutf8(in), b = toutf8(suff);
 	if (len(a) < len(b)) {
 		return false;
 	};

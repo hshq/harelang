@@ -56,7 +56,7 @@ fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	static let buf: [1024]u8 = [0...];
 	let stream = fixed(buf, io::mode::WRITE);
 	let n = 0z;
-	n += io::write(stream, strings::to_utf8("hello ")) as size;
-	n += io::write(stream, strings::to_utf8("world")) as size;
-	assert(bytes::equal(buf[..n], strings::to_utf8("hello world")));
+	n += io::write(stream, strings::toutf8("hello ")) as size;
+	n += io::write(stream, strings::toutf8("world")) as size;
+	assert(bytes::equal(buf[..n], strings::toutf8("hello world")));
 };

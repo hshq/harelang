@@ -177,7 +177,7 @@ export fn sum64(h: *hash::hash) u64 = {
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let vec = vectors[i];
 		hash::reset(hash);
-		hash::write(hash, strings::to_utf8(vec.0));
+		hash::write(hash, strings::toutf8(vec.0));
 		assert(sum32(hash) == vec.1);
 	};
 };

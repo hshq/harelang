@@ -12,13 +12,13 @@ export type tokenizer = bytes::tokenizer;
 // 	assert(strings::next_token(tok) == "name");
 // 	assert(strings::remaining_tokens(tok) == "is drew");
 export fn tokenize(s: str, delim: str) tokenizer =
-	bytes::tokenize(to_utf8(s), to_utf8(delim));
+	bytes::tokenize(toutf8(s), toutf8(delim));
 
 // Returns the next string from a tokenizer, and advances the cursor. Returns
 // void if there are no tokens left.
 export fn next_token(s: *tokenizer) (str | void) = {
 	return match (bytes::next_token(s)) {
-		b: []u8 => from_utf8(b),
+		b: []u8 => fromutf8(b),
 		void => void,
 	};
 };
@@ -26,7 +26,7 @@ export fn next_token(s: *tokenizer) (str | void) = {
 // Same as next_token(), but does not advance the cursor
 export fn peek_token(s: *tokenizer) (str | void) = {
 	return match (bytes::peek_token(s)) {
-		b: []u8 => from_utf8(b),
+		b: []u8 => fromutf8(b),
 		void => void,
 	};
 };
@@ -34,7 +34,7 @@ export fn peek_token(s: *tokenizer) (str | void) = {
 // Returns the remainder of the string associated with a tokenizer, without doing
 // any further tokenization.
 export fn remaining_tokens(s: *tokenizer) str = {
-	return from_utf8(bytes::remaining_tokens(s));
+	return fromutf8(bytes::remaining_tokens(s));
 };
 
 @test fn tokenize() void = {

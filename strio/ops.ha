@@ -9,7 +9,7 @@ export fn concat(st: *io::stream, strs: str...) (size | io::error) = {
 	let n = 0z;
 	for (let i = 0z; i < len(strs); i += 1) {
 		let q = 0z;
-		let buf = strings::to_utf8(strs[i]);
+		let buf = strings::toutf8(strs[i]);
 		for (q < len(buf)) {
 			let w = io::write(st, buf[q..])?;
 			n += w;
@@ -32,10 +32,10 @@ export fn concat(st: *io::stream, strs: str...) (size | io::error) = {
 // Returns the number of bytes written, or an error.
 export fn join(st: *io::stream, delim: str, strs: str...) (size | io::error) = {
 	let n = 0z;
-	let delim = strings::to_utf8(delim);
+	let delim = strings::toutf8(delim);
 	for (let i = 0z; i < len(strs); i += 1) {
 		let q = 0z;
-		let buf = strings::to_utf8(strs[i]);
+		let buf = strings::toutf8(strs[i]);
 		for (q < len(buf)) {
 			let w = io::write(st, buf[q..])?;
 			n += w;
@@ -71,10 +71,10 @@ export fn join(st: *io::stream, delim: str, strs: str...) (size | io::error) = {
 // efficient if it is. Returns the number of bytes written, or an error.
 export fn rjoin(st: *io::stream, delim: str, strs: str...) (size | io::error) = {
 	let n = 0z;
-	let delim = strings::to_utf8(delim);
+	let delim = strings::toutf8(delim);
 	for (let i = len(strs); i > 0; i -= 1) {
 		let q = 0z;
-		let buf = strings::to_utf8(strs[i - 1]);
+		let buf = strings::toutf8(strs[i - 1]);
 		for (q < len(buf)) {
 			let w = io::write(st, buf[q..])?;
 			n += w;

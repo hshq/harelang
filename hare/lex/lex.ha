@@ -119,7 +119,7 @@ fn lex_unicode(lex: *lexer, loc: location, n: size) (rune | error) = {
 		};
 		buf[i] = r: u32: u8;
 	};
-	let s = strings::from_utf8_unsafe(buf[..n]);
+	let s = strings::fromutf8_unsafe(buf[..n]);
 	return strconv::stou32b(s, strconv::base::HEX) as u32: rune;
 };
 
@@ -170,7 +170,7 @@ fn lex_string(
 				append(chars, ...utf8::encoderune(r));
 			},
 	};
-	return (strings::from_utf8(chars): literal, loc);
+	return (strings::fromutf8(chars): literal, loc);
 };
 
 fn lex_rn_str(
@@ -222,7 +222,7 @@ fn lex_name(
 		},
 	};
 
-	let n = strings::from_utf8(chars);
+	let n = strings::fromutf8(chars);
 	return match (sort::search(bmap[..btoken::LAST_KEYWORD+1],
 			size(str), &n, &ncmp)) {
 		// TODO: Validate that names are ASCII

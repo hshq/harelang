@@ -100,16 +100,16 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 };
 
 @test fn scanline() void = {
-	let helloworld = strings::to_utf8("hello\nworld");
+	let helloworld = strings::toutf8("hello\nworld");
 	let buf = fixed(helloworld, io::mode::READ);
 
 	let line = scanline(buf) as []u8;
 	defer free(line);
-	assert(bytes::equal(line, strings::to_utf8("hello")));
+	assert(bytes::equal(line, strings::toutf8("hello")));
 
 	let line = scanline(buf) as []u8;
 	defer free(line);
-	assert(bytes::equal(line, strings::to_utf8("world")));
+	assert(bytes::equal(line, strings::toutf8("world")));
 
 	assert(scanline(buf) is io::EOF);
 };

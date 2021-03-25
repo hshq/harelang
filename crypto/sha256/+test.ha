@@ -24,7 +24,7 @@ use strio;
 	for (let i = 0z; i < len(vectors); i += 1) {
 		const vector = vectors[i];
 		hash::reset(sha);
-		hash::write(sha, strings::to_utf8(vector.0));
+		hash::write(sha, strings::toutf8(vector.0));
 		let sum = hash::sum(sha);
 		defer free(sum);
 
@@ -47,7 +47,7 @@ use strio;
 	//const expected = "50e72a0e26442fe2552dc3938ac58658228c0cbfb1d2ca872ae435266fcd055e";
 	//hash::reset(sha);
 	//for (let i = 0z; i < 16777216; i += 1) {
-	//	hash::write(sha, strings::to_utf8(input));
+	//	hash::write(sha, strings::toutf8(input));
 	//};
 	//let sum = hash::sum(sha);
 	//defer free(sum);

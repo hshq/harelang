@@ -7,14 +7,14 @@ use strings;
 // by an i64, [strconv::overflow] is returned.
 export fn stoi64(s: str) (i64 | invalid | overflow) = {
 	if (len(s) == 0) return 0: invalid;
-	let b = strings::to_utf8(s);
+	let b = strings::toutf8(s);
 	let sign = 1i64;
 	let max = types::I64_MAX: u64;
 	if (b[0] == '-': u32: u8) {
 		sign = -1;
 		max += 1;
 	};
-	let u = if (sign < 0) stou64(strings::from_utf8_unsafe(b[1..]))
+	let u = if (sign < 0) stou64(strings::fromutf8_unsafe(b[1..]))
 		else stou64(s);
 	let n = u?;
 	if (n > max) {

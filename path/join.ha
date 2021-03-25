@@ -11,7 +11,7 @@ export fn join(paths: str...) str = {
 	let sink = bufio::dynamic(io::mode::WRITE);
 	let utf8 = true;
 	for (let i = 0z; i < len(paths); i += 1) {
-		let buf = strings::to_utf8(paths[i]);
+		let buf = strings::toutf8(paths[i]);
 		let l = len(buf);
 		if (l == 0) continue;
 		for (l > 0 && buf[l - 1] == PATHSEP) {
@@ -26,7 +26,7 @@ export fn join(paths: str...) str = {
 		};
 	};
 
-	return strings::from_utf8_unsafe(bufio::finish(sink));
+	return strings::fromutf8_unsafe(bufio::finish(sink));
 };
 
 @test fn join() void = {

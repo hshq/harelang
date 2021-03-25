@@ -123,7 +123,7 @@ fn scan_directory(
 		let tags = parse_name(name).2;
 		defer tags_free(tags);
 
-		let d = strings::to_utf8(name);
+		let d = strings::toutf8(name);
 		if (len(d) == 0 || (
 			!strings::has_prefix(name, "+") &&
 			!strings::has_prefix(name, "-"))) {

@@ -5,7 +5,7 @@ use io::{mode};
 use strings;
 
 @test fn unget() void = {
-	let buf = bufio::fixed(strings::to_utf8("z"), mode::READ);
+	let buf = bufio::fixed(strings::toutf8("z"), mode::READ);
 	let lexer = init(buf, "<test>");
 	unget(&lexer, 'x');
 	unget(&lexer, 'y');
@@ -52,7 +52,7 @@ fn litassert(expected: literal, actual: literal) void = match (expected) {
 };
 
 fn lextest(in: str, expected: [](uint, uint, token)) void = {
-	let buf = bufio::fixed(strings::to_utf8(in), mode::READ);
+	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
 	let lexer = init(buf, "<test>");
 	for (let i = 0z; i < len(expected); i += 1) {
 		let eline = expected[i].0, ecol = expected[i].1,
@@ -182,7 +182,7 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 	let keywords = bmap[..btoken::LAST_KEYWORD+1];
 	for (let i = 0z; i < len(keywords); i += 1) {
 		let lexer = init(bufio::fixed(
-			strings::to_utf8(keywords[i]), mode::READ),
+			strings::toutf8(keywords[i]), mode::READ),
 			"<test>");
 		let tl = match (lex(&lexer)) {
 			tl: (token, location) => tl,

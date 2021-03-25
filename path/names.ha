@@ -7,7 +7,7 @@ use strings;
 // this returns the path to its parent directory. The return value is borrowed
 // from the input, use [dup] to extend its lifetime.
 export fn dirname(path: str) str = {
-	let b = strings::to_utf8(path);
+	let b = strings::toutf8(path);
 	let i = match (bytes::rindex(b, PATHSEP)) {
 		void => return path,
 		z: size => z,
@@ -15,7 +15,7 @@ export fn dirname(path: str) str = {
 	if (i == 0) {
 		i += 1;
 	};
-	return strings::from_utf8_unsafe(b[..i]);
+	return strings::fromutf8_unsafe(b[..i]);
 };
 
 @test fn dirname() void = {
@@ -31,12 +31,12 @@ export fn dirname(path: str) str = {
 // name. The return value is borrowed from the input, use [dup] to extend its
 // lifetime.
 export fn basename(path: str) str = {
-	let b = strings::to_utf8(path);
+	let b = strings::toutf8(path);
 	let i = match (bytes::rindex(b, PATHSEP)) {
 		void => return path,
 		z: size => if (z + 1 < len(b)) z + 1z else 0z,
 	};
-	return strings::from_utf8_unsafe(b[i..]);
+	return strings::fromutf8_unsafe(b[i..]);
 };
 
 @test fn basename() void = {
@@ -57,18 +57,18 @@ export fn basename(path: str) str = {
 // extension("foo/example.tar.gz") => ("example", ".tar.gz")
 export fn extension(p: str) (str, str) = {
 	let p = basename(p);
-	let b = strings::to_utf8(p);
+	let b = strings::toutf8(p);
 	if (len(b) == 0 || b[len(b) - 1] == PATHSEP) {
 		return (p, "");
 	};
-	let b = strings::to_utf8(p);
+	let b = strings::toutf8(p);
 	let i = match (bytes::index(b, '.': u32: u8)) {
 		void => return (p, ""),
 		z: size => z,
 	};
 	let e = b[i..];
 	let n = b[..i];
-	return (strings::from_utf8_unsafe(n), strings::from_utf8_unsafe(e));
+	return (strings::fromutf8_unsafe(n), strings::fromutf8_unsafe(e));
 };
 
 @test fn extension() void = {

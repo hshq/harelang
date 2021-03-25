@@ -33,7 +33,7 @@ export fn finish(s: *io::stream) str = {
 	let s = s: *dynamic_stream;
 	let buf = s.buf;
 	free(s);
-	return strings::from_utf8(buf);
+	return strings::fromutf8(buf);
 };
 
 // Resets the buffer's length to zero, but keeps the allocated memory around for
@@ -70,8 +70,8 @@ fn dynamic_close(s: *io::stream) void = {
 
 @test fn dynamic() void = {
 	let stream = dynamic();
-	io::write(stream, strings::to_utf8("hello ")) as size;
-	io::write(stream, strings::to_utf8("world")) as size;
+	io::write(stream, strings::toutf8("hello ")) as size;
+	io::write(stream, strings::toutf8("world")) as size;
 	assert(string(stream) == "hello world");
 	let s = finish(stream);
 	assert(s == "hello world");

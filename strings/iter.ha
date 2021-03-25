@@ -64,7 +64,7 @@ export fn push(iter: *iterator, r: rune) void = {
 // Return a substring from the next rune to the end of the string.
 export fn iter_str(iter: *iterator) str = {
 	assert(iter.push is void);
-	return from_utf8(iter.dec.src[iter.dec.offs..]);
+	return fromutf8(iter.dec.src[iter.dec.offs..]);
 };
 
 @test fn iter() void = {

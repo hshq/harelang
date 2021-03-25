@@ -1,6 +1,6 @@
 use types;
 
-fn to_utf8(in: str) []u8 = *(&in: *[]u8);
+fn toutf8(in: str) []u8 = *(&in: *[]u8);
 
 // The state for the UTF-8 decoder.
 export type decoder = struct {
@@ -10,7 +10,7 @@ export type decoder = struct {
 
 // Initializes a new UTF-8 decoder.
 export fn decode(src: (str | []u8)) decoder = match (src) {
-	s: str  => decoder { src = to_utf8(s), ...  },
+	s: str  => decoder { src = toutf8(s), ...  },
 	b: []u8 => decoder { src = b, ...  },
 };
 

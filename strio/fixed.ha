@@ -29,11 +29,11 @@ export fn string(s: *io::stream) str = {
 	if (s.writer == &fixed_write) {
 		let stream = s: *fixed_stream;
 		const n = len(stream.buf) - len(stream.cur);
-		return strings::from_utf8(stream.buf[..n]);
+		return strings::fromutf8(stream.buf[..n]);
 	} else if (s.writer == &dynamic_write) {
 		let s = s: *dynamic_stream;
 		let buf = s.buf;
-		return strings::from_utf8(buf);
+		return strings::fromutf8(buf);
 	} else {
 		abort("strio::string called on non-strio stream");
 	};
@@ -57,7 +57,7 @@ fn fixed_close(s: *io::stream) void = {
 @test fn fixed() void = {
 	static let buf: [1024]u8 = [0...];
 	let stream = fixed(buf);
-	io::write(stream, strings::to_utf8("hello ")) as size;
-	io::write(stream, strings::to_utf8("world")) as size;
+	io::write(stream, strings::toutf8("hello ")) as size;
+	io::write(stream, strings::toutf8("world")) as size;
 	assert(string(stream) == "hello world");
 };

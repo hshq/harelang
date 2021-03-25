@@ -151,7 +151,7 @@ export fn parse(args: []str, help: help...) command = {
 					i += 1;
 					append(opts, (r, args[i]));
 				} else {
-					let s = strings::from_utf8(d.src[d.offs..]);
+					let s = strings::fromutf8(d.src[d.offs..]);
 					append(opts, (r, s));
 				};
 				continue :arg;

@@ -39,8 +39,8 @@ export fn sub(s: str, start: size, end: (size | end)) str = {
 		sz: size => starti + utf8_byte_len_bounded(&iter, sz - start),
 		end => starti + utf8_byte_len_unbounded(&iter),
 	};
-	let bytes = to_utf8(s);
-	return from_utf8_unsafe(bytes[starti..endi]);
+	let bytes = toutf8(s);
+	return fromutf8_unsafe(bytes[starti..endi]);
 };
 
 @test fn sub() void = {

@@ -17,7 +17,7 @@ export fn i64tosb(i: i64, b: base) const str = {
 	buf[0] = '-': u32: u8;
 	s.length = 1;
 
-	let u = strings::to_utf8(u64tosb((-i): u64, b));
+	let u = strings::toutf8(u64tosb((-i): u64, b));
 	assert(len(u) + 1 < len(buf));
 
 	bytes::copy(buf[1..len(u) + 1], u);

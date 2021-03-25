@@ -6,10 +6,10 @@ export fn concat(strs: str...) str = {
 	};
 	let new: []u8 = alloc([], z + 1);
 	for (let i = 0z; i < len(strs); i += 1) {
-		append(new, ...to_utf8(strs[i]));
+		append(new, ...toutf8(strs[i]));
 	};
 	append(new, 0);
-	return from_utf8_unsafe(new[..z]);
+	return fromutf8_unsafe(new[..z]);
 };
 
 @test fn concat() void = {
