@@ -7,6 +7,7 @@ use fs;
 use hare::ast;
 use hare::unparse;
 use io;
+use os;
 use path;
 use strconv;
 use strings;
@@ -261,6 +262,11 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 fn lock(fs: *fs::fs, cachedir: str) (*io::stream | error) = {
 	// XXX: I wonder if this should be some generic function in fs or
 	// something
+	match (os::mkdirs(cachedir)) {
+		fs::exists => void,
+		void => void,
+		e: fs::error => return e,
+	};
 	let lockpath = path::join(cachedir, "manifest.lock");
 	defer free(lockpath);
 
