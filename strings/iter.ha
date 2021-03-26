@@ -23,6 +23,12 @@ export fn riter(src: str) iterator = {
 };
 
 // Get the next rune from an iterator, or void if there are none left.
+//
+// Be aware that a rune is not the minimum lexographical unit of language in
+// Unicode strings. If you use these runes to construct a new string,
+// reordering, editing, or omitting any of the runes without careful discretion
+// may cause linguistic errors to arise. To avoid this, you may need to use
+// [unicode::graphiter] instead.
 export fn next(iter: *iterator) (rune | void) = {
 	match (iter.push) {
 		r: rune => {
