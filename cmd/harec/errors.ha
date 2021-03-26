@@ -34,7 +34,7 @@ fn printerr_syntax(err: lex::syntax) void = {
 		location.path, location.line, location.col, details);
 	fmt::errorln(line);
 	for (let i = 0u; i < location.col - 2; i += 1) {
-		fmt::errorf(" ");
+		fmt::error(" ");
 	};
 	fmt::errorln("^--- here");
 };
