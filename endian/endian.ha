@@ -4,6 +4,7 @@ export type endian = struct {
 	putu16: *fn(buf: []u8, in: u16) void,
 	getu32: *fn(buf: []u8) u32,
 	putu32: *fn(buf: []u8, in: u32) void,
+	getu64: *fn(buf: []u8) u64,
 	putu64: *fn(buf: []u8, in: u64) void,
 };
 
@@ -13,6 +14,7 @@ export const big: endian = endian {
 	putu16 = &beputu16,
 	getu32 = &begetu32,
 	putu32 = &beputu32,
+	getu64 = &begetu64,
 	putu64 = &beputu64,
 };
 
@@ -22,5 +24,6 @@ export const little: endian = endian {
 	putu16 = &leputu16,
 	getu32 = &legetu32,
 	putu32 = &leputu32,
+	getu64 = &legetu64,
 	putu64 = &leputu64,
 };
