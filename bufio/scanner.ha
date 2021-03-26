@@ -15,8 +15,7 @@ export fn scanbyte(stream: *io::stream) (u8 | io::EOF | io::error) = {
 };
 
 // Reads a slice of bytes until the delimiter. Delimiter is not
-// included. [io::EOF] is returned when stream emits EOF but nothing was
-// read. Returned buffer has to be freed by the caller.
+// included. The return value must be freed by the caller.
 export fn scantok(stream: *io::stream, delim: u8) ([]u8 | io::EOF | io::error) = {
 	let buf: []u8 = [];
 
@@ -41,9 +40,9 @@ export fn scantok(stream: *io::stream, delim: u8) ([]u8 | io::EOF | io::error) =
 };
 
 // Reads a slice of bytes until a newline character (\n, 0x10). Newline itself
-// is not included. [io::EOF] is returned when stream emits EOF but nothing was
-// read. Returned buffer has to be freed by the caller.
-export fn scanline(stream: *io::stream) ([]u8 | io::EOF | io::error) = scantok(stream, '\n': u32: u8);
+// is not included. The return value must be freed by the caller.
+export fn scanline(stream: *io::stream) ([]u8 | io::EOF | io::error) =
+	scantok(stream, '\n': u32: u8);
 
 // Reads a rune from a UTF-8 stream.
 export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::error) = {

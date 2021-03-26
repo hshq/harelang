@@ -3,13 +3,19 @@ use hare::ast;
 use hare::lex;
 use hare::parse;
 use hare::unparse;
+use io;
 use os;
 
 export fn main() void = {
-	let lexer = lex::init(os::stdin, "<stdin>");
+	let input = os::open(os::args[1]) as *io::stream;
+	defer io::close(input);
+
+	let lexer = lex::init(input, os::args[1]);
 	let su = match (parse::subunit(&lexer)) {
-		e: parse::error =>
-			fmt::fatal("Syntax error: {}", parse::errstr(e)),
+		err: parse::error => {
+			printerr(err);
+			os::exit(1);
+		},
 		u: ast::subunit => u,
 	};
 	defer ast::subunit_free(su);
