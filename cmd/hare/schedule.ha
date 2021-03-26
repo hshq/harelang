@@ -23,8 +23,7 @@ fn ident_hash(ident: ast::ident) u32 = {
 fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 	let hash = ident_hash(ident);
 	// TODO: We should not have to dereference the bucket for len or append
-	// TODO: We should not have to cast the length to u32
-	let bucket = &plan.modmap[hash % len(plan.modmap): u32];
+	let bucket = &plan.modmap[hash % len(plan.modmap)];
 	for (let i = 0z; i < len(*bucket); i += 1) {
 		if (bucket[i].hash == hash) {
 			return bucket[i].task;
