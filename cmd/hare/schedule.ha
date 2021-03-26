@@ -40,6 +40,7 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 	};
 
 	let depends: []*task = [];
+	defer free(depends);
 	for (let i = 0z; i < len(ver.depends); i += 1) {
 		const dep = ver.depends[i];
 		let obj = sched_module(plan, dep, link);
@@ -54,7 +55,6 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 		version = ver,
 	});
 	append(*link, obj);
-	free(depends);
 	return obj;
 };
 

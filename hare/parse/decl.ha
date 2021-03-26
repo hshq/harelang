@@ -58,7 +58,7 @@ fn decl_global(
 			_type.flags |= ast::type_flags::CONST;
 		};
 		want_btoken(lexer, btoken::EQUAL)?;
-		let init = expr(lexer)?;
+		let init = simple_expression(lexer)?;
 		let btok = try_btoken(lexer, btoken::COMMA)?;
 		append(decl, ast::decl_global {
 			is_const = tok == btoken::DEF,
@@ -132,7 +132,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 					len(params[i].name) > 0,
 					"Expected parameter name in function declaration")?;
 			};
-			expr(lexer)?;
+			compound_expression(lexer)?;
 		},
 		// We don't care about the location
 		btoken::SEMICOLON => lex::unlex(lexer, (tok, proto_loc)),
