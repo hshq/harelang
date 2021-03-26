@@ -20,7 +20,7 @@ export fn legetu32(buf: []u8) u32 = {
 		(buf[0] << 0);
 };
 
-// Writes a u32 into a buffer in big-endian order.
+// Writes a u32 into a buffer in little-endian order.
 export fn leputu32(buf: []u8, in: u32) void = {
 	buf[0] = (in): u8;
 	buf[1] = (in >> 8): u8;
@@ -28,7 +28,7 @@ export fn leputu32(buf: []u8, in: u32) void = {
 	buf[3] = (in >> 24): u8;
 };
 
-// Writes a u64 into a buffer in big-endian order.
+// Writes a u64 into a buffer in little-endian order.
 export fn leputu64(buf: []u8, in: u64) void = {
 	buf[0] = (in >> 0): u8;
 	buf[1] = (in >> 8): u8;
