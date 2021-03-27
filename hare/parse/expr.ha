@@ -20,18 +20,19 @@ export fn compound_expression(lexer: *lex::lexer) (ast::expr | error) = {
 		btoken::LBRACE => expression_list(lexer),
 		btoken::BREAK, btoken::CONTINUE, btoken::RETURN =>
 			control_statement(lexer),
-		* => abort(),
+		* => complex_expression(lexer),
 	};
 };
 
 // Parses a simple-expression
 export fn simple_expression(lexer: *lex::lexer) (ast::expr | error) = {
-	abort(); // TODO
+	want_btoken(lexer, btoken::VOID)?; // TODO
+	return void;
 };
 
 // Parses a complex-expression
 export fn complex_expression(lexer: *lex::lexer) (ast::expr | error) = {
-	abort(); // TODO
+	return simple_expression(lexer); // TODO
 };
 
 fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
@@ -66,7 +67,7 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 };
 
 fn scope_expression(lexer: *lex::lexer) (ast::expr | error) = {
-	abort(); // TODO
+	return simple_expression(lexer); // TODO
 };
 
 fn control_statement(lexer: *lex::lexer) (ast::expr | error) = {
