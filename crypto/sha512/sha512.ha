@@ -14,16 +14,16 @@ type variant = enum {
 };
 
 // The size, in bytes, of the SHA-512 checksum.
-def SIZE: size = 64;
+export def SIZE: size = 64;
 
 // The size, in bytes, of the SHA-512/224 checksum.
-def SIZE224: size = 28;
+export def SIZE224: size = 28;
 
 // The size, in bytes, of the SHA-512/256 checksum.
-def SIZE256: size = 32;
+export def SIZE256: size = 32;
 
 // The size, in bytes, of the SHA-384 checksum.
-def SIZE384: size = 48;
+export def SIZE384: size = 48;
 
 def chunk: size = 128;
 def init0: u64 = 0x6a09e667f3bcc908;
