@@ -28,6 +28,10 @@ hare_srcs=\
 	./cmd/hare/schedule.ha \
 	./cmd/hare/main.ha
 
+harec_srcs=\
+	./cmd/harec/main.ha \
+	./cmd/harec/errors.ha
+
 $(HARECACHE)/hare.ssa: $(hare_srcs) $(hare_stdlib_deps)
 	@printf 'HAREC\t$@\n'
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) \
@@ -56,14 +60,14 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(hare_testlib_deps)
 	@$(LD) -T $(rtscript) -o $@ \
 		$(TESTCACHE)/hare.o $(hare_testlib_deps)
 
-docs/hare.1: docs/hare.scd
-
-docs: docs/hare.1
-
-.bin/harec: .bin/hare
+.bin/harec: .bin/hare $(harec_srcs)
 	@mkdir -p .bin
 	@printf 'HARE\t$@\n'
 	@env HAREPATH=. ./.bin/hare build -o .bin/harec ./cmd/harec
+
+docs/hare.1: docs/hare.scd
+
+docs: docs/hare.1
 
 clean:
 	@rm -rf .cache .bin
