@@ -37,7 +37,7 @@ export fn complex_expression(lexer: *lex::lexer) (ast::expr | error) = {
 fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 	let items: ast::list_expr = [];
 
-	for (true) {
+	for (let more = true; more) {
 		let tok = match (lex::lex(lexer)?) {
 			io::EOF => return syntaxerr(mkloc(lexer),
 				"Unexpected EOF, expected scope or control expression"),
@@ -49,7 +49,10 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 				btoken::RBRACE => break,
 				btoken::BREAK,
 				btoken::CONTINUE,
-				btoken::RETURN => control_statement(lexer)?,
+				btoken::RETURN => {
+					more = false;
+					control_statement(lexer)?;
+				},
 				* => scope_expression(lexer)?,
 			},
 			* => scope_expression(lexer)?,
@@ -58,6 +61,7 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 		want_btoken(lexer, btoken::SEMICOLON)?;
 	};
 
+	want_btoken(lexer, btoken::RBRACE)?;
 	return items;
 };
 
