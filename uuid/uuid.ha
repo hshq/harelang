@@ -30,7 +30,7 @@ def NODE: size = 10;
 
 // Generates a new version 4 UUID.
 export fn generate() uuid = {
-	let id: [16]u8 = [0...];
+	let id: uuid = [0...];
 	random::buffer(id[..]);
 	let buf = id[CLOCK_SEQ_HI_AND_RESERVED..CLOCK_SEQ_HI_AND_RESERVED + 2];
 	let clock = (endian::begetu16(buf) & 0x3FFF) | 0x8000;
