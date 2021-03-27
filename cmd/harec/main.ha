@@ -8,27 +8,33 @@ use io;
 use os;
 
 export fn main() void = {
-	let cmd = getopt::parse(os::args,
+	let usage: []getopt::help = [
 		"compiles Hare programs to an intermediate form",
 		('D', "ident:type=value", "defines a constant"),
-		('o', "path", "set the output file"),
 		('T', "tags...", "sets build tags"),
-		('t', "path", "write typedefs to a file"),
 		('N', "ident", "set the namespace for unit"),
-		"files..."
-	);
+		('o', "path", "set the output file"),
+		('t', "path", "write typedefs to a file"),
+		"files...",
+	];
+	let cmd = getopt::parse(os::args, usage...);
 	defer getopt::finish(&cmd);
 
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
 			'D' => abort(), // TODO
-			'o' => abort(), // TODO
-			'T' => abort(), // TODO
-			't' => abort(), // TODO
 			'N' => abort(), // TODO
+			'T' => abort(), // TODO
+			'o' => abort(), // TODO
+			't' => abort(), // TODO
 			*   => abort(),
 		};
+	};
+
+	if (len(cmd.args) == 0) {
+		getopt::printusage(os::stderr, os::args[0], usage);
+		os::exit(1);
 	};
 
 	for (let i = 0z; i < len(cmd.args); i += 1) {
