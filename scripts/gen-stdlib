@@ -177,6 +177,18 @@ crypto_sha1() {
 	fi
 }
 
+crypto_sha512() {
+	printf '# crypto::sha512\n'
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::sha512 sha512.ha
+		gen_ssa crypto::sha512 hash io endian
+	else
+		gen_srcs crypto::sha512 sha512.ha +test.ha
+		gen_ssa crypto::sha512 hash io endian fmt strio strings
+	fi
+}
+
 dirs() {
 	printf '# dirs\n'
 	gen_srcs dirs \
@@ -555,6 +567,7 @@ crypto_math
 crypto_random
 crypto_sha1
 crypto_sha256
+crypto_sha512
 dirs
 encoding_hex
 encoding_utf8
