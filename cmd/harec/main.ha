@@ -9,7 +9,7 @@ use os;
 
 export fn main() void = {
 	let cmd = getopt::parse(os::args,
-		"compiles Hare programs",
+		"compiles Hare programs to an intermediate form",
 		('D', "ident:type=value", "defines a constant"),
 		('o', "path", "set the output file"),
 		('T', "tags...", "sets build tags"),
