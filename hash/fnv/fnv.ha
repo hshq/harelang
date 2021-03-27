@@ -109,9 +109,7 @@ fn fnv32_sum(h: *hash::hash) []u8 = {
 	let h = h: *state32;
 	let buf: [4]u8 = [0...];
 	endian::host.putu32(buf, h.v);
-	let sl: []u8 = alloc([], 4);
-	append(sl, ...buf);
-	return sl;
+	return alloc(buf);
 };
 
 fn fnv64_write(s: *io::stream, buf: const []u8) (size | io::error) = {
@@ -141,9 +139,7 @@ fn fnv64_sum(h: *hash::hash) []u8 = {
 	let h = h: *state64;
 	let buf: [8]u8 = [0...];
 	endian::host.putu64(buf, h.v);
-	let sl: []u8 = alloc([], 8);
-	append(sl, ...buf);
-	return sl;
+	return alloc(buf);
 };
 
 // Returns the sum of a 32-bit FNV hash.
