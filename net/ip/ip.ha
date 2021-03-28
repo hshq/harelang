@@ -304,8 +304,8 @@ export fn fmt(s: *io::stream, item: (...addr | subnet)) (io::error | size) = {
 // allocated and will be overwritten on subsequent calls; see [strings::dup] to
 // extend its lifetime.
 export fn string(item: (...addr | subnet)) str = {
-	// Maximum length of an IPv6 address is 45 chars
-	static let buf: [46]u8 = [0...];
+	// Maximum length of an IPv6 address plus its netmask in hexadecimal
+	static let buf: [64]u8 = [0...];
 	let stream = strio::fixed(buf);
 	fmt(stream, item) as size;
 	return strio::string(stream);
