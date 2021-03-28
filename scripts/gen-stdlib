@@ -200,7 +200,7 @@ encoding_hex() {
 	printf '# encoding::hex\n'
 	gen_srcs encoding::hex \
 		hex.ha
-	gen_ssa encoding::hex io strconv strio strings bytes
+	gen_ssa encoding::hex ascii bytes fmt io strconv strio strings
 }
 
 encoding_utf8() {

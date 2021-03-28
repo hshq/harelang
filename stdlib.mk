@@ -295,7 +295,7 @@ $(HARECACHE)/dirs/dirs.ssa: $(stdlib_dirs_srcs) $(stdlib_rt) $(stdlib_fs) $(stdl
 stdlib_encoding_hex_srcs= \
 	$(STDLIB)/encoding/hex/hex.ha
 
-$(HARECACHE)/encoding/hex/encoding_hex.ssa: $(stdlib_encoding_hex_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strconv) $(stdlib_strio) $(stdlib_strings) $(stdlib_bytes)
+$(HARECACHE)/encoding/hex/encoding_hex.ssa: $(stdlib_encoding_hex_srcs) $(stdlib_rt) $(stdlib_ascii) $(stdlib_bytes) $(stdlib_fmt) $(stdlib_io) $(stdlib_strconv) $(stdlib_strio) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/hex
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::hex \
@@ -986,7 +986,7 @@ $(TESTCACHE)/dirs/dirs.ssa: $(testlib_dirs_srcs) $(testlib_rt) $(testlib_fs) $(t
 testlib_encoding_hex_srcs= \
 	$(STDLIB)/encoding/hex/hex.ha
 
-$(TESTCACHE)/encoding/hex/encoding_hex.ssa: $(testlib_encoding_hex_srcs) $(testlib_rt) $(testlib_io) $(testlib_strconv) $(testlib_strio) $(testlib_strings) $(testlib_bytes)
+$(TESTCACHE)/encoding/hex/encoding_hex.ssa: $(testlib_encoding_hex_srcs) $(testlib_rt) $(testlib_ascii) $(testlib_bytes) $(testlib_fmt) $(testlib_io) $(testlib_strconv) $(testlib_strio) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/encoding/hex
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::hex \
