@@ -61,7 +61,7 @@ fn subnet_test_simple(s: str) void = {
 		a: subnet => a,
 		* => return,
 	};
-	let fmted = stringsubnet(net);
+	let fmted = string(net);
 	assert(fmted == s);
 	let netrp = parsecidr(fmted);
 	assert(netrp is subnet);

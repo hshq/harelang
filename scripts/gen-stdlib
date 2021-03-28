@@ -397,6 +397,7 @@ linux_vdso() {
 gensrcs_net_ip() {
 	gen_srcs net::ip \
 		ip.ha \
+		'$(PLATFORM).ha' \
 		$*
 }
 

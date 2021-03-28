@@ -504,7 +504,8 @@ $(HARECACHE)/linux/vdso/linux_vdso.ssa: $(stdlib_linux_vdso_srcs) $(stdlib_rt) $
 
 # net::ip
 stdlib_net_ip_srcs= \
-	$(STDLIB)/net/ip/ip.ha
+	$(STDLIB)/net/ip/ip.ha \
+	$(STDLIB)/net/ip/$(PLATFORM).ha
 
 $(HARECACHE)/net/ip/net_ip.ssa: $(stdlib_net_ip_srcs) $(stdlib_rt) $(stdlib_bytes) $(stdlib_io) $(stdlib_strconv) $(stdlib_strings) $(stdlib_strio)
 	@printf 'HAREC \t$@\n'
@@ -1216,6 +1217,7 @@ $(TESTCACHE)/linux/vdso/linux_vdso.ssa: $(testlib_linux_vdso_srcs) $(testlib_rt)
 # net::ip
 testlib_net_ip_srcs= \
 	$(STDLIB)/net/ip/ip.ha \
+	$(STDLIB)/net/ip/$(PLATFORM).ha \
 	$(STDLIB)/net/ip/+test.ha
 
 $(TESTCACHE)/net/ip/net_ip.ssa: $(testlib_net_ip_srcs) $(testlib_rt) $(testlib_bytes) $(testlib_io) $(testlib_strconv) $(testlib_strings) $(testlib_strio)

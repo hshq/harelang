@@ -44,7 +44,7 @@ export fn equal(l: addr, r: addr) bool = {
 	};
 };
 
-export fn parsev4(st: str) (addr4 | invalid) = {
+fn parsev4(st: str) (addr4 | invalid) = {
 	let ret: addr4 = [0...];
 	let tok = strings::tokenize(st, ".");
 	let i = 0z;
@@ -108,8 +108,9 @@ fn parsev6(st: str) (addr6 | invalid) = {
 		return invalid;
 	};
 	if (ells >= 0) {
-		if (i >= 15)
+		if (i >= 15) {
 			return invalid;
+		};
 		rt::memcpy(
 			&ret[16 - (i - ells)],
 			&ret[ells], (i - ells): size);
@@ -134,7 +135,7 @@ export fn parse(s: str) (addr | invalid) = {
 	return invalid;
 };
 
-fn fmtv4(a: addr4, s: *io::stream) (io::error | size) = {
+fn fmtv4(s: *io::stream, a: addr4) (io::error | size) = {
 	let ret = 0z;
 	for (let i = 0; i < 4; i += 1) {
 		if (i > 0) {
@@ -145,7 +146,7 @@ fn fmtv4(a: addr4, s: *io::stream) (io::error | size) = {
 	return ret;
 };
 
-fn fmtv6(a: addr6, s: *io::stream) (io::error | size) = {
+fn fmtv6(s: *io::stream, a: addr6) (io::error | size) = {
 	let ret = 0z;
 	let zstart: int = -1;
 	let zend: int = -1;
@@ -180,25 +181,6 @@ fn fmtv6(a: addr6, s: *io::stream) (io::error | size) = {
 		ret += fmt::fprintf(s, "{:x}", term)?;
 	};
 	return ret;
-};
-
-// Formats an IP address
-export fn fmt(addr: addr, s: *io::stream) (io::error | size) = {
-	return match (addr) {
-		v4: addr4 => fmtv4(v4, s)?,
-		v6: addr6 => fmtv6(v6, s)?,
-	};
-};
-
-// Formats an [addr] as a string. The return value is statically
-// allocated and will be overwritten on subsequent calls; see
-// [strings::dup] to extend its lifetime.
-export fn string(addr: addr) str = {
-        // Maximum length of an IPv6 address is 45 chars
-        static let buf: [46]u8 = [0...];
-        let stream = strio::fixed(buf);
-        fmt(addr, stream) as size;
-        return strio::string(stream);
 };
 
 // Fills a netmask according to the CIDR value
@@ -281,7 +263,7 @@ fn masklen(addr: []u8) (void | size) = {
 	return n;
 };
 
-fn fmtmask(mask: addr, s: *io::stream) (io::error | size) = {
+fn fmtmask(s: *io::stream, mask: addr) (io::error | size) = {
 	let ret = 0z;
 	let slice = match (mask) {
 		v4: addr4 => v4[..],
@@ -301,23 +283,32 @@ fn fmtmask(mask: addr, s: *io::stream) (io::error | size) = {
 	return ret;
 };
 
-// Format an IP subnet
-export fn fmtsubnet(subnet: subnet, s: *io::stream) (io::error | size) = {
+fn fmtsubnet(s: *io::stream, subnet: subnet) (io::error | size) = {
 	let ret = 0z;
-	ret += fmt(subnet.addr, s)?;
+	ret += fmt(s, subnet.addr)?;
 	ret += fmt::fprintf(s, "/")?;
-	ret += fmtmask(subnet.mask, s)?;
+	ret += fmtmask(s, subnet.mask)?;
 	return ret;
 };
 
-// Formats a [subnet] as a string. The return value is statically
-// allocated and will be overwritten on subsequent calls; see
-// [strings::dup] to extend its lifetime.
-export fn stringsubnet(subnet: subnet) str = {
-        static let buf: [66]u8 = [0...];
-        let stream = strio::fixed(buf);
-        fmtsubnet(subnet, stream) as size;
-        return strio::string(stream);
+// Formats an [addr] or [subnet] and prints it to a stream.
+export fn fmt(s: *io::stream, item: (...addr | subnet)) (io::error | size) = {
+	return match (item) {
+		v4: addr4 => fmtv4(s, v4)?,
+		v6: addr6 => fmtv6(s, v6)?,
+		sub: subnet => fmtsubnet(s, sub),
+	};
+};
+
+// Formats an [addr] or [subnet] as a string. The return value is statically
+// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// extend its lifetime.
+export fn string(item: (...addr | subnet)) str = {
+	// Maximum length of an IPv6 address is 45 chars
+	static let buf: [46]u8 = [0...];
+	let stream = strio::fixed(buf);
+	fmt(stream, item) as size;
+	return strio::string(stream);
 };
 
 fn wanttoken(tok: *strings::tokenizer) (str | invalid) = {
