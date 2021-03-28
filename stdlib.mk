@@ -3,6 +3,7 @@
 # rt
 rtscript=$(STDLIB)/rt/hare.sc
 stdlib_rt_srcs= \
+	$(STDLIB)/rt/$(PLATFORM)/abort.ha \
 	$(STDLIB)/rt/$(PLATFORM)/env.ha \
 	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
 	$(STDLIB)/rt/$(PLATFORM)/types.ha \
@@ -21,7 +22,7 @@ stdlib_rt_srcs= \
 	$(STDLIB)/rt/memcpy.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
-	$(STDLIB)/rt/$(PLATFORM)/abort.ha \
+	$(STDLIB)/rt/abort.ha \
 	$(STDLIB)/rt/start.ha
 
 $(HARECACHE)/rt/rt.ssa: $(stdlib_rt_srcs) $(stdlib_rt)
@@ -688,6 +689,7 @@ $(HARECACHE)/uuid/uuid.ssa: $(stdlib_uuid_srcs) $(stdlib_rt) $(stdlib_crypto_ran
 
 # rt
 testlib_rt_srcs= \
+	$(STDLIB)/rt/$(PLATFORM)/abort.ha \
 	$(STDLIB)/rt/$(PLATFORM)/env.ha \
 	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
 	$(STDLIB)/rt/$(PLATFORM)/types.ha \
@@ -706,10 +708,11 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/memcpy.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
+	$(STDLIB)/rt/start+test.ha \
+	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/+test/$(PLATFORM).ha \
-	$(STDLIB)/rt/+test/abort.ha \
 	$(STDLIB)/rt/+test/cstring.ha \
-	$(STDLIB)/rt/+test/start.ha \
+	$(STDLIB)/rt/+test/run.ha \
 	$(STDLIB)/rt/+test/ztos.ha
 
 $(TESTCACHE)/rt/rt.ssa: $(testlib_rt_srcs) $(testlib_rt)
