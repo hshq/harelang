@@ -394,6 +394,24 @@ linux_vdso() {
 	gen_ssa linux::vdso linux strings format::elf
 }
 
+gensrcs_net_ip() {
+	gen_srcs net::ip \
+		ip.ha \
+		$*
+}
+
+net_ip() {
+	printf '# net::ip\n'
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_net_ip
+	else
+		gensrcs_net_ip \
+			+test.ha
+	fi
+	gen_ssa net::ip bytes io strconv strings strio
+}
+
 math_random() {
 	printf '# math::random\n'
 	gen_srcs math::random \
@@ -588,6 +606,7 @@ hash_fnv
 io
 linux
 linux_vdso
+net_ip
 math_random
 os
 os_exec

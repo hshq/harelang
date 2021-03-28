@@ -147,6 +147,9 @@ hare_stdlib_deps+=$(stdlib_linux)
 stdlib_linux_vdso=$(HARECACHE)/linux/vdso/linux_vdso.o
 hare_stdlib_deps+=$(stdlib_linux_vdso)
 
+stdlib_net_ip=$(HARECACHE)/net/ip/net_ip.o
+hare_stdlib_deps+=$(stdlib_net_ip)
+
 stdlib_math_random=$(HARECACHE)/math/random/math_random.o
 hare_stdlib_deps+=$(stdlib_math_random)
 
@@ -499,6 +502,16 @@ $(HARECACHE)/linux/vdso/linux_vdso.ssa: $(stdlib_linux_vdso_srcs) $(stdlib_rt) $
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::vdso \
 		-t$(HARECACHE)/linux/vdso/linux_vdso.td $(stdlib_linux_vdso_srcs)
 
+# net::ip
+stdlib_net_ip_srcs= \
+	$(STDLIB)/net/ip/ip.ha
+
+$(HARECACHE)/net/ip/net_ip.ssa: $(stdlib_net_ip_srcs) $(stdlib_rt) $(stdlib_bytes) $(stdlib_io) $(stdlib_strconv) $(stdlib_strings) $(stdlib_strio)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/net/ip
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::ip \
+		-t$(HARECACHE)/net/ip/net_ip.td $(stdlib_net_ip_srcs)
+
 # math::random
 stdlib_math_random_srcs= \
 	$(STDLIB)/math/random/random.ha
@@ -836,6 +849,9 @@ hare_testlib_deps+=$(testlib_linux)
 
 testlib_linux_vdso=$(TESTCACHE)/linux/vdso/linux_vdso.o
 hare_testlib_deps+=$(testlib_linux_vdso)
+
+testlib_net_ip=$(TESTCACHE)/net/ip/net_ip.o
+hare_testlib_deps+=$(testlib_net_ip)
 
 testlib_math_random=$(TESTCACHE)/math/random/math_random.o
 hare_testlib_deps+=$(testlib_math_random)
@@ -1196,6 +1212,17 @@ $(TESTCACHE)/linux/vdso/linux_vdso.ssa: $(testlib_linux_vdso_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/linux/vdso
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::vdso \
 		-t$(TESTCACHE)/linux/vdso/linux_vdso.td $(testlib_linux_vdso_srcs)
+
+# net::ip
+testlib_net_ip_srcs= \
+	$(STDLIB)/net/ip/ip.ha \
+	$(STDLIB)/net/ip/+test.ha
+
+$(TESTCACHE)/net/ip/net_ip.ssa: $(testlib_net_ip_srcs) $(testlib_rt) $(testlib_bytes) $(testlib_io) $(testlib_strconv) $(testlib_strings) $(testlib_strio)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/ip
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \
+		-t$(TESTCACHE)/net/ip/net_ip.td $(testlib_net_ip_srcs)
 
 # math::random
 testlib_math_random_srcs= \
