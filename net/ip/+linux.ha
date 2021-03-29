@@ -15,3 +15,22 @@ export fn to_native(a: addr, port: u16) rt::sockaddr = {
 		} },
 	};
 };
+
+export fn from_native(a: rt::sockaddr) (addr, u16)  = {
+	let family = a.in.sin_family;
+	switch (family) {
+		rt::AF_INET => {
+			let addr = a.in.sin_addr.s_addr;
+			return (
+				[addr: u8, (addr >> 8): u8, (addr >> 16): u8,
+					(addr >> 24):  u8]: addr4,
+				endian::ntohu16(a.in.sin_port)
+			);
+		},
+		rt::AF_INET6 => return (
+			a.in6.sin6_addr.s6_addr: addr6,
+			endian::ntohu16(a.in6.sin6_port)
+		),
+		* => abort("Wrong address family!"),
+	};
+};
