@@ -515,3 +515,9 @@ export fn ioctl(fd: int, req: u64, arg: nullable *void) (int | errno) = {
 	return wrap_return(syscall3(SYS_ioctl, fd: u64,
 		req, arg: uintptr: u64))?: int;
 };
+
+export fn getsockname(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) (int | errno) = {
+	return wrap_return(syscall3(SYS_getsockname,
+		sockfd: u64, addr: uintptr: u64, addrlen: uintptr: u64))?: int;
+};
+
