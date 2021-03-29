@@ -346,6 +346,13 @@ hash() {
 	gen_ssa hash io
 }
 
+hash_adler32() {
+	printf '# hash::adler32\n'
+	gen_srcs hash::adler32 \
+		adler32.ha
+	gen_ssa hash::adler32 endian hash io strings
+}
+
 hash_fnv() {
 	printf '# hash::fnv\n'
 	gen_srcs hash::fnv \
@@ -603,6 +610,7 @@ hare_module
 hare_parse
 hare_unparse
 hash
+hash_adler32
 hash_fnv
 io
 linux

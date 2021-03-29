@@ -135,6 +135,9 @@ hare_stdlib_deps+=$(stdlib_hare_unparse)
 stdlib_hash=$(HARECACHE)/hash/hash.o
 hare_stdlib_deps+=$(stdlib_hash)
 
+stdlib_hash_adler32=$(HARECACHE)/hash/adler32/hash_adler32.o
+hare_stdlib_deps+=$(stdlib_hash_adler32)
+
 stdlib_hash_fnv=$(HARECACHE)/hash/fnv/hash_fnv.o
 hare_stdlib_deps+=$(stdlib_hash_fnv)
 
@@ -454,6 +457,16 @@ $(HARECACHE)/hash/hash.ssa: $(stdlib_hash_srcs) $(stdlib_rt) $(stdlib_io)
 	@mkdir -p $(HARECACHE)/hash
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash \
 		-t$(HARECACHE)/hash/hash.td $(stdlib_hash_srcs)
+
+# hash::adler32
+stdlib_hash_adler32_srcs= \
+	$(STDLIB)/hash/adler32/adler32.ha
+
+$(HARECACHE)/hash/adler32/hash_adler32.ssa: $(stdlib_hash_adler32_srcs) $(stdlib_rt) $(stdlib_endian) $(stdlib_hash) $(stdlib_io) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hash/adler32
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::adler32 \
+		-t$(HARECACHE)/hash/adler32/hash_adler32.td $(stdlib_hash_adler32_srcs)
 
 # hash::fnv
 stdlib_hash_fnv_srcs= \
@@ -839,6 +852,9 @@ hare_testlib_deps+=$(testlib_hare_unparse)
 testlib_hash=$(TESTCACHE)/hash/hash.o
 hare_testlib_deps+=$(testlib_hash)
 
+testlib_hash_adler32=$(TESTCACHE)/hash/adler32/hash_adler32.o
+hare_testlib_deps+=$(testlib_hash_adler32)
+
 testlib_hash_fnv=$(TESTCACHE)/hash/fnv/hash_fnv.o
 hare_testlib_deps+=$(testlib_hash_fnv)
 
@@ -1163,6 +1179,16 @@ $(TESTCACHE)/hash/hash.ssa: $(testlib_hash_srcs) $(testlib_rt) $(testlib_io)
 	@mkdir -p $(TESTCACHE)/hash
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash \
 		-t$(TESTCACHE)/hash/hash.td $(testlib_hash_srcs)
+
+# hash::adler32
+testlib_hash_adler32_srcs= \
+	$(STDLIB)/hash/adler32/adler32.ha
+
+$(TESTCACHE)/hash/adler32/hash_adler32.ssa: $(testlib_hash_adler32_srcs) $(testlib_rt) $(testlib_endian) $(testlib_hash) $(testlib_io) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash/adler32
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::adler32 \
+		-t$(TESTCACHE)/hash/adler32/hash_adler32.td $(testlib_hash_adler32_srcs)
 
 # hash::fnv
 testlib_hash_fnv_srcs= \
