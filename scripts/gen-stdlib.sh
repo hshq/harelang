@@ -13,6 +13,7 @@ gen_srcs() {
 	path="$(mod_path "$mod")"
 	var="$(mod_var "$mod")"
 	shift
+	printf '# %s\n' "$mod"
 	printf '%s_srcs= \\\n' "$var"
 	while [ $# -ne 0 ]
 	do

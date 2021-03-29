@@ -40,7 +40,6 @@ gensrcs_rt() {
 
 rt() {
 	# This one is complicated, don't use it as a reference for other modules
-	printf '# rt\n'
 	if [ $testing -eq 0 ]
 	then
 		printf '%s\n' 'rtscript=$(STDLIB)/rt/hare.sc'
@@ -100,7 +99,6 @@ EOF
 }
 
 ascii() {
-	printf '# ascii\n'
 	gen_srcs ascii \
 		ctype.ha \
 		strcmp.ha
@@ -108,7 +106,6 @@ ascii() {
 }
 
 bufio() {
-	printf '# bufio\n'
 	gen_srcs bufio \
 		buffered.ha \
 		dynamic.ha \
@@ -118,7 +115,6 @@ bufio() {
 }
 
 bytes() {
-	printf '# bytes\n'
 	gen_srcs bytes \
 		contains.ha \
 		copy.ha \
@@ -130,14 +126,12 @@ bytes() {
 }
 
 crypto_math() {
-	printf '# crypto::math\n'
 	gen_srcs crypto::math \
 		bits.ha
 	gen_ssa crypto::math
 }
 
 crypto_random() {
-	printf '# crypto::random\n'
 	gen_srcs crypto::random \
 		'$(PLATFORM).ha' \
 		random.ha
@@ -155,7 +149,6 @@ genssa_crypto_sha256() {
 }
 
 crypto_sha256() {
-	printf '# crypto::sha256\n'
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_crypto_sha256
@@ -168,7 +161,6 @@ crypto_sha256() {
 }
 
 crypto_sha1() {
-	printf '# crypto::sha1\n'
 	if [ $testing -eq 0 ]
 	then
 		gen_srcs crypto::sha1 sha1.ha
@@ -180,7 +172,6 @@ crypto_sha1() {
 }
 
 crypto_sha512() {
-	printf '# crypto::sha512\n'
 	if [ $testing -eq 0 ]
 	then
 		gen_srcs crypto::sha512 sha512.ha
@@ -192,21 +183,18 @@ crypto_sha512() {
 }
 
 dirs() {
-	printf '# dirs\n'
 	gen_srcs dirs \
 		xdg.ha
 	gen_ssa dirs fs os path
 }
 
 encoding_hex() {
-	printf '# encoding::hex\n'
 	gen_srcs encoding::hex \
 		hex.ha
 	gen_ssa encoding::hex ascii bytes fmt io strconv strio strings
 }
 
 encoding_utf8() {
-	printf '# encoding::utf8\n'
 	gen_srcs encoding::utf8 \
 		decode.ha \
 		encode.ha \
@@ -215,7 +203,6 @@ encoding_utf8() {
 }
 
 endian() {
-	printf '# endian\n'
 	gen_srcs endian \
 		big.ha \
 		network.ha \
@@ -226,21 +213,18 @@ endian() {
 }
 
 fmt() {
-	printf '# fmt\n'
 	gen_srcs fmt \
 		fmt.ha
 	gen_ssa fmt bufio io os strconv strings types
 }
 
 format_elf() {
-	printf '# format::elf\n'
 	gen_srcs format::elf \
 		types.ha
 	gen_ssa format::elf
 }
 
 fs() {
-	printf '# fs\n'
 	gen_srcs fs \
 		types.ha \
 		fs.ha \
@@ -249,14 +233,12 @@ fs() {
 }
 
 getopt() {
-	printf '# getopt\n'
 	gen_srcs getopt \
 		getopts.ha
 	gen_ssa getopt encoding::utf8 fmt io os strings
 }
 
 hare_ast() {
-	printf '# hare::ast\n'
 	gen_srcs hare::ast \
 		decl.ha \
 		expr.ha \
@@ -268,7 +250,6 @@ hare_ast() {
 }
 
 hare_unparse() {
-	printf '# hare::unparse\n'
 	gen_srcs hare::unparse \
 		expr.ha \
 		decl.ha \
@@ -288,7 +269,6 @@ gensrcs_hare_lex() {
 }
 
 hare_lex() {
-	printf '# hare::lex\n'
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_hare_lex
@@ -300,7 +280,6 @@ hare_lex() {
 }
 
 hare_module() {
-	printf '# hare::module\n'
 	gen_srcs hare::module \
 		types.ha \
 		context.ha \
@@ -326,7 +305,6 @@ gensrcs_hare_parse() {
 }
 
 hare_parse() {
-	printf '# hare::parse\n'
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_hare_parse
@@ -340,21 +318,18 @@ hare_parse() {
 }
 
 hash() {
-	printf '# hash\n'
 	gen_srcs hash \
 		hash.ha
 	gen_ssa hash io
 }
 
 hash_adler32() {
-	printf '# hash::adler32\n'
 	gen_srcs hash::adler32 \
 		adler32.ha
 	gen_ssa hash::adler32 endian hash io strings
 }
 
 hash_fnv() {
-	printf '# hash::fnv\n'
 	gen_srcs hash::fnv \
 		fnv.ha
 	gen_ssa hash::fnv hash io strings
@@ -373,7 +348,6 @@ gensrcs_io() {
 }
 
 io() {
-	printf '# io\n'
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_io
@@ -387,7 +361,6 @@ io() {
 }
 
 linux() {
-	printf '# linux\n'
 	gen_srcs linux \
 		start.ha \
 		env.ha
@@ -395,7 +368,6 @@ linux() {
 }
 
 linux_vdso() {
-	printf '# linux::vdso\n'
 	gen_srcs linux::vdso \
 		vdso.ha
 	gen_ssa linux::vdso linux strings format::elf
@@ -409,7 +381,6 @@ gensrcs_net_ip() {
 }
 
 net_ip() {
-	printf '# net::ip\n'
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_net_ip
@@ -421,14 +392,12 @@ net_ip() {
 }
 
 math_random() {
-	printf '# math::random\n'
 	gen_srcs math::random \
 		random.ha
 	gen_ssa math::random
 }
 
 os() {
-	printf '# os\n'
 	gen_srcs os \
 		'$(PLATFORM)/environ.ha' \
 		'$(PLATFORM)/errors.ha' \
@@ -444,7 +413,6 @@ os() {
 }
 
 os_exec() {
-	printf '# os::exec\n'
 	gen_srcs os::exec \
 		'$(PLATFORM).ha' \
 		'exec$(PLATFORM).ha' \
@@ -455,7 +423,6 @@ os_exec() {
 }
 
 path() {
-	printf '# path\n'
 	gen_srcs path \
 		'$(PLATFORM).ha' \
 		util.ha \
@@ -477,7 +444,6 @@ gensrcs_strconv() {
 }
 
 slice() {
-	printf '# slice\n'
 	gen_srcs slice \
 		reverse.ha
 	gen_ssa slice
@@ -490,7 +456,6 @@ gensrcs_sort() {
 }
 
 sort() {
-	printf '# sort\n'
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_sort
@@ -502,7 +467,6 @@ sort() {
 }
 
 strconv() {
-	printf '# strconv\n'
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_strconv
@@ -515,7 +479,6 @@ strconv() {
 }
 
 strings() {
-	printf '# strings\n'
 	gen_srcs strings \
 		concat.ha \
 		contains.ha \
@@ -531,7 +494,6 @@ strings() {
 }
 
 strio() {
-	printf '# strio\n'
 	gen_srcs strio \
 		dynamic.ha \
 		fixed.ha \
@@ -540,7 +502,6 @@ strio() {
 }
 
 time() {
-	printf '# time\n'
 	gen_srcs time \
 		'$(PLATFORM)/functions.ha' \
 		'$(PLATFORM)/$(ARCH).ha' \
@@ -549,14 +510,12 @@ time() {
 }
 
 temp() {
-	printf '# temp\n'
 	gen_srcs temp \
 		'$(PLATFORM).ha'
 	gen_ssa temp crypto::random encoding::hex fs io os path strio
 }
 
 types() {
-	printf '# types\n'
 	gen_srcs types \
 		limits.ha \
 		classes.ha \
@@ -565,7 +524,6 @@ types() {
 }
 
 unicode() {
-	printf '# unicode\n'
 	gen_srcs unicode \
 		properties.ha \
 		unicode.ha
@@ -573,14 +531,12 @@ unicode() {
 }
 
 unix_passwd() {
-	printf '# unix::passwd\n'
 	gen_srcs unix::passwd \
 		passwd.ha
 	gen_ssa unix::passwd bufio io os strconv strings
 }
 
 uuid() {
-	printf '# uuid\n'
 	gen_srcs uuid \
 		uuid.ha
 	gen_ssa uuid crypto::random strio fmt endian io bytes
