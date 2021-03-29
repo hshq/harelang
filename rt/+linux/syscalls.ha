@@ -521,3 +521,8 @@ export fn getsockname(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *
 		sockfd: u64, addr: uintptr: u64, addrlen: uintptr: u64))?: int;
 };
 
+export fn getpeername(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) (int | errno) = {
+	return wrap_return(syscall3(SYS_getpeername,
+		sockfd: u64, addr: uintptr: u64, addrlen: uintptr: u64))?: int;
+};
+
