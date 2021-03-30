@@ -131,6 +131,20 @@ compress_flate() {
 	gen_ssa compress::flate bufio bytes endian errors io fmt
 }
 
+compress_zlib() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs compress::zlib \
+			reader.ha
+	else
+		gen_srcs compress::zlib \
+			data+test.ha \
+			reader.ha
+	fi
+	gen_ssa compress::zlib bufio bytes compress::flate endian errors hash \
+		hash::adler32 io
+}
+
 crypto_math() {
 	gen_srcs crypto::math \
 		bits.ha
@@ -614,6 +628,7 @@ modules="ascii
 bufio
 bytes
 compress_flate
+compress_zlib
 crypto_math
 crypto_random
 crypto_md5

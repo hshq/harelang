@@ -81,6 +81,9 @@ hare_stdlib_deps+=$(stdlib_bytes)
 stdlib_compress_flate=$(HARECACHE)/compress/flate/compress_flate.o
 hare_stdlib_deps+=$(stdlib_compress_flate)
 
+stdlib_compress_zlib=$(HARECACHE)/compress/zlib/compress_zlib.o
+hare_stdlib_deps+=$(stdlib_compress_zlib)
+
 stdlib_crypto_math=$(HARECACHE)/crypto/math/crypto_math.o
 hare_stdlib_deps+=$(stdlib_crypto_math)
 
@@ -267,6 +270,16 @@ $(HARECACHE)/compress/flate/compress_flate.ssa: $(stdlib_compress_flate_srcs) $(
 	@mkdir -p $(HARECACHE)/compress/flate
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncompress::flate \
 		-t$(HARECACHE)/compress/flate/compress_flate.td $(stdlib_compress_flate_srcs)
+
+# compress::zlib
+stdlib_compress_zlib_srcs= \
+	$(STDLIB)/compress/zlib/reader.ha
+
+$(HARECACHE)/compress/zlib/compress_zlib.ssa: $(stdlib_compress_zlib_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_bytes) $(stdlib_compress_flate) $(stdlib_endian) $(stdlib_errors) $(stdlib_hash) $(stdlib_hash_adler32) $(stdlib_io)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/compress/zlib
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncompress::zlib \
+		-t$(HARECACHE)/compress/zlib/compress_zlib.td $(stdlib_compress_zlib_srcs)
 
 # crypto::math
 stdlib_crypto_math_srcs= \
@@ -907,6 +920,9 @@ hare_testlib_deps+=$(testlib_bytes)
 testlib_compress_flate=$(TESTCACHE)/compress/flate/compress_flate.o
 hare_testlib_deps+=$(testlib_compress_flate)
 
+testlib_compress_zlib=$(TESTCACHE)/compress/zlib/compress_zlib.o
+hare_testlib_deps+=$(testlib_compress_zlib)
+
 testlib_crypto_math=$(TESTCACHE)/crypto/math/crypto_math.o
 hare_testlib_deps+=$(testlib_crypto_math)
 
@@ -1093,6 +1109,17 @@ $(TESTCACHE)/compress/flate/compress_flate.ssa: $(testlib_compress_flate_srcs) $
 	@mkdir -p $(TESTCACHE)/compress/flate
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncompress::flate \
 		-t$(TESTCACHE)/compress/flate/compress_flate.td $(testlib_compress_flate_srcs)
+
+# compress::zlib
+testlib_compress_zlib_srcs= \
+	$(STDLIB)/compress/zlib/data+test.ha \
+	$(STDLIB)/compress/zlib/reader.ha
+
+$(TESTCACHE)/compress/zlib/compress_zlib.ssa: $(testlib_compress_zlib_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_bytes) $(testlib_compress_flate) $(testlib_endian) $(testlib_errors) $(testlib_hash) $(testlib_hash_adler32) $(testlib_io)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/compress/zlib
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncompress::zlib \
+		-t$(TESTCACHE)/compress/zlib/compress_zlib.td $(testlib_compress_zlib_srcs)
 
 # crypto::math
 testlib_crypto_math_srcs= \
