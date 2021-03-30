@@ -30,7 +30,7 @@ export type sockaddr_in6 = struct {
 export def UNIX_PATH_MAX: int = 108;
 
 export type sockaddr_un = struct {
-	sin_family: sa_family_t,
+	sun_family: sa_family_t,
 	sun_path: [UNIX_PATH_MAX]char,
 };
 

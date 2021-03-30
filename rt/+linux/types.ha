@@ -519,3 +519,35 @@ export type signalfd_siginfo = struct {
 
 	__pad: [28]u8, // pad to 128 bytes
 };
+
+export type iovec = struct {
+	iov_base: *void,
+	iov_len: size
+};
+
+export def SCM_RIGHTS: int = 0x01;
+export def SCM_CREDENTIALS: int = 0x02;
+
+export type msghdr = struct {
+	msg_name: nullable *void,
+	msg_namelen: u32,
+
+	msg_iov: *[*]iovec,
+	msg_iovlen: size,
+
+	msg_control: *void,
+	msg_controllen: size,
+
+	msg_flags: int
+};
+
+export type cmsghdr = struct {
+	cmsg_len: size,
+	cmsg_level: int,
+	cmsg_type: int,
+};
+
+export type cmsg = struct {
+	hdr: cmsghdr,
+	cmsg_data: [*]u8,
+};

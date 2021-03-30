@@ -526,3 +526,22 @@ export fn getpeername(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *
 		sockfd: u64, addr: uintptr: u64, addrlen: uintptr: u64))?: int;
 };
 
+export fn readv(fd: int, iov: *const iovec, iovcnt: int) (int | errno) = {
+	return wrap_return(syscall3(SYS_readv,
+		fd: u64, iov: uintptr: u64, iovcnt: u64))?: int;
+};
+
+export fn writev(fd: int, iov: *const iovec, iovcnt: int) (int | errno) = {
+	return wrap_return(syscall3(SYS_writev,
+		fd: u64, iov: uintptr: u64, iovcnt: u64))?: int;
+};
+
+export fn sendmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
+	return wrap_return(syscall3(SYS_sendmsg,
+		fd: u64, msg: uintptr: u64, flags: u64))?: int;
+};
+
+export fn recvmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
+	return wrap_return(syscall3(SYS_recvmsg,
+		fd: u64, msg: uintptr: u64, flags: u64))?: int;
+};
