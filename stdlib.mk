@@ -78,6 +78,9 @@ hare_stdlib_deps+=$(stdlib_bufio)
 stdlib_bytes=$(HARECACHE)/bytes/bytes.o
 hare_stdlib_deps+=$(stdlib_bytes)
 
+stdlib_compress_flate=$(HARECACHE)/compress/flate/compress_flate.o
+hare_stdlib_deps+=$(stdlib_compress_flate)
+
 stdlib_crypto_math=$(HARECACHE)/crypto/math/crypto_math.o
 hare_stdlib_deps+=$(stdlib_crypto_math)
 
@@ -254,6 +257,16 @@ $(HARECACHE)/bytes/bytes.ssa: $(stdlib_bytes_srcs) $(stdlib_rt) $(stdlib_types)
 	@mkdir -p $(HARECACHE)/bytes
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbytes \
 		-t$(HARECACHE)/bytes/bytes.td $(stdlib_bytes_srcs)
+
+# compress::flate
+stdlib_compress_flate_srcs= \
+	$(STDLIB)/compress/flate/inflate.ha
+
+$(HARECACHE)/compress/flate/compress_flate.ssa: $(stdlib_compress_flate_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_bytes) $(stdlib_endian) $(stdlib_errors) $(stdlib_io) $(stdlib_fmt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/compress/flate
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncompress::flate \
+		-t$(HARECACHE)/compress/flate/compress_flate.td $(stdlib_compress_flate_srcs)
 
 # crypto::math
 stdlib_crypto_math_srcs= \
@@ -891,6 +904,9 @@ hare_testlib_deps+=$(testlib_bufio)
 testlib_bytes=$(TESTCACHE)/bytes/bytes.o
 hare_testlib_deps+=$(testlib_bytes)
 
+testlib_compress_flate=$(TESTCACHE)/compress/flate/compress_flate.o
+hare_testlib_deps+=$(testlib_compress_flate)
+
 testlib_crypto_math=$(TESTCACHE)/crypto/math/crypto_math.o
 hare_testlib_deps+=$(testlib_crypto_math)
 
@@ -1067,6 +1083,16 @@ $(TESTCACHE)/bytes/bytes.ssa: $(testlib_bytes_srcs) $(testlib_rt) $(testlib_type
 	@mkdir -p $(TESTCACHE)/bytes
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbytes \
 		-t$(TESTCACHE)/bytes/bytes.td $(testlib_bytes_srcs)
+
+# compress::flate
+testlib_compress_flate_srcs= \
+	$(STDLIB)/compress/flate/inflate.ha
+
+$(TESTCACHE)/compress/flate/compress_flate.ssa: $(testlib_compress_flate_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_bytes) $(testlib_endian) $(testlib_errors) $(testlib_io) $(testlib_fmt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/compress/flate
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncompress::flate \
+		-t$(TESTCACHE)/compress/flate/compress_flate.td $(testlib_compress_flate_srcs)
 
 # crypto::math
 testlib_crypto_math_srcs= \
