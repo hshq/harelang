@@ -520,7 +520,7 @@ stdlib_net_ip_srcs= \
 	$(STDLIB)/net/ip/ip.ha \
 	$(STDLIB)/net/ip/$(PLATFORM).ha
 
-$(HARECACHE)/net/ip/net_ip.ssa: $(stdlib_net_ip_srcs) $(stdlib_rt) $(stdlib_bytes) $(stdlib_io) $(stdlib_strconv) $(stdlib_strings) $(stdlib_strio)
+$(HARECACHE)/net/ip/net_ip.ssa: $(stdlib_net_ip_srcs) $(stdlib_rt) $(stdlib_bytes) $(stdlib_io) $(stdlib_strconv) $(stdlib_strings) $(stdlib_strio) $(stdlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/ip
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::ip \
@@ -1246,7 +1246,7 @@ testlib_net_ip_srcs= \
 	$(STDLIB)/net/ip/$(PLATFORM).ha \
 	$(STDLIB)/net/ip/+test.ha
 
-$(TESTCACHE)/net/ip/net_ip.ssa: $(testlib_net_ip_srcs) $(testlib_rt) $(testlib_bytes) $(testlib_io) $(testlib_strconv) $(testlib_strings) $(testlib_strio)
+$(TESTCACHE)/net/ip/net_ip.ssa: $(testlib_net_ip_srcs) $(testlib_rt) $(testlib_bytes) $(testlib_io) $(testlib_strconv) $(testlib_strings) $(testlib_strio) $(testlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/ip
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \

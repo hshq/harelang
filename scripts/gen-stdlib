@@ -388,7 +388,7 @@ net_ip() {
 		gensrcs_net_ip \
 			+test.ha
 	fi
-	gen_ssa net::ip bytes io strconv strings strio
+	gen_ssa net::ip bytes io strconv strings strio fmt
 }
 
 math_random() {
