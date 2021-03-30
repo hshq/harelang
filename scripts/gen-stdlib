@@ -373,6 +373,13 @@ linux_vdso() {
 	gen_ssa linux::vdso linux strings format::elf
 }
 
+net() {
+	printf '# net\n'
+	gen_srcs net \
+		socket.ha
+	gen_ssa net io os strings net::ip
+}
+
 gensrcs_net_ip() {
 	gen_srcs net::ip \
 		ip.ha \
@@ -571,6 +578,7 @@ hash_fnv
 io
 linux
 linux_vdso
+net
 net_ip
 math_random
 os

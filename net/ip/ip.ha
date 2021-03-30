@@ -21,6 +21,14 @@ export type subnet = struct {
 	mask: addr,
 };
 
+// An IPv4 address which represents "any" address, i.e. "0.0.0.0". Binding to
+// this address will listen on all available IPv4 interfaces on most systems.
+export const ANY_V4: addr4 = [0, 0, 0, 0];
+
+// An IPv6 address which represents "any" address, i.e. "::". Binding to this
+// address will listen on all available IPv6 interfaces on most systems.
+export const ANY_V6: addr6 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
 // Invalid parse result.
 export type invalid = void!;
 

@@ -150,6 +150,9 @@ hare_stdlib_deps+=$(stdlib_linux)
 stdlib_linux_vdso=$(HARECACHE)/linux/vdso/linux_vdso.o
 hare_stdlib_deps+=$(stdlib_linux_vdso)
 
+stdlib_net=$(HARECACHE)/net/net.o
+hare_stdlib_deps+=$(stdlib_net)
+
 stdlib_net_ip=$(HARECACHE)/net/ip/net_ip.o
 hare_stdlib_deps+=$(stdlib_net_ip)
 
@@ -515,6 +518,17 @@ $(HARECACHE)/linux/vdso/linux_vdso.ssa: $(stdlib_linux_vdso_srcs) $(stdlib_rt) $
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::vdso \
 		-t$(HARECACHE)/linux/vdso/linux_vdso.td $(stdlib_linux_vdso_srcs)
 
+# net
+# net
+stdlib_net_srcs= \
+	$(STDLIB)/net/socket.ha
+
+$(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_os) $(stdlib_strings) $(stdlib_net_ip)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/net
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
+		-t$(HARECACHE)/net/net.td $(stdlib_net_srcs)
+
 # net::ip
 stdlib_net_ip_srcs= \
 	$(STDLIB)/net/ip/ip.ha \
@@ -866,6 +880,9 @@ hare_testlib_deps+=$(testlib_linux)
 
 testlib_linux_vdso=$(TESTCACHE)/linux/vdso/linux_vdso.o
 hare_testlib_deps+=$(testlib_linux_vdso)
+
+testlib_net=$(TESTCACHE)/net/net.o
+hare_testlib_deps+=$(testlib_net)
 
 testlib_net_ip=$(TESTCACHE)/net/ip/net_ip.o
 hare_testlib_deps+=$(testlib_net_ip)
@@ -1239,6 +1256,17 @@ $(TESTCACHE)/linux/vdso/linux_vdso.ssa: $(testlib_linux_vdso_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/linux/vdso
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::vdso \
 		-t$(TESTCACHE)/linux/vdso/linux_vdso.td $(testlib_linux_vdso_srcs)
+
+# net
+# net
+testlib_net_srcs= \
+	$(STDLIB)/net/socket.ha
+
+$(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(testlib_os) $(testlib_strings) $(testlib_net_ip)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
+		-t$(TESTCACHE)/net/net.td $(testlib_net_srcs)
 
 # net::ip
 testlib_net_ip_srcs= \
