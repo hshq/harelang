@@ -611,7 +611,8 @@ $(HARECACHE)/slice/slice.ssa: $(stdlib_slice_srcs) $(stdlib_rt)
 
 # sort
 stdlib_sort_srcs= \
-	$(STDLIB)/sort/search.ha
+	$(STDLIB)/sort/search.ha \
+	$(STDLIB)/sort/sort.ha
 
 $(HARECACHE)/sort/sort.ssa: $(stdlib_sort_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -1354,6 +1355,7 @@ $(TESTCACHE)/slice/slice.ssa: $(testlib_slice_srcs) $(testlib_rt)
 # sort
 testlib_sort_srcs= \
 	$(STDLIB)/sort/search.ha \
+	$(STDLIB)/sort/sort.ha \
 	$(STDLIB)/sort/+test.ha
 
 $(TESTCACHE)/sort/sort.ssa: $(testlib_sort_srcs) $(testlib_rt)

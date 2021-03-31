@@ -461,6 +461,7 @@ slice() {
 gensrcs_sort() {
 	gen_srcs sort \
 		search.ha \
+		sort.ha \
 		$*
 }
 
