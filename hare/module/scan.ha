@@ -10,6 +10,7 @@ use hash;
 use io;
 use path;
 use slice;
+use sort;
 use strings;
 use strio;
 
@@ -82,6 +83,12 @@ fn parse_name(name: str) (str, str, []tag) = {
 	return (base, ext, tags);
 };
 
+fn strcmp(a: const *void, b: const *void) int = {
+	const a = *(a: const *str);
+	const b = *(b: const *str);
+	return ascii::strcmp(a, b) as int;
+};
+
 fn scan_directory(
 	ctx: *context,
 	ver: *version,
@@ -115,9 +122,10 @@ fn scan_directory(
 		};
 	};
 
-	// TODO:
-	// - sort entries (for a consistent module hash)
-	// - filter out less specific tag sets for a given basename
+	sort::sort(dirs, size(str), &strcmp);
+	sort::sort(files, size(str), &strcmp);
+
+	// TODO: filter out less specific tag sets for a given basename
 	for (let i = 0z; i < len(dirs); i += 1) {
 		let name = dirs[i];
 		let tags = parse_name(name).2;
