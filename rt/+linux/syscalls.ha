@@ -545,3 +545,7 @@ export fn recvmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
 	return wrap_return(syscall3(SYS_recvmsg,
 		fd: u64, msg: uintptr: u64, flags: u64))?: int;
 };
+
+export fn umask(mode: mode_t) (mode_t | errno) = {
+	return wrap_return(syscall1(SYS_umask, mode: u64))?: mode_t;
+};
