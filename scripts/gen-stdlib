@@ -376,6 +376,7 @@ linux_vdso() {
 net() {
 	printf '# net\n'
 	gen_srcs net \
+		'$(PLATFORM).ha' \
 		socket.ha
 	gen_ssa net io os strings net::ip
 }

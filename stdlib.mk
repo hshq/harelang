@@ -521,6 +521,7 @@ $(HARECACHE)/linux/vdso/linux_vdso.ssa: $(stdlib_linux_vdso_srcs) $(stdlib_rt) $
 # net
 # net
 stdlib_net_srcs= \
+	$(STDLIB)/net/$(PLATFORM).ha \
 	$(STDLIB)/net/socket.ha
 
 $(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_os) $(stdlib_strings) $(stdlib_net_ip)
@@ -1260,6 +1261,7 @@ $(TESTCACHE)/linux/vdso/linux_vdso.ssa: $(testlib_linux_vdso_srcs) $(testlib_rt)
 # net
 # net
 testlib_net_srcs= \
+	$(STDLIB)/net/$(PLATFORM).ha \
 	$(STDLIB)/net/socket.ha
 
 $(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(testlib_os) $(testlib_strings) $(testlib_net_ip)
