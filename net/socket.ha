@@ -1,3 +1,5 @@
+use io;
+
 // Enables keep-alive for a socket.
 export type keepalive = void;
 
@@ -18,7 +20,10 @@ export type portassignment = *u16;
 
 // A listener binds a socket on the system and listens for incoming traffic for
 // some specific protocol.
-export type listener = int;
+export type listener = struct {
+	accept: nullable *fn(l: *listener) (*io::stream | io::error),
+	shutdown: nullable *fn(l: *listener) void,
+};
 
 // Options for [listen].
 export type listen_option = (
@@ -31,3 +36,19 @@ export type listen_option = (
 // Options for [connect].
 export type connect_option = keepalive;
 
+// Accepts the next connection from a listener. Blocks until a new connection is
+// available.
+export fn accept(l: *listener) (*io::stream | io::error) = {
+	return match (l.accept) {
+		f: *fn(l: *listener) (*io::stream | io::error) => f(l),
+		null => io::unsupported,
+	};
+};
+
+// Shuts down a [listener] and frees resources associated with it.
+export fn shutdown(l: *listener) void = {
+	match (l.shutdown) {
+		f: *fn(l: *listener) void => f(l),
+		null => void,
+	};
+};
