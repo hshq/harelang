@@ -28,5 +28,3 @@
 //
 // The present implementation of this module conforms to Unicode 13.0.0, which
 // was released on March 11th, 2020.
-
-def x: int = 0; // TEMP
