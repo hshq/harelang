@@ -27,7 +27,7 @@ export type sockaddr_in6 = struct {
 	sin6_scope_id: u32,
 };
 
-export def UNIX_PATH_MAX: int = 108;
+export def UNIX_PATH_MAX: size = 108;
 
 export type sockaddr_un = struct {
 	sun_family: sa_family_t,
