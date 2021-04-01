@@ -9,8 +9,7 @@ export fn i64tosb(i: i64, b: base) const str = {
 	static assert(types::I64_MAX == 9223372036854775807);
 	if (i >= 0) return u64tosb(i: u64, b);
 
-	static let buf: [66]u8 = [0...]; // 64 binary digits plus NUL and -
-	buf = [0...];
+	static let buf: [65]u8 = [0...]; // 64 binary digits plus -
 
 	let s = types::string { data = &buf, ... };
 
@@ -18,7 +17,7 @@ export fn i64tosb(i: i64, b: base) const str = {
 	s.length = 1;
 
 	let u = strings::toutf8(u64tosb((-i): u64, b));
-	assert(len(u) + 1 < len(buf));
+	assert(len(u) < len(buf));
 
 	bytes::copy(buf[1..len(u) + 1], u);
 	s.length += len(u);

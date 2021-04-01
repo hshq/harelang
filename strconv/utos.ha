@@ -6,8 +6,7 @@ use types;
 // duplicate the result.
 export fn u64tosb(u: u64, b: base) const str = {
 	static assert(types::U64_MAX == 18446744073709551615);
-	static let buf: [65]u8 = [0...]; // 64 binary digits plus NUL
-	buf = [0...];
+	static let buf: [64]u8 = [0...]; // 64 binary digits
 
 	static const lut_upper = [
 		'0', '1', '2', '3', '4', '5', '6', '7',
@@ -34,7 +33,6 @@ export fn u64tosb(u: u64, b: base) const str = {
 	};
 
 	bytes::reverse(buf[..s.length]);
-	buf[s.length] = 0;
 	return *(&s: *str);
 };
 
