@@ -601,9 +601,10 @@ $(HARECACHE)/path/path.ssa: $(stdlib_path_srcs) $(stdlib_rt) $(stdlib_strings) $
 
 # slice
 stdlib_slice_srcs= \
-	$(STDLIB)/slice/reverse.ha
+	$(STDLIB)/slice/reverse.ha \
+	$(STDLIB)/slice/void.ha
 
-$(HARECACHE)/slice/slice.ssa: $(stdlib_slice_srcs) $(stdlib_rt)
+$(HARECACHE)/slice/slice.ssa: $(stdlib_slice_srcs) $(stdlib_rt) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/slice
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nslice \
@@ -1344,9 +1345,10 @@ $(TESTCACHE)/path/path.ssa: $(testlib_path_srcs) $(testlib_rt) $(testlib_strings
 
 # slice
 testlib_slice_srcs= \
-	$(STDLIB)/slice/reverse.ha
+	$(STDLIB)/slice/reverse.ha \
+	$(STDLIB)/slice/void.ha
 
-$(TESTCACHE)/slice/slice.ssa: $(testlib_slice_srcs) $(testlib_rt)
+$(TESTCACHE)/slice/slice.ssa: $(testlib_slice_srcs) $(testlib_rt) $(testlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/slice
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nslice \

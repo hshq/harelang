@@ -1,5 +1,5 @@
 export type slice = struct {
-	data: *void,
+	data: nullable *void,
 	length: size,
 	capacity: size,
 };

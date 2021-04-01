@@ -454,8 +454,9 @@ gensrcs_strconv() {
 
 slice() {
 	gen_srcs slice \
-		reverse.ha
-	gen_ssa slice
+		reverse.ha \
+		void.ha
+	gen_ssa slice types
 }
 
 gensrcs_sort() {
