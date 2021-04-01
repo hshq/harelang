@@ -7,12 +7,14 @@ use rt;
 export fn println(msgs: str...) void = {
 	for (let i = 0z; i < len(msgs); i += 1) {
 		let msg = msgs[i];
-		rt::write(1, msg: *const char, len(msg));
+		rt::write(1, *(&msg: **void): *const char, len(msg));
 		if (i + 1 < len(msgs)) {
-			rt::write(1, " ": *const char, 1);
+			const sp = " ";
+			rt::write(1, *(&sp: **void): *const char, 1);
 		};
 	};
-	rt::write(1, "\n": *const char, 1);
+	const linefeed = "\n";
+	rt::write(2, *(&linefeed: **void): *const char, 1);
 };
 
 // Prints strings to stderr, separated by spaces, and followed by a newline.
@@ -22,10 +24,12 @@ export fn println(msgs: str...) void = {
 export fn errorln(msgs: str...) void = {
 	for (let i = 0z; i < len(msgs); i += 1) {
 		let msg = msgs[i];
-		rt::write(2, msg: *const char, len(msg));
+		rt::write(2, *(&msg: **void): *const char, len(msg));
 		if (i + 1 < len(msgs)) {
-			rt::write(2, " ": *const char, 1);
+			const sp = " ";
+			rt::write(2, *(&sp: **void): *const char, 1);
 		};
 	};
-	rt::write(2, "\n": *const char, 1);
+	const linefeed = "\n";
+	rt::write(2, *(&linefeed: **void): *const char, 1);
 };
