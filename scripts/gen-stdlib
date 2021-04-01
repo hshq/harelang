@@ -400,6 +400,14 @@ net_ip() {
 	gen_ssa net::ip bytes io strconv strings strio fmt
 }
 
+net_unix() {
+	printf '# net::unix\n'
+	gen_srcs net::unix \
+		addr.ha \
+		'$(PLATFORM).ha'
+	gen_ssa net::unix strings
+}
+
 math_random() {
 	gen_srcs math::random \
 		random.ha
@@ -584,6 +592,7 @@ linux
 linux_vdso
 net
 net_ip
+net_unix
 math_random
 os
 os_exec

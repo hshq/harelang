@@ -156,6 +156,9 @@ hare_stdlib_deps+=$(stdlib_net)
 stdlib_net_ip=$(HARECACHE)/net/ip/net_ip.o
 hare_stdlib_deps+=$(stdlib_net_ip)
 
+stdlib_net_unix=$(HARECACHE)/net/unix/net_unix.o
+hare_stdlib_deps+=$(stdlib_net_unix)
+
 stdlib_math_random=$(HARECACHE)/math/random/math_random.o
 hare_stdlib_deps+=$(stdlib_math_random)
 
@@ -542,6 +545,18 @@ $(HARECACHE)/net/ip/net_ip.ssa: $(stdlib_net_ip_srcs) $(stdlib_rt) $(stdlib_byte
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::ip \
 		-t$(HARECACHE)/net/ip/net_ip.td $(stdlib_net_ip_srcs)
 
+# net::unix
+# net::unix
+stdlib_net_unix_srcs= \
+	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/$(PLATFORM).ha
+
+$(HARECACHE)/net/unix/net_unix.ssa: $(stdlib_net_unix_srcs) $(stdlib_rt) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/net/unix
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::unix \
+		-t$(HARECACHE)/net/unix/net_unix.td $(stdlib_net_unix_srcs)
+
 # math::random
 stdlib_math_random_srcs= \
 	$(STDLIB)/math/random/random.ha
@@ -890,6 +905,9 @@ hare_testlib_deps+=$(testlib_net)
 
 testlib_net_ip=$(TESTCACHE)/net/ip/net_ip.o
 hare_testlib_deps+=$(testlib_net_ip)
+
+testlib_net_unix=$(TESTCACHE)/net/unix/net_unix.o
+hare_testlib_deps+=$(testlib_net_unix)
 
 testlib_math_random=$(TESTCACHE)/math/random/math_random.o
 hare_testlib_deps+=$(testlib_math_random)
@@ -1285,6 +1303,18 @@ $(TESTCACHE)/net/ip/net_ip.ssa: $(testlib_net_ip_srcs) $(testlib_rt) $(testlib_b
 	@mkdir -p $(TESTCACHE)/net/ip
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \
 		-t$(TESTCACHE)/net/ip/net_ip.td $(testlib_net_ip_srcs)
+
+# net::unix
+# net::unix
+testlib_net_unix_srcs= \
+	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/$(PLATFORM).ha
+
+$(TESTCACHE)/net/unix/net_unix.ssa: $(testlib_net_unix_srcs) $(testlib_rt) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/unix
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \
+		-t$(TESTCACHE)/net/unix/net_unix.td $(testlib_net_unix_srcs)
 
 # math::random
 testlib_math_random_srcs= \
