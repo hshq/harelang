@@ -195,6 +195,14 @@ fn sched_hare_object(
 			append(harec.cmd, "-D", plan.context.defines[i]);
 		};
 
+		// XXX: This is kind of hacky too
+		for (let i = 0z; i < len(plan.context.tags); i += 1) {
+			if (plan.context.tags[i].mode == module::tag_mode::INCLUSIVE) {
+				append(harec.cmd, "-T", strings::concat("+",
+					plan.context.tags[i].name));
+			};
+		};
+
 		mkfile(plan, "o"); // TODO: Should exes go in the cache?
 	};
 
