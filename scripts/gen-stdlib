@@ -182,6 +182,17 @@ crypto_sha512() {
 	fi
 }
 
+crypto_md5() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::md5 md5.ha
+		gen_ssa crypto::md5 hash io endian
+	else
+		gen_srcs crypto::md5 md5.ha +test.ha
+		gen_ssa crypto::md5 hash io endian fmt strio strings
+	fi
+}
+
 dirs() {
 	gen_srcs dirs \
 		xdg.ha
@@ -568,6 +579,7 @@ bufio
 bytes
 crypto_math
 crypto_random
+crypto_md5
 crypto_sha1
 crypto_sha256
 crypto_sha512

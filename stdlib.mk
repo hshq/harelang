@@ -84,6 +84,9 @@ hare_stdlib_deps+=$(stdlib_crypto_math)
 stdlib_crypto_random=$(HARECACHE)/crypto/random/crypto_random.o
 hare_stdlib_deps+=$(stdlib_crypto_random)
 
+stdlib_crypto_md5=$(HARECACHE)/crypto/md5/crypto_md5.o
+hare_stdlib_deps+=$(stdlib_crypto_md5)
+
 stdlib_crypto_sha1=$(HARECACHE)/crypto/sha1/crypto_sha1.o
 hare_stdlib_deps+=$(stdlib_crypto_sha1)
 
@@ -263,6 +266,16 @@ $(HARECACHE)/crypto/random/crypto_random.ssa: $(stdlib_crypto_random_srcs) $(std
 	@mkdir -p $(HARECACHE)/crypto/random
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(HARECACHE)/crypto/random/crypto_random.td $(stdlib_crypto_random_srcs)
+
+# crypto::md5
+stdlib_crypto_md5_srcs= \
+	$(STDLIB)/crypto/md5/md5.ha
+
+$(HARECACHE)/crypto/md5/crypto_md5.ssa: $(stdlib_crypto_md5_srcs) $(stdlib_rt) $(stdlib_hash) $(stdlib_io) $(stdlib_endian)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/md5
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::md5 \
+		-t$(HARECACHE)/crypto/md5/crypto_md5.td $(stdlib_crypto_md5_srcs)
 
 # crypto::sha1
 stdlib_crypto_sha1_srcs= \
@@ -834,6 +847,9 @@ hare_testlib_deps+=$(testlib_crypto_math)
 testlib_crypto_random=$(TESTCACHE)/crypto/random/crypto_random.o
 hare_testlib_deps+=$(testlib_crypto_random)
 
+testlib_crypto_md5=$(TESTCACHE)/crypto/md5/crypto_md5.o
+hare_testlib_deps+=$(testlib_crypto_md5)
+
 testlib_crypto_sha1=$(TESTCACHE)/crypto/sha1/crypto_sha1.o
 hare_testlib_deps+=$(testlib_crypto_sha1)
 
@@ -1013,6 +1029,17 @@ $(TESTCACHE)/crypto/random/crypto_random.ssa: $(testlib_crypto_random_srcs) $(te
 	@mkdir -p $(TESTCACHE)/crypto/random
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_srcs)
+
+# crypto::md5
+testlib_crypto_md5_srcs= \
+	$(STDLIB)/crypto/md5/md5.ha \
+	$(STDLIB)/crypto/md5/+test.ha
+
+$(TESTCACHE)/crypto/md5/crypto_md5.ssa: $(testlib_crypto_md5_srcs) $(testlib_rt) $(testlib_hash) $(testlib_io) $(testlib_endian) $(testlib_fmt) $(testlib_strio) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/md5
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::md5 \
+		-t$(TESTCACHE)/crypto/md5/crypto_md5.td $(testlib_crypto_md5_srcs)
 
 # crypto::sha1
 testlib_crypto_sha1_srcs= \
