@@ -468,6 +468,7 @@ gensrcs_strconv() {
 		stou.ha \
 		stoi.ha \
 		numeric.ha \
+		ftos.ha \
 		$*
 }
 
