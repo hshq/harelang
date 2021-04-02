@@ -13,6 +13,7 @@ use slice;
 use sort;
 use strings;
 use strio;
+use fmt;
 
 // Scans the files in a directory for eligible build inputs and returns a
 // [version] which includes all applicable files and their dependencies.
@@ -58,8 +59,8 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 	return ver;
 };
 
-// Given a name and whether or not it represents a directory, parses it into the
-// basename, extension, and tag set.
+// Given a file or directory name, parses it into the basename, extension, and
+// tag set.
 fn parse_name(name: str) (str, str, []tag) = {
 	let ext = path::extension(name);
 	let base = ext.0, ext = ext.1;
@@ -122,14 +123,40 @@ fn scan_directory(
 		};
 	};
 
+	// Sorted to keep the hash consistent
 	sort::sort(dirs, size(str), &strcmp);
 	sort::sort(files, size(str), &strcmp);
 
-	// TODO: filter out less specific tag sets for a given basename
+	// Tuple of is_directory, basename, tags, and path to a candidate input.
+	let inputs: [](bool, str, []tag, str) = [];
+	defer for (let i = 0z; i < len(inputs); i += 1) {
+		// For file paths, these are assigned to the input, which
+		// assumes ownership over them.
+		if (inputs[i].0) {
+			free(inputs[i].1);
+			tags_free(inputs[i].2);
+			free(inputs[i].3);
+		};
+	};
+
+	// For a given basename, only the most specific path (i.e. with the most
+	// tags) is used.
+	//
+	// foo.ha
+	// foo+linux.ha
+	// foo+linux+x86_64/
+	// 	bar.ha
+	// 	baz.ha
+	//
+	// In this case, foo+linux+x86_64 is the most specific, and so its used
+	// as the build input and the other two files are discarded.
+	//
+	// TODO: Improve the documentation which describes this algorithm
+
 	for (let i = 0z; i < len(dirs); i += 1) {
 		let name = dirs[i];
-		let tags = parse_name(name).2;
-		defer tags_free(tags);
+		let parsed = parse_name(name);
+		let base = parsed.0, tags = parsed.2;
 
 		let d = strings::toutf8(name);
 		if (len(d) == 0 || (
@@ -141,9 +168,25 @@ fn scan_directory(
 			continue;
 		};
 
-		let p = path::join(path, name);
-		let iter = fs::iter(ctx.fs, p)?;
-		scan_directory(ctx, ver, sha, p, iter)?;
+		let path = path::join(path, name);
+		let tuple = (true, strings::dup(base), tags, path);
+		let superceeded = false;
+		for (let j = 0z; j < len(inputs); j += 1) {
+			if (inputs[j].1 != base) {
+				continue;
+			};
+			if (len(inputs[j].2) < len(tags)) {
+				free(inputs[j].1);
+				tags_free(inputs[j].2);
+				free(inputs[j].3);
+				inputs[j] = tuple;
+				superceeded = true;
+				break;
+			};
+		};
+		if (!superceeded) {
+			append(inputs, tuple);
+		};
 	};
 
 	for (let i = 0z; i < len(files); i += 1) {
@@ -164,19 +207,53 @@ fn scan_directory(
 			continue;
 		};
 
-		let p = path::join(path, name);
-		let st = fs::stat(ctx.fs, p)?;
-		let in = input {
-			path = fs::resolve(ctx.fs, p),
-			stat = st,
-			ft = type_for_ext(name) as filetype,
-			hash = scan_file(ctx, p, &ver.depends)?,
-			basename = base,
-			tags = tags,
-			...
+		let path = path::join(path, name);
+		let tuple = (false, base, tags, path);
+		let superceeded = false;
+		for (let j = 0z; j < len(inputs); j += 1) {
+			if (inputs[j].1 != base) {
+				continue;
+			};
+			if (len(inputs[j].2) < len(tags)) {
+				// We are more specific
+				free(inputs[j].1);
+				tags_free(inputs[j].2);
+				free(inputs[j].3);
+				inputs[j] = tuple;
+				superceeded = true;
+				break;
+			} else if (len(inputs[j].2) > len(tags)) {
+				// They are more specific
+				superceeded = true;
+				break;
+			} else {
+				abort(); // TODO
+			};
 		};
-		append(ver.inputs, in);
-		hash::write(sha, in.hash);
+		if (!superceeded) {
+			append(inputs, tuple);
+		};
+	};
+
+	for (let i = 0z; i < len(inputs); i += 1) {
+		let isdir = inputs[i].0, path = inputs[i].3;
+		if (isdir) {
+			let iter = fs::iter(ctx.fs, path)?;
+			scan_directory(ctx, ver, sha, path, iter)?;
+		} else {
+			let st = fs::stat(ctx.fs, path)?;
+			let in = input {
+				path = fs::resolve(ctx.fs, path),
+				stat = st,
+				ft = type_for_ext(path) as filetype,
+				hash = scan_file(ctx, path, &ver.depends)?,
+				basename = inputs[i].1,
+				tags = inputs[i].2,
+				...
+			};
+			append(ver.inputs, in);
+			hash::write(sha, in.hash);
+		};
 	};
 };
 
