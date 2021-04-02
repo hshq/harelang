@@ -1,5 +1,7 @@
 use io;
+use fmt;
 use net::ip;
+use net::unix;
 use os;
 use rt;
 
@@ -35,12 +37,33 @@ fn wrap(ie: (int | rt::errno)) (int | io::error) = {
 	};
 };
 
-fn mksockfd(addr: ip::addr) (int | io::error) = {
-	const af = match (addr) {
-		ip::addr4 => rt::AF_INET: int,
-		ip::addr6 => rt::AF_INET6: int,
+fn mksockfd(addr: rt::sockaddr) (int | io::error) = {
+	return wrap(rt::socket(addr.in.sin_family: int, rt::SOCK_STREAM, 0))?;
+};
+
+fn sockasz(addr: rt::sockaddr) u32 = {
+	return switch (addr.in.sin_family) {
+		rt::AF_INET => size(rt::sockaddr_in): u32,
+		rt::AF_INET6 => size(rt::sockaddr_in6): u32,
+		rt::AF_UNIX => size(rt::sockaddr_un): u32,
+		* => size(rt::sockaddr): u32,
 	};
-	return wrap(rt::socket(af, rt::SOCK_STREAM, 0))?;
+};
+
+fn string(addr: (ip::addr | unix::addr)) str = {
+	return match (addr) {
+		ip: ip::addr => ip::string(ip),
+		un: unix::addr => un,
+	};
+};
+
+fn from_native(addr: rt::sockaddr) (ip::addr | unix::addr) = {
+	return switch (addr.in.sin_family) {
+		rt::AF_INET => ip::from_native(addr).0,
+		rt::AF_INET6 => ip::from_native(addr).0,
+		rt::AF_UNIX => unix::from_native(addr),
+		* => abort("Wrong address family"),
+	};
 };
 
 // Returns the remote address for a given connection, or void if none is
@@ -56,4 +79,11 @@ export fn peeraddr(stream: *io::stream) ((ip::addr, u16) | void) = {
 		return;
 	};
 	return ip::from_native(sn);
+};
+
+// Gets the fd of the listener's socket.
+export fn listenerfd(l: *listener) (int | void) = {
+	if (l.accept == &stream_accept) {
+		return (l: *stream_listener).fd;
+	};
 };
