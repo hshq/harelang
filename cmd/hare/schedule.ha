@@ -149,10 +149,6 @@ fn sched_hare_object(
 		]),
 	});
 
-	for (let i = 0z; i < len(plan.context.defines); i += 1) {
-		append(harec.cmd, "-D", plan.context.defines[i]);
-	};
-
 	let current = false;
 	let output = if (len(namespace) != 0) {
 		let version = hex::encodestr(ver.hash);
@@ -191,7 +187,16 @@ fn sched_hare_object(
 		os::mkdirs(path);
 		append(harec.cmd, "-t", path::join(path, td));
 		path::join(path, name);
-	} else mkfile(plan, "o"); // TODO: Should exes go in the cache?
+	} else {
+		// XXX: This is probably kind of dumb
+		// It would be better to apply any defines which affect this
+		// namespace instead
+		for (let i = 0z; i < len(plan.context.defines); i += 1) {
+			append(harec.cmd, "-D", plan.context.defines[i]);
+		};
+
+		mkfile(plan, "o"); // TODO: Should exes go in the cache?
+	};
 
 	for (let i = 0z; i < len(ver.inputs); i += 1) {
 		let path = ver.inputs[i].path;
