@@ -191,6 +191,14 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 // Returns true if the desired module version is present and current in this
 // manifest.
 export fn current(manifest: *manifest, version: *version) bool = {
+	// TODO: This is kind of dumb. What we really need to do is:
+	// 1. Update scan to avoid hashing the file if a manifest is present,
+	//    and indicate that the hash is cached somewhere in the type. Get an
+	//    up-to-date stat.
+	// 2. In [current], test if the inode and mtime are equal to the
+	//    manifest version. If so, presume the file is up-to-date. If not,
+	//    check the hash and update the manifest to the new inode/mtime if
+	//    the hash matches. If not, the module is not current; rebuild.
 	let cached: nullable *version = null;
 	for (let i = 0z; i < len(manifest.versions); i += 1) {
 		if (bytes::equal(manifest.versions[i].hash, version.hash)) {
@@ -203,8 +211,17 @@ export fn current(manifest: *manifest, version: *version) bool = {
 		v: *version => v,
 	};
 
-	// TODO: Blocked on sort
-	return false;
+	assert(len(cached.inputs) == len(version.inputs));
+	for (let i = 0z; i < len(cached.inputs); i += 1) {
+		let a = cached.inputs[i], b = cached.inputs[i];
+		assert(a.path == b.path);
+		let ast = a.stat, bst = b.stat;
+		if (ast.inode != bst.inode
+				|| time::compare(ast.mtime, bst.mtime) != 0) {
+			return false;
+		};
+	};
+	return true;
 };
 
 // Writes a module manifest to the build cache.

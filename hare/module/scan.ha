@@ -297,6 +297,9 @@ fn scan_file(
 	defer io::close(f);
 	let sha = sha256::sha256();
 	//defer! hash::close(sha);
+
+	hash::write(sha, strings::toutf8(path));
+
 	let tee = io::tee(f, hash::writer(sha));
 	defer io::close(tee);
 
