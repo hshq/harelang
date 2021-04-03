@@ -541,7 +541,7 @@ stdlib_net_srcs= \
 	$(STDLIB)/net/$(PLATFORM)/util.ha \
 	$(STDLIB)/net/socket.ha
 
-$(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_os) $(stdlib_strings) $(stdlib_net_ip)
+$(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_os) $(stdlib_strings) $(stdlib_net_ip) $(stdlib_net_unix)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
@@ -1314,7 +1314,7 @@ testlib_net_srcs= \
 	$(STDLIB)/net/$(PLATFORM)/util.ha \
 	$(STDLIB)/net/socket.ha
 
-$(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(testlib_os) $(testlib_strings) $(testlib_net_ip)
+$(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(testlib_os) $(testlib_strings) $(testlib_net_ip) $(testlib_net_unix)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \

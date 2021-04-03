@@ -390,7 +390,7 @@ net() {
 		'$(PLATFORM)/socket.ha' \
 		'$(PLATFORM)/util.ha' \
 		socket.ha
-	gen_ssa net io os strings net::ip
+	gen_ssa net io os strings net::ip net::unix
 }
 
 gensrcs_net_ip() {
