@@ -84,8 +84,6 @@ fn build(args: []str) void = {
 	};
 
 	let depends: []*task = [];
-
-	// Always add rt (TODO: maybe a flag to turn this off?)
 	sched_module(&plan, ["rt"], &depends);
 
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
@@ -184,8 +182,6 @@ fn run(args: []str) void = {
 	};
 
 	let depends: []*task = [];
-
-	// Always add rt (TODO: maybe a flag to turn this off?)
 	sched_module(&plan, ["rt"], &depends);
 
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
@@ -264,8 +260,6 @@ fn test(args: []str) void = {
 	};
 
 	let depends: []*task = [];
-
-	// Always add rt (TODO: maybe a flag to turn this off?)
 	sched_module(&plan, ["rt"], &depends);
 
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
