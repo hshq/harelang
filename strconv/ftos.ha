@@ -491,10 +491,8 @@ export fn f64tos(n: f64) const str = {
 	assert(f64tos(0.0 / 0.0) == "NaN");
 	assert(f64tos(1.0) == "1");
 	assert(f64tos(0.3) == "0.3");
-	// TODO: Fix harec bug: with these zeroes in front, the number is
-	// truncated to six digits after the decimal point.
-	//assert(f64tos(0.0031415) == "0.0031415");
-	//assert(f64tos(0.0000012345678) == "0.0000012345678");
+	assert(f64tos(0.0031415) == "0.0031415");
+	assert(f64tos(0.0000012345678) == "0.0000012345678");
 	assert(f64tos(1.414) == "1.414");
 	assert(f64tos(1e234f64) == "1e234");
 	// TODO: Negative exponents for floating point literals not implemented yet!
