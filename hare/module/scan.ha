@@ -152,8 +152,6 @@ fn scan_directory(
 	// as the build input and the other two files are discarded.
 	//
 	// TODO: Improve the documentation which describes this algorithm
-	// TODO: Loosen requirements for empty basename, and make non-empty
-	// basename conflict on an equal number of tags
 
 	for (let i = 0z; i < len(dirs); i += 1) {
 		let name = dirs[i];
@@ -189,6 +187,8 @@ fn scan_directory(
 				// They are more specific
 				superceeded = true;
 				break;
+			} else if (len(base) != 0) {
+				return (path, inputs[j].3): ambiguous;
 			};
 		};
 		if (!superceeded) {
@@ -234,6 +234,8 @@ fn scan_directory(
 				// They are more specific
 				superceeded = true;
 				break;
+			} else if (len(base) != 0) {
+				return (path, inputs[j].3): ambiguous;
 			};
 		};
 		if (!superceeded) {

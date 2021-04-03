@@ -2,6 +2,7 @@ use fs;
 use hare::ast;
 use hare::parse;
 use io;
+use fmt;
 
 // The inclusive/exclusive state for a build tag.
 export type tag_mode = enum {
@@ -52,12 +53,26 @@ export type input = struct {
 // The requested module could not be found.
 export type module_not_found = void!;
 
-// All possible error types.
-export type error = (fs::error | io::error | parse::error | module_not_found)!;
+// We are unable to select from two ambiguous options for an input file.
+export type ambiguous = (str, str)!;
 
-export fn errstr(err: error) const str = match (err) {
-	err: fs::error => fs::errstr(err),
-	err: io::error => io::errstr(err),
-	err: parse::error => parse::errstr(err),
-	module_not_found => "Module not found",
+// All possible error types.
+export type error = (
+	fs::error |
+	io::error |
+	parse::error |
+	module_not_found |
+	ambiguous)!;
+
+export fn errstr(err: error) const str = {
+	// Should be more than enough for PATH_MAX * 2
+	static let buf: [4096]u8 = [0...];
+	return match (err) {
+		err: fs::error => fs::errstr(err),
+		err: io::error => io::errstr(err),
+		err: parse::error => parse::errstr(err),
+		module_not_found => "Module not found",
+		amb: ambiguous => fmt::bsprintf(buf,
+			"Cannot choose between {} and {}", amb.0, amb.1),
+	};
 };
