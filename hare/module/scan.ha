@@ -150,8 +150,6 @@ fn scan_directory(
 	//
 	// In this case, foo+linux+x86_64 is the most specific, and so its used
 	// as the build input and the other two files are discarded.
-	//
-	// TODO: Improve the documentation which describes this algorithm
 
 	for (let i = 0z; i < len(dirs); i += 1) {
 		let name = dirs[i];

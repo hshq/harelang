@@ -205,7 +205,7 @@ For example, if the following files are present in a directory:
 - bat-x86_64.ha
 
 If the build tags are +linux+x86_64, then the files which are included in the
-module are foo.ha, bar+linux.ha, and bar+x86_64.s.
+module are foo.ha, bar+linux.ha, and baz+x86_64.s.
 
 Additionally, subdirectories in a module will be considered part of that module
 if their name consists *only* of a tag set, e.g. "+linux" or "-x86_64". A
