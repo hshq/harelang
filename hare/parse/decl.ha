@@ -155,6 +155,10 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 	let decls: []ast::decl = [];
 	for (true) {
+		match (lex::lex(lexer)?) {
+			io::EOF => break,
+			t: (lex::token, lex::location) => lex::unlex(lexer, t),
+		};
 		let exported = match (try_btoken(lexer, btoken::EXPORT)?) {
 			void => false,
 			lex::btoken => true,
@@ -185,10 +189,6 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 			decl = decl,
 		});
 		want_btoken(lexer, btoken::SEMICOLON)?;
-		match (lex::lex(lexer)?) {
-			io::EOF => break,
-			t: (lex::token, lex::location) => lex::unlex(lexer, t),
-		};
 	};
 	return decls;
 };
