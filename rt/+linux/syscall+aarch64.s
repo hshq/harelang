@@ -1,111 +1,69 @@
 .section .text.rt.syscall0
 .global rt.syscall0
 rt.syscall0:
-	sub	sp, sp, #16
-	str	x0, [sp, 8]
-	ldr	x8, [sp, 8]
+	mov x8, x0
 	svc 0
-	add	sp, sp, 16
 	ret
 
 .section .text.rt.syscall1
 .global rt.syscall1
 rt.syscall1:
-	sub	sp, sp, #16
-	str	x0, [sp, 8]
-	str	x1, [sp]
-	ldr	x8, [sp, 8]
-	ldr	x0, [sp]
+	mov x8, x0
+	mov x0, x1
 	svc 0
-	add	sp, sp, 16
 	ret
 
 .section .text.rt.syscall2
 .global rt.syscall2
 rt.syscall2:
-	sub	sp, sp, #32
-	str	x0, [sp, 24]
-	str	x1, [sp, 16]
-	str	x2, [sp, 8]
-	ldr	x8, [sp, 24]
-	ldr	x0, [sp, 16]
-	ldr	x1, [sp, 8]
+	mov x8, x0
+	mov x0, x1
+	mov x1, x2
 	svc 0
-	add	sp, sp, 32
 	ret
 
 .section .text.rt.syscall3
 .global rt.syscall3
 rt.syscall3:
-	sub	sp, sp, #32
-	str	x0, [sp, 24]
-	str	x1, [sp, 16]
-	str	x2, [sp, 8]
-	str	x3, [sp]
-	ldr	x8, [sp, 24]
-	ldr	x0, [sp, 16]
-	ldr	x1, [sp, 8]
-	ldr	x2, [sp]
+	mov x8, x0
+	mov x0, x1
+	mov x1, x2
+	mov x2, x3
 	svc 0
-	add	sp, sp, 32
 	ret
 
 .section .text.rt.syscall4
 .global rt.syscall4
 rt.syscall4:
-	sub	sp, sp, #48
-	str	x0, [sp, 40]
-	str	x1, [sp, 32]
-	str	x2, [sp, 24]
-	str	x3, [sp, 16]
-	str	x4, [sp, 8]
-	ldr	x8, [sp, 40]
-	ldr	x0, [sp, 32]
-	ldr	x1, [sp, 24]
-	ldr	x2, [sp, 16]
-	ldr	x3, [sp, 8]
+	mov x8, x0
+	mov x0, x1
+	mov x1, x2
+	mov x2, x3
+	mov x3, x4
 	svc 0
-	add	sp, sp, 48
 	ret
 
 .section .text.rt.syscall5
 .global rt.syscall5
 rt.syscall5:
-	sub	sp, sp, #48
-	str	x0, [sp, 40]
-	str	x1, [sp, 32]
-	str	x2, [sp, 24]
-	str	x3, [sp, 16]
-	str	x4, [sp, 8]
-	str	x5, [sp]
-	ldr	x8, [sp, 40]
-	ldr	x0, [sp, 32]
-	ldr	x1, [sp, 24]
-	ldr	x2, [sp, 16]
-	ldr	x3, [sp, 8]
-	ldr	x4, [sp]
+	mov x8, x0
+	mov x0, x1
+	mov x1, x2
+	mov x2, x3
+	mov x3, x4
+	mov x4, x5
 	svc 0
-	add	sp, sp, 48
 	ret
 
 .section .text.rt.syscall6
 .global rt.syscall6
 rt.syscall6:
-	sub	sp, sp, #64
-	str	x0, [sp, 56]
-	str	x1, [sp, 48]
-	str	x2, [sp, 40]
-	str	x3, [sp, 32]
-	str	x4, [sp, 24]
-	str	x5, [sp, 16]
-	str	x6, [sp, 8]
-	ldr	x8, [sp, 56]
-	ldr	x0, [sp, 48]
-	ldr	x1, [sp, 40]
-	ldr	x2, [sp, 32]
-	ldr	x3, [sp, 24]
-	ldr	x4, [sp, 16]
-	ldr	x5, [sp, 8]
+	mov x8, x0
+	mov x0, x1
+	mov x1, x2
+	mov x2, x3
+	mov x3, x4
+	mov x4, x5
+	mov x5, x6
 	svc 0
-	add	sp, sp, 64
 	ret
