@@ -55,3 +55,31 @@ Explanation of terms:
   designed to be the compiler used for day-to-day language use.
 - build driver: similar to make, its purpose is to collect source files, track
   their dependencies, and build them into Hare programs.
+
+## Licensing
+
+We are not your lawyer, but here is a simple explanation of the intention behind
+the Hare licenses.
+
+The Hare standard library is available under the terms of the Mozilla Public
+License (MPL). You can freely link to the standard library with software
+distributed under any license, but if you modify the standard library, you must
+release your derivative works under the MPL as well.
+
+The executables - the build driver, hare, and the compiler, harec, are available
+under the GPL 3.0 (but *not* any later version). This permits free use and
+redistribution, but any changes to it require you to share the derivative work
+under the terms of the GPL. It is stricter than the MPL; if you link to the
+compiler or build driver code from a third-party program it will require you to
+release the third-party code as well.
+
+In short, you can write programs in Hare which use the standard library and
+distribute those programs under any terms you wish. However, if you modify Hare
+itself, you must share your changes as well.
+
+The Hare specification is licensed much more strictly: CC-BY-ND. This license
+allows free redistribution of the document, but prohibits derivative works
+entirely. The purpose is to prevent the proliferation of vendor extensions to
+the language itself. However, these terms only apply to the specification
+itself: if you use the specification write an implementation of the Hare
+language, you are not restricted in how you license your work.
