@@ -173,7 +173,13 @@ fn roundtrip(src: str) void = {
 	let lexer = lex::init(buf, "<test>");
 	let u = ast::subunit {
 		imports = [],
-		decls = decls(&lexer) as []ast::decl,
+		decls: []ast::decl = match (decls(&lexer)) {
+			decls: []ast::decl => decls,
+			err: error => {
+				fmt::errorln(strerror(err));
+				abort();
+			},
+		},
 	};
 	defer ast::subunit_free(u);
 	let out = strio::dynamic();
@@ -204,4 +210,13 @@ fn roundtrip(src: str) void = {
 		"export fn main() void = void is int;\n"
 		"export fn main() void = void: int: uint: u16: u8;\n"
 		"export fn main() void = void: int as uint: u16 is u8;\n");
+};
+
+@test fn unarithm() void = {
+	// TODO: object selectors/addr operator
+	roundtrip("export fn main() void = +void;\n"
+		"export fn main() void = -void;\n"
+		"export fn main() void = *void;\n"
+		"export fn main() void = ~void;\n"
+		"export fn main() void = !void;\n");
 };

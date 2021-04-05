@@ -77,9 +77,38 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 	});
 };
 
-fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
+fn objsel(lexer: *lex::lexer) (ast::expr | error) = {
+	abort(); // TODO
+};
+
+fn postfix(lexer: *lex::lexer) (ast::expr | error) = {
 	want_btoken(lexer, btoken::VOID)?; // TODO
 	return void;
+};
+
+fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
+	const tok = match (try_btoken(lexer,
+			btoken::PLUS, btoken::MINUS, btoken::BNOT,
+			btoken::LNOT, btoken::TIMES, btoken::BAND)) {
+		void => return postfix(lexer),
+		tok: btoken => tok,
+	};
+	const op = switch (tok) {
+		btoken::PLUS	=> ast::unarithm_op::PLUS,
+		btoken::MINUS	=> ast::unarithm_op::MINUS,
+		btoken::BNOT	=> ast::unarithm_op::BNOT,
+		btoken::LNOT	=> ast::unarithm_op::LNOT,
+		btoken::TIMES	=> ast::unarithm_op::DEREF,
+		btoken::BAND	=> ast::unarithm_op::ADDR,
+		* => abort(),
+	};
+	let operand =
+		if (tok == btoken::BAND) objsel(lexer)?
+		else unarithm(lexer)?;
+	return ast::unarithm_expr {
+		op = op,
+		operand = alloc(operand),
+	};
 };
 
 fn binop_for_tok(tok: (lex::token, lex::location)) ast::binarithm_op = {

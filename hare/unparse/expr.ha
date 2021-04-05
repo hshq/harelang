@@ -73,6 +73,17 @@ export fn expr(
 		e: ast::return_expr => abort(),
 		e: ast::slice_expr => abort(),
 		e: ast::switch_expr => abort(),
-		e: ast::unarithm_expr => abort(),
+		e: ast::unarithm_expr => {
+			let z = fmt::fprintf(out, "{}", switch (e.op) {
+				ast::unarithm_op::ADDR	=> "&",
+				ast::unarithm_op::BNOT	=> "~",
+				ast::unarithm_op::DEREF	=> "*",
+				ast::unarithm_op::LNOT	=> "!",
+				ast::unarithm_op::MINUS	=> "-",
+				ast::unarithm_op::PLUS	=> "+",
+			})?;
+			z += expr(out, indent, *e.operand)?;
+			z;
+		},
 	};
 };
