@@ -52,8 +52,9 @@ export type assign_expr = struct {
 	indirect: bool,
 };
 
-// TODO: Rehome this with the checked AST?
+// A binary arithmetic operator
 export type binarithm_op = enum {
+	// TODO: Rehome this with the checked AST?
 	BAND,	// &
 	BOR,	// |
 	DIV,	// /

@@ -190,3 +190,19 @@ use strio;
 	defer free(s);
 	assert(s == in);
 };
+
+@test fn binarithm() void = {
+	const in = "export fn main() void = void + void * void / void;\n";
+	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+	let lexer = lex::init(buf, "<test>");
+	let u = ast::subunit {
+		imports = [],
+		decls = decls(&lexer) as []ast::decl,
+	};
+	defer ast::subunit_free(u);
+	let out = strio::dynamic();
+	unparse::subunit(out, u) as size;
+	let s = strio::finish(out);
+	defer free(s);
+	assert(s == in);
+};
