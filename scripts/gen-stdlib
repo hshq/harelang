@@ -572,6 +572,7 @@ unicode() {
 
 unix() {
 	gen_srcs unix \
+		getuid.ha \
 		setuid.ha
 	gen_ssa unix
 }

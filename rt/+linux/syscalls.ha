@@ -559,3 +559,19 @@ export fn setresgid(gid: gid_t, egid: gid_t, sgid: gid_t) (void | errno) = {
 	wrap_return(syscall3(SYS_setresgid, gid: u64, egid: u64, sgid: u64))?;
 	return;
 };
+
+export fn getresuid(uid: *uid_t, euid: *uid_t, suid: *uid_t) (void | errno) = {
+	wrap_return(syscall3(SYS_getresuid,
+		uid: uintptr: u64,
+		euid: uintptr: u64,
+		suid: uintptr: u64))?;
+	return;
+};
+
+export fn getresgid(gid: *gid_t, egid: *gid_t, sgid: *gid_t) (void | errno) = {
+	wrap_return(syscall3(SYS_getresgid,
+		gid: uintptr: u64,
+		egid: uintptr: u64,
+		sgid: uintptr: u64))?;
+	return;
+};

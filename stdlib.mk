@@ -762,6 +762,7 @@ $(HARECACHE)/unicode/unicode.ssa: $(stdlib_unicode_srcs) $(stdlib_rt)
 
 # unix
 stdlib_unix_srcs= \
+	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
 $(HARECACHE)/unix/unix.ssa: $(stdlib_unix_srcs) $(stdlib_rt)
@@ -1568,6 +1569,7 @@ $(TESTCACHE)/unicode/unicode.ssa: $(testlib_unicode_srcs) $(testlib_rt)
 
 # unix
 testlib_unix_srcs= \
+	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
 $(TESTCACHE)/unix/unix.ssa: $(testlib_unix_srcs) $(testlib_rt)
