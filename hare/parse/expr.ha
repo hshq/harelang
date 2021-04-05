@@ -117,6 +117,37 @@ fn precedence(tok: (lex::token, lex::location)) int = {
 	};
 };
 
+fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
+	let items: ast::list_expr = [];
+
+	for (let more = true; more) {
+		let tok = match (lex::lex(lexer)?) {
+			io::EOF => return syntaxerr(mkloc(lexer),
+				"Unexpected EOF, expected scope or control expression"),
+			t: (lex::token, lex::location) => t,
+		};
+		lex::unlex(lexer, tok);
+		let item = match (tok.0) {
+			tok: btoken => switch (tok) {
+				btoken::RBRACE => break,
+				btoken::BREAK,
+				btoken::CONTINUE,
+				btoken::RETURN => {
+					more = false;
+					control_statement(lexer)?;
+				},
+				* => scope_expression(lexer)?,
+			},
+			* => scope_expression(lexer)?,
+		};
+		append(items, alloc(item));
+		want_btoken(lexer, btoken::SEMICOLON)?;
+	};
+
+	want_btoken(lexer, btoken::RBRACE)?;
+	return items;
+};
+
 // Parses a compound-expression
 export fn compound_expression(lexer: *lex::lexer) (ast::expr | error) = {
 	let tok = match (lex::lex(lexer)?) {
@@ -147,37 +178,6 @@ export fn simple_expression(lexer: *lex::lexer) (ast::expr | error) =
 export fn complex_expression(lexer: *lex::lexer) (ast::expr | error) = {
 	// TODO: if, for, switch, match
 	return simple_expression(lexer);
-};
-
-fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
-	let items: ast::list_expr = [];
-
-	for (let more = true; more) {
-		let tok = match (lex::lex(lexer)?) {
-			io::EOF => return syntaxerr(mkloc(lexer),
-				"Unexpected EOF, expected scope or control expression"),
-			t: (lex::token, lex::location) => t,
-		};
-		lex::unlex(lexer, tok);
-		let item = match (tok.0) {
-			tok: btoken => switch (tok) {
-				btoken::RBRACE => break,
-				btoken::BREAK,
-				btoken::CONTINUE,
-				btoken::RETURN => {
-					more = false;
-					control_statement(lexer)?;
-				},
-				* => scope_expression(lexer)?,
-			},
-			* => scope_expression(lexer)?,
-		};
-		append(items, alloc(item));
-		want_btoken(lexer, btoken::SEMICOLON)?;
-	};
-
-	want_btoken(lexer, btoken::RBRACE)?;
-	return items;
 };
 
 fn scope_expression(lexer: *lex::lexer) (ast::expr | error) = {
