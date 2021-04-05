@@ -222,8 +222,8 @@ export type switch_expr = struct {
 };
 
 // A unary operator
-// TODO: Should this be rehomed with the checked AST?
 export type unarithm_op = enum {
+	// TODO: Should this be rehomed with the checked AST?
 	ADDR,	// &
 	BNOT,	// ~
 	DEREF,	// *
