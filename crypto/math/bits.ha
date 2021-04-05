@@ -22,7 +22,7 @@ export fn rotr32(x: u32, k: int) u32 = rotl32(x, -k);
 };
 
 // Rotates a 64-bit unsigned integer left by k bits. k may be negative to rotate
-// rigt instead, or see [rotr64].
+// right instead, or see [rotr64].
 export fn rotl64(x: u64, k: int) u64 = {
 	const n = 64u64;
 	const s = k: u64 & (n - 1);
