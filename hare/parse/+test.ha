@@ -201,5 +201,7 @@ fn roundtrip(src: str) void = {
 @test fn cast() void = {
 	roundtrip("export fn main() void = void: int;\n"
 		"export fn main() void = void as int;\n"
-		"export fn main() void = void is int;\n");
+		"export fn main() void = void is int;\n"
+		"export fn main() void = void: int: uint: u16: u8;\n"
+		"export fn main() void = void: int as uint: u16 is u8;\n");
 };

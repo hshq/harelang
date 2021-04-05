@@ -10,7 +10,7 @@ fn binarithm(
 	// Precedence climbing parser
 	// https://en.wikipedia.org/wiki/Operator-precedence_parser
 	let lvalue = match (lvalue) {
-		void => cast(lexer)?,
+		void => cast(lexer, void)?,
 		expr: ast::expr => expr,
 	};
 
@@ -24,7 +24,7 @@ fn binarithm(
 	for (j >= i; j = precedence(tok)) {
 		const op = binop_for_tok(tok);
 
-		let rvalue = cast(lexer)?;
+		let rvalue = cast(lexer, void)?;
 		tok = match (lex::lex(lexer)?) {
 			io::EOF => return syntaxerr(mkloc(lexer),
 				"Unexpected EOF, expecting simple expression"),
@@ -54,8 +54,11 @@ fn binarithm(
 	return lvalue;
 };
 
-fn cast(lexer: *lex::lexer) (ast::expr | error) = {
-	let lvalue = unarithm(lexer)?;
+fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
+	let lvalue = match (lvalue) {
+		void => unarithm(lexer)?,
+		e: ast::expr => e,
+	};
 	const tok = match (try_btoken(lexer, btoken::COLON,
 			btoken::AS, btoken::IS)?) {
 		void => return lvalue,
@@ -67,11 +70,11 @@ fn cast(lexer: *lex::lexer) (ast::expr | error) = {
 		btoken::IS	=> ast::cast_kind::TEST,
 		* => abort(),
 	};
-	return ast::cast_expr {
+	return cast(lexer, ast::cast_expr {
 		kind = kind,
 		value = alloc(lvalue),
 		_type = alloc(_type(lexer)?),
-	};
+	});
 };
 
 fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
