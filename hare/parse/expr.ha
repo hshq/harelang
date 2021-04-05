@@ -2,11 +2,6 @@ use hare::ast;
 use hare::lex;
 use hare::lex::{btoken};
 
-fn cast(lexer: *lex::lexer) (ast::expr | error) = {
-	want_btoken(lexer, btoken::VOID)?; // TODO
-	return void;
-};
-
 fn binarithm(
 	lexer: *lex::lexer,
 	lvalue: (ast::expr | void),
@@ -57,6 +52,31 @@ fn binarithm(
 
 	lex::unlex(lexer, tok);
 	return lvalue;
+};
+
+fn cast(lexer: *lex::lexer) (ast::expr | error) = {
+	let lvalue = unarithm(lexer)?;
+	const tok = match (try_btoken(lexer, btoken::COLON,
+			btoken::AS, btoken::IS)?) {
+		void => return lvalue,
+		tok: btoken => tok,
+	};
+	const kind = switch (tok) {
+		btoken::COLON	=> ast::cast_kind::CAST,
+		btoken::AS	=> ast::cast_kind::ASSERTION,
+		btoken::IS	=> ast::cast_kind::TEST,
+		* => abort(),
+	};
+	return ast::cast_expr {
+		kind = kind,
+		value = alloc(lvalue),
+		_type = alloc(_type(lexer)?),
+	};
+};
+
+fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
+	want_btoken(lexer, btoken::VOID)?; // TODO
+	return void;
 };
 
 fn binop_for_tok(tok: (lex::token, lex::location)) ast::binarithm_op = {

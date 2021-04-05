@@ -43,7 +43,17 @@ export fn expr(
 		e: []ast::binding_expr => abort(),
 		e: ast::break_expr => abort(),
 		e: ast::call_expr => abort(),
-		e: ast::cast_expr => abort(),
+		e: ast::cast_expr => {
+			let z = expr(out, indent, *e.value)?;
+			const op = switch (e.kind) {
+				ast::cast_kind::CAST => ": ",
+				ast::cast_kind::ASSERTION => " as ",
+				ast::cast_kind::TEST => " is ",
+			};
+			z += fmt::fprintf(out, "{}", op)?;
+			z += _type(out, indent, *e._type)?;
+			z;
+		},
 		e: ast::constant_expr => {
 			assert(e is void);
 			fmt::fprint(out, "void")?;

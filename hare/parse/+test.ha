@@ -168,41 +168,38 @@ use strio;
 	};
 };
 
+fn roundtrip(src: str) void = {
+	let buf = bufio::fixed(strings::toutf8(src), mode::READ);
+	let lexer = lex::init(buf, "<test>");
+	let u = ast::subunit {
+		imports = [],
+		decls = decls(&lexer) as []ast::decl,
+	};
+	defer ast::subunit_free(u);
+	let out = strio::dynamic();
+	unparse::subunit(out, u) as size;
+	let unsrc = strio::finish(out);
+	defer free(unsrc);
+	assert(unsrc == src);
+};
+
 @test fn decls() void = {
-	const in = "export type foo::bar = *int, baz = const void;\n"
+	roundtrip("export type foo::bar = *int, baz = const void;\n"
 		"type foo = ...bar;\n"
 		"type foo = nullable *fn(x: rune, _: int) void;\n"
 		"export let @symbol(\"_\") foo::bar: int = void, baz: int = void;\n"
 		"def foo::bar: int = void;\n"
 		"@symbol(\".f9$oo\") fn foo(bar: int, baz: int...) void;\n"
 		"@test fn foo(_: int, ...) void;\n"
-		"export fn main() void = void;\n";
-	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-	let lexer = lex::init(buf, "<test>");
-	let u = ast::subunit {
-		imports = [],
-		decls = decls(&lexer) as []ast::decl,
-	};
-	defer ast::subunit_free(u);
-	let out = strio::dynamic();
-	unparse::subunit(out, u) as size;
-	let s = strio::finish(out);
-	defer free(s);
-	assert(s == in);
+		"export fn main() void = void;\n");
 };
 
 @test fn binarithm() void = {
-	const in = "export fn main() void = void + void * void / void;\n";
-	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-	let lexer = lex::init(buf, "<test>");
-	let u = ast::subunit {
-		imports = [],
-		decls = decls(&lexer) as []ast::decl,
-	};
-	defer ast::subunit_free(u);
-	let out = strio::dynamic();
-	unparse::subunit(out, u) as size;
-	let s = strio::finish(out);
-	defer free(s);
-	assert(s == in);
+	roundtrip("export fn main() void = void + void * void / void;\n");
+};
+
+@test fn cast() void = {
+	roundtrip("export fn main() void = void: int;\n"
+		"export fn main() void = void as int;\n"
+		"export fn main() void = void is int;\n");
 };
