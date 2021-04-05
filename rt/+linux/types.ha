@@ -3,6 +3,7 @@ export type dev_t = u64;
 export type ino_t = u64;
 export type nlink_t = u64;
 export type mode_t = uint;
+export type id_t = uint;
 export type uid_t = uint;
 export type gid_t = uint;
 export type time_t = i64;
@@ -551,3 +552,7 @@ export type cmsg = struct {
 	hdr: cmsghdr,
 	cmsg_data: [*]u8,
 };
+
+export def PRIO_PROCESS: int = 0;
+export def PRIO_PGRP: int = 1;
+export def PRIO_USER: int = 2;

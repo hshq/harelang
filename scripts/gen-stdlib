@@ -571,7 +571,9 @@ unicode() {
 }
 
 unix() {
+	# XXX: getuid and setuid are probably platform-specific too
 	gen_srcs unix \
+		nice'$(PLATFORM)'.ha \
 		getuid.ha \
 		setuid.ha
 	gen_ssa unix
