@@ -1,4 +1,5 @@
 use bytes;
+use encoding::utf8;
 use errors;
 use io;
 use strings;
@@ -11,6 +12,7 @@ export type bufstream = struct {
 	ravail: size,
 	wavail: size,
 	flush: []u8,
+	unread: []u8,
 };
 
 export fn static_buffered(
@@ -102,6 +104,22 @@ export fn any_isbuffered(s: *io::stream) bool = {
 	return true;
 };
 
+// Unreads a slice of bytes. The next read calls on this buffer will consume the
+// un-read data before consuming further data from the underlying source, or any
+// buffered data.
+export fn unread(s: *io::stream, buf: []u8) void = {
+	assert(isbuffered(s), "bufio: unread used on non-buffered stream");
+	let s = s: *bufstream;
+	append(s.unread, ...buf);
+};
+
+// Unreads a rune; see [unread].
+export fn unreadrune(s: *io::stream, rn: rune) void = {
+	assert(isbuffered(s), "bufio: unread used on non-buffered stream");
+	let s = s: *bufstream;
+	append(s.unread, ...utf8::encoderune(rn));
+};
+
 fn buffered_close(s: *io::stream) void = {
 	assert(s.closer == &buffered_close);
 	if (s.writer != null) {
@@ -127,6 +145,12 @@ fn buffered_unwrap(s: *io::stream) *io::stream = {
 fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	assert(s.reader == &buffered_read);
 	let s = s: *bufstream;
+	if (len(s.unread) != 0) {
+		let n = if (len(buf) < len(s.unread)) len(buf) else len(s.unread);
+		buf[..n] = s.unread[..n];
+		delete(s.unread[..n]);
+		return n;
+	};
 
 	let n = if (len(buf) < len(s.rbuffer)) len(buf) else len(s.rbuffer);
 	if (n > s.ravail) {

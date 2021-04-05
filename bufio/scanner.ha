@@ -14,8 +14,8 @@ export fn scanbyte(stream: *io::stream) (u8 | io::EOF | io::error) = {
 	};
 };
 
-// Reads a slice of bytes until the delimiter. Delimiter is not
-// included. The return value must be freed by the caller.
+// Reads a slice of bytes until the delimiter. Delimiter is not included. The
+// return value must be freed by the caller.
 export fn scantok(stream: *io::stream, delim: u8) ([]u8 | io::EOF | io::error) = {
 	let buf: []u8 = [];
 
