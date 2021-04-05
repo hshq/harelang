@@ -213,6 +213,13 @@ encoding_utf8() {
 	gen_ssa encoding::utf8 types
 }
 
+encoding_xml() {
+	gen_srcs encoding::xml \
+		types.ha \
+		parser.ha
+	gen_ssa encoding::xml io bufio strings
+}
+
 endian() {
 	gen_srcs endian \
 		big.ha \
@@ -605,6 +612,7 @@ crypto_sha512
 dirs
 encoding_hex
 encoding_utf8
+encoding_xml
 endian
 errors
 fmt

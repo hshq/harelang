@@ -105,6 +105,9 @@ hare_stdlib_deps+=$(stdlib_encoding_hex)
 stdlib_encoding_utf8=$(HARECACHE)/encoding/utf8/encoding_utf8.o
 hare_stdlib_deps+=$(stdlib_encoding_utf8)
 
+stdlib_encoding_xml=$(HARECACHE)/encoding/xml/encoding_xml.o
+hare_stdlib_deps+=$(stdlib_encoding_xml)
+
 stdlib_endian=$(HARECACHE)/endian/endian.o
 hare_stdlib_deps+=$(stdlib_endian)
 
@@ -344,6 +347,17 @@ $(HARECACHE)/encoding/utf8/encoding_utf8.ssa: $(stdlib_encoding_utf8_srcs) $(std
 	@mkdir -p $(HARECACHE)/encoding/utf8
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::utf8 \
 		-t$(HARECACHE)/encoding/utf8/encoding_utf8.td $(stdlib_encoding_utf8_srcs)
+
+# encoding::xml
+stdlib_encoding_xml_srcs= \
+	$(STDLIB)/encoding/xml/types.ha \
+	$(STDLIB)/encoding/xml/parser.ha
+
+$(HARECACHE)/encoding/xml/encoding_xml.ssa: $(stdlib_encoding_xml_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bufio) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/encoding/xml
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::xml \
+		-t$(HARECACHE)/encoding/xml/encoding_xml.td $(stdlib_encoding_xml_srcs)
 
 # endian
 stdlib_endian_srcs= \
@@ -900,6 +914,9 @@ hare_testlib_deps+=$(testlib_encoding_hex)
 testlib_encoding_utf8=$(TESTCACHE)/encoding/utf8/encoding_utf8.o
 hare_testlib_deps+=$(testlib_encoding_utf8)
 
+testlib_encoding_xml=$(TESTCACHE)/encoding/xml/encoding_xml.o
+hare_testlib_deps+=$(testlib_encoding_xml)
+
 testlib_endian=$(TESTCACHE)/endian/endian.o
 hare_testlib_deps+=$(testlib_endian)
 
@@ -1143,6 +1160,17 @@ $(TESTCACHE)/encoding/utf8/encoding_utf8.ssa: $(testlib_encoding_utf8_srcs) $(te
 	@mkdir -p $(TESTCACHE)/encoding/utf8
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::utf8 \
 		-t$(TESTCACHE)/encoding/utf8/encoding_utf8.td $(testlib_encoding_utf8_srcs)
+
+# encoding::xml
+testlib_encoding_xml_srcs= \
+	$(STDLIB)/encoding/xml/types.ha \
+	$(STDLIB)/encoding/xml/parser.ha
+
+$(TESTCACHE)/encoding/xml/encoding_xml.ssa: $(testlib_encoding_xml_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/encoding/xml
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::xml \
+		-t$(TESTCACHE)/encoding/xml/encoding_xml.td $(testlib_encoding_xml_srcs)
 
 # endian
 testlib_endian_srcs= \
