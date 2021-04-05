@@ -1,3 +1,5 @@
+use errors;
+
 // A stream of bytes which supports some subset of read, write, close, or seek
 // operations. To create a custom stream, embed this type as the first member of
 // a struct with user-specific data and fill out these fields as appropriate.
@@ -33,7 +35,7 @@ export type stream = struct {
 // the number of bytes read.
 export fn read(s: *stream, buf: []u8) (size | EOF | error) = {
 	return match (s.reader) {
-		null => unsupported,
+		null => errors::unsupported,
 		r: *reader => r(s, buf),
 	};
 };
@@ -42,7 +44,7 @@ export fn read(s: *stream, buf: []u8) (size | EOF | error) = {
 // the number of bytes written.
 export fn write(s: *stream, buf: const []u8) (size | error) = {
 	return match (s.writer) {
-		null => unsupported,
+		null => errors::unsupported,
 		w: *writer => w(s, buf),
 	};
 };
@@ -50,7 +52,7 @@ export fn write(s: *stream, buf: const []u8) (size | error) = {
 // Closes the stream.
 export fn close(s: *stream) (error | void) = {
 	return match (s.closer) {
-		null => unsupported,
+		null => errors::unsupported,
 		c: *closer => c(s),
 	};
 };
@@ -58,7 +60,7 @@ export fn close(s: *stream) (error | void) = {
 // Sets the offset within the stream.
 export fn seek(s: *stream, off: off, w: whence) (off | error) = {
 	return match (s.seeker) {
-		null => unsupported,
+		null => errors::unsupported,
 		sk: *seeker => sk(s, off, w),
 	};
 };
@@ -66,15 +68,15 @@ export fn seek(s: *stream, off: off, w: whence) (off | error) = {
 // Returns the current offset within the stream.
 export fn tell(s: *stream) (off | error) = {
 	return match (s.seeker) {
-		null => unsupported,
+		null => errors::unsupported,
 		sk: *seeker => sk(s, 0, whence::CUR),
 	};
 };
 
 // Returns the underlying stream for a stream which wraps another stream.
-export fn source(s: *stream) (*io::stream | unsupported) = {
+export fn source(s: *stream) (*io::stream | errors::unsupported) = {
 	return match (s.unwrap) {
-		null => unsupported,
+		null => errors::unsupported,
 		uw: *unwrap => uw(s),
 	};
 };

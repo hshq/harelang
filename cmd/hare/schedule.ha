@@ -34,7 +34,7 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 		err: module::error => {
 			let ident = unparse::identstr(ident);
 			fmt::fatal("Error resolving {}: {}",
-				ident, module::errstr(err));
+				ident, module::strerror(err));
 		},
 		ver: module::version => ver,
 	};
@@ -167,7 +167,7 @@ fn sched_hare_object(
 				plan.context, namespace)) {
 			err: module::error => fmt::fatal(
 				"Error reading cache entry for {}: {}",
-				ns, module::errstr(err)),
+				ns, module::strerror(err)),
 			m: module::manifest => m,
 		};
 		defer module::manifest_finish(&manifest);

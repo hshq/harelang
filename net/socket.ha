@@ -1,3 +1,4 @@
+use errors;
 use io;
 use net::ip;
 
@@ -53,7 +54,7 @@ export type listener = struct {
 export fn accept(l: *listener) (*io::stream | io::error) = {
 	return match (l.accept) {
 		f: *fn(l: *listener) (*io::stream | io::error) => f(l),
-		null => io::unsupported,
+		null => errors::unsupported,
 	};
 };
 

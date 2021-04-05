@@ -1,3 +1,5 @@
+use errors;
+
 @test fn limit() void = {
 	let buf: [15z]u8 = [0...];
 	let source_stream = test_stream_open();
@@ -5,7 +7,7 @@
 
 	let r_stream = limitreader(&source_stream.stream, 20);
 	match (write(r_stream, buf)) {
-		unsupported => void,
+		errors::unsupported => void,
 		* => abort(),
 	};
 	match (read(r_stream, buf)) {
@@ -20,7 +22,7 @@
 
 	let w_stream = limitwriter(&source_stream.stream, 20);
 	match (read(w_stream, buf)) {
-		unsupported => void,
+		errors::unsupported => void,
 		* => abort(),
 	};
 	match (write(w_stream, buf)) {

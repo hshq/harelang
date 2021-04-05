@@ -24,10 +24,10 @@ export type syntax = (location, str)!;
 export type error = (io::error | syntax)!;
 
 // Returns a human-friendly string for a given error
-export fn errstr(err: error) const str = {
+export fn strerror(err: error) const str = {
 	static let buf: [2048]u8 = [0...];
 	return match (err) {
-		err: io::error => io::errstr(err),
+		err: io::error => io::strerror(err),
 		s: syntax => fmt::bsprintf(buf, "{}:{},{}: Syntax error: {}",
 			s.0.path, s.0.line, s.0.col, s.1),
 	};

@@ -1,4 +1,5 @@
 use bytes;
+use errors;
 use io;
 
 type dynamic_stream = struct {
@@ -141,9 +142,9 @@ export fn reset(s: *io::stream) void = {
 
 // Truncates the buffer, freeing memory associated with it and setting its
 // length to zero.
-export fn truncate(s: *io::stream) (void | io::unsupported) = {
+export fn truncate(s: *io::stream) (void | errors::unsupported) = {
 	if (s.closer != &dynamic_close) {
-		return io::unsupported;
+		return errors::unsupported;
 	};
 	let s = s: *dynamic_stream;
 	s.pos = 0;
@@ -177,7 +178,7 @@ export fn truncate(s: *io::stream) (void | io::unsupported) = {
 	assert(io::seek(s, 0, io::whence::END) as io::off == 5: io::off);
 	assert(io::write(s, [4, 5, 6]) as size == 3);
 	assert(bytes::equal(buffer(s), [0, 0, 1, 2, 3, 4, 5, 6]));
-	// TODO: this should check for io::unsupported (harec bug prevents that)
+	// TODO: this should check for errors::unsupported (harec bug prevents that)
 	assert(io::read(s, buf[..]) is io::error);
 	io::close(s);
 
@@ -186,6 +187,6 @@ export fn truncate(s: *io::stream) (void | io::unsupported) = {
 	assert(io::read(s, buf[..1]) as size == 1 && buf[0] == 1);
 	assert(io::seek(s, 1, io::whence::CUR) as io::off == 2: io::off);
 	assert(io::read(s, buf[..]) is io::EOF);
-	// TODO: this should check for io::unsupported (harec bug prevents that)
+	// TODO: this should check for errors::unsupported (harec bug prevents that)
 	assert(io::write(s, [1, 2]) is io::error);
 };

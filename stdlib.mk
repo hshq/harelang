@@ -108,6 +108,9 @@ hare_stdlib_deps+=$(stdlib_encoding_utf8)
 stdlib_endian=$(HARECACHE)/endian/endian.o
 hare_stdlib_deps+=$(stdlib_endian)
 
+stdlib_errors=$(HARECACHE)/errors/errors.o
+hare_stdlib_deps+=$(stdlib_errors)
+
 stdlib_fmt=$(HARECACHE)/fmt/fmt.o
 hare_stdlib_deps+=$(stdlib_fmt)
 
@@ -225,7 +228,7 @@ stdlib_bufio_srcs= \
 	$(STDLIB)/bufio/fixed.ha \
 	$(STDLIB)/bufio/scanner.ha
 
-$(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bytes) $(stdlib_strings) $(stdlib_encoding_utf8)
+$(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bytes) $(stdlib_strings) $(stdlib_encoding_utf8) $(stdlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/bufio
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbufio \
@@ -353,6 +356,20 @@ $(HARECACHE)/endian/endian.ssa: $(stdlib_endian_srcs) $(stdlib_rt)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nendian \
 		-t$(HARECACHE)/endian/endian.td $(stdlib_endian_srcs)
 
+# errors
+stdlib_errors_srcs= \
+	$(STDLIB)/errors/common.ha \
+	$(STDLIB)/errors/docs.ha \
+	$(STDLIB)/errors/opaque.ha \
+	$(STDLIB)/errors/string.ha \
+	$(STDLIB)/errors/rt.ha
+
+$(HARECACHE)/errors/errors.ssa: $(stdlib_errors_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/errors
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nerrors \
+		-t$(HARECACHE)/errors/errors.td $(stdlib_errors_srcs)
+
 # fmt
 stdlib_fmt_srcs= \
 	$(STDLIB)/fmt/fmt.ha
@@ -379,7 +396,7 @@ stdlib_fs_srcs= \
 	$(STDLIB)/fs/fs.ha \
 	$(STDLIB)/fs/util.ha
 
-$(HARECACHE)/fs/fs.ssa: $(stdlib_fs_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_path) $(stdlib_time)
+$(HARECACHE)/fs/fs.ssa: $(stdlib_fs_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_path) $(stdlib_time) $(stdlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/fs
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfs \
@@ -428,7 +445,7 @@ stdlib_hare_module_srcs= \
 	$(STDLIB)/hare/module/scan.ha \
 	$(STDLIB)/hare/module/manifest.ha
 
-$(HARECACHE)/hare/module/hare_module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_hare_unparse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings) $(stdlib_hash) $(stdlib_crypto_sha256) $(stdlib_dirs) $(stdlib_bytes) $(stdlib_encoding_utf8) $(stdlib_ascii) $(stdlib_fmt) $(stdlib_time) $(stdlib_slice) $(stdlib_bufio) $(stdlib_strconv) $(stdlib_os) $(stdlib_encoding_hex) $(stdlib_sort)
+$(HARECACHE)/hare/module/hare_module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_hare_unparse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings) $(stdlib_hash) $(stdlib_crypto_sha256) $(stdlib_dirs) $(stdlib_bytes) $(stdlib_encoding_utf8) $(stdlib_ascii) $(stdlib_fmt) $(stdlib_time) $(stdlib_slice) $(stdlib_bufio) $(stdlib_strconv) $(stdlib_os) $(stdlib_encoding_hex) $(stdlib_sort) $(stdlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/module
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::module \
@@ -507,7 +524,7 @@ stdlib_io_srcs= \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha
 
-$(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt) $(stdlib_strings)
+$(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt) $(stdlib_strings) $(stdlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/io
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
@@ -541,7 +558,7 @@ stdlib_net_srcs= \
 	$(STDLIB)/net/$(PLATFORM)/util.ha \
 	$(STDLIB)/net/socket.ha
 
-$(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_os) $(stdlib_strings) $(stdlib_net_ip) $(stdlib_net_unix)
+$(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_os) $(stdlib_strings) $(stdlib_net_ip) $(stdlib_net_unix) $(stdlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
@@ -583,7 +600,6 @@ $(HARECACHE)/math/random/math_random.ssa: $(stdlib_math_random_srcs) $(stdlib_rt
 # os
 stdlib_os_srcs= \
 	$(STDLIB)/os/$(PLATFORM)/environ.ha \
-	$(STDLIB)/os/$(PLATFORM)/errors.ha \
 	$(STDLIB)/os/$(PLATFORM)/exit.ha \
 	$(STDLIB)/os/$(PLATFORM)/dirfdfs.ha \
 	$(STDLIB)/os/$(PLATFORM)/fdstream.ha \
@@ -593,7 +609,7 @@ stdlib_os_srcs= \
 	$(STDLIB)/os/stdfd.ha \
 	$(STDLIB)/os/fs.ha
 
-$(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fs) $(stdlib_encoding_utf8) $(stdlib_bytes) $(stdlib_bufio)
+$(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fs) $(stdlib_encoding_utf8) $(stdlib_bytes) $(stdlib_bufio) $(stdlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
@@ -607,7 +623,7 @@ stdlib_os_exec_srcs= \
 	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(HARECACHE)/os/exec/os_exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_strings) $(stdlib_fmt) $(stdlib_bytes) $(stdlib_path)
+$(HARECACHE)/os/exec/os_exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_strings) $(stdlib_fmt) $(stdlib_bytes) $(stdlib_path) $(stdlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os/exec
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
@@ -690,7 +706,7 @@ stdlib_strio_srcs= \
 	$(STDLIB)/strio/fixed.ha \
 	$(STDLIB)/strio/ops.ha
 
-$(HARECACHE)/strio/strio.ssa: $(stdlib_strio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_encoding_utf8)
+$(HARECACHE)/strio/strio.ssa: $(stdlib_strio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_encoding_utf8) $(stdlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/strio
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nstrio \
@@ -872,6 +888,9 @@ hare_testlib_deps+=$(testlib_encoding_utf8)
 testlib_endian=$(TESTCACHE)/endian/endian.o
 hare_testlib_deps+=$(testlib_endian)
 
+testlib_errors=$(TESTCACHE)/errors/errors.o
+hare_testlib_deps+=$(testlib_errors)
+
 testlib_fmt=$(TESTCACHE)/fmt/fmt.o
 hare_testlib_deps+=$(testlib_fmt)
 
@@ -989,7 +1008,7 @@ testlib_bufio_srcs= \
 	$(STDLIB)/bufio/fixed.ha \
 	$(STDLIB)/bufio/scanner.ha
 
-$(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io) $(testlib_bytes) $(testlib_strings) $(testlib_encoding_utf8)
+$(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io) $(testlib_bytes) $(testlib_strings) $(testlib_encoding_utf8) $(testlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/bufio
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbufio \
@@ -1121,6 +1140,20 @@ $(TESTCACHE)/endian/endian.ssa: $(testlib_endian_srcs) $(testlib_rt)
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nendian \
 		-t$(TESTCACHE)/endian/endian.td $(testlib_endian_srcs)
 
+# errors
+testlib_errors_srcs= \
+	$(STDLIB)/errors/common.ha \
+	$(STDLIB)/errors/docs.ha \
+	$(STDLIB)/errors/opaque.ha \
+	$(STDLIB)/errors/string.ha \
+	$(STDLIB)/errors/rt.ha
+
+$(TESTCACHE)/errors/errors.ssa: $(testlib_errors_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/errors
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nerrors \
+		-t$(TESTCACHE)/errors/errors.td $(testlib_errors_srcs)
+
 # fmt
 testlib_fmt_srcs= \
 	$(STDLIB)/fmt/fmt.ha
@@ -1147,7 +1180,7 @@ testlib_fs_srcs= \
 	$(STDLIB)/fs/fs.ha \
 	$(STDLIB)/fs/util.ha
 
-$(TESTCACHE)/fs/fs.ssa: $(testlib_fs_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_path) $(testlib_time)
+$(TESTCACHE)/fs/fs.ssa: $(testlib_fs_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_path) $(testlib_time) $(testlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/fs
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs \
@@ -1197,7 +1230,7 @@ testlib_hare_module_srcs= \
 	$(STDLIB)/hare/module/scan.ha \
 	$(STDLIB)/hare/module/manifest.ha
 
-$(TESTCACHE)/hare/module/hare_module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_hare_unparse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings) $(testlib_hash) $(testlib_crypto_sha256) $(testlib_dirs) $(testlib_bytes) $(testlib_encoding_utf8) $(testlib_ascii) $(testlib_fmt) $(testlib_time) $(testlib_slice) $(testlib_bufio) $(testlib_strconv) $(testlib_os) $(testlib_encoding_hex) $(testlib_sort)
+$(TESTCACHE)/hare/module/hare_module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_hare_unparse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings) $(testlib_hash) $(testlib_crypto_sha256) $(testlib_dirs) $(testlib_bytes) $(testlib_encoding_utf8) $(testlib_ascii) $(testlib_fmt) $(testlib_time) $(testlib_slice) $(testlib_bufio) $(testlib_strconv) $(testlib_os) $(testlib_encoding_hex) $(testlib_sort) $(testlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/module
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module \
@@ -1280,7 +1313,7 @@ testlib_io_srcs= \
 	$(STDLIB)/io/+test/limit.ha \
 	$(STDLIB)/io/+test/stream.ha
 
-$(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt) $(testlib_strings)
+$(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt) $(testlib_strings) $(testlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/io
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
@@ -1314,7 +1347,7 @@ testlib_net_srcs= \
 	$(STDLIB)/net/$(PLATFORM)/util.ha \
 	$(STDLIB)/net/socket.ha
 
-$(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(testlib_os) $(testlib_strings) $(testlib_net_ip) $(testlib_net_unix)
+$(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(testlib_os) $(testlib_strings) $(testlib_net_ip) $(testlib_net_unix) $(testlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
@@ -1357,7 +1390,6 @@ $(TESTCACHE)/math/random/math_random.ssa: $(testlib_math_random_srcs) $(testlib_
 # os
 testlib_os_srcs= \
 	$(STDLIB)/os/$(PLATFORM)/environ.ha \
-	$(STDLIB)/os/$(PLATFORM)/errors.ha \
 	$(STDLIB)/os/$(PLATFORM)/exit.ha \
 	$(STDLIB)/os/$(PLATFORM)/dirfdfs.ha \
 	$(STDLIB)/os/$(PLATFORM)/fdstream.ha \
@@ -1367,7 +1399,7 @@ testlib_os_srcs= \
 	$(STDLIB)/os/stdfd.ha \
 	$(STDLIB)/os/fs.ha
 
-$(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fs) $(testlib_encoding_utf8) $(testlib_bytes) $(testlib_bufio)
+$(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fs) $(testlib_encoding_utf8) $(testlib_bytes) $(testlib_bufio) $(testlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
@@ -1381,7 +1413,7 @@ testlib_os_exec_srcs= \
 	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(TESTCACHE)/os/exec/os_exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testlib_os) $(testlib_strings) $(testlib_fmt) $(testlib_bytes) $(testlib_path)
+$(TESTCACHE)/os/exec/os_exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testlib_os) $(testlib_strings) $(testlib_fmt) $(testlib_bytes) $(testlib_path) $(testlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os/exec
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
@@ -1467,7 +1499,7 @@ testlib_strio_srcs= \
 	$(STDLIB)/strio/fixed.ha \
 	$(STDLIB)/strio/ops.ha
 
-$(TESTCACHE)/strio/strio.ssa: $(testlib_strio_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_encoding_utf8)
+$(TESTCACHE)/strio/strio.ssa: $(testlib_strio_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_encoding_utf8) $(testlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/strio
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrio \

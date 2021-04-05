@@ -1,3 +1,4 @@
+use errors;
 use io;
 use path;
 
@@ -13,7 +14,7 @@ export fn close(fs: *fs) void = {
 // RDONLY.
 export fn open(fs: *fs, path: str, flags: flags...) (*io::stream | error) = {
 	return match (fs.open) {
-		null => io::unsupported,
+		null => errors::unsupported,
 		f: *openfunc => f(fs, path, flags...),
 	};
 };
@@ -31,7 +32,7 @@ export fn create(
 ) (*io::stream | error) = {
 	mode = mode & 0o777;
 	return match (fs.create) {
-		null => io::unsupported,
+		null => errors::unsupported,
 		f: *createfunc => f(fs, path, mode, flags...),
 	};
 };
@@ -39,7 +40,7 @@ export fn create(
 // Removes a file.
 export fn remove(fs: *fs, path: str) (void | error) = {
 	return match (fs.remove) {
-		null => io::unsupported,
+		null => errors::unsupported,
 		f: *removefunc => f(fs, path),
 	};
 };
@@ -49,7 +50,7 @@ export fn remove(fs: *fs, path: str) (void | error) = {
 // returned is undefined.
 export fn iter(fs: *fs, path: str) (*iterator | error) = {
 	return match (fs.iter) {
-		null => io::unsupported,
+		null => errors::unsupported,
 		f: *iterfunc => f(fs, path),
 	};
 };
@@ -58,7 +59,7 @@ export fn iter(fs: *fs, path: str) (*iterator | error) = {
 // information is returned about the link, not its target.
 export fn stat(fs: *fs, path: str) (filestat | error) = {
 	return match (fs.stat) {
-		null => io::unsupported,
+		null => errors::unsupported,
 		f: *statfunc => f(fs, path),
 	};
 };
@@ -68,7 +69,7 @@ export fn stat(fs: *fs, path: str) (filestat | error) = {
 // its parent.
 export fn subdir(fs: *fs, path: str) (*fs | error) = {
 	return match (fs.subdir) {
-		null => io::unsupported,
+		null => errors::unsupported,
 		f: *subdirfunc => f(fs, path),
 	};
 };
@@ -76,7 +77,7 @@ export fn subdir(fs: *fs, path: str) (*fs | error) = {
 // Creates a directory.
 export fn mkdir(fs: *fs, path: str) (void | error) = {
 	return match (fs.mkdir) {
-		null => io::unsupported,
+		null => errors::unsupported,
 		f: *mkdirfunc => f(fs, path),
 	};
 };
@@ -86,7 +87,7 @@ export fn mkdirs(fs: *fs, path: str) (void | error) = {
 	let parent = path::dirname(path);
 	if (path != parent) {
 		match (mkdirs(fs, parent)) {
-			exists => void,
+			errors::exists => void,
 			err: error => return err,
 			void => void,
 		};
@@ -98,10 +99,10 @@ export fn mkdirs(fs: *fs, path: str) (void | error) = {
 // remove its contents as well.
 export fn rmdir(fs: *fs, path: str) (void | error) = {
 	if (path == "") {
-		return invalid;
+		return errors::invalid;
 	};
 	return match (fs.rmdir) {
-		null => io::unsupported,
+		null => errors::unsupported,
 		f: *rmdirfunc => f(fs, path),
 	};
 };

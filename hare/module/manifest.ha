@@ -2,6 +2,7 @@ use bufio;
 use bytes;
 use encoding::hex;
 use encoding::utf8;
+use errors;
 use fmt;
 use fs;
 use hare::ast;
@@ -56,7 +57,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	defer unlock(ctx.fs, cachedir, l);
 
 	let file = match (fs::open(ctx.fs, mpath, fs::flags::RDONLY)) {
-		fs::noentry => return manifest,
+		errors::noentry => return manifest,
 		err: fs::error => return err,
 		file: *io::stream => file,
 	};
@@ -280,7 +281,7 @@ fn lock(fs: *fs::fs, cachedir: str) (*io::stream | error) = {
 	// XXX: I wonder if this should be some generic function in fs or
 	// something
 	match (os::mkdirs(cachedir)) {
-		fs::exists => void,
+		errors::exists => void,
 		void => void,
 		e: fs::error => return e,
 	};
@@ -291,7 +292,7 @@ fn lock(fs: *fs::fs, cachedir: str) (*io::stream | error) = {
 	for (true) {
 		match (fs::create(fs, lockpath, 0o644, fs::flags::EXCL)) {
 			fd: *io::stream => return fd,
-			(fs::busy | fs::exists) => void,
+			(errors::busy | errors::exists) => void,
 			err: fs::error => return err,
 		};
 		if (!logged) {

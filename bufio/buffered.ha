@@ -1,4 +1,5 @@
 use bytes;
+use errors;
 use io;
 use strings;
 
@@ -94,7 +95,7 @@ export fn isbuffered(s: *io::stream) bool = {
 export fn any_isbuffered(s: *io::stream) bool = {
 	for (!isbuffered(s)) {
 		s = match (io::source(s)) {
-			io::unsupported => return false,
+			errors::unsupported => return false,
 			s: *io::stream  => s,
 		};
 	};

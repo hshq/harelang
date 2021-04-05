@@ -1,22 +1,10 @@
+use errors;
 use io;
 use fmt;
 use net::ip;
 use net::unix;
 use os;
 use rt;
-
-fn io_errstr(data: *void) str = {
-	const errno = data: uintptr: int: rt::errno;
-	return rt::errstr(errno);
-};
-
-fn errno_to_io(err: rt::errno) io::error = {
-	let err = io::os_error {
-		string = &io_errstr,
-		data = err: uintptr: *void,
-	};
-	return err: io::error;
-};
 
 fn setsockopt(sockfd: int, option: int, value: bool) (void | rt::errno) = {
 	let val: int = if (value) 1 else 0;
@@ -33,7 +21,8 @@ fn setfcntl(sockfd: int, flag: int) (void | rt::errno) = {
 fn wrap(ie: (int | rt::errno)) (int | io::error) = {
 	match (ie) {
 		i: int => i,
-		er: rt::errno => errno_to_io(er)
+		// XXX: Why do we have to cast this?
+		er: rt::errno => errors::errno(er): io::error,
 	};
 };
 

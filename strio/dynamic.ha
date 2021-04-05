@@ -1,3 +1,4 @@
+use errors;
 use io;
 use strings;
 
@@ -38,9 +39,9 @@ export fn finish(s: *io::stream) str = {
 
 // Resets the buffer's length to zero, but keeps the allocated memory around for
 // future writes.
-export fn reset(s: *io::stream) (void | io::unsupported) = {
+export fn reset(s: *io::stream) (void | errors::unsupported) = {
 	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
-		return io::unsupported;
+		return errors::unsupported;
 	};
 	const s = s: *dynamic_stream;
 	s.buf = s.buf[..0];
@@ -48,9 +49,9 @@ export fn reset(s: *io::stream) (void | io::unsupported) = {
 
 // Truncates the buffer, freeing memory associated with it and setting its
 // length to zero.
-export fn truncate(s: *io::stream) (void | io::unsupported) = {
+export fn truncate(s: *io::stream) (void | errors::unsupported) = {
 	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
-		return io::unsupported;
+		return errors::unsupported;
 	};
 	let s = s: *dynamic_stream;
 	delete(s.buf[..]);

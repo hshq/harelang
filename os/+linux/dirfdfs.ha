@@ -1,4 +1,5 @@
 use bytes;
+use errors;
 use encoding::utf8;
 use fs;
 use io;
@@ -94,13 +95,13 @@ export fn dirfs_clone(fs: *fs::fs, resolve: resolve_flags...) *fs::fs = {
 };
 
 fn errno_to_fs(err: rt::errno) fs::error = switch (err) {
-	rt::ENOENT  => fs::noentry,
-	rt::EEXIST  => fs::exists,
-	rt::EACCES  => fs::noaccess,
-	rt::EBUSY   => fs::busy,
+	rt::ENOENT  => errors::noentry,
+	rt::EEXIST  => errors::exists,
+	rt::EACCES  => errors::noaccess,
+	rt::EBUSY   => errors::busy,
 	rt::ENOTDIR => fs::wrongtype,
-	rt::EOPNOTSUPP, rt::ENOSYS => io::unsupported,
-	* => errno_to_io(err),
+	rt::EOPNOTSUPP, rt::ENOSYS => errors::unsupported,
+	* => errors::errno(err),
 };
 
 fn _fs_open(

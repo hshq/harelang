@@ -5,7 +5,7 @@ use hare::lex;
 export type error = lex::error!;
 
 // Convert an error into a human-friendly string
-export fn errstr(err: error) const str = lex::errstr(err: lex::error);
+export fn strerror(err: error) const str = lex::strerror(err: lex::error);
 
 fn syntaxerr(
 	loc: lex::location,

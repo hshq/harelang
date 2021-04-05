@@ -41,7 +41,7 @@ export fn main() void = {
 		let input = match (os::open(cmd.args[i])) {
 			f: *io::stream => f,
 			err: io::error => fmt::fatal("Error opening {}: {}",
-				cmd.args[i], io::errstr(err)),
+				cmd.args[i], io::strerror(err)),
 		};
 		defer io::close(input);
 

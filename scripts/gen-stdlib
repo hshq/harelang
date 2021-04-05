@@ -111,7 +111,7 @@ bufio() {
 		dynamic.ha \
 		fixed.ha \
 		scanner.ha
-	gen_ssa bufio io bytes strings encoding::utf8
+	gen_ssa bufio io bytes strings encoding::utf8 errors
 }
 
 bytes() {
@@ -223,6 +223,16 @@ endian() {
 	gen_ssa endian
 }
 
+errors() {
+	gen_srcs errors \
+		common.ha \
+		docs.ha \
+		opaque.ha \
+		string.ha \
+		rt.ha
+	gen_ssa errors
+}
+
 fmt() {
 	gen_srcs fmt \
 		fmt.ha
@@ -240,7 +250,7 @@ fs() {
 		types.ha \
 		fs.ha \
 		util.ha
-	gen_ssa fs io strings path time
+	gen_ssa fs io strings path time errors
 }
 
 getopt() {
@@ -299,7 +309,7 @@ hare_module() {
 	gen_ssa hare::module \
 		hare::ast hare::lex hare::parse hare::unparse strio fs io strings hash \
 		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time slice bufio \
-		strconv os encoding::hex sort
+		strconv os encoding::hex sort errors
 }
 
 gensrcs_hare_parse() {
@@ -368,7 +378,7 @@ io() {
 			+test/limit.ha \
 			+test/stream.ha
 	fi
-	gen_ssa io strings
+	gen_ssa io strings errors
 }
 
 linux() {
@@ -390,7 +400,7 @@ net() {
 		'$(PLATFORM)/socket.ha' \
 		'$(PLATFORM)/util.ha' \
 		socket.ha
-	gen_ssa net io os strings net::ip net::unix
+	gen_ssa net io os strings net::ip net::unix errors
 }
 
 gensrcs_net_ip() {
@@ -428,7 +438,6 @@ math_random() {
 os() {
 	gen_srcs os \
 		'$(PLATFORM)/environ.ha' \
-		'$(PLATFORM)/errors.ha' \
 		'$(PLATFORM)/exit.ha' \
 		'$(PLATFORM)/dirfdfs.ha' \
 		'$(PLATFORM)/fdstream.ha' \
@@ -437,7 +446,7 @@ os() {
 		'$(PLATFORM)/fs.ha' \
 		stdfd.ha \
 		fs.ha
-	gen_ssa os io strings types fs encoding::utf8 bytes bufio
+	gen_ssa os io strings types fs encoding::utf8 bytes bufio errors
 }
 
 os_exec() {
@@ -447,7 +456,7 @@ os_exec() {
 		'process$(PLATFORM).ha' \
 		types.ha \
 		cmd.ha
-	gen_ssa os::exec os strings fmt bytes path
+	gen_ssa os::exec os strings fmt bytes path errors
 }
 
 path() {
@@ -529,7 +538,7 @@ strio() {
 		dynamic.ha \
 		fixed.ha \
 		ops.ha
-	gen_ssa strio io strings encoding::utf8
+	gen_ssa strio io strings encoding::utf8 errors
 }
 
 time() {
@@ -588,6 +597,7 @@ dirs
 encoding_hex
 encoding_utf8
 endian
+errors
 fmt
 format_elf
 fs

@@ -1,3 +1,4 @@
+use errors;
 use rt;
 use fmt;
 // TODO: Add function to wait on all/any children
@@ -17,7 +18,7 @@ export fn wait(proc: *process) (status | error) = {
 	let ru: rt::rusage = rt::rusage { ... };
 	let st: status = status { ... };
 	match (rt::wait4(*proc, &st.status, 0, &ru)) {
-		err: rt::errno => errno_to_os(err),
+		err: rt::errno => errors::errno(err),
 		pid: int => assert(pid == *proc),
 	};
 	rusage(&st, &ru);
@@ -30,7 +31,7 @@ export fn peek(proc: *process) (status | void | error) = {
 	let ru: rt::rusage = rt::rusage { ... };
 	let st: status = status { ... };
 	match (rt::wait4(*proc, &st.status, 0, &ru)) {
-		err: rt::errno => errno_to_os(err),
+		err: rt::errno => errors::errno(err),
 		pid: int => switch (pid) {
 			0 => return void,
 			* => assert(pid == *proc),

@@ -10,7 +10,7 @@ use strings;
 fn printerr(err: parse::error) void = {
 	match (err) {
 		err: lex::syntax => printerr_syntax(err),
-		err: io::error => fmt::errorln(io::errstr(err)),
+		err: io::error => fmt::errorln(io::strerror(err)),
 	};
 };
 

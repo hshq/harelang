@@ -48,7 +48,7 @@ type plan = struct {
 fn mkplan(ctx: *module::context) plan = {
 	const rtdir = match (module::lookup(ctx, ["rt"])) {
 		err: module::error => fmt::fatal("Error resolving rt: {}",
-			module::errstr(err)),
+			module::strerror(err)),
 		ver: module::version => ver.basedir,
 	};
 	return plan {
@@ -115,7 +115,7 @@ fn plan_execute(plan: *plan, verbose: bool) void = {
 
 		match (execute(plan, task, verbose)) {
 			err: exec::error => fmt::fatal("Error: {}: {}",
-				task.cmd[0], exec::errstr(err)),
+				task.cmd[0], exec::strerror(err)),
 			err: exec::exit_status! => fmt::fatal("Error: {}: {}",
 				task.cmd[0], exec::exitstr(err)),
 			void => void,
@@ -139,7 +139,7 @@ fn update_cache(plan: *plan, mod: modcache) void = {
 	match (module::manifest_write(plan.context, &manifest)) {
 		err: module::error => fmt::fatal(
 			"Error updating module cache: {}",
-			module::errstr(err)),
+			module::strerror(err)),
 		void => void,
 	};
 };

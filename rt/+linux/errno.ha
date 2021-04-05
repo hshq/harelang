@@ -15,7 +15,7 @@ fn wrap_return(r: u64) (errno | u64) = {
 
 // Obtains a human-friendly reading of an [errno] (e.g. "Operation not
 // permitted").
-export fn errstr(err: errno) str = {
+export fn strerror(err: errno) str = {
 	return switch (err: int) {
 		EPERM => "Operation not permitted",
 		ENOENT => "No such file or directory",

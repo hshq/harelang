@@ -1,3 +1,4 @@
+use errors;
 use io;
 use net::ip;
 use net::unix;
@@ -39,7 +40,7 @@ export fn connect_unix(
 ) (*io::stream | io::error) = {
 	let sockaddr = match (unix::to_native(addr)) {
 		a: rt::sockaddr => a,
-		unix::invalid => return io::unsupported, // path too long
+		unix::invalid => return errors::unsupported, // path too long
 	};
 	const sockfd = connect_fd(sockaddr, options...)?;
 	return os::fdopen(sockfd, string(addr),
@@ -78,7 +79,7 @@ fn listen_fd(
 		p: *u16 => {
 			if (addr.in.sin_family != rt::AF_INET &&
 				addr.in.sin_family != rt::AF_INET6) {
-				return io::unsupported;
+				return errors::unsupported;
 			};
 			let sn = rt::sockaddr {...};
 			let al = sockasz(addr);
@@ -134,7 +135,7 @@ export fn listen_unix(
 ) (*listener | io::error) = {
 	let sockaddr = match (unix::to_native(addr)) {
 		a: rt::sockaddr => a,
-		unix::invalid => return io::unsupported, // path too long
+		unix::invalid => return errors::unsupported, // path too long
 	};
 	let sockfd = listen_fd(sockaddr, options...)?;
 	return alloc(stream_listener {

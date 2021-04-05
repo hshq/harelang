@@ -80,7 +80,7 @@ fn build(args: []str) void = {
 		ver: module::version => ver,
 		err: module::error => fmt::fatal(
 			"Error scanning input module: {}",
-			module::errstr(err)),
+			module::strerror(err)),
 	};
 
 	let depends: []*task = [];
@@ -178,7 +178,7 @@ fn run(args: []str) void = {
 		ver: module::version => ver,
 		err: module::error => fmt::fatal(
 			"Error scanning input module: {}",
-			module::errstr(err)),
+			module::strerror(err)),
 	};
 
 	let depends: []*task = [];
@@ -193,7 +193,7 @@ fn run(args: []str) void = {
 	sched_hare_exe(&plan, ver, output, depends...);
 	plan_execute(&plan, verbose);
 	let cmd = match (exec::cmd(output, runargs...)) {
-		err: exec::error => fmt::fatal("exec: {}", exec::errstr(err)),
+		err: exec::error => fmt::fatal("exec: {}", exec::strerror(err)),
 		cmd: exec::command => cmd,
 	};
 	exec::setname(&cmd, input);
@@ -256,7 +256,7 @@ fn test(args: []str) void = {
 		ver: module::version => ver,
 		err: module::error => fmt::fatal(
 			"Error scanning input module: {}",
-			module::errstr(err)),
+			module::strerror(err)),
 	};
 
 	let depends: []*task = [];
@@ -271,7 +271,7 @@ fn test(args: []str) void = {
 	sched_hare_exe(&plan, ver, output, depends...);
 	plan_execute(&plan, verbose);
 	let cmd = match (exec::cmd(output, runargs...)) {
-		err: exec::error => fmt::fatal("exec: {}", exec::errstr(err)),
+		err: exec::error => fmt::fatal("exec: {}", exec::strerror(err)),
 		cmd: exec::command => cmd,
 	};
 	exec::setname(&cmd, input);

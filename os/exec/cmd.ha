@@ -1,4 +1,5 @@
 use ascii;
+use errors;
 use os;
 use strings;
 
@@ -20,7 +21,7 @@ export fn cmd(name: str, args: str...) (command | error) = {
 	let cmd = command {
 		platform: platform_cmd =
 			if (strings::contains(name, '/')) match (open(name)) {
-				err: os_error => return nocmd,
+				err: errors::opaque => return nocmd,
 				p: platform_cmd => p,
 			} else match (lookup(name)) {
 				void => return nocmd,
@@ -61,7 +62,7 @@ export @noreturn fn exec(cmd: *command) void = {
 export fn start(cmd: *command) (error | process) = {
 	defer finish(cmd);
 	return match (platform_start(cmd)) {
-		err: os_error => err,
+		err: errors::opaque => err,
 		proc: process => proc,
 	};
 };
@@ -112,7 +113,7 @@ fn lookup(name: str) (platform_cmd | void) = {
 		let path = strings::concat(item, "/", name);
 		defer free(path);
 		match (open(path)) {
-			err: os_error => continue,
+			err: errors::opaque => continue,
 			p: platform_cmd => return p,
 		};
 	};

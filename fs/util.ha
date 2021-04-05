@@ -1,14 +1,15 @@
+use errors;
 use io;
 use path;
 use strings;
 
 // Returns a human-friendly representation of an error.
-export fn errstr(err: error) const str = match (err) {
-	noentry => "File or directory not found",
-	noaccess => "Permission denied",
-	exists => "File or directory exists",
-	invalid => "Invalid argument",
-	err: io::error => io::errstr(err),
+export fn strerror(err: error) const str = match (err) {
+	errors::noentry => "File or directory not found",
+	errors::noaccess => "Permission denied",
+	errors::exists => "File or directory exists",
+	errors::invalid => "Invalid argument",
+	err: io::error => io::strerror(err),
 };
 
 // Converts a mode into a Unix-like mode string (e.g. "-rw-r--r--"). The string

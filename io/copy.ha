@@ -1,3 +1,5 @@
+use errors;
+
 // Copies data from one stream into another. Note that this function will never
 // return if the source stream is infinite.
 export fn copy(dest: *stream, src: *stream) (error | size) = {
@@ -5,7 +7,7 @@ export fn copy(dest: *stream, src: *stream) (error | size) = {
 		null       => void,
 		c: *copier => match (c(dest, src)) {
 			err: error => match (err) {
-				unsupported => void, // Use fallback
+				errors::unsupported => void, // Use fallback
 				* => return err,
 			},
 			s: size => return s,

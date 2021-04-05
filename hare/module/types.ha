@@ -64,13 +64,13 @@ export type error = (
 	module_not_found |
 	ambiguous)!;
 
-export fn errstr(err: error) const str = {
+export fn strerror(err: error) const str = {
 	// Should be more than enough for PATH_MAX * 2
 	static let buf: [4096]u8 = [0...];
 	return match (err) {
-		err: fs::error => fs::errstr(err),
-		err: io::error => io::errstr(err),
-		err: parse::error => parse::errstr(err),
+		err: fs::error => fs::strerror(err),
+		err: io::error => io::strerror(err),
+		err: parse::error => parse::strerror(err),
 		module_not_found => "Module not found",
 		amb: ambiguous => fmt::bsprintf(buf,
 			"Cannot choose between {} and {}", amb.0, amb.1),

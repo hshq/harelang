@@ -1,3 +1,4 @@
+use errors;
 use fs;
 use path;
 use rt;
@@ -26,14 +27,14 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 			assert(fs.open == &fs_open);
 			let fs = fs: *os_filesystem;
 			return match (rt::fchdir(fs.dirfd)) {
-				err: rt::errno => errno_to_io(err): fs::error,
+				err: rt::errno => errors::errno(err),
 				void => void,
 			};
 		},
 		s: str  => s,
 	};
 	return match (rt::chdir(path)) {
-		err: rt::errno => errno_to_io(err): fs::error,
+		err: rt::errno => errors::errno(err),
 		void => void,
 	};
 };
@@ -44,7 +45,7 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 // This function is not appropriate for sandboxing.
 export fn chroot(target: str) (void | fs::error) = {
 	return match (rt::chroot(target)) {
-		err: rt::errno => errno_to_io(err): fs::error,
+		err: rt::errno => errors::errno(err),
 		void => void,
 	};
 };

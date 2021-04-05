@@ -1,3 +1,5 @@
+use errors;
+
 fn test_copier_read(s: *stream, buf: []u8) (size | EOF | error) = {
 	let stream = s: *test_stream;
 	if (stream.r == 0) {
@@ -24,7 +26,8 @@ fn test_copier_copy(a: *stream, b: *stream) (size | error) = {
 	return 1337;
 };
 
-fn test_copy_unsupported(a: *stream, b: *stream) (size | error) = unsupported;
+fn test_copy_unsupported(a: *stream, b: *stream) (size | error) =
+	errors::unsupported;
 
 fn io::println(msg: str) void;
 fn strconv::ztos(z: size) str;

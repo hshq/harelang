@@ -1,3 +1,4 @@
+use errors;
 use io;
 use rt;
 use strings;
@@ -50,7 +51,7 @@ fn is_fdstream(s: *io::stream) bool = {
 export fn streamfd(s: *io::stream) (int | void) = {
 	for (!is_fdstream(s)) {
 		s = match (io::source(s)) {
-			io::unsupported => return,
+			errors::unsupported => return,
 			s: *io::stream  => s,
 		};
 	};
@@ -61,7 +62,7 @@ export fn streamfd(s: *io::stream) (int | void) = {
 fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let stream = s: *fd_stream;
 	return match (rt::read(stream.fd, buf: *[*]u8, len(buf))) {
-		err: rt::errno => errno_to_io(err),
+		err: rt::errno => errors::errno(err),
 		n: size => switch (n) {
 			0 => io::EOF,
 			* => n,
@@ -72,7 +73,7 @@ fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 fn fd_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let stream = s: *fd_stream;
 	return match (rt::write(stream.fd, buf: *const [*]u8, len(buf))) {
-		err: rt::errno => errno_to_io(err),
+		err: rt::errno => errors::errno(err),
 		n: size => n,
 	};
 };
@@ -94,7 +95,7 @@ def SENDFILE_MAX: size = 2147479552z;
 
 fn fd_copy(to: *io::stream, from: *io::stream) (size | io::error) = {
 	if (!is_fdstream(from)) {
-		return io::unsupported;
+		return errors::unsupported;
 	};
 
 	let to = to: *fd_stream, from = from: *fd_stream;
@@ -105,11 +106,11 @@ fn fd_copy(to: *io::stream, from: *io::stream) (size | io::error) = {
 			err: rt::errno => switch (err) {
 				rt::EINVAL => {
 					if (sum == 0) {
-						return io::unsupported;
+						return errors::unsupported;
 					};
-					return errno_to_io(err);
+					return errors::errno(err);
 				},
-				* => return errno_to_io(err),
+				* => return errors::errno(err),
 			},
 			n: size => switch (n) {
 				0 => return sum,
@@ -128,7 +129,7 @@ fn fd_seek(
 ) (io::off | io::error) = {
 	let stream = s: *fd_stream;
 	return match (rt::lseek(stream.fd, off: i64, whence: uint)) {
-		err: rt::errno => errno_to_io(err),
+		err: rt::errno => errors::errno(err),
 		n: i64 => n: io::off,
 	};
 };

@@ -1,25 +1,13 @@
-// An error produced by the underlying source.
-export type os_error = struct {
-	string: *fn(data: *void) str,
-	data: *void,
-}!;
-
-// An error indicating that the requested operation is not supported.
-export type unsupported = void!;
+use errors;
 
 // Any error which may be returned from an I/O function.
-export type error = (os_error | unsupported)!;
+export type error = (errors::unsupported | errors::opaque)!;
 
 // Indicates an end-of-file condition.
 export type EOF = void;
 
-// Converts an I/O error into a user-friendly string.
-export fn errstr(err: error) str = {
-	return match (err) {
-		err: os_error => err.string(err.data),
-		unsupported   => "The requested operation is not supported",
-	};
-};
+// Converts an I/O [error] into a user-friendly string.
+export fn strerror(err: error) str = errors::strerror(err);
 
 // Used to indicate if a stream should be used for reading, or writing, or both.
 export type mode = enum u8 {
@@ -58,7 +46,7 @@ export type closer = fn(s: *stream) void;
 //
 // Returns the number of bytes copied, or an error if one occured. Do not close
 // either stream. If the operation is unsupported for this particular pair of
-// streams, return [io::unsupported] to have [io::copy] proceed with its
+// streams, return [errors::unsupported] to have [io::copy] proceed with its
 // fallback implementation.
 export type copier = fn(to: *stream, from: *stream) (size | error);
 

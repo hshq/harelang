@@ -64,7 +64,7 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 				abort();
 			},
 			err: error => {
-				fmt::errorfln("{}: {}", i, errstr(err));
+				fmt::errorfln("{}: {}", i, strerror(err));
 				abort();
 			},
 		};

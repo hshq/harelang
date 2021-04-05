@@ -1,36 +1,22 @@
+use errors;
 use io;
-use strings;
 use path;
+use strings;
 use time;
-
-// An entry was requested which does not exist.
-export type noentry = void!;
-
-// An attempt was made to create a file or directory which already exists.
-export type exists = void!;
-
-// The user does not have permission to use this resource.
-export type noaccess = void!;
-
-// The requested file is not available.
-export type busy = void!;
 
 // An entry of a particular type was sought, but is something else in practice.
 // For example, opening a file with [iter].
 export type wrongtype = void!;
 
-// An function was called with an invalid combination of arguments
-// For example, calling [rmdir] with empty path
-export type invalid = void!;
-
 // All possible fs error types.
-export type error = (noentry
-	| noaccess
-	| exists
-	| busy
-	| wrongtype
-	| invalid
-	| io::error)!;
+export type error = (
+	errors::noentry |
+	errors::noaccess |
+	errors::exists |
+	errors::busy |
+	errors::invalid |
+	wrongtype |
+	io::error)!;
 
 // File mode information. These bits do not necessarily reflect the underlying
 // operating system's mode representation, though they were chosen to be
