@@ -472,6 +472,7 @@ $(HARECACHE)/hare/module/hare_module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt
 stdlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/decl.ha \
 	$(STDLIB)/hare/parse/expr.ha \
+	$(STDLIB)/hare/parse/exprclass.ha \
 	$(STDLIB)/hare/parse/ident.ha \
 	$(STDLIB)/hare/parse/import.ha \
 	$(STDLIB)/hare/parse/type.ha \
@@ -1286,6 +1287,7 @@ $(TESTCACHE)/hare/module/hare_module.ssa: $(testlib_hare_module_srcs) $(testlib_
 testlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/decl.ha \
 	$(STDLIB)/hare/parse/expr.ha \
+	$(STDLIB)/hare/parse/exprclass.ha \
 	$(STDLIB)/hare/parse/ident.ha \
 	$(STDLIB)/hare/parse/import.ha \
 	$(STDLIB)/hare/parse/type.ha \
