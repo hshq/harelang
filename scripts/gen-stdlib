@@ -570,6 +570,12 @@ unicode() {
 	gen_ssa unicode
 }
 
+unix() {
+	gen_srcs unix \
+		setuid.ha
+	gen_ssa unix
+}
+
 unix_passwd() {
 	gen_srcs unix::passwd \
 		passwd.ha
@@ -629,6 +635,7 @@ temp
 time
 types
 unicode
+unix
 unix_passwd
 uuid"
 stdlib() {

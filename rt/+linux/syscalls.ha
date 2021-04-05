@@ -549,3 +549,13 @@ export fn recvmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
 export fn umask(mode: mode_t) (mode_t | errno) = {
 	return wrap_return(syscall1(SYS_umask, mode: u64))?: mode_t;
 };
+
+export fn setresuid(uid: uid_t, euid: uid_t, suid: uid_t) (void | errno) = {
+	wrap_return(syscall3(SYS_setresuid, uid: u64, euid: u64, suid: u64))?;
+	return;
+};
+
+export fn setresgid(gid: gid_t, egid: gid_t, sgid: gid_t) (void | errno) = {
+	wrap_return(syscall3(SYS_setresgid, gid: u64, egid: u64, sgid: u64))?;
+	return;
+};
