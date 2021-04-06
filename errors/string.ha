@@ -16,5 +16,5 @@ export fn strerror(err: error) const str = match (err) {
 	noentry => "An entry was requested which does not exist",
 	overflow => "The requested operation caused a numeric overflow condition",
 	unsupported => "The requested operation is not supported",
-	op: opaque => op.strerror(&op),
+	op: opaque => op.strerror(&op.data),
 };
