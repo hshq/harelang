@@ -64,6 +64,11 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 	});
 };
 
+fn constant(lexer: *lex::lexer) (ast::expr | error) = {
+	want_btoken(lexer, btoken::VOID)?;
+	return void;
+};
+
 fn control_statement(lexer: *lex::lexer) (ast::expr | error) = {
 	abort(); // TODO
 };
@@ -73,8 +78,51 @@ fn objsel(lexer: *lex::lexer) (ast::expr | error) = {
 };
 
 fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
-	want_btoken(lexer, btoken::VOID)?; // TODO
-	return void;
+	let tok = match (lex::lex(lexer)?) {
+		io::EOF => return syntaxerr(mkloc(lexer),
+			"Unexpected EOF, was expecting an expression"),
+		tok: (lex::token, lex::location) => tok,
+	};
+	let tok = match (tok.0) {
+		btok: btoken => {
+			lex::unlex(lexer, tok);
+			btok;
+		},
+		lit: lex::literal => {
+			lex::unlex(lexer, tok);
+			return constant(lexer);
+		},
+		name: lex::name => {
+			lex::unlex(lexer, tok);
+			let id = ident(lexer)?;
+			return match (try_btoken(lexer, btoken::LBRACE)?) {
+				void => id: ast::access_identifier,
+				btoken => abort(), // TODO: Struct literal
+			};
+		},
+	};
+	return switch (tok) {
+		btoken::TRUE,
+		btoken::FALSE,
+		btoken::NULL,
+		btoken::VOID => {
+			constant(lexer);
+		},
+		btoken::LBRACKET => abort(), // TODO: Array literal
+		btoken::STRUCT => abort(), // TODO: Struct literal
+		btoken::LPAREN => {
+			let ex = complex_expression(lexer);
+			return switch (want_btoken(lexer,
+					btoken::RPAREN, btoken::COMMA)?) {
+				btoken::RPAREN => ex,
+				btoken::COMMA => abort(), // TODO: Tuple literal
+				* => abort(),
+			};
+		},
+		* => syntaxerr(mkloc(lexer),
+			"Unexpected {}, was expecting an expression",
+			lex::tokstr(tok)),
+	};
 };
 
 fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
