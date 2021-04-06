@@ -1,1 +1,2 @@
-export def HOST_ABI: ident_abi = ident_abi::SYSV;
+// The ABI of the target.
+export def TARGET_ABI: ident_abi = ident_abi::SYSV;
