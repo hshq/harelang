@@ -14,32 +14,19 @@ fn binarithm(
 		expr: ast::expr => expr,
 	};
 
-	let tok = match (lex::lex(lexer)?) {
-		io::EOF => return syntaxerr(mkloc(lexer),
-			"Unexpected EOF, was expecting simple expression"),
-		t: (lex::token, lex::location) => t,
-	};
-
+	let tok = mustlex(lexer)?;
 	let j = precedence(tok);
 	for (j >= i; j = precedence(tok)) {
 		const op = binop_for_tok(tok);
 
 		let rvalue = cast(lexer, void)?;
-		tok = match (lex::lex(lexer)?) {
-			io::EOF => return syntaxerr(mkloc(lexer),
-				"Unexpected EOF, expecting simple expression"),
-			t: (lex::token, lex::location) => t,
-		};
+		tok = mustlex(lexer)?;
 
 		let k = precedence(tok);
 		for (k > j; k = precedence(tok)) {
 			lex::unlex(lexer, tok);
 			rvalue = binarithm(lexer, rvalue, k)?;
-			tok = match (lex::lex(lexer)?) {
-				io::EOF => return syntaxerr(mkloc(lexer),
-					"Unexpected EOF, expecting simple expression"),
-				t: (lex::token, lex::location) => t,
-			};
+			tok = mustlex(lexer)?;
 		};
 
 		let expr = ast::binarithm_expr {
@@ -177,11 +164,7 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 	let items: ast::list_expr = [];
 
 	for (let more = true; more) {
-		let tok = match (lex::lex(lexer)?) {
-			io::EOF => return syntaxerr(mkloc(lexer),
-				"Unexpected EOF, expected scope or control expression"),
-			t: (lex::token, lex::location) => t,
-		};
+		let tok = mustlex(lexer)?;
 		lex::unlex(lexer, tok);
 		let item = match (tok.0) {
 			tok: btoken => switch (tok) {

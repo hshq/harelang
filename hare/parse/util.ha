@@ -93,6 +93,15 @@ fn try_btoken(
 	lex::unlex(lexer, tuple);
 };
 
+// Identical to [lex::lex], but considers io::EOF a syntax error.
+fn mustlex(lexer: *lex::lexer) ((lex::token, lex::location) | error) = {
+	return match (lex::lex(lexer)) {
+		err: lex::error => err,
+		io::EOF => syntaxerr(mkloc(lexer), "Unexpected EOF"),
+		t: (lex::token, lex::location) => t,
+	};
+};
+
 // Returns a syntax error if cond is false and void otherwise
 fn synassert(loc: lex::location, cond: bool, msg: str) (void | error) = {
 	if (!cond) {
