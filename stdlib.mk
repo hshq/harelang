@@ -270,7 +270,7 @@ stdlib_crypto_random_srcs= \
 	$(STDLIB)/crypto/random/$(PLATFORM).ha \
 	$(STDLIB)/crypto/random/random.ha
 
-$(HARECACHE)/crypto/random/crypto_random.ssa: $(stdlib_crypto_random_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_io)
+$(HARECACHE)/crypto/random/crypto_random.ssa: $(stdlib_crypto_random_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_io) $(stdlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/random
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
@@ -781,7 +781,7 @@ stdlib_unix_srcs= \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
-$(HARECACHE)/unix/unix.ssa: $(stdlib_unix_srcs) $(stdlib_rt)
+$(HARECACHE)/unix/unix.ssa: $(stdlib_unix_srcs) $(stdlib_rt) $(stdlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix \
@@ -1080,7 +1080,7 @@ testlib_crypto_random_srcs= \
 	$(STDLIB)/crypto/random/$(PLATFORM).ha \
 	$(STDLIB)/crypto/random/random.ha
 
-$(TESTCACHE)/crypto/random/crypto_random.ssa: $(testlib_crypto_random_srcs) $(testlib_rt) $(testlib_rt) $(testlib_io)
+$(TESTCACHE)/crypto/random/crypto_random.ssa: $(testlib_crypto_random_srcs) $(testlib_rt) $(testlib_rt) $(testlib_io) $(testlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/random
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
@@ -1604,7 +1604,7 @@ testlib_unix_srcs= \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
-$(TESTCACHE)/unix/unix.ssa: $(testlib_unix_srcs) $(testlib_rt)
+$(TESTCACHE)/unix/unix.ssa: $(testlib_unix_srcs) $(testlib_rt) $(testlib_errors)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \

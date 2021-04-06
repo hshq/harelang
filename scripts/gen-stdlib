@@ -135,7 +135,7 @@ crypto_random() {
 	gen_srcs crypto::random \
 		'$(PLATFORM).ha' \
 		random.ha
-	gen_ssa crypto::random rt io
+	gen_ssa crypto::random rt io errors
 }
 
 gensrcs_crypto_sha256() {
@@ -584,7 +584,7 @@ unix() {
 		nice'$(PLATFORM)'.ha \
 		getuid.ha \
 		setuid.ha
-	gen_ssa unix
+	gen_ssa unix errors
 }
 
 unix_passwd() {
