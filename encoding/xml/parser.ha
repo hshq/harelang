@@ -3,6 +3,7 @@ use bufio;
 use encoding::utf8;
 use io;
 use strings;
+use strio;
 
 // Returns an XML parser which reads from a stream. The caller must call
 // [parser_free] when they are finished with it.
@@ -36,10 +37,65 @@ export fn parser_free(par: *parser) void = {
 	free(par);
 };
 
-fn prolog(par: *parser) (void | error) = {
-	want(par, "<?xml", WS);
+// Scans for and returns the next [token]. The caller must pass the returned
+// token to [token_free] when they're done with it.
+export fn scan(par: *parser) (token | void | error) = {
+	want(par, OPTWS)?;
+	let rn: rune = match (bufio::scanrune(par.in)?) {
+		io::EOF => return void,
+		rn: rune => rn,
+	};
+	bufio::unreadrune(par.in, rn);
+	return switch (par.state) {
+		state::ELEMENT => switch (rn) {
+			'<' => {
+				let el = scan_element(par);
+				par.state = state::ATTRS;
+				el;
+			},
+			* => syntaxerr,
+		},
+		state::ATTRS => {
+			abort(); // TODO
+		},
+	};
+};
 
-	want(par, "version", OPTWS, '=', OPTWS);
+fn scan_element(par: *parser) (token | error) = {
+	want(par, '<')?;
+	let name = scan_name(par)?;
+	return name: elementstart;
+};
+
+fn scan_name(par: *parser) (str | error) = {
+	let buf = strio::dynamic();
+
+	const rn = match (bufio::scanrune(par.in)?) {
+		io::EOF => return syntaxerr,
+		rn: rune => rn,
+	};
+	if (!isnamestart(rn)) {
+		return syntaxerr;
+	};
+	strio::appendrune(buf, rn);
+
+	for (true) match (bufio::scanrune(par.in)?) {
+		io::EOF => return syntaxerr,
+		rn: rune => if (isname(rn)) {
+			strio::appendrune(buf, rn);
+		} else {
+			bufio::unreadrune(par.in, rn);
+			break;
+		},
+	};
+
+	return strio::finish(buf);
+};
+
+fn prolog(par: *parser) (void | error) = {
+	want(par, "<?xml", WS)?;
+
+	want(par, "version", OPTWS, '=', OPTWS)?;
 	let quot = quote(par)?;
 	want(par, OPTWS, "1.")?;
 	for (true) match (bufio::scanrune(par.in)?) {

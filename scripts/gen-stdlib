@@ -216,8 +216,9 @@ encoding_utf8() {
 encoding_xml() {
 	gen_srcs encoding::xml \
 		types.ha \
-		parser.ha
-	gen_ssa encoding::xml io bufio strings
+		parser.ha \
+		chars.ha
+	gen_ssa encoding::xml io bufio strings ascii strio
 }
 
 endian() {

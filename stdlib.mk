@@ -351,9 +351,10 @@ $(HARECACHE)/encoding/utf8/encoding_utf8.ssa: $(stdlib_encoding_utf8_srcs) $(std
 # encoding::xml
 stdlib_encoding_xml_srcs= \
 	$(STDLIB)/encoding/xml/types.ha \
-	$(STDLIB)/encoding/xml/parser.ha
+	$(STDLIB)/encoding/xml/parser.ha \
+	$(STDLIB)/encoding/xml/chars.ha
 
-$(HARECACHE)/encoding/xml/encoding_xml.ssa: $(stdlib_encoding_xml_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bufio) $(stdlib_strings)
+$(HARECACHE)/encoding/xml/encoding_xml.ssa: $(stdlib_encoding_xml_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bufio) $(stdlib_strings) $(stdlib_ascii) $(stdlib_strio)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/xml
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::xml \
@@ -1167,9 +1168,10 @@ $(TESTCACHE)/encoding/utf8/encoding_utf8.ssa: $(testlib_encoding_utf8_srcs) $(te
 # encoding::xml
 testlib_encoding_xml_srcs= \
 	$(STDLIB)/encoding/xml/types.ha \
-	$(STDLIB)/encoding/xml/parser.ha
+	$(STDLIB)/encoding/xml/parser.ha \
+	$(STDLIB)/encoding/xml/chars.ha
 
-$(TESTCACHE)/encoding/xml/encoding_xml.ssa: $(testlib_encoding_xml_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings)
+$(TESTCACHE)/encoding/xml/encoding_xml.ssa: $(testlib_encoding_xml_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings) $(testlib_ascii) $(testlib_strio)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/encoding/xml
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::xml \
