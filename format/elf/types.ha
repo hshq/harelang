@@ -1,8 +1,9 @@
 // An implementation of the ELF64 file format. Best accompanied with a reading
 // of the ELF-64 Object Format (Version 1.5).
-//
+
 // TODO:
 // - Flesh out ELF32 structures
+
 export def MAGIC: str = "\x7FELF";
 export def EI_MAG0: uint = 0;
 export def EI_MAG1: uint = 1;
