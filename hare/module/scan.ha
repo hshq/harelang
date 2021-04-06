@@ -350,7 +350,7 @@ export fn parsetags(in: str) ([]tag | void) = {
 			void => break,
 			r: rune => {
 				if (ascii::isalnum(r) || r == '_') {
-					strio::append_rune(buf, r);
+					strio::appendrune(buf, r);
 				} else {
 					strings::push(&iter, r);
 					break;
