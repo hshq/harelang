@@ -399,6 +399,8 @@ $(HARECACHE)/fmt/fmt.ssa: $(stdlib_fmt_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdl
 
 # format::elf
 stdlib_format_elf_srcs= \
+	$(STDLIB)/format/elf/$(ARCH).ha \
+	$(STDLIB)/format/elf/$(PLATFORM).ha \
 	$(STDLIB)/format/elf/types.ha
 
 $(HARECACHE)/format/elf/format_elf.ssa: $(stdlib_format_elf_srcs) $(stdlib_rt)
@@ -1213,6 +1215,8 @@ $(TESTCACHE)/fmt/fmt.ssa: $(testlib_fmt_srcs) $(testlib_rt) $(testlib_bufio) $(t
 
 # format::elf
 testlib_format_elf_srcs= \
+	$(STDLIB)/format/elf/$(ARCH).ha \
+	$(STDLIB)/format/elf/$(PLATFORM).ha \
 	$(STDLIB)/format/elf/types.ha
 
 $(TESTCACHE)/format/elf/format_elf.ssa: $(testlib_format_elf_srcs) $(testlib_rt)

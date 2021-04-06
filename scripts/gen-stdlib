@@ -248,6 +248,8 @@ fmt() {
 
 format_elf() {
 	gen_srcs format::elf \
+		'$(ARCH).ha' \
+		'$(PLATFORM).ha' \
 		types.ha
 	gen_ssa format::elf
 }
