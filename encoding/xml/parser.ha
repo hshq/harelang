@@ -63,8 +63,7 @@ export fn scan(par: *parser) (token | void | error) = {
 
 fn scan_element(par: *parser) (token | error) = {
 	want(par, '<')?;
-	let name = scan_name(par)?;
-	return name: elementstart;
+	return scan_name(par)?: elementstart;
 };
 
 fn scan_name(par: *parser) (str | error) = {
