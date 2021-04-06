@@ -14,7 +14,7 @@ export fn println(msgs: str...) void = {
 		};
 	};
 	const linefeed = "\n";
-	rt::write(2, *(&linefeed: **void): *const char, 1);
+	rt::write(1, *(&linefeed: **void): *const char, 1);
 };
 
 // Prints strings to stderr, separated by spaces, and followed by a newline.
