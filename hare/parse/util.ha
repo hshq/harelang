@@ -93,6 +93,32 @@ fn try_btoken(
 	lex::unlex(lexer, tuple);
 };
 
+// Looks for a matching btoken from the lexer, unlexes the token, and returns
+// it; or void if it was not a btoken.
+fn peek_btoken(
+	lexer: *lex::lexer,
+	want: lex::btoken...
+) (lex::btoken | error | void) = {
+	let tok = lex::lex(lexer);
+	let tuple = match (tok?) {
+		io::EOF => return,
+		t: (lex::token, lex::location) => {
+			match (t.0) {
+				b: lex::btoken =>
+				for (let i = 0z; i < len(want); i += 1) {
+					if (b == want[i]) {
+						lex::unlex(lexer, t);
+						return b;
+					};
+				},
+				* => void,
+			};
+			t;
+		},
+	};
+	lex::unlex(lexer, tuple);
+};
+
 // Identical to [lex::lex], but considers io::EOF a syntax error.
 fn mustlex(lexer: *lex::lexer) ((lex::token, lex::location) | error) = {
 	return match (lex::lex(lexer)) {

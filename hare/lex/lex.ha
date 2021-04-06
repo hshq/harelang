@@ -89,6 +89,7 @@ export fn lex(lex: *lexer) ((token, location) | io::EOF | error) = {
 		']' => btoken::RBRACKET,
 		')' => btoken::RPAREN,
 		';' => btoken::SEMICOLON,
+		'?' => btoken::QUESTION,
 	};
 	return (tok, loc);
 };

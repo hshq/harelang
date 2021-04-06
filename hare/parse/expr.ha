@@ -72,16 +72,54 @@ fn objsel(lexer: *lex::lexer) (ast::expr | error) = {
 	abort(); // TODO
 };
 
-fn postfix(lexer: *lex::lexer) (ast::expr | error) = {
+fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 	want_btoken(lexer, btoken::VOID)?; // TODO
 	return void;
+};
+
+fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
+	// Built-ins (XXX: these should probably be moved in the Hare grammar)
+	match (peek_btoken(lexer,
+			btoken::ALLOC, btoken::APPEND, btoken::FREE,
+			btoken::DELETE, btoken::ABORT, btoken::ASSERT,
+			btoken::STATIC, btoken::SIZE, btoken::LEN,
+			btoken::OFFSET)?) {
+		tok: btoken => {
+			if (lvalue is ast::expr) {
+				return syntaxerr(mkloc(lexer),
+					"Unexpected {}, was expecting '(', '.', or '['",
+					lex::tokstr(tok));
+			};
+			abort(); // TODO: Delegate as appropriate
+		},
+		void => void,
+	};
+
+	let lvalue = match (lvalue) {
+		void => plain_expression(lexer)?,
+		ex: ast::expr => ex,
+	};
+
+	match (try_btoken(lexer, btoken::LPAREN, btoken::DOT, btoken::LBRACKET,
+			btoken::QUESTION)) {
+		tok: btoken => switch (tok) {
+			btoken::LPAREN => abort(), // TODO: Calls
+			btoken::DOT => abort(), // TODO: Field access
+			btoken::LBRACKET => abort(), // TODO: Indexing
+			btoken::QUESTION => abort(), // TODO: Propagation
+			* => abort(),
+		},
+		void => return lvalue,
+	};
+
+	return postfix(lexer, lvalue);
 };
 
 fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (try_btoken(lexer,
 			btoken::PLUS, btoken::MINUS, btoken::BNOT,
 			btoken::LNOT, btoken::TIMES, btoken::BAND)) {
-		void => return postfix(lexer),
+		void => return postfix(lexer, void),
 		tok: btoken => tok,
 	};
 	const op = switch (tok) {

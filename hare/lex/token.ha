@@ -24,6 +24,7 @@ export type btoken = enum {
 	CONTINUE,
 	DEF,
 	DEFER,
+	DELETE,
 	ELSE,
 	ENUM,
 	EXPORT,
@@ -71,6 +72,8 @@ export type btoken = enum {
 	BAND,
 	BNOT,
 	BOR,
+	BXOR,
+	BXOREQ,
 	CASE,
 	COLON,
 	COMMA,
@@ -104,6 +107,7 @@ export type btoken = enum {
 	PLUS,
 	PLUSEQ,
 	PLUSPLUS,
+	QUESTION,
 	RBRACE,
 	RBRACKET,
 	RPAREN,
@@ -113,8 +117,6 @@ export type btoken = enum {
 	SLICE,
 	TIMES,
 	TIMESEQ,
-	BXOR,
-	BXOREQ,
 };
 
 const bmap: [_]str = [
@@ -138,6 +140,7 @@ const bmap: [_]str = [
 	"continue",
 	"def",
 	"defer",
+	"delete",
 	"else",
 	"enum",
 	"export",
@@ -180,6 +183,8 @@ const bmap: [_]str = [
 	"void",
 	"&=",
 	"&",
+	"^",
+	"^=",
 	"~",
 	"|",
 	"=>",
@@ -208,6 +213,7 @@ const bmap: [_]str = [
 	"-",
 	"-=",
 	"--",
+	"?",
 	"%=",
 	"%",
 	"!=",
@@ -224,8 +230,6 @@ const bmap: [_]str = [
 	"..",
 	"*",
 	"*=",
-	"^",
-	"^=",
 ];
 
 // A loop label, such as ':example'
