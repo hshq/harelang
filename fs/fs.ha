@@ -115,17 +115,11 @@ export fn rmdirall(fs: *fs, path: str) (void | error) = {
 			if (ent.name == "." || ent.name == "..") {
 				continue;
 			};
+			let p = path::join(path, ent.name);
+			defer free(p);
 			switch (ent.ftype) {
-				mode::DIR => {
-					let p = path::join(path, ent.name);
-					defer free(p);
-					rmdirall(fs, p)?;
-				},
-				* => {
-					let p = path::join(path, ent.name);
-					defer free(p);
-					remove(fs, p)?;
-				},
+				mode::DIR => rmdirall(fs, p)?,
+				* => remove(fs, p)?,
 			};
 		},
 		void => break,
