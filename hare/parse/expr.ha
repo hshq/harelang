@@ -111,7 +111,7 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 		btoken::LBRACKET => abort(), // TODO: Array literal
 		btoken::STRUCT => abort(), // TODO: Struct literal
 		btoken::LPAREN => {
-			let ex = complex_expression(lexer);
+			let ex = expression(lexer);
 			return switch (want_btoken(lexer,
 					btoken::RPAREN, btoken::COMMA)?) {
 				btoken::RPAREN => ex,
@@ -261,9 +261,9 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 					more = false;
 					control_statement(lexer)?;
 				},
-				* => scope_expression(lexer)?,
+				* => expression(lexer)?,
 			},
-			* => scope_expression(lexer)?,
+			* => expression(lexer)?,
 		};
 		append(items, alloc(item));
 		want_btoken(lexer, btoken::SEMICOLON)?;

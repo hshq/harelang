@@ -3,10 +3,10 @@ use hare::lex::{btoken};
 use hare::lex;
 use io;
 
-// Parses a complex-expression.
-export fn complex_expression(lexer: *lex::lexer) (ast::expr | error) = {
-	// TODO: if, for, switch, match
-	return simple_expression(lexer);
+// Parses an expression.
+export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
+	// TODO: if, for, switch, match, etc
+	return binarithm(lexer, void, 0);
 };
 
 // Parses a compound-expression.
@@ -20,21 +20,13 @@ export fn compound_expression(lexer: *lex::lexer) (ast::expr | error) = {
 	lex::unlex(lexer, tok);
 	let tok = match (tok.0) {
 		tok: btoken => tok,
-		* => return complex_expression(lexer),
+		* => return expression(lexer),
 	};
 
 	return switch (tok) {
 		btoken::LBRACE => expression_list(lexer),
 		btoken::BREAK, btoken::CONTINUE, btoken::RETURN =>
 			control_statement(lexer),
-		* => complex_expression(lexer),
+		* => expression(lexer),
 	};
 };
-
-fn scope_expression(lexer: *lex::lexer) (ast::expr | error) = {
-	return simple_expression(lexer); // TODO
-};
-
-// Parses a simple-expression.
-export fn simple_expression(lexer: *lex::lexer) (ast::expr | error) =
-	binarithm(lexer, void, 0);

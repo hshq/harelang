@@ -58,7 +58,7 @@ fn decl_global(
 			_type.flags |= ast::type_flags::CONST;
 		};
 		want_btoken(lexer, btoken::EQUAL)?;
-		let init = simple_expression(lexer)?;
+		let init = expression(lexer)?;
 		let btok = try_btoken(lexer, btoken::COMMA)?;
 		append(decl, ast::decl_global {
 			is_const = tok == btoken::DEF,
