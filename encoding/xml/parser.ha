@@ -40,12 +40,27 @@ export fn parser_free(par: *parser) void = {
 // Scans for and returns the next [token]. The caller must pass the returned
 // token to [token_free] when they're done with it.
 export fn scan(par: *parser) (token | void | error) = {
-	want(par, OPTWS)?;
 	let rn: rune = match (bufio::scanrune(par.in)?) {
-		io::EOF => return void,
+		io::EOF => if (par.state == state::ROOT) {
+			return syntaxerr;
+		} else return void,
 		rn: rune => rn,
 	};
+	// TODO:
+	// - Comments
+	// - Entities/references
+	// - CDATA
+	// - Processing Instructions
 	return switch (par.state) {
+		state::ROOT => switch (rn) {
+			'<' => {
+				bufio::unreadrune(par.in, rn);
+				let el = scan_element(par);
+				par.state = state::ATTRS;
+				el;
+			},
+			* => return syntaxerr,
+		},
 		state::ELEMENT => switch (rn) {
 			'<' => {
 				bufio::unreadrune(par.in, rn);
@@ -53,7 +68,10 @@ export fn scan(par: *parser) (token | void | error) = {
 				par.state = state::ATTRS;
 				el;
 			},
-			* => abort(),
+			* => {
+				bufio::unreadrune(par.in, rn);
+				scan_content(par)?;
+			},
 		},
 		state::ATTRS => {
 			if (rn == '/') {
@@ -74,7 +92,22 @@ export fn scan(par: *parser) (token | void | error) = {
 
 fn scan_element(par: *parser) (token | error) = {
 	want(par, '<')?;
-	return scan_name(par)?: elementstart;
+	let close = false;
+	match (bufio::scanrune(par.in)?) {
+		io::EOF => return syntaxerr,
+		rn: rune => switch (rn) {
+			'/' => close = true,
+			* => bufio::unreadrune(par.in, rn),
+		},
+	};
+	let name = scan_name(par)?;
+	want(par, OPTWS)?;
+	if (close) {
+		free(name);
+		return elementend;
+	} else {
+		return name: elementstart;
+	};
 };
 
 fn scan_attr(par: *parser) (token | error) = {
@@ -94,6 +127,7 @@ fn scan_attr(par: *parser) (token | error) = {
 			strio::appendrune(val, rn);
 		},
 	};
+	want(par, OPTWS)?;
 	return (name, strio::finish(val)): attribute;
 };
 
@@ -120,6 +154,31 @@ fn scan_name(par: *parser) (str | error) = {
 	};
 
 	return strio::finish(buf);
+};
+
+fn scan_content(par: *parser) (text | error) = {
+	let content = strio::dynamic();
+	for (true) match (bufio::scanrune(par.in)?) {
+		io::EOF => break,
+		rn: rune => {
+			switch (rn) {
+				'<' => {
+					bufio::unreadrune(par.in, rn);
+					break;
+				},
+				'&' => {
+					bufio::unreadrune(par.in, rn);
+					abort(); // TODO
+				},
+				'%' => {
+					bufio::unreadrune(par.in, rn);
+					abort(); // TODO
+				},
+			};
+			strio::appendrune(content, rn);
+		},
+	};
+	return strio::finish(content);
 };
 
 fn prolog(par: *parser) (void | error) = {
@@ -172,7 +231,7 @@ fn prolog(par: *parser) (void | error) = {
 		want(par, "yes", quot)?;
 	};
 
-	want(par, OPTWS, "?>")?;
+	want(par, OPTWS, "?>", OPTWS)?;
 	// TODO: Parse doctypedecl & misc
 	return;
 };

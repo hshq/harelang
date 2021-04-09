@@ -10,6 +10,7 @@ export type parser = struct {
 };
 
 export type state = enum {
+	ROOT,
 	ELEMENT,
 	ATTRS,
 };
