@@ -38,9 +38,8 @@ This is a work in progress! The process for bootstrapping Hare is as follows:
 4. Expand the standard library until it's useful for general purpose systems
    programming. Write programs in Hare. Provide benefit to society.
 
-Right now, stage 1 is mostly complete. We've started on stage 2, and we're
-closing loose ends in stage 1 as we run into blockers during the development of
-stage 2.
+Right now, stages 1 and 2 are mostly complete, and we're working on stages 3 and
+4 in parallel.
 
 [0]: https://git.sr.ht/~sircmpwn/harec
 [1]: https://harelang.org/specification
