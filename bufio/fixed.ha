@@ -14,6 +14,7 @@ export fn fixed(in: []u8, mode: io::mode) *io::stream = {
 	let s = alloc(fixed_stream {
 		stream = io::stream {
 			name = "<bufio::fixed>",
+			closer = &fixed_close,
 			...
 		},
 		buf = in,
@@ -50,6 +51,8 @@ fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	stream.buf = stream.buf[n..];
 	return n;
 };
+
+fn fixed_close(s: *io::stream) void = free(s);
 
 @test fn fixed() void = {
 	// TODO: add a read test too
