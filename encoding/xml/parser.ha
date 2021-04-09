@@ -45,18 +45,29 @@ export fn scan(par: *parser) (token | void | error) = {
 		io::EOF => return void,
 		rn: rune => rn,
 	};
-	bufio::unreadrune(par.in, rn);
 	return switch (par.state) {
 		state::ELEMENT => switch (rn) {
 			'<' => {
+				bufio::unreadrune(par.in, rn);
 				let el = scan_element(par);
 				par.state = state::ATTRS;
 				el;
 			},
-			* => syntaxerr,
+			* => abort(),
 		},
 		state::ATTRS => {
-			abort(); // TODO
+			if (rn == '/') {
+				want(par, '>')?;
+				par.state = state::ELEMENT;
+				return elementend;
+			} else if (rn == '>') {
+				par.state = state::ELEMENT;
+				return scan(par)?;
+			} else if (!isnamestart(rn)) {
+				return syntaxerr;
+			};
+			bufio::unreadrune(par.in, rn);
+			scan_attr(par)?;
 		},
 	};
 };
@@ -64,6 +75,26 @@ export fn scan(par: *parser) (token | void | error) = {
 fn scan_element(par: *parser) (token | error) = {
 	want(par, '<')?;
 	return scan_name(par)?: elementstart;
+};
+
+fn scan_attr(par: *parser) (token | error) = {
+	let name = scan_name(par)?;
+	want(par, OPTWS, '=', OPTWS);
+	let quot = quote(par)?;
+	let val = strio::dynamic();
+	for (true) match (bufio::scanrune(par.in)?) {
+		io::EOF => return syntaxerr,
+		rn: rune => {
+			switch (rn) {
+				'<' => abort(), // TODO
+				'&' => abort(), // TODO
+				* => void,
+			};
+			if (rn == quot) break;
+			strio::appendrune(val, rn);
+		},
+	};
+	return (name, strio::finish(val)): attribute;
 };
 
 fn scan_name(par: *parser) (str | error) = {
