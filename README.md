@@ -80,5 +80,5 @@ The Hare specification is licensed much more strictly: CC-BY-ND. This license
 allows free redistribution of the document, but prohibits derivative works
 entirely. The purpose is to prevent the proliferation of vendor extensions to
 the language itself. However, these terms only apply to the specification
-itself: if you use the specification write an implementation of the Hare
+itself: if you use the specification to write an implementation of the Hare
 language, you are not restricted in how you license your work.
