@@ -1222,7 +1222,8 @@ $(TESTCACHE)/encoding/utf8/encoding_utf8.ssa: $(testlib_encoding_utf8_srcs) $(te
 testlib_encoding_xml_srcs= \
 	$(STDLIB)/encoding/xml/types.ha \
 	$(STDLIB)/encoding/xml/parser.ha \
-	$(STDLIB)/encoding/xml/chars.ha
+	$(STDLIB)/encoding/xml/chars.ha \
+	$(STDLIB)/encoding/xml/+test.ha
 
 $(TESTCACHE)/encoding/xml/encoding_xml.ssa: $(testlib_encoding_xml_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings) $(testlib_ascii) $(testlib_strio)
 	@printf 'HAREC \t$@\n'

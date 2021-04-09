@@ -233,11 +233,21 @@ encoding_utf8() {
 	gen_ssa encoding::utf8 types
 }
 
-encoding_xml() {
+gensrcs_encoding_xml() {
 	gen_srcs encoding::xml \
 		types.ha \
 		parser.ha \
-		chars.ha
+		chars.ha \
+		$*
+}
+
+encoding_xml() {
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_encoding_xml
+	else
+		gensrcs_encoding_xml +test.ha
+	fi
 	gen_ssa encoding::xml io bufio strings ascii strio
 }
 

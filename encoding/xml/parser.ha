@@ -53,6 +53,10 @@ export fn parser_free(par: *parser) void = {
 // Scans for and returns the next [token]. The caller must pass the returned
 // token to [token_free] when they're done with it.
 export fn scan(par: *parser) (token | void | error) = {
+	switch (par.state) {
+		state::ROOT, state::ATTRS => want(par, OPTWS)?,
+		* => void,
+	};
 	let rn: rune = match (bufio::scanrune(par.in)?) {
 		io::EOF => if (par.state == state::ROOT) {
 			return syntaxerr;
@@ -68,7 +72,7 @@ export fn scan(par: *parser) (token | void | error) = {
 		state::ROOT => switch (rn) {
 			'<' => {
 				bufio::unreadrune(par.in, rn);
-				let el = scan_element(par);
+				let el = scan_element(par)?;
 				par.state = state::ATTRS;
 				el;
 			},
@@ -114,7 +118,6 @@ fn scan_element(par: *parser) (token | error) = {
 		},
 	};
 	let name = scan_name(par)?;
-	want(par, OPTWS)?;
 	if (close) {
 		free(name);
 		return elementend;
@@ -140,7 +143,6 @@ fn scan_attr(par: *parser) (token | error) = {
 			strio::appendrune(val, rn);
 		},
 	};
-	want(par, OPTWS)?;
 	return (name, strio::finish(val)): attribute;
 };
 
@@ -209,7 +211,6 @@ fn prolog(par: *parser) (void | error) = {
 	};
 	want(par, quot)?;
 
-	// TODO: Replace this with attribute() when it's written
 	let hadws = want(par, OPTWS)?;
 	let encoding = match (bufio::scanrune(par.in)) {
 		io::EOF => false,
@@ -219,14 +220,15 @@ fn prolog(par: *parser) (void | error) = {
 		},
 	};
 	if (encoding) {
-		want(par, "encoding", OPTWS, '=', OPTWS)?;
-		let quot = quote(par)?;
-		match (want(par, "UTF-8")) {
-			syntaxerr => return utf8::invalid,
-			err: error => return err,
-			bool => void,
+		let attr = scan_attr(par)? as attribute;
+		defer token_free(attr);
+		if (attr.0 != "encoding") {
+			return syntaxerr;
 		};
-		want(par, quot)?;
+		match (ascii::strcasecmp(attr.1, "utf-8")) {
+			void => return utf8::invalid,
+			n: int => if (n != 0) return utf8::invalid,
+		};
 	};
 
 	let hadws = want(par, OPTWS)?;
@@ -238,10 +240,15 @@ fn prolog(par: *parser) (void | error) = {
 		},
 	};
 	if (standalone) {
-		want(par, "standalone", OPTWS, '=', OPTWS)?;
-		let quot = quote(par)?;
-		// TODO: Should we support standalone="no"?
-		want(par, "yes", quot)?;
+		let attr = scan_attr(par)? as attribute;
+		defer token_free(attr);
+		if (attr.0 != "standalone") {
+			return syntaxerr;
+		};
+		match (ascii::strcasecmp(attr.1, "yes")) {
+			void => return syntaxerr,
+			n: int => if (n != 0) return syntaxerr, // TODO?
+		};
 	};
 
 	want(par, OPTWS, "?>", OPTWS)?;
@@ -269,7 +276,7 @@ fn want(par: *parser, tok: (rune | str | whitespace)...) (bool | error) = {
 	for (let i = 0z; i < len(tok); i += 1) match (tok[i]) {
 		x: rune => {
 			let have = match (bufio::scanrune(par.in)?) {
-				* => return syntaxerr,
+				io::EOF => return syntaxerr,
 				rn: rune => rn,
 			};
 			if (have != x) {
