@@ -111,9 +111,6 @@ hare_stdlib_deps+=$(stdlib_encoding_hex)
 stdlib_encoding_utf8=$(HARECACHE)/encoding/utf8/encoding_utf8.o
 hare_stdlib_deps+=$(stdlib_encoding_utf8)
 
-stdlib_encoding_xml=$(HARECACHE)/encoding/xml/encoding_xml.o
-hare_stdlib_deps+=$(stdlib_encoding_xml)
-
 stdlib_endian=$(HARECACHE)/endian/endian.o
 hare_stdlib_deps+=$(stdlib_endian)
 
@@ -125,6 +122,9 @@ hare_stdlib_deps+=$(stdlib_fmt)
 
 stdlib_format_elf=$(HARECACHE)/format/elf/format_elf.o
 hare_stdlib_deps+=$(stdlib_format_elf)
+
+stdlib_format_xml=$(HARECACHE)/format/xml/format_xml.o
+hare_stdlib_deps+=$(stdlib_format_xml)
 
 stdlib_fs=$(HARECACHE)/fs/fs.o
 hare_stdlib_deps+=$(stdlib_fs)
@@ -374,18 +374,6 @@ $(HARECACHE)/encoding/utf8/encoding_utf8.ssa: $(stdlib_encoding_utf8_srcs) $(std
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::utf8 \
 		-t$(HARECACHE)/encoding/utf8/encoding_utf8.td $(stdlib_encoding_utf8_srcs)
 
-# encoding::xml
-stdlib_encoding_xml_srcs= \
-	$(STDLIB)/encoding/xml/types.ha \
-	$(STDLIB)/encoding/xml/parser.ha \
-	$(STDLIB)/encoding/xml/chars.ha
-
-$(HARECACHE)/encoding/xml/encoding_xml.ssa: $(stdlib_encoding_xml_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bufio) $(stdlib_strings) $(stdlib_ascii) $(stdlib_strio)
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/encoding/xml
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::xml \
-		-t$(HARECACHE)/encoding/xml/encoding_xml.td $(stdlib_encoding_xml_srcs)
-
 # endian
 stdlib_endian_srcs= \
 	$(STDLIB)/endian/big.ha \
@@ -435,6 +423,18 @@ $(HARECACHE)/format/elf/format_elf.ssa: $(stdlib_format_elf_srcs) $(stdlib_rt)
 	@mkdir -p $(HARECACHE)/format/elf
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::elf \
 		-t$(HARECACHE)/format/elf/format_elf.td $(stdlib_format_elf_srcs)
+
+# format::xml
+stdlib_format_xml_srcs= \
+	$(STDLIB)/format/xml/types.ha \
+	$(STDLIB)/format/xml/parser.ha \
+	$(STDLIB)/format/xml/chars.ha
+
+$(HARECACHE)/format/xml/format_xml.ssa: $(stdlib_format_xml_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bufio) $(stdlib_strings) $(stdlib_ascii) $(stdlib_strio)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/format/xml
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::xml \
+		-t$(HARECACHE)/format/xml/format_xml.td $(stdlib_format_xml_srcs)
 
 # fs
 stdlib_fs_srcs= \
@@ -950,9 +950,6 @@ hare_testlib_deps+=$(testlib_encoding_hex)
 testlib_encoding_utf8=$(TESTCACHE)/encoding/utf8/encoding_utf8.o
 hare_testlib_deps+=$(testlib_encoding_utf8)
 
-testlib_encoding_xml=$(TESTCACHE)/encoding/xml/encoding_xml.o
-hare_testlib_deps+=$(testlib_encoding_xml)
-
 testlib_endian=$(TESTCACHE)/endian/endian.o
 hare_testlib_deps+=$(testlib_endian)
 
@@ -964,6 +961,9 @@ hare_testlib_deps+=$(testlib_fmt)
 
 testlib_format_elf=$(TESTCACHE)/format/elf/format_elf.o
 hare_testlib_deps+=$(testlib_format_elf)
+
+testlib_format_xml=$(TESTCACHE)/format/xml/format_xml.o
+hare_testlib_deps+=$(testlib_format_xml)
 
 testlib_fs=$(TESTCACHE)/fs/fs.o
 hare_testlib_deps+=$(testlib_fs)
@@ -1218,19 +1218,6 @@ $(TESTCACHE)/encoding/utf8/encoding_utf8.ssa: $(testlib_encoding_utf8_srcs) $(te
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::utf8 \
 		-t$(TESTCACHE)/encoding/utf8/encoding_utf8.td $(testlib_encoding_utf8_srcs)
 
-# encoding::xml
-testlib_encoding_xml_srcs= \
-	$(STDLIB)/encoding/xml/types.ha \
-	$(STDLIB)/encoding/xml/parser.ha \
-	$(STDLIB)/encoding/xml/chars.ha \
-	$(STDLIB)/encoding/xml/+test.ha
-
-$(TESTCACHE)/encoding/xml/encoding_xml.ssa: $(testlib_encoding_xml_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings) $(testlib_ascii) $(testlib_strio)
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/encoding/xml
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::xml \
-		-t$(TESTCACHE)/encoding/xml/encoding_xml.td $(testlib_encoding_xml_srcs)
-
 # endian
 testlib_endian_srcs= \
 	$(STDLIB)/endian/big.ha \
@@ -1280,6 +1267,19 @@ $(TESTCACHE)/format/elf/format_elf.ssa: $(testlib_format_elf_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/format/elf
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::elf \
 		-t$(TESTCACHE)/format/elf/format_elf.td $(testlib_format_elf_srcs)
+
+# format::xml
+testlib_format_xml_srcs= \
+	$(STDLIB)/format/xml/types.ha \
+	$(STDLIB)/format/xml/parser.ha \
+	$(STDLIB)/format/xml/chars.ha \
+	$(STDLIB)/format/xml/+test.ha
+
+$(TESTCACHE)/format/xml/format_xml.ssa: $(testlib_format_xml_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings) $(testlib_ascii) $(testlib_strio)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/format/xml
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::xml \
+		-t$(TESTCACHE)/format/xml/format_xml.td $(testlib_format_xml_srcs)
 
 # fs
 testlib_fs_srcs= \
