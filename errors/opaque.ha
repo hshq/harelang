@@ -7,9 +7,10 @@
 //
 // 	fn wraperror(err: myerror) error::opaque = {
 // 		static assert(size(myerror) <= size(error::opaque_data));
-// 		let wrapped = opaque { strerror = &opaque_strerror, ... };
+// 		let wrapped = errors::opaque { strerror = &opaque_strerror, ... };
 // 		let myptr = &wrapped.data: *myerror;
 // 		*myptr = err;
+// 		return wrapped;
 // 	};
 //
 // 	fn opaque_strerror(err: *opaque_data) const str = {
