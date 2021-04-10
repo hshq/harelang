@@ -53,6 +53,19 @@ use fmt;
 	]);
 };
 
+@test fn cdata() void = {
+	xmltest("<?xml version='1.0' encoding='utf-8' ?>
+<root>
+	<![CDATA[Hello world &foo <bar>]]>
+</root>", [
+		"root": elementstart,
+		"\n\t": text,
+		"Hello world &foo <bar>": text,
+		"\n": text,
+		elementend,
+	]);
+};
+
 fn xmltest(input: str, expected: []token) void = {
 	let in = bufio::fixed(strings::toutf8(input), io::mode::READ);
 	defer io::close(in);
