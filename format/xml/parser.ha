@@ -17,6 +17,10 @@ use encoding::utf8;
 use io;
 use strings;
 use strio;
+// Are you an intrepid programmer seeking to fork this module to create a more
+// sophisticated XML parser supporting a broader set of features? Good news: all
+// of the features you need to implement are annotated throughout with
+// "XXX: Deliberate ommission" comments.
 
 // Returns an XML parser which reads from a stream. The caller must call
 // [parser_free] when they are finished with it.
@@ -116,10 +120,13 @@ fn scan_attr(par: *parser) (token | error) = {
 	for (true) match (bufio::scanrune(par.in)?) {
 		io::EOF => return syntaxerr,
 		rn: rune => {
-			switch (rn) {
+			rn = switch (rn) {
 				'<' => return syntaxerr,
-				'&' => abort(), // TODO: Entities
-				* => void,
+				'&' => {
+					bufio::unreadrune(par.in, rn);
+					scan_entity(par)?;
+				},
+				* => rn,
 			};
 			if (rn == quot) break;
 			strio::appendrune(val, rn);
@@ -175,11 +182,13 @@ fn scan_content(par: *parser) (text | error) = {
 				},
 				'&' => {
 					bufio::unreadrune(par.in, rn);
-					abort(); // TODO: Entities
+					scan_entity(par);
 				},
 				'%' => {
 					bufio::unreadrune(par.in, rn);
-					abort(); // TODO: Parameter entities
+					// XXX: Deliberate omission: parameter
+					// entities
+					return syntaxerr;
 				},
 			};
 			strio::appendrune(content, rn);
@@ -205,6 +214,12 @@ fn scan_element(par: *parser) (token | error) = {
 	} else {
 		return name: elementstart;
 	};
+};
+
+fn scan_entity(par: *parser) (rune | error) = {
+	// XXX: Deliberate ommission: this only supports the pre-defined
+	// entities as defined by XML 1.0 (Fifth Edition) section 4.6.
+	abort(); // TODO
 };
 
 fn scan_name(par: *parser) (str | error) = {
@@ -237,6 +252,9 @@ fn scan_pi(par: *parser) (void | error) = {
 };
 
 fn prolog(par: *parser) (void | error) = {
+	// XXX: Deliberate omission(s):
+	// - UTF-8 BOM detection
+	// - UTF-16 support
 	want(par, "<?xml", WS)?;
 
 	want(par, "version", OPTWS, '=', OPTWS)?;
@@ -265,6 +283,7 @@ fn prolog(par: *parser) (void | error) = {
 		if (attr.0 != "encoding") {
 			return syntaxerr;
 		};
+		// XXX: Deliberate omission: all values other than utf-8
 		match (ascii::strcasecmp(attr.1, "utf-8")) {
 			void => return utf8::invalid,
 			n: int => if (n != 0) return utf8::invalid,
@@ -285,9 +304,10 @@ fn prolog(par: *parser) (void | error) = {
 		if (attr.0 != "standalone") {
 			return syntaxerr;
 		};
+		// XXX: Deliberate omission: non-standalone documents
 		match (ascii::strcasecmp(attr.1, "yes")) {
 			void => return syntaxerr,
-			n: int => if (n != 0) return syntaxerr, // TODO?
+			n: int => if (n != 0) return syntaxerr,
 		};
 	};
 
