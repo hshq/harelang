@@ -63,29 +63,30 @@ export fn scan(par: *parser) (token | void | error) = {
 		} else return void,
 		rn: rune => rn,
 	};
-	// TODO:
-	// - Comments
-	// - Entities/references
-	// - CDATA
-	// - Processing Instructions
 	return switch (par.state) {
-		state::ROOT => switch (rn) {
+		state::ROOT, state::ELEMENT => switch (rn) {
 			'<' => {
+				const next = match (bufio::scanrune(par.in)?) {
+					io::EOF => return syntaxerr,
+					rn: rune => {
+						bufio::unreadrune(par.in, rn);
+						rn;
+					},
+				};
 				bufio::unreadrune(par.in, rn);
+				switch (next) {
+					'!' => return scan_comment(par),
+					'?' => return scan_pi(par),
+					* => void,
+				};
 				let el = scan_element(par)?;
 				par.state = state::ATTRS;
 				el;
 			},
-			* => return syntaxerr,
-		},
-		state::ELEMENT => switch (rn) {
-			'<' => {
-				bufio::unreadrune(par.in, rn);
-				let el = scan_element(par);
-				par.state = state::ATTRS;
-				el;
-			},
 			* => {
+				if (par.state == state::ROOT) {
+					return syntaxerr;
+				};
 				bufio::unreadrune(par.in, rn);
 				scan_content(par)?;
 			},
@@ -107,6 +108,86 @@ export fn scan(par: *parser) (token | void | error) = {
 	};
 };
 
+fn scan_attr(par: *parser) (token | error) = {
+	let name = scan_name(par)?;
+	want(par, OPTWS, '=', OPTWS);
+	let quot = quote(par)?;
+	let val = strio::dynamic();
+	for (true) match (bufio::scanrune(par.in)?) {
+		io::EOF => return syntaxerr,
+		rn: rune => {
+			switch (rn) {
+				'<' => return syntaxerr,
+				'&' => abort(), // TODO: Entities
+				* => void,
+			};
+			if (rn == quot) break;
+			strio::appendrune(val, rn);
+		},
+	};
+	return (name, strio::finish(val)): attribute;
+};
+
+fn scan_comment(par: *parser) (token | void | error) = {
+	want(par, "<!")?;
+	match (bufio::scanrune(par.in)?) {
+		io::EOF => return syntaxerr,
+		rn: rune => switch (rn) {
+			'-' => { // Comments
+				want(par, '-')?;
+			},
+			'[' => { // CDATA
+				want(par, "CDATA[")?;
+				abort(); // TODO
+			},
+			* => return syntaxerr,
+		},
+	};
+	for (true) {
+		let rn = match (bufio::scanrune(par.in)?) {
+			io::EOF => return syntaxerr,
+			rn: rune => rn,
+		};
+		if (rn != '-') continue;
+		let rn = match (bufio::scanrune(par.in)?) {
+			io::EOF => return syntaxerr,
+			rn: rune => rn,
+		};
+		if (rn != '-') continue;
+		let rn = match (bufio::scanrune(par.in)?) {
+			io::EOF => return syntaxerr,
+			rn: rune => rn,
+		};
+		if (rn == '>') break;
+	};
+	return scan(par);
+};
+
+fn scan_content(par: *parser) (text | error) = {
+	let content = strio::dynamic();
+	for (true) match (bufio::scanrune(par.in)?) {
+		io::EOF => break,
+		rn: rune => {
+			switch (rn) {
+				'<' => {
+					bufio::unreadrune(par.in, rn);
+					break;
+				},
+				'&' => {
+					bufio::unreadrune(par.in, rn);
+					abort(); // TODO: Entities
+				},
+				'%' => {
+					bufio::unreadrune(par.in, rn);
+					abort(); // TODO: Parameter entities
+				},
+			};
+			strio::appendrune(content, rn);
+		},
+	};
+	return strio::finish(content);
+};
+
 fn scan_element(par: *parser) (token | error) = {
 	want(par, '<')?;
 	let close = false;
@@ -124,26 +205,6 @@ fn scan_element(par: *parser) (token | error) = {
 	} else {
 		return name: elementstart;
 	};
-};
-
-fn scan_attr(par: *parser) (token | error) = {
-	let name = scan_name(par)?;
-	want(par, OPTWS, '=', OPTWS);
-	let quot = quote(par)?;
-	let val = strio::dynamic();
-	for (true) match (bufio::scanrune(par.in)?) {
-		io::EOF => return syntaxerr,
-		rn: rune => {
-			switch (rn) {
-				'<' => abort(), // TODO
-				'&' => abort(), // TODO
-				* => void,
-			};
-			if (rn == quot) break;
-			strio::appendrune(val, rn);
-		},
-	};
-	return (name, strio::finish(val)): attribute;
 };
 
 fn scan_name(par: *parser) (str | error) = {
@@ -171,29 +232,8 @@ fn scan_name(par: *parser) (str | error) = {
 	return strio::finish(buf);
 };
 
-fn scan_content(par: *parser) (text | error) = {
-	let content = strio::dynamic();
-	for (true) match (bufio::scanrune(par.in)?) {
-		io::EOF => break,
-		rn: rune => {
-			switch (rn) {
-				'<' => {
-					bufio::unreadrune(par.in, rn);
-					break;
-				},
-				'&' => {
-					bufio::unreadrune(par.in, rn);
-					abort(); // TODO
-				},
-				'%' => {
-					bufio::unreadrune(par.in, rn);
-					abort(); // TODO
-				},
-			};
-			strio::appendrune(content, rn);
-		},
-	};
-	return strio::finish(content);
+fn scan_pi(par: *parser) (void | error) = {
+	abort(); // TODO: Processor instructions
 };
 
 fn prolog(par: *parser) (void | error) = {
