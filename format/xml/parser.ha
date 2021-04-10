@@ -15,8 +15,12 @@ use ascii;
 use bufio;
 use encoding::utf8;
 use io;
+use strconv;
 use strings;
 use strio;
+
+// Note:
+//
 // Are you an intrepid programmer seeking to fork this module to create a more
 // sophisticated XML parser supporting a broader set of features? Good news: all
 // of the features you need to implement are annotated throughout with
@@ -175,20 +179,14 @@ fn scan_content(par: *parser) (text | error) = {
 	for (true) match (bufio::scanrune(par.in)?) {
 		io::EOF => break,
 		rn: rune => {
-			switch (rn) {
+			rn = switch (rn) {
 				'<' => {
 					bufio::unreadrune(par.in, rn);
 					break;
 				},
-				'&' => {
+				'&', '%' => {
 					bufio::unreadrune(par.in, rn);
-					scan_entity(par);
-				},
-				'%' => {
-					bufio::unreadrune(par.in, rn);
-					// XXX: Deliberate omission: parameter
-					// entities
-					return syntaxerr;
+					scan_entity(par)?;
 				},
 			};
 			strio::appendrune(content, rn);
@@ -217,9 +215,73 @@ fn scan_element(par: *parser) (token | error) = {
 };
 
 fn scan_entity(par: *parser) (rune | error) = {
+	want(par, '&')?;
+	let rn = match (bufio::scanrune(par.in)?) {
+		io::EOF => return syntaxerr,
+		rn: rune => rn,
+	};
+	return switch (rn) {
+		'#' => scan_charref(par),
+		'%' => syntaxerr, // XXX: Deliberate omission: PEReference
+		*   => {
+			bufio::unreadrune(par.in, rn);
+			scan_namedent(par);
+		},
+	};
+};
+
+fn scan_charref(par: *parser) (rune | error) = {
+	let base = strconv::base::DEC;
+	match (bufio::scanrune(par.in)?) {
+		io::EOF => return syntaxerr,
+		rn: rune => if (rn == 'x') {
+			base = strconv::base::HEX;
+		} else bufio::unreadrune(par.in, rn),
+	};
+
+	let buf = strio::dynamic();
+	defer io::close(buf);
+	for (true) {
+		let rn = match (bufio::scanrune(par.in)?) {
+			io::EOF => return syntaxerr,
+			rn: rune => rn,
+		};
+		if (ascii::isdigit(rn)) {
+			strio::appendrune(buf, rn);
+		} else if (rn == ';') {
+			break;
+		} else {
+			return syntaxerr;
+		};
+	};
+	if (len(strio::string(buf)) == 0) {
+		return syntaxerr;
+	};
+	return match (strconv::stou32b(strio::string(buf), base)) {
+		u: u32 => u: rune,
+		(strconv::invalid | strconv::overflow) => syntaxerr,
+	};
+};
+
+fn scan_namedent(par: *parser) (rune | error) = {
+	let name = scan_name(par)?;
+	defer free(name);
+	want(par, ';')?;
+	let map = [
+		("lt", '<'),
+		("gt", '>'),
+		("amp", '&'),
+		("apos", '\''),
+		("quot", '"'),
+	];
+	for (let i = 0z; i < len(map); i += 1) {
+		if (map[i].0 == name) {
+			return map[i].1;
+		};
+	};
 	// XXX: Deliberate ommission: this only supports the pre-defined
 	// entities as defined by XML 1.0 (Fifth Edition) section 4.6.
-	abort(); // TODO
+	return syntaxerr;
 };
 
 fn scan_name(par: *parser) (str | error) = {

@@ -35,6 +35,22 @@ use strings;
 	]);
 };
 
+@test fn entities() void = {
+	xmltest("<?xml version='1.0' encoding='utf-8' ?>
+<root>
+	<hello name='foobar &amp;&#33;&#x21;'>&lt;world&gt; &quot;&apos;</hello>
+</root>", [
+		"root": elementstart,
+		"\n\t": text,
+		"hello": elementstart,
+		("name", "foobar &!!"): attribute,
+		"<world> \"'": text,
+		elementend,
+		"\n": text,
+		elementend,
+	]);
+};
+
 fn xmltest(input: str, expected: []token) void = {
 	let in = bufio::fixed(strings::toutf8(input), io::mode::READ);
 	defer io::close(in);
