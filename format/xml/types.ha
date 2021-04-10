@@ -1,11 +1,12 @@
 use encoding::utf8;
 use io;
+use os;
 
 // Represents the state for an XML parser.
 export type parser = struct {
 	orig: *io::stream,
 	in: *io::stream,
-	buf: [4096]u8,
+	buf: [os::BUFSIZ]u8,
 	state: state,
 	// strio buffers:
 	namebuf: *io::stream,
