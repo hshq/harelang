@@ -9,7 +9,7 @@ let static_stdin_bufio: bufio::bufstream  = bufio::bufstream { ... };
 let static_stdout_bufio: bufio::bufstream = bufio::bufstream { ... };
 
 // The recommended buffer size for reading from disk.
-export def BUFSIZ: size = 1048576; // 1 MiB
+export def BUFSIZ: size = 4096; // 4 KiB
 
 @init fn init_stdfd() void = {
 	stdin = static_fdopen(0, "<stdin>", io::mode::READ, &static_stdin_fd);
