@@ -117,7 +117,13 @@ export fn unread(s: *io::stream, buf: []u8) void = {
 export fn unreadrune(s: *io::stream, rn: rune) void = {
 	assert(isbuffered(s), "bufio: unread used on non-buffered stream");
 	let s = s: *bufstream;
-	append(s.unread, ...utf8::encoderune(rn));
+	const buf = utf8::encoderune(rn);
+
+	let new: []u8 = alloc([], len(s.unread) + len(buf));
+	append(new, ...buf);
+	append(new, ...s.unread);
+	free(s.unread);
+	s.unread = new;
 };
 
 fn buffered_close(s: *io::stream) void = {
