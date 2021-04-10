@@ -11,6 +11,7 @@ fn limited_stream_new(source: *stream, limit: size) *limited_stream = {
 		stream = stream {
 			name = strings::dup(source.name),
 			closer = &limited_close,
+			unwrap = &limited_unwrap,
 			...
 		},
 		source = source,
@@ -57,4 +58,10 @@ fn limited_write(s: *stream, buf: const []u8) (size | error) = {
 fn limited_close(s: *stream) void = {
 	free(s.name);
 	free(s);
+};
+
+fn limited_unwrap(s: *stream) *io::stream = {
+	assert(s.unwrap == &limited_unwrap);
+	let s = s: *limited_stream;
+	return s.source;
 };

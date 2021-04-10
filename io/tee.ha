@@ -11,6 +11,7 @@ export fn tee(source: *stream, sink: *stream) *stream = {
 		stream = stream {
 			reader = &tee_read,
 			closer = &tee_close,
+			unwrap = &tee_unwrap,
 			...
 		},
 		source = source,
@@ -32,3 +33,9 @@ fn tee_read(s: *stream, buf: []u8) (size | EOF | error) = {
 };
 
 fn tee_close(s: *stream) void = free(s);
+
+fn tee_unwrap(s: *stream) *io::stream = {
+	assert(s.unwrap == &tee_unwrap);
+	let s = s: *tee_stream;
+	return s.source;
+};
