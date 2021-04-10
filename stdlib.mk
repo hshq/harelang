@@ -430,7 +430,7 @@ stdlib_format_xml_srcs= \
 	$(STDLIB)/format/xml/parser.ha \
 	$(STDLIB)/format/xml/chars.ha
 
-$(HARECACHE)/format/xml/format_xml.ssa: $(stdlib_format_xml_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bufio) $(stdlib_strings) $(stdlib_ascii) $(stdlib_strio)
+$(HARECACHE)/format/xml/format_xml.ssa: $(stdlib_format_xml_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bufio) $(stdlib_strings) $(stdlib_ascii) $(stdlib_strio) $(stdlib_os)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/format/xml
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::xml \
@@ -1275,7 +1275,7 @@ testlib_format_xml_srcs= \
 	$(STDLIB)/format/xml/chars.ha \
 	$(STDLIB)/format/xml/+test.ha
 
-$(TESTCACHE)/format/xml/format_xml.ssa: $(testlib_format_xml_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings) $(testlib_ascii) $(testlib_strio)
+$(TESTCACHE)/format/xml/format_xml.ssa: $(testlib_format_xml_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings) $(testlib_ascii) $(testlib_strio) $(testlib_os)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/format/xml
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::xml \

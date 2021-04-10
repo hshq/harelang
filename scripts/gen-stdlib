@@ -282,7 +282,7 @@ format_xml() {
 	else
 		gensrcs_format_xml +test.ha
 	fi
-	gen_ssa format::xml io bufio strings ascii strio
+	gen_ssa format::xml io bufio strings ascii strio os
 }
 
 fs() {
