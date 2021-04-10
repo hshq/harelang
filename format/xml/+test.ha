@@ -2,8 +2,6 @@ use io;
 use bufio;
 use strings;
 
-use fmt;
-
 @test fn basic() void = {
 	xmltest("<?xml version='1.0' encoding='utf-8' ?>
 <root>
@@ -83,8 +81,6 @@ fn xmltest(input: str, expected: []token) void = {
 			},
 			at: attribute => {
 				let ex = expected[i] as attribute;
-				fmt::errorfln("want: '{}'='{}', got: '{}'='{}'",
-					ex.0, ex.1, at.0, at.1);
 				assert(at.0 == ex.0 && at.1 == ex.1);
 			},
 			tx: text => {
