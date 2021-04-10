@@ -154,9 +154,12 @@ fn scan_comment(par: *parser) (token | void | error) = {
 			'-' => { // Comments
 				want(par, '-')?;
 			},
-			'[' => { // CDATA
+			'[' => {
 				want(par, "CDATA[")?;
-				abort(); // TODO
+				if (par.state != state::ELEMENT) {
+					return syntaxerr;
+				};
+				return scan_cdata(par)?;
 			},
 			* => return syntaxerr,
 		},
@@ -179,6 +182,35 @@ fn scan_comment(par: *parser) (token | void | error) = {
 		if (rn == '>') break;
 	};
 	return scan(par);
+};
+
+fn scan_cdata(par: *parser) (text | error) = {
+	strio::reset(par.textbuf);
+	for (true) {
+		let rn = match (bufio::scanrune(par.in)?) {
+			io::EOF => return syntaxerr,
+			rn: rune => rn,
+		};
+		if (rn != ']') {
+			strio::appendrune(par.textbuf, rn);
+			continue;
+		};
+		let rn = match (bufio::scanrune(par.in)?) {
+			io::EOF => return syntaxerr,
+			rn: rune => rn,
+		};
+		if (rn != ']') {
+			strio::appendrune(par.textbuf, rn);
+			continue;
+		};
+		let rn = match (bufio::scanrune(par.in)?) {
+			io::EOF => return syntaxerr,
+			rn: rune => rn,
+		};
+		if (rn == '>') break;
+		strio::appendrune(par.textbuf, rn);
+	};
+	return strio::string(par.textbuf): text;
 };
 
 fn scan_content(par: *parser) (text | error) = {
