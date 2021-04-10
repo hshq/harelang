@@ -7,6 +7,10 @@ export type parser = struct {
 	in: *io::stream,
 	buf: [4096]u8,
 	state: state,
+	// strio buffers:
+	namebuf: *io::stream,
+	entbuf: *io::stream,
+	textbuf: *io::stream,
 };
 
 export type state = enum {
@@ -45,15 +49,4 @@ export fn strerror(err: error) const str = {
 	};
 };
 
-// Frees resources associated with a [token].
-export fn token_free(tok: token) void = {
-	match (tok) {
-		el: elementstart => free(el),
-		attr: attribute => {
-			free(attr.0);
-			free(attr.1);
-		},
-		tx: text => free(tx),
-		elementend => void,
-	};
-};
+export fn token_dup(tok: token) void = abort(); // TODO

@@ -40,6 +40,9 @@ export fn parse(in: *io::stream) (*parser | error) = {
 	let par = alloc(parser {
 		orig = in,
 		in = in,
+		namebuf = strio::dynamic(),
+		entbuf = strio::dynamic(),
+		textbuf = strio::dynamic(),
 		...
 	});
 	if (!bufio::isbuffered(in)) {
@@ -55,11 +58,15 @@ export fn parser_free(par: *parser) void = {
 	if (par.in != par.orig) {
 		io::close(par.in);
 	};
+	io::close(par.namebuf);
+	io::close(par.entbuf);
+	io::close(par.textbuf);
 	free(par);
 };
 
-// Scans for and returns the next [token]. The caller must pass the returned
-// token to [token_free] when they're done with it.
+// Scans for and returns the next [token]. Tokens are borrowed from the parser
+// and are not valid on subsequent calls to [scan]; use [token_dup] to extend
+// their lifetime.
 export fn scan(par: *parser) (token | void | error) = {
 	switch (par.state) {
 		state::ROOT, state::ATTRS => want(par, OPTWS)?,
@@ -117,10 +124,10 @@ export fn scan(par: *parser) (token | void | error) = {
 };
 
 fn scan_attr(par: *parser) (token | error) = {
-	let name = scan_name(par)?;
+	let name = scan_name(par, par.namebuf)?;
 	want(par, OPTWS, '=', OPTWS);
 	let quot = quote(par)?;
-	let val = strio::dynamic();
+	strio::reset(par.textbuf);
 	for (true) match (bufio::scanrune(par.in)?) {
 		io::EOF => return syntaxerr,
 		rn: rune => {
@@ -133,10 +140,10 @@ fn scan_attr(par: *parser) (token | error) = {
 				* => rn,
 			};
 			if (rn == quot) break;
-			strio::appendrune(val, rn);
+			strio::appendrune(par.textbuf, rn);
 		},
 	};
-	return (name, strio::finish(val)): attribute;
+	return (name, strio::string(par.textbuf)): attribute;
 };
 
 fn scan_comment(par: *parser) (token | void | error) = {
@@ -175,7 +182,7 @@ fn scan_comment(par: *parser) (token | void | error) = {
 };
 
 fn scan_content(par: *parser) (text | error) = {
-	let content = strio::dynamic();
+	strio::reset(par.textbuf);
 	for (true) match (bufio::scanrune(par.in)?) {
 		io::EOF => break,
 		rn: rune => {
@@ -189,10 +196,10 @@ fn scan_content(par: *parser) (text | error) = {
 					scan_entity(par)?;
 				},
 			};
-			strio::appendrune(content, rn);
+			strio::appendrune(par.textbuf, rn);
 		},
 	};
-	return strio::finish(content);
+	return strio::string(par.textbuf);
 };
 
 fn scan_element(par: *parser) (token | error) = {
@@ -205,13 +212,8 @@ fn scan_element(par: *parser) (token | error) = {
 			* => bufio::unreadrune(par.in, rn),
 		},
 	};
-	let name = scan_name(par)?;
-	if (close) {
-		free(name);
-		return elementend;
-	} else {
-		return name: elementstart;
-	};
+	let name = scan_name(par, par.namebuf)?;
+	return if (close) elementend else name: elementstart;
 };
 
 fn scan_entity(par: *parser) (rune | error) = {
@@ -239,33 +241,31 @@ fn scan_charref(par: *parser) (rune | error) = {
 		} else bufio::unreadrune(par.in, rn),
 	};
 
-	let buf = strio::dynamic();
-	defer io::close(buf);
+	strio::reset(par.entbuf);
 	for (true) {
 		let rn = match (bufio::scanrune(par.in)?) {
 			io::EOF => return syntaxerr,
 			rn: rune => rn,
 		};
 		if (ascii::isdigit(rn)) {
-			strio::appendrune(buf, rn);
+			strio::appendrune(par.entbuf, rn);
 		} else if (rn == ';') {
 			break;
 		} else {
 			return syntaxerr;
 		};
 	};
-	if (len(strio::string(buf)) == 0) {
+	if (len(strio::string(par.entbuf)) == 0) {
 		return syntaxerr;
 	};
-	return match (strconv::stou32b(strio::string(buf), base)) {
+	return match (strconv::stou32b(strio::string(par.entbuf), base)) {
 		u: u32 => u: rune,
 		(strconv::invalid | strconv::overflow) => syntaxerr,
 	};
 };
 
 fn scan_namedent(par: *parser) (rune | error) = {
-	let name = scan_name(par)?;
-	defer free(name);
+	let name = scan_name(par, par.entbuf)?;
 	want(par, ';')?;
 	let map = [
 		("lt", '<'),
@@ -284,8 +284,8 @@ fn scan_namedent(par: *parser) (rune | error) = {
 	return syntaxerr;
 };
 
-fn scan_name(par: *parser) (str | error) = {
-	let buf = strio::dynamic();
+fn scan_name(par: *parser, buf: *io::stream) (str | error) = {
+	strio::reset(buf);
 
 	const rn = match (bufio::scanrune(par.in)?) {
 		io::EOF => return syntaxerr,
@@ -306,7 +306,7 @@ fn scan_name(par: *parser) (str | error) = {
 		},
 	};
 
-	return strio::finish(buf);
+	return strio::string(buf);
 };
 
 fn scan_pi(par: *parser) (void | error) = {
@@ -341,7 +341,6 @@ fn prolog(par: *parser) (void | error) = {
 	};
 	if (encoding) {
 		let attr = scan_attr(par)? as attribute;
-		defer token_free(attr);
 		if (attr.0 != "encoding") {
 			return syntaxerr;
 		};
@@ -362,7 +361,6 @@ fn prolog(par: *parser) (void | error) = {
 	};
 	if (standalone) {
 		let attr = scan_attr(par)? as attribute;
-		defer token_free(attr);
 		if (attr.0 != "standalone") {
 			return syntaxerr;
 		};
