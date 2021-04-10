@@ -3,11 +3,10 @@ use bufio;
 use strings;
 
 @test fn basic() void = {
-	const input = "<?xml version='1.0' encoding='utf-8' ?>
+	xmltest("<?xml version='1.0' encoding='utf-8' ?>
 <root>
 	<hello name='foobar'>world</hello>
-</root>";
-	const expected: []token = [
+</root>", [
 		"root": elementstart,
 		"\n\t": text,
 		"hello": elementstart,
@@ -16,12 +15,36 @@ use strings;
 		elementend,
 		"\n": text,
 		elementend,
-	];
+	]);
+};
+
+@test fn comments() void = {
+	xmltest("<?xml version='1.0' encoding='utf-8' ?>
+<!-- hello -- world -->
+<root>
+	<hello name='foobar'>world<!----></hello>
+</root>", [
+		"root": elementstart,
+		"\n\t": text,
+		"hello": elementstart,
+		("name", "foobar"): attribute,
+		"world": text,
+		elementend,
+		"\n": text,
+		elementend,
+	]);
+};
+
+fn xmltest(input: str, expected: []token) void = {
 	let in = bufio::fixed(strings::toutf8(input), io::mode::READ);
 	defer io::close(in);
 	let parser = parse(in) as *parser;
 	for (let i = 0z; i < len(expected); i += 1) {
-		let tok = scan(parser) as token;
+		let tok = match (scan(parser)) {
+			tok: token => tok,
+			void => abort("Expected token, got void"),
+			syntaxerr => abort("Expected token, got syntax error"),
+		};
 		match (tok) {
 			el: elementstart => {
 				let ex = expected[i] as elementstart;
