@@ -3,6 +3,7 @@
 //
 // - Support for user-defined entities
 // - Support for UTF-16 inputs or a UTF-8 BOM
+// - Any considerations for the "Namespaces in XML 1.0" specification
 //
 // Attempting to parse an input file which does not conform to the supported
 // subset of XML will return a syntax error. The purpose of this module is to
