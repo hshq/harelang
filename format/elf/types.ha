@@ -841,14 +841,18 @@ export type dt = enum i64 {
 
 // Auxillary vector
 export type auxv64 = struct {
-	a_type: u64, // Entry type
+	// Entry type
+	a_type: at,
 	union {
-		a_val: u64, // Integer value
+		// Integer value
+		a_val: u64,
+		a_ptr: *void,
+		a_fnc: *fn() void,
 	}
 };
 
 // Legal auxillary vector entry types
-export type at = enum u32 {
+export type at = enum u64 {
 	// End of vector
 	NULL = 0, 
 	// Entry should be ignored

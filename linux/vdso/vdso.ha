@@ -12,7 +12,7 @@ fn sys_infoehdr() nullable *elf::header64 = {
 	ehdr_checked = true;
 
 	for (let i = 0; linux::auxv[i].a_type != 0; i += 1) {
-		if (linux::auxv[i].a_type != elf::at::SYSINFO_EHDR: u64)
+		if (linux::auxv[i].a_type != elf::at::SYSINFO_EHDR)
 			continue;
 		ehdr = linux::auxv[i].a_val: uintptr: *elf::header64;
 		return ehdr;
