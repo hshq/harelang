@@ -58,7 +58,7 @@ fn from_native(addr: rt::sockaddr) (ip::addr | unix::addr) = {
 // Returns the remote address for a given connection, or void if none is
 // available.
 export fn peeraddr(stream: *io::stream) ((ip::addr, u16) | void) = {
-	let fd = match (os::streamfd(stream)) {
+	let fd = match (os::streamfd(stream, true)) {
 		fd: int => fd,
 		void => return,
 	};
