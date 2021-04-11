@@ -4,9 +4,6 @@ use os;
 use strconv;
 use strings;
 
-// An invalid entry was encountered during parsing.
-export type invalid = void!;
-
 // A Unix-like password database entry.
 export type pwent = struct {
 	// Login name

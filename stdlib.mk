@@ -818,7 +818,8 @@ $(HARECACHE)/unix/unix.ssa: $(stdlib_unix_srcs) $(stdlib_rt) $(stdlib_errors)
 
 # unix::passwd
 stdlib_unix_passwd_srcs= \
-	$(STDLIB)/unix/passwd/passwd.ha
+	$(STDLIB)/unix/passwd/passwd.ha \
+	$(STDLIB)/unix/passwd/types.ha
 
 $(HARECACHE)/unix/passwd/unix_passwd.ssa: $(stdlib_unix_passwd_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_io) $(stdlib_os) $(stdlib_strconv) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
@@ -1672,7 +1673,8 @@ $(TESTCACHE)/unix/unix.ssa: $(testlib_unix_srcs) $(testlib_rt) $(testlib_errors)
 
 # unix::passwd
 testlib_unix_passwd_srcs= \
-	$(STDLIB)/unix/passwd/passwd.ha
+	$(STDLIB)/unix/passwd/passwd.ha \
+	$(STDLIB)/unix/passwd/types.ha
 
 $(TESTCACHE)/unix/passwd/unix_passwd.ssa: $(testlib_unix_passwd_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_io) $(testlib_os) $(testlib_strconv) $(testlib_strings)
 	@printf 'HAREC \t$@\n'

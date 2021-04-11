@@ -622,7 +622,8 @@ unix() {
 
 unix_passwd() {
 	gen_srcs unix::passwd \
-		passwd.ha
+		passwd.ha \
+		types.ha
 	gen_ssa unix::passwd bufio io os strconv strings
 }
 
