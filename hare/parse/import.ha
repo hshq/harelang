@@ -5,9 +5,9 @@ use hare::lex::{ltok};
 fn name_list(lexer: *lex::lexer) ([]str | error) = {
 	let names: []str = [];
 	for (true) {
-		append(names, want_tok(lexer, ltok::NAME)?.1 as str);
-		switch (want_tok(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
-			ltok::COMMA => match (try_tok(lexer, ltok::RBRACE)?) {
+		append(names, want(lexer, ltok::NAME)?.1 as str);
+		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
+			ltok::COMMA => match (try(lexer, ltok::RBRACE)?) {
 				void => void,
 				* => return names,
 			},
@@ -22,14 +22,14 @@ fn name_list(lexer: *lex::lexer) ([]str | error) = {
 export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 	let imports: []ast::import = [];
 	for (true) {
-		match (try_tok(lexer, ltok::USE)?) {
+		match (try(lexer, ltok::USE)?) {
 			void => break,
 			* => void,
 		};
 
 		let name = ident_trailing(lexer)?;
 
-		switch (want_tok(lexer, ltok::SEMICOLON, ltok::LBRACE,
+		switch (want(lexer, ltok::SEMICOLON, ltok::LBRACE,
 				ltok::EQUAL)?.0) {
 			ltok::SEMICOLON => {
 				synassert(mkloc(lexer), !name.1,
@@ -44,7 +44,7 @@ export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 					ident = name.0,
 					objects = objects,
 				});
-				want_tok(lexer, ltok::SEMICOLON)?;
+				want(lexer, ltok::SEMICOLON)?;
 			},
 			ltok::EQUAL => {
 				synassert(mkloc(lexer),
@@ -55,7 +55,7 @@ export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 					ident = ident,
 					alias = name.0[0],
 				});
-				want_tok(lexer, ltok::SEMICOLON)?;
+				want(lexer, ltok::SEMICOLON)?;
 			},
 			* => abort(), // Unreachable
 		};

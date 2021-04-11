@@ -46,7 +46,7 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 		void => unarithm(lexer)?,
 		e: ast::expr => e,
 	};
-	const tok = match (try_tok(lexer, ltok::COLON,
+	const tok = match (try(lexer, ltok::COLON,
 			ltok::AS, ltok::IS)?) {
 		void => return lvalue,
 		tok: lex::token => tok.0,
@@ -65,7 +65,7 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 };
 
 fn constant(lexer: *lex::lexer) (ast::expr | error) = {
-	want_tok(lexer, ltok::VOID)?;
+	want(lexer, ltok::VOID)?;
 	return void;
 };
 
@@ -78,7 +78,7 @@ fn objsel(lexer: *lex::lexer) (ast::expr | error) = {
 };
 
 fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
-	let tok = peek_tok(lexer)? as lex::token;
+	let tok = peek(lexer)? as lex::token;
 	return switch (tok.0) {
 		ltok::TRUE,
 		ltok::FALSE,
@@ -88,7 +88,7 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::STRUCT => abort(), // TODO: Struct literal
 		ltok::LPAREN => {
 			let ex = expression(lexer);
-			return switch (want_tok(lexer,
+			return switch (want(lexer,
 					ltok::RPAREN, ltok::COMMA)?.0) {
 				ltok::RPAREN => ex,
 				ltok::COMMA => abort(), // TODO: Tuple literal
@@ -98,7 +98,7 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::LITERAL => return constant(lexer),
 		ltok::NAME => {
 			let id = ident(lexer)?;
-			return match (try_tok(lexer, ltok::LBRACE)?) {
+			return match (try(lexer, ltok::LBRACE)?) {
 				void => id: ast::access_identifier,
 				lex::token => abort(), // TODO: Struct literal
 			};
@@ -111,7 +111,7 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 
 fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 	// Built-ins (XXX: these should probably be moved in the Hare grammar)
-	match (peek_tok(lexer,
+	match (peek(lexer,
 			ltok::ALLOC, ltok::APPEND, ltok::FREE,
 			ltok::DELETE, ltok::ABORT, ltok::ASSERT,
 			ltok::STATIC, ltok::SIZE, ltok::LEN,
@@ -132,7 +132,7 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 		ex: ast::expr => ex,
 	};
 
-	match (try_tok(lexer, ltok::LPAREN, ltok::DOT, ltok::LBRACKET,
+	match (try(lexer, ltok::LPAREN, ltok::DOT, ltok::LBRACKET,
 			ltok::QUESTION)) {
 		tok: lex::token => switch (tok.0) {
 			ltok::LPAREN => abort(), // TODO: Calls
@@ -148,7 +148,7 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 };
 
 fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
-	const tok = match (try_tok(lexer,
+	const tok = match (try(lexer,
 			ltok::PLUS, ltok::MINUS, ltok::BNOT,
 			ltok::LNOT, ltok::TIMES, ltok::BAND)) {
 		void => return postfix(lexer, void),
@@ -222,7 +222,7 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 	let items: ast::list_expr = [];
 
 	for (let more = true; more) {
-		let tok = peek_tok(lexer)? as lex::token;
+		let tok = peek(lexer)? as lex::token;
 		let item = switch (tok.0) {
 			ltok::RBRACE => break,
 			ltok::BREAK,
@@ -234,9 +234,9 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 			* => expression(lexer)?,
 		};
 		append(items, alloc(item));
-		want_tok(lexer, ltok::SEMICOLON)?;
+		want(lexer, ltok::SEMICOLON)?;
 	};
 
-	want_tok(lexer, ltok::RBRACE)?;
+	want(lexer, ltok::RBRACE)?;
 	return items;
 };

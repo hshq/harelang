@@ -6,8 +6,8 @@ use hare::unparse;
 use strings;
 
 fn attr_symbol(lexer: *lex::lexer) (str | error) = {
-	want_tok(lexer, ltok::LPAREN)?;
-	let t = want_tok(lexer, ltok::LITERAL)?;
+	want(lexer, ltok::LPAREN)?;
+	let t = want(lexer, ltok::LITERAL)?;
 	let s = match (t.1) {
 		v: lex::value => if (v.storage == lex::storage::STR) v.string
 			else return syntaxerr(t.2,
@@ -30,7 +30,7 @@ fn attr_symbol(lexer: *lex::lexer) (str | error) = {
 			ascii::isalnum(r) || r == '$' || r == '.' || r == '_',
 			"Invalid symbol")?,
 	};
-	want_tok(lexer, ltok::RPAREN)?;
+	want(lexer, ltok::RPAREN)?;
 	return s;
 };
 
@@ -41,20 +41,20 @@ fn decl_global(
 	let decl: []ast::decl_global = [];
 	for (true) {
 		let symbol = if (tok == ltok::CONST || tok == ltok::LET) {
-			match (try_tok(lexer, ltok::ATTR_SYMBOL)?) {
+			match (try(lexer, ltok::ATTR_SYMBOL)?) {
 				void => "",
 				lex::token => attr_symbol(lexer)?,
 			};
 		} else "";
 		let ident = ident(lexer)?;
-		want_tok(lexer, ltok::COLON)?;
+		want(lexer, ltok::COLON)?;
 		let _type = _type(lexer)?;
 		if (tok == ltok::CONST) {
 			_type.flags |= ast::type_flags::CONST;
 		};
-		want_tok(lexer, ltok::EQUAL)?;
+		want(lexer, ltok::EQUAL)?;
 		let init = expression(lexer)?;
-		let btok = try_tok(lexer, ltok::COMMA)?;
+		let btok = try(lexer, ltok::COMMA)?;
 		append(decl, ast::decl_global {
 			is_const = tok == ltok::DEF,
 			symbol = symbol,
@@ -74,9 +74,9 @@ fn decl_type(lexer: *lex::lexer) ([]ast::decl_type | error) = {
 	let decl: []ast::decl_type = [];
 	for (true) {
 		let ident = ident(lexer)?;
-		want_tok(lexer, ltok::EQUAL)?;
+		want(lexer, ltok::EQUAL)?;
 		let _type = _type(lexer)?;
-		let btok = try_tok(lexer, ltok::COMMA)?;
+		let btok = try(lexer, ltok::COMMA)?;
 		append(decl, ast::decl_type {
 			ident = ident,
 			_type = _type,
@@ -95,7 +95,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 		ltok::ATTR_FINI, ltok::ATTR_INIT, ltok::ATTR_TEST,
 		ltok::ATTR_NORETURN, ltok::ATTR_SYMBOL
 	];
-	for (true) match (try_tok(lexer, attrs...)?) {
+	for (true) match (try(lexer, attrs...)?) {
 		void => break,
 		t: lex::token => switch (t.0) {
 			ltok::ATTR_FINI => attr = ast::fndecl_attrs::FINI,
@@ -107,7 +107,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 		},
 	};
 
-	want_tok(lexer, ltok::FN)?;
+	want(lexer, ltok::FN)?;
 	let ident_loc = mkloc(lexer);
 	let ident = ident(lexer)?;
 	let proto_loc = mkloc(lexer);
@@ -116,7 +116,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 		prototype.attrs |= ast::func_attrs::NORETURN;
 	};
 
-	let tok = want_tok(lexer, ltok::EQUAL, ltok::SEMICOLON)?;
+	let tok = want(lexer, ltok::EQUAL, ltok::SEMICOLON)?;
 	let body = switch (tok.0) {
 		ltok::EQUAL => {
 			synassert(ident_loc, len(ident) == 1,
@@ -149,13 +149,13 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 	let decls: []ast::decl = [];
 	for (true) {
-		if (peek_tok(lexer, ltok::EOF)? is lex::token) break;
-		let exported = match (try_tok(lexer, ltok::EXPORT)?) {
+		if (peek(lexer, ltok::EOF)? is lex::token) break;
+		let exported = match (try(lexer, ltok::EXPORT)?) {
 			void => false,
 			lex::token => true,
 		};
 		const toks = [ltok::CONST, ltok::LET, ltok::DEF, ltok::TYPE];
-		let decl = match (try_tok(lexer, toks...)?) {
+		let decl = match (try(lexer, toks...)?) {
 			void => decl_func(lexer)?,
 			t: lex::token =>
 				if (t.0 == ltok::TYPE) decl_type(lexer)?
@@ -166,7 +166,7 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 			loc = mkloc(lexer),
 			decl = decl,
 		});
-		want_tok(lexer, ltok::SEMICOLON)?;
+		want(lexer, ltok::SEMICOLON)?;
 	};
 	return decls;
 };

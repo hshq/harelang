@@ -6,42 +6,42 @@ use hare::lex::{ltok};
 fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 	let variadism = ast::variadism::NONE;
 	let params: []ast::func_param = [];
-	want_tok(lexer, ltok::LPAREN)?;
-	for (try_tok(lexer, ltok::RPAREN)? is void) {
+	want(lexer, ltok::LPAREN)?;
+	for (try(lexer, ltok::RPAREN)? is void) {
 		let loc = mkloc(lexer);
-		match (try_tok(lexer, ltok::ELLIPSIS)?) {
+		match (try(lexer, ltok::ELLIPSIS)?) {
 			void => void,
 			lex::token => {
 				synassert(loc, len(params) > 0,
 					"Expected at least one non-variadic parameter for C-style variadism")?;
 				variadism = ast::variadism::C;
-				try_tok(lexer, ltok::COMMA)?;
-				want_tok(lexer, ltok::RPAREN)?;
+				try(lexer, ltok::COMMA)?;
+				want(lexer, ltok::RPAREN)?;
 				break;
 			},
 		};
-		let name = match (try_tok(lexer, ltok::UNDERSCORE)?) {
-			void => want_tok(lexer, ltok::NAME)?.1 as str,
+		let name = match (try(lexer, ltok::UNDERSCORE)?) {
+			void => want(lexer, ltok::NAME)?.1 as str,
 			lex::token => "",
 		};
-		want_tok(lexer, ltok::COLON);
+		want(lexer, ltok::COLON);
 		append(params, ast::func_param {
 			loc = loc,
 			name = name,
 			_type = alloc(_type(lexer)?),
 		});
-		match (try_tok(lexer, ltok::ELLIPSIS)?) {
+		match (try(lexer, ltok::ELLIPSIS)?) {
 			void => void,
 			lex::token => {
 				variadism = ast::variadism::HARE;
-				try_tok(lexer, ltok::COMMA)?;
-				want_tok(lexer, ltok::RPAREN)?;
+				try(lexer, ltok::COMMA)?;
+				want(lexer, ltok::RPAREN)?;
 				break;
 			},
 		};
-		match (try_tok(lexer, ltok::COMMA)?) {
+		match (try(lexer, ltok::COMMA)?) {
 			void => {
-				want_tok(lexer, ltok::RPAREN)?;
+				want(lexer, ltok::RPAREN)?;
 				break;
 			},
 			lex::token => void,
@@ -58,7 +58,7 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 
 fn integer_type(
 	lexer: *lex::lexer,
-) (builtin_type | error) = switch (want_tok(lexer)?.0) {
+) (builtin_type | error) = switch (want(lexer)?.0) {
 	ltok::CHAR => builtin_type::CHAR,
 	ltok::I16 => builtin_type::I16,
 	ltok::I32 => builtin_type::I32,
@@ -78,7 +78,7 @@ fn integer_type(
 };
 
 fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
-	let tok = want_tok(lexer)?;
+	let tok = want(lexer)?;
 	let builtin = switch (tok.0) {
 		ltok::CHAR, ltok::I16, ltok::I32, ltok::I64,
 		ltok::I64, ltok::I8, ltok::INT, ltok::SIZE, ltok::U16,
@@ -107,7 +107,7 @@ fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 
 fn alias_type(lexer: *lex::lexer) (ast::_type | error) = {
 	let loc = mkloc(lexer);
-	let unwrap = match (try_tok(lexer, ltok::ELLIPSIS)?) {
+	let unwrap = match (try(lexer, ltok::ELLIPSIS)?) {
 		void => false,
 		* => true,
 	};
@@ -123,11 +123,11 @@ fn alias_type(lexer: *lex::lexer) (ast::_type | error) = {
 
 fn pointer_type(lexer: *lex::lexer) (ast::_type | error) = {
 	let loc = mkloc(lexer);
-	let flags = match (try_tok(lexer, ltok::NULLABLE)?) {
+	let flags = match (try(lexer, ltok::NULLABLE)?) {
 		void => 0: ast::pointer_flags,
 		* => ast::pointer_flags::NULLABLE,
 	};
-	want_tok(lexer, ltok::TIMES)?;
+	want(lexer, ltok::TIMES)?;
 	return ast::_type {
 		loc = loc,
 		flags = 0,
@@ -142,11 +142,11 @@ fn tagged_type(lexer: *lex::lexer, first: ast::_type) (ast::_type | error) = {
 	let loc = mkloc(lexer);
 	let tagged: ast::tagged_type = [];
 	append(tagged, alloc(first));
-	for (try_tok(lexer, ltok::RPAREN)? is void) {
+	for (try(lexer, ltok::RPAREN)? is void) {
 		append(tagged, alloc(_type(lexer)?));
-		match (try_tok(lexer, ltok::BOR)?) {
+		match (try(lexer, ltok::BOR)?) {
 			void => {
-				want_tok(lexer, ltok::RPAREN)?;
+				want(lexer, ltok::RPAREN)?;
 				break;
 			},
 			lex::token => void,
@@ -163,11 +163,11 @@ fn tuple_type(lexer: *lex::lexer, first: ast::_type) (ast::_type | error) = {
 	let loc = mkloc(lexer);
 	let tuple: ast::tuple_type = [];
 	append(tuple, alloc(first));
-	for (try_tok(lexer, ltok::RPAREN)? is void) {
+	for (try(lexer, ltok::RPAREN)? is void) {
 		append(tuple, alloc(_type(lexer)?));
-		match (try_tok(lexer, ltok::COMMA)?) {
+		match (try(lexer, ltok::COMMA)?) {
 			void => {
-				want_tok(lexer, ltok::RPAREN)?;
+				want(lexer, ltok::RPAREN)?;
 				break;
 			},
 			lex::token => void,
@@ -182,11 +182,11 @@ fn tuple_type(lexer: *lex::lexer, first: ast::_type) (ast::_type | error) = {
 
 fn fn_type(lexer: *lex::lexer) (ast::_type | error) = {
 	let loc = mkloc(lexer);
-	let attrs = match (try_tok(lexer, ltok::ATTR_NORETURN)?) {
+	let attrs = match (try(lexer, ltok::ATTR_NORETURN)?) {
 		void => 0: ast::func_attrs,
 		* => ast::func_attrs::NORETURN,
 	};
-	want_tok(lexer, ltok::FN)?;
+	want(lexer, ltok::FN)?;
 	let proto = prototype(lexer)?;
 	proto.attrs |= attrs;
 	return ast::_type {
@@ -198,11 +198,11 @@ fn fn_type(lexer: *lex::lexer) (ast::_type | error) = {
 
 // Parses a type
 export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
-	let flags: ast::type_flags = match (try_tok(lexer, ltok::CONST)?) {
+	let flags: ast::type_flags = match (try(lexer, ltok::CONST)?) {
 		void => 0,
 		* => ast::type_flags::CONST,
 	};
-	let tok = peek_tok(lexer)? as lex::token;
+	let tok = peek(lexer)? as lex::token;
 	let typ: ast::_type = switch (tok.0) {
 		ltok::CHAR, ltok::I16, ltok::I32, ltok::I64,
 		ltok::I64, ltok::I8, ltok::INT, ltok::SIZE,
@@ -215,9 +215,9 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 		ltok::STRUCT, ltok::UNION => abort(), // TODO
 		ltok::LBRACKET => abort(), // TODO
 		ltok::LPAREN => {
-			want_tok(lexer, ltok::LPAREN)?;
+			want(lexer, ltok::LPAREN)?;
 			let t = _type(lexer)?;
-			switch (want_tok(lexer, ltok::BOR,
+			switch (want(lexer, ltok::BOR,
 					ltok::COMMA)?.0) {
 				ltok::BOR => tagged_type(lexer, t)?,
 				ltok::COMMA => tuple_type(lexer, t)?,
@@ -231,7 +231,7 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 			lex::tokstr(tok)),
 	};
 
-	match (try_tok(lexer, ltok::LNOT)?) {
+	match (try(lexer, ltok::LNOT)?) {
 		void => void,
 		* => flags |= ast::type_flags::ERROR,
 	};
