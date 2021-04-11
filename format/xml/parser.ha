@@ -19,8 +19,6 @@ use strconv;
 use strings;
 use strio;
 
-// Note:
-//
 // Are you an intrepid programmer seeking to fork this module to create a more
 // sophisticated XML parser supporting a broader set of features? Good news: all
 // of the features you need to implement are annotated throughout with
