@@ -818,6 +818,7 @@ $(HARECACHE)/unix/unix.ssa: $(stdlib_unix_srcs) $(stdlib_rt) $(stdlib_errors)
 
 # unix::passwd
 stdlib_unix_passwd_srcs= \
+	$(STDLIB)/unix/passwd/group.ha \
 	$(STDLIB)/unix/passwd/passwd.ha \
 	$(STDLIB)/unix/passwd/types.ha
 
@@ -1673,6 +1674,7 @@ $(TESTCACHE)/unix/unix.ssa: $(testlib_unix_srcs) $(testlib_rt) $(testlib_errors)
 
 # unix::passwd
 testlib_unix_passwd_srcs= \
+	$(STDLIB)/unix/passwd/group.ha \
 	$(STDLIB)/unix/passwd/passwd.ha \
 	$(STDLIB)/unix/passwd/types.ha
 
