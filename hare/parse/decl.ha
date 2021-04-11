@@ -9,7 +9,10 @@ fn attr_symbol(lexer: *lex::lexer) (str | error) = {
 	want_tok(lexer, ltok::LPAREN)?;
 	let t = want_tok(lexer, ltok::LITERAL)?;
 	let s = match (t.1) {
-		s: str => s,
+		v: lex::value => if (v.storage == lex::storage::STR) v.string
+			else return syntaxerr(t.2,
+				"Unexpected {}, was expecting string",
+				lex::tokstr(t)),
 		* => return syntaxerr(t.2,
 			"Unexpected {}, was expecting string",
 			lex::tokstr(t)),
