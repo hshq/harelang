@@ -8,6 +8,7 @@ export type parser = struct {
 	in: *io::stream,
 	buf: [os::BUFSIZ]u8,
 	state: state,
+	tags: []str,
 	// strio buffers:
 	namebuf: *io::stream,
 	entbuf: *io::stream,
@@ -24,7 +25,7 @@ export type state = enum {
 export type elementstart = str;
 
 // The end of an XML element, e.g. /> or </example>
-export type elementend = void;
+export type elementend = str;
 
 // An attribute of an XML element, e.g. foo="bar"
 export type attribute = (str, str);

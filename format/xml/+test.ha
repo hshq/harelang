@@ -6,16 +6,21 @@ use strings;
 	xmltest("<?xml version='1.0' encoding='utf-8' ?>
 <root>
 	<hello name='foobar'>world</hello>
+	<foobar bar='foobaz' />
 </root>", [
 		"root": elementstart,
 		"\n\t": text,
 		"hello": elementstart,
 		("name", "foobar"): attribute,
 		"world": text,
-		elementend,
+		"hello": elementend,
+		"\n\t": text,
+		"foobar": elementstart,
+		("bar", "foobaz"): attribute,
+		"foobar": elementend,
 		"\n": text,
-		elementend,
-	]);
+		"root": elementend,
+	], false);
 };
 
 @test fn comments() void = {
@@ -29,10 +34,10 @@ use strings;
 		"hello": elementstart,
 		("name", "foobar"): attribute,
 		"world": text,
-		elementend,
+		"hello": elementend,
 		"\n": text,
-		elementend,
-	]);
+		"root": elementend,
+	], false);
 };
 
 @test fn entities() void = {
@@ -45,10 +50,10 @@ use strings;
 		"hello": elementstart,
 		("name", "foobar &!!"): attribute,
 		"<world> \"'": text,
-		elementend,
+		"hello": elementend,
 		"\n": text,
-		elementend,
-	]);
+		"root": elementend,
+	], false);
 };
 
 @test fn cdata() void = {
@@ -60,11 +65,23 @@ use strings;
 		"\n\t": text,
 		"Hello world &foo <bar>": text,
 		"\n": text,
-		elementend,
-	]);
+		"root": elementend,
+	], false);
 };
 
-fn xmltest(input: str, expected: []token) void = {
+@test fn errors() void = {
+	xmltest("<?xml version='1.0' encoding='utf-8' ?>
+<root>
+	<hello name='foobar'></world>
+</root>", [
+		"root": elementstart,
+		"\n\t": text,
+		"hello": elementstart,
+		("name", "foobar"): attribute,
+	], true);
+};
+
+fn xmltest(input: str, expected: []token, error: bool) void = {
 	let in = bufio::fixed(strings::toutf8(input), io::mode::READ);
 	defer io::close(in);
 	let parser = parse(in) as *parser;
@@ -87,8 +104,15 @@ fn xmltest(input: str, expected: []token) void = {
 				let ex = expected[i] as text;
 				assert(tx == ex);
 			},
-			elementend => assert(expected[i] is elementend),
+			el: elementend => {
+				let ex = expected[i] as elementend;
+				assert(el == ex);
+			},
 		};
 	};
-	assert(scan(parser) is void);
+	if (error) {
+		assert(scan(parser) is error);
+	} else {
+		assert(scan(parser) is void);
+	};
 };

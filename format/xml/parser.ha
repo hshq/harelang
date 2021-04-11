@@ -59,6 +59,10 @@ export fn parser_free(par: *parser) void = {
 	io::close(par.namebuf);
 	io::close(par.entbuf);
 	io::close(par.textbuf);
+	for (let i = 0z; i < len(par.tags); i += 1) {
+		free(par.tags[i]);
+	};
+	free(par.tags);
 	free(par);
 };
 
@@ -108,7 +112,7 @@ export fn scan(par: *parser) (token | void | error) = {
 			if (rn == '/') {
 				want(par, '>')?;
 				par.state = state::ELEMENT;
-				return elementend;
+				return poptag(par, "")?: elementend;
 			} else if (rn == '>') {
 				par.state = state::ELEMENT;
 				return scan(par)?;
@@ -119,6 +123,21 @@ export fn scan(par: *parser) (token | void | error) = {
 			scan_attr(par)?;
 		},
 	};
+};
+
+fn poptag(par: *parser, expect: str) (str | error) = {
+	if (len(par.tags) == 0) {
+		return syntaxerr;
+	};
+	let pop = par.tags[len(par.tags) - 1];
+	delete(par.tags[len(par.tags) - 1]);
+	defer free(pop);
+	if (expect != "" && expect != pop) {
+		return syntaxerr;
+	};
+	strio::reset(par.namebuf);
+	strio::concat(par.namebuf, pop);
+	return strio::string(par.namebuf);
 };
 
 fn scan_attr(par: *parser) (token | error) = {
@@ -243,7 +262,13 @@ fn scan_element(par: *parser) (token | error) = {
 		},
 	};
 	let name = scan_name(par, par.namebuf)?;
-	return if (close) elementend else name: elementstart;
+	if (close) {
+		poptag(par, name)?;
+		return name: elementend;
+	} else {
+		append(par.tags, strings::dup(name));
+		return name: elementstart;
+	};
 };
 
 fn scan_entity(par: *parser) (rune | error) = {
