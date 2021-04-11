@@ -257,6 +257,6 @@ fn sched_hare_exe(
 	// TODO: We should be able to use partial variadic application
 	let link: []*task = alloc([], len(depend));
 	defer free(link);
-	append(link, obj, ...depend);
+	append(link, obj, depend...);
 	return sched_ld(plan, strings::dup(output), link...);
 };

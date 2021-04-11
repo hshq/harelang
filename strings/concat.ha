@@ -6,7 +6,7 @@ export fn concat(strs: str...) str = {
 	};
 	let new: []u8 = alloc([], z);
 	for (let i = 0z; i < len(strs); i += 1) {
-		append(new, ...toutf8(strs[i]));
+		append(new, toutf8(strs[i])...);
 	};
 	return fromutf8_unsafe(new[..z]);
 };

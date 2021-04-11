@@ -59,7 +59,7 @@ export fn truncate(s: *io::stream) (void | errors::unsupported) = {
 
 fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *dynamic_stream;
-	append(s.buf, ...buf);
+	append(s.buf, buf...);
 	return len(buf);
 };
 

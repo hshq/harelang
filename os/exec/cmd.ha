@@ -31,8 +31,8 @@ export fn cmd(name: str, args: str...) (command | error) = {
 		env = alloc([], len(env)),
 		...
 	};
-	append(cmd.argv, name, ...args);
-	append(cmd.env, ...env);
+	append(cmd.argv, name, args...);
+	append(cmd.env, env...);
 	return cmd;
 };
 

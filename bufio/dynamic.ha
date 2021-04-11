@@ -43,13 +43,13 @@ export fn dynamic_from(in: []u8, mode: io::mode) *io::stream = {
 fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *dynamic_stream;
 	if (s.pos == len(s.buf)) {
-		append(s.buf, ...buf);
+		append(s.buf, buf...);
 	} else {
-		// TODO: update this after we add insert
+		// TODO: Insert
 		let new: []u8 = alloc([], len(s.buf) + len(buf));
-		append(new, ...s.buf[..s.pos]);
-		append(new, ...buf[..]);
-		append(new, ...s.buf[s.pos..]);
+		append(new, s.buf[..s.pos]...);
+		append(new, buf[..]...);
+		append(new, s.buf[s.pos..]...);
 		free(s.buf);
 		s.buf = new;
 	};

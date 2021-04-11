@@ -109,7 +109,7 @@ fn sum(h: *hash::hash) []u8 = {
 	endian::leputu32(d[12..], h.h[3]);
 
 	let slice: []u8 = alloc([], SIZE);
-	append(slice, ...d);
+	append(slice, d...);
 	return slice;
 };
 

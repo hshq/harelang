@@ -110,7 +110,7 @@ export fn any_isbuffered(s: *io::stream) bool = {
 export fn unread(s: *io::stream, buf: []u8) void = {
 	assert(isbuffered(s), "bufio: unread used on non-buffered stream");
 	let s = s: *bufstream;
-	append(s.unread, ...buf);
+	append(s.unread, buf...);
 };
 
 // Unreads a rune; see [unread].
@@ -119,9 +119,10 @@ export fn unreadrune(s: *io::stream, rn: rune) void = {
 	let s = s: *bufstream;
 	const buf = utf8::encoderune(rn);
 
+	// TODO: Insert
 	let new: []u8 = alloc([], len(s.unread) + len(buf));
-	append(new, ...buf);
-	append(new, ...s.unread);
+	append(new, buf...);
+	append(new, s.unread...);
 	free(s.unread);
 	s.unread = new;
 };

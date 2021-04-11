@@ -30,7 +30,7 @@ export type alloc_expr = struct {
 	capacity: nullable *expr,
 };
 
-// append(foo, bar, (more), ...baz)
+// append(foo, bar, (more), baz...)
 export type append_expr = struct {
 	expr: *expr,
 	variadic: nullable *expr,

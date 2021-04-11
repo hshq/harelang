@@ -124,13 +124,13 @@ fn put(d: *decompressor, b: u8...) void = {
 	if (len(d.buf) == 0) {
 		d.bufstart = d.bufstart[..0];
 	};
-	append(d.bufstart, ...b);
+	append(d.bufstart, b...);
 	d.buf = d.bufstart;
 	let n = BUFSIZE - len(d.hist);
 	if (n > len(b)) {
 		n = len(b);
 	};
-	append(d.hist, ...b[..n]);
+	append(d.hist, b[..n]...);
 	b = b[n..];
 	d.head += n;
 	for (let s = b; len(s) != 0) {

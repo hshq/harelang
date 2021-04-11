@@ -192,6 +192,6 @@ fn mkfile(plan: *plan, ext: str) str = {
 fn mkdepends(t: *task...) []*task = {
 	// XXX: This should just be one alloc call
 	let deps: []*task = alloc([], len(t));
-	append(deps, ...t);
+	append(deps, t...);
 	return deps;
 };
