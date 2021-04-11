@@ -138,7 +138,7 @@ export type struct_constant = struct {
 export type tuple_constant = []*expr;
 
 // A constant
-export type constant_expr = (void | lex::literal | array_constant |
+export type constant_expr = (void | lex::value | array_constant |
 	struct_constant | tuple_constant);
 
 // continue :label
@@ -318,7 +318,7 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			expr_free(c._type);
 		},
 		c: constant_expr => match(c) {
-			(void | lex::literal) => void,
+			(void | lex::value) => void,
 			a: array_constant => {
 				for (let i = 0z; i < len(a.values); i += 1) {
 					expr_free(a.values[i]);

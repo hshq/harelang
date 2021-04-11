@@ -19,19 +19,19 @@ use strings;
 
 @test fn unlex() void = {
 	let lexer = init(io::empty, "<test>");
-	unlex(&lexer, (btoken::IF, location {
+	unlex(&lexer, (ltok::IF, void, location {
 		path = "<test>",
 		line = 1234,
 		col = 1234,
 	}));
-	let t = lex(&lexer) as (token, location);
-	assert(t.0 is btoken);
-	assert(t.0 as btoken == btoken::IF);
-	assert(t.1.path == "<test>");
-	assert(t.1.line == 1234 && t.1.col == 1234);
+	let t = lex(&lexer) as token;
+	assert(t.0 == ltok::IF);
+	assert(t.1 is void);
+	assert(t.2.path == "<test>");
+	assert(t.2.line == 1234 && t.2.col == 1234);
 };
 
-fn litassert(expected: literal, actual: literal) void = match (expected) {
+fn vassert(expected: value, actual: value) void = match (expected) {
 	e: u8 => assert(actual as u8 == e),
 	e: u16 => assert(actual as u16 == e),
 	e: u32 => assert(actual as u32 == e),
@@ -49,68 +49,48 @@ fn litassert(expected: literal, actual: literal) void = match (expected) {
 	e: fconst => assert(actual as fconst == e),
 	e: rune => assert(actual as rune == e),
 	e: str => assert(actual as str == e),
+	e: void => assert(actual is void),
 };
 
-fn lextest(in: str, expected: [](uint, uint, token)) void = {
+fn lextest(in: str, expected: []token) void = {
 	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
 	let lexer = init(buf, "<test>");
 	for (let i = 0z; i < len(expected); i += 1) {
-		let eline = expected[i].0, ecol = expected[i].1,
-			etok = expected[i].2;
+		let etok = expected[i];
 		let tl = match (lex(&lexer)) {
-			tl: (token, location) => tl,
-			io::EOF => {
-				fmt::errorfln("unexpected EOF at {}", i);
-				abort();
-			},
+			tl: token => tl,
 			err: error => {
 				fmt::errorfln("{}: {}", i, strerror(err));
 				abort();
 			},
 		};
-		let tok = tl.0, loc = tl.1;
-		match (tok) {
-			b: btoken => if (!(etok is btoken) || etok as btoken != b) {
-				fmt::errorfln("bad token at {}: got {}, wanted {}",
-					i, tokstr(tok), tokstr(etok));
-				abort();
-			},
-			n: name => if (!(etok is name) || etok as name != n) {
-				fmt::errorfln("bad token at {}: got {}, wanted {}",
-					i, tokstr(tok), tokstr(etok));
-				abort();
-			},
-			l: literal => if (!(etok is literal)) {
-				fmt::errorfln("bad token at {}: got {}, wanted {}",
-					i, tokstr(tok), tokstr(etok));
-				abort();
-			} else {
-				litassert(l, etok as literal);
-			},
-			* => abort("TODO"),
-		};
-		assert(loc.path == "<test>");
-		if (loc.line != eline || loc.col != ecol) {
-			fmt::errorfln("bad line/col at {}: got {},{}; wanted {},{}",
-				i, loc.line, loc.col, eline, ecol);
-			abort();
-		};
+		assert(tl.0 == etok.0);
+		vassert(tl.1, etok.1);
+		assert(tl.2.line == etok.2.line && tl.2.col == etok.2.col
+			&& tl.2.path == etok.2.path);
 	};
-	assert(lex(&lexer) is io::EOF);
+	let t = lex(&lexer) as token;
+	assert(t.0 == ltok::EOF);
+};
+
+fn loc(line: uint, col: uint) location = location {
+	path = "<test>",
+	line = line,
+	col = col,
 };
 
 @test fn lex1() void = {
 	const in = "~,{[(}]);";
-	const expected: [_](uint, uint, token) = [
-		(1, 1, btoken::BNOT),
-		(1, 2, btoken::COMMA),
-		(1, 3, btoken::LBRACE),
-		(1, 4, btoken::LBRACKET),
-		(1, 5, btoken::LPAREN),
-		(1, 6, btoken::RBRACE),
-		(1, 7, btoken::RBRACKET),
-		(1, 8, btoken::RPAREN),
-		(1, 9, btoken::SEMICOLON),
+	const expected: [_]token = [
+		(ltok::BNOT, void, loc(1, 1)),
+		(ltok::COMMA, void, loc(1, 2)),
+		(ltok::LBRACE, void, loc(1, 3)),
+		(ltok::LBRACKET, void, loc(1, 4)),
+		(ltok::LPAREN, void, loc(1, 5)),
+		(ltok::RBRACE, void, loc(1, 6)),
+		(ltok::RBRACKET, void, loc(1, 7)),
+		(ltok::RPAREN, void, loc(1, 8)),
+		(ltok::SEMICOLON, void, loc(1, 9)),
 	];
 	lextest(in, expected);
 };
@@ -118,88 +98,83 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 @test fn lex2() void = {
 	// Ends with = to test =, EOF
 	const in = "^ ^^ ^= * *= % %= + += - -= : :: & && &= | || |= = == / /= =";
-	const expected: [_](uint, uint, token) = [
-		(1, 1,  btoken::BXOR),
-		(1, 3,  btoken::LXOR),
-		(1, 6,  btoken::BXOREQ),
-		(1, 9,  btoken::TIMES),
-		(1, 11, btoken::TIMESEQ),
-		(1, 14, btoken::MODULO),
-		(1, 16, btoken::MODEQ),
-		(1, 19, btoken::PLUS),
-		(1, 21, btoken::PLUSEQ),
-		(1, 24, btoken::MINUS),
-		(1, 26, btoken::MINUSEQ),
-		(1, 29, btoken::COLON),
-		(1, 31, btoken::DOUBLE_COLON),
-		(1, 34, btoken::BAND),
-		(1, 36, btoken::LAND),
-		(1, 39, btoken::ANDEQ),
-		(1, 42, btoken::BOR),
-		(1, 44, btoken::LOR),
-		(1, 47, btoken::OREQ),
-		(1, 50, btoken::EQUAL),
-		(1, 52, btoken::LEQUAL),
-		(1, 55,  btoken::DIV),
-		(1, 57, btoken::DIVEQ),
-		(1, 60, btoken::EQUAL),
+	const expected: [_]token = [
+		(ltok::BXOR, void, loc(1, 1)),
+		(ltok::LXOR, void, loc(1, 3)),
+		(ltok::BXOREQ, void, loc(1, 6)),
+		(ltok::TIMES, void, loc(1, 9)),
+		(ltok::TIMESEQ, void, loc(1, 11)),
+		(ltok::MODULO, void, loc(1, 14)),
+		(ltok::MODEQ, void, loc(1, 16)),
+		(ltok::PLUS, void, loc(1, 19)),
+		(ltok::PLUSEQ, void, loc(1, 21)),
+		(ltok::MINUS, void, loc(1, 24)),
+		(ltok::MINUSEQ, void, loc(1, 26)),
+		(ltok::COLON, void, loc(1, 29)),
+		(ltok::DOUBLE_COLON, void, loc(1, 31)),
+		(ltok::BAND, void, loc(1, 34)),
+		(ltok::LAND, void, loc(1, 36)),
+		(ltok::ANDEQ, void, loc(1, 39)),
+		(ltok::BOR, void, loc(1, 42)),
+		(ltok::LOR, void, loc(1, 44)),
+		(ltok::OREQ, void, loc(1, 47)),
+		(ltok::EQUAL, void, loc(1, 50)),
+		(ltok::LEQUAL, void, loc(1, 52)),
+		(ltok::DIV, void, loc(1, 55)),
+		(ltok::DIVEQ, void, loc(1, 57)),
+		(ltok::EQUAL, void, loc(1, 60)),
 	];
 	lextest(in, expected);
 };
 
 @test fn lex3() void = {
 	const in = ". .. ... < << <= <<= > >> >= >>= >>";
-	const expected: [_](uint, uint, token) = [
-		(1, 1,  btoken::DOT),
-		(1, 3,  btoken::SLICE),
-		(1, 6,  btoken::ELLIPSIS),
-		(1, 10, btoken::LESS),
-		(1, 12, btoken::LSHIFT),
-		(1, 15, btoken::LESSEQ),
-		(1, 18, btoken::LSHIFTEQ),
-		(1, 22, btoken::GREATER),
-		(1, 24, btoken::RSHIFT),
-		(1, 27, btoken::GREATEREQ),
-		(1, 30, btoken::RSHIFTEQ),
-		(1, 34, btoken::RSHIFT),
+	const expected: [_]token = [
+		(ltok::DOT, void, loc(1, 1)),
+		(ltok::SLICE, void, loc(1, 3)),
+		(ltok::ELLIPSIS, void, loc(1, 6)),
+		(ltok::LESS, void, loc(1, 10)),
+		(ltok::LSHIFT, void, loc(1, 12)),
+		(ltok::LESSEQ, void, loc(1, 15)),
+		(ltok::LSHIFTEQ, void, loc(1, 18)),
+		(ltok::GREATER, void, loc(1, 22)),
+		(ltok::RSHIFT, void, loc(1, 24)),
+		(ltok::GREATEREQ, void, loc(1, 27)),
+		(ltok::RSHIFTEQ, void, loc(1, 30)),
+		(ltok::RSHIFT, void, loc(1, 34)),
 	];
 	lextest(in, expected);
 };
 
 @test fn lexname() void = {
 	const in = "hello world return void foobar";
-	const expected: [_](uint, uint, token) = [
-		(1, 1,  "hello": name),
-		(1, 7,  "world": name),
-		(1, 13, btoken::RETURN),
-		(1, 20, btoken::VOID),
-		(1, 25, "foobar": name),
+	const expected: [_]token = [
+		(ltok::NAME, "hello", loc(1, 1)),
+		(ltok::NAME, "world", loc(1, 7)),
+		(ltok::RETURN, void, loc(1, 13)),
+		(ltok::VOID, void, loc(1, 20)),
+		(ltok::NAME, "foobar", loc(1, 25)),
 	];
 	lextest(in, expected);
 };
 
 @test fn keywords() void = {
-	let keywords = bmap[..btoken::LAST_KEYWORD+1];
+	let keywords = bmap[..ltok::LAST_KEYWORD+1];
 	for (let i = 0z; i < len(keywords); i += 1) {
 		let lexer = init(bufio::fixed(
 			strings::toutf8(keywords[i]), mode::READ),
 			"<test>");
-		let tl = match (lex(&lexer)) {
-			tl: (token, location) => tl,
-			* => abort(),
-		};
-		let tok = tl.0;
-		assert(tok is btoken);
-		assert(tok as btoken == i: btoken);
+		let tok = lex(&lexer) as token;
+		assert(tok.0 == i: ltok);
 	};
 };
 
 @test fn comments() void = {
 	const in = "hello world // foo\nbar";
-	const expected: [_](uint, uint, token) = [
-		(1, 1,  "hello": name),
-		(1, 7,  "world": name),
-		(2, 1, "bar": name),
+	const expected: [_]token = [
+		(ltok::NAME, "hello", loc(1, 1)),
+		(ltok::NAME, "world", loc(1, 7)),
+		(ltok::NAME, "bar", loc(2, 1)),
 	];
 	lextest(in, expected);
 };
@@ -207,22 +182,22 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 @test fn runes() void = {
 	const in = "'a' 'b' '\\a' '\\b' '\\f' '\\n' '\\r' '\\t' '\\v' '\\0' "
 		"'\\\\' '\\\'' '\\x0A' '\\u1234' '\\U12345678'";
-	const expected: [_](uint, uint, token) = [
-		(1, 1,  'a'),
-		(1, 5,  'b'),
-		(1, 9,  '\a'),
-		(1, 14, '\b'),
-		(1, 19, '\f'),
-		(1, 24, '\n'),
-		(1, 29, '\r'),
-		(1, 34, '\t'),
-		(1, 39, '\v'),
-		(1, 44, '\0'),
-		(1, 49, '\\'),
-		(1, 54, '\''),
-		(1, 59, '\x0A'),
-		(1, 66, '\u1234'),
-		(1, 75, '\U12345678'),
+	const expected: [_]token = [
+		(ltok::LITERAL, 'a', loc(1, 1)),
+		(ltok::LITERAL, 'b', loc(1, 5)),
+		(ltok::LITERAL, '\a', loc(1, 9)),
+		(ltok::LITERAL, '\b', loc(1, 14)),
+		(ltok::LITERAL, '\f', loc(1, 19)),
+		(ltok::LITERAL, '\n', loc(1, 24)),
+		(ltok::LITERAL, '\r', loc(1, 29)),
+		(ltok::LITERAL, '\t', loc(1, 34)),
+		(ltok::LITERAL, '\v', loc(1, 39)),
+		(ltok::LITERAL, '\0', loc(1, 44)),
+		(ltok::LITERAL, '\\', loc(1, 49)),
+		(ltok::LITERAL, '\'', loc(1, 54)),
+		(ltok::LITERAL, '\x0A', loc(1, 59)),
+		(ltok::LITERAL, '\u1234', loc(1, 66)),
+		(ltok::LITERAL, '\U12345678', loc(1, 75)),
 	];
 	lextest(in, expected);
 };
@@ -230,33 +205,33 @@ fn lextest(in: str, expected: [](uint, uint, token)) void = {
 @test fn strings() void = {
 	const in = "\"a\" \"b\" \"\\a\" \"\\b\" \"\\f\" \"\\n\" \"\\r\" "
 		"\"\\t\" \"\\v\" \"\\0\" \"\\\\\" \"\\\'\"";
-	const expected: [_](uint, uint, token) = [
-		(1, 1,  "a": literal),
-		(1, 5,  "b": literal),
-		(1, 9,  "\a": literal),
-		(1, 14, "\b": literal),
-		(1, 19, "\f": literal),
-		(1, 24, "\n": literal),
-		(1, 29, "\r": literal),
-		(1, 34, "\t": literal),
-		(1, 39, "\v": literal),
-		(1, 44, "\0": literal),
-		(1, 49, "\\": literal),
-		(1, 54, "\'": literal),
+	const expected: [_]token = [
+		(ltok::LITERAL, "a", loc(1, 1)),
+		(ltok::LITERAL, "b", loc(1, 5)),
+		(ltok::LITERAL, "\a", loc(1, 9)),
+		(ltok::LITERAL, "\b", loc(1, 14)),
+		(ltok::LITERAL, "\f", loc(1, 19)),
+		(ltok::LITERAL, "\n", loc(1, 24)),
+		(ltok::LITERAL, "\r", loc(1, 29)),
+		(ltok::LITERAL, "\t", loc(1, 34)),
+		(ltok::LITERAL, "\v", loc(1, 39)),
+		(ltok::LITERAL, "\0", loc(1, 44)),
+		(ltok::LITERAL, "\\", loc(1, 49)),
+		(ltok::LITERAL, "\'", loc(1, 54)),
 	];
 	// TODO: test \x and \u and \U
 	lextest(in, expected);
 	const in = "\"ab\\a\\b\\f\\n\\r\\t\\v\\0\\\\\\'\"";
-	const expected: [_](uint, uint, token) = [
-		(1, 1,  "ab\a\b\f\n\r\t\v\0\\\'": literal),
+	const expected: [_]token = [
+		(ltok::LITERAL, "ab\a\b\f\n\r\t\v\0\\\'", loc(1, 1)),
 	];
 	lextest(in, expected);
 	const in = "\"hello world\" \"こんにちは\" \"return\" \"foo\"";
-	const expected: [_](uint, uint, token) = [
-		(1, 1, "hello world": literal),
-		(1, 15, "こんにちは": literal),
-		(1, 23, "return": literal),
-		(1, 32, "foo": literal),
+	const expected: [_]token = [
+		(ltok::LITERAL, "hello world", loc(1, 1)),
+		(ltok::LITERAL, "こんにちは", loc(1, 15)),
+		(ltok::LITERAL, "return", loc(1, 23)),
+		(ltok::LITERAL, "foo", loc(1, 32)),
 	];
 	lextest(in, expected);
 };

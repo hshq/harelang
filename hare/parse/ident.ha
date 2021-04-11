@@ -1,18 +1,18 @@
 use hare::ast;
 use hare::lex;
-use hare::lex::{btoken};
+use hare::lex::{ltok};
 
 fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	let ident: []str = [];
 	let z = 0z;
 	for (true) {
-		let name = match (try_name(lexer)?) {
-			n: lex::name => n,
+		let name = match (try_tok(lexer, ltok::NAME)?) {
+			t: lex::token => t.1 as str,
 			void => return (ident: ast::ident, true),
 		};
-		append(ident, name: str);
+		append(ident, name);
 		z += len(name);
-		match (try_btoken(lexer, btoken::DOUBLE_COLON)?) {
+		match (try_tok(lexer, ltok::DOUBLE_COLON)?) {
 			void => break,
 			* => void, // Grab the next ident
 		};

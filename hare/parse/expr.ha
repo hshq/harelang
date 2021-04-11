@@ -1,5 +1,5 @@
 use hare::ast;
-use hare::lex::{btoken};
+use hare::lex::{ltok};
 use hare::lex;
 
 fn binarithm(
@@ -14,19 +14,19 @@ fn binarithm(
 		expr: ast::expr => expr,
 	};
 
-	let tok = mustlex(lexer)?;
+	let tok = lex::lex(lexer)?;
 	let j = precedence(tok);
 	for (j >= i; j = precedence(tok)) {
 		const op = binop_for_tok(tok);
 
 		let rvalue = cast(lexer, void)?;
-		tok = mustlex(lexer)?;
+		tok = lex::lex(lexer)?;
 
 		let k = precedence(tok);
 		for (k > j; k = precedence(tok)) {
 			lex::unlex(lexer, tok);
 			rvalue = binarithm(lexer, rvalue, k)?;
-			tok = mustlex(lexer)?;
+			tok = lex::lex(lexer)?;
 		};
 
 		let expr = ast::binarithm_expr {
@@ -46,15 +46,15 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 		void => unarithm(lexer)?,
 		e: ast::expr => e,
 	};
-	const tok = match (try_btoken(lexer, btoken::COLON,
-			btoken::AS, btoken::IS)?) {
+	const tok = match (try_tok(lexer, ltok::COLON,
+			ltok::AS, ltok::IS)?) {
 		void => return lvalue,
-		tok: btoken => tok,
+		tok: lex::token => tok.0,
 	};
 	const kind = switch (tok) {
-		btoken::COLON	=> ast::cast_kind::CAST,
-		btoken::AS	=> ast::cast_kind::ASSERTION,
-		btoken::IS	=> ast::cast_kind::TEST,
+		ltok::COLON	=> ast::cast_kind::CAST,
+		ltok::AS	=> ast::cast_kind::ASSERTION,
+		ltok::IS	=> ast::cast_kind::TEST,
 		* => abort(),
 	};
 	return cast(lexer, ast::cast_expr {
@@ -65,7 +65,7 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 };
 
 fn constant(lexer: *lex::lexer) (ast::expr | error) = {
-	want_btoken(lexer, btoken::VOID)?;
+	want_tok(lexer, ltok::VOID)?;
 	return void;
 };
 
@@ -78,45 +78,29 @@ fn objsel(lexer: *lex::lexer) (ast::expr | error) = {
 };
 
 fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
-	let tok = match (lex::lex(lexer)?) {
-		io::EOF => return syntaxerr(mkloc(lexer),
-			"Unexpected EOF, was expecting an expression"),
-		tok: (lex::token, lex::location) => tok,
-	};
-	let tok = match (tok.0) {
-		btok: btoken => {
-			lex::unlex(lexer, tok);
-			btok;
-		},
-		lit: lex::literal => {
-			lex::unlex(lexer, tok);
-			return constant(lexer);
-		},
-		name: lex::name => {
-			lex::unlex(lexer, tok);
-			let id = ident(lexer)?;
-			return match (try_btoken(lexer, btoken::LBRACE)?) {
-				void => id: ast::access_identifier,
-				btoken => abort(), // TODO: Struct literal
+	let tok = peek_tok(lexer)? as lex::token;
+	return switch (tok.0) {
+		ltok::TRUE,
+		ltok::FALSE,
+		ltok::NULL,
+		ltok::VOID => constant(lexer),
+		ltok::LBRACKET => abort(), // TODO: Array literal
+		ltok::STRUCT => abort(), // TODO: Struct literal
+		ltok::LPAREN => {
+			let ex = expression(lexer);
+			return switch (want_tok(lexer,
+					ltok::RPAREN, ltok::COMMA)?.0) {
+				ltok::RPAREN => ex,
+				ltok::COMMA => abort(), // TODO: Tuple literal
+				* => abort(),
 			};
 		},
-	};
-	return switch (tok) {
-		btoken::TRUE,
-		btoken::FALSE,
-		btoken::NULL,
-		btoken::VOID => {
-			constant(lexer);
-		},
-		btoken::LBRACKET => abort(), // TODO: Array literal
-		btoken::STRUCT => abort(), // TODO: Struct literal
-		btoken::LPAREN => {
-			let ex = expression(lexer);
-			return switch (want_btoken(lexer,
-					btoken::RPAREN, btoken::COMMA)?) {
-				btoken::RPAREN => ex,
-				btoken::COMMA => abort(), // TODO: Tuple literal
-				* => abort(),
+		ltok::LITERAL => return constant(lexer),
+		ltok::NAME => {
+			let id = ident(lexer)?;
+			return match (try_tok(lexer, ltok::LBRACE)?) {
+				void => id: ast::access_identifier,
+				lex::token => abort(), // TODO: Struct literal
 			};
 		},
 		* => syntaxerr(mkloc(lexer),
@@ -127,12 +111,12 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 
 fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 	// Built-ins (XXX: these should probably be moved in the Hare grammar)
-	match (peek_btoken(lexer,
-			btoken::ALLOC, btoken::APPEND, btoken::FREE,
-			btoken::DELETE, btoken::ABORT, btoken::ASSERT,
-			btoken::STATIC, btoken::SIZE, btoken::LEN,
-			btoken::OFFSET)?) {
-		tok: btoken => {
+	match (peek_tok(lexer,
+			ltok::ALLOC, ltok::APPEND, ltok::FREE,
+			ltok::DELETE, ltok::ABORT, ltok::ASSERT,
+			ltok::STATIC, ltok::SIZE, ltok::LEN,
+			ltok::OFFSET)?) {
+		tok: lex::token => {
 			if (lvalue is ast::expr) {
 				return syntaxerr(mkloc(lexer),
 					"Unexpected {}, was expecting '(', '.', or '['",
@@ -148,13 +132,13 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 		ex: ast::expr => ex,
 	};
 
-	match (try_btoken(lexer, btoken::LPAREN, btoken::DOT, btoken::LBRACKET,
-			btoken::QUESTION)) {
-		tok: btoken => switch (tok) {
-			btoken::LPAREN => abort(), // TODO: Calls
-			btoken::DOT => abort(), // TODO: Field access
-			btoken::LBRACKET => abort(), // TODO: Indexing
-			btoken::QUESTION => abort(), // TODO: Propagation
+	match (try_tok(lexer, ltok::LPAREN, ltok::DOT, ltok::LBRACKET,
+			ltok::QUESTION)) {
+		tok: lex::token => switch (tok.0) {
+			ltok::LPAREN => abort(), // TODO: Calls
+			ltok::DOT => abort(), // TODO: Field access
+			ltok::LBRACKET => abort(), // TODO: Indexing
+			ltok::QUESTION => abort(), // TODO: Propagation
 			* => abort(),
 		},
 		void => return lvalue,
@@ -164,23 +148,23 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 };
 
 fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
-	const tok = match (try_btoken(lexer,
-			btoken::PLUS, btoken::MINUS, btoken::BNOT,
-			btoken::LNOT, btoken::TIMES, btoken::BAND)) {
+	const tok = match (try_tok(lexer,
+			ltok::PLUS, ltok::MINUS, ltok::BNOT,
+			ltok::LNOT, ltok::TIMES, ltok::BAND)) {
 		void => return postfix(lexer, void),
-		tok: btoken => tok,
+		tok: lex::token => tok.0,
 	};
 	const op = switch (tok) {
-		btoken::PLUS	=> ast::unarithm_op::PLUS,
-		btoken::MINUS	=> ast::unarithm_op::MINUS,
-		btoken::BNOT	=> ast::unarithm_op::BNOT,
-		btoken::LNOT	=> ast::unarithm_op::LNOT,
-		btoken::TIMES	=> ast::unarithm_op::DEREF,
-		btoken::BAND	=> ast::unarithm_op::ADDR,
+		ltok::PLUS	=> ast::unarithm_op::PLUS,
+		ltok::MINUS	=> ast::unarithm_op::MINUS,
+		ltok::BNOT	=> ast::unarithm_op::BNOT,
+		ltok::LNOT	=> ast::unarithm_op::LNOT,
+		ltok::TIMES	=> ast::unarithm_op::DEREF,
+		ltok::BAND	=> ast::unarithm_op::ADDR,
 		* => abort(),
 	};
 	let operand =
-		if (tok == btoken::BAND) objsel(lexer)?
+		if (tok == ltok::BAND) objsel(lexer)?
 		else unarithm(lexer)?;
 	return ast::unarithm_expr {
 		op = op,
@@ -188,87 +172,71 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 };
 
-fn binop_for_tok(tok: (lex::token, lex::location)) ast::binarithm_op = {
-	let tok = match (tok.0) {
-		b: btoken => b,
-		* => abort(),
-	};
-	return switch (tok) {
-		btoken::BAND		=> ast::binarithm_op::BAND,
-		btoken::BOR		=> ast::binarithm_op::BOR,
-		btoken::BXOR		=> ast::binarithm_op::BXOR,
-		btoken::DIV		=> ast::binarithm_op::DIV,
-		btoken::GREATER		=> ast::binarithm_op::GT,
-		btoken::GREATEREQ	=> ast::binarithm_op::GTEQ,
-		btoken::LAND		=> ast::binarithm_op::LAND,
-		btoken::LEQUAL		=> ast::binarithm_op::LEQUAL,
-		btoken::LESS		=> ast::binarithm_op::LESS,
-		btoken::LESSEQ		=> ast::binarithm_op::LESSEQ,
-		btoken::LOR		=> ast::binarithm_op::LOR,
-		btoken::LSHIFT		=> ast::binarithm_op::LSHIFT,
-		btoken::LXOR		=> ast::binarithm_op::LXOR,
-		btoken::MINUS		=> ast::binarithm_op::MINUS,
-		btoken::MODULO		=> ast::binarithm_op::MODULO,
-		btoken::NEQUAL		=> ast::binarithm_op::NEQUAL,
-		btoken::PLUS		=> ast::binarithm_op::PLUS,
-		btoken::RSHIFT		=> ast::binarithm_op::RSHIFT,
-		btoken::TIMES		=> ast::binarithm_op::TIMES,
-		* => abort(),
-	};
+fn binop_for_tok(tok: lex::token) ast::binarithm_op = switch (tok.0) {
+	ltok::BAND	=> ast::binarithm_op::BAND,
+	ltok::BOR	=> ast::binarithm_op::BOR,
+	ltok::BXOR	=> ast::binarithm_op::BXOR,
+	ltok::DIV	=> ast::binarithm_op::DIV,
+	ltok::GREATER	=> ast::binarithm_op::GT,
+	ltok::GREATEREQ	=> ast::binarithm_op::GTEQ,
+	ltok::LAND	=> ast::binarithm_op::LAND,
+	ltok::LEQUAL	=> ast::binarithm_op::LEQUAL,
+	ltok::LESS	=> ast::binarithm_op::LESS,
+	ltok::LESSEQ	=> ast::binarithm_op::LESSEQ,
+	ltok::LOR	=> ast::binarithm_op::LOR,
+	ltok::LSHIFT	=> ast::binarithm_op::LSHIFT,
+	ltok::LXOR	=> ast::binarithm_op::LXOR,
+	ltok::MINUS	=> ast::binarithm_op::MINUS,
+	ltok::MODULO	=> ast::binarithm_op::MODULO,
+	ltok::NEQUAL	=> ast::binarithm_op::NEQUAL,
+	ltok::PLUS	=> ast::binarithm_op::PLUS,
+	ltok::RSHIFT	=> ast::binarithm_op::RSHIFT,
+	ltok::TIMES	=> ast::binarithm_op::TIMES,
+	* => abort(),
 };
 
-fn precedence(tok: (lex::token, lex::location)) int = {
-	let tok = match (tok.0) {
-		b: btoken => b,
-		* => return -1,
-	};
-	return switch (tok) {
-		btoken::LOR => 0,
-		btoken::LXOR => 1,
-		btoken::LAND => 2,
-		btoken::LEQUAL,
-		btoken::NEQUAL => 3,
-		btoken::LESS,
-		btoken::LESSEQ,
-		btoken::GREATER,
-		btoken::GREATEREQ => 4,
-		btoken::BOR => 5,
-		btoken::BXOR => 6,
-		btoken::BAND => 7,
-		btoken::LSHIFT,
-		btoken::RSHIFT => 8,
-		btoken::PLUS,
-		btoken::MINUS => 9,
-		btoken::TIMES,
-		btoken::DIV,
-		btoken::MODULO => 10,
-		* => -1,
-	};
+fn precedence(tok: lex::token) int = switch (tok.0) {
+	ltok::LOR => 0,
+	ltok::LXOR => 1,
+	ltok::LAND => 2,
+	ltok::LEQUAL,
+	ltok::NEQUAL => 3,
+	ltok::LESS,
+	ltok::LESSEQ,
+	ltok::GREATER,
+	ltok::GREATEREQ => 4,
+	ltok::BOR => 5,
+	ltok::BXOR => 6,
+	ltok::BAND => 7,
+	ltok::LSHIFT,
+	ltok::RSHIFT => 8,
+	ltok::PLUS,
+	ltok::MINUS => 9,
+	ltok::TIMES,
+	ltok::DIV,
+	ltok::MODULO => 10,
+	* => -1,
 };
 
 fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 	let items: ast::list_expr = [];
 
 	for (let more = true; more) {
-		let tok = mustlex(lexer)?;
-		lex::unlex(lexer, tok);
-		let item = match (tok.0) {
-			tok: btoken => switch (tok) {
-				btoken::RBRACE => break,
-				btoken::BREAK,
-				btoken::CONTINUE,
-				btoken::RETURN => {
-					more = false;
-					control_statement(lexer)?;
-				},
-				* => expression(lexer)?,
+		let tok = peek_tok(lexer)? as lex::token;
+		let item = switch (tok.0) {
+			ltok::RBRACE => break,
+			ltok::BREAK,
+			ltok::CONTINUE,
+			ltok::RETURN => {
+				more = false;
+				control_statement(lexer)?;
 			},
 			* => expression(lexer)?,
 		};
 		append(items, alloc(item));
-		want_btoken(lexer, btoken::SEMICOLON)?;
+		want_tok(lexer, ltok::SEMICOLON)?;
 	};
 
-	want_btoken(lexer, btoken::RBRACE)?;
+	want_tok(lexer, ltok::RBRACE)?;
 	return items;
 };

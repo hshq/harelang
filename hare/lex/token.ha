@@ -2,7 +2,7 @@ use encoding::utf8;
 use strings;
 
 // A token with no additional context, such as '+'
-export type btoken = enum {
+export type ltok = enum {
 	// Keep ordered with bmap
 	// Alpha sorted
 	ATTR_FINI,
@@ -117,10 +117,16 @@ export type btoken = enum {
 	SLICE,
 	TIMES,
 	TIMESEQ,
+	LAST_BTOK = TIMESEQ,
+
+	NAME,
+	LITERAL,
+	LABEL,
+	EOF,
 };
 
 const bmap: [_]str = [
-	// Keep ordered with btoken
+	// Keep ordered with tok
 	"@fini",
 	"@init",
 	"@noreturn",
@@ -232,18 +238,13 @@ const bmap: [_]str = [
 	"*=",
 ];
 
-// A loop label, such as ':example'
-export type label = str;
-
-// A name, such as 'example'
-export type name = str;
-
 export type iconst = i64;
 export type fconst = f64;
 
 // A token for a literal value, such as '1337u32'
-export type literal = (u8 | u16 | u32 | u64 | uint | uintptr | i8 | i16 | i32 |
-	i64 | int | iconst | f32 | f64 | fconst | rune | str);
+// TODO: Refactor this into a union { i64, u64, f64, str } + storage enum
+export type value = (u8 | u16 | u32 | u64 | uint | uintptr | i8 | i16 | i32 |
+	i64 | int | iconst | f32 | f64 | fconst | rune | str | void);
 
 // A location within a source file.
 // The path is borrowed from the file name given to the lexer.
@@ -254,30 +255,36 @@ export type location = struct {
 };
 
 // A single lexical token.
-export type token = (btoken | label | name | literal);
+export type token = (ltok, value, location);
 
 // Converts a token to its string representation
-export fn tokstr(tok: token) const str = match (tok) {
-	b: btoken => bmap[b: int],
-	n: name => n: str,
-	l: literal => match (l) {
-		u8 => "u8",
-		u16 => "u16",
-		u32 => "u32",
-		u64 => "u64",
-		uint => "uint",
-		uintptr => "uintptr",
-		i8 => "i8",
-		i16 => "i16",
-		i32 => "i32",
-		i64 => "i64",
-		int => "int",
-		iconst => "iconst",
-		f32 => "f32",
-		f64 => "f64",
-		fconst => "fconst",
-		rune => "rune",
-		str => "str",
-	},
-	* => abort(), // TODO
+export fn tokstr(tok: token) const str = {
+	if (tok.0 <= ltok::LAST_BTOK) {
+		return bmap[tok.0: int];
+	};
+	return switch (tok.0) {
+		ltok::NAME => tok.1 as str,
+		ltok::LABEL => abort(), // TODO
+		ltok::LITERAL => match (tok.1) {
+			u8 => "u8",
+			u16 => "u16",
+			u32 => "u32",
+			u64 => "u64",
+			uint => "uint",
+			uintptr => "uintptr",
+			i8 => "i8",
+			i16 => "i16",
+			i32 => "i32",
+			i64 => "i64",
+			int => "int",
+			iconst => "iconst",
+			f32 => "f32",
+			f64 => "f64",
+			fconst => "fconst",
+			rune => "rune",
+			str => "str",
+		},
+		ltok::EOF => "EOF",
+		* => abort(),
+	};
 };

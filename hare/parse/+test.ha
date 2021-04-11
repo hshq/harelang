@@ -16,7 +16,8 @@ use strio;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 1);
 		assert(ident[0] == "foo");
-		assert(lex::lex(&lexer) is io::EOF);
+		let tok = lex::lex(&lexer) as lex::token;
+		assert(tok.0 == lex::ltok::EOF);
 	};
 
 	{
@@ -27,7 +28,8 @@ use strio;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 2);
 		assert(ident[0] == "foo" && ident[1] == "bar");
-		assert(lex::lex(&lexer) is io::EOF);
+		let tok = lex::lex(&lexer) as lex::token;
+		assert(tok.0 == lex::ltok::EOF);
 	};
 
 	{
@@ -39,7 +41,8 @@ use strio;
 		assert(len(ident) == 3);
 		assert(ident[0] == "foo" && ident[1] == "bar"
 			&& ident[2] == "baz");
-		assert(lex::lex(&lexer) is io::EOF);
+		let tok = lex::lex(&lexer) as lex::token;
+		assert(tok.0 == lex::ltok::EOF);
 	};
 
 	{
@@ -50,8 +53,8 @@ use strio;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 2);
 		assert(ident[0] == "foo" && ident[1] == "bar");
-		let tok = lex::lex(&lexer) as (lex::token, lex::location);
-		assert(tok.0 as lex::btoken == lex::btoken::SEMICOLON);
+		let tok = lex::lex(&lexer) as lex::token;
+		assert(tok.0 == lex::ltok::SEMICOLON);
 	};
 };
 
@@ -70,7 +73,8 @@ use strio;
 
 		let mod = mods[0] as ast::import_module;
 		assert(len(mod) == 1 && mod[0] == "foo");
-		assert(lex::lex(&lexer) is io::EOF);
+		let tok = lex::lex(&lexer) as lex::token;
+		assert(tok.0 == lex::ltok::EOF);
 	};
 
 	{
@@ -98,8 +102,8 @@ use strio;
 			};
 		};
 
-		let tok = lex::lex(&lexer) as (lex::token, lex::location);
-		assert(tok.0 as lex::btoken == lex::btoken::EXPORT);
+		let tok = lex::lex(&lexer) as lex::token;
+		assert(tok.0 == lex::ltok::EXPORT);
 	};
 
 	{
