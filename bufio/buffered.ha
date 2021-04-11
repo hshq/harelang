@@ -15,6 +15,28 @@ export type bufstream = struct {
 	unread: []u8,
 };
 
+// Creates a stream which buffers reads and writes for the underlying stream.
+// This is generally used to improve performance of small reads/writes for
+// sources where I/O operations are costly, such as if they invoke a syscall or
+// take place over the network.
+//
+// The caller should supply one or both of a read and write buffer as a slice of
+// the desired buffer, or empty slices if read or write functionality is
+// disabled. The same buffer may not be used for both reads and writes.
+//
+// The caller is responsible for closing the underlying stream and freeing the
+// provided buffers after the buffered stream is closed.
+export fn buffered(
+	src: *io::stream,
+	rbuf: []u8,
+	wbuf: []u8,
+) *io::stream = {
+	let s = alloc(bufstream { ... });
+	let st = static_buffered(src, rbuf, wbuf, s);
+	st.closer = &buffered_close;
+	return st;
+};
+
 export fn static_buffered(
 	src: *io::stream,
 	rbuf: []u8,
@@ -45,28 +67,6 @@ export fn static_buffered(
 			"Cannot use bufio::buffered with same buffer for reads and writes");
 	};
 	return &s.stream;
-};
-
-// Creates a stream which buffers reads and writes for the underlying stream.
-// This is generally used to improve performance of small reads/writes for
-// sources where I/O operations are costly, such as if they invoke a syscall or
-// take place over the network.
-//
-// The caller should supply one or both of a read and write buffer as a slice of
-// the desired buffer, or empty slices if read or write functionality is
-// disabled. The same buffer may not be used for both reads and writes.
-//
-// The caller is responsible for closing the underlying stream and freeing the
-// provided buffers after the buffered stream is closed.
-export fn buffered(
-	src: *io::stream,
-	rbuf: []u8,
-	wbuf: []u8,
-) *io::stream = {
-	let s = alloc(bufstream { ... });
-	let st = static_buffered(src, rbuf, wbuf, s);
-	st.closer = &buffered_close;
-	return st;
 };
 
 // Flushes pending writes to the underlying stream.

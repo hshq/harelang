@@ -43,6 +43,23 @@ type os_filesystem = struct {
 	resolve: resolve_flags,
 };
 
+// Opens a file descriptor as an [fs::fs]. This file descriptor must be a
+// directory file. The file will be closed when the fs is closed.
+//
+// If no other flags are provided to [fs::open] and [fs::create] when used with
+// a dirfdfs, [fs::flags::NOCTTY] and [fs::flags::CLOEXEC] are used when opening
+// the file. If you pass your own flags, it is recommended that you add these
+// unless you know that you do not want them.
+export fn dirfdopen(fd: int, resolve: resolve_flags...) *fs::fs = {
+	let ofs = alloc(os_filesystem { ... });
+	let fs = static_dirfdopen(fd, ofs);
+	for (let i = 0z; i < len(resolve); i += 1) {
+		ofs.resolve |= resolve[i];
+	};
+	fs.close = &fs_close;
+	return fs;
+};
+
 fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 	*filesystem = os_filesystem {
 		fs = fs::fs {
@@ -62,23 +79,6 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 		dirfd = fd,
 	};
 	return &filesystem.fs;
-};
-
-// Opens a file descriptor as an [fs::fs]. This file descriptor must be a
-// directory file. The file will be closed when the fs is closed.
-//
-// If no other flags are provided to [fs::open] and [fs::create] when used with
-// a dirfdfs, [fs::flags::NOCTTY] and [fs::flags::CLOEXEC] are used when opening
-// the file. If you pass your own flags, it is recommended that you add these
-// unless you know that you do not want them.
-export fn dirfdopen(fd: int, resolve: resolve_flags...) *fs::fs = {
-	let ofs = alloc(os_filesystem { ... });
-	let fs = static_dirfdopen(fd, ofs);
-	for (let i = 0z; i < len(resolve); i += 1) {
-		ofs.resolve |= resolve[i];
-	};
-	fs.close = &fs_close;
-	return fs;
 };
 
 // Clones a dirfd filesystem, optionally adding additional [resolve_flags]

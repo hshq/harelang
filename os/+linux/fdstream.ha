@@ -8,6 +8,14 @@ type fd_stream = struct {
 	fd: int,
 };
 
+// Opens a Unix file descriptor as an io::stream.
+export fn fdopen(fd: int, name: str, mode: io::mode) *io::stream = {
+	let stream = alloc(fd_stream { ... });
+	static_fdopen(fd, strings::dup(name), mode, stream);
+	stream.stream.closer = &fd_close;
+	return &stream.stream;
+};
+
 fn static_fdopen(
 	fd: int, name: str, mode: io::mode, stream: *fd_stream,
 ) *io::stream = {
@@ -27,14 +35,6 @@ fn static_fdopen(
 	if (mode & io::mode::WRITE == io::mode::WRITE) {
 		stream.stream.writer = &fd_write;
 	};
-	return &stream.stream;
-};
-
-// Opens a Unix file descriptor as an io::stream.
-export fn fdopen(fd: int, name: str, mode: io::mode) *io::stream = {
-	let stream = alloc(fd_stream { ... });
-	static_fdopen(fd, strings::dup(name), mode, stream);
-	stream.stream.closer = &fd_close;
 	return &stream.stream;
 };
 
