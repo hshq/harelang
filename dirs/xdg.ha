@@ -22,11 +22,7 @@ fn lookup(prog: str, var: str, default: str) str = {
 		void => void,
 	};
 
-	let home = match (os::getenv("HOME")) {
-		s: str => s,
-		void => abort("$HOME unset"), // TODO: Try reading /etc/passwd
-	};
-
+	let home = os::getenv("HOME") as str;
 	let path = path::join(home, default, prog);
 	os::mkdirs(path) as void;
 	return path;
