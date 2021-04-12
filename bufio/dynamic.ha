@@ -189,4 +189,5 @@ export fn truncate(s: *io::stream) (void | errors::unsupported) = {
 	assert(io::read(s, buf[..]) is io::EOF);
 	// TODO: this should check for errors::unsupported (harec bug prevents that)
 	assert(io::write(s, [1, 2]) is io::error);
+	io::close(s);
 };

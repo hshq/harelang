@@ -3,6 +3,7 @@ use fmt;
 use hare::ast;
 use hare::lex;
 use hare::unparse;
+use io;
 use io::{mode};
 use strings;
 use strio;
@@ -11,6 +12,7 @@ use strio;
 	{
 		const in = "foo";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		defer io::close(buf);
 		let lexer = lex::init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
@@ -23,6 +25,7 @@ use strio;
 	{
 		const in = "foo::bar";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		defer io::close(buf);
 		let lexer = lex::init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
@@ -35,6 +38,7 @@ use strio;
 	{
 		const in = "foo::bar::baz";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		defer io::close(buf);
 		let lexer = lex::init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
@@ -48,6 +52,7 @@ use strio;
 	{
 		const in = "foo::bar;";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		defer io::close(buf);
 		let lexer = lex::init(buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
@@ -62,6 +67,7 @@ use strio;
 	{
 		const in = "use foo;";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		defer io::close(buf);
 		let lexer = lex::init(buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
@@ -84,6 +90,7 @@ use strio;
 			"use baz::bat;\n\n"
 			"export fn main() void = void;";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		defer io::close(buf);
 		let lexer = lex::init(buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
@@ -113,6 +120,7 @@ use strio;
 			"use qux = quux::corge;\n"
 			"export fn main() void = void;";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		defer io::close(buf);
 		let lexer = lex::init(buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
@@ -144,6 +152,7 @@ use strio;
 			"use quux::corge::{grault, garply,};\n"
 			"export fn main() void = void;";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		defer io::close(buf);
 		let lexer = lex::init(buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
@@ -174,6 +183,7 @@ use strio;
 
 fn roundtrip(src: str) void = {
 	let buf = bufio::fixed(strings::toutf8(src), mode::READ);
+	defer io::close(buf);
 	let lexer = lex::init(buf, "<test>");
 	let u = ast::subunit {
 		imports = [],

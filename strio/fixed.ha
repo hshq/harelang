@@ -57,6 +57,7 @@ fn fixed_close(s: *io::stream) void = {
 @test fn fixed() void = {
 	static let buf: [1024]u8 = [0...];
 	let stream = fixed(buf);
+	defer io::close(stream);
 	io::write(stream, strings::toutf8("hello ")) as size;
 	io::write(stream, strings::toutf8("world")) as size;
 	assert(string(stream) == "hello world");

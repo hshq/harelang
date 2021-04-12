@@ -58,6 +58,7 @@ fn fixed_close(s: *io::stream) void = free(s);
 	// TODO: add a read test too
 	static let buf: [1024]u8 = [0...];
 	let stream = fixed(buf, io::mode::WRITE);
+	defer io::close(stream);
 	let n = 0z;
 	n += io::write(stream, strings::toutf8("hello ")) as size;
 	n += io::write(stream, strings::toutf8("world")) as size;

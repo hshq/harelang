@@ -6,6 +6,7 @@ use strings;
 
 @test fn unget() void = {
 	let buf = bufio::fixed(strings::toutf8("z"), mode::READ);
+	defer io::close(buf);
 	let lexer = init(buf, "<test>");
 	unget(&lexer, 'x');
 	unget(&lexer, 'y');
@@ -58,6 +59,7 @@ fn vassert(expected: value, actual: value) bool = {
 
 fn lextest(in: str, expected: []token) void = {
 	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+	defer io::close(buf);
 	let lexer = init(buf, "<test>");
 	for (let i = 0z; i < len(expected); i += 1) {
 		let etok = expected[i];
@@ -171,9 +173,9 @@ fn loc(line: uint, col: uint) location = location {
 @test fn keywords() void = {
 	let keywords = bmap[..ltok::LAST_KEYWORD+1];
 	for (let i = 0z; i < len(keywords); i += 1) {
-		let lexer = init(bufio::fixed(
-			strings::toutf8(keywords[i]), mode::READ),
-			"<test>");
+		let buf = bufio::fixed(strings::toutf8(keywords[i]), mode::READ);
+		defer io::close(buf);
+		let lexer = init(buf, "<test>");
 		let tok = lex(&lexer) as token;
 		assert(tok.0 == i: ltok);
 	};

@@ -103,7 +103,7 @@ export fn getuser(username: str) (pwent | void) = {
 	let buf = bufio::fixed(strings::toutf8(
 		"sircmpwn:x:1000:1000:sircmpwn's comment:/home/sircmpwn:/bin/mrsh\n"
 		"alex:x:1001:1001::/home/alex:/bin/zsh"), io::mode::READ);
-	defer free(buf);
+	defer io::close(buf);
 
 	let ent = nextpw(buf) as pwent;
 	defer pwent_finish(ent);

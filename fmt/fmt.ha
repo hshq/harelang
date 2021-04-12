@@ -79,6 +79,7 @@ export fn asprintf(fmt: str, args: formattable...) str = {
 // returned string is borrowed from this buffer.
 export fn bsprintf(buf: []u8, fmt: str, args: formattable...) str = {
 	let sink = bufio::fixed(buf, io::mode::WRITE);
+	defer io::close(sink);
 	let l = fprintf(sink, fmt, args...) as size;
 	return strings::fromutf8_unsafe(buf[..l]);
 };
@@ -134,6 +135,7 @@ export fn asprint(args: formattable...) str = {
 // is borrowed from this buffer.
 export fn bsprint(buf: []u8, args: formattable...) str = {
 	let sink = bufio::fixed(buf, io::mode::WRITE);
+	defer io::close(sink);
 	assert(fprint(sink, args...) is size);
 	return strings::fromutf8_unsafe(buf);
 };
@@ -145,7 +147,7 @@ export fn fprintln(s: *io::stream, args: formattable...) (io::error | size) = {
 };
 
 // Formats values for printing using the default format modifiers and writes
-// them to an [io::stream] separated by spaces 
+// them to an [io::stream] separated by spaces
 export fn fprint(s: *io::stream, args: formattable...) (io::error | size) = {
 	let mod = modifiers { base = strconv::base::DEC, ... };
 	let n = 0z;

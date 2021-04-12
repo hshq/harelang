@@ -76,6 +76,7 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 
 @test fn scanbyte() void = {
 	let buf = fixed([1, 3, 3, 7], io::mode::READ);
+	defer io::close(buf);
 
 	assert(scanbyte(buf) as u8 == 1);
 	assert(scanbyte(buf) as u8 == 3);
@@ -86,6 +87,7 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 
 @test fn scantok() void = {
 	let buf = fixed([1, 3, 4, 5, 3, 7], io::mode::READ);
+	defer io::close(buf);
 
 	let tok = scantok(buf, 4) as []u8;
 	defer free(tok);
@@ -101,6 +103,7 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 @test fn scanline() void = {
 	let helloworld = strings::toutf8("hello\nworld");
 	let buf = fixed(helloworld, io::mode::READ);
+	defer io::close(buf);
 
 	let line = scanline(buf) as []u8;
 	defer free(line);
@@ -118,6 +121,7 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 		0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3, 0x81,
 		0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0x00,
 	], io::mode::READ);
+	defer io::close(in);
 
 	const expected: [_](rune | utf8::invalid | io::EOF | io::error) = [
 		'こ', 'ん', 'に', 'ち', 'は', '\0', io::EOF,
