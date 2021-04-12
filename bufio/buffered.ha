@@ -222,7 +222,7 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 @test fn buffered_read() void = {
 	let sourcebuf: []u8 = [1, 3, 3, 7];
 	let source = fixed(sourcebuf, io::mode::READ);
-	let fb = source: *fixed_stream;
+	let fb = source: *memstream;
 	defer io::close(source);
 
 	let rbuf: [1024]u8 = [0...];
@@ -231,7 +231,7 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 
 	let buf: [1024]u8 = [0...];
 	assert(io::read(f, buf[..2]) as size == 2);
-	assert(len(fb.buf) == 0, "fixed stream was not fully consumed");
+	assert(fb.pos == len(fb.buf), "fixed stream was not fully consumed");
 	assert(bytes::equal(buf[..2], [1, 3]));
 
 	assert(io::read(f, buf[2..]) as size == 2);
@@ -241,7 +241,7 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let sourcebuf: [32]u8 = [1, 3, 3, 7, 0...];
 	sourcebuf[32..36] = [7, 3, 3, 1];
 	let source = fixed(sourcebuf, io::mode::READ);
-	let fb = source: *fixed_stream;
+	let fb = source: *memstream;
 	defer io::close(source);
 
 	let rbuf: [16]u8 = [0...];
@@ -250,12 +250,12 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 
 	let buf: [32]u8 = [0...];
 	assert(io::read(f, buf) as size == 16);
-	assert(len(fb.buf) == 16);
+	assert(fb.pos == 16);
 
 	assert(io::read(f, buf[16..]) as size == 16);
 	assert(bytes::equal(buf, sourcebuf));
 	assert(io::read(f, buf) is io::EOF);
-	assert(len(fb.buf) == 0);
+	assert(fb.pos == len(fb.buf));
 };
 
 @test fn buffered_write() void = {

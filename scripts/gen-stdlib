@@ -108,8 +108,7 @@ ascii() {
 bufio() {
 	gen_srcs bufio \
 		buffered.ha \
-		dynamic.ha \
-		fixed.ha \
+		memstream.ha \
 		scanner.ha
 	gen_ssa bufio io bytes strings encoding::utf8 errors
 }
