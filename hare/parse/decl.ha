@@ -7,16 +7,8 @@ use strings;
 
 fn attr_symbol(lexer: *lex::lexer) (str | error) = {
 	want(lexer, ltok::LPAREN)?;
-	let t = want(lexer, ltok::LITERAL)?;
-	let s = match (t.1) {
-		v: lex::value => if (v.storage == lex::storage::STR) v.string
-			else return syntaxerr(t.2,
-				"Unexpected {}, was expecting string",
-				lex::tokstr(t)),
-		* => return syntaxerr(t.2,
-			"Unexpected {}, was expecting string",
-			lex::tokstr(t)),
-	};
+	let t = want(lexer, ltok::LIT_STR)?;
+	let s = t.1 as str;
 	let d = strings::iter(s);
 	match (strings::next(&d)) {
 		void => void,

@@ -119,8 +119,26 @@ export type ltok = enum {
 	TIMESEQ,
 	LAST_BTOK = TIMESEQ,
 
+	LIT_U8,
+	LIT_U16,
+	LIT_U32,
+	LIT_U64,
+	LIT_UINT,
+	LIT_UINTPTR,
+	LIT_I8,
+	LIT_I16,
+	LIT_I32,
+	LIT_I64,
+	LIT_INT,
+	LIT_ICONST,
+	LIT_F32,
+	LIT_F64,
+	LIT_FCONST,
+	LIT_RUNE,
+	LIT_STR,
+	LAST_LITERAL = STR,
+
 	NAME,
-	LITERAL,
 	LABEL,
 	EOF,
 };
@@ -238,38 +256,8 @@ const bmap: [_]str = [
 	"*=",
 ];
 
-// The storage of a [value], such as U32 for '1337u32'
-export type storage = enum {
-	U8,
-	U16,
-	U32,
-	U64,
-	UINT,
-	UINTPTR,
-	I8,
-	I16,
-	I32,
-	I64,
-	INT,
-	ICONST,
-	F32,
-	F64,
-	FCONST,
-	RUNE,
-	STR,
-};
-
 // A token value, used for tokens such as '1337u32'
-export type value = struct {
-	storage: storage,
-	union {
-		string: str,
-		_rune: rune,
-		_int: i64,
-		_uint: u64,
-		float: f64,
-	},
-};
+export type value = (str | rune | i64 | u64 | f64 | void);
 
 // A location within a source file.
 // The path is borrowed from the file name given to the lexer.
@@ -280,36 +268,33 @@ export type location = struct {
 };
 
 // A single lexical token.
-export type token = (ltok, (value | str | void), location);
+export type token = (ltok, value, location);
 
 // Converts a token to its string representation
 export fn tokstr(tok: token) const str = {
 	if (tok.0 <= ltok::LAST_BTOK) {
 		return bmap[tok.0: int];
 	};
-	let val = tok.1 as value;
 	return switch (tok.0) {
-		ltok::NAME => val.string,
+		ltok::LIT_U8 => "u8",
+		ltok::LIT_U16 => "u16",
+		ltok::LIT_U32 => "u32",
+		ltok::LIT_U64 => "u64",
+		ltok::LIT_UINT => "uint",
+		ltok::LIT_UINTPTR => "uintptr",
+		ltok::LIT_I8 => "i8",
+		ltok::LIT_I16 => "i16",
+		ltok::LIT_I32 => "i32",
+		ltok::LIT_I64 => "i64",
+		ltok::LIT_INT => "int",
+		ltok::LIT_ICONST => "iconst",
+		ltok::LIT_F32 => "f32",
+		ltok::LIT_F64 => "f64",
+		ltok::LIT_FCONST => "fconst",
+		ltok::LIT_RUNE => "rune",
+		ltok::LIT_STR => "str",
+		ltok::NAME => tok.1 as str,
 		ltok::LABEL => abort(), // TODO
-		ltok::LITERAL => switch (val.storage) {
-			storage::U8 => "u8",
-			storage::U16 => "u16",
-			storage::U32 => "u32",
-			storage::U64 => "u64",
-			storage::UINT => "uint",
-			storage::UINTPTR => "uintptr",
-			storage::I8 => "i8",
-			storage::I16 => "i16",
-			storage::I32 => "i32",
-			storage::I64 => "i64",
-			storage::INT => "int",
-			storage::ICONST => "iconst",
-			storage::F32 => "f32",
-			storage::F64 => "f64",
-			storage::FCONST => "fconst",
-			storage::RUNE => "rune",
-			storage::STR => "str",
-		},
 		ltok::EOF => "EOF",
 		* => abort(),
 	};

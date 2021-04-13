@@ -32,29 +32,13 @@ use strings;
 	assert(t.2.line == 1234 && t.2.col == 1234);
 };
 
-fn vassert(expected: value, actual: value) bool = {
-	if (expected.storage != actual.storage) {
-		return false;
-	};
-	return switch (expected.storage) {
-		storage::U8,
-		storage::U16,
-		storage::U32,
-		storage::U64,
-		storage::UINT,
-		storage::UINTPTR => expected._uint == actual._uint,
-		storage::I8,
-		storage::I16,
-		storage::I32,
-		storage::I64,
-		storage::INT,
-		storage::ICONST => expected._int == actual._int,
-		storage::F32,
-		storage::F64,
-		storage::FCONST => expected.float == actual.float,
-		storage::RUNE => expected._rune == actual._rune,
-		storage::STR => expected.string == actual.string,
-	};
+fn vassert(expected: value, actual: value) void = match (expected) {
+	expected: str => assert(actual as str == expected),
+	expected: rune => assert(actual as rune == expected),
+	expected: i64 => assert(actual as i64 == expected),
+	expected: u64 => assert(actual as u64 == expected),
+	expected: f64 => assert(actual as f64 == expected),
+	void => assert(actual is void),
 };
 
 fn lextest(in: str, expected: []token) void = {
@@ -71,13 +55,7 @@ fn lextest(in: str, expected: []token) void = {
 			},
 		};
 		assert(tl.0 == etok.0);
-		if (etok.1 is void) {
-			assert(tl.1 is void);
-		} else if (etok.1 is str) {
-			assert(tl.1 as str == etok.1 as str);
-		} else {
-			vassert(tl.1 as value, etok.1 as value);
-		};
+		vassert(tl.1, etok.1);
 		assert(tl.2.line == etok.2.line && tl.2.col == etok.2.col
 			&& tl.2.path == etok.2.path);
 	};
@@ -195,21 +173,21 @@ fn loc(line: uint, col: uint) location = location {
 	const in = "'a' 'b' '\\a' '\\b' '\\f' '\\n' '\\r' '\\t' '\\v' '\\0' "
 		"'\\\\' '\\\'' '\\x0A' '\\u1234' '\\U12345678'";
 	const expected: [_]token = [
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = 'a' }, loc(1, 1)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = 'b' }, loc(1, 5)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\a' }, loc(1, 9)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\b' }, loc(1, 14)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\f' }, loc(1, 19)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\n' }, loc(1, 24)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\r' }, loc(1, 29)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\t' }, loc(1, 34)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\v' }, loc(1, 39)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\0' }, loc(1, 44)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\\' }, loc(1, 49)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\'' }, loc(1, 54)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\x0A' }, loc(1, 59)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\u1234' }, loc(1, 66)),
-		(ltok::LITERAL, value { storage = storage::RUNE, _rune = '\U12345678' }, loc(1, 75)),
+		(ltok::LIT_RUNE, 'a', loc(1, 1)),
+		(ltok::LIT_RUNE, 'b', loc(1, 5)),
+		(ltok::LIT_RUNE, '\a', loc(1, 9)),
+		(ltok::LIT_RUNE, '\b', loc(1, 14)),
+		(ltok::LIT_RUNE, '\f', loc(1, 19)),
+		(ltok::LIT_RUNE, '\n', loc(1, 24)),
+		(ltok::LIT_RUNE, '\r', loc(1, 29)),
+		(ltok::LIT_RUNE, '\t', loc(1, 34)),
+		(ltok::LIT_RUNE, '\v', loc(1, 39)),
+		(ltok::LIT_RUNE, '\0', loc(1, 44)),
+		(ltok::LIT_RUNE, '\\', loc(1, 49)),
+		(ltok::LIT_RUNE, '\'', loc(1, 54)),
+		(ltok::LIT_RUNE, '\x0A', loc(1, 59)),
+		(ltok::LIT_RUNE, '\u1234', loc(1, 66)),
+		(ltok::LIT_RUNE, '\U12345678', loc(1, 75)),
 	];
 	lextest(in, expected);
 };
@@ -218,32 +196,32 @@ fn loc(line: uint, col: uint) location = location {
 	const in = "\"a\" \"b\" \"\\a\" \"\\b\" \"\\f\" \"\\n\" \"\\r\" "
 		"\"\\t\" \"\\v\" \"\\0\" \"\\\\\" \"\\\'\"";
 	const expected: [_]token = [
-		(ltok::LITERAL, value { storage = storage::STR, string = "a" }, loc(1, 1)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "b" }, loc(1, 5)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "\a" }, loc(1, 9)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "\b" }, loc(1, 14)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "\f" }, loc(1, 19)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "\n" }, loc(1, 24)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "\r" }, loc(1, 29)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "\t" }, loc(1, 34)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "\v" }, loc(1, 39)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "\0" }, loc(1, 44)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "\\" }, loc(1, 49)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "\'" }, loc(1, 54)),
+		(ltok::LIT_STR, "a", loc(1, 1)),
+		(ltok::LIT_STR, "b", loc(1, 5)),
+		(ltok::LIT_STR, "\a", loc(1, 9)),
+		(ltok::LIT_STR, "\b", loc(1, 14)),
+		(ltok::LIT_STR, "\f", loc(1, 19)),
+		(ltok::LIT_STR, "\n", loc(1, 24)),
+		(ltok::LIT_STR, "\r", loc(1, 29)),
+		(ltok::LIT_STR, "\t", loc(1, 34)),
+		(ltok::LIT_STR, "\v", loc(1, 39)),
+		(ltok::LIT_STR, "\0", loc(1, 44)),
+		(ltok::LIT_STR, "\\", loc(1, 49)),
+		(ltok::LIT_STR, "\'", loc(1, 54)),
 	];
 	// TODO: test \x and \u and \U
 	lextest(in, expected);
 	const in = "\"ab\\a\\b\\f\\n\\r\\t\\v\\0\\\\\\'\"";
 	const expected: [_]token = [
-		(ltok::LITERAL, value { storage = storage::STR, string = "ab\a\b\f\n\r\t\v\0\\\'" }, loc(1, 1)),
+		(ltok::LIT_STR, "ab\a\b\f\n\r\t\v\0\\\'", loc(1, 1)),
 	];
 	lextest(in, expected);
 	const in = "\"hello world\" \"こんにちは\" \"return\" \"foo\"";
 	const expected: [_]token = [
-		(ltok::LITERAL, value { storage = storage::STR, string = "hell }o world" }, loc(1, 1)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "こんにちは" }, loc(1, 15)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "return" }, loc(1, 23)),
-		(ltok::LITERAL, value { storage = storage::STR, string = "foo" }, loc(1, 32)),
+		(ltok::LIT_STR, "hello world", loc(1, 1)),
+		(ltok::LIT_STR, "こんにちは", loc(1, 15)),
+		(ltok::LIT_STR, "return", loc(1, 23)),
+		(ltok::LIT_STR, "foo", loc(1, 32)),
 	];
 	lextest(in, expected);
 };

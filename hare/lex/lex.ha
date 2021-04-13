@@ -168,10 +168,7 @@ fn lex_string(lex: *lexer, loc: location) (token | error) = {
 				append(chars, utf8::encoderune(r)...);
 			},
 	};
-	return (ltok::LITERAL, value {
-		storage = storage::STR,
-		string = strings::fromutf8(chars),
-	}, loc);
+	return (ltok::LIT_STR, strings::fromutf8(chars), loc);
 };
 
 fn lex_rn_str(lex: *lexer, loc: location) (token | error) = {
@@ -186,10 +183,7 @@ fn lex_rn_str(lex: *lexer, loc: location) (token | error) = {
 	};
 
 	// Rune literal
-	let ret: token = (ltok::LITERAL, value {
-		storage = storage::RUNE,
-		_rune = lex_rune(lex, loc)?,
-	}, loc);
+	let ret: token = (ltok::LIT_RUNE, lex_rune(lex, loc)?, loc);
 	match (next(lex)?) {
 		io::EOF =>
 			return syntaxerr(loc, "unexpected EOF"),

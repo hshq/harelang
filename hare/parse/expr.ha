@@ -79,6 +79,9 @@ fn objsel(lexer: *lex::lexer) (ast::expr | error) = {
 
 fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 	let tok = peek(lexer)? as lex::token;
+	if (tok.0 > ltok::LAST_BTOK && tok.0 >= ltok::LAST_LITERAL) {
+		return constant(lexer);
+	};
 	return switch (tok.0) {
 		ltok::TRUE,
 		ltok::FALSE,
@@ -95,7 +98,6 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 				* => abort(),
 			};
 		},
-		ltok::LITERAL => return constant(lexer),
 		ltok::NAME => {
 			let id = ident(lexer)?;
 			return match (try(lexer, ltok::LBRACE)?) {
