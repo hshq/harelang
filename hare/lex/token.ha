@@ -140,7 +140,6 @@ export type ltok = enum uint {
 
 	NAME,
 	LABEL,
-	COMMENT,
 	EOF,
 };
 
@@ -296,7 +295,6 @@ export fn tokstr(tok: token) const str = {
 		ltok::LIT_STR => "str",
 		ltok::NAME => tok.1 as str,
 		ltok::LABEL => abort(), // TODO
-		ltok::COMMENT => abort(), // TODO
 		ltok::EOF => "EOF",
 		* => abort(),
 	};
