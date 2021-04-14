@@ -168,18 +168,16 @@ fn loc(line: uint, col: uint) location = location {
 	];
 	lextest(in, expected);
 
-	let in = "hello world // foo\n// bar";
+	let in = "// foo\n// bar\nhello world// baz\n\n// bad\ntest";
 	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
 	defer io::close(buf);
 	let lexer = init(buf, "<input>", flags::COMMENTS);
 	assert(lex(&lexer) is token);
+	assert(comment(&lexer) == " foo\n bar\n");
 	assert(lex(&lexer) is token);
-	let tok = lex(&lexer) as token;
-	assert(tok.0 == ltok::COMMENT);
-	assert(tok.1 as str == " foo\n");
-	let tok = lex(&lexer) as token;
-	assert(tok.0 == ltok::COMMENT);
-	assert(tok.1 as str == " bar");
+	assert(comment(&lexer) == "");
+	assert(lex(&lexer) is token);
+	assert(comment(&lexer) == " bad\n");
 };
 
 @test fn runes() void = {

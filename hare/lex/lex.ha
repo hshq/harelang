@@ -17,6 +17,7 @@ export type lexer = struct {
 	un: (token | void),
 	rb: [2](rune | io::EOF | void),
 	flags: flags,
+	comment: str,
 };
 
 // Flags which apply to this lexer
@@ -54,8 +55,13 @@ export fn init(in: *io::stream, path: str, flags: flags...) lexer = {
 		un = void,
 		rb = [void...],
 		flags = f,
+		comment = "",
 	};
 };
+
+// Returns the current value of the comment buffer, or empty string if unset (or
+// if [flags::COMMENTS] was not enabled for this lexer).
+export fn comment(lex: *lexer) str = lex.comment;
 
 // Returns the next token from the lexer.
 export fn lex(lex: *lexer) (token | error) = {
@@ -252,6 +258,7 @@ fn lex_comment(lexr: *lexer, loc: location) (token | error) = {
 	};
 
 	let buf = strio::dynamic();
+	defer io::close(buf);
 	for (true) match (next(lexr)?) {
 		io::EOF => break,
 		r: rune => {
@@ -259,7 +266,10 @@ fn lex_comment(lexr: *lexer, loc: location) (token | error) = {
 			if (r == '\n') break;
 		},
 	};
-	return (ltok::COMMENT, strio::finish(buf), loc);
+	let new = strings::concat(lexr.comment, strio::string(buf));
+	free(lexr.comment);
+	lexr.comment = new;
+	return lex(lexr);
 };
 
 fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
@@ -485,6 +495,9 @@ fn nextw(lex: *lexer) ((rune, location) | io::EOF | io::error) = {
 			e: (io::error | io::EOF) => return e,
 			r: rune => if (!ascii::isspace(r)) {
 				return (r, loc);
+			} else {
+				free(lex.comment);
+				lex.comment = "";
 			},
 		};
 	};
