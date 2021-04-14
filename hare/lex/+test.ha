@@ -236,3 +236,26 @@ fn loc(line: uint, col: uint) location = location {
 	];
 	lextest(in, expected);
 };
+
+@test fn literals() void = {
+	// TODO: Float literals
+	const in = "1e5 -1i32 9223372036854775809 1e2z 255u8 0o42u16\n"
+		"0b1000101u32 0xDEADBEEFu64 -0b10i8 -5e0i16 -0o16i32\n"
+		"0b00000010000001100000011100001111000000100000011000000111i64";
+	const expected: [_]token = [
+		(ltok::LIT_ICONST, 1e5i64, loc(1, 1)),
+		(ltok::LIT_I32, -1i64, loc(1, 5)),
+		(ltok::LIT_U64, 9223372036854775809u64, loc(1, 11)),
+		(ltok::LIT_SIZE, 1e2u64, loc(1, 31)),
+		(ltok::LIT_U8, 255u64, loc(1, 36)),
+		(ltok::LIT_U16, 0o42u64, loc(1, 42)),
+		(ltok::LIT_U32, 0b1000101u64, loc(2, 1)),
+		(ltok::LIT_U64, 0xDEADBEEFu64, loc(2, 14)),
+		(ltok::LIT_I8, -0b10i64, loc(2, 28)),
+		(ltok::LIT_I16, -5e0i64, loc(2, 36)),
+		(ltok::LIT_I32, -0o16i64, loc(2, 44)),
+		// Binary solo
+		(ltok::LIT_I64, 0b00000010000001100000011100001111000000100000011000000111i64, loc(3, 1)),
+	];
+	lextest(in, expected);
+};

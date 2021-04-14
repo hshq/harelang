@@ -8,6 +8,7 @@ use sort;
 use strconv;
 use strings;
 use strio;
+use types;
 
 // State associated with a lexer.
 export type lexer = struct {
@@ -88,7 +89,7 @@ export fn lex(lex: *lexer) (token | error) = {
 	};
 	if (ascii::isdigit(r)) {
 		unget(lex, r);
-		abort(); // TODO: Literals
+		return lex_literal(lex, loc);
 	};
 
 	let tok: ltok = switch (r) {
@@ -272,6 +273,169 @@ fn lex_comment(lexr: *lexer, loc: location) (token | error) = {
 	return lex(lexr);
 };
 
+fn lex_literal(lex: *lexer, loc: location) (token | error) = {
+	let chars: []u8 = [];
+	let r = match (next(lex)?) {
+		io::EOF => return (ltok::EOF, void, loc),
+		r: rune => r,
+	};
+	if (r == '-') {
+		append(chars, utf8::encoderune(r)...);
+		r = match (next(lex)?) {
+			io::EOF => return (ltok::EOF, void, loc),
+			r: rune => r,
+		};
+	};
+
+	let base = 10u;
+	if (r == '0') {
+		append(chars, utf8::encoderune(r)...);
+		r = match (next(lex)?) {
+			io::EOF => return (ltok::LIT_ICONST, 0i64, loc),
+			r: rune => r,
+		};
+		switch (r) {
+			'b' => base = 2,
+			'o' => base = 8,
+			'x' => base = 16,
+			* => unget(lex, r),
+		};
+	} else unget(lex, r);
+	let basechrs = switch (base) {
+		2 => "01",
+		8 => "01234567",
+		10 => "0123456789",
+		16 => "0123456789ABCDEFabcdef",
+	};
+
+	let suff: (size | void) = void;
+	let exp: (size | void) = void;
+	let end = 0z;
+	let float = false;
+	for (true) {
+		r = match (next(lex)?) {
+			io::EOF => break,
+			r: rune => r,
+		};
+		if (!strings::contains(basechrs, r)) switch (r) {
+			'.' => if (float || exp is size || suff is size
+					|| base != 10) {
+				unget(lex, r);
+				break;
+			} else {
+				r = match (next(lex)?) {
+					io::EOF => break,
+					r: rune => r,
+				};
+				if (!strings::contains(basechrs, r)) {
+					unget(lex, r);
+					unget(lex, '.');
+					break;
+				};
+				unget(lex, r);
+				float = true;
+				append(chars, utf8::encoderune('.')...);
+			},
+			'e' => if (exp is size || suff is size || base != 10) {
+				unget(lex, r);
+				break;
+			} else {
+				if (end == 0) end = len(chars);
+				append(chars, utf8::encoderune(r)...);
+				exp = len(chars);
+			},
+			'i', 'u', 'f', 'z' => if (suff is size) {
+				unget(lex, r);
+				break;
+			} else {
+				suff = len(chars);
+				if (end == 0) end = len(chars);
+				append(chars, utf8::encoderune(r)...);
+				basechrs = "0123456789";
+			},
+			* => {
+				unget(lex, r);
+				break;
+			},
+		} else append(chars, utf8::encoderune(r)...);
+	};
+	if (end == 0) end = len(chars);
+
+	let exp = match (exp) {
+		void => "0",
+		exp: size => {
+			let end = match (suff) {
+				void => len(chars),
+				suff: size => suff,
+			};
+			strings::fromutf8(chars[exp..end]);
+		},
+	};
+	let exp = match (strconv::stoz(exp)) {
+		exp: size => exp,
+		strconv::invalid => abort(), // Shouldn't be lexed in
+		strconv::overflow =>
+			return syntaxerr(loc, "overflow in exponent"),
+	};
+
+	let suff = match (suff) {
+		suff: size => strings::fromutf8(chars[suff..]),
+		void => "",
+	};
+	let suff = if (suff == "u8") ltok::LIT_U8
+		else if (suff == "u16") ltok::LIT_U16
+		else if (suff == "u32") ltok::LIT_U32
+		else if (suff == "u64") ltok::LIT_U64
+		else if (suff == "uint") ltok::LIT_UINT
+		else if (suff == "z") ltok::LIT_SIZE
+		else if (suff == "i8") ltok::LIT_I8
+		else if (suff == "i16") ltok::LIT_I16
+		else if (suff == "i32") ltok::LIT_I32
+		else if (suff == "i64") ltok::LIT_I64
+		else if (suff == "int") ltok::LIT_INT
+		else if (suff == "" && !float) ltok::LIT_ICONST
+		else if (suff == "f32") ltok::LIT_F32
+		else if (suff == "f64") ltok::LIT_F64
+		else if (suff == "" && float) ltok::LIT_FCONST
+		else return syntaxerr(loc, "invalid literal suffix");
+
+	let val = strings::fromutf8(chars[..end]);
+	let val = switch (suff) {
+		ltok::LIT_U8, ltok::LIT_U64, ltok::LIT_U32, ltok::LIT_U64,
+		ltok::LIT_UINT => strconv::stou64b(val, base),
+		ltok::LIT_ICONST => match (strconv::stoi64b(val, base)) {
+			i: i64 => i,
+			strconv::invalid => abort(),
+			strconv::overflow => if (chars[0] != '-': u32: u8) {
+				suff = ltok::LIT_U64;
+				strconv::stou64b(val, base);
+			} else strconv::overflow,
+		},
+		ltok::LIT_I8, ltok::LIT_I64, ltok::LIT_I32, ltok::LIT_I64,
+		ltok::LIT_INT => strconv::stoi64b(val, base),
+		ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST => abort(), // TODO
+	};
+	let val = match (val) {
+		val: u64 => {
+			for (let i = 0z; i < exp; i += 1) {
+				val *= 10;
+			};
+			val;
+		},
+		val: i64 => {
+			for (let i = 0z; i < exp; i += 1) {
+				val *= 10;
+			};
+			val;
+		},
+		strconv::invalid => abort(), // Shouldn't be lexed in
+		strconv::overflow =>
+			return syntaxerr(loc, "overflow in exponent"),
+	};
+
+	return (suff, val, loc);
+};
+
 fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 	let n = next(lexr)?;
 	let tok: ltok = switch (r) {
@@ -315,7 +479,13 @@ fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 		'-' => match (n) {
 			r: rune => switch (r) {
 				'=' => return (ltok::MINUSEQ, void, loc),
-				*   => ltok::MINUS,
+				*   => if (ascii::isdigit(r)) {
+					unget(lexr, r);
+					unget(lexr, '-');
+					return lex_literal(lexr, loc);
+				} else {
+					ltok::MINUS;
+				},
 			},
 			io::EOF => ltok::MINUS,
 		},
