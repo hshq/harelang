@@ -57,6 +57,52 @@ fn prototype(
 	return n;
 };
 
+fn struct_union_type(
+	out: *io::stream,
+	indent: size,
+	t: ast::_type,
+) (size | io::error) = {
+	let z = 0z;
+	let membs = match (t._type) {
+		st: ast::struct_type => {
+			z += fmt::fprint(out, "struct {")?;
+			st: []ast::struct_member;
+		},
+		ut: ast::union_type => {
+			z += fmt::fprint(out, "union {")?;
+			ut: []ast::struct_member;
+		},
+	};
+
+	indent += 1z;
+	for (let i = 0z; i < len(membs); i += 1) {
+		z += newline(out, indent)?;
+
+		z += match (membs[i]._offset) {
+			null => 0z,
+			ex: *ast::expr => fmt::fprint(out, "@offset(")?
+				+ expr(out, indent, *ex)?
+				+ fmt::fprint(out, ") ")?,
+		};
+
+		z += match (membs[i].member) {
+			se: ast::struct_embedded => _type(out, indent, *se)?,
+			sa: ast::struct_alias => ident(out, sa)?,
+			sf: ast::struct_field => {
+				fmt::fprintf(out, "{}: ", sf.name)?
+					+ _type(out, indent, *sf._type)?;
+			},
+		};
+
+		z += fmt::fprint(out, ",")?;
+	};
+
+	indent -= 1;
+	z += newline(out, indent)?;
+	z += fmt::fprint(out, "}")?;
+	return z;
+};
+
 export fn _type(
 	out: *io::stream,
 	indent: size,
@@ -121,7 +167,8 @@ export fn _type(
 			n += fmt::fprint(out, "*")?;
 			n += _type(out, indent, *p.referent)?;
 		},
-		s: []ast::struct_member => abort(), // TODO
+		ast::struct_type => n += struct_union_type(out, indent, t)?,
+		ast::union_type => n += struct_union_type(out, indent, t)?,
 		t: ast::tagged_type => {
 			n += fmt::fprint(out, "(")?;
 			for (let i = 0z; i < len(t); i += 1) {

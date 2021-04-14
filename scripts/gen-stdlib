@@ -375,6 +375,7 @@ hare_parse() {
 			+test/expr.ha \
 			+test/ident.ha \
 			+test/roundtrip.ha \
+			+test/types.ha \
 			+test/unit.ha
 		gen_ssa hare::parse bufio fmt hare::ast hare::lex hare::unparse io \
 			strings strio fmt

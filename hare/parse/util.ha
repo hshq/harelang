@@ -20,7 +20,7 @@ fn want(lexer: *lex::lexer, want: lex::ltok...) (lex::token | error) = {
 	let buf = strio::dynamic();
 	defer io::close(buf);
 	for (let i = 0z; i < len(want); i += 1) {
-		fmt::fprintf(buf, lex::tokstr((want[i], void, mkloc(lexer))));
+		fmt::fprintf(buf, "{}", lex::tokstr((want[i], void, mkloc(lexer))));
 		if (i + 1 < len(want)) {
 			fmt::fprint(buf, ", ");
 		};

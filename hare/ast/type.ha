@@ -78,10 +78,15 @@ export type struct_alias = ident;
 
 // struct { @offset(10) foo: int, struct { bar: int }, baz::quux }
 export type struct_member = struct {
-	is_union: bool,
 	_offset: nullable *expr,
 	member: (struct_field | struct_embedded | struct_alias),
 };
+
+// struct { ... }
+export type struct_type = []struct_member;
+
+// union { ... }
+export type union_type = []struct_member;
 
 // (int | bool, ...)
 export type tagged_type = []*_type;
@@ -99,8 +104,32 @@ export type _type = struct {
 	loc: lex::location,
 	flags: type_flags,
 	_type: (alias_type | builtin_type | enum_type | func_type |
-		list_type | pointer_type | []struct_member | tagged_type |
-		tuple_type),
+		list_type | pointer_type | struct_type | union_type |
+		tagged_type | tuple_type),
+};
+
+fn struct_type_free(t: (struct_type | union_type)) void = {
+	let membs = match (t) {
+		s: struct_type => s: []struct_member,
+		u: union_type => u: []struct_member,
+	};
+	for (let i = 0z; i < len(membs); i += 1) {
+		match (membs[i]._offset) {
+			null => void,
+			e: *expr => expr_free(e),
+		};
+		match (membs[i].member) {
+			f: struct_field => {
+				free(f.name);
+				type_free(f._type);
+			},
+			e: struct_embedded => {
+				type_free(e: *_type);
+			},
+			a: struct_alias => ident_free(a),
+		};
+	};
+	free(membs);
 };
 
 export fn type_free(t: (_type | nullable *_type)) void = match (t) {
@@ -143,25 +172,7 @@ export fn type_free(t: (_type | nullable *_type)) void = match (t) {
 			type_free(l.members);
 		},
 		p: pointer_type => type_free(p.referent),
-		s: []struct_member => {
-			for (let i = 0z; i < len(s); i += 1) {
-				match (s[i]._offset) {
-					null => void,
-					e: *expr => expr_free(e),
-				};
-				match (s[i].member) {
-					f: struct_field => {
-						free(f.name);
-						type_free(f._type);
-					},
-					e: struct_embedded => {
-						type_free(e: *_type);
-					},
-					a: struct_alias => ident_free(a),
-				};
-			};
-			free(s);
-		},
+		s: (struct_type | union_type) => struct_type_free(s),
 		t: tagged_type => {
 			for (let i = 0z; i < len(t); i += 1) {
 				type_free(t[i]);

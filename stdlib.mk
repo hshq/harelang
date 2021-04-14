@@ -1357,6 +1357,7 @@ testlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/+test/expr.ha \
 	$(STDLIB)/hare/parse/+test/ident.ha \
 	$(STDLIB)/hare/parse/+test/roundtrip.ha \
+	$(STDLIB)/hare/parse/+test/types.ha \
 	$(STDLIB)/hare/parse/+test/unit.ha
 
 $(TESTCACHE)/hare/parse/hare_parse.ssa: $(testlib_hare_parse_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_fmt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_unparse) $(testlib_io) $(testlib_strings) $(testlib_strio) $(testlib_fmt)

@@ -196,6 +196,112 @@ fn fn_type(lexer: *lex::lexer) (ast::_type | error) = {
 	};
 };
 
+fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
+	let membs: []ast::struct_member = [];
+	let kind = want(lexer, ltok::STRUCT, ltok::UNION)?;
+	want(lexer, ltok::LBRACE)?;
+
+	for (true) {
+		if (try(lexer, ltok::RBRACE) is lex::token) {
+			synassert(mkloc(lexer), len(membs) != 0,
+				"Expected field list")?;
+			break;
+		};
+
+		let offs: nullable *ast::expr = match (try(lexer, ltok::ATTR_OFFSET)?) {
+			void => null,
+			lex::token => {
+				want(lexer, ltok::LPAREN)?;
+				let ex = expression(lexer)?;
+				want(lexer, ltok::RPAREN)?;
+				alloc(ex);
+			},
+		};
+
+		let tok = want(lexer, ltok::NAME, ltok::STRUCT, ltok::UNION)?;
+		switch (tok.0) {
+			ltok::NAME => {
+				lex::unlex(lexer, tok);
+				let memb = struct_embed_or_field(lexer, offs)?;
+				append(membs, memb);
+			},
+			ltok::STRUCT, ltok::UNION => {
+				lex::unlex(lexer, tok);
+				let subtype = struct_union_type(lexer)?;
+				append(membs, ast::struct_member {
+					_offset = offs,
+					member = alloc(subtype),
+				});
+			},
+			* => abort(),
+		};
+
+		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
+			ltok::COMMA => void,
+			ltok::RBRACE => break,
+			* => abort(),
+		};
+	};
+
+	return ast::_type {
+		loc = kind.2,
+		_type = switch (kind.0) {
+			ltok::STRUCT => membs: ast::struct_type,
+			ltok::UNION => membs: ast::union_type,
+			* => abort(),
+		},
+		...
+	};
+};
+
+fn struct_embed_or_field(
+	lexer: *lex::lexer,
+	offs: nullable *ast::expr,
+) (ast::struct_member | error) = {
+	// Disambiguates between `name: type` and `identifier`
+	//
+	// struct-union-field
+	// 	name : type
+	// 	identifier
+	// 
+	// identifier
+	// 	name
+	// 	name :: identifier
+	let name = want(lexer, ltok::NAME)?;
+
+	let id: ast::ident = match (try(lexer, ltok::COLON, ltok::DOUBLE_COLON)?) {
+		void => alloc([name.1 as str]),
+		tok: lex::token => switch (tok.0) {
+			ltok::COLON => {
+				let field = ast::struct_field {
+					name = name.1 as str,
+					_type = alloc(_type(lexer)?),
+				};
+				return ast::struct_member {
+					_offset = offs,
+					member = field,
+				};
+			},
+			ltok::DOUBLE_COLON => {
+				// XXX: insert
+				let rest = ident(lexer)?;
+				let id: ast::ident = alloc([
+					name.1 as str,
+				]);
+				append(id, rest...);
+				free(rest);
+				id;
+			},
+			* => abort(),
+		},
+	};
+
+	return ast::struct_member {
+		_offset = offs,
+		member = id: ast::struct_alias,
+	};
+};
+
 // Parses a type
 export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 	let flags: ast::type_flags = match (try(lexer, ltok::CONST)?) {
@@ -212,7 +318,7 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 		ltok::VOID, ltok::NULL => primitive_type(lexer)?,
 		ltok::ENUM => abort(), // TODO
 		ltok::NULLABLE, ltok::TIMES => pointer_type(lexer)?,
-		ltok::STRUCT, ltok::UNION => abort(), // TODO
+		ltok::STRUCT, ltok::UNION => struct_union_type(lexer)?,
 		ltok::LBRACKET => abort(), // TODO
 		ltok::LPAREN => {
 			want(lexer, ltok::LPAREN)?;
