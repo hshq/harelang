@@ -142,8 +142,8 @@ export fn stou8(s: str) (u8 | invalid | overflow) = stou8b(s, 10);
 // returned.
 export fn stou(s: str) (uint | invalid | overflow) = stoub(s, 10);
 
-// Converts a string to a u64 in base 10, If the string contains any
+// Converts a string to a size in base 10, If the string contains any
 // non-numeric characters, or if it's empty, [strconv::invalid] is returned. If
-// the number is too large to be represented by a u64, [strconv::overflow] is
+// the number is too large to be represented by a size, [strconv::overflow] is
 // returned.
 export fn stoz(s: str) (size | invalid | overflow) = stozb(s, 10);
