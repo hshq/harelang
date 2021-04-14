@@ -18,3 +18,10 @@
 	assert(stoi32("2147483647") as i32 == 2147483647);
 	assert(stoi32("-2147483648") as i32 == -2147483648);
 };
+
+@test fn stoib() void = {
+	assert(stoi64b("-7f", 16) as i64 == -0x7f);
+	assert(stoi64b("7F", 16) as i64 == 0x7f);
+	assert(stoi64b("37", 8) as i64 == 0o37);
+	assert(stoi64b("-110101", 2) as i64 == -0b110101);
+};
