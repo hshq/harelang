@@ -129,6 +129,9 @@ hare_stdlib_deps+=$(stdlib_format_xml)
 stdlib_fs=$(HARECACHE)/fs/fs.o
 hare_stdlib_deps+=$(stdlib_fs)
 
+stdlib_fs_mem=$(HARECACHE)/fs/mem/fs_mem.o
+hare_stdlib_deps+=$(stdlib_fs_mem)
+
 stdlib_getopt=$(HARECACHE)/getopt/getopt.o
 hare_stdlib_deps+=$(stdlib_getopt)
 
@@ -446,6 +449,18 @@ $(HARECACHE)/fs/fs.ssa: $(stdlib_fs_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_str
 	@mkdir -p $(HARECACHE)/fs
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfs \
 		-t$(HARECACHE)/fs/fs.td $(stdlib_fs_srcs)
+
+# fs::mem
+stdlib_fs_mem_srcs= \
+	$(STDLIB)/fs/mem/mem.ha \
+	$(STDLIB)/fs/mem/stream.ha \
+	$(STDLIB)/fs/mem/util.ha
+
+$(HARECACHE)/fs/mem/fs_mem.ssa: $(stdlib_fs_mem_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_errors) $(stdlib_fs) $(stdlib_hash) $(stdlib_hash_fnv) $(stdlib_io) $(stdlib_path) $(stdlib_strconv) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/fs/mem
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfs::mem \
+		-t$(HARECACHE)/fs/mem/fs_mem.td $(stdlib_fs_mem_srcs)
 
 # getopt
 stdlib_getopt_srcs= \
@@ -969,6 +984,9 @@ hare_testlib_deps+=$(testlib_format_xml)
 testlib_fs=$(TESTCACHE)/fs/fs.o
 hare_testlib_deps+=$(testlib_fs)
 
+testlib_fs_mem=$(TESTCACHE)/fs/mem/fs_mem.o
+hare_testlib_deps+=$(testlib_fs_mem)
+
 testlib_getopt=$(TESTCACHE)/getopt/getopt.o
 hare_testlib_deps+=$(testlib_getopt)
 
@@ -1292,6 +1310,19 @@ $(TESTCACHE)/fs/fs.ssa: $(testlib_fs_srcs) $(testlib_rt) $(testlib_io) $(testlib
 	@mkdir -p $(TESTCACHE)/fs
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs \
 		-t$(TESTCACHE)/fs/fs.td $(testlib_fs_srcs)
+
+# fs::mem
+testlib_fs_mem_srcs= \
+	$(STDLIB)/fs/mem/mem.ha \
+	$(STDLIB)/fs/mem/stream.ha \
+	$(STDLIB)/fs/mem/util.ha \
+	$(STDLIB)/fs/mem/+test.ha
+
+$(TESTCACHE)/fs/mem/fs_mem.ssa: $(testlib_fs_mem_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_errors) $(testlib_fs) $(testlib_hash) $(testlib_hash_fnv) $(testlib_io) $(testlib_path) $(testlib_strconv) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/fs/mem
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs::mem \
+		-t$(TESTCACHE)/fs/mem/fs_mem.td $(testlib_fs_mem_srcs)
 
 # getopt
 testlib_getopt_srcs= \
