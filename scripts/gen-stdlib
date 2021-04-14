@@ -336,7 +336,7 @@ hare_lex() {
 		gensrcs_hare_lex \
 			+test.ha
 	fi
-	gen_ssa hare::lex io bufio strings types fmt sort
+	gen_ssa hare::lex io bufio strings types fmt sort strio
 }
 
 hare_module() {

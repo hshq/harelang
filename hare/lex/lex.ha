@@ -7,6 +7,7 @@ use io;
 use sort;
 use strconv;
 use strings;
+use strio;
 
 // State associated with a lexer.
 export type lexer = struct {
@@ -15,6 +16,13 @@ export type lexer = struct {
 	loc: (uint, uint),
 	un: (token | void),
 	rb: [2](rune | io::EOF | void),
+	flags: flags,
+};
+
+// Flags which apply to this lexer
+export type flags = enum uint {
+	// Enables lexing comments
+	COMMENTS = 1 << 0,
 };
 
 // A syntax error
@@ -34,12 +42,19 @@ export fn strerror(err: error) const str = {
 };
 
 // Initializes a new lexer for the given input stream. The path is borrowed.
-export fn init(in: *io::stream, path: str) lexer = lexer {
-	in = in,
-	path = path,
-	loc = (1, 1),
-	un = void,
-	rb = [void...],
+export fn init(in: *io::stream, path: str, flags: flags...) lexer = {
+	let f: flags = 0: flags;
+	for (let i = 0z; i < len(flags); i += 1) {
+		f |= flags[i];
+	};
+	return lexer {
+		in = in,
+		path = path,
+		loc = (1, 1),
+		un = void,
+		rb = [void...],
+		flags = f,
+	};
 };
 
 // Returns the next token from the lexer.
@@ -227,6 +242,26 @@ fn lex_name(lex: *lexer, loc: location) (token | error) = {
 	};
 };
 
+fn lex_comment(lexr: *lexer, loc: location) (token | error) = {
+	if (lexr.flags & flags::COMMENTS != flags::COMMENTS) {
+		for (true) match (next(lexr)?) {
+			io::EOF => break,
+			r: rune => if (r == '\n') break,
+		};
+		return lex(lexr);
+	};
+
+	let buf = strio::dynamic();
+	for (true) match (next(lexr)?) {
+		io::EOF => break,
+		r: rune => {
+			strio::appendrune(buf, r);
+			if (r == '\n') break;
+		},
+	};
+	return (ltok::COMMENT, strio::finish(buf), loc);
+};
+
 fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 	let n = next(lexr)?;
 	let tok: ltok = switch (r) {
@@ -248,16 +283,7 @@ fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 		'/' => match (n) {
 			r: rune => switch (r) {
 				'=' => return (ltok::DIVEQ, void, loc),
-				'/' => {
-					// Comment
-					for (true) match (next(lexr)?) {
-						io::EOF => break,
-						r: rune => if (r == '\n') {
-							break;
-						},
-					};
-					return lex(lexr);
-				},
+				'/' => return lex_comment(lexr, loc),
 				*   => ltok::DIV,
 			},
 			io::EOF => ltok::DIV,

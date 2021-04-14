@@ -2,7 +2,7 @@ use encoding::utf8;
 use strings;
 
 // A token with no additional context, such as '+'
-export type ltok = enum {
+export type ltok = enum uint {
 	// Keep ordered with bmap
 	// Alpha sorted
 	ATTR_FINI,
@@ -136,10 +136,11 @@ export type ltok = enum {
 	LIT_FCONST,
 	LIT_RUNE,
 	LIT_STR,
-	LAST_LITERAL = STR,
+	LAST_LITERAL = LIT_STR,
 
 	NAME,
 	LABEL,
+	COMMENT,
 	EOF,
 };
 
@@ -295,6 +296,7 @@ export fn tokstr(tok: token) const str = {
 		ltok::LIT_STR => "str",
 		ltok::NAME => tok.1 as str,
 		ltok::LABEL => abort(), // TODO
+		ltok::COMMENT => abort(), // TODO
 		ltok::EOF => "EOF",
 		* => abort(),
 	};
