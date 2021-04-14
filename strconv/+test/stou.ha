@@ -14,7 +14,7 @@
 
 @test fn stoub() void = {
 	assert(stou64b("7f", 16) as u64 == 0x7f);
-	assert(stou64b("7F", 16u) as u64 == 0x7f);
+	assert(stou64b("7F", 16) as u64 == 0x7f);
 	assert(stou64b("37", 8) as u64 == 0o37);
 	assert(stou64b("110101", 2) as u64 == 0b110101);
 };
