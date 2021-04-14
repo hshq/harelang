@@ -495,8 +495,7 @@ export fn f64tos(n: f64) const str = {
 	assert(f64tos(0.0000012345678) == "0.0000012345678");
 	assert(f64tos(1.414) == "1.414");
 	assert(f64tos(1e234f64) == "1e234");
-	// TODO: Negative exponents for floating point literals not implemented yet!
-	//assert(f64tos(1.2e-34) == "1.2e-34");
+	assert(f64tos(1.2e-34) == "1.2e-34");
 	assert(f64tos(-6345.9721) == "-6345.9721");
 	assert(f64tos(1.23456789e67) == "1.23456789e67");
 	assert(f64tos(11.2233445566778899e20) == "1.122334455667789e21");
