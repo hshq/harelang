@@ -372,7 +372,10 @@ hare_parse() {
 		gen_ssa hare::parse hare::ast hare::lex hare::unparse fmt
 	else
 		gensrcs_hare_parse \
-			+test.ha
+			+test/expr.ha \
+			+test/ident.ha \
+			+test/roundtrip.ha \
+			+test/unit.ha
 		gen_ssa hare::parse bufio fmt hare::ast hare::lex hare::unparse io \
 			strings strio fmt
 	fi

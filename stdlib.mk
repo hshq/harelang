@@ -477,7 +477,7 @@ stdlib_hare_lex_srcs= \
 	$(STDLIB)/hare/lex/token.ha \
 	$(STDLIB)/hare/lex/lex.ha
 
-$(HARECACHE)/hare/lex/hare_lex.ssa: $(stdlib_hare_lex_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bufio) $(stdlib_strings) $(stdlib_types) $(stdlib_fmt) $(stdlib_sort)
+$(HARECACHE)/hare/lex/hare_lex.ssa: $(stdlib_hare_lex_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bufio) $(stdlib_strings) $(stdlib_types) $(stdlib_fmt) $(stdlib_sort) $(stdlib_strio)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/lex
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::lex \
@@ -1324,7 +1324,7 @@ testlib_hare_lex_srcs= \
 	$(STDLIB)/hare/lex/lex.ha \
 	$(STDLIB)/hare/lex/+test.ha
 
-$(TESTCACHE)/hare/lex/hare_lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings) $(testlib_types) $(testlib_fmt) $(testlib_sort)
+$(TESTCACHE)/hare/lex/hare_lex.ssa: $(testlib_hare_lex_srcs) $(testlib_rt) $(testlib_io) $(testlib_bufio) $(testlib_strings) $(testlib_types) $(testlib_fmt) $(testlib_sort) $(testlib_strio)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/lex
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::lex \
@@ -1354,7 +1354,10 @@ testlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/types.ha \
 	$(STDLIB)/hare/parse/unit.ha \
 	$(STDLIB)/hare/parse/util.ha \
-	$(STDLIB)/hare/parse/+test.ha
+	$(STDLIB)/hare/parse/+test/expr.ha \
+	$(STDLIB)/hare/parse/+test/ident.ha \
+	$(STDLIB)/hare/parse/+test/roundtrip.ha \
+	$(STDLIB)/hare/parse/+test/unit.ha
 
 $(TESTCACHE)/hare/parse/hare_parse.ssa: $(testlib_hare_parse_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_fmt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_unparse) $(testlib_io) $(testlib_strings) $(testlib_strio) $(testlib_fmt)
 	@printf 'HAREC \t$@\n'

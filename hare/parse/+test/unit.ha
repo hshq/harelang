@@ -1,67 +1,9 @@
 use bufio;
-use fmt;
 use hare::ast;
 use hare::lex;
-use hare::unparse;
-use io;
 use io::{mode};
+use io;
 use strings;
-use strio;
-
-@test fn ident() void = {
-	{
-		const in = "foo";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		defer io::close(buf);
-		let lexer = lex::init(buf, "<test>");
-		let ident = ident(&lexer) as ast::ident;
-		defer ast::ident_free(ident);
-		assert(len(ident) == 1);
-		assert(ident[0] == "foo");
-		let tok = lex::lex(&lexer) as lex::token;
-		assert(tok.0 == lex::ltok::EOF);
-	};
-
-	{
-		const in = "foo::bar";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		defer io::close(buf);
-		let lexer = lex::init(buf, "<test>");
-		let ident = ident(&lexer) as ast::ident;
-		defer ast::ident_free(ident);
-		assert(len(ident) == 2);
-		assert(ident[0] == "foo" && ident[1] == "bar");
-		let tok = lex::lex(&lexer) as lex::token;
-		assert(tok.0 == lex::ltok::EOF);
-	};
-
-	{
-		const in = "foo::bar::baz";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		defer io::close(buf);
-		let lexer = lex::init(buf, "<test>");
-		let ident = ident(&lexer) as ast::ident;
-		defer ast::ident_free(ident);
-		assert(len(ident) == 3);
-		assert(ident[0] == "foo" && ident[1] == "bar"
-			&& ident[2] == "baz");
-		let tok = lex::lex(&lexer) as lex::token;
-		assert(tok.0 == lex::ltok::EOF);
-	};
-
-	{
-		const in = "foo::bar;";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		defer io::close(buf);
-		let lexer = lex::init(buf, "<test>");
-		let ident = ident(&lexer) as ast::ident;
-		defer ast::ident_free(ident);
-		assert(len(ident) == 2);
-		assert(ident[0] == "foo" && ident[1] == "bar");
-		let tok = lex::lex(&lexer) as lex::token;
-		assert(tok.0 == lex::ltok::SEMICOLON);
-	};
-};
 
 @test fn imports() void = {
 	{
@@ -181,28 +123,6 @@ use strio;
 	};
 };
 
-fn roundtrip(src: str) void = {
-	let buf = bufio::fixed(strings::toutf8(src), mode::READ);
-	defer io::close(buf);
-	let lexer = lex::init(buf, "<test>");
-	let u = ast::subunit {
-		imports = [],
-		decls: []ast::decl = match (decls(&lexer)) {
-			decls: []ast::decl => decls,
-			err: error => {
-				fmt::errorln(strerror(err));
-				abort();
-			},
-		},
-	};
-	defer ast::subunit_free(u);
-	let out = strio::dynamic();
-	unparse::subunit(out, u) as size;
-	let unsrc = strio::finish(out);
-	defer free(unsrc);
-	assert(unsrc == src);
-};
-
 @test fn decls() void = {
 	roundtrip("export type foo::bar = *int, baz = const void;\n"
 		"type foo = ...bar;\n"
@@ -212,25 +132,4 @@ fn roundtrip(src: str) void = {
 		"@symbol(\".f9$oo\") fn foo(bar: int, baz: int...) void;\n"
 		"@test fn foo(_: int, ...) void;\n"
 		"export fn main() void = void;\n");
-};
-
-@test fn binarithm() void = {
-	roundtrip("export fn main() void = void + void * void / void;\n");
-};
-
-@test fn cast() void = {
-	roundtrip("export fn main() void = void: int;\n"
-		"export fn main() void = void as int;\n"
-		"export fn main() void = void is int;\n"
-		"export fn main() void = void: int: uint: u16: u8;\n"
-		"export fn main() void = void: int as uint: u16 is u8;\n");
-};
-
-@test fn unarithm() void = {
-	// TODO: object selectors/addr operator
-	roundtrip("export fn main() void = +void;\n"
-		"export fn main() void = -void;\n"
-		"export fn main() void = *void;\n"
-		"export fn main() void = ~void;\n"
-		"export fn main() void = !void;\n");
 };
