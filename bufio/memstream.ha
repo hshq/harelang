@@ -109,7 +109,7 @@ fn dynamic_close(s: *io::stream) void = {
 // ownership of it to the caller.
 export fn finish(s: *io::stream) []u8 = {
 	if (s.closer != &dynamic_close) {
-		abort("bufio::finish called on non-bufio stream");
+		abort("bufio::finish called on non-bufio::dynamic stream");
 	};
 	let s = s: *memstream;
 	let buf = s.buf;
@@ -120,7 +120,7 @@ export fn finish(s: *io::stream) []u8 = {
 // Returns the current buffer.
 export fn buffer(s: *io::stream) []u8 = {
 	if (s.closer != &dynamic_close) {
-		abort("bufio::buffer called on non-bufio stream");
+		abort("bufio::buffer called on non-bufio::dynamic stream");
 	};
 	let s = s: *memstream;
 	return s.buf;
@@ -130,7 +130,7 @@ export fn buffer(s: *io::stream) []u8 = {
 // around for future writes.
 export fn reset(s: *io::stream) void = {
 	if (s.writer != &dynamic_write) {
-		abort("bufio::reset called on non-bufio stream");
+		abort("bufio::reset called on non-bufio::dynamic stream");
 	};
 	const s = s: *memstream;
 	s.pos = 0;
