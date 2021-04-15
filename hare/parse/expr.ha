@@ -42,7 +42,7 @@ fn binarithm(
 };
 
 fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
-	let lvalue = match (lvalue) {
+	const lvalue = match (lvalue) {
 		void => unarithm(lexer)?,
 		e: ast::expr => e,
 	};
@@ -65,7 +65,7 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 };
 
 fn constant(lexer: *lex::lexer) (ast::expr | error) = {
-	let tok = want(lexer)?;
+	const tok = want(lexer)?;
 	return switch (tok.0) {
 		ltok::LIT_U8, ltok::LIT_U16, ltok::LIT_U32, ltok::LIT_U64,
 		ltok::LIT_UINT, ltok::LIT_SIZE, ltok::LIT_I8, ltok::LIT_I16,
