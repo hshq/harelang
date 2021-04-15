@@ -1,6 +1,5 @@
 use bufio;
 use errors;
-use fmt;
 use fs;
 use io;
 use types;
