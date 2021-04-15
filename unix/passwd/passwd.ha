@@ -87,7 +87,7 @@ export fn getuser(username: str) (pwent | void) = {
 		let ent = match (nextpw(file)) {
 			e: pwent => e,
 			io::EOF => break,
-			* => abort("/etc/passwd entry is invalid"),
+			* => abort("Invalid entry in /etc/passwd"),
 		};
 		defer pwent_finish(ent);
 
