@@ -122,8 +122,12 @@ export fn _type(
 		},
 		b: ast::builtin_type => n += fmt::fprint(out, builtin_type(b))?,
 		e: ast::enum_type => {
-			n += fmt::fprint(out, "enum",
-				builtin_type(e.storage), "{")?;
+			if (e.storage != ast::builtin_type::INT) {
+				n += fmt::fprint(out, "enum",
+					builtin_type(e.storage), "{")?;
+			} else {
+				n += fmt::fprint(out, "enum {")?;
+			};
 			indent += 1;
 			for (let i = 0z; i < len(e.values); i += 1) {
 				n += newline(out, indent)?;
@@ -132,7 +136,7 @@ export fn _type(
 				match (value.value) {
 					null => void,
 					e: *ast::expr => {
-						n += fmt::fprint(out, ": ")?;
+						n += fmt::fprint(out, " = ")?;
 						n += expr(out, indent, *e)?;
 					},
 				};
@@ -251,7 +255,7 @@ fn type_test(t: ast::_type, expected: str) bool = {
 			},
 		],
 	};
-	assert(type_test(t, "const enum u32 {\n\tFOO,\n\tBAR: void,\n}!"));
+	assert(type_test(t, "const enum u32 {\n\tFOO,\n\tBAR = void,\n}!"));
 
 	t.flags = 0;
 

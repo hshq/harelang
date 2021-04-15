@@ -331,6 +331,54 @@ fn array_slice_type(lexer: *lex::lexer) (ast::_type | error) = {
 	};
 };
 
+fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
+	let start = want(lexer, ltok::ENUM)?;
+
+	const storage = match (try(lexer, ltok::LBRACE)?) {
+		void => {
+			let storage = integer_type(lexer)?;
+			want(lexer, ltok::LBRACE)?;
+			storage;
+		},
+		lex::token => builtin_type::INT,
+	};
+
+	let membs: []ast::enum_field = [];
+	for (true) {
+		if (try(lexer, ltok::RBRACE) is lex::token) {
+			synassert(mkloc(lexer), len(membs) != 0,
+				"Expected member list")?;
+			break;
+		};
+
+		let name = want(lexer, ltok::NAME)?;
+		let value: nullable *ast::expr =
+			if (try(lexer, ltok::EQUAL) is lex::token)
+				alloc(expression(lexer)?)
+			else null;
+
+		append(membs, ast::enum_field {
+			name = name.1 as str,
+			value = value,
+		});
+
+		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
+			ltok::COMMA => void,
+			ltok::RBRACE => break,
+			* => abort(),
+		};
+	};
+
+	return ast::_type {
+		loc = start.2,
+		_type = ast::enum_type {
+			storage = storage,
+			values = membs,
+		},
+		...
+	};
+};
+
 // Parses a type
 export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 	let flags: ast::type_flags = match (try(lexer, ltok::CONST)?) {
@@ -345,7 +393,7 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 		ltok::U8, ltok::UINT, ltok::UINTPTR, ltok::RUNE,
 		ltok::STR, ltok::F32, ltok::F64, ltok::BOOL,
 		ltok::VOID, ltok::NULL => primitive_type(lexer)?,
-		ltok::ENUM => abort(), // TODO
+		ltok::ENUM => enum_type(lexer)?,
 		ltok::NULLABLE, ltok::TIMES => pointer_type(lexer)?,
 		ltok::STRUCT, ltok::UNION => struct_union_type(lexer)?,
 		ltok::LBRACKET => array_slice_type(lexer)?,
