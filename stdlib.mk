@@ -520,8 +520,7 @@ stdlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/import.ha \
 	$(STDLIB)/hare/parse/parse.ha \
 	$(STDLIB)/hare/parse/type.ha \
-	$(STDLIB)/hare/parse/unit.ha \
-	$(STDLIB)/hare/parse/util.ha
+	$(STDLIB)/hare/parse/unit.ha
 
 $(HARECACHE)/hare/parse/hare_parse.ssa: $(stdlib_hare_parse_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_unparse) $(stdlib_fmt)
 	@printf 'HAREC \t$@\n'
@@ -1384,7 +1383,6 @@ testlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/parse.ha \
 	$(STDLIB)/hare/parse/type.ha \
 	$(STDLIB)/hare/parse/unit.ha \
-	$(STDLIB)/hare/parse/util.ha \
 	$(STDLIB)/hare/parse/+test/expr.ha \
 	$(STDLIB)/hare/parse/+test/ident.ha \
 	$(STDLIB)/hare/parse/+test/roundtrip.ha \

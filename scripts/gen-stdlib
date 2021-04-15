@@ -379,7 +379,6 @@ gensrcs_hare_parse() {
 		parse.ha \
 		type.ha \
 		unit.ha \
-		util.ha \
 		$*
 }
 
