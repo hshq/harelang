@@ -518,8 +518,8 @@ stdlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/exprclass.ha \
 	$(STDLIB)/hare/parse/ident.ha \
 	$(STDLIB)/hare/parse/import.ha \
+	$(STDLIB)/hare/parse/parse.ha \
 	$(STDLIB)/hare/parse/type.ha \
-	$(STDLIB)/hare/parse/types.ha \
 	$(STDLIB)/hare/parse/unit.ha \
 	$(STDLIB)/hare/parse/util.ha
 
@@ -1381,8 +1381,8 @@ testlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/exprclass.ha \
 	$(STDLIB)/hare/parse/ident.ha \
 	$(STDLIB)/hare/parse/import.ha \
+	$(STDLIB)/hare/parse/parse.ha \
 	$(STDLIB)/hare/parse/type.ha \
-	$(STDLIB)/hare/parse/types.ha \
 	$(STDLIB)/hare/parse/unit.ha \
 	$(STDLIB)/hare/parse/util.ha \
 	$(STDLIB)/hare/parse/+test/expr.ha \

@@ -376,8 +376,8 @@ gensrcs_hare_parse() {
 		exprclass.ha \
 		ident.ha \
 		import.ha \
+		parse.ha \
 		type.ha \
-		types.ha \
 		unit.ha \
 		util.ha \
 		$*
