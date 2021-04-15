@@ -16,3 +16,11 @@ export type baz = struct {
 };
 ");
 };
+
+@test fn array_slice() void = {
+	roundtrip("export type foo = []int;
+export type bar = [*]int;
+export type baz = [_]int;
+export type bat = [void]int;
+");
+};

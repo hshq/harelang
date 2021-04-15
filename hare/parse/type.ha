@@ -302,6 +302,35 @@ fn struct_embed_or_field(
 	};
 };
 
+fn array_slice_type(lexer: *lex::lexer) (ast::_type | error) = {
+	let start = want(lexer, ltok::LBRACKET)?;
+
+	let length = match (try(lexer,
+			ltok::UNDERSCORE, ltok::TIMES, ltok::RBRACKET)?) {
+		void => alloc(expression(lexer)?),
+		tok: lex::token => switch (tok.0) {
+			ltok::UNDERSCORE => ast::len_contextual,
+			ltok::TIMES => ast::len_unbounded,
+			ltok::RBRACKET => ast::len_slice,
+			* => abort(),
+		},
+	};
+
+	match (length) {
+		ast::len_slice => void,
+		* => want(lexer, ltok::RBRACKET)?,
+	};
+
+	return ast::_type {
+		loc = start.2,
+		_type = ast::list_type {
+			length = length,
+			members = alloc(_type(lexer)?),
+		},
+		...
+	};
+};
+
 // Parses a type
 export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 	let flags: ast::type_flags = match (try(lexer, ltok::CONST)?) {
@@ -319,7 +348,7 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 		ltok::ENUM => abort(), // TODO
 		ltok::NULLABLE, ltok::TIMES => pointer_type(lexer)?,
 		ltok::STRUCT, ltok::UNION => struct_union_type(lexer)?,
-		ltok::LBRACKET => abort(), // TODO
+		ltok::LBRACKET => array_slice_type(lexer)?,
 		ltok::LPAREN => {
 			want(lexer, ltok::LPAREN)?;
 			let t = _type(lexer)?;
