@@ -137,8 +137,11 @@ export type struct_constant = struct {
 // (foo, bar, ...)
 export type tuple_constant = []*expr;
 
+// The value "null".
+export type _null = void;
+
 // A constant
-export type constant_expr = (void | lex::value | array_constant |
+export type constant_expr = (void | bool | _null | lex::value | array_constant |
 	struct_constant | tuple_constant);
 
 // continue :label

@@ -1,8 +1,8 @@
 use io;
 use fmt;
 use hare::ast;
+use hare::lex;
 
-// TODO
 export fn expr(
 	out: *io::stream,
 	indent: size,
@@ -54,10 +54,7 @@ export fn expr(
 			z += _type(out, indent, *e._type)?;
 			z;
 		},
-		e: ast::constant_expr => {
-			assert(e is void);
-			fmt::fprint(out, "void")?;
-		},
+		e: ast::constant_expr => constant(out, indent, e)?,
 		e: ast::continue_expr => abort(),
 		e: ast::defer_expr => abort(),
 		e: ast::delete_expr => abort(),
@@ -85,5 +82,24 @@ export fn expr(
 			z += expr(out, indent, *e.operand)?;
 			z;
 		},
+	};
+};
+
+fn constant(
+	out: *io::stream,
+	indent: size,
+	e: ast::constant_expr,
+) (size | io::error) = {
+	return match (e) {
+		void => fmt::fprint(out, "void"),
+		ast::_null => fmt::fprint(out, "null"),
+		b: bool => fmt::fprint(out, b),
+		v: lex::value => fmt::fprint(out, match (v) {
+			v: (str | rune | i64 | u64 | f64) => v,
+			void => abort(),
+		}),
+		ast::array_constant => abort(), // TODO
+		ast::struct_constant => abort(), // TODO
+		ast::tuple_constant => abort(), // TODO
 	};
 };

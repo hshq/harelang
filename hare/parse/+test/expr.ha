@@ -2,6 +2,10 @@
 	roundtrip("export fn main() void = void + void * void / void;\n");
 };
 
+@test fn constant() void = {
+	roundtrip("export fn main() void = 2 + -4 + void + true;\n");
+};
+
 @test fn cast() void = {
 	roundtrip("export fn main() void = void: int;\n"
 		"export fn main() void = void as int;\n"

@@ -65,8 +65,31 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 };
 
 fn constant(lexer: *lex::lexer) (ast::expr | error) = {
-	want(lexer, ltok::VOID)?;
-	return void;
+	let tok = want(lexer)?;
+	return switch (tok.0) {
+		ltok::LIT_U8,
+		ltok::LIT_U16,
+		ltok::LIT_U32,
+		ltok::LIT_U64,
+		ltok::LIT_UINT,
+		ltok::LIT_SIZE,
+		ltok::LIT_I8,
+		ltok::LIT_I16,
+		ltok::LIT_I32,
+		ltok::LIT_I64,
+		ltok::LIT_INT,
+		ltok::LIT_ICONST,
+		ltok::LIT_F32,
+		ltok::LIT_F64,
+		ltok::LIT_FCONST,
+		ltok::LIT_RUNE,
+		ltok::LIT_STR => tok.1,
+		ltok::VOID => void,
+		ltok::TRUE => true,
+		ltok::FALSE => false,
+		ltok::NULL => ast::_null,
+		* => syntaxerr(mkloc(lexer), "Expected constant expression"),
+	};
 };
 
 fn control_statement(lexer: *lex::lexer) (ast::expr | error) = {
@@ -79,7 +102,7 @@ fn objsel(lexer: *lex::lexer) (ast::expr | error) = {
 
 fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 	let tok = peek(lexer)? as lex::token;
-	if (tok.0 > ltok::LAST_BTOK && tok.0 >= ltok::LAST_LITERAL) {
+	if (tok.0 >= ltok::LIT_U8 && tok.0 <= ltok::LAST_LITERAL) {
 		return constant(lexer);
 	};
 	return switch (tok.0) {
