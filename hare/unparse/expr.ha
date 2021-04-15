@@ -95,8 +95,11 @@ fn constant(
 		ast::_null => fmt::fprint(out, "null"),
 		b: bool => fmt::fprint(out, b),
 		v: lex::value => fmt::fprint(out, match (v) {
-			v: (str | rune | i64 | u64 | f64) => v,
 			void => abort(),
+			v: (i64 | u64 | f64) => v,
+			// TODO: Escape these:
+			s: str => return fmt::fprintf(out, "\"{}\"", s),
+			r: rune => return fmt::fprintf(out, "'{}'", r),
 		}),
 		ast::array_constant => abort(), // TODO
 		ast::struct_constant => abort(), // TODO

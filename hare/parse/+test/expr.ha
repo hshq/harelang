@@ -3,7 +3,7 @@
 };
 
 @test fn constant() void = {
-	roundtrip("export fn main() void = 2 + -4 + void + true;\n");
+	roundtrip("export fn main() void = 2 + -4 + void + true + \"hello\" + '?';\n");
 };
 
 @test fn cast() void = {
