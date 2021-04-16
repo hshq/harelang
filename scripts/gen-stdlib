@@ -373,7 +373,6 @@ gensrcs_hare_parse() {
 	gen_srcs hare::parse \
 		decl.ha \
 		expr.ha \
-		exprclass.ha \
 		ident.ha \
 		import.ha \
 		parse.ha \

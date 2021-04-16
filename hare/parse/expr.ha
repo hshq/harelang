@@ -2,6 +2,12 @@ use hare::ast;
 use hare::lex::{ltok};
 use hare::lex;
 
+// Parses an expression.
+export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
+	// TODO: if, for, switch, match, etc
+	return binarithm(lexer, void, 0);
+};
+
 fn binarithm(
 	lexer: *lex::lexer,
 	lvalue: (ast::expr | void),
