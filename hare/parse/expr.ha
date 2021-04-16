@@ -3,10 +3,25 @@ use hare::lex::{ltok};
 use hare::lex;
 use fmt;
 
-// Parses an expression.
+// Parses a expression.
 export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
-	// TODO: if, for, switch, match, etc
-	return binarithm(lexer, void, 0);
+	let tok = match (peek(lexer, ltok::LBRACE, ltok::MATCH, ltok::SWITCH,
+			ltok::IF, ltok::FOR, ltok::BREAK, ltok::CONTINUE,
+			ltok::RETURN, ltok::LET, ltok::CONST)?) {
+		void => return binarithm(lexer, void, 0),
+		tok: lex::token => tok,
+	};
+	return switch (tok.0) {
+		ltok::LBRACE => expression_list(lexer)?,
+		ltok::MATCH => abort(), // TODO
+		ltok::SWITCH => abort(), // TODO
+		ltok::IF => abort(), // TODO
+		ltok::FOR => abort(), // TODO
+		ltok::BREAK, ltok::CONTINUE, ltok::RETURN =>
+			control_statement(lexer)?,
+		ltok::LET, ltok::CONST => abort(), // TODO
+		* => abort(), // Invariant
+	};
 };
 
 fn binarithm(
@@ -16,6 +31,7 @@ fn binarithm(
 ) (ast::expr | error) = {
 	// Precedence climbing parser
 	// https://en.wikipedia.org/wiki/Operator-precedence_parser
+	// TODO: Incorporate assignment into this?
 	let lvalue = match (lvalue) {
 		void => cast(lexer, void)?,
 		expr: ast::expr => expr,
@@ -49,15 +65,23 @@ fn binarithm(
 };
 
 fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
-	match (peek(lexer, ltok::ALLOC, ltok::APPEND, ltok::FREE,
+	let tok = match (peek(lexer, ltok::ALLOC, ltok::APPEND, ltok::FREE,
 			ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::STATIC,
 			ltok::SIZE, ltok::LEN, ltok::OFFSET)?) {
-		tok: lex::token => {
-			abort(); // TODO: Delegate as appropriate
-		},
-		void => void,
+		tok: lex::token => tok,
+		void => return postfix(lexer, void),
 	};
-	return postfix(lexer, void);
+
+	return switch (tok.0) {
+		ltok::ALLOC => abort(),
+		ltok::APPEND => abort(),
+		ltok::DELETE => abort(),
+		ltok::FREE => abort(),
+		ltok::ASSERT => abort(),
+		ltok::STATIC => abort(),
+		ltok::SIZE, ltok::LEN, ltok::OFFSET => abort(),
+		* => abort(), // Invariant
+	};
 };
 
 fn call(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
@@ -144,6 +168,7 @@ fn control_statement(lexer: *lex::lexer) (ast::expr | error) = {
 fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 	let items: ast::list_expr = [];
 
+	want(lexer, ltok::LBRACE)?;
 	for (let more = true; more) {
 		let tok = peek(lexer)? as lex::token;
 		let item = switch (tok.0) {

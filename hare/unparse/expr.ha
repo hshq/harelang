@@ -93,7 +93,17 @@ export fn expr(
 		e: ast::for_expr => abort(),
 		e: ast::free_expr => abort(),
 		e: ast::if_expr => abort(),
-		e: ast::list_expr => abort(),
+		e: ast::list_expr => {
+			let z = fmt::fprintf(out, "{{")?;
+			for (let i = 0z; i < len(e); i += 1) {
+				z += newline(out, indent + 1)?;
+				z += expr(out, indent + 1, *e[i])?;
+				z += fmt::fprintf(out, ";")?;
+			};
+			z += newline(out, indent)?;
+			z += fmt::fprintf(out, "}}")?;
+			z;
+		},
 		e: ast::match_expr => abort(),
 		e: ast::len_expr => abort(),
 		e: ast::size_expr => abort(),

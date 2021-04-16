@@ -21,6 +21,14 @@
 		"export fn main() void = void: int as uint: u16 is u8;\n");
 };
 
+@test fn list() void = {
+	roundtrip("export fn main() void = {
+	2 + 2;
+	call();
+};
+");
+};
+
 @test fn postfix() void = {
 	roundtrip("export fn main() void = x.y;\n"
 		"export fn main() void = x.y.z.q;\n"
