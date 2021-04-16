@@ -3,9 +3,9 @@ use hare::lex::{ltok};
 use hare::lex;
 use fmt;
 
-// Parses a expression.
+// Parses an expression.
 export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
-	let tok = match (peek(lexer, ltok::LBRACE, ltok::MATCH, ltok::SWITCH,
+	const tok = match (peek(lexer, ltok::LBRACE, ltok::MATCH, ltok::SWITCH,
 			ltok::IF, ltok::FOR, ltok::BREAK, ltok::CONTINUE,
 			ltok::RETURN, ltok::LET, ltok::CONST)?) {
 		void => return binarithm(lexer, void, 0),
@@ -65,13 +65,12 @@ fn binarithm(
 };
 
 fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
-	let tok = match (peek(lexer, ltok::ALLOC, ltok::APPEND, ltok::FREE,
+	const tok = match (peek(lexer, ltok::ALLOC, ltok::APPEND, ltok::FREE,
 			ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::STATIC,
 			ltok::SIZE, ltok::LEN, ltok::OFFSET, ltok::DEFER)?) {
 		tok: lex::token => tok,
 		void => return postfix(lexer, void),
 	};
-
 	return switch (tok.0) {
 		ltok::ALLOC => abort(),
 		ltok::APPEND => abort(),
@@ -171,8 +170,8 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 
 	want(lexer, ltok::LBRACE)?;
 	for (let more = true; more) {
-		let tok = peek(lexer)? as lex::token;
-		let item = switch (tok.0) {
+		const tok = peek(lexer)? as lex::token;
+		const item = switch (tok.0) {
 			ltok::RBRACE => break,
 			ltok::BREAK,
 			ltok::CONTINUE,
