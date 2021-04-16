@@ -164,6 +164,37 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 	return items;
 };
 
+fn indexing(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
+	let is_slice = false;
+	let start: nullable *ast::expr = null, end: nullable *ast::expr = null;
+
+	match (try(lexer, ltok::SLICE)?) {
+		void => start = alloc(expression(lexer)?),
+		lex::token => is_slice = true,
+	};
+	if (!is_slice) match (try(lexer, ltok::SLICE)?) {
+		void => void,
+		lex::token => is_slice = true,
+	};
+	if (is_slice) match (peek(lexer, ltok::RBRACKET)?) {
+		lex::token => void,
+		void => end = alloc(expression(lexer)?),
+	};
+
+	want(lexer, ltok::RBRACKET)?;
+	return if (is_slice) ast::slice_expr {
+		object = alloc(lvalue),
+		start = start,
+		end = end,
+	} else ast::access_index {
+		object = alloc(lvalue),
+		index = {
+			assert(start != null && end == null);
+			start: *ast::expr;
+		},
+	};
+};
+
 fn objsel(lexer: *lex::lexer) (ast::expr | error) = {
 	abort(); // TODO
 };
@@ -213,15 +244,7 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 		tok: lex::token => switch (tok.0) {
 			ltok::LPAREN => call(lexer, lvalue)?,
 			ltok::DOT => postfix_dot(lexer, lvalue)?,
-			ltok::LBRACKET => {
-				// TODO: Slicing expressions
-				let expr = ast::access_index {
-					object = alloc(lvalue),
-					index = alloc(expression(lexer)?),
-				};
-				want(lexer, ltok::RBRACKET)?;
-				expr;
-			},
+			ltok::LBRACKET => indexing(lexer, lvalue)?,
 			ltok::QUESTION => alloc(lvalue): ast::propagate_expr,
 			* => abort(),
 		},

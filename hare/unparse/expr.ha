@@ -103,7 +103,21 @@ export fn expr(
 			z + fmt::fprintf(out, "?")?;
 		},
 		e: ast::return_expr => abort(),
-		e: ast::slice_expr => abort(),
+		e: ast::slice_expr => {
+			let z = expr(out, indent, *e.object)?;
+			z += fmt::fprint(out, "[")?;
+			z += match (e.start) {
+				null => 0z,
+				e: *ast::expr => expr(out, indent, *e)?,
+			};
+			z += fmt::fprint(out, "..")?;
+			z += match (e.end) {
+				null => 0z,
+				e: *ast::expr => expr(out, indent, *e)?,
+			};
+			z += fmt::fprint(out, "]")?;
+			z;
+		},
 		e: ast::switch_expr => abort(),
 		e: ast::unarithm_expr => {
 			let z = fmt::fprintf(out, "{}", switch (e.op) {

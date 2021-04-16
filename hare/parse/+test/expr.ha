@@ -33,6 +33,13 @@
 		"export fn main() void = x[10 + 10][20];\n");
 };
 
+@test fn slice() void = {
+	roundtrip("export fn main() void = x[..];\n"
+		"export fn main() void = x[123..];\n"
+		"export fn main() void = x[123..321];\n"
+		"export fn main() void = x[..321];\n");
+};
+
 @test fn unarithm() void = {
 	// TODO: object selectors/addr operator
 	roundtrip("export fn main() void = +void;\n"
