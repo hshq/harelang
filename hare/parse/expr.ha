@@ -216,8 +216,7 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::STRUCT => abort(), // TODO: Struct literal
 		ltok::LPAREN => {
 			let ex = expression(lexer);
-			return switch (want(lexer,
-					ltok::RPAREN, ltok::COMMA)?.0) {
+			return switch (want(lexer, ltok::RPAREN, ltok::COMMA)?.0) {
 				ltok::RPAREN => ex,
 				ltok::COMMA => abort(), // TODO: Tuple literal
 				* => abort(),
