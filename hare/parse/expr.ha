@@ -1,6 +1,7 @@
 use hare::ast;
 use hare::lex::{ltok};
 use hare::lex;
+use fmt;
 
 // Parses an expression.
 export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
@@ -207,11 +208,11 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 		ex: ast::expr => ex,
 	};
 
-	lvalue = match (try(lexer, ltok::LPAREN, ltok::DOT, ltok::LBRACKET,
-			ltok::QUESTION)) {
+	lvalue = match (try(lexer, ltok::LPAREN,
+			ltok::DOT, ltok::LBRACKET, ltok::QUESTION)) {
 		tok: lex::token => switch (tok.0) {
 			ltok::LPAREN => call(lexer, lvalue)?,
-			ltok::DOT => abort(), // TODO: Field access
+			ltok::DOT => postfix_dot(lexer, lvalue)?,
 			ltok::LBRACKET => abort(), // TODO: Indexing
 			ltok::QUESTION => abort(), // TODO: Propagation
 			* => abort(),
@@ -220,6 +221,18 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 	};
 
 	return postfix(lexer, lvalue);
+};
+
+fn postfix_dot(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
+	let tok = want(lexer, ltok::NAME, ltok::LIT_INT)?;
+	return switch (tok.0) {
+		ltok::NAME => ast::access_field {
+			object = alloc(lvalue),
+			field = tok.1 as str,
+		},
+		ltok::LIT_INT => abort(), // TODO: Tuple access
+		* => abort(),
+	};
 };
 
 fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {

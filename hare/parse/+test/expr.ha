@@ -21,6 +21,12 @@
 		"export fn main() void = void: int as uint: u16 is u8;\n");
 };
 
+@test fn postfix() void = {
+	roundtrip("export fn main() void = x.y;\n"
+		"export fn main() void = x.y.z.q;\n"
+		"export fn main() void = x().y;\n");
+};
+
 @test fn unarithm() void = {
 	// TODO: object selectors/addr operator
 	roundtrip("export fn main() void = +void;\n"

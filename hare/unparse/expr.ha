@@ -12,7 +12,10 @@ export fn expr(
 		e: ast::access_expr => match (e) {
 			id: ast::access_identifier => ident(out, id),
 			ix: ast::access_index => abort(),
-			fl: ast::access_field => abort(),
+			fi: ast::access_field => {
+				let z = expr(out, indent, *fi.object)?;
+				z + fmt::fprintf(out, ".{}", fi.field)?;
+			},
 			tp: ast::access_tuple => abort(),
 		},
 		e: ast::alloc_expr => abort(),
