@@ -47,6 +47,18 @@ fn binarithm(
 	return lvalue;
 };
 
+fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
+	match (peek(lexer, ltok::ALLOC, ltok::APPEND, ltok::FREE,
+			ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::STATIC,
+			ltok::SIZE, ltok::LEN, ltok::OFFSET)?) {
+		tok: lex::token => {
+			abort(); // TODO: Delegate as appropriate
+		},
+		void => void,
+	};
+	return postfix(lexer, void);
+};
+
 fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 	const lvalue = match (lvalue) {
 		void => unarithm(lexer)?,
@@ -90,6 +102,29 @@ fn control_statement(lexer: *lex::lexer) (ast::expr | error) = {
 	abort(); // TODO
 };
 
+fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
+	let items: ast::list_expr = [];
+
+	for (let more = true; more) {
+		let tok = peek(lexer)? as lex::token;
+		let item = switch (tok.0) {
+			ltok::RBRACE => break,
+			ltok::BREAK,
+			ltok::CONTINUE,
+			ltok::RETURN => {
+				more = false;
+				control_statement(lexer)?;
+			},
+			* => expression(lexer)?,
+		};
+		append(items, alloc(item));
+		want(lexer, ltok::SEMICOLON)?;
+	};
+
+	want(lexer, ltok::RBRACE)?;
+	return items;
+};
+
 fn objsel(lexer: *lex::lexer) (ast::expr | error) = {
 	abort(); // TODO
 };
@@ -129,23 +164,6 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 };
 
 fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
-	// Built-ins (XXX: these should probably be moved in the Hare grammar)
-	match (peek(lexer,
-			ltok::ALLOC, ltok::APPEND, ltok::FREE,
-			ltok::DELETE, ltok::ABORT, ltok::ASSERT,
-			ltok::STATIC, ltok::SIZE, ltok::LEN,
-			ltok::OFFSET)?) {
-		tok: lex::token => {
-			if (lvalue is ast::expr) {
-				return syntaxerr(mkloc(lexer),
-					"Unexpected {}, was expecting '(', '.', or '['",
-					lex::tokstr(tok));
-			};
-			abort(); // TODO: Delegate as appropriate
-		},
-		void => void,
-	};
-
 	let lvalue = match (lvalue) {
 		void => plain_expression(lexer)?,
 		ex: ast::expr => ex,
@@ -227,27 +245,4 @@ fn precedence(tok: lex::token) int = switch (tok.0) {
 	ltok::PLUS, ltok::MINUS => 9,
 	ltok::TIMES, ltok::DIV, ltok::MODULO => 10,
 	* => -1,
-};
-
-fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
-	let items: ast::list_expr = [];
-
-	for (let more = true; more) {
-		let tok = peek(lexer)? as lex::token;
-		let item = switch (tok.0) {
-			ltok::RBRACE => break,
-			ltok::BREAK,
-			ltok::CONTINUE,
-			ltok::RETURN => {
-				more = false;
-				control_statement(lexer)?;
-			},
-			* => expression(lexer)?,
-		};
-		append(items, alloc(item));
-		want(lexer, ltok::SEMICOLON)?;
-	};
-
-	want(lexer, ltok::RBRACE)?;
-	return items;
 };
