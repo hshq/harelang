@@ -214,6 +214,7 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 			ltok::LPAREN => call(lexer, lvalue)?,
 			ltok::DOT => postfix_dot(lexer, lvalue)?,
 			ltok::LBRACKET => {
+				// TODO: Slicing expressions
 				let expr = ast::access_index {
 					object = alloc(lvalue),
 					index = alloc(expression(lexer)?),
