@@ -12,13 +12,13 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 		tok: lex::token => tok,
 	};
 	return switch (tok.0) {
-		ltok::LBRACE => expression_list(lexer)?,
+		ltok::LBRACE => expression_list(lexer),
 		ltok::MATCH => abort(), // TODO
 		ltok::SWITCH => abort(), // TODO
 		ltok::IF => abort(), // TODO
 		ltok::FOR => abort(), // TODO
 		ltok::BREAK, ltok::CONTINUE, ltok::RETURN =>
-			control_statement(lexer)?,
+			control_statement(lexer),
 		ltok::LET, ltok::CONST => abort(), // TODO
 		* => abort(), // Invariant
 	};
@@ -233,10 +233,8 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 		return constant(lexer);
 	};
 	return switch (tok.0) {
-		ltok::TRUE,
-		ltok::FALSE,
-		ltok::NULL,
-		ltok::VOID => constant(lexer),
+		ltok::TRUE, ltok::FALSE, ltok::NULL, ltok::VOID =>
+			constant(lexer),
 		ltok::LBRACKET => abort(), // TODO: Array literal
 		ltok::STRUCT => abort(), // TODO: Struct literal
 		ltok::LPAREN => {
