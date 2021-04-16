@@ -7,11 +7,10 @@
 };
 
 @test fn call() void = {
-	roundtrip("export fn main() void = test();
-export fn main() void = test(void, void, void);
-export fn main() void = test(void, void, void...);
-export fn main() void = test()()(void);
-");
+	roundtrip("export fn main() void = test();\n"
+		"export fn main() void = test(void, void, void);\n"
+		"export fn main() void = test(void, void, void...);\n"
+		"export fn main() void = test()()(void);\n");
 };
 
 @test fn cast() void = {
