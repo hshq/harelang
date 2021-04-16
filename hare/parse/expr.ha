@@ -196,7 +196,10 @@ fn indexing(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
 };
 
 fn objsel(lexer: *lex::lexer) (ast::expr | error) = {
-	abort(); // TODO
+	let expr = postfix(lexer, void)?;
+	synassert(mkloc(lexer), expr is ast::access_expr,
+		"Expected object selector")?;
+	return expr;
 };
 
 fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {

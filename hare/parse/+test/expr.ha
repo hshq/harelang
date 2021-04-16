@@ -41,10 +41,10 @@
 };
 
 @test fn unarithm() void = {
-	// TODO: object selectors/addr operator
 	roundtrip("export fn main() void = +void;\n"
 		"export fn main() void = -void;\n"
 		"export fn main() void = *void;\n"
 		"export fn main() void = ~void;\n"
-		"export fn main() void = !void;\n");
+		"export fn main() void = !void;\n"
+		"export fn main() void = &x;\n");
 };
