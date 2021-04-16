@@ -11,7 +11,13 @@ export fn expr(
 	return match (t) {
 		e: ast::access_expr => match (e) {
 			id: ast::access_identifier => ident(out, id),
-			ix: ast::access_index => abort(),
+			ix: ast::access_index => {
+				let z = expr(out, indent, *ix.object)?;
+				z += fmt::fprintf(out, "[")?;
+				z += expr(out, indent, *ix.index)?;
+				z += fmt::fprintf(out, "]")?;
+				z;
+			},
 			fi: ast::access_field => {
 				let z = expr(out, indent, *fi.object)?;
 				z + fmt::fprintf(out, ".{}", fi.field)?;

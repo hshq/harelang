@@ -28,7 +28,9 @@
 		"export fn main() void = x.42;\n"
 		"export fn main() void = x().y.0.q;\n"
 		"export fn main() void = x?;\n"
-		"export fn main() void = x()?.y;\n");
+		"export fn main() void = x()?.y;\n"
+		"export fn main() void = x[10];\n"
+		"export fn main() void = x[10 + 10][20];\n");
 };
 
 @test fn unarithm() void = {

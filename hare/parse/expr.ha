@@ -213,7 +213,14 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 		tok: lex::token => switch (tok.0) {
 			ltok::LPAREN => call(lexer, lvalue)?,
 			ltok::DOT => postfix_dot(lexer, lvalue)?,
-			ltok::LBRACKET => abort(), // TODO: Indexing
+			ltok::LBRACKET => {
+				let expr = ast::access_index {
+					object = alloc(lvalue),
+					index = alloc(expression(lexer)?),
+				};
+				want(lexer, ltok::RBRACKET)?;
+				expr;
+			},
 			ltok::QUESTION => alloc(lvalue): ast::propagate_expr,
 			* => abort(),
 		},
