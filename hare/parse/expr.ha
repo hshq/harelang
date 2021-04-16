@@ -208,13 +208,17 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 		ex: ast::expr => ex,
 	};
 
-	lvalue = match (try(lexer, ltok::LPAREN,
-			ltok::DOT, ltok::LBRACKET, ltok::QUESTION)) {
+	match (try(lexer, ltok::LPAREN, ltok::DOT, ltok::LBRACKET, ltok::QUESTION)) {
 		tok: lex::token => switch (tok.0) {
-			ltok::LPAREN => call(lexer, lvalue)?,
-			ltok::DOT => postfix_dot(lexer, lvalue)?,
+			ltok::LPAREN => lvalue = call(lexer, lvalue)?,
+			ltok::DOT => lvalue = postfix_dot(lexer, lvalue)?,
 			ltok::LBRACKET => abort(), // TODO: Indexing
-			ltok::QUESTION => abort(), // TODO: Propagation
+			ltok::QUESTION => {
+				// Crappy workaround for harec bug
+				// https://todo.sr.ht/~sircmpwn/hare/377
+				let new = alloc(lvalue): ast::propagate_expr;
+				lvalue = new;
+			},
 			* => abort(),
 		},
 		void => return lvalue,

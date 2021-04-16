@@ -92,7 +92,10 @@ export fn expr(
 		e: ast::len_expr => abort(),
 		e: ast::size_expr => abort(),
 		e: ast::offset_expr => abort(),
-		e: ast::propagate_expr => abort(),
+		e: ast::propagate_expr => {
+			let z = expr(out, indent, *e)?;
+			z + fmt::fprintf(out, "?")?;
+		},
 		e: ast::return_expr => abort(),
 		e: ast::slice_expr => abort(),
 		e: ast::switch_expr => abort(),
