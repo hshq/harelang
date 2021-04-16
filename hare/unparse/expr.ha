@@ -16,7 +16,11 @@ export fn expr(
 				let z = expr(out, indent, *fi.object)?;
 				z + fmt::fprintf(out, ".{}", fi.field)?;
 			},
-			tp: ast::access_tuple => abort(),
+			tp: ast::access_tuple => {
+				let z = expr(out, indent, *tp.object)?;
+				z += fmt::fprintf(out, ".")?;
+				z + expr(out, indent, *tp.value)?;
+			},
 		},
 		e: ast::alloc_expr => abort(),
 		e: ast::append_expr => abort(),

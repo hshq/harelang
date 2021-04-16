@@ -224,14 +224,24 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 };
 
 fn postfix_dot(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
-	let tok = want(lexer, ltok::NAME, ltok::LIT_INT)?;
-	return switch (tok.0) {
-		ltok::NAME => ast::access_field {
+	return match (try(lexer, ltok::NAME)?) {
+		tok: lex::token => ast::access_field {
 			object = alloc(lvalue),
 			field = tok.1 as str,
 		},
-		ltok::LIT_INT => abort(), // TODO: Tuple access
-		* => abort(),
+		void => {
+			let con = constant(lexer)?;
+			let val = con as ast::constant_expr;
+			synassert(mkloc(lexer), val is lex::value,
+				"Expected integer constant")?;
+			let val = val as lex::value;
+			synassert(mkloc(lexer), val is i64,
+				"Expected integer constant")?;
+			ast::access_tuple {
+				object = alloc(lvalue),
+				value = alloc(con),
+			};
+		},
 	};
 };
 
