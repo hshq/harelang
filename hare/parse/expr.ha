@@ -67,7 +67,7 @@ fn binarithm(
 fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 	let tok = match (peek(lexer, ltok::ALLOC, ltok::APPEND, ltok::FREE,
 			ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::STATIC,
-			ltok::SIZE, ltok::LEN, ltok::OFFSET)?) {
+			ltok::SIZE, ltok::LEN, ltok::OFFSET, ltok::DEFER)?) {
 		tok: lex::token => tok,
 		void => return postfix(lexer, void),
 	};
@@ -80,6 +80,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::ASSERT => abort(),
 		ltok::STATIC => abort(),
 		ltok::SIZE, ltok::LEN, ltok::OFFSET => abort(),
+		ltok::DEFER => abort(),
 		* => abort(), // Invariant
 	};
 };
