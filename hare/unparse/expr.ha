@@ -9,7 +9,12 @@ export fn expr(
 	t: ast::expr
 ) (size | io::error) = {
 	return match (t) {
-		e: ast::access_expr => abort(),
+		e: ast::access_expr => match (e) {
+			id: ast::access_identifier => ident(out, id),
+			ix: ast::access_index => abort(),
+			fl: ast::access_field => abort(),
+			tp: ast::access_tuple => abort(),
+		},
 		e: ast::alloc_expr => abort(),
 		e: ast::append_expr => abort(),
 		e: ast::assert_expr => abort(),
@@ -42,7 +47,21 @@ export fn expr(
 		},
 		e: []ast::binding_expr => abort(),
 		e: ast::break_expr => abort(),
-		e: ast::call_expr => abort(),
+		e: ast::call_expr => {
+			let z = expr(out, indent, *e.lvalue)?;
+			z += fmt::fprintf(out, "(")?;
+			for (let i = 0z; i < len(e.args); i += 1) {
+				z += expr(out, indent, *e.args[i])?;
+				if (i + 1 < len(e.args)) {
+					z += fmt::fprintf(out, ", ")?;
+				};
+			};
+			if (e.variadic) {
+				z += fmt::fprintf(out, "...")?;
+			};
+			z += fmt::fprintf(out, ")")?;
+			z;
+		},
 		e: ast::cast_expr => {
 			let z = expr(out, indent, *e.value)?;
 			const op = switch (e.kind) {

@@ -59,6 +59,44 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 	return postfix(lexer, void);
 };
 
+fn call(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
+	let args: []*ast::expr = [];
+	let variadic = false;
+
+	for (true) {
+		match (try(lexer, ltok::RPAREN)?) {
+			lex::token => break,
+			void => void,
+		};
+
+		append(args, alloc(expression(lexer)?));
+
+		match (try(lexer, ltok::ELLIPSIS)?) {
+			lex::token => {
+				variadic = true;
+				try(lexer, ltok::COMMA)?;
+				want(lexer, ltok::RPAREN)?;
+				break;
+			},
+			void => void,
+		};
+
+		match (try(lexer, ltok::COMMA)?) {
+			lex::token => void,
+			void => {
+				want(lexer, ltok::RPAREN)?;
+				break;
+			},
+		};
+	};
+
+	return ast::call_expr {
+		lvalue = alloc(lvalue),
+		variadic = variadic,
+		args = args,
+	};
+};
+
 fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 	const lvalue = match (lvalue) {
 		void => unarithm(lexer)?,
@@ -169,10 +207,10 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 		ex: ast::expr => ex,
 	};
 
-	match (try(lexer, ltok::LPAREN, ltok::DOT, ltok::LBRACKET,
+	lvalue = match (try(lexer, ltok::LPAREN, ltok::DOT, ltok::LBRACKET,
 			ltok::QUESTION)) {
 		tok: lex::token => switch (tok.0) {
-			ltok::LPAREN => abort(), // TODO: Calls
+			ltok::LPAREN => call(lexer, lvalue)?,
 			ltok::DOT => abort(), // TODO: Field access
 			ltok::LBRACKET => abort(), // TODO: Indexing
 			ltok::QUESTION => abort(), // TODO: Propagation

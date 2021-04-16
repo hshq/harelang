@@ -6,6 +6,14 @@
 	roundtrip("export fn main() void = 2 + -4 + void + true + \"hello\" + '?';\n");
 };
 
+@test fn call() void = {
+	roundtrip("export fn main() void = test();
+export fn main() void = test(void, void, void);
+export fn main() void = test(void, void, void...);
+export fn main() void = test()()(void);
+");
+};
+
 @test fn cast() void = {
 	roundtrip("export fn main() void = void: int;\n"
 		"export fn main() void = void as int;\n"
