@@ -106,12 +106,9 @@ fn call(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
 			void => void,
 		};
 
-		match (try(lexer, ltok::COMMA)?) {
-			lex::token => void,
-			void => {
-				want(lexer, ltok::RPAREN)?;
-				break;
-			},
+		switch (want(lexer, ltok::COMMA, ltok::RPAREN)?.0) {
+			ltok::RPAREN => break,
+			* => void,
 		};
 	};
 
