@@ -18,7 +18,10 @@
 };
 
 @test fn constant() void = {
-	roundtrip("export fn main() void = 2 + -4 + void + true + \"hello\" + '?';\n");
+	roundtrip("export fn main() void = 2 + -4 + void + true + \"hello\" + '?';
+export fn main() void = [1, 2, 3, 4];
+export fn main() void = [1, 2, 3, 4...];
+");
 };
 
 @test fn control() void = {

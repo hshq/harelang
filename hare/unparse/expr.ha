@@ -199,7 +199,17 @@ fn constant(
 			s: str => return fmt::fprintf(out, "\"{}\"", s),
 			r: rune => return fmt::fprintf(out, "'{}'", r),
 		}),
-		ast::array_constant => abort(), // TODO
+		ac: ast::array_constant => {
+			let z = fmt::fprint(out, "[")?;
+			for (let i = 0z; i < len(ac.values); i += 1) {
+				z += expr(out, indent, *ac.values[i])?;
+				if (i + 1 < len(ac.values)) {
+					z += fmt::fprint(out, ", ")?;
+				};
+			};
+			z + fmt::fprintf(out, "{}]",
+				if (ac.expand) "..." else "")?;
+		},
 		ast::struct_constant => abort(), // TODO
 		ast::tuple_constant => abort(), // TODO
 	};

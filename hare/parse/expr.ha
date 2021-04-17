@@ -255,7 +255,7 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 	return switch (tok.0) {
 		ltok::TRUE, ltok::FALSE, ltok::NULL, ltok::VOID =>
 			constant(lexer),
-		ltok::LBRACKET => abort(), // TODO: Array literal
+		ltok::LBRACKET => plain_array(lexer)?,
 		ltok::STRUCT => abort(), // TODO: Struct literal
 		ltok::LPAREN => {
 			let ex = expression(lexer);
@@ -275,6 +275,42 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 		* => syntaxerr(mkloc(lexer),
 			"Unexpected {}, was expecting an expression",
 			lex::tokstr(tok)),
+	};
+};
+
+fn plain_array(lexer: *lex::lexer) (ast::expr | error) = {
+	want(lexer, ltok::LBRACKET)?;
+
+	let values: []*ast::expr = [];
+	let expand = false;
+	for (true) {
+		match (try(lexer, ltok::RBRACKET)?) {
+			lex::token => break,
+			void => void,
+		};
+
+		append(values, alloc(expression(lexer)?));
+
+		match (try(lexer, ltok::COMMA, ltok::ELLIPSIS)?) {
+			void => {
+				want(lexer, ltok::RBRACKET)?;
+				break;
+			},
+			tok: lex::token => switch (tok.0) {
+				ltok::COMMA => void,
+				ltok::ELLIPSIS => {
+					expand = true;
+					try(lexer, ltok::COMMA)?;
+					want(lexer, ltok::RBRACKET)?;
+					break;
+				},
+				* => abort(),
+			},
+		};
+	};
+	return ast::array_constant {
+		expand = expand,
+		values = values,
 	};
 };
 
