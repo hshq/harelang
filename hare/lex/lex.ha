@@ -401,8 +401,8 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 
 	let val = strings::fromutf8(chars[..end]);
 	let val = switch (suff) {
-		ltok::LIT_U8, ltok::LIT_U64, ltok::LIT_U32, ltok::LIT_U64,
-		ltok::LIT_UINT => strconv::stou64b(val, base),
+		ltok::LIT_U8, ltok::LIT_U16, ltok::LIT_U32, ltok::LIT_U64,
+		ltok::LIT_UINT, ltok::LIT_SIZE => strconv::stou64b(val, base),
 		ltok::LIT_ICONST => match (strconv::stoi64b(val, base)) {
 			i: i64 => i,
 			strconv::invalid => abort(),
@@ -411,7 +411,7 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 				strconv::stou64b(val, base);
 			} else strconv::overflow,
 		},
-		ltok::LIT_I8, ltok::LIT_I64, ltok::LIT_I32, ltok::LIT_I64,
+		ltok::LIT_I8, ltok::LIT_I16, ltok::LIT_I32, ltok::LIT_I64,
 		ltok::LIT_INT => strconv::stoi64b(val, base),
 		ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST => abort(), // TODO
 	};
