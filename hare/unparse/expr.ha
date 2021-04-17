@@ -58,7 +58,28 @@ export fn expr(
 			z += expr(out, indent, *e.rvalue)?;
 			z;
 		},
-		e: []ast::binding_expr => abort(),
+		e: ast::binding_expr => {
+			let z = fmt::fprintf(out, "{}{}",
+				if (e.is_static) "static " else "",
+				if (e.is_const) "const " else "let ")?;
+			for (let i = 0z; i < len(e.bindings); i += 1) {
+				let binding = e.bindings[i];
+				z += match (binding._type) {
+					null => fmt::fprint(out, binding.name)?,
+					t: *ast::_type => {
+						fmt::fprintf(out, "{}: ",
+							binding.name)?
+						+ _type(out, indent, *t)?;
+					},
+				};
+				z += fmt::fprint(out, " = ")?;
+				z += expr(out, indent, *binding.init)?;
+				if (i + 1 < len(e.bindings)) {
+					z += fmt::fprint(out, ", ")?;
+				};
+			};
+			z;
+		},
 		e: ast::break_expr => {
 			let z = fmt::fprint(out, "break")?;
 			// TODO: https://todo.sr.ht/~sircmpwn/hare/380

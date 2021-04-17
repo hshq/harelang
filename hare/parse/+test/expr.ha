@@ -2,6 +2,16 @@
 	roundtrip("export fn main() void = void + void * void / void;\n");
 };
 
+@test fn binding() void = {
+	roundtrip("export fn main() void = {
+	let x: int = 1337, y = 7331;
+	const z: int = 42, q: int = 24;
+	static let p: int = 62893, o = 39826;
+	static const w: int = 62893, t = 39826;
+};
+");
+};
+
 @test fn call() void = {
 	roundtrip("export fn main() void = test();\n"
 		"export fn main() void = test(void, void, void);\n"

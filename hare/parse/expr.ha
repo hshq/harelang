@@ -18,7 +18,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::IF => if_expr(lexer),
 		ltok::FOR => abort(), // TODO
 		ltok::BREAK, ltok::CONTINUE, ltok::RETURN => control(lexer),
-		ltok::LET, ltok::CONST => binding(lexer),
+		ltok::LET, ltok::CONST => binding(lexer, false),
 		* => abort(), // Invariant
 	};
 };
@@ -61,8 +61,37 @@ fn binarithm(
 	return lvalue;
 };
 
-fn binding(lexer: *lex::lexer) (ast::expr | error) = {
-	abort(); // TODO
+fn binding(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
+	const is_const = switch (want(lexer, ltok::LET, ltok::CONST)?.0) {
+		ltok::LET => false,
+		ltok::CONST => true,
+	};
+
+	let bindings: []ast::binding = [];
+	for (true) {
+		const name = want(lexer, ltok::NAME)?.1 as str;
+		const btype: nullable *ast::_type =
+			if (try(lexer, ltok::COLON)? is lex::token) {
+				alloc(_type(lexer)?);
+			} else null;
+		want(lexer, ltok::EQUAL)?;
+		const init = alloc(expression(lexer)?);
+		append(bindings, ast::binding {
+			name = name,
+			_type = btype,
+			init = init,
+		});
+		match (try(lexer, ltok::COMMA)?) {
+			void => break,
+			lex::token => void,
+		};
+	};
+
+	return ast::binding_expr {
+		is_static = is_static,
+		is_const = is_const,
+		bindings = bindings,
+	};
 };
 
 fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
@@ -78,7 +107,21 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::DELETE => abort(),
 		ltok::FREE => abort(),
 		ltok::ASSERT => abort(),
-		ltok::STATIC => abort(),
+		ltok::STATIC => {
+			want(lexer, ltok::STATIC)?;
+			let tok = match (peek(lexer, ltok::LET, ltok::CONST,
+					ltok::ASSERT)?) {
+				tok: lex::token => tok,
+				// TODO: The following is lame
+				void => return syntaxerr(tok.2,
+					"Expected let, const, or assert"),
+			};
+			switch (tok.0) {
+				ltok::LET, ltok::CONST => binding(lexer, true),
+				ltok::ASSERT => abort(), // TODO
+				* => abort(),
+			};
+		},
 		ltok::SIZE, ltok::LEN, ltok::OFFSET => abort(),
 		ltok::DEFER => abort(),
 		* => abort(), // Invariant
@@ -389,7 +432,7 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (try(lexer,
 			ltok::PLUS, ltok::MINUS, ltok::BNOT,
 			ltok::LNOT, ltok::TIMES, ltok::BAND)) {
-		void => return postfix(lexer, void),
+		void => return builtin(lexer),
 		tok: lex::token => tok.0,
 	};
 	const op = switch (tok) {

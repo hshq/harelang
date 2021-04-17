@@ -83,12 +83,18 @@ export type binarithm_expr = struct {
 	rvalue: *expr,
 };
 
-// let foo: int = bar
-export type binding_expr = struct {
+// foo: int = bar
+export type binding = struct {
 	name: str,
 	_type: nullable *_type,
-	is_static: bool,
 	init: *expr,
+};
+
+// let foo: int = bar, ...
+export type binding_expr = struct {
+	is_static: bool,
+	is_const: bool,
+	bindings: []binding,
 };
 
 // break :label
@@ -243,7 +249,7 @@ export type unarithm_expr = struct {
 
 // An expression
 export type expr = (access_expr | alloc_expr | append_expr | assert_expr |
-	assign_expr | binarithm_expr | []binding_expr | break_expr | call_expr |
+	assign_expr | binarithm_expr | binding_expr | break_expr | call_expr |
 	cast_expr | constant_expr | continue_expr | defer_expr | delete_expr |
 	for_expr | free_expr | if_expr | list_expr | match_expr | len_expr |
 	size_expr | offset_expr | propagate_expr | return_expr | slice_expr |
@@ -300,13 +306,13 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			expr_free(b.lvalue);
 			expr_free(b.rvalue);
 		},
-		b: []binding_expr => {
-			for (let i = 0z; i < len(b); i += 1) {
-				free(b[i].name);
-				type_free(b[i]._type);
-				expr_free(b[i].init);
+		b: binding_expr => {
+			for (let i = 0z; i < len(b.bindings); i += 1) {
+				free(b.bindings[i].name);
+				type_free(b.bindings[i]._type);
+				expr_free(b.bindings[i].init);
 			};
-			free(b);
+			free(b.bindings);
 		},
 		b: break_expr => free(b),
 		c: call_expr => {
