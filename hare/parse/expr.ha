@@ -17,8 +17,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::SWITCH => abort(), // TODO
 		ltok::IF => abort(), // TODO
 		ltok::FOR => abort(), // TODO
-		ltok::BREAK, ltok::CONTINUE, ltok::RETURN =>
-			control_statement(lexer),
+		ltok::BREAK, ltok::CONTINUE, ltok::RETURN => control(lexer),
 		ltok::LET, ltok::CONST => abort(), // TODO
 		* => abort(), // Invariant
 	};
@@ -158,7 +157,7 @@ fn constant(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 };
 
-fn control_statement(lexer: *lex::lexer) (ast::expr | error) = {
+fn control(lexer: *lex::lexer) (ast::expr | error) = {
 	abort(); // TODO
 };
 
@@ -167,16 +166,9 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 
 	want(lexer, ltok::LBRACE)?;
 	for (let more = true; more) {
-		const tok = peek(lexer)? as lex::token;
-		const item = switch (tok.0) {
-			ltok::RBRACE => break,
-			ltok::BREAK,
-			ltok::CONTINUE,
-			ltok::RETURN => {
-				more = false;
-				control_statement(lexer)?;
-			},
-			* => expression(lexer)?,
+		const item = match (peek(lexer, ltok::RBRACE)?) {
+			lex::token => break,
+			void => expression(lexer)?,
 		};
 		append(items, alloc(item));
 		want(lexer, ltok::SEMICOLON)?;
