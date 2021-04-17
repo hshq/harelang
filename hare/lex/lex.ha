@@ -85,7 +85,7 @@ export fn lex(lex: *lexer) (token | error) = {
 
 	if (is_name(r, false)) {
 		unget(lex, r);
-		return lex_name(lex, loc);
+		return lex_name(lex, loc, true);
 	};
 	if (ascii::isdigit(r)) {
 		unget(lex, r);
@@ -215,7 +215,7 @@ fn lex_rn_str(lex: *lexer, loc: location) (token | error) = {
 	return ret;
 };
 
-fn lex_name(lex: *lexer, loc: location) (token | error) = {
+fn lex_name(lex: *lexer, loc: location, keyword: bool) (token | error) = {
 	let chars: []u8 = [];
 	match (next(lex)) {
 		r: rune => {
@@ -237,9 +237,12 @@ fn lex_name(lex: *lexer, loc: location) (token | error) = {
 	};
 
 	let n = strings::fromutf8(chars);
+	if (!keyword) {
+		return (ltok::NAME, n, loc);
+	};
+
 	return match (sort::search(bmap[..ltok::LAST_KEYWORD+1],
 			size(str), &n, &ncmp)) {
-		// TODO: Validate that names are ASCII
 		null => (ltok::NAME, n, loc),
 		v: *void => {
 			let tok = v: uintptr - &bmap[0]: uintptr;
@@ -492,7 +495,12 @@ fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 		':' => match (n) {
 			r: rune => switch (r) {
 				':' => return (ltok::DOUBLE_COLON, void, loc),
-				*   => ltok::COLON,
+				* => if (is_name(r, false)) {
+					unget(lexr, r);
+					let tok = lex_name(lexr, loc, false)?;
+					tok.0 = ltok::LABEL;
+					return tok;
+				} else ltok::COLON,
 			},
 			io::EOF => ltok::COLON,
 		},

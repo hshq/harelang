@@ -137,13 +137,14 @@ fn loc(line: uint, col: uint) location = location {
 };
 
 @test fn lexname() void = {
-	const in = "hello world return void foobar";
+	const in = "hello world return void foobar :foobaz";
 	const expected: [_]token = [
 		(ltok::NAME, "hello", loc(1, 1)),
 		(ltok::NAME, "world", loc(1, 7)),
 		(ltok::RETURN, void, loc(1, 13)),
 		(ltok::VOID, void, loc(1, 20)),
 		(ltok::NAME, "foobar", loc(1, 25)),
+		(ltok::LABEL, "foobaz", loc(1, 32)),
 	];
 	lextest(in, expected);
 };
