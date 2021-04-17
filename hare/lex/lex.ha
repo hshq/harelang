@@ -179,7 +179,7 @@ fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 };
 
 fn lex_string(lex: *lexer, loc: location) (token | error) = {
-	let chars: []u8 = [];
+	let buf = strio::dynamic();
 	for (true) match (next(lex)?) {
 		io::EOF => return syntaxerr(loc, "unexpected EOF scanning string literal"),
 		r: rune =>
@@ -187,10 +187,10 @@ fn lex_string(lex: *lexer, loc: location) (token | error) = {
 			else {
 				unget(lex, r);
 				r = lex_rune(lex, loc)?;
-				append(chars, utf8::encoderune(r)...);
+				strio::appendrune(buf, r);
 			},
 	};
-	return (ltok::LIT_STR, strings::fromutf8(chars), loc);
+	return (ltok::LIT_STR, strio::finish(buf), loc);
 };
 
 fn lex_rn_str(lex: *lexer, loc: location) (token | error) = {
@@ -216,11 +216,11 @@ fn lex_rn_str(lex: *lexer, loc: location) (token | error) = {
 };
 
 fn lex_name(lex: *lexer, loc: location, keyword: bool) (token | error) = {
-	let chars: []u8 = [];
+	let buf = strio::dynamic();
 	match (next(lex)) {
 		r: rune => {
 			assert(is_name(r, false));
-			append(chars, utf8::encoderune(r)...);
+			strio::appendrune(buf, r);
 		},
 		(io::EOF | io::error) => abort(),
 	};
@@ -232,11 +232,11 @@ fn lex_name(lex: *lexer, loc: location, keyword: bool) (token | error) = {
 				unget(lex, r);
 				break;
 			};
-			append(chars, utf8::encoderune(r)...);
+			strio::appendrune(buf, r);
 		},
 	};
 
-	let n = strings::fromutf8(chars);
+	let n = strio::finish(buf);
 	if (!keyword) {
 		return (ltok::NAME, n, loc);
 	};
@@ -245,6 +245,7 @@ fn lex_name(lex: *lexer, loc: location, keyword: bool) (token | error) = {
 			size(str), &n, &ncmp)) {
 		null => (ltok::NAME, n, loc),
 		v: *void => {
+			defer free(n);
 			let tok = v: uintptr - &bmap[0]: uintptr;
 			tok /= size(str): uintptr;
 			(tok: ltok, void, loc);
