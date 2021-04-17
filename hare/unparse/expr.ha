@@ -82,10 +82,8 @@ export fn expr(
 		},
 		e: ast::break_expr => {
 			let z = fmt::fprint(out, "break")?;
-			// TODO: https://todo.sr.ht/~sircmpwn/hare/380
-			let l = e: ast::label: str;
-			if (l != "") {
-				z += fmt::fprintf(out, " :{}", l)?;
+			if (e != "") {
+				z += fmt::fprintf(out, " :{}", e)?;
 			};
 			z;
 		},
@@ -118,10 +116,8 @@ export fn expr(
 		e: ast::constant_expr => constant(out, indent, e)?,
 		e: ast::continue_expr => {
 			let z = fmt::fprint(out, "continue")?;
-			// TODO: https://todo.sr.ht/~sircmpwn/hare/380
-			let l = e: ast::label: str;
-			if (l != "") {
-				z += fmt::fprintf(out, " :{}", l)?;
+			if (e != "") {
+				z += fmt::fprintf(out, " :{}", e)?;
 			};
 			z;
 		},
