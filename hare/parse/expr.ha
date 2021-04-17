@@ -18,7 +18,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::IF => if_expr(lexer),
 		ltok::FOR => abort(), // TODO
 		ltok::BREAK, ltok::CONTINUE, ltok::RETURN => control(lexer),
-		ltok::LET, ltok::CONST => abort(), // TODO
+		ltok::LET, ltok::CONST => binding(lexer),
 		* => abort(), // Invariant
 	};
 };
@@ -37,15 +37,13 @@ fn binarithm(
 	};
 
 	let tok = lex::lex(lexer)?;
-	let j = precedence(tok);
-	for (j >= i; j = precedence(tok)) {
+	for (let j = precedence(tok); j >= i; j = precedence(tok)) {
 		const op = binop_for_tok(tok);
 
 		let rvalue = cast(lexer, void)?;
 		tok = lex::lex(lexer)?;
 
-		let k = precedence(tok);
-		for (k > j; k = precedence(tok)) {
+		for (let k = precedence(tok); k > j; k = precedence(tok)) {
 			lex::unlex(lexer, tok);
 			rvalue = binarithm(lexer, rvalue, k)?;
 			tok = lex::lex(lexer)?;
@@ -61,6 +59,10 @@ fn binarithm(
 
 	lex::unlex(lexer, tok);
 	return lvalue;
+};
+
+fn binding(lexer: *lex::lexer) (ast::expr | error) = {
+	abort(); // TODO
 };
 
 fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
