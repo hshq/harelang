@@ -108,7 +108,20 @@ export fn expr(
 		e: ast::delete_expr => abort(),
 		e: ast::for_expr => abort(),
 		e: ast::free_expr => abort(),
-		e: ast::if_expr => abort(),
+		e: ast::if_expr => {
+			let z = fmt::fprint(out, "if (")?;
+			z += expr(out, indent, *e.cond)?;
+			z += fmt::fprint(out, ") ")?;
+			z += expr(out, indent, *e.tbranch)?;
+			match (e.fbranch) {
+				null => void,
+				e: *ast::expr => {
+					z += fmt::fprint(out, " else ")?;
+					z += expr(out, indent, *e)?;
+				},
+			};
+			z;
+		},
 		e: ast::list_expr => {
 			let z = fmt::fprintf(out, "{{")?;
 			for (let i = 0z; i < len(e); i += 1) {

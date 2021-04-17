@@ -33,6 +33,18 @@
 ");
 };
 
+@test fn if_expr() void = {
+	roundtrip("export fn main() void = {
+	if (x == y) {
+		z;
+	};
+	if (y == x) z;
+	if (z == q) r else p;
+	if (a == b) c else if (d == e) f else g;
+};
+");
+};
+
 @test fn list() void = {
 	roundtrip("export fn main() void = {
 	2 + 2;

@@ -168,8 +168,8 @@ export type free_expr = *expr;
 // if (foo) bar else baz
 export type if_expr = struct {
 	cond: *expr,
-	true_branch: nullable *expr,
-	false_branch: nullable *expr,
+	tbranch: *expr,
+	fbranch: nullable *expr,
 };
 
 // :label. The ":" character is not included.
@@ -363,8 +363,8 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 		f: free_expr => expr_free(f: *expr),
 		i: if_expr => {
 			expr_free(i.cond);
-			expr_free(i.true_branch);
-			expr_free(i.false_branch);
+			expr_free(i.tbranch);
+			expr_free(i.fbranch);
 		},
 		l: len_expr => expr_free(l: *expr),
 		l: list_expr => {

@@ -15,7 +15,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::LBRACE => expression_list(lexer),
 		ltok::MATCH => abort(), // TODO
 		ltok::SWITCH => abort(), // TODO
-		ltok::IF => abort(), // TODO
+		ltok::IF => if_expr(lexer),
 		ltok::FOR => abort(), // TODO
 		ltok::BREAK, ltok::CONTINUE, ltok::RETURN => control(lexer),
 		ltok::LET, ltok::CONST => abort(), // TODO
@@ -190,6 +190,23 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 
 	want(lexer, ltok::RBRACE)?;
 	return items;
+};
+
+fn if_expr(lexer: *lex::lexer) (ast::expr | error) = {
+	want(lexer, ltok::IF)?;
+	want(lexer, ltok::LPAREN)?;
+	const cond = alloc(expression(lexer)?);
+	want(lexer, ltok::RPAREN)?;
+	const tbranch = alloc(expression(lexer)?);
+	const fbranch: nullable *ast::expr = match (try(lexer, ltok::ELSE)?) {
+		void => null,
+		lex::token => alloc(expression(lexer)?),
+	};
+	return ast::if_expr {
+		cond = cond,
+		tbranch = tbranch,
+		fbranch = fbranch,
+	};
 };
 
 fn indexing(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
