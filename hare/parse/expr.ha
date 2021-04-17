@@ -258,10 +258,11 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::LBRACKET => plain_array(lexer)?,
 		ltok::STRUCT => abort(), // TODO: Struct literal
 		ltok::LPAREN => {
-			let ex = expression(lexer);
+			want(lexer, ltok::LPAREN)?;
+			let ex = expression(lexer)?;
 			return switch (want(lexer, ltok::RPAREN, ltok::COMMA)?.0) {
 				ltok::RPAREN => ex,
-				ltok::COMMA => abort(), // TODO: Tuple literal
+				ltok::COMMA => plain_tuple(lexer, ex)?,
 				* => abort(),
 			};
 		},
@@ -312,6 +313,31 @@ fn plain_array(lexer: *lex::lexer) (ast::expr | error) = {
 		expand = expand,
 		values = values,
 	};
+};
+
+fn plain_tuple(lexer: *lex::lexer, ex: ast::expr) (ast::expr | error) = {
+	let values: []*ast::expr = [];
+	append(values, alloc(ex));
+
+	for (true) {
+		match (try(lexer, ltok::RPAREN)?) {
+			lex::token => break,
+			void => void,
+		};
+
+		append(values, alloc(expression(lexer)?));
+
+		match (try(lexer, ltok::COMMA)?) {
+			void => {
+				want(lexer, ltok::RPAREN)?;
+				break;
+			},
+			lex::token => void,
+		};
+	};
+
+	// XXX: Why do we have to cast this twice? harec bug?
+	return values: ast::tuple_constant: ast::constant_expr;
 };
 
 fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {

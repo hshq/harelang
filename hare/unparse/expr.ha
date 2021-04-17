@@ -211,6 +211,15 @@ fn constant(
 				if (ac.expand) "..." else "")?;
 		},
 		ast::struct_constant => abort(), // TODO
-		ast::tuple_constant => abort(), // TODO
+		tu: ast::tuple_constant => {
+			let z = fmt::fprint(out, "(")?;
+			for (let i = 0z; i < len(tu); i += 1) {
+				z += expr(out, indent, *tu[i])?;
+				if (i + 1 < len(tu)) {
+					z += fmt::fprint(out, ", ")?;
+				};
+			};
+			z + fmt::fprint(out, ")")?;
+		},
 	};
 };
