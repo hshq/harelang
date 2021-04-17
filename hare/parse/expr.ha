@@ -158,7 +158,21 @@ fn constant(lexer: *lex::lexer) (ast::expr | error) = {
 };
 
 fn control(lexer: *lex::lexer) (ast::expr | error) = {
-	abort(); // TODO
+	let tok = want(lexer, ltok::BREAK, ltok::CONTINUE, ltok::RETURN)?;
+	let label = if (tok.0 == ltok::BREAK || tok.0 == ltok::CONTINUE) {
+		match (try(lexer, ltok::LABEL)?) {
+			tok: lex::token => tok.1 as str,
+			void => "",
+		};
+	} else "";
+	return switch (tok.0) {
+		ltok::BREAK => label: ast::break_expr,
+		ltok::CONTINUE => label: ast::continue_expr,
+		ltok::RETURN => match (peek(lexer, ltok::COMMA, ltok::SEMICOLON)?) {
+			void => alloc(expression(lexer)?): ast::return_expr,
+			lex::token => null: ast::return_expr,
+		},
+	};
 };
 
 fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {

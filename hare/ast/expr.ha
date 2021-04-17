@@ -201,7 +201,7 @@ export type offset_expr = void; // TODO
 export type propagate_expr = *expr;
 
 // return foo
-export type return_expr = *expr;
+export type return_expr = nullable *expr;
 
 // size(int)
 export type size_expr = *_type;

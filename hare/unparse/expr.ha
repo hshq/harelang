@@ -59,7 +59,15 @@ export fn expr(
 			z;
 		},
 		e: []ast::binding_expr => abort(),
-		e: ast::break_expr => abort(),
+		e: ast::break_expr => {
+			let z = fmt::fprint(out, "break")?;
+			// TODO: https://todo.sr.ht/~sircmpwn/hare/380
+			let l = e: ast::label: str;
+			if (l != "") {
+				z += fmt::fprintf(out, " :{}", l)?;
+			};
+			z;
+		},
 		e: ast::call_expr => {
 			let z = expr(out, indent, *e.lvalue)?;
 			z += fmt::fprintf(out, "(")?;
@@ -87,7 +95,15 @@ export fn expr(
 			z;
 		},
 		e: ast::constant_expr => constant(out, indent, e)?,
-		e: ast::continue_expr => abort(),
+		e: ast::continue_expr => {
+			let z = fmt::fprint(out, "continue")?;
+			// TODO: https://todo.sr.ht/~sircmpwn/hare/380
+			let l = e: ast::label: str;
+			if (l != "") {
+				z += fmt::fprintf(out, " :{}", l)?;
+			};
+			z;
+		},
 		e: ast::defer_expr => abort(),
 		e: ast::delete_expr => abort(),
 		e: ast::for_expr => abort(),
@@ -112,7 +128,17 @@ export fn expr(
 			let z = expr(out, indent, *e)?;
 			z + fmt::fprintf(out, "?")?;
 		},
-		e: ast::return_expr => abort(),
+		e: ast::return_expr => {
+			let z = fmt::fprint(out, "return")?;
+			match (e) {
+				null => void,
+				e: *ast::expr => {
+					z += fmt::fprint(out, " ")?;
+					z += expr(out, indent, *e)?;
+				},
+			};
+			z;
+		},
 		e: ast::slice_expr => {
 			let z = expr(out, indent, *e.object)?;
 			z += fmt::fprint(out, "[")?;
