@@ -147,7 +147,13 @@ fn measurement(lexer: *lex::lexer) (ast::expr | error) = {
 
 			alloc(e): ast::len_expr;
 		},
-		ltok::SIZE => abort(), // TODO
+		ltok::SIZE => {
+			want(lexer, ltok::LPAREN)?;
+			let ty = _type(lexer)?;
+			want(lexer, ltok::RPAREN)?;
+
+			alloc(ty): ast::size_expr;
+		},
 		ltok::OFFSET => abort(), // TODO
 	};
 };

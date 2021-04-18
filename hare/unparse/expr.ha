@@ -225,7 +225,11 @@ export fn expr(
 			z += expr(out, indent, *e)?;
 			z + fmt::fprint(out, ")")?;
 		},
-		e: ast::size_expr => abort(),
+		e: ast::size_expr => {
+			let z = fmt::fprint(out, "size(")?;
+			z += _type(out, indent, *e)?;
+			z + fmt::fprint(out, ")")?;
+		},
 		e: ast::offset_expr => abort(),
 		e: ast::propagate_expr => {
 			let z = expr(out, indent, *e)?;
