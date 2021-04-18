@@ -95,6 +95,47 @@ fn alloc_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 };
 
+fn append_expr(lexer: *lex::lexer) (ast::expr | error) = {
+	want(lexer, ltok::APPEND)?;
+	want(lexer, ltok::LPAREN)?;
+
+	const object =
+		if (try(lexer, ltok::TIMES)? is lex::token) unarithm(lexer)?
+		else objsel(lexer)?;
+	want(lexer, ltok::COMMA)?;
+
+	let variadic: nullable *ast::expr = null;
+	let values: []*ast::expr = [];
+	for (true) {
+		if (try(lexer, ltok::RPAREN)? is lex::token) break;
+
+		const expr = alloc(expression(lexer)?);
+		switch (want(lexer, ltok::COMMA, ltok::ELLIPSIS, ltok::RPAREN)?.0) {
+			ltok::COMMA => append(values, expr),
+			ltok::ELLIPSIS => {
+				variadic = expr;
+				try(lexer, ltok::COMMA)?;
+				want(lexer, ltok::RPAREN)?;
+				break;
+			},
+			ltok::RPAREN => {
+				append(values, expr);
+				break;
+			},
+			* => abort(),
+		};
+	};
+
+	synassert(mkloc(lexer), variadic != null || len(values) != 0,
+		"Expected values to append")?;
+
+	return ast::append_expr {
+		object = alloc(object),
+		variadic = variadic,
+		values = values,
+	};
+};
+
 fn binarithm(
 	lexer: *lex::lexer,
 	lvalue: (ast::expr | void),
@@ -174,10 +215,10 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 	return switch (tok.0) {
 		ltok::ALLOC => alloc_expr(lexer)?,
-		ltok::APPEND => abort(),
-		ltok::DELETE => abort(),
-		ltok::FREE => abort(),
-		ltok::ASSERT => abort(),
+		ltok::APPEND => append_expr(lexer)?,
+		ltok::DELETE => abort(), // TODO
+		ltok::FREE => abort(), // TODO
+		ltok::ASSERT => abort(), // TODO
 		ltok::STATIC => {
 			want(lexer, ltok::STATIC)?;
 			let tok = match (peek(lexer, ltok::LET, ltok::CONST,
@@ -193,7 +234,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 				* => abort(),
 			};
 		},
-		ltok::SIZE, ltok::LEN, ltok::OFFSET => abort(),
+		ltok::SIZE, ltok::LEN, ltok::OFFSET => abort(), // TODO
 		ltok::DEFER => {
 			want(lexer, ltok::DEFER)?;
 			alloc(expression(lexer)?): ast::defer_expr;

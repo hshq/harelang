@@ -32,7 +32,7 @@ export type alloc_expr = struct {
 
 // append(foo, bar, (more), baz...)
 export type append_expr = struct {
-	expr: *expr,
+	object: *expr,
 	variadic: nullable *expr,
 	values: []*expr,
 };
@@ -284,7 +284,7 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			expr_free(a.capacity);
 		},
 		a: append_expr => {
-			expr_free(a.expr);
+			expr_free(a.object);
 			match (a.variadic) {
 				null => void,
 				v: *expr => expr_free(v),

@@ -46,7 +46,27 @@ export fn expr(
 			z += fmt::fprint(out, ")")?;
 			z;
 		},
-		e: ast::append_expr => abort(),
+		e: ast::append_expr => {
+			let z = fmt::fprint(out, "append(")?;
+			z += expr(out, indent, *e.object)?;
+			z += fmt::fprint(out, ", ")?;
+			for (let i = 0z; i < len(e.values); i += 1) {
+				let val = e.values[i];
+				z += expr(out, indent, *val)?;
+				if (i + 1 < len(e.values)) {
+					z += fmt::fprint(out, ", ")?;
+				};
+			};
+			match (e.variadic) {
+				null => void,
+				e: *ast::expr => {
+					z += fmt::fprint(out, ", ")?;
+					z += expr(out, indent, *e)?;
+					z += fmt::fprint(out, "...")?;
+				},
+			};
+			z + fmt::fprint(out, ")")?;
+		},
 		e: ast::assert_expr => abort(),
 		e: ast::assign_expr => {
 			let z = 0z;
