@@ -6,8 +6,8 @@ use fmt;
 // Parses an expression.
 export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (peek(lexer, ltok::LBRACE, ltok::MATCH, ltok::SWITCH,
-			ltok::IF, ltok::FOR, ltok::BREAK, ltok::CONTINUE,
-			ltok::RETURN, ltok::LET, ltok::CONST)?) {
+			ltok::IF, ltok::LABEL, ltok::FOR, ltok::BREAK,
+			ltok::CONTINUE, ltok::RETURN, ltok::LET, ltok::CONST)?) {
 		void => return binarithm(lexer, void, 0),
 		tok: lex::token => tok,
 	};
@@ -16,7 +16,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::MATCH => abort(), // TODO
 		ltok::SWITCH => abort(), // TODO
 		ltok::IF => if_expr(lexer),
-		ltok::FOR => abort(), // TODO
+		ltok::LABEL, ltok::FOR => for_expr(lexer),
 		ltok::BREAK, ltok::CONTINUE, ltok::RETURN => control(lexer),
 		ltok::LET, ltok::CONST => binding(lexer, false),
 		* => abort(), // Invariant
@@ -235,6 +235,50 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 
 	want(lexer, ltok::RBRACE)?;
 	return items;
+};
+
+fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
+	let tok = want(lexer, ltok::FOR, ltok::LABEL)?;
+	let label: ast::label = switch (tok.0) {
+		ltok::LABEL => {
+			want(lexer, ltok::FOR)?;
+			tok.1 as str;
+		},
+		* => "",
+	};
+
+	want(lexer, ltok::LPAREN)?;
+
+	let bindings: nullable *ast::expr = match (peek(
+			lexer, ltok::LET, ltok::CONST)?) {
+		void => null,
+		lex::token => {
+			let bindings = alloc(binding(lexer, false)?);
+			want(lexer, ltok::SEMICOLON)?;
+			bindings;
+		},
+	};
+
+	let cond = alloc(expression(lexer)?);
+
+	let afterthought: nullable *ast::expr = match (peek(
+			lexer, ltok::SEMICOLON)) {
+		void => null,
+		lex::token => {
+			want(lexer, ltok::SEMICOLON)?;
+			alloc(expression(lexer)?);
+		},
+	};
+
+	want(lexer, ltok::RPAREN)?;
+
+	return ast::for_expr {
+		label = label,
+		bindings = bindings,
+		cond = cond,
+		afterthought = afterthought,
+		body = alloc(expression(lexer)?),
+	};
 };
 
 fn if_expr(lexer: *lex::lexer) (ast::expr | error) = {

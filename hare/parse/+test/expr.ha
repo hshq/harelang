@@ -54,6 +54,27 @@
 ");
 };
 
+@test fn for_expr() void = {
+	roundtrip("export fn main() void = {
+	for (true) {
+		x;
+	};
+	:label for (true) {
+		x;
+	};
+	for (let x = 0; x < 10) {
+		x;
+	};
+	for (x < 10; x) {
+		x;
+	};
+	for (let x = 10; x < 10; x) {
+		x;
+	};
+};
+");
+};
+
 @test fn if_expr() void = {
 	roundtrip("export fn main() void = {
 	if (x == y) {

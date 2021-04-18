@@ -123,7 +123,7 @@ export fn expr(
 		},
 		e: ast::defer_expr => abort(),
 		e: ast::delete_expr => abort(),
-		e: ast::for_expr => abort(),
+		e: ast::for_expr => for_expr(out, indent, e)?,
 		e: ast::free_expr => abort(),
 		e: ast::if_expr => {
 			let z = fmt::fprint(out, "if (")?;
@@ -239,4 +239,29 @@ fn constant(
 			z + fmt::fprint(out, ")")?;
 		},
 	};
+};
+
+fn for_expr(
+	out: *io::stream,
+	indent: size,
+	e: ast::for_expr,
+) (size | io::error) = {
+	let z = 0z;
+	if (e.label != "") {
+		z += fmt::fprintf(out, ":{} ", e.label)?;
+	};
+	z += fmt::fprintf(out, "for (")?;
+	z += match (e.bindings) {
+		null => 0z,
+		e: *ast::expr => expr(out, indent, *e)?
+			+ fmt::fprint(out, "; ")?,
+	};
+	z += expr(out, indent, *e.cond)?;
+	z += match (e.afterthought) {
+		null => 0z,
+		e: *ast::expr => fmt::fprint(out, "; ")?
+			+ expr(out, indent, *e)?,
+	};
+	z += fmt::fprintf(out, ") ")?;
+	return z + expr(out, indent, *e.body)?;
 };
