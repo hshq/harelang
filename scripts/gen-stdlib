@@ -421,7 +421,7 @@ gensrcs_io() {
 		'arch$(ARCH).ha' \
 		copy.ha \
 		limit.ha \
-		println.ha \
+		'println$(PLATFORM).ha' \
 		stream.ha \
 		tee.ha \
 		types.ha \

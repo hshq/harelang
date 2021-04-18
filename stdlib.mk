@@ -578,7 +578,7 @@ stdlib_io_srcs= \
 	$(STDLIB)/io/arch$(ARCH).ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/limit.ha \
-	$(STDLIB)/io/println.ha \
+	$(STDLIB)/io/println$(PLATFORM).ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha
@@ -1444,7 +1444,7 @@ testlib_io_srcs= \
 	$(STDLIB)/io/arch$(ARCH).ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/limit.ha \
-	$(STDLIB)/io/println.ha \
+	$(STDLIB)/io/println$(PLATFORM).ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
