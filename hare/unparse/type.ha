@@ -334,8 +334,6 @@ fn type_test(t: ast::_type, expected: str) bool = {
 	};
 	assert(type_test(t, "nullable *int"));
 
-	// TODO: struct_members
-
 	t._type = [&type_int, &type_int]: ast::tagged_type;
 	assert(type_test(t, "(int | int)"));
 
