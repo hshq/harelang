@@ -71,10 +71,11 @@ export fn getgroup(name: str) (grent | void) = {
 			io::EOF => break,
 			* => abort("Invalid entry in /etc/group"),
 		};
-		defer grent_finish(ent);
 
 		if (ent.name == name) {
 			return ent;
+		} else {
+			grent_finish(ent);
 		};
 	};
 

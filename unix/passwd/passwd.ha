@@ -89,10 +89,11 @@ export fn getuser(username: str) (pwent | void) = {
 			io::EOF => break,
 			* => abort("Invalid entry in /etc/passwd"),
 		};
-		defer pwent_finish(ent);
 
 		if (ent.username == username) {
 			return ent;
+		} else {
+			pwent_finish(ent);
 		};
 	};
 
