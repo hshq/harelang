@@ -4,15 +4,48 @@ use hare::module;
 use os;
 use os::exec;
 use path;
+use strings;
 
 fn default_tags() []module::tag = {
 	return alloc([module::tag {
-		name = os::machine(),
+		name = strings::dup(os::machine()),
 		mode = module::tag_mode::INCLUSIVE,
 	}, module::tag {
-		name = PLATFORM,
+		name = strings::dup(PLATFORM),
 		mode = module::tag_mode::INCLUSIVE,
 	}]);
+};
+
+fn addtags(tags: []module::tag, in: str) ([]module::tag | void) = {
+	let in = match (module::parsetags(in)) {
+		void => return void,
+		t: []module::tag => t,
+	};
+	defer free(in);
+	append(tags, in...);
+	return tags;
+};
+
+fn deltags(tags: []module::tag, in: str) ([]module::tag | void) = {
+	if (in == "^") {
+		module::tags_free(tags);
+		return [];
+	};
+	let in = match (module::parsetags(in)) {
+		void => return void,
+		t: []module::tag => t,
+	};
+	defer free(in);
+	for (let i = 0z; i < len(tags); i += 1) {
+		for (let j = 0z; j < len(in); j += 1) {
+			if (tags[i].name == in[j].name
+					&& tags[i].mode == in[j].mode) {
+				delete(tags[i]);
+				i -= 1;
+			};
+		};
+	};
+	return tags;
 };
 
 type goal = enum {
@@ -37,6 +70,9 @@ fn build(args: []str) void = {
 	let cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
+	let tags = default_tags();
+	defer module::tags_free(tags);
+
 	let verbose = false;
 	let output = "";
 	let goal = goal::EXE;
@@ -51,8 +87,14 @@ fn build(args: []str) void = {
 			'l' => abort(), // TODO
 			'o' => output = opt.1,
 			't' => abort(), // TODO
-			'T' => abort(), // TODO
-			'X' => abort(), // TODO
+			'T' => tags = match (addtags(tags, opt.1)) {
+				void => fmt::fatal("Error parsing tags"),
+				t: []module::tag => t,
+			},
+			'X' => tags = match (deltags(tags, opt.1)) {
+				void => fmt::fatal("Error parsing tags"),
+				t: []module::tag => t,
+			},
 			*   => abort(),
 		};
 	};
@@ -66,9 +108,6 @@ fn build(args: []str) void = {
 			getopt::printusage(os::stderr, args[0], help...);
 			os::exit(1);
 		};
-
-	let tags = default_tags();
-	defer free(tags);
 
 	let ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
@@ -140,6 +179,9 @@ fn run(args: []str) void = {
 	let cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
+	let tags = default_tags();
+	defer module::tags_free(tags);
+
 	let verbose = false;
 	let defines: []str = [];
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
@@ -150,8 +192,14 @@ fn run(args: []str) void = {
 			'j' => abort(), // TODO
 			'l' => abort(), // TODO
 			't' => abort(), // TODO
-			'T' => abort(), // TODO
-			'X' => abort(), // TODO
+			'T' => tags = match (addtags(tags, opt.1)) {
+				void => fmt::fatal("Error parsing tags"),
+				t: []module::tag => t,
+			},
+			'X' => tags = match (deltags(tags, opt.1)) {
+				void => fmt::fatal("Error parsing tags"),
+				t: []module::tag => t,
+			},
 			*   => abort(),
 		};
 	};
@@ -164,9 +212,6 @@ fn run(args: []str) void = {
 		input = cmd.args[0];
 		runargs = cmd.args[1..];
 	};
-
-	let tags = default_tags();
-	defer free(tags);
 
 	let ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
@@ -214,6 +259,13 @@ fn test(args: []str) void = {
 	let cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
+	let tags = default_tags();
+	defer module::tags_free(tags);
+	append(tags, module::tag {
+		name = strings::dup("test"),
+		mode = module::tag_mode::INCLUSIVE,
+	});
+
 	let verbose = false;
 	let defines: []str = [];
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
@@ -224,8 +276,14 @@ fn test(args: []str) void = {
 			'j' => abort(), // TODO
 			'l' => abort(), // TODO
 			't' => abort(), // TODO
-			'T' => abort(), // TODO
-			'X' => abort(), // TODO
+			'T' => tags = match (addtags(tags, opt.1)) {
+				void => fmt::fatal("Error parsing tags"),
+				t: []module::tag => t,
+			},
+			'X' => tags = match (deltags(tags, opt.1)) {
+				void => fmt::fatal("Error parsing tags"),
+				t: []module::tag => t,
+			},
 			*   => abort(),
 		};
 	};
@@ -239,12 +297,6 @@ fn test(args: []str) void = {
 		runargs = cmd.args[1..];
 	};
 
-	let tags = default_tags();
-	defer free(tags);
-	append(tags, module::tag {
-		name = "test",
-		mode = module::tag_mode::INCLUSIVE,
-	});
 
 	let ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
