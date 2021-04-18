@@ -36,7 +36,32 @@ export fn expr(
 		e: ast::alloc_expr => abort(),
 		e: ast::append_expr => abort(),
 		e: ast::assert_expr => abort(),
-		e: ast::assign_expr => abort(),
+		e: ast::assign_expr => {
+			let z = 0z;
+			if (e.indirect) {
+				z += fmt::fprint(out, "*")?;
+			};
+			z += expr(out, indent, *e.object)?;
+			const op = match (e.op) {
+				void => "=",
+				op: ast::binarithm_op => switch (op) {
+					ast::binarithm_op::BAND => "&=",
+					ast::binarithm_op::BOR => "|=",
+					ast::binarithm_op::DIV => "/=",
+					ast::binarithm_op::LSHIFT => "<<=",
+					ast::binarithm_op::MINUS => "-=",
+					ast::binarithm_op::MODULO => "%=",
+					ast::binarithm_op::PLUS	 => "+=",
+					ast::binarithm_op::RSHIFT => ">>=",
+					ast::binarithm_op::TIMES => "*=",
+					ast::binarithm_op::BXOR => "^=",
+					* => abort(),
+				},
+			};
+			z += fmt::fprintf(out, " {} ", op)?;
+			z += expr(out, indent, *e.value)?;
+			z;
+		},
 		e: ast::binarithm_expr => {
 			let z = expr(out, indent, *e.lvalue)?;
 			z += fmt::fprintf(out, " {} ", switch (e.op) {

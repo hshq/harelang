@@ -1,5 +1,24 @@
+@test fn assignment() void = {
+	roundtrip("export fn main() void = {
+	x = y;
+	*x = *y + 10;
+	*x = *foo();
+	x += 10;
+	x -= 10;
+	x *= 10;
+	x /= 10;
+	x %= 10;
+	x &= 10;
+	x |= 10;
+	x ^= 10;
+	x >>= 10;
+	x <<= 10;
+};
+");
+};
+
 @test fn binarithm() void = {
-	roundtrip("export fn main() void = void + void * void / void;\n");
+	roundtrip("export fn main() void = *void + void * void / void;\n");
 };
 
 @test fn binding() void = {

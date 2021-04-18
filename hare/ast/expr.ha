@@ -46,7 +46,7 @@ export type assert_expr = struct {
 
 // foo = bar
 export type assign_expr = struct {
-	op: binarithm_op,
+	op: (binarithm_op | void),
 	object: *expr,
 	value: *expr,
 	indirect: bool,

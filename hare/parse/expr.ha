@@ -5,21 +5,75 @@ use fmt;
 
 // Parses an expression.
 export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
-	const tok = match (peek(lexer, ltok::LBRACE, ltok::MATCH, ltok::SWITCH,
-			ltok::IF, ltok::LABEL, ltok::FOR, ltok::BREAK,
-			ltok::CONTINUE, ltok::RETURN, ltok::LET, ltok::CONST)?) {
-		void => return binarithm(lexer, void, 0),
-		tok: lex::token => tok,
+	const indirect = match (try(lexer, ltok::TIMES)?) {
+		void => false,
+		lex::token => true,
 	};
-	return switch (tok.0) {
-		ltok::LBRACE => expression_list(lexer),
-		ltok::MATCH => abort(), // TODO
-		ltok::SWITCH => switch_expr(lexer),
-		ltok::IF => if_expr(lexer),
-		ltok::LABEL, ltok::FOR => for_expr(lexer),
-		ltok::BREAK, ltok::CONTINUE, ltok::RETURN => control(lexer),
-		ltok::LET, ltok::CONST => binding(lexer, false),
-		* => abort(), // Invariant
+
+	// All assignment-op tokens
+	const atoks: []ltok = [
+		ltok::EQUAL, ltok::ANDEQ, ltok::BXOREQ, ltok::DIVEQ,
+		ltok::LSHIFTEQ, ltok::MINUSEQ, ltok::MODEQ, ltok::OREQ,
+		ltok::PLUSEQ, ltok::RSHIFTEQ, ltok::TIMESEQ,
+	];
+
+	const expr: ast::expr = if (indirect) {
+		const expr = unarithm(lexer)?;
+		// Disambiguate between
+		// 	* unary-expression assignment-op expression
+		// and
+		// 	binary-expression
+		if (peek(lexer, atoks...)? is lex::token) {
+			expr;
+		} else return binarithm(lexer, ast::unarithm_expr {
+			op = ast::unarithm_op::DEREF,
+			operand = alloc(expr),
+		}, 0);
+	} else match (peek(lexer, ltok::LBRACE, ltok::MATCH,
+			ltok::SWITCH, ltok::IF, ltok::LABEL, ltok::FOR,
+			ltok::BREAK, ltok::CONTINUE, ltok::RETURN, ltok::LET,
+			ltok::CONST)?) {
+		void => binarithm(lexer, void, 0)?,
+		tok: lex::token => switch (tok.0) {
+			ltok::LBRACE => expression_list(lexer)?,
+			ltok::MATCH => abort(), // TODO
+			ltok::SWITCH => switch_expr(lexer)?,
+			ltok::IF => if_expr(lexer)?,
+			ltok::LABEL, ltok::FOR => for_expr(lexer)?,
+			ltok::BREAK,
+			ltok::CONTINUE,
+			ltok::RETURN => control(lexer)?,
+			ltok::LET, ltok::CONST => binding(lexer, false)?,
+			* => abort(), // Invariant
+		},
+	};
+
+	const tok = match (try(lexer, atoks...)?) {
+		tok: lex::token => tok,
+		* => return expr,
+	};
+
+	synassert(mkloc(lexer),
+		expr is ast::access_expr || expr is ast::slice_expr,
+		"Expected an object-selector or slice for assignment target")?;
+
+	return ast::assign_expr {
+		op = switch (tok.0) {
+			ltok::EQUAL	=> void,
+			ltok::ANDEQ	=> ast::binarithm_op::BAND,
+			ltok::BXOREQ	=> ast::binarithm_op::BXOR,
+			ltok::DIVEQ	=> ast::binarithm_op::DIV,
+			ltok::LSHIFTEQ	=> ast::binarithm_op::LSHIFT,
+			ltok::MINUSEQ	=> ast::binarithm_op::MINUS,
+			ltok::MODEQ	=> ast::binarithm_op::MODULO,
+			ltok::OREQ	=> ast::binarithm_op::BOR,
+			ltok::PLUSEQ	=> ast::binarithm_op::PLUS,
+			ltok::RSHIFTEQ	=> ast::binarithm_op::RSHIFT,
+			ltok::TIMESEQ	=> ast::binarithm_op::TIMES,
+		},
+		object = alloc(expr),
+		value = alloc(expression(lexer)?),
+		indirect = indirect,
 	};
 };
 
@@ -30,7 +84,6 @@ fn binarithm(
 ) (ast::expr | error) = {
 	// Precedence climbing parser
 	// https://en.wikipedia.org/wiki/Operator-precedence_parser
-	// TODO: Incorporate assignment into this?
 	let lvalue = match (lvalue) {
 		void => cast(lexer, void)?,
 		expr: ast::expr => expr,
