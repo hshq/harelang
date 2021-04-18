@@ -402,7 +402,7 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			for (let i = 0z; i < len(s.cases); i += 1) {
 				let opts = s.cases[i].options;
 				for (let j = 0z; j < len(opts); j += 1) {
-					expr_free(opts[i]);
+					expr_free(opts[j]);
 				};
 				free(opts);
 				expr_free(s.cases[i].value);

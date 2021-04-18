@@ -114,6 +114,19 @@
 		"export fn main() void = x[..321];\n");
 };
 
+@test fn switch_expr() void = {
+	roundtrip("export fn main() void = {
+	switch (x) {
+		1234, 4321 => y,
+		1337 => {
+			z;
+		},
+		* => q,
+	};
+};
+");
+};
+
 @test fn unarithm() void = {
 	roundtrip("export fn main() void = +void;\n"
 		"export fn main() void = -void;\n"

@@ -184,7 +184,7 @@ export fn expr(
 			z += fmt::fprint(out, "]")?;
 			z;
 		},
-		e: ast::switch_expr => abort(),
+		e: ast::switch_expr => switch_expr(out, indent, e)?,
 		e: ast::unarithm_expr => {
 			let z = fmt::fprintf(out, "{}", switch (e.op) {
 				ast::unarithm_op::ADDR	=> "&",
@@ -264,4 +264,39 @@ fn for_expr(
 	};
 	z += fmt::fprintf(out, ") ")?;
 	return z + expr(out, indent, *e.body)?;
+};
+
+fn switch_expr(
+	out: *io::stream,
+	indent: size,
+	e: ast::switch_expr,
+) (size | io::error) = {
+	let z = fmt::fprint(out, "switch (")?;
+	z += expr(out, indent, *e.value)?;
+	z += fmt::fprint(out, ") {")?;
+	indent += 1;
+
+	for (let i = 0z; i < len(e.cases); i += 1) {
+		z += newline(out, indent)?;
+		const case = e.cases[i];
+		if (len(case.options) == 0) {
+			z += fmt::fprint(out, "* => ")?;
+		} else {
+			for (let j = 0z; j < len(case.options); j += 1) {
+				const opt = case.options[j];
+				z += expr(out, indent, *opt)?;
+				if (j + 1 < len(case.options)) {
+					z += fmt::fprint(out, ", ")?;
+				};
+			};
+			z += fmt::fprint(out, " => ")?;
+		};
+		z += expr(out, indent, *case.value)?;
+		z += fmt::fprint(out, ",")?;
+	};
+
+	indent -= 1;
+	z += newline(out, indent)?;
+	z += fmt::fprint(out, "}")?;
+	return z;
 };

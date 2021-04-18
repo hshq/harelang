@@ -14,7 +14,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 	return switch (tok.0) {
 		ltok::LBRACE => expression_list(lexer),
 		ltok::MATCH => abort(), // TODO
-		ltok::SWITCH => abort(), // TODO
+		ltok::SWITCH => switch_expr(lexer),
 		ltok::IF => if_expr(lexer),
 		ltok::LABEL, ltok::FOR => for_expr(lexer),
 		ltok::BREAK, ltok::CONTINUE, ltok::RETURN => control(lexer),
@@ -238,8 +238,8 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 };
 
 fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
-	let tok = want(lexer, ltok::FOR, ltok::LABEL)?;
-	let label: ast::label = switch (tok.0) {
+	const tok = want(lexer, ltok::FOR, ltok::LABEL)?;
+	const label: ast::label = switch (tok.0) {
 		ltok::LABEL => {
 			want(lexer, ltok::FOR)?;
 			tok.1 as str;
@@ -249,19 +249,19 @@ fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 
 	want(lexer, ltok::LPAREN)?;
 
-	let bindings: nullable *ast::expr = match (peek(
+	const bindings: nullable *ast::expr = match (peek(
 			lexer, ltok::LET, ltok::CONST)?) {
 		void => null,
 		lex::token => {
-			let bindings = alloc(binding(lexer, false)?);
+			const bindings = alloc(binding(lexer, false)?);
 			want(lexer, ltok::SEMICOLON)?;
 			bindings;
 		},
 	};
 
-	let cond = alloc(expression(lexer)?);
+	const cond = alloc(expression(lexer)?);
 
-	let afterthought: nullable *ast::expr = match (peek(
+	const afterthought: nullable *ast::expr = match (peek(
 			lexer, ltok::SEMICOLON)) {
 		void => null,
 		lex::token => {
@@ -469,6 +469,56 @@ fn postfix_dot(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
 				value = alloc(con),
 			};
 		},
+	};
+};
+
+fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
+	const start = want(lexer, ltok::SWITCH)?;
+
+	want(lexer, ltok::LPAREN)?;
+	const value = expression(lexer)?;
+	want(lexer, ltok::RPAREN)?;
+
+	want(lexer, ltok::LBRACE)?;
+
+	let cases: []ast::switch_case = [];
+	for (true) {
+		if (try(lexer, ltok::RBRACE)? is lex::token) break;
+
+		let opts: []*ast::expr = [];
+		if (try(lexer, ltok::TIMES)? is lex::token) {
+			want(lexer, ltok::CASE)?;
+		} else {
+			for (true) {
+				if (try(lexer, ltok::CASE) is lex::token) break;
+
+				append(opts, alloc(expression(lexer)?));
+
+				if (!(try(lexer, ltok::COMMA) is lex::token)) {
+					want(lexer, ltok::CASE)?;
+					break;
+				};
+			};
+			synassert(mkloc(lexer), len(opts) != 0,
+				"Expected a list of options")?;
+		};
+
+		append(cases, ast::switch_case {
+			options = opts,
+			value = alloc(expression(lexer)?),
+		});
+
+		if (!(try(lexer, ltok::COMMA) is lex::token)) {
+			want(lexer, ltok::RBRACE)?;
+			break;
+		};
+	};
+
+	synassert(start.2, len(cases) != 0, "Expected a list of switch cases")?;
+
+	return ast::switch_expr {
+		value = alloc(value),
+		cases = cases,
 	};
 };
 
