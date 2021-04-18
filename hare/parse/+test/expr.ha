@@ -31,6 +31,14 @@
 ");
 };
 
+@test fn builtin() void = {
+	roundtrip("export fn main() void = {
+	alloc(1234);
+	alloc(4321, 1234);
+};
+");
+};
+
 @test fn call() void = {
 	roundtrip("export fn main() void = test();\n"
 		"export fn main() void = test(void, void, void);\n"

@@ -33,7 +33,19 @@ export fn expr(
 				z + expr(out, indent, *tp.value)?;
 			},
 		},
-		e: ast::alloc_expr => abort(),
+		e: ast::alloc_expr => {
+			let z = fmt::fprint(out, "alloc(")?;
+			z += expr(out, indent, *e.init)?;
+			match (e.capacity) {
+				null => void,
+				e: *ast::expr => {
+					z += fmt::fprint(out, ", ")?;
+					z += expr(out, indent, *e)?;
+				},
+			};
+			z += fmt::fprint(out, ")")?;
+			z;
+		},
 		e: ast::append_expr => abort(),
 		e: ast::assert_expr => abort(),
 		e: ast::assign_expr => {

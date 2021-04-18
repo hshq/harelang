@@ -77,6 +77,24 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 };
 
+fn alloc_expr(lexer: *lex::lexer) (ast::expr | error) = {
+	want(lexer, ltok::ALLOC)?;
+	want(lexer, ltok::LPAREN)?;
+
+	const init = expression(lexer)?;
+	const cap: nullable *ast::expr =
+		if (try(lexer, ltok::COMMA)? is lex::token) {
+			alloc(expression(lexer)?);
+		} else null;
+
+	want(lexer, ltok::RPAREN)?;
+
+	return ast::alloc_expr {
+		init = alloc(init),
+		capacity = cap,
+	};
+};
+
 fn binarithm(
 	lexer: *lex::lexer,
 	lvalue: (ast::expr | void),
@@ -155,7 +173,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 		void => return postfix(lexer, void),
 	};
 	return switch (tok.0) {
-		ltok::ALLOC => abort(),
+		ltok::ALLOC => alloc_expr(lexer)?,
 		ltok::APPEND => abort(),
 		ltok::DELETE => abort(),
 		ltok::FREE => abort(),

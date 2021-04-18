@@ -26,7 +26,7 @@ export type access_expr =
 
 // alloc(foo)
 export type alloc_expr = struct {
-	expr: *expr,
+	init: *expr,
 	capacity: nullable *expr,
 };
 
@@ -280,7 +280,7 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			},
 		},
 		a: alloc_expr => {
-			expr_free(a.expr);
+			expr_free(a.init);
 			expr_free(a.capacity);
 		},
 		a: append_expr => {
