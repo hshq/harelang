@@ -255,7 +255,8 @@ stdlib_bytes_srcs= \
 	$(STDLIB)/bytes/equal.ha \
 	$(STDLIB)/bytes/index.ha \
 	$(STDLIB)/bytes/reverse.ha \
-	$(STDLIB)/bytes/tokenize.ha
+	$(STDLIB)/bytes/tokenize.ha \
+	$(STDLIB)/bytes/two_way.ha
 
 $(HARECACHE)/bytes/bytes.ssa: $(stdlib_bytes_srcs) $(stdlib_rt) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
@@ -1108,7 +1109,8 @@ testlib_bytes_srcs= \
 	$(STDLIB)/bytes/equal.ha \
 	$(STDLIB)/bytes/index.ha \
 	$(STDLIB)/bytes/reverse.ha \
-	$(STDLIB)/bytes/tokenize.ha
+	$(STDLIB)/bytes/tokenize.ha \
+	$(STDLIB)/bytes/two_way.ha
 
 $(TESTCACHE)/bytes/bytes.ssa: $(testlib_bytes_srcs) $(testlib_rt) $(testlib_types)
 	@printf 'HAREC \t$@\n'

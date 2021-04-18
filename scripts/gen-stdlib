@@ -120,7 +120,8 @@ bytes() {
 		equal.ha \
 		index.ha \
 		reverse.ha \
-		tokenize.ha
+		tokenize.ha \
+		two_way.ha
 	gen_ssa bytes types
 }
 
