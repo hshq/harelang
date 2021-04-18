@@ -136,6 +136,22 @@ fn append_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 };
 
+fn measurement(lexer: *lex::lexer) (ast::expr | error) = {
+	let tok = want(lexer, ltok::LEN, ltok::SIZE, ltok::OFFSET)?;
+
+	return switch (tok.0) {
+		ltok::LEN => {
+			want(lexer, ltok::LPAREN)?;
+			let e = expression(lexer)?;
+			want(lexer, ltok::RPAREN)?;
+
+			alloc(e): ast::len_expr;
+		},
+		ltok::SIZE => abort(), // TODO
+		ltok::OFFSET => abort(), // TODO
+	};
+};
+
 fn binarithm(
 	lexer: *lex::lexer,
 	lvalue: (ast::expr | void),
@@ -234,7 +250,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 				* => abort(),
 			};
 		},
-		ltok::SIZE, ltok::LEN, ltok::OFFSET => abort(), // TODO
+		ltok::SIZE, ltok::LEN, ltok::OFFSET => measurement(lexer)?,
 		ltok::DEFER => {
 			want(lexer, ltok::DEFER)?;
 			alloc(expression(lexer)?): ast::defer_expr;

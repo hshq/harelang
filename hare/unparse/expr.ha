@@ -220,7 +220,11 @@ export fn expr(
 			z;
 		},
 		e: ast::match_expr => abort(),
-		e: ast::len_expr => abort(),
+		e: ast::len_expr => {
+			let z = fmt::fprint(out, "len(")?;
+			z += expr(out, indent, *e)?;
+			z + fmt::fprint(out, ")")?;
+		},
 		e: ast::size_expr => abort(),
 		e: ast::offset_expr => abort(),
 		e: ast::propagate_expr => {
