@@ -531,6 +531,7 @@ fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 		'=' => match (n) {
 			r: rune => switch (r) {
 				'=' => return (ltok::LEQUAL, void, loc),
+				'>' => return (ltok::CASE, void, loc),
 				*   => ltok::EQUAL,
 			},
 			io::EOF => ltok::EQUAL,
