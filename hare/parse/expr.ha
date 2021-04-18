@@ -217,7 +217,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::ALLOC => alloc_expr(lexer)?,
 		ltok::APPEND => append_expr(lexer)?,
 		ltok::DELETE => delete_expr(lexer)?,
-		ltok::FREE => abort(), // TODO
+		ltok::FREE => free_expr(lexer)?,
 		ltok::ASSERT => abort(), // TODO
 		ltok::STATIC => {
 			want(lexer, ltok::STATIC)?;
@@ -404,6 +404,14 @@ fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		afterthought = afterthought,
 		body = alloc(expression(lexer)?),
 	};
+};
+
+fn free_expr(lexer: *lex::lexer) (ast::expr | error) = {
+	want(lexer, ltok::FREE)?;
+	want(lexer, ltok::LPAREN)?;
+	const expr = alloc(expression(lexer)?);
+	want(lexer, ltok::RPAREN)?;
+	return expr: ast::free_expr;
 };
 
 fn if_expr(lexer: *lex::lexer) (ast::expr | error) = {

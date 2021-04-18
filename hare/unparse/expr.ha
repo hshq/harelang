@@ -190,7 +190,10 @@ export fn expr(
 			+ expr(out, indent, *e)?
 			+ fmt::fprint(out, ")")?,
 		e: ast::for_expr => for_expr(out, indent, e)?,
-		e: ast::free_expr => abort(),
+		e: ast::free_expr =>
+			fmt::fprint(out, "free(")?
+			+ expr(out, indent, *e)?
+			+ fmt::fprint(out, ")")?,
 		e: ast::if_expr => {
 			let z = fmt::fprint(out, "if (")?;
 			z += expr(out, indent, *e.cond)?;

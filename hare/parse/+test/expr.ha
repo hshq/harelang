@@ -41,6 +41,7 @@
 	delete(x[10]);
 	delete(x[10..20]);
 	delete(x[..]);
+	free(x);
 };
 ");
 };
