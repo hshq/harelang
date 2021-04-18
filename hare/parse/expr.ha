@@ -123,7 +123,10 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 			};
 		},
 		ltok::SIZE, ltok::LEN, ltok::OFFSET => abort(),
-		ltok::DEFER => abort(),
+		ltok::DEFER => {
+			want(lexer, ltok::DEFER)?;
+			alloc(expression(lexer)?): ast::defer_expr;
+		},
 		* => abort(), // Invariant
 	};
 };

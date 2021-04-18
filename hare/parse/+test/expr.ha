@@ -54,6 +54,10 @@
 ");
 };
 
+@test fn defer_expr() void = {
+	roundtrip("export fn main() void = defer foo();\n");
+};
+
 @test fn for_expr() void = {
 	roundtrip("export fn main() void = {
 	for (true) {

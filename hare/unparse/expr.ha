@@ -126,7 +126,8 @@ export fn expr(
 			};
 			z;
 		},
-		e: ast::defer_expr => abort(),
+		e: ast::defer_expr =>
+			fmt::fprint(out, "defer ")? + expr(out, indent, *e)?,
 		e: ast::delete_expr => abort(),
 		e: ast::for_expr => for_expr(out, indent, e)?,
 		e: ast::free_expr => abort(),
