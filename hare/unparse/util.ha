@@ -9,4 +9,3 @@ fn newline(out: *io::stream, indent: size) (size | io::error) = {
 	};
 	return n;
 };
-

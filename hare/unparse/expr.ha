@@ -3,6 +3,11 @@ use fmt;
 use hare::ast;
 use hare::lex;
 
+// Unparses an [ast::expr].
+//
+// A known limitation of the current implementation is that precedence between
+// binary operators (e.g. +) is not accounted for, so such expressions may
+// produce a different AST if parsed again.
 export fn expr(
 	out: *io::stream,
 	indent: size,
