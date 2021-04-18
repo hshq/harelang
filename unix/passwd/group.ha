@@ -12,8 +12,8 @@ export type grent = struct {
 	password: str,
 	// Numerical group ID
 	gid: uint,
-	// List of usernames that are members of this group, comma separated
-	userlist: str,
+	// List of usernames that are members of this group
+	userlist: []str,
 };
 
 // Reads a Unix-like group entry from a stream. The caller must free the result
@@ -45,13 +45,14 @@ export fn nextgr(stream: *io::stream) (grent | io::EOF | io::error | invalid) = 
 		name      = fields[0],
 		password  = fields[1],
 		gid       = gid,
-		userlist  = fields[3],
+		userlist  = strings::split(fields[3], ","),
 	};
 };
 
 // Frees resources associated with [grent].
 export fn grent_finish(ent: grent) void = {
 	free(ent.name);
+	free(ent.userlist);
 };
 
 // Looks up a group by name in a Unix-like group file. It expects a such file at
@@ -95,7 +96,8 @@ export fn getgroup(name: str) (grent | void) = {
 	assert(ent.name == "root");
 	assert(ent.password == "x");
 	assert(ent.gid == 0);
-	assert(ent.userlist == "root");
+	assert(len(ent.userlist) == 1);
+	assert(ent.userlist[0] == "root");
 
 	let ent = nextgr(buf) as grent;
 	defer grent_finish(ent);
@@ -103,7 +105,7 @@ export fn getgroup(name: str) (grent | void) = {
 	assert(ent.name == "mail");
 	assert(ent.password == "x");
 	assert(ent.gid == 12);
-	assert(ent.userlist == "");
+	assert(len(ent.userlist) == 0);
 
 	let ent = nextgr(buf) as grent;
 	defer grent_finish(ent);
@@ -111,7 +113,9 @@ export fn getgroup(name: str) (grent | void) = {
 	assert(ent.name == "video");
 	assert(ent.password == "x");
 	assert(ent.gid == 986);
-	assert(ent.userlist == "alex,wmuser");
+	assert(len(ent.userlist) == 2);
+	assert(ent.userlist[0] == "alex");
+	assert(ent.userlist[1] == "wmuser");
 
 	// No more entries
 	assert(nextgr(buf) is io::EOF);
