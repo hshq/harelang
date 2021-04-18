@@ -38,6 +38,9 @@
 	append(x, 10);
 	append(x, 10, 20, 30);
 	append(x, y, z, q...);
+	delete(x[10]);
+	delete(x[10..20]);
+	delete(x[..]);
 };
 ");
 };

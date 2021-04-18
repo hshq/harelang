@@ -216,7 +216,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 	return switch (tok.0) {
 		ltok::ALLOC => alloc_expr(lexer)?,
 		ltok::APPEND => append_expr(lexer)?,
-		ltok::DELETE => abort(), // TODO
+		ltok::DELETE => delete_expr(lexer)?,
 		ltok::FREE => abort(), // TODO
 		ltok::ASSERT => abort(), // TODO
 		ltok::STATIC => {
@@ -333,6 +333,16 @@ fn control(lexer: *lex::lexer) (ast::expr | error) = {
 			lex::token => null: ast::return_expr,
 		},
 	};
+};
+
+fn delete_expr(lexer: *lex::lexer) (ast::expr | error) = {
+	want(lexer, ltok::DELETE)?;
+	want(lexer, ltok::LPAREN)?;
+	const expr = plain_expression(lexer)?;
+	want(lexer, ltok::LBRACKET)?;
+	const expr = alloc(indexing(lexer, expr)?);
+	want(lexer, ltok::RPAREN)?;
+	return expr: ast::delete_expr;
 };
 
 fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {

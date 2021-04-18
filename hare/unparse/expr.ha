@@ -185,7 +185,10 @@ export fn expr(
 		},
 		e: ast::defer_expr =>
 			fmt::fprint(out, "defer ")? + expr(out, indent, *e)?,
-		e: ast::delete_expr => abort(),
+		e: ast::delete_expr =>
+			fmt::fprint(out, "delete(")?
+			+ expr(out, indent, *e)?
+			+ fmt::fprint(out, ")")?,
 		e: ast::for_expr => for_expr(out, indent, e)?,
 		e: ast::free_expr => abort(),
 		e: ast::if_expr => {
