@@ -77,6 +77,44 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 };
 
+fn assert_expr(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
+	let tok = want(lexer, ltok::ABORT, ltok::ASSERT)?;
+
+	return switch (tok.0) {
+		ltok::ABORT => {
+			want(lexer, ltok::LPAREN)?;
+			const msg: nullable *ast::expr =
+				if (peek(lexer, ltok::RPAREN)? is lex::token) {
+					null;
+				} else alloc(expression(lexer)?);
+			want(lexer, ltok::RPAREN)?;
+
+			ast::assert_expr {
+				cond      = null,
+				message   = msg,
+				is_static = is_static,
+			};
+		},
+		ltok::ASSERT => {
+			want(lexer, ltok::LPAREN)?;
+			const cond: nullable *ast::expr =
+				alloc(expression(lexer)?);
+			const msg: nullable *ast::expr =
+				if (try(lexer, ltok::COMMA)? is lex::token) {
+					alloc(expression(lexer)?);
+				} else null;
+			want(lexer, ltok::RPAREN)?;
+
+			ast::assert_expr {
+				cond      = cond,
+				message   = msg,
+				is_static = is_static,
+			};
+		},
+		* => abort(), // unreachable
+	};
+};
+
 fn alloc_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	want(lexer, ltok::ALLOC)?;
 	want(lexer, ltok::LPAREN)?;
@@ -240,11 +278,11 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::APPEND => append_expr(lexer)?,
 		ltok::DELETE => delete_expr(lexer)?,
 		ltok::FREE => free_expr(lexer)?,
-		ltok::ASSERT => abort(), // TODO
+		ltok::ABORT, ltok::ASSERT => assert_expr(lexer, false),
 		ltok::STATIC => {
 			want(lexer, ltok::STATIC)?;
 			let tok = match (peek(lexer, ltok::LET, ltok::CONST,
-					ltok::ASSERT)?) {
+					ltok::ABORT, ltok::ASSERT)?) {
 				tok: lex::token => tok,
 				// TODO: The following is lame
 				void => return syntaxerr(tok.2,
@@ -252,7 +290,8 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 			};
 			switch (tok.0) {
 				ltok::LET, ltok::CONST => binding(lexer, true),
-				ltok::ASSERT => abort(), // TODO
+				ltok::ABORT,
+				ltok::ASSERT => assert_expr(lexer, true),
 				* => abort(),
 			};
 		},

@@ -38,6 +38,14 @@
 	append(x, 10);
 	append(x, 10, 20, 30);
 	append(x, y, z, q...);
+	abort();
+	abort(\"surprize\");
+	static abort();
+	static abort(\"surprize\");
+	assert(x == 12);
+	assert(x == 12, \"number mismatch\");
+	static assert(x == 12);
+	static assert(x == 12, \"number mismatch\");
 	delete(x[10]);
 	delete(x[10..20]);
 	delete(x[..]);

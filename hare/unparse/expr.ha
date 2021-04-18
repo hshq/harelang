@@ -67,7 +67,32 @@ export fn expr(
 			};
 			z + fmt::fprint(out, ")")?;
 		},
-		e: ast::assert_expr => abort(),
+		e: ast::assert_expr => {
+			let z = fmt::fprint(
+				out, if (e.is_static) "static " else "")?;
+			// assert without a condition = abort
+			z += match (e.cond) {
+				e: *ast::expr => {
+					fmt::fprint(out, "assert(")? +
+						expr(out, indent, *e)?;
+				},
+				null => fmt::fprint(out, "abort(")?,
+			};
+			z += match (e.message) {
+				m: *ast::expr => {
+					let z = 0z;
+					match (e.cond) {
+						*ast::expr => {
+							z += fmt::fprint(out, ", ")?;
+						},
+						null => void,
+					};
+					z + expr(out, indent, *m)?;
+				},
+				null => 0,
+			};
+			z + fmt::fprint(out, ")")?;
+		},
 		e: ast::assign_expr => {
 			let z = 0z;
 			if (e.indirect) {
