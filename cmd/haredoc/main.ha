@@ -117,7 +117,7 @@ fn scan(path: str) (ast::subunit | error) = {
 			path, fs::strerror(err)),
 	};
 	defer io::close(input);
-	const lexer = lex::init(input, "<stdin>", lex::flags::COMMENTS);
+	const lexer = lex::init(input, path, lex::flags::COMMENTS);
 	return parse::subunit(&lexer)?;
 };
 
