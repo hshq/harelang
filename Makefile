@@ -32,6 +32,11 @@ harec_srcs=\
 	./cmd/harec/main.ha \
 	./cmd/harec/errors.ha
 
+haredoc_srcs=\
+	./cmd/haredoc/main.ha \
+	./cmd/haredoc/errors.ha \
+	./cmd/haredoc/unparse.ha
+
 $(HARECACHE)/hare.ssa: $(hare_srcs) $(hare_stdlib_deps)
 	@printf 'HAREC\t$@\n'
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) \
@@ -65,6 +70,11 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(hare_testlib_deps)
 	@printf 'HARE\t$@\n'
 	@env HAREPATH=. ./.bin/hare build -o .bin/harec ./cmd/harec
 
+.bin/haredoc: .bin/hare $(haredoc_srcs)
+	@mkdir -p .bin
+	@printf 'HARE\t$@\n'
+	@env HAREPATH=. ./.bin/hare build -o .bin/haredoc ./cmd/haredoc
+
 docs/hare.1: docs/hare.scd
 
 docs: docs/hare.1
@@ -75,6 +85,6 @@ clean:
 check: .bin/hare-tests
 	@./.bin/hare-tests
 
-all: .bin/hare .bin/harec
+all: .bin/hare .bin/harec .bin/haredoc
 
 .PHONY: all clean check
