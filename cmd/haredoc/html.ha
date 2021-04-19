@@ -136,7 +136,7 @@ fn details(decl: ast::decl) (void | error) = {
 	return;
 };
 
-// Forked from [[[hare::unparse]]]
+// Forked from [[hare::unparse]]
 fn unparse_html(out: *io::stream, d: ast::decl) (size | io::error) = {
 	// TODO: Syntax highlighting
 	let n = 0z;
