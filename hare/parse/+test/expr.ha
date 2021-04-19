@@ -82,6 +82,36 @@
 	[1, 2, 3, 4];
 	[1, 2, 3, 4...];
 	(1, 2, 3);
+	struct {
+		x: int = 10,
+		y: int = 20,
+	};
+	coords {
+		x: int = 10,
+		y: int = 20,
+	};
+	coords {
+		x = 10,
+		y = 20,
+	};
+	struct {
+		x: int = 10,
+		struct {
+			y: int = 20,
+		},
+	};
+	struct {
+		x: int = 10,
+		coords {
+			y: int = 20,
+		},
+	};
+	struct {
+		x: int = 10,
+		namespace::coords {
+			y: int = 20,
+		},
+	};
 };
 ");
 };

@@ -1,7 +1,7 @@
 use hare::ast;
 use hare::lex::{ltok};
 use hare::lex;
-use fmt;
+use strings;
 
 // Parses an expression.
 export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
@@ -539,7 +539,7 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::TRUE, ltok::FALSE, ltok::NULL, ltok::VOID =>
 			constant(lexer),
 		ltok::LBRACKET => plain_array(lexer)?,
-		ltok::STRUCT => abort(), // TODO: Struct literal
+		ltok::STRUCT => plain_struct(lexer, [])?,
 		ltok::LPAREN => {
 			want(lexer, ltok::LPAREN)?;
 			let ex = expression(lexer)?;
@@ -551,9 +551,9 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 		},
 		ltok::NAME => {
 			let id = ident(lexer)?;
-			return match (try(lexer, ltok::LBRACE)?) {
+			return match (peek(lexer, ltok::LBRACE)?) {
 				void => id: ast::access_identifier,
-				lex::token => abort(), // TODO: Struct literal
+				lex::token => plain_struct(lexer, id)?,
 			};
 		},
 		* => syntaxerr(mkloc(lexer),
@@ -595,6 +595,106 @@ fn plain_array(lexer: *lex::lexer) (ast::expr | error) = {
 	return ast::array_constant {
 		expand = expand,
 		values = values,
+	};
+};
+
+fn plain_struct(lexer: *lex::lexer, alias: ast::ident) (ast::expr | error) = {
+	if (len(alias) == 0) {
+		want(lexer, ltok::STRUCT)?;
+	};
+	want(lexer, ltok::LBRACE)?;
+
+	let autofill = false;
+	let fields: [](ast::struct_value | *ast::struct_constant) = [];
+	for (true) {
+		const tok = want(lexer, ltok::ELLIPSIS,
+			ltok::NAME, ltok::STRUCT)?;
+		switch (tok.0) {
+			ltok::ELLIPSIS => {
+				synassert(mkloc(lexer), len(alias) != 0,
+					"Cannot use auto-fill with anonymous struct");
+				autofill = true;
+				try(lexer, ltok::COMMA)?;
+				want(lexer, ltok::RBRACE)?;
+				break;
+			},
+			ltok::NAME, ltok::STRUCT => {
+				lex::unlex(lexer, tok);
+				append(fields, struct_field(lexer)?);
+			},
+		};
+
+		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
+			ltok::COMMA => {
+				if (try(lexer, ltok::RBRACE) is lex::token) {
+					break;
+				};
+			},
+			ltok::RBRACE => break,
+		};
+	};
+
+	return ast::struct_constant {
+		autofill = autofill,
+		alias = alias,
+		fields = fields,
+	};
+};
+
+fn struct_field(
+	lexer: *lex::lexer,
+) (ast::struct_value | *ast::struct_constant | error) = {
+	const tok = want(lexer, ltok::NAME, ltok::STRUCT)?;
+	switch (tok.0) {
+		ltok::NAME => {
+			const name = strings::dup(tok.1 as str);
+			const tok = match (try(lexer, ltok::COLON,
+					ltok::DOUBLE_COLON, ltok::EQUAL)?) {
+				tok: lex::token => tok,
+				void => {
+					let id: ast::ident = alloc([name]);
+					const expr = plain_struct(lexer, id)?;
+					const expr = expr as ast::constant_expr;
+					const expr = expr as ast::struct_constant;
+					return alloc(expr);
+				},
+			};
+			return switch (tok.0) {
+				ltok::COLON => {
+					const _type = alloc(_type(lexer)?);
+					want(lexer, ltok::EQUAL)?;
+					const init = alloc(expression(lexer)?);
+					ast::struct_value {
+						name = name,
+						_type = _type,
+						init = init,
+					};
+				},
+				ltok::DOUBLE_COLON => {
+					let id: ast::ident = alloc([name]);
+					let rest = ident(lexer)?;
+					append(id, rest...);
+					const expr = plain_struct(lexer, id)?;
+					const expr = expr as ast::constant_expr;
+					const expr = expr as ast::struct_constant;
+					return alloc(expr);
+				},
+				ltok::EQUAL => ast::struct_value {
+					name = name,
+					_type = null,
+					init = alloc(expression(lexer)?),
+				},
+				* => abort(), // Invariant
+			};
+		},
+		ltok::STRUCT => {
+			lex::unlex(lexer, tok);
+			const expr = plain_struct(lexer, [])?;
+			const expr = expr as ast::constant_expr;
+			const expr = expr as ast::struct_constant;
+			return alloc(expr);
+		},
+		* => abort(), // Invariant
 	};
 };
 

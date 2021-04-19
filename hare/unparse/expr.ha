@@ -329,7 +329,7 @@ fn constant(
 			z + fmt::fprintf(out, "{}]",
 				if (ac.expand) "..." else "")?;
 		},
-		ast::struct_constant => abort(), // TODO
+		sc: ast::struct_constant => struct_constant(out, indent, sc)?,
 		tu: ast::tuple_constant => {
 			let z = fmt::fprint(out, "(")?;
 			for (let i = 0z; i < len(tu); i += 1) {
@@ -341,6 +341,44 @@ fn constant(
 			z + fmt::fprint(out, ")")?;
 		},
 	};
+};
+
+fn struct_constant(
+	out: *io::stream,
+	indent: size,
+	sc: ast::struct_constant,
+) (size | io::error) = {
+	let z = 0z;
+	z += if (len(sc.alias) != 0) {
+		ident(out, sc.alias)?;
+	} else {
+		fmt::fprint(out, "struct")?;
+	};
+	z += fmt::fprint(out, " {")?;
+	indent += 1;
+	for (let i = 0z; i < len(sc.fields); i += 1) {
+		newline(out, indent)?;
+		match (sc.fields[i]) {
+			sv: ast::struct_value => {
+				z += match (sv._type) {
+					null => fmt::fprintf(out, "{}", sv.name)?,
+					t: *ast::_type =>
+						fmt::fprintf(out, "{}: ", sv.name)?
+						+ _type(out, indent, *t)?,
+				};
+				z += fmt::fprint(out, " = ")?;
+				z += expr(out, indent, *sv.init)?;
+			},
+			sc: *ast::struct_constant => {
+				z += constant(out, indent, *sc)?;
+			},
+		};
+		z += fmt::fprint(out, ",")?;
+	};
+	indent -= 1;
+	newline(out, indent)?;
+	fmt::fprint(out, "}");
+	return z;
 };
 
 fn for_expr(
