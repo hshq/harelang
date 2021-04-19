@@ -507,7 +507,6 @@ os() {
 		'$(PLATFORM)/exit.ha' \
 		'$(PLATFORM)/dirfdfs.ha' \
 		'$(PLATFORM)/fdstream.ha' \
-		'$(PLATFORM)/open.ha' \
 		'$(PLATFORM)/stdfd.ha' \
 		'$(PLATFORM)/fs.ha' \
 		stdfd.ha \
