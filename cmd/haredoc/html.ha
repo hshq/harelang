@@ -13,7 +13,7 @@ fn emit_html(decls: summary, template: bool) (void | error) = {
 	if (template) head()?;
 
 	// TODO: Module name
-	fmt::println("<h2>os</h2>")?;
+	fmt::println("<h2>hash::fnv</h2>")?;
 	fmt::println("<p class='readme'>TODO: Insert module README here")?;
 	if (len(decls.types) != 0) {
 		fmt::println("<h4>Types</h4>")?;
@@ -42,6 +42,7 @@ fn emit_html(decls: summary, template: bool) (void | error) = {
 		fmt::println("</ol>")?;
 	};
 	fmt::println("</ol>")?;
+	fmt::println("<hr />")?;
 
 	for (let i = 0z; i < len(decls.types); i += 1) {
 		details(decls.types[i])?;
@@ -272,8 +273,12 @@ nav:not(#TableOfContents) ul {
 	list-style: none;
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
+	justify-content: left;
 	flex-wrap: wrap;
+}
+
+nav:not(#TableOfContents) li:not(:first-child) {
+	margin-left: 2rem;
 }
 
 #TableOfContents {
@@ -321,15 +326,15 @@ ol li {
 		src='https://harelang.org/mascot.jpg'
 		alt='An inked drawing of the Hare mascot, a fuzzy rabbit'
 		width='128' height='128' />
-	<h1>The Hare programming language</h1>
+	<h1>Hare documentation</h1>
 	<ul>
-		<li><a href='https://harelang.org/'>Home</a></li>
-		<li><a href='https://harelang.org/documentation'>Documentation</a></li>
-		<li><a href='https://harelang.org/tutorial'>Tutorials</a></li>
-		<li><a href='https://harelang.org/blog'>Blog</a></li>
-		<li><a href='https://harelang.org/community'>Community</a></li>
-		<li><a href='https://sr.ht/~sircmpwn/hare'>Source code</a></li>
-		<li><a href='https://harelang.org/specification'>Specification</a></li>
+		<li>
+			<a href='https://harelang.org'>Home</a>
+		</li>
+		<li>
+			<a href='#'>stdlib</a> »
+			<a href='#'>hash</a>::fnv
+		</li>
 	</ul>
 </nav>
 <main>
