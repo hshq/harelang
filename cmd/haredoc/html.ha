@@ -306,6 +306,10 @@ pre .type {
 	color: #44F;
 }
 
+pre.decl {
+	font-size: 1.2rem;
+}
+
 ol {
 	padding-left: 0;
 	list-style: none;
