@@ -389,13 +389,13 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 		else if (suff == "u16") ltok::LIT_U16
 		else if (suff == "u32") ltok::LIT_U32
 		else if (suff == "u64") ltok::LIT_U64
-		else if (suff == "uint") ltok::LIT_UINT
+		else if (suff == "u") ltok::LIT_UINT
 		else if (suff == "z") ltok::LIT_SIZE
 		else if (suff == "i8") ltok::LIT_I8
 		else if (suff == "i16") ltok::LIT_I16
 		else if (suff == "i32") ltok::LIT_I32
 		else if (suff == "i64") ltok::LIT_I64
-		else if (suff == "int") ltok::LIT_INT
+		else if (suff == "i") ltok::LIT_INT
 		else if (suff == "" && !float) ltok::LIT_ICONST
 		else if (suff == "f32") ltok::LIT_F32
 		else if (suff == "f64") ltok::LIT_F64
