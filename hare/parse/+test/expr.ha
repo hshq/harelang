@@ -49,6 +49,7 @@
 	delete(x[10]);
 	delete(x[10..20]);
 	delete(x[..]);
+	delete(x.y.z[..]);
 	free(x);
 	len([1, 2, 3, 4]);
 	size(u32);

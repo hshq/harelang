@@ -399,9 +399,8 @@ fn control(lexer: *lex::lexer) (ast::expr | error) = {
 fn delete_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	want(lexer, ltok::DELETE)?;
 	want(lexer, ltok::LPAREN)?;
-	const expr = plain_expression(lexer)?;
-	want(lexer, ltok::LBRACKET)?;
-	const expr = alloc(indexing(lexer, expr)?);
+	const expr = alloc(postfix(lexer, void)?);
+	// TODO: Assert that this was an indexing expression
 	want(lexer, ltok::RPAREN)?;
 	return expr: ast::delete_expr;
 };
