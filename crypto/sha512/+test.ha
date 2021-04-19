@@ -6,7 +6,7 @@ use io;
 
 @test fn sha512() void = {
 	let sha = sha512();
-	defer hash::finish(sha);
+	defer hash::close(sha);
 
 	const vectors = [
 		("abc", "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f"),
@@ -45,7 +45,7 @@ use io;
 
 @test fn sha512_224() void = {
 	let sha = sha512_224();
-	defer hash::finish(sha);
+	defer hash::close(sha);
 
 	const vectors = [
 		("", "6ed0dd02806fa89e25de060c19d3ac86cabb87d6a0ddd05c333b84f4"),
@@ -77,7 +77,7 @@ use io;
 
 @test fn sha512_256() void = {
 	let sha = sha512_256();
-	defer hash::finish(sha);
+	defer hash::close(sha);
 	const vectors = [
 		("", "c672b8d1ef56ed28ab87c3622c5114069bdd3ad7b8f9737498d0c01ecef0967a"),
 		("abc", "53048e2681941ef99b2e29b76b4c7dabe4c2d0c634fc6d46e0e2f13107e7af23"),
@@ -109,7 +109,7 @@ use io;
 
 @test fn sha384() void = {
 	let sha = sha384();
-	defer hash::finish(sha);
+	defer hash::close(sha);
 	const vectors = [
 		("", "38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b"),
 		("abc", "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7"),

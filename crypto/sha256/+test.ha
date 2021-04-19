@@ -6,7 +6,7 @@ use strio;
 
 @test fn sha256() void = {
 	let sha = sha256();
-	defer hash::finish(sha);
+	defer hash::close(sha);
 
 	const vectors = [
 		("", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),

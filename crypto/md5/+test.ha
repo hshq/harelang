@@ -6,7 +6,7 @@ use io;
 
 @test fn md5() void = {
 	let md5 = md5();
-	defer hash::finish(md5);
+	defer hash::close(md5);
 
 	const vectors = [
 		("", "d41d8cd98f00b204e9800998ecf8427e"),

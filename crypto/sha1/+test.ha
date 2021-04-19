@@ -6,7 +6,7 @@ use io;
 
 @test fn sha1() void = {
 	let sha = sha1();
-	defer hash::finish(sha);
+	defer hash::close(sha);
 
 	const vectors = [
 		("", "da39a3ee5e6b4b0d3255bfef95601890afd80709"),
