@@ -1,4 +1,5 @@
 use bufio;
+use fmt;
 use hare::ast;
 use hare::lex;
 use io::{mode};
@@ -132,4 +133,22 @@ use strings;
 		"@symbol(\".f9$oo\") fn foo(bar: int, baz: int...) void;\n"
 		"@test fn foo(_: int, ...) void;\n"
 		"export fn main() void = void;\n");
+};
+
+@test fn docs() void = {
+	const src = "// Example text\nexport fn main() void = void;\n";
+	let buf = bufio::fixed(strings::toutf8(src), mode::READ);
+	defer io::close(buf);
+	let lexer = lex::init(buf, "<test>", lex::flags::COMMENTS);
+	let decls = match (decls(&lexer)) {
+		decls: []ast::decl => decls,
+		err: error => {
+			fmt::errorln(strerror(err));
+			abort();
+		},
+	};
+	defer for (let i = 0z; i < len(decls); i += 1) {
+		ast::decl_free(decls[i]);
+	};
+	assert(decls[0].docs == " Example text\n");
 };

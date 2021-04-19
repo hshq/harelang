@@ -142,12 +142,20 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 	let decls: []ast::decl = [];
 	for (true) {
 		if (peek(lexer, ltok::EOF)? is lex::token) break;
+		let comment = "";
 		let exported = match (try(lexer, ltok::EXPORT)?) {
 			void => false,
-			lex::token => true,
+			lex::token => {
+				comment = strings::dup(lex::comment(lexer));
+				true;
+			},
 		};
 		const toks = [ltok::CONST, ltok::LET, ltok::DEF, ltok::TYPE];
-		let decl = match (try(lexer, toks...)?) {
+		const next = try(lexer, toks...)?;
+		if (comment == "") {
+			comment = strings::dup(lex::comment(lexer));
+		};
+		let decl = match (next) {
 			void => decl_func(lexer)?,
 			t: lex::token =>
 				if (t.0 == ltok::TYPE) decl_type(lexer)?
@@ -157,6 +165,7 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 			exported = exported,
 			loc = mkloc(lexer),
 			decl = decl,
+			docs = comment,
 		});
 		want(lexer, ltok::SEMICOLON)?;
 	};

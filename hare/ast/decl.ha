@@ -38,6 +38,9 @@ export type decl = struct {
 	exported: bool,
 	loc: lex::location,
 	decl: ([]decl_global | []decl_type | decl_func),
+
+	// Only valid if the lexer has comments enabled
+	docs: str,
 };
 
 // Frees resources associated with a declaration
