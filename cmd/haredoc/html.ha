@@ -13,7 +13,7 @@ fn emit_html(decls: summary, template: bool) (void | error) = {
 	if (template) head()?;
 
 	// TODO: Module name
-	fmt::println("<h2>hash::fnv</h2>")?;
+	fmt::println("<h2>hash::fnv <span class='heading-extra'>+linux +x86_64</span></h2>")?;
 	fmt::println("<p class='readme'>TODO: Insert module README here")?;
 	if (len(decls.types) != 0) {
 		fmt::println("<h4>Types</h4>")?;
@@ -96,6 +96,8 @@ fn details(decl: ast::decl) (void | error) = {
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	fmt::print("'>")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
+	// TODO: Make this URL real
+	fmt::print("<span class='heading-extra'><a href='#'>[source]</a></span>")?;
 	fmt::println("</h3>")?;
 
 	fmt::println("<pre class='decl'>")?;
@@ -317,6 +319,18 @@ ol {
 
 ol li {
 	padding-left: 0;
+}
+
+h2, h3, h4 {
+	display: flex;
+}
+
+.heading-extra {
+	align-self: flex-end;
+	flex-grow: 1;
+	text-align: right;
+	font-size: 0.8rem;
+	color: #444;
 }
 
 @media(max-width: 1000px) {
