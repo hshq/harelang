@@ -42,7 +42,7 @@ export type syntaxerr = void!; // TODO: Add line number?
 // Any error which can occur during XML parsing.
 export type error = (syntaxerr | utf8::invalid | io::error)!;
 
-// Converts an [error] to a user-friendly string representation.
+// Converts an [[error]] to a user-friendly string representation.
 export fn strerror(err: error) const str = {
 	return match (err) {
 		syntaxerr => "Syntax error",

@@ -16,7 +16,7 @@ export type hash = struct {
 	sz: size,
 };
 
-// Returns a writable [io::stream] for a given hash.
+// Returns a writable [[io::stream]] for a given hash.
 export fn writer(h: *hash) *io::stream = &h.stream;
 
 // Writes an input to the hash function.

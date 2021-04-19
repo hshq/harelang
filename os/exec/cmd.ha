@@ -3,7 +3,7 @@ use errors;
 use os;
 use strings;
 
-// Prepares a [command] based on its name and a list of arguments. The argument
+// Prepares a [[command]] based on its name and a list of arguments. The argument
 // list should not start with the command name; it will be added for you. The
 // argument list is borrowed from the strings you pass into this command.
 //
@@ -43,7 +43,7 @@ export fn setname(cmd: *command, name: str) void = {
 };
 
 // Frees state associated with a command. You only need to call this if you do
-// not execute the command with [exec] or [start]; in those cases the state is
+// not execute the command with [[exec]] or [[start]]; in those cases the state is
 // cleaned up for you.
 export fn finish(cmd: *command) void = {
 	platform_finish(cmd);

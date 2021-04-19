@@ -95,7 +95,7 @@ export fn mkdirs(fs: *fs, path: str) (void | error) = {
 	return mkdir(fs, path);
 };
 
-// Removes a directory. The target directory must be empty; see [rmdirall] to
+// Removes a directory. The target directory must be empty; see [[rmdirall]] to
 // remove its contents as well.
 export fn rmdir(fs: *fs, path: str) (void | error) = {
 	if (path == "") {
@@ -173,5 +173,5 @@ export fn resolve(fs: *fs, path: str) str = {
 // Returns the next directory entry from an interator, or void if none remain.
 // It is a programming error to call this again after it has returned void. The
 // file stat returned may only have the type bits set on the file mode; callers
-// should call [fs::stat] to obtain the detailed file mode.
+// should call [[fs::stat]] to obtain the detailed file mode.
 export fn next(iter: *iterator) (dirent | void) = iter.next(iter);

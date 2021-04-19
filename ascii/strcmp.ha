@@ -27,7 +27,7 @@ export fn strcmp(a: str, b: str) (int | void) = {
 	};
 };
 
-// Similar to [strcmp], but compares strings irrespective of their uppercase or
+// Similar to [[strcmp]], but compares strings irrespective of their uppercase or
 // lowercase classification within the ASCII character set.
 export fn strcasecmp(a: str, b: str) (int | void) = {
 	let a = strings::iter(a), b = strings::iter(b);

@@ -2,20 +2,20 @@ use fs;
 use io;
 use path;
 
-// Provides an implementation of [fs::fs] for the host filesystem.
+// Provides an implementation of [[fs::fs]] for the host filesystem.
 export let root: *fs::fs = null: *fs::fs;
 
-// Provides an implementation of [fs::fs] for the current working directory.
+// Provides an implementation of [[fs::fs]] for the current working directory.
 export let cwd: *fs::fs = null: *fs::fs;
 
 // Removes a file.
 export fn remove(path: str) (void | fs::error) = fs::remove(cwd, path);
 
-// Creates an [fs::iterator] for a given directory to read its contents.
+// Creates an [[fs::iterator]] for a given directory to read its contents.
 export fn iterdir(path: str) (*fs::iterator | fs::error) = fs::iter(cwd, path);
 
 // Reads all entries from a directory. The caller must free the return value
-// with [fs::dirents_free].
+// with [[fs::dirents_free]].
 export fn readdir(path: str) ([]fs::dirent | fs::error) = fs::readdir(cwd, path);
 
 // Returns file information for a given path.
@@ -30,7 +30,7 @@ export fn mkdir(path: str) (void | fs::error) = fs::mkdir(cwd, path);
 // Creates a directory, and all non-extant directories in its path.
 export fn mkdirs(path: str) (void | fs::error) = fs::mkdirs(cwd, path);
 
-// Removes a directory. The target directory must be empty; see [rmdirall] to
+// Removes a directory. The target directory must be empty; see [[rmdirall]] to
 // remove its contents as well.
 export fn rmdir(path: str) (void | fs::error) = fs::rmdir(cwd, path);
 
@@ -54,8 +54,8 @@ export fn resolve(path: str) str = fs::resolve(cwd, path);
 
 // Opens a file.
 //
-// If no flags are provided, [fs::flags::RDONLY], [fs::flags::NOCTTY],
-// [fs::flags::CLOEXEC] are used when opening the file. If you pass your own
+// If no flags are provided, [[fs::flags::RDONLY]], [[fs::flags::NOCTTY]],
+// [[fs::flags::CLOEXEC]] are used when opening the file. If you pass your own
 // flags, it is recommended that you add the latter two unless you know that you
 // do not want them.
 export fn open(path: str, flags: fs::flags...) (*io::stream | fs::error) =
@@ -63,8 +63,8 @@ export fn open(path: str, flags: fs::flags...) (*io::stream | fs::error) =
 
 // Creates a new file and opens it for writing.
 //
-// If no flags are provided, [fs::flags::WRONLY], [fs::flags::NOCTTY],
-// [fs::flags::CLOEXEC] are used when opening the file. If you pass your own
+// If no flags are provided, [[fs::flags::WRONLY]], [[fs::flags::NOCTTY]],
+// [[fs::flags::CLOEXEC]] are used when opening the file. If you pass your own
 // flags, it is recommended that you add the latter two unless you know that you
 // do not want them.
 //

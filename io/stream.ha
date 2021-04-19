@@ -87,7 +87,7 @@ let _empty: io::stream = io::stream {
 	...
 };
 
-// A [stream] which always reads EOF and discards any writes.
+// A [[stream]] which always reads EOF and discards any writes.
 export let empty: *io::stream = &_empty;
 
 fn empty_read(s: *stream, buf: []u8) (size | EOF | error) = EOF;

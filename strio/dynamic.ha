@@ -10,7 +10,7 @@ type dynamic_stream = struct {
 // Creates a write-only string stream using an allocated buffer for storage, for
 // efficiently building strings.
 //
-// Calling [io::close] on this stream will free the buffer. Call [strio::finish]
+// Calling [[io::close]] on this stream will free the buffer. Call [[strio::finish]]
 // instead to free up resources associated with the stream, but transfer
 // ownership of the buffer to the caller.
 export fn dynamic() *io::stream = {

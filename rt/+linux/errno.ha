@@ -13,7 +13,7 @@ fn wrap_return(r: u64) (errno | u64) = {
 	return r;
 };
 
-// Obtains a human-friendly reading of an [errno] (e.g. "Operation not
+// Obtains a human-friendly reading of an [[errno]] (e.g. "Operation not
 // permitted").
 export fn strerror(err: errno) str = {
 	return switch (err: int) {
@@ -152,7 +152,7 @@ export fn strerror(err: errno) str = {
 	};
 };
 
-// Gets the programmer-friendly name for an [errno] (e.g. EPERM).
+// Gets the programmer-friendly name for an [[errno]] (e.g. EPERM).
 export fn errname(err: errno) str = {
 	return switch (err: int) {
 		EPERM => "EPERM",

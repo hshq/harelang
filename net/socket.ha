@@ -15,12 +15,12 @@ export type reuseaddr = void;
 // default (10) is used.
 export type backlog = u32;
 
-// To have the system select an arbitrary unused port for [listen], set port to
+// To have the system select an arbitrary unused port for [[listen]], set port to
 // zero. To retrieve the assigned port, provide this as one of the options and
 // the addressed u16 will be filled in with the port.
 export type portassignment = *u16;
 
-// Options for the [listen] family of functions.
+// Options for the [[listen]] family of functions.
 export type listen_option = (
 	keepalive |
 	reuseport |
@@ -28,13 +28,13 @@ export type listen_option = (
 	backlog |
 	portassignment);
 
-// Options for the [connect] family of functions.
+// Options for the [[connect]] family of functions.
 export type connect_option = keepalive;
 
 // Indicates that a send or recv operation should include out-of-band data.
 export type oob = []u8;
 
-// Options for [send] and [recv].
+// Options for [[send]] and [[recv]].
 export type dgram_option = oob;
 
 // A listener binds a socket and listens for incoming traffic for some
@@ -58,7 +58,7 @@ export fn accept(l: *listener) (*io::stream | io::error) = {
 	};
 };
 
-// Shuts down a [listener] and frees resources associated with it.
+// Shuts down a [[listener]] and frees resources associated with it.
 export fn shutdown(l: *listener) void = {
 	match (l.shutdown) {
 		f: *fn(l: *listener) void => f(l),

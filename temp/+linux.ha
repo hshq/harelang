@@ -13,7 +13,7 @@ fn get_tmpdir() str = os::tryenv("TMPDIR", "/tmp");
 // any directory. If it is necessary to create a real file, it will be removed
 // when the stream is closed.
 //
-// The I/O mode must be either [io::mode::WRITE] or [io::mode::RDWR].
+// The I/O mode must be either [[io::mode::WRITE]] or [[io::mode::RDWR]].
 //
 // Only one variadic argument may be provided, if at all, to specify the mode of
 // the new file. The default is 0o644.
@@ -38,7 +38,7 @@ export fn file(
 
 // Creates a named temporary file.
 //
-// The I/O mode must be either [io::mode::WRITE] or [io::mode::RDWR].
+// The I/O mode must be either [[io::mode::WRITE]] or [[io::mode::RDWR]].
 //
 // Only one variadic argument may be provided, if at all, to specify the mode of
 // the new file. The default is 0o644.
@@ -52,7 +52,7 @@ export fn named(
 // Creates a temporary directory. This function only guarantees that the
 // directory will have a unique name and be placed in the system temp directory,
 // but not that it will be removed automatically; the caller must remove it when
-// they're done using it via [os::rmdir] or [os::rmdirall].
+// they're done using it via [[os::rmdir]] or [[os::rmdirall]].
 //
 // The caller must free the return value.
 export fn dir() str = {

@@ -36,7 +36,7 @@ fn details_hare(decl: ast::decl) (void | error) = {
 	return;
 };
 
-// Forked from [[hare::unparse]]
+// Forked from [[[hare::unparse]]]
 fn unparse_hare(out: *io::stream, d: ast::decl) (size | io::error) = {
 	let n = 0z;
 	match (d.decl) {

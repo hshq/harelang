@@ -20,10 +20,10 @@ export fn compare(a: instant, b: instant) int = {
 		if (a.nsec < b.nsec) -1 else if (a.nsec > b.nsec) 1 else 0;
 };
 
-// Converts the given [instant] to a Unix timestamp.
+// Converts the given [[instant]] to a Unix timestamp.
 export fn unix(a: instant) i64 = a.sec;
 
-// Returns a [instant] from a Unix timestamp.
+// Returns a [[instant]] from a Unix timestamp.
 export fn from_unix(u: i64) instant = instant {
 	sec = u,
 	nsec = 0,

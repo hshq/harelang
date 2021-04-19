@@ -18,9 +18,9 @@ type state64 = struct {
 	v: u64,
 };
 
-// Creates a [hash::hash] which computes the FNV-1 32-bit hash function.
+// Creates a [[hash::hash]] which computes the FNV-1 32-bit hash function.
 //
-// Unless you have a reason to use this, [fnv32a] is recommended instead.
+// Unless you have a reason to use this, [[fnv32a]] is recommended instead.
 export fn fnv32() *hash::hash = alloc(state32 {
 	hash = hash::hash {
 		stream = io::stream {
@@ -34,7 +34,7 @@ export fn fnv32() *hash::hash = alloc(state32 {
 	v = basis32,
 }): *hash::hash;
 
-// Creates a [hash::hash] which computes the FNV-1a 32-bit hash function.
+// Creates a [[hash::hash]] which computes the FNV-1a 32-bit hash function.
 export fn fnv32a() *hash::hash = alloc(state32 {
 	hash = hash::hash {
 		stream = io::stream {
@@ -48,9 +48,9 @@ export fn fnv32a() *hash::hash = alloc(state32 {
 	v = basis32,
 }): *hash::hash;
 
-// Creates a [hash::hash] which computes the FNV-1 64-bit hash function.
+// Creates a [[hash::hash]] which computes the FNV-1 64-bit hash function.
 //
-// Unless you have a reason to use this, [fnv64a] is recommended instead.
+// Unless you have a reason to use this, [[fnv64a]] is recommended instead.
 export fn fnv64() *hash::hash = alloc(state64 {
 	hash = hash::hash {
 		stream = io::stream {
@@ -64,7 +64,7 @@ export fn fnv64() *hash::hash = alloc(state64 {
 	v = basis64,
 }): *hash::hash;
 
-// Creates a [hash::hash] which computes the FNV-1a 64-bit hash function.
+// Creates a [[hash::hash]] which computes the FNV-1a 64-bit hash function.
 export fn fnv64a() *hash::hash = alloc(state64 {
 	hash = hash::hash {
 		stream = io::stream {

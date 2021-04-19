@@ -2,7 +2,7 @@ use bytes;
 use types;
 
 // Converts a u64 to a string in the given base. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn u64tosb(u: u64, b: base) const str = {
 	static assert(types::U64_MAX == 18446744073709551615);
@@ -37,67 +37,67 @@ export fn u64tosb(u: u64, b: base) const str = {
 };
 
 // Converts a u32 to a string in the given base. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn u32tosb(u: u32, b: base) const str = u64tosb(u, b);
 
 // Converts a u16 to a string in the given base. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn u16tosb(u: u16, b: base) const str = u64tosb(u, b);
 
 // Converts a u8 to a string in the given base. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn u8tosb(u: u8, b: base) const str = u64tosb(u, b);
 
 // Converts a uint to a string in the given base. The return value is
 // statically allocated and will be overwritten on subsequent calls; see
-// [strings::dup] to duplicate the result.
+// [[strings::dup]] to duplicate the result.
 export fn utosb(u: uint, b: base) const str = u64tosb(u, b);
 
 // Converts a size to a string in the given base. The return value is
 // statically allocated and will be overwritten on subsequent calls; see
-// [strings::dup] to duplicate the result.
+// [[strings::dup]] to duplicate the result.
 export fn ztosb(u: size, b: base) const str = u64tosb(u, b);
 
 // Converts a size to a string in the given base. The return value is
 // statically allocated and will be overwritten on subsequent calls; see
-// [strings::dup] to duplicate the result.
+// [[strings::dup]] to duplicate the result.
 export fn uptrtosb(uptr: uintptr, b: base) const str = u64tosb(uptr: u64, b);
 
 // Converts a u64 to a string in base 10. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn u64tos(u: u64) const str = u64tosb(u, base::DEC);
 
 // Converts a u32 to a string in base 10. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn u32tos(u: u32) const str = u64tos(u);
 
 // Converts a u16 to a string in base 10. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn u16tos(u: u16) const str = u64tos(u);
 
 // Converts a u8 to a string in base 10. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn u8tos(u: u8) const str = u64tos(u);
 
 // Converts a uint to a string in base 10. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn utos(u: uint) const str = u64tos(u);
 
 // Converts a size to a string in base 10. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
-// duplicate the result, or [strconv::itosb] to pass your own string buffer.
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
+// duplicate the result, or [[strconv::itosb]] to pass your own string buffer.
 export fn ztos(z: size) const str = u64tos(z);
 
 // Converts a uintptr to a string in base 10. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn uptrtos(uptr: uintptr) const str = u64tos(uptr: u64);
 

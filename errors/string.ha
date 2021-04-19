@@ -1,7 +1,7 @@
-// Converts an [error] into a human-friendly string representation.
+// Converts an [[error]] into a human-friendly string representation.
 //
 // Note that this strerror implementation lacks any context-specific information
-// about the error types supported. For example, [exists] is stringified as "An
+// about the error types supported. For example, [[exists]] is stringified as "An
 // attempt was made to create a resource which already exists", but if source of
 // the error is, say, creating a file, it would likely be more appropriate to
 // use the term "file" rather than "resource". For this reason, it is preferred

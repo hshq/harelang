@@ -1,6 +1,6 @@
 use rt;
 
-// Wraps an [rt::errno] to produce an [errors::opaque]. This is a non-portable
+// Wraps an [[rt::errno]] to produce an [[errors::opaque]]. This is a non-portable
 // interface which is mainly provided to support internal stdlib requirements.
 export fn errno(errno: rt::errno) opaque = {
 	static assert(size(rt::errno) <= size(opaque_data));

@@ -68,7 +68,7 @@ export fn uri(out: *io::stream, in: uuid) (size | io::error) = {
 };
 
 // Encodes a UUID as a string. The return value is statically allocated, the
-// caller must use [strings::dup] to extend its lifetime.
+// caller must use [[strings::dup]] to extend its lifetime.
 export fn encodestr(in: uuid) str = {
 	static let buf: [UUID_STRLEN]u8 = [0...];
 	let sink = strio::fixed(buf);
@@ -78,7 +78,7 @@ export fn encodestr(in: uuid) str = {
 };
 
 // Encodes a UUID as a string. The return value is statically allocated, the
-// caller must use [strings::dup] to extend its lifetime.
+// caller must use [[strings::dup]] to extend its lifetime.
 export fn encodeuri(in: uuid) str = {
 	static let buf: [UUID_URILEN]u8 = [0...];
 	let sink = strio::fixed(buf);

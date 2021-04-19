@@ -60,7 +60,7 @@ export fn init(in: *io::stream, path: str, flags: flags...) lexer = {
 };
 
 // Returns the current value of the comment buffer, or empty string if unset (or
-// if [flags::COMMENTS] was not enabled for this lexer).
+// if [[flags::COMMENTS]] was not enabled for this lexer).
 export fn comment(lex: *lexer) str = lex.comment;
 
 // Returns the next token from the lexer.
@@ -636,8 +636,8 @@ fn lex3gt(lex: *lexer, loc: location, n: rune) (token | error) = {
 	return (tok, void, loc);
 };
 
-// Unlex a single token. The next call to [lex] will return this token. Only one
-// unlex is supported at a time; you must call [lex] before calling [unlex]
+// Unlex a single token. The next call to [[lex]] will return this token. Only one
+// unlex is supported at a time; you must call [[lex]] before calling [[unlex]]
 // again.
 export fn unlex(lex: *lexer, tok: token) void = {
 	assert(lex.un is void, "attempted to unlex more than one token");

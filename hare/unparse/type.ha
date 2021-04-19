@@ -103,7 +103,7 @@ fn struct_union_type(
 	return z;
 };
 
-// Unparses an [ast::_type].
+// Unparses an [[ast::_type]].
 export fn _type(
 	out: *io::stream,
 	indent: size,

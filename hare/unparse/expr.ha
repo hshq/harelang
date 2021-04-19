@@ -3,7 +3,7 @@ use fmt;
 use hare::ast;
 use hare::lex;
 
-// Unparses an [ast::expr].
+// Unparses an [[ast::expr]].
 //
 // A known limitation of the current implementation is that precedence between
 // binary operators (e.g. +) is not accounted for, so such expressions may

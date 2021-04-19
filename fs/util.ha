@@ -13,7 +13,7 @@ export fn strerror(err: error) const str = match (err) {
 };
 
 // Converts a mode into a Unix-like mode string (e.g. "-rw-r--r--"). The string
-// is statically allocated, use [strings::dup] to duplicate it or it will be
+// is statically allocated, use [[strings::dup]] to duplicate it or it will be
 // overwritten on subsequent calls.
 export fn mode_str(m: mode) const str = {
 	static let buf: [10]u8 = [0...];
@@ -80,7 +80,7 @@ export fn is_link(mode: mode) bool = mode & mode::LINK == mode::LINK;
 export fn is_socket(mode: mode) bool = mode & mode::SOCK == mode::SOCK;
 
 // Reads all entries from a directory. The caller must free the return value
-// with [dirents_free].
+// with [[dirents_free]].
 export fn readdir(fs: *fs, path: str) ([]dirent | error) = {
 	let i = iter(fs, path)?;
 	let ents: []dirent = [];
@@ -93,7 +93,7 @@ export fn readdir(fs: *fs, path: str) ([]dirent | error) = {
 	return ents;
 };
 
-// Frees a slice of [dirent]s.
+// Frees a slice of [[dirent]]s.
 export fn dirents_free(d: []dirent) void = {
 	for (let i = 0z; i < len(d); i += 1) {
 		dirent_free(&d[i]);

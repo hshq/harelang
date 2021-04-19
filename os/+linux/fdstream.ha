@@ -46,11 +46,11 @@ fn is_fdstream(s: *io::stream) bool = {
 		|| s.copier == &fd_copy;
 };
 
-// Returns the file descriptor for a given [io::stream]. If there is no fd
+// Returns the file descriptor for a given [[io::stream]]. If there is no fd
 // associated with this stream, void is returned.
 //
 // If 'unwrap' is true, the stream will be unwrapped until an fdstream is found.
-// Note that many stream wrappers (such as [io::tee]) provide important
+// Note that many stream wrappers (such as [[io::tee]]) provide important
 // functionality, and using the file descriptor directly will circumvent that
 // functionality. Use with caution.
 export fn streamfd(s: *io::stream, unwrap: bool) (int | void) = {

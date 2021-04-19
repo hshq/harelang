@@ -68,16 +68,16 @@ type digest = struct {
 	var: variant,
 };
 
-// Creates a [hash::hash] which computes a SHA-512 hash.
+// Creates a [[hash::hash]] which computes a SHA-512 hash.
 export fn sha512() *hash::hash = init(variant::SHA512, SIZE);
 
-// Creates a [hash::hash] which computes a SHA-512/224 hash.
+// Creates a [[hash::hash]] which computes a SHA-512/224 hash.
 export fn sha512_224() *hash::hash = init(variant::SHA512_224, SIZE224);
 
-// Creates a [hash::hash] which computes a SHA-512/256 hash.
+// Creates a [[hash::hash]] which computes a SHA-512/256 hash.
 export fn sha512_256() *hash::hash = init(variant::SHA512_256, SIZE256);
 
-// Creates a [hash::hash] which computes a SHA-384 hash.
+// Creates a [[hash::hash]] which computes a SHA-384 hash.
 export fn sha384() *hash::hash = init(variant::SHA384, SIZE384);
 
 // Internal initialization function

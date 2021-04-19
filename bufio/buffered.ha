@@ -113,7 +113,7 @@ export fn unread(s: *io::stream, buf: []u8) void = {
 	append(s.unread, buf...);
 };
 
-// Unreads a rune; see [unread].
+// Unreads a rune; see [[unread]].
 export fn unreadrune(s: *io::stream, rn: rune) void = {
 	assert(isbuffered(s), "bufio: unread used on non-buffered stream");
 	let s = s: *bufstream;

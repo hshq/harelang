@@ -32,7 +32,7 @@ export const ANY_V6: addr6 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 // Invalid parse result.
 export type invalid = void!;
 
-// Test if two [addr]s are equal.
+// Test if two [[addr]]s are equal.
 export fn equal(l: addr, r: addr) bool = {
 	return match (l) {
 		l: addr4 => {
@@ -299,7 +299,7 @@ fn fmtsubnet(s: *io::stream, subnet: subnet) (io::error | size) = {
 	return ret;
 };
 
-// Formats an [addr] or [subnet] and prints it to a stream.
+// Formats an [[addr]] or [[subnet]] and prints it to a stream.
 export fn fmt(s: *io::stream, item: (...addr | subnet)) (io::error | size) = {
 	return match (item) {
 		v4: addr4 => fmtv4(s, v4)?,
@@ -308,8 +308,8 @@ export fn fmt(s: *io::stream, item: (...addr | subnet)) (io::error | size) = {
 	};
 };
 
-// Formats an [addr] or [subnet] as a string. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// Formats an [[addr]] or [[subnet]] as a string. The return value is statically
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // extend its lifetime.
 export fn string(item: (...addr | subnet)) str = {
 	// Maximum length of an IPv6 address plus its netmask in hexadecimal

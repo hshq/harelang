@@ -20,10 +20,10 @@ type digest = struct {
 	ln: size,
 };
 
-// Creates a [hash::hash] which computes a MD5 hash as defined in RFC 1321. Note
+// Creates a [[hash::hash]] which computes a MD5 hash as defined in RFC 1321. Note
 // that MD5 is cryptographically broken and should not be used for secure
-// applications. Where possible, applications are encouraged to use [sha256] or
-// [sha512] instead.
+// applications. Where possible, applications are encouraged to use [[sha256]] or
+// [[sha512]] instead.
 export fn md5() *hash::hash = {
 	let md5 = alloc(digest {
 		hash = hash::hash {

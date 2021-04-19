@@ -17,7 +17,7 @@ export type grent = struct {
 };
 
 // Reads a Unix-like group entry from a stream. The caller must free the result
-// using [grent_finish].
+// using [[grent_finish]].
 export fn nextgr(stream: *io::stream) (grent | io::EOF | io::error | invalid) = {
 	let line = match (bufio::scanline(stream)?) {
 		ln: []u8 => ln,
@@ -49,7 +49,7 @@ export fn nextgr(stream: *io::stream) (grent | io::EOF | io::error | invalid) = 
 	};
 };
 
-// Frees resources associated with [grent].
+// Frees resources associated with [[grent]].
 export fn grent_finish(ent: grent) void = {
 	free(ent.name);
 	free(ent.userlist);
@@ -58,7 +58,7 @@ export fn grent_finish(ent: grent) void = {
 // Looks up a group by name in a Unix-like group file. It expects a such file at
 // /etc/group. Aborts if that file doesn't exist or is not properly formatted.
 //
-// See [nextgr] for low-level parsing API.
+// See [[nextgr]] for low-level parsing API.
 export fn getgroup(name: str) (grent | void) = {
 	let file = match (os::open("/etc/group")) {
 		s: *io::stream => s,

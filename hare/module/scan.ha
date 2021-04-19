@@ -16,7 +16,7 @@ use strio;
 use fmt;
 
 // Scans the files in a directory for eligible build inputs and returns a
-// [version] which includes all applicable files and their dependencies.
+// [[version]] which includes all applicable files and their dependencies.
 export fn scan(ctx: *context, path: str) (version | error) = {
 	// TODO: Incorporate defines into the hash
 	let sha = sha256::sha256();
@@ -263,7 +263,7 @@ fn scan_directory(
 	};
 };
 
-// Looks up a module by its identifier from HAREPATH, and returns a [version]
+// Looks up a module by its identifier from HAREPATH, and returns a [[version]]
 // which includes all eligible build inputs.
 export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 	let ipath = identpath(name);
@@ -329,7 +329,7 @@ fn have_ident(sl: *[]ast::ident, id: ast::ident) bool = {
 };
 
 // Parses a set of build tags, returning void if the string is an invalid tag
-// set. The caller must free the return value with [tags_free].
+// set. The caller must free the return value with [[tags_free]].
 export fn parsetags(in: str) ([]tag | void) = {
 	let tags: []tag = [];
 	// defer! tags_free(tags);

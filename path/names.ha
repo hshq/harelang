@@ -5,7 +5,7 @@ use strings;
 // Returns the directory name for a given path. For a path to a file name, this
 // returns the directory in which that file resides. For a path to a directory,
 // this returns the path to its parent directory. The return value is borrowed
-// from the input, use [dup] to extend its lifetime.
+// from the input, use [[dup]] to extend its lifetime.
 export fn dirname(path: str) str = {
 	let b = strings::toutf8(path);
 	let i = match (bytes::rindex(b, PATHSEP)) {
@@ -28,7 +28,7 @@ export fn dirname(path: str) str = {
 
 // Returns the final component of a given path. For a path to a file name, this
 // returns the file name. For a path to a directory, this returns the directory
-// name. The return value is borrowed from the input, use [dup] to extend its
+// name. The return value is borrowed from the input, use [[dup]] to extend its
 // lifetime.
 export fn basename(path: str) str = {
 	let b = strings::toutf8(path);
@@ -48,7 +48,7 @@ export fn basename(path: str) str = {
 };
 
 // Returns the file name and extension for a path. The return value is borrowed
-// from the input, see [strings::dup] to extend its lifetime.
+// from the input, see [[strings::dup]] to extend its lifetime.
 //
 // The extension includes the '.' character.
 //

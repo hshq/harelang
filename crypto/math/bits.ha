@@ -1,5 +1,5 @@
 // Rotates a 32-bit unsigned integer left by k bits. k may be negative to rotate
-// right instead, or see [rotr32].
+// right instead, or see [[rotr32]].
 export fn rotl32(x: u32, k: int) u32 = {
 	const n = 32u32;
 	const s = k: u32 & (n - 1);
@@ -7,7 +7,7 @@ export fn rotl32(x: u32, k: int) u32 = {
 };
 
 // Rotates a 32-bit unsigned integer right by k bits. k may be negative to
-// rotate left instead, or see [rotl32].
+// rotate left instead, or see [[rotl32]].
 export fn rotr32(x: u32, k: int) u32 = rotl32(x, -k);
 
 @test fn lrot32() void = {
@@ -19,7 +19,7 @@ export fn rotr32(x: u32, k: int) u32 = rotl32(x, -k);
 };
 
 // Rotates a 64-bit unsigned integer left by k bits. k may be negative to rotate
-// right instead, or see [rotr64].
+// right instead, or see [[rotr64]].
 export fn rotl64(x: u64, k: int) u64 = {
 	const n = 64u64;
 	const s = k: u64 & (n - 1);
@@ -27,7 +27,7 @@ export fn rotl64(x: u64, k: int) u64 = {
 };
 
 // Rotates a 64-bit unsigned integer right by k bits. k may be negative to rotate
-// left instead, or see [rotl64].
+// left instead, or see [[rotl64]].
 export fn rotr64(x: u64, k: int) u64 = rotl64(x, -k);
 
 @test fn lrot64() void = {

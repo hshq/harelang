@@ -11,7 +11,7 @@ use strings;
 use strio;
 
 // Returns an XML parser which reads from a stream. The caller must call
-// [parser_free] when they are finished with it.
+// [[parser_free]] when they are finished with it.
 //
 // Hare's XML parser only supports UTF-8 encoded input files.
 //
@@ -52,8 +52,8 @@ export fn parser_free(par: *parser) void = {
 	free(par);
 };
 
-// Scans for and returns the next [token]. Tokens are borrowed from the parser
-// and are not valid on subsequent calls to [scan]; use [token_dup] to extend
+// Scans for and returns the next [[token]]. Tokens are borrowed from the parser
+// and are not valid on subsequent calls to [[scan]]; use [[token_dup]] to extend
 // their lifetime.
 export fn scan(par: *parser) (token | void | error) = {
 	switch (par.state) {

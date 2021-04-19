@@ -105,7 +105,7 @@ fn list_from_block(s: size, p: uintptr) nullable *void = {
 	return (p + WASTE: uintptr + WORD: uintptr): *void;
 };
 
-// Frees a pointer previously allocated with [malloc].
+// Frees a pointer previously allocated with [[malloc]].
 export @symbol("rt.free") fn free_(_p: nullable *void) void = {
 	if (_p != null) {
 		let p = _p: *void;

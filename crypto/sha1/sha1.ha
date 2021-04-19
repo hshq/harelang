@@ -23,9 +23,9 @@ type digest = struct {
 	ln: size,
 };
 
-// Creates a [hash::hash] which computes a SHA-1 hash. Note that this alogorithm
+// Creates a [[hash::hash]] which computes a SHA-1 hash. Note that this alogorithm
 // is no longer considered secure. Where possible, applications are encouraged
-// to use [sha256] or [sha512] instead.
+// to use [[sha256]] or [[sha512]] instead.
 export fn sha1() *hash::hash = {
 	let sha = alloc(digest {
 		hash = hash::hash {

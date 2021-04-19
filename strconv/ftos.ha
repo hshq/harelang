@@ -453,7 +453,7 @@ fn encode(buf: []u8, v: decf64) size = {
 };
 
 // Converts a f64 to a string in base 10. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [strings::dup] to
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn f64tos(n: f64) const str = {
 	// The biggest string produced by a f64 number in base 10 would have the

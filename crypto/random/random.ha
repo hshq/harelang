@@ -7,7 +7,7 @@ let _stream: io::stream = io::stream {
 	...
 };
 
-// An [io::stream] which returns cryptographically random data on reads. Be
+// An [[io::stream]] which returns cryptographically random data on reads. Be
 // aware, it may return less than you asked for!
 export let stream: *io::stream = &_stream;
 

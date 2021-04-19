@@ -39,7 +39,7 @@ type state = struct {
 	ln: size,
 };
 
-// Creates a [hash::hash] which computes a SHA-256 hash.
+// Creates a [[hash::hash]] which computes a SHA-256 hash.
 export fn sha256() *hash::hash = {
 	let sha = alloc(state {
 		hash = hash::hash {

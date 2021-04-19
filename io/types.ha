@@ -6,7 +6,7 @@ export type error = (errors::unsupported | errors::opaque)!;
 // Indicates an end-of-file condition.
 export type EOF = void;
 
-// Converts an I/O [error] into a user-friendly string.
+// Converts an I/O [[error]] into a user-friendly string.
 export fn strerror(err: error) str = errors::strerror(err);
 
 // Used to indicate if a stream should be used for reading, or writing, or both.
@@ -40,13 +40,13 @@ export type closer = fn(s: *stream) void;
 
 // The interface for a stream which has first-class support for copying data
 // from another stream. Often this only works if the second stream is of the
-// same underlying stream type. This is optional, [io::copy] still works even
+// same underlying stream type. This is optional, [[io::copy]] still works even
 // with a stream which does not implement this (it falls back to calling read
 // and write in a loop).
 //
 // Returns the number of bytes copied, or an error if one occured. Do not close
 // either stream. If the operation is unsupported for this particular pair of
-// streams, return [errors::unsupported] to have [io::copy] proceed with its
+// streams, return [[errors::unsupported]] to have [[io::copy]] proceed with its
 // fallback implementation.
 export type copier = fn(to: *stream, from: *stream) (size | error);
 

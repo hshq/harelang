@@ -28,7 +28,7 @@ export fn riter(src: str) iterator = {
 // Unicode strings. If you use these runes to construct a new string,
 // reordering, editing, or omitting any of the runes without careful discretion
 // may cause linguistic errors to arise. To avoid this, you may need to use
-// [unicode::graphiter] instead.
+// [[unicode::graphiter]] instead.
 export fn next(iter: *iterator) (rune | void) = {
 	match (iter.push) {
 		r: rune => {
@@ -57,11 +57,11 @@ export fn prev(iter: *iterator) (rune | void) = {
 	};
 };
 
-// Causes the next call to [next] to return the provided rune, effectively
-// un-reading it. The next call using this iterator *must* be [next]; all other
+// Causes the next call to [[next]] to return the provided rune, effectively
+// un-reading it. The next call using this iterator *must* be [[next]]; all other
 // functions will cause the program to abort until the pushed rune is consumed.
 // This does not modify the underlying string, and as such, subsequent calls to
-// functions like [prev] or [iter_str] will behave as if push were never called.
+// functions like [[prev]] or [[iter_str]] will behave as if push were never called.
 export fn push(iter: *iterator, r: rune) void = {
 	assert(iter.push is void);
 	iter.push = r;

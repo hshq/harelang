@@ -5,7 +5,7 @@ use strings;
 use time;
 
 // An entry of a particular type was sought, but is something else in practice.
-// For example, opening a file with [iter].
+// For example, opening a file with [[iter]].
 export type wrongtype = void!;
 
 // All possible fs error types.
@@ -113,8 +113,8 @@ export type filestat = struct {
 };
 
 // An entry in a directory. This may be borrowed from the filesystem's internal
-// state; if you want to keep this around beyond one call to [next], use
-// [dirent_dup].
+// state; if you want to keep this around beyond one call to [[next]], use
+// [[dirent_dup]].
 export type dirent = struct {
 	// The name of this entry. Not fully qualified: for example,
 	// "foo/bar/baz.txt" would store "baz.txt" here.
@@ -124,14 +124,14 @@ export type dirent = struct {
 	ftype: mode,
 };
 
-// Duplicates a [dirent] object. Call [dirent_free] to get rid of it later.
+// Duplicates a [[dirent]] object. Call [[dirent_free]] to get rid of it later.
 export fn dirent_dup(e: *dirent) dirent = {
 	let new = *e;
 	new.name = strings::dup(e.name);
 	return new;
 };
 
-// Frees a [dirent] object which was duplicated with [dirent_dup].
+// Frees a [[dirent]] object which was duplicated with [[dirent_dup]].
 export fn dirent_free(e: *dirent) void = free(e.name);
 
 // Flags to use for opening a file. Not all operating systems support all flags;

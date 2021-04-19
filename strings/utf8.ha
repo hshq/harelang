@@ -14,7 +14,7 @@ export fn fromutf8_unsafe(in: []u8) str = {
 
 // Converts a byte slice into a string. Aborts if the bytes contain invalid
 // UTF-8. To handle such an error without aborting, see
-// [encoding::utf8::decode] instead.
+// [[encoding::utf8::decode]] instead.
 export fn fromutf8(in: []u8) str = {
 	let s = fromutf8_unsafe(in);
 	assert(utf8::valid(s), "attempted to load invalid UTF-8 string");

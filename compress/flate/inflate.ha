@@ -97,7 +97,7 @@ export fn inflate(s: *io::stream) *io::stream = alloc(decompressor {
 	bufstart = [],
 }): *io::stream;
 
-// Read [want] bits from the decompressor
+// Read [[want]] bits from the decompressor
 fn bits(d: *decompressor, want: u32) (u32 | io::error) = {
 	assert(want <= 32);
 	let val = d.bitbuf;

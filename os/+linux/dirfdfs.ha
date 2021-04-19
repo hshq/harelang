@@ -43,11 +43,11 @@ type os_filesystem = struct {
 	resolve: resolve_flags,
 };
 
-// Opens a file descriptor as an [fs::fs]. This file descriptor must be a
+// Opens a file descriptor as an [[fs::fs]]. This file descriptor must be a
 // directory file. The file will be closed when the fs is closed.
 //
-// If no other flags are provided to [fs::open] and [fs::create] when used with
-// a dirfdfs, [fs::flags::NOCTTY] and [fs::flags::CLOEXEC] are used when opening
+// If no other flags are provided to [[fs::open]] and [[fs::create]] when used with
+// a dirfdfs, [[fs::flags::NOCTTY]] and [[fs::flags::CLOEXEC]] are used when opening
 // the file. If you pass your own flags, it is recommended that you add these
 // unless you know that you do not want them.
 export fn dirfdopen(fd: int, resolve: resolve_flags...) *fs::fs = {
@@ -81,7 +81,7 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 	return &filesystem.fs;
 };
 
-// Clones a dirfd filesystem, optionally adding additional [resolve_flags]
+// Clones a dirfd filesystem, optionally adding additional [[resolve_flags]]
 // constraints.
 export fn dirfs_clone(fs: *fs::fs, resolve: resolve_flags...) *fs::fs = {
 	assert(fs.open == &fs_open);

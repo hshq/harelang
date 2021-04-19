@@ -58,16 +58,16 @@ export type help = (cmd_help | flag_help | parameter_help);
 
 // Parses command line arguments and returns a tuple of the options specified,
 // and the remaining arguments. If an error occurs, details are printed to
-// [os::stderr] and [os::exit] is called with a nonzero exit status. The
-// argument list must include the command name as the first item; [os::args]
+// [[os::stderr]] and [[os::exit]] is called with a nonzero exit status. The
+// argument list must include the command name as the first item; [[os::args]]
 // fulfills this criteria.
 //
-// The caller provides [help] arguments to specify which command line flags and
+// The caller provides [[help]] arguments to specify which command line flags and
 // parameters are supported, and to provide some brief help text which describes
-// their use. Provide [flag_help] to add a flag which does not take a parameter,
-// and [parameter_help] to add a flag with a required parameter. The first
-// [cmd_help] is used as a short, one-line summary of the command's purpose, and
-// any later [cmd_help] arguments are used to provide the name of any arguments
+// their use. Provide [[flag_help]] to add a flag which does not take a parameter,
+// and [[parameter_help]] to add a flag with a required parameter. The first
+// [[cmd_help]] is used as a short, one-line summary of the command's purpose, and
+// any later [[cmd_help]] arguments are used to provide the name of any arguments
 // which follow the options list.
 //
 // By convention, the caller should sort the list of options, first providing
@@ -105,7 +105,7 @@ export type help = (cmd_help | flag_help | parameter_help);
 //
 // If "-h" is not among the options defined by the caller, the "-h" option will
 // will cause a summary of the command usage to be printed to stderr, and
-// [os::exit] will be called with a successful exit status.
+// [[os::exit]] will be called with a successful exit status.
 export fn parse(args: []str, help: help...) command = {
 	let opts: []option = [];
 	let i = 1z;
@@ -172,7 +172,7 @@ export fn parse(args: []str, help: help...) command = {
 	};
 };
 
-// Frees resources associated with the return value of [parse].
+// Frees resources associated with the return value of [[parse]].
 export fn finish(cmd: *command) void = {
 	if (cmd == null) return;
 	free(cmd.opts);

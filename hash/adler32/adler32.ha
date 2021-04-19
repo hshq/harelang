@@ -9,7 +9,7 @@ type state = struct {
 	b: u32,
 };
 
-// Creates a [hash::hash] which computes the Adler-32 checksum algorithm.
+// Creates a [[hash::hash]] which computes the Adler-32 checksum algorithm.
 export fn adler32() *hash::hash = alloc(state {
 	hash = hash::hash {
 		stream = io::stream {

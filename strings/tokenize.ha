@@ -82,7 +82,7 @@ export fn remaining_tokens(s: *tokenizer) str = {
 
 // Splits a string into tokens delimited by 'delim', returning a slice of up to
 // N tokens. The caller must free this slice. The strings within the slice are
-// borrowed from 'in', and needn't be freed - but should be [strings::dup_all]'d
+// borrowed from 'in', and needn't be freed - but should be [[strings::dup_all]]'d
 // if they should outlive 'in'.
 export fn splitN(in: str, delim: str, n: size) []str = {
 	let toks: []str = alloc([]);
@@ -99,7 +99,7 @@ export fn splitN(in: str, delim: str, n: size) []str = {
 
 // Splits a string into tokens delimited by 'delim'.  The caller must free the
 // returned slice. The strings within the slice are borrowed from 'in', and
-// needn't be freed - but must be [strings::dup_all]'d if they should outlive
+// needn't be freed - but must be [[strings::dup_all]]'d if they should outlive
 // 'in'.
 export fn split(in: str, delim: str) []str = splitN(in, delim, types::SIZE_MAX);
 

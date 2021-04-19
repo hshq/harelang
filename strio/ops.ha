@@ -2,7 +2,7 @@ use encoding::utf8;
 use io;
 use strings;
 
-// Appends zero or more strings to an [io::stream]. The stream needn't be a
+// Appends zero or more strings to an [[io::stream]]. The stream needn't be a
 // strio stream, but it's often efficient if it is. Returns the number of bytes
 // written, or an error.
 export fn concat(st: *io::stream, strs: str...) (size | io::error) = {

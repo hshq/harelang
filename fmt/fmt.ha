@@ -49,20 +49,20 @@ use types;
 export type formattable =
 	(...types::numeric | uintptr | str | rune | bool | nullable *void);
 
-// Formats text for printing and writes it to [os::stdout].
+// Formats text for printing and writes it to [[os::stdout]].
 export fn printf(fmt: str, args: formattable...) (io::error | size) =
 	fprintf(os::stdout, fmt, args...);
 
-// Formats text for printing and writes it to [os::stdout], followed by a line
+// Formats text for printing and writes it to [[os::stdout]], followed by a line
 // feed.
 export fn printfln(fmt: str, args: formattable...) (io::error | size) =
 	fprintfln(os::stdout, fmt, args...);
 
-// Formats text for printing and writes it to [os::stderr].
+// Formats text for printing and writes it to [[os::stderr]].
 export fn errorf(fmt: str, args: formattable...) (io::error | size) =
 	fprintf(os::stderr, fmt, args...);
 
-// Formats text for printing and writes it to [os::stderr], followed by a line
+// Formats text for printing and writes it to [[os::stderr]], followed by a line
 // feed.
 export fn errorfln(fmt: str, args: formattable...) (io::error | size) =
 	fprintfln(os::stderr, fmt, args...);
@@ -84,14 +84,14 @@ export fn bsprintf(buf: []u8, fmt: str, args: formattable...) str = {
 	return strings::fromutf8_unsafe(buf[..l]);
 };
 
-// Formats text for printing and writes it to [os::stderr], followed by a line
+// Formats text for printing and writes it to [[os::stderr]], followed by a line
 // feed, then exits the program with an error status.
 export @noreturn fn fatal(fmt: str, args: formattable...) void = {
 	fprintfln(os::stderr, fmt, args...);
 	os::exit(1);
 };
 
-// Formats text for printing and writes it to an [io::stream], followed by a
+// Formats text for printing and writes it to an [[io::stream]], followed by a
 // line feed.
 export fn fprintfln(
 	s: *io::stream,
@@ -102,22 +102,22 @@ export fn fprintfln(
 };
 
 // Formats values for printing using the default format modifiers and writes
-// them to [os::stdout] separated by spaces 
+// them to [[os::stdout]] separated by spaces
 export fn print(args: formattable...) (io::error | size) =
 	fprint(os::stdout, args...);
 
 // Formats values for printing using the default format modifiers and writes
-// them to [os::stdout] separated by spaces and followed by a line feed
+// them to [[os::stdout]] separated by spaces and followed by a line feed
 export fn println(args: formattable...) (io::error | size) =
 	fprintln(os::stdout, args...);
 
 // Formats values for printing using the default format modifiers and writes
-// them to [os::stderr] separated by spaces 
+// them to [[os::stderr]] separated by spaces
 export fn error(args: formattable...) (io::error | size) =
 	fprint(os::stderr, args...);
 
 // Formats values for printing using the default format modifiers and writes
-// them to [os::stderr] separated by spaces and followed by a line feed
+// them to [[os::stderr]] separated by spaces and followed by a line feed
 export fn errorln(args: formattable...) (io::error | size) =
 	fprintln(os::stderr, args...);
 
@@ -141,13 +141,13 @@ export fn bsprint(buf: []u8, args: formattable...) str = {
 };
 
 // Formats values for printing using the default format modifiers and writes
-// them to an [io::stream] separated by spaces and followed by a line feed
+// them to an [[io::stream]] separated by spaces and followed by a line feed
 export fn fprintln(s: *io::stream, args: formattable...) (io::error | size) = {
 	return fprint(s, args...)? + io::write(s, ['\n': u32: u8])?;
 };
 
 // Formats values for printing using the default format modifiers and writes
-// them to an [io::stream] separated by spaces
+// them to an [[io::stream]] separated by spaces
 export fn fprint(s: *io::stream, args: formattable...) (io::error | size) = {
 	let mod = modifiers { base = strconv::base::DEC, ... };
 	let n = 0z;
@@ -188,7 +188,7 @@ type modflags = enum uint {
 	PLUS  = 1 << 3,
 };
 
-// Formats text for printing and writes it to an [io::stream].
+// Formats text for printing and writes it to an [[io::stream]].
 export fn fprintf(
 	s: *io::stream,
 	fmt: str,
