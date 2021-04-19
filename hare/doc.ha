@@ -1,8 +1,0 @@
-// The hare namespace provides various modules which can be used to work with
-// Hare code itself (how meta). The modules available are:
-//
-// - [hare::ast]: data structures representing Hare's Abstract Syntax Tree
-// - [hare::lex]: a lexer for Hare programs
-// - [hare::module]: module resolution and Hare cache management
-// - [hare::parse]: a parser for Hare programs
-// - [hare::unparse]: a Hare "unparser", converts [hare::ast] into source code

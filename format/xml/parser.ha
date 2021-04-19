@@ -1,17 +1,7 @@
-// encoding::xml provides a simple parser of the useful subset of the XML 1.0
-// (Fifth Edition) specification as defined by the W3C. Features omitted are:
-//
-// - Support for user-defined entities
-// - Support for UTF-16 inputs or a UTF-8 BOM
-// - Any considerations for the "Namespaces in XML 1.0" specification
-//
-// Attempting to parse an input file which does not conform to the supported
-// subset of XML will return a syntax error. The purpose of this module is to
-// support most XML files found in the wild, without supporting the lesser-used
-// features that lead to problems like "billion laughs" vulnerabilities. If a
-// fully conformant XML parser is required for your application, you will need
-// to use a third-party XML implementation. Such an implementation should be
-// able to shadow the standard library version and present a compatible API.
+// Are you an intrepid programmer seeking to fork this module to create a more
+// sophisticated XML parser supporting a broader set of features? Good news: all
+// of the features you need to implement are annotated throughout with
+// "XXX: Deliberate ommission" comments.
 use ascii;
 use bufio;
 use encoding::utf8;
@@ -19,11 +9,6 @@ use io;
 use strconv;
 use strings;
 use strio;
-
-// Are you an intrepid programmer seeking to fork this module to create a more
-// sophisticated XML parser supporting a broader set of features? Good news: all
-// of the features you need to implement are annotated throughout with
-// "XXX: Deliberate ommission" comments.
 
 // Returns an XML parser which reads from a stream. The caller must call
 // [parser_free] when they are finished with it.

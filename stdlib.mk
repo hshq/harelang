@@ -397,7 +397,6 @@ $(HARECACHE)/endian/endian.ssa: $(stdlib_endian_srcs) $(stdlib_rt)
 # errors
 stdlib_errors_srcs= \
 	$(STDLIB)/errors/common.ha \
-	$(STDLIB)/errors/docs.ha \
 	$(STDLIB)/errors/opaque.ha \
 	$(STDLIB)/errors/string.ha \
 	$(STDLIB)/errors/rt.ha
@@ -432,8 +431,7 @@ $(HARECACHE)/format/elf/format_elf.ssa: $(stdlib_format_elf_srcs) $(stdlib_rt)
 
 # format::html
 stdlib_format_html_srcs= \
-	$(STDLIB)/format/html/escape.ha \
-	$(STDLIB)/format/html/docs.ha
+	$(STDLIB)/format/html/escape.ha
 
 $(HARECACHE)/format/html/format_html.ssa: $(stdlib_format_html_srcs) $(stdlib_rt) $(stdlib_encoding_utf8) $(stdlib_io) $(stdlib_strings) $(stdlib_strio)
 	@printf 'HAREC \t$@\n'
@@ -1270,7 +1268,6 @@ $(TESTCACHE)/endian/endian.ssa: $(testlib_endian_srcs) $(testlib_rt)
 # errors
 testlib_errors_srcs= \
 	$(STDLIB)/errors/common.ha \
-	$(STDLIB)/errors/docs.ha \
 	$(STDLIB)/errors/opaque.ha \
 	$(STDLIB)/errors/string.ha \
 	$(STDLIB)/errors/rt.ha
@@ -1305,8 +1302,7 @@ $(TESTCACHE)/format/elf/format_elf.ssa: $(testlib_format_elf_srcs) $(testlib_rt)
 
 # format::html
 testlib_format_html_srcs= \
-	$(STDLIB)/format/html/escape.ha \
-	$(STDLIB)/format/html/docs.ha
+	$(STDLIB)/format/html/escape.ha
 
 $(TESTCACHE)/format/html/format_html.ssa: $(testlib_format_html_srcs) $(testlib_rt) $(testlib_encoding_utf8) $(testlib_io) $(testlib_strings) $(testlib_strio)
 	@printf 'HAREC \t$@\n'

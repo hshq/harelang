@@ -246,7 +246,6 @@ endian() {
 errors() {
 	gen_srcs errors \
 		common.ha \
-		docs.ha \
 		opaque.ha \
 		string.ha \
 		rt.ha
@@ -269,8 +268,7 @@ format_elf() {
 
 format_html() {
 	gen_srcs format::html \
-		escape.ha \
-		docs.ha
+		escape.ha
 	gen_ssa format::html encoding::utf8 io strings strio
 }
 
