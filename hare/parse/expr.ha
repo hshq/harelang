@@ -274,10 +274,10 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 		void => return postfix(lexer, void),
 	};
 	return switch (tok.0) {
-		ltok::ALLOC => alloc_expr(lexer)?,
-		ltok::APPEND => append_expr(lexer)?,
-		ltok::DELETE => delete_expr(lexer)?,
-		ltok::FREE => free_expr(lexer)?,
+		ltok::ALLOC => alloc_expr(lexer),
+		ltok::APPEND => append_expr(lexer),
+		ltok::DELETE => delete_expr(lexer),
+		ltok::FREE => free_expr(lexer),
 		ltok::ABORT, ltok::ASSERT => assert_expr(lexer, false),
 		ltok::STATIC => {
 			want(lexer, ltok::STATIC)?;
@@ -295,7 +295,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 				* => abort(),
 			};
 		},
-		ltok::SIZE, ltok::LEN, ltok::OFFSET => measurement(lexer)?,
+		ltok::SIZE, ltok::LEN, ltok::OFFSET => measurement(lexer),
 		ltok::DEFER => {
 			want(lexer, ltok::DEFER)?;
 			alloc(expression(lexer)?): ast::defer_expr;
