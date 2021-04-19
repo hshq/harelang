@@ -200,15 +200,9 @@ fn type_html(
 	};
 
 	// TODO: More detailed formatter which can find aliases nested deeper in
-	// other types
+	// other types and highlight more keywords, like const
 	let z = 0z;
 	match (_type._type) {
-		ast::alias_type => {
-			// TODO: Make this link real
-			z += fmt::fprint(out, "<a href='#'>")?;
-			z += html::escape(out, strio::string(buf))?;
-			z += fmt::fprint(out, "</a>")?;
-		},
 		ast::builtin_type => {
 			z += fmt::fprint(out, "<span class='type'>")?;
 			z += html::escape(out, strio::string(buf))?;
