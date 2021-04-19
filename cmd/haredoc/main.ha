@@ -18,9 +18,11 @@ type format = enum {
 export fn main() void = {
 	// TODO: Use format::TTY by default if stdout is a tty
 	let fmt = format::HARE;
+	let template = true;
 	const cmd = getopt::parse(os::args,
 		"reads and formats Hare documentation",
 		('F', "format", "specify output format (hare, tty, html, or gemtext)"),
+		('t', "disable HTML template (requries postprocessing)"),
 		"[identifiers...]",
 	);
 	defer getopt::finish(&cmd);
@@ -34,6 +36,7 @@ export fn main() void = {
 				else if (opt.1 == "html") format::HTML
 				else if (opt.1 == "gemtext") format::GEMTEXT
 				else fmt::fatal("Invalid format {}", opt.1),
+			't' => template = false,
 			* => abort(),
 		};
 	};
@@ -54,7 +57,8 @@ export fn main() void = {
 	};
 
 	for (let i = 0z; i < len(unit); i += 1) {
-		match (emit(unit[i].decls, fmt)) {
+		let summary = sort_decls(unit[i].decls);
+		match (emit(summary, fmt, template)) {
 			void => void,
 			err: error => fmt::fatal("Error: {}", strerror(err)),
 		};
@@ -72,9 +76,13 @@ fn scan(path: str) (ast::subunit | error) = {
 	return parse::subunit(&lexer)?;
 };
 
-fn emit(decls: []ast::decl, fmt: format) (void | error) = switch (fmt) {
-	format::HARE => emit_hare(decls),
+fn emit(
+	summary: summary,
+	fmt: format,
+	template: bool,
+) (void | error) = switch (fmt) {
+	format::HARE => emit_hare(summary),
 	format::TTY => abort(), // TODO
-	format::HTML => abort(), // TODO
+	format::HTML => emit_html(summary, template)?,
 	format::GEMTEXT => abort(), // TODO
 };

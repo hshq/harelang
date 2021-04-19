@@ -5,7 +5,7 @@ use strio;
 
 // Prints a string to an output stream, escaping any of HTML's reserved
 // characters.
-export fn escape(in: str, out: *io::stream) (size | io::error) = {
+export fn escape(out: *io::stream, in: str) (size | io::error) = {
 	let z = 0z;
 	let iter = strings::iter(in);
 	for (true) match (strings::next(&iter)) {
@@ -25,16 +25,16 @@ export fn escape(in: str, out: *io::stream) (size | io::error) = {
 @test fn escape() void = {
 	let sink = strio::dynamic();
 	defer io::close(sink);
-	escape("hello world!", sink);
+	escape(sink, "hello world!");
 	assert(strio::string(sink) == "hello world!");
 
 	let sink = strio::dynamic();
 	defer io::close(sink);
-	escape("\"hello world!\"", sink);
+	escape(sink, "\"hello world!\"");
 	assert(strio::string(sink) == "&quot;hello world!&quot;");
 
 	let sink = strio::dynamic();
 	defer io::close(sink);
-	escape("<hello & 'world'!>", sink);
+	escape(sink, "<hello & 'world'!>");
 	assert(strio::string(sink) == "&lt;hello &amp; &apos;world&apos;!&gt;");
 };

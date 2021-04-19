@@ -1,0 +1,338 @@
+use fmt;
+use format::html;
+use hare::ast;
+use hare::lex;
+use hare::unparse;
+use io;
+use os;
+use strings;
+use strio;
+
+// Formats output as HTML
+fn emit_html(decls: summary, template: bool) (void | error) = {
+	if (template) head()?;
+
+	// TODO: Module name
+	fmt::println("<h2>os</h2>")?;
+	fmt::println("<p class='readme'>TODO: Insert module README here")?;
+	if (len(decls.types) != 0) {
+		fmt::println("<h4>Types</h4>")?;
+		fmt::println("<ol>")?;
+		for (let i = 0z; i < len(decls.types); i += 1) {
+			tocentry(decls.types[i])?;
+		};
+		fmt::println("</ol>")?;
+	};
+
+	if (len(decls.globals) != 0) {
+		fmt::println("<h4>Globals</h4>")?;
+		fmt::println("<ol>")?;
+		for (let i = 0z; i < len(decls.globals); i += 1) {
+			tocentry(decls.globals[i])?;
+		};
+		fmt::println("</ol>")?;
+	};
+
+	if (len(decls.funcs) != 0) {
+		fmt::println("<h4>Functions</h4>")?;
+		fmt::println("<ol>")?;
+		for (let i = 0z; i < len(decls.funcs); i += 1) {
+			tocentry(decls.funcs[i])?;
+		};
+		fmt::println("</ol>")?;
+	};
+	fmt::println("</ol>")?;
+
+	for (let i = 0z; i < len(decls.types); i += 1) {
+		details(decls.types[i])?;
+	};
+	for (let i = 0z; i < len(decls.globals); i += 1) {
+		details(decls.globals[i])?;
+	};
+	for (let i = 0z; i < len(decls.funcs); i += 1) {
+		details(decls.funcs[i])?;
+	};
+};
+
+fn tocentry(decl: ast::decl) (void | error) = {
+	fmt::println("<li>");
+	fmt::printf("{} ",
+		match (decl.decl) {
+			ast::decl_func => "fn",
+			[]ast::decl_type => "type",
+			[]ast::decl_global => "let",
+		});
+	fmt::printf("<a href='#");
+	unparse::ident(os::stdout, decl_ident(decl))?;
+	fmt::printf("'>");
+	unparse::ident(os::stdout, decl_ident(decl))?;
+	fmt::print("</a>");
+
+	match (decl.decl) {
+		g: []ast::decl_global => {
+			let g = g[0];
+			fmt::fprint(os::stdout, ": ")?;
+			type_html(os::stdout, 0, g._type, true)?;
+		},
+		t: []ast::decl_type => {
+			let t = t[0];
+			fmt::fprint(os::stdout, " = ")?;
+			type_html(os::stdout, 0, t._type, true)?;
+		},
+		f: ast::decl_func => prototype_html(os::stdout, 0,
+			f.prototype._type as ast::func_type,
+			true)?,
+	};
+	fmt::println(";");
+
+	fmt::println("</li>");
+	return;
+};
+
+fn details(decl: ast::decl) (void | error) = {
+	fmt::println("<section class='member'>");
+	fmt::print("<h3 id='")?;
+	unparse::ident(os::stdout, decl_ident(decl))?;
+	fmt::print("'>")?;
+	unparse::ident(os::stdout, decl_ident(decl))?;
+	fmt::println("</h3>")?;
+
+	fmt::println("<pre class='decl'>")?;
+	unparse_html(os::stdout, decl)?;
+	fmt::println("</pre>")?;
+
+	// TODO: Apply Hare formatting
+	fmt::println("<p class='comment'>")?;
+	const iter = strings::tokenize(decl.docs, "\n");
+	for (true) match (strings::next_token(&iter)) {
+		s: str => if (len(s) != 0) {
+			html::escape(os::stdout, s)?;
+		},
+		void => break,
+	};
+
+	fmt::println("</section>")?;
+	return;
+};
+
+// Forked from [[hare::unparse]]
+fn unparse_html(out: *io::stream, d: ast::decl) (size | io::error) = {
+	// TODO: Syntax highlighting
+	let n = 0z;
+	match (d.decl) {
+		g: []ast::decl_global => {
+			n += fmt::fprintf(out, "<span class='keyword'>{}</span>",
+				if (g[0].is_const) "def " else "let ")?;
+			for (let i = 0z; i < len(g); i += 1) {
+				n += unparse::ident(out, g[i].ident)?;
+				n += fmt::fprint(out, ": ")?;
+				n += type_html(out, 0, g[i]._type, false)?;
+				if (i + 1 < len(g)) {
+					n += fmt::fprint(out, ", ")?;
+				};
+			};
+		},
+		t: []ast::decl_type => {
+			n += fmt::fprint(out, "<span class='keyword'>type</span> ")?;
+			for (let i = 0z; i < len(t); i += 1) {
+				n += unparse::ident(out, t[i].ident)?;
+				n += fmt::fprint(out, " = ")?;
+				n += type_html(out, 0, t[i]._type, false)?;
+				if (i + 1 < len(t)) {
+					n += fmt::fprint(out, ", ")?;
+				};
+			};
+		},
+		f: ast::decl_func => {
+			n += fmt::fprint(out, switch (f.attrs) {
+				ast::fndecl_attrs::NONE => "",
+				ast::fndecl_attrs::FINI => "@fini ",
+				ast::fndecl_attrs::INIT => "@init ",
+				ast::fndecl_attrs::TEST => "@test ",
+			})?;
+			let p = f.prototype._type as ast::func_type;
+			if (p.attrs & ast::func_attrs::NORETURN != 0) {
+				n += fmt::fprint(out, "@noreturn ")?;
+			};
+			n += fmt::fprint(out, "<span class='keyword'>fn</span> ")?;
+			n += unparse::ident(out, f.ident)?;
+			n += prototype_html(out, 0,
+				f.prototype._type as ast::func_type,
+				false)?;
+		},
+	};
+	n += fmt::fprint(out, ";")?;
+	return n;
+};
+
+fn type_html(
+	out: *io::stream,
+	indent: size,
+	_type: ast::_type,
+	brief: bool,
+) (size | io::error) = {
+	let buf = strio::dynamic();
+	defer io::close(buf);
+	unparse::_type(buf, indent, _type)?;
+	if (brief) {
+		return html::escape(out, strio::string(buf))?;
+	};
+
+	// TODO: More detailed formatter which can find aliases nested deeper in
+	// other types
+	let z = 0z;
+	match (_type._type) {
+		ast::alias_type => {
+			// TODO: Make this link real
+			z += fmt::fprint(out, "<a href='#'>")?;
+			z += html::escape(out, strio::string(buf))?;
+			z += fmt::fprint(out, "</a>")?;
+		},
+		ast::builtin_type => {
+			z += fmt::fprint(out, "<span class='type'>")?;
+			z += html::escape(out, strio::string(buf))?;
+			z += fmt::fprintf(out, "</span>")?;
+		},
+		* => z += html::escape(out, strio::string(buf))?,
+	};
+	z;
+};
+
+fn prototype_html(
+	out: *io::stream,
+	indent: size,
+	t: ast::func_type,
+	brief: bool,
+) (size | io::error) = {
+	let n = 0z;
+	n += fmt::fprint(out, "(")?;
+	for (let i = 0z; i < len(t.params); i += 1) {
+		let param = t.params[i];
+		if (!brief) {
+			n += fmt::fprintf(out, "{}: ",
+				if (len(param.name) == 0) "_" else param.name)?;
+		};
+		n += type_html(out, indent, *param._type, brief)?;
+		if (i + 1 == len(t.params)
+				&& t.variadism == ast::variadism::HARE) {
+			n += fmt::fprintf(out, "...")?;
+		};
+		if (i + 1 < len(t.params)) {
+			n += fmt::fprint(out, ", ")?;
+		};
+	};
+	if (t.variadism == ast::variadism::C) {
+		n += fmt::fprint(out, ", ...")?;
+	};
+	n += fmt::fprint(out, ") ")?;
+	n += type_html(out, indent, *t.result, brief)?;
+	return n;
+};
+
+fn head() (void | error) = {
+	// TODO: Get title from module name
+	// TODO: Move me to +embed?
+	fmt::println("<!doctype html>
+<html lang='en'>
+<meta charset='utf-8' />
+<title>Hare documentation</title>
+<style>
+body {
+	font-family: sans-serif;
+	line-height: 1.3;
+	margin: 0 auto;
+}
+
+nav:not(#TableOfContents) {
+	max-width: 1000px;
+	margin: 1rem auto 0;
+	display: grid;
+	grid-template-rows: auto auto 1fr;
+	grid-template-columns: auto 1fr;
+	grid-template-areas:
+		'logo header'
+		'logo nav'
+		'logo none';
+}
+
+nav:not(#TableOfContents) img {
+	grid-area: logo;
+}
+
+nav:not(#TableOfContents) h1 {
+	grid-area: header;
+	margin: 0;
+	padding: 0;
+}
+
+nav:not(#TableOfContents) ul {
+	grid-area: nav;
+	margin: 0.5rem 0 0 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+
+#TableOfContents {
+	font-size: 1.1rem;
+}
+
+main {
+	padding: 0 128px;
+	max-width: 800px;
+	margin: 0 auto;
+
+}
+
+pre {
+	background-color: #eee;
+	padding: 0.25rem 1rem;
+	margin: 0 -1rem 1rem;
+}
+
+pre .keyword {
+    color: #008;
+}
+
+pre .type {
+	color: #44F;
+}
+
+ol {
+	padding-left: 0;
+	list-style: none;
+}
+
+ol li {
+	padding-left: 0;
+}
+
+@media(max-width: 1000px) {
+	main {
+		padding: 0;
+	}
+}
+</style>
+<nav>
+	<img
+		src='https://harelang.org/mascot.jpg'
+		alt='An inked drawing of the Hare mascot, a fuzzy rabbit'
+		width='128' height='128' />
+	<h1>The Hare programming language</h1>
+	<ul>
+		<li><a href='https://harelang.org/'>Home</a></li>
+		<li><a href='https://harelang.org/documentation'>Documentation</a></li>
+		<li><a href='https://harelang.org/tutorial'>Tutorials</a></li>
+		<li><a href='https://harelang.org/blog'>Blog</a></li>
+		<li><a href='https://harelang.org/community'>Community</a></li>
+		<li><a href='https://sr.ht/~sircmpwn/hare'>Source code</a></li>
+		<li><a href='https://harelang.org/specification'>Specification</a></li>
+	</ul>
+</nav>
+<main>
+")?;
+	return;
+};
