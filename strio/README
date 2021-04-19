@@ -1,0 +1,5 @@
+strio provides string-related I/O operations, specifically to make efficient use
+of memory while building strings incrementally. The main entry points to strio
+are [[dynamic]] and [[fixed]]. Each of the utility functions (e.g.
+[[appendrune]]) work correctly with any [[io::stream]], but for efficiency
+reasons it is recommended that they are either a strio or [[bufio]] stream.

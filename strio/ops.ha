@@ -3,8 +3,8 @@ use io;
 use strings;
 
 // Appends zero or more strings to an [[io::stream]]. The stream needn't be a
-// strio stream, but it's often efficient if it is. Returns the number of bytes
-// written, or an error.
+// strio stream, but it's generally more efficient if it is. Returns the number
+// of bytes written, or an error.
 export fn concat(st: *io::stream, strs: str...) (size | io::error) = {
 	let n = 0z;
 	for (let i = 0z; i < len(strs); i += 1) {
@@ -28,8 +28,8 @@ export fn concat(st: *io::stream, strs: str...) (size | io::error) = {
 };
 
 // Joins several strings together by a delimiter and writes them to a stream.
-// The stream needn't be a strio stream, but it's often more efficient if it is.
-// Returns the number of bytes written, or an error.
+// The stream needn't be a strio stream, but it's generally more efficient if it
+// is.  Returns the number of bytes written, or an error.
 export fn join(st: *io::stream, delim: str, strs: str...) (size | io::error) = {
 	let n = 0z;
 	let delim = strings::toutf8(delim);
@@ -67,7 +67,7 @@ export fn join(st: *io::stream, delim: str, strs: str...) (size | io::error) = {
 };
 
 // Joins several strings together by a delimiter and writes them to a stream, in
-// reverse order. The stream needn't be a strio stream, but it's often more
+// reverse order. The stream needn't be a strio stream, but it's generally more
 // efficient if it is. Returns the number of bytes written, or an error.
 export fn rjoin(st: *io::stream, delim: str, strs: str...) (size | io::error) = {
 	let n = 0z;
