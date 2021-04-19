@@ -267,6 +267,13 @@ format_elf() {
 	gen_ssa format::elf
 }
 
+format_html() {
+	gen_srcs format::html \
+		escape.ha \
+		docs.ha
+	gen_ssa format::html encoding::utf8 io strings strio
+}
+
 gensrcs_format_xml() {
 	gen_srcs format::xml \
 		types.ha \
@@ -674,6 +681,7 @@ endian
 errors
 fmt
 format_elf
+format_html
 format_xml
 fs
 fs_mem
