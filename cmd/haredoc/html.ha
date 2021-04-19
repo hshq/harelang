@@ -97,7 +97,12 @@ fn details(decl: ast::decl) (void | error) = {
 	fmt::print("'>")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	// TODO: Make this URL real
-	fmt::print("<span class='heading-extra'><a href='#'>[source]</a></span>")?;
+	fmt::print("<span class='heading-extra'>
+		<a href='#'>[source]</a>
+		<a href='#")?;
+	unparse::ident(os::stdout, decl_ident(decl))?;
+	fmt::print("'>[link]</a>
+	</span>")?;
 	fmt::println("</h3>")?;
 
 	fmt::println("<pre class='decl'>")?;
