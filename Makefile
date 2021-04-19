@@ -35,7 +35,8 @@ harec_srcs=\
 haredoc_srcs=\
 	./cmd/haredoc/main.ha \
 	./cmd/haredoc/errors.ha \
-	./cmd/haredoc/unparse.ha
+	./cmd/haredoc/unparse.ha \
+	./cmd/haredoc/hare.ha
 
 $(HARECACHE)/hare.ssa: $(hare_srcs) $(hare_stdlib_deps)
 	@printf 'HAREC\t$@\n'
