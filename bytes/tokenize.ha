@@ -94,8 +94,7 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 		_: void => abort(),
 	};
 
-	//assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
-	//assert(false);
+	assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([], b)),
 		_: void => abort(),
