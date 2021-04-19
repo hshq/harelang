@@ -48,35 +48,35 @@ export fn isdigit(c: rune) bool =
 export fn isxdigit(c: rune) bool =
 	if (!isascii(c)) false else cclass[c: u32]&X > 0;
 
-// True if an ASCII character is a space.
+// True if an ASCII character is a space
 export fn isspace(c: rune) bool =
 	if (!isascii(c)) false else cclass[c: u32]&S > 0;
 
-// True if an ASCII character is punctuation.
+// True if an ASCII character is punctuation
 export fn ispunct(c: rune) bool =
 	if (!isascii(c)) false else cclass[c: u32]&P > 0;
 
-// True if an ASCII character is alphanumeric.
+// True if an ASCII character is alphanumeric
 export fn isalnum(c: rune) bool =
 	if (!isascii(c)) false else cclass[c: u32]&(U|L|N) > 0;
 
-// True if an ASCII character is printable.
+// True if an ASCII character is printable
 export fn isprint(c: rune) bool =
 	if (!isascii(c)) false else cclass[c: u32]&(P|U|L|N|B) > 0;
 
-// True if an ASCII character is any printable character other than space.
+// True if an ASCII character is any printable character other than space
 export fn isgraph(c: rune) bool =
 	if (!isascii(c)) false else cclass[c: u32]&(P|U|L|N) > 0;
 
-// True if an ASCII character is a control character.
+// True if an ASCII character is a control character
 export fn iscntrl(c: rune) bool =
 	if (!isascii(c)) false else cclass[c: u32]&C > 0;
 
-// True if a rune is a valid ASCII character.
+// True if a rune is a valid ASCII character
 export fn isascii(c: rune) bool = c: u32 <= 0o177;
 
 // Returns the uppercase form of an ASCII character, or the original character
-// if it was not a lowercase letter.
+// if it was not a lowercase letter
 export fn toupper(c: rune) rune = {
 	return if (islower(c)) {
 		(c: u32 - ('a': u32) + ('A': u32)): rune;
@@ -84,7 +84,7 @@ export fn toupper(c: rune) rune = {
 };
 
 // Returns the lowercase form of an ASCII character, or the original character
-// if it was not an uppercase letter.
+// if it was not an uppercase letter
 export fn tolower(c: rune) rune = {
 	return if (isupper(c)) {
 		(c: u32 - ('A': u32) + ('a': u32)): rune;
