@@ -12,9 +12,11 @@ use strio;
 // Formats output as HTML
 fn emit_html(ctx: *context) (void | error) = {
 	const decls = ctx.summary;
-	if (ctx.template) head()?;
-
 	const ident = unparse::identstr(ctx.ident);
+	defer free(ident);
+
+	if (ctx.template) head(ctx.ident)?;
+
 	fmt::printf("<h2>{} <span class='heading-extra'>", ident);
 	for (let i = 0z; i < len(ctx.tags); i += 1) {
 		const mode = switch (ctx.tags[i].mode) {
@@ -243,13 +245,17 @@ fn prototype_html(
 	return n;
 };
 
-fn head() (void | error) = {
-	// TODO: Get title from module name
+fn head(ident: ast::ident) (void | error) = {
+	const ident = unparse::identstr(ident);
+	defer free(ident);
+
+	// TODO: Fix up breadcrumb
 	// TODO: Move me to +embed?
-	fmt::println("<!doctype html>
+	fmt::printfln("<!doctype html>
 <html lang='en'>
 <meta charset='utf-8' />
-<title>Hare documentation</title>
+<title>{} — Hare documentation", ident)?;
+	fmt::println("</title>
 <style>
 body {
 	font-family: sans-serif;
