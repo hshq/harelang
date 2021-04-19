@@ -66,6 +66,7 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 		depend = mkdepends(depend...),
 		cmd = alloc([
 			os::tryenv("LD", "ld"),
+			"--gc-sections",
 			"-T", plan.script,
 			"-o", output,
 		]),
