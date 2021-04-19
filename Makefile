@@ -35,6 +35,7 @@ harec_srcs=\
 haredoc_srcs=\
 	./cmd/haredoc/main.ha \
 	./cmd/haredoc/errors.ha \
+	./cmd/haredoc/env.ha \
 	./cmd/haredoc/hare.ha \
 	./cmd/haredoc/html.ha \
 	./cmd/haredoc/sort.ha

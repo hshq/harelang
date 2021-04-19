@@ -71,6 +71,9 @@ export fn context_finish(ctx: *context) void = {
 // Converts an identifier to a partial path (e.g. foo::bar becomes foo/bar). The
 // return value must be freed by the caller.
 export fn identpath(name: ast::ident) str = {
+	if (len(name) == 0) {
+		return strings::dup(".");
+	};
 	let p = path::join(name[0]);
 	for (let i = 1z; i < len(name); i += 1) {
 		let q = path::join(p, name[i]);

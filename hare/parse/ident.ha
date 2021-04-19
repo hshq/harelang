@@ -1,6 +1,9 @@
+use bufio;
 use hare::ast;
-use hare::lex;
 use hare::lex::{ltok};
+use hare::lex;
+use io;
+use strings;
 
 fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	let ident: []str = [];
@@ -31,4 +34,12 @@ export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 	let ident = ident_trailing(lexer)?;
 	synassert(mkloc(lexer), !ident.1, "Unexpected trailing :: in ident")?;
 	return ident.0;
+};
+
+// Parses an identifier from a string.
+export fn identstr(in: str) (ast::ident | error) = {
+	const buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
+	defer io::close(buf);
+	const lexer = lex::init(buf, "<string>");
+	return ident(&lexer);
 };

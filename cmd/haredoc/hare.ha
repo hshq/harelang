@@ -8,8 +8,9 @@ use strings;
 use strio;
 
 // Formats output as Hare source code (prototypes)
-fn emit_hare(summary: summary) (void | error) = {
-	// TODO: Should we emit the dependencies, too?
+fn emit_hare(ctx: *context) (void | error) = {
+	const summary = ctx.summary;
+	// XXX: Should we emit the dependencies, too?
 	for (let i = 0z; i < len(summary.types); i += 1) {
 		details_hare(summary.types[i])?;
 	};

@@ -2,6 +2,7 @@ use fmt;
 use format::html;
 use hare::ast;
 use hare::lex;
+use hare::module;
 use hare::unparse;
 use io;
 use os;
@@ -9,12 +10,32 @@ use strings;
 use strio;
 
 // Formats output as HTML
-fn emit_html(decls: summary, template: bool) (void | error) = {
-	if (template) head()?;
+fn emit_html(ctx: *context) (void | error) = {
+	const decls = ctx.summary;
+	if (ctx.template) head()?;
 
-	// TODO: Module name
-	fmt::println("<h2>hash::fnv <span class='heading-extra'>+linux +x86_64</span></h2>")?;
-	fmt::println("<p class='readme'>TODO: Insert module README here")?;
+	const ident = unparse::identstr(ctx.ident);
+	fmt::printf("<h2>{} <span class='heading-extra'>", ident);
+	for (let i = 0z; i < len(ctx.tags); i += 1) {
+		const mode = switch (ctx.tags[i].mode) {
+			module::tag_mode::INCLUSIVE => '+',
+			module::tag_mode::EXCLUSIVE => '-',
+		};
+		fmt::printf("{}{} ", mode, ctx.tags[i].name);
+	};
+	fmt::println("</span></h2>")?;
+
+	match (ctx.readme) {
+		null => void,
+		f: *io::stream => {
+			// TODO: Format as haredoc markup
+			fmt::println("<div class='readme'>")?;
+			fmt::println("<p>")?;
+			io::copy(os::stdout, f)?;
+			fmt::println("</div>")?;
+		},
+	};
+
 	if (len(decls.types) != 0) {
 		fmt::println("<h4>Types</h4>")?;
 		fmt::println("<ol>")?;
