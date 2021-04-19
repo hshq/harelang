@@ -6,7 +6,7 @@ fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {
 	let pos = 0z;
 	for (let i = 0z; i < end; i += 1) {
 		let r: rune = match (strings::next(iter)) {
-			void => break,
+			_: void => break,
 			r: rune => r,
 		};
 
@@ -19,7 +19,7 @@ fn utf8_byte_len_unbounded(iter: *iterator) size = {
 	let pos = 0z;
 	for (true) {
 		let r: rune = match (strings::next(iter)) {
-			void => break,
+			_: void => break,
 			r: rune => r,
 		};
 
@@ -41,7 +41,7 @@ export fn sub(s: str, start: size, end: (size | end)) str = {
 	let starti = utf8_byte_len_bounded(&iter, start);
 	let endi = match (end) {
 		sz: size => starti + utf8_byte_len_bounded(&iter, sz - start),
-		end => starti + utf8_byte_len_unbounded(&iter),
+		_: end => starti + utf8_byte_len_unbounded(&iter),
 	};
 	let bytes = toutf8(s);
 	return fromutf8_unsafe(bytes[starti..endi]);

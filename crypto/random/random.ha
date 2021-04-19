@@ -27,7 +27,7 @@ export let stream: *io::stream = &_stream;
 	let buf: [4096]u8 = [0...];
 	let test: []u8 = [];
 	match (io::read(stream, buf[..])) {
-		(io::error | io::EOF) => abort(),
+		_: (io::error | io::EOF) => abort(),
 		n: size => test = buf[..n],
 	};
 

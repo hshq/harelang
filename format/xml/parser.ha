@@ -301,7 +301,7 @@ fn scan_charref(par: *parser) (rune | error) = {
 	};
 	return match (strconv::stou32b(strio::string(par.entbuf), base)) {
 		u: u32 => u: rune,
-		(strconv::invalid | strconv::overflow) => syntaxerr,
+		_: (strconv::invalid | strconv::overflow) => syntaxerr,
 	};
 };
 
@@ -387,7 +387,7 @@ fn prolog(par: *parser) (void | error) = {
 		};
 		// XXX: Deliberate omission: all values other than utf-8
 		match (ascii::strcasecmp(attr.1, "utf-8")) {
-			void => return utf8::invalid,
+			_: void => return utf8::invalid,
 			n: int => if (n != 0) return utf8::invalid,
 		};
 	};
@@ -407,7 +407,7 @@ fn prolog(par: *parser) (void | error) = {
 		};
 		// XXX: Deliberate omission: non-standalone documents
 		match (ascii::strcasecmp(attr.1, "yes")) {
-			void => return syntaxerr,
+			_: void => return syntaxerr,
 			n: int => if (n != 0) return syntaxerr,
 		};
 	};
@@ -448,7 +448,7 @@ fn want(par: *parser, tok: (rune | str | whitespace)...) (bool | error) = {
 			let iter = strings::iter(x);
 			for (true) match (strings::next(&iter)) {
 				rn: rune => want(par, rn)?,
-				void => break,
+				_: void => break,
 			};
 		},
 		ws: whitespace => {

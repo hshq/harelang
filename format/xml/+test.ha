@@ -88,8 +88,8 @@ fn xmltest(input: str, expected: []token, error: bool) void = {
 	for (let i = 0z; i < len(expected); i += 1) {
 		let tok = match (scan(parser)) {
 			tok: token => tok,
-			void => abort("Expected token, got void"),
-			syntaxerr => abort("Expected token, got syntax error"),
+			_: void => abort("Expected token, got void"),
+			_: syntaxerr => abort("Expected token, got syntax error"),
 		};
 		match (tok) {
 			el: elementstart => {

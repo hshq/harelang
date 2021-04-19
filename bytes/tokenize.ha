@@ -32,7 +32,7 @@ export fn next_token(s: *tokenizer) ([]u8 | void) = match (peek_token(s)) {
 		s.p = types::SIZE_MAX;
 		return b;
 	},
-	void => void,
+	_: void => void,
 };
 
 // Same as next_token(), but does not advance the cursor
@@ -43,7 +43,7 @@ export fn peek_token(s: *tokenizer) ([]u8 | void) = {
 	if (s.p > len(s.s)) {
 		s.p = match (index(s.s, s.d)) {
 			i: size => i,
-			void => len(s.s),
+			_: void => len(s.s),
 		};
 	};
 	return s.s[..s.p];
@@ -73,7 +73,7 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([4, 5], b)),
-		void    => abort(),
+		_: void => abort(),
 	};
 
 	assert(peek_token(&t) is void);
@@ -85,20 +85,20 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([], b)),
-		void    => abort(),
+		_: void => abort(),
 	};
 
 	assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([1], b)),
-		void    => abort(),
+		_: void => abort(),
 	};
 
 	//assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
 	//assert(false);
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([], b)),
-		void    => abort(),
+		_: void => abort(),
 	};
 
 	assert(peek_token(&t) is void);
@@ -109,17 +109,17 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([1, 1], b)),
-		void    => abort(),
+		_: void => abort(),
 	};
 
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([1], b)),
-		void    => abort(),
+		_: void => abort(),
 	};
 
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([2], b)),
-		void    => abort(),
+		_: void => abort(),
 	};
 
 	assert(next_token(&t) is void);
@@ -129,12 +129,12 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([], b)),
-		void    => abort(),
+		_: void => abort(),
 	};
 
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([], b)),
-		void    => abort(),
+		_: void => abort(),
 	};
 
 	assert(peek_token(&t) is void);
@@ -145,12 +145,12 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([], b)),
-		void    => abort(),
+		_: void => abort(),
 	};
 
 	match (next_token(&t)) {
 		b: []u8 => assert(equal([1], b)),
-		void    => abort(),
+		_: void => abort(),
 	};
 
 	assert(equal(remaining_tokens(&t), [2, 3, 4]));

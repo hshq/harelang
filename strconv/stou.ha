@@ -27,12 +27,12 @@ export fn stou64b(s: str, base: uint) (u64 | invalid | overflow) = {
 	let iter = strings::iter(s);
 	for (true) {
 		let r: rune = match (strings::next(&iter)) {
-			void => break,
+			_: void => break,
 			r: rune => r,
 		};
 
 		let digit = match (rune_to_integer(r)) {
-			void => return (iter.dec.offs - 1): invalid,
+			_: void => return (iter.dec.offs - 1): invalid,
 			d: u64 => d,
 		};
 

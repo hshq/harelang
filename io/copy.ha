@@ -23,7 +23,7 @@ export fn copy(dest: *stream, src: *stream) (error | size) = {
 				w += r;
 				i += r;
 			},
-			EOF => break,
+			_: EOF => break,
 		};
 	};
 	return w;

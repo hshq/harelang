@@ -28,14 +28,14 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 			let fs = fs: *os_filesystem;
 			return match (rt::fchdir(fs.dirfd)) {
 				err: rt::errno => errors::errno(err),
-				void => void,
+				_: void => void,
 			};
 		},
 		s: str  => s,
 	};
 	return match (rt::chdir(path)) {
 		err: rt::errno => errors::errno(err),
-		void => void,
+		_: void => void,
 	};
 };
 
@@ -46,6 +46,6 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 export fn chroot(target: str) (void | fs::error) = {
 	return match (rt::chroot(target)) {
 		err: rt::errno => errors::errno(err),
-		void => void,
+		_: void => void,
 	};
 };

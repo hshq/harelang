@@ -42,7 +42,7 @@ export fn next(iter: *iterator) (str | void) = {
 	};
 	return match (bytes::next_token(&iter.tok)) {
 		b: []u8 => strings::fromutf8_unsafe(b),
-		void => void,
+		_: void => void,
 	};
 };
 

@@ -156,7 +156,7 @@ export fn execveat(dirfd: int, path: path, argv: *[*]nullable *const char,
 			path: uintptr: u64, argv: uintptr: u64,
 			envp: uintptr: u64, flags: u64))) {
 		err: errno => err,
-		u64 => abort("unreachable"),
+		_: u64 => abort("unreachable"),
 	};
 };
 
@@ -297,7 +297,7 @@ export type fcntl_arg = (void | int | *st_flock | *f_owner_ex | *u64);
 export fn fcntl(fd: int, cmd: int, arg: fcntl_arg) (int | errno) = {
 	let _fd = fd: u64, _cmd = cmd: u64;
 	return wrap_return(match (arg) {
-		void => syscall2(SYS_fcntl, _fd, _cmd),
+		_: void => syscall2(SYS_fcntl, _fd, _cmd),
 		i: int => syscall3(SYS_fcntl, _fd, _cmd, i: u64),
 		l: *st_flock => syscall3(SYS_fcntl, _fd, _cmd, l: uintptr: u64),
 		o: *f_owner_ex => syscall3(SYS_fcntl, _fd, _cmd, o: uintptr: u64),

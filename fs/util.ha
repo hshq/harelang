@@ -87,7 +87,7 @@ export fn readdir(fs: *fs, path: str) ([]dirent | error) = {
 	for (true) {
 		match (next(i)) {
 			d: dirent => append(ents, dirent_dup(&d)),
-			void => break,
+			_: void => break,
 		};
 	};
 	return ents;

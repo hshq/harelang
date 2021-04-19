@@ -55,7 +55,7 @@ fn platform_start(cmd: *command) (errors::opaque | process) = {
 	let pipe: [2]int = [0...];
 	match (rt::pipe2(&pipe, rt::O_CLOEXEC)) {
 		err: rt::errno => return errors::errno(err),
-		void => void,
+		_: void => void,
 	};
 
 	match (rt::clone(null, 0, null, null, 0)) {
@@ -72,7 +72,7 @@ fn platform_start(cmd: *command) (errors::opaque | process) = {
 				},
 			};
 		},
-		void => {
+		_: void => {
 			rt::close(pipe[0]);
 			let err = platform_exec(cmd);
 			let err = &err.data: *rt::errno;

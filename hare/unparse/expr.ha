@@ -100,7 +100,7 @@ export fn expr(
 			};
 			z += expr(out, indent, *e.object)?;
 			const op = match (e.op) {
-				void => "=",
+				_: void => "=",
 				op: ast::binarithm_op => switch (op) {
 					ast::binarithm_op::BAND => "&=",
 					ast::binarithm_op::BOR => "|=",
@@ -308,11 +308,11 @@ fn constant(
 	e: ast::constant_expr,
 ) (size | io::error) = {
 	return match (e) {
-		void => fmt::fprint(out, "void"),
-		ast::_null => fmt::fprint(out, "null"),
+		_: void => fmt::fprint(out, "void"),
+		_: ast::_null => fmt::fprint(out, "null"),
 		b: bool => fmt::fprint(out, b),
 		v: lex::value => fmt::fprint(out, match (v) {
-			void => abort(),
+			_: void => abort(),
 			v: (i64 | u64 | f64) => v,
 			// TODO: Escape these:
 			s: str => return fmt::fprintf(out, "\"{}\"", s),

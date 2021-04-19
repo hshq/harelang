@@ -71,7 +71,7 @@ export fn lex(lex: *lexer) (token | error) = {
 			lex.un = void;
 			return tok;
 		},
-		void => void,
+		_: void => void,
 	};
 
 	let loc = location { ... };
@@ -122,7 +122,7 @@ fn is_name(r: rune, num: bool) bool =
 fn ncmp(a: const *void, b: const *void) int = {
 	let a = a: const *str, b = b: const *str;
 	return match (ascii::strcmp(*a, *b)) {
-		void => abort("non-ascii name"), // TODO: Bubble me up
+		_: void => abort("non-ascii name"), // TODO: Bubble me up
 		i: int => i,
 	};
 };
@@ -196,7 +196,7 @@ fn lex_string(lex: *lexer, loc: location) (token | error) = {
 fn lex_rn_str(lex: *lexer, loc: location) (token | error) = {
 	let r = match (next(lex)) {
 		r: rune => r,
-		(io::EOF | io::error) => abort(),
+		_: (io::EOF | io::error) => abort(),
 	};
 	switch (r) {
 		'\"' => return lex_string(lex, loc),
@@ -222,7 +222,7 @@ fn lex_name(lex: *lexer, loc: location, keyword: bool) (token | error) = {
 			assert(is_name(r, false));
 			strio::appendrune(buf, r);
 		},
-		(io::EOF | io::error) => abort(),
+		_: (io::EOF | io::error) => abort(),
 	};
 
 	for (true) match (next(lex)?) {
@@ -366,10 +366,10 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 	if (end == 0) end = len(chars);
 
 	let exp = match (exp) {
-		void => "0",
+		_: void => "0",
 		exp: size => {
 			let end = match (suff) {
-				void => len(chars),
+				_: void => len(chars),
 				suff: size => suff,
 			};
 			strings::fromutf8(chars[exp..end]);
@@ -384,7 +384,7 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 
 	let suff = match (suff) {
 		suff: size => strings::fromutf8(chars[suff..]),
-		void => "",
+		_: void => "",
 	};
 	let suff = if (suff == "u8") ltok::LIT_U8
 		else if (suff == "u16") ltok::LIT_U16
@@ -647,7 +647,7 @@ export fn unlex(lex: *lexer, tok: token) void = {
 
 fn next(lex: *lexer) (rune | io::EOF | io::error) = {
 	match (lex.rb[0]) {
-		void => void,
+		_: void => void,
 		r: (rune | io::EOF) => {
 			lex.rb[0] = lex.rb[1];
 			lex.rb[1] = void;

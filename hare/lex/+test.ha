@@ -38,7 +38,7 @@ fn vassert(expected: value, actual: value) void = match (expected) {
 	expected: i64 => assert(actual as i64 == expected),
 	expected: u64 => assert(actual as u64 == expected),
 	expected: f64 => assert(actual as f64 == expected),
-	void => assert(actual is void),
+	_: void => assert(actual is void),
 };
 
 fn lextest(in: str, expected: []token) void = {

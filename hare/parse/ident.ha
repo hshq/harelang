@@ -8,12 +8,12 @@ fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	for (true) {
 		let name = match (try(lexer, ltok::NAME)?) {
 			t: lex::token => t.1 as str,
-			void => return (ident: ast::ident, true),
+			_: void => return (ident: ast::ident, true),
 		};
 		append(ident, name);
 		z += len(name);
 		match (try(lexer, ltok::DOUBLE_COLON)?) {
-			void => break,
+			_: void => break,
 			* => void, // Grab the next ident
 		};
 		z += 1;

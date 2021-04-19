@@ -15,7 +15,7 @@ fn segmalloc(n: size) nullable *void = {
 fn segfree(p: *void, s: size) void = {
 	match (munmap(p, s)) {
 		err: errno => abort("munmap failed"),
-		void => void,
+		_: void => void,
 	};
 };
 

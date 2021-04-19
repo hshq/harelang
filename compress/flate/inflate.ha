@@ -358,12 +358,12 @@ fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	for (n < len(buf)) {
 		if (len(s.buf) == 0) {
 			if (s.left == 0) match (next(s)?) {
-				void => void,
-				io::EOF => return if (n == 0) io::EOF else n,
+				_: void => void,
+				_: io::EOF => return if (n == 0) io::EOF else n,
 			};
 			match (s.state(s)?) {
-				void => void,
-				io::EOF => return if (n == 0) io::EOF else n,
+				_: void => void,
+				_: io::EOF => return if (n == 0) io::EOF else n,
 			};
 		};
 		const toread =
@@ -413,7 +413,7 @@ fn close(s: *io::stream) void = {
 	let s = inflate(ins);
 	defer io::close(s);
 	match (io::copy(outs, s)) {
-		size => void,
+		_: size => void,
 		e: io::error => {
 			fmt::errorln(io::strerror(e));
 			abort();

@@ -87,7 +87,7 @@ fn parsev6(st: str) (addr6 | invalid) = {
 	for (i < 16) {
 		let s = match (strings::next_token(&tok)) {
 			s: str => s,
-			void => break,
+			_: void => break,
 		};
 		if (s == "") {
 			if (ells != -1) {
@@ -280,7 +280,7 @@ fn fmtmask(s: *io::stream, mask: addr) (io::error | size) = {
 	match (masklen(slice)) {
 		// format as hex, if zero runs are not contiguous
 		// (like golang does)
-		void => {
+		_: void => {
 			for (let i = 0z; i < len(slice); i += 1) {
 				ret += fmt::fprintf(s, "{:x}", slice[i])?;
 			};
@@ -322,6 +322,6 @@ export fn string(item: (...addr | subnet)) str = {
 fn wanttoken(tok: *strings::tokenizer) (str | invalid) = {
 	return match (strings::next_token(tok)) {
 		s: str => s,
-		void => invalid
+		_: void => invalid
 	};
 };

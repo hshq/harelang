@@ -11,13 +11,13 @@ fn attr_symbol(lexer: *lex::lexer) (str | error) = {
 	let s = t.1 as str;
 	let d = strings::iter(s);
 	match (strings::next(&d)) {
-		void => void,
+		_: void => void,
 		r: rune => synassert(t.2,
 			ascii::isalpha(r) || r == '.' || r == '_',
 			"Invalid symbol")?,
 	};
 	for (true) match (strings::next(&d)) {
-		void => break,
+		_: void => break,
 		r: rune => synassert(t.2,
 			ascii::isalnum(r) || r == '$' || r == '.' || r == '_',
 			"Invalid symbol")?,
@@ -34,8 +34,8 @@ fn decl_global(
 	for (true) {
 		let symbol = if (tok == ltok::CONST || tok == ltok::LET) {
 			match (try(lexer, ltok::ATTR_SYMBOL)?) {
-				void => "",
-				lex::token => attr_symbol(lexer)?,
+				_: void => "",
+				_: lex::token => attr_symbol(lexer)?,
 			};
 		} else "";
 		let ident = ident(lexer)?;
@@ -55,7 +55,7 @@ fn decl_global(
 			init = init,
 		});
 		match (btok) {
-			void => break,
+			_: void => break,
 			* => void,
 		};
 	};
@@ -74,7 +74,7 @@ fn decl_type(lexer: *lex::lexer) ([]ast::decl_type | error) = {
 			_type = _type,
 		});
 		match (btok) {
-			void => break,
+			_: void => break,
 			* => void,
 		};
 	};
@@ -88,7 +88,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 		ltok::ATTR_NORETURN, ltok::ATTR_SYMBOL
 	];
 	for (true) match (try(lexer, attrs...)?) {
-		void => break,
+		_: void => break,
 		t: lex::token => switch (t.0) {
 			ltok::ATTR_FINI => attr = ast::fndecl_attrs::FINI,
 			ltok::ATTR_INIT => attr = ast::fndecl_attrs::INIT,
@@ -144,8 +144,8 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 		if (peek(lexer, ltok::EOF)? is lex::token) break;
 		let comment = "";
 		let exported = match (try(lexer, ltok::EXPORT)?) {
-			void => false,
-			lex::token => {
+			_: void => false,
+			_: lex::token => {
 				comment = strings::dup(lex::comment(lexer));
 				true;
 			},
@@ -156,7 +156,7 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 			comment = strings::dup(lex::comment(lexer));
 		};
 		let decl = match (next) {
-			void => decl_func(lexer)?,
+			_: void => decl_func(lexer)?,
 			t: lex::token =>
 				if (t.0 == ltok::TYPE) decl_type(lexer)?
 				else decl_global(lexer, t.0)?,

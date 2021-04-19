@@ -10,7 +10,7 @@ export fn scanbyte(stream: *io::stream) (u8 | io::EOF | io::error) = {
 
 	return match (io::read(stream, buf)?) {
 		read: size => if (read > 0) buf[0] else io::EOF,
-		io::EOF    => io::EOF,
+		e: io::EOF => e,
 	};
 };
 
@@ -27,7 +27,7 @@ export fn scantok(stream: *io::stream, delim: u8) ([]u8 | io::EOF | io::error) =
 				};
 				append(buf, res);
 			},
-			io::EOF => {
+			_: io::EOF => {
 				if (len(buf) == 0) {
 					return io::EOF;
 				};
@@ -68,9 +68,9 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 
 	let dec = utf8::decode(b[..sz]);
 	return match (utf8::next(&dec)) {
-		r: rune             => r,
-		utf8::invalid       => utf8::invalid,
-		(void | utf8::more) => io::EOF,
+		r: rune => r,
+		_: utf8::invalid => utf8::invalid,
+		_: (void | utf8::more) => io::EOF,
 	};
 };
 

@@ -67,7 +67,7 @@ export fn dir() str = {
 	let path = path::join(get_tmpdir(), name);
 	match (os::mkdir(path)) {
 		err: fs::error => abort("Could not create temp directory"),
-		void => void,
+		_: void => void,
 	};
 	return path;
 };

@@ -18,7 +18,7 @@ fn default_tags() []module::tag = {
 
 fn addtags(tags: []module::tag, in: str) ([]module::tag | void) = {
 	let in = match (module::parsetags(in)) {
-		void => return void,
+		_: void => return void,
 		t: []module::tag => t,
 	};
 	defer free(in);
@@ -32,7 +32,7 @@ fn deltags(tags: []module::tag, in: str) ([]module::tag | void) = {
 		return [];
 	};
 	let in = match (module::parsetags(in)) {
-		void => return void,
+		_: void => return void,
 		t: []module::tag => t,
 	};
 	defer free(in);
@@ -88,11 +88,11 @@ fn build(args: []str) void = {
 			'o' => output = opt.1,
 			't' => abort(), // TODO
 			'T' => tags = match (addtags(tags, opt.1)) {
-				void => fmt::fatal("Error parsing tags"),
+				_: void => fmt::fatal("Error parsing tags"),
 				t: []module::tag => t,
 			},
 			'X' => tags = match (deltags(tags, opt.1)) {
-				void => fmt::fatal("Error parsing tags"),
+				_: void => fmt::fatal("Error parsing tags"),
 				t: []module::tag => t,
 			},
 			*   => abort(),
@@ -193,11 +193,11 @@ fn run(args: []str) void = {
 			'l' => abort(), // TODO
 			't' => abort(), // TODO
 			'T' => tags = match (addtags(tags, opt.1)) {
-				void => fmt::fatal("Error parsing tags"),
+				_: void => fmt::fatal("Error parsing tags"),
 				t: []module::tag => t,
 			},
 			'X' => tags = match (deltags(tags, opt.1)) {
-				void => fmt::fatal("Error parsing tags"),
+				_: void => fmt::fatal("Error parsing tags"),
 				t: []module::tag => t,
 			},
 			*   => abort(),
@@ -277,11 +277,11 @@ fn test(args: []str) void = {
 			'l' => abort(), // TODO
 			't' => abort(), // TODO
 			'T' => tags = match (addtags(tags, opt.1)) {
-				void => fmt::fatal("Error parsing tags"),
+				_: void => fmt::fatal("Error parsing tags"),
 				t: []module::tag => t,
 			},
 			'X' => tags = match (deltags(tags, opt.1)) {
-				void => fmt::fatal("Error parsing tags"),
+				_: void => fmt::fatal("Error parsing tags"),
 				t: []module::tag => t,
 			},
 			*   => abort(),
@@ -343,7 +343,7 @@ fn version(args: []str) void = {
 	fmt::println();
 
 	match (os::getenv("HAREPATH")) {
-		void => fmt::printfln("HAREPATH\t{}", HAREPATH),
+		_: void => fmt::printfln("HAREPATH\t{}", HAREPATH),
 		s: str => fmt::printfln("HAREPATH\t{}\t(from environment)", s),
 	};
 	if (len(args) > 1 && args[1] == "-v") {

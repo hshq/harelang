@@ -59,9 +59,9 @@ fn tocentry(decl: ast::decl) (void | error) = {
 	fmt::println("<li>");
 	fmt::printf("{} ",
 		match (decl.decl) {
-			ast::decl_func => "fn",
-			[]ast::decl_type => "type",
-			[]ast::decl_global => "let",
+			_: ast::decl_func => "fn",
+			_: []ast::decl_type => "type",
+			_: []ast::decl_global => "let",
 		});
 	fmt::printf("<a href='#");
 	unparse::ident(os::stdout, decl_ident(decl))?;
@@ -116,7 +116,7 @@ fn details(decl: ast::decl) (void | error) = {
 		s: str => if (len(s) != 0) {
 			html::escape(os::stdout, s)?;
 		},
-		void => break,
+		_: void => break,
 	};
 
 	fmt::println("</section>")?;

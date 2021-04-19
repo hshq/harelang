@@ -127,7 +127,7 @@ export fn decompress(s: *io::stream) (*io::stream | io::error) = {
 			},
 		};
 		match (io::copy(out, d)) {
-			size => void,
+			_: size => void,
 			e: io::error => {
 				fmt::errorfln("vector {}: {}", i, io::strerror(e));
 				abort();

@@ -59,7 +59,7 @@ export fn main() void = {
 	for (let i = 0z; i < len(unit); i += 1) {
 		let summary = sort_decls(unit[i].decls);
 		match (emit(summary, fmt, template)) {
-			void => void,
+			_: void => void,
 			err: error => fmt::fatal("Error: {}", strerror(err)),
 		};
 	};

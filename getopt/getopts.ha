@@ -164,9 +164,9 @@ export fn parse(args: []str, help: help...) command = {
 			os::exit(1);
 		};
 		match (next) {
-			rune => abort(), // Unreachable
-			void => void,
-			(utf8::more | utf8::invalid) => {
+			_: rune => abort(), // Unreachable
+			_: void => void,
+			_: (utf8::more | utf8::invalid) => {
 				errmsg(args[9], "invalid UTF-8 in arguments",
 					void, help);
 				os::exit(1);
@@ -233,8 +233,8 @@ export fn printhelp(s: *io::stream, name: str, help: []help) void = {
 	printusage(s, name, help);
 
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
-		cmd_help => void,
-		(flag_help | parameter_help) => {
+		_: cmd_help => void,
+		_: (flag_help | parameter_help) => {
 			// Only print this if there are flags to show
 			fmt::fprint(s, "\n");
 			break;
@@ -255,7 +255,7 @@ export fn printhelp(s: *io::stream, name: str, help: []help) void = {
 fn errmsg(name: str, err: str, opt: (rune | void), help: []help) void = {
 	fmt::errorfln("{}: {}{}", name, err, match (opt) {
 		r: rune => r,
-		void => "",
+		_: void => "",
 	});
 	printusage(os::stderr, name, help);
 };
