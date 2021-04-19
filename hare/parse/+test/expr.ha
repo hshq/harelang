@@ -89,6 +89,7 @@
 	coords {
 		x: int = 10,
 		y: int = 20,
+		...
 	};
 	coords {
 		x = 10,
@@ -111,6 +112,9 @@
 		namespace::coords {
 			y: int = 20,
 		},
+	};
+	coords {
+		...
 	};
 };
 ");

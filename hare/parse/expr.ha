@@ -612,7 +612,7 @@ fn plain_struct(lexer: *lex::lexer, alias: ast::ident) (ast::expr | error) = {
 		switch (tok.0) {
 			ltok::ELLIPSIS => {
 				synassert(mkloc(lexer), len(alias) != 0,
-					"Cannot use auto-fill with anonymous struct");
+					"Cannot use auto-fill with anonymous struct")?;
 				autofill = true;
 				try(lexer, ltok::COMMA)?;
 				want(lexer, ltok::RBRACE)?;
