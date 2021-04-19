@@ -38,31 +38,30 @@ fn emit_html(ctx: *context) (void | error) = {
 
 	if (len(decls.types) != 0) {
 		fmt::println("<h4>Types</h4>")?;
-		fmt::println("<ol>")?;
+		fmt::println("<pre>")?;
 		for (let i = 0z; i < len(decls.types); i += 1) {
 			tocentry(decls.types[i])?;
 		};
-		fmt::println("</ol>")?;
+		fmt::print("</pre>")?;
 	};
 
 	if (len(decls.globals) != 0) {
 		fmt::println("<h4>Globals</h4>")?;
-		fmt::println("<ol>")?;
+		fmt::print("<pre>")?;
 		for (let i = 0z; i < len(decls.globals); i += 1) {
 			tocentry(decls.globals[i])?;
 		};
-		fmt::println("</ol>")?;
+		fmt::print("</pre>")?;
 	};
 
 	if (len(decls.funcs) != 0) {
 		fmt::println("<h4>Functions</h4>")?;
-		fmt::println("<ol>")?;
+		fmt::print("<pre>")?;
 		for (let i = 0z; i < len(decls.funcs); i += 1) {
 			tocentry(decls.funcs[i])?;
 		};
-		fmt::println("</ol>")?;
+		fmt::println("</pre>")?;
 	};
-	fmt::println("</ol>")?;
 	fmt::println("<hr />")?;
 
 	for (let i = 0z; i < len(decls.types); i += 1) {
@@ -77,7 +76,6 @@ fn emit_html(ctx: *context) (void | error) = {
 };
 
 fn tocentry(decl: ast::decl) (void | error) = {
-	fmt::println("<li>");
 	fmt::printf("{} ",
 		match (decl.decl) {
 			_: ast::decl_func => "fn",
@@ -96,18 +94,12 @@ fn tocentry(decl: ast::decl) (void | error) = {
 			fmt::fprint(os::stdout, ": ")?;
 			type_html(os::stdout, 0, g._type, true)?;
 		},
-		t: []ast::decl_type => {
-			let t = t[0];
-			fmt::fprint(os::stdout, " = ")?;
-			type_html(os::stdout, 0, t._type, true)?;
-		},
+		t: []ast::decl_type => void,
 		f: ast::decl_func => prototype_html(os::stdout, 0,
 			f.prototype._type as ast::func_type,
 			true)?,
 	};
 	fmt::println(";");
-
-	fmt::println("</li>");
 	return;
 };
 
@@ -324,6 +316,7 @@ pre {
 	background-color: #eee;
 	padding: 0.25rem 1rem;
 	margin: 0 -1rem 1rem;
+	font-size: 1.2rem;
 }
 
 pre .keyword {
@@ -332,10 +325,6 @@ pre .keyword {
 
 pre .type {
 	color: #44F;
-}
-
-pre.decl {
-	font-size: 1.2rem;
 }
 
 ol {
