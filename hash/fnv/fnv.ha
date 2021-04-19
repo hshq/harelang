@@ -1,5 +1,3 @@
-// Implements the Fowler–Noll–Vo (FNV) hash function. This hash is recommended
-// for hash map keys and similar applications. It is a non-cryptographic hash.
 use endian;
 use hash;
 use io;

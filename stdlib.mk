@@ -819,8 +819,7 @@ $(HARECACHE)/types/types.ssa: $(stdlib_types_srcs) $(stdlib_rt)
 
 # unicode
 stdlib_unicode_srcs= \
-	$(STDLIB)/unicode/properties.ha \
-	$(STDLIB)/unicode/unicode.ha
+	$(STDLIB)/unicode/properties.ha
 
 $(HARECACHE)/unicode/unicode.ssa: $(stdlib_unicode_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -1704,8 +1703,7 @@ $(TESTCACHE)/types/types.ssa: $(testlib_types_srcs) $(testlib_rt)
 
 # unicode
 testlib_unicode_srcs= \
-	$(STDLIB)/unicode/properties.ha \
-	$(STDLIB)/unicode/unicode.ha
+	$(STDLIB)/unicode/properties.ha
 
 $(TESTCACHE)/unicode/unicode.ssa: $(testlib_unicode_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'

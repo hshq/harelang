@@ -1,6 +1,3 @@
-// crypto::math provides constant-time mathematical operations useful for
-// cryptographic algorithms.
-
 // Rotates a 32-bit unsigned integer left by k bits. k may be negative to rotate
 // right instead, or see [rotr32].
 export fn rotl32(x: u32, k: int) u32 = {

@@ -1,0 +1,2 @@
+crypto::math provides constant-time mathematical operations useful for
+cryptographic algorithms.

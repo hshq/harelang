@@ -1,6 +1,3 @@
-// Implements the Adler-32 checksum algorithm. It is a non-cryptographic
-// checksum.
-
 use endian;
 use hash;
 use io;

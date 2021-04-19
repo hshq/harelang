@@ -1,6 +1,3 @@
-// An implementation of the ELF64 file format. Best accompanied with a reading
-// of the ELF-64 Object Format (Version 1.5).
-
 // TODO:
 // - Flesh out ELF32 structures
 

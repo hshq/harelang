@@ -1,4 +1,3 @@
-// hare::lex provides a lexer for Hare source code.
 use ascii;
 use bufio;
 use encoding::utf8;

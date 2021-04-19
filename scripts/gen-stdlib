@@ -630,8 +630,7 @@ types() {
 
 unicode() {
 	gen_srcs unicode \
-		properties.ha \
-		unicode.ha
+		properties.ha
 	gen_ssa unicode
 }
 

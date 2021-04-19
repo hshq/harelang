@@ -1,7 +1,3 @@
-// The uuid module implements RFC 4122-compatible Univerally Unique IDentifiers.
-//
-// This module only generates UUID4, aka "truly random" UUIDs, due to privacy
-// concerns.
 use bytes;
 use crypto::random;
 use endian;

@@ -1,10 +1,3 @@
-// math::random provides a pseudorandom number generator, which yields a
-// deterministic sequence of psuedo-random numbers based on a seed value.
-//
-// Beware! This module is NOT suitable for generating genuinely random data for
-// cryptographic use. See [crypto::random] for cryptographically secure random
-// number generation.
-
 // State for a pseudorandom number generator.
 export type random = u64;
 
