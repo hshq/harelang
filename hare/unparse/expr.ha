@@ -82,7 +82,7 @@ export fn expr(
 				m: *ast::expr => {
 					let z = 0z;
 					match (e.cond) {
-						*ast::expr => {
+						_: *ast::expr => {
 							z += fmt::fprint(out, ", ")?;
 						},
 						null => void,

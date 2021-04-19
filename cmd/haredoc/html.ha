@@ -204,7 +204,7 @@ fn type_html(
 	// other types and highlight more keywords, like const
 	let z = 0z;
 	match (_type._type) {
-		ast::builtin_type => {
+		_: ast::builtin_type => {
 			z += fmt::fprint(out, "<span class='type'>")?;
 			z += html::escape(out, strio::string(buf))?;
 			z += fmt::fprintf(out, "</span>")?;

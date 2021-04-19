@@ -40,7 +40,7 @@ export fn connect_unix(
 ) (*io::stream | io::error) = {
 	let sockaddr = match (unix::to_native(addr)) {
 		a: rt::sockaddr => a,
-		unix::invalid => return errors::unsupported, // path too long
+		_: unix::invalid => return errors::unsupported, // path too long
 	};
 	const sockfd = connect_fd(sockaddr, options...)?;
 	return os::fdopen(sockfd, string(addr),
@@ -63,9 +63,9 @@ fn listen_fd(
 
 	for (let i = 0z; i < len(options); i += 1) {
 		match (options[i]) {
-			reuseaddr => setsockopt(sockfd, rt::SO_REUSEADDR, true),
-			reuseport => setsockopt(sockfd, rt::SO_REUSEPORT, true),
-			keepalive => setsockopt(sockfd, rt::SO_KEEPALIVE, true),
+			_: reuseaddr => setsockopt(sockfd, rt::SO_REUSEADDR, true),
+			_: reuseport => setsockopt(sockfd, rt::SO_REUSEPORT, true),
+			_: keepalive => setsockopt(sockfd, rt::SO_KEEPALIVE, true),
 			b: backlog => bk = b,
 			p: portassignment => portout = p,
 		};
@@ -135,7 +135,7 @@ export fn listen_unix(
 ) (*listener | io::error) = {
 	let sockaddr = match (unix::to_native(addr)) {
 		a: rt::sockaddr => a,
-		unix::invalid => return errors::unsupported, // path too long
+		_: unix::invalid => return errors::unsupported, // path too long
 	};
 	let sockfd = listen_fd(sockaddr, options...)?;
 	return alloc(stream_listener {

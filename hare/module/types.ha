@@ -71,7 +71,7 @@ export fn strerror(err: error) const str = {
 		err: fs::error => fs::strerror(err),
 		err: io::error => io::strerror(err),
 		err: parse::error => parse::strerror(err),
-		module_not_found => "Module not found",
+		_: module_not_found => "Module not found",
 		amb: ambiguous => fmt::bsprintf(buf,
 			"Cannot choose between {} and {}", amb.0, amb.1),
 	};

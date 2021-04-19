@@ -317,7 +317,7 @@ fn array_slice_type(lexer: *lex::lexer) (ast::_type | error) = {
 	};
 
 	match (length) {
-		ast::len_slice => void,
+		_: ast::len_slice => void,
 		* => want(lexer, ltok::RBRACKET)?,
 	};
 
@@ -340,7 +340,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 			want(lexer, ltok::LBRACE)?;
 			storage;
 		},
-		lex::token => builtin_type::INT,
+		_: lex::token => builtin_type::INT,
 	};
 
 	let membs: []ast::enum_field = [];

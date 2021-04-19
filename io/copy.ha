@@ -7,7 +7,7 @@ export fn copy(dest: *stream, src: *stream) (error | size) = {
 		null       => void,
 		c: *copier => match (c(dest, src)) {
 			err: error => match (err) {
-				errors::unsupported => void, // Use fallback
+				_: errors::unsupported => void, // Use fallback
 				* => return err,
 			},
 			s: size => return s,

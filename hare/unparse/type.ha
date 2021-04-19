@@ -157,9 +157,9 @@ export fn _type(
 		l: ast::list_type => {
 			n += fmt::fprint(out, "[")?;
 			n += match (l.length) {
-				ast::len_slice => 0,
-				ast::len_unbounded => fmt::fprint(out, "*")?,
-				ast::len_contextual => fmt::fprint(out, "_")?,
+				_: ast::len_slice => 0,
+				_: ast::len_unbounded => fmt::fprint(out, "*")?,
+				_: ast::len_contextual => fmt::fprint(out, "_")?,
 				e: *ast::expr => expr(out, indent, *e)?,
 			};
 			n += fmt::fprint(out, "]")?;
@@ -172,8 +172,8 @@ export fn _type(
 			n += fmt::fprint(out, "*")?;
 			n += _type(out, indent, *p.referent)?;
 		},
-		ast::struct_type => n += struct_union_type(out, indent, t)?,
-		ast::union_type => n += struct_union_type(out, indent, t)?,
+		_: ast::struct_type => n += struct_union_type(out, indent, t)?,
+		_: ast::union_type => n += struct_union_type(out, indent, t)?,
 		t: ast::tagged_type => {
 			n += fmt::fprint(out, "(")?;
 			for (let i = 0z; i < len(t); i += 1) {

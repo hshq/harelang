@@ -7,31 +7,31 @@ use errors;
 
 	let r_stream = limitreader(&source_stream.stream, 20);
 	match (write(r_stream, buf)) {
-		errors::unsupported => void,
+		_: errors::unsupported => void,
 		* => abort(),
 	};
 	match (read(r_stream, buf)) {
 		n: size => assert(n == 15),
-		error => abort(),
+		_: error => abort(),
 	};
 	match (read(r_stream, buf)) {
 		n: size => assert(n == 5),
-		error => abort(),
+		_: error => abort(),
 	};
 	close(r_stream);
 
 	let w_stream = limitwriter(&source_stream.stream, 20);
 	match (read(w_stream, buf)) {
-		errors::unsupported => void,
+		_: errors::unsupported => void,
 		* => abort(),
 	};
 	match (write(w_stream, buf)) {
 		n: size => assert(n == 15),
-		error => abort(),
+		_: error => abort(),
 	};
 	match (write(w_stream, buf)) {
 		n: size => assert(n == 5),
-		error => abort(),
+		_: error => abort(),
 	};
 	close(w_stream);
 

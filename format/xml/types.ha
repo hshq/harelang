@@ -45,8 +45,8 @@ export type error = (syntaxerr | utf8::invalid | io::error)!;
 // Converts an [[error]] to a user-friendly string representation.
 export fn strerror(err: error) const str = {
 	return match (err) {
-		syntaxerr => "Syntax error",
-		utf8::invalid => "Document is not valid UTF-8",
+		_: syntaxerr => "Syntax error",
+		_: utf8::invalid => "Document is not valid UTF-8",
 		err: io::error => io::strerror(err),
 	};
 };

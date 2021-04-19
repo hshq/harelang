@@ -210,8 +210,8 @@ fn fillmask(mask: []u8, val: u8) void = {
 // Returns an addr representing a netmask
 fn cidrmask(addr: addr, val: u8) (addr | invalid) = {
 	let a_len: u8 = match (addr) {
-		addr4 => 4,
-		addr6 => 16,
+		_: addr4 => 4,
+		_: addr6 => 16,
 	};
 
 	if (val > 8 * a_len)

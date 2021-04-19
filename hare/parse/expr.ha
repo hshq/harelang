@@ -391,7 +391,7 @@ fn control(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::CONTINUE => label: ast::continue_expr,
 		ltok::RETURN => match (peek(lexer, ltok::COMMA, ltok::SEMICOLON)?) {
 			_: void => alloc(expression(lexer)?): ast::return_expr,
-			lex::token => null: ast::return_expr,
+			_: lex::token => null: ast::return_expr,
 		},
 	};
 };

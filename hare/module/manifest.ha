@@ -69,7 +69,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	let file = bufio::buffered(file, buf, []);
 	for (true) {
 		let line = match (bufio::scanline(file)?) {
-			io::EOF => break,
+			_: io::EOF => break,
 			line: []u8 => match (strings::try_fromutf8(line)) {
 				// Treat an invalid manifest as empty
 				_: utf8::invalid => return manifest,

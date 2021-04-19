@@ -97,7 +97,7 @@ export fn isbuffered(s: *io::stream) bool = {
 export fn any_isbuffered(s: *io::stream) bool = {
 	for (!isbuffered(s)) {
 		s = match (io::source(s)) {
-			errors::unsupported => return false,
+			_: errors::unsupported => return false,
 			s: *io::stream  => s,
 		};
 	};
@@ -163,7 +163,7 @@ fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	if (n > s.ravail) {
 		let z = match (io::read(s.source, s.rbuffer[s.ravail..])) {
 			err: io::error => return err,
-			io::EOF => {
+			_: io::EOF => {
 				if (s.ravail == 0) {
 					return io::EOF;
 				};

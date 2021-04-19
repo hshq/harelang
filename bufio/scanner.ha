@@ -49,7 +49,7 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 	let b: [4]u8 = [0...];
 	match (io::read(stream, b[..1])?) {
 		n: size  => assert(n == 1),
-		io::EOF => return io::EOF,
+		_: io::EOF => return io::EOF,
 	};
 
 	const sz = utf8::utf8sz(b[0]);
@@ -131,7 +131,7 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 
 		match (scanrune(in)) {
 			r: rune => assert(want is rune && want as rune == r),
-			io::EOF => assert(want is io::EOF),
+			_: io::EOF => assert(want is io::EOF),
 			*       => abort(),
 		};
 	};

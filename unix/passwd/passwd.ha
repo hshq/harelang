@@ -26,7 +26,7 @@ export type pwent = struct {
 // result using [[unix::passwd::pwent_finish]].
 export fn nextpw(stream: *io::stream) (pwent | io::EOF | io::error | invalid) = {
 	let line = match (bufio::scanline(stream)?) {
-		io::EOF => return io::EOF,
+		_: io::EOF => return io::EOF,
 		ln: []u8 => ln,
 	};
 	let line = match (strings::try_fromutf8(line)) {
@@ -86,7 +86,7 @@ export fn getuser(username: str) (pwent | void) = {
 	for (true) {
 		let ent = match (nextpw(file)) {
 			e: pwent => e,
-			io::EOF => break,
+			_: io::EOF => break,
 			* => abort("Invalid entry in /etc/passwd"),
 		};
 

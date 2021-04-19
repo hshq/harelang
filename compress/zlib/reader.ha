@@ -51,7 +51,7 @@ fn verifysum(s: *reader) (io::EOF | io::error) = {
 	let hash: [4]u8 = [0...];
 	for (let n = 0z; n < len(hash)) {
 		match (io::read(s.source, hash[n..])?) {
-			io::EOF => return wraperror(decompress_err::EOF),
+			_: io::EOF => return wraperror(decompress_err::EOF),
 			z: size => n += z,
 		};
 	};
@@ -64,7 +64,7 @@ fn verifysum(s: *reader) (io::EOF | io::error) = {
 fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let s = s: *reader;
 	match (io::read(s.flate, buf)?) {
-		io::EOF => return verifysum(s),
+		_: io::EOF => return verifysum(s),
 		z: size => buf = buf[..z],
 	};
 	hash::write(s.hash, buf);
@@ -81,7 +81,7 @@ export fn decompress(s: *io::stream) (*io::stream | io::error) = {
 	let buf: [2]u8 = [0...];
 	for (let n = 0z; n < len(buf)) {
 		match (io::read(s, buf[n..])?) {
-			io::EOF => return wraperror(decompress_err::EOF),
+			_: io::EOF => return wraperror(decompress_err::EOF),
 			z: size => n += z,
 		};
 	};

@@ -61,7 +61,7 @@ export fn scan(par: *parser) (token | void | error) = {
 		* => void,
 	};
 	let rn: rune = match (bufio::scanrune(par.in)?) {
-		io::EOF => if (par.state == state::ROOT) {
+		_: io::EOF => if (par.state == state::ROOT) {
 			return syntaxerr;
 		} else return void,
 		rn: rune => rn,
@@ -70,7 +70,7 @@ export fn scan(par: *parser) (token | void | error) = {
 		state::ROOT, state::ELEMENT => switch (rn) {
 			'<' => {
 				const next = match (bufio::scanrune(par.in)?) {
-					io::EOF => return syntaxerr,
+					_: io::EOF => return syntaxerr,
 					rn: rune => {
 						bufio::unreadrune(par.in, rn);
 						rn;
@@ -132,7 +132,7 @@ fn scan_attr(par: *parser) (token | error) = {
 	let quot = quote(par)?;
 	strio::reset(par.textbuf);
 	for (true) match (bufio::scanrune(par.in)?) {
-		io::EOF => return syntaxerr,
+		_: io::EOF => return syntaxerr,
 		rn: rune => {
 			rn = switch (rn) {
 				'<' => return syntaxerr,
@@ -152,7 +152,7 @@ fn scan_attr(par: *parser) (token | error) = {
 fn scan_comment(par: *parser) (token | void | error) = {
 	want(par, "<!")?;
 	match (bufio::scanrune(par.in)?) {
-		io::EOF => return syntaxerr,
+		_: io::EOF => return syntaxerr,
 		rn: rune => switch (rn) {
 			'-' => { // Comments
 				want(par, '-')?;
@@ -169,17 +169,17 @@ fn scan_comment(par: *parser) (token | void | error) = {
 	};
 	for (true) {
 		let rn = match (bufio::scanrune(par.in)?) {
-			io::EOF => return syntaxerr,
+			_: io::EOF => return syntaxerr,
 			rn: rune => rn,
 		};
 		if (rn != '-') continue;
 		let rn = match (bufio::scanrune(par.in)?) {
-			io::EOF => return syntaxerr,
+			_: io::EOF => return syntaxerr,
 			rn: rune => rn,
 		};
 		if (rn != '-') continue;
 		let rn = match (bufio::scanrune(par.in)?) {
-			io::EOF => return syntaxerr,
+			_: io::EOF => return syntaxerr,
 			rn: rune => rn,
 		};
 		if (rn == '>') break;
@@ -191,7 +191,7 @@ fn scan_cdata(par: *parser) (text | error) = {
 	strio::reset(par.textbuf);
 	for (true) {
 		let rn = match (bufio::scanrune(par.in)?) {
-			io::EOF => return syntaxerr,
+			_: io::EOF => return syntaxerr,
 			rn: rune => rn,
 		};
 		if (rn != ']') {
@@ -199,7 +199,7 @@ fn scan_cdata(par: *parser) (text | error) = {
 			continue;
 		};
 		let rn = match (bufio::scanrune(par.in)?) {
-			io::EOF => return syntaxerr,
+			_: io::EOF => return syntaxerr,
 			rn: rune => rn,
 		};
 		if (rn != ']') {
@@ -207,7 +207,7 @@ fn scan_cdata(par: *parser) (text | error) = {
 			continue;
 		};
 		let rn = match (bufio::scanrune(par.in)?) {
-			io::EOF => return syntaxerr,
+			_: io::EOF => return syntaxerr,
 			rn: rune => rn,
 		};
 		if (rn == '>') break;
@@ -219,7 +219,7 @@ fn scan_cdata(par: *parser) (text | error) = {
 fn scan_content(par: *parser) (text | error) = {
 	strio::reset(par.textbuf);
 	for (true) match (bufio::scanrune(par.in)?) {
-		io::EOF => break,
+		_: io::EOF => break,
 		rn: rune => {
 			rn = switch (rn) {
 				'<' => {
@@ -241,7 +241,7 @@ fn scan_element(par: *parser) (token | error) = {
 	want(par, '<')?;
 	let close = false;
 	match (bufio::scanrune(par.in)?) {
-		io::EOF => return syntaxerr,
+		_: io::EOF => return syntaxerr,
 		rn: rune => switch (rn) {
 			'/' => close = true,
 			* => bufio::unreadrune(par.in, rn),
@@ -260,7 +260,7 @@ fn scan_element(par: *parser) (token | error) = {
 fn scan_entity(par: *parser) (rune | error) = {
 	want(par, '&')?;
 	let rn = match (bufio::scanrune(par.in)?) {
-		io::EOF => return syntaxerr,
+		_: io::EOF => return syntaxerr,
 		rn: rune => rn,
 	};
 	return switch (rn) {
@@ -276,7 +276,7 @@ fn scan_entity(par: *parser) (rune | error) = {
 fn scan_charref(par: *parser) (rune | error) = {
 	let base = strconv::base::DEC;
 	match (bufio::scanrune(par.in)?) {
-		io::EOF => return syntaxerr,
+		_: io::EOF => return syntaxerr,
 		rn: rune => if (rn == 'x') {
 			base = strconv::base::HEX;
 		} else bufio::unreadrune(par.in, rn),
@@ -285,7 +285,7 @@ fn scan_charref(par: *parser) (rune | error) = {
 	strio::reset(par.entbuf);
 	for (true) {
 		let rn = match (bufio::scanrune(par.in)?) {
-			io::EOF => return syntaxerr,
+			_: io::EOF => return syntaxerr,
 			rn: rune => rn,
 		};
 		if (ascii::isdigit(rn)) {
@@ -329,7 +329,7 @@ fn scan_name(par: *parser, buf: *io::stream) (str | error) = {
 	strio::reset(buf);
 
 	const rn = match (bufio::scanrune(par.in)?) {
-		io::EOF => return syntaxerr,
+		_: io::EOF => return syntaxerr,
 		rn: rune => rn,
 	};
 	if (!isnamestart(rn)) {
@@ -338,7 +338,7 @@ fn scan_name(par: *parser, buf: *io::stream) (str | error) = {
 	strio::appendrune(buf, rn);
 
 	for (true) match (bufio::scanrune(par.in)?) {
-		io::EOF => return syntaxerr,
+		_: io::EOF => return syntaxerr,
 		rn: rune => if (isname(rn)) {
 			strio::appendrune(buf, rn);
 		} else {
@@ -364,7 +364,7 @@ fn prolog(par: *parser) (void | error) = {
 	let quot = quote(par)?;
 	want(par, OPTWS, "1.")?;
 	for (true) match (bufio::scanrune(par.in)?) {
-		io::EOF => break,
+		_: io::EOF => break,
 		rn: rune => if (!ascii::isdigit(rn)) {
 			bufio::unreadrune(par.in, rn);
 			break;
@@ -374,7 +374,7 @@ fn prolog(par: *parser) (void | error) = {
 
 	let hadws = want(par, OPTWS)?;
 	let encoding = match (bufio::scanrune(par.in)) {
-		io::EOF => false,
+		_: io::EOF => false,
 		rn: rune => {
 			bufio::unreadrune(par.in, rn);
 			hadws && rn == 'e';
@@ -394,7 +394,7 @@ fn prolog(par: *parser) (void | error) = {
 
 	let hadws = want(par, OPTWS)?;
 	let standalone = match (bufio::scanrune(par.in)) {
-		io::EOF => false,
+		_: io::EOF => false,
 		rn: rune => {
 			bufio::unreadrune(par.in, rn);
 			hadws && rn == 's';
@@ -437,7 +437,7 @@ fn want(par: *parser, tok: (rune | str | whitespace)...) (bool | error) = {
 	for (let i = 0z; i < len(tok); i += 1) match (tok[i]) {
 		x: rune => {
 			let have = match (bufio::scanrune(par.in)?) {
-				io::EOF => return syntaxerr,
+				_: io::EOF => return syntaxerr,
 				rn: rune => rn,
 			};
 			if (have != x) {
@@ -454,7 +454,7 @@ fn want(par: *parser, tok: (rune | str | whitespace)...) (bool | error) = {
 		ws: whitespace => {
 			let n = 0;
 			for (true; n += 1) match (bufio::scanrune(par.in)?) {
-				io::EOF => break,
+				_: io::EOF => break,
 				rn: rune => if (!ascii::isspace(rn)) {
 					bufio::unreadrune(par.in, rn);
 					break;
