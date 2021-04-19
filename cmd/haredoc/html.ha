@@ -138,7 +138,6 @@ fn details(decl: ast::decl) (void | error) = {
 
 // Forked from [[hare::unparse]]
 fn unparse_html(out: *io::stream, d: ast::decl) (size | io::error) = {
-	// TODO: Syntax highlighting
 	let n = 0z;
 	match (d.decl) {
 		g: []ast::decl_global => {
