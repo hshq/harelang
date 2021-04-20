@@ -18,7 +18,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 	];
 
 	const expr: ast::expr = if (indirect) {
-		const expr = unarithm(lexer)?;
+		const expr = cast(lexer, void)?;
 		// Disambiguate between
 		// 	* unary-expression assignment-op expression
 		// and
