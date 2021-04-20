@@ -210,6 +210,26 @@
 ");
 };
 
+@test fn match_expr() void = {
+	roundtrip("export fn main() void = {
+	match (x) {
+		i: size => y,
+		_: str => {
+			z;
+		},
+		null => void,
+	};
+	match (x) {
+		s: matchdata => y,
+		_: str => {
+			z;
+		},
+		* => q,
+	};
+};
+");
+};
+
 @test fn unarithm() void = {
 	roundtrip("export fn main() void = +void;\n"
 		"export fn main() void = -void;\n"

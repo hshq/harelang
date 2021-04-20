@@ -244,7 +244,7 @@ export fn expr(
 			z += fmt::fprintf(out, "}}")?;
 			z;
 		},
-		e: ast::match_expr => abort(),
+		e: ast::match_expr => match_expr(out, indent, e)?,
 		e: ast::len_expr => {
 			let z = fmt::fprint(out, "len(")?;
 			z += expr(out, indent, *e)?;
@@ -437,6 +437,50 @@ fn switch_expr(
 		};
 		z += expr(out, indent, *case.value)?;
 		z += fmt::fprint(out, ",")?;
+	};
+
+	indent -= 1;
+	z += newline(out, indent)?;
+	z += fmt::fprint(out, "}")?;
+	return z;
+};
+
+fn match_expr(
+	out: *io::stream,
+	indent: size,
+	e: ast::match_expr,
+) (size | io::error) = {
+	let z = fmt::fprint(out, "match (")?;
+	z += expr(out, indent, *e.value)?;
+	z += fmt::fprint(out, ") {")?;
+	indent += 1;
+
+	for (let i = 0z; i < len(e.cases); i += 1) {
+		z += newline(out, indent)?;
+		const case = e.cases[i];
+		const is_null = match (case._type._type) {
+			b: ast::builtin_type => b == ast::builtin_type::NULL,
+			* => false,
+		};
+		if (len(case.name) > 0) {
+			z += fmt::fprintf(out, "{}: ", case.name)?;
+		} else if (!is_null) {
+			z += fmt::fprintf(out, "_: ")?;
+		};
+		z += _type(out, indent, *case._type)?;
+		z += fmt::fprint(out, " => ")?;
+		z += expr(out, indent, *case.value)?;
+		z += fmt::fprint(out, ",")?;
+	};
+
+	match (e.default) {
+		e: *ast::expr => {
+			z += newline(out, indent)?;
+			z += fmt::fprint(out, "* => ")?;
+			z += expr(out, indent, *e)?;
+			z += fmt::fprint(out, ",")?;
+		},
+		null => void,
 	};
 
 	indent -= 1;

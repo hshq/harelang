@@ -36,7 +36,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 		_: void => binarithm(lexer, void, 0)?,
 		tok: lex::token => switch (tok.0) {
 			ltok::LBRACE => expression_list(lexer)?,
-			ltok::MATCH => abort(), // TODO
+			ltok::MATCH => match_expr(lexer)?,
 			ltok::SWITCH => switch_expr(lexer)?,
 			ltok::IF => if_expr(lexer)?,
 			ltok::LABEL, ltok::FOR => for_expr(lexer)?,
@@ -812,6 +812,75 @@ fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	return ast::switch_expr {
 		value = alloc(value),
 		cases = cases,
+	};
+};
+
+fn match_case(lexer: *lex::lexer) (ast::match_case | error) = {
+	let tok = want(lexer, ltok::NAME, ltok::UNDERSCORE, ltok::NULL)?;
+	let nt = switch (tok.0) {
+		ltok::NAME => {
+			let name = tok.1 as str;
+			want(lexer, ltok::COLON)?;
+			(name, _type(lexer)?);
+		},
+		ltok::UNDERSCORE => {
+			want(lexer, ltok::COLON)?;
+			("", _type(lexer)?);
+		},
+		ltok::NULL => ("", ast::_type {
+			loc = tok.2,
+			flags = 0,
+			_type = ast::builtin_type::NULL,
+		}),
+	};
+	want(lexer, ltok::CASE)?;
+	let expr = expression(lexer)?;
+
+	return ast::match_case {
+		name  = nt.0,
+		_type = alloc(nt.1),
+		value = alloc(expr),
+	};
+};
+
+fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
+	want(lexer, ltok::MATCH)?;
+	want(lexer, ltok::LPAREN)?;
+	const value = expression(lexer)?;
+	want(lexer, ltok::RPAREN)?;
+	want(lexer, ltok::LBRACE)?;
+
+	let cases: []ast::match_case = [];
+	let default: nullable *ast::expr = null;
+	for (true) {
+		match (try(lexer, ltok::TIMES)?) {
+			_: void => append(cases, match_case(lexer)?),
+			t: lex::token => {
+				want(lexer, ltok::CASE)?;
+				if (default != null) {
+					return syntaxerr(t.2, "More than one default match case");
+				};
+				default = alloc(expression(lexer)?);
+			},
+		};
+
+		match (try(lexer, ltok::COMMA)?) {
+			_: void => {
+				want(lexer, ltok::RBRACE)?;
+				break;
+			},
+			_: lex::token => void,
+		};
+		match (try(lexer, ltok::RBRACE)?) {
+			_: void => void,
+			_: lex::token => break,
+		};
+	};
+
+	return ast::match_expr {
+		value   = alloc(value),
+		cases   = cases,
+		default = default,
 	};
 };
 
