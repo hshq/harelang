@@ -1,0 +1,10 @@
+hare::module implements the module resolution algorithm used by Hare. Given that
+it is run within a Hare environment (i.e. with HAREPATH et al filled in), this
+module will resolve module references from their identifiers, producing a list
+of the source files which are necessary, including any necessary considerations
+for build tags. This interface is stable, but specific to this Hare
+implementation, and may not be portable to other Hare implementations.
+
+This module also provides access to the Hare cache via [[manifest]]s and their
+related functions, but this is not considered stable, and may be changed if we
+overhaul the cache format to implement better cachcing strategies.
