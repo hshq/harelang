@@ -1,3 +1,4 @@
+use bufio;
 use fmt;
 use format::html;
 use hare::ast;
@@ -30,10 +31,8 @@ fn emit_html(ctx: *context) (void | error) = {
 	match (ctx.readme) {
 		null => void,
 		f: *io::stream => {
-			// TODO: Format as haredoc markup
 			fmt::println("<div class='readme'>")?;
-			fmt::println("<p>")?;
-			io::copy(os::stdout, f)?;
+			markup_html(f)?;
 			fmt::println("</div>")?;
 		},
 	};
@@ -130,17 +129,57 @@ fn details(decl: ast::decl) (void | error) = {
 	unparse_html(os::stdout, decl)?;
 	fmt::println("</pre>")?;
 
-	// TODO: Apply Hare formatting
-	fmt::println("<p class='comment'>")?;
-	const iter = strings::tokenize(decl.docs, "\n");
-	for (true) match (strings::next_token(&iter)) {
-		s: str => if (len(s) != 0) {
-			html::escape(os::stdout, s)?;
-		},
-		_: void => break,
+	if (len(decl.docs) != 0) {
+		const buf = strings::toutf8(decl.docs);
+		markup_html(bufio::fixed(buf, io::mode::READ))?;
 	};
 
 	fmt::println("</section>")?;
+	return;
+};
+
+fn markup_html(in: *io::stream) (void | io::error) = {
+	let parser = parsedoc(in);
+	for (true) {
+		const tok = match (scandoc(&parser)) {
+			_: void => break,
+			tok: token => tok,
+		};
+		match (tok) {
+			_: paragraph => {
+				fmt::println()?;
+				fmt::print("<p>")?;
+			},
+			tx: text => {
+				html::escape(os::stdout, tx);
+				free(tx);
+			},
+			re: reference => {
+				fmt::print("<a href='#' class='ref'>")?;
+				const ident = unparse::identstr(re);
+				defer free(ident);
+				html::escape(os::stdout, ident);
+				fmt::print("</a>")?;
+				ast::ident_free(re);
+			},
+			sa: sample => {
+				fmt::print("<pre class='sample'>")?;
+				html::escape(os::stdout, sa);
+				fmt::print("</pre>")?;
+				free(sa);
+			},
+			li: list => {
+				fmt::println("<ul>");
+				for (let i = 0z; i < len(li); i += 1) {
+					fmt::println("<li>");
+					html::escape(os::stdout, li[i]);
+					fmt::println("</li>");
+				};
+				fmt::println("</ul>");
+			},
+		};
+	};
+	fmt::println()?;
 	return;
 };
 
