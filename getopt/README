@@ -1,6 +1,6 @@
 getopt provides an interface for parsing command line arguments and
 automatically generates a brief help message explaining the command usage. See
-[parse] for the main entry point.
+[[parse]] for the main entry point.
 
 The help text is brief and should serve only as a reminder. It is recommended
 that your command line program be accompanied by a man page to provide detailed
