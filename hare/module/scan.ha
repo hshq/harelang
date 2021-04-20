@@ -160,6 +160,9 @@ fn scan_directory(
 		if (len(d) == 0 || (
 			!strings::has_prefix(name, "+") &&
 			!strings::has_prefix(name, "-"))) {
+			if (!strings::has_prefix(name, ".")) {
+				append(ver.subdirs, strings::dup(name));
+			};
 			continue;
 		};
 		if (!tagcompat(ctx.tags, tags)) {

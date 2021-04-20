@@ -38,6 +38,21 @@ fn emit_html(ctx: *context) (void | error) = {
 		},
 	};
 
+	if (len(ctx.version.subdirs) != 0) {
+		// TODO: Verify that these are actually modules
+		fmt::println("<h3>Submodules</h3>")?;
+		fmt::println("<ul class='submodules'>")?;
+		for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
+			let dir = ctx.version.subdirs[i];
+			fmt::printf("<li><a href='");
+			html::escape(os::stdout, dir);
+			fmt::printf("'>");
+			html::escape(os::stdout, dir);
+			fmt::printfln("</a></li>");
+		};
+		fmt::println("</ul>")?;
+	};
+
 	fmt::println("<h3>Index</h3>")?;
 	if (len(decls.types) != 0) {
 		fmt::println("<h4>Types</h4>")?;

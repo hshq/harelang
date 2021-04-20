@@ -30,6 +30,7 @@ export type version = struct {
 	basedir: str,
 	depends: []ast::ident,
 	inputs: []input,
+	subdirs: []str,
 };
 
 export type filetype = enum {
