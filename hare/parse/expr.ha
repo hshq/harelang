@@ -54,7 +54,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 
 	synassert(mkloc(lexer),
-		expr is ast::access_expr || expr is ast::slice_expr,
+		expr is ast::access_expr || expr is ast::slice_expr || indirect,
 		"Expected an object-selector or slice for assignment target")?;
 
 	return ast::assign_expr {
