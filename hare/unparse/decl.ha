@@ -21,8 +21,13 @@ export fn decl(out: *io::stream, d: ast::decl) (size | io::error) = {
 				n += ident(out, g[i].ident)?;
 				n += fmt::fprint(out, ": ")?;
 				n += _type(out, 0, g[i]._type)?;
-				n += fmt::fprint(out, " = ")?;
-				n += expr(out, 0, g[i].init)?;
+				match (g[i].init) {
+					null => void,
+					ex: *ast::expr => {
+						n += fmt::fprint(out, " = ")?;
+						n += expr(out, 0, *ex)?;
+					},
+				};
 				if (i + 1 < len(g)) {
 					n += fmt::fprint(out, ", ")?;
 				};
@@ -122,14 +127,14 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 				symbol = "",
 				ident = ["foo", "bar"],
 				_type = type_int,
-				init = expr_void,
+				init = alloc(expr_void),
 			},
 			ast::decl_global {
 				is_const = false,
 				symbol = "foobar",
 				ident = ["baz"],
 				_type = type_int,
-				init = expr_void,
+				init = alloc(expr_void),
 			},
 		],
 	};
@@ -141,7 +146,7 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 			is_const = true,
 			ident = ["foo"],
 			_type = type_int,
-			init = expr_void,
+			init = alloc(expr_void),
 			...
 		},
 	];
