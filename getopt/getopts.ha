@@ -31,9 +31,8 @@ export type flag_help = (flag, str);
 // is the first string and "help text" is the second string.
 export type parameter_help = (flag, str, str);
 
-// Help text for a command or option.
-//
-// cmd_help, flag_help, and parameter_help compose such that the help output for
+// Help text for a command or option. [[cmd_help]], [[flag_help]], and
+// [[parameter_help]] compose such that the following []help:
 //
 // 	[
 // 		"foo bars in order",
@@ -44,16 +43,16 @@ export type parameter_help = (flag, str, str);
 // 		"files...",
 // 	]
 //
-// is:
+// will produce this help text:
 //
-// foo: foo bars in order
+// 	foo: foo bars in order
 //
-// Usage: foo [-ab] [-c <cflag>] [-d <dflag>] files...
+// 	Usage: foo [-ab] [-c <cflag>] [-d <dflag>] files...
 //
-// -a: a help text
-// -b: b help text
-// -c <cflag>: c help text
-// -d <dflag>: d help text
+// 	-a: a help text
+// 	-b: b help text
+// 	-c <cflag>: c help text
+// 	-d <dflag>: d help text
 export type help = (cmd_help | flag_help | parameter_help);
 
 // Parses command line arguments and returns a tuple of the options specified,
@@ -74,7 +73,7 @@ export type help = (cmd_help | flag_help | parameter_help);
 // all flags, then all parameters, alpha-sorted within each group by the flag
 // rune.
 //
-//	// Usage for sed
+// 	// Usage for sed
 // 	let cmd = getopt::parse(os::args
 // 		"stream editor",
 // 		('E', "use extended regular expressions"),
