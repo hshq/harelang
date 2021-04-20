@@ -1,0 +1,42 @@
+A format string consists of a string of literal characters, to be printed
+verbatim, and format sequences, which describe how to format arguments from a
+set of variadic parameters for printing.
+
+A format sequence is enclosed in curly braces "{}". An empty sequence takes the
+next argument from the parameter list, in order. A specific parameter may be
+selected by indexing it from zero: "{0}", "{1}", and so on. To print "{", use
+"{{", and for "}", use "}}".
+
+You may use a colon to add format modifiers; for example, "{:x}" will format an
+argument in hexadecimal, and "{3:-10}" will left-align the 3rd argument to at
+least 10 characters.
+
+The format modifiers takes the form of an optional flag character:
+
+- "0": Numeric values are zero-padded up to the required width.
+- "-": The value shall be left-aligned, and spaces inserted on the right to meet the required width. "-" takes precedence over "0" if both are used.
+- " ": (a space) insert a space before positive numbers, where "-" would be if it were negative.
+- "+": insert a "+" before positive numbers, where "-" would be if it were negative. "+" takes precedence over " " if both are used.
+
+Following the flag, an optional decimal number shall specify the minimum width
+of this field. If "0" or "-" were not given, the default behavior shall be to
+pad with spaces to achieve the necessary width.
+
+Following the width, an optional precision may be given as a decimal number
+following a "." character. For integer types, this gives the minimum number of
+digits to include. For floating types, this gives the number of digits following
+the radix to include.
+
+Following the precision, an optional character controls the output format:
+
+- x, X: print in lowercase or uppercase hexadecimal
+- o, b: print in octal or binary
+
+Some examples:
+
+	fmt::printf("hello {}", "world");		// "hello world"
+	fmt::printf("{1} {0}", "hello", "world");	// "world hello"
+	fmt::printf("{:x} {:X}", 51966, 61453);		// "CAFE F00D"
+	fmt::printf("{:-5}", 42);			// "42   "
+	fmt::printf("{:5}", 42);			// "   42"
+	fmt::printf("{:05}", 42);			// "00042"
