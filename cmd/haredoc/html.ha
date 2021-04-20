@@ -139,7 +139,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 };
 
 fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
-	match (resolve(ctx, ref)) {
+	const ik = match (resolve(ctx, ref)) {
 		_: void => {
 			const ident = unparse::identstr(ref);
 			fmt::errorfln("Warning: Unresolved reference: {}", ident);
@@ -148,14 +148,29 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 				"title='This reference could not be found'>{}</a>",
 				ident)?;
 			free(ident);
+			return;
 		},
-		ik: (ast::ident, symkind) => {
-			const kind = ik.1, id = ik.0;
-			const ident = unparse::identstr(id);
-			fmt::printf("<a href='#{0}' class='ref'>{0}</a>", ident)?;
-			free(ident);
+		ik: (ast::ident, symkind) => ik,
+	};
+
+	const kind = ik.1, id = ik.0;
+	const ident = unparse::identstr(id);
+	switch (kind) {
+		symkind::LOCAL =>
+			fmt::printf("<a href='#{0}' class='ref'>{0}</a>", ident)?,
+		symkind::MODULE => {
+			// TODO: Not necessarily in /stdlib
+			let ipath = module::identpath(id);
+			fmt::printf("<a href='/stdlib/{}' class='ref'>{}</a>",
+				ipath, ident)?;
+		},
+		symkind::SYMBOL => {
+			let ipath = module::identpath(id[..len(id) - 1]);
+			fmt::printf("<a href='/stdlib/{}#{}' class='ref'>{}</a>",
+				ipath, id[len(id) - 1], ident)?;
 		},
 	};
+	free(ident);
 };
 
 fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {

@@ -18,6 +18,7 @@ type format = enum {
 };
 
 type context = struct {
+	mctx: *module::context,
 	ident: ast::ident,
 	tags: []module::tag,
 	version: module::version,
@@ -103,7 +104,8 @@ export fn main() void = {
 		f: *io::stream => io::close(f),
 	};
 
-	let dctx = context {
+	const ctx = context {
+		mctx = &ctx,
 		ident = id,
 		tags = tags,
 		version = version,
@@ -112,7 +114,7 @@ export fn main() void = {
 		template = template,
 		readme = readme,
 	};
-	match (emit(&dctx)) {
+	match (emit(&ctx)) {
 		_: void => void,
 		err: error => fmt::fatal("Error: {}", strerror(err)),
 	};

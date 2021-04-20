@@ -1,4 +1,5 @@
 use hare::ast;
+use hare::module;
 
 type symkind = enum {
 	LOCAL,
@@ -13,7 +14,27 @@ fn resolve(ctx: *context, what: ast::ident) ((ast::ident, symkind) | void) = {
 	if (is_local(ctx, what)) {
 		return (what, symkind::LOCAL);
 	};
-	return void;
+
+	if (len(what) > 1) {
+		// Look for symbol in remote module
+		let partial = what[..len(what) - 1];
+
+		match (module::lookup(ctx.mctx, partial)) {
+			ver: module::version => {
+				return (what, symkind::SYMBOL);
+			},
+			_: module::error => void,
+		};
+	};
+
+	match (module::lookup(ctx.mctx, what)) {
+		ver: module::version => {
+			return (what, symkind::MODULE);
+		},
+		_: module::error => void,
+	};
+
+	return;
 };
 
 fn is_local(ctx: *context, what: ast::ident) bool = {
