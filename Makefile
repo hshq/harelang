@@ -38,7 +38,8 @@ haredoc_srcs=\
 	./cmd/haredoc/env.ha \
 	./cmd/haredoc/hare.ha \
 	./cmd/haredoc/html.ha \
-	./cmd/haredoc/sort.ha
+	./cmd/haredoc/sort.ha \
+	./cmd/haredoc/resolver.ha
 
 $(HARECACHE)/hare.ssa: $(hare_srcs) $(hare_stdlib_deps)
 	@printf 'HAREC\t$@\n'

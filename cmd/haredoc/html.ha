@@ -1,3 +1,4 @@
+// Note: ast::ident should never have to be escaped
 use bufio;
 use fmt;
 use format::html;
@@ -32,7 +33,7 @@ fn emit_html(ctx: *context) (void | error) = {
 		null => void,
 		f: *io::stream => {
 			fmt::println("<div class='readme'>")?;
-			markup_html(f)?;
+			markup_html(ctx, f)?;
 			fmt::println("</div>")?;
 		},
 	};
@@ -66,13 +67,13 @@ fn emit_html(ctx: *context) (void | error) = {
 	fmt::println("<hr />")?;
 
 	for (let i = 0z; i < len(decls.types); i += 1) {
-		details(decls.types[i])?;
+		details(ctx, decls.types[i])?;
 	};
 	for (let i = 0z; i < len(decls.globals); i += 1) {
-		details(decls.globals[i])?;
+		details(ctx, decls.globals[i])?;
 	};
 	for (let i = 0z; i < len(decls.funcs); i += 1) {
-		details(decls.funcs[i])?;
+		details(ctx, decls.funcs[i])?;
 	};
 };
 
@@ -104,7 +105,7 @@ fn tocentry(decl: ast::decl) (void | error) = {
 	return;
 };
 
-fn details(decl: ast::decl) (void | error) = {
+fn details(ctx: *context, decl: ast::decl) (void | error) = {
 	fmt::println("<section class='member'>");
 	fmt::print("<h3 id='")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
@@ -116,9 +117,8 @@ fn details(decl: ast::decl) (void | error) = {
 			_: []ast::decl_global => "let",
 		});
 	unparse::ident(os::stdout, decl_ident(decl))?;
-	// TODO: Make this URL real
+	// TODO: Add source URL
 	fmt::print("<span class='heading-extra'>
-		<a href='#'>[source]</a>
 		<a href='#")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	fmt::print("'>[link]</a>
@@ -131,14 +131,34 @@ fn details(decl: ast::decl) (void | error) = {
 
 	if (len(decl.docs) != 0) {
 		const buf = strings::toutf8(decl.docs);
-		markup_html(bufio::fixed(buf, io::mode::READ))?;
+		markup_html(ctx, bufio::fixed(buf, io::mode::READ))?;
 	};
 
 	fmt::println("</section>")?;
 	return;
 };
 
-fn markup_html(in: *io::stream) (void | io::error) = {
+fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
+	match (resolve(ctx, ref)) {
+		_: void => {
+			const ident = unparse::identstr(ref);
+			fmt::errorfln("Warning: Unresolved reference: {}", ident);
+			fmt::printf("<a href='#' "
+				"class='ref invalid' "
+				"title='This reference could not be found'>{}</a>",
+				ident)?;
+			free(ident);
+		},
+		ik: (ast::ident, symkind) => {
+			const kind = ik.1, id = ik.0;
+			const ident = unparse::identstr(id);
+			fmt::printf("<a href='#{0}' class='ref'>{0}</a>", ident)?;
+			free(ident);
+		},
+	};
+};
+
+fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {
 	let parser = parsedoc(in);
 	for (true) {
 		const tok = match (scandoc(&parser)) {
@@ -154,14 +174,7 @@ fn markup_html(in: *io::stream) (void | io::error) = {
 				html::escape(os::stdout, tx);
 				free(tx);
 			},
-			re: reference => {
-				fmt::print("<a href='#' class='ref invalid'>")?;
-				const ident = unparse::identstr(re);
-				defer free(ident);
-				html::escape(os::stdout, ident);
-				fmt::print("</a>")?;
-				ast::ident_free(re);
-			},
+			re: reference => htmlref(ctx, re)?,
 			sa: sample => {
 				fmt::print("<pre class='sample'>")?;
 				html::escape(os::stdout, sa);
