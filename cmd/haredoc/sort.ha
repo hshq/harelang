@@ -60,6 +60,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 		};
 	};
 
+	sort::sort(sorted.errors, size(ast::decl), &decl_cmp);
 	sort::sort(sorted.types, size(ast::decl), &decl_cmp);
 	sort::sort(sorted.globals, size(ast::decl), &decl_cmp);
 	sort::sort(sorted.funcs, size(ast::decl), &decl_cmp);
