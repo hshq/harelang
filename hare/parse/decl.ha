@@ -38,15 +38,18 @@ fn decl_global(
 				_: lex::token => attr_symbol(lexer)?,
 			};
 		} else "";
-		let ident = ident(lexer)?;
+		const ident = ident(lexer)?;
 		want(lexer, ltok::COLON)?;
 		let _type = _type(lexer)?;
 		if (tok == ltok::CONST) {
 			_type.flags |= ast::type_flags::CONST;
 		};
-		want(lexer, ltok::EQUAL)?;
-		let init = expression(lexer)?;
-		let btok = try(lexer, ltok::COMMA)?;
+		const init: nullable *ast::expr =
+			match (try(lexer, ltok::EQUAL)?) {
+				_: lex::token => alloc(expression(lexer)?),
+				_: void => null,
+			};
+		const btok = try(lexer, ltok::COMMA)?;
 		append(decl, ast::decl_global {
 			is_const = tok == ltok::DEF,
 			symbol = symbol,

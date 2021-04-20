@@ -7,7 +7,7 @@ export type decl_global = struct {
 	symbol: str,
 	ident: ident,
 	_type: _type,
-	init: expr,
+	init: nullable *expr,
 };
 
 // type foo = int;
