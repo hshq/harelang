@@ -153,20 +153,20 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 		ik: (ast::ident, symkind) => ik,
 	};
 
+	// TODO: The reference is not necessarily in the stdlib
 	const kind = ik.1, id = ik.0;
 	const ident = unparse::identstr(id);
 	switch (kind) {
 		symkind::LOCAL =>
 			fmt::printf("<a href='#{0}' class='ref'>{0}</a>", ident)?,
 		symkind::MODULE => {
-			// TODO: Not necessarily in /stdlib
 			let ipath = module::identpath(id);
-			fmt::printf("<a href='/stdlib/{}' class='ref'>{}</a>",
+			fmt::printf("<a href='/{}' class='ref'>{}</a>",
 				ipath, ident)?;
 		},
 		symkind::SYMBOL => {
 			let ipath = module::identpath(id[..len(id) - 1]);
-			fmt::printf("<a href='/stdlib/{}#{}' class='ref'>{}</a>",
+			fmt::printf("<a href='/{}#{}' class='ref'>{}</a>",
 				ipath, id[len(id) - 1], ident)?;
 		},
 	};
