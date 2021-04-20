@@ -689,7 +689,6 @@ $(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_str
 
 # os::exec
 stdlib_os_exec_srcs= \
-	$(STDLIB)/os/exec/$(PLATFORM).ha \
 	$(STDLIB)/os/exec/exec$(PLATFORM).ha \
 	$(STDLIB)/os/exec/process$(PLATFORM).ha \
 	$(STDLIB)/os/exec/types.ha \
@@ -1571,7 +1570,6 @@ $(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib
 
 # os::exec
 testlib_os_exec_srcs= \
-	$(STDLIB)/os/exec/$(PLATFORM).ha \
 	$(STDLIB)/os/exec/exec$(PLATFORM).ha \
 	$(STDLIB)/os/exec/process$(PLATFORM).ha \
 	$(STDLIB)/os/exec/types.ha \

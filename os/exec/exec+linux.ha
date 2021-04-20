@@ -3,6 +3,8 @@ use rt;
 use strings;
 use os;
 
+export type platform_cmd = int;
+
 // Forks the current process, returning the pid of the child (to the parent) and
 // void (to the child), or an error.
 export fn fork() (int | void | error) = match (rt::fork()) {
