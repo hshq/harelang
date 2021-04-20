@@ -23,7 +23,7 @@ export type pwent = struct {
 };
 
 // Reads a Unix-like password entry from a stream. The caller must free the
-// result using [[unix::passwd::pwent_finish]].
+// result using [[pwent_finish]].
 export fn nextpw(stream: *io::stream) (pwent | io::EOF | io::error | invalid) = {
 	let line = match (bufio::scanline(stream)?) {
 		_: io::EOF => return io::EOF,
@@ -75,7 +75,7 @@ export fn pwent_finish(ent: pwent) void = {
 // database file at /etc/passwd. Aborts if that file doesn't exist or is not
 // properly formatted.
 //
-// See [[unix::passwd::nextpw]] for low-level parsing API.
+// See [[nextpw]] for low-level parsing API.
 export fn getuser(username: str) (pwent | void) = {
 	let file = match (os::open("/etc/passwd")) {
 		s: *io::stream => s,
