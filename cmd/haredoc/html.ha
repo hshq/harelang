@@ -155,7 +155,7 @@ fn markup_html(in: *io::stream) (void | io::error) = {
 				free(tx);
 			},
 			re: reference => {
-				fmt::print("<a href='#' class='ref'>")?;
+				fmt::print("<a href='#' class='ref invalid'>")?;
 				const ident = unparse::identstr(re);
 				defer free(ident);
 				html::escape(os::stdout, ident);
@@ -384,6 +384,10 @@ ol li {
 
 h2, h3, h4 {
 	display: flex;
+}
+
+.invalid {
+	color: red;
 }
 
 .heading-extra {
