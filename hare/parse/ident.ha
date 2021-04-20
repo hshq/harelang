@@ -29,14 +29,15 @@ fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	return (ident: ast::ident, false);
 };
 
-// Parses a single identifier, i.e. foo::bar::baz
+// Parses a single identifier, i.e. 'foo::bar::baz'.
 export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 	let ident = ident_trailing(lexer)?;
 	synassert(mkloc(lexer), !ident.1, "Unexpected trailing :: in ident")?;
 	return ident.0;
 };
 
-// Parses an identifier from a string.
+// A convenience function which parses an identifier from a string, so the
+// caller needn't provide a lexer instance.
 export fn identstr(in: str) (ast::ident | error) = {
 	const buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
 	defer io::close(buf);

@@ -1,1 +1,5 @@
-hare::lex provides a lexer for Hare source code.
+hare::lex provides a lexer for Hare source code. A lexer takes an [[io::stream]]
+and returns a series of Hare [[token]]s. See the Hare specification for more
+details:
+
+https://harelang.org/specification

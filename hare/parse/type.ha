@@ -379,7 +379,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 	};
 };
 
-// Parses a type
+// Parses a type, e.g. '[]int'.
 export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 	let flags: ast::type_flags = match (try(lexer, ltok::CONST)?) {
 		_: void => 0,

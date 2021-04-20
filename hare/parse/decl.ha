@@ -140,7 +140,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 	};
 };
 
-// Parses the declarations for a sub-unit
+// Parses the declarations for a sub-unit.
 export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 	let decls: []ast::decl = [];
 	for (true) {
