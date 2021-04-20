@@ -590,6 +590,7 @@ $(HARECACHE)/hash/fnv/hash_fnv.ssa: $(stdlib_hash_fnv_srcs) $(stdlib_rt) $(stdli
 stdlib_io_srcs= \
 	$(STDLIB)/io/arch$(ARCH).ha \
 	$(STDLIB)/io/copy.ha \
+	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/println$(PLATFORM).ha \
 	$(STDLIB)/io/stream.ha \
@@ -1467,6 +1468,7 @@ $(TESTCACHE)/hash/fnv/hash_fnv.ssa: $(testlib_hash_fnv_srcs) $(testlib_rt) $(tes
 testlib_io_srcs= \
 	$(STDLIB)/io/arch$(ARCH).ha \
 	$(STDLIB)/io/copy.ha \
+	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/println$(PLATFORM).ha \
 	$(STDLIB)/io/stream.ha \

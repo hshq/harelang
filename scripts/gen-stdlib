@@ -426,6 +426,7 @@ gensrcs_io() {
 	gen_srcs io \
 		'arch$(ARCH).ha' \
 		copy.ha \
+		drain.ha \
 		limit.ha \
 		'println$(PLATFORM).ha' \
 		stream.ha \
