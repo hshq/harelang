@@ -11,7 +11,7 @@ export type invalid = void!;
 export type noaccess = void!;
 
 // An entry was requested which does not exist.
-export type noentry = void;
+export type noentry = void!;
 
 // The requested operation caused a numeric overflow condition.
 export type overflow = void!;
@@ -29,4 +29,4 @@ export type error = (
 	overflow |
 	unsupported |
 	opaque
-);
+)!;

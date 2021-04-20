@@ -4,6 +4,7 @@ use sort;
 
 type summary = struct {
 	// TODO: Constants
+	errors: []ast::decl,
 	types: []ast::decl,
 	globals: []ast::decl,
 	funcs: []ast::decl,
@@ -26,7 +27,11 @@ fn sort_decls(decls: []ast::decl) summary = {
 			f: ast::decl_func => append(sorted.funcs, decl),
 			t: []ast::decl_type =>
 				for (let j = 0z; j < len(t); j += 1) {
-					append(sorted.types, ast::decl {
+					let bucket = &sorted.types;
+					if (t[j]._type.flags & ast::type_flags::ERROR == ast::type_flags::ERROR) {
+						bucket = &sorted.errors;
+					};
+					append(*bucket, ast::decl {
 						exported = true,
 						loc = decl.loc,
 						decl = {

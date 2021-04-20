@@ -38,11 +38,21 @@ fn emit_html(ctx: *context) (void | error) = {
 		},
 	};
 
+	fmt::println("<h3>Index</h3>")?;
 	if (len(decls.types) != 0) {
 		fmt::println("<h4>Types</h4>")?;
 		fmt::println("<pre>")?;
 		for (let i = 0z; i < len(decls.types); i += 1) {
 			tocentry(decls.types[i])?;
+		};
+		fmt::print("</pre>")?;
+	};
+
+	if (len(decls.errors) != 0) {
+		fmt::println("<h4>Errors</h4>")?;
+		fmt::println("<pre>")?;
+		for (let i = 0z; i < len(decls.errors); i += 1) {
+			tocentry(decls.errors[i])?;
 		};
 		fmt::print("</pre>")?;
 	};
@@ -64,16 +74,33 @@ fn emit_html(ctx: *context) (void | error) = {
 		};
 		fmt::println("</pre>")?;
 	};
-	fmt::println("<hr />")?;
 
-	for (let i = 0z; i < len(decls.types); i += 1) {
-		details(ctx, decls.types[i])?;
+	if (len(decls.types) != 0) {
+		fmt::println("<h3>Types</h3>")?;
+		for (let i = 0z; i < len(decls.types); i += 1) {
+			details(ctx, decls.types[i])?;
+		};
 	};
-	for (let i = 0z; i < len(decls.globals); i += 1) {
-		details(ctx, decls.globals[i])?;
+
+	if (len(decls.errors) != 0) {
+		fmt::println("<h3>Errors</h3>")?;
+		for (let i = 0z; i < len(decls.errors); i += 1) {
+			details(ctx, decls.errors[i])?;
+		};
 	};
-	for (let i = 0z; i < len(decls.funcs); i += 1) {
-		details(ctx, decls.funcs[i])?;
+
+	if (len(decls.globals) != 0) {
+		fmt::println("<h3>Globals</h3>")?;
+		for (let i = 0z; i < len(decls.globals); i += 1) {
+			details(ctx, decls.globals[i])?;
+		};
+	};
+
+	if (len(decls.funcs) != 0) {
+		fmt::println("<h3>Functions</h3>")?;
+		for (let i = 0z; i < len(decls.funcs); i += 1) {
+			details(ctx, decls.funcs[i])?;
+		};
 	};
 };
 
@@ -93,7 +120,7 @@ fn tocentry(decl: ast::decl) (void | error) = {
 	match (decl.decl) {
 		g: []ast::decl_global => {
 			let g = g[0];
-			fmt::fprint(os::stdout, ": ")?;
+			fmt::print(": ")?;
 			type_html(os::stdout, 0, g._type, true)?;
 		},
 		t: []ast::decl_type => void,
@@ -107,7 +134,7 @@ fn tocentry(decl: ast::decl) (void | error) = {
 
 fn details(ctx: *context, decl: ast::decl) (void | error) = {
 	fmt::println("<section class='member'>");
-	fmt::print("<h3 id='")?;
+	fmt::print("<h4 id='")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	fmt::print("'>")?;
 	fmt::printf("{} ",
@@ -123,7 +150,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	fmt::print("'>[link]</a>
 	</span>")?;
-	fmt::println("</h3>")?;
+	fmt::println("</h4>")?;
 
 	fmt::println("<pre class='decl'>")?;
 	unparse_html(os::stdout, decl)?;
@@ -425,6 +452,11 @@ ol li {
 
 h2, h3, h4 {
 	display: flex;
+}
+
+h3 {
+	border-bottom: 1px solid #ccc;
+	padding-bottom: 0.25rem;
 }
 
 .invalid {

@@ -49,6 +49,12 @@ fn is_local(ctx: *context, what: ast::ident) bool = {
 			return true;
 		};
 	};
+	for (let i = 0z; i < len(summary.errors); i += 1) {
+		const name = decl_ident(summary.errors[i])[0];
+		if (name == what[0]) {
+			return true;
+		};
+	};
 	for (let i = 0z; i < len(summary.globals); i += 1) {
 		const name = decl_ident(summary.globals[i])[0];
 		if (name == what[0]) {
