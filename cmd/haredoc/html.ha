@@ -164,6 +164,11 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 	</span>")?;
 	fmt::println("</h4>")?;
 
+	if (len(decl.docs) == 0) {
+		fmt::println("<details>");
+		fmt::println("<summary>Show undocumented member</summary>");
+	};
+
 	fmt::println("<pre class='decl'>")?;
 	unparse_html(os::stdout, decl)?;
 	fmt::println("</pre>")?;
@@ -171,6 +176,8 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 	if (len(decl.docs) != 0) {
 		const buf = strings::toutf8(decl.docs);
 		markup_html(ctx, bufio::fixed(buf, io::mode::READ))?;
+	} else {
+		fmt::println("</details>");
 	};
 
 	fmt::println("</section>")?;
@@ -485,7 +492,21 @@ h3 {
 
 h4:target + pre {
 	background: #ddf;
-};
+}
+
+details {
+	background: #eee;
+	margin: 1rem -1rem 1rem; 
+}
+
+summary {
+	cursor: pointer;
+	padding: 0.5rem 1rem;
+}
+
+details pre {
+	margin: 0;
+}
 
 @media(max-width: 1000px) {
 	main {
