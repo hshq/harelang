@@ -80,8 +80,9 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(hare_testlib_deps)
 	@env HAREPATH=. ./.bin/hare build -o .bin/haredoc ./cmd/haredoc
 
 docs/hare.1: docs/hare.scd
+docs/haredoc.1: docs/haredoc.scd
 
-docs: docs/hare.1
+docs: docs/hare.1 docs/haredoc.1
 
 clean:
 	@rm -rf .cache .bin
