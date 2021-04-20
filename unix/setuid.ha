@@ -8,7 +8,7 @@ use rt;
 // therefore we require this function to succeed. If you need to handle the
 // error case gracefully, call the appropriate syscall wrapper in [[rt]] yourself,
 // and take extreme care to handle errors correctly.
-export fn setuid(uid: uint) void = rt::setresuid(uid, -1: uint, -1: uint) as void;
+export fn setuid(uid: uint) void = rt::setresuid(uid, -1i: uint, -1i: uint) as void;
 
 // Sets the caller's effective user ID to the specified value. This generally
 // requires elevated permissions from the calling process.
@@ -18,7 +18,7 @@ export fn setuid(uid: uint) void = rt::setresuid(uid, -1: uint, -1: uint) as voi
 // therefore we require this function to succeed. If you need to handle the
 // error case gracefully, call the appropriate syscall wrapper in [[rt]] yourself,
 // and take extreme care to handle errors correctly.
-export fn seteuid(uid: uint) void = rt::setresuid(-1: uint, uid, -1: uint) as void;
+export fn seteuid(uid: uint) void = rt::setresuid(-1i: uint, uid, -1i: uint) as void;
 
 // Sets the caller's group ID to the specified value. This generally requires
 // elevated permissions from the calling process.
@@ -28,7 +28,7 @@ export fn seteuid(uid: uint) void = rt::setresuid(-1: uint, uid, -1: uint) as vo
 // therefore we require this function to succeed. If you need to handle the
 // error case gracefully, call the appropriate syscall wrapper in [[rt]] yourself,
 // and take extreme care to handle errors correctly.
-export fn setgid(gid: uint) void = rt::setresgid(gid, -1: uint, -1: uint) as void;
+export fn setgid(gid: uint) void = rt::setresgid(gid, -1i: uint, -1i: uint) as void;
 
 // Sets the caller's effective group ID to the specified value. This generally
 // requires elevated permissions from the calling process.
@@ -38,4 +38,4 @@ export fn setgid(gid: uint) void = rt::setresgid(gid, -1: uint, -1: uint) as voi
 // therefore we require this function to succeed. If you need to handle the
 // error case gracefully, call the appropriate syscall wrapper in [[rt]] yourself,
 // and take extreme care to handle errors correctly.
-export fn setegid(gid: uint) void = rt::setresgid(-1: uint, gid, -1: uint) as void;
+export fn setegid(gid: uint) void = rt::setresgid(-1i: uint, gid, -1i: uint) as void;
