@@ -189,6 +189,20 @@ fn lex_string(lex: *lexer, loc: location) (token | error) = {
 				strio::appendrune(buf, r);
 			},
 	};
+	match (nextw(lex)?) {
+		_: io::EOF => void,
+		r: (rune, location) => {
+			const r = r.0;
+			if (r == '"') {
+				const tok = lex_string(lex, loc)?;
+				const next = tok.1 as str;
+				strio::concat(buf, next);
+				free(next);
+			} else {
+				unget(lex, r);
+			};
+		},
+	};
 	return (ltok::LIT_STR, strio::finish(buf), loc);
 };
 
