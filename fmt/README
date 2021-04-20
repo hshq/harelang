@@ -36,7 +36,7 @@ Some examples:
 
 	fmt::printf("hello {}", "world");		// "hello world"
 	fmt::printf("{1} {0}", "hello", "world");	// "world hello"
-	fmt::printf("{:x} {:X}", 51966, 61453);		// "CAFE F00D"
+	fmt::printf("{:x} {:X}", 51966, 61453);		// "cafe F00D"
 	fmt::printf("{:-5}", 42);			// "42   "
 	fmt::printf("{:5}", 42);			// "   42"
 	fmt::printf("{:05}", 42);			// "00042"
