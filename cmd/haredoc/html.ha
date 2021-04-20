@@ -327,9 +327,8 @@ fn head(ident: ast::ident) (void | error) = {
 	fmt::printfln("<!doctype html>
 <html lang='en'>
 <meta charset='utf-8' />
-<title>{} — Hare documentation", ident)?;
-	fmt::println("</title>
-<style>
+<title>{} — Hare documentation</title>", ident)?;
+	fmt::println("<style>
 body {
 	font-family: sans-serif;
 	line-height: 1.3;
