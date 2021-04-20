@@ -1,0 +1,7 @@
+The os module provides access to resources from the host operating system,
+particularly to the filesystem and standard I/O. [[cwd]] provides an
+implementation of [[fs::fs]] which is backed by the host filesystem, and this
+module provides equivalents of various [[fs]] functions which infer the current
+working directory as the fs parameter. This module also provides various
+non-filesystem related features from the host, such as the hostname, environment
+variables, and so on.

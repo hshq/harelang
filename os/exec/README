@@ -1,0 +1,5 @@
+os::exec handles the execution of arbitrary commands. A programmer who needs to
+spawn an external command will usually utilize [[cmd]] to obtain a [[command]]
+instance (possibly using functions like [[setenv]] to customize it), then
+[[start]] to execute it and obtain a [[process]] (or, [[exec]] to replace the
+current process with it), then [[wait]] or [[peek]] to check in on its status.
