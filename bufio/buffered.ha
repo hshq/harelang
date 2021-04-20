@@ -4,8 +4,6 @@ use errors;
 use io;
 use strings;
 
-// This type is not stable, and is exported for internal use in the standard
-// library.
 export type bufstream = struct {
 	stream: io::stream,
 	source: *io::stream,

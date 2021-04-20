@@ -61,41 +61,10 @@ fn emit_html(ctx: *context) (void | error) = {
 	};
 
 	fmt::println("<h3>Index</h3>")?;
-	if (len(decls.types) != 0) {
-		fmt::println("<h4>Types</h4>")?;
-		fmt::println("<pre>")?;
-		for (let i = 0z; i < len(decls.types); i += 1) {
-			tocentry(decls.types[i])?;
-		};
-		fmt::print("</pre>")?;
-	};
-
-	if (len(decls.errors) != 0) {
-		fmt::println("<h4>Errors</h4>")?;
-		fmt::println("<pre>")?;
-		for (let i = 0z; i < len(decls.errors); i += 1) {
-			tocentry(decls.errors[i])?;
-		};
-		fmt::print("</pre>")?;
-	};
-
-	if (len(decls.globals) != 0) {
-		fmt::println("<h4>Globals</h4>")?;
-		fmt::print("<pre>")?;
-		for (let i = 0z; i < len(decls.globals); i += 1) {
-			tocentry(decls.globals[i])?;
-		};
-		fmt::print("</pre>")?;
-	};
-
-	if (len(decls.funcs) != 0) {
-		fmt::println("<h4>Functions</h4>")?;
-		fmt::print("<pre>")?;
-		for (let i = 0z; i < len(decls.funcs); i += 1) {
-			tocentry(decls.funcs[i])?;
-		};
-		fmt::println("</pre>")?;
-	};
+	tocentries(decls.types, "Types", "types")?;
+	tocentries(decls.errors, "Errors", "Errors")?;
+	tocentries(decls.globals, "Globals", "globals")?;
+	tocentries(decls.funcs, "Functions", "functions")?;
 
 	if (len(decls.types) != 0) {
 		fmt::println("<h3>Types</h3>")?;
@@ -124,6 +93,27 @@ fn emit_html(ctx: *context) (void | error) = {
 			details(ctx, decls.funcs[i])?;
 		};
 	};
+};
+
+fn tocentries(decls: []ast::decl, name: str, lname: str) (void | error) = {
+	if (len(decls) == 0) {
+		return;
+	};
+	fmt::printfln("<h4>{}</h4>", name)?;
+	fmt::println("<pre>")?;
+	let undoc = false;
+	for (let i = 0z; i < len(decls); i += 1) {
+		if (!undoc && decls[i].docs == "") {
+			fmt::printfln(
+				"{}<span style='color: #444'>// Undocumented {}:</span>",
+				if (i == 0) "" else "\n",
+				lname)?;
+			undoc = true;
+		};
+		tocentry(decls[i])?;
+	};
+	fmt::print("</pre>")?;
+	return;
 };
 
 fn tocentry(decl: ast::decl) (void | error) = {
