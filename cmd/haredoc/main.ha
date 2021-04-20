@@ -82,6 +82,10 @@ export fn main() void = {
 
 	for (let i = 0z; i < len(version.inputs); i += 1) {
 		const in = version.inputs[i];
+		const ext = path::extension(in.path);
+		if (ext.1 != ".ha") {
+			continue;
+		};
 		match (scan(in.path)) {
 			u: ast::subunit => append(decls, u.decls...),
 			err: error => fmt::fatal("Error: {}", strerror(err)),
