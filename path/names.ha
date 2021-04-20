@@ -61,7 +61,6 @@ export fn extension(p: str) (str, str) = {
 	if (len(b) == 0 || b[len(b) - 1] == PATHSEP) {
 		return (p, "");
 	};
-	let b = strings::toutf8(p);
 	let i = match (bytes::index(b, '.': u32: u8)) {
 		_: void => return (p, ""),
 		z: size => z,
