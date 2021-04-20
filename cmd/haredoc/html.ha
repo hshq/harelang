@@ -493,6 +493,10 @@ h3 {
 	color: #444;
 }
 
+h4:target + pre {
+	background: #ddf;
+};
+
 @media(max-width: 1000px) {
 	main {
 		padding: 0;
