@@ -74,7 +74,7 @@ export type help = (cmd_help | flag_help | parameter_help);
 // rune.
 //
 // 	// Usage for sed
-// 	let cmd = getopt::parse(os::args
+// 	const cmd = getopt::parse(os::args,
 // 		"stream editor",
 // 		('E', "use extended regular expressions"),
 // 		('s', "treat files as separate, rather than one continuous stream"),
