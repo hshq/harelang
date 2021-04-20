@@ -318,16 +318,30 @@ fn prototype_html(
 	return n;
 };
 
-fn head(ident: ast::ident) (void | error) = {
-	const ident = unparse::identstr(ident);
-	defer free(ident);
+fn breadcrumb(ident: ast::ident) str = {
+	let buf = strio::dynamic();
+	fmt::fprintf(buf, "<a href='/'>stdlib</a> » ");
+	for (let i = 0z; i < len(ident) - 1; i += 1) {
+		let ipath = module::identpath(ident[..i+1]);
+		defer free(ipath);
+		fmt::fprintf(buf, "<a href='{}'>{}</a>::", ipath, ident[i]);
+	};
+	fmt::fprint(buf, ident[len(ident) - 1]);
+	return strio::finish(buf);
+};
 
-	// TODO: Fix up breadcrumb
-	// TODO: Move me to +embed?
+fn head(ident: ast::ident) (void | error) = {
+	const id = unparse::identstr(ident);
+	defer free(id);
+
+	let breadcrumb = breadcrumb(ident);
+	defer free(breadcrumb);
+
+	// TODO: Move bits to +embed?
 	fmt::printfln("<!doctype html>
 <html lang='en'>
 <meta charset='utf-8' />
-<title>{} — Hare documentation</title>", ident)?;
+<title>{} — Hare documentation</title>", id)?;
 	fmt::println("<style>
 body {
 	font-family: sans-serif;
@@ -440,14 +454,10 @@ h2, h3, h4 {
 	<ul>
 		<li>
 			<a href='https://harelang.org'>Home</a>
-		</li>
-		<li>
-			<a href='#'>stdlib</a> »
-			<a href='#'>hash</a>::fnv
-		</li>
-	</ul>
+		</li>");
+	fmt::printf("<li>{}</li>", breadcrumb);
+	fmt::print("</ul>
 </nav>
-<main>
-")?;
+<main>")?;
 	return;
 };
