@@ -322,6 +322,8 @@ pre {
 	padding: 0.25rem 1rem;
 	margin: 0 -1rem 1rem;
 	font-size: 1.2rem;
+	max-width: calc(100% + 1rem);
+	overflow-x: auto;
 }
 
 pre .keyword {
