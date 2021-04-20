@@ -110,6 +110,12 @@ fn details(decl: ast::decl) (void | error) = {
 	fmt::print("<h3 id='")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	fmt::print("'>")?;
+	fmt::printf("{} ",
+		match (decl.decl) {
+			_: ast::decl_func => "fn",
+			_: []ast::decl_type => "type",
+			_: []ast::decl_global => "let",
+		});
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	// TODO: Make this URL real
 	fmt::print("<span class='heading-extra'>
