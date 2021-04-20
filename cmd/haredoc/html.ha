@@ -53,6 +53,13 @@ fn emit_html(ctx: *context) (void | error) = {
 		fmt::println("</ul>")?;
 	};
 
+	if (len(decls.types) == 0
+			&& len(decls.errors) == 0
+			&& len(decls.globals) == 0
+			&& len(decls.funcs) == 0) {
+		return;
+	};
+
 	fmt::println("<h3>Index</h3>")?;
 	if (len(decls.types) != 0) {
 		fmt::println("<h4>Types</h4>")?;

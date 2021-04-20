@@ -1,0 +1,3 @@
+crypto provides implementations of various cryptography-related standards.
+
+Hare's cryptography implementation has not been audited.
