@@ -31,12 +31,13 @@ export fn main() void = {
 	// TODO: Use format::TTY by default if stdout is a tty
 	let fmt = format::HARE;
 	let template = true;
-	const cmd = getopt::parse(os::args,
+	const help: [_]getopt::help = [
 		"reads and formats Hare documentation",
 		('F', "format", "specify output format (hare, tty, html, or gemtext)"),
 		('t', "disable HTML template (requries postprocessing)"),
 		"[identifiers...]",
-	);
+	];
+	const cmd = getopt::parse(os::args, help...);
 	defer getopt::finish(&cmd);
 
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
@@ -62,7 +63,10 @@ export fn main() void = {
 	let ctx = module::context_init(tags, [], default_harepath());
 	defer module::context_finish(&ctx);
 
-	assert(len(cmd.args) == 1); // TODO: Something more sophisticated here
+	if (len(cmd.args) < 1) {
+		getopt::printusage(os::stderr, os::args[0], help);
+		os::exit(1);
+	};
 
 	const id = match (parse::identstr(cmd.args[0])) {
 		err: parse::error => fmt::fatal(parse::strerror(err)),
