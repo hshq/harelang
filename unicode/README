@@ -1,9 +1,9 @@
 This module provides Unicode support for Hare programs.
 
 Programs which deal with basic text manipulation are likely to be served
-sufficiently by the [encoding::utf8], [strings], [ascii], and so on. For
+sufficiently by the [[encoding::utf8]], [[strings]], [[ascii]], and so on. For
 example, the question of "is this character uppercase?" is often sufficiently
-answered with [ascii::isupper], and matters such as Unicode string equivalence
+answered with [[ascii::isupper]], and matters such as Unicode string equivalence
 are often fraught with error potential - for example, a vulnerability was once
 found in a web login form which used a Unicode equivalence comparison on
 usernames, allowing a malicious actor to register a username which was bytewise
@@ -24,7 +24,7 @@ accompanied by a reading of the Unicode standard. The documentation for each
 type and function makes an effort to direct the reader to the appropriate part
 of the Unicode standard.
 
-See the [i18n] module for a high-level internationalization API.
+See the [[i18n]] module for a high-level internationalization API.
 
 The present implementation of this module conforms to Unicode 13.0.0, which was
 released on March 11th, 2020.
