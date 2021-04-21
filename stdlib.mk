@@ -856,7 +856,9 @@ $(HARECACHE)/unix/passwd/unix_passwd.ssa: $(stdlib_unix_passwd_srcs) $(stdlib_rt
 
 # unix::tty
 stdlib_unix_tty_srcs= \
-	$(STDLIB)/unix/tty/isatty.ha
+	$(STDLIB)/unix/tty/isatty.ha \
+	$(STDLIB)/unix/tty/types.ha \
+	$(STDLIB)/unix/tty/$(PLATFORM)/winsize.ha
 
 $(HARECACHE)/unix/tty/unix_tty.ssa: $(stdlib_unix_tty_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_io) $(stdlib_os)
 	@printf 'HAREC \t$@\n'
@@ -1753,7 +1755,9 @@ $(TESTCACHE)/unix/passwd/unix_passwd.ssa: $(testlib_unix_passwd_srcs) $(testlib_
 
 # unix::tty
 testlib_unix_tty_srcs= \
-	$(STDLIB)/unix/tty/isatty.ha
+	$(STDLIB)/unix/tty/isatty.ha \
+	$(STDLIB)/unix/tty/types.ha \
+	$(STDLIB)/unix/tty/$(PLATFORM)/winsize.ha
 
 $(TESTCACHE)/unix/tty/unix_tty.ssa: $(testlib_unix_tty_srcs) $(testlib_rt) $(testlib_rt) $(testlib_io) $(testlib_os)
 	@printf 'HAREC \t$@\n'

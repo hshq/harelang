@@ -653,7 +653,9 @@ unix_passwd() {
 
 unix_tty() {
 	gen_srcs unix::tty \
-		isatty.ha
+		isatty.ha \
+        types.ha \
+		'$(PLATFORM)/winsize.ha'
 	gen_ssa unix::tty rt io os
 }
 
