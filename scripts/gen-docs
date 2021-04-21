@@ -10,7 +10,7 @@ mkdir -p docs/html/
 
 curl https://harelang.org/mascot.jpg > docs/html/mascot.jpg
 haredoc -Fhtml > docs/html/index.html
-for mod in $modules compress format encoding math crypto hare
+for mod in $modules compress format encoding math crypto hare rt
 do
 	path="$(echo $mod | sed -e 's?::?/?g')"
 	mkdir -p docs/html/$path
