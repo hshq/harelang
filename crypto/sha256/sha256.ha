@@ -6,7 +6,7 @@ use io;
 // The size, in bytes, of a SHA-256 digest.
 export def SIZE: size = 32;
 
-// Loosely based on the Go implementation
+// This is loosely based on the Go implementation
 def chunk: size = 64;
 def init0: u32 = 0x6A09E667;
 def init1: u32 = 0xBB67AE85;

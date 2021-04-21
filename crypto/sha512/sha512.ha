@@ -3,9 +3,6 @@ use endian;
 use hash;
 use io;
 
-// Package sha512 implements the SHA-384, SHA-512, SHA-512/224, and SHA-512/256
-// hash algorithms as defined in FIPS 180-4.
-
 type variant = enum {
 	SHA384,
 	SHA512,
@@ -13,16 +10,16 @@ type variant = enum {
 	SHA512_256,
 };
 
-// The size, in bytes, of the SHA-512 checksum.
+// The size, in bytes, of a SHA-512 checksum.
 export def SIZE: size = 64;
 
-// The size, in bytes, of the SHA-512/224 checksum.
+// The size, in bytes, of a SHA-512/224 checksum.
 export def SIZE224: size = 28;
 
-// The size, in bytes, of the SHA-512/256 checksum.
+// The size, in bytes, of a SHA-512/256 checksum.
 export def SIZE256: size = 32;
 
-// The size, in bytes, of the SHA-384 checksum.
+// The size, in bytes, of a SHA-384 checksum.
 export def SIZE384: size = 48;
 
 def chunk: size = 128;

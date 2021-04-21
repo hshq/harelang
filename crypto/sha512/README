@@ -1,0 +1,2 @@
+The sha512 module implements the SHA-384, SHA-512, SHA-512/224, and SHA-512/256
+hash algorithms as defined in FIPS 180-4.

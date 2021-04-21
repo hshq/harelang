@@ -3,7 +3,7 @@ use io;
 use crypto::math;
 use endian;
 
-// The size, in bytes, of a MD5 digest.
+// The size, in bytes, of an MD5 digest.
 export def SIZE: size = 16;
 
 def chunk: size = 64;
@@ -20,10 +20,10 @@ type digest = struct {
 	ln: size,
 };
 
-// Creates a [[hash::hash]] which computes a MD5 hash as defined in RFC 1321. Note
-// that MD5 is cryptographically broken and should not be used for secure
-// applications. Where possible, applications are encouraged to use [[sha256]] or
-// [[sha512]] instead.
+// Creates a [[hash::hash]] which computes a MD5 hash as defined in RFC 1321.
+// Note that MD5 is cryptographically broken and should not be used for secure
+// applications. Where possible, applications are encouraged to use [[sha256]]
+// or [[sha512]] instead.
 export fn md5() *hash::hash = {
 	let md5 = alloc(digest {
 		hash = hash::hash {
