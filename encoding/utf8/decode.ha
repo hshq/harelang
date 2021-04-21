@@ -2,7 +2,6 @@ use types;
 
 fn toutf8(in: str) []u8 = *(&in: *[]u8);
 
-// The state for the UTF-8 decoder.
 export type decoder = struct {
 	offs: size,
 	src: []u8,
@@ -14,16 +13,15 @@ export fn decode(src: (str | []u8)) decoder = match (src) {
 	b: []u8 => decoder { src = b, ...  },
 };
 
-// Indicates that more data is needed, i.e. that a partial UTF-8 sequence was
+// Returned when more data is needed, i.e. when an incomplete UTF-8 sequence is
 // encountered.
 export type more = void;
 
-// An error indicating that an invalid UTF-8 sequence was found.
+// Returned when an invalid UTF-8 sequence was found.
 export type invalid = void!;
 
-// Returns the next rune from a decoder. If the slice ends with a complete UTF-8
-// sequence, void is returned. If an incomplete sequence is encountered, more is
-// returned. And if an invalid sequence is encountered, invalid is returned.
+// Returns the next rune from a decoder. void is returned when there are no
+// remaining codepoints.
 export fn next(d: *decoder) (rune | void | more | invalid) = {
 	assert(d.offs <= len(d.src));
 	if (d.offs == len(d.src)) {
@@ -55,9 +53,8 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 	return r: rune;
 };
 
-// Returns the previous rune from a decoder. If the slice starts with a complete UTF-8
-// sequence, void is returned. If an incomplete sequence is encountered, more is
-// returned. And if an invalid sequence is encountered, invalid is returned.
+// Returns the previous rune from a decoder. void is returned when there are no
+// previous codepoints.
 export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	if (d.offs == 0) {
 		return;

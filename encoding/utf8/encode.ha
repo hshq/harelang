@@ -1,5 +1,6 @@
-// Encodes a rune as UTF-8 and returns the result as a slice. The result is
-// statically allocated; duplicate it if you aren't using it right away.
+// Encodes a rune as UTF-8 and returns the result as a slice. The return value
+// is statically allocated, and will not be consistent after subsequent calls to
+// encoderune.
 export fn encoderune(r: rune) []u8 = {
 	let ch = r: u32, n = 0z, first = 0u8;
 	if (ch < 0x80) {
