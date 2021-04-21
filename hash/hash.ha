@@ -1,5 +1,5 @@
-use io;
 // TODO: Let caller supply the output buffer, to avoid the slice allocation
+use io;
 
 // The general purpose interface for a hashing function.
 export type hash = struct {
