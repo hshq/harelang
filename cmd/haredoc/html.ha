@@ -531,7 +531,7 @@ details pre {
 </style>
 <nav>
 	<img
-		src='https://harelang.org/mascot.jpg'
+		src='/mascot.jpg'
 		alt='An inked drawing of the Hare mascot, a fuzzy rabbit'
 		width='128' height='128' />
 	<h1>Hare documentation</h1>

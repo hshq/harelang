@@ -1,4 +1,5 @@
 image: alpine/latest
+oauth: pages.sr.ht/PAGES:RW
 sources:
 - https://git.sr.ht/~sircmpwn/qbe
 - https://git.sr.ht/~sircmpwn/harec
@@ -24,3 +25,14 @@ tasks:
 - check: |
     cd hare
     make check
+- docs: |
+    if [ $BUILD_SUBMITTER != "git.sr.ht" ]
+    then
+        echo "Skipping docs for non-git.sr.ht build"
+        exit
+    fi
+    cd hare
+    . hare.sh
+    ./scripts/gen-docs
+    tar -C docs/html -cvz . > docs.tar.gz
+    acurl -f https://pages.sr.ht/publish/docs.harelang.org -Fcontent=@docs.tar.gz
