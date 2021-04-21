@@ -398,11 +398,18 @@ fn head(ident: ast::ident) (void | error) = {
 	let breadcrumb = breadcrumb(ident);
 	defer free(breadcrumb);
 
+	const title =
+		if (len(id) == 0)
+			fmt::asprintf("Hare documentation")
+		else 
+			fmt::asprintf("{} — Hare documentation", id);
+	defer free(title);
+
 	// TODO: Move bits to +embed?
 	fmt::printfln("<!doctype html>
 <html lang='en'>
 <meta charset='utf-8' />
-<title>{} — Hare documentation</title>", id)?;
+<title>{}</title>", title)?;
 	fmt::println("<style>
 body {
 	font-family: sans-serif;
