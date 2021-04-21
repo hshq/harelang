@@ -53,8 +53,8 @@ export fn parser_free(par: *parser) void = {
 };
 
 // Scans for and returns the next [[token]]. Tokens are borrowed from the parser
-// and are not valid on subsequent calls to [[scan]]; use [[token_dup]] to extend
-// their lifetime.
+// and are not valid on subsequent calls to [[scan]]; use [[token_dup]] to
+// extend their lifetime.
 export fn scan(par: *parser) (token | void | error) = {
 	switch (par.state) {
 		state::ROOT, state::ATTRS => want(par, OPTWS)?,

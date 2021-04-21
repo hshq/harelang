@@ -2,13 +2,13 @@ use encoding::utf8;
 use io;
 use os;
 
-// Represents the state for an XML parser.
 export type parser = struct {
 	orig: *io::stream,
 	in: *io::stream,
 	buf: [os::BUFSIZ]u8,
 	state: state,
 	tags: []str,
+
 	// strio buffers:
 	namebuf: *io::stream,
 	entbuf: *io::stream,
@@ -50,5 +50,3 @@ export fn strerror(err: error) const str = {
 		err: io::error => io::strerror(err),
 	};
 };
-
-export fn token_dup(tok: token) void = abort(); // TODO
