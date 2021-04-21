@@ -52,6 +52,7 @@ fn emit_html(ctx: *context) (void | error) = {
 		fmt::println("<ul class='submodules'>")?;
 		for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
 			let dir = ctx.version.subdirs[i];
+			if (dir == "cmd") continue;
 			fmt::printf("<li><a href='");
 			html::escape(os::stdout, dir);
 			fmt::printf("'>");
