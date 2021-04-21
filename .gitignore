@@ -2,3 +2,4 @@ config.mk
 .cache
 .bin
 *.1
+docs/html
