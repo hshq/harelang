@@ -225,6 +225,9 @@ hare_stdlib_deps+=$(stdlib_unix)
 stdlib_unix_passwd=$(HARECACHE)/unix/passwd/unix_passwd.o
 hare_stdlib_deps+=$(stdlib_unix_passwd)
 
+stdlib_unix_tty=$(HARECACHE)/unix/tty/unix_tty.o
+hare_stdlib_deps+=$(stdlib_unix_tty)
+
 stdlib_uuid=$(HARECACHE)/uuid/uuid.o
 hare_stdlib_deps+=$(stdlib_uuid)
 
@@ -851,6 +854,16 @@ $(HARECACHE)/unix/passwd/unix_passwd.ssa: $(stdlib_unix_passwd_srcs) $(stdlib_rt
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::passwd \
 		-t$(HARECACHE)/unix/passwd/unix_passwd.td $(stdlib_unix_passwd_srcs)
 
+# unix::tty
+stdlib_unix_tty_srcs= \
+	$(STDLIB)/unix/tty/isatty.ha
+
+$(HARECACHE)/unix/tty/unix_tty.ssa: $(stdlib_unix_tty_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_io) $(stdlib_os)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/tty
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::tty \
+		-t$(HARECACHE)/unix/tty/unix_tty.td $(stdlib_unix_tty_srcs)
+
 # uuid
 stdlib_uuid_srcs= \
 	$(STDLIB)/uuid/uuid.ha
@@ -1088,6 +1101,9 @@ hare_testlib_deps+=$(testlib_unix)
 
 testlib_unix_passwd=$(TESTCACHE)/unix/passwd/unix_passwd.o
 hare_testlib_deps+=$(testlib_unix_passwd)
+
+testlib_unix_tty=$(TESTCACHE)/unix/tty/unix_tty.o
+hare_testlib_deps+=$(testlib_unix_tty)
 
 testlib_uuid=$(TESTCACHE)/uuid/uuid.o
 hare_testlib_deps+=$(testlib_uuid)
@@ -1734,6 +1750,16 @@ $(TESTCACHE)/unix/passwd/unix_passwd.ssa: $(testlib_unix_passwd_srcs) $(testlib_
 	@mkdir -p $(TESTCACHE)/unix/passwd
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::passwd \
 		-t$(TESTCACHE)/unix/passwd/unix_passwd.td $(testlib_unix_passwd_srcs)
+
+# unix::tty
+testlib_unix_tty_srcs= \
+	$(STDLIB)/unix/tty/isatty.ha
+
+$(TESTCACHE)/unix/tty/unix_tty.ssa: $(testlib_unix_tty_srcs) $(testlib_rt) $(testlib_rt) $(testlib_io) $(testlib_os)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/tty
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \
+		-t$(TESTCACHE)/unix/tty/unix_tty.td $(testlib_unix_tty_srcs)
 
 # uuid
 testlib_uuid_srcs= \

@@ -651,6 +651,12 @@ unix_passwd() {
 	gen_ssa unix::passwd bufio io os strconv strings
 }
 
+unix_tty() {
+	gen_srcs unix::tty \
+		isatty.ha
+	gen_ssa unix::tty rt io os
+}
+
 uuid() {
 	gen_srcs uuid \
 		uuid.ha
@@ -711,6 +717,7 @@ types
 unicode
 unix
 unix_passwd
+unix_tty
 uuid"
 stdlib() {
 	rt

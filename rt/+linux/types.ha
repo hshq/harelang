@@ -556,3 +556,12 @@ export type cmsg = struct {
 export def PRIO_PROCESS: int = 0;
 export def PRIO_PGRP: int = 1;
 export def PRIO_USER: int = 2;
+
+export type winsize = struct {
+	ws_row: u16,
+	ws_col: u16,
+	ws_xpixel: u16,
+	ws_ypixel: u16,
+};
+
+export def TIOCGWINSZ: u64 = 0x5413;
