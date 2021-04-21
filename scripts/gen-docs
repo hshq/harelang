@@ -2,8 +2,8 @@
 # Yes, I am entirely aware that this is a hack
 modules=$(awk '
 /^modules="/ { sub(/.*=\"/, ""); gsub(/_/, "::"); print $1; mods = 1 }
-/^[a-z_]+$/ { if (mods == 1) { gsub(/_/, "::"); print $1 } }
-/^[a-z]+"$/ { if (mods == 1) { mods = 0; sub(/"/, ""); gsub(/_/, "::"); print $1 } }
+/^[a-z][a-z0-9_]+$/ { if (mods == 1) { gsub(/_/, "::"); print $1 } }
+/^[a-z][a-z0-9_]+"$/ { if (mods == 1) { mods = 0; sub(/"/, ""); gsub(/_/, "::"); print $1 } }
 ' < scripts/gen-stdlib)
 
 mkdir -p docs/html/
