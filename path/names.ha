@@ -52,9 +52,9 @@ export fn basename(path: str) str = {
 //
 // The extension includes the '.' character.
 //
-// extension("foo/example") => ("example", "")
-// extension("foo/example.txt") => ("example", ".txt")
-// extension("foo/example.tar.gz") => ("example", ".tar.gz")
+// 	extension("foo/example") => ("example", "")
+// 	extension("foo/example.txt") => ("example", ".txt")
+// 	extension("foo/example.tar.gz") => ("example", ".tar.gz")
 export fn extension(p: str) (str, str) = {
 	let p = basename(p);
 	let b = strings::toutf8(p);

@@ -6,7 +6,6 @@ export type iflags = enum uint {
 	ABSOLUTE = 1 << 0,
 };
 
-// An iterator which yields each component of a path.
 export type iterator = struct {
 	tok: bytes::tokenizer,
 	flags: iflags,
@@ -15,7 +14,7 @@ export type iterator = struct {
 let pathsep: []u8 = [PATHSEP];
 
 // Returns an iterator which yields each component of a path. If the path is
-// absolute, the first component will be the root path (e.g. /).
+// absolute, the first component will be the root path (e.g. "/").
 export fn iter(path: str) iterator = {
 	let flags = iflags::NONE;
 	let pb = strings::toutf8(path);
