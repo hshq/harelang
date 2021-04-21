@@ -1,17 +1,18 @@
 use hare::lex;
 
-// foo
+// A type alias.
 export type alias_type = struct {
 	unwrap: bool,
 	ident: ident,
 };
 
-// int, bool, ...
+// A built-in primitive type (int, bool, str, etc).
 export type builtin_type = enum {
 	BOOL, CHAR, F32, F64, FCONST, I16, I32, I64, I8, ICONST, INT, NULL,
 	RUNE, SIZE, STR, U16, U32, U64, U8, UINT, UINTPTR, VOID,
 };
 
+// An enumeration field (and optional value).
 export type enum_field = struct {
 	name: str,
 	value: nullable *expr,
@@ -23,16 +24,19 @@ export type enum_type = struct {
 	values: []enum_field,
 };
 
+// The variadism strategy for a function type.
 export type variadism = enum {
 	NONE,
 	C,
 	HARE,
 };
 
+// The attributes associated with a function type.
 export type func_attrs = enum uint {
 	NORETURN = 1 << 0,
 };
 
+// A parameter to a function type.
 export type func_param = struct {
 	loc: lex::location,
 	name: str,
@@ -47,8 +51,13 @@ export type func_type = struct {
 	params: []func_param,
 };
 
+// The length for a list type which is a slice (e.g. []int).
 export type len_slice = void;
+
+// The length for a list type which is unbounded (e.g. [*]int).
 export type len_unbounded = void;
+
+// The length for a list type which is inferred from context (e.g. [_]int).
 export type len_contextual = void;
 
 // []int, [*]int, [_]int, [foo]int
@@ -57,6 +66,7 @@ export type list_type = struct {
 	members: *_type,
 };
 
+// Flags which apply to a pointer type.
 export type pointer_flags = enum uint {
 	NULLABLE = 1 << 0,
 };
@@ -67,13 +77,16 @@ export type pointer_type = struct {
 	flags: pointer_flags,
 };
 
+// A single field of a struct type.
 export type struct_field = struct {
 	name: str,
 	_type: *_type,
 };
 
+// An embedded struct type.
 export type struct_embedded = *_type;
 
+// An embedded type alias.
 export type struct_alias = ident;
 
 // struct { @offset(10) foo: int, struct { bar: int }, baz::quux }
@@ -94,12 +107,13 @@ export type tagged_type = []*_type;
 // (int, bool, ...)
 export type tuple_type = []*_type;
 
+// Flags which apply to types.
 export type type_flags = enum uint {
 	CONST = 1 << 0,
 	ERROR = 1 << 1,
 };
 
-// A type
+// A Hare type.
 export type _type = struct {
 	loc: lex::location,
 	flags: type_flags,
@@ -132,6 +146,7 @@ fn struct_type_free(t: (struct_type | union_type)) void = {
 	free(membs);
 };
 
+// Frees resources associated with a [[_type]].
 export fn type_free(t: (_type | nullable *_type)) void = match (t) {
 	t: nullable *_type => match (t) {
 		null => void,

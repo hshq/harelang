@@ -13,10 +13,10 @@ export type import_objects = struct {
 	objects: []str,
 };
 
-// An imported module
+// An imported module.
 export type import = (import_module | import_alias | import_objects);
 
-// Frees resources associated with an import.
+// Frees resources associated with an [[import]].
 export fn import_free(import: import) void = {
 	match (import) {
 		m: import_module => ident_free(m: ident),

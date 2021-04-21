@@ -1,50 +1,70 @@
 use hare::lex;
 
-// foo
+// An identifier access expression.
+//
+// 	foo
 export type access_identifier = ident;
 
-// foo[0]
+// An index access expression.
+//
+// 	foo[0]
 export type access_index = struct {
 	object: *expr,
 	index: *expr,
 };
 
-// foo.bar
+// A struct field access expression.
+//
+// 	foo.bar
 export type access_field = struct {
 	object: *expr,
 	field: str,
 };
 
-// foo.1
+// A tuple field access expression.
+//
+// 	foo.1
 export type access_tuple = struct {
 	object: *expr,
 	value: *expr,
 };
 
+// An access expression.
 export type access_expr =
 	(access_identifier | access_index | access_field | access_tuple);
 
-// alloc(foo)
+// An allocation expression.
+//
+// 	alloc(foo)
 export type alloc_expr = struct {
 	init: *expr,
 	capacity: nullable *expr,
 };
 
-// append(foo, bar, (more), baz...)
+// An append expression.
+//
+// 	append(foo, bar, (more), baz...)
 export type append_expr = struct {
 	object: *expr,
 	variadic: nullable *expr,
 	values: []*expr,
 };
 
-// assert(foo), assert(foo, "error"), abort(), abort("error")
+// An assertion expression.
+//
+// 	assert(foo)
+// 	assert(foo, "error")
+// 	abort()
+// 	abort("error")
 export type assert_expr = struct {
 	cond: nullable *expr,
 	message: nullable *expr,
 	is_static: bool,
 };
 
-// foo = bar
+// An assignment expression.
+//
+// 	foo = bar
 export type assign_expr = struct {
 	op: (binarithm_op | void),
 	object: *expr,
@@ -76,90 +96,123 @@ export type binarithm_op = enum {
 	BXOR,	// ^
 };
 
-// foo * bar
+// A binary arithmetic expression.
+//
+// 	foo * bar
 export type binarithm_expr = struct {
 	op: binarithm_op,
 	lvalue: *expr,
 	rvalue: *expr,
 };
 
-// foo: int = bar
+// A single variable biding.
+//
+// 	foo: int = bar
 export type binding = struct {
 	name: str,
 	_type: nullable *_type,
 	init: *expr,
 };
 
-// let foo: int = bar, ...
+// A variable binding expression.
+//
+// 	let foo: int = bar, ...
 export type binding_expr = struct {
 	is_static: bool,
 	is_const: bool,
 	bindings: []binding,
 };
 
-// break :label
+// A break expression. The label is set to empty string if absent.
+//
+// 	break :label
 export type break_expr = label;
 
-// foo(bar)
+// A function call expression.
+//
+// 	foo(bar)
 export type call_expr = struct {
 	lvalue: *expr,
 	variadic: bool,
 	args: []*expr,
 };
 
-// TODO: Should this be rehomed with the checked AST?
+// The kind of cast expression being used.
 export type cast_kind = enum {
+	// TODO: Should this be rehomed with the checked AST?
 	CAST,
 	ASSERTION,
 	TEST,
 };
 
-// foo: int
+// A cast expression.
+//
+// 	foo: int
+// 	foo as int
+// 	foo is int
 export type cast_expr = struct {
 	kind: cast_kind,
 	value: *expr,
 	_type: *_type,
 };
 
-// [foo, bar, ...]
+// An array constant.
+//
+// 	[foo, bar, ...]
 export type array_constant = struct {
 	expand: bool,
 	values: []*expr,
 };
 
+// A single struct field and value.
+//
+// 	foo: int = 10
 export type struct_value = struct {
 	name: str,
 	_type: nullable *_type,
 	init: *expr,
 };
 
-// struct { foo: int = bar, struct { baz = quux }, ... }
+// A struct constant.
+//
+// 	struct { foo: int = bar, struct { baz = quux }, ... }
 export type struct_constant = struct {
 	autofill: bool,
 	alias: ident, // [] for anonymous
 	fields: [](struct_value | *struct_constant),
 };
 
-// (foo, bar, ...)
+// A tuple constant.
+//
+// 	(foo, bar, ...)
 export type tuple_constant = []*expr;
 
 // The value "null".
 export type _null = void;
 
-// A constant
+// A constant expression.
 export type constant_expr = (void | bool | _null | lex::value | array_constant |
 	struct_constant | tuple_constant);
 
-// continue :label
+// A continue expression. The label is set to empty string if absent.
+//
+// 	continue :label
 export type continue_expr = label;
 
-// defer foo
+// A deferred expression.
+//
+// 	defer foo
 export type defer_expr = *expr;
 
-// delete(foo)
+// A delete expression.
+//
+// 	delete(foo[10])
+// 	delete(foo[4..42])
 export type delete_expr = *expr;
 
-// :label for (let foo = 0; foo < bar; baz) quux
+// A for loop. The label is set to empty string if absent.
+//
+// 	:label for (let foo = 0; foo < bar; baz) quux
 export type for_expr = struct {
 	label: label,
 	bindings: nullable *expr,
@@ -168,10 +221,14 @@ export type for_expr = struct {
 	body: *expr,
 };
 
-// free(foo)
+// A free expression.
+//
+// 	free(foo)
 export type free_expr = *expr;
 
-// if (foo) bar else baz
+// An if or if..else expression.
+//
+// 	if (foo) bar else baz
 export type if_expr = struct {
 	cond: *expr,
 	tbranch: *expr,
@@ -181,50 +238,78 @@ export type if_expr = struct {
 // :label. The ":" character is not included.
 export type label = str;
 
-// len(foo)
+// A length expression.
+//
+// 	len(foo)
 export type len_expr = *expr;
 
-// { foo; bar; ... }
+// An expression list.
+//
+// 	{
+// 		foo;
+// 		bar;
+// 		// ...
+// 	}
 export type list_expr = []*expr;
 
+// A match case.
+//
+// 	name: type => expr
 export type match_case = struct {
 	name: str,
 	_type: *_type,
 	value: *expr,
 };
 
-// match (foo) { int => bar, ... }
+// A match expression.
+//
+// 	match (foo) { _: int => bar, ... }
 export type match_expr = struct {
 	value: *expr,
 	cases: []match_case,
 	default: nullable *expr,
 };
 
-// offset(foo.bar)
+// An offset expression.
+// 
+// 	offset(foo.bar)
 export type offset_expr = void; // TODO
 
-// foo?
+// An error propagation expression.
+//
+// 	foo?
 export type propagate_expr = *expr;
 
-// return foo
+// A return statement.
+//
+// 	return foo
 export type return_expr = nullable *expr;
 
-// size(int)
+// A size expression.
+//
+// 	size(int)
 export type size_expr = *_type;
 
-// foo[bar..baz]
+// A slicing expression.
+//
+// 	foo[bar..baz]
 export type slice_expr = struct {
 	object: *expr,
 	start: nullable *expr,
 	end: nullable *expr,
 };
 
+// A switch case.
+//
+// 	value => expr
 export type switch_case = struct {
 	options: []*expr, // [] for *
 	value: *expr,
 };
 
-// switch (foo) { bar => baz, ... }
+// A switch expression.
+//
+// 	switch (foo) { bar => baz, ... }
 export type switch_expr = struct {
 	value: *expr,
 	cases: []switch_case,
@@ -241,13 +326,15 @@ export type unarithm_op = enum {
 	PLUS,	// +
 };
 
-// Unary arithmetic
+// A unary arithmetic expression.
+//
+// 	!example
 export type unarithm_expr = struct {
 	op: unarithm_op,
 	operand: *expr,
 };
 
-// An expression
+// A Hare expression.
 export type expr = (access_expr | alloc_expr | append_expr | assert_expr |
 	assign_expr | binarithm_expr | binding_expr | break_expr | call_expr |
 	cast_expr | constant_expr | continue_expr | defer_expr | delete_expr |
@@ -255,6 +342,7 @@ export type expr = (access_expr | alloc_expr | append_expr | assert_expr |
 	size_expr | offset_expr | propagate_expr | return_expr | slice_expr |
 	switch_expr | unarithm_expr);
 
+// Frees resources associated with a Hare [[expr]]ession.
 export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 	e: nullable *expr => match (e) {
 		null => void,

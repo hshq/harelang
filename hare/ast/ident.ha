@@ -7,7 +7,7 @@ export type ident = []str;
 // In other words, the length of "a::b::c" is 5.
 export def IDENT_MAX: size = 255;
 
-// Frees resources associated with an identifier.
+// Frees resources associated with an [[ident]]ifier.
 export fn ident_free(ident: ident) void = {
 	for (let i = 0z; i < len(ident); i += 1) {
 		free(ident[i]);
@@ -15,7 +15,7 @@ export fn ident_free(ident: ident) void = {
 	free(ident);
 };
 
-// Returns true if two idents are identical.
+// Returns true if two [[ident]]s are identical.
 export fn ident_eq(a: ident, b: ident) bool = {
 	if (len(a) != len(b)) {
 		return false;

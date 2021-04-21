@@ -1,7 +1,9 @@
 use hare::lex;
 
-// let foo: int = 0;
-// const foo: int = 0;
+// A global declaration.
+//
+// 	let foo: int = 0;
+// 	const foo: int = 0;
 export type decl_global = struct {
 	is_const: bool,
 	symbol: str,
@@ -10,13 +12,15 @@ export type decl_global = struct {
 	init: nullable *expr,
 };
 
-// type foo = int;
+// A type declaration.
+//
+// 	type foo = int;
 export type decl_type = struct {
 	ident: ident,
 	_type: _type,
 };
 
-// Represents the @fini/@init/@test attributes associated with a function
+// Represents the @fini/@init/@test attributes associated with a function.
 export type fndecl_attrs = enum {
 	NONE,
 	FINI,
@@ -24,6 +28,8 @@ export type fndecl_attrs = enum {
 	TEST,
 };
 
+// A function declaration.
+//
 // fn main() void = void;
 export type decl_func = struct {
 	symbol: str,
@@ -33,7 +39,7 @@ export type decl_func = struct {
 	attrs: fndecl_attrs,
 };
 
-// A declaration
+// A Hare declaration.
 export type decl = struct {
 	exported: bool,
 	loc: lex::location,
@@ -43,7 +49,7 @@ export type decl = struct {
 	docs: str,
 };
 
-// Frees resources associated with a declaration
+// Frees resources associated with a declaration.
 export fn decl_free(d: decl) void = match (d.decl) {
 	g: []decl_global => {
 		for (let i = 0z; i < len(g); i += 1) {

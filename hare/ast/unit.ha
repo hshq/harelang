@@ -4,6 +4,7 @@ export type subunit = struct {
 	decls: []decl,
 };
 
+// Frees resources associated with a [[subunit]].
 export fn subunit_free(u: subunit) void = {
 	for (let i = 0z; i < len(u.imports); i += 1) {
 		import_free(u.imports[i]);
