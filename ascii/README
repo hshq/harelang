@@ -1,0 +1,3 @@
+The ascii module provides helper functions for working with the subset of
+Unicode which is defined by the American Standard Code for Information
+Interchange (ASCII).
