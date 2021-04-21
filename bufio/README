@@ -1,0 +1,12 @@
+bufio provides [[io::stream]] implementations which provide buffered I/O
+operations. The [[buffered]] stream will batch reads and writes for an
+underlying stream, using a caller-provided buffer as temporary storage. The
+[[dynamic]] and [[fixed]] streams produce an [[io::stream]] which reads from or
+writes to a data buffer (dynamically and statically allocated, respectively).
+
+Utilities for "scanning" a stream are also provided via [[scantok]] et al. These
+will work with any [[io::stream]], but are only efficient on a [[buffered]]
+stream.
+
+The use of a [[buffered]] stream also allows the caller to utilize the
+[[unread]] family of functions.

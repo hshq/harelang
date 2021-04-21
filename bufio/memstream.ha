@@ -9,9 +9,9 @@ type memstream = struct {
 	pos: size,
 };
 
-// Creates an [[io::stream]] for a fixed, caller-supplied buffer. Supports either
-// read or write, but not both. Readable streams are seekable. The program
-// aborts if writes would exceed the buffer's capacity.
+// Creates an [[io::stream]] for a fixed, caller-supplied buffer. Supports
+// either read or write, but not both. Readable streams are seekable. The
+// program aborts if writes would exceed the buffer's capacity.
 export fn fixed(in: []u8, mode: io::mode) *io::stream = {
 	let s = alloc(memstream {
 		stream = io::stream {
@@ -52,15 +52,16 @@ fn fixed_close(s: *io::stream) void = free(s);
 // into. Subsequent reads will consume the buffered data. Upon failure to
 // allocate sufficient memory to store writes, the program aborts.
 //
-// Calling [[io::close]] on this stream will free the buffer. Call [[bufio::finish]]
-// instead to free up resources associated with the stream, but transfer
-// ownership of the buffer to the caller.
+// Calling [[io::close]] on this stream will free the buffer. Call
+// [[bufio::finish]] instead to free up resources associated with the stream,
+// but transfer ownership of the buffer to the caller.
 export fn dynamic(mode: io::mode) *io::stream = dynamic_from([], mode);
 
-// Like [[dynamic]], but takes an existing slice as input. Writes are appended to
-// it and reads consume bytes from the initial buffer, plus any additional
+// Like [[dynamic]], but takes an existing slice as input. Writes are appended
+// to it and reads consume bytes from the initial buffer, plus any additional
 // writes. Like [[dynamic]], calling [[io::close]] will free the buffer, and
-// [[bufio::finish]] can be used to return ownership of the buffer to the caller.
+// [[bufio::finish]] can be used to return ownership of the buffer to the
+// caller.
 export fn dynamic_from(in: []u8, mode: io::mode) *io::stream = {
 	let s = alloc(memstream {
 		stream = io::stream {
