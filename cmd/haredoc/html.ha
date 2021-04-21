@@ -8,6 +8,7 @@ use hare::module;
 use hare::unparse;
 use io;
 use os;
+use path;
 use strings;
 use strio;
 
@@ -53,8 +54,14 @@ fn emit_html(ctx: *context) (void | error) = {
 		for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
 			let dir = ctx.version.subdirs[i];
 			if (dir == "cmd") continue;
+
+			let path = module::identpath(ctx.ident);
+			defer free(path);
+			let path = path::join("/", path, dir);
+			defer free(path);
+
 			fmt::printf("<li><a href='");
-			html::escape(os::stdout, dir);
+			html::escape(os::stdout, path);
 			fmt::printf("'>");
 			html::escape(os::stdout, dir);
 			fmt::printfln("</a></li>");
