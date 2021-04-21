@@ -19,7 +19,11 @@ fn emit_html(ctx: *context) (void | error) = {
 
 	if (ctx.template) head(ctx.ident)?;
 
-	fmt::printf("<h2>{} <span class='heading-extra'>", ident);
+	if (len(ident) == 0) {
+		fmt::printf("<h2>The Hare standard library <span class='heading-extra'>", ident);
+	} else {
+		fmt::printf("<h2>{} <span class='heading-extra'>", ident);
+	};
 	for (let i = 0z; i < len(ctx.tags); i += 1) {
 		const mode = switch (ctx.tags[i].mode) {
 			module::tag_mode::INCLUSIVE => '+',
