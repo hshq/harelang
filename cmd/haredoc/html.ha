@@ -422,7 +422,7 @@ body {
 }
 
 nav:not(#TableOfContents) {
-	max-width: 1000px;
+	max-width: calc(800px + 128px + 128px);
 	margin: 1rem auto 0;
 	display: grid;
 	grid-template-rows: auto auto 1fr;
