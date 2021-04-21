@@ -1,4 +1,4 @@
-// Returns the offset of the first instance of 'needle' in a 'haystack' of
+// Returns the offset of the first instance of "needle" in a "haystack" of
 // bytes, or void if it is not found.
 export fn index(haystack: []u8, needle: (u8 | []u8)) (size | void) = {
 	return match (needle) {
@@ -22,7 +22,7 @@ fn index_slice(haystack: []u8, b: []u8) (size | void) = switch (len(b)) {
 	* => index_tw(haystack, b),
 };
 
-// Returns the offset of the last instance of 'needle' in a 'haystack' of
+// Returns the offset of the last instance of "needle" in a "haystack" of
 // bytes, or void if it is not found.
 export fn rindex(haystack: []u8, needle: (u8 | []u8)) (size | void) = {
 	return match (needle) {

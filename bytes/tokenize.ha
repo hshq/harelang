@@ -1,12 +1,11 @@
 use types;
 
-// The state for a tokenizer.
 export type tokenizer = struct { s: []u8, d: []u8, p: size };
 
-// Returns a tokenizer which yields sub-slices tokenized by a delimiter.
-// Caller should ensure delim is not an empty slice
+// Returns a tokenizer which yields sub-slices tokenized by a delimiter. The
+// caller must ensure "delim" is not an empty slice.
 export fn tokenize(s: []u8, delim: []u8) tokenizer = {
-	assert(len(delim) > 0);
+	assert(len(delim) > 0, "bytes::tokenize called with empty slice");
 	if (len(s) == 0) {
 		delim = [];
 	};
