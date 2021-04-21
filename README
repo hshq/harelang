@@ -1,0 +1,12 @@
+This is the Hare standard library reference documentation. For a guided
+introduction to the standard library, see the tutorial:
+
+https://harelang.org/tutorials/stdlib
+
+The standard library mandate states that the following services are provided:
+
+- An interface to the host operating system
+- Implementations of broadly useful algorithms
+- Implementations of broadly useful formats and protocols
+- Useful features to complement Hare language features
+- Introspective meta-features for Hare-aware programs

@@ -2,10 +2,10 @@
 
 The Hare standard library shall provide:
 
-1. Useful features to complement Hare language features
 2. An interface to the host operating system
 3. Implementations of broadly useful algorithms
 4. Implementations of broadly useful formats and protocols
+1. Useful features to complement Hare language features
 5. Introspective meta-features for Hare-aware programs
 
 Each of these services shall:

@@ -64,15 +64,12 @@ export fn main() void = {
 	let ctx = module::context_init(tags, [], default_harepath());
 	defer module::context_finish(&ctx);
 
-	if (len(cmd.args) < 1) {
-		getopt::printusage(os::stderr, os::args[0], help);
-		os::exit(1);
-	};
-
-	const id = match (parse::identstr(cmd.args[0])) {
-		err: parse::error => fmt::fatal(parse::strerror(err)),
-		id: ast::ident => id,
-	};
+	const id: ast::ident =
+		if (len(cmd.args) < 1) []
+		else match (parse::identstr(cmd.args[0])) {
+			err: parse::error => fmt::fatal(parse::strerror(err)),
+			id: ast::ident => id,
+		};
 
 	const version = match (module::lookup(&ctx, id)) {
 		ver: module::version => ver,

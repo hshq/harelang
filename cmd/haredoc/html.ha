@@ -40,7 +40,11 @@ fn emit_html(ctx: *context) (void | error) = {
 
 	if (len(ctx.version.subdirs) != 0) {
 		// TODO: Verify that these are actually modules
-		fmt::println("<h3>Submodules</h3>")?;
+		if (len(ctx.ident) == 0) {
+			fmt::println("<h3>Modules</h3>")?;
+		} else {
+			fmt::println("<h3>Submodules</h3>")?;
+		};
 		fmt::println("<ul class='submodules'>")?;
 		for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
 			let dir = ctx.version.subdirs[i];
@@ -231,7 +235,15 @@ fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {
 				fmt::println()?;
 				fmt::print("<p>")?;
 			},
-			tx: text => {
+			tx: text => if (strings::has_prefix(tx, "https://")) {
+				// Temporary hack
+				fmt::print("<a rel='nofollow noopener' href='");
+				html::escape(os::stdout, tx);
+				fmt::print("'>");
+				html::escape(os::stdout, tx);
+				fmt::print("</a>");
+				free(tx);
+			} else {
 				html::escape(os::stdout, tx);
 				free(tx);
 			},
@@ -365,6 +377,9 @@ fn prototype_html(
 };
 
 fn breadcrumb(ident: ast::ident) str = {
+	if (len(ident) == 0) {
+		return "";
+	};
 	let buf = strio::dynamic();
 	fmt::fprintf(buf, "<a href='/'>stdlib</a> » ");
 	for (let i = 0z; i < len(ident) - 1; i += 1) {
