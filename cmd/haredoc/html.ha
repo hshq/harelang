@@ -357,6 +357,120 @@ fn unparse_html(out: *io::stream, d: ast::decl) (size | io::error) = {
 	return n;
 };
 
+// Forked from [[hare::unparse]].
+fn builtin_type(b: ast::builtin_type) str = switch (b) {
+	ast::builtin_type::BOOL => "bool",
+	ast::builtin_type::CHAR => "char",
+	ast::builtin_type::F32 => "f32",
+	ast::builtin_type::F64 => "f64",
+	ast::builtin_type::FCONST => abort("FCONST has no lexical representation"),
+	ast::builtin_type::I16 => "i16",
+	ast::builtin_type::I32 => "i32",
+	ast::builtin_type::I64 => "i64",
+	ast::builtin_type::I8 => "i8",
+	ast::builtin_type::ICONST => abort("ICONST has no lexical representation"),
+	ast::builtin_type::INT => "int",
+	ast::builtin_type::NULL => "null",
+	ast::builtin_type::RUNE => "rune",
+	ast::builtin_type::SIZE => "size",
+	ast::builtin_type::STR => "str",
+	ast::builtin_type::U16 => "u16",
+	ast::builtin_type::U32 => "u32",
+	ast::builtin_type::U64 => "u64",
+	ast::builtin_type::U8 => "u8",
+	ast::builtin_type::UINT => "uint",
+	ast::builtin_type::UINTPTR => "uintptr",
+	ast::builtin_type::VOID => "void",
+};
+
+// Forked from [[hare::unparse]].
+fn newline(out: *io::stream, indent: size) (size | io::error) = {
+	let n = 0z;
+	n += fmt::fprint(out, "\n")?;
+	for (let i = 0z; i < indent; i += 1) {
+		n += fmt::fprint(out, "\t")?;
+	};
+	return n;
+};
+
+fn enum_html(
+	out: *io::stream,
+	indent: size,
+	t: ast::enum_type
+) (size | io::error) = {
+	let z = 0z;
+
+	z += fmt::fprint(out, "<span class='type'>enum</span> ")?;
+	if (t.storage != ast::builtin_type::INT) {
+		z += fmt::fprintf(out, "<span class='type'>{}</span> ",
+			builtin_type(t.storage))?;
+	};
+	z += fmt::fprint(out, "{")?;
+	for (let i = 0z; i < len(t.values); i += 1) {
+		const val = t.values[i];
+
+		z += newline(out, indent + 1)?;
+		z += fmt::fprint(out, val.name)?;
+
+		match (val.value) {
+			null => void,
+			expr: *ast::expr => {
+				z += fmt::fprint(out, " = ")?;
+				z += unparse::expr(out, indent, *expr)?;
+			},
+		};
+
+		z += fmt::fprint(out, ",")?;
+	};
+	z += newline(out, indent)?;
+	z += fmt::fprint(out, "}")?;
+
+	return z;
+};
+
+fn struct_html(
+	out: *io::stream,
+	indent: size,
+	t: ast::struct_type,
+	brief: bool,
+) (size | io::error) = {
+	let z = 0z;
+	z += fmt::fprint(out, "<span class='keyword'>struct</span> {")?;
+
+	for (let i = 0z; i < len(t); i += 1) {
+		const member = t[i];
+
+		z += newline(out, indent + 1)?;
+		match (member._offset) {
+			null => void,
+			expr: *ast::expr => {
+				z += fmt::fprint(out, "@offset(")?;
+				z += unparse::expr(out, indent, *expr)?;
+				z += fmt::fprint(out, ") ")?;
+			},
+		};
+
+		match (member.member) {
+			f: ast::struct_field => {
+				z += fmt::fprintf(out, "{}: ", f.name)?;
+				z += type_html(out, indent, *f._type, brief)?;
+			},
+			embed: ast::struct_embedded => {
+				z += type_html(out, indent + 1, *embed, brief)?;
+			},
+			indent: ast::struct_alias => {
+				z += unparse::ident(out, indent)?;
+			},
+		};
+		z += fmt::fprint(out, ",")?;
+	};
+
+	z += newline(out, indent)?;
+	z += fmt::fprint(out, "}")?;
+
+	return z;
+};
+
 fn type_html(
 	out: *io::stream,
 	indent: size,
@@ -373,14 +487,96 @@ fn type_html(
 	// TODO: More detailed formatter which can find aliases nested deeper in
 	// other types and highlight more keywords, like const
 	let z = 0z;
+
+	if (_type.flags & ast::type_flags::CONST != 0
+			&& !(_type._type is ast::func_type)) {
+		z += fmt::fprint(out, "<span class='keyword'>const</span> ")?;
+	};
+
 	match (_type._type) {
-		_: ast::builtin_type => {
-			z += fmt::fprint(out, "<span class='type'>")?;
-			z += html::escape(out, strio::string(buf))?;
-			z += fmt::fprintf(out, "</span>")?;
+		t: ast::builtin_type => {
+			z += fmt::fprintf(out, "<span class='type'>{}</span>",
+				builtin_type(t))?;
 		},
+		t: ast::tagged_type => {
+			z += fmt::fprint(out, "(")?;
+			for (let i = 0z; i < len(t); i += 1) {
+				z += type_html(out, indent, *t[i], brief)?;
+				if (i < len(t) - 1) {
+					z += fmt::fprint(out, " | ")?;
+				};
+			};
+			z += fmt::fprint(out, ")")?;
+		},
+		t: ast::tuple_type => {
+			z += fmt::fprint(out, "(")?;
+			for (let i = 0z; i < len(t); i += 1) {
+				z += type_html(out, indent, *t[i], brief)?;
+				if (i < len(t) - 1) {
+					z += fmt::fprint(out, ", ")?;
+				};
+			};
+			z += fmt::fprint(out, ")")?;
+		},
+		t: ast::pointer_type => {
+			if (t.flags & ast::pointer_flags::NULLABLE != 0) {
+				z += fmt::fprint(out, "<span class='type'>nullable</span> ")?;
+			};
+			z += fmt::fprint(out, "*")?;
+			z += type_html(out, indent, *t.referent, brief)?;
+		},
+		t: ast::func_type => {
+			if (t.attrs & ast::func_attrs::NORETURN == ast::func_attrs::NORETURN) {
+				z += fmt::fprint(out, "@noreturn ")?;
+			};
+
+			z += fmt::fprint(out, "<span class='keyword'>fn</span>(")?;
+			for (let i = 0z; i < len(t.params); i += 1) {
+				const param = t.params[i];
+				z += fmt::fprintf(out, "{}: ",
+					if (len(param.name) == 0) "_" else param.name)?;
+				z += type_html(out, indent, *param._type, brief)?;
+
+				if (i + 1 == len(t.params)
+						&& t.variadism == ast::variadism::HARE) {
+					// TODO: Highlight that as well
+					z += fmt::fprint(out, "...")?;
+				};
+				if (i + 1 < len(t.params)) {
+					z += fmt::fprint(out, ", ")?;
+				};
+			};
+			if (t.variadism == ast::variadism::C) {
+				z += fmt::fprint(out, ", ...")?;
+			};
+			z += fmt::fprint(out, ") ")?;
+			z += type_html(out, indent, *t.result, brief)?;
+		},
+		t: ast::enum_type => z += enum_html(out, indent, t)?,
+		t: ast::list_type => {
+			z += fmt::fprint(out, "[")?;
+			z += match (t.length) {
+				expr: *ast::expr => unparse::expr(out, indent, *expr)?,
+				_: ast::len_slice => 0,
+				_: ast::len_unbounded => fmt::fprintf(out, "*")?,
+				_: ast::len_contextual => fmt::fprintf(out, "_")?,
+			};
+			z += fmt::fprint(out, "]")?;
+
+			z += type_html(out, indent, *t.members, brief)?;
+		},
+		t: ast::struct_type => z += struct_html(out, indent, t, brief)?,
 		* => z += html::escape(out, strio::string(buf))?,
 	};
+
+	if (_type.flags & ast::type_flags::ERROR != 0) {
+		if (_type._type is ast::builtin_type) {
+			z += fmt::fprint(out, "<span class='type'>!</span>")?;
+		} else {
+			z += fmt::fprint(out, "!")?;
+		};
+	};
+
 	z;
 };
 
