@@ -1,7 +1,7 @@
 use encoding::utf8;
 use strings;
 
-// A token with no additional context, such as '+'
+// A lexical token class.
 export type ltok = enum uint {
 	// Keep ordered with bmap
 	// Alpha sorted
@@ -256,7 +256,7 @@ const bmap: [_]str = [
 	"*=",
 ];
 
-// A token value, used for tokens such as '1337u32'
+// A token value, used for tokens such as '1337' (an integer).
 export type value = (str | rune | i64 | u64 | f64 | void);
 
 // A location within a source file.
@@ -270,7 +270,7 @@ export type location = struct {
 // A single lexical token.
 export type token = (ltok, value, location);
 
-// Converts a token to its string representation
+// Converts a token to its string representation.
 export fn tokstr(tok: token) const str = {
 	if (tok.0 <= ltok::LAST_BTOK) {
 		return bmap[tok.0: int];

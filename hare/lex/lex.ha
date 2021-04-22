@@ -9,7 +9,6 @@ use strings;
 use strio;
 use types;
 
-// State associated with a lexer.
 export type lexer = struct {
 	in: *io::stream,
 	path: str,
