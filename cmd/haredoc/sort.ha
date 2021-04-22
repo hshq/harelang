@@ -3,7 +3,7 @@ use hare::ast;
 use sort;
 
 type summary = struct {
-	// TODO: Constants
+	constants: []ast::decl,
 	errors: []ast::decl,
 	types: []ast::decl,
 	globals: []ast::decl,
@@ -43,6 +43,20 @@ fn sort_decls(decls: []ast::decl) summary = {
 						docs = decl.docs,
 					});
 				},
+			c: []ast::decl_const =>
+				for (let j = 0z; j < len(c); j += 1) {
+					append(sorted.constants, ast::decl {
+						exported = true,
+						loc = decl.loc,
+						decl = {
+							// XXX: Kind of bad
+							let new: []ast::decl_const = [];
+							append(new, c[j]);
+							new;
+						},
+						docs = decl.docs,
+					});
+				},
 			g: []ast::decl_global =>
 				for (let j = 0z; j < len(g); j += 1) {
 					append(sorted.globals, ast::decl {
@@ -60,6 +74,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 		};
 	};
 
+	sort::sort(sorted.constants, size(ast::decl), &decl_cmp);
 	sort::sort(sorted.errors, size(ast::decl), &decl_cmp);
 	sort::sort(sorted.types, size(ast::decl), &decl_cmp);
 	sort::sort(sorted.globals, size(ast::decl), &decl_cmp);
@@ -84,6 +99,10 @@ fn decl_ident(decl: ast::decl) ast::ident = match (decl.decl) {
 	t: []ast::decl_type => {
 		assert(len(t) == 1);
 		t[0].ident;
+	},
+	c: []ast::decl_const => {
+		assert(len(c) == 1);
+		c[0].ident;
 	},
 	g: []ast::decl_global => {
 		assert(len(g) == 1);

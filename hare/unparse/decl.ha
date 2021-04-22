@@ -10,9 +10,22 @@ export fn decl(out: *io::stream, d: ast::decl) (size | io::error) = {
 		n += fmt::fprint(out, "export ")?;
 	};
 	match (d.decl) {
+		c: []ast::decl_const => {
+			n += fmt::fprint(out, "def ")?;
+			for (let i = 0z; i < len(c); i += 1) {
+				n += ident(out, c[i].ident)?;
+				n += fmt::fprint(out, ": ")?;
+				n += _type(out, 0, c[i]._type)?;
+				n += fmt::fprint(out, " = ")?;
+				n += expr(out, 0, *c[i].init)?;
+				if (i + 1 < len(c)) {
+					n += fmt::fprint(out, ", ")?;
+				};
+			};
+		},
 		g: []ast::decl_global => {
 			n += fmt::fprint(out,
-				if (g[0].is_const) "def " else "let ")?;
+				if (g[0].is_const) "const " else "let ")?;
 			for (let i = 0z; i < len(g); i += 1) {
 				if (len(g[i].symbol) != 0) {
 					n += fmt::fprintf(out,
@@ -142,12 +155,10 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 
 	d.exported = true;
 	d.decl = [
-		ast::decl_global {
-			is_const = true,
+		ast::decl_const {
 			ident = ["foo"],
 			_type = type_int,
 			init = alloc(expr_void),
-			...
 		},
 	];
 	assert(decl_test(d, "export def foo: int = void;"));

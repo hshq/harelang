@@ -1,5 +1,14 @@
 use hare::lex;
 
+// A constant declaration.
+//
+// 	def foo: int = 0;
+export type decl_const = struct {
+	ident: ident,
+	_type: _type,
+	init: *expr,
+};
+
 // A global declaration.
 //
 // 	let foo: int = 0;
@@ -43,7 +52,7 @@ export type decl_func = struct {
 export type decl = struct {
 	exported: bool,
 	loc: lex::location,
-	decl: ([]decl_global | []decl_type | decl_func),
+	decl: ([]decl_const | []decl_global | []decl_type | decl_func),
 
 	// Only valid if the lexer has comments enabled
 	docs: str,

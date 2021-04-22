@@ -71,6 +71,7 @@ fn emit_html(ctx: *context) (void | error) = {
 
 	if (len(decls.types) == 0
 			&& len(decls.errors) == 0
+			&& len(decls.constants) == 0
 			&& len(decls.globals) == 0
 			&& len(decls.funcs) == 0) {
 		return;
@@ -79,6 +80,7 @@ fn emit_html(ctx: *context) (void | error) = {
 	fmt::println("<h3>Index</h3>")?;
 	tocentries(decls.types, "Types", "types")?;
 	tocentries(decls.errors, "Errors", "Errors")?;
+	tocentries(decls.constants, "Constants", "constants")?;
 	tocentries(decls.globals, "Globals", "globals")?;
 	tocentries(decls.funcs, "Functions", "functions")?;
 
@@ -93,6 +95,13 @@ fn emit_html(ctx: *context) (void | error) = {
 		fmt::println("<h3>Errors</h3>")?;
 		for (let i = 0z; i < len(decls.errors); i += 1) {
 			details(ctx, decls.errors[i])?;
+		};
+	};
+
+	if (len(decls.constants) != 0) {
+		fmt::println("<h3>Constants</h3>")?;
+		for (let i = 0z; i < len(decls.constants); i += 1) {
+			details(ctx, decls.constants[i])?;
 		};
 	};
 
@@ -137,6 +146,7 @@ fn tocentry(decl: ast::decl) (void | error) = {
 		match (decl.decl) {
 			_: ast::decl_func => "fn",
 			_: []ast::decl_type => "type",
+			_: []ast::decl_const => "const",
 			_: []ast::decl_global => "let",
 		});
 	fmt::printf("<a href='#");
@@ -150,6 +160,11 @@ fn tocentry(decl: ast::decl) (void | error) = {
 			let g = g[0];
 			fmt::print(": ")?;
 			type_html(os::stdout, 0, g._type, true)?;
+		},
+		c: []ast::decl_const => {
+			let c = c[0];
+			fmt::print(": ")?;
+			type_html(os::stdout, 0, c._type, true)?;
 		},
 		t: []ast::decl_type => void,
 		f: ast::decl_func => prototype_html(os::stdout, 0,
@@ -169,6 +184,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 		match (decl.decl) {
 			_: ast::decl_func => "fn",
 			_: []ast::decl_type => "type",
+			_: []ast::decl_const => "def",
 			_: []ast::decl_global => "let",
 		});
 	unparse::ident(os::stdout, decl_ident(decl))?;
@@ -285,9 +301,20 @@ fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {
 fn unparse_html(out: *io::stream, d: ast::decl) (size | io::error) = {
 	let n = 0z;
 	match (d.decl) {
+		c: []ast::decl_const => {
+			n += fmt::fprintf(out, "<span class='keyword'>def</span> ")?;
+			for (let i = 0z; i < len(c); i += 1) {
+				n += unparse::ident(out, c[i].ident)?;
+				n += fmt::fprint(out, ": ")?;
+				n += type_html(out, 0, c[i]._type, false)?;
+				if (i + 1 < len(c)) {
+					n += fmt::fprint(out, ", ")?;
+				};
+			};
+		},
 		g: []ast::decl_global => {
 			n += fmt::fprintf(out, "<span class='keyword'>{}</span>",
-				if (g[0].is_const) "def " else "let ")?;
+				if (g[0].is_const) "const " else "let ")?;
 			for (let i = 0z; i < len(g); i += 1) {
 				n += unparse::ident(out, g[i].ident)?;
 				n += fmt::fprint(out, ": ")?;

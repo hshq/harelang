@@ -26,24 +26,44 @@ fn attr_symbol(lexer: *lex::lexer) (str | error) = {
 	return s;
 };
 
+fn decl_const(
+	lexer: *lex::lexer,
+	tok: ltok,
+) ([]ast::decl_const | error) = {
+	let decl: []ast::decl_const = [];
+	for (true) {
+		const ident = ident(lexer)?;
+		want(lexer, ltok::COLON)?;
+		const _type = _type(lexer)?;
+		want(lexer, ltok::EQUAL)?;
+		const init: *ast::expr = alloc(expression(lexer)?);
+		append(decl, ast::decl_const {
+			ident = ident,
+			_type = _type,
+			init = init,
+		});
+
+		if (try(lexer, ltok::COMMA)? is void) {
+			break;
+		};
+	};
+	return decl;
+
+};
+
 fn decl_global(
 	lexer: *lex::lexer,
-	tok: ltok
+	tok: ltok,
 ) ([]ast::decl_global | error) = {
 	let decl: []ast::decl_global = [];
 	for (true) {
-		let symbol = if (tok == ltok::CONST || tok == ltok::LET) {
-			match (try(lexer, ltok::ATTR_SYMBOL)?) {
-				_: void => "",
-				_: lex::token => attr_symbol(lexer)?,
-			};
-		} else "";
+		const symbol = match (try(lexer, ltok::ATTR_SYMBOL)?) {
+			_: void => "",
+			_: lex::token => attr_symbol(lexer)?,
+		};
 		const ident = ident(lexer)?;
 		want(lexer, ltok::COLON)?;
-		let _type = _type(lexer)?;
-		if (tok == ltok::CONST) {
-			_type.flags |= ast::type_flags::CONST;
-		};
+		const _type = _type(lexer)?;
 		const init: nullable *ast::expr =
 			match (try(lexer, ltok::EQUAL)?) {
 				_: lex::token => alloc(expression(lexer)?),
@@ -51,7 +71,7 @@ fn decl_global(
 			};
 		const btok = try(lexer, ltok::COMMA)?;
 		append(decl, ast::decl_global {
-			is_const = tok == ltok::DEF,
+			is_const = tok == ltok::CONST,
 			symbol = symbol,
 			ident = ident,
 			_type = _type,
@@ -160,9 +180,13 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 		};
 		let decl = match (next) {
 			_: void => decl_func(lexer)?,
-			t: lex::token =>
-				if (t.0 == ltok::TYPE) decl_type(lexer)?
-				else decl_global(lexer, t.0)?,
+			t: lex::token => switch (t.0) {
+				ltok::TYPE => decl_type(lexer)?,
+				ltok::LET, ltok::CONST =>
+					decl_global(lexer, t.0)?,
+				ltok::DEF => decl_const(lexer, t.0)?,
+				* => abort(),
+			},
 		};
 		append(decls, ast::decl {
 			exported = exported,
