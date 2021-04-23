@@ -54,6 +54,8 @@ fn emit_html(ctx: *context) (void | error) = {
 		for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
 			let dir = ctx.version.subdirs[i];
 			if (dir == "cmd") continue;
+			if (dir == "docs") continue;
+			if (dir == "scripts") continue;
 
 			let path = module::identpath(ctx.ident);
 			defer free(path);
