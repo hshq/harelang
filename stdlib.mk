@@ -856,11 +856,12 @@ $(HARECACHE)/unix/passwd/unix_passwd.ssa: $(stdlib_unix_passwd_srcs) $(stdlib_rt
 
 # unix::tty
 stdlib_unix_tty_srcs= \
-	$(STDLIB)/unix/tty/$(PLATFORM)/isatty.ha \
 	$(STDLIB)/unix/tty/types.ha \
+	$(STDLIB)/unix/tty/$(PLATFORM)/isatty.ha \
+	$(STDLIB)/unix/tty/$(PLATFORM)/open.ha \
 	$(STDLIB)/unix/tty/$(PLATFORM)/winsize.ha
 
-$(HARECACHE)/unix/tty/unix_tty.ssa: $(stdlib_unix_tty_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_io) $(stdlib_os)
+$(HARECACHE)/unix/tty/unix_tty.ssa: $(stdlib_unix_tty_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_fs) $(stdlib_io) $(stdlib_os)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/tty
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::tty \
@@ -1755,11 +1756,12 @@ $(TESTCACHE)/unix/passwd/unix_passwd.ssa: $(testlib_unix_passwd_srcs) $(testlib_
 
 # unix::tty
 testlib_unix_tty_srcs= \
-	$(STDLIB)/unix/tty/$(PLATFORM)/isatty.ha \
 	$(STDLIB)/unix/tty/types.ha \
+	$(STDLIB)/unix/tty/$(PLATFORM)/isatty.ha \
+	$(STDLIB)/unix/tty/$(PLATFORM)/open.ha \
 	$(STDLIB)/unix/tty/$(PLATFORM)/winsize.ha
 
-$(TESTCACHE)/unix/tty/unix_tty.ssa: $(testlib_unix_tty_srcs) $(testlib_rt) $(testlib_rt) $(testlib_io) $(testlib_os)
+$(TESTCACHE)/unix/tty/unix_tty.ssa: $(testlib_unix_tty_srcs) $(testlib_rt) $(testlib_rt) $(testlib_fs) $(testlib_io) $(testlib_os)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/tty
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \

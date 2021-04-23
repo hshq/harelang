@@ -653,10 +653,11 @@ unix_passwd() {
 
 unix_tty() {
 	gen_srcs unix::tty \
-		'$(PLATFORM)/isatty.ha' \
         types.ha \
+		'$(PLATFORM)/isatty.ha' \
+		'$(PLATFORM)/open.ha' \
 		'$(PLATFORM)/winsize.ha'
-	gen_ssa unix::tty rt io os
+	gen_ssa unix::tty rt fs io os
 }
 
 uuid() {
