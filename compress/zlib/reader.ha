@@ -122,14 +122,14 @@ export fn decompress(s: *io::stream) (*io::stream | io::error) = {
 		let d = match (decompress(in)) {
 			s: *io::stream => s,
 			e: io::error => {
-				fmt::errorln(io::strerror(e));
+				fmt::errorln(io::strerror(e))!;
 				abort();
 			},
 		};
 		match (io::copy(out, d)) {
 			_: size => void,
 			e: io::error => {
-				fmt::errorfln("vector {}: {}", i, io::strerror(e));
+				fmt::errorfln("vector {}: {}", i, io::strerror(e))!;
 				abort();
 			},
 		};

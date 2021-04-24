@@ -17,7 +17,7 @@ fn roundtrip(src: str) void = {
 		decls: []ast::decl = match (decls(&lexer)) {
 			decls: []ast::decl => decls,
 			err: error => {
-				fmt::errorln(strerror(err));
+				fmt::errorln(strerror(err))!;
 				abort();
 			},
 		},
@@ -28,8 +28,8 @@ fn roundtrip(src: str) void = {
 	let unsrc = strio::finish(out);
 	defer free(unsrc);
 	if (unsrc != src) {
-		fmt::errorfln("=== wanted\n{}", src);
-		fmt::errorfln("=== got\n{}", unsrc);
+		fmt::errorfln("=== wanted\n{}", src)!;
+		fmt::errorfln("=== got\n{}", unsrc)!;
 		abort();
 	};
 };

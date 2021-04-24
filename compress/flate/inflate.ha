@@ -415,7 +415,7 @@ fn close(s: *io::stream) void = {
 	match (io::copy(outs, s)) {
 		_: size => void,
 		e: io::error => {
-			fmt::errorln(io::strerror(e));
+			fmt::errorln(io::strerror(e))!;
 			abort();
 		},
 	};

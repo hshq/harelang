@@ -143,7 +143,7 @@ use strings;
 	let decls = match (decls(&lexer)) {
 		decls: []ast::decl => decls,
 		err: error => {
-			fmt::errorln(strerror(err));
+			fmt::errorln(strerror(err))!;
 			abort();
 		},
 	};

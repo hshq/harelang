@@ -246,7 +246,7 @@ fn seek(
 	n += io::write(stream, strings::toutf8("world")) as size;
 	assert(bytes::equal(buf[..n], strings::toutf8("hello world")));
 	// TODO: this should check for errors::unsupported (harec bug prevents that)
-	io::seek(stream, 6, io::whence::SET) as io::error;
+	io::seek(stream, 6, io::whence::SET) as io::error: void;
 
 	let out: [2]u8 = [0...];
 	let s = fixed([1u8, 2u8], io::mode::READ);

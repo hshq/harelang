@@ -25,16 +25,16 @@ export fn escape(out: *io::stream, in: str) (size | io::error) = {
 @test fn escape() void = {
 	let sink = strio::dynamic();
 	defer io::close(sink);
-	escape(sink, "hello world!");
+	escape(sink, "hello world!")!;
 	assert(strio::string(sink) == "hello world!");
 
 	let sink = strio::dynamic();
 	defer io::close(sink);
-	escape(sink, "\"hello world!\"");
+	escape(sink, "\"hello world!\"")!;
 	assert(strio::string(sink) == "&quot;hello world!&quot;");
 
 	let sink = strio::dynamic();
 	defer io::close(sink);
-	escape(sink, "<hello & 'world'!>");
+	escape(sink, "<hello & 'world'!>")!;
 	assert(strio::string(sink) == "&lt;hello &amp; &apos;world&apos;!&gt;");
 };

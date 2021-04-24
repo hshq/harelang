@@ -62,7 +62,7 @@ export fn decode(s: str) ([]u8 | invalid) = {
 	defer free(s);
 	assert(bytes::equal(s, [0xCA, 0xFE, 0xBA, 0xBE, 0xDE, 0xAD, 0xF0, 0x0D]));
 
-	decode("this is not hex") as invalid;
+	decode("this is not hex") as invalid: void;
 };
 
 // Outputs a dump of hex data to a stream alongside the offset and an ASCII

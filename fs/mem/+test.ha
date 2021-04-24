@@ -17,7 +17,7 @@ use strconv;
 	for (let i = 0z; i < 6; i += 1) {
 		let f = fs::create(memfs, names[i], 0, fs::flags::RDWR);
 		let f = f as *io::stream;
-		io::write(f, input[i..]);
+		io::write(f, input[i..])!;
 		io::close(f);
 		let st = fs::stat(memfs,  names[i]) as fs::filestat;
 		assert(st.mask & fs::stat_mask::SIZE == fs::stat_mask::SIZE);
@@ -27,18 +27,18 @@ use strconv;
 
 	let f = fs::open(memfs, filename, fs::flags::WRONLY, fs::flags::APPEND);
 	let f = f as *io::stream;
-	io::write(f, input);
+	io::write(f, input)!;
 	io::close(f);
 	let st = fs::stat(memfs,  filename) as fs::filestat;
 	assert(st.sz == len(input) * 2);
 
-	fs::create(memfs, filename, 0, fs::flags::RDONLY) as fs::error; // errors::exists
+	fs::create(memfs, filename, 0, fs::flags::RDONLY) as fs::error: void; // errors::exists
 
 	// fs::open and read
-	fs::open(memfs, "nonexistent", fs::flags::RDONLY) as fs::error; // errors::noentry
+	fs::open(memfs, "nonexistent", fs::flags::RDONLY) as fs::error: void; // errors::noentry
 	let f = fs::open(memfs, filename, fs::flags::RDWR, fs::flags::EXCL);
-	f as fs::error; // errors::unsupported
-	fs::remove(memfs, "nonexistent") as fs::error; // errors::noentry
+	f as fs::error: void; // errors::unsupported
+	fs::remove(memfs, "nonexistent") as fs::error: void; // errors::noentry
 
 	let f = fs::open(memfs, filename, fs::flags::RDONLY) as *io::stream;
 	let f2 = fs::open(memfs, filename, fs::flags::RDONLY) as *io::stream;
@@ -62,15 +62,15 @@ use strconv;
 	assert(count == 6);
 
 	// fs::mkdir
-	fs::mkdir(memfs, "nonexistent/path") as fs::error; // errors::noentry
-	fs::rmdir(memfs, "nonexistent/path") as fs::error; // errors::noentry
+	fs::mkdir(memfs, "nonexistent/path") as fs::error: void; // errors::noentry
+	fs::rmdir(memfs, "nonexistent/path") as fs::error: void; // errors::noentry
 	fs::mkdir(memfs, "dir") as void;
-	fs::open(memfs, "dir", fs::flags::RDONLY) as fs::error; // fs::wrongtype
-	fs::mkdir(memfs, "dir") as fs::error; // errors::exists
+	fs::open(memfs, "dir", fs::flags::RDONLY) as fs::error: void; // fs::wrongtype
+	fs::mkdir(memfs, "dir") as fs::error: void; // errors::exists
 	fs::mkdir(memfs, "dir/subdir") as void;
 	fs::rmdir(memfs, "dir/subdir") as void;
 	fs::rmdir(memfs, "dir") as void;
-	fs::rmdir(memfs, "") as fs::error; // errors::invalid;
+	fs::rmdir(memfs, "") as fs::error: void; // errors::invalid;
 
 	fs::mkdir(memfs, "dir") as void;
 	f = fs::create(memfs, "dir/file", 0, fs::flags::WRONLY) as *io::stream;
@@ -85,13 +85,13 @@ use strconv;
 	fs::rmdir(memfs, "dir") as void;
 
 	// fs::mksubdir, fs::subdir
-	fs::mksubdir(memfs, filename) as fs::error; // errors::exists
-	fs::subdir(memfs, filename) as fs::error; // fs::wrongtype
+	fs::mksubdir(memfs, filename) as fs::error: void; // errors::exists
+	fs::subdir(memfs, filename) as fs::error: void; // fs::wrongtype
 
 	let sub = mksubdir(memfs, "dir") as *fs::fs;
 
 	let f = fs::create(sub, "file", 0, fs::flags::WRONLY) as *io::stream;
-	io::write(f, [42]);
+	io::write(f, [42])!;
 	io::close(f);
 
 	let sub2 = fs::subdir(memfs, "dir") as *fs::fs;
@@ -112,7 +112,7 @@ use strconv;
 	fs::rmdir(sub2, "subdir") as void;
 	assert(memsub2.opencount == 1);
 	assert(memsub2.parent == null);
-	fs::rmdirall(sub2, "");
+	fs::rmdirall(sub2, "")!;
 	fs::close(sub2);
 };
 

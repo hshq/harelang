@@ -32,12 +32,13 @@ use io;
 		let hex = strio::dynamic();
 		defer io::close(hex);
 
-		for (let j = 0z; j < len(sum); j += 1)
-			fmt::fprintf(hex, "{:02x}", sum[j]);
+		for (let j = 0z; j < len(sum); j += 1) {
+			fmt::fprintf(hex, "{:02x}", sum[j])!;
+		};
 
 		if (strio::string(hex) != vector.1) {
 			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(hex), vector.1);
+				i, strio::string(hex), vector.1)!;
 			abort();
 		};
 	};
@@ -69,7 +70,7 @@ use io;
 
 		if (strio::string(hex) != vector.1) {
 			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(hex), vector.1);
+				i, strio::string(hex), vector.1)!;
 			abort();
 		};
 	};
@@ -95,12 +96,13 @@ use io;
 		let hex = strio::dynamic();
 		defer io::close(hex);
 
-		for (let j = 0z; j < len(sum); j += 1)
-			fmt::fprintf(hex, "{:02x}", sum[j]);
+		for (let j = 0z; j < len(sum); j += 1) {
+			fmt::fprintf(hex, "{:02x}", sum[j])!;
+		};
 
 		if (strio::string(hex) != vector.1) {
 			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(hex), vector.1);
+				i, strio::string(hex), vector.1)!;
 			abort();
 		};
 	};
@@ -127,12 +129,13 @@ use io;
 		let hex = strio::dynamic();
 		defer io::close(hex);
 
-		for (let j = 0z; j < len(sum); j += 1)
-			fmt::fprintf(hex, "{:02x}", sum[j]);
+		for (let j = 0z; j < len(sum); j += 1) {
+			fmt::fprintf(hex, "{:02x}", sum[j])!;
+		};
 
 		if (strio::string(hex) != vector.1) {
 			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(hex), vector.1);
+				i, strio::string(hex), vector.1)!;
 			abort();
 		};
 	};

@@ -50,7 +50,7 @@ fn lextest(in: str, expected: []token) void = {
 		let tl = match (lex(&lexer)) {
 			tl: token => tl,
 			err: error => {
-				fmt::errorfln("{}: {}", i, strerror(err));
+				fmt::errorfln("{}: {}", i, strerror(err))!;
 				abort();
 			},
 		};

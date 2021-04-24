@@ -34,7 +34,7 @@ use io;
 		};
 		if (strio::string(hex) != vector.1) {
 			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(hex), vector.1);
+				i, strio::string(hex), vector.1)!;
 			abort();
 		};
 	};
