@@ -416,6 +416,12 @@ hash_adler32() {
 	gen_ssa hash::adler32 endian hash io strings
 }
 
+hash_crc32() {
+	gen_srcs hash::crc32 \
+		crc32.ha
+	gen_ssa hash::crc32 endian hash io strings
+}
+
 hash_fnv() {
 	gen_srcs hash::fnv \
 		fnv.ha
@@ -698,6 +704,7 @@ hare_parse
 hare_unparse
 hash
 hash_adler32
+hash_crc32
 hash_fnv
 io
 linux

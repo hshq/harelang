@@ -159,6 +159,9 @@ hare_stdlib_deps+=$(stdlib_hash)
 stdlib_hash_adler32=$(HARECACHE)/hash/adler32/hash_adler32.o
 hare_stdlib_deps+=$(stdlib_hash_adler32)
 
+stdlib_hash_crc32=$(HARECACHE)/hash/crc32/hash_crc32.o
+hare_stdlib_deps+=$(stdlib_hash_crc32)
+
 stdlib_hash_fnv=$(HARECACHE)/hash/fnv/hash_fnv.o
 hare_stdlib_deps+=$(stdlib_hash_fnv)
 
@@ -578,6 +581,16 @@ $(HARECACHE)/hash/adler32/hash_adler32.ssa: $(stdlib_hash_adler32_srcs) $(stdlib
 	@mkdir -p $(HARECACHE)/hash/adler32
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::adler32 \
 		-t$(HARECACHE)/hash/adler32/hash_adler32.td $(stdlib_hash_adler32_srcs)
+
+# hash::crc32
+stdlib_hash_crc32_srcs= \
+	$(STDLIB)/hash/crc32/crc32.ha
+
+$(HARECACHE)/hash/crc32/hash_crc32.ssa: $(stdlib_hash_crc32_srcs) $(stdlib_rt) $(stdlib_endian) $(stdlib_hash) $(stdlib_io) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hash/crc32
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::crc32 \
+		-t$(HARECACHE)/hash/crc32/hash_crc32.td $(stdlib_hash_crc32_srcs)
 
 # hash::fnv
 stdlib_hash_fnv_srcs= \
@@ -1039,6 +1052,9 @@ hare_testlib_deps+=$(testlib_hash)
 testlib_hash_adler32=$(TESTCACHE)/hash/adler32/hash_adler32.o
 hare_testlib_deps+=$(testlib_hash_adler32)
 
+testlib_hash_crc32=$(TESTCACHE)/hash/crc32/hash_crc32.o
+hare_testlib_deps+=$(testlib_hash_crc32)
+
 testlib_hash_fnv=$(TESTCACHE)/hash/fnv/hash_fnv.o
 hare_testlib_deps+=$(testlib_hash_fnv)
 
@@ -1471,6 +1487,16 @@ $(TESTCACHE)/hash/adler32/hash_adler32.ssa: $(testlib_hash_adler32_srcs) $(testl
 	@mkdir -p $(TESTCACHE)/hash/adler32
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::adler32 \
 		-t$(TESTCACHE)/hash/adler32/hash_adler32.td $(testlib_hash_adler32_srcs)
+
+# hash::crc32
+testlib_hash_crc32_srcs= \
+	$(STDLIB)/hash/crc32/crc32.ha
+
+$(TESTCACHE)/hash/crc32/hash_crc32.ssa: $(testlib_hash_crc32_srcs) $(testlib_rt) $(testlib_endian) $(testlib_hash) $(testlib_io) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash/crc32
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::crc32 \
+		-t$(TESTCACHE)/hash/crc32/hash_crc32.td $(testlib_hash_crc32_srcs)
 
 # hash::fnv
 testlib_hash_fnv_srcs= \
