@@ -377,7 +377,7 @@ fn struct_constant(
 	};
 	if (sc.autofill) {
 		newline(out, indent)?;
-		fmt::fprint(out, "...");
+		fmt::fprint(out, "...")?;
 	};
 	indent -= 1;
 	newline(out, indent)?;

@@ -44,7 +44,7 @@ fn stream_open(
 		ino.opencount = types::SIZE_MAX;
 		s.source = bufio::dynamic_from(f, mode);
 		if (!appnd) {
-			bufio::truncate(s.source);
+			bufio::truncate(s.source)?;
 		};
 	};
 	io::seek(s.source, 0, io::whence::SET)?;
@@ -58,7 +58,7 @@ fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 fn write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *stream;
 	if (s.appnd) {
-		io::seek(s.source, 0, io::whence::END);
+		io::seek(s.source, 0, io::whence::END)?;
 	};
 	let sz = io::write(s.source, buf)?;
 	s.inode.data = bufio::buffer(s.source);

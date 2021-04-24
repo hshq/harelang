@@ -353,7 +353,7 @@ export fn parsetags(in: str) ([]tag | void) = {
 			_: void => break,
 			r: rune => {
 				if (ascii::isalnum(r) || r == '_') {
-					strio::appendrune(buf, r);
+					strio::appendrune(buf, r)!;
 				} else {
 					strings::push(&iter, r);
 					break;

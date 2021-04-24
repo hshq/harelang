@@ -20,7 +20,7 @@ fn segfree(p: *void, s: size) void = {
 };
 
 // Marks a segment as writable and drops the execute bit.
-fn segwrite(seg: *void, n: size) void = mprotect(seg, n, PROT_READ | PROT_WRITE);
+fn segwrite(seg: *void, n: size) void = mprotect(seg, n, PROT_READ | PROT_WRITE)!;
 
 // Marks a segment as executable and drops the write bit.
-fn segexec(seg: *void, n: size) void = mprotect(seg, n, PROT_READ | PROT_EXEC);
+fn segexec(seg: *void, n: size) void = mprotect(seg, n, PROT_READ | PROT_EXEC)!;

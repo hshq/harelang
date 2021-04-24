@@ -122,7 +122,7 @@ fn scanref(par: *parser) (token | void) = {
 				bufio::scanrune(par.src) as rune; // ]
 				break;
 			},
-			* => strio::appendrune(buf, rn),
+			* => strio::appendrune(buf, rn)!,
 		},
 		* => abort(),
 	};

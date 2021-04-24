@@ -25,7 +25,7 @@ fn open(path: str) (platform_cmd | errors::opaque) = {
 	};
 };
 
-fn platform_finish(cmd: *command) void = rt::close(cmd.platform);
+fn platform_finish(cmd: *command) void = rt::close(cmd.platform)!;
 
 fn platform_exec(cmd: *command) errors::opaque = {
 	// We don't worry about freeing the return values from strings::to_c

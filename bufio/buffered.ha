@@ -130,7 +130,7 @@ export fn unreadrune(s: *io::stream, rn: rune) void = {
 fn buffered_close(s: *io::stream) void = {
 	assert(s.closer == &buffered_close);
 	if (s.writer != null) {
-		flush(s);
+		flush(s)!;
 	};
 	free(s);
 };
@@ -138,7 +138,7 @@ fn buffered_close(s: *io::stream) void = {
 fn buffered_close_static(s: *io::stream) void = {
 	assert(s.closer == &buffered_close_static);
 	if (s.writer != null) {
-		flush(s);
+		flush(s)!;
 	};
 	free(s);
 };

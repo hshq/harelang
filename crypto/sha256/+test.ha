@@ -31,7 +31,7 @@ use strio;
 		let hex = strio::dynamic();
 		defer io::close(hex);
 		for (let i = 0z; i < SIZE; i += 1) {
-			fmt::fprintf(hex, "{:02x}", sum[i]);
+			fmt::fprintf(hex, "{:02x}", sum[i])!;
 		};
 
 		if (strio::string(hex) != vector.1) {

@@ -13,7 +13,7 @@ fn connect_fd(
 	const sockfd = mksockfd(addr)?;
 	for (let i = 0z; i < len(options); i += 1) {
 		// The only option is keepalive right now
-		setsockopt(sockfd, rt::SO_KEEPALIVE, true);
+		setsockopt(sockfd, rt::SO_KEEPALIVE, true)?;
 	};
 	wrap(rt::connect(sockfd, &addr, sockasz(addr)))?;
 	return sockfd;
@@ -63,9 +63,9 @@ fn listen_fd(
 
 	for (let i = 0z; i < len(options); i += 1) {
 		match (options[i]) {
-			_: reuseaddr => setsockopt(sockfd, rt::SO_REUSEADDR, true),
-			_: reuseport => setsockopt(sockfd, rt::SO_REUSEPORT, true),
-			_: keepalive => setsockopt(sockfd, rt::SO_KEEPALIVE, true),
+			_: reuseaddr => setsockopt(sockfd, rt::SO_REUSEADDR, true)?,
+			_: reuseport => setsockopt(sockfd, rt::SO_REUSEPORT, true)?,
+			_: keepalive => setsockopt(sockfd, rt::SO_KEEPALIVE, true)?,
 			b: backlog => bk = b,
 			p: portassignment => portout = p,
 		};

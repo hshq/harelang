@@ -59,6 +59,6 @@ export fn main() void = {
 		};
 		defer ast::subunit_free(su);
 
-		unparse::subunit(os::stdout, su);
+		unparse::subunit(os::stdout, su)!;
 	};
 };

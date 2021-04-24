@@ -138,7 +138,7 @@ use strconv;
 	assert(count == limit);
 
 	for (let i = 0z; i < limit; i += 1) {
-		fs::remove(memfs, strconv::ztos(i));
+		fs::remove(memfs, strconv::ztos(i))!;
 	};
 	let ino = memfs: *inode;
 	let dir = ino.data as directory;

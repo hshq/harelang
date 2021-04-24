@@ -256,7 +256,7 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 		assert(input.stat.mask & want == want);
 		fmt::fprintfln(fd, "input {} {} {} {}",
 			hash, input.path, input.stat.inode,
-			time::unix(input.stat.mtime));
+			time::unix(input.stat.mtime))?;
 	};
 
 	for (let i = 0z; i < len(manifest.versions); i += 1) {

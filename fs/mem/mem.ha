@@ -249,9 +249,7 @@ fn remove(fs: *fs::fs, path: str) (void | fs::error) = {
 
 fn close(fs: *fs::fs) void = {
 	let ino = fs: *inode;
-	if (!(ino.data is directory)) {
-		return fs::wrongtype;
-	};
+	assert(ino.data is directory);
 	ino.opencount -= 1;
 	close_rec(ino);
 };

@@ -185,7 +185,7 @@ fn lex_string(lex: *lexer, loc: location) (token | error) = {
 			else {
 				unget(lex, r);
 				r = lex_rune(lex, loc)?;
-				strio::appendrune(buf, r);
+				strio::appendrune(buf, r)?;
 			},
 	};
 	match (nextw(lex)?) {
@@ -244,7 +244,7 @@ fn lex_name(lex: *lexer, loc: location, keyword: bool) (token | error) = {
 				unget(lex, r);
 				break;
 			};
-			strio::appendrune(buf, r);
+			strio::appendrune(buf, r)?;
 		},
 	};
 

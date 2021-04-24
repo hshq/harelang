@@ -219,7 +219,7 @@ export fn printusage(s: *io::stream, name: str, help: []help) void = {
 // Prints command help to the provided stream.
 export fn printhelp(s: *io::stream, name: str, help: []help) void = {
 	if (help[0] is cmd_help) {
-		fmt::fprintfln(s, "{}: {}\n", name, help[0] as cmd_help: str);
+		fmt::fprintfln(s, "{}: {}\n", name, help[0] as cmd_help: str)!;
 	};
 
 	printusage(s, name, help);

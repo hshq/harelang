@@ -221,7 +221,7 @@ fn format(out: *io::stream, arg: formattable, mod: *modifiers) (size | io::error
 	};
 
 	if (mod.padding == padding::ALIGN_LEFT) {
-		format_raw(out, arg, mod);
+		format_raw(out, arg, mod)?;
 	};
 
 	for (z < mod.width: size) {
@@ -229,7 +229,7 @@ fn format(out: *io::stream, arg: formattable, mod: *modifiers) (size | io::error
 	};
 
 	if (mod.padding != padding::ALIGN_LEFT) {
-		format_raw(out, arg, mod);
+		format_raw(out, arg, mod)?;
 	};
 
 	return z;

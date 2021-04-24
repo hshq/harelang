@@ -143,7 +143,7 @@ fn scan_attr(par: *parser) (token | error) = {
 				* => rn,
 			};
 			if (rn == quot) break;
-			strio::appendrune(par.textbuf, rn);
+			strio::appendrune(par.textbuf, rn)?;
 		},
 	};
 	return (name, strio::string(par.textbuf)): attribute;
@@ -231,7 +231,7 @@ fn scan_content(par: *parser) (text | error) = {
 					scan_entity(par)?;
 				},
 			};
-			strio::appendrune(par.textbuf, rn);
+			strio::appendrune(par.textbuf, rn)?;
 		},
 	};
 	return strio::string(par.textbuf);
@@ -289,7 +289,7 @@ fn scan_charref(par: *parser) (rune | error) = {
 			rn: rune => rn,
 		};
 		if (ascii::isdigit(rn)) {
-			strio::appendrune(par.entbuf, rn);
+			strio::appendrune(par.entbuf, rn)?;
 		} else if (rn == ';') {
 			break;
 		} else {
