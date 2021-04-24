@@ -97,7 +97,7 @@ fn sum(h: *hash::hash) []u8 = {
 	let tmp: [1 + 63 + 8]u8 = [0x80, 0...];
 	const pad = (55 - ln) % 64;
 	endian::leputu32(tmp[1+pad..], (ln << 3) : u32);
-	write(&h.hash.stream, tmp[..1+pad+8]); // append the length in bits
+	write(&h.hash.stream, tmp[..1+pad+8])!; // append the length in bits
 
 	assert(h.nx == 0);
 

@@ -264,16 +264,16 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 		let hash = hex::encodestr(ver.hash);
 		defer free(hash);
 
-		fmt::fprintf(fd, "module {}", hash);
+		fmt::fprintf(fd, "module {}", hash)?;
 
 		for (let j = 0z; j < len(ver.inputs); j += 1) {
 			let hash = hex::encodestr(ver.inputs[i].hash);
 			defer free(hash);
 
-			fmt::fprintf(fd, " {}", hash);
+			fmt::fprintf(fd, " {}", hash)?;
 		};
 
-		fmt::fprintln(fd);
+		fmt::fprintln(fd)?;
 	};
 };
 
@@ -296,7 +296,7 @@ fn lock(fs: *fs::fs, cachedir: str) (*io::stream | error) = {
 			err: fs::error => return err,
 		};
 		if (!logged) {
-			fmt::errorfln("Waiting for lock on {}...", lockpath);
+			fmt::errorfln("Waiting for lock on {}...", lockpath): void;
 			logged = true;
 		};
 		time::sleep(1 * time::SECOND);

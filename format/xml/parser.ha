@@ -122,13 +122,13 @@ fn poptag(par: *parser, expect: str) (str | error) = {
 		return syntaxerr;
 	};
 	strio::reset(par.namebuf);
-	strio::concat(par.namebuf, pop);
+	strio::concat(par.namebuf, pop)!;
 	return strio::string(par.namebuf);
 };
 
 fn scan_attr(par: *parser) (token | error) = {
 	let name = scan_name(par, par.namebuf)?;
-	want(par, OPTWS, '=', OPTWS);
+	want(par, OPTWS, '=', OPTWS)?;
 	let quot = quote(par)?;
 	strio::reset(par.textbuf);
 	for (true) match (bufio::scanrune(par.in)?) {
@@ -195,7 +195,7 @@ fn scan_cdata(par: *parser) (text | error) = {
 			rn: rune => rn,
 		};
 		if (rn != ']') {
-			strio::appendrune(par.textbuf, rn);
+			strio::appendrune(par.textbuf, rn)!;
 			continue;
 		};
 		let rn = match (bufio::scanrune(par.in)?) {
@@ -203,7 +203,7 @@ fn scan_cdata(par: *parser) (text | error) = {
 			rn: rune => rn,
 		};
 		if (rn != ']') {
-			strio::appendrune(par.textbuf, rn);
+			strio::appendrune(par.textbuf, rn)!;
 			continue;
 		};
 		let rn = match (bufio::scanrune(par.in)?) {
@@ -211,7 +211,7 @@ fn scan_cdata(par: *parser) (text | error) = {
 			rn: rune => rn,
 		};
 		if (rn == '>') break;
-		strio::appendrune(par.textbuf, rn);
+		strio::appendrune(par.textbuf, rn)!;
 	};
 	return strio::string(par.textbuf): text;
 };
@@ -335,12 +335,12 @@ fn scan_name(par: *parser, buf: *io::stream) (str | error) = {
 	if (!isnamestart(rn)) {
 		return syntaxerr;
 	};
-	strio::appendrune(buf, rn);
+	strio::appendrune(buf, rn)!;
 
 	for (true) match (bufio::scanrune(par.in)?) {
 		_: io::EOF => return syntaxerr,
 		rn: rune => if (isname(rn)) {
-			strio::appendrune(buf, rn);
+			strio::appendrune(buf, rn)!;
 		} else {
 			bufio::unreadrune(par.in, rn);
 			break;

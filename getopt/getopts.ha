@@ -228,7 +228,7 @@ export fn printhelp(s: *io::stream, name: str, help: []help) void = {
 		_: cmd_help => void,
 		_: (flag_help | parameter_help) => {
 			// Only print this if there are flags to show
-			fmt::fprint(s, "\n");
+			fmt::fprint(s, "\n")!;
 			break;
 		},
 	};
@@ -236,10 +236,10 @@ export fn printhelp(s: *io::stream, name: str, help: []help) void = {
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
 		_: cmd_help => void,
 		f: flag_help => {
-			fmt::fprintfln(s, "-{}: {}", f.0: rune, f.1);
+			fmt::fprintfln(s, "-{}: {}", f.0: rune, f.1)!;
 		},
 		p: parameter_help => {
-			fmt::fprintfln(s, "-{} <{}>: {}", p.0: rune, p.1, p.2);
+			fmt::fprintfln(s, "-{} <{}>: {}", p.0: rune, p.1, p.2)!;
 		},
 	};
 };
@@ -248,7 +248,7 @@ fn errmsg(name: str, err: str, opt: (rune | void), help: []help) void = {
 	fmt::errorfln("{}: {}{}", name, err, match (opt) {
 		r: rune => r,
 		_: void => "",
-	});
+	})!;
 	printusage(os::stderr, name, help);
 };
 

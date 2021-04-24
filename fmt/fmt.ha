@@ -49,7 +49,7 @@ export fn bsprintf(buf: []u8, fmt: str, args: formattable...) str = {
 // Formats text for printing and writes it to [[os::stderr]], followed by a line
 // feed, then exits the program with an error status.
 export @noreturn fn fatal(fmt: str, args: formattable...) void = {
-	fprintfln(os::stderr, fmt, args...);
+	fprintfln(os::stderr, fmt, args...)!;
 	os::exit(1);
 };
 

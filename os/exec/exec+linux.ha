@@ -14,10 +14,8 @@ export fn fork() (int | void | error) = match (rt::fork()) {
 
 fn open(path: str) (platform_cmd | errors::opaque) = {
 	match (rt::access(path, rt::X_OK)) {
-		err: rt::errno => errors::errno(err),
-		b: bool => if (!b) {
-			return errors::errno(rt::EACCES);
-		},
+		err: rt::errno => return errors::errno(err),
+		b: bool => if (!b) return errors::errno(rt::EACCES),
 	};
 	// O_PATH is used because it allows us to use an executable for which we
 	// have execute permissions, but not read permissions.
@@ -63,7 +61,7 @@ fn platform_start(cmd: *command) (errors::opaque | process) = {
 	match (rt::clone(null, 0, null, null, 0)) {
 		err: rt::errno => return errors::errno(err),
 		pid: int => {
-			rt::close(pipe[1]);
+			rt::close(pipe[1])!;
 			let errno: int = 0;
 			return match (rt::read(pipe[0], &errno, size(int))) {
 				err: rt::errno => errors::errno(err),
@@ -75,10 +73,10 @@ fn platform_start(cmd: *command) (errors::opaque | process) = {
 			};
 		},
 		_: void => {
-			rt::close(pipe[0]);
+			rt::close(pipe[0])!;
 			let err = platform_exec(cmd);
 			let err = &err.data: *rt::errno;
-			rt::write(pipe[1], &err, size(int));
+			rt::write(pipe[1], &err, size(int))!;
 			rt::exit(1);
 		},
 	};

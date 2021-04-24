@@ -70,21 +70,21 @@ export fn openat2(
 export fn unlink(path: path) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall3(SYS_unlinkat,
-		AT_FDCWD: u64, path: uintptr: u64, 0u64));
+		AT_FDCWD: u64, path: uintptr: u64, 0u64))?;
 	return;
 };
 
 export fn unlinkat(dirfd: int, path: path, flags: int) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall3(SYS_unlinkat,
-		dirfd: u64, path: uintptr: u64, flags: u64));
+		dirfd: u64, path: uintptr: u64, flags: u64))?;
 	return;
 };
 
 export fn chmod(path: path, mode: uint) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall3(SYS_fchmodat,
-		AT_FDCWD: u64, path: uintptr: u64, mode: u64));
+		AT_FDCWD: u64, path: uintptr: u64, mode: u64))?;
 	return;
 };
 
@@ -98,7 +98,7 @@ export fn fchmodat(dirfd: int, path: path, mode: uint) (void | errno) = {
 export fn chown(path: path, uid: uint, gid: uint) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall4(SYS_fchownat,
-		AT_FDCWD: u64, path: uintptr: u64, uid: u32, gid: u32));
+		AT_FDCWD: u64, path: uintptr: u64, uid: u32, gid: u32))?;
 	return;
 };
 

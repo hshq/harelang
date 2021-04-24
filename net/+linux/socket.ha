@@ -70,7 +70,7 @@ fn listen_fd(
 			p: portassignment => portout = p,
 		};
 	};
-	setfcntl(sockfd, rt::O_CLOEXEC);
+	setfcntl(sockfd, rt::O_CLOEXEC)!;
 
 	wrap(rt::bind(sockfd, &addr, sockasz(addr)))?;
 	wrap(rt::listen(sockfd, bk))?;
@@ -124,7 +124,7 @@ fn stream_accept(l: *listener) (*io::stream | io::error) = {
 fn stream_shutdown(l: *listener) void = {
 	assert(l.shutdown == &stream_shutdown);
 	let l = l: *stream_listener;
-	rt::close(l.fd);
+	rt::close(l.fd)!;
 	free(l);
 };
 

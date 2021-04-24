@@ -102,12 +102,12 @@ fn sum(h: *hash::hash) []u8 = {
 	let tmp: [64]u8 = [0x80, 0...];
 	const pad = if ((ln % 64z) < 56z) 56z - ln % 64z
 		else 64 + 56z - ln % 64z;
-	write(&h.hash.stream, tmp[..pad]);
+	write(&h.hash.stream, tmp[..pad])!;
 
 	// Length in bits.
 	ln <<= 3;
 	endian::beputu64(tmp, ln: u64);
-	write(&h.hash.stream, tmp[..8]);
+	write(&h.hash.stream, tmp[..8])!;
 
 	assert(h.nx == 0);
 

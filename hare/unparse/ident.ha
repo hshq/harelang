@@ -17,7 +17,7 @@ export fn ident(out: *io::stream, id: ast::ident) (size | io::error) = {
 // Unparses an identifier into a string. The caller must free the return value.
 export fn identstr(id: ast::ident) str = {
 	let buf = strio::dynamic();
-	ident(buf, id);
+	ident(buf, id)!;
 	return strio::finish(buf);
 };
 

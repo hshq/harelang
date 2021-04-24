@@ -75,7 +75,7 @@ fn scantext(par: *parser) (token | void) = {
 				break;
 			},
 			'\n' => {
-				strio::appendrune(buf, rn);
+				strio::appendrune(buf, rn)!;
 				const rn = match (bufio::scanrune(par.src)) {
 					_: io::EOF => break,
 					* => abort(),
@@ -87,7 +87,7 @@ fn scantext(par: *parser) (token | void) = {
 				};
 				bufio::unreadrune(par.src, rn);
 			},
-			* => strio::appendrune(buf, rn),
+			* => strio::appendrune(buf, rn)!,
 		};
 	};
 	let result = strio::finish(buf);
@@ -158,10 +158,10 @@ fn scansample(par: *parser) (token | void) = {
 		};
 		switch (rn) {
 			* => {
-				strio::appendrune(buf, rn);
+				strio::appendrune(buf, rn)!;
 				continue;
 			},
-			'\n' => strio::appendrune(buf, rn),
+			'\n' => strio::appendrune(buf, rn)!,
 		};
 
 		// Consume whitespace
@@ -173,7 +173,7 @@ fn scansample(par: *parser) (token | void) = {
 					' '  => i += 1,
 					'\t' => i += 8,
 					'\n' => {
-						strio::appendrune(buf, rn);
+						strio::appendrune(buf, rn)!;
 						i = 0;
 					},
 					* => {

@@ -195,7 +195,7 @@ fn lex_string(lex: *lexer, loc: location) (token | error) = {
 			if (r == '"') {
 				const tok = lex_string(lex, loc)?;
 				const next = tok.1 as str;
-				strio::concat(buf, next);
+				strio::concat(buf, next)!;
 				free(next);
 			} else {
 				unget(lex, r);
@@ -232,7 +232,7 @@ fn lex_name(lex: *lexer, loc: location, keyword: bool) (token | error) = {
 	match (next(lex)) {
 		r: rune => {
 			assert(is_name(r, false));
-			strio::appendrune(buf, r);
+			strio::appendrune(buf, r)!;
 		},
 		_: (io::EOF | io::error) => abort(),
 	};
@@ -279,7 +279,7 @@ fn lex_comment(lexr: *lexer, loc: location) (token | error) = {
 	for (true) match (next(lexr)?) {
 		_: io::EOF => break,
 		r: rune => {
-			strio::appendrune(buf, r);
+			strio::appendrune(buf, r)!;
 			if (r == '\n') break;
 		},
 	};

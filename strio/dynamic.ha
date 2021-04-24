@@ -30,7 +30,7 @@ export fn dynamic() *io::stream = {
 // of it to the caller.
 export fn finish(s: *io::stream) str = {
 	assert(s.writer == &dynamic_write,
-		"strio::finish called on non-strio stream");
+		"strio::finish called on non-strio::dynamic stream");
 	let s = s: *dynamic_stream;
 	let buf = s.buf;
 	free(s);
@@ -39,20 +39,18 @@ export fn finish(s: *io::stream) str = {
 
 // Resets the buffer's length to zero, but keeps the allocated memory around for
 // future writes.
-export fn reset(s: *io::stream) (void | errors::unsupported) = {
-	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
-		return errors::unsupported;
-	};
+export fn reset(s: *io::stream) void = {
+	assert(s.writer == &dynamic_write,
+		"strio::reset called on non-strio::dynamic stream");
 	const s = s: *dynamic_stream;
 	s.buf = s.buf[..0];
 };
 
 // Truncates the buffer, freeing memory associated with it and setting its
 // length to zero.
-export fn truncate(s: *io::stream) (void | errors::unsupported) = {
-	if (s.writer != &dynamic_write || s.closer != &dynamic_close) {
-		return errors::unsupported;
-	};
+export fn truncate(s: *io::stream) void = {
+	assert(s.writer == &dynamic_write,
+		"strio::truncate called on non-strio::dynamic stream");
 	let s = s: *dynamic_stream;
 	delete(s.buf[..]);
 };

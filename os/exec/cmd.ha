@@ -54,7 +54,7 @@ export fn finish(cmd: *command) void = {
 // running process with the new command.
 export @noreturn fn exec(cmd: *command) void = {
 	defer finish(cmd); // Note: doesn't happen if exec succeeds
-	platform_exec(cmd);
+	platform_exec(cmd): void;
 	abort("os::exec::exec failed");
 };
 

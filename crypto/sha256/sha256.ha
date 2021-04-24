@@ -118,11 +118,11 @@ fn sum(h: *hash::hash) []u8 = {
 	tmp[0] = 0x80;
 	const n = if ((ln % 64z) < 56z) 56z - ln % 64z
 		else 64z + 56z - ln % 64z;
-	write(&h.hash.stream, tmp[..n]);
+	write(&h.hash.stream, tmp[..n])!;
 
 	ln <<= 3;
 	endian::beputu64(tmp, ln: u64);
-	write(&h.hash.stream, tmp[..8]);
+	write(&h.hash.stream, tmp[..8])!;
 
 	assert(h.nx == 0);
 

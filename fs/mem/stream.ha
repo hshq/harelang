@@ -47,7 +47,7 @@ fn stream_open(
 			bufio::truncate(s.source);
 		};
 	};
-	io::seek(s.source, 0, io::whence::SET);
+	io::seek(s.source, 0, io::whence::SET)?;
 	return &s.stream;
 };
 

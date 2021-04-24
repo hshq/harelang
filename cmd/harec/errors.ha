@@ -31,10 +31,10 @@ fn printerr_syntax(err: lex::syntax) void = {
 	defer free(line);
 	let line = strings::fromutf8(line);
 	fmt::errorfln("{}:{},{}: Syntax error: {}",
-		location.path, location.line, location.col, details);
-	fmt::errorln(line);
+		location.path, location.line, location.col, details)!;
+	fmt::errorln(line)!;
 	for (let i = 0u; i < location.col - 2; i += 1) {
-		fmt::error(" ");
+		fmt::error(" ")!;
 	};
-	fmt::errorln("^--- here");
+	fmt::errorln("^--- here")!;
 };

@@ -329,7 +329,7 @@ fn fs_resolve(fs: *fs::fs, path: str) str = {
 
 fn fs_close(fs: *fs::fs) void = {
 	let fs = fs: *os_filesystem;
-	rt::close(fs.dirfd);
+	rt::close(fs.dirfd)!;
 };
 
 def BUFSIZ: size = 2048;
@@ -370,7 +370,7 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 	if (iter.buf_pos >= iter.buf_end) {
 		let n = rt::getdents64(iter.fd, &iter.buf, BUFSIZ) as size;
 		if (n == 0) {
-			rt::close(iter.fd);
+			rt::close(iter.fd)!;
 			free(iter);
 			return;
 		};

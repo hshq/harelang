@@ -24,7 +24,7 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 			_: void => want(lexer, ltok::NAME)?.1 as str,
 			_: lex::token => "",
 		};
-		want(lexer, ltok::COLON);
+		want(lexer, ltok::COLON)?;
 		append(params, ast::func_param {
 			loc = loc,
 			name = name,

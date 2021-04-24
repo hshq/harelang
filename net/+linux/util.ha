@@ -14,7 +14,7 @@ fn setsockopt(sockfd: int, option: int, value: bool) (void | rt::errno) = {
 
 fn setfcntl(sockfd: int, flag: int) (void | rt::errno) = {
 	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)?;
-	rt::fcntl(sockfd, rt::F_SETFL, flags | flag); // ? always detects io::error
+	rt::fcntl(sockfd, rt::F_SETFL, flags | flag)!;
 	return;
 };
 

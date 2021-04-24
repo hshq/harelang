@@ -381,7 +381,7 @@ fn struct_constant(
 	};
 	indent -= 1;
 	newline(out, indent)?;
-	fmt::fprint(out, "}");
+	fmt::fprint(out, "}")?;
 	return z;
 };
 

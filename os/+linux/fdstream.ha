@@ -88,14 +88,14 @@ fn fd_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 
 fn fd_close(s: *io::stream) void = {
 	let stream = s: *fd_stream;
-	rt::close(stream.fd);
+	rt::close(stream.fd)!;
 	free(s.name);
 	free(stream);
 };
 
 fn fd_close_static(s: *io::stream) void = {
 	let stream = s: *fd_stream;
-	rt::close(stream.fd);
+	rt::close(stream.fd)!;
 	free(stream);
 };
 

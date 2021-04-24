@@ -143,17 +143,17 @@ fn sum(h: *hash::hash) []u8 = {
 	let tmp: [chunk]u8 = [0x80, 0...];
 	if ((ln % 128) < 112) {
 		const n = 112 - (ln % 128);
-		write(&d.hash.stream, tmp[..n]);
+		write(&d.hash.stream, tmp[..n])!;
 	} else {
 		const n = 128 + 112 - (ln % 128);
-		write(&d.hash.stream, tmp[..n]);
+		write(&d.hash.stream, tmp[..n])!;
 	};
 
 	// Length in bits
 	ln <<= 3;
 	endian::beputu64(tmp, 0u64); // upper 64 bits are always zero
 	endian::beputu64(tmp[8..], ln : u64);
-	write(&d.hash.stream, tmp[..16]);
+	write(&d.hash.stream, tmp[..16])!;
 
 	assert(d.nx == 0);
 

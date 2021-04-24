@@ -38,7 +38,7 @@ export fn wait(proc: *process) (status | error) = {
 	let ru: rt::rusage = rt::rusage { ... };
 	let st: status = status { ... };
 	match (rt::wait4(*proc, &st.status, 0, &ru)) {
-		err: rt::errno => errors::errno(err),
+		err: rt::errno => return errors::errno(err),
 		pid: int => assert(pid == *proc),
 	};
 	rusage(&st, &ru);
@@ -51,7 +51,7 @@ export fn peek(proc: *process) (status | void | error) = {
 	let ru: rt::rusage = rt::rusage { ... };
 	let st: status = status { ... };
 	match (rt::wait4(*proc, &st.status, 0, &ru)) {
-		err: rt::errno => errors::errno(err),
+		err: rt::errno => return errors::errno(err),
 		pid: int => switch (pid) {
 			0 => return void,
 			* => assert(pid == *proc),

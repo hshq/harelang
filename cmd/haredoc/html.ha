@@ -21,16 +21,16 @@ fn emit_html(ctx: *context) (void | error) = {
 	if (ctx.template) head(ctx.ident)?;
 
 	if (len(ident) == 0) {
-		fmt::printf("<h2>The Hare standard library <span class='heading-extra'>", ident);
+		fmt::printf("<h2>The Hare standard library <span class='heading-extra'>", ident)?;
 	} else {
-		fmt::printf("<h2>{} <span class='heading-extra'>", ident);
+		fmt::printf("<h2>{} <span class='heading-extra'>", ident)?;
 	};
 	for (let i = 0z; i < len(ctx.tags); i += 1) {
 		const mode = switch (ctx.tags[i].mode) {
 			module::tag_mode::INCLUSIVE => '+',
 			module::tag_mode::EXCLUSIVE => '-',
 		};
-		fmt::printf("{}{} ", mode, ctx.tags[i].name);
+		fmt::printf("{}{} ", mode, ctx.tags[i].name)?;
 	};
 	fmt::println("</span></h2>")?;
 
@@ -62,11 +62,11 @@ fn emit_html(ctx: *context) (void | error) = {
 			let path = path::join("/", path, dir);
 			defer free(path);
 
-			fmt::printf("<li><a href='");
-			html::escape(os::stdout, path);
-			fmt::printf("'>");
-			html::escape(os::stdout, dir);
-			fmt::printfln("</a></li>");
+			fmt::printf("<li><a href='")?;
+			html::escape(os::stdout, path)?;
+			fmt::printf("'>")?;
+			html::escape(os::stdout, dir)?;
+			fmt::printfln("</a></li>")?;
 		};
 		fmt::println("</ul>")?;
 	};
@@ -150,12 +150,12 @@ fn tocentry(decl: ast::decl) (void | error) = {
 			_: []ast::decl_type => "type",
 			_: []ast::decl_const => "const",
 			_: []ast::decl_global => "let",
-		});
-	fmt::printf("<a href='#");
+		})?;
+	fmt::printf("<a href='#")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
-	fmt::printf("'>");
+	fmt::printf("'>")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
-	fmt::print("</a>");
+	fmt::print("</a>")?;
 
 	match (decl.decl) {
 		g: []ast::decl_global => {
@@ -173,12 +173,12 @@ fn tocentry(decl: ast::decl) (void | error) = {
 			f.prototype._type as ast::func_type,
 			true)?,
 	};
-	fmt::println(";");
+	fmt::println(";")?;
 	return;
 };
 
 fn details(ctx: *context, decl: ast::decl) (void | error) = {
-	fmt::println("<section class='member'>");
+	fmt::println("<section class='member'>")?;
 	fmt::print("<h4 id='")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	fmt::print("'>")?;
@@ -188,7 +188,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 			_: []ast::decl_type => "type",
 			_: []ast::decl_const => "def",
 			_: []ast::decl_global => "let",
-		});
+		})?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	// TODO: Add source URL
 	fmt::print("<span class='heading-extra'>
@@ -199,8 +199,8 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 	fmt::println("</h4>")?;
 
 	if (len(decl.docs) == 0) {
-		fmt::println("<details>");
-		fmt::println("<summary>Show undocumented member</summary>");
+		fmt::println("<details>")?;
+		fmt::println("<summary>Show undocumented member</summary>")?;
 	};
 
 	fmt::println("<pre class='decl'>")?;
@@ -211,7 +211,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 		const buf = strings::toutf8(decl.docs);
 		markup_html(ctx, bufio::fixed(buf, io::mode::READ))?;
 	} else {
-		fmt::println("</details>");
+		fmt::println("</details>")?;
 	};
 
 	fmt::println("</section>")?;
@@ -222,7 +222,7 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 	const ik = match (resolve(ctx, ref)) {
 		_: void => {
 			const ident = unparse::identstr(ref);
-			fmt::errorfln("Warning: Unresolved reference: {}", ident);
+			fmt::errorfln("Warning: Unresolved reference: {}", ident)?;
 			fmt::printf("<a href='#' "
 				"class='ref invalid' "
 				"title='This reference could not be found'>{}</a>",
@@ -267,31 +267,31 @@ fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {
 			},
 			tx: text => if (strings::has_prefix(tx, "https://")) {
 				// Temporary hack
-				fmt::print("<a rel='nofollow noopener' href='");
-				html::escape(os::stdout, tx);
-				fmt::print("'>");
-				html::escape(os::stdout, tx);
-				fmt::print("</a>");
+				fmt::print("<a rel='nofollow noopener' href='")?;
+				html::escape(os::stdout, tx)?;
+				fmt::print("'>")?;
+				html::escape(os::stdout, tx)?;
+				fmt::print("</a>")?;
 				free(tx);
 			} else {
-				html::escape(os::stdout, tx);
+				html::escape(os::stdout, tx)?;
 				free(tx);
 			},
 			re: reference => htmlref(ctx, re)?,
 			sa: sample => {
 				fmt::print("<pre class='sample'>")?;
-				html::escape(os::stdout, sa);
+				html::escape(os::stdout, sa)?;
 				fmt::print("</pre>")?;
 				free(sa);
 			},
 			li: list => {
-				fmt::println("<ul>");
+				fmt::println("<ul>")?;
 				for (let i = 0z; i < len(li); i += 1) {
-					fmt::println("<li>");
-					html::escape(os::stdout, li[i]);
-					fmt::println("</li>");
+					fmt::println("<li>")?;
+					html::escape(os::stdout, li[i])?;
+					fmt::println("</li>")?;
 				};
-				fmt::println("</ul>");
+				fmt::println("</ul>")?;
 			},
 		};
 	};
@@ -618,13 +618,13 @@ fn breadcrumb(ident: ast::ident) str = {
 		return "";
 	};
 	let buf = strio::dynamic();
-	fmt::fprintf(buf, "<a href='/'>stdlib</a> » ");
+	fmt::fprintf(buf, "<a href='/'>stdlib</a> » ")!;
 	for (let i = 0z; i < len(ident) - 1; i += 1) {
 		let ipath = module::identpath(ident[..i+1]);
 		defer free(ipath);
-		fmt::fprintf(buf, "<a href='{}'>{}</a>::", ipath, ident[i]);
+		fmt::fprintf(buf, "<a href='{}'>{}</a>::", ipath, ident[i])!;
 	};
-	fmt::fprint(buf, ident[len(ident) - 1]);
+	fmt::fprint(buf, ident[len(ident) - 1])!;
 	return strio::finish(buf);
 };
 
@@ -782,8 +782,8 @@ details pre {
 	<ul>
 		<li>
 			<a href='https://harelang.org'>Home</a>
-		</li>");
-	fmt::printf("<li>{}</li>", breadcrumb);
+		</li>")?;
+	fmt::printf("<li>{}</li>", breadcrumb)?;
 	fmt::print("</ul>
 </nav>
 <main>")?;

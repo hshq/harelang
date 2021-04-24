@@ -331,20 +331,20 @@ fn test(args: []str) void = {
 };
 
 fn version(args: []str) void = {
-	fmt::printfln("Hare version {}", VERSION);
-	fmt::errorln();
-	fmt::printf("Build tags\t");
+	fmt::printfln("Hare version {}", VERSION)!;
+	fmt::errorln()!;
+	fmt::printf("Build tags\t")!;
 	const tags = default_tags();
 	for (let i = 0z; i < len(tags); i += 1) {
 		const tag = tags[i];
 		const inclusive = (tag.mode & module::tag_mode::INCLUSIVE) == module::tag_mode::INCLUSIVE;
-		fmt::printf("{}{}", if (inclusive) '+' else '-', tag.name);
+		fmt::printf("{}{}", if (inclusive) '+' else '-', tag.name)!;
 	};
-	fmt::println();
+	fmt::println()!;
 
 	match (os::getenv("HAREPATH")) {
-		_: void => fmt::printfln("HAREPATH\t{}", HAREPATH),
-		s: str => fmt::printfln("HAREPATH\t{}\t(from environment)", s),
+		_: void => fmt::printfln("HAREPATH\t{}", HAREPATH)!,
+		s: str => fmt::printfln("HAREPATH\t{}\t(from environment)", s)!,
 	};
 	if (len(args) > 1 && args[1] == "-v") {
 		fmt::errorln("
@@ -381,6 +381,6 @@ fn version(args: []str) void = {
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⣀⣈⣀⣒⣓⡒⡒⠒⠒⢒⡀⠀⠀⠀⠀⠴⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠁⠀⣀⠀⠀⠤⠀⠤⠤⠀⠀⠒⠒⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⠄⠀⠀⠀⠐⠒⠒⠒⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠁");
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠁")!;
 	};
 };

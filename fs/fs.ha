@@ -92,7 +92,11 @@ export fn mkdirs(fs: *fs, path: str) (void | error) = {
 			_: void => void,
 		};
 	};
-	return mkdir(fs, path);
+	return match (mkdir(fs, path)) {
+		_: errors::exists => void,
+		err: error => err,
+		_: void => void,
+	};
 };
 
 // Removes a directory. The target directory must be empty; see [[rmdirall]] to

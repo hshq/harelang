@@ -1,5 +1,6 @@
 use encoding::hex;
 use fmt;
+use fs;
 use hare::ast;
 use hare::module;
 use hare::unparse;
@@ -185,7 +186,11 @@ fn sched_hare_object(
 		for (let i = 0z; i < len(namespace); i += 1) {
 			path = path::join(path, namespace[i]);
 		};
-		os::mkdirs(path);
+		match (os::mkdirs(path)) {
+			_: void => void,
+			err: fs::error => fmt::fatal("Error: mkdirs {}: {}",
+				path, fs::strerror(err)),
+		};
 		append(harec.cmd, "-t", path::join(path, td));
 		path::join(path, name);
 	} else {
