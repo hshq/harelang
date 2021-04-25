@@ -110,7 +110,7 @@ bufio() {
 		buffered.ha \
 		memstream.ha \
 		scanner.ha
-	gen_ssa bufio io bytes strings encoding::utf8 errors
+	gen_ssa bufio io bytes strings encoding::utf8 errors types
 }
 
 bytes() {

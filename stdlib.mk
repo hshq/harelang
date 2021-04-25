@@ -251,7 +251,7 @@ stdlib_bufio_srcs= \
 	$(STDLIB)/bufio/memstream.ha \
 	$(STDLIB)/bufio/scanner.ha
 
-$(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bytes) $(stdlib_strings) $(stdlib_encoding_utf8) $(stdlib_errors)
+$(HARECACHE)/bufio/bufio.ssa: $(stdlib_bufio_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_bytes) $(stdlib_strings) $(stdlib_encoding_utf8) $(stdlib_errors) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/bufio
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbufio \
@@ -1144,7 +1144,7 @@ testlib_bufio_srcs= \
 	$(STDLIB)/bufio/memstream.ha \
 	$(STDLIB)/bufio/scanner.ha
 
-$(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io) $(testlib_bytes) $(testlib_strings) $(testlib_encoding_utf8) $(testlib_errors)
+$(TESTCACHE)/bufio/bufio.ssa: $(testlib_bufio_srcs) $(testlib_rt) $(testlib_io) $(testlib_bytes) $(testlib_strings) $(testlib_encoding_utf8) $(testlib_errors) $(testlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/bufio
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbufio \
