@@ -133,7 +133,7 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 
 fn close(st: *io::stream) void = free(st);
 
-fn sum(h: *hash::hash) []u8 = {
+fn sum(h: *hash::hash, buf: []u8) void = {
 	let d = h: *digest;
 	let copy = *d;
 	let d = &copy;
@@ -171,9 +171,7 @@ fn sum(h: *hash::hash) []u8 = {
 
         // We only copy the necessary bytes from fixed-size array into the
         // returned slice. The size is already found in the inner hash struct.
-	let slice: []u8 = alloc([], d.hash.sz);
-	append(slice, dig[..d.hash.sz]...);
-	return slice;
+	buf[..] = dig[..d.hash.sz];
 };
 
 fn reset(h: *hash::hash) void = {

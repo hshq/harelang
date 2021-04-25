@@ -1,5 +1,5 @@
-// TODO: Let caller supply the output buffer, to avoid the slice allocation
 use io;
+use fmt;
 
 // The general purpose interface for a hashing function.
 export type hash = struct {
@@ -7,7 +7,7 @@ export type hash = struct {
 	stream: io::stream,
 
 	// Returns the current hash.
-	sum: *fn(hash: *hash) []u8,
+	sum: *fn(hash: *hash, buf: []u8) void,
 
 	// Resets the hash function to its initial state.
 	reset: *fn(hash: *hash) void,
@@ -23,20 +23,22 @@ export fn writer(h: *hash) *io::stream = &h.stream;
 export fn write(h: *hash, buf: const []u8) size =
 	io::write(&h.stream, buf) as size;
 
-// Finalizes the hash, frees resources associated with the hash, and returns the
-// sum. The return value is heap allocated, the caller needs to free it.
-export fn finish(h: *hash) []u8 = {
-	let sum = sum(h);
+// Finalizes the hash, frees resources associated with the hash, and populate
+// buf with the sum.
+export fn finish(h: *hash, buf: []u8) void = {
+	sum(h, buf);
 	io::close(&h.stream);
-	return sum;
+	return buf;
 };
 
 // Closes a hash, freeing its resources and discarding the checksum.
 export fn close(h: *hash) void = io::close(&h.stream);
 
-// Returns the current sum. The return value is heap allocated, the caller
-// needs to free it.
-export fn sum(h: *hash) []u8 = h.sum(h);
+// Populates the user-provided buffer with the current sum.
+export fn sum(h: *hash, buf: []u8) void = {
+	assert(len(buf) >= h.sz, "hash::sum buffer does not meet minimum required size for this hash function");
+	h.sum(h, buf);
+};
 
 // Resets the hash function to its initial state.
 export fn reset(h: *hash) void = h.reset(h);

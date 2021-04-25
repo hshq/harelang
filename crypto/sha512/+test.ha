@@ -25,9 +25,8 @@ use io;
 		hash::reset(sha);
 		hash::write(sha, strings::toutf8(vector.0));
 
-		let sum = hash::sum(sha);
-		defer free(sum);
-		assert(len(sum) == SIZE, "Expected len(sum) == SIZE");
+		let sum: [SIZE]u8 = [0...];
+		hash::sum(sha, sum);
 
 		let hex = strio::dynamic();
 		defer io::close(hex);
@@ -58,9 +57,8 @@ use io;
 		hash::reset(sha);
 		hash::write(sha, strings::toutf8(vector.0));
 
-		let sum = hash::sum(sha);
-		defer free(sum);
-		assert(len(sum) == SIZE224, "Expected len(sum) == SIZE224");
+		let sum: [SIZE224]u8 = [0...];
+		hash::sum(sha, sum);
 
 		let hex = strio::dynamic();
 		defer io::close(hex);
@@ -89,9 +87,8 @@ use io;
 		hash::reset(sha);
 		hash::write(sha, strings::toutf8(vector.0));
 
-		let sum = hash::sum(sha);
-		defer free(sum);
-		assert(len(sum) == SIZE256, "Expected len(sum) == SIZE256");
+		let sum: [SIZE256]u8 = [0...];
+		hash::sum(sha, sum);
 
 		let hex = strio::dynamic();
 		defer io::close(hex);
@@ -122,9 +119,8 @@ use io;
 		hash::reset(sha);
 		hash::write(sha, strings::toutf8(vector.0));
 
-		let sum = hash::sum(sha);
-		defer free(sum);
-		assert(len(sum) == SIZE384, "Expected len(sum) == SIZE384");
+		let sum: [SIZE384]u8 = [0...];
+		hash::sum(sha, sum);
 
 		let hex = strio::dynamic();
 		defer io::close(hex);

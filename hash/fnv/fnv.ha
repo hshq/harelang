@@ -103,11 +103,9 @@ fn fnv32_reset(h: *hash::hash) void = {
 	h.v = basis32;
 };
 
-fn fnv32_sum(h: *hash::hash) []u8 = {
+fn fnv32_sum(h: *hash::hash, buf: []u8) void = {
 	let h = h: *state32;
-	let buf: [4]u8 = [0...];
 	endian::host.putu32(buf, h.v);
-	return alloc(buf);
 };
 
 fn fnv64_write(s: *io::stream, buf: const []u8) (size | io::error) = {
@@ -133,11 +131,9 @@ fn fnv64_reset(h: *hash::hash) void = {
 	h.v = basis64;
 };
 
-fn fnv64_sum(h: *hash::hash) []u8 = {
+fn fnv64_sum(h: *hash::hash, buf: []u8) void = {
 	let h = h: *state64;
-	let buf: [8]u8 = [0...];
 	endian::host.putu64(buf, h.v);
-	return alloc(buf);
 };
 
 // Returns the sum of a 32-bit FNV hash.
@@ -166,12 +162,19 @@ export fn sum64(h: *hash::hash) u64 = {
 		("'The central enemy of reliability is complexity.' - Geer et al", 3263526736),
 		("'A language that doesn’t have everything is actually easier to program in than some that do.' - Dennis Ritchie", 3069348265),
 	];
+
 	let hash = fnv32();
 	defer hash::close(hash);
+	let s: [4]u8 = [0...];
+
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let vec = vectors[i];
+
 		hash::reset(hash);
 		hash::write(hash, strings::toutf8(vec.0));
+		hash::sum(hash, s);
+
+		assert(endian::host.getu32(s) == vec.1);
 		assert(sum32(hash) == vec.1);
 	};
 };

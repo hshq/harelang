@@ -2,6 +2,7 @@ use endian;
 use hash;
 use io;
 use strings;
+use fmt;
 
 // IEEE polynomial for CRC-32. Used in ethernet, SATA, MPEG-2, gzip, bsip2,
 // cksum, PNG, etc. It is by far the most common polynomial used.
@@ -217,11 +218,9 @@ fn reset(h: *hash::hash) void = {
 	h.cval = ~0u32;
 };
 
-fn sum(h: *hash::hash) []u8 = {
+fn sum(h: *hash::hash, buf: []u8) void = {
 	let h = h: *state;
-	let buf: [4]u8 = [0...];
 	endian::host.putu32(buf, ~h.cval);
-	return alloc(buf);
 };
 
 export fn sum32(h: *hash::hash) u32 = {
@@ -251,28 +250,27 @@ export fn sum32(h: *hash::hash) u32 = {
 	let crc_koopman = crc32(&KOOPMAN_TABLE);
 	defer hash::close(crc_koopman);
 
+	let buf: [4]u8 = [0...];
+
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let vec = vectors[i];
 
 		hash::reset(crc_ieee);
 		hash::write(crc_ieee, strings::toutf8(vec.0));
-		let s = hash::sum(crc_ieee);
-		defer free(s);
-		assert(endian::host.getu32(s) == vec.1);
+		hash::sum(crc_ieee, buf);
+		assert(endian::host.getu32(buf) == vec.1);
 		assert(sum32(crc_ieee) == vec.1);
 
 		hash::reset(crc_castagnoli);
 		hash::write(crc_castagnoli, strings::toutf8(vec.0));
-		let s = hash::sum(crc_castagnoli);
-		defer free(s);
-		assert(endian::host.getu32(s) == vec.2);
+		hash::sum(crc_castagnoli, buf);
+		assert(endian::host.getu32(buf) == vec.2);
 		assert(sum32(crc_castagnoli) == vec.2);
 
 		hash::reset(crc_koopman);
 		hash::write(crc_koopman, strings::toutf8(vec.0));
-		let s = hash::sum(crc_koopman);
-		defer free(s);
-		assert(endian::host.getu32(s) == vec.3);
+		hash::sum(crc_koopman, buf);
+		assert(endian::host.getu32(buf) == vec.3);
 		assert(sum32(crc_koopman) == vec.3);
 	};
 };

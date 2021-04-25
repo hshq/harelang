@@ -39,9 +39,13 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 				...
 			};
 			append(inputs, in);
+
+			let sumbuf: [sha256::SIZE]u8 = [0...];
 			hash::write(sha, in.hash);
+			hash::finish(sha, sumbuf);
+
 			return version {
-				hash = hash::finish(sha),
+				hash = sumbuf,
 				basedir = path::dirname(fs::resolve(ctx.fs, path)),
 				depends = deps,
 				inputs = inputs,
@@ -55,7 +59,12 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 		...
 	};
 	scan_directory(ctx, &ver, sha, path, iter)?;
-	ver.hash = hash::finish(sha);
+
+	let tmp: [sha256::SIZE]u8 = [0...];
+	hash::finish(sha, tmp);
+	ver.hash = alloc([], sha.sz);
+	append(ver.hash, tmp...);
+
 	return ver;
 };
 
@@ -318,7 +327,13 @@ fn scan_file(
 	};
 
 	io::copy(io::empty, tee)?; // Finish spooling out the file for the SHA
-	return hash::finish(sha);
+
+	let tmp: [sha256::SIZE]u8 = [0...];
+	hash::finish(sha, tmp);
+
+	let checksum: []u8 = alloc([], sha.sz);
+	append(checksum, tmp...);
+	return checksum;
 };
 
 fn have_ident(sl: *[]ast::ident, id: ast::ident) bool = {

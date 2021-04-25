@@ -25,8 +25,9 @@ use strio;
 		const vector = vectors[i];
 		hash::reset(sha);
 		hash::write(sha, strings::toutf8(vector.0));
-		let sum = hash::sum(sha);
-		defer free(sum);
+
+		let sum: [SIZE]u8 = [0...];
+		hash::sum(sha, sum);
 
 		let hex = strio::dynamic();
 		defer io::close(hex);

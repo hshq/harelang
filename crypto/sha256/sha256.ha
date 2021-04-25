@@ -107,7 +107,7 @@ fn close(st: *io::stream) void = {
 	free(st);
 };
 
-fn sum(h: *hash::hash) []u8 = {
+fn sum(h: *hash::hash, buf: []u8) void = {
 	let h = h: *state;
 	let copy = *h;
 	let h = &copy;
@@ -126,19 +126,14 @@ fn sum(h: *hash::hash) []u8 = {
 
 	assert(h.nx == 0);
 
-	let digest: [SIZE]u8 = [0...];
-	endian::beputu32(digest[0..], h.h[0]);
-	endian::beputu32(digest[4..], h.h[1]);
-	endian::beputu32(digest[8..], h.h[2]);
-	endian::beputu32(digest[12..], h.h[3]);
-	endian::beputu32(digest[16..], h.h[4]);
-	endian::beputu32(digest[20..], h.h[5]);
-	endian::beputu32(digest[24..], h.h[6]);
-	endian::beputu32(digest[28..], h.h[7]);
-
-	let slice: []u8 = alloc([], SIZE);
-	append(slice, digest...);
-	return slice;
+	endian::beputu32(buf[0..], h.h[0]);
+	endian::beputu32(buf[4..], h.h[1]);
+	endian::beputu32(buf[8..], h.h[2]);
+	endian::beputu32(buf[12..], h.h[3]);
+	endian::beputu32(buf[16..], h.h[4]);
+	endian::beputu32(buf[20..], h.h[5]);
+	endian::beputu32(buf[24..], h.h[6]);
+	endian::beputu32(buf[28..], h.h[7]);
 };
 
 // TODO: Rewrite me in assembly

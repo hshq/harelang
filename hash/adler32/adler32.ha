@@ -3,6 +3,9 @@ use hash;
 use io;
 use strings;
 
+// The size, in bytes, of an Adler-32 checksum.
+export def SIZE: size = 4;
+
 type state = struct {
 	hash: hash::hash,
 	a: u32,
@@ -42,13 +45,11 @@ fn reset(h: *hash::hash) void = {
 	h.b = 0;
 };
 
-fn sum(h: *hash::hash) []u8 = {
+fn sum(h: *hash::hash, buf: []u8) void = {
 	let h = h: *state;
-	let buf: [4]u8 = [0...];
 	// RFC 1950 specifies that Adler-32 checksums are stored in network
 	// order.
 	endian::beputu32(buf, (h.b << 16) | h.a);
-	return alloc(buf);
 };
 
 export fn sum32(h: *hash::hash) u32 = {
@@ -68,14 +69,18 @@ export fn sum32(h: *hash::hash) u32 = {
 		("'A language that doesn’t have everything is actually easier to program in than some that do.' - Dennis Ritchie", 1148528899),
 
 	];
+
 	let hash = adler32();
 	defer hash::close(hash);
+	let s: [4]u8 = [0...];
+
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let vec = vectors[i];
 		hash::reset(hash);
 		hash::write(hash, strings::toutf8(vec.0));
-		let s = hash::sum(hash);
-		defer free(s);
+
+		hash::sum(hash, s);
+
 		assert(endian::begetu32(s) == vec.1);
 		assert(sum32(hash) == vec.1);
 	};

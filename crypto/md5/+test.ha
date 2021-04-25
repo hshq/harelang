@@ -24,8 +24,9 @@ use io;
 		const vector = vectors[i];
 		hash::reset(md5);
 		hash::write(md5, strings::toutf8(vector.0));
-		let sum = hash::sum(md5);
-		defer free(sum);
+
+		let sum: [SIZE]u8 = [0...];
+		hash::sum(md5, sum);
 
 		let hex = strio::dynamic();
 		defer io::close(hex);

@@ -48,16 +48,16 @@ fn wraperror(err: decompress_err) errors::opaque = {
 };
 
 fn verifysum(s: *reader) (io::EOF | io::error) = {
-	let hash: [4]u8 = [0...];
+	let hash: [adler32::SIZE]u8 = [0...];
+
 	for (let n = 0z; n < len(hash)) {
 		match (io::read(s.source, hash[n..])?) {
 			_: io::EOF => return wraperror(decompress_err::EOF),
 			z: size => n += z,
 		};
 	};
-	let checksum = hash::sum(s.hash);
-	defer free(checksum);
-	return if (bytes::equal(checksum, hash)) io::EOF
+
+	return if (adler32::sum32(s.hash) == endian::begetu32(hash)) io::EOF
 		else wraperror(decompress_err::CHECKSUM);
 };
 

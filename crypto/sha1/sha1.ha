@@ -92,7 +92,7 @@ fn reset(h: *hash::hash) void = {
 	h.ln = 0;
 };
 
-fn sum(h: *hash::hash) []u8 = {
+fn sum(h: *hash::hash, buf: []u8) void = {
 	let h = h: *digest;
 	let copy = *h;
 	let h = &copy;
@@ -112,16 +112,11 @@ fn sum(h: *hash::hash) []u8 = {
 	assert(h.nx == 0);
 
 	// Where we write the digest
-	let d: [SIZE]u8 = [0...];
-	endian::beputu32(d[0..], h.h[0]);
-	endian::beputu32(d[4..], h.h[1]);
-	endian::beputu32(d[8..], h.h[2]);
-	endian::beputu32(d[12..], h.h[3]);
-	endian::beputu32(d[16..], h.h[4]);
-
-	let slice: []u8 = alloc([], SIZE);
-	append(slice, d...);
-	return slice;
+	endian::beputu32(buf[0..], h.h[0]);
+	endian::beputu32(buf[4..], h.h[1]);
+	endian::beputu32(buf[8..], h.h[2]);
+	endian::beputu32(buf[12..], h.h[3]);
+	endian::beputu32(buf[16..], h.h[4]);
 };
 
 let K0: u32 = 0x5A827999;
