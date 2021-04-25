@@ -20,4 +20,5 @@ export @noreturn fn abort_fixed(loc: str, i: int) void = {
 	write(2, *(&reasons[i]: **void): *const char, len(reasons[i])): void;
 	write(2, *(&linefeed: **void): *const char, 1): void;
 	kill(getpid(), SIGABRT): void;
+	for (true) void;
 };

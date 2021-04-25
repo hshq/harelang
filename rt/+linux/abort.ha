@@ -5,4 +5,5 @@ fn platform_abort(msg: str) void = {
 	write(2, *(&msg: **void): *const char, len(msg)): void;
 	write(2, *(&linefeed: **void): *const char, 1): void;
 	kill(getpid(), SIGABRT): void;
+	for (true) void;
 };
