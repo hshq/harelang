@@ -1,0 +1,4 @@
+The fs module provides an abstracted interface for accessing an arbitrary
+filesystem. If you want to work with the host filesystem, you probably want to
+refer to the functions available in [[os]] instead, which provides an
+implementation of [[fs::fs]] for the host filesystem.
