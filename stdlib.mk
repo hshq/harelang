@@ -16,6 +16,7 @@ stdlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
 	$(STDLIB)/rt/$(PLATFORM)/socket.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
+	$(STDLIB)/rt/$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -40,6 +41,7 @@ stdlib_asm=$(HARECACHE)/rt/syscall.o \
 	$(HARECACHE)/rt/setjmp.o \
 	$(HARECACHE)/rt/longjmp.o \
 	$(HARECACHE)/rt/restore.o \
+	$(HARECACHE)/rt/getfp.o \
 	$(HARECACHE)/rt/start.o
 
 $(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
@@ -58,6 +60,11 @@ $(HARECACHE)/rt/longjmp.o: $(STDLIB)/rt/$(ARCH)/longjmp.s
 	@$(AS) -o $@ $<
 
 $(HARECACHE)/rt/restore.o: $(STDLIB)/rt/$(ARCH)/restore.s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(HARECACHE)/rt
+	@$(AS) -o $@ $<
+
+$(HARECACHE)/rt/getfp.o: $(STDLIB)/rt/$(ARCH)/getfp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $<
@@ -905,6 +912,7 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
 	$(STDLIB)/rt/$(PLATFORM)/socket.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
+	$(STDLIB)/rt/$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -933,6 +941,7 @@ testlib_asm=$(TESTCACHE)/rt/syscall.o \
 	$(TESTCACHE)/rt/setjmp.o \
 	$(TESTCACHE)/rt/longjmp.o \
 	$(TESTCACHE)/rt/restore.o \
+	$(TESTCACHE)/rt/getfp.o \
 	$(TESTCACHE)/rt/start.o
 
 $(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
@@ -951,6 +960,11 @@ $(TESTCACHE)/rt/longjmp.o: $(STDLIB)/rt/$(ARCH)/longjmp.s
 	@$(AS) -o $@ $<
 
 $(TESTCACHE)/rt/restore.o: $(STDLIB)/rt/$(ARCH)/restore.s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(TESTCACHE)/rt
+	@$(AS) -o $@ $<
+
+$(TESTCACHE)/rt/getfp.o: $(STDLIB)/rt/$(ARCH)/getfp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $<

@@ -29,6 +29,7 @@ gensrcs_rt() {
 		'$(PLATFORM)/stat.ha' \
 		'$(PLATFORM)/socket.ha' \
 		'$(ARCH)/jmp.ha' \
+		'$(ARCH)/backtrace.ha' \
 		ensure.ha \
 		jmp.ha \
 		malloc.ha \
@@ -66,6 +67,7 @@ ${stdlib}_asm=\$($cache)/rt/syscall.o \\
 	\$($cache)/rt/setjmp.o \\
 	\$($cache)/rt/longjmp.o \\
 	\$($cache)/rt/restore.o \\
+	\$($cache)/rt/getfp.o \\
 	\$($cache)/rt/start.o
 
 \$($cache)/rt/syscall.o: \$(STDLIB)/rt/\$(PLATFORM)/syscall\$(ARCH).s
@@ -84,6 +86,11 @@ ${stdlib}_asm=\$($cache)/rt/syscall.o \\
 	@\$(AS) -o \$@ \$<
 
 \$($cache)/rt/restore.o: \$(STDLIB)/rt/\$(ARCH)/restore.s
+	@printf 'AS \t\$@\n'
+	@mkdir -p \$($cache)/rt
+	@\$(AS) -o \$@ \$<
+
+\$($cache)/rt/getfp.o: \$(STDLIB)/rt/\$(ARCH)/getfp.s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$<
