@@ -278,7 +278,10 @@ export type offset_expr = void; // TODO
 // An error propagation expression.
 //
 // 	foo?
-export type propagate_expr = *expr;
+export type propagate_expr = struct {
+	is_abort: bool,
+	expr: *expr,
+};
 
 // A return statement.
 //
@@ -477,7 +480,7 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			free(m.cases);
 		},
 		o: offset_expr => abort(), // TODO
-		p: propagate_expr => expr_free(p: *expr),
+		p: propagate_expr => expr_free(p.expr),
 		r: return_expr => expr_free(r: *expr),
 		s: size_expr => type_free(s: *_type),
 		s: slice_expr => {

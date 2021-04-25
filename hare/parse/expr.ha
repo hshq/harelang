@@ -728,19 +728,24 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 		ex: ast::expr => ex,
 	};
 
-	lvalue = match (try(lexer, ltok::LPAREN,
-			ltok::DOT, ltok::LBRACKET, ltok::QUESTION)) {
+	return postfix(lexer, match (try(lexer, ltok::LPAREN,
+			ltok::DOT, ltok::LBRACKET, ltok::QUESTION, ltok::LNOT)) {
 		tok: lex::token => switch (tok.0) {
 			ltok::LPAREN => call(lexer, lvalue)?,
 			ltok::DOT => postfix_dot(lexer, lvalue)?,
 			ltok::LBRACKET => indexing(lexer, lvalue)?,
-			ltok::QUESTION => alloc(lvalue): ast::propagate_expr,
+			ltok::QUESTION => ast::propagate_expr {
+				is_abort = false,
+				expr = alloc(lvalue),
+			},
+			ltok::LNOT => ast::propagate_expr {
+				is_abort = true,
+				expr = alloc(lvalue),
+			},
 			* => abort(),
 		},
 		_: void => return lvalue,
-	};
-
-	return postfix(lexer, lvalue);
+	});
 };
 
 fn postfix_dot(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
