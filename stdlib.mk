@@ -91,6 +91,9 @@ hare_stdlib_deps+=$(stdlib_compress_flate)
 stdlib_compress_zlib=$(HARECACHE)/compress/zlib/compress_zlib.o
 hare_stdlib_deps+=$(stdlib_compress_zlib)
 
+stdlib_crypto_blake2b=$(HARECACHE)/crypto/blake2b/crypto_blake2b.o
+hare_stdlib_deps+=$(stdlib_crypto_blake2b)
+
 stdlib_crypto_math=$(HARECACHE)/crypto/math/crypto_math.o
 hare_stdlib_deps+=$(stdlib_crypto_math)
 
@@ -299,6 +302,16 @@ $(HARECACHE)/compress/zlib/compress_zlib.ssa: $(stdlib_compress_zlib_srcs) $(std
 	@mkdir -p $(HARECACHE)/compress/zlib
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncompress::zlib \
 		-t$(HARECACHE)/compress/zlib/compress_zlib.td $(stdlib_compress_zlib_srcs)
+
+# crypto::blake2b
+stdlib_crypto_blake2b_srcs= \
+	$(STDLIB)/crypto/blake2b/blake2b.ha
+
+$(HARECACHE)/crypto/blake2b/crypto_blake2b.ssa: $(stdlib_crypto_blake2b_srcs) $(stdlib_rt) $(stdlib_hash) $(stdlib_io) $(stdlib_endian) $(stdlib_crypto_math)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/blake2b
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::blake2b \
+		-t$(HARECACHE)/crypto/blake2b/crypto_blake2b.td $(stdlib_crypto_blake2b_srcs)
 
 # crypto::math
 stdlib_crypto_math_srcs= \
@@ -991,6 +1004,9 @@ hare_testlib_deps+=$(testlib_compress_flate)
 testlib_compress_zlib=$(TESTCACHE)/compress/zlib/compress_zlib.o
 hare_testlib_deps+=$(testlib_compress_zlib)
 
+testlib_crypto_blake2b=$(TESTCACHE)/crypto/blake2b/crypto_blake2b.o
+hare_testlib_deps+=$(testlib_crypto_blake2b)
+
 testlib_crypto_math=$(TESTCACHE)/crypto/math/crypto_math.o
 hare_testlib_deps+=$(testlib_crypto_math)
 
@@ -1200,6 +1216,18 @@ $(TESTCACHE)/compress/zlib/compress_zlib.ssa: $(testlib_compress_zlib_srcs) $(te
 	@mkdir -p $(TESTCACHE)/compress/zlib
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncompress::zlib \
 		-t$(TESTCACHE)/compress/zlib/compress_zlib.td $(testlib_compress_zlib_srcs)
+
+# crypto::blake2b
+testlib_crypto_blake2b_srcs= \
+	$(STDLIB)/crypto/blake2b/blake2b.ha \
+	$(STDLIB)/crypto/blake2b/+test.ha \
+	$(STDLIB)/crypto/blake2b/vectors+test.ha
+
+$(TESTCACHE)/crypto/blake2b/crypto_blake2b.ssa: $(testlib_crypto_blake2b_srcs) $(testlib_rt) $(testlib_hash) $(testlib_io) $(testlib_endian) $(testlib_crypto_math) $(testlib_strings) $(testlib_strio) $(testlib_bufio)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/blake2b
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::blake2b \
+		-t$(TESTCACHE)/crypto/blake2b/crypto_blake2b.td $(testlib_crypto_blake2b_srcs)
 
 # crypto::math
 testlib_crypto_math_srcs= \

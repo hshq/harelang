@@ -152,6 +152,17 @@ compress_zlib() {
 		hash::adler32 io
 }
 
+crypto_blake2b() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::blake2b blake2b.ha
+		gen_ssa crypto::blake2b hash io endian crypto::math $*
+	else
+		gen_srcs crypto::blake2b blake2b.ha +test.ha vectors+test.ha
+		gen_ssa crypto::blake2b hash io endian crypto::math strings strio encoding::hex $*
+	fi
+}
+
 crypto_math() {
 	gen_srcs crypto::math \
 		bits.ha
@@ -686,6 +697,7 @@ bufio
 bytes
 compress_flate
 compress_zlib
+crypto_blake2b
 crypto_math
 crypto_random
 crypto_md5
