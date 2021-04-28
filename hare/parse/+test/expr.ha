@@ -216,14 +216,17 @@
 	roundtrip("export fn main() void = {
 	match (x) {
 		i: size => y,
-		_: str => {
+		str => {
 			z;
 		},
+		foo => bar,
+		foo: int => bar,
+		foo::bar => baz,
 		null => void,
 	};
 	match (x) {
 		s: matchdata => y,
-		_: str => {
+		str => {
 			z;
 		},
 		* => q,

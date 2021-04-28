@@ -458,14 +458,8 @@ fn match_expr(
 	for (let i = 0z; i < len(e.cases); i += 1) {
 		z += newline(out, indent)?;
 		const case = e.cases[i];
-		const is_null = match (case._type._type) {
-			b: ast::builtin_type => b == ast::builtin_type::NULL,
-			* => false,
-		};
 		if (len(case.name) > 0) {
 			z += fmt::fprintf(out, "{}: ", case.name)?;
-		} else if (!is_null) {
-			z += fmt::fprintf(out, "_: ")?;
 		};
 		z += _type(out, indent, *case._type)?;
 		z += fmt::fprint(out, " => ")?;

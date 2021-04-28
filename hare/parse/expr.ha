@@ -821,22 +821,18 @@ fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 };
 
 fn match_case(lexer: *lex::lexer) (ast::match_case | error) = {
-	let tok = want(lexer, ltok::NAME, ltok::UNDERSCORE, ltok::NULL)?;
+	let tok = peek(lexer)? as lex::token;
+	let loc = tok.2;
 	let nt = switch (tok.0) {
-		ltok::NAME => {
-			let name = tok.1 as str;
-			want(lexer, ltok::COLON)?;
-			(name, _type(lexer)?);
+		ltok::NULL => {
+			want(lexer, ltok::NULL)?;
+			("", ast::_type {
+				loc = loc,
+				flags = 0,
+				_type = ast::builtin_type::NULL,
+			});
 		},
-		ltok::UNDERSCORE => {
-			want(lexer, ltok::COLON)?;
-			("", _type(lexer)?);
-		},
-		ltok::NULL => ("", ast::_type {
-			loc = tok.2,
-			flags = 0,
-			_type = ast::builtin_type::NULL,
-		}),
+		* => nametype(lexer)?,
 	};
 	want(lexer, ltok::CASE)?;
 	let expr = expression(lexer)?;

@@ -1,5 +1,6 @@
 use fmt;
 use hare::ast;
+use hare::lex::{ltok};
 use hare::lex;
 use io;
 use strio;
@@ -90,5 +91,45 @@ fn peek(
 fn synassert(loc: lex::location, cond: bool, msg: str) (void | error) = {
 	if (!cond) {
 		return syntaxerr(loc, msg);
+	};
+};
+
+fn nametype(lexer: *lex::lexer) ((str, ast::_type) | error) = {
+	let tok = peek(lexer)? as lex::token;
+	let loc = tok.2;
+	return switch (tok.0) {
+		ltok::NAME => {
+			let name = tok.1 as str;
+			want(lexer, ltok::NAME)?;
+			tok = peek(lexer)? as lex::token;
+			switch (tok.0) {
+				ltok::COLON => {
+					want(lexer, ltok::COLON)?;
+					(name, _type(lexer)?);
+				},
+				ltok::DOUBLE_COLON => {
+					want(lexer, ltok::DOUBLE_COLON)?;
+					let id = ident(lexer)?;
+					insert(id[0], name);
+					("", ast::_type {
+						loc = loc,
+						flags = 0,
+						_type = ast::alias_type {
+							unwrap = false,
+							ident = id,
+						},
+					});
+				},
+				* => ("", ast::_type {
+					loc = loc,
+					flags = 0,
+					_type = ast::alias_type {
+						unwrap = false,
+						ident = alloc([name]),
+					},
+				}),
+			};
+		},
+		* => ("", _type(lexer)?),
 	};
 };
