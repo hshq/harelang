@@ -34,6 +34,7 @@ gensrcs_rt() {
 		jmp.ha \
 		malloc.ha \
 		memcpy.ha \
+		memmove.ha \
 		memset.ha \
 		strcmp.ha \
 		$*

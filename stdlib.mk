@@ -21,6 +21,7 @@ stdlib_rt_srcs= \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/abort.ha \
@@ -930,6 +931,7 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/start+test.ha \
