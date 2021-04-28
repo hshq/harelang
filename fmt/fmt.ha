@@ -160,13 +160,13 @@ export fn fprintf(
 	let iter = strings::iter(fmt);
 	for (true) {
 		let r: rune = match (strings::next(&iter)) {
-			_: void => break,
+			void => break,
 			r: rune => r,
 		};
 
 		if (r == '{') {
 			r = match (strings::next(&iter)) {
-				_: void => abort("Invalid format string (unterminated '{')"),
+				void => abort("Invalid format string (unterminated '{')"),
 				r: rune => r,
 			};
 
@@ -184,7 +184,7 @@ export fn fprintf(
 
 			let mod = modifiers { base = strconv::base::DEC, ... };
 			r = match (strings::next(&iter)) {
-				_: void => abort("Invalid format string (unterminated '{')"),
+				void => abort("Invalid format string (unterminated '{')"),
 				r: rune => r,
 			};
 			switch (r) {
@@ -196,7 +196,7 @@ export fn fprintf(
 			n += format(s, arg, &mod)?;
 		} else if (r == '}') {
 			match (strings::next(&iter)) {
-				_: void => abort("Invalid format string (hanging '}')"),
+				void => abort("Invalid format string (hanging '}')"),
 				r: rune => assert(r == '}', "Invalid format string (hanging '}')"),
 			};
 
@@ -269,7 +269,7 @@ fn scan_uint(iter: *strings::iterator) uint = {
 	defer free(num);
 	for (true) {
 		let r = match (strings::next(iter)) {
-			_: void => abort("Invalid format string (unterminated '{')"),
+			void => abort("Invalid format string (unterminated '{')"),
 			r: rune => r,
 		};
 
@@ -278,7 +278,7 @@ fn scan_uint(iter: *strings::iterator) uint = {
 		} else {
 			strings::push(iter, r);
 			match (strconv::stou(strings::fromutf8(num))) {
-				_: (strconv::invalid | strconv::overflow) =>
+				(strconv::invalid | strconv::overflow) =>
 					abort("Invalid format string (invalid index)"),
 				u: uint => return u,
 			};
@@ -292,7 +292,7 @@ fn scan_modifier_flags(iter: *strings::iterator, mod: *modifiers) void = {
 
 	for (true) {
 		let r = match (strings::next(iter)) {
-			_: void => abort("Invalid format string (unterminated '{')"),
+			void => abort("Invalid format string (unterminated '{')"),
 			r: rune => r,
 		};
 
@@ -325,7 +325,7 @@ fn scan_modifier_flags(iter: *strings::iterator, mod: *modifiers) void = {
 
 fn scan_modifier_width(iter: *strings::iterator, mod: *modifiers) void = {
 	let r = match (strings::next(iter)) {
-		_: void => abort("Invalid format string (unterminated '{')"),
+		void => abort("Invalid format string (unterminated '{')"),
 		r: rune => r,
 	};
 
@@ -339,7 +339,7 @@ fn scan_modifier_width(iter: *strings::iterator, mod: *modifiers) void = {
 
 fn scan_modifier_precision(iter: *strings::iterator, mod: *modifiers) void = {
 	let r = match (strings::next(iter)) {
-		_: void => abort("Invalid format string (unterminated '{')"),
+		void => abort("Invalid format string (unterminated '{')"),
 		r: rune => r,
 	};
 
@@ -352,7 +352,7 @@ fn scan_modifier_precision(iter: *strings::iterator, mod: *modifiers) void = {
 
 fn scan_modifier_base(iter: *strings::iterator, mod: *modifiers) void = {
 	let r = match (strings::next(iter)) {
-		_: void => abort("Invalid format string (unterminated '{')"),
+		void => abort("Invalid format string (unterminated '{')"),
 		r: rune => r,
 	};
 
@@ -373,7 +373,7 @@ fn scan_modifiers(iter: *strings::iterator, mod: *modifiers) void = {
 
 	// eat '}'
 	let terminated = match (strings::next(iter)) {
-		_: void => false,
+		void => false,
 		r: rune => r == '}',
 	};
 	assert(terminated, "Invalid format string (unterminated '{')");

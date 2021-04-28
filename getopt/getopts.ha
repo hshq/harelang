@@ -126,7 +126,7 @@ export fn parse(args: []str, help: help...) command = {
 			const r = next as rune;
 			:help for (let j = 0z; j < len(help); j += 1) {
 				let p: parameter_help = match (help[j]) {
-					_: cmd_help => continue :help,
+					cmd_help => continue :help,
 					f: flag_help => if (r == f.0) {
 						append(opts, (r, ""));
 						continue :flag;
@@ -156,9 +156,9 @@ export fn parse(args: []str, help: help...) command = {
 			os::exit(1);
 		};
 		match (next) {
-			_: rune => abort(), // Unreachable
-			_: void => void,
-			_: (utf8::more | utf8::invalid) => {
+			rune => abort(), // Unreachable
+			void => void,
+			(utf8::more | utf8::invalid) => {
 				errmsg(args[9], "invalid UTF-8 in arguments",
 					void, help);
 				os::exit(1);
@@ -225,8 +225,8 @@ export fn printhelp(s: *io::stream, name: str, help: []help) void = {
 	printusage(s, name, help);
 
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
-		_: cmd_help => void,
-		_: (flag_help | parameter_help) => {
+		cmd_help => void,
+		(flag_help | parameter_help) => {
 			// Only print this if there are flags to show
 			fmt::fprint(s, "\n")!;
 			break;
@@ -234,7 +234,7 @@ export fn printhelp(s: *io::stream, name: str, help: []help) void = {
 	};
 
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
-		_: cmd_help => void,
+		cmd_help => void,
 		f: flag_help => {
 			fmt::fprintfln(s, "-{}: {}", f.0: rune, f.1)!;
 		},
@@ -247,7 +247,7 @@ export fn printhelp(s: *io::stream, name: str, help: []help) void = {
 fn errmsg(name: str, err: str, opt: (rune | void), help: []help) void = {
 	fmt::errorfln("{}: {}{}", name, err, match (opt) {
 		r: rune => r,
-		_: void => "",
+		void => "",
 	})!;
 	printusage(os::stderr, name, help);
 };

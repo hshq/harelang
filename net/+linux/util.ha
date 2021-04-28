@@ -60,7 +60,7 @@ fn from_native(addr: rt::sockaddr) (ip::addr | unix::addr) = {
 export fn peeraddr(stream: *io::stream) ((ip::addr, u16) | void) = {
 	let fd = match (os::streamfd(stream, true)) {
 		fd: int => fd,
-		_: void => return,
+		void => return,
 	};
 	let sn = rt::sockaddr {...};
 	let sz = size(rt::sockaddr): u32;

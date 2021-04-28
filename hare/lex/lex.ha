@@ -69,12 +69,12 @@ export fn lex(lex: *lexer) (token | error) = {
 			lex.un = void;
 			return tok;
 		},
-		_: void => void,
+		void => void,
 	};
 
 	let loc = location { ... };
 	let r: rune = match (nextw(lex)?) {
-		_: io::EOF => return (ltok::EOF, void, mkloc(lex)),
+		io::EOF => return (ltok::EOF, void, mkloc(lex)),
 		r: (rune, location) => {
 			loc = r.1;
 			r.0;
@@ -120,7 +120,7 @@ fn is_name(r: rune, num: bool) bool =
 fn ncmp(a: const *void, b: const *void) int = {
 	let a = a: const *str, b = b: const *str;
 	return match (ascii::strcmp(*a, *b)) {
-		_: void => abort("non-ascii name"), // TODO: Bubble me up
+		void => abort("non-ascii name"), // TODO: Bubble me up
 		i: int => i,
 	};
 };
@@ -130,7 +130,7 @@ fn lex_unicode(lex: *lexer, loc: location, n: size) (rune | error) = {
 	let buf: [9]u8 = [0...];
 	for (let i = 0z; i < n; i += 1z) {
 		let r = match (next(lex)?) {
-			_: io::EOF => return syntaxerr(loc,
+			io::EOF => return syntaxerr(loc,
 				"unexpected EOF scanning for escape"),
 			r: rune => r,
 		};
@@ -146,7 +146,7 @@ fn lex_unicode(lex: *lexer, loc: location, n: size) (rune | error) = {
 
 fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 	let r = match (next(lex)?) {
-		_: io::EOF => return syntaxerr(loc,
+		io::EOF => return syntaxerr(loc,
 			"unexpected EOF scanning for rune"),
 		r: rune => r,
 	};
@@ -154,7 +154,7 @@ fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 		return r;
 	};
 	r = match (next(lex)?) {
-		_: io::EOF => return syntaxerr(loc,
+		io::EOF => return syntaxerr(loc,
 			"unexpected EOF scanning for escape"),
 		r: rune => r,
 	};
@@ -179,7 +179,7 @@ fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 fn lex_string(lex: *lexer, loc: location) (token | error) = {
 	let buf = strio::dynamic();
 	for (true) match (next(lex)?) {
-		_: io::EOF => return syntaxerr(loc, "unexpected EOF scanning string literal"),
+		io::EOF => return syntaxerr(loc, "unexpected EOF scanning string literal"),
 		r: rune =>
 			if (r == '"') break
 			else {
@@ -189,7 +189,7 @@ fn lex_string(lex: *lexer, loc: location) (token | error) = {
 			},
 	};
 	match (nextw(lex)?) {
-		_: io::EOF => void,
+		io::EOF => void,
 		r: (rune, location) => {
 			const r = r.0;
 			if (r == '"') {
@@ -208,7 +208,7 @@ fn lex_string(lex: *lexer, loc: location) (token | error) = {
 fn lex_rn_str(lex: *lexer, loc: location) (token | error) = {
 	let r = match (next(lex)) {
 		r: rune => r,
-		_: (io::EOF | io::error) => abort(),
+		(io::EOF | io::error) => abort(),
 	};
 	switch (r) {
 		'\"' => return lex_string(lex, loc),
@@ -219,7 +219,7 @@ fn lex_rn_str(lex: *lexer, loc: location) (token | error) = {
 	// Rune literal
 	let ret: token = (ltok::LIT_RUNE, lex_rune(lex, loc)?, loc);
 	match (next(lex)?) {
-		_: io::EOF =>
+		io::EOF =>
 			return syntaxerr(loc, "unexpected EOF"),
 		n: rune => if (n != '\'')
 			return syntaxerr(loc, "expected \"\'\""),
@@ -234,11 +234,11 @@ fn lex_name(lex: *lexer, loc: location, keyword: bool) (token | error) = {
 			assert(is_name(r, false));
 			strio::appendrune(buf, r)!;
 		},
-		_: (io::EOF | io::error) => abort(),
+		(io::EOF | io::error) => abort(),
 	};
 
 	for (true) match (next(lex)?) {
-		_: io::EOF => break,
+		io::EOF => break,
 		r: rune => {
 			if (!is_name(r, true)) {
 				unget(lex, r);
@@ -268,7 +268,7 @@ fn lex_name(lex: *lexer, loc: location, keyword: bool) (token | error) = {
 fn lex_comment(lexr: *lexer, loc: location) (token | error) = {
 	if (lexr.flags & flags::COMMENTS != flags::COMMENTS) {
 		for (true) match (next(lexr)?) {
-			_: io::EOF => break,
+			io::EOF => break,
 			r: rune => if (r == '\n') break,
 		};
 		return lex(lexr);
@@ -277,7 +277,7 @@ fn lex_comment(lexr: *lexer, loc: location) (token | error) = {
 	let buf = strio::dynamic();
 	defer io::close(buf);
 	for (true) match (next(lexr)?) {
-		_: io::EOF => break,
+		io::EOF => break,
 		r: rune => {
 			strio::appendrune(buf, r)!;
 			if (r == '\n') break;
@@ -292,13 +292,13 @@ fn lex_comment(lexr: *lexer, loc: location) (token | error) = {
 fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 	let chars: []u8 = [];
 	let r = match (next(lex)?) {
-		_: io::EOF => return (ltok::EOF, void, loc),
+		io::EOF => return (ltok::EOF, void, loc),
 		r: rune => r,
 	};
 	if (r == '-') {
 		append(chars, utf8::encoderune(r)...);
 		r = match (next(lex)?) {
-			_: io::EOF => return (ltok::EOF, void, loc),
+			io::EOF => return (ltok::EOF, void, loc),
 			r: rune => r,
 		};
 	};
@@ -307,7 +307,7 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 	if (r == '0') {
 		append(chars, utf8::encoderune(r)...);
 		r = match (next(lex)?) {
-			_: io::EOF => return (ltok::LIT_ICONST, 0i64, loc),
+			io::EOF => return (ltok::LIT_ICONST, 0i64, loc),
 			r: rune => r,
 		};
 		switch (r) {
@@ -330,7 +330,7 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 	let float = false;
 	for (true) {
 		r = match (next(lex)?) {
-			_: io::EOF => break,
+			io::EOF => break,
 			r: rune => r,
 		};
 		if (!strings::contains(basechrs, r)) switch (r) {
@@ -340,7 +340,7 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 				break;
 			} else {
 				r = match (next(lex)?) {
-					_: io::EOF => break,
+					io::EOF => break,
 					r: rune => r,
 				};
 				if (!strings::contains(basechrs, r)) {
@@ -378,10 +378,10 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 	if (end == 0) end = len(chars);
 
 	let exp = match (exp) {
-		_: void => "0",
+		void => "0",
 		exp: size => {
 			let end = match (suff) {
-				_: void => len(chars),
+				void => len(chars),
 				suff: size => suff,
 			};
 			strings::fromutf8(chars[exp..end]);
@@ -389,14 +389,14 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 	};
 	let exp = match (strconv::stoz(exp)) {
 		exp: size => exp,
-		_: strconv::invalid => abort(), // Shouldn't be lexed in
-		_: strconv::overflow =>
+		strconv::invalid => abort(), // Shouldn't be lexed in
+		strconv::overflow =>
 			return syntaxerr(loc, "overflow in exponent"),
 	};
 
 	let suff = match (suff) {
 		suff: size => strings::fromutf8(chars[suff..]),
-		_: void => "",
+		void => "",
 	};
 	let suff = if (suff == "u8") ltok::LIT_U8
 		else if (suff == "u16") ltok::LIT_U16
@@ -421,8 +421,8 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 		ltok::LIT_UINT, ltok::LIT_SIZE => strconv::stou64b(val, base),
 		ltok::LIT_ICONST => match (strconv::stoi64b(val, base)) {
 			i: i64 => i,
-			_: strconv::invalid => abort(),
-			_: strconv::overflow => if (chars[0] != '-': u32: u8) {
+			strconv::invalid => abort(),
+			strconv::overflow => if (chars[0] != '-': u32: u8) {
 				suff = ltok::LIT_U64;
 				strconv::stou64b(val, base);
 			} else strconv::overflow,
@@ -444,8 +444,8 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 			};
 			val;
 		},
-		_: strconv::invalid => abort(), // Shouldn't be lexed in
-		_: strconv::overflow =>
+		strconv::invalid => abort(), // Shouldn't be lexed in
+		strconv::overflow =>
 			return syntaxerr(loc, "overflow in exponent"),
 	};
 
@@ -461,14 +461,14 @@ fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 				'=' => return (ltok::BXOREQ, void, loc),
 				*   => ltok::BXOR,
 			},
-			_: io::EOF => ltok::BXOR,
+			io::EOF => ltok::BXOR,
 		},
 		'*' => match (n) {
 			r: rune => switch (r) {
 				'=' => return (ltok::TIMESEQ, void, loc),
 				*   => ltok::TIMES,
 			},
-			_: io::EOF => ltok::TIMES,
+			io::EOF => ltok::TIMES,
 		},
 		'/' => match (n) {
 			r: rune => switch (r) {
@@ -476,21 +476,21 @@ fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 				'/' => return lex_comment(lexr, loc),
 				*   => ltok::DIV,
 			},
-			_: io::EOF => ltok::DIV,
+			io::EOF => ltok::DIV,
 		},
 		'%' => match (n) {
 			r: rune => switch (r) {
 				'=' => return (ltok::MODEQ, void, loc),
 				*   => ltok::MODULO,
 			},
-			_: io::EOF => ltok::MODULO,
+			io::EOF => ltok::MODULO,
 		},
 		'+' => match (n) {
 			r: rune => switch (r) {
 				'=' => return (ltok::PLUSEQ, void, loc),
 				*   => ltok::PLUS,
 			},
-			_: io::EOF => ltok::PLUS,
+			io::EOF => ltok::PLUS,
 		},
 		'-' => match (n) {
 			r: rune => switch (r) {
@@ -503,7 +503,7 @@ fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 					ltok::MINUS;
 				},
 			},
-			_: io::EOF => ltok::MINUS,
+			io::EOF => ltok::MINUS,
 		},
 		':' => match (n) {
 			r: rune => switch (r) {
@@ -515,14 +515,14 @@ fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 					return tok;
 				} else ltok::COLON,
 			},
-			_: io::EOF => ltok::COLON,
+			io::EOF => ltok::COLON,
 		},
 		'!' => match (n) {
 			r: rune => switch (r) {
 				'=' => return (ltok::NEQUAL, void, loc),
 				*   => ltok::LNOT,
 			},
-			_: io::EOF => ltok::LNOT,
+			io::EOF => ltok::LNOT,
 		},
 		'&' => match (n) {
 			r: rune => switch (r) {
@@ -530,7 +530,7 @@ fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 				'=' => return (ltok::ANDEQ, void, loc),
 				*   => ltok::BAND,
 			},
-			_: io::EOF => ltok::BAND,
+			io::EOF => ltok::BAND,
 		},
 		'|' => match (n) {
 			r: rune => switch (r) {
@@ -538,7 +538,7 @@ fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 				'=' => return (ltok::OREQ, void, loc),
 				*   => ltok::BOR,
 			},
-			_: io::EOF => ltok::BOR,
+			io::EOF => ltok::BOR,
 		},
 		'=' => match (n) {
 			r: rune => switch (r) {
@@ -546,7 +546,7 @@ fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 				'>' => return (ltok::CASE, void, loc),
 				*   => ltok::EQUAL,
 			},
-			_: io::EOF => ltok::EQUAL,
+			io::EOF => ltok::EQUAL,
 		},
 		* => return syntaxerr(loc, "unknown token sequence"),
 	};
@@ -556,7 +556,7 @@ fn lex2(lexr: *lexer, loc: location, r: rune) (token | error) = {
 
 fn lex3(lex: *lexer, loc: location, r: rune) (token | error) = {
 	let n = match (next(lex)?) {
-		_: io::EOF => return switch (r) {
+		io::EOF => return switch (r) {
 			'.' => (ltok::DOT, void, loc),
 			'<' => (ltok::LESS, void, loc),
 			'>' => (ltok::GREATER, void, loc),
@@ -576,7 +576,7 @@ fn lex3dot(lex: *lexer, loc: location, n: rune) (token | error) = {
 	let tok: ltok = switch (n) {
 		'.' => {
 			let q = match (next(lex)?) {
-				_: io::EOF => io::EOF,
+				io::EOF => io::EOF,
 				r: rune => r,
 			};
 			let t = match (q) {
@@ -584,7 +584,7 @@ fn lex3dot(lex: *lexer, loc: location, n: rune) (token | error) = {
 					'.' => return (ltok::ELLIPSIS, void, loc),
 					*   => ltok::SLICE,
 				},
-				_: io::EOF => ltok::SLICE,
+				io::EOF => ltok::SLICE,
 			};
 			unget(lex, q);
 			t;
@@ -601,7 +601,7 @@ fn lex3lt(lex: *lexer, loc: location, n: rune) (token | error) = {
 	let tok: ltok = switch (n) {
 		'<' => {
 			let q = match (next(lex)?) {
-				_: io::EOF => io::EOF,
+				io::EOF => io::EOF,
 				r: rune => r,
 			};
 			let t = match (q) {
@@ -609,7 +609,7 @@ fn lex3lt(lex: *lexer, loc: location, n: rune) (token | error) = {
 					'=' => return (ltok::LSHIFTEQ, void, loc),
 					*   => ltok::LSHIFT,
 				},
-				_: io::EOF => ltok::LSHIFT,
+				io::EOF => ltok::LSHIFT,
 			};
 			unget(lex, q);
 			t;
@@ -627,7 +627,7 @@ fn lex3gt(lex: *lexer, loc: location, n: rune) (token | error) = {
 	let tok: ltok = switch (n) {
 		'>' => {
 			let q = match (next(lex)?) {
-				_: io::EOF => io::EOF,
+				io::EOF => io::EOF,
 				r: rune => r,
 			};
 			let t = match (q) {
@@ -635,7 +635,7 @@ fn lex3gt(lex: *lexer, loc: location, n: rune) (token | error) = {
 					'=' => return (ltok::RSHIFTEQ, void, loc),
 					*   => ltok::RSHIFT,
 				},
-				_: io::EOF => ltok::RSHIFT,
+				io::EOF => ltok::RSHIFT,
 			};
 			unget(lex, q);
 			t;
@@ -659,7 +659,7 @@ export fn unlex(lex: *lexer, tok: token) void = {
 
 fn next(lex: *lexer) (rune | io::EOF | io::error) = {
 	match (lex.rb[0]) {
-		_: void => void,
+		void => void,
 		r: (rune | io::EOF) => {
 			lex.rb[0] = lex.rb[1];
 			lex.rb[1] = void;

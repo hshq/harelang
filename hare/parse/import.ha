@@ -8,7 +8,7 @@ fn name_list(lexer: *lex::lexer) ([]str | error) = {
 		append(names, want(lexer, ltok::NAME)?.1 as str);
 		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
 			ltok::COMMA => match (try(lexer, ltok::RBRACE)?) {
-				_: void => void,
+				void => void,
 				* => return names,
 			},
 			ltok::RBRACE => return names,
@@ -23,7 +23,7 @@ export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 	let imports: []ast::import = [];
 	for (true) {
 		match (try(lexer, ltok::USE)?) {
-			_: void => break,
+			void => break,
 			* => void,
 		};
 

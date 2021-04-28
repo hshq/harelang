@@ -49,7 +49,7 @@ export fn decode(s: str) ([]u8 | invalid) = {
 	for (let i = 0z; i < len(s) / 2; i += 1) {
 		let oct = strings::fromutf8_unsafe(s[i * 2..i * 2 + 2]);
 		let u = match (strconv::stou8b(oct, 16)) {
-			_: (strconv::invalid | strconv::overflow) => return invalid,
+			(strconv::invalid | strconv::overflow) => return invalid,
 			u: u8 => u,
 		};
 		append(buf, u);

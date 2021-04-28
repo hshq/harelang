@@ -6,7 +6,7 @@ use os;
 export fn isatty(stream: *io::stream) bool = {
 	let fd = match (os::streamfd(stream, true)) {
 		f: int => f,
-		_: void => return false,
+		void => return false,
 	};
 	let wsz = rt::winsize { ... };
 	return match (rt::ioctl(fd, rt::TIOCGWINSZ, &wsz: *void)) {

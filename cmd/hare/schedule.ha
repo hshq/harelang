@@ -187,7 +187,7 @@ fn sched_hare_object(
 			path = path::join(path, namespace[i]);
 		};
 		match (os::mkdirs(path)) {
-			_: void => void,
+			void => void,
 			err: fs::error => fmt::fatal("Error: mkdirs {}: {}",
 				path, fs::strerror(err)),
 		};

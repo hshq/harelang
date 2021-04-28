@@ -118,7 +118,7 @@ fn plan_execute(plan: *plan, verbose: bool) void = {
 				task.cmd[0], exec::strerror(err)),
 			err: exec::exit_status! => fmt::fatal("Error: {}: {}",
 				task.cmd[0], exec::exitstr(err)),
-			_: void => void,
+			void => void,
 		};
 
 		task.status = status::COMPLETE;
@@ -140,7 +140,7 @@ fn update_cache(plan: *plan, mod: modcache) void = {
 		err: module::error => fmt::fatal(
 			"Error updating module cache: {}",
 			module::strerror(err)),
-		_: void => void,
+		void => void,
 	};
 };
 

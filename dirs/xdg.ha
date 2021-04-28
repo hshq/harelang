@@ -19,7 +19,7 @@ fn lookup(prog: str, var: str, default: str) str = {
 				},
 			};
 		},
-		_: void => void,
+		void => void,
 	};
 
 	let home = os::getenv("HOME") as str;

@@ -7,7 +7,7 @@ use os;
 export fn open() (*io::stream | error) = {
 	match (os::open("/dev/tty")) {
 		i: *io::stream => return i,
-		_: fs::error => void,
+		fs::error => void,
 	};
 
 	if (isatty(os::stdout)) {

@@ -5,10 +5,10 @@ use strings;
 
 // Returns a human-friendly representation of an error.
 export fn strerror(err: error) const str = match (err) {
-	_: errors::noentry => "File or directory not found",
-	_: errors::noaccess => "Permission denied",
-	_: errors::exists => "File or directory exists",
-	_: errors::invalid => "Invalid argument",
+	errors::noentry => "File or directory not found",
+	errors::noaccess => "Permission denied",
+	errors::exists => "File or directory exists",
+	errors::invalid => "Invalid argument",
 	err: io::error => io::strerror(err),
 };
 
@@ -87,7 +87,7 @@ export fn readdir(fs: *fs, path: str) ([]dirent | error) = {
 	for (true) {
 		match (next(i)) {
 			d: dirent => append(ents, dirent_dup(&d)),
-			_: void => break,
+			void => break,
 		};
 	};
 	return ents;

@@ -40,7 +40,7 @@ fn strconv::ztos(z: size) str;
 			assert(a.r == 42);
 			assert(b.w == 42);
 		},
-		_: error => abort(),
+		error => abort(),
 	};
 	close(&a: *stream);
 	close(&b: *stream);
@@ -54,7 +54,7 @@ fn strconv::ztos(z: size) str;
 			assert(n == 1337);
 			assert(b.w == 62893);
 		},
-		_: error => abort(),
+		error => abort(),
 	};
 	close(&a: *stream);
 	close(&b: *stream);
@@ -70,7 +70,7 @@ fn strconv::ztos(z: size) str;
 			assert(a.r == 42);
 			assert(b.w == 42);
 		},
-		_: error => abort(),
+		error => abort(),
 	};
 	close(&a: *stream);
 	close(&b: *stream);
@@ -89,7 +89,7 @@ fn strconv::ztos(z: size) str;
 			assert(b.w == 42);
 			assert(b.nwrites > 1);
 		},
-		_: error => abort(),
+		error => abort(),
 	};
 	close(&a: *stream);
 	close(&b: *stream);

@@ -209,7 +209,7 @@ fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::unlinkat(fs.dirfd, path, 0)) {
 		err: rt::errno => return errno_to_fs(err),
-		_: void => void,
+		void => void,
 	};
 };
 
@@ -218,7 +218,7 @@ fn fs_stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 	let st = rt::st { ... };
 	match (rt::fstatat(fs.dirfd, path, &st, rt::AT_SYMLINK_NOFOLLOW)) {
 		err: rt::errno => return errno_to_fs(err),
-		_: void => void,
+		void => void,
 	};
 	return fs::filestat {
 		mask = fs::stat_mask::UID
@@ -268,7 +268,7 @@ fn fs_rmdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::unlinkat(fs.dirfd, path, rt::AT_REMOVEDIR)) {
 		err: rt::errno => return errno_to_fs(err),
-		_: void => void,
+		void => void,
 	};
 };
 
@@ -276,7 +276,7 @@ fn fs_mkdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	return match (rt::mkdirat(fs.dirfd, path, 0o755)) {
 		err: rt::errno => errno_to_fs(err),
-		_: void => void,
+		void => void,
 	};
 };
 
@@ -284,7 +284,7 @@ fn fs_chmod(fs: *fs::fs, path: str, mode: fs::mode) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	return match (rt::fchmodat(fs.dirfd, path, mode: uint)) {
 		err: rt::errno => return errno_to_fs(err),
-		_: void => void,
+		void => void,
 	};
 };
 
@@ -292,7 +292,7 @@ fn fs_chown(fs: *fs::fs, path: str, uid: uint, gid: uint) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	return match (rt::fchownat(fs.dirfd, path, uid, gid)) {
 		err: rt::errno => return errno_to_fs(err),
-		_: void => void,
+		void => void,
 	};
 };
 
@@ -315,13 +315,13 @@ fn fs_resolve(fs: *fs::fs, path: str) str = {
 	if (!path::abs(path)) {
 		let iter = path::iter(getcwd());
 		for (true) match (path::next(&iter)) {
-			_: void => break,
+			void => break,
 			p: str => resolve_part(&parts, p),
 		};
 	};
 	let iter = path::iter(path);
 	for (true) match (path::next(&iter)) {
-		_: void => break,
+		void => break,
 		p: str => resolve_part(&parts, p),
 	};
 	return path::join(parts...);

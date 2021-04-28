@@ -8,7 +8,7 @@ use rt;
 export fn winsize(tty: *io::stream) (ttysize | error) = {
 	let fd = match (os::streamfd(tty, true)) {
 		f: int => f,
-		_: void => return errors::invalid,
+		void => return errors::invalid,
 	};
 	let wsz = rt::winsize { ... };
 	return match (rt::ioctl(fd, rt::TIOCGWINSZ, &wsz: *void)) {
@@ -19,7 +19,7 @@ export fn winsize(tty: *io::stream) (ttysize | error) = {
 				* => abort("unreachable"),
 			};
 		},
-		_: int => ttysize {
+		int => ttysize {
 			rows    = wsz.ws_row,
 			columns = wsz.ws_col,
 		},

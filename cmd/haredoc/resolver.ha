@@ -23,7 +23,7 @@ fn resolve(ctx: *context, what: ast::ident) ((ast::ident, symkind) | void) = {
 			ver: module::version => {
 				return (what, symkind::SYMBOL);
 			},
-			_: module::error => void,
+			module::error => void,
 		};
 	};
 
@@ -31,7 +31,7 @@ fn resolve(ctx: *context, what: ast::ident) ((ast::ident, symkind) | void) = {
 		ver: module::version => {
 			return (what, symkind::MODULE);
 		},
-		_: module::error => void,
+		module::error => void,
 	};
 
 	return;

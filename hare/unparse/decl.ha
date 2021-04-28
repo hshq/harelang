@@ -77,7 +77,7 @@ export fn decl(out: *io::stream, d: ast::decl) (size | io::error) = {
 			n += prototype(out, 0,
 				f.prototype._type as ast::func_type)?;
 			match (f.body) {
-				_: void => void,
+				void => void,
 				e: ast::expr => {
 					n += fmt::fprint(out, " = ")?;
 					n += expr(out, 0, e)?;

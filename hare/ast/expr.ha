@@ -418,7 +418,7 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			expr_free(c._type);
 		},
 		c: constant_expr => match(c) {
-			_: (void | lex::value) => void,
+			(void | lex::value) => void,
 			a: array_constant => {
 				for (let i = 0z; i < len(a.values); i += 1) {
 					expr_free(a.values[i]);

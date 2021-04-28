@@ -87,7 +87,7 @@ fn parsev6(st: str) (addr6 | invalid) = {
 	for (i < 16) {
 		let s = match (strings::next_token(&tok)) {
 			s: str => s,
-			_: void => break,
+			void => break,
 		};
 		if (s == "") {
 			if (ells != -1) {
@@ -210,8 +210,8 @@ fn fillmask(mask: []u8, val: u8) void = {
 // Returns an addr representing a netmask
 fn cidrmask(addr: addr, val: u8) (addr | invalid) = {
 	let a_len: u8 = match (addr) {
-		_: addr4 => 4,
-		_: addr6 => 16,
+		addr4 => 4,
+		addr6 => 16,
 	};
 
 	if (val > 8 * a_len)
@@ -280,7 +280,7 @@ fn fmtmask(s: *io::stream, mask: addr) (io::error | size) = {
 	match (masklen(slice)) {
 		// format as hex, if zero runs are not contiguous
 		// (like golang does)
-		_: void => {
+		void => {
 			for (let i = 0z; i < len(slice); i += 1) {
 				ret += fmt::fprintf(s, "{:x}", slice[i])?;
 			};
@@ -322,6 +322,6 @@ export fn string(item: (...addr | subnet)) str = {
 fn wanttoken(tok: *strings::tokenizer) (str | invalid) = {
 	return match (strings::next_token(tok)) {
 		s: str => s,
-		_: void => invalid
+		void => invalid
 	};
 };

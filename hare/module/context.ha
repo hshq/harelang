@@ -32,7 +32,7 @@ export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 		tags = tags,
 		defines = defs,
 		paths: []str = match (os::getenv("HAREPATH")) {
-			_: void => {
+			void => {
 				let path: []str = alloc([
 					strings::dup(harepath),
 					dirs::data("hare"),
@@ -51,7 +51,7 @@ export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 			},
 		},
 		cache: str = match (os::getenv("HARECACHE")) {
-			_: void => dirs::cache("hare"),
+			void => dirs::cache("hare"),
 			s: str => strings::dup(s),
 		},
 		...

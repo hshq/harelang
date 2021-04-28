@@ -102,7 +102,7 @@ fn find_rec(dir: *inode, name: str, it: *path::iterator) (*inode | fs::error) = 
 		ino: *inode => {
 			if (name == ino.name) {
 				return match (path::next(it)) {
-					_: void => ino,
+					void => ino,
 					name: str => find_rec(ino, name, it),
 				};
 			};

@@ -57,7 +57,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	defer unlock(ctx.fs, cachedir, l);
 
 	let file = match (fs::open(ctx.fs, mpath, fs::flags::RDONLY)) {
-		_: errors::noentry => return manifest,
+		errors::noentry => return manifest,
 		err: fs::error => return err,
 		file: *io::stream => file,
 	};
@@ -69,10 +69,10 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	let file = bufio::buffered(file, buf, []);
 	for (true) {
 		let line = match (bufio::scanline(file)?) {
-			_: io::EOF => break,
+			io::EOF => break,
 			line: []u8 => match (strings::try_fromutf8(line)) {
 				// Treat an invalid manifest as empty
-				_: utf8::invalid => return manifest,
+				utf8::invalid => return manifest,
 				s: str => s,
 			},
 		};
@@ -84,13 +84,13 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 
 		let tok = strings::tokenize(line, " ");
 		let kind = match (strings::next_token(&tok)) {
-			_: void => continue,
+			void => continue,
 			s: str => s,
 		};
 
 		if (kind == "version") {
 			let ver = match (strings::next_token(&tok)) {
-				_: void => return manifest,
+				void => return manifest,
 				s: str => s,
 			};
 			match (strconv::stoi(ver)) {
@@ -101,13 +101,13 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 			};
 		} else if (kind == "input") {
 			let hash = match (strings::next_token(&tok)) {
-				_: void => return manifest, s: str => s,
+				void => return manifest, s: str => s,
 			}, path = match (strings::next_token(&tok)) {
-				_: void => return manifest, s: str => s,
+				void => return manifest, s: str => s,
 			}, inode = match (strings::next_token(&tok)) {
-				_: void => return manifest, s: str => s,
+				void => return manifest, s: str => s,
 			}, mtime = match (strings::next_token(&tok)) {
-				_: void => return manifest, s: str => s,
+				void => return manifest, s: str => s,
 			};
 
 			let hash = match (hex::decode(hash)) {
@@ -125,7 +125,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 
 			let parsed = parse_name(path);
 			let ftype = match (type_for_ext(path)) {
-				_: void => return manifest,
+				void => return manifest,
 				ft: filetype => ft,
 			};
 
@@ -143,7 +143,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 			});
 		} else if (kind == "module") {
 			let modhash = match (strings::next_token(&tok)) {
-				_: void => return manifest, s: str => s,
+				void => return manifest, s: str => s,
 			};
 			let modhash = match (hex::decode(modhash)) {
 				* => return manifest,
@@ -153,7 +153,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 			let minputs: []input = [];
 			for (true) {
 				let hash = match (strings::next_token(&tok)) {
-					_: void => break,
+					void => break,
 					s: str => s,
 				};
 				let hash = match (hex::decode(hash)) {
@@ -179,7 +179,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 
 		// Check for extra tokens
 		match (strings::next_token(&tok)) {
-			_: void => void,
+			void => void,
 			s: str => return manifest,
 		};
 	};
@@ -281,8 +281,8 @@ fn lock(fs: *fs::fs, cachedir: str) (*io::stream | error) = {
 	// XXX: I wonder if this should be some generic function in fs or
 	// something
 	match (os::mkdirs(cachedir)) {
-		_: errors::exists => void,
-		_: void => void,
+		errors::exists => void,
+		void => void,
 		e: fs::error => return e,
 	};
 	let lockpath = path::join(cachedir, "manifest.lock");
@@ -292,7 +292,7 @@ fn lock(fs: *fs::fs, cachedir: str) (*io::stream | error) = {
 	for (true) {
 		match (fs::create(fs, lockpath, 0o644, fs::flags::EXCL)) {
 			fd: *io::stream => return fd,
-			_: (errors::busy | errors::exists) => void,
+			(errors::busy | errors::exists) => void,
 			err: fs::error => return err,
 		};
 		if (!logged) {
@@ -309,7 +309,7 @@ fn unlock(fs: *fs::fs, cachedir: str, s: *io::stream) void = {
 	let lockpath = path::join(cachedir, "manifest.lock");
 	defer free(lockpath);
 	match (fs::remove(fs, lockpath)) {
-		_: void => void,
+		void => void,
 		err: fs::error => abort("Error removing module lock"),
 	};
 };

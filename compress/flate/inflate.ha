@@ -104,7 +104,7 @@ fn bits(d: *decompressor, want: u32) (u32 | io::error) = {
 	for (d.cnt < want) {
 		let buf: [_]u8 = [0];
 		match (io::read(d.in, buf)?) {
-			_: io::EOF => return wraperror(inflate_err::EOF),
+			io::EOF => return wraperror(inflate_err::EOF),
 			z: size => if (z < 1) {
 				continue; // Short read, retry
 			},
@@ -235,7 +235,7 @@ fn uncompressed_read(d: *decompressor) (void | io::EOF | io::error) = {
 			d.left -= z;
 			z;
 		},
-		_: io::EOF => return wraperror(inflate_err::EOF),
+		io::EOF => return wraperror(inflate_err::EOF),
 	};
 	put(d, buf[..z]...);
 };
@@ -328,7 +328,7 @@ fn next(d: *decompressor) (void | io::EOF | io::error) = {
 			let buf: [4]u8 = [0...];
 			for (let n = 0z; n < 4) {
 				match (io::read(d.in, buf[n..])?) {
-					_: io::EOF => return wraperror(inflate_err::EOF),
+					io::EOF => return wraperror(inflate_err::EOF),
 					z: size => n += z,
 				};
 			};
@@ -358,12 +358,12 @@ fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	for (n < len(buf)) {
 		if (len(s.buf) == 0) {
 			if (s.left == 0) match (next(s)?) {
-				_: void => void,
-				_: io::EOF => return if (n == 0) io::EOF else n,
+				void => void,
+				io::EOF => return if (n == 0) io::EOF else n,
 			};
 			match (s.state(s)?) {
-				_: void => void,
-				_: io::EOF => return if (n == 0) io::EOF else n,
+				void => void,
+				io::EOF => return if (n == 0) io::EOF else n,
 			};
 		};
 		const toread =
@@ -413,7 +413,7 @@ fn close(s: *io::stream) void = {
 	let s = inflate(ins);
 	defer io::close(s);
 	match (io::copy(outs, s)) {
-		_: size => void,
+		size => void,
 		e: io::error => {
 			fmt::errorln(io::strerror(e))!;
 			abort();

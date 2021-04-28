@@ -23,7 +23,7 @@ fn tee_read(s: *stream, buf: []u8) (size | EOF | error) = {
 	let s = s: *tee_stream;
 	let z = match (read(s.source, buf)) {
 		err: error => return err,
-		_: EOF => return EOF,
+		EOF => return EOF,
 		z: size => z,
 	};
 	for (let n = 0z; n < z) {

@@ -9,7 +9,7 @@ export fn escape(out: *io::stream, in: str) (size | io::error) = {
 	let z = 0z;
 	let iter = strings::iter(in);
 	for (true) match (strings::next(&iter)) {
-		_: void => break,
+		void => break,
 		rn: rune => z += io::write(out, switch (rn) {
 			'&' => strings::toutf8("&amp;"),
 			'<' => strings::toutf8("&lt;"),

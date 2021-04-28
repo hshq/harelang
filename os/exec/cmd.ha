@@ -24,7 +24,7 @@ export fn cmd(name: str, args: str...) (command | error) = {
 				err: errors::opaque => return nocmd,
 				p: platform_cmd => p,
 			} else match (lookup(name)) {
-				_: void => return nocmd,
+				void => return nocmd,
 				p: platform_cmd => p,
 			},
 		argv = alloc([], len(args) + 1z),
@@ -80,7 +80,7 @@ export fn clearenv(cmd: *command) void = {
 export fn setenv(cmd: *command, key: str, value: str) void = {
 	let iter = strings::iter(key);
 	for (let i = 0z; true; i += 1) match (strings::next(&iter)) {
-		_: void => break,
+		void => break,
 		r: rune => if (i == 0) assert(r == '_' || ascii::isalpha(r),
 			"Invalid environment variable")
 		else assert(r == '_' || ascii::isalnum(r),
@@ -101,13 +101,13 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 
 fn lookup(name: str) (platform_cmd | void) = {
 	const path = match (os::getenv("PATH")) {
-		_: void => return,
+		void => return,
 		s: str => s,
 	};
 	let tok = strings::tokenize(path, ":");
 	for (true) {
 		const item = match (strings::next_token(&tok)) {
-			_: void => break,
+			void => break,
 			s: str => s,
 		};
 		let path = strings::concat(item, "/", name);

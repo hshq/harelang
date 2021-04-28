@@ -146,10 +146,10 @@ fn tocentries(decls: []ast::decl, name: str, lname: str) (void | error) = {
 fn tocentry(decl: ast::decl) (void | error) = {
 	fmt::printf("{} ",
 		match (decl.decl) {
-			_: ast::decl_func => "fn",
-			_: []ast::decl_type => "type",
-			_: []ast::decl_const => "const",
-			_: []ast::decl_global => "let",
+			ast::decl_func => "fn",
+			[]ast::decl_type => "type",
+			[]ast::decl_const => "const",
+			[]ast::decl_global => "let",
 		})?;
 	fmt::printf("<a href='#")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
@@ -184,10 +184,10 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 	fmt::print("'>")?;
 	fmt::printf("{} ",
 		match (decl.decl) {
-			_: ast::decl_func => "fn",
-			_: []ast::decl_type => "type",
-			_: []ast::decl_const => "def",
-			_: []ast::decl_global => "let",
+			ast::decl_func => "fn",
+			[]ast::decl_type => "type",
+			[]ast::decl_const => "def",
+			[]ast::decl_global => "let",
 		})?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	// TODO: Add source URL
@@ -220,7 +220,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 
 fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 	const ik = match (resolve(ctx, ref)) {
-		_: void => {
+		void => {
 			const ident = unparse::identstr(ref);
 			fmt::errorfln("Warning: Unresolved reference: {}", ident)?;
 			fmt::printf("<a href='#' "
@@ -257,11 +257,11 @@ fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {
 	let parser = parsedoc(in);
 	for (true) {
 		const tok = match (scandoc(&parser)) {
-			_: void => break,
+			void => break,
 			tok: token => tok,
 		};
 		match (tok) {
-			_: paragraph => {
+			paragraph => {
 				fmt::println()?;
 				fmt::print("<p>")?;
 			},
@@ -559,9 +559,9 @@ fn type_html(
 			z += fmt::fprint(out, "[")?;
 			z += match (t.length) {
 				expr: *ast::expr => unparse::expr(out, indent, *expr)?,
-				_: ast::len_slice => 0,
-				_: ast::len_unbounded => fmt::fprintf(out, "*")?,
-				_: ast::len_contextual => fmt::fprintf(out, "_")?,
+				ast::len_slice => 0,
+				ast::len_unbounded => fmt::fprintf(out, "*")?,
+				ast::len_contextual => fmt::fprintf(out, "_")?,
 			};
 			z += fmt::fprint(out, "]")?;
 

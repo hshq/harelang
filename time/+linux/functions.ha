@@ -26,7 +26,7 @@ export fn sleep(n: duration) void = {
 	for (true) {
 		let res = rt::timespec { ... };
 		match (rt::nanosleep(req, &res)) {
-			_: void => return,
+			void => return,
 			err: rt::errno => switch (err) {
 				rt::EINTR => {
 					req = &res;
@@ -85,14 +85,14 @@ fn now_vdso(clock: clock, tp: *rt::timespec) (void | rt::errno) = {
 export fn now(clock: clock) instant = {
 	let tp = rt::timespec { ... };
 	let err = match (now_vdso(clock, &tp)) {
-		_: void => return timespec_to_instant(tp),
+		void => return timespec_to_instant(tp),
 		err: rt::errno => err
 	};
 	if (err != rt::wrap_errno(rt::ENOSYS)) {
 		abort("Unexpected error from clock_gettime");
 	};
 	return match (rt::clock_gettime(clock, &tp)) {
-		_: void => timespec_to_instant(tp),
+		void => timespec_to_instant(tp),
 		err: rt::errno => abort("Unexpected error from clock_gettime"),
 	};
 };

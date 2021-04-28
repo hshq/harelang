@@ -28,7 +28,7 @@ fn details_hare(decl: ast::decl) (void | error) = {
 		s: str => if (len(s) != 0) {
 			fmt::printfln("//{}", s)?;
 		},
-		_: void => break,
+		void => break,
 	};
 
 	unparse_hare(os::stdout, decl)?;

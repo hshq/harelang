@@ -11,13 +11,13 @@ fn attr_symbol(lexer: *lex::lexer) (str | error) = {
 	let s = t.1 as str;
 	let d = strings::iter(s);
 	match (strings::next(&d)) {
-		_: void => void,
+		void => void,
 		r: rune => synassert(t.2,
 			ascii::isalpha(r) || r == '.' || r == '_',
 			"Invalid symbol")?,
 	};
 	for (true) match (strings::next(&d)) {
-		_: void => break,
+		void => break,
 		r: rune => synassert(t.2,
 			ascii::isalnum(r) || r == '$' || r == '.' || r == '_',
 			"Invalid symbol")?,
@@ -58,16 +58,16 @@ fn decl_global(
 	let decl: []ast::decl_global = [];
 	for (true) {
 		const symbol = match (try(lexer, ltok::ATTR_SYMBOL)?) {
-			_: void => "",
-			_: lex::token => attr_symbol(lexer)?,
+			void => "",
+			lex::token => attr_symbol(lexer)?,
 		};
 		const ident = ident(lexer)?;
 		want(lexer, ltok::COLON)?;
 		const _type = _type(lexer)?;
 		const init: nullable *ast::expr =
 			match (try(lexer, ltok::EQUAL)?) {
-				_: lex::token => alloc(expression(lexer)?),
-				_: void => null,
+				lex::token => alloc(expression(lexer)?),
+				void => null,
 			};
 		const btok = try(lexer, ltok::COMMA)?;
 		append(decl, ast::decl_global {
@@ -78,7 +78,7 @@ fn decl_global(
 			init = init,
 		});
 		match (btok) {
-			_: void => break,
+			void => break,
 			* => void,
 		};
 	};
@@ -97,7 +97,7 @@ fn decl_type(lexer: *lex::lexer) ([]ast::decl_type | error) = {
 			_type = _type,
 		});
 		match (btok) {
-			_: void => break,
+			void => break,
 			* => void,
 		};
 	};
@@ -111,7 +111,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 		ltok::ATTR_NORETURN, ltok::ATTR_SYMBOL
 	];
 	for (true) match (try(lexer, attrs...)?) {
-		_: void => break,
+		void => break,
 		t: lex::token => switch (t.0) {
 			ltok::ATTR_FINI => attr = ast::fndecl_attrs::FINI,
 			ltok::ATTR_INIT => attr = ast::fndecl_attrs::INIT,
@@ -167,8 +167,8 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 		if (peek(lexer, ltok::EOF)? is lex::token) break;
 		let comment = "";
 		let exported = match (try(lexer, ltok::EXPORT)?) {
-			_: void => false,
-			_: lex::token => {
+			void => false,
+			lex::token => {
 				comment = strings::dup(lex::comment(lexer));
 				true;
 			},
@@ -179,7 +179,7 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 			comment = strings::dup(lex::comment(lexer));
 		};
 		let decl = match (next) {
-			_: void => decl_func(lexer)?,
+			void => decl_func(lexer)?,
 			t: lex::token => switch (t.0) {
 				ltok::TYPE => decl_type(lexer)?,
 				ltok::LET, ltok::CONST =>

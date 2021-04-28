@@ -93,7 +93,7 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	let decoder = decode(input);
 	for (let i = 0z; i < len(expected); i += 1) {
 		match (next(&decoder)) {
-			_: (invalid | more | void) => abort(),
+			(invalid | more | void) => abort(),
 			r: rune => assert(r == expected[i]),
 		};
 	};
@@ -101,7 +101,7 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	assert(decoder.offs == len(decoder.src));
 	for (let i = 0z; i < len(expected); i += 1) {
 		match (prev(&decoder)) {
-			_: (invalid | more | void) => abort(),
+			(invalid | more | void) => abort(),
 			r: rune => assert(r == expected[len(expected) - i - 1]),
 		};
 	};
@@ -128,10 +128,10 @@ export fn valid(src: (str | []u8)) bool = {
 	let decoder = decode(src);
 	for (true) {
 		match (next(&decoder)) {
-			_: void    => return true,
-			_: invalid => return false,
-			_: more    => return false,
-			_: rune    => void,
+			void    => return true,
+			invalid => return false,
+			more    => return false,
+			rune    => void,
 		};
 	};
 	abort();

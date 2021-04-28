@@ -19,7 +19,7 @@ export fn tokenize(s: str, delim: str) tokenizer =
 export fn next_token(s: *tokenizer) (str | void) = {
 	return match (bytes::next_token(s)) {
 		b: []u8 => fromutf8(b),
-		_: void => void,
+		void => void,
 	};
 };
 
@@ -27,7 +27,7 @@ export fn next_token(s: *tokenizer) (str | void) = {
 export fn peek_token(s: *tokenizer) (str | void) = {
 	return match (bytes::peek_token(s)) {
 		b: []u8 => fromutf8(b),
-		_: void => void,
+		void => void,
 	};
 };
 
@@ -41,23 +41,23 @@ export fn remaining_tokens(s: *tokenizer) str = {
 	let tok = tokenize("Hello, my name is drew", " ");
 	match (next_token(&tok)) {
 		s: str  => assert(s == "Hello,"),
-		_: void => abort(),
+		void => abort(),
 	};
 
 	match (next_token(&tok)) {
 		s: str  => assert(s == "my"),
-		_: void => abort(),
+		void => abort(),
 	};
 
 	match (peek_token(&tok)) {
 		s: str  => assert(s == "name"),
-		_: void => abort(),
+		void => abort(),
 	};
 
 
 	match (next_token(&tok)) {
 		s: str  => assert(s == "name"),
-		_: void => abort(),
+		void => abort(),
 	};
 
 	assert(remaining_tokens(&tok) == "is drew");
@@ -90,7 +90,7 @@ export fn splitN(in: str, delim: str, n: size) []str = {
 	for (let i = 0z; i < n - 1z; i += 1) {
 		match (next_token(&tok)) {
 			s: str => append(toks, s),
-			_: void => return toks,
+			void => return toks,
 		};
 	};
 	append(toks, remaining_tokens(&tok));

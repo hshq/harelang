@@ -5,7 +5,7 @@ export fn drain(in: *io::stream) ([]u8 | io::error) = {
 	for (true) {
 		match (read(in, buf[..])?) {
 			n: size => append(sink, buf[..n]...),
-			_: EOF => break,
+			EOF => break,
 		};
 	};
 	return sink;

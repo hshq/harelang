@@ -56,7 +56,7 @@ fn is_fdstream(s: *io::stream) bool = {
 export fn streamfd(s: *io::stream, unwrap: bool) (int | void) = {
 	for (unwrap && !is_fdstream(s)) {
 		s = match (io::source(s)) {
-			_: errors::unsupported => return,
+			errors::unsupported => return,
 			s: *io::stream  => s,
 		};
 	};

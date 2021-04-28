@@ -157,7 +157,7 @@ export fn type_free(t: (_type | nullable *_type)) void = match (t) {
 	},
 	t: _type => match (t._type) {
 		a: alias_type => ident_free(a.ident),
-		_: builtin_type => void,
+		builtin_type => void,
 		e: enum_type => {
 			for (let i = 0z; i < len(e.values); i += 1) {
 				free(e.values[i].name);

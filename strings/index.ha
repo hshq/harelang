@@ -14,7 +14,7 @@ fn index_rune(s: str, r: rune) (size | void) = {
 	let iter = iter(s);
 	for (let i = 0z; true; i += 1) match (next(&iter)) {
 		n: rune => if (r == n) return i,
-		_: void => break,
+		void => break,
 	};
 };
 

@@ -56,7 +56,7 @@ use strconv;
 	defer free(it);
 	let count = 0z;
 	for (true) match (it.next(it)) {
-		_: void => break,
+		void => break,
 		d: fs::dirent => count += 1,
 	};
 	assert(count == 6);
@@ -132,7 +132,7 @@ use strconv;
 	defer free(it);
 	let count = 0z;
 	for (true) match (it.next(it)) {
-		_: void => break,
+		void => break,
 		d: fs::dirent => count += 1,
 	};
 	assert(count == limit);

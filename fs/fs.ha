@@ -87,15 +87,15 @@ export fn mkdirs(fs: *fs, path: str) (void | error) = {
 	let parent = path::dirname(path);
 	if (path != parent) {
 		match (mkdirs(fs, parent)) {
-			_: errors::exists => void,
+			errors::exists => void,
 			err: error => return err,
-			_: void => void,
+			void => void,
 		};
 	};
 	return match (mkdir(fs, path)) {
-		_: errors::exists => void,
+		errors::exists => void,
 		err: error => err,
-		_: void => void,
+		void => void,
 	};
 };
 
@@ -126,7 +126,7 @@ export fn rmdirall(fs: *fs, path: str) (void | error) = {
 				* => remove(fs, p)?,
 			};
 		},
-		_: void => break,
+		void => break,
 	};
 	if (path != "") {
 		return rmdir(fs, path);

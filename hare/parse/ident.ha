@@ -11,12 +11,12 @@ fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	for (true) {
 		let name = match (try(lexer, ltok::NAME)?) {
 			t: lex::token => t.1 as str,
-			_: void => return (ident: ast::ident, true),
+			void => return (ident: ast::ident, true),
 		};
 		append(ident, name);
 		z += len(name);
 		match (try(lexer, ltok::DOUBLE_COLON)?) {
-			_: void => break,
+			void => break,
 			* => void, // Grab the next ident
 		};
 		z += 1;

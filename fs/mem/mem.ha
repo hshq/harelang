@@ -96,7 +96,7 @@ fn create(
 
 	let parent = fs: *inode;
 	match (inode_find(parent, path)) {
-		_: errors::noentry => void,
+		errors::noentry => void,
 		* => return errors::exists,
 	};
 	if (path::dirname(path) != path) {
@@ -130,7 +130,7 @@ fn open(
 
 fn stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 	return match(inode_find(fs: *inode, path)?.data) {
-		_: directory => fs::filestat { mode = fs::mode::DIR | 0o777, ... },
+		directory => fs::filestat { mode = fs::mode::DIR | 0o777, ... },
 		f: file => fs::filestat {
 			mode = fs::mode::REG | 0o777,
 			mask = fs::stat_mask::SIZE,
@@ -148,7 +148,7 @@ fn mkdir(fs: *fs::fs, path: str) (void | fs::error) = {
 fn mksubdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 	let parent = fs: *inode;
 	match (inode_find(parent, path)) {
-		_: errors::noentry => void,
+		errors::noentry => void,
 		* => return errors::exists,
 	};
 	if (path::dirname(path) != path) {
@@ -195,8 +195,8 @@ fn next(iter: *fs::iterator) (fs::dirent | void) = match (_next(iter)) {
 	ino: *inode => fs::dirent {
 		name = ino.name,
 		ftype = match (ino.data) {
-			_: directory => fs::mode::DIR,
-			_: file      => fs::mode::REG,
+			directory => fs::mode::DIR,
+			file      => fs::mode::REG,
 		},
 	},
 };
@@ -264,8 +264,8 @@ fn close_rec(ino: *inode) void = {
 		ino: *inode => {
 			ino.parent = null;
 			match (ino.data) {
-				_: file => inode_free(ino),
-				_: directory => close_rec(ino),
+				file => inode_free(ino),
+				directory => close_rec(ino),
 				* => abort("unreachable"),
 			};
 		},

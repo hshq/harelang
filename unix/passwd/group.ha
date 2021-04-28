@@ -21,7 +21,7 @@ export type grent = struct {
 export fn nextgr(stream: *io::stream) (grent | io::EOF | io::error | invalid) = {
 	let line = match (bufio::scanline(stream)?) {
 		ln: []u8 => ln,
-		_: io::EOF => return io::EOF,
+		io::EOF => return io::EOF,
 	};
 	let line = match (strings::try_fromutf8(line)) {
 		s: str => s,
@@ -69,7 +69,7 @@ export fn getgroup(name: str) (grent | void) = {
 	for (true) {
 		let ent = match (nextgr(file)) {
 			e: grent => e,
-			_: io::EOF => break,
+			io::EOF => break,
 			* => abort("Invalid entry in /etc/group"),
 		};
 

@@ -112,7 +112,7 @@ export fn main() void = {
 		readme = readme,
 	};
 	match (emit(&ctx)) {
-		_: void => void,
+		void => void,
 		err: error => fmt::fatal("Error: {}", strerror(err)),
 	};
 };

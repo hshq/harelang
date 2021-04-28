@@ -9,12 +9,12 @@
 // strerror function which provides more context-appropriate error messages for
 // each of those types.
 export fn strerror(err: error) const str = match (err) {
-	_: busy => "The requested resource is not available",
-	_: exists => "An attempt was made to create a resource which already exists",
-	_: invalid => "An function was called with an invalid combination of arguments",
-	_: noaccess => "The user does not have permission to use this resource",
-	_: noentry => "An entry was requested which does not exist",
-	_: overflow => "The requested operation caused a numeric overflow condition",
-	_: unsupported => "The requested operation is not supported",
+	busy => "The requested resource is not available",
+	exists => "An attempt was made to create a resource which already exists",
+	invalid => "An function was called with an invalid combination of arguments",
+	noaccess => "The user does not have permission to use this resource",
+	noentry => "An entry was requested which does not exist",
+	overflow => "The requested operation caused a numeric overflow condition",
+	unsupported => "The requested operation is not supported",
 	op: opaque => op.strerror(&op.data),
 };

@@ -35,12 +35,12 @@ export fn next(iter: *iterator) (rune | void) = {
 			iter.push = void;
 			return r;
 		},
-		_: void => void,
+		void => void,
 	};
 	return match (utf8::next(&iter.dec)) {
 		r: rune => r,
-		_: void => void,
-		_: (utf8::more | utf8::invalid) =>
+		void => void,
+		(utf8::more | utf8::invalid) =>
 			abort("Invalid UTF-8 string (this should not happen)"),
 	};
 };
@@ -51,8 +51,8 @@ export fn prev(iter: *iterator) (rune | void) = {
 	assert(iter.push is void);
 	return match (utf8::prev(&iter.dec)) {
 		r: rune => r,
-		_: void => void,
-		_: (utf8::more | utf8::invalid) =>
+		void => void,
+		(utf8::more | utf8::invalid) =>
 			abort("Invalid UTF-8 string (this should not happen)"),
 	};
 };
@@ -80,7 +80,7 @@ export fn iter_str(iter: *iterator) str = {
 	for (let i = 0z; i < len(expected1); i += 1) {
 		match (next(&s)) {
 			r: rune => assert(r == expected1[i]),
-			_: void => abort(),
+			void => abort(),
 		};
 	};
 	assert(iter_str(&s) == "にちは");
@@ -89,7 +89,7 @@ export fn iter_str(iter: *iterator) str = {
 	for (let i = 0z; i < len(expected2); i += 1) {
 		match (next(&s)) {
 			r: rune => assert(r == expected2[i]),
-			_: void => abort(),
+			void => abort(),
 		};
 	};
 	assert(next(&s) is void);
@@ -103,7 +103,7 @@ export fn iter_str(iter: *iterator) str = {
 	for (let i = 0z; i< len(expected3); i += 1) {
 		match (prev(&s)) {
 			r: rune => assert(r == expected3[i]),
-			_: void => abort(),
+			void => abort(),
 		};
 	};
 	assert(prev(&s) is void);

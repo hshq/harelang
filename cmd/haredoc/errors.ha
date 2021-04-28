@@ -10,6 +10,6 @@ fn strerror(err: error) str = match (err) {
 	err: lex::error => lex::strerror(err),
 	err: parse::error => parse::strerror(err),
 	err: io::error => io::strerror(err),
-	_: eof => "Unexpected EOF",
-	_: syntaxerr => "Syntax error",
+	eof => "Unexpected EOF",
+	syntaxerr => "Syntax error",
 };

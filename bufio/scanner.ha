@@ -27,7 +27,7 @@ export fn scantok(stream: *io::stream, delim: u8) ([]u8 | io::EOF | io::error) =
 				};
 				append(buf, res);
 			},
-			_: io::EOF => {
+			io::EOF => {
 				if (len(buf) == 0) {
 					return io::EOF;
 				};
@@ -49,7 +49,7 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 	let b: [4]u8 = [0...];
 	match (io::read(stream, b[..1])?) {
 		n: size  => assert(n == 1),
-		_: io::EOF => return io::EOF,
+		io::EOF => return io::EOF,
 	};
 
 	const sz = utf8::utf8sz(b[0]);
@@ -69,8 +69,8 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 	let dec = utf8::decode(b[..sz]);
 	return match (utf8::next(&dec)) {
 		r: rune => r,
-		_: utf8::invalid => utf8::invalid,
-		_: (void | utf8::more) => io::EOF,
+		utf8::invalid => utf8::invalid,
+		(void | utf8::more) => io::EOF,
 	};
 };
 
@@ -131,7 +131,7 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 
 		match (scanrune(in)) {
 			r: rune => assert(want is rune && want as rune == r),
-			_: io::EOF => assert(want is io::EOF),
+			io::EOF => assert(want is io::EOF),
 			*       => abort(),
 		};
 	};

@@ -22,12 +22,12 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 	let sha = sha256::sha256();
 	//defer! hash::close(sha);
 	let iter = match (fs::iter(ctx.fs, path)) {
-		_: fs::wrongtype => {
+		fs::wrongtype => {
 			// Single file case
 			let inputs: []input = [];
 			let deps: []ast::ident = [];
 			let ft = match (type_for_ext(path)) {
-				_: void => return module_not_found,
+				void => return module_not_found,
 				ft: filetype => ft,
 			};
 			let st = fs::stat(ctx.fs, path)?;
@@ -86,7 +86,7 @@ fn parse_name(name: str) (str, str, []tag) = {
 		else p: size;
 	let tags = strings::sub(base, i, strings::end);
 	let tags = match (parsetags(tags)) {
-		_: void => return (base, ext, []),
+		void => return (base, ext, []),
 		t: []tag => t,
 	};
 	let base = strings::sub(base, 0, i);
@@ -121,7 +121,7 @@ fn scan_directory(
 
 	for (true) {
 		let ent = match (fs::next(iter)) {
-			_: void => break,
+			void => break,
 			ent: fs::dirent => ent,
 		};
 
@@ -355,7 +355,7 @@ export fn parsetags(in: str) ([]tag | void) = {
 	for (true) {
 		let t = tag { ... };
 		let m = match (strings::next(&iter)) {
-			_: void => break,
+			void => break,
 			r: rune => r,
 		};
 		t.mode = switch (m) {
@@ -365,7 +365,7 @@ export fn parsetags(in: str) ([]tag | void) = {
 		};
 		let buf = strio::dynamic();
 		for (true) match (strings::next(&iter)) {
-			_: void => break,
+			void => break,
 			r: rune => {
 				if (ascii::isalnum(r) || r == '_') {
 					strio::appendrune(buf, r)!;
