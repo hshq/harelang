@@ -282,13 +282,8 @@ fn struct_embed_or_field(
 				};
 			},
 			ltok::DOUBLE_COLON => {
-				// XXX: insert
-				let rest = ident(lexer)?;
-				let id: ast::ident = alloc([
-					name.1 as str,
-				]);
-				append(id, rest...);
-				free(rest);
+				let id = ident(lexer)?;
+				insert(id[0], name.1 as str);
 				id;
 			},
 			* => abort(),
