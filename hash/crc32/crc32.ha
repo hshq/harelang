@@ -199,7 +199,7 @@ export fn crc32(table: *[256]u32) *hash::hash = alloc(state {
 		},
 		sum = &sum,
 		reset = &reset,
-		sz = 4,
+		sz = SIZE,
 	},
 	table = table,
 	cval = ~0u32,
