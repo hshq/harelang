@@ -79,7 +79,7 @@ export type help = (cmd_help | flag_help | parameter_help);
 // 		('E', "use extended regular expressions"),
 // 		('s', "treat files as separate, rather than one continuous stream"),
 // 		('i', "edit files in place"),
-// 		('z', "separate lines by NUL characeters"),
+// 		('z', "separate lines by NUL characters"),
 // 		('e', "script", "execute commands from script"),
 // 		('f', "file", "execute commands from a file"),
 // 		"files...",
@@ -102,7 +102,7 @@ export type help = (cmd_help | flag_help | parameter_help);
 // 		// ...
 // 	};
 //
-// If "-h" is not among the options defined by the caller, the "-h" option will
+// If "-h" is not among the options defined by the caller, the "-h" option
 // will cause a summary of the command usage to be printed to stderr, and
 // [[os::exit]] will be called with a successful exit status.
 export fn parse(args: []str, help: help...) command = {
