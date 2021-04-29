@@ -46,6 +46,8 @@ fn write8(h: *hash::hash, u: u8) void = {
 // Returns the hash of a type. These hashes are deterministic and universally
 // unique: different computers will generate the same hash for the same type.
 export fn hash(t: *_type) u32 = {
+	// Note that this function should produce the same hashes as harec; see
+	// bootstrap harec:src/types.c:type_hash
 	let hash = fnv::fnv32a();
 	defer hash::close(hash);
 	write8(hash, type_storage(t));
