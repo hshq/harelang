@@ -179,6 +179,9 @@ hare_stdlib_deps+=$(stdlib_hash_crc16)
 stdlib_hash_crc32=$(HARECACHE)/hash/crc32/hash_crc32.o
 hare_stdlib_deps+=$(stdlib_hash_crc32)
 
+stdlib_hash_crc64=$(HARECACHE)/hash/crc64/hash_crc64.o
+hare_stdlib_deps+=$(stdlib_hash_crc64)
+
 stdlib_hash_fnv=$(HARECACHE)/hash/fnv/hash_fnv.o
 hare_stdlib_deps+=$(stdlib_hash_fnv)
 
@@ -640,6 +643,16 @@ $(HARECACHE)/hash/crc32/hash_crc32.ssa: $(stdlib_hash_crc32_srcs) $(stdlib_rt) $
 	@mkdir -p $(HARECACHE)/hash/crc32
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::crc32 \
 		-t$(HARECACHE)/hash/crc32/hash_crc32.td $(stdlib_hash_crc32_srcs)
+
+# hash::crc64
+stdlib_hash_crc64_srcs= \
+	$(STDLIB)/hash/crc64/crc64.ha
+
+$(HARECACHE)/hash/crc64/hash_crc64.ssa: $(stdlib_hash_crc64_srcs) $(stdlib_rt) $(stdlib_endian) $(stdlib_hash) $(stdlib_io) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hash/crc64
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::crc64 \
+		-t$(HARECACHE)/hash/crc64/hash_crc64.td $(stdlib_hash_crc64_srcs)
 
 # hash::fnv
 stdlib_hash_fnv_srcs= \
@@ -1121,6 +1134,9 @@ hare_testlib_deps+=$(testlib_hash_crc16)
 testlib_hash_crc32=$(TESTCACHE)/hash/crc32/hash_crc32.o
 hare_testlib_deps+=$(testlib_hash_crc32)
 
+testlib_hash_crc64=$(TESTCACHE)/hash/crc64/hash_crc64.o
+hare_testlib_deps+=$(testlib_hash_crc64)
+
 testlib_hash_fnv=$(TESTCACHE)/hash/fnv/hash_fnv.o
 hare_testlib_deps+=$(testlib_hash_fnv)
 
@@ -1597,6 +1613,16 @@ $(TESTCACHE)/hash/crc32/hash_crc32.ssa: $(testlib_hash_crc32_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/hash/crc32
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::crc32 \
 		-t$(TESTCACHE)/hash/crc32/hash_crc32.td $(testlib_hash_crc32_srcs)
+
+# hash::crc64
+testlib_hash_crc64_srcs= \
+	$(STDLIB)/hash/crc64/crc64.ha
+
+$(TESTCACHE)/hash/crc64/hash_crc64.ssa: $(testlib_hash_crc64_srcs) $(testlib_rt) $(testlib_endian) $(testlib_hash) $(testlib_io) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash/crc64
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::crc64 \
+		-t$(TESTCACHE)/hash/crc64/hash_crc64.td $(testlib_hash_crc64_srcs)
 
 # hash::fnv
 testlib_hash_fnv_srcs= \

@@ -1,0 +1,1 @@
+Implements the CRC-64 checksum algorithm. It is a non-cryptographic checksum.
