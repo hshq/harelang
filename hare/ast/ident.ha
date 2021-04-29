@@ -1,3 +1,5 @@
+use strings;
+
 // Identifies a single object, e.g. foo::bar::baz.
 export type ident = []str;
 
@@ -26,4 +28,13 @@ export fn ident_eq(a: ident, b: ident) bool = {
 		};
 	};
 	return true;
+};
+
+// Duplicates an [[ident]].
+export fn ident_dup(id: ident) ident = {
+	let new: ident = alloc([], len(id));
+	for (let i = 0z; i < len(id); i += 1) {
+		append(new, strings::dup(id[0]));
+	};
+	return new;
 };

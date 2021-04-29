@@ -355,7 +355,15 @@ hare_ast() {
 		import.ha \
 		type.ha \
 		unit.ha
-	gen_ssa hare::ast hare::lex
+	gen_ssa hare::ast hare::lex strings
+}
+
+hare_types() {
+	gen_srcs hare::types \
+		hash.ha \
+		store.ha \
+		types.ha
+	gen_ssa hare::types hare::ast hash hash::fnv endian
 }
 
 hare_unparse() {
@@ -733,6 +741,7 @@ hare_ast
 hare_lex
 hare_module
 hare_parse
+hare_types
 hare_unparse
 hash
 hash_adler32
