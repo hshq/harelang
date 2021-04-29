@@ -8,7 +8,11 @@ modules=$(awk '
 
 mkdir -p docs/html/
 
-curl https://harelang.org/mascot.jpg > docs/html/mascot.jpg
+if ! [ -f docs/html/mascot.jpg ]
+then
+	curl https://harelang.org/mascot.jpg > docs/html/mascot.jpg
+fi
+
 haredoc -Fhtml > docs/html/index.html
 for mod in $modules compress format encoding math crypto hare rt
 do
