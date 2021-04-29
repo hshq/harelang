@@ -180,7 +180,7 @@ type state = struct {
 // Creates a [[hash::hash]] which computes the CRC-16 algorithm.
 //
 // It takes a table of memoized values for a given polynomail (for example,
-// [[IEEE_TABLE]], [[CASTAGNOLI_TABLE]], or [[KOOPMAN_TABLE]]); a table for a
+// [[CCITT_TABLE]], [[DECT_TABLE]], or [[ANSI_TABLE]]); a table for a
 // custom polynomial, populated by [[memoize]] function, may also be used.
 export fn crc16(table: *[256]u16) *hash::hash = alloc(state {
 	hash = hash::hash {
