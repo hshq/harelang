@@ -2,6 +2,7 @@ use endian;
 use hash::fnv;
 use hash;
 use strings;
+use fmt;
 
 // Keep ordered with respect to bootstrap harec:include/types.h
 type storage = enum u8 {
@@ -34,6 +35,7 @@ fn type_storage(t: *_type) u8 = match (t._type) {
 		builtin::UINTPTR => storage::UINTPTR,
 		builtin::VOID => storage::VOID,
 	},
+	p: pointer => storage::POINTER,
 	* => abort(), // TODO
 };
 
@@ -42,25 +44,35 @@ fn write8(h: *hash::hash, u: u8) void = {
 	hash::write(h, buf[..1]);
 };
 
+fn write32(h: *hash::hash, u: u32) void = {
+	static let buf: [size(u32)]u8 = [0...];
+	endian::leputu32(buf, u);
+	hash::write(h, buf);
+};
+
 // Returns the hash of a type. These hashes are deterministic and universally
 // unique: different computers will generate the same hash for the same type.
 export fn hash(t: *_type) u32 = {
 	// Note that this function should produce the same hashes as harec; see
 	// bootstrap harec:src/types.c:type_hash
-	let hash = fnv::fnv32a();
-	defer hash::close(hash);
-	write8(hash, type_storage(t));
-	write8(hash, t.flags);
+	let id = fnv::fnv32a();
+	defer hash::close(id);
+	write8(id, type_storage(t));
+	write8(id, t.flags);
 
 	match (t._type) {
 		a: alias => for (let i = len(a); i > 0; i -= 1) {
-			hash::write(hash, strings::toutf8(a[i - 1]));
-			write8(hash, 0);
+			hash::write(id, strings::toutf8(a[i - 1]));
+			write8(id, 0);
 		},
 		builtin => void,
+		p: pointer => {
+			write8(id, p.flags);
+			write32(id, hash(p.referent));
+		},
 	};
 
-	return fnv::sum32(hash);
+	return fnv::sum32(id);
 };
 
 @test fn hash() void = {

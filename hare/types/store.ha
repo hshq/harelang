@@ -33,7 +33,7 @@ export fn store(resolver: *resolver, rstate: *void) *typestore = {
 // Returned from [[lookup]] when we are unable to resolve this type, but it does
 // not necessarily have an error. This occurs when a type includes an unknown
 // forward reference.
-export type deferred = void;
+export type deferred = void!;
 
 // A resolver function was not provided to [[store]], but was required to look
 // up this type.
@@ -47,7 +47,7 @@ export fn lookup(
 	store: *typestore,
 	t: *ast::_type,
 ) (const *_type | deferred | error) = {
-	const t = fromast(t);
+	const t = fromast(store, t)?;
 	const h = hash(&t);
 	let bucket = &store.map[h % BUCKETS];
 	// XXX: Should not have to dereference bucket
@@ -64,13 +64,17 @@ export fn lookup(
 	return &bucket[len(*bucket) - 1]._type;
 };
 
-fn fromast(atype: *ast::_type) _type = {
+fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 	let underlying = match (atype._type) {
 		a: ast::alias_type => {
 			assert(!a.unwrap); // TODO
 			ast::ident_dup(a.ident): alias;
 		},
 		b: ast::builtin_type => b: builtin,
+		p: ast::pointer_type => pointer {
+			referent = lookup(store, p.referent)?,
+			flags = p.flags: pointer_flags,
+		},
 		* => abort(), // TODO
 	};
 	return _type {
@@ -83,6 +87,7 @@ fn type_finish(t: *_type) void = {
 	match (t._type) {
 		a: alias => ast::ident_free(a),
 		builtin => void,
+		pointer => void,
 		* => abort(), // TODO
 	};
 };

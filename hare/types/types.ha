@@ -10,6 +10,19 @@ export type builtin = enum u8 {
 	U16, U32, U64, U8, UINT, UINTPTR, VOID,
 };
 
+// Flags which apply to a pointer type.
+export type pointer_flags = enum u8 {
+	NONE = 0,
+	// Keep me consistent with ast::pointer_flags
+	NULLABLE = 1 << 0,
+};
+
+// *int
+export type pointer = struct {
+	referent: const *_type,
+	flags: pointer_flags,
+};
+
 // Flags for a Hare type.
 export type flags = enum u8 {
 	NONE = 0,
@@ -21,5 +34,5 @@ export type flags = enum u8 {
 // A Hare type.
 export type _type = struct {
 	flags: flags,
-	_type: (alias | builtin),
+	_type: (alias | builtin | pointer),
 };
