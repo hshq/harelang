@@ -11,7 +11,6 @@ export type resolver = fn(
 	expr: const *ast::expr,
 ) (size | errors::opaque);
 
-// A type store. Holds singletons for types in a hash map.
 export type typestore = struct {
 	map: [BUCKETS][]struct {
 		hash: u32,
