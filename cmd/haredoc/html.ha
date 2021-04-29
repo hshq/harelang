@@ -439,10 +439,11 @@ fn struct_html(
 	let z = 0z;
 	z += fmt::fprint(out, "<span class='keyword'>struct</span> {")?;
 
+	indent += 1;
 	for (let i = 0z; i < len(t); i += 1) {
 		const member = t[i];
 
-		z += newline(out, indent + 1)?;
+		z += newline(out, indent)?;
 		match (member._offset) {
 			null => void,
 			expr: *ast::expr => {
@@ -458,7 +459,7 @@ fn struct_html(
 				z += type_html(out, indent, *f._type, brief)?;
 			},
 			embed: ast::struct_embedded => {
-				z += type_html(out, indent + 1, *embed, brief)?;
+				z += type_html(out, indent, *embed, brief)?;
 			},
 			indent: ast::struct_alias => {
 				z += unparse::ident(out, indent)?;
@@ -467,6 +468,7 @@ fn struct_html(
 		z += fmt::fprint(out, ",")?;
 	};
 
+	indent -= 1;
 	z += newline(out, indent)?;
 	z += fmt::fprint(out, "}")?;
 
