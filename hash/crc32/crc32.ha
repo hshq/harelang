@@ -7,7 +7,7 @@ use fmt;
 // The size, in bytes, of a CRC-32 checksum.
 export def SIZE: size = 4;
 
-// IEEE polynomial for CRC-32. Used in ethernet, SATA, MPEG-2, gzip, bsip2,
+// IEEE polynomial for CRC-32. Used in ethernet, SATA, MPEG-2, gzip, bzip2,
 // cksum, PNG, etc. It is by far the most common polynomial used.
 export const IEEE: u32 = 0xedb88320;
 
