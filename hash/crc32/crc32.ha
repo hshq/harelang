@@ -2,7 +2,6 @@ use endian;
 use hash;
 use io;
 use strings;
-use fmt;
 
 // The size, in bytes, of a CRC-32 checksum.
 export def SIZE: size = 4;

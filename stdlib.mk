@@ -638,7 +638,7 @@ $(HARECACHE)/hash/crc16/hash_crc16.ssa: $(stdlib_hash_crc16_srcs) $(stdlib_rt) $
 stdlib_hash_crc32_srcs= \
 	$(STDLIB)/hash/crc32/crc32.ha
 
-$(HARECACHE)/hash/crc32/hash_crc32.ssa: $(stdlib_hash_crc32_srcs) $(stdlib_rt) $(stdlib_endian) $(stdlib_hash) $(stdlib_io) $(stdlib_strings) $(stdlib_fmt)
+$(HARECACHE)/hash/crc32/hash_crc32.ssa: $(stdlib_hash_crc32_srcs) $(stdlib_rt) $(stdlib_endian) $(stdlib_hash) $(stdlib_io) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hash/crc32
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::crc32 \
@@ -1608,7 +1608,7 @@ $(TESTCACHE)/hash/crc16/hash_crc16.ssa: $(testlib_hash_crc16_srcs) $(testlib_rt)
 testlib_hash_crc32_srcs= \
 	$(STDLIB)/hash/crc32/crc32.ha
 
-$(TESTCACHE)/hash/crc32/hash_crc32.ssa: $(testlib_hash_crc32_srcs) $(testlib_rt) $(testlib_endian) $(testlib_hash) $(testlib_io) $(testlib_strings) $(testlib_fmt)
+$(TESTCACHE)/hash/crc32/hash_crc32.ssa: $(testlib_hash_crc32_srcs) $(testlib_rt) $(testlib_endian) $(testlib_hash) $(testlib_io) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hash/crc32
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::crc32 \

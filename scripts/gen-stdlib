@@ -458,7 +458,7 @@ hash_crc16() {
 hash_crc32() {
 	gen_srcs hash::crc32 \
 		crc32.ha
-	gen_ssa hash::crc32 endian hash io strings fmt
+	gen_ssa hash::crc32 endian hash io strings
 }
 
 hash_crc64() {
