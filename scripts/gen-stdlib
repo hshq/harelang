@@ -150,18 +150,24 @@ compress_zlib() {
 			reader.ha
 	fi
 	gen_ssa compress::zlib bufio bytes compress::flate endian errors hash \
-		hash::adler32 io
+		hash::adler32 io fmt
+}
+
+gensrcs_crypto_blake2b() {
+	gen_srcs crypto::blake2b \
+		blake2b.ha \
+		$*
 }
 
 crypto_blake2b() {
 	if [ $testing -eq 0 ]
 	then
-		gen_srcs crypto::blake2b blake2b.ha
-		gen_ssa crypto::blake2b hash io endian crypto::math $*
+		gensrcs_crypto_blake2b
 	else
-		gen_srcs crypto::blake2b blake2b.ha +test.ha vectors+test.ha
-		gen_ssa crypto::blake2b hash io endian crypto::math strings strio encoding::hex $*
+		gensrcs_crypto_blake2b +test.ha vectors+test.ha
 	fi
+	gen_ssa crypto::blake2b encoding::hex fmt hash io strings strio \
+		crypto::math endian
 }
 
 crypto_math() {
@@ -426,7 +432,7 @@ hare_parse() {
 hash() {
 	gen_srcs hash \
 		hash.ha
-	gen_ssa hash io
+	gen_ssa hash io fmt
 }
 
 hash_adler32() {
@@ -444,7 +450,7 @@ hash_crc16() {
 hash_crc32() {
 	gen_srcs hash::crc32 \
 		crc32.ha
-	gen_ssa hash::crc32 endian hash io strings
+	gen_ssa hash::crc32 endian hash io strings fmt
 }
 
 hash_fnv() {

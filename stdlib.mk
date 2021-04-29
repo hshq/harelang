@@ -301,7 +301,7 @@ $(HARECACHE)/compress/flate/compress_flate.ssa: $(stdlib_compress_flate_srcs) $(
 stdlib_compress_zlib_srcs= \
 	$(STDLIB)/compress/zlib/reader.ha
 
-$(HARECACHE)/compress/zlib/compress_zlib.ssa: $(stdlib_compress_zlib_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_bytes) $(stdlib_compress_flate) $(stdlib_endian) $(stdlib_errors) $(stdlib_hash) $(stdlib_hash_adler32) $(stdlib_io)
+$(HARECACHE)/compress/zlib/compress_zlib.ssa: $(stdlib_compress_zlib_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_bytes) $(stdlib_compress_flate) $(stdlib_endian) $(stdlib_errors) $(stdlib_hash) $(stdlib_hash_adler32) $(stdlib_io) $(stdlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/compress/zlib
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncompress::zlib \
@@ -311,7 +311,7 @@ $(HARECACHE)/compress/zlib/compress_zlib.ssa: $(stdlib_compress_zlib_srcs) $(std
 stdlib_crypto_blake2b_srcs= \
 	$(STDLIB)/crypto/blake2b/blake2b.ha
 
-$(HARECACHE)/crypto/blake2b/crypto_blake2b.ssa: $(stdlib_crypto_blake2b_srcs) $(stdlib_rt) $(stdlib_hash) $(stdlib_io) $(stdlib_endian) $(stdlib_crypto_math)
+$(HARECACHE)/crypto/blake2b/crypto_blake2b.ssa: $(stdlib_crypto_blake2b_srcs) $(stdlib_rt) $(stdlib_encoding_hex) $(stdlib_fmt) $(stdlib_hash) $(stdlib_io) $(stdlib_strings) $(stdlib_strio) $(stdlib_crypto_math) $(stdlib_endian)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/blake2b
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::blake2b \
@@ -590,7 +590,7 @@ $(HARECACHE)/hare/unparse/hare_unparse.ssa: $(stdlib_hare_unparse_srcs) $(stdlib
 stdlib_hash_srcs= \
 	$(STDLIB)/hash/hash.ha
 
-$(HARECACHE)/hash/hash.ssa: $(stdlib_hash_srcs) $(stdlib_rt) $(stdlib_io)
+$(HARECACHE)/hash/hash.ssa: $(stdlib_hash_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hash
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash \
@@ -620,7 +620,7 @@ $(HARECACHE)/hash/crc16/hash_crc16.ssa: $(stdlib_hash_crc16_srcs) $(stdlib_rt) $
 stdlib_hash_crc32_srcs= \
 	$(STDLIB)/hash/crc32/crc32.ha
 
-$(HARECACHE)/hash/crc32/hash_crc32.ssa: $(stdlib_hash_crc32_srcs) $(stdlib_rt) $(stdlib_endian) $(stdlib_hash) $(stdlib_io) $(stdlib_strings)
+$(HARECACHE)/hash/crc32/hash_crc32.ssa: $(stdlib_hash_crc32_srcs) $(stdlib_rt) $(stdlib_endian) $(stdlib_hash) $(stdlib_io) $(stdlib_strings) $(stdlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hash/crc32
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::crc32 \
@@ -1229,7 +1229,7 @@ testlib_compress_zlib_srcs= \
 	$(STDLIB)/compress/zlib/data+test.ha \
 	$(STDLIB)/compress/zlib/reader.ha
 
-$(TESTCACHE)/compress/zlib/compress_zlib.ssa: $(testlib_compress_zlib_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_bytes) $(testlib_compress_flate) $(testlib_endian) $(testlib_errors) $(testlib_hash) $(testlib_hash_adler32) $(testlib_io)
+$(TESTCACHE)/compress/zlib/compress_zlib.ssa: $(testlib_compress_zlib_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_bytes) $(testlib_compress_flate) $(testlib_endian) $(testlib_errors) $(testlib_hash) $(testlib_hash_adler32) $(testlib_io) $(testlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/compress/zlib
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncompress::zlib \
@@ -1241,7 +1241,7 @@ testlib_crypto_blake2b_srcs= \
 	$(STDLIB)/crypto/blake2b/+test.ha \
 	$(STDLIB)/crypto/blake2b/vectors+test.ha
 
-$(TESTCACHE)/crypto/blake2b/crypto_blake2b.ssa: $(testlib_crypto_blake2b_srcs) $(testlib_rt) $(testlib_hash) $(testlib_io) $(testlib_endian) $(testlib_crypto_math) $(testlib_strings) $(testlib_strio) $(testlib_encoding_hex)
+$(TESTCACHE)/crypto/blake2b/crypto_blake2b.ssa: $(testlib_crypto_blake2b_srcs) $(testlib_rt) $(testlib_encoding_hex) $(testlib_fmt) $(testlib_hash) $(testlib_io) $(testlib_strings) $(testlib_strio) $(testlib_crypto_math) $(testlib_endian)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/blake2b
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::blake2b \
@@ -1532,7 +1532,7 @@ $(TESTCACHE)/hare/unparse/hare_unparse.ssa: $(testlib_hare_unparse_srcs) $(testl
 testlib_hash_srcs= \
 	$(STDLIB)/hash/hash.ha
 
-$(TESTCACHE)/hash/hash.ssa: $(testlib_hash_srcs) $(testlib_rt) $(testlib_io)
+$(TESTCACHE)/hash/hash.ssa: $(testlib_hash_srcs) $(testlib_rt) $(testlib_io) $(testlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hash
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash \
@@ -1562,7 +1562,7 @@ $(TESTCACHE)/hash/crc16/hash_crc16.ssa: $(testlib_hash_crc16_srcs) $(testlib_rt)
 testlib_hash_crc32_srcs= \
 	$(STDLIB)/hash/crc32/crc32.ha
 
-$(TESTCACHE)/hash/crc32/hash_crc32.ssa: $(testlib_hash_crc32_srcs) $(testlib_rt) $(testlib_endian) $(testlib_hash) $(testlib_io) $(testlib_strings)
+$(TESTCACHE)/hash/crc32/hash_crc32.ssa: $(testlib_hash_crc32_srcs) $(testlib_rt) $(testlib_endian) $(testlib_hash) $(testlib_io) $(testlib_strings) $(testlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hash/crc32
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::crc32 \
