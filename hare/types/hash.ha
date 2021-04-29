@@ -2,7 +2,6 @@ use endian;
 use hash::fnv;
 use hash;
 use strings;
-use fmt;
 
 // Keep ordered with respect to bootstrap harec:include/types.h
 type storage = enum u8 {
@@ -54,8 +53,8 @@ export fn hash(t: *_type) u32 = {
 	write8(hash, t.flags);
 
 	match (t._type) {
-		a: alias => for (let i = 0z; i < len(a); i += 1) {
-			hash::write(hash, strings::toutf8(a[i]));
+		a: alias => for (let i = len(a); i > 0; i -= 1) {
+			hash::write(hash, strings::toutf8(a[i - 1]));
 			write8(hash, 0);
 		},
 		builtin => void,
@@ -70,8 +69,19 @@ export fn hash(t: *_type) u32 = {
 		flags = flags::NONE,
 		_type = builtin::STR,
 	};
-	fmt::errorfln("{}", hash(&sample))!;
 	assert(hash(&sample) == 3350498318);
+
+	let sample = _type {
+		flags = flags::NONE,
+		_type = ["foo", "bar"]: alias,
+	};
+	assert(hash(&sample) == 1488828140);
+
+	let sample = _type {
+		flags = flags::ERROR,
+		_type = ["foo", "bar"]: alias,
+	};
+	assert(hash(&sample) == 4003927486);
 
 	// TODO: more samples
 };
