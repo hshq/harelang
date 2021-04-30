@@ -1,7 +1,11 @@
 use hare::ast;
 
 // A type alias.
-export type alias = ast::ident;
+export type alias = struct {
+	id: ast::ident,
+	// null for forward referenced types
+	_type: const nullable *_type,
+};
 
 // A built-in primitive type (int, bool, str, etc).
 export type builtin = enum u8 {
@@ -31,8 +35,14 @@ export type flags = enum u8 {
 	ERROR = 1 << 1,
 };
 
+// The sz field of [[_type]] is set to this value to indicate that the size of
+// the type is undefined.
+export def SIZE_UNDEFINED: size = -1: size;
+
 // A Hare type.
 export type _type = struct {
 	flags: flags,
 	_type: (alias | builtin | pointer),
+	sz: size,
+	align: size,
 };

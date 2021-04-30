@@ -578,6 +578,7 @@ $(HARECACHE)/hare/parse/hare_parse.ssa: $(stdlib_hare_parse_srcs) $(stdlib_rt) $
 
 # hare::types
 stdlib_hare_types_srcs= \
+	$(STDLIB)/hare/types/arch.ha \
 	$(STDLIB)/hare/types/hash.ha \
 	$(STDLIB)/hare/types/store.ha \
 	$(STDLIB)/hare/types/types.ha
@@ -1548,6 +1549,7 @@ $(TESTCACHE)/hare/parse/hare_parse.ssa: $(testlib_hare_parse_srcs) $(testlib_rt)
 
 # hare::types
 testlib_hare_types_srcs= \
+	$(STDLIB)/hare/types/arch.ha \
 	$(STDLIB)/hare/types/hash.ha \
 	$(STDLIB)/hare/types/store.ha \
 	$(STDLIB)/hare/types/types.ha

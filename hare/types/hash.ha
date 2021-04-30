@@ -60,8 +60,8 @@ export fn hash(t: *_type) u32 = {
 	write8(id, t.flags);
 
 	match (t._type) {
-		a: alias => for (let i = len(a); i > 0; i -= 1) {
-			hash::write(id, strings::toutf8(a[i - 1]));
+		a: alias => for (let i = len(a.id); i > 0; i -= 1) {
+			hash::write(id, strings::toutf8(a.id[i - 1]));
 			write8(id, 0);
 		},
 		builtin => void,
@@ -84,13 +84,19 @@ export fn hash(t: *_type) u32 = {
 
 	let sample = _type {
 		flags = flags::NONE,
-		_type = ["foo", "bar"]: alias,
+		_type = alias {
+			id = ["foo", "bar"],
+			...
+		},
 	};
 	assert(hash(&sample) == 1488828140);
 
 	let sample = _type {
 		flags = flags::ERROR,
-		_type = ["foo", "bar"]: alias,
+		_type = alias {
+			id = ["foo", "bar"],
+			...
+		},
 	};
 	assert(hash(&sample) == 4003927486);
 

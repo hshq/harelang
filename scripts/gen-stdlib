@@ -360,6 +360,7 @@ hare_ast() {
 
 hare_types() {
 	gen_srcs hare::types \
+		arch.ha \
 		hash.ha \
 		store.ha \
 		types.ha

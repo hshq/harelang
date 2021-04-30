@@ -12,6 +12,7 @@ export type resolver = fn(
 ) (size | errors::opaque);
 
 export type typestore = struct {
+	arch: arch,
 	map: [BUCKETS][]struct {
 		hash: u32,
 		_type: _type,
@@ -22,8 +23,9 @@ export type typestore = struct {
 
 // Initializes a new type store. Optionally, provide a function which
 // type-checks and evaluates an [[ast::expr]].
-export fn store(resolver: *resolver, rstate: *void) *typestore = {
+export fn store(arch: arch, resolver: *resolver, rstate: *void) *typestore = {
 	return alloc(typestore {
+		arch = arch,
 		resolve = resolver,
 		rstate = rstate,
 		...
@@ -65,27 +67,130 @@ export fn lookup(
 };
 
 fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
+	let sz = SIZE_UNDEFINED, align = SIZE_UNDEFINED;
 	let underlying = match (atype._type) {
 		a: ast::alias_type => {
-			assert(!a.unwrap); // TODO
-			ast::ident_dup(a.ident): alias;
+			// TODO: This is incomplete
+			assert(!a.unwrap);
+			alias {
+				id = ast::ident_dup(a.ident),
+				_type = null,
+			};
 		},
-		b: ast::builtin_type => b: builtin,
-		p: ast::pointer_type => pointer {
-			referent = lookup(store, p.referent)?,
-			flags = p.flags: pointer_flags,
+		// TODO: Tuple unpacking could improve this
+		b: ast::builtin_type => switch (b) {
+			ast::builtin_type::BOOL => {
+				sz = store.arch._int;
+				align = store.arch._int;
+				builtin::BOOL;
+			},
+			ast::builtin_type::CHAR => {
+				sz = 1; align = 1;
+				builtin::CHAR;
+			},
+			ast::builtin_type::F32 => {
+				sz = 4; align = 4;
+				builtin::F32;
+			},
+			ast::builtin_type::F64 => {
+				sz = 8; align = 8;
+				builtin::F64;
+			},
+			ast::builtin_type::I16 => {
+				sz = 2; align = 2;
+				builtin::I16;
+			},
+			ast::builtin_type::I32 => {
+				sz = 4; align = 4;
+				builtin::I32;
+			},
+			ast::builtin_type::I64 => {
+				sz = 8; align = 8;
+				builtin::I64;
+			},
+			ast::builtin_type::I8 => {
+				sz = 1; align = 1;
+				builtin::I8;
+			},
+			ast::builtin_type::INT => {
+				sz = store.arch._int;
+				align = store.arch._int;
+				builtin::INT;
+			},
+			ast::builtin_type::RUNE => {
+				sz = 4; align = 4;
+				builtin::RUNE;
+			},
+			ast::builtin_type::SIZE => {
+				sz = store.arch._size;
+				align = store.arch._size;
+				builtin::SIZE;
+			},
+			ast::builtin_type::STR => {
+				sz += store.arch._pointer;
+				sz += sz % store.arch._size + store.arch._size;
+				sz += store.arch._size;
+				align = if (store.arch._size > store.arch._pointer)
+						store.arch._size
+					else
+						store.arch._pointer;
+				builtin::STR;
+			},
+			ast::builtin_type::U16 => {
+				sz = 2; align = 2;
+				builtin::U16;
+			},
+			ast::builtin_type::U32 => {
+				sz = 4; align = 4;
+				builtin::U32;
+			},
+			ast::builtin_type::U64 => {
+				sz = 8; align = 8;
+				builtin::U64;
+			},
+			ast::builtin_type::U8 => {
+				sz = 1; align = 1;
+				builtin::U8;
+			},
+			ast::builtin_type::UINT => {
+				sz = store.arch._int;
+				align = store.arch._int;
+				builtin::UINT;
+			},
+			ast::builtin_type::UINTPTR => {
+				sz = store.arch._pointer;
+				align = store.arch._pointer;
+				builtin::UINTPTR;
+			},
+			ast::builtin_type::VOID => {
+				sz = 0; align = 0;
+				builtin::VOID;
+			},
+			ast::builtin_type::NULL => builtin::NULL,
+			ast::builtin_type::ICONST,
+			ast::builtin_type::FCONST => abort(), // TODO?
+		},
+		p: ast::pointer_type => {
+			sz = store.arch._pointer;
+			align = store.arch._pointer;
+			pointer {
+				referent = lookup(store, p.referent)?,
+				flags = p.flags: pointer_flags,
+			};
 		},
 		* => abort(), // TODO
 	};
 	return _type {
 		flags = atype.flags: flags,
 		_type = underlying,
+		sz = sz,
+		align = align,
 	};
 };
 
 fn type_finish(t: *_type) void = {
 	match (t._type) {
-		a: alias => ast::ident_free(a),
+		a: alias => ast::ident_free(a.id),
 		builtin => void,
 		pointer => void,
 		* => abort(), // TODO
