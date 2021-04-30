@@ -303,9 +303,8 @@ fn bintodec(mantissa: u64, exponent: u32) decf64 = {
 			const vmmod10 = (vm: u32) - 10 * (vmby10: u32);
 			const vrby10 = vr / 10;
 			const vrmod10 = (vr: u32) - 10 * (vrby10: u32);
-			vm_trailing_zeros = vm_trailing_zeros && (vmmod10 == 0);
-			vr_trailing_zeros = vr_trailing_zeros &&
-				(last_removed_digit == 0);
+			vm_trailing_zeros &&= vmmod10 == 0;
+			vr_trailing_zeros &&= last_removed_digit == 0;
 			last_removed_digit = vrmod10: u8;
 			vr = vrby10; vp = vpby10; vm = vmby10;
 			removed += 1;
@@ -317,8 +316,7 @@ fn bintodec(mantissa: u64, exponent: u32) decf64 = {
 				if (vmmod10 != 0) break;
 				const vpby10 = vp / 10, vrby10 = vr / 10;
 				const vrmod10 = (vr: u32) - 10 * (vrby10: u32);
-				vr_trailing_zeros = vr_trailing_zeros &&
-					(last_removed_digit == 0);
+				vr_trailing_zeros &&= last_removed_digit == 0;
 				last_removed_digit = vrmod10: u8;
 				vr = vrby10; vp = vpby10; vm = vmby10;
 				removed += 1;
