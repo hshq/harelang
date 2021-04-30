@@ -583,7 +583,7 @@ stdlib_hare_types_srcs= \
 	$(STDLIB)/hare/types/store.ha \
 	$(STDLIB)/hare/types/types.ha
 
-$(HARECACHE)/hare/types/hare_types.ssa: $(stdlib_hare_types_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hash) $(stdlib_hash_fnv) $(stdlib_endian)
+$(HARECACHE)/hare/types/hare_types.ssa: $(stdlib_hare_types_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_parse) $(stdlib_hash) $(stdlib_hash_fnv) $(stdlib_endian)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/types
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::types \
@@ -1555,7 +1555,7 @@ testlib_hare_types_srcs= \
 	$(STDLIB)/hare/types/types.ha \
 	$(STDLIB)/hare/types/+test.ha
 
-$(TESTCACHE)/hare/types/hare_types.ssa: $(testlib_hare_types_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hash) $(testlib_hash_fnv) $(testlib_endian)
+$(TESTCACHE)/hare/types/hare_types.ssa: $(testlib_hare_types_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_parse) $(testlib_hash) $(testlib_hash_fnv) $(testlib_endian)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/types
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::types \

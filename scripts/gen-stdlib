@@ -374,7 +374,7 @@ hare_types() {
 	else
 		gensrcs_hare_types
 	fi
-	gen_ssa hare::types hare::ast hash hash::fnv endian
+	gen_ssa hare::types hare::ast hare::parse hash hash::fnv endian
 }
 
 hare_unparse() {
