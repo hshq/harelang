@@ -13,23 +13,34 @@ export type resolver = fn(
 
 export type typestore = struct {
 	arch: arch,
-	map: [BUCKETS][]struct {
-		hash: u32,
-		_type: _type,
-	},
-	resolve: *resolver,
-	rstate: *void,
+	map: [BUCKETS][]_type,
+	resolve: nullable *resolver,
+	rstate: nullable *void,
 };
 
 // Initializes a new type store. Optionally, provide a function which
 // type-checks and evaluates an [[ast::expr]].
-export fn store(arch: arch, resolver: *resolver, rstate: *void) *typestore = {
+export fn store(
+	arch: arch,
+	resolver: nullable *resolver,
+	rstate: nullable *void,
+) *typestore = {
 	return alloc(typestore {
 		arch = arch,
 		resolve = resolver,
 		rstate = rstate,
 		...
 	});
+};
+
+export fn store_free(store: *typestore) void = {
+	for (let i = 0z; i < len(store.map); i += 1) {
+		for (let j = 0z; j < len(store.map[i]); j += 1) {
+			type_finish(&store.map[i][j]);
+		};
+		free(store.map[i]);
+	};
+	free(store);
 };
 
 // Returned from [[lookup]] when we are unable to resolve this type, but it does
@@ -47,23 +58,21 @@ export type error = (noresolver | errors::opaque)!;
 // Retrieves a [[_type]] for a given [[ast::_type]].
 export fn lookup(
 	store: *typestore,
-	t: *ast::_type,
+	ty: *ast::_type,
 ) (const *_type | deferred | error) = {
-	const t = fromast(store, t)?;
-	const h = hash(&t);
-	let bucket = &store.map[h % BUCKETS];
+	const ty = fromast(store, ty)?;
+	const id = hash(&ty);
+	let bucket = &store.map[id % BUCKETS];
 	// XXX: Should not have to dereference bucket
 	for (let i = 0z; i < len(*bucket); i += 1) {
-		if (bucket[i].hash == h) {
-			type_finish(&t);
-			return &bucket[i]._type;
+		if (bucket[i].id == id) {
+			type_finish(&ty);
+			return &bucket[i];
 		};
 	};
-	append(*bucket, struct {
-		hash: u32 = h,
-		_type: _type = t,
-	});
-	return &bucket[len(*bucket) - 1]._type;
+	ty.id = id;
+	append(*bucket, ty);
+	return &bucket[len(*bucket) - 1];
 };
 
 fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {

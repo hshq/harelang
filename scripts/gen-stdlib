@@ -358,12 +358,22 @@ hare_ast() {
 	gen_ssa hare::ast hare::lex strings
 }
 
-hare_types() {
+gensrcs_hare_types() {
 	gen_srcs hare::types \
 		arch.ha \
 		hash.ha \
 		store.ha \
-		types.ha
+		types.ha \
+		$*
+}
+
+hare_types() {
+	if [ $testing -eq 1 ]
+	then
+		gensrcs_hare_types +test.ha
+	else
+		gensrcs_hare_types
+	fi
 	gen_ssa hare::types hare::ast hash hash::fnv endian
 }
 

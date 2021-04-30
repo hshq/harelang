@@ -43,6 +43,7 @@ export def SIZE_UNDEFINED: size = -1: size;
 export type _type = struct {
 	flags: flags,
 	_type: (alias | builtin | pointer),
+	id: u32,
 	sz: size,
 	align: size,
 };

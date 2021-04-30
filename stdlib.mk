@@ -1552,7 +1552,8 @@ testlib_hare_types_srcs= \
 	$(STDLIB)/hare/types/arch.ha \
 	$(STDLIB)/hare/types/hash.ha \
 	$(STDLIB)/hare/types/store.ha \
-	$(STDLIB)/hare/types/types.ha
+	$(STDLIB)/hare/types/types.ha \
+	$(STDLIB)/hare/types/+test.ha
 
 $(TESTCACHE)/hare/types/hare_types.ssa: $(testlib_hare_types_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hash) $(testlib_hash_fnv) $(testlib_endian)
 	@printf 'HAREC \t$@\n'
