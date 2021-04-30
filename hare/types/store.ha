@@ -33,6 +33,7 @@ export fn store(
 	});
 };
 
+// Frees state associated with a [[typestore]].
 export fn store_free(store: *typestore) void = {
 	for (let i = 0z; i < len(store.map); i += 1) {
 		for (let j = 0z; j < len(store.map[i]); j += 1) {
