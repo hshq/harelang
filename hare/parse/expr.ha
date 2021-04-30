@@ -12,9 +12,10 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 
 	// All assignment-op tokens
 	const atoks: []ltok = [
-		ltok::EQUAL, ltok::ANDEQ, ltok::BXOREQ, ltok::DIVEQ,
-		ltok::LSHIFTEQ, ltok::MINUSEQ, ltok::MODEQ, ltok::OREQ,
-		ltok::PLUSEQ, ltok::RSHIFTEQ, ltok::TIMESEQ,
+		ltok::EQUAL, ltok::BANDEQ, ltok::BOREQ, ltok::BXOREQ,
+		ltok::DIVEQ, ltok::LANDEQ, ltok::LOREQ, ltok::LXOREQ,
+		ltok::LSHIFTEQ, ltok::MINUSEQ, ltok::MODEQ, ltok::PLUSEQ,
+		ltok::RSHIFTEQ, ltok::TIMESEQ,
 	];
 
 	const expr: ast::expr = if (indirect) {
@@ -60,13 +61,16 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 	return ast::assign_expr {
 		op = switch (tok.0) {
 			ltok::EQUAL	=> void,
-			ltok::ANDEQ	=> ast::binarithm_op::BAND,
+			ltok::BANDEQ	=> ast::binarithm_op::BAND,
+			ltok::BOREQ	=> ast::binarithm_op::BOR,
 			ltok::BXOREQ	=> ast::binarithm_op::BXOR,
 			ltok::DIVEQ	=> ast::binarithm_op::DIV,
+			ltok::LANDEQ	=> ast::binarithm_op::LAND,
+			ltok::LOREQ	=> ast::binarithm_op::LOR,
 			ltok::LSHIFTEQ	=> ast::binarithm_op::LSHIFT,
+			ltok::LXOREQ	=> ast::binarithm_op::LXOR,
 			ltok::MINUSEQ	=> ast::binarithm_op::MINUS,
 			ltok::MODEQ	=> ast::binarithm_op::MODULO,
-			ltok::OREQ	=> ast::binarithm_op::BOR,
 			ltok::PLUSEQ	=> ast::binarithm_op::PLUS,
 			ltok::RSHIFTEQ	=> ast::binarithm_op::RSHIFT,
 			ltok::TIMESEQ	=> ast::binarithm_op::TIMES,

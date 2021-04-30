@@ -103,7 +103,9 @@ export fn expr(
 				void => "=",
 				op: ast::binarithm_op => switch (op) {
 					ast::binarithm_op::BAND => "&=",
+					ast::binarithm_op::LAND => "&&=",
 					ast::binarithm_op::BOR => "|=",
+					ast::binarithm_op::LOR => "||=",
 					ast::binarithm_op::DIV => "/=",
 					ast::binarithm_op::LSHIFT => "<<=",
 					ast::binarithm_op::MINUS => "-=",
@@ -112,6 +114,7 @@ export fn expr(
 					ast::binarithm_op::RSHIFT => ">>=",
 					ast::binarithm_op::TIMES => "*=",
 					ast::binarithm_op::BXOR => "^=",
+					ast::binarithm_op::LXOR => "^^=",
 					* => abort(),
 				},
 			};

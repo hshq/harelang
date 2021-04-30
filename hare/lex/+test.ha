@@ -87,32 +87,23 @@ fn loc(line: uint, col: uint) location = location {
 
 @test fn lex2() void = {
 	// Ends with = to test =, EOF
-	const in = "^ ^^ ^= * *= % %= + += - -= : :: & && &= | || |= = == / /= =";
+	const in = "* *= % %= + += - -= : :: = == / /= =";
 	const expected: [_]token = [
-		(ltok::BXOR, void, loc(1, 1)),
-		(ltok::LXOR, void, loc(1, 3)),
-		(ltok::BXOREQ, void, loc(1, 6)),
-		(ltok::TIMES, void, loc(1, 9)),
-		(ltok::TIMESEQ, void, loc(1, 11)),
-		(ltok::MODULO, void, loc(1, 14)),
-		(ltok::MODEQ, void, loc(1, 16)),
-		(ltok::PLUS, void, loc(1, 19)),
-		(ltok::PLUSEQ, void, loc(1, 21)),
-		(ltok::MINUS, void, loc(1, 24)),
-		(ltok::MINUSEQ, void, loc(1, 26)),
-		(ltok::COLON, void, loc(1, 29)),
-		(ltok::DOUBLE_COLON, void, loc(1, 31)),
-		(ltok::BAND, void, loc(1, 34)),
-		(ltok::LAND, void, loc(1, 36)),
-		(ltok::ANDEQ, void, loc(1, 39)),
-		(ltok::BOR, void, loc(1, 42)),
-		(ltok::LOR, void, loc(1, 44)),
-		(ltok::OREQ, void, loc(1, 47)),
-		(ltok::EQUAL, void, loc(1, 50)),
-		(ltok::LEQUAL, void, loc(1, 52)),
-		(ltok::DIV, void, loc(1, 55)),
-		(ltok::DIVEQ, void, loc(1, 57)),
-		(ltok::EQUAL, void, loc(1, 60)),
+		(ltok::TIMES, void, loc(1, 1)),
+		(ltok::TIMESEQ, void, loc(1, 3)),
+		(ltok::MODULO, void, loc(1, 6)),
+		(ltok::MODEQ, void, loc(1, 8)),
+		(ltok::PLUS, void, loc(1, 11)),
+		(ltok::PLUSEQ, void, loc(1, 13)),
+		(ltok::MINUS, void, loc(1, 16)),
+		(ltok::MINUSEQ, void, loc(1, 18)),
+		(ltok::COLON, void, loc(1, 21)),
+		(ltok::DOUBLE_COLON, void, loc(1, 23)),
+		(ltok::EQUAL, void, loc(1, 26)),
+		(ltok::LEQUAL, void, loc(1, 28)),
+		(ltok::DIV, void, loc(1, 31)),
+		(ltok::DIVEQ, void, loc(1, 33)),
+		(ltok::EQUAL, void, loc(1, 36)),
 	];
 	lextest(in, expected);
 };
@@ -132,6 +123,24 @@ fn loc(line: uint, col: uint) location = location {
 		(ltok::GREATEREQ, void, loc(1, 27)),
 		(ltok::RSHIFTEQ, void, loc(1, 30)),
 		(ltok::RSHIFT, void, loc(1, 34)),
+	];
+	lextest(in, expected);
+
+	const in = "& && &= &&= | || |= ||= ^ ^^ ^= ^^= ^";
+	const expected: [_]token = [
+		(ltok::BAND, void, loc(1, 1)),
+		(ltok::LAND, void, loc(1, 3)),
+		(ltok::BANDEQ, void, loc(1, 6)),
+		(ltok::LANDEQ, void, loc(1, 9)),
+		(ltok::BOR, void, loc(1, 13)),
+		(ltok::LOR, void, loc(1, 15)),
+		(ltok::BOREQ, void, loc(1, 18)),
+		(ltok::LOREQ, void, loc(1, 21)),
+		(ltok::BXOR, void, loc(1, 25)),
+		(ltok::LXOR, void, loc(1, 27)),
+		(ltok::BXOREQ, void, loc(1, 30)),
+		(ltok::LXOREQ, void, loc(1, 33)),
+		(ltok::BXOR, void, loc(1, 37)),
 	];
 	lextest(in, expected);
 };
