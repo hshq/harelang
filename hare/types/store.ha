@@ -9,7 +9,7 @@ export type resolver = fn(
 	rstate: *void,
 	store: *typestore,
 	expr: const *ast::expr,
-) (size | errors::opaque);
+) (size | deferred | errors::opaque);
 
 export type typestore = struct {
 	arch: arch,
@@ -19,7 +19,9 @@ export type typestore = struct {
 };
 
 // Initializes a new type store. Optionally, provide a function which
-// type-checks and evaluates an [[ast::expr]].
+// type-checks and evaluates an [[ast::expr]]. If a resolver is not provided,
+// looking up types with an expression component (e.g. [2 + 2]int) will return
+// [[noresolver]].
 export fn store(
 	arch: arch,
 	resolver: nullable *resolver,
