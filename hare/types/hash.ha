@@ -12,6 +12,7 @@ type storage = enum u8 {
 
 fn type_storage(t: *_type) u8 = match (t._type) {
 	alias => storage::ALIAS,
+	array => storage::ARRAY,
 	t: builtin => switch (t) {
 		builtin::BOOL => storage::BOOL,
 		builtin::CHAR => storage::CHAR,
@@ -34,7 +35,12 @@ fn type_storage(t: *_type) u8 = match (t._type) {
 		builtin::UINTPTR => storage::UINTPTR,
 		builtin::VOID => storage::VOID,
 	},
-	p: pointer => storage::POINTER,
+	pointer => storage::POINTER,
+	st: _struct =>
+		if (st.kind == struct_union::STRUCT)
+			storage::STRUCT
+		else storage::UNION,
+	tuple => storage::TUPLE,
 	* => abort(), // TODO
 };
 
@@ -64,10 +70,26 @@ export fn hash(t: *_type) u32 = {
 			hash::write(id, strings::toutf8(a.id[i - 1]));
 			write8(id, 0);
 		},
+		a: array => {
+			write32(id, hash(a.member));
+			// TODO: This would cause [U32_MAX]int and
+			// [U32_MAX+1]int to have the same hash:
+			write32(id, a.length: u32);
+		},
 		builtin => void,
 		p: pointer => {
 			write8(id, p.flags);
 			write32(id, hash(p.referent));
+		},
+		st: _struct => for (let i = 0z; i < len(st.fields); i += 1) {
+			const field = st.fields[i];
+			hash::write(id, strings::toutf8(field.name));
+			write32(id, hash(field._type));
+			// XXX: This is also wrong for offsets >U32_MAX
+			write32(id, field.offs: u32);
+		},
+		tu: tuple => for (let i = 0z; i < len(tu); i += 1) {
+			write32(id, hash(tu[i]._type));
 		},
 	};
 
@@ -123,4 +145,27 @@ export fn hash(t: *_type) u32 = {
 		},
 	};
 	assert(hash(&sample) == 1467299071);
+
+	let sample = _type {
+		flags = flags::NONE,
+		_type = _struct {
+			kind = struct_union::STRUCT,
+			c_compat = true,
+			fields = [
+				// XXX: Sorted by name per bootstrap harec
+				// conventions
+				struct_field {
+					name = "bar",
+					offs = 4,
+					_type = &_int,
+				},
+				struct_field {
+					name = "foo",
+					offs = 0,
+					_type = &_int,
+				},
+			],
+		},
+	};
+	assert(hash(&sample) == 1072721578);
 };

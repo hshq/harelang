@@ -203,8 +203,11 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 fn type_finish(t: *_type) void = {
 	match (t._type) {
 		a: alias => ast::ident_free(a.id),
+		array => void,
 		builtin => void,
 		pointer => void,
+		st: _struct => free(st.fields),
+		tu: tuple => free(tu),
 		* => abort(), // TODO
 	};
 };

@@ -7,6 +7,13 @@ export type alias = struct {
 	_type: const nullable *_type,
 };
 
+// An array type, e.g. [10]int
+export type array = struct {
+	// [[SIZE_UNDEFINED]] for [*]type
+	length: size,
+	member: const *_type,
+};
+
 // A built-in primitive type (int, bool, str, etc).
 export type builtin = enum u8 {
 	// Keep me consistent with ast::builtin
@@ -27,6 +34,43 @@ export type pointer = struct {
 	flags: pointer_flags,
 };
 
+// Indicates if a [[_struct]] was declared as a struct or union type.
+export type struct_union = enum {
+	STRUCT,
+	UNION,
+};
+
+// struct { ... } or union { ... }
+//
+// Note that embedded anonymous structs will have been merged into their parent
+// type.
+export type _struct = struct {
+	kind: struct_union,
+	// TODO: Ensure that fields are sorted to match bootstrap harec
+	fields: []struct_field,
+
+	// True if this struct is compatible with C structs (or unions). This
+	// will generally only be false if @offset is used to mess with things.
+	c_compat: bool,
+};
+
+// A single struct field.
+export type struct_field = struct {
+	// "" for an anonymous field
+	name: str,
+	offs: size,
+	_type: const *_type,
+};
+
+// A tuple type, e.g. (a, b, c)
+export type tuple = []tuple_value;
+
+// A single value of a tuple type.
+export type tuple_value = struct {
+	offs: size,
+	_type: const *_type,
+};
+
 // Flags for a Hare type.
 export type flags = enum u8 {
 	NONE = 0,
@@ -42,7 +86,7 @@ export def SIZE_UNDEFINED: size = -1: size;
 // A Hare type.
 export type _type = struct {
 	flags: flags,
-	_type: (alias | builtin | pointer),
+	_type: (alias | array | builtin | pointer | _struct | tuple),
 	id: u32,
 	sz: size,
 	align: size,
