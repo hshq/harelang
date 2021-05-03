@@ -8,7 +8,7 @@ use strio;
 
 // Returned when attempting to decode a string which contains invalid hex
 // characters.
-export type invalid = void!;
+export type invalid = !void;
 
 // Encodes a byte slice as a hexadecimal string and writes it to a stream.
 export fn encode(sink: *io::stream, b: []u8) (size | io::error) = {

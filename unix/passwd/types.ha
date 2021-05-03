@@ -1,2 +1,2 @@
 // An invalid entry was encountered during parsing.
-export type invalid = void!;
+export type invalid = !void;

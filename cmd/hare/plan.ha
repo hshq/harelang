@@ -116,7 +116,7 @@ fn plan_execute(plan: *plan, verbose: bool) void = {
 		match (execute(plan, task, verbose)) {
 			err: exec::error => fmt::fatal("Error: {}: {}",
 				task.cmd[0], exec::strerror(err)),
-			err: exec::exit_status! => fmt::fatal("Error: {}: {}",
+			err: !exec::exit_status => fmt::fatal("Error: {}: {}",
 				task.cmd[0], exec::exitstr(err)),
 			void => void,
 		};
@@ -162,7 +162,7 @@ fn execute(
 	plan: *plan,
 	task: *task,
 	verbose: bool,
-) (void | exec::error | exec::exit_status!) = {
+) (void | exec::error | !exec::exit_status) = {
 	if (verbose) {
 		for (let i = 0z; i < len(task.cmd); i += 1) {
 			fmt::errorf("{} ", task.cmd[i])!;

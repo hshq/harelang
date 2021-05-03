@@ -6,7 +6,7 @@ use io;
 use strio;
 
 // All possible error types.
-export type error = lex::error!;
+export type error = !lex::error;
 
 // Convert an error into a human-friendly string.
 export fn strerror(err: error) const str = lex::strerror(err: lex::error);

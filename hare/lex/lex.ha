@@ -26,10 +26,10 @@ export type flags = enum uint {
 };
 
 // A syntax error
-export type syntax = (location, str)!;
+export type syntax = !(location, str);
 
 // All possible lexer errors
-export type error = (io::error | syntax)!;
+export type error = !(io::error | syntax);
 
 // Returns a human-friendly string for a given error
 export fn strerror(err: error) const str = {

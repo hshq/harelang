@@ -6,17 +6,17 @@ use time;
 
 // An entry of a particular type was sought, but is something else in practice.
 // For example, opening a file with [[iter]].
-export type wrongtype = void!;
+export type wrongtype = !void;
 
 // All possible fs error types.
-export type error = (
+export type error = !(
 	errors::noentry |
 	errors::noaccess |
 	errors::exists |
 	errors::busy |
 	errors::invalid |
 	wrongtype |
-	io::error)!;
+	io::error);
 
 // File mode information. These bits do not necessarily reflect the underlying
 // operating system's mode representation, though they were chosen to be

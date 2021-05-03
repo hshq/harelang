@@ -17,10 +17,10 @@
 // 		let ptr = &err: *myerr;
 // 		return strerror(*ptr);
 // 	};
-export type opaque = struct {
+export type opaque = !struct {
 	strerror: *fn(op: *opaque_data) const str,
 	data: opaque_data,
-}!;
+};
 
 // Up to 24 bytes of arbitrary data that the opaque error type may use for
 // domain-specific storage.

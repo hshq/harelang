@@ -52,18 +52,18 @@ export type input = struct {
 };
 
 // The requested module could not be found.
-export type module_not_found = void!;
+export type module_not_found = !void;
 
 // We are unable to select from two ambiguous options for an input file.
-export type ambiguous = (str, str)!;
+export type ambiguous = !(str, str);
 
 // All possible error types.
-export type error = (
+export type error = !(
 	fs::error |
 	io::error |
 	parse::error |
 	module_not_found |
-	ambiguous)!;
+	ambiguous);
 
 export fn strerror(err: error) const str = {
 	// Should be more than enough for PATH_MAX * 2

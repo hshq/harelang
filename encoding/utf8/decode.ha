@@ -18,7 +18,7 @@ export fn decode(src: (str | []u8)) decoder = match (src) {
 export type more = void;
 
 // Returned when an invalid UTF-8 sequence was found.
-export type invalid = void!;
+export type invalid = !void;
 
 // Returns the next rune from a decoder. void is returned when there are no
 // remaining codepoints.

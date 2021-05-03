@@ -49,14 +49,14 @@ export fn store_free(store: *typestore) void = {
 // Returned from [[lookup]] when we are unable to resolve this type, but it does
 // not necessarily have an error. This occurs when a type includes an unknown
 // forward reference.
-export type deferred = void!;
+export type deferred = !void;
 
 // A resolver function was not provided to [[store]], but was required to look
 // up this type.
-export type noresolver = void!;
+export type noresolver = !void;
 
 // All possible errors for [[lookup]].
-export type error = (noresolver | errors::opaque)!;
+export type error = !(noresolver | errors::opaque);
 
 // Retrieves a [[_type]] for a given [[ast::_type]].
 export fn lookup(

@@ -30,7 +30,7 @@ export const ANY_V4: addr4 = [0, 0, 0, 0];
 export const ANY_V6: addr6 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 // Invalid parse result.
-export type invalid = void!;
+export type invalid = !void;
 
 // Test if two [[addr]]s are equal.
 export fn equal(l: addr, r: addr) bool = {

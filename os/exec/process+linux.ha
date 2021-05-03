@@ -96,7 +96,7 @@ export fn exit(stat: *status) exit_status = {
 
 // Checks the exit status of a completed process, returning void if successful,
 // or its status code as an error type if not.
-export fn check(stat: *status) (void | exit_status!) = {
+export fn check(stat: *status) (void | !exit_status) = {
 	if (rt::wifexited(stat.status)) {
 		return switch (rt::wexitstatus(stat.status)) {
 			0 => void,

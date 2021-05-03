@@ -8,10 +8,10 @@ export type command = struct {
 };
 
 // Returned when path resolution fails to find a command by its name.
-export type nocmd = void!;
+export type nocmd = !void;
 
 // All errors that can be returned from os::exec.
-export type error = (nocmd | errors::opaque)!;
+export type error = !(nocmd | errors::opaque);
 
 // Returns a human-readable message for the given error.
 export fn strerror(err: error) const str = {

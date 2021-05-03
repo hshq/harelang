@@ -1,7 +1,7 @@
 use errors;
 
 // Any error which may be returned from an I/O function.
-export type error = (errors::unsupported | errors::opaque)!;
+export type error = !(errors::unsupported | errors::opaque);
 
 // Indicates an end-of-file condition.
 export type EOF = void;
