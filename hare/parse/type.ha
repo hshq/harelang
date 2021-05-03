@@ -375,9 +375,14 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 
 // Parses a type, e.g. '[]int'.
 export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
-	let flags: ast::type_flags = match (try(lexer, ltok::CONST)?) {
-		void => 0,
-		* => ast::type_flags::CONST,
+	let flags: ast::type_flags = 0;
+	match (try(lexer, ltok::CONST)?) {
+		void => void,
+		* => flags |= ast::type_flags::CONST,
+	};
+	match (try(lexer, ltok::LNOT)?) {
+		void => void,
+		* => flags |= ast::type_flags::ERROR,
 	};
 	let tok = peek(lexer)? as lex::token;
 	let typ: ast::_type = switch (tok.0) {
@@ -406,11 +411,6 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 		* => return syntaxerr(mkloc(lexer),
 			"Unexpected {}, was expecting type",
 			lex::tokstr(tok)),
-	};
-
-	match (try(lexer, ltok::LNOT)?) {
-		void => void,
-		* => flags |= ast::type_flags::ERROR,
 	};
 
 	typ.flags |= flags;
