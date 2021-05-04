@@ -313,6 +313,5 @@ fn type_finish(t: *_type) void = {
 		pointer => void,
 		st: _struct => free(st.fields),
 		tu: tuple => free(tu),
-		* => abort(), // TODO
 	};
 };
