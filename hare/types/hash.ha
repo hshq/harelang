@@ -41,7 +41,6 @@ fn type_storage(t: *_type) u8 = match (t._type) {
 			storage::STRUCT
 		else storage::UNION,
 	tuple => storage::TUPLE,
-	* => abort(), // TODO
 };
 
 fn write8(h: *hash::hash, u: u8) void = {
