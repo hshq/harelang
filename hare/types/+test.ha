@@ -77,7 +77,21 @@ fn parse_type(in: str) ast::_type = {
 	assert(y._type._type as builtin == builtin::INT);
 
 	// Alignment
-	// TODO
+	let atype = parse_type("struct { w: u8, x: u32, y: u8, z: u64 }");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == 24);
+	let stype = htype._type as _struct;
+	assert(stype.kind == struct_union::STRUCT);
+
+	let w = stype.fields[0];
+	assert(w.offs == 0);
+	let x = stype.fields[1];
+	assert(x.offs == 4);
+	let y = stype.fields[2];
+	assert(y.offs == 8);
+	let z = stype.fields[3];
+	assert(z.offs == 16);
 
 	// Sort order
 	// TODO
