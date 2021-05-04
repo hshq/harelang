@@ -32,14 +32,12 @@ export fn store(
 	arch: arch,
 	resolver: nullable *resolver,
 	rstate: nullable *void,
-) *typestore = {
-	return alloc(typestore {
-		arch = arch,
-		resolve = resolver,
-		rstate = rstate,
-		...
-	});
-};
+) *typestore = alloc(typestore {
+	arch = arch,
+	resolve = resolver,
+	rstate = rstate,
+	...
+});
 
 // Frees state associated with a [[typestore]].
 export fn store_free(store: *typestore) void = {
