@@ -14,8 +14,12 @@ export type resolver = fn(
 ) (size | deferred | errors::opaque);
 
 export type typestore = struct {
-	arch: arch,
+	// This hash map provides the canonical address for all types owned by
+	// this type store. Any type which has a reference to another type has
+	// borrowed it from this map.
 	map: [BUCKETS][]_type,
+
+	arch: arch,
 	resolve: nullable *resolver,
 	rstate: nullable *void,
 };
