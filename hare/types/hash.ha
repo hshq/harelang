@@ -168,4 +168,32 @@ export fn hash(t: *_type) u32 = {
 		},
 	};
 	assert(hash(&sample) == 1072721578);
+
+	let sample = _type {
+		flags = flags::NONE,
+		_type = [
+			tuple_value {
+				offs = 0,
+				_type = &_int,
+			},
+			tuple_value {
+				offs = 4,
+				_type = &_int,
+			},
+			tuple_value {
+				offs = 8,
+				_type = &_int,
+			},
+		],
+	};
+	assert(hash(&sample) == 4136455899);
+
+	let sample = _type {
+		flags = flags::NONE,
+		_type = array {
+			length = 5,
+			member = &_int,
+		},
+	};
+	assert(hash(&sample) == 1353959835);
 };
