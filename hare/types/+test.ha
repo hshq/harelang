@@ -1,4 +1,5 @@
 use bufio;
+use errors;
 use hare::ast;
 use hare::lex;
 use hare::parse;
@@ -34,8 +35,20 @@ fn parse_type(in: str) ast::_type = {
 	assert(htype.referent._type as builtin == builtin::INT);
 };
 
+fn resolve(
+	rstate: *void,
+	store: *typestore,
+	expr: const *ast::expr,
+) (size | deferred | errors::opaque) = {
+	let expr = *expr as ast::constant_expr;
+	let val = expr as lex::value;
+	let ival = val as i64;
+	assert(ival >= 0);
+	return ival: size;
+};
+
 @test fn structs() void = {
-	let st = store(x86_64, null, null);
+	let st = store(x86_64, &resolve, null);
 	defer store_free(st);
 
 	// Basic struct
@@ -165,8 +178,20 @@ fn parse_type(in: str) ast::_type = {
 	// TODO
 
 	// Explicit offsets
-	// TODO
-
-	// C compatibility testing
-	// TODO
+	let atype = parse_type("struct {
+		@offset(8)  x: int,
+		@offset(16) y: int,
+		@offset(32) z: int,
+	}");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == 36);
+	assert(htype.align == 4);
+	let stype = htype._type as _struct;
+	assert(stype.fields[0].name == "x");
+	assert(stype.fields[0].offs == 8);
+	assert(stype.fields[1].name == "y");
+	assert(stype.fields[1].offs == 16);
+	assert(stype.fields[2].name == "z");
+	assert(stype.fields[2].offs == 32);
 };

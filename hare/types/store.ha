@@ -311,7 +311,6 @@ fn struct_from_ast(
 	return _struct {
 		kind = if (is_union) struct_union::UNION else struct_union::STRUCT,
 		fields = fields,
-		c_compat = false, // TODO: Determine C compat properly
 	};
 };
 
