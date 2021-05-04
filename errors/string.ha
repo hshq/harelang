@@ -11,7 +11,7 @@
 export fn strerror(err: error) const str = match (err) {
 	busy => "The requested resource is not available",
 	exists => "An attempt was made to create a resource which already exists",
-	invalid => "An function was called with an invalid combination of arguments",
+	invalid => "A function was called with an invalid combination of arguments",
 	noaccess => "The user does not have permission to use this resource",
 	noentry => "An entry was requested which does not exist",
 	overflow => "The requested operation caused a numeric overflow condition",
