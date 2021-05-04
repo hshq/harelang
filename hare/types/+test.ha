@@ -43,6 +43,7 @@ fn parse_type(in: str) ast::_type = {
 	defer ast::type_free(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 8);
+	assert(htype.align == 4);
 	let stype = htype._type as _struct;
 	assert(stype.kind == struct_union::STRUCT);
 	assert(len(stype.fields) == 2);
@@ -62,6 +63,7 @@ fn parse_type(in: str) ast::_type = {
 	defer ast::type_free(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 4);
+	assert(htype.align == 4);
 	let stype = htype._type as _struct;
 	assert(stype.kind == struct_union::UNION);
 	assert(len(stype.fields) == 2);
@@ -81,6 +83,7 @@ fn parse_type(in: str) ast::_type = {
 	defer ast::type_free(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 24);
+	assert(htype.align == 8);
 	let stype = htype._type as _struct;
 	assert(stype.kind == struct_union::STRUCT);
 
