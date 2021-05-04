@@ -91,7 +91,7 @@ fn resolve(
 	assert(y.offs == 0);
 	assert(y._type._type as builtin == builtin::INT);
 
-	// Alignment
+	// Padding
 	let atype = parse_type("struct { w: u8, x: u32, y: u8, z: u64 }");
 	defer ast::type_free(atype);
 	let htype = lookup(st, &atype)!;
@@ -194,4 +194,36 @@ fn resolve(
 	assert(stype.fields[1].offs == 16);
 	assert(stype.fields[2].name == "z");
 	assert(stype.fields[2].offs == 32);
+};
+
+@test fn tuples() void = {
+	let st = store(x86_64, &resolve, null);
+	defer store_free(st);
+
+	// Basic case
+	let atype = parse_type("(int, int)");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == 8);
+	assert(htype.align == 4);
+	let tup = htype._type as tuple;
+	assert(len(tup) == 2);
+
+	assert(tup[0].offs == 0);
+	assert(tup[0]._type._type as builtin == builtin::INT);
+	assert(tup[1].offs == 4);
+	assert(tup[1]._type._type as builtin == builtin::INT);
+
+	// Padding
+	let atype = parse_type("(i8, i32, i8, i64)");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == 24);
+	assert(htype.align == 8);
+
+	let tup = htype._type as tuple;
+	assert(tup[0].offs == 0);
+	assert(tup[1].offs == 4);
+	assert(tup[2].offs == 8);
+	assert(tup[3].offs == 16);
 };

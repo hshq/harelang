@@ -224,6 +224,20 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			};
 			st;
 		},
+		tu: ast::tuple_type => {
+			let tu = tuple_from_ast(store, tu)?;
+			sz = 0; align = 0;
+			for (let i = 0z; i < len(tu); i += 1) {
+				const value = tu[i];
+				if (value.offs + value._type.sz > sz) {
+					sz = value.offs + value._type.sz;
+				};
+				if (value._type.align > align) {
+					align = value._type.align;
+				};
+			};
+			tu;
+		},
 		* => abort(), // TODO
 	};
 	return _type {
@@ -312,6 +326,30 @@ fn struct_from_ast(
 		kind = if (is_union) struct_union::UNION else struct_union::STRUCT,
 		fields = fields,
 	};
+};
+
+fn tuple_from_ast(
+	store: *typestore,
+	membs: ast::tuple_type,
+) (tuple | deferred | error) = {
+	let values: []tuple_value = [];
+	let offs = 0z;
+	for (let i = 0z; i < len(membs); i += 1) {
+		const val = membs[i];
+		const vtype = lookup(store, val)?;
+
+		if (offs % vtype.align != 0) {
+			offs += vtype.align - (offs % vtype.align);
+		};
+
+		append(values, tuple_value {
+			_type = vtype,
+			offs = offs,
+		});
+
+		offs += vtype.sz;
+	};
+	return values;
 };
 
 fn field_cmp(a: const *void, b: const *void) int = {
