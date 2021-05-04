@@ -150,8 +150,6 @@ export fn hash(t: *_type) u32 = {
 		_type = _struct {
 			kind = struct_union::STRUCT,
 			fields = [
-				// XXX: Sorted by name per bootstrap harec
-				// conventions
 				struct_field {
 					name = "bar",
 					offs = 4,
