@@ -241,7 +241,7 @@ fn _struct_from_ast(
 	fields: *[]struct_field,
 	offs: *size,
 ) (void | deferred | error) = {
-	let nfields = len(*fields);
+	const nfields = len(*fields);
 	for (let i = 0z; i < len(membs); i += 1) {
 		*offs = match (membs[i]._offset) {
 			ex: *ast::expr => match (store.resolve) {
@@ -256,7 +256,7 @@ fn _struct_from_ast(
 			null => *offs,
 		};
 
-		let memb = match (membs[i].member) {
+		const memb = match (membs[i].member) {
 			se: ast::struct_embedded => {
 				let membs: []ast::struct_member = match (se._type) {
 					st: ast::struct_type => st,
@@ -272,7 +272,7 @@ fn _struct_from_ast(
 			sf: ast::struct_field => sf,
 		};
 
-		let _type = lookup(store, memb._type)?;
+		const _type = lookup(store, memb._type)?;
 		if (*offs % _type.align != 0) {
 			*offs += _type.align - (*offs % _type.align);
 		};
@@ -316,7 +316,7 @@ fn struct_from_ast(
 };
 
 fn field_cmp(a: const *void, b: const *void) int = {
-	let a = a: const *struct_field, b = b: *const struct_field;
+	const a = a: const *struct_field, b = b: *const struct_field;
 	return ascii::strcmp(a.name, b.name) as int;
 };
 
