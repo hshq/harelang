@@ -58,7 +58,23 @@ fn parse_type(in: str) ast::_type = {
 	assert(y._type._type as builtin == builtin::INT);
 
 	// Basic union
-	// TODO
+	let atype = parse_type("union { x: int, y: int }");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == 4);
+	let stype = htype._type as _struct;
+	assert(stype.kind == struct_union::UNION);
+	assert(len(stype.fields) == 2);
+
+	let x = stype.fields[0];
+	assert(x.name == "x");
+	assert(x.offs == 0);
+	assert(x._type._type as builtin == builtin::INT);
+
+	let y = stype.fields[1];
+	assert(y.name == "y");
+	assert(y.offs == 0);
+	assert(y._type._type as builtin == builtin::INT);
 
 	// Alignment
 	// TODO

@@ -265,7 +265,6 @@ fn _struct_from_ast(
 			sf: ast::struct_field => sf,
 		};
 
-		assert(!is_union); // TODO
 		let _type = lookup(store, memb._type)?;
 		if (*offs % _type.align != 0) {
 			*offs += _type.align - (*offs % _type.align);
@@ -277,7 +276,9 @@ fn _struct_from_ast(
 			_type = _type,
 		});
 
-		*offs += _type.sz;
+		if (!is_union) {
+			*offs += _type.sz;
+		};
 	};
 };
 
