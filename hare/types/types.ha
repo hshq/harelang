@@ -48,10 +48,6 @@ export type _struct = struct {
 	kind: struct_union,
 	// TODO: Ensure that fields are sorted to match bootstrap harec
 	fields: []struct_field,
-
-	// True if this struct is compatible with C structs (or unions). This
-	// will generally only be false if @offset is used to mess with things.
-	c_compat: bool,
 };
 
 // A single struct field.

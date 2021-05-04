@@ -149,7 +149,6 @@ export fn hash(t: *_type) u32 = {
 		flags = flags::NONE,
 		_type = _struct {
 			kind = struct_union::STRUCT,
-			c_compat = true,
 			fields = [
 				// XXX: Sorted by name per bootstrap harec
 				// conventions
