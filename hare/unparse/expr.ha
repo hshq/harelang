@@ -11,9 +11,9 @@ use hare::lex;
 export fn expr(
 	out: *io::stream,
 	indent: size,
-	t: ast::expr
+	e: ast::expr
 ) (size | io::error) = {
-	return match (t) {
+	return match (e.expr) {
 		e: ast::access_expr => match (e) {
 			id: ast::access_identifier => ident(out, id),
 			ix: ast::access_index => {

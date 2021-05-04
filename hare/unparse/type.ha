@@ -228,7 +228,11 @@ fn type_test(t: ast::_type, expected: str) bool = {
 		flags = 0,
 		_type = ast::builtin_type::INT,
 	};
-	let expr_void = void: ast::constant_expr: ast::expr;
+	let expr_void = ast::expr {
+		start = lex::location { ... },
+		end = lex::location { ... },
+		expr = void,
+	};
 
 	assert(type_test(t, "const foo::bar"));
 	t.flags = 0;

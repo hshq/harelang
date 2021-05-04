@@ -129,7 +129,11 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 			],
 		},
 	};
-	let expr_void = void: ast::constant_expr: ast::expr;
+	let expr_void = ast::expr {
+		start = lex::location { ... },
+		end = lex::location { ... },
+		expr = void,
+	};
 
 	let d = ast::decl {
 		loc = loc,

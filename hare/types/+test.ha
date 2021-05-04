@@ -40,7 +40,7 @@ fn resolve(
 	store: *typestore,
 	expr: const *ast::expr,
 ) (size | deferred | errors::opaque) = {
-	let expr = *expr as ast::constant_expr;
+	let expr = expr.expr as ast::constant_expr;
 	let val = expr as lex::value;
 	let ival = val as i64;
 	assert(ival >= 0);

@@ -338,12 +338,17 @@ export type unarithm_expr = struct {
 };
 
 // A Hare expression.
-export type expr = (access_expr | alloc_expr | append_expr | assert_expr |
-	assign_expr | binarithm_expr | binding_expr | break_expr | call_expr |
-	cast_expr | constant_expr | continue_expr | defer_expr | delete_expr |
-	for_expr | free_expr | if_expr | list_expr | match_expr | len_expr |
-	size_expr | offset_expr | propagate_expr | return_expr | slice_expr |
-	switch_expr | unarithm_expr);
+export type expr = struct {
+	start: lex::location,
+	end: lex::location,
+	expr: (access_expr | alloc_expr | append_expr | assert_expr |
+		assign_expr | binarithm_expr | binding_expr | break_expr |
+		call_expr | cast_expr | constant_expr | continue_expr |
+		defer_expr | delete_expr | for_expr | free_expr | if_expr |
+		list_expr | match_expr | len_expr | size_expr | offset_expr |
+		propagate_expr | return_expr | slice_expr | switch_expr |
+		unarithm_expr),
+};
 
 // Frees resources associated with a Hare [[expr]]ession.
 export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
@@ -354,7 +359,7 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			free(e);
 		},
 	},
-	e: expr => match (e) {
+	e: expr => match (e.expr) {
 		a: access_expr => match (a) {
 			i: access_identifier => ident_free(i),
 			i: access_index => {
@@ -415,7 +420,7 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 		},
 		c: cast_expr => {
 			expr_free(c.value);
-			expr_free(c._type);
+			type_free(c._type);
 		},
 		c: constant_expr => match(c) {
 			(void | lex::value) => void,
