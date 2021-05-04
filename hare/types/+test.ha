@@ -107,10 +107,50 @@ fn parse_type(in: str) ast::_type = {
 	assert(stype.fields[3].name == "z");
 
 	// Embedded struct
-	// TODO
+	let atype = parse_type("struct {
+		x: int,
+		y: int,
+		struct {
+			z: int,
+			q: int,
+		},
+	}");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == 16);
+	assert(htype.align == 4);
+	let stype = htype._type as _struct;
+	assert(stype.fields[0].name == "q");
+	assert(stype.fields[0].offs == 12);
+	assert(stype.fields[1].name == "x");
+	assert(stype.fields[1].offs == 0);
+	assert(stype.fields[2].name == "y");
+	assert(stype.fields[2].offs == 4);
+	assert(stype.fields[3].name == "z");
+	assert(stype.fields[3].offs == 8);
 
 	// Embedded union
-	// TODO
+	let atype = parse_type("struct {
+		x: int,
+		y: int,
+		union {
+			z: int,
+			q: int,
+		},
+	}");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == 12);
+	assert(htype.align == 4);
+	let stype = htype._type as _struct;
+	assert(stype.fields[0].name == "q");
+	assert(stype.fields[0].offs == 8);
+	assert(stype.fields[1].name == "x");
+	assert(stype.fields[1].offs == 0);
+	assert(stype.fields[2].name == "y");
+	assert(stype.fields[2].offs == 4);
+	assert(stype.fields[3].name == "z");
+	assert(stype.fields[3].offs == 8);
 
 	// Embedded (struct) alias
 	// TODO
