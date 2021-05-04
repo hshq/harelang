@@ -57,6 +57,9 @@ export type struct_field = struct {
 	_type: const *_type,
 };
 
+// A tagged union type, e.g. (int | uint | void).
+export type tagged = []*_type;
+
 // A tuple type, e.g. (a, b, c)
 export type tuple = []tuple_value;
 
@@ -81,7 +84,7 @@ export def SIZE_UNDEFINED: size = -1: size;
 // A Hare type.
 export type _type = struct {
 	flags: flags,
-	_type: (alias | array | builtin | pointer | _struct | tuple),
+	_type: (alias | array | builtin | pointer | _struct | tagged | tuple),
 	id: u32,
 	sz: size,
 	align: size,

@@ -41,6 +41,7 @@ fn type_storage(t: *_type) u8 = match (t._type) {
 			storage::STRUCT
 		else storage::UNION,
 	tuple => storage::TUPLE,
+	tagged => storage::TAGGED,
 };
 
 fn write8(h: *hash::hash, u: u8) void = {
@@ -89,6 +90,9 @@ export fn hash(t: *_type) u32 = {
 		},
 		tu: tuple => for (let i = 0z; i < len(tu); i += 1) {
 			write32(id, hash(tu[i]._type));
+		},
+		ta: tagged => for (let i = 0z; i < len(ta); i += 1) {
+			write32(id, hash(ta[i]));
 		},
 	};
 
@@ -192,4 +196,23 @@ export fn hash(t: *_type) u32 = {
 		},
 	};
 	assert(hash(&sample) == 1353959835);
+
+	let _uint = _type {
+		flags = flags::NONE,
+		_type = builtin::UINT,
+	};
+	let _void = _type {
+		flags = flags::NONE,
+		_type = builtin::VOID,
+	};
+
+	let sample = _type {
+		flags = flags::NONE,
+		_type = [
+			&_int,
+			&_uint,
+			&_void,
+		]: tagged,
+	};
+	assert(hash(&sample) == 3951208153);
 };

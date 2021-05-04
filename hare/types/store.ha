@@ -236,6 +236,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			};
 			tu;
 		},
+		ta: ast::tagged_type => abort(), // TODO
 		* => abort(), // TODO
 	};
 	return _type {
