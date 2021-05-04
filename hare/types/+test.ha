@@ -42,6 +42,7 @@ fn parse_type(in: str) ast::_type = {
 	let atype = parse_type("struct { x: int, y: int }");
 	defer ast::type_free(atype);
 	let htype = lookup(st, &atype)!;
+	assert(htype.sz == 8);
 	let stype = htype._type as _struct;
 	assert(stype.kind == struct_union::STRUCT);
 	assert(len(stype.fields) == 2);

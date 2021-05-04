@@ -192,6 +192,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 		},
 		st: ast::struct_type => {
 			let st = struct_from_ast(store, st, false)?;
+			sz = 0;
 			for (let i = 0z; i < len(st.fields); i += 1) {
 				const field = st.fields[i];
 				if (field.offs + field._type.sz > sz) {
@@ -205,6 +206,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 		},
 		un: ast::union_type => {
 			let st = struct_from_ast(store, un, true)?;
+			sz = 0;
 			for (let i = 0z; i < len(st.fields); i += 1) {
 				const field = st.fields[i];
 				if (field.offs + field._type.sz > sz) {
