@@ -237,6 +237,7 @@ fn _struct_from_ast(
 	fields: *[]struct_field,
 	offs: *size,
 ) (void | deferred | error) = {
+	let nfields = len(*fields);
 	for (let i = 0z; i < len(membs); i += 1) {
 		*offs = match (membs[i]._offset) {
 			ex: *ast::expr => match (store.resolve) {
@@ -281,6 +282,16 @@ fn _struct_from_ast(
 		if (!is_union) {
 			*offs += _type.sz;
 		};
+	};
+
+	if (is_union) {
+		let max = 0z;
+		for (let i = nfields; i < len(*fields); i += 1) {
+			if (fields[i].offs + fields[i]._type.sz > max) {
+				max = fields[i].offs + fields[i]._type.sz;
+			};
+		};
+		*offs = max;
 	};
 };
 

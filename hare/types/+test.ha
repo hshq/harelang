@@ -114,20 +114,23 @@ fn parse_type(in: str) ast::_type = {
 			z: int,
 			q: int,
 		},
+		p: int,
 	}");
 	defer ast::type_free(atype);
 	let htype = lookup(st, &atype)!;
-	assert(htype.sz == 16);
+	assert(htype.sz == 20);
 	assert(htype.align == 4);
 	let stype = htype._type as _struct;
-	assert(stype.fields[0].name == "q");
-	assert(stype.fields[0].offs == 12);
-	assert(stype.fields[1].name == "x");
-	assert(stype.fields[1].offs == 0);
-	assert(stype.fields[2].name == "y");
-	assert(stype.fields[2].offs == 4);
-	assert(stype.fields[3].name == "z");
-	assert(stype.fields[3].offs == 8);
+	assert(stype.fields[0].name == "p");
+	assert(stype.fields[0].offs == 16);
+	assert(stype.fields[1].name == "q");
+	assert(stype.fields[1].offs == 12);
+	assert(stype.fields[2].name == "x");
+	assert(stype.fields[2].offs == 0);
+	assert(stype.fields[3].name == "y");
+	assert(stype.fields[3].offs == 4);
+	assert(stype.fields[4].name == "z");
+	assert(stype.fields[4].offs == 8);
 
 	// Embedded union
 	let atype = parse_type("struct {
@@ -137,20 +140,23 @@ fn parse_type(in: str) ast::_type = {
 			z: int,
 			q: int,
 		},
+		p: int,
 	}");
 	defer ast::type_free(atype);
 	let htype = lookup(st, &atype)!;
-	assert(htype.sz == 12);
+	assert(htype.sz == 16);
 	assert(htype.align == 4);
 	let stype = htype._type as _struct;
-	assert(stype.fields[0].name == "q");
-	assert(stype.fields[0].offs == 8);
-	assert(stype.fields[1].name == "x");
-	assert(stype.fields[1].offs == 0);
-	assert(stype.fields[2].name == "y");
-	assert(stype.fields[2].offs == 4);
-	assert(stype.fields[3].name == "z");
-	assert(stype.fields[3].offs == 8);
+	assert(stype.fields[0].name == "p");
+	assert(stype.fields[0].offs == 12);
+	assert(stype.fields[1].name == "q");
+	assert(stype.fields[1].offs == 8);
+	assert(stype.fields[2].name == "x");
+	assert(stype.fields[2].offs == 0);
+	assert(stype.fields[3].name == "y");
+	assert(stype.fields[3].offs == 4);
+	assert(stype.fields[4].name == "z");
+	assert(stype.fields[4].offs == 8);
 
 	// Embedded (struct) alias
 	// TODO
