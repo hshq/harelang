@@ -1,5 +1,7 @@
+use ascii;
 use errors;
 use hare::ast;
+use sort;
 
 export def BUCKETS: size = 65535;
 
@@ -290,12 +292,17 @@ fn struct_from_ast(
 	let fields: []struct_field = [];
 	let offs = 0z;
 	_struct_from_ast(store, membs, is_union, &fields, &offs)?;
-	// TODO: Sort fields
+	sort::sort(fields, size(struct_field), &field_cmp);
 	return _struct {
 		kind = if (is_union) struct_union::UNION else struct_union::STRUCT,
 		fields = fields,
 		c_compat = false, // TODO: Determine C compat properly
 	};
+};
+
+fn field_cmp(a: const *void, b: const *void) int = {
+	let a = a: const *struct_field, b = b: *const struct_field;
+	return ascii::strcmp(a.name, b.name) as int;
 };
 
 fn type_finish(t: *_type) void = {

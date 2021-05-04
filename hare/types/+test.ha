@@ -94,7 +94,14 @@ fn parse_type(in: str) ast::_type = {
 	assert(z.offs == 16);
 
 	// Sort order
-	// TODO
+	let atype = parse_type("struct { z: u8, y: u8, x: u8, q: u8 }");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	let stype = htype._type as _struct;
+	assert(stype.fields[0].name == "q");
+	assert(stype.fields[1].name == "x");
+	assert(stype.fields[2].name == "y");
+	assert(stype.fields[3].name == "z");
 
 	// Embedded struct
 	// TODO
