@@ -33,3 +33,53 @@ fn parse_type(in: str) ast::_type = {
 	let htype = htype._type as pointer;
 	assert(htype.referent._type as builtin == builtin::INT);
 };
+
+@test fn structs() void = {
+	let st = store(x86_64, null, null);
+	defer store_free(st);
+
+	// Basic struct
+	let atype = parse_type("struct { x: int, y: int }");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	let stype = htype._type as _struct;
+	assert(stype.kind == struct_union::STRUCT);
+	assert(len(stype.fields) == 2);
+
+	let x = stype.fields[0];
+	assert(x.name == "x");
+	assert(x.offs == 0);
+	assert(x._type._type as builtin == builtin::INT);
+
+	let y = stype.fields[1];
+	assert(y.name == "y");
+	assert(y.offs == 4);
+	assert(y._type._type as builtin == builtin::INT);
+
+	// Basic union
+	// TODO
+
+	// Alignment
+	// TODO
+
+	// Sort order
+	// TODO
+
+	// Embedded struct
+	// TODO
+
+	// Embedded union
+	// TODO
+
+	// Embedded (struct) alias
+	// TODO
+
+	// Embedded (union) alias
+	// TODO
+
+	// Explicit offsets
+	// TODO
+
+	// C compatibility testing
+	// TODO
+};

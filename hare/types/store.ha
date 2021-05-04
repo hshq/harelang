@@ -190,6 +190,32 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 				flags = p.flags: pointer_flags,
 			};
 		},
+		st: ast::struct_type => {
+			let st = struct_from_ast(store, st, false)?;
+			for (let i = 0z; i < len(st.fields); i += 1) {
+				const field = st.fields[i];
+				if (field.offs + field._type.sz > sz) {
+					sz = field.offs + field._type.sz;
+				};
+				if (field._type.align > align) {
+					align = field._type.align;
+				};
+			};
+			st;
+		},
+		un: ast::union_type => {
+			let st = struct_from_ast(store, un, true)?;
+			for (let i = 0z; i < len(st.fields); i += 1) {
+				const field = st.fields[i];
+				if (field.offs + field._type.sz > sz) {
+					sz = field.offs + field._type.sz;
+				};
+				if (field._type.align > align) {
+					align = field._type.align;
+				};
+			};
+			st;
+		},
 		* => abort(), // TODO
 	};
 	return _type {
@@ -197,6 +223,75 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 		_type = underlying,
 		sz = sz,
 		align = align,
+	};
+};
+
+fn _struct_from_ast(
+	store: *typestore,
+	membs: []ast::struct_member,
+	is_union: bool,
+	fields: *[]struct_field,
+	offs: *size,
+) (void | deferred | error) = {
+	for (let i = 0z; i < len(membs); i += 1) {
+		*offs = match (membs[i]._offset) {
+			ex: *ast::expr => match (store.resolve) {
+				null => return noresolver,
+				// TODO: Why can't I propagate this?
+				res: *resolver => match (res(store.rstate, store, ex)) {
+					z: size => z,
+					deferred => return deferred,
+					err: errors::opaque => return err,
+				},
+			},
+			null => *offs,
+		};
+
+		let memb = match (membs[i].member) {
+			se: ast::struct_embedded => {
+				let membs: []ast::struct_member = match (se._type) {
+					st: ast::struct_type => st,
+					ut: ast::union_type => ut,
+					* => abort(), // Invariant
+				};
+				_struct_from_ast(store, membs,
+					se._type is ast::union_type,
+					fields, offs)?;
+				continue;
+			},
+			se: ast::struct_alias => abort(), // TODO
+			sf: ast::struct_field => sf,
+		};
+
+		assert(!is_union); // TODO
+		let _type = lookup(store, memb._type)?;
+		if (*offs % _type.align != 0) {
+			*offs += _type.align - (*offs % _type.align);
+		};
+
+		append(*fields, struct_field {
+			name = memb.name,
+			offs = *offs,
+			_type = _type,
+		});
+
+		*offs += _type.sz;
+	};
+};
+
+fn struct_from_ast(
+	store: *typestore,
+	membs: []ast::struct_member,
+	is_union: bool,
+) (_struct | deferred | error) = {
+	let fields: []struct_field = [];
+	let offs = 0z;
+	_struct_from_ast(store, membs, is_union, &fields, &offs)?;
+	// TODO: Sort fields
+	return _struct {
+		kind = if (is_union) struct_union::UNION else struct_union::STRUCT,
+		fields = fields,
+		c_compat = false, // TODO: Determine C compat properly
 	};
 };
 
