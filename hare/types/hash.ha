@@ -55,6 +55,12 @@ fn write32(h: *hash::hash, u: u32) void = {
 	hash::write(h, buf);
 };
 
+fn write64(h: *hash::hash, u: u64) void = {
+	static let buf: [size(u64)]u8 = [0...];
+	endian::leputu64(buf, u);
+	hash::write(h, buf);
+};
+
 // Returns the hash of a type. These hashes are deterministic and universally
 // unique: different computers will generate the same hash for the same type.
 export fn hash(t: *_type) u32 = {
@@ -72,9 +78,8 @@ export fn hash(t: *_type) u32 = {
 		},
 		a: array => {
 			write32(id, hash(a.member));
-			// TODO: This would cause [U32_MAX]int and
-			// [U32_MAX+1]int to have the same hash:
-			write32(id, a.length: u32);
+			static assert(size(u64) == size(size)); // TODO
+			write64(id, a.length);
 		},
 		builtin => void,
 		p: pointer => {
@@ -85,8 +90,8 @@ export fn hash(t: *_type) u32 = {
 			const field = st.fields[i];
 			hash::write(id, strings::toutf8(field.name));
 			write32(id, hash(field._type));
-			// XXX: This is also wrong for offsets >U32_MAX
-			write32(id, field.offs: u32);
+			static assert(size(u64) == size(size)); // TODO
+			write64(id, field.offs);
 		},
 		tu: tuple => for (let i = 0z; i < len(tu); i += 1) {
 			write32(id, hash(tu[i]._type));
@@ -167,7 +172,7 @@ export fn hash(t: *_type) u32 = {
 			],
 		},
 	};
-	assert(hash(&sample) == 1072721578);
+	assert(hash(&sample) == 3615159786);
 
 	let sample = _type {
 		flags = flags::NONE,
@@ -195,7 +200,7 @@ export fn hash(t: *_type) u32 = {
 			member = &_int,
 		},
 	};
-	assert(hash(&sample) == 1353959835);
+	assert(hash(&sample) == 2972813387);
 
 	let _uint = _type {
 		flags = flags::NONE,
