@@ -21,6 +21,32 @@ export type builtin = enum u8 {
 	U16, U32, U64, U8, UINT, UINTPTR, VOID,
 };
 
+// An enum type, e.g. enum { FOO = 0 }
+export type _enum = struct {
+	storage: builtin,
+	values: [](str, u64),
+};
+
+// Indicates the variadism of a [[func]]
+export type variadism = enum {
+	NONE,
+	C,
+	HARE,
+};
+
+// Indicats if a [[func]] has the @noreturn attribute
+export type func_flags = enum uint {
+	NORETURN = 1 << 0,
+};
+
+// A function type, e.g. fn(x: int, y: int) int
+export type func = struct {
+	result: const *_type,
+	variadism: variadism,
+	flags: func_flags,
+	params: []const *_type,
+};
+
 // Flags which apply to a pointer type.
 export type pointer_flags = enum u8 {
 	NONE = 0,
@@ -33,6 +59,9 @@ export type pointer = struct {
 	referent: const *_type,
 	flags: pointer_flags,
 };
+
+// []int
+export type slice = const *_type;
 
 // Indicates if a [[_struct]] was declared as a struct or union type.
 export type struct_union = enum {
@@ -84,7 +113,8 @@ export def SIZE_UNDEFINED: size = -1: size;
 // A Hare type.
 export type _type = struct {
 	flags: flags,
-	_type: (alias | array | builtin | pointer | _struct | tagged | tuple),
+	_type: (alias | array | builtin | _enum | func | pointer | slice |
+		_struct | tagged | tuple),
 	id: u32,
 	sz: size,
 	align: size,

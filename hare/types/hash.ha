@@ -10,32 +10,37 @@ type storage = enum u8 {
 	FUNCTION, POINTER, SLICE, STRING, STRUCT, TAGGED, TUPLE, UNION,
 };
 
+fn builtin_storage(b: builtin) u8 = switch (b) {
+	builtin::BOOL => storage::BOOL,
+	builtin::CHAR => storage::CHAR,
+	builtin::F32 => storage::F32,
+	builtin::F64 => storage::F64,
+	builtin::I16 => storage::I16,
+	builtin::I32 => storage::I32,
+	builtin::I64 => storage::I64,
+	builtin::I8 => storage::I8,
+	builtin::INT => storage::INT,
+	builtin::NULL => storage::NULL,
+	builtin::RUNE => storage::RUNE,
+	builtin::SIZE => storage::SIZE,
+	builtin::STR => storage::STRING,
+	builtin::U16 => storage::U16,
+	builtin::U32 => storage::U32,
+	builtin::U64 => storage::U64,
+	builtin::U8 => storage::U8,
+	builtin::UINT => storage::UINT,
+	builtin::UINTPTR => storage::UINTPTR,
+	builtin::VOID => storage::VOID,
+};
+
 fn type_storage(t: *_type) u8 = match (t._type) {
 	alias => storage::ALIAS,
 	array => storage::ARRAY,
-	t: builtin => switch (t) {
-		builtin::BOOL => storage::BOOL,
-		builtin::CHAR => storage::CHAR,
-		builtin::F32 => storage::F32,
-		builtin::F64 => storage::F64,
-		builtin::I16 => storage::I16,
-		builtin::I32 => storage::I32,
-		builtin::I64 => storage::I64,
-		builtin::I8 => storage::I8,
-		builtin::INT => storage::INT,
-		builtin::NULL => storage::NULL,
-		builtin::RUNE => storage::RUNE,
-		builtin::SIZE => storage::SIZE,
-		builtin::STR => storage::STRING,
-		builtin::U16 => storage::U16,
-		builtin::U32 => storage::U32,
-		builtin::U64 => storage::U64,
-		builtin::U8 => storage::U8,
-		builtin::UINT => storage::UINT,
-		builtin::UINTPTR => storage::UINTPTR,
-		builtin::VOID => storage::VOID,
-	},
+	b: builtin => builtin_storage(b),
+	_enum => storage::ENUM,
+	func => storage::FUNCTION,
 	pointer => storage::POINTER,
+	slice => storage::SLICE,
 	st: _struct =>
 		if (st.kind == struct_union::STRUCT)
 			storage::STRUCT
@@ -82,10 +87,26 @@ export fn hash(t: *_type) u32 = {
 			write64(id, a.length);
 		},
 		builtin => void,
+		e: _enum => {
+			write8(id, builtin_storage(e.storage));
+			for (let i = 0z; i < len(e.values); i += 1) {
+				hash::write(id, strings::toutf8(e.values[i].0));
+				write64(id, e.values[i].1);
+			};
+		},
+		f: func => {
+			write32(id, hash(f.result));
+			write8(id, f.variadism: u8);
+			write8(id, f.flags: u8);
+			for (let i = 0z; i < len(f.params); i += 1) {
+				write32(id, hash(f.params[i]));
+			};
+		},
 		p: pointer => {
 			write8(id, p.flags);
 			write32(id, hash(p.referent));
 		},
+		s: slice => write32(id, hash(s)),
 		st: _struct => for (let i = 0z; i < len(st.fields); i += 1) {
 			const field = st.fields[i];
 			hash::write(id, strings::toutf8(field.name));
@@ -220,4 +241,34 @@ export fn hash(t: *_type) u32 = {
 		]: tagged,
 	};
 	assert(hash(&sample) == 3951208153);
+
+	let sample = _type {
+		flags = flags::NONE,
+		_type = _enum {
+			storage = builtin::INT,
+			values = [
+				("FOO", 0),
+				("BAR", 42),
+				("BAZ", 69),
+			],
+		},
+	};
+	assert(hash(&sample) == 1838699449);
+
+	let sample = _type {
+		flags = flags::NONE,
+		_type = func {
+			result = &_void,
+			variadism = variadism::C,
+			flags = func_flags::NORETURN,
+			params = [&_uint, &_int],
+		},
+	};
+	assert(hash(&sample) == 1706980510);
+
+	let sample = _type {
+		flags = flags::NONE,
+		_type = &_void: slice,
+	};
+	assert(hash(&sample) == 3143795781);
 };
