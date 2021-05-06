@@ -56,7 +56,11 @@ export fn integertos(n: types::integer) const str = integertosb(n, base::DEC);
 // is statically allocated and will be overwritten on subsequent calls; see
 // [[strings::dup]] to duplicate the result.
 export fn floatingtosb(n: types::floating, b: base) const str = {
-	abort(); // TODO
+	assert(b == base::DEC);
+	return match (n) {
+		f: f32 => abort(), // TODO
+		f: f64 => f64tos(f),
+	};
 };
 
 // Converts any [[types::floating]] to a string in base 10. The return value is
