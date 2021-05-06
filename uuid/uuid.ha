@@ -97,6 +97,14 @@ export fn encodeuri(in: uuid) str = {
 	return strio::string(sink);
 };
 
+@test fn encode() void = {
+	let in: uuid = [
+		0x3d, 0xed, 0x91, 0x0c, 0x80, 0x80, 0x4b, 0xc8,
+		0xaf, 0x39, 0xb6, 0xcc, 0xce, 0xe3, 0x67, 0x41,
+	];
+	assert(encodestr(in) == "3ded910c-8080-4bc8-af39-b6cccee36741");
+};
+
 // Decodes a UUID as a string from an [[io::stream]].
 export fn decode(in: *io::stream) (uuid | invalid | io::error) = {
 	let u: uuid = [0...];
@@ -138,4 +146,17 @@ export fn decodestr(in: str) (uuid | invalid) = {
 		invalid => invalid,
 		u: uuid => u,
 	};
+};
+
+@test fn decode() void = {
+	let in = "3ded910c-8080-4bc8-af39-b6cccee36741";
+	let id = match (decodestr(in)) {
+		invalid => abort(),
+		u: uuid => u,
+	};
+	assert(compare(id, [
+		0x3d, 0xed, 0x91, 0x0c, 0x80, 0x80, 0x4b, 0xc8,
+		0xaf, 0x39, 0xb6, 0xcc, 0xce, 0xe3, 0x67, 0x41,
+	]));
+	assert(decodestr("hello world") is invalid);
 };

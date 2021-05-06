@@ -724,15 +724,8 @@ unix_tty() {
 }
 
 uuid() {
-	if [ $testing -eq 0 ]
-	then
-		gen_srcs uuid \
-			uuid.ha
-	else
-		gen_srcs uuid \
-			uuid.ha \
-			+test.ha
-	fi
+	gen_srcs uuid \
+		uuid.ha
 	gen_ssa uuid crypto::random strio fmt endian io bytes bufio strings strconv
 }
 

@@ -1926,8 +1926,7 @@ $(TESTCACHE)/unix/tty/unix_tty.ssa: $(testlib_unix_tty_srcs) $(testlib_rt) $(tes
 
 # uuid
 testlib_uuid_srcs= \
-	$(STDLIB)/uuid/uuid.ha \
-	$(STDLIB)/uuid/+test.ha
+	$(STDLIB)/uuid/uuid.ha
 
 $(TESTCACHE)/uuid/uuid.ssa: $(testlib_uuid_srcs) $(testlib_rt) $(testlib_crypto_random) $(testlib_strio) $(testlib_fmt) $(testlib_endian) $(testlib_io) $(testlib_bytes) $(testlib_bufio) $(testlib_strings) $(testlib_strconv)
 	@printf 'HAREC \t$@\n'
