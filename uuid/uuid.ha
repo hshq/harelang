@@ -134,8 +134,8 @@ export fn decodestr(in: str) (uuid | invalid) = {
 	let buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
 	defer io::close(buf);
 	return match (decode(buf)) {
-		u: uuid => u,
-		invalid => invalid,
 		err: io::error => abort(),
+		invalid => invalid,
+		u: uuid => u,
 	};
 };
