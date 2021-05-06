@@ -186,6 +186,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			ast::builtin_type::ICONST,
 			ast::builtin_type::FCONST => abort(), // TODO?
 		},
+		f: ast::func_type => func_from_ast(store, &f)?,
 		p: ast::pointer_type => {
 			sz = store.arch._pointer;
 			align = store.arch._pointer;
@@ -243,7 +244,6 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			r.2;
 		},
 		ta: ast::tagged_type => abort(), // TODO
-		func: ast::func_type => abort(), // TODO
 		et: ast::enum_type => abort(), // TODO
 	};
 	return _type {
@@ -252,6 +252,29 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 		sz = sz,
 		align = align,
 	};
+};
+
+fn func_from_ast(
+	store: *typestore,
+	ft: *ast::func_type,
+) (func | deferred | error) = {
+	let f = func {
+		result = lookup(store, ft.result)?,
+		variadism = switch (ft.variadism) {
+			ast::variadism::NONE => variadism::NONE,
+			ast::variadism::C => variadism::C,
+			ast::variadism::HARE => variadism::HARE,
+		},
+		flags = 0,
+		params = alloc([], len(ft.params)),
+	};
+	if (ft.attrs & ast::func_attrs::NORETURN != 0) {
+		f.flags |= func_flags::NORETURN;
+	};
+	for (let i = 0z; i < len(ft.params); i += 1) {
+		append(f.params, lookup(store, ft.params[i]._type)?);
+	};
+	return f;
 };
 
 fn list_from_ast(

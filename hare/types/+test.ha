@@ -271,3 +271,32 @@ fn resolve(
 	assert(array.member._type as builtin == builtin::I32);
 	assert(array.length == SIZE_UNDEFINED);
 };
+
+@test fn funcs() void = {
+	let st = store(x86_64, &resolve, null);
+	defer store_free(st);
+
+	let atype = parse_type("@noreturn fn() void");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == SIZE_UNDEFINED);
+	assert(htype.align == SIZE_UNDEFINED);
+	let f = htype._type as func;
+	assert(f.result._type as builtin == builtin::VOID);
+	assert(f.variadism  == variadism::NONE);
+	assert(f.flags == func_flags::NORETURN);
+	assert(len(f.params) == 0);
+
+	let atype = parse_type("fn(foo: int, bar: str...) int");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == SIZE_UNDEFINED);
+	assert(htype.align == SIZE_UNDEFINED);
+	let f = htype._type as func;
+	assert(f.result._type as builtin == builtin::INT);
+	assert(f.variadism  == variadism::HARE);
+	assert(f.flags == 0);
+	assert(len(f.params) == 2);
+	assert(f.params[0]._type as builtin == builtin::INT);
+	assert(f.params[1]._type as builtin == builtin::STR);
+};
