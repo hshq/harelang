@@ -124,8 +124,8 @@ fn free_large(_p: *void, s: size) void = {
 fn free_small(p: *void, s: size) void = {
 	let b = size2bin(s);
 	let q = bins[b];
-	*(p: **void) = q;
-	bins[b] = p: nullable *void;
+	*(p: *nullable *void) = q;
+	bins[b] = p;
 };
 
 // Changes the allocation size of a pointer to n bytes. If n is smaller than

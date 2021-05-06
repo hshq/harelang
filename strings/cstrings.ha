@@ -45,7 +45,10 @@ export fn to_c(s: const str) *char = {
 		null => abort("Out of memory"),
 		p: *[*]u8 => p,
 	};
-	rt::memcpy(ptr, (&s: *types::string).data, len(s));
+	match ((&s: *types::string).data) {
+		null => void,
+		data: *[*]u8 => rt::memcpy(ptr, data, len(s)),
+	};
 	ptr[len(s)] = 0;
 	return ptr: *char;
 };

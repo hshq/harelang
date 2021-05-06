@@ -13,8 +13,10 @@ export fn to_native(addr: addr) (rt::sockaddr | invalid) = {
 			...
 		}
 	};
-	rt::memcpy(&ret.un.sun_path,
-		(&addr: *types::string).data, len(addr));
+	match ((&addr: *types::string).data) {
+		null => void,
+		data: *[*]u8 => rt::memcpy(&ret.un.sun_path, data, len(addr)),
+	};
 	ret.un.sun_path[len(addr)] = 0;
 	return ret;
 };
