@@ -11,7 +11,7 @@ export type resolver = fn(
 	rstate: *void,
 	store: *typestore,
 	expr: const *ast::expr,
-) (size | deferred | errors::opaque);
+) (size | deferred | error);
 
 export type typestore = struct {
 	// This hash map provides the canonical address for all types owned by
@@ -287,12 +287,7 @@ fn list_from_ast(
 				null => return noresolver,
 				r: *resolver => r,
 			};
-			const length = match (resolv(store.rstate, store, ex)) {
-				sz: size => sz,
-				// TODO: Why can't I propagate this?
-				deferred => return deferred,
-				err: errors::opaque => return err,
-			};
+			const length = resolv(store.rstate, store, ex)?;
 			sz = memb.sz * length;
 			assert(sz / length == memb.sz, "overflow");
 			align = memb.align;
@@ -317,12 +312,7 @@ fn _struct_from_ast(
 		*offs = match (membs[i]._offset) {
 			ex: *ast::expr => match (store.resolve) {
 				null => return noresolver,
-				// TODO: Why can't I propagate this?
-				res: *resolver => match (res(store.rstate, store, ex)) {
-					z: size => z,
-					deferred => return deferred,
-					err: errors::opaque => return err,
-				},
+				res: *resolver => res(store.rstate, store, ex)?,
 			},
 			null => *offs,
 		};

@@ -39,7 +39,7 @@ fn resolve(
 	rstate: *void,
 	store: *typestore,
 	expr: const *ast::expr,
-) (size | deferred | errors::opaque) = {
+) (size | deferred | error) = {
 	let expr = expr.expr as ast::constant_expr;
 	let val = expr as lex::value;
 	let ival = val as i64;
