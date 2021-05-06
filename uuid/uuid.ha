@@ -11,8 +11,13 @@ use strio;
 // A UUID.
 export type uuid = [16]u8;
 
+// The length of a UUID in bytes.
 export def UUID_LEN: size = 16;
+
+// The length of a UUID in runes when encoded as a string.
 export def UUID_STRLEN: size = 36;
+
+// The length of the return value of [[uri]] in runes.
 export def UUID_URILEN: size = 45;
 
 // The "nil" UUID, with all bits set to zero.
