@@ -429,7 +429,8 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 		},
 		ltok::LIT_I8, ltok::LIT_I16, ltok::LIT_I32, ltok::LIT_I64,
 		ltok::LIT_INT => strconv::stoi64b(val, base),
-		ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST => abort(), // TODO
+		ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST =>
+			strconv::stof64(val),
 	};
 	let val = match (val) {
 		val: u64 => {
@@ -441,6 +442,12 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 		val: i64 => {
 			for (let i = 0z; i < exp; i += 1) {
 				val *= 10;
+			};
+			val;
+		},
+		val: f64 => {
+			for (let i = 0z; i < exp; i += 1) {
+				val *= 10.0;
 			};
 			val;
 		},
