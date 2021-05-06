@@ -236,8 +236,15 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			};
 			tu;
 		},
+		lt: ast::list_type => {
+			let r = list_from_ast(store, &lt)?;
+			sz = r.0;
+			align = r.1;
+			r.2;
+		},
 		ta: ast::tagged_type => abort(), // TODO
-		* => abort(), // TODO
+		func: ast::func_type => abort(), // TODO
+		et: ast::enum_type => abort(), // TODO
 	};
 	return _type {
 		flags = atype.flags: flags,
@@ -245,6 +252,57 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 		sz = sz,
 		align = align,
 	};
+};
+
+fn list_from_ast(
+	store: *typestore,
+	lt: *ast::list_type
+) ((size, size, (slice | array)) | deferred | error) = {
+	let sz = SIZE_UNDEFINED, align = SIZE_UNDEFINED;
+	let memb = lookup(store, lt.members)?;
+	let t = match (lt.length) {
+		ast::len_slice => {
+			sz = store.arch._pointer;
+			if (sz % store.arch._size != 0) {
+				sz += store.arch._size - (sz % store.arch._size);
+			};
+			sz += store.arch._size * 2;
+			align = if (store.arch._pointer > store.arch._size)
+					store.arch._pointer
+				else store.arch._size;
+			memb: slice;
+		},
+		// Note: contextual length is handled by hare::unit when
+		// initializing bindings. We treat it like unbounded here and
+		// it's fixed up later on.
+		(ast::len_unbounded | ast::len_contextual) => {
+			align = memb.align;
+			array {
+				length = SIZE_UNDEFINED,
+				member = memb,
+			};
+		},
+		ex: *ast::expr => {
+			const resolv = match (store.resolve) {
+				null => return noresolver,
+				r: *resolver => r,
+			};
+			const length = match (resolv(store.rstate, store, ex)) {
+				sz: size => sz,
+				// TODO: Why can't I propagate this?
+				deferred => return deferred,
+				err: errors::opaque => return err,
+			};
+			sz = memb.sz * length;
+			assert(sz / length == memb.sz, "overflow");
+			align = memb.align;
+			array {
+				length = length,
+				member = memb,
+			};
+		},
+	};
+	return (sz, align, t);
 };
 
 fn _struct_from_ast(

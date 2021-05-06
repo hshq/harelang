@@ -227,3 +227,47 @@ fn resolve(
 	assert(tup[2].offs == 8);
 	assert(tup[3].offs == 16);
 };
+
+@test fn lists() void = {
+	let st = store(x86_64, &resolve, null);
+	defer store_free(st);
+
+	// Slice
+	let atype = parse_type("[]int");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == 24);
+	assert(htype.align == 8);
+	let slice = htype._type as slice;
+	assert(slice._type as builtin == builtin::INT);
+
+	// Normal array
+	let atype = parse_type("[5]i32");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == 4 * 5);
+	assert(htype.align == 4);
+	let array = htype._type as array;
+	assert(array.member._type as builtin == builtin::I32);
+	assert(array.length == 5);
+
+	// Unbounded array
+	let atype = parse_type("[*]i32");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == SIZE_UNDEFINED);
+	assert(htype.align == 4);
+	let array = htype._type as array;
+	assert(array.member._type as builtin == builtin::I32);
+	assert(array.length == SIZE_UNDEFINED);
+
+	// Contextual array (equivalent to unbounded at this compilation stage)
+	let atype = parse_type("[_]i32");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == SIZE_UNDEFINED);
+	assert(htype.align == 4);
+	let array = htype._type as array;
+	assert(array.member._type as builtin == builtin::I32);
+	assert(array.length == SIZE_UNDEFINED);
+};
