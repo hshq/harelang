@@ -8,7 +8,7 @@ export def BUCKETS: size = 65535;
 // A function which evaluates an [[ast::expr]], providing either a size result
 // or an error.
 export type resolver = fn(
-	rstate: *void,
+	rstate: nullable *void,
 	store: *typestore,
 	expr: const *ast::expr,
 ) (size | deferred | error);
