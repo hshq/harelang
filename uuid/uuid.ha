@@ -1,10 +1,12 @@
+use bufio;
 use bytes;
 use crypto::random;
 use endian;
 use fmt;
 use io;
+use strconv;
+use strings;
 use strio;
-// TODO: decode, decodestr
 
 // A UUID.
 export type uuid = [16]u8;
@@ -15,6 +17,9 @@ export def UUID_URILEN: size = 45;
 
 // The "nil" UUID, with all bits set to zero.
 export const nil: uuid = [0...];
+
+// Returned from [[decode]] if an invalid UUID is observed.
+export type invalid = !void;
 
 // Octet offsets of various fields as defined by the RFC.
 def TIME_LOW: size = 0;
@@ -85,4 +90,47 @@ export fn encodeuri(in: uuid) str = {
 	defer io::close(sink);
 	uri(sink, in) as size;
 	return strio::string(sink);
+};
+
+// Decodes a UUID as a string from an [[io::stream]].
+export fn decode(in: *io::stream) (uuid | invalid | io::error) = {
+	let u: uuid = [0...];
+	for (let i = 0z; i < len(u); i += 1) {
+		let buf: [2]u8 = [0...];
+		match (io::read(in, buf)?) {
+			io::EOF => return invalid,
+			z: size => assert(z == len(buf)),
+		};
+		u[i] = match (strconv::stou8b(
+				strings::fromutf8_unsafe(buf),
+				strconv::base::HEX)) {
+			strconv::overflow => abort(),
+			strconv::invalid => return invalid,
+			u: u8 => u,
+		};
+		if (i + 1 == TIME_MID
+				|| i + 1 == TIME_HI_AND_VERSION
+				|| i + 1 == CLOCK_SEQ_HI_AND_RESERVED
+				|| i + 1 == NODE) {
+			match (io::read(in, buf[..1])?) {
+				io::EOF => return invalid,
+				z: size => assert(z == 1),
+			};
+			if (buf[0] != '-': u32: u8) {
+				return invalid;
+			};
+		};
+	};
+	return u;
+};
+
+// Decodes a UUID from a string.
+export fn decodestr(in: str) (uuid | invalid) = {
+	let buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
+	defer io::close(buf);
+	return match (decode(buf)) {
+		u: uuid => u,
+		invalid => invalid,
+		err: io::error => abort(),
+	};
 };
