@@ -467,6 +467,7 @@ fn lex_literal(lex: *lexer, loc: location) (token | error) = {
 			};
 			val;
 		},
+		val: f64 => val,
 		strconv::invalid => abort(), // Shouldn't be lexed in
 		strconv::overflow =>
 			return syntaxerr(loc, "overflow in exponent"),
