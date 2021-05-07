@@ -248,7 +248,7 @@ fn loc(line: uint, col: uint) location = location {
 	const in = "1e5 -1i32 9223372036854775809 1e2z 255u8 0o42u16\n"
 		"0b1000101u32 0xDEADBEEFu64 -0b10i8 -5e0i16 -0o16i32\n"
 		"0b00000010000001100000011100001111000000100000011000000111i64\n"
-		"13.37 13.37f32 13.37f64";
+		"13.37 13.37f32 13.37f64 6.022e23 1.616255e-35f64";
 	const expected: [_]token = [
 		(ltok::LIT_ICONST, 1e5i64, loc(1, 1)),
 		(ltok::LIT_I32, -1i64, loc(1, 5)),
@@ -265,6 +265,8 @@ fn loc(line: uint, col: uint) location = location {
 		(ltok::LIT_FCONST, 13.37, loc(4, 1)),
 		(ltok::LIT_F32, 13.37, loc(4, 7)),
 		(ltok::LIT_F64, 13.37, loc(4, 16)),
+		(ltok::LIT_FCONST, 6.022e23, loc(4, 25)),
+		(ltok::LIT_F64, 1.616255e-35, loc(4, 34)),
 	];
 	lextest(in, expected);
 };
