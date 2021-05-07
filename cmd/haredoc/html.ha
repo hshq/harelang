@@ -497,6 +497,14 @@ fn type_html(
 		z += fmt::fprint(out, "<span class='keyword'>const</span> ")?;
 	};
 
+	if (_type.flags & ast::type_flags::ERROR != 0) {
+		if (_type._type is ast::builtin_type) {
+			z += fmt::fprint(out, "<span class='type'>!</span>")?;
+		} else {
+			z += fmt::fprint(out, "!")?;
+		};
+	};
+
 	match (_type._type) {
 		t: ast::builtin_type => {
 			z += fmt::fprintf(out, "<span class='type'>{}</span>",
@@ -571,14 +579,6 @@ fn type_html(
 		},
 		t: ast::struct_type => z += struct_html(out, indent, t, brief)?,
 		* => z += html::escape(out, strio::string(buf))?,
-	};
-
-	if (_type.flags & ast::type_flags::ERROR != 0) {
-		if (_type._type is ast::builtin_type) {
-			z += fmt::fprint(out, "<span class='type'>!</span>")?;
-		} else {
-			z += fmt::fprint(out, "!")?;
-		};
 	};
 
 	z;
