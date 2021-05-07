@@ -1,4 +1,4 @@
-fn mkdev(major: u32, minor: u32) dev_t =
+export fn mkdev(major: u32, minor: u32) dev_t =
 	((major: u64 & 0xFFFFF000) << 32) |
 	((major: u64 & 0x00000FFF) << 8)  |
 	((minor: u64 & 0xFFFFFF00) << 12) |

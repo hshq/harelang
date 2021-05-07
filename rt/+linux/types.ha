@@ -48,6 +48,14 @@ export def AT_STATX_FORCE_SYNC: int	= 0x2000;
 export def AT_STATX_DONT_SYNC: int	= 0x4000;
 export def AT_RECURSIVE: int		= 0x8000;
 
+export def S_IFDIR: mode_t = 0o040000;
+export def S_IFCHR: mode_t = 0o020000;
+export def S_IFBLK: mode_t = 0o060000;
+export def S_IFREG: mode_t = 0o100000;
+export def S_IFIFO: mode_t = 0o010000;
+export def S_IFLNK: mode_t = 0o120000;
+export def S_IFSOCK: mode_t = 0o140000;
+
 // O_DIRECTORY is arch specific
 export def O_RDONLY: int	= 0o0;
 export def O_WRONLY: int	= 0o1;

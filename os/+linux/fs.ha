@@ -43,3 +43,42 @@ export fn chroot(target: str) (void | fs::error) = {
 		void => void,
 	};
 };
+
+// Makes a FIFO node. This function is only available on Unix systems.
+export fn mkfifo(path: str, mode: fs::mode) (void | fs::error) = {
+	return match (rt::mknodat(rt::AT_FDCWD, path,
+			mode: rt::mode_t | rt::S_IFIFO, 0)) {
+		err: rt::errno => errors::errno(err),
+		void => void,
+	};
+};
+
+// Makes a block device node. This function is only available on Unix systems.
+export fn mkblk(
+	path: str,
+	mode: fs::mode,
+	major: uint,
+	minor: uint,
+) (void | fs::error) = {
+	return match (rt::mknodat(rt::AT_FDCWD, path,
+			mode: rt::mode_t | rt::S_IFBLK,
+			rt::mkdev(major: u32, minor: u32))) {
+		err: rt::errno => errors::errno(err),
+		void => void,
+	};
+};
+
+// Makes a character device node. This function is only available on Unix systems.
+export fn mkchr(
+	path: str,
+	mode: fs::mode,
+	major: uint,
+	minor: uint,
+) (void | fs::error) = {
+	return match (rt::mknodat(rt::AT_FDCWD, path,
+			mode: rt::mode_t | rt::S_IFCHR,
+			rt::mkdev(major: u32, minor: u32))) {
+		err: rt::errno => errors::errno(err),
+		void => void,
+	};
+};

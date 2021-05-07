@@ -81,6 +81,18 @@ export fn unlinkat(dirfd: int, path: path, flags: int) (void | errno) = {
 	return;
 };
 
+export fn mknodat(
+	dirfd: int,
+	path: path,
+	mode: mode_t,
+	dev: dev_t,
+) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_return(syscall3(SYS_mknodat,
+		path: uintptr: u64, mode: u64, dev: u64))?;
+	return;
+};
+
 export fn chmod(path: path, mode: uint) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall3(SYS_fchmodat,
