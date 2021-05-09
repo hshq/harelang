@@ -231,6 +231,7 @@
 		foo: int => bar,
 		foo::bar => baz,
 		null => void,
+		*int => void,
 	};
 	match (x) {
 		s: matchdata => y,

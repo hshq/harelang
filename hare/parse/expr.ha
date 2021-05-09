@@ -983,28 +983,23 @@ fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	for (true) {
 		match (try(lexer, ltok::TIMES)?) {
 			void => append(cases, match_case(lexer)?),
-			t: lex::token => {
-				match (peek(lexer, ltok::NAME)?) {
-					t: lex::token => {
-						let case = match_case(lexer)?;
-						case._type = alloc(ast::_type {
-							loc = case._type.loc,
+			t: lex::token => match (try(lexer, ltok::CASE)?) {
+				void => {
+					let case = match_case(lexer)?;
+					case._type = alloc(ast::_type {
+						loc = case._type.loc,
+						flags = 0,
+						_type = ast::pointer_type {
+							referent = case._type,
 							flags = 0,
-							_type = ast::pointer_type {
-								referent = case._type,
-								flags = 0: ast::pointer_flags,
-							},
-						});
-						append(cases, case);
-					},
-					void => {
-						want(lexer, ltok::CASE)?;
-						if (default != null) {
-							return syntaxerr(t.2, "More than one default match case");
-						};
-						default = alloc(expression(lexer)?);
-					},
-				};
+						},
+					});
+					append(cases, case);
+				},
+				lex::token => if (default == null) {
+					default = alloc(expression(lexer)?);
+				} else return syntaxerr(t.2,
+					"More than one default match case"),
 			},
 		};
 
