@@ -351,7 +351,6 @@ fn have_ident(sl: *[]ast::ident, id: ast::ident) bool = {
 // set. The caller must free the return value with [[tags_free]].
 export fn parsetags(in: str) ([]tag | void) = {
 	let tags: []tag = [];
-	// defer! tags_free(tags);
 	let iter = strings::iter(in);
 	for (true) {
 		let t = tag { ... };
@@ -360,7 +359,10 @@ export fn parsetags(in: str) ([]tag | void) = {
 			r: rune => r,
 		};
 		t.mode = switch (m) {
-			*   => return,
+			* => {
+				tags_free(tags);
+				return;
+			},
 			'+' => tag_mode::INCLUSIVE,
 			'-' => tag_mode::EXCLUSIVE,
 		};
