@@ -241,11 +241,13 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 			fmt::printf("<a href='#{0}' class='ref'>{0}</a>", ident)?,
 		symkind::MODULE => {
 			let ipath = module::identpath(id);
+			defer free(ipath);
 			fmt::printf("<a href='/{}' class='ref'>{}</a>",
 				ipath, ident)?;
 		},
 		symkind::SYMBOL => {
 			let ipath = module::identpath(id[..len(id) - 1]);
+			defer free(ipath);
 			fmt::printf("<a href='/{}#{}' class='ref'>{}</a>",
 				ipath, id[len(id) - 1], ident)?;
 		},

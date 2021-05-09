@@ -279,6 +279,7 @@ fn scan_directory(
 // which includes all eligible build inputs.
 export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 	let ipath = identpath(name);
+	defer free(ipath);
 	for (let i = len(ctx.paths); i > 0; i -= 1) {
 		let cand = path::join(ctx.paths[i - 1], ipath);
 		defer free(cand);
