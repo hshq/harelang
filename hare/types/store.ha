@@ -143,7 +143,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 				builtin::SIZE;
 			},
 			ast::builtin_type::STR => {
-				sz += store.arch._pointer;
+				sz = store.arch._pointer;
 				sz += sz % store.arch._size + store.arch._size;
 				sz += store.arch._size;
 				align = if (store.arch._size > store.arch._pointer)
