@@ -70,13 +70,15 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	for (true) {
 		let line = match (bufio::scanline(file)?) {
 			io::EOF => break,
-			line: []u8 => match (strings::try_fromutf8(line)) {
-				// Treat an invalid manifest as empty
-				utf8::invalid => return manifest,
-				s: str => s,
-			},
+			line: []u8 => line,
 		};
 		defer free(line);
+
+		let line = match (strings::try_fromutf8(line)) {
+			// Treat an invalid manifest as empty
+			utf8::invalid => return manifest,
+			s: str => s,
+		};
 
 		if (strings::has_prefix(line, "#")) {
 			continue;
