@@ -300,3 +300,29 @@ fn resolve(
 	assert(f.params[0]._type as builtin == builtin::INT);
 	assert(f.params[1]._type as builtin == builtin::STR);
 };
+
+@test fn tagged() void = {
+	let st = store(x86_64, &resolve, null);
+	defer store_free(st);
+
+	let atype = parse_type("(int | int | void)");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == st.arch._int * 2);
+	assert(htype.align == st.arch._int);
+	let t = htype._type as tagged;
+	assert(len(t) == 2);
+	assert(t[0]._type as builtin == builtin::INT);
+	assert(t[1]._type as builtin == builtin::VOID);
+
+	let atype = parse_type("(int | (int | str | void))");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == 32);
+	assert(htype.align == 8);
+	let t = htype._type as tagged;
+	assert(len(t) == 3);
+	assert(t[0]._type as builtin == builtin::INT);
+	assert(t[1]._type as builtin == builtin::VOID);
+	assert(t[2]._type as builtin == builtin::STR);
+};

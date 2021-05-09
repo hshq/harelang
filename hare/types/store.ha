@@ -223,6 +223,23 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			};
 			st;
 		},
+		ta: ast::tagged_type => {
+			let ta = tagged_from_ast(store, ta)?;
+			sz = 0; align = 0;
+			for (let i = 0z; i < len(ta); i += 1) {
+				if (ta[i].sz > sz) {
+					sz = ta[i].sz;
+				};
+				if (ta[i].align > align) {
+					align = ta[i].align;
+				};
+			};
+			if (store.arch._int > align) {
+				align = store.arch._int;
+			};
+			sz += store.arch._int % align + store.arch._int;
+			ta;
+		},
 		tu: ast::tuple_type => {
 			let tu = tuple_from_ast(store, tu)?;
 			sz = 0; align = 0;
@@ -243,7 +260,6 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			align = r.1;
 			r.2;
 		},
-		ta: ast::tagged_type => abort(), // TODO
 		et: ast::enum_type => abort(), // TODO
 	};
 	return _type {
@@ -396,6 +412,41 @@ fn struct_from_ast(
 		kind = if (is_union) struct_union::UNION else struct_union::STRUCT,
 		fields = fields,
 	};
+};
+
+fn tagged_collect(
+	store: *typestore,
+	atype: ast::tagged_type,
+	types: *[]const *_type,
+) (void | deferred | error) = {
+	for (let i = 0z; i < len(atype); i += 1) match (atype[i]._type) {
+		ta: ast::tagged_type => tagged_collect(store, ta, types)?,
+		* => append(*types, lookup(store, atype[i])?),
+	};
+};
+
+fn tagged_cmp(a: const *void, b: const *void) int = {
+	const a = a: const **_type, b = b: const **_type;
+	return if (a.id < b.id) -1 else if (a.id == b.id) 0 else 1;
+};
+
+fn tagged_from_ast(
+	store: *typestore,
+	atype: ast::tagged_type,
+) (tagged | deferred | error) = {
+	let types: []const *_type = [];
+	//defer! free(types);
+	tagged_collect(store, atype, &types)?;
+	sort::sort(types, size(const *_type), &tagged_cmp);
+	for (let i = 1z; i < len(types); i += 1) {
+		if (types[i].id == types[i - 1].id) {
+			delete(types[i]);
+			i -= 1;
+		};
+	};
+	// TODO: Handle this gracefully
+	assert(len(types) > 1);
+	return types;
 };
 
 fn tuple_from_ast(

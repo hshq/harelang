@@ -87,7 +87,7 @@ export type struct_field = struct {
 };
 
 // A tagged union type, e.g. (int | uint | void).
-export type tagged = []*_type;
+export type tagged = []const *_type;
 
 // A tuple type, e.g. (a, b, c)
 export type tuple = []tuple_value;
