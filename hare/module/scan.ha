@@ -20,7 +20,7 @@ use fmt;
 export fn scan(ctx: *context, path: str) (version | error) = {
 	// TODO: Incorporate defines into the hash
 	let sha = sha256::sha256();
-	//defer! hash::close(sha);
+	defer hash::close(sha);
 	let iter = match (fs::iter(ctx.fs, path)) {
 		fs::wrongtype => {
 			// Single file case
@@ -42,7 +42,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 
 			let sumbuf: [sha256::SIZE]u8 = [0...];
 			hash::write(sha, in.hash);
-			hash::finish(sha, sumbuf);
+			hash::sum(sha, sumbuf);
 
 			return version {
 				hash = sumbuf,
@@ -61,7 +61,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 	scan_directory(ctx, &ver, sha, path, iter)?;
 
 	let tmp: [sha256::SIZE]u8 = [0...];
-	hash::finish(sha, tmp);
+	hash::sum(sha, tmp);
 	ver.hash = alloc([], sha.sz);
 	append(ver.hash, tmp...);
 
@@ -307,7 +307,7 @@ fn scan_file(
 	let f = fs::open(ctx.fs, path)?;
 	defer io::close(f);
 	let sha = sha256::sha256();
-	//defer! hash::close(sha);
+	defer hash::close(sha);
 
 	hash::write(sha, strings::toutf8(path));
 
@@ -330,7 +330,7 @@ fn scan_file(
 	io::copy(io::empty, tee)?; // Finish spooling out the file for the SHA
 
 	let tmp: [sha256::SIZE]u8 = [0...];
-	hash::finish(sha, tmp);
+	hash::sum(sha, tmp);
 
 	let checksum: []u8 = alloc([], sha.sz);
 	append(checksum, tmp...);
