@@ -95,29 +95,29 @@ export fn mknodat(
 
 export fn chmod(path: path, mode: uint) (void | errno) = {
 	let path = kpath(path)?;
-	wrap_return(syscall3(SYS_fchmodat,
-		AT_FDCWD: u64, path: uintptr: u64, mode: u64))?;
+	wrap_return(syscall4(SYS_fchmodat,
+		AT_FDCWD: u64, path: uintptr: u64, mode: u64, 0))?;
 	return;
 };
 
-export fn fchmodat(dirfd: int, path: path, mode: uint) (void | errno) = {
+export fn fchmodat(dirfd: int, path: path, mode: uint, flags: int) (void | errno) = {
 	let path = kpath(path)?;
-	wrap_return(syscall3(SYS_fchmodat,
-		dirfd: u64, path: uintptr: u64, mode: u64))?;
+	wrap_return(syscall4(SYS_fchmodat,
+		dirfd: u64, path: uintptr: u64, mode: u64, flags: u64))?;
 	return;
 };
 
 export fn chown(path: path, uid: uint, gid: uint) (void | errno) = {
 	let path = kpath(path)?;
-	wrap_return(syscall4(SYS_fchownat,
-		AT_FDCWD: u64, path: uintptr: u64, uid: u32, gid: u32))?;
+	wrap_return(syscall5(SYS_fchownat,
+		AT_FDCWD: u64, path: uintptr: u64, uid: u32, gid: u32, 0))?;
 	return;
 };
 
-export fn fchownat(dirfd: int, path: path, uid: uint, gid: uint) (void | errno) = {
+export fn fchownat(dirfd: int, path: path, uid: uint, gid: uint, flags: int) (void | errno) = {
 	let path = kpath(path)?;
-	wrap_return(syscall4(SYS_fchownat,
-		dirfd: u64, path: uintptr: u64, uid: u32, gid: u32))?;
+	wrap_return(syscall5(SYS_fchownat,
+		dirfd: u64, path: uintptr: u64, uid: u32, gid: u32, flags: u64))?;
 	return;
 };
 

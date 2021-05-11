@@ -282,7 +282,7 @@ fn fs_mkdir(fs: *fs::fs, path: str) (void | fs::error) = {
 
 fn fs_chmod(fs: *fs::fs, path: str, mode: fs::mode) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
-	return match (rt::fchmodat(fs.dirfd, path, mode: uint)) {
+	return match (rt::fchmodat(fs.dirfd, path, mode: uint, 0)) {
 		err: rt::errno => return errno_to_fs(err),
 		void => void,
 	};
@@ -290,7 +290,7 @@ fn fs_chmod(fs: *fs::fs, path: str, mode: fs::mode) (void | fs::error) = {
 
 fn fs_chown(fs: *fs::fs, path: str, uid: uint, gid: uint) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
-	return match (rt::fchownat(fs.dirfd, path, uid, gid)) {
+	return match (rt::fchownat(fs.dirfd, path, uid, gid, 0)) {
 		err: rt::errno => return errno_to_fs(err),
 		void => void,
 	};
