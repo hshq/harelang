@@ -21,8 +21,7 @@ fn setfcntl(sockfd: int, flag: int) (void | rt::errno) = {
 fn wrap(ie: (int | rt::errno)) (int | io::error) = {
 	match (ie) {
 		i: int => i,
-		// XXX: Why do we have to cast this?
-		er: rt::errno => errors::errno(er): io::error,
+		err: rt::errno => errors::errno(err),
 	};
 };
 

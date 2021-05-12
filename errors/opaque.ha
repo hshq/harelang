@@ -6,14 +6,14 @@
 // The following example shows the usage of this type for custom errors:
 //
 // 	fn wraperror(err: myerror) error::opaque = {
-// 		static assert(size(myerror) <= size(error::opaque_data));
+// 		static assert(size(myerror) <= size(errors::opaque_data));
 // 		let wrapped = errors::opaque { strerror = &opaque_strerror, ... };
 // 		let myptr = &wrapped.data: *myerror;
 // 		*myptr = err;
 // 		return wrapped;
 // 	};
 //
-// 	fn opaque_strerror(err: *opaque_data) const str = {
+// 	fn opaque_strerror(err: *errors::opaque_data) const str = {
 // 		let ptr = &err: *myerr;
 // 		return strerror(*ptr);
 // 	};

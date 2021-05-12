@@ -11,6 +11,6 @@ export fn errno(errno: rt::errno) opaque = {
 };
 
 fn rt_strerror(err: *opaque_data) const str = {
-	let err = &err: *rt::errno;
+	let err = err: *rt::errno;
 	return rt::strerror(*err);
 };
