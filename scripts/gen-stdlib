@@ -517,6 +517,12 @@ linux() {
 	gen_ssa linux format::elf
 }
 
+linux_uring() {
+	gen_srcs linux::uring \
+		uring.ha
+	gen_ssa linux::uring
+}
+
 linux_vdso() {
 	gen_srcs linux::vdso \
 		vdso.ha
@@ -769,6 +775,7 @@ hash_crc64
 hash_fnv
 io
 linux
+linux_uring
 linux_vdso
 net
 net_ip
