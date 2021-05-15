@@ -523,7 +523,7 @@ linux_uring() {
 		setup.ha \
 		sqe.ha \
 		uring.ha
-	gen_ssa linux::uring errors
+	gen_ssa linux::uring errors types
 }
 
 linux_vdso() {

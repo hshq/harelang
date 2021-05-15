@@ -315,7 +315,7 @@ export type sq = struct {
 	kring_entries: *uint,
 	kflags: *sqring_flags,
 	kdropped: *uint,
-	array: *uint,
+	array: *[*]uint,
 	sqes: *[*]sqe,
 	sqe_head: uint,
 	sqe_tail: uint,

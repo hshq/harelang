@@ -703,7 +703,7 @@ stdlib_linux_uring_srcs= \
 	$(STDLIB)/linux/uring/sqe.ha \
 	$(STDLIB)/linux/uring/uring.ha
 
-$(HARECACHE)/linux/uring/linux_uring.ssa: $(stdlib_linux_uring_srcs) $(stdlib_rt) $(stdlib_errors)
+$(HARECACHE)/linux/uring/linux_uring.ssa: $(stdlib_linux_uring_srcs) $(stdlib_rt) $(stdlib_errors) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/linux/uring
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::uring \
@@ -1695,7 +1695,7 @@ testlib_linux_uring_srcs= \
 	$(STDLIB)/linux/uring/sqe.ha \
 	$(STDLIB)/linux/uring/uring.ha
 
-$(TESTCACHE)/linux/uring/linux_uring.ssa: $(testlib_linux_uring_srcs) $(testlib_rt) $(testlib_errors)
+$(TESTCACHE)/linux/uring/linux_uring.ssa: $(testlib_linux_uring_srcs) $(testlib_rt) $(testlib_errors) $(testlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/linux/uring
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::uring \

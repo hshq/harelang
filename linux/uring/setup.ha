@@ -55,7 +55,7 @@ export fn setup(entries: u32, params: *params) (io_uring | error) = {
 	sq.kring_entries = (ring_ptr + params.sq_off.ring_entries: uintptr): *uint;
 	sq.kflags = (ring_ptr + params.sq_off.flags: uintptr): *sqring_flags;
 	sq.kdropped = (ring_ptr + params.sq_off.dropped: uintptr): *uint;
-	sq.array = (ring_ptr + params.sq_off.array: uintptr): *uint;
+	sq.array = (ring_ptr + params.sq_off.array: uintptr): *[*]uint;
 	sq.sqes = match (rt::mmap(null,
 			params.sq_entries * size(sqe),
 			rt::PROT_READ | rt::PROT_WRITE,
