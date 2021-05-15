@@ -1,7 +1,17 @@
-export def CQE_BUFFER_SHIFT: uint = 16;
-export def OFF_SQ_RING: u64 = 0;
-export def OFF_CQ_RING: u64 = 0x8000000;
-export def OFF_SQES: u64 = 0x10000000;
+use errors;
+
+// All errors which may be returned by this module.
+export type error = errors::opaque;
+
+// Converts an [[error]] into a human-readable string.
+export fn strerror(err: error) const str = {
+	return errors::strerror(err);
+};
+
+def CQE_BUFFER_SHIFT: uint = 16;
+def OFF_SQ_RING: u64 = 0;
+def OFF_CQ_RING: u64 = 0x8000000;
+def OFF_SQES: u64 = 0x10000000;
 
 // An io_uring [[sqe]] operation.
 export type op = enum u8 {
@@ -39,6 +49,42 @@ export type op = enum u8 {
 	PROVIDE_BUFFERS,
 	REMOVE_BUFFERS,
 	TEE,
+};
+
+// Flags for an [[sqe]].
+export type sqe_flags = enum u8 {
+	// Use fixed fileset
+	FIXED_FILE = 1 << 0,
+	// Issue after inflight IO
+	IO_DRAIN = 1 << 1,
+	// Links next sqe
+	IO_LINK = 1 << 2,
+	// Like LINK, but stronger
+	IO_HARDLINK = 1 << 3,
+	// Always go async
+	ASYNC = 1 << 4,
+	// Select buffer from sqe.buf_group
+	BUFFER_SELECT = 1 << 5,
+};
+
+// Flags for an fsync operation.
+export type fsync_flags = enum u32 {
+	DATASYNC = 1 << 0,
+};
+
+// Flags for a timeout operation.
+export type timeout_flags = enum u32 {
+	ABS = 1 << 0,
+};
+
+// Flags for a splice operation.
+export type splice_flags = enum u32 {
+	F_FD_IN_FIXED = 1 << 31,
+};
+
+// Flags for a [[cqe]].
+export type cqe_flags = enum u32 {
+	F_BUFFER = 1 << 0,
 };
 
 // A submission queue entry.
@@ -85,47 +131,11 @@ export type sqe = struct {
 	},
 };
 
-// Flags for an [[sqe]].
-export type sqe_flags = enum u8 {
-	// Use fixed fileset
-	FIXED_FILE = 1 << 0,
-	// Issue after inflight IO
-	IO_DRAIN = 1 << 1,
-	// Links next sqe
-	IO_LINK = 1 << 2,
-	// Like LINK, but stronger
-	IO_HARDLINK = 1 << 3,
-	// Always go async
-	ASYNC = 1 << 4,
-	// Select buffer from sqe.buf_group
-	BUFFER_SELECT = 1 << 5,
-};
-
-// Flags for an fsync operation.
-export type fsync_flags = enum u32 {
-	DATASYNC = 1 << 0,
-};
-
-// Flags for a timeout operation.
-export type timeout_flags = enum u32 {
-	ABS = 1 << 0,
-};
-
-// Flags for a splice operation.
-export type splice_flags = enum u32 {
-	F_FD_IN_FIXED = 1 << 31,
-};
-
 // A completion queue entry.
 export type cqe = struct {
 	user_data: u64,
 	res: i32,
 	flags: cqe_flags,
-};
-
-// Flags for a [[cqe]].
-export type cqe_flags = enum u32 {
-	F_BUFFER = 1 << 0,
 };
 
 // Filled with the offset for mmap(2)
@@ -134,7 +144,7 @@ export type sqring_offsets = struct {
 	tail: u32,
 	ring_mask: u32,
 	ring_entries: u32,
-	flags: sqring_flags,
+	flags: u32,
 	dropped: u32,
 	array: u32,
 	resv1: u32,
@@ -157,7 +167,7 @@ export type cqring_offsets = struct {
 	ring_entries: u32,
 	overflow: u32,
 	cqes: u32,
-	flags: cqring_flags,
+	flags: u32,
 	resv1: u32,
 	resv2: u64,
 };
@@ -189,7 +199,7 @@ export type setup_flags = enum u32 {
 export type params = struct {
 	sq_entries: u32,
 	cq_entries: u32,
-	flags: u32,
+	flags: setup_flags,
 	sq_thread_cpu: u32,
 	sq_thread_idle: u32,
 	features: features,
@@ -286,4 +296,42 @@ export type restriction_op = enum u16 {
 	SQE_FLAGS_ALLOWED = 2,
 	// Require sqe flags (these flags must be set on each submission)
 	SQE_FLAGS_REQUIRED = 3,
+};
+
+// State for an io_uring.
+export type io_uring = struct {
+	sq: sq,
+	cq: cq,
+	fd: int,
+	flags: setup_flags,
+	features: features,
+};
+
+// Submission queue state.
+export type sq = struct {
+	khead: *uint,
+	ktail: *uint,
+	kring_mask: *uint,
+	kring_entries: *uint,
+	kflags: *sqring_flags,
+	kdropped: *uint,
+	array: *uint,
+	sqes: *[*]sqe,
+	sqe_head: uint,
+	sqe_tail: uint,
+	ring_sz: size,
+	ring_ptr: *void,
+};
+
+// Completion queue state.
+export type cq = struct {
+	khead: *uint,
+	ktail: *uint,
+	kring_mask: *uint,
+	kring_entries: *uint,
+	kflags: *cqring_flags,
+	koverflow: *uint,
+	cqes: *[*]cqe,
+	ring_sz: size,
+	ring_ptr: *void,
 };

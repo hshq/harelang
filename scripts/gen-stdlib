@@ -519,8 +519,9 @@ linux() {
 
 linux_uring() {
 	gen_srcs linux::uring \
+		setup.ha \
 		uring.ha
-	gen_ssa linux::uring
+	gen_ssa linux::uring errors
 }
 
 linux_vdso() {
