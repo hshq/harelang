@@ -604,7 +604,7 @@ export fn io_uring_setup(entries: u32, params: *void) (int | errno) = {
 };
 
 export fn io_uring_register(
-	fd: uint,
+	fd: int,
 	opcode: uint,
 	arg: nullable *void,
 	nr_args: uint,
@@ -615,7 +615,7 @@ export fn io_uring_register(
 };
 
 export fn io_uring_enter(
-	fd: uint,
+	fd: int,
 	to_submit: uint,
 	min_complete: uint,
 	flags: uint,

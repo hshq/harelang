@@ -519,7 +519,9 @@ linux() {
 
 linux_uring() {
 	gen_srcs linux::uring \
+		queue.ha \
 		setup.ha \
+		sqe.ha \
 		uring.ha
 	gen_ssa linux::uring errors
 }

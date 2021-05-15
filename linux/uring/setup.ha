@@ -1,7 +1,6 @@
 use errors;
 use rt;
 
-
 // Sets up an io_uring. The params parameter must be initialized with the
 // desired flags, sq_thread_cpu, and sq_thread_idle parameters; the remaining
 // fields are initialized by the kernel.

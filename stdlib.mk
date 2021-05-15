@@ -698,7 +698,9 @@ $(HARECACHE)/linux/linux.ssa: $(stdlib_linux_srcs) $(stdlib_rt) $(stdlib_format_
 
 # linux::uring
 stdlib_linux_uring_srcs= \
+	$(STDLIB)/linux/uring/queue.ha \
 	$(STDLIB)/linux/uring/setup.ha \
+	$(STDLIB)/linux/uring/sqe.ha \
 	$(STDLIB)/linux/uring/uring.ha
 
 $(HARECACHE)/linux/uring/linux_uring.ssa: $(stdlib_linux_uring_srcs) $(stdlib_rt) $(stdlib_errors)
@@ -1688,7 +1690,9 @@ $(TESTCACHE)/linux/linux.ssa: $(testlib_linux_srcs) $(testlib_rt) $(testlib_form
 
 # linux::uring
 testlib_linux_uring_srcs= \
+	$(STDLIB)/linux/uring/queue.ha \
 	$(STDLIB)/linux/uring/setup.ha \
+	$(STDLIB)/linux/uring/sqe.ha \
 	$(STDLIB)/linux/uring/uring.ha
 
 $(TESTCACHE)/linux/uring/linux_uring.ssa: $(testlib_linux_uring_srcs) $(testlib_rt) $(testlib_errors)
