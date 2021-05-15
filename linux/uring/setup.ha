@@ -79,3 +79,13 @@ export fn setup(entries: u32, params: *params) (io_uring | error) = {
 
 	return uring;
 };
+
+// Frees state associated with an [[io_uring]].
+export fn finish(ring: *io_uring) void = {
+	let sq = &ring.sq, cq = &ring.cq;
+	rt::munmap(sq.ring_ptr, sq.ring_sz): void;
+	if (cq.ring_ptr != null: *void && cq.ring_ptr != sq.ring_ptr) {
+		rt::munmap(cq.ring_ptr, cq.ring_sz): void;
+	};
+	rt::close(ring.fd): void;
+};
