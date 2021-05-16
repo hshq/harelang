@@ -110,8 +110,7 @@ export fn get_cqe(
 
 		if (cq == null && wait == 0 && submit == 0) {
 			if (!needs_flush(ring)) {
-				// TODO: EAGAIN
-				abort();
+				return null;
 			};
 			overflow = true;
 		};
