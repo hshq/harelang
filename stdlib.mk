@@ -77,183 +77,243 @@ $(HARECACHE)/rt/rt.a: $(HARECACHE)/rt/rt.o $(stdlib_asm)
 stdlib_rt=$(HARECACHE)/rt/rt.a
 hare_stdlib_deps+=$(stdlib_rt)
 
+# gen_lib ascii
 stdlib_ascii=$(HARECACHE)/ascii/ascii.o
 hare_stdlib_deps+=$(stdlib_ascii)
 
+# gen_lib bufio
 stdlib_bufio=$(HARECACHE)/bufio/bufio.o
 hare_stdlib_deps+=$(stdlib_bufio)
 
+# gen_lib bytes
 stdlib_bytes=$(HARECACHE)/bytes/bytes.o
 hare_stdlib_deps+=$(stdlib_bytes)
 
+# gen_lib compress::flate
 stdlib_compress_flate=$(HARECACHE)/compress/flate/compress_flate.o
 hare_stdlib_deps+=$(stdlib_compress_flate)
 
+# gen_lib compress::zlib
 stdlib_compress_zlib=$(HARECACHE)/compress/zlib/compress_zlib.o
 hare_stdlib_deps+=$(stdlib_compress_zlib)
 
+# gen_lib crypto::blake2b
 stdlib_crypto_blake2b=$(HARECACHE)/crypto/blake2b/crypto_blake2b.o
 hare_stdlib_deps+=$(stdlib_crypto_blake2b)
 
+# gen_lib crypto::math
 stdlib_crypto_math=$(HARECACHE)/crypto/math/crypto_math.o
 hare_stdlib_deps+=$(stdlib_crypto_math)
 
+# gen_lib crypto::random
 stdlib_crypto_random=$(HARECACHE)/crypto/random/crypto_random.o
 hare_stdlib_deps+=$(stdlib_crypto_random)
 
+# gen_lib crypto::md5
 stdlib_crypto_md5=$(HARECACHE)/crypto/md5/crypto_md5.o
 hare_stdlib_deps+=$(stdlib_crypto_md5)
 
+# gen_lib crypto::sha1
 stdlib_crypto_sha1=$(HARECACHE)/crypto/sha1/crypto_sha1.o
 hare_stdlib_deps+=$(stdlib_crypto_sha1)
 
+# gen_lib crypto::sha256
 stdlib_crypto_sha256=$(HARECACHE)/crypto/sha256/crypto_sha256.o
 hare_stdlib_deps+=$(stdlib_crypto_sha256)
 
+# gen_lib crypto::sha512
 stdlib_crypto_sha512=$(HARECACHE)/crypto/sha512/crypto_sha512.o
 hare_stdlib_deps+=$(stdlib_crypto_sha512)
 
+# gen_lib dirs
 stdlib_dirs=$(HARECACHE)/dirs/dirs.o
 hare_stdlib_deps+=$(stdlib_dirs)
 
+# gen_lib encoding::hex
 stdlib_encoding_hex=$(HARECACHE)/encoding/hex/encoding_hex.o
 hare_stdlib_deps+=$(stdlib_encoding_hex)
 
+# gen_lib encoding::utf8
 stdlib_encoding_utf8=$(HARECACHE)/encoding/utf8/encoding_utf8.o
 hare_stdlib_deps+=$(stdlib_encoding_utf8)
 
+# gen_lib endian
 stdlib_endian=$(HARECACHE)/endian/endian.o
 hare_stdlib_deps+=$(stdlib_endian)
 
+# gen_lib errors
 stdlib_errors=$(HARECACHE)/errors/errors.o
 hare_stdlib_deps+=$(stdlib_errors)
 
+# gen_lib fmt
 stdlib_fmt=$(HARECACHE)/fmt/fmt.o
 hare_stdlib_deps+=$(stdlib_fmt)
 
+# gen_lib format::elf
 stdlib_format_elf=$(HARECACHE)/format/elf/format_elf.o
 hare_stdlib_deps+=$(stdlib_format_elf)
 
+# gen_lib format::html
 stdlib_format_html=$(HARECACHE)/format/html/format_html.o
 hare_stdlib_deps+=$(stdlib_format_html)
 
+# gen_lib format::xml
 stdlib_format_xml=$(HARECACHE)/format/xml/format_xml.o
 hare_stdlib_deps+=$(stdlib_format_xml)
 
+# gen_lib fs
 stdlib_fs=$(HARECACHE)/fs/fs.o
 hare_stdlib_deps+=$(stdlib_fs)
 
+# gen_lib fs::mem
 stdlib_fs_mem=$(HARECACHE)/fs/mem/fs_mem.o
 hare_stdlib_deps+=$(stdlib_fs_mem)
 
+# gen_lib getopt
 stdlib_getopt=$(HARECACHE)/getopt/getopt.o
 hare_stdlib_deps+=$(stdlib_getopt)
 
+# gen_lib hare::ast
 stdlib_hare_ast=$(HARECACHE)/hare/ast/hare_ast.o
 hare_stdlib_deps+=$(stdlib_hare_ast)
 
+# gen_lib hare::lex
 stdlib_hare_lex=$(HARECACHE)/hare/lex/hare_lex.o
 hare_stdlib_deps+=$(stdlib_hare_lex)
 
+# gen_lib hare::module
 stdlib_hare_module=$(HARECACHE)/hare/module/hare_module.o
 hare_stdlib_deps+=$(stdlib_hare_module)
 
+# gen_lib hare::parse
 stdlib_hare_parse=$(HARECACHE)/hare/parse/hare_parse.o
 hare_stdlib_deps+=$(stdlib_hare_parse)
 
+# gen_lib hare::types
 stdlib_hare_types=$(HARECACHE)/hare/types/hare_types.o
 hare_stdlib_deps+=$(stdlib_hare_types)
 
+# gen_lib hare::unparse
 stdlib_hare_unparse=$(HARECACHE)/hare/unparse/hare_unparse.o
 hare_stdlib_deps+=$(stdlib_hare_unparse)
 
+# gen_lib hash
 stdlib_hash=$(HARECACHE)/hash/hash.o
 hare_stdlib_deps+=$(stdlib_hash)
 
+# gen_lib hash::adler32
 stdlib_hash_adler32=$(HARECACHE)/hash/adler32/hash_adler32.o
 hare_stdlib_deps+=$(stdlib_hash_adler32)
 
+# gen_lib hash::crc16
 stdlib_hash_crc16=$(HARECACHE)/hash/crc16/hash_crc16.o
 hare_stdlib_deps+=$(stdlib_hash_crc16)
 
+# gen_lib hash::crc32
 stdlib_hash_crc32=$(HARECACHE)/hash/crc32/hash_crc32.o
 hare_stdlib_deps+=$(stdlib_hash_crc32)
 
+# gen_lib hash::crc64
 stdlib_hash_crc64=$(HARECACHE)/hash/crc64/hash_crc64.o
 hare_stdlib_deps+=$(stdlib_hash_crc64)
 
+# gen_lib hash::fnv
 stdlib_hash_fnv=$(HARECACHE)/hash/fnv/hash_fnv.o
 hare_stdlib_deps+=$(stdlib_hash_fnv)
 
+# gen_lib io
 stdlib_io=$(HARECACHE)/io/io.o
 hare_stdlib_deps+=$(stdlib_io)
 
+# gen_lib linux
 stdlib_linux=$(HARECACHE)/linux/linux.o
 hare_stdlib_deps+=$(stdlib_linux)
 
-stdlib_linux_uring=$(HARECACHE)/linux/uring/linux_uring.o
-hare_stdlib_deps+=$(stdlib_linux_uring)
+# gen_lib linux::io_uring
+stdlib_linux_io_uring=$(HARECACHE)/linux/io_uring/linux_io_uring.o
+hare_stdlib_deps+=$(stdlib_linux_io_uring)
 
+# gen_lib linux::vdso
 stdlib_linux_vdso=$(HARECACHE)/linux/vdso/linux_vdso.o
 hare_stdlib_deps+=$(stdlib_linux_vdso)
 
+# gen_lib net
 stdlib_net=$(HARECACHE)/net/net.o
 hare_stdlib_deps+=$(stdlib_net)
 
+# gen_lib net::ip
 stdlib_net_ip=$(HARECACHE)/net/ip/net_ip.o
 hare_stdlib_deps+=$(stdlib_net_ip)
 
+# gen_lib net::unix
 stdlib_net_unix=$(HARECACHE)/net/unix/net_unix.o
 hare_stdlib_deps+=$(stdlib_net_unix)
 
+# gen_lib math::random
 stdlib_math_random=$(HARECACHE)/math/random/math_random.o
 hare_stdlib_deps+=$(stdlib_math_random)
 
+# gen_lib os
 stdlib_os=$(HARECACHE)/os/os.o
 hare_stdlib_deps+=$(stdlib_os)
 
+# gen_lib os::exec
 stdlib_os_exec=$(HARECACHE)/os/exec/os_exec.o
 hare_stdlib_deps+=$(stdlib_os_exec)
 
+# gen_lib path
 stdlib_path=$(HARECACHE)/path/path.o
 hare_stdlib_deps+=$(stdlib_path)
 
+# gen_lib slice
 stdlib_slice=$(HARECACHE)/slice/slice.o
 hare_stdlib_deps+=$(stdlib_slice)
 
+# gen_lib sort
 stdlib_sort=$(HARECACHE)/sort/sort.o
 hare_stdlib_deps+=$(stdlib_sort)
 
+# gen_lib strconv
 stdlib_strconv=$(HARECACHE)/strconv/strconv.o
 hare_stdlib_deps+=$(stdlib_strconv)
 
+# gen_lib strings
 stdlib_strings=$(HARECACHE)/strings/strings.o
 hare_stdlib_deps+=$(stdlib_strings)
 
+# gen_lib strio
 stdlib_strio=$(HARECACHE)/strio/strio.o
 hare_stdlib_deps+=$(stdlib_strio)
 
+# gen_lib temp
 stdlib_temp=$(HARECACHE)/temp/temp.o
 hare_stdlib_deps+=$(stdlib_temp)
 
+# gen_lib time
 stdlib_time=$(HARECACHE)/time/time.o
 hare_stdlib_deps+=$(stdlib_time)
 
+# gen_lib types
 stdlib_types=$(HARECACHE)/types/types.o
 hare_stdlib_deps+=$(stdlib_types)
 
+# gen_lib unicode
 stdlib_unicode=$(HARECACHE)/unicode/unicode.o
 hare_stdlib_deps+=$(stdlib_unicode)
 
+# gen_lib unix
 stdlib_unix=$(HARECACHE)/unix/unix.o
 hare_stdlib_deps+=$(stdlib_unix)
 
+# gen_lib unix::passwd
 stdlib_unix_passwd=$(HARECACHE)/unix/passwd/unix_passwd.o
 hare_stdlib_deps+=$(stdlib_unix_passwd)
 
+# gen_lib unix::tty
 stdlib_unix_tty=$(HARECACHE)/unix/tty/unix_tty.o
 hare_stdlib_deps+=$(stdlib_unix_tty)
 
+# gen_lib uuid
 stdlib_uuid=$(HARECACHE)/uuid/uuid.o
 hare_stdlib_deps+=$(stdlib_uuid)
 
@@ -696,18 +756,18 @@ $(HARECACHE)/linux/linux.ssa: $(stdlib_linux_srcs) $(stdlib_rt) $(stdlib_format_
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux \
 		-t$(HARECACHE)/linux/linux.td $(stdlib_linux_srcs)
 
-# linux::uring
-stdlib_linux_uring_srcs= \
-	$(STDLIB)/linux/uring/queue.ha \
-	$(STDLIB)/linux/uring/setup.ha \
-	$(STDLIB)/linux/uring/sqe.ha \
-	$(STDLIB)/linux/uring/uring.ha
+# linux::io_uring
+stdlib_linux_io_uring_srcs= \
+	$(STDLIB)/linux/io_uring/queue.ha \
+	$(STDLIB)/linux/io_uring/setup.ha \
+	$(STDLIB)/linux/io_uring/sqe.ha \
+	$(STDLIB)/linux/io_uring/uring.ha
 
-$(HARECACHE)/linux/uring/linux_uring.ssa: $(stdlib_linux_uring_srcs) $(stdlib_rt) $(stdlib_errors) $(stdlib_types)
+$(HARECACHE)/linux/io_uring/linux_io_uring.ssa: $(stdlib_linux_io_uring_srcs) $(stdlib_rt) $(stdlib_errors) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/linux/uring
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::uring \
-		-t$(HARECACHE)/linux/uring/linux_uring.td $(stdlib_linux_uring_srcs)
+	@mkdir -p $(HARECACHE)/linux/io_uring
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::io_uring \
+		-t$(HARECACHE)/linux/io_uring/linux_io_uring.td $(stdlib_linux_io_uring_srcs)
 
 # linux::vdso
 stdlib_linux_vdso_srcs= \
@@ -1050,183 +1110,243 @@ $(TESTCACHE)/rt/rt.a: $(TESTCACHE)/rt/rt.o $(testlib_asm)
 testlib_rt=$(TESTCACHE)/rt/rt.a
 hare_testlib_deps+=$(testlib_rt)
 
+# gen_lib ascii
 testlib_ascii=$(TESTCACHE)/ascii/ascii.o
 hare_testlib_deps+=$(testlib_ascii)
 
+# gen_lib bufio
 testlib_bufio=$(TESTCACHE)/bufio/bufio.o
 hare_testlib_deps+=$(testlib_bufio)
 
+# gen_lib bytes
 testlib_bytes=$(TESTCACHE)/bytes/bytes.o
 hare_testlib_deps+=$(testlib_bytes)
 
+# gen_lib compress::flate
 testlib_compress_flate=$(TESTCACHE)/compress/flate/compress_flate.o
 hare_testlib_deps+=$(testlib_compress_flate)
 
+# gen_lib compress::zlib
 testlib_compress_zlib=$(TESTCACHE)/compress/zlib/compress_zlib.o
 hare_testlib_deps+=$(testlib_compress_zlib)
 
+# gen_lib crypto::blake2b
 testlib_crypto_blake2b=$(TESTCACHE)/crypto/blake2b/crypto_blake2b.o
 hare_testlib_deps+=$(testlib_crypto_blake2b)
 
+# gen_lib crypto::math
 testlib_crypto_math=$(TESTCACHE)/crypto/math/crypto_math.o
 hare_testlib_deps+=$(testlib_crypto_math)
 
+# gen_lib crypto::random
 testlib_crypto_random=$(TESTCACHE)/crypto/random/crypto_random.o
 hare_testlib_deps+=$(testlib_crypto_random)
 
+# gen_lib crypto::md5
 testlib_crypto_md5=$(TESTCACHE)/crypto/md5/crypto_md5.o
 hare_testlib_deps+=$(testlib_crypto_md5)
 
+# gen_lib crypto::sha1
 testlib_crypto_sha1=$(TESTCACHE)/crypto/sha1/crypto_sha1.o
 hare_testlib_deps+=$(testlib_crypto_sha1)
 
+# gen_lib crypto::sha256
 testlib_crypto_sha256=$(TESTCACHE)/crypto/sha256/crypto_sha256.o
 hare_testlib_deps+=$(testlib_crypto_sha256)
 
+# gen_lib crypto::sha512
 testlib_crypto_sha512=$(TESTCACHE)/crypto/sha512/crypto_sha512.o
 hare_testlib_deps+=$(testlib_crypto_sha512)
 
+# gen_lib dirs
 testlib_dirs=$(TESTCACHE)/dirs/dirs.o
 hare_testlib_deps+=$(testlib_dirs)
 
+# gen_lib encoding::hex
 testlib_encoding_hex=$(TESTCACHE)/encoding/hex/encoding_hex.o
 hare_testlib_deps+=$(testlib_encoding_hex)
 
+# gen_lib encoding::utf8
 testlib_encoding_utf8=$(TESTCACHE)/encoding/utf8/encoding_utf8.o
 hare_testlib_deps+=$(testlib_encoding_utf8)
 
+# gen_lib endian
 testlib_endian=$(TESTCACHE)/endian/endian.o
 hare_testlib_deps+=$(testlib_endian)
 
+# gen_lib errors
 testlib_errors=$(TESTCACHE)/errors/errors.o
 hare_testlib_deps+=$(testlib_errors)
 
+# gen_lib fmt
 testlib_fmt=$(TESTCACHE)/fmt/fmt.o
 hare_testlib_deps+=$(testlib_fmt)
 
+# gen_lib format::elf
 testlib_format_elf=$(TESTCACHE)/format/elf/format_elf.o
 hare_testlib_deps+=$(testlib_format_elf)
 
+# gen_lib format::html
 testlib_format_html=$(TESTCACHE)/format/html/format_html.o
 hare_testlib_deps+=$(testlib_format_html)
 
+# gen_lib format::xml
 testlib_format_xml=$(TESTCACHE)/format/xml/format_xml.o
 hare_testlib_deps+=$(testlib_format_xml)
 
+# gen_lib fs
 testlib_fs=$(TESTCACHE)/fs/fs.o
 hare_testlib_deps+=$(testlib_fs)
 
+# gen_lib fs::mem
 testlib_fs_mem=$(TESTCACHE)/fs/mem/fs_mem.o
 hare_testlib_deps+=$(testlib_fs_mem)
 
+# gen_lib getopt
 testlib_getopt=$(TESTCACHE)/getopt/getopt.o
 hare_testlib_deps+=$(testlib_getopt)
 
+# gen_lib hare::ast
 testlib_hare_ast=$(TESTCACHE)/hare/ast/hare_ast.o
 hare_testlib_deps+=$(testlib_hare_ast)
 
+# gen_lib hare::lex
 testlib_hare_lex=$(TESTCACHE)/hare/lex/hare_lex.o
 hare_testlib_deps+=$(testlib_hare_lex)
 
+# gen_lib hare::module
 testlib_hare_module=$(TESTCACHE)/hare/module/hare_module.o
 hare_testlib_deps+=$(testlib_hare_module)
 
+# gen_lib hare::parse
 testlib_hare_parse=$(TESTCACHE)/hare/parse/hare_parse.o
 hare_testlib_deps+=$(testlib_hare_parse)
 
+# gen_lib hare::types
 testlib_hare_types=$(TESTCACHE)/hare/types/hare_types.o
 hare_testlib_deps+=$(testlib_hare_types)
 
+# gen_lib hare::unparse
 testlib_hare_unparse=$(TESTCACHE)/hare/unparse/hare_unparse.o
 hare_testlib_deps+=$(testlib_hare_unparse)
 
+# gen_lib hash
 testlib_hash=$(TESTCACHE)/hash/hash.o
 hare_testlib_deps+=$(testlib_hash)
 
+# gen_lib hash::adler32
 testlib_hash_adler32=$(TESTCACHE)/hash/adler32/hash_adler32.o
 hare_testlib_deps+=$(testlib_hash_adler32)
 
+# gen_lib hash::crc16
 testlib_hash_crc16=$(TESTCACHE)/hash/crc16/hash_crc16.o
 hare_testlib_deps+=$(testlib_hash_crc16)
 
+# gen_lib hash::crc32
 testlib_hash_crc32=$(TESTCACHE)/hash/crc32/hash_crc32.o
 hare_testlib_deps+=$(testlib_hash_crc32)
 
+# gen_lib hash::crc64
 testlib_hash_crc64=$(TESTCACHE)/hash/crc64/hash_crc64.o
 hare_testlib_deps+=$(testlib_hash_crc64)
 
+# gen_lib hash::fnv
 testlib_hash_fnv=$(TESTCACHE)/hash/fnv/hash_fnv.o
 hare_testlib_deps+=$(testlib_hash_fnv)
 
+# gen_lib io
 testlib_io=$(TESTCACHE)/io/io.o
 hare_testlib_deps+=$(testlib_io)
 
+# gen_lib linux
 testlib_linux=$(TESTCACHE)/linux/linux.o
 hare_testlib_deps+=$(testlib_linux)
 
-testlib_linux_uring=$(TESTCACHE)/linux/uring/linux_uring.o
-hare_testlib_deps+=$(testlib_linux_uring)
+# gen_lib linux::io_uring
+testlib_linux_io_uring=$(TESTCACHE)/linux/io_uring/linux_io_uring.o
+hare_testlib_deps+=$(testlib_linux_io_uring)
 
+# gen_lib linux::vdso
 testlib_linux_vdso=$(TESTCACHE)/linux/vdso/linux_vdso.o
 hare_testlib_deps+=$(testlib_linux_vdso)
 
+# gen_lib net
 testlib_net=$(TESTCACHE)/net/net.o
 hare_testlib_deps+=$(testlib_net)
 
+# gen_lib net::ip
 testlib_net_ip=$(TESTCACHE)/net/ip/net_ip.o
 hare_testlib_deps+=$(testlib_net_ip)
 
+# gen_lib net::unix
 testlib_net_unix=$(TESTCACHE)/net/unix/net_unix.o
 hare_testlib_deps+=$(testlib_net_unix)
 
+# gen_lib math::random
 testlib_math_random=$(TESTCACHE)/math/random/math_random.o
 hare_testlib_deps+=$(testlib_math_random)
 
+# gen_lib os
 testlib_os=$(TESTCACHE)/os/os.o
 hare_testlib_deps+=$(testlib_os)
 
+# gen_lib os::exec
 testlib_os_exec=$(TESTCACHE)/os/exec/os_exec.o
 hare_testlib_deps+=$(testlib_os_exec)
 
+# gen_lib path
 testlib_path=$(TESTCACHE)/path/path.o
 hare_testlib_deps+=$(testlib_path)
 
+# gen_lib slice
 testlib_slice=$(TESTCACHE)/slice/slice.o
 hare_testlib_deps+=$(testlib_slice)
 
+# gen_lib sort
 testlib_sort=$(TESTCACHE)/sort/sort.o
 hare_testlib_deps+=$(testlib_sort)
 
+# gen_lib strconv
 testlib_strconv=$(TESTCACHE)/strconv/strconv.o
 hare_testlib_deps+=$(testlib_strconv)
 
+# gen_lib strings
 testlib_strings=$(TESTCACHE)/strings/strings.o
 hare_testlib_deps+=$(testlib_strings)
 
+# gen_lib strio
 testlib_strio=$(TESTCACHE)/strio/strio.o
 hare_testlib_deps+=$(testlib_strio)
 
+# gen_lib temp
 testlib_temp=$(TESTCACHE)/temp/temp.o
 hare_testlib_deps+=$(testlib_temp)
 
+# gen_lib time
 testlib_time=$(TESTCACHE)/time/time.o
 hare_testlib_deps+=$(testlib_time)
 
+# gen_lib types
 testlib_types=$(TESTCACHE)/types/types.o
 hare_testlib_deps+=$(testlib_types)
 
+# gen_lib unicode
 testlib_unicode=$(TESTCACHE)/unicode/unicode.o
 hare_testlib_deps+=$(testlib_unicode)
 
+# gen_lib unix
 testlib_unix=$(TESTCACHE)/unix/unix.o
 hare_testlib_deps+=$(testlib_unix)
 
+# gen_lib unix::passwd
 testlib_unix_passwd=$(TESTCACHE)/unix/passwd/unix_passwd.o
 hare_testlib_deps+=$(testlib_unix_passwd)
 
+# gen_lib unix::tty
 testlib_unix_tty=$(TESTCACHE)/unix/tty/unix_tty.o
 hare_testlib_deps+=$(testlib_unix_tty)
 
+# gen_lib uuid
 testlib_uuid=$(TESTCACHE)/uuid/uuid.o
 hare_testlib_deps+=$(testlib_uuid)
 
@@ -1688,18 +1808,18 @@ $(TESTCACHE)/linux/linux.ssa: $(testlib_linux_srcs) $(testlib_rt) $(testlib_form
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux \
 		-t$(TESTCACHE)/linux/linux.td $(testlib_linux_srcs)
 
-# linux::uring
-testlib_linux_uring_srcs= \
-	$(STDLIB)/linux/uring/queue.ha \
-	$(STDLIB)/linux/uring/setup.ha \
-	$(STDLIB)/linux/uring/sqe.ha \
-	$(STDLIB)/linux/uring/uring.ha
+# linux::io_uring
+testlib_linux_io_uring_srcs= \
+	$(STDLIB)/linux/io_uring/queue.ha \
+	$(STDLIB)/linux/io_uring/setup.ha \
+	$(STDLIB)/linux/io_uring/sqe.ha \
+	$(STDLIB)/linux/io_uring/uring.ha
 
-$(TESTCACHE)/linux/uring/linux_uring.ssa: $(testlib_linux_uring_srcs) $(testlib_rt) $(testlib_errors) $(testlib_types)
+$(TESTCACHE)/linux/io_uring/linux_io_uring.ssa: $(testlib_linux_io_uring_srcs) $(testlib_rt) $(testlib_errors) $(testlib_types)
 	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/linux/uring
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::uring \
-		-t$(TESTCACHE)/linux/uring/linux_uring.td $(testlib_linux_uring_srcs)
+	@mkdir -p $(TESTCACHE)/linux/io_uring
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::io_uring \
+		-t$(TESTCACHE)/linux/io_uring/linux_io_uring.td $(testlib_linux_io_uring_srcs)
 
 # linux::vdso
 testlib_linux_vdso_srcs= \

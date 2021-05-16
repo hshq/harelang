@@ -51,6 +51,7 @@ EOF
 }
 
 gen_lib() {
+	printf "# gen_lib $1\n"
 	mod="$1"
 	path=$(mod_path "$mod")
 	file=$(mod_file "$mod")
