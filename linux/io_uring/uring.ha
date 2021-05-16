@@ -95,10 +95,10 @@ export type sqe = struct {
 	fd: i32,
 	union {
 		off: u64,
-		addr2: u64,
+		addr2: nullable *void,
 	},
 	union {
-		addr: u64,
+		addr: nullable *void,
 		splice_off_in: u64,
 	},
 	length: u32,
