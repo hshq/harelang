@@ -4,7 +4,9 @@ use types;
 
 // Registers a set of fixed buffers with an [[io_uring]]. Note that you must
 // call [[unregister_buffers]] before registering a new set of buffers (even if
-// some of them have similar addresses to the old set).
+// some of them have similar addresses to the old set). The buffers must be
+// anonymous, non-file-backed memory (e.g. the kind returned by alloc or
+// rt::mmap).
 export fn register_buffers(ring: *io_uring, iov: []rt::iovec) (void | error) = {
 	assert(len(iov) <= types::UINT_MAX);
 	return match (rt::io_uring_register(ring.fd, regop::REGISTER_BUFFERS,
