@@ -2,8 +2,8 @@ use rt;
 use types;
 
 fn prep(sq: *sqe, op: op, flags: sqe_flags...) void = {
-	// XXX: Is this compatible with the spec?
-	*sq = sqe { opcode = op, ... };
+	rt::memset(sq, 0, size(sqe));
+	sq.opcode = op;
 	for (let i = 0z; i < len(flags); i += 1) {
 		sq.flags |= flags[i];
 	};
