@@ -36,8 +36,10 @@ export fn readv(
 	fd: int,
 	iov: []rt::iovec,
 	offs: size,
+	flags: sqe_flags...
 ) void = {
-	preprw(sqe, op::READV, fd, iov: *[*]rt::iovec, len(iov): uint, offs);
+	preprw(sqe, op::READV, fd,
+		iov: *[*]rt::iovec, len(iov): uint, offs, flags...);
 };
 
 // Prepares a vectored write operation for an [[sqe]].
@@ -46,8 +48,10 @@ export fn writev(
 	fd: int,
 	iov: []rt::iovec,
 	offs: size,
+	flags: sqe_flags...
 ) void = {
-	preprw(sqe, op::WRITEV, fd, iov: *[*]rt::iovec, len(iov): uint, offs);
+	preprw(sqe, op::WRITEV, fd,
+		iov: *[*]rt::iovec, len(iov): uint, offs, flags...);
 };
 
 // Prepares a read operation for an [[sqe]].
@@ -56,7 +60,7 @@ export fn read(
 	fd: int,
 	buf: *void,
 	count: size,
-	flags: sqe_flags...,
+	flags: sqe_flags...
 ) void = {
 	assert(count <= types::U32_MAX);
 	preprw(sqe, op::READ, fd, buf, count: u32, 0, flags...);
@@ -68,8 +72,40 @@ export fn write(
 	fd: int,
 	buf: *void,
 	count: size,
-	flags: sqe_flags...,
+	flags: sqe_flags...
 ) void = {
 	assert(count <= types::U32_MAX);
 	preprw(sqe, op::WRITE, fd, buf, count: u32, 0, flags...);
+};
+
+// Prepares a read for a fixed buffer previously registered with
+// [[register_buffers]]. The buf and count parameters must refer to an address
+// which falls within the buffer referenced by the index parameter.
+export fn read_fixed(
+	sqe: *sqe,
+	fd: int,
+	buf: *void,
+	count: size,
+	index: u16,
+	flags: sqe_flags...
+) void = {
+	assert(count <= types::U32_MAX);
+	preprw(sqe, op::READ_FIXED, fd, buf, count: u32, 0, flags...);
+	sqe.buf_index = index;
+};
+
+// Prepares a write for a fixed buffer previously registered with
+// [[register_buffers]]. The buf and count parameters must refer to an address
+// which falls within the buffer referenced by the index parameter.
+export fn write_fixed(
+	sqe: *sqe,
+	fd: int,
+	buf: *void,
+	count: size,
+	index: u16,
+	flags: sqe_flags...
+) void = {
+	assert(count <= types::U32_MAX);
+	preprw(sqe, op::WRITE_FIXED, fd, buf, count: u32, 0, flags...);
+	sqe.buf_index = index;
 };
