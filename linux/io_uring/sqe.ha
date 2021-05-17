@@ -1,5 +1,3 @@
-// TODO:
-// - Interface for buffer registration
 use rt;
 use types;
 

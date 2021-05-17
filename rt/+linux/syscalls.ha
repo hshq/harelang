@@ -608,11 +608,8 @@ export fn io_uring_register(
 	opcode: uint,
 	arg: nullable *void,
 	nr_args: uint,
-) (void | errno) = {
-	wrap_return(syscall4(SYS_io_uring_register,
-		fd: u64, opcode: u64, arg: uintptr: u64, nr_args: u64))?;
-	return;
-};
+) (int | errno) = wrap_return(syscall4(SYS_io_uring_register,
+	fd: u64, opcode: u64, arg: uintptr: u64, nr_args: u64))?: int;
 
 export fn io_uring_enter(
 	fd: int,

@@ -276,18 +276,18 @@ export type probe = struct {
 
 // Details for a REGISTER_RESTRICTIONS operation.
 export type restriction = struct {
-	opcode: restriction_op,
+	opcode: resop,
 	union {
-		register_op: u8,
-		sqe_op: u8,
-		sqe_flags: u8,
+		register_op: regop,
+		sqe_op: op,
+		sqe_flags: sqe_flags,
 	},
 	resv: u8,
 	resv2: [3]u32,
 };
 
 // Opcode for a [[restriction]].
-export type restriction_op = enum u16 {
+export type resop = enum u16 {
 	// Allow an io_uring_register(2) opcode
 	REGISTER_OP = 0,
 	// Allow an sqe opcode
