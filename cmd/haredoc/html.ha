@@ -432,18 +432,27 @@ fn enum_html(
 	return z;
 };
 
-fn struct_html(
+fn struct_union_html(
 	out: *io::stream,
 	indent: size,
-	t: ast::struct_type,
+	t: ast::_type,
 	brief: bool,
 ) (size | io::error) = {
 	let z = 0z;
-	z += fmt::fprint(out, "<span class='keyword'>struct</span> {")?;
+	let members = match (t._type) {
+		t: ast::struct_type => {
+			z += fmt::fprint(out, "<span class='keyword'>struct</span> {")?;
+			t: []ast::struct_member;
+		},
+		t: ast::union_type => {
+			z += fmt::fprint(out, "<span class='keyword'>union</span> {")?;
+			t: []ast::struct_member;
+		},
+	};
 
 	indent += 1;
-	for (let i = 0z; i < len(t); i += 1) {
-		const member = t[i];
+	for (let i = 0z; i < len(members); i += 1) {
+		const member = members[i];
 
 		z += newline(out, indent)?;
 		match (member._offset) {
@@ -579,7 +588,8 @@ fn type_html(
 
 			z += type_html(out, indent, *t.members, brief)?;
 		},
-		t: ast::struct_type => z += struct_html(out, indent, t, brief)?,
+		t: ast::struct_type => z += struct_union_html(out, indent, _type, brief)?,
+		t: ast::union_type => z += struct_union_html(out, indent, _type, brief)?,
 		* => z += html::escape(out, strio::string(buf))?,
 	};
 
