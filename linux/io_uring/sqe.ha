@@ -28,7 +28,7 @@ fn preprw(
 
 // Sets the user data field of an [[sqe]]. This is copied to the [[cqe]] and can
 // be used to correlate a completion event with the original SQE.
-export fn setuser(sqe: *sqe, user_data: *void) void = {
+export fn set_user(sqe: *sqe, user_data: *void) void = {
 	static assert(size(uintptr) <= size(u64));
 	sqe.user_data = user_data: uintptr: u64;
 };
@@ -151,5 +151,5 @@ export fn poll_add(
 // Removes an existing poll request by matching the SQE's user_data field.
 export fn poll_remove(sqe: *sqe, user_data: *void, flags: sqe_flags...) void = {
 	preprw(sqe, op::POLL_REMOVE, -1, null, 0, 0, flags...);
-	setuser(sqe, user_data);
+	set_user(sqe, user_data);
 };

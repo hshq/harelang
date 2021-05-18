@@ -519,6 +519,7 @@ linux() {
 
 linux_io_uring() {
 	gen_srcs linux::io_uring \
+		cqe.ha \
 		queue.ha \
 		register.ha \
 		setup.ha \
