@@ -24,7 +24,7 @@ export fn must_get_sqe(ring: *io_uring) *sqe = match (get_sqe(ring)) {
 };
 
 fn needs_enter(ring: *io_uring, flags: *enter_flags) bool = {
-	if (ring.flags & setup_flags::IOPOLL == setup_flags::IOPOLL) {
+	if (ring.flags & setup_flags::IOPOLL != setup_flags::IOPOLL) {
 		return true;
 	};
 
