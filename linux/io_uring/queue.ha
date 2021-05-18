@@ -16,6 +16,13 @@ export fn get_sqe(ring: *io_uring) nullable *sqe = {
 	return null;
 };
 
+// Returns the next available [[sqe]] for this [[io_uring]], or aborts the
+// program if the queue is full.
+export fn must_get_sqe(ring: *io_uring) *sqe = match (get_sqe(ring)) {
+	null => abort("I/O queue full"),
+	sq: *sqe => sq,
+};
+
 fn needs_enter(ring: *io_uring, flags: *enter_flags) bool = {
 	if (ring.flags & setup_flags::IOPOLL == setup_flags::IOPOLL) {
 		return true;
