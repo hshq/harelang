@@ -82,6 +82,32 @@ fn do_submit(
 	};
 };
 
+// Advances the completion queue by N items.
+export fn cq_advance(ring: *io_uring, n: uint) void = {
+	*ring.cq.khead = *ring.cq.khead + n;
+};
+
+// Call after processing a [[cqe]]. The cqe is returned to the pool and cannot
+// be used by the application again.
+export fn cqe_seen(ring: *io_uring, cqe: *cqe) void = cq_advance(ring, 1);
+
+// Waits until a CQE is available, then returns it. The caller must pass the
+// returned CQE to [[cqe_seen]] to advance the queue.
+export fn wait(ring: *io_uring) (*cqe | error) = {
+	return match (get_cqe(ring, 0, 1)) {
+		err: error => err,
+		cq: nullable *cqe => {
+			assert(cq != null); // XXX: Correct?
+			cq: *cqe;
+		},
+	};
+};
+
+// Peeks the next CQE from the queue and returns it, or null if none are
+// pending. The caller must pass the returned CQE to [[cqe_seen]] to advance the
+// queue.
+export fn peek(ring: *io_uring) (nullable *cqe | error) = get_cqe(ring, 0, 0);
+
 fn peek_cqe(ring: *io_uring) (nullable *cqe, uint) = {
 	let head = *ring.cq.khead;
 	let tail = *ring.cq.ktail;
@@ -93,11 +119,11 @@ fn peek_cqe(ring: *io_uring) (nullable *cqe, uint) = {
 	return (&ring.cq.cqes[head & mask], avail);
 };
 
-export fn get_cqe(
+fn get_cqe(
 	ring: *io_uring,
 	submit: uint,
 	wait: uint,
-) (nullable *cqe | errors::opaque) = {
+) (nullable *cqe | error) = {
 	let cq: nullable *cqe = null;
 	for (cq == null) {
 		let enter = false, overflow = false;
