@@ -8,6 +8,9 @@ export fn strerror(err: error) const str = {
 	return errors::strerror(err);
 };
 
+// The maximum value for the first parameter of [[setup]].
+export def MAX_ENTRIES: uint = 4096;
+
 def CQE_BUFFER_SHIFT: uint = 16;
 def OFF_SQ_RING: u64 = 0;
 def OFF_CQ_RING: u64 = 0x8000000;
