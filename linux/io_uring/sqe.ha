@@ -1,3 +1,4 @@
+use endian;
 use rt;
 use types;
 
@@ -23,6 +24,13 @@ fn preprw(
 	sqe.addr = addr;
 	sqe.length = length;
 	sqe.off = offs;
+};
+
+// Sets the user data field of an [[sqe]]. This is copied to the [[cqe]] and can
+// be used to correlate a completion event with the original SQE.
+export fn setuser(sqe: *sqe, user_data: *void) void = {
+	static assert(size(uintptr) <= size(u64));
+	sqe.user_data = user_data: uintptr: u64;
 };
 
 // Prepares a no-op "operation" for an [[sqe]].
@@ -122,4 +130,26 @@ export fn fsync(
 ) void = {
 	preprw(sqe, op::FSYNC, fd, null, 0, 0, flags...);
 	sqe.fsync_flags = fsync_flags;
+};
+
+// Adds a request to poll a file descriptor for the given set of poll events.
+// This will only happen once, the poll request must be submitted with a new SQE
+// to re-poll the file descriptor later. The caller must call [[setuser]] to
+// provide a user data field in order to use [[poll_remove]] to remove this poll
+// request later.
+export fn poll_add(
+	sqe: *sqe,
+	fd: int,
+	poll_mask: uint,
+	flags: sqe_flags...
+) void = {
+	preprw(sqe, op::POLL_ADD, fd, null, 0, 0, flags...);
+	assert(endian::host == &endian::little); // TODO?
+	sqe.poll32_events = poll_mask: u32;
+};
+
+// Removes an existing poll request by matching the SQE's user_data field.
+export fn poll_remove(sqe: *sqe, user_data: *void, flags: sqe_flags...) void = {
+	preprw(sqe, op::POLL_REMOVE, -1, null, 0, 0, flags...);
+	setuser(sqe, user_data);
 };
