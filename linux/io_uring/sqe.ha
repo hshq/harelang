@@ -109,3 +109,17 @@ export fn write_fixed(
 	preprw(sqe, op::WRITE_FIXED, fd, buf, count: u32, 0, flags...);
 	sqe.buf_index = index;
 };
+
+// Prepares an fsync operation for an [[sqe]]. Note that operations are executed
+// in parallel and not are completed in submission order, so an fsync submitted
+// after a write may not cause the write to be accounted for by the fsync unless
+// [[sqe_flags::IO_LINK]] is used.
+export fn fsync(
+	sqe: *sqe,
+	fd: int,
+	fsync_flags: fsync_flags,
+	flags: sqe_flags...
+) void = {
+	preprw(sqe, op::FSYNC, fd, null, 0, 0, flags...);
+	sqe.fsync_flags = fsync_flags;
+};
