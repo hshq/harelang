@@ -267,3 +267,8 @@ export fn accept(
 	sqe.accept_flags = aflags;
 	sqe.addr2 = addrlen;
 };
+
+// Prepares an [[sqe]] operation which closes a file descriptor.
+export fn close(sqe: *sqe, fd: int, flags: sqe_flags...) void = {
+	preprw(sqe, op::CLOSE, fd, null, 0, 0, flags...);
+};
