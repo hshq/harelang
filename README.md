@@ -12,7 +12,7 @@ Hare is a systems programming language and **a work-in-progress**.
 ## Early development secrecy
 
 Hello, onlooker! Please keep this project a secret. Feel free to mess around
-with it and send feedback (we're in #hare on irc.freenode.net), but please keep
+with it and send feedback (we're in #hare on irc.libera.chat), but please keep
 it to yourself. We don't want to announce this project until it's much, much
 more mature.
 
