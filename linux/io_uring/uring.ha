@@ -55,7 +55,7 @@ export type op = enum u8 {
 };
 
 // Flags for an [[sqe]].
-export type sqe_flags = enum u8 {
+export type flags = enum u8 {
 	// Use fixed fileset
 	FIXED_FILE = 1 << 0,
 	// Issue after inflight IO
@@ -99,7 +99,7 @@ export type cqe_flags = enum u32 {
 // A submission queue entry.
 export type sqe = struct {
 	opcode: op,
-	flags: sqe_flags,
+	flags: flags,
 	ioprio: u16,
 	fd: i32,
 	union {
@@ -289,7 +289,7 @@ export type restriction = struct {
 	union {
 		register_op: regop,
 		sqe_op: op,
-		sqe_flags: sqe_flags,
+		flags: flags,
 	},
 	resv: u8,
 	resv2: [3]u32,

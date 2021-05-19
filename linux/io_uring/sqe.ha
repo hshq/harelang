@@ -2,7 +2,7 @@ use endian;
 use rt;
 use types;
 
-fn prep(sq: *sqe, op: op, flags: sqe_flags...) void = {
+fn prep(sq: *sqe, op: op, flags: flags...) void = {
 	rt::memset(sq, 0, size(sqe));
 	sq.opcode = op;
 	for (let i = 0z; i < len(flags); i += 1) {
@@ -17,7 +17,7 @@ fn preprw(
 	addr: nullable *void,
 	length: uint,
 	offs: u64,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	prep(sqe, op, flags...);
 	sqe.fd = fd;
@@ -34,7 +34,7 @@ export fn set_user(sqe: *sqe, user_data: *void) void = {
 };
 
 // Prepares a no-op "operation" for an [[sqe]].
-export fn nop(sqe: *sqe, flags: sqe_flags...) void = {
+export fn nop(sqe: *sqe, flags: flags...) void = {
 	prep(sqe, op::NOP, flags...);
 };
 
@@ -44,7 +44,7 @@ export fn readv(
 	fd: int,
 	iov: []rt::iovec,
 	offs: size,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	preprw(sqe, op::READV, fd,
 		iov: *[*]rt::iovec, len(iov): uint, offs, flags...);
@@ -56,7 +56,7 @@ export fn writev(
 	fd: int,
 	iov: []rt::iovec,
 	offs: size,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	preprw(sqe, op::WRITEV, fd,
 		iov: *[*]rt::iovec, len(iov): uint, offs, flags...);
@@ -68,7 +68,7 @@ export fn read(
 	fd: int,
 	buf: *void,
 	count: size,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	assert(count <= types::U32_MAX);
 	preprw(sqe, op::READ, fd, buf, count: u32, 0, flags...);
@@ -80,7 +80,7 @@ export fn write(
 	fd: int,
 	buf: *void,
 	count: size,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	assert(count <= types::U32_MAX);
 	preprw(sqe, op::WRITE, fd, buf, count: u32, 0, flags...);
@@ -95,7 +95,7 @@ export fn read_fixed(
 	buf: *void,
 	count: size,
 	index: u16,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	assert(count <= types::U32_MAX);
 	preprw(sqe, op::READ_FIXED, fd, buf, count: u32, 0, flags...);
@@ -111,7 +111,7 @@ export fn write_fixed(
 	buf: *void,
 	count: size,
 	index: u16,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	assert(count <= types::U32_MAX);
 	preprw(sqe, op::WRITE_FIXED, fd, buf, count: u32, 0, flags...);
@@ -121,12 +121,12 @@ export fn write_fixed(
 // Prepares an fsync operation for an [[sqe]]. Note that operations are executed
 // in parallel and not are completed in submission order, so an fsync submitted
 // after a write may not cause the write to be accounted for by the fsync unless
-// [[sqe_flags::IO_LINK]] is used.
+// [[flags::IO_LINK]] is used.
 export fn fsync(
 	sqe: *sqe,
 	fd: int,
 	fsync_flags: fsync_flags,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	preprw(sqe, op::FSYNC, fd, null, 0, 0, flags...);
 	sqe.fsync_flags = fsync_flags;
@@ -141,7 +141,7 @@ export fn poll_add(
 	sqe: *sqe,
 	fd: int,
 	poll_mask: uint,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	preprw(sqe, op::POLL_ADD, fd, null, 0, 0, flags...);
 	assert(endian::host == &endian::little); // TODO?
@@ -150,7 +150,7 @@ export fn poll_add(
 
 // Removes an existing poll request by matching the SQE's user_data field. See
 // [[setuser]].
-export fn poll_remove(sqe: *sqe, user_data: *void, flags: sqe_flags...) void = {
+export fn poll_remove(sqe: *sqe, user_data: *void, flags: flags...) void = {
 	preprw(sqe, op::POLL_REMOVE, -1, null, 0, 0, flags...);
 	set_user(sqe, user_data);
 };
@@ -162,7 +162,7 @@ export fn sendmsg(
 	fd: int,
 	msghdr: *rt::msghdr,
 	sendmsg_flags: int,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	preprw(sqe, op::SENDMSG, fd, msghdr, 0, 0, flags...);
 	sqe.msg_flags = sendmsg_flags;
@@ -175,7 +175,7 @@ export fn recvmsg(
 	fd: int,
 	msghdr: *rt::msghdr,
 	recvmsg_flags: int,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	preprw(sqe, op::RECVMSG, fd, msghdr, 0, 0, flags...);
 	sqe.msg_flags = recvmsg_flags;
@@ -189,7 +189,7 @@ export fn send(
 	buf: *void,
 	count: size,
 	send_flags: int,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	assert(count <= types::U32_MAX);
 	preprw(sqe, op::SEND, fd, buf, count: u32, 0, flags...);
@@ -204,7 +204,7 @@ export fn recv(
 	buf: *void,
 	count: size,
 	recv_flags: int,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	assert(count <= types::U32_MAX);
 	preprw(sqe, op::RECV, fd, buf, count: u32, 0, flags...);
@@ -221,7 +221,7 @@ export fn timeout(
 	ts: *rt::timespec,
 	events: uint,
 	to_flags: timeout_flags,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	preprw(sqe, op::TIMEOUT, 0, ts, 1, events, flags...);
 	sqe.timeout_flags = to_flags;
@@ -233,7 +233,7 @@ export fn timeout_remove(
 	sqe: *sqe,
 	user_data: *void,
 	to_flags: timeout_flags,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	preprw(sqe, op::TIMEOUT_REMOVE, 0, user_data, 0, 0, flags...);
 	sqe.timeout_flags = to_flags;
@@ -247,7 +247,7 @@ export fn timeout_update(
 	ts: *rt::timespec,
 	events: uint,
 	to_flags: timeout_flags,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	preprw(sqe, op::TIMEOUT_REMOVE, 0, user_data, 0, events, flags...);
 	sqe.timeout_flags = to_flags | timeout_flags::UPDATE;
@@ -261,7 +261,7 @@ export fn accept(
 	addr: nullable *rt::sockaddr,
 	addrlen: nullable *uint,
 	aflags: uint,
-	flags: sqe_flags...
+	flags: flags...
 ) void = {
 	preprw(sqe, op::ACCEPT, fd, addr, 0, 0, flags...);
 	sqe.accept_flags = aflags;
@@ -269,6 +269,6 @@ export fn accept(
 };
 
 // Prepares an [[sqe]] operation which closes a file descriptor.
-export fn close(sqe: *sqe, fd: int, flags: sqe_flags...) void = {
+export fn close(sqe: *sqe, fd: int, flags: flags...) void = {
 	preprw(sqe, op::CLOSE, fd, null, 0, 0, flags...);
 };
