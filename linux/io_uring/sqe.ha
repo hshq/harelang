@@ -167,7 +167,7 @@ export fn sendmsg(
 	sqe.msg_flags = sendmsg_flags;
 };
 
-// Prepares a recvmsg operation for an [[sqe]], equivalent to the sendmsg(2)
+// Prepares a recvmsg operation for an [[sqe]], equivalent to the recvmsg(2)
 // system call.
 export fn recvmsg(
 	sqe: *sqe,
@@ -195,7 +195,7 @@ export fn send(
 	sqe.msg_flags = send_flags;
 };
 
-// Prepares a recv operation for an [[sqe]], equivalent to the send(2) system
+// Prepares a recv operation for an [[sqe]], equivalent to the recv(2) system
 // call.
 export fn recv(
 	sqe: *sqe,
