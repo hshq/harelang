@@ -1,17 +1,23 @@
 use rt;
 use linux::vdso;
 
-fn duration_to_timespec(n: duration, ts: *rt::timespec) void = {
+// Converts a [[duration]] to an [[rt::timespec]]. This function is
+// non-portable.
+export fn duration_to_timespec(n: duration, ts: *rt::timespec) void = {
 	ts.tv_sec = n / SECOND;
 	ts.tv_nsec = n % SECOND;
 };
 
-fn instant_to_timespec(t: instant, ts: *rt::timespec) void = {
+// Converts an [[instant]] to an [[rt::timespec]]. This function is
+// non-portable.
+export fn instant_to_timespec(t: instant, ts: *rt::timespec) void = {
 	ts.tv_sec = t.sec;
 	ts.tv_nsec = t.nsec;
 };
 
-fn timespec_to_instant(ts: rt::timespec) instant = instant {
+// Converts a [[rt::timespec]] to an [[rt::instant]]. This function is
+// non-portable.
+export fn timespec_to_instant(ts: rt::timespec) instant = instant {
 	sec = ts.tv_sec,
 	nsec = ts.tv_nsec,
 };

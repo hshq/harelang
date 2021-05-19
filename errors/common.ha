@@ -19,6 +19,12 @@ export type overflow = !void;
 // The requested operation is not supported.
 export type unsupported = !void;
 
+// The requested operation timed out.
+export type timeout = !void;
+
+// The requested operation was cancelled.
+export type cancelled = !void;
+
 // A tagged union of all error types.
 export type error = !(
 	busy |
@@ -28,5 +34,7 @@ export type error = !(
 	noentry |
 	overflow |
 	unsupported |
+	timeout |
+	cancelled |
 	opaque
 );

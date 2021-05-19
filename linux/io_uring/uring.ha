@@ -1,7 +1,7 @@
 use errors;
 
 // All errors which may be returned by this module.
-export type error = errors::opaque;
+export type error = (errors::timeout | errors::cancelled | errors::opaque);
 
 // Converts an [[error]] into a human-readable string.
 export fn strerror(err: error) const str = {
@@ -77,7 +77,13 @@ export type fsync_flags = enum u32 {
 
 // Flags for a timeout operation.
 export type timeout_flags = enum u32 {
+	// If set, the timeout will be "absolute", waiting until CLOCK_MONOTONIC
+	// reaches the time defined by the timespec. If unset, it will be
+	// interpted as a duration relative to the I/O submission.
 	ABS = 1 << 0,
+	// When combined with [[op::TIMEOUT_REMOVE]], causes the submission to
+	// update the timer rather than remove it.
+	UPDATE = 1 << 1,
 };
 
 // Flags for a splice operation.

@@ -148,7 +148,8 @@ export fn poll_add(
 	sqe.poll32_events = poll_mask: u32;
 };
 
-// Removes an existing poll request by matching the SQE's user_data field.
+// Removes an existing poll request by matching the SQE's user_data field. See
+// [[setuser]].
 export fn poll_remove(sqe: *sqe, user_data: *void, flags: sqe_flags...) void = {
 	preprw(sqe, op::POLL_REMOVE, -1, null, 0, 0, flags...);
 	set_user(sqe, user_data);
@@ -208,4 +209,47 @@ export fn recv(
 	assert(count <= types::U32_MAX);
 	preprw(sqe, op::RECV, fd, buf, count: u32, 0, flags...);
 	sqe.msg_flags = recv_flags;
+};
+
+// Prepares a timeout operation for an [[sqe]]. "ts" should be a timespec
+// describing the desired timeout, and "events" may optionally be used to define
+// a number of completion events to wake after (or zero to wake only after the
+// timeout expires). The caller must call [[setuser]] to provide a user data
+// field in order to use [[timeout_remove]] to cancel this timeout later.
+export fn timeout(
+	sqe: *sqe,
+	ts: *rt::timespec,
+	events: uint,
+	to_flags: timeout_flags,
+	flags: sqe_flags...
+) void = {
+	preprw(sqe, op::TIMEOUT, 0, ts, 1, events, flags...);
+	sqe.timeout_flags = to_flags;
+};
+
+// Removes an existing timeout request by matching the SQE's user_data field.
+// See [[setuser]].
+export fn timeout_remove(
+	sqe: *sqe,
+	user_data: *void,
+	to_flags: timeout_flags,
+	flags: sqe_flags...
+) void = {
+	preprw(sqe, op::TIMEOUT_REMOVE, 0, user_data, 0, 0, flags...);
+	sqe.timeout_flags = to_flags;
+};
+
+// Updates an existing timeout request by matching the SQE's user_data field.
+// See [[setuser]].
+export fn timeout_update(
+	sqe: *sqe,
+	user_data: *void,
+	ts: *rt::timespec,
+	events: uint,
+	to_flags: timeout_flags,
+	flags: sqe_flags...
+) void = {
+	preprw(sqe, op::TIMEOUT_REMOVE, 0, user_data, 0, events, flags...);
+	sqe.timeout_flags = to_flags | timeout_flags::UPDATE;
+	sqe.addr2 = ts;
 };
