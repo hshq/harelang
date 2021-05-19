@@ -253,3 +253,17 @@ export fn timeout_update(
 	sqe.timeout_flags = to_flags | timeout_flags::UPDATE;
 	sqe.addr2 = ts;
 };
+
+// Prepares a socket accept operation for an [[sqe]]. Equivalent to accept4(2).
+export fn accept(
+	sqe: *sqe,
+	fd: int,
+	addr: nullable *rt::sockaddr,
+	addrlen: nullable *uint,
+	aflags: uint,
+	flags: sqe_flags...
+) void = {
+	preprw(sqe, op::ACCEPT, fd, addr, 0, 0, flags...);
+	sqe.accept_flags = aflags;
+	sqe.addr2 = addrlen;
+};
