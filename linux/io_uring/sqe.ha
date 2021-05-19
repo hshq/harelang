@@ -153,3 +153,59 @@ export fn poll_remove(sqe: *sqe, user_data: *void, flags: sqe_flags...) void = {
 	preprw(sqe, op::POLL_REMOVE, -1, null, 0, 0, flags...);
 	set_user(sqe, user_data);
 };
+
+// Prepares a sendmsg operation for an [[sqe]], equivalent to the sendmsg(2)
+// system call.
+export fn sendmsg(
+	sqe: *sqe,
+	fd: int,
+	msghdr: *rt::msghdr,
+	sendmsg_flags: int,
+	flags: sqe_flags...
+) void = {
+	preprw(sqe, op::SENDMSG, fd, msghdr, 0, 0, flags...);
+	sqe.msg_flags = sendmsg_flags;
+};
+
+// Prepares a recvmsg operation for an [[sqe]], equivalent to the sendmsg(2)
+// system call.
+export fn recvmsg(
+	sqe: *sqe,
+	fd: int,
+	msghdr: *rt::msghdr,
+	recvmsg_flags: int,
+	flags: sqe_flags...
+) void = {
+	preprw(sqe, op::RECVMSG, fd, msghdr, 0, 0, flags...);
+	sqe.msg_flags = recvmsg_flags;
+};
+
+// Prepares a send operation for an [[sqe]], equivalent to the send(2) system
+// call.
+export fn send(
+	sqe: *sqe,
+	fd: int,
+	buf: *void,
+	count: size,
+	send_flags: int,
+	flags: sqe_flags...
+) void = {
+	assert(count <= types::U32_MAX);
+	preprw(sqe, op::SEND, fd, buf, count: u32, 0, flags...);
+	sqe.msg_flags = send_flags;
+};
+
+// Prepares a recv operation for an [[sqe]], equivalent to the send(2) system
+// call.
+export fn recv(
+	sqe: *sqe,
+	fd: int,
+	buf: *void,
+	count: size,
+	recv_flags: int,
+	flags: sqe_flags...
+) void = {
+	assert(count <= types::U32_MAX);
+	preprw(sqe, op::RECV, fd, buf, count: u32, 0, flags...);
+	sqe.msg_flags = recv_flags;
+};

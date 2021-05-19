@@ -111,7 +111,7 @@ export type sqe = struct {
 		poll_events: u16,
 		poll32_events: u32,
 		sync_range_flags: u32,
-		msg_flags: u32,
+		msg_flags: int,
 		timeout_flags: timeout_flags,
 		accept_flags: u32,
 		cancel_flags: u32,
