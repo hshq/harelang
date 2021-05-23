@@ -969,6 +969,7 @@ $(HARECACHE)/temp/temp.ssa: $(stdlib_temp_srcs) $(stdlib_rt) $(stdlib_crypto_ran
 stdlib_time_srcs= \
 	$(STDLIB)/time/$(PLATFORM)/functions.ha \
 	$(STDLIB)/time/$(PLATFORM)/$(ARCH).ha \
+	$(STDLIB)/time/arithm.ha \
 	$(STDLIB)/time/types.ha
 
 $(HARECACHE)/time/time.ssa: $(stdlib_time_srcs) $(stdlib_rt) $(stdlib_linux_vdso)
@@ -2041,6 +2042,7 @@ $(TESTCACHE)/temp/temp.ssa: $(testlib_temp_srcs) $(testlib_rt) $(testlib_crypto_
 testlib_time_srcs= \
 	$(STDLIB)/time/$(PLATFORM)/functions.ha \
 	$(STDLIB)/time/$(PLATFORM)/$(ARCH).ha \
+	$(STDLIB)/time/arithm.ha \
 	$(STDLIB)/time/types.ha
 
 $(TESTCACHE)/time/time.ssa: $(testlib_time_srcs) $(testlib_rt) $(testlib_linux_vdso)

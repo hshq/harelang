@@ -690,6 +690,7 @@ time() {
 	gen_srcs time \
 		'$(PLATFORM)/functions.ha' \
 		'$(PLATFORM)/$(ARCH).ha' \
+		arithm.ha \
 		types.ha
 	gen_ssa time linux::vdso
 }
