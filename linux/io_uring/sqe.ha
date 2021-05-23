@@ -285,6 +285,20 @@ export fn accept(
 	sqe.addr2 = addrlen;
 };
 
+// Prepares an [[sqe]] operation which opens a file. The path must be a C
+// string, i.e. NUL terminated; see [[strings::to_c]].
+export fn openat(
+	sqe: *sqe,
+	dirfd: int,
+	path: *const char,
+	oflags: int,
+	mode: uint,
+	flags: flags...
+) void = {
+	preprw(sqe, op::OPENAT, dirfd, path, mode, 0, flags...);
+	sqe.open_flags = oflags: u32;
+};
+
 // Prepares an [[sqe]] operation which closes a file descriptor.
 export fn close(sqe: *sqe, fd: int, flags: flags...) void = {
 	preprw(sqe, op::CLOSE, fd, null, 0, 0, flags...);
