@@ -517,6 +517,12 @@ linux() {
 	gen_ssa linux format::elf
 }
 
+linux_signalfd() {
+	gen_srcs linux::signalfd \
+		signalfd.ha
+	gen_ssa linux::signalfd errors
+}
+
 linux_io_uring() {
 	gen_srcs linux::io_uring \
 		cqe.ha \
@@ -780,6 +786,7 @@ hash::crc64
 hash::fnv
 io
 linux
+linux::signalfd
 linux::io_uring
 linux::vdso
 net

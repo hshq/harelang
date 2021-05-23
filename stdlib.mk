@@ -229,6 +229,10 @@ hare_stdlib_deps+=$(stdlib_io)
 stdlib_linux=$(HARECACHE)/linux/linux.o
 hare_stdlib_deps+=$(stdlib_linux)
 
+# gen_lib linux::signalfd
+stdlib_linux_signalfd=$(HARECACHE)/linux/signalfd/linux_signalfd.o
+hare_stdlib_deps+=$(stdlib_linux_signalfd)
+
 # gen_lib linux::io_uring
 stdlib_linux_io_uring=$(HARECACHE)/linux/io_uring/linux_io_uring.o
 hare_stdlib_deps+=$(stdlib_linux_io_uring)
@@ -756,6 +760,16 @@ $(HARECACHE)/linux/linux.ssa: $(stdlib_linux_srcs) $(stdlib_rt) $(stdlib_format_
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux \
 		-t$(HARECACHE)/linux/linux.td $(stdlib_linux_srcs)
 
+# linux::signalfd
+stdlib_linux_signalfd_srcs= \
+	$(STDLIB)/linux/signalfd/signalfd.ha
+
+$(HARECACHE)/linux/signalfd/linux_signalfd.ssa: $(stdlib_linux_signalfd_srcs) $(stdlib_rt) $(stdlib_errors)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/linux/signalfd
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::signalfd \
+		-t$(HARECACHE)/linux/signalfd/linux_signalfd.td $(stdlib_linux_signalfd_srcs)
+
 # linux::io_uring
 stdlib_linux_io_uring_srcs= \
 	$(STDLIB)/linux/io_uring/cqe.ha \
@@ -1263,6 +1277,10 @@ hare_testlib_deps+=$(testlib_io)
 # gen_lib linux
 testlib_linux=$(TESTCACHE)/linux/linux.o
 hare_testlib_deps+=$(testlib_linux)
+
+# gen_lib linux::signalfd
+testlib_linux_signalfd=$(TESTCACHE)/linux/signalfd/linux_signalfd.o
+hare_testlib_deps+=$(testlib_linux_signalfd)
 
 # gen_lib linux::io_uring
 testlib_linux_io_uring=$(TESTCACHE)/linux/io_uring/linux_io_uring.o
@@ -1809,6 +1827,16 @@ $(TESTCACHE)/linux/linux.ssa: $(testlib_linux_srcs) $(testlib_rt) $(testlib_form
 	@mkdir -p $(TESTCACHE)/linux
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux \
 		-t$(TESTCACHE)/linux/linux.td $(testlib_linux_srcs)
+
+# linux::signalfd
+testlib_linux_signalfd_srcs= \
+	$(STDLIB)/linux/signalfd/signalfd.ha
+
+$(TESTCACHE)/linux/signalfd/linux_signalfd.ssa: $(testlib_linux_signalfd_srcs) $(testlib_rt) $(testlib_errors)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/linux/signalfd
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::signalfd \
+		-t$(TESTCACHE)/linux/signalfd/linux_signalfd.td $(testlib_linux_signalfd_srcs)
 
 # linux::io_uring
 testlib_linux_io_uring_srcs= \
