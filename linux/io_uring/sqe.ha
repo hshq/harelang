@@ -256,6 +256,21 @@ export fn timeout_update(
 	sqe.addr2 = ts;
 };
 
+// Prepares a timeout operation for an [[sqe]] which is linked to the previous
+// SQE, effectively setting an upper limit on how long that SQE can take to
+// complete. "ts" should be a timespec describing the desired timeout. The
+// caller must call [[setuser]] to provide a user data field in order to use
+// [[timeout_remove]] to cancel this timeout later.
+export fn link_timeout(
+	sqe: *sqe,
+	ts: *rt::timespec,
+	to_flags: timeout_flags,
+	flags: flags...
+) void = {
+	preprw(sqe, op::LINK_TIMEOUT, 0, ts, 1, 0, flags...);
+	sqe.timeout_flags = to_flags;
+};
+
 // Prepares a socket accept operation for an [[sqe]]. Equivalent to accept4(2).
 export fn accept(
 	sqe: *sqe,
