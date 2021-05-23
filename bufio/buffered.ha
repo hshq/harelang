@@ -74,6 +74,9 @@ export fn flush(s: *io::stream) (io::error | void) = {
 	assert(s.writer == &buffered_write,
 		"bufio::flushed used on non-buffered stream");
 	let s = s: *bufstream;
+	if (s.wavail == 0) {
+		return;
+	};
 	io::write(s.source, s.wbuffer[..s.wavail])?;
 	s.wavail = 0;
 	return;
