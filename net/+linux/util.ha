@@ -10,6 +10,7 @@ fn setsockopt(sockfd: int, option: int, value: bool) (void | rt::errno) = {
 	let val: int = if (value) 1 else 0;
 	rt::setsockopt(sockfd, rt::SOL_SOCKET, option,
 		&val: *void, size(int): u32)?;
+	return;
 };
 
 fn setfcntl(sockfd: int, flag: int) (void | rt::errno) = {
