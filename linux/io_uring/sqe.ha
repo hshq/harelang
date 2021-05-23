@@ -68,10 +68,11 @@ export fn read(
 	fd: int,
 	buf: *void,
 	count: size,
+	offs: u64,
 	flags: flags...
 ) void = {
 	assert(count <= types::U32_MAX);
-	preprw(sqe, op::READ, fd, buf, count: u32, 0, flags...);
+	preprw(sqe, op::READ, fd, buf, count: u32, offs, flags...);
 };
 
 // Prepares a write operation for an [[sqe]].
@@ -80,10 +81,11 @@ export fn write(
 	fd: int,
 	buf: *void,
 	count: size,
+	offs: u64,
 	flags: flags...
 ) void = {
 	assert(count <= types::U32_MAX);
-	preprw(sqe, op::WRITE, fd, buf, count: u32, 0, flags...);
+	preprw(sqe, op::WRITE, fd, buf, count: u32, offs, flags...);
 };
 
 // Prepares a read for a fixed buffer previously registered with
