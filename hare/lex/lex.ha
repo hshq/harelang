@@ -760,17 +760,13 @@ fn next(lex: *lexer) (rune | io::EOF | io::error) = {
 		},
 	};
 
-	for (true) {
-		return match (bufio::scanrune(lex.in)) {
-			e: (io::EOF | io::error) => e,
-			r: rune => {
-				lexloc(lex, r);
-				r;
-			},
-		};
+	return match (bufio::scanrune(lex.in)) {
+		e: (io::EOF | io::error) => e,
+		r: rune => {
+			lexloc(lex, r);
+			return r;
+		},
 	};
-
-	abort("unreachable");
 };
 
 fn nextw(lex: *lexer) ((rune, location) | io::EOF | io::error) = {
