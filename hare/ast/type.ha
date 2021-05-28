@@ -115,7 +115,8 @@ export type type_flags = enum uint {
 
 // A Hare type.
 export type _type = struct {
-	loc: lex::location,
+	start: lex::location,
+	end: lex::location,
 	flags: type_flags,
 	_type: (alias_type | builtin_type | enum_type | func_type |
 		list_type | pointer_type | struct_type | union_type |

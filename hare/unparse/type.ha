@@ -216,7 +216,8 @@ fn type_test(t: ast::_type, expected: str) bool = {
 		col = 0,
 	};
 	let t = ast::_type {
-		loc = loc,
+		start = loc,
+		end = loc,
 		flags = ast::type_flags::CONST,
 		_type = ast::alias_type {
 			unwrap = false,
@@ -224,7 +225,8 @@ fn type_test(t: ast::_type, expected: str) bool = {
 		},
 	};
 	let type_int = ast::_type {
-		loc = loc,
+		start = loc,
+		end = loc,
 		flags = 0,
 		_type = ast::builtin_type::INT,
 	};

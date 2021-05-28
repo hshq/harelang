@@ -104,12 +104,14 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 		col = 0,
 	};
 	let type_int = ast::_type {
-		loc = loc,
+		start = loc,
+		end = loc,
 		flags = 0,
 		_type = ast::builtin_type::INT,
 	};
 	let type_fn = ast::_type {
-		loc = loc,
+		start = loc,
+		end = loc,
 		flags = ast::type_flags::CONST,
 		_type = ast::func_type {
 			result = &type_int,

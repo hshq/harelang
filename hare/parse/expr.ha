@@ -964,7 +964,8 @@ fn match_case(lexer: *lex::lexer) (ast::match_case | error) = {
 		ltok::NULL => {
 			want(lexer, ltok::NULL)?;
 			("", ast::_type {
-				loc = loc,
+				start = loc,
+				end = lex::prevloc(lexer),
 				flags = 0,
 				_type = ast::builtin_type::NULL,
 			});
@@ -997,7 +998,8 @@ fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 				void => {
 					let case = match_case(lexer)?;
 					case._type = alloc(ast::_type {
-						loc = case._type.loc,
+						start = t.2,
+						end = case._type.end,
 						flags = 0,
 						_type = ast::pointer_type {
 							referent = case._type,

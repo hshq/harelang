@@ -90,7 +90,7 @@ fn synassert(loc: lex::location, cond: bool, msg: str) (void | error) = {
 
 fn nametype(lexer: *lex::lexer) ((str, ast::_type) | error) = {
 	let tok = peek(lexer)? as lex::token;
-	let loc = tok.2;
+	const start = tok.2;
 	return switch (tok.0) {
 		ltok::NAME => {
 			let name = tok.1 as str;
@@ -106,7 +106,8 @@ fn nametype(lexer: *lex::lexer) ((str, ast::_type) | error) = {
 					let id = ident(lexer)?;
 					insert(id[0], name);
 					("", ast::_type {
-						loc = loc,
+						start = start,
+						end = lex::prevloc(lexer),
 						flags = 0,
 						_type = ast::alias_type {
 							unwrap = false,
@@ -115,7 +116,8 @@ fn nametype(lexer: *lex::lexer) ((str, ast::_type) | error) = {
 					});
 				},
 				* => ("", ast::_type {
-					loc = loc,
+					start = start,
+					end = lex::prevloc(lexer),
 					flags = 0,
 					_type = ast::alias_type {
 						unwrap = false,

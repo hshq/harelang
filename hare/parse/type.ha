@@ -98,47 +98,55 @@ fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 			lex::tokstr(tok)),
 	};
 	return ast::_type {
-		loc = lex::mkloc(lexer),
+		start = tok.2,
+		end = lex::prevloc(lexer),
 		flags = 0,
 		_type = builtin,
 	};
 };
 
 fn alias_type(lexer: *lex::lexer) (ast::_type | error) = {
-	let loc = lex::mkloc(lexer);
+	const start = lex::mkloc(lexer);
 	let unwrap = match (try(lexer, ltok::ELLIPSIS)?) {
 		void => false,
 		* => true,
 	};
+	let ident = ident(lexer)?;
 	return ast::_type {
-		loc = loc,
+		start = start,
+		end = lex::prevloc(lexer),
 		flags = 0,
 		_type = ast::alias_type {
 			unwrap = unwrap,
-			ident = ident(lexer)?,
+			ident = ident,
 		},
 	};
 };
 
 fn pointer_type(lexer: *lex::lexer) (ast::_type | error) = {
-	let loc = lex::mkloc(lexer);
+	const start = lex::mkloc(lexer);
 	let flags = match (try(lexer, ltok::NULLABLE)?) {
 		void => 0: ast::pointer_flags,
 		* => ast::pointer_flags::NULLABLE,
 	};
 	want(lexer, ltok::TIMES)?;
+	let _type = _type(lexer)?;
 	return ast::_type {
-		loc = loc,
+		start = start,
+		end = lex::prevloc(lexer),
 		flags = 0,
 		_type = ast::pointer_type {
-			referent = alloc(_type(lexer)?),
+			referent = alloc(_type),
 			flags = flags,
 		},
 	};
 };
 
-fn tagged_type(lexer: *lex::lexer, first: ast::_type) (ast::_type | error) = {
-	let loc = lex::mkloc(lexer);
+fn tagged_type(
+	lexer: *lex::lexer,
+	first: ast::_type,
+	start: lex::location
+) (ast::_type | error) = {
 	let tagged: ast::tagged_type = [];
 	append(tagged, alloc(first));
 	for (try(lexer, ltok::RPAREN)? is void) {
@@ -152,14 +160,18 @@ fn tagged_type(lexer: *lex::lexer, first: ast::_type) (ast::_type | error) = {
 		};
 	};
 	return ast::_type {
-		loc = loc,
+		start = start,
+		end = lex::prevloc(lexer),
 		flags = 0,
 		_type = tagged,
 	};
 };
 
-fn tuple_type(lexer: *lex::lexer, first: ast::_type) (ast::_type | error) = {
-	let loc = lex::mkloc(lexer);
+fn tuple_type(
+	lexer: *lex::lexer,
+	first: ast::_type,
+	start: lex::location
+) (ast::_type | error) = {
 	let tuple: ast::tuple_type = [];
 	append(tuple, alloc(first));
 	for (try(lexer, ltok::RPAREN)? is void) {
@@ -173,14 +185,15 @@ fn tuple_type(lexer: *lex::lexer, first: ast::_type) (ast::_type | error) = {
 		};
 	};
 	return ast::_type {
-		loc = loc,
+		start = start,
+		end = lex::prevloc(lexer),
 		flags = 0,
 		_type = tuple,
 	};
 };
 
 fn fn_type(lexer: *lex::lexer) (ast::_type | error) = {
-	let loc = lex::mkloc(lexer);
+	const start = lex::mkloc(lexer);
 	let attrs = match (try(lexer, ltok::ATTR_NORETURN)?) {
 		void => 0: ast::func_attrs,
 		* => ast::func_attrs::NORETURN,
@@ -189,7 +202,8 @@ fn fn_type(lexer: *lex::lexer) (ast::_type | error) = {
 	let proto = prototype(lexer)?;
 	proto.attrs |= attrs;
 	return ast::_type {
-		loc = loc,
+		start = start,
+		end = lex::prevloc(lexer),
 		flags = ast::type_flags::CONST,
 		_type = proto,
 	};
@@ -243,13 +257,14 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 	};
 
 	return ast::_type {
-		loc = kind.2,
+		start = kind.2,
+		end = lex::prevloc(lexer),
+		flags = 0,
 		_type = switch (kind.0) {
 			ltok::STRUCT => membs: ast::struct_type,
 			ltok::UNION => membs: ast::union_type,
 			* => abort(),
 		},
-		...
 	};
 };
 
@@ -314,14 +329,15 @@ fn array_slice_type(lexer: *lex::lexer) (ast::_type | error) = {
 		ast::len_slice => void,
 		* => want(lexer, ltok::RBRACKET)?,
 	};
-
+	let _type = _type(lexer)?;
 	return ast::_type {
-		loc = start.2,
+		start = start.2,
+		end = lex::prevloc(lexer),
+		flags = 0,
 		_type = ast::list_type {
 			length = length,
-			members = alloc(_type(lexer)?),
+			members = alloc(_type),
 		},
-		...
 	};
 };
 
@@ -364,12 +380,13 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 	};
 
 	return ast::_type {
-		loc = start.2,
+		start = start.2,
+		end = lex::prevloc(lexer),
+		flags = 0,
 		_type = ast::enum_type {
 			storage = storage,
 			values = membs,
 		},
-		...
 	};
 };
 
@@ -401,8 +418,8 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 			let t = _type(lexer)?;
 			switch (want(lexer, ltok::BOR,
 					ltok::COMMA)?.0) {
-				ltok::BOR => tagged_type(lexer, t)?,
-				ltok::COMMA => tuple_type(lexer, t)?,
+				ltok::BOR => tagged_type(lexer, t, tok.2)?,
+				ltok::COMMA => tuple_type(lexer, t, tok.2)?,
 				* => abort("unreachable"),
 			};
 		},

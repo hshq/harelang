@@ -125,8 +125,9 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 	want(lexer, ltok::FN)?;
 	let ident_loc = lex::mkloc(lexer);
 	let ident = ident(lexer)?;
-	let proto_loc = lex::mkloc(lexer);
+	let proto_start = lex::mkloc(lexer);
 	let prototype = prototype(lexer)?;
+	let proto_end = lex::prevloc(lexer);
 	if (noreturn) {
 		prototype.attrs |= ast::func_attrs::NORETURN;
 	};
@@ -151,7 +152,8 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 		symbol = sym,
 		ident = ident,
 		prototype = ast::_type {
-			loc = proto_loc,
+			start = proto_start,
+			end = proto_end,
 			flags = ast::type_flags::CONST,
 			_type = prototype,
 		},
