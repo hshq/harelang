@@ -123,9 +123,9 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 	};
 
 	want(lexer, ltok::FN)?;
-	let ident_loc = mkloc(lexer);
+	let ident_loc = lex::mkloc(lexer);
 	let ident = ident(lexer)?;
-	let proto_loc = mkloc(lexer);
+	let proto_loc = lex::mkloc(lexer);
 	let prototype = prototype(lexer)?;
 	if (noreturn) {
 		prototype.attrs |= ast::func_attrs::NORETURN;
@@ -190,7 +190,7 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 		};
 		append(decls, ast::decl {
 			exported = exported,
-			loc = mkloc(lexer),
+			loc = lex::mkloc(lexer),
 			decl = decl,
 			docs = comment,
 		});

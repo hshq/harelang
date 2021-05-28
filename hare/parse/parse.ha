@@ -20,12 +20,6 @@ fn syntaxerr(
 	return (loc, why): lex::syntax: lex::error;
 };
 
-fn mkloc(lex: *lex::lexer) lex::location = lex::location {
-	path = lex.path,
-	line = lex.loc.0,
-	col = lex.loc.1,
-};
-
 // Requires the next token to have a matching ltok. Returns that token, or an
 // error.
 fn want(lexer: *lex::lexer, want: lex::ltok...) (lex::token | error) = {
@@ -42,13 +36,13 @@ fn want(lexer: *lex::lexer, want: lex::ltok...) (lex::token | error) = {
 	let buf = strio::dynamic();
 	defer io::close(buf);
 	for (let i = 0z; i < len(want); i += 1) {
-		const tstr = lex::tokstr((want[i], void, mkloc(lexer)));
+		const tstr = lex::tokstr((want[i], void, lex::mkloc(lexer)));
 		fmt::fprintf(buf, "'{}'", tstr)!;
 		if (i + 1 < len(want)) {
 			fmt::fprint(buf, ", ")!;
 		};
 	};
-	return syntaxerr(mkloc(lexer), "Unexpected '{}', was expecting {}",
+	return syntaxerr(lex::mkloc(lexer), "Unexpected '{}', was expecting {}",
 		lex::tokstr(tok), strio::string(buf));
 };
 

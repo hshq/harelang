@@ -804,7 +804,7 @@ fn unget(lex: *lexer, r: (rune | io::EOF)) void = {
 	lex.rb[0] = r;
 };
 
-fn mkloc(lex: *lexer) location = location {
+export fn mkloc(lex: *lexer) location = location {
 	path = lex.path,
 	line = lex.loc.0,
 	col = lex.loc.1,

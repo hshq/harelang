@@ -8,7 +8,7 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 	let params: []ast::func_param = [];
 	want(lexer, ltok::LPAREN)?;
 	for (try(lexer, ltok::RPAREN)? is void) {
-		let loc = mkloc(lexer);
+		let loc = lex::mkloc(lexer);
 		match (try(lexer, ltok::ELLIPSIS)?) {
 			void => void,
 			lex::token => {
@@ -74,7 +74,7 @@ fn integer_type(
 	ltok::U8 => builtin_type::U8,
 	ltok::UINT => builtin_type::UINT,
 	ltok::UINTPTR => builtin_type::UINTPTR,
-	* => syntaxerr(mkloc(lexer), "Expected integer type"),
+	* => syntaxerr(lex::mkloc(lexer), "Expected integer type"),
 };
 
 fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
@@ -93,19 +93,19 @@ fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 		ltok::F64 => builtin_type::F64,
 		ltok::BOOL => builtin_type::BOOL,
 		ltok::VOID => builtin_type::VOID,
-		* => return syntaxerr(mkloc(lexer),
+		* => return syntaxerr(lex::mkloc(lexer),
 			"Unexected {}, was expecting primitive type",
 			lex::tokstr(tok)),
 	};
 	return ast::_type {
-		loc = mkloc(lexer),
+		loc = lex::mkloc(lexer),
 		flags = 0,
 		_type = builtin,
 	};
 };
 
 fn alias_type(lexer: *lex::lexer) (ast::_type | error) = {
-	let loc = mkloc(lexer);
+	let loc = lex::mkloc(lexer);
 	let unwrap = match (try(lexer, ltok::ELLIPSIS)?) {
 		void => false,
 		* => true,
@@ -121,7 +121,7 @@ fn alias_type(lexer: *lex::lexer) (ast::_type | error) = {
 };
 
 fn pointer_type(lexer: *lex::lexer) (ast::_type | error) = {
-	let loc = mkloc(lexer);
+	let loc = lex::mkloc(lexer);
 	let flags = match (try(lexer, ltok::NULLABLE)?) {
 		void => 0: ast::pointer_flags,
 		* => ast::pointer_flags::NULLABLE,
@@ -138,7 +138,7 @@ fn pointer_type(lexer: *lex::lexer) (ast::_type | error) = {
 };
 
 fn tagged_type(lexer: *lex::lexer, first: ast::_type) (ast::_type | error) = {
-	let loc = mkloc(lexer);
+	let loc = lex::mkloc(lexer);
 	let tagged: ast::tagged_type = [];
 	append(tagged, alloc(first));
 	for (try(lexer, ltok::RPAREN)? is void) {
@@ -159,7 +159,7 @@ fn tagged_type(lexer: *lex::lexer, first: ast::_type) (ast::_type | error) = {
 };
 
 fn tuple_type(lexer: *lex::lexer, first: ast::_type) (ast::_type | error) = {
-	let loc = mkloc(lexer);
+	let loc = lex::mkloc(lexer);
 	let tuple: ast::tuple_type = [];
 	append(tuple, alloc(first));
 	for (try(lexer, ltok::RPAREN)? is void) {
@@ -180,7 +180,7 @@ fn tuple_type(lexer: *lex::lexer, first: ast::_type) (ast::_type | error) = {
 };
 
 fn fn_type(lexer: *lex::lexer) (ast::_type | error) = {
-	let loc = mkloc(lexer);
+	let loc = lex::mkloc(lexer);
 	let attrs = match (try(lexer, ltok::ATTR_NORETURN)?) {
 		void => 0: ast::func_attrs,
 		* => ast::func_attrs::NORETURN,
@@ -202,7 +202,7 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 
 	for (true) {
 		if (try(lexer, ltok::RBRACE) is lex::token) {
-			synassert(mkloc(lexer), len(membs) != 0,
+			synassert(lex::mkloc(lexer), len(membs) != 0,
 				"Expected field list")?;
 			break;
 		};
@@ -340,7 +340,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 	let membs: []ast::enum_field = [];
 	for (true) {
 		if (try(lexer, ltok::RBRACE) is lex::token) {
-			synassert(mkloc(lexer), len(membs) != 0,
+			synassert(lex::mkloc(lexer), len(membs) != 0,
 				"Expected member list")?;
 			break;
 		};
@@ -408,7 +408,7 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 		},
 		ltok::ATTR_NORETURN, ltok::FN => fn_type(lexer)?,
 		ltok::ELLIPSIS, ltok::NAME => alias_type(lexer)?,
-		* => return syntaxerr(mkloc(lexer),
+		* => return syntaxerr(lex::mkloc(lexer),
 			"Unexpected {}, was expecting type",
 			lex::tokstr(tok)),
 	};

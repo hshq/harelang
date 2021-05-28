@@ -32,12 +32,12 @@ export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 		switch (want(lexer, ltok::SEMICOLON, ltok::LBRACE,
 				ltok::EQUAL)?.0) {
 			ltok::SEMICOLON => {
-				synassert(mkloc(lexer), !name.1,
+				synassert(lex::mkloc(lexer), !name.1,
 					"Unexpected trailing :: in ident")?;
 				append(imports, name.0: ast::import_module);
 			},
 			ltok::LBRACE => {
-				synassert(mkloc(lexer), name.1,
+				synassert(lex::mkloc(lexer), name.1,
 					"Expected trailing :: in ident")?;
 				let objects = name_list(lexer)?;
 				append(imports, ast::import_objects {
@@ -47,7 +47,7 @@ export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 				want(lexer, ltok::SEMICOLON)?;
 			},
 			ltok::EQUAL => {
-				synassert(mkloc(lexer),
+				synassert(lex::mkloc(lexer),
 					len(name.0) == 1 && !name.1,
 					"Expected name, not ident")?;
 				let ident = ident(lexer)?;

@@ -23,7 +23,7 @@ fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	};
 	if (z > ast::IDENT_MAX) {
 		ast::ident_free(ident: ast::ident);
-		return syntaxerr(mkloc(lexer),
+		return syntaxerr(lex::mkloc(lexer),
 			"Identifier exceeds maximum length");
 	};
 	return (ident: ast::ident, false);
@@ -32,7 +32,7 @@ fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 // Parses a single identifier, i.e. 'foo::bar::baz'.
 export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 	let ident = ident_trailing(lexer)?;
-	synassert(mkloc(lexer), !ident.1, "Unexpected trailing :: in ident")?;
+	synassert(lex::mkloc(lexer), !ident.1, "Unexpected trailing :: in ident")?;
 	return ident.0;
 };
 
