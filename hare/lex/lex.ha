@@ -689,12 +689,15 @@ fn unget(lex: *lexer, r: ((rune, location) | io::EOF)) void = {
 	lex.rb[0] = r;
 };
 
-export fn mkloc(lex: *lexer) location = match (lex.rb[0]) {
-	r: (rune, location) => r.1,
-	void => location {
-		path = lex.path,
-		line = lex.loc.0,
-		col = lex.loc.1,
+export fn mkloc(lex: *lexer) location = match (lex.un) {
+	t: token => lex.prevunlocs[1].1,
+	void => match (lex.rb[0]) {
+		r: (rune, location) => r.1,
+		void => location {
+			path = lex.path,
+			line = lex.loc.0,
+			col = lex.loc.1,
+		},
 	},
 };
 
