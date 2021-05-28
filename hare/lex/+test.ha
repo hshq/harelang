@@ -276,3 +276,89 @@ fn loc(line: uint, col: uint) location = location {
 	];
 	lextest(in, expected);
 };
+
+// Small virtual machine for testing mkloc/prevloc.
+// NEXT, UNGET, LEX, and UNLEX call the obvious functions (with UNGET and UNLEX
+// pulling from a buffer that NEXT/LEX feed into).
+// After each instruction, the results of mkloc/prevloc are checked against the
+// next element of the test vector.
+type op = enum {
+	LEX,
+	NEXT,
+	UNGET,
+	UNLEX,
+};
+
+@test fn loc() void = {
+	const src = "h 	ello: my	name is Inigo Montoya";
+	let buf = bufio::fixed(strings::toutf8(src), mode::READ);
+	defer io::close(buf);
+	let lexer = init(buf, "<test>");
+	const ops: [_]op = [
+		op::NEXT,
+		op::NEXT,
+		op::NEXT,
+		op::UNGET,
+		op::UNGET,
+		op::NEXT,
+		op::NEXT,
+		op::LEX,
+		op::LEX,
+		op::UNLEX,
+		op::LEX,
+		op::LEX,
+		op::UNLEX,
+		op::LEX,
+		op::LEX,
+		op::LEX,
+		op::LEX,
+	];
+	const vector: [_](location, location) = [
+		(loc(1, 2), loc(1, 1)),
+		(loc(1, 3), loc(1, 2)),
+		(loc(1, 9), loc(1, 3)),
+		(loc(1, 3), loc(1, 2)),
+		(loc(1, 2), loc(1, 1)),
+		(loc(1, 3), loc(1, 2)),
+		(loc(1, 9), loc(1, 3)),
+		(loc(1, 13), loc(1, 12)),
+		(loc(1, 14), loc(1, 13)),
+		(loc(1, 13), loc(1, 12)),
+		(loc(1, 14), loc(1, 13)),
+		(loc(1, 17), loc(1, 16)),
+		(loc(1, 14), loc(1, 13)),
+		(loc(1, 17), loc(1, 16)),
+		(loc(1, 29), loc(1, 28)),
+		(loc(1, 32), loc(1, 31)),
+		(loc(1, 38), loc(1, 37)),
+	];
+
+	// We could statically allocate r and t, but what's the point
+	let r: [](rune, location) = [];
+	defer free(r);
+	let t: []token = [];
+	defer free(t);
+	for (let i = 0z; i < len(ops); i += 1) {
+		switch (ops[i]) {
+			op::LEX => append(t, lex(&lexer)!),
+			op::NEXT => append(r, next(&lexer) as (rune, location)),
+			op::UNGET => {
+				unget(&lexer, r[len(r) - 1]);
+				delete(r[len(r) - 1]);
+			},
+			op::UNLEX => {
+				unlex(&lexer, t[len(t) - 1]);
+				delete(t[len(t) - 1]);
+			},
+		};
+		let loc = mkloc(&lexer);
+		let ploc = prevloc(&lexer);
+		// TODO: Aggregate equality
+		assert(loc.path == vector[i].0.path
+			&& loc.line == vector[i].0.line
+			&& loc.col == vector[i].0.col);
+		assert(ploc.path == vector[i].1.path
+			&& ploc.line == vector[i].1.line
+			&& ploc.col == vector[i].1.col);
+	};
+};
