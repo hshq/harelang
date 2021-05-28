@@ -15,6 +15,9 @@ export type lexer = struct {
 	loc: (uint, uint),
 	un: (token | void),
 	rb: [2]((rune, location) | io::EOF | void),
+	// 1 more than the size of un and rb respectively
+	prevunlocs: [2](location, location),
+	prevrlocs: [3]location,
 	flags: flags,
 	comment: str,
 };
@@ -47,12 +50,15 @@ export fn init(in: *io::stream, path: str, flags: flags...) lexer = {
 	for (let i = 0z; i < len(flags); i += 1) {
 		f |= flags[i];
 	};
+	const loc = location { path = path, line = 1, col = 1 };
 	return lexer {
 		in = in,
 		path = path,
 		loc = (1, 1),
 		un = void,
 		rb = [void...],
+		prevunlocs = [(loc, loc)...],
+		prevrlocs = [loc...],
 		flags = f,
 		comment = "",
 	};
@@ -70,6 +76,11 @@ export fn lex(lex: *lexer) (token | error) = {
 			return tok;
 		},
 		void => void,
+	};
+
+	defer {
+		lex.prevunlocs[1] = lex.prevunlocs[0];
+		lex.prevunlocs[0] = (prevloc(lex), mkloc(lex));
 	};
 
 	let r = match (nextw(lex)?) {
@@ -623,6 +634,9 @@ fn next(lex: *lexer) ((rune, location) | io::EOF | io::error) = {
 		e: (io::EOF | io::error) => e,
 		r: rune => {
 			const loc = mkloc(lex);
+			let tmp = lex.prevrlocs;
+			lex.prevrlocs[1..] = tmp[..len(tmp) - 1];
+			lex.prevrlocs[0] = loc;
 			lexloc(lex, r);
 			return (r, loc);
 		},
@@ -681,6 +695,15 @@ export fn mkloc(lex: *lexer) location = match (lex.rb[0]) {
 		path = lex.path,
 		line = lex.loc.0,
 		col = lex.loc.1,
+	},
+};
+
+export fn prevloc(lex: *lexer) location = match (lex.un) {
+	t: token => lex.prevunlocs[1].0,
+	void => {
+		let i = 0z;
+		for (i < len(lex.rb); i += 1) if (lex.rb[i] is void) break;
+		return lex.prevrlocs[i];
 	},
 };
 
