@@ -440,6 +440,7 @@ hare_parse() {
 		gensrcs_hare_parse \
 			+test/expr.ha \
 			+test/ident.ha \
+			+test/loc.ha \
 			+test/roundtrip.ha \
 			+test/types.ha \
 			+test/unit.ha

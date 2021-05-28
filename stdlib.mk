@@ -1698,6 +1698,7 @@ testlib_hare_parse_srcs= \
 	$(STDLIB)/hare/parse/unit.ha \
 	$(STDLIB)/hare/parse/+test/expr.ha \
 	$(STDLIB)/hare/parse/+test/ident.ha \
+	$(STDLIB)/hare/parse/+test/loc.ha \
 	$(STDLIB)/hare/parse/+test/roundtrip.ha \
 	$(STDLIB)/hare/parse/+test/types.ha \
 	$(STDLIB)/hare/parse/+test/unit.ha
