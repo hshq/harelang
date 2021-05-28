@@ -8,11 +8,17 @@ use strings;
 	let buf = bufio::fixed(strings::toutf8("z"), mode::READ);
 	defer io::close(buf);
 	let lexer = init(buf, "<test>");
-	unget(&lexer, 'x');
-	unget(&lexer, 'y');
-	assert(next(&lexer) as rune == 'y');
-	assert(next(&lexer) as rune == 'x');
-	assert(next(&lexer) as rune == 'z');
+	unget(&lexer, ('x', location { path = "<test>", line = 1, col = 2 }));
+	unget(&lexer, ('y', location { path = "<test>", line = 1, col = 3 }));
+	let r = next(&lexer) as (rune, location);
+	assert(r.0 == 'y');
+	assert(r.1.path == "<test>" && r.1.line == 1 && r.1.col == 3);
+	r = next(&lexer) as (rune, location);
+	assert(r.0 == 'x');
+	assert(r.1.path == "<test>" && r.1.line == 1 && r.1.col == 2);
+	r = next(&lexer) as (rune, location);
+	assert(r.0 == 'z');
+	assert(r.1.path == "<test>" && r.1.line == 1 && r.1.col == 1);
 	assert(next(&lexer) is io::EOF);
 	unget(&lexer, io::EOF);
 	assert(next(&lexer) is io::EOF);
@@ -234,11 +240,11 @@ fn loc(line: uint, col: uint) location = location {
 	const in = "\"hello world\", \"こんにちは\", \"return\", \"foo\"";
 	const expected: [_]token = [
 		(ltok::LIT_STR, "hello world", loc(1, 1)),
-		(ltok::COMMA, void, loc(1, 15)),
+		(ltok::COMMA, void, loc(1, 14)),
 		(ltok::LIT_STR, "こんにちは", loc(1, 16)),
-		(ltok::COMMA, void, loc(1, 24)),
+		(ltok::COMMA, void, loc(1, 23)),
 		(ltok::LIT_STR, "return", loc(1, 25)),
-		(ltok::COMMA, void, loc(1, 34)),
+		(ltok::COMMA, void, loc(1, 33)),
 		(ltok::LIT_STR, "foo", loc(1, 35)),
 	];
 	lextest(in, expected);
