@@ -9,7 +9,7 @@ use types;
 
 // Tagged union of all types which are formattable.
 export type formattable =
-	(...types::numeric | uintptr | str | rune | bool | nullable *void);
+	(...types::numeric | uintptr | str | rune | bool | nullable *void | void);
 
 // Formats text for printing and writes it to [[os::stdout]].
 export fn printf(fmt: str, args: formattable...) (io::error | size) =
@@ -261,6 +261,7 @@ fn format_raw(
 		},
 		null => format(out, "(null)", mod),
 	},
+	void => io::write(out, strings::toutf8("void")),
 };
 
 
@@ -391,6 +392,6 @@ fn scan_modifiers(iter: *strings::iterator, mod: *modifiers) void = {
 	assert(bsprintf(buf, "x: {:-8X}", 0xBEEF) == "x: BEEF    ");
 	assert(bsprintf(buf, "x: {:o}", 0o755) == "x: 755");
 	assert(bsprintf(buf, "x: {:b}", 0b11011) == "x: 11011");
-	assert(bsprintf(buf, "{} {} {} {}", true, false, null, 'x')
-		== "true false (null) x");
+	assert(bsprintf(buf, "{} {} {} {} {}", true, false, null, 'x', void)
+		== "true false (null) x void");
 };
