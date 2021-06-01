@@ -5,10 +5,10 @@ export def I8_MIN: i8 = -128;
 export def I8_MAX: i8 = 127;
 
 // Minimum value which can be stored in an i16 type.
-export def I16_MIN: i16 = -32708;
+export def I16_MIN: i16 = -32768;
 
 // Maximum value which can be stored in an i16 type.
-export def I16_MAX: i16 = 32707;
+export def I16_MAX: i16 = 32767;
 
 // Minimum value which can be stored in an i32 type.
 export def I32_MIN: i32 = -2147483648;
