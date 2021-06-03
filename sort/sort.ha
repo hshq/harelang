@@ -29,6 +29,28 @@ fn swap(a: *void, b: *void, sz: size) void = {
 	};
 };
 
+// Finds the index of the rightmost value that is equal to key or, if such value
+// does not exist, less than key.
+fn search_rightmost(
+	in: []void,
+	sz: size,
+	key: const *void,
+	cmp: *fn(a: const *void, b: const *void) int,
+) size = {
+	let l = 0z;
+	let r = len(in);
+	let ba = in: *[*]u8;
+	for (l < r) {
+		let m = l + (r - l) / 2;
+		if (cmp(key, &ba[m * sz]) < 0) {
+			r = m;
+		} else {
+			l = m + 1;
+		};
+	};
+	return r - 1;
+};
+
 fn insort(
 	items: []void,
 	itemsz: size,
@@ -36,12 +58,11 @@ fn insort(
 ) void = {
 	let ba = items: *[*]u8;
 	for (let i = 0z; i < len(items); i += 1) {
-		for (let j = i; j > 0; j -= 1) {
+		let bound = search_rightmost(items[0..i], itemsz,
+			&ba[i * itemsz], cmp);
+		for (let j = i; j > bound + 1; j -= 1) {
 			let a = &ba[(j - 1) * itemsz];
 			let b = &ba[j * itemsz];
-			if (cmp(a, b) <= 0) {
-				break;
-			};
 			swap(a, b, itemsz);
 		};
 	};
