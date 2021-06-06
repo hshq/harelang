@@ -362,7 +362,11 @@ fn test(args: []str) void = {
 	sched_walk(&plan, [], &depends);
 
 	let output = mkfile(&plan, "out");
-	sched_hare_exe(&plan, ver, strings::dup(output), depends...);
+	if (len(ver.inputs) == 0) {
+		sched_ld(&plan, strings::dup(output), depends...);
+	} else {
+		sched_hare_exe(&plan, ver, strings::dup(output), depends...);
+	};
 	plan_execute(&plan, verbose);
 	let cmd = match (exec::cmd(output, runargs...)) {
 		err: exec::error => fmt::fatal("exec: {}", exec::strerror(err)),
