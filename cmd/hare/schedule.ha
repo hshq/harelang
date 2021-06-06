@@ -151,6 +151,20 @@ fn sched_hare_object(
 		]),
 	});
 
+	for (let i = 0z; i < len(plan.context.tags); i += 1) {
+		if (plan.context.tags[i].mode == module::tag_mode::INCLUSIVE
+				&& plan.context.tags[i].name == "test") {
+			const opaths = plan.context.paths;
+			plan.context.paths = ["."];
+			const ver = module::lookup(plan.context, namespace);
+			if (ver is module::version) {
+				append(harec.cmd, "-T");
+			};
+			plan.context.paths = opaths;
+			break;
+		};
+	};
+
 	let current = false;
 	let output = if (len(namespace) != 0) {
 		let version = hex::encodestr(ver.hash);
@@ -199,14 +213,6 @@ fn sched_hare_object(
 		// namespace instead
 		for (let i = 0z; i < len(plan.context.defines); i += 1) {
 			append(harec.cmd, "-D", plan.context.defines[i]);
-		};
-
-		// XXX: This is kind of hacky too
-		for (let i = 0z; i < len(plan.context.tags); i += 1) {
-			if (plan.context.tags[i].mode == module::tag_mode::INCLUSIVE) {
-				append(harec.cmd, "-T", strings::concat("+",
-					plan.context.tags[i].name));
-			};
 		};
 
 		mkfile(plan, "o"); // TODO: Should exes go in the cache?
