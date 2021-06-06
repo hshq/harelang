@@ -9,7 +9,7 @@ export let cwd: *fs::fs = null: *fs::fs;
 export fn remove(path: str) (void | fs::error) = fs::remove(cwd, path);
 
 // Creates an [[fs::iterator]] for a given directory to read its contents.
-export fn iterdir(path: str) (*fs::iterator | fs::error) = fs::iter(cwd, path);
+export fn iter(path: str) (*fs::iterator | fs::error) = fs::iter(cwd, path);
 
 // Reads all entries from a directory. The caller must free the return value
 // with [[fs::dirents_free]].
