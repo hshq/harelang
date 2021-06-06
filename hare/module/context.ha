@@ -31,14 +31,12 @@ export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 		fs = os::cwd,
 		tags = tags,
 		defines = defs,
-		paths: []str = match (os::getenv("HAREPATH")) {
-			void => {
-				let path: []str = alloc([
-					strings::dup(harepath),
-					dirs::data("hare"),
-				]);
-				path;
-			},
+		paths = match (os::getenv("HAREPATH")) {
+			void => alloc([
+				strings::dup(harepath),
+				dirs::data("hare"),
+				strings::dup("."),
+			]),
 			s: str => {
 				let sl = strings::split(s, ":");
 				let path: []str = alloc([], len(sl) + 1);
