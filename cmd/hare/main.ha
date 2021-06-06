@@ -1,6 +1,10 @@
 use getopt;
 use os;
 
+def VERSION: str = "unknown";
+def PLATFORM: str = "unknown";
+def HAREPATH: str = ".";
+
 export fn main() void = {
 	let help: []getopt::help = [
 		"compile, run, and test Hare programs",
