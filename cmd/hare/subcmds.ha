@@ -298,6 +298,7 @@ fn test(args: []str) void = {
 		('D', "ident:type=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
 		('l', "name", "link with a system library"),
+		('o', "path", "set output file name"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
 		"[tests...]"
@@ -312,6 +313,7 @@ fn test(args: []str) void = {
 		mode = module::tag_mode::INCLUSIVE,
 	});
 
+	let output = "";
 	let verbose = false;
 	let defines: []str = [];
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
@@ -322,6 +324,7 @@ fn test(args: []str) void = {
 			'j' => abort(), // TODO
 			'l' => abort(), // TODO
 			't' => abort(), // TODO
+			'o' => output = opt.1,
 			'T' => tags = match (addtags(tags, opt.1)) {
 				void => fmt::fatal("Error parsing tags"),
 				t: []module::tag => t,
@@ -361,13 +364,21 @@ fn test(args: []str) void = {
 	sched_module(&plan, ["rt"], &depends);
 	sched_walk(&plan, [], &depends);
 
-	let output = mkfile(&plan, "out");
+	const have_output = len(output) != 0;
+	if (!have_output) {
+		output = mkfile(&plan, "out");
+	};
 	if (len(ver.inputs) == 0) {
 		sched_ld(&plan, strings::dup(output), depends...);
 	} else {
 		sched_hare_exe(&plan, ver, strings::dup(output), depends...);
 	};
 	plan_execute(&plan, verbose);
+
+	if (have_output) {
+		return;
+	};
+
 	let cmd = match (exec::cmd(output, runargs...)) {
 		err: exec::error => fmt::fatal("exec: {}", exec::strerror(err)),
 		cmd: exec::command => cmd,
