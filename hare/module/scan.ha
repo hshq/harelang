@@ -21,6 +21,15 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 	// TODO: Incorporate defines into the hash
 	let sha = sha256::sha256();
 	defer hash::close(sha);
+	let found = false;
+	for (let i = 0z; i < len(ctx.tags); i += 1) {
+		if (ctx.tags[i].mode == tag_mode::INCLUSIVE
+				&& ctx.tags[i].name == "test") {
+			found = true;
+			break;
+		};
+	};
+	hash::write(sha, [if (found) 1 else 0]);
 	let iter = match (fs::iter(ctx.fs, path)) {
 		fs::wrongtype => {
 			// Single file case
