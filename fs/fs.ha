@@ -151,7 +151,7 @@ export fn chmod(fs: *fs, path: str, mode: mode) (void | error) = {
 
 	return match (fs.chmod) {
 		f: *chmodfunc => f(fs, path, mode),
-		null => abort(),
+		null => errors::unsupported,
 	};
 };
 
@@ -159,7 +159,7 @@ export fn chmod(fs: *fs, path: str, mode: mode) (void | error) = {
 export fn chown(fs: *fs, path: str, uid: uint, gid: uint) (void | error) = {
 	return match (fs.chown) {
 		f: *chownfunc => f(fs, path, uid, gid),
-		null => abort(),
+		null => errors::unsupported,
 	};
 };
 
