@@ -30,7 +30,7 @@ export fn connect(
 export fn listen(
 	addr: ip::addr,
 	port: u16,
-	options: bind_option...
+	options: listen_option...
 ) (socket | errors::opaque) = {
 	const sockfd = match (rt::socket(match (addr) {
 		ip::addr4 => rt::AF_INET: int,

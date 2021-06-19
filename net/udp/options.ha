@@ -3,7 +3,7 @@
 // the addressed u16 will be filled in with the port.
 export type portassignment = *u16;
 
-// Options available for [[bind]].
-export type bind_option = portassignment;
+// Options available for [[listen]].
+export type listen_option = portassignment;
 
 // TODO: Add send/recv flags
