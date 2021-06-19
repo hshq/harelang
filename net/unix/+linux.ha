@@ -1,5 +1,11 @@
+use errors;
+use fmt;
+use io;
+use net;
+use os;
 use rt;
 use strings;
+use types;
 
 // Converts a UNIX socket address to a native sockaddr.
 export fn to_native(addr: addr) (rt::sockaddr | invalid) = {
@@ -28,4 +34,40 @@ export fn from_native(a: rt::sockaddr) addr = {
 		rt::AF_UNIX => strings::fromc(&a.un.sun_path[0]),
 		* => abort("Wrong address family!"),
 	};
+};
+
+// Opens a UNIX socket connection to the path. Blocks until the
+// connection is established.
+export fn connect(
+	addr: addr,
+	options: net::connect_option...
+) (*io::stream | io::error) = {
+	let sockaddr = match (to_native(addr)) {
+		a: rt::sockaddr => a,
+		invalid => return errors::unsupported, // path too long
+	};
+	const sockfd = net::connect_fd(sockaddr, options...)?;
+	static let buf: [rt::UNIX_PATH_MAX + 32]u8 = [0...];
+	return os::fdopen(sockfd,
+		fmt::bsprintf(buf, "<unix connection {}>", addr),
+		io::mode::READ | io::mode::WRITE);
+};
+
+// Binds a UNIX socket listener at the given path.
+export fn listen(
+	addr: addr,
+	options: net::listen_option...
+) (*net::listener | io::error) = {
+	let sockaddr = match (to_native(addr)) {
+		a: rt::sockaddr => a,
+		invalid => return errors::unsupported, // path too long
+	};
+	let sockfd = net::listen_fd(sockaddr, options...)?;
+	return alloc(net::stream_listener {
+		l = net::listener {
+			accept = &net::stream_accept,
+			shutdown = &net::stream_shutdown,
+		},
+		fd = sockfd,
+	}): *net::listener;
 };

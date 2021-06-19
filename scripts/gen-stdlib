@@ -544,10 +544,10 @@ linux_vdso() {
 net() {
 	printf '# net\n'
 	gen_srcs net \
-		'$(PLATFORM)/socket.ha' \
-		'$(PLATFORM)/util.ha' \
-		socket.ha
-	gen_ssa net io os strings net::ip net::unix errors
+		'$(PLATFORM).ha' \
+		options.ha \
+		listener.ha
+	gen_ssa net io os strings net::ip errors rt fmt
 }
 
 gensrcs_net_ip() {
@@ -568,12 +568,19 @@ net_ip() {
 	gen_ssa net::ip bytes io strconv strings strio fmt
 }
 
+net_tcp() {
+	printf '# net::tcp\n'
+	gen_srcs net::tcp \
+		'$(PLATFORM).ha'
+	gen_ssa net::tcp io net net::ip os rt
+}
+
 net_unix() {
 	printf '# net::unix\n'
 	gen_srcs net::unix \
 		addr.ha \
 		'$(PLATFORM).ha'
-	gen_ssa net::unix strings
+	gen_ssa net::unix net errors os io strings types fmt
 }
 
 math_random() {
@@ -793,6 +800,7 @@ linux::io_uring
 linux::vdso
 net
 net::ip
+net::tcp
 net::unix
 math::random
 os

@@ -249,6 +249,10 @@ hare_stdlib_deps+=$(stdlib_net)
 stdlib_net_ip=$(HARECACHE)/net/ip/net_ip.o
 hare_stdlib_deps+=$(stdlib_net_ip)
 
+# gen_lib net::tcp
+stdlib_net_tcp=$(HARECACHE)/net/tcp/net_tcp.o
+hare_stdlib_deps+=$(stdlib_net_tcp)
+
 # gen_lib net::unix
 stdlib_net_unix=$(HARECACHE)/net/unix/net_unix.o
 hare_stdlib_deps+=$(stdlib_net_unix)
@@ -798,11 +802,11 @@ $(HARECACHE)/linux/vdso/linux_vdso.ssa: $(stdlib_linux_vdso_srcs) $(stdlib_rt) $
 # net
 # net
 stdlib_net_srcs= \
-	$(STDLIB)/net/$(PLATFORM)/socket.ha \
-	$(STDLIB)/net/$(PLATFORM)/util.ha \
-	$(STDLIB)/net/socket.ha
+	$(STDLIB)/net/$(PLATFORM).ha \
+	$(STDLIB)/net/options.ha \
+	$(STDLIB)/net/listener.ha
 
-$(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_os) $(stdlib_strings) $(stdlib_net_ip) $(stdlib_net_unix) $(stdlib_errors)
+$(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_os) $(stdlib_strings) $(stdlib_net_ip) $(stdlib_errors) $(stdlib_rt) $(stdlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
@@ -819,13 +823,24 @@ $(HARECACHE)/net/ip/net_ip.ssa: $(stdlib_net_ip_srcs) $(stdlib_rt) $(stdlib_byte
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::ip \
 		-t$(HARECACHE)/net/ip/net_ip.td $(stdlib_net_ip_srcs)
 
+# net::tcp
+# net::tcp
+stdlib_net_tcp_srcs= \
+	$(STDLIB)/net/tcp/$(PLATFORM).ha
+
+$(HARECACHE)/net/tcp/net_tcp.ssa: $(stdlib_net_tcp_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_net) $(stdlib_net_ip) $(stdlib_os) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/net/tcp
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::tcp \
+		-t$(HARECACHE)/net/tcp/net_tcp.td $(stdlib_net_tcp_srcs)
+
 # net::unix
 # net::unix
 stdlib_net_unix_srcs= \
 	$(STDLIB)/net/unix/addr.ha \
 	$(STDLIB)/net/unix/$(PLATFORM).ha
 
-$(HARECACHE)/net/unix/net_unix.ssa: $(stdlib_net_unix_srcs) $(stdlib_rt) $(stdlib_strings)
+$(HARECACHE)/net/unix/net_unix.ssa: $(stdlib_net_unix_srcs) $(stdlib_rt) $(stdlib_net) $(stdlib_errors) $(stdlib_os) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/unix
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::unix \
@@ -1298,6 +1313,10 @@ hare_testlib_deps+=$(testlib_net)
 # gen_lib net::ip
 testlib_net_ip=$(TESTCACHE)/net/ip/net_ip.o
 hare_testlib_deps+=$(testlib_net_ip)
+
+# gen_lib net::tcp
+testlib_net_tcp=$(TESTCACHE)/net/tcp/net_tcp.o
+hare_testlib_deps+=$(testlib_net_tcp)
 
 # gen_lib net::unix
 testlib_net_unix=$(TESTCACHE)/net/unix/net_unix.o
@@ -1868,11 +1887,11 @@ $(TESTCACHE)/linux/vdso/linux_vdso.ssa: $(testlib_linux_vdso_srcs) $(testlib_rt)
 # net
 # net
 testlib_net_srcs= \
-	$(STDLIB)/net/$(PLATFORM)/socket.ha \
-	$(STDLIB)/net/$(PLATFORM)/util.ha \
-	$(STDLIB)/net/socket.ha
+	$(STDLIB)/net/$(PLATFORM).ha \
+	$(STDLIB)/net/options.ha \
+	$(STDLIB)/net/listener.ha
 
-$(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(testlib_os) $(testlib_strings) $(testlib_net_ip) $(testlib_net_unix) $(testlib_errors)
+$(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(testlib_os) $(testlib_strings) $(testlib_net_ip) $(testlib_errors) $(testlib_rt) $(testlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
@@ -1890,13 +1909,24 @@ $(TESTCACHE)/net/ip/net_ip.ssa: $(testlib_net_ip_srcs) $(testlib_rt) $(testlib_b
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \
 		-t$(TESTCACHE)/net/ip/net_ip.td $(testlib_net_ip_srcs)
 
+# net::tcp
+# net::tcp
+testlib_net_tcp_srcs= \
+	$(STDLIB)/net/tcp/$(PLATFORM).ha
+
+$(TESTCACHE)/net/tcp/net_tcp.ssa: $(testlib_net_tcp_srcs) $(testlib_rt) $(testlib_io) $(testlib_net) $(testlib_net_ip) $(testlib_os) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/tcp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::tcp \
+		-t$(TESTCACHE)/net/tcp/net_tcp.td $(testlib_net_tcp_srcs)
+
 # net::unix
 # net::unix
 testlib_net_unix_srcs= \
 	$(STDLIB)/net/unix/addr.ha \
 	$(STDLIB)/net/unix/$(PLATFORM).ha
 
-$(TESTCACHE)/net/unix/net_unix.ssa: $(testlib_net_unix_srcs) $(testlib_rt) $(testlib_strings)
+$(TESTCACHE)/net/unix/net_unix.ssa: $(testlib_net_unix_srcs) $(testlib_rt) $(testlib_net) $(testlib_errors) $(testlib_os) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/unix
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \
