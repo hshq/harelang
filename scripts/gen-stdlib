@@ -545,7 +545,6 @@ net() {
 	printf '# net\n'
 	gen_srcs net \
 		'$(PLATFORM).ha' \
-		options.ha \
 		listener.ha
 	gen_ssa net io os strings net::ip errors rt fmt
 }
@@ -571,15 +570,25 @@ net_ip() {
 net_tcp() {
 	printf '# net::tcp\n'
 	gen_srcs net::tcp \
-		'$(PLATFORM).ha'
+		'$(PLATFORM).ha' \
+		options.ha
 	gen_ssa net::tcp io net net::ip os rt
+}
+
+net_udp() {
+	printf '# net::udp\n'
+	gen_srcs net::udp \
+		'$(PLATFORM).ha' \
+		options.ha
+	gen_ssa net::udp net net::ip errors rt
 }
 
 net_unix() {
 	printf '# net::unix\n'
 	gen_srcs net::unix \
+		'$(PLATFORM).ha' \
 		addr.ha \
-		'$(PLATFORM).ha'
+		options.ha
 	gen_ssa net::unix net errors os io strings types fmt
 }
 
@@ -801,6 +810,7 @@ linux::vdso
 net
 net::ip
 net::tcp
+net::udp
 net::unix
 math::random
 os

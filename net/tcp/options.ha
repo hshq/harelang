@@ -16,12 +16,10 @@ export type reuseaddr = void;
 // the addressed u16 will be filled in with the port.
 export type portassignment = *u16;
 
-// Options for [[connect]]. Not all options are supported by all socket types or
-// platforms.
+// Options for [[connect]].
 export type connect_option = keepalive;
 
-// Options for [[listen]]. Not all options are supported by all socket types or
-// platforms.
+// Options for [[listen]].
 export type listen_option = (
 	keepalive |
 	reuseport |

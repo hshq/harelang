@@ -496,11 +496,11 @@ export fn recvfrom(sockfd: int, buf: *void, len_: size, flags: int,
 };
 
 export fn sendto(sockfd: int, buf: *void, len_: size, flags: int,
-	dest_addr: nullable *sockaddr, addrlen: nullable *u32
+	dest_addr: nullable *sockaddr, addrlen: u32
 ) (size | errno) = {
 	return wrap_return(syscall6(SYS_sendto,
 		sockfd: u64, buf: uintptr: u64, len_: u64, flags: u64,
-		dest_addr: uintptr: u64, addrlen: uintptr: u64))?: size;
+		dest_addr: uintptr: u64, addrlen: u64))?: size;
 };
 
 export fn recv(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) = {
@@ -508,7 +508,7 @@ export fn recv(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) =
 };
 
 export fn send(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) = {
-	return sendto(sockfd, buf, len_, flags, null, null);
+	return sendto(sockfd, buf, len_, flags, null, 0);
 };
 
 export fn getsockopt(sockfd: int, level: int, optname: int, optval: nullable *void, optlen: nullable *u32) (int | errno) = {
