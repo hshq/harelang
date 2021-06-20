@@ -245,6 +245,10 @@ hare_stdlib_deps+=$(stdlib_linux_vdso)
 stdlib_net=$(HARECACHE)/net/net.o
 hare_stdlib_deps+=$(stdlib_net)
 
+# gen_lib net::dns
+stdlib_net_dns=$(HARECACHE)/net/dns/net_dns.o
+hare_stdlib_deps+=$(stdlib_net_dns)
+
 # gen_lib net::ip
 stdlib_net_ip=$(HARECACHE)/net/ip/net_ip.o
 hare_stdlib_deps+=$(stdlib_net_ip)
@@ -815,6 +819,18 @@ $(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
 		-t$(HARECACHE)/net/net.td $(stdlib_net_srcs)
 
+# net::dns
+# net::dns
+stdlib_net_dns_srcs= \
+	$(STDLIB)/net/dns/encoding.ha \
+	$(STDLIB)/net/dns/types.ha
+
+$(HARECACHE)/net/dns/net_dns.ssa: $(stdlib_net_dns_srcs) $(stdlib_rt) $(stdlib_endian) $(stdlib_net) $(stdlib_net_udp) $(stdlib_net_ip) $(stdlib_fmt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/net/dns
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::dns \
+		-t$(HARECACHE)/net/dns/net_dns.td $(stdlib_net_dns_srcs)
+
 # net::ip
 stdlib_net_ip_srcs= \
 	$(STDLIB)/net/ip/ip.ha \
@@ -1326,6 +1342,10 @@ hare_testlib_deps+=$(testlib_linux_vdso)
 # gen_lib net
 testlib_net=$(TESTCACHE)/net/net.o
 hare_testlib_deps+=$(testlib_net)
+
+# gen_lib net::dns
+testlib_net_dns=$(TESTCACHE)/net/dns/net_dns.o
+hare_testlib_deps+=$(testlib_net_dns)
 
 # gen_lib net::ip
 testlib_net_ip=$(TESTCACHE)/net/ip/net_ip.o
@@ -1916,6 +1936,18 @@ $(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(test
 	@mkdir -p $(TESTCACHE)/net
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
 		-t$(TESTCACHE)/net/net.td $(testlib_net_srcs)
+
+# net::dns
+# net::dns
+testlib_net_dns_srcs= \
+	$(STDLIB)/net/dns/encoding.ha \
+	$(STDLIB)/net/dns/types.ha
+
+$(TESTCACHE)/net/dns/net_dns.ssa: $(testlib_net_dns_srcs) $(testlib_rt) $(testlib_endian) $(testlib_net) $(testlib_net_udp) $(testlib_net_ip) $(testlib_fmt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/dns
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::dns \
+		-t$(TESTCACHE)/net/dns/net_dns.td $(testlib_net_dns_srcs)
 
 # net::ip
 testlib_net_ip_srcs= \
