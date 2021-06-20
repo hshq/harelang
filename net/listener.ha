@@ -7,7 +7,7 @@ use io;
 // oriented protocol), where the implementation which accepts and processes
 // connections is not aware of the underlying transport. Most users will not
 // need to use this interface directly, preferring functions such as
-// [[tcp::accept]].
+// [[net::tcp::accept]].
 export type listener = struct {
 	accept: nullable *fn(l: *listener) (*io::stream | io::error),
 	shutdown: nullable *fn(l: *listener) void,

@@ -4,6 +4,7 @@ porcelain DNS resolver.
 TODO:
 
 - Finish message decoder/encoder
+- DNS over TCP
 - ASCII considerations
 - Error handling
 - Porcelain resolver API
