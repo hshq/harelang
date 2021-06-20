@@ -1,6 +1,3 @@
-// TODO:
-// - Complete RFC 2535 support
-// - Look for other RFCs worth addressing
 use endian;
 
 // Record type

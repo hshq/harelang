@@ -1,4 +1,3 @@
-// TODO: Error handling
 use endian;
 use fmt;
 

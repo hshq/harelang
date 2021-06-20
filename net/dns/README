@@ -1,0 +1,12 @@
+net::dns implements low-level DNS message encoding and decoding, as well as a
+porcelain DNS resolver.
+
+TODO:
+
+- Finish message decoder/encoder
+- ASCII considerations
+- Error handling
+- Porcelain resolver API
+- Decoders for various record types
+- Complete RFC 2535 support
+- Look for other RFCs worth addressing
