@@ -115,10 +115,26 @@ export type question = struct {
 	qclass: qclass,
 };
 
+// A resource record item.
+export type rrecord = struct {
+	name: []str,
+	rtype: rtype,
+	class: class,
+	ttl: u32,
+	rdata: []u8,
+};
+
 // A DNS message, Hare representation. See [[encode]] and [[decode]] for the DNS
 // representation.
 export type message = struct {
 	header: header,
 	questions: []question,
-	// TODO: rest of the stuff
+	answers: []rrecord,
+	authority: []rrecord,
+	additional: []rrecord,
+};
+
+// Frees a [[message]] and the resources associated with it.
+export fn message_free(msg: *message) void = {
+	abort(); // TODO
 };
