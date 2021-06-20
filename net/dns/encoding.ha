@@ -65,7 +65,7 @@ export fn decode(buf: []u8) *message = {
 
 // Partially decodes a [[question]], returning a byte slice (borrowed from the
 // buf parameter) which represents the value of the qname field (leaving the
-// corresponding field in the question structure untouched). See [[name_decode]]
+// corresponding field in the question structure untouched). See [[decode_name]]
 // to interpret the return value.
 export fn decode_question(buf: []u8, q: *question) []u8 = {
 	abort(); // TODO
@@ -74,7 +74,7 @@ export fn decode_question(buf: []u8, q: *question) []u8 = {
 
 // Partially decodes a [[rrecord]], returning a byte slice (borrowed from the
 // buf parameter) which represents the value of the name field (leaving the
-// corresponding field in the question structure untouched). See [[name_decode]]
+// corresponding field in the question structure untouched). See [[decode_name]]
 // to interpret the return value.
 export fn decode_rrecord(buf: []u8, r: *rrecord) []u8 = {
 	abort(); // TODO
