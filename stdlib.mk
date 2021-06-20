@@ -846,6 +846,7 @@ $(HARECACHE)/net/ip/net_ip.ssa: $(stdlib_net_ip_srcs) $(stdlib_rt) $(stdlib_byte
 # net::tcp
 stdlib_net_tcp_srcs= \
 	$(STDLIB)/net/tcp/$(PLATFORM).ha \
+	$(STDLIB)/net/tcp/listener.ha \
 	$(STDLIB)/net/tcp/options.ha
 
 $(HARECACHE)/net/tcp/net_tcp.ssa: $(stdlib_net_tcp_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_net) $(stdlib_net_ip) $(stdlib_os) $(stdlib_rt)
@@ -871,6 +872,7 @@ $(HARECACHE)/net/udp/net_udp.ssa: $(stdlib_net_udp_srcs) $(stdlib_rt) $(stdlib_n
 stdlib_net_unix_srcs= \
 	$(STDLIB)/net/unix/$(PLATFORM).ha \
 	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/listener.ha \
 	$(STDLIB)/net/unix/options.ha
 
 $(HARECACHE)/net/unix/net_unix.ssa: $(stdlib_net_unix_srcs) $(stdlib_rt) $(stdlib_net) $(stdlib_errors) $(stdlib_os) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fmt)
@@ -1965,6 +1967,7 @@ $(TESTCACHE)/net/ip/net_ip.ssa: $(testlib_net_ip_srcs) $(testlib_rt) $(testlib_b
 # net::tcp
 testlib_net_tcp_srcs= \
 	$(STDLIB)/net/tcp/$(PLATFORM).ha \
+	$(STDLIB)/net/tcp/listener.ha \
 	$(STDLIB)/net/tcp/options.ha
 
 $(TESTCACHE)/net/tcp/net_tcp.ssa: $(testlib_net_tcp_srcs) $(testlib_rt) $(testlib_io) $(testlib_net) $(testlib_net_ip) $(testlib_os) $(testlib_rt)
@@ -1990,6 +1993,7 @@ $(TESTCACHE)/net/udp/net_udp.ssa: $(testlib_net_udp_srcs) $(testlib_rt) $(testli
 testlib_net_unix_srcs= \
 	$(STDLIB)/net/unix/$(PLATFORM).ha \
 	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/listener.ha \
 	$(STDLIB)/net/unix/options.ha
 
 $(TESTCACHE)/net/unix/net_unix.ssa: $(testlib_net_unix_srcs) $(testlib_rt) $(testlib_net) $(testlib_errors) $(testlib_os) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fmt)

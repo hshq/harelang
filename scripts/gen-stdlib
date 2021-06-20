@@ -579,6 +579,7 @@ net_tcp() {
 	printf '# net::tcp\n'
 	gen_srcs net::tcp \
 		'$(PLATFORM).ha' \
+		listener.ha \
 		options.ha
 	gen_ssa net::tcp io net net::ip os rt
 }
@@ -596,6 +597,7 @@ net_unix() {
 	gen_srcs net::unix \
 		'$(PLATFORM).ha' \
 		addr.ha \
+		listener.ha \
 		options.ha
 	gen_ssa net::unix net errors os io strings types fmt
 }
