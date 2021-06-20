@@ -37,20 +37,20 @@ export fn encode(buf: []u8, msg: *message) size = {
 // [[decode]] to completely decode the message (requiring the use of the heap),
 // or [[decode_question]] and [[decode_rrecord]] for the iterative decoders
 // (which can be used statically).
-export fn decode_header(buf: []u8, msg: *message) size = {
+export fn decode_header(buf: []u8, h: *header) size = {
 	let z = 0z;
-	msg.header.id = endian::begetu16(buf[z..]);
+	h.id = endian::begetu16(buf[z..]);
 	z += 2;
 	let rawop = endian::begetu16(buf[z..]);
-	op_decode(rawop, &msg.header.op);
+	op_decode(rawop, &h.op);
 	z += 2;
-	msg.header.qdcount = endian::begetu16(buf[z..]);
+	h.qdcount = endian::begetu16(buf[z..]);
 	z += 2;
-	msg.header.ancount = endian::begetu16(buf[z..]);
+	h.ancount = endian::begetu16(buf[z..]);
 	z += 2;
-	msg.header.nscount = endian::begetu16(buf[z..]);
+	h.nscount = endian::begetu16(buf[z..]);
 	z += 2;
-	msg.header.arcount = endian::begetu16(buf[z..]);
+	h.arcount = endian::begetu16(buf[z..]);
 	z += 2;
 	return z;
 };
