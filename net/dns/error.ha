@@ -1,3 +1,4 @@
+use errors;
 use fmt;
 
 // The DNS message was poorly formatted.
@@ -23,7 +24,8 @@ export type unknown_error = !u8;
 
 // All error types which might be returned from [[net::dns]] functions.
 export type error = (format | server_failure | name_error
-	| not_implemented | refused | unknown_error);
+	| not_implemented | refused | unknown_error
+	| errors::opaque);
 
 export fn strerror(err: error) const str = {
 	static let buf: [64]u8 = [0...];
@@ -34,5 +36,6 @@ export fn strerror(err: error) const str = {
 		not_implemented => "The name server does not support the requested kind of query",
 		refused => "The name server refuses to perform the specified operation for policy reasons",
 		ue: unknown_error => fmt::bsprintf(buf, "Unknown DNS error {}", ue: u8),
+		err: errors::opaque => errors::strerror(err),
 	};
 };

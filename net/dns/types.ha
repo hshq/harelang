@@ -129,25 +129,35 @@ export type message = struct {
 	additional: []rrecord,
 };
 
+fn strings_free(in: []str) void = {
+	for (let i = 0z; i < len(in); i += 1) {
+		free(in[i]);
+	};
+	free(in);
+};
+
 // Frees a [[message]] and the resources associated with it.
 export fn message_free(msg: *message) void = {
 	for (let i = 0z; i < len(msg.questions); i += 1) {
-		free(msg.questions[i].qname);
+		strings_free(msg.questions[i].qname);
 	};
 	free(msg.questions);
 
-	for (let i = 0z; i < len(msg.questions); i += 1) {
-		free(msg.answers[i].name);
+	for (let i = 0z; i < len(msg.answers); i += 1) {
+		strings_free(msg.answers[i].name);
+		free(msg.answers[i].rdata);
 	};
 	free(msg.answers);
 
-	for (let i = 0z; i < len(msg.questions); i += 1) {
-		free(msg.answers[i].name);
+	for (let i = 0z; i < len(msg.authority); i += 1) {
+		strings_free(msg.authority[i].name);
+		free(msg.authority[i].rdata);
 	};
 	free(msg.authority);
 
-	for (let i = 0z; i < len(msg.questions); i += 1) {
-		free(msg.answers[i].name);
+	for (let i = 0z; i < len(msg.additional); i += 1) {
+		strings_free(msg.additional[i].name);
+		free(msg.additional[i].rdata);
 	};
 	free(msg.additional);
 

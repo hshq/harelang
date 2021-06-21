@@ -28,7 +28,7 @@ export fn decode(buf: []u8) (*message | format) = {
 		for (let i = 0; len(names) != 0; i += 1) {
 			let ns = decode_name(&dec, names)!;
 			names = ns.0;
-			append(q.qname, ns.1);
+			append(q.qname, strings::dup(ns.1));
 		};
 
 		append(msg.questions, q);
@@ -48,11 +48,14 @@ fn decode_rrecords(
 	for (let i = 0z; i < count; i += 1) {
 		let r = rrecord { ... };
 		let names = decode_rrecord(dec, &r)?;
+		let rdata = r.rdata;
+		r.rdata = [];
+		append(r.rdata, rdata...);
 
 		for (let i = 0; len(names) != 0; i += 1) {
 			let ns = decode_name(dec, names)!;
 			names = ns.0;
-			append(r.name, ns.1);
+			append(r.name, strings::dup(ns.1));
 		};
 
 		append(*out, r);

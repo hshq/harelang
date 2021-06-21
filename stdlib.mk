@@ -824,6 +824,7 @@ $(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_
 stdlib_net_dns_srcs= \
 	$(STDLIB)/net/dns/error.ha \
 	$(STDLIB)/net/dns/encoding.ha \
+	$(STDLIB)/net/dns/query.ha \
 	$(STDLIB)/net/dns/types.ha
 
 $(HARECACHE)/net/dns/net_dns.ssa: $(stdlib_net_dns_srcs) $(stdlib_rt) $(stdlib_ascii) $(stdlib_endian) $(stdlib_net) $(stdlib_net_udp) $(stdlib_net_ip) $(stdlib_fmt)
@@ -1945,6 +1946,7 @@ $(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(test
 testlib_net_dns_srcs= \
 	$(STDLIB)/net/dns/error.ha \
 	$(STDLIB)/net/dns/encoding.ha \
+	$(STDLIB)/net/dns/query.ha \
 	$(STDLIB)/net/dns/types.ha
 
 $(TESTCACHE)/net/dns/net_dns.ssa: $(testlib_net_dns_srcs) $(testlib_rt) $(testlib_ascii) $(testlib_endian) $(testlib_net) $(testlib_net_udp) $(testlib_net_ip) $(testlib_fmt)

@@ -554,6 +554,7 @@ net_dns() {
 	gen_srcs net::dns \
 		error.ha \
 		encoding.ha \
+		query.ha \
 		types.ha
 	gen_ssa net::dns ascii endian net net::udp net::ip fmt
 }
