@@ -550,6 +550,15 @@ net() {
 	gen_ssa net io os strings net::ip errors rt fmt
 }
 
+net_dial() {
+	printf '# net::dial\n'
+	gen_srcs net::dial \
+		dial.ha \
+		ip.ha \
+		registry.ha
+	gen_ssa net::dial io net net::ip net::tcp net::udp
+}
+
 net_dns() {
 	printf '# net::dns\n'
 	gen_srcs net::dns \
@@ -834,6 +843,7 @@ linux::signalfd
 linux::io_uring
 linux::vdso
 net
+net::dial
 net::dns
 net::ip
 net::tcp

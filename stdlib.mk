@@ -245,6 +245,10 @@ hare_stdlib_deps+=$(stdlib_linux_vdso)
 stdlib_net=$(HARECACHE)/net/net.o
 hare_stdlib_deps+=$(stdlib_net)
 
+# gen_lib net::dial
+stdlib_net_dial=$(HARECACHE)/net/dial/net_dial.o
+hare_stdlib_deps+=$(stdlib_net_dial)
+
 # gen_lib net::dns
 stdlib_net_dns=$(HARECACHE)/net/dns/net_dns.o
 hare_stdlib_deps+=$(stdlib_net_dns)
@@ -828,6 +832,19 @@ $(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
 		-t$(HARECACHE)/net/net.td $(stdlib_net_srcs)
 
+# net::dial
+# net::dial
+stdlib_net_dial_srcs= \
+	$(STDLIB)/net/dial/dial.ha \
+	$(STDLIB)/net/dial/ip.ha \
+	$(STDLIB)/net/dial/registry.ha
+
+$(HARECACHE)/net/dial/net_dial.ssa: $(stdlib_net_dial_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_net) $(stdlib_net_ip) $(stdlib_net_tcp) $(stdlib_net_udp)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/net/dial
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::dial \
+		-t$(HARECACHE)/net/dial/net_dial.td $(stdlib_net_dial_srcs)
+
 # net::dns
 # net::dns
 stdlib_net_dns_srcs= \
@@ -1375,6 +1392,10 @@ hare_testlib_deps+=$(testlib_linux_vdso)
 # gen_lib net
 testlib_net=$(TESTCACHE)/net/net.o
 hare_testlib_deps+=$(testlib_net)
+
+# gen_lib net::dial
+testlib_net_dial=$(TESTCACHE)/net/dial/net_dial.o
+hare_testlib_deps+=$(testlib_net_dial)
 
 # gen_lib net::dns
 testlib_net_dns=$(TESTCACHE)/net/dns/net_dns.o
@@ -1978,6 +1999,19 @@ $(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(test
 	@mkdir -p $(TESTCACHE)/net
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
 		-t$(TESTCACHE)/net/net.td $(testlib_net_srcs)
+
+# net::dial
+# net::dial
+testlib_net_dial_srcs= \
+	$(STDLIB)/net/dial/dial.ha \
+	$(STDLIB)/net/dial/ip.ha \
+	$(STDLIB)/net/dial/registry.ha
+
+$(TESTCACHE)/net/dial/net_dial.ssa: $(testlib_net_dial_srcs) $(testlib_rt) $(testlib_io) $(testlib_net) $(testlib_net_ip) $(testlib_net_tcp) $(testlib_net_udp)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/dial
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::dial \
+		-t$(TESTCACHE)/net/dial/net_dial.td $(testlib_net_dial_srcs)
 
 # net::dns
 # net::dns

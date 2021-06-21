@@ -1,0 +1,13 @@
+[[net::dial]] provides a single function to facilitate the establishment of
+outgoing network connections. It handles port selection, address parsing,
+protocol and service lookup, DNS lookup (via /etc/hosts, /etc/resolv.conf, etc),
+SRV record resolution, and so on. See [[dial]] for details.
+
+Modules implementing their own network protocols are also able to add themselves
+to the protocol and service registry. The protocol registry is used for
+transport-level protocols (such as TCP) and is managed via [[registerproto]];
+the service registry is used for application-level protocols (such as SSH) and
+is managed via [[registersvc]].
+
+Some useful functions for IP-related protocols to interpret the "addr" parameter
+of the dial function are also provided, namely [[resolve]].
