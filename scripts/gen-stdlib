@@ -556,7 +556,8 @@ net_dns() {
 		encoding.ha \
 		query.ha \
 		types.ha
-	gen_ssa net::dns ascii endian net net::udp net::ip fmt unix::resolvconf
+	gen_ssa net::dns ascii endian net net::udp net::ip fmt \
+		unix::resolvconf
 }
 
 gensrcs_net_ip() {

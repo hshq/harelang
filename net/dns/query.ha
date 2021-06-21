@@ -3,8 +3,9 @@ use net::udp;
 use unix::resolvconf;
 
 // Performs a DNS query using the provided list of DNS servers. The caller must
-// free the return value with [[message_free]]. If no DNS servers are provided,
-// the system defaults (if any) are used.
+// free the return value with [[message_free]].
+//
+// If no DNS servers are provided, the system default servers (if any) are used.
 export fn query(query: *message, addr: ip::addr...) (*message | error) = {
 	if (len(addr) == 0) {
 		addr = resolvconf::load();
@@ -31,7 +32,7 @@ export fn query(query: *message, addr: ip::addr...) (*message | error) = {
 		let header = header { ... };
 		let dec = decoder_init(recvbuf[..z]);
 		decode_header(&dec, &header)?;
-		if (header.id != query.header.id) {
+		if (header.id != query.header.id || header.op.qr != qr::RESPONSE) {
 			continue;
 		};
 
