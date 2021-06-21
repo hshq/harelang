@@ -21,7 +21,7 @@ export fn lookup(name: str) (ip::addr | void) = {
 			line: []u8 => line,
 		};
 		defer free(line);
-		if (line[0] == '#': u32: u8) {
+		if (line[0] == '#': u32: u8 || len(line) == 0) {
 			continue;
 		};
 
