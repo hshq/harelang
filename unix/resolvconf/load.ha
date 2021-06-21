@@ -35,7 +35,7 @@ export fn load() []ip::addr = {
 		const scanner = bufio::fixed(line, io::mode::READ);
 		defer io::close(scanner);
 
-		const tok = match (bufio::scantok(scanner, ' ')!) {
+		const tok = match (bufio::scantok(scanner, ' ', '\t')!) {
 			io::EOF => break,
 			tok: []u8 => tok,
 		};
