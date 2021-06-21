@@ -16,9 +16,47 @@ export type decoder = struct {
 // Decodes a DNS message, heap allocating the resources necessary to represent
 // it in Hare's type system. The caller must use [[message_free]] to free the
 // return value. To decode without use of the heap, see [[decoder_init]].
-export fn decode(buf: []u8) *message = {
-	abort(); // TODO
-	return alloc(message { ... });
+export fn decode(buf: []u8) (*message | format) = {
+	let msg = message { ... };
+	let dec = decoder_init(buf);
+	decode_header(&dec, &msg.header)?;
+
+	for (let i = 0z; i < msg.header.qdcount; i += 1) {
+		let q = question { ... };
+		let names = decode_question(&dec, &q)?;
+
+		for (let i = 0; len(names) != 0; i += 1) {
+			let ns = decode_name(&dec, names)!;
+			names = ns.0;
+			append(q.qname, ns.1);
+		};
+
+		append(msg.questions, q);
+	};
+
+	decode_rrecords(&dec, msg.header.ancount, &msg.answers)?;
+	decode_rrecords(&dec, msg.header.nscount, &msg.authority)?;
+	decode_rrecords(&dec, msg.header.arcount, &msg.additional)?;
+	return alloc(msg);
+};
+
+fn decode_rrecords(
+	dec: *decoder,
+	count: u16,
+	out: *[]rrecord,
+) (void | format) = {
+	for (let i = 0z; i < count; i += 1) {
+		let r = rrecord { ... };
+		let names = decode_rrecord(dec, &r)?;
+
+		for (let i = 0; len(names) != 0; i += 1) {
+			let ns = decode_name(dec, names)!;
+			names = ns.0;
+			append(r.name, ns.1);
+		};
+
+		append(*out, r);
+	};
 };
 
 // Initializes a DNS message decoder. All storaged used by the decoder is either

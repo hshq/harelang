@@ -131,5 +131,25 @@ export type message = struct {
 
 // Frees a [[message]] and the resources associated with it.
 export fn message_free(msg: *message) void = {
-	abort(); // TODO
+	for (let i = 0z; i < len(msg.questions); i += 1) {
+		free(msg.questions[i].qname);
+	};
+	free(msg.questions);
+
+	for (let i = 0z; i < len(msg.questions); i += 1) {
+		free(msg.answers[i].name);
+	};
+	free(msg.answers);
+
+	for (let i = 0z; i < len(msg.questions); i += 1) {
+		free(msg.answers[i].name);
+	};
+	free(msg.authority);
+
+	for (let i = 0z; i < len(msg.questions); i += 1) {
+		free(msg.answers[i].name);
+	};
+	free(msg.additional);
+
+	free(msg);
 };
