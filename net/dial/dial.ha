@@ -34,5 +34,17 @@ export fn dial(
 	address: str,
 	service: str,
 ) (*io::stream | net::error) = {
-	abort(); // TODO
+	for (let i = 0z; i < len(default_protocols); i += 1) {
+		let p = default_protocols[i];
+		if (p.name == proto) {
+			return p.dial(address, service);
+		};
+	};
+	for (let i = 0z; i < len(protocols); i += 1) {
+		let p = protocols[i];
+		if (p.name == proto) {
+			return p.dial(address, service);
+		};
+	};
+	return net::unknownproto;
 };

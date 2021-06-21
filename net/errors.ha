@@ -1,10 +1,18 @@
 use errors;
 
+// An attempt was made to use an unsupported protocol.
+export type unknownproto = !void;
+
 // All error types which can be returned from networking functions.
-export type error = !errors::error;
+export type error = !(unknownproto | ...errors::error);
 
 // Converts a [[net::error]] into a human-readable string.
-export fn strerror(err: error) const str = errors::strerror(err);
+export fn strerror(err: error) const str = {
+	return match (err) {
+		unknownproto => "Unsupported protocol",
+		err: errors::error => errors::strerror(err),
+	};
+};
 
 // TODO: listener should not be here, working around bug in harec forward
 // references
