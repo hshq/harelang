@@ -555,7 +555,8 @@ net_dial() {
 	gen_srcs net::dial \
 		dial.ha \
 		ip.ha \
-		registry.ha
+		registry.ha \
+		resolve.ha
 	gen_ssa net::dial io net net::ip net::tcp net::udp
 }
 

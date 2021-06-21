@@ -837,7 +837,8 @@ $(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_
 stdlib_net_dial_srcs= \
 	$(STDLIB)/net/dial/dial.ha \
 	$(STDLIB)/net/dial/ip.ha \
-	$(STDLIB)/net/dial/registry.ha
+	$(STDLIB)/net/dial/registry.ha \
+	$(STDLIB)/net/dial/resolve.ha
 
 $(HARECACHE)/net/dial/net_dial.ssa: $(stdlib_net_dial_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_net) $(stdlib_net_ip) $(stdlib_net_tcp) $(stdlib_net_udp)
 	@printf 'HAREC \t$@\n'
@@ -2005,7 +2006,8 @@ $(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(test
 testlib_net_dial_srcs= \
 	$(STDLIB)/net/dial/dial.ha \
 	$(STDLIB)/net/dial/ip.ha \
-	$(STDLIB)/net/dial/registry.ha
+	$(STDLIB)/net/dial/registry.ha \
+	$(STDLIB)/net/dial/resolve.ha
 
 $(TESTCACHE)/net/dial/net_dial.ssa: $(testlib_net_dial_srcs) $(testlib_rt) $(testlib_io) $(testlib_net) $(testlib_net_ip) $(testlib_net_tcp) $(testlib_net_udp)
 	@printf 'HAREC \t$@\n'

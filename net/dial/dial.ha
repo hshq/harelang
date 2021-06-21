@@ -19,8 +19,8 @@ use net;
 //
 // The service parameter can be a service name (e.g. "submission") or a default
 // port to use, if one is not specified by address. If a service name is used,
-// an internal list of services is consulted (see [[dial::registersvc]]), and if
-// not known to Hare, the system service list (e.g. /etc/services) will be
+// an internal list of services is consulted (see [[registersvc]]), and if not
+// known to Hare, the system service list (e.g. /etc/services) will be
 // consulted. If the connection port cannot be established, [[errors::invalid]]
 // is returned. The special service name "unknown" will always consult the
 // address parameter for a desired port, and will return [[errors::invalid]] if
