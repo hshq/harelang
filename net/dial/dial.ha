@@ -7,10 +7,12 @@ use net;
 // and the service should be the name of the service, or the default port to
 // use.
 //
-// The address parameter may be either an IPv4 or IPv6 address, or a name, and
-// may include a port separated by a colon (':'). If an IPv6 address and a port
-// are both desired, use brackets ('[' and ']') to separate the address from the
-// port (e.g. "[::1]:80"). If the port is not specified, it is inferred from the
+// The interpretation of the address and service parameters is dependent on the
+// protocol in use. For IP-based protocols (such as TCP or UDP), the address
+// parameter may be either an IPv4 or IPv6 address, or a name, and may include a
+// port separated by a colon (':'). If an IPv6 address and a port are both
+// desired, use brackets ('[' and ']') to separate the address from the port
+// (e.g. "[::1]:80"). If the port is not specified, it is inferred from the
 // service parameter. If a name is used instead of an IP address, a DNS lookup
 // is performed, consulting the local /etc/hosts file or equivalent, if
 // possible.
