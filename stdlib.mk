@@ -822,6 +822,7 @@ $(HARECACHE)/net/net.ssa: $(stdlib_net_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_
 # net::dns
 # net::dns
 stdlib_net_dns_srcs= \
+	$(STDLIB)/net/dns/error.ha \
 	$(STDLIB)/net/dns/encoding.ha \
 	$(STDLIB)/net/dns/types.ha
 
@@ -1942,6 +1943,7 @@ $(TESTCACHE)/net/net.ssa: $(testlib_net_srcs) $(testlib_rt) $(testlib_io) $(test
 # net::dns
 # net::dns
 testlib_net_dns_srcs= \
+	$(STDLIB)/net/dns/error.ha \
 	$(STDLIB)/net/dns/encoding.ha \
 	$(STDLIB)/net/dns/types.ha
 

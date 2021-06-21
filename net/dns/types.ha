@@ -1,5 +1,3 @@
-use endian;
-
 // Record type
 export type rtype = enum u16 {
 	A = 1,

@@ -552,6 +552,7 @@ net() {
 net_dns() {
 	printf '# net::dns\n'
 	gen_srcs net::dns \
+		error.ha \
 		encoding.ha \
 		types.ha
 	gen_ssa net::dns endian net net::udp net::ip fmt

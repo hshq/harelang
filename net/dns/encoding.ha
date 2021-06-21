@@ -1,5 +1,130 @@
 use endian;
 use fmt;
+use strings;
+
+export type decoder = struct {
+	buf: []u8,
+	cur: []u8,
+	qdcount: u16,
+	ancount: u16,
+	nscount: u16,
+	arcount: u16,
+};
+
+// Decodes a DNS message, heap allocating the resources necessary to represent
+// it in Hare's type system. The caller must use [[message_free]] to free the
+// return value. To decode without use of the heap, see [[decoder_init]].
+export fn decode(buf: []u8) *message = {
+	abort(); // TODO
+	return alloc(message { ... });
+};
+
+// Initializes a DNS message decoder. All storaged used by the decoder is either
+// stack-allocated, provided by the caller, or borrowed from the input buffer.
+//
+// Call [[decode_header]] next.
+export fn decoder_init(buf: []u8) decoder = decoder {
+	buf = buf,
+	cur = buf,
+	...
+};
+
+fn decode_u16(dec: *decoder) (u16 | format) = {
+	if (len(dec.cur) < 2) {
+		return format;
+	};
+	const val = endian::begetu16(dec.cur);
+	dec.cur = dec.cur[2..];
+	return val;
+};
+
+fn decode_u32(dec: *decoder) (u32 | format) = {
+	if (len(dec.cur) < 4) {
+		return format;
+	};
+	const val = endian::begetu32(dec.cur);
+	dec.cur = dec.cur[4..];
+	return val;
+};
+
+// Decodes a DNS message's header and advances the decoder to the
+// variable-length section of the message. Following this call, the user should
+// call [[decode_question]] for each question given by the header's qdcount,
+// then [[decode_rrecord]] for each resource record given by the ancount,
+// nscount, and arcount fields, respectively.
+export fn decode_header(dec: *decoder, head: *header) (void | format) = {
+	head.id = decode_u16(dec)?;
+	let rawop = decode_u16(dec)?;
+	op_decode(rawop, &head.op);
+	head.qdcount = decode_u16(dec)?;
+	head.ancount = decode_u16(dec)?;
+	head.nscount = decode_u16(dec)?;
+	head.arcount = decode_u16(dec)?;
+	dec.qdcount = head.qdcount;
+	dec.ancount = head.ancount;
+	dec.nscount = head.nscount;
+	dec.arcount = head.arcount;
+};
+
+// Partially decodes a [[question]] and advances the decoder. Returns a slice
+// representing the name field, which can be passed to [[decode_name]] to
+// interpret.
+export fn decode_question(dec: *decoder, q: *question) ([]u8 | format) = {
+	let name = extract_name(dec)?;
+	q.qtype = decode_u16(dec)?: qtype;
+	q.qclass = decode_u16(dec)?: qclass;
+	return name;
+};
+
+// Partially decodes a [[rrecord]] and advances the decoder. Returns a slice
+// representing the name field, which can be passed to [[decode_name]] to
+// interpret.
+export fn decode_rrecord(dec: *decoder, r: *rrecord) ([]u8 | format) = {
+	let name = extract_name(dec)!;
+	r.rtype = decode_u16(dec)!: rtype;
+	r.class = decode_u16(dec)!: class;
+	r.ttl = decode_u32(dec)!;
+	let rdz = decode_u16(dec)!;
+	r.rdata = dec.cur[..rdz];
+	dec.cur = dec.cur[rdz..];
+	return name;
+};
+
+fn extract_name(dec: *decoder) ([]u8 | format) = {
+	if (dec.cur[0] & 0b11000000 == 0b11000000) {
+		const name = dec.cur[..2];
+		dec.cur = dec.cur[2..];
+		return name;
+	};
+	for (let i = 0z; i < len(dec.cur); i += 1) {
+		let z = dec.cur[i];
+		if (z == 0) {
+			const name = dec.cur[..i + 1];
+			dec.cur = dec.cur[i + 1..];
+			return name;
+		};
+		i += z;
+	};
+	return format;
+};
+
+// Decodes a name from a question or resource record, returning the decoded name
+// and the remainder of the buffer. The caller should pass the returned buffer
+// into decode_name again to retrieve the next name. When the return value is an
+// empty string, all of the names have been decoded. It is a programming error
+// to call decode_name again after this, and the program will abort.
+export fn decode_name(dec: *decoder, buf: []u8) (([]u8, str) | format) = {
+	let z = buf[0];
+	if (z == 0) {
+		return ([]: []u8, "");
+	};
+	if (z & 0b11000000 == 0b11000000) {
+		let offs = endian::begetu16(buf) & ~0b1100000000000000u16;
+		return decode_name(dec, dec.buf[offs..]);
+	};
+	// TODO: Validate ASCII here
+	return (buf[z + 1..], strings::fromutf8(buf[1..z + 1]));
+};
 
 // Encodes a DNS message, returning its size.
 export fn encode(buf: []u8, msg: *message) size = {
@@ -31,64 +156,6 @@ export fn encode(buf: []u8, msg: *message) size = {
 	};
 
 	return z;
-};
-
-// Decodes a DNS message's header only, leaving the other fields unmodified. See
-// [[decode]] to completely decode the message (requiring the use of the heap),
-// or [[decode_question]] and [[decode_rrecord]] for the iterative decoders
-// (which can be used statically).
-export fn decode_header(buf: []u8, h: *header) size = {
-	let z = 0z;
-	h.id = endian::begetu16(buf[z..]);
-	z += 2;
-	let rawop = endian::begetu16(buf[z..]);
-	op_decode(rawop, &h.op);
-	z += 2;
-	h.qdcount = endian::begetu16(buf[z..]);
-	z += 2;
-	h.ancount = endian::begetu16(buf[z..]);
-	z += 2;
-	h.nscount = endian::begetu16(buf[z..]);
-	z += 2;
-	h.arcount = endian::begetu16(buf[z..]);
-	z += 2;
-	return z;
-};
-
-// Decodes a DNS message, heap allocating the resources necessary to represent
-// it in Hare's type system. The caller must use [[message_free]] to free the
-// return value.
-export fn decode(buf: []u8) *message = {
-	abort(); // TODO
-	return alloc(message { ... });
-};
-
-// Partially decodes a [[question]], returning a byte slice (borrowed from the
-// buf parameter) which represents the value of the qname field (leaving the
-// corresponding field in the question structure untouched). See [[decode_name]]
-// to interpret the return value.
-export fn decode_question(buf: []u8, q: *question) []u8 = {
-	abort(); // TODO
-	return [];
-};
-
-// Partially decodes a [[rrecord]], returning a byte slice (borrowed from the
-// buf parameter) which represents the value of the name field (leaving the
-// corresponding field in the question structure untouched). See [[decode_name]]
-// to interpret the return value.
-export fn decode_rrecord(buf: []u8, r: *rrecord) []u8 = {
-	abort(); // TODO
-	return [];
-};
-
-// Decodes a name from a question or resource record, returning the decoded name
-// and the remainder of the buffer. The caller should pass the returned buffer
-// into decode_name again to retrieve the next name. When the return value is an
-// empty string, all of the names have been decoded. It is a programming error
-// to call decode_name again after this, and the program will abort.
-export fn decode_name(buf: []u8) ([]u8, str) = {
-	abort(); // TODO
-	return (buf, "");
 };
 
 fn question_encode(buf: []u8, q: *question) size = {
@@ -142,17 +209,16 @@ fn rrecord_encode(buf: []u8, r: *rrecord) size = {
 	return z;
 };
 
-fn op_encode(op: *op) u16 = endian::htonu16(
+fn op_encode(op: *op) u16 =
 	(op.qr: u16 << 15u16) | 
 	(op.opcode: u16 << 11u16) |
 	(if (op.aa) 0b0000010000000000u16 else 0u16) |
 	(if (op.tc) 0b0000001000000000u16 else 0u16) |
 	(if (op.rd) 0b0000000100000000u16 else 0u16) |
 	(if (op.ra) 0b0000000010000000u16 else 0u16) |
-	op.rcode: u16);
+	op.rcode: u16;
 
 fn op_decode(in: u16, out: *op) void = {
-	let in = endian::ntohu16(in);
 	out.qr = ((in & 0b1000000000000000) >> 15): qr;
 	out.opcode = ((in & 0b01111000000000u16) >> 11): opcode;
 	out.aa = in & 0b0000010000000000u16 != 0;
