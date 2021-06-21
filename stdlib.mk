@@ -321,6 +321,10 @@ hare_stdlib_deps+=$(stdlib_unicode)
 stdlib_unix=$(HARECACHE)/unix/unix.o
 hare_stdlib_deps+=$(stdlib_unix)
 
+# gen_lib unix::hosts
+stdlib_unix_hosts=$(HARECACHE)/unix/hosts/unix_hosts.o
+hare_stdlib_deps+=$(stdlib_unix_hosts)
+
 # gen_lib unix::passwd
 stdlib_unix_passwd=$(HARECACHE)/unix/passwd/unix_passwd.o
 hare_stdlib_deps+=$(stdlib_unix_passwd)
@@ -1068,6 +1072,16 @@ $(HARECACHE)/unix/unix.ssa: $(stdlib_unix_srcs) $(stdlib_rt) $(stdlib_errors)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix \
 		-t$(HARECACHE)/unix/unix.td $(stdlib_unix_srcs)
 
+# unix::hosts
+stdlib_unix_hosts_srcs= \
+	$(STDLIB)/unix/hosts/lookup.ha
+
+$(HARECACHE)/unix/hosts/unix_hosts.ssa: $(stdlib_unix_hosts_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_io) $(stdlib_bufio) $(stdlib_net_ip) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/hosts
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::hosts \
+		-t$(HARECACHE)/unix/hosts/unix_hosts.td $(stdlib_unix_hosts_srcs)
+
 # unix::passwd
 stdlib_unix_passwd_srcs= \
 	$(STDLIB)/unix/passwd/group.ha \
@@ -1084,7 +1098,7 @@ $(HARECACHE)/unix/passwd/unix_passwd.ssa: $(stdlib_unix_passwd_srcs) $(stdlib_rt
 stdlib_unix_resolvconf_srcs= \
 	$(STDLIB)/unix/resolvconf/load.ha
 
-$(HARECACHE)/unix/resolvconf/unix_resolvconf.ssa: $(stdlib_unix_resolvconf_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_io) $(stdlib_bufio) $(stdlib_net_ip)
+$(HARECACHE)/unix/resolvconf/unix_resolvconf.ssa: $(stdlib_unix_resolvconf_srcs) $(stdlib_rt) $(stdlib_os) $(stdlib_io) $(stdlib_bufio) $(stdlib_net_ip) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/resolvconf
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::resolvconf \
@@ -1436,6 +1450,10 @@ hare_testlib_deps+=$(testlib_unicode)
 # gen_lib unix
 testlib_unix=$(TESTCACHE)/unix/unix.o
 hare_testlib_deps+=$(testlib_unix)
+
+# gen_lib unix::hosts
+testlib_unix_hosts=$(TESTCACHE)/unix/hosts/unix_hosts.o
+hare_testlib_deps+=$(testlib_unix_hosts)
 
 # gen_lib unix::passwd
 testlib_unix_passwd=$(TESTCACHE)/unix/passwd/unix_passwd.o
@@ -2208,6 +2226,16 @@ $(TESTCACHE)/unix/unix.ssa: $(testlib_unix_srcs) $(testlib_rt) $(testlib_errors)
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
 		-t$(TESTCACHE)/unix/unix.td $(testlib_unix_srcs)
 
+# unix::hosts
+testlib_unix_hosts_srcs= \
+	$(STDLIB)/unix/hosts/lookup.ha
+
+$(TESTCACHE)/unix/hosts/unix_hosts.ssa: $(testlib_unix_hosts_srcs) $(testlib_rt) $(testlib_os) $(testlib_io) $(testlib_bufio) $(testlib_net_ip) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/hosts
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
+		-t$(TESTCACHE)/unix/hosts/unix_hosts.td $(testlib_unix_hosts_srcs)
+
 # unix::passwd
 testlib_unix_passwd_srcs= \
 	$(STDLIB)/unix/passwd/group.ha \
@@ -2224,7 +2252,7 @@ $(TESTCACHE)/unix/passwd/unix_passwd.ssa: $(testlib_unix_passwd_srcs) $(testlib_
 testlib_unix_resolvconf_srcs= \
 	$(STDLIB)/unix/resolvconf/load.ha
 
-$(TESTCACHE)/unix/resolvconf/unix_resolvconf.ssa: $(testlib_unix_resolvconf_srcs) $(testlib_rt) $(testlib_os) $(testlib_io) $(testlib_bufio) $(testlib_net_ip)
+$(TESTCACHE)/unix/resolvconf/unix_resolvconf.ssa: $(testlib_unix_resolvconf_srcs) $(testlib_rt) $(testlib_os) $(testlib_io) $(testlib_bufio) $(testlib_net_ip) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/resolvconf
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \

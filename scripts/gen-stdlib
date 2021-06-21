@@ -753,6 +753,12 @@ unix() {
 	gen_ssa unix errors
 }
 
+unix_hosts() {
+	gen_srcs unix::hosts \
+        lookup.ha
+	gen_ssa unix::hosts os io bufio net::ip strings
+}
+
 unix_passwd() {
 	gen_srcs unix::passwd \
 		group.ha \
@@ -764,7 +770,7 @@ unix_passwd() {
 unix_resolvconf() {
 	gen_srcs unix::resolvconf \
         load.ha
-	gen_ssa unix::resolvconf os io bufio net::ip
+	gen_ssa unix::resolvconf os io bufio net::ip strings
 }
 
 unix_tty() {
@@ -845,6 +851,7 @@ time
 types
 unicode
 unix
+unix::hosts
 unix::passwd
 unix::resolvconf
 unix::tty
