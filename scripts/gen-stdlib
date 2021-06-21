@@ -593,7 +593,7 @@ net_udp() {
 	gen_srcs net::udp \
 		'$(PLATFORM).ha' \
 		options.ha
-	gen_ssa net::udp net net::ip errors rt
+	gen_ssa net::udp net net::ip errors rt os io
 }
 
 net_unix() {

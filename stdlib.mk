@@ -872,7 +872,7 @@ stdlib_net_udp_srcs= \
 	$(STDLIB)/net/udp/$(PLATFORM).ha \
 	$(STDLIB)/net/udp/options.ha
 
-$(HARECACHE)/net/udp/net_udp.ssa: $(stdlib_net_udp_srcs) $(stdlib_rt) $(stdlib_net) $(stdlib_net_ip) $(stdlib_errors) $(stdlib_rt)
+$(HARECACHE)/net/udp/net_udp.ssa: $(stdlib_net_udp_srcs) $(stdlib_rt) $(stdlib_net) $(stdlib_net_ip) $(stdlib_errors) $(stdlib_rt) $(stdlib_os) $(stdlib_io)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/udp
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::udp \
@@ -2024,7 +2024,7 @@ testlib_net_udp_srcs= \
 	$(STDLIB)/net/udp/$(PLATFORM).ha \
 	$(STDLIB)/net/udp/options.ha
 
-$(TESTCACHE)/net/udp/net_udp.ssa: $(testlib_net_udp_srcs) $(testlib_rt) $(testlib_net) $(testlib_net_ip) $(testlib_errors) $(testlib_rt)
+$(TESTCACHE)/net/udp/net_udp.ssa: $(testlib_net_udp_srcs) $(testlib_rt) $(testlib_net) $(testlib_net_ip) $(testlib_errors) $(testlib_rt) $(testlib_os) $(testlib_io)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/udp
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::udp \

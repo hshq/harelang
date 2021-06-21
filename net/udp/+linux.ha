@@ -1,6 +1,8 @@
 use errors;
-use net;
+use io;
 use net::ip;
+use net;
+use os;
 use rt;
 
 export type socket = int;
@@ -24,6 +26,15 @@ export fn connect(
 		int => sockfd,
 		err: rt::errno => errors::errno(err),
 	};
+};
+
+// Creates an [[io::stream]] for an open UDP socket, which allows you to send
+// and receive UDP packets using [[io::read]] and [[io::write]], albiet without
+// being able to receive the sender address. Only meaningful if the socket was
+// created with [[connect]].
+export fn stream(sock: socket) *io::stream = {
+	return os::fdopen(sock, "<UDP stream>",
+		io::mode::READ | io::mode::WRITE);
 };
 
 // Creates a UDP socket bound to an interface.
