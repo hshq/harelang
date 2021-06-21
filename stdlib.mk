@@ -826,7 +826,7 @@ stdlib_net_dns_srcs= \
 	$(STDLIB)/net/dns/encoding.ha \
 	$(STDLIB)/net/dns/types.ha
 
-$(HARECACHE)/net/dns/net_dns.ssa: $(stdlib_net_dns_srcs) $(stdlib_rt) $(stdlib_endian) $(stdlib_net) $(stdlib_net_udp) $(stdlib_net_ip) $(stdlib_fmt)
+$(HARECACHE)/net/dns/net_dns.ssa: $(stdlib_net_dns_srcs) $(stdlib_rt) $(stdlib_ascii) $(stdlib_endian) $(stdlib_net) $(stdlib_net_udp) $(stdlib_net_ip) $(stdlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/dns
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::dns \
@@ -1947,7 +1947,7 @@ testlib_net_dns_srcs= \
 	$(STDLIB)/net/dns/encoding.ha \
 	$(STDLIB)/net/dns/types.ha
 
-$(TESTCACHE)/net/dns/net_dns.ssa: $(testlib_net_dns_srcs) $(testlib_rt) $(testlib_endian) $(testlib_net) $(testlib_net_udp) $(testlib_net_ip) $(testlib_fmt)
+$(TESTCACHE)/net/dns/net_dns.ssa: $(testlib_net_dns_srcs) $(testlib_rt) $(testlib_ascii) $(testlib_endian) $(testlib_net) $(testlib_net_udp) $(testlib_net_ip) $(testlib_fmt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/dns
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::dns \

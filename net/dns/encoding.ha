@@ -1,3 +1,4 @@
+use ascii;
 use endian;
 use fmt;
 use net::ip;
@@ -123,8 +124,14 @@ export fn decode_name(dec: *decoder, buf: []u8) (([]u8, str) | format) = {
 		let offs = endian::begetu16(buf) & ~0b1100000000000000u16;
 		return decode_name(dec, dec.buf[offs..]);
 	};
-	// TODO: Validate ASCII here
-	return (buf[z + 1..], strings::fromutf8(buf[1..z + 1]));
+	let name = buf[1..z + 1];
+	buf = buf[z + 1..];
+	for (let i = 0z; i < len(name); i += 1) {
+		if (!ascii::isascii(name[i]: u32: rune)) {
+			return format;
+		};
+	};
+	return (buf, strings::fromutf8(name));
 };
 
 // Decodes the rdata field of an A (address) record. The return value is
