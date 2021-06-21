@@ -1,5 +1,6 @@
 use endian;
 use fmt;
+use net::ip;
 use strings;
 
 export type decoder = struct {
@@ -124,6 +125,38 @@ export fn decode_name(dec: *decoder, buf: []u8) (([]u8, str) | format) = {
 	};
 	// TODO: Validate ASCII here
 	return (buf[z + 1..], strings::fromutf8(buf[1..z + 1]));
+};
+
+// Decodes the rdata field of an A (address) record. The return value is
+// borrowed from the rdata buffer.
+export fn decode_a(rdata: []u8) (ip::addr4 | format) = {
+	if (len(rdata) != 4) {
+		return format;
+	};
+	let ip: ip::addr4 = [0...];
+	ip[..] = rdata[..];
+	return ip;
+};
+
+// Decodes the rdata field of an AAAA (address) record. The return value is
+// borrowed from the rdata buffer.
+export fn decode_aaaa(rdata: []u8) (ip::addr6 | format) = {
+	if (len(rdata) != 8) {
+		return format;
+	};
+	let ip: ip::addr6 = [0...];
+	ip[..] = rdata[..];
+	return ip;
+};
+
+// Decodes the rdata field of a [[rrecord]]. The return value is borrowed from
+// the rdata buffer.
+export fn decode_rdata(rr: *rrecord) (ip::addr | format) = {
+	return switch (rr.rtype) {
+		rtype::A => decode_a(rr.rdata)?: ip::addr,
+		rtype::AAAA => decode_aaaa(rr.rdata)?: ip::addr,
+		* => format,
+	};
 };
 
 // Encodes a DNS message, returning its size.
