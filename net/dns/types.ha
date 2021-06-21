@@ -91,7 +91,7 @@ export type op = struct {
 	qr: qr,
 	// Operation code
 	opcode: opcode,
-	// Authoratative answer bit
+	// Authoritative answer bit
 	aa: bool,
 	// Truncation bit
 	tc: bool,
