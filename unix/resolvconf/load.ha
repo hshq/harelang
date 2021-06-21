@@ -7,12 +7,20 @@ use strings;
 // XXX: Different platforms may want to configure a different path
 def path: str = "/etc/resolv.conf";
 
+let cache: []ip::addr = [];
+
+@fini fn fini() void = {
+	free(cache);
+};
+
 // Reads a list of nameservers from resolv.conf. Aborts the program if the file
 // does not exist, is written in an invalid format, or if any other error
 // occurs.
 export fn load() []ip::addr = {
 	// XXX: Would be cool if we could do this without allocating anything
-	let servers: []ip::addr = [];
+	if (len(cache) != 0) {
+		return cache;
+	};
 
 	const file = os::open(path)!;
 	defer io::close(file);
@@ -41,8 +49,8 @@ export fn load() []ip::addr = {
 			tok: []u8 => tok,
 		};
 		defer free(tok);
-		append(servers, ip::parse(strings::fromutf8(tok))!);
+		append(cache, ip::parse(strings::fromutf8(tok))!);
 	};
 
-	return servers;
+	return cache;
 };
