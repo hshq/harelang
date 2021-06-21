@@ -556,7 +556,7 @@ net_dns() {
 		encoding.ha \
 		query.ha \
 		types.ha
-	gen_ssa net::dns ascii endian net net::udp net::ip fmt
+	gen_ssa net::dns ascii endian net net::udp net::ip fmt unix::resolvconf
 }
 
 gensrcs_net_ip() {
@@ -761,6 +761,12 @@ unix_passwd() {
 	gen_ssa unix::passwd bufio io os strconv strings
 }
 
+unix_resolvconf() {
+	gen_srcs unix::resolvconf \
+        load.ha
+	gen_ssa unix::resolvconf os io bufio net::ip
+}
+
 unix_tty() {
 	gen_srcs unix::tty \
         types.ha \
@@ -840,6 +846,7 @@ types
 unicode
 unix
 unix::passwd
+unix::resolvconf
 unix::tty
 uuid"
 stdlib() {

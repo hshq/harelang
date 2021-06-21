@@ -1,0 +1,4 @@
+[[unix::resolvconf]] provides a (basic) reader for the resolv.conf file found on
+many Unix-like operating systems. This implementation only supports the
+"nameserver" directive, and it will return a list of IP addresses to use as
+nameservers.
