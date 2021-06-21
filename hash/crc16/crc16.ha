@@ -8,20 +8,20 @@ export def SIZE: size = 2;
 
 // CRC-CCITT polynomial for CRC-16. The most commonly used polynomial, used in
 // Bluetooth, X.25, XMODEM, and many other places. Also known as CRC-X25.
-export const CCITT: u16 = 0x8408;
+export def CCITT: u16 = 0x8408;
 
 // CMDA200 polynomial for CRC-16. Used in the infrastructure of mobile networks.
-export const CMDA2000: u16 = 0xE613;
+export def CMDA2000: u16 = 0xE613;
 
 // DECT polynomial for CRC-16. Typically used in cordless phones.
-export const DECT: u16 = 0x91A0;
+export def DECT: u16 = 0x91A0;
 
 // ANSI polynomial for CRC-16. Another widely used polynomial, it's seen in USB
 // devices, Modbus, ANSI X3.28, and many others places. Also known as CRC-IBM.
-export const ANSI: u16 = 0xA001;
+export def ANSI: u16 = 0xA001;
 
 // Table of memoized values for each byte with the CCITT polynomial.
-export const CCITT_TABLE: [256]u16 = [
+export const ccitt_table: [256]u16 = [
 	0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD, 0x6536, 0x74BF, 0x8C48,
 	0x9DC1, 0xAF5A, 0xBED3, 0xCA6C, 0xDBE5, 0xE97E, 0xF8F7, 0x1081, 0x0108,
 	0x3393, 0x221A, 0x56A5, 0x472C, 0x75B7, 0x643E, 0x9CC9, 0x8D40, 0xBFDB,
@@ -54,7 +54,7 @@ export const CCITT_TABLE: [256]u16 = [
 ];
 
 // Table of memoized values for each byte with the CMDA2000 polynomial.
-export const CMDA2000_TABLE: [256]u16 = [
+export const cmda2000_table: [256]u16 = [
 	0x0000, 0x5A7A, 0xB4F4, 0xEE8E, 0xA5CF, 0xFFB5, 0x113B, 0x4B41, 0x87B9,
 	0xDDC3, 0x334D, 0x6937, 0x2276, 0x780C, 0x9682, 0xCCF8, 0xC355, 0x992F,
 	0x77A1, 0x2DDB, 0x669A, 0x3CE0, 0xD26E, 0x8814, 0x44EC, 0x1E96, 0xF018,
@@ -88,7 +88,7 @@ export const CMDA2000_TABLE: [256]u16 = [
 
 
 // Table of memoized values for each byte with the DECT polynomial.
-export const DECT_TABLE: [256]u16 = [
+export const dect_table: [256]u16 = [
 	0x0000, 0x49F3, 0x93E6, 0xDA15, 0x048D, 0x4D7E, 0x976B, 0xDE98, 0x091A,
 	0x40E9, 0x9AFC, 0xD30F, 0x0D97, 0x4464, 0x9E71, 0xD782, 0x1234, 0x5BC7,
 	0x81D2, 0xC821, 0x16B9, 0x5F4A, 0x855F, 0xCCAC, 0x1B2E, 0x52DD, 0x88C8,
@@ -121,7 +121,7 @@ export const DECT_TABLE: [256]u16 = [
 ];
 
 // Table of memoized values for each byte with the ANSI polynomial.
-export const ANSI_TABLE: [256]u16 = [
+export const ansi_table: [256]u16 = [
 	0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241, 0xC601,
 	0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440, 0xCC01, 0x0CC0,
 	0x0D80, 0xCD41, 0x0F00, 0xCFC1, 0xCE81, 0x0E40, 0x0A00, 0xCAC1, 0xCB81,
@@ -180,7 +180,7 @@ type state = struct {
 // Creates a [[hash::hash]] which computes the CRC-16 algorithm.
 //
 // It takes a table of memoized values for a given polynomail (for example,
-// [[CCITT_TABLE]], [[DECT_TABLE]], or [[ANSI_TABLE]]); a table for a
+// [[ccitt_table]], [[dect_table]], or [[ansi_table]]); a table for a
 // custom polynomial, populated by [[memoize]] function, may also be used.
 export fn crc16(table: *[256]u16) *hash::hash = alloc(state {
 	hash = hash::hash {
@@ -237,16 +237,16 @@ export fn sum16(h: *hash::hash) u16 = {
 			0xB0E8, 0xFE1F, 0x4659, 0x5062),
 	];
 
-	let crc_ccitt = crc16(&CCITT_TABLE);
+	let crc_ccitt = crc16(&ccitt_table);
 	defer hash::close(crc_ccitt);
 
-	let crc_cmda2000 = crc16(&CMDA2000_TABLE);
+	let crc_cmda2000 = crc16(&cmda2000_table);
 	defer hash::close(crc_cmda2000);
 
-	let crc_dect = crc16(&DECT_TABLE);
+	let crc_dect = crc16(&dect_table);
 	defer hash::close(crc_dect);
 
-	let crc_ansi = crc16(&ANSI_TABLE);
+	let crc_ansi = crc16(&ansi_table);
 	defer hash::close(crc_ansi);
 
 	let buf: [SIZE]u8 = [0...];

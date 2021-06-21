@@ -7,13 +7,13 @@ use strings;
 export def SIZE: size = 8;
 
 // ECMA polynomial for CRC-64. Used in ECMA-182 and xz-utils.
-export const ECMA: u64 = 0xC96C5795D7870F42;
+export def ECMA: u64 = 0xC96C5795D7870F42;
 
 // ISO polynomial for CRC-64. Used in ISO 3309 (high-level data link controls).
-export const ISO: u64 = 0xD800000000000000;
+export def ISO: u64 = 0xD800000000000000;
 
 // Table of memoized values for each byte with the ECMA polynomial.
-export const ECMA_TABLE: [256]u64 = [
+export const ecma_table: [256]u64 = [
 	0x0000000000000000, 0xB32E4CBE03A75F6F, 0xF4843657A840A05B,
 	0x47AA7AE9ABE7FF34, 0x7BD0C384FF8F5E33, 0xC8FE8F3AFC28015C,
 	0x8F54F5D357CFFE68, 0x3C7AB96D5468A107, 0xF7A18709FF1EBC66,
@@ -103,7 +103,7 @@ export const ECMA_TABLE: [256]u64 = [
 ];
 
 // Table of memoized values for each byte with the ISO polynomial.
-export const ISO_TABLE: [256]u64 = [
+export const iso_table: [256]u64 = [
 	0x0000000000000000, 0x01B0000000000000, 0x0360000000000000,
 	0x02D0000000000000, 0x06C0000000000000, 0x0770000000000000,
 	0x05A0000000000000, 0x0410000000000000, 0x0D80000000000000,
@@ -219,7 +219,7 @@ type state = struct {
 // Creates a [[hash::hash]] which computes the CRC-64 algorithm.
 //
 // It takes a table of memoized values for a given polynomail (for example,
-// [[ISO_TABLE]] or [[ECMA_TABLE]]); a table for a custom polynomial, populated
+// [[iso_table]] or [[ecma_table]]); a table for a custom polynomial, populated
 // by [[memoize]] function, may also be used.
 export fn crc64(table: *[256]u64) *hash::hash = alloc(state {
 	hash = hash::hash {
@@ -274,10 +274,10 @@ export fn sum64(h: *hash::hash) u64 = {
 			0x7DFC4F7CE9552D23, 0xF71B429C925D99AE),
 	];
 
-	let crc_ecma = crc64(&ECMA_TABLE);
+	let crc_ecma = crc64(&ecma_table);
 	defer hash::close(crc_ecma);
 
-	let crc_iso = crc64(&ISO_TABLE);
+	let crc_iso = crc64(&iso_table);
 	defer hash::close(crc_iso);
 
 	let buf: [SIZE]u8 = [0...];

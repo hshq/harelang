@@ -8,19 +8,19 @@ export def SIZE: size = 4;
 
 // IEEE polynomial for CRC-32. Used in ethernet, SATA, MPEG-2, gzip, bzip2,
 // cksum, PNG, etc. It is by far the most common polynomial used.
-export const IEEE: u32 = 0xedb88320;
+export def IEEE: u32 = 0xedb88320;
 
 // Castagnoli polynomial for CRC-32. Used in iSCSI, SCTP, SSE4.2, btrfs, ext4,
 // and others. It's known to have better error detection than IEEE.
-export const CASTAGNOLI: u32 = 0x82f63b78;
+export def CASTAGNOLI: u32 = 0x82f63b78;
 
 // Koopman polnomial for CRC-32. It has good performance for small datasets, but
 // poor performance for large ones. Like the Castagnoli polynomial, it has
 // better error detection than the IEEE polynomial.
-export const KOOPMAN: u32 = 0xeb31d82e;
+export def KOOPMAN: u32 = 0xeb31d82e;
 
 // Table of memoized values for each byte with the IEEE polynomial.
-export const IEEE_TABLE: [256]u32 = [
+export const ieee_table: [256]u32 = [
 	0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F,
 	0xE963A535, 0x9E6495A3, 0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988,
 	0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91, 0x1DB71064, 0x6AB020F2,
@@ -67,7 +67,7 @@ export const IEEE_TABLE: [256]u32 = [
 ];
 
 // Table of memoized values for each byte with the Castagnoli polynomial.
-export const CASTAGNOLI_TABLE: [256]u32 = [
+export const castagnoli_table: [256]u32 = [
 	0x00000000, 0xF26B8303, 0xE13B70F7, 0x1350F3F4, 0xC79A971F, 0x35F1141C,
 	0x26A1E7E8, 0xD4CA64EB, 0x8AD958CF, 0x78B2DBCC, 0x6BE22838, 0x9989AB3B,
 	0x4D43CFD0, 0xBF284CD3, 0xAC78BF27, 0x5E133C24, 0x105EC76F, 0xE235446C,
@@ -114,7 +114,7 @@ export const CASTAGNOLI_TABLE: [256]u32 = [
 ];
 
 // Table of memoized values for each byte with the Koopman polynomial.
-export const KOOPMAN_TABLE: [256]u32 = [
+export const koopman_table: [256]u32 = [
 	0x00000000, 0x9695C4CA, 0xFB4839C9, 0x6DDDFD03, 0x20F3C3CF, 0xB6660705,
 	0xDBBBFA06, 0x4D2E3ECC, 0x41E7879E, 0xD7724354, 0xBAAFBE57, 0x2C3A7A9D,
 	0x61144451, 0xF781809B, 0x9A5C7D98, 0x0CC9B952, 0x83CF0F3C, 0x155ACBF6,
@@ -187,7 +187,7 @@ type state = struct {
 // Creates a [[hash::hash]] which computes the CRC-32 algorithm.
 //
 // It takes a table of memoized values for a given polynomail (for example,
-// [[IEEE_TABLE]], [[CASTAGNOLI_TABLE]], or [[KOOPMAN_TABLE]]); a table for a
+// [[ieee_table]], [[castagnoli_table]], or [[koopman_table]]); a table for a
 // custom polynomial, populated by [[memoize]] function, may also be used.
 export fn crc32(table: *[256]u32) *hash::hash = alloc(state {
 	hash = hash::hash {
@@ -243,13 +243,13 @@ export fn sum32(h: *hash::hash) u32 = {
 		("GNU's not UNIX", 224734747, 200511816, 332335539)
 	];
 
-	let crc_ieee = crc32(&IEEE_TABLE);
+	let crc_ieee = crc32(&ieee_table);
 	defer hash::close(crc_ieee);
 
-	let crc_castagnoli = crc32(&CASTAGNOLI_TABLE);
+	let crc_castagnoli = crc32(&castagnoli_table);
 	defer hash::close(crc_castagnoli);
 
-	let crc_koopman = crc32(&KOOPMAN_TABLE);
+	let crc_koopman = crc32(&koopman_table);
 	defer hash::close(crc_koopman);
 
 	let buf: [SIZE]u8 = [0...];
