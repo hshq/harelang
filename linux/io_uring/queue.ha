@@ -41,7 +41,7 @@ fn needs_flush(ring: *io_uring) bool =
 
 // Submits queued I/O asynchronously. Returns the number of submissions accepted
 // by the kernel.
-export fn submit(ring: *io_uring) (uint | errors::opaque) =
+export fn submit(ring: *io_uring) (uint | errors::error) =
 	do_submit(ring, flush_sq(ring), 0u);
 
 // Submits queued I/O asynchronously and blocks until at least "wait" events are
@@ -50,7 +50,7 @@ export fn submit(ring: *io_uring) (uint | errors::opaque) =
 // one event is completed.
 //
 // Returns the number of submissions accepted by the kernel.
-export fn submit_wait(ring: *io_uring, wait: uint) (uint | errors::opaque) =
+export fn submit_wait(ring: *io_uring, wait: uint) (uint | errors::error) =
 	do_submit(ring, flush_sq(ring), wait);
 
 fn flush_sq(ring: *io_uring) uint = {
@@ -76,7 +76,7 @@ fn do_submit(
 	ring: *io_uring,
 	submitted: uint,
 	wait: uint,
-) (uint | errors::opaque) = {
+) (uint | errors::error) = {
 	let flags: enter_flags = enter_flags::GETEVENTS;
 	if (needs_enter(ring, &flags) || wait != 0) {
 		return match (rt::io_uring_enter(ring.fd,

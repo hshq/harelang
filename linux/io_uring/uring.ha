@@ -1,7 +1,7 @@
 use errors;
 
 // All errors which may be returned by this module.
-export type error = !(errors::timeout | errors::cancelled | errors::opaque);
+export type error = !errors::error;
 
 // Converts an [[error]] into a human-readable string.
 export fn strerror(err: error) const str = {

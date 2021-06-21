@@ -9,7 +9,7 @@ export type socket = int;
 export fn connect(
 	dest: ip::addr,
 	port: u16,
-) (socket | errors::opaque) = {
+) (socket | net::error) = {
 	const sockfd = match (rt::socket(match (dest) {
 		ip::addr4 => rt::AF_INET: int,
 		ip::addr6 => rt::AF_INET6: int,
@@ -31,7 +31,7 @@ export fn listen(
 	addr: ip::addr,
 	port: u16,
 	options: listen_option...
-) (socket | errors::opaque) = {
+) (socket | net::error) = {
 	const sockfd = match (rt::socket(match (addr) {
 		ip::addr4 => rt::AF_INET: int,
 		ip::addr6 => rt::AF_INET6: int,
@@ -70,7 +70,7 @@ export fn close(sock: socket) void = {
 };
 
 // Sends a UDP packet to the destination previously specified by [[connect]].
-export fn send(sock: socket, buf: []u8) (size | errors::opaque) = {
+export fn send(sock: socket, buf: []u8) (size | net::error) = {
 	return match (rt::send(sock, buf: *[*]u8, len(buf), 0)) {
 		sz: size => sz,
 		err: rt::errno => errors::errno(err),
@@ -83,7 +83,7 @@ export fn sendto(
 	buf: []u8,
 	dest: ip::addr,
 	port: u16,
-) (size | errors::opaque) = {
+) (size | net::error) = {
 	const sockaddr = ip::to_native(dest, port);
 	const sz = size(rt::sockaddr): u32;
 	return match (rt::sendto(sock, buf: *[*]u8, len(buf),
@@ -99,13 +99,13 @@ export fn recvfrom(
 	buf: []u8,
 	src: nullable *ip::addr,
 	port: nullable *u16,
-) (size | errors::opaque) = {
+) (size | net::error) = {
 	let addrsz = size(rt::sockaddr): u32;
 	const sockaddr = rt::sockaddr { ... };
 	const sz = match (rt::recvfrom(sock, buf: *[*]u8, len(buf),
 			0, &sockaddr, &addrsz)) {
 		sz: size => sz,
-		err: rt::errno => errors::errno(err),
+		err: rt::errno => return errors::errno(err),
 	};
 
 	assert(addrsz <= size(rt::sockaddr));

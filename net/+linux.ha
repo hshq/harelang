@@ -19,7 +19,7 @@ export fn listenerfd(l: *listener) (int | void) = {
 	};
 };
 
-export fn stream_accept(l: *listener) (*io::stream | io::error) = {
+export fn stream_accept(l: *listener) (*io::stream | error) = {
 	assert(l.accept == &stream_accept);
 	let l = l: *stream_listener;
 	let sn = rt::sockaddr {...};

@@ -28,16 +28,9 @@ export fn wait(ring: *io_uring) (*cqe | error) = {
 export fn peek(ring: *io_uring) (nullable *cqe | error) = get_cqe(ring, 0, 0);
 
 // Returns the result of a [[cqe]], or an error if unsuccessful.
-export fn result(cqe: *cqe) (int | error) = {
-	// TODO: Flesh out more errors
-	return if (cqe.res < 0) switch (-cqe.res) {
-		rt::ETIME => errors::timeout,
-		rt::ECANCELED => errors::cancelled,
-		* => errors::errno(rt::wrap_errno(-cqe.res)),
-	} else {
-		cqe.res;
-	};
-};
+export fn result(cqe: *cqe) (int | error) = 
+	if (cqe.res < 0) errors::errno(rt::wrap_errno(-cqe.res))
+	else cqe.res;
 
 // Gets the user data field of a [[cqe]]. See [[set_user]] for the corresponding
 // SQE function.

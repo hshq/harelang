@@ -12,7 +12,7 @@ export fn fork() (int | void | error) = match (rt::fork()) {
 	i: (int | void) => i,
 };
 
-fn open(path: str) (platform_cmd | errors::opaque) = {
+fn open(path: str) (platform_cmd | error) = {
 	match (rt::access(path, rt::X_OK)) {
 		err: rt::errno => return errors::errno(err),
 		b: bool => if (!b) return errors::errno(rt::EACCES),
@@ -27,7 +27,7 @@ fn open(path: str) (platform_cmd | errors::opaque) = {
 
 fn platform_finish(cmd: *command) void = rt::close(cmd.platform)!;
 
-fn platform_exec(cmd: *command) errors::opaque = {
+fn platform_exec(cmd: *command) error = {
 	// We don't worry about freeing the return values from strings::to_c
 	// because once we exec(2) our heap is fried anyway
 	let argv: []nullable *const char = alloc([], len(cmd.argv) + 1z);
@@ -50,7 +50,7 @@ fn platform_exec(cmd: *command) errors::opaque = {
 		argv: *[*]nullable *const char, envp, rt::AT_EMPTY_PATH));
 };
 
-fn platform_start(cmd: *command) (errors::opaque | process) = {
+fn platform_start(cmd: *command) (process | errors::error) = {
 	// TODO: Let the user configure clone more to their taste (e.g. SIGCHLD)
 	let pipe: [2]int = [0...];
 	match (rt::pipe2(&pipe, rt::O_CLOEXEC)) {
@@ -75,6 +75,10 @@ fn platform_start(cmd: *command) (errors::opaque | process) = {
 		void => {
 			rt::close(pipe[0])!;
 			let err = platform_exec(cmd);
+			if (!(err is errors::opaque)) {
+				rt::exit(1);
+			};
+			let err = err as errors::opaque;
 			let err = &err.data: *rt::errno;
 			rt::write(pipe[1], &err, size(int))!;
 			rt::exit(1);

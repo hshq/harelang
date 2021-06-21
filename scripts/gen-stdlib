@@ -545,6 +545,7 @@ net() {
 	printf '# net\n'
 	gen_srcs net \
 		'$(PLATFORM).ha' \
+		errors.ha \
 		listener.ha
 	gen_ssa net io os strings net::ip errors rt fmt
 }

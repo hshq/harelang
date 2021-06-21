@@ -25,6 +25,9 @@ export type timeout = !void;
 // The requested operation was cancelled.
 export type cancelled = !void;
 
+// A connection attempt was refused.
+export type refused = !void;
+
 // A tagged union of all error types.
 export type error = !(
 	busy |
@@ -36,5 +39,6 @@ export type error = !(
 	unsupported |
 	timeout |
 	cancelled |
+	refused |
 	opaque
 );

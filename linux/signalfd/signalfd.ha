@@ -35,7 +35,7 @@ export fn signalfd(
 	fd: int,
 	mask: *const rt::sigset,
 	flags: int,
-) (int | errors::opaque) = {
+) (int | errors::error) = {
 	return match (rt::signalfd(fd, mask, flags)) {
 		fd: int => fd,
 		err: rt::errno => errors::errno(err),
@@ -43,7 +43,7 @@ export fn signalfd(
 };
 
 // Reads pending signal info from a signalfd.
-export fn readsignal(fd: int) (siginfo | errors::opaque) = {
+export fn readsignal(fd: int) (siginfo | errors::error) = {
 	let si = siginfo { ... };
 	return match (rt::read(fd, &si, size(siginfo))) {
 		err: rt::errno => errors::errno(err),

@@ -3,7 +3,7 @@ use net;
 
 // Accepts the next connection from a listener. Blocks until a new connection is
 // available. This is a convenience wrapper around [[net::accept]].
-export fn accept(l: *net::listener) (*io::stream | io::error) = {
+export fn accept(l: *net::listener) (*io::stream | net::error) = {
 	return net::accept(l);
 };
 

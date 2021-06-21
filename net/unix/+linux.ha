@@ -9,7 +9,7 @@ use types;
 
 // Opens a UNIX socket connection to the path. Blocks until the connection is
 // established.
-export fn connect(addr: addr) (*io::stream | io::error) = {
+export fn connect(addr: addr) (*io::stream | net::error) = {
 	let sockaddr = match (to_native(addr)) {
 		a: rt::sockaddr => a,
 		invalid => return errors::unsupported, // path too long
@@ -36,7 +36,7 @@ export fn connect(addr: addr) (*io::stream | io::error) = {
 export fn listen(
 	addr: addr,
 	options: listen_option...
-) (*net::listener | io::error) = {
+) (*net::listener | net::error) = {
 	let sockaddr = match (to_native(addr)) {
 		a: rt::sockaddr => a,
 		invalid => return errors::unsupported, // path too long

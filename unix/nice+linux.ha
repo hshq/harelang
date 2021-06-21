@@ -5,7 +5,7 @@ use rt;
 // between -20 and 19 (inclusive); lower numbers represent a higher priority.
 // Generally, you must have elevated permissions to reduce your niceness, but
 // not to increase it.
-export fn nice(inc: int) (void | errors::opaque) = {
+export fn nice(inc: int) (void | errors::error) = {
 	let prio = inc;
 	if (inc > -40 && inc <= 40) {
 		prio += rt::getpriority(rt::PRIO_PROCESS, 0) as int;

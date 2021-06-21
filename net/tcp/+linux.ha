@@ -11,7 +11,7 @@ export fn connect(
 	addr: ip::addr,
 	port: u16,
 	options: connect_option...
-) (*io::stream | io::error) = {
+) (*io::stream | net::error) = {
 	const sockaddr = ip::to_native(addr, port);
 	const sockfd = match (rt::socket(match (addr) {
 		ip::addr4 => rt::AF_INET: int,
@@ -41,7 +41,7 @@ export fn listen(
 	addr: ip::addr,
 	port: u16,
 	options: listen_option...
-) (*net::listener | io::error) = {
+) (*net::listener | net::error) = {
 	const sockaddr = ip::to_native(addr, port);
 	const sockfd = match (rt::socket(match (addr) {
 		ip::addr4 => rt::AF_INET: int,
@@ -116,7 +116,7 @@ fn setsockopt(
 	sockfd: int,
 	option: int,
 	value: bool,
-) (void | errors::opaque) = {
+) (void | net::error) = {
 	let val: int = if (value) 1 else 0;
 	return match (rt::setsockopt(sockfd, rt::SOL_SOCKET, option,
 			&val: *void, size(int): u32)) {
