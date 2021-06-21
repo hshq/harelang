@@ -557,7 +557,7 @@ net_dial() {
 		ip.ha \
 		registry.ha \
 		resolve.ha
-	gen_ssa net::dial io net net::ip net::tcp net::udp
+	gen_ssa net::dial io net net::ip net::tcp net::udp net::dns
 }
 
 net_dns() {

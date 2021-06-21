@@ -840,7 +840,7 @@ stdlib_net_dial_srcs= \
 	$(STDLIB)/net/dial/registry.ha \
 	$(STDLIB)/net/dial/resolve.ha
 
-$(HARECACHE)/net/dial/net_dial.ssa: $(stdlib_net_dial_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_net) $(stdlib_net_ip) $(stdlib_net_tcp) $(stdlib_net_udp)
+$(HARECACHE)/net/dial/net_dial.ssa: $(stdlib_net_dial_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_net) $(stdlib_net_ip) $(stdlib_net_tcp) $(stdlib_net_udp) $(stdlib_net_dns)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/dial
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::dial \
@@ -2009,7 +2009,7 @@ testlib_net_dial_srcs= \
 	$(STDLIB)/net/dial/registry.ha \
 	$(STDLIB)/net/dial/resolve.ha
 
-$(TESTCACHE)/net/dial/net_dial.ssa: $(testlib_net_dial_srcs) $(testlib_rt) $(testlib_io) $(testlib_net) $(testlib_net_ip) $(testlib_net_tcp) $(testlib_net_udp)
+$(TESTCACHE)/net/dial/net_dial.ssa: $(testlib_net_dial_srcs) $(testlib_rt) $(testlib_io) $(testlib_net) $(testlib_net_ip) $(testlib_net_tcp) $(testlib_net_udp) $(testlib_net_dns)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/dial
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::dial \
