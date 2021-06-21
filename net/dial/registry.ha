@@ -1,6 +1,7 @@
 use io;
 use net;
 
+// A dialer is a function which implements dial for a specific protocol.
 export type dialer = fn(addr: str, service: str) (*io::stream | net::error);
 
 type protocol = struct {
