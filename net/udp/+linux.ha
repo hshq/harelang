@@ -37,6 +37,15 @@ export fn stream(sock: socket) *io::stream = {
 		io::mode::READ | io::mode::WRITE);
 };
 
+// Obtains a [[socket]] for a given [[io::stream]], or returns void if it is not
+// a socket stream.
+export fn socket_for(stream: *io::stream) (socket | void) = {
+	return match (os::streamfd(stream, false)) {
+		fd: int => fd: socket,
+		void => void,
+	};
+};
+
 // Creates a UDP socket bound to an interface.
 export fn listen(
 	addr: ip::addr,
