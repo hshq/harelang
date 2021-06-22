@@ -58,33 +58,28 @@ fn encode_u32(enc: *encoder, val: u32) (void | error) = {
 	enc.offs += 4;
 };
 
-fn question_encode(enc: *encoder, q: *question) (void | error) = {
+fn encode_labels(enc: *encoder, names: []str) (void | error) = {
 	// TODO: Assert that the labels are all valid ASCII?
-	for (let i = 0z; i < len(q.qname); i += 1) {
-		assert(len(q.qname[i]) < 256);
-		if (len(enc.buf) <= enc.offs + 1 + len(q.qname[i])) {
+	for (let i = 0z; i < len(names); i += 1) {
+		assert(len(names[i]) < 256);
+		if (len(enc.buf) <= enc.offs + 1 + len(names[i])) {
 			return errors::overflow;
 		};
-		encode_u8(enc, len(q.qname[i]): u8)?;
-		let label = fmt::bsprintf(enc.buf[enc.offs..], "{}", q.qname[i]);
+		encode_u8(enc, len(names[i]): u8)?;
+		let label = fmt::bsprintf(enc.buf[enc.offs..], "{}", names[i]);
 		enc.offs += len(label);
 	};
+};
+
+fn question_encode(enc: *encoder, q: *question) (void | error) = {
+	encode_labels(enc, q.qname)?;
 	encode_u8(enc, 0)?;
 	encode_u16(enc, q.qtype)?;
 	encode_u16(enc, q.qclass)?;
 };
 
 fn rrecord_encode(enc: *encoder, r: *rrecord) (void | error) = {
-	// TODO: Assert that the labels are all valid ASCII?
-	for (let i = 0z; i < len(r.name); i += 1) {
-		assert(len(r.name[i]) < 256);
-		if (len(enc.buf) <= enc.offs + 1 + len(r.name[i])) {
-			return errors::overflow;
-		};
-		encode_u8(enc, len(r.name[i]): u8)?;
-		let label = fmt::bsprintf(enc.buf[enc.offs..], "{}", r.name[i]);
-		enc.offs += len(label);
-	};
+	encode_labels(enc, r.name)?;
 	encode_u8(enc, 0)?;
 	encode_u16(enc, r.rtype)?;
 	encode_u16(enc, r.class)?;
