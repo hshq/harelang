@@ -102,6 +102,7 @@ fn errno_to_fs(err: rt::errno) fs::error = switch (err) {
 	rt::EBUSY   => errors::busy,
 	rt::ENOTDIR => fs::wrongtype,
 	rt::EOPNOTSUPP, rt::ENOSYS => errors::unsupported,
+	rt::EXDEV => fs::cannotrename,
 	* => errors::errno(err),
 };
 

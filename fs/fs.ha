@@ -64,7 +64,14 @@ export fn move(fs: *fs, oldpath: str, newpath: str) (void | error) = {
 		void => return, // Success
 		err: error => return err,
 	};
-	abort(); // TODO: Fallback
+	// XXX: If an error occurs, remove the new file.
+	let st = fs::stat(fs, oldpath)?;
+	let new = fs::create(fs, newpath, st.mode)?;
+	defer io::close(new);
+	let old = fs::open(fs, oldpath)?;
+	defer io::close(old);
+	io::copy(new, old)?;
+	fs::remove(fs, oldpath)?;
 };
 
 // Returns an iterator for a path, which yields the contents of a directory.
