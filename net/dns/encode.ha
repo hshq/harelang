@@ -60,6 +60,7 @@ fn encode_u32(enc: *encoder, val: u32) (void | error) = {
 fn encode_labels(enc: *encoder, names: []str) (void | error) = {
 	// TODO: Assert that the labels are all valid ASCII?
 	for (let i = 0z; i < len(names); i += 1) {
+		// XXX: Should I return an error instead of asserting?
 		assert(len(names[i]) < 256);
 		if (len(enc.buf) <= enc.offs + 1 + len(names[i])) {
 			return errors::overflow;
