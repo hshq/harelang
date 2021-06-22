@@ -216,4 +216,15 @@ export fn decode_aaaa(rdata: []u8) (ip::addr6 | format) = {
 	return ip;
 };
 
+// Decodes the rdata field of an MX (mail exchange) record, returning the
+// priority and the name. See [[decode_name]] to decode the name. The return
+// value is borrowed from the rdata buffer.
+export fn decode_mx(rdata: []u8) ((u16, []u8) | format) = {
+	if (len(rdata) < 2) {
+		return format;
+	};
+	let prio = endian::begetu16(rdata);
+	return (prio, rdata[2..]);
+};
+
 // TODO: Expand breadth of supported rdata decoders
