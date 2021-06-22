@@ -1,4 +1,3 @@
-// TODO: Refactor me
 use errors;
 use endian;
 use fmt;
