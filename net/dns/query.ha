@@ -16,7 +16,7 @@ export fn query(query: *message, addr: ip::addr...) (*message | error) = {
 
 	// TODO: Use TCP for messages >512 bytes
 	let sendbuf: [512]u8 = [0...];
-	let z = encode(sendbuf, query);
+	let z = encode(sendbuf, query)?;
 	// TODO: Query multiple servers
 	udp::sendto(socket, sendbuf[..z], addr[0], 53)?;
 
