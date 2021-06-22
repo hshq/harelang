@@ -8,6 +8,12 @@ use time;
 // For example, opening a file with [[iter]].
 export type wrongtype = !void;
 
+// Returned from [[rename]] if this rename is not possible due to technical
+// constraints, such as if it would cause a file to move between filesystems. In
+// this situation, other operations (such as copy & remove) may succeed if
+// attempted.
+export type cannotrename = !void;
+
 // All possible fs error types.
 export type error = !(
 	errors::noentry |
@@ -16,6 +22,7 @@ export type error = !(
 	errors::busy |
 	errors::invalid |
 	wrongtype |
+	cannotrename |
 	io::error);
 
 // File mode information. These bits do not necessarily reflect the underlying
@@ -159,6 +166,7 @@ export type flags = enum int {
 
 export type closefunc = fn(fs: *fs) void;
 export type removefunc = fn(fs: *fs, path: str) (void | error);
+export type renamefunc = fn(fs: *fs, oldpath: str, newpath: str) (void | error);
 export type iterfunc = fn(fs: *fs, path: str) (*iterator | error);
 export type statfunc = fn(fs: *fs, path: str) (filestat | error);
 export type subdirfunc = fn(fs: *fs, path: str) (*fs | error);
@@ -197,6 +205,9 @@ export type fs = struct {
 
 	// Removes a file.
 	remove: nullable *removefunc,
+
+	// Renames a file.
+	rename: nullable *renamefunc,
 
 	// Returns an iterator for a path, which yields the contents of a
 	// directory. Pass empty string to yield from the root.

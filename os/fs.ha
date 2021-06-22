@@ -8,6 +8,17 @@ export let cwd: *fs::fs = null: *fs::fs;
 // Removes a file.
 export fn remove(path: str) (void | fs::error) = fs::remove(cwd, path);
 
+// Renames a file. This generally only works if the source and destination path
+// are both on the same filesystem. See [[move]] for an implementation which
+// falls back on a "copy & remove" procedure in this situation.
+export fn rename(oldpath: str, newpath: str) (void | fs::error) =
+	fs::rename(cwd, oldpath, newpath);
+
+// Moves a file. This will use [[rename]] if possible, and will fall back to
+// copy and remove if necessary.
+export fn move(oldpath: str, newpath: str) (void | fs::error) =
+	fs::move(cwd, oldpath, newpath);
+
 // Creates an [[fs::iterator]] for a given directory to read its contents.
 export fn iter(path: str) (*fs::iterator | fs::error) = fs::iter(cwd, path);
 

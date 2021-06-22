@@ -10,9 +10,7 @@ def PATH_MAX: size = 4096z;
 export type path = (str | []u8 | *const char);
 let pathbuf: [PATH_MAX + 1]u8 = [0...];
 
-// NUL terminates a string and stores it in a static buffer of PATH_MAX+1 bytes
-// in length.
-fn kpath(path: path) (*const char | errno) = {
+fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
 	let path = match (path) {
 		c: *const char => return c,
 		s: str => {
@@ -28,9 +26,15 @@ fn kpath(path: path) (*const char | errno) = {
 	if (len(path) + 1 >= len(pathbuf)) {
 		return ENAMETOOLONG;
 	};
-	memcpy(&pathbuf, path: *[*]u8, len(path));
-	pathbuf[len(path)] = 0;
-	return &pathbuf: *const char;
+	memcpy(buf: *[*]u8, path: *[*]u8, len(path));
+	buf[len(path)] = 0;
+	return buf: *[*]u8: *const char;
+};
+
+// NUL terminates a string and stores it in a static buffer of PATH_MAX+1 bytes
+// in length.
+fn kpath(path: path) (*const char | errno) = {
+	return copy_kpath(path, pathbuf);
 };
 
 export fn read(fd: int, buf: *void, count: size) (size | errno) = {
@@ -118,6 +122,23 @@ export fn fchownat(dirfd: int, path: path, uid: uint, gid: uint, flags: int) (vo
 	let path = kpath(path)?;
 	wrap_return(syscall5(SYS_fchownat,
 		dirfd: u64, path: uintptr: u64, uid: u32, gid: u32, flags: u64))?;
+	return;
+};
+
+export fn renameat(
+	olddirfd: int,
+	oldpath: str,
+	newdirfd: int,
+	newpath: str,
+	flags: uint,
+) (void | errno) = {
+	let oldpath = kpath(oldpath)?;
+	static let newpathbuf: [PATH_MAX + 1]u8 = [0...];
+	let newpath = copy_kpath(newpath, newpathbuf)?;
+	wrap_return(syscall5(SYS_renameat2,
+		olddirfd: u64, oldpath: uintptr: u64,
+		newdirfd: u64, newpath: uintptr: u64,
+		flags: u64))?;
 	return;
 };
 

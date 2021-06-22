@@ -45,6 +45,28 @@ export fn remove(fs: *fs, path: str) (void | error) = {
 	};
 };
 
+// Renames a file. This generally only works if the source and destination path
+// are both on the same filesystem. See [[move]] for an implementation which
+// falls back on a "copy & remove" procedure in this situation.
+export fn rename(fs: *fs, oldpath: str, newpath: str) (void | error) = {
+	return match (fs.rename) {
+		null => errors::unsupported,
+		f: *renamefunc => f(fs, oldpath, newpath),
+	};
+};
+
+// Moves a file. This will use [[rename]] if possible, and will fall back to
+// copy and remove if necessary.
+export fn move(fs: *fs, oldpath: str, newpath: str) (void | error) = {
+	match (rename(fs, oldpath, newpath)) {
+		cannotrename => void, // Fallback
+		errors::unsupported => void, // Fallback
+		void => return, // Success
+		err: error => return err,
+	};
+	abort(); // TODO: Fallback
+};
+
 // Returns an iterator for a path, which yields the contents of a directory.
 // Pass empty string to yield from the root. The order in which entries are
 // returned is undefined.

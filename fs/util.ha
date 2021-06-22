@@ -5,6 +5,8 @@ use strings;
 
 // Returns a human-friendly representation of an error.
 export fn strerror(err: error) const str = match (err) {
+	wrongtype => "Wrong entry type for requested operation",
+	cannotrename => "Unable to perform rename operation (try move instead)",
 	errors::noentry => "File or directory not found",
 	errors::noaccess => "Permission denied",
 	errors::exists => "File or directory exists",

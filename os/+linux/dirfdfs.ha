@@ -66,6 +66,7 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 			open = &fs_open,
 			create = &fs_create,
 			remove = &fs_remove,
+			rename = &fs_rename,
 			iter = &fs_iter,
 			stat = &fs_stat,
 			subdir = &fs_subdir,
@@ -208,6 +209,14 @@ fn fs_create(
 fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::unlinkat(fs.dirfd, path, 0)) {
+		err: rt::errno => return errno_to_fs(err),
+		void => void,
+	};
+};
+
+fn fs_rename(fs: *fs::fs, oldpath: str, newpath: str) (void | fs::error) = {
+	let fs = fs: *os_filesystem;
+	match (rt::renameat(fs.dirfd, oldpath, fs.dirfd, newpath, 0)) {
 		err: rt::errno => return errno_to_fs(err),
 		void => void,
 	};
