@@ -18,5 +18,6 @@ export fn strerror(err: error) const str = match (err) {
 	unsupported => "The requested operation is not supported",
 	timeout => "The requested operation timed out",
 	cancelled => "The requested operation was cancelled",
+	refused => "A connection attempt was refused",
 	op: opaque => op.strerror(&op.data),
 };
