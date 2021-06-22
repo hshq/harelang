@@ -849,8 +849,9 @@ $(HARECACHE)/net/dial/net_dial.ssa: $(stdlib_net_dial_srcs) $(stdlib_rt) $(stdli
 # net::dns
 # net::dns
 stdlib_net_dns_srcs= \
+	$(STDLIB)/net/dns/decode.ha \
 	$(STDLIB)/net/dns/error.ha \
-	$(STDLIB)/net/dns/encoding.ha \
+	$(STDLIB)/net/dns/encode.ha \
 	$(STDLIB)/net/dns/query.ha \
 	$(STDLIB)/net/dns/types.ha
 
@@ -2018,8 +2019,9 @@ $(TESTCACHE)/net/dial/net_dial.ssa: $(testlib_net_dial_srcs) $(testlib_rt) $(tes
 # net::dns
 # net::dns
 testlib_net_dns_srcs= \
+	$(STDLIB)/net/dns/decode.ha \
 	$(STDLIB)/net/dns/error.ha \
-	$(STDLIB)/net/dns/encoding.ha \
+	$(STDLIB)/net/dns/encode.ha \
 	$(STDLIB)/net/dns/query.ha \
 	$(STDLIB)/net/dns/types.ha
 

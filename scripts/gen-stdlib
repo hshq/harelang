@@ -563,8 +563,9 @@ net_dial() {
 net_dns() {
 	printf '# net::dns\n'
 	gen_srcs net::dns \
+		decode.ha \
 		error.ha \
-		encoding.ha \
+		encode.ha \
 		query.ha \
 		types.ha
 	gen_ssa net::dns ascii endian net net::udp net::ip fmt \
