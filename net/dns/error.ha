@@ -41,3 +41,13 @@ export fn strerror(err: error) const str = {
 		err: net::error => net::strerror(err),
 	};
 };
+
+fn check_rcode(rcode: rcode) (void | error) = switch (rcode) {
+	rcode::NO_ERROR => void,
+	rcode::FMT_ERROR => format,
+	rcode::SERVER_FAILURE => server_failure,
+	rcode::NAME_ERROR => name_error,
+	rcode::NOT_IMPLEMENTED => not_implemented,
+	rcode::REFUSED => refused,
+	* => rcode: unknown_error,
+};

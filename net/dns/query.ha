@@ -20,6 +20,7 @@ export fn query(query: *message, addr: ip::addr...) (*message | error) = {
 	// TODO: Query multiple servers
 	udp::sendto(socket, sendbuf[..z], addr[0], 53)?;
 
+	let header = header { ... };
 	let recvbuf: [512]u8 = [0...];
 	for (true) {
 		// TODO: Add timeout
@@ -29,7 +30,6 @@ export fn query(query: *message, addr: ip::addr...) (*message | error) = {
 			continue;
 		};
 
-		let header = header { ... };
 		let dec = decoder_init(recvbuf[..z]);
 		decode_header(&dec, &header)?;
 		if (header.id != query.header.id || header.op.qr != qr::RESPONSE) {
@@ -39,5 +39,6 @@ export fn query(query: *message, addr: ip::addr...) (*message | error) = {
 		break;
 	};
 
+	check_rcode(header.op.rcode)?;
 	return decode(recvbuf[..z])?;
 };
