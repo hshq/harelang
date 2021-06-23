@@ -9,19 +9,20 @@ def path: str = "/etc/hosts";
 
 // Looks up a host from /etc/hosts. Aborts the program if the file does not
 // exist, is written in an invalid format, or if any other error occurs.
-export fn lookup(name: str) (ip::addr | void) = {
+export fn lookup(name: str) []ip::addr = {
 	// XXX: Would be cool if we could do this without allocating anything
-	// XXX: Would be cool to add caching
+	// XXX: Would be cool to have meaningful error handling(?)
 	const file = os::open(path)!;
 	defer io::close(file);
 
+	let addrs: []ip::addr = [];
 	for (true) {
 		const line = match (bufio::scanline(file)) {
 			io::EOF => break,
 			line: []u8 => line,
 		};
 		defer free(line);
-		if (line[0] == '#': u32: u8 || len(line) == 0) {
+		if (len(line) == 0 || line[0] == '#': u32: u8) {
 			continue;
 		};
 
@@ -43,8 +44,9 @@ export fn lookup(name: str) (ip::addr | void) = {
 			defer free(tok);
 
 			if (strings::fromutf8(tok) == name) {
-				return addr;
+				append(addrs, addr);
 			};
 		};
 	};
+	return addrs;
 };

@@ -31,7 +31,7 @@ export fn load() []ip::addr = {
 			line: []u8 => line,
 		};
 		defer free(line);
-		if (line[0] == '#': u32: u8 || len(line) == 0) {
+		if (len(line) == 0 || line[0] == '#': u32: u8) {
 			continue;
 		};
 
