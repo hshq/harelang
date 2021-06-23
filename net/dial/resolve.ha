@@ -14,7 +14,7 @@ export fn resolve(
 	proto: str,
 	addr: str,
 	service: str,
-) (([]ip::addr, u16) | dns::error) = {
+) (([]ip::addr, u16) | error) = {
 	let port = match (strings::index(addr, ':')) {
 		void => match (strconv::stou16(service)) {
 			u: u16 => u,
@@ -23,8 +23,10 @@ export fn resolve(
 		i: size => {
 			const sub = strings::sub(addr, i, strings::end);
 			addr = strings::sub(addr, 0, i);
-			// TODO: Return error on invalid port
-			strconv::stou16(sub)!;
+			match (strconv::stou16(sub)) {
+				u: u16 => u,
+				* => return invalid_address,
+			};
 		},
 	};
 
@@ -38,8 +40,9 @@ export fn resolve(
 	// - Consult /etc/services
 	// - Fetch the SRV record
 
-	assert(port != 0); // TODO: Return an error
-
+	if (port == 0) {
+		return unknown_service;
+	};
 	if (len(addrs) == 0) {
 		return dns::name_error;
 	};
@@ -47,7 +50,7 @@ export fn resolve(
 	return (addrs, port);
 };
 
-fn resolve_addr(addr: str) ([]ip::addr | dns::error) = {
+fn resolve_addr(addr: str) ([]ip::addr | error) = {
 	match (ip::parse(addr)) {
 		addr: ip::addr => alloc([addr]),
 		ip::invalid => void,

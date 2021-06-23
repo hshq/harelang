@@ -553,9 +553,9 @@ net() {
 net_dial() {
 	printf '# net::dial\n'
 	gen_srcs net::dial \
+		registry.ha \
 		dial.ha \
 		ip.ha \
-		registry.ha \
 		resolve.ha
 	gen_ssa net::dial io net net::ip net::tcp net::udp net::dns
 }

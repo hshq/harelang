@@ -1,8 +1,32 @@
+use errors;
 use io;
 use net;
+use net::dns;
+
+// Returned if the address parameter was invalid, for example if it specifies an
+// invalid port number.
+export type invalid_address = !void;
+
+// Returned if the service parameter does not name a service known to the
+// system.
+export type unknown_service = !void;
+
+// Errors which can occur from dial.
+export type error = !(invalid_address | unknown_service | net::error | dns::error);
+
+// Converts an [[error]] to a human-readable string.
+export fn strerror(err: error) const str = {
+	// TODO: These could be better
+	return match (err) {
+		invalid_address => "Attempted to dial an invalid address",
+		unknown_service => "Unknown service",
+		err: net::error => net::strerror(err),
+		err: dns::error => dns::strerror(err),
+	};
+};
 
 // A dialer is a function which implements dial for a specific protocol.
-export type dialer = fn(addr: str, service: str) (*io::stream | net::error);
+export type dialer = fn(addr: str, service: str) (*io::stream | error);
 
 type protocol = struct {
 	name: str,
