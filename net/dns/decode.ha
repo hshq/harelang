@@ -147,7 +147,7 @@ fn decode_rdata(dec: *decoder, rtype: rtype, rlen: size) (rdata | format) = {
 };
 
 fn decode_a(dec: *decoder) (rdata | format) = {
-	if (len(dec.cur) != 4) {
+	if (len(dec.cur) < 4) {
 		return format;
 	};
 	let ip: ip::addr4 = [0...];
@@ -157,7 +157,7 @@ fn decode_a(dec: *decoder) (rdata | format) = {
 };
 
 fn decode_aaaa(dec: *decoder) (rdata | format) = {
-	if (len(dec.cur) != 8) {
+	if (len(dec.cur) < 8) {
 		return format;
 	};
 	let ip: ip::addr6 = [0...];
