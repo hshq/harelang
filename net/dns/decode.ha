@@ -4,13 +4,9 @@ use fmt;
 use net::ip;
 use strings;
 
-export type decoder = struct {
+type decoder = struct {
 	buf: []u8,
 	cur: []u8,
-	qdcount: u16,
-	ancount: u16,
-	nscount: u16,
-	arcount: u16,
 };
 
 // Decodes a DNS message, heap allocating the resources necessary to represent
@@ -75,10 +71,6 @@ fn decode_header(dec: *decoder, head: *header) (void | format) = {
 	head.ancount = decode_u16(dec)?;
 	head.nscount = decode_u16(dec)?;
 	head.arcount = decode_u16(dec)?;
-	dec.qdcount = head.qdcount;
-	dec.ancount = head.ancount;
-	dec.nscount = head.nscount;
-	dec.arcount = head.arcount;
 };
 
 fn op_decode(in: u16, out: *op) void = {
