@@ -35,13 +35,13 @@ export fn dial(
 	service: str,
 ) (*io::stream | net::error) = {
 	for (let i = 0z; i < len(default_protocols); i += 1) {
-		let p = default_protocols[i];
+		const p = default_protocols[i];
 		if (p.name == proto) {
 			return p.dial(address, service);
 		};
 	};
 	for (let i = 0z; i < len(protocols); i += 1) {
-		let p = protocols[i];
+		const p = protocols[i];
 		if (p.name == proto) {
 			return p.dial(address, service);
 		};
