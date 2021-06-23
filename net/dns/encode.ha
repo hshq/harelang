@@ -22,7 +22,7 @@ export fn unparse_domain(in: []str) str = strings::join(".", in...);
 export fn encode(buf: []u8, msg: *message) (size | error) = {
 	let enc = encoder { buf = buf, offs = 0z };
 	encode_u16(&enc, msg.header.id)?;
-	encode_u16(&enc, op_encode(&msg.header.op))?;
+	encode_u16(&enc, encode_op(&msg.header.op))?;
 	encode_u16(&enc, msg.header.qdcount)?;
 	encode_u16(&enc, msg.header.ancount)?;
 	encode_u16(&enc, msg.header.nscount)?;
@@ -99,7 +99,7 @@ fn rrecord_encode(enc: *encoder, r: *rrecord) (void | error) = {
 	abort(); // TODO
 };
 
-fn op_encode(op: *op) u16 =
+fn encode_op(op: *op) u16 =
 	(op.qr: u16 << 15u16) | 
 	(op.opcode: u16 << 11u16) |
 	(if (op.aa) 0b0000010000000000u16 else 0u16) |

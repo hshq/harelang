@@ -66,14 +66,14 @@ fn decode_u32(dec: *decoder) (u32 | format) = {
 fn decode_header(dec: *decoder, head: *header) (void | format) = {
 	head.id = decode_u16(dec)?;
 	let rawop = decode_u16(dec)?;
-	op_decode(rawop, &head.op);
+	decode_op(rawop, &head.op);
 	head.qdcount = decode_u16(dec)?;
 	head.ancount = decode_u16(dec)?;
 	head.nscount = decode_u16(dec)?;
 	head.arcount = decode_u16(dec)?;
 };
 
-fn op_decode(in: u16, out: *op) void = {
+fn decode_op(in: u16, out: *op) void = {
 	out.qr = ((in & 0b1000000000000000) >> 15): qr;
 	out.opcode = ((in & 0b01111000000000u16) >> 11): opcode;
 	out.aa = in & 0b0000010000000000u16 != 0;
