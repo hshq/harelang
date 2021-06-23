@@ -15,7 +15,7 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 		servers = [[127, 0, 0, 1]: ip::addr4];
 	};
 
-	let socket = udp::listen(ip::ANY_V4, 0)?;
+	const socket = udp::listen(ip::ANY_V4, 0)?;
 	defer udp::close(socket);
 
 	// TODO: Use TCP for messages >512 bytes
@@ -46,7 +46,7 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 			continue;
 		};
 
-		let dec = decoder_init(recvbuf[..z]);
+		const dec = decoder_init(recvbuf[..z]);
 		decode_header(&dec, &header)?;
 		if (header.id == query.header.id && header.op.qr == qr::RESPONSE) {
 			break;

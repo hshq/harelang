@@ -102,7 +102,6 @@ fn decode_name(dec: *decoder) ([]str | format) = {
 		dec.cur = dec.cur[z..];
 		for (let i = 0z; i < len(name); i += 1) {
 			if (!ascii::isascii(name[i]: u32: rune)) {
-				fmt::errorfln("not ascii at index {}", i)!;
 				return format;
 			};
 		};
@@ -160,12 +159,12 @@ fn decode_a(dec: *decoder) (rdata | format) = {
 };
 
 fn decode_aaaa(dec: *decoder) (rdata | format) = {
-	if (len(dec.cur) < 8) {
+	if (len(dec.cur) < 16) {
 		return format;
 	};
 	let ip: ip::addr6 = [0...];
-	ip[..] = dec.cur[..8];
-	dec.cur = dec.cur[8..];
+	ip[..] = dec.cur[..16];
+	dec.cur = dec.cur[16..];
 	return ip: aaaa;
 };
 
