@@ -118,9 +118,9 @@ fn encode_op(op: *op) u16 =
 		ra = true,
 		rcode = rcode::SERVER_FAILURE,
 	};
-	let enc = op_encode(&opcode);
+	let enc = encode_op(&opcode);
 	let opcode2 = op { ... };
-	op_decode(enc, &opcode2);
+	decode_op(enc, &opcode2);
 	assert(opcode.qr == opcode2.qr && opcode.opcode == opcode2.opcode &&
 		opcode.aa == opcode2.aa && opcode.tc == opcode2.tc &&
 		opcode.rd == opcode2.rd && opcode.ra == opcode2.ra &&

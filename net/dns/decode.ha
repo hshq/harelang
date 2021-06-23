@@ -33,9 +33,7 @@ fn decode_rrecords(
 	out: *[]rrecord,
 ) (void | format) = {
 	for (let i = 0z; i < count; i += 1) {
-		let r = rrecord { ... };
-		decode_rrecord(dec, &r)?;
-		append(*out, r);
+		append(*out, decode_rrecord(dec)?);
 	};
 };
 
@@ -65,7 +63,7 @@ fn decode_u32(dec: *decoder) (u32 | format) = {
 
 fn decode_header(dec: *decoder, head: *header) (void | format) = {
 	head.id = decode_u16(dec)?;
-	let rawop = decode_u16(dec)?;
+	const rawop = decode_u16(dec)?;
 	decode_op(rawop, &head.op);
 	head.qdcount = decode_u16(dec)?;
 	head.ancount = decode_u16(dec)?;
@@ -86,10 +84,10 @@ fn decode_op(in: u16, out: *op) void = {
 fn decode_name(dec: *decoder) ([]str | format) = {
 	let names: []str = [];
 	for (true) {
-		let z = dec.cur[0];
+		const z = dec.cur[0];
 		if (z & 0b11000000 == 0b11000000) {
-			let offs = decode_u16(dec)? & ~0b1100000000000000u16;
-			let sub = decoder {
+			const offs = decode_u16(dec)? & ~0b1100000000000000u16;
+			const sub = decoder {
 				buf = dec.buf,
 				cur = dec.buf[offs..],
 				...
@@ -102,7 +100,7 @@ fn decode_name(dec: *decoder) ([]str | format) = {
 			break;
 		};
 
-		let name = dec.cur[..z];
+		const name = dec.cur[..z];
 		dec.cur = dec.cur[z..];
 		for (let i = 0z; i < len(name); i += 1) {
 			if (!ascii::isascii(name[i]: u32: rune)) {
@@ -124,13 +122,20 @@ fn decode_question(dec: *decoder) (question | format) = {
 	};
 };
 
-fn decode_rrecord(dec: *decoder, r: *rrecord) (void | format) = {
-	r.name = decode_name(dec)?;
-	r.rtype = decode_u16(dec)?: rtype;
-	r.class = decode_u16(dec)?: class;
-	r.ttl = decode_u32(dec)?;
-	let rdz = decode_u16(dec)?;
-	r.rdata = decode_rdata(dec, r.rtype, rdz)?;
+fn decode_rrecord(dec: *decoder) (rrecord | format) = {
+	const name = decode_name(dec)?;
+	const rtype = decode_u16(dec)?: rtype;
+	const class = decode_u16(dec)?: class;
+	const ttl = decode_u32(dec)?;
+	const rlen = decode_u16(dec)?;
+	const rdata = decode_rdata(dec, rtype, rlen)?;
+	return rrecord {
+		name = name,
+		rtype = rtype,
+		class = class,
+		ttl = ttl,
+		rdata = rdata
+	};
 };
 
 fn decode_rdata(dec: *decoder, rtype: rtype, rlen: size) (rdata | format) = {
