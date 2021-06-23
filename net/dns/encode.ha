@@ -85,15 +85,7 @@ fn rrecord_encode(enc: *encoder, r: *rrecord) (void | error) = {
 	encode_u16(enc, r.class)?;
 	encode_u32(enc, r.ttl)?;
 
-	assert(len(r.rdata) <= 0xFFFF);
-	encode_u16(enc, len(r.rdata): u16)?;
-
-	if (len(enc.buf) <= enc.offs + len(r.rdata)) {
-		return errors::overflow;
-	};
-
-	enc.buf[enc.offs..len(r.rdata)] = r.rdata[..];
-	enc.offs += len(r.rdata);
+	abort(); // TODO
 };
 
 fn op_encode(op: *op) u16 =

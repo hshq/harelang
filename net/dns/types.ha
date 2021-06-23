@@ -1,4 +1,6 @@
-// Record type
+use net::ip;
+
+// Record type.
 export type rtype = enum u16 {
 	A = 1,
 	NS = 2,
@@ -12,7 +14,7 @@ export type rtype = enum u16 {
 	DNSKEY = 48,
 };
 
-// Question type
+// Question type (superset of [[rtype]]).
 export type qtype = enum u16 {
 	A = 1,
 	NS = 2,
@@ -30,7 +32,7 @@ export type qtype = enum u16 {
 	ALL = 255,
 };
 
-// Class type
+// Class type (e.g. Internet).
 export type class = enum u16 {
 	IN = 1,
 	CS = 2,
@@ -38,7 +40,7 @@ export type class = enum u16 {
 	HS = 4,
 };
 
-// Query class
+// Query class (superset of [[class]]).
 export type qclass = enum u16 {
 	IN = 1,
 	CS = 2,
@@ -68,14 +70,14 @@ export type qr = enum u8 {
 	RESPONSE = 1,
 };
 
-// Operation requested from resolver
+// Operation requested from resolver.
 export type opcode = enum u8 {
 	QUERY = 0,
 	IQUERY = 1,
 	STATUS = 2,
 };
 
-// Response code from resolver
+// Response code from resolver.
 export type rcode = enum u8 {
 	NO_ERROR = 0,
 	FMT_ERROR = 1,
@@ -116,8 +118,26 @@ export type rrecord = struct {
 	rtype: rtype,
 	class: class,
 	ttl: u32,
-	rdata: []u8,
+	rdata: rdata,
 };
+
+// An A record.
+export type a = ip::addr4;
+
+// An AAAA record.
+export type aaaa = ip::addr6;
+
+// An MX record.
+export type mx = struct {
+	priority: u16,
+	name: []str,
+};
+
+// The raw rdata field for an [[rrecord]] with an unknown [[rtype]].
+export type unknown_rdata = []u8;
+
+// Tagged union of supported rdata types.
+export type rdata = (a | aaaa | mx | unknown_rdata);
 
 // A DNS message, Hare representation. See [[encode]] and [[decode]] for the DNS
 // representation.
@@ -129,13 +149,6 @@ export type message = struct {
 	additional: []rrecord,
 };
 
-fn strings_free(in: []str) void = {
-	for (let i = 0z; i < len(in); i += 1) {
-		free(in[i]);
-	};
-	free(in);
-};
-
 // Frees a [[message]] and the resources associated with it.
 export fn message_free(msg: *message) void = {
 	for (let i = 0z; i < len(msg.questions); i += 1) {
@@ -144,22 +157,34 @@ export fn message_free(msg: *message) void = {
 	free(msg.questions);
 
 	for (let i = 0z; i < len(msg.answers); i += 1) {
-		strings_free(msg.answers[i].name);
-		free(msg.answers[i].rdata);
+		rrecord_finish(&msg.answers[i]);
 	};
 	free(msg.answers);
 
 	for (let i = 0z; i < len(msg.authority); i += 1) {
-		strings_free(msg.authority[i].name);
-		free(msg.authority[i].rdata);
+		rrecord_finish(&msg.authority[i]);
 	};
 	free(msg.authority);
 
 	for (let i = 0z; i < len(msg.additional); i += 1) {
-		strings_free(msg.additional[i].name);
-		free(msg.additional[i].rdata);
+		rrecord_finish(&msg.additional[i]);
 	};
 	free(msg.additional);
 
 	free(msg);
+};
+
+fn strings_free(in: []str) void = {
+	for (let i = 0z; i < len(in); i += 1) {
+		free(in[i]);
+	};
+	free(in);
+};
+
+fn rrecord_finish(rr: *rrecord) void = {
+	strings_free(rr.name);
+	match (rr.rdata) {
+		mx: mx => strings_free(mx.name),
+		* => void,
+	};
 };
