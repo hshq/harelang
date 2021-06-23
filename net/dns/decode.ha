@@ -13,18 +13,16 @@ type decoder = struct {
 // it in Hare's type system. The caller must use [[message_free]] to free the
 // return value. To decode without use of the heap, see [[decoder_init]].
 export fn decode(buf: []u8) (*message | format) = {
-	let msg = message { ... };
+	let msg = alloc(message { ... });
 	let dec = decoder_init(buf);
 	decode_header(&dec, &msg.header)?;
-
 	for (let i = 0z; i < msg.header.qdcount; i += 1) {
 		append(msg.questions, decode_question(&dec)?);
 	};
-
 	decode_rrecords(&dec, msg.header.ancount, &msg.answers)?;
 	decode_rrecords(&dec, msg.header.nscount, &msg.authority)?;
 	decode_rrecords(&dec, msg.header.arcount, &msg.additional)?;
-	return alloc(msg);
+	return msg;
 };
 
 fn decode_rrecords(
