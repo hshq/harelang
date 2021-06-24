@@ -29,6 +29,9 @@ export fn resolve(
 			};
 		},
 	};
+	if (service == "unknown" && port == 0) {
+		return unknown_service;
+	};
 
 	let addrs = resolve_addr(addr)?;
 	if (port == 0) match (lookup_service(proto, service)) {
