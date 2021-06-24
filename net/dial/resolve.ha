@@ -21,7 +21,7 @@ export fn resolve(
 			* => 0u16,
 		},
 		i: size => {
-			const sub = strings::sub(addr, i, strings::end);
+			const sub = strings::sub(addr, i + 1, strings::end);
 			addr = strings::sub(addr, 0, i);
 			match (strconv::stou16(sub)) {
 				u: u16 => u,
