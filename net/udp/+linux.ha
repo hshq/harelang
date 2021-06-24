@@ -28,6 +28,10 @@ export fn connect(
 	};
 };
 
+// Gets the file descriptor associated with a UDP socket. This function is
+// non-portable.
+export fn sockfd(sock: socket) int = sock;
+
 // Creates an [[io::stream]] for an open UDP socket, which allows you to send
 // and receive UDP packets using [[io::read]] and [[io::write]], albiet without
 // being able to receive the sender address. Only meaningful if the socket was

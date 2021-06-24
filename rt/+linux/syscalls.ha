@@ -372,7 +372,7 @@ export fn getcwd() (*const char | errno) = {
 };
 
 export fn ppoll(
-	fds: *pollfd,
+	fds: *[*]pollfd,
 	nfds: nfds_t,
 	timeout: const nullable *timespec,
 	sigmask: const nullable *sigset,
@@ -381,7 +381,7 @@ export fn ppoll(
 		timeout: uintptr: u64, sigmask: uintptr: u64))?: int;
 };
 
-export fn poll(fds: *pollfd, nfds: nfds_t, timeout: int) (int | errno) = {
+export fn poll(fds: *[*]pollfd, nfds: nfds_t, timeout: int) (int | errno) = {
 	const ts = timespec {
 		tv_sec = timeout % 1000,
 		tv_nsec = timeout * 1000000,
