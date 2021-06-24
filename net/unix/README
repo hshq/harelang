@@ -1,0 +1,4 @@
+net::unix provides access to Unix sockets for networking.
+
+A protocol provider for [[net::dial]] is provided by this module, but you must
+import net::unix at least once in order for it to be visible to net::dial.

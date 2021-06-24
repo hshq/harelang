@@ -902,6 +902,7 @@ $(HARECACHE)/net/udp/net_udp.ssa: $(stdlib_net_udp_srcs) $(stdlib_rt) $(stdlib_n
 stdlib_net_unix_srcs= \
 	$(STDLIB)/net/unix/$(PLATFORM).ha \
 	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/dial.ha \
 	$(STDLIB)/net/unix/listener.ha \
 	$(STDLIB)/net/unix/options.ha
 
@@ -2073,6 +2074,7 @@ $(TESTCACHE)/net/udp/net_udp.ssa: $(testlib_net_udp_srcs) $(testlib_rt) $(testli
 testlib_net_unix_srcs= \
 	$(STDLIB)/net/unix/$(PLATFORM).ha \
 	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/dial.ha \
 	$(STDLIB)/net/unix/listener.ha \
 	$(STDLIB)/net/unix/options.ha
 

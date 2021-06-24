@@ -613,6 +613,7 @@ net_unix() {
 	gen_srcs net::unix \
 		'$(PLATFORM).ha' \
 		addr.ha \
+		dial.ha \
 		listener.ha \
 		options.ha
 	gen_ssa net::unix net errors os io strings types fmt
