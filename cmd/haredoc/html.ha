@@ -636,7 +636,7 @@ fn breadcrumb(ident: ast::ident) str = {
 	for (let i = 0z; i < len(ident) - 1; i += 1) {
 		let ipath = module::identpath(ident[..i+1]);
 		defer free(ipath);
-		fmt::fprintf(buf, "<a href='{}'>{}</a>::", ipath, ident[i])!;
+		fmt::fprintf(buf, "<a href='/{}'>{}</a>::", ipath, ident[i])!;
 	};
 	fmt::fprint(buf, ident[len(ident) - 1])!;
 	return strio::finish(buf);
