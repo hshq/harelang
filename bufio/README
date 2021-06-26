@@ -1,12 +1,30 @@
 bufio provides [[io::stream]] implementations which provide buffered I/O
-operations. The [[buffered]] stream will batch reads and writes for an
-underlying stream, using a caller-provided buffer as temporary storage. The
-[[dynamic]] and [[fixed]] streams produce an [[io::stream]] which reads from or
-writes to a data buffer (dynamically and statically allocated, respectively).
+support, as well as scanner utility functions which pair well with buffered
+streams for maximum efficiency.
 
-Utilities for "scanning" a stream are also provided via [[scantok]] et al. These
-will work with any [[io::stream]], but are only efficient on a [[buffered]]
-stream.
+Two streams are provided which can read from or write to byte slices. [[fixed]]
+uses a caller-supplied statically-allocated buffer for storage, producing an
+[[io::stream]] which reads from or writes to this buffer. In effect, this allows
+the caller to statically allocate a byte array, then produce an [[io::stream]]
+which writes to or reads from it.
 
-The use of a [[buffered]] stream also allows the caller to utilize the
-[[unread]] family of functions.
+The [[dynamic]] stream is similar, but it uses a bufio-managed dynamically
+allocated buffer. This creates an [[io::stream]] which efficiently soaks up
+writes into a dynamically allocated byte slice, which may be accessed via
+[[buffer]] or [[finish]]. The user may also call [[reset]], which empties the
+buffer but does not free the underlying storage, allowing the user to re-use the
+same buffer for many operations.
+
+A third stream implementation, [[buffered]], is used to batch read and write
+operations against an underlying stream. The caller may use small, frequent read
+and write operations, which bufio will batch into larger, less frequent reads
+and writes. The caller must supply either one or two temporary buffers for
+reading and/or writing, which bufio will use to store future reads, or pending
+writes, as necessary. This improves performance when many small reads or writes
+would be inefficient, such as when I/O operations require syscalls or network
+transmissions.  Buffered streams also support an "[[unread]]" operation, which
+allows you to "look-ahead" at future data without consuming it from the stream.
+
+Finally, bufio provides several utilities for "scanning" streams, namely
+[[scantok]] et al, which require small, frequent reads, or take advantage of
+look-ahead, and thus are most efficient when paired with a [[buffered]] stream.
