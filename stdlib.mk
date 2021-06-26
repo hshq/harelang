@@ -906,7 +906,7 @@ stdlib_net_unix_srcs= \
 	$(STDLIB)/net/unix/listener.ha \
 	$(STDLIB)/net/unix/options.ha
 
-$(HARECACHE)/net/unix/net_unix.ssa: $(stdlib_net_unix_srcs) $(stdlib_rt) $(stdlib_net) $(stdlib_errors) $(stdlib_os) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fmt)
+$(HARECACHE)/net/unix/net_unix.ssa: $(stdlib_net_unix_srcs) $(stdlib_rt) $(stdlib_net) $(stdlib_errors) $(stdlib_os) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fmt) $(stdlib_net_dial)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/unix
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::unix \
@@ -2078,7 +2078,7 @@ testlib_net_unix_srcs= \
 	$(STDLIB)/net/unix/listener.ha \
 	$(STDLIB)/net/unix/options.ha
 
-$(TESTCACHE)/net/unix/net_unix.ssa: $(testlib_net_unix_srcs) $(testlib_rt) $(testlib_net) $(testlib_errors) $(testlib_os) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fmt)
+$(TESTCACHE)/net/unix/net_unix.ssa: $(testlib_net_unix_srcs) $(testlib_rt) $(testlib_net) $(testlib_errors) $(testlib_os) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fmt) $(testlib_net_dial)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/unix
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \

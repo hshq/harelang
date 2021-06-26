@@ -616,7 +616,7 @@ net_unix() {
 		dial.ha \
 		listener.ha \
 		options.ha
-	gen_ssa net::unix net errors os io strings types fmt
+	gen_ssa net::unix net errors os io strings types fmt net::dial
 }
 
 math_random() {
