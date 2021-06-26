@@ -6,11 +6,11 @@ Two streams are provided which can read from or write to byte slices. [[fixed]]
 uses a caller-supplied statically-allocated buffer for storage, producing an
 [[io::stream]] which reads from or writes to this buffer. In effect, this allows
 the caller to statically allocate a byte array, then produce an [[io::stream]]
-which writes to or reads from it.
+which writes to or reads from it. [[dynamic]] is similar, but it uses a
+bufio-managed dynamically allocated buffer. This creates an [[io::stream]] which
+efficiently soaks up writes into a dynamically allocated byte slice.
 
-The [[dynamic]] stream is similar, but it uses a bufio-managed dynamically
-allocated buffer. This creates an [[io::stream]] which efficiently soaks up
-writes into a dynamically allocated byte slice, which may be accessed via
+Both [[fixed]] and [[dynamic]] provide access to the underlying buffer via
 [[buffer]] or [[finish]]. The user may also call [[reset]], which empties the
 buffer but does not free the underlying storage, allowing the user to re-use the
 same buffer for many operations.

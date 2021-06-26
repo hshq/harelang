@@ -24,8 +24,12 @@ export type bufstream = struct {
 // the desired buffer, or empty slices if read or write functionality is
 // disabled. The same buffer may not be used for both reads and writes.
 //
-// The caller is responsible for closing the underlying stream and freeing the
-// provided buffers after the buffered stream is closed.
+// The caller is responsible for closing the underlying stream, and freeing the
+// provided buffers if necessary, after the buffered stream is closed.
+//
+// 	let rbuf: [os::BUFSIZ] = [0...];
+// 	let wbuf: [os::BUFSIZ] = [0...];
+// 	let buffered = bufio::buffered(source, rbuf, wbuf);
 export fn buffered(
 	src: *io::stream,
 	rbuf: []u8,
