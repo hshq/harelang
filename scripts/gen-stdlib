@@ -742,7 +742,7 @@ time() {
 temp() {
 	gen_srcs temp \
 		'$(PLATFORM).ha'
-	gen_ssa temp crypto::random encoding::hex fs io os path strio
+	gen_ssa temp crypto::random encoding::hex fs io os path strio fmt
 }
 
 types() {
