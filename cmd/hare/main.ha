@@ -6,11 +6,11 @@ def PLATFORM: str = "unknown";
 def HAREPATH: str = ".";
 
 export fn main() void = {
-	let help: []getopt::help = [
+	const help: []getopt::help = [
 		"compile, run, and test Hare programs",
 		"<build | cache | deps | run | test | version>", "args...",
 	];
-	let cmd = getopt::parse(os::args, help...);
+	const cmd = getopt::parse(os::args, help...);
 	defer getopt::finish(&cmd);
 	if (len(cmd.args) < 1) {
 		getopt::printusage(os::stderr, os::args[0], help...);

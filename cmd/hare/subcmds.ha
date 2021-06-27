@@ -58,7 +58,7 @@ type goal = enum {
 };
 
 fn build(args: []str) void = {
-	let help: []getopt::help = [
+	const help: []getopt::help = [
 		"compiles Hare programs",
 		('c', "build object instead of executable"),
 		('v', "print executed commands"),
@@ -71,7 +71,7 @@ fn build(args: []str) void = {
 		('X', "tags...", "unset build tags"),
 		"path"
 	];
-	let cmd = getopt::parse(args, help...);
+	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
 	let tags = default_tags();
@@ -105,7 +105,7 @@ fn build(args: []str) void = {
 
 	assert(goal == goal::EXE); // TODO
 
-	let input =
+	const input =
 		if (len(cmd.args) == 0) os::getcwd()
 		else if (len(cmd.args) == 1) cmd.args[0]
 		else {
@@ -113,20 +113,20 @@ fn build(args: []str) void = {
 			os::exit(1);
 		};
 
-	let ctx = module::context_init(tags, defines, HAREPATH);
+	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
-	let plan = mkplan(&ctx);
+	const plan = mkplan(&ctx);
 	defer plan_finish(&plan);
 
-	let ver = match (module::scan(&ctx, input)) {
+	const ver = match (module::scan(&ctx, input)) {
 		ver: module::version => ver,
 		err: module::error => fmt::fatal(
 			"Error scanning input module: {}",
 			module::strerror(err)),
 	};
 
-	let depends: []*task = [];
+	const depends: []*task = [];
 	sched_module(&plan, ["rt"], &depends);
 
 	for (let i = 0z; i < len(ver.depends); i += 1z) {
@@ -147,19 +147,19 @@ fn build(args: []str) void = {
 };
 
 fn cache(args: []str) void = {
-	let help: []getopt::help = [
+	const help: []getopt::help = [
 		"manages the build cache",
 		('c', "cleans the specified modules"),
 		"modules...",
 	];
-	let cmd = getopt::parse(args, help...);
+	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
 	abort(); // TODO
 };
 
 fn deps(args: []str) void = {
-	let help: []getopt::help = [
+	const help: []getopt::help = [
 		"prints dependency information for Hare programs",
 		('d', "print dot syntax for use with graphviz"),
 		('M', "print rules for POSIX make"),
@@ -167,14 +167,14 @@ fn deps(args: []str) void = {
 		('X', "tags...", "unset build tags"),
 		"path",
 	];
-	let cmd = getopt::parse(args, help...);
+	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
 	abort(); // TODO
 };
 
 fn run(args: []str) void = {
-	let help: []getopt::help = [
+	const help: []getopt::help = [
 		"compiles and runs Hare programs",
 		('v', "print executed commands"),
 		('D', "ident:type=value", "define a constant"),
@@ -184,7 +184,7 @@ fn run(args: []str) void = {
 		('X', "tags...", "unset build tags"),
 		"path", "args...",
 	];
-	let cmd = getopt::parse(args, help...);
+	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
 	let tags = default_tags();
@@ -221,13 +221,13 @@ fn run(args: []str) void = {
 		runargs = cmd.args[1..];
 	};
 
-	let ctx = module::context_init(tags, defines, HAREPATH);
+	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
-	let plan = mkplan(&ctx);
+	const plan = mkplan(&ctx);
 	defer plan_finish(&plan);
 
-	let ver = match (module::scan(&ctx, input)) {
+	const ver = match (module::scan(&ctx, input)) {
 		ver: module::version => ver,
 		err: module::error => fmt::fatal(
 			"Error scanning input module: {}",
@@ -242,14 +242,14 @@ fn run(args: []str) void = {
 		sched_module(&plan, dep, &depends);
 	};
 
-	let output = mkfile(&plan, "out");
+	const output = mkfile(&plan, "out");
 	sched_hare_exe(&plan, ver, output, depends...);
 	match (plan_execute(&plan, verbose)) {
 		void => void,
 		!exec::exit_status => fmt::fatal("{} {}: build failed",
 			os::args[0], os::args[1]),
 	};
-	let cmd = match (exec::cmd(output, runargs...)) {
+	const cmd = match (exec::cmd(output, runargs...)) {
 		err: exec::error => fmt::fatal("exec: {}", exec::strerror(err)),
 		cmd: exec::command => cmd,
 	};
@@ -259,7 +259,7 @@ fn run(args: []str) void = {
 
 fn sched_walk(plan: *plan, ident: ast::ident, link: *[]*task) void = {
 	const path = module::identpath(ident);
-	let it = os::iter(path)?;
+	const it = os::iter(path)?;
 	free(path);
 	:loop for (true) match (fs::next(it)) {
 		ent: fs::dirent => {
@@ -269,7 +269,7 @@ fn sched_walk(plan: *plan, ident: ast::ident, link: *[]*task) void = {
 			if (ent.ftype & fs::mode::DIR != fs::mode::DIR) {
 				continue;
 			};
-			let d = utf8::decode(ent.name);
+			const d = utf8::decode(ent.name);
 			match (utf8::next(&d)) {
 				void => break,
 				(utf8::more | utf8::invalid) => continue :loop,
@@ -300,7 +300,7 @@ fn sched_walk(plan: *plan, ident: ast::ident, link: *[]*task) void = {
 };
 
 fn test(args: []str) void = {
-	let help: []getopt::help = [
+	const help: []getopt::help = [
 		"compiles and runs tests for Hare programs",
 		('v', "print executed commands"),
 		('D', "ident:type=value", "define a constant"),
@@ -311,7 +311,7 @@ fn test(args: []str) void = {
 		('X', "tags...", "unset build tags"),
 		"[tests...]"
 	];
-	let cmd = getopt::parse(args, help...);
+	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
 	let tags = default_tags();
@@ -325,7 +325,7 @@ fn test(args: []str) void = {
 	let verbose = false;
 	let defines: []str = [];
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
-		let opt = cmd.opts[i];
+		const opt = cmd.opts[i];
 		switch (opt.0) {
 			'v' => verbose = true,
 			'D' => append(defines, opt.1),
@@ -355,13 +355,13 @@ fn test(args: []str) void = {
 	};
 
 
-	let ctx = module::context_init(tags, defines, HAREPATH);
+	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
-	let plan = mkplan(&ctx);
+	const plan = mkplan(&ctx);
 	defer plan_finish(&plan);
 
-	let ver = match (module::scan(&ctx, input)) {
+	const ver = match (module::scan(&ctx, input)) {
 		ver: module::version => ver,
 		err: module::error => fmt::fatal(
 			"Error scanning input module: {}",
@@ -391,7 +391,7 @@ fn test(args: []str) void = {
 		return;
 	};
 
-	let cmd = match (exec::cmd(output, runargs...)) {
+	const cmd = match (exec::cmd(output, runargs...)) {
 		err: exec::error => fmt::fatal("exec: {}", exec::strerror(err)),
 		cmd: exec::command => cmd,
 	};
