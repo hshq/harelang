@@ -645,7 +645,7 @@ stdlib_hare_module_srcs= \
 	$(STDLIB)/hare/module/scan.ha \
 	$(STDLIB)/hare/module/manifest.ha
 
-$(HARECACHE)/hare/module/hare_module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_hare_unparse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings) $(stdlib_hash) $(stdlib_crypto_sha256) $(stdlib_dirs) $(stdlib_bytes) $(stdlib_encoding_utf8) $(stdlib_ascii) $(stdlib_fmt) $(stdlib_time) $(stdlib_slice) $(stdlib_bufio) $(stdlib_strconv) $(stdlib_os) $(stdlib_encoding_hex) $(stdlib_sort) $(stdlib_errors)
+$(HARECACHE)/hare/module/hare_module.ssa: $(stdlib_hare_module_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_lex) $(stdlib_hare_parse) $(stdlib_hare_unparse) $(stdlib_strio) $(stdlib_fs) $(stdlib_io) $(stdlib_strings) $(stdlib_hash) $(stdlib_crypto_sha256) $(stdlib_dirs) $(stdlib_bytes) $(stdlib_encoding_utf8) $(stdlib_ascii) $(stdlib_fmt) $(stdlib_time) $(stdlib_slice) $(stdlib_bufio) $(stdlib_strconv) $(stdlib_os) $(stdlib_encoding_hex) $(stdlib_sort) $(stdlib_errors) $(stdlib_temp)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/module
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::module \
@@ -1806,7 +1806,7 @@ testlib_hare_module_srcs= \
 	$(STDLIB)/hare/module/scan.ha \
 	$(STDLIB)/hare/module/manifest.ha
 
-$(TESTCACHE)/hare/module/hare_module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_hare_unparse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings) $(testlib_hash) $(testlib_crypto_sha256) $(testlib_dirs) $(testlib_bytes) $(testlib_encoding_utf8) $(testlib_ascii) $(testlib_fmt) $(testlib_time) $(testlib_slice) $(testlib_bufio) $(testlib_strconv) $(testlib_os) $(testlib_encoding_hex) $(testlib_sort) $(testlib_errors)
+$(TESTCACHE)/hare/module/hare_module.ssa: $(testlib_hare_module_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_lex) $(testlib_hare_parse) $(testlib_hare_unparse) $(testlib_strio) $(testlib_fs) $(testlib_io) $(testlib_strings) $(testlib_hash) $(testlib_crypto_sha256) $(testlib_dirs) $(testlib_bytes) $(testlib_encoding_utf8) $(testlib_ascii) $(testlib_fmt) $(testlib_time) $(testlib_slice) $(testlib_bufio) $(testlib_strconv) $(testlib_os) $(testlib_encoding_hex) $(testlib_sort) $(testlib_errors) $(testlib_temp)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/module
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module \

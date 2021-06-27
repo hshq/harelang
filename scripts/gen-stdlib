@@ -416,7 +416,7 @@ hare_module() {
 	gen_ssa hare::module \
 		hare::ast hare::lex hare::parse hare::unparse strio fs io strings hash \
 		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time slice bufio \
-		strconv os encoding::hex sort errors
+		strconv os encoding::hex sort errors temp
 }
 
 gensrcs_hare_parse() {
