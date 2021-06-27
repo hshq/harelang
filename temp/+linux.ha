@@ -33,12 +33,16 @@ export fn file(
 		oflags |= fs::flags::WRONLY;
 	};
 	return match (os::create(get_tmpdir(), fmode, oflags)) {
+		// TODO: Add a custom "close" function which removes the named
+		// file
 		err: fs::error => named(get_tmpdir(), iomode, mode...),
 		s: *io::stream => s,
 	};
 };
 
-// Creates a named temporary file in the given directory.
+// Creates a named temporary file in the given directory. The path to the
+// temporary file may be found via the name field of [[io::stream]]. The caller
+// is responsible for removing the file when they're done with it.
 //
 // The I/O mode must be either [[io::mode::WRITE]] or [[io::mode::RDWR]].
 //
