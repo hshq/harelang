@@ -1,5 +1,7 @@
 use crypto::random;
 use encoding::hex;
+use errors;
+use fmt;
 use fs;
 use io;
 use os;
@@ -31,22 +33,47 @@ export fn file(
 		oflags |= fs::flags::WRONLY;
 	};
 	return match (os::create(get_tmpdir(), fmode, oflags)) {
-		err: fs::error => abort(), // TODO: Fall back to named file
+		err: fs::error => named(get_tmpdir(), iomode, mode...),
 		s: *io::stream => s,
 	};
 };
 
-// Creates a named temporary file.
+// Creates a named temporary file in the given directory.
 //
 // The I/O mode must be either [[io::mode::WRITE]] or [[io::mode::RDWR]].
 //
 // Only one variadic argument may be provided, if at all, to specify the mode of
 // the new file. The default is 0o644.
 export fn named(
+	path: str,
 	iomode: io::mode,
 	mode: fs::mode...
 ) (*io::stream | fs::error) = {
-	abort(); // TODO
+	assert(iomode == io::mode::WRITE || iomode == io::mode::RDWR);
+	assert(len(mode) == 0 || len(mode) == 1);
+
+	let fmode = if (len(mode) != 0) mode[0] else 0o644: fs::mode;
+	let oflags = fs::flags::EXCL | fs::flags::CLOEXEC;
+	if (iomode == io::mode::RDWR) {
+		oflags |= fs::flags::RDWR;
+	} else {
+		oflags |= fs::flags::WRONLY;
+	};
+
+	// TODO: Use path::pathbuf
+	static let pathbuf: [4096]u8 = [0...];
+	for (true) {
+		let rand: [size(u64)]u8 = [0...];
+		random::buffer(rand);
+		const id = *(&rand[0]: *u64);
+		const fpath = fmt::bsprintf(pathbuf, "{}/temp.{}", path, id);
+		match (os::create(fpath, fmode, oflags)) {
+			errors::exists => continue,
+			err: fs::error => return err,
+			s: *io::stream => return s,
+		};
+	};
+	abort(); // Unreachable
 };
 
 // Creates a temporary directory. This function only guarantees that the
