@@ -89,7 +89,7 @@ fn plan_finish(plan: *plan) void = {
 	};
 };
 
-fn plan_execute(plan: *plan, verbose: bool) void = {
+fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 	for (len(plan.scheduled) != 0) {
 		let next: nullable *task = null;
 		let i = 0z;
@@ -116,8 +116,11 @@ fn plan_execute(plan: *plan, verbose: bool) void = {
 		match (execute(plan, task, verbose)) {
 			err: exec::error => fmt::fatal("Error: {}: {}",
 				task.cmd[0], exec::strerror(err)),
-			err: !exec::exit_status => fmt::fatal("Error: {}: {}",
-				task.cmd[0], exec::exitstr(err)),
+			err: !exec::exit_status => {
+				fmt::errorfln("Error: {}: {}", task.cmd[0],
+					exec::exitstr(err))!;
+				return err;
+			},
 			void => void,
 		};
 

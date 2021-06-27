@@ -139,7 +139,11 @@ fn build(args: []str) void = {
 		output = path::basename(ver.basedir);
 	};
 	sched_hare_exe(&plan, ver, output, depends...);
-	plan_execute(&plan, verbose);
+	match (plan_execute(&plan, verbose)) {
+		void => void,
+		!exec::exit_status => fmt::fatal("{} {}: build failed",
+			os::args[0], os::args[1]),
+	};
 };
 
 fn cache(args: []str) void = {
@@ -240,7 +244,11 @@ fn run(args: []str) void = {
 
 	let output = mkfile(&plan, "out");
 	sched_hare_exe(&plan, ver, output, depends...);
-	plan_execute(&plan, verbose);
+	match (plan_execute(&plan, verbose)) {
+		void => void,
+		!exec::exit_status => fmt::fatal("{} {}: build failed",
+			os::args[0], os::args[1]),
+	};
 	let cmd = match (exec::cmd(output, runargs...)) {
 		err: exec::error => fmt::fatal("exec: {}", exec::strerror(err)),
 		cmd: exec::command => cmd,
@@ -373,7 +381,11 @@ fn test(args: []str) void = {
 	} else {
 		sched_hare_exe(&plan, ver, strings::dup(output), depends...);
 	};
-	plan_execute(&plan, verbose);
+	match (plan_execute(&plan, verbose)) {
+		void => void,
+		!exec::exit_status => fmt::fatal("{} {}: build failed",
+			os::args[0], os::args[1]),
+	};
 
 	if (have_output) {
 		return;
