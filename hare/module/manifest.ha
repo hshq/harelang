@@ -13,6 +13,7 @@ use path;
 use strconv;
 use strings;
 use time;
+use temp;
 
 // The manifest file format is a series of line-oriented records. Lines starting
 // with # are ignored.
@@ -50,11 +51,6 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 
 	let mpath = path::join(cachedir, "manifest");
 	defer free(mpath);
-
-	// TODO: We can probably eliminate these locks by using atomic writes
-	// instead
-	let l = lock(ctx.fs, cachedir)?;
-	defer unlock(ctx.fs, cachedir, l);
 
 	let file = match (fs::open(ctx.fs, mpath, fs::flags::RDONLY)) {
 		errors::noentry => return manifest,
@@ -237,11 +233,11 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 	let mpath = path::join(cachedir, "manifest");
 	defer free(mpath);
 
-	let l = lock(ctx.fs, cachedir)?;
-	defer unlock(ctx.fs, cachedir, l);
-
-	let fd = fs::create(ctx.fs, mpath, 0o644)?;
-	defer io::close(fd);
+	let fd = temp::named(ctx.fs, cachedir, io::mode::WRITE, 0o644)?;
+	defer {
+		fs::remove(ctx.fs, fd.name): void;
+		io::close(fd);
+	};
 
 	let ident = unparse::identstr(manifest.ident);
 	defer free(ident);
@@ -277,43 +273,8 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 
 		fmt::fprintln(fd)?;
 	};
-};
 
-fn lock(fs: *fs::fs, cachedir: str) (*io::stream | error) = {
-	// XXX: I wonder if this should be some generic function in fs or
-	// something
-	match (os::mkdirs(cachedir)) {
-		errors::exists => void,
-		void => void,
-		e: fs::error => return e,
-	};
-	let lockpath = path::join(cachedir, "manifest.lock");
-	defer free(lockpath);
-
-	let logged = false;
-	for (true) {
-		match (fs::create(fs, lockpath, 0o644, fs::flags::EXCL)) {
-			fd: *io::stream => return fd,
-			(errors::busy | errors::exists) => void,
-			err: fs::error => return err,
-		};
-		if (!logged) {
-			fmt::errorfln("Waiting for lock on {}...", lockpath): void;
-			logged = true;
-		};
-		time::sleep(1 * time::SECOND);
-	};
-
-	abort("Unreachable");
-};
-
-fn unlock(fs: *fs::fs, cachedir: str, s: *io::stream) void = {
-	let lockpath = path::join(cachedir, "manifest.lock");
-	defer free(lockpath);
-	match (fs::remove(fs, lockpath)) {
-		void => void,
-		err: fs::error => abort("Error removing module lock"),
-	};
+	fs::move(ctx.fs, fd.name, mpath)?;
 };
 
 fn input_finish(in: *input) void = {

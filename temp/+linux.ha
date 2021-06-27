@@ -35,20 +35,22 @@ export fn file(
 	return match (os::create(get_tmpdir(), fmode, oflags)) {
 		// TODO: Add a custom "close" function which removes the named
 		// file
-		err: fs::error => named(get_tmpdir(), iomode, mode...),
+		err: fs::error => named(os::cwd, get_tmpdir(), iomode, mode...),
 		s: *io::stream => s,
 	};
 };
 
-// Creates a named temporary file in the given directory. The path to the
-// temporary file may be found via the name field of [[io::stream]]. The caller
-// is responsible for removing the file when they're done with it.
+// Creates a named temporary file in the given directory of the given
+// filesystem. The path to the temporary file may be found via the name field of
+// [[io::stream]]. The caller is responsible for removing the file when they're
+// done with it.
 //
 // The I/O mode must be either [[io::mode::WRITE]] or [[io::mode::RDWR]].
 //
 // Only one variadic argument may be provided, if at all, to specify the mode of
 // the new file. The default is 0o644.
 export fn named(
+	fs: *fs::fs,
 	path: str,
 	iomode: io::mode,
 	mode: fs::mode...
@@ -71,7 +73,7 @@ export fn named(
 		random::buffer(rand);
 		const id = *(&rand[0]: *u64);
 		const fpath = fmt::bsprintf(pathbuf, "{}/temp.{}", path, id);
-		match (os::create(fpath, fmode, oflags)) {
+		match (fs::create(fs, fpath, fmode, oflags)) {
 			errors::exists => continue,
 			err: fs::error => return err,
 			s: *io::stream => return s,
