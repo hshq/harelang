@@ -42,6 +42,11 @@ export fn sleep(n: duration) void = {
 	};
 };
 
+// An enumeration of clocks available on this system. Different clocks represent
+// times from different epochs, and have different characteristics with regards
+// to leap seconds, NTP adjustments, and so on. All systems provide the REALTIME
+// and MONOTONIC clocks at least; use of other clocks is not guaranteed to be
+// portable.
 export type clock = enum {
 	// The current wall-clock time. This may jump forwards or backwards in
 	// time to account for leap seconds, NTP adjustments, etc.
@@ -56,8 +61,8 @@ export type clock = enum {
 	// Measures CPU time consumed by the calling process.
 	PROCESS_CPU = 2,
 
-	// Time since the system was booted. Increases monotonically and,
-	// unlike [MONOTONIC], continues to tick while the system is suspended.
+	// Time since the system was booted. Increases monotonically and, unlike
+	// [[MONOTONIC]], continues to tick while the system is suspended.
 	BOOT = 7,
 };
 
