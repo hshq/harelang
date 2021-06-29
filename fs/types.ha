@@ -190,9 +190,13 @@ export type createfunc = fn(
 	flags: flags...
 ) (*io::stream | error);
 
-// An abstract implementation of a filesystem. To create a custom stream, embed
-// this type as the first member of a struct with user-specific data and fill
-// out these fields as appropriate.
+// An abstract implementation of a filesystem, which provides common filesystem
+// operations such as file creation and deletion, but which may be backed by any
+// underlying storage system. See [[os::cwd]] for access to the host filesystem.
+//
+// To create a custom filesystem implementation, embed this type as the first
+// member of a struct with user-specific data and fill out these fields as
+// appropriate.
 export type fs = struct {
 	// Frees resources associated with this filesystem.
 	close: nullable *closefunc,
