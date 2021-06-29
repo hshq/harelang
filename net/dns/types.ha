@@ -133,11 +133,14 @@ export type mx = struct {
 	name: []str,
 };
 
+// A TXT record.
+export type txt = [][]u8;
+
 // The raw rdata field for an [[rrecord]] with an unknown [[rtype]].
 export type unknown_rdata = []u8;
 
 // Tagged union of supported rdata types.
-export type rdata = (a | aaaa | mx | unknown_rdata);
+export type rdata = (a | aaaa | mx | txt | unknown_rdata);
 
 // A DNS message, Hare representation. See [[encode]] and [[decode]] for the DNS
 // representation.
@@ -181,10 +184,18 @@ fn strings_free(in: []str) void = {
 	free(in);
 };
 
+fn bytes_free(in: [][]u8) void = {
+	for (let i = 0z; i < len(in); i += 1) {
+		free(in[i]);
+	};
+	free(in);
+};
+
 fn rrecord_finish(rr: *rrecord) void = {
 	strings_free(rr.name);
 	match (rr.rdata) {
 		mx: mx => strings_free(mx.name),
+		tx: txt => bytes_free(tx: [][]u8),
 		* => void,
 	};
 };

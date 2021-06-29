@@ -41,6 +41,15 @@ fn decoder_init(buf: []u8) decoder = decoder {
 	...
 };
 
+fn decode_u8(dec: *decoder) (u8 | format) = {
+	if (len(dec.cur) < 1) {
+		return format;
+	};
+	const val = dec.cur[0];
+	dec.cur = dec.cur[1..];
+	return val;
+};
+
 fn decode_u16(dec: *decoder) (u16 | format) = {
 	if (len(dec.cur) < 2) {
 		return format;
@@ -140,6 +149,7 @@ fn decode_rdata(dec: *decoder, rtype: rtype, rlen: size) (rdata | format) = {
 		rtype::A => decode_a(dec),
 		rtype::AAAA => decode_aaaa(dec),
 		rtype::MX => decode_mx(dec),
+		rtype::TXT => decode_txt(dec),
 		* => {
 			let buf = dec.cur[..rlen];
 			dec.cur = dec.cur[rlen..];
@@ -173,6 +183,21 @@ fn decode_mx(dec: *decoder) (rdata | format) = {
 		priority = decode_u16(dec)?,
 		name = decode_name(dec)?,
 	};
+};
+
+fn decode_txt(dec: *decoder) (rdata | format) = {
+	let items: txt = [];
+	for (len(dec.cur) != 0) {
+		const ln = decode_u8(dec)?;
+		if (len(dec.cur) < ln) {
+			return format;
+		};
+		let item: []u8 = [];
+		append(item, dec.cur[..ln]...);
+		dec.cur = dec.cur[ln..];
+		append(items, item);
+	};
+	return items;
 };
 
 // TODO: Expand breadth of supported rdata decoders
