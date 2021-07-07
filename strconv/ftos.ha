@@ -1,6 +1,12 @@
+// Using Ryū: fast float-to-string conversion algorithm by Ulf Adams.
+// https://doi.org/10.1145/3192366.3192369
+// This Hare implementation is translated from the original
+// C implementation here: https://github.com/ulfjack/ryu
+
 use types;
 
-fn f64bits(a: f64) u64 = *(&a: *u64);
+fn f64bits(a: f64) u64 = *(&a: *u64); // XXX: ARCH
+fn f32bits(a: f32) u32 = *(&a: *u32); // XXX: ARCH
 
 type r128 = struct {
 	hi: u64,
@@ -42,14 +48,33 @@ fn pow5fac(value: u64) u32 = {
 	return count;
 };
 
+fn pow5fac32(value: u32) u32 = {
+	let count: u32 = 0;
+	for (true) {
+		assert(value != 0);
+		const q = value / 5, r = value % 5;
+		if (r != 0) break;
+		value = q;
+		count += 1;
+	};
+	return count;
+};
+
 fn ibool(b: bool) u8 = if (b) 1 else 0;
 
 fn pow5multiple(v: u64, p: u32) bool = pow5fac(v) >= p;
+fn pow5multiple32(v: u32, p: u32) bool = pow5fac32(v) >= p;
 
 fn pow2multiple(v: u64, p: u32) bool = {
 	assert(v > 0);
 	assert(p < 64);
 	return (v & ((1u64 << p) - 1)) == 0;
+};
+
+fn pow2multiple32(v: u32, p: u32) bool = {
+	assert(v > 0);
+	assert(p < 32);
+	return (v & ((1u32 << p) - 1)) == 0;
 };
 
 fn mulshift64(m: u64, mul: (u64, u64), j: u32) u64 = {
@@ -63,8 +88,8 @@ fn mulshift64(m: u64, mul: (u64, u64), j: u32) u64 = {
 fn mulshiftall64(m: u64, mul: (u64, u64), j: i32, mm_shift: u32) (u64, u64, u64) = {
 	m <<= 1;
 	const r0 = u128mul(m, mul.0), r1 = u128mul(m, mul.1);
-	let lo = r0.lo, tmp = r0.hi, mid = r1.lo, hi = r1.hi;
-	hi += ibool(mid < tmp);
+	const lo = r0.lo, tmp = r0.hi, mid = r1.lo;
+	const hi = r1.hi + ibool(mid < tmp);
 	const lo2 = lo + mul.0;
 	const mid2 = mid + mul.1 + ibool(lo2 < lo);
 	const hi2 = hi + ibool(mid2 < mid);
@@ -87,14 +112,33 @@ fn mulshiftall64(m: u64, mul: (u64, u64), j: i32, mm_shift: u32) (u64, u64, u64)
 	return (v_plus, v_rounded, v_minus);
 };
 
-fn log2pow5(e: u32) i32 = {
-	assert(e <= 3528);
-	return ((e * 1217359) >> 19): i32;
+fn mulshift32(m: u32, a: u64, s: u32) u32 = {
+	assert(s > 32);
+	const a_lo = a: u32: u64, a_hi = a >> 32;
+	const b0 = m * a_lo, b1 = m * a_hi;
+	const sum = (b0 >> 32) + b1, ss = sum >> (s - 32);
+	assert(ss <= types::U32_MAX);
+	return ss: u32;
 };
 
-fn ceil_log2pow5(e: u32) i32 = log2pow5(e) + 1;
+fn mulpow5inv_divpow2(m: u32, q: u32, j: i32) u32 = {
+	const pow5 = f64computeinvpow5(q);
+	return mulshift32(m, pow5.1 + 1, j: u32);
+};
 
-fn pow5bits(e: u32) i32 = ceil_log2pow5(e);
+fn mulpow5_divpow2(m: u32, i: u32, j: i32) u32 = {
+	const pow5 = f64computepow5(i);
+	return mulshift32(m, pow5.1, j: u32);
+};
+
+fn log2pow5(e: u32) u32 = {
+	assert(e <= 3528);
+	return ((e * 1217359) >> 19);
+};
+
+fn ceil_log2pow5(e: u32) u32 = log2pow5(e) + 1;
+
+fn pow5bits(e: u32) u32 = ceil_log2pow5(e);
 
 fn log10pow2(e: u32) u32 = {
 	assert(e <= 1650);
@@ -108,6 +152,9 @@ fn log10pow5(e: u32) u32 = {
 
 def F64_POW5_INV_BITCOUNT: u8 = 125;
 def F64_POW5_BITCOUNT: u8 = 125;
+
+def F32_POW5_INV_BITCOUNT: u8 = F64_POW5_INV_BITCOUNT - 64;
+def F32_POW5_BITCOUNT: u8 = F64_POW5_BITCOUNT - 64;
 
 const F64_POW5_INV_SPLIT2: [15][2]u64 = [
 	[1, 2305843009213693952],
@@ -183,7 +230,7 @@ fn f64computeinvpow5(i: u32) (u64, u64) = {
 	if (sum < high0) {
 		high1 += 1;
 	};
-	const delta = (pow5bits(base2) - pow5bits(i)): u32;
+	const delta = pow5bits(base2) - pow5bits(i);
 	const res0 = u128rshift(low0, sum, delta) + 1 +
 		((POW5_INV_OFFSETS[i / 16] >> ((i % 16) << 1)) & 3);
 	const res1 = u128rshift(sum, high1, delta);
@@ -204,21 +251,12 @@ fn f64computepow5(i: u32) (u64, u64) = {
 	if (sum < high0) {
 		high1 += 1;
 	};
-	const delta = (pow5bits(i) - pow5bits(base2)): u32;
+	const delta = pow5bits(i) - pow5bits(base2);
 	const res0 = u128rshift(low0, sum, delta) +
 		((POW5_OFFSETS[i / 16] >> ((i % 16) << 1)) & 3);
 	const res1 = u128rshift(sum, high1, delta);
 	return (res0, res1);
 };
-
-type decf64 = struct {
-	mantissa: u64,
-	exponent: i32,
-};
-
-def F64_MANTISSA_BITS: u64 = 52;
-def F64_EXPONENT_BITS: u64 = 11;
-def F64_EXPONENT_BIAS: u16 = 1023;
 
 fn declen(n: u64) u8 = {
 	assert(n <= 1e17);
@@ -242,26 +280,36 @@ fn declen(n: u64) u8 = {
 	else 1;
 };
 
-fn bintodec(mantissa: u64, exponent: u32) decf64 = {
-	let e2: i32 = 0, m2: u64 = 0;
+type decf64 = struct {
+	mantissa: u64,
+	exponent: i32,
+};
+
+def F64_MANTISSA_BITS: u64 = 52;
+def F64_EXPONENT_BITS: u64 = 11;
+def F64_EXPONENT_BIAS: u16 = 1023;
+
+fn f64todecf64(mantissa: u64, exponent: u32) decf64 = {
+	let e2 = (F64_EXPONENT_BIAS + F64_MANTISSA_BITS + 2): i32;
+	let m2: u64 = 0;
 	if (exponent == 0) {
-		e2 = 1 - (F64_EXPONENT_BIAS + F64_MANTISSA_BITS): i32 - 2;
+		e2 = 1 - e2;
 		m2 = mantissa;
 	} else {
-		e2 = (exponent: i32) - (F64_EXPONENT_BIAS + F64_MANTISSA_BITS): i32 - 2;
-		m2 = (1u64 << F64_MANTISSA_BITS) | mantissa;
+		e2 = (exponent: i32) - e2;
+		m2 = (1u32 << F64_MANTISSA_BITS) | mantissa;
 	};
-	const even = (m2 & 1) == 0, accept_bounds = even;
+	const accept_bounds = (m2 & 1) == 0;
 	const mv = 4 * m2;
-	const mm_shift: u32 = ibool(mantissa != 0 || exponent <= 1);
+	const mm_shift = ibool(mantissa != 0 || exponent <= 1);
 	let vp: u64 = 0, vr: u64 = 0, vm: u64 = 0;
 	let e10: i32 = 0;
 	let vm_trailing_zeros = false, vr_trailing_zeros = false;
 	if (e2 >= 0) {
 		const q = log10pow2(e2: u32) - ibool(e2 > 3);
 		e10 = q: i32;
-		const k = F64_POW5_INV_BITCOUNT: i32 + pow5bits(q) - 1;
-		const i = -e2 + (q: i32) + k;
+		const k = F64_POW5_INV_BITCOUNT + pow5bits(q) - 1;
+		const i = -e2 + (q + k): i32;
 		let pow5 = f64computeinvpow5(q);
 		const res = mulshiftall64(m2, pow5, i, mm_shift);
 		vp = res.0; vr = res.1; vm = res.2;
@@ -278,7 +326,7 @@ fn bintodec(mantissa: u64, exponent: u32) decf64 = {
 		const q = log10pow5((-e2): u32) - ibool(-e2 > 1);
 		e10 = e2 + (q: i32);
 		const i = -e2 - (q: i32);
-		const k = pow5bits(i: u32) - F64_POW5_BITCOUNT: i32;
+		const k = pow5bits(i: u32): i32 - F64_POW5_BITCOUNT: i32;
 		const j = (q: i32) - k;
 		let pow5 = f64computepow5(i: u32);
 		const res = mulshiftall64(m2, pow5, j, mm_shift);
@@ -327,7 +375,8 @@ fn bintodec(mantissa: u64, exponent: u32) decf64 = {
 			last_removed_digit = 4;
 		};
 		output = vr + ibool((vr == vm && 
-			(!accept_bounds || !vm_trailing_zeros)) || last_removed_digit >= 5);
+			(!accept_bounds || !vm_trailing_zeros)) ||
+			last_removed_digit >= 5);
 	} else {
 		let round_up = false;
 		const vpby100 = vp / 100, vmby100 = vm / 100;
@@ -353,13 +402,133 @@ fn bintodec(mantissa: u64, exponent: u32) decf64 = {
 	return decf64 { exponent = exp, mantissa = output };
 };
 
-fn encode(buf: []u8, v: decf64) size = {
+type decf32 = struct {
+	mantissa: u32,
+	exponent: i32,
+};
+
+def F32_MANTISSA_BITS: u32 = 23;
+def F32_EXPONENT_BITS: u32 = 8;
+def F32_EXPONENT_BIAS: u16 = 127;
+
+fn f32todecf32(mantissa: u32, exponent: u32) decf32 = {
+	let e2 = (F32_EXPONENT_BIAS + F32_MANTISSA_BITS + 2): i32;
+	let m2: u32 = 0;
+	if (exponent == 0) {
+		e2 = 1 - e2;
+		m2 = mantissa;
+	} else {
+		e2 = (exponent: i32) - e2;
+		m2 = (1u32 << F32_MANTISSA_BITS) | mantissa;
+	};
+	const accept_bounds = (m2 & 1) == 0;
+	const mv = 4 * m2, mp = mv + 2;
+	const mm_shift = ibool(mantissa != 0 || exponent <= 1);
+	const mm = mv - 1 - mm_shift;
+	let vr: u32 = 0, vp: u32 = 0, vm: u32 = 0;
+	let e10: i32 = 0;
+	let vm_trailing_zeroes = false, vr_trailing_zeroes = false;
+	let last_removed_digit: u8 = 0;
+	if (e2 >= 0) {
+		const q = log10pow2(e2: u32);
+		e10 = q: i32;
+		const k = F32_POW5_INV_BITCOUNT + pow5bits(q) - 1;
+		const i = -e2 + (q + k): i32;
+		vr = mulpow5inv_divpow2(mv, q, i);
+		vp = mulpow5inv_divpow2(mp, q, i);
+		vm = mulpow5inv_divpow2(mm, q, i);
+		if (q != 0 && (vp - 1) / 10 <= vm / 10) {
+			const l = F32_POW5_INV_BITCOUNT + pow5bits(q - 1) - 1;
+			last_removed_digit = (mulpow5inv_divpow2(mv, q - 1,
+				-e2 + ((q + l): i32) - 1) % 10): u8;
+		};
+		if (q <= 9) {
+			if (mv % 5 == 0) {
+				vr_trailing_zeroes = pow5multiple32(mv, q);
+			} else if (accept_bounds) {
+				vm_trailing_zeroes = pow5multiple32(mm, q);
+			} else {
+				vp -= ibool(pow5multiple32(mp, q));
+			};
+		};
+	} else {
+		const q = log10pow5((-e2): u32);
+		e10 = (q: i32) + e2;
+		const i = (-e2 - (q: i32)): u32;
+		const k = pow5bits(i) - F32_POW5_BITCOUNT;
+		let j = (q: i32) - k: i32;
+		vr = mulpow5_divpow2(mv, i, j);
+		vp = mulpow5_divpow2(mp, i, j);
+		vm = mulpow5_divpow2(mm, i, j);
+		if (q != 0 && (vp - 1) / 10 <= vm / 10) {
+			j = (q: i32) - 1 - (pow5bits(i + 1): i32 - 
+				F32_POW5_BITCOUNT: i32);
+			last_removed_digit = (mulpow5_divpow2(mv,
+				(i + 1), j) % 10): u8;
+		};
+		if (q <= 1) {
+			vr_trailing_zeroes = true;
+			if (accept_bounds) {
+				vm_trailing_zeroes = mm_shift == 1;
+			} else {
+				vp -= 1;
+			};
+		} else if (q < 31) {
+			vr_trailing_zeroes = pow2multiple32(mv, q - 1);
+		};
+	};
+	let removed: i32 = 0, output: u32 = 0;
+	if (vm_trailing_zeroes || vr_trailing_zeroes) {
+		for (vp / 10 > vm / 10) {
+			vm_trailing_zeroes &&= (vm - (vm / 10) * 10) == 0;
+			vr_trailing_zeroes &&= last_removed_digit == 0;
+			last_removed_digit = (vr % 10): u8;
+			vr /= 10;
+			vp /= 10;
+			vm /= 10;
+			removed += 1;
+		};
+		if (vm_trailing_zeroes) {
+			for (vm % 10 == 0) {
+				vr_trailing_zeroes &&= last_removed_digit == 0;
+				last_removed_digit = (vr % 10): u8;
+				vr /= 10;
+				vp /= 10;
+				vm /= 10;
+				removed += 1;
+			};
+		};
+		if (vr_trailing_zeroes && last_removed_digit == 5 && vr % 2 == 0) {
+			// round to even
+			last_removed_digit = 4;
+		};
+		output = vr + ibool((vr == vm &&
+			(!accept_bounds || !vm_trailing_zeroes)) ||
+			last_removed_digit >= 5);
+	} else {
+		for (vp / 10 > vm / 10) {
+			last_removed_digit = (vr % 10): u8;
+			vr /= 10;
+			vp /= 10;
+			vm /= 10;
+			removed += 1;
+		};
+		output = vr + ibool(vr == vm || last_removed_digit >= 5);
+	};
+	const exp = e10 + removed;
+	return decf32 { mantissa = output, exponent = exp };
+};
+
+def F32_DECIMAL_DIGITS: i32 = 9;
+def F64_DECIMAL_DIGITS: i32 = 17;
+
+fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
 	const zch = '0': u32: u8;
-	const n = v.mantissa, e = v.exponent, olen = declen(n);
+	const n = mantissa, e = exponent, olen = declen(n);
 	const exp = e + olen: i32 - 1;
 	// use scientific notation for numbers whose exponent is beyond the
-	// precision available for f64 type
-	if (exp > -17 && exp < 17) {
+	// precision available for the underlying type
+	if (exp > -4 && exp < digits) {
 		if (e >= 0) {
 			let k = exp;
 			for (let a = e; a > 0; a -= 1) {
@@ -451,14 +620,14 @@ fn encode(buf: []u8, v: decf64) size = {
 };
 
 // Converts a f64 to a string in base 10. The return value is statically
-// allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
-// duplicate the result.
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]]
+// to duplicate the result.
 export fn f64tos(n: f64) const str = {
 	// The biggest string produced by a f64 number in base 10 would have the
 	// negative sign, followed by a digit and decimal point, and then
-	// fifteen more decimal digits, followed by 'e' and another negative
-	// sign and the maximum of three digits for exponent. 
-	// (1 + 1 + 1 + 15 + 1 + 1 + 3) = 23
+	// sixteen more decimal digits, followed by 'e' and another negative
+	// sign and the maximum of three digits for exponent.
+	// (1 + 1 + 1 + 16 + 1 + 1 + 3) = 24
 	static let buf: [24]u8 = [0...];
 	const bits = f64bits(n);
 	const sign = (bits >> (F64_MANTISSA_BITS + F64_EXPONENT_BITS)): size;
@@ -473,12 +642,46 @@ export fn f64tos(n: f64) const str = {
 		};
 		return if (sign == 0) "Infinity" else "-Infinity";
 	};
-	const v = bintodec(mantissa, exponent);
+	const d = f64todecf64(mantissa, exponent);
 	if (sign != 0) {
 		buf[0] = '-': u32: u8;
 	};
-	let z = encode(buf[sign..], v) + sign;
+	let z = encode_base10(buf[sign..], d.mantissa, d.exponent,
+			F64_DECIMAL_DIGITS) + sign;
 	let s = types::string { data = &buf, length = z, ... };
+	return *(&s: *str);
+};
+
+// Converts a f32 to a string in base 10. The return value is statically
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]]
+// to duplicate the result.
+export fn f32tos(n: f32) const str = {
+	// The biggest string produced by a f32 number in base 10 would have the
+	// negative sign, followed by a digit and decimal point, and then seven
+	// more decimal digits, followed by 'e' and another negative sign and
+	// the maximum of two digits for exponent. 
+	// (1 + 1 + 1 + 7 + 1 + 1 + 2) = 14
+	static let buf: [16]u8 = [0...];
+	const bits = f32bits(n);
+	const sign = bits >> (F32_MANTISSA_BITS + F32_EXPONENT_BITS);
+	const mantissa = bits & ((1u32 << F32_MANTISSA_BITS) - 1);
+	const exponent = (bits >> F32_MANTISSA_BITS) &
+		((1u32 << F32_EXPONENT_BITS) - 1);
+	if (mantissa == 0 && exponent == 0) {
+		return "0";
+	} else if (exponent == ((1 << F32_EXPONENT_BITS) - 1)) {
+		if (mantissa != 0) {
+			return "NaN";
+		};
+		return if (sign == 0) "Infinity" else "-Infinity";
+	};
+	const d = f32todecf32(mantissa, exponent);
+	if (sign != 0) {
+		buf[0] = '-': u32: u8;
+	};
+	let z = encode_base10(buf[sign..], d.mantissa, d.exponent,
+			F32_DECIMAL_DIGITS) + sign;
+	const s = types::string { data = &buf, length = z, ... };
 	return *(&s: *str);
 };
 
@@ -490,7 +693,7 @@ export fn f64tos(n: f64) const str = {
 	assert(f64tos(1.0) == "1");
 	assert(f64tos(0.3) == "0.3");
 	assert(f64tos(0.0031415) == "0.0031415");
-	assert(f64tos(0.0000012345678) == "0.0000012345678");
+	assert(f64tos(0.0000012345678) == "1.2345678e-6");
 	assert(f64tos(1.414) == "1.414");
 	assert(f64tos(1e234f64) == "1e234");
 	assert(f64tos(1.2e-34) == "1.2e-34");
@@ -499,5 +702,34 @@ export fn f64tos(n: f64) const str = {
 	assert(f64tos(11.2233445566778899e20) == "1.122334455667789e21");
 	assert(f64tos(1000000.0e9) == "1000000000000000");
 	assert(f64tos(9007199254740991.0) == "9007199254740991");
+	assert(f64tos(90071992547409915.0) == "90071992547409920");
+	assert(f64tos(90071992547409925.0) == "90071992547409920");
+	assert(f64tos(5.0e-324) == "5e-324");
+	assert(f64tos(2.2250738585072014e-308) == "2.2250738585072014e-308");
+	assert(f64tos(1.7976931348623157e308) == "1.7976931348623157e308");
+};
+
+@test fn f32tos() void = {
+	assert(f32tos(0.0) == "0");
+	assert(f32tos(1.0 / 0.0) == "Infinity");
+	assert(f32tos(-1.0 / 0.0) == "-Infinity");
+	assert(f32tos(0.0 / 0.0) == "NaN");
+	assert(f32tos(1.0) == "1");
+	assert(f32tos(-8.0) == "-8");
+	assert(f32tos(1.23) == "1.23");
+	assert(f32tos(-0.618) == "-0.618");
+	assert(f32tos(0.00456) == "0.00456");
+	assert(f32tos(0.00000000000434655) == "4.34655e-12");
+	assert(f32tos(123456.78) == "123456.78");
+	assert(f32tos(-1.234567) == "-1.234567");
+	assert(f32tos(12345.6789) == "12345.679");
+	assert(f32tos(1.23e30) == "1.23e30");
+	assert(f32tos(1.23e-30) == "1.23e-30");
+	assert(f32tos(16777215.0) == "16777215");
+	assert(f32tos(167772155.0) == "167772160");
+	assert(f32tos(167772145.0) == "167772140");
+	assert(f32tos(1.0e-45) == "1e-45");
+	assert(f32tos(1.1754944e-38) == "1.1754944e-38");
+	assert(f32tos(3.4028235e+38) == "3.4028235e38");
 };
 
