@@ -541,6 +541,13 @@ linux_vdso() {
 	gen_ssa linux::vdso linux strings format::elf
 }
 
+math() {
+	printf '# math\n'
+	gen_srcs math \
+		floats.ha
+	gen_ssa math
+}
+
 net() {
 	printf '# net\n'
 	gen_srcs net \
@@ -704,7 +711,7 @@ strconv() {
 			+test/stou.ha \
 			+test/stoi.ha
 	fi
-	gen_ssa strconv types strings ascii
+	gen_ssa strconv types strings ascii math
 }
 
 strings() {
@@ -846,6 +853,7 @@ linux
 linux::signalfd
 linux::io_uring
 linux::vdso
+math
 net
 net::dial
 net::dns

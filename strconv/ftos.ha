@@ -3,10 +3,8 @@
 // This Hare implementation is translated from the original
 // C implementation here: https://github.com/ulfjack/ryu
 
+use math;
 use types;
-
-fn f64bits(a: f64) u64 = *(&a: *u64); // XXX: ARCH
-fn f32bits(a: f32) u32 = *(&a: *u32); // XXX: ARCH
 
 type r128 = struct {
 	hi: u64,
@@ -285,19 +283,15 @@ type decf64 = struct {
 	exponent: i32,
 };
 
-def F64_MANTISSA_BITS: u64 = 52;
-def F64_EXPONENT_BITS: u64 = 11;
-def F64_EXPONENT_BIAS: u16 = 1023;
-
 fn f64todecf64(mantissa: u64, exponent: u32) decf64 = {
-	let e2 = (F64_EXPONENT_BIAS + F64_MANTISSA_BITS + 2): i32;
+	let e2 = (math::F64_EXPONENT_BIAS + math::F64_MANTISSA_BITS + 2): i32;
 	let m2: u64 = 0;
 	if (exponent == 0) {
 		e2 = 1 - e2;
 		m2 = mantissa;
 	} else {
 		e2 = (exponent: i32) - e2;
-		m2 = (1u32 << F64_MANTISSA_BITS) | mantissa;
+		m2 = (1u64 << math::F64_MANTISSA_BITS) | mantissa;
 	};
 	const accept_bounds = (m2 & 1) == 0;
 	const mv = 4 * m2;
@@ -407,19 +401,15 @@ type decf32 = struct {
 	exponent: i32,
 };
 
-def F32_MANTISSA_BITS: u32 = 23;
-def F32_EXPONENT_BITS: u32 = 8;
-def F32_EXPONENT_BIAS: u16 = 127;
-
 fn f32todecf32(mantissa: u32, exponent: u32) decf32 = {
-	let e2 = (F32_EXPONENT_BIAS + F32_MANTISSA_BITS + 2): i32;
+	let e2 = (math::F32_EXPONENT_BIAS + math::F32_MANTISSA_BITS + 2): i32;
 	let m2: u32 = 0;
 	if (exponent == 0) {
 		e2 = 1 - e2;
 		m2 = mantissa;
 	} else {
 		e2 = (exponent: i32) - e2;
-		m2 = (1u32 << F32_MANTISSA_BITS) | mantissa;
+		m2 = (1u32 << math::F32_MANTISSA_BITS: u32) | mantissa;
 	};
 	const accept_bounds = (m2 & 1) == 0;
 	const mv = 4 * m2, mp = mv + 2;
@@ -629,14 +619,15 @@ export fn f64tos(n: f64) const str = {
 	// sign and the maximum of three digits for exponent.
 	// (1 + 1 + 1 + 16 + 1 + 1 + 3) = 24
 	static let buf: [24]u8 = [0...];
-	const bits = f64bits(n);
-	const sign = (bits >> (F64_MANTISSA_BITS + F64_EXPONENT_BITS)): size;
-	const mantissa = bits & ((1u64 << F64_MANTISSA_BITS) - 1);
-	const exponent = ((bits >> F64_MANTISSA_BITS) &
-			(1u64 << F64_EXPONENT_BITS) - 1): u32;
+	const bits = math::f64bits(n);
+	const sign = (bits >> (math::F64_MANTISSA_BITS +
+	math::F64_EXPONENT_BITS)): size; // bits >> 63
+	const mantissa = bits & ((1u64 << math::F64_MANTISSA_BITS) - 1);
+	const exponent = ((bits >> math::F64_MANTISSA_BITS) &
+			(1u64 << math::F64_EXPONENT_BITS) - 1): u32;
 	if (mantissa == 0 && exponent == 0) {
 		return "0";
-	} else if (exponent == ((1 << F64_EXPONENT_BITS) - 1)) {
+	} else if (exponent == ((1 << math::F64_EXPONENT_BITS) - 1)) {
 		if (mantissa != 0) {
 			return "NaN";
 		};
@@ -662,14 +653,15 @@ export fn f32tos(n: f32) const str = {
 	// the maximum of two digits for exponent. 
 	// (1 + 1 + 1 + 7 + 1 + 1 + 2) = 14
 	static let buf: [16]u8 = [0...];
-	const bits = f32bits(n);
-	const sign = bits >> (F32_MANTISSA_BITS + F32_EXPONENT_BITS);
-	const mantissa = bits & ((1u32 << F32_MANTISSA_BITS) - 1);
-	const exponent = (bits >> F32_MANTISSA_BITS) &
-		((1u32 << F32_EXPONENT_BITS) - 1);
+	const bits = math::f32bits(n);
+	const sign = (bits >> (math::F32_MANTISSA_BITS +
+	math::F32_EXPONENT_BITS)): size; // bits >> 31
+	const mantissa = bits & ((1u32 << math::F32_MANTISSA_BITS) - 1): u32;
+	const exponent = (bits >> math::F32_MANTISSA_BITS): u32 &
+		((1u32 << math::F32_EXPONENT_BITS) - 1): u32;
 	if (mantissa == 0 && exponent == 0) {
 		return "0";
-	} else if (exponent == ((1 << F32_EXPONENT_BITS) - 1)) {
+	} else if (exponent == ((1 << math::F32_EXPONENT_BITS) - 1): u32) {
 		if (mantissa != 0) {
 			return "NaN";
 		};

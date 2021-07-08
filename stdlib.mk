@@ -241,6 +241,10 @@ hare_stdlib_deps+=$(stdlib_linux_io_uring)
 stdlib_linux_vdso=$(HARECACHE)/linux/vdso/linux_vdso.o
 hare_stdlib_deps+=$(stdlib_linux_vdso)
 
+# gen_lib math
+stdlib_math=$(HARECACHE)/math/math.o
+hare_stdlib_deps+=$(stdlib_math)
+
 # gen_lib net
 stdlib_net=$(HARECACHE)/net/net.o
 hare_stdlib_deps+=$(stdlib_net)
@@ -819,6 +823,17 @@ $(HARECACHE)/linux/vdso/linux_vdso.ssa: $(stdlib_linux_vdso_srcs) $(stdlib_rt) $
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::vdso \
 		-t$(HARECACHE)/linux/vdso/linux_vdso.td $(stdlib_linux_vdso_srcs)
 
+# math
+# math
+stdlib_math_srcs= \
+	$(STDLIB)/math/floats.ha
+
+$(HARECACHE)/math/math.ssa: $(stdlib_math_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/math
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nmath \
+		-t$(HARECACHE)/math/math.td $(stdlib_math_srcs)
+
 # net
 # net
 stdlib_net_srcs= \
@@ -999,7 +1014,7 @@ stdlib_strconv_srcs= \
 	$(STDLIB)/strconv/ftos.ha \
 	$(STDLIB)/strconv/stof.ha
 
-$(HARECACHE)/strconv/strconv.ssa: $(stdlib_strconv_srcs) $(stdlib_rt) $(stdlib_types) $(stdlib_strings) $(stdlib_ascii)
+$(HARECACHE)/strconv/strconv.ssa: $(stdlib_strconv_srcs) $(stdlib_rt) $(stdlib_types) $(stdlib_strings) $(stdlib_ascii) $(stdlib_math)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/strconv
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nstrconv \
@@ -1391,6 +1406,10 @@ hare_testlib_deps+=$(testlib_linux_io_uring)
 # gen_lib linux::vdso
 testlib_linux_vdso=$(TESTCACHE)/linux/vdso/linux_vdso.o
 hare_testlib_deps+=$(testlib_linux_vdso)
+
+# gen_lib math
+testlib_math=$(TESTCACHE)/math/math.o
+hare_testlib_deps+=$(testlib_math)
 
 # gen_lib net
 testlib_net=$(TESTCACHE)/net/net.o
@@ -1990,6 +2009,17 @@ $(TESTCACHE)/linux/vdso/linux_vdso.ssa: $(testlib_linux_vdso_srcs) $(testlib_rt)
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::vdso \
 		-t$(TESTCACHE)/linux/vdso/linux_vdso.td $(testlib_linux_vdso_srcs)
 
+# math
+# math
+testlib_math_srcs= \
+	$(STDLIB)/math/floats.ha
+
+$(TESTCACHE)/math/math.ssa: $(testlib_math_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/math
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath \
+		-t$(TESTCACHE)/math/math.td $(testlib_math_srcs)
+
 # net
 # net
 testlib_net_srcs= \
@@ -2174,7 +2204,7 @@ testlib_strconv_srcs= \
 	$(STDLIB)/strconv/+test/stou.ha \
 	$(STDLIB)/strconv/+test/stoi.ha
 
-$(TESTCACHE)/strconv/strconv.ssa: $(testlib_strconv_srcs) $(testlib_rt) $(testlib_types) $(testlib_strings) $(testlib_ascii)
+$(TESTCACHE)/strconv/strconv.ssa: $(testlib_strconv_srcs) $(testlib_rt) $(testlib_types) $(testlib_strings) $(testlib_ascii) $(testlib_math)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/strconv
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrconv \
