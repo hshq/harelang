@@ -30,7 +30,7 @@ export fn create(
 	mode: mode,
 	flags: flags...
 ) (*io::stream | error) = {
-	mode = mode & 0o777;
+	mode &= 0o777;
 	return match (fs.create) {
 		null => errors::unsupported,
 		f: *createfunc => f(fs, path, mode, flags...),
@@ -179,8 +179,7 @@ export fn mksubdir(fs: *fs, path: str) (*fs | error) = {
 
 // Changes mode flags on a file or directory. Type bits are discared.
 export fn chmod(fs: *fs, path: str, mode: mode) (void | error) = {
-	mode &= 0o755;
-
+	mode &= 0o777;
 	return match (fs.chmod) {
 		f: *chmodfunc => f(fs, path, mode),
 		null => errors::unsupported,
