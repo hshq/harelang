@@ -141,7 +141,6 @@ fn buffered_close_static(s: *io::stream) void = {
 	if (s.writer != null) {
 		flush(s)!;
 	};
-	free(s);
 };
 
 fn buffered_unwrap(s: *io::stream) *io::stream = {
