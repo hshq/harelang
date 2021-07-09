@@ -354,7 +354,6 @@ fn test(args: []str) void = {
 		runargs = cmd.args[1..];
 	};
 
-
 	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 

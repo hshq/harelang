@@ -63,7 +63,9 @@ fn mkplan(ctx: *module::context) plan = {
 };
 
 fn plan_finish(plan: *plan) void = {
-	os::rmdirall(plan.workdir)!;
+	if (os::getenv("HARE_DEBUG_WORKDIR") is void) {
+		os::rmdirall(plan.workdir)!;
+	};
 	free(plan.workdir);
 
 	for (let i = 0z; i < len(plan.complete); i += 1) {
