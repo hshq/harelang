@@ -1099,7 +1099,8 @@ $(HARECACHE)/unicode/unicode.ssa: $(stdlib_unicode_srcs) $(stdlib_rt)
 
 # unix
 stdlib_unix_srcs= \
-	$(STDLIB)/unix/nice$(PLATFORM).ha \
+	$(STDLIB)/unix/$(PLATFORM)/nice.ha \
+	$(STDLIB)/unix/$(PLATFORM)/umask.ha \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
@@ -2290,7 +2291,8 @@ $(TESTCACHE)/unicode/unicode.ssa: $(testlib_unicode_srcs) $(testlib_rt)
 
 # unix
 testlib_unix_srcs= \
-	$(STDLIB)/unix/nice$(PLATFORM).ha \
+	$(STDLIB)/unix/$(PLATFORM)/nice.ha \
+	$(STDLIB)/unix/$(PLATFORM)/umask.ha \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
