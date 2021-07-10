@@ -774,7 +774,7 @@ unix() {
 		'$(PLATFORM)/umask.ha' \
 		getuid.ha \
 		setuid.ha
-	gen_ssa unix errors
+	gen_ssa unix errors fs
 }
 
 unix_hosts() {

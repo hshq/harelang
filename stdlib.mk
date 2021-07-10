@@ -1104,7 +1104,7 @@ stdlib_unix_srcs= \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
-$(HARECACHE)/unix/unix.ssa: $(stdlib_unix_srcs) $(stdlib_rt) $(stdlib_errors)
+$(HARECACHE)/unix/unix.ssa: $(stdlib_unix_srcs) $(stdlib_rt) $(stdlib_errors) $(stdlib_fs)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix \
@@ -2296,7 +2296,7 @@ testlib_unix_srcs= \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
-$(TESTCACHE)/unix/unix.ssa: $(testlib_unix_srcs) $(testlib_rt) $(testlib_errors)
+$(TESTCACHE)/unix/unix.ssa: $(testlib_unix_srcs) $(testlib_rt) $(testlib_errors) $(testlib_fs)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
