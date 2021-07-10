@@ -16,14 +16,17 @@ export fn main() void = {
 		getopt::printusage(os::stderr, os::args[0], help...);
 		os::exit(1);
 	};
-	if (cmd.args[0] == "build") build(cmd.args)
-	else if (cmd.args[0] == "cache") cache(cmd.args)
-	else if (cmd.args[0] == "deps") deps(cmd.args)
-	else if (cmd.args[0] == "run") run(cmd.args)
-	else if (cmd.args[0] == "test") test(cmd.args)
-	else if (cmd.args[0] == "version") version(cmd.args)
-	else {
-		getopt::printusage(os::stderr, os::args[0], help...);
-		os::exit(1);
+	const task = switch (cmd.args[0]) {
+		"build" => &build,
+		"cache" => &cache,
+		"deps" => &deps,
+		"run" => &run,
+		"test" => &test,
+		"version" => &version,
+		* => {
+			getopt::printusage(os::stderr, os::args[0], help...);
+			os::exit(1);
+		},
 	};
+	task(cmd.args);
 };
