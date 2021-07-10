@@ -21,16 +21,12 @@ export fn open(fs: *fs, path: str, flags: flags...) (*io::stream | error) = {
 
 // Creates a new file and opens it for writing. If no flags are provided, the
 // default read/write mode is WRONLY.
-//
-// Only the permission bits of the mode are used. If other bits are set, they
-// are discarded.
 export fn create(
 	fs: *fs,
 	path: str,
 	mode: mode,
 	flags: flags...
 ) (*io::stream | error) = {
-	mode &= 0o777;
 	return match (fs.create) {
 		null => errors::unsupported,
 		f: *createfunc => f(fs, path, mode, flags...),
@@ -177,9 +173,8 @@ export fn mksubdir(fs: *fs, path: str) (*fs | error) = {
 	};
 };
 
-// Changes mode flags on a file or directory. Type bits are discared.
+// Changes mode flags on a file or directory.
 export fn chmod(fs: *fs, path: str, mode: mode) (void | error) = {
-	mode &= 0o777;
 	return match (fs.chmod) {
 		f: *chmodfunc => f(fs, path, mode),
 		null => errors::unsupported,
