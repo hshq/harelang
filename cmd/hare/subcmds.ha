@@ -1,12 +1,13 @@
 use ascii;
+use bufio;
 use encoding::utf8;
 use fmt;
 use fs;
 use getopt;
 use hare::ast;
 use hare::module;
-use os;
 use os::exec;
+use os;
 use path;
 use strings;
 
@@ -427,7 +428,11 @@ fn version(args: []str) void = {
 
 		match (os::getenv("HAREPATH")) {
 			void => fmt::printfln("HAREPATH\t{}", HAREPATH)!,
-			s: str => fmt::printfln("HAREPATH\t{}\t(from environment)", s)!,
+			s: str => {
+				fmt::printf("HAREPATH\t{}", s)!;
+				bufio::flush(os::stdout)!;
+				fmt::errorln("\t(from environment)")!;
+			},
 		};
 	};
 };
