@@ -399,19 +399,35 @@ fn test(args: []str) void = {
 };
 
 fn version(args: []str) void = {
-	fmt::printfln("Hare version {}", VERSION)!;
-	fmt::errorln()!;
-	fmt::printf("Build tags\t")!;
-	const tags = default_tags();
-	for (let i = 0z; i < len(tags); i += 1) {
-		const tag = tags[i];
-		const inclusive = (tag.mode & module::tag_mode::INCLUSIVE) == module::tag_mode::INCLUSIVE;
-		fmt::printf("{}{}", if (inclusive) '+' else '-', tag.name)!;
-	};
-	fmt::println()!;
+	const help: []getopt::help = [
+		"provides version information for the Hare environment",
+		('v', "print more information"),
+	];
+	const cmd = getopt::parse(args, help...);
+	defer getopt::finish(&cmd);
 
-	match (os::getenv("HAREPATH")) {
-		void => fmt::printfln("HAREPATH\t{}", HAREPATH)!,
-		s: str => fmt::printfln("HAREPATH\t{}\t(from environment)", s)!,
+	let verbose = false;
+	for (let i = 0z; i < len(cmd.opts); i += 1) {
+		// The only option is verbose
+		verbose = true;
+	};
+
+	fmt::printfln("Hare {}", VERSION)!;
+
+	if (verbose) {
+		fmt::errorln()!;
+		fmt::printf("Build tags\t")!;
+		const tags = default_tags();
+		for (let i = 0z; i < len(tags); i += 1) {
+			const tag = tags[i];
+			const inclusive = (tag.mode & module::tag_mode::INCLUSIVE) == 0;
+			fmt::printf("{}{}", if (inclusive) '+' else '-', tag.name)!;
+		};
+		fmt::println()!;
+
+		match (os::getenv("HAREPATH")) {
+			void => fmt::printfln("HAREPATH\t{}", HAREPATH)!,
+			s: str => fmt::printfln("HAREPATH\t{}\t(from environment)", s)!,
+		};
 	};
 };
