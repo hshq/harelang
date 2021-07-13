@@ -2,7 +2,7 @@ use types;
 use strings;
 
 // Converts a string to an i64 in the given base. If the string contains any
-// non-numeric characters, except '-' at the start, or if it's empty,
+// non-numeric characters, except '-' or '+' at the start, or if it's empty,
 // [[strconv::invalid]] is returned. If the number is too large to be represented
 // by an i64, [[strconv::overflow]] is returned.
 export fn stoi64b(s: str, base: uint) (i64 | invalid | overflow) = {
@@ -10,12 +10,15 @@ export fn stoi64b(s: str, base: uint) (i64 | invalid | overflow) = {
 	let b = strings::toutf8(s);
 	let sign = 1i64;
 	let max = types::I64_MAX: u64;
+	let start = 0z;
 	if (b[0] == '-': u32: u8) {
 		sign = -1;
 		max += 1;
+		start = 1;
+	} else if (b[0] == '+': u32: u8) {
+		start = 1;
 	};
-	let u = if (sign < 0) stou64b(strings::fromutf8_unsafe(b[1..]), base)
-		else stou64b(s, base);
+	let u = stou64b(strings::fromutf8_unsafe(b[start..]), base);
 	let n = u?;
 	if (n > max) {
 		return overflow;
@@ -24,7 +27,7 @@ export fn stoi64b(s: str, base: uint) (i64 | invalid | overflow) = {
 };
 
 // Converts a string to an i32 in the given base. If the string contains any
-// non-numeric characters, except '-' at the start, or if it's empty,
+// non-numeric characters, except '-' or '+'  at the start, or if it's empty,
 // [[strconv::invalid]] is returned. If the number is too large to be represented
 // by an i32, [[strconv::overflow]] is returned.
 export fn stoi32b(s: str, base: uint) (i32 | invalid | overflow) = {
@@ -36,7 +39,7 @@ export fn stoi32b(s: str, base: uint) (i32 | invalid | overflow) = {
 };
 
 // Converts a string to an i16 in the given base. If the string contains any
-// non-numeric characters, except '-' at the start, or if it's empty,
+// non-numeric characters, except '-' or '+' at the start, or if it's empty,
 // [[strconv::invalid]] is returned. If the number is too large to be represented
 // by an i16, [[strconv::overflow]] is returned.
 export fn stoi16b(s: str, base: uint) (i16 | invalid | overflow) = {
@@ -48,7 +51,7 @@ export fn stoi16b(s: str, base: uint) (i16 | invalid | overflow) = {
 };
 
 // Converts a string to an i8 in the given base. If the string contains any
-// non-numeric characters, except '-' at the start, or if it's empty,
+// non-numeric characters, except '-' or '+' at the start, or if it's empty,
 // [[strconv::invalid]] is returned. If the number is too large to be represented
 // by an i8, [[strconv::overflow]] is returned.
 export fn stoi8b(s: str, base: uint) (i8 | invalid | overflow) = {
@@ -60,7 +63,7 @@ export fn stoi8b(s: str, base: uint) (i8 | invalid | overflow) = {
 };
 
 // Converts a string to an int in the given base. If the string contains any
-// non-numeric characters, except '-' at the start, or if it's empty,
+// non-numeric characters, except '-' or '+' at the start, or if it's empty,
 // [[strconv::invalid]] is returned. If the number is too large to be represented
 // by an int, [[strconv::overflow]] is returned.
 export fn stoib(s: str, base: uint) (int | invalid | overflow) = {

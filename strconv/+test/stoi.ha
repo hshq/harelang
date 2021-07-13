@@ -8,6 +8,7 @@
 
 	assert(stoi64("0") as i64 == 0);
 	assert(stoi64("1") as i64 == 1);
+	assert(stoi64("+1") as i64 == 1);
 	assert(stoi64("-1") as i64 == -1);
 	assert(stoi64("9223372036854775807") as i64 == 9223372036854775807);
 	assert(stoi64("-9223372036854775808") as i64 == -9223372036854775808);
