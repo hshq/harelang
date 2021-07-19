@@ -244,6 +244,12 @@ dirs() {
 	gen_ssa dirs fs os path
 }
 
+encoding_base64() {
+	gen_srcs encoding::base64 \
+		base64.ha
+	gen_ssa encoding::base64 bufio bytes io strio strings
+}
+
 encoding_hex() {
 	gen_srcs encoding::hex \
 		hex.ha
@@ -827,6 +833,7 @@ crypto::sha1
 crypto::sha256
 crypto::sha512
 dirs
+encoding::base64
 encoding::hex
 encoding::utf8
 endian

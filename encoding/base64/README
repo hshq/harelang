@@ -1,0 +1,5 @@
+Implementation of the base 64 encoding as per RFC 4648. This implementation
+does not support invalid padding due to security concerns described in the
+RFC.
+
+https://datatracker.ietf.org/doc/html/rfc4648#section-12

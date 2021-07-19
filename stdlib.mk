@@ -129,6 +129,10 @@ hare_stdlib_deps+=$(stdlib_crypto_sha512)
 stdlib_dirs=$(HARECACHE)/dirs/dirs.o
 hare_stdlib_deps+=$(stdlib_dirs)
 
+# gen_lib encoding::base64
+stdlib_encoding_base64=$(HARECACHE)/encoding/base64/encoding_base64.o
+hare_stdlib_deps+=$(stdlib_encoding_base64)
+
 # gen_lib encoding::hex
 stdlib_encoding_hex=$(HARECACHE)/encoding/hex/encoding_hex.o
 hare_stdlib_deps+=$(stdlib_encoding_hex)
@@ -488,6 +492,16 @@ $(HARECACHE)/dirs/dirs.ssa: $(stdlib_dirs_srcs) $(stdlib_rt) $(stdlib_fs) $(stdl
 	@mkdir -p $(HARECACHE)/dirs
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ndirs \
 		-t$(HARECACHE)/dirs/dirs.td $(stdlib_dirs_srcs)
+
+# encoding::base64
+stdlib_encoding_base64_srcs= \
+	$(STDLIB)/encoding/base64/base64.ha
+
+$(HARECACHE)/encoding/base64/encoding_base64.ssa: $(stdlib_encoding_base64_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_bytes) $(stdlib_io) $(stdlib_strio) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/encoding/base64
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::base64 \
+		-t$(HARECACHE)/encoding/base64/encoding_base64.td $(stdlib_encoding_base64_srcs)
 
 # encoding::hex
 stdlib_encoding_hex_srcs= \
@@ -1297,6 +1311,10 @@ hare_testlib_deps+=$(testlib_crypto_sha512)
 testlib_dirs=$(TESTCACHE)/dirs/dirs.o
 hare_testlib_deps+=$(testlib_dirs)
 
+# gen_lib encoding::base64
+testlib_encoding_base64=$(TESTCACHE)/encoding/base64/encoding_base64.o
+hare_testlib_deps+=$(testlib_encoding_base64)
+
 # gen_lib encoding::hex
 testlib_encoding_hex=$(TESTCACHE)/encoding/hex/encoding_hex.o
 hare_testlib_deps+=$(testlib_encoding_hex)
@@ -1663,6 +1681,16 @@ $(TESTCACHE)/dirs/dirs.ssa: $(testlib_dirs_srcs) $(testlib_rt) $(testlib_fs) $(t
 	@mkdir -p $(TESTCACHE)/dirs
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndirs \
 		-t$(TESTCACHE)/dirs/dirs.td $(testlib_dirs_srcs)
+
+# encoding::base64
+testlib_encoding_base64_srcs= \
+	$(STDLIB)/encoding/base64/base64.ha
+
+$(TESTCACHE)/encoding/base64/encoding_base64.ssa: $(testlib_encoding_base64_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_bytes) $(testlib_io) $(testlib_strio) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/encoding/base64
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::base64 \
+		-t$(TESTCACHE)/encoding/base64/encoding_base64.td $(testlib_encoding_base64_srcs)
 
 # encoding::hex
 testlib_encoding_hex_srcs= \
