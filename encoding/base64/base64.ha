@@ -33,7 +33,8 @@ export def PADDING: u8 = '=': u32: u8;
 
 // Indicates that invalid input was found while decoding, either in the form of
 // characters outside of the base 64 alphabet, insufficient padding, or trailing
-// characters. Contains the index of the first invalid character.
+// characters. Contains the index of the first invalid character which may be
+// outside of the bounds of the provided input if more input was expected.
 export type invalid = !size;
 
 // Encodes a byte slice using a base 64 encoding alphabet, with padding, and
@@ -208,9 +209,7 @@ export fn urldecode(
 ) (size | invalid | io::error) = decode(urlsafe, in, out);
 
 // Decodes base 64-encoded data in the given base 64 alphabet, with padding,
-// from an [[io::stream]]. Every four input bytes are guaranteed to either be
-// decoded into the user-provided buffer or return [[invalid]]. The number of
-// bytes written is returned.
+// from an [[io::stream]]. The number of bytes written is returned.
 export fn decode_static(
 	alphabet: []u8,
 	out: []u8,
@@ -249,9 +248,7 @@ export fn stddecodestr(in: str) ([]u8 | invalid) = decodestr(standard, in);
 export fn urldecodestr(in: str) ([]u8 | invalid) = decodestr(urlsafe, in);
 
 // Decodes a string of base 64-encoded data in the given base 64 encoding
-// alphabet, with padding. Every four input bytes are guaranteed to either be
-// decoded into the user-provided buffer or return [[invalid]]. The number of
-// bytes written is returned.
+// alphabet, with padding. The number of bytes written is returned.
 export fn decodestr_static(
 	alphabet: []u8,
 	out: []u8,
@@ -291,9 +288,7 @@ export fn stddecodeslice(in: []u8) ([]u8 | invalid) = decodeslice(standard, in);
 export fn urldecodeslice(in: []u8) ([]u8 | invalid) = decodeslice(urlsafe, in);
 
 // Decodes a byte slice of base 64-encoded data in the given base 64 encoding
-// alphabet, with padding. Every four input bytes are guaranteed to either be
-// decoded into the user-provided buffer or return [[invalid]]. The number of
-// bytes written is returned.
+// alphabet, with padding. The number of bytes written is returned.
 export fn decodeslice_static(
 	alphabet: []u8,
 	out: []u8,
