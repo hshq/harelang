@@ -1026,7 +1026,8 @@ stdlib_strconv_srcs= \
 	$(STDLIB)/strconv/stoi.ha \
 	$(STDLIB)/strconv/numeric.ha \
 	$(STDLIB)/strconv/ftos.ha \
-	$(STDLIB)/strconv/stof.ha
+	$(STDLIB)/strconv/stof.ha \
+	$(STDLIB)/strconv/stof_data.ha
 
 $(HARECACHE)/strconv/strconv.ssa: $(stdlib_strconv_srcs) $(stdlib_rt) $(stdlib_types) $(stdlib_strings) $(stdlib_ascii) $(stdlib_math)
 	@printf 'HAREC \t$@\n'
@@ -2231,6 +2232,7 @@ testlib_strconv_srcs= \
 	$(STDLIB)/strconv/numeric.ha \
 	$(STDLIB)/strconv/ftos.ha \
 	$(STDLIB)/strconv/stof.ha \
+	$(STDLIB)/strconv/stof_data.ha \
 	$(STDLIB)/strconv/+test/stou.ha \
 	$(STDLIB)/strconv/+test/stoi.ha
 

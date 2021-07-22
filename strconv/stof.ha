@@ -1,12 +1,18 @@
+// Using the Eisel-Lemire algorithm [1] for fast parsing of floating-point
+// numbers, with Simple Decimal Conversion algorithm [2] as fallback.
+// [1]: https://nigeltao.github.io/blog/2020/eisel-lemire.html
+// [2]: https://nigeltao.github.io/blog/2020/parse-number-f64-simple.html
+
 use ascii;
-use bytes;
+use math;
 use strings;
 
-const maxshift: u8 = 60, decimal_point_range: u16 = 2047;
+const maxshift: u8 = 60;
+const decimal_point_range: u16 = 2047;
 
 type decimal = struct {
 	num_digits: size,
-	decimal_point: int,
+	decimal_point: i32,
 	negative: bool,
 	truncated: bool,
 	digits: [800]u8,
@@ -18,88 +24,6 @@ fn trim(d: *decimal) void = {
 		d.num_digits -= 1;
 	};
 };
-
-fn assign(d: *decimal, x: u64, negative: bool) void = {
-	let sb = strings::toutf8(strconv::u64tos(x));
-	let n = len(sb);
-	for (let i = 0z; i < len(sb); i += 1) {
-		sb[i] -= '0': u32: u8;
-	};
-	bytes::copy(d.digits[..n], sb[..n]);
-	d.num_digits = n;
-	d.negative = negative;
-	d.truncated = false;
-	trim(d);
-};
-
-const left_shift_table: [65]u16 = [
-	0x0000, 0x0800, 0x0801, 0x0803, 0x1006, 0x1009, 0x100D, 0x1812, 0x1817,
-	0x181D, 0x2024, 0x202B, 0x2033, 0x203C, 0x2846, 0x2850, 0x285B, 0x3067,
-	0x3073, 0x3080, 0x388E, 0x389C, 0x38AB, 0x38BB, 0x40CC, 0x40DD, 0x40EF,
-	0x4902, 0x4915, 0x4929, 0x513E, 0x5153, 0x5169, 0x5180, 0x5998, 0x59B0,
-	0x59C9, 0x61E3, 0x61FD, 0x6218, 0x6A34, 0x6A50, 0x6A6D, 0x6A8B, 0x72AA,
-	0x72C9, 0x72E9, 0x7B0A, 0x7B2B, 0x7B4D, 0x8370, 0x8393, 0x83B7, 0x83DC,
-	0x8C02, 0x8C28, 0x8C4F, 0x9477, 0x949F, 0x94C8, 0x9CF2, 0x051C, 0x051C,
-	0x051C, 0x051C,
-];
-
-const pow5_table: [0x051C]u8 = [
-	5, 2, 5, 1, 2, 5, 6, 2, 5, 3, 1, 2, 5, 1, 5, 6, 2, 5, 7, 8, 1, 2, 5, 3,
-	9, 0, 6, 2, 5, 1, 9, 5, 3, 1, 2, 5, 9, 7, 6, 5, 6, 2, 5, 4, 8, 8, 2, 8,
-	1, 2, 5, 2, 4, 4, 1, 4, 0, 6, 2, 5, 1, 2, 2, 0, 7, 0, 3, 1, 2, 5, 6, 1,
-	0, 3, 5, 1, 5, 6, 2, 5, 3, 0, 5, 1, 7, 5, 7, 8, 1, 2, 5, 1, 5, 2, 5, 8,
-	7, 8, 9, 0, 6, 2, 5, 7, 6, 2, 9, 3, 9, 4, 5, 3, 1, 2, 5, 3, 8, 1, 4, 6,
-	9, 7, 2, 6, 5, 6, 2, 5, 1, 9, 0, 7, 3, 4, 8, 6, 3, 2, 8, 1, 2, 5, 9, 5,
-	3, 6, 7, 4, 3, 1, 6, 4, 0, 6, 2, 5, 4, 7, 6, 8, 3, 7, 1, 5, 8, 2, 0, 3,
-	1, 2, 5, 2, 3, 8, 4, 1, 8, 5, 7, 9, 1, 0, 1, 5, 6, 2, 5, 1, 1, 9, 2, 0,
-	9, 2, 8, 9, 5, 5, 0, 7, 8, 1, 2, 5, 5, 9, 6, 0, 4, 6, 4, 4, 7, 7, 5, 3,
-	9, 0, 6, 2, 5, 2, 9, 8, 0, 2, 3, 2, 2, 3, 8, 7, 6, 9, 5, 3, 1, 2, 5, 1,
-	4, 9, 0, 1, 1, 6, 1, 1, 9, 3, 8, 4, 7, 6, 5, 6, 2, 5, 7, 4, 5, 0, 5, 8,
-	0, 5, 9, 6, 9, 2, 3, 8, 2, 8, 1, 2, 5, 3, 7, 2, 5, 2, 9, 0, 2, 9, 8, 4,
-	6, 1, 9, 1, 4, 0, 6, 2, 5, 1, 8, 6, 2, 6, 4, 5, 1, 4, 9, 2, 3, 0, 9, 5,
-	7, 0, 3, 1, 2, 5, 9, 3, 1, 3, 2, 2, 5, 7, 4, 6, 1, 5, 4, 7, 8, 5, 1, 5,
-	6, 2, 5, 4, 6, 5, 6, 6, 1, 2, 8, 7, 3, 0, 7, 7, 3, 9, 2, 5, 7, 8, 1, 2,
-	5, 2, 3, 2, 8, 3, 0, 6, 4, 3, 6, 5, 3, 8, 6, 9, 6, 2, 8, 9, 0, 6, 2, 5,
-	1, 1, 6, 4, 1, 5, 3, 2, 1, 8, 2, 6, 9, 3, 4, 8, 1, 4, 4, 5, 3, 1, 2, 5,
-	5, 8, 2, 0, 7, 6, 6, 0, 9, 1, 3, 4, 6, 7, 4, 0, 7, 2, 2, 6, 5, 6, 2, 5,
-	2, 9, 1, 0, 3, 8, 3, 0, 4, 5, 6, 7, 3, 3, 7, 0, 3, 6, 1, 3, 2, 8, 1, 2,
-	5, 1, 4, 5, 5, 1, 9, 1, 5, 2, 2, 8, 3, 6, 6, 8, 5, 1, 8, 0, 6, 6, 4, 0,
-	6, 2, 5, 7, 2, 7, 5, 9, 5, 7, 6, 1, 4, 1, 8, 3, 4, 2, 5, 9, 0, 3, 3, 2,
-	0, 3, 1, 2, 5, 3, 6, 3, 7, 9, 7, 8, 8, 0, 7, 0, 9, 1, 7, 1, 2, 9, 5, 1,
-	6, 6, 0, 1, 5, 6, 2, 5, 1, 8, 1, 8, 9, 8, 9, 4, 0, 3, 5, 4, 5, 8, 5, 6,
-	4, 7, 5, 8, 3, 0, 0, 7, 8, 1, 2, 5, 9, 0, 9, 4, 9, 4, 7, 0, 1, 7, 7, 2,
-	9, 2, 8, 2, 3, 7, 9, 1, 5, 0, 3, 9, 0, 6, 2, 5, 4, 5, 4, 7, 4, 7, 3, 5,
-	0, 8, 8, 6, 4, 6, 4, 1, 1, 8, 9, 5, 7, 5, 1, 9, 5, 3, 1, 2, 5, 2, 2, 7,
-	3, 7, 3, 6, 7, 5, 4, 4, 3, 2, 3, 2, 0, 5, 9, 4, 7, 8, 7, 5, 9, 7, 6, 5,
-	6, 2, 5, 1, 1, 3, 6, 8, 6, 8, 3, 7, 7, 2, 1, 6, 1, 6, 0, 2, 9, 7, 3, 9,
-	3, 7, 9, 8, 8, 2, 8, 1, 2, 5, 5, 6, 8, 4, 3, 4, 1, 8, 8, 6, 0, 8, 0, 8,
-	0, 1, 4, 8, 6, 9, 6, 8, 9, 9, 4, 1, 4, 0, 6, 2, 5, 2, 8, 4, 2, 1, 7, 0,
-	9, 4, 3, 0, 4, 0, 4, 0, 0, 7, 4, 3, 4, 8, 4, 4, 9, 7, 0, 7, 0, 3, 1, 2,
-	5, 1, 4, 2, 1, 0, 8, 5, 4, 7, 1, 5, 2, 0, 2, 0, 0, 3, 7, 1, 7, 4, 2, 2,
-	4, 8, 5, 3, 5, 1, 5, 6, 2, 5, 7, 1, 0, 5, 4, 2, 7, 3, 5, 7, 6, 0, 1, 0,
-	0, 1, 8, 5, 8, 7, 1, 1, 2, 4, 2, 6, 7, 5, 7, 8, 1, 2, 5, 3, 5, 5, 2, 7,
-	1, 3, 6, 7, 8, 8, 0, 0, 5, 0, 0, 9, 2, 9, 3, 5, 5, 6, 2, 1, 3, 3, 7, 8,
-	9, 0, 6, 2, 5, 1, 7, 7, 6, 3, 5, 6, 8, 3, 9, 4, 0, 0, 2, 5, 0, 4, 6, 4,
-	6, 7, 7, 8, 1, 0, 6, 6, 8, 9, 4, 5, 3, 1, 2, 5, 8, 8, 8, 1, 7, 8, 4, 1,
-	9, 7, 0, 0, 1, 2, 5, 2, 3, 2, 3, 3, 8, 9, 0, 5, 3, 3, 4, 4, 7, 2, 6, 5,
-	6, 2, 5, 4, 4, 4, 0, 8, 9, 2, 0, 9, 8, 5, 0, 0, 6, 2, 6, 1, 6, 1, 6, 9,
-	4, 5, 2, 6, 6, 7, 2, 3, 6, 3, 2, 8, 1, 2, 5, 2, 2, 2, 0, 4, 4, 6, 0, 4,
-	9, 2, 5, 0, 3, 1, 3, 0, 8, 0, 8, 4, 7, 2, 6, 3, 3, 3, 6, 1, 8, 1, 6, 4,
-	0, 6, 2, 5, 1, 1, 1, 0, 2, 2, 3, 0, 2, 4, 6, 2, 5, 1, 5, 6, 5, 4, 0, 4,
-	2, 3, 6, 3, 1, 6, 6, 8, 0, 9, 0, 8, 2, 0, 3, 1, 2, 5, 5, 5, 5, 1, 1, 1,
-	5, 1, 2, 3, 1, 2, 5, 7, 8, 2, 7, 0, 2, 1, 1, 8, 1, 5, 8, 3, 4, 0, 4, 5,
-	4, 1, 0, 1, 5, 6, 2, 5, 2, 7, 7, 5, 5, 5, 7, 5, 6, 1, 5, 6, 2, 8, 9, 1,
-	3, 5, 1, 0, 5, 9, 0, 7, 9, 1, 7, 0, 2, 2, 7, 0, 5, 0, 7, 8, 1, 2, 5, 1,
-	3, 8, 7, 7, 7, 8, 7, 8, 0, 7, 8, 1, 4, 4, 5, 6, 7, 5, 5, 2, 9, 5, 3, 9,
-	5, 8, 5, 1, 1, 3, 5, 2, 5, 3, 9, 0, 6, 2, 5, 6, 9, 3, 8, 8, 9, 3, 9, 0,
-	3, 9, 0, 7, 2, 2, 8, 3, 7, 7, 6, 4, 7, 6, 9, 7, 9, 2, 5, 5, 6, 7, 6, 2,
-	6, 9, 5, 3, 1, 2, 5, 3, 4, 6, 9, 4, 4, 6, 9, 5, 1, 9, 5, 3, 6, 1, 4, 1,
-	8, 8, 8, 2, 3, 8, 4, 8, 9, 6, 2, 7, 8, 3, 8, 1, 3, 4, 7, 6, 5, 6, 2, 5,
-	1, 7, 3, 4, 7, 2, 3, 4, 7, 5, 9, 7, 6, 8, 0, 7, 0, 9, 4, 4, 1, 1, 9, 2,
-	4, 4, 8, 1, 3, 9, 1, 9, 0, 6, 7, 3, 8, 2, 8, 1, 2, 5, 8, 6, 7, 3, 6, 1,
-	7, 3, 7, 9, 8, 8, 4, 0, 3, 5, 4, 7, 2, 0, 5, 9, 6, 2, 2, 4, 0, 6, 9, 5,
-	9, 5, 3, 3, 6, 9, 1, 4, 0, 6, 2, 5,
-];
 
 fn leftshift_newdigits(d: *decimal, shift: u32) u32 = {
 	shift &= 63;
@@ -123,7 +47,7 @@ fn leftshift_newdigits(d: *decimal, shift: u32) u32 = {
 	return nn;
 };
 
-fn leftshift(d: *decimal, k: uint) void = {
+fn leftshift(d: *decimal, k: u32) void = {
 	assert(k <= maxshift);
 	if (d.num_digits == 0) return;
 	let nn = leftshift_newdigits(d, k);
@@ -155,11 +79,11 @@ fn leftshift(d: *decimal, k: uint) void = {
 	if (d.num_digits > len(d.digits)) {
 		d.num_digits = len(d.digits);
 	};
-	d.decimal_point += nn: int;
+	d.decimal_point += nn: i32;
 	trim(d);
 };
 
-fn rightshift(d: *decimal, k: uint) void = {
+fn rightshift(d: *decimal, k: u32) void = {
 	let r = 0z, w = 0z, n = 0u64;
 	for (n >> k == 0; r += 1) {
 		if (r >= d.num_digits) {
@@ -174,7 +98,11 @@ fn rightshift(d: *decimal, k: uint) void = {
 		};
 		n = n * 10 + d.digits[r];
 	};
-	d.decimal_point -= r: int - 1;
+	d.decimal_point -= r: i32 - 1;
+	if (d.decimal_point < -(decimal_point_range: i32)) {
+		*d = decimal { ... };
+		return;
+	};
 	const mask = (1u64 << k) - 1;
 	for (r < d.num_digits; r += 1) {
 		const dig = n >> k;
@@ -203,15 +131,15 @@ fn decimal_shift(d: *decimal, k: int) void = {
 	if (k > 0) {
 		for (k > maxshift: int) {
 			leftshift(d, maxshift);
-			k -= maxshift: int;
+			k -= maxshift: i32;
 		};
-		leftshift(d, k: uint);
+		leftshift(d, k: u32);
 	} else if (k < 0) {
 		for (k < -(maxshift: int)) {
 			rightshift(d, maxshift);
-			k += maxshift: int;
+			k += maxshift: i32;
 		};
-		rightshift(d, (-k): uint);
+		rightshift(d, (-k): u32);
 	};
 };
 
@@ -222,8 +150,34 @@ fn should_round_up(d: *decimal, nd: uint) bool = if (nd < d.num_digits) {
 	} else return d.digits[nd] >= 5;
 } else false;
 
+fn round(d: *decimal, nd: uint) void = {
+	if (nd >= d.num_digits) return;
+	if (should_round_up(d, nd)) roundup(d, nd)
+	else rounddown(d, nd);
+};
+
+fn rounddown(d: *decimal, nd: uint) void = {
+	if (nd >= d.num_digits) return;
+	d.num_digits = nd;
+	trim(d);
+};
+
+fn roundup(d: *decimal, nd: uint) void = {
+	if (nd >= d.num_digits) return;
+	for (let i = nd: int - 1; i >= 0; i -= 1) {
+		if (d.digits[i] < 9) {
+			d.digits[i] += 1;
+			d.num_digits = i: size + 1;
+			return;
+		};
+	};
+	d.digits[0] = 1;
+	d.num_digits = 1;
+	d.decimal_point += 1;
+};
+
 fn decimal_round(d: *decimal) u64 = {
-	if (d.num_digits == 0 && d.decimal_point < 0) return 0;
+	if (d.num_digits == 0 || d.decimal_point < 0) return 0;
 	if (d.decimal_point > 18) return ~0u64;
 	let i = 0z, n: u64 = 0;
 	for (i < d.decimal_point: uint && i < d.num_digits; i += 1) {
@@ -238,18 +192,96 @@ fn decimal_round(d: *decimal) u64 = {
 	return n;
 };
 
-fn parse(s: str) (decimal | invalid) = {
+type fast_parsed_float = struct {
+	mantissa: u64,
+	exponent: i32,
+	negative: bool,
+	truncated: bool,
+};
+
+fn fast_parse(s: str) (fast_parsed_float | void | invalid) = {
+	if (len(s) == 0 || len(s) > 256) {
+		return;
+	};
+	let buf = strings::toutf8(s);
+	let i = 0z, neg = false, trunc = false;
+	if (buf[i] == '-': u32: u8) {
+		neg = true;
+		i += 1;
+	} else if (buf[i] == '+': u32: u8) {
+		i += 1;
+	};
+	let sawdot = false, sawdigits = false;
+	let nd = 0, ndmant = 0, dp = 0;
+	let mant = 0u64, exp = 0i32;
+	for (i < len(s); i += 1) {
+		if (buf[i] == '.': u32: u8) {
+			if (sawdot) return i: invalid;
+			sawdot = true;
+			dp = nd;
+		} else if (ascii::isdigit(buf[i]: u32: rune)) {
+			sawdigits = true;
+			if (buf[i] == '0': u32: u8 && nd == 0) {
+				dp -= 1;
+				continue;
+			};
+			nd += 1;
+			if (ndmant < 19) {
+				mant = mant * 10 + buf[i] - '0': u32: u8;
+				ndmant += 1;
+			} else if (buf[i] != '0': u32: u8) {
+				trunc = true;
+			};
+		} else break;
+	};
+	if (!sawdigits) return i: invalid;
+	if (!sawdot) {
+		dp = nd;
+	};
+	if (i < len(s) && (buf[i] == 'e': u32: u8 || buf[i] == 'E': u32: u8)) {
+		i += 1;
+		if (i >= len(s)) return i: invalid;
+		let expsign: int = 1;
+		if (buf[i] == '+': u32: u8) {
+			i += 1;
+		} else if (buf[i] == '-': u32: u8) {
+			expsign = -1;
+			i += 1;
+		};
+		if (i >= len(s) || !ascii::isdigit(buf[i]: u32: rune))
+			return i: invalid;
+		let e: int = 0;
+		for (i < len(s) && ascii::isdigit(buf[i]: u32: rune); i += 1) {
+			if (e < 10000) {
+				e = e * 10 + buf[i]: int - '0': u32: int;
+			};
+		};
+		dp += e * expsign;
+	};
+	if (i != len(s)) return i: invalid;
+	if (mant != 0) {
+		exp = dp - ndmant;
+	};
+	return fast_parsed_float {
+		mantissa = mant,
+		exponent = exp,
+		negative = neg,
+		truncated = trunc,
+	};
+};
+
+fn decimal_parse(d: *decimal, s: str) (void | invalid) = {
 	let i = 0z;
-	let d = decimal { ... };
 	if (len(s) == 0) return 0: invalid;
 	const buf = strings::toutf8(s);
-	d.negative = if (buf[0] == '+': u32: u8) {
+	d.negative = false;
+	d.truncated = false;
+	if (buf[0] == '+': u32: u8) {
 		i += 1;
-		false;
 	} else if (buf[0] == '-': u32: u8) {
+		d.negative = true;
 		i += 1;
-		true;
-	} else false;
+	};
 	let sawdot = false, sawdigits = false;
 	let nd: u32 = 0, dp: i32 = 0;
 	for (i < len(s); i += 1) {
@@ -278,14 +310,15 @@ fn parse(s: str) (decimal | invalid) = {
 	if (i < len(s) && (buf[i] == 'e': u32: u8 || buf[i] == 'E': u32: u8)) {
 		i += 1;
 		if (i >= len(s)) return i: invalid;
-		const expsign: int = if (buf[i] == '+': u32: u8) {
+		let expsign: int = 1;
+		if (buf[i] == '+': u32: u8) {
 			i += 1;
-			1;
 		} else if (buf[i] == '-': u32: u8) {
+			expsign = -1;
 			i += 1;
-			-1;
-		} else 1;
-		if (i >= len(s) || !ascii::isdigit(buf[i]: u32: rune)) return i: invalid;
+		};
+		if (i >= len(s) || !ascii::isdigit(buf[i]: u32: rune))
+			return i: invalid;
 		let e: int = 0;
 		for (i < len(s) && ascii::isdigit(buf[i]: u32: rune); i += 1) {
 			if (e < 10000) {
@@ -295,80 +328,259 @@ fn parse(s: str) (decimal | invalid) = {
 		d.decimal_point += e * expsign;
 	};
 	if (i != len(s)) return i: invalid;
-	return d;
 };
 
-const powtab: [19]i8 = [
-	1, 3, 6, 9, 13, 16, 19, 23, 26, 29, 33, 36, 39, 43, 46, 49, 53, 56, 59,
-];
-
-fn floatbits(d: decimal, mbits: u8, ebits: u8, ebias: i16) (u64 | overflow) = {
-	let e: int = 0, m: u64 = 0, z = 1u64 << (mbits + ebits);
-	if (d.num_digits == 0 || d.decimal_point < -326) {
-		return if (d.negative) z else 0;
+fn leading_zeroes(n: u64) uint = {
+	assert(n > 0);
+	let b = 0u;
+	if ((n & 0b1111111111111111111111111111111100000000000000000000000000000000u64) > 0) {
+		n >>= 32;
+		b |= 32;
 	};
-	if (d.decimal_point > 310) {
+	if ((n & 0b11111111111111110000000000000000u64) > 0) {
+		n >>= 16;
+		b |= 16;
+	};
+	if ((n & 0b1111111100000000u64) > 0) {
+		n >>= 8;
+		b |= 8;
+	};
+	if ((n & 0b11110000) > 0) {
+		n >>= 4;
+		b |= 4;
+	};
+	if ((n & 0b1100) > 0) {
+		n >>= 2;
+		b |= 2;
+	};
+	if ((n & 0b10) > 0) {
+		n >>= 1;
+		b |= 1;
+	};
+	return 63 - b;
+};
+
+fn eisel_lemire(
+	mantissa: u64,
+	exp10: i32,
+	neg: bool,
+	f: *math::floatinfo
+) (u64 | void) = {
+	if (mantissa == 0 || exp10 > 288 || exp10 < -307) return;
+	const po10 = powers_of_ten[exp10 + 307];
+	const clz = leading_zeroes(mantissa);
+	mantissa <<= clz;
+	let shift = 64 - f.mantbits - 3, mask = (1 << shift) - 1;
+	// log(10) / log(2) ≈ 217706 / 65536;  x / 65536 = x >> 16
+	let exp = (217706 * exp10) >> 16;
+	let e2 = (exp + f.expbias: i32 + 64): u64 - clz: u64;
+	let x = u128mul(mantissa, po10[1]);
+	if ((x.hi & mask) == mask && ((x.lo + mantissa) < mantissa)) {
+		const y = u128mul(mantissa, po10[0]);
+		let merged = r128 { hi = x.hi, lo = x.lo + y.hi };
+		if (merged.lo < x.lo) {
+			merged.hi += 1;
+		};
+		if (((merged.hi & mask) == mask) && ((merged.lo + 1) == 0) &&
+				(y.lo + mantissa < mantissa)) {
+			return;
+		};
+		x = merged;
+	};
+	let msb = x.hi >> 63, mant = x.hi >> (msb + shift);
+	e2 -= 1 ^ msb;
+	if (x.lo == 0 && (x.hi & mask == 0) && (mant & 3 == 1)) {
+		return;
+	};
+	mant += mant & 1;
+	mant >>= 1;
+	if ((mant >> (f.mantbits + 1)) > 0) {
+		mant >>= 1;
+		e2 += 1;
+	};
+	if (e2 <= 0 || e2 >= (1 << f.expbits) - 1) {
+		return;
+	};
+	return mkfloat(mant, e2: uint, neg, f);
+};
+
+fn floatbits(d: *decimal, f: *math::floatinfo) (u64 | overflow) = {
+	let e: int = 0, m: u64 = 0;
+	const powtab: [19]i8 = [
+		0, 3, 6, 9, 13, 16, 19, 23, 26, 29,
+		33, 36, 39, 43, 46, 49, 53, 56, 59,
+	];
+	if (d.num_digits == 0 || d.decimal_point < -326) {
+		return if (d.negative) mkfloat(0, 0, d.negative, f)
+			else 0;
+	} else if (d.decimal_point > 310) {
 		return overflow;
+	};
+	if (d.num_digits <= 19) {
+		let mant = 0u64;
+		for (let i = 0z; i < d.num_digits; i += 1) {
+			mant = (10 * mant) + d.digits[i];
+		};
+		const exp10 = d.decimal_point - d.num_digits: i32;
+		const r = eisel_lemire(mant, exp10, d.negative, f);
+		if (r is u64) {
+			return r: u64;
+		};
 	};
 	for (d.decimal_point > 0) {
 		const n: int = if (d.decimal_point: uint >= len(powtab))
 			maxshift: int
 			else powtab[d.decimal_point];
-		decimal_shift(&d, -n);
+		decimal_shift(d, -n);
 		e += n;
 	};
 	for (d.decimal_point <= 0) {
 		const n: int = if (d.decimal_point == 0) {
 			if (d.digits[0] >= 5) break; 
 			if (d.digits[0] < 2) 2 else 1;
-		} else if (-d.decimal_point >= len(powtab): int)
+		} else if (-d.decimal_point >= len(powtab): i32)
 			maxshift: int
 		else powtab[-d.decimal_point];
-		decimal_shift(&d, n);
+		decimal_shift(d, n);
 		e -= n;
 	};
 	e -= 1;
-	if (e < -ebias + 1) {
-		const n = -ebias - e + 1;
-		decimal_shift(&d, -n);
+	if (e <= -f.expbias + 1) {
+		const n = -f.expbias - e + 1;
+		decimal_shift(d, -n);
 		e += n;
 	};
-	if (e + ebias >= (1 << ebits: int) - 1) {
+	if (e + f.expbias >= (1 << f.expbits: int) - 1) {
 		return overflow;
 	};
-	decimal_shift(&d, mbits: int + 1);
-	m = decimal_round(&d);
-	if (m == 2 << mbits) {
+	decimal_shift(d, f.mantbits: int + 1);
+	m = decimal_round(d);
+	if (m == 2 << f.mantbits) {
 		m >>= 1;
 		e += 1;
-		if (e + ebias >= (1 << ebits: int) - 1) {
+		if (e + f.expbias >= (1 << f.expbits: int) - 1) {
 			return overflow;
 		};
 	};
-	if (m & (1u64 << mbits) == 0) {
-		e = -ebias;
+	if (m & (1 << f.mantbits) == 0) {
+		e = -f.expbias;
 	};
-	return mkf(m, (e + ebias): uint, mbits, ebits, d.negative);
+	return mkfloat(m, (e + f.expbias): uint, d.negative, f);
 };
 
-fn mkf(m: u64, e: uint, mbits: u8, ebits: u8, negative: bool) u64 = {
-	let n: u64 = m & ((1u64 << mbits) - 1);
-	n |= (e & ((1u64 << ebits) - 1)) << mbits;
+fn mkfloat(m: u64, e: uint, negative: bool, f: *math::floatinfo) u64 = {
+	let n: u64 = m & ((1 << f.mantbits) - 1);
+	n |= (e & ((1 << f.expbits) - 1)) << f.mantbits;
 	if (negative) {
-		n |= 1u64 << (mbits + ebits);
+		n |= 1 << (f.mantbits + f.expbits);
 	};
+	return n;
+};
+
+const f64pow10: [_]f64 = [
+	1.0e0, 1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5, 1.0e6, 1.0e7, 1.0e8, 1.0e9,
+	1.0e10, 1.0e11, 1.0e12, 1.0e13, 1.0e14, 1.0e15, 1.0e16, 1.0e17, 1.0e18,
+	1.0e19, 1.0e20, 1.0e21, 1.0e22
+];
+
+fn stof64exact(mant: u64, exp: i32, neg: bool) (f64 | void) = {
+	if (mant >> math::F64_MANTISSA_BITS != 0) return;
+	let n = mant: i64: f64; // XXX: ARCH
+	if (neg) {
+		n = -n;
+	};
+	if (exp == 0) {
+		return n;
+	};
+	if (-22 <= exp && exp <= 22) {
+		if (exp >= 0) {
+			n *= f64pow10[exp];
+		} else {
+			n /= f64pow10[-exp];
+		};
+	} else return;
+	return n;
+};
+
+const f32pow10: [_]f32 = [
+	1.0e0, 1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5, 1.0e6, 1.0e7, 1.0e8, 1.0e9, 1.0e10
+];
+
+fn stof32exact(mant: u32, exp: i32, neg: bool) (f32 | void) = {
+	if (mant >> math::F32_MANTISSA_BITS != 0) return;
+	let n = mant: i32: f32; // XXX: ARCH
+	if (neg) {
+		n = -n;
+	};
+	if (exp == 0) {
+		return n;
+	};
+	if (-10 <= exp && exp <= 10) {
+		if (exp >= 0) {
+			n *= f32pow10[exp];
+		} else {
+			n /= f64pow10[-exp];
+		};
+	} else return;
 	return n;
 };
 
 // Converts a string to a f64. If the string is not syntactically well-formed
 // floating-point number in base 10, [[strconv::invalid]] is returned. If the
 // string represents a floating-point number that is larger than the largest
-// finite f64 number, [[strconv::overflow]] is returned. Zero with is returned
-// if the string represents a floating-point number that is smaller than the f64
-// number nearest to zero with respective sign.
+// finite f64 number, [[strconv::overflow]] is returned. Zero is returned if the
+// string represents a floating-point number that is smaller than the f64 number
+// nearest to zero with respective sign.
 export fn stof64(s: str) (f64 | invalid | overflow) = {
-	const n = floatbits(parse(s)?, 52, 11, 1023)?;
-	return *(&n: *f64);
+	const p = fast_parse(s)?;
+	if (p is fast_parsed_float) {
+		const p = p: fast_parsed_float;
+		if (!p.truncated) {
+			let n = stof64exact(p.mantissa, p.exponent,
+				p.negative);
+			if (n is f64) {
+				return n: f64;
+			};
+			let n = eisel_lemire(p.mantissa, p.exponent,
+				p.negative, &math::f64info);
+			if (n is u64) {
+				return math::f64frombits(n: u64);
+			};
+		};
+	};
+	let d = decimal { ... };
+	decimal_parse(&d, s)?;
+	const n = floatbits(&d, &math::f64info)?;
+	return math::f64frombits(n);
+};
+
+// Converts a string to a f32. If the string is not syntactically well-formed
+// floating-point number in base 10, [[strconv::invalid]] is returned. If the
+// string represents a floating-point number that is larger than the largest
+// finite f64 number, [[strconv::overflow]] is returned. Zero is returned if the
+// string represents a floating-point number that is smaller than the f32 number
+// nearest to zero with respective sign.
+export fn stof32(s: str) (f32 | invalid | overflow) = {
+	const p = fast_parse(s)?;
+	if (p is fast_parsed_float) {
+		const p = p: fast_parsed_float;
+		if (!p.truncated) {
+			let n = stof32exact(p.mantissa: u32, p.exponent,
+				p.negative);
+			if (n is f32) {
+				return n: f32;
+			};
+			let n = eisel_lemire(p.mantissa, p.exponent,
+				p.negative, &math::f32info);
+			if (n is u64) {
+				return math::f32frombits(n: u64: u32);
+			};
+		};
+	};
+	let d = decimal { ... };
+	decimal_parse(&d, s)?;
+	const n = floatbits(&d, &math::f32info)?: u32;
+	return math::f32frombits(n);
 };
 
 @test fn stof64() void = {
@@ -379,11 +591,33 @@ export fn stof64(s: str) (f64 | invalid | overflow) = {
 	assert(stof64("3.14"): f64 == 3.14);
 	assert(stof64("2.99792458E+8"): f64 == 299792458.0);
 	assert(stof64("6.022e23"): f64 == 6.022e23);
+	assert(stof64("1e310") is overflow);
+	assert(stof64("9007199254740991"): f64 == 9007199254740991.0);
+	assert(stof64("90071992547409915"): f64 == 90071992547409920.0);
+	assert(stof64("90071992547409925"): f64 == 90071992547409920.0);
 	assert(stof64("2.2250738585072014e-308"): f64 == 2.2250738585072014e-308);
 	assert(stof64("-1e-324"): f64 == -0.0);
-	assert(stof64("1e309") is overflow);
+	assert(stof64("5e-324"): f64 == 5.0e-324);
 	assert(stof64(""): invalid: size == 0);
 	assert(stof64("0ZO"): invalid: size == 1);
 	assert(stof64("1.23ezz"): invalid: size == 5);
+};
+
+@test fn stof32() void = {
+	assert(stof32("0"): f32 == 0.0);
+	assert(stof32("1e10"): f32 == 1.0e10);
+	assert(stof32("299792458"): f32 == 299792458.0);
+	assert(stof32("6.022e23"): f32 == 6.022e23);
+	assert(stof32("1e40") is overflow);
+	assert(stof32("16777215"): f32 == 16777215.0);
+	assert(stof32("167772155"): f32 == 167772160.0);
+	assert(stof32("167772145"): f32 == 167772140.0);
+	assert(stof32("6.62607015e-34"): f32 == 6.62607015e-34);
+	assert(stof32("1.1754944e-38"): f32 == 1.1754944e-38);
+	assert(stof32("-1e-50"): f32 == -0.0);
+	assert(stof32("1e-45"): f32 == 1.0e-45);
+	assert(stof32(""): invalid: size == 0);
+	assert(stof32("0ZO"): invalid: size == 1);
+	assert(stof32("1.23e-zz"): invalid: size == 6);
 };
 

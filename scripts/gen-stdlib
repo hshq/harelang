@@ -680,6 +680,7 @@ gensrcs_strconv() {
 		numeric.ha \
 		ftos.ha \
 		stof.ha \
+        stof_data.ha \
 		$*
 }
 
