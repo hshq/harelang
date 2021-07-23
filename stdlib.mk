@@ -341,6 +341,10 @@ hare_stdlib_deps+=$(stdlib_unix_hosts)
 stdlib_unix_passwd=$(HARECACHE)/unix/passwd/unix_passwd.o
 hare_stdlib_deps+=$(stdlib_unix_passwd)
 
+# gen_lib unix::poll
+stdlib_unix_poll=$(HARECACHE)/unix/poll/unix_poll.o
+hare_stdlib_deps+=$(stdlib_unix_poll)
+
 # gen_lib unix::resolvconf
 stdlib_unix_resolvconf=$(HARECACHE)/unix/resolvconf/unix_resolvconf.o
 hare_stdlib_deps+=$(stdlib_unix_resolvconf)
@@ -1147,6 +1151,16 @@ $(HARECACHE)/unix/passwd/unix_passwd.ssa: $(stdlib_unix_passwd_srcs) $(stdlib_rt
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::passwd \
 		-t$(HARECACHE)/unix/passwd/unix_passwd.td $(stdlib_unix_passwd_srcs)
 
+# unix::poll
+stdlib_unix_poll_srcs= \
+	$(STDLIB)/unix/poll/$(PLATFORM).ha
+
+$(HARECACHE)/unix/poll/unix_poll.ssa: $(stdlib_unix_poll_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_errors) $(stdlib_time)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/poll
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::poll \
+		-t$(HARECACHE)/unix/poll/unix_poll.td $(stdlib_unix_poll_srcs)
+
 # unix::resolvconf
 stdlib_unix_resolvconf_srcs= \
 	$(STDLIB)/unix/resolvconf/load.ha
@@ -1523,6 +1537,10 @@ hare_testlib_deps+=$(testlib_unix_hosts)
 # gen_lib unix::passwd
 testlib_unix_passwd=$(TESTCACHE)/unix/passwd/unix_passwd.o
 hare_testlib_deps+=$(testlib_unix_passwd)
+
+# gen_lib unix::poll
+testlib_unix_poll=$(TESTCACHE)/unix/poll/unix_poll.o
+hare_testlib_deps+=$(testlib_unix_poll)
 
 # gen_lib unix::resolvconf
 testlib_unix_resolvconf=$(TESTCACHE)/unix/resolvconf/unix_resolvconf.o
@@ -2353,6 +2371,16 @@ $(TESTCACHE)/unix/passwd/unix_passwd.ssa: $(testlib_unix_passwd_srcs) $(testlib_
 	@mkdir -p $(TESTCACHE)/unix/passwd
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::passwd \
 		-t$(TESTCACHE)/unix/passwd/unix_passwd.td $(testlib_unix_passwd_srcs)
+
+# unix::poll
+testlib_unix_poll_srcs= \
+	$(STDLIB)/unix/poll/$(PLATFORM).ha
+
+$(TESTCACHE)/unix/poll/unix_poll.ssa: $(testlib_unix_poll_srcs) $(testlib_rt) $(testlib_rt) $(testlib_errors) $(testlib_time)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/poll
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \
+		-t$(TESTCACHE)/unix/poll/unix_poll.td $(testlib_unix_poll_srcs)
 
 # unix::resolvconf
 testlib_unix_resolvconf_srcs= \

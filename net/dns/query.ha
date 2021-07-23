@@ -1,8 +1,8 @@
 use errors;
 use net::ip;
 use net::udp;
-use rt;
 use time;
+use unix::poll;
 use unix::resolvconf;
 
 // TODO: Let user customize this?
@@ -13,9 +13,7 @@ def timeout: time::duration = 3 * time::SECOND;
 //
 // If no DNS servers are provided, the system default servers (if any) are used.
 export fn query(query: *message, servers: ip::addr...) (*message | error) = {
-	// TODO:
-	// - Swap rt::poll for unix::poll
-	// - Use TCP for messages >512 bytes
+	// TODO: Use TCP for messages >512 bytes
 	if (len(servers) == 0) {
 		servers = resolvconf::load();
 	};
@@ -31,15 +29,15 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 	defer udp::close(socket4);
 	const socket6 = udp::listen(ip::ANY_V6, 0)?;
 	defer udp::close(socket6);
-	const pollfd: [_]rt::pollfd = [
-		rt::pollfd {
+	const pollfd: [_]poll::pollfd = [
+		poll::pollfd {
 			fd = udp::sockfd(socket4),
-			events = rt::POLLIN,
+			events = poll::event::POLLIN,
 			...
 		},
-		rt::pollfd {
+		poll::pollfd {
 			fd = udp::sockfd(socket6),
-			events = rt::POLLIN,
+			events = poll::event::POLLIN,
 			...
 		},
 	];
@@ -61,19 +59,16 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 	let header = header { ... };
 	let recvbuf: [512]u8 = [0...];
 	for (true) {
-		let ts = rt::timespec { ... };
-		time::duration_to_timespec(timeout, &ts);
-		let nevent = rt::ppoll(&pollfd: *[*]rt::pollfd,
-			len(pollfd), &ts, null)!;
+		let nevent = poll::poll(pollfd, timeout)!;
 		if (nevent == 0) {
 			return errors::timeout;
 		};
 
 		let src: ip::addr = ip::ANY_V4;
-		if (pollfd[0].revents & rt::POLLIN == rt::POLLIN) {
+		if (pollfd[0].revents & poll::event::POLLIN != 0) {
 			z = udp::recvfrom(socket4, recvbuf, &src, null)?;
 		};
-		if (pollfd[1].revents & rt::POLLIN == rt::POLLIN) {
+		if (pollfd[1].revents & poll::event::POLLIN != 0) {
 			z = udp::recvfrom(socket6, recvbuf, &src, null)?;
 		};
 

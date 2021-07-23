@@ -33,8 +33,8 @@ export def PADDING: u8 = '=': u32: u8;
 
 // Indicates that invalid input was found while decoding, either in the form of
 // characters outside of the base 64 alphabet, insufficient padding, or trailing
-// characters. Contains the index of the first invalid character which may be
-// outside of the bounds of the provided input if more input was expected.
+// characters. Contains the index of the first invalid character, which may be
+// outside of the bounds of a truncated input.
 export type invalid = !size;
 
 // Encodes a byte slice using a base 64 encoding alphabet, with padding, and

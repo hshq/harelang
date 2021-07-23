@@ -798,6 +798,12 @@ unix_passwd() {
 	gen_ssa unix::passwd bufio io os strconv strings
 }
 
+unix_poll() {
+	gen_srcs unix::poll \
+		'$(PLATFORM)'.ha
+	gen_ssa unix::poll rt errors time
+}
+
 unix_resolvconf() {
 	gen_srcs unix::resolvconf \
         load.ha
@@ -887,6 +893,7 @@ unicode
 unix
 unix::hosts
 unix::passwd
+unix::poll
 unix::resolvconf
 unix::tty
 uuid"
