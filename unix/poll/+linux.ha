@@ -27,7 +27,7 @@ export def INDEF: time::duration = -1;
 // no events are available.
 export def NONBLOCK: time::duration = 0;
 
-// Polls for the desired events on a slice of [[pollfds]], blocking until an
+// Polls for the desired events on a slice of [[pollfd]]s, blocking until an
 // event is available, or the timeout expires. Set the timeout to [[INDEF]] to
 // block forever, or [[NONBLOCK]] to return immediately if no events are
 // available. Returns the number of [[pollfd]] items which have events, i.e.
