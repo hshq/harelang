@@ -344,7 +344,7 @@ fs_mem() {
 	else
 		gensrcs_fs_mem +test.ha
 	fi
-	gen_ssa fs::mem bufio errors fs hash hash::fnv io path strconv strings
+	gen_ssa fs::mem bufio errors fs hash hash::fnv io path strconv strings types
 }
 
 getopt() {
@@ -551,7 +551,7 @@ math() {
 	printf '# math\n'
 	gen_srcs math \
 		floats.ha
-	gen_ssa math
+	gen_ssa math types
 }
 
 net() {

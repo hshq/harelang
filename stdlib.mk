@@ -618,7 +618,7 @@ stdlib_fs_mem_srcs= \
 	$(STDLIB)/fs/mem/stream.ha \
 	$(STDLIB)/fs/mem/util.ha
 
-$(HARECACHE)/fs/mem/fs_mem.ssa: $(stdlib_fs_mem_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_errors) $(stdlib_fs) $(stdlib_hash) $(stdlib_hash_fnv) $(stdlib_io) $(stdlib_path) $(stdlib_strconv) $(stdlib_strings)
+$(HARECACHE)/fs/mem/fs_mem.ssa: $(stdlib_fs_mem_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_errors) $(stdlib_fs) $(stdlib_hash) $(stdlib_hash_fnv) $(stdlib_io) $(stdlib_path) $(stdlib_strconv) $(stdlib_strings) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/fs/mem
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfs::mem \
@@ -1824,7 +1824,7 @@ testlib_fs_mem_srcs= \
 	$(STDLIB)/fs/mem/util.ha \
 	$(STDLIB)/fs/mem/+test.ha
 
-$(TESTCACHE)/fs/mem/fs_mem.ssa: $(testlib_fs_mem_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_errors) $(testlib_fs) $(testlib_hash) $(testlib_hash_fnv) $(testlib_io) $(testlib_path) $(testlib_strconv) $(testlib_strings)
+$(TESTCACHE)/fs/mem/fs_mem.ssa: $(testlib_fs_mem_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_errors) $(testlib_fs) $(testlib_hash) $(testlib_hash_fnv) $(testlib_io) $(testlib_path) $(testlib_strconv) $(testlib_strings) $(testlib_types)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/fs/mem
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs::mem \
