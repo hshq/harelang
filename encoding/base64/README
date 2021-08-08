@@ -1,5 +1,19 @@
-Implementation of the base 64 encoding as per RFC 4648. This implementation
-does not support invalid padding due to security concerns described in the
-RFC.
+Implementation of the base 64 encoding as defined by RFC 4648.
+
+There are various functions available for decoding and encoding. The decode
+family accepts an [[io::stream]] as input, while the decodeslice and decodestr
+family of functions accept slices and strings as input, respectively.
+[[decode]] accepts an [[io::stream]] for the output, and [[decodeslice]] and
+[[decodestr]] dynamically allocate a slice or string to write the output to, and
+return it to the caller (who is then responsible for freeing it). The _static
+family of functions, such as [[decode_static]], accept a caller-allocated slice
+to write the output to. A similar set of functions is provided for encoding.
+
+Each function accepts the desired base64 alphabet as its first argument. You may
+provide your own alphabet, but [[standard]] and [[urlsafe]], as defined by the
+RFC, are provided for your convenience.
+
+Due to security concerns described by the RFC, this implementation rejects
+invalid padding.
 
 https://datatracker.ietf.org/doc/html/rfc4648#section-12

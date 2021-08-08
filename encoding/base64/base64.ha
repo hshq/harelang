@@ -74,18 +74,6 @@ export fn encode(
 	return z;
 };
 
-// Calls [[encode]] with the [[standard]] base 64 encoding alphabet.
-export fn stdencode(
-	sink: *io::stream,
-	b: []u8,
-) (size | io::error) = encode(standard, sink, b);
-
-// Calls [[encode]] with the [[urlsafe]] base 64 encoding alphabet.
-export fn urlencode(
-	sink: *io::stream,
-	b: []u8,
-) (size | io::error) = encode(urlsafe, sink, b);
-
 // Encodes a byte slice using a base 64 encoding alphabet, with padding, and
 // returns it. The caller must free the return value.
 export fn encodestr(alphabet: []u8, b: []u8) str = {
@@ -93,12 +81,6 @@ export fn encodestr(alphabet: []u8, b: []u8) str = {
 	encode(alphabet, sink, b) as size;
 	return strio::finish(sink);
 };
-
-// Calls [[encodestr]] with the [[standard]] base 64 encoding alphabet.
-export fn stdencodestr(b: []u8) str = encodestr(standard, b);
-
-// Calls [[encodestr]] with the [[urlsafe]] base 64 encoding alphabet.
-export fn urlencodestr(b: []u8) str = encodestr(urlsafe, b);
 
 @test fn encode() void = {
 	const in: [_]u8 = ['f', 'o', 'o', 'b', 'a', 'r'];
@@ -196,18 +178,6 @@ export fn decode(
 	return z;
 };
 
-// Calls [[decode]] with the [[standard]] base 64 encoding alphabet.
-export fn stddecode(
-	in: *io::stream,
-	out: *io::stream,
-) (size | invalid | io::error) = decode(standard, in, out);
-
-// Calls [[decode]] with the [[urlsafe]] base 64 encoding alphabet.
-export fn urldecode(
-	in: *io::stream,
-	out: *io::stream,
-) (size | invalid | io::error) = decode(urlsafe, in, out);
-
 // Decodes base 64-encoded data in the given base 64 alphabet, with padding,
 // from an [[io::stream]]. The number of bytes written is returned.
 export fn decode_static(
@@ -224,28 +194,12 @@ export fn decode_static(
 	};
 };
 
-// Calls [[decode_static]] with the [[standard]] base 64 encoding alphabet.
-export fn stddecode_static(out: []u8, in: *io::stream) (size | invalid) = {
-	return decode_static(standard, out, in);
-};
-
-// Calls [[decode_static]] with the [[urlsafe]] base 64 encoding alphabet.
-export fn urldecode_static(out: []u8, in: *io::stream) (size | invalid) = {
-	return decode_static(urlsafe, out, in);
-};
-
 // Decodes a string of base 64-encoded data in the given base 64 encoding
 // alphabet, with padding, into a byte slice. The caller must free the return
 // value.
 export fn decodestr(alphabet: []u8, in: str) ([]u8 | invalid) = {
 	return decodeslice(alphabet, strings::toutf8(in));
 };
-
-// Calls [[decodestr]] with the [[standard]] base 64 encoding alphabet.
-export fn stddecodestr(in: str) ([]u8 | invalid) = decodestr(standard, in);
-
-// Calls [[decodestr]] with the [[urlsafe]] base 64 encoding alphabet.
-export fn urldecodestr(in: str) ([]u8 | invalid) = decodestr(urlsafe, in);
 
 // Decodes a string of base 64-encoded data in the given base 64 encoding
 // alphabet, with padding. The number of bytes written is returned.
@@ -255,16 +209,6 @@ export fn decodestr_static(
 	in: str,
 ) (size | invalid) = {
 	return decodeslice_static(alphabet, out, strings::toutf8(in));
-};
-
-// Calls [[decodestr_static]] with the [[standard]] base 64 encoding alphabet.
-export fn stddecodestr_static(out: []u8, in: str) (size | invalid) = {
-	return decodestr_static(standard, out, in);
-};
-
-// Calls [[decodestr_static]] with the [[urlsafe]] base 64 encoding alphabet.
-export fn urldecodestr_static(out: []u8, in: str) (size | invalid) = {
-	return decodestr_static(urlsafe, out, in);
 };
 
 // Decodes a byte slice of base 64-encoded data in the given base 64 encoding
@@ -281,12 +225,6 @@ export fn decodeslice(alphabet: []u8, in: []u8) ([]u8 | invalid) = {
 	};
 };
 
-// Calls [[decodeslice]] with the [[standard]] base 64 encoding alphabet.
-export fn stddecodeslice(in: []u8) ([]u8 | invalid) = decodeslice(standard, in);
-
-// Calls [[decodeslice]] with the [[urlsafe]] base 64 encoding alphabet.
-export fn urldecodeslice(in: []u8) ([]u8 | invalid) = decodeslice(urlsafe, in);
-
 // Decodes a byte slice of base 64-encoded data in the given base 64 encoding
 // alphabet, with padding. The number of bytes written is returned.
 export fn decodeslice_static(
@@ -297,16 +235,6 @@ export fn decodeslice_static(
 	let in = bufio::fixed(in, io::mode::READ);
 	defer io::close(in); // bufio::finish?
 	return decode_static(alphabet, out, in);
-};
-
-// Calls [[decodeslice_static]] with the [[standard]] base 64 encoding alphabet.
-export fn stddecodeslice_static(out: []u8, in: []u8) (size | invalid) = {
-	return decodeslice_static(standard, out, in);
-};
-
-// Calls [[decodeslice_static]] with the [[urlsafe]] base 64 encoding alphabet.
-export fn urldecodeslice_static(out: []u8, in: []u8) (size | invalid) = {
-	return decodeslice_static(urlsafe, out, in);
 };
 
 @test fn decode() void = {
@@ -321,7 +249,7 @@ export fn urldecodeslice_static(out: []u8, in: []u8) (size | invalid) = {
 	];
 	const expect: [_]u8 = ['f', 'o', 'o', 'b', 'a', 'r'];
 	for (let i = 0z; i < len(in); i += 1) {
-		let s = stddecodestr(in[i]) as []u8;
+		let s = decodestr(standard, in[i]) as []u8;
 		defer free(s);
 		assert(bytes::equal(s, expect[..i]));
 	};
@@ -338,6 +266,7 @@ export fn urldecodeslice_static(out: []u8, in: []u8) (size | invalid) = {
 	];
 	const badindex: [_]size = [1, 2, 3, 0, 0, 1, 3, 4];
 	for (let i = 0z; i < len(bad); i += 1) {
-		assert(stddecodestr(bad[i]) as invalid == badindex[i]: invalid);
+		let result = decodestr(standard, bad[i]);
+		assert(result as invalid == badindex[i]: invalid);
 	};
 };

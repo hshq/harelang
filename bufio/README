@@ -1,6 +1,6 @@
 bufio provides [[io::stream]] implementations which provide buffered I/O
 support, as well as scanner utility functions which pair well with buffered
-streams for maximum efficiency.
+streams for optimal efficiency.
 
 Two streams are provided which can read from or write to byte slices. [[fixed]]
 uses a caller-supplied statically-allocated buffer for storage, producing an
