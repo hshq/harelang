@@ -57,6 +57,7 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 					ph.p_vaddr: uintptr,
 			elf::pt::DYNAMIC =>
 				dynvec = ehui + ph.p_offset: uintptr,
+			* => void,
 		};
 		phui += eh.e_phentsize: uintptr;
 	};
