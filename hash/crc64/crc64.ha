@@ -264,8 +264,8 @@ export fn sum64(h: *hash::hash) u64 = {
 };
 
 @test fn crc64() void = {
-	const vectors: [](str, u64, u64, u64) = [
-		("", 0, 0, 0),
+	const vectors: [](str, u64, u64) = [
+		("", 0, 0),
 		("Man can believe the impossible, but can never believe the improbable. -- Oscar Wilde",
 			0x17F71EF3BB851DC7, 0xD0E8ED57865D6AC6),
 		("We learn from history that we do not learn from history. -- Georg Hegel",

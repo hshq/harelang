@@ -226,7 +226,7 @@ export fn sum16(h: *hash::hash) u16 = {
 
 @test fn crc16() void = {
 	const vectors: [](str, u16, u16, u16, u16) = [
-		("", 0, 0, 0),
+		("", 0, 0, 0, 0),
 		("Always be sincere, even if you don't mean it. -- Harry Truman",
 			0x38DF, 0x2441, 0x8E44, 0xEF5E),
 		("You get along very well with everyone except animals and people.",
