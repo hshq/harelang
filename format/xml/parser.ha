@@ -230,6 +230,7 @@ fn scan_content(par: *parser) (text | error) = {
 					bufio::unreadrune(par.in, rn);
 					scan_entity(par)?;
 				},
+				* => rn,
 			};
 			strio::appendrune(par.textbuf, rn)?;
 		},
