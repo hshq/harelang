@@ -258,7 +258,7 @@ export fn expr(
 			z += _type(out, indent, *e)?;
 			z + fmt::fprint(out, ")")?;
 		},
-		e: ast::offset_expr => abort(),
+		ast::offset_expr => abort(),
 		e: ast::propagate_expr => {
 			let z = expr(out, indent, *e.expr)?;
 			z + fmt::fprintf(out, if (e.is_abort) "!" else "?")?;

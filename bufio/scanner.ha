@@ -10,7 +10,7 @@ export fn scanbyte(stream: *io::stream) (u8 | io::EOF | io::error) = {
 
 	return match (io::read(stream, buf)?) {
 		read: size => if (read > 0) buf[0] else io::EOF,
-		e: io::EOF => e,
+		io::EOF => io::EOF,
 	};
 };
 

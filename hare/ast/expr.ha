@@ -484,7 +484,7 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			};
 			free(m.cases);
 		},
-		o: offset_expr => abort(), // TODO
+		offset_expr => abort(), // TODO
 		p: propagate_expr => expr_free(p.expr),
 		r: return_expr => expr_free(r: *expr),
 		s: size_expr => type_free(s: *_type),
