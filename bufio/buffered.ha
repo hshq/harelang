@@ -239,7 +239,6 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	assert(io::read(f, buf) is io::EOF);
 
 	let sourcebuf: [32]u8 = [1, 3, 3, 7, 0...];
-	sourcebuf[32..36] = [7, 3, 3, 1];
 	let source = fixed(sourcebuf, io::mode::READ);
 	let fb = source: *memstream;
 	defer io::close(source);
