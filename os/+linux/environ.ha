@@ -37,7 +37,8 @@ export fn getenv(name: const str) (str | void) = {
 	const name_b = strings::toutf8(name);
 	for (let i = 0z; rt::envp[i] != null; i += 1) {
 		const item = rt::envp[i]: *[*]u8;
-		const eq: size = match (bytes::index(item[..], '=': u32: u8)) {
+		const ln = strings::cstrlen(item: *char);
+		const eq: size = match (bytes::index(item[..ln], '=': u32: u8)) {
 			void => abort("Environment violates System-V invariants"),
 			i: size => i,
 		};
