@@ -60,7 +60,7 @@ type goal = enum {
 
 fn build(args: []str) void = {
 	const help: []getopt::help = [
-		"compiles Hare programs",
+		"compiles the Hare program at <path>",
 		('c', "build object instead of executable"),
 		('v', "print executed commands"),
 		('D', "ident:type=value", "define a constant"),
@@ -70,7 +70,7 @@ fn build(args: []str) void = {
 		('t', "arch", "set target architecture"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
-		"path"
+		"<path>"
 	];
 	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
@@ -161,12 +161,12 @@ fn cache(args: []str) void = {
 
 fn deps(args: []str) void = {
 	const help: []getopt::help = [
-		"prints dependency information for Hare programs",
+		"prints dependency information for a Hare program",
 		('d', "print dot syntax for use with graphviz"),
 		('M', "print rules for POSIX make"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
-		"path",
+		"<path>",
 	];
 	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
@@ -176,14 +176,14 @@ fn deps(args: []str) void = {
 
 fn run(args: []str) void = {
 	const help: []getopt::help = [
-		"compiles and runs Hare programs",
+		"compiles and runs the Hare program at <path>",
 		('v', "print executed commands"),
 		('D', "ident:type=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
 		('l', "name", "link with a system library"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
-		"path", "args...",
+		"<path>", "<args...>",
 	];
 	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
