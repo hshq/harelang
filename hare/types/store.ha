@@ -70,16 +70,15 @@ export fn lookup(
 	const ty = fromast(store, ty)?;
 	const id = hash(&ty);
 	let bucket = &store.map[id % BUCKETS];
-	// XXX: Should not have to dereference bucket
-	for (let i = 0z; i < len(*bucket); i += 1) {
+	for (let i = 0z; i < len(bucket); i += 1) {
 		if (bucket[i].id == id) {
 			type_finish(&ty);
 			return &bucket[i];
 		};
 	};
 	ty.id = id;
-	append(*bucket, ty);
-	return &bucket[len(*bucket) - 1];
+	append(bucket, ty);
+	return &bucket[len(bucket) - 1];
 };
 
 fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
@@ -346,7 +345,7 @@ fn _struct_from_ast(
 	fields: *[]struct_field,
 	offs: *size,
 ) (void | deferred | error) = {
-	const nfields = len(*fields);
+	const nfields = len(fields);
 	for (let i = 0z; i < len(membs); i += 1) {
 		*offs = match (membs[i]._offset) {
 			ex: *ast::expr => match (store.resolve) {
@@ -377,7 +376,7 @@ fn _struct_from_ast(
 			*offs += _type.align - (*offs % _type.align);
 		};
 
-		append(*fields, struct_field {
+		append(fields, struct_field {
 			name = memb.name,
 			offs = *offs,
 			_type = _type,
@@ -390,7 +389,7 @@ fn _struct_from_ast(
 
 	if (is_union) {
 		let max = 0z;
-		for (let i = nfields; i < len(*fields); i += 1) {
+		for (let i = nfields; i < len(fields); i += 1) {
 			if (fields[i].offs + fields[i]._type.sz > max) {
 				max = fields[i].offs + fields[i]._type.sz;
 			};
@@ -421,7 +420,7 @@ fn tagged_collect(
 ) (void | deferred | error) = {
 	for (let i = 0z; i < len(atype); i += 1) match (atype[i]._type) {
 		ta: ast::tagged_type => tagged_collect(store, ta, types)?,
-		* => append(*types, lookup(store, atype[i])?),
+		* => append(types, lookup(store, atype[i])?),
 	};
 };
 

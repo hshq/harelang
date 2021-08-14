@@ -194,9 +194,4 @@ fn mkfile(plan: *plan, ext: str) str = {
 	return path::join(plan.workdir, name);
 };
 
-fn mkdepends(t: *task...) []*task = {
-	// XXX: This should just be one alloc call
-	let deps: []*task = alloc([], len(t));
-	append(deps, t...);
-	return deps;
-};
+fn mkdepends(t: *task...) []*task = alloc(t);

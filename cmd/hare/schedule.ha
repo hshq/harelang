@@ -23,9 +23,8 @@ fn ident_hash(ident: ast::ident) u32 = {
 
 fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 	let hash = ident_hash(ident);
-	// TODO: We should not have to dereference the bucket for len or append
 	let bucket = &plan.modmap[hash % len(plan.modmap)];
-	for (let i = 0z; i < len(*bucket); i += 1) {
+	for (let i = 0z; i < len(bucket); i += 1) {
 		if (bucket[i].hash == hash) {
 			return bucket[i].task;
 		};
@@ -49,13 +48,13 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 	};
 
 	let obj = sched_hare_object(plan, ver, ident, depends...);
-	append(*bucket, modcache {
+	append(bucket, modcache {
 		hash = hash,
 		task = obj,
 		ident = ident,
 		version = ver,
 	});
-	append(*link, obj);
+	append(link, obj);
 	return obj;
 };
 

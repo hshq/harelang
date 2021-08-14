@@ -31,7 +31,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 					if (t[j]._type.flags & ast::type_flags::ERROR == ast::type_flags::ERROR) {
 						bucket = &sorted.errors;
 					};
-					append(*bucket, ast::decl {
+					append(bucket, ast::decl {
 						exported = true,
 						loc = decl.loc,
 						decl = {

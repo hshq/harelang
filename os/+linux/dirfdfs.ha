@@ -311,12 +311,11 @@ fn resolve_part(parts: *[]str, part: str) void = {
 		// no-op
 		void;
 	} else if (part == "..") {
-		// XXX: We should not have to dereference this
-		if (len(*parts) != 0) {
-			delete(parts[len(*parts) - 1]);
+		if (len(parts) != 0) {
+			delete(parts[len(parts) - 1]);
 		};
 	} else {
-		append(*parts, part);
+		append(parts, part);
 	};
 };
 

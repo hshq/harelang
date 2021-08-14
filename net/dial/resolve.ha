@@ -131,12 +131,12 @@ fn resolve_addr(addr: str) ([]ip::addr | error) = {
 };
 
 fn collect_answers(addrs: *[]ip::addr, answers: *[]dns::rrecord) void = {
-	for (let i = 0z; i < len(*answers); i += 1) {
+	for (let i = 0z; i < len(answers); i += 1) {
 		match (answers[i].rdata) {
 			// XXX: harec bug prevents us from casting directly to
 			// ip::addr
-			addr: dns::aaaa => append(*addrs, addr: ip::addr6: ip::addr),
-			addr: dns::a => append(*addrs, addr: ip::addr4: ip::addr),
+			addr: dns::aaaa => append(addrs, addr: ip::addr6: ip::addr),
+			addr: dns::a => append(addrs, addr: ip::addr4: ip::addr),
 			* => void,
 		};
 	};

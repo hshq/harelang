@@ -332,7 +332,7 @@ fn scan_file(
 			o: ast::import_objects => o.ident,
 		};
 		if (!have_ident(deps, ident)) {
-			append(*deps, ident);
+			append(deps, ident);
 		};
 	};
 
@@ -347,8 +347,7 @@ fn scan_file(
 };
 
 fn have_ident(sl: *[]ast::ident, id: ast::ident) bool = {
-	// XXX: We shouldn't have to deref sl here
-	for (let i = 0z; i < len(*sl); i += 1) {
+	for (let i = 0z; i < len(sl); i += 1) {
 		if (ast::ident_eq(sl[i], id)) {
 			return true;
 		};

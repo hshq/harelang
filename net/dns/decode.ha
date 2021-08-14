@@ -31,7 +31,7 @@ fn decode_rrecords(
 	out: *[]rrecord,
 ) (void | format) = {
 	for (let i = 0z; i < count; i += 1) {
-		append(*out, decode_rrecord(dec)?);
+		append(out, decode_rrecord(dec)?);
 	};
 };
 
