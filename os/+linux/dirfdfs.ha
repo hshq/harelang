@@ -41,6 +41,7 @@ type os_filesystem = struct {
 	fs: fs::fs,
 	dirfd: int,
 	resolve: resolve_flags,
+	getdents_bufsz: size,
 };
 
 // Opens a file descriptor as an [[fs::fs]]. This file descriptor must be a
@@ -78,6 +79,7 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 			...
 		},
 		dirfd = fd,
+		getdents_bufsz = 32768, // 32 KiB
 	};
 	return &filesystem.fs;
 };
@@ -93,6 +95,17 @@ export fn dirfs_clone(fs: *fs::fs, resolve: resolve_flags...) *fs::fs = {
 	};
 	new.dirfd = rt::dup(new.dirfd) as int;
 	return &new.fs;
+};
+
+// Sets the buffer size to use with the getdents(2) system call, for use with
+// [[fs::iter]]. A larger buffer requires a larger runtime allocation, but can
+// scan large directories faster. The default buffer size is 32 KiB.
+//
+// This function is not portable.
+export fn dirfdfs_set_getdents_bufsz(fs: *fs::fs, sz: size) void = {
+	assert(fs.open == &fs_open);
+	let fs = fs: *os_filesystem;
+	fs.getdents_bufsz = sz;
 };
 
 fn errno_to_fs(err: rt::errno) fs::error = switch (err) {
@@ -349,7 +362,7 @@ type os_iterator = struct {
 	fd: int,
 	buf_pos: size,
 	buf_end: size,
-	buf: [BUFSIZ]u8,
+	buf: []u8,
 };
 
 fn fs_iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
@@ -364,11 +377,16 @@ fn fs_iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 		n: int => n,
 	};
 
+	let buf = match (rt::malloc(fs.getdents_bufsz)) {
+		v: *void => v: *[*]u8,
+		null => return errors::nomem,
+	};
 	let iter = alloc(os_iterator {
 		iter = fs::iterator {
 			next = &iter_next,
 		},
 		fd = fd,
+		buf = buf[..fs.getdents_bufsz],
 		...
 	});
 	return &iter.iter;
@@ -377,9 +395,11 @@ fn fs_iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 	let iter = iter: *os_iterator;
 	if (iter.buf_pos >= iter.buf_end) {
-		let n = rt::getdents64(iter.fd, &iter.buf, BUFSIZ) as size;
+		let n = rt::getdents64(iter.fd,
+			iter.buf: *[*]u8, len(iter.buf)) as size;
 		if (n == 0) {
 			rt::close(iter.fd)!;
+			free(iter.buf);
 			free(iter);
 			return;
 		};

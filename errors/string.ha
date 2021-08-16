@@ -19,5 +19,6 @@ export fn strerror(err: error) const str = match (err) {
 	timeout => "The requested operation timed out",
 	cancelled => "The requested operation was cancelled",
 	refused => "A connection attempt was refused",
+	nomem => "Unable to allocate sufficient memory for the requested operation",
 	op: opaque => op.strerror(&op.data),
 };
