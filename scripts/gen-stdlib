@@ -550,7 +550,7 @@ linux_vdso() {
 math() {
 	printf '# math\n'
 	gen_srcs math \
-		floats.ha
+		math.ha floats.ha ints.ha
 	gen_ssa math types
 }
 

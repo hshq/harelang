@@ -1,144 +1,5 @@
 use types;
 
-// The floating point value representing Not a Number, i.e. an undefined or
-// unrepresentable value. You cannot test if a number is NaN by comparing to
-// this value; see [[isnan]] instead.
-export def NAN: f32 = 0.0 / 0.0;
-
-// The floating point value representing positive infinity. Use -[[INF]] for
-// negative infinity.
-export def INF: f32 = 1.0 / 0.0;
-
-// Returns true if the given f64 is NaN.
-export fn isnanf64(n: f64) bool = n != n;
-
-// Returns true if the given f32 is NaN.
-export fn isnanf32(n: f32) bool = n != n;
-
-// Returns true if the given floating-point number is NaN.
-export fn isnan(n: types::floating) bool = {
-	return match (n) {
-		f: f64 => isnanf64(f),
-		f: f32 => isnanf32(f),
-	};
-};
-
-@test fn isnan() void = {
-	assert(isnan(NAN));
-	assert(isnan(-NAN));
-	assert(isnan(f64frombits(0xfffabcdef1234567)));
-	assert(!isnan(INF));
-	assert(!isnan(1.23f32));
-};
-
-// Returns true if the given floating-point number is infinite.
-export fn isinf(n: f64) bool = {
-	const bits = f64bits(n);
-	const mant = bits & F64_MANTISSA_MASK;
-	const exp = bits >> F64_MANTISSA_BITS & F64_EXPONENT_MASK;
-	return exp == F64_EXPONENT_MASK && mant == 0;
-};
-
-@test fn isinf() void = {
-	assert(isinf(INF));
-	assert(isinf(-INF));
-	assert(!isinf(NAN));
-	assert(!isinf(1.23));
-	assert(!isinf(-1.23f32));
-};
-
-// Returns true if the given floating-point number is normal.
-export fn isnormal(n: types::floating) bool = {
-	return match (n) {
-		n: f32 => isnormalf32(n),
-		n: f64 => isnormalf64(n),
-	};
-};
-
-// Returns true if the given f32 is normal.
-export fn isnormalf32(n: f32) bool = {
-	const bits = f32bits(n);
-	const mant = bits & F32_MANTISSA_MASK;
-	const exp = bits >> F32_MANTISSA_BITS & F32_EXPONENT_MASK;
-	return exp != F32_EXPONENT_MASK && (exp > 0 || mant == 0);
-};
-
-// Returns true if the given f64 is normal.
-export fn isnormalf64(n: f64) bool = {
-	const bits = f64bits(n);
-	const mant = bits & F64_MANTISSA_MASK;
-	const exp = bits >> F64_MANTISSA_BITS & F64_EXPONENT_MASK;
-	return exp != F64_EXPONENT_MASK && (exp > 0 || mant == 0);
-};
-
-// Returns true if the given floating-point number is subnormal.
-export fn issubnormal(n: types::floating) bool = {
-	return match (n) {
-		n: f32 => issubnormalf32(n),
-		n: f64 => issubnormalf64(n),
-	};
-};
-
-// Returns true if the given f32 is subnormal.
-export fn issubnormalf32(n: f32) bool = {
-	const bits = f32bits(n);
-	const mant = bits & F32_MANTISSA_MASK;
-	const exp = bits >> F32_MANTISSA_BITS & F32_EXPONENT_MASK;
-	return exp == 0 && mant != 0;
-};
-
-// Returns true if the given f64 is subnormal.
-export fn issubnormalf64(n: f64) bool = {
-	const bits = f64bits(n);
-	const mant = bits & F64_MANTISSA_MASK;
-	const exp = bits >> F64_MANTISSA_BITS & F64_EXPONENT_MASK;
-	return exp == 0 && mant != 0;
-};
-
-@test fn float_normality() void = {
-	assert(isnormal(0.0));
-	assert(isnormal(1.0));
-	assert(!isnormal(NAN));
-	assert(!isnormal(INF));
-	assert(!isnormal(1.0e-310));
-	assert(!isnormal(1.0e-40f32));
-
-	assert(isnormalf32(1.0));
-	assert(isnormalf32(0.0));
-	assert(!isnormalf32(NAN));
-	assert(!isnormalf32(INF));
-	assert(!isnormalf32(-1.0e-40));
-	assert(isnormalf32(-1.0e-50));
-
-	assert(isnormalf64(1.0));
-	assert(isnormalf64(0.0));
-	assert(!isnormalf64(NAN));
-	assert(!isnormalf64(INF));
-	assert(!isnormalf64(-1.0e-320));
-	assert(isnormalf64(-1.0e-330));
-
-	assert(issubnormal(1.0e-320));
-	assert(issubnormal(1.0e-42f32));
-	assert(!issubnormal(NAN));
-	assert(!issubnormal(INF));
-	assert(!issubnormal(1.0));
-	assert(!issubnormal(0.0));
-
-	assert(issubnormalf32(1.0e-45));
-	assert(issubnormalf32(-1.0e-39));
-	assert(!issubnormalf32(-NAN));
-	assert(!issubnormalf32(-INF));
-	assert(!issubnormalf32(0.0));
-	assert(!issubnormalf32(-1.0e-49));
-
-	assert(issubnormalf64(5.0e-324));
-	assert(issubnormalf64(-2.0e-310));
-	assert(!issubnormalf64(-NAN));
-	assert(!issubnormalf64(-INF));
-	assert(!issubnormalf64(-1.0e-400));
-	assert(!issubnormalf64(0.0));
-};
-
 // Returns the binary representation of the given f64.
 export fn f64bits(n: f64) u64 = *(&n: *u64);
 
@@ -235,7 +96,8 @@ def F32_SIGN_MASK: u32 = 1u32 << 31;
 def F32_EXP_REMOVAL_MASK: u32 = 0b10000000011111111111111111111111;
 
 // The f32 that contains only an exponent that evaluates to zero.
-def F32_EXP_ZERO: u32 = ((F32_EXPONENT_BIAS: u32) - 1) << (F32_MANTISSA_BITS: u32);
+def F32_EXP_ZERO: u32 =
+	((F32_EXPONENT_BIAS: u32) - 1) << (F32_MANTISSA_BITS: u32);
 
 // Contains information about the structure of a specific floating point number
 // type.
@@ -270,36 +132,179 @@ export const f32info: floatinfo = floatinfo {
 	expmask = (1 << 8) - 1,
 };
 
-// Returns the absolute value of n.
+// The floating point value representing Not a Number, i.e. an undefined or
+// unrepresentable value. You cannot test if a number is NaN by comparing to
+// this value; see [[isnan]] instead.
+export def NAN: f32 = 0.0 / 0.0;
+
+// The floating point value representing positive infinity. Use -[[INF]] for
+// negative infinity.
+export def INF: f32 = 1.0 / 0.0;
+
+// Returns true if the given floating-point number is NaN.
+export fn isnan(n: f64) bool = n != n;
+
+@test fn isnan() void = {
+	assert(isnan(NAN));
+	assert(isnan(-NAN));
+	assert(isnan(f64frombits(0xfffabcdef1234567)));
+	assert(!isnan(INF));
+	assert(!isnan(1.23f32));
+};
+
+// Returns true if the given floating-point number is infinite.
+export fn isinf(n: f64) bool = {
+	const bits = f64bits(n);
+	const mant = bits & F64_MANTISSA_MASK;
+	const exp = bits >> F64_MANTISSA_BITS & F64_EXPONENT_MASK;
+	return exp == F64_EXPONENT_MASK && mant == 0;
+};
+
+// Returns true if the given floating-point number is positive infinity.
+export fn isposinf(n: f64) bool = {
+	return isinf(n) && signf64(n) == 1i64;
+};
+
+// Returns true if the given floating-point number is negative infinity.
+export fn isneginf(n: f64) bool = {
+	return isinf(n) && signf64(n) == -1i64;
+};
+
+@test fn isinf() void = {
+	assert(isinf(INF));
+	assert(isinf(-INF));
+	assert(!isinf(NAN));
+	assert(!isinf(1.23));
+	assert(!isinf(-1.23f32));
+	assert(isposinf(math::INF));
+	assert(!isposinf(-math::INF));
+	assert(isneginf(-math::INF));
+	assert(!isneginf(math::INF));
+};
+
+// Returns true if the given floating-point number is normal.
+export fn isnormal(n: types::floating) bool = {
+	return match (n) {
+		n: f32 => isnormalf32(n),
+		n: f64 => isnormalf64(n),
+	};
+};
+
+// Returns true if the given f64 is normal.
+export fn isnormalf64(n: f64) bool = {
+	const bits = f64bits(n);
+	const mant = bits & F64_MANTISSA_MASK;
+	const exp = bits >> F64_MANTISSA_BITS & F64_EXPONENT_MASK;
+	return exp != F64_EXPONENT_MASK && (exp > 0 || mant == 0);
+};
+
+// Returns true if the given f32 is normal.
+export fn isnormalf32(n: f32) bool = {
+	const bits = f32bits(n);
+	const mant = bits & F32_MANTISSA_MASK;
+	const exp = bits >> F32_MANTISSA_BITS & F32_EXPONENT_MASK;
+	return exp != F32_EXPONENT_MASK && (exp > 0 || mant == 0);
+};
+
+// Returns true if the given floating-point number is subnormal.
+export fn issubnormal(n: types::floating) bool = {
+	return match (n) {
+		n: f32 => issubnormalf32(n),
+		n: f64 => issubnormalf64(n),
+	};
+};
+
+// Returns true if the given f64 is subnormal.
+export fn issubnormalf64(n: f64) bool = {
+	const bits = f64bits(n);
+	const mant = bits & F64_MANTISSA_MASK;
+	const exp = bits >> F64_MANTISSA_BITS & F64_EXPONENT_MASK;
+	return exp == 0 && mant != 0;
+};
+
+// Returns true if the given f32 is subnormal.
+export fn issubnormalf32(n: f32) bool = {
+	const bits = f32bits(n);
+	const mant = bits & F32_MANTISSA_MASK;
+	const exp = bits >> F32_MANTISSA_BITS & F32_EXPONENT_MASK;
+	return exp == 0 && mant != 0;
+};
+
+@test fn float_normality() void = {
+	assert(isnormal(0.0));
+	assert(isnormal(1.0));
+	assert(!isnormal(NAN));
+	assert(!isnormal(INF));
+	assert(!isnormal(1.0e-310));
+	assert(!isnormal(1.0e-40f32));
+
+	assert(isnormalf32(1.0));
+	assert(isnormalf32(0.0));
+	assert(!isnormalf32(NAN));
+	assert(!isnormalf32(INF));
+	assert(!isnormalf32(-1.0e-40));
+	assert(isnormalf32(-1.0e-50));
+
+	assert(isnormalf64(1.0));
+	assert(isnormalf64(0.0));
+	assert(!isnormalf64(NAN));
+	assert(!isnormalf64(INF));
+	assert(!isnormalf64(-1.0e-320));
+	assert(isnormalf64(-1.0e-330));
+
+	assert(issubnormal(1.0e-320));
+	assert(issubnormal(1.0e-42f32));
+	assert(!issubnormal(NAN));
+	assert(!issubnormal(INF));
+	assert(!issubnormal(1.0));
+	assert(!issubnormal(0.0));
+
+	assert(issubnormalf32(1.0e-45));
+	assert(issubnormalf32(-1.0e-39));
+	assert(!issubnormalf32(-NAN));
+	assert(!issubnormalf32(-INF));
+	assert(!issubnormalf32(0.0));
+	assert(!issubnormalf32(-1.0e-49));
+
+	assert(issubnormalf64(5.0e-324));
+	assert(issubnormalf64(-2.0e-310));
+	assert(!issubnormalf64(-NAN));
+	assert(!issubnormalf64(-INF));
+	assert(!issubnormalf64(-1.0e-400));
+	assert(!issubnormalf64(0.0));
+};
+
+// Returns the absolute value of f64 n.
 export fn absf64(n: f64) f64 = {
 	return f64frombits(f64bits(n) & ~F64_SIGN_MASK);
 };
 
-// Returns the absolute value of n.
+// Returns the absolute value of f32 n.
 export fn absf32(n: f32) f32 = {
 	return f32frombits(f32bits(n) & ~F32_SIGN_MASK);
 };
 
-// Returns the absolute value of n.
-export fn abs(n: types::floating) f64 = {
+// Returns the absolute value of floating-point number n.
+export fn absf(n: types::floating) f64 = {
 	return match (n) {
 		n: f64 => absf64(n),
 		n: f32 => (absf32(n): f64),
 	};
 };
 
-@test fn test_abs() void = {
+@test fn absf() void = {
 	assert(absf64(2.0f64) == 2.0f64);
 	assert(absf32(2.0f32) == 2.0f32);
-	assert(abs(2.0f64) == 2.0f64);
-	assert(abs(2.0f32) == 2.0f64);
-	assert(abs(-2.0f64) == 2.0f64);
-	assert(abs(-2.0f32) == 2.0f32);
-	assert(abs(0f32) == 0f32);
-	assert(abs(0f64) == 0f64);
+	assert(absf(2.0f64) == 2.0f64);
+	assert(absf(2.0f32) == 2.0f64);
+	assert(absf(-2.0f64) == 2.0f64);
+	assert(absf(-2.0f32) == 2.0f32);
+	assert(absf(0f32) == 0f32);
+	assert(absf(0f64) == 0f64);
 };
 
-// Returns 1 if x is positive and -1 if x is negative. Note that zero is also signed.
+// Returns 1 if x is positive and -1 if x is negative. Note that zero is also
+// signed.
 export fn signf64(x: f64) i64 = {
 	if (f64bits(x) & F64_SIGN_MASK == 0) {
 		return 1i64;
@@ -308,7 +313,8 @@ export fn signf64(x: f64) i64 = {
 	};
 };
 
-// Returns 1 if x is positive and -1 if x is negative. Note that zero is also signed.
+// Returns 1 if x is positive and -1 if x is negative. Note that zero is also
+// signed.
 export fn signf32(x: f32) i64 = {
 	if (f32bits(x) & F32_SIGN_MASK == 0) {
 		return 1i64;
@@ -317,21 +323,54 @@ export fn signf32(x: f32) i64 = {
 	};
 };
 
-// Returns 1 if x is positive and -1 if x is negative. Note that zero is also signed.
-export fn sign(x: types::floating) i64 = {
+// Returns 1 if x is positive and -1 if x is negative. Note that zero is also
+// signed.
+export fn signf(x: types::floating) i64 = {
 	return match (x) {
 		n: f64 => signf64(n),
 		n: f32 => signf32(n),
 	};
 };
 
-@test fn test_sign() void = {
-	assert(sign(0.0f64) == 1i64);
-	assert(sign(-0.0f64) == -1i64);
-	assert(sign(0.0f32) == 1i64);
-	assert(sign(-0.0f32) == -1i64);
-	assert(sign(1.5f64) == 1i64);
-	assert(sign(-1.5f64) == -1i64);
+@test fn signf() void = {
+	assert(signf(0.0f64) == 1i64);
+	assert(signf(-0.0f64) == -1i64);
+	assert(signf(0.0f32) == 1i64);
+	assert(signf(-0.0f32) == -1i64);
+	assert(signf(1.5f64) == 1i64);
+	assert(signf(-1.5f64) == -1i64);
+	assert(ispositive(1.0f64));
+	assert(!ispositive(-1.0f64));
+	assert(isnegative(-1.0f64));
+	assert(!isnegative(1.0f64));
+};
+
+// Returns whether or not x is positive.
+export fn ispositivef64(x: f64) bool = signf64(x) == 1i64;
+
+// Returns whether or not x is positive.
+export fn ispositivef32(x: f32) bool = signf32(x) == 1i32;
+
+// Returns whether or not x is positive.
+export fn ispositive(x: types::floating) bool = {
+	return match (x) {
+		n: f64 => ispositivef64(n),
+		n: f32 => ispositivef32(n),
+	};
+};
+
+// Returns whether or not x is negative.
+export fn isnegativef64(x: f64) bool = signf64(x) == -1i64;
+
+// Returns whether or not x is negative.
+export fn isnegativef32(x: f32) bool = signf32(x) == -1i32;
+
+// Returns whether or not x is negative.
+export fn isnegative(x: types::floating) bool = {
+	return match (x) {
+		n: f64 => isnegativef64(n),
+		n: f32 => isnegativef32(n),
+	};
 };
 
 // Returns x, but with the sign of y.
@@ -354,7 +393,7 @@ export fn copysign(x: types::floating, y: types::floating) f64 = {
 	};
 };
 
-@test fn test_copysign() void = {
+@test fn copysign() void = {
 	assert(copysign(100.0f64, 1.0f64) == 100.0f64);
 	assert(copysign(100.0f64, -1.0f64) == -100.0f64);
 	assert(copysign(100.0f32, 1.0f32) == 100.0f32);
@@ -362,9 +401,9 @@ export fn copysign(x: types::floating, y: types::floating) f64 = {
 	assert(copysign(100.0f64, 0.0f64) == 100.0f64);
 	assert(copysign(100.0f64, -0.0f64) == -100.0f64);
 	assert(copysign(0.0f64, 100.0f64) == 0.0f64);
-	assert(sign(copysign(0.0f64, 100.0f64)) > 0);
+	assert(signf(copysign(0.0f64, 100.0f64)) > 0);
 	assert(copysign(0.0f64, -100.0f64) == 0.0f64);
-	assert(sign(copysign(0.0f64, -100.0f64)) < 0);
+	assert(signf(copysign(0.0f64, -100.0f64)) < 0);
 };
 
 // Takes a potentially subnormal f64 n and returns a normal f64 normal_float
@@ -389,7 +428,7 @@ export fn normalizef32(n: f32) (f64, i64) = {
 	return (n, 0);
 };
 
-@test fn test_normalize() void = {
+@test fn normalize() void = {
 	let res = normalizef64(5.0e-320);
 	assert(res.0 > F64_MIN_NORMAL);
 	assert(res.1 < 0i64);
@@ -398,8 +437,8 @@ export fn normalizef32(n: f32) (f64, i64) = {
 	assert(res.1 == 0i64);
 };
 
-// Breaks a f64 down into its mantissa and exponent. The mantissa will be between 0.5 and
-// 1.
+// Breaks a f64 down into its mantissa and exponent. The mantissa will be
+// between 0.5 and 1.
 export fn frexpf64(n: f64) (f64, i64) = {
 	if (isnan(n) || isinf(n) || n == 0f64) {
 		return (n, 0);
@@ -411,12 +450,13 @@ export fn frexpf64(n: f64) (f64, i64) = {
 	const raw_exp: u64 = (bits >> F64_MANTISSA_BITS) & F64_EXPONENT_MASK;
 	const exp: i64 = normalization_exp +
 		(raw_exp: i64) - (F64_EXPONENT_BIAS: i64) + 1;
-	const mantissa: f64 = f64frombits((bits & F64_EXP_REMOVAL_MASK) | F64_EXP_ZERO);
+	const mantissa: f64 =
+		f64frombits((bits & F64_EXP_REMOVAL_MASK) | F64_EXP_ZERO);
 	return (mantissa, exp);
 };
 
-// Breaks a f32 down into its mantissa and exponent. The mantissa will be between 0.5 and
-// 1.
+// Breaks a f32 down into its mantissa and exponent. The mantissa will be
+// between 0.5 and 1.
 export fn frexpf32(n: f32) (f64, i64) = {
 	if (isnan(n) || isinf(n) || n == 0f32) {
 		return (n, 0);
@@ -429,12 +469,13 @@ export fn frexpf32(n: f32) (f64, i64) = {
 		(F32_EXPONENT_MASK: u32));
 	const exp: i64 = normalization_exp +
 		(raw_exp: i64) - (F32_EXPONENT_BIAS: i64) + 1;
-	const mantissa: f32 = f32frombits((bits & F32_EXP_REMOVAL_MASK) | F32_EXP_ZERO);
+	const mantissa: f32 =
+		f32frombits((bits & F32_EXP_REMOVAL_MASK) | F32_EXP_ZERO);
 	return (mantissa, exp);
 };
 
-// Breaks a float down into its mantissa and exponent. The mantissa will be between 0.5
-// and 1.
+// Breaks a float down into its mantissa and exponent. The mantissa will be
+// between 0.5 and 1.
 export fn frexp(n: types::floating) (f64, i64) = {
 	return match (n) {
 		n: f64 => frexpf64(n),
@@ -442,7 +483,7 @@ export fn frexp(n: types::floating) (f64, i64) = {
 	};
 };
 
-@test fn test_frexp() void = {
+@test fn frexp() void = {
 	let res = frexp(3.0f64);
 	assert(res.0 == 0.75f64);
 	assert(res.1 == 2i64);
@@ -464,7 +505,8 @@ export fn ldexpf64(mantissa: f64, exp: i64) f64 = {
 	const normal_float = normalized.0;
 	const normalization_exp = normalized.1;
 	const bits = f64bits(normal_float);
-	const mantissa_exp = (((bits >> F64_MANTISSA_BITS) & F64_EXPONENT_MASK): i64) -
+	const mantissa_exp =
+		(((bits >> F64_MANTISSA_BITS) & F64_EXPONENT_MASK): i64) -
 		(F64_EXPONENT_BIAS: i64);
 	let res_exp = exp + normalization_exp + mantissa_exp;
 	// Underflow
@@ -503,7 +545,8 @@ export fn ldexpf32(mantissa: f32, exp: i64) f32 = {
 	const normal_float = normalized.0;
 	const normalization_exp = normalized.1;
 	const bits = f32bits(normal_float);
-	const mantissa_exp = (((bits >> F32_MANTISSA_BITS) & F32_EXPONENT_MASK): i32) -
+	const mantissa_exp =
+		(((bits >> F32_MANTISSA_BITS) & F32_EXPONENT_MASK): i32) -
 		(F32_EXPONENT_BIAS: i32);
 	let res_exp = exp + normalization_exp + mantissa_exp;
 	// Underflow
@@ -533,7 +576,7 @@ export fn ldexpf32(mantissa: f32, exp: i64) f32 = {
 	return subnormal_factor * f32frombits(res);
 };
 
-@test fn test_frexp_ldexp() void = {
+@test fn frexp_ldexp() void = {
 	const tests64: [_]f64 = [INF, -INF,
 		0.0, 1.0, -1.0, 2.42, 123456789.0,
 		F64_MIN_NORMAL, F64_MAX_NORMAL,
@@ -545,7 +588,7 @@ export fn ldexpf32(mantissa: f32, exp: i64) f32 = {
 	};
 	assert(ldexpf64(1.0f64, -1076i64) == 0.0f64);
 	assert(ldexpf64(-1.0f64, -1076i64) == -0.0f64);
-	assert(sign(ldexpf64(-1.0f64, -1076i64)) < 0);
+	assert(signf(ldexpf64(-1.0f64, -1076i64)) < 0);
 	assert(ldexpf64(2.0f64, 1024i64) == INF);
 	assert(ldexpf64(-2.0f64, 1024i64) == -INF);
 
@@ -560,22 +603,22 @@ export fn ldexpf32(mantissa: f32, exp: i64) f32 = {
 	};
 	assert(ldexpf32(1.0f32, -1076i32) == 0.0f32);
 	assert(ldexpf32(-1.0f32, -1076i32) == -0.0f32);
-	assert(sign(ldexpf32(-1.0f32, -1076i32)) < 0);
+	assert(signf(ldexpf32(-1.0f32, -1076i32)) < 0);
 	assert(ldexpf32(2.0f32, 1024i32) == INF);
 	assert(ldexpf32(-2.0f32, 1024i32) == -INF);
 };
 
 // Returns the integer and fractional parts of an f64.
-export fn modf64(n: f64) (f64, f64) = {
+export fn modf64(n: f64) (i64, f64) = {
 	if (n < 1.0f64) {
 		if (n < 0.0f64) {
 			let positive_parts = modf64(-n);
 			return (-positive_parts.0, -positive_parts.1);
 		};
 		if (n == 0.0f64) {
-			return (n, n);
+			return ((n: i64), n);
 		};
-		return (0.0f64, n);
+		return (0i64, n);
 	};
 	let bits = f64bits(n);
 	const exp = (((bits >> F64_MANTISSA_BITS) & F64_EXPONENT_MASK): i64) -
@@ -589,20 +632,20 @@ export fn modf64(n: f64) (f64, f64) = {
 	};
 	const int_part = f64frombits(bits);
 	const frac_part = n - int_part;
-	return (int_part, frac_part);
+	return ((int_part: i64), frac_part);
 };
 
 // Returns the integer and fractional parts of an f32.
-export fn modf32(n: f32) (f32, f32) = {
+export fn modf32(n: f32) (i32, f32) = {
 	if (n < 1.0f32) {
 		if (n < 0.0f32) {
 			let positive_parts = modf32(-n);
 			return (-positive_parts.0, -positive_parts.1);
 		};
 		if (n == 0.0f32) {
-			return (n, n);
+			return ((n: i32), n);
 		};
-		return (0.0f32, n);
+		return (0i32, n);
 	};
 	let bits = f32bits(n);
 	const exp = (((bits >> F32_MANTISSA_BITS) & F32_EXPONENT_MASK): i32) -
@@ -616,45 +659,51 @@ export fn modf32(n: f32) (f32, f32) = {
 	};
 	const int_part = f32frombits(bits);
 	const frac_part = n - int_part;
-	return (int_part, frac_part);
+	return ((int_part: i32), frac_part);
 };
 
-@test fn test_modf() void = {
+@test fn modf() void = {
 	// 64
 	let res = modf64(1.75f64);
-	assert(res.0 == 1.0f64);
+	assert(res.0 == 1i64);
 	assert(res.1 == 0.75f64);
 	res = modf64(0.75f64);
-	assert(res.0 == 0.0f64);
+	assert(res.0 == 0i64);
 	assert(res.1 == 0.75f64);
 	res = modf64(-0.75f64);
-	assert(res.0 == -0.0f64);
+	assert(res.0 == -0i64);
 	assert(res.1 == -0.75f64);
 	res = modf64(0.0f64);
-	assert(res.0 == 0.0f64);
+	assert(res.0 == 0i64);
 	assert(res.1 == 0.0f64);
-	assert(sign(res.1) > 0);
+	assert(signf(res.1) > 0);
 	res = modf64(-0.0f64);
-	assert(res.0 == -0.0f64);
+	assert(res.0 == -0i64);
 	assert(res.1 == -0.0f64);
-	assert(sign(res.1) < 0);
+	assert(signf(res.1) < 0);
+	res = modf64(23.50f64);
+	assert(res.0 == 23i64);
+	assert(res.1 == 0.50f64);
 
 	// 32
 	let res = modf32(1.75f32);
-	assert(res.0 == 1.0f32);
+	assert(res.0 == 1i32);
 	assert(res.1 == 0.75f32);
 	res = modf32(0.75f32);
-	assert(res.0 == 0.0f32);
+	assert(res.0 == 0i32);
 	assert(res.1 == 0.75f32);
 	res = modf32(-0.75f32);
-	assert(res.0 == -0.0f32);
+	assert(res.0 == -0i32);
 	assert(res.1 == -0.75f32);
 	res = modf32(0.0f32);
-	assert(res.0 == 0.0f32);
+	assert(res.0 == 0i32);
 	assert(res.1 == 0.0f32);
-	assert(sign(res.1) > 0);
+	assert(signf(res.1) > 0);
 	res = modf32(-0.0f32);
-	assert(res.0 == -0.0f32);
-	assert(res.0 == -0.0f32);
-	assert(sign(res.1) < 0);
+	assert(res.0 == -0i32);
+	assert(res.1 == -0.0f32);
+	assert(signf(res.1) < 0);
+	res = modf32(23.50f32);
+	assert(res.0 == 23i32);
+	assert(res.1 == 0.50f32);
 };
