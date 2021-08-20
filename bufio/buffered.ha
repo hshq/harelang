@@ -27,8 +27,8 @@ export type bufstream = struct {
 // The caller is responsible for closing the underlying stream, and freeing the
 // provided buffers if necessary, after the buffered stream is closed.
 //
-// 	let rbuf: [os::BUFSIZ] = [0...];
-// 	let wbuf: [os::BUFSIZ] = [0...];
+// 	let rbuf: [os::BUFSIZ]u8 = [0...];
+// 	let wbuf: [os::BUFSIZ]u8 = [0...];
 // 	let buffered = bufio::buffered(source, rbuf, wbuf);
 export fn buffered(
 	src: *io::stream,
