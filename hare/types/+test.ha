@@ -5,6 +5,7 @@ use hare::lex;
 use hare::parse;
 use io;
 use strings;
+use fmt;
 
 fn parse_type(in: str) ast::_type = {
 	let buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
@@ -108,6 +109,11 @@ fn resolve(
 	assert(y.offs == 8);
 	let z = stype.fields[3];
 	assert(z.offs == 16);
+
+	let atype = parse_type("struct { x: u8, y: size, z: u8 }");
+	defer ast::type_free(atype);
+	let htype = lookup(st, &atype)!;
+	assert(htype.sz == 24);
 
 	// Sort order
 	let atype = parse_type("struct { z: u8, y: u8, x: u8, q: u8 }");

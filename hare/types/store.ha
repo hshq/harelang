@@ -261,6 +261,9 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 		},
 		et: ast::enum_type => abort(), // TODO
 	};
+	if (sz != SIZE_UNDEFINED && sz != 0 && sz % align != 0) {
+		sz += align - (sz - align) % align;
+	};
 	return _type {
 		flags = atype.flags: flags,
 		_type = underlying,
