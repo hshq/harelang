@@ -1,4 +1,5 @@
 use hare::ast;
+use hare::lex;
 use hare::types;
 
 fn process(ctx: *context, subunits: const []ast::subunit) (unit | error) = {
@@ -83,7 +84,7 @@ fn process_expr(
 	ast::break_expr => abort(), // TODO
 	ast::call_expr => abort(), // TODO
 	ast::cast_expr => abort(), // TODO
-	ast::constant_expr => abort(), // TODO
+	ast::constant_expr => process_constant(ctx, expr),
 	ast::continue_expr => abort(), // TODO
 	ast::defer_expr => abort(), // TODO
 	ast::delete_expr => abort(), // TODO
@@ -100,4 +101,38 @@ fn process_expr(
 	ast::slice_expr => abort(), // TODO
 	ast::switch_expr => abort(), // TODO
 	ast::unarithm_expr => abort(), // TODO
+};
+
+fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
+	const constexpr = aexpr.expr as ast::constant_expr;
+	const er = match (constexpr) {
+		void => (
+			types::lookup_builtin(ctx.store, ast::builtin_type::VOID),
+			void: constant_expr,
+		),
+		bool => abort(), // TODO
+		ast::_null => abort(), // TODO
+		lex::value => abort(), // TODO
+		ast::array_constant => abort(), // TODO
+		ast::struct_constant => abort(), // TODO
+		ast::tuple_constant => abort(), // TODO
+	};
+	return alloc(expr {
+		start = aexpr.start,
+		end = aexpr.end,
+		result = er.0,
+		expr = er.1,
+		...
+	});
+};
+
+@test fn constant() void = {
+	const ctx = mktestctx();
+	defer freetestctx(&ctx);
+	const aexpr = parse_expr("void");
+	defer ast::expr_free(aexpr);
+	const expr = process_constant(&ctx, aexpr)!;
+	assert(expr.result._type as types::builtin == types::builtin::VOID);
+	const constexpr = expr.expr as constant_expr;
+	assert(constexpr is void);
 };

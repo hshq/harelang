@@ -697,6 +697,7 @@ $(HARECACHE)/hare/parse/hare_parse.ssa: $(stdlib_hare_parse_srcs) $(stdlib_rt) $
 stdlib_hare_types_srcs= \
 	$(STDLIB)/hare/types/arch.ha \
 	$(STDLIB)/hare/types/hash.ha \
+	$(STDLIB)/hare/types/lookup.ha \
 	$(STDLIB)/hare/types/store.ha \
 	$(STDLIB)/hare/types/types.ha
 
@@ -716,7 +717,7 @@ stdlib_hare_unit_srcs= \
 	$(STDLIB)/hare/unit/scope.ha \
 	$(STDLIB)/hare/unit/unit.ha
 
-$(HARECACHE)/hare/unit/hare_unit.ssa: $(stdlib_hare_unit_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_types) $(stdlib_hash) $(stdlib_hash_fnv) $(stdlib_strings) $(stdlib_hare_lex)
+$(HARECACHE)/hare/unit/hare_unit.ssa: $(stdlib_hare_unit_srcs) $(stdlib_rt) $(stdlib_hare_ast) $(stdlib_hare_types) $(stdlib_hash) $(stdlib_hash_fnv) $(stdlib_strings) $(stdlib_hare_lex) $(stdlib_bufio) $(stdlib_hare_parse)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/unit
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::unit \
@@ -1932,6 +1933,7 @@ $(TESTCACHE)/hare/parse/hare_parse.ssa: $(testlib_hare_parse_srcs) $(testlib_rt)
 testlib_hare_types_srcs= \
 	$(STDLIB)/hare/types/arch.ha \
 	$(STDLIB)/hare/types/hash.ha \
+	$(STDLIB)/hare/types/lookup.ha \
 	$(STDLIB)/hare/types/store.ha \
 	$(STDLIB)/hare/types/types.ha \
 	$(STDLIB)/hare/types/+test.ha
@@ -1950,9 +1952,10 @@ testlib_hare_unit_srcs= \
 	$(STDLIB)/hare/unit/process.ha \
 	$(STDLIB)/hare/unit/scan.ha \
 	$(STDLIB)/hare/unit/scope.ha \
-	$(STDLIB)/hare/unit/unit.ha
+	$(STDLIB)/hare/unit/unit.ha \
+	$(STDLIB)/hare/unit/+test.ha
 
-$(TESTCACHE)/hare/unit/hare_unit.ssa: $(testlib_hare_unit_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_types) $(testlib_hash) $(testlib_hash_fnv) $(testlib_strings) $(testlib_hare_lex)
+$(TESTCACHE)/hare/unit/hare_unit.ssa: $(testlib_hare_unit_srcs) $(testlib_rt) $(testlib_hare_ast) $(testlib_hare_types) $(testlib_hash) $(testlib_hash_fnv) $(testlib_strings) $(testlib_hare_lex) $(testlib_bufio) $(testlib_hare_parse)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/unit
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::unit \

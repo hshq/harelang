@@ -368,6 +368,7 @@ gensrcs_hare_types() {
 	gen_srcs hare::types \
 		arch.ha \
 		hash.ha \
+		lookup.ha \
 		store.ha \
 		types.ha \
 		$*
@@ -396,8 +397,14 @@ gensrcs_hare_unit() {
 }
 
 hare_unit() {
-	gensrcs_hare_unit
-	gen_ssa hare::unit hare::ast hare::types hash hash::fnv strings hare::lex
+	if [ $testing -eq 1 ]
+	then
+		gensrcs_hare_unit +test.ha
+	else
+		gensrcs_hare_unit
+	fi
+	gen_ssa hare::unit hare::ast hare::types hash hash::fnv strings hare::lex \
+		bufio hare::parse
 }
 
 hare_unparse() {
