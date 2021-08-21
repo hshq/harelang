@@ -105,13 +105,19 @@ fn process_expr(
 
 fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const constexpr = aexpr.expr as ast::constant_expr;
-	const er = match (constexpr) {
+	const er: (const *types::_type, constant_expr) = match (constexpr) {
 		void => (
 			types::lookup_builtin(ctx.store, ast::builtin_type::VOID),
 			void: constant_expr,
 		),
-		bool => abort(), // TODO
-		ast::_null => abort(), // TODO
+		b: bool => (
+			types::lookup_builtin(ctx.store, ast::builtin_type::BOOL),
+			b,
+		),
+		ast::_null => (
+			types::lookup_builtin(ctx.store, ast::builtin_type::NULL),
+			_null,
+		),
 		lex::value => abort(), // TODO
 		ast::array_constant => abort(), // TODO
 		ast::struct_constant => abort(), // TODO
@@ -135,4 +141,24 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	assert(expr.result._type as types::builtin == types::builtin::VOID);
 	const constexpr = expr.expr as constant_expr;
 	assert(constexpr is void);
+
+	const aexpr = parse_expr("true");
+	defer ast::expr_free(aexpr);
+	const expr = process_constant(&ctx, aexpr)!;
+	assert(expr.result._type as types::builtin == types::builtin::BOOL);
+	const constexpr = expr.expr as constant_expr;
+	assert(constexpr as bool == true);
+
+	const aexpr = parse_expr("false");
+	defer ast::expr_free(aexpr);
+	const expr = process_constant(&ctx, aexpr)!;
+	assert(expr.result._type as types::builtin == types::builtin::BOOL);
+	const constexpr = expr.expr as constant_expr;
+	assert(constexpr as bool == false);
+
+	const aexpr = parse_expr("null");
+	defer ast::expr_free(aexpr);
+	const expr = process_constant(&ctx, aexpr)!;
+	assert(expr.result._type as types::builtin == types::builtin::NULL);
+	assert(expr.expr is constant_expr);
 };
