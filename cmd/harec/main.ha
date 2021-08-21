@@ -4,6 +4,8 @@ use getopt;
 use hare::ast;
 use hare::lex;
 use hare::parse;
+use hare::types;
+use hare::unit;
 use hare::unparse;
 use io;
 use os;
@@ -38,6 +40,15 @@ export fn main() void = {
 		os::exit(1);
 	};
 
+	// TODO: Use hare::unit resolver
+	const store = types::store(types::x86_64, null, null);
+	defer types::store_free(store);
+
+	let subunits: []ast::subunit = [];
+	defer for (let i = 0z; i < len(subunits); i += 1) {
+		ast::subunit_free(subunits[i]);
+	};
+
 	for (let i = 0z; i < len(cmd.args); i += 1) {
 		let input = match (os::open(cmd.args[i])) {
 			f: *io::stream => f,
@@ -57,8 +68,12 @@ export fn main() void = {
 			},
 			u: ast::subunit => u,
 		};
-		defer ast::subunit_free(su);
-
-		unparse::subunit(os::stdout, su)!;
+		append(subunits, su);
 	};
+
+	let unit = match (unit::check(store, [], subunits)) {
+		unit::error => abort(), // TODO
+		u: unit::unit => u,
+	};
+	defer unit::unit_free(unit);
 };
