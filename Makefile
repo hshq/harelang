@@ -92,4 +92,4 @@ check: .bin/hare-tests
 
 all: .bin/hare .bin/harec .bin/haredoc
 
-.PHONY: all clean check
+.PHONY: all clean check .bin/harec .bin/haredoc
