@@ -383,6 +383,23 @@ hare_types() {
 	gen_ssa hare::types hare::ast hare::parse hash hash::fnv endian
 }
 
+gensrcs_hare_unit() {
+	gen_srcs hare::unit \
+		check.ha \
+		errors.ha \
+		expr.ha \
+		process.ha \
+		scan.ha \
+		scope.ha \
+		unit.ha \
+		$*
+}
+
+hare_unit() {
+	gensrcs_hare_unit
+	gen_ssa hare::unit hare::ast hare::types hash hash::fnv strings hare::lex
+}
+
 hare_unparse() {
 	gen_srcs hare::unparse \
 		expr.ha \
@@ -857,6 +874,7 @@ hare::lex
 hare::module
 hare::parse
 hare::types
+hare::unit
 hare::unparse
 hash
 hash::adler32

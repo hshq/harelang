@@ -3,7 +3,6 @@ use hare::types;
 
 type context = struct {
 	store: *types::typestore,
-	unit: *unit,
 	scope: *scope,
 };
 
@@ -15,18 +14,10 @@ export fn check(
 	ident: ast::ident,
 	subunits: const []ast::subunit,
 ) (unit | error) = {
-	let unit = unit {
-		ident = ident,
-		decls = [],
-	};
 	let ctx = context {
 		store = store,
-		unit = &unit,
 		scope = alloc(scope { ... }),
 	};
-
 	scan(&ctx, subunits)?;
-	// TODO: validate
-
-	return unit;
+	return process(&ctx, subunits);
 };
