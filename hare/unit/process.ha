@@ -105,6 +105,7 @@ fn process_expr(
 
 fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const constexpr = aexpr.expr as ast::constant_expr;
+	// TODO: Tuple unpacking
 	const er: (const *types::_type, constant_expr) = match (constexpr) {
 		void => (
 			types::lookup_builtin(ctx.store, ast::builtin_type::VOID),
@@ -118,7 +119,18 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 			types::lookup_builtin(ctx.store, ast::builtin_type::NULL),
 			_null,
 		),
-		lex::value => abort(), // TODO
+		v: lex::value => (
+			// TODO: Constant type assignment
+			types::lookup_builtin(ctx.store, match (v) {
+				s: str => ast::builtin_type::STR,
+				r: rune => ast::builtin_type::RUNE,
+				i: i64 => ast::builtin_type::INT,
+				u: u64 => ast::builtin_type::UINT,
+				f: f64 => ast::builtin_type::F64,
+				void => abort(), // Invariant
+			}),
+			v,
+		),
 		ast::array_constant => abort(), // TODO
 		ast::struct_constant => abort(), // TODO
 		ast::tuple_constant => abort(), // TODO
@@ -161,4 +173,29 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const expr = process_constant(&ctx, aexpr)!;
 	assert(expr.result._type as types::builtin == types::builtin::NULL);
 	assert(expr.expr is constant_expr);
+
+	const cases: [_](str, types::builtin, lex::value) = [
+		("1234", types::builtin::INT, 1234),
+		("1234u", types::builtin::UINT, 1234u),
+		("\"hello world\"", types::builtin::STR, "hello world"),
+		("'!'", types::builtin::RUNE, '!'),
+		("13.37", types::builtin::F64, 13.37f64),
+	];
+	for (let i = 0z; i < len(cases); i += 1) {
+		const case = cases[i];
+		const aexpr = parse_expr(case.0);
+		defer ast::expr_free(aexpr);
+		const expr = process_constant(&ctx, aexpr)!;
+		assert(expr.result._type as types::builtin == case.1);
+		const constexpr = expr.expr as constant_expr;
+		const lv = constexpr as lex::value;
+		match (case.2) {
+			s: str => assert(lv as str == s),
+			r: rune => assert(lv as rune == r),
+			i: i64 => assert(lv as i64 == i),
+			u: u64 => assert(lv as u64 == u),
+			f: f64 => assert(lv as f64 == f),
+			void => abort(),
+		};
+	};
 };
