@@ -4,8 +4,8 @@ use hare::ast;
 export fn dealias(t: *_type) const *_type = {
 	for (true) match (t._type) {
 		a: alias => {
-			assert(a._type != null);
-			t = a._type: const *_type;
+			assert(a.secondary != null);
+			t = a.secondary: const *_type;
 		},
 		* => break,
 	};

@@ -4,7 +4,7 @@ use hare::ast;
 export type alias = struct {
 	id: ast::ident,
 	// null for forward referenced types
-	_type: const nullable *_type,
+	secondary: const nullable *_type,
 };
 
 // An array type, e.g. [10]int

@@ -89,7 +89,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			assert(!a.unwrap);
 			alias {
 				id = ast::ident_dup(a.ident),
-				_type = null,
+				secondary = null,
 			};
 		},
 		// TODO: Tuple unpacking could improve this
