@@ -48,11 +48,9 @@ fn process_func(
 	assert(fntype.variadism == types::variadism::NONE); // TODO
 	assert(len(fntype.params) == 0); // TODO
 
-	let body: nullable *expr = null;
-	// TODO: Change the afndecl body field to nullable *ast::expr
-	if (afndecl.body is ast::expr) {
-		const abody = afndecl.body as ast::expr;
-		body = process_expr(ctx, &abody)?;
+	const body: nullable *expr = match (afndecl.body) {
+		abody: ast::expr => process_expr(ctx, &abody)?,
+		void => null,
 	};
 
 	return decl {
