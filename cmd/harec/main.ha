@@ -76,4 +76,5 @@ export fn main() void = {
 		u: unit::unit => u,
 	};
 	defer unit::unit_free(unit);
+	gen(store, &unit);
 };
