@@ -219,7 +219,7 @@ fn type_test(t: ast::_type, expected: str) bool = {
 		start = loc,
 		end = loc,
 		flags = ast::type_flags::CONST,
-		_type = ast::alias_type {
+		repr = ast::alias_type {
 			unwrap = false,
 			ident = ["foo", "bar"],
 		},
@@ -228,7 +228,7 @@ fn type_test(t: ast::_type, expected: str) bool = {
 		start = loc,
 		end = loc,
 		flags = 0,
-		_type = ast::builtin_type::INT,
+		repr = ast::builtin_type::INT,
 	};
 	let expr_void = ast::expr {
 		start = lex::location { ... },
@@ -238,18 +238,18 @@ fn type_test(t: ast::_type, expected: str) bool = {
 
 	assert(type_test(t, "const foo::bar"));
 	t.flags = 0;
-	t._type = ast::alias_type {
+	t.repr = ast::alias_type {
 		unwrap = true,
 		ident = ["baz"],
 	};
 	assert(type_test(t, "...baz"));
 
 	t.flags = ast::type_flags::ERROR;
-	t._type = ast::builtin_type::INT;
+	t.repr = ast::builtin_type::INT;
 	assert(type_test(t, "int!"));
 
 	t.flags = ast::type_flags::CONST | ast::type_flags::ERROR;
-	t._type = ast::enum_type {
+	t.repr = ast::enum_type {
 		storage = ast::builtin_type::U32,
 		values = [
 			ast::enum_field {
@@ -266,14 +266,14 @@ fn type_test(t: ast::_type, expected: str) bool = {
 
 	t.flags = 0;
 
-	t._type = ast::func_type {
+	t.repr = ast::func_type {
 		result = &type_int,
 		attrs = 0,
 		variadism = ast::variadism::NONE,
 		params = [],
 	};
 	assert(type_test(t, "fn() int"));
-	t._type = ast::func_type {
+	t.repr = ast::func_type {
 		result = &type_int,
 		attrs = ast::func_attrs::NORETURN,
 		variadism = ast::variadism::C,
@@ -286,7 +286,7 @@ fn type_test(t: ast::_type, expected: str) bool = {
 		],
 	};
 	assert(type_test(t, "@noreturn fn(_: int, ...) int"));
-	t._type = ast::func_type {
+	t.repr = ast::func_type {
 		result = &type_int,
 		attrs = 0,
 		variadism = ast::variadism::HARE,
@@ -309,41 +309,41 @@ fn type_test(t: ast::_type, expected: str) bool = {
 	assert(type_test(t, "fn(foo: int, bar: int...) int"));
 
 	t.flags = 0;
-	t._type = ast::list_type {
+	t.repr = ast::list_type {
 		length = ast::len_slice,
 		members = &type_int,
 	};
 	assert(type_test(t, "[]int"));
-	t._type = ast::list_type {
+	t.repr = ast::list_type {
 		length = ast::len_unbounded,
 		members = &type_int,
 	};
 	assert(type_test(t, "[*]int"));
-	t._type = ast::list_type {
+	t.repr = ast::list_type {
 		length = ast::len_contextual,
 		members = &type_int,
 	};
 	assert(type_test(t, "[_]int"));
-	t._type = ast::list_type {
+	t.repr = ast::list_type {
 		length = &expr_void,
 		members = &type_int,
 	};
 	assert(type_test(t, "[void]int"));
 
-	t._type = ast::pointer_type {
+	t.repr = ast::pointer_type {
 		referent = &type_int,
 		flags = 0,
 	};
 	assert(type_test(t, "*int"));
-	t._type = ast::pointer_type {
+	t.repr = ast::pointer_type {
 		referent = &type_int,
 		flags = ast::pointer_flags::NULLABLE,
 	};
 	assert(type_test(t, "nullable *int"));
 
-	t._type = [&type_int, &type_int]: ast::tagged_type;
+	t.repr = [&type_int, &type_int]: ast::tagged_type;
 	assert(type_test(t, "(int | int)"));
 
-	t._type = [&type_int, &type_int]: ast::tuple_type;
+	t.repr = [&type_int, &type_int]: ast::tuple_type;
 	assert(type_test(t, "(int, int)"));
 };

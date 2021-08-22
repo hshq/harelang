@@ -150,28 +150,28 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const aexpr = parse_expr("void");
 	defer ast::expr_free(aexpr);
 	const expr = process_constant(&ctx, aexpr)!;
-	assert(expr.result._type as types::builtin == types::builtin::VOID);
+	assert(expr.result.repr as types::builtin == types::builtin::VOID);
 	const constexpr = expr.expr as constant_expr;
 	assert(constexpr is void);
 
 	const aexpr = parse_expr("true");
 	defer ast::expr_free(aexpr);
 	const expr = process_constant(&ctx, aexpr)!;
-	assert(expr.result._type as types::builtin == types::builtin::BOOL);
+	assert(expr.result.repr as types::builtin == types::builtin::BOOL);
 	const constexpr = expr.expr as constant_expr;
 	assert(constexpr as bool == true);
 
 	const aexpr = parse_expr("false");
 	defer ast::expr_free(aexpr);
 	const expr = process_constant(&ctx, aexpr)!;
-	assert(expr.result._type as types::builtin == types::builtin::BOOL);
+	assert(expr.result.repr as types::builtin == types::builtin::BOOL);
 	const constexpr = expr.expr as constant_expr;
 	assert(constexpr as bool == false);
 
 	const aexpr = parse_expr("null");
 	defer ast::expr_free(aexpr);
 	const expr = process_constant(&ctx, aexpr)!;
-	assert(expr.result._type as types::builtin == types::builtin::NULL);
+	assert(expr.result.repr as types::builtin == types::builtin::NULL);
 	assert(expr.expr is constant_expr);
 
 	const cases: [_](str, types::builtin, lex::value) = [
@@ -186,7 +186,7 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 		const aexpr = parse_expr(case.0);
 		defer ast::expr_free(aexpr);
 		const expr = process_constant(&ctx, aexpr)!;
-		assert(expr.result._type as types::builtin == case.1);
+		assert(expr.result.repr as types::builtin == case.1);
 		const constexpr = expr.expr as constant_expr;
 		const lv = constexpr as lex::value;
 		match (case.2) {

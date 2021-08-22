@@ -129,13 +129,13 @@ export fn hash(t: *_type) u32 = {
 	// Test a few samples for ABI compatibility with harec
 	let sample = _type {
 		flags = flags::NONE,
-		_type = builtin::STR,
+		repr = builtin::STR,
 	};
 	assert(hash(&sample) == 3350498318);
 
 	let sample = _type {
 		flags = flags::NONE,
-		_type = alias {
+		repr = alias {
 			id = ["foo", "bar"],
 			...
 		},
@@ -144,7 +144,7 @@ export fn hash(t: *_type) u32 = {
 
 	let sample = _type {
 		flags = flags::ERROR,
-		_type = alias {
+		repr = alias {
 			id = ["foo", "bar"],
 			...
 		},
@@ -153,13 +153,13 @@ export fn hash(t: *_type) u32 = {
 
 	let _int = _type {
 		flags = flags::NONE,
-		_type = builtin::INT,
+		repr = builtin::INT,
 	};
 	assert(hash(&_int) == 1737287038);
 
 	let sample = _type {
 		flags = flags::NONE,
-		_type = pointer {
+		repr = pointer {
 			referent = &_int,
 			flags = pointer_flags::NONE,
 		},
@@ -168,7 +168,7 @@ export fn hash(t: *_type) u32 = {
 
 	let sample = _type {
 		flags = flags::NONE,
-		_type = pointer {
+		repr = pointer {
 			referent = &_int,
 			flags = pointer_flags::NULLABLE,
 		},
@@ -177,7 +177,7 @@ export fn hash(t: *_type) u32 = {
 
 	let sample = _type {
 		flags = flags::NONE,
-		_type = _struct {
+		repr = _struct {
 			kind = struct_union::STRUCT,
 			fields = [
 				struct_field {
@@ -197,7 +197,7 @@ export fn hash(t: *_type) u32 = {
 
 	let sample = _type {
 		flags = flags::NONE,
-		_type = [
+		repr = [
 			tuple_value {
 				offs = 0,
 				_type = &_int,
@@ -216,7 +216,7 @@ export fn hash(t: *_type) u32 = {
 
 	let sample = _type {
 		flags = flags::NONE,
-		_type = array {
+		repr = array {
 			length = 5,
 			member = &_int,
 		},
@@ -225,16 +225,16 @@ export fn hash(t: *_type) u32 = {
 
 	let _uint = _type {
 		flags = flags::NONE,
-		_type = builtin::UINT,
+		repr = builtin::UINT,
 	};
 	let _void = _type {
 		flags = flags::NONE,
-		_type = builtin::VOID,
+		repr = builtin::VOID,
 	};
 
 	let sample = _type {
 		flags = flags::NONE,
-		_type = [
+		repr = [
 			&_int,
 			&_uint,
 			&_void,
@@ -244,7 +244,7 @@ export fn hash(t: *_type) u32 = {
 
 	let sample = _type {
 		flags = flags::NONE,
-		_type = _enum {
+		repr = _enum {
 			storage = builtin::INT,
 			values = [
 				("FOO", 0),
@@ -257,7 +257,7 @@ export fn hash(t: *_type) u32 = {
 
 	let sample = _type {
 		flags = flags::NONE,
-		_type = func {
+		repr = func {
 			result = &_void,
 			variadism = variadism::C,
 			flags = func_flags::NORETURN,
@@ -268,7 +268,7 @@ export fn hash(t: *_type) u32 = {
 
 	let sample = _type {
 		flags = flags::NONE,
-		_type = &_void: slice,
+		repr = &_void: slice,
 	};
 	assert(hash(&sample) == 3143795781);
 };

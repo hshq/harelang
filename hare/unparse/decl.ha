@@ -107,13 +107,13 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 		start = loc,
 		end = loc,
 		flags = 0,
-		_type = ast::builtin_type::INT,
+		repr = ast::builtin_type::INT,
 	};
 	let type_fn = ast::_type {
 		start = loc,
 		end = loc,
 		flags = ast::type_flags::CONST,
-		_type = ast::func_type {
+		repr = ast::func_type {
 			result = &type_int,
 			attrs = ast::func_attrs::NORETURN,
 			variadism = ast::variadism::HARE,
@@ -191,7 +191,7 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 	};
 	assert(decl_test(d, "@fini @noreturn @symbol(\"foo\") fn foo(foo: int, bar: int...) int;"));
 
-	type_fn._type = ast::func_type {
+	type_fn.repr = ast::func_type {
 		result = &type_int,
 		attrs = 0,
 		variadism = ast::variadism::NONE,

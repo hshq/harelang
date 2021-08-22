@@ -31,6 +31,23 @@ fn html_escape(out: *io::stream, in: str) (size | io::error) = {
 	return z;
 };
 
+@test fn html_escape() void = {
+       let sink = strio::dynamic();
+       defer io::close(sink);
+       html_escape(sink, "hello world!")!;
+       assert(strio::string(sink) == "hello world!");
+
+       let sink = strio::dynamic();
+       defer io::close(sink);
+       html_escape(sink, "\"hello world!\"")!;
+       assert(strio::string(sink) == "&quot;hello world!&quot;");
+
+       let sink = strio::dynamic();
+       defer io::close(sink);
+       html_escape(sink, "<hello & 'world'!>")!;
+       assert(strio::string(sink) == "&lt;hello &amp; &apos;world&apos;!&gt;");
+};
+
 // Formats output as HTML
 fn emit_html(ctx: *context) (void | error) = {
 	const decls = ctx.summary;
