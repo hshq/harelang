@@ -10,6 +10,11 @@ type value = struct {
 	_type: const *types::_type,
 };
 
+const vvoid: value = value {
+	value = qvoid,
+	_type = &types::builtin_void,
+};
+
 type qinstr = enum {
 	ADD,
 	ALLOC16,

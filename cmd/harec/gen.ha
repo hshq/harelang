@@ -69,15 +69,6 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 };
 
 fn gen_expr(ctx: *context, expr: *unit::expr) value = {
-	// TODO
-	emit(ctx, void, qinstr::RET);
-
-	// TODO:
-	// - Make this a constant called valvoid
-	// - Implement tagged unions (and their casts) in eval
-	// - Add builtin type globals in hare::types like &types::builtin_void
-	return value {
-		value = qvoid,
-		_type = types::lookup_builtin(ctx.store, ast::builtin_type::VOID),
-	};
+	emit(ctx, void, qinstr::RET); // TODO
+	return vvoid;
 };

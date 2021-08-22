@@ -68,6 +68,26 @@ export fn lookup(
 	ty: *ast::_type,
 ) (const *_type | deferred | error) = {
 	const ty = fromast(store, ty)?;
+	if (ty.flags == 0) match (ty.repr) {
+		b: builtin => switch (b) {
+			builtin::CHAR => return &builtin_char,
+			builtin::F32 => return &builtin_f32,
+			builtin::F64 => return &builtin_f64,
+			builtin::I8 => return &builtin_i8,
+			builtin::I16 => return &builtin_i16,
+			builtin::I32 => return &builtin_i32,
+			builtin::I64 => return &builtin_i64,
+			builtin::RUNE => return &builtin_rune,
+			builtin::U8 => return &builtin_u8,
+			builtin::U16 => return &builtin_u16,
+			builtin::U32 => return &builtin_u32,
+			builtin::U64 => return &builtin_u64,
+			builtin::VOID => return &builtin_void,
+			* => void,
+		},
+		* => void,
+	};
+
 	const id = hash(&ty);
 	let bucket = &store.map[id % BUCKETS];
 	for (let i = 0z; i < len(bucket); i += 1) {

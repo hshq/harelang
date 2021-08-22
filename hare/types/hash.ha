@@ -2,6 +2,7 @@ use endian;
 use hash::fnv;
 use hash;
 use strings;
+use fmt;
 
 // Keep ordered with respect to bootstrap harec:include/types.h
 type storage = enum u8 {
