@@ -368,7 +368,7 @@ fn f64todecf64(mantissa: u64, exponent: u32) decf64 = {
 			// round to even
 			last_removed_digit = 4;
 		};
-		output = vr + ibool((vr == vm && 
+		output = vr + ibool((vr == vm &&
 			(!accept_bounds || !vm_trailing_zeros)) ||
 			last_removed_digit >= 5);
 	} else {
@@ -451,7 +451,7 @@ fn f32todecf32(mantissa: u32, exponent: u32) decf32 = {
 		vp = mulpow5_divpow2(mp, i, j);
 		vm = mulpow5_divpow2(mm, i, j);
 		if (q != 0 && (vp - 1) / 10 <= vm / 10) {
-			j = (q: i32) - 1 - (pow5bits(i + 1): i32 - 
+			j = (q: i32) - 1 - (pow5bits(i + 1): i32 -
 				F32_POW5_BITCOUNT: i32);
 			last_removed_digit = (mulpow5_divpow2(mv,
 				(i + 1), j) % 10): u8;
@@ -650,7 +650,7 @@ export fn f32tos(n: f32) const str = {
 	// The biggest string produced by a f32 number in base 10 would have the
 	// negative sign, followed by a digit and decimal point, and then seven
 	// more decimal digits, followed by 'e' and another negative sign and
-	// the maximum of two digits for exponent. 
+	// the maximum of two digits for exponent.
 	// (1 + 1 + 1 + 7 + 1 + 1 + 2) = 14
 	static let buf: [16]u8 = [0...];
 	const bits = math::f32bits(n);

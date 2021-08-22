@@ -1,7 +1,7 @@
 // Sections of the code below, in particular log() and exp(), are based on Go's
 // implementation, which is, in turn, based on FreeBSD's. The original C code,
 // as well as the respective comments and constants are from
-// /usr/src/lib/msun/src/e_log.c.
+// /usr/src/lib/msun/src/{e_log,e_exp}.c.
 //
 // The FreeBSD copyright notice:
 // ====================================================
@@ -46,13 +46,24 @@
 
 use types;
 
+// The standard tolerance used by isclose(), which is just an arbitrary way to
+// measure whether two floating-point numbers are "sufficiently" close to each
+// other.
+export def STANDARD_TOL: f64 = 1e-14;
+
 // Returns whether x and y are within tol of each other.
 export fn eqwithinf64(x: f64, y: f64, tol: f64) bool = {
+	if (isnan(x) || isnan(y) || isnan(tol)) {
+		return false;
+	};
 	return absf64(x - y) < tol;
 };
 
 // Returns whether x and y are within tol of each other.
 export fn eqwithinf32(x: f32, y: f32, tol: f32) bool = {
+	if (isnan(x) || isnan(y) || isnan(tol)) {
+		return false;
+	};
 	return absf32(x - y) < tol;
 };
 
@@ -65,10 +76,31 @@ export fn eqwithin(x: types::floating, y: types::floating,
 	};
 };
 
-@test fn equalwithin() void = {
-	assert(eqwithin(1.0f64, 2.0f64, 2.0f64));
+// Returns whether x and y are within [[STANDARD_TOL]] of each other.
+export fn isclosef64(x: f64, y: f64) bool = {
+	return eqwithinf64(x, y, STANDARD_TOL);
+};
+
+// Returns whether x and y are within [[STANDARD_TOL]] of each other.
+export fn isclosef32(x: f32, y: f32) bool = {
+	return eqwithinf32(x, y, STANDARD_TOL);
+};
+
+// Returns whether x and y are within [[STANDARD_TOL]] of each other.
+export fn isclose(x: types::floating, y: types::floating) bool = {
+	return match (x) {
+		n: f64 => isclosef64(n, y as f64),
+		n: f32 => isclosef32(n, y as f32),
+	};
+};
+
+@test fn eqwithin() void = {
+	assert(eqwithin(1f64, 2f64, 2f64));
 	assert(eqwithin(1.0f32, 2.0f32, 2.0f32));
 	assert(!eqwithin(1.0005f32, 1.0004f32, 0.00001f32));
+	assert(isclose(1f64, 1.0000000000000000000000000001f64));
+	assert(isclose(1.0f32, 1.0000000000000000000000000001f32));
+	assert(!isclose(1.0005f32, 1.0004f32));
 };
 
 // e - https://oeis.org/A001113
@@ -90,11 +122,11 @@ def LN_2: f64 = 0.69314718055994530941723212145817656807550013436025525412068000
 def LN2_HI: f64 = 6.93147180369123816490e-01;
 def LN2_LO: f64 = 1.90821492927058770002e-10;
 // log_{2}(e)
-def LOG2_E: f64 = 1.0f64 / LN_2;
+def LOG2_E: f64 = 1f64 / LN_2;
 // ln(10) - https://oeis.org/A002392
 def LN_10: f64 = 2.30258509299404568401799145468436420760110148862877297603332790;
 // log_{10}(e)
-def LOG10_E: f64 = 1.0f64 / LN_10;
+def LOG10_E: f64 = 1f64 / LN_10;
 
 // __ieee754_log(x)
 // Return the logarithm of x
@@ -146,20 +178,20 @@ def LOG10_E: f64 = 1.0f64 / LN_10;
 
 // Returns the natural logarithm of x.
 export fn logf64(x: f64) f64 = {
-	const L1 = 6.666666666666735130e-01; // 3FE55555 55555593
-	const L2 = 3.999999999940941908e-01; // 3FD99999 9997FA04
-	const L3 = 2.857142874366239149e-01; // 3FD24924 94229359
-	const L4 = 2.222219843214978396e-01; // 3FCC71C5 1D8E78AF
-	const L5 = 1.818357216161805012e-01; // 3FC74664 96CB03DE
-	const L6 = 1.531383769920937332e-01; // 3FC39A09 D078C69F
-	const L7 = 1.479819860511658591e-01; // 3FC2F112 DF3E5244
+	const L1 = 6.666666666666735130e-01; // 3fe55555 55555593
+	const L2 = 3.999999999940941908e-01; // 3fd99999 9997fa04
+	const L3 = 2.857142874366239149e-01; // 3fd24924 94229359
+	const L4 = 2.222219843214978396e-01; // 3fcc71c5 1d8e78af
+	const L5 = 1.818357216161805012e-01; // 3fc74664 96cb03de
+	const L6 = 1.531383769920937332e-01; // 3fc39a09 d078c69f
+	const L7 = 1.479819860511658591e-01; // 3fc2f112 df3e5244
 
 	// special cases
 	if (isnan(x) || isposinf(x)) {
 		return x;
-	} else if (x < 0.0f64) {
+	} else if (x < 0f64) {
 		return NAN;
-	} else if (x == 0.0f64) {
+	} else if (x == 0f64) {
 		return -INF;
 	};
 
@@ -167,15 +199,15 @@ export fn logf64(x: f64) f64 = {
 	const f1_and_ki = frexp(x);
 	let f1 = f1_and_ki.0;
 	let ki = f1_and_ki.1;
-	if (f1 < (SQRT_2 / 2.0f64)) {
-		f1 *= 2.0f64;
+	if (f1 < (SQRT_2 / 2f64)) {
+		f1 *= 2f64;
 		ki -= 1i64;
 	};
-	let f = f1 - 1.0f64;
+	let f = f1 - 1f64;
 	let k = (ki: f64);
 
 	// Compute
-	const s = f / (2.0f64 + f);
+	const s = f / (2f64 + f);
 	const s2 = s * s;
 	const s4 = s2 * s2;
 	const t1 = s2 * (L1 + s4 * (L3 + s4 * (L5 + s4 * L7)));
@@ -186,12 +218,243 @@ export fn logf64(x: f64) f64 = {
 };
 
 @test fn logf64() void = {
-	assert(logf64(E) == 1.0f64);
-	assert(logf64(54.598150033144239078110261202860878402790f64) == 4.0f64);
-	assert(isnan(logf64(-1.0f64)));
+	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
+		assert(isclose(
+			logf64(absf64(TEST_INPUTS[idx])),
+			TEST_LOG[idx]));
+	};
+	assert(logf64(E) == 1f64);
+	assert(logf64(54.598150033144239078110261202860878402790f64) == 4f64);
+	assert(isnan(logf64(-1f64)));
 	assert(isposinf(logf64(INF)));
-	assert(isneginf(logf64(0.0f64)));
+	assert(isneginf(logf64(0f64)));
 	assert(isnan(logf64(NAN)));
+};
+
+// Returns the decimal logarithm of x.
+export fn log10f64(x: f64) f64 = {
+	return logf64(x) * (1f64 / LN_10);
+};
+
+@test fn log10f64() void = {
+	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
+		assert(isclose(
+			log10f64(absf64(TEST_INPUTS[idx])),
+			TEST_LOG10[idx]));
+	};
+};
+
+// Returns the binary logarithm of x.
+export fn log2f64(x: f64) f64 = {
+	const frexp_res = frexpf64(x);
+	let frac = frexp_res.0;
+	let exp = frexp_res.1;
+	// Make sure exact powers of two give an exact answer.
+	// Don't depend on log(0.5) * (1 / LN_2) + exp being exactly exp - 1.
+	if (frac == 0.5f64) {
+		return ((exp - 1): f64);
+	};
+	return logf64(frac) * (1f64 / LN_2) + (exp: f64);
+};
+
+@test fn log2f64() void = {
+	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
+		assert(isclose(
+			log2f64(absf64(TEST_INPUTS[idx])),
+			TEST_LOG2[idx]));
+	};
+};
+
+// double log1p(double x)
+//
+// Method :
+//   1. Argument Reduction: find k and f such that
+//                      1+x = 2**k * (1+f),
+//         where  sqrt(2)/2 < 1+f < sqrt(2) .
+//
+//      Note. If k=0, then f=x is exact. However, if k!=0, then f
+//      may not be representable exactly. In that case, a correction
+//      term is need. Let u=1+x rounded. Let c = (1+x)-u, then
+//      log(1+x) - log(u) ~ c/u. Thus, we proceed to compute log(u),
+//      and add back the correction term c/u.
+//      (Note: when x > 2**53, one can simply return log(x))
+//
+//   2. Approximation of log1p(f).
+//      Let s = f/(2+f) ; based on log(1+f) = log(1+s) - log(1-s)
+//               = 2s + 2/3 s**3 + 2/5 s**5 + .....,
+//               = 2s + s*R
+//      We use a special Reme algorithm on [0,0.1716] to generate
+//      a polynomial of degree 14 to approximate R The maximum error
+//      of this polynomial approximation is bounded by 2**-58.45. In
+//      other words,
+//                      2      4      6      8      10      12      14
+//          R(z) ~ LP1*s +LP2*s +LP3*s +LP4*s +LP5*s  +LP6*s  +LP7*s
+//      (the values of LP1 to LP7 are listed in the program)
+//      and
+//          |      2          14          |     -58.45
+//          | LP1*s +...+LP7*s    -  R(z) | <= 2
+//          |                             |
+//      Note that 2s = f - s*f = f - hfsq + s*hfsq, where hfsq = f*f/2.
+//      In order to guarantee error in log below 1ulp, we compute log
+//      by
+//              log1p(f) = f - (hfsq - s*(hfsq+R)).
+//
+//   3. Finally, log1p(x) = k*ln2 + log1p(f).
+//                        = k*ln2_hi+(f-(hfsq-(s*(hfsq+R)+k*ln2_lo)))
+//      Here ln2 is split into two floating point number:
+//                   ln2_hi + ln2_lo,
+//      where n*ln2_hi is always exact for |n| < 2000.
+//
+// Special cases:
+//      log1p(x) is NaN with signal if x < -1 (including -INF) ;
+//      log1p(+INF) is +INF; log1p(-1) is -INF with signal;
+//      log1p(NaN) is that NaN with no signal.
+//
+// Accuracy:
+//      according to an error analysis, the error is always less than
+//      1 ulp (unit in the last place).
+//
+// Constants:
+// The hexadecimal values are the intended ones for the following
+// constants. The decimal values may be used, provided that the
+// compiler will convert from decimal to binary accurately enough
+// to produce the hexadecimal values shown.
+//
+// Note: Assuming log() return accurate answer, the following
+//       algorithm can be used to compute log1p(x) to within a few ULP:
+//
+//              u = 1+x;
+//              if(u==1.0) return x ; else
+//                         return log(u)*(x/(u-1.0));
+//
+//       See HP-15C Advanced Functions Handbook, p.193.
+
+// Returns the natural logarithm of 1 plus its argument x.
+// It is more accurate than log(1 + x) when x is near zero.
+export fn log1pf64(x: f64) f64 = {
+	// sqrt(2) - 1
+	const SQRT2M1 = 4.142135623730950488017e-01; // 0x3fda827999fcef34
+	// sqrt(2) / 2 - 1
+	const SQRT2HALFM1 = -2.928932188134524755992e-01; // 0xbfd2bec333018866
+	const SMALL = 1f64 / ((1i64 << 29): f64); // 2**-29
+	const TINY = 1f64 / ((1i64 << 54): f64); // 2**-54
+	const TWO53 = ((1i64 << 53): f64); // 2**53
+	const LN2HI = 6.93147180369123816490e-01; // 3fe62e42fee00000
+	const LN2LO = 1.90821492927058770002e-10; // 3dea39ef35793c76
+	const LP1 = 6.666666666666735130e-01; // 3fe5555555555593
+	const LP2 = 3.999999999940941908e-01; // 3fd999999997fa04
+	const LP3 = 2.857142874366239149e-01; // 3fd2492494229359
+	const LP4 = 2.222219843214978396e-01; // 3fcc71c51d8e78af
+	const LP5 = 1.818357216161805012e-01; // 3fc7466496cb03de
+	const LP6 = 1.531383769920937332e-01; // 3fc39a09d078c69f
+	const LP7 = 1.479819860511658591e-01; // 3fc2f112df3e5244
+
+	if (x < -1f64 || isnan(x)) {
+		return NAN;
+	} else if (x == -1f64) {
+		return -INF;
+	} else if (isposinf(x)) {
+		return INF;
+	};
+
+	const absx = absf64(x);
+
+	let f = 0f64;
+	let iu = 0u64;
+	let k = 1i64;
+	if (absx < SQRT2M1) { //  |x| < Sqrt(2)-1
+		if (absx < SMALL) { // |x| < 2**-29
+			if (absx < TINY) { // |x| < 2**-54
+				return x;
+			};
+			return x - (x * x * 0.5f64);
+		};
+		if (x > SQRT2HALFM1) { // Sqrt(2)/2-1 < x
+			// (Sqrt(2)/2-1) < x < (Sqrt(2)-1)
+			k = 0;
+			f = x;
+			iu = 1;
+		};
+	};
+	let c = 0f64;
+	if (k != 0) {
+		let u = 0f64;
+		if (absx < TWO53) { // 1<<53
+			u = 1.0 + x;
+			iu = f64bits(u);
+			k = (((iu >> 52) - 1023): i64);
+			// Correction term
+			if (k > 0) {
+				c = 1f64 - (u - x);
+			} else {
+				c = x - (u - 1f64);
+			};
+			c /= u;
+		} else {
+			u = x;
+			iu = f64bits(u);
+			k = (((iu >> 52) - 1023): i64);
+			c = 0f64;
+		};
+		iu &= 0x000fffffffffffff;
+		if (iu < 0x0006a09e667f3bcd) { // Mantissa of Sqrt(2)
+			// Normalize u
+			u = f64frombits(iu | 0x3ff0000000000000);
+		} else {
+			k += 1;
+			// Normalize u/2
+			u = f64frombits(iu | 0x3fe0000000000000);
+			iu = (0x0010000000000000 - iu) >> 2;
+		};
+		f = u - 1f64; // Sqrt(2)/2 < u < Sqrt(2)
+	};
+	const hfsq = 0.5 * f * f;
+	let s = 0f64;
+	let R = 0f64;
+	let z = 0f64;
+	if (iu == 0) { // |f| < 2**-20
+		if (f == 0f64) {
+			if (k == 0) {
+				return 0f64;
+			};
+			c += (k: f64) * LN2LO;
+			return (k: f64) * LN2HI + c;
+		};
+		R = hfsq * (1.0 - 0.66666666666666666 * f); // Avoid division
+		if (k == 0) {
+			return f - R;
+		};
+		return (k: f64) * LN2HI - ((R - ((k: f64) * LN2LO + c)) - f);
+	};
+	s = f / (2f64 + f);
+	z = s * s;
+	R = z * (LP1 +
+		z * (LP2 +
+		z * (LP3 +
+		z * (LP4 +
+		z * (LP5 +
+		z * (LP6 +
+		z * LP7))))));
+	if (k == 0) {
+		return f - (hfsq - s * (hfsq + R));
+	};
+	return (k: f64) * LN2HI -
+		((hfsq - (s * (hfsq + R) + ((k: f64) * LN2LO + c))) - f);
+};
+
+@test fn log1p() void = {
+	for (let idx = 0z; idx < 10; idx += 1) {
+		assert(isclose(
+			log1pf64(TEST_INPUTS[idx] / 100f64),
+			TEST_LOG1P[idx]));
+	};
+	assert(isnan(log1pf64(-INF)));
+	assert(isnan(log1pf64(-PI)));
+	assert(log1pf64(-1f64) == -INF);
+	assert(log1pf64(-0f64) == -0f64);
+	assert(log1pf64(0f64) == 0f64);
+	assert(log1pf64(INF) == INF);
+	assert(isnan(log1pf64(NAN)));
 };
 
 // exp(x)
@@ -258,16 +521,16 @@ export fn logf64(x: f64) f64 = {
 
 // Returns e^r * 2^k where r = hi - lo and |r| <= (ln(2) / 2).
 export fn expmultif64(hi: f64, lo: f64, k: i64) f64 = {
-	const P1 = 1.66666666666666657415e-01; // 0x3FC55555; 0x55555555
-	const P2 = -2.77777777770155933842e-03; // 0xBF66C16C; 0x16BEBD93
-	const P3 = 6.61375632143793436117e-05; // 0x3F11566A; 0xAF25DE2C
-	const P4 = -1.65339022054652515390e-06; // 0xBEBBBD41; 0xC5D26BF1
-	const P5 = 4.13813679705723846039e-08; // 0x3E663769; 0x72BEA4D0
+	const P1 = 1.66666666666666657415e-01; // 0x3fc55555; 0x55555555
+	const P2 = -2.77777777770155933842e-03; // 0xbf66c16c; 0X16bebd9n
+	const P3 = 6.61375632143793436117e-05; // 0x3f11566a; 0Xaf25de2c
+	const P4 = -1.65339022054652515390e-06; // 0xbebbbd41; 0Xc5d26bf1
+	const P5 = 4.13813679705723846039e-08; // 0x3e663769; 0X72bea4d0
 
 	let r = hi - lo;
 	let t = r * r;
 	let c = r - t * (P1 + t * (P2 + t * (P3 + t * (P4 + t * P5))));
-	let y = 1.0f64 - ((lo - (r * c) / (2.0f64 - c)) - hi);
+	const y = 1f64 - ((lo - (r * c) / (2f64 - c)) - hi);
 	return ldexpf64(y, k);
 };
 
@@ -275,30 +538,29 @@ export fn expmultif64(hi: f64, lo: f64, k: i64) f64 = {
 export fn expf64(x: f64) f64 = {
 	const overflow = 7.09782712893383973096e+02;
 	const underflow = -7.45133219101941108420e+02;
-	const near_zero = 1.0f64 / ((1i64 << 28i64): f64);
+	const near_zero = 1f64 / ((1i64 << 28i64): f64);
 
-	// Special cases
 	if (isnan(x) || isposinf(x)) {
 		return x;
 	} else if (isneginf(x)) {
-		return 0.0f64;
+		return 0f64;
 	} else if (x > overflow) {
 		return INF;
 	} else if (x < underflow) {
-		return 0.0f64;
+		return 0f64;
 	} else if (-near_zero < x && x < near_zero) {
-		return 1.0f64 + x;
+		return 1f64 + x;
 	};
 
 	// Reduce; computed as r = hi - lo for extra precision.
 	let k = 0i64;
-	if (x < 0.0f64) {
+	if (x < 0f64) {
 		k = (((LOG2_E * x) - 0.5): i64);
-	} else if (x > 0.0f64) {
+	} else if (x > 0f64) {
 		k = (((LOG2_E * x) + 0.5): i64);
 	};
-	let hi = x - ((k: f64) * LN2_HI);
-	let lo = (k: f64) * LN2_LO;
+	const hi = x - ((k: f64) * LN2_HI);
+	const lo = (k: f64) * LN2_LO;
 
 	// Compute
 	return expmultif64(hi, lo, k);
@@ -309,53 +571,58 @@ export fn exp2f64(x: f64) f64 = {
 	const overflow = 1.0239999999999999e+03;
 	const underflow = -1.0740e+03;
 
-	// Special cases
 	if (isnan(x) || isposinf(x)) {
 		return x;
 	} else if (isneginf(x)) {
-		return 0.0f64;
+		return 0f64;
 	} else if (x > overflow) {
 		return INF;
 	} else if (x < underflow) {
-		return 0.0f64;
+		return 0f64;
 	};
 
 	// Argument reduction; x = r×lg(e) + k with |r| ≤ ln(2)/2.
 	// Computed as r = hi - lo for extra precision.
 	let k = 0i64;
-	if (x > 0.0f64) {
+	if (x > 0f64) {
 		k = ((x + 0.5): i64);
-	} else if (x < 0.0f64) {
+	} else if (x < 0f64) {
 		k = ((x - 0.5): i64);
 	};
-	let t = x - (k: f64);
-	let hi = t * LN2_HI;
-	let lo = -t * LN2_LO;
+	const t = x - (k: f64);
+	const hi = t * LN2_HI;
+	const lo = -t * LN2_LO;
 
 	// Compute
 	return expmultif64(hi, lo, k);
 };
 
 @test fn expf64() void = {
-	assert(expf64(1.0f64) == E);
+	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
+		assert(isclose(expf64(TEST_INPUTS[idx]), TEST_EXP[idx]));
+	};
+	assert(expf64(1f64) == E);
 	assert(isnan(expf64(NAN)));
 	assert(isinf(expf64(INF)));
-	assert(expf64(-INF) == 0.0f64);
-	assert(isinf(expf64(99999.0f64)));
-	assert(expf64(-99999.0f64) == 0.0f64);
-	assert(expf64(0.5e-20) == 1.0f64);
+	assert(expf64(-INF) == 0f64);
+	assert(isinf(expf64(99999f64)));
+	assert(expf64(-99999f64) == 0f64);
+	assert(expf64(0.5e-20) == 1f64);
 };
 
 @test fn exp2f64() void = {
-	assert(exp2f64(0.0f64) == 1.0f64);
-	assert(exp2f64(3.0f64) == 8.0f64);
-	assert(exp2f64(-2.0f64) == 0.25f64);
-	assert(!isinf(exp2f64(256.0f64)));
-	assert(isinf(exp2f64(99999.0f64)));
-	assert(exp2f64(-99999.0f64) == 0.0f64);
+	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
+		assert(isclose(exp2f64(TEST_INPUTS[idx]), TEST_EXP2[idx]));
+	};
+	assert(exp2f64(0f64) == 1f64);
+	assert(exp2f64(3f64) == 8f64);
+	assert(exp2f64(-2f64) == 0.25f64);
+	assert(!isinf(exp2f64(256f64)));
+	assert(isinf(exp2f64(99999f64)));
+	assert(exp2f64(-99999f64) == 0f64);
 	assert(isnan(exp2f64(NAN)));
 	assert(isinf(exp2f64(INF)));
-	assert(exp2f64(-INF) == 0.0f64);
+	assert(exp2f64(-INF) == 0f64);
 };
 
 // __ieee754_sqrt(x)
@@ -420,12 +687,11 @@ export fn exp2f64(x: f64) f64 = {
 
 // Returns the square root of x.
 export fn sqrtf64(x: f64) f64 = {
-	// Special cases
-	if (x == 0.0f64) {
+	if (x == 0f64) {
 		return x;
 	} else if (isnan(x) || isposinf(x)) {
 		return x;
-	} else if (x < 0.0f64) {
+	} else if (x < 0f64) {
 		return NAN;
 	};
 
@@ -459,7 +725,7 @@ export fn sqrtf64(x: f64) f64 = {
 	// r = moving bit from MSB to LSB
 	let r = ((1u64 << (F64_MANTISSA_BITS + 1u64)): u64);
 	for (r != 0) {
-		let t = s + r;
+		const t = s + r;
 		if (t <= bits) {
 			s = t + r;
 			bits -= t;
@@ -482,88 +748,93 @@ export fn sqrtf64(x: f64) f64 = {
 };
 
 @test fn sqrt() void = {
-	assert(sqrtf64(2.0f64) == SQRT_2);
-	assert(sqrtf64(4.0f64) == 2.0f64);
-	assert(sqrtf64(16.0f64) == 4.0f64);
-	assert(sqrtf64(65536.0f64) == 256.0f64);
-	assert(sqrtf64(powf64(123.0f64, 2.0f64)) == 123.0f64);
-	assert(sqrtf64(0.0f64) == 0.0f64);
+	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
+		assert(isclose(
+			sqrtf64(absf64(TEST_INPUTS[idx])),
+			TEST_SQRT[idx]));
+	};
+	assert(sqrtf64(2f64) == SQRT_2);
+	assert(sqrtf64(4f64) == 2f64);
+	assert(sqrtf64(16f64) == 4f64);
+	assert(sqrtf64(65536f64) == 256f64);
+	assert(sqrtf64(powf64(123f64, 2f64)) == 123f64);
+	assert(sqrtf64(0f64) == 0f64);
 	assert(isnan(sqrtf64(NAN)));
 	assert(isposinf(sqrtf64(INF)));
-	assert(isnan(sqrtf64(-2.0f64)));
+	assert(isnan(sqrtf64(-2f64)));
 };
 
 fn is_f64_odd_int(x: f64) bool = {
-	let x_int_frac = modf64(x);
-	let x_int = x_int_frac.0;
-	let x_frac = x_int_frac.1;
-	let has_no_frac = (x_frac == 0.0f64);
-	let is_odd = ((x_int & 1i64) == 1i64);
+	const x_int_frac = modfracf64(x);
+	const x_int = x_int_frac.0;
+	const x_frac = x_int_frac.1;
+	const has_no_frac = (x_frac == 0f64);
+	const is_odd = ((x_int & 1i64) == 1i64);
 	return has_no_frac && is_odd;
 };
 
 // Returns x^p.
 export fn powf64(x: f64, p: f64) f64 = {
-	if (x == 1.0f64 || p == 0.0f64) {
-		return 1.0f64;
-	} else if (p == 1.0f64) {
+	if (x == 1f64 || p == 0f64) {
+		return 1f64;
+	} else if (p == 1f64) {
 		return x;
 	} else if (isnan(x)) {
 		return NAN;
 	} else if (isnan(p)) {
 		return NAN;
-	} else if (x == 0.0f64) {
-		if (p < 0.0f64) {
+	} else if (x == 0f64) {
+		if (p < 0f64) {
 			if (is_f64_odd_int(p)) {
 				return copysignf64(INF, x);
 			} else {
 				return INF;
 			};
-		} else if (p > 0.0f64) {
+		} else if (p > 0f64) {
 			if (is_f64_odd_int(p)) {
 				return x;
 			} else {
-				return 0.0f64;
+				return 0f64;
 			};
 		};
 	} else if (isinf(p)) {
-		if (x == -1.0f64) {
-			return 1.0f64;
-		} else if ((absf64(x) < 1.0f64) == isposinf(p)) {
-			return 0.0f64;
+		if (x == -1f64) {
+			return 1f64;
+		} else if ((absf64(x) < 1f64) == isposinf(p)) {
+			return 0f64;
 		};
 		return INF;
 	} else if (isinf(x)) {
 		if (isneginf(x)) {
-			return powf64(-0.0f64, -p);
-		} else if (p < 0.0f64) {
-			return 0.0f64;
-		} else if (p > 0.0f64) {
+			return powf64(-0f64, -p);
+		} else if (p < 0f64) {
+			return 0f64;
+		} else if (p > 0f64) {
 			return INF;
 		};
 	} else if (p == 0.5f64) {
 		return sqrtf64(x);
 	} else if (p == -0.5f64) {
-		return 1.0f64 / sqrtf64(x);
+		return 1f64 / sqrtf64(x);
 	};
 
-	let x_parts = frexp(x);
+	const x_parts = frexp(x);
 	let x_mantissa = x_parts.0;
 	let x_exp = x_parts.1;
 
-	let p_int_frac = modf64(absf64(p));
+	const p_int_frac = modfracf64(absf64(p));
 	let p_int = p_int_frac.0;
 	let p_frac = p_int_frac.1;
 
-	let res_mantissa = 1.0f64;
+	let res_mantissa = 1f64;
 	let res_exp = 0i64;
 
 	// The method used later in this function doesn't apply to fractional
 	// powers, so we have to handle these separately with
 	// x^p = e^{p * ln(x)}
-	if (p_frac != 0.0f64) {
+	if (p_frac != 0f64) {
 		if (p_frac > 0.5f64) {
-			p_frac -= 1.0f64;
+			p_frac -= 1f64;
 			p_int += 1i64;
 		};
 		res_mantissa = expf64(p_frac * logf64(x));
@@ -575,7 +846,7 @@ export fn powf64(x: f64, p: f64) f64 = {
 	for (let i = p_int; i != 0; i >>= 1) {
 		// Check for over/underflow.
 		if (x_exp <= -1i64 << (F64_EXPONENT_BITS: i64)) {
-			return 0.0f64;
+			return 0f64;
 	};
 		if (x_exp >= 1i64 << (F64_EXPONENT_BITS: i64)) {
 			return INF;
@@ -594,97 +865,288 @@ export fn powf64(x: f64, p: f64) f64 = {
 		};
 	};
 
-	if (p < 0.0f64) {
-		res_mantissa = 1.0f64 / res_mantissa;
+	if (p < 0f64) {
+		res_mantissa = 1f64 / res_mantissa;
 		res_exp = -res_exp;
 	};
 
-	let res = ldexpf64(res_mantissa, res_exp);
-	return res;
+	return ldexpf64(res_mantissa, res_exp);
 };
 
 @test fn powf64() void = {
+	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
+		assert(eqwithin(
+			powf64(10f64, TEST_INPUTS[idx]),
+			TEST_POW[idx],
+			1e-8f64));
+	};
 	// Positive integer
-	assert(powf64(2.0f64, 2.0f64) == 4.0f64);
-	assert(powf64(3.0f64, 3.0f64) == 27.0f64);
+	assert(powf64(2f64, 2f64) == 4f64);
+	assert(powf64(3f64, 3f64) == 27f64);
 	// Very large positive integer
-	assert(!isinf(powf64(2.0f64, 1020.0f64)));
-	assert(isinf(powf64(2.0f64, 1050.0f64)));
+	assert(!isinf(powf64(2f64, 1020f64)));
+	assert(isinf(powf64(2f64, 1050f64)));
 	// Negative integer
-	assert(powf64(2.0f64, -1.0f64) == 0.5f64);
-	assert(powf64(2.0f64, -2.0f64) == 0.25f64);
+	assert(powf64(2f64, -1f64) == 0.5f64);
+	assert(powf64(2f64, -2f64) == 0.25f64);
 	// Very small negative integer
-	assert(powf64(2.0f64, -1020.0f64) > 0.0f64);
-	assert(powf64(2.0f64, -1080.0f64) == 0.0f64);
+	assert(powf64(2f64, -1020f64) > 0f64);
+	assert(powf64(2f64, -1080f64) == 0f64);
 	// Positive fractional powers
-	assert(eqwithin(powf64(2.0f64, 1.5f64),
+	assert(eqwithin(powf64(2f64, 1.5f64),
 		2.8284271247461900976033774f64,
 		1e-10f64));
-	assert(eqwithin(powf64(2.0f64, 5.5f64),
+	assert(eqwithin(powf64(2f64, 5.5f64),
 		45.254833995939041561654039f64,
 		1e-10f64));
 	// Negative fractional powers
-	assert(eqwithin(powf64(2.0f64, -1.5f64),
+	assert(eqwithin(powf64(2f64, -1.5f64),
 		0.3535533905932737622004221f64,
 		1e-10f64));
-	assert(eqwithin(powf64(2.0f64, -5.5f64),
+	assert(eqwithin(powf64(2f64, -5.5f64),
 		0.0220970869120796101375263f64,
 		1e-10f64));
 
 	// Special cases
 	// pow(x, ±0) = 1 for any x
-	assert(powf64(123.0f64, 0.0f64) == 1.0f64);
+	assert(powf64(123f64, 0f64) == 1f64);
 	// pow(1, y) = 1 for any y
-	assert(powf64(1.0f64, 123.0f64) == 1.0f64);
+	assert(powf64(1f64, 123f64) == 1f64);
 	// pow(x, 1) = x for any x
-	assert(powf64(123.0f64, 1.0f64) == 123.0f64);
+	assert(powf64(123f64, 1f64) == 123f64);
 	// pow(NaN, y) = NaN
-	assert(isnan(powf64(NAN, 123.0f64)));
+	assert(isnan(powf64(NAN, 123f64)));
 	// pow(x, NaN) = NaN
-	assert(isnan(powf64(123.0f64, NAN)));
+	assert(isnan(powf64(123f64, NAN)));
 	// pow(±0, y) = ±Inf for y an odd integer < 0
-	assert(isposinf(powf64(0.0f64, -3.0f64)));
-	assert(isneginf(powf64(-0.0f64, -3.0f64)));
+	assert(isposinf(powf64(0f64, -3f64)));
+	assert(isneginf(powf64(-0f64, -3f64)));
 	// pow(±0, -Inf) = +Inf
-	assert(isposinf(powf64(0.0f64, -INF)));
-	assert(isposinf(powf64(-0.0f64, -INF)));
+	assert(isposinf(powf64(0f64, -INF)));
+	assert(isposinf(powf64(-0f64, -INF)));
 	// pow(±0, +Inf) = +0
-	assert(powf64(0.0f64, INF) == 0.0f64);
-	assert(powf64(-0.0f64, INF) == 0.0f64);
+	assert(powf64(0f64, INF) == 0f64);
+	assert(powf64(-0f64, INF) == 0f64);
 	// pow(±0, y) = +Inf for finite y < 0 and not an odd integer
-	assert(isposinf(powf64(0.0f64, -2.0f64)));
-	assert(isposinf(powf64(-0.0f64, -2.0f64)));
+	assert(isposinf(powf64(0f64, -2f64)));
+	assert(isposinf(powf64(-0f64, -2f64)));
 	//pow(±0, y) = ±0 for y an odd integer > 0
-	assert(powf64(0.0f64, 123.0f64) == 0.0f64);
-	let neg_zero = powf64(-0.0f64, 123.0f64);
-	assert(neg_zero == 0.0f64);
+	assert(powf64(0f64, 123f64) == 0f64);
+	const neg_zero = powf64(-0f64, 123f64);
+	assert(neg_zero == 0f64);
 	assert(isnegative(neg_zero));
 	// pow(±0, y) = +0 for finite y > 0 and not an odd integer
-	assert(powf64(0.0f64, 8.0f64) == 0.0f64);
+	assert(powf64(0f64, 8f64) == 0f64);
 	// pow(-1, ±Inf) = 1
-	assert(powf64(-1.0f64, INF) == 1.0f64);
-	assert(powf64(-1.0f64, -INF) == 1.0f64);
+	assert(powf64(-1f64, INF) == 1f64);
+	assert(powf64(-1f64, -INF) == 1f64);
 	// pow(x, +Inf) = +Inf for |x| > 1
-	assert(isposinf(powf64(123.0f64, INF)));
+	assert(isposinf(powf64(123f64, INF)));
 	// pow(x, -Inf) = +0 for |x| > 1
-	assert(powf64(123.0f64, -INF) == 0.0f64);
+	assert(powf64(123f64, -INF) == 0f64);
 	// pow(x, +Inf) = +0 for |x| < 1
-	assert(powf64(0.5f64, INF) == 0.0f64);
-	assert(powf64(-0.5f64, INF) == 0.0f64);
+	assert(powf64(0.5f64, INF) == 0f64);
+	assert(powf64(-0.5f64, INF) == 0f64);
 	// pow(x, -Inf) = +Inf for |x| < 1
 	assert(isposinf(powf64(0.5f64, -INF)));
 	assert(isposinf(powf64(-0.5f64, -INF)));
 	// pow(+Inf, y) = +Inf for y > 0
-	assert(isposinf(powf64(INF, 123.0f64)));
+	assert(isposinf(powf64(INF, 123f64)));
 	// pow(+Inf, y) = +0 for y < 0
-	assert(powf64(INF, -1.0f64) == 0.0f64);
+	assert(powf64(INF, -1f64) == 0f64);
 	// pow(-Inf, y) = pow(-0, -y)
-	assert(powf64(-INF, 123.0f64) == powf64(-0.0f64, -123.0f64));
+	assert(powf64(-INF, 123f64) == powf64(-0f64, -123f64));
 	// pow(x, y) = NaN for finite x < 0 and finite non-integer y
-	assert(isnan(powf64(-2.0f64, 1.23f64)));
+	assert(isnan(powf64(-2f64, 1.23f64)));
 	// sqrt
-	assert(powf64(4.0f64, 0.5f64) == sqrtf64(4.0f64));
-	assert(powf64(4.0f64, 0.5f64) == 2.0f64);
-	assert(powf64(4.0f64, -0.5f64) == (1.0f64 / sqrtf64(4.0f64)));
-	assert(powf64(4.0f64, -0.5f64) == (1.0f64 / 2.0f64));
+	assert(powf64(4f64, 0.5f64) == sqrtf64(4f64));
+	assert(powf64(4f64, 0.5f64) == 2f64);
+	assert(powf64(4f64, -0.5f64) == (1f64 / sqrtf64(4f64)));
+	assert(powf64(4f64, -0.5f64) == (1f64 / 2f64));
+};
+
+// Returns the greatest integer value less than or equal to x.
+export fn floorf64(x: f64) f64 = {
+	if (x == 0f64 || isnan(x) || isinf(x)) {
+		return x;
+	};
+	if (x < 0f64) {
+		const modfrac_res = modfracf64(-x);
+		let int_part = modfrac_res.0;
+		const frac_part = modfrac_res.1;
+		if (frac_part != 0f64) {
+			int_part += 1;
+		};
+		return -(int_part: f64);
+	};
+	const modfrac_res = modfracf64(x);
+	return (modfrac_res.0: f64);
+};
+
+@test fn floor() void = {
+	for (let idx = 0z; idx < 10; idx += 1) {
+		assert(isclose(
+			floorf64(TEST_INPUTS[idx]),
+				TEST_FLOOR[idx]));
+	};
+	assert(floorf64(-INF) == -INF);
+	assert(floorf64(-0f64) == -0f64);
+	assert(floorf64(0f64) == 0f64);
+	assert(floorf64(INF) == INF);
+	assert(isnan(floorf64(NAN)));
+};
+
+// Returns the least integer value greater than or equal to x.
+export fn ceilf64(x: f64) f64 = -floorf64(-x);
+
+@test fn ceil() void = {
+	for (let idx = 0z; idx < 10; idx += 1) {
+		assert(isclose(
+			ceilf64(TEST_INPUTS[idx]),
+				TEST_CEIL[idx]));
+	};
+	assert(ceilf64(-INF) == -INF);
+	assert(ceilf64(-0f64) == -0f64);
+	assert(ceilf64(0f64) == 0f64);
+	assert(ceilf64(INF) == INF);
+	assert(isnan(ceilf64(NAN)));
+};
+
+// Returns the integer value of x.
+export fn truncf64(x: f64) f64 = {
+	if (x == 0f64 || isnan(x) || isinf(x)) {
+		return x;
+	};
+	const modfrac_res = modfracf64(x);
+	return (modfrac_res.0: f64);
+};
+
+@test fn trunc() void = {
+	for (let idx = 0z; idx < 10; idx += 1) {
+		assert(eqwithin(
+			truncf64(TEST_INPUTS[idx]),
+			TEST_TRUNC[idx],
+			1e-6f64));
+	};
+	assert(truncf64(-INF) == -INF);
+	assert(truncf64(-0f64) == -0f64);
+	assert(truncf64(0f64) == 0f64);
+	assert(truncf64(INF) == INF);
+	assert(isnan(truncf64(NAN)));
+};
+
+// Returns the nearest integer, rounding half away from zero.
+export fn roundf64(x: f64) f64 = {
+	let bits = f64bits(x);
+	let e = (bits >> F64_MANTISSA_BITS) & F64_EXPONENT_MASK;
+	if (e < F64_EXPONENT_BIAS) {
+		// Round abs(x) < 1 including denormals.
+		bits &= F64_SIGN_MASK; // +-0
+		if (e == F64_EXPONENT_BIAS - 1) {
+			bits |= F64_ONE; // +-1
+		};
+	} else if (e < F64_EXPONENT_BIAS + F64_MANTISSA_BITS) {
+		// Round any abs(x) >= 1 containing a fractional component
+		// [0,1).
+		// Numbers with larger exponents are returned unchanged since
+		// they must be either an integer, infinity, or NaN.
+		const half = 1 << (F64_MANTISSA_BITS - 1);
+		e -= F64_EXPONENT_BIAS;
+		bits += half >> e;
+		bits = bits & ~(F64_MANTISSA_MASK >> e);
+	};
+	return f64frombits(bits);
+};
+
+@test fn round() void = {
+	for (let idx = 0z; idx < 10; idx += 1) {
+		assert(isclose(
+			roundf64(TEST_INPUTS[idx]),
+				TEST_ROUND[idx]));
+	};
+	assert(roundf64(-INF) == -INF);
+	assert(roundf64(-0f64) == -0f64);
+	assert(roundf64(0f64) == 0f64);
+	assert(roundf64(INF) == INF);
+	assert(isnan(roundf64(NAN)));
+};
+
+// Returns the floating-point remainder of x / y. The magnitude of the result
+// is less than y and its sign agrees with that of x.
+export fn modf64(x: f64, y: f64) f64 = {
+	if (y == 0f64) {
+		return NAN;
+	};
+	if (isinf(x) || isnan(x) || isnan(y)) {
+		return NAN;
+	};
+
+	y = absf64(y);
+
+	const y_frexp = frexpf64(y);
+	const y_frac = y_frexp.0;
+	const y_exp = y_frexp.1;
+	let r = x;
+	if (x < 0f64) {
+		r = -x;
+	};
+
+	for (r >= y) {
+		const r_frexp = frexpf64(r);
+		const r_frac = r_frexp.0;
+		let r_exp = r_frexp.1;
+		if (r_frac < y_frac) {
+			r_exp -= 1i64;
+		};
+		r = r - ldexpf64(y, r_exp - y_exp);
+	};
+	if (x < 0f64) {
+		r = -r;
+	};
+	return r;
+};
+
+@test fn modf64() void = {
+	for (let idx = 0z; idx < 10; idx += 1) {
+		assert(isclose(
+			modf64(10f64, TEST_INPUTS[idx]),
+			TEST_MODF[idx]));
+	};
+
+	assert(isnan(modf64(-INF, -INF)));
+	assert(isnan(modf64(-INF, -PI)));
+	assert(isnan(modf64(-INF, 0f64)));
+	assert(isnan(modf64(-INF, PI)));
+	assert(isnan(modf64(-INF, INF)));
+	assert(isnan(modf64(-INF, NAN)));
+	assert(modf64(-PI, -INF) == -PI);
+	assert(isnan(modf64(-PI, 0f64)));
+	assert(modf64(-PI, INF) == -PI);
+	assert(isnan(modf64(-PI, NAN)));
+	assert(modf64(-0f64, -INF) == -0f64);
+	assert(isnan(modf64(-0f64, 0f64)));
+	assert(modf64(-0f64, INF) == -0f64);
+	assert(isnan(modf64(-0f64, NAN)));
+	assert(modf64(0f64, -INF) == 0f64);
+	assert(isnan(modf64(0f64, 0f64)));
+	assert(modf64(0f64, INF) == 0f64);
+	assert(isnan(modf64(0f64, NAN)));
+	assert(modf64(PI, -INF) == PI);
+	assert(isnan(modf64(PI, 0f64)));
+	assert(modf64(PI, INF) == PI);
+	assert(isnan(modf64(PI, NAN)));
+	assert(isnan(modf64(INF, -INF)));
+	assert(isnan(modf64(INF, -PI)));
+	assert(isnan(modf64(INF, 0f64)));
+	assert(isnan(modf64(INF, PI)));
+	assert(isnan(modf64(INF, INF)));
+	assert(isnan(modf64(INF, NAN)));
+	assert(isnan(modf64(NAN, -INF)));
+	assert(isnan(modf64(NAN, -PI)));
+	assert(isnan(modf64(NAN, 0f64)));
+	assert(isnan(modf64(NAN, PI)));
+	assert(isnan(modf64(NAN, INF)));
+	assert(isnan(modf64(NAN, NAN)));
+	assert(modf64(5.9790119248836734e+200, 1.1258465975523544) ==
+		0.6447968302508578);
 };

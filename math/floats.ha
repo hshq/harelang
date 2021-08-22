@@ -99,6 +99,9 @@ def F32_EXP_REMOVAL_MASK: u32 = 0b10000000011111111111111111111111;
 def F32_EXP_ZERO: u32 =
 	((F32_EXPONENT_BIAS: u32) - 1) << (F32_MANTISSA_BITS: u32);
 
+// The bits that represent the number 1f64.
+def F64_ONE: u64 = 0x3FF0000000000000;
+
 // Contains information about the structure of a specific floating point number
 // type.
 export type floatinfo = struct {
@@ -176,10 +179,10 @@ export fn isneginf(n: f64) bool = {
 	assert(!isinf(NAN));
 	assert(!isinf(1.23));
 	assert(!isinf(-1.23f32));
-	assert(isposinf(math::INF));
-	assert(!isposinf(-math::INF));
-	assert(isneginf(-math::INF));
-	assert(!isneginf(math::INF));
+	assert(isposinf(INF));
+	assert(!isposinf(-INF));
+	assert(isneginf(-INF));
+	assert(!isneginf(INF));
 };
 
 // Returns true if the given floating-point number is normal.
@@ -276,11 +279,17 @@ export fn issubnormalf32(n: f32) bool = {
 
 // Returns the absolute value of f64 n.
 export fn absf64(n: f64) f64 = {
+	if (isnan(n)) {
+		return n;
+	};
 	return f64frombits(f64bits(n) & ~F64_SIGN_MASK);
 };
 
 // Returns the absolute value of f32 n.
 export fn absf32(n: f32) f32 = {
+	if (isnan(n)) {
+		return n;
+	};
 	return f32frombits(f32bits(n) & ~F32_SIGN_MASK);
 };
 
@@ -293,11 +302,14 @@ export fn absf(n: types::floating) f64 = {
 };
 
 @test fn absf() void = {
-	assert(absf64(2.0f64) == 2.0f64);
+	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
+		assert(absf(TEST_INPUTS[idx]) == TEST_ABSF[idx]);
+	};
+	assert(absf64(2f64) == 2f64);
 	assert(absf32(2.0f32) == 2.0f32);
-	assert(absf(2.0f64) == 2.0f64);
-	assert(absf(2.0f32) == 2.0f64);
-	assert(absf(-2.0f64) == 2.0f64);
+	assert(absf(2f64) == 2f64);
+	assert(absf(2.0f32) == 2f64);
+	assert(absf(-2f64) == 2f64);
 	assert(absf(-2.0f32) == 2.0f32);
 	assert(absf(0f32) == 0f32);
 	assert(absf(0f64) == 0f64);
@@ -333,16 +345,19 @@ export fn signf(x: types::floating) i64 = {
 };
 
 @test fn signf() void = {
-	assert(signf(0.0f64) == 1i64);
-	assert(signf(-0.0f64) == -1i64);
+	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
+		assert(signf(TEST_INPUTS[idx]) == TEST_SIGNF[idx]);
+	};
+	assert(signf(0f64) == 1i64);
+	assert(signf(-0f64) == -1i64);
 	assert(signf(0.0f32) == 1i64);
 	assert(signf(-0.0f32) == -1i64);
 	assert(signf(1.5f64) == 1i64);
 	assert(signf(-1.5f64) == -1i64);
-	assert(ispositive(1.0f64));
-	assert(!ispositive(-1.0f64));
-	assert(isnegative(-1.0f64));
-	assert(!isnegative(1.0f64));
+	assert(ispositive(1f64));
+	assert(!ispositive(-1f64));
+	assert(isnegative(-1f64));
+	assert(!isnegative(1f64));
 };
 
 // Returns whether or not x is positive.
@@ -394,16 +409,16 @@ export fn copysign(x: types::floating, y: types::floating) f64 = {
 };
 
 @test fn copysign() void = {
-	assert(copysign(100.0f64, 1.0f64) == 100.0f64);
-	assert(copysign(100.0f64, -1.0f64) == -100.0f64);
+	assert(copysign(100f64, 1f64) == 100f64);
+	assert(copysign(100f64, -1f64) == -100f64);
 	assert(copysign(100.0f32, 1.0f32) == 100.0f32);
 	assert(copysign(100.0f32, -1.0f32) == -100.0f32);
-	assert(copysign(100.0f64, 0.0f64) == 100.0f64);
-	assert(copysign(100.0f64, -0.0f64) == -100.0f64);
-	assert(copysign(0.0f64, 100.0f64) == 0.0f64);
-	assert(signf(copysign(0.0f64, 100.0f64)) > 0);
-	assert(copysign(0.0f64, -100.0f64) == 0.0f64);
-	assert(signf(copysign(0.0f64, -100.0f64)) < 0);
+	assert(copysign(100f64, 0f64) == 100f64);
+	assert(copysign(100f64, -0f64) == -100f64);
+	assert(copysign(0f64, 100f64) == 0f64);
+	assert(signf(copysign(0f64, 100f64)) > 0);
+	assert(copysign(0f64, -100f64) == 0f64);
+	assert(signf(copysign(0f64, -100f64)) < 0);
 };
 
 // Takes a potentially subnormal f64 n and returns a normal f64 normal_float
@@ -484,7 +499,13 @@ export fn frexp(n: types::floating) (f64, i64) = {
 };
 
 @test fn frexp() void = {
-	let res = frexp(3.0f64);
+	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
+		let res = frexp(TEST_INPUTS[idx]);
+		let expected = TEST_FREXP[idx];
+		assert(res.0 == expected.0);
+		assert(res.1 == expected.1);
+	};
+	let res = frexp(3f64);
 	assert(res.0 == 0.75f64);
 	assert(res.1 == 2i64);
 	res = frexp(2.42f64);
@@ -511,21 +532,21 @@ export fn ldexpf64(mantissa: f64, exp: i64) f64 = {
 	let res_exp = exp + normalization_exp + mantissa_exp;
 	// Underflow
 	if (res_exp < -(F64_EXPONENT_BIAS: i64) - (F64_MANTISSA_BITS: i64)) {
-		return copysign(0.0f64, mantissa);
+		return copysign(0f64, mantissa);
 	};
 	// Overflow
 	if (res_exp > (F64_EXPONENT_BIAS: i64)) {
-		if (mantissa < 0.0f64) {
+		if (mantissa < 0f64) {
 			return -INF;
 		} else {
 			return INF;
 		};
 	};
 	// Subnormal
-	let subnormal_factor = 1.0f64;
+	let subnormal_factor = 1f64;
 	if (res_exp < -(F64_EXPONENT_BIAS: i64) + 1) {
 		res_exp += (F64_MANTISSA_BITS: i64) - 1;
-		subnormal_factor = 1.0f64 /
+		subnormal_factor = 1f64 /
 			((1i64 << ((F64_MANTISSA_BITS: i64) - 1)): f64);
 	};
 	const res: u64 = (bits & F64_EXP_REMOVAL_MASK) |
@@ -586,11 +607,11 @@ export fn ldexpf32(mantissa: f32, exp: i64) f32 = {
 		const res64 = ldexpf64(parts.0, parts.1);
 		assert(res64 == tests64[i]);
 	};
-	assert(ldexpf64(1.0f64, -1076i64) == 0.0f64);
-	assert(ldexpf64(-1.0f64, -1076i64) == -0.0f64);
-	assert(signf(ldexpf64(-1.0f64, -1076i64)) < 0);
-	assert(ldexpf64(2.0f64, 1024i64) == INF);
-	assert(ldexpf64(-2.0f64, 1024i64) == -INF);
+	assert(ldexpf64(1f64, -1076i64) == 0f64);
+	assert(ldexpf64(-1f64, -1076i64) == -0f64);
+	assert(signf(ldexpf64(-1f64, -1076i64)) < 0);
+	assert(ldexpf64(2f64, 1024i64) == INF);
+	assert(ldexpf64(-2f64, 1024i64) == -INF);
 
 	const tests32: [_]f32 = [INF, -INF,
 		0.0, 1.0, -1.0, 2.42, 123456789.0,
@@ -609,13 +630,13 @@ export fn ldexpf32(mantissa: f32, exp: i64) f32 = {
 };
 
 // Returns the integer and fractional parts of an f64.
-export fn modf64(n: f64) (i64, f64) = {
-	if (n < 1.0f64) {
-		if (n < 0.0f64) {
-			let positive_parts = modf64(-n);
+export fn modfracf64(n: f64) (i64, f64) = {
+	if (n < 1f64) {
+		if (n < 0f64) {
+			let positive_parts = modfracf64(-n);
 			return (-positive_parts.0, -positive_parts.1);
 		};
-		if (n == 0.0f64) {
+		if (n == 0f64) {
 			return ((n: i64), n);
 		};
 		return (0i64, n);
@@ -636,10 +657,10 @@ export fn modf64(n: f64) (i64, f64) = {
 };
 
 // Returns the integer and fractional parts of an f32.
-export fn modf32(n: f32) (i32, f32) = {
+export fn modfracf32(n: f32) (i32, f32) = {
 	if (n < 1.0f32) {
 		if (n < 0.0f32) {
-			let positive_parts = modf32(-n);
+			let positive_parts = modfracf32(-n);
 			return (-positive_parts.0, -positive_parts.1);
 		};
 		if (n == 0.0f32) {
@@ -662,48 +683,53 @@ export fn modf32(n: f32) (i32, f32) = {
 	return ((int_part: i32), frac_part);
 };
 
-@test fn modf() void = {
+@test fn modfrac() void = {
 	// 64
-	let res = modf64(1.75f64);
+	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
+		let res = modfracf64(TEST_INPUTS[idx]);
+		assert(res.0 == TEST_MODFRAC[idx].0);
+		assert(isclose(res.1, TEST_MODFRAC[idx].1));
+	};
+	let res = modfracf64(1.75f64);
 	assert(res.0 == 1i64);
 	assert(res.1 == 0.75f64);
-	res = modf64(0.75f64);
+	res = modfracf64(0.75f64);
 	assert(res.0 == 0i64);
 	assert(res.1 == 0.75f64);
-	res = modf64(-0.75f64);
+	res = modfracf64(-0.75f64);
 	assert(res.0 == -0i64);
 	assert(res.1 == -0.75f64);
-	res = modf64(0.0f64);
+	res = modfracf64(0f64);
 	assert(res.0 == 0i64);
-	assert(res.1 == 0.0f64);
+	assert(res.1 == 0f64);
 	assert(signf(res.1) > 0);
-	res = modf64(-0.0f64);
+	res = modfracf64(-0f64);
 	assert(res.0 == -0i64);
-	assert(res.1 == -0.0f64);
+	assert(res.1 == -0f64);
 	assert(signf(res.1) < 0);
-	res = modf64(23.50f64);
+	res = modfracf64(23.50f64);
 	assert(res.0 == 23i64);
 	assert(res.1 == 0.50f64);
 
 	// 32
-	let res = modf32(1.75f32);
+	let res = modfracf32(1.75f32);
 	assert(res.0 == 1i32);
 	assert(res.1 == 0.75f32);
-	res = modf32(0.75f32);
+	res = modfracf32(0.75f32);
 	assert(res.0 == 0i32);
 	assert(res.1 == 0.75f32);
-	res = modf32(-0.75f32);
+	res = modfracf32(-0.75f32);
 	assert(res.0 == -0i32);
 	assert(res.1 == -0.75f32);
-	res = modf32(0.0f32);
+	res = modfracf32(0.0f32);
 	assert(res.0 == 0i32);
 	assert(res.1 == 0.0f32);
 	assert(signf(res.1) > 0);
-	res = modf32(-0.0f32);
+	res = modfracf32(-0.0f32);
 	assert(res.0 == -0i32);
 	assert(res.1 == -0.0f32);
 	assert(signf(res.1) < 0);
-	res = modf32(23.50f32);
+	res = modfracf32(23.50f32);
 	assert(res.0 == 23i32);
 	assert(res.1 == 0.50f32);
 };

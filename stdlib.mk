@@ -852,9 +852,12 @@ $(HARECACHE)/linux/vdso/linux_vdso.ssa: $(stdlib_linux_vdso_srcs) $(stdlib_rt) $
 # math
 # math
 stdlib_math_srcs= \
+	$(STDLIB)/math/testdata.ha \
 	$(STDLIB)/math/math.ha \
 	$(STDLIB)/math/floats.ha \
-	$(STDLIB)/math/ints.ha
+	$(STDLIB)/math/ints.ha \
+	$(STDLIB)/math/uints.ha \
+	$(STDLIB)/math/trig.ha
 
 $(HARECACHE)/math/math.ssa: $(stdlib_math_srcs) $(stdlib_rt) $(stdlib_types)
 	@printf 'HAREC \t$@\n'
@@ -2080,9 +2083,12 @@ $(TESTCACHE)/linux/vdso/linux_vdso.ssa: $(testlib_linux_vdso_srcs) $(testlib_rt)
 # math
 # math
 testlib_math_srcs= \
+	$(STDLIB)/math/testdata.ha \
 	$(STDLIB)/math/math.ha \
 	$(STDLIB)/math/floats.ha \
-	$(STDLIB)/math/ints.ha
+	$(STDLIB)/math/ints.ha \
+	$(STDLIB)/math/uints.ha \
+	$(STDLIB)/math/trig.ha
 
 $(TESTCACHE)/math/math.ssa: $(testlib_math_srcs) $(testlib_rt) $(testlib_types)
 	@printf 'HAREC \t$@\n'

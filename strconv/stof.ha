@@ -146,7 +146,7 @@ fn decimal_shift(d: *decimal, k: int) void = {
 fn should_round_up(d: *decimal, nd: uint) bool = if (nd < d.num_digits) {
 	if (d.digits[nd] == 5 && nd + 1 == d.num_digits) {
 		return d.truncated ||
-			 (nd > 0 && d.digits[nd - 1] & 1 != 0);
+			(nd > 0 && d.digits[nd - 1] & 1 != 0);
 	} else return d.digits[nd] >= 5;
 } else false;
 
@@ -436,7 +436,7 @@ fn floatbits(d: *decimal, f: *math::floatinfo) (u64 | overflow) = {
 	};
 	for (d.decimal_point <= 0) {
 		const n: int = if (d.decimal_point == 0) {
-			if (d.digits[0] >= 5) break; 
+			if (d.digits[0] >= 5) break;
 			if (d.digits[0] < 2) 2 else 1;
 		} else if (-d.decimal_point >= len(powtab): i32)
 			maxshift: int
