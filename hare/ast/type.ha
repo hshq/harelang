@@ -118,7 +118,7 @@ export type _type = struct {
 	start: lex::location,
 	end: lex::location,
 	flags: type_flags,
-	_type: (alias_type | builtin_type | enum_type | func_type |
+	repr: (alias_type | builtin_type | enum_type | func_type |
 		list_type | pointer_type | struct_type | union_type |
 		tagged_type | tuple_type),
 };
@@ -156,7 +156,7 @@ export fn type_free(t: (_type | nullable *_type)) void = match (t) {
 			free(t);
 		},
 	},
-	t: _type => match (t._type) {
+	t: _type => match (t.repr) {
 		a: alias_type => ident_free(a.ident),
 		builtin_type => void,
 		e: enum_type => {

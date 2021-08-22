@@ -74,7 +74,7 @@ fn unparse_hare(out: *io::stream, d: ast::decl) (size | io::error) = {
 				ast::fndecl_attrs::INIT => "@init ",
 				ast::fndecl_attrs::TEST => "@test ",
 			})?;
-			let p = f.prototype._type as ast::func_type;
+			let p = f.prototype.repr as ast::func_type;
 			if (p.attrs & ast::func_attrs::NORETURN != 0) {
 				n += fmt::fprint(out, "@noreturn ")?;
 			};
@@ -85,7 +85,7 @@ fn unparse_hare(out: *io::stream, d: ast::decl) (size | io::error) = {
 			n += fmt::fprint(out, "fn ")?;
 			n += unparse::ident(out, f.ident)?;
 			n += prototype_hare(out, 0,
-				f.prototype._type as ast::func_type)?;
+				f.prototype.repr as ast::func_type)?;
 		},
 	};
 	n += fmt::fprint(out, ";")?;

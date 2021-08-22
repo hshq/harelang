@@ -170,7 +170,7 @@ fn tocentry(decl: ast::decl) (void | error) = {
 		},
 		t: []ast::decl_type => void,
 		f: ast::decl_func => prototype_html(os::stdout, 0,
-			f.prototype._type as ast::func_type,
+			f.prototype.repr as ast::func_type,
 			true)?,
 	};
 	fmt::println(";")?;
@@ -346,14 +346,14 @@ fn unparse_html(out: *io::stream, d: ast::decl) (size | io::error) = {
 				ast::fndecl_attrs::INIT => "@init ",
 				ast::fndecl_attrs::TEST => "@test ",
 			})?;
-			let p = f.prototype._type as ast::func_type;
+			let p = f.prototype.repr as ast::func_type;
 			if (p.attrs & ast::func_attrs::NORETURN != 0) {
 				n += fmt::fprint(out, "@noreturn ")?;
 			};
 			n += fmt::fprint(out, "<span class='keyword'>fn</span> ")?;
 			n += unparse::ident(out, f.ident)?;
 			n += prototype_html(out, 0,
-				f.prototype._type as ast::func_type,
+				f.prototype.repr as ast::func_type,
 				false)?;
 		},
 	};
@@ -439,7 +439,7 @@ fn struct_union_html(
 	brief: bool,
 ) (size | io::error) = {
 	let z = 0z;
-	let members = match (t._type) {
+	let members = match (t.repr) {
 		t: ast::struct_type => {
 			z += fmt::fprint(out, "<span class='keyword'>struct</span> {")?;
 			t: []ast::struct_member;
@@ -504,19 +504,19 @@ fn type_html(
 	let z = 0z;
 
 	if (_type.flags & ast::type_flags::CONST != 0
-			&& !(_type._type is ast::func_type)) {
+			&& !(_type.repr is ast::func_type)) {
 		z += fmt::fprint(out, "<span class='keyword'>const</span> ")?;
 	};
 
 	if (_type.flags & ast::type_flags::ERROR != 0) {
-		if (_type._type is ast::builtin_type) {
+		if (_type.repr is ast::builtin_type) {
 			z += fmt::fprint(out, "<span class='type'>!</span>")?;
 		} else {
 			z += fmt::fprint(out, "!")?;
 		};
 	};
 
-	match (_type._type) {
+	match (_type.repr) {
 		t: ast::builtin_type => {
 			z += fmt::fprintf(out, "<span class='type'>{}</span>",
 				builtin_type(t))?;

@@ -101,7 +101,7 @@ fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 		start = tok.2,
 		end = lex::prevloc(lexer),
 		flags = 0,
-		_type = builtin,
+		repr = builtin,
 	};
 };
 
@@ -116,7 +116,7 @@ fn alias_type(lexer: *lex::lexer) (ast::_type | error) = {
 		start = start,
 		end = lex::prevloc(lexer),
 		flags = 0,
-		_type = ast::alias_type {
+		repr = ast::alias_type {
 			unwrap = unwrap,
 			ident = ident,
 		},
@@ -135,7 +135,7 @@ fn pointer_type(lexer: *lex::lexer) (ast::_type | error) = {
 		start = start,
 		end = lex::prevloc(lexer),
 		flags = 0,
-		_type = ast::pointer_type {
+		repr = ast::pointer_type {
 			referent = alloc(_type),
 			flags = flags,
 		},
@@ -163,7 +163,7 @@ fn tagged_type(
 		start = start,
 		end = lex::prevloc(lexer),
 		flags = 0,
-		_type = tagged,
+		repr = tagged,
 	};
 };
 
@@ -188,7 +188,7 @@ fn tuple_type(
 		start = start,
 		end = lex::prevloc(lexer),
 		flags = 0,
-		_type = tuple,
+		repr = tuple,
 	};
 };
 
@@ -205,7 +205,7 @@ fn fn_type(lexer: *lex::lexer) (ast::_type | error) = {
 		start = start,
 		end = lex::prevloc(lexer),
 		flags = ast::type_flags::CONST,
-		_type = proto,
+		repr = proto,
 	};
 };
 
@@ -260,7 +260,7 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 		start = kind.2,
 		end = lex::prevloc(lexer),
 		flags = 0,
-		_type = switch (kind.0) {
+		repr = switch (kind.0) {
 			ltok::STRUCT => membs: ast::struct_type,
 			ltok::UNION => membs: ast::union_type,
 			* => abort(),
@@ -334,7 +334,7 @@ fn array_slice_type(lexer: *lex::lexer) (ast::_type | error) = {
 		start = start.2,
 		end = lex::prevloc(lexer),
 		flags = 0,
-		_type = ast::list_type {
+		repr = ast::list_type {
 			length = length,
 			members = alloc(_type),
 		},
@@ -383,7 +383,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 		start = start.2,
 		end = lex::prevloc(lexer),
 		flags = 0,
-		_type = ast::enum_type {
+		repr = ast::enum_type {
 			storage = storage,
 			values = membs,
 		},

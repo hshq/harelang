@@ -34,7 +34,7 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	if (fndecl.body == null) {
 		return; // Prototype
 	};
-	const fntype = fndecl.prototype._type as types::func;
+	const fntype = fndecl.prototype.repr as types::func;
 	assert(fntype.flags == 0);
 	ctx.serial = 0;
 
@@ -43,7 +43,7 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	fmt::printf("{}function section \".text.{}\" \"ax\"",
 		if (decl.exported) "export " else "", ident)!;
 	const rtype = fntype.result;
-	const has_rval = match (types::dealias(rtype)._type) {
+	const has_rval = match (types::dealias(rtype).repr) {
 		bi: types::builtin => bi != types::builtin::VOID,
 		* => true,
 	};

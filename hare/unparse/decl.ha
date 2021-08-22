@@ -64,7 +64,7 @@ export fn decl(out: *io::stream, d: ast::decl) (size | io::error) = {
 				ast::fndecl_attrs::INIT => "@init ",
 				ast::fndecl_attrs::TEST => "@test ",
 			})?;
-			let p = f.prototype._type as ast::func_type;
+			let p = f.prototype.repr as ast::func_type;
 			if (p.attrs & ast::func_attrs::NORETURN != 0) {
 				n += fmt::fprint(out, "@noreturn ")?;
 			};
@@ -74,8 +74,8 @@ export fn decl(out: *io::stream, d: ast::decl) (size | io::error) = {
 			};
 			n += fmt::fprint(out, "fn ")?;
 			n += ident(out, f.ident)?;
-			n += prototype(out, 0,
-				f.prototype._type as ast::func_type)?;
+			const fntype = f.prototype.repr as ast::func_type;
+			n += prototype(out, 0, fntype)?;
 			match (f.body) {
 				void => void,
 				e: ast::expr => {

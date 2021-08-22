@@ -83,7 +83,7 @@ export fn lookup(
 
 fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 	let sz = SIZE_UNDEFINED, align = SIZE_UNDEFINED;
-	let underlying = match (atype._type) {
+	const repr = match (atype.repr) {
 		a: ast::alias_type => {
 			// TODO: This is incomplete
 			assert(!a.unwrap);
@@ -266,7 +266,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 	};
 	return _type {
 		flags = atype.flags: flags,
-		_type = underlying,
+		repr = repr,
 		sz = sz,
 		align = align,
 	};
@@ -360,13 +360,13 @@ fn _struct_from_ast(
 
 		const memb = match (membs[i].member) {
 			se: ast::struct_embedded => {
-				let membs: []ast::struct_member = match (se._type) {
+				let membs: []ast::struct_member = match (se.repr) {
 					st: ast::struct_type => st,
 					ut: ast::union_type => ut,
 					* => abort(), // Invariant
 				};
 				_struct_from_ast(store, membs,
-					se._type is ast::union_type,
+					se.repr is ast::union_type,
 					fields, offs)?;
 				continue;
 			},
@@ -421,7 +421,7 @@ fn tagged_collect(
 	atype: ast::tagged_type,
 	types: *[]const *_type,
 ) (void | deferred | error) = {
-	for (let i = 0z; i < len(atype); i += 1) match (atype[i]._type) {
+	for (let i = 0z; i < len(atype); i += 1) match (atype[i].repr) {
 		ta: ast::tagged_type => tagged_collect(store, ta, types)?,
 		* => append(types, lookup(store, atype[i])?),
 	};
@@ -481,7 +481,7 @@ fn field_cmp(a: const *void, b: const *void) int = {
 };
 
 fn type_finish(t: *_type) void = {
-	match (t._type) {
+	match (t.repr) {
 		a: alias => ast::ident_free(a.id),
 		array => void,
 		builtin => void,

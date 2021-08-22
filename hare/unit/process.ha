@@ -44,7 +44,7 @@ fn process_func(
 	assert(func.attrs & ast::fndecl_attrs::TEST == 0); // TODO
 	const afndecl = adecl.decl as ast::decl_func;
 	const prototype = types::lookup(ctx.store, &func.prototype)!;
-	const fntype = prototype._type as types::func;
+	const fntype = prototype.repr as types::func;
 	assert(fntype.variadism == types::variadism::NONE); // TODO
 	assert(len(fntype.params) == 0); // TODO
 

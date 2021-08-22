@@ -63,7 +63,7 @@ fn struct_union_type(
 	t: ast::_type,
 ) (size | io::error) = {
 	let z = 0z;
-	let membs = match (t._type) {
+	let membs = match (t.repr) {
 		st: ast::struct_type => {
 			z += fmt::fprint(out, "struct {")?;
 			st: []ast::struct_member;
@@ -111,10 +111,10 @@ export fn _type(
 ) (size | io::error) = {
 	let n = 0z;
 	if (t.flags & ast::type_flags::CONST != 0
-			&& !(t._type is ast::func_type)) {
+			&& !(t.repr is ast::func_type)) {
 		n += fmt::fprint(out, "const ")?;
 	};
-	match (t._type) {
+	match (t.repr) {
 		a: ast::alias_type => {
 			if (a.unwrap) {
 				n += fmt::fprint(out, "...")?;

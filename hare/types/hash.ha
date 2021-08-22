@@ -33,7 +33,7 @@ fn builtin_storage(b: builtin) u8 = switch (b) {
 	builtin::VOID => storage::VOID,
 };
 
-fn type_storage(t: *_type) u8 = match (t._type) {
+fn type_storage(t: *_type) u8 = match (t.repr) {
 	alias => storage::ALIAS,
 	array => storage::ARRAY,
 	b: builtin => builtin_storage(b),
@@ -76,7 +76,7 @@ export fn hash(t: *_type) u32 = {
 	write8(id, type_storage(t));
 	write8(id, t.flags);
 
-	match (t._type) {
+	match (t.repr) {
 		a: alias => for (let i = len(a.id); i > 0; i -= 1) {
 			hash::write(id, strings::toutf8(a.id[i - 1]));
 			write8(id, 0);

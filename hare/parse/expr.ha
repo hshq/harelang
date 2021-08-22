@@ -967,7 +967,7 @@ fn match_case(lexer: *lex::lexer) (ast::match_case | error) = {
 				start = loc,
 				end = lex::prevloc(lexer),
 				flags = 0,
-				_type = ast::builtin_type::NULL,
+				repr = ast::builtin_type::NULL,
 			});
 		},
 		* => nametype(lexer)?,
@@ -1001,7 +1001,7 @@ fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 						start = t.2,
 						end = case._type.end,
 						flags = 0,
-						_type = ast::pointer_type {
+						repr = ast::pointer_type {
 							referent = case._type,
 							flags = 0,
 						},

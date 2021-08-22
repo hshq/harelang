@@ -109,7 +109,7 @@ fn nametype(lexer: *lex::lexer) ((str, ast::_type) | error) = {
 						start = start,
 						end = lex::prevloc(lexer),
 						flags = 0,
-						_type = ast::alias_type {
+						repr = ast::alias_type {
 							unwrap = false,
 							ident = id,
 						},
@@ -119,7 +119,7 @@ fn nametype(lexer: *lex::lexer) ((str, ast::_type) | error) = {
 					start = start,
 					end = lex::prevloc(lexer),
 					flags = 0,
-					_type = ast::alias_type {
+					repr = ast::alias_type {
 						unwrap = false,
 						ident = alloc([name]),
 					},

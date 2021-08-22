@@ -113,8 +113,8 @@ export def SIZE_UNDEFINED: size = -1: size;
 // A Hare type.
 export type _type = struct {
 	flags: flags,
-	_type: (alias | array | builtin | _enum | func | pointer | slice |
-		_struct | tagged | tuple),
+	repr: (alias | array | builtin | _enum | func
+		| pointer | slice | _struct | tagged | tuple),
 	id: u32,
 	sz: size,
 	align: size,

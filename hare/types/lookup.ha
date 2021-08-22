@@ -2,7 +2,7 @@ use hare::ast;
 
 // Unwraps a type which may be aliased and returns the underlying type.
 export fn dealias(t: *_type) const *_type = {
-	for (true) match (t._type) {
+	for (true) match (t.repr) {
 		a: alias => {
 			assert(a.secondary != null);
 			t = a.secondary: const *_type;
@@ -19,7 +19,7 @@ export fn lookup_builtin(
 ) const *_type = {
 	// TODO: &ast::type { ... }
 	const atype = ast::_type {
-		_type = _type,
+		repr = _type,
 		...
 	};
 	return lookup(store, &atype)!;
