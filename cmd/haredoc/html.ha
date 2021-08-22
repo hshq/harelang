@@ -1,7 +1,7 @@
 // Note: ast::ident should never have to be escaped
 use bufio;
+use encoding::utf8;
 use fmt;
-use format::html;
 use hare::ast;
 use hare::lex;
 use hare::module;
@@ -11,6 +11,25 @@ use os;
 use path;
 use strings;
 use strio;
+
+// Prints a string to an output stream, escaping any of HTML's reserved
+// characters.
+fn html_escape(out: *io::stream, in: str) (size | io::error) = {
+	let z = 0z;
+	let iter = strings::iter(in);
+	for (true) match (strings::next(&iter)) {
+		void => break,
+		rn: rune => z += io::write(out, switch (rn) {
+			'&' => strings::toutf8("&amp;"),
+			'<' => strings::toutf8("&lt;"),
+			'>' => strings::toutf8("&gt;"),
+			'"' => strings::toutf8("&quot;"),
+			'\'' => strings::toutf8("&apos;"),
+			*   => utf8::encoderune(rn),
+		})?,
+	};
+	return z;
+};
 
 // Formats output as HTML
 fn emit_html(ctx: *context) (void | error) = {
@@ -63,9 +82,9 @@ fn emit_html(ctx: *context) (void | error) = {
 			defer free(path);
 
 			fmt::printf("<li><a href='")?;
-			html::escape(os::stdout, path)?;
+			html_escape(os::stdout, path)?;
 			fmt::printf("'>")?;
-			html::escape(os::stdout, dir)?;
+			html_escape(os::stdout, dir)?;
 			fmt::printfln("</a></li>")?;
 		};
 		fmt::println("</ul>")?;
@@ -270,19 +289,19 @@ fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {
 			tx: text => if (strings::has_prefix(tx, "https://")) {
 				// Temporary hack
 				fmt::print("<a rel='nofollow noopener' href='")?;
-				html::escape(os::stdout, tx)?;
+				html_escape(os::stdout, tx)?;
 				fmt::print("'>")?;
-				html::escape(os::stdout, tx)?;
+				html_escape(os::stdout, tx)?;
 				fmt::print("</a>")?;
 				free(tx);
 			} else {
-				html::escape(os::stdout, tx)?;
+				html_escape(os::stdout, tx)?;
 				free(tx);
 			},
 			re: reference => htmlref(ctx, re)?,
 			sa: sample => {
 				fmt::print("<pre class='sample'>")?;
-				html::escape(os::stdout, sa)?;
+				html_escape(os::stdout, sa)?;
 				fmt::print("</pre>")?;
 				free(sa);
 			},
@@ -290,7 +309,7 @@ fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {
 				fmt::println("<ul>")?;
 				for (let i = 0z; i < len(li); i += 1) {
 					fmt::println("<li>")?;
-					html::escape(os::stdout, li[i])?;
+					html_escape(os::stdout, li[i])?;
 					fmt::println("</li>")?;
 				};
 				fmt::println("</ul>")?;
@@ -496,7 +515,7 @@ fn type_html(
 	defer io::close(buf);
 	unparse::_type(buf, indent, _type)?;
 	if (brief) {
-		return html::escape(out, strio::string(buf))?;
+		return html_escape(out, strio::string(buf))?;
 	};
 
 	// TODO: More detailed formatter which can find aliases nested deeper in
@@ -590,7 +609,7 @@ fn type_html(
 		},
 		t: ast::struct_type => z += struct_union_html(out, indent, _type, brief)?,
 		t: ast::union_type => z += struct_union_html(out, indent, _type, brief)?,
-		* => z += html::escape(out, strio::string(buf))?,
+		* => z += html_escape(out, strio::string(buf))?,
 	};
 
 	z;

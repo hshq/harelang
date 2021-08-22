@@ -157,10 +157,6 @@ hare_stdlib_deps+=$(stdlib_fmt)
 stdlib_format_elf=$(HARECACHE)/format/elf/format_elf.o
 hare_stdlib_deps+=$(stdlib_format_elf)
 
-# gen_lib format::html
-stdlib_format_html=$(HARECACHE)/format/html/format_html.o
-hare_stdlib_deps+=$(stdlib_format_html)
-
 # gen_lib format::xml
 stdlib_format_xml=$(HARECACHE)/format/xml/format_xml.o
 hare_stdlib_deps+=$(stdlib_format_xml)
@@ -581,16 +577,6 @@ $(HARECACHE)/format/elf/format_elf.ssa: $(stdlib_format_elf_srcs) $(stdlib_rt)
 	@mkdir -p $(HARECACHE)/format/elf
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::elf \
 		-t$(HARECACHE)/format/elf/format_elf.td $(stdlib_format_elf_srcs)
-
-# format::html
-stdlib_format_html_srcs= \
-	$(STDLIB)/format/html/escape.ha
-
-$(HARECACHE)/format/html/format_html.ssa: $(stdlib_format_html_srcs) $(stdlib_rt) $(stdlib_encoding_utf8) $(stdlib_io) $(stdlib_strings) $(stdlib_strio)
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/format/html
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::html \
-		-t$(HARECACHE)/format/html/format_html.td $(stdlib_format_html_srcs)
 
 # format::xml
 stdlib_format_xml_srcs= \
@@ -1377,10 +1363,6 @@ hare_testlib_deps+=$(testlib_fmt)
 testlib_format_elf=$(TESTCACHE)/format/elf/format_elf.o
 hare_testlib_deps+=$(testlib_format_elf)
 
-# gen_lib format::html
-testlib_format_html=$(TESTCACHE)/format/html/format_html.o
-hare_testlib_deps+=$(testlib_format_html)
-
 # gen_lib format::xml
 testlib_format_xml=$(TESTCACHE)/format/xml/format_xml.o
 hare_testlib_deps+=$(testlib_format_xml)
@@ -1808,16 +1790,6 @@ $(TESTCACHE)/format/elf/format_elf.ssa: $(testlib_format_elf_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/format/elf
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::elf \
 		-t$(TESTCACHE)/format/elf/format_elf.td $(testlib_format_elf_srcs)
-
-# format::html
-testlib_format_html_srcs= \
-	$(STDLIB)/format/html/escape.ha
-
-$(TESTCACHE)/format/html/format_html.ssa: $(testlib_format_html_srcs) $(testlib_rt) $(testlib_encoding_utf8) $(testlib_io) $(testlib_strings) $(testlib_strio)
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/format/html
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::html \
-		-t$(TESTCACHE)/format/html/format_html.td $(testlib_format_html_srcs)
 
 # format::xml
 testlib_format_xml_srcs= \
