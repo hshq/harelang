@@ -43,8 +43,11 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	fmt::printf("{}function section \".text.{}\" \"ax\"",
 		if (decl.exported) "export " else "", ident)!;
 	const rtype = fntype.result;
-	if (!(rtype._type is types::builtin) ||
-			rtype._type as types::builtin != types::builtin::VOID) {
+	const has_rval = match (types::dealias(rtype)._type) {
+		bi: types::builtin => bi != types::builtin::VOID,
+		* => true,
+	};
+	if (has_rval) {
 		abort(); // TODO: Return type
 	};
 	fmt::printf(" ${}(", ident)!;

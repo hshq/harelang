@@ -1,5 +1,17 @@
 use hare::ast;
 
+// Unwraps a type which may be aliased and returns the underlying type.
+export fn dealias(t: *_type) const *_type = {
+	for (true) match (t._type) {
+		a: alias => {
+			assert(a._type != null);
+			t = a._type: const *_type;
+		},
+		* => break,
+	};
+	return t;
+};
+
 // Looks up a built-in type.
 export fn lookup_builtin(
 	store: *typestore,
