@@ -262,41 +262,43 @@ fn sched_walk(plan: *plan, ident: ast::ident, link: *[]*task) void = {
 	const path = module::identpath(ident);
 	const it = os::iter(path)?;
 	free(path);
-	:loop for (true) match (fs::next(it)) {
-		ent: fs::dirent => {
-			if (ent.name == "." || ent.name == "..") {
-				continue;
-			};
-			if (ent.ftype & fs::mode::DIR != fs::mode::DIR) {
-				continue;
-			};
-			const d = utf8::decode(ent.name);
-			match (utf8::next(&d)) {
-				void => break,
-				(utf8::more | utf8::invalid) => continue :loop,
-				r: rune => if (!ascii::isalpha(r) && r != '_') {
-					continue :loop;
-				},
-			};
-			for (true) match (utf8::next(&d)) {
-				void => break,
-				(utf8::more | utf8::invalid) => continue :loop,
-				r: rune => if (!ascii::isalnum(r) && r != '_') {
-					continue :loop;
-				},
-			};
-			let new = ast::ident_dup(ident);
-			append(new, strings::dup(ent.name));
-			sched_walk(plan, new, link);
+	for (true) :loop {
+		match (fs::next(it)) {
+			ent: fs::dirent => {
+				if (ent.name == "." || ent.name == "..") {
+					continue;
+				};
+				if (ent.ftype & fs::mode::DIR != fs::mode::DIR) {
+					continue;
+				};
+				const d = utf8::decode(ent.name);
+				match (utf8::next(&d)) {
+					void => break,
+					(utf8::more | utf8::invalid) => continue :loop,
+					r: rune => if (!ascii::isalpha(r) && r != '_') {
+						continue :loop;
+					},
+				};
+				for (true) match (utf8::next(&d)) {
+					void => break,
+					(utf8::more | utf8::invalid) => continue :loop,
+					r: rune => if (!ascii::isalnum(r) && r != '_') {
+						continue :loop;
+					},
+				};
+				let new = ast::ident_dup(ident);
+				append(new, strings::dup(ent.name));
+				sched_walk(plan, new, link);
 
-			match (module::lookup(plan.context, new)) {
-				ver: module::version =>
-					if (len(ver.inputs) == 0) continue,
-				module::error => continue,
-			};
-			sched_module(plan, new, link);
-		},
-		void => break,
+				match (module::lookup(plan.context, new)) {
+					ver: module::version =>
+						if (len(ver.inputs) == 0) continue,
+					module::error => continue,
+				};
+				sched_module(plan, new, link);
+			},
+			void => break,
+		};
 	};
 };
 

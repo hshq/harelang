@@ -82,6 +82,7 @@ fn process_expr(
 	ast::break_expr => abort(), // TODO
 	ast::call_expr => abort(), // TODO
 	ast::cast_expr => abort(), // TODO
+	ast::compound_expr => abort(), // TODO
 	ast::constant_expr => process_constant(ctx, expr),
 	ast::continue_expr => abort(), // TODO
 	ast::defer_expr => abort(), // TODO
@@ -89,7 +90,6 @@ fn process_expr(
 	ast::for_expr => abort(), // TODO
 	ast::free_expr => abort(), // TODO
 	ast::if_expr => abort(), // TODO
-	ast::list_expr => abort(), // TODO
 	ast::match_expr => abort(), // TODO
 	ast::len_expr => abort(), // TODO
 	ast::size_expr => abort(), // TODO

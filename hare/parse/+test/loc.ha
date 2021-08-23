@@ -50,7 +50,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	expr_testloc("defer foo");
 	expr_testloc("delete(foo[bar])", "delete(foo[bar..baz])");
 	expr_testloc("for (let foo = 0; bar; baz) quux",
-		":foo for (let bar = 0; baz; quux) quuux");
+		"for (let bar = 0; baz; quux) quuux");
 	expr_testloc("free(foo)");
 	expr_testloc("if (foo) bar", "if (foo) bar else baz");
 	expr_testloc("len(foo)");

@@ -151,7 +151,7 @@
 	for (true) {
 		x;
 	};
-	:label for (true) {
+	for (true) :label {
 		x;
 	};
 	for (let x = 0; x < 10) {

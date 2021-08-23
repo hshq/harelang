@@ -41,11 +41,11 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 			ltok::CONST)?) {
 		void => binarithm(lexer, void, 0)?,
 		tok: lex::token => switch (tok.0) {
-			ltok::LBRACE => expression_list(lexer)?,
+			ltok::LABEL, ltok::LBRACE => compound_expr(lexer)?,
 			ltok::MATCH => match_expr(lexer)?,
 			ltok::SWITCH => switch_expr(lexer)?,
 			ltok::IF => if_expr(lexer)?,
-			ltok::LABEL, ltok::FOR => for_expr(lexer)?,
+			ltok::FOR => for_expr(lexer)?,
 			ltok::BREAK,
 			ltok::CONTINUE,
 			ltok::RETURN => control(lexer)?,
@@ -475,10 +475,18 @@ fn delete_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 };
 
-fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
-	let items: ast::list_expr = [];
+fn compound_expr(lexer: *lex::lexer) (ast::expr | error) = {
+	let items: []*ast::expr = [];
 
-	const start = want(lexer, ltok::LBRACE)?;
+	const start = want(lexer, ltok::LBRACE, ltok::LABEL)?;
+	const label = switch (start.0) {
+		ltok::LABEL => {
+			want(lexer, ltok::LBRACE)?;
+			start.1 as str;
+		},
+		* => "",
+	};
+
 	for (let more = true; more) {
 		const item = match (peek(lexer, ltok::RBRACE)?) {
 			lex::token => break,
@@ -492,20 +500,15 @@ fn expression_list(lexer: *lex::lexer) (ast::expr | error) = {
 	return ast::expr {
 		start = start.2,
 		end = lex::prevloc(lexer),
-		expr = items,
+		expr = ast::compound_expr {
+			exprs = items,
+			label = label,
+		},
 	};
 };
 
 fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
-	const tok = want(lexer, ltok::FOR, ltok::LABEL)?;
-	const label: ast::label = switch (tok.0) {
-		ltok::LABEL => {
-			want(lexer, ltok::FOR)?;
-			tok.1 as str;
-		},
-		* => "",
-	};
-
+	const tok = want(lexer, ltok::FOR)?;
 	want(lexer, ltok::LPAREN)?;
 
 	const bindings: nullable *ast::expr = match (peek(
@@ -537,7 +540,6 @@ fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		start = tok.2,
 		end = lex::prevloc(lexer),
 		expr = ast::for_expr {
-			label = label,
 			bindings = bindings,
 			cond = cond,
 			afterthought = afterthought,

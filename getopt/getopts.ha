@@ -108,7 +108,7 @@ export type help = (cmd_help | flag_help | parameter_help);
 export fn parse(args: []str, help: help...) command = {
 	let opts: []option = [];
 	let i = 1z;
-	:arg for (i < len(args); i += 1) {
+	for (i < len(args); i += 1) :arg {
 		const arg = args[i];
 		if (len(arg) == 0 || arg == "-"
 				|| !strings::has_prefix(arg, "-")) {
@@ -122,9 +122,9 @@ export fn parse(args: []str, help: help...) command = {
 		let d = utf8::decode(arg);
 		assert(utf8::next(&d) as rune == '-');
 		let next = utf8::next(&d);
-		:flag for (next is rune; next = utf8::next(&d)) {
+		for (next is rune; next = utf8::next(&d)) :flag {
 			const r = next as rune;
-			:help for (let j = 0z; j < len(help); j += 1) {
+			for (let j = 0z; j < len(help); j += 1) :help {
 				let p: parameter_help = match (help[j]) {
 					cmd_help => continue :help,
 					f: flag_help => if (r == f.0) {

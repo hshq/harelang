@@ -156,6 +156,18 @@ export type cast_expr = struct {
 	_type: *_type,
 };
 
+// A compound expression.
+//
+// 	{
+// 		foo;
+// 		bar;
+// 		// ...
+// 	}
+export type compound_expr = struct {
+	exprs: []*expr,
+	label: label,
+};
+
 // An array constant.
 //
 // 	[foo, bar, ...]
@@ -214,7 +226,6 @@ export type delete_expr = *expr;
 //
 // 	:label for (let foo = 0; foo < bar; baz) quux
 export type for_expr = struct {
-	label: label,
 	bindings: nullable *expr,
 	cond: *expr,
 	afterthought: nullable *expr,
@@ -242,15 +253,6 @@ export type label = str;
 //
 // 	len(foo)
 export type len_expr = *expr;
-
-// An expression list.
-//
-// 	{
-// 		foo;
-// 		bar;
-// 		// ...
-// 	}
-export type list_expr = []*expr;
 
 // A match case.
 //
@@ -345,7 +347,7 @@ export type expr = struct {
 		assign_expr | binarithm_expr | binding_expr | break_expr |
 		call_expr | cast_expr | constant_expr | continue_expr |
 		defer_expr | delete_expr | for_expr | free_expr | if_expr |
-		list_expr | match_expr | len_expr | size_expr | offset_expr |
+		compound_expr | match_expr | len_expr | size_expr | offset_expr |
 		propagate_expr | return_expr | slice_expr | switch_expr |
 		unarithm_expr),
 };
@@ -422,6 +424,13 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			expr_free(c.value);
 			type_free(c._type);
 		},
+		c: compound_expr => {
+			for (let i = 0z; i < len(c.exprs); i += 1) {
+				expr_free(c.exprs[i]);
+			};
+			free(c.exprs);
+			free(c.label);
+		},
 		c: constant_expr => match(c) {
 			(void | lex::value) => void,
 			a: array_constant => {
@@ -456,7 +465,6 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 		d: defer_expr => expr_free(d: *expr),
 		d: delete_expr => expr_free(d: *expr),
 		f: for_expr => {
-			free(f.label);
 			expr_free(f.bindings);
 			expr_free(f.cond);
 			expr_free(f.afterthought);
@@ -469,12 +477,6 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			expr_free(i.fbranch);
 		},
 		l: len_expr => expr_free(l: *expr),
-		l: list_expr => {
-			for (let i = 0z; i < len(l); i += 1) {
-				expr_free(l[i]);
-			};
-			free(l);
-		},
 		m: match_expr => {
 			expr_free(m.value);
 			for (let i = 0z; i < len(m.cases); i += 1) {
