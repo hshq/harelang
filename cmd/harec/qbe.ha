@@ -4,9 +4,10 @@ type global = str;
 type temporary = str;
 type qvoid = void;
 type constant = (u32 | u64 | f32 | f64 | str | qvoid);
+type qval = (global | temporary | constant);
 
 type value = struct {
-	value: (global | temporary | constant),
+	value: qval,
 	_type: const *types::_type,
 };
 

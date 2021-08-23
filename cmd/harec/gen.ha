@@ -1,6 +1,7 @@
 use bufio;
 use fmt;
 use hare::ast;
+use hare::lex;
 use hare::module;
 use hare::types;
 use hare::unit;
@@ -63,12 +64,30 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 
 	fmt::fprintln(ctx.out, mklabel(ctx, "body"))!;
 	gen_expr(ctx, fndecl.body: *unit::expr);
+	emit(ctx, void, qinstr::RET); // TODO
 
 	io::write(os::stdout, bufio::buffer(ctx.out))!;
 	fmt::println("}\n")!;
 };
 
 fn gen_expr(ctx: *context, expr: *unit::expr) value = {
-	emit(ctx, void, qinstr::RET); // TODO
-	return vvoid;
+	match (expr.expr) {
+		unit::constant_expr => return gen_expr_const(ctx, expr),
+		* => abort(), // TODO
+	};
+	abort(); // Unreachable
+};
+
+fn gen_expr_const(ctx: *context, expr: *unit::expr) value = {
+	const constexpr = expr.expr as unit::constant_expr;
+	const val: qval = match (constexpr) {
+		void => return vvoid,
+		b: bool => (if (b) 1u32 else 0u32): constant,
+		unit::_null => 0u64, // XXX: Arch
+		v: lex::value => abort(), // TODO
+	};
+	return value {
+		value = val,
+		_type = expr.result,
+	};
 };
