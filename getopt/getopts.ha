@@ -159,7 +159,7 @@ export fn parse(args: []str, help: help...) command = {
 			rune => abort(), // Unreachable
 			void => void,
 			(utf8::more | utf8::invalid) => {
-				errmsg(args[9], "invalid UTF-8 in arguments",
+				errmsg(args[0], "invalid UTF-8 in arguments",
 					void, help);
 				os::exit(1);
 			},
