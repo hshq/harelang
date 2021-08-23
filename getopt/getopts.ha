@@ -200,10 +200,14 @@ fn _printusage(s: *io::stream, name: str, indent: bool, help: []help) size = {
 		};
 		z += fmt::fprintf(s, " [-{} <{}>]", help.0: rune, help.1) as size;
 	};
-	if (indent) {
-		z += fmt::fprintf(s, "\n\t") as size;
-	};
+	let first_arg = true;
 	for (let i = 1z; i < len(help); i += 1) if (help[i] is cmd_help) {
+		if (first_arg) {
+			if (indent) {
+				z += fmt::fprintf(s, "\n\t") as size;
+			};
+			first_arg = false;
+		};
 		z += fmt::fprintf(s, " {}", help[i] as cmd_help: str) as size;
 	};
 
