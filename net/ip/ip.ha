@@ -58,6 +58,9 @@ fn parsev4(st: str) (addr4 | invalid) = {
 	let i = 0z;
 	for (i < 4; i += 1) {
 		let s = wanttoken(&tok)?;
+		if (len(s) != 1 && strings::has_prefix(s, "0")) {
+			return invalid;
+		};
 		ret[i] = match (strconv::stou8(s)) {
 			term: u8 => term,
 			* => return invalid
