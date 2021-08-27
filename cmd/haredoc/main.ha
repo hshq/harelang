@@ -9,6 +9,7 @@ use io;
 use os;
 use path;
 use strings;
+use unix::tty;
 
 type format = enum {
 	HARE,
@@ -29,8 +30,7 @@ type context = struct {
 };
 
 export fn main() void = {
-	// TODO: Use format::TTY by default if stdout is a tty
-	let fmt = format::HARE;
+	let fmt = if (tty::isatty(os::stdout)) format::TTY else format::HARE;
 	let template = true;
 	const help: [_]getopt::help = [
 		"reads and formats Hare documentation",
@@ -130,7 +130,7 @@ fn scan(path: str) (ast::subunit | error) = {
 
 fn emit(ctx: *context) (void | error) = switch (ctx.format) {
 	format::HARE => emit_hare(ctx),
-	format::TTY => abort(), // TODO
+	format::TTY => emit_tty(ctx),
 	format::HTML => emit_html(ctx)?,
 	format::GEMTEXT => abort(), // TODO
 };
