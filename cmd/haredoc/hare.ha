@@ -14,6 +14,9 @@ fn emit_hare(ctx: *context) (void | error) = {
 	for (let i = 0z; i < len(summary.types); i += 1) {
 		details_hare(summary.types[i])?;
 	};
+	for (let i = 0z; i < len(summary.errors); i += 1) {
+		details_hare(summary.errors[i])?;
+	};
 	for (let i = 0z; i < len(summary.globals); i += 1) {
 		details_hare(summary.globals[i])?;
 	};
