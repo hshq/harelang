@@ -114,6 +114,9 @@ export fn _type(
 			&& !(t.repr is ast::func_type)) {
 		n += fmt::fprint(out, "const ")?;
 	};
+	if (t.flags & ast::type_flags::ERROR != 0) {
+		n += fmt::fprint(out, "!")?;
+	};
 	match (t.repr) {
 		a: ast::alias_type => {
 			if (a.unwrap) {
@@ -195,9 +198,6 @@ export fn _type(
 			n += fmt::fprint(out, ")")?;
 		},
 	};
-	if (t.flags & ast::type_flags::ERROR != 0) {
-		n += fmt::fprint(out, "!")?;
-	};
 	return n;
 };
 
@@ -246,7 +246,7 @@ fn type_test(t: ast::_type, expected: str) bool = {
 
 	t.flags = ast::type_flags::ERROR;
 	t.repr = ast::builtin_type::INT;
-	assert(type_test(t, "int!"));
+	assert(type_test(t, "!int"));
 
 	t.flags = ast::type_flags::CONST | ast::type_flags::ERROR;
 	t.repr = ast::enum_type {
@@ -262,7 +262,7 @@ fn type_test(t: ast::_type, expected: str) bool = {
 			},
 		],
 	};
-	assert(type_test(t, "const enum u32 {\n\tFOO,\n\tBAR = void,\n}!"));
+	assert(type_test(t, "const !enum u32 {\n\tFOO,\n\tBAR = void,\n}"));
 
 	t.flags = 0;
 
