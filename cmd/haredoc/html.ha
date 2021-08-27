@@ -553,6 +553,12 @@ fn type_html(
 	};
 
 	match (_type.repr) {
+		a: ast::alias_type => {
+			if (a.unwrap) {
+				z += fmt::fprint(out, "...")?;
+			};
+			z += unparse::ident(out, a.ident)?;
+		},
 		t: ast::builtin_type => {
 			z += fmt::fprintf(out, "<span class='type'>{}</span>",
 				builtin_type(t))?;
@@ -626,7 +632,6 @@ fn type_html(
 		},
 		t: ast::struct_type => z += struct_union_html(out, indent, _type, brief)?,
 		t: ast::union_type => z += struct_union_html(out, indent, _type, brief)?,
-		* => z += html_escape(out, strio::string(buf))?,
 	};
 
 	z;
