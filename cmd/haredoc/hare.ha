@@ -16,7 +16,7 @@ fn emit_hare(ctx: *context) (void | error) = {
 		readme: *io::stream => {
 			for (true) match (bufio::scanline(readme)?) {
 				b: []u8 => {
-					fmt::printfln("//{}", strings::fromutf8(b))?;
+					fmt::printfln("// {}", strings::fromutf8(b))?;
 					free(b);
 				},
 				io::EOF => break,
