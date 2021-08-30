@@ -1,3 +1,4 @@
+use bufio;
 use fmt;
 use hare::ast;
 use hare::lex;
@@ -10,6 +11,20 @@ use strio;
 // Formats output as Hare source code (prototypes)
 fn emit_hare(ctx: *context) (void | error) = {
 	const summary = ctx.summary;
+
+	match (ctx.readme) {
+		readme: *io::stream => {
+			for (true) match (bufio::scanline(readme)?) {
+				b: []u8 => {
+					fmt::printfln("//{}", strings::fromutf8(b))?;
+					free(b);
+				},
+				io::EOF => break,
+			};
+		},
+		null => void,
+	};
+
 	// XXX: Should we emit the dependencies, too?
 	for (let i = 0z; i < len(summary.types); i += 1) {
 		details_hare(ctx, summary.types[i])?;
