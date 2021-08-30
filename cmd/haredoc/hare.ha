@@ -12,20 +12,24 @@ fn emit_hare(ctx: *context) (void | error) = {
 	const summary = ctx.summary;
 	// XXX: Should we emit the dependencies, too?
 	for (let i = 0z; i < len(summary.types); i += 1) {
-		details_hare(summary.types[i])?;
+		details_hare(ctx, summary.types[i])?;
 	};
 	for (let i = 0z; i < len(summary.errors); i += 1) {
-		details_hare(summary.errors[i])?;
+		details_hare(ctx, summary.errors[i])?;
 	};
 	for (let i = 0z; i < len(summary.globals); i += 1) {
-		details_hare(summary.globals[i])?;
+		details_hare(ctx, summary.globals[i])?;
 	};
 	for (let i = 0z; i < len(summary.funcs); i += 1) {
-		details_hare(summary.funcs[i])?;
+		details_hare(ctx, summary.funcs[i])?;
 	};
 };
 
-fn details_hare(decl: ast::decl) (void | error) = {
+fn details_hare(ctx: *context, decl: ast::decl) (void | error) = {
+	if (len(decl.docs) == 0 && !ctx.show_undocumented) {
+		return;
+	};
+
 	const iter = strings::tokenize(decl.docs, "\n");
 	for (true) match (strings::next_token(&iter)) {
 		s: str => if (len(s) != 0) {

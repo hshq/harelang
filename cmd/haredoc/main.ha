@@ -26,16 +26,19 @@ type context = struct {
 	summary: summary,
 	format: format,
 	template: bool,
+	show_undocumented: bool,
 	readme: nullable *io::stream,
 };
 
 export fn main() void = {
 	let fmt = if (tty::isatty(os::stdout)) format::TTY else format::HARE;
 	let template = true;
+	let show_undocumented = false;
 	const help: [_]getopt::help = [
 		"reads and formats Hare documentation",
 		('F', "format", "specify output format (hare, tty, html, or gemtext)"),
 		('t', "disable HTML template (requries postprocessing)"),
+		('a', "show undocumented members (only applies to -Fhare and -Ftty)"),
 		"[identifiers...]",
 	];
 	const cmd = getopt::parse(os::args, help...);
@@ -51,8 +54,14 @@ export fn main() void = {
 				else if (opt.1 == "gemtext") format::GEMTEXT
 				else fmt::fatal("Invalid format {}", opt.1),
 			't' => template = false,
+			'a' => show_undocumented = true,
 			* => abort(),
 		};
+	};
+
+	if (show_undocumented) switch (fmt) {
+		format::HARE, format::TTY => void,
+		* => fmt::fatal("Option -a must be used only with -Fhare or -Ftty"),
 	};
 
 	let decls: []ast::decl = [];
@@ -110,6 +119,7 @@ export fn main() void = {
 		format = fmt,
 		template = template,
 		readme = readme,
+		show_undocumented = show_undocumented,
 	};
 	match (emit(&ctx)) {
 		void => void,

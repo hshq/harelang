@@ -12,20 +12,24 @@ fn emit_tty(ctx: *context) (void | error) = {
 	const summary = ctx.summary;
 	// XXX: Should we emit the dependencies, too?
 	for (let i = 0z; i < len(summary.types); i += 1) {
-		details_tty(summary.types[i])?;
+		details_tty(ctx, summary.types[i])?;
 	};
 	for (let i = 0z; i < len(summary.errors); i += 1) {
-		details_tty(summary.errors[i])?;
+		details_tty(ctx, summary.errors[i])?;
 	};
 	for (let i = 0z; i < len(summary.globals); i += 1) {
-		details_tty(summary.globals[i])?;
+		details_tty(ctx, summary.globals[i])?;
 	};
 	for (let i = 0z; i < len(summary.funcs); i += 1) {
-		details_tty(summary.funcs[i])?;
+		details_tty(ctx, summary.funcs[i])?;
 	};
 };
 
-fn details_tty(decl: ast::decl) (void | error) = {
+fn details_tty(ctx: *context, decl: ast::decl) (void | error) = {
+	if (len(decl.docs) == 0 && !ctx.show_undocumented) {
+		return;
+	};
+
 	const iter = strings::tokenize(decl.docs, "\n");
 	for (true) match (strings::next_token(&iter)) {
 		s: str => if (len(s) != 0) {
