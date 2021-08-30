@@ -29,7 +29,7 @@ fn details_tty(decl: ast::decl) (void | error) = {
 	const iter = strings::tokenize(decl.docs, "\n");
 	for (true) match (strings::next_token(&iter)) {
 		s: str => if (len(s) != 0) {
-			fmt::printfln("\x1b[38;5;246m" "//{}" "\x1b[0m", s)?;
+			fmt::printfln("\x1b[1m" "//{}" "\x1b[0m", s)?;
 		},
 		void => break,
 	};
