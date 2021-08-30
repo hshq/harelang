@@ -92,6 +92,14 @@ fn plan_finish(plan: *plan) void = {
 };
 
 fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
+	if (verbose) {
+		for (let i = 0z; i < len(plan.environ); i += 1) {
+			// TODO: Uncomment this with shlex::quote
+			let item = plan.environ[i];
+			fmt::errorfln("# {}={}", item.0, item.1)!;
+		};
+	};
+
 	for (len(plan.scheduled) != 0) {
 		let next: nullable *task = null;
 		let i = 0z;
