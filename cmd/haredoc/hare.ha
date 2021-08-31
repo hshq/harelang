@@ -21,6 +21,7 @@ fn emit_hare(ctx: *context) (void | error) = {
 				},
 				io::EOF => break,
 			};
+			fmt::println()?;
 		},
 		null => void,
 	};
