@@ -3,16 +3,12 @@ use fs;
 use io;
 use os;
 
-// Return either /dev/tty or stdin, whichever is accessible and is a tty.
+// Returns a stream connected to the TTY of the current process. The caller must
+// close it using [[io::close]].
 export fn open() (*io::stream | error) = {
-	match (os::open("/dev/tty", fs::flags::RDWR, fs::flags::CLOEXEC)) {
-		i: *io::stream => return i,
-		fs::error => void,
+	return match (os::open("/dev/tty", fs::flags::RDWR,
+			fs::flags::CLOEXEC)) {
+		s: *io::stream => s,
+		fs::error => errors::noentry,
 	};
-
-	if (isatty(os::stdout)) {
-		return os::stdout;
-	};
-
-	return errors::noentry;
 };
