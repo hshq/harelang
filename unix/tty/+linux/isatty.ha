@@ -2,7 +2,7 @@ use rt;
 use io;
 use os;
 
-// Returns true if the file descriptor underlying a stream is a terminal.
+// Returns whether the given stream is connected to a terminal.
 export fn isatty(stream: *io::stream) bool = {
 	let fd = match (os::streamfd(stream, true)) {
 		f: int => f,

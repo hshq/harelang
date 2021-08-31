@@ -3,8 +3,7 @@ use io;
 use os;
 use rt;
 
-// Returns an winsize struct containing the dimensions of underlying fd of the
-// stream.
+// Returns the dimensions of underlying terminal of the stream.
 export fn winsize(tty: *io::stream) (ttysize | error) = {
 	let fd = match (os::streamfd(tty, true)) {
 		f: int => f,
