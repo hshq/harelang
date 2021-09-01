@@ -21,7 +21,7 @@ export fn connect(addr: addr) (*io::stream | net::error) = {
 	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
 	rt::fcntl(sockfd, rt::F_SETFL, flags | rt::O_CLOEXEC)!;
 
-	const sz = size(rt::sockaddr): u32;
+	const sz = size(rt::sockaddr_un): u32;
 	match (rt::connect(sockfd, &sockaddr, sz)) {
 		err: rt::errno => return errors::errno(err),
 		int => void,
@@ -54,7 +54,7 @@ export fn listen(
 		bk = options[i];
 	};
 
-	match (rt::bind(sockfd, &sockaddr, size(rt::sockaddr): u32)) {
+	match (rt::bind(sockfd, &sockaddr, size(rt::sockaddr_un): u32)) {
 		err: rt::errno => return errors::errno(err),
 		int => void,
 	};
