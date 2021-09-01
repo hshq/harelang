@@ -252,3 +252,10 @@
 		"export fn main() void = !void;\n"
 		"export fn main() void = &x;\n");
 };
+
+@test fn yield_expr() void = {
+	roundtrip("export fn main() void = yield;\n"
+		"export fn main() void = yield void;\n"
+		"export fn main() void = yield :foo;\n"
+		"export fn main() void = yield :foo, void;\n");
+};

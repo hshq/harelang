@@ -339,6 +339,14 @@ export type unarithm_expr = struct {
 	operand: *expr,
 };
 
+// A yield expression.
+//
+// 	yield foo
+export type yield_expr = struct {
+	label: str,
+	value: nullable *expr,
+};
+
 // A Hare expression.
 export type expr = struct {
 	start: lex::location,
@@ -349,7 +357,7 @@ export type expr = struct {
 		defer_expr | delete_expr | for_expr | free_expr | if_expr |
 		compound_expr | match_expr | len_expr | size_expr | offset_expr |
 		propagate_expr | return_expr | slice_expr | switch_expr |
-		unarithm_expr),
+		unarithm_expr | yield_expr),
 };
 
 // Frees resources associated with a Hare [[expr]]ession.
@@ -508,5 +516,9 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			free(s.cases);
 		},
 		u: unarithm_expr => expr_free(u.operand),
+		y: yield_expr => {
+			free(y.label);
+			expr_free(y.value);
+		},
 	},
 };

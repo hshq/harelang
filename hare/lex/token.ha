@@ -65,7 +65,8 @@ export type ltok = enum uint {
 	UNION,
 	USE,
 	VOID,
-	LAST_KEYWORD = VOID,
+	YIELD,
+	LAST_KEYWORD = YIELD,
 
 	// Operators
 	BAND,
@@ -208,6 +209,7 @@ const bmap: [_]str = [
 	"union",
 	"use",
 	"void",
+	"yield",
 	"&",
 	"&=",
 	"~",

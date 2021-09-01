@@ -316,6 +316,21 @@ export fn expr(
 			z += expr(out, indent, *e.operand)?;
 			yield z;
 		},
+		e: ast::yield_expr => {
+			let z = fmt::fprint(out, "yield")?;
+			if (e.label != "") {
+				z += fmt::fprintf(out, " :{}", e.label)?;
+			};
+			match (e.value) {
+				null => void,
+				v: *ast::expr => {
+					z += fmt::fprint(out, if (e.label == "")
+						" " else ", ")?;
+					z += expr(out, indent, *v)?;
+				},
+			};
+			yield z;
+		},
 	};
 };
 

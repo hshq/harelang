@@ -38,7 +38,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 	} else match (peek(lexer, ltok::LBRACE, ltok::MATCH,
 			ltok::SWITCH, ltok::IF, ltok::LABEL, ltok::FOR,
 			ltok::BREAK, ltok::CONTINUE, ltok::RETURN, ltok::LET,
-			ltok::CONST)?) {
+			ltok::CONST, ltok::YIELD)?) {
 		void => binarithm(lexer, void, 0)?,
 		tok: lex::token => switch (tok.0) {
 			ltok::LABEL, ltok::LBRACE => compound_expr(lexer)?,
@@ -50,6 +50,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 			ltok::CONTINUE,
 			ltok::RETURN => control(lexer)?,
 			ltok::LET, ltok::CONST => binding(lexer, false)?,
+			ltok::YIELD => yield_expr(lexer)?,
 			* => abort(), // Invariant
 		},
 	};
@@ -1066,6 +1067,31 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 		expr = ast::unarithm_expr {
 			op = op,
 			operand = alloc(operand),
+		},
+	};
+};
+
+fn yield_expr(lexer: *lex::lexer) (ast::expr | error) = {
+	const start = want(lexer, ltok::YIELD)?;
+	let label = "";
+	let value: nullable *ast::expr = null;
+	match (try(lexer, ltok::SEMICOLON, ltok::LABEL)?) {
+		void => value = alloc(expression(lexer)?),
+		t: lex::token => switch (t.0) {
+			ltok::SEMICOLON => lex::unlex(lexer, t),
+			ltok::LABEL => {
+				label = t.1 as str;
+				if (try(lexer, ltok::COMMA)? is void) yield;
+				value = alloc(expression(lexer)?);
+			},
+		},
+	};
+	return ast::expr {
+		start = start.2,
+		end = lex::prevloc(lexer),
+		expr = ast::yield_expr {
+			label = label,
+			value = value,
 		},
 	};
 };
