@@ -17,7 +17,7 @@ export fn u64tosb(u: u64, b: base) const str = {
 	];
 	const lut = if (b != base::HEX_LOWER) &lut_upper else {
 		b = base::HEX_UPPER;
-		&lut_lower;
+		yield &lut_lower;
 	};
 
 	let s = types::string { data = &buf, ... };

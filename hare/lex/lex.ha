@@ -271,7 +271,7 @@ fn lex_name(lex: *lexer, loc: location, label: bool) (token | error) = {
 			defer free(n);
 			let tok = v: uintptr - &bmap[0]: uintptr;
 			tok /= size(str): uintptr;
-			(tok: ltok, void, loc);
+			yield (tok: ltok, void, loc);
 		},
 	};
 };
@@ -410,7 +410,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 				void => len(chars),
 				suff: size => suff,
 			};
-			strings::fromutf8(chars[exp..end]);
+			yield strings::fromutf8(chars[exp..end]);
 		},
 	};
 	let exp = match (strconv::stoi(exp)) {
@@ -460,14 +460,14 @@ fn lex_literal(lex: *lexer) (token | error) = {
 			strconv::invalid => abort(),
 			strconv::overflow => if (chars[0] != '-': u32: u8) {
 				suff = ltok::LIT_U64;
-				strconv::stou64b(val, base);
+				yield strconv::stou64b(val, base);
 			} else strconv::overflow,
 		},
 		ltok::LIT_I8, ltok::LIT_I16, ltok::LIT_I32, ltok::LIT_I64,
 		ltok::LIT_INT => strconv::stoi64b(val, base),
 		ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST => {
 			val = strings::fromutf8(chars[..floatend]);
-			strconv::stof64(val);
+			yield strconv::stof64(val);
 		},
 	};
 	let val = match (val) {
@@ -475,13 +475,13 @@ fn lex_literal(lex: *lexer) (token | error) = {
 			for (let i = 0z; i < exp; i += 1) {
 				val *= 10;
 			};
-			val;
+			yield val;
 		},
 		val: i64 => {
 			for (let i = 0z; i < exp; i += 1) {
 				val *= 10;
 			};
-			val;
+			yield val;
 		},
 		val: f64 => val,
 		strconv::invalid => abort(), // Shouldn't be lexed in
@@ -529,7 +529,7 @@ fn lex2(lex: *lexer) (token | error) = {
 				* => {
 					unget(lex, r);
 					return if (is_name(r.0, false)) {
-						lex_name(lex, first.1, true)?;
+						yield lex_name(lex, first.1, true)?;
 					} else (ltok::COLON, void, first.1);
 				},
 			},

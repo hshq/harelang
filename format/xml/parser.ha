@@ -73,7 +73,7 @@ export fn scan(par: *parser) (token | void | error) = {
 					io::EOF => return syntaxerr,
 					rn: rune => {
 						bufio::unreadrune(par.in, rn);
-						rn;
+						yield rn;
 					},
 				};
 				bufio::unreadrune(par.in, rn);
@@ -84,14 +84,14 @@ export fn scan(par: *parser) (token | void | error) = {
 				};
 				let el = scan_element(par)?;
 				par.state = state::ATTRS;
-				el;
+				yield el;
 			},
 			* => {
 				if (par.state == state::ROOT) {
 					return syntaxerr;
 				};
 				bufio::unreadrune(par.in, rn);
-				scan_content(par)?;
+				yield scan_content(par)?;
 			},
 		},
 		state::ATTRS => {
@@ -106,7 +106,7 @@ export fn scan(par: *parser) (token | void | error) = {
 				return syntaxerr;
 			};
 			bufio::unreadrune(par.in, rn);
-			scan_attr(par)?;
+			yield scan_attr(par)?;
 		},
 	};
 };
@@ -138,7 +138,7 @@ fn scan_attr(par: *parser) (token | error) = {
 				'<' => return syntaxerr,
 				'&' => {
 					bufio::unreadrune(par.in, rn);
-					scan_entity(par)?;
+					yield scan_entity(par)?;
 				},
 				* => rn,
 			};
@@ -228,7 +228,7 @@ fn scan_content(par: *parser) (text | error) = {
 				},
 				'&', '%' => {
 					bufio::unreadrune(par.in, rn);
-					scan_entity(par)?;
+					yield scan_entity(par)?;
 				},
 				* => rn,
 			};
@@ -269,7 +269,7 @@ fn scan_entity(par: *parser) (rune | error) = {
 		'%' => syntaxerr, // XXX: Deliberate omission: PEReference
 		*   => {
 			bufio::unreadrune(par.in, rn);
-			scan_namedent(par);
+			yield scan_namedent(par);
 		},
 	};
 };
@@ -378,7 +378,7 @@ fn prolog(par: *parser) (void | error) = {
 		io::EOF => false,
 		rn: rune => {
 			bufio::unreadrune(par.in, rn);
-			hadws && rn == 'e';
+			yield hadws && rn == 'e';
 		},
 	};
 	if (encoding) {
@@ -398,7 +398,7 @@ fn prolog(par: *parser) (void | error) = {
 		io::EOF => false,
 		rn: rune => {
 			bufio::unreadrune(par.in, rn);
-			hadws && rn == 's';
+			yield hadws && rn == 's';
 		},
 	};
 	if (standalone) {

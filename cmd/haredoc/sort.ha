@@ -38,7 +38,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 							// XXX: Kind of bad
 							let new: []ast::decl_type = [];
 							append(new, t[j]);
-							new;
+							yield new;
 						},
 						docs = decl.docs,
 					});
@@ -52,7 +52,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 							// XXX: Kind of bad
 							let new: []ast::decl_const = [];
 							append(new, c[j]);
-							new;
+							yield new;
 						},
 						docs = decl.docs,
 					});
@@ -66,7 +66,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 							// XXX: Kind of bad
 							let new: []ast::decl_global = [];
 							append(new, g[j]);
-							new;
+							yield new;
 						},
 						docs = decl.docs,
 					});
@@ -98,14 +98,14 @@ fn decl_ident(decl: ast::decl) ast::ident = match (decl.decl) {
 	f: ast::decl_func => f.ident,
 	t: []ast::decl_type => {
 		assert(len(t) == 1);
-		t[0].ident;
+		yield t[0].ident;
 	},
 	c: []ast::decl_const => {
 		assert(len(c) == 1);
-		c[0].ident;
+		yield c[0].ident;
 	},
 	g: []ast::decl_global => {
 		assert(len(g) == 1);
-		g[0].ident;
+		yield g[0].ident;
 	},
 };

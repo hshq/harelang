@@ -85,7 +85,7 @@ fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 		ltok::U32, ltok::U64, ltok::U64, ltok::U8, ltok::UINT,
 		ltok::UINTPTR => {
 			lex::unlex(lexer, tok);
-			integer_type(lexer)?;
+			yield integer_type(lexer)?;
 		},
 		ltok::RUNE => builtin_type::RUNE,
 		ltok::STR => builtin_type::STR,
@@ -227,7 +227,7 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 				want(lexer, ltok::LPAREN)?;
 				let ex = expression(lexer)?;
 				want(lexer, ltok::RPAREN)?;
-				alloc(ex);
+				yield alloc(ex);
 			},
 		};
 
@@ -299,7 +299,7 @@ fn struct_embed_or_field(
 			ltok::DOUBLE_COLON => {
 				let id = ident(lexer)?;
 				insert(id[0], name.1 as str);
-				id;
+				yield id;
 			},
 			* => abort(),
 		},
@@ -348,7 +348,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 		void => {
 			let storage = integer_type(lexer)?;
 			want(lexer, ltok::LBRACE)?;
-			storage;
+			yield storage;
 		},
 		lex::token => builtin_type::INT,
 	};
@@ -416,7 +416,7 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 		ltok::LPAREN => {
 			want(lexer, ltok::LPAREN)?;
 			let t = _type(lexer)?;
-			switch (want(lexer, ltok::BOR,
+			yield switch (want(lexer, ltok::BOR,
 					ltok::COMMA)?.0) {
 				ltok::BOR => tagged_type(lexer, t, tok.2)?,
 				ltok::COMMA => tuple_type(lexer, t, tok.2)?,

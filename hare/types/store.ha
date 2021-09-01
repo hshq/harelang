@@ -107,7 +107,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 		a: ast::alias_type => {
 			// TODO: This is incomplete
 			assert(!a.unwrap);
-			alias {
+			yield alias {
 				id = ast::ident_dup(a.ident),
 				secondary = null,
 			};
@@ -117,49 +117,49 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			ast::builtin_type::BOOL => {
 				sz = store.arch._int;
 				align = store.arch._int;
-				builtin::BOOL;
+				yield builtin::BOOL;
 			},
 			ast::builtin_type::CHAR => {
 				sz = 1; align = 1;
-				builtin::CHAR;
+				yield builtin::CHAR;
 			},
 			ast::builtin_type::F32 => {
 				sz = 4; align = 4;
-				builtin::F32;
+				yield builtin::F32;
 			},
 			ast::builtin_type::F64 => {
 				sz = 8; align = 8;
-				builtin::F64;
+				yield builtin::F64;
 			},
 			ast::builtin_type::I16 => {
 				sz = 2; align = 2;
-				builtin::I16;
+				yield builtin::I16;
 			},
 			ast::builtin_type::I32 => {
 				sz = 4; align = 4;
-				builtin::I32;
+				yield builtin::I32;
 			},
 			ast::builtin_type::I64 => {
 				sz = 8; align = 8;
-				builtin::I64;
+				yield builtin::I64;
 			},
 			ast::builtin_type::I8 => {
 				sz = 1; align = 1;
-				builtin::I8;
+				yield builtin::I8;
 			},
 			ast::builtin_type::INT => {
 				sz = store.arch._int;
 				align = store.arch._int;
-				builtin::INT;
+				yield builtin::INT;
 			},
 			ast::builtin_type::RUNE => {
 				sz = 4; align = 4;
-				builtin::RUNE;
+				yield builtin::RUNE;
 			},
 			ast::builtin_type::SIZE => {
 				sz = store.arch._size;
 				align = store.arch._size;
-				builtin::SIZE;
+				yield builtin::SIZE;
 			},
 			ast::builtin_type::STR => {
 				sz = store.arch._pointer;
@@ -169,37 +169,37 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 						store.arch._size
 					else
 						store.arch._pointer;
-				builtin::STR;
+				yield builtin::STR;
 			},
 			ast::builtin_type::U16 => {
 				sz = 2; align = 2;
-				builtin::U16;
+				yield builtin::U16;
 			},
 			ast::builtin_type::U32 => {
 				sz = 4; align = 4;
-				builtin::U32;
+				yield builtin::U32;
 			},
 			ast::builtin_type::U64 => {
 				sz = 8; align = 8;
-				builtin::U64;
+				yield builtin::U64;
 			},
 			ast::builtin_type::U8 => {
 				sz = 1; align = 1;
-				builtin::U8;
+				yield builtin::U8;
 			},
 			ast::builtin_type::UINT => {
 				sz = store.arch._int;
 				align = store.arch._int;
-				builtin::UINT;
+				yield builtin::UINT;
 			},
 			ast::builtin_type::UINTPTR => {
 				sz = store.arch._pointer;
 				align = store.arch._pointer;
-				builtin::UINTPTR;
+				yield builtin::UINTPTR;
 			},
 			ast::builtin_type::VOID => {
 				sz = 0; align = 0;
-				builtin::VOID;
+				yield builtin::VOID;
 			},
 			ast::builtin_type::NULL => builtin::NULL,
 			ast::builtin_type::ICONST,
@@ -209,7 +209,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 		p: ast::pointer_type => {
 			sz = store.arch._pointer;
 			align = store.arch._pointer;
-			pointer {
+			yield pointer {
 				referent = lookup(store, p.referent)?,
 				flags = p.flags: pointer_flags,
 			};
@@ -226,7 +226,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 					align = field._type.align;
 				};
 			};
-			st;
+			yield st;
 		},
 		un: ast::union_type => {
 			let st = struct_from_ast(store, un, true)?;
@@ -240,7 +240,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 					align = field._type.align;
 				};
 			};
-			st;
+			yield st;
 		},
 		ta: ast::tagged_type => {
 			let ta = tagged_from_ast(store, ta)?;
@@ -257,7 +257,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 				align = store.arch._int;
 			};
 			sz += store.arch._int % align + store.arch._int;
-			ta;
+			yield ta;
 		},
 		tu: ast::tuple_type => {
 			let tu = tuple_from_ast(store, tu)?;
@@ -271,13 +271,13 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 					align = value._type.align;
 				};
 			};
-			tu;
+			yield tu;
 		},
 		lt: ast::list_type => {
 			let r = list_from_ast(store, &lt)?;
 			sz = r.0;
 			align = r.1;
-			r.2;
+			yield r.2;
 		},
 		et: ast::enum_type => abort(), // TODO
 	};
@@ -331,14 +331,14 @@ fn list_from_ast(
 			align = if (store.arch._pointer > store.arch._size)
 					store.arch._pointer
 				else store.arch._size;
-			memb: slice;
+			yield memb: slice;
 		},
 		// Note: contextual length is handled by hare::unit when
 		// initializing bindings. We treat it like unbounded here and
 		// it's fixed up later on.
 		(ast::len_unbounded | ast::len_contextual) => {
 			align = memb.align;
-			array {
+			yield array {
 				length = SIZE_UNDEFINED,
 				member = memb,
 			};
@@ -352,7 +352,7 @@ fn list_from_ast(
 			sz = memb.sz * length;
 			assert(sz / length == memb.sz, "overflow");
 			align = memb.align;
-			array {
+			yield array {
 				length = length,
 				member = memb,
 			};

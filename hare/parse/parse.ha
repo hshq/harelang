@@ -96,16 +96,16 @@ fn nametype(lexer: *lex::lexer) ((str, ast::_type) | error) = {
 			let name = tok.1 as str;
 			want(lexer, ltok::NAME)?;
 			tok = peek(lexer)? as lex::token;
-			switch (tok.0) {
+			yield switch (tok.0) {
 				ltok::COLON => {
 					want(lexer, ltok::COLON)?;
-					(name, _type(lexer)?);
+					yield (name, _type(lexer)?);
 				},
 				ltok::DOUBLE_COLON => {
 					want(lexer, ltok::DOUBLE_COLON)?;
 					let id = ident(lexer)?;
 					insert(id[0], name);
-					("", ast::_type {
+					yield ("", ast::_type {
 						start = start,
 						end = lex::prevloc(lexer),
 						flags = 0,

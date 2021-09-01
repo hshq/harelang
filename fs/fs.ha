@@ -167,7 +167,7 @@ export fn mksubdir(fs: *fs, path: str) (*fs | error) = {
 	return match (fs.mksubdir) {
 		null => {
 			mkdir(fs, path)?;
-			subdir(fs, path);
+			yield subdir(fs, path);
 		},
 		f: *mksubdirfunc => f(fs, path),
 	};

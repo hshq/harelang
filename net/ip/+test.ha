@@ -9,7 +9,7 @@ fn ip_test(s: str, expected: (addr|invalid)) void = {
 	} else {
 		assert(expected is addr);
 		assert(equal(pr as addr, expected as addr));
-		pr as addr;
+		yield pr as addr;
 	};
 	let fmted = string(ip);
 	let iprp = parse(fmted);

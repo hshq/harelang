@@ -80,7 +80,7 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 	h.ln += n;
 	if (h.nx > 0) {
 		let n = if (len(b) > len(h.x) - h.nx) {
-			len(h.x) - h.nx;
+			yield len(h.x) - h.nx;
 		} else len(b);
 		h.x[h.nx..] = b[..n];
 		h.nx += n;

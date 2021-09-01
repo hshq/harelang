@@ -166,12 +166,12 @@ fn struct_union_type_tty(
 		st: ast::struct_type => {
 			z += fmt::fprint(out,
 				"\x1b[36m" "struct" "\x1b[0m" " {")?;
-			st: []ast::struct_member;
+			yield st: []ast::struct_member;
 		},
 		ut: ast::union_type => {
 			z += fmt::fprint(out,
 				"\x1b[36m" "union" "\x1b[0m" " {")?;
-			ut: []ast::struct_member;
+			yield ut: []ast::struct_member;
 		},
 	};
 
@@ -190,7 +190,7 @@ fn struct_union_type_tty(
 			se: ast::struct_embedded => type_tty(out, indent, *se)?,
 			sa: ast::struct_alias => unparse::ident(out, sa)?,
 			sf: ast::struct_field => {
-				fmt::fprintf(out, "{}: ", sf.name)?
+				yield fmt::fprintf(out, "{}: ", sf.name)?
 					+ type_tty(out, indent, *sf._type)?;
 			},
 		};

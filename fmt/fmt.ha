@@ -175,11 +175,11 @@ export fn fprintf(
 				continue;
 			} else if (ascii::isdigit(r)) {
 				strings::push(&iter, r);
-				args[scan_uint(&iter)];
+				yield args[scan_uint(&iter)];
 			} else {
 				strings::push(&iter, r);
 				i += 1;
-				args[i - 1];
+				yield args[i - 1];
 			};
 
 			let mod = modifiers { base = strconv::base::DEC, ... };
@@ -245,11 +245,11 @@ fn format_raw(
 	b: bool => io::write(out, strings::toutf8(if (b) "true" else "false")),
 	n: types::numeric => {
 		let s = strconv::numerictosb(n, mod.base);
-		io::write(out, strings::toutf8(s));
+		yield io::write(out, strings::toutf8(s));
 	},
 	p: uintptr => {
 		let s = strconv::uptrtosb(p, mod.base);
-		io::write(out, strings::toutf8(s));
+		yield io::write(out, strings::toutf8(s));
 	},
 	v: nullable *void => match (v) {
 		v: *void => {
@@ -257,7 +257,7 @@ fn format_raw(
 				strconv::base::HEX_LOWER);
 			let n = io::write(out, strings::toutf8("0x"))?;
 			n += io::write(out, strings::toutf8(s))?;
-			n;
+			yield n;
 		},
 		null => format(out, "(null)", mod),
 	},

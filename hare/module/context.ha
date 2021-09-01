@@ -45,7 +45,7 @@ export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 				};
 				append(path, strings::dup("."));
 				free(sl);
-				path;
+				yield path;
 			},
 		},
 		cache: str = match (os::getenv("HARECACHE")) {

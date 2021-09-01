@@ -19,7 +19,7 @@ fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
 				length: size,
 				capacity: size,
 			};
-			ptr.buf[..ptr.length];
+			yield ptr.buf[..ptr.length];
 		},
 		b: []u8 => b,
 	};
@@ -240,7 +240,7 @@ export fn mmap(
 ) (*void | errno) = {
 	let r = syscall6(SYS_mmap, addr: uintptr: u64,
 		length: u64, prot: u64, flags: u64, fd: u64, offs: u64);
-	match (wrap_return(r)) {
+	return match (wrap_return(r)) {
 		err: errno => {
 			// XXX: Type promotion would simplify this
 			return if (r: int == -EPERM
@@ -248,7 +248,7 @@ export fn mmap(
 					&& (flags & MAP_ANON) > 0
 					&& (flags & MAP_FIXED) == 0) {
 				 // Fix up incorrect EPERM from kernel:
-				wrap_errno(ENOMEM);
+				yield wrap_errno(ENOMEM);
 			} else err;
 		},
 		n: u64 => n: uintptr: *void,
@@ -283,7 +283,7 @@ fn faccessat1(dirfd: int, path: *const char, mode: int) (bool | errno) = {
 		},
 		n: u64 => {
 			assert(n == 0);
-			true;
+			yield true;
 		},
 	};
 };
@@ -309,7 +309,7 @@ export fn faccessat(
 		},
 		n: u64 => {
 			assert(n == 0);
-			true;
+			yield true;
 		},
 	};
 };

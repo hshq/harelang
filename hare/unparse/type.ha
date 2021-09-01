@@ -66,11 +66,11 @@ fn struct_union_type(
 	let membs = match (t.repr) {
 		st: ast::struct_type => {
 			z += fmt::fprint(out, "struct {")?;
-			st: []ast::struct_member;
+			yield st: []ast::struct_member;
 		},
 		ut: ast::union_type => {
 			z += fmt::fprint(out, "union {")?;
-			ut: []ast::struct_member;
+			yield ut: []ast::struct_member;
 		},
 	};
 
@@ -89,7 +89,7 @@ fn struct_union_type(
 			se: ast::struct_embedded => _type(out, indent, *se)?,
 			sa: ast::struct_alias => ident(out, sa)?,
 			sf: ast::struct_field => {
-				fmt::fprintf(out, "{}: ", sf.name)?
+				yield fmt::fprintf(out, "{}: ", sf.name)?
 					+ _type(out, indent, *sf._type)?;
 			},
 		};

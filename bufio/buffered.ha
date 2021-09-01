@@ -167,7 +167,7 @@ fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 				if (s.ravail == 0) {
 					return io::EOF;
 				};
-				0z;
+				yield 0z;
 			},
 			z: size => z,
 		};

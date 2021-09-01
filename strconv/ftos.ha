@@ -96,7 +96,7 @@ fn mulshiftall64(m: u64, mul: (u64, u64), j: i32, mm_shift: u32) (u64, u64, u64)
 		const lo3 = lo - mul.0;
 		const mid3 = mid - mul.1 - ibool(lo3 > lo);
 		const hi3 = hi - ibool(mid3 > mid);
-		u128rshift(mid3, hi3, (j - 64 - 1): u32);
+		yield u128rshift(mid3, hi3, (j - 64 - 1): u32);
 	} else {
 		const lo3 = lo + lo;
 		const mid3 = mid + mid + ibool(lo3 < lo);
@@ -104,7 +104,7 @@ fn mulshiftall64(m: u64, mul: (u64, u64), j: i32, mm_shift: u32) (u64, u64, u64)
 		const lo4 = lo3 - mul.0;
 		const mid4 = mid3 - mul.1 - ibool(lo4 > lo3);
 		const hi4 = hi3 - ibool(mid4 > mid3);
-		u128rshift(mid4, hi4, (j - 64): u32);
+		yield u128rshift(mid4, hi4, (j - 64): u32);
 	};
 	const v_rounded = u128rshift(mid, hi, (j - 64 - 1): u32);
 	return (v_plus, v_rounded, v_minus);
@@ -593,7 +593,7 @@ fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
 		let ex = if (exp < 0) {
 			buf[h] = '-': u32: u8;
 			h += 1;
-			-exp;
+			yield -exp;
 		} else exp;
 		const elen = declen(ex: u64);
 		let k = h + elen: i32 - 1;

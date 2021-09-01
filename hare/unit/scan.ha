@@ -25,7 +25,7 @@ fn scan_decl(
 	decl: *ast::decl,
 ) (void | types::deferred | error) = {
 	// TODO: match on &decl.decl
-	match (decl.decl) {
+	return match (decl.decl) {
 		co: []ast::decl_const => abort(), // TODO
 		gl: []ast::decl_global => abort(), // TODO
 		ty: []ast::decl_type => abort(), // TODO

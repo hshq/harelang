@@ -233,7 +233,7 @@ fn uncompressed_read(d: *decompressor) (void | io::EOF | io::error) = {
 	let z = match (io::read(d.in, buf)?) {
 		z: size => {
 			d.left -= z;
-			z;
+			yield z;
 		},
 		io::EOF => return wraperror(inflate_err::EOF),
 	};
@@ -294,7 +294,7 @@ fn dynamic(d: *decompressor) (void | io::EOF | io::error) = {
 					return wraperror(inflate_err::TABLE);
 				};
 				n = lens[len(lens) - 1];
-				3 + bits(d, 2)?;
+				yield 3 + bits(d, 2)?;
 			},
 			17 => 3 + bits(d, 3)?,
 			18 => 11 + bits(d, 7)?,

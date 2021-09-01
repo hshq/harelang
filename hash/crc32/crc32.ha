@@ -169,9 +169,9 @@ export fn memoize(polynomial: u32, buf: *[256]u32) void = {
 		let value = i: u32;
 		for (let z = 0z; z < 8; z += 1) {
 			value = if (value & 0x1 == 1) {
-				(value >> 1) ^ polynomial;
+				yield (value >> 1) ^ polynomial;
 			} else {
-				value >> 1;
+				yield value >> 1;
 			};
 		};
 		buf[i] = value;

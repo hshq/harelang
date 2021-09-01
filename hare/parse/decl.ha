@@ -143,7 +143,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 					len(params[i].name) > 0,
 					"Expected parameter name in function declaration")?;
 			};
-			expression(lexer)?;
+			yield expression(lexer)?;
 		},
 		ltok::SEMICOLON => lex::unlex(lexer, tok),
 	};
@@ -172,7 +172,7 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 			void => false,
 			lex::token => {
 				comment = strings::dup(lex::comment(lexer));
-				true;
+				yield true;
 			},
 		};
 		const toks = [ltok::CONST, ltok::LET, ltok::DEF, ltok::TYPE];

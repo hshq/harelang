@@ -75,7 +75,6 @@ fn gen_expr(ctx: *context, expr: *unit::expr) value = {
 		unit::constant_expr => return gen_expr_const(ctx, expr),
 		* => abort(), // TODO
 	};
-	abort(); // Unreachable
 };
 
 fn gen_expr_const(ctx: *context, expr: *unit::expr) value = {

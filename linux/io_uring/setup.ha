@@ -39,7 +39,7 @@ export fn setup(entries: u32, params: *params) (io_uring | error) = {
 	};
 
 	cq.ring_ptr = if (uring.features & features::SINGLE_MMAP == features::SINGLE_MMAP) {
-		sq.ring_ptr;
+		yield sq.ring_ptr;
 	} else match (rt::mmap(null, cq.ring_sz,
 			rt::PROT_READ | rt::PROT_WRITE,
 			rt::MAP_SHARED | rt::MAP_POPULATE,

@@ -145,9 +145,9 @@ fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 		return io::EOF;
 	};
 	const n = if (len(s.buf) - s.pos < len(buf)) {
-		len(s.buf) - s.pos;
+		yield len(s.buf) - s.pos;
 	} else {
-		len(buf);
+		yield len(buf);
 	};
 	assert(s.pos + n <= len(s.buf));
 	buf[..n] = s.buf[s.pos..s.pos + n];

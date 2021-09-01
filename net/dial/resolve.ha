@@ -23,7 +23,7 @@ export fn resolve(
 		i: size => {
 			const sub = strings::sub(addr, i + 1, strings::end);
 			addr = strings::sub(addr, 0, i);
-			match (strconv::stou16(sub)) {
+			yield match (strconv::stou16(sub)) {
 				u: u16 => u,
 				* => return invalid_address,
 			};

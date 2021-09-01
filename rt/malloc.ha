@@ -74,7 +74,7 @@ fn malloc_small(n: size) nullable *void = {
 	return if (p != null) {
 		let q = *(p: **void);
 		bins[b] = q;
-		p;
+		yield p;
 	} else null;
 };
 

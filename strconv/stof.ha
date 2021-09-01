@@ -437,7 +437,7 @@ fn floatbits(d: *decimal, f: *math::floatinfo) (u64 | overflow) = {
 	for (d.decimal_point <= 0) {
 		const n: int = if (d.decimal_point == 0) {
 			if (d.digits[0] >= 5) break;
-			if (d.digits[0] < 2) 2 else 1;
+			yield if (d.digits[0] < 2) 2 else 1;
 		} else if (-d.decimal_point >= len(powtab): i32)
 			maxshift: int
 		else powtab[-d.decimal_point];

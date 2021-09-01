@@ -5,7 +5,7 @@ fn segmalloc(n: size) nullable *void = {
 			MAP_PRIVATE | MAP_ANON, -1, 0)) {
 		err: errno => {
 			assert(err == ENOMEM: errno);
-			null;
+			yield null;
 		},
 		p: *void => p,
 	};

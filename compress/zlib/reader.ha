@@ -67,7 +67,7 @@ fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 		io::EOF => return verifysum(s),
 		z: size => buf = buf[..z],
 	};
-	hash::write(s.hash, buf);
+	return hash::write(s.hash, buf);
 };
 
 fn close(s: *io::stream) void = {

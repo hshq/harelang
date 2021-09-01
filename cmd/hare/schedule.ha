@@ -205,7 +205,7 @@ fn sched_hare_object(
 				path, fs::strerror(err)),
 		};
 		append(harec.cmd, "-t", path::join(path, td));
-		path::join(path, name);
+		yield path::join(path, name);
 	} else {
 		// XXX: This is probably kind of dumb
 		// It would be better to apply any defines which affect this
@@ -214,7 +214,7 @@ fn sched_hare_object(
 			append(harec.cmd, "-D", plan.context.defines[i]);
 		};
 
-		mkfile(plan, "o"); // TODO: Should exes go in the cache?
+		yield mkfile(plan, "o"); // TODO: Should exes go in the cache?
 	};
 
 	for (let i = 0z; i < len(ver.inputs); i += 1) {

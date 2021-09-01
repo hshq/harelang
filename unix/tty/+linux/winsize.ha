@@ -11,12 +11,10 @@ export fn winsize(tty: *io::stream) (ttysize | error) = {
 	};
 	let wsz = rt::winsize { ... };
 	return match (rt::ioctl(fd, rt::TIOCGWINSZ, &wsz: *void)) {
-		e: rt::errno => {
-			switch (e: int) {
-				rt::EBADFD => errors::invalid,
-				rt::ENOTTY => errors::unsupported,
-				* => abort("unreachable"),
-			};
+		e: rt::errno => switch (e: int) {
+			rt::EBADFD => errors::invalid,
+			rt::ENOTTY => errors::unsupported,
+			* => abort("unreachable"),
 		},
 		int => ttysize {
 			rows    = wsz.ws_row,

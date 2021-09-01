@@ -21,16 +21,18 @@ export fn expr(
 				z += fmt::fprintf(out, "[")?;
 				z += expr(out, indent, *ix.index)?;
 				z += fmt::fprintf(out, "]")?;
-				z;
+				yield z;
 			},
 			fi: ast::access_field => {
 				let z = expr(out, indent, *fi.object)?;
-				z + fmt::fprintf(out, ".{}", fi.field)?;
+				z += fmt::fprintf(out, ".{}", fi.field)?;
+				yield z;
 			},
 			tp: ast::access_tuple => {
 				let z = expr(out, indent, *tp.object)?;
 				z += fmt::fprintf(out, ".")?;
-				z + expr(out, indent, *tp.value)?;
+				z += expr(out, indent, *tp.value)?;
+				yield z;
 			},
 		},
 		e: ast::alloc_expr => {
@@ -44,7 +46,7 @@ export fn expr(
 				},
 			};
 			z += fmt::fprint(out, ")")?;
-			z;
+			yield z;
 		},
 		e: ast::append_expr => {
 			let z = fmt::fprint(out, "append(")?;
@@ -65,7 +67,8 @@ export fn expr(
 					z += fmt::fprint(out, "...")?;
 				},
 			};
-			z + fmt::fprint(out, ")")?;
+			z += fmt::fprint(out, ")")?;
+			yield z;
 		},
 		e: ast::assert_expr => {
 			let z = fmt::fprint(
@@ -73,7 +76,7 @@ export fn expr(
 			// assert without a condition = abort
 			z += match (e.cond) {
 				e: *ast::expr => {
-					fmt::fprint(out, "assert(")? +
+					yield fmt::fprint(out, "assert(")? +
 						expr(out, indent, *e)?;
 				},
 				null => fmt::fprint(out, "abort(")?,
@@ -87,11 +90,13 @@ export fn expr(
 						},
 						null => void,
 					};
-					z + expr(out, indent, *m)?;
+					z += expr(out, indent, *m)?;
+					yield z;
 				},
 				null => 0,
 			};
-			z + fmt::fprint(out, ")")?;
+			z += fmt::fprint(out, ")")?;
+			yield z;
 		},
 		e: ast::assign_expr => {
 			let z = 0z;
@@ -120,7 +125,7 @@ export fn expr(
 			};
 			z += fmt::fprintf(out, " {} ", op)?;
 			z += expr(out, indent, *e.value)?;
-			z;
+			yield z;
 		},
 		e: ast::binarithm_expr => {
 			let z = expr(out, indent, *e.lvalue)?;
@@ -146,7 +151,7 @@ export fn expr(
 				ast::binarithm_op::BXOR		=> "^",
 			})?;
 			z += expr(out, indent, *e.rvalue)?;
-			z;
+			yield z;
 		},
 		e: ast::binding_expr => {
 			let z = fmt::fprintf(out, "{}{}",
@@ -157,9 +162,11 @@ export fn expr(
 				z += match (binding._type) {
 					null => fmt::fprint(out, binding.name)?,
 					t: *ast::_type => {
-						fmt::fprintf(out, "{}: ",
-							binding.name)?
-						+ _type(out, indent, *t)?;
+						let z = 0z;
+						z += fmt::fprintf(out, "{}: ",
+							binding.name)?;
+						z += _type(out, indent, *t)?;
+						yield z;
 					},
 				};
 				z += fmt::fprint(out, " = ")?;
@@ -168,14 +175,14 @@ export fn expr(
 					z += fmt::fprint(out, ", ")?;
 				};
 			};
-			z;
+			yield z;
 		},
 		e: ast::break_expr => {
 			let z = fmt::fprint(out, "break")?;
 			if (e != "") {
 				z += fmt::fprintf(out, " :{}", e)?;
 			};
-			z;
+			yield z;
 		},
 		e: ast::call_expr => {
 			let z = expr(out, indent, *e.lvalue)?;
@@ -190,7 +197,7 @@ export fn expr(
 				z += fmt::fprintf(out, "...")?;
 			};
 			z += fmt::fprintf(out, ")")?;
-			z;
+			yield z;
 		},
 		e: ast::cast_expr => {
 			let z = expr(out, indent, *e.value)?;
@@ -201,7 +208,7 @@ export fn expr(
 			};
 			z += fmt::fprintf(out, "{}", op)?;
 			z += _type(out, indent, *e._type)?;
-			z;
+			yield z;
 		},
 		e: ast::constant_expr => constant(out, indent, e)?,
 		e: ast::continue_expr => {
@@ -209,7 +216,7 @@ export fn expr(
 			if (e != "") {
 				z += fmt::fprintf(out, " :{}", e)?;
 			};
-			z;
+			yield z;
 		},
 		e: ast::defer_expr =>
 			fmt::fprint(out, "defer ")? + expr(out, indent, *e)?,
@@ -234,7 +241,7 @@ export fn expr(
 					z += expr(out, indent, *e)?;
 				},
 			};
-			z;
+			yield z;
 		},
 		e: ast::compound_expr => {
 			let z = 0z;
@@ -249,23 +256,26 @@ export fn expr(
 			};
 			z += newline(out, indent)?;
 			z += fmt::fprintf(out, "}}")?;
-			z;
+			yield z;
 		},
 		e: ast::match_expr => match_expr(out, indent, e)?,
 		e: ast::len_expr => {
 			let z = fmt::fprint(out, "len(")?;
 			z += expr(out, indent, *e)?;
-			z + fmt::fprint(out, ")")?;
+			z += fmt::fprint(out, ")")?;
+			yield z;
 		},
 		e: ast::size_expr => {
 			let z = fmt::fprint(out, "size(")?;
 			z += _type(out, indent, *e)?;
-			z + fmt::fprint(out, ")")?;
+			z += fmt::fprint(out, ")")?;
+			yield z;
 		},
 		ast::offset_expr => abort(),
 		e: ast::propagate_expr => {
 			let z = expr(out, indent, *e.expr)?;
-			z + fmt::fprintf(out, if (e.is_abort) "!" else "?")?;
+			z += fmt::fprintf(out, if (e.is_abort) "!" else "?")?;
+			yield z;
 		},
 		e: ast::return_expr => {
 			let z = fmt::fprint(out, "return")?;
@@ -276,7 +286,7 @@ export fn expr(
 					z += expr(out, indent, *e)?;
 				},
 			};
-			z;
+			yield z;
 		},
 		e: ast::slice_expr => {
 			let z = expr(out, indent, *e.object)?;
@@ -291,7 +301,7 @@ export fn expr(
 				e: *ast::expr => expr(out, indent, *e)?,
 			};
 			z += fmt::fprint(out, "]")?;
-			z;
+			yield z;
 		},
 		e: ast::switch_expr => switch_expr(out, indent, e)?,
 		e: ast::unarithm_expr => {
@@ -304,7 +314,7 @@ export fn expr(
 				ast::unarithm_op::PLUS	=> "+",
 			})?;
 			z += expr(out, indent, *e.operand)?;
-			z;
+			yield z;
 		},
 	};
 };
@@ -333,8 +343,9 @@ fn constant(
 					z += fmt::fprint(out, ", ")?;
 				};
 			};
-			z + fmt::fprintf(out, "{}]",
+			z += fmt::fprintf(out, "{}]",
 				if (ac.expand) "..." else "")?;
+			yield z;
 		},
 		sc: ast::struct_constant => struct_constant(out, indent, sc)?,
 		tu: ast::tuple_constant => {
@@ -345,7 +356,8 @@ fn constant(
 					z += fmt::fprint(out, ", ")?;
 				};
 			};
-			z + fmt::fprint(out, ")")?;
+			z += fmt::fprint(out, ")")?;
+			yield z;
 		},
 	};
 };
@@ -357,9 +369,9 @@ fn struct_constant(
 ) (size | io::error) = {
 	let z = 0z;
 	z += if (len(sc.alias) != 0) {
-		ident(out, sc.alias)?;
+		yield ident(out, sc.alias)?;
 	} else {
-		fmt::fprint(out, "struct")?;
+		yield fmt::fprint(out, "struct")?;
 	};
 	z += fmt::fprint(out, " {")?;
 	indent += 1;

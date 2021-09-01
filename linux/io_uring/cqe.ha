@@ -17,7 +17,7 @@ export fn wait(ring: *io_uring) (*cqe | error) = {
 		err: error => err,
 		cq: nullable *cqe => {
 			assert(cq != null); // XXX: Correct?
-			cq: *cqe;
+			yield cq: *cqe;
 		},
 	};
 };

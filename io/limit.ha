@@ -49,9 +49,9 @@ fn limited_read(s: *stream, buf: []u8) (size | EOF | error) = {
 fn limited_write(s: *stream, buf: const []u8) (size | error) = {
 	let stream = s: *limited_stream;
 	let slice = if (len(buf) > stream.limit) {
-		buf[..stream.limit];
+		yield buf[..stream.limit];
 	} else {
-		buf[..];
+		yield buf[..];
 	};
 	stream.limit -= len(slice);
 	return write(stream.source, slice);

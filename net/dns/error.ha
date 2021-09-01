@@ -30,7 +30,7 @@ export type error = !(format | server_failure | name_error
 
 export fn strerror(err: error) const str = {
 	static let buf: [64]u8 = [0...];
-	match (err) {
+	return match (err) {
 		format => "The DNS message was poorly formatted",
 		server_failure => "The name server was unable to process this query due to a problem with the name server",
 		name_error => "The domain name referenced in the query does not exist",

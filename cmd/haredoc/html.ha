@@ -478,11 +478,11 @@ fn struct_union_html(
 	let members = match (t.repr) {
 		t: ast::struct_type => {
 			z += fmt::fprint(out, "<span class='keyword'>struct</span> {")?;
-			t: []ast::struct_member;
+			yield t: []ast::struct_member;
 		},
 		t: ast::union_type => {
 			z += fmt::fprint(out, "<span class='keyword'>union</span> {")?;
-			t: []ast::struct_member;
+			yield t: []ast::struct_member;
 		},
 	};
 
@@ -634,7 +634,7 @@ fn type_html(
 		t: ast::union_type => z += struct_union_html(out, indent, _type, brief)?,
 	};
 
-	z;
+	return z;
 };
 
 fn prototype_html(

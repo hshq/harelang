@@ -40,14 +40,14 @@ export fn equal(l: addr, r: addr) bool = {
 				return false;
 			};
 			let r = r as addr4;
-			bytes::equal(l, r);
+			yield bytes::equal(l, r);
 		},
 		l: addr6 => {
 			if (!(r is addr6)) {
 				return false;
 			};
 			let r = r as addr6;
-			bytes::equal(l, r);
+			yield bytes::equal(l, r);
 		},
 	};
 };
@@ -113,7 +113,6 @@ fn parsev6(st: str) (addr6 | invalid) = {
 			i += 4;
 			break;
 		};
-		return invalid;
 	};
 	if (!(strings::next_token(&tok) is void)) {
 		return invalid;
@@ -137,11 +136,13 @@ fn parsev6(st: str) (addr6 | invalid) = {
 
 // Parses an IP address.
 export fn parse(s: str) (addr | invalid) = {
-	match(parsev4(s)) {
+	match (parsev4(s)) {
 		v4: addr4 => return v4,
+		invalid => void,
 	};
-	match(parsev6(s)) {
+	match (parsev6(s)) {
 		v6: addr6 => return v6,
+		invalid => void,
 	};
 	return invalid;
 };
