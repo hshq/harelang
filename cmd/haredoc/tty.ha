@@ -241,7 +241,7 @@ fn type_tty(
 					"\x1b[36m" "{}" "\x1b[0m",
 					builtin_type(e.storage))?;
 			};
-			n += fmt::fprint(out, "{")?;
+			n += fmt::fprint(out, " {")?;
 			indent += 1;
 			for (let i = 0z; i < len(e.values); i += 1) {
 				n += newline(out, indent)?;
