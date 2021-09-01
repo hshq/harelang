@@ -643,3 +643,21 @@ export fn io_uring_enter(
 		fd: u64, to_submit: u64, min_complete: u64,
 		flags: u64, sig: uintptr: u64))?: uint;
 };
+
+export fn mlock2(addr: *void, length: size, flags: uint) (void | errno) = {
+	return wrap_return(syscall3(SYS_mlock2, addr: uintptr: u64,
+		length: u64, flags: u64))?: void;
+};
+
+export fn munlock(addr: *void, length: size) (void | errno) = {
+	return wrap_return(syscall2(SYS_munlock, addr: uintptr: u64,
+		length: u64))?: void;
+};
+
+export fn mlockall(flags: int) (void | errno) = {
+	return wrap_return(syscall1(SYS_mlockall, flags: u64))?: void;
+};
+
+export fn munlockall() (void | errno) = {
+	return wrap_return(syscall0(SYS_munlockall))?: void;
+};

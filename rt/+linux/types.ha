@@ -573,3 +573,9 @@ export type winsize = struct {
 };
 
 export def TIOCGWINSZ: u64 = 0x5413;
+
+export def MLOCK_ONFAULT: uint = 0x01;
+
+export def MCL_CURRENT: int = 1;
+export def MCL_FUTURE: int = 2;
+export def MCL_ONFAULT: int = 4;
