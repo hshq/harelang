@@ -9,6 +9,7 @@ stdlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/types.ha \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
 	$(STDLIB)/rt/$(PLATFORM)/platformstart.ha \
+	$(STDLIB)/rt/$(PLATFORM)/prctl.ha \
 	$(STDLIB)/rt/$(PLATFORM)/$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
@@ -1215,6 +1216,7 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/types.ha \
 	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
 	$(STDLIB)/rt/$(PLATFORM)/platformstart.ha \
+	$(STDLIB)/rt/$(PLATFORM)/prctl.ha \
 	$(STDLIB)/rt/$(PLATFORM)/$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
 	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \

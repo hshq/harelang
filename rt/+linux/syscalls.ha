@@ -661,3 +661,14 @@ export fn mlockall(flags: int) (void | errno) = {
 export fn munlockall() (void | errno) = {
 	return wrap_return(syscall0(SYS_munlockall))?: void;
 };
+
+export fn prctl(
+	option: int,
+	arg2: u64,
+	arg3: u64,
+	arg4: u64,
+	arg5: u64,
+) (int | errno) = {
+	return wrap_return(syscall5(SYS_prctl, option: u64, arg2, arg3, arg4,
+		arg5))?: int;
+};
