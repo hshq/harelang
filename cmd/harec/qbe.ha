@@ -1,6 +1,7 @@
 use fmt;
 use io;
 use hare::types;
+use hare::types::{builtin};
 
 type global = str;
 type temporary = str;
@@ -155,6 +156,32 @@ fn qinstr_alloc(ty: *types::_type) qinstr = switch (ty.align) {
 	4 => qinstr::ALLOC4,
 	8 => qinstr::ALLOC8,
 	16 => qinstr::ALLOC16,
+	* => abort(),
+};
+
+fn qinstr_store(
+	ctx: *context,
+	ty: *types::_type,
+) qinstr = match (ty.repr) {
+	al: types::alias => qinstr_store(ctx, al.secondary: *types::_type),
+	bi: types::builtin => switch (bi) {
+		builtin::STR, builtin::VOID => abort(),
+		builtin::F32 => qinstr::STORES,
+		builtin::F64 => qinstr::STORED,
+		* => switch (ty.sz) {
+			1 => qinstr::STOREB,
+			2 => qinstr::STOREH,
+			4 => qinstr::STOREW,
+			8 => qinstr::STOREL,
+			* => abort(),
+		},
+	},
+	types::pointer => if (ctx.arch.ptr == &qlong) {
+		yield qinstr::STOREL;
+	} else if (ctx.arch.ptr == &qword) {
+		yield qinstr::STOREW;
+	} else abort(),
+	en: types::_enum => abort(), // TODO
 	* => abort(),
 };
 

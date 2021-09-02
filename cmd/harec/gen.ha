@@ -4,6 +4,7 @@ use hare::ast;
 use hare::lex;
 use hare::module;
 use hare::types;
+use hare::types::{builtin};
 use hare::unit;
 use io;
 use os;
@@ -79,6 +80,21 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	fmt::println("}\n")!;
 };
 
+fn gen_store(ctx: *context, object: value, value: value) void = {
+	match (types::dealias(object._type).repr) {
+		bi: types::builtin => switch (bi) {
+			builtin::STR => abort(), // TODO
+			* => void,
+		},
+		types::_struct => abort(), // TODO
+		(types::array | types::slice | types::tagged | types::tuple) =>
+			abort(), // TODO
+		* => void,
+	};
+	const instr = qinstr_store(ctx, object._type);
+	emit(ctx.out, void, instr, value, object);
+};
+
 fn gen_expr(ctx: *context, expr: *unit::expr) value = {
 	return match (expr.expr) {
 		unit::binding_expr => gen_binding(ctx, expr),
@@ -94,7 +110,7 @@ fn gen_expr_at(ctx: *context, expr: *unit::expr, at: value) void = {
 		* => void,
 	};
 	const value = gen_expr(ctx, expr);
-	// TODO: Store
+	gen_store(ctx, at, value);
 };
 
 fn gen_binding(ctx: *context, expr: *unit::expr) value = {
