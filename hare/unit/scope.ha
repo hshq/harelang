@@ -59,7 +59,7 @@ fn scope_pop(ctx: *context) *scope = {
 	return scope;
 };
 
-fn scope_insert(ctx: *context, obj: object) void = {
+fn scope_insert(ctx: *context, obj: object) *object = {
 	const scope = ctx.scope;
 	append(scope.objects, obj);
 	let obj = &scope.objects[len(scope.objects) - 1];
@@ -73,4 +73,5 @@ fn scope_insert(ctx: *context, obj: object) void = {
 	let hash = fnv::sum64(hash);
 	obj.hash = hash;
 	append(scope.hashmap[hash: size % SCOPE_BUCKETS], obj);
+	return obj;
 };

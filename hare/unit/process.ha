@@ -79,7 +79,7 @@ fn process_expr(
 	ast::assert_expr => abort(), // TODO
 	ast::assign_expr => abort(), // TODO
 	ast::binarithm_expr => abort(), // TODO
-	ast::binding_expr => abort(), // TODO
+	ast::binding_expr => process_binding(ctx, expr),
 	ast::break_expr => abort(), // TODO
 	ast::call_expr => abort(), // TODO
 	ast::cast_expr => abort(), // TODO
@@ -100,6 +100,39 @@ fn process_expr(
 	ast::slice_expr => abort(), // TODO
 	ast::switch_expr => abort(), // TODO
 	ast::unarithm_expr => abort(), // TODO
+};
+
+fn process_binding(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
+	const bind = aexpr.expr as ast::binding_expr;
+	assert(!bind.is_static && !bind.is_const); // TODO
+
+	let bindings: binding_expr = [];
+	for (let i = 0z; i < len(bind.bindings); i += 1) {
+		const item = bind.bindings[i];
+		const init = process_expr(ctx, item.init)?;
+		const _type = match (item._type) {
+			null => abort(), // TODO
+			ty: *ast::_type => types::lookup(ctx.store, ty)!,
+		};
+		const object = scope_insert(ctx, object {
+			kind = object_kind::BIND,
+			ident = ast::ident_dup([item.name]),
+			name = ast::ident_dup([item.name]),
+			_type = _type,
+			...
+		});
+		append(bindings, binding {
+			object = object,
+			init = init,
+		});
+	};
+	return alloc(expr {
+		start = aexpr.start,
+		end = aexpr.end,
+		result = &types::builtin_void,
+		expr = bindings,
+		...
+	});
 };
 
 fn process_compound(ctx: *context, aexpr: *ast::expr) (*expr | error) = {

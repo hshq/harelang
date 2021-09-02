@@ -7,20 +7,20 @@ use hare::types;
 use hare::unit;
 use io;
 use os;
-
-type context = struct {
-	out: *io::stream,
-	store: *types::typestore,
-	unit: *unit::unit,
-	serial: uint,
-};
+use strings;
 
 fn gen(store: *types::typestore, unit: *unit::unit) void = {
+	// TODO: context_init
 	let ctx = context {
 		out = bufio::dynamic(io::mode::WRITE),
 		store = store,
 		unit = unit,
-		serial = 0,
+		arch = struct {
+			// TODO: Initialize these properly
+			ptr: *qtype = &qlong,
+			sz: *qtype = &qlong,
+		},
+		...
 	};
 	defer io::close(ctx.out);
 	for (let i = 0z; i < len(unit.decls); i += 1) match (unit.decls[i].decl) {
@@ -69,9 +69,9 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	const rval = gen_expr(ctx, body);
 	if (!body.terminates) {
 		if (has_rval) {
-			emit(ctx, void, qinstr::RET, rval);
+			emit(ctx.out, void, qinstr::RET, rval);
 		} else {
-			emit(ctx, void, qinstr::RET);
+			emit(ctx.out, void, qinstr::RET);
 		};
 	};
 
@@ -81,13 +81,46 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 
 fn gen_expr(ctx: *context, expr: *unit::expr) value = {
 	return match (expr.expr) {
-		unit::compound_expr => gen_expr_compound(ctx, expr),
-		unit::constant_expr => gen_expr_const(ctx, expr),
-		unit::return_expr => gen_expr_return(ctx, expr),
+		unit::binding_expr => gen_binding(ctx, expr),
+		unit::compound_expr => gen_compound(ctx, expr),
+		unit::constant_expr => gen_const(ctx, expr),
+		unit::return_expr => gen_return(ctx, expr),
 	};
 };
 
-fn gen_expr_compound(ctx: *context, expr: *unit::expr) value = {
+fn gen_expr_at(ctx: *context, expr: *unit::expr, at: value) void = {
+	match (expr.expr) {
+		// TODO: Some functions will prefer _at
+		* => void,
+	};
+	const value = gen_expr(ctx, expr);
+	// TODO: Store
+};
+
+fn gen_binding(ctx: *context, expr: *unit::expr) value = {
+	const bindings = expr.expr as unit::binding_expr;
+	for (let i = 0z; i < len(bindings); i += 1) {
+		const item = bindings[i];
+		const temp = mktemp(ctx);
+		append(ctx.bindings, binding {
+			object = item.object,
+			name = temp,
+		});
+		const value = value {
+			value = temp,
+			_type = item.object._type,
+		};
+		// TODO: tuple unpacking
+		// const lval, instr = allocval(value);
+		const instr = qinstr_alloc(value._type);
+		const lval = mklval(ctx, value);
+		emit(ctx.out, lval, instr, value._type.sz);
+		gen_expr_at(ctx, item.init, value);
+	};
+	return vvoid;
+};
+
+fn gen_compound(ctx: *context, expr: *unit::expr) value = {
 	const compound = expr.expr as unit::compound_expr;
 	for (let i = 0z; i < len(compound); i += 1) {
 		gen_expr(ctx, compound[i]);
@@ -95,7 +128,7 @@ fn gen_expr_compound(ctx: *context, expr: *unit::expr) value = {
 	return vvoid; // TODO
 };
 
-fn gen_expr_const(ctx: *context, expr: *unit::expr) value = {
+fn gen_const(ctx: *context, expr: *unit::expr) value = {
 	const constexpr = expr.expr as unit::constant_expr;
 	const val: qval = match (constexpr) {
 		void => return vvoid,
@@ -113,12 +146,12 @@ fn gen_expr_const(ctx: *context, expr: *unit::expr) value = {
 	};
 };
 
-fn gen_expr_return(ctx: *context, expr: *unit::expr) value = {
+fn gen_return(ctx: *context, expr: *unit::expr) value = {
 	const rexpr = expr.expr as unit::return_expr;
 	match (rexpr) {
-		null => emit(ctx, void, qinstr::RET),
+		null => emit(ctx.out, void, qinstr::RET),
 		expr: *unit::expr => {
-			emit(ctx, void, qinstr::RET, gen_expr(ctx, expr));
+			emit(ctx.out, void, qinstr::RET, gen_expr(ctx, expr));
 		},
 	};
 	return vvoid;

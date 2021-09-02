@@ -1,4 +1,5 @@
 use fmt;
+use io;
 use hare::types;
 
 type global = str;
@@ -7,6 +8,7 @@ type label = str;
 type qvoid = void;
 type constant = (u32 | u64 | f32 | f64 | str | qvoid);
 type qval = (global | temporary | label | constant);
+type qtypeval = (const *qtype, qval);
 
 type value = struct {
 	value: qval,
@@ -19,19 +21,23 @@ const vvoid: value = value {
 };
 
 fn emit(
-	ctx: *context,
-	out: (value | void),
+	to: *io::stream,
+	out: (qtypeval | void),
 	instr: qinstr,
 	args: (value | qval | qtype)...
 ) void = {
-	fmt::fprintf(ctx.out, "\t")!;
+	fmt::fprintf(to, "\t")!;
 	match (out) {
-		val: value => abort(), // TODO
+		val: qtypeval => {
+			const ty = val.0, val = val.1;
+			qval_emit(to, val);
+			fmt::fprintf(to, " ={} ", qtype_repr(ty))!;
+		},
 		void => void,
 	};
 	// TODO: The langauge should provide a means of converting enums to
 	// strings without this
-	fmt::fprint(ctx.out, switch (instr) {
+	fmt::fprint(to, switch (instr) {
 		qinstr::ADD => "add",
 		qinstr::ALLOC16 => "alloc16",
 		qinstr::ALLOC4 => "alloc4",
@@ -125,23 +131,31 @@ fn emit(
 		};
 		match (arg) {
 			v: value => abort(), // Invariant
-			qv: qval => match (qv) {
-				g: global => fmt::fprintf(ctx.out, " ${}", g)!,
-				t: temporary => fmt::fprintf(ctx.out, " %{}", t)!,
-				l: label => fmt::fprintf(ctx.out, " @{}", l)!,
-				c: constant => match (c) {
-					qvoid => abort(),
-					v: (u32 | u64 | f32 | f64 | str) =>
-						fmt::fprintf(ctx.out, " {}", v)!,
-				},
-			},
+			qv: qval => qval_emit(to, qv),
 			qt: qtype => abort(), // TODO
 		};
 		if (i + 1 < len(args)) {
-			fmt::fprint(ctx.out, ",")!;
+			fmt::fprint(to, ",")!;
 		};
 	};
-	fmt::fprintln(ctx.out)!;
+	fmt::fprintln(to)!;
+};
+
+fn qval_emit(to: *io::stream, qv: qval) void = match (qv) {
+	g: global => fmt::fprintf(to, " ${}", g)!,
+	t: temporary => fmt::fprintf(to, " %{}", t)!,
+	l: label => fmt::fprintf(to, " @{}", l)!,
+	c: constant => match (c) {
+		qvoid => abort(),
+		v: (u32 | u64 | f32 | f64 | str) => fmt::fprintf(to, " {}", v)!,
+	},
+};
+
+fn qinstr_alloc(ty: *types::_type) qinstr = switch (ty.align) {
+	4 => qinstr::ALLOC4,
+	8 => qinstr::ALLOC8,
+	16 => qinstr::ALLOC16,
+	* => abort(),
 };
 
 type qinstr = enum {

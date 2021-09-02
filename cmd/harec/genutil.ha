@@ -6,3 +6,11 @@ fn mklabel(ctx: *context, name: str) str = {
 	ctx.serial += 1;
 	return fmt::bsprintf(buf, "@{}.{}", name, serial);
 };
+
+fn mktemp(ctx: *context) temporary = {
+	let serial = ctx.serial;
+	ctx.serial += 1;
+	return fmt::asprintf(".{}", serial);
+};
+
+fn mklval(ctx: *context, val: value) qtypeval = (ctx.arch.ptr, val.value);

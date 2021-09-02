@@ -52,4 +52,5 @@ fn scan_func(
 		name = ast::ident_dup(func.ident),
 		_type = fntype,
 	});
+	return;
 };
