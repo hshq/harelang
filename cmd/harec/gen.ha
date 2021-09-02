@@ -78,10 +78,18 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 };
 
 fn gen_expr(ctx: *context, expr: *unit::expr) value = {
-	match (expr.expr) {
-		unit::compound_expr => abort(), // TODO
-		unit::constant_expr => return gen_expr_const(ctx, expr),
+	return match (expr.expr) {
+		unit::compound_expr => gen_expr_compound(ctx, expr),
+		unit::constant_expr => gen_expr_const(ctx, expr),
 	};
+};
+
+fn gen_expr_compound(ctx: *context, expr: *unit::expr) value = {
+	const compound = expr.expr as unit::compound_expr;
+	for (let i = 0z; i < len(compound); i += 1) {
+		gen_expr(ctx, compound[i]);
+	};
+	return vvoid; // TODO
 };
 
 fn gen_expr_const(ctx: *context, expr: *unit::expr) value = {
