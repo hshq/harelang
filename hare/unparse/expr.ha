@@ -375,11 +375,11 @@ fn constant(
 ) (size | io::error) = {
 	return match (e) {
 		void => fmt::fprint(out, "void"),
-		ast::_null => fmt::fprint(out, "null"),
-		b: bool => fmt::fprint(out, b),
-		v: lex::value => fmt::fprint(out, match (v) {
+		v: ast::value => fmt::fprint(out, match (v) {
 			void => abort(),
+			ast::_null => "null",
 			v: (i64 | u64 | f64) => v,
+			b: bool => return fmt::fprint(out, b),
 			// TODO: Escape these:
 			s: str => return fmt::fprintf(out, "\"{}\"", s),
 			r: rune => return fmt::fprintf(out, "'{}'", r),

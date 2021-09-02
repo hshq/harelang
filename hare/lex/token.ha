@@ -266,6 +266,9 @@ const bmap: [_]str = [
 	"*=",
 ];
 
+// The value "null".
+export type _null = void;
+
 // A token value, used for tokens such as '1337' (an integer).
 export type value = (str | rune | i64 | u64 | f64 | void);
 

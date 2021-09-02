@@ -203,9 +203,11 @@ export type tuple_constant = []*expr;
 // The value "null".
 export type _null = void;
 
+// A scalar value.
+export type value = (void | bool | _null | ...lex::value);
+
 // A constant expression.
-export type constant_expr = (void | bool | _null | lex::value | array_constant |
-	struct_constant | tuple_constant);
+export type constant_expr = (value | array_constant | struct_constant | tuple_constant);
 
 // A continue expression. The label is set to empty string if absent.
 //
@@ -454,7 +456,7 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			free(c.label);
 		},
 		c: constant_expr => match(c) {
-			(void | lex::value) => void,
+			(void | _null | ...lex::value) => void,
 			a: array_constant => {
 				for (let i = 0z; i < len(a.values); i += 1) {
 					expr_free(a.values[i]);

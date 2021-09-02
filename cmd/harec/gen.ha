@@ -83,8 +83,8 @@ fn gen_expr_const(ctx: *context, expr: *unit::expr) value = {
 	const val: qval = match (constexpr) {
 		void => return vvoid,
 		b: bool => (if (b) 1u32 else 0u32): constant,
-		unit::_null => 0u64, // XXX: Arch
-		v: lex::value => abort(), // TODO
+		ast::_null => 0u64, // XXX: Arch
+		v: ast::value => abort(), // TODO
 	};
 	return value {
 		value = val,

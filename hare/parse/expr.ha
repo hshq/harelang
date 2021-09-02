@@ -437,7 +437,7 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 
 fn constant(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = want(lexer)?;
-	const expr = switch (tok.0) {
+	const expr: ast::value = switch (tok.0) {
 		ltok::LIT_U8, ltok::LIT_U16, ltok::LIT_U32, ltok::LIT_U64,
 		ltok::LIT_UINT, ltok::LIT_SIZE, ltok::LIT_I8, ltok::LIT_I16,
 		ltok::LIT_I32, ltok::LIT_I64, ltok::LIT_INT, ltok::LIT_ICONST,
@@ -909,9 +909,9 @@ fn postfix_dot(
 	void => {
 		let con = constant(lexer)?;
 		let val = con.expr as ast::constant_expr;
-		synassert(lex::mkloc(lexer), val is lex::value,
+		synassert(lex::mkloc(lexer), val is ast::value,
 			"Expected integer constant")?;
-		let val = val as lex::value;
+		let val = val as ast::value;
 		synassert(lex::mkloc(lexer), val is i64,
 			"Expected integer constant")?;
 		yield ast::expr {

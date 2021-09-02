@@ -1,3 +1,4 @@
+use hare::ast;
 use hare::lex;
 use hare::types;
 
@@ -10,8 +11,5 @@ export type expr = struct {
 	expr: (constant_expr | void),
 };
 
-// The value "null".
-export type _null = void;
-
 // The value of a constant expression.
-export type constant_expr = (void | bool | _null | lex::value); // TODO: composite types
+export type constant_expr = ast::value; // TODO: composite types
