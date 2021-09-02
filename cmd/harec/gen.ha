@@ -32,8 +32,9 @@ fn gen(store: *types::typestore, unit: *unit::unit) void = {
 fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	// TODO: const fndecl = &decl.decl as *unit::decl_func;
 	const fndecl = decl.decl as unit::decl_func;
-	if (fndecl.body == null) {
-		return; // Prototype
+	const body = match (fndecl.body) {
+		null => return, // Prototype
+		expr: *unit::expr => expr,
 	};
 	const fntype = fndecl.prototype.repr as types::func;
 	assert(fntype.flags == 0);
@@ -65,12 +66,13 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 
 	fmt::fprintln(ctx.out, mklabel(ctx, "body"))!;
 
-	// TODO: We needn't write our own return if the user returned themselves
-	const rval = gen_expr(ctx, fndecl.body: *unit::expr);
-	if (has_rval) {
-		emit(ctx, void, qinstr::RET, rval);
-	} else {
-		emit(ctx, void, qinstr::RET);
+	const rval = gen_expr(ctx, body);
+	if (!body.terminates) {
+		if (has_rval) {
+			emit(ctx, void, qinstr::RET, rval);
+		} else {
+			emit(ctx, void, qinstr::RET);
+		};
 	};
 
 	io::write(os::stdout, bufio::buffer(ctx.out))!;
@@ -81,6 +83,7 @@ fn gen_expr(ctx: *context, expr: *unit::expr) value = {
 	return match (expr.expr) {
 		unit::compound_expr => gen_expr_compound(ctx, expr),
 		unit::constant_expr => gen_expr_const(ctx, expr),
+		unit::return_expr => gen_expr_return(ctx, expr),
 	};
 };
 
@@ -108,4 +111,15 @@ fn gen_expr_const(ctx: *context, expr: *unit::expr) value = {
 		value = val,
 		_type = expr.result,
 	};
+};
+
+fn gen_expr_return(ctx: *context, expr: *unit::expr) value = {
+	const rexpr = expr.expr as unit::return_expr;
+	match (rexpr) {
+		null => emit(ctx, void, qinstr::RET),
+		expr: *unit::expr => {
+			emit(ctx, void, qinstr::RET, gen_expr(ctx, expr));
+		},
+	};
+	return vvoid;
 };

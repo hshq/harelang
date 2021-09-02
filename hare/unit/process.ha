@@ -48,6 +48,7 @@ fn process_func(
 	assert(fntype.variadism == types::variadism::NONE); // TODO
 	assert(len(fntype.params) == 0); // TODO
 
+	ctx.fntype = &fntype;
 	const body: nullable *expr = match (afndecl.body) {
 		abody: ast::expr => process_expr(ctx, &abody)?,
 		void => null,
@@ -95,7 +96,7 @@ fn process_expr(
 	ast::size_expr => abort(), // TODO
 	ast::offset_expr => abort(), // TODO
 	ast::propagate_expr => abort(), // TODO
-	ast::return_expr => abort(), // TODO
+	ast::return_expr => process_return(ctx, expr),
 	ast::slice_expr => abort(), // TODO
 	ast::switch_expr => abort(), // TODO
 	ast::unarithm_expr => abort(), // TODO
@@ -105,8 +106,9 @@ fn process_compound(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const compound = aexpr.expr as ast::compound_expr;
 	const scope = scope_push(ctx, scope_class::COMPOUND);
 
-	let exprs: compound_expr = [];
-	for (let i = 0z; i < len(compound.exprs); i += 1) {
+	let exprs: compound_expr = alloc([], len(compound.exprs));
+	let i = 0z;
+	for (i < len(compound.exprs); i += 1) {
 		append(exprs, process_expr(ctx, compound.exprs[i])?);
 	};
 
@@ -116,6 +118,8 @@ fn process_compound(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 		end = aexpr.end,
 		result = &types::builtin_void, // TODO: Pick result type
 		expr = exprs,
+		terminates = exprs[i - 1].terminates,
+		...
 	});
 };
 
@@ -128,6 +132,12 @@ fn process_compound(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	assert(expr.result.repr as types::builtin == types::builtin::VOID);
 	const compound = expr.expr as compound_expr;
 	assert(len(compound) == 3);
+
+	const aexpr = parse_expr("{ return; }");
+	defer ast::expr_free(aexpr);
+	const expr = process_compound(&ctx, aexpr)!;
+	assert(expr.terminates);
+
 	// TODO: test yields
 };
 
@@ -215,4 +225,41 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 			void => abort(),
 		};
 	};
+};
+
+fn process_return(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
+	const ret = aexpr.expr as ast::return_expr;
+	const rval = match (ret) {
+		null => null,
+		aexpr: *ast::expr => process_expr(ctx, aexpr)?,
+	};
+	// TODO: assert(types::assignable(ctx.fntype.result, rval.type));
+	return alloc(expr {
+		start = aexpr.start,
+		end = aexpr.end,
+		terminates = true,
+		result = &types::builtin_void,
+		expr = rval: return_expr,
+	});
+};
+
+@test fn _return() void = {
+	const ctx = mktestctx();
+	defer freetestctx(&ctx);
+	const aexpr = parse_expr("return;");
+	defer ast::expr_free(aexpr);
+	const expr = process_return(&ctx, aexpr)!;
+	assert(expr.terminates);
+	assert(expr.result.repr as types::builtin == types::builtin::VOID);
+	const rval = expr.expr as return_expr;
+	assert(rval == null);
+
+	const aexpr = parse_expr("return 10;");
+	defer ast::expr_free(aexpr);
+	const expr = process_return(&ctx, aexpr)!;
+	assert(expr.terminates);
+	assert(expr.result.repr as types::builtin == types::builtin::VOID);
+	const rval = expr.expr as return_expr;
+	assert(rval != null);
+	assert((rval: *expr).expr is constant_expr);
 };
