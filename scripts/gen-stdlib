@@ -383,6 +383,7 @@ hare_types() {
 gensrcs_hare_unit() {
 	gen_srcs hare::unit \
 		check.ha \
+		context.ha \
 		errors.ha \
 		expr.ha \
 		process.ha \

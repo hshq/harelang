@@ -79,8 +79,8 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 
 fn gen_expr(ctx: *context, expr: *unit::expr) value = {
 	match (expr.expr) {
+		unit::compound_expr => abort(), // TODO
 		unit::constant_expr => return gen_expr_const(ctx, expr),
-		* => abort(), // TODO
 	};
 };
 

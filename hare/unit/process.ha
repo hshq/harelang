@@ -82,7 +82,7 @@ fn process_expr(
 	ast::break_expr => abort(), // TODO
 	ast::call_expr => abort(), // TODO
 	ast::cast_expr => abort(), // TODO
-	ast::compound_expr => abort(), // TODO
+	ast::compound_expr => process_compound(ctx, expr),
 	ast::constant_expr => process_constant(ctx, expr),
 	ast::continue_expr => abort(), // TODO
 	ast::defer_expr => abort(), // TODO
@@ -99,6 +99,36 @@ fn process_expr(
 	ast::slice_expr => abort(), // TODO
 	ast::switch_expr => abort(), // TODO
 	ast::unarithm_expr => abort(), // TODO
+};
+
+fn process_compound(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
+	const compound = aexpr.expr as ast::compound_expr;
+	const scope = scope_push(ctx, scope_class::COMPOUND);
+
+	let exprs: compound_expr = [];
+	for (let i = 0z; i < len(compound.exprs); i += 1) {
+		append(exprs, process_expr(ctx, compound.exprs[i])?);
+	};
+
+	scope_pop(ctx);
+	return alloc(expr {
+		start = aexpr.start,
+		end = aexpr.end,
+		result = &types::builtin_void, // TODO: Pick result type
+		expr = exprs,
+	});
+};
+
+@test fn compound() void = {
+	const ctx = mktestctx();
+	defer freetestctx(&ctx);
+	const aexpr = parse_expr("{ void; void; void; }");
+	defer ast::expr_free(aexpr);
+	const expr = process_compound(&ctx, aexpr)!;
+	assert(expr.result.repr as types::builtin == types::builtin::VOID);
+	const compound = expr.expr as compound_expr;
+	assert(len(compound) == 3);
+	// TODO: test yields
 };
 
 fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {

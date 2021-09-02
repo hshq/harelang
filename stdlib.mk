@@ -698,6 +698,7 @@ $(HARECACHE)/hare/types/hare_types.ssa: $(stdlib_hare_types_srcs) $(stdlib_rt) $
 # hare::unit
 stdlib_hare_unit_srcs= \
 	$(STDLIB)/hare/unit/check.ha \
+	$(STDLIB)/hare/unit/context.ha \
 	$(STDLIB)/hare/unit/errors.ha \
 	$(STDLIB)/hare/unit/expr.ha \
 	$(STDLIB)/hare/unit/process.ha \
@@ -1926,6 +1927,7 @@ $(TESTCACHE)/hare/types/hare_types.ssa: $(testlib_hare_types_srcs) $(testlib_rt)
 # hare::unit
 testlib_hare_unit_srcs= \
 	$(STDLIB)/hare/unit/check.ha \
+	$(STDLIB)/hare/unit/context.ha \
 	$(STDLIB)/hare/unit/errors.ha \
 	$(STDLIB)/hare/unit/expr.ha \
 	$(STDLIB)/hare/unit/process.ha \

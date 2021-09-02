@@ -8,7 +8,7 @@ fn scan(ctx: *context, subunits: const []ast::subunit) (void | error) = {
 		let subunit = &subunits[i];
 		assert(len(subunit.imports) == 0); // TODO
 
-		// TODO: Allocate scope
+		scope_push(ctx, scope_class::SUBUNIT);
 		for (let j = 0z; j < len(subunit.decls); j += 1) {
 			let decl = &subunit.decls[j];
 			match (scan_decl(ctx, decl)) {
@@ -17,6 +17,7 @@ fn scan(ctx: *context, subunits: const []ast::subunit) (void | error) = {
 				error => abort(), // TODO
 			};
 		};
+		scope_pop(ctx);
 	};
 };
 

@@ -26,19 +26,37 @@ export type object = struct {
 
 export def SCOPE_BUCKETS: size = 4096;
 
+export type scope_class = enum {
+	COMPOUND,
+	ENUM,
+	FUNC,
+	LOOP,
+	MATCH,
+	SUBUNIT,
+	UNIT,
+};
+
 export type scope = struct {
+	class: scope_class,
 	parent: nullable *scope,
 	objects: []object,
 	hashmap: [SCOPE_BUCKETS][]*object,
 };
 
-fn scope_push(ctx: *context) *scope = {
+fn scope_push(ctx: *context, class: scope_class) *scope = {
 	let new = alloc(scope {
+		class = class,
 		parent = ctx.scope,
 		...
 	});
 	ctx.scope = new;
 	return new;
+};
+
+fn scope_pop(ctx: *context) *scope = {
+	const scope = ctx.scope;
+	ctx.scope = ctx.scope.parent: *scope; // TODO: as *scope
+	return scope;
 };
 
 fn scope_insert(ctx: *context, obj: object) void = {
