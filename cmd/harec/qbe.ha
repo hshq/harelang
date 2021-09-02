@@ -3,9 +3,10 @@ use hare::types;
 
 type global = str;
 type temporary = str;
+type label = str;
 type qvoid = void;
 type constant = (u32 | u64 | f32 | f64 | str | qvoid);
-type qval = (global | temporary | constant);
+type qval = (global | temporary | label | constant);
 
 type value = struct {
 	value: qval,
@@ -127,6 +128,7 @@ fn emit(
 			qv: qval => match (qv) {
 				g: global => fmt::fprintf(ctx.out, " ${}", g)!,
 				t: temporary => fmt::fprintf(ctx.out, " %{}", t)!,
+				l: label => fmt::fprintf(ctx.out, " @{}", l)!,
 				c: constant => match (c) {
 					qvoid => abort(),
 					v: (u32 | u64 | f32 | f64 | str) =>
