@@ -439,10 +439,10 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		else if (suff == "i32") ltok::LIT_I32
 		else if (suff == "i64") ltok::LIT_I64
 		else if (suff == "i") ltok::LIT_INT
-		else if (suff == "" && !float) ltok::LIT_ICONST
+		else if (suff == "" && !float && exp >= 0) ltok::LIT_ICONST
 		else if (suff == "f32") ltok::LIT_F32
 		else if (suff == "f64") ltok::LIT_F64
-		else if (suff == "" && float) ltok::LIT_FCONST
+		else if (suff == "" && (float || exp < 0)) ltok::LIT_FCONST
 		else return syntaxerr(loc, "invalid literal suffix");
 
 	let exp = if (exp < 0) switch (suff) {
