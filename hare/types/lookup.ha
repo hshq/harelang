@@ -16,11 +16,7 @@ export fn dealias(t: *_type) const *_type = {
 export fn lookup_builtin(
 	store: *typestore,
 	_type: ast::builtin_type,
-) const *_type = {
-	// TODO: &ast::type { ... }
-	const atype = ast::_type {
-		repr = _type,
-		...
-	};
-	return lookup(store, &atype)!;
-};
+) const *_type = lookup(store, &ast::_type {
+	repr = _type,
+	...
+})!;
