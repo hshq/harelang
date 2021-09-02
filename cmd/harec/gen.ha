@@ -49,7 +49,8 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 		* => true,
 	};
 	if (has_rval) {
-		abort(); // TODO: Return type
+		const qrtype = qtype_lookup(ctx, rtype, false);
+		fmt::printf(" {}", qtype_repr(qrtype))!;
 	};
 	fmt::printf(" ${}(", ident)!;
 	assert(len(fntype.params) == 0); // TODO
