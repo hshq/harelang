@@ -162,9 +162,7 @@ fn append_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = want(lexer, ltok::APPEND)?;
 	want(lexer, ltok::LPAREN)?;
 
-	const object =
-		if (try(lexer, ltok::TIMES)? is lex::token) unarithm(lexer)?
-		else objsel(lexer)?;
+	const object = objsel(lexer)?;
 	want(lexer, ltok::COMMA)?;
 
 	let variadic: nullable *ast::expr = null;
