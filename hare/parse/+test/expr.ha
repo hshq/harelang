@@ -250,7 +250,7 @@
 		"export fn main() void = *void;\n"
 		"export fn main() void = ~void;\n"
 		"export fn main() void = !void;\n"
-		"export fn main() void = &x;\n");
+		"export fn main() void = &void;\n");
 };
 
 @test fn yield_expr() void = {

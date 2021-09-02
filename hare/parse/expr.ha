@@ -1056,9 +1056,7 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::BAND	=> ast::unarithm_op::ADDR,
 		* => abort(),
 	};
-	let operand =
-		if (tok.0 == ltok::BAND) objsel(lexer)?
-		else unarithm(lexer)?;
+	let operand = unarithm(lexer)?;
 	return ast::expr {
 		start = tok.2,
 		end = lex::prevloc(lexer),
