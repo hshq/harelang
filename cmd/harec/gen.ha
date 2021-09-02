@@ -64,8 +64,14 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	bufio::reset(ctx.out);
 
 	fmt::fprintln(ctx.out, mklabel(ctx, "body"))!;
-	gen_expr(ctx, fndecl.body: *unit::expr);
-	emit(ctx, void, qinstr::RET); // TODO
+
+	// TODO: We needn't write our own return if the user returned themselves
+	const rval = gen_expr(ctx, fndecl.body: *unit::expr);
+	if (has_rval) {
+		emit(ctx, void, qinstr::RET, rval);
+	} else {
+		emit(ctx, void, qinstr::RET);
+	};
 
 	io::write(os::stdout, bufio::buffer(ctx.out))!;
 	fmt::println("}\n")!;
@@ -84,7 +90,11 @@ fn gen_expr_const(ctx: *context, expr: *unit::expr) value = {
 		void => return vvoid,
 		b: bool => (if (b) 1u32 else 0u32): constant,
 		ast::_null => 0u64, // XXX: Arch
-		v: ast::value => abort(), // TODO
+		r: rune => r: u32,
+		v: (u64 | f64) => v,
+		i: i64 => i: u64,
+		s: str => abort(), // TODO
+		// TODO: Aggregate types
 	};
 	return value {
 		value = val,

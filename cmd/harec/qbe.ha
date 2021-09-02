@@ -118,7 +118,26 @@ fn emit(
 		qinstr::XOR => "xor",
 	})!;
 	for (let i = 0z; i < len(args); i += 1) {
-		abort(); // TODO
+		const arg = match (args[i]) {
+			v: value => v.value,
+			* => args[i],
+		};
+		match (arg) {
+			v: value => abort(), // Invariant
+			qv: qval => match (qv) {
+				g: global => fmt::fprintf(ctx.out, " ${}", g)!,
+				t: temporary => fmt::fprintf(ctx.out, " %{}", t)!,
+				c: constant => match (c) {
+					qvoid => abort(),
+					v: (u32 | u64 | f32 | f64 | str) =>
+						fmt::fprintf(ctx.out, " {}", v)!,
+				},
+			},
+			qt: qtype => abort(), // TODO
+		};
+		if (i + 1 < len(args)) {
+			fmt::fprint(ctx.out, ",")!;
+		};
 	};
 	fmt::fprintln(ctx.out)!;
 };
