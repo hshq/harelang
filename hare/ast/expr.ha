@@ -48,6 +48,7 @@ export type append_expr = struct {
 	object: *expr,
 	variadic: nullable *expr,
 	values: []*expr,
+	is_static: bool,
 };
 
 // An assertion expression.
@@ -220,7 +221,10 @@ export type defer_expr = *expr;
 //
 // 	delete(foo[10])
 // 	delete(foo[4..42])
-export type delete_expr = *expr;
+export type delete_expr = struct {
+	object: *expr,
+	is_static: bool,
+};
 
 // A for loop. The label is set to empty string if absent.
 //
@@ -244,6 +248,16 @@ export type if_expr = struct {
 	cond: *expr,
 	tbranch: *expr,
 	fbranch: nullable *expr,
+};
+
+// An insert expression.
+//
+// 	insert(foo[0], bar, (more), baz...)
+export type insert_expr = struct {
+	object: *expr,
+	variadic: nullable *expr,
+	values: []*expr,
+	is_static: bool,
 };
 
 // :label. The ":" character is not included.
@@ -355,9 +369,9 @@ export type expr = struct {
 		assign_expr | binarithm_expr | binding_expr | break_expr |
 		call_expr | cast_expr | constant_expr | continue_expr |
 		defer_expr | delete_expr | for_expr | free_expr | if_expr |
-		compound_expr | match_expr | len_expr | size_expr | offset_expr |
-		propagate_expr | return_expr | slice_expr | switch_expr |
-		unarithm_expr | yield_expr),
+		insert_expr | compound_expr | match_expr | len_expr |
+		size_expr | offset_expr | propagate_expr | return_expr |
+		slice_expr | switch_expr | unarithm_expr | yield_expr),
 };
 
 // Frees resources associated with a Hare [[expr]]ession.
@@ -471,7 +485,7 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 		},
 		c: continue_expr => free(c),
 		d: defer_expr => expr_free(d: *expr),
-		d: delete_expr => expr_free(d: *expr),
+		d: delete_expr => expr_free(d.object),
 		f: for_expr => {
 			expr_free(f.bindings);
 			expr_free(f.cond);
@@ -483,6 +497,17 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			expr_free(i.cond);
 			expr_free(i.tbranch);
 			expr_free(i.fbranch);
+		},
+		e: insert_expr => {
+			expr_free(e.object);
+			match (e.variadic) {
+				null => void,
+				v: *expr => expr_free(v),
+			};
+			for (let i = 0z; i < len(e.values); i += 1) {
+				expr_free(e.values[i]);
+			};
+			free(e.values);
 		},
 		l: len_expr => expr_free(l: *expr),
 		m: match_expr => {

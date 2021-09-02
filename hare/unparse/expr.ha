@@ -49,7 +49,9 @@ export fn expr(
 			yield z;
 		},
 		e: ast::append_expr => {
-			let z = fmt::fprint(out, "append(")?;
+			let z = if (e.is_static) fmt::fprint(out, "static ")?
+				else 0z;
+			z += fmt::fprint(out, "append(")?;
 			z += expr(out, indent, *e.object)?;
 			z += fmt::fprint(out, ", ")?;
 			for (let i = 0z; i < len(e.values); i += 1) {
@@ -61,9 +63,11 @@ export fn expr(
 			};
 			match (e.variadic) {
 				null => void,
-				e: *ast::expr => {
-					z += fmt::fprint(out, ", ")?;
-					z += expr(out, indent, *e)?;
+				v: *ast::expr => {
+					if (len(e.values) != 0) {
+						z += fmt::fprint(out, ", ")?;
+					};
+					z += expr(out, indent, *v)?;
 					z += fmt::fprint(out, "...")?;
 				},
 			};
@@ -220,10 +224,14 @@ export fn expr(
 		},
 		e: ast::defer_expr =>
 			fmt::fprint(out, "defer ")? + expr(out, indent, *e)?,
-		e: ast::delete_expr =>
-			fmt::fprint(out, "delete(")?
-			+ expr(out, indent, *e)?
-			+ fmt::fprint(out, ")")?,
+		e: ast::delete_expr => {
+			let z = if (e.is_static) fmt::fprint(out, "static ")?
+				else 0z;
+			z += fmt::fprint(out, "delete(")?;
+			z += expr(out, indent, *e.object)?;
+			z += fmt::fprint(out, ")")?;
+			yield z;
+		},
 		e: ast::for_expr => for_expr(out, indent, e)?,
 		e: ast::free_expr =>
 			fmt::fprint(out, "free(")?
@@ -241,6 +249,32 @@ export fn expr(
 					z += expr(out, indent, *e)?;
 				},
 			};
+			yield z;
+		},
+		e: ast::insert_expr => {
+			let z = if (e.is_static) fmt::fprint(out, "static ")?
+				else 0z;
+			z += fmt::fprint(out, "insert(")?;
+			z += expr(out, indent, *e.object)?;
+			z += fmt::fprint(out, ", ")?;
+			for (let i = 0z; i < len(e.values); i += 1) {
+				let val = e.values[i];
+				z += expr(out, indent, *val)?;
+				if (i + 1 < len(e.values)) {
+					z += fmt::fprint(out, ", ")?;
+				};
+			};
+			match (e.variadic) {
+				null => void,
+				v: *ast::expr => {
+					if (len(e.values) != 0) {
+						z += fmt::fprint(out, ", ")?;
+					};
+					z += expr(out, indent, *v)?;
+					z += fmt::fprint(out, "...")?;
+				},
+			};
+			z += fmt::fprint(out, ")")?;
 			yield z;
 		},
 		e: ast::compound_expr => {

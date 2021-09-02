@@ -158,11 +158,16 @@ fn alloc_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 };
 
-fn append_expr(lexer: *lex::lexer) (ast::expr | error) = {
-	const tok = want(lexer, ltok::APPEND)?;
+fn append_insert_expr(
+	lexer: *lex::lexer,
+	is_static: bool,
+) (ast::expr | error) = {
+	const tok = want(lexer, ltok::APPEND, ltok::INSERT)?;
 	want(lexer, ltok::LPAREN)?;
 
-	const object = objsel(lexer)?;
+	const object = if (tok.0 == ltok::APPEND) objsel(lexer)?
+		else postfix(lexer, void)?;
+	// TODO: Assert that this was an indexing expression
 	want(lexer, ltok::COMMA)?;
 
 	let variadic: nullable *ast::expr = null;
@@ -189,15 +194,23 @@ fn append_expr(lexer: *lex::lexer) (ast::expr | error) = {
 
 	synassert(lex::mkloc(lexer), variadic != null || len(values) != 0,
 		"Expected values to append")?;
+	
+	const expr = if (tok.0 == ltok::APPEND) ast::append_expr {
+		object = alloc(object),
+		variadic = variadic,
+		values = values,
+		is_static = is_static,
+	} else ast::insert_expr {
+		object = alloc(object),
+		variadic = variadic,
+		values = values,
+		is_static = is_static,
+	};
 
 	return ast::expr {
 		start = tok.2,
 		end = lex::prevloc(lexer),
-		expr = ast::append_expr {
-			object = alloc(object),
-			variadic = variadic,
-			values = values,
-		},
+		expr = expr,
 	};
 };
 
@@ -309,21 +322,23 @@ fn binding(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
 
 fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (peek(lexer, ltok::ALLOC, ltok::APPEND, ltok::FREE,
-			ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::STATIC,
-			ltok::SIZE, ltok::LEN, ltok::OFFSET, ltok::DEFER)?) {
+			ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::INSERT,
+			ltok::STATIC, ltok::SIZE, ltok::LEN, ltok::OFFSET,
+			ltok::DEFER)?) {
 		tok: lex::token => tok,
 		void => return postfix(lexer, void),
 	};
 	return switch (tok.0) {
 		ltok::ALLOC => alloc_expr(lexer),
-		ltok::APPEND => append_expr(lexer),
-		ltok::DELETE => delete_expr(lexer),
+		ltok::APPEND, ltok::INSERT => append_insert_expr(lexer, false),
+		ltok::DELETE => delete_expr(lexer, false),
 		ltok::FREE => free_expr(lexer),
 		ltok::ABORT, ltok::ASSERT => assert_expr(lexer, false),
 		ltok::STATIC => {
 			want(lexer, ltok::STATIC)?;
 			let tok = match (peek(lexer, ltok::LET, ltok::CONST,
-					ltok::ABORT, ltok::ASSERT)?) {
+					ltok::ABORT, ltok::ASSERT, ltok::APPEND,
+					ltok::INSERT, ltok::DELETE)?) {
 				tok: lex::token => tok,
 				// TODO: The following is lame
 				void => return syntaxerr(tok.2,
@@ -333,6 +348,9 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 				ltok::LET, ltok::CONST => binding(lexer, true),
 				ltok::ABORT,
 				ltok::ASSERT => assert_expr(lexer, true),
+				ltok::APPEND,
+				ltok::INSERT => append_insert_expr(lexer, true),
+				ltok::DELETE => delete_expr(lexer, true),
 				* => abort(),
 			};
 		},
@@ -461,7 +479,7 @@ fn control(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 };
 
-fn delete_expr(lexer: *lex::lexer) (ast::expr | error) = {
+fn delete_expr(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
 	const start = want(lexer, ltok::DELETE)?;
 	want(lexer, ltok::LPAREN)?;
 	const expr = alloc(postfix(lexer, void)?);
@@ -470,7 +488,10 @@ fn delete_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	return ast::expr {
 		start = start.2,
 		end = lex::prevloc(lexer),
-		expr = expr: ast::delete_expr,
+		expr = ast::delete_expr {
+			object = expr,
+			is_static = is_static,
+		},
 	};
 };
 

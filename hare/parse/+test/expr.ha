@@ -40,8 +40,10 @@
 	alloc(1234);
 	alloc(4321, 1234);
 	append(x, 10);
+	append(x, 10...);
 	append(x, 10, 20, 30);
 	append(x, y, z, q...);
+	static append(x, 10);
 	abort();
 	abort(\"surprize\");
 	static abort();
@@ -54,7 +56,12 @@
 	delete(x[10..20]);
 	delete(x[..]);
 	delete(x.y.z[..]);
+	static delete(x[10]);
 	free(x);
+	insert(x[0], foo);
+	insert(x[0], foo...);
+	insert(x[0], foo, bar...);
+	static insert(x[0], foo);
 	len([1, 2, 3, 4]);
 	size(u32);
 };
