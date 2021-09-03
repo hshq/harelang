@@ -4,6 +4,7 @@ use hash::fnv;
 use hash;
 use strings;
 
+// What sort of [[object]] is represented.
 export type object_kind = enum {
 	BIND,
 	CONST,
@@ -11,6 +12,8 @@ export type object_kind = enum {
 	TYPE,
 };
 
+// An object is a named object in a scope, such as a binding, type, or
+// declaration.
 export type object = struct {
 	kind: object_kind,
 	hash: u64,
@@ -26,6 +29,7 @@ export type object = struct {
 
 export def SCOPE_BUCKETS: size = 4096;
 
+// What kind of [[scope]] is represented.
 export type scope_class = enum {
 	COMPOUND,
 	ENUM,
@@ -36,6 +40,8 @@ export type scope_class = enum {
 	UNIT,
 };
 
+// A scope is a member of a hierarchy of storage containers which hold named
+// [[object]]s, such as variables or function parameters.
 export type scope = struct {
 	class: scope_class,
 	parent: nullable *scope,
