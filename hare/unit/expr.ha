@@ -11,20 +11,25 @@ export type expr = struct {
 	expr: (access | bindings | compound | constant | _return),
 };
 
+// An access expression.
 export type access = (access_object | access_field | access_index | access_tuple);
 
+// An access expression for an object.
 export type access_object = *object;
 
+// An access expression for a struct field.
 export type access_field = struct {
 	object: *expr,
 	field: const *types::struct_field,
 };
 
+// An access expression for a slice or array index.
 export type access_index = struct {
 	object: *expr,
 	index: *expr,
 };
 
+// An access expression for a tuple value.
 export type access_tuple = struct {
 	object: *expr,
 	value: const *types::tuple_value,
