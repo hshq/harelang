@@ -73,7 +73,7 @@ fn process_expr(
 	ctx: *context,
 	expr: *ast::expr,
 ) (*expr | error) = match (expr.expr) {
-	ast::access_expr => abort(), // TODO
+	ast::access_expr => process_access(ctx, expr),
 	ast::alloc_expr => abort(), // TODO
 	ast::append_expr => abort(), // TODO
 	ast::assert_expr => abort(), // TODO
@@ -102,11 +102,33 @@ fn process_expr(
 	ast::unarithm_expr => abort(), // TODO
 };
 
+fn process_access(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
+	const access = aexpr.expr as ast::access_expr;
+	const op: (const *types::_type, access) = match (access) {
+		ai: ast::access_identifier => {
+			const object = match (ctx_lookup(ctx, ai)) {
+				null => abort(), // TODO: Error
+				obj: *object => obj,
+			};
+			yield (object._type, object);
+		},
+		ai: ast::access_index => abort(), // TODO
+		af: ast::access_field => abort(), // TODO
+		at: ast::access_tuple => abort(), // TODO
+	};
+	return alloc(expr {
+		start = aexpr.start,
+		end = aexpr.end,
+		result = op.0,
+		expr = op.1,
+	});
+};
+
 fn process_binding(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const bind = aexpr.expr as ast::binding_expr;
 	assert(!bind.is_static && !bind.is_const); // TODO
 
-	let bindings: binding_expr = [];
+	let bindings: bindings = [];
 	for (let i = 0z; i < len(bind.bindings); i += 1) {
 		const item = bind.bindings[i];
 		const init = process_expr(ctx, item.init)?;
@@ -139,7 +161,7 @@ fn process_compound(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const compound = aexpr.expr as ast::compound_expr;
 	const scope = scope_push(ctx, scope_class::COMPOUND);
 
-	let exprs: compound_expr = alloc([], len(compound.exprs));
+	let exprs: compound = alloc([], len(compound.exprs));
 	let i = 0z;
 	for (i < len(compound.exprs); i += 1) {
 		append(exprs, process_expr(ctx, compound.exprs[i])?);
@@ -163,7 +185,7 @@ fn process_compound(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	defer ast::expr_free(aexpr);
 	const expr = process_compound(&ctx, aexpr)!;
 	assert(expr.result.repr as types::builtin == types::builtin::VOID);
-	const compound = expr.expr as compound_expr;
+	const compound = expr.expr as compound;
 	assert(len(compound) == 3);
 
 	const aexpr = parse_expr("{ return; }");
@@ -177,7 +199,7 @@ fn process_compound(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const constexpr = aexpr.expr as ast::constant_expr;
 	// TODO: Tuple unpacking
-	const er: (const *types::_type, constant_expr) = match (constexpr) {
+	const er: (const *types::_type, constant) = match (constexpr) {
 		v: ast::value => (
 			// TODO: iconst/fconst lowering
 			types::lookup_builtin(ctx.store, match (v) {
@@ -212,28 +234,28 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	defer ast::expr_free(aexpr);
 	const expr = process_constant(&ctx, aexpr)!;
 	assert(expr.result.repr as types::builtin == types::builtin::VOID);
-	const constexpr = expr.expr as constant_expr;
+	const constexpr = expr.expr as constant;
 	assert(constexpr is void);
 
 	const aexpr = parse_expr("true");
 	defer ast::expr_free(aexpr);
 	const expr = process_constant(&ctx, aexpr)!;
 	assert(expr.result.repr as types::builtin == types::builtin::BOOL);
-	const constexpr = expr.expr as constant_expr;
+	const constexpr = expr.expr as constant;
 	assert(constexpr as bool == true);
 
 	const aexpr = parse_expr("false");
 	defer ast::expr_free(aexpr);
 	const expr = process_constant(&ctx, aexpr)!;
 	assert(expr.result.repr as types::builtin == types::builtin::BOOL);
-	const constexpr = expr.expr as constant_expr;
+	const constexpr = expr.expr as constant;
 	assert(constexpr as bool == false);
 
 	const aexpr = parse_expr("null");
 	defer ast::expr_free(aexpr);
 	const expr = process_constant(&ctx, aexpr)!;
 	assert(expr.result.repr as types::builtin == types::builtin::NULL);
-	assert(expr.expr is constant_expr);
+	assert(expr.expr is constant);
 
 	const cases: [_](str, types::builtin, ast::value) = [
 		("1234", types::builtin::INT, 1234),
@@ -248,7 +270,7 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 		defer ast::expr_free(aexpr);
 		const expr = process_constant(&ctx, aexpr)!;
 		assert(expr.result.repr as types::builtin == case.1);
-		const constexpr = expr.expr as constant_expr;
+		const constexpr = expr.expr as constant;
 		match (case.2) {
 			s: str => assert(constexpr as str == s),
 			r: rune => assert(constexpr as rune == r),
@@ -272,7 +294,7 @@ fn process_return(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 		end = aexpr.end,
 		terminates = true,
 		result = &types::builtin_void,
-		expr = rval: return_expr,
+		expr = rval: _return,
 	});
 };
 
@@ -284,7 +306,7 @@ fn process_return(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const expr = process_return(&ctx, aexpr)!;
 	assert(expr.terminates);
 	assert(expr.result.repr as types::builtin == types::builtin::VOID);
-	const rval = expr.expr as return_expr;
+	const rval = expr.expr as _return;
 	assert(rval == null);
 
 	const aexpr = parse_expr("return 10;");
@@ -292,7 +314,7 @@ fn process_return(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const expr = process_return(&ctx, aexpr)!;
 	assert(expr.terminates);
 	assert(expr.result.repr as types::builtin == types::builtin::VOID);
-	const rval = expr.expr as return_expr;
+	const rval = expr.expr as _return;
 	assert(rval != null);
-	assert((rval: *expr).expr is constant_expr);
+	assert((rval: *expr).expr is constant);
 };

@@ -6,6 +6,7 @@ use hare::module;
 use hare::types;
 use hare::types::{builtin};
 use hare::unit;
+use hare::unit::{object_kind};
 use io;
 use os;
 use strings;
@@ -95,12 +96,34 @@ fn gen_store(ctx: *context, object: value, value: value) void = {
 	emit(ctx.out, void, instr, value, object);
 };
 
+fn gen_load(ctx: *context, object: value) value = {
+	match (types::dealias(object._type).repr) {
+		bi: types::builtin => switch (bi) {
+			builtin::STR => abort(), // TODO
+			* => void,
+		},
+		types::_struct => abort(), // TODO
+		(types::array | types::slice | types::tagged | types::tuple) =>
+			abort(), // TODO
+		* => void,
+	};
+	const instr = qinstr_load(ctx, object._type);
+	const temp = mktemp(ctx);
+	const ty = qtype_lookup(ctx, object._type, false);
+	emit(ctx.out, (ty, temp), instr, object);
+	return value {
+		value = temp,
+		_type = object._type,
+	};
+};
+
 fn gen_expr(ctx: *context, expr: *unit::expr) value = {
 	return match (expr.expr) {
-		unit::binding_expr => gen_binding(ctx, expr),
-		unit::compound_expr => gen_compound(ctx, expr),
-		unit::constant_expr => gen_const(ctx, expr),
-		unit::return_expr => gen_return(ctx, expr),
+		unit::access => gen_access(ctx, expr),
+		unit::bindings => gen_binding(ctx, expr),
+		unit::compound => gen_compound(ctx, expr),
+		unit::constant => gen_const(ctx, expr),
+		unit::_return => gen_return(ctx, expr),
 	};
 };
 
@@ -113,8 +136,37 @@ fn gen_expr_at(ctx: *context, expr: *unit::expr, at: value) void = {
 	gen_store(ctx, at, value);
 };
 
+fn gen_access_object(ctx: *context, object: *unit::object) value = {
+	return switch (object.kind) {
+		object_kind::CONST, object_kind::TYPE => abort(),
+		object_kind::BIND => {
+			const binding = binding_lookup(ctx, object);
+			yield value {
+				value = binding.name,
+				_type = object._type,
+			};
+		},
+		object_kind::DECL => abort(), // TODO
+	};
+};
+
+fn gen_access_addr(ctx: *context, expr: *unit::expr) value = {
+	const access = expr.expr as unit::access;
+	return match (access) {
+		ao: unit::access_object => gen_access_object(ctx, ao),
+		ai: unit::access_index => abort(), // TODO
+		af: unit::access_field => abort(), // TODO
+		at: unit::access_tuple => abort(), // TODO
+	};
+};
+
+fn gen_access(ctx: *context, expr: *unit::expr) value = {
+	const addr = gen_access_addr(ctx, expr);
+	return gen_load(ctx, addr);
+};
+
 fn gen_binding(ctx: *context, expr: *unit::expr) value = {
-	const bindings = expr.expr as unit::binding_expr;
+	const bindings = expr.expr as unit::bindings;
 	for (let i = 0z; i < len(bindings); i += 1) {
 		const item = bindings[i];
 		const temp = mktemp(ctx);
@@ -137,7 +189,7 @@ fn gen_binding(ctx: *context, expr: *unit::expr) value = {
 };
 
 fn gen_compound(ctx: *context, expr: *unit::expr) value = {
-	const compound = expr.expr as unit::compound_expr;
+	const compound = expr.expr as unit::compound;
 	for (let i = 0z; i < len(compound); i += 1) {
 		gen_expr(ctx, compound[i]);
 	};
@@ -145,7 +197,7 @@ fn gen_compound(ctx: *context, expr: *unit::expr) value = {
 };
 
 fn gen_const(ctx: *context, expr: *unit::expr) value = {
-	const constexpr = expr.expr as unit::constant_expr;
+	const constexpr = expr.expr as unit::constant;
 	const val: qval = match (constexpr) {
 		void => return vvoid,
 		b: bool => (if (b) 1u32 else 0u32): constant,
@@ -163,7 +215,7 @@ fn gen_const(ctx: *context, expr: *unit::expr) value = {
 };
 
 fn gen_return(ctx: *context, expr: *unit::expr) value = {
-	const rexpr = expr.expr as unit::return_expr;
+	const rexpr = expr.expr as unit::_return;
 	match (rexpr) {
 		null => emit(ctx.out, void, qinstr::RET),
 		expr: *unit::expr => {

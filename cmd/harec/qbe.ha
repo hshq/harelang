@@ -185,6 +185,44 @@ fn qinstr_store(
 	* => abort(),
 };
 
+fn qinstr_load(
+	ctx: *context,
+	ty: *types::_type,
+) qinstr = match (ty.repr) {
+	al: types::alias => qinstr_load(ctx, al.secondary: *types::_type),
+	bi: types::builtin => switch (bi) {
+		builtin::STR, builtin::VOID => abort(),
+		builtin::F32 => qinstr::LOADS,
+		builtin::F64 => qinstr::LOADD,
+		* => switch (ty.sz) {
+			1 => if (types::is_signed(ty)) {
+				yield qinstr::LOADSB;
+			} else {
+				yield qinstr::LOADUB;
+			},
+			2 => if (types::is_signed(ty)) {
+				yield qinstr::LOADSH;
+			} else {
+				yield qinstr::LOADUH;
+			},
+			4 => if (types::is_signed(ty)) {
+				yield qinstr::LOADSW;
+			} else {
+				yield qinstr::LOADUW;
+			},
+			8 => qinstr::LOADL,
+			* => abort(),
+		},
+	},
+	types::pointer => if (ctx.arch.ptr == &qlong) {
+		yield qinstr::LOADL;
+	} else if (ctx.arch.ptr == &qword) {
+		yield qinstr::LOADUW;
+	} else abort(),
+	en: types::_enum => abort(), // TODO
+	* => abort(),
+};
+
 type qinstr = enum {
 	ADD,
 	ALLOC16,

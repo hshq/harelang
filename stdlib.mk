@@ -684,6 +684,7 @@ $(HARECACHE)/hare/parse/hare_parse.ssa: $(stdlib_hare_parse_srcs) $(stdlib_rt) $
 stdlib_hare_types_srcs= \
 	$(STDLIB)/hare/types/arch.ha \
 	$(STDLIB)/hare/types/builtins.ha \
+	$(STDLIB)/hare/types/class.ha \
 	$(STDLIB)/hare/types/hash.ha \
 	$(STDLIB)/hare/types/lookup.ha \
 	$(STDLIB)/hare/types/store.ha \
@@ -1912,6 +1913,7 @@ $(TESTCACHE)/hare/parse/hare_parse.ssa: $(testlib_hare_parse_srcs) $(testlib_rt)
 testlib_hare_types_srcs= \
 	$(STDLIB)/hare/types/arch.ha \
 	$(STDLIB)/hare/types/builtins.ha \
+	$(STDLIB)/hare/types/class.ha \
 	$(STDLIB)/hare/types/hash.ha \
 	$(STDLIB)/hare/types/lookup.ha \
 	$(STDLIB)/hare/types/store.ha \

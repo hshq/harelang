@@ -8,7 +8,26 @@ export type expr = struct {
 	end: lex::location,
 	result: const *types::_type,
 	terminates: bool,
-	expr: (binding_expr | compound_expr | constant_expr | return_expr),
+	expr: (access | bindings | compound | constant | _return),
+};
+
+export type access = (access_object | access_field | access_index | access_tuple);
+
+export type access_object = *object;
+
+export type access_field = struct {
+	object: *expr,
+	field: const *types::struct_field,
+};
+
+export type access_index = struct {
+	object: *expr,
+	index: *expr,
+};
+
+export type access_tuple = struct {
+	object: *expr,
+	value: const *types::tuple_value,
 };
 
 // A single variable biding.
@@ -20,13 +39,13 @@ export type binding = struct {
 };
 
 // A list of variable bindings.
-export type binding_expr = []binding;
+export type bindings = []binding;
 
 // A compound expression, i.e. { ... }
-export type compound_expr = []*expr;
+export type compound = []*expr;
 
 // The value of a constant expression.
-export type constant_expr = ast::value; // TODO: composite types
+export type constant = ast::value; // TODO: composite types
 
 // A return expression, i.e. return <value>
-export type return_expr = nullable *expr;
+export type _return = nullable *expr;

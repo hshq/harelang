@@ -363,6 +363,7 @@ gensrcs_hare_types() {
 	gen_srcs hare::types \
 		arch.ha \
 		builtins.ha \
+		class.ha \
 		hash.ha \
 		lookup.ha \
 		store.ha \
