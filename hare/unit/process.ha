@@ -124,6 +124,25 @@ fn process_access(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	});
 };
 
+@test fn access() void = {
+	// TODO: Test error cases, more access types
+	const ctx = mktestctx();
+	defer freetestctx(&ctx);
+	const object = scope_insert(&ctx, object {
+		kind = object_kind::BIND,
+		ident = ["hello"],
+		name = ["hello"],
+		_type = &types::builtin_u32,
+	});
+	const aexpr = parse_expr("hello");
+	defer ast::expr_free(aexpr);
+	const expr = process_access(&ctx, aexpr)!;
+	const access = expr.expr as access;
+	const ao = access as access_object;
+	assert(ao == object);
+	assert(expr.result == &types::builtin_u32);
+};
+
 fn process_binding(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const bind = aexpr.expr as ast::binding_expr;
 	assert(!bind.is_static && !bind.is_const); // TODO
