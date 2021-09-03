@@ -201,7 +201,11 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 				sz = 0; align = 0;
 				yield builtin::VOID;
 			},
-			ast::builtin_type::NULL => builtin::NULL,
+			ast::builtin_type::NULL => {
+				sz = store.arch._pointer;
+				align = store.arch._pointer;
+				yield builtin::NULL;
+			},
 			ast::builtin_type::ICONST,
 			ast::builtin_type::FCONST => abort(), // TODO?
 		},
