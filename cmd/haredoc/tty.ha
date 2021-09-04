@@ -1,3 +1,4 @@
+use ascii;
 use bufio;
 use fmt;
 use hare::ast;
@@ -8,16 +9,17 @@ use os;
 use strings;
 use strio;
 
+let firstline: bool = true;
+
 // Formats output as Hare source code (prototypes) with syntax highlighting
 fn emit_tty(ctx: *context) (void | error) = {
 	const summary = ctx.summary;
 
-	let first = true;
 	match (ctx.readme) {
 		readme: *io::stream => {
-			first = false;
 			for (true) match (bufio::scanline(readme)?) {
 				b: []u8 => {
+					firstline = false;
 					fmt::printfln(
 						"\x1b[1m" "// {}" "\x1b[0m",
 						strings::fromutf8(b))?;
@@ -31,33 +33,28 @@ fn emit_tty(ctx: *context) (void | error) = {
 
 	// XXX: Should we emit the dependencies, too?
 	for (let i = 0z; i < len(summary.types); i += 1) {
-		if (!first) {
-			fmt::println()?;
-		};
-		first = false;
 		details_tty(ctx, summary.types[i])?;
 	};
 	for (let i = 0z; i < len(summary.errors); i += 1) {
-		if (!first) {
-			fmt::println()?;
-		};
-		first = false;
 		details_tty(ctx, summary.errors[i])?;
 	};
 	for (let i = 0z; i < len(summary.globals); i += 1) {
-		if (!first) {
-			fmt::println()?;
-		};
-		first = false;
 		details_tty(ctx, summary.globals[i])?;
 	};
 	for (let i = 0z; i < len(summary.funcs); i += 1) {
-		if (!first) {
-			fmt::println()?;
-		};
-		first = false;
 		details_tty(ctx, summary.funcs[i])?;
 	};
+};
+
+fn isws(s: str) bool = {
+	const iter = strings::iter(s);
+	for (true) match (strings::next(&iter)) {
+		r: rune => if (!ascii::isspace(r)) {
+			return false;
+		},
+		void => break,
+	};
+	return true;
 };
 
 fn details_tty(ctx: *context, decl: ast::decl) (void | error) = {
@@ -65,9 +62,14 @@ fn details_tty(ctx: *context, decl: ast::decl) (void | error) = {
 		return;
 	};
 
+	if (!firstline) {
+		fmt::println()?;
+	};
+	firstline = false;
+
 	const iter = strings::tokenize(decl.docs, "\n");
 	for (true) match (strings::next_token(&iter)) {
-		s: str => if (len(s) != 0) {
+		s: str => if (!(strings::peek_token(&iter) is void)) {
 			fmt::printfln("\x1b[1m" "//{}" "\x1b[0m", s)?;
 		},
 		void => break,
