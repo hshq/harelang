@@ -22,7 +22,7 @@ fn get_tmpdir() str = os::tryenv("TMPDIR", "/tmp");
 export fn file(
 	iomode: io::mode,
 	mode: fs::mode...
-) (*io::stream | fs::error) = {
+) (io::file | fs::error) = {
 	assert(iomode == io::mode::WRITE || iomode == io::mode::RDWR);
 	assert(len(mode) == 0 || len(mode) == 1);
 	let fmode = if (len(mode) != 0) mode[0] else 0o644: fs::mode;
@@ -36,7 +36,7 @@ export fn file(
 		// TODO: Add a custom "close" function which removes the named
 		// file
 		err: fs::error => named(os::cwd, get_tmpdir(), iomode, mode...),
-		s: *io::stream => s,
+		f: io::file => f,
 	};
 };
 
@@ -54,7 +54,7 @@ export fn named(
 	path: str,
 	iomode: io::mode,
 	mode: fs::mode...
-) (*io::stream | fs::error) = {
+) (io::file | fs::error) = {
 	assert(iomode == io::mode::WRITE || iomode == io::mode::RDWR);
 	assert(len(mode) == 0 || len(mode) == 1);
 
@@ -73,10 +73,10 @@ export fn named(
 		random::buffer(rand);
 		const id = *(&rand[0]: *u64);
 		const fpath = fmt::bsprintf(pathbuf, "{}/temp.{}", path, id);
-		match (fs::create(fs, fpath, fmode, oflags)) {
+		match (fs::create_file(fs, fpath, fmode, oflags)) {
 			errors::exists => continue,
 			err: fs::error => return err,
-			s: *io::stream => return s,
+			f: io::file => return f,
 		};
 	};
 	abort(); // Unreachable

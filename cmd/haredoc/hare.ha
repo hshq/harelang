@@ -14,9 +14,9 @@ fn emit_hare(ctx: *context) (void | error) = {
 
 	let first = true;
 	match (ctx.readme) {
-		readme: *io::stream => {
+		readme: io::file => {
 			first = false;
-			for (true) match (bufio::scanline(readme)?) {
+			for (true) match (bufio::scanline(&readme)?) {
 				b: []u8 => {
 					fmt::printfln("// {}", strings::fromutf8(b))?;
 					free(b);
@@ -24,7 +24,7 @@ fn emit_hare(ctx: *context) (void | error) = {
 				io::EOF => break,
 			};
 		},
-		null => void,
+		void => void,
 	};
 
 	// XXX: Should we emit the dependencies, too?

@@ -16,8 +16,8 @@ fn emit_tty(ctx: *context) (void | error) = {
 	const summary = ctx.summary;
 
 	match (ctx.readme) {
-		readme: *io::stream => {
-			for (true) match (bufio::scanline(readme)?) {
+		readme: io::file => {
+			for (true) match (bufio::scanline(&readme)?) {
 				b: []u8 => {
 					firstline = false;
 					fmt::printfln(
@@ -28,7 +28,7 @@ fn emit_tty(ctx: *context) (void | error) = {
 				io::EOF => break,
 			};
 		},
-		null => void,
+		void => void,
 	};
 
 	// XXX: Should we emit the dependencies, too?

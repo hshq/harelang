@@ -66,8 +66,8 @@ export fn resolve(path: str) str = fs::resolve(cwd, path);
 // [[fs::flags::CLOEXEC]] are used when opening the file. If you pass your own
 // flags, it is recommended that you add the latter two unless you know that you
 // do not want them.
-export fn open(path: str, flags: fs::flags...) (*io::stream | fs::error) =
-	fs::open(cwd, path, flags...);
+export fn open(path: str, flags: fs::flags...) (io::file | fs::error) =
+	fs::open_file(cwd, path, flags...);
 
 // Creates a new file and opens it for writing.
 //
@@ -82,4 +82,4 @@ export fn create(
 	path: str,
 	mode: fs::mode,
 	flags: fs::flags...
-) (*io::stream | fs::error) = fs::create(cwd, path, mode, flags...);
+) (io::file | fs::error) = fs::create_file(cwd, path, mode, flags...);

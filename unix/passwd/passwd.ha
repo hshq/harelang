@@ -78,13 +78,13 @@ export fn pwent_finish(ent: pwent) void = {
 // See [[nextpw]] for low-level parsing API.
 export fn getuser(username: str) (pwent | void) = {
 	let file = match (os::open("/etc/passwd")) {
-		s: *io::stream => s,
+		f: io::file => f,
 		* => abort("Can't open /etc/passwd"),
 	};
-	defer io::close(file);
+	defer io::close(&file);
 
 	for (true) {
-		let ent = match (nextpw(file)) {
+		let ent = match (nextpw(&file)) {
 			e: pwent => e,
 			io::EOF => break,
 			* => abort("Invalid entry in /etc/passwd"),

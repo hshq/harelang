@@ -33,14 +33,19 @@ export fn fdopen(fd: int, name: str, mode: mode) file = {
 	return stream;
 };
 
-// Similar to [[fdopen]], but heap-allocates the file. Closing the stream will
-// free the associated resources.
-export fn fdalloc(fd: int, name: str, mode: mode) *file = {
-	let file = alloc(fdopen(fd, strings::dup(name), mode));
-	file.closer = &fd_close;
-	return file;
+// Duplicates a [[file]] onto the heap, as if it were opened with [[fdalloc]].
+export fn filedup(f: *file) *file = {
+	let new = alloc(*f);
+	new.closer = &fd_close;
+	return new;
 };
 
+// Similar to [[fdopen]], but heap-allocates the file. Closing the stream will
+// free the associated resources.
+export fn fdalloc(fd: int, name: str, mode: mode) *file =
+	filedup(&fdopen(fd, strings::dup(name), mode));
+
+// Returns true if a [[stream]] is a file.
 export fn is_file(s: *stream) bool = {
 	return s.reader == &fd_read
 		|| s.writer == &fd_write

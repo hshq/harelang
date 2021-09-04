@@ -27,7 +27,7 @@ type context = struct {
 	format: format,
 	template: bool,
 	show_undocumented: bool,
-	readme: nullable *io::stream,
+	readme: (io::file | void),
 };
 
 export fn main() void = {
@@ -110,15 +110,15 @@ export fn main() void = {
 
 	const rpath = path::join(version.basedir, "README");
 	defer free(rpath);
-	const readme: nullable *io::stream = if (decl == "") {
+	const readme: (io::file | void) = if (decl == "") {
 		yield match (os::open(rpath)) {
-			err: fs::error => null,
-			f: *io::stream => f,
+			err: fs::error => void,
+			f: io::file => f,
 		};
-	} else null;
+	} else void;
 	defer match (readme) {
-		null => void,
-		f: *io::stream => io::close(f),
+		void => void,
+		f: io::file => io::close(&f),
 	};
 
 	if (decl != "") {
@@ -176,12 +176,12 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 
 fn scan(path: str) (ast::subunit | error) = {
 	const input = match (os::open(path)) {
-		s: *io::stream => s,
+		f: io::file => f,
 		err: fs::error => fmt::fatal("Error reading {}: {}",
 			path, fs::strerror(err)),
 	};
-	defer io::close(input);
-	const lexer = lex::init(input, path, lex::flags::COMMENTS);
+	defer io::close(&input);
+	const lexer = lex::init(&input, path, lex::flags::COMMENTS);
 	return parse::subunit(&lexer)?;
 };
 

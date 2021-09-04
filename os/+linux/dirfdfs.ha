@@ -126,7 +126,7 @@ fn _fs_open(
 	path: str,
 	mode: io::mode,
 	oh: *rt::open_how,
-) (*io::file | fs::error) = {
+) (io::file | fs::error) = {
 	let fs = fs: *os_filesystem;
 
 	oh.resolve = 0u64;
@@ -148,14 +148,14 @@ fn _fs_open(
 		fd: int => fd,
 	};
 
-	return io::fdalloc(fd, path, mode);
+	return io::fdopen(fd, path, mode);
 };
 
 fn fs_open_file(
 	fs: *fs::fs,
 	path: str,
 	flags: fs::flags...
-) (*io::file | fs::error) = {
+) (io::file | fs::error) = {
 	let oflags = 0;
 	let iomode = io::mode::NONE;
 	if (len(flags) == 0z) {
@@ -192,14 +192,14 @@ fn fs_open(
 	fs: *fs::fs,
 	path: str,
 	flags: fs::flags...
-) (*io::stream | fs::error) = fs_open_file(fs, path, flags...)?;
+) (*io::stream | fs::error) = io::filedup(&fs_open_file(fs, path, flags...)?);
 
 fn fs_create_file(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
 	flags: fs::flags...
-) (*io::file | fs::error) = {
+) (io::file | fs::error) = {
 	let oflags = 0;
 	let iomode = io::mode::NONE;
 	if (len(flags) == 0z) {
@@ -233,7 +233,9 @@ fn fs_create(
 	path: str,
 	mode: fs::mode,
 	flags: fs::flags...
-) (*io::stream | fs::error) = fs_create_file(fs, path, mode, flags...)?;
+) (*io::stream | fs::error) = {
+	return io::filedup(&fs_create_file(fs, path, mode, flags...)?);
+};
 
 fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;

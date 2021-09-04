@@ -61,13 +61,13 @@ export fn grent_finish(ent: grent) void = {
 // See [[nextgr]] for low-level parsing API.
 export fn getgroup(name: str) (grent | void) = {
 	let file = match (os::open("/etc/group")) {
-		s: *io::stream => s,
+		f: io::file => f,
 		* => abort("Unable to open /etc/group"),
 	};
-	defer io::close(file);
+	defer io::close(&file);
 
 	for (true) {
-		let ent = match (nextgr(file)) {
+		let ent = match (nextgr(&file)) {
 			e: grent => e,
 			io::EOF => break,
 			* => abort("Invalid entry in /etc/group"),

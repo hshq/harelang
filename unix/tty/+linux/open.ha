@@ -5,10 +5,10 @@ use os;
 
 // Returns a stream connected to the TTY of the current process. The caller must
 // close it using [[io::close]].
-export fn open() (*io::stream | error) = {
+export fn open() (io::file | error) = {
 	return match (os::open("/dev/tty", fs::flags::RDWR,
 			fs::flags::CLOEXEC)) {
-		s: *io::stream => s,
+		f: io::file => f,
 		fs::error => errors::noentry,
 	};
 };

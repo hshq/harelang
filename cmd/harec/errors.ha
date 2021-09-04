@@ -16,18 +16,18 @@ fn printerr(err: parse::error) void = {
 
 fn printerr_syntax(err: lex::syntax) void = {
 	let location = err.0, details = err.1;
-	let file = os::open(location.path) as *io::stream;
-	defer io::close(file);
+	let file = os::open(location.path)!;
+	defer io::close(&file);
 
 	let line = 1u;
 	for (line < location.line) {
-		let r = bufio::scanrune(file) as rune;
+		let r = bufio::scanrune(&file) as rune;
 		if (r == '\n') {
 			line += 1u;
 		};
 	};
 
-	let line = bufio::scanline(file) as []u8;
+	let line = bufio::scanline(&file) as []u8;
 	defer free(line);
 	let line = strings::fromutf8(line);
 	fmt::errorfln("{}:{},{}: Syntax error: {}",

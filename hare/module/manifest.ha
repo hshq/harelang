@@ -233,18 +233,18 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 	let mpath = path::join(cachedir, "manifest");
 	defer free(mpath);
 
-	let fd = temp::named(ctx.fs, cachedir, io::mode::WRITE, 0o644)?;
+	let file = temp::named(ctx.fs, cachedir, io::mode::WRITE, 0o644)?;
 	defer {
-		fs::remove(ctx.fs, fd.name): void;
-		io::close(fd);
+		fs::remove(ctx.fs, file.name): void;
+		io::close(&file);
 	};
 
 	let ident = unparse::identstr(manifest.ident);
 	defer free(ident);
-	fmt::fprintfln(fd, "# {}", ident)?;
-	fmt::fprintln(fd, "# This file is an internal Hare implementation detail.")?;
-	fmt::fprintln(fd, "# The format is not stable.")?;
-	fmt::fprintfln(fd, "version {}", VERSION)?;
+	fmt::fprintfln(&file, "# {}", ident)?;
+	fmt::fprintln(&file, "# This file is an internal Hare implementation detail.")?;
+	fmt::fprintln(&file, "# The format is not stable.")?;
+	fmt::fprintfln(&file, "version {}", VERSION)?;
 	for (let i = 0z; i < len(manifest.inputs); i += 1) {
 		const input = manifest.inputs[i];
 		let hash = hex::encodestr(input.hash);
@@ -252,7 +252,7 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 
 		const want = fs::stat_mask::INODE | fs::stat_mask::MTIME;
 		assert(input.stat.mask & want == want);
-		fmt::fprintfln(fd, "input {} {} {} {}",
+		fmt::fprintfln(&file, "input {} {} {} {}",
 			hash, input.path, input.stat.inode,
 			time::unix(input.stat.mtime))?;
 	};
@@ -262,19 +262,19 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 		let hash = hex::encodestr(ver.hash);
 		defer free(hash);
 
-		fmt::fprintf(fd, "module {}", hash)?;
+		fmt::fprintf(&file, "module {}", hash)?;
 
 		for (let j = 0z; j < len(ver.inputs); j += 1) {
 			let hash = hex::encodestr(ver.inputs[i].hash);
 			defer free(hash);
 
-			fmt::fprintf(fd, " {}", hash)?;
+			fmt::fprintf(&file, " {}", hash)?;
 		};
 
-		fmt::fprintln(fd)?;
+		fmt::fprintln(&file)?;
 	};
 
-	fs::move(ctx.fs, fd.name, mpath)?;
+	fs::move(ctx.fs, file.name, mpath)?;
 };
 
 fn input_finish(in: *input) void = {

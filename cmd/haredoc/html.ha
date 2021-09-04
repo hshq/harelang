@@ -71,10 +71,10 @@ fn emit_html(ctx: *context) (void | error) = {
 	fmt::println("</span></h2>")?;
 
 	match (ctx.readme) {
-		null => void,
-		f: *io::stream => {
+		void => void,
+		f: io::file => {
 			fmt::println("<div class='readme'>")?;
-			markup_html(ctx, f)?;
+			markup_html(ctx, &f)?;
 			fmt::println("</div>")?;
 		},
 	};

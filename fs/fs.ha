@@ -24,7 +24,7 @@ export fn open(fs: *fs, path: str, flags: flags...) (*io::stream | error) = {
 // filesystem implementations (such cases will return [[io::unsupported]]).
 //
 // If no flags are provided, the default read/write mode is RDONLY.
-export fn open_file(fs: *fs, path: str, flags: flags...) (*io::file | error) = {
+export fn open_file(fs: *fs, path: str, flags: flags...) (io::file | error) = {
 	return match (fs.openfile) {
 		null => errors::unsupported,
 		f: *openfilefunc => f(fs, path, flags...),
@@ -56,7 +56,7 @@ export fn create_file(
 	path: str,
 	mode: mode,
 	flags: flags...
-) (*io::file | error) = {
+) (io::file | error) = {
 	return match (fs.createfile) {
 		null => errors::unsupported,
 		f: *createfilefunc => f(fs, path, mode, flags...),

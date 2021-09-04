@@ -187,7 +187,7 @@ export type openfilefunc = fn(
 	fs: *fs,
 	path: str,
 	flags: flags...
-) (*io::file | error);
+) (io::file | error);
 
 export type createfunc = fn(
 	fs: *fs,
@@ -201,7 +201,7 @@ export type createfilefunc = fn(
 	path: str,
 	mode: mode,
 	flags: flags...
-) (*io::file | error);
+) (io::file | error);
 
 // An abstract implementation of a filesystem, which provides common filesystem
 // operations such as file creation and deletion, but which may be backed by any

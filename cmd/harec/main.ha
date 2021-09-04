@@ -51,13 +51,13 @@ export fn main() void = {
 
 	for (let i = 0z; i < len(cmd.args); i += 1) {
 		let input = match (os::open(cmd.args[i])) {
-			f: *io::stream => f,
+			f: io::file => f,
 			err: io::error => fmt::fatal("Error opening {}: {}",
 				cmd.args[i], io::strerror(err)),
 		};
-		defer io::close(input);
+		defer io::close(&input);
 		static let buf: [os::BUFSIZ]u8 = [0...];
-		let bufin = bufio::buffered(input, buf, []);
+		let bufin = bufio::buffered(&input, buf, []);
 		defer io::close(bufin);
 
 		let lexer = lex::init(bufin, cmd.args[i]);
