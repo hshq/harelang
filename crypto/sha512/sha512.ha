@@ -3,7 +3,7 @@ use endian;
 use hash;
 use io;
 
-type variant = enum {
+export type variant = enum {
 	SHA384,
 	SHA512,
 	SHA512_224,
