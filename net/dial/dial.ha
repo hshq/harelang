@@ -33,7 +33,7 @@ export fn dial(
 	proto: str,
 	address: str,
 	service: str,
-) (*io::stream | error) = {
+) (io::file | error) = {
 	for (let i = 0z; i < len(default_protocols); i += 1) {
 		const p = default_protocols[i];
 		if (p.name == proto) {

@@ -25,6 +25,6 @@ export fn strerror(err: error) const str = {
 // need to use this interface directly, preferring functions such as
 // [[net::tcp::accept]].
 export type listener = struct {
-	accept: nullable *fn(l: *listener) (*io::stream | error),
+	accept: nullable *fn(l: *listener) (io::file | error),
 	shutdown: nullable *fn(l: *listener) void,
 };

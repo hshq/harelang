@@ -11,7 +11,7 @@ export fn connect(
 	addr: ip::addr,
 	port: u16,
 	options: connect_option...
-) (*io::stream | net::error) = {
+) (io::file | net::error) = {
 	const sockaddr = ip::to_native(addr, port);
 	const sockfd = match (rt::socket(match (addr) {
 		ip::addr4 => rt::AF_INET: int,
@@ -32,8 +32,8 @@ export fn connect(
 		err: rt::errno => return errors::errno(err),
 		int => void,
 	};
-	return alloc(os::fdopen(sockfd, ip::string(addr),
-		io::mode::READ | io::mode::WRITE));
+	return io::fdopen(sockfd, ip::string(addr),
+		io::mode::READ | io::mode::WRITE);
 };
 
 // Binds a TCP listener to the given address.
@@ -99,11 +99,8 @@ export fn listen(
 
 // Returns the remote address for a given connection, or void if none is
 // available.
-export fn peeraddr(stream: *io::stream) ((ip::addr, u16) | void) = {
-	let fd = match (os::streamfd(stream, true)) {
-		fd: int => fd,
-		void => return,
-	};
+export fn peeraddr(peer: *io::file) ((ip::addr, u16) | void) = {
+	let fd = io::fd(peer);
 	let sn = rt::sockaddr {...};
 	let sz = size(rt::sockaddr): u32;
 	if (rt::getpeername(fd, &sn, &sz) is rt::errno) {

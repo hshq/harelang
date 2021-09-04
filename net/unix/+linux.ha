@@ -9,7 +9,7 @@ use types;
 
 // Opens a UNIX socket connection to the path. Blocks until the connection is
 // established.
-export fn connect(addr: addr) (*io::stream | net::error) = {
+export fn connect(addr: addr) (io::file | net::error) = {
 	let sockaddr = match (to_native(addr)) {
 		a: rt::sockaddr => a,
 		invalid => return errors::unsupported, // path too long
@@ -27,9 +27,9 @@ export fn connect(addr: addr) (*io::stream | net::error) = {
 		int => void,
 	};
 	static let buf: [rt::UNIX_PATH_MAX + 32]u8 = [0...];
-	return alloc(os::fdopen(sockfd,
+	return io::fdopen(sockfd,
 		fmt::bsprintf(buf, "<unix connection {}>", addr),
-		io::mode::READ | io::mode::WRITE));
+		io::mode::READ | io::mode::WRITE);
 };
 
 // Binds a UNIX socket listener to the given path.

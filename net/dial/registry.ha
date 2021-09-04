@@ -26,7 +26,7 @@ export fn strerror(err: error) const str = {
 };
 
 // A dialer is a function which implements dial for a specific protocol.
-export type dialer = fn(addr: str, service: str) (*io::stream | error);
+export type dialer = fn(addr: str, service: str) (io::file | error);
 
 type protocol = struct {
 	name: str,

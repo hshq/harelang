@@ -666,7 +666,6 @@ os() {
 		'$(PLATFORM)/environ.ha' \
 		'$(PLATFORM)/exit.ha' \
 		'$(PLATFORM)/dirfdfs.ha' \
-		'$(PLATFORM)/fdstream.ha' \
 		'$(PLATFORM)/stdfd.ha' \
 		'$(PLATFORM)/fs.ha' \
 		stdfd.ha \

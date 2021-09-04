@@ -19,7 +19,7 @@ export fn listenerfd(l: *listener) (int | void) = {
 	};
 };
 
-export fn stream_accept(l: *listener) (*io::stream | error) = {
+export fn stream_accept(l: *listener) (io::file | error) = {
 	assert(l.accept == &stream_accept);
 	let l = l: *stream_listener;
 	let sn = rt::sockaddr {...};
@@ -30,9 +30,9 @@ export fn stream_accept(l: *listener) (*io::stream | error) = {
 	};
 
 	static let namebuf: [32]u8 = [0...];
-	return alloc(os::fdopen(fd,
-		fmt::bsprintf(namebuf, "<net connection {}>", fd),
-		io::mode::READ | io::mode::WRITE));
+	return io::fdopen(fd,
+		fmt::bsprintf(namebuf, "<network fd {}>", fd),
+		io::mode::READ | io::mode::WRITE);
 };
 
 export fn stream_shutdown(l: *listener) void = {

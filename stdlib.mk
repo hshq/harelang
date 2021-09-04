@@ -977,7 +977,6 @@ stdlib_os_srcs= \
 	$(STDLIB)/os/$(PLATFORM)/environ.ha \
 	$(STDLIB)/os/$(PLATFORM)/exit.ha \
 	$(STDLIB)/os/$(PLATFORM)/dirfdfs.ha \
-	$(STDLIB)/os/$(PLATFORM)/fdstream.ha \
 	$(STDLIB)/os/$(PLATFORM)/stdfd.ha \
 	$(STDLIB)/os/$(PLATFORM)/fs.ha \
 	$(STDLIB)/os/stdfd.ha \
@@ -2213,7 +2212,6 @@ testlib_os_srcs= \
 	$(STDLIB)/os/$(PLATFORM)/environ.ha \
 	$(STDLIB)/os/$(PLATFORM)/exit.ha \
 	$(STDLIB)/os/$(PLATFORM)/dirfdfs.ha \
-	$(STDLIB)/os/$(PLATFORM)/fdstream.ha \
 	$(STDLIB)/os/$(PLATFORM)/stdfd.ha \
 	$(STDLIB)/os/$(PLATFORM)/fs.ha \
 	$(STDLIB)/os/stdfd.ha \

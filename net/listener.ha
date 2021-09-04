@@ -3,9 +3,9 @@ use io;
 
 // Accepts the next connection from a listener. Blocks until a new connection is
 // available.
-export fn accept(l: *listener) (*io::stream | error) = {
+export fn accept(l: *listener) (io::file | error) = {
 	return match (l.accept) {
-		f: *fn(l: *listener) (*io::stream | error) => f(l),
+		f: *fn(l: *listener) (io::file | error) => f(l),
 		null => errors::unsupported,
 	};
 };

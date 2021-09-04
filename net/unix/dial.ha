@@ -2,9 +2,9 @@ use io;
 use net::dial;
 use net;
 
-fn dial_unix(addr: str, service: str) (*io::stream | dial::error) = {
+fn dial_unix(addr: str, service: str) (io::file | dial::error) = {
 	return match (connect(addr)) {
-		conn: *io::stream => conn,
+		conn: io::file => conn,
 		err: net::error => err,
 	};
 };
