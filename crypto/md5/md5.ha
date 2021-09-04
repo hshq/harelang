@@ -12,7 +12,7 @@ def init1: u32 = 0xEFCDAB89;
 def init2: u32 = 0x98BADCFE;
 def init3: u32 = 0x10325476;
 
-type digest = struct {
+export type digest = struct {
 	hash::hash,
 	h: [4]u32,
 	x: [chunk]u8,
@@ -24,16 +24,18 @@ type digest = struct {
 // Note that MD5 is cryptographically broken and should not be used for secure
 // applications. Where possible, applications are encouraged to use
 // [[crypto::sha256]] or [[crypto::sha512]] instead.
-export fn md5() *hash::hash = {
-	let md5 = alloc(digest {
+//
+// This hash function does not allocate any state, so you do not have to call
+// [[hash::close]] when you are done with it.
+export fn md5() digest = {
+	let md5 = digest {
 		writer = &write,
-		closer = &close,
 		sum = &sum,
 		reset = &reset,
 		sz = SIZE,
 		...
-	});
-	hash::reset(md5);
+	};
+	hash::reset(&md5);
 	return md5;
 };
 
@@ -68,8 +70,6 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 	};
 	return nn;
 };
-
-fn close(st: *io::stream) void = free(st);
 
 fn reset(h: *hash::hash) void = {
 	let h = h: *digest;

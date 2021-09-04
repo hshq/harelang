@@ -56,7 +56,7 @@ def init5_384: u64 = 0x8eb44a8768581511;
 def init6_384: u64 = 0xdb0c2e0d64f98fa7;
 def init7_384: u64 = 0x47b5481dbefa4fa4;
 
-type digest = struct {
+export type digest = struct {
 	hash::hash,
 	h: [8]u64,
 	x: [chunk]u8,
@@ -66,29 +66,28 @@ type digest = struct {
 };
 
 // Creates a [[hash::hash]] which computes a SHA-512 hash.
-export fn sha512() *hash::hash = init(variant::SHA512, SIZE);
+export fn sha512() digest = init(variant::SHA512, SIZE);
 
 // Creates a [[hash::hash]] which computes a SHA-512/224 hash.
-export fn sha512_224() *hash::hash = init(variant::SHA512_224, SIZE224);
+export fn sha512_224() digest = init(variant::SHA512_224, SIZE224);
 
 // Creates a [[hash::hash]] which computes a SHA-512/256 hash.
-export fn sha512_256() *hash::hash = init(variant::SHA512_256, SIZE256);
+export fn sha512_256() digest = init(variant::SHA512_256, SIZE256);
 
 // Creates a [[hash::hash]] which computes a SHA-384 hash.
-export fn sha384() *hash::hash = init(variant::SHA384, SIZE384);
+export fn sha384() digest = init(variant::SHA384, SIZE384);
 
 // Internal initialization function
-fn init(var: variant, sz: size) *hash::hash = {
-	let sha = alloc(digest {
+fn init(var: variant, sz: size) digest = {
+	let sha = digest {
 		writer = &write,
-		closer = &close,
 		sum = &sum,
 		reset = &reset,
 		sz = sz,
 		var = var,
-	});
-
-	hash::reset(sha);
+		...
+	};
+	hash::reset(&sha);
 	return sha;
 };
 
@@ -123,8 +122,6 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 	};
 	return nn;
 };
-
-fn close(st: *io::stream) void = free(st);
 
 fn sum(h: *hash::hash, buf: []u8) void = {
 	let d = h: *digest;

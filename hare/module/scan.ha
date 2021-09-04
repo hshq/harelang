@@ -20,7 +20,6 @@ use fmt;
 export fn scan(ctx: *context, path: str) (version | error) = {
 	// TODO: Incorporate defines into the hash
 	let sha = sha256::sha256();
-	defer hash::close(sha);
 	let found = false;
 	for (let i = 0z; i < len(ctx.tags); i += 1) {
 		if (ctx.tags[i].mode == tag_mode::INCLUSIVE
@@ -29,7 +28,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 			break;
 		};
 	};
-	hash::write(sha, [if (found) 1 else 0]);
+	hash::write(&sha, [if (found) 1 else 0]);
 	let iter = match (fs::iter(ctx.fs, path)) {
 		fs::wrongtype => {
 			// Single file case
@@ -50,8 +49,8 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 			append(inputs, in);
 
 			let sumbuf: [sha256::SIZE]u8 = [0...];
-			hash::write(sha, in.hash);
-			hash::sum(sha, sumbuf);
+			hash::write(&sha, in.hash);
+			hash::sum(&sha, sumbuf);
 
 			return version {
 				hash = sumbuf,
@@ -67,13 +66,12 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 		basedir = strings::dup(path),
 		...
 	};
-	scan_directory(ctx, &ver, sha, path, iter)?;
+	scan_directory(ctx, &ver, &sha, path, iter)?;
 
 	let tmp: [sha256::SIZE]u8 = [0...];
-	hash::sum(sha, tmp);
+	hash::sum(&sha, tmp);
 	ver.hash = alloc([], sha.sz);
 	append(ver.hash, tmp...);
-
 	return ver;
 };
 
@@ -316,11 +314,9 @@ fn scan_file(
 	let f = fs::open(ctx.fs, path)?;
 	defer io::close(f);
 	let sha = sha256::sha256();
-	defer hash::close(sha);
+	hash::write(&sha, strings::toutf8(path));
 
-	hash::write(sha, strings::toutf8(path));
-
-	let tee = io::tee(f, sha);
+	let tee = io::tee(f, &sha);
 	defer io::close(tee);
 
 	let lexer = lex::init(tee, path);
@@ -339,7 +335,7 @@ fn scan_file(
 	io::copy(io::empty, tee)?; // Finish spooling out the file for the SHA
 
 	let tmp: [sha256::SIZE]u8 = [0...];
-	hash::sum(sha, tmp);
+	hash::sum(&sha, tmp);
 
 	let checksum: []u8 = alloc([], sha.sz);
 	append(checksum, tmp...);

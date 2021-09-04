@@ -15,7 +15,7 @@ def init2: u32 = 0x98BADCFE;
 def init3: u32 = 0x10325476;
 def init4: u32 = 0xC3D2E1F0;
 
-type digest = struct {
+export type digest = struct {
 	hash::hash,
 	h: [5]u32,
 	x: [chunk]u8,
@@ -26,16 +26,15 @@ type digest = struct {
 // Creates a [[hash::hash]] which computes a SHA-1 hash. Note that this
 // alogorithm is no longer considered secure. Where possible, applications are
 // encouraged to use [[crypto::sha256]] or [[crypto::sha512]] instead.
-export fn sha1() *hash::hash = {
-	let sha = alloc(digest {
+export fn sha1() digest = {
+	let sha = digest {
 		writer = &write,
-		closer = &close,
 		sum = &sum,
 		reset = &reset,
 		sz = SIZE,
 		...
-	});
-	hash::reset(sha);
+	};
+	hash::reset(&sha);
 	return sha;
 };
 
@@ -69,10 +68,6 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 		h.nx = n;
 	};
 	return nn;
-};
-
-fn close(st: *io::stream) void = {
-	free(st);
 };
 
 fn reset(h: *hash::hash) void = {

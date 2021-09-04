@@ -6,8 +6,6 @@ use io;
 
 @test fn sha1() void = {
 	let sha = sha1();
-	defer hash::close(sha);
-
 	const vectors = [
 		("", "da39a3ee5e6b4b0d3255bfef95601890afd80709"),
 		("abc", "a9993e364706816aba3e25717850c26c9cd0d89d"),
@@ -26,11 +24,11 @@ use io;
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		const vector = vectors[i];
-		hash::reset(sha);
-		hash::write(sha, strings::toutf8(vector.0));
+		hash::reset(&sha);
+		hash::write(&sha, strings::toutf8(vector.0));
 
 		let sum: [SIZE]u8 = [0...];
-		hash::sum(sha, sum);
+		hash::sum(&sha, sum);
 
 		let hex = strio::dynamic();
 		defer io::close(hex);
@@ -52,12 +50,11 @@ use io;
 //	const expected = "7789f0c9ef7bfc40d93311143dfbe69e2017f592";
 //
 //	let sha = sha1();
-//	defer hash::finish(sha);
 //
 //	for (let i = 0z; i < 16777216; i += 1)
-//		hash::write(sha, strings::toutf8(input));
+//		hash::write(&sha, strings::toutf8(input));
 //
-//	let sum = hash::sum(sha);
+//	let sum = hash::sum(&sha);
 //	defer free(sum);
 //
 //	let hex = strio::dynamic();

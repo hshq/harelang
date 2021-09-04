@@ -6,8 +6,6 @@ use io;
 
 @test fn md5() void = {
 	let md5 = md5();
-	defer hash::close(md5);
-
 	const vectors = [
 		("", "d41d8cd98f00b204e9800998ecf8427e"),
 		("abc", "900150983cd24fb0d6963f7d28e17f72"),
@@ -22,11 +20,11 @@ use io;
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		const vector = vectors[i];
-		hash::reset(md5);
-		hash::write(md5, strings::toutf8(vector.0));
+		hash::reset(&md5);
+		hash::write(&md5, strings::toutf8(vector.0));
 
 		let sum: [SIZE]u8 = [0...];
-		hash::sum(md5, sum);
+		hash::sum(&md5, sum);
 
 		let hex = strio::dynamic();
 		defer io::close(hex);

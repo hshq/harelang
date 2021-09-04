@@ -32,7 +32,7 @@ const sigma: [12][16]u8 = [
 	[14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3],
 ];
 
-type digest = struct {
+export type digest = struct {
 	hash::hash,
 	h: [8]u64,
 	tlow: u64,
@@ -44,8 +44,10 @@ type digest = struct {
 };
 
 // Creates a [[hash::hash]] which computes a BLAKE2b hash with a given key and a
-// given hash size. The size must be between 1 and 64, inclusive.
-export fn blake2b(key: []u8, sz: size) *hash::hash = {
+// given hash size. The size must be between 1 and 64, inclusive. This hash
+// function does not allocate any additional state, so you do not need to call
+// [[hash::close]] when you are done with it.
+export fn blake2b(key: []u8, sz: size) digest = {
 	assert(1 <= sz);
 	assert(sz <= 64);
 	assert(len(key) <= 64);
@@ -53,9 +55,8 @@ export fn blake2b(key: []u8, sz: size) *hash::hash = {
 	h[0] ^= 0x01010000 ^ (len(key) << 8) ^ sz;
 	let keyblock: [BSIZE]u8 = [0...];
 	keyblock[..len(key)] = key;
-	return alloc(digest {
+	return digest {
 		writer = &write,
-		closer = &close,
 		sum = &sum,
 		reset = &reset,
 		sz = sz,
@@ -66,7 +67,8 @@ export fn blake2b(key: []u8, sz: size) *hash::hash = {
 		blocklen = if (len(key) > 0) BSIZE else 0,
 		key = keyblock,
 		keylen = len(key),
-	}): *hash::hash;
+		...
+	};
 };
 
 fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
@@ -92,10 +94,6 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 	h.block[h.blocklen..h.blocklen + len(buf)] = buf;
 	h.blocklen += len(buf);
 	return length;
-};
-
-fn close(st: *io::stream) void = {
-	free(st);
 };
 
 fn sum(h: *hash::hash, buf: []u8) void = {

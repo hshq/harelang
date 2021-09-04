@@ -31,7 +31,7 @@ const k: [_]u32 = [
 	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
 ];
 
-type state = struct {
+export type state = struct {
 	hash::hash,
 	h: [8]u32,
 	x: [chunk]u8,
@@ -40,16 +40,15 @@ type state = struct {
 };
 
 // Creates a [[hash::hash]] which computes a SHA-256 hash.
-export fn sha256() *hash::hash = {
-	let sha = alloc(state {
+export fn sha256() state = {
+	let sha = state {
 		writer = &write,
-		closer = &close,
 		sum = &sum,
 		reset = &reset,
 		sz = SIZE,
 		...
-	});
-	hash::reset(sha);
+	};
+	hash::reset(&sha);
 	return sha;
 };
 
@@ -95,10 +94,6 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 		h.nx = n;
 	};
 	return n;
-};
-
-fn close(st: *io::stream) void = {
-	free(st);
 };
 
 fn sum(h: *hash::hash, buf: []u8) void = {

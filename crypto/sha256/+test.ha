@@ -6,8 +6,6 @@ use strio;
 
 @test fn sha256() void = {
 	let sha = sha256();
-	defer hash::close(sha);
-
 	const vectors = [
 		("", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
 		("abc", "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"),
@@ -23,11 +21,11 @@ use strio;
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		const vector = vectors[i];
-		hash::reset(sha);
-		hash::write(sha, strings::toutf8(vector.0));
+		hash::reset(&sha);
+		hash::write(&sha, strings::toutf8(vector.0));
 
 		let sum: [SIZE]u8 = [0...];
-		hash::sum(sha, sum);
+		hash::sum(&sha, sum);
 
 		let hex = strio::dynamic();
 		defer io::close(hex);
@@ -46,11 +44,11 @@ use strio;
 
 	//const input = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno";
 	//const expected = "50e72a0e26442fe2552dc3938ac58658228c0cbfb1d2ca872ae435266fcd055e";
-	//hash::reset(sha);
+	//hash::reset(&sha);
 	//for (let i = 0z; i < 16777216; i += 1) {
-	//	hash::write(sha, strings::toutf8(input));
+	//	hash::write(&sha, strings::toutf8(input));
 	//};
-	//let sum = hash::sum(sha);
+	//let sum = hash::sum(&sha);
 	//defer free(sum);
 
 	//let hex = strio::dynamic();
