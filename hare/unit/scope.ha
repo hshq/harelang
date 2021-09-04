@@ -67,13 +67,12 @@ fn scope_pop(ctx: *context) *scope = {
 
 fn ident_hash(ident: ast::ident) u64 = {
 	let hash = fnv::fnv64a();
-	defer hash::close(hash);
 	const zerobuf = [0u8];
 	for (let i = len(ident); i > 0; i -= 1) {
-		hash::write(hash, strings::toutf8(ident[i - 1]));
-		hash::write(hash, zerobuf[..]);
+		hash::write(&hash, strings::toutf8(ident[i - 1]));
+		hash::write(&hash, zerobuf[..]);
 	};
-	return fnv::sum64(hash);
+	return fnv::sum64(&hash);
 };
 
 fn scope_insert(ctx: *context, obj: object) *object = {

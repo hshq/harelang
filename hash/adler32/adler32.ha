@@ -7,26 +7,21 @@ use strings;
 export def SIZE: size = 4;
 
 type state = struct {
-	hash: hash::hash,
+	hash::hash,
 	a: u32,
 	b: u32,
 };
 
 // Creates a [[hash::hash]] which computes the Adler-32 checksum algorithm.
 export fn adler32() *hash::hash = alloc(state {
-	hash = hash::hash {
-		stream = io::stream {
-			writer = &write,
-			closer = &close,
-			...
-		},
-		sum = &sum,
-		reset = &reset,
-		sz = 4,
-	},
+	writer = &write,
+	closer = &close,
+	sum = &sum,
+	reset = &reset,
+	sz = 4,
 	a = 1,
 	b = 0,
-}): *hash::hash;
+});
 
 fn close(s: *io::stream) void = free(s);
 

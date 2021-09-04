@@ -13,7 +13,7 @@ def init2: u32 = 0x98BADCFE;
 def init3: u32 = 0x10325476;
 
 type digest = struct {
-	hash: hash::hash,
+	hash::hash,
 	h: [4]u32,
 	x: [chunk]u8,
 	nx: size,
@@ -26,21 +26,15 @@ type digest = struct {
 // [[crypto::sha256]] or [[crypto::sha512]] instead.
 export fn md5() *hash::hash = {
 	let md5 = alloc(digest {
-		hash = hash::hash {
-			stream = io::stream {
-				writer = &write,
-				closer = &close,
-				...
-			},
-			sum = &sum,
-			reset = &reset,
-			sz = SIZE,
-			...
-		},
+		writer = &write,
+		closer = &close,
+		sum = &sum,
+		reset = &reset,
+		sz = SIZE,
+		...
 	});
-	let hash = &md5.hash;
-	hash::reset(hash);
-	return hash;
+	hash::reset(md5);
+	return md5;
 };
 
 fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
@@ -97,7 +91,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 	let tmp: [1 + 63 + 8]u8 = [0x80, 0...];
 	const pad = (55 - ln) % 64;
 	endian::leputu32(tmp[1+pad..], (ln << 3) : u32);
-	write(&h.hash.stream, tmp[..1+pad+8])!; // append the length in bits
+	write(h, tmp[..1+pad+8])!; // append the length in bits
 
 	assert(h.nx == 0);
 

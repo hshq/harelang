@@ -8,75 +8,67 @@ def prime64: u64 = 1099511628211;
 def basis32: u32 = 2166136261;
 def basis64: u64 = 14695981039346656037;
 
-type state32 = struct {
-	hash: hash::hash,
+export type state32 = struct {
+	hash::hash,
 	v: u32,
 };
 
-type state64 = struct {
-	hash: hash::hash,
+export type state64 = struct {
+	hash::hash,
 	v: u64,
 };
 
-// Creates a [[hash::hash]] which computes the FNV-1 32-bit hash function.
+// Creates a [[hash::hash]] which computes the FNV-1 32-bit hash function. This
+// hash does not allocate any state, so you do not need to call [[hash::close]]
+// when you're done with it.
 //
 // Unless you have a reason to use this, [[fnv32a]] is recommended instead.
-export fn fnv32() *hash::hash = alloc(state32 {
-	hash = hash::hash {
-		stream = io::stream {
-			writer = &fnv32_write,
-			closer = &fnv_close,
-		},
-		sum = &fnv32_sum,
-		reset = &fnv32_reset,
-		sz = 4,
-	},
+export fn fnv32() state32 = state32 {
+	writer = &fnv32_write,
+	closer = &fnv_close,
+	sum = &fnv32_sum,
+	reset = &fnv32_reset,
+	sz = 4,
 	v = basis32,
-}): *hash::hash;
+};
 
-// Creates a [[hash::hash]] which computes the FNV-1a 32-bit hash function.
-export fn fnv32a() *hash::hash = alloc(state32 {
-	hash = hash::hash {
-		stream = io::stream {
-			writer = &fnv32a_write,
-			closer = &fnv_close,
-		},
-		sum = &fnv32_sum,
-		reset = &fnv32_reset,
-		sz = 4,
-	},
+// Creates a [[hash::hash]] which computes the FNV-1a 32-bit hash function. This
+// hash does not allocate any state, so you do not need to call [[hash::close]]
+// when you're done with it.
+export fn fnv32a() state32 = state32 {
+	writer = &fnv32a_write,
+	closer = &fnv_close,
+	sum = &fnv32_sum,
+	reset = &fnv32_reset,
+	sz = 4,
 	v = basis32,
-}): *hash::hash;
+};
 
-// Creates a [[hash::hash]] which computes the FNV-1 64-bit hash function.
+// Creates a [[hash::hash]] which computes the FNV-1 64-bit hash function. This
+// hash does not allocate any state, so you do not need to call [[hash::close]]
+// when you're done with it.
 //
 // Unless you have a reason to use this, [[fnv64a]] is recommended instead.
-export fn fnv64() *hash::hash = alloc(state64 {
-	hash = hash::hash {
-		stream = io::stream {
-			writer = &fnv64_write,
-			closer = &fnv_close,
-		},
-		sum = &fnv64_sum,
-		reset = &fnv64_reset,
-		sz = 8,
-	},
+export fn fnv64() state64 = state64 {
+	writer = &fnv64_write,
+	closer = &fnv_close,
+	sum = &fnv64_sum,
+	reset = &fnv64_reset,
+	sz = 8,
 	v = basis64,
-}): *hash::hash;
+};
 
-// Creates a [[hash::hash]] which computes the FNV-1a 64-bit hash function.
-export fn fnv64a() *hash::hash = alloc(state64 {
-	hash = hash::hash {
-		stream = io::stream {
-			writer = &fnv64a_write,
-			closer = &fnv_close,
-		},
-		sum = &fnv64_sum,
-		reset = &fnv64_reset,
-		sz = 8,
-	},
+// Creates a [[hash::hash]] which computes the FNV-1a 64-bit hash function. This
+// hash does not allocate any state, so you do not need to call [[hash::close]]
+// when you're done with it.
+export fn fnv64a() state64 = state64 {
+	writer = &fnv64a_write,
+	closer = &fnv_close,
+	sum = &fnv64_sum,
+	reset = &fnv64_reset,
+	sz = 8,
 	v = basis64,
-}): *hash::hash;
+};
 
 fn fnv_close(s: *io::stream) void = free(s);
 
@@ -164,17 +156,16 @@ export fn sum64(h: *hash::hash) u64 = {
 	];
 
 	let hash = fnv32();
-	defer hash::close(hash);
 	let s: [4]u8 = [0...];
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let vec = vectors[i];
 
-		hash::reset(hash);
-		hash::write(hash, strings::toutf8(vec.0));
-		hash::sum(hash, s);
+		hash::reset(&hash);
+		hash::write(&hash, strings::toutf8(vec.0));
+		hash::sum(&hash, s);
 
 		assert(endian::host.getu32(s) == vec.1);
-		assert(sum32(hash) == vec.1);
+		assert(sum32(&hash) == vec.1);
 	};
 };

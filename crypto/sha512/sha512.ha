@@ -57,7 +57,7 @@ def init6_384: u64 = 0xdb0c2e0d64f98fa7;
 def init7_384: u64 = 0x47b5481dbefa4fa4;
 
 type digest = struct {
-	hash: hash::hash,
+	hash::hash,
 	h: [8]u64,
 	x: [chunk]u8,
 	nx: size,
@@ -80,23 +80,16 @@ export fn sha384() *hash::hash = init(variant::SHA384, SIZE384);
 // Internal initialization function
 fn init(var: variant, sz: size) *hash::hash = {
 	let sha = alloc(digest {
-		hash = hash::hash {
-			stream = io::stream {
-				writer = &write,
-				closer = &close,
-				...
-			},
-			sum = &sum,
-			reset = &reset,
-			sz = sz,
-			...
-		},
+		writer = &write,
+		closer = &close,
+		sum = &sum,
+		reset = &reset,
+		sz = sz,
 		var = var,
 	});
 
-	let hash = &sha.hash;
-	hash::reset(hash);
-	return hash;
+	hash::reset(sha);
+	return sha;
 };
 
 fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
@@ -143,17 +136,17 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 	let tmp: [chunk]u8 = [0x80, 0...];
 	if ((ln % 128) < 112) {
 		const n = 112 - (ln % 128);
-		write(&d.hash.stream, tmp[..n])!;
+		write(d, tmp[..n])!;
 	} else {
 		const n = 128 + 112 - (ln % 128);
-		write(&d.hash.stream, tmp[..n])!;
+		write(d, tmp[..n])!;
 	};
 
 	// Length in bits
 	ln <<= 3;
 	endian::beputu64(tmp, 0u64); // upper 64 bits are always zero
 	endian::beputu64(tmp[8..], ln : u64);
-	write(&d.hash.stream, tmp[..16])!;
+	write(d, tmp[..16])!;
 
 	assert(d.nx == 0);
 
@@ -171,7 +164,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 
         // We only copy the necessary bytes from fixed-size array into the
         // returned slice. The size is already found in the inner hash struct.
-	buf[..] = dig[..d.hash.sz];
+	buf[..] = dig[..d.sz];
 };
 
 fn reset(h: *hash::hash) void = {

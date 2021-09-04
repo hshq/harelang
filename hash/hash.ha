@@ -4,7 +4,7 @@ use fmt;
 // The general purpose interface for a hashing function.
 export type hash = struct {
 	// A stream which only supports writes and never returns errors.
-	stream: io::stream,
+	io::stream,
 
 	// Returns the current hash.
 	sum: *fn(hash: *hash, buf: []u8) void,
@@ -16,23 +16,20 @@ export type hash = struct {
 	sz: size,
 };
 
-// Returns a writable [[io::stream]] for a given hash.
-export fn writer(h: *hash) *io::stream = &h.stream;
-
 // Writes an input to the hash function.
 export fn write(h: *hash, buf: const []u8) size =
-	io::write(&h.stream, buf) as size;
+	io::write(h, buf) as size;
 
 // Finalizes the hash, frees resources associated with the hash, and populate
 // buf with the sum.
 export fn finish(h: *hash, buf: []u8) void = {
 	sum(h, buf);
-	io::close(&h.stream);
+	io::close(h);
 	return buf;
 };
 
 // Closes a hash, freeing its resources and discarding the checksum.
-export fn close(h: *hash) void = io::close(&h.stream);
+export fn close(h: *hash) void = io::close(h);
 
 // Populates the user-provided buffer with the current sum.
 export fn sum(h: *hash, buf: []u8) void = {

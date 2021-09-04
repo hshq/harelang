@@ -119,8 +119,7 @@ fn empty_dir() directory = directory {
 
 fn hash_of(name: str) u64 = {
 	let h = hash::fnv::fnv64a();
-	defer hash::close(h);
-	hash::write(h, strings::toutf8(name));
-	return hash::fnv::sum64(h);
+	hash::write(&h, strings::toutf8(name));
+	return hash::fnv::sum64(&h);
 };
 

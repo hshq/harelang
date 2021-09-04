@@ -33,7 +33,7 @@ const sigma: [12][16]u8 = [
 ];
 
 type digest = struct {
-	hash: hash::hash,
+	hash::hash,
 	h: [8]u64,
 	tlow: u64,
 	thigh: u64,
@@ -54,16 +54,11 @@ export fn blake2b(key: []u8, sz: size) *hash::hash = {
 	let keyblock: [BSIZE]u8 = [0...];
 	keyblock[..len(key)] = key;
 	return alloc(digest {
-		hash = hash::hash {
-			stream = io::stream {
-				writer = &write,
-				closer = &close,
-			},
-			sum = &sum,
-			reset = &reset,
-			sz = sz,
-			...
-		},
+		writer = &write,
+		closer = &close,
+		sum = &sum,
+		reset = &reset,
+		sz = sz,
 		h = h,
 		tlow = 0,
 		thigh = 0,
@@ -118,7 +113,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 
 	compress(&h.h, &h.block, h.tlow, h.thigh, true);
 
-	for (let i = 0z; i < h.hash.sz / 8; i += 1) {
+	for (let i = 0z; i < h.sz / 8; i += 1) {
 		endian::leputu64(buf[i * 8..i * 8 + 8], h.h[i]);
 	};
 };
@@ -126,7 +121,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 fn reset(h: *hash::hash) void = {
 	let h = h: *digest;
 	h.h = iv;
-	h.h[0] ^= 0x01010000 ^ (h.keylen << 8) ^ h.hash.sz;
+	h.h[0] ^= 0x01010000 ^ (h.keylen << 8) ^ h.sz;
 	h.tlow = 0;
 	h.thigh = 0;
 	h.block = h.key;

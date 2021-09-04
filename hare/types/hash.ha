@@ -73,57 +73,56 @@ export fn hash(t: *_type) u32 = {
 	// Note that this function should produce the same hashes as harec; see
 	// bootstrap harec:src/types.c:type_hash
 	let id = fnv::fnv32a();
-	defer hash::close(id);
-	write8(id, type_storage(t));
-	write8(id, t.flags);
+	write8(&id, type_storage(t));
+	write8(&id, t.flags);
 
 	match (t.repr) {
 		a: alias => for (let i = len(a.id); i > 0; i -= 1) {
-			hash::write(id, strings::toutf8(a.id[i - 1]));
-			write8(id, 0);
+			hash::write(&id, strings::toutf8(a.id[i - 1]));
+			write8(&id, 0);
 		},
 		a: array => {
-			write32(id, hash(a.member));
+			write32(&id, hash(a.member));
 			static assert(size(u64) == size(size)); // TODO
-			write64(id, a.length);
+			write64(&id, a.length);
 		},
 		builtin => void,
 		e: _enum => {
-			write8(id, builtin_storage(e.storage));
+			write8(&id, builtin_storage(e.storage));
 			for (let i = 0z; i < len(e.values); i += 1) {
-				hash::write(id, strings::toutf8(e.values[i].0));
-				write64(id, e.values[i].1);
+				hash::write(&id, strings::toutf8(e.values[i].0));
+				write64(&id, e.values[i].1);
 			};
 		},
 		f: func => {
-			write32(id, hash(f.result));
-			write8(id, f.variadism: u8);
-			write8(id, f.flags: u8);
+			write32(&id, hash(f.result));
+			write8(&id, f.variadism: u8);
+			write8(&id, f.flags: u8);
 			for (let i = 0z; i < len(f.params); i += 1) {
-				write32(id, hash(f.params[i]));
+				write32(&id, hash(f.params[i]));
 			};
 		},
 		p: pointer => {
-			write8(id, p.flags);
-			write32(id, hash(p.referent));
+			write8(&id, p.flags);
+			write32(&id, hash(p.referent));
 		},
-		s: slice => write32(id, hash(s)),
+		s: slice => write32(&id, hash(s)),
 		st: _struct => for (let i = 0z; i < len(st.fields); i += 1) {
 			const field = st.fields[i];
-			hash::write(id, strings::toutf8(field.name));
-			write32(id, hash(field._type));
+			hash::write(&id, strings::toutf8(field.name));
+			write32(&id, hash(field._type));
 			static assert(size(u64) == size(size)); // TODO
-			write64(id, field.offs);
+			write64(&id, field.offs);
 		},
 		tu: tuple => for (let i = 0z; i < len(tu); i += 1) {
-			write32(id, hash(tu[i]._type));
+			write32(&id, hash(tu[i]._type));
 		},
 		ta: tagged => for (let i = 0z; i < len(ta); i += 1) {
-			write32(id, hash(ta[i]));
+			write32(&id, hash(ta[i]));
 		},
 	};
 
-	return fnv::sum32(id);
+	return fnv::sum32(&id);
 };
 
 @test fn hash() void = {

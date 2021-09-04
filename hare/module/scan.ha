@@ -320,7 +320,7 @@ fn scan_file(
 
 	hash::write(sha, strings::toutf8(path));
 
-	let tee = io::tee(f, hash::writer(sha));
+	let tee = io::tee(f, sha);
 	defer io::close(tee);
 
 	let lexer = lex::init(tee, path);

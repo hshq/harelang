@@ -172,7 +172,7 @@ export fn memoize(polynomial: u16, buf: *[256]u16) void = {
 };
 
 type state = struct {
-	hash: hash::hash,
+	hash::hash,
 	table: *[256]u16,
 	cval: u16,
 };
@@ -183,19 +183,14 @@ type state = struct {
 // [[ccitt_table]], [[dect_table]], or [[ansi_table]]); a table for a
 // custom polynomial, populated by [[memoize]] function, may also be used.
 export fn crc16(table: *[256]u16) *hash::hash = alloc(state {
-	hash = hash::hash {
-		stream = io::stream {
-			writer = &write,
-			closer = &close,
-			...
-		},
-		sum = &sum,
-		reset = &reset,
-		sz = SIZE,
-	},
+	writer = &write,
+	closer = &close,
+	sum = &sum,
+	reset = &reset,
+	sz = SIZE,
 	table = table,
 	cval = ~0u16,
-}): *hash::hash;
+});
 
 fn close(s: *io::stream) void = free(s);
 

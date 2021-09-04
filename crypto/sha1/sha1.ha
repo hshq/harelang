@@ -16,7 +16,7 @@ def init3: u32 = 0x10325476;
 def init4: u32 = 0xC3D2E1F0;
 
 type digest = struct {
-	hash: hash::hash,
+	hash::hash,
 	h: [5]u32,
 	x: [chunk]u8,
 	nx: size,
@@ -28,21 +28,15 @@ type digest = struct {
 // encouraged to use [[crypto::sha256]] or [[crypto::sha512]] instead.
 export fn sha1() *hash::hash = {
 	let sha = alloc(digest {
-		hash = hash::hash {
-			stream = io::stream {
-				writer = &write,
-				closer = &close,
-				...
-			},
-			sum = &sum,
-			reset = &reset,
-			sz = SIZE,
-			...
-		},
+		writer = &write,
+		closer = &close,
+		sum = &sum,
+		reset = &reset,
+		sz = SIZE,
+		...
 	});
-	let hash = &sha.hash;
-	hash::reset(hash);
-	return hash;
+	hash::reset(sha);
+	return sha;
 };
 
 fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
@@ -102,12 +96,12 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 	let tmp: [64]u8 = [0x80, 0...];
 	const pad = if ((ln % 64z) < 56z) 56z - ln % 64z
 		else 64 + 56z - ln % 64z;
-	write(&h.hash.stream, tmp[..pad])!;
+	write(h, tmp[..pad])!;
 
 	// Length in bits.
 	ln <<= 3;
 	endian::beputu64(tmp, ln: u64);
-	write(&h.hash.stream, tmp[..8])!;
+	write(h, tmp[..8])!;
 
 	assert(h.nx == 0);
 

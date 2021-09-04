@@ -179,7 +179,7 @@ export fn memoize(polynomial: u32, buf: *[256]u32) void = {
 };
 
 type state = struct {
-	hash: hash::hash,
+	hash::hash,
 	table: *[256]u32,
 	cval: u32,
 };
@@ -190,19 +190,14 @@ type state = struct {
 // [[ieee_table]], [[castagnoli_table]], or [[koopman_table]]); a table for a
 // custom polynomial, populated by [[memoize]] function, may also be used.
 export fn crc32(table: *[256]u32) *hash::hash = alloc(state {
-	hash = hash::hash {
-		stream = io::stream {
-			writer = &write,
-			closer = &close,
-			...
-		},
-		sum = &sum,
-		reset = &reset,
-		sz = SIZE,
-	},
+	writer = &write,
+	closer = &close,
+	sum = &sum,
+	reset = &reset,
+	sz = SIZE,
 	table = table,
 	cval = ~0u32,
-}): *hash::hash;
+});
 
 fn close(s: *io::stream) void = free(s);
 
