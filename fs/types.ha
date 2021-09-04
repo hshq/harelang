@@ -120,7 +120,7 @@ export type filestat = struct {
 };
 
 // An entry in a directory. This may be borrowed from the filesystem's internal
-// state; if you want to keep this around beyond one call to [[next]], use
+// state. If you want to keep this around beyond one call to [[next]], use
 // [[dirent_dup]].
 export type dirent = struct {
 	// The name of this entry. Not fully qualified: for example,
