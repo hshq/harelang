@@ -317,9 +317,8 @@ fn scan_file(
 	hash::write(&sha, strings::toutf8(path));
 
 	let tee = io::tee(f, &sha);
-	defer io::close(tee);
 
-	let lexer = lex::init(tee, path);
+	let lexer = lex::init(&tee, path);
 	let imports = parse::imports(&lexer)?;
 	for (let i = 0z; i < len(imports); i += 1) {
 		let ident = match (imports[i]) {
@@ -332,7 +331,7 @@ fn scan_file(
 		};
 	};
 
-	io::copy(io::empty, tee)?; // Finish spooling out the file for the SHA
+	io::copy(io::empty, &tee)?; // Finish spooling out the file for the SHA
 
 	let tmp: [sha256::SIZE]u8 = [0...];
 	hash::sum(&sha, tmp);
