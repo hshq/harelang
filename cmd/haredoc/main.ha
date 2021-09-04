@@ -37,7 +37,7 @@ export fn main() void = {
 	const help: [_]getopt::help = [
 		"reads and formats Hare documentation",
 		('F', "format", "specify output format (hare, tty, html, or gemtext)"),
-		('t', "disable HTML template (requries postprocessing)"),
+		('t', "disable HTML template (requires postprocessing)"),
 		('a', "show undocumented members (only applies to -Fhare and -Ftty)"),
 		"[identifiers...]",
 	];
