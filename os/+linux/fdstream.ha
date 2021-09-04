@@ -3,39 +3,40 @@ use io;
 use rt;
 use strings;
 
-type fd_stream = struct {
-	stream: io::stream,
+export type fdstream = struct {
+	io::stream,
 	fd: int,
 };
 
 // Opens a Unix file descriptor as an io::stream.
 export fn fdopen(fd: int, name: str, mode: io::mode) *io::stream = {
-	let stream = alloc(fd_stream { ... });
+	let stream = alloc(fdstream { ... });
 	static_fdopen(fd, strings::dup(name), mode, stream);
-	stream.stream.closer = &fd_close;
-	return &stream.stream;
+	stream.closer = &fd_close;
+	return stream;
 };
 
 fn static_fdopen(
-	fd: int, name: str, mode: io::mode, stream: *fd_stream,
+	fd: int,
+	name: str,
+	mode: io::mode,
+	stream: *fdstream,
 ) *io::stream = {
-	*stream = fd_stream {
-		stream = io::stream {
-			name   = name,
-			closer = &fd_close_static,
-			copier = &fd_copy,
-			seeker = &fd_seek,
-			...
-		},
+	*stream = fdstream {
+		name   = name,
+		closer = &fd_close_static,
+		copier = &fd_copy,
+		seeker = &fd_seek,
 		fd = fd,
+		...
 	};
 	if (mode & io::mode::READ == io::mode::READ) {
-		stream.stream.reader = &fd_read;
+		stream.reader = &fd_read;
 	};
 	if (mode & io::mode::WRITE == io::mode::WRITE) {
-		stream.stream.writer = &fd_write;
+		stream.writer = &fd_write;
 	};
-	return &stream.stream;
+	return stream;
 };
 
 fn is_fdstream(s: *io::stream) bool = {
@@ -63,12 +64,12 @@ export fn streamfd(s: *io::stream, unwrap: bool) (int | void) = {
 	if (!is_fdstream(s)) {
 		return;
 	};
-	let stream = s: *fd_stream;
+	let stream = s: *fdstream;
 	return stream.fd;
 };
 
 fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
-	let stream = s: *fd_stream;
+	let stream = s: *fdstream;
 	return match (rt::read(stream.fd, buf: *[*]u8, len(buf))) {
 		err: rt::errno => errors::errno(err),
 		n: size => switch (n) {
@@ -79,7 +80,7 @@ fn fd_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 };
 
 fn fd_write(s: *io::stream, buf: const []u8) (size | io::error) = {
-	let stream = s: *fd_stream;
+	let stream = s: *fdstream;
 	return match (rt::write(stream.fd, buf: *const [*]u8, len(buf))) {
 		err: rt::errno => errors::errno(err),
 		n: size => n,
@@ -87,14 +88,14 @@ fn fd_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 };
 
 fn fd_close(s: *io::stream) void = {
-	let stream = s: *fd_stream;
+	let stream = s: *fdstream;
 	rt::close(stream.fd)!;
 	free(s.name);
 	free(stream);
 };
 
 fn fd_close_static(s: *io::stream) void = {
-	let stream = s: *fd_stream;
+	let stream = s: *fdstream;
 	rt::close(stream.fd)!;
 	free(stream);
 };
@@ -106,7 +107,7 @@ fn fd_copy(to: *io::stream, from: *io::stream) (size | io::error) = {
 		return errors::unsupported;
 	};
 
-	let to = to: *fd_stream, from = from: *fd_stream;
+	let to = to: *fdstream, from = from: *fdstream;
 	let sum = 0z;
 	for (true) {
 		let n = match (rt::sendfile(to.fd, from.fd,
@@ -135,7 +136,7 @@ fn fd_seek(
 	off: io::off,
 	whence: io::whence,
 ) (io::off | io::error) = {
-	let stream = s: *fd_stream;
+	let stream = s: *fdstream;
 	return match (rt::lseek(stream.fd, off: i64, whence: uint)) {
 		err: rt::errno => errors::errno(err),
 		n: i64 => n: io::off,

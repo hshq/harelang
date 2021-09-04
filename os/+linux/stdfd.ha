@@ -1,9 +1,9 @@
 use bufio;
 use io;
 
-let static_stdin_fd: fd_stream  = fd_stream { ... };
-let static_stdout_fd: fd_stream = fd_stream { ... };
-let static_stderr_fd: fd_stream = fd_stream { ... };
+let static_stdin_fd: fdstream  = fdstream { ... };
+let static_stdout_fd: fdstream = fdstream { ... };
+let static_stderr_fd: fdstream = fdstream { ... };
 
 let static_stdin_bufio: bufio::bufstream  = bufio::bufstream { ... };
 let static_stdout_bufio: bufio::bufstream = bufio::bufstream { ... };
