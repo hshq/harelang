@@ -183,12 +183,25 @@ export type openfunc = fn(
 	flags: flags...
 ) (*io::stream | error);
 
+export type openfilefunc = fn(
+	fs: *fs,
+	path: str,
+	flags: flags...
+) (*io::file | error);
+
 export type createfunc = fn(
 	fs: *fs,
 	path: str,
 	mode: mode,
 	flags: flags...
 ) (*io::stream | error);
+
+export type createfilefunc = fn(
+	fs: *fs,
+	path: str,
+	mode: mode,
+	flags: flags...
+) (*io::file | error);
 
 // An abstract implementation of a filesystem, which provides common filesystem
 // operations such as file creation and deletion, but which may be backed by any
@@ -204,8 +217,14 @@ export type fs = struct {
 	// Opens a file.
 	open: nullable *openfunc,
 
+	// Opens a file as an [[io::file]].
+	openfile: nullable *openfilefunc,
+
 	// Creates a new file.
 	create: nullable *createfunc,
+
+	// Creates a new file as an [[io::file]].
+	createfile: nullable *createfilefunc,
 
 	// Removes a file.
 	remove: nullable *removefunc,

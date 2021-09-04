@@ -65,7 +65,9 @@ fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
 	*filesystem = os_filesystem {
 		fs = fs::fs {
 			open = &fs_open,
+			openfile = &fs_open_file,
 			create = &fs_create,
+			createfile = &fs_create_file,
 			remove = &fs_remove,
 			rename = &fs_rename,
 			iter = &fs_iter,
@@ -124,7 +126,7 @@ fn _fs_open(
 	path: str,
 	mode: io::mode,
 	oh: *rt::open_how,
-) (*io::stream | fs::error) = {
+) (*io::file | fs::error) = {
 	let fs = fs: *os_filesystem;
 
 	oh.resolve = 0u64;
@@ -146,22 +148,14 @@ fn _fs_open(
 		fd: int => fd,
 	};
 
-	// XXX: It would be nice to get rid of this allocation, if possible.
-	let file = alloc(fdopen(fd, path, mode));
-	file.closer = &_fs_file_close;
-	return file;
+	return io::fdalloc(fd, path, mode);
 };
 
-fn _fs_file_close(s: *io::stream) void = {
-	fd_close(s);
-	free(s);
-};
-
-fn fs_open(
+fn fs_open_file(
 	fs: *fs::fs,
 	path: str,
 	flags: fs::flags...
-) (*io::stream | fs::error) = {
+) (*io::file | fs::error) = {
 	let oflags = 0;
 	let iomode = io::mode::NONE;
 	if (len(flags) == 0z) {
@@ -194,12 +188,18 @@ fn fs_open(
 	return _fs_open(fs, path, iomode, &oh);
 };
 
-fn fs_create(
+fn fs_open(
+	fs: *fs::fs,
+	path: str,
+	flags: fs::flags...
+) (*io::stream | fs::error) = fs_open_file(fs, path, flags...)?;
+
+fn fs_create_file(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
 	flags: fs::flags...
-) (*io::stream | fs::error) = {
+) (*io::file | fs::error) = {
 	let oflags = 0;
 	let iomode = io::mode::NONE;
 	if (len(flags) == 0z) {
@@ -225,8 +225,15 @@ fn fs_create(
 		mode = mode: u64,
 		...
 	};
-	return _fs_open(fs, path, iomode, &oh);
+	return _fs_open(fs, path, iomode, &oh)?;
 };
+
+fn fs_create(
+	fs: *fs::fs,
+	path: str,
+	mode: fs::mode,
+	flags: fs::flags...
+) (*io::stream | fs::error) = fs_create_file(fs, path, mode, flags...)?;
 
 fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;

@@ -1,9 +1,9 @@
 use bufio;
 use io;
 
-let static_stdin_fd: fdstream  = fdstream { ... };
-let static_stdout_fd: fdstream = fdstream { ... };
-let static_stderr_fd: fdstream = fdstream { ... };
+let static_stdin_fd: io::file  = fdstream { ... };
+let static_stdout_fd: io::file = fdstream { ... };
+let static_stderr_fd: io::file = fdstream { ... };
 
 let static_stdin_bufio: bufio::bufstream  = bufio::bufstream { ... };
 let static_stdout_bufio: bufio::bufstream = bufio::bufstream { ... };
@@ -12,9 +12,9 @@ let static_stdout_bufio: bufio::bufstream = bufio::bufstream { ... };
 export def BUFSIZ: size = 4096; // 4 KiB
 
 @init fn init_stdfd() void = {
-	static_stdin_fd = fdopen(0, "<stdin>", io::mode::READ);
-	static_stdout_fd = fdopen(1, "<stdout>", io::mode::WRITE);
-	static_stderr_fd = fdopen(2, "<stderr>", io::mode::WRITE);
+	static_stdin_fd = io::fdopen(0, "<stdin>", io::mode::READ);
+	static_stdout_fd = io::fdopen(1, "<stdout>", io::mode::WRITE);
+	static_stderr_fd = io::fdopen(2, "<stderr>", io::mode::WRITE);
 	stdin = &static_stdin_fd;
 	stdout = &static_stdout_fd;
 	stderr = &static_stderr_fd;
