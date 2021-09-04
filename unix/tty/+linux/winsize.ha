@@ -5,7 +5,10 @@ use rt;
 
 // Returns the dimensions of underlying terminal of the stream.
 export fn winsize(tty: *io::stream) (ttysize | error) = {
-	let fd = io::fd(tty);
+	let fd = match (io::unwrapfd(tty)) {
+		void => return errors::unsupported,
+		fd: int => fd,
+	};
 	let wsz = rt::winsize { ... };
 	return match (rt::ioctl(fd, rt::TIOCGWINSZ, &wsz: *void)) {
 		e: rt::errno => switch (e: int) {

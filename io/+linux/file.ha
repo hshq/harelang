@@ -48,16 +48,20 @@ export fn is_file(s: *stream) bool = {
 		|| s.copier == &fd_copy;
 };
 
-// Returns the file descriptor for a given [[file]] or [[stream]]. In the latter
-// case, a non-file input will cause the program to abort. This function is not
+// Returns the file descriptor for a given [[file]]. This function is not
 // portable.
-export fn fd(f: (*file | *stream)) int = match (f) {
-	f: *file => f.fd,
-	f: *stream => {
-		assert(is_file(f));
-		let f = f: *file;
-		yield f.fd;
-	},
+export fn fd(f: *file) int = f.fd;
+
+// Returns the file descriptor for a given [[stream]], returning void if the
+// stream is not backed by a file. This function is not portable.
+export fn unwrapfd(s: *stream) (int | void) = {
+	for (!is_file(s)) {
+		s = match (io::source(s)) {
+			errors::unsupported => return,
+			s: *io::stream => s,
+		};
+	};
+	return fd(s: *file);
 };
 
 fn fd_read(s: *stream, buf: []u8) (size | EOF | error) = {
