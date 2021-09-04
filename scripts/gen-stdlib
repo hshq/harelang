@@ -523,6 +523,7 @@ gensrcs_io() {
 		stream.ha \
 		tee.ha \
 		types.ha \
+		'$(PLATFORM)/file.ha' \
 		$*
 }
 

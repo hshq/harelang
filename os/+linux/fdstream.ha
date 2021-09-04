@@ -1,7 +1,6 @@
 use errors;
 use io;
 use rt;
-use strings;
 
 export type fdstream = struct {
 	io::stream,

@@ -798,7 +798,8 @@ stdlib_io_srcs= \
 	$(STDLIB)/io/println$(PLATFORM).ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
-	$(STDLIB)/io/types.ha
+	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/$(PLATFORM)/file.ha
 
 $(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt) $(stdlib_strings) $(stdlib_errors)
 	@printf 'HAREC \t$@\n'
@@ -2030,6 +2031,7 @@ testlib_io_srcs= \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/$(PLATFORM)/file.ha \
 	$(STDLIB)/io/+test/copy.ha \
 	$(STDLIB)/io/+test/limit.ha \
 	$(STDLIB)/io/+test/stream.ha
