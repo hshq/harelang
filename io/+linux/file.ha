@@ -1,5 +1,6 @@
 use errors;
 use rt;
+use strings;
 
 // This is an opaque type which encloses an OS-level file handle resource (on
 // Unix, a file descriptor, or "fd") within a stream. It can be used as an
@@ -17,7 +18,7 @@ export type file = struct {
 export fn fdopen(fd: int, name: str, mode: mode) file = {
 	let stream = file {
 		name = name,
-		closer = &fd_close,
+		closer = &fd_close_static,
 		copier = &fd_copy,
 		seeker = &fd_seek,
 		fd = fd,
@@ -30,6 +31,14 @@ export fn fdopen(fd: int, name: str, mode: mode) file = {
 		stream.writer = &fd_write;
 	};
 	return stream;
+};
+
+// Similar to [[fdopen]], but heap-allocates the file. Closing the stream will
+// free the associated resources.
+export fn fdalloc(fd: int, name: str, mode: mode) *file = {
+	let file = alloc(fdopen(fd, strings::dup(name), mode));
+	file.closer = &fd_close;
+	return file;
 };
 
 export fn is_file(s: *stream) bool = {
@@ -62,9 +71,14 @@ fn fd_write(s: *stream, buf: const []u8) (size | error) = {
 	};
 };
 
-fn fd_close(s: *stream) void = {
+fn fd_close_static(s: *stream) void = {
 	let stream = s: *file;
 	rt::close(stream.fd)!;
+};
+
+fn fd_close(s: *stream) void = {
+	fd_close_static(s);
+	free(s);
 };
 
 def SENDFILE_MAX: size = 2147479552z;
