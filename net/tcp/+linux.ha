@@ -32,8 +32,8 @@ export fn connect(
 		err: rt::errno => return errors::errno(err),
 		int => void,
 	};
-	return os::fdopen(sockfd, ip::string(addr),
-		io::mode::READ | io::mode::WRITE);
+	return alloc(os::fdopen(sockfd, ip::string(addr),
+		io::mode::READ | io::mode::WRITE));
 };
 
 // Binds a TCP listener to the given address.

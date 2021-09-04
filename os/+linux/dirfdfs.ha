@@ -146,7 +146,15 @@ fn _fs_open(
 		fd: int => fd,
 	};
 
-	return fdopen(fd, path, mode);
+	// XXX: It would be nice to get rid of this allocation, if possible.
+	let file = alloc(fdopen(fd, path, mode));
+	file.closer = &_fs_file_close;
+	return file;
+};
+
+fn _fs_file_close(s: *io::stream) void = {
+	fd_close(s);
+	free(s);
 };
 
 fn fs_open(

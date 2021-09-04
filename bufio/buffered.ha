@@ -53,11 +53,12 @@ export fn static_buffered(
 			name = src.name,
 			closer = &buffered_close_static,
 			unwrap = &buffered_unwrap,
+			...
 		},
 		source = src,
 		rbuffer = rbuf,
 		wbuffer = wbuf,
-		flush   = flush_default,
+		flush = flush_default,
 		...
 	};
 	if (len(rbuf) != 0) {

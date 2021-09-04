@@ -9,22 +9,10 @@ export type fdstream = struct {
 };
 
 // Opens a Unix file descriptor as an io::stream.
-export fn fdopen(fd: int, name: str, mode: io::mode) *io::stream = {
-	let stream = alloc(fdstream { ... });
-	static_fdopen(fd, strings::dup(name), mode, stream);
-	stream.closer = &fd_close;
-	return stream;
-};
-
-fn static_fdopen(
-	fd: int,
-	name: str,
-	mode: io::mode,
-	stream: *fdstream,
-) *io::stream = {
-	*stream = fdstream {
-		name   = name,
-		closer = &fd_close_static,
+export fn fdopen(fd: int, name: str, mode: io::mode) fdstream = {
+	let stream = fdstream {
+		name = name,
+		closer = &fd_close,
 		copier = &fd_copy,
 		seeker = &fd_seek,
 		fd = fd,
@@ -43,7 +31,6 @@ fn is_fdstream(s: *io::stream) bool = {
 	return s.reader == &fd_read
 		|| s.writer == &fd_write
 		|| s.closer == &fd_close
-		|| s.closer == &fd_close_static
 		|| s.copier == &fd_copy;
 };
 
@@ -90,14 +77,6 @@ fn fd_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 fn fd_close(s: *io::stream) void = {
 	let stream = s: *fdstream;
 	rt::close(stream.fd)!;
-	free(s.name);
-	free(stream);
-};
-
-fn fd_close_static(s: *io::stream) void = {
-	let stream = s: *fdstream;
-	rt::close(stream.fd)!;
-	free(stream);
 };
 
 def SENDFILE_MAX: size = 2147479552z;

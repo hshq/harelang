@@ -37,8 +37,8 @@ export fn sockfd(sock: socket) int = sock;
 // being able to receive the sender address. Only meaningful if the socket was
 // created with [[connect]].
 export fn stream(sock: socket) *io::stream = {
-	return os::fdopen(sock, "<UDP stream>",
-		io::mode::READ | io::mode::WRITE);
+	return alloc(os::fdopen(sock, "<UDP stream>",
+		io::mode::READ | io::mode::WRITE));
 };
 
 // Obtains a [[socket]] for a given [[io::stream]], or returns void if it is not

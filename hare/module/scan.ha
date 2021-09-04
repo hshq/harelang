@@ -317,7 +317,6 @@ fn scan_file(
 	hash::write(&sha, strings::toutf8(path));
 
 	let tee = io::tee(f, &sha);
-
 	let lexer = lex::init(&tee, path);
 	let imports = parse::imports(&lexer)?;
 	for (let i = 0z; i < len(imports); i += 1) {

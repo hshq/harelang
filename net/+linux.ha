@@ -30,8 +30,9 @@ export fn stream_accept(l: *listener) (*io::stream | error) = {
 	};
 
 	static let namebuf: [32]u8 = [0...];
-	return os::fdopen(fd, fmt::bsprintf(namebuf, "<net connection {}>", fd),
-		io::mode::READ | io::mode::WRITE);
+	return alloc(os::fdopen(fd,
+		fmt::bsprintf(namebuf, "<net connection {}>", fd),
+		io::mode::READ | io::mode::WRITE));
 };
 
 export fn stream_shutdown(l: *listener) void = {

@@ -12,9 +12,12 @@ let static_stdout_bufio: bufio::bufstream = bufio::bufstream { ... };
 export def BUFSIZ: size = 4096; // 4 KiB
 
 @init fn init_stdfd() void = {
-	stdin = static_fdopen(0, "<stdin>", io::mode::READ, &static_stdin_fd);
-	stdout = static_fdopen(1, "<stdout>", io::mode::WRITE, &static_stdout_fd);
-	stderr = static_fdopen(2, "<stderr>", io::mode::WRITE, &static_stderr_fd);
+	static_stdin_fd = fdopen(0, "<stdin>", io::mode::READ);
+	static_stdout_fd = fdopen(1, "<stdout>", io::mode::WRITE);
+	static_stderr_fd = fdopen(2, "<stderr>", io::mode::WRITE);
+	stdin = &static_stdin_fd;
+	stdout = &static_stdout_fd;
+	stderr = &static_stderr_fd;
 
 	static let stdinbuf: [BUFSIZ]u8 = [0...];
 	stdin = bufio::static_buffered(stdin, stdinbuf, [], &static_stdin_bufio);
