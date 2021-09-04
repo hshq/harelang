@@ -6,14 +6,16 @@ use strings;
 // The size, in bytes, of an Adler-32 checksum.
 export def SIZE: size = 4;
 
-type state = struct {
+export type state = struct {
 	hash::hash,
 	a: u32,
 	b: u32,
 };
 
-// Creates a [[hash::hash]] which computes the Adler-32 checksum algorithm.
-export fn adler32() *hash::hash = alloc(state {
+// Creates a [[hash::hash]] which computes the Adler-32 checksum algorithm. This
+// hash does not allocate any state, so you do not need to call [[hash::close]]
+// when you are done with it.
+export fn adler32() state = state {
 	writer = &write,
 	closer = &close,
 	sum = &sum,
@@ -21,9 +23,9 @@ export fn adler32() *hash::hash = alloc(state {
 	sz = 4,
 	a = 1,
 	b = 0,
-});
+};
 
-fn close(s: *io::stream) void = free(s);
+fn close(s: *io::stream) void = void;
 
 fn write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state;
@@ -66,17 +68,16 @@ export fn sum32(h: *hash::hash) u32 = {
 	];
 
 	let hash = adler32();
-	defer hash::close(hash);
 	let s: [4]u8 = [0...];
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let vec = vectors[i];
-		hash::reset(hash);
-		hash::write(hash, strings::toutf8(vec.0));
+		hash::reset(&hash);
+		hash::write(&hash, strings::toutf8(vec.0));
 
-		hash::sum(hash, s);
+		hash::sum(&hash, s);
 
 		assert(endian::begetu32(s) == vec.1);
-		assert(sum32(hash) == vec.1);
+		assert(sum32(&hash) == vec.1);
 	};
 };

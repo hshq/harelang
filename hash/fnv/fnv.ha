@@ -70,7 +70,7 @@ export fn fnv64a() state64 = state64 {
 	v = basis64,
 };
 
-fn fnv_close(s: *io::stream) void = free(s);
+fn fnv_close(s: *io::stream) void = void;
 
 fn fnv32_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state32;

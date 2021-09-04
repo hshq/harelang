@@ -171,18 +171,20 @@ export fn memoize(polynomial: u16, buf: *[256]u16) void = {
 	};
 };
 
-type state = struct {
+export type state = struct {
 	hash::hash,
 	table: *[256]u16,
 	cval: u16,
 };
 
-// Creates a [[hash::hash]] which computes the CRC-16 algorithm.
+// Creates a [[hash::hash]] which computes the CRC-16 algorithm. This hash
+// function does not allocate any state, so you do not need to call
+// [[hash::close]] when you are done with it.
 //
 // It takes a table of memoized values for a given polynomail (for example,
 // [[ccitt_table]], [[dect_table]], or [[ansi_table]]); a table for a
 // custom polynomial, populated by [[memoize]] function, may also be used.
-export fn crc16(table: *[256]u16) *hash::hash = alloc(state {
+export fn crc16(table: *[256]u16) state = state {
 	writer = &write,
 	closer = &close,
 	sum = &sum,
@@ -190,9 +192,9 @@ export fn crc16(table: *[256]u16) *hash::hash = alloc(state {
 	sz = SIZE,
 	table = table,
 	cval = ~0u16,
-});
+};
 
-fn close(s: *io::stream) void = free(s);
+fn close(s: *io::stream) void = void;
 
 fn write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state;
@@ -233,44 +235,37 @@ export fn sum16(h: *hash::hash) u16 = {
 	];
 
 	let crc_ccitt = crc16(&ccitt_table);
-	defer hash::close(crc_ccitt);
-
 	let crc_cmda2000 = crc16(&cmda2000_table);
-	defer hash::close(crc_cmda2000);
-
 	let crc_dect = crc16(&dect_table);
-	defer hash::close(crc_dect);
-
 	let crc_ansi = crc16(&ansi_table);
-	defer hash::close(crc_ansi);
 
 	let buf: [SIZE]u8 = [0...];
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let vec = vectors[i];
 
-		hash::reset(crc_ccitt);
-		hash::write(crc_ccitt, strings::toutf8(vec.0));
-		hash::sum(crc_ccitt, buf);
+		hash::reset(&crc_ccitt);
+		hash::write(&crc_ccitt, strings::toutf8(vec.0));
+		hash::sum(&crc_ccitt, buf);
 		assert(endian::host.getu16(buf) == vec.1);
-		assert(sum16(crc_ccitt) == vec.1);
+		assert(sum16(&crc_ccitt) == vec.1);
 
-		hash::reset(crc_cmda2000);
-		hash::write(crc_cmda2000, strings::toutf8(vec.0));
-		hash::sum(crc_cmda2000, buf);
+		hash::reset(&crc_cmda2000);
+		hash::write(&crc_cmda2000, strings::toutf8(vec.0));
+		hash::sum(&crc_cmda2000, buf);
 		assert(endian::host.getu16(buf) == vec.2);
-		assert(sum16(crc_cmda2000) == vec.2);
+		assert(sum16(&crc_cmda2000) == vec.2);
 
-		hash::reset(crc_dect);
-		hash::write(crc_dect, strings::toutf8(vec.0));
-		hash::sum(crc_dect, buf);
+		hash::reset(&crc_dect);
+		hash::write(&crc_dect, strings::toutf8(vec.0));
+		hash::sum(&crc_dect, buf);
 		assert(endian::host.getu16(buf) == vec.3);
-		assert(sum16(crc_dect) == vec.3);
+		assert(sum16(&crc_dect) == vec.3);
 
-		hash::reset(crc_ansi);
-		hash::write(crc_ansi, strings::toutf8(vec.0));
-		hash::sum(crc_ansi, buf);
+		hash::reset(&crc_ansi);
+		hash::write(&crc_ansi, strings::toutf8(vec.0));
+		hash::sum(&crc_ansi, buf);
 		assert(endian::host.getu16(buf) == vec.4);
-		assert(sum16(crc_ansi) == vec.4);
+		assert(sum16(&crc_ansi) == vec.4);
 	};
 };

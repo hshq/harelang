@@ -19,7 +19,7 @@ type reader = struct {
 	stream: io::stream,
 	source: *io::stream,
 	flate: *io::stream,
-	hash: *hash::hash,
+	hash: adler32::state,
 };
 
 type decompress_err = enum {
@@ -57,7 +57,7 @@ fn verifysum(s: *reader) (io::EOF | io::error) = {
 		};
 	};
 
-	return if (adler32::sum32(s.hash) == endian::begetu32(hash)) io::EOF
+	return if (adler32::sum32(&s.hash) == endian::begetu32(hash)) io::EOF
 		else wraperror(decompress_err::CHECKSUM);
 };
 
@@ -67,13 +67,12 @@ fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 		io::EOF => return verifysum(s),
 		z: size => buf = buf[..z],
 	};
-	return hash::write(s.hash, buf);
+	return hash::write(&s.hash, buf);
 };
 
 fn close(s: *io::stream) void = {
 	const s = s: *reader;
 	io::close(s.flate);
-	hash::close(s.hash);
 };
 
 // Creates a stream which decompresses zlib (RFC 1950) data.

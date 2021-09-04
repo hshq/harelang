@@ -210,18 +210,20 @@ export fn memoize(polynomial: u64, buf: *[256]u64) void = {
 	};
 };
 
-type state = struct {
+export type state = struct {
 	hash::hash,
 	table: *[256]u64,
 	cval: u64,
 };
 
-// Creates a [[hash::hash]] which computes the CRC-64 algorithm.
+// Creates a [[hash::hash]] which computes the CRC-64 algorithm. This hash
+// function does not allocate any state, so you do not need to call
+// [[hash::close]] when you are done with it.
 //
 // It takes a table of memoized values for a given polynomail (for example,
 // [[iso_table]] or [[ecma_table]]); a table for a custom polynomial, populated
 // by [[memoize]] function, may also be used.
-export fn crc64(table: *[256]u64) *hash::hash = alloc(state {
+export fn crc64(table: *[256]u64) state = state {
 	writer = &write,
 	closer = &close,
 	sum = &sum,
@@ -229,9 +231,9 @@ export fn crc64(table: *[256]u64) *hash::hash = alloc(state {
 	sz = SIZE,
 	table = table,
 	cval = ~0u64,
-});
+};
 
-fn close(s: *io::stream) void = free(s);
+fn close(s: *io::stream) void = void;
 
 fn write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state;
@@ -270,26 +272,23 @@ export fn sum64(h: *hash::hash) u64 = {
 	];
 
 	let crc_ecma = crc64(&ecma_table);
-	defer hash::close(crc_ecma);
-
 	let crc_iso = crc64(&iso_table);
-	defer hash::close(crc_iso);
 
 	let buf: [SIZE]u8 = [0...];
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let vec = vectors[i];
 
-		hash::reset(crc_ecma);
-		hash::write(crc_ecma, strings::toutf8(vec.0));
-		hash::sum(crc_ecma, buf);
+		hash::reset(&crc_ecma);
+		hash::write(&crc_ecma, strings::toutf8(vec.0));
+		hash::sum(&crc_ecma, buf);
 		assert(endian::host.getu64(buf) == vec.1);
-		assert(sum64(crc_ecma) == vec.1);
+		assert(sum64(&crc_ecma) == vec.1);
 
-		hash::reset(crc_iso);
-		hash::write(crc_iso, strings::toutf8(vec.0));
-		hash::sum(crc_iso, buf);
+		hash::reset(&crc_iso);
+		hash::write(&crc_iso, strings::toutf8(vec.0));
+		hash::sum(&crc_iso, buf);
 		assert(endian::host.getu64(buf) == vec.2);
-		assert(sum64(crc_iso) == vec.2);
+		assert(sum64(&crc_iso) == vec.2);
 	};
 };

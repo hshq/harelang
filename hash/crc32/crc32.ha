@@ -178,18 +178,20 @@ export fn memoize(polynomial: u32, buf: *[256]u32) void = {
 	};
 };
 
-type state = struct {
+export type state = struct {
 	hash::hash,
 	table: *[256]u32,
 	cval: u32,
 };
 
-// Creates a [[hash::hash]] which computes the CRC-32 algorithm.
+// Creates a [[hash::hash]] which computes the CRC-32 algorithm. This hash
+// function does not allocate any state, so you do not need to call
+// [[hash::close]] when you are done with it.
 //
 // It takes a table of memoized values for a given polynomail (for example,
 // [[ieee_table]], [[castagnoli_table]], or [[koopman_table]]); a table for a
 // custom polynomial, populated by [[memoize]] function, may also be used.
-export fn crc32(table: *[256]u32) *hash::hash = alloc(state {
+export fn crc32(table: *[256]u32) state = state {
 	writer = &write,
 	closer = &close,
 	sum = &sum,
@@ -197,9 +199,9 @@ export fn crc32(table: *[256]u32) *hash::hash = alloc(state {
 	sz = SIZE,
 	table = table,
 	cval = ~0u32,
-});
+};
 
-fn close(s: *io::stream) void = free(s);
+fn close(s: *io::stream) void = void;
 
 fn write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state;
@@ -239,35 +241,30 @@ export fn sum32(h: *hash::hash) u32 = {
 	];
 
 	let crc_ieee = crc32(&ieee_table);
-	defer hash::close(crc_ieee);
-
 	let crc_castagnoli = crc32(&castagnoli_table);
-	defer hash::close(crc_castagnoli);
-
 	let crc_koopman = crc32(&koopman_table);
-	defer hash::close(crc_koopman);
 
 	let buf: [SIZE]u8 = [0...];
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let vec = vectors[i];
 
-		hash::reset(crc_ieee);
-		hash::write(crc_ieee, strings::toutf8(vec.0));
-		hash::sum(crc_ieee, buf);
+		hash::reset(&crc_ieee);
+		hash::write(&crc_ieee, strings::toutf8(vec.0));
+		hash::sum(&crc_ieee, buf);
 		assert(endian::host.getu32(buf) == vec.1);
-		assert(sum32(crc_ieee) == vec.1);
+		assert(sum32(&crc_ieee) == vec.1);
 
-		hash::reset(crc_castagnoli);
-		hash::write(crc_castagnoli, strings::toutf8(vec.0));
-		hash::sum(crc_castagnoli, buf);
+		hash::reset(&crc_castagnoli);
+		hash::write(&crc_castagnoli, strings::toutf8(vec.0));
+		hash::sum(&crc_castagnoli, buf);
 		assert(endian::host.getu32(buf) == vec.2);
-		assert(sum32(crc_castagnoli) == vec.2);
+		assert(sum32(&crc_castagnoli) == vec.2);
 
-		hash::reset(crc_koopman);
-		hash::write(crc_koopman, strings::toutf8(vec.0));
-		hash::sum(crc_koopman, buf);
+		hash::reset(&crc_koopman);
+		hash::write(&crc_koopman, strings::toutf8(vec.0));
+		hash::sum(&crc_koopman, buf);
 		assert(endian::host.getu32(buf) == vec.3);
-		assert(sum32(crc_koopman) == vec.3);
+		assert(sum32(&crc_koopman) == vec.3);
 	};
 };
