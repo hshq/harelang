@@ -2,37 +2,33 @@ use errors;
 
 @test fn limit() void = {
 	let buf: [15z]u8 = [0...];
-	let source_stream = test_stream_open();
-	defer close(&source_stream.stream);
+	let source = teststream_open();
 
-	let r_stream = limitreader(&source_stream.stream, 20);
-	match (write(r_stream, buf)) {
+	let rlimit = limitreader(&source, 20);
+	match (write(&rlimit, buf)) {
 		errors::unsupported => void,
 		* => abort(),
 	};
-	match (read(r_stream, buf)) {
+	match (read(&rlimit, buf)) {
 		n: size => assert(n == 15),
 		error => abort(),
 	};
-	match (read(r_stream, buf)) {
+	match (read(&rlimit, buf)) {
 		n: size => assert(n == 5),
 		error => abort(),
 	};
-	close(r_stream);
 
-	let w_stream = limitwriter(&source_stream.stream, 20);
-	match (read(w_stream, buf)) {
+	let wlimit = limitwriter(&source, 20);
+	match (read(&wlimit, buf)) {
 		errors::unsupported => void,
 		* => abort(),
 	};
-	match (write(w_stream, buf)) {
+	match (write(&wlimit, buf)) {
 		n: size => assert(n == 15),
 		error => abort(),
 	};
-	match (write(w_stream, buf)) {
+	match (write(&wlimit, buf)) {
 		n: size => assert(n == 5),
 		error => abort(),
 	};
-	close(w_stream);
-
 };

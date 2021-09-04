@@ -1,44 +1,41 @@
 use strings;
 
-type limited_stream = struct {
-	stream: stream,
+export type limitstream = struct {
+	stream,
 	source: *stream,
 	limit: size,
 };
 
-fn limited_stream_new(source: *stream, limit: size) *limited_stream = {
-	return alloc(limited_stream {
-		stream = stream {
-			name = strings::dup(source.name),
-			closer = &limited_close,
-			unwrap = &limited_unwrap,
-			...
-		},
+fn limitstream_create(source: *stream, limit: size) limitstream = {
+	return limitstream {
+		name = source.name,
+		unwrap = &limit_unwrap,
 		source = source,
 		limit = limit,
-	});
+		...
+	};
 };
 
 // Create an overlay stream that only allows a limited amount of bytes to be
-// read from the underlying stream. Closing the limit stream does not close the
-// underlying stream.
-export fn limitreader(source: *stream, limit: size) *stream = {
-	let stream = limited_stream_new(source, limit);
-	stream.stream.reader = &limited_read;
-	return &stream.stream;
+// read from the underlying stream. This stream does not need to be closed, and
+// closing it does not close the underlying stream.
+export fn limitreader(source: *stream, limit: size) limitstream = {
+	let stream = limitstream_create(source, limit);
+	stream.reader = &limit_read;
+	return stream;
 };
 
 // Create an overlay stream that only allows a limited amount of bytes to be
-// written to the underlying stream. Closing the limit stream does not close the
-// underlying stream.
-export fn limitwriter(source: *stream, limit: size) *stream = {
-	let stream = limited_stream_new(source, limit);
-	stream.stream.writer = &limited_write;
-	return &stream.stream;
+// written to the underlying stream. This stream does not need to be closed, and
+// closing it does not close the underlying stream.
+export fn limitwriter(source: *stream, limit: size) limitstream = {
+	let stream = limitstream_create(source, limit);
+	stream.writer = &limit_write;
+	return stream;
 };
 
-fn limited_read(s: *stream, buf: []u8) (size | EOF | error) = {
-	let stream = s: *limited_stream;
+fn limit_read(s: *stream, buf: []u8) (size | EOF | error) = {
+	let stream = s: *limitstream;
 	if (len(buf) > stream.limit) {
 		buf = buf[..stream.limit];
 	};
@@ -46,8 +43,8 @@ fn limited_read(s: *stream, buf: []u8) (size | EOF | error) = {
 	return read(stream.source, buf);
 };
 
-fn limited_write(s: *stream, buf: const []u8) (size | error) = {
-	let stream = s: *limited_stream;
+fn limit_write(s: *stream, buf: const []u8) (size | error) = {
+	let stream = s: *limitstream;
 	let slice = if (len(buf) > stream.limit) {
 		yield buf[..stream.limit];
 	} else {
@@ -57,13 +54,7 @@ fn limited_write(s: *stream, buf: const []u8) (size | error) = {
 	return write(stream.source, slice);
 };
 
-fn limited_close(s: *stream) void = {
-	free(s.name);
-	free(s);
-};
-
-fn limited_unwrap(s: *stream) *io::stream = {
-	assert(s.unwrap == &limited_unwrap);
-	let s = s: *limited_stream;
+fn limit_unwrap(s: *stream) *io::stream = {
+	let s = s: *limitstream;
 	return s.source;
 };

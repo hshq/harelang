@@ -4,14 +4,14 @@ use errors;
 // operations. To create a custom stream, embed this type as the first member of
 // a struct with user-specific data and fill out these fields as appropriate.
 //
-//	type my_stream = struct {
+//	export type my_stream = struct {
 //		io::stream,
 //		fd: int,
 //	};
 //
-//	fn open(path: str) *io::stream = {
+//	export fn open(path: str) my_stream = {
 //		let fd = // ...
-//		let stream = alloc(*my_stream, my_stream {
+//		return my_stream {
 //			name   = strings::dup(path),
 //			reader = &my_stream_read,
 //			writer = &my_stream_write,
@@ -19,8 +19,10 @@ use errors;
 //			fd: fd,
 //			...
 //		});
-//		return &stream.stream;
 //	};
+//
+//	let stream = open("example");
+//	io::read(&stream, buf)!;
 export type stream = struct {
 	name:   str,
 	reader: nullable *reader,
