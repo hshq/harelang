@@ -80,11 +80,21 @@ export fn main() void = {
 			id: ast::ident => id,
 		};
 
+	let decl = "";
+	// TODO: Const type reduction
+	let dirname: ast::ident = if (len(id) < 2) id else id[..len(id) - 1];
 	const version = match (module::lookup(&ctx, id)) {
 		ver: module::version => ver,
-		err: module::error => fmt::fatal(
-			"Error scanning input module: {}",
-			module::strerror(err)),
+		err: module::error => match (module::lookup(&ctx, dirname)) {
+			ver: module::version => {
+				assert(len(id) >= 2);
+				decl = id[len(id) - 1];
+				yield ver;
+			},
+			err: module::error => fmt::fatal(
+				"Error scanning input module: {}",
+				module::strerror(err)),
+			},
 	};
 
 	for (let i = 0z; i < len(version.inputs); i += 1) {
@@ -101,13 +111,28 @@ export fn main() void = {
 
 	const rpath = path::join(version.basedir, "README");
 	defer free(rpath);
-	const readme: nullable *io::stream = match (os::open(rpath)) {
-		err: fs::error => null,
-		f: *io::stream => f,
-	};
+	const readme: nullable *io::stream = if (decl == "") {
+		yield match (os::open(rpath)) {
+			err: fs::error => null,
+			f: *io::stream => f,
+		};
+	} else null;
 	defer match (readme) {
 		null => void,
 		f: *io::stream => io::close(f),
+	};
+
+	if (decl != "") {
+		let new: []ast::decl = [];
+		for (let i = 0z; i < len(decls); i += 1) {
+			if (has_decl(decls[i], decl)) {
+				append(new, decls[i]);
+			} else {
+				ast::decl_free(decls[i]);
+			};
+		};
+		free(decls);
+		decls = new;
 	};
 
 	const ctx = context {
@@ -125,6 +150,29 @@ export fn main() void = {
 		void => void,
 		err: error => fmt::fatal("Error: {}", strerror(err)),
 	};
+};
+
+fn has_decl(decl: ast::decl, name: str) bool = {
+	match (decl.decl) {
+		d: []ast::decl_const => for (let i = 0z; i < len(d); i += 1) {
+			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
+				return true;
+			};
+		},
+		d: ast::decl_func =>
+			return len(d.ident) == 1 && d.ident[0] == name,
+		d: []ast::decl_global => for (let i = 0z; i < len(d); i += 1) {
+			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
+				return true;
+			};
+		},
+		d: []ast::decl_type => for (let i = 0z; i < len(d); i += 1) {
+			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
+				return true;
+			};
+		},
+	};
+	return false;
 };
 
 fn scan(path: str) (ast::subunit | error) = {
