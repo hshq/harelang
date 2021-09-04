@@ -211,8 +211,7 @@ fn seek(
 	assert(io::seek(s, 0, io::whence::END) as io::off == 5: io::off);
 	assert(io::write(s, [4, 5, 6]) as size == 3);
 	assert(bytes::equal(buffer(s), [0, 0, 1, 2, 3, 4, 5, 6]));
-	// TODO: this should check for errors::unsupported (harec bug prevents that)
-	assert(io::read(s, buf[..]) is io::error);
+	assert(io::read(s, buf[..]) as io::error is errors::unsupported);
 	io::close(s);
 
 	sl = alloc([1, 2]);
@@ -220,8 +219,7 @@ fn seek(
 	assert(io::read(s, buf[..1]) as size == 1 && buf[0] == 1);
 	assert(io::seek(s, 1, io::whence::CUR) as io::off == 2: io::off);
 	assert(io::read(s, buf[..]) is io::EOF);
-	// TODO: this should check for errors::unsupported (harec bug prevents that)
-	assert(io::write(s, [1, 2]) is io::error);
+	assert(io::write(s, [1, 2]) as io::error is errors::unsupported);
 	io::close(s);
 };
 
@@ -234,8 +232,8 @@ fn seek(
 	n += io::write(stream, strings::toutf8("hello ")) as size;
 	n += io::write(stream, strings::toutf8("world")) as size;
 	assert(bytes::equal(buf[..n], strings::toutf8("hello world")));
-	// TODO: this should check for errors::unsupported (harec bug prevents that)
-	io::seek(stream, 6, io::whence::SET) as io::error: void;
+	assert(io::seek(stream, 6, io::whence::SET)
+		as io::error is errors::unsupported);
 
 	let out: [2]u8 = [0...];
 	let s = fixed([1u8, 2u8], io::mode::READ);
@@ -243,6 +241,5 @@ fn seek(
 	assert(io::read(s, out[..1]) as size == 1 && out[0] == 1);
 	assert(io::seek(s, 1, io::whence::CUR) as io::off == 2: io::off);
 	assert(io::read(s, buf[..]) is io::EOF);
-	// TODO: this should check for errors::unsupported (harec bug prevents that)
-	assert(io::write(s, [1, 2]) is io::error);
+	assert(io::write(s, [1, 2]) as io::error is errors::unsupported);
 };
