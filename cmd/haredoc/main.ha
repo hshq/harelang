@@ -81,8 +81,7 @@ export fn main() void = {
 		};
 
 	let decl = "";
-	// TODO: Const type reduction
-	let dirname: ast::ident = if (len(id) < 2) id else id[..len(id) - 1];
+	let dirname = if (len(id) < 2) id else id[..len(id) - 1];
 	const version = match (module::lookup(&ctx, id)) {
 		ver: module::version => ver,
 		err: module::error => match (module::lookup(&ctx, dirname)) {
