@@ -5,8 +5,6 @@ use io;
 use strconv;
 
 @test fn mem() void = {
-	// TODO: Make type assertions with fs::error more specific once harec
-	// permits that.
 	const names: [6]str = ["foo", "bar", "baz", "quux", "hare.ha", "asdf"];
 	let filename = names[0];
 
@@ -32,13 +30,16 @@ use strconv;
 	let st = fs::stat(memfs,  filename) as fs::filestat;
 	assert(st.sz == len(input) * 2);
 
-	fs::create(memfs, filename, 0, fs::flags::RDONLY) as fs::error: void; // errors::exists
+	fs::create(memfs, filename, 0, fs::flags::RDONLY)
+		as fs::error as errors::exists: void;
 
 	// fs::open and read
-	fs::open(memfs, "nonexistent", fs::flags::RDONLY) as fs::error: void; // errors::noentry
+	fs::open(memfs, "nonexistent", fs::flags::RDONLY)
+		as fs::error as errors::noentry: void;
 	let f = fs::open(memfs, filename, fs::flags::RDWR, fs::flags::EXCL);
-	f as fs::error: void; // errors::unsupported
-	fs::remove(memfs, "nonexistent") as fs::error: void; // errors::noentry
+	f as fs::error as errors::unsupported: void;
+	fs::remove(memfs, "nonexistent")
+		as fs::error as errors::noentry: void;
 
 	let f = fs::open(memfs, filename, fs::flags::RDONLY) as *io::stream;
 	let f2 = fs::open(memfs, filename, fs::flags::RDONLY) as *io::stream;
@@ -62,15 +63,18 @@ use strconv;
 	assert(count == 6);
 
 	// fs::mkdir
-	fs::mkdir(memfs, "nonexistent/path") as fs::error: void; // errors::noentry
-	fs::rmdir(memfs, "nonexistent/path") as fs::error: void; // errors::noentry
+	fs::mkdir(memfs, "nonexistent/path")
+		as fs::error as errors::noentry: void;
+	fs::rmdir(memfs, "nonexistent/path")
+		as fs::error as errors::noentry: void;
 	fs::mkdir(memfs, "dir") as void;
-	fs::open(memfs, "dir", fs::flags::RDONLY) as fs::error: void; // fs::wrongtype
-	fs::mkdir(memfs, "dir") as fs::error: void; // errors::exists
+	fs::open(memfs, "dir", fs::flags::RDONLY)
+		as fs::error as fs::wrongtype: void;
+	fs::mkdir(memfs, "dir") as fs::error as errors::exists: void;
 	fs::mkdir(memfs, "dir/subdir") as void;
 	fs::rmdir(memfs, "dir/subdir") as void;
 	fs::rmdir(memfs, "dir") as void;
-	fs::rmdir(memfs, "") as fs::error: void; // errors::invalid;
+	fs::rmdir(memfs, "") as fs::error as errors::invalid: void;
 
 	fs::mkdir(memfs, "dir") as void;
 	f = fs::create(memfs, "dir/file", 0, fs::flags::WRONLY) as *io::stream;
@@ -80,13 +84,13 @@ use strconv;
 	assert(io::read(f, output) as size == 6);
 	assert(bytes::equal(input, output[..6]));
 	io::close(f);
-	//fs::rmdir(memfs, "dir") as fs::error; // errors::busy
+	fs::rmdir(memfs, "dir") as fs::error as errors::busy: void;
 	fs::remove(memfs, "dir/file") as void;
 	fs::rmdir(memfs, "dir") as void;
 
 	// fs::mksubdir, fs::subdir
-	fs::mksubdir(memfs, filename) as fs::error: void; // errors::exists
-	fs::subdir(memfs, filename) as fs::error: void; // fs::wrongtype
+	fs::mksubdir(memfs, filename) as fs::error as errors::exists: void;
+	fs::subdir(memfs, filename) as fs::error as fs::wrongtype: void;
 
 	let sub = mksubdir(memfs, "dir") as *fs::fs;
 

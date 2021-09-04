@@ -21,6 +21,7 @@ export type error = !(
 	errors::exists |
 	errors::busy |
 	errors::invalid |
+	errors::unsupported |
 	wrongtype |
 	cannotrename |
 	io::error);
