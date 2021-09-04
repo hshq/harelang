@@ -82,4 +82,12 @@ export fn decl_free(d: decl) void = match (d.decl) {
 		type_free(f.prototype);
 		if (f.body is expr) expr_free(f.body as expr);
 	},
+	c: []decl_const => {
+		for (let i = 0z; i < len(c); i += 1) {
+			ident_free(c[i].ident);
+			type_free(c[i]._type);
+			expr_free(c[i].init);
+		};
+		free(c);
+	},
 };

@@ -463,21 +463,7 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 				};
 				free(a.values);
 			},
-			s: struct_constant => {
-				ident_free(s.alias);
-				for (let i = 0z; i < len(s.fields); i += 1) {
-					match (s.fields[i]) {
-						v: struct_value => {
-							free(v.name);
-							type_free(v._type);
-							expr_free(v.init);
-						},
-						c: *struct_constant =>
-							expr_free(c: *expr),
-					};
-				};
-				free(s.fields);
-			},
+			s: struct_constant => struct_constant_free(s),
 			t: tuple_constant => {
 				for (let i = 0z; i < len(t); i += 1) {
 					expr_free(t[i]);
@@ -548,4 +534,22 @@ export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
 			expr_free(y.value);
 		},
 	},
+};
+
+fn struct_constant_free(s: struct_constant) void = {
+	ident_free(s.alias);
+	for (let i = 0z; i < len(s.fields); i += 1) {
+		match (s.fields[i]) {
+			v: struct_value => {
+				free(v.name);
+				type_free(v._type);
+				expr_free(v.init);
+			},
+			c: *struct_constant => {
+				struct_constant_free(*c);
+				free(c);
+			},
+		};
+	};
+	free(s.fields);
 };

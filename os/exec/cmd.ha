@@ -113,7 +113,7 @@ fn lookup(name: str) (platform_cmd | void) = {
 		let path = strings::concat(item, "/", name);
 		defer free(path);
 		match (open(path)) {
-			err: errors::opaque => continue,
+			err: error => continue,
 			p: platform_cmd => return p,
 		};
 	};
