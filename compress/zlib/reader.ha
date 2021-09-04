@@ -15,10 +15,10 @@ def FCHECK: u8 = 0b00011111;
 def FDICT: u8  = 0b00100000;
 def FLEVEL: u8 = 0b11000000;
 
-type reader = struct {
-	stream: io::stream,
+export type reader = struct {
+	io::stream,
 	source: *io::stream,
-	flate: *io::stream,
+	flate: flate::decompressor,
 	hash: adler32::state,
 };
 
@@ -63,7 +63,7 @@ fn verifysum(s: *reader) (io::EOF | io::error) = {
 
 fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let s = s: *reader;
-	match (io::read(s.flate, buf)?) {
+	match (io::read(&s.flate, buf)?) {
 		io::EOF => return verifysum(s),
 		z: size => buf = buf[..z],
 	};
@@ -72,11 +72,11 @@ fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 
 fn close(s: *io::stream) void = {
 	const s = s: *reader;
-	io::close(s.flate);
+	io::close(&s.flate);
 };
 
 // Creates a stream which decompresses zlib (RFC 1950) data.
-export fn decompress(s: *io::stream) (*io::stream | io::error) = {
+export fn decompress(s: *io::stream) (reader | io::error) = {
 	let buf: [2]u8 = [0...];
 	for (let n = 0z; n < len(buf)) {
 		match (io::read(s, buf[n..])?) {
@@ -101,17 +101,14 @@ export fn decompress(s: *io::stream) (*io::stream | io::error) = {
 		// be tried
 		return wraperror(decompress_err::DICT);
 	};
-	return alloc(reader {
-		stream = io::stream {
-			reader = &read,
-			closer = &close,
-			...
-		},
+	return reader {
+		reader = &read,
+		closer = &close,
 		source = s,
 		flate = flate::inflate(s),
 		hash = adler32::adler32(),
 		...
-	}): *io::stream;
+	};
 };
 
 @test fn decompress() void = {
@@ -119,13 +116,13 @@ export fn decompress(s: *io::stream) (*io::stream | io::error) = {
 		let in = bufio::fixed(*vectors[i].1, io::mode::READ);
 		let out = bufio::dynamic(io::mode::WRITE);
 		let d = match (decompress(in)) {
-			s: *io::stream => s,
+			s: reader => s,
 			e: io::error => {
 				fmt::errorln(io::strerror(e))!;
 				abort();
 			},
 		};
-		match (io::copy(out, d)) {
+		match (io::copy(out, &d)) {
 			size => void,
 			e: io::error => {
 				fmt::errorfln("vector {}: {}", i, io::strerror(e))!;

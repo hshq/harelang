@@ -19,7 +19,7 @@ const fixed_dist: huffman = huffman {
 	symbols = [0...],
 };
 
-type huffman = struct {
+export type huffman = struct {
 	counts: [MAXBITS]u16,
 	symbols: [MAXCODES]u16,
 };
@@ -34,8 +34,8 @@ type inflate_err = enum u8 {
 	TABLE,
 };
 
-type decompressor = struct {
-	stream: io::stream,
+export type decompressor = struct {
+	io::stream,
 	in: *io::stream,
 	bitbuf: u32,
 	cnt: u32,
@@ -77,12 +77,9 @@ type decompressor = struct {
 };
 
 // Creates a stream which decompresses Deflate (RFC 1951) data.
-export fn inflate(s: *io::stream) *io::stream = alloc(decompressor {
-	stream = io::stream {
-		reader = &read,
-		closer = &close,
-		...
-	},
+export fn inflate(s: *io::stream) decompressor = decompressor {
+	reader = &read,
+	closer = &close,
 	in = s,
 	bitbuf = 0,
 	cnt = 0,
@@ -95,7 +92,8 @@ export fn inflate(s: *io::stream) *io::stream = alloc(decompressor {
 
 	buf = [],
 	bufstart = [],
-}): *io::stream;
+	...
+};
 
 // Read [[want]] bits from the decompressor
 fn bits(d: *decompressor, want: u32) (u32 | io::error) = {
@@ -411,8 +409,8 @@ fn close(s: *io::stream) void = {
 	let ins = bufio::fixed(in, io::mode::READ);
 	let outs = bufio::dynamic(io::mode::WRITE);
 	let s = inflate(ins);
-	defer io::close(s);
-	match (io::copy(outs, s)) {
+	defer io::close(&s);
+	match (io::copy(outs, &s)) {
 		size => void,
 		e: io::error => {
 			fmt::errorln(io::strerror(e))!;
