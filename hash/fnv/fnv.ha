@@ -25,11 +25,11 @@ export type state64 = struct {
 // Unless you have a reason to use this, [[fnv32a]] is recommended instead.
 export fn fnv32() state32 = state32 {
 	writer = &fnv32_write,
-	closer = &fnv_close,
 	sum = &fnv32_sum,
 	reset = &fnv32_reset,
 	sz = 4,
 	v = basis32,
+	...
 };
 
 // Creates a [[hash::hash]] which computes the FNV-1a 32-bit hash function. This
@@ -37,11 +37,11 @@ export fn fnv32() state32 = state32 {
 // when you're done with it.
 export fn fnv32a() state32 = state32 {
 	writer = &fnv32a_write,
-	closer = &fnv_close,
 	sum = &fnv32_sum,
 	reset = &fnv32_reset,
 	sz = 4,
 	v = basis32,
+	...
 };
 
 // Creates a [[hash::hash]] which computes the FNV-1 64-bit hash function. This
@@ -51,11 +51,11 @@ export fn fnv32a() state32 = state32 {
 // Unless you have a reason to use this, [[fnv64a]] is recommended instead.
 export fn fnv64() state64 = state64 {
 	writer = &fnv64_write,
-	closer = &fnv_close,
 	sum = &fnv64_sum,
 	reset = &fnv64_reset,
 	sz = 8,
 	v = basis64,
+	...
 };
 
 // Creates a [[hash::hash]] which computes the FNV-1a 64-bit hash function. This
@@ -63,14 +63,12 @@ export fn fnv64() state64 = state64 {
 // when you're done with it.
 export fn fnv64a() state64 = state64 {
 	writer = &fnv64a_write,
-	closer = &fnv_close,
 	sum = &fnv64_sum,
 	reset = &fnv64_reset,
 	sz = 8,
 	v = basis64,
+	...
 };
-
-fn fnv_close(s: *io::stream) void = void;
 
 fn fnv32_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state32;

@@ -193,15 +193,12 @@ export type state = struct {
 // custom polynomial, populated by [[memoize]] function, may also be used.
 export fn crc32(table: *[256]u32) state = state {
 	writer = &write,
-	closer = &close,
 	sum = &sum,
 	reset = &reset,
 	sz = SIZE,
 	table = table,
 	cval = ~0u32,
 };
-
-fn close(s: *io::stream) void = void;
 
 fn write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state;

@@ -17,15 +17,13 @@ export type state = struct {
 // when you are done with it.
 export fn adler32() state = state {
 	writer = &write,
-	closer = &close,
 	sum = &sum,
 	reset = &reset,
 	sz = 4,
 	a = 1,
 	b = 0,
+	...
 };
-
-fn close(s: *io::stream) void = void;
 
 fn write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state;

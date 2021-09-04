@@ -225,15 +225,13 @@ export type state = struct {
 // by [[memoize]] function, may also be used.
 export fn crc64(table: *[256]u64) state = state {
 	writer = &write,
-	closer = &close,
 	sum = &sum,
 	reset = &reset,
 	sz = SIZE,
 	table = table,
 	cval = ~0u64,
+	...
 };
-
-fn close(s: *io::stream) void = void;
 
 fn write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state;
