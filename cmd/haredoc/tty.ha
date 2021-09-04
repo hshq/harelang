@@ -12,8 +12,10 @@ use strio;
 fn emit_tty(ctx: *context) (void | error) = {
 	const summary = ctx.summary;
 
+	let first = true;
 	match (ctx.readme) {
 		readme: *io::stream => {
+			first = false;
 			for (true) match (bufio::scanline(readme)?) {
 				b: []u8 => {
 					fmt::printfln(
@@ -23,22 +25,37 @@ fn emit_tty(ctx: *context) (void | error) = {
 				},
 				io::EOF => break,
 			};
-			fmt::println()?;
 		},
 		null => void,
 	};
 
 	// XXX: Should we emit the dependencies, too?
 	for (let i = 0z; i < len(summary.types); i += 1) {
+		if (!first) {
+			fmt::println()?;
+		};
+		first = false;
 		details_tty(ctx, summary.types[i])?;
 	};
 	for (let i = 0z; i < len(summary.errors); i += 1) {
+		if (!first) {
+			fmt::println()?;
+		};
+		first = false;
 		details_tty(ctx, summary.errors[i])?;
 	};
 	for (let i = 0z; i < len(summary.globals); i += 1) {
+		if (!first) {
+			fmt::println()?;
+		};
+		first = false;
 		details_tty(ctx, summary.globals[i])?;
 	};
 	for (let i = 0z; i < len(summary.funcs); i += 1) {
+		if (!first) {
+			fmt::println()?;
+		};
+		first = false;
 		details_tty(ctx, summary.funcs[i])?;
 	};
 };
@@ -57,7 +74,7 @@ fn details_tty(ctx: *context, decl: ast::decl) (void | error) = {
 	};
 
 	unparse_tty(os::stdout, decl)?;
-	fmt::print("\n\n")?;
+	fmt::println()?;
 	return;
 };
 

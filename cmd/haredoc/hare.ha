@@ -12,8 +12,10 @@ use strio;
 fn emit_hare(ctx: *context) (void | error) = {
 	const summary = ctx.summary;
 
+	let first = true;
 	match (ctx.readme) {
 		readme: *io::stream => {
+			first = false;
 			for (true) match (bufio::scanline(readme)?) {
 				b: []u8 => {
 					fmt::printfln("// {}", strings::fromutf8(b))?;
@@ -21,22 +23,37 @@ fn emit_hare(ctx: *context) (void | error) = {
 				},
 				io::EOF => break,
 			};
-			fmt::println()?;
 		},
 		null => void,
 	};
 
 	// XXX: Should we emit the dependencies, too?
 	for (let i = 0z; i < len(summary.types); i += 1) {
+		if (!first) {
+			fmt::println()?;
+		};
+		first = false;
 		details_hare(ctx, summary.types[i])?;
 	};
 	for (let i = 0z; i < len(summary.errors); i += 1) {
+		if (!first) {
+			fmt::println()?;
+		};
+		first = false;
 		details_hare(ctx, summary.errors[i])?;
 	};
 	for (let i = 0z; i < len(summary.globals); i += 1) {
+		if (!first) {
+			fmt::println()?;
+		};
+		first = false;
 		details_hare(ctx, summary.globals[i])?;
 	};
 	for (let i = 0z; i < len(summary.funcs); i += 1) {
+		if (!first) {
+			fmt::println()?;
+		};
+		first = false;
 		details_hare(ctx, summary.funcs[i])?;
 	};
 };
@@ -55,7 +72,7 @@ fn details_hare(ctx: *context, decl: ast::decl) (void | error) = {
 	};
 
 	unparse_hare(os::stdout, decl)?;
-	fmt::print("\n\n")?;
+	fmt::println()?;
 	return;
 };
 
