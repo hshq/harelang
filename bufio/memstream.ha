@@ -185,7 +185,6 @@ fn seek(
 };
 
 @test fn dynamic() void = {
-	// TODO: slice/array equality
 	let s = dynamic(io::mode::RDWR);
 	assert(io::write(s, [1, 2, 3]) as size == 3);
 	assert(bytes::equal(buffer(s), [1, 2, 3]));
