@@ -290,6 +290,16 @@ fmt() {
 	gen_ssa fmt bufio io os strconv strings types
 }
 
+fnmatch() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs fnmatch fnmatch.ha
+	else
+		gen_srcs fnmatch fnmatch.ha +test.ha
+	fi
+	gen_ssa fnmatch strings bytes sort ascii io fmt
+}
+
 format_elf() {
 	gen_srcs format::elf \
 		'$(ARCH).ha' \
@@ -868,6 +878,7 @@ encoding::utf8
 endian
 errors
 fmt
+fnmatch
 format::elf
 format::xml
 fs

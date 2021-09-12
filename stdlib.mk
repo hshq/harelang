@@ -162,6 +162,10 @@ hare_stdlib_deps+=$(stdlib_format_elf)
 stdlib_format_xml=$(HARECACHE)/format/xml/format_xml.o
 hare_stdlib_deps+=$(stdlib_format_xml)
 
+# gen_lib fnmatch
+stdlib_fnmatch=$(HARECACHE)/fnmatch/fnmatch.o
+hare_stdlib_deps+=$(stdlib_fnmatch)
+
 # gen_lib fs
 stdlib_fs=$(HARECACHE)/fs/fs.o
 hare_stdlib_deps+=$(stdlib_fs)
@@ -590,6 +594,16 @@ $(HARECACHE)/format/xml/format_xml.ssa: $(stdlib_format_xml_srcs) $(stdlib_rt) $
 	@mkdir -p $(HARECACHE)/format/xml
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::xml \
 		-t$(HARECACHE)/format/xml/format_xml.td $(stdlib_format_xml_srcs)
+
+# fnmatch
+stdlib_fnmatch_srcs= \
+	$(STDLIB)/fnmatch/fnmatch.ha
+
+$(HARECACHE)/fnmatch/fnmatch.ssa: $(stdlib_fnmatch_srcs) $(stdlib_rt) $(stdlib_strings) $(stdlib_bytes) $(stdlib_sort) $(stdlib_ascii) $(stdlib_io) $(stdlib_fmt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/fnmatch
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfnmatch \
+		-t$(HARECACHE)/fnmatch/fnmatch.td $(stdlib_fnmatch_srcs)
 
 # fs
 stdlib_fs_srcs= \
@@ -1375,6 +1389,10 @@ hare_testlib_deps+=$(testlib_format_elf)
 testlib_format_xml=$(TESTCACHE)/format/xml/format_xml.o
 hare_testlib_deps+=$(testlib_format_xml)
 
+# gen_lib fnmatch
+testlib_fnmatch=$(TESTCACHE)/fnmatch/fnmatch.o
+hare_testlib_deps+=$(testlib_fnmatch)
+
 # gen_lib fs
 testlib_fs=$(TESTCACHE)/fs/fs.o
 hare_testlib_deps+=$(testlib_fs)
@@ -1811,6 +1829,17 @@ $(TESTCACHE)/format/xml/format_xml.ssa: $(testlib_format_xml_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/format/xml
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::xml \
 		-t$(TESTCACHE)/format/xml/format_xml.td $(testlib_format_xml_srcs)
+
+# fnmatch
+testlib_fnmatch_srcs= \
+	$(STDLIB)/fnmatch/fnmatch.ha \
+	$(STDLIB)/fnmatch/+test.ha
+
+$(TESTCACHE)/fnmatch/fnmatch.ssa: $(testlib_fnmatch_srcs) $(testlib_rt) $(testlib_strings) $(testlib_bytes) $(testlib_sort) $(testlib_ascii) $(testlib_io) $(testlib_fmt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/fnmatch
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfnmatch \
+		-t$(TESTCACHE)/fnmatch/fnmatch.td $(testlib_fnmatch_srcs)
 
 # fs
 testlib_fs_srcs= \
