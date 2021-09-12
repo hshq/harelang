@@ -72,6 +72,9 @@ export fn isgraph(c: rune) bool =
 export fn iscntrl(c: rune) bool =
 	if (!isascii(c)) false else cclass[c: u32]&C > 0;
 
+// Returns true if a rune is a space or a tab.
+export fn isblank(c: rune) bool = (c == ' ' || c == '\t');
+
 // Returns true if a rune is a valid ASCII character.
 export fn isascii(c: rune) bool = c: u32 <= 0o177;
 
@@ -99,4 +102,5 @@ export fn tolower(c: rune) rune = {
 	assert(isascii('a') && isascii('\0') && isascii('\x7F'));
 	assert(!isascii('\x80') && !isascii('こ'));
 	assert(tolower('A') == 'a' && tolower('こ') == 'こ');
+	assert(isblank(' ') && isblank('\t') && !isblank('6'));
 };
