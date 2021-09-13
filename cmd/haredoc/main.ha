@@ -5,6 +5,7 @@ use hare::ast;
 use hare::lex;
 use hare::module;
 use hare::parse;
+use hare::unparse;
 use io;
 use os;
 use path;
@@ -129,6 +130,10 @@ export fn main() void = {
 			} else {
 				ast::decl_free(decls[i]);
 			};
+		};
+		if (len(new) == 0) {
+			fmt::fatal("Could not find {}::{}",
+				unparse::identstr(dirname), decl);
 		};
 		free(decls);
 		decls = new;
