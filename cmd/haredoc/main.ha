@@ -137,6 +137,8 @@ export fn main() void = {
 		};
 		free(decls);
 		decls = new;
+
+		show_undocumented = true;
 	};
 
 	const ctx = context {
