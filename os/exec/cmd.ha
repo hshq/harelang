@@ -21,8 +21,8 @@ export fn cmd(name: str, args: str...) (command | error) = {
 	let cmd = command {
 		platform: platform_cmd =
 			if (strings::contains(name, '/')) match (open(name)) {
-				err: errors::opaque => return nocmd,
 				p: platform_cmd => p,
+				* => return nocmd,
 			} else match (lookup(name)) {
 				void => return nocmd,
 				p: platform_cmd => p,
