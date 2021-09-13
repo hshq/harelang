@@ -509,21 +509,10 @@ fn type_finish(t: *_type) void = {
 		a: alias => ast::ident_free(a.id),
 		array => void,
 		builtin => void,
-		e: _enum => {
-			for (let i = 0z; i < len(e.values); i += 1) {
-				free(e.values[i].0);
-			};
-			free(e.values);
-		},
-		f: func => {
-			type_finish(f.result);
-			for (let i = 0z; i < len(f.params); i += 1) {
-				type_finish(f.params[i]);
-			};
-			free(f.params);
-		},
+		e: _enum => free(e.values),
+		f: func => free(f.params),
 		pointer => void,
-		s: slice => type_finish(s),
+		s: slice => void,
 		st: _struct => free(st.fields),
 		tu: tuple => free(tu),
 		ta: tagged => free(ta),
