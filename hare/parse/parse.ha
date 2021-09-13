@@ -14,7 +14,7 @@ export fn strerror(err: error) const str = lex::strerror(err: lex::error);
 fn syntaxerr(
 	loc: lex::location,
 	fmt: str,
-	args: fmt::formattable...
+	args: fmt::field...
 ) lex::error = {
 	let why = fmt::asprintf(fmt, args...);
 	return (loc, why): lex::syntax: lex::error;

@@ -7,31 +7,35 @@ use strconv;
 use strings;
 use types;
 
+// Tagged union of the [[fmt::formattable]] types and [[fmt::modifiers]]. Used
+// for functions which accept format strings.
+export type field = (...formattable | *modifiers);
+
 // Tagged union of all types which are formattable.
 export type formattable =
 	(...types::numeric | uintptr | str | rune | bool | nullable *void | void);
 
 // Formats text for printing and writes it to [[os::stdout]].
-export fn printf(fmt: str, args: formattable...) (io::error | size) =
+export fn printf(fmt: str, args: field...) (io::error | size) =
 	fprintf(os::stdout, fmt, args...);
 
 // Formats text for printing and writes it to [[os::stdout]], followed by a line
 // feed.
-export fn printfln(fmt: str, args: formattable...) (io::error | size) =
+export fn printfln(fmt: str, args: field...) (io::error | size) =
 	fprintfln(os::stdout, fmt, args...);
 
 // Formats text for printing and writes it to [[os::stderr]].
-export fn errorf(fmt: str, args: formattable...) (io::error | size) =
+export fn errorf(fmt: str, args: field...) (io::error | size) =
 	fprintf(os::stderr, fmt, args...);
 
 // Formats text for printing and writes it to [[os::stderr]], followed by a line
 // feed.
-export fn errorfln(fmt: str, args: formattable...) (io::error | size) =
+export fn errorfln(fmt: str, args: field...) (io::error | size) =
 	fprintfln(os::stderr, fmt, args...);
 
 // Formats text for printing and writes it into a heap-allocated string. The
 // caller must free the return value.
-export fn asprintf(fmt: str, args: formattable...) str = {
+export fn asprintf(fmt: str, args: field...) str = {
 	let buf = bufio::dynamic(io::mode::WRITE);
 	assert(fprintf(buf, fmt, args...) is size);
 	return strings::fromutf8_unsafe(bufio::finish(buf));
@@ -39,7 +43,7 @@ export fn asprintf(fmt: str, args: formattable...) str = {
 
 // Formats text for printing and writes it into a caller supplied buffer. The
 // returned string is borrowed from this buffer.
-export fn bsprintf(buf: []u8, fmt: str, args: formattable...) str = {
+export fn bsprintf(buf: []u8, fmt: str, args: field...) str = {
 	let sink = bufio::fixed(buf, io::mode::WRITE);
 	defer io::close(sink);
 	let l = fprintf(sink, fmt, args...) as size;
@@ -48,7 +52,7 @@ export fn bsprintf(buf: []u8, fmt: str, args: formattable...) str = {
 
 // Formats text for printing and writes it to [[os::stderr]], followed by a line
 // feed, then exits the program with an error status.
-export @noreturn fn fatal(fmt: str, args: formattable...) void = {
+export @noreturn fn fatal(fmt: str, args: field...) void = {
 	fprintfln(os::stderr, fmt, args...)!;
 	os::exit(1);
 };
@@ -58,7 +62,7 @@ export @noreturn fn fatal(fmt: str, args: formattable...) void = {
 export fn fprintfln(
 	s: *io::stream,
 	fmt: str,
-	args: formattable...
+	args: field...
 ) (io::error | size) = {
 	return fprintf(s, fmt, args...)? + io::write(s, ['\n': u32: u8])?;
 };
@@ -122,19 +126,23 @@ export fn fprint(s: *io::stream, args: formattable...) (io::error | size) = {
 	return n;
 };
 
-type negation = enum {
+// Specifies for numerical arguments when to prepend a plus or minus sign or a
+// blank space.
+export type negation = enum {
 	NONE,
 	SPACE,
 	PLUS,
 };
 
-type padding = enum {
+// Specifies how to align and pad an argument within a given width.
+export type padding = enum {
 	ALIGN_RIGHT,
 	ALIGN_LEFT,
 	ZEROES,
 };
 
-type modifiers = struct {
+// Specifies how to format an argument.
+export type modifiers = struct {
 	padding:   padding,
 	negation:  negation,
 	width:     uint,
@@ -150,11 +158,15 @@ type modflags = enum uint {
 	PLUS  = 1 << 3,
 };
 
+type paramindex = (uint | nextparam | void);
+
+type nextparam = void;
+
 // Formats text for printing and writes it to an [[io::stream]].
 export fn fprintf(
 	s: *io::stream,
 	fmt: str,
-	args: formattable...
+	args: field...
 ) (io::error | size) = {
 	let n = 0z, i = 0z;
 	let iter = strings::iter(fmt);
@@ -170,7 +182,7 @@ export fn fprintf(
 				r: rune => r,
 			};
 
-			const arg = if (r == '{') {
+			let arg = if (r == '{') {
 				n += io::write(s, utf8::encoderune('{'))?;
 				continue;
 			} else if (ascii::isdigit(r)) {
@@ -182,18 +194,45 @@ export fn fprintf(
 				yield args[i - 1];
 			};
 
-			let mod = modifiers { base = strconv::base::DEC, ... };
+			const arg = match (arg) {
+				arg: formattable => arg,
+				* => abort("Invalid formattable"),
+			};
+
 			r = match (strings::next(&iter)) {
 				void => abort("Invalid format string (unterminated '{')"),
 				r: rune => r,
 			};
+
+			let mod = &modifiers { ... };
+			let pi: paramindex = void;
 			switch (r) {
-				':' => scan_modifiers(&iter, &mod),
+				':' => scan_inline_modifiers(&iter, mod),
+				'%' => scan_parametric_modifiers(&iter, &pi),
 				'}' => void,
 				*   => abort("Invalid format string"),
 			};
 
-			n += format(s, arg, &mod)?;
+			match (pi) {
+				pi: uint => match (args[pi]) {
+					pmod: *modifiers => mod = pmod,
+					* => abort("Explicit parameter is not *fmt::modifier"),
+				},
+				nextparam => {
+					i += 1;
+					match (args[i - 1]) {
+						pmod: *modifiers => mod = pmod,
+						* => abort("Implicit parameter is not *fmt::modifier"),
+					};
+				},
+				void => void,
+			};
+
+			if (mod.base == 0) {
+				mod.base = strconv::base::DEC;
+			};
+
+			n += format(s, arg, mod)?;
 		} else if (r == '}') {
 			match (strings::next(&iter)) {
 				void => abort("Invalid format string (hanging '}')"),
@@ -366,7 +405,7 @@ fn scan_modifier_base(iter: *strings::iterator, mod: *modifiers) void = {
 	};
 };
 
-fn scan_modifiers(iter: *strings::iterator, mod: *modifiers) void = {
+fn scan_inline_modifiers(iter: *strings::iterator, mod: *modifiers) void = {
 	scan_modifier_flags(iter, mod);
 	scan_modifier_width(iter, mod);
 	scan_modifier_precision(iter, mod);
@@ -380,18 +419,68 @@ fn scan_modifiers(iter: *strings::iterator, mod: *modifiers) void = {
 	assert(terminated, "Invalid format string (unterminated '{')");
 };
 
+fn scan_parameter_index(iter: *strings::iterator, pi: *paramindex) void = {
+	let r = match (strings::next(iter)) {
+		void => abort("Invalid format string (unterminated '{')"),
+		r: rune => r,
+	};
+
+	let is_digit = ascii::isdigit(r);
+	strings::push(iter, r);
+	if (is_digit) {
+		*pi = scan_uint(iter);
+	} else {
+		*pi = nextparam;
+	};
+};
+
+fn scan_parametric_modifiers(iter: *strings::iterator, pi: *paramindex) void = {
+	scan_parameter_index(iter, pi);
+
+	// eat '}'
+	let terminated = match (strings::next(iter)) {
+		void => false,
+		r: rune => r == '}',
+	};
+	assert(terminated, "Invalid format string (unterminated '{')");
+};
+
 @test fn fmt() void = {
 	let buf: [1024]u8 = [0...];
+
 	assert(bsprintf(buf, "hello world") == "hello world");
 	assert(bsprintf(buf, "{} {}", "hello", "world") == "hello world");
 	assert(bsprintf(buf, "{0} {1}", "hello", "world") == "hello world");
 	assert(bsprintf(buf, "{0} {0}", "hello", "world") == "hello hello");
 	assert(bsprintf(buf, "{1} {0} {1}", "hello", "world") == "world hello world");
+
+	const mod = &modifiers { width = 7, ... };
+	assert(bsprintf(buf, "{%}", "hello", mod) == "  hello");
+	assert(bsprintf(buf, "{%1}", "hello", mod) == "  hello");
+	assert(bsprintf(buf, "{0%1}", "hello", mod) == "  hello");
+	assert(bsprintf(buf, "{0%2}", "hello", 0, mod) == "  hello");
+	assert(bsprintf(buf, "{1%2}", 0, "hello", mod) == "  hello");
+	assert(bsprintf(buf, "{2%0}", mod, 0, "hello") == "  hello");
+	assert(bsprintf(buf, "{2%}", mod, 0, "hello") == "  hello");
+	assert(bsprintf(buf, "|{1%}|{}|", mod, "hello") == "|  hello|hello|");
+	assert(bsprintf(buf, "|{}|{2%}|", "hello", mod, "world") == "|hello|  world|");
+	assert(bsprintf(buf, "|{%}|{%}|{%}|{%}|",
+		"hello", &modifiers { ... },
+		"world", &modifiers { width = 10, ... },
+		123,     &modifiers { width = 10, padding = padding::ZEROES, ... },
+		0xBEEF,  &modifiers { base = strconv::base::HEX, ... },
+	) == "|hello|     world|0000000123|BEEF|");
+	assert(bsprintf(buf, "|{%}|{%}|{0%1}|",
+		"hello", &modifiers { ... },
+		"world", &modifiers { ... },
+	) == "|hello|world|hello|");
+
 	assert(bsprintf(buf, "x: {:08x}", 0xBEEF) == "x: 0000beef");
 	assert(bsprintf(buf, "x: {:8X}", 0xBEEF) == "x:     BEEF");
 	assert(bsprintf(buf, "x: {:-8X}", 0xBEEF) == "x: BEEF    ");
 	assert(bsprintf(buf, "x: {:o}", 0o755) == "x: 755");
 	assert(bsprintf(buf, "x: {:b}", 0b11011) == "x: 11011");
+
 	assert(bsprintf(buf, "{} {} {} {} {}", true, false, null, 'x', void)
 		== "true false (null) x void");
 };

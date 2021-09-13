@@ -7,6 +7,10 @@ next argument from the parameter list, in order. A specific parameter may be
 selected by indexing it from zero: "{0}", "{1}", and so on. To print "{", use
 "{{", and for "}", use "}}".
 
+There are two ways to specify how an argument shall be formatted: inline format
+modifiers, and parametric format modifiers.
+
+Inline format modifiers are a series of characters within a format sequence.
 You may use a colon to add format modifiers; for example, "{:x}" will format an
 argument in hexadecimal, and "{3:-10}" will left-align the 3rd argument to at
 least 10 characters.
@@ -32,7 +36,7 @@ Following the precision, an optional character controls the output format:
 - x, X: print in lowercase or uppercase hexadecimal
 - o, b: print in octal or binary
 
-Some examples:
+Some inline modifier examples:
 
 	fmt::printf("hello {}", "world");		// "hello world"
 	fmt::printf("{1} {0}", "hello", "world");	// "world hello"
@@ -40,3 +44,27 @@ Some examples:
 	fmt::printf("{:-5}", 42);			// "42   "
 	fmt::printf("{:5}", 42);			// "   42"
 	fmt::printf("{:05}", 42);			// "00042"
+
+A parametric format modifier is a secondary argument from the parameter list,
+which is a pointer to an instance of [[fmt::modifiers]]. This modifier parameter
+shall describe how the primary formattable argument is formatted.
+
+A parametric format sequence of this sort takes the form of "{i%j}", where i is
+the formattable parameter index, j is the modifiers parameter index, and i & j
+are optional. If either i or j aren't explicitly provided by the user, they
+will evaluate to index of the next unused argument.
+
+Some parametric modifier examples:
+
+	// "hello world hello"
+	fmt::printf("{%} {%} {0%1}", // evaluates to "{0%1} {2%3} {0%1}"
+		"hello", &fmt::modifiers { ... },
+		"world", &fmt::modifiers { ... });
+
+	// "|hello|     world|0000000123|BEEF|"
+	fmt::printf("|{%}|{%}|{%}|{%}|",
+		"hello", &fmt::modifiers { ... },
+		"world", &fmt::modifiers { width = 10, ... },
+		123,     &fmt::modifiers { width = 10, padding = fmt::padding::ZEROES, ... },
+		0xBEEF,  &fmt::modifiers { base = strconv::base::HEX, ... });
+
