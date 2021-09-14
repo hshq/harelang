@@ -70,9 +70,18 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 			"-o", output,
 		]),
 	});
+
+	let archives: []str = [];
+	defer free(archives);
+
 	for (let i = 0z; i < len(depend); i += 1) {
-		append(task.cmd, depend[i].output);
+		if (strings::has_suffix(depend[i].output, ".a")) {
+			append(archives, depend[i].output);
+		} else {
+			append(task.cmd, depend[i].output);
+		};
 	};
+	append(task.cmd, archives...);
 	append(plan.scheduled, task);
 	return task;
 };
