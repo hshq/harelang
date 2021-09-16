@@ -23,8 +23,10 @@ fn default_tags() []module::tag = {
 
 fn addtags(tags: []module::tag, in: str) ([]module::tag | void) = {
 	let in = match (module::parsetags(in)) {
-		void => return void,
-		t: []module::tag => t,
+	case void =>
+		return void;
+	case t: []module::tag =>
+		yield t;
 	};
 	defer free(in);
 	append(tags, in...);
@@ -37,8 +39,10 @@ fn deltags(tags: []module::tag, in: str) ([]module::tag | void) = {
 		return [];
 	};
 	let in = match (module::parsetags(in)) {
-		void => return void,
-		t: []module::tag => t,
+	case void =>
+		return void;
+	case t: []module::tag =>
+		yield t;
 	};
 	defer free(in);
 	for (let i = 0z; i < len(tags); i += 1) {
@@ -85,22 +89,36 @@ fn build(args: []str) void = {
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
-			'c' => goal = goal::OBJ,
-			'v' => verbose = true,
-			'D' => append(defines, opt.1),
-			'j' => abort(), // TODO
-			'l' => abort(), // TODO
-			'o' => output = opt.1,
-			't' => abort(), // TODO
-			'T' => tags = match (addtags(tags, opt.1)) {
-				void => fmt::fatal("Error parsing tags"),
-				t: []module::tag => t,
-			},
-			'X' => tags = match (deltags(tags, opt.1)) {
-				void => fmt::fatal("Error parsing tags"),
-				t: []module::tag => t,
-			},
-			*   => abort(),
+		case 'c' =>
+			goal = goal::OBJ;
+		case 'v' =>
+			verbose = true;
+		case 'D' =>
+			append(defines, opt.1);
+		case 'j' =>
+			abort(); // TODO
+		case 'l' =>
+			abort(); // TODO
+		case 'o' =>
+			output = opt.1;
+		case 't' =>
+			abort(); // TODO
+		case 'T' =>
+			tags = match (addtags(tags, opt.1)) {
+			case void =>
+				fmt::fatal("Error parsing tags");
+			case t: []module::tag =>
+				yield t;
+			};
+		case 'X' =>
+			tags = match (deltags(tags, opt.1)) {
+			case void =>
+				fmt::fatal("Error parsing tags");
+			case t: []module::tag =>
+				yield t;
+			};
+		case =>
+			abort();
 		};
 	};
 
@@ -121,10 +139,11 @@ fn build(args: []str) void = {
 	defer plan_finish(&plan);
 
 	const ver = match (module::scan(&ctx, input)) {
-		ver: module::version => ver,
-		err: module::error => fmt::fatal(
-			"Error scanning input module: {}",
-			module::strerror(err)),
+	case ver: module::version =>
+		yield ver;
+	case err: module::error =>
+		fmt::fatal("Error scanning input module: {}",
+			module::strerror(err));
 	};
 
 	const depends: []*task = [];
@@ -141,9 +160,9 @@ fn build(args: []str) void = {
 	};
 	sched_hare_exe(&plan, ver, output, depends...);
 	match (plan_execute(&plan, verbose)) {
-		void => void,
-		!exec::exit_status => fmt::fatal("{} {}: build failed",
-			os::args[0], os::args[1]),
+	case void => void;
+	case !exec::exit_status =>
+		fmt::fatal("{} {}: build failed", os::args[0], os::args[1]);
 	};
 };
 
@@ -196,20 +215,32 @@ fn run(args: []str) void = {
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
-			'v' => verbose = true,
-			'D' => append(defines, opt.1),
-			'j' => abort(), // TODO
-			'l' => abort(), // TODO
-			't' => abort(), // TODO
-			'T' => tags = match (addtags(tags, opt.1)) {
-				void => fmt::fatal("Error parsing tags"),
-				t: []module::tag => t,
-			},
-			'X' => tags = match (deltags(tags, opt.1)) {
-				void => fmt::fatal("Error parsing tags"),
-				t: []module::tag => t,
-			},
-			*   => abort(),
+		case 'v' =>
+			verbose = true;
+		case 'D' =>
+			append(defines, opt.1);
+		case 'j' =>
+			abort(); // TODO
+		case 'l' =>
+			abort(); // TODO
+		case 't' =>
+			abort(); // TODO
+		case 'T' =>
+			tags = match (addtags(tags, opt.1)) {
+			case void =>
+				fmt::fatal("Error parsing tags");
+			case t: []module::tag =>
+				yield t;
+			};
+		case 'X' =>
+			tags = match (deltags(tags, opt.1)) {
+			case void =>
+				fmt::fatal("Error parsing tags");
+			case t: []module::tag =>
+				yield t;
+			};
+		case =>
+			abort();
 		};
 	};
 
@@ -229,10 +260,11 @@ fn run(args: []str) void = {
 	defer plan_finish(&plan);
 
 	const ver = match (module::scan(&ctx, input)) {
-		ver: module::version => ver,
-		err: module::error => fmt::fatal(
-			"Error scanning input module: {}",
-			module::strerror(err)),
+	case ver: module::version =>
+		yield ver;
+	case err: module::error =>
+		fmt::fatal("Error scanning input module: {}",
+			module::strerror(err));
 	};
 
 	let depends: []*task = [];
@@ -246,13 +278,15 @@ fn run(args: []str) void = {
 	const output = mkfile(&plan, "out");
 	sched_hare_exe(&plan, ver, output, depends...);
 	match (plan_execute(&plan, verbose)) {
-		void => void,
-		!exec::exit_status => fmt::fatal("{} {}: build failed",
-			os::args[0], os::args[1]),
+	case void => void;
+	case !exec::exit_status =>
+		fmt::fatal("{} {}: build failed", os::args[0], os::args[1]);
 	};
 	const cmd = match (exec::cmd(output, runargs...)) {
-		err: exec::error => fmt::fatal("exec: {}", exec::strerror(err)),
-		cmd: exec::command => cmd,
+	case err: exec::error =>
+		fmt::fatal("exec: {}", exec::strerror(err));
+	case cmd: exec::command =>
+		yield cmd;
 	};
 	exec::setname(&cmd, input);
 	exec::exec(&cmd);
@@ -264,40 +298,47 @@ fn sched_walk(plan: *plan, ident: ast::ident, link: *[]*task) void = {
 	free(path);
 	for (true) :loop {
 		match (fs::next(it)) {
-			ent: fs::dirent => {
-				if (ent.name == "." || ent.name == "..") {
-					continue;
+		case ent: fs::dirent =>
+			if (ent.name == "." || ent.name == "..") {
+				continue;
+			};
+			if (ent.ftype & fs::mode::DIR != fs::mode::DIR) {
+				continue;
+			};
+			const d = utf8::decode(ent.name);
+			match (utf8::next(&d)) {
+			case void =>
+				break;
+			case (utf8::more | utf8::invalid) =>
+				continue :loop;
+			case r: rune =>
+				if (!ascii::isalpha(r) && r != '_') {
+					continue :loop;
 				};
-				if (ent.ftype & fs::mode::DIR != fs::mode::DIR) {
-					continue;
+			};
+			for (true) match (utf8::next(&d)) {
+			case void =>
+				break;
+			case (utf8::more | utf8::invalid) =>
+				continue :loop;
+			case r: rune =>
+				if (!ascii::isalnum(r) && r != '_') {
+					continue :loop;
 				};
-				const d = utf8::decode(ent.name);
-				match (utf8::next(&d)) {
-					void => break,
-					(utf8::more | utf8::invalid) => continue :loop,
-					r: rune => if (!ascii::isalpha(r) && r != '_') {
-						continue :loop;
-					},
-				};
-				for (true) match (utf8::next(&d)) {
-					void => break,
-					(utf8::more | utf8::invalid) => continue :loop,
-					r: rune => if (!ascii::isalnum(r) && r != '_') {
-						continue :loop;
-					},
-				};
-				let new = ast::ident_dup(ident);
-				append(new, strings::dup(ent.name));
-				sched_walk(plan, new, link);
+			};
+			let new = ast::ident_dup(ident);
+			append(new, strings::dup(ent.name));
+			sched_walk(plan, new, link);
 
-				match (module::lookup(plan.context, new)) {
-					ver: module::version =>
-						if (len(ver.inputs) == 0) continue,
-					module::error => continue,
-				};
-				sched_module(plan, new, link);
-			},
-			void => break,
+			match (module::lookup(plan.context, new)) {
+			case ver: module::version =>
+				if (len(ver.inputs) == 0) continue;
+			case module::error =>
+				continue;
+			};
+			sched_module(plan, new, link);
+		case void =>
+			break;
 		};
 	};
 };
@@ -330,21 +371,34 @@ fn test(args: []str) void = {
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		const opt = cmd.opts[i];
 		switch (opt.0) {
-			'v' => verbose = true,
-			'D' => append(defines, opt.1),
-			'j' => abort(), // TODO
-			'l' => abort(), // TODO
-			't' => abort(), // TODO
-			'o' => output = opt.1,
-			'T' => tags = match (addtags(tags, opt.1)) {
-				void => fmt::fatal("Error parsing tags"),
-				t: []module::tag => t,
-			},
-			'X' => tags = match (deltags(tags, opt.1)) {
-				void => fmt::fatal("Error parsing tags"),
-				t: []module::tag => t,
-			},
-			*   => abort(),
+		case 'v' =>
+			verbose = true;
+		case 'D' =>
+			append(defines, opt.1);
+		case 'j' =>
+			abort(); // TODO
+		case 'l' =>
+			abort(); // TODO
+		case 't' =>
+			abort(); // TODO
+		case 'o' =>
+			output = opt.1;
+		case 'T' =>
+			tags = match (addtags(tags, opt.1)) {
+			case void =>
+				fmt::fatal("Error parsing tags");
+			case t: []module::tag =>
+				yield t;
+			};
+		case 'X' =>
+			tags = match (deltags(tags, opt.1)) {
+			case void =>
+				fmt::fatal("Error parsing tags");
+			case t: []module::tag =>
+				yield t;
+			};
+		case =>
+			abort();
 		};
 	};
 
@@ -364,10 +418,11 @@ fn test(args: []str) void = {
 	defer plan_finish(&plan);
 
 	const ver = match (module::scan(&ctx, input)) {
-		ver: module::version => ver,
-		err: module::error => fmt::fatal(
-			"Error scanning input module: {}",
-			module::strerror(err)),
+	case ver: module::version =>
+		yield ver;
+	case err: module::error =>
+		fmt::fatal("Error scanning input module: {}",
+			module::strerror(err));
 	};
 
 	let depends: []*task = [];
@@ -384,9 +439,9 @@ fn test(args: []str) void = {
 		sched_hare_exe(&plan, ver, strings::dup(output), depends...);
 	};
 	match (plan_execute(&plan, verbose)) {
-		void => void,
-		!exec::exit_status => fmt::fatal("{} {}: build failed",
-			os::args[0], os::args[1]),
+	case void => void;
+	case !exec::exit_status =>
+		fmt::fatal("{} {}: build failed", os::args[0], os::args[1]);
 	};
 
 	if (have_output) {
@@ -394,8 +449,10 @@ fn test(args: []str) void = {
 	};
 
 	const cmd = match (exec::cmd(output, runargs...)) {
-		err: exec::error => fmt::fatal("exec: {}", exec::strerror(err)),
-		cmd: exec::command => cmd,
+	case err: exec::error =>
+		fmt::fatal("exec: {}", exec::strerror(err));
+	case cmd: exec::command =>
+		yield cmd;
 	};
 	exec::setname(&cmd, input);
 	exec::exec(&cmd);
@@ -429,12 +486,12 @@ fn version(args: []str) void = {
 		fmt::println()!;
 
 		match (os::getenv("HAREPATH")) {
-			void => fmt::printfln("HAREPATH\t{}", HAREPATH)!,
-			s: str => {
-				fmt::printf("HAREPATH\t{}", s)!;
-				bufio::flush(os::stdout)!;
-				fmt::errorln("\t(from environment)")!;
-			},
+		case void =>
+			fmt::printfln("HAREPATH\t{}", HAREPATH)!;
+		case s: str =>
+			fmt::printf("HAREPATH\t{}", s)!;
+			bufio::flush(os::stdout)!;
+			fmt::errorln("\t(from environment)")!;
 		};
 	};
 };

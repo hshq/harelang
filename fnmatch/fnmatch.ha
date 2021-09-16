@@ -45,14 +45,18 @@ export fn fnmatch(pattern: str, string: str, flag: flags...) bool = {
 		fl |= flag[i];
 	};
 	if (fl & flags::PATHNAME != 0) {
-		return match (fnmatch_pathname(pattern, string, fl)) {
-			b: bool => b,
-			* => false,
+		match (fnmatch_pathname(pattern, string, fl)) {
+		case b: bool =>
+			return b;
+		case =>
+			return false;
 		};
 	} else {
-		return match (fnmatch_internal(pattern, string, fl)) {
-			b: bool => b,
-			* => false,
+		match (fnmatch_internal(pattern, string, fl)) {
+		case b: bool =>
+			return b;
+		case =>
+			return false;
 		};
 	};
 };
@@ -70,14 +74,19 @@ fn fnmatch_pathname(
 	for (true) :outer {
 		start = p_iter;
 		for (true) match (pat_next(&p_iter, fl)?) {
-			end => break :outer,
-			r: rune => if (r == '/') break,
-			bracket => match_bracket(&p_iter, '\0')?,
-			(question | star) => void,
+		case end =>
+			break :outer;
+		case r: rune =>
+			if (r == '/') break;
+		case bracket =>
+			match_bracket(&p_iter, '\0')?;
+		case (question | star) => void;
 		};
 		let s = match (strings::next_token(&tok)) {
-			void => return false,
-			s: str => s,
+		case void =>
+			return false;
+		case s: str =>
+			yield s;
 		};
 		strings::prev(&p_iter);
 		let p = cut_tail(strings::iter_str(&start), &p_iter);
@@ -87,8 +96,10 @@ fn fnmatch_pathname(
 		};
 	};
 	let s = match(strings::next_token(&tok)) {
-		void => return false,
-		s: str => s,
+	case void =>
+		return false;
+	case s: str =>
+		yield s;
 	};
 	let p = strings::iter_str(&start);
 	return fnmatch_internal(p, s, fl)? && strings::next_token(&tok) is void;
@@ -119,11 +130,16 @@ export fn fnmatch_internal(
 		let copy = s;
 		let rn = strings::next(&copy);
 		let t = match (pat_next(&p, fl)?) {
-			star => break,
-			end => return rn is void,
-			question => rn is rune,
-			bracket => rn is rune && match_bracket(&p, rn: rune)?,
-			r: rune => rn is rune && rn: rune == r,
+		case star =>
+			break;
+		case end =>
+			return rn is void;
+		case question =>
+			yield rn is rune;
+		case bracket =>
+			yield rn is rune && match_bracket(&p, rn: rune)?;
+		case r: rune =>
+			yield rn is rune && rn: rune == r;
 		};
 		if (!t) {
 			return false;
@@ -136,10 +152,13 @@ export fn fnmatch_internal(
 	let cnt = 0z;
 	for (true; cnt += 1) {
 		match (pat_next(&p, fl)?) {
-			end => break,
-			star => p_last = (p, cnt + 1),
-			bracket => match_bracket(&p, '\0')?,
-			(question | rune) => void,
+		case end =>
+			break;
+		case star =>
+			p_last = (p, cnt + 1);
+		case bracket =>
+			match_bracket(&p, '\0')?;
+		case (question | rune) => void;
 		};
 	};
 	p = p_last.0;
@@ -155,11 +174,20 @@ export fn fnmatch_internal(
 	for (true) {
 		let rn = strings::next(&s);
 		let matches = match (pat_next(&p, fl)?) {
-			end => if (rn is void) break else return false,
-			question => rn is rune,
-			bracket => rn is rune && match_bracket(&p, rn: rune)?,
-			r: rune => rn is rune && rn: rune == r,
-			star => abort(),
+		case end =>
+			if (rn is void) {
+				break;
+			} else {
+				return false;
+			};
+		case question =>
+			yield rn is rune;
+		case bracket =>
+			yield rn is rune && match_bracket(&p, rn: rune)?;
+		case r: rune =>
+			yield rn is rune && rn: rune == r;
+		case star =>
+			abort();
 		};
 		if (!matches) {
 			return false;
@@ -179,15 +207,18 @@ export fn fnmatch_internal(
 			let copy = s;
 			let rn = strings::next(&copy);
 			let matched = match (pat_next(&p, fl)?) {
-				end => abort(),
-				question => rn is rune,
-				bracket => rn is rune && match_bracket(&p, rn: rune)?,
-				r: rune => rn is rune && r == rn: rune,
-				star => {
-					p_copy = p;
-					s_copy = s;
-					continue :outer;
-				},
+			case end =>
+				abort();
+			case question =>
+				yield rn is rune;
+			case bracket =>
+				yield rn is rune && match_bracket(&p, rn: rune)?;
+			case r: rune =>
+				yield rn is rune && r == rn: rune;
+			case star =>
+				p_copy = p;
+				s_copy = s;
+				continue :outer;
 			};
 			if (!matched) {
 				break :inner;
@@ -195,8 +226,9 @@ export fn fnmatch_internal(
 			s = copy;
 		};
 		match (strings::next(&s_copy)) {
-			void => return false,
-			rune => void,
+		case void =>
+			return false;
+		case rune => void;
 		};
 	};
 	abort();
@@ -223,50 +255,48 @@ fn match_bracket(
 	};
 	for (let r = first; true; r = advance_or_err(it)?) {
 		switch (r) {
-			']' => break,
-			'-' => {
-				let end = advance_or_err(it)?;
-				if (end == ']') {
-					// '-' at the end matches itself
-					strings::push(it, ']');
-					last = '-';
-					found ||= (c == '-');
-					continue;
-				};
-				if (last is void) {
-					return errors::invalid;
-				};
-				let l = last: rune;
-				found ||= (l: u32 <= c: u32 && c: u32 <= end: u32);
-				last = void; // forbid 'a-f-n'
-			},
-			'[' => {
-				let next_rune = advance_or_err(it)?;
-				switch (next_rune) { // TODO localization
-					'=', '.' => return errors::unsupported,
-					':' => {
-						let t = match_ctype(it, c)?;
-						found ||= t;
-					},
-					* => {
-						strings::push(it, next_rune);
-						found ||= (c == '[');
-					},
-				};
-				last = '[';
-			},
-			* => {
-				found ||= (c == r);
-				last = r;
-			},
+		case ']' =>
+			break;
+		case '-' =>
+			let end = advance_or_err(it)?;
+			if (end == ']') {
+				// '-' at the end matches itself
+				strings::push(it, ']');
+				last = '-';
+				found ||= (c == '-');
+				continue;
+			};
+			if (last is void) {
+				return errors::invalid;
+			};
+			let l = last: rune;
+			found ||= (l: u32 <= c: u32 && c: u32 <= end: u32);
+			last = void; // forbid 'a-f-n'
+		case '[' =>
+			let next_rune = advance_or_err(it)?;
+			switch (next_rune) { // TODO localization
+			case '=', '.' =>
+				return errors::unsupported;
+			case ':' =>
+				let t = match_ctype(it, c)?;
+				found ||= t;
+			case =>
+				strings::push(it, next_rune);
+				found ||= (c == '[');
+			};
+			last = '[';
+		case =>
+			found ||= (c == r);
+			last = r;
 		};
 	};
 
 	let cnt = len(strings::iter_str(&old)) - len(strings::iter_str(it));
 	if (last is rune && first == last: rune && cnt >= 4) {
 		switch (first) {
-			'=', '.', ':' => return errors::invalid,
-			* => void,
+		case '=', '.', ':' =>
+			return errors::invalid;
+		case => void;
 		};
 	};
 	return found ^^ inv;
@@ -282,12 +312,14 @@ fn match_ctype(it: *strings::iterator, c: rune) (bool | errors::invalid) = {
 		};
 	};
 	if (advance_or_err(it)? != ']') {
-			return errors::invalid;
+		return errors::invalid;
 	};
 	let name = strings::sub(s, 0, i - 1);
-	return match (ctype_name_to_func(name)) {
-		null => return errors::invalid,
-		f: *fn(c: rune) bool => f(c),
+	match (ctype_name_to_func(name)) {
+	case null =>
+		return errors::invalid;
+	case f: *fn(c: rune) bool =>
+		return f(c);
 	};
 };
 
@@ -306,32 +338,43 @@ fn ctype_name_to_func(name: str) nullable *fn(c: rune) bool = {
 		("punct", &ascii::ispunct), ("space", &ascii::isspace),
 		("upper", &ascii::isupper), ("xdigit",&ascii::isxdigit),
 	];
-	return match (sort::search(map, size(funcmap), &name, &cmp)) {
-		null => null: nullable *fn(c: rune) bool,
-		p: *void => (p: *funcmap).1,
+	match (sort::search(map, size(funcmap), &name, &cmp)) {
+	case null =>
+		return null: nullable *fn(c: rune) bool;
+	case p: *void =>
+		return (p: *funcmap).1;
 	};
 };
 
 fn pat_next(pat: *strings::iterator, fl: flags) (token | errors::invalid) = {
 	let r = match (strings::next(pat)) {
-		void => return end,
-		r: rune => r,
+	case void =>
+		return end;
+	case r: rune =>
+		yield r;
 	};
-	return switch (r) {
-		'*' => star,
-		'?' => question,
-		'[' => bracket,
-					// TODO: remove ? (harec bug workaround)
-		'\\' => if (fl & flags::NOESCAPE == 0) advance_or_err(pat)?
-			else '\\': token, // TODO: remove cast (harec bug workaround)
-		* => r,
+	switch (r) {
+	case '*' =>
+		return star;
+	case '?' =>
+		return question;
+	case '[' =>
+		return bracket;
+	case '\\' =>
+		// TODO: remove ? (harec bug workaround)
+		return if (fl & flags::NOESCAPE == 0) advance_or_err(pat)?
+			else '\\': token; // TODO: remove cast (harec bug workaround)
+	case =>
+		return r;
 	};
 };
 
 fn advance_or_err(it: *strings::iterator) (rune | errors::invalid) = {
-	return match (strings::next(it)) {
-		r: rune => r,
-		void => errors::invalid,
+	match (strings::next(it)) {
+	case r: rune =>
+		return r;
+	case void =>
+		return errors::invalid;
 	};
 };
 

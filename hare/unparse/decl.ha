@@ -10,80 +10,78 @@ export fn decl(out: *io::stream, d: ast::decl) (size | io::error) = {
 		n += fmt::fprint(out, "export ")?;
 	};
 	match (d.decl) {
-		c: []ast::decl_const => {
-			n += fmt::fprint(out, "def ")?;
-			for (let i = 0z; i < len(c); i += 1) {
-				n += ident(out, c[i].ident)?;
-				n += fmt::fprint(out, ": ")?;
-				n += _type(out, 0, c[i]._type)?;
+	case c: []ast::decl_const =>
+		n += fmt::fprint(out, "def ")?;
+		for (let i = 0z; i < len(c); i += 1) {
+			n += ident(out, c[i].ident)?;
+			n += fmt::fprint(out, ": ")?;
+			n += _type(out, 0, c[i]._type)?;
+			n += fmt::fprint(out, " = ")?;
+			n += expr(out, 0, *c[i].init)?;
+			if (i + 1 < len(c)) {
+				n += fmt::fprint(out, ", ")?;
+			};
+		};
+	case g: []ast::decl_global =>
+		n += fmt::fprint(out,
+			if (g[0].is_const) "const " else "let ")?;
+		for (let i = 0z; i < len(g); i += 1) {
+			if (len(g[i].symbol) != 0) {
+				n += fmt::fprintf(out,
+					"@symbol(\"{}\") ", g[i].symbol)?;
+			};
+			n += ident(out, g[i].ident)?;
+			n += fmt::fprint(out, ": ")?;
+			n += _type(out, 0, g[i]._type)?;
+			match (g[i].init) {
+			case null => void;
+			case ex: *ast::expr =>
 				n += fmt::fprint(out, " = ")?;
-				n += expr(out, 0, *c[i].init)?;
-				if (i + 1 < len(c)) {
-					n += fmt::fprint(out, ", ")?;
-				};
+				n += expr(out, 0, *ex)?;
 			};
-		},
-		g: []ast::decl_global => {
-			n += fmt::fprint(out,
-				if (g[0].is_const) "const " else "let ")?;
-			for (let i = 0z; i < len(g); i += 1) {
-				if (len(g[i].symbol) != 0) {
-					n += fmt::fprintf(out,
-						"@symbol(\"{}\") ", g[i].symbol)?;
-				};
-				n += ident(out, g[i].ident)?;
-				n += fmt::fprint(out, ": ")?;
-				n += _type(out, 0, g[i]._type)?;
-				match (g[i].init) {
-					null => void,
-					ex: *ast::expr => {
-						n += fmt::fprint(out, " = ")?;
-						n += expr(out, 0, *ex)?;
-					},
-				};
-				if (i + 1 < len(g)) {
-					n += fmt::fprint(out, ", ")?;
-				};
+			if (i + 1 < len(g)) {
+				n += fmt::fprint(out, ", ")?;
 			};
-		},
-		t: []ast::decl_type => {
-			n += fmt::fprint(out, "type ")?;
-			for (let i = 0z; i < len(t); i += 1) {
-				n += ident(out, t[i].ident)?;
-				n += fmt::fprint(out, " = ")?;
-				n += _type(out, 0, t[i]._type)?;
-				if (i + 1 < len(t)) {
-					n += fmt::fprint(out, ", ")?;
-				};
+		};
+	case t: []ast::decl_type =>
+		n += fmt::fprint(out, "type ")?;
+		for (let i = 0z; i < len(t); i += 1) {
+			n += ident(out, t[i].ident)?;
+			n += fmt::fprint(out, " = ")?;
+			n += _type(out, 0, t[i]._type)?;
+			if (i + 1 < len(t)) {
+				n += fmt::fprint(out, ", ")?;
 			};
-		},
-		f: ast::decl_func => {
-			n += fmt::fprint(out, switch (f.attrs) {
-				ast::fndecl_attrs::NONE => "",
-				ast::fndecl_attrs::FINI => "@fini ",
-				ast::fndecl_attrs::INIT => "@init ",
-				ast::fndecl_attrs::TEST => "@test ",
-			})?;
-			let p = f.prototype.repr as ast::func_type;
-			if (p.attrs & ast::func_attrs::NORETURN != 0) {
-				n += fmt::fprint(out, "@noreturn ")?;
-			};
-			if (len(f.symbol) != 0) {
-				n += fmt::fprintf(out, "@symbol(\"{}\") ",
-					f.symbol)?;
-			};
-			n += fmt::fprint(out, "fn ")?;
-			n += ident(out, f.ident)?;
-			const fntype = f.prototype.repr as ast::func_type;
-			n += prototype(out, 0, fntype)?;
-			match (f.body) {
-				void => void,
-				e: ast::expr => {
-					n += fmt::fprint(out, " = ")?;
-					n += expr(out, 0, e)?;
-				},
-			};
-		},
+		};
+	case f: ast::decl_func =>
+		n += fmt::fprint(out, switch (f.attrs) {
+		case ast::fndecl_attrs::NONE =>
+			yield "";
+		case ast::fndecl_attrs::FINI =>
+			yield "@fini ";
+		case ast::fndecl_attrs::INIT =>
+			yield "@init ";
+		case ast::fndecl_attrs::TEST =>
+			yield "@test ";
+		})?;
+		let p = f.prototype.repr as ast::func_type;
+		if (p.attrs & ast::func_attrs::NORETURN != 0) {
+			n += fmt::fprint(out, "@noreturn ")?;
+		};
+		if (len(f.symbol) != 0) {
+			n += fmt::fprintf(out, "@symbol(\"{}\") ",
+				f.symbol)?;
+		};
+		n += fmt::fprint(out, "fn ")?;
+		n += ident(out, f.ident)?;
+		const fntype = f.prototype.repr as ast::func_type;
+		n += prototype(out, 0, fntype)?;
+		match (f.body) {
+		case void => void;
+		case e: ast::expr =>
+			n += fmt::fprint(out, " = ")?;
+			n += expr(out, 0, e)?;
+		};
 	};
 	n += fmt::fprint(out, ";")?;
 	return n;

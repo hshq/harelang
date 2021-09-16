@@ -16,18 +16,22 @@ export fn resolve(
 	service: str,
 ) (([]ip::addr, u16) | error) = {
 	let port = match (strings::index(addr, ':')) {
-		void => match (strconv::stou16(service)) {
-			u: u16 => u,
-			* => 0u16,
-		},
-		i: size => {
-			const sub = strings::sub(addr, i + 1, strings::end);
-			addr = strings::sub(addr, 0, i);
-			yield match (strconv::stou16(sub)) {
-				u: u16 => u,
-				* => return invalid_address,
-			};
-		},
+	case void =>
+		yield match (strconv::stou16(service)) {
+		case u: u16 =>
+			yield u;
+		case =>
+			yield 0u16;
+		};
+	case i: size =>
+		const sub = strings::sub(addr, i + 1, strings::end);
+		addr = strings::sub(addr, 0, i);
+		yield match (strconv::stou16(sub)) {
+		case u: u16 =>
+			yield u;
+		case =>
+			return invalid_address;
+		};
 	};
 	if (service == "unknown" && port == 0) {
 		return unknown_service;
@@ -35,8 +39,9 @@ export fn resolve(
 
 	let addrs = resolve_addr(addr)?;
 	if (port == 0) match (lookup_service(proto, service)) {
-		p: u16 => port = p,
-		void => void,
+	case p: u16 =>
+		port = p;
+	case void => void;
 	};
 
 	// TODO:
@@ -55,13 +60,12 @@ export fn resolve(
 
 fn resolve_addr(addr: str) ([]ip::addr | error) = {
 	match (ip::parse(addr)) {
-		addr: ip::addr => {
-			// XXX: harec bug prevents just alloc'ing this
-			let addrs: []ip::addr = [];
-			append(addrs, addr);
-			return addrs;
-		},
-		ip::invalid => void,
+	case addr: ip::addr =>
+		// XXX: harec bug prevents just alloc'ing this
+		let addrs: []ip::addr = [];
+		append(addrs, addr);
+		return addrs;
+	case ip::invalid => void;
 	};
 
 	const addrs = hosts::lookup(addr);
@@ -133,11 +137,12 @@ fn resolve_addr(addr: str) ([]ip::addr | error) = {
 fn collect_answers(addrs: *[]ip::addr, answers: *[]dns::rrecord) void = {
 	for (let i = 0z; i < len(answers); i += 1) {
 		match (answers[i].rdata) {
-			// XXX: harec bug prevents us from casting directly to
-			// ip::addr
-			addr: dns::aaaa => append(addrs, addr: ip::addr6: ip::addr),
-			addr: dns::a => append(addrs, addr: ip::addr4: ip::addr),
-			* => void,
+		// XXX: harec bug prevents us from casting directly to ip::addr
+		case addr: dns::aaaa =>
+			append(addrs, addr: ip::addr6: ip::addr);
+		case addr: dns::a =>
+			append(addrs, addr: ip::addr4: ip::addr);
+		case => void;
 		};
 	};
 };

@@ -5,26 +5,23 @@ use io;
 
 fn lookup(prog: str, var: str, default: str) str = {
 	match (os::getenv(var)) {
-		s: str => {
-			let path = path::join(s, prog);
-			match (os::stat(path)) {
-				err: fs::error => {
-					os::mkdirs(path) as void;
-					return path;
-				},
-				st: fs::filestat => {
-					if (fs::isdir(st.mode)) {
-						return path;
-					};
-				},
+	case s: str =>
+		const path = path::join(s, prog);
+		match (os::stat(path)) {
+		case err: fs::error =>
+			os::mkdirs(path)!;
+			return path;
+		case st: fs::filestat =>
+			if (fs::isdir(st.mode)) {
+				return path;
 			};
-		},
-		void => void,
+		};
+	case void => void;
 	};
 
 	let home = os::getenv("HOME") as str;
 	let path = path::join(home, default, prog);
-	os::mkdirs(path) as void;
+	os::mkdirs(path)!;
 	return path;
 };
 

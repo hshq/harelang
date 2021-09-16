@@ -34,24 +34,33 @@ fn parsedoc(in: *io::stream) parser = {
 };
 
 fn scandoc(par: *parser) (token | void) = {
-	const rn = match (bufio::scanrune(par.src)) {
-		io::EOF => return,
-		rn: rune => rn,
-		* => abort(),
+	const rn = match (bufio::scanrune(par.src)!) {
+	case rn: rune =>
+		yield rn;
+	case io::EOF =>
+		return;
 	};
 
 	bufio::unreadrune(par.src, rn);
-	return switch (par.state) {
-		docstate::TEXT => switch (rn) {
-			'[' => scanref(par),
-			* => scantext(par),
-		},
-		docstate::PARAGRAPH => switch (rn) {
-			' ', '\t' => scansample(par),
-			'[' => scanref(par),
-			'-' => scanlist(par),
-			* => scantext(par),
-		},
+	switch (par.state) {
+	case docstate::TEXT =>
+		switch (rn) {
+		case '[' =>
+			return scanref(par);
+		case =>
+			return scantext(par);
+		};
+	case docstate::PARAGRAPH =>
+		switch (rn) {
+		case ' ', '\t' =>
+			return scansample(par);
+		case '[' =>
+			return scanref(par);
+		case '-' =>
+			return scanlist(par);
+		case =>
+			return scantext(par);
+		};
 	};
 };
 
@@ -63,31 +72,29 @@ fn scantext(par: *parser) (token | void) = {
 	// TODO: Collapse whitespace
 	const buf = strio::dynamic();
 	for (true) {
-		const rn = match (bufio::scanrune(par.src)) {
-			io::EOF => break,
-			utf8::invalid => abort("Invalid UTF-8"),
-			err: io::error => fmt::fatal(io::strerror(err)),
-			rn: rune => rn,
+		const rn = match (bufio::scanrune(par.src)!) {
+		case io::EOF => break;
+		case rn: rune =>
+			yield rn;
 		};
 		switch (rn) {
-			'[' => {
-				bufio::unreadrune(par.src, rn);
+		case '[' =>
+			bufio::unreadrune(par.src, rn);
+			break;
+		case '\n' =>
+			strio::appendrune(buf, rn)!;
+			const rn = match (bufio::scanrune(par.src)!) {
+			case io::EOF => break;
+			case rn: rune =>
+				yield rn;
+			};
+			if (rn == '\n') {
+				par.state = docstate::PARAGRAPH;
 				break;
-			},
-			'\n' => {
-				strio::appendrune(buf, rn)!;
-				const rn = match (bufio::scanrune(par.src)) {
-					io::EOF => break,
-					* => abort(),
-					rn: rune => rn,
-				};
-				if (rn == '\n') {
-					par.state = docstate::PARAGRAPH;
-					break;
-				};
-				bufio::unreadrune(par.src, rn);
-			},
-			* => strio::appendrune(buf, rn)!,
+			};
+			bufio::unreadrune(par.src, rn);
+		case =>
+			strio::appendrune(buf, rn)!;
 		};
 	};
 	let result = strio::finish(buf);
@@ -98,33 +105,39 @@ fn scantext(par: *parser) (token | void) = {
 };
 
 fn scanref(par: *parser) (token | void) = {
-	match (bufio::scanrune(par.src)) {
-		io::EOF => return,
-		rn: rune => if (rn != '[') abort(),
-		* => abort(),
+	match (bufio::scanrune(par.src)!) {
+	case io::EOF =>
+		return;
+	case rn: rune =>
+		if (rn != '[') {
+			abort();
+		};
 	};
-	match (bufio::scanrune(par.src)) {
-		io::EOF => return,
-		rn: rune => if (rn != '[') {
+	match (bufio::scanrune(par.src)!) {
+	case io::EOF =>
+		return;
+	case rn: rune =>
+		if (rn != '[') {
 			bufio::unreadrune(par.src, rn);
 			return strings::dup("["): text;
-		},
-		* => abort(),
+		};
 	};
 
 	const buf = strio::dynamic();
 	defer io::close(buf);
 	// TODO: Handle invalid syntax here
-	for (true) match (bufio::scanrune(par.src)) {
-		io::EOF => break,
-		rn: rune => switch (rn) {
-			']' => {
+	for (true) {
+		match (bufio::scanrune(par.src)!) {
+		case rn: rune =>
+			switch (rn) {
+			case ']' =>
 				bufio::scanrune(par.src) as rune; // ]
 				break;
-			},
-			* => strio::appendrune(buf, rn)!,
-		},
-		* => abort(),
+			case =>
+				strio::appendrune(buf, rn)!;
+			};
+		case io::EOF => break;
+		};
 	};
 	let id = parse::identstr(strio::string(buf)) as ast::ident;
 	return id: reference;
@@ -132,17 +145,21 @@ fn scanref(par: *parser) (token | void) = {
 
 fn scansample(par: *parser) (token | void) = {
 	let nws = 0z;
-	for (true) match (bufio::scanrune(par.src)) {
-		io::EOF => return,
-		rn: rune => switch (rn) {
-			' ' => nws += 1,
-			'\t' => nws += 8,
-			* => {
+	for (true) {
+		match (bufio::scanrune(par.src)!) {
+		case io::EOF =>
+			return;
+		case rn: rune =>
+			switch (rn) {
+			case ' ' =>
+				nws += 1;
+			case '\t' =>
+				nws += 8;
+			case =>
 				bufio::unreadrune(par.src, rn);
 				break;
-			},
-		},
-		* => abort(),
+			};
+		};
 	};
 	if (nws <= 1) {
 		return scantext(par);
@@ -151,37 +168,37 @@ fn scansample(par: *parser) (token | void) = {
 	let cont = true;
 	let buf = strio::dynamic();
 	for (cont) {
-		const rn = match (bufio::scanrune(par.src)) {
-			io::EOF => break,
-			rn: rune => rn,
-			* => abort(),
+		const rn = match (bufio::scanrune(par.src)!) {
+		case io::EOF => break;
+		case rn: rune =>
+			yield rn;
 		};
 		switch (rn) {
-			* => {
-				strio::appendrune(buf, rn)!;
-				continue;
-			},
-			'\n' => strio::appendrune(buf, rn)!,
+		case '\n' =>
+			strio::appendrune(buf, rn)!;
+		case =>
+			strio::appendrune(buf, rn)!;
+			continue;
 		};
 
 		// Consume whitespace
 		for (let i = 0z; i < nws) {
-			match (bufio::scanrune(par.src)) {
-				io::EOF => break,
-				* => abort(),
-				rn: rune => switch (rn) {
-					' '  => i += 1,
-					'\t' => i += 8,
-					'\n' => {
-						strio::appendrune(buf, rn)!;
-						i = 0;
-					},
-					* => {
-						bufio::unreadrune(par.src, rn);
-						cont = false;
-						break;
-					},
-				},
+			match (bufio::scanrune(par.src)!) {
+			case io::EOF => break;
+			case rn: rune =>
+				switch (rn) {
+				case ' ' =>
+					i += 1;
+				case '\t' =>
+					i += 8;
+				case '\n' =>
+					strio::appendrune(buf, rn)!;
+					i = 0;
+				case =>
+					bufio::unreadrune(par.src, rn);
+					cont = false;
+					break;
+				};
 			};
 		};
 	};
@@ -199,16 +216,18 @@ fn scansample(par: *parser) (token | void) = {
 fn scanlist(par: *parser) (token | void) = {
 	let items: list = [];
 	for (true) {
-		match (bufio::scanrune(par.src)) {
-			io::EOF => break,
-			* => abort(),
-			rn: rune => if (rn != '-') break,
+		match (bufio::scanrune(par.src)!) {
+		case io::EOF => break;
+		case rn: rune =>
+			if (rn != '-') {
+				break;
+			};
 		};
 		// XXX: multi-line list items
-		append(items, match (bufio::scanline(par.src)) {
-			io::EOF => break,
-			io::error => abort(),
-			u: []u8 => strings::fromutf8(u),
+		append(items, match (bufio::scanline(par.src)!) {
+		case io::EOF => break;
+		case u: []u8 =>
+			yield strings::fromutf8(u);
 		});
 	};
 	return items;

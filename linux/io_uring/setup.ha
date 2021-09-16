@@ -6,8 +6,10 @@ use rt;
 // fields are initialized by the kernel.
 export fn setup(entries: u32, params: *params) (io_uring | error) = {
 	const fd = match (rt::io_uring_setup(entries, params)) {
-		err: rt::errno => return errors::errno(err),
-		fd: int => fd,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case fd: int =>
+		yield fd;
 	};
 
 	let uring = io_uring {
@@ -34,8 +36,10 @@ export fn setup(entries: u32, params: *params) (io_uring | error) = {
 			rt::PROT_READ | rt::PROT_WRITE,
 			rt::MAP_SHARED | rt::MAP_POPULATE,
 			fd, OFF_SQ_RING)) {
-		err: rt::errno => return errors::errno(err),
-		ptr: *void => ptr,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case ptr: *void =>
+		yield ptr;
 	};
 
 	cq.ring_ptr = if (uring.features & features::SINGLE_MMAP == features::SINGLE_MMAP) {
@@ -44,8 +48,10 @@ export fn setup(entries: u32, params: *params) (io_uring | error) = {
 			rt::PROT_READ | rt::PROT_WRITE,
 			rt::MAP_SHARED | rt::MAP_POPULATE,
 			fd, OFF_CQ_RING)) {
-		err: rt::errno => return errors::errno(err),
-		ptr: *void => ptr,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case ptr: *void =>
+		yield ptr;
 	};
 
 	const ring_ptr = sq.ring_ptr: uintptr;
@@ -61,8 +67,10 @@ export fn setup(entries: u32, params: *params) (io_uring | error) = {
 			rt::PROT_READ | rt::PROT_WRITE,
 			rt::MAP_SHARED | rt::MAP_POPULATE,
 			fd, OFF_SQES)) {
-		err: rt::errno => return errors::errno(err),
-		ptr: *void => ptr: *[*]sqe,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case ptr: *void =>
+		yield ptr: *[*]sqe;
 	};
 
 	const ring_ptr = cq.ring_ptr: uintptr;

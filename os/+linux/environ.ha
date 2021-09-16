@@ -38,9 +38,11 @@ export fn getenv(name: const str) (str | void) = {
 	for (let i = 0z; rt::envp[i] != null; i += 1) {
 		const item = rt::envp[i]: *[*]u8;
 		const ln = strings::cstrlen(item: *char);
-		const eq: size = match (bytes::index(item[..ln], '=': u32: u8)) {
-			void => abort("Environment violates System-V invariants"),
-			i: size => i,
+		const eq: size = match (bytes::index(item[..ln], '=': u8)) {
+		case void =>
+			abort("Environment violates System-V invariants");
+		case i: size =>
+			yield i;
 		};
 		if (bytes::equal(name_b, item[..eq])) {
 			const ln = strings::cstrlen(item: *const char);
@@ -52,8 +54,10 @@ export fn getenv(name: const str) (str | void) = {
 // Looks up an environment variable and returns its value, or a default value if
 // unset.
 export fn tryenv(name: const str, default: str) str = match (getenv(name)) {
-	s: str => s,
-	void => default,
+case s: str =>
+	yield s;
+case void =>
+	yield default;
 };
 
 let envp: []str = [];

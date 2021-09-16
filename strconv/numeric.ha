@@ -4,12 +4,17 @@ use types;
 // statically allocated and will be overwritten on subsequent calls; see
 // [[strings::dup]] to duplicate the result.
 export fn signedtosb(n: types::signed, b: base) const str = {
-	return match (n) {
-		i: int => itosb(i, b),
-		i: i8  => i8tosb(i, b),
-		i: i16 => i16tosb(i, b),
-		i: i32 => i32tosb(i, b),
-		i: i64 => i64tosb(i, b),
+	match (n) {
+	case i: int =>
+		return itosb(i, b);
+	case i: i8 =>
+		return i8tosb(i, b);
+	case i: i16 =>
+		return i16tosb(i, b);
+	case i: i32 =>
+		return i32tosb(i, b);
+	case i: i64 =>
+		return i64tosb(i, b);
 	};
 };
 
@@ -22,13 +27,19 @@ export fn signedtos(n: types::signed) const str = signedtosb(n, base::DEC);
 // is statically allocated and will be overwritten on subsequent calls; see
 // [[strings::dup]] to duplicate the result.
 export fn unsignedtosb(n: types::unsigned, b: base) const str = {
-	return match (n) {
-		u: size => ztosb(u, b),
-		u: uint => utosb(u, b),
-		u: u8   => u8tosb(u, b),
-		u: u16  => u16tosb(u, b),
-		u: u32  => u32tosb(u, b),
-		u: u64  => u64tosb(u, b),
+	match (n) {
+	case u: size =>
+		return ztosb(u, b);
+	case u: uint =>
+		return utosb(u, b);
+	case u: u8 =>
+		return u8tosb(u, b);
+	case u: u16 =>
+		return u16tosb(u, b);
+	case u: u32 =>
+		return u32tosb(u, b);
+	case u: u64 =>
+		return u64tosb(u, b);
 	};
 };
 
@@ -41,9 +52,11 @@ export fn unsignedtos(n: types::unsigned) const str = unsignedtosb(n, base::DEC)
 // 8, 10, or 16. The return value is statically allocated and will be
 // overwritten on subsequent calls; see [[strings::dup]] to duplicate the result.
 export fn integertosb(n: types::integer, b: base) const str = {
-	return match (n) {
-		s: types::signed   => signedtosb(s, b),
-		u: types::unsigned => unsignedtosb(u, b),
+	match (n) {
+	case s: types::signed =>
+		return signedtosb(s, b);
+	case u: types::unsigned =>
+		return unsignedtosb(u, b);
 	};
 };
 
@@ -57,9 +70,11 @@ export fn integertos(n: types::integer) const str = integertosb(n, base::DEC);
 // [[strings::dup]] to duplicate the result.
 export fn floatingtosb(n: types::floating, b: base) const str = {
 	assert(b == base::DEC);
-	return match (n) {
-		f: f32 => abort(), // TODO
-		f: f64 => f64tos(f),
+	match (n) {
+	case f: f32 =>
+		abort(); // TODO
+	case f: f64 =>
+		return f64tos(f);
 	};
 };
 
@@ -72,9 +87,11 @@ export fn floatingtos(n: types::floating) const str = floatingtosb(n, base::DEC)
 // is statically allocated and will be overwritten on subsequent calls; see
 // [[strings::dup]] to duplicate the result.
 export fn numerictosb(n: types::numeric, b: base) const str = {
-	return match (n) {
-		i: types::integer  => integertosb(i, b),
-		f: types::floating => floatingtosb(f, b),
+	match (n) {
+	case i: types::integer =>
+		return integertosb(i, b);
+	case f: types::floating =>
+		return floatingtosb(f, b);
 	};
 };
 

@@ -24,53 +24,54 @@ fn sort_decls(decls: []ast::decl) summary = {
 		};
 
 		match (decl.decl) {
-			f: ast::decl_func => append(sorted.funcs, decl),
-			t: []ast::decl_type =>
-				for (let j = 0z; j < len(t); j += 1) {
-					let bucket = &sorted.types;
-					if (t[j]._type.flags & ast::type_flags::ERROR == ast::type_flags::ERROR) {
-						bucket = &sorted.errors;
-					};
-					append(bucket, ast::decl {
-						exported = true,
-						loc = decl.loc,
-						decl = {
-							// XXX: Kind of bad
-							let new: []ast::decl_type = [];
-							append(new, t[j]);
-							yield new;
-						},
-						docs = decl.docs,
-					});
-				},
-			c: []ast::decl_const =>
-				for (let j = 0z; j < len(c); j += 1) {
-					append(sorted.constants, ast::decl {
-						exported = true,
-						loc = decl.loc,
-						decl = {
-							// XXX: Kind of bad
-							let new: []ast::decl_const = [];
-							append(new, c[j]);
-							yield new;
-						},
-						docs = decl.docs,
-					});
-				},
-			g: []ast::decl_global =>
-				for (let j = 0z; j < len(g); j += 1) {
-					append(sorted.globals, ast::decl {
-						exported = true,
-						loc = decl.loc,
-						decl = {
-							// XXX: Kind of bad
-							let new: []ast::decl_global = [];
-							append(new, g[j]);
-							yield new;
-						},
-						docs = decl.docs,
-					});
-				},
+		case f: ast::decl_func =>
+			append(sorted.funcs, decl);
+		case t: []ast::decl_type =>
+			for (let j = 0z; j < len(t); j += 1) {
+				let bucket = &sorted.types;
+				if (t[j]._type.flags & ast::type_flags::ERROR == ast::type_flags::ERROR) {
+					bucket = &sorted.errors;
+				};
+				append(bucket, ast::decl {
+					exported = true,
+					loc = decl.loc,
+					decl = {
+						// XXX: Kind of bad
+						let new: []ast::decl_type = [];
+						append(new, t[j]);
+						yield new;
+					},
+					docs = decl.docs,
+				});
+			};
+		case c: []ast::decl_const =>
+			for (let j = 0z; j < len(c); j += 1) {
+				append(sorted.constants, ast::decl {
+					exported = true,
+					loc = decl.loc,
+					decl = {
+						// XXX: Kind of bad
+						let new: []ast::decl_const = [];
+						append(new, c[j]);
+						yield new;
+					},
+					docs = decl.docs,
+				});
+			};
+		case g: []ast::decl_global =>
+			for (let j = 0z; j < len(g); j += 1) {
+				append(sorted.globals, ast::decl {
+					exported = true,
+					loc = decl.loc,
+					decl = {
+						// XXX: Kind of bad
+						let new: []ast::decl_global = [];
+						append(new, g[j]);
+						yield new;
+					},
+					docs = decl.docs,
+				});
+			};
 		};
 	};
 
@@ -94,18 +95,18 @@ fn decl_cmp(a: const *void, b: const *void) int = {
 	return ascii::strcmp(id_a[len(id_a) - 1], id_b[len(id_b) - 1]) as int;
 };
 
-fn decl_ident(decl: ast::decl) ast::ident = match (decl.decl) {
-	f: ast::decl_func => f.ident,
-	t: []ast::decl_type => {
+fn decl_ident(decl: ast::decl) ast::ident = {
+	match (decl.decl) {
+	case f: ast::decl_func =>
+		return f.ident;
+	case t: []ast::decl_type =>
 		assert(len(t) == 1);
-		yield t[0].ident;
-	},
-	c: []ast::decl_const => {
+		return t[0].ident;
+	case c: []ast::decl_const =>
 		assert(len(c) == 1);
-		yield c[0].ident;
-	},
-	g: []ast::decl_global => {
+		return c[0].ident;
+	case g: []ast::decl_global =>
 		assert(len(g) == 1);
-		yield g[0].ident;
-	},
+		return g[0].ident;
+	};
 };

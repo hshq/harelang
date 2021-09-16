@@ -62,8 +62,10 @@ export fn fd(f: *file) int = f.fd;
 export fn unwrapfd(s: *stream) (int | void) = {
 	for (!is_file(s)) {
 		s = match (io::source(s)) {
-			errors::unsupported => return,
-			s: *io::stream => s,
+		case errors::unsupported =>
+			return;
+		case s: *io::stream =>
+			yield s;
 		};
 	};
 	return fd(s: *file);
@@ -71,20 +73,26 @@ export fn unwrapfd(s: *stream) (int | void) = {
 
 fn fd_read(s: *stream, buf: []u8) (size | EOF | error) = {
 	let stream = s: *file;
-	return match (rt::read(stream.fd, buf: *[*]u8, len(buf))) {
-		err: rt::errno => errors::errno(err),
-		n: size => switch (n) {
-			0 => EOF,
-			* => n,
-		},
+	match (rt::read(stream.fd, buf: *[*]u8, len(buf))) {
+		case err: rt::errno =>
+			return errors::errno(err);
+		case n: size =>
+			switch (n) {
+			case 0 =>
+				return EOF;
+			case =>
+				return n;
+			};
 	};
 };
 
 fn fd_write(s: *stream, buf: const []u8) (size | error) = {
 	let stream = s: *file;
-	return match (rt::write(stream.fd, buf: *const [*]u8, len(buf))) {
-		err: rt::errno => errors::errno(err),
-		n: size => n,
+	match (rt::write(stream.fd, buf: *const [*]u8, len(buf))) {
+	case err: rt::errno =>
+		return errors::errno(err);
+	case n: size =>
+		return n;
 	};
 };
 
@@ -110,19 +118,23 @@ fn fd_copy(to: *stream, from: *stream) (size | error) = {
 	for (true) {
 		let n = match (rt::sendfile(to.fd, from.fd,
 				null, SENDFILE_MAX)) {
-			err: rt::errno => switch (err) {
-				rt::EINVAL => {
+			case err: rt::errno =>
+				switch (err) {
+				case rt::EINVAL =>
 					if (sum == 0) {
 						return errors::unsupported;
 					};
 					return errors::errno(err);
-				},
-				* => return errors::errno(err),
-			},
-			n: size => switch (n) {
-				0 => return sum,
-				* => n,
-			},
+				case =>
+					return errors::errno(err);
+				};
+			case n: size =>
+				yield switch (n) {
+				case 0 =>
+					break;
+				case =>
+					yield n;
+				};
 		};
 		sum += n;
 	};
@@ -135,8 +147,10 @@ fn fd_seek(
 	whence: whence,
 ) (off | error) = {
 	let stream = s: *file;
-	return match (rt::lseek(stream.fd, off: i64, whence: uint)) {
-		err: rt::errno => errors::errno(err),
-		n: i64 => n: off,
+	match (rt::lseek(stream.fd, off: i64, whence: uint)) {
+	case err: rt::errno =>
+		return errors::errno(err);
+	case n: i64 =>
+		return n: off;
 	};
 };

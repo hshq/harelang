@@ -38,8 +38,10 @@ export fn wait(proc: *process) (status | error) = {
 	let ru: rt::rusage = rt::rusage { ... };
 	let st: status = status { ... };
 	match (rt::wait4(*proc, &st.status, 0, &ru)) {
-		err: rt::errno => return errors::errno(err),
-		pid: int => assert(pid == *proc),
+	case err: rt::errno =>
+		return errors::errno(err);
+	case pid: int =>
+		assert(pid == *proc);
 	};
 	rusage(&st, &ru);
 	return st;
@@ -51,11 +53,15 @@ export fn peek(proc: *process) (status | void | error) = {
 	let ru: rt::rusage = rt::rusage { ... };
 	let st: status = status { ... };
 	match (rt::wait4(*proc, &st.status, 0, &ru)) {
-		err: rt::errno => return errors::errno(err),
-		pid: int => switch (pid) {
-			0 => return void,
-			* => assert(pid == *proc),
-		},
+	case err: rt::errno =>
+		return errors::errno(err);
+	case pid: int =>
+		switch (pid) {
+		case 0 =>
+			return;
+		case =>
+			assert(pid == *proc);
+		};
 	};
 	rusage(&st, &ru);
 	return st;
@@ -73,13 +79,18 @@ export type exit_status = (exited | signaled);
 // Returns a human friendly string describing the exit status.
 export fn exitstr(status: exit_status) const str = {
 	static let buf: [1024]u8 = [0...];
-	return match (status) {
-		i: exited => switch (i) {
-			0 => "exited normally",
-			* => fmt::bsprintf(buf, "exited with status {}", i: int),
-		},
+	match (status) {
+	case i: exited =>
+		switch (i) {
+		case 0 =>
+			return "exited normally";
+		case =>
+			return fmt::bsprintf(buf, "exited with status {}",
+				i: int);
+		};
+	case s: signaled =>
 		// TODO: Add signal name
-		s: signaled => fmt::bsprintf(buf, "exited with signal {}", s: int),
+		return fmt::bsprintf(buf, "exited with signal {}", s: int);
 	};
 };
 
@@ -98,9 +109,11 @@ export fn exit(stat: *status) exit_status = {
 // or its status code as an error type if not.
 export fn check(stat: *status) (void | !exit_status) = {
 	if (rt::wifexited(stat.status)) {
-		return switch (rt::wexitstatus(stat.status)) {
-			0 => void,
-			* => exit(stat),
+		switch (rt::wexitstatus(stat.status)) {
+		case 0 =>
+			return void;
+		case =>
+			return exit(stat);
 		};
 	};
 	return exit(stat);

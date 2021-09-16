@@ -12,8 +12,10 @@ export fn ltrim(input: str, trim: rune...) str = {
 	let it = iter(input);
 	for (true) {
 		const r = match (next(&it)) {
-			r: rune => r,
-			void => break,
+		case r: rune =>
+			yield r;
+		case void =>
+			break;
 		};
 		let found = false;
 		for (let i = 0z; i < len(trim); i += 1) {
@@ -40,8 +42,10 @@ export fn rtrim(input: str, trim: rune...) str = {
 	let it = riter(input);
 	for (true) {
 		const r = match (prev(&it)) {
-			r: rune => r,
-			void => break,
+		case r: rune =>
+			yield r;
+		case void =>
+			break;
 		};
 		let found = false;
 		for (let i = 0z; i < len(trim); i += 1) {

@@ -11,20 +11,25 @@ use types;
 // established.
 export fn connect(addr: addr) (io::file | net::error) = {
 	let sockaddr = match (to_native(addr)) {
-		a: rt::sockaddr => a,
-		invalid => return errors::unsupported, // path too long
+	case a: rt::sockaddr =>
+		yield a;
+	case invalid =>
+		return errors::unsupported; // path too long
 	};
 	const sockfd = match (rt::socket(rt::AF_UNIX: int, rt::SOCK_STREAM, 0)) {
-		err: rt::errno => return errors::errno(err),
-		fd: int => fd,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case fd: int =>
+		yield fd;
 	};
 	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
 	rt::fcntl(sockfd, rt::F_SETFL, flags | rt::O_CLOEXEC)!;
 
 	const sz = size(rt::sockaddr_un): u32;
 	match (rt::connect(sockfd, &sockaddr, sz)) {
-		err: rt::errno => return errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 	static let buf: [rt::UNIX_PATH_MAX + 32]u8 = [0...];
 	return io::fdopen(sockfd,
@@ -38,12 +43,16 @@ export fn listen(
 	options: listen_option...
 ) (*net::listener | net::error) = {
 	let sockaddr = match (to_native(addr)) {
-		a: rt::sockaddr => a,
-		invalid => return errors::unsupported, // path too long
+	case a: rt::sockaddr =>
+		yield a;
+	case invalid =>
+		return errors::unsupported; // path too long
 	};
 	const sockfd = match (rt::socket(rt::AF_UNIX: int, rt::SOCK_STREAM, 0)) {
-		err: rt::errno => return errors::errno(err),
-		fd: int => fd,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case fd: int =>
+		yield fd;
 	};
 	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
 	rt::fcntl(sockfd, rt::F_SETFL, flags | rt::O_CLOEXEC)!;
@@ -55,12 +64,14 @@ export fn listen(
 	};
 
 	match (rt::bind(sockfd, &sockaddr, size(rt::sockaddr_un): u32)) {
-		err: rt::errno => return errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
-	match ((rt::listen(sockfd, bk))) {
-		err: rt::errno => return errors::errno(err),
-		int => void,
+	match (rt::listen(sockfd, bk)) {
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 
 	return alloc(net::stream_listener {
@@ -85,8 +96,9 @@ fn to_native(addr: addr) (rt::sockaddr | invalid) = {
 		}
 	};
 	match ((&addr: *types::string).data) {
-		null => void,
-		data: *[*]u8 => rt::memcpy(&ret.un.sun_path, data, len(addr)),
+	case null => void;
+	case data: *[*]u8 =>
+		rt::memcpy(&ret.un.sun_path, data, len(addr));
 	};
 	ret.un.sun_path[len(addr)] = 0;
 	return ret;

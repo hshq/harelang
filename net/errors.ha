@@ -8,9 +8,11 @@ export type error = !(unknownproto | ...errors::error);
 
 // Converts a [[net::error]] into a human-readable string.
 export fn strerror(err: error) const str = {
-	return match (err) {
-		unknownproto => "Unsupported protocol",
-		err: errors::error => errors::strerror(err),
+	match (err) {
+	case unknownproto =>
+		return "Unsupported protocol";
+	case err: errors::error =>
+		return errors::strerror(err);
 	};
 };
 

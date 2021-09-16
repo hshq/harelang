@@ -59,8 +59,10 @@ fn ip_test(s: str, expected: (addr|invalid)) void = {
 
 fn subnet_test_simple(s: str) void = {
 	let net = match (parsecidr(s)) {
-		a: subnet => a,
-		* => return,
+	case a: subnet =>
+		yield a;
+	case =>
+		return;
 	};
 	let fmted = string(net);
 	assert(fmted == s);

@@ -32,11 +32,12 @@ export fn file(
 	} else {
 		oflags |= fs::flags::WRONLY;
 	};
-	return match (os::create(get_tmpdir(), fmode, oflags)) {
-		// TODO: Add a custom "close" function which removes the named
-		// file
-		err: fs::error => named(os::cwd, get_tmpdir(), iomode, mode...),
-		f: io::file => f,
+	// TODO: Add a custom "close" function which removes the named file
+	match (os::create(get_tmpdir(), fmode, oflags)) {
+	case err: fs::error =>
+		return named(os::cwd, get_tmpdir(), iomode, mode...);
+	case f: io::file =>
+		return f;
 	};
 };
 
@@ -74,9 +75,12 @@ export fn named(
 		const id = *(&rand[0]: *u64);
 		const fpath = fmt::bsprintf(pathbuf, "{}/temp.{}", path, id);
 		match (fs::create_file(fs, fpath, fmode, oflags)) {
-			errors::exists => continue,
-			err: fs::error => return err,
-			f: io::file => return f,
+		case errors::exists =>
+			continue;
+		case err: fs::error =>
+			return err;
+		case f: io::file =>
+			return f;
 		};
 	};
 	abort(); // Unreachable
@@ -99,8 +103,8 @@ export fn dir() str = {
 
 	let path = path::join(get_tmpdir(), name);
 	match (os::mkdir(path)) {
-		err: fs::error => abort("Could not create temp directory"),
-		void => void,
+	case err: fs::error => abort("Could not create temp directory");
+	case void => void;
 	};
 	return path;
 };

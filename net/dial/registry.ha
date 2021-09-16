@@ -17,11 +17,15 @@ export type error = !(invalid_address | unknown_service | net::error | dns::erro
 // Converts an [[error]] to a human-readable string.
 export fn strerror(err: error) const str = {
 	// TODO: These could be better
-	return match (err) {
-		invalid_address => "Attempted to dial an invalid address",
-		unknown_service => "Unknown service",
-		err: net::error => net::strerror(err),
-		err: dns::error => dns::strerror(err),
+	match (err) {
+	case invalid_address =>
+		return "Attempted to dial an invalid address";
+	case unknown_service =>
+		return "Unknown service";
+	case err: net::error =>
+		return net::strerror(err);
+	case err: dns::error =>
+		return dns::strerror(err);
 	};
 };
 

@@ -27,16 +27,22 @@ export fn stou64b(s: str, base: uint) (u64 | invalid | overflow) = {
 	let iter = strings::iter(s);
 	for (true) {
 		let r: rune = match (strings::next(&iter)) {
-			void => break,
-			r: rune => r,
+		case r: rune =>
+			yield r;
+		case void =>
+			break;
 		};
 
 		let digit = match (rune_to_integer(r)) {
-			void => return (iter.dec.offs - 1): invalid,
-			d: u64 => d,
+		case void =>
+			return (iter.dec.offs - 1): invalid;
+		case d: u64 =>
+			yield d;
 		};
 
-		if (digit >= base: u64) return (iter.dec.offs - 1): invalid;
+		if (digit >= base: u64) {
+			return (iter.dec.offs - 1): invalid;
+		};
 
 		let old = n;
 
@@ -103,12 +109,20 @@ export fn stoub(s: str, base: uint) (uint | invalid | overflow) = {
 // returned. Supported bases are 2, 8, 10 and 16.
 export fn stozb(s: str, base: uint) (size | invalid | overflow) = {
 	static assert(size(size) == size(u32) || size(size) == size(u64));
-	return if (size(size) == size(u32)) match (stou32b(s, base)) {
-		v: (invalid | overflow) => v,
-		n: u32 => n: size,
-	} else match (stou64b(s, base)) {
-		v: (invalid | overflow) => v,
-		n: u64 => n: size,
+	if (size(size) == size(u32)) {
+		match (stou32b(s, base)) {
+		case v: (invalid | overflow) =>
+			return v;
+		case n: u32 =>
+			return n: size;
+		};
+	} else {
+		match (stou64b(s, base)) {
+		case v: (invalid | overflow) =>
+			return v;
+		case n: u64 =>
+			return n: size;
+		};
 	};
 };
 

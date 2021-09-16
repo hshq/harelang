@@ -13,12 +13,17 @@ export fn connect(
 	options: connect_option...
 ) (io::file | net::error) = {
 	const sockaddr = ip::to_native(addr, port);
-	const sockfd = match (rt::socket(match (addr) {
-		ip::addr4 => rt::AF_INET: int,
-		ip::addr6 => rt::AF_INET6: int,
-	}, rt::SOCK_STREAM, 0)) {
-		err: rt::errno => return errors::errno(err),
-		fd: int => fd,
+	const family = match (addr) {
+	case ip::addr4 =>
+		yield rt::AF_INET: int;
+	case ip::addr6 =>
+		yield rt::AF_INET6: int;
+	};
+	const sockfd = match (rt::socket(family, rt::SOCK_STREAM, 0)) {
+	case err: rt::errno =>
+		return errors::errno(err);
+	case fd: int =>
+		yield fd;
 	};
 	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
 	rt::fcntl(sockfd, rt::F_SETFL, flags | rt::O_CLOEXEC)!;
@@ -29,8 +34,9 @@ export fn connect(
 	};
 	const sz = size(rt::sockaddr): u32;
 	match (rt::connect(sockfd, &sockaddr, sz)) {
-		err: rt::errno => return errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 	return io::fdopen(sockfd, ip::string(addr),
 		io::mode::READ | io::mode::WRITE);
@@ -43,12 +49,17 @@ export fn listen(
 	options: listen_option...
 ) (*net::listener | net::error) = {
 	const sockaddr = ip::to_native(addr, port);
-	const sockfd = match (rt::socket(match (addr) {
-		ip::addr4 => rt::AF_INET: int,
-		ip::addr6 => rt::AF_INET6: int,
-	}, rt::SOCK_STREAM, 0)) {
-		err: rt::errno => return errors::errno(err),
-		fd: int => fd,
+	const family = match (addr) {
+	case ip::addr4 =>
+		yield rt::AF_INET: int;
+	case ip::addr6 =>
+		yield rt::AF_INET6: int;
+	};
+	const sockfd = match (rt::socket(family, rt::SOCK_STREAM, 0)) {
+	case err: rt::errno =>
+		return errors::errno(err);
+	case fd: int =>
+		yield fd;
 	};
 	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
 	rt::fcntl(sockfd, rt::F_SETFL, flags | rt::O_CLOEXEC)!;
@@ -56,33 +67,42 @@ export fn listen(
 	let bk: u32 = 10;
 	for (let i = 0z; i < len(options); i += 1) {
 		match (options[i]) {
-			reuseaddr => setsockopt(sockfd, rt::SO_REUSEADDR, true)?,
-			reuseport => setsockopt(sockfd, rt::SO_REUSEPORT, true)?,
-			keepalive => setsockopt(sockfd, rt::SO_KEEPALIVE, true)?,
-			b: backlog => bk = b,
-			p: portassignment => void,
+		case reuseaddr =>
+			setsockopt(sockfd, rt::SO_REUSEADDR, true)?;
+		case reuseport =>
+			setsockopt(sockfd, rt::SO_REUSEPORT, true)?;
+		case keepalive =>
+			setsockopt(sockfd, rt::SO_KEEPALIVE, true)?;
+		case b: backlog =>
+			bk = b;
+		case p: portassignment => void;
 		};
 	};
 
 	match (rt::bind(sockfd, &sockaddr, size(rt::sockaddr): u32)) {
-		err: rt::errno => return errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
-	match ((rt::listen(sockfd, bk))) {
-		err: rt::errno => return errors::errno(err),
-		int => void,
+	match (rt::listen(sockfd, bk)) {
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 
 	for (let i = 0z; i < len(options); i += 1) {
 		let portout = match (options[i]) {
-			p: portassignment => p,
-			* => continue,
+		case p: portassignment =>
+			yield p;
+		case =>
+			continue;
 		};
 		let sn = rt::sockaddr {...};
 		let al = size(rt::sockaddr): u32;
 		match (rt::getsockname(sockfd, &sn, &al)) {
-			err: rt::errno => return errors::errno(err),
-			int => void,
+		case err: rt::errno =>
+			return errors::errno(err);
+		case int => void;
 		};
 		const addr = ip::from_native(sn);
 		*portout = addr.1;
@@ -115,9 +135,10 @@ fn setsockopt(
 	value: bool,
 ) (void | net::error) = {
 	let val: int = if (value) 1 else 0;
-	return match (rt::setsockopt(sockfd, rt::SOL_SOCKET, option,
+	match (rt::setsockopt(sockfd, rt::SOL_SOCKET, option,
 			&val: *void, size(int): u32)) {
-		err: rt::errno => errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 };

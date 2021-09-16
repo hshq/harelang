@@ -15,9 +15,11 @@ export type error = !(nocmd | ...errors::error);
 
 // Returns a human-readable message for the given error.
 export fn strerror(err: error) const str = {
-	return match (err) {
-		nocmd => "Command not found",
-		err: errors::opaque => errors::strerror(err),
+	match (err) {
+	case nocmd =>
+		return "Command not found";
+	case err: errors::opaque =>
+		return errors::strerror(err);
 	};
 };
 

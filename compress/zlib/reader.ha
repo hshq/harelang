@@ -32,11 +32,16 @@ type decompress_err = enum {
 fn opaque_strerror(
 	data: *errors::opaque_data
 ) const str = switch (*(data: *decompress_err)) {
-	decompress_err::HEADER => "Invalid zlib header",
-	decompress_err::CHECKSUM => "Invalid zlib checksum",
-	decompress_err::EOF => "Unexpected EOF",
-	decompress_err::DICT => "Invalid dictionary",
-	* => abort(),
+case decompress_err::HEADER =>
+	yield "Invalid zlib header";
+case decompress_err::CHECKSUM =>
+	yield "Invalid zlib checksum";
+case decompress_err::EOF =>
+	yield "Unexpected EOF";
+case decompress_err::DICT =>
+	yield "Invalid dictionary";
+case =>
+	abort();
 };
 
 fn wraperror(err: decompress_err) errors::opaque = {
@@ -52,8 +57,10 @@ fn verifysum(s: *reader) (io::EOF | io::error) = {
 
 	for (let n = 0z; n < len(hash)) {
 		match (io::read(s.source, hash[n..])?) {
-			io::EOF => return wraperror(decompress_err::EOF),
-			z: size => n += z,
+		case io::EOF =>
+			return wraperror(decompress_err::EOF);
+		case z: size =>
+			n += z;
 		};
 	};
 
@@ -64,8 +71,10 @@ fn verifysum(s: *reader) (io::EOF | io::error) = {
 fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let s = s: *reader;
 	match (io::read(&s.flate, buf)?) {
-		io::EOF => return verifysum(s),
-		z: size => buf = buf[..z],
+	case io::EOF =>
+		return verifysum(s);
+	case z: size =>
+		buf = buf[..z];
 	};
 	return hash::write(&s.hash, buf);
 };
@@ -80,8 +89,10 @@ export fn decompress(s: *io::stream) (reader | io::error) = {
 	let buf: [2]u8 = [0...];
 	for (let n = 0z; n < len(buf)) {
 		match (io::read(s, buf[n..])?) {
-			io::EOF => return wraperror(decompress_err::EOF),
-			z: size => n += z,
+		case io::EOF =>
+			return wraperror(decompress_err::EOF);
+		case z: size =>
+			n += z;
 		};
 	};
 	if (buf[0] & CM != 8) {
@@ -116,18 +127,17 @@ export fn decompress(s: *io::stream) (reader | io::error) = {
 		let in = bufio::fixed(*vectors[i].1, io::mode::READ);
 		let out = bufio::dynamic(io::mode::WRITE);
 		let d = match (decompress(in)) {
-			s: reader => s,
-			e: io::error => {
-				fmt::errorln(io::strerror(e))!;
-				abort();
-			},
+		case s: reader =>
+			yield s;
+		case e: io::error =>
+			fmt::errorln(io::strerror(e))!;
+			abort();
 		};
 		match (io::copy(out, &d)) {
-			size => void,
-			e: io::error => {
-				fmt::errorfln("vector {}: {}", i, io::strerror(e))!;
-				abort();
-			},
+		case size => void;
+		case e: io::error =>
+			fmt::errorfln("vector {}: {}", i, io::strerror(e))!;
+			abort();
 		};
 		let s = bufio::finish(out);
 		assert(bytes::equal(s, *vectors[i].0));

@@ -14,18 +14,26 @@ use strings;
 //	let proc = exec::start(&cmd);
 //	let status = exec::wait(&proc);
 //	assert(exec::status(status) == 0);
-// 
+//
 // By default, the new command will inherit the current process's environment.
 export fn cmd(name: str, args: str...) (command | error) = {
 	let env = os::getenvs();
 	let cmd = command {
 		platform: platform_cmd =
-			if (strings::contains(name, '/')) match (open(name)) {
-				p: platform_cmd => p,
-				* => return nocmd,
-			} else match (lookup(name)) {
-				void => return nocmd,
-				p: platform_cmd => p,
+			if (strings::contains(name, '/')) {
+				yield match (open(name)) {
+				case p: platform_cmd =>
+					yield p;
+				case =>
+					return nocmd;
+				};
+			} else {
+				yield match (lookup(name)) {
+				case void =>
+					return nocmd;
+				case p: platform_cmd =>
+					yield p;
+				};
 			},
 		argv = alloc([], len(args) + 1z),
 		env = alloc([], len(env)),
@@ -61,9 +69,11 @@ export @noreturn fn exec(cmd: *command) void = {
 // Starts a prepared command in a new process.
 export fn start(cmd: *command) (error | process) = {
 	defer finish(cmd);
-	return match (platform_start(cmd)) {
-		err: errors::opaque => err,
-		proc: process => proc,
+	match (platform_start(cmd)) {
+	case err: errors::opaque =>
+		return err;
+	case proc: process =>
+		return proc;
 	};
 };
 
@@ -80,11 +90,16 @@ export fn clearenv(cmd: *command) void = {
 export fn setenv(cmd: *command, key: str, value: str) void = {
 	let iter = strings::iter(key);
 	for (let i = 0z; true; i += 1) match (strings::next(&iter)) {
-		void => break,
-		r: rune => if (i == 0) assert(r == '_' || ascii::isalpha(r),
-			"Invalid environment variable")
-		else assert(r == '_' || ascii::isalnum(r),
-			"Invalid environment variable"),
+	case void =>
+		break;
+	case r: rune =>
+		if (i == 0) {
+			assert(r == '_' || ascii::isalpha(r),
+				"Invalid environment variable");
+		} else {
+			assert(r == '_' || ascii::isalnum(r),
+				"Invalid environment variable");
+		};
 	};
 
 	// XXX: This can be a binary search
@@ -101,20 +116,26 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 
 fn lookup(name: str) (platform_cmd | void) = {
 	const path = match (os::getenv("PATH")) {
-		void => return,
-		s: str => s,
+	case void =>
+		return;
+	case s: str =>
+		yield s;
 	};
 	let tok = strings::tokenize(path, ":");
 	for (true) {
 		const item = match (strings::next_token(&tok)) {
-			void => break,
-			s: str => s,
+		case void =>
+			break;
+		case s: str =>
+			yield s;
 		};
 		let path = strings::concat(item, "/", name);
 		defer free(path);
 		match (open(path)) {
-			err: error => continue,
-			p: platform_cmd => return p,
+		case err: error =>
+			continue;
+		case p: platform_cmd =>
+			return p;
 		};
 	};
 };

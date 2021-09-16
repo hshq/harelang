@@ -13,8 +13,10 @@ fn process(ctx: *context, subunits: const []ast::subunit) (unit | error) = {
 		for (let j = 0z; j < len(subunit.decls); j += 1) {
 			let adecl = &subunit.decls[j];
 			let decl = match (process_decl(ctx, adecl)) {
-				d: decl => d,
-				error => abort(), // TODO
+			case d: decl =>
+				yield d;
+			case error =>
+				abort(); // TODO
 			};
 			append(unit.decls, decl);
 		};
@@ -28,11 +30,15 @@ fn process_decl(
 	decl: *ast::decl,
 ) (decl | error) = {
 	// TODO: match on &decl.decl
-	return match (decl.decl) {
-		co: []ast::decl_const => abort(), // TODO
-		gl: []ast::decl_global => abort(), // TODO
-		ty: []ast::decl_type => abort(), // TODO
-		fu: ast::decl_func => process_func(ctx, decl, fu),
+	match (decl.decl) {
+	case co: []ast::decl_const =>
+		abort(); // TODO
+	case gl: []ast::decl_global =>
+		abort(); // TODO
+	case ty: []ast::decl_type =>
+		abort(); // TODO
+	case fu: ast::decl_func =>
+		return process_func(ctx, decl, fu);
 	};
 };
 
@@ -50,8 +56,10 @@ fn process_func(
 
 	ctx.fntype = &fntype;
 	const body: nullable *expr = match (afndecl.body) {
-		abody: ast::expr => process_expr(ctx, &abody)?,
-		void => null,
+	case abody: ast::expr =>
+		yield process_expr(ctx, &abody)?;
+	case void =>
+		yield null;
 	};
 
 	return decl {
@@ -72,49 +80,82 @@ fn process_func(
 fn process_expr(
 	ctx: *context,
 	expr: *ast::expr,
-) (*expr | error) = match (expr.expr) {
-	ast::access_expr => process_access(ctx, expr),
-	ast::alloc_expr => abort(), // TODO
-	ast::append_expr => abort(), // TODO
-	ast::assert_expr => abort(), // TODO
-	ast::assign_expr => abort(), // TODO
-	ast::binarithm_expr => abort(), // TODO
-	ast::binding_expr => process_binding(ctx, expr),
-	ast::break_expr => abort(), // TODO
-	ast::call_expr => abort(), // TODO
-	ast::cast_expr => abort(), // TODO
-	ast::compound_expr => process_compound(ctx, expr),
-	ast::constant_expr => process_constant(ctx, expr),
-	ast::continue_expr => abort(), // TODO
-	ast::defer_expr => abort(), // TODO
-	ast::delete_expr => abort(), // TODO
-	ast::for_expr => abort(), // TODO
-	ast::free_expr => abort(), // TODO
-	ast::if_expr => abort(), // TODO
-	ast::match_expr => abort(), // TODO
-	ast::len_expr => abort(), // TODO
-	ast::size_expr => abort(), // TODO
-	ast::offset_expr => abort(), // TODO
-	ast::propagate_expr => abort(), // TODO
-	ast::return_expr => process_return(ctx, expr),
-	ast::slice_expr => abort(), // TODO
-	ast::switch_expr => abort(), // TODO
-	ast::unarithm_expr => abort(), // TODO
+) (*expr | error) = {
+	match (expr.expr) {
+	case ast::access_expr =>
+		return process_access(ctx, expr);
+	case ast::alloc_expr =>
+		abort(); // TODO
+	case ast::append_expr =>
+		abort(); // TODO
+	case ast::assert_expr =>
+		abort(); // TODO
+	case ast::assign_expr =>
+		abort(); // TODO
+	case ast::binarithm_expr =>
+		abort(); // TODO
+	case ast::binding_expr =>
+		return process_binding(ctx, expr);
+	case ast::break_expr =>
+		abort(); // TODO
+	case ast::call_expr =>
+		abort(); // TODO
+	case ast::cast_expr =>
+		abort(); // TODO
+	case ast::compound_expr =>
+		return process_compound(ctx, expr);
+	case ast::constant_expr =>
+		return process_constant(ctx, expr);
+	case ast::continue_expr =>
+		abort(); // TODO
+	case ast::defer_expr =>
+		abort(); // TODO
+	case ast::delete_expr =>
+		abort(); // TODO
+	case ast::for_expr =>
+		abort(); // TODO
+	case ast::free_expr =>
+		abort(); // TODO
+	case ast::if_expr =>
+		abort(); // TODO
+	case ast::match_expr =>
+		abort(); // TODO
+	case ast::len_expr =>
+		abort(); // TODO
+	case ast::size_expr =>
+		abort(); // TODO
+	case ast::offset_expr =>
+		abort(); // TODO
+	case ast::propagate_expr =>
+		abort(); // TODO
+	case ast::return_expr =>
+		return process_return(ctx, expr);
+	case ast::slice_expr =>
+		abort(); // TODO
+	case ast::switch_expr =>
+		abort(); // TODO
+	case ast::unarithm_expr =>
+		abort(); // TODO
+	};
 };
 
 fn process_access(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const access = aexpr.expr as ast::access_expr;
 	const op: (const *types::_type, access) = match (access) {
-		ai: ast::access_identifier => {
-			const object = match (ctx_lookup(ctx, ai)) {
-				null => abort(), // TODO: Error
-				obj: *object => obj,
-			};
-			yield (object._type, object);
-		},
-		ai: ast::access_index => abort(), // TODO
-		af: ast::access_field => abort(), // TODO
-		at: ast::access_tuple => abort(), // TODO
+	case ai: ast::access_identifier =>
+		const object = match (ctx_lookup(ctx, ai)) {
+		case null =>
+			abort(); // TODO: Error
+		case obj: *object =>
+			yield obj;
+		};
+		yield (object._type, object);
+	case ai: ast::access_index =>
+		abort(); // TODO
+	case af: ast::access_field =>
+		abort(); // TODO
+	case at: ast::access_tuple =>
+		abort(); // TODO
 	};
 	return alloc(expr {
 		start = aexpr.start,
@@ -152,8 +193,10 @@ fn process_binding(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 		const item = bind.bindings[i];
 		const init = process_expr(ctx, item.init)?;
 		const _type = match (item._type) {
-			null => abort(), // TODO
-			ty: *ast::_type => types::lookup(ctx.store, ty)!,
+		case null =>
+			abort(); // TODO
+		case ty: *ast::_type =>
+			yield types::lookup(ctx.store, ty)!;
 		};
 		const object = scope_insert(ctx, object {
 			kind = object_kind::BIND,
@@ -219,23 +262,35 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const constexpr = aexpr.expr as ast::constant_expr;
 	// TODO: Tuple unpacking
 	const er: (const *types::_type, constant) = match (constexpr) {
-		v: ast::value => (
+	case v: ast::value =>
+		yield (
 			// TODO: iconst/fconst lowering
 			types::lookup_builtin(ctx.store, match (v) {
-				ast::_null => ast::builtin_type::NULL,
-				b: bool => ast::builtin_type::BOOL,
-				s: str => ast::builtin_type::STR,
-				r: rune => ast::builtin_type::RUNE,
-				i: i64 => ast::builtin_type::INT,
-				u: u64 => ast::builtin_type::UINT,
-				f: f64 => ast::builtin_type::F64,
-				void => ast::builtin_type::VOID,
+			case ast::_null =>
+				yield ast::builtin_type::NULL;
+			case b: bool =>
+				yield ast::builtin_type::BOOL;
+			case s: str =>
+				yield ast::builtin_type::STR;
+			case r: rune =>
+				yield ast::builtin_type::RUNE;
+			case i: i64 =>
+				yield ast::builtin_type::INT;
+			case u: u64 =>
+				yield ast::builtin_type::UINT;
+			case f: f64 =>
+				yield ast::builtin_type::F64;
+			case void =>
+				yield ast::builtin_type::VOID;
 			}),
 			v,
-		),
-		ast::array_constant => abort(), // TODO
-		ast::struct_constant => abort(), // TODO
-		ast::tuple_constant => abort(), // TODO
+		);
+	case ast::array_constant =>
+		abort(); // TODO
+	case ast::struct_constant =>
+		abort(); // TODO
+	case ast::tuple_constant =>
+		abort(); // TODO
 	};
 	return alloc(expr {
 		start = aexpr.start,
@@ -284,19 +339,25 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 		("13.37", types::builtin::F64, 13.37f64),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
-		const case = cases[i];
-		const aexpr = parse_expr(case.0);
+		const _case = cases[i];
+		const aexpr = parse_expr(_case.0);
 		defer ast::expr_free(aexpr);
 		const expr = process_constant(&ctx, aexpr)!;
-		assert(expr.result.repr as types::builtin == case.1);
+		assert(expr.result.repr as types::builtin == _case.1);
 		const constexpr = expr.expr as constant;
-		match (case.2) {
-			s: str => assert(constexpr as str == s),
-			r: rune => assert(constexpr as rune == r),
-			i: i64 => assert(constexpr as i64 == i),
-			u: u64 => assert(constexpr as u64 == u),
-			f: f64 => assert(constexpr as f64 == f),
-			void => abort(),
+		match (_case.2) {
+		case s: str =>
+			assert(constexpr as str == s);
+		case r: rune =>
+			assert(constexpr as rune == r);
+		case i: i64 =>
+			assert(constexpr as i64 == i);
+		case u: u64 =>
+			assert(constexpr as u64 == u);
+		case f: f64 =>
+			assert(constexpr as f64 == f);
+		case void =>
+			abort();
 		};
 	};
 };
@@ -304,8 +365,10 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 fn process_return(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const ret = aexpr.expr as ast::return_expr;
 	const rval = match (ret) {
-		null => null,
-		aexpr: *ast::expr => process_expr(ctx, aexpr)?,
+	case null =>
+		yield null;
+	case aexpr: *ast::expr =>
+		yield process_expr(ctx, aexpr)?;
 	};
 	// TODO: assert(types::assignable(ctx.fntype.result, rval.type));
 	return alloc(expr {

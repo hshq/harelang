@@ -35,12 +35,12 @@ fn strconv::ztos(z: size) str;
 @test fn copy() void = {
 	let a = test_copier_open(), b = test_copier_open();
 	match (copy(&b, &a)) {
-		n: size => {
-			assert(n == 42);
-			assert(a.r == 42);
-			assert(b.w == 42);
-		},
-		error => abort(),
+	case n: size =>
+		assert(n == 42);
+		assert(a.r == 42);
+		assert(b.w == 42);
+	case error =>
+		abort();
 	};
 	close(&a: *stream);
 	close(&b: *stream);
@@ -50,11 +50,11 @@ fn strconv::ztos(z: size) str;
 	a.copier = &test_copier_copy;
 	b.copier = &test_copier_copy;
 	match (copy(&b, &a)) {
-		n: size => {
-			assert(n == 1337);
-			assert(b.w == 62893);
-		},
-		error => abort(),
+	case n: size =>
+		assert(n == 1337);
+		assert(b.w == 62893);
+	case error =>
+		abort();
 	};
 	close(&a: *stream);
 	close(&b: *stream);
@@ -65,12 +65,12 @@ fn strconv::ztos(z: size) str;
 	a.copier = &test_copy_unsupported;
 	b.copier = &test_copy_unsupported;
 	match (copy(&b, &a)) {
-		n: size => {
-			assert(n == 42);
-			assert(a.r == 42);
-			assert(b.w == 42);
-		},
-		error => abort(),
+	case n: size =>
+		assert(n == 42);
+		assert(a.r == 42);
+		assert(b.w == 42);
+	case error =>
+		abort();
 	};
 
 	// Fallback (+short writes)
@@ -80,13 +80,13 @@ fn strconv::ztos(z: size) str;
 	b.copier = &test_copy_unsupported;
 	b.writer = &teststream_write_short;
 	match (copy(&b, &a)) {
-		n: size => {
-			assert(n == 42);
-			assert(a.r == 42);
-			assert(a.nreads == 1);
-			assert(b.w == 42);
-			assert(b.nwrites > 1);
-		},
-		error => abort(),
+	case n: size =>
+		assert(n == 42);
+		assert(a.r == 42);
+		assert(a.nreads == 1);
+		assert(b.w == 42);
+		assert(b.nwrites > 1);
+	case error =>
+		abort();
 	};
 };

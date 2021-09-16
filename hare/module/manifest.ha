@@ -53,9 +53,12 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	defer free(mpath);
 
 	let file = match (fs::open(ctx.fs, mpath, fs::flags::RDONLY)) {
-		errors::noentry => return manifest,
-		err: fs::error => return err,
-		file: *io::stream => file,
+	case errors::noentry =>
+		return manifest;
+	case err: fs::error =>
+		return err;
+	case file: *io::stream =>
+		yield file;
 	};
 	defer io::close(file);
 
@@ -65,15 +68,19 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	let file = bufio::buffered(file, buf, []);
 	for (true) {
 		let line = match (bufio::scanline(file)?) {
-			io::EOF => break,
-			line: []u8 => line,
+		case io::EOF =>
+			break;
+		case line: []u8 =>
+			yield line;
 		};
 		defer free(line);
 
 		let line = match (strings::try_fromutf8(line)) {
+		case utf8::invalid =>
 			// Treat an invalid manifest as empty
-			utf8::invalid => return manifest,
-			s: str => s,
+			return manifest;
+		case s: str =>
+			yield s;
 		};
 
 		if (strings::has_prefix(line, "#")) {
@@ -82,49 +89,76 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 
 		let tok = strings::tokenize(line, " ");
 		let kind = match (strings::next_token(&tok)) {
-			void => continue,
-			s: str => s,
+		case void =>
+			continue;
+		case s: str =>
+			yield s;
 		};
 
-		if (kind == "version") {
+		switch (kind) {
+		case "version" =>
 			let ver = match (strings::next_token(&tok)) {
-				void => return manifest,
-				s: str => s,
+			case void =>
+				return manifest;
+			case s: str =>
+				yield s;
 			};
 			match (strconv::stoi(ver)) {
-				v: int => if (v != VERSION) {
+			case v: int =>
+				if (v != VERSION) {
 					return manifest;
-				},
-				* => return manifest,
+				};
+			case =>
+				return manifest;
 			};
-		} else if (kind == "input") {
+		case "input" =>
 			let hash = match (strings::next_token(&tok)) {
-				void => return manifest, s: str => s,
+			case void =>
+				return manifest;
+			case s: str =>
+				yield s;
 			}, path = match (strings::next_token(&tok)) {
-				void => return manifest, s: str => s,
+			case void =>
+				return manifest;
+			case s: str =>
+				yield s;
 			}, inode = match (strings::next_token(&tok)) {
-				void => return manifest, s: str => s,
+			case void =>
+				return manifest;
+			case s: str =>
+				yield s;
 			}, mtime = match (strings::next_token(&tok)) {
-				void => return manifest, s: str => s,
+			case void =>
+				return manifest;
+			case s: str =>
+				yield s;
 			};
 
 			let hash = match (hex::decode(hash)) {
-				* => return manifest,
-				b: []u8 => b,
+			case b: []u8 =>
+				yield b;
+			case =>
+				return manifest;
 			};
 			let inode = match (strconv::stoz(inode)) {
-				* => return manifest,
-				z: size => z,
+			case z: size =>
+				yield z;
+			case =>
+				return manifest;
 			};
 			let mtime = match (strconv::stoi64(mtime)) {
-				* => return manifest,
-				i: i64 => time::from_unix(i),
+			case i: i64 =>
+				yield time::from_unix(i);
+			case =>
+				return manifest;
 			};
 
 			let parsed = parse_name(path);
 			let ftype = match (type_for_ext(path)) {
-				void => return manifest,
-				ft: filetype => ft,
+			case void =>
+				return manifest;
+			case ft: filetype =>
+				yield ft;
 			};
 
 			append(inputs, input {
@@ -139,30 +173,41 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 				basename = strings::dup(parsed.0),
 				tags = parsed.2,
 			});
-		} else if (kind == "module") {
+		case "module" =>
 			let modhash = match (strings::next_token(&tok)) {
-				void => return manifest, s: str => s,
+			case void =>
+				return manifest;
+			case s: str =>
+				yield s;
 			};
 			let modhash = match (hex::decode(modhash)) {
-				* => return manifest,
-				b: []u8 => b,
+			case b: []u8 =>
+				yield b;
+			case =>
+				return manifest;
 			};
 
 			let minputs: []input = [];
 			for (true) {
 				let hash = match (strings::next_token(&tok)) {
-					void => break,
-					s: str => s,
+				case void =>
+					break;
+				case s: str =>
+					yield s;
 				};
 				let hash = match (hex::decode(hash)) {
-					* => return manifest,
-					b: []u8 => b,
+				case b: []u8 =>
+					yield b;
+				case =>
+					return manifest;
 				};
 				defer free(hash);
 
 				let input = match (getinput(inputs, hash)) {
-					null => return manifest,
-					i: *input => i,
+				case null =>
+					return manifest;
+				case i: *input =>
+					yield i;
 				};
 				append(minputs, *input);
 			};
@@ -171,14 +216,15 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 				hash = modhash,
 				inputs = minputs,
 			});
-		} else {
+		case =>
 			return manifest;
 		};
 
 		// Check for extra tokens
 		match (strings::next_token(&tok)) {
-			void => void,
-			s: str => return manifest,
+		case void => void;
+		case str =>
+			return manifest;
 		};
 	};
 
@@ -206,8 +252,10 @@ export fn current(manifest: *manifest, version: *version) bool = {
 		};
 	};
 	let cached = match (cached) {
-		null => return false,
-		v: *version => v,
+	case null =>
+		return false;
+	case v: *version =>
+		yield v;
 	};
 
 	assert(len(cached.inputs) == len(version.inputs));

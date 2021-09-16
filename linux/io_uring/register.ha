@@ -9,19 +9,21 @@ use types;
 // rt::mmap).
 export fn register_buffers(ring: *io_uring, iov: []rt::iovec) (void | error) = {
 	assert(len(iov) <= types::UINT_MAX);
-	return match (rt::io_uring_register(ring.fd, regop::REGISTER_BUFFERS,
+	match (rt::io_uring_register(ring.fd, regop::REGISTER_BUFFERS,
 			iov: *[*]rt::iovec, len(iov): uint)) {
-		err: rt::errno => errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 };
 
 // Unregisters all fixed buffers associated with an [[io_uring]].
 export fn unregister_buffers(ring: *io_uring) (void | error) = {
-	return match (rt::io_uring_register(ring.fd,
+	match (rt::io_uring_register(ring.fd,
 			regop::UNREGISTER_BUFFERS, null, 0)) {
-		err: rt::errno => errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 };
 
@@ -30,10 +32,11 @@ export fn unregister_buffers(ring: *io_uring) (void | error) = {
 // [[register_files_update]].
 export fn register_files(ring: *io_uring, files: []int) (void | error) = {
 	assert(len(files) <= types::UINT_MAX);
-	return match (rt::io_uring_register(ring.fd, regop::REGISTER_FILES,
+	match (rt::io_uring_register(ring.fd, regop::REGISTER_FILES,
 			files: *[*]int, len(files): uint)) {
-		err: rt::errno => errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 };
 
@@ -44,48 +47,53 @@ export fn register_files_update(
 	updates: []files_update,
 ) (void | error) = {
 	assert(len(updates) <= types::UINT_MAX);
-	return match (rt::io_uring_register(ring.fd, regop::REGISTER_FILES_UPDATE,
+	match (rt::io_uring_register(ring.fd, regop::REGISTER_FILES_UPDATE,
 			updates: *[*]files_update, len(updates): uint)) {
-		err: rt::errno => errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 };
 
 // Unregisters all files associated with an [[io_uring]].
 export fn unregister_files(ring: *io_uring) (void | error) = {
-	return match (rt::io_uring_register(ring.fd,
+	match (rt::io_uring_register(ring.fd,
 			regop::UNREGISTER_FILES, null, 0)) {
-		err: rt::errno => errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 };
 
 // Registers an eventfd(2) with this [[io_uring]] to be notified of completion
 // events.
 export fn register_eventfd(ring: *io_uring, fd: int) (void | error) = {
-	return match (rt::io_uring_register(ring.fd,
+	match (rt::io_uring_register(ring.fd,
 			regop::REGISTER_EVENTFD, &fd, 1)) {
-		err: rt::errno => errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 };
 
 // Similar to [[register_eventfd]], but only notifies of events which complet
 // asyncronously.
 export fn register_eventfd_async(ring: *io_uring, fd: int) (void | error) = {
-	return match (rt::io_uring_register(ring.fd,
+	match (rt::io_uring_register(ring.fd,
 			regop::REGISTER_EVENTFD_ASYNC, &fd, 1)) {
-		err: rt::errno => errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 };
 
 // Unregisters the eventfd(2) associated with this [[io_uring]].
 export fn unregister_eventfd(ring: *io_uring) (void | error) = {
-	return match (rt::io_uring_register(ring.fd,
+	match (rt::io_uring_register(ring.fd,
 			regop::UNREGISTER_EVENTFD, null, 0)) {
-		err: rt::errno => errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 };
 
@@ -104,20 +112,23 @@ export fn unregister_eventfd(ring: *io_uring) (void | error) = {
 // [[io_uring]], returning an ID. Set the personality field of an [[sqe]] to use
 // that personality for an I/O submission.
 export fn register_personality(ring: *io_uring) int = {
-	return match (rt::io_uring_register(ring.fd,
+	match (rt::io_uring_register(ring.fd,
 			regop::REGISTER_PERSONALITY, null, 0)) {
-		rt::errno => abort("Unexpected io_uring REGISTER_PERSONALITY error"),
-		i: int => i,
+	case rt::errno =>
+		abort("Unexpected io_uring REGISTER_PERSONALITY error");
+	case i: int =>
+		return i;
 	};
 };
 
 // Unregisters a personality previously configured with
 // [[register_personality]].
 export fn unregister_personality(ring: *io_uring, id: int) (void | error) = {
-	return match (rt::io_uring_register(ring.fd,
+	match (rt::io_uring_register(ring.fd,
 			regop::UNREGISTER_PERSONALITY, null, id: uint)) {
-		err: rt::errno => errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 };
 
@@ -125,10 +136,11 @@ export fn unregister_personality(ring: *io_uring, id: int) (void | error) = {
 // state via [[setup_flags::R_DISABLED]]. Future access to this io_uring is
 // subject to any configured restrictions.
 export fn register_enable_rings(ring: *io_uring) (void | error) = {
-	return match (rt::io_uring_register(ring.fd,
+	match (rt::io_uring_register(ring.fd,
 			regop::REGISTER_ENABLE_RINGS, null, 0)) {
-		err: rt::errno => errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 };
 
@@ -138,9 +150,10 @@ export fn register_enable_rings(ring: *io_uring) (void | error) = {
 // [[setup_flags::R_DISABLED]].
 export fn register_restrictions(ring: *io_uring, res: []restriction) (void | error) = {
 	assert(len(res) < types::UINT_MAX);
-	return match (rt::io_uring_register(ring.fd, regop::REGISTER_RESTRICTIONS,
+	match (rt::io_uring_register(ring.fd, regop::REGISTER_RESTRICTIONS,
 			res: *[*]restriction, len(res): uint)) {
-		err: rt::errno => errors::errno(err),
-		int => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
 	};
 };

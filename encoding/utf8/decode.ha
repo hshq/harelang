@@ -9,8 +9,10 @@ export type decoder = struct {
 
 // Initializes a new UTF-8 decoder.
 export fn decode(src: (str | []u8)) decoder = match (src) {
-	s: str  => decoder { src = toutf8(s), ...  },
-	b: []u8 => decoder { src = b, ...  },
+case s: str =>
+	yield decoder { src = toutf8(s), ...  };
+case b: []u8 =>
+	yield decoder { src = b, ...  };
 };
 
 // Returned when more data is needed, i.e. when an incomplete UTF-8 sequence is
@@ -93,16 +95,20 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	let decoder = decode(input);
 	for (let i = 0z; i < len(expected); i += 1) {
 		match (next(&decoder)) {
-			(invalid | more | void) => abort(),
-			r: rune => assert(r == expected[i]),
+		case (invalid | more | void) =>
+			abort();
+		case r: rune =>
+			assert(r == expected[i]);
 		};
 	};
 	assert(next(&decoder) is void);
 	assert(decoder.offs == len(decoder.src));
 	for (let i = 0z; i < len(expected); i += 1) {
 		match (prev(&decoder)) {
-			(invalid | more | void) => abort(),
-			r: rune => assert(r == expected[len(expected) - i - 1]),
+		case (invalid | more | void) =>
+			abort();
+		case r: rune =>
+			assert(r == expected[len(expected) - i - 1]);
 		};
 	};
 	assert(prev(&decoder) is void);
@@ -128,10 +134,13 @@ export fn valid(src: (str | []u8)) bool = {
 	let decoder = decode(src);
 	for (true) {
 		match (next(&decoder)) {
-			void    => return true,
-			invalid => return false,
-			more    => return false,
-			rune    => void,
+		case void =>
+			return true;
+		case invalid =>
+			return false;
+		case more =>
+			return false;
+		case rune => void;
 		};
 	};
 	abort();

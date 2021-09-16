@@ -4,17 +4,25 @@ use bytes;
 // void if not present. The index returned is the rune-wise index, not the
 // byte-wise index.
 export fn index(haystack: str, needle: (str | rune)) (size | void) = {
-	return match (needle) {
-		r: rune => index_rune(haystack, r),
-		s: str => abort(), // TODO
+	match (needle) {
+	case r: rune =>
+		return index_rune(haystack, r);
+	case s: str =>
+		abort(); // TODO
 	};
 };
 
 fn index_rune(s: str, r: rune) (size | void) = {
 	let iter = iter(s);
-	for (let i = 0z; true; i += 1) match (next(&iter)) {
-		n: rune => if (r == n) return i,
-		void => break,
+	for (let i = 0z; true; i += 1) {
+		match (next(&iter)) {
+		case n: rune =>
+			if (r == n) {
+				return i;
+			};
+		case void =>
+			break;
+		};
 	};
 };
 

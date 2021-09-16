@@ -69,23 +69,37 @@ export fn lookup(
 ) (const *_type | deferred | error) = {
 	const ty = fromast(store, ty)?;
 	if (ty.flags == 0) match (ty.repr) {
-		b: builtin => switch (b) {
-			builtin::CHAR => return &builtin_char,
-			builtin::F32 => return &builtin_f32,
-			builtin::F64 => return &builtin_f64,
-			builtin::I8 => return &builtin_i8,
-			builtin::I16 => return &builtin_i16,
-			builtin::I32 => return &builtin_i32,
-			builtin::I64 => return &builtin_i64,
-			builtin::RUNE => return &builtin_rune,
-			builtin::U8 => return &builtin_u8,
-			builtin::U16 => return &builtin_u16,
-			builtin::U32 => return &builtin_u32,
-			builtin::U64 => return &builtin_u64,
-			builtin::VOID => return &builtin_void,
-			* => void,
-		},
-		* => void,
+	case b: builtin =>
+		switch (b) {
+		case builtin::CHAR =>
+			return &builtin_char;
+		case builtin::F32 =>
+			return &builtin_f32;
+		case builtin::F64 =>
+			return &builtin_f64;
+		case builtin::I8 =>
+			return &builtin_i8;
+		case builtin::I16 =>
+			return &builtin_i16;
+		case builtin::I32 =>
+			return &builtin_i32;
+		case builtin::I64 =>
+			return &builtin_i64;
+		case builtin::RUNE =>
+			return &builtin_rune;
+		case builtin::U8 =>
+			return &builtin_u8;
+		case builtin::U16 =>
+			return &builtin_u16;
+		case builtin::U32 =>
+			return &builtin_u32;
+		case builtin::U64 =>
+			return &builtin_u64;
+		case builtin::VOID =>
+			return &builtin_void;
+		case => void;
+		};
+	case => void;
 	};
 
 	const id = hash(&ty);
@@ -104,186 +118,162 @@ export fn lookup(
 fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 	let sz = SIZE_UNDEFINED, align = SIZE_UNDEFINED;
 	const repr = match (atype.repr) {
-		a: ast::alias_type => {
-			// TODO: This is incomplete
-			assert(!a.unwrap);
-			yield alias {
-				id = ast::ident_dup(a.ident),
-				secondary = null,
-			};
-		},
+	case a: ast::alias_type =>
+		// TODO: This is incomplete
+		assert(!a.unwrap);
+		yield alias {
+			id = ast::ident_dup(a.ident),
+			secondary = null,
+		};
+	case b: ast::builtin_type =>
 		// TODO: Tuple unpacking could improve this
-		b: ast::builtin_type => switch (b) {
-			ast::builtin_type::BOOL => {
-				sz = store.arch._int;
-				align = store.arch._int;
-				yield builtin::BOOL;
-			},
-			ast::builtin_type::CHAR => {
-				sz = 1; align = 1;
-				yield builtin::CHAR;
-			},
-			ast::builtin_type::F32 => {
-				sz = 4; align = 4;
-				yield builtin::F32;
-			},
-			ast::builtin_type::F64 => {
-				sz = 8; align = 8;
-				yield builtin::F64;
-			},
-			ast::builtin_type::I16 => {
-				sz = 2; align = 2;
-				yield builtin::I16;
-			},
-			ast::builtin_type::I32 => {
-				sz = 4; align = 4;
-				yield builtin::I32;
-			},
-			ast::builtin_type::I64 => {
-				sz = 8; align = 8;
-				yield builtin::I64;
-			},
-			ast::builtin_type::I8 => {
-				sz = 1; align = 1;
-				yield builtin::I8;
-			},
-			ast::builtin_type::INT => {
-				sz = store.arch._int;
-				align = store.arch._int;
-				yield builtin::INT;
-			},
-			ast::builtin_type::RUNE => {
-				sz = 4; align = 4;
-				yield builtin::RUNE;
-			},
-			ast::builtin_type::SIZE => {
-				sz = store.arch._size;
-				align = store.arch._size;
-				yield builtin::SIZE;
-			},
-			ast::builtin_type::STR => {
-				sz = store.arch._pointer;
-				sz += sz % store.arch._size + store.arch._size;
-				sz += store.arch._size;
-				align = if (store.arch._size > store.arch._pointer)
-						store.arch._size
-					else
-						store.arch._pointer;
-				yield builtin::STR;
-			},
-			ast::builtin_type::U16 => {
-				sz = 2; align = 2;
-				yield builtin::U16;
-			},
-			ast::builtin_type::U32 => {
-				sz = 4; align = 4;
-				yield builtin::U32;
-			},
-			ast::builtin_type::U64 => {
-				sz = 8; align = 8;
-				yield builtin::U64;
-			},
-			ast::builtin_type::U8 => {
-				sz = 1; align = 1;
-				yield builtin::U8;
-			},
-			ast::builtin_type::UINT => {
-				sz = store.arch._int;
-				align = store.arch._int;
-				yield builtin::UINT;
-			},
-			ast::builtin_type::UINTPTR => {
-				sz = store.arch._pointer;
-				align = store.arch._pointer;
-				yield builtin::UINTPTR;
-			},
-			ast::builtin_type::VOID => {
-				sz = 0; align = 0;
-				yield builtin::VOID;
-			},
-			ast::builtin_type::NULL => {
-				sz = store.arch._pointer;
-				align = store.arch._pointer;
-				yield builtin::NULL;
-			},
-			ast::builtin_type::ICONST,
-			ast::builtin_type::FCONST => abort(), // TODO?
-		},
-		f: ast::func_type => func_from_ast(store, &f)?,
-		p: ast::pointer_type => {
+		yield switch (b) {
+		case ast::builtin_type::BOOL =>
+			sz = store.arch._int;
+			align = store.arch._int;
+			yield builtin::BOOL;
+		case ast::builtin_type::CHAR =>
+			sz = 1; align = 1;
+			yield builtin::CHAR;
+		case ast::builtin_type::F32 =>
+			sz = 4; align = 4;
+			yield builtin::F32;
+		case ast::builtin_type::F64 =>
+			sz = 8; align = 8;
+			yield builtin::F64;
+		case ast::builtin_type::I16 =>
+			sz = 2; align = 2;
+			yield builtin::I16;
+		case ast::builtin_type::I32 =>
+			sz = 4; align = 4;
+			yield builtin::I32;
+		case ast::builtin_type::I64 =>
+			sz = 8; align = 8;
+			yield builtin::I64;
+		case ast::builtin_type::I8 =>
+			sz = 1; align = 1;
+			yield builtin::I8;
+		case ast::builtin_type::INT =>
+			sz = store.arch._int;
+			align = store.arch._int;
+			yield builtin::INT;
+		case ast::builtin_type::RUNE =>
+			sz = 4; align = 4;
+			yield builtin::RUNE;
+		case ast::builtin_type::SIZE =>
+			sz = store.arch._size;
+			align = store.arch._size;
+			yield builtin::SIZE;
+		case ast::builtin_type::STR =>
+			sz = store.arch._pointer;
+			sz += sz % store.arch._size + store.arch._size;
+			sz += store.arch._size;
+			align = if (store.arch._size > store.arch._pointer)
+					store.arch._size
+				else
+					store.arch._pointer;
+			yield builtin::STR;
+		case ast::builtin_type::U16 =>
+			sz = 2; align = 2;
+			yield builtin::U16;
+		case ast::builtin_type::U32 =>
+			sz = 4; align = 4;
+			yield builtin::U32;
+		case ast::builtin_type::U64 =>
+			sz = 8; align = 8;
+			yield builtin::U64;
+		case ast::builtin_type::U8 =>
+			sz = 1; align = 1;
+			yield builtin::U8;
+		case ast::builtin_type::UINT =>
+			sz = store.arch._int;
+			align = store.arch._int;
+			yield builtin::UINT;
+		case ast::builtin_type::UINTPTR =>
 			sz = store.arch._pointer;
 			align = store.arch._pointer;
-			yield pointer {
-				referent = lookup(store, p.referent)?,
-				flags = p.flags: pointer_flags,
-			};
-		},
-		st: ast::struct_type => {
-			let st = struct_from_ast(store, st, false)?;
+			yield builtin::UINTPTR;
+		case ast::builtin_type::VOID =>
 			sz = 0; align = 0;
-			for (let i = 0z; i < len(st.fields); i += 1) {
-				const field = st.fields[i];
-				if (field.offs + field._type.sz > sz) {
-					sz = field.offs + field._type.sz;
-				};
-				if (field._type.align > align) {
-					align = field._type.align;
-				};
+			yield builtin::VOID;
+		case ast::builtin_type::NULL =>
+			sz = store.arch._pointer;
+			align = store.arch._pointer;
+			yield builtin::NULL;
+		case ast::builtin_type::ICONST, ast::builtin_type::FCONST =>
+			abort(); // TODO?
+		};
+	case f: ast::func_type =>
+		yield func_from_ast(store, &f)?;
+	case p: ast::pointer_type =>
+		sz = store.arch._pointer;
+		align = store.arch._pointer;
+		yield pointer {
+			referent = lookup(store, p.referent)?,
+			flags = p.flags: pointer_flags,
+		};
+	case st: ast::struct_type =>
+		let st = struct_from_ast(store, st, false)?;
+		sz = 0; align = 0;
+		for (let i = 0z; i < len(st.fields); i += 1) {
+			const field = st.fields[i];
+			if (field.offs + field._type.sz > sz) {
+				sz = field.offs + field._type.sz;
 			};
-			yield st;
-		},
-		un: ast::union_type => {
-			let st = struct_from_ast(store, un, true)?;
-			sz = 0; align = 0;
-			for (let i = 0z; i < len(st.fields); i += 1) {
-				const field = st.fields[i];
-				if (field.offs + field._type.sz > sz) {
-					sz = field.offs + field._type.sz;
-				};
-				if (field._type.align > align) {
-					align = field._type.align;
-				};
+			if (field._type.align > align) {
+				align = field._type.align;
 			};
-			yield st;
-		},
-		ta: ast::tagged_type => {
-			let ta = tagged_from_ast(store, ta)?;
-			sz = 0; align = 0;
-			for (let i = 0z; i < len(ta); i += 1) {
-				if (ta[i].sz > sz) {
-					sz = ta[i].sz;
-				};
-				if (ta[i].align > align) {
-					align = ta[i].align;
-				};
+		};
+		yield st;
+	case un: ast::union_type =>
+		let st = struct_from_ast(store, un, true)?;
+		sz = 0; align = 0;
+		for (let i = 0z; i < len(st.fields); i += 1) {
+			const field = st.fields[i];
+			if (field.offs + field._type.sz > sz) {
+				sz = field.offs + field._type.sz;
 			};
-			if (store.arch._int > align) {
-				align = store.arch._int;
+			if (field._type.align > align) {
+				align = field._type.align;
 			};
-			sz += store.arch._int % align + store.arch._int;
-			yield ta;
-		},
-		tu: ast::tuple_type => {
-			let tu = tuple_from_ast(store, tu)?;
-			sz = 0; align = 0;
-			for (let i = 0z; i < len(tu); i += 1) {
-				const value = tu[i];
-				if (value.offs + value._type.sz > sz) {
-					sz = value.offs + value._type.sz;
-				};
-				if (value._type.align > align) {
-					align = value._type.align;
-				};
+		};
+		yield st;
+	case ta: ast::tagged_type =>
+		let ta = tagged_from_ast(store, ta)?;
+		sz = 0; align = 0;
+		for (let i = 0z; i < len(ta); i += 1) {
+			if (ta[i].sz > sz) {
+				sz = ta[i].sz;
 			};
-			yield tu;
-		},
-		lt: ast::list_type => {
-			let r = list_from_ast(store, &lt)?;
-			sz = r.0;
-			align = r.1;
-			yield r.2;
-		},
-		et: ast::enum_type => abort(), // TODO
+			if (ta[i].align > align) {
+				align = ta[i].align;
+			};
+		};
+		if (store.arch._int > align) {
+			align = store.arch._int;
+		};
+		sz += store.arch._int % align + store.arch._int;
+		yield ta;
+	case tu: ast::tuple_type =>
+		let tu = tuple_from_ast(store, tu)?;
+		sz = 0; align = 0;
+		for (let i = 0z; i < len(tu); i += 1) {
+			const value = tu[i];
+			if (value.offs + value._type.sz > sz) {
+				sz = value.offs + value._type.sz;
+			};
+			if (value._type.align > align) {
+				align = value._type.align;
+			};
+		};
+		yield tu;
+	case lt: ast::list_type =>
+		let r = list_from_ast(store, &lt)?;
+		sz = r.0;
+		align = r.1;
+		yield r.2;
+	case et: ast::enum_type =>
+		abort(); // TODO
 	};
 	if (sz != SIZE_UNDEFINED && sz != 0 && sz % align != 0) {
 		sz += align - (sz - align) % align;
@@ -303,9 +293,12 @@ fn func_from_ast(
 	let f = func {
 		result = lookup(store, ft.result)?,
 		variadism = switch (ft.variadism) {
-			ast::variadism::NONE => variadism::NONE,
-			ast::variadism::C => variadism::C,
-			ast::variadism::HARE => variadism::HARE,
+		case ast::variadism::NONE =>
+			yield variadism::NONE;
+		case ast::variadism::C =>
+			yield variadism::C;
+		case ast::variadism::HARE =>
+			yield variadism::HARE;
 		},
 		flags = 0,
 		params = alloc([], len(ft.params)),
@@ -326,41 +319,40 @@ fn list_from_ast(
 	let sz = SIZE_UNDEFINED, align = SIZE_UNDEFINED;
 	let memb = lookup(store, lt.members)?;
 	let t = match (lt.length) {
-		ast::len_slice => {
-			sz = store.arch._pointer;
-			if (sz % store.arch._size != 0) {
-				sz += store.arch._size - (sz % store.arch._size);
-			};
-			sz += store.arch._size * 2;
-			align = if (store.arch._pointer > store.arch._size)
-					store.arch._pointer
-				else store.arch._size;
-			yield memb: slice;
-		},
+	case ast::len_slice =>
+		sz = store.arch._pointer;
+		if (sz % store.arch._size != 0) {
+			sz += store.arch._size - (sz % store.arch._size);
+		};
+		sz += store.arch._size * 2;
+		align = if (store.arch._pointer > store.arch._size)
+				store.arch._pointer
+			else store.arch._size;
+		yield memb: slice;
+	case (ast::len_unbounded | ast::len_contextual) =>
 		// Note: contextual length is handled by hare::unit when
 		// initializing bindings. We treat it like unbounded here and
 		// it's fixed up later on.
-		(ast::len_unbounded | ast::len_contextual) => {
-			align = memb.align;
-			yield array {
-				length = SIZE_UNDEFINED,
-				member = memb,
-			};
-		},
-		ex: *ast::expr => {
-			const resolv = match (store.resolve) {
-				null => return noresolver,
-				r: *resolver => r,
-			};
-			const length = resolv(store.rstate, store, ex)?;
-			sz = memb.sz * length;
-			assert(sz / length == memb.sz, "overflow");
-			align = memb.align;
-			yield array {
-				length = length,
-				member = memb,
-			};
-		},
+		align = memb.align;
+		yield array {
+			length = SIZE_UNDEFINED,
+			member = memb,
+		};
+	case ex: *ast::expr =>
+		const resolv = match (store.resolve) {
+		case null =>
+			return noresolver;
+		case r: *resolver =>
+			yield r;
+		};
+		const length = resolv(store.rstate, store, ex)?;
+		sz = memb.sz * length;
+		assert(sz / length == memb.sz, "overflow");
+		align = memb.align;
+		yield array {
+			length = length,
+			member = memb,
+		};
 	};
 	return (sz, align, t);
 };
@@ -375,27 +367,35 @@ fn _struct_from_ast(
 	const nfields = len(fields);
 	for (let i = 0z; i < len(membs); i += 1) {
 		*offs = match (membs[i]._offset) {
-			ex: *ast::expr => match (store.resolve) {
-				null => return noresolver,
-				res: *resolver => res(store.rstate, store, ex)?,
-			},
-			null => *offs,
+		case ex: *ast::expr =>
+			yield match (store.resolve) {
+			case null =>
+				return noresolver;
+			case res: *resolver =>
+				yield res(store.rstate, store, ex)?;
+			};
+		case null =>
+			yield *offs;
 		};
 
 		const memb = match (membs[i].member) {
-			se: ast::struct_embedded => {
-				let membs: []ast::struct_member = match (se.repr) {
-					st: ast::struct_type => st,
-					ut: ast::union_type => ut,
-					* => abort(), // Invariant
-				};
-				_struct_from_ast(store, membs,
-					se.repr is ast::union_type,
-					fields, offs)?;
-				continue;
-			},
-			se: ast::struct_alias => abort(), // TODO
-			sf: ast::struct_field => sf,
+		case se: ast::struct_embedded =>
+			let membs: []ast::struct_member = match (se.repr) {
+			case st: ast::struct_type =>
+				yield st;
+			case ut: ast::union_type =>
+				yield ut;
+			case =>
+				abort(); // Invariant
+			};
+			_struct_from_ast(store, membs,
+				se.repr is ast::union_type,
+				fields, offs)?;
+			continue;
+		case se: ast::struct_alias =>
+			abort(); // TODO
+		case sf: ast::struct_field =>
+			yield sf;
 		};
 
 		const _type = lookup(store, memb._type)?;
@@ -446,8 +446,10 @@ fn tagged_collect(
 	types: *[]const *_type,
 ) (void | deferred | error) = {
 	for (let i = 0z; i < len(atype); i += 1) match (atype[i].repr) {
-		ta: ast::tagged_type => tagged_collect(store, ta, types)?,
-		* => append(types, lookup(store, atype[i])?),
+	case ta: ast::tagged_type =>
+		tagged_collect(store, ta, types)?;
+	case =>
+		append(types, lookup(store, atype[i])?);
 	};
 };
 
@@ -506,15 +508,21 @@ fn field_cmp(a: const *void, b: const *void) int = {
 
 fn type_finish(t: *_type) void = {
 	match (t.repr) {
-		a: alias => ast::ident_free(a.id),
-		array => void,
-		builtin => void,
-		e: _enum => free(e.values),
-		f: func => free(f.params),
-		pointer => void,
-		s: slice => void,
-		st: _struct => free(st.fields),
-		tu: tuple => free(tu),
-		ta: tagged => free(ta),
+	case a: alias =>
+		ast::ident_free(a.id);
+	case array => void;
+	case builtin => void;
+	case e: _enum =>
+		free(e.values);
+	case f: func =>
+		free(f.params);
+	case pointer => void;
+	case s: slice => void;
+	case st: _struct =>
+		free(st.fields);
+	case tu: tuple =>
+		free(tu);
+	case ta: tagged =>
+		free(ta);
 	};
 };

@@ -9,16 +9,28 @@
 // strerror function which provides more context-appropriate error messages for
 // each of those types.
 export fn strerror(err: error) const str = match (err) {
-	busy => "The requested resource is not available",
-	exists => "An attempt was made to create a resource which already exists",
-	invalid => "A function was called with an invalid combination of arguments",
-	noaccess => "The user does not have permission to use this resource",
-	noentry => "An entry was requested which does not exist",
-	overflow => "The requested operation caused a numeric overflow condition",
-	unsupported => "The requested operation is not supported",
-	timeout => "The requested operation timed out",
-	cancelled => "The requested operation was cancelled",
-	refused => "A connection attempt was refused",
-	nomem => "Unable to allocate sufficient memory for the requested operation",
-	op: opaque => op.strerror(&op.data),
+case busy =>
+	yield "The requested resource is not available";
+case exists =>
+	yield "An attempt was made to create a resource which already exists";
+case invalid =>
+	yield "A function was called with an invalid combination of arguments";
+case noaccess =>
+	yield "The user does not have permission to use this resource";
+case noentry =>
+	yield "An entry was requested which does not exist";
+case overflow =>
+	yield "The requested operation caused a numeric overflow condition";
+case unsupported =>
+	yield "The requested operation is not supported";
+case timeout =>
+	yield "The requested operation timed out";
+case cancelled =>
+	yield "The requested operation was cancelled";
+case refused =>
+	yield "A connection attempt was refused";
+case nomem =>
+	yield "Unable to allocate sufficient memory for the requested operation";
+case op: opaque =>
+	yield op.strerror(&op.data);
 };

@@ -20,12 +20,16 @@ export type grent = struct {
 // using [[grent_finish]].
 export fn nextgr(stream: *io::stream) (grent | io::EOF | io::error | invalid) = {
 	let line = match (bufio::scanline(stream)?) {
-		ln: []u8 => ln,
-		io::EOF => return io::EOF,
+	case ln: []u8 =>
+		yield ln;
+	case io::EOF =>
+		return io::EOF;
 	};
 	let line = match (strings::try_fromutf8(line)) {
-		s: str => s,
-		* => return invalid,
+	case s: str =>
+		yield s;
+	case =>
+		return invalid;
 	};
 
 	let fields = strings::split(line, ":");
@@ -36,8 +40,10 @@ export fn nextgr(stream: *io::stream) (grent | io::EOF | io::error | invalid) = 
 	};
 
 	let gid = match (strconv::stou(fields[2])) {
-		u: uint => u,
-		* => return invalid,
+	case u: uint =>
+		yield u;
+	case =>
+		return invalid;
 	};
 
 	return grent {
@@ -61,16 +67,21 @@ export fn grent_finish(ent: grent) void = {
 // See [[nextgr]] for low-level parsing API.
 export fn getgroup(name: str) (grent | void) = {
 	let file = match (os::open("/etc/group")) {
-		f: io::file => f,
-		* => abort("Unable to open /etc/group"),
+	case f: io::file =>
+		yield f;
+	case =>
+		abort("Unable to open /etc/group");
 	};
 	defer io::close(&file);
 
 	for (true) {
 		let ent = match (nextgr(&file)) {
-			e: grent => e,
-			io::EOF => break,
-			* => abort("Invalid entry in /etc/group"),
+		case e: grent =>
+			yield e;
+		case io::EOF =>
+			break;
+		case =>
+			abort("Invalid entry in /etc/group");
 		};
 
 		if (ent.name == name) {

@@ -38,13 +38,21 @@ use strings;
 	assert(t.2.line == 1234 && t.2.col == 1234);
 };
 
-fn vassert(expected: value, actual: value) void = match (expected) {
-	expected: str => assert(actual as str == expected),
-	expected: rune => assert(actual as rune == expected),
-	expected: i64 => assert(actual as i64 == expected),
-	expected: u64 => assert(actual as u64 == expected),
-	expected: f64 => assert(actual as f64 == expected),
-	void => assert(actual is void),
+fn vassert(expected: value, actual: value) void = {
+	match (expected) {
+	case expected: str =>
+		assert(actual as str == expected);
+	case expected: rune =>
+		assert(actual as rune == expected);
+	case expected: i64 =>
+		assert(actual as i64 == expected);
+	case expected: u64 =>
+		assert(actual as u64 == expected);
+	case expected: f64 =>
+		assert(actual as f64 == expected);
+	case void =>
+		assert(actual is void);
+	};
 };
 
 fn lextest(in: str, expected: []token) void = {
@@ -54,11 +62,11 @@ fn lextest(in: str, expected: []token) void = {
 	for (let i = 0z; i < len(expected); i += 1) {
 		let etok = expected[i];
 		let tl = match (lex(&lexer)) {
-			tl: token => tl,
-			err: error => {
-				fmt::errorfln("{}: {}", i, strerror(err))!;
-				abort();
-			},
+		case tl: token =>
+			yield tl;
+		case err: error =>
+			fmt::errorfln("{}: {}", i, strerror(err))!;
+			abort();
 		};
 		assert(tl.0 == etok.0);
 		vassert(tl.1, etok.1);
@@ -341,16 +349,16 @@ type op = enum {
 	defer free(t);
 	for (let i = 0z; i < len(ops); i += 1) {
 		switch (ops[i]) {
-			op::LEX => append(t, lex(&lexer)!),
-			op::NEXT => append(r, next(&lexer) as (rune, location)),
-			op::UNGET => {
-				unget(&lexer, r[len(r) - 1]);
-				delete(r[len(r) - 1]);
-			},
-			op::UNLEX => {
-				unlex(&lexer, t[len(t) - 1]);
-				delete(t[len(t) - 1]);
-			},
+		case op::LEX =>
+			append(t, lex(&lexer)!);
+		case op::NEXT =>
+			append(r, next(&lexer) as (rune, location));
+		case op::UNGET =>
+			unget(&lexer, r[len(r) - 1]);
+			delete(r[len(r) - 1]);
+		case op::UNLEX =>
+			unlex(&lexer, t[len(t) - 1]);
+			delete(t[len(t) - 1]);
 		};
 		let loc = mkloc(&lexer);
 		let ploc = prevloc(&lexer);

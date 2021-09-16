@@ -11,10 +11,12 @@ fn dial_tcp(addr: str, service: str) (io::file | error) = {
 	for (let i = 0z; i < len(addrs); i += 1) {
 		const addr = addrs[i];
 		match (tcp::connect(addr, port)) {
-			conn: io::file => return conn,
-			err: net::error => if (i + 1 >= len(addrs)) {
+		case conn: io::file =>
+			return conn;
+		case err: net::error =>
+			if (i + 1 >= len(addrs)) {
 				return err;
-			},
+			};
 		};
 	};
 	abort(); // Unreachable
@@ -26,10 +28,12 @@ fn dial_udp(addr: str, service: str) (io::file | error) = {
 	for (let i = 0z; i < len(addrs); i += 1) {
 		const addr = addrs[i];
 		match (udp::connect(addr, port)) {
-			sock: io::file => return sock,
-			err: net::error => if (i + 1 >= len(addrs)) {
+		case sock: io::file =>
+			return sock;
+		case err: net::error =>
+			if (i + 1 >= len(addrs)) {
 				return err;
-			},
+			};
 		};
 	};
 	abort(); // Unreachable

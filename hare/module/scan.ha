@@ -30,37 +30,40 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 	};
 	hash::write(&sha, [if (found) 1 else 0]);
 	let iter = match (fs::iter(ctx.fs, path)) {
-		fs::wrongtype => {
-			// Single file case
-			let inputs: []input = [];
-			let deps: []ast::ident = [];
-			let ft = match (type_for_ext(path)) {
-				void => return module_not_found,
-				ft: filetype => ft,
-			};
-			let st = fs::stat(ctx.fs, path)?;
-			let in = input {
-				path = fs::resolve(ctx.fs, path),
-				stat = st,
-				ft = ft,
-				hash = scan_file(ctx, path, &deps)?,
-				...
-			};
-			append(inputs, in);
+	case fs::wrongtype =>
+		// Single file case
+		let inputs: []input = [];
+		let deps: []ast::ident = [];
+		let ft = match (type_for_ext(path)) {
+		case void =>
+			return module_not_found;
+		case ft: filetype =>
+			yield ft;
+		};
+		let st = fs::stat(ctx.fs, path)?;
+		let in = input {
+			path = fs::resolve(ctx.fs, path),
+			stat = st,
+			ft = ft,
+			hash = scan_file(ctx, path, &deps)?,
+			...
+		};
+		append(inputs, in);
 
-			let sumbuf: [sha256::SIZE]u8 = [0...];
-			hash::write(&sha, in.hash);
-			hash::sum(&sha, sumbuf);
+		let sumbuf: [sha256::SIZE]u8 = [0...];
+		hash::write(&sha, in.hash);
+		hash::sum(&sha, sumbuf);
 
-			return version {
-				hash = sumbuf,
-				basedir = path::dirname(fs::resolve(ctx.fs, path)),
-				depends = deps,
-				inputs = inputs,
-			};
-		},
-		err: fs::error => return err,
-		iter: *fs::iterator => iter,
+		return version {
+			hash = sumbuf,
+			basedir = path::dirname(fs::resolve(ctx.fs, path)),
+			depends = deps,
+			inputs = inputs,
+		};
+	case err: fs::error =>
+		return err;
+	case iter: *fs::iterator =>
+		yield iter;
 	};
 	let ver = version {
 		basedir = strings::dup(path),
@@ -93,8 +96,10 @@ fn parse_name(name: str) (str, str, []tag) = {
 		else p: size;
 	let tags = strings::sub(base, i, strings::end);
 	let tags = match (parsetags(tags)) {
-		void => return (base, ext, []),
-		t: []tag => t,
+	case void =>
+		return (base, ext, []);
+	case t: []tag =>
+		yield t;
 	};
 	let base = strings::sub(base, 0, i);
 	return (base, ext, tags);
@@ -128,14 +133,19 @@ fn scan_directory(
 
 	for (true) {
 		let ent = match (fs::next(iter)) {
-			void => break,
-			ent: fs::dirent => ent,
+		case void =>
+			break;
+		case ent: fs::dirent =>
+			yield ent;
 		};
 
 		switch (ent.ftype) {
-			fs::mode::LINK => abort(), // TODO
-			fs::mode::DIR => append(dirs, strings::dup(ent.name)),
-			fs::mode::REG => append(files, strings::dup(ent.name)),
+		case fs::mode::LINK =>
+			abort(); // TODO
+		case fs::mode::DIR =>
+			append(dirs, strings::dup(ent.name));
+		case fs::mode::REG =>
+			append(files, strings::dup(ent.name));
 		};
 	};
 
@@ -291,8 +301,9 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 		let cand = path::join(ctx.paths[i - 1], ipath);
 		defer free(cand);
 		match (scan(ctx, cand)) {
-			v: version => return v,
-			e: error => void,
+		case v: version =>
+			return v;
+		case error => void;
 		};
 	};
 	return module_not_found;
@@ -321,9 +332,12 @@ fn scan_file(
 	let imports = parse::imports(&lexer)?;
 	for (let i = 0z; i < len(imports); i += 1) {
 		let ident = match (imports[i]) {
-			m: ast::import_module => m: ast::ident,
-			a: ast::import_alias => a.ident,
-			o: ast::import_objects => o.ident,
+		case m: ast::import_module =>
+			yield m: ast::ident;
+		case a: ast::import_alias =>
+			yield a.ident;
+		case o: ast::import_objects =>
+			yield o.ident;
 		};
 		if (!have_ident(deps, ident)) {
 			append(deps, ident);
@@ -357,28 +371,31 @@ export fn parsetags(in: str) ([]tag | void) = {
 	for (true) {
 		let t = tag { ... };
 		let m = match (strings::next(&iter)) {
-			void => break,
-			r: rune => r,
+		case void =>
+			break;
+		case r: rune =>
+			yield r;
 		};
 		t.mode = switch (m) {
-			* => {
-				tags_free(tags);
-				return;
-			},
-			'+' => tag_mode::INCLUSIVE,
-			'-' => tag_mode::EXCLUSIVE,
+		case =>
+			tags_free(tags);
+			return;
+		case '+' =>
+			yield tag_mode::INCLUSIVE;
+		case '-' =>
+			yield tag_mode::EXCLUSIVE;
 		};
 		let buf = strio::dynamic();
 		for (true) match (strings::next(&iter)) {
-			void => break,
-			r: rune => {
-				if (ascii::isalnum(r) || r == '_') {
-					strio::appendrune(buf, r)!;
-				} else {
-					strings::push(&iter, r);
-					break;
-				};
-			},
+		case void =>
+			break;
+		case r: rune =>
+			if (ascii::isalnum(r) || r == '_') {
+				strio::appendrune(buf, r)!;
+			} else {
+				strings::push(&iter, r);
+				break;
+			};
 		};
 		t.name = strio::finish(buf);
 		append(tags, t);
@@ -406,8 +423,10 @@ export fn tagcompat(have: []tag, want: []tag) bool = {
 			};
 		};
 		switch (want[i].mode) {
-			tag_mode::INCLUSIVE => if (!present) return false,
-			tag_mode::EXCLUSIVE => if (present) return false,
+		case tag_mode::INCLUSIVE =>
+			if (!present) return false;
+		case tag_mode::EXCLUSIVE =>
+			if (present) return false;
 		};
 	};
 	return true;

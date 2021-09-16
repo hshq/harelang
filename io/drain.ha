@@ -4,8 +4,10 @@ export fn drain(in: *io::stream) ([]u8 | io::error) = {
 	static let buf: [4096]u8 = [0...];
 	for (true) {
 		match (read(in, buf[..])?) {
-			n: size => append(sink, buf[..n]...),
-			EOF => break,
+		case n: size =>
+			append(sink, buf[..n]...);
+		case EOF =>
+			break;
 		};
 	};
 	return sink;

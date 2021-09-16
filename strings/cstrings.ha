@@ -22,8 +22,8 @@ export fn cstrlen(cstr: *const char) size = {
 export fn fromc_unsafe(cstr: *const char) const str = {
 	const l = cstrlen(cstr);
 	const s = types::string {
-		data     = cstr: *[*]u8,
-		length   = l,
+		data = cstr: *[*]u8,
+		length = l,
 		capacity = l,
 	};
 	return *(&s: *const str);
@@ -42,12 +42,15 @@ export fn fromc(cstr: *const char) const str = {
 export fn to_c(s: const str) *char = {
 	let ptr = rt::malloc(len(s) + 1): nullable *[*]u8;
 	let ptr = match (ptr) {
-		null => abort("Out of memory"),
-		p: *[*]u8 => p,
+	case null =>
+		abort("Out of memory");
+	case p: *[*]u8 =>
+		yield p;
 	};
 	match ((&s: *types::string).data) {
-		null => void,
-		data: *[*]u8 => rt::memcpy(ptr, data, len(s)),
+	case null => void;
+	case data: *[*]u8 =>
+		yield rt::memcpy(ptr, data, len(s));
 	};
 	ptr[len(s)] = 0;
 	return ptr: *char;

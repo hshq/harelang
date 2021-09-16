@@ -30,12 +30,12 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 	};
 
 	let ver = match (module::lookup(plan.context, ident)) {
-		err: module::error => {
-			let ident = unparse::identstr(ident);
-			fmt::fatal("Error resolving {}: {}",
-				ident, module::strerror(err));
-		},
-		ver: module::version => ver,
+	case err: module::error =>
+		let ident = unparse::identstr(ident);
+		fmt::fatal("Error resolving {}: {}", ident,
+			module::strerror(err));
+	case ver: module::version =>
+		yield ver;
 	};
 
 	let depends: []*task = [];
@@ -188,10 +188,11 @@ fn sched_hare_object(
 		// overwriting with just the latest
 		let manifest = match (module::manifest_load(
 				plan.context, namespace)) {
-			err: module::error => fmt::fatal(
-				"Error reading cache entry for {}: {}",
-				ns, module::strerror(err)),
-			m: module::manifest => m,
+		case err: module::error =>
+			fmt::fatal("Error reading cache entry for {}: {}", ns,
+				module::strerror(err));
+		case m: module::manifest =>
+			yield m;
 		};
 		defer module::manifest_finish(&manifest);
 		current = module::current(&manifest, &ver);
@@ -208,9 +209,10 @@ fn sched_hare_object(
 			path = path::join(path, namespace[i]);
 		};
 		match (os::mkdirs(path)) {
-			void => void,
-			err: fs::error => fmt::fatal("Error: mkdirs {}: {}",
-				path, fs::strerror(err)),
+		case void => void;
+		case err: fs::error =>
+			fmt::fatal("Error: mkdirs {}: {}", path,
+				fs::strerror(err));
 		};
 		append(harec.cmd, "-t", path::join(path, td));
 		yield path::join(path, name);

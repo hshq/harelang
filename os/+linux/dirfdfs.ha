@@ -111,14 +111,22 @@ export fn dirfdfs_set_getdents_bufsz(fs: *fs::fs, sz: size) void = {
 };
 
 fn errno_to_fs(err: rt::errno) fs::error = switch (err) {
-	rt::ENOENT  => errors::noentry,
-	rt::EEXIST  => errors::exists,
-	rt::EACCES  => errors::noaccess,
-	rt::EBUSY   => errors::busy,
-	rt::ENOTDIR => fs::wrongtype,
-	rt::EOPNOTSUPP, rt::ENOSYS => errors::unsupported,
-	rt::EXDEV => fs::cannotrename,
-	* => errors::errno(err),
+case rt::ENOENT =>
+	yield errors::noentry;
+case rt::EEXIST =>
+	yield errors::exists;
+case rt::EACCES =>
+	yield errors::noaccess;
+case rt::EBUSY =>
+	yield errors::busy;
+case rt::ENOTDIR =>
+	yield fs::wrongtype;
+case rt::EOPNOTSUPP, rt::ENOSYS =>
+	yield errors::unsupported;
+case rt::EXDEV =>
+	yield fs::cannotrename;
+case =>
+	yield errors::errno(err);
 };
 
 fn _fs_open(
@@ -144,8 +152,10 @@ fn _fs_open(
 	};
 
 	let fd = match (rt::openat2(fs.dirfd, path, oh, size(rt::open_how))) {
-		err: rt::errno => return errno_to_fs(err),
-		fd: int => fd,
+	case err: rt::errno =>
+		return errno_to_fs(err);
+	case fd: int =>
+		yield fd;
 	};
 
 	return io::fdopen(fd, path, mode);
@@ -240,16 +250,18 @@ fn fs_create(
 fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::unlinkat(fs.dirfd, path, 0)) {
-		err: rt::errno => return errno_to_fs(err),
-		void => void,
+	case err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
 	};
 };
 
 fn fs_rename(fs: *fs::fs, oldpath: str, newpath: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::renameat(fs.dirfd, oldpath, fs.dirfd, newpath, 0)) {
-		err: rt::errno => return errno_to_fs(err),
-		void => void,
+	case err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
 	};
 };
 
@@ -257,8 +269,9 @@ fn fs_stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 	let fs = fs: *os_filesystem;
 	let st = rt::st { ... };
 	match (rt::fstatat(fs.dirfd, path, &st, rt::AT_SYMLINK_NOFOLLOW)) {
-		err: rt::errno => return errno_to_fs(err),
-		void => void,
+	case err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
 	};
 	return fs::filestat {
 		mask = fs::stat_mask::UID
@@ -297,8 +310,10 @@ fn fs_subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 
 	let fd: int = match (rt::openat2(fs.dirfd, path,
 			&oh, size(rt::open_how))) {
-		err: rt::errno => return errno_to_fs(err),
-		n: int => n,
+	case err: rt::errno =>
+		return errno_to_fs(err);
+	case fd: int =>
+		yield fd;
 	};
 
 	return dirfdopen(fd);
@@ -307,32 +322,36 @@ fn fs_subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 fn fs_rmdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::unlinkat(fs.dirfd, path, rt::AT_REMOVEDIR)) {
-		err: rt::errno => return errno_to_fs(err),
-		void => void,
+	case err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
 	};
 };
 
 fn fs_mkdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
-	return match (rt::mkdirat(fs.dirfd, path, 0o755)) {
-		err: rt::errno => errno_to_fs(err),
-		void => void,
+	match (rt::mkdirat(fs.dirfd, path, 0o755)) {
+	case err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
 	};
 };
 
 fn fs_chmod(fs: *fs::fs, path: str, mode: fs::mode) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
-	return match (rt::fchmodat(fs.dirfd, path, mode: uint, 0)) {
-		err: rt::errno => return errno_to_fs(err),
-		void => void,
+	match (rt::fchmodat(fs.dirfd, path, mode: uint, 0)) {
+	case err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
 	};
 };
 
 fn fs_chown(fs: *fs::fs, path: str, uid: uint, gid: uint) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
-	return match (rt::fchownat(fs.dirfd, path, uid, gid, 0)) {
-		err: rt::errno => return errno_to_fs(err),
-		void => void,
+	match (rt::fchownat(fs.dirfd, path, uid, gid, 0)) {
+	case err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
 	};
 };
 
@@ -353,15 +372,23 @@ fn fs_resolve(fs: *fs::fs, path: str) str = {
 	let parts: []str = [];
 	if (!path::abs(path)) {
 		let iter = path::iter(getcwd());
-		for (true) match (path::next(&iter)) {
-			void => break,
-			p: str => resolve_part(&parts, p),
+		for (true) {
+			match (path::next(&iter)) {
+			case void =>
+				break;
+			case p: str =>
+				resolve_part(&parts, p);
+			};
 		};
 	};
 	let iter = path::iter(path);
-	for (true) match (path::next(&iter)) {
-		void => break,
-		p: str => resolve_part(&parts, p),
+	for (true) {
+		match (path::next(&iter)) {
+		case void =>
+			break;
+		case p: str =>
+			resolve_part(&parts, p);
+		};
 	};
 	return path::join(parts...);
 };
@@ -390,13 +417,17 @@ fn fs_iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 	};
 	let fd: int = match (rt::openat2(fs.dirfd, path,
 			&oh, size(rt::open_how))) {
-		err: rt::errno => return errno_to_fs(err),
-		n: int => n,
+	case err: rt::errno =>
+		return errno_to_fs(err);
+	case fd: int =>
+		yield fd;
 	};
 
 	let buf = match (rt::malloc(fs.getdents_bufsz)) {
-		v: *void => v: *[*]u8,
-		null => return errors::nomem,
+	case v: *void =>
+		yield v: *[*]u8;
+	case null =>
+		return errors::nomem;
 	};
 	let iter = alloc(os_iterator {
 		iter = fs::iterator {
@@ -428,15 +459,24 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 	let name = strings::fromc(&de.d_name: *const char);
 
 	let ftype: fs::mode = switch (de.d_type) {
-		rt::DT_UNKNOWN => fs::mode::UNKNOWN,
-		rt::DT_FIFO => fs::mode::FIFO,
-		rt::DT_CHR  => fs::mode::CHR,
-		rt::DT_DIR  => fs::mode::DIR,
-		rt::DT_BLK  => fs::mode::BLK,
-		rt::DT_REG  => fs::mode::REG,
-		rt::DT_LNK  => fs::mode::LINK,
-		rt::DT_SOCK => fs::mode::SOCK,
-		* => fs::mode::UNKNOWN,
+	case rt::DT_UNKNOWN =>
+		yield fs::mode::UNKNOWN;
+	case rt::DT_FIFO =>
+		yield fs::mode::FIFO;
+	case rt::DT_CHR =>
+		yield fs::mode::CHR;
+	case rt::DT_DIR =>
+		yield fs::mode::DIR;
+	case rt::DT_BLK =>
+		yield fs::mode::BLK;
+	case rt::DT_REG =>
+		yield fs::mode::REG;
+	case rt::DT_LNK =>
+		yield fs::mode::LINK;
+	case rt::DT_SOCK =>
+		yield fs::mode::SOCK;
+	case =>
+		yield fs::mode::UNKNOWN;
 	};
 	return fs::dirent {
 		name = name,

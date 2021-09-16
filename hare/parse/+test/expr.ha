@@ -217,11 +217,12 @@
 @test fn switch_expr() void = {
 	roundtrip("export fn main() void = {
 	switch (x) {
-		1234, 4321 => y,
-		1337 => {
-			z;
-		},
-		* => q,
+		case 1234, 4321 =>
+			return y;
+		case 1337 =>
+			return z;
+		case =>
+			return q;
 	};
 };
 ");
@@ -230,22 +231,26 @@
 @test fn match_expr() void = {
 	roundtrip("export fn main() void = {
 	match (x) {
-		i: size => y,
-		str => {
-			z;
-		},
-		foo => bar,
-		foo: int => bar,
-		foo::bar => baz,
-		null => void,
-		*int => void,
+	case i: size =>
+		return y;
+	case foo =>
+		return bar;
+	case foo: int =>
+		return bar;
+	case foo::bar =>
+		return baz;
+	case null =>
+		void;
+	case *int =>
+		void;
 	};
 	match (x) {
-		s: matchdata => y,
-		str => {
-			z;
-		},
-		* => q,
+	case s: matchdata =>
+		return y;
+	case str =>
+		return z;
+	case =>
+		return q;
 	};
 };
 ");

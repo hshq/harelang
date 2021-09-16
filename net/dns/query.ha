@@ -49,12 +49,10 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 	// We send requests in parallel to all configured servers and take the
 	// first one which sends us a reasonable answer.
 	for (let i = 0z; i < len(servers); i += 1) match (servers[i]) {
-		ip::addr4 => {
-			udp::sendto(&socket4, sendbuf[..z], servers[i], 53)?;
-		},
-		ip::addr6 => {
-			udp::sendto(&socket6, sendbuf[..z], servers[i], 53)?;
-		},
+	case ip::addr4 =>
+		udp::sendto(&socket4, sendbuf[..z], servers[i], 53)?;
+	case ip::addr6 =>
+		udp::sendto(&socket6, sendbuf[..z], servers[i], 53)?;
 	};
 
 	let header = header { ... };

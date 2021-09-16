@@ -800,12 +800,6 @@ types() {
 	gen_ssa types
 }
 
-unicode() {
-	gen_srcs unicode \
-		properties.ha
-	gen_ssa unicode
-}
-
 unix() {
 	# XXX: getuid and setuid are probably platform-specific too
 	gen_srcs unix \
@@ -922,7 +916,6 @@ strio
 temp
 time
 types
-unicode
 unix
 unix::hosts
 unix::passwd

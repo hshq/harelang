@@ -10,21 +10,27 @@ export fn connect(
 	dest: ip::addr,
 	port: u16,
 ) (io::file | net::error) = {
-	const sockfd = match (rt::socket(match (dest) {
-		ip::addr4 => rt::AF_INET: int,
-		ip::addr6 => rt::AF_INET6: int,
-	}, rt::SOCK_DGRAM, 0)) {
-		err: rt::errno => return errors::errno(err),
-		fd: int => fd,
+	const family = match (dest) {
+	case ip::addr4 =>
+		yield rt::AF_INET: int;
+	case ip::addr6 =>
+		yield rt::AF_INET6: int;
+	};
+	const sockfd = match (rt::socket(family, rt::SOCK_DGRAM, 0)) {
+	case err: rt::errno =>
+		return errors::errno(err);
+	case fd: int =>
+		yield fd;
 	};
 
 	const sockaddr = ip::to_native(dest, port);
 	const sz = size(rt::sockaddr): u32;
-	return match (rt::connect(sockfd, &sockaddr, sz)) {
-		int => io::fdopen(sockfd,
-			"<udp connection>",
-			io::mode::READ | io::mode::WRITE),
-		err: rt::errno => errors::errno(err),
+	match (rt::connect(sockfd, &sockaddr, sz)) {
+	case int =>
+		return io::fdopen(sockfd, "<udp connection>",
+			io::mode::READ | io::mode::WRITE);
+	case err: rt::errno =>
+		return errors::errno(err);
 	};
 };
 
@@ -34,12 +40,17 @@ export fn listen(
 	port: u16,
 	options: listen_option...
 ) (io::file | net::error) = {
-	const sockfd = match (rt::socket(match (addr) {
-		ip::addr4 => rt::AF_INET: int,
-		ip::addr6 => rt::AF_INET6: int,
-	}, rt::SOCK_DGRAM, 0)) {
-		err: rt::errno => return errors::errno(err),
-		fd: int => fd,
+	const family = match (addr) {
+	case ip::addr4 =>
+		yield rt::AF_INET: int;
+	case ip::addr6 =>
+		yield rt::AF_INET6: int;
+	};
+	const sockfd = match (rt::socket(family, rt::SOCK_DGRAM, 0)) {
+	case err: rt::errno =>
+		return errors::errno(err);
+	case fd: int =>
+		yield fd;
 	};
 	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
 	rt::fcntl(sockfd, rt::F_SETFL, flags | rt::O_CLOEXEC)!;
@@ -47,8 +58,9 @@ export fn listen(
 	const sockaddr = ip::to_native(addr, port);
 	const sz = size(rt::sockaddr): u32;
 	match (rt::bind(sockfd, &sockaddr, sz)) {
-		int => void,
-		err: rt::errno => return errors::errno(err),
+	case int => void;
+	case err: rt::errno =>
+		return errors::errno(err);
 	};
 
 	for (let i = 0z; i < len(options); i += 1) {
@@ -56,8 +68,9 @@ export fn listen(
 		let sn = rt::sockaddr {...};
 		let al = size(rt::sockaddr): u32;
 		match (rt::getsockname(sockfd, &sn, &al)) {
-			err: rt::errno => return errors::errno(err),
-			int => void,
+		case err: rt::errno =>
+			return errors::errno(err);
+		case int => void;
 		};
 		const addr = ip::from_native(sn);
 		*options[i] = addr.1;
@@ -69,9 +82,11 @@ export fn listen(
 
 // Sends a UDP packet to the destination previously specified by [[connect]].
 export fn send(sock: *io::file, buf: []u8) (size | net::error) = {
-	return match (rt::send(io::fd(sock), buf: *[*]u8, len(buf), 0)) {
-		sz: size => sz,
-		err: rt::errno => errors::errno(err),
+	match (rt::send(io::fd(sock), buf: *[*]u8, len(buf), 0)) {
+	case sz: size =>
+		return sz;
+	case err: rt::errno =>
+		return errors::errno(err);
 	};
 };
 
@@ -84,10 +99,12 @@ export fn sendto(
 ) (size | net::error) = {
 	const sockaddr = ip::to_native(dest, port);
 	const sz = size(rt::sockaddr): u32;
-	return match (rt::sendto(io::fd(sock), buf: *[*]u8, len(buf),
+	match (rt::sendto(io::fd(sock), buf: *[*]u8, len(buf),
 			0, &sockaddr, sz)) {
-		sz: size => sz,
-		err: rt::errno => errors::errno(err),
+	case sz: size =>
+		return sz;
+	case err: rt::errno =>
+		return errors::errno(err);
 	};
 };
 
@@ -102,19 +119,23 @@ export fn recvfrom(
 	const sockaddr = rt::sockaddr { ... };
 	const sz = match (rt::recvfrom(io::fd(sock), buf: *[*]u8, len(buf),
 			0, &sockaddr, &addrsz)) {
-		sz: size => sz,
-		err: rt::errno => return errors::errno(err),
+	case sz: size =>
+		yield sz;
+	case err: rt::errno =>
+		return errors::errno(err);
 	};
 
 	assert(addrsz <= size(rt::sockaddr));
 	const peer = ip::from_native(sockaddr);
 	match (src) {
-		null => void,
-		src: *ip::addr => *src = peer.0,
+	case null => void;
+	case src: *ip::addr =>
+		*src = peer.0;
 	};
 	match (port) {
-		null => void,
-		port: *u16 => *port = peer.1,
+	case null => void;
+	case port: *u16 =>
+		*port = peer.1;
 	};
 
 	return sz;

@@ -10,19 +10,24 @@ export fn buffer(buf: []u8) void = {
 	let n = 0z;
 	for (n < len(buf)) {
 		match (rt::getrandom(buf[n..]: *[*]u8, len(buf), 0)) {
-			err: rt::errno => switch (err) {
-				rt::EINTR => void,
-				* => abort(),
-			},
-			z: size => n += z,
+		case err: rt::errno =>
+			switch (err) {
+			case rt::EINTR => void;
+			case =>
+				abort();
+			};
+		case z: size =>
+			n += z;
 		};
 	};
 };
 
 fn rand_reader(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	assert(s == stream);
-	return match (rt::getrandom(buf: *[*]u8, len(buf), 0)) {
-		err: rt::errno => errors::errno(err),
-		n: size => n,
+	match (rt::getrandom(buf: *[*]u8, len(buf), 0)) {
+	case err: rt::errno =>
+		return errors::errno(err);
+	case n: size =>
+		return n;
 	};
 };

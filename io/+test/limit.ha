@@ -6,29 +6,39 @@ use errors;
 
 	let rlimit = limitreader(&source, 20);
 	match (write(&rlimit, buf)) {
-		errors::unsupported => void,
-		* => abort(),
+	case errors::unsupported => void;
+	case =>
+		abort();
 	};
 	match (read(&rlimit, buf)) {
-		n: size => assert(n == 15),
-		error => abort(),
+	case n: size =>
+		assert(n == 15);
+	case error =>
+		abort();
 	};
 	match (read(&rlimit, buf)) {
-		n: size => assert(n == 5),
-		error => abort(),
+	case n: size =>
+		assert(n == 5);
+	case error =>
+		abort();
 	};
 
 	let wlimit = limitwriter(&source, 20);
 	match (read(&wlimit, buf)) {
-		errors::unsupported => void,
-		* => abort(),
+	case errors::unsupported => void;
+	case =>
+		abort();
 	};
 	match (write(&wlimit, buf)) {
-		n: size => assert(n == 15),
-		error => abort(),
+	case n: size =>
+		assert(n == 15);
+	case error =>
+		abort();
 	};
 	match (write(&wlimit, buf)) {
-		n: size => assert(n == 5),
-		error => abort(),
+	case n: size =>
+		assert(n == 5);
+	case error =>
+		abort();
 	};
 };

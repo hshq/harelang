@@ -9,8 +9,10 @@ use strings;
 export fn dirname(path: str) str = {
 	let b = strings::toutf8(path);
 	let i = match (bytes::rindex(b, PATHSEP)) {
-		void => return path,
-		z: size => z,
+	case void =>
+		return path;
+	case z: size =>
+		yield z;
 	};
 	if (i == 0) {
 		i += 1;
@@ -33,8 +35,10 @@ export fn dirname(path: str) str = {
 export fn basename(path: str) str = {
 	let b = strings::toutf8(path);
 	let i = match (bytes::rindex(b, PATHSEP)) {
-		void => return path,
-		z: size => if (z + 1 < len(b)) z + 1z else 0z,
+	case void =>
+		return path;
+	case z: size =>
+		yield if (z + 1 < len(b)) z + 1z else 0z;
 	};
 	return strings::fromutf8_unsafe(b[i..]);
 };
@@ -62,8 +66,10 @@ export fn extension(p: str) (str, str) = {
 		return (p, "");
 	};
 	let i = match (bytes::index(b, '.': u32: u8)) {
-		void => return (p, ""),
-		z: size => z,
+	case void =>
+		return (p, "");
+	case z: size =>
+		yield z;
 	};
 	let e = b[i..];
 	let n = b[..i];

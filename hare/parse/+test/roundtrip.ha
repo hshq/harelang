@@ -15,11 +15,11 @@ fn roundtrip(src: str) void = {
 	let u = ast::subunit {
 		imports = [],
 		decls: []ast::decl = match (decls(&lexer)) {
-			decls: []ast::decl => decls,
-			err: error => {
-				fmt::errorln(strerror(err))!;
-				abort();
-			},
+		case decls: []ast::decl =>
+			yield decls;
+		case err: error =>
+			fmt::errorln(strerror(err))!;
+			abort();
 		},
 	};
 	defer ast::subunit_free(u);

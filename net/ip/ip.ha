@@ -34,21 +34,19 @@ export type invalid = !void;
 
 // Test if two [[addr]]s are equal.
 export fn equal(l: addr, r: addr) bool = {
-	return match (l) {
-		l: addr4 => {
-			if (!(r is addr4)) {
-				return false;
-			};
-			let r = r as addr4;
-			yield bytes::equal(l, r);
-		},
-		l: addr6 => {
-			if (!(r is addr6)) {
-				return false;
-			};
-			let r = r as addr6;
-			yield bytes::equal(l, r);
-		},
+	match (l) {
+	case l: addr4 =>
+		if (!(r is addr4)) {
+			return false;
+		};
+		let r = r as addr4;
+		return bytes::equal(l, r);
+	case l: addr6 =>
+		if (!(r is addr6)) {
+			return false;
+		};
+		let r = r as addr6;
+		return bytes::equal(l, r);
 	};
 };
 
@@ -62,8 +60,10 @@ fn parsev4(st: str) (addr4 | invalid) = {
 			return invalid;
 		};
 		ret[i] = match (strconv::stou8(s)) {
-			term: u8 => term,
-			* => return invalid
+		case term: u8 =>
+			yield term;
+		case =>
+			return invalid;
 		};
 	};
 	if (i < 4 || !(strings::next_token(&tok) is void)) {
@@ -89,8 +89,10 @@ fn parsev6(st: str) (addr6 | invalid) = {
 	let i = 0;
 	for (i < 16) {
 		let s = match (strings::next_token(&tok)) {
-			s: str => s,
-			void => break,
+		case s: str =>
+			yield s;
+		case void =>
+			break;
 		};
 		if (s == "") {
 			if (ells != -1) {
@@ -137,12 +139,14 @@ fn parsev6(st: str) (addr6 | invalid) = {
 // Parses an IP address.
 export fn parse(s: str) (addr | invalid) = {
 	match (parsev4(s)) {
-		v4: addr4 => return v4,
-		invalid => void,
+	case v4: addr4 =>
+		return v4;
+	case invalid => void;
 	};
 	match (parsev6(s)) {
-		v6: addr6 => return v6,
-		invalid => void,
+	case v6: addr6 =>
+		return v6;
+	case invalid => void;
 	};
 	return invalid;
 };
@@ -214,8 +218,10 @@ fn fillmask(mask: []u8, val: u8) void = {
 // Returns an addr representing a netmask
 fn cidrmask(addr: addr, val: u8) (addr | invalid) = {
 	let a_len: u8 = match (addr) {
-		addr4 => 4,
-		addr6 => 16,
+	case addr4 =>
+		yield 4;
+	case addr6 =>
+		yield 16;
 	};
 
 	if (val > 8 * a_len)
@@ -240,8 +246,10 @@ export fn parsecidr(st: str) (subnet | invalid) = {
 	let addr = parse(ips)?;
 	let masks = wanttoken(&tok)?;
 	let val = match (strconv::stou8(masks)) {
-		x: u8 => x,
-		* => return invalid,
+	case x: u8 =>
+		yield x;
+	case =>
+		return invalid;
 	};
 	if (!(strings::next_token(&tok) is void)) {
 		return invalid;
@@ -278,19 +286,21 @@ fn masklen(addr: []u8) (void | size) = {
 fn fmtmask(s: *io::stream, mask: addr) (io::error | size) = {
 	let ret = 0z;
 	let slice = match (mask) {
-		v4: addr4 => v4[..],
-		v6: addr6 => v6[..],
+	case v4: addr4 =>
+		yield v4[..];
+	case v6: addr6 =>
+		yield v6[..];
 	};
 	match (masklen(slice)) {
-		// format as hex, if zero runs are not contiguous
+	case void =>
+		// Format as hex, if zero runs are not contiguous
 		// (like golang does)
-		void => {
-			for (let i = 0z; i < len(slice); i += 1) {
-				ret += fmt::fprintf(s, "{:x}", slice[i])?;
-			};
-		},
-		// standard CIDR integer
-		n: size => ret += fmt::fprintf(s, "{}", n)?,
+		for (let i = 0z; i < len(slice); i += 1) {
+			ret += fmt::fprintf(s, "{:x}", slice[i])?;
+		};
+	case n: size =>
+		// Standard CIDR integer
+		ret += fmt::fprintf(s, "{}", n)?;
 	};
 	return ret;
 };
@@ -305,10 +315,13 @@ fn fmtsubnet(s: *io::stream, subnet: subnet) (io::error | size) = {
 
 // Formats an [[addr]] or [[subnet]] and prints it to a stream.
 export fn fmt(s: *io::stream, item: (...addr | subnet)) (io::error | size) = {
-	return match (item) {
-		v4: addr4 => fmtv4(s, v4)?,
-		v6: addr6 => fmtv6(s, v6)?,
-		sub: subnet => fmtsubnet(s, sub),
+	match (item) {
+	case v4: addr4 =>
+		return fmtv4(s, v4)?;
+	case v6: addr6 =>
+		return fmtv6(s, v6)?;
+	case sub: subnet =>
+		return fmtsubnet(s, sub);
 	};
 };
 
@@ -324,8 +337,10 @@ export fn string(item: (...addr | subnet)) str = {
 };
 
 fn wanttoken(tok: *strings::tokenizer) (str | invalid) = {
-	return match (strings::next_token(tok)) {
-		s: str => s,
-		void => invalid
+	match (strings::next_token(tok)) {
+	case s: str =>
+		return s;
+	case void =>
+		return invalid;
 	};
 };

@@ -12,9 +12,11 @@ fn scan(ctx: *context, subunits: const []ast::subunit) (void | error) = {
 		for (let j = 0z; j < len(subunit.decls); j += 1) {
 			let decl = &subunit.decls[j];
 			match (scan_decl(ctx, decl)) {
-				void => void,
-				types::deferred => abort(), // TODO
-				error => abort(), // TODO
+			case void => void;
+			case types::deferred =>
+				abort(); // TODO
+			case error =>
+				abort(); // TODO
 			};
 		};
 		scope_pop(ctx);
@@ -26,11 +28,15 @@ fn scan_decl(
 	decl: *ast::decl,
 ) (void | types::deferred | error) = {
 	// TODO: match on &decl.decl
-	return match (decl.decl) {
-		co: []ast::decl_const => abort(), // TODO
-		gl: []ast::decl_global => abort(), // TODO
-		ty: []ast::decl_type => abort(), // TODO
-		fu: ast::decl_func => scan_func(ctx, decl, fu),
+	match (decl.decl) {
+	case co: []ast::decl_const =>
+		abort(); // TODO
+	case gl: []ast::decl_global =>
+		abort(); // TODO
+	case ty: []ast::decl_type =>
+		abort(); // TODO
+	case fu: ast::decl_func =>
+		return scan_func(ctx, decl, fu);
 	};
 };
 
@@ -41,9 +47,12 @@ fn scan_func(
 ) (void | types::deferred | error) = {
 	assert(func.attrs & ast::fndecl_attrs::TEST == 0); // TODO
 	const fntype = match (types::lookup(ctx.store, &func.prototype)) {
-		err: types::error => return err,
-		types::deferred => return types::deferred,
-		fntype: const *types::_type => fntype,
+	case err: types::error =>
+		return err;
+	case types::deferred =>
+		return types::deferred;
+	case fntype: const *types::_type =>
+		yield fntype;
 	};
 	scope_insert(ctx, object {
 		kind = object_kind::DECL,

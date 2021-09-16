@@ -126,13 +126,18 @@ export fn parse(args: []str, help: help...) command = {
 			const r = next as rune;
 			for (let j = 0z; j < len(help); j += 1) :help {
 				let p: parameter_help = match (help[j]) {
-					cmd_help => continue :help,
-					f: flag_help => if (r == f.0) {
+				case cmd_help =>
+					continue :help;
+				case f: flag_help =>
+					if (r == f.0) {
 						append(opts, (r, ""));
 						continue :flag;
-					} else continue :help,
-					p: parameter_help => if (r == p.0) p
-						else continue :help,
+					} else {
+						continue :help;
+					};
+				case p: parameter_help =>
+					yield if (r == p.0) p else
+						continue :help;
 				};
 				if (len(d.src) == d.offs) {
 					if (i + 1 >= len(args)) {
@@ -156,13 +161,13 @@ export fn parse(args: []str, help: help...) command = {
 			os::exit(1);
 		};
 		match (next) {
-			rune => abort(), // Unreachable
-			void => void,
-			(utf8::more | utf8::invalid) => {
-				errmsg(args[0], "invalid UTF-8 in arguments",
-					void, help);
-				os::exit(1);
-			},
+		case void => void;
+		case rune =>
+			abort(); // Unreachable
+		case (utf8::more | utf8::invalid) =>
+			errmsg(args[0], "invalid UTF-8 in arguments", void,
+				help);
+			os::exit(1);
 		};
 	};
 	return command {
@@ -229,29 +234,28 @@ export fn printhelp(s: *io::stream, name: str, help: []help) void = {
 	printusage(s, name, help);
 
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
-		cmd_help => void,
-		(flag_help | parameter_help) => {
-			// Only print this if there are flags to show
-			fmt::fprint(s, "\n")!;
-			break;
-		},
+	case cmd_help => void;
+	case (flag_help | parameter_help) =>
+		// Only print this if there are flags to show
+		fmt::fprint(s, "\n")!;
+		break;
 	};
 
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
-		cmd_help => void,
-		f: flag_help => {
-			fmt::fprintfln(s, "-{}: {}", f.0: rune, f.1)!;
-		},
-		p: parameter_help => {
-			fmt::fprintfln(s, "-{} <{}>: {}", p.0: rune, p.1, p.2)!;
-		},
+	case cmd_help => void;
+	case f: flag_help =>
+		fmt::fprintfln(s, "-{}: {}", f.0: rune, f.1)!;
+	case p: parameter_help =>
+		fmt::fprintfln(s, "-{} <{}>: {}", p.0: rune, p.1, p.2)!;
 	};
 };
 
 fn errmsg(name: str, err: str, opt: (rune | void), help: []help) void = {
 	fmt::errorfln("{}: {}{}", name, err, match (opt) {
-		r: rune => r,
-		void => "",
+	case r: rune =>
+		yield r;
+	case void =>
+		yield "";
 	})!;
 	printusage(os::stderr, name, help);
 };

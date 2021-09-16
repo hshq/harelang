@@ -8,9 +8,15 @@ use types;
 export fn scanbyte(stream: *io::stream) (u8 | io::EOF | io::error) = {
 	let buf: [1]u8 = [0...];
 
-	return match (io::read(stream, buf)?) {
-		read: size => if (read > 0) buf[0] else io::EOF,
-		io::EOF => io::EOF,
+	match (io::read(stream, buf)?) {
+	case read: size =>
+		if (read > 0) {
+			return buf[0];
+		} else {
+			return io::EOF;
+		};
+	case io::EOF =>
+		return io::EOF;
 	};
 };
 
@@ -21,18 +27,16 @@ export fn scantok(stream: *io::stream, delim: u8...) ([]u8 | io::EOF | io::error
 
 	for (true) {
 		match (scanbyte(stream)?) {
-			res: u8 => {
-				if (bytes::contains(delim, res)) {
-					break;
-				};
-				append(buf, res);
-			},
-			io::EOF => {
-				if (len(buf) == 0) {
-					return io::EOF;
-				};
+		case res: u8 =>
+			if (bytes::contains(delim, res)) {
 				break;
-			},
+			};
+			append(buf, res);
+		case io::EOF =>
+			if (len(buf) == 0) {
+				return io::EOF;
+			};
+			break;
 		};
 	};
 
@@ -48,8 +52,10 @@ export fn scanline(stream: *io::stream) ([]u8 | io::EOF | io::error) =
 export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::error) = {
 	let b: [4]u8 = [0...];
 	match (io::read(stream, b[..1])?) {
-		n: size  => assert(n == 1),
-		io::EOF => return io::EOF,
+	case n: size =>
+		assert(n == 1);
+	case io::EOF =>
+		return io::EOF;
 	};
 
 	const sz = utf8::utf8sz(b[0]);
@@ -61,16 +67,19 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 		return b[0]: u32: rune;
 	};
 
-	match (io::read(stream, b[1..sz])) {
-		n: size                  => assert(n == sz - 1),
-		e: (io::error | io::EOF) => return e,
+	match (io::read(stream, b[1..sz])?) {
+	case n: size =>
+		assert(n == sz - 1);
+	case io::EOF =>
+		return io::EOF;
 	};
 
 	let dec = utf8::decode(b[..sz]);
-	return match (utf8::next(&dec)) {
-		r: rune => r,
-		utf8::invalid => utf8::invalid,
-		(void | utf8::more) => io::EOF,
+	match (utf8::next(&dec)?) {
+	case r: rune =>
+		return r;
+	case (void | utf8::more) =>
+		return io::EOF;
 	};
 };
 
@@ -130,9 +139,12 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 		let want = expected[i];
 
 		match (scanrune(in)) {
-			r: rune => assert(want is rune && want as rune == r),
-			io::EOF => assert(want is io::EOF),
-			*       => abort(),
+		case r: rune =>
+			assert(want is rune && want as rune == r);
+		case io::EOF =>
+			assert(want is io::EOF);
+		case =>
+			abort();
 		};
 	};
 };

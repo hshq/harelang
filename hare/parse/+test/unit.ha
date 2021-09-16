@@ -141,11 +141,11 @@ use strings;
 	defer io::close(buf);
 	let lexer = lex::init(buf, "<test>", lex::flags::COMMENTS);
 	let decls = match (decls(&lexer)) {
-		decls: []ast::decl => decls,
-		err: error => {
-			fmt::errorln(strerror(err))!;
-			abort();
-		},
+	case decls: []ast::decl =>
+		yield decls;
+	case err: error =>
+		fmt::errorln(strerror(err))!;
+		abort();
 	};
 	defer for (let i = 0z; i < len(decls); i += 1) {
 		ast::decl_free(decls[i]);

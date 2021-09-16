@@ -17,16 +17,21 @@ export fn main() void = {
 		os::exit(1);
 	};
 	const task = switch (cmd.args[0]) {
-		"build" => &build,
-		"cache" => &cache,
-		"deps" => &deps,
-		"run" => &run,
-		"test" => &test,
-		"version" => &version,
-		* => {
-			getopt::printusage(os::stderr, os::args[0], help...);
-			os::exit(1);
-		},
+	case "build" =>
+		yield &build;
+	case "cache" =>
+		yield &cache;
+	case "deps" =>
+		yield &deps;
+	case "run" =>
+		yield &run;
+	case "test" =>
+		yield &test;
+	case "version" =>
+		yield &version;
+	case =>
+		getopt::printusage(os::stderr, os::args[0], help...);
+		os::exit(1);
 	};
 	task(cmd.args);
 };

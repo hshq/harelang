@@ -97,8 +97,10 @@ fn scope_lookup(scope: *scope, ident: ast::ident) nullable *object = {
 			return bucket[i];
 		};
 	};
-	return match (scope.parent) {
-		null => null,
-		scope: *scope => scope_lookup(scope, ident),
+	match (scope.parent) {
+	case null =>
+		return null;
+	case scope: *scope =>
+		return scope_lookup(scope, ident);
 	};
 };

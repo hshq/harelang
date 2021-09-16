@@ -5,17 +5,20 @@ use path;
 // Closes a filesystem. The fs cannot be used after this function is called.
 export fn close(fs: *fs) void = {
 	match (fs.close) {
-		null => void,
-		f: *closefunc => f(fs),
+	case null => void;
+	case f: *closefunc =>
+		f(fs);
 	};
 };
 
 // Opens a file. If no flags are provided, the default read/write mode is
 // RDONLY.
 export fn open(fs: *fs, path: str, flags: flags...) (*io::stream | error) = {
-	return match (fs.open) {
-		null => errors::unsupported,
-		f: *openfunc => f(fs, path, flags...),
+	match (fs.open) {
+	case null =>
+		return errors::unsupported;
+	case f: *openfunc =>
+		return f(fs, path, flags...);
 	};
 };
 
@@ -25,9 +28,11 @@ export fn open(fs: *fs, path: str, flags: flags...) (*io::stream | error) = {
 //
 // If no flags are provided, the default read/write mode is RDONLY.
 export fn open_file(fs: *fs, path: str, flags: flags...) (io::file | error) = {
-	return match (fs.openfile) {
-		null => errors::unsupported,
-		f: *openfilefunc => f(fs, path, flags...),
+	match (fs.openfile) {
+	case null =>
+		return errors::unsupported;
+	case f: *openfilefunc =>
+		return f(fs, path, flags...);
 	};
 };
 
@@ -39,9 +44,11 @@ export fn create(
 	mode: mode,
 	flags: flags...
 ) (*io::stream | error) = {
-	return match (fs.create) {
-		null => errors::unsupported,
-		f: *createfunc => f(fs, path, mode, flags...),
+	match (fs.create) {
+	case null =>
+		return errors::unsupported;
+	case f: *createfunc =>
+		return f(fs, path, mode, flags...);
 	};
 };
 
@@ -57,17 +64,21 @@ export fn create_file(
 	mode: mode,
 	flags: flags...
 ) (io::file | error) = {
-	return match (fs.createfile) {
-		null => errors::unsupported,
-		f: *createfilefunc => f(fs, path, mode, flags...),
+	match (fs.createfile) {
+	case null =>
+		return errors::unsupported;
+	case f: *createfilefunc =>
+		return f(fs, path, mode, flags...);
 	};
 };
 
 // Removes a file.
 export fn remove(fs: *fs, path: str) (void | error) = {
-	return match (fs.remove) {
-		null => errors::unsupported,
-		f: *removefunc => f(fs, path),
+	match (fs.remove) {
+	case null =>
+		return errors::unsupported;
+	case f: *removefunc =>
+		return f(fs, path);
 	};
 };
 
@@ -75,9 +86,11 @@ export fn remove(fs: *fs, path: str) (void | error) = {
 // are both on the same filesystem. See [[move]] for an implementation which
 // falls back on a "copy & remove" procedure in this situation.
 export fn rename(fs: *fs, oldpath: str, newpath: str) (void | error) = {
-	return match (fs.rename) {
-		null => errors::unsupported,
-		f: *renamefunc => f(fs, oldpath, newpath),
+	match (fs.rename) {
+	case null =>
+		return errors::unsupported;
+	case f: *renamefunc =>
+		return f(fs, oldpath, newpath);
 	};
 };
 
@@ -85,10 +98,11 @@ export fn rename(fs: *fs, oldpath: str, newpath: str) (void | error) = {
 // copy and remove if necessary.
 export fn move(fs: *fs, oldpath: str, newpath: str) (void | error) = {
 	match (rename(fs, oldpath, newpath)) {
-		cannotrename => void, // Fallback
-		errors::unsupported => void, // Fallback
-		void => return, // Success
-		err: error => return err,
+	case (cannotrename | errors::unsupported) => void; // Fallback
+	case err: error =>
+		return err;
+	case void =>
+		return; // Success
 	};
 	// TODO:
 	// - If an error occurs, remove the new file.
@@ -107,18 +121,22 @@ export fn move(fs: *fs, oldpath: str, newpath: str) (void | error) = {
 // Pass empty string to yield from the root. The order in which entries are
 // returned is undefined.
 export fn iter(fs: *fs, path: str) (*iterator | error) = {
-	return match (fs.iter) {
-		null => errors::unsupported,
-		f: *iterfunc => f(fs, path),
+	match (fs.iter) {
+	case null =>
+		return errors::unsupported;
+	case f: *iterfunc =>
+		return f(fs, path);
 	};
 };
 
 // Obtains information about a file or directory. If the target is a symlink,
 // information is returned about the link, not its target.
 export fn stat(fs: *fs, path: str) (filestat | error) = {
-	return match (fs.stat) {
-		null => errors::unsupported,
-		f: *statfunc => f(fs, path),
+	match (fs.stat) {
+	case null =>
+		return errors::unsupported;
+	case f: *statfunc =>
+		return f(fs, path);
 	};
 };
 
@@ -126,17 +144,21 @@ export fn stat(fs: *fs, path: str) (filestat | error) = {
 // separately from the parent filesystem, and its lifetime can outlive that of
 // its parent.
 export fn subdir(fs: *fs, path: str) (*fs | error) = {
-	return match (fs.subdir) {
-		null => errors::unsupported,
-		f: *subdirfunc => f(fs, path),
+	match (fs.subdir) {
+	case null =>
+		return errors::unsupported;
+	case f: *subdirfunc =>
+		return f(fs, path);
 	};
 };
 
 // Creates a directory.
 export fn mkdir(fs: *fs, path: str) (void | error) = {
-	return match (fs.mkdir) {
-		null => errors::unsupported,
-		f: *mkdirfunc => f(fs, path),
+	match (fs.mkdir) {
+	case null =>
+		return errors::unsupported;
+	case f: *mkdirfunc =>
+		return f(fs, path);
 	};
 };
 
@@ -145,15 +167,17 @@ export fn mkdirs(fs: *fs, path: str) (void | error) = {
 	let parent = path::dirname(path);
 	if (path != parent) {
 		match (mkdirs(fs, parent)) {
-			errors::exists => void,
-			err: error => return err,
-			void => void,
+		case errors::exists => void;
+		case void => void;
+		case err: error =>
+			return err;
 		};
 	};
-	return match (mkdir(fs, path)) {
-		errors::exists => void,
-		err: error => err,
-		void => void,
+	match (mkdir(fs, path)) {
+	case errors::exists => void;
+	case void => void;
+	case err: error =>
+		return err;
 	};
 };
 
@@ -163,28 +187,33 @@ export fn rmdir(fs: *fs, path: str) (void | error) = {
 	if (path == "") {
 		return errors::invalid;
 	};
-	return match (fs.rmdir) {
-		null => errors::unsupported,
-		f: *rmdirfunc => f(fs, path),
+	match (fs.rmdir) {
+	case null =>
+		return errors::unsupported;
+	case f: *rmdirfunc =>
+		return f(fs, path);
 	};
 };
 
 // Removes a directory, and anything in it.
 export fn rmdirall(fs: *fs, path: str) (void | error) = {
 	let it = iter(fs, path)?;
-	for (true) match (next(it)) {
-		ent: dirent => {
+	for (true) {
+		match (next(it)) {
+		case ent: dirent =>
 			if (ent.name == "." || ent.name == "..") {
 				continue;
 			};
 			let p = path::join(path, ent.name);
 			defer free(p);
+
 			switch (ent.ftype & mode::DIR) {
-				mode::DIR => rmdirall(fs, p)?,
-				* => remove(fs, p)?,
+			case mode::DIR => rmdirall(fs, p)?;
+			case  => remove(fs, p)?;
 			};
-		},
-		void => break,
+		case void =>
+			break;
+		};
 	};
 	if (path != "") {
 		return rmdir(fs, path);
@@ -194,28 +223,32 @@ export fn rmdirall(fs: *fs, path: str) (void | error) = {
 // Creates a directory and returns a subdir for it. Some filesystems support
 // doing this operation atomically, but if not, a fallback is used.
 export fn mksubdir(fs: *fs, path: str) (*fs | error) = {
-	return match (fs.mksubdir) {
-		null => {
-			mkdir(fs, path)?;
-			yield subdir(fs, path);
-		},
-		f: *mksubdirfunc => f(fs, path),
+	match (fs.mksubdir) {
+	case null =>
+		mkdir(fs, path)?;
+		return subdir(fs, path);
+	case f: *mksubdirfunc =>
+		return f(fs, path);
 	};
 };
 
 // Changes mode flags on a file or directory.
 export fn chmod(fs: *fs, path: str, mode: mode) (void | error) = {
-	return match (fs.chmod) {
-		f: *chmodfunc => f(fs, path, mode),
-		null => errors::unsupported,
+	match (fs.chmod) {
+	case null =>
+		return errors::unsupported;
+	case f: *chmodfunc =>
+		return f(fs, path, mode);
 	};
 };
 
 // Changes ownership of a file.
 export fn chown(fs: *fs, path: str, uid: uint, gid: uint) (void | error) = {
-	return match (fs.chown) {
-		f: *chownfunc => f(fs, path, uid, gid),
-		null => errors::unsupported,
+	match (fs.chown) {
+	case null =>
+		return errors::unsupported;
+	case f: *chownfunc =>
+		return f(fs, path, uid, gid);
 	};
 };
 
@@ -224,8 +257,9 @@ export fn chown(fs: *fs, path: str, uid: uint, gid: uint) (void | error) = {
 // the return value.
 export fn resolve(fs: *fs, path: str) str = {
 	match (fs.resolve) {
-		f: *resolvefunc => return f(fs, path),
-		null => void,
+	case null => void;
+	case f: *resolvefunc =>
+		return f(fs, path);
 	};
 	abort(); // TODO
 };

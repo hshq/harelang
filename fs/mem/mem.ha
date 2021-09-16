@@ -77,10 +77,14 @@ fn file_flags(flags: fs::flags...) ((io::mode, bool) | fs::error) = {
 	};
 	let appnd = fl & fs::flags::APPEND == fs::flags::APPEND;
 	let mode = switch (fl & (~fs::flags::APPEND)) {
-		fs::flags::RDONLY => io::mode::READ,
-		fs::flags::WRONLY => io::mode::WRITE,
-		fs::flags::RDWR   => io::mode::RDWR,
-		* => abort("invalid flag combination"),
+	case fs::flags::RDONLY =>
+		yield io::mode::READ;
+	case fs::flags::WRONLY =>
+		yield io::mode::WRITE;
+	case fs::flags::RDWR =>
+		yield io::mode::RDWR;
+	case =>
+		abort("invalid flag combination");
 	};
 	return (mode, appnd);
 };
@@ -96,8 +100,9 @@ fn create(
 
 	let parent = fs: *inode;
 	match (inode_find(parent, path)) {
-		errors::noentry => void,
-		* => return errors::exists,
+	case errors::noentry => void;
+	case =>
+		return errors::exists;
 	};
 	if (path::dirname(path) != path) {
 		parent = inode_find(parent, path::dirname(path))?;
@@ -129,13 +134,15 @@ fn open(
 };
 
 fn stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
-	return match(inode_find(fs: *inode, path)?.data) {
-		directory => fs::filestat { mode = fs::mode::DIR | 0o777, ... },
-		f: file => fs::filestat {
+	match (inode_find(fs: *inode, path)?.data) {
+	case directory =>
+		return fs::filestat { mode = fs::mode::DIR | 0o777, ... };
+	case f: file =>
+		return fs::filestat {
 			mode = fs::mode::REG | 0o777,
 			mask = fs::stat_mask::SIZE,
 			sz = len(f),
-		},
+		};
 	};
 };
 
@@ -148,8 +155,9 @@ fn mkdir(fs: *fs::fs, path: str) (void | fs::error) = {
 fn mksubdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 	let parent = fs: *inode;
 	match (inode_find(parent, path)) {
-		errors::noentry => void,
-		* => return errors::exists,
+	case errors::noentry => void;
+	case =>
+		return errors::exists;
 	};
 	if (path::dirname(path) != path) {
 		parent = inode_find(parent, path::dirname(path))?;
@@ -190,15 +198,18 @@ fn iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 	}): *fs::iterator;
 };
 
-fn next(iter: *fs::iterator) (fs::dirent | void) = match (_next(iter)) {
-	null => void,
-	ino: *inode => fs::dirent {
-		name = ino.name,
-		ftype = match (ino.data) {
-			directory => fs::mode::DIR,
-			file      => fs::mode::REG,
-		},
-	},
+fn next(iter: *fs::iterator) (fs::dirent | void) = {
+	match (_next(iter)) {
+	case null => void;
+	case ino: *inode =>
+		return fs::dirent {
+			name = ino.name,
+			ftype = match (ino.data) {
+			case directory => yield fs::mode::DIR;
+			case file => yield fs::mode::REG;
+			},
+		};
+	};
 };
 
 fn _next(it: *fs::iterator) nullable *inode = {
@@ -211,11 +222,11 @@ fn _next(it: *fs::iterator) nullable *inode = {
 	let p = iter.parent.data as directory;
 	iter.idx += 1;
 	for (iter.idx < len(p.ents)) match (p.ents[iter.idx]) {
-		null => iter.idx += 1,
-		ino: *inode => {
-			iter.curr = ino.next;
-			return ino;
-		},
+	case null =>
+		iter.idx += 1;
+	case ino: *inode =>
+		iter.curr = ino.next;
+		return ino;
 	};
 	return null;
 };
@@ -260,15 +271,18 @@ fn close_rec(ino: *inode) void = {
 	};
 	let it = iterator { it = fs_iter, parent = ino, ... };
 	for (true) match (_next(&it: *fs::iterator)) {
-		null => break,
-		ino: *inode => {
-			ino.parent = null;
-			match (ino.data) {
-				file => inode_free(ino),
-				directory => close_rec(ino),
-				* => abort("unreachable"),
-			};
-		},
+	case null =>
+		break;
+	case ino: *inode =>
+		ino.parent = null;
+		match (ino.data) {
+		case file =>
+			inode_free(ino);
+		case directory =>
+			close_rec(ino);
+		case =>
+			abort("unreachable");
+		};
 	};
 	inode_free(ino);
 };

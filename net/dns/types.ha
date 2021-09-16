@@ -194,8 +194,10 @@ fn bytes_free(in: [][]u8) void = {
 fn rrecord_finish(rr: *rrecord) void = {
 	strings_free(rr.name);
 	match (rr.rdata) {
-		mx: mx => strings_free(mx.name),
-		tx: txt => bytes_free(tx: [][]u8),
-		* => void,
+	case mx: mx =>
+		strings_free(mx.name);
+	case tx: txt =>
+		bytes_free(tx: [][]u8);
+	case => void;
 	};
 };

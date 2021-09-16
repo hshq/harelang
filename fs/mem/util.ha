@@ -32,11 +32,11 @@ fn ensure(parent: *inode) void = {
 	parent.data = dir;
 	for (let i = 0z; i < len(old); i += 1) {
 		for (true) match (old[i]) {
-			null => break,
-			ino: *inode => {
-				old[i] = ino.next;
-				_inode_insert(parent, ino);
-			},
+		case null =>
+			break;
+		case ino: *inode =>
+			old[i] = ino.next;
+			_inode_insert(parent, ino);
 		};
 	};
 };
@@ -62,15 +62,15 @@ fn unlink(parent: *inode, ino: *inode) void = {
 	let prev = &p.ents[ino.hash % len(p.ents): u64];
 	let it = *prev;
 	for (true) match (it) {
-		null => break,
-		ii: *inode => {
-			if (ii.hash == ino.hash && ii.name == ino.name) {
-				*prev = ii.next;
-				break;
-			};
-			prev = &ii.next;
-			it = ii.next;
-		},
+	case null =>
+		break;
+	case ii: *inode =>
+		if (ii.hash == ino.hash && ii.name == ino.name) {
+			*prev = ii.next;
+			break;
+		};
+		prev = &ii.next;
+		it = ii.next;
 	};
 	p.sz -= 1;
 	parent.data = p;
@@ -79,8 +79,10 @@ fn unlink(parent: *inode, ino: *inode) void = {
 
 fn inode_free(ino: *inode) void = {
 	match (ino.data) {
-		d: directory => free(d.ents),
-		f: file      => free(f),
+	case d: directory =>
+		free(d.ents);
+	case f: file =>
+		free(f);
 	};
 	free(ino.name);
 	free(ino);
@@ -98,16 +100,18 @@ fn find_rec(dir: *inode, name: str, it: *path::iterator) (*inode | fs::error) = 
 	let p = dir.data as directory;
 	let bucket = p.ents[hash_of(name) % len(p.ents): u64];
 	for (true) match (bucket) {
-		null => break,
-		ino: *inode => {
-			if (name == ino.name) {
-				return match (path::next(it)) {
-					void => ino,
-					name: str => find_rec(ino, name, it),
-				};
+	case null =>
+		break;
+	case ino: *inode =>
+		if (name == ino.name) {
+			match (path::next(it)) {
+			case void =>
+				return ino;
+			case name: str =>
+				return find_rec(ino, name, it);
 			};
-			bucket = ino.next;
-		},
+		};
+		bucket = ino.next;
 	};
 	return errors::noentry;
 };

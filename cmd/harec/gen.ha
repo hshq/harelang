@@ -25,9 +25,12 @@ fn gen(store: *types::typestore, unit: *unit::unit) void = {
 		...
 	};
 	defer io::close(ctx.out);
-	for (let i = 0z; i < len(unit.decls); i += 1) match (unit.decls[i].decl) {
-		func: unit::decl_func => gen_func(&ctx, &unit.decls[i]),
-		* => abort(), // TODO
+	for (let i = 0z; i < len(unit.decls); i += 1) {
+		match (unit.decls[i].decl) {
+		case func: unit::decl_func =>
+			gen_func(&ctx, &unit.decls[i]);
+		case => abort(); // TODO
+		};
 	};
 };
 
@@ -35,8 +38,10 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	// TODO: const fndecl = &decl.decl as *unit::decl_func;
 	const fndecl = decl.decl as unit::decl_func;
 	const body = match (fndecl.body) {
-		null => return, // Prototype
-		expr: *unit::expr => expr,
+	case expr: *unit::expr =>
+		yield expr;
+	case null =>
+		return; // Prototype
 	};
 	const fntype = fndecl.prototype.repr as types::func;
 	assert(fntype.flags == 0);
@@ -47,10 +52,13 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	fmt::printf("{}function section \".text.{}\" \"ax\"",
 		if (decl.exported) "export " else "", ident)!;
 	const rtype = fntype.result;
-	const has_rval = match (types::dealias(rtype).repr) {
-		bi: types::builtin => bi != types::builtin::VOID,
-		* => true,
-	};
+	const has_rval =
+		match (types::dealias(rtype).repr) {
+		case bi: types::builtin =>
+			yield bi != types::builtin::VOID;
+		case =>
+			yield true;
+		};
 	if (has_rval) {
 		const qrtype = qtype_lookup(ctx, rtype, false);
 		fmt::printf(" {}", qtype_repr(qrtype))!;
@@ -83,14 +91,15 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 
 fn gen_store(ctx: *context, object: value, value: value) void = {
 	match (types::dealias(object._type).repr) {
-		bi: types::builtin => switch (bi) {
-			builtin::STR => abort(), // TODO
-			* => void,
-		},
-		types::_struct => abort(), // TODO
-		(types::array | types::slice | types::tagged | types::tuple) =>
-			abort(), // TODO
-		* => void,
+	case bi: types::builtin =>
+		switch (bi) {
+		case builtin::STR => abort(); // TODO
+		case => void;
+		};
+	case types::_struct => abort(); // TODO
+	case (types::array | types::slice | types::tagged | types::tuple) =>
+		abort(); // TODO
+	case => void; // Handled below
 	};
 	const instr = qinstr_store(ctx, object._type);
 	emit(ctx.out, void, instr, value, object);
@@ -98,14 +107,15 @@ fn gen_store(ctx: *context, object: value, value: value) void = {
 
 fn gen_load(ctx: *context, object: value) value = {
 	match (types::dealias(object._type).repr) {
-		bi: types::builtin => switch (bi) {
-			builtin::STR => abort(), // TODO
-			* => void,
-		},
-		types::_struct => abort(), // TODO
-		(types::array | types::slice | types::tagged | types::tuple) =>
-			abort(), // TODO
-		* => void,
+	case bi: types::builtin =>
+		switch (bi) {
+		case builtin::STR => abort(); // TODO
+		case => void;
+		};
+	case types::_struct => abort(); // TODO
+	case (types::array | types::slice | types::tagged | types::tuple) =>
+		abort(); // TODO
+	case => void; // Handled below
 	};
 	const instr = qinstr_load(ctx, object._type);
 	const temp = mktemp(ctx);
@@ -118,45 +128,48 @@ fn gen_load(ctx: *context, object: value) value = {
 };
 
 fn gen_expr(ctx: *context, expr: *unit::expr) value = {
-	return match (expr.expr) {
-		unit::access => gen_access(ctx, expr),
-		unit::bindings => gen_binding(ctx, expr),
-		unit::compound => gen_compound(ctx, expr),
-		unit::constant => gen_const(ctx, expr),
-		unit::_return => gen_return(ctx, expr),
+	match (expr.expr) {
+	case unit::access =>
+		return gen_access(ctx, expr);
+	case unit::bindings =>
+		return gen_binding(ctx, expr);
+	case unit::compound =>
+		return gen_compound(ctx, expr);
+	case unit::constant =>
+		return gen_const(ctx, expr);
+	case unit::_return =>
+		return gen_return(ctx, expr);
 	};
 };
 
 fn gen_expr_at(ctx: *context, expr: *unit::expr, at: value) void = {
 	match (expr.expr) {
-		// TODO: Some functions will prefer _at
-		* => void,
+	case => void; // TODO: Some functions will prefer _at
 	};
 	const value = gen_expr(ctx, expr);
 	gen_store(ctx, at, value);
 };
 
 fn gen_access_object(ctx: *context, object: *unit::object) value = {
-	return switch (object.kind) {
-		object_kind::CONST, object_kind::TYPE => abort(),
-		object_kind::BIND => {
-			const binding = binding_lookup(ctx, object);
-			yield value {
-				value = binding.name,
-				_type = object._type,
-			};
-		},
-		object_kind::DECL => abort(), // TODO
+	switch (object.kind) {
+	case object_kind::CONST, object_kind::TYPE => abort();
+	case object_kind::BIND =>
+		const binding = binding_lookup(ctx, object);
+		return value {
+			value = binding.name,
+			_type = object._type,
+		};
+	case object_kind::DECL => abort(); // TODO
 	};
 };
 
 fn gen_access_addr(ctx: *context, expr: *unit::expr) value = {
-	const access = expr.expr as unit::access;
-	return match (access) {
-		ao: unit::access_object => gen_access_object(ctx, ao),
-		ai: unit::access_index => abort(), // TODO
-		af: unit::access_field => abort(), // TODO
-		at: unit::access_tuple => abort(), // TODO
+	match (expr.expr as unit::access) {
+	case ao: unit::access_object =>
+		return gen_access_object(ctx, ao);
+	case ai: unit::access_index => abort(); // TODO
+	case af: unit::access_field => abort(); // TODO
+	case at: unit::access_tuple => abort(); // TODO
 	};
 };
 
@@ -199,14 +212,20 @@ fn gen_compound(ctx: *context, expr: *unit::expr) value = {
 fn gen_const(ctx: *context, expr: *unit::expr) value = {
 	const constexpr = expr.expr as unit::constant;
 	const val: qval = match (constexpr) {
-		void => return vvoid,
-		b: bool => (if (b) 1u32 else 0u32): constant,
-		ast::_null => 0u64, // XXX: Arch
-		r: rune => r: u32,
-		v: (u64 | f64) => v,
-		i: i64 => i: u64,
-		s: str => abort(), // TODO
-		// TODO: Aggregate types
+	case void =>
+		return vvoid;
+	case b: bool =>
+		yield (if (b) 1u32 else 0u32): constant;
+	case ast::_null =>
+		yield 0u64; // XXX: Arch
+	case r: rune =>
+		yield r: u32;
+	case v: (u64 | f64) =>
+		yield v;
+	case i: i64 =>
+		yield i: u64;
+	case s: str => abort(); // TODO
+	// TODO: Aggregate types
 	};
 	return value {
 		value = val,
@@ -217,10 +236,10 @@ fn gen_const(ctx: *context, expr: *unit::expr) value = {
 fn gen_return(ctx: *context, expr: *unit::expr) value = {
 	const rexpr = expr.expr as unit::_return;
 	match (rexpr) {
-		null => emit(ctx.out, void, qinstr::RET),
-		expr: *unit::expr => {
-			emit(ctx.out, void, qinstr::RET, gen_expr(ctx, expr));
-		},
+	case null =>
+		emit(ctx.out, void, qinstr::RET);
+	case expr: *unit::expr =>
+		emit(ctx.out, void, qinstr::RET, gen_expr(ctx, expr));
 	};
 	return vvoid;
 };

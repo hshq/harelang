@@ -30,27 +30,42 @@ export type error = !(format | server_failure | name_error
 
 export fn strerror(err: error) const str = {
 	static let buf: [64]u8 = [0...];
-	return match (err) {
-		format => "The DNS message was poorly formatted",
-		server_failure => "The name server was unable to process this query due to a problem with the name server",
-		name_error => "The domain name referenced in the query does not exist",
-		not_implemented => "The name server does not support the requested kind of query",
-		refused => "The name server refuses to perform the specified operation for policy reasons",
-		ue: unknown_error => fmt::bsprintf(buf, "Unknown DNS error {}", ue: u8),
-		errors::overflow => "The encoded message would exceed the buffer size",
-		errors::timeout => "The DNS request timed out",
-		err: net::error => net::strerror(err),
+	match (err) {
+	case format =>
+		return "The DNS message was poorly formatted";
+	case server_failure =>
+		return "The name server was unable to process this query due to a problem with the name server";
+	case name_error =>
+		return "The domain name referenced in the query does not exist";
+	case not_implemented =>
+		return "The name server does not support the requested kind of query";
+	case refused =>
+		return "The name server refuses to perform the specified operation for policy reasons";
+	case ue: unknown_error =>
+		return fmt::bsprintf(buf, "Unknown DNS error {}", ue: u8);
+	case errors::overflow =>
+		return "The encoded message would exceed the buffer size";
+	case errors::timeout =>
+		return "The DNS request timed out";
+	case err: net::error =>
+		return net::strerror(err);
 	};
 };
 
 fn check_rcode(rcode: rcode) (void | error) = {
-	return switch (rcode) {
-		rcode::NO_ERROR => void,
-		rcode::FMT_ERROR => format,
-		rcode::SERVER_FAILURE => server_failure,
-		rcode::NAME_ERROR => name_error,
-		rcode::NOT_IMPLEMENTED => not_implemented,
-		rcode::REFUSED => refused,
-		* => rcode: unknown_error,
+	switch (rcode) {
+	case rcode::NO_ERROR => void;
+	case rcode::FMT_ERROR =>
+		return format;
+	case rcode::SERVER_FAILURE =>
+		return server_failure;
+	case rcode::NAME_ERROR =>
+		return name_error;
+	case rcode::NOT_IMPLEMENTED =>
+		return not_implemented;
+	case rcode::REFUSED =>
+		return refused;
+	case =>
+		return rcode: unknown_error;
 	};
 };

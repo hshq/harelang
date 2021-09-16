@@ -5,28 +5,48 @@ use hare::lex;
 use strio;
 
 fn builtin_type(b: ast::builtin_type) str = switch (b) {
-	ast::builtin_type::BOOL => "bool",
-	ast::builtin_type::CHAR => "char",
-	ast::builtin_type::F32 => "f32",
-	ast::builtin_type::F64 => "f64",
-	ast::builtin_type::FCONST => abort("FCONST has no lexical representation"),
-	ast::builtin_type::I16 => "i16",
-	ast::builtin_type::I32 => "i32",
-	ast::builtin_type::I64 => "i64",
-	ast::builtin_type::I8 => "i8",
-	ast::builtin_type::ICONST => abort("ICONST has no lexical representation"),
-	ast::builtin_type::INT => "int",
-	ast::builtin_type::NULL => "null",
-	ast::builtin_type::RUNE => "rune",
-	ast::builtin_type::SIZE => "size",
-	ast::builtin_type::STR => "str",
-	ast::builtin_type::U16 => "u16",
-	ast::builtin_type::U32 => "u32",
-	ast::builtin_type::U64 => "u64",
-	ast::builtin_type::U8 => "u8",
-	ast::builtin_type::UINT => "uint",
-	ast::builtin_type::UINTPTR => "uintptr",
-	ast::builtin_type::VOID => "void",
+case ast::builtin_type::FCONST, ast::builtin_type::ICONST =>
+	abort("ICONST and FCONST have no lexical representation");
+case ast::builtin_type::BOOL =>
+	yield "bool";
+case ast::builtin_type::CHAR =>
+	yield "char";
+case ast::builtin_type::F32 =>
+	yield "f32";
+case ast::builtin_type::F64 =>
+	yield "f64";
+case ast::builtin_type::I16 =>
+	yield "i16";
+case ast::builtin_type::I32 =>
+	yield "i32";
+case ast::builtin_type::I64 =>
+	yield "i64";
+case ast::builtin_type::I8 =>
+	yield "i8";
+case ast::builtin_type::INT =>
+	yield "int";
+case ast::builtin_type::NULL =>
+	yield "null";
+case ast::builtin_type::RUNE =>
+	yield "rune";
+case ast::builtin_type::SIZE =>
+	yield "size";
+case ast::builtin_type::STR =>
+	yield "str";
+case ast::builtin_type::U16 =>
+	yield "u16";
+case ast::builtin_type::U32 =>
+	yield "u32";
+case ast::builtin_type::U64 =>
+	yield "u64";
+case ast::builtin_type::U8 =>
+	yield "u8";
+case ast::builtin_type::UINT =>
+	yield "uint";
+case ast::builtin_type::UINTPTR =>
+	yield "uintptr";
+case ast::builtin_type::VOID =>
+	yield "void";
 };
 
 fn prototype(
@@ -64,34 +84,34 @@ fn struct_union_type(
 ) (size | io::error) = {
 	let z = 0z;
 	let membs = match (t.repr) {
-		st: ast::struct_type => {
-			z += fmt::fprint(out, "struct {")?;
-			yield st: []ast::struct_member;
-		},
-		ut: ast::union_type => {
-			z += fmt::fprint(out, "union {")?;
-			yield ut: []ast::struct_member;
-		},
+	case st: ast::struct_type =>
+		z += fmt::fprint(out, "struct {")?;
+		yield st: []ast::struct_member;
+	case ut: ast::union_type =>
+		z += fmt::fprint(out, "union {")?;
+		yield ut: []ast::struct_member;
 	};
 
 	indent += 1z;
 	for (let i = 0z; i < len(membs); i += 1) {
 		z += newline(out, indent)?;
 
-		z += match (membs[i]._offset) {
-			null => 0z,
-			ex: *ast::expr => fmt::fprint(out, "@offset(")?
-				+ expr(out, indent, *ex)?
-				+ fmt::fprint(out, ") ")?,
+		match (membs[i]._offset) {
+		case null => void;
+		case ex: *ast::expr =>
+			z += fmt::fprint(out, "@offset(")?;
+			z += expr(out, indent, *ex)?;
+			z += fmt::fprint(out, ") ")?;
 		};
 
-		z += match (membs[i].member) {
-			se: ast::struct_embedded => _type(out, indent, *se)?,
-			sa: ast::struct_alias => ident(out, sa)?,
-			sf: ast::struct_field => {
-				yield fmt::fprintf(out, "{}: ", sf.name)?
-					+ _type(out, indent, *sf._type)?;
-			},
+		match (membs[i].member) {
+		case se: ast::struct_embedded =>
+			z += _type(out, indent, *se)?;
+		case sa: ast::struct_alias =>
+			z += ident(out, sa)?;
+		case sf: ast::struct_field =>
+			z += fmt::fprintf(out, "{}: ", sf.name)?;
+			z += _type(out, indent, *sf._type)?;
 		};
 
 		z += fmt::fprint(out, ",")?;
@@ -118,85 +138,83 @@ export fn _type(
 		n += fmt::fprint(out, "!")?;
 	};
 	match (t.repr) {
-		a: ast::alias_type => {
-			if (a.unwrap) {
-				n += fmt::fprint(out, "...")?;
-			};
-			n += ident(out, a.ident)?;
-		},
-		b: ast::builtin_type => n += fmt::fprint(out, builtin_type(b))?,
-		e: ast::enum_type => {
-			if (e.storage != ast::builtin_type::INT) {
-				n += fmt::fprint(out, "enum",
-					builtin_type(e.storage), "{")?;
-			} else {
-				n += fmt::fprint(out, "enum {")?;
-			};
-			indent += 1;
-			for (let i = 0z; i < len(e.values); i += 1) {
-				n += newline(out, indent)?;
-				let value = e.values[i];
-				n += fmt::fprint(out, value.name)?;
-				match (value.value) {
-					null => void,
-					e: *ast::expr => {
-						n += fmt::fprint(out, " = ")?;
-						n += expr(out, indent, *e)?;
-					},
-				};
-				n += fmt::fprint(out, ",")?;
-			};
-			indent -= 1;
+	case a: ast::alias_type =>
+		if (a.unwrap) {
+			n += fmt::fprint(out, "...")?;
+		};
+		n += ident(out, a.ident)?;
+	case b: ast::builtin_type =>
+		n += fmt::fprint(out, builtin_type(b))?;
+	case e: ast::enum_type =>
+		if (e.storage != ast::builtin_type::INT) {
+			n += fmt::fprint(out, "enum",
+				builtin_type(e.storage), "{")?;
+		} else {
+			n += fmt::fprint(out, "enum {")?;
+		};
+		indent += 1;
+		for (let i = 0z; i < len(e.values); i += 1) {
 			n += newline(out, indent)?;
-			n += fmt::fprint(out, "}")?;
-		},
-		f: ast::func_type => {
-			if (f.attrs & ast::func_attrs::NORETURN != 0) {
-				n += fmt::fprint(out, "@noreturn ")?;
+			let value = e.values[i];
+			n += fmt::fprint(out, value.name)?;
+			match (value.value) {
+			case null => void;
+			case e: *ast::expr =>
+				n += fmt::fprint(out, " = ")?;
+				n += expr(out, indent, *e)?;
 			};
-			n += fmt::fprint(out, "fn")?;
-			n += prototype(out, indent, f)?;
-		},
-		l: ast::list_type => {
-			n += fmt::fprint(out, "[")?;
-			n += match (l.length) {
-				ast::len_slice => 0,
-				ast::len_unbounded => fmt::fprint(out, "*")?,
-				ast::len_contextual => fmt::fprint(out, "_")?,
-				e: *ast::expr => expr(out, indent, *e)?,
-			};
-			n += fmt::fprint(out, "]")?;
-			n += _type(out, indent, *l.members)?;
-		},
-		p: ast::pointer_type => {
-			if (p.flags & ast::pointer_flags::NULLABLE != 0) {
-				n += fmt::fprint(out, "nullable ")?;
-			};
+			n += fmt::fprint(out, ",")?;
+		};
+		indent -= 1;
+		n += newline(out, indent)?;
+		n += fmt::fprint(out, "}")?;
+	case f: ast::func_type =>
+		if (f.attrs & ast::func_attrs::NORETURN != 0) {
+			n += fmt::fprint(out, "@noreturn ")?;
+		};
+		n += fmt::fprint(out, "fn")?;
+		n += prototype(out, indent, f)?;
+	case l: ast::list_type =>
+		n += fmt::fprint(out, "[")?;
+		match (l.length) {
+		case ast::len_slice => void;
+		case ast::len_unbounded =>
 			n += fmt::fprint(out, "*")?;
-			n += _type(out, indent, *p.referent)?;
-		},
-		ast::struct_type => n += struct_union_type(out, indent, t)?,
-		ast::union_type => n += struct_union_type(out, indent, t)?,
-		t: ast::tagged_type => {
-			n += fmt::fprint(out, "(")?;
-			for (let i = 0z; i < len(t); i += 1) {
-				n += _type(out, indent, *t[i])?;
-				if (i + 1 < len(t)) {
-					n += fmt::fprint(out, " | ")?;
-				};
+		case ast::len_contextual =>
+			n += fmt::fprint(out, "_")?;
+		case e: *ast::expr =>
+			n += expr(out, indent, *e)?;
+		};
+		n += fmt::fprint(out, "]")?;
+		n += _type(out, indent, *l.members)?;
+	case p: ast::pointer_type =>
+		if (p.flags & ast::pointer_flags::NULLABLE != 0) {
+			n += fmt::fprint(out, "nullable ")?;
+		};
+		n += fmt::fprint(out, "*")?;
+		n += _type(out, indent, *p.referent)?;
+	case ast::struct_type =>
+		n += struct_union_type(out, indent, t)?;
+	case ast::union_type =>
+		n += struct_union_type(out, indent, t)?;
+	case t: ast::tagged_type =>
+		n += fmt::fprint(out, "(")?;
+		for (let i = 0z; i < len(t); i += 1) {
+			n += _type(out, indent, *t[i])?;
+			if (i + 1 < len(t)) {
+				n += fmt::fprint(out, " | ")?;
 			};
-			n += fmt::fprint(out, ")")?;
-		},
-		t: ast::tuple_type => {
-			n += fmt::fprint(out, "(")?;
-			for (let i = 0z; i < len(t); i += 1) {
-				n += _type(out, indent, *t[i])?;
-				if (i + 1 < len(t)) {
-					n += fmt::fprint(out, ", ")?;
-				};
+		};
+		n += fmt::fprint(out, ")")?;
+	case t: ast::tuple_type =>
+		n += fmt::fprint(out, "(")?;
+		for (let i = 0z; i < len(t); i += 1) {
+			n += _type(out, indent, *t[i])?;
+			if (i + 1 < len(t)) {
+				n += fmt::fprint(out, ", ")?;
 			};
-			n += fmt::fprint(out, ")")?;
-		},
+		};
+		n += fmt::fprint(out, ")")?;
 	};
 	return n;
 };

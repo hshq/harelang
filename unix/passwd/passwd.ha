@@ -26,12 +26,16 @@ export type pwent = struct {
 // result using [[pwent_finish]].
 export fn nextpw(stream: *io::stream) (pwent | io::EOF | io::error | invalid) = {
 	let line = match (bufio::scanline(stream)?) {
-		io::EOF => return io::EOF,
-		ln: []u8 => ln,
+	case io::EOF =>
+		return io::EOF;
+	case ln: []u8 =>
+		yield ln;
 	};
 	let line = match (strings::try_fromutf8(line)) {
-		s: str => s,
-		* => return invalid,
+	case s: str =>
+		yield s;
+	case =>
+		return invalid;
 	};
 
 	let fields = strings::split(line, ":");
@@ -42,13 +46,17 @@ export fn nextpw(stream: *io::stream) (pwent | io::EOF | io::error | invalid) = 
 	};
 
 	let uid = match (strconv::stou(fields[2])) {
-		u: uint => u,
-		* => return invalid,
+	case u: uint =>
+		yield u;
+	case =>
+		return invalid;
 	};
 
 	let gid = match (strconv::stou(fields[3])) {
-		u: uint => u,
-		* => return invalid,
+	case u: uint =>
+		yield u;
+	case =>
+		return invalid;
 	};
 
 	return pwent {
@@ -78,16 +86,21 @@ export fn pwent_finish(ent: pwent) void = {
 // See [[nextpw]] for low-level parsing API.
 export fn getuser(username: str) (pwent | void) = {
 	let file = match (os::open("/etc/passwd")) {
-		f: io::file => f,
-		* => abort("Can't open /etc/passwd"),
+	case f: io::file =>
+		yield f;
+	case =>
+		abort("Can't open /etc/passwd");
 	};
 	defer io::close(&file);
 
 	for (true) {
 		let ent = match (nextpw(&file)) {
-			e: pwent => e,
-			io::EOF => break,
-			* => abort("Invalid entry in /etc/passwd"),
+		case e: pwent =>
+			yield e;
+		case io::EOF =>
+			break;
+		case =>
+			abort("Invalid entry in /etc/passwd");
 		};
 
 		if (ent.username == username) {

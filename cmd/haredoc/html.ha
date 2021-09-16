@@ -17,16 +17,25 @@ use strio;
 fn html_escape(out: *io::stream, in: str) (size | io::error) = {
 	let z = 0z;
 	let iter = strings::iter(in);
-	for (true) match (strings::next(&iter)) {
-		void => break,
-		rn: rune => z += io::write(out, switch (rn) {
-			'&' => strings::toutf8("&amp;"),
-			'<' => strings::toutf8("&lt;"),
-			'>' => strings::toutf8("&gt;"),
-			'"' => strings::toutf8("&quot;"),
-			'\'' => strings::toutf8("&apos;"),
-			*   => utf8::encoderune(rn),
-		})?,
+	for (true) {
+		match (strings::next(&iter)) {
+		case void => break;
+		case rn: rune =>
+			z += io::write(out, switch (rn) {
+			case '&' =>
+				yield strings::toutf8("&amp;");
+			case '<' =>
+				yield strings::toutf8("&lt;");
+			case '>' =>
+				yield strings::toutf8("&gt;");
+			case '"' =>
+				yield strings::toutf8("&quot;");
+			case '\'' =>
+				yield strings::toutf8("&apos;");
+			case =>
+				yield utf8::encoderune(rn);
+			})?;
+		};
 	};
 	return z;
 };
@@ -63,20 +72,21 @@ fn emit_html(ctx: *context) (void | error) = {
 	};
 	for (let i = 0z; i < len(ctx.tags); i += 1) {
 		const mode = switch (ctx.tags[i].mode) {
-			module::tag_mode::INCLUSIVE => '+',
-			module::tag_mode::EXCLUSIVE => '-',
+		case module::tag_mode::INCLUSIVE =>
+			yield '+';
+		case module::tag_mode::EXCLUSIVE =>
+			yield '-';
 		};
 		fmt::printf("{}{} ", mode, ctx.tags[i].name)?;
 	};
 	fmt::println("</span></h2>")?;
 
 	match (ctx.readme) {
-		void => void,
-		f: io::file => {
-			fmt::println("<div class='readme'>")?;
-			markup_html(ctx, &f)?;
-			fmt::println("</div>")?;
-		},
+	case void => void;
+	case f: io::file =>
+		fmt::println("<div class='readme'>")?;
+		markup_html(ctx, &f)?;
+		fmt::println("</div>")?;
 	};
 
 	if (len(ctx.version.subdirs) != 0) {
@@ -182,10 +192,14 @@ fn tocentries(decls: []ast::decl, name: str, lname: str) (void | error) = {
 fn tocentry(decl: ast::decl) (void | error) = {
 	fmt::printf("{} ",
 		match (decl.decl) {
-			ast::decl_func => "fn",
-			[]ast::decl_type => "type",
-			[]ast::decl_const => "const",
-			[]ast::decl_global => "let",
+		case ast::decl_func =>
+			yield "fn";
+		case []ast::decl_type =>
+			yield "type";
+		case []ast::decl_const =>
+			yield "const";
+		case []ast::decl_global =>
+			yield "let";
 		})?;
 	fmt::printf("<a href='#")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
@@ -194,20 +208,19 @@ fn tocentry(decl: ast::decl) (void | error) = {
 	fmt::print("</a>")?;
 
 	match (decl.decl) {
-		g: []ast::decl_global => {
-			let g = g[0];
-			fmt::print(": ")?;
-			type_html(os::stdout, 0, g._type, true)?;
-		},
-		c: []ast::decl_const => {
-			let c = c[0];
-			fmt::print(": ")?;
-			type_html(os::stdout, 0, c._type, true)?;
-		},
-		t: []ast::decl_type => void,
-		f: ast::decl_func => prototype_html(os::stdout, 0,
+	case t: []ast::decl_type => void;
+	case g: []ast::decl_global =>
+		let g = g[0];
+		fmt::print(": ")?;
+		type_html(os::stdout, 0, g._type, true)?;
+	case c: []ast::decl_const =>
+		let c = c[0];
+		fmt::print(": ")?;
+		type_html(os::stdout, 0, c._type, true)?;
+	case f: ast::decl_func =>
+		prototype_html(os::stdout, 0,
 			f.prototype.repr as ast::func_type,
-			true)?,
+			true)?;
 	};
 	fmt::println(";")?;
 	return;
@@ -218,17 +231,19 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 	fmt::print("<h4 id='")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	fmt::print("'>")?;
-	fmt::printf("{} ",
-		match (decl.decl) {
-			ast::decl_func => "fn",
-			[]ast::decl_type => "type",
-			[]ast::decl_const => "def",
-			[]ast::decl_global => "let",
+	fmt::printf("{} ", match (decl.decl) {
+		case ast::decl_func =>
+			yield "fn";
+		case []ast::decl_type =>
+			yield "type";
+		case []ast::decl_const =>
+			yield "def";
+		case []ast::decl_global =>
+			yield "let";
 		})?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	// TODO: Add source URL
-	fmt::print("<span class='heading-extra'>
-		<a href='#")?;
+	fmt::print("<span class='heading-extra'><a href='#")?;
 	unparse::ident(os::stdout, decl_ident(decl))?;
 	fmt::print("'>[link]</a>
 	</span>")?;
@@ -255,8 +270,11 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 };
 
 fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
-	const ik = match (resolve(ctx, ref)) {
-		void => {
+	const ik =
+		match (resolve(ctx, ref)) {
+		case ik: (ast::ident, symkind) =>
+			yield ik;
+		case void =>
 			const ident = unparse::identstr(ref);
 			fmt::errorfln("Warning: Unresolved reference: {}", ident)?;
 			fmt::printf("<a href='#' "
@@ -265,28 +283,24 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 				ident)?;
 			free(ident);
 			return;
-		},
-		ik: (ast::ident, symkind) => ik,
-	};
+		};
 
 	// TODO: The reference is not necessarily in the stdlib
 	const kind = ik.1, id = ik.0;
 	const ident = unparse::identstr(id);
 	switch (kind) {
-		symkind::LOCAL =>
-			fmt::printf("<a href='#{0}' class='ref'>{0}</a>", ident)?,
-		symkind::MODULE => {
-			let ipath = module::identpath(id);
-			defer free(ipath);
-			fmt::printf("<a href='/{}' class='ref'>{}</a>",
-				ipath, ident)?;
-		},
-		symkind::SYMBOL => {
-			let ipath = module::identpath(id[..len(id) - 1]);
-			defer free(ipath);
-			fmt::printf("<a href='/{}#{}' class='ref'>{}</a>",
-				ipath, id[len(id) - 1], ident)?;
-		},
+	case symkind::LOCAL =>
+		fmt::printf("<a href='#{0}' class='ref'>{0}</a>", ident)?;
+	case symkind::MODULE =>
+		let ipath = module::identpath(id);
+		defer free(ipath);
+		fmt::printf("<a href='/{}' class='ref'>{}</a>",
+			ipath, ident)?;
+	case symkind::SYMBOL =>
+		let ipath = module::identpath(id[..len(id) - 1]);
+		defer free(ipath);
+		fmt::printf("<a href='/{}#{}' class='ref'>{}</a>",
+			ipath, id[len(id) - 1], ident)?;
 	};
 	free(ident);
 };
@@ -295,15 +309,16 @@ fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {
 	let parser = parsedoc(in);
 	for (true) {
 		const tok = match (scandoc(&parser)) {
-			void => break,
-			tok: token => tok,
-		};
+			case void => break;
+			case tok: token =>
+				yield tok;
+			};
 		match (tok) {
-			paragraph => {
-				fmt::println()?;
-				fmt::print("<p>")?;
-			},
-			tx: text => if (strings::has_prefix(tx, "https://")) {
+		case paragraph =>
+			fmt::println()?;
+			fmt::print("<p>")?;
+		case tx: text =>
+			if (strings::has_prefix(tx, "https://")) {
 				// Temporary hack
 				fmt::print("<a rel='nofollow noopener' href='")?;
 				html_escape(os::stdout, tx)?;
@@ -314,23 +329,22 @@ fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {
 			} else {
 				html_escape(os::stdout, tx)?;
 				free(tx);
-			},
-			re: reference => htmlref(ctx, re)?,
-			sa: sample => {
-				fmt::print("<pre class='sample'>")?;
-				html_escape(os::stdout, sa)?;
-				fmt::print("</pre>")?;
-				free(sa);
-			},
-			li: list => {
-				fmt::println("<ul>")?;
-				for (let i = 0z; i < len(li); i += 1) {
-					fmt::println("<li>")?;
-					html_escape(os::stdout, li[i])?;
-					fmt::println("</li>")?;
-				};
-				fmt::println("</ul>")?;
-			},
+			};
+		case re: reference =>
+			htmlref(ctx, re)?;
+		case sa: sample =>
+			fmt::print("<pre class='sample'>")?;
+			html_escape(os::stdout, sa)?;
+			fmt::print("</pre>")?;
+			free(sa);
+		case li: list =>
+			fmt::println("<ul>")?;
+			for (let i = 0z; i < len(li); i += 1) {
+				fmt::println("<li>")?;
+				html_escape(os::stdout, li[i])?;
+				fmt::println("</li>")?;
+			};
+			fmt::println("</ul>")?;
 		};
 	};
 	fmt::println()?;
@@ -341,86 +355,108 @@ fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {
 fn unparse_html(out: *io::stream, d: ast::decl) (size | io::error) = {
 	let n = 0z;
 	match (d.decl) {
-		c: []ast::decl_const => {
-			n += fmt::fprintf(out, "<span class='keyword'>def</span> ")?;
-			for (let i = 0z; i < len(c); i += 1) {
-				n += unparse::ident(out, c[i].ident)?;
-				n += fmt::fprint(out, ": ")?;
-				n += type_html(out, 0, c[i]._type, false)?;
-				if (i + 1 < len(c)) {
-					n += fmt::fprint(out, ", ")?;
-				};
+	case c: []ast::decl_const =>
+		n += fmt::fprintf(out, "<span class='keyword'>def</span> ")?;
+		for (let i = 0z; i < len(c); i += 1) {
+			n += unparse::ident(out, c[i].ident)?;
+			n += fmt::fprint(out, ": ")?;
+			n += type_html(out, 0, c[i]._type, false)?;
+			if (i + 1 < len(c)) {
+				n += fmt::fprint(out, ", ")?;
 			};
-		},
-		g: []ast::decl_global => {
-			n += fmt::fprintf(out, "<span class='keyword'>{}</span>",
-				if (g[0].is_const) "const " else "let ")?;
-			for (let i = 0z; i < len(g); i += 1) {
-				n += unparse::ident(out, g[i].ident)?;
-				n += fmt::fprint(out, ": ")?;
-				n += type_html(out, 0, g[i]._type, false)?;
-				if (i + 1 < len(g)) {
-					n += fmt::fprint(out, ", ")?;
-				};
+		};
+	case g: []ast::decl_global =>
+		n += fmt::fprintf(out, "<span class='keyword'>{}</span>",
+			if (g[0].is_const) "const " else "let ")?;
+		for (let i = 0z; i < len(g); i += 1) {
+			n += unparse::ident(out, g[i].ident)?;
+			n += fmt::fprint(out, ": ")?;
+			n += type_html(out, 0, g[i]._type, false)?;
+			if (i + 1 < len(g)) {
+				n += fmt::fprint(out, ", ")?;
 			};
-		},
-		t: []ast::decl_type => {
-			n += fmt::fprint(out, "<span class='keyword'>type</span> ")?;
-			for (let i = 0z; i < len(t); i += 1) {
-				n += unparse::ident(out, t[i].ident)?;
-				n += fmt::fprint(out, " = ")?;
-				n += type_html(out, 0, t[i]._type, false)?;
-				if (i + 1 < len(t)) {
-					n += fmt::fprint(out, ", ")?;
-				};
+		};
+	case t: []ast::decl_type =>
+		n += fmt::fprint(out, "<span class='keyword'>type</span> ")?;
+		for (let i = 0z; i < len(t); i += 1) {
+			n += unparse::ident(out, t[i].ident)?;
+			n += fmt::fprint(out, " = ")?;
+			n += type_html(out, 0, t[i]._type, false)?;
+			if (i + 1 < len(t)) {
+				n += fmt::fprint(out, ", ")?;
 			};
-		},
-		f: ast::decl_func => {
-			n += fmt::fprint(out, switch (f.attrs) {
-				ast::fndecl_attrs::NONE => "",
-				ast::fndecl_attrs::FINI => "@fini ",
-				ast::fndecl_attrs::INIT => "@init ",
-				ast::fndecl_attrs::TEST => "@test ",
-			})?;
-			let p = f.prototype.repr as ast::func_type;
-			if (p.attrs & ast::func_attrs::NORETURN != 0) {
-				n += fmt::fprint(out, "@noreturn ")?;
-			};
-			n += fmt::fprint(out, "<span class='keyword'>fn</span> ")?;
-			n += unparse::ident(out, f.ident)?;
-			n += prototype_html(out, 0,
-				f.prototype.repr as ast::func_type,
-				false)?;
-		},
+		};
+	case f: ast::decl_func =>
+		n += fmt::fprint(out, switch (f.attrs) {
+		case ast::fndecl_attrs::NONE =>
+			yield "";
+		case ast::fndecl_attrs::FINI =>
+			yield "@fini ";
+		case ast::fndecl_attrs::INIT =>
+			yield "@init ";
+		case ast::fndecl_attrs::TEST =>
+			yield "@test ";
+		})?;
+		let p = f.prototype.repr as ast::func_type;
+		if (p.attrs & ast::func_attrs::NORETURN != 0) {
+			n += fmt::fprint(out, "@noreturn ")?;
+		};
+		n += fmt::fprint(out, "<span class='keyword'>fn</span> ")?;
+		n += unparse::ident(out, f.ident)?;
+		n += prototype_html(out, 0,
+			f.prototype.repr as ast::func_type,
+			false)?;
 	};
 	n += fmt::fprint(out, ";")?;
 	return n;
 };
 
 // Forked from [[hare::unparse]].
-fn builtin_type(b: ast::builtin_type) str = switch (b) {
-	ast::builtin_type::BOOL => "bool",
-	ast::builtin_type::CHAR => "char",
-	ast::builtin_type::F32 => "f32",
-	ast::builtin_type::F64 => "f64",
-	ast::builtin_type::FCONST => abort("FCONST has no lexical representation"),
-	ast::builtin_type::I16 => "i16",
-	ast::builtin_type::I32 => "i32",
-	ast::builtin_type::I64 => "i64",
-	ast::builtin_type::I8 => "i8",
-	ast::builtin_type::ICONST => abort("ICONST has no lexical representation"),
-	ast::builtin_type::INT => "int",
-	ast::builtin_type::NULL => "null",
-	ast::builtin_type::RUNE => "rune",
-	ast::builtin_type::SIZE => "size",
-	ast::builtin_type::STR => "str",
-	ast::builtin_type::U16 => "u16",
-	ast::builtin_type::U32 => "u32",
-	ast::builtin_type::U64 => "u64",
-	ast::builtin_type::U8 => "u8",
-	ast::builtin_type::UINT => "uint",
-	ast::builtin_type::UINTPTR => "uintptr",
-	ast::builtin_type::VOID => "void",
+fn builtin_type(b: ast::builtin_type) str = {
+	switch (b) {
+	case ast::builtin_type::FCONST, ast::builtin_type::ICONST =>
+		abort("ICONST and FCONST have no lexical representation");
+	case ast::builtin_type::BOOL =>
+		return "bool";
+	case ast::builtin_type::CHAR =>
+		return "char";
+	case ast::builtin_type::F32 =>
+		return "f32";
+	case ast::builtin_type::F64 =>
+		return "f64";
+	case ast::builtin_type::I16 =>
+		return "i16";
+	case ast::builtin_type::I32 =>
+		return "i32";
+	case ast::builtin_type::I64 =>
+		return "i64";
+	case ast::builtin_type::I8 =>
+		return "i8";
+	case ast::builtin_type::INT =>
+		return "int";
+	case ast::builtin_type::NULL =>
+		return "null";
+	case ast::builtin_type::RUNE =>
+		return "rune";
+	case ast::builtin_type::SIZE =>
+		return "size";
+	case ast::builtin_type::STR =>
+		return "str";
+	case ast::builtin_type::U16 =>
+		return "u16";
+	case ast::builtin_type::U32 =>
+		return "u32";
+	case ast::builtin_type::U64 =>
+		return "u64";
+	case ast::builtin_type::U8 =>
+		return "u8";
+	case ast::builtin_type::UINT =>
+		return "uint";
+	case ast::builtin_type::UINTPTR =>
+		return "uintptr";
+	case ast::builtin_type::VOID =>
+		return "void";
+	};
 };
 
 // Forked from [[hare::unparse]].
@@ -453,18 +489,16 @@ fn enum_html(
 		z += fmt::fprint(out, val.name)?;
 
 		match (val.value) {
-			null => void,
-			expr: *ast::expr => {
-				z += fmt::fprint(out, " = ")?;
-				z += unparse::expr(out, indent, *expr)?;
-			},
+		case null => void;
+		case expr: *ast::expr =>
+			z += fmt::fprint(out, " = ")?;
+			z += unparse::expr(out, indent, *expr)?;
 		};
 
 		z += fmt::fprint(out, ",")?;
 	};
 	z += newline(out, indent)?;
 	z += fmt::fprint(out, "}")?;
-
 	return z;
 };
 
@@ -476,14 +510,12 @@ fn struct_union_html(
 ) (size | io::error) = {
 	let z = 0z;
 	let members = match (t.repr) {
-		t: ast::struct_type => {
-			z += fmt::fprint(out, "<span class='keyword'>struct</span> {")?;
-			yield t: []ast::struct_member;
-		},
-		t: ast::union_type => {
-			z += fmt::fprint(out, "<span class='keyword'>union</span> {")?;
-			yield t: []ast::struct_member;
-		},
+	case t: ast::struct_type =>
+		z += fmt::fprint(out, "<span class='keyword'>struct</span> {")?;
+		yield t: []ast::struct_member;
+	case t: ast::union_type =>
+		z += fmt::fprint(out, "<span class='keyword'>union</span> {")?;
+		yield t: []ast::struct_member;
 	};
 
 	indent += 1;
@@ -492,25 +524,21 @@ fn struct_union_html(
 
 		z += newline(out, indent)?;
 		match (member._offset) {
-			null => void,
-			expr: *ast::expr => {
-				z += fmt::fprint(out, "@offset(")?;
-				z += unparse::expr(out, indent, *expr)?;
-				z += fmt::fprint(out, ") ")?;
-			},
+		case null => void;
+		case expr: *ast::expr =>
+			z += fmt::fprint(out, "@offset(")?;
+			z += unparse::expr(out, indent, *expr)?;
+			z += fmt::fprint(out, ") ")?;
 		};
 
 		match (member.member) {
-			f: ast::struct_field => {
-				z += fmt::fprintf(out, "{}: ", f.name)?;
-				z += type_html(out, indent, *f._type, brief)?;
-			},
-			embed: ast::struct_embedded => {
-				z += type_html(out, indent, *embed, brief)?;
-			},
-			indent: ast::struct_alias => {
-				z += unparse::ident(out, indent)?;
-			},
+		case f: ast::struct_field =>
+			z += fmt::fprintf(out, "{}: ", f.name)?;
+			z += type_html(out, indent, *f._type, brief)?;
+		case embed: ast::struct_embedded =>
+			z += type_html(out, indent, *embed, brief)?;
+		case indent: ast::struct_alias =>
+			z += unparse::ident(out, indent)?;
 		};
 		z += fmt::fprint(out, ",")?;
 	};
@@ -553,85 +581,85 @@ fn type_html(
 	};
 
 	match (_type.repr) {
-		a: ast::alias_type => {
-			if (a.unwrap) {
+	case a: ast::alias_type =>
+		if (a.unwrap) {
+			z += fmt::fprint(out, "...")?;
+		};
+		z += unparse::ident(out, a.ident)?;
+	case t: ast::builtin_type =>
+		z += fmt::fprintf(out, "<span class='type'>{}</span>",
+			builtin_type(t))?;
+	case t: ast::tagged_type =>
+		z += fmt::fprint(out, "(")?;
+		for (let i = 0z; i < len(t); i += 1) {
+			z += type_html(out, indent, *t[i], brief)?;
+			if (i < len(t) - 1) {
+				z += fmt::fprint(out, " | ")?;
+			};
+		};
+		z += fmt::fprint(out, ")")?;
+	case t: ast::tuple_type =>
+		z += fmt::fprint(out, "(")?;
+		for (let i = 0z; i < len(t); i += 1) {
+			z += type_html(out, indent, *t[i], brief)?;
+			if (i < len(t) - 1) {
+				z += fmt::fprint(out, ", ")?;
+			};
+		};
+		z += fmt::fprint(out, ")")?;
+	case t: ast::pointer_type =>
+		if (t.flags & ast::pointer_flags::NULLABLE != 0) {
+			z += fmt::fprint(out, "<span class='type'>nullable</span> ")?;
+		};
+		z += fmt::fprint(out, "*")?;
+		z += type_html(out, indent, *t.referent, brief)?;
+	case t: ast::func_type =>
+		if (t.attrs & ast::func_attrs::NORETURN == ast::func_attrs::NORETURN) {
+			z += fmt::fprint(out, "@noreturn ")?;
+		};
+
+		z += fmt::fprint(out, "<span class='keyword'>fn</span>(")?;
+		for (let i = 0z; i < len(t.params); i += 1) {
+			const param = t.params[i];
+			z += fmt::fprintf(out, "{}: ",
+				if (len(param.name) == 0) "_" else param.name)?;
+			z += type_html(out, indent, *param._type, brief)?;
+
+			if (i + 1 == len(t.params)
+					&& t.variadism == ast::variadism::HARE) {
+				// TODO: Highlight that as well
 				z += fmt::fprint(out, "...")?;
 			};
-			z += unparse::ident(out, a.ident)?;
-		},
-		t: ast::builtin_type => {
-			z += fmt::fprintf(out, "<span class='type'>{}</span>",
-				builtin_type(t))?;
-		},
-		t: ast::tagged_type => {
-			z += fmt::fprint(out, "(")?;
-			for (let i = 0z; i < len(t); i += 1) {
-				z += type_html(out, indent, *t[i], brief)?;
-				if (i < len(t) - 1) {
-					z += fmt::fprint(out, " | ")?;
-				};
+			if (i + 1 < len(t.params)) {
+				z += fmt::fprint(out, ", ")?;
 			};
-			z += fmt::fprint(out, ")")?;
-		},
-		t: ast::tuple_type => {
-			z += fmt::fprint(out, "(")?;
-			for (let i = 0z; i < len(t); i += 1) {
-				z += type_html(out, indent, *t[i], brief)?;
-				if (i < len(t) - 1) {
-					z += fmt::fprint(out, ", ")?;
-				};
-			};
-			z += fmt::fprint(out, ")")?;
-		},
-		t: ast::pointer_type => {
-			if (t.flags & ast::pointer_flags::NULLABLE != 0) {
-				z += fmt::fprint(out, "<span class='type'>nullable</span> ")?;
-			};
-			z += fmt::fprint(out, "*")?;
-			z += type_html(out, indent, *t.referent, brief)?;
-		},
-		t: ast::func_type => {
-			if (t.attrs & ast::func_attrs::NORETURN == ast::func_attrs::NORETURN) {
-				z += fmt::fprint(out, "@noreturn ")?;
-			};
+		};
+		if (t.variadism == ast::variadism::C) {
+			z += fmt::fprint(out, ", ...")?;
+		};
+		z += fmt::fprint(out, ") ")?;
+		z += type_html(out, indent, *t.result, brief)?;
+	case t: ast::enum_type =>
+		z += enum_html(out, indent, t)?;
+	case t: ast::list_type =>
+		z += fmt::fprint(out, "[")?;
+		match (t.length) {
+		case expr: *ast::expr =>
+			z += unparse::expr(out, indent, *expr)?;
+		case ast::len_slice =>
+			z += 0;
+		case ast::len_unbounded =>
+			z += fmt::fprintf(out, "*")?;
+		case ast::len_contextual =>
+			z += fmt::fprintf(out, "_")?;
+		};
+		z += fmt::fprint(out, "]")?;
 
-			z += fmt::fprint(out, "<span class='keyword'>fn</span>(")?;
-			for (let i = 0z; i < len(t.params); i += 1) {
-				const param = t.params[i];
-				z += fmt::fprintf(out, "{}: ",
-					if (len(param.name) == 0) "_" else param.name)?;
-				z += type_html(out, indent, *param._type, brief)?;
-
-				if (i + 1 == len(t.params)
-						&& t.variadism == ast::variadism::HARE) {
-					// TODO: Highlight that as well
-					z += fmt::fprint(out, "...")?;
-				};
-				if (i + 1 < len(t.params)) {
-					z += fmt::fprint(out, ", ")?;
-				};
-			};
-			if (t.variadism == ast::variadism::C) {
-				z += fmt::fprint(out, ", ...")?;
-			};
-			z += fmt::fprint(out, ") ")?;
-			z += type_html(out, indent, *t.result, brief)?;
-		},
-		t: ast::enum_type => z += enum_html(out, indent, t)?,
-		t: ast::list_type => {
-			z += fmt::fprint(out, "[")?;
-			z += match (t.length) {
-				expr: *ast::expr => unparse::expr(out, indent, *expr)?,
-				ast::len_slice => 0,
-				ast::len_unbounded => fmt::fprintf(out, "*")?,
-				ast::len_contextual => fmt::fprintf(out, "_")?,
-			};
-			z += fmt::fprint(out, "]")?;
-
-			z += type_html(out, indent, *t.members, brief)?;
-		},
-		t: ast::struct_type => z += struct_union_html(out, indent, _type, brief)?,
-		t: ast::union_type => z += struct_union_html(out, indent, _type, brief)?,
+		z += type_html(out, indent, *t.members, brief)?;
+	case t: ast::struct_type =>
+		z += struct_union_html(out, indent, _type, brief)?;
+	case t: ast::union_type =>
+		z += struct_union_html(out, indent, _type, brief)?;
 	};
 
 	return z;

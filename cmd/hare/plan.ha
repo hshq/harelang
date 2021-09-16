@@ -47,9 +47,10 @@ type plan = struct {
 
 fn mkplan(ctx: *module::context) plan = {
 	const rtdir = match (module::lookup(ctx, ["rt"])) {
-		err: module::error => fmt::fatal("Error resolving rt: {}",
-			module::strerror(err)),
-		ver: module::version => ver.basedir,
+	case err: module::error =>
+		fmt::fatal("Error resolving rt: {}", module::strerror(err));
+	case ver: module::version =>
+		yield ver.basedir;
 	};
 	return plan {
 		context = ctx,
@@ -119,19 +120,21 @@ fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 		};
 		// TODO: This can be a type assertion
 		let task = match (next) {
-			null => abort(),
-			t: *task => t,
+		case null =>
+			abort();
+		case t: *task =>
+			yield t;
 		};
 
 		match (execute(plan, task, verbose)) {
-			err: exec::error => fmt::fatal("Error: {}: {}",
-				task.cmd[0], exec::strerror(err)),
-			err: !exec::exit_status => {
-				fmt::errorfln("Error: {}: {}", task.cmd[0],
-					exec::exitstr(err))!;
-				return err;
-			},
-			void => void,
+		case err: exec::error =>
+			fmt::fatal("Error: {}: {}", task.cmd[0],
+				exec::strerror(err));
+		case err: !exec::exit_status =>
+			fmt::errorfln("Error: {}: {}", task.cmd[0],
+				exec::exitstr(err))!;
+			return err;
+		case void => void;
 		};
 
 		task.status = status::COMPLETE;
@@ -150,10 +153,10 @@ fn update_cache(plan: *plan, mod: modcache) void = {
 		versions = [mod.version],
 	};
 	match (module::manifest_write(plan.context, &manifest)) {
-		err: module::error => fmt::fatal(
-			"Error updating module cache: {}",
-			module::strerror(err)),
-		void => void,
+	case err: module::error =>
+		fmt::fatal("Error updating module cache: {}",
+			module::strerror(err));
+	case void => void;
 	};
 };
 

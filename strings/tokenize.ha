@@ -18,16 +18,18 @@ export fn tokenize(s: str, delim: str) tokenizer =
 // void if there are no tokens left.
 export fn next_token(s: *tokenizer) (str | void) = {
 	return match (bytes::next_token(s)) {
-		b: []u8 => fromutf8(b),
-		void => void,
+	case b: []u8 =>
+		yield fromutf8(b);
+	case void => void;
 	};
 };
 
 // Same as next_token(), but does not advance the cursor
 export fn peek_token(s: *tokenizer) (str | void) = {
 	return match (bytes::peek_token(s)) {
-		b: []u8 => fromutf8(b),
-		void => void,
+	case b: []u8 =>
+		yield fromutf8(b);
+	case void => void;
 	};
 };
 
@@ -40,24 +42,32 @@ export fn remaining_tokens(s: *tokenizer) str = {
 @test fn tokenize() void = {
 	let tok = tokenize("Hello, my name is drew", " ");
 	match (next_token(&tok)) {
-		s: str  => assert(s == "Hello,"),
-		void => abort(),
+	case s: str =>
+		assert(s == "Hello,");
+	case void =>
+		abort();
 	};
 
 	match (next_token(&tok)) {
-		s: str  => assert(s == "my"),
-		void => abort(),
+	case s: str =>
+		assert(s == "my");
+	case void =>
+		abort();
 	};
 
 	match (peek_token(&tok)) {
-		s: str  => assert(s == "name"),
-		void => abort(),
+	case s: str =>
+		assert(s == "name");
+	case void =>
+		abort();
 	};
 
 
 	match (next_token(&tok)) {
-		s: str  => assert(s == "name"),
-		void => abort(),
+	case s: str =>
+		assert(s == "name");
+	case void =>
+		abort();
 	};
 
 	assert(remaining_tokens(&tok) == "is drew");
@@ -89,8 +99,10 @@ export fn splitN(in: str, delim: str, n: size) []str = {
 	let tok = tokenize(in, delim);
 	for (let i = 0z; i < n - 1z; i += 1) {
 		match (next_token(&tok)) {
-			s: str => append(toks, s),
-			void => return toks,
+		case s: str =>
+			append(toks, s);
+		case void =>
+			return toks;
 		};
 	};
 	append(toks, remaining_tokens(&tok));

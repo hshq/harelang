@@ -111,23 +111,30 @@ export fn decode(in: *io::stream) (uuid | invalid | io::error) = {
 	for (let i = 0z; i < len(u); i += 1) {
 		let buf: [2]u8 = [0...];
 		match (io::read(in, buf)?) {
-			io::EOF => return invalid,
-			z: size => assert(z == len(buf)),
+		case io::EOF =>
+			return invalid;
+		case z: size =>
+			assert(z == len(buf));
 		};
 		u[i] = match (strconv::stou8b(
 				strings::fromutf8_unsafe(buf),
 				strconv::base::HEX)) {
-			strconv::overflow => abort(),
-			strconv::invalid => return invalid,
-			u: u8 => u,
+		case strconv::overflow =>
+			abort();
+		case strconv::invalid =>
+			return invalid;
+		case u: u8 =>
+			yield u;
 		};
 		if (i + 1 == TIME_MID
 				|| i + 1 == TIME_HI_AND_VERSION
 				|| i + 1 == CLOCK_SEQ_HI_AND_RESERVED
 				|| i + 1 == NODE) {
 			match (io::read(in, buf[..1])?) {
-				io::EOF => return invalid,
-				z: size => assert(z == 1),
+			case io::EOF =>
+				return invalid;
+			case z: size =>
+				assert(z == 1);
 			};
 			if (buf[0] != '-': u32: u8) {
 				return invalid;
@@ -141,18 +148,23 @@ export fn decode(in: *io::stream) (uuid | invalid | io::error) = {
 export fn decodestr(in: str) (uuid | invalid) = {
 	let buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
 	defer io::close(buf);
-	return match (decode(buf)) {
-		err: io::error => abort(),
-		invalid => invalid,
-		u: uuid => u,
+	match (decode(buf)) {
+	case err: io::error =>
+		abort();
+	case invalid =>
+		return invalid;
+	case u: uuid =>
+		return u;
 	};
 };
 
 @test fn decode() void = {
 	let in = "3ded910c-8080-4bc8-af39-b6cccee36741";
 	let id = match (decodestr(in)) {
-		invalid => abort(),
-		u: uuid => u,
+	case invalid =>
+		abort();
+	case u: uuid =>
+		yield u;
 	};
 	assert(compare(id, [
 		0x3d, 0xed, 0x91, 0x0c, 0x80, 0x80, 0x4b, 0xc8,

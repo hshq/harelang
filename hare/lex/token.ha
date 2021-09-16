@@ -19,6 +19,7 @@ export type ltok = enum uint {
 	ASSERT,
 	BOOL,
 	BREAK,
+	CASE,
 	CHAR,
 	CONST,
 	CONTINUE,
@@ -70,6 +71,7 @@ export type ltok = enum uint {
 	LAST_KEYWORD = YIELD,
 
 	// Operators
+	ARROW,
 	BAND,
 	BANDEQ,
 	BNOT,
@@ -77,7 +79,6 @@ export type ltok = enum uint {
 	BOREQ,
 	BXOR,
 	BXOREQ,
-	CASE,
 	COLON,
 	COMMA,
 	DIV,
@@ -164,6 +165,7 @@ const bmap: [_]str = [
 	"assert",
 	"bool",
 	"break",
+	"case",
 	"char",
 	"const",
 	"continue",
@@ -212,6 +214,7 @@ const bmap: [_]str = [
 	"use",
 	"void",
 	"yield",
+	"=>",
 	"&",
 	"&=",
 	"~",
@@ -288,27 +291,48 @@ export fn tokstr(tok: token) const str = {
 	if (tok.0 <= ltok::LAST_BTOK) {
 		return bmap[tok.0: int];
 	};
-	return switch (tok.0) {
-		ltok::LIT_U8 => "u8",
-		ltok::LIT_U16 => "u16",
-		ltok::LIT_U32 => "u32",
-		ltok::LIT_U64 => "u64",
-		ltok::LIT_UINT => "uint",
-		ltok::LIT_SIZE => "size",
-		ltok::LIT_I8 => "i8",
-		ltok::LIT_I16 => "i16",
-		ltok::LIT_I32 => "i32",
-		ltok::LIT_I64 => "i64",
-		ltok::LIT_INT => "int",
-		ltok::LIT_ICONST => "iconst",
-		ltok::LIT_F32 => "f32",
-		ltok::LIT_F64 => "f64",
-		ltok::LIT_FCONST => "fconst",
-		ltok::LIT_RUNE => "rune",
-		ltok::LIT_STR => "str",
-		ltok::NAME => tok.1 as str,
-		ltok::LABEL => abort(), // TODO
-		ltok::EOF => "EOF",
-		* => abort(),
+	switch (tok.0) {
+	case ltok::LIT_U8 =>
+		return "u8";
+	case ltok::LIT_U16 =>
+		return "u16";
+	case ltok::LIT_U32 =>
+		return "u32";
+	case ltok::LIT_U64 =>
+		return "u64";
+	case ltok::LIT_UINT =>
+		return "uint";
+	case ltok::LIT_SIZE =>
+		return "size";
+	case ltok::LIT_I8 =>
+		return "i8";
+	case ltok::LIT_I16 =>
+		return "i16";
+	case ltok::LIT_I32 =>
+		return "i32";
+	case ltok::LIT_I64 =>
+		return "i64";
+	case ltok::LIT_INT =>
+		return "int";
+	case ltok::LIT_ICONST =>
+		return "iconst";
+	case ltok::LIT_F32 =>
+		return "f32";
+	case ltok::LIT_F64 =>
+		return "f64";
+	case ltok::LIT_FCONST =>
+		return "fconst";
+	case ltok::LIT_RUNE =>
+		return "rune";
+	case ltok::LIT_STR =>
+		return "str";
+	case ltok::NAME =>
+		return tok.1 as str;
+	case ltok::LABEL =>
+		abort(); // TODO
+	case ltok::EOF =>
+		return "EOF";
+	case =>
+		abort();
 	};
 };

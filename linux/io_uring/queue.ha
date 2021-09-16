@@ -18,9 +18,13 @@ export fn get_sqe(ring: *io_uring) nullable *sqe = {
 
 // Returns the next available [[sqe]] for this [[io_uring]], or aborts the
 // program if the queue is full.
-export fn must_get_sqe(ring: *io_uring) *sqe = match (get_sqe(ring)) {
-	null => abort("I/O queue full"),
-	sq: *sqe => sq,
+export fn must_get_sqe(ring: *io_uring) *sqe = {
+	match (get_sqe(ring)) {
+	case null =>
+		abort("I/O queue full");
+	case sq: *sqe =>
+		return sq;
+	};
 };
 
 fn needs_enter(ring: *io_uring, flags: *enter_flags) bool = {
@@ -79,10 +83,12 @@ fn do_submit(
 ) (uint | error) = {
 	let flags: enter_flags = enter_flags::GETEVENTS;
 	if (needs_enter(ring, &flags) || wait != 0) {
-		return match (rt::io_uring_enter(ring.fd,
+		match (rt::io_uring_enter(ring.fd,
 				submitted, wait, flags, null)) {
-			err: rt::errno => errors::errno(err),
-			n: uint => n,
+		case err: rt::errno =>
+			return errors::errno(err);
+		case n: uint =>
+			return n;
 		};
 	} else {
 		return submitted;

@@ -2,8 +2,10 @@
 // bytes, or void if it is not found.
 export fn index(haystack: []u8, needle: (u8 | []u8)) (size | void) = {
 	return match (needle) {
-		b: u8   => index_byte(haystack, b),
-		b: []u8 => index_slice(haystack, b),
+	case b: u8 =>
+		yield index_byte(haystack, b);
+	case b: []u8 =>
+		yield index_slice(haystack, b);
 	};
 };
 
@@ -16,18 +18,23 @@ fn index_byte(haystack: []u8, needle: u8) (size | void) = {
 };
 
 fn index_slice(haystack: []u8, b: []u8) (size | void) = switch (len(b)) {
-	0 => 0,
-	1 => index_byte(haystack, b[0]),
-	// TODO special-case 2, 3, 4
-	* => index_tw(haystack, b),
+// TODO special-case 2, 3, 4
+case 0 =>
+	yield 0;
+case 1 =>
+	yield index_byte(haystack, b[0]);
+case =>
+	yield index_tw(haystack, b);
 };
 
 // Returns the offset of the last instance of "needle" in a "haystack" of
 // bytes, or void if it is not found.
 export fn rindex(haystack: []u8, needle: (u8 | []u8)) (size | void) = {
-	return match (needle) {
-		b: u8   => rindex_byte(haystack, b),
-		b: []u8 => rindex_slice(haystack, b),
+	match (needle) {
+	case b: u8 =>
+		return rindex_byte(haystack, b);
+	case b: []u8 =>
+		return rindex_slice(haystack, b);
 	};
 };
 

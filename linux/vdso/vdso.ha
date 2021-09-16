@@ -39,8 +39,10 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 	vdso_checked = true;
 
 	const eh = match (sys_infoehdr()) {
-		null => return null,
-		x: *elf::header64 => x,
+	case null =>
+		return null;
+	case x: *elf::header64 =>
+		yield x;
 	};
 
 	const ehui = eh: uintptr;
@@ -51,13 +53,13 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 	for (let i: u16 = 0; i < eh.e_phnum; i += 1) {
 		const ph = phui: *elf::phdr64;
 		switch (ph.p_type) {
-			elf::pt::LOAD =>
-				baseseg = ehui +
-					ph.p_offset: uintptr -
-					ph.p_vaddr: uintptr,
-			elf::pt::DYNAMIC =>
-				dynvec = ehui + ph.p_offset: uintptr,
-			* => void,
+		case elf::pt::LOAD =>
+			baseseg = ehui +
+				ph.p_offset: uintptr -
+				ph.p_vaddr: uintptr;
+		case elf::pt::DYNAMIC =>
+			dynvec = ehui + ph.p_offset: uintptr;
+		case => void;
 		};
 		phui += eh.e_phentsize: uintptr;
 	};
@@ -77,12 +79,18 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 	for (let i = 0; dynv[i].d_tag != elf::dt::NULL; i += 1) {
 		const tabptr = (segbase + dynv[i].d_val: uintptr): *void;
 		switch (dynv[i].d_tag) {
-			elf::dt::STRTAB => stringtab = tabptr: *char,
-			elf::dt::SYMTAB => symtab = tabptr: *[*]elf::sym64,
-			elf::dt::HASH => hashhdr = tabptr: *elf::hashhdr,
-			elf::dt::VERSYM => versym = tabptr: *[*]u16,
-			elf::dt::VERDEF => verdef = tabptr: *elf::verdef64,
-			* => continue,
+		case elf::dt::STRTAB =>
+			stringtab = tabptr: *char;
+		case elf::dt::SYMTAB =>
+			symtab = tabptr: *[*]elf::sym64;
+		case elf::dt::HASH =>
+			hashhdr = tabptr: *elf::hashhdr;
+		case elf::dt::VERSYM =>
+			versym = tabptr: *[*]u16;
+		case elf::dt::VERDEF =>
+			verdef = tabptr: *elf::verdef64;
+		case =>
+			continue;
 		};
 	};
 
@@ -111,12 +119,16 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 fn vdso_checkver(ctx: *vdso_ctx, version: str, num: u32) bool = {
 	let prev = null: *elf::verdef64;
 	let cur = match (ctx.verdef) {
-		null => return true,
-		vd: *elf::verdef64 => vd,
+	case null =>
+		return true;
+	case vd: *elf::verdef64 =>
+		yield vd;
 	};
 	const versym = match (ctx.versym) {
-		null => return true,
-		vs: *[*]u16 => vs[num] & 0x7fff
+	case null =>
+		return true;
+	case vs: *[*]u16 =>
+		yield vs[num] & 0x7ff;
 	};
 	for (cur != prev) {
 		if (cur.vd_flags & elf::ver_flg::BASE: u16 == 0 &&
@@ -135,8 +147,10 @@ fn vdso_checkver(ctx: *vdso_ctx, version: str, num: u32) bool = {
 
 export fn getsym(symname: str, symver: str) nullable *void = {
 	const ctx = match (get_vdso_ctx()) {
-		null => return null,
-		x: *vdso_ctx => x,
+	case null =>
+		return null;
+	case x: *vdso_ctx =>
+		yield x;
 	};
 
 	const sym_types = (1 << elf::stt::NOTYPE |

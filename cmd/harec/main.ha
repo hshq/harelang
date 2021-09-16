@@ -26,12 +26,12 @@ export fn main() void = {
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
-			'D' => abort(), // TODO
-			'N' => abort(), // TODO
-			'T' => abort(), // TODO
-			'o' => abort(), // TODO
-			't' => abort(), // TODO
-			*   => abort(),
+		case 'D' => abort(); // TODO
+		case 'N' => abort(); // TODO
+		case 'T' => abort(); // TODO
+		case 'o' => abort(); // TODO
+		case 't' => abort(); // TODO
+		case => abort();
 		};
 	};
 
@@ -51,9 +51,11 @@ export fn main() void = {
 
 	for (let i = 0z; i < len(cmd.args); i += 1) {
 		let input = match (os::open(cmd.args[i])) {
-			f: io::file => f,
-			err: io::error => fmt::fatal("Error opening {}: {}",
-				cmd.args[i], io::strerror(err)),
+		case f: io::file =>
+			yield f;
+		case err: io::error =>
+			fmt::fatal("Error opening {}: {}",
+				cmd.args[i], io::strerror(err));
 		};
 		defer io::close(&input);
 		static let buf: [os::BUFSIZ]u8 = [0...];
@@ -62,18 +64,19 @@ export fn main() void = {
 
 		let lexer = lex::init(bufin, cmd.args[i]);
 		let su = match (parse::subunit(&lexer)) {
-			err: parse::error => {
-				printerr(err);
-				os::exit(1);
-			},
-			u: ast::subunit => u,
+		case err: parse::error =>
+			printerr(err);
+			os::exit(1);
+		case u: ast::subunit =>
+			yield u;
 		};
 		append(subunits, su);
 	};
 
 	let unit = match (unit::check(store, [], subunits)) {
-		unit::error => abort(), // TODO
-		u: unit::unit => u,
+	case unit::error => abort(); // TODO
+	case u: unit::unit =>
+		yield u;
 	};
 	defer unit::unit_free(unit);
 	gen(store, &unit);

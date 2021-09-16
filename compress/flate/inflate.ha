@@ -102,10 +102,12 @@ fn bits(d: *decompressor, want: u32) (u32 | io::error) = {
 	for (d.cnt < want) {
 		let buf: [_]u8 = [0];
 		match (io::read(d.in, buf)?) {
-			io::EOF => return wraperror(inflate_err::EOF),
-			z: size => if (z < 1) {
+		case io::EOF =>
+			return wraperror(inflate_err::EOF);
+		case z: size =>
+			if (z < 1) {
 				continue; // Short read, retry
-			},
+			};
 		};
 		val |= buf[0] << d.cnt;
 		d.cnt += 8;
@@ -229,11 +231,11 @@ fn uncompressed_read(d: *decompressor) (void | io::EOF | io::error) = {
 	static let _buf: [1024]u8 = [0...];
 	let buf = if (len(_buf) > d.left: size) _buf[..d.left] else _buf[..];
 	let z = match (io::read(d.in, buf)?) {
-		z: size => {
-			d.left -= z;
-			yield z;
-		},
-		io::EOF => return wraperror(inflate_err::EOF),
+	case z: size =>
+		d.left -= z;
+		yield z;
+	case io::EOF =>
+		return wraperror(inflate_err::EOF);
 	};
 	put(d, buf[..z]...);
 };
@@ -241,13 +243,20 @@ fn uncompressed_read(d: *decompressor) (void | io::EOF | io::error) = {
 fn opaque_strerror(
 	data: *errors::opaque_data
 ) const str = switch (*(data: *inflate_err)) {
-	inflate_err::EOF => "Unexpected EOF",
-	inflate_err::BTYPE => "Invalid block type",
-	inflate_err::LEN => "Invalid block length",
-	inflate_err::DISTANCE => "Invalid distance",
-	inflate_err::CODE => "Invalid Huffman code",
-	inflate_err::HUFFMAN => "Oversubscribed Huffman code",
-	inflate_err::TABLE => "Invalid dynamic Huffman code table",
+case inflate_err::EOF =>
+	yield "Unexpected EOF";
+case inflate_err::BTYPE =>
+	yield "Invalid block type";
+case inflate_err::LEN =>
+	yield "Invalid block length";
+case inflate_err::DISTANCE =>
+	yield "Invalid distance";
+case inflate_err::CODE =>
+	yield "Invalid Huffman code";
+case inflate_err::HUFFMAN =>
+	yield "Oversubscribed Huffman code";
+case inflate_err::TABLE =>
+	yield "Invalid dynamic Huffman code table";
 };
 
 fn wraperror(err: inflate_err) errors::opaque = {
@@ -287,16 +296,18 @@ fn dynamic(d: *decompressor) (void | io::EOF | io::error) = {
 		};
 		let n = 0u16;
 		let times = switch (c) {
-			16 => {
-				if (len(lens) == 0) {
-					return wraperror(inflate_err::TABLE);
-				};
-				n = lens[len(lens) - 1];
-				yield 3 + bits(d, 2)?;
-			},
-			17 => 3 + bits(d, 3)?,
-			18 => 11 + bits(d, 7)?,
-			* => abort(),
+		case 16 =>
+			if (len(lens) == 0) {
+				return wraperror(inflate_err::TABLE);
+			};
+			n = lens[len(lens) - 1];
+			yield 3 + bits(d, 2)?;
+		case 17 =>
+			yield 3 + bits(d, 3)?;
+		case 18 =>
+			yield 11 + bits(d, 7)?;
+		case =>
+			abort();
 		};
 		for (times > 0; times -= 1) {
 			append(lens, n);
@@ -318,34 +329,37 @@ fn next(d: *decompressor) (void | io::EOF | io::error) = {
 	if (bits(d, 1)? == 1) {
 		d.final = true;
 	};
-	return switch (bits(d, 2)?) {
-		0b00 => {
-			// Skip to next byte boundary
-			d.cnt = 0;
-			d.bitbuf = 0;
-			let buf: [4]u8 = [0...];
-			for (let n = 0z; n < 4) {
-				match (io::read(d.in, buf[n..])?) {
-					io::EOF => return wraperror(inflate_err::EOF),
-					z: size => n += z,
-				};
+	switch (bits(d, 2)?) {
+	case 0b00 =>
+		// Skip to next byte boundary
+		d.cnt = 0;
+		d.bitbuf = 0;
+		let buf: [4]u8 = [0...];
+		for (let n = 0z; n < 4) {
+			match (io::read(d.in, buf[n..])?) {
+			case io::EOF =>
+				return wraperror(inflate_err::EOF);
+			case z: size =>
+				n += z;
 			};
-			const length = endian::legetu16(buf[..2]);
-			if (length != ~endian::legetu16(buf[2..])) {
-				return wraperror(inflate_err::LEN);
-			};
-			d.state = &uncompressed_read;
-			d.left = length;
-		},
-		0b01 => {
-			d.hl = fixed_len;
-			d.hd = fixed_dist;
-			d.state = &compressed_read;
-			d.left = 1;
-		},
-		0b10 => dynamic(d),
-		0b11 => wraperror(inflate_err::BTYPE),
-		* => abort(),
+		};
+		const length = endian::legetu16(buf[..2]);
+		if (length != ~endian::legetu16(buf[2..])) {
+			return wraperror(inflate_err::LEN);
+		};
+		d.state = &uncompressed_read;
+		d.left = length;
+	case 0b01 =>
+		d.hl = fixed_len;
+		d.hd = fixed_dist;
+		d.state = &compressed_read;
+		d.left = 1;
+	case 0b10 =>
+		return dynamic(d);
+	case 0b11 =>
+		return wraperror(inflate_err::BTYPE);
+	case =>
+		abort();
 	};
 };
 
@@ -356,12 +370,14 @@ fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	for (n < len(buf)) {
 		if (len(s.buf) == 0) {
 			if (s.left == 0) match (next(s)?) {
-				void => void,
-				io::EOF => return if (n == 0) io::EOF else n,
+			case void => void;
+			case io::EOF =>
+				return if (n == 0) io::EOF else n;
 			};
 			match (s.state(s)?) {
-				void => void,
-				io::EOF => return if (n == 0) io::EOF else n,
+			case void => void;
+			case io::EOF =>
+				return if (n == 0) io::EOF else n;
 			};
 		};
 		const toread =
@@ -411,11 +427,10 @@ fn close(s: *io::stream) void = {
 	let s = inflate(ins);
 	defer io::close(&s);
 	match (io::copy(outs, &s)) {
-		size => void,
-		e: io::error => {
-			fmt::errorln(io::strerror(e))!;
-			abort();
-		},
+	case size => void;
+	case e: io::error =>
+		fmt::errorln(io::strerror(e))!;
+		abort();
 	};
 	let out = bufio::finish(outs);
 	defer free(out);

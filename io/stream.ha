@@ -36,50 +36,61 @@ export type stream = struct {
 // Reads up to len(buf) bytes from the reader into the given buffer, returning
 // the number of bytes read.
 export fn read(s: *stream, buf: []u8) (size | EOF | error) = {
-	return match (s.reader) {
-		null => errors::unsupported,
-		r: *reader => r(s, buf),
+	match (s.reader) {
+	case null =>
+		return errors::unsupported;
+	case r: *reader =>
+		return r(s, buf);
 	};
 };
 
 // Writes up to len(buf) bytes to the stream from the given buffer, returning
 // the number of bytes written.
 export fn write(s: *stream, buf: const []u8) (size | error) = {
-	return match (s.writer) {
-		null => errors::unsupported,
-		w: *writer => w(s, buf),
+	match (s.writer) {
+	case null =>
+		return errors::unsupported;
+	case w: *writer =>
+		return w(s, buf);
 	};
 };
 
 // Closes the stream.
 export fn close(s: *stream) void = {
-	return match (s.closer) {
-		null => void,
-		c: *closer => c(s),
+	match (s.closer) {
+	case null => void;
+	case c: *closer =>
+		c(s);
 	};
 };
 
 // Sets the offset within the stream.
 export fn seek(s: *stream, off: off, w: whence) (off | error) = {
-	return match (s.seeker) {
-		null => errors::unsupported,
-		sk: *seeker => sk(s, off, w),
+	match (s.seeker) {
+	case null =>
+		return errors::unsupported;
+	case sk: *seeker =>
+		return sk(s, off, w);
 	};
 };
 
 // Returns the current offset within the stream.
 export fn tell(s: *stream) (off | error) = {
-	return match (s.seeker) {
-		null => errors::unsupported,
-		sk: *seeker => sk(s, 0, whence::CUR),
+	match (s.seeker) {
+	case null =>
+		return errors::unsupported;
+	case sk: *seeker =>
+		return sk(s, 0, whence::CUR);
 	};
 };
 
 // Returns the underlying stream for a stream which wraps another stream.
 export fn source(s: *stream) (*io::stream | errors::unsupported) = {
-	return match (s.unwrap) {
-		null => errors::unsupported,
-		uw: *unwrap => uw(s),
+	match (s.unwrap) {
+	case null =>
+		return errors::unsupported;
+	case uw: *unwrap =>
+		return uw(s);
 	};
 };
 

@@ -13,8 +13,10 @@ export fn backtrace() frame = frame {
 // Returns the frame above the current frame, if any.
 export fn nextframe(sframe: frame) (frame | void) = {
 	let addr = sframe.addr: *nullable *void;
-	return match (*addr) {
-		null => void,
-		a: *void => frame { addr = a }
+	match (*addr) {
+	case a: *void =>
+		return frame { addr = a };
+	case null =>
+		return;
 	};
 };

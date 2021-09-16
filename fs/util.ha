@@ -5,13 +5,20 @@ use strings;
 
 // Returns a human-friendly representation of an error.
 export fn strerror(err: error) const str = match (err) {
-	wrongtype => "Wrong entry type for requested operation",
-	cannotrename => "Unable to perform rename operation (try move instead)",
-	errors::noentry => "File or directory not found",
-	errors::noaccess => "Permission denied",
-	errors::exists => "File or directory exists",
-	errors::invalid => "Invalid argument",
-	err: io::error => io::strerror(err),
+case wrongtype =>
+	yield "Wrong entry type for requested operation";
+case cannotrename =>
+	yield "Unable to perform rename operation (try move instead)";
+case errors::noentry =>
+	yield "File or directory not found";
+case errors::noaccess =>
+	yield "Permission denied";
+case errors::exists =>
+	yield "File or directory exists";
+case errors::invalid =>
+	yield "Invalid argument";
+case err: io::error =>
+	yield io::strerror(err);
 };
 
 // Converts a mode into a Unix-like mode string (e.g. "-rw-r--r--"). The string
@@ -88,8 +95,10 @@ export fn readdir(fs: *fs, path: str) ([]dirent | error) = {
 	let ents: []dirent = [];
 	for (true) {
 		match (next(i)) {
-			d: dirent => append(ents, dirent_dup(&d)),
-			void => break,
+		case d: dirent =>
+			append(ents, dirent_dup(&d));
+		case void =>
+			break;
 		};
 	};
 	return ents;

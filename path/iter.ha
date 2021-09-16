@@ -39,9 +39,10 @@ export fn next(iter: *iterator) (str | void) = {
 		static assert(PATHSEP <= 0x7F);
 		return strings::fromutf8_unsafe(pathsep);
 	};
-	return match (bytes::next_token(&iter.tok)) {
-		b: []u8 => strings::fromutf8_unsafe(b),
-		void => void,
+	match (bytes::next_token(&iter.tok)) {
+	case b: []u8 =>
+		return strings::fromutf8_unsafe(b);
+	case void => void;
 	};
 };
 

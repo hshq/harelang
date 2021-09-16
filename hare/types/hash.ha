@@ -11,43 +11,78 @@ type storage = enum u8 {
 	FUNCTION, POINTER, SLICE, STRING, STRUCT, TAGGED, TUPLE, UNION,
 };
 
-fn builtin_storage(b: builtin) u8 = switch (b) {
-	builtin::BOOL => storage::BOOL,
-	builtin::CHAR => storage::CHAR,
-	builtin::F32 => storage::F32,
-	builtin::F64 => storage::F64,
-	builtin::I16 => storage::I16,
-	builtin::I32 => storage::I32,
-	builtin::I64 => storage::I64,
-	builtin::I8 => storage::I8,
-	builtin::INT => storage::INT,
-	builtin::NULL => storage::NULL,
-	builtin::RUNE => storage::RUNE,
-	builtin::SIZE => storage::SIZE,
-	builtin::STR => storage::STRING,
-	builtin::U16 => storage::U16,
-	builtin::U32 => storage::U32,
-	builtin::U64 => storage::U64,
-	builtin::U8 => storage::U8,
-	builtin::UINT => storage::UINT,
-	builtin::UINTPTR => storage::UINTPTR,
-	builtin::VOID => storage::VOID,
+fn builtin_storage(b: builtin) u8 = {
+	switch (b) {
+	case builtin::BOOL =>
+		return storage::BOOL;
+	case builtin::CHAR =>
+		return storage::CHAR;
+	case builtin::F32 =>
+		return storage::F32;
+	case builtin::F64 =>
+		return storage::F64;
+	case builtin::I16 =>
+		return storage::I16;
+	case builtin::I32 =>
+		return storage::I32;
+	case builtin::I64 =>
+		return storage::I64;
+	case builtin::I8 =>
+		return storage::I8;
+	case builtin::INT =>
+		return storage::INT;
+	case builtin::NULL =>
+		return storage::NULL;
+	case builtin::RUNE =>
+		return storage::RUNE;
+	case builtin::SIZE =>
+		return storage::SIZE;
+	case builtin::STR =>
+		return storage::STRING;
+	case builtin::U16 =>
+		return storage::U16;
+	case builtin::U32 =>
+		return storage::U32;
+	case builtin::U64 =>
+		return storage::U64;
+	case builtin::U8 =>
+		return storage::U8;
+	case builtin::UINT =>
+		return storage::UINT;
+	case builtin::UINTPTR =>
+		return storage::UINTPTR;
+	case builtin::VOID =>
+		return storage::VOID;
+	};
 };
 
-fn type_storage(t: *_type) u8 = match (t.repr) {
-	alias => storage::ALIAS,
-	array => storage::ARRAY,
-	b: builtin => builtin_storage(b),
-	_enum => storage::ENUM,
-	func => storage::FUNCTION,
-	pointer => storage::POINTER,
-	slice => storage::SLICE,
-	st: _struct =>
-		if (st.kind == struct_union::STRUCT)
-			storage::STRUCT
-		else storage::UNION,
-	tuple => storage::TUPLE,
-	tagged => storage::TAGGED,
+fn type_storage(t: *_type) u8 = {
+	match (t.repr) {
+	case alias =>
+		return storage::ALIAS;
+	case array =>
+		return storage::ARRAY;
+	case b: builtin =>
+		return builtin_storage(b);
+	case _enum =>
+		return storage::ENUM;
+	case func =>
+		return storage::FUNCTION;
+	case pointer =>
+		return storage::POINTER;
+	case slice =>
+		return storage::SLICE;
+	case st: _struct =>
+		if (st.kind == struct_union::STRUCT) {
+			return storage::STRUCT;
+		} else {
+			return storage::UNION;
+		};
+	case tuple =>
+		return storage::TUPLE;
+	case tagged =>
+		return storage::TAGGED;
+	};
 };
 
 fn write8(h: *hash::hash, u: u8) void = {
@@ -77,49 +112,50 @@ export fn hash(t: *_type) u32 = {
 	write8(&id, t.flags);
 
 	match (t.repr) {
-		a: alias => for (let i = len(a.id); i > 0; i -= 1) {
+	case a: alias =>
+		for (let i = len(a.id); i > 0; i -= 1) {
 			hash::write(&id, strings::toutf8(a.id[i - 1]));
 			write8(&id, 0);
-		},
-		a: array => {
-			write32(&id, hash(a.member));
-			static assert(size(u64) == size(size)); // TODO
-			write64(&id, a.length);
-		},
-		builtin => void,
-		e: _enum => {
-			write8(&id, builtin_storage(e.storage));
-			for (let i = 0z; i < len(e.values); i += 1) {
-				hash::write(&id, strings::toutf8(e.values[i].0));
-				write64(&id, e.values[i].1);
-			};
-		},
-		f: func => {
-			write32(&id, hash(f.result));
-			write8(&id, f.variadism: u8);
-			write8(&id, f.flags: u8);
-			for (let i = 0z; i < len(f.params); i += 1) {
-				write32(&id, hash(f.params[i]));
-			};
-		},
-		p: pointer => {
-			write8(&id, p.flags);
-			write32(&id, hash(p.referent));
-		},
-		s: slice => write32(&id, hash(s)),
-		st: _struct => for (let i = 0z; i < len(st.fields); i += 1) {
+		};
+	case a: array =>
+		write32(&id, hash(a.member));
+		static assert(size(u64) == size(size)); // TODO
+		write64(&id, a.length);
+	case builtin => void;
+	case e: _enum =>
+		write8(&id, builtin_storage(e.storage));
+		for (let i = 0z; i < len(e.values); i += 1) {
+			hash::write(&id, strings::toutf8(e.values[i].0));
+			write64(&id, e.values[i].1);
+		};
+	case f: func =>
+		write32(&id, hash(f.result));
+		write8(&id, f.variadism: u8);
+		write8(&id, f.flags: u8);
+		for (let i = 0z; i < len(f.params); i += 1) {
+			write32(&id, hash(f.params[i]));
+		};
+	case p: pointer =>
+		write8(&id, p.flags);
+		write32(&id, hash(p.referent));
+	case s: slice =>
+		write32(&id, hash(s));
+	case st: _struct =>
+		for (let i = 0z; i < len(st.fields); i += 1) {
 			const field = st.fields[i];
 			hash::write(&id, strings::toutf8(field.name));
 			write32(&id, hash(field._type));
 			static assert(size(u64) == size(size)); // TODO
 			write64(&id, field.offs);
-		},
-		tu: tuple => for (let i = 0z; i < len(tu); i += 1) {
+		};
+	case tu: tuple =>
+		for (let i = 0z; i < len(tu); i += 1) {
 			write32(&id, hash(tu[i]._type));
-		},
-		ta: tagged => for (let i = 0z; i < len(ta); i += 1) {
+		};
+	case ta: tagged =>
+		for (let i = 0z; i < len(ta); i += 1) {
 			write32(&id, hash(ta[i]));
-		},
+		};
 	};
 
 	return fnv::sum32(&id);

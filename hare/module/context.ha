@@ -32,25 +32,27 @@ export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 		tags = tags,
 		defines = defs,
 		paths = match (os::getenv("HAREPATH")) {
-			void => alloc([
+		case void =>
+			yield alloc([
 				strings::dup(harepath),
 				dirs::data("hare"),
 				strings::dup("."),
-			]),
-			s: str => {
-				let sl = strings::split(s, ":");
-				let path: []str = alloc([], len(sl) + 1);
-				for (let i = 0z; i < len(sl); i += 1) {
-					append(path, strings::dup(sl[i]));
-				};
-				append(path, strings::dup("."));
-				free(sl);
-				yield path;
-			},
+			]);
+		case s: str =>
+			let sl = strings::split(s, ":");
+			let path: []str = alloc([], len(sl) + 1);
+			for (let i = 0z; i < len(sl); i += 1) {
+				append(path, strings::dup(sl[i]));
+			};
+			append(path, strings::dup("."));
+			free(sl);
+			yield path;
 		},
 		cache: str = match (os::getenv("HARECACHE")) {
-			void => dirs::cache("hare"),
-			s: str => strings::dup(s),
+		case void =>
+			yield dirs::cache("hare");
+		case s: str =>
+			yield strings::dup(s);
 		},
 		...
 	};

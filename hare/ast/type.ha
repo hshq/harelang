@@ -125,81 +125,84 @@ export type _type = struct {
 
 fn struct_type_free(t: (struct_type | union_type)) void = {
 	let membs = match (t) {
-		s: struct_type => s: []struct_member,
-		u: union_type => u: []struct_member,
+	case s: struct_type =>
+		yield s: []struct_member;
+	case u: union_type =>
+		yield u: []struct_member;
 	};
 	for (let i = 0z; i < len(membs); i += 1) {
 		match (membs[i]._offset) {
-			null => void,
-			e: *expr => expr_free(e),
+		case null => void;
+		case e: *expr =>
+			expr_free(e);
 		};
 		match (membs[i].member) {
-			f: struct_field => {
-				free(f.name);
-				type_free(f._type);
-			},
-			e: struct_embedded => {
-				type_free(e: *_type);
-			},
-			a: struct_alias => ident_free(a),
+		case f: struct_field =>
+			free(f.name);
+			type_free(f._type);
+		case e: struct_embedded =>
+			type_free(e: *_type);
+		case a: struct_alias =>
+			ident_free(a);
 		};
 	};
 	free(membs);
 };
 
 // Frees resources associated with a [[_type]].
-export fn type_free(t: (_type | nullable *_type)) void = match (t) {
-	t: nullable *_type => match (t) {
-		null => void,
-		t: *_type => {
+export fn type_free(t: (_type | nullable *_type)) void = {
+	match (t) {
+	case t: nullable *_type =>
+		match (t) {
+		case null => void;
+		case t: *_type =>
 			type_free(*t);
 			free(t);
-		},
-	},
-	t: _type => match (t.repr) {
-		a: alias_type => ident_free(a.ident),
-		builtin_type => void,
-		e: enum_type => {
+		};
+	case t: _type =>
+		match (t.repr) {
+		case a: alias_type =>
+			ident_free(a.ident);
+		case builtin_type => void;
+		case e: enum_type =>
 			for (let i = 0z; i < len(e.values); i += 1) {
 				free(e.values[i].name);
 				match (e.values[i].value) {
-					null => void,
-					v: *expr => expr_free(v),
+				case null => void;
+				case v: *expr =>
+					expr_free(v);
 				};
 			};
 			free(e.values);
-		},
-		f: func_type => {
+		case f: func_type =>
 			type_free(f.result);
 			for (let i = 0z; i < len(f.params); i += 1) {
 				free(f.params[i].name);
 				type_free(f.params[i]._type);
 			};
 			free(f.params);
-		},
-		l: list_type => {
+		case l: list_type =>
 			match (l.length) {
-				e: *expr => {
-					expr_free(*e);
-					free(e);
-				},
-				* => void,
+			case e: *expr =>
+				expr_free(*e);
+				free(e);
+			case => void;
 			};
 			type_free(l.members);
-		},
-		p: pointer_type => type_free(p.referent),
-		s: (struct_type | union_type) => struct_type_free(s),
-		t: tagged_type => {
+		case p: pointer_type =>
+			type_free(p.referent);
+		case s: (struct_type | union_type) =>
+			struct_type_free(s);
+		case t: tagged_type =>
 			for (let i = 0z; i < len(t); i += 1) {
 				type_free(t[i]);
 			};
 			free(t);
-		},
-		t: tuple_type => {
+		case t: tuple_type =>
 			for (let i = 0z; i < len(t); i += 1) {
 				type_free(t[i]);
 			};
 			free(t);
-		},
-	},
+		};
+	};
 };

@@ -8,15 +8,21 @@ export fn strcmp(a: str, b: str) (int | void) = {
 	let a = strings::iter(a), b = strings::iter(b);
 	for (true) {
 		let ra = match (strings::next(&a)) {
-			void => return match (strings::next(&b)) {
-				void => 0,
-				rune => -1,
-			},
-			r: rune => r,
+		case void =>
+			match (strings::next(&b)) {
+			case void =>
+				return 0;
+			case rune =>
+				return -1;
+			};
+		case r: rune =>
+			yield r;
 		};
 		let rb = match (strings::next(&b)) {
-			void => return 1,
-			r: rune => r,
+		case void =>
+			return 1;
+		case r: rune =>
+			yield r;
 		};
 		if (!isascii(ra) || !isascii(rb)) {
 			return;
@@ -33,15 +39,21 @@ export fn strcasecmp(a: str, b: str) (int | void) = {
 	let a = strings::iter(a), b = strings::iter(b);
 	for (true) {
 		let ra = match (strings::next(&a)) {
-			void => return match (strings::next(&b)) {
-				void => 0,
-				rune => -1,
-			},
-			r: rune => r,
+		case void =>
+			match (strings::next(&b)) {
+			case void =>
+				return 0;
+			case rune =>
+				return -1;
+			};
+		case r: rune =>
+			yield r;
 		};
 		let rb = match (strings::next(&b)) {
-			void => return 1,
-			r: rune => r,
+		case void =>
+			return 1;
+		case r: rune =>
+			yield r;
 		};
 		if (!isascii(ra) || !isascii(rb)) {
 			return;

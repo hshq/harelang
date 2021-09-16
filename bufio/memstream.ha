@@ -162,24 +162,21 @@ fn seek(
 ) (io::off | io::error) = {
 	let s = s: *memstream;
 	switch (w) {
-		io::whence::SET => {
-			if (len(s.buf) < off: size) {
-				abort("invalid offset");
-			};
-			s.pos = off: size;
-		},
-		io::whence::CUR => {
-			if (s.pos + off: size > len(s.buf)) {
-				abort("invalid offset");
-			};
-			s.pos += off: size;
-		},
-		io::whence::END => {
-			if (len(s.buf) - (-off): size < len(s.buf)) {
-				abort("invalid offset");
-			};
-			s.pos = len(s.buf) - (-off): size;
-		},
+	case io::whence::SET =>
+		if (len(s.buf) < off: size) {
+			abort("invalid offset");
+		};
+		s.pos = off: size;
+	case io::whence::CUR =>
+		if (s.pos + off: size > len(s.buf)) {
+			abort("invalid offset");
+		};
+		s.pos += off: size;
+	case io::whence::END =>
+		if (len(s.buf) - (-off): size < len(s.buf)) {
+			abort("invalid offset");
+		};
+		s.pos = len(s.buf) - (-off): size;
 	};
 	return s.pos: io::off;
 };

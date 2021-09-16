@@ -172,14 +172,18 @@ export fn fprintf(
 	let iter = strings::iter(fmt);
 	for (true) {
 		let r: rune = match (strings::next(&iter)) {
-			void => break,
-			r: rune => r,
+		case void =>
+			break;
+		case r: rune =>
+			yield r;
 		};
 
 		if (r == '{') {
 			r = match (strings::next(&iter)) {
-				void => abort("Invalid format string (unterminated '{')"),
-				r: rune => r,
+			case void =>
+				abort("Invalid format string (unterminated '{')");
+			case r: rune =>
+				yield r;
 			};
 
 			let arg = if (r == '{') {
@@ -195,37 +199,48 @@ export fn fprintf(
 			};
 
 			const arg = match (arg) {
-				arg: formattable => arg,
-				* => abort("Invalid formattable"),
+			case arg: formattable =>
+				yield arg;
+			case =>
+				abort("Invalid formattable");
 			};
 
 			r = match (strings::next(&iter)) {
-				void => abort("Invalid format string (unterminated '{')"),
-				r: rune => r,
+			case void =>
+				abort("Invalid format string (unterminated '{')");
+			case r: rune =>
+				yield r;
 			};
 
 			let mod = &modifiers { ... };
 			let pi: paramindex = void;
 			switch (r) {
-				':' => scan_inline_modifiers(&iter, mod),
-				'%' => scan_parametric_modifiers(&iter, &pi),
-				'}' => void,
-				*   => abort("Invalid format string"),
+			case ':' =>
+				scan_inline_modifiers(&iter, mod);
+			case '%' =>
+				scan_parametric_modifiers(&iter, &pi);
+			case '}' => void;
+			case =>
+				abort("Invalid format string");
 			};
 
 			match (pi) {
-				pi: uint => match (args[pi]) {
-					pmod: *modifiers => mod = pmod,
-					* => abort("Explicit parameter is not *fmt::modifier"),
-				},
-				nextparam => {
-					i += 1;
-					match (args[i - 1]) {
-						pmod: *modifiers => mod = pmod,
-						* => abort("Implicit parameter is not *fmt::modifier"),
-					};
-				},
-				void => void,
+			case pi: uint =>
+				match (args[pi]) {
+				case pmod: *modifiers =>
+					mod = pmod;
+				case =>
+					abort("Explicit parameter is not *fmt::modifier");
+				};
+			case nextparam =>
+				i += 1;
+				match (args[i - 1]) {
+				case pmod: *modifiers =>
+					mod = pmod;
+				case =>
+					abort("Implicit parameter is not *fmt::modifier");
+				};
+			case void => void;
 			};
 
 			if (mod.base == 0) {
@@ -235,8 +250,10 @@ export fn fprintf(
 			n += format(s, arg, mod)?;
 		} else if (r == '}') {
 			match (strings::next(&iter)) {
-				void => abort("Invalid format string (hanging '}')"),
-				r: rune => assert(r == '}', "Invalid format string (hanging '}')"),
+			case void =>
+				abort("Invalid format string (hanging '}')");
+			case r: rune =>
+				assert(r == '}', "Invalid format string (hanging '}')");
 			};
 
 			n += io::write(s, utf8::encoderune('}'))?;
@@ -254,8 +271,10 @@ fn format(out: *io::stream, arg: formattable, mod: *modifiers) (size | io::error
 	let pad: []u8 = [];
 	if (z < mod.width: size) {
 		pad = utf8::encoderune(switch (mod.padding) {
-			padding::ZEROES => '0',
-			* => ' ',
+		case padding::ZEROES =>
+			yield '0';
+		case =>
+			yield ' ';
 		});
 	};
 
@@ -278,39 +297,46 @@ fn format_raw(
 	out: *io::stream,
 	arg: formattable,
 	mod: *modifiers,
-) (size | io::error) = match (arg) {
-	s: str => io::write(out, strings::toutf8(s)),
-	r: rune => io::write(out, utf8::encoderune(r)),
-	b: bool => io::write(out, strings::toutf8(if (b) "true" else "false")),
-	n: types::numeric => {
-		let s = strconv::numerictosb(n, mod.base);
-		yield io::write(out, strings::toutf8(s));
-	},
-	p: uintptr => {
-		let s = strconv::uptrtosb(p, mod.base);
-		yield io::write(out, strings::toutf8(s));
-	},
-	v: nullable *void => match (v) {
-		v: *void => {
-			let s = strconv::uptrtosb(v: uintptr,
-				strconv::base::HEX_LOWER);
+) (size | io::error) = {
+	match (arg) {
+	case s: str =>
+		return io::write(out, strings::toutf8(s));
+	case r: rune =>
+		return io::write(out, utf8::encoderune(r));
+	case b: bool =>
+		return io::write(out,
+			strings::toutf8(if (b) "true" else "false"));
+	case n: types::numeric =>
+		const s = strconv::numerictosb(n, mod.base);
+		return io::write(out, strings::toutf8(s));
+	case p: uintptr =>
+		const s = strconv::uptrtosb(p, mod.base);
+		return io::write(out, strings::toutf8(s));
+	case v: nullable *void =>
+		match (v) {
+		case v: *void =>
 			let n = io::write(out, strings::toutf8("0x"))?;
+			const s = strconv::uptrtosb(v: uintptr,
+				strconv::base::HEX_LOWER);
 			n += io::write(out, strings::toutf8(s))?;
-			yield n;
-		},
-		null => format(out, "(null)", mod),
-	},
-	void => io::write(out, strings::toutf8("void")),
+			return n;
+		case null =>
+			return format(out, "(null)", mod);
+		};
+	case void =>
+		return io::write(out, strings::toutf8("void"));
+	};
 };
-
 
 fn scan_uint(iter: *strings::iterator) uint = {
 	let num: []u8 = [];
 	defer free(num);
 	for (true) {
 		let r = match (strings::next(iter)) {
-			void => abort("Invalid format string (unterminated '{')"),
-			r: rune => r,
+		case void =>
+			abort("Invalid format string (unterminated '{')");
+		case r: rune =>
+			yield r;
 		};
 
 		if (ascii::isdigit(r)) {
@@ -318,9 +344,10 @@ fn scan_uint(iter: *strings::iterator) uint = {
 		} else {
 			strings::push(iter, r);
 			match (strconv::stou(strings::fromutf8(num))) {
-				(strconv::invalid | strconv::overflow) =>
-					abort("Invalid format string (invalid index)"),
-				u: uint => return u,
+			case (strconv::invalid | strconv::overflow) =>
+				abort("Invalid format string (invalid index)");
+			case u: uint =>
+				return u;
 			};
 		};
 	};
@@ -332,19 +359,24 @@ fn scan_modifier_flags(iter: *strings::iterator, mod: *modifiers) void = {
 
 	for (true) {
 		let r = match (strings::next(iter)) {
-			void => abort("Invalid format string (unterminated '{')"),
-			r: rune => r,
+		case void =>
+			abort("Invalid format string (unterminated '{')");
+		case r: rune =>
+			yield r;
 		};
 
 		switch (r) {
-			'0' => flags |= modflags::ZERO,
-			'-' => flags |= modflags::MINUS,
-			' ' => flags |= modflags::SPACE,
-			'+' => flags |= modflags::PLUS,
-			* => {
-				strings::push(iter, r);
-				break;
-			},
+		case '0' =>
+			flags |= modflags::ZERO;
+		case '-' =>
+			flags |= modflags::MINUS;
+		case ' ' =>
+			flags |= modflags::SPACE;
+		case '+' =>
+			flags |= modflags::PLUS;
+		case =>
+			strings::push(iter, r);
+			break;
 		};
 	};
 
@@ -365,8 +397,10 @@ fn scan_modifier_flags(iter: *strings::iterator, mod: *modifiers) void = {
 
 fn scan_modifier_width(iter: *strings::iterator, mod: *modifiers) void = {
 	let r = match (strings::next(iter)) {
-		void => abort("Invalid format string (unterminated '{')"),
-		r: rune => r,
+	case void =>
+		abort("Invalid format string (unterminated '{')");
+	case r: rune =>
+		yield r;
 	};
 
 	let is_digit = ascii::isdigit(r);
@@ -379,8 +413,10 @@ fn scan_modifier_width(iter: *strings::iterator, mod: *modifiers) void = {
 
 fn scan_modifier_precision(iter: *strings::iterator, mod: *modifiers) void = {
 	let r = match (strings::next(iter)) {
-		void => abort("Invalid format string (unterminated '{')"),
-		r: rune => r,
+	case void =>
+		abort("Invalid format string (unterminated '{')");
+	case r: rune =>
+		yield r;
 	};
 
 	if (r == '.') {
@@ -392,16 +428,23 @@ fn scan_modifier_precision(iter: *strings::iterator, mod: *modifiers) void = {
 
 fn scan_modifier_base(iter: *strings::iterator, mod: *modifiers) void = {
 	let r = match (strings::next(iter)) {
-		void => abort("Invalid format string (unterminated '{')"),
-		r: rune => r,
+	case void =>
+		abort("Invalid format string (unterminated '{')");
+	case r: rune =>
+		yield r;
 	};
 
 	switch (r) {
-		'x' => mod.base = strconv::base::HEX_LOWER,
-		'X' => mod.base = strconv::base::HEX_UPPER,
-		'o' => mod.base = strconv::base::OCT,
-		'b' => mod.base = strconv::base::BIN,
-		* => strings::push(iter, r),
+	case 'x' =>
+		mod.base = strconv::base::HEX_LOWER;
+	case 'X' =>
+		mod.base = strconv::base::HEX_UPPER;
+	case 'o' =>
+		mod.base = strconv::base::OCT;
+	case 'b' =>
+		mod.base = strconv::base::BIN;
+	case =>
+		strings::push(iter, r);
 	};
 };
 
@@ -413,16 +456,20 @@ fn scan_inline_modifiers(iter: *strings::iterator, mod: *modifiers) void = {
 
 	// eat '}'
 	let terminated = match (strings::next(iter)) {
-		void => false,
-		r: rune => r == '}',
+	case void =>
+		yield false;
+	case r: rune =>
+		yield r == '}';
 	};
 	assert(terminated, "Invalid format string (unterminated '{')");
 };
 
 fn scan_parameter_index(iter: *strings::iterator, pi: *paramindex) void = {
 	let r = match (strings::next(iter)) {
-		void => abort("Invalid format string (unterminated '{')"),
-		r: rune => r,
+	case void =>
+		abort("Invalid format string (unterminated '{')");
+	case r: rune =>
+		yield r;
 	};
 
 	let is_digit = ascii::isdigit(r);
@@ -439,8 +486,10 @@ fn scan_parametric_modifiers(iter: *strings::iterator, pi: *paramindex) void = {
 
 	// eat '}'
 	let terminated = match (strings::next(iter)) {
-		void => false,
-		r: rune => r == '}',
+	case void =>
+		yield false;
+	case r: rune =>
+		yield r == '}';
 	};
 	assert(terminated, "Invalid format string (unterminated '{')");
 };

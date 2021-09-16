@@ -91,41 +91,40 @@ fn synassert(loc: lex::location, cond: bool, msg: str) (void | error) = {
 fn nametype(lexer: *lex::lexer) ((str, ast::_type) | error) = {
 	let tok = peek(lexer)? as lex::token;
 	const start = tok.2;
-	return switch (tok.0) {
-		ltok::NAME => {
-			let name = tok.1 as str;
-			want(lexer, ltok::NAME)?;
-			tok = peek(lexer)? as lex::token;
-			yield switch (tok.0) {
-				ltok::COLON => {
-					want(lexer, ltok::COLON)?;
-					yield (name, _type(lexer)?);
+	switch (tok.0) {
+	case ltok::NAME =>
+		let name = tok.1 as str;
+		want(lexer, ltok::NAME)?;
+		tok = peek(lexer)? as lex::token;
+		switch (tok.0) {
+		case ltok::COLON =>
+			want(lexer, ltok::COLON)?;
+			return (name, _type(lexer)?);
+		case ltok::DOUBLE_COLON =>
+			want(lexer, ltok::DOUBLE_COLON)?;
+			let id = ident(lexer)?;
+			insert(id[0], name);
+			return ("", ast::_type {
+				start = start,
+				end = lex::prevloc(lexer),
+				flags = 0,
+				repr = ast::alias_type {
+					unwrap = false,
+					ident = id,
 				},
-				ltok::DOUBLE_COLON => {
-					want(lexer, ltok::DOUBLE_COLON)?;
-					let id = ident(lexer)?;
-					insert(id[0], name);
-					yield ("", ast::_type {
-						start = start,
-						end = lex::prevloc(lexer),
-						flags = 0,
-						repr = ast::alias_type {
-							unwrap = false,
-							ident = id,
-						},
-					});
+			});
+		case =>
+			return ("", ast::_type {
+				start = start,
+				end = lex::prevloc(lexer),
+				flags = 0,
+				repr = ast::alias_type {
+					unwrap = false,
+					ident = alloc([name]),
 				},
-				* => ("", ast::_type {
-					start = start,
-					end = lex::prevloc(lexer),
-					flags = 0,
-					repr = ast::alias_type {
-						unwrap = false,
-						ident = alloc([name]),
-					},
-				}),
-			};
-		},
-		* => ("", _type(lexer)?),
+			});
+		};
+	case =>
+		return ("", _type(lexer)?);
 	};
 };

@@ -3,9 +3,11 @@ use net::dial;
 use net;
 
 fn dial_unix(addr: str, service: str) (io::file | dial::error) = {
-	return match (connect(addr)) {
-		conn: io::file => conn,
-		err: net::error => err,
+	match (connect(addr)) {
+	case conn: io::file =>
+		return conn;
+	case err: net::error =>
+		return err;
 	};
 };
 

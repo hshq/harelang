@@ -4,16 +4,25 @@ use rt;
 // interface which is mainly provided to support internal stdlib requirements.
 export fn errno(errno: rt::errno) error = {
 	switch (errno) {
-		rt::ECONNREFUSED => return refused,
-		rt::ECANCELED => return cancelled,
-		rt::EOVERFLOW => return overflow,
-		rt::EACCES => return noaccess,
-		rt::EINVAL => return invalid,
-		rt::EEXIST => return exists,
-		rt::ENOENT => return noentry,
-		rt::ETIME => return timeout,
-		rt::EBUSY => return busy,
-		* => void,
+	case rt::ECONNREFUSED =>
+		return refused;
+	case rt::ECANCELED =>
+		return cancelled;
+	case rt::EOVERFLOW =>
+		return overflow;
+	case rt::EACCES =>
+		return noaccess;
+	case rt::EINVAL =>
+		return invalid;
+	case rt::EEXIST =>
+		return exists;
+	case rt::ENOENT =>
+		return noentry;
+	case rt::ETIME =>
+		return timeout;
+	case rt::EBUSY =>
+		return busy;
+	case => void;
 	};
 
 	static assert(size(rt::errno) <= size(opaque_data));

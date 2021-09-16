@@ -12,18 +12,20 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	defer io::close(buf);
 	let lexer = lex::init(buf, "<test>");
 	let exp = match (expression(&lexer)) {
-		exp: ast::expr => exp,
-		err: error => {
-			fmt::errorln(strerror(err))!;
-			abort();
-		},
+	case exp: ast::expr =>
+		yield exp;
+	case err: error =>
+		fmt::errorln(strerror(err))!;
+		abort();
 	};
 	defer ast::expr_free(exp);
 	let runes = 0z;
 	let d = utf8::decode(srcs[i]);
 	for (true) match (utf8::next(&d)!) {
-		void => break,
-		rune => runes += 1,
+	case void =>
+		break;
+	case rune =>
+		runes += 1;
 	};
 	assert(exp.start.line == 1 && exp.start.col == 1);
 	assert(exp.end.line == 1 && exp.end.col == runes);
@@ -55,11 +57,11 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	expr_testloc("if (foo) bar", "if (foo) bar else baz");
 	expr_testloc("len(foo)");
 	expr_testloc("{ foo; bar; }");
-	expr_testloc("match (foo) { * => bar }");
+	expr_testloc("match (foo) { case => bar; }");
 	expr_testloc("foo?");
 	expr_testloc("return foo");
 	expr_testloc("size(int)");
-	expr_testloc("switch (foo) { * => bar }");
+	expr_testloc("switch (foo) { case => bar; }");
 	expr_testloc("foo[bar..baz]");
 	expr_testloc("&foo");
 
@@ -69,11 +71,11 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	defer io::close(buf);
 	let lexer = lex::init(buf, "<test>");
 	let exp = match (expression(&lexer)) {
-		exp: ast::expr => exp,
-		err: error => {
-			fmt::errorln(strerror(err))!;
-			abort();
-		},
+	case exp: ast::expr =>
+		yield exp;
+	case err: error =>
+		fmt::errorln(strerror(err))!;
+		abort();
 	};
 	defer ast::expr_free(exp);
 	assert(exp.start.line == 1 && exp.start.col == 1);
@@ -93,18 +95,20 @@ fn type_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	defer io::close(buf);
 	let lexer = lex::init(buf, "<test>");
 	let typ = match (_type(&lexer)) {
-		typ: ast::_type => typ,
-		err: error => {
-			fmt::errorln(strerror(err))!;
-			abort();
-		},
+	case typ: ast::_type =>
+		yield typ;
+	case err: error =>
+		fmt::errorln(strerror(err))!;
+		abort();
 	};
 	defer ast::type_free(typ);
 	let runes = 0z;
 	let d = utf8::decode(srcs[i]);
 	for (true) match (utf8::next(&d)!) {
-		void => break,
-		rune => runes += 1,
+	case void =>
+		break;
+	case rune =>
+		runes += 1;
 	};
 	assert(typ.start.line == 1 && typ.start.col == 1);
 	assert(typ.end.line == 1 && typ.end.col == runes);

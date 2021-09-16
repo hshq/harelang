@@ -8,21 +8,20 @@ export fn import(out: *io::stream, i: ast::import) (size | io::error) = {
 	let n = 0z;
 	n += fmt::fprint(out, "use ")?;
 	match (i) {
-		m: ast::import_module => n += ident(out, m)?,
-		a: ast::import_alias => {
-			n += fmt::fprint(out, a.alias, "= ")?;
-			n += ident(out, a.ident)?;
-		},
-		o: ast::import_objects => {
-			n += ident(out, o.ident)?;
-			n += fmt::fprint(out, "::{")?;
-			for (let i = 0z; i < len(o.objects); i += 1) {
-				n += fmt::fprintf(out, "{}{}", o.objects[i],
-					if (i + 1 < len(o.objects)) ", "
-					else "")?;
-			};
-			n += fmt::fprint(out, "}")?;
-		},
+	case m: ast::import_module =>
+		n += ident(out, m)?;
+	case a: ast::import_alias =>
+		n += fmt::fprint(out, a.alias, "= ")?;
+		n += ident(out, a.ident)?;
+	case o: ast::import_objects =>
+		n += ident(out, o.ident)?;
+		n += fmt::fprint(out, "::{")?;
+		for (let i = 0z; i < len(o.objects); i += 1) {
+			n += fmt::fprintf(out, "{}{}", o.objects[i],
+				if (i + 1 < len(o.objects)) ", "
+				else "")?;
+		};
+		n += fmt::fprint(out, "}")?;
 	};
 	n += fmt::fprint(out, ";")?;
 	return n;

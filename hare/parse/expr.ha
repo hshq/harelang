@@ -6,10 +6,7 @@ use strings;
 // Parses an expression.
 export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 	const loc = lex::mkloc(lexer);
-	const indirect = match (try(lexer, ltok::TIMES)?) {
-		void => false,
-		lex::token => true,
-	};
+	const indirect = try(lexer, ltok::TIMES)? is lex::token;
 
 	// All assignment-op tokens
 	const atoks: []ltok = [
@@ -39,25 +36,35 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 			ltok::SWITCH, ltok::IF, ltok::LABEL, ltok::FOR,
 			ltok::BREAK, ltok::CONTINUE, ltok::RETURN, ltok::LET,
 			ltok::CONST, ltok::YIELD)?) {
-		void => binarithm(lexer, void, 0)?,
-		tok: lex::token => switch (tok.0) {
-			ltok::LABEL, ltok::LBRACE => compound_expr(lexer)?,
-			ltok::MATCH => match_expr(lexer)?,
-			ltok::SWITCH => switch_expr(lexer)?,
-			ltok::IF => if_expr(lexer)?,
-			ltok::FOR => for_expr(lexer)?,
-			ltok::BREAK,
-			ltok::CONTINUE,
-			ltok::RETURN => control(lexer)?,
-			ltok::LET, ltok::CONST => binding(lexer, false)?,
-			ltok::YIELD => yield_expr(lexer)?,
-			* => abort(), // Invariant
-		},
+	case void =>
+		yield binarithm(lexer, void, 0)?;
+	case tok: lex::token =>
+		yield switch (tok.0) {
+		case ltok::LABEL, ltok::LBRACE =>
+			yield compound_expr(lexer)?;
+		case ltok::MATCH =>
+			yield match_expr(lexer)?;
+		case ltok::SWITCH =>
+			yield switch_expr(lexer)?;
+		case ltok::IF =>
+			yield if_expr(lexer)?;
+		case ltok::FOR =>
+			yield for_expr(lexer)?;
+		case ltok::BREAK, ltok::CONTINUE, ltok::RETURN =>
+			yield control(lexer)?;
+		case ltok::LET, ltok::CONST =>
+			yield binding(lexer, false)?;
+		case ltok::YIELD =>
+			yield yield_expr(lexer)?;
+		case => abort(); // Invariant
+		};
 	};
 
 	const tok = match (try(lexer, atoks...)?) {
-		tok: lex::token => tok,
-		* => return expr,
+	case tok: lex::token =>
+		yield tok;
+	case =>
+		return expr;
 	};
 
 	synassert(lex::mkloc(lexer),
@@ -65,20 +72,34 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 		"Expected an object-selector or slice for assignment target")?;
 	const expr = ast::assign_expr {
 		op = switch (tok.0) {
-			ltok::EQUAL	=> void,
-			ltok::BANDEQ	=> ast::binarithm_op::BAND,
-			ltok::BOREQ	=> ast::binarithm_op::BOR,
-			ltok::BXOREQ	=> ast::binarithm_op::BXOR,
-			ltok::DIVEQ	=> ast::binarithm_op::DIV,
-			ltok::LANDEQ	=> ast::binarithm_op::LAND,
-			ltok::LOREQ	=> ast::binarithm_op::LOR,
-			ltok::LSHIFTEQ	=> ast::binarithm_op::LSHIFT,
-			ltok::LXOREQ	=> ast::binarithm_op::LXOR,
-			ltok::MINUSEQ	=> ast::binarithm_op::MINUS,
-			ltok::MODEQ	=> ast::binarithm_op::MODULO,
-			ltok::PLUSEQ	=> ast::binarithm_op::PLUS,
-			ltok::RSHIFTEQ	=> ast::binarithm_op::RSHIFT,
-			ltok::TIMESEQ	=> ast::binarithm_op::TIMES,
+		case ltok::EQUAL =>
+			yield void;
+		case ltok::BANDEQ =>
+			yield ast::binarithm_op::BAND;
+		case ltok::BOREQ =>
+			yield ast::binarithm_op::BOR;
+		case ltok::BXOREQ =>
+			yield ast::binarithm_op::BXOR;
+		case ltok::DIVEQ =>
+			yield ast::binarithm_op::DIV;
+		case ltok::LANDEQ =>
+			yield ast::binarithm_op::LAND;
+		case ltok::LOREQ =>
+			yield ast::binarithm_op::LOR;
+		case ltok::LSHIFTEQ =>
+			yield ast::binarithm_op::LSHIFT;
+		case ltok::LXOREQ =>
+			yield ast::binarithm_op::LXOR;
+		case ltok::MINUSEQ =>
+			yield ast::binarithm_op::MINUS;
+		case ltok::MODEQ =>
+			yield ast::binarithm_op::MODULO;
+		case ltok::PLUSEQ =>
+			yield ast::binarithm_op::PLUS;
+		case ltok::RSHIFTEQ =>
+			yield ast::binarithm_op::RSHIFT;
+		case ltok::TIMESEQ =>
+			yield ast::binarithm_op::TIMES;
 		},
 		object = alloc(expr),
 		value = alloc(expression(lexer)?),
@@ -96,37 +117,41 @@ fn assert_expr(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
 	const tok = want(lexer, ltok::ABORT, ltok::ASSERT)?;
 
 	let expr = switch (tok.0) {
-		ltok::ABORT => {
-			want(lexer, ltok::LPAREN)?;
-			const msg: nullable *ast::expr =
-				if (peek(lexer, ltok::RPAREN)? is lex::token) {
-					yield null;
-				} else alloc(expression(lexer)?);
-			want(lexer, ltok::RPAREN)?;
-
-			yield ast::assert_expr {
-				cond      = null,
-				message   = msg,
-				is_static = is_static,
+	case ltok::ABORT =>
+		want(lexer, ltok::LPAREN)?;
+		const msg: nullable *ast::expr =
+			match (peek(lexer, ltok::RPAREN)?) {
+			case lex::token =>
+				yield null;
+			case =>
+				yield alloc(expression(lexer)?);
 			};
-		},
-		ltok::ASSERT => {
-			want(lexer, ltok::LPAREN)?;
-			const cond: nullable *ast::expr =
-				alloc(expression(lexer)?);
-			const msg: nullable *ast::expr =
-				if (try(lexer, ltok::COMMA)? is lex::token) {
-					yield alloc(expression(lexer)?);
-				} else null;
-			want(lexer, ltok::RPAREN)?;
+		want(lexer, ltok::RPAREN)?;
 
-			yield ast::assert_expr {
-				cond      = cond,
-				message   = msg,
-				is_static = is_static,
+		yield ast::assert_expr {
+			cond      = null,
+			message   = msg,
+			is_static = is_static,
+		};
+	case ltok::ASSERT =>
+		want(lexer, ltok::LPAREN)?;
+		const cond: nullable *ast::expr =
+			alloc(expression(lexer)?);
+		const msg: nullable *ast::expr =
+			match (try(lexer, ltok::COMMA)?) {
+			case lex::token =>
+				yield alloc(expression(lexer)?);
+			case =>
+				yield null;
 			};
-		},
-		* => abort(), // unreachable
+		want(lexer, ltok::RPAREN)?;
+
+		yield ast::assert_expr {
+			cond      = cond,
+			message   = msg,
+			is_static = is_static,
+		};
+	case => abort(); // unreachable
 	};
 
 	return ast::expr {
@@ -177,24 +202,23 @@ fn append_insert_expr(
 
 		const expr = alloc(expression(lexer)?);
 		switch (want(lexer, ltok::COMMA, ltok::ELLIPSIS, ltok::RPAREN)?.0) {
-			ltok::COMMA => append(values, expr),
-			ltok::ELLIPSIS => {
-				variadic = expr;
-				try(lexer, ltok::COMMA)?;
-				want(lexer, ltok::RPAREN)?;
-				break;
-			},
-			ltok::RPAREN => {
-				append(values, expr);
-				break;
-			},
-			* => abort(),
+		case ltok::COMMA =>
+			append(values, expr);
+		case ltok::ELLIPSIS =>
+			variadic = expr;
+			try(lexer, ltok::COMMA)?;
+			want(lexer, ltok::RPAREN)?;
+			break;
+		case ltok::RPAREN =>
+			append(values, expr);
+			break;
+		case => abort();
 		};
 	};
 
 	synassert(lex::mkloc(lexer), variadic != null || len(values) != 0,
 		"Expected values to append")?;
-	
+
 	const expr = if (tok.0 == ltok::APPEND) ast::append_expr {
 		object = alloc(object),
 		variadic = variadic,
@@ -217,21 +241,18 @@ fn append_insert_expr(
 fn measurement(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = want(lexer, ltok::LEN, ltok::SIZE, ltok::OFFSET)?;
 	const expr = switch (tok.0) {
-		ltok::LEN => {
-			want(lexer, ltok::LPAREN)?;
-			let e = expression(lexer)?;
-			want(lexer, ltok::RPAREN)?;
-
-			yield alloc(e): ast::len_expr;
-		},
-		ltok::SIZE => {
-			want(lexer, ltok::LPAREN)?;
-			let ty = _type(lexer)?;
-			want(lexer, ltok::RPAREN)?;
-
-			yield alloc(ty): ast::size_expr;
-		},
-		ltok::OFFSET => abort(), // TODO
+	case ltok::LEN =>
+		want(lexer, ltok::LPAREN)?;
+		let e = expression(lexer)?;
+		want(lexer, ltok::RPAREN)?;
+		yield alloc(e): ast::len_expr;
+	case ltok::SIZE =>
+		want(lexer, ltok::LPAREN)?;
+		let ty = _type(lexer)?;
+		want(lexer, ltok::RPAREN)?;
+		yield alloc(ty): ast::size_expr;
+	case ltok::OFFSET =>
+		abort(); // TODO
 	};
 
 	return ast::expr {
@@ -249,8 +270,10 @@ fn binarithm(
 	// Precedence climbing parser
 	// https://en.wikipedia.org/wiki/Operator-precedence_parser
 	let lvalue = match (lvalue) {
-		void => cast(lexer, void)?,
-		expr: ast::expr => expr,
+	case void =>
+		yield cast(lexer, void)?;
+	case expr: ast::expr =>
+		yield expr;
 	};
 
 	let tok = lex::lex(lexer)?;
@@ -284,10 +307,7 @@ fn binarithm(
 
 fn binding(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
 	const loc = lex::mkloc(lexer);
-	const is_const = switch (want(lexer, ltok::LET, ltok::CONST)?.0) {
-		ltok::LET => false,
-		ltok::CONST => true,
-	};
+	const is_const = want(lexer, ltok::LET, ltok::CONST)?.0 == ltok::CONST;
 
 	let bindings: []ast::binding = [];
 	for (true) {
@@ -304,8 +324,8 @@ fn binding(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
 			init = init,
 		});
 		match (try(lexer, ltok::COMMA)?) {
-			void => break,
-			lex::token => void,
+		case void => break;
+		case lex::token => void;
 		};
 	};
 
@@ -322,49 +342,58 @@ fn binding(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
 
 fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (peek(lexer, ltok::ALLOC, ltok::APPEND, ltok::FREE,
-			ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::INSERT,
-			ltok::STATIC, ltok::SIZE, ltok::LEN, ltok::OFFSET,
-			ltok::DEFER)?) {
-		tok: lex::token => tok,
-		void => return postfix(lexer, void),
+		ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::INSERT,
+		ltok::STATIC, ltok::SIZE, ltok::LEN, ltok::OFFSET,
+		ltok::DEFER)?) {
+	case tok: lex::token =>
+		yield tok;
+	case void =>
+		return postfix(lexer, void);
 	};
 	return switch (tok.0) {
-		ltok::ALLOC => alloc_expr(lexer),
-		ltok::APPEND, ltok::INSERT => append_insert_expr(lexer, false),
-		ltok::DELETE => delete_expr(lexer, false),
-		ltok::FREE => free_expr(lexer),
-		ltok::ABORT, ltok::ASSERT => assert_expr(lexer, false),
-		ltok::STATIC => {
-			want(lexer, ltok::STATIC)?;
-			let tok = match (peek(lexer, ltok::LET, ltok::CONST,
-					ltok::ABORT, ltok::ASSERT, ltok::APPEND,
-					ltok::INSERT, ltok::DELETE)?) {
-				tok: lex::token => tok,
-				// TODO: The following is lame
-				void => return syntaxerr(tok.2,
-					"Expected let, const, or assert"),
-			};
-			yield switch (tok.0) {
-				ltok::LET, ltok::CONST => binding(lexer, true),
-				ltok::ABORT,
-				ltok::ASSERT => assert_expr(lexer, true),
-				ltok::APPEND,
-				ltok::INSERT => append_insert_expr(lexer, true),
-				ltok::DELETE => delete_expr(lexer, true),
-				* => abort(),
-			};
-		},
-		ltok::SIZE, ltok::LEN, ltok::OFFSET => measurement(lexer),
-		ltok::DEFER => {
-			want(lexer, ltok::DEFER)?;
-			let expr = alloc(expression(lexer)?);
-			yield ast::expr {
-				start = tok.2,
-				end = lex::prevloc(lexer),
-				expr = expr: ast::defer_expr,
-			};
-		},
-		* => abort(), // Invariant
+	case ltok::ALLOC =>
+		yield alloc_expr(lexer);
+	case ltok::APPEND, ltok::INSERT =>
+		yield append_insert_expr(lexer, false);
+	case ltok::DELETE =>
+		yield delete_expr(lexer, false);
+	case ltok::FREE =>
+		yield free_expr(lexer);
+	case ltok::ABORT, ltok::ASSERT =>
+		yield assert_expr(lexer, false);
+	case ltok::STATIC =>
+		want(lexer, ltok::STATIC)?;
+		let tok = match (peek(lexer, ltok::LET, ltok::CONST,
+			ltok::ABORT, ltok::ASSERT, ltok::APPEND, ltok::INSERT,
+			ltok::DELETE)?) {
+		case tok: lex::token =>
+			yield tok;
+		case void =>
+			// TODO: The following is lame:
+			return syntaxerr(tok.2, "Expected let, const, or assert");
+		};
+		yield switch (tok.0) {
+		case ltok::LET, ltok::CONST =>
+			yield binding(lexer, true);
+		case ltok::ABORT, ltok::ASSERT =>
+			yield assert_expr(lexer, true);
+		case ltok::APPEND, ltok::INSERT =>
+			yield append_insert_expr(lexer, true);
+		case ltok::DELETE =>
+			yield delete_expr(lexer, true);
+		case => abort();
+		};
+	case ltok::SIZE, ltok::LEN, ltok::OFFSET =>
+		yield measurement(lexer);
+	case ltok::DEFER =>
+		want(lexer, ltok::DEFER)?;
+		let expr = alloc(expression(lexer)?);
+		yield ast::expr {
+			start = tok.2,
+			end = lex::prevloc(lexer),
+			expr = expr: ast::defer_expr,
+		};
+	case => abort(); // Invariant
 	};
 };
 
@@ -374,25 +403,24 @@ fn call(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
 
 	for (true) {
 		match (try(lexer, ltok::RPAREN)?) {
-			lex::token => break,
-			void => void,
+		case lex::token => break;
+		case void => void;
 		};
 
 		append(args, alloc(expression(lexer)?));
 
 		match (try(lexer, ltok::ELLIPSIS)?) {
-			lex::token => {
-				variadic = true;
-				try(lexer, ltok::COMMA)?;
-				want(lexer, ltok::RPAREN)?;
-				break;
-			},
-			void => void,
+		case lex::token =>
+			variadic = true;
+			try(lexer, ltok::COMMA)?;
+			want(lexer, ltok::RPAREN)?;
+			break;
+		case void => void;
 		};
 
 		switch (want(lexer, ltok::COMMA, ltok::RPAREN)?.0) {
-			ltok::RPAREN => break,
-			* => void,
+		case ltok::RPAREN => break;
+		case => void;
 		};
 	};
 
@@ -409,19 +437,25 @@ fn call(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
 
 fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 	const lvalue = match (lvalue) {
-		void => unarithm(lexer)?,
-		e: ast::expr => e,
+	case void =>
+		yield unarithm(lexer)?;
+	case e: ast::expr =>
+		yield e;
 	};
-	const tok = match (try(lexer, ltok::COLON,
-			ltok::AS, ltok::IS)?) {
-		void => return lvalue,
-		tok: lex::token => tok.0,
+	const tok = match (try(lexer, ltok::COLON, ltok::AS, ltok::IS)?) {
+	case void =>
+		return lvalue;
+	case tok: lex::token =>
+		yield tok.0;
 	};
 	const kind = switch (tok) {
-		ltok::COLON	=> ast::cast_kind::CAST,
-		ltok::AS	=> ast::cast_kind::ASSERTION,
-		ltok::IS	=> ast::cast_kind::TEST,
-		* => abort(),
+	case ltok::COLON =>
+		yield ast::cast_kind::CAST;
+	case ltok::AS =>
+		yield ast::cast_kind::ASSERTION;
+	case ltok::IS =>
+		yield ast::cast_kind::TEST;
+	case => abort();
 	};
 	let typ = alloc(_type(lexer)?);
 	return cast(lexer, ast::expr {
@@ -438,16 +472,22 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 fn constant(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = want(lexer)?;
 	const expr: ast::value = switch (tok.0) {
-		ltok::LIT_U8, ltok::LIT_U16, ltok::LIT_U32, ltok::LIT_U64,
+	case ltok::LIT_U8, ltok::LIT_U16, ltok::LIT_U32, ltok::LIT_U64,
 		ltok::LIT_UINT, ltok::LIT_SIZE, ltok::LIT_I8, ltok::LIT_I16,
 		ltok::LIT_I32, ltok::LIT_I64, ltok::LIT_INT, ltok::LIT_ICONST,
 		ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST, ltok::LIT_RUNE,
-		ltok::LIT_STR => tok.1,
-		ltok::VOID => void,
-		ltok::TRUE => true,
-		ltok::FALSE => false,
-		ltok::NULL => ast::_null,
-		* => return syntaxerr(lex::mkloc(lexer), "Expected constant expression"),
+		ltok::LIT_STR =>
+		yield tok.1;
+	case ltok::VOID =>
+		yield void;
+	case ltok::TRUE =>
+		yield true;
+	case ltok::FALSE =>
+		yield false;
+	case ltok::NULL =>
+		yield ast::_null;
+	case =>
+		return syntaxerr(lex::mkloc(lexer), "Expected constant expression");
 	};
 	return ast::expr {
 		start = tok.2,
@@ -460,17 +500,24 @@ fn control(lexer: *lex::lexer) (ast::expr | error) = {
 	let tok = want(lexer, ltok::BREAK, ltok::CONTINUE, ltok::RETURN)?;
 	let label = if (tok.0 == ltok::BREAK || tok.0 == ltok::CONTINUE) {
 		yield match (try(lexer, ltok::LABEL)?) {
-			tok: lex::token => tok.1 as str,
-			void => "",
+		case tok: lex::token =>
+			yield tok.1 as str;
+		case void =>
+			yield "";
 		};
 	} else "";
 	const expr = switch (tok.0) {
-		ltok::BREAK => label: ast::break_expr,
-		ltok::CONTINUE => label: ast::continue_expr,
-		ltok::RETURN => match (peek(lexer, ltok::COMMA, ltok::SEMICOLON)?) {
-			void => alloc(expression(lexer)?): ast::return_expr,
-			lex::token => null: ast::return_expr,
-		},
+	case ltok::BREAK =>
+		yield label: ast::break_expr;
+	case ltok::CONTINUE =>
+		yield label: ast::continue_expr;
+	case ltok::RETURN =>
+		yield match (peek(lexer, ltok::COMMA, ltok::SEMICOLON)?) {
+		case void =>
+			yield alloc(expression(lexer)?): ast::return_expr;
+		case lex::token =>
+			yield null: ast::return_expr;
+		};
 	};
 	return ast::expr {
 		start = tok.2,
@@ -500,17 +547,18 @@ fn compound_expr(lexer: *lex::lexer) (ast::expr | error) = {
 
 	const start = want(lexer, ltok::LBRACE, ltok::LABEL)?;
 	const label = switch (start.0) {
-		ltok::LABEL => {
-			want(lexer, ltok::LBRACE)?;
-			yield start.1 as str;
-		},
-		* => "",
+	case ltok::LABEL =>
+		want(lexer, ltok::LBRACE)?;
+		yield start.1 as str;
+	case =>
+		yield "";
 	};
 
 	for (let more = true; more) {
 		const item = match (peek(lexer, ltok::RBRACE)?) {
-			lex::token => break,
-			void => expression(lexer)?,
+		case lex::token => break;
+		case void =>
+			yield expression(lexer)?;
 		};
 		append(items, alloc(item));
 		want(lexer, ltok::SEMICOLON)?;
@@ -531,31 +579,28 @@ fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = want(lexer, ltok::FOR)?;
 	want(lexer, ltok::LPAREN)?;
 
-	const bindings: nullable *ast::expr = match (peek(
-			lexer, ltok::LET, ltok::CONST)?) {
-		void => null,
-		lex::token => {
+	const bindings: nullable *ast::expr =
+		match (peek(lexer, ltok::LET, ltok::CONST)?) {
+		case void =>
+			yield null;
+		case lex::token =>
 			const bindings = alloc(binding(lexer, false)?);
 			want(lexer, ltok::SEMICOLON)?;
 			yield bindings;
-		},
-	};
-
+		};
 	const cond = alloc(expression(lexer)?);
-
-	const afterthought: nullable *ast::expr = match (peek(
-			lexer, ltok::SEMICOLON)) {
-		void => null,
-		lex::token => {
+	const afterthought: nullable *ast::expr =
+		match (peek(lexer, ltok::SEMICOLON)) {
+		case void =>
+			yield null;
+		case lex::token =>
 			want(lexer, ltok::SEMICOLON)?;
 			yield alloc(expression(lexer)?);
-		},
-	};
+		};
 
 	want(lexer, ltok::RPAREN)?;
 
 	const body = alloc(expression(lexer)?);
-
 	return ast::expr {
 		start = tok.2,
 		end = lex::prevloc(lexer),
@@ -587,8 +632,10 @@ fn if_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	want(lexer, ltok::RPAREN)?;
 	const tbranch = alloc(expression(lexer)?);
 	const fbranch: nullable *ast::expr = match (try(lexer, ltok::ELSE)?) {
-		void => null,
-		lex::token => alloc(expression(lexer)?),
+	case void =>
+		yield null;
+	case lex::token =>
+		yield alloc(expression(lexer)?);
 	};
 	return ast::expr {
 		start = start.2,
@@ -605,17 +652,16 @@ fn indexing(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
 	let is_slice = false;
 	let start: nullable *ast::expr = null, end: nullable *ast::expr = null;
 
-	match (try(lexer, ltok::SLICE)?) {
-		void => start = alloc(expression(lexer)?),
-		lex::token => is_slice = true,
+	if (try(lexer, ltok::SLICE)? is lex::token) {
+		is_slice = true;
+	} else {
+		start = alloc(expression(lexer)?);
 	};
-	if (!is_slice) match (try(lexer, ltok::SLICE)?) {
-		void => void,
-		lex::token => is_slice = true,
+	if (!is_slice && try(lexer, ltok::SLICE)? is lex::token) {
+		is_slice = true;
 	};
-	if (is_slice) match (peek(lexer, ltok::RBRACKET)?) {
-		lex::token => void,
-		void => end = alloc(expression(lexer)?),
+	if (is_slice && peek(lexer, ltok::RBRACKET)? is void) {
+		end = alloc(expression(lexer)?);
 	};
 
 	want(lexer, ltok::RBRACKET)?;
@@ -648,48 +694,49 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 	if (tok.0 >= ltok::LIT_U8 && tok.0 <= ltok::LAST_LITERAL) {
 		return constant(lexer);
 	};
-	return switch (tok.0) {
-		ltok::TRUE, ltok::FALSE, ltok::NULL, ltok::VOID =>
-			constant(lexer),
-		ltok::LBRACKET => plain_array(lexer)?,
-		ltok::STRUCT => {
-			let s = plain_struct(lexer, [])?;
+	switch (tok.0) {
+	case ltok::TRUE, ltok::FALSE, ltok::NULL, ltok::VOID =>
+		return constant(lexer);
+	case ltok::LBRACKET =>
+		return plain_array(lexer)?;
+	case ltok::STRUCT =>
+		let s = plain_struct(lexer, [])?;
+		return ast::expr {
+			start = tok.2,
+			end = lex::prevloc(lexer),
+			expr = s,
+		};
+	case ltok::LPAREN =>
+		want(lexer, ltok::LPAREN)?;
+		let ex = expression(lexer)?;
+		switch (want(lexer, ltok::RPAREN, ltok::COMMA)?.0) {
+		case ltok::RPAREN =>
+			return ex;
+		case ltok::COMMA =>
+			return plain_tuple(lexer, ex, tok.2)?;
+		case => abort();
+		};
+	case ltok::NAME =>
+		let id = ident(lexer)?;
+		match (peek(lexer, ltok::LBRACE)?) {
+		case void =>
+			return ast::expr {
+				start = tok.2,
+				end = lex::prevloc(lexer),
+				expr = id: ast::access_identifier,
+			};
+		case lex::token =>
+			let s = plain_struct(lexer, id)?;
 			return ast::expr {
 				start = tok.2,
 				end = lex::prevloc(lexer),
 				expr = s,
 			};
-		},
-		ltok::LPAREN => {
-			want(lexer, ltok::LPAREN)?;
-			let ex = expression(lexer)?;
-			return switch (want(lexer, ltok::RPAREN, ltok::COMMA)?.0) {
-				ltok::RPAREN => ex,
-				ltok::COMMA => plain_tuple(lexer, ex, tok.2)?,
-				* => abort(),
-			};
-		},
-		ltok::NAME => {
-			let id = ident(lexer)?;
-			return match (peek(lexer, ltok::LBRACE)?) {
-				void => ast::expr {
-					start = tok.2,
-					end = lex::prevloc(lexer),
-					expr = id: ast::access_identifier,
-				},
-				lex::token => {
-					let s = plain_struct(lexer, id)?;
-					yield ast::expr {
-						start = tok.2,
-						end = lex::prevloc(lexer),
-						expr = s,
-					};
-				},
-			};
-		},
-		* => syntaxerr(lex::mkloc(lexer),
+		};
+	case =>
+		return syntaxerr(lex::mkloc(lexer),
 			"Unexpected {}, was expecting an expression",
-			lex::tokstr(tok)),
+			lex::tokstr(tok));
 	};
 };
 
@@ -700,27 +747,26 @@ fn plain_array(lexer: *lex::lexer) (ast::expr | error) = {
 	let expand = false;
 	for (true) {
 		match (try(lexer, ltok::RBRACKET)?) {
-			lex::token => break,
-			void => void,
+		case lex::token => break;
+		case void => void;
 		};
 
 		append(values, alloc(expression(lexer)?));
 
 		match (try(lexer, ltok::COMMA, ltok::ELLIPSIS)?) {
-			void => {
+		case void =>
+			want(lexer, ltok::RBRACKET)?;
+			break;
+		case tok: lex::token =>
+			switch (tok.0) {
+			case ltok::ELLIPSIS =>
+				expand = true;
+				try(lexer, ltok::COMMA)?;
 				want(lexer, ltok::RBRACKET)?;
 				break;
-			},
-			tok: lex::token => switch (tok.0) {
-				ltok::COMMA => void,
-				ltok::ELLIPSIS => {
-					expand = true;
-					try(lexer, ltok::COMMA)?;
-					want(lexer, ltok::RBRACKET)?;
-					break;
-				},
-				* => abort(),
-			},
+			case ltok::COMMA => void;
+			case => abort();
+			};
 		};
 	};
 	return ast::expr {
@@ -748,27 +794,24 @@ fn plain_struct(
 		const tok = want(lexer, ltok::ELLIPSIS,
 			ltok::NAME, ltok::STRUCT)?;
 		switch (tok.0) {
-			ltok::ELLIPSIS => {
-				synassert(lex::mkloc(lexer), len(alias) != 0,
-					"Cannot use auto-fill with anonymous struct")?;
-				autofill = true;
-				try(lexer, ltok::COMMA)?;
-				want(lexer, ltok::RBRACE)?;
-				break;
-			},
-			ltok::NAME, ltok::STRUCT => {
-				lex::unlex(lexer, tok);
-				append(fields, struct_field(lexer)?);
-			},
+		case ltok::ELLIPSIS =>
+			synassert(lex::mkloc(lexer), len(alias) != 0,
+				"Cannot use auto-fill with anonymous struct")?;
+			autofill = true;
+			try(lexer, ltok::COMMA)?;
+			want(lexer, ltok::RBRACE)?;
+			break;
+		case ltok::NAME, ltok::STRUCT =>
+			lex::unlex(lexer, tok);
+			append(fields, struct_field(lexer)?);
 		};
 
 		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
-			ltok::COMMA => {
-				if (try(lexer, ltok::RBRACE) is lex::token) {
-					break;
-				};
-			},
-			ltok::RBRACE => break,
+		case ltok::RBRACE => break;
+		case ltok::COMMA =>
+			if (try(lexer, ltok::RBRACE) is lex::token) {
+				break;
+			};
 		};
 	};
 
@@ -784,46 +827,44 @@ fn struct_field(
 ) (ast::struct_value | *ast::struct_constant | error) = {
 	const tok = want(lexer, ltok::NAME, ltok::STRUCT)?;
 	switch (tok.0) {
-		ltok::NAME => {
-			const name = strings::dup(tok.1 as str);
-			const tok = match (try(lexer, ltok::COLON,
-					ltok::DOUBLE_COLON, ltok::EQUAL)?) {
-				tok: lex::token => tok,
-				void => {
-					let id: ast::ident = alloc([name]);
-					return alloc(plain_struct(lexer, id)?);
-				},
+	case ltok::NAME =>
+		const name = strings::dup(tok.1 as str);
+		const tok = match (try(lexer, ltok::COLON,
+			ltok::DOUBLE_COLON, ltok::EQUAL)?) {
+		case tok: lex::token =>
+			yield tok;
+		case void =>
+			let id: ast::ident = alloc([name]);
+			return alloc(plain_struct(lexer, id)?);
+		};
+
+		switch (tok.0) {
+		case ltok::COLON =>
+			const _type = alloc(_type(lexer)?);
+			want(lexer, ltok::EQUAL)?;
+			const init = alloc(expression(lexer)?);
+			return ast::struct_value {
+				name = name,
+				_type = _type,
+				init = init,
 			};
-			return switch (tok.0) {
-				ltok::COLON => {
-					const _type = alloc(_type(lexer)?);
-					want(lexer, ltok::EQUAL)?;
-					const init = alloc(expression(lexer)?);
-					yield ast::struct_value {
-						name = name,
-						_type = _type,
-						init = init,
-					};
-				},
-				ltok::DOUBLE_COLON => {
-					let id: ast::ident = alloc([name]);
-					let rest = ident(lexer)?;
-					append(id, rest...);
-					return alloc(plain_struct(lexer, id)?);
-				},
-				ltok::EQUAL => ast::struct_value {
-					name = name,
-					_type = null,
-					init = alloc(expression(lexer)?),
-				},
-				* => abort(), // Invariant
+		case ltok::DOUBLE_COLON =>
+			let id: ast::ident = alloc([name]);
+			let rest = ident(lexer)?;
+			append(id, rest...);
+			return alloc(plain_struct(lexer, id)?);
+		case ltok::EQUAL =>
+			return ast::struct_value {
+				name = name,
+				_type = null,
+				init = alloc(expression(lexer)?),
 			};
-		},
-		ltok::STRUCT => {
-			lex::unlex(lexer, tok);
-			return alloc(plain_struct(lexer, [])?);
-		},
-		* => abort(), // Invariant
+		case => abort(); // Invariant
+		};
+	case ltok::STRUCT =>
+		lex::unlex(lexer, tok);
+		return alloc(plain_struct(lexer, [])?);
+	case => abort(); // Invariant
 	};
 };
 
@@ -837,18 +878,17 @@ fn plain_tuple(
 
 	for (true) {
 		match (try(lexer, ltok::RPAREN)?) {
-			lex::token => break,
-			void => void,
+		case lex::token => break;
+		case void => void;
 		};
 
 		append(values, alloc(expression(lexer)?));
 
 		match (try(lexer, ltok::COMMA)?) {
-			void => {
-				want(lexer, ltok::RPAREN)?;
-				break;
-			},
-			lex::token => void,
+		case lex::token => void;
+		case void =>
+			want(lexer, ltok::RPAREN)?;
+			break;
 		};
 	};
 
@@ -862,51 +902,66 @@ fn plain_tuple(
 
 fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 	let lvalue = match (lvalue) {
-		void => plain_expression(lexer)?,
-		ex: ast::expr => ex,
+	case void =>
+		yield plain_expression(lexer)?;
+	case ex: ast::expr =>
+		yield ex;
 	};
 
-	return postfix(lexer, match (try(lexer, ltok::LPAREN,
-			ltok::DOT, ltok::LBRACKET, ltok::QUESTION, ltok::LNOT)) {
-		tok: lex::token => switch (tok.0) {
-			ltok::LPAREN => call(lexer, lvalue)?,
-			ltok::DOT => postfix_dot(lexer, lvalue)?,
-			ltok::LBRACKET => indexing(lexer, lvalue)?,
-			ltok::QUESTION => ast::expr {
-				start = lvalue.start,
-				end = lex::prevloc(lexer),
-				expr = ast::propagate_expr {
-					is_abort = false,
-					expr = alloc(lvalue),
-				},
+	let tok = match (try(lexer, ltok::LPAREN, ltok::DOT,
+		ltok::LBRACKET, ltok::QUESTION, ltok::LNOT)) {
+	case void =>
+		return lvalue;
+	case tok: lex::token =>
+		yield tok;
+	};
+
+	let next = switch (tok.0) {
+	case ltok::LPAREN =>
+		yield call(lexer, lvalue)?;
+	case ltok::DOT =>
+		yield postfix_dot(lexer, lvalue)?;
+	case ltok::LBRACKET =>
+		yield indexing(lexer, lvalue)?;
+	case ltok::QUESTION =>
+		yield ast::expr {
+			start = lvalue.start,
+			end = lex::prevloc(lexer),
+			expr = ast::propagate_expr {
+				is_abort = false,
+				expr = alloc(lvalue),
 			},
-			ltok::LNOT => ast::expr {
-				start = lvalue.start,
-				end = lex::prevloc(lexer),
-				expr = ast::propagate_expr {
-					is_abort = true,
-					expr = alloc(lvalue),
-				},
+		};
+	case ltok::LNOT =>
+		yield ast::expr {
+			start = lvalue.start,
+			end = lex::prevloc(lexer),
+			expr = ast::propagate_expr {
+				is_abort = true,
+				expr = alloc(lvalue),
 			},
-			* => abort(),
-		},
-		void => return lvalue,
-	});
+		};
+	case => abort();
+	};
+
+	return postfix(lexer, next);
 };
 
 fn postfix_dot(
 	lexer: *lex::lexer,
 	lvalue: ast::expr,
-) (ast::expr | error) = match (try(lexer, ltok::NAME)?) {
-	tok: lex::token => ast::expr {
-		start = lvalue.start,
-		end = lex::prevloc(lexer),
-		expr = ast::access_field {
-			object = alloc(lvalue),
-			field = tok.1 as str,
-		},
-	},
-	void => {
+) (ast::expr | error) = {
+	match (try(lexer, ltok::NAME)?) {
+	case tok: lex::token =>
+		return ast::expr {
+			start = lvalue.start,
+			end = lex::prevloc(lexer),
+			expr = ast::access_field {
+				object = alloc(lvalue),
+				field = tok.1 as str,
+			},
+		};
+	case void =>
 		let con = constant(lexer)?;
 		let val = con.expr as ast::constant_expr;
 		synassert(lex::mkloc(lexer), val is ast::value,
@@ -914,7 +969,7 @@ fn postfix_dot(
 		let val = val as ast::value;
 		synassert(lex::mkloc(lexer), val is i64,
 			"Expected integer constant")?;
-		yield ast::expr {
+		return ast::expr {
 			start = lvalue.start,
 			end = lex::prevloc(lexer),
 			expr = ast::access_tuple {
@@ -922,7 +977,7 @@ fn postfix_dot(
 				value = alloc(con),
 			},
 		};
-	},
+	};
 };
 
 fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
@@ -936,19 +991,15 @@ fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 
 	let cases: []ast::switch_case = [];
 	for (true) {
-		if (try(lexer, ltok::RBRACE)? is lex::token) break;
+		want(lexer, ltok::CASE)?;
 
 		let opts: []*ast::expr = [];
-		if (try(lexer, ltok::TIMES)? is lex::token) {
-			want(lexer, ltok::CASE)?;
-		} else {
+		if (try(lexer, ltok::ARROW)? is void) {
 			for (true) {
-				if (try(lexer, ltok::CASE) is lex::token) break;
-
 				append(opts, alloc(expression(lexer)?));
 
-				if (!(try(lexer, ltok::COMMA) is lex::token)) {
-					want(lexer, ltok::CASE)?;
+				if (try(lexer, ltok::COMMA)? is void) {
+					want(lexer, ltok::ARROW)?;
 					break;
 				};
 			};
@@ -956,13 +1007,18 @@ fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 				"Expected a list of options")?;
 		};
 
+		let exprs: []*ast::expr = [];
+		for (peek(lexer, ltok::CASE, ltok::RBRACE)? is void) {
+			append(exprs, alloc(expression(lexer)?));
+			want(lexer, ltok::SEMICOLON)?;
+		};
+
 		append(cases, ast::switch_case {
 			options = opts,
-			value = alloc(expression(lexer)?),
+			exprs = exprs,
 		});
 
-		if (!(try(lexer, ltok::COMMA) is lex::token)) {
-			want(lexer, ltok::RBRACE)?;
+		if (try(lexer, ltok::RBRACE)? is lex::token) {
 			break;
 		};
 	};
@@ -983,24 +1039,28 @@ fn match_case(lexer: *lex::lexer) (ast::match_case | error) = {
 	let tok = peek(lexer)? as lex::token;
 	let loc = tok.2;
 	let nt = switch (tok.0) {
-		ltok::NULL => {
-			want(lexer, ltok::NULL)?;
-			yield ("", ast::_type {
-				start = loc,
-				end = lex::prevloc(lexer),
-				flags = 0,
-				repr = ast::builtin_type::NULL,
-			});
-		},
-		* => nametype(lexer)?,
+	case ltok::NULL =>
+		want(lexer, ltok::NULL)?;
+		yield ("", ast::_type {
+			start = loc,
+			end = lex::prevloc(lexer),
+			flags = 0,
+			repr = ast::builtin_type::NULL,
+		});
+	case =>
+		yield nametype(lexer)?;
 	};
-	want(lexer, ltok::CASE)?;
-	let expr = expression(lexer)?;
+	want(lexer, ltok::ARROW)?;
+	let exprs: []*ast::expr = [];
+	for (peek(lexer, ltok::CASE, ltok::RBRACE)? is void) {
+		append(exprs, alloc(expression(lexer)?));
+		want(lexer, ltok::SEMICOLON)?;
+	};
 
 	return ast::match_case {
 		name  = nt.0,
 		_type = alloc(nt.1),
-		value = alloc(expr),
+		exprs = exprs,
 	};
 };
 
@@ -1012,41 +1072,26 @@ fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	want(lexer, ltok::LBRACE)?;
 
 	let cases: []ast::match_case = [];
-	let default: nullable *ast::expr = null;
+	let default: []*ast::expr = [];
 	for (true) {
-		match (try(lexer, ltok::TIMES)?) {
-			void => append(cases, match_case(lexer)?),
-			t: lex::token => match (try(lexer, ltok::CASE)?) {
-				void => {
-					let case = match_case(lexer)?;
-					case._type = alloc(ast::_type {
-						start = t.2,
-						end = case._type.end,
-						flags = 0,
-						repr = ast::pointer_type {
-							referent = case._type,
-							flags = 0,
-						},
-					});
-					append(cases, case);
-				},
-				lex::token => if (default == null) {
-					default = alloc(expression(lexer)?);
-				} else return syntaxerr(t.2,
-					"More than one default match case"),
-			},
+		want(lexer, ltok::CASE)?;
+
+		match (try(lexer, ltok::ARROW)?) {
+		case t: lex::token =>
+			if (len(default) != 0) {
+				return syntaxerr(t.2,
+					"More than one default match case");
+			};
+			for (peek(lexer, ltok::CASE, ltok::RBRACE)? is void) {
+				append(default, alloc(expression(lexer)?));
+				want(lexer, ltok::SEMICOLON)?;
+			};
+		case void =>
+			append(cases, match_case(lexer)?);
 		};
 
-		match (try(lexer, ltok::COMMA)?) {
-			void => {
-				want(lexer, ltok::RBRACE)?;
-				break;
-			},
-			lex::token => void,
-		};
-		match (try(lexer, ltok::RBRACE)?) {
-			void => void,
-			lex::token => break,
+		if (try(lexer, ltok::RBRACE)? is lex::token) {
+			break;
 		};
 	};
 
@@ -1063,20 +1108,30 @@ fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 
 fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (try(lexer,
-			ltok::PLUS, ltok::MINUS, ltok::BNOT,
-			ltok::LNOT, ltok::TIMES, ltok::BAND)) {
-		void => return builtin(lexer),
-		tok: lex::token => tok,
+		ltok::PLUS, ltok::MINUS, ltok::BNOT,
+		ltok::LNOT, ltok::TIMES, ltok::BAND)) {
+	case void =>
+		return builtin(lexer);
+	case tok: lex::token =>
+		yield tok;
 	};
+
 	const op = switch (tok.0) {
-		ltok::PLUS	=> ast::unarithm_op::PLUS,
-		ltok::MINUS	=> ast::unarithm_op::MINUS,
-		ltok::BNOT	=> ast::unarithm_op::BNOT,
-		ltok::LNOT	=> ast::unarithm_op::LNOT,
-		ltok::TIMES	=> ast::unarithm_op::DEREF,
-		ltok::BAND	=> ast::unarithm_op::ADDR,
-		* => abort(),
+	case ltok::PLUS =>
+		yield ast::unarithm_op::PLUS;
+	case ltok::MINUS =>
+		yield ast::unarithm_op::MINUS;
+	case ltok::BNOT =>
+		yield ast::unarithm_op::BNOT;
+	case ltok::LNOT =>
+		yield ast::unarithm_op::LNOT;
+	case ltok::TIMES =>
+		yield ast::unarithm_op::DEREF;
+	case ltok::BAND =>
+		yield ast::unarithm_op::ADDR;
+	case => abort();
 	};
+
 	let operand = unarithm(lexer)?;
 	return ast::expr {
 		start = tok.2,
@@ -1093,15 +1148,20 @@ fn yield_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	let label = "";
 	let value: nullable *ast::expr = null;
 	match (try(lexer, ltok::SEMICOLON, ltok::LABEL)?) {
-		void => value = alloc(expression(lexer)?),
-		t: lex::token => switch (t.0) {
-			ltok::SEMICOLON => lex::unlex(lexer, t),
-			ltok::LABEL => {
-				label = t.1 as str;
-				if (try(lexer, ltok::COMMA)? is void) yield;
+	case void =>
+		value = alloc(expression(lexer)?);
+	case t: lex::token =>
+		switch (t.0) {
+		case ltok::SEMICOLON =>
+			lex::unlex(lexer, t);
+		case ltok::LABEL =>
+			label = t.1 as str;
+			match (try(lexer, ltok::COMMA)?) {
+			case void => void;
+			case lex::token =>
 				value = alloc(expression(lexer)?);
-			},
-		},
+			};
+		};
 	};
 	return ast::expr {
 		start = start.2,
@@ -1113,40 +1173,75 @@ fn yield_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 };
 
-fn binop_for_tok(tok: lex::token) ast::binarithm_op = switch (tok.0) {
-	ltok::BAND	=> ast::binarithm_op::BAND,
-	ltok::BOR	=> ast::binarithm_op::BOR,
-	ltok::BXOR	=> ast::binarithm_op::BXOR,
-	ltok::DIV	=> ast::binarithm_op::DIV,
-	ltok::GREATER	=> ast::binarithm_op::GT,
-	ltok::GREATEREQ	=> ast::binarithm_op::GTEQ,
-	ltok::LAND	=> ast::binarithm_op::LAND,
-	ltok::LEQUAL	=> ast::binarithm_op::LEQUAL,
-	ltok::LESS	=> ast::binarithm_op::LESS,
-	ltok::LESSEQ	=> ast::binarithm_op::LESSEQ,
-	ltok::LOR	=> ast::binarithm_op::LOR,
-	ltok::LSHIFT	=> ast::binarithm_op::LSHIFT,
-	ltok::LXOR	=> ast::binarithm_op::LXOR,
-	ltok::MINUS	=> ast::binarithm_op::MINUS,
-	ltok::MODULO	=> ast::binarithm_op::MODULO,
-	ltok::NEQUAL	=> ast::binarithm_op::NEQUAL,
-	ltok::PLUS	=> ast::binarithm_op::PLUS,
-	ltok::RSHIFT	=> ast::binarithm_op::RSHIFT,
-	ltok::TIMES	=> ast::binarithm_op::TIMES,
-	* => abort(),
+fn binop_for_tok(tok: lex::token) ast::binarithm_op = {
+	switch (tok.0) {
+	case ltok::BAND =>
+		return ast::binarithm_op::BAND;
+	case ltok::BOR =>
+		return ast::binarithm_op::BOR;
+	case ltok::BXOR =>
+		return ast::binarithm_op::BXOR;
+	case ltok::DIV =>
+		return ast::binarithm_op::DIV;
+	case ltok::GREATER =>
+		return ast::binarithm_op::GT;
+	case ltok::GREATEREQ =>
+		return ast::binarithm_op::GTEQ;
+	case ltok::LAND =>
+		return ast::binarithm_op::LAND;
+	case ltok::LEQUAL =>
+		return ast::binarithm_op::LEQUAL;
+	case ltok::LESS =>
+		return ast::binarithm_op::LESS;
+	case ltok::LESSEQ =>
+		return ast::binarithm_op::LESSEQ;
+	case ltok::LOR =>
+		return ast::binarithm_op::LOR;
+	case ltok::LSHIFT =>
+		return ast::binarithm_op::LSHIFT;
+	case ltok::LXOR =>
+		return ast::binarithm_op::LXOR;
+	case ltok::MINUS =>
+		return ast::binarithm_op::MINUS;
+	case ltok::MODULO =>
+		return ast::binarithm_op::MODULO;
+	case ltok::NEQUAL =>
+		return ast::binarithm_op::NEQUAL;
+	case ltok::PLUS =>
+		return ast::binarithm_op::PLUS;
+	case ltok::RSHIFT =>
+		return ast::binarithm_op::RSHIFT;
+	case ltok::TIMES =>
+		return ast::binarithm_op::TIMES;
+	case => abort();
+	};
 };
 
-fn precedence(tok: lex::token) int = switch (tok.0) {
-	ltok::LOR => 0,
-	ltok::LXOR => 1,
-	ltok::LAND => 2,
-	ltok::LEQUAL, ltok::NEQUAL => 3,
-	ltok::LESS, ltok::LESSEQ, ltok::GREATER, ltok::GREATEREQ => 4,
-	ltok::BOR => 5,
-	ltok::BXOR => 6,
-	ltok::BAND => 7,
-	ltok::LSHIFT, ltok::RSHIFT => 8,
-	ltok::PLUS, ltok::MINUS => 9,
-	ltok::TIMES, ltok::DIV, ltok::MODULO => 10,
-	* => -1,
+fn precedence(tok: lex::token) int = {
+	switch (tok.0) {
+	case ltok::LOR =>
+		return 0;
+	case ltok::LXOR =>
+		return 1;
+	case ltok::LAND =>
+		return 2;
+	case ltok::LEQUAL, ltok::NEQUAL =>
+		return 3;
+	case ltok::LESS, ltok::LESSEQ, ltok::GREATER, ltok::GREATEREQ =>
+		return 4;
+	case ltok::BOR =>
+		return 5;
+	case ltok::BXOR =>
+		return 6;
+	case ltok::BAND =>
+		return 7;
+	case ltok::LSHIFT, ltok::RSHIFT =>
+		return 8;
+	case ltok::PLUS, ltok::MINUS =>
+		return 9;
+	case ltok::TIMES, ltok::DIV, ltok::MODULO =>
+		return 10;
+	case =>
+		return -1;
+	};
 };

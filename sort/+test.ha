@@ -8,8 +8,10 @@ fn ncmp(a: const *void, b: const *void) int = {
 	for (let i = 0z; i < len(nums); i += 1) {
 		const key = nums[i];
 		match (search(nums[..], size(int), &key, &ncmp): nullable *int) {
-			null => abort(),
-			p: *int => assert(p == &nums[i] && *p == nums[i]),
+		case null =>
+			abort();
+		case p: *int =>
+			assert(p == &nums[i] && *p == nums[i]);
 		};
 	};
 	const key = 1337;

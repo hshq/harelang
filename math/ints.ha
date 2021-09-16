@@ -38,11 +38,15 @@ export fn absi64(n: i64) i64 = {
 
 // Returns the absolute value of signed integer n.
 export fn absi(n: types::integer) i64 = {
-	return match (n) {
-		n: i8 => (absi8(n): i64),
-		n: i16 => (absi16(n): i64),
-		n: i32 => (absi32(n): i64),
-		n: i64 => (absi64(n): i64),
+	match (n) {
+	case n: i8 =>
+		return (absi8(n): i64);
+	case n: i16 =>
+		return (absi16(n): i64);
+	case n: i32 =>
+		return (absi32(n): i64);
+	case n: i64 =>
+		return (absi64(n): i64);
 	};
 };
 
@@ -111,11 +115,15 @@ export fn signi64(n: i64) i64 = {
 
 // Return 1 if n is positive, -1 if it's negative and 0 if it's 0.
 export fn signi(n: types::integer) i64 = {
-	return match (n) {
-		n: i8 => (signi8(n): i64),
-		n: i16 => (signi16(n): i64),
-		n: i32 => (signi32(n): i64),
-		n: i64 => (signi64(n): i64),
+	match (n) {
+	case n: i8 =>
+		return (signi8(n): i64);
+	case n: i16 =>
+		return (signi16(n): i64);
+	case n: i32 =>
+		return (signi32(n): i64);
+	case n: i64 =>
+		return (signi64(n): i64);
 	};
 };
 

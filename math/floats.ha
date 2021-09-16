@@ -187,9 +187,11 @@ export fn isneginf(n: f64) bool = {
 
 // Returns true if the given floating-point number is normal.
 export fn isnormal(n: types::floating) bool = {
-	return match (n) {
-		n: f32 => isnormalf32(n),
-		n: f64 => isnormalf64(n),
+	match (n) {
+	case n: f32 =>
+		return isnormalf32(n);
+	case n: f64 =>
+		return isnormalf64(n);
 	};
 };
 
@@ -211,9 +213,11 @@ export fn isnormalf32(n: f32) bool = {
 
 // Returns true if the given floating-point number is subnormal.
 export fn issubnormal(n: types::floating) bool = {
-	return match (n) {
-		n: f32 => issubnormalf32(n),
-		n: f64 => issubnormalf64(n),
+	match (n) {
+	case n: f32 =>
+		return issubnormalf32(n);
+	case n: f64 =>
+		return issubnormalf64(n);
 	};
 };
 
@@ -295,9 +299,11 @@ export fn absf32(n: f32) f32 = {
 
 // Returns the absolute value of floating-point number n.
 export fn absf(n: types::floating) f64 = {
-	return match (n) {
-		n: f64 => absf64(n),
-		n: f32 => (absf32(n): f64),
+	match (n) {
+	case n: f64 =>
+		return absf64(n);
+	case n: f32 =>
+		return (absf32(n): f64);
 	};
 };
 
@@ -338,9 +344,11 @@ export fn signf32(x: f32) i64 = {
 // Returns 1 if x is positive and -1 if x is negative. Note that zero is also
 // signed.
 export fn signf(x: types::floating) i64 = {
-	return match (x) {
-		n: f64 => signf64(n),
-		n: f32 => signf32(n),
+	match (x) {
+	case n: f64 =>
+		return signf64(n);
+	case n: f32 =>
+		return signf32(n);
 	};
 };
 
@@ -368,9 +376,11 @@ export fn ispositivef32(x: f32) bool = signf32(x) == 1i32;
 
 // Returns whether or not x is positive.
 export fn ispositive(x: types::floating) bool = {
-	return match (x) {
-		n: f64 => ispositivef64(n),
-		n: f32 => ispositivef32(n),
+	match (x) {
+	case n: f64 =>
+		return ispositivef64(n);
+	case n: f32 =>
+		return ispositivef32(n);
 	};
 };
 
@@ -382,9 +392,11 @@ export fn isnegativef32(x: f32) bool = signf32(x) == -1i32;
 
 // Returns whether or not x is negative.
 export fn isnegative(x: types::floating) bool = {
-	return match (x) {
-		n: f64 => isnegativef64(n),
-		n: f32 => isnegativef32(n),
+	match (x) {
+	case n: f64 =>
+		return isnegativef64(n);
+	case n: f32 =>
+		return isnegativef32(n);
 	};
 };
 
@@ -402,9 +414,11 @@ export fn copysignf32(x: f32, y: f32) f32 = {
 
 // Returns x, but with the sign of y.
 export fn copysign(x: types::floating, y: types::floating) f64 = {
-	return match (x) {
-		n: f64 => copysignf64(n, (y: f64)),
-		n: f32 => (copysignf32(n, (y: f32)): f64),
+	match (x) {
+	case n: f64 =>
+		return copysignf64(n, (y: f64));
+	case n: f32 =>
+		return (copysignf32(n, (y: f32)): f64);
 	};
 };
 
@@ -492,9 +506,11 @@ export fn frexpf32(n: f32) (f64, i64) = {
 // Breaks a float down into its mantissa and exponent. The mantissa will be
 // between 0.5 and 1.
 export fn frexp(n: types::floating) (f64, i64) = {
-	return match (n) {
-		n: f64 => frexpf64(n),
-		n: f32 => frexpf32(n),
+	match (n) {
+	case n: f64 =>
+		return frexpf64(n);
+	case n: f32 =>
+		return frexpf32(n);
 	};
 };
 

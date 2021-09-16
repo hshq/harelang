@@ -105,8 +105,10 @@ export fn isbuffered(s: *io::stream) bool = {
 export fn any_isbuffered(s: *io::stream) bool = {
 	for (!isbuffered(s)) {
 		s = match (io::source(s)) {
-			errors::unsupported => return false,
-			s: *io::stream  => s,
+		case errors::unsupported =>
+			return false;
+		case s: *io::stream  =>
+			yield s;
 		};
 	};
 	return true;
@@ -163,14 +165,15 @@ fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let n = if (len(buf) < len(s.rbuffer)) len(buf) else len(s.rbuffer);
 	if (n > s.ravail) {
 		let z = match (io::read(s.source, s.rbuffer[s.ravail..])) {
-			err: io::error => return err,
-			io::EOF => {
-				if (s.ravail == 0) {
-					return io::EOF;
-				};
-				yield 0z;
-			},
-			z: size => z,
+		case err: io::error =>
+			return err;
+		case io::EOF =>
+			if (s.ravail == 0) {
+				return io::EOF;
+			};
+			yield 0z;
+		case z: size =>
+			yield z;
 		};
 		s.ravail += z;
 		n = if (n > s.ravail) s.ravail else n;

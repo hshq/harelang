@@ -7,21 +7,31 @@ export type platform_cmd = int;
 
 // Forks the current process, returning the pid of the child (to the parent) and
 // void (to the child), or an error.
-export fn fork() (int | void | error) = match (rt::fork()) {
-	err: rt::errno  => errors::errno(err),
-	i: (int | void) => i,
+export fn fork() (int | void | error) = {
+	match (rt::fork()) {
+	case err: rt::errno  =>
+		return errors::errno(err);
+	case i: (int | void) =>
+		return i;
+	};
 };
 
 fn open(path: str) (platform_cmd | error) = {
 	match (rt::access(path, rt::X_OK)) {
-		err: rt::errno => return errors::errno(err),
-		b: bool => if (!b) return errors::errno(rt::EACCES),
+	case err: rt::errno =>
+		return errors::errno(err);
+	case b: bool =>
+		if (!b) {
+			return errors::noaccess;
+		};
 	};
 	// O_PATH is used because it allows us to use an executable for which we
 	// have execute permissions, but not read permissions.
-	return match (rt::open(path, rt::O_PATH, 0u)) {
-		fd: int => fd,
-		err: rt::errno => errors::errno(err),
+	match (rt::open(path, rt::O_PATH, 0u)) {
+	case fd: int =>
+		return fd;
+	case err: rt::errno =>
+		return errors::errno(err);
 	};
 };
 
@@ -54,34 +64,39 @@ fn platform_start(cmd: *command) (process | errors::error) = {
 	// TODO: Let the user configure clone more to their taste (e.g. SIGCHLD)
 	let pipe: [2]int = [0...];
 	match (rt::pipe2(&pipe, rt::O_CLOEXEC)) {
-		err: rt::errno => return errors::errno(err),
-		void => void,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case void => void;
 	};
 
 	match (rt::clone(null, 0, null, null, 0)) {
-		err: rt::errno => return errors::errno(err),
-		pid: int => {
-			rt::close(pipe[1])!;
-			let errno: int = 0;
-			return match (rt::read(pipe[0], &errno, size(int))) {
-				err: rt::errno => errors::errno(err),
-				n: size => switch (n) {
-					size(int) => errors::errno(errno),
-					* => abort("Unexpected rt::read result"),
-					0 => pid,
-				},
+	case err: rt::errno =>
+		return errors::errno(err);
+	case pid: int =>
+		rt::close(pipe[1])!;
+		let errno: int = 0;
+		match (rt::read(pipe[0], &errno, size(int))) {
+		case err: rt::errno =>
+			return errors::errno(err);
+		case n: size =>
+			switch (n) {
+			case size(int) =>
+				return errors::errno(errno);
+			case 0 =>
+				return pid;
+			case =>
+				abort("Unexpected rt::read result");
 			};
-		},
-		void => {
-			rt::close(pipe[0])!;
-			let err = platform_exec(cmd);
-			if (!(err is errors::opaque)) {
-				rt::exit(1);
-			};
-			let err = err as errors::opaque;
-			let err = &err.data: *rt::errno;
-			rt::write(pipe[1], &err, size(int))!;
+		};
+	case void =>
+		rt::close(pipe[0])!;
+		let err = platform_exec(cmd);
+		if (!(err is errors::opaque)) {
 			rt::exit(1);
-		},
+		};
+		let err = err as errors::opaque;
+		let err = &err.data: *rt::errno;
+		rt::write(pipe[1], &err, size(int))!;
+		rt::exit(1);
 	};
 };

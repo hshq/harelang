@@ -25,8 +25,10 @@ export fn stream_accept(l: *listener) (io::file | error) = {
 	let sn = rt::sockaddr {...};
 	const sz = size(rt::sockaddr): u32;
 	const fd = match (rt::accept(l.fd, &sn, &sz)) {
-		err: rt::errno => return errors::errno(err),
-		fd: int => fd,
+	case err: rt::errno =>
+		return errors::errno(err);
+	case fd: int =>
+		yield fd;
 	};
 
 	static let namebuf: [32]u8 = [0...];

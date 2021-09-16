@@ -17,276 +17,540 @@ fn wrap_return(r: u64) (errno | u64) = {
 // permitted").
 export fn strerror(err: errno) str = {
 	return switch (err: int) {
-		EPERM => "Operation not permitted",
-		ENOENT => "No such file or directory",
-		ESRCH => "No such process",
-		EINTR => "Interrupted system call",
-		EIO => "Input/output error",
-		ENXIO => "No such device or address",
-		E2BIG => "Argument list too long",
-		ENOEXEC => "Exec format error",
-		EBADF => "Bad file descriptor",
-		ECHILD => "No child processes",
-		EAGAIN => "Resource temporarily unavailable",
-		ENOMEM => "Cannot allocate memory",
-		EACCES => "Permission denied",
-		EFAULT => "Bad address",
-		ENOTBLK => "Block device required",
-		EBUSY => "Device or resource busy",
-		EEXIST => "File exists",
-		EXDEV => "Invalid cross-device link",
-		ENODEV => "No such device",
-		ENOTDIR => "Not a directory",
-		EISDIR => "Is a directory",
-		EINVAL => "Invalid argument",
-		ENFILE => "Too many open files in system",
-		EMFILE => "Too many open files",
-		ENOTTY => "Inappropriate ioctl for device",
-		ETXTBSY => "Text file busy",
-		EFBIG => "File too large",
-		ENOSPC => "No space left on device",
-		ESPIPE => "Illegal seek",
-		EROFS => "Read-only file system",
-		EMLINK => "Too many links",
-		EPIPE => "Broken pipe",
-		EDOM => "Numerical argument out of domain",
-		ERANGE => "Numerical result out of range",
-		EDEADLK => "Resource deadlock avoided",
-		ENAMETOOLONG => "File name too long",
-		ENOLCK => "No locks available",
-		ENOSYS => "Function not implemented",
-		ENOTEMPTY => "Directory not empty",
-		ELOOP => "Too many levels of symbolic links",
-		ENOMSG => "No message of desired type",
-		EIDRM => "Identifier removed",
-		ECHRNG => "Channel number out of range",
-		EL2NSYNC => "Level 2 not synchronized",
-		EL3HLT => "Level 3 halted",
-		EL3RST => "Level 3 reset",
-		ELNRNG => "Link number out of range",
-		EUNATCH => "Protocol driver not attached",
-		ENOCSI => "No CSI structure available",
-		EL2HLT => "Level 2 halted",
-		EBADE => "Invalid exchange",
-		EBADR => "Invalid request descriptor",
-		EXFULL => "Exchange full",
-		ENOANO => "No anode",
-		EBADRQC => "Invalid request code",
-		EBADSLT => "Invalid slot",
-		EBFONT => "Bad font file format",
-		ENOSTR => "Device not a stream",
-		ENODATA => "No data available",
-		ETIME => "Timer expired",
-		ENOSR => "Out of streams resources",
-		ENONET => "Machine is not on the network",
-		ENOPKG => "Package not installed",
-		EREMOTE => "Object is remote",
-		ENOLINK => "Link has been severed",
-		EADV => "Advertise error",
-		ESRMNT => "Srmount error",
-		ECOMM => "Communication error on send",
-		EPROTO => "Protocol error",
-		EMULTIHOP => "Multihop attempted",
-		EDOTDOT => "RFS specific error",
-		EBADMSG => "Bad message",
-		EOVERFLOW => "Value too large for defined data type",
-		ENOTUNIQ => "Name not unique on network",
-		EBADFD => "File descriptor in bad state",
-		EREMCHG => "Remote address changed",
-		ELIBACC => "Can not access a needed shared library",
-		ELIBBAD => "Accessing a corrupted shared library",
-		ELIBSCN => ".lib section in a.out corrupted",
-		ELIBMAX => "Attempting to link in too many shared libraries",
-		ELIBEXEC => "Cannot exec a shared library directly",
-		EILSEQ => "Invalid or incomplete multibyte or wide character",
-		ERESTART => "Interrupted system call should be restarted",
-		ESTRPIPE => "Streams pipe error",
-		EUSERS => "Too many users",
-		ENOTSOCK => "Socket operation on non-socket",
-		EDESTADDRREQ => "Destination address required",
-		EMSGSIZE => "Message too long",
-		EPROTOTYPE => "Protocol wrong type for socket",
-		ENOPROTOOPT => "Protocol not available",
-		EPROTONOSUPPORT => "Protocol not supported",
-		ESOCKTNOSUPPORT => "Socket type not supported",
-		EOPNOTSUPP => "Operation not supported",
-		EPFNOSUPPORT => "Protocol family not supported",
-		EAFNOSUPPORT => "Address family not supported by protocol",
-		EADDRINUSE => "Address already in use",
-		EADDRNOTAVAIL => "Cannot assign requested address",
-		ENETDOWN => "Network is down",
-		ENETUNREACH => "Network is unreachable",
-		ENETRESET => "Network dropped connection on reset",
-		ECONNABORTED => "Software caused connection abort",
-		ECONNRESET => "Connection reset by peer",
-		ENOBUFS => "No buffer space available",
-		EISCONN => "Transport endpoint is already connected",
-		ENOTCONN => "Transport endpoint is not connected",
-		ESHUTDOWN => "Cannot send after transport endpoint shutdown",
-		ETOOMANYREFS => "Too many references: cannot splice",
-		ETIMEDOUT => "Connection timed out",
-		ECONNREFUSED => "Connection refused",
-		EHOSTDOWN => "Host is down",
-		EHOSTUNREACH => "No route to host",
-		EALREADY => "Operation already in progress",
-		EINPROGRESS => "Operation now in progress",
-		ESTALE => "Stale file handle",
-		EUCLEAN => "Structure needs cleaning",
-		ENOTNAM => "Not a XENIX named type file",
-		ENAVAIL => "No XENIX semaphores available",
-		EISNAM => "Is a named type file",
-		EREMOTEIO => "Remote I/O error",
-		EDQUOT => "Disk quota exceeded",
-		ENOMEDIUM => "No medium found",
-		EMEDIUMTYPE => "Wrong medium type",
-		ECANCELED => "Operation canceled",
-		ENOKEY => "Required key not available",
-		EKEYEXPIRED => "Key has expired",
-		EKEYREVOKED => "Key has been revoked",
-		EKEYREJECTED => "Key was rejected by service",
-		EOWNERDEAD => "Owner died",
-		ENOTRECOVERABLE => "State not recoverable",
-		ERFKILL => "Operation not possible due to RF-kill",
-		EHWPOISON => "Memory page has hardware error",
-		* => "Unknown Linux error code", // TODO: snprintf to add errno?
+	case EPERM =>
+		yield "Operation not permitted";
+	case ENOENT =>
+		yield "No such file or directory";
+	case ESRCH =>
+		yield "No such process";
+	case EINTR =>
+		yield "Interrupted system call";
+	case EIO =>
+		yield "Input/output error";
+	case ENXIO =>
+		yield "No such device or address";
+	case E2BIG =>
+		yield "Argument list too long";
+	case ENOEXEC =>
+		yield "Exec format error";
+	case EBADF =>
+		yield "Bad file descriptor";
+	case ECHILD =>
+		yield "No child processes";
+	case EAGAIN =>
+		yield "Resource temporarily unavailable";
+	case ENOMEM =>
+		yield "Cannot allocate memory";
+	case EACCES =>
+		yield "Permission denied";
+	case EFAULT =>
+		yield "Bad address";
+	case ENOTBLK =>
+		yield "Block device required";
+	case EBUSY =>
+		yield "Device or resource busy";
+	case EEXIST =>
+		yield "File exists";
+	case EXDEV =>
+		yield "Invalid cross-device link";
+	case ENODEV =>
+		yield "No such device";
+	case ENOTDIR =>
+		yield "Not a directory";
+	case EISDIR =>
+		yield "Is a directory";
+	case EINVAL =>
+		yield "Invalid argument";
+	case ENFILE =>
+		yield "Too many open files in system";
+	case EMFILE =>
+		yield "Too many open files";
+	case ENOTTY =>
+		yield "Inappropriate ioctl for device";
+	case ETXTBSY =>
+		yield "Text file busy";
+	case EFBIG =>
+		yield "File too large";
+	case ENOSPC =>
+		yield "No space left on device";
+	case ESPIPE =>
+		yield "Illegal seek";
+	case EROFS =>
+		yield "Read-only file system";
+	case EMLINK =>
+		yield "Too many links";
+	case EPIPE =>
+		yield "Broken pipe";
+	case EDOM =>
+		yield "Numerical argument out of domain";
+	case ERANGE =>
+		yield "Numerical result out of range";
+	case EDEADLK =>
+		yield "Resource deadlock avoided";
+	case ENAMETOOLONG =>
+		yield "File name too long";
+	case ENOLCK =>
+		yield "No locks available";
+	case ENOSYS =>
+		yield "Function not implemented";
+	case ENOTEMPTY =>
+		yield "Directory not empty";
+	case ELOOP =>
+		yield "Too many levels of symbolic links";
+	case ENOMSG =>
+		yield "No message of desired type";
+	case EIDRM =>
+		yield "Identifier removed";
+	case ECHRNG =>
+		yield "Channel number out of range";
+	case EL2NSYNC =>
+		yield "Level 2 not synchronized";
+	case EL3HLT =>
+		yield "Level 3 halted";
+	case EL3RST =>
+		yield "Level 3 reset";
+	case ELNRNG =>
+		yield "Link number out of range";
+	case EUNATCH =>
+		yield "Protocol driver not attached";
+	case ENOCSI =>
+		yield "No CSI structure available";
+	case EL2HLT =>
+		yield "Level 2 halted";
+	case EBADE =>
+		yield "Invalid exchange";
+	case EBADR =>
+		yield "Invalid request descriptor";
+	case EXFULL =>
+		yield "Exchange full";
+	case ENOANO =>
+		yield "No anode";
+	case EBADRQC =>
+		yield "Invalid request code";
+	case EBADSLT =>
+		yield "Invalid slot";
+	case EBFONT =>
+		yield "Bad font file format";
+	case ENOSTR =>
+		yield "Device not a stream";
+	case ENODATA =>
+		yield "No data available";
+	case ETIME =>
+		yield "Timer expired";
+	case ENOSR =>
+		yield "Out of streams resources";
+	case ENONET =>
+		yield "Machine is not on the network";
+	case ENOPKG =>
+		yield "Package not installed";
+	case EREMOTE =>
+		yield "Object is remote";
+	case ENOLINK =>
+		yield "Link has been severed";
+	case EADV =>
+		yield "Advertise error";
+	case ESRMNT =>
+		yield "Srmount error";
+	case ECOMM =>
+		yield "Communication error on send";
+	case EPROTO =>
+		yield "Protocol error";
+	case EMULTIHOP =>
+		yield "Multihop attempted";
+	case EDOTDOT =>
+		yield "RFS specific error";
+	case EBADMSG =>
+		yield "Bad message";
+	case EOVERFLOW =>
+		yield "Value too large for defined data type";
+	case ENOTUNIQ =>
+		yield "Name not unique on network";
+	case EBADFD =>
+		yield "File descriptor in bad state";
+	case EREMCHG =>
+		yield "Remote address changed";
+	case ELIBACC =>
+		yield "Can not access a needed shared library";
+	case ELIBBAD =>
+		yield "Accessing a corrupted shared library";
+	case ELIBSCN =>
+		yield ".lib section in a.out corrupted";
+	case ELIBMAX =>
+		yield "Attempting to link in too many shared libraries";
+	case ELIBEXEC =>
+		yield "Cannot exec a shared library directly";
+	case EILSEQ =>
+		yield "Invalid or incomplete multibyte or wide character";
+	case ERESTART =>
+		yield "Interrupted system call should be restarted";
+	case ESTRPIPE =>
+		yield "Streams pipe error";
+	case EUSERS =>
+		yield "Too many users";
+	case ENOTSOCK =>
+		yield "Socket operation on non-socket";
+	case EDESTADDRREQ =>
+		yield "Destination address required";
+	case EMSGSIZE =>
+		yield "Message too long";
+	case EPROTOTYPE =>
+		yield "Protocol wrong type for socket";
+	case ENOPROTOOPT =>
+		yield "Protocol not available";
+	case EPROTONOSUPPORT =>
+		yield "Protocol not supported";
+	case ESOCKTNOSUPPORT =>
+		yield "Socket type not supported";
+	case EOPNOTSUPP =>
+		yield "Operation not supported";
+	case EPFNOSUPPORT =>
+		yield "Protocol family not supported";
+	case EAFNOSUPPORT =>
+		yield "Address family not supported by protocol";
+	case EADDRINUSE =>
+		yield "Address already in use";
+	case EADDRNOTAVAIL =>
+		yield "Cannot assign requested address";
+	case ENETDOWN =>
+		yield "Network is down";
+	case ENETUNREACH =>
+		yield "Network is unreachable";
+	case ENETRESET =>
+		yield "Network dropped connection on reset";
+	case ECONNABORTED =>
+		yield "Software caused connection abort";
+	case ECONNRESET =>
+		yield "Connection reset by peer";
+	case ENOBUFS =>
+		yield "No buffer space available";
+	case EISCONN =>
+		yield "Transport endpoint is already connected";
+	case ENOTCONN =>
+		yield "Transport endpoint is not connected";
+	case ESHUTDOWN =>
+		yield "Cannot send after transport endpoint shutdown";
+	case ETOOMANYREFS =>
+		yield "Too many references: cannot splice";
+	case ETIMEDOUT =>
+		yield "Connection timed out";
+	case ECONNREFUSED =>
+		yield "Connection refused";
+	case EHOSTDOWN =>
+		yield "Host is down";
+	case EHOSTUNREACH =>
+		yield "No route to host";
+	case EALREADY =>
+		yield "Operation already in progress";
+	case EINPROGRESS =>
+		yield "Operation now in progress";
+	case ESTALE =>
+		yield "Stale file handle";
+	case EUCLEAN =>
+		yield "Structure needs cleaning";
+	case ENOTNAM =>
+		yield "Not a XENIX named type file";
+	case ENAVAIL =>
+		yield "No XENIX semaphores available";
+	case EISNAM =>
+		yield "Is a named type file";
+	case EREMOTEIO =>
+		yield "Remote I/O error";
+	case EDQUOT =>
+		yield "Disk quota exceeded";
+	case ENOMEDIUM =>
+		yield "No medium found";
+	case EMEDIUMTYPE =>
+		yield "Wrong medium type";
+	case ECANCELED =>
+		yield "Operation canceled";
+	case ENOKEY =>
+		yield "Required key not available";
+	case EKEYEXPIRED =>
+		yield "Key has expired";
+	case EKEYREVOKED =>
+		yield "Key has been revoked";
+	case EKEYREJECTED =>
+		yield "Key was rejected by service";
+	case EOWNERDEAD =>
+		yield "Owner died";
+	case ENOTRECOVERABLE =>
+		yield "State not recoverable";
+	case ERFKILL =>
+		yield "Operation not possible due to RF-kill";
+	case EHWPOISON =>
+		yield "Memory page has hardware error";
+	case =>
+		yield "Unknown Linux error code"; // TODO: snprintf to add errno?
 	};
 };
 
 // Gets the programmer-friendly name for an [[errno]] (e.g. EPERM).
 export fn errname(err: errno) str = {
 	return switch (err: int) {
-		EPERM => "EPERM",
-		ENOENT => "ENOENT",
-		ESRCH => "ESRCH",
-		EINTR => "EINTR",
-		EIO => "EIO",
-		ENXIO => "ENXIO",
-		E2BIG => "E2BIG",
-		ENOEXEC => "ENOEXEC",
-		EBADF => "EBADF",
-		ECHILD => "ECHILD",
-		EAGAIN => "EAGAIN",
-		ENOMEM => "ENOMEM",
-		EACCES => "EACCES",
-		EFAULT => "EFAULT",
-		ENOTBLK => "ENOTBLK",
-		EBUSY => "EBUSY",
-		EEXIST => "EEXIST",
-		EXDEV => "EXDEV",
-		ENODEV => "ENODEV",
-		ENOTDIR => "ENOTDIR",
-		EISDIR => "EISDIR",
-		EINVAL => "EINVAL",
-		ENFILE => "ENFILE",
-		EMFILE => "EMFILE",
-		ENOTTY => "ENOTTY",
-		ETXTBSY => "ETXTBSY",
-		EFBIG => "EFBIG",
-		ENOSPC => "ENOSPC",
-		ESPIPE => "ESPIPE",
-		EROFS => "EROFS",
-		EMLINK => "EMLINK",
-		EPIPE => "EPIPE",
-		EDOM => "EDOM",
-		ERANGE => "ERANGE",
-		EDEADLK => "EDEADLK",
-		ENAMETOOLONG => "ENAMETOOLONG",
-		ENOLCK => "ENOLCK",
-		ENOSYS => "ENOSYS",
-		ENOTEMPTY => "ENOTEMPTY",
-		ELOOP => "ELOOP",
-		ENOMSG => "ENOMSG",
-		EIDRM => "EIDRM",
-		ECHRNG => "ECHRNG",
-		EL2NSYNC => "EL2NSYNC",
-		EL3HLT => "EL3HLT",
-		EL3RST => "EL3RST",
-		ELNRNG => "ELNRNG",
-		EUNATCH => "EUNATCH",
-		ENOCSI => "ENOCSI",
-		EL2HLT => "EL2HLT",
-		EBADE => "EBADE",
-		EBADR => "EBADR",
-		EXFULL => "EXFULL",
-		ENOANO => "ENOANO",
-		EBADRQC => "EBADRQC",
-		EBADSLT => "EBADSLT",
-		EBFONT => "EBFONT",
-		ENOSTR => "ENOSTR",
-		ENODATA => "ENODATA",
-		ETIME => "ETIME",
-		ENOSR => "ENOSR",
-		ENONET => "ENONET",
-		ENOPKG => "ENOPKG",
-		EREMOTE => "EREMOTE",
-		ENOLINK => "ENOLINK",
-		EADV => "EADV",
-		ESRMNT => "ESRMNT",
-		ECOMM => "ECOMM",
-		EPROTO => "EPROTO",
-		EMULTIHOP => "EMULTIHOP",
-		EDOTDOT => "EDOTDOT",
-		EBADMSG => "EBADMSG",
-		EOVERFLOW => "EOVERFLOW",
-		ENOTUNIQ => "ENOTUNIQ",
-		EBADFD => "EBADFD",
-		EREMCHG => "EREMCHG",
-		ELIBACC => "ELIBACC",
-		ELIBBAD => "ELIBBAD",
-		ELIBSCN => "ELIBSCN",
-		ELIBMAX => "ELIBMAX",
-		ELIBEXEC => "ELIBEXEC",
-		EILSEQ => "EILSEQ",
-		ERESTART => "ERESTART",
-		ESTRPIPE => "ESTRPIPE",
-		EUSERS => "EUSERS",
-		ENOTSOCK => "ENOTSOCK",
-		EDESTADDRREQ => "EDESTADDRREQ",
-		EMSGSIZE => "EMSGSIZE",
-		EPROTOTYPE => "EPROTOTYPE",
-		ENOPROTOOPT => "ENOPROTOOPT",
-		EPROTONOSUPPORT => "EPROTONOSUPPORT",
-		ESOCKTNOSUPPORT => "ESOCKTNOSUPPORT",
-		EOPNOTSUPP => "EOPNOTSUPP",
-		EPFNOSUPPORT => "EPFNOSUPPORT",
-		EAFNOSUPPORT => "EAFNOSUPPORT",
-		EADDRINUSE => "EADDRINUSE",
-		EADDRNOTAVAIL => "EADDRNOTAVAIL",
-		ENETDOWN => "ENETDOWN",
-		ENETUNREACH => "ENETUNREACH",
-		ENETRESET => "ENETRESET",
-		ECONNABORTED => "ECONNABORTED",
-		ECONNRESET => "ECONNRESET",
-		ENOBUFS => "ENOBUFS",
-		EISCONN => "EISCONN",
-		ENOTCONN => "ENOTCONN",
-		ESHUTDOWN => "ESHUTDOWN",
-		ETOOMANYREFS => "ETOOMANYREFS",
-		ETIMEDOUT => "ETIMEDOUT",
-		ECONNREFUSED => "ECONNREFUSED",
-		EHOSTDOWN => "EHOSTDOWN",
-		EHOSTUNREACH => "EHOSTUNREACH",
-		EALREADY => "EALREADY",
-		EINPROGRESS => "EINPROGRESS",
-		ESTALE => "ESTALE",
-		EUCLEAN => "EUCLEAN",
-		ENOTNAM => "ENOTNAM",
-		ENAVAIL => "ENAVAIL",
-		EISNAM => "EISNAM",
-		EREMOTEIO => "EREMOTEIO",
-		EDQUOT => "EDQUOT",
-		ENOMEDIUM => "ENOMEDIUM",
-		EMEDIUMTYPE => "EMEDIUMTYPE",
-		ECANCELED => "ECANCELED",
-		ENOKEY => "ENOKEY",
-		EKEYEXPIRED => "EKEYEXPIRED",
-		EKEYREVOKED => "EKEYREVOKED",
-		EKEYREJECTED => "EKEYREJECTED",
-		EOWNERDEAD => "EOWNERDEAD",
-		ENOTRECOVERABLE => "ENOTRECOVERABLE",
-		ERFKILL => "ERFKILL",
-		EHWPOISON => "EHWPOISON",
-		* => "[unknown errno]", // TODO: snprintf to add errno?
+	case EPERM =>
+		yield "EPERM";
+	case ENOENT =>
+		yield "ENOENT";
+	case ESRCH =>
+		yield "ESRCH";
+	case EINTR =>
+		yield "EINTR";
+	case EIO =>
+		yield "EIO";
+	case ENXIO =>
+		yield "ENXIO";
+	case E2BIG =>
+		yield "E2BIG";
+	case ENOEXEC =>
+		yield "ENOEXEC";
+	case EBADF =>
+		yield "EBADF";
+	case ECHILD =>
+		yield "ECHILD";
+	case EAGAIN =>
+		yield "EAGAIN";
+	case ENOMEM =>
+		yield "ENOMEM";
+	case EACCES =>
+		yield "EACCES";
+	case EFAULT =>
+		yield "EFAULT";
+	case ENOTBLK =>
+		yield "ENOTBLK";
+	case EBUSY =>
+		yield "EBUSY";
+	case EEXIST =>
+		yield "EEXIST";
+	case EXDEV =>
+		yield "EXDEV";
+	case ENODEV =>
+		yield "ENODEV";
+	case ENOTDIR =>
+		yield "ENOTDIR";
+	case EISDIR =>
+		yield "EISDIR";
+	case EINVAL =>
+		yield "EINVAL";
+	case ENFILE =>
+		yield "ENFILE";
+	case EMFILE =>
+		yield "EMFILE";
+	case ENOTTY =>
+		yield "ENOTTY";
+	case ETXTBSY =>
+		yield "ETXTBSY";
+	case EFBIG =>
+		yield "EFBIG";
+	case ENOSPC =>
+		yield "ENOSPC";
+	case ESPIPE =>
+		yield "ESPIPE";
+	case EROFS =>
+		yield "EROFS";
+	case EMLINK =>
+		yield "EMLINK";
+	case EPIPE =>
+		yield "EPIPE";
+	case EDOM =>
+		yield "EDOM";
+	case ERANGE =>
+		yield "ERANGE";
+	case EDEADLK =>
+		yield "EDEADLK";
+	case ENAMETOOLONG =>
+		yield "ENAMETOOLONG";
+	case ENOLCK =>
+		yield "ENOLCK";
+	case ENOSYS =>
+		yield "ENOSYS";
+	case ENOTEMPTY =>
+		yield "ENOTEMPTY";
+	case ELOOP =>
+		yield "ELOOP";
+	case ENOMSG =>
+		yield "ENOMSG";
+	case EIDRM =>
+		yield "EIDRM";
+	case ECHRNG =>
+		yield "ECHRNG";
+	case EL2NSYNC =>
+		yield "EL2NSYNC";
+	case EL3HLT =>
+		yield "EL3HLT";
+	case EL3RST =>
+		yield "EL3RST";
+	case ELNRNG =>
+		yield "ELNRNG";
+	case EUNATCH =>
+		yield "EUNATCH";
+	case ENOCSI =>
+		yield "ENOCSI";
+	case EL2HLT =>
+		yield "EL2HLT";
+	case EBADE =>
+		yield "EBADE";
+	case EBADR =>
+		yield "EBADR";
+	case EXFULL =>
+		yield "EXFULL";
+	case ENOANO =>
+		yield "ENOANO";
+	case EBADRQC =>
+		yield "EBADRQC";
+	case EBADSLT =>
+		yield "EBADSLT";
+	case EBFONT =>
+		yield "EBFONT";
+	case ENOSTR =>
+		yield "ENOSTR";
+	case ENODATA =>
+		yield "ENODATA";
+	case ETIME =>
+		yield "ETIME";
+	case ENOSR =>
+		yield "ENOSR";
+	case ENONET =>
+		yield "ENONET";
+	case ENOPKG =>
+		yield "ENOPKG";
+	case EREMOTE =>
+		yield "EREMOTE";
+	case ENOLINK =>
+		yield "ENOLINK";
+	case EADV =>
+		yield "EADV";
+	case ESRMNT =>
+		yield "ESRMNT";
+	case ECOMM =>
+		yield "ECOMM";
+	case EPROTO =>
+		yield "EPROTO";
+	case EMULTIHOP =>
+		yield "EMULTIHOP";
+	case EDOTDOT =>
+		yield "EDOTDOT";
+	case EBADMSG =>
+		yield "EBADMSG";
+	case EOVERFLOW =>
+		yield "EOVERFLOW";
+	case ENOTUNIQ =>
+		yield "ENOTUNIQ";
+	case EBADFD =>
+		yield "EBADFD";
+	case EREMCHG =>
+		yield "EREMCHG";
+	case ELIBACC =>
+		yield "ELIBACC";
+	case ELIBBAD =>
+		yield "ELIBBAD";
+	case ELIBSCN =>
+		yield "ELIBSCN";
+	case ELIBMAX =>
+		yield "ELIBMAX";
+	case ELIBEXEC =>
+		yield "ELIBEXEC";
+	case EILSEQ =>
+		yield "EILSEQ";
+	case ERESTART =>
+		yield "ERESTART";
+	case ESTRPIPE =>
+		yield "ESTRPIPE";
+	case EUSERS =>
+		yield "EUSERS";
+	case ENOTSOCK =>
+		yield "ENOTSOCK";
+	case EDESTADDRREQ =>
+		yield "EDESTADDRREQ";
+	case EMSGSIZE =>
+		yield "EMSGSIZE";
+	case EPROTOTYPE =>
+		yield "EPROTOTYPE";
+	case ENOPROTOOPT =>
+		yield "ENOPROTOOPT";
+	case EPROTONOSUPPORT =>
+		yield "EPROTONOSUPPORT";
+	case ESOCKTNOSUPPORT =>
+		yield "ESOCKTNOSUPPORT";
+	case EOPNOTSUPP =>
+		yield "EOPNOTSUPP";
+	case EPFNOSUPPORT =>
+		yield "EPFNOSUPPORT";
+	case EAFNOSUPPORT =>
+		yield "EAFNOSUPPORT";
+	case EADDRINUSE =>
+		yield "EADDRINUSE";
+	case EADDRNOTAVAIL =>
+		yield "EADDRNOTAVAIL";
+	case ENETDOWN =>
+		yield "ENETDOWN";
+	case ENETUNREACH =>
+		yield "ENETUNREACH";
+	case ENETRESET =>
+		yield "ENETRESET";
+	case ECONNABORTED =>
+		yield "ECONNABORTED";
+	case ECONNRESET =>
+		yield "ECONNRESET";
+	case ENOBUFS =>
+		yield "ENOBUFS";
+	case EISCONN =>
+		yield "EISCONN";
+	case ENOTCONN =>
+		yield "ENOTCONN";
+	case ESHUTDOWN =>
+		yield "ESHUTDOWN";
+	case ETOOMANYREFS =>
+		yield "ETOOMANYREFS";
+	case ETIMEDOUT =>
+		yield "ETIMEDOUT";
+	case ECONNREFUSED =>
+		yield "ECONNREFUSED";
+	case EHOSTDOWN =>
+		yield "EHOSTDOWN";
+	case EHOSTUNREACH =>
+		yield "EHOSTUNREACH";
+	case EALREADY =>
+		yield "EALREADY";
+	case EINPROGRESS =>
+		yield "EINPROGRESS";
+	case ESTALE =>
+		yield "ESTALE";
+	case EUCLEAN =>
+		yield "EUCLEAN";
+	case ENOTNAM =>
+		yield "ENOTNAM";
+	case ENAVAIL =>
+		yield "ENAVAIL";
+	case EISNAM =>
+		yield "EISNAM";
+	case EREMOTEIO =>
+		yield "EREMOTEIO";
+	case EDQUOT =>
+		yield "EDQUOT";
+	case ENOMEDIUM =>
+		yield "ENOMEDIUM";
+	case EMEDIUMTYPE =>
+		yield "EMEDIUMTYPE";
+	case ECANCELED =>
+		yield "ECANCELED";
+	case ENOKEY =>
+		yield "ENOKEY";
+	case EKEYEXPIRED =>
+		yield "EKEYEXPIRED";
+	case EKEYREVOKED =>
+		yield "EKEYREVOKED";
+	case EKEYREJECTED =>
+		yield "EKEYREJECTED";
+	case EOWNERDEAD =>
+		yield "EOWNERDEAD";
+	case ENOTRECOVERABLE =>
+		yield "ENOTRECOVERABLE";
+	case ERFKILL =>
+		yield "ERFKILL";
+	case EHWPOISON =>
+		yield "EHWPOISON";
+	case =>
+		yield "[unknown errno]"; // TODO: snprintf to add errno?
 	};
 };
 

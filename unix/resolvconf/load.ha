@@ -27,8 +27,10 @@ export fn load() []ip::addr = {
 
 	for (true) {
 		const line = match (bufio::scanline(&file)) {
-			io::EOF => break,
-			line: []u8 => line,
+		case io::EOF =>
+			break;
+		case line: []u8 =>
+			yield line;
 		};
 		defer free(line);
 		if (len(line) == 0 || line[0] == '#': u32: u8) {
@@ -39,8 +41,10 @@ export fn load() []ip::addr = {
 		defer io::close(scanner);
 
 		const tok = match (bufio::scantok(scanner, ' ', '\t')!) {
-			io::EOF => break,
-			tok: []u8 => tok,
+		case io::EOF =>
+			break;
+		case tok: []u8 =>
+			yield tok;
 		};
 		defer free(tok);
 		if (strings::fromutf8(tok) != "nameserver") {
@@ -48,8 +52,10 @@ export fn load() []ip::addr = {
 		};
 
 		const tok = match (bufio::scantok(scanner, ' ')!) {
-			io::EOF => break,
-			tok: []u8 => tok,
+		case io::EOF =>
+			break;
+		case tok: []u8 =>
+			yield tok;
 		};
 		defer free(tok);
 		append(cache, ip::parse(strings::fromutf8(tok))!);

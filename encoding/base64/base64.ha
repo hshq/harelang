@@ -118,61 +118,63 @@ export fn decode(
 	for (true) {
 		let buf: [4]u8 = [0...];
 		match (io::read(in, buf)) {
-			size => {
-				for (let i = 0z; i < 2; i += 1) {
-					if (decoder[buf[i]] == INVALID_OR_PAD) {
-						return (count + i): invalid;
-					} else {
-						buf[i] = decoder[buf[i]];
-					};
-				};
-
-				if (decoder[buf[2]] == INVALID_OR_PAD) {
-					if (buf[2] != PADDING) {
-						return (count + 2z): invalid;
-					};
-					if (buf[3] != PADDING) {
-						return (count + 3z): invalid;
-					};
-					z += io::write(out, [
-						buf[0] << 2 | buf[1] >> 4,
-					])?;
-					let extra: []u8 = [0];
-					return match (io::read(in, extra)) {
-						size => (count + 4z): invalid,
-						io::EOF => z,
-					};
+		case size =>
+			for (let i = 0z; i < 2; i += 1) {
+				if (decoder[buf[i]] == INVALID_OR_PAD) {
+					return (count + i): invalid;
 				} else {
-					buf[2] = decoder[buf[2]];
+					buf[i] = decoder[buf[i]];
 				};
+			};
 
-				if (decoder[buf[3]] == INVALID_OR_PAD) {
-					if (buf[3] != PADDING) {
-						return (count + 3z): invalid;
-					};
-					z += io::write(out, [
-						buf[0] << 2 | buf[1] >> 4,
-						buf[1] << 4 | buf[2] >> 2,
-					])?;
-					let extra: []u8 = [0];
-					return match (io::read(in, extra)) {
-						size => (count + 4z): invalid,
-						io::EOF => z,
-					};
-				} else {
-					buf[3] = decoder[buf[3]];
+			if (decoder[buf[2]] == INVALID_OR_PAD) {
+				if (buf[2] != PADDING) {
+					return (count + 2z): invalid;
 				};
+				if (buf[3] != PADDING) {
+					return (count + 3z): invalid;
+				};
+				z += io::write(out, [
+					buf[0] << 2 | buf[1] >> 4,
+				])?;
+				let extra: []u8 = [0];
+				match (io::read(in, extra)) {
+				case size =>
+					return (count + 4z): invalid;
+				case io::EOF =>
+					return z;
+				};
+			} else {
+				buf[2] = decoder[buf[2]];
+			};
 
+			if (decoder[buf[3]] == INVALID_OR_PAD) {
+				if (buf[3] != PADDING) {
+					return (count + 3z): invalid;
+				};
 				z += io::write(out, [
 					buf[0] << 2 | buf[1] >> 4,
 					buf[1] << 4 | buf[2] >> 2,
-					buf[2] << 6 | buf[3],
 				])?;
-				count += 4;
-			},
-			io::EOF => {
-				break;
-			},
+				let extra: []u8 = [0];
+				match (io::read(in, extra)) {
+				case size =>
+					return (count + 4z): invalid;
+				case io::EOF =>
+					return z;
+				};
+			} else {
+				buf[3] = decoder[buf[3]];
+			};
+
+			z += io::write(out, [
+				buf[0] << 2 | buf[1] >> 4,
+				buf[1] << 4 | buf[2] >> 2,
+				buf[2] << 6 | buf[3],
+			])?;
+			count += 4;
+		case io::EOF =>
+			break;
 		};
 	};
 	return z;
@@ -187,10 +189,13 @@ export fn decode_static(
 ) (size | invalid) = {
 	let buf = bufio::fixed(out, io::mode::WRITE);
 	defer io::close(buf);
-	return match (decode(alphabet, in, buf)) {
-		io::error => abort(),
-		z: invalid => z: invalid,
-		z: size => z,
+	match (decode(alphabet, in, buf)) {
+	case io::error =>
+		abort();
+	case z: invalid =>
+		return z: invalid;
+	case z: size =>
+		return z;
 	};
 };
 
@@ -218,10 +223,14 @@ export fn decodeslice(alphabet: []u8, in: []u8) ([]u8 | invalid) = {
 	let out = bufio::dynamic(io::mode::WRITE);
 	let in = bufio::fixed(in, io::mode::READ);
 	defer io::close(in);
-	return match (decode(alphabet, in, out)) {
-		io::error => abort(),
-		z: invalid => z: invalid,
-		size => bufio::finish(out),
+	match (decode(alphabet, in, out)) {
+	case io::error =>
+		abort();
+	case z: invalid =>
+		io::close(out);
+		return z: invalid;
+	case size =>
+		return bufio::finish(out);
 	};
 };
 
@@ -253,7 +262,7 @@ export fn decodeslice_static(
 		defer free(s);
 		assert(bytes::equal(s, expect[..i]));
 	};
-	
+
 	const bad: [_]str = [
 		"A",
 		"AA",

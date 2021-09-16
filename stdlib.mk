@@ -154,6 +154,10 @@ hare_stdlib_deps+=$(stdlib_errors)
 stdlib_fmt=$(HARECACHE)/fmt/fmt.o
 hare_stdlib_deps+=$(stdlib_fmt)
 
+# gen_lib fnmatch
+stdlib_fnmatch=$(HARECACHE)/fnmatch/fnmatch.o
+hare_stdlib_deps+=$(stdlib_fnmatch)
+
 # gen_lib format::elf
 stdlib_format_elf=$(HARECACHE)/format/elf/format_elf.o
 hare_stdlib_deps+=$(stdlib_format_elf)
@@ -161,10 +165,6 @@ hare_stdlib_deps+=$(stdlib_format_elf)
 # gen_lib format::xml
 stdlib_format_xml=$(HARECACHE)/format/xml/format_xml.o
 hare_stdlib_deps+=$(stdlib_format_xml)
-
-# gen_lib fnmatch
-stdlib_fnmatch=$(HARECACHE)/fnmatch/fnmatch.o
-hare_stdlib_deps+=$(stdlib_fnmatch)
 
 # gen_lib fs
 stdlib_fs=$(HARECACHE)/fs/fs.o
@@ -329,10 +329,6 @@ hare_stdlib_deps+=$(stdlib_time)
 # gen_lib types
 stdlib_types=$(HARECACHE)/types/types.o
 hare_stdlib_deps+=$(stdlib_types)
-
-# gen_lib unicode
-stdlib_unicode=$(HARECACHE)/unicode/unicode.o
-hare_stdlib_deps+=$(stdlib_unicode)
 
 # gen_lib unix
 stdlib_unix=$(HARECACHE)/unix/unix.o
@@ -571,6 +567,16 @@ $(HARECACHE)/fmt/fmt.ssa: $(stdlib_fmt_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdl
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfmt \
 		-t$(HARECACHE)/fmt/fmt.td $(stdlib_fmt_srcs)
 
+# fnmatch
+stdlib_fnmatch_srcs= \
+	$(STDLIB)/fnmatch/fnmatch.ha
+
+$(HARECACHE)/fnmatch/fnmatch.ssa: $(stdlib_fnmatch_srcs) $(stdlib_rt) $(stdlib_strings) $(stdlib_bytes) $(stdlib_sort) $(stdlib_ascii) $(stdlib_io) $(stdlib_fmt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/fnmatch
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfnmatch \
+		-t$(HARECACHE)/fnmatch/fnmatch.td $(stdlib_fnmatch_srcs)
+
 # format::elf
 stdlib_format_elf_srcs= \
 	$(STDLIB)/format/elf/$(ARCH).ha \
@@ -594,16 +600,6 @@ $(HARECACHE)/format/xml/format_xml.ssa: $(stdlib_format_xml_srcs) $(stdlib_rt) $
 	@mkdir -p $(HARECACHE)/format/xml
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::xml \
 		-t$(HARECACHE)/format/xml/format_xml.td $(stdlib_format_xml_srcs)
-
-# fnmatch
-stdlib_fnmatch_srcs= \
-	$(STDLIB)/fnmatch/fnmatch.ha
-
-$(HARECACHE)/fnmatch/fnmatch.ssa: $(stdlib_fnmatch_srcs) $(stdlib_rt) $(stdlib_strings) $(stdlib_bytes) $(stdlib_sort) $(stdlib_ascii) $(stdlib_io) $(stdlib_fmt)
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/fnmatch
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfnmatch \
-		-t$(HARECACHE)/fnmatch/fnmatch.td $(stdlib_fnmatch_srcs)
 
 # fs
 stdlib_fs_srcs= \
@@ -1136,16 +1132,6 @@ $(HARECACHE)/types/types.ssa: $(stdlib_types_srcs) $(stdlib_rt)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntypes \
 		-t$(HARECACHE)/types/types.td $(stdlib_types_srcs)
 
-# unicode
-stdlib_unicode_srcs= \
-	$(STDLIB)/unicode/properties.ha
-
-$(HARECACHE)/unicode/unicode.ssa: $(stdlib_unicode_srcs) $(stdlib_rt)
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/unicode
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunicode \
-		-t$(HARECACHE)/unicode/unicode.td $(stdlib_unicode_srcs)
-
 # unix
 stdlib_unix_srcs= \
 	$(STDLIB)/unix/$(PLATFORM)/nice.ha \
@@ -1381,6 +1367,10 @@ hare_testlib_deps+=$(testlib_errors)
 testlib_fmt=$(TESTCACHE)/fmt/fmt.o
 hare_testlib_deps+=$(testlib_fmt)
 
+# gen_lib fnmatch
+testlib_fnmatch=$(TESTCACHE)/fnmatch/fnmatch.o
+hare_testlib_deps+=$(testlib_fnmatch)
+
 # gen_lib format::elf
 testlib_format_elf=$(TESTCACHE)/format/elf/format_elf.o
 hare_testlib_deps+=$(testlib_format_elf)
@@ -1388,10 +1378,6 @@ hare_testlib_deps+=$(testlib_format_elf)
 # gen_lib format::xml
 testlib_format_xml=$(TESTCACHE)/format/xml/format_xml.o
 hare_testlib_deps+=$(testlib_format_xml)
-
-# gen_lib fnmatch
-testlib_fnmatch=$(TESTCACHE)/fnmatch/fnmatch.o
-hare_testlib_deps+=$(testlib_fnmatch)
 
 # gen_lib fs
 testlib_fs=$(TESTCACHE)/fs/fs.o
@@ -1556,10 +1542,6 @@ hare_testlib_deps+=$(testlib_time)
 # gen_lib types
 testlib_types=$(TESTCACHE)/types/types.o
 hare_testlib_deps+=$(testlib_types)
-
-# gen_lib unicode
-testlib_unicode=$(TESTCACHE)/unicode/unicode.o
-hare_testlib_deps+=$(testlib_unicode)
 
 # gen_lib unix
 testlib_unix=$(TESTCACHE)/unix/unix.o
@@ -1805,6 +1787,17 @@ $(TESTCACHE)/fmt/fmt.ssa: $(testlib_fmt_srcs) $(testlib_rt) $(testlib_bufio) $(t
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfmt \
 		-t$(TESTCACHE)/fmt/fmt.td $(testlib_fmt_srcs)
 
+# fnmatch
+testlib_fnmatch_srcs= \
+	$(STDLIB)/fnmatch/fnmatch.ha \
+	$(STDLIB)/fnmatch/+test.ha
+
+$(TESTCACHE)/fnmatch/fnmatch.ssa: $(testlib_fnmatch_srcs) $(testlib_rt) $(testlib_strings) $(testlib_bytes) $(testlib_sort) $(testlib_ascii) $(testlib_io) $(testlib_fmt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/fnmatch
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfnmatch \
+		-t$(TESTCACHE)/fnmatch/fnmatch.td $(testlib_fnmatch_srcs)
+
 # format::elf
 testlib_format_elf_srcs= \
 	$(STDLIB)/format/elf/$(ARCH).ha \
@@ -1829,17 +1822,6 @@ $(TESTCACHE)/format/xml/format_xml.ssa: $(testlib_format_xml_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/format/xml
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::xml \
 		-t$(TESTCACHE)/format/xml/format_xml.td $(testlib_format_xml_srcs)
-
-# fnmatch
-testlib_fnmatch_srcs= \
-	$(STDLIB)/fnmatch/fnmatch.ha \
-	$(STDLIB)/fnmatch/+test.ha
-
-$(TESTCACHE)/fnmatch/fnmatch.ssa: $(testlib_fnmatch_srcs) $(testlib_rt) $(testlib_strings) $(testlib_bytes) $(testlib_sort) $(testlib_ascii) $(testlib_io) $(testlib_fmt)
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/fnmatch
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfnmatch \
-		-t$(TESTCACHE)/fnmatch/fnmatch.td $(testlib_fnmatch_srcs)
 
 # fs
 testlib_fs_srcs= \
@@ -2388,16 +2370,6 @@ $(TESTCACHE)/types/types.ssa: $(testlib_types_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/types
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntypes \
 		-t$(TESTCACHE)/types/types.td $(testlib_types_srcs)
-
-# unicode
-testlib_unicode_srcs= \
-	$(STDLIB)/unicode/properties.ha
-
-$(TESTCACHE)/unicode/unicode.ssa: $(testlib_unicode_srcs) $(testlib_rt)
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/unicode
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunicode \
-		-t$(TESTCACHE)/unicode/unicode.td $(testlib_unicode_srcs)
 
 # unix
 testlib_unix_srcs= \

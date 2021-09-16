@@ -6,12 +6,16 @@ use types;
 export fn dup(s: const str) str = {
 	const in = &s: *types::string;
 	const id = match (in.data) {
-		null => return "", // Empty string
-		b: *[*]u8 => b,
+	case null =>
+		return ""; // Empty string
+	case b: *[*]u8 =>
+		yield b;
 	};
 	let buf: *[*]u8 = match (rt::malloc(in.length + 1)) {
-		null => abort("Out of memory"),
-		v: *void => v,
+	case null =>
+		abort("Out of memory");
+	case v: *void =>
+		yield v;
 	};
 	bytes::copy(buf[..in.length + 1z], id[..in.length + 1]);
 	let out = types::string {
