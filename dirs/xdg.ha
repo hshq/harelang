@@ -13,7 +13,7 @@ fn lookup(prog: str, var: str, default: str) str = {
 					return path;
 				},
 				st: fs::filestat => {
-					if (fs::is_dir(st.mode)) {
+					if (fs::isdir(st.mode)) {
 						return path;
 					};
 				},

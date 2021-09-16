@@ -61,25 +61,25 @@ export fn mode_perm(m: mode) mode = (m: uint & 0o777u): mode;
 export fn mode_type(m: mode) mode = (m: uint & ~0o777u): mode;
 
 // Returns true if this item is a regular file.
-export fn is_file(mode: mode) bool = mode & mode::REG == mode::REG;
+export fn isfile(mode: mode) bool = mode & mode::REG == mode::REG;
 
 // Returns true if this item is a FIFO (named pipe).
-export fn is_fifo(mode: mode) bool = mode & mode::FIFO == mode::FIFO;
+export fn isfifo(mode: mode) bool = mode & mode::FIFO == mode::FIFO;
 
 // Returns true if this item is a directory.
-export fn is_dir(mode: mode) bool = mode & mode::DIR == mode::DIR;
+export fn isdir(mode: mode) bool = mode & mode::DIR == mode::DIR;
 
 // Returns true if this item is a character device.
-export fn is_chdev(mode: mode) bool = mode & mode::CHR == mode::CHR;
+export fn ischdev(mode: mode) bool = mode & mode::CHR == mode::CHR;
 
 // Returns true if this item is a block device.
-export fn is_blockdev(mode: mode) bool = mode & mode::BLK == mode::BLK;
+export fn isblockdev(mode: mode) bool = mode & mode::BLK == mode::BLK;
 
 // Returns true if this item is a symbolic link.
-export fn is_link(mode: mode) bool = mode & mode::LINK == mode::LINK;
+export fn islink(mode: mode) bool = mode & mode::LINK == mode::LINK;
 
 // Returns true if this item is a Unix socket.
-export fn is_socket(mode: mode) bool = mode & mode::SOCK == mode::SOCK;
+export fn issocket(mode: mode) bool = mode & mode::SOCK == mode::SOCK;
 
 // Reads all entries from a directory. The caller must free the return value
 // with [[dirents_free]].
