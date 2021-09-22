@@ -3,4 +3,4 @@
 _start:
 	mv a0, sp
 	andi sp, sp, -16
-	tail rt.start_ha
+	tail rt.start_linux
