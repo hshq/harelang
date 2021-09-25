@@ -308,6 +308,23 @@ format_elf() {
 	gen_ssa format::elf
 }
 
+gensrcs_format_ini() {
+	gen_srcs format::ini \
+		scan.ha \
+		types.ha \
+		$*
+}
+
+format_ini() {
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_format_ini
+	else
+		gensrcs_format_ini +test.ha
+	fi
+	gen_ssa format::ini bufio encoding::utf8 fmt io strings
+}
+
 gensrcs_format_xml() {
 	gen_srcs format::xml \
 		types.ha \
@@ -874,6 +891,7 @@ errors
 fmt
 fnmatch
 format::elf
+format::ini
 format::xml
 fs
 fs::mem

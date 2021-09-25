@@ -162,6 +162,10 @@ hare_stdlib_deps+=$(stdlib_fnmatch)
 stdlib_format_elf=$(HARECACHE)/format/elf/format_elf.o
 hare_stdlib_deps+=$(stdlib_format_elf)
 
+# gen_lib format::ini
+stdlib_format_ini=$(HARECACHE)/format/ini/format_ini.o
+hare_stdlib_deps+=$(stdlib_format_ini)
+
 # gen_lib format::xml
 stdlib_format_xml=$(HARECACHE)/format/xml/format_xml.o
 hare_stdlib_deps+=$(stdlib_format_xml)
@@ -588,6 +592,17 @@ $(HARECACHE)/format/elf/format_elf.ssa: $(stdlib_format_elf_srcs) $(stdlib_rt)
 	@mkdir -p $(HARECACHE)/format/elf
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::elf \
 		-t$(HARECACHE)/format/elf/format_elf.td $(stdlib_format_elf_srcs)
+
+# format::ini
+stdlib_format_ini_srcs= \
+	$(STDLIB)/format/ini/scan.ha \
+	$(STDLIB)/format/ini/types.ha
+
+$(HARECACHE)/format/ini/format_ini.ssa: $(stdlib_format_ini_srcs) $(stdlib_rt) $(stdlib_bufio) $(stdlib_encoding_utf8) $(stdlib_fmt) $(stdlib_io) $(stdlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/format/ini
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::ini \
+		-t$(HARECACHE)/format/ini/format_ini.td $(stdlib_format_ini_srcs)
 
 # format::xml
 stdlib_format_xml_srcs= \
@@ -1375,6 +1390,10 @@ hare_testlib_deps+=$(testlib_fnmatch)
 testlib_format_elf=$(TESTCACHE)/format/elf/format_elf.o
 hare_testlib_deps+=$(testlib_format_elf)
 
+# gen_lib format::ini
+testlib_format_ini=$(TESTCACHE)/format/ini/format_ini.o
+hare_testlib_deps+=$(testlib_format_ini)
+
 # gen_lib format::xml
 testlib_format_xml=$(TESTCACHE)/format/xml/format_xml.o
 hare_testlib_deps+=$(testlib_format_xml)
@@ -1809,6 +1828,18 @@ $(TESTCACHE)/format/elf/format_elf.ssa: $(testlib_format_elf_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/format/elf
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::elf \
 		-t$(TESTCACHE)/format/elf/format_elf.td $(testlib_format_elf_srcs)
+
+# format::ini
+testlib_format_ini_srcs= \
+	$(STDLIB)/format/ini/scan.ha \
+	$(STDLIB)/format/ini/types.ha \
+	$(STDLIB)/format/ini/+test.ha
+
+$(TESTCACHE)/format/ini/format_ini.ssa: $(testlib_format_ini_srcs) $(testlib_rt) $(testlib_bufio) $(testlib_encoding_utf8) $(testlib_fmt) $(testlib_io) $(testlib_strings)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/format/ini
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::ini \
+		-t$(TESTCACHE)/format/ini/format_ini.td $(testlib_format_ini_srcs)
 
 # format::xml
 testlib_format_xml_srcs= \
