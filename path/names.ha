@@ -4,36 +4,64 @@ use strings;
 
 // Returns the directory name for a given path. For a path to a file name, this
 // returns the directory in which that file resides. For a path to a directory,
-// this returns the path to its parent directory. The return value is borrowed
-// from the input, use [[dup]] to extend its lifetime.
-export fn dirname(path: str) str = {
-	let b = strings::toutf8(path);
+// this returns the path to its parent directory. The return value is eitherr
+// borrowed from the input or statically allocated), use [[dup]] to extend its
+// lifetime or modify it.
+export fn dirname(path: str) const str = {
+	if (path == "") {
+		return ".";
+	};
+	let trimmed = strings::rtrim(path, PATHSEP: u32: rune);
+	if (trimmed == "") {
+		return "/";
+	};
+	let b = strings::toutf8(trimmed);
 	let i = match (bytes::rindex(b, PATHSEP)) {
 	case void =>
-		return path;
+		return ".";
 	case z: size =>
 		yield z;
 	};
 	if (i == 0) {
 		i += 1;
 	};
-	return strings::fromutf8_unsafe(b[..i]);
+	path = strings::fromutf8_unsafe(b[..i]);
+	path = strings::rtrim(path, PATHSEP: u32: rune);
+	if (path == "") {
+		return "/";
+	};
+	return path;
 };
 
 @test fn dirname() void = {
 	assert(dirname("/foo/bar") == "/foo");
 	assert(dirname("/foo") == "/");
 	assert(dirname("/") == "/");
+	assert(dirname("//") == "/");
+	assert(dirname("///") == "/");
 	assert(dirname("foo/bar") == "foo");
-	assert(dirname("foo") == "foo");
+	assert(dirname("") == ".");
+	assert(dirname("foo") == ".");
+	assert(dirname("foo/") == ".");
+	assert(dirname("foo//") == ".");
+	assert(dirname("///foo") == "/");
+	assert(dirname("///foo//") == "/");
+	assert(dirname("//foo///bar//") == "//foo");
 };
 
 // Returns the final component of a given path. For a path to a file name, this
 // returns the file name. For a path to a directory, this returns the directory
-// name. The return value is borrowed from the input, use [[dup]] to extend its
-// lifetime.
-export fn basename(path: str) str = {
-	let b = strings::toutf8(path);
+// name. The return value is either borrowed from the input or statically
+// allocated, use [[dup]] to extend its lifetime or modify it.
+export fn basename(path: str) const str = {
+	if (path == "") {
+		return ".";
+	};
+	let trimmed = strings::rtrim(path, PATHSEP: u32: rune);
+	if (trimmed == "") {
+		return "/";
+	};
+	let b = strings::toutf8(trimmed);
 	let i = match (bytes::rindex(b, PATHSEP)) {
 	case void =>
 		return path;
@@ -47,7 +75,10 @@ export fn basename(path: str) str = {
 	assert(basename("/foo/bar") == "bar");
 	assert(basename("/foo") == "foo");
 	assert(basename("/") == "/");
+	assert(basename("//") == "/");
+	assert(basename("///") == "/");
 	assert(basename("foo/bar") == "bar");
+	assert(basename("foo/bar//") == "bar");
 	assert(basename("foo") == "foo");
 };
 
@@ -60,6 +91,9 @@ export fn basename(path: str) str = {
 // 	extension("foo/example.txt") => ("example", ".txt")
 // 	extension("foo/example.tar.gz") => ("example", ".tar.gz")
 export fn extension(p: str) (str, str) = {
+	if (p == "") {
+		return ("", "");
+	};
 	let p = basename(p);
 	let b = strings::toutf8(p);
 	if (len(b) == 0 || b[len(b) - 1] == PATHSEP) {

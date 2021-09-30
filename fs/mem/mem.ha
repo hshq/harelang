@@ -104,7 +104,7 @@ fn create(
 	case =>
 		return errors::exists;
 	};
-	if (path::dirname(path) != path) {
+	if (path::dirname(path) != ".") {
 		parent = inode_find(parent, path::dirname(path))?;
 	};
 
@@ -159,7 +159,7 @@ fn mksubdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 	case =>
 		return errors::exists;
 	};
-	if (path::dirname(path) != path) {
+	if (path::dirname(path) != ".") {
 		parent = inode_find(parent, path::dirname(path))?;
 	};
 	let name = strings::dup(path::basename(path));
