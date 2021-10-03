@@ -1,10 +1,3 @@
-// TODO: remove this after the forward references fix
-export type flags = enum uint {
-	PATHNAME   = 1u << 0,
-	NOESCAPE   = 1u << 1,
-	PERIOD     = 1u << 2,
-};
-
 type testcase = (str, str, bool, []flags);
 
 const testcases: [_]testcase = [

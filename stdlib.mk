@@ -18,6 +18,7 @@ stdlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/socket.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/$(ARCH)/backtrace.ha \
+	$(STDLIB)/rt/types_arch$(ARCH).ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -25,6 +26,7 @@ stdlib_rt_srcs= \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
+	$(STDLIB)/rt/types.ha \
 	$(STDLIB)/rt/abort.ha \
 	$(STDLIB)/rt/start.ha
 
@@ -1139,6 +1141,8 @@ $(HARECACHE)/time/time.ssa: $(stdlib_time_srcs) $(stdlib_rt) $(stdlib_linux_vdso
 stdlib_types_srcs= \
 	$(STDLIB)/types/limits.ha \
 	$(STDLIB)/types/classes.ha \
+	$(STDLIB)/types/reflect.ha \
+	$(STDLIB)/types/util.ha \
 	$(STDLIB)/types/arch$(ARCH).ha
 
 $(HARECACHE)/types/types.ssa: $(stdlib_types_srcs) $(stdlib_rt)
@@ -1242,6 +1246,7 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/$(PLATFORM)/socket.ha \
 	$(STDLIB)/rt/$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/$(ARCH)/backtrace.ha \
+	$(STDLIB)/rt/types_arch$(ARCH).ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -1249,6 +1254,7 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
+	$(STDLIB)/rt/types.ha \
 	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/+test/$(PLATFORM).ha \
@@ -2394,6 +2400,8 @@ $(TESTCACHE)/time/time.ssa: $(testlib_time_srcs) $(testlib_rt) $(testlib_linux_v
 testlib_types_srcs= \
 	$(STDLIB)/types/limits.ha \
 	$(STDLIB)/types/classes.ha \
+	$(STDLIB)/types/reflect.ha \
+	$(STDLIB)/types/util.ha \
 	$(STDLIB)/types/arch$(ARCH).ha
 
 $(TESTCACHE)/types/types.ssa: $(testlib_types_srcs) $(testlib_rt)

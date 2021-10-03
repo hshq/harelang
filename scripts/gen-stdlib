@@ -31,6 +31,7 @@ gensrcs_rt() {
 		'$(PLATFORM)/socket.ha' \
 		'$(ARCH)/jmp.ha' \
 		'$(ARCH)/backtrace.ha' \
+		'types_arch$(ARCH).ha' \
 		ensure.ha \
 		jmp.ha \
 		malloc.ha \
@@ -38,6 +39,7 @@ gensrcs_rt() {
 		memmove.ha \
 		memset.ha \
 		strcmp.ha \
+		types.ha \
 		$*
 }
 
@@ -813,6 +815,8 @@ types() {
 	gen_srcs types \
 		limits.ha \
 		classes.ha \
+		reflect.ha \
+		util.ha \
 		'arch$(ARCH).ha'
 	gen_ssa types
 }
