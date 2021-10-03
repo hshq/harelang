@@ -64,6 +64,7 @@
 	static insert(x[0], foo);
 	len([1, 2, 3, 4]);
 	size(u32);
+	type(u32);
 };
 ");
 };

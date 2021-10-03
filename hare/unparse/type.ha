@@ -33,6 +33,8 @@ case ast::builtin_type::SIZE =>
 	yield "size";
 case ast::builtin_type::STR =>
 	yield "str";
+case ast::builtin_type::TYPE =>
+	yield "type";
 case ast::builtin_type::U16 =>
 	yield "u16";
 case ast::builtin_type::U32 =>

@@ -344,23 +344,23 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (peek(lexer, ltok::ALLOC, ltok::APPEND, ltok::FREE,
 		ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::INSERT,
 		ltok::STATIC, ltok::SIZE, ltok::LEN, ltok::OFFSET,
-		ltok::DEFER)?) {
+		ltok::DEFER, ltok::TYPE)?) {
 	case tok: lex::token =>
 		yield tok;
 	case void =>
 		return postfix(lexer, void);
 	};
-	return switch (tok.0) {
+	switch (tok.0) {
 	case ltok::ALLOC =>
-		yield alloc_expr(lexer);
+		return alloc_expr(lexer);
 	case ltok::APPEND, ltok::INSERT =>
-		yield append_insert_expr(lexer, false);
+		return append_insert_expr(lexer, false);
 	case ltok::DELETE =>
-		yield delete_expr(lexer, false);
+		return delete_expr(lexer, false);
 	case ltok::FREE =>
-		yield free_expr(lexer);
+		return free_expr(lexer);
 	case ltok::ABORT, ltok::ASSERT =>
-		yield assert_expr(lexer, false);
+		return assert_expr(lexer, false);
 	case ltok::STATIC =>
 		want(lexer, ltok::STATIC)?;
 		let tok = match (peek(lexer, ltok::LET, ltok::CONST,
@@ -372,23 +372,33 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 			// TODO: The following is lame:
 			return syntaxerr(tok.2, "Expected let, const, or assert");
 		};
-		yield switch (tok.0) {
+		switch (tok.0) {
 		case ltok::LET, ltok::CONST =>
-			yield binding(lexer, true);
+			return binding(lexer, true);
 		case ltok::ABORT, ltok::ASSERT =>
-			yield assert_expr(lexer, true);
+			return assert_expr(lexer, true);
 		case ltok::APPEND, ltok::INSERT =>
-			yield append_insert_expr(lexer, true);
+			return append_insert_expr(lexer, true);
 		case ltok::DELETE =>
-			yield delete_expr(lexer, true);
+			return delete_expr(lexer, true);
 		case => abort();
 		};
 	case ltok::SIZE, ltok::LEN, ltok::OFFSET =>
-		yield measurement(lexer);
+		return measurement(lexer);
+	case ltok::TYPE =>
+		want(lexer, ltok::TYPE)?;
+		want(lexer, ltok::LPAREN)?;
+		let expr = ast::expr {
+			start = tok.2,
+			end = lex::prevloc(lexer),
+			expr = alloc(_type(lexer)?): ast::type_expr,
+		};
+		want(lexer, ltok::RPAREN)?;
+		return expr;
 	case ltok::DEFER =>
 		want(lexer, ltok::DEFER)?;
 		let expr = alloc(expression(lexer)?);
-		yield ast::expr {
+		return ast::expr {
 			start = tok.2,
 			end = lex::prevloc(lexer),
 			expr = expr: ast::defer_expr,
