@@ -13,11 +13,15 @@ export fn clone(
 			parent_tid: uintptr: u64,
 			tls,
 			child_tid: uintptr: u64))) {
-		u: u64 => switch (u) {
-			0 => void,
-			* => u: int,
-		},
-		err: errno => err,
+	case u: u64 =>
+		switch (u) {
+		case 0 =>
+			yield void;
+		case =>
+			yield u: int;
+		};
+	case err: errno =>
+		yield err;
 	};
 };
 

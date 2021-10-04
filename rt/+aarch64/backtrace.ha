@@ -12,8 +12,10 @@ export fn backtrace() frame = *(getfp(): *frame);
 // Returns the frame above the current frame, if any.
 export fn nextframe(fp: *frame) (frame | void) = {
 	return match (fp.fp) {
-		null => void,
-		fp: *frame => *fp,
+	case null =>
+		yield void;
+	case fp: *frame =>
+		yield *fp;
 	};
 };
 
