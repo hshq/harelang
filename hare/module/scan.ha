@@ -15,6 +15,8 @@ use strings;
 use strio;
 use fmt;
 
+def ABI_VERSION: u8 = 0;
+
 // Scans the files in a directory for eligible build inputs and returns a
 // [[version]] which includes all applicable files and their dependencies.
 export fn scan(ctx: *context, path: str) (version | error) = {
@@ -326,6 +328,7 @@ fn scan_file(
 	defer io::close(f);
 	let sha = sha256::sha256();
 	hash::write(&sha, strings::toutf8(path));
+	hash::write(&sha, [ABI_VERSION]);
 
 	let tee = io::tee(f, &sha);
 	let lexer = lex::init(&tee, path);
