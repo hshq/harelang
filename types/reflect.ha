@@ -23,7 +23,7 @@ export type flags = enum uint {
 
 // Details of the type representation.
 export type repr = (alias | array | builtin
-	| enumerated | func | pointer | slice_repr
+	| enumerated | func | pointer | slice
 	| struct_union | tagged | tuple);
 
 // A type alias.
