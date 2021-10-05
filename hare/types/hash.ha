@@ -6,8 +6,8 @@ use fmt;
 
 // Keep ordered with respect to bootstrap harec:include/types.h
 type storage = enum u8 {
-	BOOL, CHAR, ENUM, F32, F64, I16, I32, I64, I8, INT, NULL, RUNE, SIZE,
-	STRING, U16, U32, U64, U8, UINT, UINTPTR, VOID, TYPE, ALIAS, ARRAY,
+	BOOL, CHAR, F32, F64, I16, I32, I64, I8, INT, NULL, RUNE, SIZE, STRING,
+	U16, U32, U64, U8, UINT, UINTPTR, VOID, TYPE, ALIAS, ARRAY, ENUM,
 	FUNCTION, POINTER, SLICE, STRUCT, TAGGED, TUPLE, UNION,
 };
 

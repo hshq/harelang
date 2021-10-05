@@ -33,10 +33,22 @@ export fn strenum(ty: type, val: *void) str = {
 	};
 
 	for (let i = 0z; i < len(en.values); i += 1) {
-		if (en.values[i].1 == value) {
+		if (en.values[i].1.u == value) {
 			return en.values[i].0;
 		};
 	};
 
 	abort("enum has invalid value");
+};
+
+// Returns [[typeinfo]] for the provided type, unwrapping any aliases along the
+// way.
+export fn unwrap(in: type) const *typeinfo = {
+	let info = reflect(in);
+	match (info.repr) {
+	case a: alias =>
+		return unwrap(a.secondary);
+	case =>
+		return info;
+	};
 };

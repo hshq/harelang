@@ -6,7 +6,7 @@ export fn appendto(sl: *[]void, itemsz: size, items: const *void...) void = {
 	if (len(items) == 0) {
 		return;
 	};
-	let sl = sl: *types::slice;
+	let sl = sl: *types::slice_repr;
 	let end = sl.length;
 	sl.length += len(items);
 	rt::ensure(sl, itemsz);

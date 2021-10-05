@@ -30,7 +30,7 @@ export type string = struct {
 
 // A type representing the internal structure of slices, useful for low-level
 // slice manipulation.
-export type slice = struct {
+export type slice_repr = struct {
 	// The slice contents.
 	data: nullable *void,
 
