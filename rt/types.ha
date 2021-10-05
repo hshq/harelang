@@ -97,51 +97,51 @@ export const @hidden builtin_char: types::typeinfo = types::typeinfo {
 	sz = 1, al = 1, flags = 0,
 	repr = types::builtin::CHAR,
 }, @hidden builtin_f32: types::typeinfo = types::typeinfo {
-	id = 930681398,
+	id = 1568378015,
 	sz = 4, al = 4, flags = 0,
 	repr = types::builtin::F32,
 }, @hidden builtin_f64: types::typeinfo = types::typeinfo {
-	id = 2037165609,
+	id = 930681398,
 	sz = 8, al = 8, flags = 0,
 	repr = types::builtin::F64,
 }, @hidden builtin_i8: types::typeinfo = types::typeinfo {
-	id = 461893804,
+	id = 2674862226,
 	sz = 1, al = 1, flags = 0,
 	repr = types::builtin::I8,
 }, @hidden builtin_i16: types::typeinfo = types::typeinfo {
-	id = 3312558843,
+	id = 2037165609,
 	sz = 2, al = 2, flags = 0,
 	repr = types::builtin::I16,
 }, @hidden builtin_i32: types::typeinfo = types::typeinfo {
-	id = 2674862226,
+	id = 1399468992,
 	sz = 4, al = 4, flags = 0,
 	repr = types::builtin::I32,
 }, @hidden builtin_i64: types::typeinfo = types::typeinfo {
-	id = 1099590421,
+	id = 3312558843,
 	sz = 8, al = 8, flags = 0,
 	repr = types::builtin::I64,
 }, @hidden builtin_rune: types::typeinfo = types::typeinfo {
-	id = 2206074632,
+	id = 2374983655,
 	sz = 4, al = 4, flags = 0,
 	repr = types::builtin::RUNE,
 }, @hidden builtin_u8: types::typeinfo = types::typeinfo {
-	id = 3181589295,
+	id = 1906196061,
 	sz = 1, al = 1, flags = 0,
 	repr = types::builtin::U8,
 }, @hidden builtin_u16: types::typeinfo = types::typeinfo {
-	id = 3481467866,
+	id = 2206074632,
 	sz = 2, al = 2, flags = 0,
 	repr = types::builtin::U16,
 }, @hidden builtin_u32: types::typeinfo = types::typeinfo {
-	id = 1906196061,
+	id = 4119164483,
 	sz = 4, al = 4, flags = 0,
 	repr = types::builtin::U32,
 }, @hidden builtin_u64: types::typeinfo = types::typeinfo {
-	id = 1268499444,
+	id = 3481467866,
 	sz = 8, al = 8, flags = 0,
 	repr = types::builtin::U64,
 }, @hidden builtin_void: types::typeinfo = types::typeinfo {
-	id = 3012680272,
+	id = 2543892678,
 	sz = 0, al = 0, flags = 0,
 	repr = types::builtin::VOID,
 };

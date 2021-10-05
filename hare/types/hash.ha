@@ -169,7 +169,7 @@ export fn hash(t: *_type) u32 = {
 		flags = flags::NONE,
 		repr = builtin::STR,
 	};
-	assert(hash(&sample) == 2206074632);
+	assert(hash(&sample) == 2843771249);
 
 	let sample = _type {
 		flags = flags::NONE,
@@ -178,7 +178,7 @@ export fn hash(t: *_type) u32 = {
 			...
 		},
 	};
-	assert(hash(&sample) == 1488828140);
+	assert(hash(&sample) == 385303307);
 
 	let sample = _type {
 		flags = flags::ERROR,
@@ -187,13 +187,13 @@ export fn hash(t: *_type) u32 = {
 			...
 		},
 	};
-	assert(hash(&sample) == 4003927486);
+	assert(hash(&sample) == 4117101293);
 
 	let _int = _type {
 		flags = flags::NONE,
 		repr = builtin::INT,
 	};
-	assert(hash(&_int) == 461893804);
+	assert(hash(&_int) == 1099590421);
 
 	let sample = _type {
 		flags = flags::NONE,
@@ -202,7 +202,7 @@ export fn hash(t: *_type) u32 = {
 			flags = pointer_flags::NONE,
 		},
 	};
-	assert(hash(&sample) == 934607058);
+	assert(hash(&sample) == 2081672869);
 
 	let sample = _type {
 		flags = flags::NONE,
@@ -211,7 +211,7 @@ export fn hash(t: *_type) u32 = {
 			flags = pointer_flags::NULLABLE,
 		},
 	};
-	assert(hash(&sample) == 241140837);
+	assert(hash(&sample) == 841481858);
 
 	let sample = _type {
 		flags = flags::NONE,
@@ -231,7 +231,7 @@ export fn hash(t: *_type) u32 = {
 			],
 		},
 	};
-	assert(hash(&sample) == 381928193);
+	assert(hash(&sample) == 2453524063);
 
 	let sample = _type {
 		flags = flags::NONE,
@@ -250,7 +250,7 @@ export fn hash(t: *_type) u32 = {
 			},
 		],
 	};
-	assert(hash(&sample) == 1705302210);
+	assert(hash(&sample) == 2230759349);
 
 	let sample = _type {
 		flags = flags::NONE,
@@ -259,7 +259,7 @@ export fn hash(t: *_type) u32 = {
 			member = &_int,
 		},
 	};
-	assert(hash(&sample) == 164621237);
+	assert(hash(&sample) == 3903522747);
 
 	let _uint = _type {
 		flags = flags::NONE,
@@ -278,7 +278,7 @@ export fn hash(t: *_type) u32 = {
 			&_void,
 		]: tagged,
 	};
-	assert(hash(&sample) == 204212843);
+	assert(hash(&sample) == 2847927164);
 
 	let sample = _type {
 		flags = flags::NONE,
@@ -291,7 +291,7 @@ export fn hash(t: *_type) u32 = {
 			],
 		},
 	};
-	assert(hash(&sample) == 2700673451);
+	assert(hash(&sample) == 94471087);
 
 	let sample = _type {
 		flags = flags::NONE,
@@ -302,11 +302,11 @@ export fn hash(t: *_type) u32 = {
 			params = [&_uint, &_int],
 		},
 	};
-	assert(hash(&sample) == 3530404333);
+	assert(hash(&sample) == 1223530078);
 
 	let sample = _type {
 		flags = flags::NONE,
 		repr = &_void: slice,
 	};
-	assert(hash(&sample) == 296987721);
+	assert(hash(&sample) == 263911532);
 };
