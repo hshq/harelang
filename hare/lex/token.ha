@@ -6,6 +6,7 @@ export type ltok = enum uint {
 	// Keep ordered with bmap
 	// Alpha sorted
 	ATTR_FINI,
+	ATTR_HIDDEN,
 	ATTR_INIT,
 	ATTR_NORETURN,
 	ATTR_OFFSET,
@@ -152,6 +153,7 @@ export type ltok = enum uint {
 const bmap: [_]str = [
 	// Keep ordered with tok
 	"@fini",
+	"@hidden",
 	"@init",
 	"@noreturn",
 	"@offset",

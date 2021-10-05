@@ -1,7 +1,7 @@
 #!/bin/sh
 # Yes, I am entirely aware that this is a hack
 modules=$(awk '
-/^modules="/ { sub(/.*=\"/, ""); print $1; mods = 1 }
+/^modules="/ { sub(/.*="/, ""); print $1; mods = 1 }
 /^[a-z][a-z0-9:_]+$/ { if (mods == 1) { print $1 } }
 /^[a-z][a-z0-9:_]+"$/ { if (mods == 1) { mods = 0; sub(/"/, ""); print $1 } }
 ' < scripts/gen-stdlib)

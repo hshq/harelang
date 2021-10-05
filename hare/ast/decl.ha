@@ -15,6 +15,7 @@ export type decl_const = struct {
 // 	const foo: int = 0;
 export type decl_global = struct {
 	is_const: bool,
+	is_hidden: bool,
 	symbol: str,
 	ident: ident,
 	_type: _type,
