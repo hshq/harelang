@@ -599,10 +599,19 @@ linux_vdso() {
 	gen_ssa linux::vdso linux strings format::elf
 }
 
+gensrcs_math() {
+	gen_srcs math \
+		math.ha floats.ha ints.ha uints.ha trig.ha \
+		$*
+}
+
 math() {
 	printf '# math\n'
-	gen_srcs math \
-		testdata.ha math.ha floats.ha ints.ha uints.ha trig.ha
+	if [ $testing -eq 0 ]; then
+		gensrcs_math
+	else
+		gensrcs_math data+test.ha
+	fi
 	gen_ssa math types
 }
 
