@@ -35,6 +35,13 @@ fn emit_hare(ctx: *context) (void | error) = {
 		first = false;
 		details_hare(ctx, summary.types[i])?;
 	};
+	for (let i = 0z; i < len(summary.constants); i += 1) {
+		if (!first) {
+			fmt::println()?;
+		};
+		first = false;
+		details_hare(ctx, summary.constants[i])?;
+	};
 	for (let i = 0z; i < len(summary.errors); i += 1) {
 		if (!first) {
 			fmt::println()?;
@@ -85,7 +92,7 @@ fn unparse_hare(out: *io::stream, d: ast::decl) (size | io::error) = {
 	match (d.decl) {
 	case g: []ast::decl_global =>
 		n += fmt::fprint(out,
-			if (g[0].is_const) "def " else "let ")?;
+			if (g[0].is_const) "const " else "let ")?;
 		for (let i = 0z; i < len(g); i += 1) {
 			if (len(g[i].symbol) != 0) {
 				n += fmt::fprintf(out,
@@ -105,6 +112,16 @@ fn unparse_hare(out: *io::stream, d: ast::decl) (size | io::error) = {
 			n += fmt::fprint(out, " = ")?;
 			n += unparse::_type(out, 0, t[i]._type)?;
 			if (i + 1 < len(t)) {
+				n += fmt::fprint(out, ", ")?;
+			};
+		};
+	case c: []ast::decl_const =>
+		n += fmt::fprint(out, "def ")?;
+		for (let i = 0z; i < len(c); i += 1) {
+			n += unparse::ident(out, c[i].ident)?;
+			n += fmt::fprint(out, ": ")?;
+			n += unparse::_type(out, 0, c[i]._type)?;
+			if (i + 1 < len(c)) {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};

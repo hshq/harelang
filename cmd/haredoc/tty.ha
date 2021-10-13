@@ -33,6 +33,9 @@ fn emit_tty(ctx: *context) (void | error) = {
 	for (let i = 0z; i < len(summary.types); i += 1) {
 		details_tty(ctx, summary.types[i])?;
 	};
+	for (let i = 0z; i < len(summary.constants); i += 1) {
+		details_tty(ctx, summary.constants[i])?;
+	};
 	for (let i = 0z; i < len(summary.errors); i += 1) {
 		details_tty(ctx, summary.errors[i])?;
 	};
@@ -91,7 +94,7 @@ fn unparse_tty(out: *io::stream, d: ast::decl) (size | io::error) = {
 	case g: []ast::decl_global =>
 		n += fmt::fprint(out, "\x1b[34m")?;
 		n += fmt::fprint(out,
-			if (g[0].is_const) "def " else "let ")?;
+			if (g[0].is_const) "const " else "let ")?;
 		n += fmt::fprint(out, "\x1b[0m")?;
 		for (let i = 0z; i < len(g); i += 1) {
 			if (len(g[i].symbol) != 0) {
@@ -103,6 +106,16 @@ fn unparse_tty(out: *io::stream, d: ast::decl) (size | io::error) = {
 			n += fmt::fprint(out, ": ")?;
 			n += type_tty(out, 0, g[i]._type)?;
 			if (i + 1 < len(g)) {
+				n += fmt::fprint(out, ", ")?;
+			};
+		};
+	case c: []ast::decl_const =>
+		n += fmt::fprintf(out, "\x1b[34m" "def " "\x1b[0m")?;
+		for (let i = 0z; i < len(c); i += 1) {
+			n += unparse::ident(out, c[i].ident)?;
+			n += fmt::fprint(out, ": ")?;
+			n += type_tty(out, 0, c[i]._type)?;
+			if (i + 1 < len(c)) {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
