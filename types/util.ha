@@ -44,8 +44,7 @@ export fn strenum(ty: type, val: *void) str = {
 // TODO: should we have a static version of that?
 
 // Returns the names of enabled flags of a bitfield enum at "val" formatted as
-// '|' operation, or "0" when the value doesn't match any flags. The string
-// must be freed by the caller.
+// '|' operation. The string must be freed by the caller.
 export fn strflag(ty: type, val: *void) str = {
 	const ty = unwrap(ty);
 	const en = ty.repr as enumerated;
@@ -78,19 +77,33 @@ export fn strflag(ty: type, val: *void) str = {
 	};
 
 	let buf: []u8 = alloc([]);
+	let zeroname = "";
+
+	let pipe = false;
 
 	for (let i = 0z; i < len(en.values); i += 1) {
-		if (en.values[i].1.u & value != 0) {
-			if (i > 0) {
+		const val = en.values[i];
+		if (val.1.u == 0) {
+			zeroname = val.0;
+			continue;
+		};
+		if (val.1.u & value != 0) {
+			if (pipe) {
 				append(buf, '|': u8);
 			};
-			const name = en.values[i].0;
-			append(buf, *(&name: *[]u8)...);
+			append(buf, *(&val.0: *[]u8)...);
+			pipe = true;
+		} else {
+			pipe = false;
 		};
 	};
 
+	if (value == 0) {
+		append(buf, *(&zeroname: *[]u8)...);
+	};
+
 	if (len(buf) == 0) {
-		append(buf, '0': u8);
+		abort("Enum has invalid value");
 	};
 
 	return *(&buf: *str);
