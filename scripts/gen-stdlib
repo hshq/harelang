@@ -820,13 +820,23 @@ temp() {
 	gen_ssa temp crypto::random encoding::hex fs io os path strio fmt
 }
 
-types() {
+gensrcs_types() {
 	gen_srcs types \
 		limits.ha \
 		classes.ha \
 		reflect.ha \
 		util.ha \
-		'arch$(ARCH).ha'
+		'arch$(ARCH).ha' \
+		$*
+}
+
+types() {
+	if [ $testing -eq 0 ]; then
+		gensrcs_types
+	else
+		gensrcs_types \
+			util+test.ha
+	fi
 	gen_ssa types
 }
 

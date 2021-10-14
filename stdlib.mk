@@ -2401,7 +2401,8 @@ testlib_types_srcs= \
 	$(STDLIB)/types/classes.ha \
 	$(STDLIB)/types/reflect.ha \
 	$(STDLIB)/types/util.ha \
-	$(STDLIB)/types/arch$(ARCH).ha
+	$(STDLIB)/types/arch$(ARCH).ha \
+	$(STDLIB)/types/util+test.ha
 
 $(TESTCACHE)/types/types.ssa: $(testlib_types_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
