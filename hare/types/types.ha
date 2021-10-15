@@ -36,6 +36,7 @@ export type variadism = enum {
 
 // Indicats if a [[func]] has the @noreturn attribute
 export type func_flags = enum uint {
+	NONE = 0,
 	NORETURN = 1 << 0,
 };
 
