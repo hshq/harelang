@@ -208,8 +208,10 @@ export fn rmdirall(fs: *fs, path: str) (void | error) = {
 			defer free(p);
 
 			switch (ent.ftype & mode::DIR) {
-			case mode::DIR => rmdirall(fs, p)?;
-			case  => remove(fs, p)?;
+			case mode::DIR =>
+				rmdirall(fs, p)?;
+			case =>
+				remove(fs, p)?;
 			};
 		case void =>
 			break;
