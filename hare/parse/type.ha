@@ -53,7 +53,7 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 	let t = _type(lexer)?;
 	return ast::func_type {
 		result = alloc(t),
-		attrs = 0,
+		attrs = ast::func_attrs::NONE,
 		variadism = variadism,
 		params = params,
 	};
@@ -128,7 +128,7 @@ fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 	return ast::_type {
 		start = tok.2,
 		end = lex::prevloc(lexer),
-		flags = 0,
+		flags = ast::type_flags::NONE,
 		repr = builtin,
 	};
 };
@@ -152,7 +152,7 @@ fn pointer_type(lexer: *lex::lexer) (ast::_type | error) = {
 	const start = lex::mkloc(lexer);
 	let flags = match (try(lexer, ltok::NULLABLE)?) {
 	case void =>
-		yield 0: ast::pointer_flags;
+		yield ast::pointer_flags::NONE;
 	case =>
 		yield ast::pointer_flags::NULLABLE;
 	};
@@ -161,7 +161,7 @@ fn pointer_type(lexer: *lex::lexer) (ast::_type | error) = {
 	return ast::_type {
 		start = start,
 		end = lex::prevloc(lexer),
-		flags = 0,
+		flags = ast::type_flags::NONE,
 		repr = ast::pointer_type {
 			referent = alloc(_type),
 			flags = flags,
@@ -186,7 +186,7 @@ fn tagged_type(
 	return ast::_type {
 		start = start,
 		end = lex::prevloc(lexer),
-		flags = 0,
+		flags = ast::type_flags::NONE,
 		repr = tagged,
 	};
 };
@@ -208,7 +208,7 @@ fn tuple_type(
 	return ast::_type {
 		start = start,
 		end = lex::prevloc(lexer),
-		flags = 0,
+		flags = ast::type_flags::NONE,
 		repr = tuple,
 	};
 };
@@ -217,7 +217,7 @@ fn fn_type(lexer: *lex::lexer) (ast::_type | error) = {
 	const start = lex::mkloc(lexer);
 	let attrs = match (try(lexer, ltok::ATTR_NORETURN)?) {
 	case void =>
-		yield 0: ast::func_attrs;
+		yield ast::func_attrs::NONE;
 	case =>
 		yield ast::func_attrs::NORETURN;
 	};
@@ -280,7 +280,7 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 	return ast::_type {
 		start = kind.2,
 		end = lex::prevloc(lexer),
-		flags = 0,
+		flags = ast::type_flags::NONE,
 		repr = switch (kind.0) {
 		case ltok::STRUCT =>
 			yield membs: ast::struct_type;
@@ -300,7 +300,7 @@ fn struct_embed_or_field(
 	// struct-union-field
 	// 	name : type
 	// 	identifier
-	// 
+	//
 	// identifier
 	// 	name
 	// 	name :: identifier
@@ -361,7 +361,7 @@ fn array_slice_type(lexer: *lex::lexer) (ast::_type | error) = {
 	return ast::_type {
 		start = start.2,
 		end = lex::prevloc(lexer),
-		flags = 0,
+		flags = ast::type_flags::NONE,
 		repr = ast::list_type {
 			length = length,
 			members = alloc(_type),
@@ -410,7 +410,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 	return ast::_type {
 		start = start.2,
 		end = lex::prevloc(lexer),
-		flags = 0,
+		flags = ast::type_flags::NONE,
 		repr = ast::enum_type {
 			storage = storage,
 			values = membs,
@@ -420,7 +420,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 
 // Parses a type, e.g. '[]int'.
 export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
-	let flags: ast::type_flags = 0;
+	let flags = ast::type_flags::NONE;
 	if (try(lexer, ltok::CONST)? is lex::token) {
 		flags |= ast::type_flags::CONST;
 	};

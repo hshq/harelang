@@ -33,6 +33,7 @@ export type variadism = enum {
 
 // The attributes associated with a function type.
 export type func_attrs = enum uint {
+	NONE = 0,
 	NORETURN = 1 << 0,
 };
 
@@ -68,6 +69,7 @@ export type list_type = struct {
 
 // Flags which apply to a pointer type.
 export type pointer_flags = enum uint {
+	NONE = 0,
 	NULLABLE = 1 << 0,
 };
 
@@ -109,6 +111,7 @@ export type tuple_type = []*_type;
 
 // Flags which apply to types.
 export type type_flags = enum uint {
+	NONE = 0,
 	CONST = 1 << 0,
 	ERROR = 1 << 1,
 };
