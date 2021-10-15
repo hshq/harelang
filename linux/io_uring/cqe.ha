@@ -28,7 +28,7 @@ export fn wait(ring: *io_uring) (*cqe | error) = {
 export fn peek(ring: *io_uring) (nullable *cqe | error) = get_cqe(ring, 0, 0);
 
 // Returns the result of a [[cqe]], or an error if unsuccessful.
-export fn result(cqe: *cqe) (int | error) = 
+export fn result(cqe: *cqe) (int | error) =
 	if (cqe.res < 0) errors::errno(rt::wrap_errno(-cqe.res))
 	else cqe.res;
 
@@ -56,7 +56,7 @@ fn get_cqe(
 	let cq: nullable *cqe = null;
 	for (cq == null) {
 		let enter = false, overflow = false;
-		let flags: enter_flags = 0;
+		let flags = enter_flags::NONE;
 
 		// TODO: tuple destructuring
 		let tup = peek_cqe(ring);

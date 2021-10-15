@@ -81,7 +81,7 @@ fn do_submit(
 	submitted: uint,
 	wait: uint,
 ) (uint | error) = {
-	let flags: enter_flags = enter_flags::GETEVENTS;
+	let flags = enter_flags::GETEVENTS;
 	if (needs_enter(ring, &flags) || wait != 0) {
 		match (rt::io_uring_enter(ring.fd,
 				submitted, wait, flags, null)) {

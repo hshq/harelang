@@ -45,6 +45,7 @@ type types::variadism = enum {
 };
 
 type types::func_flags = enum uint {
+	NONE = 0,
 	NORETURN = 1 << 0,
 };
 

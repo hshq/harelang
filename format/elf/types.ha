@@ -552,6 +552,8 @@ export type sht = enum u32 {
 
 // Section flags
 export type shf = enum u32 {
+	// Section contains no data
+	NONE = 0,
 	// Section contains writable data
 	WRITE = 0x1,
 	// Section is allocated in memory image of program
@@ -718,6 +720,8 @@ export type pt = enum u32 {
 
 // Segment attributes
 export type pf = enum u32 {
+	// No permission
+	NONE = 0,
 	// Execute permission
 	X = 0x1,
 	// Write permission

@@ -5,6 +5,8 @@ use sort;
 
 // A set of flags that alter the matching behavior of [[fnmatch::fnmatch]]
 export type flags = enum uint {
+	NONE = 0,
+
 	// If this flag is set, slashes in the string will only be matched by
 	// literal slashes in the pattern
 	PATHNAME = 1u << 0,

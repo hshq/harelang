@@ -56,6 +56,7 @@ export type op = enum u8 {
 
 // Flags for an [[sqe]].
 export type flags = enum u8 {
+	NONE = 0,
 	// Use fixed fileset
 	FIXED_FILE = 1 << 0,
 	// Issue after inflight IO
@@ -72,11 +73,13 @@ export type flags = enum u8 {
 
 // Flags for an fsync operation.
 export type fsync_flags = enum u32 {
+	NONE = 0,
 	DATASYNC = 1 << 0,
 };
 
 // Flags for a timeout operation.
 export type timeout_flags = enum u32 {
+	NONE = 0,
 	// If set, the timeout will be "absolute", waiting until CLOCK_MONOTONIC
 	// reaches the time defined by the timespec. If unset, it will be
 	// interpted as a duration relative to the I/O submission.
@@ -88,11 +91,13 @@ export type timeout_flags = enum u32 {
 
 // Flags for a splice operation.
 export type splice_flags = enum u32 {
+	NONE = 0,
 	F_FD_IN_FIXED = 1 << 31,
 };
 
 // Flags for a [[cqe]].
 export type cqe_flags = enum u32 {
+	NONE = 0,
 	F_BUFFER = 1 << 0,
 };
 
@@ -162,6 +167,7 @@ export type sqring_offsets = struct {
 
 // Flags for the sq ring.
 export type sqring_flags = enum u32 {
+	NONE = 0,
 	// Needs io_uring_enter wakeup
 	NEED_WAKEUP = 1 << 0,
 	// CQ ring is overflown
@@ -183,11 +189,13 @@ export type cqring_offsets = struct {
 
 // Flags for the cq ring.
 export type cqring_flags = enum u32 {
+	NONE = 0,
 	EVENTFD_DISABLED = 1 << 0,
 };
 
 // Flags for [[setup]].
 export type setup_flags = enum u32 {
+	NONE = 0,
 	// io_context is polled
 	IOPOLL = 1 << 0,
 	// SQ poll thread
@@ -220,6 +228,7 @@ export type params = struct {
 
 // Features supported by the kernel.
 export type features = enum u32 {
+	NONE = 0,
 	SINGLE_MMAP = 1 << 0,
 	NODROP = 1 << 1,
 	SUBMIT_STABLE = 1 << 2,
@@ -231,6 +240,7 @@ export type features = enum u32 {
 
 // Flags for [[enter]].
 export type enter_flags = enum uint {
+	NONE = 0,
 	GETEVENTS = 1 << 0,
 	SQ_WAKEUP = 1 << 1,
 	SQ_WAIT = 1 << 2,
@@ -263,6 +273,7 @@ export type files_update = struct {
 
 // Flags for a probe operation.
 export type op_flags = enum u16 {
+	NONE = 0,
 	SUPPORTED = 1 << 0,
 };
 
@@ -297,6 +308,7 @@ export type restriction = struct {
 
 // Opcode for a [[restriction]].
 export type resop = enum u16 {
+	NONE = 0,
 	// Allow an io_uring_register(2) opcode
 	REGISTER_OP = 0,
 	// Allow an sqe opcode

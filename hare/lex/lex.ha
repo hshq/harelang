@@ -24,6 +24,7 @@ export type lexer = struct {
 
 // Flags which apply to this lexer
 export type flags = enum uint {
+	NONE = 0,
 	// Enables lexing comments
 	COMMENTS = 1 << 0,
 };
@@ -48,7 +49,7 @@ export fn strerror(err: error) const str = {
 
 // Initializes a new lexer for the given input stream. The path is borrowed.
 export fn init(in: *io::stream, path: str, flags: flags...) lexer = {
-	let f: flags = 0: flags;
+	let f = flags::NONE;
 	for (let i = 0z; i < len(flags); i += 1) {
 		f |= flags[i];
 	};
