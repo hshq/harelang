@@ -74,15 +74,15 @@ export fn unwrapfd(s: *stream) (int | void) = {
 fn fd_read(s: *stream, buf: []u8) (size | EOF | error) = {
 	let stream = s: *file;
 	match (rt::read(stream.fd, buf: *[*]u8, len(buf))) {
-		case err: rt::errno =>
-			return errors::errno(err);
-		case n: size =>
-			switch (n) {
-			case 0 =>
-				return EOF;
-			case =>
-				return n;
-			};
+	case err: rt::errno =>
+		return errors::errno(err);
+	case n: size =>
+		switch (n) {
+		case 0 =>
+			return EOF;
+		case =>
+			return n;
+		};
 	};
 };
 
