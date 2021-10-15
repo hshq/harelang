@@ -1,5 +1,6 @@
 use bufio;
 use fmt;
+use fs;
 use getopt;
 use hare::ast;
 use hare::lex;
@@ -53,9 +54,9 @@ export fn main() void = {
 		let input = match (os::open(cmd.args[i])) {
 		case f: io::file =>
 			yield f;
-		case err: io::error =>
+		case err: fs::error =>
 			fmt::fatal("Error opening {}: {}",
-				cmd.args[i], io::strerror(err));
+				cmd.args[i], fs::strerror(err));
 		};
 		defer io::close(&input);
 		static let buf: [os::BUFSIZ]u8 = [0...];
