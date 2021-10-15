@@ -11,10 +11,11 @@ use io;
 use os;
 use strings;
 
-fn gen(store: *types::typestore, unit: *unit::unit) void = {
+fn gen(out: *io::stream, store: *types::typestore, unit: *unit::unit) void = {
 	// TODO: context_init
 	let ctx = context {
-		out = bufio::dynamic(io::mode::WRITE),
+		out = out,
+		buf = bufio::dynamic(io::mode::WRITE),
 		store = store,
 		unit = unit,
 		arch = struct {
@@ -24,7 +25,7 @@ fn gen(store: *types::typestore, unit: *unit::unit) void = {
 		},
 		...
 	};
-	defer io::close(ctx.out);
+	defer io::close(ctx.buf);
 	for (let i = 0z; i < len(unit.decls); i += 1) {
 		match (unit.decls[i].decl) {
 		case func: unit::decl_func =>
@@ -49,7 +50,7 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 
 	const ident = module::identuscore(fndecl.ident);
 	defer free(ident);
-	fmt::printf("{}function section \".text.{}\" \"ax\"",
+	fmt::fprintf(ctx.out, "{}function section \".text.{}\" \"ax\"",
 		if (decl.exported) "export " else "", ident)!;
 	const rtype = fntype.result;
 	const has_rval =
@@ -61,32 +62,32 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 		};
 	if (has_rval) {
 		const qrtype = qtype_lookup(ctx, rtype, false);
-		fmt::printf(" {}", qtype_repr(qrtype))!;
+		fmt::fprintf(ctx.out, " {}", qtype_repr(qrtype))!;
 	};
-	fmt::printf(" ${}(", ident)!;
+	fmt::fprintf(ctx.out, " ${}(", ident)!;
 	assert(len(fntype.params) == 0); // TODO
-	fmt::println(") {")!;
-	fmt::println(mklabel(ctx, "start"))!;
+	fmt::fprintln(ctx.out, ") {")!;
+	fmt::fprintln(ctx.out, mklabel(ctx, "start"))!;
 
 	// We use a dynamic buffer here so that we can emit alloc instructions
 	// on-demand at the start of the function, rather than spread out
 	// through the body. This is more reliable on qbe's ARM backend, and
 	// generates better IL besides.
-	bufio::reset(ctx.out);
+	bufio::reset(ctx.buf);
 
-	fmt::fprintln(ctx.out, mklabel(ctx, "body"))!;
+	fmt::fprintln(ctx.buf, mklabel(ctx, "body"))!;
 
 	const rval = gen_expr(ctx, body);
 	if (!body.terminates) {
 		if (has_rval) {
-			emit(ctx.out, void, qinstr::RET, rval);
+			emit(ctx.buf, void, qinstr::RET, rval);
 		} else {
-			emit(ctx.out, void, qinstr::RET);
+			emit(ctx.buf, void, qinstr::RET);
 		};
 	};
 
-	io::write(os::stdout, bufio::buffer(ctx.out))!;
-	fmt::println("}\n")!;
+	io::write(ctx.out, bufio::buffer(ctx.buf))!;
+	fmt::fprintln(ctx.out, "}\n")!;
 };
 
 fn gen_store(ctx: *context, object: value, value: value) void = {
@@ -102,7 +103,7 @@ fn gen_store(ctx: *context, object: value, value: value) void = {
 	case => void; // Handled below
 	};
 	const instr = qinstr_store(ctx, object._type);
-	emit(ctx.out, void, instr, value, object);
+	emit(ctx.buf, void, instr, value, object);
 };
 
 fn gen_load(ctx: *context, object: value) value = {
@@ -120,7 +121,7 @@ fn gen_load(ctx: *context, object: value) value = {
 	const instr = qinstr_load(ctx, object._type);
 	const temp = mktemp(ctx);
 	const ty = qtype_lookup(ctx, object._type, false);
-	emit(ctx.out, (ty, temp), instr, object);
+	emit(ctx.buf, (ty, temp), instr, object);
 	return value {
 		value = temp,
 		_type = object._type,
@@ -195,7 +196,7 @@ fn gen_binding(ctx: *context, expr: *unit::expr) value = {
 		// const lval, instr = allocval(value);
 		const instr = qinstr_alloc(value._type);
 		const lval = mklval(ctx, value);
-		emit(ctx.out, lval, instr, value._type.sz);
+		emit(ctx.buf, lval, instr, value._type.sz);
 		gen_expr_at(ctx, item.init, value);
 	};
 	return vvoid;
@@ -237,9 +238,9 @@ fn gen_return(ctx: *context, expr: *unit::expr) value = {
 	const rexpr = expr.expr as unit::_return;
 	match (rexpr) {
 	case null =>
-		emit(ctx.out, void, qinstr::RET);
+		emit(ctx.buf, void, qinstr::RET);
 	case expr: *unit::expr =>
-		emit(ctx.out, void, qinstr::RET, gen_expr(ctx, expr));
+		emit(ctx.buf, void, qinstr::RET, gen_expr(ctx, expr));
 	};
 	return vvoid;
 };

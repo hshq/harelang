@@ -4,6 +4,7 @@ use hare::unit;
 
 type context = struct {
 	out: *io::stream,
+	buf: *io::stream,
 	store: *types::typestore,
 	unit: *unit::unit,
 	arch: struct {

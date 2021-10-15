@@ -10,6 +10,7 @@ use hare::unit;
 use hare::unparse;
 use io;
 use os;
+use unix;
 
 export fn main() void = {
 	let usage: []getopt::help = [
@@ -24,13 +25,21 @@ export fn main() void = {
 	let cmd = getopt::parse(os::args, usage...);
 	defer getopt::finish(&cmd);
 
+	let out = os::stdout;
+
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
 		case 'D' => abort(); // TODO
 		case 'N' => abort(); // TODO
 		case 'T' => abort(); // TODO
-		case 'o' => abort(); // TODO
+		case 'o' =>
+			out = match (os::create(opt.1, 0o644)) {
+			case f: io::file =>
+				yield &f;
+			case e: fs::error =>
+				fmt::fatal(fs::strerror(e));
+			};
 		case 't' => abort(); // TODO
 		case => abort();
 		};
@@ -80,5 +89,5 @@ export fn main() void = {
 		yield u;
 	};
 	defer unit::unit_free(unit);
-	gen(store, &unit);
+	gen(out, store, &unit);
 };
