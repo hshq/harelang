@@ -50,8 +50,8 @@ export fn generate() uuid = {
 // Returns true if two UUIDs are equal.
 export fn compare(a: uuid, b: uuid) bool = bytes::equal(a, b);
 
-// Encodes a UUID as a string and writes it to a stream.
-export fn encode(out: *io::stream, in: uuid) (size | io::error) = {
+// Encodes a UUID as a string and writes it to an I/O handle.
+export fn encode(out: io::handle, in: uuid) (size | io::error) = {
 	let z = 0z;
 	for (let i = TIME_LOW; i < TIME_LOW + 4; i += 1) {
 		z += fmt::fprintf(out, "{:02x}", in[i])?;
@@ -72,8 +72,8 @@ export fn encode(out: *io::stream, in: uuid) (size | io::error) = {
 	return z;
 };
 
-// Encodes a UUID as a URI and writes it to a stream.
-export fn uri(out: *io::stream, in: uuid) (size | io::error) = {
+// Encodes a UUID as a URI and writes it to an I/O handle.
+export fn uri(out: io::handle, in: uuid) (size | io::error) = {
 	return fmt::fprintf(out, "urn:uuid:")? + encode(out, in)?;
 };
 
@@ -105,8 +105,8 @@ export fn encodeuri(in: uuid) str = {
 	assert(encodestr(in) == "3ded910c-8080-4bc8-af39-b6cccee36741");
 };
 
-// Decodes a UUID as a string from an [[io::stream]].
-export fn decode(in: *io::stream) (uuid | invalid | io::error) = {
+// Decodes a UUID as a string from an [[io::handle]].
+export fn decode(in: io::handle) (uuid | invalid | io::error) = {
 	let u: uuid = [0...];
 	for (let i = 0z; i < len(u); i += 1) {
 		let buf: [2]u8 = [0...];

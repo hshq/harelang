@@ -51,7 +51,7 @@ type os_filesystem = struct {
 // a dirfdfs, [[fs::flags::NOCTTY]] and [[fs::flags::CLOEXEC]] are used when opening
 // the file. If you pass your own flags, it is recommended that you add these
 // unless you know that you do not want them.
-export fn dirfdopen(fd: int, resolve: resolve_flags...) *fs::fs = {
+export fn dirfdopen(fd: io::file, resolve: resolve_flags...) *fs::fs = {
 	let ofs = alloc(os_filesystem { ... });
 	let fs = static_dirfdopen(fd, ofs);
 	for (let i = 0z; i < len(resolve); i += 1) {
@@ -61,7 +61,7 @@ export fn dirfdopen(fd: int, resolve: resolve_flags...) *fs::fs = {
 	return fs;
 };
 
-fn static_dirfdopen(fd: int, filesystem: *os_filesystem) *fs::fs = {
+fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 	*filesystem = os_filesystem {
 		fs = fs::fs {
 			open = &fs_open,
@@ -158,7 +158,7 @@ fn _fs_open(
 		yield fd;
 	};
 
-	return io::fdopen(fd, path, mode);
+	return io::fdopen(fd);
 };
 
 fn fs_open_file(
@@ -202,7 +202,7 @@ fn fs_open(
 	fs: *fs::fs,
 	path: str,
 	flags: fs::flags...
-) (*io::stream | fs::error) = io::filedup(&fs_open_file(fs, path, flags...)?);
+) (io::handle | fs::error) = fs_open_file(fs, path, flags...)?;
 
 fn fs_create_file(
 	fs: *fs::fs,
@@ -243,8 +243,8 @@ fn fs_create(
 	path: str,
 	mode: fs::mode,
 	flags: fs::flags...
-) (*io::stream | fs::error) = {
-	return io::filedup(&fs_create_file(fs, path, mode, flags...)?);
+) (io::handle | fs::error) = {
+	return fs_create_file(fs, path, mode, flags...)?;
 };
 
 fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {

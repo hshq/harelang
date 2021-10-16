@@ -12,9 +12,9 @@ use path;
 use strings;
 use strio;
 
-// Prints a string to an output stream, escaping any of HTML's reserved
+// Prints a string to an output handle, escaping any of HTML's reserved
 // characters.
-fn html_escape(out: *io::stream, in: str) (size | io::error) = {
+fn html_escape(out: io::handle, in: str) (size | io::error) = {
 	let z = 0z;
 	let iter = strings::iter(in);
 	for (true) {
@@ -85,7 +85,7 @@ fn emit_html(ctx: *context) (void | error) = {
 	case void => void;
 	case f: io::file =>
 		fmt::println("<div class='readme'>")?;
-		markup_html(ctx, &f)?;
+		markup_html(ctx, f)?;
 		fmt::println("</div>")?;
 	};
 
@@ -305,7 +305,7 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 	free(ident);
 };
 
-fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {
+fn markup_html(ctx: *context, in: io::handle) (void | io::error) = {
 	let parser = parsedoc(in);
 	for (true) {
 		const tok = match (scandoc(&parser)) {
@@ -352,7 +352,7 @@ fn markup_html(ctx: *context, in: *io::stream) (void | io::error) = {
 };
 
 // Forked from [[hare::unparse]]
-fn unparse_html(out: *io::stream, d: ast::decl) (size | io::error) = {
+fn unparse_html(out: io::handle, d: ast::decl) (size | io::error) = {
 	let n = 0z;
 	match (d.decl) {
 	case c: []ast::decl_const =>
@@ -462,7 +462,7 @@ fn builtin_type(b: ast::builtin_type) str = {
 };
 
 // Forked from [[hare::unparse]].
-fn newline(out: *io::stream, indent: size) (size | io::error) = {
+fn newline(out: io::handle, indent: size) (size | io::error) = {
 	let n = 0z;
 	n += fmt::fprint(out, "\n")?;
 	for (let i = 0z; i < indent; i += 1) {
@@ -472,7 +472,7 @@ fn newline(out: *io::stream, indent: size) (size | io::error) = {
 };
 
 fn enum_html(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	t: ast::enum_type
 ) (size | io::error) = {
@@ -505,7 +505,7 @@ fn enum_html(
 };
 
 fn struct_union_html(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	t: ast::_type,
 	brief: bool,
@@ -553,7 +553,7 @@ fn struct_union_html(
 };
 
 fn type_html(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	_type: ast::_type,
 	brief: bool,
@@ -668,7 +668,7 @@ fn type_html(
 };
 
 fn prototype_html(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	t: ast::func_type,
 	brief: bool,

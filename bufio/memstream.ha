@@ -15,7 +15,6 @@ type memstream = struct {
 export fn fixed(in: []u8, mode: io::mode) *io::stream = {
 	let s = alloc(memstream {
 		stream = io::stream {
-			name = "<bufio::fixed>",
 			closer = &fixed_close,
 			...
 		},
@@ -65,7 +64,6 @@ export fn dynamic(mode: io::mode) *io::stream = dynamic_from([], mode);
 export fn dynamic_from(in: []u8, mode: io::mode) *io::stream = {
 	let s = alloc(memstream {
 		stream = io::stream {
-			name = "<bufio::dynamic>",
 			closer = &dynamic_close,
 			seeker = &seek,
 			...
@@ -82,6 +80,47 @@ export fn dynamic_from(in: []u8, mode: io::mode) *io::stream = {
 	return s;
 };
 
+fn getmemstream(in: io::handle) *memstream = {
+	match (in) {
+	case io::file =>
+		abort("Invalid use of bufio with unbuffered file");
+	case st: *io::stream =>
+		assert(st.closer == &dynamic_close);
+		return st: *memstream;
+	};
+};
+
+// Closes the stream without freeing the dynamic buffer, instead transferring
+// ownership of it to the caller.
+export fn finish(in: io::handle) []u8 = {
+	let s = getmemstream(in);
+	let buf = s.buf;
+	free(s);
+	return buf;
+};
+
+// Returns the current buffer.
+export fn buffer(in: io::handle) []u8 = {
+	const s = getmemstream(in);
+	return s.buf;
+};
+
+// Resets the dynamic buffer's length to zero, but keeps the allocated memory
+// around for future writes.
+export fn reset(in: io::handle) void = {
+	const s = getmemstream(in);
+	s.pos = 0;
+	s.buf = s.buf[..0];
+};
+
+// Truncates the dynamic buffer, freeing memory associated with it and setting
+// its length to zero.
+export fn truncate(in: io::handle) (void | errors::unsupported) = {
+	let s = getmemstream(in);
+	s.pos = 0;
+	delete(s.buf[..]);
+};
+
 fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *memstream;
 	insert(s.buf[s.pos], buf...);
@@ -94,50 +133,6 @@ fn dynamic_close(s: *io::stream) void = {
 	free(s.buf);
 	free(s);
 };
-
-// Closes the stream without freeing the dynamic buffer, instead transferring
-// ownership of it to the caller.
-export fn finish(s: *io::stream) []u8 = {
-	if (s.closer != &dynamic_close) {
-		abort("bufio::finish called on non-bufio::dynamic stream");
-	};
-	let s = s: *memstream;
-	let buf = s.buf;
-	free(s);
-	return buf;
-};
-
-// Returns the current buffer.
-export fn buffer(s: *io::stream) []u8 = {
-	if (s.closer != &dynamic_close) {
-		abort("bufio::buffer called on non-bufio::dynamic stream");
-	};
-	let s = s: *memstream;
-	return s.buf;
-};
-
-// Resets the dynamic buffer's length to zero, but keeps the allocated memory
-// around for future writes.
-export fn reset(s: *io::stream) void = {
-	if (s.writer != &dynamic_write) {
-		abort("bufio::reset called on non-bufio::dynamic stream");
-	};
-	const s = s: *memstream;
-	s.pos = 0;
-	s.buf = s.buf[..0];
-};
-
-// Truncates the dynamic buffer, freeing memory associated with it and setting
-// its length to zero.
-export fn truncate(s: *io::stream) (void | errors::unsupported) = {
-	if (s.writer != &dynamic_write) {
-		return errors::unsupported;
-	};
-	let s = s: *memstream;
-	s.pos = 0;
-	delete(s.buf[..]);
-};
-
 
 fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let s = s: *memstream;

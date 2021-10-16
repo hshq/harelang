@@ -30,11 +30,7 @@ export fn stream_accept(l: *listener) (io::file | error) = {
 	case fd: int =>
 		yield fd;
 	};
-
-	static let namebuf: [32]u8 = [0...];
-	return io::fdopen(fd,
-		fmt::bsprintf(namebuf, "<network fd {}>", fd),
-		io::mode::READ | io::mode::WRITE);
+	return io::fdopen(fd);
 };
 
 export fn stream_shutdown(l: *listener) void = {

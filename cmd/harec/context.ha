@@ -3,8 +3,8 @@ use hare::types;
 use hare::unit;
 
 type context = struct {
-	out: *io::stream,
-	buf: *io::stream,
+	out: io::handle,
+	buf: io::handle,
 	store: *types::typestore,
 	unit: *unit::unit,
 	arch: struct {

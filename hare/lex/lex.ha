@@ -10,7 +10,7 @@ use strio;
 use types;
 
 export type lexer = struct {
-	in: *io::stream,
+	in: io::handle,
 	path: str,
 	loc: (uint, uint),
 	un: (token | void),
@@ -47,8 +47,8 @@ export fn strerror(err: error) const str = {
 	};
 };
 
-// Initializes a new lexer for the given input stream. The path is borrowed.
-export fn init(in: *io::stream, path: str, flags: flags...) lexer = {
+// Initializes a new lexer for the given input. The path is borrowed.
+export fn init(in: io::handle, path: str, flags: flags...) lexer = {
 	let f = flags::NONE;
 	for (let i = 0z; i < len(flags); i += 1) {
 		f |= flags[i];

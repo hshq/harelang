@@ -182,71 +182,71 @@ export fn finish(cmd: *command) void = {
 	free(cmd.opts);
 };
 
-fn _printusage(s: *io::stream, name: str, indent: bool, help: []help) size = {
-	let z = fmt::fprint(s, "Usage:", name) as size;
+fn _printusage(out: io::handle, name: str, indent: bool, help: []help) size = {
+	let z = fmt::fprint(out, "Usage:", name) as size;
 
 	let started_flags = false;
 	for (let i = 0z; i < len(help); i += 1) if (help[i] is flag_help) {
 		if (!started_flags) {
-			z += fmt::fprint(s, " [-") as size;
+			z += fmt::fprint(out, " [-") as size;
 			started_flags = true;
 		};
 		const help = help[i] as flag_help;
-		z += fmt::fprint(s, help.0: rune) as size;
+		z += fmt::fprint(out, help.0: rune) as size;
 	};
 	if (started_flags) {
-		z += fmt::fprint(s, "]") as size;
+		z += fmt::fprint(out, "]") as size;
 	};
 
 	for (let i = 0z; i < len(help); i += 1) if (help[i] is parameter_help) {
 		const help = help[i] as parameter_help;
 		if (indent) {
-			z += fmt::fprintf(s, "\n\t") as size;
+			z += fmt::fprintf(out, "\n\t") as size;
 		};
-		z += fmt::fprintf(s, " [-{} <{}>]", help.0: rune, help.1) as size;
+		z += fmt::fprintf(out, " [-{} <{}>]", help.0: rune, help.1) as size;
 	};
 	let first_arg = true;
 	for (let i = 1z; i < len(help); i += 1) if (help[i] is cmd_help) {
 		if (first_arg) {
 			if (indent) {
-				z += fmt::fprintf(s, "\n\t") as size;
+				z += fmt::fprintf(out, "\n\t") as size;
 			};
 			first_arg = false;
 		};
-		z += fmt::fprintf(s, " {}", help[i] as cmd_help: str) as size;
+		z += fmt::fprintf(out, " {}", help[i] as cmd_help: str) as size;
 	};
 
-	return z + fmt::fprint(s, "\n") as size;
+	return z + fmt::fprint(out, "\n") as size;
 };
 
 // Prints command usage to the provided stream.
-export fn printusage(s: *io::stream, name: str, help: []help) void = {
+export fn printusage(out: io::handle, name: str, help: []help) void = {
 	let z = _printusage(io::empty, name, false, help);
-	_printusage(s, name, if (z > 72) true else false, help);
+	_printusage(out, name, if (z > 72) true else false, help);
 };
 
 // Prints command help to the provided stream.
-export fn printhelp(s: *io::stream, name: str, help: []help) void = {
+export fn printhelp(out: io::handle, name: str, help: []help) void = {
 	if (help[0] is cmd_help) {
-		fmt::fprintfln(s, "{}: {}\n", name, help[0] as cmd_help: str)!;
+		fmt::fprintfln(out, "{}: {}\n", name, help[0] as cmd_help: str)!;
 	};
 
-	printusage(s, name, help);
+	printusage(out, name, help);
 
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
 	case cmd_help => void;
 	case (flag_help | parameter_help) =>
 		// Only print this if there are flags to show
-		fmt::fprint(s, "\n")!;
+		fmt::fprint(out, "\n")!;
 		break;
 	};
 
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
 	case cmd_help => void;
 	case f: flag_help =>
-		fmt::fprintfln(s, "-{}: {}", f.0: rune, f.1)!;
+		fmt::fprintfln(out, "-{}: {}", f.0: rune, f.1)!;
 	case p: parameter_help =>
-		fmt::fprintfln(s, "-{} <{}>: {}", p.0: rune, p.1, p.2)!;
+		fmt::fprintfln(out, "-{} <{}>: {}", p.0: rune, p.1, p.2)!;
 	};
 };
 

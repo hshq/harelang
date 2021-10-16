@@ -19,7 +19,6 @@ fn stream_open(
 	let f = ino.data as file;
 	let s = alloc(stream {
 		stream = io::stream {
-			name = "<fs::mem::stream>",
 			closer = &stream_close,
 			seeker = &seek,
 			...

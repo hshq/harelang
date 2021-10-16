@@ -22,10 +22,10 @@ export type pwent = struct {
 	shell: str,
 };
 
-// Reads a Unix-like password entry from a stream. The caller must free the
-// result using [[pwent_finish]].
-export fn nextpw(stream: *io::stream) (pwent | io::EOF | io::error | invalid) = {
-	let line = match (bufio::scanline(stream)?) {
+// Reads a Unix-like password entry from an [[io::handle]]. The caller must free
+// the result using [[pwent_finish]].
+export fn nextpw(file: io::handle) (pwent | io::EOF | io::error | invalid) = {
+	let line = match (bufio::scanline(file)?) {
 	case io::EOF =>
 		return io::EOF;
 	case ln: []u8 =>
@@ -91,10 +91,10 @@ export fn getuser(username: str) (pwent | void) = {
 	case =>
 		abort("Can't open /etc/passwd");
 	};
-	defer io::close(&file);
+	defer io::close(file);
 
 	for (true) {
-		let ent = match (nextpw(&file)) {
+		let ent = match (nextpw(file)) {
 		case e: pwent =>
 			yield e;
 		case io::EOF =>

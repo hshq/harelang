@@ -4,11 +4,11 @@ use io;
 use strings;
 use types;
 
-// Reads a single byte from the stream.
-export fn scanbyte(stream: *io::stream) (u8 | io::EOF | io::error) = {
+// Reads a single byte from an [[io::handle]].
+export fn scanbyte(file: io::handle) (u8 | io::EOF | io::error) = {
 	let buf: [1]u8 = [0...];
 
-	match (io::read(stream, buf)?) {
+	match (io::read(file, buf)?) {
 	case read: size =>
 		if (read > 0) {
 			return buf[0];
@@ -22,11 +22,11 @@ export fn scanbyte(stream: *io::stream) (u8 | io::EOF | io::error) = {
 
 // Reads a slice of bytes until the delimiter. Delimiter is not included. The
 // return value must be freed by the caller.
-export fn scantok(stream: *io::stream, delim: u8...) ([]u8 | io::EOF | io::error) = {
+export fn scantok(file: io::handle, delim: u8...) ([]u8 | io::EOF | io::error) = {
 	let buf: []u8 = [];
 
 	for (true) {
-		match (scanbyte(stream)?) {
+		match (scanbyte(file)?) {
 		case res: u8 =>
 			if (bytes::contains(delim, res)) {
 				break;
@@ -45,13 +45,15 @@ export fn scantok(stream: *io::stream, delim: u8...) ([]u8 | io::EOF | io::error
 
 // Reads a slice of bytes until a newline character (\n, 0x10). Newline itself
 // is not included. The return value must be freed by the caller.
-export fn scanline(stream: *io::stream) ([]u8 | io::EOF | io::error) =
-	scantok(stream, '\n': u32: u8);
+export fn scanline(file: io::handle) ([]u8 | io::EOF | io::error) =
+	scantok(file, '\n': u32: u8);
 
 // Reads a rune from a UTF-8 stream.
-export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::error) = {
+export fn scanrune(
+	file: io::handle,
+) (rune | utf8::invalid | io::EOF | io::error) = {
 	let b: [4]u8 = [0...];
-	match (io::read(stream, b[..1])?) {
+	match (io::read(file, b[..1])?) {
 	case n: size =>
 		assert(n == 1);
 	case io::EOF =>
@@ -67,7 +69,7 @@ export fn scanrune(stream: *io::stream) (rune | utf8::invalid | io::EOF | io::er
 		return b[0]: u32: rune;
 	};
 
-	match (io::read(stream, b[1..sz])?) {
+	match (io::read(file, b[1..sz])?) {
 	case n: size =>
 		assert(n == sz - 1);
 	case io::EOF =>

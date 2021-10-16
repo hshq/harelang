@@ -151,7 +151,7 @@ export fn parse(s: str) (addr | invalid) = {
 	return invalid;
 };
 
-fn fmtv4(s: *io::stream, a: addr4) (io::error | size) = {
+fn fmtv4(s: io::handle, a: addr4) (io::error | size) = {
 	let ret = 0z;
 	for (let i = 0; i < 4; i += 1) {
 		if (i > 0) {
@@ -162,7 +162,7 @@ fn fmtv4(s: *io::stream, a: addr4) (io::error | size) = {
 	return ret;
 };
 
-fn fmtv6(s: *io::stream, a: addr6) (io::error | size) = {
+fn fmtv6(s: io::handle, a: addr6) (io::error | size) = {
 	let ret = 0z;
 	let zstart: int = -1;
 	let zend: int = -1;
@@ -283,7 +283,7 @@ fn masklen(addr: []u8) (void | size) = {
 	return n;
 };
 
-fn fmtmask(s: *io::stream, mask: addr) (io::error | size) = {
+fn fmtmask(s: io::handle, mask: addr) (io::error | size) = {
 	let ret = 0z;
 	let slice = match (mask) {
 	case v4: addr4 =>
@@ -305,7 +305,7 @@ fn fmtmask(s: *io::stream, mask: addr) (io::error | size) = {
 	return ret;
 };
 
-fn fmtsubnet(s: *io::stream, subnet: subnet) (io::error | size) = {
+fn fmtsubnet(s: io::handle, subnet: subnet) (io::error | size) = {
 	let ret = 0z;
 	ret += fmt(s, subnet.addr)?;
 	ret += fmt::fprintf(s, "/")?;
@@ -314,7 +314,7 @@ fn fmtsubnet(s: *io::stream, subnet: subnet) (io::error | size) = {
 };
 
 // Formats an [[addr]] or [[subnet]] and prints it to a stream.
-export fn fmt(s: *io::stream, item: (...addr | subnet)) (io::error | size) = {
+export fn fmt(s: io::handle, item: (...addr | subnet)) (io::error | size) = {
 	match (item) {
 	case v4: addr4 =>
 		return fmtv4(s, v4)?;

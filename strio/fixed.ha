@@ -9,10 +9,9 @@ type fixed_stream = struct {
 
 // Creates a write-only string stream using the provided buffer for storage.
 // The program aborts if writes would exceed the buffer's capacity.
-export fn fixed(in: []u8) *io::stream = {
+export fn fixed(in: []u8) io::handle = {
 	let s = alloc(fixed_stream {
 		stream = io::stream {
-			name = "<strio::fixed>",
 			writer = &fixed_write,
 			closer = &fixed_close,
 			...
@@ -25,15 +24,21 @@ export fn fixed(in: []u8) *io::stream = {
 
 // Returns the current contents of the buffer as a string. Aborts the program if
 // invalid UTF-8 has been written to the buffer.
-export fn string(s: *io::stream) str = {
-	if (s.writer == &fixed_write) {
-		let stream = s: *fixed_stream;
+export fn string(in: io::handle) str = {
+	let stream = match (in) {
+	case io::file =>
+		abort("Invalid use of strio with io::file");
+	case st: *io::stream =>
+		yield st;
+	};
+
+	if (stream.writer == &fixed_write) {
+		let stream = stream: *fixed_stream;
 		const n = len(stream.buf) - len(stream.cur);
 		return strings::fromutf8(stream.buf[..n]);
-	} else if (s.writer == &dynamic_write) {
-		let s = s: *dynamic_stream;
-		let buf = s.buf;
-		return strings::fromutf8(buf);
+	} else if (stream.writer == &dynamic_write) {
+		let stream = stream: *dynamic_stream;
+		return strings::fromutf8(stream.buf);
 	} else {
 		abort("strio::string called on non-strio stream");
 	};

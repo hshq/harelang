@@ -17,7 +17,7 @@ def FLEVEL: u8 = 0b11000000;
 
 export type reader = struct {
 	io::stream,
-	source: *io::stream,
+	source: io::handle,
 	flate: flate::decompressor,
 	hash: adler32::state,
 };
@@ -85,10 +85,10 @@ fn close(s: *io::stream) void = {
 };
 
 // Creates a stream which decompresses zlib (RFC 1950) data.
-export fn decompress(s: *io::stream) (reader | io::error) = {
+export fn decompress(src: io::handle) (reader | io::error) = {
 	let buf: [2]u8 = [0...];
 	for (let n = 0z; n < len(buf)) {
-		match (io::read(s, buf[n..])?) {
+		match (io::read(src, buf[n..])?) {
 		case io::EOF =>
 			return wraperror(decompress_err::EOF);
 		case z: size =>
@@ -115,8 +115,8 @@ export fn decompress(s: *io::stream) (reader | io::error) = {
 	return reader {
 		reader = &read,
 		closer = &close,
-		source = s,
-		flate = flate::inflate(s),
+		source = src,
+		flate = flate::inflate(src),
 		hash = adler32::adler32(),
 		...
 	};

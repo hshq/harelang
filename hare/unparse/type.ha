@@ -52,7 +52,7 @@ case ast::builtin_type::VOID =>
 };
 
 fn prototype(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	t: ast::func_type,
 ) (size | io::error) = {
@@ -80,7 +80,7 @@ fn prototype(
 };
 
 fn struct_union_type(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	t: ast::_type,
 ) (size | io::error) = {
@@ -127,7 +127,7 @@ fn struct_union_type(
 
 // Unparses an [[ast::_type]].
 export fn _type(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	t: ast::_type,
 ) (size | io::error) = {

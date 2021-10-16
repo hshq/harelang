@@ -2,14 +2,12 @@ use strings;
 
 export type limitstream = struct {
 	stream,
-	source: *stream,
+	source: handle,
 	limit: size,
 };
 
-fn limitstream_create(source: *stream, limit: size) limitstream = {
+fn limitstream_create(source: handle, limit: size) limitstream = {
 	return limitstream {
-		name = source.name,
-		unwrap = &limit_unwrap,
 		source = source,
 		limit = limit,
 		...
@@ -52,9 +50,4 @@ fn limit_write(s: *stream, buf: const []u8) (size | error) = {
 	};
 	stream.limit -= len(slice);
 	return write(stream.source, slice);
-};
-
-fn limit_unwrap(s: *stream) *io::stream = {
-	let s = s: *limitstream;
-	return s.source;
 };

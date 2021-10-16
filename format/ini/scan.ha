@@ -5,7 +5,7 @@ use io;
 use strings;
 
 export type scanner = struct {
-	in: *io::stream,
+	in: io::handle,
 	line: str,
 	lineno: size,
 	section: str,
@@ -13,7 +13,7 @@ export type scanner = struct {
 
 // Creates an INI file scanner. Use [[next]] to read entries. The caller must
 // call [[finish]] once they're done with this object.
-export fn scan(in: *io::stream) scanner = scanner {
+export fn scan(in: io::handle) scanner = scanner {
 	in = in,
 	lineno = 1,
 	...
@@ -69,7 +69,7 @@ export fn next(sc: *scanner) (entry | io::EOF | error) = {
 			case idx: size =>
 				yield idx;
 			case void =>
-				return (sc.in.name, sc.lineno): syntaxerr;
+				return sc.lineno: syntaxerr;
 			};
 			free(sc.section);
 			sc.section = strings::dup(strings::sub(line, 1, end));
@@ -80,7 +80,7 @@ export fn next(sc: *scanner) (entry | io::EOF | error) = {
 		case idx: size =>
 			yield idx;
 		case void =>
-			return (sc.in.name, sc.lineno): syntaxerr;
+			return sc.lineno: syntaxerr;
 		};
 		return (
 			sc.section,

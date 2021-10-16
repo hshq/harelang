@@ -32,7 +32,11 @@ type context = struct {
 };
 
 export fn main() void = {
-	let fmt = if (tty::isatty(os::stdout)) format::TTY else format::HARE;
+	let fmt =
+		if (tty::isatty(os::stdout_file))
+			format::TTY
+		else
+			format::HARE;
 	let template = true;
 	let show_undocumented = false;
 	const help: [_]getopt::help = [
@@ -139,7 +143,7 @@ export fn main() void = {
 	defer match (readme) {
 	case void => void;
 	case f: io::file =>
-		io::close(&f);
+		io::close(f);
 	};
 
 	if (decl != "") {
@@ -212,8 +216,8 @@ fn scan(path: str) (ast::subunit | error) = {
 	case err: fs::error =>
 		fmt::fatal("Error reading {}: {}", path, fs::strerror(err));
 	};
-	defer io::close(&input);
-	const lexer = lex::init(&input, path, lex::flags::COMMENTS);
+	defer io::close(input);
+	const lexer = lex::init(input, path, lex::flags::COMMENTS);
 	return parse::subunit(&lexer)?;
 };
 

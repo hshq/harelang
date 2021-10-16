@@ -821,6 +821,9 @@ stdlib_io_srcs= \
 	$(STDLIB)/io/arch$(ARCH).ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
+	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/filestream.ha \
+	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/println$(PLATFORM).ha \
 	$(STDLIB)/io/stream.ha \
@@ -1005,7 +1008,6 @@ stdlib_os_srcs= \
 	$(STDLIB)/os/$(PLATFORM)/dirfdfs.ha \
 	$(STDLIB)/os/$(PLATFORM)/stdfd.ha \
 	$(STDLIB)/os/$(PLATFORM)/fs.ha \
-	$(STDLIB)/os/stdfd.ha \
 	$(STDLIB)/os/fs.ha
 
 $(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fs) $(stdlib_encoding_utf8) $(stdlib_bytes) $(stdlib_bufio) $(stdlib_errors)
@@ -1117,7 +1119,7 @@ $(HARECACHE)/strio/strio.ssa: $(stdlib_strio_srcs) $(stdlib_rt) $(stdlib_io) $(s
 stdlib_temp_srcs= \
 	$(STDLIB)/temp/$(PLATFORM).ha
 
-$(HARECACHE)/temp/temp.ssa: $(stdlib_temp_srcs) $(stdlib_rt) $(stdlib_crypto_random) $(stdlib_encoding_hex) $(stdlib_fs) $(stdlib_io) $(stdlib_os) $(stdlib_path) $(stdlib_strio) $(stdlib_fmt)
+$(HARECACHE)/temp/temp.ssa: $(stdlib_temp_srcs) $(stdlib_rt) $(stdlib_crypto_random) $(stdlib_encoding_hex) $(stdlib_fs) $(stdlib_io) $(stdlib_os) $(stdlib_path) $(stdlib_strio) $(stdlib_fmt) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/temp
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntemp \
@@ -2072,6 +2074,9 @@ testlib_io_srcs= \
 	$(STDLIB)/io/arch$(ARCH).ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
+	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/filestream.ha \
+	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/println$(PLATFORM).ha \
 	$(STDLIB)/io/stream.ha \
@@ -2261,7 +2266,6 @@ testlib_os_srcs= \
 	$(STDLIB)/os/$(PLATFORM)/dirfdfs.ha \
 	$(STDLIB)/os/$(PLATFORM)/stdfd.ha \
 	$(STDLIB)/os/$(PLATFORM)/fs.ha \
-	$(STDLIB)/os/stdfd.ha \
 	$(STDLIB)/os/fs.ha
 
 $(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fs) $(testlib_encoding_utf8) $(testlib_bytes) $(testlib_bufio) $(testlib_errors)
@@ -2376,7 +2380,7 @@ $(TESTCACHE)/strio/strio.ssa: $(testlib_strio_srcs) $(testlib_rt) $(testlib_io) 
 testlib_temp_srcs= \
 	$(STDLIB)/temp/$(PLATFORM).ha
 
-$(TESTCACHE)/temp/temp.ssa: $(testlib_temp_srcs) $(testlib_rt) $(testlib_crypto_random) $(testlib_encoding_hex) $(testlib_fs) $(testlib_io) $(testlib_os) $(testlib_path) $(testlib_strio) $(testlib_fmt)
+$(TESTCACHE)/temp/temp.ssa: $(testlib_temp_srcs) $(testlib_rt) $(testlib_crypto_random) $(testlib_encoding_hex) $(testlib_fs) $(testlib_io) $(testlib_os) $(testlib_path) $(testlib_strio) $(testlib_fmt) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/temp
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \

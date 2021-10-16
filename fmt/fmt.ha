@@ -57,14 +57,14 @@ export @noreturn fn fatal(fmt: str, args: field...) void = {
 	os::exit(1);
 };
 
-// Formats text for printing and writes it to an [[io::stream]], followed by a
+// Formats text for printing and writes it to an [[io::handle]], followed by a
 // line feed.
 export fn fprintfln(
-	s: *io::stream,
+	h: io::handle,
 	fmt: str,
 	args: field...
 ) (io::error | size) = {
-	return fprintf(s, fmt, args...)? + io::write(s, ['\n': u32: u8])?;
+	return fprintf(h, fmt, args...)? + io::write(h, ['\n': u32: u8])?;
 };
 
 // Formats values for printing using the default format modifiers and writes
@@ -107,20 +107,20 @@ export fn bsprint(buf: []u8, args: formattable...) str = {
 };
 
 // Formats values for printing using the default format modifiers and writes
-// them to an [[io::stream]] separated by spaces and followed by a line feed.
-export fn fprintln(s: *io::stream, args: formattable...) (io::error | size) = {
-	return fprint(s, args...)? + io::write(s, ['\n': u32: u8])?;
+// them to an [[io::handle]] separated by spaces and followed by a line feed.
+export fn fprintln(h: io::handle, args: formattable...) (io::error | size) = {
+	return fprint(h, args...)? + io::write(h, ['\n': u32: u8])?;
 };
 
 // Formats values for printing using the default format modifiers and writes
-// them to an [[io::stream]] separated by spaces.
-export fn fprint(s: *io::stream, args: formattable...) (io::error | size) = {
+// them to an [[io::handle]] separated by spaces.
+export fn fprint(h: io::handle, args: formattable...) (io::error | size) = {
 	let mod = modifiers { base = strconv::base::DEC, ... };
 	let n = 0z;
 	for (let i = 0z; i < len(args); i += 1) {
-		n += format(s, args[i], &mod)?;
+		n += format(h, args[i], &mod)?;
 		if (i != len(args) - 1) {
-			n += io::write(s, [' ': u32: u8])?;
+			n += io::write(h, [' ': u32: u8])?;
 		};
 	};
 	return n;
@@ -162,9 +162,9 @@ type paramindex = (uint | nextparam | void);
 
 type nextparam = void;
 
-// Formats text for printing and writes it to an [[io::stream]].
+// Formats text for printing and writes it to an [[io::handle]].
 export fn fprintf(
-	s: *io::stream,
+	h: io::handle,
 	fmt: str,
 	args: field...
 ) (io::error | size) = {
@@ -187,7 +187,7 @@ export fn fprintf(
 			};
 
 			let arg = if (r == '{') {
-				n += io::write(s, utf8::encoderune('{'))?;
+				n += io::write(h, utf8::encoderune('{'))?;
 				continue;
 			} else if (ascii::isdigit(r)) {
 				strings::push(&iter, r);
@@ -247,7 +247,7 @@ export fn fprintf(
 				mod.base = strconv::base::DEC;
 			};
 
-			n += format(s, arg, mod)?;
+			n += format(h, arg, mod)?;
 		} else if (r == '}') {
 			match (strings::next(&iter)) {
 			case void =>
@@ -256,16 +256,20 @@ export fn fprintf(
 				assert(r == '}', "Invalid format string (hanging '}')");
 			};
 
-			n += io::write(s, utf8::encoderune('}'))?;
+			n += io::write(h, utf8::encoderune('}'))?;
 		} else {
-			n += io::write(s, utf8::encoderune(r))?;
+			n += io::write(h, utf8::encoderune(r))?;
 		};
 	};
 
 	return n;
 };
 
-fn format(out: *io::stream, arg: formattable, mod: *modifiers) (size | io::error) = {
+fn format(
+	out: io::handle,
+	arg: formattable,
+	mod: *modifiers,
+) (size | io::error) = {
 	let z = format_raw(io::empty, arg, mod)?;
 
 	let pad: []u8 = [];
@@ -294,7 +298,7 @@ fn format(out: *io::stream, arg: formattable, mod: *modifiers) (size | io::error
 };
 
 fn format_raw(
-	out: *io::stream,
+	out: io::handle,
 	arg: formattable,
 	mod: *modifiers,
 ) (size | io::error) = {

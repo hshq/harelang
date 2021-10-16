@@ -17,7 +17,7 @@ fn emit_hare(ctx: *context) (void | error) = {
 	case readme: io::file =>
 		first = false;
 		for (true) {
-			match (bufio::scanline(&readme)?) {
+			match (bufio::scanline(readme)?) {
 			case io::EOF => break;
 			case b: []u8 =>
 				fmt::printfln("// {}", strings::fromutf8(b))?;
@@ -87,7 +87,7 @@ fn details_hare(ctx: *context, decl: ast::decl) (void | error) = {
 };
 
 // Forked from [[hare::unparse]]
-fn unparse_hare(out: *io::stream, d: ast::decl) (size | io::error) = {
+fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 	let n = 0z;
 	match (d.decl) {
 	case g: []ast::decl_global =>
@@ -154,7 +154,7 @@ fn unparse_hare(out: *io::stream, d: ast::decl) (size | io::error) = {
 };
 
 fn prototype_hare(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	t: ast::func_type,
 ) (size | io::error) = {

@@ -36,7 +36,7 @@ type inflate_err = enum u8 {
 
 export type decompressor = struct {
 	io::stream,
-	in: *io::stream,
+	in: io::handle,
 	bitbuf: u32,
 	cnt: u32,
 	final: bool,
@@ -77,10 +77,10 @@ export type decompressor = struct {
 };
 
 // Creates a stream which decompresses Deflate (RFC 1951) data.
-export fn inflate(s: *io::stream) decompressor = decompressor {
+export fn inflate(src: io::handle) decompressor = decompressor {
 	reader = &read,
 	closer = &close,
-	in = s,
+	in = src,
 	bitbuf = 0,
 	cnt = 0,
 	final = false,

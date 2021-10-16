@@ -9,7 +9,6 @@ type teststream = struct {
 };
 
 fn teststream_open() teststream = teststream {
-	name = "teststream",
 	reader = &teststream_read,
 	writer = &teststream_write,
 	...

@@ -13,10 +13,9 @@ type dynamic_stream = struct {
 // Calling [[io::close]] on this stream will free the buffer. Call [[strio::finish]]
 // instead to free up resources associated with the stream, but transfer
 // ownership of the buffer to the caller.
-export fn dynamic() *io::stream = {
+export fn dynamic() io::handle = {
 	let s = alloc(dynamic_stream {
 		stream = io::stream {
-			name = "<strio::dynamic>",
 			writer = &dynamic_write,
 			closer = &dynamic_close,
 			...
@@ -26,12 +25,21 @@ export fn dynamic() *io::stream = {
 	return &s.stream;
 };
 
+fn get_dynamic_stream(in: io::handle) *dynamic_stream = {
+	match (in) {
+	case io::file =>
+		abort("Invalid use of strio on io::file");
+	case st: *io::stream =>
+		assert(st.writer == &dynamic_write,
+			"Invalid use of strio on non-strio I/O stream");
+		return st: *dynamic_stream;
+	};
+};
+
 // Closes the stream without freeing the buffer, instead transferring ownership
 // of it to the caller.
-export fn finish(s: *io::stream) str = {
-	assert(s.writer == &dynamic_write,
-		"strio::finish called on non-strio::dynamic stream");
-	let s = s: *dynamic_stream;
+export fn finish(in: io::handle) str = {
+	let s = get_dynamic_stream(in);
 	let buf = s.buf;
 	free(s);
 	return strings::fromutf8(buf);
@@ -39,19 +47,15 @@ export fn finish(s: *io::stream) str = {
 
 // Resets the buffer's length to zero, but keeps the allocated memory around for
 // future writes.
-export fn reset(s: *io::stream) void = {
-	assert(s.writer == &dynamic_write,
-		"strio::reset called on non-strio::dynamic stream");
-	const s = s: *dynamic_stream;
+export fn reset(in: io::handle) void = {
+	const s = get_dynamic_stream(in);
 	s.buf = s.buf[..0];
 };
 
 // Truncates the buffer, freeing memory associated with it and setting its
 // length to zero.
-export fn truncate(s: *io::stream) void = {
-	assert(s.writer == &dynamic_write,
-		"strio::truncate called on non-strio::dynamic stream");
-	let s = s: *dynamic_stream;
+export fn truncate(in: io::handle) void = {
+	let s = get_dynamic_stream(in);
 	delete(s.buf[..]);
 };
 

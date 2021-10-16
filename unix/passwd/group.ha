@@ -16,10 +16,10 @@ export type grent = struct {
 	userlist: []str,
 };
 
-// Reads a Unix-like group entry from a stream. The caller must free the result
-// using [[grent_finish]].
-export fn nextgr(stream: *io::stream) (grent | io::EOF | io::error | invalid) = {
-	let line = match (bufio::scanline(stream)?) {
+// Reads a Unix-like group entry from an [[io::handle]]. The caller must free
+// the result using [[grent_finish]].
+export fn nextgr(in: io::handle) (grent | io::EOF | io::error | invalid) = {
+	let line = match (bufio::scanline(in)?) {
 	case ln: []u8 =>
 		yield ln;
 	case io::EOF =>
@@ -72,10 +72,10 @@ export fn getgroup(name: str) (grent | void) = {
 	case =>
 		abort("Unable to open /etc/group");
 	};
-	defer io::close(&file);
+	defer io::close(file);
 
 	for (true) {
-		let ent = match (nextgr(&file)) {
+		let ent = match (nextgr(file)) {
 		case e: grent =>
 			yield e;
 		case io::EOF =>

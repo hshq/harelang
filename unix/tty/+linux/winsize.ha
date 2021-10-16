@@ -3,14 +3,8 @@ use io;
 use os;
 use rt;
 
-// Returns the dimensions of underlying terminal of the stream.
-export fn winsize(tty: *io::stream) (ttysize | error) = {
-	let fd = match (io::unwrapfd(tty)) {
-	case void =>
-		return errors::unsupported;
-	case fd: int =>
-		yield fd;
-	};
+// Returns the dimensions of underlying terminal for an [[io::file]].
+export fn winsize(fd: io::file) (ttysize | error) = {
 	let wsz = rt::winsize { ... };
 	match (rt::ioctl(fd, rt::TIOCGWINSZ, &wsz: *void)) {
 	case e: rt::errno =>
@@ -24,7 +18,7 @@ export fn winsize(tty: *io::stream) (ttysize | error) = {
 		};
 	case int =>
 		return ttysize {
-			rows    = wsz.ws_row,
+			rows = wsz.ws_row,
 			columns = wsz.ws_col,
 		};
 	};

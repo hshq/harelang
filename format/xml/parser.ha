@@ -10,20 +10,20 @@ use strconv;
 use strings;
 use strio;
 
-// Returns an XML parser which reads from a stream. The caller must call
-// [[parser_free]] when they are finished with it.
+// Creates an XML parser. The caller must call [[parser_free]] when they are
+// finished with it.
 //
 // Hare's XML parser only supports UTF-8 encoded input files.
 //
 // This function will attempt to read the XML prologue before returning, and
 // will return an error if it is not valid.
-export fn parse(in: *io::stream) (*parser | error) = {
+export fn parse(in: io::handle) (*parser | error) = {
 	// XXX: The main reason we allocate this instead of returning it on the
 	// stack is so that we have a consistent address for the bufio buffer.
 	// This is kind of lame, maybe we can avoid that.
 	let par = alloc(parser {
-		orig = in,
 		in = in,
+		close = false,
 		namebuf = strio::dynamic(),
 		entbuf = strio::dynamic(),
 		textbuf = strio::dynamic(),
@@ -31,15 +31,16 @@ export fn parse(in: *io::stream) (*parser | error) = {
 	});
 	if (!bufio::isbuffered(in)) {
 		par.in = bufio::buffered(par.in, par.buf[..], []);
+		par.close = true;
 	};
 	prolog(par)?;
 	return par;
 };
 
 // Frees the resources associated with this parser. Does not close the
-// underlying stream.
+// underlying I/O handle.
 export fn parser_free(par: *parser) void = {
-	if (par.in != par.orig) {
+	if (par.close) {
 		io::close(par.in);
 	};
 	io::close(par.namebuf);
@@ -358,7 +359,7 @@ fn scan_namedent(par: *parser) (rune | error) = {
 	return syntaxerr;
 };
 
-fn scan_name(par: *parser, buf: *io::stream) (str | error) = {
+fn scan_name(par: *parser, buf: io::handle) (str | error) = {
 	strio::reset(buf);
 
 	const rn = match (bufio::scanrune(par.in)?) {

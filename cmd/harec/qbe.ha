@@ -22,7 +22,7 @@ const vvoid: value = value {
 };
 
 fn emit(
-	to: *io::stream,
+	to: io::handle,
 	out: (qtypeval | void),
 	instr: qinstr,
 	args: (value | qval | qtype)...
@@ -230,7 +230,7 @@ fn emit(
 	fmt::fprintln(to)!;
 };
 
-fn qval_emit(to: *io::stream, qv: qval) void = {
+fn qval_emit(to: io::handle, qv: qval) void = {
 	match (qv) {
 	case g: global =>
 		fmt::fprintf(to, " ${}", g)!;

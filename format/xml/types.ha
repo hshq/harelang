@@ -3,16 +3,16 @@ use io;
 use os;
 
 export type parser = struct {
-	orig: *io::stream,
-	in: *io::stream,
+	in: io::handle,
 	buf: [os::BUFSIZ]u8,
+	close: bool,
 	state: state,
 	tags: []str,
 
 	// strio buffers:
-	namebuf: *io::stream,
-	entbuf: *io::stream,
-	textbuf: *io::stream,
+	namebuf: io::handle,
+	entbuf: io::handle,
+	textbuf: io::handle,
 };
 
 export type state = enum {

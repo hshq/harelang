@@ -27,8 +27,7 @@ export fn connect(
 	const sz = size(rt::sockaddr): u32;
 	match (rt::connect(sockfd, &sockaddr, sz)) {
 	case int =>
-		return io::fdopen(sockfd, "<udp connection>",
-			io::mode::READ | io::mode::WRITE);
+		return io::fdopen(sockfd);
 	case err: rt::errno =>
 		return errors::errno(err);
 	};
@@ -76,13 +75,12 @@ export fn listen(
 		*options[i] = addr.1;
 	};
 
-	return io::fdopen(sockfd, "<udp listener>",
-		io::mode::READ | io::mode::WRITE);
+	return io::fdopen(sockfd);
 };
 
 // Sends a UDP packet to the destination previously specified by [[connect]].
-export fn send(sock: *io::file, buf: []u8) (size | net::error) = {
-	match (rt::send(io::fd(sock), buf: *[*]u8, len(buf), 0)) {
+export fn send(sock: io::file, buf: []u8) (size | net::error) = {
+	match (rt::send(sock, buf: *[*]u8, len(buf), 0)) {
 	case sz: size =>
 		return sz;
 	case err: rt::errno =>
@@ -92,15 +90,14 @@ export fn send(sock: *io::file, buf: []u8) (size | net::error) = {
 
 // Sends a UDP packet using this socket.
 export fn sendto(
-	sock: *io::file,
+	sock: io::file,
 	buf: []u8,
 	dest: ip::addr,
 	port: u16,
 ) (size | net::error) = {
 	const sockaddr = ip::to_native(dest, port);
 	const sz = size(rt::sockaddr): u32;
-	match (rt::sendto(io::fd(sock), buf: *[*]u8, len(buf),
-			0, &sockaddr, sz)) {
+	match (rt::sendto(sock, buf: *[*]u8, len(buf), 0, &sockaddr, sz)) {
 	case sz: size =>
 		return sz;
 	case err: rt::errno =>
@@ -110,15 +107,15 @@ export fn sendto(
 
 // Receives a UDP packet from a bound socket.
 export fn recvfrom(
-	sock: *io::file,
+	sock: io::file,
 	buf: []u8,
 	src: nullable *ip::addr,
 	port: nullable *u16,
 ) (size | net::error) = {
 	let addrsz = size(rt::sockaddr): u32;
 	const sockaddr = rt::sockaddr { ... };
-	const sz = match (rt::recvfrom(io::fd(sock), buf: *[*]u8, len(buf),
-			0, &sockaddr, &addrsz)) {
+	const sz = match (rt::recvfrom(sock, buf: *[*]u8, len(buf), 0,
+		&sockaddr, &addrsz)) {
 	case sz: size =>
 		yield sz;
 	case err: rt::errno =>

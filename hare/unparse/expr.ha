@@ -9,7 +9,7 @@ use hare::lex;
 // binary operators (e.g. +) is not accounted for, so such expressions may
 // produce a different AST if parsed again.
 export fn expr(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	e: ast::expr
 ) (size | io::error) = {
@@ -390,7 +390,7 @@ export fn expr(
 };
 
 fn constant(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	e: ast::constant_expr,
 ) (size | io::error) = {
@@ -439,7 +439,7 @@ fn constant(
 };
 
 fn struct_constant(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	sc: ast::struct_constant,
 ) (size | io::error) = {
@@ -480,7 +480,7 @@ fn struct_constant(
 };
 
 fn for_expr(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	e: ast::for_expr,
 ) (size | io::error) = {
@@ -506,7 +506,7 @@ fn for_expr(
 };
 
 fn switch_expr(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	e: ast::switch_expr,
 ) (size | io::error) = {
@@ -545,7 +545,7 @@ fn switch_expr(
 };
 
 fn match_expr(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	e: ast::match_expr,
 ) (size | io::error) = {

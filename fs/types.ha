@@ -182,7 +182,7 @@ export type openfunc = fn(
 	fs: *fs,
 	path: str,
 	flags: flags...
-) (*io::stream | error);
+) (io::handle | error);
 
 export type openfilefunc = fn(
 	fs: *fs,
@@ -195,7 +195,7 @@ export type createfunc = fn(
 	path: str,
 	mode: mode,
 	flags: flags...
-) (*io::stream | error);
+) (io::handle | error);
 
 export type createfilefunc = fn(
 	fs: *fs,

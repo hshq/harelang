@@ -4,7 +4,7 @@ use hare::ast;
 use strio;
 
 // Unparses an [[ast::import]].
-export fn import(out: *io::stream, i: ast::import) (size | io::error) = {
+export fn import(out: io::handle, i: ast::import) (size | io::error) = {
 	let n = 0z;
 	n += fmt::fprint(out, "use ")?;
 	match (i) {

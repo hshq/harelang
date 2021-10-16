@@ -94,7 +94,7 @@ fn create(
 	path: str,
 	mode: fs::mode,
 	flags: fs::flags...,
-) (*io::stream | fs::error) = {
+) (io::handle | fs::error) = {
 	let t = file_flags(flags...)?;
 	let mode = t.0, appnd = t.1;
 
@@ -116,21 +116,21 @@ fn create(
 		parent = parent,
 	});
 	inode_insert(parent, ino);
-	return stream_open(ino, mode, appnd);
+	return stream_open(ino, mode, appnd)?;
 };
 
 fn open(
 	fs: *fs::fs,
 	path: str,
 	flags: fs::flags...,
-) (*io::stream | fs::error) = {
+) (io::handle | fs::error) = {
 	let t = file_flags(flags...)?;
 	let mode = t.0, appnd = t.1;
 	let ino = inode_find(fs: *inode, path)?;
 	if (ino.data is directory) {
 		return fs::wrongtype;
 	};
-	return stream_open(ino, mode, appnd);
+	return stream_open(ino, mode, appnd)?;
 };
 
 fn stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {

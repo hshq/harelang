@@ -27,17 +27,17 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 	};
 
 	let socket4 = udp::listen(ip::ANY_V4, 0)?;
-	defer io::close(&socket4);
+	defer io::close(socket4);
 	let socket6 = udp::listen(ip::ANY_V6, 0)?;
-	defer io::close(&socket6);
+	defer io::close(socket6);
 	const pollfd: [_]poll::pollfd = [
 		poll::pollfd {
-			fd = io::fd(&socket4),
+			fd = socket4,
 			events = poll::event::POLLIN,
 			...
 		},
 		poll::pollfd {
-			fd = io::fd(&socket6),
+			fd = socket6,
 			events = poll::event::POLLIN,
 			...
 		},
@@ -50,9 +50,9 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 	// first one which sends us a reasonable answer.
 	for (let i = 0z; i < len(servers); i += 1) match (servers[i]) {
 	case ip::addr4 =>
-		udp::sendto(&socket4, sendbuf[..z], servers[i], 53)?;
+		udp::sendto(socket4, sendbuf[..z], servers[i], 53)?;
 	case ip::addr6 =>
-		udp::sendto(&socket6, sendbuf[..z], servers[i], 53)?;
+		udp::sendto(socket6, sendbuf[..z], servers[i], 53)?;
 	};
 
 	let header = header { ... };
@@ -65,10 +65,10 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 
 		let src: ip::addr = ip::ANY_V4;
 		if (pollfd[0].revents & poll::event::POLLIN != 0) {
-			z = udp::recvfrom(&socket4, recvbuf, &src, null)?;
+			z = udp::recvfrom(socket4, recvbuf, &src, null)?;
 		};
 		if (pollfd[1].revents & poll::event::POLLIN != 0) {
-			z = udp::recvfrom(&socket6, recvbuf, &src, null)?;
+			z = udp::recvfrom(socket6, recvbuf, &src, null)?;
 		};
 
 		let expected = false;

@@ -11,7 +11,7 @@ use io;
 use os;
 use strings;
 
-fn gen(out: *io::stream, store: *types::typestore, unit: *unit::unit) void = {
+fn gen(out: io::handle, store: *types::typestore, unit: *unit::unit) void = {
 	// TODO: context_init
 	let ctx = context {
 		out = out,

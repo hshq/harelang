@@ -7,6 +7,7 @@ use io;
 use os;
 use path;
 use strio;
+use strings;
 
 fn get_tmpdir() str = os::tryenv("TMPDIR", "/tmp");
 
@@ -35,16 +36,17 @@ export fn file(
 	// TODO: Add a custom "close" function which removes the named file
 	match (os::create(get_tmpdir(), fmode, oflags)) {
 	case err: fs::error =>
-		return named(os::cwd, get_tmpdir(), iomode, mode...);
+		let file = named(os::cwd, get_tmpdir(), iomode, mode...)?;
+		free(file.1);
+		return file.0;
 	case f: io::file =>
 		return f;
 	};
 };
 
 // Creates a named temporary file in the given directory of the given
-// filesystem. The path to the temporary file may be found via the name field of
-// [[io::stream]]. The caller is responsible for removing the file when they're
-// done with it.
+// filesystem. The caller is responsible for removing the file and freeing the
+// name when they're done with it.
 //
 // The I/O mode must be either [[io::mode::WRITE]] or [[io::mode::RDWR]].
 //
@@ -55,7 +57,7 @@ export fn named(
 	path: str,
 	iomode: io::mode,
 	mode: fs::mode...
-) (io::file | fs::error) = {
+) ((io::file, str) | fs::error) = {
 	assert(iomode == io::mode::WRITE || iomode == io::mode::RDWR);
 	assert(len(mode) == 0 || len(mode) == 1);
 
@@ -80,7 +82,7 @@ export fn named(
 		case err: fs::error =>
 			return err;
 		case f: io::file =>
-			return f;
+			return (f, strings::dup(fpath));
 		};
 	};
 	abort(); // Unreachable

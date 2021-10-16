@@ -4,7 +4,7 @@ use io;
 use strio;
 
 // Unparses an identifier.
-export fn ident(out: *io::stream, id: ast::ident) (size | io::error) = {
+export fn ident(out: io::handle, id: ast::ident) (size | io::error) = {
 	let n = 0z;
 	for (let i = 0z; i < len(id); i += 1) {
 		n += fmt::fprintf(out, "{}{}", id[i],

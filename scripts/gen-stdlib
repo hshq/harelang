@@ -547,6 +547,9 @@ gensrcs_io() {
 		'arch$(ARCH).ha' \
 		copy.ha \
 		drain.ha \
+		empty.ha \
+		filestream.ha \
+		handle.ha \
 		limit.ha \
 		'println$(PLATFORM).ha' \
 		stream.ha \
@@ -706,7 +709,6 @@ os() {
 		'$(PLATFORM)/dirfdfs.ha' \
 		'$(PLATFORM)/stdfd.ha' \
 		'$(PLATFORM)/fs.ha' \
-		stdfd.ha \
 		fs.ha
 	gen_ssa os io strings types fs encoding::utf8 bytes bufio errors
 }
@@ -817,7 +819,7 @@ time() {
 temp() {
 	gen_srcs temp \
 		'$(PLATFORM).ha'
-	gen_ssa temp crypto::random encoding::hex fs io os path strio fmt
+	gen_ssa temp crypto::random encoding::hex fs io os path strio fmt strings
 }
 
 gensrcs_types() {

@@ -4,7 +4,7 @@ use hare::ast;
 use hare::lex;
 use strio;
 
-export fn decl(out: *io::stream, d: ast::decl) (size | io::error) = {
+export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 	let n = 0z;
 	if (d.exported) {
 		n += fmt::fprint(out, "export ")?;

@@ -38,8 +38,7 @@ export fn connect(
 		return errors::errno(err);
 	case int => void;
 	};
-	return io::fdopen(sockfd, ip::string(addr),
-		io::mode::READ | io::mode::WRITE);
+	return io::fdopen(sockfd);
 };
 
 // Binds a TCP listener to the given address.
@@ -119,11 +118,10 @@ export fn listen(
 
 // Returns the remote address for a given connection, or void if none is
 // available.
-export fn peeraddr(peer: *io::file) ((ip::addr, u16) | void) = {
-	let fd = io::fd(peer);
+export fn peeraddr(peer: io::file) ((ip::addr, u16) | void) = {
 	let sn = rt::sockaddr {...};
 	let sz = size(rt::sockaddr): u32;
-	if (rt::getpeername(fd, &sn, &sz) is rt::errno) {
+	if (rt::getpeername(peer, &sn, &sz) is rt::errno) {
 		return;
 	};
 	return ip::from_native(sn);

@@ -6,7 +6,7 @@ use strings;
 
 export type bufstream = struct {
 	stream: io::stream,
-	source: *io::stream,
+	source: io::handle,
 	rbuffer: []u8,
 	wbuffer: []u8,
 	ravail: size,
@@ -31,10 +31,10 @@ export type bufstream = struct {
 // 	let wbuf: [os::BUFSIZ]u8 = [0...];
 // 	let buffered = bufio::buffered(source, rbuf, wbuf);
 export fn buffered(
-	src: *io::stream,
+	src: io::handle,
 	rbuf: []u8,
 	wbuf: []u8,
-) *io::stream = {
+) io::handle = {
 	let s = alloc(bufstream { ... });
 	let st = static_buffered(src, rbuf, wbuf, s);
 	st.closer = &buffered_close;
@@ -42,7 +42,7 @@ export fn buffered(
 };
 
 export fn static_buffered(
-	src: *io::stream,
+	src: io::handle,
 	rbuf: []u8,
 	wbuf: []u8,
 	s: *bufstream,
@@ -50,9 +50,7 @@ export fn static_buffered(
 	static let flush_default = ['\n': u32: u8];
 	*s = bufstream {
 		stream = io::stream {
-			name = src.name,
 			closer = &buffered_close_static,
-			unwrap = &buffered_unwrap,
 			...
 		},
 		source = src,
@@ -74,11 +72,14 @@ export fn static_buffered(
 	return &s.stream;
 };
 
+fn getstream(in: io::handle) *bufstream = {
+	assert(isbuffered(in), "Attempted to use bufio on unbuffered stream");
+	return in as *io::stream: *bufstream;
+};
+
 // Flushes pending writes to the underlying stream.
-export fn flush(s: *io::stream) (io::error | void) = {
-	assert(s.writer == &buffered_write,
-		"bufio::flushed used on non-buffered stream");
-	let s = s: *bufstream;
+export fn flush(s: io::handle) (io::error | void) = {
+	let s = getstream(s);
 	if (s.wavail == 0) {
 		return;
 	};
@@ -89,46 +90,34 @@ export fn flush(s: *io::stream) (io::error | void) = {
 
 // Sets the list of bytes which will cause the stream to flush when written. By
 // default, the stream will flush when a newline (\n) is written.
-export fn setflush(s: *io::stream, b: []u8) void = {
-	assert(s.writer == &buffered_write,
-		"bufio: setflush used on non-buffered stream");
-	let s = s: *bufstream;
+export fn setflush(s: io::handle, b: []u8) void = {
+	let s = getstream(s);
 	s.flush = b;
-};
-
-// Returns true if this is a buffered stream.
-export fn isbuffered(s: *io::stream) bool = {
-	return s.reader == &buffered_read || s.writer == &buffered_write;
-};
-
-// Returns true if this stream or any underlying streams are buffered.
-export fn any_isbuffered(s: *io::stream) bool = {
-	for (!isbuffered(s)) {
-		s = match (io::source(s)) {
-		case errors::unsupported =>
-			return false;
-		case s: *io::stream  =>
-			yield s;
-		};
-	};
-	return true;
 };
 
 // Unreads a slice of bytes. The next read calls on this buffer will consume the
 // un-read data before consuming further data from the underlying source, or any
 // buffered data.
-export fn unread(s: *io::stream, buf: []u8) void = {
-	assert(isbuffered(s), "bufio: unread used on non-buffered stream");
-	let s = s: *bufstream;
+export fn unread(s: io::handle, buf: []u8) void = {
+	let s = getstream(s);
 	append(s.unread, buf...);
 };
 
 // Unreads a rune; see [[unread]].
-export fn unreadrune(s: *io::stream, rn: rune) void = {
-	assert(isbuffered(s), "bufio: unread used on non-buffered stream");
-	let s = s: *bufstream;
+export fn unreadrune(s: io::handle, rn: rune) void = {
+	let s = getstream(s);
 	const buf = utf8::encoderune(rn);
 	insert(s.unread[0], buf...);
+};
+
+// Returns true if an [[io::handle]] is a [[buffered]] stream.
+export fn isbuffered(in: io::handle) bool = {
+	match (in) {
+	case io::file =>
+		return false;
+	case st: *io::stream =>
+		return st.reader == &buffered_read || st.writer == &buffered_write;
+	};
 };
 
 fn buffered_close(s: *io::stream) void = {
@@ -144,12 +133,6 @@ fn buffered_close_static(s: *io::stream) void = {
 	if (s.writer != null) {
 		flush(s)!;
 	};
-};
-
-fn buffered_unwrap(s: *io::stream) *io::stream = {
-	assert(s.unwrap == &buffered_unwrap);
-	let s = s: *bufstream;
-	return s.source;
 };
 
 fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {

@@ -38,10 +38,10 @@ export def PADDING: u8 = '=': u32: u8;
 export type invalid = !size;
 
 // Encodes a byte slice using a base 64 encoding alphabet, with padding, and
-// writes it to an [[io::stream]]. The number of bytes written is returned.
+// writes it to an [[io::handle]]. The number of bytes written is returned.
 export fn encode(
 	alphabet: []u8,
-	sink: *io::stream,
+	sink: io::handle,
 	b: []u8
 ) (size | io::error) = {
 	let z = 0z;
@@ -101,11 +101,11 @@ export fn encodestr(alphabet: []u8, b: []u8) str = {
 };
 
 // Decodes base 64-encoded data in the given base 64 alphabet, with padding,
-// from an [[io::stream]]. The number of bytes written is returned.
+// from an [[io::handle]]. The number of bytes written is returned.
 export fn decode(
 	alphabet: []u8,
-	in: *io::stream,
-	out: *io::stream,
+	in: io::handle,
+	out: io::handle,
 ) (size | invalid | io::error) = {
 	const INVALID_OR_PAD = 255u8;
 	let decoder: [256]u8 = [INVALID_OR_PAD...];
@@ -181,11 +181,11 @@ export fn decode(
 };
 
 // Decodes base 64-encoded data in the given base 64 alphabet, with padding,
-// from an [[io::stream]]. The number of bytes written is returned.
+// from an [[io::handle]]. The number of bytes written is returned.
 export fn decode_static(
 	alphabet: []u8,
 	out: []u8,
-	in: *io::stream,
+	in: io::handle,
 ) (size | invalid) = {
 	let buf = bufio::fixed(out, io::mode::WRITE);
 	defer io::close(buf);

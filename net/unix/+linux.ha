@@ -32,9 +32,7 @@ export fn connect(addr: addr) (io::file | net::error) = {
 	case int => void;
 	};
 	static let buf: [rt::UNIX_PATH_MAX + 32]u8 = [0...];
-	return io::fdopen(sockfd,
-		fmt::bsprintf(buf, "<unix connection {}>", addr),
-		io::mode::READ | io::mode::WRITE);
+	return io::fdopen(sockfd);
 };
 
 // Binds a UNIX socket listener to the given path.

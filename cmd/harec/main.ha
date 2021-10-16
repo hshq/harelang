@@ -26,7 +26,6 @@ export fn main() void = {
 	defer getopt::finish(&cmd);
 
 	let out = os::stdout;
-
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
@@ -36,7 +35,7 @@ export fn main() void = {
 		case 'o' =>
 			out = match (os::create(opt.1, 0o644)) {
 			case f: io::file =>
-				yield &f;
+				yield f;
 			case e: fs::error =>
 				fmt::fatal(fs::strerror(e));
 			};
@@ -67,9 +66,9 @@ export fn main() void = {
 			fmt::fatal("Error opening {}: {}",
 				cmd.args[i], fs::strerror(err));
 		};
-		defer io::close(&input);
+		defer io::close(input);
 		static let buf: [os::BUFSIZ]u8 = [0...];
-		let bufin = bufio::buffered(&input, buf, []);
+		let bufin = bufio::buffered(input, buf, []);
 		defer io::close(bufin);
 
 		let lexer = lex::init(bufin, cmd.args[i]);

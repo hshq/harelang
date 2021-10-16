@@ -17,7 +17,7 @@ fn emit_tty(ctx: *context) (void | error) = {
 
 	match (ctx.readme) {
 	case readme: io::file =>
-		for (true) match (bufio::scanline(&readme)?) {
+		for (true) match (bufio::scanline(readme)?) {
 		case io::EOF => break;
 		case b: []u8 =>
 			firstline = false;
@@ -88,7 +88,7 @@ fn details_tty(ctx: *context, decl: ast::decl) (void | error) = {
 };
 
 // Forked from [[hare::unparse]]
-fn unparse_tty(out: *io::stream, d: ast::decl) (size | io::error) = {
+fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 	let n = 0z;
 	match (d.decl) {
 	case g: []ast::decl_global =>
@@ -163,7 +163,7 @@ fn unparse_tty(out: *io::stream, d: ast::decl) (size | io::error) = {
 };
 
 fn prototype_tty(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	t: ast::func_type,
 ) (size | io::error) = {
@@ -194,7 +194,7 @@ fn prototype_tty(
 
 // Forked from [[hare::unparse]]
 fn struct_union_type_tty(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	t: ast::_type,
 ) (size | io::error) = {
@@ -243,7 +243,7 @@ fn struct_union_type_tty(
 
 // Forked from [[hare::unparse]]
 fn type_tty(
-	out: *io::stream,
+	out: io::handle,
 	indent: size,
 	t: ast::_type,
 ) (size | io::error) = {

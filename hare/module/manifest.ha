@@ -57,7 +57,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 		return manifest;
 	case err: fs::error =>
 		return err;
-	case file: *io::stream =>
+	case file: io::handle =>
 		yield file;
 	};
 	defer io::close(file);
@@ -282,17 +282,19 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 	defer free(mpath);
 
 	let file = temp::named(ctx.fs, cachedir, io::mode::WRITE, 0o644)?;
+	let name = file.1, file = file.0;
 	defer {
-		fs::remove(ctx.fs, file.name): void;
-		io::close(&file);
+		fs::remove(ctx.fs, name): void;
+		io::close(file);
+		free(name);
 	};
 
 	let ident = unparse::identstr(manifest.ident);
 	defer free(ident);
-	fmt::fprintfln(&file, "# {}", ident)?;
-	fmt::fprintln(&file, "# This file is an internal Hare implementation detail.")?;
-	fmt::fprintln(&file, "# The format is not stable.")?;
-	fmt::fprintfln(&file, "version {}", VERSION)?;
+	fmt::fprintfln(file, "# {}", ident)?;
+	fmt::fprintln(file, "# This file is an internal Hare implementation detail.")?;
+	fmt::fprintln(file, "# The format is not stable.")?;
+	fmt::fprintfln(file, "version {}", VERSION)?;
 	for (let i = 0z; i < len(manifest.inputs); i += 1) {
 		const input = manifest.inputs[i];
 		let hash = hex::encodestr(input.hash);
@@ -300,7 +302,7 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 
 		const want = fs::stat_mask::INODE | fs::stat_mask::MTIME;
 		assert(input.stat.mask & want == want);
-		fmt::fprintfln(&file, "input {} {} {} {}",
+		fmt::fprintfln(file, "input {} {} {} {}",
 			hash, input.path, input.stat.inode,
 			time::unix(input.stat.mtime))?;
 	};
@@ -310,19 +312,19 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 		let hash = hex::encodestr(ver.hash);
 		defer free(hash);
 
-		fmt::fprintf(&file, "module {}", hash)?;
+		fmt::fprintf(file, "module {}", hash)?;
 
 		for (let j = 0z; j < len(ver.inputs); j += 1) {
 			let hash = hex::encodestr(ver.inputs[i].hash);
 			defer free(hash);
 
-			fmt::fprintf(&file, " {}", hash)?;
+			fmt::fprintf(file, " {}", hash)?;
 		};
 
-		fmt::fprintln(&file)?;
+		fmt::fprintln(file)?;
 	};
 
-	fs::move(ctx.fs, file.name, mpath)?;
+	fs::move(ctx.fs, name, mpath)?;
 };
 
 fn input_finish(in: *input) void = {

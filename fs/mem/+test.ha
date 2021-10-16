@@ -13,8 +13,7 @@ use strconv;
 
 	// fs::create, fs::stat
 	for (let i = 0z; i < 6; i += 1) {
-		let f = fs::create(memfs, names[i], 0, fs::flags::RDWR);
-		let f = f as *io::stream;
+		let f = fs::create(memfs, names[i], 0, fs::flags::RDWR)!;
 		io::write(f, input[i..])!;
 		io::close(f);
 		let st = fs::stat(memfs,  names[i]) as fs::filestat;
@@ -23,8 +22,7 @@ use strconv;
 		assert(st.mode & fs::mode::REG == fs::mode::REG);
 	};
 
-	let f = fs::open(memfs, filename, fs::flags::WRONLY, fs::flags::APPEND);
-	let f = f as *io::stream;
+	let f = fs::open(memfs, filename, fs::flags::WRONLY, fs::flags::APPEND)!;
 	io::write(f, input)!;
 	io::close(f);
 	let st = fs::stat(memfs,  filename) as fs::filestat;
@@ -41,8 +39,8 @@ use strconv;
 	fs::remove(memfs, "nonexistent")
 		as fs::error as errors::noentry: void;
 
-	let f = fs::open(memfs, filename, fs::flags::RDONLY) as *io::stream;
-	let f2 = fs::open(memfs, filename, fs::flags::RDONLY) as *io::stream;
+	let f = fs::open(memfs, filename, fs::flags::RDONLY)!;
+	let f2 = fs::open(memfs, filename, fs::flags::RDONLY)!;
 	let output: [12]u8 = [0...];
 	assert(io::seek(f2, 3, io::whence::SET) as io::off == 3: io::off);
 	assert(io::read(f2, output) as size == 9);
@@ -79,10 +77,10 @@ use strconv;
 	fs::rmdir(memfs, "") as fs::error as errors::invalid: void;
 
 	fs::mkdir(memfs, "dir") as void;
-	f = fs::create(memfs, "dir/file", 0, fs::flags::WRONLY) as *io::stream;
+	f = fs::create(memfs, "dir/file", 0, fs::flags::WRONLY)!;
 	assert(io::write(f, input[..]) as size == 6);
 	io::close(f);
-	f = fs::open(memfs, "dir/file", fs::flags::RDONLY) as *io::stream;
+	f = fs::open(memfs, "dir/file", fs::flags::RDONLY)!;
 	assert(io::read(f, output) as size == 6);
 	assert(bytes::equal(input, output[..6]));
 	io::close(f);
@@ -96,7 +94,7 @@ use strconv;
 
 	let sub = mksubdir(memfs, "dir") as *fs::fs;
 
-	let f = fs::create(sub, "file", 0, fs::flags::WRONLY) as *io::stream;
+	let f = fs::create(sub, "file", 0, fs::flags::WRONLY)!;
 	io::write(f, [42])!;
 	io::close(f);
 
@@ -104,7 +102,7 @@ use strconv;
 	assert(sub2 == sub);
 	fs::close(sub);
 
-	let f = fs::open(sub2, "file", fs::flags::RDONLY) as *io::stream;
+	let f = fs::open(sub2, "file", fs::flags::RDONLY)!;
 	assert(io::read(f, output) as size == 1);
 	assert(output[0] == 42);
 	io::close(f);
@@ -126,8 +124,8 @@ use strconv;
 	let limit = 32z;
 	let memfs = memopen();
 	for (let i = 0z; i < limit; i += 1) {
-		let f = fs::create(memfs, strconv::ztos(i), 0, fs::flags::RDWR);
-		io::close(f as *io::stream);
+		let f = fs::create(memfs, strconv::ztos(i), 0, fs::flags::RDWR)!;
+		io::close(f);
 	};
 	let ino = memfs: *inode;
 	let dir = ino.data as directory;

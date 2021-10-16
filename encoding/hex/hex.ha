@@ -10,8 +10,8 @@ use strio;
 // characters.
 export type invalid = !void;
 
-// Encodes a byte slice as a hexadecimal string and writes it to a stream.
-export fn encode(sink: *io::stream, b: []u8) (size | io::error) = {
+// Encodes a byte slice as a hexadecimal string and writes it to an I/O handle.
+export fn encode(sink: io::handle, b: []u8) (size | io::error) = {
 	let z = 0z;
 	for (let i = 0z; i < len(b); i += 1) {
 		let s = strconv::u8tosb(b[i], strconv::base::HEX_LOWER);
@@ -67,14 +67,14 @@ export fn decode(s: str) ([]u8 | invalid) = {
 	decode("this is not hex") as invalid: void;
 };
 
-// Outputs a dump of hex data to a stream alongside the offset and an ASCII
-// representation (if applicable).
+// Outputs a dump of hex data alongside the offset and an ASCII representation
+// (if applicable).
 //
 // Example output:
 //
 // 	00000000  7f 45 4c 46 02 01 01 00  00 00 00 00 00 00 00 00  |.ELF............|
 // 	00000010  03 00 3e 00 01 00 00 00  80 70 01 00 00 00 00 00  |..>......p......|
-export fn dump(out: *io::stream, data: []u8) (void | io::error) = {
+export fn dump(out: io::handle, data: []u8) (void | io::error) = {
 	let datalen = len(data): u32;
 
 	for (let off = 0u32; off < datalen; off += 16) {

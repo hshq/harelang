@@ -1,6 +1,7 @@
 use errors;
-use time;
+use io;
 use rt;
+use time;
 
 // Events bitfield for the events and revents field of [[pollfd]].
 export type event = enum i16 {
@@ -13,8 +14,7 @@ export type event = enum i16 {
 
 // A single file descriptor to be polled.
 export type pollfd = struct {
-	// XXX: TODO: Update me to io::file?
-	fd: int,
+	fd: io::file,
 	events: event,
 	revents: event,
 };

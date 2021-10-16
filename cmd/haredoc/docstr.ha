@@ -21,11 +21,11 @@ type docstate = enum {
 };
 
 type parser = struct {
-	src: *io::stream,
+	src: io::handle,
 	state: docstate,
 };
 
-fn parsedoc(in: *io::stream) parser = {
+fn parsedoc(in: io::handle) parser = {
 	static let buf: [4096]u8 = [0...];
 	return parser {
 		src = bufio::buffered(in, buf[..], []),
