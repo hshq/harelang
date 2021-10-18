@@ -6,17 +6,10 @@ type language = enum {
 };
 
 @test fn strenum() void = {
-	const l = language::C;
-	assert(strenum(type(language), &l) == "C");
-
-	const l = language::HARE;
-	assert(strenum(type(language), &l) == "HARE");
-
-	const l = language::PYTHON;
-	assert(strenum(type(language), &l) == "PYTHON");
-
-	const l = language::MYRDDIN;
-	assert(strenum(type(language), &l) == "MYRDDIN");
+	assert(strenum(type(language), &language::C) == "C");
+	assert(strenum(type(language), &language::HARE) == "HARE");
+	assert(strenum(type(language), &language::PYTHON) == "PYTHON");
+	assert(strenum(type(language), &language::MYRDDIN) == "MYRDDIN");
 };
 
 type perm = enum u8 {
@@ -27,23 +20,19 @@ type perm = enum u8 {
 };
 
 @test fn strflag() void = {
-	const perm = perm::READ;
-	const res = strflag(type(perm), &perm);
+	const res = strflag(type(perm), &perm::READ);
 	defer free(res);
 	assert(res == "READ");
 
-	const perm = perm::READ | perm::WRITE;
-	const res = strflag(type(perm), &perm);
+	const res = strflag(type(perm), &(perm::READ | perm::WRITE));
 	defer free(res);
 	assert(res == "READ|WRITE");
 
-	const perm = perm::WRITE | perm::EXECUTE;
-	const res = strflag(type(perm), &perm);
+	const res = strflag(type(perm), &(perm::WRITE | perm::EXECUTE));
 	defer free(res);
 	assert(res == "WRITE|EXECUTE");
 
-	const perm = perm::NONE;
-	const res = strflag(type(perm), &perm);
+	const res = strflag(type(perm), &perm::NONE);
 	defer free(res);
 	assert(res == "NONE");
 };
