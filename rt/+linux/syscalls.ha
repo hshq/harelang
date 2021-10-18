@@ -245,9 +245,8 @@ export fn mmap(
 		length: u64, prot: u64, flags: u64, fd: u64, offs: u64);
 	return match (wrap_return(r)) {
 	case err: errno =>
-		// XXX: Type promotion would simplify this
 		return if (r: int == -EPERM
-				&& addr: uintptr == null: uintptr
+				&& addr == null
 				&& (flags & MAP_ANON) > 0
 				&& (flags & MAP_FIXED) == 0) {
 			 // Fix up incorrect EPERM from kernel:
