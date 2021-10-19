@@ -1,1 +1,38 @@
-The iobus module implements a multiplexer for I/O operations.
+The iobus module provides a multiplexer for asynchronous I/O operations.
+
+A [[bus]] object manages the submission of I/O operations to the host operating
+system and maintains the state associated with these. The implementation is
+abstracted over various backend implementations which are selected from based on
+the host platform, such as io_uring or kqueue.
+
+The core of iobus is the event loop. The application using iobus will generally
+follow these steps:
+
+- Create an iobus with [[new]], and optionally register a set of [[io::file]]s
+  or buffers with the bus using [[register_file]] or [[register_buffer]].
+- Create I/O handles (e.g. via [[read]]) and [[enqueue]] or [[submit]] them.
+- Dispatch the bus with [[dispatch]], blocking until at least one operation is
+  complete and returning its [[result]].
+- Process the results of the completed I/O operation (e.g. with [[endread]]),
+  mark it as [[done]], then re-enter the event loop.
+
+The event loop will resemble the following:
+
+	let bus = iobus::new();
+	defer iobus::destroy(bus);
+
+	// Prepare and submit/enqueue I/O handles as necessary
+
+	for (true) {
+		const res = iobus::dispatch();
+		// Dispatch the result back to the subsystem which created the
+		// handle, or allow callbacks to process it.
+		iobus::done(res);
+	};
+
+It is the user's responsibility to ensure that each [[handle]]'s lifetime lasts
+for the full duration of the I/O operation. The return value from [[read]] et al
+is stack-allocated, and you may wish to pass this to "alloc" (freeing it later,
+perhaps in the [[callback]] via [[handleof]]) to persist it. Alternative memory
+management strategies may be more suited to your needs, this is left at the
+programmer's discretion.
