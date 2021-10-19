@@ -575,6 +575,7 @@ io() {
 iobus_io_uring() {
 	gen_srcs iobus::io_uring \
 		bus.ha \
+		handle.ha \
 		types.ha \
 		ops.ha
 	gen_ssa iobus::io_uring errors io linux::io_uring

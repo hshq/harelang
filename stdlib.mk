@@ -844,6 +844,7 @@ $(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt) $(stdlib_strings) $(stdli
 # iobus::io_uring
 stdlib_iobus_io_uring_srcs= \
 	$(STDLIB)/iobus/io_uring/bus.ha \
+	$(STDLIB)/iobus/io_uring/handle.ha \
 	$(STDLIB)/iobus/io_uring/types.ha \
 	$(STDLIB)/iobus/io_uring/ops.ha
 
@@ -2117,6 +2118,7 @@ $(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt) $(testlib_strings) $(te
 # iobus::io_uring
 testlib_iobus_io_uring_srcs= \
 	$(STDLIB)/iobus/io_uring/bus.ha \
+	$(STDLIB)/iobus/io_uring/handle.ha \
 	$(STDLIB)/iobus/io_uring/types.ha \
 	$(STDLIB)/iobus/io_uring/ops.ha
 

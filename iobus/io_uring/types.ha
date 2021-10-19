@@ -18,7 +18,10 @@ export type bus = struct {
 export type result = *io_uring::cqe;
 
 // An I/O operation handle.
-export type handle = *io_uring::sqe;
+export type handle = struct {
+	sqe: *io_uring::sqe,
+	callbacks: [](*fn(res: result, data: *void) void, *void),
+};
 
 export type registered_file = int;
 

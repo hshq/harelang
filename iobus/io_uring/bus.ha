@@ -23,14 +23,23 @@ export fn destroy(bus: *bus) void = {
 	io_uring::finish(&bus.uring);
 };
 
-// Submits all pending I/O to the host, without blocking.
-export fn submit(bus: *bus) void = {
-	io_uring::submit(&bus.uring)!;
+// Registers a set of I/O operations with the queue, without submitting them.
+// Must call [[submit]] later submit them to the host.
+export fn enqueue(bus: *bus, ops: *handle...) void = {
+	for (let i = 0z; i < len(ops); i += 1) {
+		io_uring::set_user(ops[i].sqe, ops[i]);
+	};
 };
 
-// Waits until at least one I/O event completes, then returns the result. The
-// caller must call [[done]] with the result when done with it.
-export fn dispatch(bus: *bus) (result | error) = {
+// Submits all pending I/O to the host, without blocking, optionally enqueing
+// any number of additional operations prior to submission.
+export fn submit(bus: *bus, ops: *handle...) (void | error) = {
+	enqueue(bus, ops...);
+	io_uring::submit(&bus.uring)?;
+	return;
+};
+
+fn _dispatch(bus: *bus) (result | error) = {
 	match (io_uring::peek(&bus.uring)?) {
 	case null => void;
 	case cqe: *io_uring::cqe =>
@@ -44,14 +53,16 @@ export fn dispatch(bus: *bus) (result | error) = {
 	};
 };
 
-// Returns the [[handle]] which this [[result]] corresponds to.
-export fn handleof(res: result) handle = {
-	return io_uring::get_user(res): handle;
-};
-
-// Discards states associated with an [[result]].
-export fn done(bus: *bus, res: result) void = {
-	io_uring::cqe_seen(&bus.uring, res);
+// Waits until at least one I/O event completes, then returns the result. The
+// caller must call [[done]] with the result when done with it.
+export fn dispatch(bus: *bus) (result | error) = {
+	const res = _dispatch(bus)?;
+	const handle = handleof(res);
+	for (let i = 0z; i < len(handle.callbacks); i += 1) {
+		const cb = handle.callbacks[i];
+		cb.0(res, cb.1);
+	};
+	return res;
 };
 
 // Registers a file with the iobus, returning a [[registered_file]] object to
