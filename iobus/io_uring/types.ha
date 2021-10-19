@@ -1,8 +1,6 @@
 use errors;
 use io;
 use linux::io_uring;
-use net::ip;
-use net::unix;
 use rt;
 
 // All errors which may be raised by iobus.

@@ -1,7 +1,6 @@
 use io;
 use linux::io_uring;
 use net::ip;
-use net::unix;
 use rt;
 // TODO: Seek to de-duplicate some of the SQE prep code
 

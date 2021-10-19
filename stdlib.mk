@@ -848,7 +848,7 @@ stdlib_iobus_io_uring_srcs= \
 	$(STDLIB)/iobus/io_uring/types.ha \
 	$(STDLIB)/iobus/io_uring/ops.ha
 
-$(HARECACHE)/iobus/io_uring/iobus_io_uring.ssa: $(stdlib_iobus_io_uring_srcs) $(stdlib_rt) $(stdlib_errors) $(stdlib_io) $(stdlib_linux_io_uring)
+$(HARECACHE)/iobus/io_uring/iobus_io_uring.ssa: $(stdlib_iobus_io_uring_srcs) $(stdlib_rt) $(stdlib_errors) $(stdlib_io) $(stdlib_linux_io_uring) $(stdlib_net_ip)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/iobus/io_uring
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Niobus::io_uring \
@@ -2122,7 +2122,7 @@ testlib_iobus_io_uring_srcs= \
 	$(STDLIB)/iobus/io_uring/types.ha \
 	$(STDLIB)/iobus/io_uring/ops.ha
 
-$(TESTCACHE)/iobus/io_uring/iobus_io_uring.ssa: $(testlib_iobus_io_uring_srcs) $(testlib_rt) $(testlib_errors) $(testlib_io) $(testlib_linux_io_uring)
+$(TESTCACHE)/iobus/io_uring/iobus_io_uring.ssa: $(testlib_iobus_io_uring_srcs) $(testlib_rt) $(testlib_errors) $(testlib_io) $(testlib_linux_io_uring) $(testlib_net_ip)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/iobus/io_uring
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Niobus::io_uring \

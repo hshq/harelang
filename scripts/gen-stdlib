@@ -578,7 +578,7 @@ iobus_io_uring() {
 		handle.ha \
 		types.ha \
 		ops.ha
-	gen_ssa iobus::io_uring errors io linux::io_uring
+	gen_ssa iobus::io_uring errors io linux::io_uring net::ip
 }
 
 linux() {
