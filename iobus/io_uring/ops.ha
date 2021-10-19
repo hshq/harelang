@@ -76,7 +76,7 @@ export fn endwrite(res: result) (size | error) = {
 	return io_uring::result(res)?: size;
 };
 
-// Prepares an asyncronous close operation.
+// Prepares an asynchronous close operation.
 export fn close(bus: *bus, file: file) (handle | queuefull) = {
 	let sqe = getsqe(bus)?;
 	let flags = io_uring::flags::NONE;
