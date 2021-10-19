@@ -21,7 +21,7 @@ export fn handleof(res: result) *handle = {
 	};
 };
 
-// Discards state associated with an [[result]].
+// Discards state associated with a [[result]].
 export fn done(bus: *bus, res: result) void = {
 	const handle = handleof(res);
 	free(handle.callbacks);
