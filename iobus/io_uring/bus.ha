@@ -45,6 +45,18 @@ export fn submit(bus: *bus, ops: *handle...) (void | error) = {
 	return;
 };
 
+// Waits until at least one I/O event completes, then returns the result. The
+// caller must call [[done]] with the result when done with it.
+export fn dispatch(bus: *bus) (result | error) = {
+	const res = _dispatch(bus)?;
+	const handle = handleof(res);
+	for (let i = 0z; i < len(handle.callbacks); i += 1) {
+		const cb = handle.callbacks[i];
+		cb.0(res, cb.1);
+	};
+	return res;
+};
+
 fn _dispatch(bus: *bus) (result | error) = {
 	match (io_uring::peek(&bus.uring)?) {
 	case null => void;
@@ -61,18 +73,6 @@ fn _dispatch(bus: *bus) (result | error) = {
 	case cqe: *io_uring::cqe =>
 		return cqe: result;
 	};
-};
-
-// Waits until at least one I/O event completes, then returns the result. The
-// caller must call [[done]] with the result when done with it.
-export fn dispatch(bus: *bus) (result | error) = {
-	const res = _dispatch(bus)?;
-	const handle = handleof(res);
-	for (let i = 0z; i < len(handle.callbacks); i += 1) {
-		const cb = handle.callbacks[i];
-		cb.0(res, cb.1);
-	};
-	return res;
 };
 
 // Registers a file with the iobus, returning a [[registered_file]] object to

@@ -5,8 +5,10 @@ use net::ip;
 use net::unix;
 use rt;
 
+// All errors which may be raised by iobus.
 export type error = io_uring::error;
 
+// Converts an [[error]] into a user-friendly string.
 export fn strerror(err: error) const str = {
 	return io_uring::strerror(err);
 };
@@ -17,10 +19,8 @@ export type bus = struct {
 	lastfd: size,
 };
 
-// The result of a completed I/O operation.
 export type result = *io_uring::cqe;
 
-// An I/O operation handle.
 export type handle = struct {
 	sqe: *io_uring::sqe,
 	callbacks: [](*fn(res: result, data: *void) void, *void),
@@ -36,6 +36,7 @@ export type accept_handle = struct {
 
 export type registered_file = int;
 
+// A file object which accepts multiplexed I/O operations.
 export type file = (registered_file | io::file);
 
 // Returned if the submission queue is full and new I/O submissions are not
