@@ -99,6 +99,8 @@ export def SOCK_RDM: int = 4;
 export def SOCK_SEQPACKET: int = 5;
 export def SOCK_DCCP: int = 6;
 export def SOCK_PACKET: int = 10;
+export def SOCK_NONBLOCK: int = 0o4000;
+export def SOCK_CLOEXEC: int = 0o2000000;
 
 // protocol for socket(2)
 export def IPPROTO_IP: int = 0;		// Dummy protocol for TCP

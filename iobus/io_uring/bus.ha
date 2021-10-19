@@ -27,6 +27,12 @@ export fn destroy(bus: *bus) void = {
 // Must call [[submit]] later submit them to the host.
 export fn enqueue(bus: *bus, ops: *handle...) void = {
 	for (let i = 0z; i < len(ops); i += 1) {
+		switch (ops[i].sqe.opcode) {
+		case io_uring::op::ACCEPT =>
+			ops[i].sqe.addr = &ops[i].accept.sockaddr;
+			ops[i].sqe.addr2 = &ops[i].accept.sockaddr_sz;
+		case => void;
+		};
 		io_uring::set_user(ops[i].sqe, ops[i]);
 	};
 };
@@ -45,9 +51,13 @@ fn _dispatch(bus: *bus) (result | error) = {
 	case cqe: *io_uring::cqe =>
 		return cqe: result;
 	};
-	match (io_uring::wait(&bus.uring)) {
+	match (io_uring::submit_wait(&bus.uring, 1)) {
 	case err: io_uring::error =>
 		return err: error;
+	case uint => void;
+	};
+	match (io_uring::peek(&bus.uring)?) {
+	case null => abort();
 	case cqe: *io_uring::cqe =>
 		return cqe: result;
 	};
@@ -80,7 +90,7 @@ export fn register_file(bus: *bus, file: io::file) registered_file = {
 		let updates = [
 			io_uring::files_update {
 				offs = bus.lastfd: u32,
-				fds = &bus.fdset[bus.lastfd],
+				fds = &bus.fdset[0],
 			},
 		];
 		bus.fdset[bus.lastfd] = file;
@@ -89,4 +99,22 @@ export fn register_file(bus: *bus, file: io::file) registered_file = {
 	};
 	for (bus.fdset[bus.lastfd] != -1; bus.lastfd += 1) void;
 	return registered;
+};
+
+// Unregisters a file previously registered with [[register_file]].
+export fn unregister_file(bus: *bus, file: file) void = {
+	const reg = match (file) {
+	case reg: registered_file =>
+		yield reg;
+	case => abort("Cannot unregister non-registered file");
+	};
+	let updates = [
+		io_uring::files_update {
+			offs = reg: u32,
+			fds = &bus.fdset[0],
+		},
+	];
+	bus.fdset[reg] = -1;
+	bus.lastfd = reg: size;
+	io_uring::register_files_update(&bus.uring, updates)!;
 };

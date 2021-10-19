@@ -1,6 +1,9 @@
 use errors;
 use io;
 use linux::io_uring;
+use net::ip;
+use net::unix;
+use rt;
 
 export type error = io_uring::error;
 
@@ -21,6 +24,14 @@ export type result = *io_uring::cqe;
 export type handle = struct {
 	sqe: *io_uring::sqe,
 	callbacks: [](*fn(res: result, data: *void) void, *void),
+	union {
+		accept: accept_handle,
+	},
+};
+
+export type accept_handle = struct {
+	sockaddr: rt::sockaddr,
+	sockaddr_sz: uint,
 };
 
 export type registered_file = int;
