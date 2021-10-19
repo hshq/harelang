@@ -90,7 +90,7 @@ export fn register_file(bus: *bus, file: io::file) registered_file = {
 		let updates = [
 			io_uring::files_update {
 				offs = bus.lastfd: u32,
-				fds = &bus.fdset[0],
+				fds = &bus.fdset[bus.lastfd],
 			},
 		];
 		bus.fdset[bus.lastfd] = file;
@@ -111,7 +111,7 @@ export fn unregister_file(bus: *bus, file: file) void = {
 	let updates = [
 		io_uring::files_update {
 			offs = reg: u32,
-			fds = &bus.fdset[0],
+			fds = &bus.fdset[reg],
 		},
 	];
 	bus.fdset[reg] = -1;
