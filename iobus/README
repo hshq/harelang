@@ -8,13 +8,10 @@ the host platform, such as io_uring or kqueue.
 The core of iobus is the event loop. The application using iobus will generally
 follow these steps:
 
-- Create an iobus with [[new]], and optionally register a set of [[io::file]]s
-  or buffers with the bus using [[register_file]] or [[register_buffer]].
+- Create an iobus with [[new]], and optionally register a set of [[io::file]]s or buffers with the bus using [[register_file]] or [[register_buffer]].
 - Create I/O handles (e.g. via [[read]]) and [[enqueue]] or [[submit]] them.
-- Dispatch the bus with [[dispatch]], blocking until at least one operation is
-  complete and returning its [[result]].
-- Process the results of the completed I/O operation (e.g. with [[endread]]),
-  mark it as [[done]], then re-enter the event loop.
+- Dispatch the bus with [[dispatch]], blocking until at least one operation is complete and returning its [[result]].
+- Process the results of the completed I/O operation (e.g. with [[endread]]), mark it as [[done]], then re-enter the event loop.
 
 The event loop will resemble the following:
 
