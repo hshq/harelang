@@ -572,6 +572,14 @@ io() {
 	gen_ssa io strings errors
 }
 
+iobus_io_uring() {
+	gen_srcs iobus::io_uring \
+		bus.ha \
+		types.ha \
+		ops.ha
+	gen_ssa iobus::io_uring errors io linux::io_uring
+}
+
 linux() {
 	gen_srcs linux \
 		start.ha \
@@ -936,6 +944,7 @@ hash::crc32
 hash::crc64
 hash::fnv
 io
+iobus::io_uring
 linux
 linux::signalfd
 linux::io_uring

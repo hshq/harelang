@@ -267,8 +267,7 @@ export type regop = enum uint {
 export type files_update = struct {
 	offs: u32,
 	resv: u32,
-	// XXX: i32 but aligned to u64
-	fds: u64,
+	fds: *int,
 };
 
 // Flags for a probe operation.

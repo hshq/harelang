@@ -240,6 +240,10 @@ hare_stdlib_deps+=$(stdlib_hash_fnv)
 stdlib_io=$(HARECACHE)/io/io.o
 hare_stdlib_deps+=$(stdlib_io)
 
+# gen_lib iobus::io_uring
+stdlib_iobus_io_uring=$(HARECACHE)/iobus/io_uring/iobus_io_uring.o
+hare_stdlib_deps+=$(stdlib_iobus_io_uring)
+
 # gen_lib linux
 stdlib_linux=$(HARECACHE)/linux/linux.o
 hare_stdlib_deps+=$(stdlib_linux)
@@ -836,6 +840,18 @@ $(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt) $(stdlib_strings) $(stdli
 	@mkdir -p $(HARECACHE)/io
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
 		-t$(HARECACHE)/io/io.td $(stdlib_io_srcs)
+
+# iobus::io_uring
+stdlib_iobus_io_uring_srcs= \
+	$(STDLIB)/iobus/io_uring/bus.ha \
+	$(STDLIB)/iobus/io_uring/types.ha \
+	$(STDLIB)/iobus/io_uring/ops.ha
+
+$(HARECACHE)/iobus/io_uring/iobus_io_uring.ssa: $(stdlib_iobus_io_uring_srcs) $(stdlib_rt) $(stdlib_errors) $(stdlib_io) $(stdlib_linux_io_uring)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/iobus/io_uring
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Niobus::io_uring \
+		-t$(HARECACHE)/iobus/io_uring/iobus_io_uring.td $(stdlib_iobus_io_uring_srcs)
 
 # linux
 stdlib_linux_srcs= \
@@ -1474,6 +1490,10 @@ hare_testlib_deps+=$(testlib_hash_fnv)
 testlib_io=$(TESTCACHE)/io/io.o
 hare_testlib_deps+=$(testlib_io)
 
+# gen_lib iobus::io_uring
+testlib_iobus_io_uring=$(TESTCACHE)/iobus/io_uring/iobus_io_uring.o
+hare_testlib_deps+=$(testlib_iobus_io_uring)
+
 # gen_lib linux
 testlib_linux=$(TESTCACHE)/linux/linux.o
 hare_testlib_deps+=$(testlib_linux)
@@ -2093,6 +2113,18 @@ $(TESTCACHE)/io/io.ssa: $(testlib_io_srcs) $(testlib_rt) $(testlib_strings) $(te
 	@mkdir -p $(TESTCACHE)/io
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
 		-t$(TESTCACHE)/io/io.td $(testlib_io_srcs)
+
+# iobus::io_uring
+testlib_iobus_io_uring_srcs= \
+	$(STDLIB)/iobus/io_uring/bus.ha \
+	$(STDLIB)/iobus/io_uring/types.ha \
+	$(STDLIB)/iobus/io_uring/ops.ha
+
+$(TESTCACHE)/iobus/io_uring/iobus_io_uring.ssa: $(testlib_iobus_io_uring_srcs) $(testlib_rt) $(testlib_errors) $(testlib_io) $(testlib_linux_io_uring)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/iobus/io_uring
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Niobus::io_uring \
+		-t$(TESTCACHE)/iobus/io_uring/iobus_io_uring.td $(testlib_iobus_io_uring_srcs)
 
 # linux
 testlib_linux_srcs= \
