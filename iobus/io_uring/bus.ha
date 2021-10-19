@@ -2,7 +2,6 @@ use errors;
 use io;
 use linux::io_uring;
 
-// TODO: Better error handling everywhere
 def DEFAULT_RING_SIZE: u32 = 512;
 
 // Creates a new io_uring I/O bus.
