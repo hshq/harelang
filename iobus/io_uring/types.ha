@@ -21,6 +21,7 @@ export type result = *io_uring::cqe;
 
 export type handle = struct {
 	sqe: *io_uring::sqe,
+	user: nullable *void,
 	callbacks: [](*fn(res: result, data: *void) void, *void),
 	union {
 		accept: accept_handle,

@@ -11,6 +11,16 @@ export fn callback(
 	append(op.callbacks, (cb, data));
 };
 
+// Sets an arbitrary user data field for this handle.
+fn setuser(handle: *handle, user: *void) void = {
+	handle.user = user;
+};
+
+// Returns the value, if any, of the user data field set by [[setuser]].
+fn getuser(handle: *handle) nullable *void = {
+	return handle.user;
+};
+
 // Returns the [[handle]] which this [[result]] corresponds to.
 export fn handleof(res: result) *handle = {
 	match (io_uring::get_user(res)) {
