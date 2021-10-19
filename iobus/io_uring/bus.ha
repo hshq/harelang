@@ -22,6 +22,11 @@ export fn destroy(bus: *bus) void = {
 	io_uring::finish(&bus.uring);
 };
 
+// Returns an [[io::file]] for the bus itself.
+export fn busfile(bus: *bus) io::file = {
+	return bus.uring.fd;
+};
+
 // Registers a set of I/O operations with the queue, without submitting them.
 // Must call [[submit]] later submit them to the host.
 export fn enqueue(bus: *bus, ops: *handle...) void = {
