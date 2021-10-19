@@ -6,7 +6,7 @@ fn syscall4(_: u64, _: u64, _: u64, _: u64, _: u64) u64;
 fn syscall5(_: u64, _: u64, _: u64, _: u64, _: u64, _: u64) u64;
 fn syscall6(_: u64, _: u64, _: u64, _: u64, _: u64, _: u64, _: u64) u64;
 
-def PATH_MAX: size = 4096z;
+export def PATH_MAX: size = 4096z;
 export type path = (str | []u8 | *const char);
 let pathbuf: [PATH_MAX + 1]u8 = [0...];
 
@@ -70,6 +70,18 @@ export fn openat2(
 ) (int | errno) = {
 	let path = kpath(path)?;
 	return openat(dirfd, path, how.flags: int, how.mode: uint);
+};
+
+export fn readlinkat(
+	dirfd: int,
+	path: path,
+	buf: []u8,
+) (size | errno) = {
+	let path = kpath(path)?;
+	return wrap_return(syscall4(SYS_readlinkat,
+		dirfd: u64, path: uintptr: u64,
+		buf: *[*]u8: uintptr: u64,
+		len(buf): u64))?: size;
 };
 
 export fn unlink(path: path) (void | errno) = {

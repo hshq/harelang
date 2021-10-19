@@ -72,6 +72,7 @@ fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 			rename = &fs_rename,
 			iter = &fs_iter,
 			stat = &fs_stat,
+			readlink = &fs_readlink,
 			subdir = &fs_subdir,
 			mkdir = &fs_mkdir,
 			rmdir = &fs_rmdir,
@@ -299,6 +300,18 @@ fn fs_stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 			nsec = st.ctime.tv_nsec,
 		},
 	};
+};
+
+fn fs_readlink(fs: *fs::fs, path: str) (str | fs::error) = {
+	let fs = fs: *os_filesystem;
+	static let buf: [rt::PATH_MAX]u8 = [0...];
+	let z = match (rt::readlinkat(fs.dirfd, path, buf[..])) {
+	case err: rt::errno =>
+		return errno_to_fs(err);
+	case z: size =>
+		yield z;
+	};
+	return strings::dup(strings::fromutf8(buf[..z]));
 };
 
 fn fs_subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {

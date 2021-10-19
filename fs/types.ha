@@ -177,6 +177,7 @@ export type mksubdirfunc = fn(fs: *fs, path: str) (*fs | error);
 export type chmodfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
 export type chownfunc = fn(fs: *fs, path: str, uid: uint, gid: uint) (void | error);
 export type resolvefunc = fn(fs: *fs, path: str) str;
+export type readlinkfunc = fn(fs: *fs, path: str) (str | error);
 
 export type openfunc = fn(
 	fs: *fs,
@@ -241,8 +242,13 @@ export type fs = struct {
 	iter: nullable *iterfunc,
 
 	// Obtains information about a file or directory. If the target is a
-	// symlink, information is returned about the link, not its target.
+	// symbolic link, information is returned about the link, not its
+	// target.
 	stat: nullable *statfunc,
+
+	// Returns the path referred to by a symbolic link. The caller will free
+	// the return value.
+	readlink: nullable *readlinkfunc,
 
 	// Opens a new filesystem for a subdirectory.
 	subdir: nullable *subdirfunc,

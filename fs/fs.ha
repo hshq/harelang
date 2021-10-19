@@ -140,6 +140,17 @@ export fn stat(fs: *fs, path: str) (filestat | error) = {
 	};
 };
 
+// Returns the path referred to by a symbolic link. The caller must free the
+// return value.
+export fn readlink(fs: *fs, path: str) (str | error) = {
+	match (fs.readlink) {
+	case null =>
+		return errors::unsupported;
+	case f: *readlinkfunc =>
+		return f(fs, path);
+	};
+};
+
 // Opens a new filesystem for a subdirectory. The subdirectory must be closed
 // separately from the parent filesystem, and its lifetime can outlive that of
 // its parent.
