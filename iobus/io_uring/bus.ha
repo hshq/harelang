@@ -5,7 +5,7 @@ use linux::io_uring;
 def DEFAULT_RING_SIZE: u32 = 512;
 
 // Creates a new io_uring I/O bus.
-export fn new() (*bus | errors::error) = {
+export fn new() (*bus | error) = {
 	let params = io_uring::params { ... };
 	match (io_uring::setup(DEFAULT_RING_SIZE, &params)) {
 	case err: io_uring::error =>

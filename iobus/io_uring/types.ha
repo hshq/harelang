@@ -3,6 +3,8 @@ use io;
 use linux::io_uring;
 use rt;
 
+// TODO: Add our own nobuffers error
+
 // All errors which may be raised by iobus.
 export type error = io_uring::error;
 

@@ -37,6 +37,15 @@ export fn result(cqe: *cqe) (int | error) =
 export fn get_user(cqe: *cqe) nullable *void =
 	cqe.user_data: uintptr: nullable *void;
 
+// Returns the buffer ID used for this [[cqe]] in combination with
+// [[set_buffer_select]]. Aborts the program if this CQE was not configured to
+// use a buffer pool.
+export fn get_buffer_id(cqe: *cqe) u16 = {
+	assert(cqe.flags & cqe_flags::F_BUFFER > 0,
+		"get_buffer_id called for CQE without buffer");
+	return (cqe.flags: u32 >> CQE_BUFFER_SHIFT): u16;
+};
+
 fn peek_cqe(ring: *io_uring) (nullable *cqe, uint) = {
 	let head = *ring.cq.khead;
 	let tail = *ring.cq.ktail;

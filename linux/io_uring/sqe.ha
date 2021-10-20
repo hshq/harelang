@@ -33,6 +33,14 @@ export fn set_user(sqe: *sqe, user_data: *void) void = {
 	sqe.user_data = user_data: uintptr: u64;
 };
 
+// Sets the BUFFER_SELECT flag and sets the desired buffer group. See
+// [[provide_buffers]] for configuring buffer groups, and [[get_buffer_id]] to
+// retrieve the buffer used from the corresponding [[cqe]].
+export fn set_buffer_select(sqe: *sqe, group: u16) void = {
+	sqe.flags |= flags::BUFFER_SELECT;
+	sqe.buf_group = group;
+};
+
 // Prepares a no-op "operation" for an [[sqe]].
 export fn nop(sqe: *sqe, flags: flags...) void = {
 	prep(sqe, op::NOP, flags...);
@@ -302,4 +310,33 @@ export fn openat(
 // Prepares an [[sqe]] operation which closes a file descriptor.
 export fn close(sqe: *sqe, fd: int, flags: flags...) void = {
 	preprw(sqe, op::CLOSE, fd, null, 0, 0, flags...);
+};
+
+// Prepares an [[sqe]] operation which provides a buffer pool to the kernel.
+// len(pool) must be equal to nbuf * bufsz. See [[set_buffer_select]] to use
+// the buffer pool for a subsequent request.
+export fn provide_buffers(
+	sqe: *sqe,
+	group: u16,
+	pool: []u8,
+	nbuf: size,
+	bufsz: size,
+	bufid: u16,
+	flags: flags...
+) void = {
+	assert(len(pool) == nbuf * bufsz);
+	preprw(sqe, op::PROVIDE_BUFFERS, nbuf: int, pool: *[*]u8,
+		bufsz: uint, bufid: uint, flags...);
+	sqe.buf_group = group;
+};
+
+// Removes buffers previously registered with [[provide_buffers]].
+export fn remove_buffers(
+	sqe: *sqe,
+	nbuf: size,
+	group: u16,
+	flags: flags...
+) void = {
+	preprw(sqe, op::REMOVE_BUFFERS, nbuf: int, null, 0, 0, flags...);
+	sqe.buf_group = group;
 };
