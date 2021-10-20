@@ -5,36 +5,38 @@ use iobus;
 use os;
 use strings;
 use unix::poll;
-use unix::poll::{event};
 
 export fn main() void = {
+	// TODO: It would be nice to have two iobus instances here, one for us
+	// (i.e. polling stdin) and one for the user. However, it does not seem
+	// to be possible to poll an io_uring fd on Linux 5.10. I have written
+	// to the io_uring mailing list for more information.
 	let bus = iobus::new()!;
 	defer iobus::destroy(bus);
 
-	const pollfd = [
-		poll::pollfd {
-			fd = os::stdin_file,
-			events = event::POLLIN,
-			...
-		},
-		poll::pollfd {
-			fd = iobus::busfile(bus),
-			events = event::POLLIN,
-			...
-		},
-	];
+	const in = iobus::register_file(bus, os::stdin_file);
+	let poll = iobus::poll(bus, in, poll::event::POLLIN)!;
+	iobus::enqueue(bus, &poll);
 	fmt::error("> ")!;
 
 	for (true) {
-		let events = poll::poll(pollfd, poll::INDEF)!;
-		if (pollfd[0].revents & event::POLLIN > 0) {
+		const res = match (iobus::dispatch(bus)) {
+		case err: iobus::error =>
+			fmt::fatal("Error dispatching bus: {}",
+				iobus::strerror(err));
+		case res: iobus::result =>
+			yield res;
+		};
+		defer iobus::done(bus, res);
+
+		if (iobus::handleof(res) == &poll) {
+			iobus::endpoll(bus, res)!;
 			if (!readcmd(bus)) {
 				fmt::errorln("exit")!;
 				break;
 			};
-		};
-		if (pollfd[1].revents & event::POLLIN > 0) {
-			void; // TODO
+			poll = iobus::poll(bus, in, poll::event::POLLIN)!;
+			iobus::enqueue(bus, &poll);
 		};
 	};
 };

@@ -2,7 +2,9 @@ use io;
 use linux::io_uring;
 use net::ip;
 use rt;
-// TODO: Seek to de-duplicate some of the SQE prep code
+use unix::poll;
+
+// TODO: Seek to de-duplicate more of the SQE prep code
 
 fn getsqe(bus: *bus) (*io_uring::sqe | queuefull) = {
 	match (io_uring::get_sqe(&bus.uring)) {
@@ -145,3 +147,31 @@ export fn endaccept(res: result, opts: accept_opts...) (io::file | error) = {
 	};
 	return file;
 };
+
+// Prepares an asynchronous poll operation for a file.
+export fn poll(
+	bus: *bus,
+	file: file,
+	events: poll::event,
+) (handle | queuefull) = {
+	// TODO: Support IORING_POLL_ADD_MULTI
+	let sqe = getsqe(bus)?;
+	let flags = io_uring::flags::NONE;
+	let fd = match (file) {
+	case file: io::file =>
+		yield file: i32;
+	case file: registered_file =>
+		flags |= io_uring::flags::FIXED_FILE;
+		yield file: i32;
+	};
+	io_uring::poll_add(sqe, fd, events: uint, flags);
+	return handle { sqe = sqe, ...  };
+};
+
+export fn endpoll(bus: *bus, res: result) (poll::event | error) = {
+	let handle = handleof(res);
+	assert(handle.sqe.opcode == io_uring::op::POLL_ADD);
+	return io_uring::result(res)?: poll::event;
+};
+
+// TODO: poll_remove
