@@ -109,7 +109,7 @@ fn fnmatch_pathname(
 // after the last star produce exact matches and then proceed to greedily match
 // everything in between. Because of the greedy property this algorithm does not
 // have exponential corner cases.
-export fn fnmatch_internal(
+fn fnmatch_internal(
 	pattern: str,
 	string: str,
 	fl: flags,
