@@ -379,6 +379,10 @@ export type epoll_event = struct {
 	@offset(4) data: epoll_data,
 };
 
+export def EFD_CLOEXEC: int = O_CLOEXEC;
+export def EFD_NONBLOCK: int = O_NONBLOCK;
+export def EFD_SEMAPHORE: int = 1;
+
 export def TFD_TIMER_ABSTIME: int = 1;
 export def TFD_TIMER_CANCEL_ON_SET: int = 2;
 

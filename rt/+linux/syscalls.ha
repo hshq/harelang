@@ -460,6 +460,11 @@ export fn timerfd_create(clock_id: int, flags: int) (int | errno) = {
 		clock_id: u64, flags: u64))?: int;
 };
 
+export fn eventfd(initval: uint, flags: int) (int | errno) = {
+	return wrap_return(syscall2(SYS_eventfd,
+		initval: u64, flags: u64))?: int;
+};
+
 export fn timerfd_settime(
 	fd: int,
 	flags: int,

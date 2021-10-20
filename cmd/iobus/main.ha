@@ -7,36 +7,41 @@ use strings;
 use unix::poll;
 
 export fn main() void = {
-	// TODO: It would be nice to have two iobus instances here, one for us
-	// (i.e. polling stdin) and one for the user. However, it does not seem
-	// to be possible to poll an io_uring fd on Linux 5.10. I have written
-	// to the io_uring mailing list for more information.
-	let bus = iobus::new()!;
-	defer iobus::destroy(bus);
+	let mainbus = iobus::new()!;
+	defer iobus::destroy(mainbus);
+	let userbus = iobus::new()!;
+	defer iobus::destroy(userbus);
 
-	const in = iobus::register_file(bus, os::stdin_file);
-	let poll = iobus::poll(bus, in, poll::event::POLLIN)!;
-	iobus::enqueue(bus, &poll);
+	const userfd = iobus::busfile(userbus);
+	defer io::close(userfd);
+
+	const in = iobus::register_file(mainbus, os::stdin_file);
+	//const userfd = iobus::register_file(mainbus, userfd);
+
+	let pollin = iobus::poll(mainbus, in, poll::event::POLLIN)!;
+	let polluser = iobus::poll(mainbus, userfd, poll::event::POLLIN)!;
+
+	iobus::enqueue(mainbus, &pollin);
 	fmt::error("> ")!;
 
 	for (true) {
-		const res = match (iobus::dispatch(bus)) {
-		case err: iobus::error =>
-			fmt::fatal("Error dispatching bus: {}",
-				iobus::strerror(err));
-		case res: iobus::result =>
-			yield res;
-		};
-		defer iobus::done(bus, res);
+		const res = iobus::dispatch(mainbus)!;
+		defer iobus::done(mainbus, res);
 
-		if (iobus::handleof(res) == &poll) {
-			iobus::endpoll(bus, res)!;
-			if (!readcmd(bus)) {
+		if (iobus::handleof(res) == &pollin) {
+			iobus::endpoll(mainbus, res)!;
+			if (!readcmd(mainbus)) {
 				fmt::errorln("exit")!;
 				break;
 			};
-			poll = iobus::poll(bus, in, poll::event::POLLIN)!;
-			iobus::enqueue(bus, &poll);
+			pollin = iobus::poll(mainbus, in, poll::event::POLLIN)!;
+			iobus::enqueue(mainbus, &pollin);
+		};
+		if (iobus::handleof(res) == &polluser) {
+			iobus::endpoll(mainbus, res)!;
+			iobus::busfile_drain(userfd);
+			polluser = iobus::poll(mainbus, userfd, poll::event::POLLIN)!;
+			iobus::enqueue(mainbus, &polluser);
 		};
 	};
 };
