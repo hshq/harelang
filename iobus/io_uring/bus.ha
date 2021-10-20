@@ -4,7 +4,7 @@ use linux::io_uring;
 
 def DEFAULT_RING_SIZE: u32 = 512;
 
-// Creates a new io_uring I/O bus.
+// Creates a new I/O bus.
 export fn new() (*bus | error) = {
 	let params = io_uring::params { ... };
 	match (io_uring::setup(DEFAULT_RING_SIZE, &params)) {
@@ -17,7 +17,7 @@ export fn new() (*bus | error) = {
 	};
 };
 
-// Destroys an io_uring I/O bus.
+// Destroys an I/O bus.
 export fn destroy(bus: *bus) void = {
 	io_uring::finish(&bus.uring);
 };
