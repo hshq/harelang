@@ -26,21 +26,18 @@ type question = void;
 type end = void;
 type token = (rune | bracket | star | question | end);
 
-// Check whether the [[string]] matches the [[pattern]] which is a shell
-// wildcard pattern with the following matching rules:
+// Check whether the 'string' matches the 'pattern', which is a shell wildcard
+// pattern with the following matching rules:
+//
 // - '?' matches any single character
 // - '*' matches any string, including the empty string
-// - '[' and ']' enclose a bracket expression. Matching rules for bracket
-//   expressions are identical to those of bracket subexpressions in regular
-//   expressions, except that '!' takes the role of '^' when placed right after
-//   the opening '['.
-// - '\' escapes the following character, e. g. "\*" only matches literal '*'
-//   and has no special meaning
+// - '[' and ']' enclose a bracket expression. Matching rules for bracket expressions are identical to those of bracket subexpressions in regular expressions, except that '!' takes the role of '^' when placed right after the opening '['.
+// - '\' escapes the following character, e. g. "\*" only matches literal '*' and has no special meaning
 // - all other characters only match themselves
 //
 // A set of flags that alter the matching behavior may be passed to
-// [[fnmatch::fnmatch]]. For an explanation of their meaning, see [
-// [fnmatch::flags]].
+// [[fnmatch::fnmatch]]. For an explanation of their meaning, see
+// [[fnmatch::flags]].
 export fn fnmatch(pattern: str, string: str, flag: flags...) bool = {
 	let fl: flags = 0;
 	for (let i = 0z; i < len(flag); i += 1) {
