@@ -17,5 +17,5 @@ case utf8::invalid =>
 case s: syntaxerr =>
 	// XXX: tuple unpacking could improve this
 	static let buf: [1024]u8 = [0...];
-	yield fmt::bsprintf(buf, "{}:{}: Invalid syntax", s: size);
+	yield fmt::bsprintf(buf, "{}: Invalid syntax", s: size);
 };
