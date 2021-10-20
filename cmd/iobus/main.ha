@@ -21,8 +21,12 @@ export fn main() void = {
 	let pollin = iobus::poll(mainbus, in, poll::event::POLLIN)!;
 	let polluser = iobus::poll(mainbus, userfd, poll::event::POLLIN)!;
 
-	iobus::enqueue(mainbus, &pollin);
+	iobus::enqueue(mainbus, &pollin, &polluser);
 	fmt::error("> ")!;
+
+	const write = iobus::write(userbus, os::stdout_file,
+		strings::toutf8("hi!\n"), 0)!;
+	iobus::submit(userbus, &write)!;
 
 	for (true) {
 		const res = iobus::dispatch(mainbus)!;
@@ -42,6 +46,12 @@ export fn main() void = {
 			iobus::busfile_drain(userfd);
 			polluser = iobus::poll(mainbus, userfd, poll::event::POLLIN)!;
 			iobus::enqueue(mainbus, &polluser);
+
+			// TODO: Something more sophisticated than this
+			const res = iobus::dispatch(userbus)!;
+			iobus::done(userbus, res);
+			fmt::errorln("\rcompletion event received")!;
+			fmt::error("> ")!;
 		};
 	};
 };
