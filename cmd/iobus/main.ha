@@ -6,6 +6,11 @@ use os;
 use strings;
 use unix::poll;
 
+type state = struct {
+	mainbus: *iobus::bus,
+	userbus: *iobus::bus,
+};
+
 export fn main() void = {
 	let mainbus = iobus::new()!;
 	defer iobus::destroy(mainbus);
@@ -16,6 +21,7 @@ export fn main() void = {
 	defer io::close(userfd);
 
 	const in = iobus::register_file(mainbus, os::stdin_file);
+	// XXX: This seems to break polling? possible kernel bug
 	//const userfd = iobus::register_file(mainbus, userfd);
 
 	let pollin = iobus::poll(mainbus, in, poll::event::POLLIN)!;
@@ -28,13 +34,18 @@ export fn main() void = {
 		strings::toutf8("hi!\n"), 0)!;
 	iobus::submit(userbus, &write)!;
 
+	let state = state {
+		mainbus = mainbus,
+		userbus = userbus,
+	};
+
 	for (true) {
 		const res = iobus::dispatch(mainbus)!;
 		defer iobus::done(mainbus, res);
 
 		if (iobus::handleof(res) == &pollin) {
 			iobus::endpoll(mainbus, res)!;
-			if (!readcmd(mainbus)) {
+			if (!readcmd(&state)) {
 				fmt::errorln("exit")!;
 				break;
 			};
@@ -56,7 +67,7 @@ export fn main() void = {
 	};
 };
 
-fn readcmd(bus: *iobus::bus) bool = {
+fn readcmd(state: *state) bool = {
 	const line = match (bufio::scanline(os::stdin)!) {
 	case line: []u8 =>
 		yield strings::fromutf8(line);

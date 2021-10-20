@@ -106,6 +106,7 @@ export fn register_file(bus: *bus, file: io::file) registered_file = {
 			io_uring::files_update {
 				offs = bus.lastfd: u32,
 				fds = &bus.fdset[bus.lastfd],
+				...
 			},
 		];
 		bus.fdset[bus.lastfd] = file;
