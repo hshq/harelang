@@ -2,7 +2,7 @@ use errors;
 use io;
 use linux::io_uring;
 
-def DEFAULT_RING_SIZE: u32 = 512;
+def DEFAULT_RING_SIZE: u32 = 256;
 
 // Creates a new I/O bus.
 export fn new() (*bus | error) = {
@@ -83,13 +83,12 @@ fn _dispatch(bus: *bus) (result | error) = {
 // use for I/O operations. It is not necessary to register files to use them for
 // I/O, but it improves performance if you do.
 export fn register_file(bus: *bus, file: io::file) registered_file = {
-	let registered: int = -1;
-	if (bus.lastfd >= len(bus.fdset)) {
+	let registered: int = if (bus.lastfd >= len(bus.fdset)) {
 		static const init: [256]int = [-1...];
 		append(bus.fdset, init...);
 		bus.fdset[bus.lastfd] = file;
-		registered = bus.lastfd: int;
 		io_uring::register_files(&bus.uring, bus.fdset)!;
+		yield bus.lastfd: int;
 	} else {
 		let updates = [
 			io_uring::files_update {
@@ -98,8 +97,8 @@ export fn register_file(bus: *bus, file: io::file) registered_file = {
 			},
 		];
 		bus.fdset[bus.lastfd] = file;
-		registered = bus.lastfd: int;
 		io_uring::register_files_update(&bus.uring, updates)!;
+		yield bus.lastfd: int;
 	};
 	for (bus.fdset[bus.lastfd] != -1; bus.lastfd += 1) void;
 	return registered;
