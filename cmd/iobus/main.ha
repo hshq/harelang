@@ -21,7 +21,8 @@ export fn main() void = {
 	defer io::close(userfd);
 
 	const in = iobus::register_file(mainbus, os::stdin_file);
-	// XXX: This seems to break polling? possible kernel bug
+	// XXX: io_uring has a somewhat arbitrary limitation on registering
+	// another uring as a file, so we can't do this.
 	//const userfd = iobus::register_file(mainbus, userfd);
 
 	let pollin = iobus::poll(mainbus, in, poll::event::POLLIN)!;
@@ -54,7 +55,6 @@ export fn main() void = {
 		};
 		if (iobus::handleof(res) == &polluser) {
 			iobus::endpoll(mainbus, res)!;
-			iobus::busfile_drain(userfd);
 			polluser = iobus::poll(mainbus, userfd, poll::event::POLLIN)!;
 			iobus::enqueue(mainbus, &polluser);
 

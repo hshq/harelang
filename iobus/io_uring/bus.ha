@@ -23,20 +23,9 @@ export fn destroy(bus: *bus) void = {
 	io_uring::finish(&bus.uring);
 };
 
-// Returns an [[io::file]] for the bus itself. This file descriptor may be used
-// with [[poll]], [[unix::poll]], etc, to determine when [[dispatch]] will
-// return new I/O results. When this file is readable, the user must call
-// [[busfile_drain]] to acknowledge this condition.
+// Returns an [[io::file]] for the bus itself.
 export fn busfile(bus: *bus) io::file = {
-	let fd = rt::eventfd(0, 0)!;
-	io_uring::register_eventfd(&bus.uring, fd)!;
-	return fd;
-};
-
-// Drains a pending read from the [[busfile]].
-export fn busfile_drain(file: io::file) void = {
-	let count: [8]u8 = [0...];
-	io::read(file, count)!;
+	return bus.uring.fd;
 };
 
 // Registers a set of I/O operations with the queue, without submitting them.
