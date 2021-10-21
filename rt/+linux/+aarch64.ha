@@ -26,3 +26,4 @@ export fn clone(
 };
 
 export def O_DIRECTORY: int = 0o40000;
+export def O_DIRECT: int = 0o200000;

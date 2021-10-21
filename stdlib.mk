@@ -1155,6 +1155,7 @@ $(HARECACHE)/types/types.ssa: $(stdlib_types_srcs) $(stdlib_rt)
 # unix
 stdlib_unix_srcs= \
 	$(STDLIB)/unix/$(PLATFORM)/nice.ha \
+	$(STDLIB)/unix/$(PLATFORM)/pipe.ha \
 	$(STDLIB)/unix/$(PLATFORM)/umask.ha \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
@@ -2417,6 +2418,7 @@ $(TESTCACHE)/types/types.ssa: $(testlib_types_srcs) $(testlib_rt)
 # unix
 testlib_unix_srcs= \
 	$(STDLIB)/unix/$(PLATFORM)/nice.ha \
+	$(STDLIB)/unix/$(PLATFORM)/pipe.ha \
 	$(STDLIB)/unix/$(PLATFORM)/umask.ha \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha

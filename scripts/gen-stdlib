@@ -846,6 +846,7 @@ unix() {
 	# XXX: getuid and setuid are probably platform-specific too
 	gen_srcs unix \
 		'$(PLATFORM)/nice.ha' \
+		'$(PLATFORM)/pipe.ha' \
 		'$(PLATFORM)/umask.ha' \
 		getuid.ha \
 		setuid.ha
