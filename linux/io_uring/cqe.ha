@@ -41,6 +41,7 @@ export fn get_user(cqe: *cqe) nullable *void =
 // [[set_buffer_select]]. Aborts the program if this CQE was not configured to
 // use a buffer pool.
 export fn get_buffer_id(cqe: *cqe) u16 = {
+	// TODO: Handle ENOBUFS
 	assert(cqe.flags & cqe_flags::F_BUFFER > 0,
 		"get_buffer_id called for CQE without buffer");
 	return (cqe.flags: u32 >> CQE_BUFFER_SHIFT): u16;

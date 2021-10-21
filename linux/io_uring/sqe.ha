@@ -1,6 +1,7 @@
 use endian;
 use rt;
 use types;
+use fmt;
 
 fn prep(sq: *sqe, op: op, flags: flags...) void = {
 	rt::memset(sq, 0, size(sqe));
@@ -38,7 +39,7 @@ export fn set_user(sqe: *sqe, user_data: *void) void = {
 // retrieve the buffer used from the corresponding [[cqe]].
 export fn set_buffer_select(sqe: *sqe, group: u16) void = {
 	sqe.flags |= flags::BUFFER_SELECT;
-	sqe.buf_group = group;
+	sqe.extras.buffers.buf_group = group;
 };
 
 // Prepares a no-op "operation" for an [[sqe]].
@@ -109,7 +110,7 @@ export fn read_fixed(
 ) void = {
 	assert(count <= types::U32_MAX);
 	preprw(sqe, op::READ_FIXED, fd, buf, count: u32, 0, flags...);
-	sqe.buf_index = index;
+	sqe.extras.buffers.buf_index = index;
 };
 
 // Prepares a write for a fixed buffer previously registered with
@@ -125,7 +126,7 @@ export fn write_fixed(
 ) void = {
 	assert(count <= types::U32_MAX);
 	preprw(sqe, op::WRITE_FIXED, fd, buf, count: u32, 0, flags...);
-	sqe.buf_index = index;
+	sqe.extras.buffers.buf_index = index;
 };
 
 // Prepares an fsync operation for an [[sqe]]. Note that operations are executed
@@ -327,7 +328,7 @@ export fn provide_buffers(
 	assert(len(pool) == nbuf * bufsz);
 	preprw(sqe, op::PROVIDE_BUFFERS, nbuf: int, pool: *[*]u8,
 		bufsz: uint, bufid: uint, flags...);
-	sqe.buf_group = group;
+	sqe.extras.buffers.buf_group = group;
 };
 
 // Removes buffers previously registered with [[provide_buffers]].
@@ -338,5 +339,5 @@ export fn remove_buffers(
 	flags: flags...
 ) void = {
 	preprw(sqe, op::REMOVE_BUFFERS, nbuf: int, null, 0, 0, flags...);
-	sqe.buf_group = group;
+	sqe.extras.buffers.buf_group = group;
 };

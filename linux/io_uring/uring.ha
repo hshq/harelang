@@ -108,6 +108,7 @@ export type splice_flags = enum u32 {
 export type cqe_flags = enum u32 {
 	NONE = 0,
 	F_BUFFER = 1 << 0,
+	F_MORE = 1 << 1,
 };
 
 // A submission queue entry.
@@ -141,9 +142,11 @@ export type sqe = struct {
 		splice_flags: splice_flags,
 	},
 	user_data: u64,
+	// TODO: Remove the names on these embedded types
+	// See https://todo.sr.ht/~sircmpwn/hare/493
 	union {
-		struct {
-			union {
+		extras: struct {
+			buffers: union {
 				buf_index: u16,
 				buf_group: u16,
 			},

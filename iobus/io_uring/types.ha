@@ -17,6 +17,7 @@ export type bus = struct {
 	uring: io_uring::io_uring,
 	fdset: []io::file,
 	lastfd: size,
+	nextgroup: u16,
 };
 
 export type result = *io_uring::cqe;

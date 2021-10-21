@@ -5,6 +5,10 @@ use rt;
 
 def DEFAULT_RING_SIZE: u32 = 256;
 
+// This global is used for the io_uring SQE user data field to mark SQEs which
+// are used internally by iobus.
+const internal_sqe: int = 0;
+
 // Creates a new I/O bus.
 export fn new() (*bus | error) = {
 	let params = io_uring::params { ... };
@@ -53,13 +57,23 @@ export fn submit(bus: *bus, ops: *handle...) (void | error) = {
 // Waits until at least one I/O event completes, then returns the result. The
 // caller must call [[done]] with the result when done with it.
 export fn dispatch(bus: *bus) (result | error) = {
-	const res = _dispatch(bus)?;
-	const handle = handleof(res);
-	for (let i = 0z; i < len(handle.callbacks); i += 1) {
-		const cb = handle.callbacks[i];
-		cb.0(res, cb.1);
+	for (true) {
+		const res = _dispatch(bus)?;
+		// XXX: Internal SQEs may have to be more sophisticated in the
+		// future, we'll see
+		if (io_uring::get_user(res) == &internal_sqe) {
+			io_uring::result(res)!;
+			done(bus, res);
+			continue;
+		};
+		const handle = handleof(res);
+		for (let i = 0z; i < len(handle.callbacks); i += 1) {
+			const cb = handle.callbacks[i];
+			cb.0(res, cb.1);
+		};
+		return res;
 	};
-	return res;
+	abort();
 };
 
 fn _dispatch(bus: *bus) (result | error) = {
