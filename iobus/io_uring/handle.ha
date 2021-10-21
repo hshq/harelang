@@ -12,12 +12,12 @@ export fn callback(
 };
 
 // Sets an arbitrary user data field for this handle.
-fn setuser(handle: *handle, user: *void) void = {
+export fn setuser(handle: *handle, user: *void) void = {
 	handle.user = user;
 };
 
 // Returns the value, if any, of the user data field set by [[setuser]].
-fn getuser(handle: *handle) nullable *void = {
+export fn getuser(handle: *handle) nullable *void = {
 	return handle.user;
 };
 
