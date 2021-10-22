@@ -15,6 +15,10 @@ fn getsqe(bus: *bus) (*io_uring::sqe | queuefull) = {
 	};
 };
 
+// This value may be passed to [[read]] and [[write]] to use (and update) the
+// current file offset, with the caveat that parallel reads or writes may clash.
+export def CUR: u64 = -1: u64;
+
 // Prepares an asynchronous read operation. The offset value may be set to -1 to
 // advance the host's internal file offset, and must be set to zero for
 // non-seekable files (such as network connections).
@@ -41,7 +45,7 @@ export fn read(
 export fn endread(res: result) (size | io::EOF | error) = {
 	assert(handleof(res).sqe.opcode == io_uring::op::READ,
 		"endread called for non-read iobus::result");
-	let z = io_uring::result(res)?: size;
+	let z = cqe_result(res)?: size;
 	if (z == 0) {
 		return io::EOF;
 	};
@@ -74,7 +78,7 @@ export fn write(
 export fn endwrite(res: result) (size | error) = {
 	assert(handleof(res).sqe.opcode == io_uring::op::WRITE,
 		"endwrite called for non-write iobus::result");
-	return io_uring::result(res)?: size;
+	return cqe_result(res)?: size;
 };
 
 // Prepares an asynchronous close operation.
@@ -96,7 +100,7 @@ export fn close(bus: *bus, file: file) (handle | queuefull) = {
 export fn endclose(res: result) (void | error) = {
 	assert(handleof(res).sqe.opcode == io_uring::op::CLOSE,
 		"endclose called for non-close iobus::result");
-	io_uring::result(res)?;
+	cqe_result(res)?;
 	return;
 };
 
@@ -134,7 +138,7 @@ export fn endaccept(res: result, opts: accept_opts...) (io::file | error) = {
 	let handle = handleof(res);
 	assert(handle.sqe.opcode == io_uring::op::ACCEPT,
 		"endaccept called for non-accept iobus::result");
-	const file = io_uring::result(res)?: io::file;
+	const file = cqe_result(res)?: io::file;
 	for (let i = 0z; i < len(opts); i += 1) {
 		match (opts[i]) {
 		case addr: *ip::addr =>
@@ -171,7 +175,7 @@ export fn poll(
 export fn endpoll(bus: *bus, res: result) (poll::event | error) = {
 	let handle = handleof(res);
 	assert(handle.sqe.opcode == io_uring::op::POLL_ADD);
-	return io_uring::result(res)?: poll::event;
+	return cqe_result(res)?: poll::event;
 };
 
 // TODO: poll_remove

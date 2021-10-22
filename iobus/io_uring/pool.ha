@@ -1,5 +1,4 @@
 use linux::io_uring;
-use fmt;
 
 export type pool = struct {
 	bus: *bus,

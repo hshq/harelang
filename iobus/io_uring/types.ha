@@ -3,14 +3,39 @@ use io;
 use linux::io_uring;
 use rt;
 
-// TODO: Add our own nobuffers error
-
 // All errors which may be raised by iobus.
-export type error = io_uring::error;
+export type error = !(io_uring::error | nobuffers);
+
+// Returned from [[endread]] et al when an operation was configured to use a
+// buffer pool, but the buffer pool has been exhausted.
+export type nobuffers = !void;
 
 // Converts an [[error]] into a user-friendly string.
 export fn strerror(err: error) const str = {
-	return io_uring::strerror(err);
+	match (err) {
+	case nobuffers =>
+		return "iobus buffer pool exhausted";
+	case err: io_uring::error =>
+		return io_uring::strerror(err);
+	};
+};
+
+fn wraperror(err: io_uring::error) error = {
+	match (err) {
+	case io_uring::nobuffers =>
+		return nobuffers;
+	case =>
+		return err;
+	};
+};
+
+fn cqe_result(res: *io_uring::cqe) (int | error) = {
+	match (io_uring::result(res)) {
+	case err: io_uring::error =>
+		return wraperror(err);
+	case n: int =>
+		return n;
+	};
 };
 
 export type bus = struct {
