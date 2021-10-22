@@ -53,6 +53,7 @@ export type handle = struct {
 	callbacks: [](*fn(res: result, data: *void) void, *void),
 	union {
 		accept: accept_handle,
+		cstring: *char,
 	},
 };
 

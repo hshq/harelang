@@ -1,7 +1,10 @@
+use fs;
 use io;
 use linux::io_uring;
 use net::ip;
+use os;
 use rt;
+use strings;
 use unix::poll;
 
 // TODO: Seek to de-duplicate more of the SQE prep code
@@ -172,10 +175,88 @@ export fn poll(
 	return handle { sqe = sqe, ...  };
 };
 
+// Returns the revents for a [[poll]] operation.
 export fn endpoll(bus: *bus, res: result) (poll::event | error) = {
 	let handle = handleof(res);
-	assert(handle.sqe.opcode == io_uring::op::POLL_ADD);
+	assert(handle.sqe.opcode == io_uring::op::POLL_ADD,
+		"endpoll called for non-poll iobus::result");
 	return cqe_result(res)?: poll::event;
 };
 
 // TODO: poll_remove
+
+// If no flags are provided, [[fs::flags::RDONLY]], [[fs::flags::NOCTTY]],
+// [[fs::flags::CLOEXEC]] are used when opening the file. If you pass your own
+// flags, it is recommended that you add the latter two unless you know that you
+// do not want them.
+export fn open(
+	bus: *bus,
+	path: str,
+	flags: fs::flags...
+) (handle | queuefull) = {
+	let sqe = getsqe(bus)?;
+	let handle = handle {
+		sqe = sqe,
+		cstring = strings::to_c(path),
+		...
+	};
+	let oflags = 0;
+	if (len(flags) == 0z) {
+		oflags |= (fs::flags::NOCTTY
+			| fs::flags::CLOEXEC
+			| fs::flags::RDONLY): int;
+	};
+	for (let i = 0z; i < len(flags); i += 1z) {
+		oflags |= flags[i]: int;
+	};
+	io_uring::openat(sqe, os::dirfile(os::cwd), handle.cstring, oflags, 0);
+	return handle;
+};
+
+// Returns the new file handle from an [[open]] operation.
+export fn endopen(bus: *bus, res: result) (io::file | error) = {
+	let handle = handleof(res);
+	assert(handle.sqe.opcode == io_uring::op::OPENAT,
+		"endopen called for non-poll iobus::result");
+	free(handle.cstring);
+	return cqe_result(res)?: io::file;
+};
+
+// If no flags are provided, [[fs::flags::WRONLY]], [[fs::flags::NOCTTY]],
+// [[fs::flags::CLOEXEC]] are used when opening the file. If you pass your own
+// flags, it is recommended that you add the latter two unless you know that you
+// do not want them.
+export fn create(
+	bus: *bus,
+	path: str,
+	mode: fs::mode,
+	flags: fs::flags...
+) (handle | queuefull) = {
+	let sqe = getsqe(bus)?;
+	let oflags = 0;
+	if (len(flags) == 0z) {
+		oflags |= (fs::flags::NOCTTY
+			| fs::flags::CLOEXEC
+			| fs::flags::WRONLY): int;
+	};
+	for (let i = 0z; i < len(flags); i += 1z) {
+		oflags |= flags[i]: int;
+	};
+	oflags |= fs::flags::CREATE: int;
+	let handle = handle {
+		sqe = sqe,
+		cstring = strings::to_c(path),
+		...
+	};
+	io_uring::openat(sqe, os::dirfile(os::cwd), handle.cstring, oflags, mode);
+	return handle;
+};
+
+// Returns the new file handle from an [[create]] operation.
+export fn endcreate(bus: *bus, res: result) (io::file | error) = {
+	let handle = handleof(res);
+	assert(handle.sqe.opcode == io_uring::op::OPENAT,
+		"endcreate called for non-poll iobus::result");
+	free(handle.cstring);
+	return cqe_result(res)?: io::file;
+};
