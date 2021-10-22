@@ -111,6 +111,13 @@ export fn dirfdfs_set_getdents_bufsz(fs: *fs::fs, sz: size) void = {
 	fs.getdents_bufsz = sz;
 };
 
+// Returns an [[io::file]] for this filesystem. This function is not portable.
+export fn dirfile(fs: *fs::fs) io::file = {
+	assert(fs.open == &fs_open);
+	let fs = fs: *os_filesystem;
+	return fs.dirfd;
+};
+
 fn errno_to_fs(err: rt::errno) fs::error = switch (err) {
 case rt::ENOENT =>
 	yield errors::noentry;
@@ -133,7 +140,6 @@ case =>
 fn _fs_open(
 	fs: *fs::fs,
 	path: str,
-	mode: io::mode,
 	oh: *rt::open_how,
 ) (io::file | fs::error) = {
 	let fs = fs: *os_filesystem;
@@ -168,7 +174,6 @@ fn fs_open_file(
 	flags: fs::flags...
 ) (io::file | fs::error) = {
 	let oflags = 0;
-	let iomode = io::mode::NONE;
 	if (len(flags) == 0z) {
 		oflags |= (fs::flags::NOCTTY
 			| fs::flags::CLOEXEC
@@ -184,19 +189,11 @@ fn fs_open_file(
 		oflags |= rt::O_DIRECTORY: int;
 	};
 
-	if ((oflags: fs::flags & fs::flags::RDWR) == fs::flags::RDWR) {
-		iomode = io::mode::RDWR;
-	} else if ((oflags: fs::flags & fs::flags::WRONLY) == fs::flags::WRONLY) {
-		iomode = io::mode::WRITE;
-	} else if ((oflags: fs::flags & fs::flags::PATH) != fs::flags::PATH) {
-		iomode = io::mode::READ;
-	};
-
 	let oh = rt::open_how {
 		flags = oflags: u64,
 		...
 	};
-	return _fs_open(fs, path, iomode, &oh);
+	return _fs_open(fs, path, &oh);
 };
 
 fn fs_open(
@@ -212,7 +209,6 @@ fn fs_create_file(
 	flags: fs::flags...
 ) (io::file | fs::error) = {
 	let oflags = 0;
-	let iomode = io::mode::NONE;
 	if (len(flags) == 0z) {
 		oflags |= (fs::flags::NOCTTY
 			| fs::flags::CLOEXEC
@@ -223,20 +219,12 @@ fn fs_create_file(
 	};
 	oflags |= fs::flags::CREATE: int;
 
-	if ((oflags: fs::flags & fs::flags::RDWR) == fs::flags::RDWR) {
-		iomode = io::mode::RDWR;
-	} else if ((oflags: fs::flags & fs::flags::WRONLY) == fs::flags::WRONLY) {
-		iomode = io::mode::WRITE;
-	} else if ((oflags: fs::flags & fs::flags::PATH) != fs::flags::PATH) {
-		iomode = io::mode::READ;
-	};
-
 	let oh = rt::open_how {
 		flags = oflags: u64,
 		mode = mode: u64,
 		...
 	};
-	return _fs_open(fs, path, iomode, &oh)?;
+	return _fs_open(fs, path, &oh)?;
 };
 
 fn fs_create(
