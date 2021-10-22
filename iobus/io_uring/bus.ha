@@ -97,12 +97,12 @@ fn _dispatch(bus: *bus) (result | error) = {
 // Registers a file with the iobus, returning a [[registered_file]] object to
 // use for I/O operations. It is not necessary to register files to use them for
 // I/O, but it improves performance if you do.
-export fn register_file(bus: *bus, file: io::file) registered_file = {
+export fn register_file(bus: *bus, file: io::file) (registered_file | error) = {
 	let registered: int = if (bus.lastfd >= len(bus.fdset)) {
 		static const init: [256]int = [-1...];
 		append(bus.fdset, init...);
 		bus.fdset[bus.lastfd] = file;
-		io_uring::register_files(&bus.uring, bus.fdset)!;
+		io_uring::register_files(&bus.uring, bus.fdset)?;
 		yield bus.lastfd: int;
 	} else {
 		let updates = [
@@ -113,7 +113,7 @@ export fn register_file(bus: *bus, file: io::file) registered_file = {
 			},
 		];
 		bus.fdset[bus.lastfd] = file;
-		io_uring::register_files_update(&bus.uring, updates)!;
+		io_uring::register_files_update(&bus.uring, updates)?;
 		yield bus.lastfd: int;
 	};
 	for (bus.fdset[bus.lastfd] != -1; bus.lastfd += 1) void;
