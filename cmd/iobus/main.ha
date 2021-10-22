@@ -20,10 +20,10 @@ export fn main() void = {
 	const userfd = iobus::busfile(userbus);
 	defer io::close(userfd);
 
-	const in = iobus::register_file(mainbus, os::stdin_file);
+	const in = iobus::register_file(mainbus, os::stdin_file)!;
 	// XXX: io_uring has a somewhat arbitrary limitation on registering
 	// another uring as a file, so we can't do this.
-	//const userfd = iobus::register_file(mainbus, userfd);
+	//const userfd = iobus::register_file(mainbus, userfd)!;
 
 	let pollin = iobus::poll(mainbus, in, poll::event::POLLIN)!;
 	let polluser = iobus::poll(mainbus, userfd, poll::event::POLLIN)!;
