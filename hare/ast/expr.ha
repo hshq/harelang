@@ -291,7 +291,7 @@ export type match_expr = struct {
 // An offset expression.
 //
 // 	offset(foo.bar)
-export type offset_expr = void; // TODO
+export type offset_expr = *expr;
 
 // An error propagation expression.
 //
@@ -514,8 +514,8 @@ case e: expr =>
 			expr_free(m.default[i]);
 		};
 		free(m.default);
-	case offset_expr =>
-		abort(); // TODO
+	case o: offset_expr =>
+		expr_free(o: *expr);
 	case p: propagate_expr =>
 		expr_free(p.expr);
 	case r: return_expr =>

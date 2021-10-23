@@ -319,7 +319,11 @@ export fn expr(
 		z += _type(out, indent, *e)?;
 		z += fmt::fprint(out, ")")?;
 		return z;
-	case ast::offset_expr => abort(); // TODO
+	case e: ast::offset_expr =>
+		let z = fmt::fprint(out, "offset(")?;
+		z += expr(out, indent, *e)?;
+		z += fmt::fprint(out, ")")?;
+		return z;
 	case e: ast::propagate_expr =>
 		let z = expr(out, indent, *e.expr)?;
 		z += fmt::fprintf(out, if (e.is_abort) "!" else "?")?;

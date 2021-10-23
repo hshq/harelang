@@ -63,6 +63,7 @@
 	insert(x[0], foo, bar...);
 	static insert(x[0], foo);
 	len([1, 2, 3, 4]);
+	offset(foo.bar);
 	size(u32);
 	type(u32);
 };

@@ -240,20 +240,16 @@ fn append_insert_expr(
 
 fn measurement(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = want(lexer, ltok::LEN, ltok::SIZE, ltok::OFFSET)?;
+		want(lexer, ltok::LPAREN)?;
 	const expr = switch (tok.0) {
 	case ltok::LEN =>
-		want(lexer, ltok::LPAREN)?;
-		let e = expression(lexer)?;
-		want(lexer, ltok::RPAREN)?;
-		yield alloc(e): ast::len_expr;
+		yield alloc(expression(lexer)?): ast::len_expr;
 	case ltok::SIZE =>
-		want(lexer, ltok::LPAREN)?;
-		let ty = _type(lexer)?;
-		want(lexer, ltok::RPAREN)?;
-		yield alloc(ty): ast::size_expr;
+		yield alloc(_type(lexer)?): ast::size_expr;
 	case ltok::OFFSET =>
-		abort(); // TODO
+		yield alloc(expression(lexer)?): ast::offset_expr;
 	};
+	want(lexer, ltok::RPAREN)?;
 
 	return ast::expr {
 		start = tok.2,
