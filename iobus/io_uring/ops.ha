@@ -185,6 +185,8 @@ export fn endpoll(bus: *bus, res: result) (poll::event | error) = {
 
 // TODO: poll_remove
 
+// Prepares an asynchronous open operation.
+//
 // If no flags are provided, [[fs::flags::RDONLY]], [[fs::flags::NOCTTY]],
 // [[fs::flags::CLOEXEC]] are used when opening the file. If you pass your own
 // flags, it is recommended that you add the latter two unless you know that you
@@ -217,11 +219,13 @@ export fn open(
 export fn endopen(bus: *bus, res: result) (io::file | error) = {
 	let handle = handleof(res);
 	assert(handle.sqe.opcode == io_uring::op::OPENAT,
-		"endopen called for non-poll iobus::result");
+		"endopen called for non-open iobus::result");
 	free(handle.cstring);
 	return cqe_result(res)?: io::file;
 };
 
+// Prepares an asynchronous file creation operation.
+//
 // If no flags are provided, [[fs::flags::WRONLY]], [[fs::flags::NOCTTY]],
 // [[fs::flags::CLOEXEC]] are used when opening the file. If you pass your own
 // flags, it is recommended that you add the latter two unless you know that you
@@ -256,7 +260,7 @@ export fn create(
 export fn endcreate(bus: *bus, res: result) (io::file | error) = {
 	let handle = handleof(res);
 	assert(handle.sqe.opcode == io_uring::op::OPENAT,
-		"endcreate called for non-poll iobus::result");
+		"endcreate called for non-create iobus::result");
 	free(handle.cstring);
 	return cqe_result(res)?: io::file;
 };
