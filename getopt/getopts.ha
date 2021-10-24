@@ -89,11 +89,15 @@ export type help = (cmd_help | flag_help | parameter_help);
 // 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 // 		let opt = cmd.opts[i];
 // 		switch (opt.0) {
-// 			'E' => extended = true,
-// 			's' => continuous = false,
-// 			// ...
-// 			'e' => script = opt.1,
-// 			'f' => file = opt.1,
+// 		case 'E' =>
+// 			extended = true;
+// 		case 's' =>
+// 			continuous = false;
+// 		// ...
+// 		case 'e' =>
+// 			script = opt.1;
+// 		case 'f' =>
+// 			file = opt.1;
 // 		};
 // 	};
 //
