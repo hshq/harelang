@@ -4,6 +4,10 @@ sources:
 - https://git.sr.ht/~sircmpwn/qbe
 - https://git.sr.ht/~sircmpwn/harec
 - https://git.sr.ht/~sircmpwn/hare
+triggers:
+  - action: email
+    condition: failure
+    to: ~sircmpwn/hare-dev@lists.sr.ht
 tasks:
 - qbe: |
     cd qbe
