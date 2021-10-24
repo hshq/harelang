@@ -16,22 +16,22 @@ eval ". $srcdir/gen-stdlib.sh"
 
 gensrcs_rt() {
 	gen_srcs rt \
-		'$(PLATFORM)/abort.ha' \
-		'$(PLATFORM)/env.ha' \
-		'$(PLATFORM)/errno.ha' \
-		'$(PLATFORM)/types.ha' \
-		'$(PLATFORM)/segmalloc.ha' \
-		'$(PLATFORM)/platformstart.ha' \
-		'$(PLATFORM)/prctl.ha' \
-		'$(PLATFORM)/$(ARCH).ha' \
-		'$(PLATFORM)/syscallno$(ARCH).ha' \
-		'$(PLATFORM)/syscalls.ha' \
-		'$(PLATFORM)/signal.ha' \
-		'$(PLATFORM)/stat.ha' \
-		'$(PLATFORM)/socket.ha' \
-		'$(ARCH)/jmp.ha' \
-		'$(ARCH)/backtrace.ha' \
-		'types_arch$(ARCH).ha' \
+		'+$(PLATFORM)/abort.ha' \
+		'+$(PLATFORM)/env.ha' \
+		'+$(PLATFORM)/errno.ha' \
+		'+$(PLATFORM)/types.ha' \
+		'+$(PLATFORM)/segmalloc.ha' \
+		'+$(PLATFORM)/platformstart.ha' \
+		'+$(PLATFORM)/prctl.ha' \
+		'+$(PLATFORM)/+$(ARCH).ha' \
+		'+$(PLATFORM)/syscallno+$(ARCH).ha' \
+		'+$(PLATFORM)/syscalls.ha' \
+		'+$(PLATFORM)/signal.ha' \
+		'+$(PLATFORM)/stat.ha' \
+		'+$(PLATFORM)/socket.ha' \
+		'+$(ARCH)/jmp.ha' \
+		'+$(ARCH)/backtrace.ha' \
+		'types_arch+$(ARCH).ha' \
 		ensure.ha \
 		jmp.ha \
 		malloc.ha \
@@ -55,14 +55,14 @@ rt() {
 		gensrcs_rt \
 			start+test.ha \
 			abort+test.ha \
-			'+test/$(PLATFORM).ha' \
+			'+test/+$(PLATFORM).ha' \
 			+test/cstring.ha \
 			+test/run.ha \
 			+test/ztos.ha
 	fi
 	gen_ssa rt
 	cat <<EOF
-\$($cache)/rt/start.o: \$(STDLIB)/rt/\$(PLATFORM)/start\$(ARCH).s
+\$($cache)/rt/start.o: \$(STDLIB)/rt/+\$(PLATFORM)/start+\$(ARCH).s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$<
@@ -74,27 +74,27 @@ ${stdlib}_asm=\$($cache)/rt/syscall.o \\
 	\$($cache)/rt/getfp.o \\
 	\$($cache)/rt/start.o
 
-\$($cache)/rt/syscall.o: \$(STDLIB)/rt/\$(PLATFORM)/syscall\$(ARCH).s
+\$($cache)/rt/syscall.o: \$(STDLIB)/rt/+\$(PLATFORM)/syscall+\$(ARCH).s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$<
 
-\$($cache)/rt/setjmp.o: \$(STDLIB)/rt/\$(ARCH)/setjmp.s
+\$($cache)/rt/setjmp.o: \$(STDLIB)/rt/+\$(ARCH)/setjmp.s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$<
 
-\$($cache)/rt/longjmp.o: \$(STDLIB)/rt/\$(ARCH)/longjmp.s
+\$($cache)/rt/longjmp.o: \$(STDLIB)/rt/+\$(ARCH)/longjmp.s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$<
 
-\$($cache)/rt/restore.o: \$(STDLIB)/rt/\$(ARCH)/restore.s
+\$($cache)/rt/restore.o: \$(STDLIB)/rt/+\$(ARCH)/restore.s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$<
 
-\$($cache)/rt/getfp.o: \$(STDLIB)/rt/\$(ARCH)/getfp.s
+\$($cache)/rt/getfp.o: \$(STDLIB)/rt/+\$(ARCH)/getfp.s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$<
@@ -181,7 +181,7 @@ crypto_math() {
 
 crypto_random() {
 	gen_srcs crypto::random \
-		'$(PLATFORM).ha' \
+		'+$(PLATFORM).ha' \
 		random.ha
 	gen_ssa crypto::random rt io errors
 }
@@ -273,7 +273,7 @@ endian() {
 		network.ha \
 		little.ha \
 		endian.ha \
-		'host$(ARCH).ha'
+		'host+$(ARCH).ha'
 	gen_ssa endian
 }
 
@@ -304,8 +304,8 @@ fnmatch() {
 
 format_elf() {
 	gen_srcs format::elf \
-		'$(ARCH).ha' \
-		'$(PLATFORM).ha' \
+		'+$(ARCH).ha' \
+		'+$(PLATFORM).ha' \
 		types.ha
 	gen_ssa format::elf
 }
@@ -544,18 +544,18 @@ hash_fnv() {
 
 gensrcs_io() {
 	gen_srcs io \
-		'arch$(ARCH).ha' \
+		'arch+$(ARCH).ha' \
 		copy.ha \
 		drain.ha \
 		empty.ha \
 		filestream.ha \
 		handle.ha \
 		limit.ha \
-		'println$(PLATFORM).ha' \
+		'println+$(PLATFORM).ha' \
 		stream.ha \
 		tee.ha \
 		types.ha \
-		'$(PLATFORM)/file.ha' \
+		'+$(PLATFORM)/file.ha' \
 		$*
 }
 
@@ -631,7 +631,7 @@ math() {
 net() {
 	printf '# net\n'
 	gen_srcs net \
-		'$(PLATFORM).ha' \
+		'+$(PLATFORM).ha' \
 		errors.ha \
 		listener.ha
 	gen_ssa net io os strings net::ip errors rt fmt
@@ -663,7 +663,7 @@ net_dns() {
 gensrcs_net_ip() {
 	gen_srcs net::ip \
 		ip.ha \
-		'$(PLATFORM).ha' \
+		'+$(PLATFORM).ha' \
 		$*
 }
 
@@ -681,7 +681,7 @@ net_ip() {
 net_tcp() {
 	printf '# net::tcp\n'
 	gen_srcs net::tcp \
-		'$(PLATFORM).ha' \
+		'+$(PLATFORM).ha' \
 		listener.ha \
 		options.ha
 	gen_ssa net::tcp io net net::ip os rt
@@ -690,7 +690,7 @@ net_tcp() {
 net_udp() {
 	printf '# net::udp\n'
 	gen_srcs net::udp \
-		'$(PLATFORM).ha' \
+		'+$(PLATFORM).ha' \
 		options.ha
 	gen_ssa net::udp net net::ip errors rt os io
 }
@@ -698,7 +698,7 @@ net_udp() {
 net_unix() {
 	printf '# net::unix\n'
 	gen_srcs net::unix \
-		'$(PLATFORM).ha' \
+		'+$(PLATFORM).ha' \
 		addr.ha \
 		dial.ha \
 		listener.ha \
@@ -714,19 +714,19 @@ math_random() {
 
 os() {
 	gen_srcs os \
-		'$(PLATFORM)/environ.ha' \
-		'$(PLATFORM)/exit.ha' \
-		'$(PLATFORM)/dirfdfs.ha' \
-		'$(PLATFORM)/stdfd.ha' \
-		'$(PLATFORM)/fs.ha' \
+		'+$(PLATFORM)/environ.ha' \
+		'+$(PLATFORM)/exit.ha' \
+		'+$(PLATFORM)/dirfdfs.ha' \
+		'+$(PLATFORM)/stdfd.ha' \
+		'+$(PLATFORM)/fs.ha' \
 		fs.ha
 	gen_ssa os io strings types fs encoding::utf8 bytes bufio errors
 }
 
 os_exec() {
 	gen_srcs os::exec \
-		'exec$(PLATFORM).ha' \
-		'process$(PLATFORM).ha' \
+		'exec+$(PLATFORM).ha' \
+		'process+$(PLATFORM).ha' \
 		types.ha \
 		cmd.ha
 	gen_ssa os::exec os strings fmt bytes path errors
@@ -734,7 +734,7 @@ os_exec() {
 
 path() {
 	gen_srcs path \
-		'$(PLATFORM).ha' \
+		'+$(PLATFORM).ha' \
 		util.ha \
 		join.ha \
 		names.ha \
@@ -819,8 +819,8 @@ strio() {
 
 time() {
 	gen_srcs time \
-		'$(PLATFORM)/functions.ha' \
-		'$(PLATFORM)/$(ARCH).ha' \
+		'+$(PLATFORM)/functions.ha' \
+		'+$(PLATFORM)/+$(ARCH).ha' \
 		arithm.ha \
 		types.ha
 	gen_ssa time linux::vdso
@@ -828,7 +828,7 @@ time() {
 
 temp() {
 	gen_srcs temp \
-		'$(PLATFORM).ha'
+		'+$(PLATFORM).ha'
 	gen_ssa temp crypto::random encoding::hex fs io os path strio fmt strings
 }
 
@@ -838,7 +838,7 @@ gensrcs_types() {
 		classes.ha \
 		reflect.ha \
 		util.ha \
-		'arch$(ARCH).ha' \
+		'arch+$(ARCH).ha' \
 		$*
 }
 
@@ -855,9 +855,9 @@ types() {
 unix() {
 	# XXX: getuid and setuid are probably platform-specific too
 	gen_srcs unix \
-		'$(PLATFORM)/nice.ha' \
-		'$(PLATFORM)/pipe.ha' \
-		'$(PLATFORM)/umask.ha' \
+		'+$(PLATFORM)/nice.ha' \
+		'+$(PLATFORM)/pipe.ha' \
+		'+$(PLATFORM)/umask.ha' \
 		getuid.ha \
 		setuid.ha
 	gen_ssa unix errors fs
@@ -879,7 +879,7 @@ unix_passwd() {
 
 unix_poll() {
 	gen_srcs unix::poll \
-		'$(PLATFORM)'.ha
+		'+$(PLATFORM)'.ha
 	gen_ssa unix::poll rt errors time
 }
 
@@ -892,9 +892,9 @@ unix_resolvconf() {
 unix_tty() {
 	gen_srcs unix::tty \
         types.ha \
-		'$(PLATFORM)/isatty.ha' \
-		'$(PLATFORM)/open.ha' \
-		'$(PLATFORM)/winsize.ha'
+		'+$(PLATFORM)/isatty.ha' \
+		'+$(PLATFORM)/open.ha' \
+		'+$(PLATFORM)/winsize.ha'
 	gen_ssa unix::tty rt fs io os
 }
 

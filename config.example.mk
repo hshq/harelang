@@ -14,8 +14,8 @@ HAREPATH=$(SRCDIR)/hare/stdlib:$(SRCDIR)/hare/third-party
 ## Build configuration
 
 # Platform to build for
-PLATFORM=+linux
-ARCH=+x86_64
+PLATFORM=linux
+ARCH=x86_64
 
 # External tools and flags
 HAREC=harec

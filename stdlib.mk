@@ -3,22 +3,22 @@
 rtscript=$(STDLIB)/rt/hare.sc
 # rt
 stdlib_rt_srcs= \
-	$(STDLIB)/rt/$(PLATFORM)/abort.ha \
-	$(STDLIB)/rt/$(PLATFORM)/env.ha \
-	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
-	$(STDLIB)/rt/$(PLATFORM)/types.ha \
-	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
-	$(STDLIB)/rt/$(PLATFORM)/platformstart.ha \
-	$(STDLIB)/rt/$(PLATFORM)/prctl.ha \
-	$(STDLIB)/rt/$(PLATFORM)/$(ARCH).ha \
-	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
-	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
-	$(STDLIB)/rt/$(PLATFORM)/signal.ha \
-	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
-	$(STDLIB)/rt/$(PLATFORM)/socket.ha \
-	$(STDLIB)/rt/$(ARCH)/jmp.ha \
-	$(STDLIB)/rt/$(ARCH)/backtrace.ha \
-	$(STDLIB)/rt/types_arch$(ARCH).ha \
+	$(STDLIB)/rt/+$(PLATFORM)/abort.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/env.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/errno.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/types.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/segmalloc.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/platformstart.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/prctl.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/+$(ARCH).ha \
+	$(STDLIB)/rt/+$(PLATFORM)/syscallno+$(ARCH).ha \
+	$(STDLIB)/rt/+$(PLATFORM)/syscalls.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/signal.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/stat.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/socket.ha \
+	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
+	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
+	$(STDLIB)/rt/types_arch+$(ARCH).ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -36,7 +36,7 @@ $(HARECACHE)/rt/rt.ssa: $(stdlib_rt_srcs) $(stdlib_rt)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nrt \
 		-t$(HARECACHE)/rt/rt.td $(stdlib_rt_srcs)
 
-$(HARECACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start$(ARCH).s
+$(HARECACHE)/rt/start.o: $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH).s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $<
@@ -48,27 +48,27 @@ stdlib_asm=$(HARECACHE)/rt/syscall.o \
 	$(HARECACHE)/rt/getfp.o \
 	$(HARECACHE)/rt/start.o
 
-$(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
+$(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $<
 
-$(HARECACHE)/rt/setjmp.o: $(STDLIB)/rt/$(ARCH)/setjmp.s
+$(HARECACHE)/rt/setjmp.o: $(STDLIB)/rt/+$(ARCH)/setjmp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $<
 
-$(HARECACHE)/rt/longjmp.o: $(STDLIB)/rt/$(ARCH)/longjmp.s
+$(HARECACHE)/rt/longjmp.o: $(STDLIB)/rt/+$(ARCH)/longjmp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $<
 
-$(HARECACHE)/rt/restore.o: $(STDLIB)/rt/$(ARCH)/restore.s
+$(HARECACHE)/rt/restore.o: $(STDLIB)/rt/+$(ARCH)/restore.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $<
 
-$(HARECACHE)/rt/getfp.o: $(STDLIB)/rt/$(ARCH)/getfp.s
+$(HARECACHE)/rt/getfp.o: $(STDLIB)/rt/+$(ARCH)/getfp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $<
@@ -449,7 +449,7 @@ $(HARECACHE)/crypto/math/crypto_math.ssa: $(stdlib_crypto_math_srcs) $(stdlib_rt
 
 # crypto::random
 stdlib_crypto_random_srcs= \
-	$(STDLIB)/crypto/random/$(PLATFORM).ha \
+	$(STDLIB)/crypto/random/+$(PLATFORM).ha \
 	$(STDLIB)/crypto/random/random.ha
 
 $(HARECACHE)/crypto/random/crypto_random.ssa: $(stdlib_crypto_random_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_io) $(stdlib_errors)
@@ -546,7 +546,7 @@ stdlib_endian_srcs= \
 	$(STDLIB)/endian/network.ha \
 	$(STDLIB)/endian/little.ha \
 	$(STDLIB)/endian/endian.ha \
-	$(STDLIB)/endian/host$(ARCH).ha
+	$(STDLIB)/endian/host+$(ARCH).ha
 
 $(HARECACHE)/endian/endian.ssa: $(stdlib_endian_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -589,8 +589,8 @@ $(HARECACHE)/fnmatch/fnmatch.ssa: $(stdlib_fnmatch_srcs) $(stdlib_rt) $(stdlib_s
 
 # format::elf
 stdlib_format_elf_srcs= \
-	$(STDLIB)/format/elf/$(ARCH).ha \
-	$(STDLIB)/format/elf/$(PLATFORM).ha \
+	$(STDLIB)/format/elf/+$(ARCH).ha \
+	$(STDLIB)/format/elf/+$(PLATFORM).ha \
 	$(STDLIB)/format/elf/types.ha
 
 $(HARECACHE)/format/elf/format_elf.ssa: $(stdlib_format_elf_srcs) $(stdlib_rt)
@@ -822,18 +822,18 @@ $(HARECACHE)/hash/fnv/hash_fnv.ssa: $(stdlib_hash_fnv_srcs) $(stdlib_rt) $(stdli
 
 # io
 stdlib_io_srcs= \
-	$(STDLIB)/io/arch$(ARCH).ha \
+	$(STDLIB)/io/arch+$(ARCH).ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
 	$(STDLIB)/io/filestream.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
-	$(STDLIB)/io/println$(PLATFORM).ha \
+	$(STDLIB)/io/println+$(PLATFORM).ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
-	$(STDLIB)/io/$(PLATFORM)/file.ha
+	$(STDLIB)/io/+$(PLATFORM)/file.ha
 
 $(HARECACHE)/io/io.ssa: $(stdlib_io_srcs) $(stdlib_rt) $(stdlib_strings) $(stdlib_errors)
 	@printf 'HAREC \t$@\n'
@@ -919,7 +919,7 @@ $(HARECACHE)/math/math.ssa: $(stdlib_math_srcs) $(stdlib_rt) $(stdlib_types)
 # net
 # net
 stdlib_net_srcs= \
-	$(STDLIB)/net/$(PLATFORM).ha \
+	$(STDLIB)/net/+$(PLATFORM).ha \
 	$(STDLIB)/net/errors.ha \
 	$(STDLIB)/net/listener.ha
 
@@ -961,7 +961,7 @@ $(HARECACHE)/net/dns/net_dns.ssa: $(stdlib_net_dns_srcs) $(stdlib_rt) $(stdlib_a
 # net::ip
 stdlib_net_ip_srcs= \
 	$(STDLIB)/net/ip/ip.ha \
-	$(STDLIB)/net/ip/$(PLATFORM).ha
+	$(STDLIB)/net/ip/+$(PLATFORM).ha
 
 $(HARECACHE)/net/ip/net_ip.ssa: $(stdlib_net_ip_srcs) $(stdlib_rt) $(stdlib_bytes) $(stdlib_io) $(stdlib_strconv) $(stdlib_strings) $(stdlib_strio) $(stdlib_fmt)
 	@printf 'HAREC \t$@\n'
@@ -972,7 +972,7 @@ $(HARECACHE)/net/ip/net_ip.ssa: $(stdlib_net_ip_srcs) $(stdlib_rt) $(stdlib_byte
 # net::tcp
 # net::tcp
 stdlib_net_tcp_srcs= \
-	$(STDLIB)/net/tcp/$(PLATFORM).ha \
+	$(STDLIB)/net/tcp/+$(PLATFORM).ha \
 	$(STDLIB)/net/tcp/listener.ha \
 	$(STDLIB)/net/tcp/options.ha
 
@@ -985,7 +985,7 @@ $(HARECACHE)/net/tcp/net_tcp.ssa: $(stdlib_net_tcp_srcs) $(stdlib_rt) $(stdlib_i
 # net::udp
 # net::udp
 stdlib_net_udp_srcs= \
-	$(STDLIB)/net/udp/$(PLATFORM).ha \
+	$(STDLIB)/net/udp/+$(PLATFORM).ha \
 	$(STDLIB)/net/udp/options.ha
 
 $(HARECACHE)/net/udp/net_udp.ssa: $(stdlib_net_udp_srcs) $(stdlib_rt) $(stdlib_net) $(stdlib_net_ip) $(stdlib_errors) $(stdlib_rt) $(stdlib_os) $(stdlib_io)
@@ -997,7 +997,7 @@ $(HARECACHE)/net/udp/net_udp.ssa: $(stdlib_net_udp_srcs) $(stdlib_rt) $(stdlib_n
 # net::unix
 # net::unix
 stdlib_net_unix_srcs= \
-	$(STDLIB)/net/unix/$(PLATFORM).ha \
+	$(STDLIB)/net/unix/+$(PLATFORM).ha \
 	$(STDLIB)/net/unix/addr.ha \
 	$(STDLIB)/net/unix/dial.ha \
 	$(STDLIB)/net/unix/listener.ha \
@@ -1021,11 +1021,11 @@ $(HARECACHE)/math/random/math_random.ssa: $(stdlib_math_random_srcs) $(stdlib_rt
 
 # os
 stdlib_os_srcs= \
-	$(STDLIB)/os/$(PLATFORM)/environ.ha \
-	$(STDLIB)/os/$(PLATFORM)/exit.ha \
-	$(STDLIB)/os/$(PLATFORM)/dirfdfs.ha \
-	$(STDLIB)/os/$(PLATFORM)/stdfd.ha \
-	$(STDLIB)/os/$(PLATFORM)/fs.ha \
+	$(STDLIB)/os/+$(PLATFORM)/environ.ha \
+	$(STDLIB)/os/+$(PLATFORM)/exit.ha \
+	$(STDLIB)/os/+$(PLATFORM)/dirfdfs.ha \
+	$(STDLIB)/os/+$(PLATFORM)/stdfd.ha \
+	$(STDLIB)/os/+$(PLATFORM)/fs.ha \
 	$(STDLIB)/os/fs.ha
 
 $(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_strings) $(stdlib_types) $(stdlib_fs) $(stdlib_encoding_utf8) $(stdlib_bytes) $(stdlib_bufio) $(stdlib_errors)
@@ -1036,8 +1036,8 @@ $(HARECACHE)/os/os.ssa: $(stdlib_os_srcs) $(stdlib_rt) $(stdlib_io) $(stdlib_str
 
 # os::exec
 stdlib_os_exec_srcs= \
-	$(STDLIB)/os/exec/exec$(PLATFORM).ha \
-	$(STDLIB)/os/exec/process$(PLATFORM).ha \
+	$(STDLIB)/os/exec/exec+$(PLATFORM).ha \
+	$(STDLIB)/os/exec/process+$(PLATFORM).ha \
 	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
@@ -1049,7 +1049,7 @@ $(HARECACHE)/os/exec/os_exec.ssa: $(stdlib_os_exec_srcs) $(stdlib_rt) $(stdlib_o
 
 # path
 stdlib_path_srcs= \
-	$(STDLIB)/path/$(PLATFORM).ha \
+	$(STDLIB)/path/+$(PLATFORM).ha \
 	$(STDLIB)/path/util.ha \
 	$(STDLIB)/path/join.ha \
 	$(STDLIB)/path/names.ha \
@@ -1135,7 +1135,7 @@ $(HARECACHE)/strio/strio.ssa: $(stdlib_strio_srcs) $(stdlib_rt) $(stdlib_io) $(s
 
 # temp
 stdlib_temp_srcs= \
-	$(STDLIB)/temp/$(PLATFORM).ha
+	$(STDLIB)/temp/+$(PLATFORM).ha
 
 $(HARECACHE)/temp/temp.ssa: $(stdlib_temp_srcs) $(stdlib_rt) $(stdlib_crypto_random) $(stdlib_encoding_hex) $(stdlib_fs) $(stdlib_io) $(stdlib_os) $(stdlib_path) $(stdlib_strio) $(stdlib_fmt) $(stdlib_strings)
 	@printf 'HAREC \t$@\n'
@@ -1145,8 +1145,8 @@ $(HARECACHE)/temp/temp.ssa: $(stdlib_temp_srcs) $(stdlib_rt) $(stdlib_crypto_ran
 
 # time
 stdlib_time_srcs= \
-	$(STDLIB)/time/$(PLATFORM)/functions.ha \
-	$(STDLIB)/time/$(PLATFORM)/$(ARCH).ha \
+	$(STDLIB)/time/+$(PLATFORM)/functions.ha \
+	$(STDLIB)/time/+$(PLATFORM)/+$(ARCH).ha \
 	$(STDLIB)/time/arithm.ha \
 	$(STDLIB)/time/types.ha
 
@@ -1162,7 +1162,7 @@ stdlib_types_srcs= \
 	$(STDLIB)/types/classes.ha \
 	$(STDLIB)/types/reflect.ha \
 	$(STDLIB)/types/util.ha \
-	$(STDLIB)/types/arch$(ARCH).ha
+	$(STDLIB)/types/arch+$(ARCH).ha
 
 $(HARECACHE)/types/types.ssa: $(stdlib_types_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -1172,9 +1172,9 @@ $(HARECACHE)/types/types.ssa: $(stdlib_types_srcs) $(stdlib_rt)
 
 # unix
 stdlib_unix_srcs= \
-	$(STDLIB)/unix/$(PLATFORM)/nice.ha \
-	$(STDLIB)/unix/$(PLATFORM)/pipe.ha \
-	$(STDLIB)/unix/$(PLATFORM)/umask.ha \
+	$(STDLIB)/unix/+$(PLATFORM)/nice.ha \
+	$(STDLIB)/unix/+$(PLATFORM)/pipe.ha \
+	$(STDLIB)/unix/+$(PLATFORM)/umask.ha \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
@@ -1208,7 +1208,7 @@ $(HARECACHE)/unix/passwd/unix_passwd.ssa: $(stdlib_unix_passwd_srcs) $(stdlib_rt
 
 # unix::poll
 stdlib_unix_poll_srcs= \
-	$(STDLIB)/unix/poll/$(PLATFORM).ha
+	$(STDLIB)/unix/poll/+$(PLATFORM).ha
 
 $(HARECACHE)/unix/poll/unix_poll.ssa: $(stdlib_unix_poll_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_errors) $(stdlib_time)
 	@printf 'HAREC \t$@\n'
@@ -1229,9 +1229,9 @@ $(HARECACHE)/unix/resolvconf/unix_resolvconf.ssa: $(stdlib_unix_resolvconf_srcs)
 # unix::tty
 stdlib_unix_tty_srcs= \
 	$(STDLIB)/unix/tty/types.ha \
-	$(STDLIB)/unix/tty/$(PLATFORM)/isatty.ha \
-	$(STDLIB)/unix/tty/$(PLATFORM)/open.ha \
-	$(STDLIB)/unix/tty/$(PLATFORM)/winsize.ha
+	$(STDLIB)/unix/tty/+$(PLATFORM)/isatty.ha \
+	$(STDLIB)/unix/tty/+$(PLATFORM)/open.ha \
+	$(STDLIB)/unix/tty/+$(PLATFORM)/winsize.ha
 
 $(HARECACHE)/unix/tty/unix_tty.ssa: $(stdlib_unix_tty_srcs) $(stdlib_rt) $(stdlib_rt) $(stdlib_fs) $(stdlib_io) $(stdlib_os)
 	@printf 'HAREC \t$@\n'
@@ -1251,22 +1251,22 @@ $(HARECACHE)/uuid/uuid.ssa: $(stdlib_uuid_srcs) $(stdlib_rt) $(stdlib_crypto_ran
 
 # rt
 testlib_rt_srcs= \
-	$(STDLIB)/rt/$(PLATFORM)/abort.ha \
-	$(STDLIB)/rt/$(PLATFORM)/env.ha \
-	$(STDLIB)/rt/$(PLATFORM)/errno.ha \
-	$(STDLIB)/rt/$(PLATFORM)/types.ha \
-	$(STDLIB)/rt/$(PLATFORM)/segmalloc.ha \
-	$(STDLIB)/rt/$(PLATFORM)/platformstart.ha \
-	$(STDLIB)/rt/$(PLATFORM)/prctl.ha \
-	$(STDLIB)/rt/$(PLATFORM)/$(ARCH).ha \
-	$(STDLIB)/rt/$(PLATFORM)/syscallno$(ARCH).ha \
-	$(STDLIB)/rt/$(PLATFORM)/syscalls.ha \
-	$(STDLIB)/rt/$(PLATFORM)/signal.ha \
-	$(STDLIB)/rt/$(PLATFORM)/stat.ha \
-	$(STDLIB)/rt/$(PLATFORM)/socket.ha \
-	$(STDLIB)/rt/$(ARCH)/jmp.ha \
-	$(STDLIB)/rt/$(ARCH)/backtrace.ha \
-	$(STDLIB)/rt/types_arch$(ARCH).ha \
+	$(STDLIB)/rt/+$(PLATFORM)/abort.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/env.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/errno.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/types.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/segmalloc.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/platformstart.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/prctl.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/+$(ARCH).ha \
+	$(STDLIB)/rt/+$(PLATFORM)/syscallno+$(ARCH).ha \
+	$(STDLIB)/rt/+$(PLATFORM)/syscalls.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/signal.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/stat.ha \
+	$(STDLIB)/rt/+$(PLATFORM)/socket.ha \
+	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
+	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
+	$(STDLIB)/rt/types_arch+$(ARCH).ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -1277,7 +1277,7 @@ testlib_rt_srcs= \
 	$(STDLIB)/rt/types.ha \
 	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/abort+test.ha \
-	$(STDLIB)/rt/+test/$(PLATFORM).ha \
+	$(STDLIB)/rt/+test/+$(PLATFORM).ha \
 	$(STDLIB)/rt/+test/cstring.ha \
 	$(STDLIB)/rt/+test/run.ha \
 	$(STDLIB)/rt/+test/ztos.ha
@@ -1288,7 +1288,7 @@ $(TESTCACHE)/rt/rt.ssa: $(testlib_rt_srcs) $(testlib_rt)
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nrt \
 		-t$(TESTCACHE)/rt/rt.td $(testlib_rt_srcs)
 
-$(TESTCACHE)/rt/start.o: $(STDLIB)/rt/$(PLATFORM)/start$(ARCH).s
+$(TESTCACHE)/rt/start.o: $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH).s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $<
@@ -1300,27 +1300,27 @@ testlib_asm=$(TESTCACHE)/rt/syscall.o \
 	$(TESTCACHE)/rt/getfp.o \
 	$(TESTCACHE)/rt/start.o
 
-$(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/$(PLATFORM)/syscall$(ARCH).s
+$(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $<
 
-$(TESTCACHE)/rt/setjmp.o: $(STDLIB)/rt/$(ARCH)/setjmp.s
+$(TESTCACHE)/rt/setjmp.o: $(STDLIB)/rt/+$(ARCH)/setjmp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $<
 
-$(TESTCACHE)/rt/longjmp.o: $(STDLIB)/rt/$(ARCH)/longjmp.s
+$(TESTCACHE)/rt/longjmp.o: $(STDLIB)/rt/+$(ARCH)/longjmp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $<
 
-$(TESTCACHE)/rt/restore.o: $(STDLIB)/rt/$(ARCH)/restore.s
+$(TESTCACHE)/rt/restore.o: $(STDLIB)/rt/+$(ARCH)/restore.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $<
 
-$(TESTCACHE)/rt/getfp.o: $(STDLIB)/rt/$(ARCH)/getfp.s
+$(TESTCACHE)/rt/getfp.o: $(STDLIB)/rt/+$(ARCH)/getfp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $<
@@ -1704,7 +1704,7 @@ $(TESTCACHE)/crypto/math/crypto_math.ssa: $(testlib_crypto_math_srcs) $(testlib_
 
 # crypto::random
 testlib_crypto_random_srcs= \
-	$(STDLIB)/crypto/random/$(PLATFORM).ha \
+	$(STDLIB)/crypto/random/+$(PLATFORM).ha \
 	$(STDLIB)/crypto/random/random.ha
 
 $(TESTCACHE)/crypto/random/crypto_random.ssa: $(testlib_crypto_random_srcs) $(testlib_rt) $(testlib_rt) $(testlib_io) $(testlib_errors)
@@ -1805,7 +1805,7 @@ testlib_endian_srcs= \
 	$(STDLIB)/endian/network.ha \
 	$(STDLIB)/endian/little.ha \
 	$(STDLIB)/endian/endian.ha \
-	$(STDLIB)/endian/host$(ARCH).ha
+	$(STDLIB)/endian/host+$(ARCH).ha
 
 $(TESTCACHE)/endian/endian.ssa: $(testlib_endian_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
@@ -1849,8 +1849,8 @@ $(TESTCACHE)/fnmatch/fnmatch.ssa: $(testlib_fnmatch_srcs) $(testlib_rt) $(testli
 
 # format::elf
 testlib_format_elf_srcs= \
-	$(STDLIB)/format/elf/$(ARCH).ha \
-	$(STDLIB)/format/elf/$(PLATFORM).ha \
+	$(STDLIB)/format/elf/+$(ARCH).ha \
+	$(STDLIB)/format/elf/+$(PLATFORM).ha \
 	$(STDLIB)/format/elf/types.ha
 
 $(TESTCACHE)/format/elf/format_elf.ssa: $(testlib_format_elf_srcs) $(testlib_rt)
@@ -2094,18 +2094,18 @@ $(TESTCACHE)/hash/fnv/hash_fnv.ssa: $(testlib_hash_fnv_srcs) $(testlib_rt) $(tes
 
 # io
 testlib_io_srcs= \
-	$(STDLIB)/io/arch$(ARCH).ha \
+	$(STDLIB)/io/arch+$(ARCH).ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
 	$(STDLIB)/io/filestream.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
-	$(STDLIB)/io/println$(PLATFORM).ha \
+	$(STDLIB)/io/println+$(PLATFORM).ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
-	$(STDLIB)/io/$(PLATFORM)/file.ha \
+	$(STDLIB)/io/+$(PLATFORM)/file.ha \
 	$(STDLIB)/io/+test/copy.ha \
 	$(STDLIB)/io/+test/limit.ha \
 	$(STDLIB)/io/+test/stream.ha
@@ -2195,7 +2195,7 @@ $(TESTCACHE)/math/math.ssa: $(testlib_math_srcs) $(testlib_rt) $(testlib_types)
 # net
 # net
 testlib_net_srcs= \
-	$(STDLIB)/net/$(PLATFORM).ha \
+	$(STDLIB)/net/+$(PLATFORM).ha \
 	$(STDLIB)/net/errors.ha \
 	$(STDLIB)/net/listener.ha
 
@@ -2237,7 +2237,7 @@ $(TESTCACHE)/net/dns/net_dns.ssa: $(testlib_net_dns_srcs) $(testlib_rt) $(testli
 # net::ip
 testlib_net_ip_srcs= \
 	$(STDLIB)/net/ip/ip.ha \
-	$(STDLIB)/net/ip/$(PLATFORM).ha \
+	$(STDLIB)/net/ip/+$(PLATFORM).ha \
 	$(STDLIB)/net/ip/+test.ha
 
 $(TESTCACHE)/net/ip/net_ip.ssa: $(testlib_net_ip_srcs) $(testlib_rt) $(testlib_bytes) $(testlib_io) $(testlib_strconv) $(testlib_strings) $(testlib_strio) $(testlib_fmt)
@@ -2249,7 +2249,7 @@ $(TESTCACHE)/net/ip/net_ip.ssa: $(testlib_net_ip_srcs) $(testlib_rt) $(testlib_b
 # net::tcp
 # net::tcp
 testlib_net_tcp_srcs= \
-	$(STDLIB)/net/tcp/$(PLATFORM).ha \
+	$(STDLIB)/net/tcp/+$(PLATFORM).ha \
 	$(STDLIB)/net/tcp/listener.ha \
 	$(STDLIB)/net/tcp/options.ha
 
@@ -2262,7 +2262,7 @@ $(TESTCACHE)/net/tcp/net_tcp.ssa: $(testlib_net_tcp_srcs) $(testlib_rt) $(testli
 # net::udp
 # net::udp
 testlib_net_udp_srcs= \
-	$(STDLIB)/net/udp/$(PLATFORM).ha \
+	$(STDLIB)/net/udp/+$(PLATFORM).ha \
 	$(STDLIB)/net/udp/options.ha
 
 $(TESTCACHE)/net/udp/net_udp.ssa: $(testlib_net_udp_srcs) $(testlib_rt) $(testlib_net) $(testlib_net_ip) $(testlib_errors) $(testlib_rt) $(testlib_os) $(testlib_io)
@@ -2274,7 +2274,7 @@ $(TESTCACHE)/net/udp/net_udp.ssa: $(testlib_net_udp_srcs) $(testlib_rt) $(testli
 # net::unix
 # net::unix
 testlib_net_unix_srcs= \
-	$(STDLIB)/net/unix/$(PLATFORM).ha \
+	$(STDLIB)/net/unix/+$(PLATFORM).ha \
 	$(STDLIB)/net/unix/addr.ha \
 	$(STDLIB)/net/unix/dial.ha \
 	$(STDLIB)/net/unix/listener.ha \
@@ -2298,11 +2298,11 @@ $(TESTCACHE)/math/random/math_random.ssa: $(testlib_math_random_srcs) $(testlib_
 
 # os
 testlib_os_srcs= \
-	$(STDLIB)/os/$(PLATFORM)/environ.ha \
-	$(STDLIB)/os/$(PLATFORM)/exit.ha \
-	$(STDLIB)/os/$(PLATFORM)/dirfdfs.ha \
-	$(STDLIB)/os/$(PLATFORM)/stdfd.ha \
-	$(STDLIB)/os/$(PLATFORM)/fs.ha \
+	$(STDLIB)/os/+$(PLATFORM)/environ.ha \
+	$(STDLIB)/os/+$(PLATFORM)/exit.ha \
+	$(STDLIB)/os/+$(PLATFORM)/dirfdfs.ha \
+	$(STDLIB)/os/+$(PLATFORM)/stdfd.ha \
+	$(STDLIB)/os/+$(PLATFORM)/fs.ha \
 	$(STDLIB)/os/fs.ha
 
 $(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib_strings) $(testlib_types) $(testlib_fs) $(testlib_encoding_utf8) $(testlib_bytes) $(testlib_bufio) $(testlib_errors)
@@ -2313,8 +2313,8 @@ $(TESTCACHE)/os/os.ssa: $(testlib_os_srcs) $(testlib_rt) $(testlib_io) $(testlib
 
 # os::exec
 testlib_os_exec_srcs= \
-	$(STDLIB)/os/exec/exec$(PLATFORM).ha \
-	$(STDLIB)/os/exec/process$(PLATFORM).ha \
+	$(STDLIB)/os/exec/exec+$(PLATFORM).ha \
+	$(STDLIB)/os/exec/process+$(PLATFORM).ha \
 	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
@@ -2326,7 +2326,7 @@ $(TESTCACHE)/os/exec/os_exec.ssa: $(testlib_os_exec_srcs) $(testlib_rt) $(testli
 
 # path
 testlib_path_srcs= \
-	$(STDLIB)/path/$(PLATFORM).ha \
+	$(STDLIB)/path/+$(PLATFORM).ha \
 	$(STDLIB)/path/util.ha \
 	$(STDLIB)/path/join.ha \
 	$(STDLIB)/path/names.ha \
@@ -2415,7 +2415,7 @@ $(TESTCACHE)/strio/strio.ssa: $(testlib_strio_srcs) $(testlib_rt) $(testlib_io) 
 
 # temp
 testlib_temp_srcs= \
-	$(STDLIB)/temp/$(PLATFORM).ha
+	$(STDLIB)/temp/+$(PLATFORM).ha
 
 $(TESTCACHE)/temp/temp.ssa: $(testlib_temp_srcs) $(testlib_rt) $(testlib_crypto_random) $(testlib_encoding_hex) $(testlib_fs) $(testlib_io) $(testlib_os) $(testlib_path) $(testlib_strio) $(testlib_fmt) $(testlib_strings)
 	@printf 'HAREC \t$@\n'
@@ -2425,8 +2425,8 @@ $(TESTCACHE)/temp/temp.ssa: $(testlib_temp_srcs) $(testlib_rt) $(testlib_crypto_
 
 # time
 testlib_time_srcs= \
-	$(STDLIB)/time/$(PLATFORM)/functions.ha \
-	$(STDLIB)/time/$(PLATFORM)/$(ARCH).ha \
+	$(STDLIB)/time/+$(PLATFORM)/functions.ha \
+	$(STDLIB)/time/+$(PLATFORM)/+$(ARCH).ha \
 	$(STDLIB)/time/arithm.ha \
 	$(STDLIB)/time/types.ha
 
@@ -2442,7 +2442,7 @@ testlib_types_srcs= \
 	$(STDLIB)/types/classes.ha \
 	$(STDLIB)/types/reflect.ha \
 	$(STDLIB)/types/util.ha \
-	$(STDLIB)/types/arch$(ARCH).ha \
+	$(STDLIB)/types/arch+$(ARCH).ha \
 	$(STDLIB)/types/util+test.ha
 
 $(TESTCACHE)/types/types.ssa: $(testlib_types_srcs) $(testlib_rt)
@@ -2453,9 +2453,9 @@ $(TESTCACHE)/types/types.ssa: $(testlib_types_srcs) $(testlib_rt)
 
 # unix
 testlib_unix_srcs= \
-	$(STDLIB)/unix/$(PLATFORM)/nice.ha \
-	$(STDLIB)/unix/$(PLATFORM)/pipe.ha \
-	$(STDLIB)/unix/$(PLATFORM)/umask.ha \
+	$(STDLIB)/unix/+$(PLATFORM)/nice.ha \
+	$(STDLIB)/unix/+$(PLATFORM)/pipe.ha \
+	$(STDLIB)/unix/+$(PLATFORM)/umask.ha \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
@@ -2489,7 +2489,7 @@ $(TESTCACHE)/unix/passwd/unix_passwd.ssa: $(testlib_unix_passwd_srcs) $(testlib_
 
 # unix::poll
 testlib_unix_poll_srcs= \
-	$(STDLIB)/unix/poll/$(PLATFORM).ha
+	$(STDLIB)/unix/poll/+$(PLATFORM).ha
 
 $(TESTCACHE)/unix/poll/unix_poll.ssa: $(testlib_unix_poll_srcs) $(testlib_rt) $(testlib_rt) $(testlib_errors) $(testlib_time)
 	@printf 'HAREC \t$@\n'
@@ -2510,9 +2510,9 @@ $(TESTCACHE)/unix/resolvconf/unix_resolvconf.ssa: $(testlib_unix_resolvconf_srcs
 # unix::tty
 testlib_unix_tty_srcs= \
 	$(STDLIB)/unix/tty/types.ha \
-	$(STDLIB)/unix/tty/$(PLATFORM)/isatty.ha \
-	$(STDLIB)/unix/tty/$(PLATFORM)/open.ha \
-	$(STDLIB)/unix/tty/$(PLATFORM)/winsize.ha
+	$(STDLIB)/unix/tty/+$(PLATFORM)/isatty.ha \
+	$(STDLIB)/unix/tty/+$(PLATFORM)/open.ha \
+	$(STDLIB)/unix/tty/+$(PLATFORM)/winsize.ha
 
 $(TESTCACHE)/unix/tty/unix_tty.ssa: $(testlib_unix_tty_srcs) $(testlib_rt) $(testlib_rt) $(testlib_fs) $(testlib_io) $(testlib_os)
 	@printf 'HAREC \t$@\n'
