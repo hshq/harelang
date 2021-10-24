@@ -9,12 +9,29 @@ mod_var() {
 }
 
 gen_srcs() {
+	platform=any
+	while getopts p: name
+	do
+		case $name in
+		p)
+			platform="$OPTARG"
+			;;
+		?)
+			printf 'Invalid use of gen_srcs' >&2
+			exit 1
+			;;
+		esac
+	done
+	shift $(($OPTIND - 1))
+
 	mod="$1"
+	shift
+
 	path="$(mod_path "$mod")"
 	var="$(mod_var "$mod")"
-	shift
-	printf '# %s\n' "$mod"
-	printf '%s_srcs= \\\n' "$var"
+
+	printf '# %s (+%s)\n' "$mod" "$platform"
+	printf '%s_%s_srcs= \\\n' "$var" "$platform"
 	while [ $# -ne 0 ]
 	do
 		if [ $# -eq 1 ]
@@ -28,13 +45,29 @@ gen_srcs() {
 }
 
 gen_ssa() {
+	platform=any
+	while getopts p: name
+	do
+		case $name in
+		p)
+			platform="$OPTARG"
+			;;
+		?)
+			printf 'Invalid use of gen_srcs' >&2
+			exit 1
+			;;
+		esac
+	done
+	shift $(($OPTIND - 1))
+
 	mod="$1"
+	shift
+
 	path=$(mod_path "$mod")
 	file=$(mod_file "$mod")
 	var=$(mod_var "$mod")
-	shift
 
-	printf "\$($cache)/$path/$file.ssa: \$(${var}_srcs) \$(${stdlib}_rt)"
+	printf "\$($cache)/$path/$file-$platform.ssa: \$(${var}_${platform}_srcs) \$(${stdlib}_rt)"
 	for dep in $*
 	do
 		printf ' $(%s)' "$(mod_var "$dep")"
@@ -45,18 +78,34 @@ gen_ssa() {
 	@printf 'HAREC \t\$@\n'
 	@mkdir -p \$($cache)/$path
 	@HARECACHE=\$($cache) \$(HAREC) \$($flags) -o \$@ -N$mod \\
-		-t\$($cache)/$path/$file.td \$(${var}_srcs)
+		-t\$($cache)/$path/$file.td \$(${var}_${platform}_srcs)
 
 EOF
 }
 
 gen_lib() {
-	printf "# gen_lib $1\n"
+	platform=any
+	while getopts p: name
+	do
+		case $name in
+		p)
+			platform="$OPTARG"
+			;;
+		?)
+			printf 'Invalid use of gen_srcs' >&2
+			exit 1
+			;;
+		esac
+	done
+	shift $(($OPTIND - 1))
+
+	printf "# gen_lib $1 ($platform)\n"
+
 	mod="$1"
 	path=$(mod_path "$mod")
 	file=$(mod_file "$mod")
 	var=$(mod_var "$mod")
-	printf "%s=\$(%s)/%s/%s.o\n" "$var" "$cache" "$path" "$file"
+	printf "%s=\$(%s)/%s/%s-%s.o\n" "$var" "$cache" "$path" "$file" "$platform"
 	printf 'hare_%s_deps+=$(%s)\n\n' "$stdlib" "$var"
 }
 

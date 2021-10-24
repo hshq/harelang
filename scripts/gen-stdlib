@@ -15,20 +15,20 @@ srcdir="$(dirname "$0")"
 eval ". $srcdir/gen-stdlib.sh"
 
 gensrcs_rt() {
-	gen_srcs rt \
-		'+$(PLATFORM)/abort.ha' \
-		'+$(PLATFORM)/env.ha' \
-		'+$(PLATFORM)/errno.ha' \
-		'+$(PLATFORM)/types.ha' \
-		'+$(PLATFORM)/segmalloc.ha' \
-		'+$(PLATFORM)/platformstart.ha' \
-		'+$(PLATFORM)/prctl.ha' \
-		'+$(PLATFORM)/+$(ARCH).ha' \
-		'+$(PLATFORM)/syscallno+$(ARCH).ha' \
-		'+$(PLATFORM)/syscalls.ha' \
-		'+$(PLATFORM)/signal.ha' \
-		'+$(PLATFORM)/stat.ha' \
-		'+$(PLATFORM)/socket.ha' \
+	gen_srcs -plinux rt \
+		'+linux/abort.ha' \
+		'+linux/env.ha' \
+		'+linux/errno.ha' \
+		'+linux/types.ha' \
+		'+linux/segmalloc.ha' \
+		'+linux/platformstart.ha' \
+		'+linux/prctl.ha' \
+		'+linux/+$(ARCH).ha' \
+		'+linux/syscallno+$(ARCH).ha' \
+		'+linux/syscalls.ha' \
+		'+linux/signal.ha' \
+		'+linux/stat.ha' \
+		'+linux/socket.ha' \
 		'+$(ARCH)/jmp.ha' \
 		'+$(ARCH)/backtrace.ha' \
 		'types_arch+$(ARCH).ha' \
@@ -60,7 +60,7 @@ rt() {
 			+test/run.ha \
 			+test/ztos.ha
 	fi
-	gen_ssa rt
+	gen_ssa -plinux rt
 	cat <<EOF
 \$($cache)/rt/start.o: \$(STDLIB)/rt/+\$(PLATFORM)/start+\$(ARCH).s
 	@printf 'AS \t\$@\n'
@@ -99,11 +99,11 @@ ${stdlib}_asm=\$($cache)/rt/syscall.o \\
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$<
 
-\$($cache)/rt/rt.a: \$($cache)/rt/rt.o \$(${stdlib}_asm)
+\$($cache)/rt/rt-linux.a: \$($cache)/rt/rt-linux.o \$(${stdlib}_asm)
 	@printf 'AR\t\$@\n'
-	@\$(AR) -csr \$@ \$($cache)/rt/rt.o \$(${stdlib}_asm)
+	@\$(AR) -csr \$@ \$($cache)/rt/rt-linux.o \$(${stdlib}_asm)
 
-${stdlib}_rt=\$($cache)/rt/rt.a
+${stdlib}_rt=\$($cache)/rt/rt-\$(PLATFORM).a
 hare_${stdlib}_deps+=\$(${stdlib}_rt)
 
 EOF
@@ -180,10 +180,10 @@ crypto_math() {
 }
 
 crypto_random() {
-	gen_srcs crypto::random \
-		'+$(PLATFORM).ha' \
+	gen_srcs -plinux crypto::random \
+		+linux.ha \
 		random.ha
-	gen_ssa crypto::random rt io errors
+	gen_ssa -plinux crypto::random rt io errors
 }
 
 gensrcs_crypto_sha256() {
@@ -543,19 +543,19 @@ hash_fnv() {
 }
 
 gensrcs_io() {
-	gen_srcs io \
+	gen_srcs -plinux io \
 		'arch+$(ARCH).ha' \
+		println+linux.ha \
+		+linux/file.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \
 		filestream.ha \
 		handle.ha \
 		limit.ha \
-		'println+$(PLATFORM).ha' \
 		stream.ha \
 		tee.ha \
 		types.ha \
-		'+$(PLATFORM)/file.ha' \
 		$*
 }
 
@@ -569,47 +569,47 @@ io() {
 			+test/limit.ha \
 			+test/stream.ha
 	fi
-	gen_ssa io strings errors
+	gen_ssa -plinux io strings errors
 }
 
 iobus_io_uring() {
-	gen_srcs iobus::io_uring \
+	gen_srcs -plinux iobus::io_uring \
 		bus.ha \
 		handle.ha \
 		ops.ha \
 		pool.ha \
 		types.ha
-	gen_ssa iobus::io_uring errors io linux::io_uring net::ip unix::poll
+	gen_ssa -plinux iobus::io_uring errors io linux::io_uring net::ip unix::poll
 }
 
 linux() {
-	gen_srcs linux \
+	gen_srcs -plinux linux \
 		start.ha \
 		env.ha
-	gen_ssa linux format::elf
+	gen_ssa -plinux linux format::elf
 }
 
 linux_signalfd() {
-	gen_srcs linux::signalfd \
+	gen_srcs -plinux linux::signalfd \
 		signalfd.ha
-	gen_ssa linux::signalfd errors
+	gen_ssa -plinux linux::signalfd errors
 }
 
 linux_io_uring() {
-	gen_srcs linux::io_uring \
+	gen_srcs -plinux linux::io_uring \
 		cqe.ha \
 		queue.ha \
 		register.ha \
 		setup.ha \
 		sqe.ha \
 		uring.ha
-	gen_ssa linux::io_uring errors types
+	gen_ssa -plinux linux::io_uring errors types
 }
 
 linux_vdso() {
-	gen_srcs linux::vdso \
+	gen_srcs -plinux linux::vdso \
 		vdso.ha
-	gen_ssa linux::vdso linux strings format::elf
+	gen_ssa -plinux linux::vdso linux strings format::elf
 }
 
 gensrcs_math() {
@@ -619,7 +619,6 @@ gensrcs_math() {
 }
 
 math() {
-	printf '# math\n'
 	if [ $testing -eq 0 ]; then
 		gensrcs_math
 	else
@@ -629,16 +628,14 @@ math() {
 }
 
 net() {
-	printf '# net\n'
-	gen_srcs net \
-		'+$(PLATFORM).ha' \
+	gen_srcs -plinux net \
+		+linux.ha \
 		errors.ha \
 		listener.ha
-	gen_ssa net io os strings net::ip errors rt fmt
+	gen_ssa -plinux net io os strings net::ip errors rt fmt
 }
 
 net_dial() {
-	printf '# net::dial\n'
 	gen_srcs net::dial \
 		registry.ha \
 		dial.ha \
@@ -649,7 +646,6 @@ net_dial() {
 }
 
 net_dns() {
-	printf '# net::dns\n'
 	gen_srcs net::dns \
 		decode.ha \
 		error.ha \
@@ -661,9 +657,9 @@ net_dns() {
 }
 
 gensrcs_net_ip() {
-	gen_srcs net::ip \
+	gen_srcs -plinux net::ip \
 		ip.ha \
-		'+$(PLATFORM).ha' \
+		+linux.ha \
 		$*
 }
 
@@ -675,35 +671,32 @@ net_ip() {
 		gensrcs_net_ip \
 			+test.ha
 	fi
-	gen_ssa net::ip bytes io strconv strings strio fmt
+	gen_ssa -plinux net::ip bytes io strconv strings strio fmt
 }
 
 net_tcp() {
-	printf '# net::tcp\n'
-	gen_srcs net::tcp \
-		'+$(PLATFORM).ha' \
+	gen_srcs -plinux net::tcp \
+		+linux.ha \
 		listener.ha \
 		options.ha
-	gen_ssa net::tcp io net net::ip os rt
+	gen_ssa -plinux net::tcp io net net::ip os rt
 }
 
 net_udp() {
-	printf '# net::udp\n'
-	gen_srcs net::udp \
-		'+$(PLATFORM).ha' \
+	gen_srcs -plinux net::udp \
+		+linux.ha \
 		options.ha
-	gen_ssa net::udp net net::ip errors rt os io
+	gen_ssa -plinux net::udp net net::ip errors rt os io
 }
 
 net_unix() {
-	printf '# net::unix\n'
-	gen_srcs net::unix \
-		'+$(PLATFORM).ha' \
+	gen_srcs -plinux net::unix \
+		+linux.ha \
 		addr.ha \
 		dial.ha \
 		listener.ha \
 		options.ha
-	gen_ssa net::unix net errors os io strings types fmt net::dial
+	gen_ssa -plinux net::unix net errors os io strings types fmt net::dial
 }
 
 math_random() {
@@ -713,23 +706,23 @@ math_random() {
 }
 
 os() {
-	gen_srcs os \
-		'+$(PLATFORM)/environ.ha' \
-		'+$(PLATFORM)/exit.ha' \
-		'+$(PLATFORM)/dirfdfs.ha' \
-		'+$(PLATFORM)/stdfd.ha' \
-		'+$(PLATFORM)/fs.ha' \
+	gen_srcs -plinux os \
+		+linux/environ.ha \
+		+linux/exit.ha \
+		+linux/dirfdfs.ha \
+		+linux/stdfd.ha \
+		+linux/fs.ha \
 		fs.ha
-	gen_ssa os io strings types fs encoding::utf8 bytes bufio errors
+	gen_ssa -plinux os io strings types fs encoding::utf8 bytes bufio errors
 }
 
 os_exec() {
-	gen_srcs os::exec \
-		'exec+$(PLATFORM).ha' \
-		'process+$(PLATFORM).ha' \
+	gen_srcs -plinux os::exec \
+		exec+linux.ha \
+		process+linux.ha \
 		types.ha \
 		cmd.ha
-	gen_ssa os::exec os strings fmt bytes path errors
+	gen_ssa -plinux os::exec os strings fmt bytes path errors
 }
 
 path() {
@@ -817,19 +810,19 @@ strio() {
 	gen_ssa strio io strings encoding::utf8 errors
 }
 
-time() {
-	gen_srcs time \
-		'+$(PLATFORM)/functions.ha' \
-		'+$(PLATFORM)/+$(ARCH).ha' \
-		arithm.ha \
-		types.ha
-	gen_ssa time linux::vdso
+temp() {
+	gen_srcs -plinux temp +linux.ha
+	gen_ssa -plinux temp \
+		crypto::random encoding::hex fs io os path strio fmt strings
 }
 
-temp() {
-	gen_srcs temp \
-		'+$(PLATFORM).ha'
-	gen_ssa temp crypto::random encoding::hex fs io os path strio fmt strings
+time() {
+	gen_srcs -plinux time \
+		+linux/functions.ha \
+		+linux/+'$(ARCH)'.ha \
+		arithm.ha \
+		types.ha
+	gen_ssa -plinux time linux::vdso
 }
 
 gensrcs_types() {
@@ -854,13 +847,13 @@ types() {
 
 unix() {
 	# XXX: getuid and setuid are probably platform-specific too
-	gen_srcs unix \
-		'+$(PLATFORM)/nice.ha' \
-		'+$(PLATFORM)/pipe.ha' \
-		'+$(PLATFORM)/umask.ha' \
+	gen_srcs -plinux unix \
+		+linux/nice.ha \
+		+linux/pipe.ha \
+		+linux/umask.ha \
 		getuid.ha \
 		setuid.ha
-	gen_ssa unix errors fs
+	gen_ssa -plinux unix errors fs
 }
 
 unix_hosts() {
@@ -878,9 +871,8 @@ unix_passwd() {
 }
 
 unix_poll() {
-	gen_srcs unix::poll \
-		'+$(PLATFORM)'.ha
-	gen_ssa unix::poll rt errors time
+	gen_srcs -plinux unix::poll +linux.ha
+	gen_ssa -plinux unix::poll rt errors time
 }
 
 unix_resolvconf() {
@@ -890,12 +882,12 @@ unix_resolvconf() {
 }
 
 unix_tty() {
-	gen_srcs unix::tty \
+	gen_srcs -plinux unix::tty \
         types.ha \
-		'+$(PLATFORM)/isatty.ha' \
-		'+$(PLATFORM)/open.ha' \
-		'+$(PLATFORM)/winsize.ha'
-	gen_ssa unix::tty rt fs io os
+		+linux/isatty.ha \
+		+linux/open.ha \
+		+linux/winsize.ha
+	gen_ssa -plinux unix::tty rt fs io os
 }
 
 uuid() {
@@ -906,6 +898,9 @@ uuid() {
 
 printf '# This file is generated by the gen-stdlib script, do not edit it by hand\n\n'
 
+# List of modules and their supported platforms. Place a tab between the module
+# and its platform list, and spaces between each supported platform. Omitting
+# the platform list implies all platforms are supported.
 modules="ascii
 bufio
 bytes
@@ -913,7 +908,7 @@ compress::flate
 compress::zlib
 crypto::blake2b
 crypto::math
-crypto::random
+crypto::random	linux
 crypto::md5
 crypto::sha1
 crypto::sha256
@@ -945,47 +940,72 @@ hash::crc16
 hash::crc32
 hash::crc64
 hash::fnv
-io
-iobus::io_uring
-linux
-linux::signalfd
-linux::io_uring
-linux::vdso
+io				linux
+iobus::io_uring	linux
+linux			linux
+linux::signalfd	linux
+linux::io_uring	linux
+linux::vdso		linux
 math
-net
+net				linux
 net::dial
 net::dns
-net::ip
-net::tcp
-net::udp
-net::unix
+net::ip			linux
+net::tcp		linux
+net::udp		linux
+net::unix		linux
 math::random
-os
-os::exec
+os				linux
+os::exec		linux
 path
 slice
 sort
 strconv
 strings
 strio
-temp
-time
+temp			linux
+time			linux
 types
-unix
+unix			linux
 unix::hosts
 unix::passwd
-unix::poll
+unix::poll		linux
 unix::resolvconf
-unix::tty
+unix::tty		linux
 uuid"
 stdlib() {
 	rt
+	IFS="
+"
 	for module in $modules; do
-		gen_lib "$module"
+		unset IFS
+		if [ -z "$(echo "$module" | cut -sf1)" ]
+		then
+			gen_lib "$module"
+		else
+			platforms="$(echo "$module" | cut -sf2-)"
+			module="$(echo "$module" | cut -sf1)"
+			for platform in $platforms
+			do
+				gen_lib -p "$platform" "$module"
+			done
+		fi
+		IFS="
+"
 	done
+	IFS="
+"
 	for module in $modules; do
+		unset IFS
+		if [ -n "$(echo "$module" | cut -sf1)" ]
+		then
+			module="$(echo "$module" | cut -sf1)"
+		fi
 		"$(mod_file "$module")"
+		IFS="
+"
 	done
+	unset IFS
 }
 
 genrules
