@@ -1,7 +1,6 @@
 use endian;
 use rt;
 use types;
-use fmt;
 
 fn prep(sq: *sqe, op: op, flags: flags...) void = {
 	rt::memset(sq, 0, size(sqe));
