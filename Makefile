@@ -60,7 +60,7 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(hare_testlib_deps)
 .bin/hare: $(HARECACHE)/hare.o
 	@mkdir -p .bin
 	@printf 'LD\t$@\n'
-	@$(LD) -T $(rtscript) --gc-sections -o $@ \
+	@$(LD) --gc-sections -T $(rtscript) -o $@ \
 		$(HARECACHE)/hare.o $(hare_stdlib_deps)
 
 .bin/hare-tests: $(TESTCACHE)/hare.o
