@@ -164,6 +164,7 @@ fn scan_directory(
 			append(dirs, strings::dup(ent.name));
 		case fs::mode::REG =>
 			append(files, strings::dup(ent.name));
+		case => abort();
 		};
 	};
 

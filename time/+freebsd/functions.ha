@@ -1,5 +1,4 @@
 use rt;
-use linux::vdso;
 
 // Converts a [[duration]] to an [[rt::timespec]]. This function is
 // non-portable.
@@ -58,54 +57,26 @@ export type clock = enum {
 	// epoch and is not affected by leap seconds, NTP adjustments, and
 	// changes to the system time: it always increases by one second per
 	// second.
-	MONOTONIC = 1,
+	MONOTONIC = 4,
 
-	// Measures CPU time consumed by the calling process.
-	PROCESS_CPU = 2,
-
-	// Time since the system was booted. Increases monotonically and, unlike
-	// [[MONOTONIC]], continues to tick while the system is suspended.
-	BOOT = 7,
-};
-
-fn cgt_vdso() nullable *fn(_: int, _: *rt::timespec) int = {
-	static let vdso_checked: bool = false;
-	static let cgt_vdso: nullable *fn(_: int, _: *rt::timespec) int = null;
-	if (vdso_checked) {
-		return cgt_vdso;
-	};
-	vdso_checked = true;
-	cgt_vdso = vdso::getsym(VDSO_CGT_SYM, VDSO_CGT_VER):
-		nullable *fn(_: int, _: *rt::timespec) int;
-	return cgt_vdso;
-};
-
-fn now_vdso(clock: clock, tp: *rt::timespec) (void | rt::errno) = {
-	const vfn = match (cgt_vdso()) {
-	case null =>
-		return rt::wrap_errno(rt::ENOSYS);
-	case vfn: *fn(_: int, _: *rt::timespec) int =>
-		yield vfn;
-	};
-	const ret = vfn(clock, tp);
-	if (ret == 0) {
-		return;
-	};
-	return rt::wrap_errno(ret);
+	// TODO: Document these
+	VIRTUAL = 1,
+	PROF = 2,
+	UPTIME = 5,
+	UPTIME_PRECISE = 7,
+	UPTIME_FAST = 8,
+	REALTIME_PRECISE = 9,
+	REALTIME_FAST = 10,
+	MONOTONIC_PRECISE = 11,
+	MONOTONIC_FAST = 12,
+	SECOND = 13,
+	THREAD_CPUTIME_ID = 14,
+	PROCESS_CPUTIME_ID = 15,
 };
 
 // Returns the current time for a given clock.
 export fn now(clock: clock) instant = {
 	let tp = rt::timespec { ... };
-	let err = match (now_vdso(clock, &tp)) {
-	case void =>
-		return timespec_to_instant(tp);
-	case err: rt::errno =>
-		yield err;
-	};
-	if (err != rt::wrap_errno(rt::ENOSYS)) {
-		abort("Unexpected error from clock_gettime");
-	};
 	match (rt::clock_gettime(clock, &tp)) {
 	case void =>
 		return timespec_to_instant(tp);

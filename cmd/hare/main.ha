@@ -1,5 +1,6 @@
 use getopt;
 use os;
+use fmt;
 
 def VERSION: str = "unknown";
 def PLATFORM: str = "unknown";

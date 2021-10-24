@@ -41,7 +41,7 @@ haredoc_srcs=\
 	./cmd/haredoc/sort.ha \
 	./cmd/haredoc/resolver.ha
 
-$(HARECACHE)/hare.ssa: $(hare_srcs) $(hare_stdlib_deps)
+$(HARECACHE)/hare.ssa: $(hare_srcs) $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM))
 	@printf 'HAREC\t$@\n'
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) \
 		-D PLATFORM:str='"'"$$(./scripts/platform)"'"' \
@@ -49,7 +49,7 @@ $(HARECACHE)/hare.ssa: $(hare_srcs) $(hare_stdlib_deps)
 		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
 		-o $@ $(hare_srcs)
 
-$(TESTCACHE)/hare.ssa: $(hare_srcs) $(hare_testlib_deps)
+$(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFORM))
 	@printf 'HAREC\t$@\n'
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) \
 		-D PLATFORM:str='"'"$$(./scripts/platform)"'"' \
@@ -61,13 +61,13 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(hare_testlib_deps)
 	@mkdir -p .bin
 	@printf 'LD\t$@\n'
 	@$(LD) --gc-sections -T $(rtscript) -o $@ \
-		$(HARECACHE)/hare.o $(hare_stdlib_deps)
+		$(HARECACHE)/hare.o $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM))
 
 .bin/hare-tests: $(TESTCACHE)/hare.o
 	@mkdir -p .bin
 	@printf 'LD\t$@\n'
 	@$(LD) -T $(rtscript) -o $@ \
-		$(TESTCACHE)/hare.o $(hare_testlib_deps)
+		$(TESTCACHE)/hare.o $(testlib_deps_any) $(testlib_deps_$(PLATFORM))
 
 .bin/harec: .bin/hare $(harec_srcs)
 	@mkdir -p .bin

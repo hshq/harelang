@@ -4,6 +4,9 @@ case $(uname) in
 	Linux)
 		platform="linux"
 		;;
+	FreeBSD)
+		platform="freebsd"
+		;;
 	*)
 		printf "Warning: unknown target %s\n" "$(uname)" >&2
 		platform="unknown"
