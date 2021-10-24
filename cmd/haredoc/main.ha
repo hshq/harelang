@@ -184,6 +184,10 @@ export fn main() void = {
 };
 
 fn has_decl(decl: ast::decl, name: str) bool = {
+	if (!decl.exported) {
+		return false;
+	};
+
 	match (decl.decl) {
 	case d: []ast::decl_const =>
 		for (let i = 0z; i < len(d); i += 1) {
