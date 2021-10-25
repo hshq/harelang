@@ -25,6 +25,7 @@ export fn new() (*bus | error) = {
 // Destroys an I/O bus.
 export fn destroy(bus: *bus) void = {
 	io_uring::finish(&bus.uring);
+	free(bus);
 };
 
 // Returns an [[io::file]] for the bus itself.
