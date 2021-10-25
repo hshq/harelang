@@ -10,9 +10,24 @@ export type pool = struct {
 
 export type buffer = u16;
 
-// Creates a new buffer pool for use with read operations. The buffer argument
-// must be a slice whose length is divisible by bufsz, thus providing a buffer
-// pool of N buffers where N is len(buffer) / bufsz.
+// Creates a new buffer pool for use with read operations. The user can request
+// pool use for an I/O request via [[setpool]], and the host will select a
+// suitable buffer from the pool to perform the read request. The selected
+// buffer can be determined from the [[result]] using [[getbuffer]]. The user
+// should, after processing the results of the I/O operation, return the buffer
+// to the pool with [[release]]. If no buffers were available, [[endread]] (or
+// whichever "end" function is appropriate) will return [[nobuffers]]; in this
+// case the user should release some buffers and re-submit the read later.
+//
+// The utility of this functionality is that the user may submit more reads than
+// they have buffers allocated. For instance, a network server may allocate a
+// pool of X buffers for reads, and submit reads for Y client connections, where
+// X < Y. This allows the server software to support more connections without a
+// corresponding increase in RAM utilization, albiet at the cost of limiting
+// active connections to the number of available buffers.
+//
+// The buffer argument must be a slice whose length is divisible by bufsz, thus
+// providing a buffer pool of N buffers where N is len(buffer) / bufsz.
 export fn newpool(
 	bus: *bus,
 	buffer: []u8,
@@ -52,14 +67,14 @@ export fn setpool(handle: *handle, pool: pool) void = {
 //
 // Note that I/O operations which completed with an error condition will not
 // have a buffer assigned, even if [[setpool]] was called for the original
-// handle. You must test for errors prior to calling [[getbuffer]] to avoid an
-// assertion failure.
+// handle. You must thus test for errors prior to calling [[getbuffer]], or risk
+// causing an assertion failure.
 export fn getbuffer(pool: *pool, result: result) (buffer, []u8) = {
 	let buf: buffer = io_uring::get_buffer_id(result);
 	return (buf, pool.buffer[(buf * pool.bufsz)..((buf + 1) * pool.bufsz)]);
 };
 
-// Returns a buffer from [[getbuffer]] back to the buffer pool.
+// Returns a buffer from [[getbuffer]] back to the buffer pool for future reads.
 export fn release(pool: *pool, buf: buffer) (void | queuefull) = {
 	let sqe = getsqe(pool.bus)?;
 	io_uring::provide_buffers(sqe, pool.group,
