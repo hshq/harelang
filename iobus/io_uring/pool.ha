@@ -49,6 +49,11 @@ export fn setpool(handle: *handle, pool: pool) void = {
 // caller should provide the buffer from the return value to [[release]] when
 // done to return it to the host for future requests. After calling [[release]],
 // the slice reference is no longer valid.
+//
+// Note that I/O operations which completed with an error condition will not
+// have a buffer assigned, even if [[setpool]] was called for the original
+// handle. You must test for errors prior to calling [[getbuffer]] to avoid an
+// assertion failure.
 export fn getbuffer(pool: *pool, result: result) (buffer, []u8) = {
 	let buf: buffer = io_uring::get_buffer_id(result);
 	return (buf, pool.buffer[(buf * pool.bufsz)..((buf + 1) * pool.bufsz)]);
