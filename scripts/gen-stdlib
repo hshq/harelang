@@ -948,7 +948,7 @@ types() {
 		gensrcs_types
 	else
 		gensrcs_types \
-			util+test.ha
+			+test.ha
 	fi
 	gen_ssa types
 }

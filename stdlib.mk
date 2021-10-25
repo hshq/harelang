@@ -3158,7 +3158,7 @@ testlib_types_any_srcs= \
 	$(STDLIB)/types/reflect.ha \
 	$(STDLIB)/types/util.ha \
 	$(STDLIB)/types/arch+$(ARCH).ha \
-	$(STDLIB)/types/util+test.ha
+	$(STDLIB)/types/+test.ha
 
 $(TESTCACHE)/types/types-any.ssa: $(testlib_types_any_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
