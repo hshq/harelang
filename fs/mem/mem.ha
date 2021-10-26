@@ -17,7 +17,7 @@ type directory = struct {
 type file = []u8;
 
 type inode = struct {
-	fs: fs::fs,
+	fs::fs,
 	data: (directory | file),
 	name: str,
 	hash: u64,
@@ -27,27 +27,11 @@ type inode = struct {
 };
 
 type iterator = struct {
-	it: fs::iterator,
+	fs::iterator,
 	parent: *inode,
 	curr: nullable *inode,
 	idx: size,
 };
-
-const inode_iface: fs::fs = fs::fs {
-	close = &close,
-	create = &create,
-	iter = &iter,
-	mkdir = &mkdir,
-	mksubdir = &mksubdir,
-	open = &open,
-	remove = &remove,
-	rmdir = &rmdir,
-	stat = &stat,
-	subdir = &subdir,
-	...
-};
-
-const fs_iter: fs::iterator = fs::iterator { next = &next, };
 
 const supported_flags: fs::flags = (
 	fs::flags::RDONLY |
@@ -60,12 +44,22 @@ const supported_flags: fs::flags = (
 // number of handles to the same directory simultaneously are allowed. Supports
 // any number of readers or one writer at the same time on a file.
 export fn memopen() *fs::fs = alloc(inode {
-	fs = inode_iface,
+	close = &close,
+	create = &create,
+	iter = &iter,
+	mkdir = &mkdir,
+	mksubdir = &mksubdir,
+	open = &open,
+	remove = &remove,
+	rmdir = &rmdir,
+	stat = &stat,
+	subdir = &subdir,
+
 	data = empty_dir(),
 	name = "",
 	opencount = 1,
 	parent = null,
-}): *fs::fs;
+});
 
 fn file_flags(flags: fs::flags...) ((io::mode, bool) | fs::error) = {
 	let fl: fs::flags = 0;
@@ -164,7 +158,17 @@ fn mksubdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 	};
 	let name = strings::dup(path::basename(path));
 	let ino = alloc(inode {
-		fs = inode_iface,
+		close = &close,
+		create = &create,
+		iter = &iter,
+		mkdir = &mkdir,
+		mksubdir = &mksubdir,
+		open = &open,
+		remove = &remove,
+		rmdir = &rmdir,
+		stat = &stat,
+		subdir = &subdir,
+
 		data = empty_dir(),
 		name = name,
 		hash = hash_of(name),
@@ -172,7 +176,7 @@ fn mksubdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 		parent = parent,
 	});
 	inode_insert(parent, ino);
-	return ino: *fs::fs;
+	return ino;
 };
 
 fn subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
@@ -181,7 +185,7 @@ fn subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 		return fs::wrongtype;
 	};
 	ino.opencount += 1;
-	return ino: *fs::fs;
+	return ino;
 };
 
 fn iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
@@ -191,11 +195,11 @@ fn iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 	};
 	let p = ino.data: directory;
 	return alloc(iterator {
-		it = fs::iterator { next = &next, },
+		next = &next,
 		parent = ino,
 		idx = 0,
 		curr = p.ents[0],
-	}): *fs::iterator;
+	});
 };
 
 fn next(iter: *fs::iterator) (fs::dirent | void) = {
@@ -269,8 +273,8 @@ fn close_rec(ino: *inode) void = {
 	if (ino.opencount != 0 || ino.parent != null) {
 		return;
 	};
-	let it = iterator { it = fs_iter, parent = ino, ... };
-	for (true) match (_next(&it: *fs::iterator)) {
+	let it = iterator { next = &next, parent = ino, ... };
+	for (true) match (_next(&it)) {
 	case null =>
 		break;
 	case ino: *inode =>

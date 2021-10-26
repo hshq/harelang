@@ -5,7 +5,7 @@ use io;
 use types;
 
 type stream = struct {
-	stream: io::stream,
+	io::stream,
 	source: *io::stream,
 	inode: *inode,
 	appnd: bool,
@@ -18,25 +18,22 @@ fn stream_open(
 ) (*io::stream | fs::error) = {
 	let f = ino.data as file;
 	let s = alloc(stream {
-		stream = io::stream {
-			closer = &stream_close,
-			seeker = &seek,
-			...
-		},
+		closer = &stream_close,
+		seeker = &seek,
 		inode = ino,
 		appnd = appnd,
 		...
 	});
 	if (mode & io::mode::WRITE == 0) {
 		assert(mode & io::mode::READ == io::mode::READ);
-		s.stream.reader = &read;
+		s.reader = &read;
 		if (ino.opencount == types::SIZE_MAX) {
 			return errors::busy;
 		};
 		ino.opencount += 1;
 		s.source = bufio::fixed(f, io::mode::READ);
 	} else {
-		s.stream.writer = &write;
+		s.writer = &write;
 		if (ino.opencount != 0) {
 			return errors::busy;
 		};
@@ -47,7 +44,7 @@ fn stream_open(
 		};
 	};
 	io::seek(s.source, 0, io::whence::SET)?;
-	return &s.stream;
+	return s;
 };
 
 fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
@@ -71,7 +68,7 @@ fn seek(s: *io::stream, off: io::off, w: io::whence) (io::off | io::error) = {
 fn stream_close(s: *io::stream) void = {
 	let s = s: *stream;
 	defer free(s);
-	if (s.stream.writer == null) {
+	if (s.writer == null) {
 		io::close(s.source);
 		s.inode.opencount -= 1;
 		if (s.inode.opencount > 0) {
