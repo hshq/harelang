@@ -57,6 +57,7 @@ export fn memopen() *fs::fs = alloc(inode {
 
 	data = empty_dir(),
 	name = "",
+	hash = hash_of(""),
 	opencount = 1,
 	parent = null,
 });
@@ -91,20 +92,15 @@ fn create(
 ) (io::handle | fs::error) = {
 	let t = file_flags(flags...)?;
 	let mode = t.0, appnd = t.1;
-
-	let parent = fs: *inode;
-	match (inode_find(parent, path)) {
+	let parent = inode_find(fs: *inode, path::dirname(path))?;
+	let name = path::basename(path);
+	match (inode_find(parent, name)) {
 	case errors::noentry => void;
 	case =>
 		return errors::exists;
 	};
-	if (path::dirname(path) != ".") {
-		parent = inode_find(parent, path::dirname(path))?;
-	};
-
-	let name = strings::dup(path::basename(path));
 	let ino = alloc(inode {
-		name = name,
+		name = strings::dup(name),
 		hash = hash_of(name),
 		data = []: []u8,
 		parent = parent,
@@ -121,10 +117,12 @@ fn open(
 	let t = file_flags(flags...)?;
 	let mode = t.0, appnd = t.1;
 	let ino = inode_find(fs: *inode, path)?;
-	if (ino.data is directory) {
+	match (ino.data) {
+	case directory =>
 		return fs::wrongtype;
+	case file =>
+		return stream_open(ino, mode, appnd)?;
 	};
-	return stream_open(ino, mode, appnd)?;
 };
 
 fn stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
@@ -143,20 +141,16 @@ fn stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 fn mkdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	let ino = mksubdir(fs, path)?: *inode;
 	ino.opencount = 0;
-	return void;
 };
 
 fn mksubdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
-	let parent = fs: *inode;
-	match (inode_find(parent, path)) {
+	let parent = inode_find(fs: *inode, path::dirname(path))?;
+	let name = path::basename(path);
+	match (inode_find(parent, name)) {
 	case errors::noentry => void;
 	case =>
 		return errors::exists;
 	};
-	if (path::dirname(path) != ".") {
-		parent = inode_find(parent, path::dirname(path))?;
-	};
-	let name = strings::dup(path::basename(path));
 	let ino = alloc(inode {
 		close = &close,
 		create = &create,
@@ -170,7 +164,7 @@ fn mksubdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 		subdir = &subdir,
 
 		data = empty_dir(),
-		name = name,
+		name = strings::dup(name),
 		hash = hash_of(name),
 		opencount = 1,
 		parent = parent,
@@ -181,25 +175,28 @@ fn mksubdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 
 fn subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 	let ino = inode_find(fs: *inode, path)?;
-	if (!(ino.data is directory)) {
+	match (ino.data) {
+	case directory =>
+		ino.opencount += 1;
+		return ino;
+	case file =>
 		return fs::wrongtype;
 	};
-	ino.opencount += 1;
-	return ino;
 };
 
 fn iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 	let ino = inode_find(fs: *inode, path)?;
-	if (!(ino.data is directory)) {
+	match (ino.data) {
+	case d: directory =>
+		return alloc(iterator {
+			next = &next,
+			parent = ino,
+			idx = 0,
+			curr = d.ents[0],
+		});
+	case file =>
 		return fs::wrongtype;
 	};
-	let p = ino.data: directory;
-	return alloc(iterator {
-		next = &next,
-		parent = ino,
-		idx = 0,
-		curr = p.ents[0],
-	});
 };
 
 fn next(iter: *fs::iterator) (fs::dirent | void) = {
@@ -223,7 +220,7 @@ fn _next(it: *fs::iterator) nullable *inode = {
 		iter.curr = ino.next;
 		return ino;
 	};
-	let p = iter.parent.data as directory;
+	let p = iter.parent.data: directory;
 	iter.idx += 1;
 	for (iter.idx < len(p.ents)) match (p.ents[iter.idx]) {
 	case null =>
@@ -240,25 +237,28 @@ fn rmdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	if (fs: *inode == ino) {
 		return errors::invalid;
 	};
-	if (!(ino.data is directory)) {
+	match (ino.data) {
+	case d: directory =>
+		if (ino.opencount != 0 || d.sz != 0) {
+			return errors::busy;
+		};
+		unlink(ino.parent: *inode, ino);
+		inode_free(ino);
+	case file =>
 		return fs::wrongtype;
 	};
-	let p = ino.data as directory;
-	if (ino.opencount != 0 || p.sz != 0) {
-		return errors::busy;
-	};
-	unlink(ino.parent: *inode, ino);
-	inode_free(ino);
 };
 
 fn remove(fs: *fs::fs, path: str) (void | fs::error) = {
 	let ino = inode_find(fs: *inode, path)?;
-	if (!(ino.data is file)) {
+	match (ino.data) {
+	case file =>
+		unlink(ino.parent: *inode, ino);
+		if (ino.opencount == 0) {
+			inode_free(ino);
+		};
+	case directory =>
 		return fs::wrongtype;
-	};
-	unlink(ino.parent: *inode, ino);
-	if (ino.opencount == 0) {
-		inode_free(ino);
 	};
 };
 

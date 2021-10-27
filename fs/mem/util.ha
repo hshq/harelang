@@ -89,7 +89,7 @@ fn inode_free(ino: *inode) void = {
 };
 
 fn inode_find(dir: *inode, path: str) (*inode | fs::error) = {
-	if (path == "") {
+	if (path == "" || path == ".") {
 		return dir;
 	};
 	let it = path::iter(path);

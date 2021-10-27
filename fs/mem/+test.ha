@@ -93,10 +93,16 @@ use strconv;
 	fs::subdir(memfs, filename) as fs::error as fs::wrongtype: void;
 
 	let sub = mksubdir(memfs, "dir") as *fs::fs;
+	let subsub = mksubdir(memfs, "dir/dir2") as *fs::fs;
 
 	let f = fs::create(sub, "file", 0, fs::flags::WRONLY)!;
 	io::write(f, [42])!;
 	io::close(f);
+	let f = fs::create(subsub, "file", 0, fs::flags::WRONLY)!;
+	io::write(f, [42])!;
+	fs::remove(subsub, "file")!;
+	io::close(f);
+	fs::close(subsub);
 
 	let sub2 = fs::subdir(memfs, "dir") as *fs::fs;
 	assert(sub2 == sub);
