@@ -29,8 +29,8 @@ type types::array = struct {
 };
 
 type types::builtin = enum uint {
-	BOOL, CHAR, ENUM, F32, F64, I16, I32, I64, I8, INT, NULL, RUNE, SIZE,
-	STR, U16, U32, U64, U8, UINT, UINTPTR, VOID, TYPE,
+	BOOL, CHAR, F32, F64, I16, I32, I64, I8, INT, NULL, RUNE, SIZE, STR,
+	U16, U32, U64, U8, UINT, UINTPTR, VOID, TYPE,
 };
 
 type types::enum_ = struct {
