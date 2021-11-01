@@ -1590,6 +1590,7 @@ stdlib_unix_tty_linux_srcs= \
 	$(STDLIB)/unix/tty/types.ha \
 	$(STDLIB)/unix/tty/+linux/isatty.ha \
 	$(STDLIB)/unix/tty/+linux/open.ha \
+	$(STDLIB)/unix/tty/+linux/termios.ha \
 	$(STDLIB)/unix/tty/+linux/winsize.ha
 
 $(HARECACHE)/unix/tty/unix_tty-linux.ssa: $(stdlib_unix_tty_linux_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
@@ -3251,6 +3252,7 @@ testlib_unix_tty_linux_srcs= \
 	$(STDLIB)/unix/tty/types.ha \
 	$(STDLIB)/unix/tty/+linux/isatty.ha \
 	$(STDLIB)/unix/tty/+linux/open.ha \
+	$(STDLIB)/unix/tty/+linux/termios.ha \
 	$(STDLIB)/unix/tty/+linux/winsize.ha
 
 $(TESTCACHE)/unix/tty/unix_tty-linux.ssa: $(testlib_unix_tty_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))

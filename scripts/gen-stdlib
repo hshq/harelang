@@ -1005,6 +1005,7 @@ unix_tty() {
         types.ha \
 		+linux/isatty.ha \
 		+linux/open.ha \
+		+linux/termios.ha \
 		+linux/winsize.ha
 	gen_ssa -plinux unix::tty rt fs io os
 
