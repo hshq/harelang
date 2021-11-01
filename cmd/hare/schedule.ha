@@ -111,7 +111,7 @@ fn sched_as(plan: *plan, output: str, input: str, depend: *task...) *task = {
 		output = output,
 		depend = mkdepends(depend...),
 		cmd = alloc([
-			os::tryenv("AS", "as"), "-o", output, input,
+			os::tryenv("AS", "as"), "-g", "-o", output, input,
 		]),
 	});
 	append(plan.scheduled, task);
@@ -148,7 +148,8 @@ fn sched_hare_object(
 		};
 	};
 
-	let ssa = mkfile(plan, "ssa");
+	const ns = unparse::identstr(namespace);
+	let ssa = mkfile(plan, ns, "ssa");
 	let harec = alloc(task {
 		status = status::SCHEDULED,
 		output = ssa,
@@ -175,7 +176,6 @@ fn sched_hare_object(
 	let current = false;
 	let output = if (len(namespace) != 0) {
 		let version = hex::encodestr(ver.hash);
-		let ns = unparse::identstr(namespace);
 		let env = module::identuscore(namespace);
 		defer free(env);
 
@@ -224,7 +224,7 @@ fn sched_hare_object(
 			append(harec.cmd, "-D", plan.context.defines[i]);
 		};
 
-		yield mkfile(plan, "o"); // TODO: Should exes go in the cache?
+		yield mkfile(plan, ns, "o"); // TODO: Should exes go in the cache?
 	};
 
 	for (let i = 0z; i < len(ver.inputs); i += 1) {
@@ -243,10 +243,10 @@ fn sched_hare_object(
 		append(plan.scheduled, harec);
 	};
 
-	let s = mkfile(plan, "s");
+	let s = mkfile(plan, ns, "s");
 	let qbe = sched_qbe(plan, s, harec);
 	let hare_obj = sched_as(plan,
-		if (mixed) mkfile(plan, "o") else output,
+		if (mixed) mkfile(plan, ns, "o") else output,
 		s, qbe);
 	if (!mixed) {
 		return hare_obj;
@@ -262,7 +262,7 @@ fn sched_hare_object(
 		if (!strings::has_suffix(path, ".s")) {
 			continue;
 		};
-		append(objs, sched_as(plan, mkfile(plan, "o"), path));
+		append(objs, sched_as(plan, mkfile(plan, ns, "o"), path));
 	};
 	return sched_ar(plan, output, objs...);
 };

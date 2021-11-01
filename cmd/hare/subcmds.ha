@@ -275,7 +275,7 @@ fn run(args: []str) void = {
 		sched_module(&plan, dep, &depends);
 	};
 
-	const output = mkfile(&plan, "out");
+	const output = mkfile(&plan, "", "out");
 	sched_hare_exe(&plan, ver, output, depends...);
 	match (plan_execute(&plan, verbose)) {
 	case void => void;
@@ -431,7 +431,7 @@ fn test(args: []str) void = {
 
 	const have_output = len(output) != 0;
 	if (!have_output) {
-		output = mkfile(&plan, "out");
+		output = mkfile(&plan, "", "out");
 	};
 	if (len(ver.inputs) == 0) {
 		sched_ld(&plan, strings::dup(output), depends...);

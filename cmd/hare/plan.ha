@@ -197,10 +197,10 @@ fn execute(
 	return exec::check(&st);
 };
 
-fn mkfile(plan: *plan, ext: str) str = {
+fn mkfile(plan: *plan, input: str, ext: str) str = {
 	static let namebuf: [32]u8 = [0...];
-	const name = fmt::bsprintf(namebuf, "temp.{}.{}",
-		plan.counter, ext);
+	const name = fmt::bsprintf(namebuf, "temp.{}.{}.{}",
+		input, plan.counter, ext);
 	plan.counter += 1;
 	return path::join(plan.workdir, name);
 };
