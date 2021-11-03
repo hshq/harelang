@@ -17,6 +17,7 @@ export fn fork() (int | void | error) = {
 };
 
 fn open(path: str) (platform_cmd | error) = {
+	// TODO: This is racy, rewrite with TOCTOU
 	match (rt::access(path, rt::X_OK)) {
 	case err: rt::errno =>
 		return errors::errno(err);
@@ -25,8 +26,7 @@ fn open(path: str) (platform_cmd | error) = {
 			return errors::noaccess;
 		};
 	};
-	// XXX: FreeBSD does not support O_PATH
-	match (rt::open(path, rt::O_RDONLY, 0u)) {
+	match (rt::open(path, rt::O_EXEC, 0u)) {
 	case fd: int =>
 		return fd;
 	case err: rt::errno =>
