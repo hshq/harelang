@@ -8,7 +8,7 @@ use time;
 //		scale: timescale,
 //	};
 
-// A date & time within a chronology
+// A date & time within a locality, to be contextualised in a chronology
 export type moment = struct {
 	date: epochal,
 	time: time::duration,

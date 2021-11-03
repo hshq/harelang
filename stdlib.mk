@@ -931,6 +931,7 @@ $(HARECACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(stdlib_crypto_curve2
 stdlib_datetime_any_srcs= \
 	$(STDLIB)/datetime/calendar.ha \
 	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/timezone.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/time.ha
 
@@ -2892,6 +2893,7 @@ $(TESTCACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(testlib_crypto_curve
 testlib_datetime_any_srcs= \
 	$(STDLIB)/datetime/calendar.ha \
 	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/timezone.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/time.ha
 

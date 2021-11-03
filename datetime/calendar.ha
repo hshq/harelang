@@ -134,7 +134,7 @@ export type period = struct {
 // sequencially, consulting period's units from largest to smallest.
 //
 // 	// m := 1999-05-13 12:30:45
-// 	isocal::hop(m, isocal::period {
+// 	datetime::hop(m, datetime::period {
 // 		years  = 22, // 2021-01-01 00:00:00
 // 		months = -1, // 2020-11-01 00:00:00
 // 		days   = -4, // 2020-10-27 00:00:00
@@ -152,7 +152,7 @@ export fn hop(m: chrono::moment, pp: period...) chrono::moment = {
 // Tries to conserve relative distance from cyclical points on the calendar.
 //
 // 	// m := 1999-05-13 12:30:45
-// 	isocal::hop(m, isocal::period {
+// 	datetime::hop(m, datetime::period {
 // 		years  = 22, // 2021-05-13 00:00:00
 // 		months = -1, // 2021-04-13 00:00:00
 // 		days   = -4, // 2020-04-09 00:00:00
@@ -171,3 +171,7 @@ export fn add(m: chrono::moment, flag: int, pp: period...) chrono::moment = {
 	return m;
 };
 
+export type calculus = enum int {
+	LOGICAL,
+	PHYSICAL,
+};

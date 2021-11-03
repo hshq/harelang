@@ -1,4 +1,5 @@
-The chrono module provides the basis for chronology, namely timescales
-and leap seconds, and abstracted interfaces for calendars and datetimes.
+The time::chrono submodule provides the basis for chronology in Hare,
+namely timescales, leap seconds, and "moments", an abstracted datetime
+for calendars to interface with.
 
-For working with the ISO calendar, see the [[chrono::isocal]] submodule.
+For working with the ISO calendar, see the [[datetime]] submodule.

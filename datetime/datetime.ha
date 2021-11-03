@@ -17,15 +17,13 @@ use errors;
 export type datetime = struct {
 	date: localdate,
 	time: localtime,
-	loc: locality,
+	loc: chrono::locality,
 };
-
-export type locality = chrono::locality;
 
 // Creates a new moment
 //
 //	// 1995 July 18th 09:16:00.000
-// 	isocal::new_moment(1995, 07, 18, 9, 16, 0, 0, isocal::local)
+// 	datetime::new_moment(1995, 07, 18, 9, 16, 0, 0, chrono::local)
 //
 // For alternative forms, assemble a datetime manually using the desired types.
 export fn new_moment(
@@ -36,7 +34,7 @@ export fn new_moment(
 	min: int,
 	sec: int,
 	nsec: int,
-	loc: locality,
+	loc: chrono::locality,
 ) chrono::moment = {
 	const dt = datetime {
 		date = localdate {
@@ -59,7 +57,7 @@ export fn new_moment(
 // Creates a new datetime
 //
 //	// 1995 July 18th 09:16:00.000
-// 	isocal::new(1995, 07, 18, 9, 16, 0, 0, isocal::local)
+// 	datetime::new(1995, 07, 18, 9, 16, 0, 0, chrono::local)
 //
 // For alternative forms, assemble a datetime manually using the desired types.
 export fn new_datetime(
@@ -70,7 +68,7 @@ export fn new_datetime(
 	min: int,
 	sec: int,
 	nsec: int,
-	loc: locality,
+	loc: chrono::locality,
 ) (datetime | errors::invalid) = {
 	const dt = datetime {
 		date = localdate {

@@ -185,6 +185,7 @@ datetime() {
 	gen_srcs datetime \
 		calendar.ha \
 		datetime.ha \
+		timezone.ha \
 		date.ha \
 		time.ha
 	gen_ssa datetime time time::chrono
