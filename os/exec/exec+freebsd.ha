@@ -26,7 +26,7 @@ fn open(path: str) (platform_cmd | error) = {
 			return errors::noaccess;
 		};
 	};
-	match (rt::open(path, rt::O_EXEC, 0u)) {
+	match (rt::open(path, rt::O_RDONLY, 0u)) {
 	case fd: int =>
 		return fd;
 	case err: rt::errno =>
