@@ -470,3 +470,7 @@ export fn sysctlbyname(name: str, oldp: nullable *void, oldlenp: nullable *size,
 		newp: uintptr: u64, newlen: u64))?;
 	return;
 };
+
+export fn dup2(oldfd: int, newfd: int) (int | errno) = {
+	return wrap_return(syscall2(SYS_dup2, oldfd: u64, newfd: u64))?: int;
+};

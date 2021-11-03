@@ -2,8 +2,9 @@ use errors;
 use rt;
 use strings;
 use os;
+use io;
 
-export type platform_cmd = int;
+export type platform_cmd = io::file;
 
 // Forks the current process, returning the pid of the child (to the parent) and
 // void (to the child), or an error.
@@ -54,6 +55,23 @@ fn platform_exec(cmd: *command) error = {
 		};
 		append(env, null);
 		envp = env: *[*]nullable *const char;
+	};
+
+	for (let i = 0z; i < len(cmd.files); i += 1) {
+		cmd.files[i].0 = match (rt::fcntl(cmd.files[i].0, rt::F_DUPFD_CLOEXEC, 0)) {
+		case fd: int =>
+			yield fd;
+		case err: rt::errno =>
+			return errors::errno(err);
+		};
+	};
+
+	for (let i = 0z; i < len(cmd.files); i += 1) {
+		match (rt::dup2(cmd.files[i].0, cmd.files[i].1)) {
+		case int => void;
+		case e: rt::errno =>
+			return errors::errno(e);
+		};
 	};
 
 	return errors::errno(rt::execveat(cmd.platform, strings::c_empty,

@@ -159,6 +159,10 @@ export fn dup(fd: int) (int | errno) = {
 	return wrap_return(syscall1(SYS_dup, fd: u64))?: int;
 };
 
+export fn dup2(oldfd: int, newfd: int) (int | errno) = {
+	return wrap_return(syscall2(SYS_dup2, oldfd: u64, newfd: u64))?: int;
+};
+
 export fn close(fd: int) (void | errno) = {
 	wrap_return(syscall1(SYS_close, fd: u64))?;
 	return;

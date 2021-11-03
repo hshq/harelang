@@ -1,5 +1,6 @@
 use ascii;
 use errors;
+use io;
 use os;
 use strings;
 
@@ -37,6 +38,7 @@ export fn cmd(name: str, args: str...) (command | error) = {
 			},
 		argv = alloc([], len(args) + 1z),
 		env = alloc([], len(env)),
+		files = [],
 		...
 	};
 	append(cmd.argv, name, args...);
@@ -112,6 +114,27 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 		};
 	};
 	append(cmd.env, strings::concat(fullkey, value));
+};
+
+// Maps an [[io::file]] into the command. All mappings are performed
+// atomically, such that the following:
+//
+// 	exec::setfd(&cmd, os::stdout_file, os::stderr);
+// 	exec::setfd(&cmd, os::stderr, os::stdout_file);
+//
+// will swap stdout and stderr, rather than duplicating stdout onto stderr.
+// If the same [[io::file]] is mapped to multiple times, only the last mapping
+// will take effect.
+export fn addfile(cmd: *command, old: io::file, new: io::file) void = {
+	// TODO: Can we make old be an io::handle?
+	append(cmd.files, (old, new));
+};
+
+// Mapp [[os::stdin]], [[os::stdout]], and [[os::stderr]] into the command.
+export fn addstd(cmd: *command) void = {
+	addfile(cmd, os::stdin_file, os::stdin_file);
+	addfile(cmd, os::stdout_file, os::stdout_file);
+	addfile(cmd, os::stderr, os::stderr);
 };
 
 fn lookup(name: str) (platform_cmd | void) = {

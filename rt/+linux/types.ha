@@ -215,6 +215,7 @@ export def W_OK: int = 2;
 export def X_OK: int = 1;
 
 export def F_DUPFD: int = 0;
+export def F_DUPFD_CLOEXEC: int = 1030;
 export def F_GETFD: int = 1;
 export def F_SETFD: int = 2;
 export def F_GETFL: int = 3;

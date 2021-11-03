@@ -1,10 +1,12 @@
 use errors;
+use io;
 
 // An executable command.
 export type command = struct {
 	platform: platform_cmd,
 	argv: []str,
 	env: []str,
+	files: [](io::file, io::file),
 };
 
 // Returned when path resolution fails to find a command by its name.
