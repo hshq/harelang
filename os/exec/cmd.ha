@@ -116,13 +116,12 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 	append(cmd.env, strings::concat(fullkey, value));
 };
 
-// Maps an [[io::file]] into the command. All mappings are performed
-// atomically, such that the following:
+// Adds an [[io::file]] to the child process's file table. All mappings are
+// performed atomically, such that the following code swaps stdout and stderr:
 //
-// 	exec::setfd(&cmd, os::stdout_file, os::stderr);
-// 	exec::setfd(&cmd, os::stderr, os::stdout_file);
+// 	exec::addfile(&cmd, os::stdout_file, os::stderr);
+// 	exec::addfile(&cmd, os::stderr, os::stdout_file);
 //
-// will swap stdout and stderr, rather than duplicating stdout onto stderr.
 // If the same [[io::file]] is mapped to multiple times, only the last mapping
 // will take effect.
 export fn addfile(cmd: *command, old: io::file, new: io::file) void = {
@@ -130,7 +129,9 @@ export fn addfile(cmd: *command, old: io::file, new: io::file) void = {
 	append(cmd.files, (old, new));
 };
 
-// Mapp [[os::stdin]], [[os::stdout]], and [[os::stderr]] into the command.
+// Adds [[os::stdin]], [[os::stdout]], and [[os::stderr]] from the parent
+// process (i.e. the one which calls this function) into the child process's
+// file table.
 export fn addstd(cmd: *command) void = {
 	addfile(cmd, os::stdin_file, os::stdin_file);
 	addfile(cmd, os::stdout_file, os::stdout_file);
