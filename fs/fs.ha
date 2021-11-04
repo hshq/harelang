@@ -140,6 +140,20 @@ export fn stat(fs: *fs, path: str) (filestat | error) = {
 	};
 };
 
+// Returns true if a node exists at the given path, or false if not.
+//
+// Note that testing for file existence before using the file can often lead to
+// race conditions. If possible, prefer to simply attempt to use the file (e.g.
+// via "open"), and handle the resulting error should the file not exist.
+export fn exists(fs: *fs, path: str) bool = {
+	match (stat(fs, path)) {
+	case filestat =>
+		return true;
+	case error =>
+		return false;
+	};
+};
+
 // Returns the path referred to by a symbolic link. The caller must free the
 // return value.
 export fn readlink(fs: *fs, path: str) (str | error) = {

@@ -71,7 +71,11 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 		...
 	};
 	scan_directory(ctx, &ver, &sha, path, iter)?;
-	if (len(ver.inputs) == 0) {
+
+	let readme = path::join(path, "README");
+	defer free(readme);
+	if (len(ver.inputs) == 0 && !fs::exists(ctx.fs, readme)) {
+		// README is a special case for haredoc
 		return module_not_found;
 	};
 
