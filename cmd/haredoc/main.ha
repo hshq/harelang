@@ -8,8 +8,10 @@ use hare::parse;
 use hare::unparse;
 use io;
 use os;
+use os::exec;
 use path;
 use strings;
+use unix;
 use unix::tty;
 
 type format = enum {
@@ -30,6 +32,7 @@ type context = struct {
 	show_undocumented: bool,
 	readme: (io::file | void),
 	out: io::handle,
+	pager: (exec::process | void),
 };
 
 export fn main() void = {
@@ -177,6 +180,11 @@ export fn main() void = {
 		readme = readme,
 		show_undocumented = show_undocumented,
 		out = os::stdout,
+		pager = void,
+	};
+
+	if (fmt == format::TTY) {
+		ctx.out = init_tty(&ctx);
 	};
 
 	match (emit(&ctx)) {
@@ -184,6 +192,43 @@ export fn main() void = {
 	case err: error =>
 		fmt::fatal("Error: {}", strerror(err));
 	};
+
+	io::close(ctx.out);
+	match (ctx.pager) {
+	case void => void;
+	case proc: exec::process =>
+		exec::wait(&proc)!;
+	};
+};
+
+fn init_tty(ctx: *context) io::handle = {
+	const pager = match (os::getenv("PAGER")) {
+	case name: str =>
+		yield match (exec::cmd(name)) {
+		case cmd: exec::command =>
+			yield cmd;
+		case exec::error =>
+			return os::stdout;
+		};
+	case void =>
+		match (exec::cmd("less")) {
+		case cmd: exec::command =>
+			yield cmd;
+		case exec::error => void;
+		};
+		match (exec::cmd("more")) {
+		case cmd: exec::command =>
+			yield cmd;
+		case exec::error => void;
+		};
+		return os::stdout;
+	};
+
+	const pipe = unix::pipe()!;
+	exec::addfile(&pager, pipe.0, os::stdin_file);
+	exec::setenv(&pager, "LESS", "FRX");
+	ctx.pager = exec::start(&pager)!;
+	return pipe.1;
 };
 
 fn has_decl(decl: ast::decl, name: str) bool = {
