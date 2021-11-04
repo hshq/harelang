@@ -192,6 +192,12 @@ stdlib_deps_any+=$(stdlib_crypto_sha512_any)
 stdlib_crypto_sha512_linux=$(stdlib_crypto_sha512_any)
 stdlib_crypto_sha512_freebsd=$(stdlib_crypto_sha512_any)
 
+# gen_lib crypto::curve25519 (any)
+stdlib_crypto_curve25519_any=$(HARECACHE)/crypto/curve25519/crypto_curve25519-any.o
+stdlib_deps_any+=$(stdlib_crypto_curve25519_any)
+stdlib_crypto_curve25519_linux=$(stdlib_crypto_curve25519_any)
+stdlib_crypto_curve25519_freebsd=$(stdlib_crypto_curve25519_any)
+
 # gen_lib dirs (any)
 stdlib_dirs_any=$(HARECACHE)/dirs/dirs-any.o
 stdlib_deps_any+=$(stdlib_dirs_any)
@@ -708,6 +714,16 @@ $(HARECACHE)/crypto/sha512/crypto_sha512-any.ssa: $(stdlib_crypto_sha512_any_src
 	@mkdir -p $(HARECACHE)/crypto/sha512
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::sha512 \
 		-t$(HARECACHE)/crypto/sha512/crypto_sha512.td $(stdlib_crypto_sha512_any_srcs)
+
+# crypto::curve25519 (+any)
+stdlib_crypto_curve25519_any_srcs= \
+	$(STDLIB)/crypto/curve25519/curve25519.ha
+
+$(HARECACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(stdlib_crypto_curve25519_any_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/curve25519
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::curve25519 \
+		-t$(HARECACHE)/crypto/curve25519/crypto_curve25519.td $(stdlib_crypto_curve25519_any_srcs)
 
 # dirs (+any)
 stdlib_dirs_any_srcs= \
@@ -1821,6 +1837,12 @@ testlib_deps_any+=$(testlib_crypto_sha512_any)
 testlib_crypto_sha512_linux=$(testlib_crypto_sha512_any)
 testlib_crypto_sha512_freebsd=$(testlib_crypto_sha512_any)
 
+# gen_lib crypto::curve25519 (any)
+testlib_crypto_curve25519_any=$(TESTCACHE)/crypto/curve25519/crypto_curve25519-any.o
+testlib_deps_any+=$(testlib_crypto_curve25519_any)
+testlib_crypto_curve25519_linux=$(testlib_crypto_curve25519_any)
+testlib_crypto_curve25519_freebsd=$(testlib_crypto_curve25519_any)
+
 # gen_lib dirs (any)
 testlib_dirs_any=$(TESTCACHE)/dirs/dirs-any.o
 testlib_deps_any+=$(testlib_dirs_any)
@@ -2344,6 +2366,17 @@ $(TESTCACHE)/crypto/sha512/crypto_sha512-any.ssa: $(testlib_crypto_sha512_any_sr
 	@mkdir -p $(TESTCACHE)/crypto/sha512
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha512 \
 		-t$(TESTCACHE)/crypto/sha512/crypto_sha512.td $(testlib_crypto_sha512_any_srcs)
+
+# crypto::curve25519 (+any)
+testlib_crypto_curve25519_any_srcs= \
+	$(STDLIB)/crypto/curve25519/curve25519.ha \
+	$(STDLIB)/crypto/curve25519/+test.ha
+
+$(TESTCACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(testlib_crypto_curve25519_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_crypto_random_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/curve25519
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::curve25519 \
+		-t$(TESTCACHE)/crypto/curve25519/crypto_curve25519.td $(testlib_crypto_curve25519_any_srcs)
 
 # dirs (+any)
 testlib_dirs_any_srcs= \

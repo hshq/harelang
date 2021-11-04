@@ -1,0 +1,5 @@
+The curve25519 module implements the x25519 function which performs scalar
+multiplication on the elliptic curve known as Curve25519. See RFC 7748.
+
+The implementation is based on the paper "Implementing Curve25519/X25519: A
+Tutorial on Elliptic Curve Cryptography" by Martin Kleppmann.
