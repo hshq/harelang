@@ -29,14 +29,15 @@ type context = struct {
 	template: bool,
 	show_undocumented: bool,
 	readme: (io::file | void),
+	out: io::handle,
 };
 
 export fn main() void = {
-	let fmt =
-		if (tty::isatty(os::stdout_file))
-			format::TTY
-		else
-			format::HARE;
+	let fmt = if (tty::isatty(os::stdout_file)) {
+		yield format::TTY;
+	} else {
+		yield format::HARE;
+	};
 	let template = true;
 	let show_undocumented = false;
 	const help: [_]getopt::help = [
@@ -175,7 +176,9 @@ export fn main() void = {
 		template = template,
 		readme = readme,
 		show_undocumented = show_undocumented,
+		out = os::stdout,
 	};
+
 	match (emit(&ctx)) {
 	case void => void;
 	case err: error =>

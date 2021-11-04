@@ -66,9 +66,13 @@ fn emit_html(ctx: *context) (void | error) = {
 	if (ctx.template) head(ctx.ident)?;
 
 	if (len(ident) == 0) {
-		fmt::printf("<h2>The Hare standard library <span class='heading-extra'>", ident)?;
+		fmt::fprintf(ctx.out, 
+			"<h2>The Hare standard library <span class='heading-extra'>",
+			ident)?;
 	} else {
-		fmt::printf("<h2>{} <span class='heading-extra'>", ident)?;
+		fmt::fprintf(ctx.out,
+			"<h2>{} <span class='heading-extra'>",
+			ident)?;
 	};
 	for (let i = 0z; i < len(ctx.tags); i += 1) {
 		const mode = switch (ctx.tags[i].mode) {
@@ -77,26 +81,26 @@ fn emit_html(ctx: *context) (void | error) = {
 		case module::tag_mode::EXCLUSIVE =>
 			yield '-';
 		};
-		fmt::printf("{}{} ", mode, ctx.tags[i].name)?;
+		fmt::fprintf(ctx.out, "{}{} ", mode, ctx.tags[i].name)?;
 	};
-	fmt::println("</span></h2>")?;
+	fmt::fprintln(ctx.out, "</span></h2>")?;
 
 	match (ctx.readme) {
 	case void => void;
 	case f: io::file =>
-		fmt::println("<div class='readme'>")?;
+		fmt::fprintln(ctx.out, "<div class='readme'>")?;
 		markup_html(ctx, f)?;
-		fmt::println("</div>")?;
+		fmt::fprintln(ctx.out, "</div>")?;
 	};
 
 	if (len(ctx.version.subdirs) != 0) {
 		// TODO: Verify that these are actually modules
 		if (len(ctx.ident) == 0) {
-			fmt::println("<h3>Modules</h3>")?;
+			fmt::fprintln(ctx.out, "<h3>Modules</h3>")?;
 		} else {
-			fmt::println("<h3>Submodules</h3>")?;
+			fmt::fprintln(ctx.out, "<h3>Submodules</h3>")?;
 		};
-		fmt::println("<ul class='submodules'>")?;
+		fmt::fprintln(ctx.out, "<ul class='submodules'>")?;
 		for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
 			let dir = ctx.version.subdirs[i];
 			if (dir == "cmd") continue;
@@ -108,13 +112,13 @@ fn emit_html(ctx: *context) (void | error) = {
 			let path = path::join("/", path, dir);
 			defer free(path);
 
-			fmt::printf("<li><a href='")?;
-			html_escape(os::stdout, path)?;
-			fmt::printf("'>")?;
-			html_escape(os::stdout, dir)?;
-			fmt::printfln("</a></li>")?;
+			fmt::fprintf(ctx.out, "<li><a href='")?;
+			html_escape(ctx.out, path)?;
+			fmt::fprintf(ctx.out, "'>")?;
+			html_escape(ctx.out, dir)?;
+			fmt::fprintfln(ctx.out, "</a></li>")?;
 		};
-		fmt::println("</ul>")?;
+		fmt::fprintln(ctx.out, "</ul>")?;
 	};
 
 	if (len(decls.types) == 0
@@ -125,72 +129,78 @@ fn emit_html(ctx: *context) (void | error) = {
 		return;
 	};
 
-	fmt::println("<h3>Index</h3>")?;
-	tocentries(decls.types, "Types", "types")?;
-	tocentries(decls.errors, "Errors", "Errors")?;
-	tocentries(decls.constants, "Constants", "constants")?;
-	tocentries(decls.globals, "Globals", "globals")?;
-	tocentries(decls.funcs, "Functions", "functions")?;
+	fmt::fprintln(ctx.out, "<h3>Index</h3>")?;
+	tocentries(ctx.out, decls.types, "Types", "types")?;
+	tocentries(ctx.out, decls.errors, "Errors", "Errors")?;
+	tocentries(ctx.out, decls.constants, "Constants", "constants")?;
+	tocentries(ctx.out, decls.globals, "Globals", "globals")?;
+	tocentries(ctx.out, decls.funcs, "Functions", "functions")?;
 
 	if (len(decls.types) != 0) {
-		fmt::println("<h3>Types</h3>")?;
+		fmt::fprintln(ctx.out, "<h3>Types</h3>")?;
 		for (let i = 0z; i < len(decls.types); i += 1) {
 			details(ctx, decls.types[i])?;
 		};
 	};
 
 	if (len(decls.errors) != 0) {
-		fmt::println("<h3>Errors</h3>")?;
+		fmt::fprintln(ctx.out, "<h3>Errors</h3>")?;
 		for (let i = 0z; i < len(decls.errors); i += 1) {
 			details(ctx, decls.errors[i])?;
 		};
 	};
 
 	if (len(decls.constants) != 0) {
-		fmt::println("<h3>Constants</h3>")?;
+		fmt::fprintln(ctx.out, "<h3>Constants</h3>")?;
 		for (let i = 0z; i < len(decls.constants); i += 1) {
 			details(ctx, decls.constants[i])?;
 		};
 	};
 
 	if (len(decls.globals) != 0) {
-		fmt::println("<h3>Globals</h3>")?;
+		fmt::fprintln(ctx.out, "<h3>Globals</h3>")?;
 		for (let i = 0z; i < len(decls.globals); i += 1) {
 			details(ctx, decls.globals[i])?;
 		};
 	};
 
 	if (len(decls.funcs) != 0) {
-		fmt::println("<h3>Functions</h3>")?;
+		fmt::fprintln(ctx.out, "<h3>Functions</h3>")?;
 		for (let i = 0z; i < len(decls.funcs); i += 1) {
 			details(ctx, decls.funcs[i])?;
 		};
 	};
 };
 
-fn tocentries(decls: []ast::decl, name: str, lname: str) (void | error) = {
+fn tocentries(
+	out: io::handle,
+	decls: []ast::decl,
+	name: str,
+	lname: str,
+) (void | error) = {
 	if (len(decls) == 0) {
 		return;
 	};
-	fmt::printfln("<h4>{}</h4>", name)?;
-	fmt::println("<pre>")?;
+	fmt::fprintfln(out, "<h4>{}</h4>", name)?;
+	fmt::fprintln(out, "<pre>")?;
 	let undoc = false;
 	for (let i = 0z; i < len(decls); i += 1) {
 		if (!undoc && decls[i].docs == "") {
-			fmt::printfln(
+			fmt::fprintfln(
+				out,
 				"{}<span style='color: #444'>// Undocumented {}:</span>",
 				if (i == 0) "" else "\n",
 				lname)?;
 			undoc = true;
 		};
-		tocentry(decls[i])?;
+		tocentry(out, decls[i])?;
 	};
-	fmt::print("</pre>")?;
+	fmt::fprint(out, "</pre>")?;
 	return;
 };
 
-fn tocentry(decl: ast::decl) (void | error) = {
-	fmt::printf("{} ",
+fn tocentry(out: io::handle, decl: ast::decl) (void | error) = {
+	fmt::fprintf(out, "{} ",
 		match (decl.decl) {
 		case ast::decl_func =>
 			yield "fn";
@@ -201,37 +211,37 @@ fn tocentry(decl: ast::decl) (void | error) = {
 		case []ast::decl_global =>
 			yield "let";
 		})?;
-	fmt::printf("<a href='#")?;
-	unparse::ident(os::stdout, decl_ident(decl))?;
-	fmt::printf("'>")?;
-	unparse::ident(os::stdout, decl_ident(decl))?;
-	fmt::print("</a>")?;
+	fmt::fprintf(out, "<a href='#")?;
+	unparse::ident(out, decl_ident(decl))?;
+	fmt::fprintf(out, "'>")?;
+	unparse::ident(out, decl_ident(decl))?;
+	fmt::fprint(out, "</a>")?;
 
 	match (decl.decl) {
 	case t: []ast::decl_type => void;
 	case g: []ast::decl_global =>
 		let g = g[0];
-		fmt::print(": ")?;
-		type_html(os::stdout, 0, g._type, true)?;
+		fmt::fprint(out, ": ")?;
+		type_html(out, 0, g._type, true)?;
 	case c: []ast::decl_const =>
 		let c = c[0];
-		fmt::print(": ")?;
-		type_html(os::stdout, 0, c._type, true)?;
+		fmt::fprint(out, ": ")?;
+		type_html(out, 0, c._type, true)?;
 	case f: ast::decl_func =>
-		prototype_html(os::stdout, 0,
+		prototype_html(out, 0,
 			f.prototype.repr as ast::func_type,
 			true)?;
 	};
-	fmt::println(";")?;
+	fmt::fprintln(out, ";")?;
 	return;
 };
 
 fn details(ctx: *context, decl: ast::decl) (void | error) = {
-	fmt::println("<section class='member'>")?;
-	fmt::print("<h4 id='")?;
-	unparse::ident(os::stdout, decl_ident(decl))?;
-	fmt::print("'>")?;
-	fmt::printf("{} ", match (decl.decl) {
+	fmt::fprintln(ctx.out, "<section class='member'>")?;
+	fmt::fprint(ctx.out, "<h4 id='")?;
+	unparse::ident(ctx.out, decl_ident(decl))?;
+	fmt::fprint(ctx.out, "'>")?;
+	fmt::fprintf(ctx.out, "{} ", match (decl.decl) {
 		case ast::decl_func =>
 			yield "fn";
 		case []ast::decl_type =>
@@ -241,31 +251,31 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 		case []ast::decl_global =>
 			yield "let";
 		})?;
-	unparse::ident(os::stdout, decl_ident(decl))?;
+	unparse::ident(ctx.out, decl_ident(decl))?;
 	// TODO: Add source URL
-	fmt::print("<span class='heading-extra'><a href='#")?;
-	unparse::ident(os::stdout, decl_ident(decl))?;
-	fmt::print("'>[link]</a>
+	fmt::fprint(ctx.out, "<span class='heading-extra'><a href='#")?;
+	unparse::ident(ctx.out, decl_ident(decl))?;
+	fmt::fprint(ctx.out, "'>[link]</a>
 	</span>")?;
-	fmt::println("</h4>")?;
+	fmt::fprintln(ctx.out, "</h4>")?;
 
 	if (len(decl.docs) == 0) {
-		fmt::println("<details>")?;
-		fmt::println("<summary>Show undocumented member</summary>")?;
+		fmt::fprintln(ctx.out, "<details>")?;
+		fmt::fprintln(ctx.out, "<summary>Show undocumented member</summary>")?;
 	};
 
-	fmt::println("<pre class='decl'>")?;
-	unparse_html(os::stdout, decl)?;
-	fmt::println("</pre>")?;
+	fmt::fprintln(ctx.out, "<pre class='decl'>")?;
+	unparse_html(ctx.out, decl)?;
+	fmt::fprintln(ctx.out, "</pre>")?;
 
 	if (len(decl.docs) != 0) {
 		const buf = strings::toutf8(decl.docs);
 		markup_html(ctx, bufio::fixed(buf, io::mode::READ))?;
 	} else {
-		fmt::println("</details>")?;
+		fmt::fprintln(ctx.out, "</details>")?;
 	};
 
-	fmt::println("</section>")?;
+	fmt::fprintln(ctx.out, "</section>")?;
 	return;
 };
 
@@ -277,7 +287,7 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 		case void =>
 			const ident = unparse::identstr(ref);
 			fmt::errorfln("Warning: Unresolved reference: {}", ident)?;
-			fmt::printf("<a href='#' "
+			fmt::fprintf(ctx.out, "<a href='#' "
 				"class='ref invalid' "
 				"title='This reference could not be found'>{}</a>",
 				ident)?;
@@ -290,16 +300,16 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 	const ident = unparse::identstr(id);
 	switch (kind) {
 	case symkind::LOCAL =>
-		fmt::printf("<a href='#{0}' class='ref'>{0}</a>", ident)?;
+		fmt::fprintf(ctx.out, "<a href='#{0}' class='ref'>{0}</a>", ident)?;
 	case symkind::MODULE =>
 		let ipath = module::identpath(id);
 		defer free(ipath);
-		fmt::printf("<a href='/{}' class='ref'>{}</a>",
+		fmt::fprintf(ctx.out, "<a href='/{}' class='ref'>{}</a>",
 			ipath, ident)?;
 	case symkind::SYMBOL =>
 		let ipath = module::identpath(id[..len(id) - 1]);
 		defer free(ipath);
-		fmt::printf("<a href='/{}#{}' class='ref'>{}</a>",
+		fmt::fprintf(ctx.out, "<a href='/{}#{}' class='ref'>{}</a>",
 			ipath, id[len(id) - 1], ident)?;
 	};
 	free(ident);
@@ -315,39 +325,39 @@ fn markup_html(ctx: *context, in: io::handle) (void | io::error) = {
 			};
 		match (tok) {
 		case paragraph =>
-			fmt::println()?;
-			fmt::print("<p>")?;
+			fmt::fprintln(ctx.out)?;
+			fmt::fprint(ctx.out, "<p>")?;
 		case tx: text =>
 			if (strings::has_prefix(tx, "https://")) {
 				// Temporary hack
-				fmt::print("<a rel='nofollow noopener' href='")?;
-				html_escape(os::stdout, tx)?;
-				fmt::print("'>")?;
-				html_escape(os::stdout, tx)?;
-				fmt::print("</a>")?;
+				fmt::fprint(ctx.out, "<a rel='nofollow noopener' href='")?;
+				html_escape(ctx.out, tx)?;
+				fmt::fprint(ctx.out, "'>")?;
+				html_escape(ctx.out, tx)?;
+				fmt::fprint(ctx.out, "</a>")?;
 				free(tx);
 			} else {
-				html_escape(os::stdout, tx)?;
+				html_escape(ctx.out, tx)?;
 				free(tx);
 			};
 		case re: reference =>
 			htmlref(ctx, re)?;
 		case sa: sample =>
-			fmt::print("<pre class='sample'>")?;
-			html_escape(os::stdout, sa)?;
-			fmt::print("</pre>")?;
+			fmt::fprint(ctx.out, "<pre class='sample'>")?;
+			html_escape(ctx.out, sa)?;
+			fmt::fprint(ctx.out, "</pre>")?;
 			free(sa);
 		case li: list =>
-			fmt::println("<ul>")?;
+			fmt::fprintln(ctx.out, "<ul>")?;
 			for (let i = 0z; i < len(li); i += 1) {
-				fmt::println("<li>")?;
-				html_escape(os::stdout, li[i])?;
-				fmt::println("</li>")?;
+				fmt::fprintln(ctx.out, "<li>")?;
+				html_escape(ctx.out, li[i])?;
+				fmt::fprintln(ctx.out, "</li>")?;
 			};
-			fmt::println("</ul>")?;
+			fmt::fprintln(ctx.out, "</ul>")?;
 		};
 	};
-	fmt::println()?;
+	fmt::fprintln(ctx.out)?;
 	return;
 };
 

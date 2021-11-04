@@ -21,7 +21,7 @@ fn emit_tty(ctx: *context) (void | error) = {
 		case io::EOF => break;
 		case b: []u8 =>
 			firstline = false;
-			fmt::printfln(
+			fmt::fprintfln(ctx.out,
 				"\x1b[1m" "// {}" "\x1b[0m",
 				strings::fromutf8(b))?;
 			free(b);
@@ -67,7 +67,7 @@ fn details_tty(ctx: *context, decl: ast::decl) (void | error) = {
 	};
 
 	if (!firstline) {
-		fmt::println()?;
+		fmt::fprintln(ctx.out)?;
 	};
 	firstline = false;
 
@@ -76,14 +76,15 @@ fn details_tty(ctx: *context, decl: ast::decl) (void | error) = {
 		match (strings::next_token(&iter)) {
 		case s: str =>
 			if (!(strings::peek_token(&iter) is void)) {
-				fmt::printfln("\x1b[1m" "//{}" "\x1b[0m", s)?;
+				fmt::fprintfln(ctx.out,
+					"\x1b[1m" "//{}" "\x1b[0m", s)?;
 			};
 		case void => break;
 		};
 	};
 
-	unparse_tty(os::stdout, decl)?;
-	fmt::println()?;
+	unparse_tty(ctx.out, decl)?;
+	fmt::fprintln(ctx.out)?;
 	return;
 };
 

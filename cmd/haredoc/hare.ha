@@ -20,7 +20,8 @@ fn emit_hare(ctx: *context) (void | error) = {
 			match (bufio::scanline(readme)?) {
 			case io::EOF => break;
 			case b: []u8 =>
-				fmt::printfln("// {}", strings::fromutf8(b))?;
+				fmt::fprintfln(ctx.out,
+					"// {}", strings::fromutf8(b))?;
 				free(b);
 			};
 		};
@@ -30,35 +31,35 @@ fn emit_hare(ctx: *context) (void | error) = {
 	// XXX: Should we emit the dependencies, too?
 	for (let i = 0z; i < len(summary.types); i += 1) {
 		if (!first) {
-			fmt::println()?;
+			fmt::fprintln(ctx.out)?;
 		};
 		first = false;
 		details_hare(ctx, summary.types[i])?;
 	};
 	for (let i = 0z; i < len(summary.constants); i += 1) {
 		if (!first) {
-			fmt::println()?;
+			fmt::fprintln(ctx.out)?;
 		};
 		first = false;
 		details_hare(ctx, summary.constants[i])?;
 	};
 	for (let i = 0z; i < len(summary.errors); i += 1) {
 		if (!first) {
-			fmt::println()?;
+			fmt::fprintln(ctx.out)?;
 		};
 		first = false;
 		details_hare(ctx, summary.errors[i])?;
 	};
 	for (let i = 0z; i < len(summary.globals); i += 1) {
 		if (!first) {
-			fmt::println()?;
+			fmt::fprintln(ctx.out)?;
 		};
 		first = false;
 		details_hare(ctx, summary.globals[i])?;
 	};
 	for (let i = 0z; i < len(summary.funcs); i += 1) {
 		if (!first) {
-			fmt::println()?;
+			fmt::fprintln(ctx.out)?;
 		};
 		first = false;
 		details_hare(ctx, summary.funcs[i])?;
@@ -76,13 +77,13 @@ fn details_hare(ctx: *context, decl: ast::decl) (void | error) = {
 		case void => break;
 		case s: str =>
 			if (len(s) != 0) {
-				fmt::printfln("//{}", s)?;
+				fmt::fprintfln(ctx.out, "//{}", s)?;
 			};
 		};
 	};
 
-	unparse_hare(os::stdout, decl)?;
-	fmt::println()?;
+	unparse_hare(ctx.out, decl)?;
+	fmt::fprintln(ctx.out)?;
 	return;
 };
 
