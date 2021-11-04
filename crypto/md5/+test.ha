@@ -1,8 +1,7 @@
 use fmt;
 use hash;
 use strings;
-use strio;
-use io;
+use encoding::hex;
 
 @test fn md5() void = {
 	let md5 = md5();
@@ -26,14 +25,9 @@ use io;
 		let sum: [SIZE]u8 = [0...];
 		hash::sum(&md5, sum);
 
-		let hex = strio::dynamic();
-		defer io::close(hex);
-		for (let j = 0z; j < SIZE; j += 1) {
-			fmt::fprintf(hex, "{:02x}", sum[j])!;
-		};
-		if (strio::string(hex) != vector.1) {
-			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(hex), vector.1)!;
+		let sumhex = hex::encodestr(sum);
+		if (sumhex != vector.1) {
+			fmt::errorfln("Vector {}: {} != {}", i, sumhex, vector.1)!;
 			abort();
 		};
 	};

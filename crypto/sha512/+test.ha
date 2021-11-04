@@ -1,8 +1,7 @@
 use fmt;
 use hash;
 use strings;
-use strio;
-use io;
+use encoding::hex;
 
 @test fn sha512() void = {
 	let sha = sha512();
@@ -26,16 +25,9 @@ use io;
 		let sum: [SIZE]u8 = [0...];
 		hash::sum(&sha, sum);
 
-		let hex = strio::dynamic();
-		defer io::close(hex);
-
-		for (let j = 0z; j < len(sum); j += 1) {
-			fmt::fprintf(hex, "{:02x}", sum[j])!;
-		};
-
-		if (strio::string(hex) != vector.1) {
-			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(hex), vector.1)!;
+		let shahex = hex::encodestr(sum);
+		if (shahex != vector.1) {
+			fmt::errorfln("Vector {}: {} != {}", i, shahex, vector.1)!;
 			abort();
 		};
 	};
@@ -57,15 +49,9 @@ use io;
 		let sum: [SIZE224]u8 = [0...];
 		hash::sum(&sha, sum);
 
-		let hex = strio::dynamic();
-		defer io::close(hex);
-
-		for (let j = 0z; j < len(sum); j += 1)
-			fmt::fprintf(hex, "{:02x}", sum[j])!;
-
-		if (strio::string(hex) != vector.1) {
-			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(hex), vector.1)!;
+		let shahex = hex::encodestr(sum);
+		if (shahex != vector.1) {
+			fmt::errorfln("Vector {}: {} != {}", i, shahex, vector.1)!;
 			abort();
 		};
 	};
@@ -87,16 +73,9 @@ use io;
 		let sum: [SIZE256]u8 = [0...];
 		hash::sum(&sha, sum);
 
-		let hex = strio::dynamic();
-		defer io::close(hex);
-
-		for (let j = 0z; j < len(sum); j += 1) {
-			fmt::fprintf(hex, "{:02x}", sum[j])!;
-		};
-
-		if (strio::string(hex) != vector.1) {
-			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(hex), vector.1)!;
+		let shahex = hex::encodestr(sum);
+		if (shahex != vector.1) {
+			fmt::errorfln("Vector {}: {} != {}", i, shahex, vector.1)!;
 			abort();
 		};
 	};
@@ -119,16 +98,9 @@ use io;
 		let sum: [SIZE384]u8 = [0...];
 		hash::sum(&sha, sum);
 
-		let hex = strio::dynamic();
-		defer io::close(hex);
-
-		for (let j = 0z; j < len(sum); j += 1) {
-			fmt::fprintf(hex, "{:02x}", sum[j])!;
-		};
-
-		if (strio::string(hex) != vector.1) {
-			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(hex), vector.1)!;
+		let shahex = hex::encodestr(sum);
+		if (shahex != vector.1) {
+			fmt::errorfln("Vector {}: {} != {}", i, shahex, vector.1)!;
 			abort();
 		};
 	};

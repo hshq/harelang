@@ -2328,7 +2328,7 @@ testlib_crypto_md5_any_srcs= \
 	$(STDLIB)/crypto/md5/md5.ha \
 	$(STDLIB)/crypto/md5/+test.ha
 
-$(TESTCACHE)/crypto/md5/crypto_md5-any.ssa: $(testlib_crypto_md5_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/crypto/md5/crypto_md5-any.ssa: $(testlib_crypto_md5_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/md5
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::md5 \
@@ -2339,7 +2339,7 @@ testlib_crypto_sha1_any_srcs= \
 	$(STDLIB)/crypto/sha1/sha1.ha \
 	$(STDLIB)/crypto/sha1/+test.ha
 
-$(TESTCACHE)/crypto/sha1/crypto_sha1-any.ssa: $(testlib_crypto_sha1_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/crypto/sha1/crypto_sha1-any.ssa: $(testlib_crypto_sha1_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/sha1
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha1 \
@@ -2350,7 +2350,7 @@ testlib_crypto_sha256_any_srcs= \
 	$(STDLIB)/crypto/sha256/sha256.ha \
 	$(STDLIB)/crypto/sha256/+test.ha
 
-$(TESTCACHE)/crypto/sha256/crypto_sha256-any.ssa: $(testlib_crypto_sha256_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/crypto/sha256/crypto_sha256-any.ssa: $(testlib_crypto_sha256_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/sha256
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha256 \
@@ -2361,7 +2361,7 @@ testlib_crypto_sha512_any_srcs= \
 	$(STDLIB)/crypto/sha512/sha512.ha \
 	$(STDLIB)/crypto/sha512/+test.ha
 
-$(TESTCACHE)/crypto/sha512/crypto_sha512-any.ssa: $(testlib_crypto_sha512_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/crypto/sha512/crypto_sha512-any.ssa: $(testlib_crypto_sha512_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/sha512
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha512 \

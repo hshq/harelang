@@ -1,8 +1,7 @@
 use fmt;
 use hash;
-use io;
 use strings;
-use strio;
+use encoding::hex;
 
 @test fn sha256() void = {
 	let sha = sha256();
@@ -27,15 +26,9 @@ use strio;
 		let sum: [SIZE]u8 = [0...];
 		hash::sum(&sha, sum);
 
-		let hex = strio::dynamic();
-		defer io::close(hex);
-		for (let i = 0z; i < SIZE; i += 1) {
-			fmt::fprintf(hex, "{:02x}", sum[i])!;
-		};
-
-		if (strio::string(hex) != vector.1) {
-			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(hex), vector.1)!;
+		let shahex = hex::encodestr(sum);
+		if (shahex != vector.1) {
+			fmt::errorfln("Vector {}: {} != {}", i, shahex, vector.1)!;
 			abort();
 		};
 	};
@@ -48,18 +41,12 @@ use strio;
 	//for (let i = 0z; i < 16777216; i += 1) {
 	//	hash::write(&sha, strings::toutf8(input));
 	//};
-	//let sum = hash::sum(&sha);
-	//defer free(sum);
+	//let sum: [SIZE]u8 = [0...];
+	//hash::sum(&sha, sum);
 
-	//let hex = strio::dynamic();
-	//defer io::close(hex);
-	//for (let i = 0z; i < SIZE; i += 1) {
-	//	fmt::fprintf(hex, "{:02x}", sum[i]);
-	//};
-
-	//if (strio::string(hex) != expected) {
-	//	fmt::errorfln("Biggo vector: {} != {}",
-	//		strio::string(hex), expected);
+	//let shahex = hex::encodestr(sum);
+	//if (shahex != expected) {
+	//	fmt::errorfln("Biggo vector: {} != {}", shahex, expected)!;
 	//	abort();
 	//};
 };

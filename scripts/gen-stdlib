@@ -242,7 +242,7 @@ crypto_sha256() {
 	else
 		gensrcs_crypto_sha256 \
 			+test.ha
-		genssa_crypto_sha256 fmt strio strings
+		genssa_crypto_sha256 hash fmt strings encoding::hex
 	fi
 }
 
@@ -253,7 +253,7 @@ crypto_sha1() {
 		gen_ssa crypto::sha1 hash io endian
 	else
 		gen_srcs crypto::sha1 sha1.ha +test.ha
-		gen_ssa crypto::sha1 hash io endian fmt strio strings
+		gen_ssa crypto::sha1 hash endian fmt strings encoding::hex
 	fi
 }
 
@@ -264,7 +264,7 @@ crypto_sha512() {
 		gen_ssa crypto::sha512 hash io endian
 	else
 		gen_srcs crypto::sha512 sha512.ha +test.ha
-		gen_ssa crypto::sha512 hash io endian fmt strio strings
+		gen_ssa crypto::sha512 hash endian fmt strings encoding::hex
 	fi
 }
 
@@ -275,7 +275,7 @@ crypto_md5() {
 		gen_ssa crypto::md5 hash io endian
 	else
 		gen_srcs crypto::md5 md5.ha +test.ha
-		gen_ssa crypto::md5 hash io endian fmt strio strings
+		gen_ssa crypto::md5 hash endian fmt strings encoding::hex
 	fi
 }
 
