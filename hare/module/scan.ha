@@ -71,6 +71,9 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 		...
 	};
 	scan_directory(ctx, &ver, &sha, path, iter)?;
+	if (len(ver.inputs) == 0) {
+		return module_not_found;
+	};
 
 	let tmp: [sha256::SIZE]u8 = [0...];
 	hash::sum(&sha, tmp);
