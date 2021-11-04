@@ -1,10 +1,22 @@
 #!/bin/sh
 # Yes, I am entirely aware that this is a hack
-modules=$(awk '
-/^modules="/ { sub(/.*="/, ""); print $1; mods = 1 }
-/^[a-z][a-z0-9:_]+/ { if (mods == 1) { print $1 } }
-/^[a-z][a-z0-9:_]+"$/ { if (mods == 1) { mods = 0; sub(/"/, ""); print $1 } }
-' < scripts/gen-stdlib)
+srcdir="$(dirname "$0")"
+getmods() (
+	DOCS=1
+	. $srcdir/gen-stdlib
+	IFS="
+"
+	for module in $modules; do
+		if [ -z "$(echo "$module" | cut -sf1)" ]
+		then
+			echo "$module"
+		else
+			module="$(echo "$module" | cut -sf1)"
+			echo $module
+		fi
+	done
+)
+modules="$(getmods)"
 
 mkdir -p docs/html/
 
@@ -16,6 +28,7 @@ fi
 haredoc -Fhtml > docs/html/index.html
 for mod in $modules compress format encoding math crypto hare rt iobus
 do
+	echo $mod
 	path="$(echo $mod | sed -e 's?::?/?g')"
 	mkdir -p docs/html/$path
 	haredoc -Fhtml $mod >docs/html/$path/index.html
