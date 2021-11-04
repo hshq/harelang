@@ -10,6 +10,7 @@ use os::exec;
 use os;
 use path;
 use strings;
+use unix::tty;
 
 fn default_tags() []module::tag = {
 	return alloc([module::tag {
@@ -485,13 +486,34 @@ fn version(args: []str) void = {
 		};
 		fmt::println()!;
 
-		match (os::getenv("HAREPATH")) {
-		case void =>
-			fmt::printfln("HAREPATH\t{}", HAREPATH)!;
-		case s: str =>
-			fmt::printf("HAREPATH\t{}", s)!;
-			bufio::flush(os::stdout)!;
-			fmt::errorln("\t(from environment)")!;
+		if (tty::isatty(os::stdout_file)) {
+			// Pretty print
+			match (os::getenv("HAREPATH")) {
+			case void =>
+				const items = strings::split(HAREPATH, ":");
+				defer free(items);
+				const items = strings::join("\n\t\t", items...);
+				defer free(items);
+				fmt::printfln("HAREPATH\t{}", items)!;
+			case env: str =>
+				fmt::printf("HAREPATH\t")!;
+				bufio::flush(os::stdout)!;
+				fmt::errorf("(from environment)")!;
+				const items = strings::split(env, ":");
+				defer free(items);
+				const items = strings::join("\n\t\t", items...);
+				defer free(items);
+				fmt::printfln("\n\t\t{}", items)!;
+			};
+		} else {
+			// Print for ease of machine parsing
+			const val = match (os::getenv("HAREPATH")) {
+			case void =>
+				yield HAREPATH;
+			case env: str =>
+				yield env;
+			};
+			fmt::printfln("HAREPATH\t{}", val)!;
 		};
 	};
 };
