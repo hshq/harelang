@@ -160,7 +160,12 @@ export fn dup(fd: int) (int | errno) = {
 };
 
 export fn dup2(oldfd: int, newfd: int) (int | errno) = {
-	return wrap_return(syscall2(SYS_dup2, oldfd: u64, newfd: u64))?: int;
+	return dup3(oldfd, newfd, 0);
+};
+
+export fn dup3(oldfd: int, newfd: int, flags: int) (int | errno) = {
+	return wrap_return(syscall3(SYS_dup3,
+		oldfd: u64, newfd: u64, flags: u64))?: int;
 };
 
 export fn close(fd: int) (void | errno) = {
