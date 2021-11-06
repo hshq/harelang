@@ -1393,6 +1393,7 @@ $(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_st
 # slice (+any)
 stdlib_slice_any_srcs= \
 	$(STDLIB)/slice/reverse.ha \
+	$(STDLIB)/slice/trunc.ha \
 	$(STDLIB)/slice/void.ha
 
 $(HARECACHE)/slice/slice-any.ssa: $(stdlib_slice_any_srcs) $(stdlib_rt) $(stdlib_types_$(PLATFORM))
@@ -3068,6 +3069,7 @@ $(TESTCACHE)/path/path-any.ssa: $(testlib_path_any_srcs) $(testlib_rt) $(testlib
 # slice (+any)
 testlib_slice_any_srcs= \
 	$(STDLIB)/slice/reverse.ha \
+	$(STDLIB)/slice/trunc.ha \
 	$(STDLIB)/slice/void.ha
 
 $(TESTCACHE)/slice/slice-any.ssa: $(testlib_slice_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM))

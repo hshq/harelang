@@ -862,6 +862,7 @@ gensrcs_strconv() {
 slice() {
 	gen_srcs slice \
 		reverse.ha \
+		trunc.ha \
 		void.ha
 	gen_ssa slice types
 }
