@@ -24,19 +24,28 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 		};
 
 		switch (r) {
-		case '\\' =>
-			scan_backslash(s, in)?;
-		case '"' =>
-			scan_double(s, in)?;
-		case '\'' =>
-			scan_single(s, in)?;
 		case ' ', '\t', '\n' =>
-			if (len(strio::string(s)) > 0) {
-				append(slice, strio::finish(s));
-				s = strio::dynamic();
+			let r = :out {
+				for (true) match (bufio::scanrune(in)!) {
+				case r: rune =>
+					if (r != ' ' && r != '\t' && r != '\n') {
+						yield :out, r;
+					};
+				case io::EOF =>
+					yield :out, void;
+				};
+				abort(); // Unreachable
+			};
+			append(slice, strio::finish(s));
+			s = strio::dynamic();
+
+			match (r) {
+			case void => void;
+			case r: rune =>
+				process(s, in, r)?;
 			};
 		case =>
-			strio::appendrune(s, r)!;
+			process(s, in, r)?;
 		};
 	};
 
@@ -46,6 +55,19 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 	};
 
 	return slice;
+};
+
+fn process(out: io::handle, in: io::handle, r: rune) (void | syntaxerr) = {
+	switch (r) {
+	case '\\' =>
+		scan_backslash(out, in)?;
+	case '"' =>
+		scan_double(out, in)?;
+	case '\'' =>
+		scan_single(out, in)?;
+	case =>
+		strio::appendrune(out, r)!;
+	};
 };
 
 fn scan_backslash(out: io::handle, in: io::handle) (void | syntaxerr) = {

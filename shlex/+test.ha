@@ -19,6 +19,13 @@
 	assert(len(s) == 1);
 	assert(s[0] == "hello \"world\"");
 
+	const s = split("hello '' world")!;
+	defer splitfree(s);
+	assert(len(s) == 3);
+	assert(s[0] == "hello");
+	assert(s[1] == "");
+	assert(s[2] == "world");
+
 	const s = split("with\\ backslashes 'single quoted' \"double quoted\"")!;
 	defer splitfree(s);
 	assert(len(s) == 3);
