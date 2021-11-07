@@ -117,3 +117,18 @@ export fn iter_str(iter: *iterator) str = {
 	assert(prev(&s) is void);
 	assert(next(&s) as rune == 'に');
 };
+
+// Returns a slice of runes for a string in O(n). The caller must free the
+// return value.
+export fn runes(s: str) []rune = {
+	let sl: []rune = alloc([], len(s));
+	let iter = iter(s);
+	for (true) {
+		match (next(&iter)) {
+		case void => break;
+		case r: rune =>
+			append(sl, r);
+		};
+	};
+	return sl;
+};
