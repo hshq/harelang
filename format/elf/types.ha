@@ -635,7 +635,7 @@ export type stt = enum u8 {
 export fn st_type(i: u8) stt = (i & 0xF): stt;
 
 // Converts symbol bindings and type into [sym64.st_info].
-// 
+//
 // Equivalent to the ELF64_ST_INFO macro.
 export fn st_info(b: stb, t: stt) u8 = b: u8 << 4 + t: u8 & 0xF;
 
@@ -658,17 +658,17 @@ export type rela64 = struct {
 };
 
 // Obtains the symbol table index part of [rel64.r_info].
-// 
+//
 // Equivalent to the ELF64_R_SYM macro.
 export fn r64_sym(info: u64) u64 = info >> 32;
 
 // Obtains the relocation type part of [rel64.r_info].
-// 
+//
 // Equivalent to the ELF64_R_TYPE macro.
 export fn r64_type(info: u64) u64 = info & 0xFFFFFFFF;
 
 // Converts symbol table index and a relocation type into [rel64.r_info].
-// 
+//
 // Equivalent to the ELF64_R_INFO macro.
 export fn r64_info(sym: u64, stype: u64) u64 = sym << 32 | stype & 0xFFFFFFFF;
 
@@ -855,67 +855,67 @@ export type auxv64 = struct {
 // Legal auxillary vector entry types
 export type at = enum u64 {
 	// End of vector
-	NULL = 0, 
+	NULL = 0,
 	// Entry should be ignored
-	IGNORE = 1, 
+	IGNORE = 1,
 	// File descriptor of program
-	EXECFD = 2, 
+	EXECFD = 2,
 	// Program headers for program
-	PHDR = 3, 
+	PHDR = 3,
 	// Size of program header entry
-	PHENT = 4, 
+	PHENT = 4,
 	// Number of program headers
-	PHNUM = 5, 
+	PHNUM = 5,
 	// System page size
-	PAGESZ = 6, 
+	PAGESZ = 6,
 	// Base address of interpreter
-	BASE = 7, 
+	BASE = 7,
 	// Flags
-	FLAGS = 8, 
+	FLAGS = 8,
 	// Entry point of program
-	ENTRY = 9, 
+	ENTRY = 9,
 	// Program is not ELF
-	NOTELF = 10, 
+	NOTELF = 10,
 	// Real uid
-	UID = 11, 
+	UID = 11,
 	// Effective uid
-	EUID = 12, 
+	EUID = 12,
 	// Real gid
-	GID = 13, 
+	GID = 13,
 	// Effective gid
-	EGID = 14, 
+	EGID = 14,
 	// Frequency of times()
-	CLKTCK = 17, 
+	CLKTCK = 17,
 
 	// String identifying platform.
-	PLATFORM = 15, 
+	PLATFORM = 15,
 	// Machine-dependent hints about processor capabilities.
-	HWCAP = 16, 
+	HWCAP = 16,
 
 	// Used FPU control word.
-	FPUCW = 18, 
+	FPUCW = 18,
 
 	// Data cache block size.
-	DCACHEBSIZE = 19, 
+	DCACHEBSIZE = 19,
 	// Instruction cache block size.
-	ICACHEBSIZE = 20, 
+	ICACHEBSIZE = 20,
 	// Unified cache block size.
-	UCACHEBSIZE = 21, 
+	UCACHEBSIZE = 21,
 
 	// A special ignored value for PPC, used by the kernel to control the
 	// interpretation of the AUXV. Must be > 16.
 	// Entry should be ignored.
-	IGNOREPPC = 22, 
+	IGNOREPPC = 22,
 	// Boolean, was exec setuid-like?
-	SECURE = 23, 
+	SECURE = 23,
 	// String identifying real platforms.
-	BASE_PLATFORM = 24, 
+	BASE_PLATFORM = 24,
 	// Address of 16 random bytes.
-	RANDOM = 25, 
+	RANDOM = 25,
 	// More machine-dependent hints about processor capabilities.
-	HWCAP2 = 26, 
+	HWCAP2 = 26,
 	// Filename of executable.
-	EXECFN = 31, 
+	EXECFN = 31,
 
 	// Pointer to the global system page used for system calls and other
 	// nice things.
@@ -942,25 +942,25 @@ export type at = enum u64 {
 	L3_CACHEGEOMETRY = 47,
 
 	// Stack needed for signal delivery (AArch64).
-	MINSIGSTKSZ = 51, 
+	MINSIGSTKSZ = 51,
 };
 
 // Version definition section
 export type verdef64 = struct {
 	// Version revision
-	vd_version: u16, 
+	vd_version: u16,
 	// Version information
-	vd_flags: u16, 
+	vd_flags: u16,
 	// Version Index
-	vd_ndx: u16, 
+	vd_ndx: u16,
 	// Number of associated aux entries
-	vd_cnt: u16, 
+	vd_cnt: u16,
 	// Version name hash value
-	vd_hash: u32, 
+	vd_hash: u32,
 	// Offset in bytes to verdaux array
-	vd_aux: u32, 
+	vd_aux: u32,
 	// Offset in bytes to next verdef entry
-	vd_next: u32, 
+	vd_next: u32,
 };
 
 // Auxillary version information
