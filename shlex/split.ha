@@ -1,4 +1,3 @@
-use bufio;
 use io;
 use strings;
 use strio;
@@ -9,72 +8,58 @@ export type syntaxerr = !void;
 // Splits a string of arguments according to shell quoting. The result must be
 // freed using [[splitfree]] when the caller is done processing it.
 export fn split(in: const str) ([]str | syntaxerr) = {
-	let in = bufio::fixed(strings::toutf8(in), io::mode::READ);
-	defer io::close(in);
+	let iter = strings::iter(in);
 
 	let s = strio::dynamic();
 	let slice: []str = [];
+	let dirty = false;
 
 	for (true) {
-		const r = match (bufio::scanrune(in)!) {
+		const r = match (strings::next(&iter)) {
 		case r: rune =>
 			yield r;
-		case io::EOF =>
+		case void =>
 			break;
 		};
 
+		dirty = true;
 		switch (r) {
 		case ' ', '\t', '\n' =>
-			let r = :out {
-				for (true) match (bufio::scanrune(in)!) {
-				case r: rune =>
-					if (r != ' ' && r != '\t' && r != '\n') {
-						yield :out, r;
-					};
-				case io::EOF =>
-					yield :out, void;
+			for (true) match (strings::next(&iter)) {
+			case r: rune =>
+				if (r != ' ' && r != '\t' && r != '\n') {
+					strings::prev(&iter); // Unget
+					break;
 				};
-				abort(); // Unreachable
+			case void =>
+				break;
 			};
 			append(slice, strio::finish(s));
 			s = strio::dynamic();
-
-			match (r) {
-			case void => void;
-			case r: rune =>
-				process(s, in, r)?;
-			};
+			dirty = false;
+		case '\\' =>
+			scan_backslash(s, &iter)?;
+		case '"' =>
+			scan_double(s, &iter)?;
+		case '\'' =>
+			scan_single(s, &iter)?;
 		case =>
-			process(s, in, r)?;
+			strio::appendrune(s, r)!;
 		};
 	};
 
-	const buf = strio::finish(s);
-	if (len(buf) > 0) {
-		append(slice, buf);
+	if (dirty) {
+		append(slice, strio::finish(s));
 	};
 
 	return slice;
 };
 
-fn process(out: io::handle, in: io::handle, r: rune) (void | syntaxerr) = {
-	switch (r) {
-	case '\\' =>
-		scan_backslash(out, in)?;
-	case '"' =>
-		scan_double(out, in)?;
-	case '\'' =>
-		scan_single(out, in)?;
-	case =>
-		strio::appendrune(out, r)!;
-	};
-};
-
-fn scan_backslash(out: io::handle, in: io::handle) (void | syntaxerr) = {
-	const r = match (bufio::scanrune(in)!) {
+fn scan_backslash(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
+	const r = match (strings::next(in)) {
 	case r: rune =>
 		yield r;
-	case io::EOF =>
+	case void =>
 		return syntaxerr;
 	};
 
@@ -89,12 +74,12 @@ fn scan_backslash(out: io::handle, in: io::handle) (void | syntaxerr) = {
 	strio::appendrune(out, r)!;
 };
 
-fn scan_double(out: io::handle, in: io::handle) (void | syntaxerr) = {
+fn scan_double(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
 	for (true) {
-		const r = match (bufio::scanrune(in)!) {
+		const r = match (strings::next(in)) {
 		case r: rune =>
 			yield r;
-		case io::EOF =>
+		case void =>
 			return syntaxerr;
 		};
 
@@ -109,12 +94,12 @@ fn scan_double(out: io::handle, in: io::handle) (void | syntaxerr) = {
 	};
 };
 
-fn scan_single(out: io::handle, in: io::handle) (void | syntaxerr) = {
+fn scan_single(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
 	for (true) {
-		const r = match (bufio::scanrune(in)!) {
+		const r = match (strings::next(in)) {
 		case r: rune =>
 			yield r;
-		case io::EOF =>
+		case void =>
 			return syntaxerr;
 		};
 

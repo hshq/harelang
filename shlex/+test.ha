@@ -26,6 +26,12 @@
 	assert(s[1] == "");
 	assert(s[2] == "world");
 
+	const s = split("Empty ''")!;
+	defer splitfree(s);
+	assert(len(s) == 2);
+	assert(s[0] == "Empty");
+	assert(s[1] == "");
+
 	const s = split("with\\ backslashes 'single quoted' \"double quoted\"")!;
 	defer splitfree(s);
 	assert(len(s) == 3);
