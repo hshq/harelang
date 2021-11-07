@@ -211,17 +211,17 @@ fn init_tty(ctx: *context) io::handle = {
 			return os::stdout;
 		};
 	case void =>
-		match (exec::cmd("less")) {
+		yield match (exec::cmd("less")) {
 		case cmd: exec::command =>
 			yield cmd;
-		case exec::error => void;
+		case exec::error =>
+			yield match (exec::cmd("more")) {
+			case cmd: exec::command =>
+				yield cmd;
+			case exec::error =>
+				return os::stdout;
+			};
 		};
-		match (exec::cmd("more")) {
-		case cmd: exec::command =>
-			yield cmd;
-		case exec::error => void;
-		};
-		return os::stdout;
 	};
 
 	const pipe = unix::pipe()!;
