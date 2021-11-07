@@ -474,6 +474,12 @@ stdlib_deps_any+=$(stdlib_path_any)
 stdlib_path_linux=$(stdlib_path_any)
 stdlib_path_freebsd=$(stdlib_path_any)
 
+# gen_lib shlex (any)
+stdlib_shlex_any=$(HARECACHE)/shlex/shlex-any.o
+stdlib_deps_any+=$(stdlib_shlex_any)
+stdlib_shlex_linux=$(stdlib_shlex_any)
+stdlib_shlex_freebsd=$(stdlib_shlex_any)
+
 # gen_lib slice (any)
 stdlib_slice_any=$(HARECACHE)/slice/slice-any.o
 stdlib_deps_any+=$(stdlib_slice_any)
@@ -1390,6 +1396,16 @@ $(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_st
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Npath \
 		-t$(HARECACHE)/path/path.td $(stdlib_path_any_srcs)
 
+# shlex (+any)
+stdlib_shlex_any_srcs= \
+	$(STDLIB)/shlex/split.ha
+
+$(HARECACHE)/shlex/shlex-any.ssa: $(stdlib_shlex_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/shlex
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nshlex \
+		-t$(HARECACHE)/shlex/shlex.td $(stdlib_shlex_any_srcs)
+
 # slice (+any)
 stdlib_slice_any_srcs= \
 	$(STDLIB)/slice/reverse.ha \
@@ -2119,6 +2135,12 @@ testlib_path_any=$(TESTCACHE)/path/path-any.o
 testlib_deps_any+=$(testlib_path_any)
 testlib_path_linux=$(testlib_path_any)
 testlib_path_freebsd=$(testlib_path_any)
+
+# gen_lib shlex (any)
+testlib_shlex_any=$(TESTCACHE)/shlex/shlex-any.o
+testlib_deps_any+=$(testlib_shlex_any)
+testlib_shlex_linux=$(testlib_shlex_any)
+testlib_shlex_freebsd=$(testlib_shlex_any)
 
 # gen_lib slice (any)
 testlib_slice_any=$(TESTCACHE)/slice/slice-any.o
@@ -3065,6 +3087,17 @@ $(TESTCACHE)/path/path-any.ssa: $(testlib_path_any_srcs) $(testlib_rt) $(testlib
 	@mkdir -p $(TESTCACHE)/path
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Npath \
 		-t$(TESTCACHE)/path/path.td $(testlib_path_any_srcs)
+
+# shlex (+any)
+testlib_shlex_any_srcs= \
+	$(STDLIB)/shlex/split.ha \
+	$(STDLIB)/shlex/+test.ha
+
+$(TESTCACHE)/shlex/shlex-any.ssa: $(testlib_shlex_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/shlex
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nshlex \
+		-t$(TESTCACHE)/shlex/shlex.td $(testlib_shlex_any_srcs)
 
 # slice (+any)
 testlib_slice_any_srcs= \

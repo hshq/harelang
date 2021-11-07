@@ -859,6 +859,23 @@ gensrcs_strconv() {
 		$*
 }
 
+gensrcs_shlex() {
+	gen_srcs shlex \
+		split.ha \
+		$*
+}
+
+shlex() {
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_shlex
+	else
+		gensrcs_shlex \
+			+test.ha
+	fi
+	gen_ssa shlex bufio io strings strio
+}
+
 slice() {
 	gen_srcs slice \
 		reverse.ha \
@@ -1096,6 +1113,7 @@ math::random
 os				linux freebsd
 os::exec		linux freebsd
 path
+shlex
 slice
 sort
 strconv
