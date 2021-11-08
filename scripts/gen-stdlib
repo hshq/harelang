@@ -783,7 +783,8 @@ net_unix() {
 		addr.ha \
 		dial.ha \
 		listener.ha \
-		options.ha
+		options.ha \
+		socketpair.ha
 	gen_ssa -plinux net::unix net errors os io strings types fmt net::dial
 
 	gen_srcs -pfreebsd net::unix \
@@ -791,7 +792,8 @@ net_unix() {
 		addr.ha \
 		dial.ha \
 		listener.ha \
-		options.ha
+		options.ha \
+		socketpair.ha
 	gen_ssa -pfreebsd net::unix net errors os io strings types fmt net::dial
 }
 

@@ -1296,7 +1296,8 @@ stdlib_net_unix_linux_srcs= \
 	$(STDLIB)/net/unix/addr.ha \
 	$(STDLIB)/net/unix/dial.ha \
 	$(STDLIB)/net/unix/listener.ha \
-	$(STDLIB)/net/unix/options.ha
+	$(STDLIB)/net/unix/options.ha \
+	$(STDLIB)/net/unix/socketpair.ha
 
 $(HARECACHE)/net/unix/net_unix-linux.ssa: $(stdlib_net_unix_linux_srcs) $(stdlib_rt) $(stdlib_net_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_net_dial_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -1310,7 +1311,8 @@ stdlib_net_unix_freebsd_srcs= \
 	$(STDLIB)/net/unix/addr.ha \
 	$(STDLIB)/net/unix/dial.ha \
 	$(STDLIB)/net/unix/listener.ha \
-	$(STDLIB)/net/unix/options.ha
+	$(STDLIB)/net/unix/options.ha \
+	$(STDLIB)/net/unix/socketpair.ha
 
 $(HARECACHE)/net/unix/net_unix-freebsd.ssa: $(stdlib_net_unix_freebsd_srcs) $(stdlib_rt) $(stdlib_net_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_net_dial_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2990,7 +2992,8 @@ testlib_net_unix_linux_srcs= \
 	$(STDLIB)/net/unix/addr.ha \
 	$(STDLIB)/net/unix/dial.ha \
 	$(STDLIB)/net/unix/listener.ha \
-	$(STDLIB)/net/unix/options.ha
+	$(STDLIB)/net/unix/options.ha \
+	$(STDLIB)/net/unix/socketpair.ha
 
 $(TESTCACHE)/net/unix/net_unix-linux.ssa: $(testlib_net_unix_linux_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_net_dial_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -3004,7 +3007,8 @@ testlib_net_unix_freebsd_srcs= \
 	$(STDLIB)/net/unix/addr.ha \
 	$(STDLIB)/net/unix/dial.ha \
 	$(STDLIB)/net/unix/listener.ha \
-	$(STDLIB)/net/unix/options.ha
+	$(STDLIB)/net/unix/options.ha \
+	$(STDLIB)/net/unix/socketpair.ha
 
 $(TESTCACHE)/net/unix/net_unix-freebsd.ssa: $(testlib_net_unix_freebsd_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_net_dial_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
