@@ -50,7 +50,6 @@ export fn write(fd: int, buf: *const void, count: size) (size | errno) = {
 
 export fn close(fd: int) (void | errno) = {
 	wrap_return(syscall1(SYS_close, fd: u64))?;
-	return;
 };
 
 export fn lseek(fd: int, off: i64, whence: uint) (i64 | errno) = {
@@ -60,7 +59,6 @@ export fn lseek(fd: int, off: i64, whence: uint) (i64 | errno) = {
 
 export fn pipe2(pipefd: *[2]int, flags: int) (void | errno) = {
 	wrap_return(syscall2(SYS_pipe2, pipefd: uintptr: u64, flags: u64))?;
-	return;
 };
 
 export fn ioctl(fd: int, req: u64, arg: nullable *void) (int | errno) = {
@@ -87,7 +85,6 @@ export fn unlink(path: path) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall3(SYS_unlinkat,
 		AT_FDCWD: u64, path: uintptr: u64, 0u64))?;
-	return;
 };
 
 export fn renameat(
@@ -102,14 +99,12 @@ export fn renameat(
 	wrap_return(syscall4(SYS_renameat,
 		olddirfd: u64, oldpath: uintptr: u64,
 		newdirfd: u64, newpath: uintptr: u64))?;
-	return;
 };
 
 export fn unlinkat(dirfd: int, path: path, flags: int) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall3(SYS_unlinkat,
 		dirfd: u64, path: uintptr: u64, flags: u64))?;
-	return;
 };
 
 export fn fstatat(fd: int, path: path, stat: *st, flag: int) (void | errno) = {
@@ -136,7 +131,6 @@ export fn fstatat(fd: int, path: path, stat: *st, flag: int) (void | errno) = {
 	stat.blocks = fbstat.st_blocks;
 	stat.blksz = fbstat.st_blksize;
 	stat.flags = fbstat.st_flags;
-	return;
 };
 
 export fn readlinkat(
@@ -155,21 +149,18 @@ export fn mkdirat(dirfd: int, path: path, mode: uint) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall3(SYS_mkdirat,
 		dirfd: u64, path: uintptr: u64, mode: u64))?;
-	return;
 };
 
 export fn fchmodat(dirfd: int, path: path, mode: uint, flags: int) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall4(SYS_fchmodat,
 		dirfd: u64, path: uintptr: u64, mode: u64, flags: u64))?;
-	return;
 };
 
 export fn fchownat(dirfd: int, path: path, uid: uint, gid: uint, flags: int) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall5(SYS_fchownat,
 		dirfd: u64, path: uintptr: u64, uid: u32, gid: u32, flags: u64))?;
-	return;
 };
 
 export fn faccessat(
@@ -218,19 +209,16 @@ export fn getcwd() (*const char | errno) = {
 
 export fn fchdir(fd: int) (void | errno) = {
 	wrap_return(syscall1(SYS_fchdir, fd: u64))?;
-	return;
 };
 
 export fn chdir(path: path) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall1(SYS_chdir, path: uintptr: u64))?;
-	return;
 };
 
 export fn chroot(path: path) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall1(SYS_chroot, path: uintptr: u64))?;
-	return;
 };
 
 export fn mmap(
@@ -248,14 +236,12 @@ export fn mmap(
 
 export fn munmap(addr: *void, length: size) (void | errno) = {
 	wrap_return(syscall2(SYS_munmap, addr: uintptr: u64, length: u64))?;
-	return;
 };
 
 export @noreturn fn exit(status: int) void = syscall1(SYS_exit, status: u64);
 
 export fn kill(pid: int, signal: int) (void | errno) = {
 	wrap_return(syscall2(SYS_kill, pid: u64, signal: u64))?;
-	return;
 };
 
 export fn fork() (int | void | errno) = {
@@ -306,7 +292,6 @@ export fn getpriority(which: int, who: id_t) (int | errno) = {
 
 export fn setpriority(which: int, who: id_t, prio: int) (void | errno) = {
 	wrap_return(syscall3(SYS_setpriority, which: u64, who: u64, prio: u64))?;
-	return;
 };
 
 export fn umask(mode: mode_t) (mode_t | errno) = {
@@ -315,12 +300,10 @@ export fn umask(mode: mode_t) (mode_t | errno) = {
 
 export fn setresuid(uid: uid_t, euid: uid_t, suid: uid_t) (void | errno) = {
 	wrap_return(syscall3(SYS_setresuid, uid: u64, euid: u64, suid: u64))?;
-	return;
 };
 
 export fn setresgid(gid: gid_t, egid: gid_t, sgid: gid_t) (void | errno) = {
 	wrap_return(syscall3(SYS_setresgid, gid: u64, egid: u64, sgid: u64))?;
-	return;
 };
 
 export fn getresuid(uid: *uid_t, euid: *uid_t, suid: *uid_t) (void | errno) = {
@@ -328,7 +311,6 @@ export fn getresuid(uid: *uid_t, euid: *uid_t, suid: *uid_t) (void | errno) = {
 		uid: uintptr: u64,
 		euid: uintptr: u64,
 		suid: uintptr: u64))?;
-	return;
 };
 
 export fn getresgid(gid: *gid_t, egid: *gid_t, sgid: *gid_t) (void | errno) = {
@@ -336,19 +318,16 @@ export fn getresgid(gid: *gid_t, egid: *gid_t, sgid: *gid_t) (void | errno) = {
 		gid: uintptr: u64,
 		egid: uintptr: u64,
 		sgid: uintptr: u64))?;
-	return;
 };
 
 export fn clock_gettime(clock_id: int, tp: *timespec) (void | errno) = {
 	wrap_return(syscall2(SYS_clock_gettime,
 		clock_id: u64, tp: uintptr: u64))?;
-	return;
 };
 
 export fn nanosleep(req: *const timespec, rem: *timespec) (void | errno) = {
 	wrap_return(syscall2(SYS_nanosleep,
 		req: uintptr: u64, rem: uintptr: u64))?;
-	return;
 };
 
 export fn getrandom(buf: *void, bufln: size, flags: uint) (size | errno) = {
@@ -468,7 +447,6 @@ export fn sysctlbyname(name: str, oldp: nullable *void, oldlenp: nullable *size,
 		kname: uintptr: u64, len(name): u64,
 		oldp: uintptr: u64, oldlenp: uintptr: u64,
 		newp: uintptr: u64, newlen: u64))?;
-	return;
 };
 
 export fn dup2(oldfd: int, newfd: int) (int | errno) = {
