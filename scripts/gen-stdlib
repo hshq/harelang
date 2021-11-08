@@ -596,6 +596,7 @@ gensrcs_io() {
 		'arch+$(ARCH).ha' \
 		println+linux.ha \
 		+linux/file.ha \
+		+linux/mmap.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \
@@ -610,6 +611,7 @@ gensrcs_io() {
 		'arch+$(ARCH).ha' \
 		println+freebsd.ha \
 		+freebsd/file.ha \
+		+freebsd/mmap.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \
