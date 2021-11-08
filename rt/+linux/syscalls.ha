@@ -562,9 +562,16 @@ export fn setsockopt(sockfd: int, level: int, optname: int, optval: *void, optle
 		optval: uintptr: u64, optlen: u64))?: int;
 };
 
-export fn ioctl(fd: int, req: u64, arg: nullable *void) (int | errno) = {
-	return wrap_return(syscall3(SYS_ioctl, fd: u64,
-		req, arg: uintptr: u64))?: int;
+export type ioctl_arg = (nullable *void | u64);
+
+export fn ioctl(fd: int, req: u64, arg: ioctl_arg) (int | errno) = {
+	let fd = fd: u64, req = req: u64;
+	return wrap_return(match (arg) {
+	case u: u64 =>
+		yield syscall3(SYS_ioctl, fd, req, u);
+	case v: nullable *void =>
+		yield syscall3(SYS_ioctl, fd, req, v: uintptr: u64);
+	})?: int;
 };
 
 export fn getsockname(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) (int | errno) = {
