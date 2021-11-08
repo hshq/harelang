@@ -65,3 +65,13 @@ export fn mmap(
 		return errors::errno(err);
 	};
 };
+
+// Unmaps memory previously mapped with [[mmap]].
+export fn munmap(addr: *void, length: size) (void | errors::error) = {
+	match (rt::munmap(addr, length)) {
+	case void =>
+		return;
+	case err: rt::errno =>
+		return errors::errno(err);
+	};
+};
