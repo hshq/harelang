@@ -506,6 +506,16 @@ export fn socket(domain: int, type_: int, protocol: int) (int | errno) = {
 		domain: u64, type_: u64, protocol: u64))?: int;
 };
 
+export fn socketpair(
+	domain: int,
+	type_: int,
+	protocol: int,
+	sv: *[2]int
+) (int | errno) = {
+	return wrap_return(syscall4(SYS_socketpair, domain: u64,
+		type_: u64, protocol: u64, sv: uintptr : u64))?: int;
+};
+
 export fn connect(sockfd: int, addr: *const sockaddr, addrlen: u32) (int | errno) = {
 	return wrap_return(syscall3(SYS_connect,
 		sockfd: u64, addr: uintptr: u64, addrlen: u64))?: int;
