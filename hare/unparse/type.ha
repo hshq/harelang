@@ -4,7 +4,8 @@ use hare::ast;
 use hare::lex;
 use strio;
 
-fn builtin_type(b: ast::builtin_type) str = switch (b) {
+// Returns a builtin type as a string.
+export fn builtin_type(b: ast::builtin_type) str = switch (b) {
 case ast::builtin_type::FCONST, ast::builtin_type::ICONST =>
 	abort("ICONST and FCONST have no lexical representation");
 case ast::builtin_type::BOOL =>
@@ -51,7 +52,8 @@ case ast::builtin_type::VOID =>
 	yield "void";
 };
 
-fn prototype(
+// Unparses a prototype.
+export fn prototype(
 	out: io::handle,
 	indent: size,
 	t: ast::func_type,
@@ -79,6 +81,7 @@ fn prototype(
 	return n;
 };
 
+// Unparses a struct or union type.
 fn struct_union_type(
 	out: io::handle,
 	indent: size,
