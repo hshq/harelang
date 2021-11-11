@@ -104,6 +104,7 @@ fn create(
 		hash = hash_of(name),
 		data = []: []u8,
 		parent = parent,
+		...
 	});
 	inode_insert(parent, ino);
 	return stream_open(ino, mode, appnd)?;
