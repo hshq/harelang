@@ -43,10 +43,10 @@ export fn epocal(m: chrono::moment) int = {
 
 // Calculates a moment's era
 export fn era(m: chrono::moment) int = {
-	if (m.date > EPOCH_COMMONERA) {
-		return 0; // CE, Common Era
+	if (m.date >= EPOCH_COMMONERA) {
+		return 1; // CE, Common Era
 	} else {
-		return -1; // BCE, Before Common Era
+		return 0; // BCE, Before Common Era
 	};
 };
 
