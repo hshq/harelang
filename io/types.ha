@@ -5,7 +5,7 @@ use errors;
 export type underread = !void;
 
 // Any error which may be returned from an I/O function.
-export type error = !(errors::error | underread);
+export type error = !(...errors::error | underread);
 
 // Indicates an end-of-file condition.
 export type EOF = void;
