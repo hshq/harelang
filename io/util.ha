@@ -4,8 +4,7 @@
 // return value is the total number of bytes read (which shall be equal to
 // itemsz).
 export fn readitem(in: handle, item: *void, itemsz: size) (size | error) = {
-	let buf = item: *[*]u8;
-	let i = 0z;
+	let buf = item: *[*]u8, i = 0z;
 	for (i < itemsz) {
 		match (io::read(in, buf[..(itemsz - i)])) {
 		case io::EOF =>
@@ -23,5 +22,24 @@ export fn readitem(in: handle, item: *void, itemsz: size) (size | error) = {
 export fn readitems(in: handle, items: []void, itemsz: size) (size | error) = {
 	let buf = items: *[*]u8;
 	readitem(in, buf, len(items) * itemsz)?;
+	return len(items);
+};
+
+// Writes an entire "item", i.e. one Hare object, to an I/O handle. This
+// function may use multiple writes. The return value is the total number of
+// bytes written (which shall be equal to itemsz).
+export fn writeitem(out: handle, item: *void, itemsz: size) (size | error) = {
+	let buf = item: *[*]u8, i = 0z;
+	for (i < itemsz) {
+		i += io::write(out, buf[i..(itemsz - i)])?;
+	};
+	return i;
+};
+
+// Writes several "items", i.e. Hare objects, to an I/O handle. The return value
+// is the number of items written.
+export fn writeitems(in: handle, items: []void, itemsz: size) (size | error) = {
+	let buf = items: *[*]u8;
+	writeitem(in, buf, len(items) * itemsz)?;
 	return len(items);
 };
