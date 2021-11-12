@@ -606,6 +606,7 @@ gensrcs_io() {
 		stream.ha \
 		tee.ha \
 		types.ha \
+		util.ha \
 		$*
 	gen_srcs -pfreebsd io \
 		'arch+$(ARCH).ha' \
@@ -621,6 +622,7 @@ gensrcs_io() {
 		stream.ha \
 		tee.ha \
 		types.ha \
+		util.ha \
 		$*
 }
 

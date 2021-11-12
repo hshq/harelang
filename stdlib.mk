@@ -1067,7 +1067,8 @@ stdlib_io_linux_srcs= \
 	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
-	$(STDLIB)/io/types.ha
+	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/util.ha
 
 # io (+freebsd)
 stdlib_io_freebsd_srcs= \
@@ -1083,7 +1084,8 @@ stdlib_io_freebsd_srcs= \
 	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
-	$(STDLIB)/io/types.ha
+	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/util.ha
 
 $(HARECACHE)/io/io-linux.ssa: $(stdlib_io_linux_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2755,6 +2757,7 @@ testlib_io_linux_srcs= \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/+test/copy.ha \
 	$(STDLIB)/io/+test/limit.ha \
 	$(STDLIB)/io/+test/stream.ha
@@ -2774,6 +2777,7 @@ testlib_io_freebsd_srcs= \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/+test/copy.ha \
 	$(STDLIB)/io/+test/limit.ha \
 	$(STDLIB)/io/+test/stream.ha

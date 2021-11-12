@@ -1,13 +1,24 @@
 use errors;
 
+// Returned by [[readitem]] and [[readitems]] if the I/O handle returned [[EOF]]
+// prior to completely reading an item.
+export type underread = !void;
+
 // Any error which may be returned from an I/O function.
-export type error = !errors::error;
+export type error = !(errors::error | underread);
 
 // Indicates an end-of-file condition.
 export type EOF = void;
 
 // Converts an I/O [[error]] into a user-friendly string.
-export fn strerror(err: error) str = errors::strerror(err);
+export fn strerror(err: error) str = {
+	match (err) {
+	case underread =>
+		return "Insufficient data to read entire item";
+	case err: errors::error =>
+		return errors::strerror(err);
+	};
+};
 
 // Used to indicate if a stream should be used for reading, or writing, or both.
 export type mode = enum u8 {
