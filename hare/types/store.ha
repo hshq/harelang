@@ -283,6 +283,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 		sz += align - (sz - align) % align;
 	};
 	return _type {
+		id = 0, // filled in later
 		flags = atype.flags: flags,
 		repr = repr,
 		sz = sz,

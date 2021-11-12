@@ -198,6 +198,7 @@ export fn crc32(table: *[256]u32) state = state {
 	sz = SIZE,
 	table = table,
 	cval = ~0u32,
+	...
 };
 
 fn write(s: *io::stream, buf: const []u8) (size | io::error) = {

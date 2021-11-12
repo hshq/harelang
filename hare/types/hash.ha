@@ -168,6 +168,7 @@ export fn hash(t: *_type) u32 = {
 	let sample = _type {
 		flags = flags::NONE,
 		repr = builtin::STR,
+		...
 	};
 	assert(hash(&sample) == 2843771249);
 
@@ -177,6 +178,7 @@ export fn hash(t: *_type) u32 = {
 			id = ["foo", "bar"],
 			...
 		},
+		...
 	};
 	assert(hash(&sample) == 385303307);
 
@@ -186,12 +188,14 @@ export fn hash(t: *_type) u32 = {
 			id = ["foo", "bar"],
 			...
 		},
+		...
 	};
 	assert(hash(&sample) == 4117101293);
 
 	let _int = _type {
 		flags = flags::NONE,
 		repr = builtin::INT,
+		...
 	};
 	assert(hash(&_int) == 1099590421);
 
@@ -201,6 +205,7 @@ export fn hash(t: *_type) u32 = {
 			referent = &_int,
 			flags = pointer_flags::NONE,
 		},
+		...
 	};
 	assert(hash(&sample) == 2081672869);
 
@@ -210,6 +215,7 @@ export fn hash(t: *_type) u32 = {
 			referent = &_int,
 			flags = pointer_flags::NULLABLE,
 		},
+		...
 	};
 	assert(hash(&sample) == 841481858);
 
@@ -230,6 +236,7 @@ export fn hash(t: *_type) u32 = {
 				},
 			],
 		},
+		...
 	};
 	assert(hash(&sample) == 2453524063);
 
@@ -249,6 +256,7 @@ export fn hash(t: *_type) u32 = {
 				_type = &_int,
 			},
 		],
+		...
 	};
 	assert(hash(&sample) == 2230759349);
 
@@ -258,16 +266,19 @@ export fn hash(t: *_type) u32 = {
 			length = 5,
 			member = &_int,
 		},
+		...
 	};
 	assert(hash(&sample) == 3903522747);
 
 	let _uint = _type {
 		flags = flags::NONE,
 		repr = builtin::UINT,
+		...
 	};
 	let _void = _type {
 		flags = flags::NONE,
 		repr = builtin::VOID,
+		...
 	};
 
 	let sample = _type {
@@ -277,6 +288,7 @@ export fn hash(t: *_type) u32 = {
 			&_uint,
 			&_void,
 		]: tagged,
+		...
 	};
 	assert(hash(&sample) == 2847927164);
 
@@ -290,6 +302,7 @@ export fn hash(t: *_type) u32 = {
 				("BAZ", 69),
 			],
 		},
+		...
 	};
 	assert(hash(&sample) == 94471087);
 
@@ -301,12 +314,14 @@ export fn hash(t: *_type) u32 = {
 			flags = func_flags::NORETURN,
 			params = [&_uint, &_int],
 		},
+		...
 	};
 	assert(hash(&sample) == 1223530078);
 
 	let sample = _type {
 		flags = flags::NONE,
 		repr = &_void: slice,
+		...
 	};
 	assert(hash(&sample) == 263911532);
 };

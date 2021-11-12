@@ -169,6 +169,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 					mask = fs::stat_mask::MTIME | fs::stat_mask::INODE,
 					mtime = mtime,
 					inode = inode,
+					...
 				},
 				basename = strings::dup(parsed.0),
 				tags = parsed.2,
@@ -215,6 +216,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 			append(versions, version {
 				hash = modhash,
 				inputs = minputs,
+				...
 			});
 		case =>
 			return manifest;

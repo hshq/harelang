@@ -60,6 +60,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 			basedir = path::dirname(fs::resolve(ctx.fs, path)),
 			depends = deps,
 			inputs = inputs,
+			...
 		};
 	case err: fs::error =>
 		return err;

@@ -162,6 +162,7 @@ fn process_access(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 		end = aexpr.end,
 		result = op.0,
 		expr = op.1,
+		terminates = false,
 	});
 };
 
@@ -174,6 +175,7 @@ fn process_access(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 		ident = ["hello"],
 		name = ["hello"],
 		_type = &types::builtin_u32,
+		...
 	});
 	const aexpr = parse_expr("hello");
 	defer ast::expr_free(aexpr);

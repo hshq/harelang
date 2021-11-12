@@ -83,6 +83,7 @@ fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 		},
 		dirfd = fd,
 		getdents_bufsz = 32768, // 32 KiB
+		...
 	};
 	return &filesystem.fs;
 };
@@ -272,7 +273,7 @@ fn fs_stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 			| fs::stat_mask::CTIME,
 		mode = st.mode: fs::mode,
 		uid = st.uid,
-		uid = st.gid,
+		gid = st.gid,
 		sz = st.sz,
 		inode = st.ino,
 		atime = time::instant {

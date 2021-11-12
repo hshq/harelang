@@ -10,6 +10,7 @@ export type filestream = struct {
 // necessary for most programs; most APIs should accept [[handle]] instead of
 // [[stream]] in order to support both file-oriented and stream-oriented I/O.
 export fn fdstream(fd: file) filestream = filestream {
+	fd = fd,
 	reader = &fdstream_read,
 	writer = &fdstream_write,
 	closer = &fdstream_close,

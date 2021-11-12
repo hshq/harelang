@@ -18,6 +18,7 @@ export fn new() (*bus | error) = {
 	case ring: io_uring::io_uring =>
 		return alloc(bus {
 			uring = ring,
+			...
 		});
 	};
 };
@@ -132,6 +133,7 @@ export fn unregister_file(bus: *bus, file: file) void = {
 		io_uring::files_update {
 			offs = reg: u32,
 			fds = &bus.fdset[reg],
+			...
 		},
 	];
 	bus.fdset[reg] = -1;

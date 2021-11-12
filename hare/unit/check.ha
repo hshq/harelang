@@ -12,6 +12,7 @@ export fn check(
 	let ctx = context {
 		store = store,
 		scope = alloc(scope { class = scope_class::UNIT, ... }),
+		...
 	};
 	scan(&ctx, subunits)?;
 	return process(&ctx, subunits);

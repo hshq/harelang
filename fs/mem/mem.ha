@@ -58,8 +58,10 @@ export fn memopen() *fs::fs = alloc(inode {
 	data = empty_dir(),
 	name = "",
 	hash = hash_of(""),
+	next = null,
 	opencount = 1,
 	parent = null,
+	...
 });
 
 fn file_flags(flags: fs::flags...) ((io::mode, bool) | fs::error) = {
@@ -135,6 +137,7 @@ fn stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 			mode = fs::mode::REG | 0o777,
 			mask = fs::stat_mask::SIZE,
 			sz = len(f),
+			...
 		};
 	};
 };
@@ -167,8 +170,10 @@ fn mksubdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 		data = empty_dir(),
 		name = strings::dup(name),
 		hash = hash_of(name),
+		next = null,
 		opencount = 1,
 		parent = parent,
+		...
 	});
 	inode_insert(parent, ino);
 	return ino;

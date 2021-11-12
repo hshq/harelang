@@ -60,6 +60,7 @@ fn scan_func(
 		ident = ast::ident_dup(func.ident),
 		name = ast::ident_dup(func.ident),
 		_type = fntype,
+		...
 	});
 	return;
 };
