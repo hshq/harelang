@@ -1,4 +1,6 @@
 use time;
+use chrono;
+use errors;
 
 // Represents a ISO datetime
 //
@@ -18,14 +20,16 @@ export type datetime = struct {
 	loc: locality,
 };
 
-// Creates a new datetime
+export type locality = chrono::locality;
+
+// Creates a new moment
 //
 //	// 1995 July 18th 09:16:00.000
-// 	isocal::new(1995, 07, 18, 9, 16, 0, 0, isocal::local)
+// 	isocal::new_moment(1995, 07, 18, 9, 16, 0, 0, isocal::local)
 //
 // For alternative forms, assemble a datetime manually using the desired types.
-export fn new(
-	year: i64,
+export fn new_moment(
+	year: int,
 	month: int,
 	day: int,
 	hour: int,
@@ -33,32 +37,85 @@ export fn new(
 	sec: int,
 	nsec: int,
 	loc: locality,
-) datetime = datetime {
-	date = localdate {
-		year = year,
-		month = month,
-		day = day,
-	},
-	time = localtime {
-		hour = hour,
-		min = min,
-		sec = sec,
-		nsec = nsec,
-	},
-	loc = loc,
+) chrono::moment = {
+	const dt = datetime {
+		date = localdate {
+			year = year,
+			month = month,
+			day = day,
+		},
+		time = localtime {
+			hour = hour,
+			min = min,
+			sec = sec,
+			nsec = nsec,
+		},
+		loc = loc,
+	};
+	const m = conv_datetime_moment(dt);
+	return m;
+};
+
+// Creates a new datetime
+//
+//	// 1995 July 18th 09:16:00.000
+// 	isocal::new(1995, 07, 18, 9, 16, 0, 0, isocal::local)
+//
+// For alternative forms, assemble a datetime manually using the desired types.
+export fn new_datetime(
+	year: int,
+	month: int,
+	day: int,
+	hour: int,
+	min: int,
+	sec: int,
+	nsec: int,
+	loc: locality,
+) (datetime | errors::invalid) = {
+	const dt = datetime {
+		date = localdate {
+			year = year,
+			month = month,
+			day = day,
+		},
+		time = localtime {
+			hour = hour,
+			min = min,
+			sec = sec,
+			nsec = nsec,
+		},
+		loc = loc,
+	};
+	if (!validate(dt)) {
+		return errors::invalid;
+	};
+	return dt;
+};
+
+// Returns the current moment
+export fn now_moment() chrono::moment = {
+	const i = time::now(time::clock::REALTIME);
+	const u = time::unix(i);
+	const d = (u / 86400);
+	const t = (
+		(i.sec * time::SECOND) + (i.nsec * time::NANOSECOND)
+	) % (24 * time::HOUR);
+	const m = chrono::moment {
+		date = d,
+		time = t,
+		loc = chrono::local,
+	};
+	return m;
 };
 
 // Returns the current datetime
-export fn now() datetime = {
+export fn now_datetime() datetime = {
 	const i = time::now(time::clock::REALTIME);
 	const u = time::unix(i);
+	const d = (u / 86400);
+	const ld = conv_epochal_localdate(d);
 	const dt = datetime {
-		date = localdate {
-			// TODO: figure out calendar arithmetics first
-			year  = 1970,
-			month = 1,
-			day   = (i.sec / 86400): int,
-		},
+		date = ld,
 		time = localtime {
 			hour = (i.sec / 3600): int % 24,
 			min  = (i.sec / 60): int % 60,
@@ -69,9 +126,12 @@ export fn now() datetime = {
 		// TODO: What to do here? How to get the timezone from
 		// /etc/localtime or $TZ? How to determine the system's
 		// timescale?  Assuming UTC may be sufficient.
-		loc = local,
+		loc = chrono::local,
 	};
 	return dt;
 };
 
-export type error = !void;
+export fn validate(dt: datetime) bool = {
+	// TODO
+	return true;
+};

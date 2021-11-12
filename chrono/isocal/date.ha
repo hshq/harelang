@@ -1,14 +1,24 @@
 use chrono;
 
-// Represents a ISO calendar date
+// Represents an ISO calendar date.
+// Instances created from isocal:: functions are guaranteed to be valid.
 export type localdate = struct {
-	year: i64,
-	month: int,
-	day: int,
+	era:      (void | int),
+	year:     (void | int),
+	month:    (void | int),
+	day:      (void | int),
+	weekyear: (void | int),
+	week:     (void | int),
+	weekday:  (void | int),
+	yearday:  (void | int),
 };
 
-export fn conv_daynum_localdate(dn: chrono::daynum) localdate = {
-	const J = dn;
+export fn conv_epochal_localdate(epochal: chrono::epochal) localdate = {
+	// Algorithm adapted from:
+	// https://en.wikipedia.org/wiki/Julian_day#Julian_or_Gregorian_calendar_from_Julian_day_number
+	//
+	// Alternate methods of date calculation should be explored.
+	const J = epochal - EPOCH_JULIAN;
 	const j = 1401;
 	const y = 4716;
 	const B = 274277;
@@ -32,24 +42,24 @@ export fn conv_daynum_localdate(dn: chrono::daynum) localdate = {
 	const Y = (e / p) - y + (n + m - M) / n;
 
 	const ld = localdate {
-		year = Y,
+		year = Y: int,
 		month = M: int,
 		day = D: int,
 	};
 	return ld;
 };
 
-export fn conv_localdate_daynum(ld: localdate) chrono::daynum = {
-	const Y = ld.year;
-	const M = ld.month;
-	const D = ld.day;
+export fn conv_localdate_epochal(ld: localdate) chrono::epochal = {
+	const Y = ld.year as int;
+	const M = ld.month as int;
+	const D = ld.day as int;
 	const jdn = (
-		(1461 * (Y + 4000 + (M - 14) / 12)) / 4
+		(1461 * (Y + 4800 + (M - 14) / 12)) / 4
 		+ (367 * (M - 2 - 12 * ((M - 14) / 12))) / 12
 		- (3 * ((Y + 4900 + (M - 14) / 12) / 100)) / 4
 		+ D
 		- 32075
 	);
-	const dn = jdn;
-	return dn;
+	const epochal = jdn + EPOCH_JULIAN;
+	return epochal;
 };

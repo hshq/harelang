@@ -184,13 +184,13 @@ bytes() {
 chrono() {
 	gen_srcs chrono \
 		chronology.ha \
-		timescales.ha
+		timescales.ha \
+		timezone.ha
 	gen_ssa chrono time
 }
 
 chrono_isocal() {
 	gen_srcs chrono::isocal \
-		types.ha \
 		calendar.ha \
 		datetime.ha \
 		date.ha \

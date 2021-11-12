@@ -1,38 +1,26 @@
 use time;
 
-// Represents a chronological system for ordering days as dates and eras
-export type chronology = struct {
-	// MJD = Modified Julian Date
-	to_mjd: nullable *fn(day: moment) moment,
-	to_moment: nullable *fn(day: moment) moment,
-};
+//	// A chronological system for ordering days as dates and eras
+//	export type chronology = struct {
+//		to_taidate: nullable *fn(n: moment) moment,
+//		from_taidate: nullable *fn(n: moment) moment,
+//	
+//		scale: timescale,
+//	};
 
-// Represents a calendar system for ordering datea and eras
-export type calendar = struct {
-	// MJDN = Modified Julian Day Number
-	// RD = Rata Die
-	to_mjdn: nullable *fn(dn: daynum) daynum,
-	to_rd: nullable *fn(dn: daynum) daynum,
-};
-
-// Represents a moment in time on a calendar; essentially a datetime
+// A date & time within a chronology
 export type moment = struct {
-	day: daynum,
+	date: epochal,
 	time: time::duration,
+	loc: locality,
 };
 
-// Represents a Rata Die, an ordinal day since a calendar epoch
+// An ordinal day on earth since the calendar epoch (zeroth day) 1970-01-01
 //
 // Notes:
-// aka:
-// - epochalday
-// - epochal
-// - nday
-export type daynum = i64;
-
-// Represents the Modified Julian Day Number calendar.
-// Not to be confused with the Julian calendar.
-export const MJDN: calendar = calendar { ... };
-
-// Represents the Modified Julian Date chronology.
-export const MJD: chronology = chronology { ... };
+// 1970-01-01 is "the Hare date-epoch". It was chosen out of simplicity to match
+// the UNIX timescale epoch. This shouldn't affect performance in calendar
+// implementations because they can convert to other epochs if they so desire.
+// (as of writing) chrono::isocal:: converts to the Julian epoch for
+// calculations.
+export type epochal = i64;

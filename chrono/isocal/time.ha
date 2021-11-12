@@ -11,8 +11,8 @@ export type localtime = struct {
 export fn conv_time_localtime(t: time::duration) localtime = {
 	const lt = localtime {
 		hour = (t / time::HOUR): int,
-		min = (t / time::MINUTE): int % 60,
-		sec = (t / time::SECOND): int % 60,
+		min = ((t / time::MINUTE) % 60): int,
+		sec = ((t / time::SECOND) % 60): int,
 		nsec = (t % time::SECOND): int,
 	};
 	return lt;
