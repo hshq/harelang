@@ -2,9 +2,11 @@ use time;
 
 // Represents a linear scale of time, with an epoch.
 export type timescale = struct {
-	to_tai: *fn(i: time::instant) []time::instant,
-	from_tai: *fn(i: time::instant) []time::instant,
+	to_tai: *converter,
+	from_tai: *converter,
 };
+
+export type converter = fn(i: time::instant) []time::instant;
 
 
 // International Atomic Time

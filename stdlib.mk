@@ -722,8 +722,7 @@ $(HARECACHE)/bytes/bytes-any.ssa: $(stdlib_bytes_any_srcs) $(stdlib_rt) $(stdlib
 # chrono (+any)
 stdlib_chrono_any_srcs= \
 	$(STDLIB)/chrono/chronology.ha \
-	$(STDLIB)/chrono/timescales.ha \
-	$(STDLIB)/chrono/calendar.ha
+	$(STDLIB)/chrono/timescales.ha
 
 $(HARECACHE)/chrono/chrono-any.ssa: $(stdlib_chrono_any_srcs) $(stdlib_rt) $(stdlib_time_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -733,8 +732,11 @@ $(HARECACHE)/chrono/chrono-any.ssa: $(stdlib_chrono_any_srcs) $(stdlib_rt) $(std
 
 # chrono::isocal (+any)
 stdlib_chrono_isocal_any_srcs= \
+	$(STDLIB)/chrono/isocal/types.ha \
+	$(STDLIB)/chrono/isocal/calendar.ha \
 	$(STDLIB)/chrono/isocal/datetime.ha \
-	$(STDLIB)/chrono/isocal/types.ha
+	$(STDLIB)/chrono/isocal/date.ha \
+	$(STDLIB)/chrono/isocal/time.ha
 
 $(HARECACHE)/chrono/isocal/chrono_isocal-any.ssa: $(stdlib_chrono_isocal_any_srcs) $(stdlib_rt) $(stdlib_chrono_$(PLATFORM)) $(stdlib_time_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2664,8 +2666,7 @@ $(TESTCACHE)/bytes/bytes-any.ssa: $(testlib_bytes_any_srcs) $(testlib_rt) $(test
 # chrono (+any)
 testlib_chrono_any_srcs= \
 	$(STDLIB)/chrono/chronology.ha \
-	$(STDLIB)/chrono/timescales.ha \
-	$(STDLIB)/chrono/calendar.ha
+	$(STDLIB)/chrono/timescales.ha
 
 $(TESTCACHE)/chrono/chrono-any.ssa: $(testlib_chrono_any_srcs) $(testlib_rt) $(testlib_time_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2675,8 +2676,11 @@ $(TESTCACHE)/chrono/chrono-any.ssa: $(testlib_chrono_any_srcs) $(testlib_rt) $(t
 
 # chrono::isocal (+any)
 testlib_chrono_isocal_any_srcs= \
+	$(STDLIB)/chrono/isocal/types.ha \
+	$(STDLIB)/chrono/isocal/calendar.ha \
 	$(STDLIB)/chrono/isocal/datetime.ha \
-	$(STDLIB)/chrono/isocal/types.ha
+	$(STDLIB)/chrono/isocal/date.ha \
+	$(STDLIB)/chrono/isocal/time.ha
 
 $(TESTCACHE)/chrono/isocal/chrono_isocal-any.ssa: $(testlib_chrono_isocal_any_srcs) $(testlib_rt) $(testlib_chrono_$(PLATFORM)) $(testlib_time_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
