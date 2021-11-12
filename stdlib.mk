@@ -154,6 +154,12 @@ stdlib_deps_any+=$(stdlib_crypto_blake2b_any)
 stdlib_crypto_blake2b_linux=$(stdlib_crypto_blake2b_any)
 stdlib_crypto_blake2b_freebsd=$(stdlib_crypto_blake2b_any)
 
+# gen_lib crypto::cipher (any)
+stdlib_crypto_cipher_any=$(HARECACHE)/crypto/cipher/crypto_cipher-any.o
+stdlib_deps_any+=$(stdlib_crypto_cipher_any)
+stdlib_crypto_cipher_linux=$(stdlib_crypto_cipher_any)
+stdlib_crypto_cipher_freebsd=$(stdlib_crypto_cipher_any)
+
 # gen_lib crypto::math (any)
 stdlib_crypto_math_any=$(HARECACHE)/crypto/math/crypto_math-any.o
 stdlib_deps_any+=$(stdlib_crypto_math_any)
@@ -648,6 +654,16 @@ $(HARECACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(stdlib_crypto_blake2b_any_
 	@mkdir -p $(HARECACHE)/crypto/blake2b
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::blake2b \
 		-t$(HARECACHE)/crypto/blake2b/crypto_blake2b.td $(stdlib_crypto_blake2b_any_srcs)
+
+# crypto::cipher (+any)
+stdlib_crypto_cipher_any_srcs= \
+	$(STDLIB)/crypto/cipher/cipher.ha
+
+$(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/cipher
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::cipher \
+		-t$(HARECACHE)/crypto/cipher/crypto_cipher.td $(stdlib_crypto_cipher_any_srcs)
 
 # crypto::math (+any)
 stdlib_crypto_math_any_srcs= \
@@ -1822,6 +1838,12 @@ testlib_deps_any+=$(testlib_crypto_blake2b_any)
 testlib_crypto_blake2b_linux=$(testlib_crypto_blake2b_any)
 testlib_crypto_blake2b_freebsd=$(testlib_crypto_blake2b_any)
 
+# gen_lib crypto::cipher (any)
+testlib_crypto_cipher_any=$(TESTCACHE)/crypto/cipher/crypto_cipher-any.o
+testlib_deps_any+=$(testlib_crypto_cipher_any)
+testlib_crypto_cipher_linux=$(testlib_crypto_cipher_any)
+testlib_crypto_cipher_freebsd=$(testlib_crypto_cipher_any)
+
 # gen_lib crypto::math (any)
 testlib_crypto_math_any=$(TESTCACHE)/crypto/math/crypto_math-any.o
 testlib_deps_any+=$(testlib_crypto_math_any)
@@ -2319,6 +2341,16 @@ $(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(testlib_crypto_blake2b_any
 	@mkdir -p $(TESTCACHE)/crypto/blake2b
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::blake2b \
 		-t$(TESTCACHE)/crypto/blake2b/crypto_blake2b.td $(testlib_crypto_blake2b_any_srcs)
+
+# crypto::cipher (+any)
+testlib_crypto_cipher_any_srcs= \
+	$(STDLIB)/crypto/cipher/cipher.ha
+
+$(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/cipher
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::cipher \
+		-t$(TESTCACHE)/crypto/cipher/crypto_cipher.td $(testlib_crypto_cipher_any_srcs)
 
 # crypto::math (+any)
 testlib_crypto_math_any_srcs= \

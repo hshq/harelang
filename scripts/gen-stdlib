@@ -206,6 +206,12 @@ crypto_blake2b() {
 		crypto::math endian
 }
 
+crypto_cipher() {
+	gen_srcs crypto::cipher \
+		cipher.ha
+	gen_ssa crypto::cipher
+}
+
 crypto_math() {
 	gen_srcs crypto::math \
 		bits.ha
@@ -1067,6 +1073,7 @@ bytes
 compress::flate
 compress::zlib
 crypto::blake2b
+crypto::cipher
 crypto::math
 crypto::random	linux freebsd
 crypto::md5
