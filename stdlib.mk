@@ -148,6 +148,12 @@ stdlib_deps_any+=$(stdlib_compress_zlib_any)
 stdlib_compress_zlib_linux=$(stdlib_compress_zlib_any)
 stdlib_compress_zlib_freebsd=$(stdlib_compress_zlib_any)
 
+# gen_lib crypto::aes (any)
+stdlib_crypto_aes_any=$(HARECACHE)/crypto/aes/crypto_aes-any.o
+stdlib_deps_any+=$(stdlib_crypto_aes_any)
+stdlib_crypto_aes_linux=$(stdlib_crypto_aes_any)
+stdlib_crypto_aes_freebsd=$(stdlib_crypto_aes_any)
+
 # gen_lib crypto::blake2b (any)
 stdlib_crypto_blake2b_any=$(HARECACHE)/crypto/blake2b/crypto_blake2b-any.o
 stdlib_deps_any+=$(stdlib_crypto_blake2b_any)
@@ -644,6 +650,16 @@ $(HARECACHE)/compress/zlib/compress_zlib-any.ssa: $(stdlib_compress_zlib_any_src
 	@mkdir -p $(HARECACHE)/compress/zlib
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncompress::zlib \
 		-t$(HARECACHE)/compress/zlib/compress_zlib.td $(stdlib_compress_zlib_any_srcs)
+
+# crypto::aes (+any)
+stdlib_crypto_aes_any_srcs= \
+	$(STDLIB)/crypto/aes/aes_ct64.ha
+
+$(HARECACHE)/crypto/aes/crypto_aes-any.ssa: $(stdlib_crypto_aes_any_srcs) $(stdlib_rt) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/aes
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::aes \
+		-t$(HARECACHE)/crypto/aes/crypto_aes.td $(stdlib_crypto_aes_any_srcs)
 
 # crypto::blake2b (+any)
 stdlib_crypto_blake2b_any_srcs= \
@@ -1832,6 +1848,12 @@ testlib_deps_any+=$(testlib_compress_zlib_any)
 testlib_compress_zlib_linux=$(testlib_compress_zlib_any)
 testlib_compress_zlib_freebsd=$(testlib_compress_zlib_any)
 
+# gen_lib crypto::aes (any)
+testlib_crypto_aes_any=$(TESTCACHE)/crypto/aes/crypto_aes-any.o
+testlib_deps_any+=$(testlib_crypto_aes_any)
+testlib_crypto_aes_linux=$(testlib_crypto_aes_any)
+testlib_crypto_aes_freebsd=$(testlib_crypto_aes_any)
+
 # gen_lib crypto::blake2b (any)
 testlib_crypto_blake2b_any=$(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.o
 testlib_deps_any+=$(testlib_crypto_blake2b_any)
@@ -2329,6 +2351,17 @@ $(TESTCACHE)/compress/zlib/compress_zlib-any.ssa: $(testlib_compress_zlib_any_sr
 	@mkdir -p $(TESTCACHE)/compress/zlib
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncompress::zlib \
 		-t$(TESTCACHE)/compress/zlib/compress_zlib.td $(testlib_compress_zlib_any_srcs)
+
+# crypto::aes (+any)
+testlib_crypto_aes_any_srcs= \
+	$(STDLIB)/crypto/aes/aes_ct64.ha \
+	$(STDLIB)/crypto/aes/ct64+test.ha
+
+$(TESTCACHE)/crypto/aes/crypto_aes-any.ssa: $(testlib_crypto_aes_any_srcs) $(testlib_rt) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/aes
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::aes \
+		-t$(TESTCACHE)/crypto/aes/crypto_aes.td $(testlib_crypto_aes_any_srcs)
 
 # crypto::blake2b (+any)
 testlib_crypto_blake2b_any_srcs= \
