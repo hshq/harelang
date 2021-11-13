@@ -187,8 +187,9 @@ datetime() {
 		datetime.ha \
 		timezone.ha \
 		date.ha \
-		time.ha
-	gen_ssa datetime time time::chrono
+		time.ha \
+		format.ha
+	gen_ssa datetime errors fmt strings strio time time::chrono
 }
 
 compress_flate() {
