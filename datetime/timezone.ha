@@ -1,6 +1,17 @@
 use time;
 use time::chrono;
 
+// Represents the locality of a [[datetime]]
+//
+// Notes: how to expand?
+export type locality = (chrono::local | tzrepr);
+
+export type tzrepr = struct {
+	name: str,
+	abbrev: str,
+	zoffset: localtime,
+};
+
 // Retrieves a IANA timezone object by name
 export fn tzdb(name: str) chrono::timezone = {
 	// TODO
@@ -38,7 +49,8 @@ export const TZ_CET: chrono::timezone = chrono::timezone {
 };
 
 fn zone_cet(m: chrono::moment) uint = {
-	const dt = conv_moment_datetime(m);
+	const dt = datetime { ... };
+	conv_moment_datetime(m, &dt);
 	const dst = (
 		dt.date.month: int == 3 &&
 		dt.date.day: int == 28 &&

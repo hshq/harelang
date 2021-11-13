@@ -1,13 +1,15 @@
+use errors;
 use time;
 
-// Represents a ISO time of day
+// Represents a time of day as represented on a wall clock
 export type localtime = struct {
-	hour: int,
-	min: int,
-	sec: int,
-	nsec: int,
+	hour: (void | int),
+	min: (void | int),
+	sec: (void | int),
+	nsec: (void | int),
 };
 
+// Converts a [[time::duration]] to a [[localtime]]
 export fn conv_time_localtime(t: time::duration) localtime = {
 	const lt = localtime {
 		hour = (t / time::HOUR): int,
@@ -18,14 +20,22 @@ export fn conv_time_localtime(t: time::duration) localtime = {
 	return lt;
 };
 
-export fn conv_localtime_time(lt: localtime) time::duration = {
+// Converts a [[localtime]] to a [[time::duration]].
+// Fails if any of the [[localtime]] fields are void.
+export fn conv_localtime_time(lt: localtime) (time::duration | errors::invalid) = {
+	if (
+		lt.hour is void
+		|| lt.min is void
+		|| lt.sec is void
+		|| lt.nsec is void
+	) {
+		return errors::invalid;
+	};
 	const t = (
-		(lt.hour * time::HOUR) +
-		(lt.min * time::MINUTE) +
-		(lt.sec * time::SECOND) +
-		(lt.nsec * time::NANOSECOND)
+		(lt.hour: int * time::HOUR) +
+		(lt.min: int * time::MINUTE) +
+		(lt.sec: int * time::SECOND) +
+		(lt.nsec: int * time::NANOSECOND)
 	);
 	return t;
 };
-
-

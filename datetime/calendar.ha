@@ -1,5 +1,6 @@
-use time;
+use errors;
 use time::chrono;
+use time;
 
 
 // The epoch of the Julian Day Number
@@ -9,25 +10,32 @@ export def EPOCH_JULIAN: i64 = -2440588;
 export def EPOCH_COMMONERA: i64 = -719164;
 
 
-export fn conv_datetime_moment(dt: datetime) chrono::moment = {
-	const d = conv_localdate_epochal(dt.date);
-	const t = conv_localtime_time(dt.time);
+// Converts a [[datetime]] to a [[chrono::moment]].
+// Fails if there is insufficient information in the [[datetime]].
+export fn conv_datetime_moment(dt: datetime) (chrono::moment | errors::invalid) = {
+	const d = conv_localdate_epochal(dt.date)?;
+	const t = conv_localtime_time(dt.time)?;
 	const m = chrono::moment {
 		date = d,
 		time = t,
-		loc = dt.loc,
+		loc = chrono::local, // TODO
 	};
 	return m;
 };
 
-export fn conv_moment_datetime(m: chrono::moment) datetime = {
-	const ld = conv_epochal_localdate(m.date);
+// Converts a [[chrono::moment]] to a [[datetime]]
+export fn conv_moment_datetime(m: chrono::moment, dt: *datetime) void = {
+	conv_epochal_localdate(m.date, &(dt.date), &localdate {
+		// TODO: reconcile, add more fields when ready
+		year = 0,
+		month = 0,
+		day = 0,
+	});
+
 	const lt = conv_time_localtime(m.time);
-	const dt = datetime {
-		date = ld,
-		time = lt,
-		loc = m.loc,
-	};
+	dt.time = lt;
+
+	dt.loc = chrono::local; // TODO
 	return dt;
 };
 
@@ -52,38 +60,44 @@ export fn era(m: chrono::moment) int = {
 
 // Calculates a moment's year
 export fn year(m: chrono::moment) int = {
-	const ld = conv_epochal_localdate(m.date);
+	const ld = localdate { ... };
+	calc_ymd(m.date, &ld);
 	return ld.year as int;
 };
 
 // Calculates a moment's month
 export fn month(m: chrono::moment) int = {
-	const ld = conv_epochal_localdate(m.date);
+	const ld = localdate { ... };
+	calc_ymd(m.date, &ld);
 	return ld.month as int;
 };
 
 // Calculates a moment's day of the month
 export fn day(m: chrono::moment) int = {
-	const ld = conv_epochal_localdate(m.date);
+	const ld = localdate { ... };
+	calc_ymd(m.date, &ld);
 	return ld.day as int;
 };
 
 // Calculates a moment's ISO week calendar year
 export fn weekyear(m: chrono::moment) int = {
-	// TODO
-	return 0;
+	const ld = localdate { ... };
+	calc_ywd(m.date, &ld);
+	return ld.weekyear as int;
 };
 
 // Calculates a moment's ISO week
 export fn week(m: chrono::moment) int = {
-	// TODO
-	return 0;
+	const ld = localdate { ... };
+	calc_ywd(m.date, &ld);
+	return ld.week as int;
 };
 
 // Calculates a moment's ordinal day of the year
 export fn yearday(m: chrono::moment) int = {
-	// TODO
-	return 0;
+	const ld = localdate { ... };
+	calc_yd(m.date, &ld);
+	return ld.yearday as int;
 };
 
 //
@@ -171,6 +185,7 @@ export fn add(m: chrono::moment, flag: int, pp: period...) chrono::moment = {
 	return m;
 };
 
+// Specifies behaviour during calendar arithmetic
 export type calculus = enum int {
 	LOGICAL,
 	PHYSICAL,

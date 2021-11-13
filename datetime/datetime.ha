@@ -2,6 +2,7 @@ use time;
 use time::chrono;
 use errors;
 
+
 // Represents a ISO datetime
 //
 // Notes:
@@ -17,7 +18,7 @@ use errors;
 export type datetime = struct {
 	date: localdate,
 	time: localtime,
-	loc: chrono::locality,
+	loc: locality,
 };
 
 // Creates a new moment
@@ -34,8 +35,8 @@ export fn new_moment(
 	min: int,
 	sec: int,
 	nsec: int,
-	loc: chrono::locality,
-) chrono::moment = {
+	loc: locality,
+) (chrono::moment | errors::invalid) = {
 	const dt = datetime {
 		date = localdate {
 			year = year,
@@ -50,7 +51,7 @@ export fn new_moment(
 		},
 		loc = loc,
 	};
-	const m = conv_datetime_moment(dt);
+	const m = conv_datetime_moment(dt)?;
 	return m;
 };
 
@@ -68,7 +69,7 @@ export fn new_datetime(
 	min: int,
 	sec: int,
 	nsec: int,
-	loc: chrono::locality,
+	loc: locality,
 ) (datetime | errors::invalid) = {
 	const dt = datetime {
 		date = localdate {
@@ -111,7 +112,13 @@ export fn now_datetime() datetime = {
 	const i = time::now(time::clock::REALTIME);
 	const u = time::unix(i);
 	const d = (u / 86400);
-	const ld = conv_epochal_localdate(d);
+	const ld = localdate { ... };
+	conv_epochal_localdate(d, &ld, &localdate {
+		// TODO: reconcile, add new fields when ready
+		year = 0,
+		month = 0,
+		day = 0,
+	});
 	const dt = datetime {
 		date = ld,
 		time = localtime {
@@ -129,7 +136,7 @@ export fn now_datetime() datetime = {
 	return dt;
 };
 
-export fn validate(dt: datetime) bool = {
+export fn validate(dt: (datetime | localdate | localtime)) bool = {
 	// TODO
 	return true;
 };
