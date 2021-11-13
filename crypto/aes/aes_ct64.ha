@@ -52,7 +52,7 @@ export fn ct64(key: []u8) ct64_block = {
 };
 
 // Combines up to 4 blocks and encrypts them in one run
-fn aes_ct64_encrypt(block: *cipher::block, dst: []u8, src: []u8) void = {
+fn aes_ct64_encrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
 	let b = block: *ct64_block;
 
 	assert(len(src) % b.sz == 0 && (len(src) / b.sz) <= b.nparallel,
@@ -76,11 +76,11 @@ fn aes_ct64_encrypt(block: *cipher::block, dst: []u8, src: []u8) void = {
 		br_aes_ct64_interleave_out(w[(i << 2)..], q[i], q[i + 4]);
 	};
 
-	br_range_enc32le(dst, w);
+	br_range_enc32le(dest, w);
 };
 
 // Combines up to 4 blocks and decrypts them in one run
-fn aes_ct64_decrypt(block: *cipher::block, dst: []u8, src: []u8) void = {
+fn aes_ct64_decrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
 	let b = block: *ct64_block;
 
 	assert(len(src) % b.sz == 0 && (len(src) / b.sz) <= b.nparallel,
@@ -104,7 +104,7 @@ fn aes_ct64_decrypt(block: *cipher::block, dst: []u8, src: []u8) void = {
 		br_aes_ct64_interleave_out(w[(i << 2)..], q[i], q[i + 4]);
 	};
 
-	br_range_enc32le(dst, w);
+	br_range_enc32le(dest, w);
 };
 
 // see br_aes_ct64_ortho in src/inner.h of BearSSL
@@ -454,10 +454,10 @@ fn br_range_dec32le(v: []u32, src: []u8) void = {
 	};
 };
 
-fn br_range_enc32le(dst: []u8, w: []u32) void = {
-	for (let i = 0z; len(dst) > 0; i += 1) {
-		endian::leputu32(dst, w[i]);
-		dst = dst[4..];
+fn br_range_enc32le(dest: []u8, w: []u32) void = {
+	for (let i = 0z; len(dest) > 0; i += 1) {
+		endian::leputu32(dest, w[i]);
+		dest = dest[4..];
 	};
 };
 
