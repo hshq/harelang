@@ -30,6 +30,7 @@ export fn conv_moment_datetime(m: chrono::moment, dt: *datetime) void = {
 		year = 0,
 		month = 0,
 		day = 0,
+		...
 	});
 
 	const lt = conv_time_localtime(m.time);

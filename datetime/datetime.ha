@@ -21,6 +21,13 @@ export type datetime = struct {
 	loc: locality,
 };
 
+// Returns a [[datetime]], with all subfields initialised with void
+export fn init_datetime() datetime = datetime {
+	date = init_date(),
+	time = init_time(),
+	loc = chrono::local,
+};
+
 // Creates a new moment
 //
 //	// 1995 July 18th 09:16:00.000
@@ -37,20 +44,7 @@ export fn new_moment(
 	nsec: int,
 	loc: locality,
 ) (chrono::moment | errors::invalid) = {
-	const dt = datetime {
-		date = localdate {
-			year = year,
-			month = month,
-			day = day,
-		},
-		time = localtime {
-			hour = hour,
-			min = min,
-			sec = sec,
-			nsec = nsec,
-		},
-		loc = loc,
-	};
+	const dt = new_datetime(year, month, day, hour, min, sec, nsec, loc)?;
 	const m = conv_datetime_moment(dt)?;
 	return m;
 };
@@ -73,9 +67,15 @@ export fn new_datetime(
 ) (datetime | errors::invalid) = {
 	const dt = datetime {
 		date = localdate {
+			era = if (year >= EPOCH_COMMONERA) 1 else 0,
 			year = year,
 			month = month,
 			day = day,
+			weekyear = void,
+			week = void,
+			weekday = void,
+			yearday = void,
+
 		},
 		time = localtime {
 			hour = hour,
@@ -118,6 +118,7 @@ export fn now_datetime() datetime = {
 		year = 0,
 		month = 0,
 		day = 0,
+		...
 	});
 	const dt = datetime {
 		date = ld,

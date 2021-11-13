@@ -9,6 +9,13 @@ export type localtime = struct {
 	nsec: (void | int),
 };
 
+export fn init_time() localtime = localtime {
+	hour = void,
+	min = void,
+	sec = void,
+	nsec = void,
+};
+
 // Converts a [[time::duration]] to a [[localtime]]
 export fn conv_time_localtime(t: time::duration) localtime = {
 	const lt = localtime {

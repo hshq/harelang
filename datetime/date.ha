@@ -14,6 +14,17 @@ export type localdate = struct {
 	yearday:  (void | int),
 };
 
+export fn init_date() localdate = localdate {
+	era      = void,
+	year     = void,
+	month    = void,
+	day      = void,
+	weekyear = void,
+	week     = void,
+	weekday  = void,
+	yearday  = void,
+};
+
 // TODO: The following function can be split up for efficiency.
 // calc_y, calc_m, calc_d, etc.
 
@@ -88,13 +99,15 @@ export fn conv_epochal_localdate(
 		|| want.day is int
 	) {
 		calc_ymd(e, date);
-	} else if (
+	};
+	if (
 		want.year is int
 		|| want.week is int
 		|| want.weekday is int
 	) {
 		calc_ywd(e, date);
-	} else if (
+	};
+	if (
 		want.year is int
 		|| want.yearday is int
 	) {
