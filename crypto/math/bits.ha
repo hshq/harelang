@@ -43,3 +43,13 @@ export fn rotr64(x: u64, k: int) u64 = rotl64(x, -k);
 	assert(rotl64(a, -2) == 0b0011110000111100001111000011110000111100001111000011110000111100u64);
 
 };
+
+// Stores the xor of a and b into dest.
+export fn xor(dest: []u8, a: []u8, b: []u8) void = {
+	assert(len(dest) == len(a) && len(dest) == len(b),
+		"dest, a and b must have the same length");
+
+	for (let i = 0z; i < len(dest); i += 1) {
+		dest[i] = a[i] ^ b[i];
+	};
+};
