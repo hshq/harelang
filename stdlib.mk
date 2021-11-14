@@ -673,9 +673,10 @@ $(HARECACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(stdlib_crypto_blake2b_any_
 
 # crypto::cipher (+any)
 stdlib_crypto_cipher_any_srcs= \
+	$(STDLIB)/crypto/cipher/cbc.ha \
 	$(STDLIB)/crypto/cipher/cipher.ha
 
-$(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_srcs) $(stdlib_rt)
+$(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/cipher
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::cipher \
@@ -2355,9 +2356,10 @@ $(TESTCACHE)/compress/zlib/compress_zlib-any.ssa: $(testlib_compress_zlib_any_sr
 # crypto::aes (+any)
 testlib_crypto_aes_any_srcs= \
 	$(STDLIB)/crypto/aes/aes_ct64.ha \
-	$(STDLIB)/crypto/aes/ct64+test.ha
+	$(STDLIB)/crypto/aes/ct64+test.ha \
+	$(STDLIB)/crypto/aes/cbc+test.ha
 
-$(TESTCACHE)/crypto/aes/crypto_aes-any.ssa: $(testlib_crypto_aes_any_srcs) $(testlib_rt) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
+$(TESTCACHE)/crypto/aes/crypto_aes-any.ssa: $(testlib_crypto_aes_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/aes
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::aes \
@@ -2377,9 +2379,10 @@ $(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(testlib_crypto_blake2b_any
 
 # crypto::cipher (+any)
 testlib_crypto_cipher_any_srcs= \
+	$(STDLIB)/crypto/cipher/cbc.ha \
 	$(STDLIB)/crypto/cipher/cipher.ha
 
-$(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_srcs) $(testlib_rt)
+$(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/cipher
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::cipher \
