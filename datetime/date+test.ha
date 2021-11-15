@@ -1,3 +1,55 @@
+use errors;
+use time::chrono;
+
+@test fn calc_epochal_from_ymd() void = {
+	const cases = [
+		((-0768, 02, 05),  -999999, false),
+		((-0001, 12, 31),  -719529, false),
+		(( 0000, 01, 01),  -719528, false),
+		(( 0000, 01, 02),  -719527, false),
+		(( 0000, 12, 31),  -719163, false),
+		(( 0001, 01, 01),  -719162, false),
+		(( 0001, 01, 02),  -719161, false),
+		(( 1965, 03, 23),    -1745, false),
+		(( 1969, 12, 31),       -1, false),
+		(( 1970, 01, 01),        0, false),
+		(( 1970, 01, 02),        1, false),
+		(( 1999, 12, 31),    10956, false),
+		(( 2000, 01, 01),    10957, false),
+		(( 2000, 01, 02),    10958, false),
+		(( 2038, 01, 18),    24854, false),
+		(( 2038, 01, 19),    24855, false),
+		(( 2038, 01, 20),    24856, false),
+		(( 2243, 10, 17),   100000, false),
+		(( 4707, 11, 28),   999999, false),
+		(( 4707, 11, 29),  1000000, false),
+		((29349, 01, 25),  9999999, false),
+
+		(( 1970,-99,-99),  0, true),
+		(( 1970, -9, -9),  0, true),
+		(( 1970, -1, -1),  0, true),
+		(( 1970, 00, 00),  0, true),
+		(( 1970, 00, 01),  0, true),
+		(( 1970, 01, 99),  0, true),
+		(( 1970, 99, 99),  0, true),
+	];
+	for (let i = 0z; i < len(cases); i += 1) {
+		const params = cases[i].0;
+		const expect = cases[i].1;
+		const should_error = cases[i].2;
+		const actual = calc_epochal_from_ymd(
+			params.0, params.1, params.2,
+		);
+
+		if (should_error) {
+			assert(actual is errors::invalid, "invalid date accepted");
+		} else {
+			assert(actual is chrono::epochal, "valid date not accepted");
+			assert(actual as chrono::epochal == expect, "epochal miscalculation");
+		};
+	};
+};
+
 @test fn calc_ymd() void = {
 	const cases = [
 		(-999999,  (-0768, 02, 05)),
