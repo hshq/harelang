@@ -3,22 +3,25 @@ use time;
 
 // Represents a time of day as represented on a wall clock
 export type localtime = struct {
-	hour: (void | int),
-	min: (void | int),
-	sec: (void | int),
-	nsec: (void | int),
+	lapsed: (void | int),
+	hour:   (void | int),
+	min:    (void | int),
+	sec:    (void | int),
+	nsec:   (void | int),
 };
 
 export fn init_time() localtime = localtime {
-	hour = void,
-	min = void,
-	sec = void,
-	nsec = void,
+	lapsed = void,
+	hour   = void,
+	min    = void,
+	sec    = void,
+	nsec   = void,
 };
 
 // Converts a [[time::duration]] to a [[localtime]]
 export fn conv_time_localtime(t: time::duration) localtime = {
 	const lt = localtime {
+		lapsed = t: int,
 		hour = (t / time::HOUR): int,
 		min = ((t / time::MINUTE) % 60): int,
 		sec = ((t / time::SECOND) % 60): int,

@@ -67,6 +67,7 @@ export fn new_datetime(
 ) (datetime | errors::invalid) = {
 	const dt = datetime {
 		date = localdate {
+			epochal = void,
 			era = if (year >= EPOCH_COMMONERA) 1 else 0,
 			year = year,
 			month = month,
@@ -79,6 +80,7 @@ export fn new_datetime(
 
 		},
 		time = localtime {
+			lapsed = void,
 			hour = hour,
 			min = min,
 			sec = sec,
@@ -124,6 +126,7 @@ export fn now_datetime() datetime = {
 	const dt = datetime {
 		date = ld,
 		time = localtime {
+			lapsed = ((i.sec / 86400) * time::NANOSECOND + i.nsec): int,
 			hour = (i.sec / 3600): int % 24,
 			min  = (i.sec / 60): int % 60,
 			sec  = i.sec: int % 60,

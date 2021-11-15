@@ -46,56 +46,68 @@ export fn conv_moment_datetime(m: chrono::moment, dt: *datetime) void = {
 //
 
 // Calculates a moment's number of days since the calendar epoch 0001-01-01
-export fn epocal(m: chrono::moment) int = {
-	return (EPOCH_COMMONERA + m.date): int;
-};
-
-// Calculates a moment's era
-export fn era(m: chrono::moment) int = {
-	if (m.date >= EPOCH_COMMONERA) {
-		return 1; // CE, Common Era
-	} else {
-		return 0; // BCE, Before Common Era
+export fn epochal(dt: *datetime) int = {
+	match (dt.date.epochal) {
+	case void =>
+		abort("TODO");
+	case e: int =>
+		return e;
 	};
 };
 
+// Calculates a moment's era
+export fn era(dt: *datetime) int = {
+	if (epochal(dt) >= EPOCH_COMMONERA) {
+		dt.date.era = 1; // CE, Common Era
+	} else {
+		dt.date.era = 0; // BCE, Before Common Era
+	};
+	const a = match (dt.date.era) {
+	case void =>
+		abort("TODO");
+	case a: int =>
+		yield a;
+	};
+	return a;
+};
+
 // Calculates a moment's year
-export fn year(m: chrono::moment) int = {
+export fn year(dt: *datetime) int = {
 	return 0; // TODO
 };
 
 // Calculates a moment's month
-export fn month(m: chrono::moment) int = {
+export fn month(dt: *datetime) int = {
 	return 0; // TODO
 };
 
 // Calculates a moment's day of the month
-export fn day(m: chrono::moment) int = {
+export fn day(dt: *datetime) int = {
 	return 0; // TODO
 };
 
 // Calculates a moment's ISO week calendar year
-export fn isoweekyear(m: chrono::moment) int = {
+export fn isoweekyear(dt: *datetime) int = {
 	return 0; // TODO
 };
 
 // Calculates a moment's ISO week
-export fn isoweek(m: chrono::moment) int = {
+export fn isoweek(dt: *datetime) int = {
 	return 0; // TODO
 };
 
 // Calculates a moment's Gregorian week
-export fn week(m: chrono::moment) int = {
+export fn week(dt: *datetime) int = {
 	return 0; // TODO
 };
 
 // Calculates a moment's day of the week
-export fn weekday(m: chrono::moment) int = {
+export fn weekday(dt: *datetime) int = {
 	return 0; // TODO
 };
 
 // Calculates a moment's ordinal day of the year
-export fn yearday(m: chrono::moment) int = {
+export fn yearday(dt: *datetime) int = {
 	return 0; // TODO
 };
 
@@ -104,23 +116,43 @@ export fn yearday(m: chrono::moment) int = {
 //
 
 // Calculates a moment's hour of the day
-export fn hour(m: chrono::moment) int = {
-	return (m.time / time::HOUR): int;
+export fn hour(dt: *datetime) int = {
+	match (dt.time.hour) {
+	case void =>
+		abort("TODO");
+	case h: int =>
+		return h;
+	};
 };
 
 // Calculates a moment's minute of the hour
-export fn min(m: chrono::moment) int = {
-	return ((m.time / time::MINUTE) % 60): int;
+export fn min(dt: *datetime) int = {
+	match (dt.time.min) {
+	case void =>
+		abort("TODO");
+	case m: int =>
+		return m;
+	};
 };
 
 // Calculates a moment's second of the minute
-export fn sec(m: chrono::moment) int = {
-	return ((m.time / time::SECOND) % 60): int;
+export fn sec(dt: *datetime) int = {
+	match (dt.time.sec) {
+	case void =>
+		abort("TODO");
+	case s: int =>
+		return s;
+	};
 };
 
 // Calculates a moment's nanosecond of the second
-export fn nsec(m: chrono::moment) int = {
-	return (m.time % time::SECOND): int;
+export fn nsec(dt: *datetime) int = {
+	match (dt.time.nsec) {
+	case void =>
+		abort("TODO");
+	case n: int =>
+		return n;
+	};
 };
 
 

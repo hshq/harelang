@@ -4,6 +4,7 @@ use errors;
 // Represents an ISO calendar date.
 // Instances created from datetime:: functions are guaranteed to be valid.
 export type localdate = struct {
+	epochal:     (void | int),
 	era:         (void | int),
 	year:        (void | int),
 	month:       (void | int),
@@ -16,6 +17,7 @@ export type localdate = struct {
 };
 
 export fn init_date() localdate = localdate {
+	epochal     = void,
 	era         = void,
 	year        = void,
 	month       = void,
@@ -27,17 +29,6 @@ export fn init_date() localdate = localdate {
 	weekday     = void,
 };
 
-export type WEEKDAYS = enum int {
-	MON = 1,
-	TUE = 2,
-	WED = 3,
-	THU = 4,
-	FRI = 5,
-	SAT = 6,
-	SUN = 7,
-};
-
-
 // Calculates an era, given a year
 fn calc_era(y: int) int = {
 	return if (y >= 0) {
@@ -48,10 +39,8 @@ fn calc_era(y: int) int = {
 };
 
 
-// Calculates the (year, month, day) of a [[chrono::epochal]]
-//
-// TODO: Split up this function? Probably not. Most useful as is.
-fn calc_ymd(e: chrono::epochal) (int, int, int) = {
+// Calculates the (year, month, day), given an epochal day
+fn calc_ymd(e: int) (int, int, int) = {
 	// Algorithm adapted from:
 	// https://en.wikipedia.org/wiki/Julian_day#Julian_or_Gregorian_calendar_from_Julian_day_number
 	//
@@ -167,14 +156,14 @@ fn calc_week(yd: int, wd: int) int = {
 	return (5 + yd - wd) / 7;
 };
 
-// Calculates the weekday of a [[chrono::epochal]],
+// Calculates the weekday, given a epochal day
 // from Monday=1 to Sunday=7
 fn calc_weekday(e: chrono::epochal) int = {
 	const wd = ((e + 3) % 7 + 1): int;
 	return if (wd > 0) wd else wd + 7;
 };
 
-// Calculates the weekday of a [[chrono::epochal]],
+// Calculates the weekday, given a epochal day
 // from Monday=0 to Sunday=6
 fn calc_zeroweekday(wd: int) int = {
 	return wd - 1;
@@ -202,7 +191,7 @@ export fn conv_epochal_localdate(
 	want: *localdate,
 ) void = {
 	if (want.year is int || want.month is int || want.day is int) {
-		const ymd = calc_ymd(e);
+		const ymd = calc_ymd(e: int);
 		date.year = ymd.0;
 		date.month = ymd.1;
 		date.day = ymd.2;
@@ -210,7 +199,7 @@ export fn conv_epochal_localdate(
 
 	if (want.yearday is int) {
 		if (date.year is void || date.month is void || date.day is void) {
-			const ymd = calc_ymd(e);
+			const ymd = calc_ymd(e: int);
 			date.year = ymd.0;
 			date.month = ymd.1;
 			date.day = ymd.2;
