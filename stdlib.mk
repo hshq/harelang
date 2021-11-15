@@ -2896,6 +2896,7 @@ testlib_datetime_any_srcs= \
 	$(STDLIB)/datetime/datetime.ha \
 	$(STDLIB)/datetime/timezone.ha \
 	$(STDLIB)/datetime/date.ha \
+	$(STDLIB)/datetime/date+test.ha \
 	$(STDLIB)/datetime/time.ha \
 	$(STDLIB)/datetime/format.ha
 
