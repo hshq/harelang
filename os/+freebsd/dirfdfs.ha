@@ -248,7 +248,7 @@ fn fs_stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 			| fs::stat_mask::CTIME,
 		mode = st.mode: fs::mode,
 		uid = st.uid,
-		uid = st.gid,
+		gid = st.gid,
 		sz = st.sz: size,
 		inode = st.ino,
 		atime = time::instant {
