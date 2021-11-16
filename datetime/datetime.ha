@@ -68,7 +68,7 @@ export fn new_datetime(
 	const dt = datetime {
 		date = localdate {
 			epochal = void,
-			era = if (year >= EPOCH_COMMONERA) 1 else 0,
+			era = void,
 			year = year,
 			month = month,
 			day = day,
