@@ -7,10 +7,10 @@ export type timescale = struct {
 };
 
 // Converts one [[time::instant]] in one [[chrono::timescale]] to another
-export type ts_converter = fn(i: time::instant) (time::instant | ambiguous | nonexistant);
+export type ts_converter = fn(i: time::instant) (time::instant | ambiguous | nonexistent);
 
 // All error type which can be returned from chronological functions
-export type error = !(ambiguous | nonexistant);
+export type error = !(ambiguous | nonexistent);
 
 // Represents multiple possible corresponding [[time::instant]]s attained by a
 // timescale conversion
@@ -18,7 +18,7 @@ export type ambiguous = ![]time::instant;
 
 // Represents the absence of a corresponding [[time::instant]] following a
 // timescale conversion
-export type nonexistant = !void;
+export type nonexistent = !void;
 
 
 // International Atomic Time
@@ -30,7 +30,7 @@ export const TAI: timescale = timescale {
 	from_tai = &conv_tai_tai,
 };
 
-fn conv_tai_tai(i: time::instant) (time::instant | ambiguous | nonexistant) = {
+fn conv_tai_tai(i: time::instant) (time::instant | ambiguous | nonexistent) = {
 	return i;
 };
 
@@ -51,7 +51,7 @@ export const UTC: timescale = timescale {
 	from_tai = &conv_tai_utc,
 };
 
-fn conv_tai_utc(tai: time::instant) (time::instant | ambiguous | nonexistant) = {
+fn conv_tai_utc(tai: time::instant) (time::instant | ambiguous | nonexistent) = {
 	const utc = time::instant {
 		sec = tai.sec - 37,
 		nsec = tai.nsec,
@@ -59,7 +59,7 @@ fn conv_tai_utc(tai: time::instant) (time::instant | ambiguous | nonexistant) = 
 	return utc;
 };
 
-fn conv_utc_tai(utc: time::instant) (time::instant | ambiguous | nonexistant) = {
+fn conv_utc_tai(utc: time::instant) (time::instant | ambiguous | nonexistent) = {
 	const tai = time::instant {
 		sec = utc.sec + 37,
 		nsec = utc.nsec,
@@ -78,7 +78,7 @@ export const UNIX: timescale = timescale {
 	from_tai = &conv_tai_utc,
 };
 
-fn conv_tai_unix(tai: time::instant) (time::instant | ambiguous | nonexistant) = {
+fn conv_tai_unix(tai: time::instant) (time::instant | ambiguous | nonexistent) = {
 	const unix = time::instant {
 		sec = tai.sec - 37,
 		nsec = tai.nsec,
@@ -86,7 +86,7 @@ fn conv_tai_unix(tai: time::instant) (time::instant | ambiguous | nonexistant) =
 	return unix;
 };
 
-fn conv_unix_tai(unix: time::instant) (time::instant | ambiguous | nonexistant) = {
+fn conv_unix_tai(unix: time::instant) (time::instant | ambiguous | nonexistent) = {
 	const tai = time::instant {
 		sec = unix.sec + 37,
 		nsec = unix.nsec,
@@ -106,7 +106,7 @@ export const GPS: timescale = timescale {
 	from_tai = &conv_tai_utc,
 };
 
-fn conv_tai_gps(tai: time::instant) (time::instant | ambiguous | nonexistant) = {
+fn conv_tai_gps(tai: time::instant) (time::instant | ambiguous | nonexistent) = {
 	const gps = time::instant {
 		sec = tai.sec - 19,
 		nsec = tai.nsec,
@@ -114,7 +114,7 @@ fn conv_tai_gps(tai: time::instant) (time::instant | ambiguous | nonexistant) = 
 	return gps;
 };
 
-fn conv_gps_tai(gps: time::instant) (time::instant | ambiguous | nonexistant) = {
+fn conv_gps_tai(gps: time::instant) (time::instant | ambiguous | nonexistent) = {
 	const tai = time::instant {
 		sec = gps.sec + 19,
 		nsec = gps.nsec,
