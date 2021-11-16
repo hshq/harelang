@@ -73,14 +73,14 @@ export fn era(dt: *datetime) int = {
 export fn year(dt: *datetime) int = {
 	match (dt.date.year) {
 	case void =>
-		match (dt.date.epochal) {
-		case void =>
-			abort("TODO");
-		case e: int =>
-			const ymd = calc_ymd(e);
-			dt.date.year = ymd.0;
-			return dt.date.year: int;
+		if (dt.date.epochal is void) {
+			epochal(dt);
 		};
+		const ymd = calc_ymd(dt.date.epochal: int);
+		dt.date.year = ymd.0;
+		dt.date.month = ymd.1;
+		dt.date.day = ymd.2;
+		return dt.date.year: int;
 	case y: int =>
 		return y;
 	};
@@ -90,14 +90,14 @@ export fn year(dt: *datetime) int = {
 export fn month(dt: *datetime) int = {
 	match (dt.date.month) {
 	case void =>
-		match (dt.date.epochal) {
-		case void =>
-			abort("TODO");
-		case e: int =>
-			const ymd = calc_ymd(e);
-			dt.date.month = ymd.1;
-			return dt.date.month: int;
+		if (dt.date.epochal is void) {
+			epochal(dt);
 		};
+		const ymd = calc_ymd(dt.date.epochal: int);
+		dt.date.year = ymd.0;
+		dt.date.month = ymd.1;
+		dt.date.day = ymd.2;
+		return dt.date.month: int;
 	case y: int =>
 		return y;
 	};
@@ -107,14 +107,14 @@ export fn month(dt: *datetime) int = {
 export fn day(dt: *datetime) int = {
 	match (dt.date.day) {
 	case void =>
-		match (dt.date.epochal) {
-		case void =>
-			abort("TODO");
-		case e: int =>
-			const ymd = calc_ymd(e);
-			dt.date.day = ymd.2;
-			return dt.date.day: int;
+		if (dt.date.epochal is void) {
+			epochal(dt);
 		};
+		const ymd = calc_ymd(dt.date.epochal: int);
+		dt.date.year = ymd.0;
+		dt.date.month = ymd.1;
+		dt.date.day = ymd.2;
+		return dt.date.day: int;
 	case y: int =>
 		return y;
 	};
@@ -125,13 +125,11 @@ export fn day(dt: *datetime) int = {
 export fn weekday(dt: *datetime) int = {
 	match (dt.date.weekday) {
 	case void =>
-		match (dt.date.epochal) {
-		case void =>
-			abort("TODO");
-		case e: int =>
-			dt.date.weekday = calc_weekday(e);
-			return dt.date.weekday: int;
+		if (dt.date.epochal is void) {
+			epochal(dt);
 		};
+		dt.date.weekday = calc_weekday(dt.date.epochal: int);
+		return dt.date.weekday: int;
 	case y: int =>
 		return y;
 	};
