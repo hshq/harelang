@@ -89,7 +89,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 
 // Given a file or directory name, parses it into the basename, extension, and
 // tag set.
-fn parse_name(name: str) (str, str, []tag) = {
+export fn parse_name(name: str) (str, str, []tag) = {
 	let ext = path::extension(name);
 	let base = ext.0, ext = ext.1;
 
