@@ -42,11 +42,12 @@ type plan = struct {
 	scheduled: []*task,
 	complete: []*task,
 	script: str,
+	libs: []str,
 	environ: [](str, str),
 	modmap: [64][]modcache,
 };
 
-fn mkplan(ctx: *module::context) plan = {
+fn mkplan(ctx: *module::context, libs: []str) plan = {
 	const rtdir = match (module::lookup(ctx, ["rt"])) {
 	case err: module::error =>
 		fmt::fatal("Error resolving rt: {}", module::strerror(err));
@@ -80,6 +81,7 @@ fn mkplan(ctx: *module::context) plan = {
 		environ = alloc([
 			(strings::dup("HARECACHE"), strings::dup(ctx.cache)),
 		]),
+		libs = libs,
 		...
 	};
 };
@@ -109,6 +111,7 @@ fn plan_finish(plan: *plan) void = {
 	free(plan.environ);
 
 	free(plan.script);
+	free(plan.libs);
 
 	for (let i = 0z; i < len(plan.modmap); i += 1) {
 		free(plan.modmap[i]);

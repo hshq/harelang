@@ -64,12 +64,18 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 		output = output,
 		depend = mkdepends(depend...),
 		cmd = alloc([
-			os::tryenv("LD", "ld"),
-			"--gc-sections",
+			// C compiler is used as linker if we -l something
+			os::tryenv("LD",
+				if (len(plan.libs) > 0) "cc" else "ld"),
 			"-T", plan.script,
 			"-o", output,
 		]),
 	});
+
+	// Using --gc-sections will not work when using cc as the linker
+	if (len(plan.libs) == 0) {
+		append(task.cmd, "--gc-sections");
+	};
 
 	let archives: []str = [];
 	defer free(archives);
@@ -82,6 +88,9 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 		};
 	};
 	append(task.cmd, archives...);
+	for (let i = 0z; i < len(plan.libs); i += 1) {
+		append(task.cmd, strings::concat("-l", plan.libs[i]));
+	};
 	append(plan.scheduled, task);
 	return task;
 };

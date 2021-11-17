@@ -87,6 +87,7 @@ fn build(args: []str) void = {
 	let output = "";
 	let goal = goal::EXE;
 	let defines: []str = [];
+	let libs: []str = [];
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
@@ -99,7 +100,7 @@ fn build(args: []str) void = {
 		case 'j' =>
 			abort(); // TODO
 		case 'l' =>
-			abort(); // TODO
+			append(libs, opt.1);
 		case 'o' =>
 			output = opt.1;
 		case 't' =>
@@ -133,10 +134,17 @@ fn build(args: []str) void = {
 			os::exit(1);
 		};
 
+	if (len(libs) > 0) {
+		append(tags, module::tag {
+			mode = module::tag_mode::INCLUSIVE,
+			name = strings::dup("libc"),
+		});
+	};
+
 	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
-	const plan = mkplan(&ctx);
+	const plan = mkplan(&ctx, libs);
 	defer plan_finish(&plan);
 
 	const ver = match (module::scan(&ctx, input)) {
@@ -213,6 +221,7 @@ fn run(args: []str) void = {
 
 	let verbose = false;
 	let defines: []str = [];
+	let libs: []str = [];
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
@@ -223,7 +232,7 @@ fn run(args: []str) void = {
 		case 'j' =>
 			abort(); // TODO
 		case 'l' =>
-			abort(); // TODO
+			append(libs, opt.1);
 		case 't' =>
 			abort(); // TODO
 		case 'T' =>
@@ -254,10 +263,17 @@ fn run(args: []str) void = {
 		runargs = cmd.args[1..];
 	};
 
+	if (len(libs) > 0) {
+		append(tags, module::tag {
+			mode = module::tag_mode::INCLUSIVE,
+			name = strings::dup("libc"),
+		});
+	};
+
 	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
-	const plan = mkplan(&ctx);
+	const plan = mkplan(&ctx, libs);
 	defer plan_finish(&plan);
 
 	const ver = match (module::scan(&ctx, input)) {
@@ -369,6 +385,7 @@ fn test(args: []str) void = {
 	let output = "";
 	let verbose = false;
 	let defines: []str = [];
+	let libs: []str = [];
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		const opt = cmd.opts[i];
 		switch (opt.0) {
@@ -379,7 +396,7 @@ fn test(args: []str) void = {
 		case 'j' =>
 			abort(); // TODO
 		case 'l' =>
-			abort(); // TODO
+			append(libs, opt.1);
 		case 't' =>
 			abort(); // TODO
 		case 'o' =>
@@ -412,10 +429,17 @@ fn test(args: []str) void = {
 		runargs = cmd.args[1..];
 	};
 
+	if (len(libs) > 0) {
+		append(tags, module::tag {
+			mode = module::tag_mode::INCLUSIVE,
+			name = strings::dup("libc"),
+		});
+	};
+
 	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
-	const plan = mkplan(&ctx);
+	const plan = mkplan(&ctx, libs);
 	defer plan_finish(&plan);
 
 	const ver = match (module::scan(&ctx, input)) {
