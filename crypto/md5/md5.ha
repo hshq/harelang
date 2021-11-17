@@ -40,6 +40,9 @@ export fn md5() digest = {
 	return md5;
 };
 
+// [[hash::createfunc]] to allocate a hash state to compute MD5
+export fn create() *hash::hash = alloc(md5());
+
 fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 	let h = st: *digest;
 	let b: []u8 = buf;

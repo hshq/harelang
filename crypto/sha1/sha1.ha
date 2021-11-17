@@ -39,6 +39,9 @@ export fn sha1() digest = {
 	return sha;
 };
 
+// [[hash::createfunc]] to allocate a hash state to compute SHA1
+export fn create() *hash::hash = alloc(sha1());
+
 fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 	let h = st: *digest;
 	let b: []u8 = buf;
