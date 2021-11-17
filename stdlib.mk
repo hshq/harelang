@@ -1508,13 +1508,15 @@ stdlib_strings_any_srcs= \
 	$(STDLIB)/strings/contains.ha \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
+	$(STDLIB)/strings/index.ha \
 	$(STDLIB)/strings/iter.ha \
+	$(STDLIB)/strings/pad.ha \
+	$(STDLIB)/strings/replace.ha \
 	$(STDLIB)/strings/sub.ha \
 	$(STDLIB)/strings/suffix.ha \
 	$(STDLIB)/strings/tokenize.ha \
-	$(STDLIB)/strings/utf8.ha \
-	$(STDLIB)/strings/index.ha \
-	$(STDLIB)/strings/trim.ha
+	$(STDLIB)/strings/trim.ha \
+	$(STDLIB)/strings/utf8.ha
 
 $(HARECACHE)/strings/strings-any.ssa: $(stdlib_strings_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -3262,13 +3264,15 @@ testlib_strings_any_srcs= \
 	$(STDLIB)/strings/contains.ha \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
+	$(STDLIB)/strings/index.ha \
 	$(STDLIB)/strings/iter.ha \
+	$(STDLIB)/strings/pad.ha \
+	$(STDLIB)/strings/replace.ha \
 	$(STDLIB)/strings/sub.ha \
 	$(STDLIB)/strings/suffix.ha \
 	$(STDLIB)/strings/tokenize.ha \
-	$(STDLIB)/strings/utf8.ha \
-	$(STDLIB)/strings/index.ha \
-	$(STDLIB)/strings/trim.ha
+	$(STDLIB)/strings/trim.ha \
+	$(STDLIB)/strings/utf8.ha
 
 $(TESTCACHE)/strings/strings-any.ssa: $(testlib_strings_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
