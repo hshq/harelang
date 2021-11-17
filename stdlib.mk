@@ -2893,12 +2893,13 @@ $(TESTCACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(testlib_crypto_curve
 # datetime (+any)
 testlib_datetime_any_srcs= \
 	$(STDLIB)/datetime/calendar.ha \
-	$(STDLIB)/datetime/datetime.ha \
-	$(STDLIB)/datetime/timezone.ha \
-	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/date+test.ha \
+	$(STDLIB)/datetime/date.ha \
+	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/format+test.ha \
+	$(STDLIB)/datetime/format.ha \
 	$(STDLIB)/datetime/time.ha \
-	$(STDLIB)/datetime/format.ha
+	$(STDLIB)/datetime/timezone.ha
 
 $(TESTCACHE)/datetime/datetime-any.ssa: $(testlib_datetime_any_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
