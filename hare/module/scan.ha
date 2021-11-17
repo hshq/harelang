@@ -211,9 +211,9 @@ fn scan_directory(
 
 		let d = strings::toutf8(name);
 		if (len(d) == 0 || (
-			!strings::has_prefix(name, "+") &&
-			!strings::has_prefix(name, "-"))) {
-			if (!strings::has_prefix(name, ".")) {
+			!strings::hasprefix(name, "+") &&
+			!strings::hasprefix(name, "-"))) {
+			if (!strings::hasprefix(name, ".")) {
 				append(ver.subdirs, strings::dup(name));
 			};
 			continue;

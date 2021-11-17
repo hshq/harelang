@@ -75,7 +75,7 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 	defer free(archives);
 
 	for (let i = 0z; i < len(depend); i += 1) {
-		if (strings::has_suffix(depend[i].output, ".a")) {
+		if (strings::hassuffix(depend[i].output, ".a")) {
 			append(archives, depend[i].output);
 		} else {
 			append(task.cmd, depend[i].output);
@@ -97,7 +97,7 @@ fn sched_ar(plan: *plan, output: str, depend: *task...) *task = {
 		]),
 	});
 	for (let i = 0z; i < len(depend); i += 1) {
-		assert(strings::has_suffix(depend[i].output, ".o"));
+		assert(strings::hassuffix(depend[i].output, ".o"));
 		append(task.cmd, depend[i].output);
 	};
 	append(plan.scheduled, task);
@@ -142,7 +142,7 @@ fn sched_hare_object(
 	// XXX: Do we care to support assembly-only modules?
 	let mixed = false;
 	for (let i = 0z; i < len(ver.inputs); i += 1) {
-		if (strings::has_suffix(ver.inputs[i].path, ".s")) {
+		if (strings::hassuffix(ver.inputs[i].path, ".s")) {
 			mixed = true;
 			break;
 		};
@@ -229,7 +229,7 @@ fn sched_hare_object(
 
 	for (let i = 0z; i < len(ver.inputs); i += 1) {
 		let path = ver.inputs[i].path;
-		if (strings::has_suffix(path, ".ha")) {
+		if (strings::hassuffix(path, ".ha")) {
 			append(harec.cmd, path);
 		};
 	};
@@ -259,7 +259,7 @@ fn sched_hare_object(
 		// but that may not be generally true. We may have to address
 		// this at some point.
 		let path = ver.inputs[i].path;
-		if (!strings::has_suffix(path, ".s")) {
+		if (!strings::hassuffix(path, ".s")) {
 			continue;
 		};
 		append(objs, sched_as(plan, mkfile(plan, ns, "o"), path));

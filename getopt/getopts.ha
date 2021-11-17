@@ -115,7 +115,7 @@ export fn parse(args: []str, help: help...) command = {
 	for (i < len(args); i += 1) :arg {
 		const arg = args[i];
 		if (len(arg) == 0 || arg == "-"
-				|| !strings::has_prefix(arg, "-")) {
+				|| !strings::hasprefix(arg, "-")) {
 			break;
 		};
 		if (arg == "--") {

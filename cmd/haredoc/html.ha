@@ -328,7 +328,7 @@ fn markup_html(ctx: *context, in: io::handle) (void | io::error) = {
 			fmt::fprintln(ctx.out)?;
 			fmt::fprint(ctx.out, "<p>")?;
 		case tx: text =>
-			if (strings::has_prefix(tx, "https://")) {
+			if (strings::hasprefix(tx, "https://")) {
 				// Temporary hack
 				fmt::fprint(ctx.out, "<a rel='nofollow noopener' href='")?;
 				html_escape(ctx.out, tx)?;

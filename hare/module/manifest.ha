@@ -83,7 +83,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 			yield s;
 		};
 
-		if (strings::has_prefix(line, "#")) {
+		if (strings::hasprefix(line, "#")) {
 			continue;
 		};
 

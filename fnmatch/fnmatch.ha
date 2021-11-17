@@ -115,8 +115,8 @@ fn fnmatch_internal(
 	fl: flags,
 ) (bool | errors::invalid | errors::unsupported) = {
 	if (fl & flags::PERIOD != 0) {
-		if (strings::has_prefix(string, ".")
-				&& !strings::has_prefix(pattern, ".")) {
+		if (strings::hasprefix(string, ".")
+				&& !strings::hasprefix(pattern, ".")) {
 			return false;
 		};
 	};

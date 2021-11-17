@@ -56,7 +56,7 @@ fn parsev4(st: str) (addr4 | invalid) = {
 	let i = 0z;
 	for (i < 4; i += 1) {
 		let s = wanttoken(&tok)?;
-		if (len(s) != 1 && strings::has_prefix(s, "0")) {
+		if (len(s) != 1 && strings::hasprefix(s, "0")) {
 			return invalid;
 		};
 		ret[i] = match (strconv::stou8(s)) {
@@ -79,11 +79,11 @@ fn parsev6(st: str) (addr6 | invalid) = {
 		return ret;
 	};
 	let ells = -1;
-	if (strings::has_prefix(st, "::")) {
+	if (strings::hasprefix(st, "::")) {
 		wanttoken(&tok)?;
 		wanttoken(&tok)?;
 		ells = 0;
-	} else if (strings::has_prefix(st, ":")) {
+	} else if (strings::hasprefix(st, ":")) {
 		return invalid;
 	};
 	let i = 0;

@@ -206,7 +206,7 @@ fn scansample(par: *parser) (token | void) = {
 	let buf = strio::finish(buf);
 
 	// Trim trailing newlines
-	for (strings::has_suffix(buf, "\n")) {
+	for (strings::hassuffix(buf, "\n")) {
 		buf = strings::sub(buf, 0, len(buf) - 1);
 	};
 

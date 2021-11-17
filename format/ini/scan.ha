@@ -60,11 +60,11 @@ export fn next(sc: *scanner) (entry | io::EOF | error) = {
 
 		const line = strings::trim(sc.line);
 
-		if (len(line) == 0 || strings::has_prefix(line, "#")) {
+		if (len(line) == 0 || strings::hasprefix(line, "#")) {
 			continue;
 		};
 
-		if (strings::has_prefix(line, "[")) {
+		if (strings::hasprefix(line, "[")) {
 			const end = match (strings::index(line, ']')) {
 			case idx: size =>
 				yield idx;

@@ -108,7 +108,7 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 	let fullkey = strings::concat(key, "=");
 	defer free(fullkey);
 	for (let i = 0z; i < len(cmd.env); i += 1) {
-		if (strings::has_prefix(cmd.env[i], fullkey)) {
+		if (strings::hasprefix(cmd.env[i], fullkey)) {
 			delete(cmd.env[i]);
 			break;
 		};
