@@ -1,0 +1,2 @@
+The hmac module computes the HMAC message authentication code algorithm defined
+by RFC 2104.

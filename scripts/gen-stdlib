@@ -230,6 +230,21 @@ crypto_cipher() {
 	gen_ssa crypto::cipher bytes crypto::math
 }
 
+crypto_hmac() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::hmac \
+			hmac.ha
+		gen_ssa crypto::hmac crypto::math hash io
+	else
+		gen_srcs crypto::hmac \
+			hmac.ha \
+			+test.ha
+		gen_ssa crypto::hmac bytes crypto::math crypto::sha1 \
+			encoding::hex hash io strings
+	fi
+}
+
 crypto_math() {
 	gen_srcs crypto::math \
 		bits.ha
@@ -1093,6 +1108,7 @@ compress::zlib
 crypto::aes
 crypto::blake2b
 crypto::cipher
+crypto::hmac
 crypto::math
 crypto::random	linux freebsd
 crypto::md5
