@@ -1,4 +1,5 @@
 use fmt;
+use fs;
 use hare::ast;
 use hare::module;
 use os::exec;
@@ -52,10 +53,30 @@ fn mkplan(ctx: *module::context) plan = {
 	case ver: module::version =>
 		yield ver.basedir;
 	};
+
+	let script = ("", 0z);
+
+	const iter = os::iter(rtdir)!;
+	for (true) match (fs::next(iter)) {
+	case d: fs::dirent =>
+		const p = module::parse_name(d.name);
+		defer module::tags_free(p.2);
+
+		if (len(p.2) >= script.1
+				&& p.0 == "hare" && p.1 == ".sc"
+				&& module::tagcompat(ctx.tags, p.2)) {
+			free(script.0);
+			script.0 = path::join(rtdir, d.name);
+			script.1 = len(p.2);
+		};
+	case void =>
+		break;
+	};
+
 	return plan {
 		context = ctx,
 		workdir = temp::dir(),
-		script = path::join(rtdir, "hare.sc"),
+		script = script.0,
 		environ = alloc([
 			(strings::dup("HARECACHE"), strings::dup(ctx.cache)),
 		]),
@@ -86,6 +107,8 @@ fn plan_finish(plan: *plan) void = {
 		free(plan.environ[i].1);
 	};
 	free(plan.environ);
+
+	free(plan.script);
 
 	for (let i = 0z; i < len(plan.modmap); i += 1) {
 		free(plan.modmap[i]);
