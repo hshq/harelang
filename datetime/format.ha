@@ -89,7 +89,7 @@ export fn fmttime(h: io::handle, format: str, dt: *datetime) (size | errors::inv
 		};
 
 		escaped = false;
-		let new = switch (r) {
+		let s = switch (r) {
 		case 'a' =>
 			yield WEEKDAYS_SHORT[weekday(dt) - 1];
 		case 'A' =>
@@ -210,7 +210,7 @@ export fn fmttime(h: io::handle, format: str, dt: *datetime) (size | errors::inv
 			strio::appendrune(h, r)?;
 			continue;
 		};
-		n += strio::concat(h, new)?;
+		n += strio::concat(h, s)?;
 	};
 	return n;
 };

@@ -44,7 +44,7 @@ export fn new_moment(
 	nsec: int,
 	loc: locality,
 ) (chrono::moment | errors::invalid) = {
-	const dt = new_datetime(year, month, day, hour, min, sec, nsec, loc)?;
+	const dt = new(year, month, day, hour, min, sec, nsec, loc)?;
 	const m = conv_datetime_moment(dt)?;
 	return m;
 };
@@ -55,7 +55,7 @@ export fn new_moment(
 // 	datetime::new(1995, 07, 18, 9, 16, 0, 0, chrono::local)
 //
 // For alternative forms, assemble a datetime manually using the desired types.
-export fn new_datetime(
+export fn new(
 	year: int,
 	month: int,
 	day: int,
@@ -111,18 +111,12 @@ export fn now_moment() chrono::moment = {
 };
 
 // Returns the current datetime
-export fn now_datetime() datetime = {
+export fn now() datetime = {
 	const i = time::now(time::clock::REALTIME);
 	const u = time::unix(i);
 	const d = (u / 86400);
-	const ld = localdate { ... };
-	conv_epochal_localdate(d, &ld, &localdate {
-		// TODO: reconcile, add new fields when ready
-		year = 0,
-		month = 0,
-		day = 0,
-		...
-	});
+	const ld = init_date();
+	ld.epochal = d: int;
 	const dt = datetime {
 		date = ld,
 		time = localtime {
