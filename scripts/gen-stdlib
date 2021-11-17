@@ -89,7 +89,7 @@ rt() {
 	gen_ssa -plinux rt
 	gen_ssa -pfreebsd rt
 	cat <<EOF
-\$($cache)/rt/start.o: \$(STDLIB)/rt/+\$(PLATFORM)/start+\$(ARCH).s
+\$($cache)/rt/start.o: \$(STDLIB)/rt/+\$(PLATFORM)/start+\$(ARCH)-libc.s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$<
