@@ -32,6 +32,7 @@ export fn sha1() digest = {
 		sum = &sum,
 		reset = &reset,
 		sz = SIZE,
+		bsz = BLOCKSIZE,
 		...
 	};
 	hash::reset(&sha);

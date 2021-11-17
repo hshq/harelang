@@ -84,6 +84,7 @@ fn init(var: variant, sz: size) digest = {
 		sum = &sum,
 		reset = &reset,
 		sz = sz,
+		bsz = chunk,
 		var = var,
 		...
 	};

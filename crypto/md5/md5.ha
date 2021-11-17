@@ -33,6 +33,7 @@ export fn md5() digest = {
 		sum = &sum,
 		reset = &reset,
 		sz = SIZE,
+		bsz = chunk,
 		...
 	};
 	hash::reset(&md5);

@@ -46,6 +46,7 @@ export fn sha256() state = {
 		sum = &sum,
 		reset = &reset,
 		sz = SIZE,
+		bsz = chunk,
 		...
 	};
 	hash::reset(&sha);

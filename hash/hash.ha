@@ -14,6 +14,12 @@ export type hash = struct {
 
 	// Size of the hash in bytes.
 	sz: size,
+
+	// Internal block size of the hash. Writing data to the hash
+	// function in chunks of this size will not require padding to
+	// obtain the final hash, such that [[hash::sum]] shall return
+	// the same checksum as [[hash::finish]].
+	bsz: size,
 };
 
 // Writes an input to the hash function.
@@ -43,3 +49,6 @@ export fn reset(h: *hash) void = h.reset(h);
 // Returns the size of the hash in bytes. This is consistent regardless
 // of the hash state.
 export fn sz(h: *hash) size = h.sz;
+
+// Returns the block size of the hash.
+export fn bsz(h: *hash) size = h.bsz;
