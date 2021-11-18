@@ -7,8 +7,6 @@ use rt;
 use strings;
 use unix::poll;
 
-// TODO: Seek to de-duplicate more of the SQE prep code
-
 fn getsqe(bus: *bus) (*io_uring::sqe | queuefull) = {
 	match (io_uring::get_sqe(&bus.uring)) {
 	case null =>
@@ -263,4 +261,88 @@ export fn endcreate(bus: *bus, res: result) (io::file | error) = {
 		"endcreate called for non-create iobus::result");
 	free(handle.cstring);
 	return cqe_result(res)?: io::file;
+};
+
+// Flags for the [[recv]] and [[send]] family of operations. Only PEEK, OOB,
+// NOSIGNAL, and WAITALL are defined by POSIX.
+export type msgflag = enum int {
+	OOB = rt::MSG_OOB,
+	PEEK = rt::MSG_PEEK,
+	DONTROUTE = rt::MSG_DONTROUTE,
+	TRYHARD = rt::MSG_TRYHARD,
+	CTRUNC = rt::MSG_CTRUNC,
+	PROBE = rt::MSG_PROBE,
+	TRUNC = rt::MSG_TRUNC,
+	DONTWAIT = rt::MSG_DONTWAIT,
+	EOR = rt::MSG_EOR,
+	WAITALL = rt::MSG_WAITALL,
+	FIN = rt::MSG_FIN,
+	SYN = rt::MSG_SYN,
+	CONFIRM = rt::MSG_CONFIRM,
+	RST = rt::MSG_RST,
+	ERRQUEUE = rt::MSG_ERRQUEUE,
+	NOSIGNAL = rt::MSG_NOSIGNAL,
+	MORE = rt::MSG_MORE,
+	WAITFORONE = rt::MSG_WAITFORONE,
+	SENDPAGE_NOPOLICY = rt::MSG_SENDPAGE_NOPOLICY,
+	SENDPAGE_NOTLAST = rt::MSG_SENDPAGE_NOTLAST,
+	BATCH = rt::MSG_BATCH,
+	EOF = rt::MSG_EOF,
+	NO_SHARED_FRAGS = rt::MSG_NO_SHARED_FRAGS,
+	SENDPAGE_DECRYPTED = rt::MSG_SENDPAGE_DECRYPTED,
+	ZEROCOPY = rt::MSG_ZEROCOPY,
+	FASTOPEN = rt::MSG_FASTOPEN,
+	CMSG_CLOEXEC = rt::MSG_CMSG_CLOEXEC,
+};
+
+// Prepares an operation to receive data from a socket.
+export fn recv(
+	bus: *bus,
+	file: file,
+	buf: []u8,
+	flags: msgflag...
+) (handle | queuefull) = {
+	let rflags = 0;
+	for (let i = 0z; i < len(flags); i += 1) {
+		rflags |= flags[i];
+	};
+
+	let sqe = getsqe(bus)?;
+	let iflags = io_uring::flags::NONE;
+	let fd = match (file) {
+	case file: io::file =>
+		yield file: i32;
+	case file: registered_file =>
+		iflags |= io_uring::flags::FIXED_FILE;
+		yield file: i32;
+	};
+
+	io_uring::recv(sqe, fd, buf: *[*]u8, len(buf), rflags, iflags);
+	return handle { sqe = sqe, ... };
+};
+
+// Prepares an operation to send data to a socket.
+export fn send(
+	bus: *bus,
+	file: file,
+	buf: []u8,
+	flags: msgflag...
+) (handle | queuefull) = {
+	let sflags = 0;
+	for (let i = 0z; i < len(flags); i += 1) {
+		sflags |= flags[i];
+	};
+
+	let sqe = getsqe(bus)?;
+	let iflags = io_uring::flags::NONE;
+	let fd = match (file) {
+	case file: io::file =>
+		yield file: i32;
+	case file: registered_file =>
+		iflags |= io_uring::flags::FIXED_FILE;
+		yield file: i32;
+	};
+
+	io_uring::send(sqe, fd, buf: *[*]u8, len(buf), sflags, iflags);
+	return handle { sqe = sqe, ... };
 };
