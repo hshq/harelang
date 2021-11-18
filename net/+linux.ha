@@ -12,7 +12,7 @@ export type stream_listener = struct {
 	fd: int,
 };
 
-// Gets the fd of the listener's socket. This function is not portable.
+// Gets the file of a listener's socket.
 export fn listenerfd(l: *listener) (io::file | void) = {
 	if (l.accept == &stream_accept) {
 		return (l: *stream_listener).fd;
