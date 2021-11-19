@@ -18,6 +18,20 @@ export type state64 = struct {
 	v: u64,
 };
 
+// Hashes a string, returning a 32-bit key.
+export fn string32(s: str) u32 = {
+	let hash = fnv32a();
+	hash::write(&hash, strings::toutf8(s));
+	return sum32(&hash);
+};
+
+// Hashes a string, returning a 64-bit key.
+export fn string64(s: str) u64 = {
+	let hash = fnv64a();
+	hash::write(&hash, strings::toutf8(s));
+	return sum64(&hash);
+};
+
 // Creates a [[hash::hash]] which computes the FNV-1 32-bit hash function. This
 // hash does not allocate any state, so you do not need to call [[hash::close]]
 // when you're done with it.
