@@ -19,14 +19,18 @@ export fn tzdb(name: str) chrono::timezone = {
 };
 
 
-// Europe/Amsterdam timezone
+//
+// Some example timezones
+//
+
+// "Europe/Amsterdam" timezone
 export const TZ_Europe_Amsterdam: chrono::timezone = chrono::timezone {
 	aliasof = &TZ_CET,
 	name = "Europe/Amsterdam",
 	...
 };
 
-// Central European Time
+// "CET", "Central European Time" timezone
 export const TZ_CET: chrono::timezone = chrono::timezone {
 	aliasof = void,
 	scale = &chrono::UTC,
@@ -50,7 +54,8 @@ export const TZ_CET: chrono::timezone = chrono::timezone {
 
 fn zone_cet(m: chrono::moment) uint = {
 	const dt = datetime { ... };
-	conv_moment_datetime(m, &dt);
+	// TODO: reconcile chrono::moment // datetime::datetime types
+	//conv_moment_datetime(m, &dt);
 	const dst = (
 		dt.date.month: int == 3 &&
 		dt.date.day: int == 28 &&
@@ -72,4 +77,3 @@ fn zone_cet(m: chrono::moment) uint = {
 		return 0u;
 	};
 };
-

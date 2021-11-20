@@ -1,7 +1,6 @@
 use errors;
 use time;
 
-// Represents a time of day as represented on a wall clock
 export type localtime = struct {
 	lapsed: (void | int),
 	hour:   (void | int),
@@ -10,7 +9,7 @@ export type localtime = struct {
 	nsec:   (void | int),
 };
 
-export fn init_time() localtime = localtime {
+fn init_time() localtime = localtime {
 	lapsed = void,
 	hour   = void,
 	min    = void,
@@ -18,8 +17,9 @@ export fn init_time() localtime = localtime {
 	nsec   = void,
 };
 
-// Converts a [[time::duration]] to a [[localtime]]
-export fn conv_time_localtime(t: time::duration) localtime = {
+// TODO: rework the following functions and their signatures
+
+fn conv_time_localtime(t: time::duration) localtime = {
 	const lt = localtime {
 		lapsed = t: int,
 		hour = (t / time::HOUR): int,
@@ -30,9 +30,7 @@ export fn conv_time_localtime(t: time::duration) localtime = {
 	return lt;
 };
 
-// Converts a [[localtime]] to a [[time::duration]].
-// Fails if any of the [[localtime]] fields are void.
-export fn conv_localtime_time(lt: localtime) (time::duration | errors::invalid) = {
+fn conv_localtime_time(lt: localtime) (time::duration | errors::invalid) = {
 	if (
 		lt.hour is void
 		|| lt.min is void

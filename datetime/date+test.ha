@@ -147,4 +147,3 @@ use time::chrono;
 		assert(expect == actual, "weekday miscalculation");
 	};
 };
-

@@ -1,6 +1,6 @@
 use errors;
-use time::chrono;
 use fmt;
+use time::chrono;
 
 @test fn strptime() void = {
 	let dt = datetime {...};

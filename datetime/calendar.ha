@@ -1,61 +1,37 @@
 use errors;
-use time::chrono;
 use time;
+use time::chrono;
 
+// TODO: reconcile what epochs to use for time::chrono and datetime::
+//
+// 1970-01-01 "Hare epoch"
+// 0000-01-01 Gregorian epoch
 
-// The epoch of the Julian Day Number
+// The Hare epoch of the Julian Day Number
 export def EPOCH_JULIAN: i64 = -2440588;
 
-// The epoch of the Common Era
+// The Hare epoch of the Common Era
 export def EPOCH_COMMONERA: i64 = -719164;
-
-
-// Converts a [[datetime]] to a [[chrono::moment]].
-// Fails if there is insufficient information in the [[datetime]].
-export fn conv_datetime_moment(dt: datetime) (chrono::moment | errors::invalid) = {
-	const d = conv_localdate_epochal(dt.date)?;
-	const t = conv_localtime_time(dt.time)?;
-	const m = chrono::moment {
-		date = d,
-		time = t,
-		loc = chrono::local, // TODO
-	};
-	return m;
-};
-
-// Converts a [[chrono::moment]] to a [[datetime]]
-export fn conv_moment_datetime(m: chrono::moment, dt: *datetime) void = {
-	conv_epochal_localdate(m.date, &(dt.date), &localdate {
-		// TODO: reconcile, add more fields when ready
-		year = 0,
-		month = 0,
-		day = 0,
-		...
-	});
-
-	const lt = conv_time_localtime(m.time);
-	dt.time = lt;
-
-	dt.loc = chrono::local; // TODO
-	return dt;
-};
 
 
 //
 // date-like
 //
 
-// Evaluates a datetime's number of days since the calendar epoch 0001-01-01
+// Evaluates a [[datetime]]'s number of days since the calendar epoch 0000-01-01
 export fn epochal(dt: *datetime) int = {
 	match (dt.date.epochal) {
 	case void =>
-		abort("TODO"); // How to resolve? Use calc_epochal_from_*?
+		// How to resolve?
+		// Use calc_epochal_from_*? How to avoid recursion?
+		// When to rely on input validation?
+		abort("TODO");
 	case e: int =>
 		return e;
 	};
 };
 
-// Evaluates a datetime's era
+// Evaluates a [[datetime]]'s era
 export fn era(dt: *datetime) int = {
 	match (dt.date.era) {
 	case void =>
@@ -69,7 +45,7 @@ export fn era(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a datetime's year
+// Evaluates a [[datetime]]'s year
 export fn year(dt: *datetime) int = {
 	match (dt.date.year) {
 	case void =>
@@ -86,7 +62,7 @@ export fn year(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a datetime's month
+// Evaluates a [[datetime]]'s month of the year
 export fn month(dt: *datetime) int = {
 	match (dt.date.month) {
 	case void =>
@@ -103,7 +79,7 @@ export fn month(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a datetime's day of the month
+// Evaluates a [[datetime]]'s day of the month
 export fn day(dt: *datetime) int = {
 	match (dt.date.day) {
 	case void =>
@@ -120,8 +96,7 @@ export fn day(dt: *datetime) int = {
 	};
 };
 
-
-// Evaluates a datetime's day of the week
+// Evaluates a [[datetime]]'s day of the week
 export fn weekday(dt: *datetime) int = {
 	match (dt.date.weekday) {
 	case void =>
@@ -135,7 +110,7 @@ export fn weekday(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a datetime's ordinal day of the year
+// Evaluates a [[datetime]]'s ordinal day of the year
 export fn yearday(dt: *datetime) int = {
 	match (dt.date.yearday) {
 	case void =>
@@ -158,7 +133,8 @@ export fn yearday(dt: *datetime) int = {
 		return yd;
 	};
 };
-// Evaluates a datetime's ISO week calendar year
+
+// Evaluates a [[datetime]]'s ISO week-numbering year
 export fn isoweekyear(dt: *datetime) int = {
 	match (dt.date.isoweekyear) {
 	case void =>
@@ -186,7 +162,7 @@ export fn isoweekyear(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a datetime's Gregorian week
+// Evaluates a [[datetime]]'s Gregorian week
 export fn week(dt: *datetime) int = {
 	match (dt.date.week) {
 	case void =>
@@ -206,7 +182,7 @@ export fn week(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a datetime's ISO week
+// Evaluates a [[datetime]]'s ISO week
 export fn isoweek(dt: *datetime) int = {
 	match (dt.date.isoweek) {
 	case void =>
@@ -234,11 +210,12 @@ export fn isoweek(dt: *datetime) int = {
 	};
 };
 
+
 //
 // time-like
 //
 
-// Evaluates a datetime's hour of the day
+// Evaluates a [[datetime]]'s hour of the day
 export fn hour(dt: *datetime) int = {
 	match (dt.time.hour) {
 	case void =>
@@ -248,7 +225,7 @@ export fn hour(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a datetime's minute of the hour
+// Evaluates a [[datetime]]'s minute of the hour
 export fn min(dt: *datetime) int = {
 	match (dt.time.min) {
 	case void =>
@@ -258,7 +235,7 @@ export fn min(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a datetime's second of the minute
+// Evaluates a [[datetime]]'s second of the minute
 export fn sec(dt: *datetime) int = {
 	match (dt.time.sec) {
 	case void =>
@@ -268,7 +245,7 @@ export fn sec(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a datetime's nanosecond of the second
+// Evaluates a [[datetime]]'s nanosecond of the second
 export fn nsec(dt: *datetime) int = {
 	match (dt.time.nsec) {
 	case void =>
@@ -278,69 +255,32 @@ export fn nsec(dt: *datetime) int = {
 	};
 };
 
+//	// Converts a [[datetime]] to a [[chrono::moment]].
+//	// Fails if there is insufficient information in the [[datetime]].
+//	export fn conv_datetime_moment(dt: datetime) (chrono::moment | errors::invalid) = {
+//		const d = conv_localdate_epochal(dt.date)?;
+//		const t = conv_localtime_time(dt.time)?;
+//		const m = chrono::moment {
+//			date = d,
+//			time = t,
+//			loc = chrono::local, // TODO
+//		};
+//		return m;
+//	};
 
-// A contextual span of time in the proleptic Gregorian calendar.
-// Used for calendar arithmetic.
-export type period = struct {
-	eras: int,
-	years: int,
-
-	// Can be 28, 29, 30, or 31 days long
-	months: int,
-
-	// Weeks start on Monday
-	weeks: int,
-
-	days: int,
-	hours: int,
-	minutes: int,
-	seconds: int,
-	nanoseconds: int,
-};
-
-// Hops along the calendar from a moment, according to the given periods
-// sequencially, consulting period's units from largest to smallest.
-//
-// 	// m := 1999-05-13 12:30:45
-// 	datetime::hop(m, datetime::period {
-// 		years  = 22, // 2021-01-01 00:00:00
-// 		months = -1, // 2020-11-01 00:00:00
-// 		days   = -4, // 2020-10-27 00:00:00
-// 	});
-//
-export fn hop(m: chrono::moment, pp: period...) chrono::moment = {
-	// TODO
-	for (let i = 0z; i < len(pp); i += 1) {
-		const p = pp[i];
-	};
-	return m;
-};
-
-// Adds a calindrical period of time to a moment, largest units first.
-// Tries to conserve relative distance from cyclical points on the calendar.
-//
-// 	// m := 1999-05-13 12:30:45
-// 	datetime::hop(m, datetime::period {
-// 		years  = 22, // 2021-05-13 00:00:00
-// 		months = -1, // 2021-04-13 00:00:00
-// 		days   = -4, // 2020-04-09 00:00:00
-// 	});
-//
-// When units overflow, such as when adding a month to Jan 31st inaccurately
-// results to Feb 31th, the flag is consulted on how to handle this.
-//
-// TODO:
-// How to handle overflows and predictability with cal-arithm in general?
-export fn add(m: chrono::moment, flag: int, pp: period...) chrono::moment = {
-	// TODO
-	for (let i = 0z; i < len(pp); i += 1) {
-		const p = pp[i];
-	};
-	return m;
-};
-
-// Specifies behaviour during calendar arithmetic
-export type calculus = enum int {
-	LOGICAL,
-	PHYSICAL,
-};
+//	// Converts a [[chrono::moment]] to a [[datetime]]
+//	export fn conv_moment_datetime(m: chrono::moment, dt: *datetime) void = {
+//		conv_epochal_localdate(m.date, &(dt.date), &localdate {
+//			// TODO: reconcile, add more fields when ready
+//			year = 0,
+//			month = 0,
+//			day = 0,
+//			...
+//		});
+//	
+//		const lt = conv_time_localtime(m.time);
+//		dt.time = lt;
+//	
+//		dt.loc = chrono::local; // TODO
+//		return dt;
+//	};

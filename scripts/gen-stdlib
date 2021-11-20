@@ -185,21 +185,24 @@ datetime() {
 	if [ $testing -eq 0 ]
 	then
 		gen_srcs datetime \
+			arithmetic.ha \
 			calendar.ha \
-			datetime.ha \
-			timezone.ha \
 			date.ha \
+			datetime.ha \
+			format.ha \
 			time.ha \
-			format.ha
+			timezone.ha
 	else
 		gen_srcs datetime \
+			arithmetic.ha \
 			calendar.ha \
-			datetime.ha \
-			timezone.ha \
-			date.ha \
 			date+test.ha \
+			date.ha \
+			datetime.ha \
+			format.ha \
+			format+test.ha \
 			time.ha \
-			format.ha
+			timezone.ha
 	fi
 	gen_ssa datetime  errors fmt strings strio time time::chrono
 }

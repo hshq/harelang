@@ -112,7 +112,11 @@ fn clamp_int(i: int, min: int, max: int) int = {
 	};
 };
 
-// Parses a string into a [[datetime]]
+// Parses a datetime string into a [[datetime::datetime]].
+//
+// The resulting [[datetime::datetime]] may not contain sufficient information
+// to be valid. Incremental parsing of data is possible, but the caller should
+// validate the [[datetime::datetime]] when appropriate.
 export fn strptime(format: str, s: str, dt: *datetime) (void | errors::invalid) = {
 	const format_iter = strings::iter(format);
 	const s_iter = strings::iter(s);
@@ -427,7 +431,6 @@ export fn strptime(format: str, s: str, dt: *datetime) (void | errors::invalid) 
 
 // Formats a [[datetime]] and writes it into a caller supplied buffer.
 // The returned string is borrowed from this buffer.
-// Fails if a particular datetime field is required but void.
 export fn bstrftime(buf: []u8, format: str, dt: *datetime) (str | errors::invalid | io::error) = {
 	let sink = strio::fixed(buf);
 	defer io::close(sink);
@@ -437,7 +440,6 @@ export fn bstrftime(buf: []u8, format: str, dt: *datetime) (str | errors::invali
 
 // Formats a [[datetime]] and writes it into a heap-allocated string.
 // The caller must free the return value.
-// Fails if a particular datetime field is required but void.
 export fn strftime(format: str, dt: *datetime) (str | errors::invalid | io::error) = {
 	let sink = strio::dynamic();
 	fmttime(sink, format, dt)?;
@@ -445,7 +447,6 @@ export fn strftime(format: str, dt: *datetime) (str | errors::invalid | io::erro
 };
 
 // Formats a [[datetime]] and writes it into a [[io::handle]].
-// Fails a particular field is required but void.
 export fn fmttime(h: io::handle, format: str, dt: *datetime) (size | errors::invalid | io::error) = {
 	const iter = strings::iter(format);
 	let escaped = false;
