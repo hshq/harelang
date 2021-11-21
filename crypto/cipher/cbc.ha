@@ -1,4 +1,3 @@
-use bytes;
 use crypto::math;
 
 export type cbc_mode = struct {
@@ -19,7 +18,7 @@ export fn cbc_encryptor(b: *block, iv: []u8, buf: []u8) cbc_mode = {
 
 	let bsz = sz(b);
 	let carry = buf[0..bsz];
-	bytes::copy(carry, iv);
+	carry[..] = iv[..];
 
 	return cbc_mode {
 		b = b,
@@ -40,7 +39,7 @@ export fn cbc_decryptor(b: *block, iv: []u8, buf: []u8) cbc_mode = {
 
 	let bsz = sz(b);
 	let carry = buf[0..bsz];
-	bytes::copy(carry, iv);
+	carry[..] = iv[..];
 
 	return cbc_mode {
 		b = b,
@@ -64,7 +63,7 @@ export fn cbc_encrypt(c: *cbc_mode, dest: []u8, src: []u8) void = {
 		let eb = i + sz;
 		crypto::math::xor(dest[i..eb], src[i..eb], c.carry);
 		encrypt(c.b, dest[i..eb], dest[i..eb]);
-		bytes::copy(c.carry, dest[i..eb]);
+		c.carry[..] = dest[i..eb];
 	};
 };
 
@@ -80,8 +79,8 @@ export fn cbc_decrypt(c: *cbc_mode, dest: []u8, src: []u8) void = {
 
 	for (let i = 0z; i < len(dest); i += sz) {
 		let eb = i + sz;
-		bytes::copy(c.carrybuf, c.carry);
-		bytes::copy(c.carry, src[i..eb]);
+		c.carrybuf[..] = c.carry[..];
+		c.carry[..] = src[i..eb];
 		decrypt(c.b, dest[i..eb], src[i..eb]);
 		crypto::math::xor(dest[i..eb], dest[i..eb], c.carrybuf);
 	};
