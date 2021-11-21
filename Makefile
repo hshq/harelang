@@ -23,10 +23,11 @@ all:
 include stdlib.mk
 
 hare_srcs=\
+	./cmd/hare/main.ha \
 	./cmd/hare/plan.ha \
-	./cmd/hare/subcmds.ha \
+	./cmd/hare/release.ha \
 	./cmd/hare/schedule.ha \
-	./cmd/hare/main.ha
+	./cmd/hare/subcmds.ha
 
 harec_srcs=\
 	./cmd/harec/main.ha \

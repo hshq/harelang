@@ -1,11 +1,13 @@
 use ascii;
 use bufio;
 use encoding::utf8;
+use errors;
 use fmt;
 use fs;
 use getopt;
 use hare::ast;
 use hare::module;
+use io;
 use os::exec;
 use os;
 use path;
@@ -200,6 +202,58 @@ fn deps(args: []str) void = {
 	defer getopt::finish(&cmd);
 
 	abort(); // TODO
+};
+
+fn release(args: []str) void = {
+	const help: []getopt::help = [
+		"prepares a new release for a program or library",
+		('d', "enable dry-run mode; do not perform any changes"),
+		"<major|minor|patch|x.y.z>",
+	];
+	const cmd = getopt::parse(args, help...);
+	defer getopt::finish(&cmd);
+
+	let dryrun = false;
+	for (let i = 0z; i < len(cmd.opts); i += 1) {
+		let opt = cmd.opts[i];
+		switch (opt.0) {
+		case 'd' =>
+			dryrun = true;
+		case => abort();
+		};
+	};
+
+	if (len(cmd.args) == 0) {
+		getopt::printusage(os::stderr, "release", help);
+		os::exit(1);
+	};
+
+	const increment = switch (cmd.args[0]) {
+	case "major" =>
+		yield increment::MAJOR;
+	case "minor" =>
+		yield increment::MINOR;
+	case "patch" =>
+		yield increment::PATCH;
+	case =>
+		// TODO: Manually parse version x.y.z
+		getopt::printusage(os::stderr, "release", help);
+		os::exit(1);
+	};
+
+	match (do_release(increment, dryrun)) {
+	case void => void;
+	case err: exec::error =>
+		fmt::fatal(exec::strerror(err));
+	case err: errors::error =>
+		fmt::fatal(errors::strerror(err));
+	case err: io::error =>
+		fmt::fatal(io::strerror(err));
+	case err: git_error =>
+		fmt::fatal("git: {}", exec::exitstr(err));
+	case badversion =>
+		fmt::fatal("Error: invalid format string. Hare uses semantic versioning, in the form major.minor.patch.");
+	};
 };
 
 fn run(args: []str) void = {

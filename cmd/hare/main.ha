@@ -24,6 +24,8 @@ export fn main() void = {
 		yield &cache;
 	case "deps" =>
 		yield &deps;
+	case "release" =>
+		yield &release;
 	case "run" =>
 		yield &run;
 	case "test" =>
