@@ -111,6 +111,11 @@ export type freebsd11_dirent = struct {
 	d_name: [*]char,
 };
 
+export type iovec = struct {
+	iov_base: *void,
+	iov_len: size
+};
+
 export type winsize = struct {
 	ws_row: u16,
 	ws_col: u16,

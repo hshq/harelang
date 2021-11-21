@@ -1,4 +1,5 @@
 export type sa_family_t = u16;
+export type socklen_t = uint;
 
 export type in_addr = struct {
 	s_addr: u32
@@ -40,6 +41,35 @@ export type sockaddr = struct {
 		in6: sockaddr_in6,
 		un: sockaddr_un,
 	},
+};
+
+export def SCM_RIGHTS: int = 0x01;
+export def SCM_CREDENTIALS: int = 0x02;
+
+export type msghdr = struct {
+	msg_name: nullable *void,
+	msg_namelen: u32,
+
+	msg_iov: nullable *[*]iovec,
+	msg_iovlen: size,
+
+	msg_control: nullable *void,
+	msg_controllen: size,
+
+	msg_flags: int
+};
+
+export type cmsghdr = struct {
+	// XXX: This structure differs on big-endian machines
+	cmsg_len: socklen_t,
+	_padding: int,
+	cmsg_level: int,
+	cmsg_type: int,
+};
+
+export type cmsg = struct {
+	hdr: cmsghdr,
+	cmsg_data: [*]u8,
 };
 
 // domain for socket(2)

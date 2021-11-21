@@ -1258,7 +1258,8 @@ $(HARECACHE)/math/math-any.ssa: $(stdlib_math_any_srcs) $(stdlib_rt) $(stdlib_ty
 stdlib_net_linux_srcs= \
 	$(STDLIB)/net/+linux.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/listener.ha
+	$(STDLIB)/net/listener.ha \
+	$(STDLIB)/net/msg.ha
 
 $(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -1270,7 +1271,8 @@ $(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_i
 stdlib_net_freebsd_srcs= \
 	$(STDLIB)/net/+freebsd.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/listener.ha
+	$(STDLIB)/net/listener.ha \
+	$(STDLIB)/net/msg.ha
 
 $(HARECACHE)/net/net-freebsd.ssa: $(stdlib_net_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -1377,6 +1379,7 @@ $(HARECACHE)/net/udp/net_udp-freebsd.ssa: $(stdlib_net_udp_freebsd_srcs) $(stdli
 stdlib_net_unix_linux_srcs= \
 	$(STDLIB)/net/unix/+linux.ha \
 	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/cmsg.ha \
 	$(STDLIB)/net/unix/dial.ha \
 	$(STDLIB)/net/unix/listener.ha \
 	$(STDLIB)/net/unix/options.ha \
@@ -1392,6 +1395,7 @@ $(HARECACHE)/net/unix/net_unix-linux.ssa: $(stdlib_net_unix_linux_srcs) $(stdlib
 stdlib_net_unix_freebsd_srcs= \
 	$(STDLIB)/net/unix/+freebsd.ha \
 	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/cmsg.ha \
 	$(STDLIB)/net/unix/dial.ha \
 	$(STDLIB)/net/unix/listener.ha \
 	$(STDLIB)/net/unix/options.ha \
@@ -3039,7 +3043,8 @@ $(TESTCACHE)/math/math-any.ssa: $(testlib_math_any_srcs) $(testlib_rt) $(testlib
 testlib_net_linux_srcs= \
 	$(STDLIB)/net/+linux.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/listener.ha
+	$(STDLIB)/net/listener.ha \
+	$(STDLIB)/net/msg.ha
 
 $(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -3051,7 +3056,8 @@ $(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testli
 testlib_net_freebsd_srcs= \
 	$(STDLIB)/net/+freebsd.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/listener.ha
+	$(STDLIB)/net/listener.ha \
+	$(STDLIB)/net/msg.ha
 
 $(TESTCACHE)/net/net-freebsd.ssa: $(testlib_net_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -3160,6 +3166,7 @@ $(TESTCACHE)/net/udp/net_udp-freebsd.ssa: $(testlib_net_udp_freebsd_srcs) $(test
 testlib_net_unix_linux_srcs= \
 	$(STDLIB)/net/unix/+linux.ha \
 	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/cmsg.ha \
 	$(STDLIB)/net/unix/dial.ha \
 	$(STDLIB)/net/unix/listener.ha \
 	$(STDLIB)/net/unix/options.ha \
@@ -3175,6 +3182,7 @@ $(TESTCACHE)/net/unix/net_unix-linux.ssa: $(testlib_net_unix_linux_srcs) $(testl
 testlib_net_unix_freebsd_srcs= \
 	$(STDLIB)/net/unix/+freebsd.ha \
 	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/cmsg.ha \
 	$(STDLIB)/net/unix/dial.ha \
 	$(STDLIB)/net/unix/listener.ha \
 	$(STDLIB)/net/unix/options.ha \

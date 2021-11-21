@@ -428,6 +428,16 @@ export fn send(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) =
 	return sendto(sockfd, buf, len_, flags, null, 0);
 };
 
+export fn sendmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
+	return wrap_return(syscall3(SYS_sendmsg,
+		fd: u64, msg: uintptr: u64, flags: u64))?: int;
+};
+
+export fn recvmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
+	return wrap_return(syscall3(SYS_recvmsg,
+		fd: u64, msg: uintptr: u64, flags: u64))?: int;
+};
+
 export fn getsockopt(sockfd: int, level: int, optname: int, optval: nullable *void, optlen: nullable *u32) (int | errno) = {
 	return wrap_return(syscall5(SYS_getsockopt,
 		sockfd: u64, level: u64, optname: u64,

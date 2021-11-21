@@ -39,3 +39,38 @@ export fn stream_shutdown(l: *listener) void = {
 	rt::close(l.fd)!;
 	free(l);
 };
+
+fn msg_to_native(msg: *msghdr) *rt::msghdr = {
+	let native = &msg.native;
+	if (len(msg.vectors) != 0) {
+		native.msg_iov = msg.vectors: *[*]rt::iovec;
+		native.msg_iovlen = len(msg.vectors);
+	};
+	if (len(msg.control) != 0) {
+		native.msg_control = msg.control: *[*]u8;
+		native.msg_controllen = len(msg.control);
+	};
+	return native;
+};
+
+// Sends a message to a socket. See [[newmsg]] for details.
+export fn sendmsg(sock: io::file, msg: *msghdr) (size | error) = {
+	// TODO: Flags
+	match (rt::sendmsg(sock, msg_to_native(msg), 0)) {
+	case let n: int =>
+		return n: size;
+	case let err: rt::errno =>
+		return errors::errno(err);
+	};
+};
+
+// Receives a message from a socket. See [[newmsg]] for details.
+export fn recvmsg(sock: io::file, msg: *msghdr) (size | error) = {
+	// TODO: Flags
+	match (rt::recvmsg(sock, msg_to_native(msg), 0)) {
+	case let n: int =>
+		return n: size;
+	case let err: rt::errno =>
+		return errors::errno(err);
+	};
+};

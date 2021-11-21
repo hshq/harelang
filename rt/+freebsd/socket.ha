@@ -1,4 +1,5 @@
 export type sa_family_t = u8;
+export type socklen_t = u32;
 
 export type in_addr = struct {
 	s_addr: u32
@@ -43,6 +44,33 @@ export type sockaddr = struct {
 		in6: sockaddr_in6,
 		un: sockaddr_un,
 	},
+};
+
+export def SCM_RIGHTS: int = 0x01;
+export def SCM_CREDENTIALS: int = 0x02;
+
+export type msghdr = struct {
+	msg_name: nullable *void,
+	msg_namelen: socklen_t,
+
+	msg_iov: nullable *[*]iovec,
+	msg_iovlen: int,
+
+	msg_control: nullable *void,
+	msg_controllen: socklen_t,
+
+	msg_flags: int
+};
+
+export type cmsghdr = struct {
+	cmsg_len: socklen_t,
+	cmsg_level: int,
+	cmsg_type: int,
+};
+
+export type cmsg = struct {
+	hdr: cmsghdr,
+	cmsg_data: [*]u8,
 };
 
 export def AF_UNSPEC: sa_family_t = 0;

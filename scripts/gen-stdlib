@@ -764,13 +764,15 @@ net() {
 	gen_srcs -plinux net \
 		+linux.ha \
 		errors.ha \
-		listener.ha
+		listener.ha \
+		msg.ha
 	gen_ssa -plinux net io os strings net::ip errors rt fmt
 
 	gen_srcs -pfreebsd net \
 		+freebsd.ha \
 		errors.ha \
-		listener.ha
+		listener.ha \
+		msg.ha
 	gen_ssa -pfreebsd net io os strings net::ip errors rt fmt
 }
 
@@ -848,6 +850,7 @@ net_unix() {
 	gen_srcs -plinux net::unix \
 		+linux.ha \
 		addr.ha \
+		cmsg.ha \
 		dial.ha \
 		listener.ha \
 		options.ha \
@@ -857,6 +860,7 @@ net_unix() {
 	gen_srcs -pfreebsd net::unix \
 		+freebsd.ha \
 		addr.ha \
+		cmsg.ha \
 		dial.ha \
 		listener.ha \
 		options.ha \

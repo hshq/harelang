@@ -539,33 +539,6 @@ export type iovec = struct {
 	iov_len: size
 };
 
-export def SCM_RIGHTS: int = 0x01;
-export def SCM_CREDENTIALS: int = 0x02;
-
-export type msghdr = struct {
-	msg_name: nullable *void,
-	msg_namelen: u32,
-
-	msg_iov: *[*]iovec,
-	msg_iovlen: size,
-
-	msg_control: *void,
-	msg_controllen: size,
-
-	msg_flags: int
-};
-
-export type cmsghdr = struct {
-	cmsg_len: size,
-	cmsg_level: int,
-	cmsg_type: int,
-};
-
-export type cmsg = struct {
-	hdr: cmsghdr,
-	cmsg_data: [*]u8,
-};
-
 export def PRIO_PROCESS: int = 0;
 export def PRIO_PGRP: int = 1;
 export def PRIO_USER: int = 2;
