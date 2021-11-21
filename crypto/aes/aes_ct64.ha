@@ -34,6 +34,10 @@ def CT64_NPARALLEL: size = 4;
 // Size of the buffer used for [[crypto::cipher::ctr]].
 export def CTR_BUFSIZE: size = BLOCKSIZE * (CT64_NPARALLEL + 1);
 
+// Size of the buffer used for [[crypto::cipher::cbc_encryptor]] and
+// [[crypto::cipher::cbc_decryptor]].
+export def CBC_BUFSIZE: size = BLOCKSIZE * 2;
+
 export type ct64_block = struct {
 	cipher::block,
 	rounds: uint,

@@ -35,16 +35,15 @@ use bytes;
 	];
 
 	let result: [64]u8 = [0...];
+	let buf: [CBC_BUFSIZE]u8 = [0...];
 
 	let b = ct64(key);
-	let cbc = cipher::cbc_encryptor(&b, iv[..]);
-	defer cipher::cbc_finish(&cbc);
+	let cbc = cipher::cbc_encryptor(&b, iv[..], buf[..]);
 
 	cipher::cbc_encrypt(&cbc, result, plain);
 	assert(bytes::equal(cipher, result));
 
-	let cbcd = cipher::cbc_decryptor(&b, iv[..]);
-	defer cipher::cbc_finish(&cbcd);
+	let cbcd = cipher::cbc_decryptor(&b, iv[..], buf[..]);
 
 	cipher::cbc_decrypt(&cbcd, result, cipher);
 	assert(bytes::equal(plain, result));
@@ -84,16 +83,15 @@ use bytes;
 	];
 
 	let result: [64]u8 = plain;
+	let buf: [CBC_BUFSIZE]u8 = [0...];
 
 	let b = ct64(key);
-	let cbc = cipher::cbc_encryptor(&b, iv[..]);
-	defer cipher::cbc_finish(&cbc);
+	let cbc = cipher::cbc_encryptor(&b, iv[..], buf[..]);
 
 	cipher::cbc_encrypt(&cbc, result, result);
 	assert(bytes::equal(cipher, result));
 
-	let cbcd = cipher::cbc_decryptor(&b, iv[..]);
-	defer cipher::cbc_finish(&cbcd);
+	let cbcd = cipher::cbc_decryptor(&b, iv[..], buf[..]);
 
 	cipher::cbc_decrypt(&cbcd, result, result);
 	assert(bytes::equal(plain, result));
