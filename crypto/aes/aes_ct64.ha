@@ -27,6 +27,13 @@ use crypto::cipher;
 use crypto::math;
 use endian;
 
+export def BLOCKSIZE: size = 16;
+
+def CT64_NPARALLEL: size = 4;
+
+// Size of the buffer used for [[crypto::cipher::ctr]].
+export def CTR_BUFSIZE: size = BLOCKSIZE * (CT64_NPARALLEL + 1);
+
 export type ct64_block = struct {
 	cipher::block,
 	rounds: uint,
@@ -36,8 +43,8 @@ export type ct64_block = struct {
 // Creates a constant time, 64-bit optimised aes [[crypto::cipher::block]].
 export fn ct64(key: []u8) ct64_block = {
 	let state = ct64_block {
-		sz = 16z,
-		nparallel = 4z,
+		sz = BLOCKSIZE,
+		nparallel = CT64_NPARALLEL,
 		encrypt = &aes_ct64_encrypt,
 		decrypt = &aes_ct64_decrypt,
 		...

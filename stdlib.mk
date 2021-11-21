@@ -681,7 +681,8 @@ $(HARECACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(stdlib_crypto_blake2b_any_
 stdlib_crypto_cipher_any_srcs= \
 	$(STDLIB)/crypto/cipher/cipher.ha \
 	$(STDLIB)/crypto/cipher/stream.ha \
-	$(STDLIB)/crypto/cipher/cbc.ha
+	$(STDLIB)/crypto/cipher/cbc.ha \
+	$(STDLIB)/crypto/cipher/ctr.ha
 
 $(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2380,7 +2381,8 @@ $(TESTCACHE)/compress/zlib/compress_zlib-any.ssa: $(testlib_compress_zlib_any_sr
 testlib_crypto_aes_any_srcs= \
 	$(STDLIB)/crypto/aes/aes_ct64.ha \
 	$(STDLIB)/crypto/aes/ct64+test.ha \
-	$(STDLIB)/crypto/aes/cbc+test.ha
+	$(STDLIB)/crypto/aes/cbc+test.ha \
+	$(STDLIB)/crypto/aes/ctr+test.ha
 
 $(TESTCACHE)/crypto/aes/crypto_aes-any.ssa: $(testlib_crypto_aes_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2404,7 +2406,8 @@ $(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(testlib_crypto_blake2b_any
 testlib_crypto_cipher_any_srcs= \
 	$(STDLIB)/crypto/cipher/cipher.ha \
 	$(STDLIB)/crypto/cipher/stream.ha \
-	$(STDLIB)/crypto/cipher/cbc.ha
+	$(STDLIB)/crypto/cipher/cbc.ha \
+	$(STDLIB)/crypto/cipher/ctr.ha
 
 $(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
