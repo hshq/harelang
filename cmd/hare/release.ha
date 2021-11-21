@@ -26,7 +26,7 @@ fn parseversion(in: str) (modversion | badversion) = {
 		return badversion;
 	};
 	let major = 0u, minor = 0u, patch = 0u;
-	let ptrs = [&major, &minor, &patch];
+	const ptrs = [&major, &minor, &patch];
 	for (let i = 0z; i < len(items); i += 1) {
 		*ptrs[i] = match (strconv::stou(items[i])) {
 		case u: uint =>
