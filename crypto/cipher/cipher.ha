@@ -4,8 +4,8 @@ export type block = struct {
 
 	nparallel: size,
 
-	encrypt: *fn(b: *block, dst: []u8, src: []u8) void,
-	decrypt: *fn(b: *block, dst: []u8, src: []u8) void,
+	encrypt: *fn(b: *block, dest: []u8, src: []u8) void,
+	decrypt: *fn(b: *block, dest: []u8, src: []u8) void,
 };
 
  // Returns the blocksize in bytes
@@ -14,10 +14,10 @@ export fn sz(b: *block) size = b.sz;
 // The number of blocks that can be processed at once at encrypt or decrypt
 export fn nparallel(b: *block) size = b.nparallel;
 
-// Encrypt up to nparallel blocks of size sz of src data and write it to dst
-export fn encrypt(b: *block, dst: []u8, src: []u8) void =
-	b.encrypt(b, dst, src);
+// Encrypt up to nparallel blocks of size sz of src data and write it to dest
+export fn encrypt(b: *block, dest: []u8, src: []u8) void =
+	b.encrypt(b, dest, src);
 
-// Decrypt up to nparallel blocks of size sz of src data and write it to dst
-export fn decrypt(b: *block, dst: []u8, src: []u8) void =
-	b.decrypt(b, dst, src);
+// Decrypt up to nparallel blocks of size sz of src data and write it to dest
+export fn decrypt(b: *block, dest: []u8, src: []u8) void =
+	b.decrypt(b, dest, src);
