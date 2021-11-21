@@ -1,10 +1,12 @@
 use errors;
 use fmt;
+use fs;
 use io;
 use os::exec;
 use os;
 use strconv;
 use strings;
+use temp;
 use unix;
 
 type increment = enum {
@@ -16,7 +18,7 @@ type increment = enum {
 type modversion = (uint, uint, uint);
 type git_error = !exec::exit_status;
 type badversion = !void;
-type release_error = !(exec::error | io::error | errors::error
+type release_error = !(exec::error | io::error | fs::error | errors::error
 	| badversion | git_error);
 
 fn parseversion(in: str) (modversion | badversion) = {
@@ -65,8 +67,6 @@ fn do_release(incr: increment, dryrun: bool) (void | release_error) = {
 	defer free(lasttag);
 
 	const current = parseversion(lasttag)?;
-	fmt::printfln("current version: {}.{}.{}",
-		current.0, current.1, current.2)!;
 	const new: modversion = switch (incr) {
 	case increment::MAJOR =>
 		yield (current.0 + 1, 0, 0);
@@ -75,10 +75,20 @@ fn do_release(incr: increment, dryrun: bool) (void | release_error) = {
 	case increment::PATCH =>
 		yield (current.0, current.1, current.2 + 1);
 	};
-	fmt::printfln("new version: {}.{}.{}", new.0, new.1, new.2)!;
+	const newtag = fmt::asprintf("{}.{}.{}", new.0, new.1, new.2);
+	defer free(newtag);
 	const range = fmt::asprintf("{}..HEAD", lasttag);
 	defer free(range);
-	shortlog(os::stdout_file, range)?;
+
+	const dir = temp::dir();
+	defer os::rmdirall(dir)!;
+	const changelog = temp::named(os::cwd, dir, io::mode::WRITE)?;
+	const clfile = changelog.0, changelog = changelog.1;
+	fmt::fprintfln(clfile, "# Version {}", newtag)?;
+	fmt::fprintln(clfile, "# TODO: Fill in more stuff here")?;
+	shortlog(clfile, range)?;
+
+	git_runcmd("tag", "-aeF", changelog, newtag)?;
 };
 
 fn do_initial_release() (void | release_error) = {

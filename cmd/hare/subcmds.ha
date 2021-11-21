@@ -249,6 +249,8 @@ fn release(args: []str) void = {
 		fmt::fatal(errors::strerror(err));
 	case err: io::error =>
 		fmt::fatal(io::strerror(err));
+	case err: fs::error =>
+		fmt::fatal(fs::strerror(err));
 	case err: git_error =>
 		fmt::fatal("git: {}", exec::exitstr(err));
 	case badversion =>
