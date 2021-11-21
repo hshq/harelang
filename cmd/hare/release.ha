@@ -1,9 +1,11 @@
+use bufio;
 use errors;
 use fmt;
 use fs;
 use io;
 use os::exec;
 use os;
+use path;
 use strconv;
 use strings;
 use temp;
@@ -20,6 +22,20 @@ type git_error = exec::exit_status;
 type badversion = !void;
 type release_error = !(exec::error | io::error | fs::error | errors::error
 	| badversion | git_error);
+
+const changelog_template: str = "# This is the changelog for your release. It has been automatically pre-filled
+# with the changes from version {} via git-shortlog(1). Please review the
+# changelog below and, if necessary, add a brief note regarding any steps
+# required for the user to upgrade this software. It is recommended to keep this
+# brief and clinical, so readers can quickly understand what's changed, and to
+# save marketing comments for a separate release announcement.
+#
+# Any lines which begin with \"#\", like this one, are for your information
+# only, and will be removed from the final changelog. Edit this file to your
+# satisfaction, then save and close your editor.
+#
+{} version {}
+";
 
 fn parseversion(in: str) (modversion | badversion) = {
 	const items = strings::split(in, ".");
@@ -46,14 +62,14 @@ fn do_release(incr: increment, dryrun: bool) (void | release_error) = {
 	// changes (major bump), or neither (patch bump). I don't feel that
 	// fancy, however.
 
-	// TODO:
-	// - Run hare test
-	// - Run git tag -a with release notes pre-filled
-	// - Generate & sign tarballs as git notes
+	// TODO: Run hare test
 	checkbranch()?;
 	checkstatus()?;
 	git_runcmd("fetch")?;
 	checkbehind()?;
+
+	const key = choosekey()?;
+	defer free(key);
 
 	// TODO: Detect if distance from the last tag is zero commits
 	const lasttag = match (git_readcmd("describe", "--abbrev=0")) {
@@ -80,15 +96,46 @@ fn do_release(incr: increment, dryrun: bool) (void | release_error) = {
 	const range = fmt::asprintf("{}..HEAD", lasttag);
 	defer free(range);
 
+	const name = path::basename(os::getcwd());
 	const dir = temp::dir();
 	defer os::rmdirall(dir)!;
 	const changelog = temp::named(os::cwd, dir, io::mode::WRITE)?;
 	const clfile = changelog.0, changelog = changelog.1;
-	fmt::fprintfln(clfile, "# Version {}", newtag)?;
-	fmt::fprintln(clfile, "# TODO: Fill in more stuff here")?;
+	fmt::fprintfln(clfile, changelog_template, lasttag, name, newtag)?;
 	shortlog(clfile, range)?;
 
 	git_runcmd("tag", "-aeF", changelog, newtag)?;
+
+	fmt::printfln("Using SSH key {} for release signature.", key)!;
+	const prefix = fmt::asprintf("--prefix={}-{}/", name, newtag);
+	defer free(prefix);
+	const archive = exec::cmd("git", "archive",
+		"--format=tar.gz", prefix, newtag)?;
+	const ssh = exec::cmd("ssh-keygen",
+		"-Y", "sign", "-f", key, "-n", "file")?;
+	const note = exec::cmd("git", "notes", "add", "-F", "-", newtag)?;
+	exec::setenv(&note, "GIT_NOTES_REF", "refs/notes/signatures/tar.gz");
+
+	const pipe1 = unix::pipe()?;
+	const pipe2 = unix::pipe()?;
+	exec::addfile(&archive, pipe1.1, os::stdout_file);
+	exec::addfile(&ssh, pipe1.0, os::stdin_file);
+	exec::addfile(&ssh, pipe2.1, os::stdout_file);
+	exec::addfile(&note, pipe2.0, os::stdin_file);
+	const archive = exec::start(&archive)?;
+	const ssh = exec::start(&ssh)?;
+	const note = exec::start(&note)?;
+	io::close(pipe1.0);
+	io::close(pipe1.1);
+	io::close(pipe2.0);
+	io::close(pipe2.1);
+	exec::check(&exec::wait(&archive)?)?;
+	exec::check(&exec::wait(&ssh)?)?;
+	exec::check(&exec::wait(&note)?)?;
+
+	fmt::printfln("Tagged {} version {}. "
+		"Use 'git push --follow-tags' to publish the new release.",
+		name, newtag)!;
 };
 
 fn do_initial_release() (void | release_error) = {
@@ -147,6 +194,53 @@ fn shortlog(out: io::file, what: str) (void | release_error) = {
 	const proc = exec::start(&cmd)?;
 	const status = exec::wait(&proc)?;
 	exec::check(&status)?;
+};
+
+fn choosekey() (str | release_error) = {
+	match (os::getenv("HAREKEY")) {
+	case void => void;
+	case name: str =>
+		return name;
+	};
+	const paths = [
+		"id_ed25519",
+		"id_ecdsa",
+		"id_rsa",
+		"id_dsa",
+	];
+	const home = os::getenv("HOME") as str;
+	for (let i = 0z; i < len(paths); i += 1) {
+		const cand = path::join(home, ".ssh", paths[i]);
+		if (os::stat(cand) is fs::error) {
+			free(cand);
+			continue;
+		};
+		return cand;
+	};
+	fmt::errorln("No suitable SSH key found to sign releases with.")!;
+
+	fmt::error("Would you like to generate one now? [Y/n] ")!;
+	const line = match (bufio::scanline(os::stdin)?) {
+	case io::EOF =>
+		fmt::fatal("No suitable key available. Terminating.");
+	case line: []u8 =>
+		yield strings::fromutf8(line);
+	};
+	defer free(line);
+	if (line != "" && line != "y" && line != "Y") {
+		fmt::fatal("No suitable key available. Terminating.");
+	};
+
+	const parent = path::join(home, ".ssh");
+	defer free(parent);
+	os::mkdirs(parent)?;
+
+	const path = path::join(home, ".ssh", "id_ed25519");
+	const cmd = exec::cmd("ssh-keygen", "-t", "ed25519", "-f", path)?;
+	const proc = exec::start(&cmd)?;
+	const status = exec::wait(&proc)?;
+	exec::check(&status)?;
+	return path;
 };
 
 fn git_runcmd(args: str...) (void | release_error) = {
