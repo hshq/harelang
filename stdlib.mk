@@ -679,8 +679,9 @@ $(HARECACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(stdlib_crypto_blake2b_any_
 
 # crypto::cipher (+any)
 stdlib_crypto_cipher_any_srcs= \
-	$(STDLIB)/crypto/cipher/cbc.ha \
-	$(STDLIB)/crypto/cipher/cipher.ha
+	$(STDLIB)/crypto/cipher/cipher.ha \
+	$(STDLIB)/crypto/cipher/stream.ha \
+	$(STDLIB)/crypto/cipher/cbc.ha
 
 $(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -1508,15 +1509,13 @@ stdlib_strings_any_srcs= \
 	$(STDLIB)/strings/contains.ha \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
-	$(STDLIB)/strings/index.ha \
 	$(STDLIB)/strings/iter.ha \
-	$(STDLIB)/strings/pad.ha \
-	$(STDLIB)/strings/replace.ha \
 	$(STDLIB)/strings/sub.ha \
 	$(STDLIB)/strings/suffix.ha \
 	$(STDLIB)/strings/tokenize.ha \
-	$(STDLIB)/strings/trim.ha \
-	$(STDLIB)/strings/utf8.ha
+	$(STDLIB)/strings/utf8.ha \
+	$(STDLIB)/strings/index.ha \
+	$(STDLIB)/strings/trim.ha
 
 $(HARECACHE)/strings/strings-any.ssa: $(stdlib_strings_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2403,8 +2402,9 @@ $(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(testlib_crypto_blake2b_any
 
 # crypto::cipher (+any)
 testlib_crypto_cipher_any_srcs= \
-	$(STDLIB)/crypto/cipher/cbc.ha \
-	$(STDLIB)/crypto/cipher/cipher.ha
+	$(STDLIB)/crypto/cipher/cipher.ha \
+	$(STDLIB)/crypto/cipher/stream.ha \
+	$(STDLIB)/crypto/cipher/cbc.ha
 
 $(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -3264,15 +3264,13 @@ testlib_strings_any_srcs= \
 	$(STDLIB)/strings/contains.ha \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
-	$(STDLIB)/strings/index.ha \
 	$(STDLIB)/strings/iter.ha \
-	$(STDLIB)/strings/pad.ha \
-	$(STDLIB)/strings/replace.ha \
 	$(STDLIB)/strings/sub.ha \
 	$(STDLIB)/strings/suffix.ha \
 	$(STDLIB)/strings/tokenize.ha \
-	$(STDLIB)/strings/trim.ha \
-	$(STDLIB)/strings/utf8.ha
+	$(STDLIB)/strings/utf8.ha \
+	$(STDLIB)/strings/index.ha \
+	$(STDLIB)/strings/trim.ha
 
 $(TESTCACHE)/strings/strings-any.ssa: $(testlib_strings_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'

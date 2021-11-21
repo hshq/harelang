@@ -225,8 +225,9 @@ crypto_blake2b() {
 
 crypto_cipher() {
 	gen_srcs crypto::cipher \
-		cbc.ha \
-		cipher.ha
+		cipher.ha \
+		stream.ha \
+		cbc.ha
 	gen_ssa crypto::cipher bytes crypto::math
 }
 
