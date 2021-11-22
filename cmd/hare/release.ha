@@ -110,7 +110,7 @@ fn do_release(
 	shortlog(clfile, range)?;
 
 	git_runcmd("tag", "-aeF", changelog, newtag)?;
-	signtag(name, newtag, key)?;
+	signtag(dir, name, newtag, key)?;
 	fmt::printfln("Tagged {} version {}. "
 		"Use 'git push --follow-tags' to publish the new release.",
 		name, newtag)!;
@@ -140,7 +140,7 @@ fn do_initial_release(ver: (modversion | increment)) (void | release_error) = {
 	fmt::fprintfln(clfile, initial_template, name, newtag)?;
 
 	git_runcmd("tag", "-aeF", changelog, newtag)?;
-	signtag(name, newtag, key)?;
+	signtag(dir, name, newtag, key)?;
 	fmt::printfln("Tagged {} version {}. "
 		"Use 'git push --follow-tags' to publish the new release.",
 		name, newtag)!;
@@ -269,10 +269,27 @@ fn choosekey() (str | release_error) = {
 	const proc = exec::start(&cmd)?;
 	const status = exec::wait(&proc)?;
 	exec::check(&status)?;
+	fmt::println("You will be prompted to enter your password again to create the release signature.")!;
 	return path;
 };
 
-fn signtag(name: str, tag: str, key: str) (void | release_error) = {
+fn signtag(tmpdir: str, name: str, tag: str, key: str) (void | release_error) = {
+	// This could work without the agent if it were not for the fact that
+	// ssh-keygen is bloody stupid when it comes to prompting you for your
+	// password.
+	const socket = path::join(tmpdir, "agent");
+	defer free(socket);
+	const agent = exec::cmd("ssh-agent", "-Da", socket)?;
+	exec::nullstd(&agent);
+	const agent = exec::start(&agent)?;
+	defer exec::kill(agent)!;
+
+	const addkey = exec::cmd("ssh-add", key)?;
+	exec::setenv(&addkey, "SSH_AUTH_SOCK", socket);
+	const addkey = exec::start(&addkey)?;
+	const addkey = exec::wait(&addkey)?;
+	exec::check(&addkey)?;
+
 	const prefix = fmt::asprintf("--prefix={}-{}/", name, tag);
 	defer free(prefix);
 	const archive = exec::cmd("git", "archive",
@@ -282,6 +299,7 @@ fn signtag(name: str, tag: str, key: str) (void | release_error) = {
 	const note = exec::cmd("git", "notes", "add", "-F", "-", tag)?;
 	exec::setenv(&note, "GIT_NOTES_REF", "refs/notes/signatures/tar.gz");
 
+	exec::setenv(&ssh, "SSH_AUTH_SOCK", socket);
 	// Squelch "Signing data on standard input" message
 	// TODO: It might be better to capture this and print it to stderr
 	// ourselves if ssh-keygen exits nonzero, so that the error details are
