@@ -264,7 +264,12 @@ fn choosekey() (str | release_error) = {
 	os::mkdirs(parent)?;
 
 	const path = path::join(home, ".ssh", "id_ed25519");
-	const cmd = exec::cmd("ssh-keygen", "-t", "ed25519", "-f", path)?;
+	const cmd = match (exec::cmd("ssh-keygen", "-t", "ed25519", "-f", path)) {
+	case cmd: exec::command =>
+		yield cmd;
+	case err: exec::error =>
+		fmt::fatal("ssh-keygen: command not found. Is openssh installed?");
+	};
 	const proc = exec::start(&cmd)?;
 	const status = exec::wait(&proc)?;
 	exec::check(&status)?;
