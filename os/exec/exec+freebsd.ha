@@ -3,6 +3,7 @@ use io;
 use rt;
 use strings;
 use os;
+use unix;
 
 export type platform_cmd = io::file;
 
