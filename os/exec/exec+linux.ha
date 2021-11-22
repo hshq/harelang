@@ -57,8 +57,19 @@ fn platform_exec(cmd: *command) error = {
 		envp = env: *[*]nullable *const char;
 	};
 
+	let need_devnull = false;
 	for (let i = 0z; i < len(cmd.files); i += 1) {
-		cmd.files[i].0 = match (rt::fcntl(cmd.files[i].0, rt::F_DUPFD_CLOEXEC, 0)) {
+		const from = match (cmd.files[i].0) {
+		case file: io::file =>
+			yield file;
+		case nullfd =>
+			need_devnull = true;
+			continue;
+		case closefd =>
+			continue;
+		};
+
+		cmd.files[i].0 = match (rt::fcntl(from, rt::F_DUPFD_CLOEXEC, 0)) {
 		case fd: int =>
 			yield fd;
 		case err: rt::errno =>
@@ -66,8 +77,22 @@ fn platform_exec(cmd: *command) error = {
 		};
 	};
 
+	const devnull: io::file = if (need_devnull) {
+		yield os::open("/dev/null")!;
+	} else -1;
+
 	for (let i = 0z; i < len(cmd.files); i += 1) {
-		match (rt::dup2(cmd.files[i].0, cmd.files[i].1)) {
+		const from = match (cmd.files[i].0) {
+		case file: io::file =>
+			yield file;
+		case nullfd =>
+			yield devnull;
+		case closefd =>
+			io::close(cmd.files[i].1);
+			continue;
+		};
+
+		match (rt::dup2(from, cmd.files[i].1)) {
 		case int => void;
 		case e: rt::errno =>
 			return errors::errno(e);

@@ -116,26 +116,44 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 	append(cmd.env, strings::concat(fullkey, value));
 };
 
-// Adds an [[io::file]] to the child process's file table. All mappings are
-// performed atomically, such that the following code swaps stdout and stderr:
+// Configures a file in the child process's file table, such that 'from' is
+// mapped onto file descriptor slot 'to' via one of the dup(2) family of
+// syscalls. This is done atomically, such that the following code swaps stdout
+// and stderr:
 //
 // 	exec::addfile(&cmd, os::stdout_file, os::stderr);
 // 	exec::addfile(&cmd, os::stderr, os::stdout_file);
 //
-// If the same [[io::file]] is mapped to multiple times, only the last mapping
-// will take effect.
-export fn addfile(cmd: *command, old: io::file, new: io::file) void = {
-	// TODO: Can we make old be an io::handle?
-	append(cmd.files, (old, new));
+// Pass [[os::exec::nullfd]] in the 'to' argument to map the child's file
+// descriptor to /dev/null or the appropriate platform-specific equivalent.
+//
+// Pass [[os::exec::closefd]] in the 'to' argument to close a file descriptor
+// which was not opened with the CLOEXEC flag. Note that Hare opens all files
+// with CLOEXEC by default, so this is not usually necessary.
+export fn addfile(
+	cmd: *command,
+	from: (io::file | nullfd | closefd),
+	to: io::file,
+) void = {
+	// TODO: Can we make 'to' be an io::handle?
+	append(cmd.files, (from, to));
 };
 
-// Adds [[os::stdin]], [[os::stdout]], and [[os::stderr]] from the parent
-// process (i.e. the one which calls this function) into the child process's
-// file table.
-export fn addstd(cmd: *command) void = {
-	addfile(cmd, os::stdin_file, os::stdin_file);
-	addfile(cmd, os::stdout_file, os::stdout_file);
-	addfile(cmd, os::stderr, os::stderr);
+// Closes all standard files (stdin, stdout, and stderr) in the child process.
+// Many programs do not work well under these conditions; you may want
+// [[nullstd]] instead.
+export fn closestd(cmd: *command) void = {
+	addfile(cmd, closefd, os::stdin_file);
+	addfile(cmd, closefd, os::stdout_file);
+	addfile(cmd, closefd, os::stderr);
+};
+
+// Redirects all standard files (stdin, stdout, and stderr) to /dev/null or the
+// platform-specific equivalent.
+export fn nullstd(cmd: *command) void = {
+	addfile(cmd, nullfd, os::stdin_file);
+	addfile(cmd, nullfd, os::stdout_file);
+	addfile(cmd, nullfd, os::stderr);
 };
 
 fn lookup(name: str) (platform_cmd | void) = {

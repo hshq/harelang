@@ -37,8 +37,7 @@ const changelog_template: str = "# This is the changelog for your release. It ha
 {} version {}
 ";
 
-const initial_template: str = "
-# These are the release notes for the initial release of {0}.
+const initial_template: str = "# These are the release notes for the initial release of {0}.
 #
 # Any lines which begin with \"#\", like this one, are for your information
 # only, and will be removed from the final release notes. Edit this file to your
@@ -275,7 +274,6 @@ fn choosekey() (str | release_error) = {
 };
 
 fn signtag(name: str, tag: str, key: str) (void | release_error) = {
-	fmt::printfln("Using SSH key {} for release signature.", key)!;
 	const prefix = fmt::asprintf("--prefix={}-{}/", name, tag);
 	defer free(prefix);
 	const archive = exec::cmd("git", "archive",
@@ -284,6 +282,12 @@ fn signtag(name: str, tag: str, key: str) (void | release_error) = {
 		"-Y", "sign", "-f", key, "-n", "file")?;
 	const note = exec::cmd("git", "notes", "add", "-F", "-", tag)?;
 	exec::setenv(&note, "GIT_NOTES_REF", "refs/notes/signatures/tar.gz");
+
+	// Squelch "Signing data on standard input"
+	// TODO: It might be better to capture this and print it to stderr
+	// ourselves if ssh-keygen exits nonzero, so that the error details are
+	// available to the user for diagnosis.
+	exec::addfile(&ssh, exec::nullfd, os::stderr);
 
 	const pipe1 = unix::pipe()?;
 	const pipe2 = unix::pipe()?;
@@ -305,6 +309,7 @@ fn signtag(name: str, tag: str, key: str) (void | release_error) = {
 
 fn git_runcmd(args: str...) (void | release_error) = {
 	const cmd = exec::cmd("git", args...)?;
+	exec::addfile(&cmd, exec::nullfd, os::stderr);
 	const proc = exec::start(&cmd)?;
 	const status = exec::wait(&proc)?;
 	return exec::check(&status)?;
@@ -315,6 +320,7 @@ fn git_readcmd(args: str...) (str | release_error) = {
 	defer io::close(pipe.0);
 	const cmd = exec::cmd("git", args...)?;
 	exec::addfile(&cmd, pipe.1, os::stdout_file);
+	exec::addfile(&cmd, exec::nullfd, os::stderr);
 	const proc = exec::start(&cmd)?;
 	io::close(pipe.1);
 	const result = io::drain(pipe.0)?;

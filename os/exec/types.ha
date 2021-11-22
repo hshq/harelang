@@ -1,12 +1,18 @@
 use errors;
 use io;
 
+// Represents a "null" file descriptor, e.g. /dev/null.
+export type nullfd = void;
+
+// Used to close a file descriptor which does not have the CLOEXEC flag set.
+export type closefd = void;
+
 // An executable command.
 export type command = struct {
 	platform: platform_cmd,
 	argv: []str,
 	env: []str,
-	files: [](io::file, io::file),
+	files: []((io::file | nullfd | closefd), io::file),
 };
 
 // Returned when path resolution fails to find a command by its name.
