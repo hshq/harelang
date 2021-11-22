@@ -101,34 +101,7 @@ fn do_release(
 	shortlog(clfile, range)?;
 
 	git_runcmd("tag", "-aeF", changelog, newtag)?;
-
-	fmt::printfln("Using SSH key {} for release signature.", key)!;
-	const prefix = fmt::asprintf("--prefix={}-{}/", name, newtag);
-	defer free(prefix);
-	const archive = exec::cmd("git", "archive",
-		"--format=tar.gz", prefix, newtag)?;
-	const ssh = exec::cmd("ssh-keygen",
-		"-Y", "sign", "-f", key, "-n", "file")?;
-	const note = exec::cmd("git", "notes", "add", "-F", "-", newtag)?;
-	exec::setenv(&note, "GIT_NOTES_REF", "refs/notes/signatures/tar.gz");
-
-	const pipe1 = unix::pipe()?;
-	const pipe2 = unix::pipe()?;
-	exec::addfile(&archive, pipe1.1, os::stdout_file);
-	exec::addfile(&ssh, pipe1.0, os::stdin_file);
-	exec::addfile(&ssh, pipe2.1, os::stdout_file);
-	exec::addfile(&note, pipe2.0, os::stdin_file);
-	const archive = exec::start(&archive)?;
-	const ssh = exec::start(&ssh)?;
-	const note = exec::start(&note)?;
-	io::close(pipe1.0);
-	io::close(pipe1.1);
-	io::close(pipe2.0);
-	io::close(pipe2.1);
-	exec::check(&exec::wait(&archive)?)?;
-	exec::check(&exec::wait(&ssh)?)?;
-	exec::check(&exec::wait(&note)?)?;
-
+	signtag(name, newtag, key)?;
 	fmt::printfln("Tagged {} version {}. "
 		"Use 'git push --follow-tags' to publish the new release.",
 		name, newtag)!;
@@ -257,6 +230,35 @@ fn choosekey() (str | release_error) = {
 	const status = exec::wait(&proc)?;
 	exec::check(&status)?;
 	return path;
+};
+
+fn signtag(name: str, tag: str, key: str) (void | release_error) = {
+	fmt::printfln("Using SSH key {} for release signature.", key)!;
+	const prefix = fmt::asprintf("--prefix={}-{}/", name, tag);
+	defer free(prefix);
+	const archive = exec::cmd("git", "archive",
+		"--format=tar.gz", prefix, tag)?;
+	const ssh = exec::cmd("ssh-keygen",
+		"-Y", "sign", "-f", key, "-n", "file")?;
+	const note = exec::cmd("git", "notes", "add", "-F", "-", tag)?;
+	exec::setenv(&note, "GIT_NOTES_REF", "refs/notes/signatures/tar.gz");
+
+	const pipe1 = unix::pipe()?;
+	const pipe2 = unix::pipe()?;
+	exec::addfile(&archive, pipe1.1, os::stdout_file);
+	exec::addfile(&ssh, pipe1.0, os::stdin_file);
+	exec::addfile(&ssh, pipe2.1, os::stdout_file);
+	exec::addfile(&note, pipe2.0, os::stdin_file);
+	const archive = exec::start(&archive)?;
+	const ssh = exec::start(&ssh)?;
+	const note = exec::start(&note)?;
+	io::close(pipe1.0);
+	io::close(pipe1.1);
+	io::close(pipe2.0);
+	io::close(pipe2.1);
+	exec::check(&exec::wait(&archive)?)?;
+	exec::check(&exec::wait(&ssh)?)?;
+	exec::check(&exec::wait(&note)?)?;
 };
 
 fn git_runcmd(args: str...) (void | release_error) = {
