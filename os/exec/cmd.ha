@@ -140,7 +140,6 @@ export fn addfile(
 	from: (io::file | nullfd | closefd),
 	to: io::file,
 ) void = {
-	// TODO: Can we make 'to' be an io::handle?
 	append(cmd.files, (from, to));
 };
 
