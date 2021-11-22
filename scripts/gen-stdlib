@@ -871,14 +871,14 @@ os_exec() {
 		process+linux.ha \
 		types.ha \
 		cmd.ha
-	gen_ssa -plinux os::exec os strings fmt bytes path errors
+	gen_ssa -plinux os::exec os strings fmt bytes path errors unix
 
 	gen_srcs -pfreebsd os::exec \
 		exec+freebsd.ha \
 		process+freebsd.ha \
 		types.ha \
 		cmd.ha
-	gen_ssa -pfreebsd os::exec os strings fmt bytes path errors
+	gen_ssa -pfreebsd os::exec os strings fmt bytes path errors unix
 }
 
 path() {
