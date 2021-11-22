@@ -118,3 +118,62 @@ export fn check(stat: *status) (void | !exit_status) = {
 	};
 	return exit(stat);
 };
+
+// An enumeration of all known signals. Only a subset of these are defined by
+// POSIX, consult the specification for details:
+//
+// https://pubs.opengroup.org/onlinepubs/009695399/basedefs/signal.h.html
+export type signal = enum int {
+	SIGHUP = rt::SIGHUP,
+	SIGINT = rt::SIGINT,
+	SIGQUIT = rt::SIGQUIT,
+	SIGILL = rt::SIGILL,
+	SIGTRAP = rt::SIGTRAP,
+	SIGABRT = rt::SIGABRT,
+	SIGBUS = rt::SIGBUS,
+	SIGFPE = rt::SIGFPE,
+	SIGKILL = rt::SIGKILL,
+	SIGUSR1 = rt::SIGUSR1,
+	SIGSEGV = rt::SIGSEGV,
+	SIGUSR2 = rt::SIGUSR2,
+	SIGPIPE = rt::SIGPIPE,
+	SIGALRM = rt::SIGALRM,
+	SIGTERM = rt::SIGTERM,
+	SIGSTKFLT = rt::SIGSTKFLT,
+	SIGCHLD = rt::SIGCHLD,
+	SIGCONT = rt::SIGCONT,
+	SIGSTOP = rt::SIGSTOP,
+	SIGTSTP = rt::SIGTSTP,
+	SIGTTIN = rt::SIGTTIN,
+	SIGTTOU = rt::SIGTTOU,
+	SIGURG = rt::SIGURG,
+	SIGXCPU = rt::SIGXCPU,
+	SIGXFSZ = rt::SIGXFSZ,
+	SIGVTALRM = rt::SIGVTALRM,
+	SIGPROF = rt::SIGPROF,
+	SIGWINCH = rt::SIGWINCH,
+	SIGIO = rt::SIGIO,
+	SIGPOLL = rt::SIGPOLL,
+	SIGPWR = rt::SIGPWR,
+	SIGSYS = rt::SIGSYS,
+};
+
+// Sends a signal to a child process. If no variadic arguments are provided, the
+// program is terminated in a platform-specific manner. You may provide exactly
+// one variadic argument, the [[signal]] you wish to send, but this is only
+// supported on Unix-like systems.
+export fn kill(proc: process, sig: signal...) (void | errors::error) = {
+	const sig = if (len(sig) == 0) {
+		yield signal::SIGTERM;
+	} else if (len(sig) == 1) {
+		yield sig[0];
+	} else {
+		abort("os::exec::signal illegally called with more than one signal");
+	};
+	match (rt::kill(proc, sig)) {
+	case errno: rt::errno =>
+		return errors::errno(errno);
+	case void =>
+		return;
+	};
+};
