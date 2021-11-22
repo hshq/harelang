@@ -108,7 +108,6 @@ fn do_release(
 	const changelog = temp::named(os::cwd, dir, io::mode::WRITE)?;
 	const clfile = changelog.0, changelog = changelog.1;
 	defer io::close(clfile);
-	defer os::remove(changelog)!;
 	fmt::fprintfln(clfile, changelog_template, lasttag, name, newtag)?;
 	shortlog(clfile, range)?;
 
@@ -140,7 +139,6 @@ fn do_initial_release(ver: (modversion | increment)) (void | release_error) = {
 	const changelog = temp::named(os::cwd, dir, io::mode::WRITE)?;
 	const clfile = changelog.0, changelog = changelog.1;
 	defer io::close(clfile);
-	defer os::remove(changelog)!;
 	fmt::fprintfln(clfile, initial_template, name, newtag)?;
 
 	git_runcmd("tag", "-aeF", changelog, newtag)?;
