@@ -56,7 +56,10 @@ fn parseversion(in: str) (modversion | badversion) = {
 	return (major, minor, patch);
 };
 
-fn do_release(incr: increment, dryrun: bool) (void | release_error) = {
+fn do_release(
+	next: (increment | modversion),
+	dryrun: bool,
+) (void | release_error) = {
 	// XXX: If we were feeling REALLY fancy we could run the diff and
 	// automatically detect new functions/types/etc (minor bump), breaking
 	// changes (major bump), or neither (patch bump). I don't feel that
@@ -83,14 +86,7 @@ fn do_release(incr: increment, dryrun: bool) (void | release_error) = {
 	defer free(lasttag);
 
 	const current = parseversion(lasttag)?;
-	const new: modversion = switch (incr) {
-	case increment::MAJOR =>
-		yield (current.0 + 1, 0, 0);
-	case increment::MINOR =>
-		yield (current.0, current.1 + 1, 0);
-	case increment::PATCH =>
-		yield (current.0, current.1, current.2 + 1);
-	};
+	const new = nextversion(current, next);
 	const newtag = fmt::asprintf("{}.{}.{}", new.0, new.1, new.2);
 	defer free(newtag);
 	const range = fmt::asprintf("{}..HEAD", lasttag);
@@ -140,6 +136,26 @@ fn do_release(incr: increment, dryrun: bool) (void | release_error) = {
 
 fn do_initial_release() (void | release_error) = {
 	fmt::fatal("TODO: Tag initial release");
+};
+
+fn nextversion(
+	current: modversion,
+	next: (increment | modversion),
+) modversion = {
+	const next = match (next) {
+	case incr: increment =>
+		yield incr;
+	case ver: modversion =>
+		return ver;
+	};
+	switch (next) {
+	case increment::MAJOR =>
+		return (current.0 + 1, 0, 0);
+	case increment::MINOR =>
+		return (current.0, current.1 + 1, 0);
+	case increment::PATCH =>
+		return (current.0, current.1, current.2 + 1);
+	};
 };
 
 fn checkbranch() (void | release_error) = {

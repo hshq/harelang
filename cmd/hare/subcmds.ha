@@ -228,7 +228,7 @@ fn release(args: []str) void = {
 		os::exit(1);
 	};
 
-	const increment = switch (cmd.args[0]) {
+	const next = switch (cmd.args[0]) {
 	case "major" =>
 		yield increment::MAJOR;
 	case "minor" =>
@@ -236,12 +236,16 @@ fn release(args: []str) void = {
 	case "patch" =>
 		yield increment::PATCH;
 	case =>
-		// TODO: Manually parse version x.y.z
-		getopt::printusage(os::stderr, "release", help);
-		os::exit(1);
+		yield match (parseversion(cmd.args[0])) {
+		case badversion =>
+			getopt::printusage(os::stderr, "release", help);
+			os::exit(1);
+		case ver: modversion =>
+			yield ver;
+		};
 	};
 
-	match (do_release(increment, dryrun)) {
+	match (do_release(next, dryrun)) {
 	case void => void;
 	case err: exec::error =>
 		fmt::fatal(exec::strerror(err));
