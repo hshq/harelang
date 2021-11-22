@@ -11,7 +11,6 @@ use os;
 use os::exec;
 use path;
 use strings;
-use unix;
 use unix::tty;
 
 type format = enum {
@@ -224,7 +223,7 @@ fn init_tty(ctx: *context) io::handle = {
 		};
 	};
 
-	const pipe = unix::pipe()!;
+	const pipe = exec::pipe();
 	exec::addfile(&pager, pipe.0, os::stdin_file);
 	exec::setenv(&pager, "LESS", "FRX");
 	ctx.pager = exec::start(&pager)!;
