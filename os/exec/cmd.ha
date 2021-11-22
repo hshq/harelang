@@ -123,8 +123,8 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 // This operation is performed atomically, such that the following code swaps
 // stdout and stderr:
 //
-// 	exec::addfile(&cmd, os::stdout_file, os::stderr);
 // 	exec::addfile(&cmd, os::stderr, os::stdout_file);
+// 	exec::addfile(&cmd, os::stdout_file, os::stderr);
 //
 // Pass [[os::exec::nullfd]] in the 'from' argument to map the child's file
 // descriptor to /dev/null or the appropriate platform-specific equivalent.
@@ -137,8 +137,8 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 // together, see the [[pipe]] function.
 export fn addfile(
 	cmd: *command,
-	from: (io::file | nullfd | closefd),
 	to: io::file,
+	from: (io::file | nullfd | closefd),
 ) void = {
 	append(cmd.files, (from, to));
 };
@@ -147,17 +147,17 @@ export fn addfile(
 // Many programs do not work well under these conditions; you may want
 // [[nullstd]] instead.
 export fn closestd(cmd: *command) void = {
-	addfile(cmd, closefd, os::stdin_file);
-	addfile(cmd, closefd, os::stdout_file);
-	addfile(cmd, closefd, os::stderr);
+	addfile(cmd, os::stdin_file, closefd);
+	addfile(cmd, os::stdout_file, closefd);
+	addfile(cmd, os::stderr, closefd);
 };
 
 // Redirects all standard files (stdin, stdout, and stderr) to /dev/null or the
 // platform-specific equivalent.
 export fn nullstd(cmd: *command) void = {
-	addfile(cmd, nullfd, os::stdin_file);
-	addfile(cmd, nullfd, os::stdout_file);
-	addfile(cmd, nullfd, os::stderr);
+	addfile(cmd, os::stdin_file, nullfd);
+	addfile(cmd, os::stdout_file, nullfd);
+	addfile(cmd, os::stderr, nullfd);
 };
 
 fn lookup(name: str) (platform_cmd | void) = {

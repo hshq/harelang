@@ -224,7 +224,7 @@ fn init_tty(ctx: *context) io::handle = {
 	};
 
 	const pipe = exec::pipe();
-	exec::addfile(&pager, pipe.0, os::stdin_file);
+	exec::addfile(&pager, os::stdin_file, pipe.0);
 	exec::setenv(&pager, "LESS", "FRX");
 	ctx.pager = exec::start(&pager)!;
 	return pipe.1;

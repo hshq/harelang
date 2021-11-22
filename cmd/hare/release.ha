@@ -214,7 +214,7 @@ fn checkbehind() (void | release_error) = {
 
 fn shortlog(out: io::file, what: str) (void | release_error) = {
 	const cmd = exec::cmd("git", "shortlog", "--no-merges", what)?;
-	exec::addfile(&cmd, out, os::stdout_file);
+	exec::addfile(&cmd, os::stdout_file, out);
 	const proc = exec::start(&cmd)?;
 	const status = exec::wait(&proc)?;
 	exec::check(&status)?;
@@ -286,14 +286,14 @@ fn signtag(name: str, tag: str, key: str) (void | release_error) = {
 	// TODO: It might be better to capture this and print it to stderr
 	// ourselves if ssh-keygen exits nonzero, so that the error details are
 	// available to the user for diagnosis.
-	exec::addfile(&ssh, exec::nullfd, os::stderr);
+	exec::addfile(&ssh, os::stderr, exec::nullfd);
 
 	const pipe1 = exec::pipe();
 	const pipe2 = exec::pipe();
-	exec::addfile(&archive, pipe1.1, os::stdout_file);
-	exec::addfile(&ssh, pipe1.0, os::stdin_file);
-	exec::addfile(&ssh, pipe2.1, os::stdout_file);
-	exec::addfile(&note, pipe2.0, os::stdin_file);
+	exec::addfile(&archive, os::stdout_file, pipe1.1);
+	exec::addfile(&ssh, os::stdin_file, pipe1.0);
+	exec::addfile(&ssh, os::stdout_file, pipe2.1);
+	exec::addfile(&note, os::stdin_file, pipe2.0);
 	const archive = exec::start(&archive)?;
 	const ssh = exec::start(&ssh)?;
 	const note = exec::start(&note)?;
@@ -308,7 +308,7 @@ fn signtag(name: str, tag: str, key: str) (void | release_error) = {
 
 fn git_runcmd(args: str...) (void | release_error) = {
 	const cmd = exec::cmd("git", args...)?;
-	exec::addfile(&cmd, exec::nullfd, os::stderr);
+	exec::addfile(&cmd, os::stderr, exec::nullfd);
 	const proc = exec::start(&cmd)?;
 	const status = exec::wait(&proc)?;
 	return exec::check(&status)?;
@@ -318,8 +318,8 @@ fn git_readcmd(args: str...) (str | release_error) = {
 	const pipe = exec::pipe();
 	defer io::close(pipe.0);
 	const cmd = exec::cmd("git", args...)?;
-	exec::addfile(&cmd, pipe.1, os::stdout_file);
-	exec::addfile(&cmd, exec::nullfd, os::stderr);
+	exec::addfile(&cmd, os::stdout_file, pipe.1);
+	exec::addfile(&cmd, os::stderr, exec::nullfd);
 	const proc = exec::start(&cmd)?;
 	io::close(pipe.1);
 	const result = io::drain(pipe.0)?;
