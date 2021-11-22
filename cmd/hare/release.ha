@@ -9,7 +9,6 @@ use path;
 use strconv;
 use strings;
 use temp;
-use unix;
 
 type increment = enum {
 	MAJOR,
@@ -283,14 +282,14 @@ fn signtag(name: str, tag: str, key: str) (void | release_error) = {
 	const note = exec::cmd("git", "notes", "add", "-F", "-", tag)?;
 	exec::setenv(&note, "GIT_NOTES_REF", "refs/notes/signatures/tar.gz");
 
-	// Squelch "Signing data on standard input"
+	// Squelch "Signing data on standard input" message
 	// TODO: It might be better to capture this and print it to stderr
 	// ourselves if ssh-keygen exits nonzero, so that the error details are
 	// available to the user for diagnosis.
 	exec::addfile(&ssh, exec::nullfd, os::stderr);
 
-	const pipe1 = unix::pipe()?;
-	const pipe2 = unix::pipe()?;
+	const pipe1 = exec::pipe();
+	const pipe2 = exec::pipe();
 	exec::addfile(&archive, pipe1.1, os::stdout_file);
 	exec::addfile(&ssh, pipe1.0, os::stdin_file);
 	exec::addfile(&ssh, pipe2.1, os::stdout_file);
@@ -316,7 +315,7 @@ fn git_runcmd(args: str...) (void | release_error) = {
 };
 
 fn git_readcmd(args: str...) (str | release_error) = {
-	const pipe = unix::pipe()?;
+	const pipe = exec::pipe();
 	defer io::close(pipe.0);
 	const cmd = exec::cmd("git", args...)?;
 	exec::addfile(&cmd, pipe.1, os::stdout_file);

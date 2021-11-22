@@ -130,6 +130,9 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 // Pass [[os::exec::closefd]] in the 'to' argument to close a file descriptor
 // which was not opened with the CLOEXEC flag. Note that Hare opens all files
 // with CLOEXEC by default, so this is not usually necessary.
+//
+// To write to a process's stdin, capture its stdout, or pipe two programs
+// together, see the [[pipe]] function.
 export fn addfile(
 	cmd: *command,
 	from: (io::file | nullfd | closefd),

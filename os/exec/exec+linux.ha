@@ -1,8 +1,9 @@
 use errors;
+use io;
+use os;
 use rt;
 use strings;
-use os;
-use io;
+use unix;
 
 export type platform_cmd = io::file;
 
@@ -15,6 +16,29 @@ export fn fork() (int | void | error) = {
 	case i: (int | void) =>
 		return i;
 	};
+};
+
+// Creates an anonymous pipe for use with [[addfile]]. Any data written to the
+// second file may be read from the first file. The caller should close one or
+// both of the file descriptors after they have transferred them to another
+// process, and after they have finished using them themselves, if applicable.
+//
+// This function will abort the process if the system is unable to allocate the
+// resources for a pipe. If you need to handle this error gracefully, you may
+// call [[unix::pipe]] yourself, but this may reduce the portability of your
+// software.
+//
+// To capture the standard output of a process:
+//
+// 	let pipe = exec::pipe();
+// 	exec::addfile(&cmd, pipe.1, os::stdout_file);
+// 	exec::start(&cmd);
+// 	io::close(pipe.1);
+//
+// 	let data = io::drain(pipe.0)!;
+// 	io::close(pipe.0);
+export fn pipe() (io::file, io::file) = {
+	return unix::pipe()!;
 };
 
 fn open(path: str) (platform_cmd | error) = {
