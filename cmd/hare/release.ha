@@ -37,6 +37,16 @@ const changelog_template: str = "# This is the changelog for your release. It ha
 {} version {}
 ";
 
+const initial_template: str = "
+# These are the release notes for the initial release of {0}.
+#
+# Any lines which begin with \"#\", like this one, are for your information
+# only, and will be removed from the final release notes. Edit this file to your
+# satisfaction, then save and close your editor.
+#
+{0} version {1}
+";
+
 fn parseversion(in: str) (modversion | badversion) = {
 	const items = strings::split(in, ".");
 	defer free(items);
@@ -71,19 +81,19 @@ fn do_release(
 	git_runcmd("fetch")?;
 	checkbehind()?;
 
-	const key = choosekey()?;
-	defer free(key);
-
 	// TODO: Detect if distance from the last tag is zero commits
 	const lasttag = match (git_readcmd("describe", "--abbrev=0")) {
 	case git_error =>
-		return do_initial_release();
+		return do_initial_release(next);
 	case err: release_error =>
 		return err;
 	case s: str =>
 		yield strings::rtrim(s);
 	};
 	defer free(lasttag);
+
+	const key = choosekey()?;
+	defer free(key);
 
 	const current = parseversion(lasttag)?;
 	const new = nextversion(current, next);
@@ -97,6 +107,8 @@ fn do_release(
 	defer os::rmdirall(dir)!;
 	const changelog = temp::named(os::cwd, dir, io::mode::WRITE)?;
 	const clfile = changelog.0, changelog = changelog.1;
+	defer io::close(clfile);
+	defer os::remove(changelog)!;
 	fmt::fprintfln(clfile, changelog_template, lasttag, name, newtag)?;
 	shortlog(clfile, range)?;
 
@@ -107,8 +119,35 @@ fn do_release(
 		name, newtag)!;
 };
 
-fn do_initial_release() (void | release_error) = {
-	fmt::fatal("TODO: Tag initial release");
+fn do_initial_release(ver: (modversion | increment)) (void | release_error) = {
+	const ver = match (ver) {
+	case ver: modversion =>
+		yield ver;
+	case increment =>
+		fmt::errorln("Error: cannot increment version number without a previous version to reference.")!;
+		fmt::errorln("For the first release, try 'hare release 1.0.0' instead.")!;
+		os::exit(1);
+	};
+
+	const key = choosekey()?;
+	defer free(key);
+	const newtag = fmt::asprintf("{}.{}.{}", ver.0, ver.1, ver.2);
+	defer free(newtag);
+
+	const name = path::basename(os::getcwd());
+	const dir = temp::dir();
+	defer os::rmdirall(dir)!;
+	const changelog = temp::named(os::cwd, dir, io::mode::WRITE)?;
+	const clfile = changelog.0, changelog = changelog.1;
+	defer io::close(clfile);
+	defer os::remove(changelog)!;
+	fmt::fprintfln(clfile, initial_template, name, newtag)?;
+
+	git_runcmd("tag", "-aeF", changelog, newtag)?;
+	signtag(name, newtag, key)?;
+	fmt::printfln("Tagged {} version {}. "
+		"Use 'git push --follow-tags' to publish the new release.",
+		name, newtag)!;
 };
 
 fn nextversion(
