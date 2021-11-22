@@ -116,18 +116,20 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 	append(cmd.env, strings::concat(fullkey, value));
 };
 
-// Configures a file in the child process's file table, such that 'from' is
-// mapped onto file descriptor slot 'to' via one of the dup(2) family of
-// syscalls. This is done atomically, such that the following code swaps stdout
-// and stderr:
+// Configures a file in the child process's file table, such that the file
+// described by the 'from' parameter is mapped onto file descriptor slot 'to'
+// in the child process via dup(2).
+//
+// This operation is performed atomically, such that the following code swaps
+// stdout and stderr:
 //
 // 	exec::addfile(&cmd, os::stdout_file, os::stderr);
 // 	exec::addfile(&cmd, os::stderr, os::stdout_file);
 //
-// Pass [[os::exec::nullfd]] in the 'to' argument to map the child's file
+// Pass [[os::exec::nullfd]] in the 'from' argument to map the child's file
 // descriptor to /dev/null or the appropriate platform-specific equivalent.
 //
-// Pass [[os::exec::closefd]] in the 'to' argument to close a file descriptor
+// Pass [[os::exec::closefd]] in the 'from' argument to close a file descriptor
 // which was not opened with the CLOEXEC flag. Note that Hare opens all files
 // with CLOEXEC by default, so this is not usually necessary.
 //
