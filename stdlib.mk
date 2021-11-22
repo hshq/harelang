@@ -624,7 +624,6 @@ $(HARECACHE)/bufio/bufio-any.ssa: $(stdlib_bufio_any_srcs) $(stdlib_rt) $(stdlib
 # bytes (+any)
 stdlib_bytes_any_srcs= \
 	$(STDLIB)/bytes/contains.ha \
-	$(STDLIB)/bytes/copy.ha \
 	$(STDLIB)/bytes/equal.ha \
 	$(STDLIB)/bytes/index.ha \
 	$(STDLIB)/bytes/reverse.ha \
@@ -2343,7 +2342,6 @@ $(TESTCACHE)/bufio/bufio-any.ssa: $(testlib_bufio_any_srcs) $(testlib_rt) $(test
 # bytes (+any)
 testlib_bytes_any_srcs= \
 	$(STDLIB)/bytes/contains.ha \
-	$(STDLIB)/bytes/copy.ha \
 	$(STDLIB)/bytes/equal.ha \
 	$(STDLIB)/bytes/index.ha \
 	$(STDLIB)/bytes/reverse.ha \

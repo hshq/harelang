@@ -160,7 +160,6 @@ bufio() {
 bytes() {
 	gen_srcs bytes \
 		contains.ha \
-		copy.ha \
 		equal.ha \
 		index.ha \
 		reverse.ha \

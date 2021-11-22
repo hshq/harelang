@@ -17,7 +17,7 @@ export fn dup(s: const str) str = {
 	case v: *void =>
 		yield v;
 	};
-	bytes::copy(buf[..in.length + 1z], id[..in.length + 1]);
+	buf[..in.length + 1z] = id[..in.length + 1];
 	let out = types::string {
 		data = buf,
 		length = in.length,
