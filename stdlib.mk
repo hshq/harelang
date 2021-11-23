@@ -628,7 +628,8 @@ stdlib_bytes_any_srcs= \
 	$(STDLIB)/bytes/index.ha \
 	$(STDLIB)/bytes/reverse.ha \
 	$(STDLIB)/bytes/tokenize.ha \
-	$(STDLIB)/bytes/two_way.ha
+	$(STDLIB)/bytes/two_way.ha \
+	$(STDLIB)/bytes/zero.ha
 
 $(HARECACHE)/bytes/bytes-any.ssa: $(stdlib_bytes_any_srcs) $(stdlib_rt) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -683,7 +684,7 @@ stdlib_crypto_cipher_any_srcs= \
 	$(STDLIB)/crypto/cipher/ctr.ha \
 	$(STDLIB)/crypto/cipher/stream.ha
 
-$(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_srcs) $(stdlib_rt) $(stdlib_crypto_math_$(PLATFORM))
+$(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_srcs) $(stdlib_rt) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/cipher
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::cipher \
@@ -693,7 +694,7 @@ $(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_src
 stdlib_crypto_hmac_any_srcs= \
 	$(STDLIB)/crypto/hmac/hmac.ha
 
-$(HARECACHE)/crypto/hmac/crypto_hmac-any.ssa: $(stdlib_crypto_hmac_any_srcs) $(stdlib_rt) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
+$(HARECACHE)/crypto/hmac/crypto_hmac-any.ssa: $(stdlib_crypto_hmac_any_srcs) $(stdlib_rt) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/hmac
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::hmac \
@@ -2346,7 +2347,8 @@ testlib_bytes_any_srcs= \
 	$(STDLIB)/bytes/index.ha \
 	$(STDLIB)/bytes/reverse.ha \
 	$(STDLIB)/bytes/tokenize.ha \
-	$(STDLIB)/bytes/two_way.ha
+	$(STDLIB)/bytes/two_way.ha \
+	$(STDLIB)/bytes/zero.ha
 
 $(TESTCACHE)/bytes/bytes-any.ssa: $(testlib_bytes_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2407,7 +2409,7 @@ testlib_crypto_cipher_any_srcs= \
 	$(STDLIB)/crypto/cipher/ctr.ha \
 	$(STDLIB)/crypto/cipher/stream.ha
 
-$(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM))
+$(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/cipher
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::cipher \

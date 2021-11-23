@@ -37,7 +37,10 @@ use bytes;
 	let result: [64]u8 = [0...];
 	let buf: [CBC_BUFSIZE]u8 = [0...];
 
-	let b = ct64(key);
+	let b = ct64();
+	ct64_init(&b, key);
+	defer cipher::finish(&b);
+
 	let cbc = cipher::cbc_encryptor(&b, iv[..], buf[..]);
 
 	cipher::cbc_encrypt(&cbc, result, plain);
@@ -85,7 +88,10 @@ use bytes;
 	let result: [64]u8 = plain;
 	let buf: [CBC_BUFSIZE]u8 = [0...];
 
-	let b = ct64(key);
+	let b = ct64();
+	ct64_init(&b, key);
+	defer cipher::finish(&b);
+
 	let cbc = cipher::cbc_encryptor(&b, iv[..], buf[..]);
 
 	cipher::cbc_encrypt(&cbc, result, result);

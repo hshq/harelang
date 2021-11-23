@@ -25,7 +25,10 @@ use bytes;
 	let result: [16]u8 = [0...];
 	let buf: [CTR_BUFSIZE]u8 = [0...];
 
-	let b = ct64(key);
+	let b = ct64();
+	ct64_init(&b, key);
+	defer cipher::finish(&b);
+
 	let ctr = cipher::ctr(&b, iv[..], buf[..]);
 
 	cipher::stream_xor(&ctr, result, plain);
@@ -58,7 +61,10 @@ use bytes;
 	let result: [18]u8 = [0...];
 	let buf: [CTR_BUFSIZE]u8 = [0...];
 
-	let b = ct64(key);
+	let b = ct64();
+	ct64_init(&b, key);
+	defer cipher::finish(&b);
+
 	let ctr = cipher::ctr(&b, iv[..], buf[..]);
 
 	cipher::stream_xor(&ctr, result, plain);
@@ -105,7 +111,10 @@ use bytes;
 	let result: [80]u8 = [0...];
 	let buf: [CTR_BUFSIZE]u8 = [0...];
 
-	let b = ct64(key);
+	let b = ct64();
+	ct64_init(&b, key);
+	defer cipher::finish(&b);
+
 	let ctr = cipher::ctr(&b, iv[..], buf[..]);
 
 	cipher::stream_xor(&ctr, result, plain);
@@ -152,7 +161,9 @@ use bytes;
 	let result: [80]u8 = [0...];
 	let buf: [CTR_BUFSIZE]u8 = [0...];
 
-	let b = ct64(key);
+	let b = ct64();
+	ct64_init(&b, key);
+	defer cipher::finish(&b);
 
 	let ctr = cipher::ctr(&b, iv[..], buf[..]);
 	cipher::stream_xor(&ctr, result[0..32], plain[0..32]);
@@ -189,7 +200,10 @@ use bytes;
 		0xb1, 0xa6, 0xd9, 0x40, 0xaf, 0x1b, 0x02, 0xe1,
 	];
 
-	let b = ct64(key);
+	let b = ct64();
+	ct64_init(&b, key);
+	defer cipher::finish(&b);
+
 	let buf: [CTR_BUFSIZE]u8 = [0...];
 	let ctr = cipher::ctr(&b, iv[..], buf[..]);
 
@@ -220,7 +234,10 @@ use bytes;
 		0xb1, 0xa6, 0xd9, 0x40, 0xaf, 0x1b, 0x02, 0xe1,
 	];
 
-	let b = ct64(key);
+	let b = ct64();
+	ct64_init(&b, key);
+	defer cipher::finish(&b);
+
 	let buf: [64]u8 = [0...];
 	let ctr = cipher::ctr(&b, iv[..], buf[..]);
 

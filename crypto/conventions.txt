@@ -1,0 +1,17 @@
+This is a WIP document offering some advice on how to implement cryptographic
+algorithms securely for Hare.
+
+All cryptographic algorithms must be constant time, such that an attacker cannot
+learn any secret information by analysis of the time required to complete a
+cryptographic operation. Not all of the math performed by cryptographic
+algorithms in Hare needs to be constant-time: just math whose inputs include
+secret information.
+
+It is important to know that secret data has been securely erased from memory
+when it is no longer required. A few items to note about Hare:
+
+- Return-by-value will leave garbage on the stack which is copied into the
+  caller's stack frame and abandoned. You cannot return-by-value any objects
+  which contain secret information.
+- Assignments are never optimized away. You can securely erase an array's
+  contents with array = [0...];

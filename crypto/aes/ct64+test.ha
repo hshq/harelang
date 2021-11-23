@@ -19,7 +19,9 @@ use bytes;
 
 	let result: [16]u8 = [0...];
 
-	let block = ct64(key[..]);
+	let block = ct64();
+	ct64_init(&block, key);
+	defer cipher::finish(&block);
 	cipher::encrypt(&block, result[..], plain[..]);
 
 	assert(bytes::equal(cipher, result));
@@ -54,7 +56,9 @@ use bytes;
 	];
 
 
-	let block = ct64(key[..]);
+	let block = ct64();
+	ct64_init(&block, key[..]);
+	defer cipher::finish(&block);
 
 	// test from 1 to 4 parallel blocks
 	for (let i = 0z; i < 4; i += 1) {
@@ -96,7 +100,9 @@ use bytes;
 	];
 
 
-	let block = ct64(key[..]);
+	let block = ct64();
+	ct64_init(&block, key[..]);
+	defer cipher::finish(&block);
 
 	// test from 1 to 4 parallel blocks
 	for (let i = 0z; i < 4; i += 1) {
@@ -127,7 +133,10 @@ use bytes;
 
 	let result: [16]u8 = [0...];
 
-	let block = ct64(key[..]);
+	let block = ct64();
+	ct64_init(&block, key[..]);
+	defer cipher::finish(&block);
+
 	cipher::decrypt(&block, result[..], cipher[..]);
 
 	assert(bytes::equal(plain, result));
@@ -152,7 +161,9 @@ use bytes;
 
 	let result: [16]u8 = [0...];
 
-	let block = ct64(key[..]);
+	let block = ct64();
+	ct64_init(&block, key[..]);
+	defer cipher::finish(&block);
 
 	cipher::encrypt(&block, result[..], plain[..]);
 	assert(bytes::equal(cipher, result));
@@ -179,7 +190,9 @@ use bytes;
 
 	let result: [16]u8 = plain;
 
-	let block = ct64(key[..]);
+	let block = ct64();
+	ct64_init(&block, key[..]);
+	defer cipher::finish(&block);
 
 	cipher::encrypt(&block, result[..], result[..]);
 	assert(bytes::equal(cipher, result));
@@ -207,7 +220,9 @@ use bytes;
 	];
 
 	let result: [16]u8 = [0...];
-	let block = ct64(key[..]);
+	let block = ct64();
+	ct64_init(&block, key[..]);
+	defer cipher::finish(&block);
 
 	cipher::encrypt(&block, result[..], plain[..]);
 	assert(bytes::equal(cipher, result));
@@ -236,7 +251,9 @@ use bytes;
 	];
 
 	let result: [16]u8 = [0...];
-	let block = ct64(key[..]);
+	let block = ct64();
+	ct64_init(&block, key[..]);
+	defer cipher::finish(&block);
 
 	cipher::encrypt(&block, result[..], plain[..]);
 	assert(bytes::equal(cipher, result));

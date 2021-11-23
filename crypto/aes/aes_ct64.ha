@@ -46,21 +46,25 @@ export type ct64_block = struct {
 
 // Returns an AES [[crypto::cipher::block]] cipher implementation optimized for 
 // constant time operation on 64-bit systems.
-export fn ct64(key: []u8) ct64_block = {
-	let state = ct64_block {
-		blocksz = BLOCKSIZE,
-		nparallel = CT64_NPARALLEL,
-		encrypt = &aes_ct64_encrypt,
-		decrypt = &aes_ct64_decrypt,
-		...
-	};
+//
+// The caller must call [[ct64_init]] to add a key to the cipher before using
+// the cipher, and must call [[crypto::cipher::finish]] when they are finished
+// using the cipher to securely erase any secret data stored in the cipher
+// state.
+export fn ct64() ct64_block = ct64_block {
+	blocksz = BLOCKSIZE,
+	nparallel = CT64_NPARALLEL,
+	encrypt = &aes_ct64_encrypt,
+	decrypt = &aes_ct64_decrypt,
+	finish = &aes_ct64_finish,
+	...
+};
 
+// Initializes the ct64 AES implementation with an encryption key.
+export fn ct64_init(cipher: *ct64_block, key: []u8) void = {
 	let comp_skey: [30]u64 = [0...];
-	state.rounds = br_aes_ct64_keysched(comp_skey[..], key, len(key));
-
-	br_aes_ct64_skey_expand(state.sk_exp, state.rounds, comp_skey[..]);
-
-	return state;
+	cipher.rounds = br_aes_ct64_keysched(comp_skey[..], key, len(key));
+	br_aes_ct64_skey_expand(cipher.sk_exp, cipher.rounds, comp_skey[..]);
 };
 
 // Combines up to 4 blocks and encrypts them in one run
@@ -116,6 +120,11 @@ fn aes_ct64_decrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
 	};
 
 	br_range_enc32le(dest, w);
+};
+
+fn aes_ct64_finish(block: *cipher::block) void = {
+	let b = block: *ct64_block;
+	b.sk_exp = [0...];
 };
 
 // see br_aes_ct64_ortho in src/inner.h of BearSSL

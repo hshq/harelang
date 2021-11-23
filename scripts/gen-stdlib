@@ -164,7 +164,8 @@ bytes() {
 		index.ha \
 		reverse.ha \
 		tokenize.ha \
-		two_way.ha
+		two_way.ha \
+		zero.ha
 	gen_ssa bytes types
 }
 
@@ -228,7 +229,7 @@ crypto_cipher() {
 		cbc.ha \
 		ctr.ha \
 		stream.ha
-	gen_ssa crypto::cipher crypto::math
+	gen_ssa crypto::cipher crypto::math bytes
 }
 
 crypto_hmac() {
@@ -236,7 +237,7 @@ crypto_hmac() {
 	then
 		gen_srcs crypto::hmac \
 			hmac.ha
-		gen_ssa crypto::hmac crypto::math hash io
+		gen_ssa crypto::hmac crypto::math hash io bytes
 	else
 		gen_srcs crypto::hmac \
 			hmac.ha \

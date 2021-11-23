@@ -1,3 +1,4 @@
+use bytes;
 use crypto::math;
 use hash;
 use io;
@@ -13,6 +14,10 @@ export type state = struct {
 
 // Creates a [[hash::hash]] that computes an HMAC using the provided hash
 // creation function, e.g. [[crypto::sha256::create]].
+//
+// The caller must take extra care to call [[hash::close]] when they are
+// finished using the hash, which, in addition to freeing state associated with
+// the hash, will securely erase state which contains secret information.
 export fn hmac(create: *hash::createfunc, key: []u8) state = {
 	let hinner = create(), houter = create();
 	let bsz = hash::bsz(hinner);
@@ -57,6 +62,8 @@ export fn hmac(create: *hash::createfunc, key: []u8) state = {
 
 fn close(s: *io::stream) void = {
 	let h: *state = s: *state;
+	bytes::zero(h.okeypad);
+	bytes::zero(h.ikeypad);
 	free(h.okeypad);
 	free(h.ikeypad);
 	free(h.sumbuf);
