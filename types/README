@@ -1,14 +1,5 @@
-The types module provides runtime access to the Hare type system. It provides
-constants like [[INT_MAX]], which defines the useful range for integer types
-(see [[math]] for f32 and f64 limits), as well as types like [[slice_repr]],
-which describe the internal structure of data types like slices and str.
-
-The types module additionally provides support for reflection. A typical program
-which needs to make use of reflection will pass a type value to [[reflect]],
-like so:
-
-	let info = types::reflect(type(str));
-	assert(info.repr is types::builtin::STR);
-
-Additional helpers like [[unwrap]] are provided to further assist with
-reflection-related tasks.
+The types module provides access to some information about the Hare type system.
+It provides constants like [[INT_MAX]], which defines the useful range for
+integer types (see [[math]] for f32 and f64 limits), as well as types like
+[[slice]], which describe the internal structure of data types like slices and
+str.

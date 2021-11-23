@@ -336,9 +336,6 @@ export type switch_expr = struct {
 	cases: []switch_case,
 };
 
-// A type expression
-export type type_expr = *_type;
-
 // A unary operator
 export type unarithm_op = enum {
 	// TODO: Should this be rehomed with the checked AST?
@@ -376,8 +373,7 @@ export type expr = struct {
 		defer_expr | delete_expr | for_expr | free_expr | if_expr |
 		insert_expr | compound_expr | match_expr | len_expr |
 		size_expr | offset_expr | propagate_expr | return_expr |
-		slice_expr | switch_expr | type_expr | unarithm_expr |
-		yield_expr),
+		slice_expr | switch_expr | unarithm_expr | yield_expr),
 };
 
 // Frees resources associated with a Hare [[expr]]ession.
@@ -542,8 +538,6 @@ case e: expr =>
 			free(exprs);
 		};
 		free(s.cases);
-	case t: type_expr =>
-		type_free(t);
 	case u: unarithm_expr =>
 		expr_free(u.operand);
 	case y: yield_expr =>

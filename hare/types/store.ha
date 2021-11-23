@@ -173,10 +173,6 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 				else
 					store.arch._pointer;
 			yield builtin::STR;
-		case ast::builtin_type::TYPE =>
-			sz = store.arch._pointer;
-			align = store.arch._pointer;
-			yield builtin::TYPE;
 		case ast::builtin_type::U16 =>
 			sz = 2; align = 2;
 			yield builtin::U16;

@@ -18,7 +18,6 @@ stdlib_rt_linux_srcs= \
 	$(STDLIB)/rt/+linux/socket.ha \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
-	$(STDLIB)/rt/types_arch+$(ARCH).ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -26,7 +25,6 @@ stdlib_rt_linux_srcs= \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
-	$(STDLIB)/rt/types.ha \
 	$(STDLIB)/rt/abort.ha \
 	$(STDLIB)/rt/start.ha
 
@@ -44,7 +42,6 @@ stdlib_rt_freebsd_srcs= \
 	$(STDLIB)/rt/+freebsd/types.ha \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
-	$(STDLIB)/rt/types_arch+$(ARCH).ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -52,7 +49,6 @@ stdlib_rt_freebsd_srcs= \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
-	$(STDLIB)/rt/types.ha \
 	$(STDLIB)/rt/abort.ha \
 	$(STDLIB)/rt/start.ha
 
@@ -1585,8 +1581,6 @@ $(HARECACHE)/time/time-freebsd.ssa: $(stdlib_time_freebsd_srcs) $(stdlib_rt)
 stdlib_types_any_srcs= \
 	$(STDLIB)/types/limits.ha \
 	$(STDLIB)/types/classes.ha \
-	$(STDLIB)/types/reflect.ha \
-	$(STDLIB)/types/util.ha \
 	$(STDLIB)/types/arch+$(ARCH).ha
 
 $(HARECACHE)/types/types-any.ssa: $(stdlib_types_any_srcs) $(stdlib_rt)
@@ -1729,7 +1723,6 @@ testlib_rt_linux_srcs= \
 	$(STDLIB)/rt/+linux/socket.ha \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
-	$(STDLIB)/rt/types_arch+$(ARCH).ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -1737,7 +1730,6 @@ testlib_rt_linux_srcs= \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
-	$(STDLIB)/rt/types.ha \
 	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/+test/+$(PLATFORM).ha \
@@ -1759,7 +1751,6 @@ testlib_rt_freebsd_srcs= \
 	$(STDLIB)/rt/+freebsd/types.ha \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
-	$(STDLIB)/rt/types_arch+$(ARCH).ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -1767,7 +1758,6 @@ testlib_rt_freebsd_srcs= \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
-	$(STDLIB)/rt/types.ha \
 	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/+test/+$(PLATFORM).ha \
@@ -3342,10 +3332,7 @@ $(TESTCACHE)/time/time-freebsd.ssa: $(testlib_time_freebsd_srcs) $(testlib_rt)
 testlib_types_any_srcs= \
 	$(STDLIB)/types/limits.ha \
 	$(STDLIB)/types/classes.ha \
-	$(STDLIB)/types/reflect.ha \
-	$(STDLIB)/types/util.ha \
-	$(STDLIB)/types/arch+$(ARCH).ha \
-	$(STDLIB)/types/+test.ha
+	$(STDLIB)/types/arch+$(ARCH).ha
 
 $(TESTCACHE)/types/types-any.ssa: $(testlib_types_any_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'

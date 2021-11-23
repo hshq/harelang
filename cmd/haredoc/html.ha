@@ -466,8 +466,6 @@ fn builtin_type(b: ast::builtin_type) str = {
 		return "uintptr";
 	case ast::builtin_type::VOID =>
 		return "void";
-	case ast::builtin_type::TYPE =>
-		return "type";
 	};
 };
 

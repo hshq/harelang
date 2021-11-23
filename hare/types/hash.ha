@@ -7,8 +7,8 @@ use fmt;
 // Keep ordered with respect to bootstrap harec:include/types.h
 type storage = enum u8 {
 	BOOL, CHAR, F32, F64, I16, I32, I64, I8, INT, NULL, RUNE, SIZE, STRING,
-	U16, U32, U64, U8, UINT, UINTPTR, VOID, TYPE, ALIAS, ARRAY, ENUM,
-	FUNCTION, POINTER, SLICE, STRUCT, TAGGED, TUPLE, UNION,
+	U16, U32, U64, U8, UINT, UINTPTR, VOID, ALIAS, ARRAY, ENUM, FUNCTION,
+	POINTER, SLICE, STRUCT, TAGGED, TUPLE, UNION,
 };
 
 fn builtin_storage(b: builtin) u8 = {
@@ -39,8 +39,6 @@ fn builtin_storage(b: builtin) u8 = {
 		return storage::SIZE;
 	case builtin::STR =>
 		return storage::STRING;
-	case builtin::TYPE =>
-		return storage::TYPE;
 	case builtin::U16 =>
 		return storage::U16;
 	case builtin::U32 =>
@@ -161,167 +159,4 @@ export fn hash(t: *_type) u32 = {
 	};
 
 	return fnv::sum32(&id);
-};
-
-@test fn hash() void = {
-	// Test a few samples for ABI compatibility with harec
-	let sample = _type {
-		flags = flags::NONE,
-		repr = builtin::STR,
-		...
-	};
-	assert(hash(&sample) == 2843771249);
-
-	let sample = _type {
-		flags = flags::NONE,
-		repr = alias {
-			id = ["foo", "bar"],
-			...
-		},
-		...
-	};
-	assert(hash(&sample) == 385303307);
-
-	let sample = _type {
-		flags = flags::ERROR,
-		repr = alias {
-			id = ["foo", "bar"],
-			...
-		},
-		...
-	};
-	assert(hash(&sample) == 4117101293);
-
-	let _int = _type {
-		flags = flags::NONE,
-		repr = builtin::INT,
-		...
-	};
-	assert(hash(&_int) == 1099590421);
-
-	let sample = _type {
-		flags = flags::NONE,
-		repr = pointer {
-			referent = &_int,
-			flags = pointer_flags::NONE,
-		},
-		...
-	};
-	assert(hash(&sample) == 2081672869);
-
-	let sample = _type {
-		flags = flags::NONE,
-		repr = pointer {
-			referent = &_int,
-			flags = pointer_flags::NULLABLE,
-		},
-		...
-	};
-	assert(hash(&sample) == 841481858);
-
-	let sample = _type {
-		flags = flags::NONE,
-		repr = _struct {
-			kind = struct_union::STRUCT,
-			fields = [
-				struct_field {
-					name = "bar",
-					offs = 4,
-					_type = &_int,
-				},
-				struct_field {
-					name = "foo",
-					offs = 0,
-					_type = &_int,
-				},
-			],
-		},
-		...
-	};
-	assert(hash(&sample) == 2453524063);
-
-	let sample = _type {
-		flags = flags::NONE,
-		repr = [
-			tuple_value {
-				offs = 0,
-				_type = &_int,
-			},
-			tuple_value {
-				offs = 4,
-				_type = &_int,
-			},
-			tuple_value {
-				offs = 8,
-				_type = &_int,
-			},
-		],
-		...
-	};
-	assert(hash(&sample) == 2230759349);
-
-	let sample = _type {
-		flags = flags::NONE,
-		repr = array {
-			length = 5,
-			member = &_int,
-		},
-		...
-	};
-	assert(hash(&sample) == 3903522747);
-
-	let _uint = _type {
-		flags = flags::NONE,
-		repr = builtin::UINT,
-		...
-	};
-	let _void = _type {
-		flags = flags::NONE,
-		repr = builtin::VOID,
-		...
-	};
-
-	let sample = _type {
-		flags = flags::NONE,
-		repr = [
-			&_int,
-			&_uint,
-			&_void,
-		]: tagged,
-		...
-	};
-	assert(hash(&sample) == 2847927164);
-
-	let sample = _type {
-		flags = flags::NONE,
-		repr = _enum {
-			storage = builtin::INT,
-			values = [
-				("FOO", 0),
-				("BAR", 42),
-				("BAZ", 69),
-			],
-		},
-		...
-	};
-	assert(hash(&sample) == 94471087);
-
-	let sample = _type {
-		flags = flags::NONE,
-		repr = func {
-			result = &_void,
-			variadism = variadism::C,
-			flags = func_flags::NORETURN,
-			params = [&_uint, &_int],
-		},
-		...
-	};
-	assert(hash(&sample) == 1223530078);
-
-	let sample = _type {
-		flags = flags::NONE,
-		repr = &_void: slice,
-		...
-	};
-	assert(hash(&sample) == 263911532);
 };

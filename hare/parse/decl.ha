@@ -64,7 +64,6 @@ fn decl_global(
 		case lex::token =>
 			yield attr_symbol(lexer)?;
 		};
-		const hidden = try(lexer, ltok::ATTR_HIDDEN)? is lex::token;
 		const ident = ident(lexer)?;
 		want(lexer, ltok::COLON)?;
 		const _type = _type(lexer)?;
@@ -78,7 +77,6 @@ fn decl_global(
 		const btok = try(lexer, ltok::COMMA)?;
 		append(decl, ast::decl_global {
 			is_const = tok == ltok::CONST,
-			is_hidden = hidden,
 			symbol = symbol,
 			ident = ident,
 			_type = _type,

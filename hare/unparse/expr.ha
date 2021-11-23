@@ -355,11 +355,6 @@ export fn expr(
 		return z;
 	case e: ast::switch_expr =>
 		return switch_expr(out, indent, e)?;
-	case t: ast::type_expr =>
-		let z = fmt::fprint(out, "type(")?;
-		z += _type(out, indent, *t)?;
-		z += fmt::fprint(out, ")")?;
-		return z;
 	case e: ast::unarithm_expr =>
 		let z = fmt::fprintf(out, "{}", switch (e.op) {
 		case ast::unarithm_op::ADDR =>

@@ -29,7 +29,7 @@ export fn dup(s: const str) str = {
 // Creates a copy of a []str slice with all the strings duplicated. The result
 // must be freed using [[freeall]].
 export fn dupall(s: []str) []str = {
-	let newsl = *(&types::slice_repr {
+	let newsl = *(&types::slice {
 		data = match (rt::malloc(len(s) * size(str))) {
 		case null =>
 			abort("Out of memory");

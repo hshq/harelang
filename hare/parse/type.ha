@@ -116,8 +116,6 @@ fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 		yield builtin_type::F64;
 	case ltok::BOOL =>
 		yield builtin_type::BOOL;
-	case ltok::TYPE =>
-		yield builtin_type::TYPE;
 	case ltok::VOID =>
 		yield builtin_type::VOID;
 	case =>

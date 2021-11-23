@@ -141,7 +141,6 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 		decl = [
 			ast::decl_global {
 				is_const = false,
-				is_hidden = false,
 				symbol = "",
 				ident = ["foo", "bar"],
 				_type = type_int,
@@ -149,7 +148,6 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 			},
 			ast::decl_global {
 				is_const = false,
-				is_hidden = false,
 				symbol = "foobar",
 				ident = ["baz"],
 				_type = type_int,

@@ -340,7 +340,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (peek(lexer, ltok::ALLOC, ltok::APPEND, ltok::FREE,
 		ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::INSERT,
 		ltok::STATIC, ltok::SIZE, ltok::LEN, ltok::OFFSET,
-		ltok::DEFER, ltok::TYPE)?) {
+		ltok::DEFER)?) {
 	case tok: lex::token =>
 		yield tok;
 	case void =>
@@ -381,16 +381,6 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 		};
 	case ltok::SIZE, ltok::LEN, ltok::OFFSET =>
 		return measurement(lexer);
-	case ltok::TYPE =>
-		want(lexer, ltok::TYPE)?;
-		want(lexer, ltok::LPAREN)?;
-		let expr = ast::expr {
-			start = tok.2,
-			end = lex::prevloc(lexer),
-			expr = alloc(_type(lexer)?): ast::type_expr,
-		};
-		want(lexer, ltok::RPAREN)?;
-		return expr;
 	case ltok::DEFER =>
 		want(lexer, ltok::DEFER)?;
 		let expr = alloc(expression(lexer)?);

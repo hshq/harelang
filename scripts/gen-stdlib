@@ -34,7 +34,6 @@ gensrcs_rt() {
 		+linux/socket.ha \
 		'+$(ARCH)'/jmp.ha \
 		'+$(ARCH)'/backtrace.ha \
-		types_arch+'$(ARCH)'.ha \
 		ensure.ha \
 		jmp.ha \
 		malloc.ha \
@@ -42,7 +41,6 @@ gensrcs_rt() {
 		memmove.ha \
 		memset.ha \
 		strcmp.ha \
-		types.ha \
 		$*
 	gen_srcs -pfreebsd rt \
 		+freebsd/abort.ha \
@@ -57,7 +55,6 @@ gensrcs_rt() {
 		+freebsd/types.ha \
 		+'$(ARCH)'/jmp.ha \
 		+'$(ARCH)'/backtrace.ha \
-		types_arch+'$(ARCH)'.ha \
 		ensure.ha \
 		jmp.ha \
 		malloc.ha \
@@ -65,7 +62,6 @@ gensrcs_rt() {
 		memmove.ha \
 		memset.ha \
 		strcmp.ha \
-		types.ha \
 		$*
 }
 
@@ -1009,23 +1005,11 @@ time() {
 	gen_ssa -pfreebsd time
 }
 
-gensrcs_types() {
+types() {
 	gen_srcs types \
 		limits.ha \
 		classes.ha \
-		reflect.ha \
-		util.ha \
-		'arch+$(ARCH).ha' \
-		$*
-}
-
-types() {
-	if [ $testing -eq 0 ]; then
-		gensrcs_types
-	else
-		gensrcs_types \
-			+test.ha
-	fi
+		'arch+$(ARCH).ha'
 	gen_ssa types
 }
 
