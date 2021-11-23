@@ -1,3 +1,4 @@
-crypto provides implementations of various cryptography-related standards.
+The crypto module provides implementations of various cryptography-related
+standards.
 
-Hare's cryptography implementation has not been audited.
+Be advised that Hare's cryptography implementations have not been audited.

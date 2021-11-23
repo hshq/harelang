@@ -224,11 +224,11 @@ crypto_blake2b() {
 
 crypto_cipher() {
 	gen_srcs crypto::cipher \
-		cipher.ha \
-		stream.ha \
+		block.ha \
 		cbc.ha \
-		ctr.ha
-	gen_ssa crypto::cipher bytes crypto::math
+		ctr.ha \
+		stream.ha
+	gen_ssa crypto::cipher crypto::math
 }
 
 crypto_hmac() {

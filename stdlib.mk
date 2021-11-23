@@ -678,12 +678,12 @@ $(HARECACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(stdlib_crypto_blake2b_any_
 
 # crypto::cipher (+any)
 stdlib_crypto_cipher_any_srcs= \
-	$(STDLIB)/crypto/cipher/cipher.ha \
-	$(STDLIB)/crypto/cipher/stream.ha \
+	$(STDLIB)/crypto/cipher/block.ha \
 	$(STDLIB)/crypto/cipher/cbc.ha \
-	$(STDLIB)/crypto/cipher/ctr.ha
+	$(STDLIB)/crypto/cipher/ctr.ha \
+	$(STDLIB)/crypto/cipher/stream.ha
 
-$(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM))
+$(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_srcs) $(stdlib_rt) $(stdlib_crypto_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/cipher
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::cipher \
@@ -2402,12 +2402,12 @@ $(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(testlib_crypto_blake2b_any
 
 # crypto::cipher (+any)
 testlib_crypto_cipher_any_srcs= \
-	$(STDLIB)/crypto/cipher/cipher.ha \
-	$(STDLIB)/crypto/cipher/stream.ha \
+	$(STDLIB)/crypto/cipher/block.ha \
 	$(STDLIB)/crypto/cipher/cbc.ha \
-	$(STDLIB)/crypto/cipher/ctr.ha
+	$(STDLIB)/crypto/cipher/ctr.ha \
+	$(STDLIB)/crypto/cipher/stream.ha
 
-$(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM))
+$(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/cipher
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::cipher \

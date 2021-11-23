@@ -8,15 +8,18 @@ export type ctr_stream = struct {
 	xorused: size,
 };
 
-// Creates a ctr [[stream]] on top of given block cipher. The caller must 
-// provide the initiation vector and a buffer for the state. The size of
-// the buffer depends on the block cipher. Use [[crypto::aes::CTR_BUFSIZE]]
-// for the stdlib AES implementation.
+// Creates a counter mode stream (CTR).
+//
+// The user must supply an initialization vector (IV) equal in length to the
+// block size of the underlying [[block]] cipher, and a temporary state buffer
+// whose size is equal to the block size times two. The module providing the
+// underlying block cipher usually provides constants which define the lengths
+// of these buffers for static allocation.
 export fn ctr(b: *block, iv: []u8, buf: []u8) ctr_stream = {
-	assert(len(iv) == sz(b), "iv is of invalid block size");
-	assert(len(buf) >= sz(b) * 2, "buf must be at least 2 * blocksize");
+	assert(len(iv) == blocksz(b), "iv is of invalid block size");
+	assert(len(buf) >= blocksz(b) * 2, "buf must be at least 2 * blocksize");
 
-	let bsz = sz(b);
+	const bsz = blocksz(b);
 
 	// one buf block is used for the counter
 	let counter = buf[0..bsz];
@@ -30,10 +33,10 @@ export fn ctr(b: *block, iv: []u8, buf: []u8) ctr_stream = {
 	counter[..] = iv[..];
 
 	// cap the buffer to a multiple of bsz.
-	let maxxorbufsz = sz(b) * nparallel(b);
+	let maxxorbufsz = blocksz(b) * nparallel(b);
 	let xorbufsz = len(xorbuf);
 	if (xorbufsz < maxxorbufsz) {
-		xorbufsz = xorbufsz - xorbufsz % sz(b);
+		xorbufsz = xorbufsz - xorbufsz % blocksz(b);
 	} else {
 		xorbufsz = maxxorbufsz;
 	};
@@ -50,8 +53,8 @@ export fn ctr(b: *block, iv: []u8, buf: []u8) ctr_stream = {
 
 fn ctr_stream_xor(s: *stream, dest: []u8, src: []u8) void = {
 	let ctr = s: *ctr_stream;
-	let bsz = sz(ctr.b);
-	let nparallel = nparallel(ctr.b);
+	const bsz = blocksz(ctr.b);
+	const nparallel = nparallel(ctr.b);
 	let i = 0z;
 
 	for (true) {
@@ -68,7 +71,7 @@ fn ctr_stream_xor(s: *stream, dest: []u8, src: []u8) void = {
 };
 
 fn fill_xorbuf(ctr: *ctr_stream) void = {
-	let bsz = sz(ctr.b);
+	const bsz = blocksz(ctr.b);
 	for (let i = 0z; i < len(ctr.xorbuf) / bsz; i += 1) {
 		ctr.xorbuf[i * bsz..(i * bsz + bsz)] = ctr.counter[0..bsz];
 

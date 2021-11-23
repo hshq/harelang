@@ -7,16 +7,20 @@ export type cbc_mode = struct {
 	carrybuf: []u8,
 };
 
-// Creates a cipher block chaining mode encryptor. The encryptor will keep its 
-// state, so data can be encrypted using multiple cbc_encrypt calls.  The size 
-// of the buffer depends on the block cipher. Use [[crypto::aes::CBC_BUFSIZE]] 
-// for the stdlib AES implementation.
+// Creates a cipher block chaining (CBC) mode encryptor.
+//
+// The user must supply an initialization vector (IV) equal in length to the
+// block size of the underlying [[block]] cipher, and a temporary state buffer
+// whose size is equal to the block size times two. The module providing the
+// underlying block cipher usually provides constants which define the lengths
+// of these buffers for static allocation.
 export fn cbc_encryptor(b: *block, iv: []u8, buf: []u8) cbc_mode = {
-	assert(len(iv) == sz(b), "len(iv) must be the same as the block size");
-	assert(len(buf) == sz(b) * 2, 
+	assert(len(iv) == blocksz(b),
+		"len(iv) must be the same as the block size");
+	assert(len(buf) == blocksz(b) * 2, 
 		"buffer needs to be two times of the block size");
 
-	let bsz = sz(b);
+	const bsz = blocksz(b);
 	let carry = buf[0..bsz];
 	carry[..] = iv[..];
 
@@ -28,16 +32,20 @@ export fn cbc_encryptor(b: *block, iv: []u8, buf: []u8) cbc_mode = {
 	};
 };
 
-// Creates a cipher block chaining mode decryptor. The decryptor will keep its 
-// state, so data can be encrypted using multiple cbc_decrypt calls.  The size 
-// of the buffer depends on the block cipher. Use [[crypto::aes::CBC_BUFSIZE]] 
-// for the stdlib AES implementation.
+// Creates a cipher block chaining (CBC) mode decryptor.
+//
+// The user must supply an initialization vector (IV) equal in length to the
+// block size of the underlying [[block]] cipher, and a temporary state buffer
+// whose size is equal to the block size times two. The module providing the
+// underlying block cipher usually provides constants which define the lengths
+// of these buffers for static allocation.
 export fn cbc_decryptor(b: *block, iv: []u8, buf: []u8) cbc_mode = {
-	assert(len(iv) == sz(b), "len(iv) must be the same as block length sz");
-	assert(len(buf) == sz(b) * 2, 
+	assert(len(iv) == blocksz(b),
+		"len(iv) must be the same as block length sz");
+	assert(len(buf) == blocksz(b) * 2, 
 		"buffer needs to be two times of the block size");
 
-	let bsz = sz(b);
+	const bsz = blocksz(b);
 	let carry = buf[0..bsz];
 	carry[..] = iv[..];
 
@@ -53,8 +61,7 @@ export fn cbc_decryptor(b: *block, iv: []u8, buf: []u8) cbc_mode = {
 // In place encryption only works if dest and src point exactly at the
 // same range.
 export fn cbc_encrypt(c: *cbc_mode, dest: []u8, src: []u8) void = {
-	let sz = sz(c.b);
-
+	const sz = blocksz(c.b);
 	assert(c.encrypt);
 	assert(len(dest) % sz == 0 && len(src) == len(dest),
 		"size of dest and src needs to match and be a multiple of block size");
@@ -71,8 +78,7 @@ export fn cbc_encrypt(c: *cbc_mode, dest: []u8, src: []u8) void = {
 // In place decryption only works if dest and src point exactly at the
 // same range.
 export fn cbc_decrypt(c: *cbc_mode, dest: []u8, src: []u8) void = {
-	let sz = sz(c.b);
-
+	const sz = blocksz(c.b);
 	assert(!c.encrypt);
 	assert(len(dest) % sz == 0 && len(src) == len(dest),
 		"size of dest and src needs to match and be a multiple of block size");
