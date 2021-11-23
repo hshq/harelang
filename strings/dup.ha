@@ -26,12 +26,33 @@ export fn dup(s: const str) str = {
 	return *(&out: *str);
 };
 
-// Duplicates every string of a slice in place, returning the same slice with
-// new strings.
-export fn dupall(s: []str) void = {
+// Creates a copy of a []str slice with all the strings duplicated. The result
+// must be freed using [[freeall]].
+export fn dupall(s: []str) []str = {
+	let newsl = *(&types::slice_repr {
+		data = match (rt::malloc(len(s) * size(str))) {
+		case null =>
+			abort("Out of memory");
+		case v: *void =>
+			yield v;
+		},
+		length = len(s),
+		capacity = len(s),
+	}: *[]str);
+
 	for (let i = 0z; i < len(s); i += 1) {
-		s[i] = strings::dup(s[i]);
+		newsl[i] = strings::dup(s[i]);
 	};
+
+	return newsl;
+};
+
+// Frees all the strings in a slice and the slice itself. Inverse of [[dupall]].
+export fn freeall(s: []str) void = {
+	for (let i = 0z; i < len(s); i += 1) {
+		free(s[i]);
+	};
+	free(s);
 };
 
 @test fn dup() void = {
