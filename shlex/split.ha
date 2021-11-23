@@ -6,7 +6,7 @@ use strio;
 export type syntaxerr = !void;
 
 // Splits a string of arguments according to shell quoting. The result must be
-// freed using [[splitfree]] when the caller is done processing it.
+// freed using [[strings::freeall]] when the caller is done processing it.
 export fn split(in: const str) ([]str | syntaxerr) = {
 	let iter = strings::iter(in);
 
@@ -108,14 +108,4 @@ fn scan_single(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
 		};
 		strio::appendrune(out, r)!;
 	};
-};
-
-// TODO: rehome a more generic version into strings/?
-
-// Frees a slice of allocated strings returned from [[split]].
-export fn splitfree(s: const []str) void = {
-	for (let i = 0z; i < len(s); i += 1) {
-		free(s[i]);
-	};
-	free(s);
 };
