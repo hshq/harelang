@@ -16,7 +16,7 @@ use errors;
 //			reader = &my_stream_read,
 //			writer = &my_stream_write,
 //			closer = null,
-//			fd: fd,
+//			fd = fd,
 //			...
 //		});
 //	};
