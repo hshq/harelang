@@ -231,10 +231,13 @@ crypto_aes() {
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_crypto_aes
-		gen_ssa crypto::aes crypto::cipher crypto::math endian
+		gen_ssa crypto::aes bytes crypto::cipher crypto::math endian rt
 	else
-		gensrcs_crypto_aes ct64+test.ha cbc+test.ha ctr+test.ha
-		gen_ssa crypto::aes bytes crypto::cipher crypto::math endian
+		gensrcs_crypto_aes \
+			ct64+test.ha \
+			cbc+test.ha \
+			ctr+test.ha
+		gen_ssa crypto::aes bytes crypto::cipher crypto::math endian rt
 	fi
 }
 
