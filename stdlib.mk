@@ -19,6 +19,7 @@ stdlib_rt_linux_srcs= \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
+	$(STDLIB)/rt/+x86_64/cpuid.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -44,6 +45,7 @@ stdlib_rt_freebsd_srcs= \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
+	$(STDLIB)/rt/+x86_64/cpuid.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -77,7 +79,8 @@ stdlib_asm=$(HARECACHE)/rt/syscall.o \
 	$(HARECACHE)/rt/restore.o \
 	$(HARECACHE)/rt/getfp.o \
 	$(HARECACHE)/rt/fenv.o \
-	$(HARECACHE)/rt/start.o
+	$(HARECACHE)/rt/start.o \
+	$(HARECACHE)/rt/cpuid_native.o
 
 $(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
 	@printf 'AS \t$@\n'
@@ -105,6 +108,11 @@ $(HARECACHE)/rt/fenv.o: $(STDLIB)/rt/+$(ARCH)/fenv.s
 	@$(AS) -o $@ $<
 
 $(HARECACHE)/rt/getfp.o: $(STDLIB)/rt/+$(ARCH)/getfp.s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(HARECACHE)/rt
+	@$(AS) -o $@ $<
+
+$(HARECACHE)/rt/cpuid_native.o: $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $<
@@ -1910,6 +1918,7 @@ testlib_rt_linux_srcs= \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
+	$(STDLIB)/rt/+x86_64/cpuid.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -1939,6 +1948,7 @@ testlib_rt_freebsd_srcs= \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
+	$(STDLIB)/rt/+x86_64/cpuid.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -1976,7 +1986,8 @@ testlib_asm=$(TESTCACHE)/rt/syscall.o \
 	$(TESTCACHE)/rt/restore.o \
 	$(TESTCACHE)/rt/getfp.o \
 	$(TESTCACHE)/rt/fenv.o \
-	$(TESTCACHE)/rt/start.o
+	$(TESTCACHE)/rt/start.o \
+	$(TESTCACHE)/rt/cpuid_native.o
 
 $(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
 	@printf 'AS \t$@\n'
@@ -2004,6 +2015,11 @@ $(TESTCACHE)/rt/fenv.o: $(STDLIB)/rt/+$(ARCH)/fenv.s
 	@$(AS) -o $@ $<
 
 $(TESTCACHE)/rt/getfp.o: $(STDLIB)/rt/+$(ARCH)/getfp.s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(TESTCACHE)/rt
+	@$(AS) -o $@ $<
+
+$(TESTCACHE)/rt/cpuid_native.o: $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $<
