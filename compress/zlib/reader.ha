@@ -45,7 +45,7 @@ case =>
 };
 
 fn wraperror(err: decompress_err) errors::opaque = {
-	static assert(size(decompress_err) <= size(error::opaque_data));
+	static assert(size(decompress_err) <= size(errors::opaque_data));
 	let wrapped = errors::opaque { strerror = &opaque_strerror, ... };
 	let myptr = &wrapped.data: *decompress_err;
 	*myptr = err;

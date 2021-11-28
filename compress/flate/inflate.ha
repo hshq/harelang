@@ -260,7 +260,7 @@ case inflate_err::TABLE =>
 };
 
 fn wraperror(err: inflate_err) errors::opaque = {
-	static assert(size(inflate_err) <= size(error::opaque_data));
+	static assert(size(inflate_err) <= size(errors::opaque_data));
 	let wrapped = errors::opaque { strerror = &opaque_strerror, ... };
 	let myptr = &wrapped.data: *inflate_err;
 	*myptr = err;
