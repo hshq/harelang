@@ -20,10 +20,7 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 	};
 	if (len(servers) == 0) {
 		// Fall back to localhost
-		servers = [
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]: ip::addr6,
-			[127, 0, 0, 1]: ip::addr4,
-		];
+		servers = [ip::LOCAL_V6, ip::LOCAL_V4];
 	};
 
 	let socket4 = udp::listen(ip::ANY_V4, 0)?;
