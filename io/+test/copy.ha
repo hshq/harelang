@@ -29,9 +29,6 @@ fn test_copier_copy(a: *stream, b: *stream) (size | error) = {
 fn test_copy_unsupported(a: *stream, b: *stream) (size | error) =
 	errors::unsupported;
 
-fn io::println(msg: str) void;
-fn strconv::ztos(z: size) str;
-
 @test fn copy() void = {
 	let a = test_copier_open(), b = test_copier_open();
 	match (copy(&b, &a)) {
