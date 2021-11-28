@@ -588,7 +588,8 @@ export type termios = struct {
 
 export def NCCS: size = 19;
 
-export type cc = enum char {
+// TODO: change this back to char when harec starts to work with it
+export type cc = enum u8 {
 	VINTR    = 0,
 	VQUIT    = 1,
 	VERASE   = 2,
