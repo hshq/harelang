@@ -1,4 +1,5 @@
 // Provides default dialers for tcp and udp
+use io;
 use net;
 use net::ip;
 use net::tcp;

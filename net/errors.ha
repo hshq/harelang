@@ -1,4 +1,5 @@
 use errors;
+use io;
 
 // An attempt was made to use an unsupported protocol.
 export type unknownproto = !void;
