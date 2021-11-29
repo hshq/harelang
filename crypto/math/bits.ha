@@ -53,3 +53,24 @@ export fn xor(dest: []u8, a: []u8, b: []u8) void = {
 		dest[i] = a[i] ^ b[i];
 	};
 };
+
+// Compare two byte slices in constant time.
+//
+// Returns 1 if the two slices have the same contents, 0 otherwise.
+export fn cmpslice(x: []u8, y: []u8) int = {
+	assert(len(x) == len(y), "slices must have the same length");
+	let v: u8 = 0;
+	for (let i = 0z; i < len(x); i += 1) {
+		v = x[i] ^ y[i];
+	};
+	return cmpu8(v, 0);
+};
+
+@test fn cmpslice() void = {
+	assert(cmpslice([], []) == 1);
+	assert(cmpslice([0], [0]) == 1);
+};
+
+// Compare two bytes in constant time. Returns 1 if the bytes are the same
+// value, 0 otherwise.
+export fn cmpu8(x: u8, y: u8) int = ((((x ^ y) : u32) - 1) >> 31) : int;
