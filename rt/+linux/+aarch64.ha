@@ -7,7 +7,7 @@ export fn clone(
 	child_tid: nullable *int,
 	tls: u64,
 ) (int | void | errno) = {
-	return match (wrap_return(syscall5(SYS_clone,
+	match (wrap_return(syscall5(SYS_clone,
 			flags: u64,
 			stack: uintptr: u64,
 			parent_tid: uintptr: u64,
@@ -16,12 +16,12 @@ export fn clone(
 	case u: u64 =>
 		switch (u) {
 		case 0 =>
-			yield void;
+			return void;
 		case =>
-			yield u: int;
+			return u: int;
 		};
 	case err: errno =>
-		yield err;
+		return err;
 	};
 };
 
