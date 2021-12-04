@@ -92,7 +92,7 @@ A source file is named with the following convention:
 
 `<name>[<tags...>].<ext>`
 
-The \< and \> symbols denote a required parameter, and \[ and \[ denote optional
+The \< and \> symbols denote a required parameter, and \[ and \] denote optional
 parameters. Some example names which follow this convention are:
 
 - `main.ha`
