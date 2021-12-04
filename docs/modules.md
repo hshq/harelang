@@ -53,14 +53,14 @@ in a Hare identifier.
 
 ## Locating modules on the filesystem
 
-Each module, identified by its namespace, is organized into "root" directory,
-where all of its source files may be found, either as members or descendants.
-This directory corresponds to a file path which is formed by replacing the
-namespace delimiters (`::`) with the path separator for the target host system
-(e.g. `/`). This forms a relative path, which is then applied to each of several
-possible **source roots**.
+Each module, identified by its namespace, is organized into a "**module root**"
+directory, where all of its source files may be found, either as members or
+descendants. This directory corresponds to a file path which is formed by
+replacing the namespace delimiters (`::`) with the path separator for the target
+host system (e.g. `/`). This forms a relative path, which is then applied to
+each of several possible **source roots**.
 
-A source root is a directory which forms the root of a hierarchy of Hare modules
+A source root is a directory which forms the top of a hierarchy of Hare modules
 and their sources. This directory may also itself be a module, namely the **root
 module**: it provides the unit for the empty namespace, where, for example, the
 "main" function can be found. Generally speaking, there will be at least two
