@@ -1001,7 +1001,7 @@ stdlib_hare_types_any_srcs= \
 	$(STDLIB)/hare/types/store.ha \
 	$(STDLIB)/hare/types/types.ha
 
-$(HARECACHE)/hare/types/hare_types-any.ssa: $(stdlib_hare_types_any_srcs) $(stdlib_rt) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_hash_fnv_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
+$(HARECACHE)/hare/types/hare_types-any.ssa: $(stdlib_hare_types_any_srcs) $(stdlib_rt) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_hash_fnv_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/types
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::types \
@@ -1265,7 +1265,7 @@ stdlib_net_dns_any_srcs= \
 	$(STDLIB)/net/dns/query.ha \
 	$(STDLIB)/net/dns/types.ha
 
-$(HARECACHE)/net/dns/net_dns-any.ssa: $(stdlib_net_dns_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_net_$(PLATFORM)) $(stdlib_net_udp_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_unix_resolvconf_$(PLATFORM)) $(stdlib_unix_poll_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
+$(HARECACHE)/net/dns/net_dns-any.ssa: $(stdlib_net_dns_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_net_$(PLATFORM)) $(stdlib_net_udp_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_unix_resolvconf_$(PLATFORM)) $(stdlib_unix_poll_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/dns
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::dns \
@@ -1443,7 +1443,7 @@ stdlib_path_any_srcs= \
 	$(STDLIB)/path/names.ha \
 	$(STDLIB)/path/iter.ha
 
-$(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
+$(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/path
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Npath \
@@ -1597,7 +1597,7 @@ stdlib_unix_linux_srcs= \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
-$(HARECACHE)/unix/unix-linux.ssa: $(stdlib_unix_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM))
+$(HARECACHE)/unix/unix-linux.ssa: $(stdlib_unix_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix \
@@ -1611,7 +1611,7 @@ stdlib_unix_freebsd_srcs= \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
-$(HARECACHE)/unix/unix-freebsd.ssa: $(stdlib_unix_freebsd_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM))
+$(HARECACHE)/unix/unix-freebsd.ssa: $(stdlib_unix_freebsd_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix \
@@ -1643,7 +1643,7 @@ $(HARECACHE)/unix/passwd/unix_passwd-any.ssa: $(stdlib_unix_passwd_any_srcs) $(s
 stdlib_unix_poll_linux_srcs= \
 	$(STDLIB)/unix/poll/+linux.ha
 
-$(HARECACHE)/unix/poll/unix_poll-linux.ssa: $(stdlib_unix_poll_linux_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM))
+$(HARECACHE)/unix/poll/unix_poll-linux.ssa: $(stdlib_unix_poll_linux_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/poll
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::poll \
@@ -1653,7 +1653,7 @@ $(HARECACHE)/unix/poll/unix_poll-linux.ssa: $(stdlib_unix_poll_linux_srcs) $(std
 stdlib_unix_poll_freebsd_srcs= \
 	$(STDLIB)/unix/poll/+freebsd.ha
 
-$(HARECACHE)/unix/poll/unix_poll-freebsd.ssa: $(stdlib_unix_poll_freebsd_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM))
+$(HARECACHE)/unix/poll/unix_poll-freebsd.ssa: $(stdlib_unix_poll_freebsd_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/poll
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::poll \
@@ -2738,7 +2738,7 @@ testlib_hare_types_any_srcs= \
 	$(STDLIB)/hare/types/types.ha \
 	$(STDLIB)/hare/types/+test.ha
 
-$(TESTCACHE)/hare/types/hare_types-any.ssa: $(testlib_hare_types_any_srcs) $(testlib_rt) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_hash_fnv_$(PLATFORM)) $(testlib_endian_$(PLATFORM))
+$(TESTCACHE)/hare/types/hare_types-any.ssa: $(testlib_hare_types_any_srcs) $(testlib_rt) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_hash_fnv_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/types
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::types \
@@ -3010,7 +3010,7 @@ testlib_net_dns_any_srcs= \
 	$(STDLIB)/net/dns/query.ha \
 	$(STDLIB)/net/dns/types.ha
 
-$(TESTCACHE)/net/dns/net_dns-any.ssa: $(testlib_net_dns_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_udp_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_unix_resolvconf_$(PLATFORM)) $(testlib_unix_poll_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+$(TESTCACHE)/net/dns/net_dns-any.ssa: $(testlib_net_dns_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_udp_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_unix_resolvconf_$(PLATFORM)) $(testlib_unix_poll_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/dns
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::dns \
@@ -3190,7 +3190,7 @@ testlib_path_any_srcs= \
 	$(STDLIB)/path/names.ha \
 	$(STDLIB)/path/iter.ha
 
-$(TESTCACHE)/path/path-any.ssa: $(testlib_path_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
+$(TESTCACHE)/path/path-any.ssa: $(testlib_path_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/path
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Npath \
@@ -3348,7 +3348,7 @@ testlib_unix_linux_srcs= \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
-$(TESTCACHE)/unix/unix-linux.ssa: $(testlib_unix_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM))
+$(TESTCACHE)/unix/unix-linux.ssa: $(testlib_unix_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
@@ -3362,7 +3362,7 @@ testlib_unix_freebsd_srcs= \
 	$(STDLIB)/unix/getuid.ha \
 	$(STDLIB)/unix/setuid.ha
 
-$(TESTCACHE)/unix/unix-freebsd.ssa: $(testlib_unix_freebsd_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM))
+$(TESTCACHE)/unix/unix-freebsd.ssa: $(testlib_unix_freebsd_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
@@ -3394,7 +3394,7 @@ $(TESTCACHE)/unix/passwd/unix_passwd-any.ssa: $(testlib_unix_passwd_any_srcs) $(
 testlib_unix_poll_linux_srcs= \
 	$(STDLIB)/unix/poll/+linux.ha
 
-$(TESTCACHE)/unix/poll/unix_poll-linux.ssa: $(testlib_unix_poll_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM))
+$(TESTCACHE)/unix/poll/unix_poll-linux.ssa: $(testlib_unix_poll_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/poll
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \
@@ -3404,7 +3404,7 @@ $(TESTCACHE)/unix/poll/unix_poll-linux.ssa: $(testlib_unix_poll_linux_srcs) $(te
 testlib_unix_poll_freebsd_srcs= \
 	$(STDLIB)/unix/poll/+freebsd.ha
 
-$(TESTCACHE)/unix/poll/unix_poll-freebsd.ssa: $(testlib_unix_poll_freebsd_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM))
+$(TESTCACHE)/unix/poll/unix_poll-freebsd.ssa: $(testlib_unix_poll_freebsd_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/poll
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \

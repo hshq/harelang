@@ -493,7 +493,7 @@ hare_types() {
 	else
 		gensrcs_hare_types
 	fi
-	gen_ssa hare::types hare::ast hare::parse hash hash::fnv endian
+	gen_ssa hare::types hare::ast hare::parse hash hash::fnv endian io
 }
 
 gensrcs_hare_unit() {
@@ -764,7 +764,7 @@ net_dns() {
 		query.ha \
 		types.ha
 	gen_ssa net::dns ascii endian net net::udp net::ip fmt strings \
-		unix::resolvconf unix::poll rt time errors
+		unix::resolvconf unix::poll rt time errors io
 }
 
 gensrcs_net_ip() {
@@ -885,7 +885,7 @@ path() {
 		join.ha \
 		names.ha \
 		iter.ha
-	gen_ssa path strings bufio bytes
+	gen_ssa path strings bufio bytes io
 }
 
 gensrcs_strconv() {
@@ -1021,7 +1021,7 @@ unix() {
 		+linux/umask.ha \
 		getuid.ha \
 		setuid.ha
-	gen_ssa -plinux unix errors fs
+	gen_ssa -plinux unix errors fs io
 
 	gen_srcs -pfreebsd unix \
 		+freebsd/nice.ha \
@@ -1029,7 +1029,7 @@ unix() {
 		+freebsd/umask.ha \
 		getuid.ha \
 		setuid.ha
-	gen_ssa -pfreebsd unix errors fs
+	gen_ssa -pfreebsd unix errors fs io
 }
 
 unix_hosts() {
@@ -1048,10 +1048,10 @@ unix_passwd() {
 
 unix_poll() {
 	gen_srcs -plinux unix::poll +linux.ha
-	gen_ssa -plinux unix::poll rt errors time
+	gen_ssa -plinux unix::poll rt errors time io
 
 	gen_srcs -pfreebsd unix::poll +freebsd.ha
-	gen_ssa -pfreebsd unix::poll rt errors time
+	gen_ssa -pfreebsd unix::poll rt errors time io
 }
 
 unix_resolvconf() {
