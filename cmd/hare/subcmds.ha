@@ -369,57 +369,6 @@ fn run(args: []str) void = {
 	exec::exec(&cmd);
 };
 
-fn sched_walk(plan: *plan, ident: ast::ident, link: *[]*task) void = {
-	const path = module::identpath(ident);
-	const it = os::iter(path)?;
-	free(path);
-	for (true) :loop {
-		match (fs::next(it)) {
-		case ent: fs::dirent =>
-			if (ent.name == "." || ent.name == "..") {
-				continue;
-			};
-			if (ent.ftype & fs::mode::DIR != fs::mode::DIR) {
-				continue;
-			};
-			const d = utf8::decode(ent.name);
-			match (utf8::next(&d)) {
-			case void =>
-				break;
-			case (utf8::more | utf8::invalid) =>
-				continue :loop;
-			case r: rune =>
-				if (!ascii::isalpha(r) && r != '_') {
-					continue :loop;
-				};
-			};
-			for (true) match (utf8::next(&d)) {
-			case void =>
-				break;
-			case (utf8::more | utf8::invalid) =>
-				continue :loop;
-			case r: rune =>
-				if (!ascii::isalnum(r) && r != '_') {
-					continue :loop;
-				};
-			};
-			let new = ast::ident_dup(ident);
-			append(new, strings::dup(ent.name));
-			sched_walk(plan, new, link);
-
-			match (module::lookup(plan.context, new)) {
-			case ver: module::version =>
-				if (len(ver.inputs) == 0) continue;
-			case module::error =>
-				continue;
-			};
-			sched_module(plan, new, link);
-		case void =>
-			break;
-		};
-	};
-};
-
 fn test(args: []str) void = {
 	const help: []getopt::help = [
 		"compiles and runs tests for Hare programs",
@@ -502,27 +451,36 @@ fn test(args: []str) void = {
 	const plan = mkplan(&ctx, libs);
 	defer plan_finish(&plan);
 
-	const ver = match (module::scan(&ctx, input)) {
-	case ver: module::version =>
-		yield ver;
+	let depends: []*task = [];
+	sched_module(&plan, ["rt"], &depends);
+
+	let items = match (module::walk(&ctx, input)) {
+	case items: []ast::ident =>
+		yield items;
 	case err: module::error =>
-		fmt::fatal("Error scanning input module: {}",
+		fmt::fatal("Error scanning source root: {}",
 			module::strerror(err));
 	};
 
-	let depends: []*task = [];
-	sched_module(&plan, ["rt"], &depends);
-	sched_walk(&plan, [], &depends);
+	defer module::walk_free(items);
+	for (let i = 0z; i < len(items); i += 1) {
+		if (len(items[i]) > 0 && items[i][0] == "cmd") {
+			continue;
+		};
+		match (module::lookup(plan.context, items[i])) {
+		case ver: module::version =>
+			if (len(ver.inputs) == 0) continue;
+		case module::error =>
+			continue;
+		};
+		sched_module(&plan, items[i], &depends);
+	};
 
 	const have_output = len(output) != 0;
 	if (!have_output) {
 		output = mkfile(&plan, "", "out");
 	};
-	if (len(ver.inputs) == 0) {
-		sched_ld(&plan, strings::dup(output), depends...);
-	} else {
-		sched_hare_exe(&plan, ver, strings::dup(output), depends...);
-	};
+	sched_ld(&plan, strings::dup(output), depends...);
 	match (plan_execute(&plan, verbose)) {
 	case void => void;
 	case !exec::exit_status =>
