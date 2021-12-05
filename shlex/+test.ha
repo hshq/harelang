@@ -34,6 +34,12 @@ use strings;
 	assert(s[0] == "Empty");
 	assert(s[1] == "");
 
+	const s = split("   Leading spaces")!;
+	defer strings::freeall(s);
+	assert(len(s) == 2);
+	assert(s[0] == "Leading");
+	assert(s[1] == "spaces");
+
 	const s = split("with\\ backslashes 'single quoted' \"double quoted\"")!;
 	defer strings::freeall(s);
 	assert(len(s) == 3);

@@ -12,6 +12,7 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 
 	let s = strio::dynamic();
 	let slice: []str = [];
+	let first = true;
 	let dirty = false;
 
 	for (true) {
@@ -34,8 +35,10 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 			case void =>
 				break;
 			};
-			append(slice, strio::finish(s));
-			s = strio::dynamic();
+			if (!first) {
+				append(slice, strio::finish(s));
+				s = strio::dynamic();
+			};
 			dirty = false;
 		case '\\' =>
 			scan_backslash(s, &iter)?;
@@ -45,6 +48,10 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 			scan_single(s, &iter)?;
 		case =>
 			strio::appendrune(s, r)!;
+		};
+
+		if (first) {
+			first = false;
 		};
 	};
 
