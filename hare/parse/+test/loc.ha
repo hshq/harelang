@@ -12,9 +12,9 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	defer io::close(buf);
 	let lexer = lex::init(buf, "<test>");
 	let exp = match (expression(&lexer)) {
-	case exp: ast::expr =>
+	case let exp: ast::expr =>
 		yield exp;
-	case err: error =>
+	case let err: error =>
 		fmt::errorln(strerror(err))!;
 		abort();
 	};
@@ -71,9 +71,9 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	defer io::close(buf);
 	let lexer = lex::init(buf, "<test>");
 	let exp = match (expression(&lexer)) {
-	case exp: ast::expr =>
+	case let exp: ast::expr =>
 		yield exp;
-	case err: error =>
+	case let err: error =>
 		fmt::errorln(strerror(err))!;
 		abort();
 	};
@@ -95,9 +95,9 @@ fn type_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	defer io::close(buf);
 	let lexer = lex::init(buf, "<test>");
 	let typ = match (_type(&lexer)) {
-	case typ: ast::_type =>
+	case let typ: ast::_type =>
 		yield typ;
-	case err: error =>
+	case let err: error =>
 		fmt::errorln(strerror(err))!;
 		abort();
 	};

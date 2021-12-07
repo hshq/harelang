@@ -35,11 +35,11 @@ export fn file(
 	};
 	// TODO: Add a custom "close" function which removes the named file
 	match (os::create(get_tmpdir(), fmode, oflags)) {
-	case err: fs::error =>
+	case let err: fs::error =>
 		let file = named(os::cwd, get_tmpdir(), iomode, mode...)?;
 		free(file.1);
 		return file.0;
-	case f: io::file =>
+	case let f: io::file =>
 		return f;
 	};
 };
@@ -79,9 +79,9 @@ export fn named(
 		match (fs::create_file(fs, fpath, fmode, oflags)) {
 		case errors::exists =>
 			continue;
-		case err: fs::error =>
+		case let err: fs::error =>
 			return err;
-		case f: io::file =>
+		case let f: io::file =>
 			return (f, strings::dup(fpath));
 		};
 	};
@@ -105,7 +105,7 @@ export fn dir() str = {
 
 	let path = path::join(get_tmpdir(), name);
 	match (os::mkdir(path)) {
-	case err: fs::error => abort("Could not create temp directory");
+	case let err: fs::error => abort("Could not create temp directory");
 	case void => void;
 	};
 	return path;

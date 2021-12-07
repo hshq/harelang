@@ -23,7 +23,7 @@ export fn cmd(name: str, args: str...) (command | error) = {
 		platform: platform_cmd =
 			if (strings::contains(name, '/')) {
 				yield match (open(name)) {
-				case p: platform_cmd =>
+				case let p: platform_cmd =>
 					yield p;
 				case =>
 					return nocmd;
@@ -32,7 +32,7 @@ export fn cmd(name: str, args: str...) (command | error) = {
 				yield match (lookup(name)) {
 				case void =>
 					return nocmd;
-				case p: platform_cmd =>
+				case let p: platform_cmd =>
 					yield p;
 				};
 			},
@@ -72,9 +72,9 @@ export @noreturn fn exec(cmd: *command) void = {
 export fn start(cmd: *command) (error | process) = {
 	defer finish(cmd);
 	match (platform_start(cmd)) {
-	case err: errors::opaque =>
+	case let err: errors::opaque =>
 		return err;
-	case proc: process =>
+	case let proc: process =>
 		return proc;
 	};
 };
@@ -94,7 +94,7 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 	for (let i = 0z; true; i += 1) match (strings::next(&iter)) {
 	case void =>
 		break;
-	case r: rune =>
+	case let r: rune =>
 		if (i == 0) {
 			assert(r == '_' || ascii::isalpha(r),
 				"Invalid environment variable");
@@ -164,7 +164,7 @@ fn lookup(name: str) (platform_cmd | void) = {
 	const path = match (os::getenv("PATH")) {
 	case void =>
 		return;
-	case s: str =>
+	case let s: str =>
 		yield s;
 	};
 	let tok = strings::tokenize(path, ":");
@@ -172,15 +172,15 @@ fn lookup(name: str) (platform_cmd | void) = {
 		const item = match (strings::next_token(&tok)) {
 		case void =>
 			break;
-		case s: str =>
+		case let s: str =>
 			yield s;
 		};
 		let path = strings::concat(item, "/", name);
 		defer free(path);
 		match (open(path)) {
-		case err: error =>
+		case let err: error =>
 			continue;
-		case p: platform_cmd =>
+		case let p: platform_cmd =>
 			return p;
 		};
 	};

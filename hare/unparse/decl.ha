@@ -10,7 +10,7 @@ export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 		n += fmt::fprint(out, "export ")?;
 	};
 	match (d.decl) {
-	case c: []ast::decl_const =>
+	case let c: []ast::decl_const =>
 		n += fmt::fprint(out, "def ")?;
 		for (let i = 0z; i < len(c); i += 1) {
 			n += ident(out, c[i].ident)?;
@@ -22,7 +22,7 @@ export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
-	case g: []ast::decl_global =>
+	case let g: []ast::decl_global =>
 		n += fmt::fprint(out,
 			if (g[0].is_const) "const " else "let ")?;
 		for (let i = 0z; i < len(g); i += 1) {
@@ -35,7 +35,7 @@ export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 			n += _type(out, 0, g[i]._type)?;
 			match (g[i].init) {
 			case null => void;
-			case ex: *ast::expr =>
+			case let ex: *ast::expr =>
 				n += fmt::fprint(out, " = ")?;
 				n += expr(out, 0, *ex)?;
 			};
@@ -43,7 +43,7 @@ export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
-	case t: []ast::decl_type =>
+	case let t: []ast::decl_type =>
 		n += fmt::fprint(out, "type ")?;
 		for (let i = 0z; i < len(t); i += 1) {
 			n += ident(out, t[i].ident)?;
@@ -53,7 +53,7 @@ export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
-	case f: ast::decl_func =>
+	case let f: ast::decl_func =>
 		n += fmt::fprint(out, switch (f.attrs) {
 		case ast::fndecl_attrs::NONE =>
 			yield "";
@@ -78,7 +78,7 @@ export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 		n += prototype(out, 0, fntype)?;
 		match (f.body) {
 		case void => void;
-		case e: ast::expr =>
+		case let e: ast::expr =>
 			n += fmt::fprint(out, " = ")?;
 			n += expr(out, 0, e)?;
 		};

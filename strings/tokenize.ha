@@ -18,7 +18,7 @@ export fn tokenize(s: str, delim: str) tokenizer =
 // void if there are no tokens left.
 export fn next_token(s: *tokenizer) (str | void) = {
 	return match (bytes::next_token(s)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		yield fromutf8(b);
 	case void => void;
 	};
@@ -27,7 +27,7 @@ export fn next_token(s: *tokenizer) (str | void) = {
 // Same as next_token(), but does not advance the cursor
 export fn peek_token(s: *tokenizer) (str | void) = {
 	return match (bytes::peek_token(s)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		yield fromutf8(b);
 	case void => void;
 	};
@@ -42,21 +42,21 @@ export fn remaining_tokens(s: *tokenizer) str = {
 @test fn tokenize() void = {
 	let tok = tokenize("Hello, my name is drew", " ");
 	match (next_token(&tok)) {
-	case s: str =>
+	case let s: str =>
 		assert(s == "Hello,");
 	case void =>
 		abort();
 	};
 
 	match (next_token(&tok)) {
-	case s: str =>
+	case let s: str =>
 		assert(s == "my");
 	case void =>
 		abort();
 	};
 
 	match (peek_token(&tok)) {
-	case s: str =>
+	case let s: str =>
 		assert(s == "name");
 	case void =>
 		abort();
@@ -64,7 +64,7 @@ export fn remaining_tokens(s: *tokenizer) str = {
 
 
 	match (next_token(&tok)) {
-	case s: str =>
+	case let s: str =>
 		assert(s == "name");
 	case void =>
 		abort();
@@ -99,7 +99,7 @@ export fn splitN(in: str, delim: str, n: size) []str = {
 	let tok = tokenize(in, delim);
 	for (let i = 0z; i < n - 1z; i += 1) {
 		match (next_token(&tok)) {
-		case s: str =>
+		case let s: str =>
 			append(toks, s);
 		case void =>
 			return toks;

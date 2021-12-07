@@ -40,7 +40,7 @@ export fn next(iter: *iterator) (str | void) = {
 		return strings::fromutf8_unsafe(pathsep);
 	};
 	match (bytes::next_token(&iter.tok)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		return strings::fromutf8_unsafe(b);
 	case void => void;
 	};

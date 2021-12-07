@@ -28,7 +28,7 @@ fn gen(out: io::handle, store: *types::typestore, unit: *unit::unit) void = {
 	defer io::close(ctx.buf);
 	for (let i = 0z; i < len(unit.decls); i += 1) {
 		match (unit.decls[i].decl) {
-		case func: unit::decl_func =>
+		case let func: unit::decl_func =>
 			gen_func(&ctx, &unit.decls[i]);
 		case => abort(); // TODO
 		};
@@ -39,7 +39,7 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	// TODO: const fndecl = &decl.decl as *unit::decl_func;
 	const fndecl = decl.decl as unit::decl_func;
 	const body = match (fndecl.body) {
-	case expr: *unit::expr =>
+	case let expr: *unit::expr =>
 		yield expr;
 	case null =>
 		return; // Prototype
@@ -55,7 +55,7 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	const rtype = fntype.result;
 	const has_rval =
 		match (types::dealias(rtype).repr) {
-		case bi: types::builtin =>
+		case let bi: types::builtin =>
 			yield bi != types::builtin::VOID;
 		case =>
 			yield true;
@@ -92,7 +92,7 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 
 fn gen_store(ctx: *context, object: value, value: value) void = {
 	match (types::dealias(object._type).repr) {
-	case bi: types::builtin =>
+	case let bi: types::builtin =>
 		switch (bi) {
 		case builtin::STR => abort(); // TODO
 		case => void;
@@ -108,7 +108,7 @@ fn gen_store(ctx: *context, object: value, value: value) void = {
 
 fn gen_load(ctx: *context, object: value) value = {
 	match (types::dealias(object._type).repr) {
-	case bi: types::builtin =>
+	case let bi: types::builtin =>
 		switch (bi) {
 		case builtin::STR => abort(); // TODO
 		case => void;
@@ -166,11 +166,11 @@ fn gen_access_object(ctx: *context, object: *unit::object) value = {
 
 fn gen_access_addr(ctx: *context, expr: *unit::expr) value = {
 	match (expr.expr as unit::access) {
-	case ao: unit::access_object =>
+	case let ao: unit::access_object =>
 		return gen_access_object(ctx, ao);
-	case ai: unit::access_index => abort(); // TODO
-	case af: unit::access_field => abort(); // TODO
-	case at: unit::access_tuple => abort(); // TODO
+	case let ai: unit::access_index => abort(); // TODO
+	case let af: unit::access_field => abort(); // TODO
+	case let at: unit::access_tuple => abort(); // TODO
 	};
 };
 
@@ -215,17 +215,17 @@ fn gen_const(ctx: *context, expr: *unit::expr) value = {
 	const val: qval = match (constexpr) {
 	case void =>
 		return vvoid;
-	case b: bool =>
+	case let b: bool =>
 		yield (if (b) 1u32 else 0u32): constant;
 	case ast::_null =>
 		yield 0u64; // XXX: Arch
-	case r: rune =>
+	case let r: rune =>
 		yield r: u32;
-	case v: (u64 | f64) =>
+	case let v: (u64 | f64) =>
 		yield v;
-	case i: i64 =>
+	case let i: i64 =>
 		yield i: u64;
-	case s: str => abort(); // TODO
+	case let s: str => abort(); // TODO
 	// TODO: Aggregate types
 	};
 	return value {
@@ -239,7 +239,7 @@ fn gen_return(ctx: *context, expr: *unit::expr) value = {
 	match (rexpr) {
 	case null =>
 		emit(ctx.buf, void, qinstr::RET);
-	case expr: *unit::expr =>
+	case let expr: *unit::expr =>
 		emit(ctx.buf, void, qinstr::RET, gen_expr(ctx, expr));
 	};
 	return vvoid;

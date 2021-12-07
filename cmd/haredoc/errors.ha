@@ -8,11 +8,11 @@ type error = !(lex::error | parse::error | io::error | syntaxerr | eof);
 
 fn strerror(err: error) str = {
 	match (err) {
-	case err: lex::error =>
+	case let err: lex::error =>
 		return lex::strerror(err);
-	case err: parse::error =>
+	case let err: parse::error =>
 		return parse::strerror(err);
-	case err: io::error =>
+	case let err: io::error =>
 		return io::strerror(err);
 	case eof =>
 		return "Unexpected EOF";

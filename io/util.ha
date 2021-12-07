@@ -9,7 +9,7 @@ export fn readitem(in: handle, item: *void, itemsz: size) (size | error) = {
 		match (io::read(in, buf[..(itemsz - i)])) {
 		case io::EOF =>
 			return underread;
-		case z: size =>
+		case let z: size =>
 			i += z;
 		};
 	};

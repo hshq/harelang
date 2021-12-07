@@ -10,7 +10,7 @@ fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	let z = 0z;
 	for (true) {
 		let name = match (try(lexer, ltok::NAME)?) {
-		case t: lex::token =>
+		case let t: lex::token =>
 			yield t.1 as str;
 		case void =>
 			return (ident: ast::ident, true);

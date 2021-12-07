@@ -8,12 +8,12 @@ export fn import(out: io::handle, i: ast::import) (size | io::error) = {
 	let n = 0z;
 	n += fmt::fprint(out, "use ")?;
 	match (i) {
-	case m: ast::import_module =>
+	case let m: ast::import_module =>
 		n += ident(out, m)?;
-	case a: ast::import_alias =>
+	case let a: ast::import_alias =>
 		n += fmt::fprint(out, a.alias, "= ")?;
 		n += ident(out, a.ident)?;
-	case o: ast::import_objects =>
+	case let o: ast::import_objects =>
 		n += ident(out, o.ident)?;
 		n += fmt::fprint(out, "::{")?;
 		for (let i = 0z; i < len(o.objects); i += 1) {

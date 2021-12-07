@@ -28,11 +28,11 @@ export fn nextpw(file: io::handle) (pwent | io::EOF | io::error | invalid) = {
 	let line = match (bufio::scanline(file)?) {
 	case io::EOF =>
 		return io::EOF;
-	case ln: []u8 =>
+	case let ln: []u8 =>
 		yield ln;
 	};
 	let line = match (strings::try_fromutf8(line)) {
-	case s: str =>
+	case let s: str =>
 		yield s;
 	case =>
 		return invalid;
@@ -46,14 +46,14 @@ export fn nextpw(file: io::handle) (pwent | io::EOF | io::error | invalid) = {
 	};
 
 	let uid = match (strconv::stou(fields[2])) {
-	case u: uint =>
+	case let u: uint =>
 		yield u;
 	case =>
 		return invalid;
 	};
 
 	let gid = match (strconv::stou(fields[3])) {
-	case u: uint =>
+	case let u: uint =>
 		yield u;
 	case =>
 		return invalid;
@@ -86,7 +86,7 @@ export fn pwent_finish(ent: pwent) void = {
 // See [[nextpw]] for low-level parsing API.
 export fn getuser(username: str) (pwent | void) = {
 	let file = match (os::open("/etc/passwd")) {
-	case f: io::file =>
+	case let f: io::file =>
 		yield f;
 	case =>
 		abort("Can't open /etc/passwd");
@@ -95,7 +95,7 @@ export fn getuser(username: str) (pwent | void) = {
 
 	for (true) {
 		let ent = match (nextpw(file)) {
-		case e: pwent =>
+		case let e: pwent =>
 			yield e;
 		case io::EOF =>
 			break;

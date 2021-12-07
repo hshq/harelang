@@ -38,7 +38,7 @@ export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 				dirs::data("hare"),
 				strings::dup("."),
 			]);
-		case s: str =>
+		case let s: str =>
 			let sl = strings::split(s, ":");
 			let path: []str = alloc([], len(sl) + 1);
 			for (let i = 0z; i < len(sl); i += 1) {
@@ -51,7 +51,7 @@ export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 		cache: str = match (os::getenv("HARECACHE")) {
 		case void =>
 			yield dirs::cache("hare");
-		case s: str =>
+		case let s: str =>
 			yield strings::dup(s);
 		},
 		...

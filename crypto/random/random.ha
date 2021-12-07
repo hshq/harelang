@@ -28,7 +28,7 @@ export let stream: *io::stream = &_stream;
 	match (io::read(stream, buf[..])) {
 	case (io::error | io::EOF) =>
 		abort();
-	case n: size =>
+	case let n: size =>
 		test = buf[..n];
 	};
 

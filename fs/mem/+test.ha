@@ -57,7 +57,7 @@ use strconv;
 	for (true) match (it.next(it)) {
 	case void =>
 		break;
-	case d: fs::dirent =>
+	case let d: fs::dirent =>
 		count += 1;
 	};
 	assert(count == 6);
@@ -144,7 +144,7 @@ use strconv;
 	for (true) match (it.next(it)) {
 	case void =>
 		break;
-	case d: fs::dirent =>
+	case let d: fs::dirent =>
 		count += 1;
 	};
 	assert(count == limit);

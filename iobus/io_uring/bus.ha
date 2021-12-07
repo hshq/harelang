@@ -13,9 +13,9 @@ const internal_sqe: int = 0;
 export fn new() (*bus | error) = {
 	let params = io_uring::params { ... };
 	match (io_uring::setup(DEFAULT_RING_SIZE, &params)) {
-	case err: io_uring::error =>
+	case let err: io_uring::error =>
 		return err: error;
-	case ring: io_uring::io_uring =>
+	case let ring: io_uring::io_uring =>
 		return alloc(bus {
 			uring = ring,
 			...
@@ -81,17 +81,17 @@ export fn dispatch(bus: *bus) (result | error) = {
 fn _dispatch(bus: *bus) (result | error) = {
 	match (io_uring::peek(&bus.uring)?) {
 	case null => void;
-	case cqe: *io_uring::cqe =>
+	case let cqe: *io_uring::cqe =>
 		return cqe: result;
 	};
 	match (io_uring::submit_wait(&bus.uring, 1)) {
-	case err: io_uring::error =>
+	case let err: io_uring::error =>
 		return err: error;
 	case uint => void;
 	};
 	match (io_uring::peek(&bus.uring)?) {
 	case null => abort();
-	case cqe: *io_uring::cqe =>
+	case let cqe: *io_uring::cqe =>
 		return cqe: result;
 	};
 };
@@ -125,7 +125,7 @@ export fn register_file(bus: *bus, file: io::file) (registered_file | error) = {
 // Unregisters a file previously registered with [[register_file]].
 export fn unregister_file(bus: *bus, file: file) void = {
 	const reg = match (file) {
-	case reg: registered_file =>
+	case let reg: registered_file =>
 		yield reg;
 	case => abort("Cannot unregister non-registered file");
 	};

@@ -17,9 +17,9 @@ export fn connect(
 		yield rt::AF_INET6: int;
 	};
 	const sockfd = match (rt::socket(family, rt::SOCK_DGRAM, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case fd: int =>
+	case let fd: int =>
 		yield fd;
 	};
 
@@ -28,7 +28,7 @@ export fn connect(
 	match (rt::connect(sockfd, &sockaddr, sz)) {
 	case int =>
 		return io::fdopen(sockfd);
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	};
 };
@@ -46,9 +46,9 @@ export fn listen(
 		yield rt::AF_INET6: int;
 	};
 	const sockfd = match (rt::socket(family, rt::SOCK_DGRAM, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case fd: int =>
+	case let fd: int =>
 		yield fd;
 	};
 	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
@@ -58,7 +58,7 @@ export fn listen(
 	const sz = ip::native_addrlen(addr);
 	match (rt::bind(sockfd, &sockaddr, sz)) {
 	case int => void;
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	};
 
@@ -67,7 +67,7 @@ export fn listen(
 		let sn = rt::sockaddr {...};
 		let al = size(rt::sockaddr): u32;
 		match (rt::getsockname(sockfd, &sn, &al)) {
-		case err: rt::errno =>
+		case let err: rt::errno =>
 			return errors::errno(err);
 		case int => void;
 		};
@@ -81,9 +81,9 @@ export fn listen(
 // Sends a UDP packet to the destination previously specified by [[connect]].
 export fn send(sock: io::file, buf: []u8) (size | net::error) = {
 	match (rt::send(sock, buf: *[*]u8, len(buf), 0)) {
-	case sz: size =>
+	case let sz: size =>
 		return sz;
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	};
 };
@@ -98,9 +98,9 @@ export fn sendto(
 	const sockaddr = ip::to_native(dest, port);
 	const sz = ip::native_addrlen(dest);
 	match (rt::sendto(sock, buf: *[*]u8, len(buf), 0, &sockaddr, sz)) {
-	case sz: size =>
+	case let sz: size =>
 		return sz;
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	};
 };
@@ -116,9 +116,9 @@ export fn recvfrom(
 	const sockaddr = rt::sockaddr { ... };
 	const sz = match (rt::recvfrom(sock, buf: *[*]u8, len(buf), 0,
 		&sockaddr, &addrsz)) {
-	case sz: size =>
+	case let sz: size =>
 		yield sz;
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	};
 
@@ -126,12 +126,12 @@ export fn recvfrom(
 	const peer = ip::from_native(sockaddr);
 	match (src) {
 	case null => void;
-	case src: *ip::addr =>
+	case let src: *ip::addr =>
 		*src = peer.0;
 	};
 	match (port) {
 	case null => void;
-	case port: *u16 =>
+	case let port: *u16 =>
 		*port = peer.1;
 	};
 

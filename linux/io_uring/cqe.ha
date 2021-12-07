@@ -14,9 +14,9 @@ export fn cqe_seen(ring: *io_uring, cqe: *cqe) void = cq_advance(ring, 1);
 // returned CQE to [[cqe_seen]] to advance the queue.
 export fn wait(ring: *io_uring) (*cqe | error) = {
 	match (get_cqe(ring, 0, 1)) {
-	case err: error =>
+	case let err: error =>
 		return err;
-	case cq: nullable *cqe =>
+	case let cq: nullable *cqe =>
 		assert(cq != null); // XXX: Correct?
 		return cq: *cqe;
 	};
@@ -101,9 +101,9 @@ fn get_cqe(
 
 		match (rt::io_uring_enter(ring.fd,
 			submit, wait, flags: uint, null)) {
-		case err: rt::errno =>
+		case let err: rt::errno =>
 			return errors::errno(err);
-		case n: uint =>
+		case let n: uint =>
 			submit -= n;
 		};
 	};

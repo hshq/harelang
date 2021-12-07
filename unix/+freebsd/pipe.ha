@@ -22,7 +22,7 @@ export fn pipe(flags: pipe_flag...) ((io::file, io::file) | errors::error) = {
 	};
 	match (rt::pipe2(&fds, flag)) {
 	case void => void;
-	case e: rt::errno =>
+	case let e: rt::errno =>
 		return errors::errno(e);
 	};
 	return (fds[0], fds[1]);

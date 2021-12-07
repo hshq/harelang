@@ -12,14 +12,14 @@ fn attr_symbol(lexer: *lex::lexer) (str | error) = {
 	let d = strings::iter(s);
 	match (strings::next(&d)) {
 	case void => void;
-	case r: rune =>
+	case let r: rune =>
 		synassert(t.2, ascii::isalpha(r) || r == '.'
 			|| r == '_', "Invalid symbol")?;
 	};
 	for (true) match (strings::next(&d)) {
 	case void =>
 		break;
-	case r: rune =>
+	case let r: rune =>
 		synassert(t.2, ascii::isalnum(r) || r == '$'
 			|| r == '.' || r == '_', "Invalid symbol")?;
 	};
@@ -116,7 +116,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 	for (true) match (try(lexer, attrs...)?) {
 	case void =>
 		break;
-	case t: lex::token =>
+	case let t: lex::token =>
 		switch (t.0) {
 		case ltok::ATTR_FINI =>
 			attr = ast::fndecl_attrs::FINI;
@@ -194,7 +194,7 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 		let decl = match (next) {
 		case void =>
 			yield decl_func(lexer)?;
-		case t: lex::token =>
+		case let t: lex::token =>
 			yield switch (t.0) {
 			case ltok::TYPE =>
 				yield decl_type(lexer)?;

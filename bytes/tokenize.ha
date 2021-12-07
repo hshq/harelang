@@ -21,7 +21,7 @@ export fn tokenize(s: []u8, delim: []u8) tokenizer = {
 // string starts with, or ends with, a token, an empty slice is returned at the
 // beginning or end of the sequence, respectively.
 export fn next_token(s: *tokenizer) ([]u8 | void) = match (peek_token(s)) {
-case b: []u8 =>
+case let b: []u8 =>
 	if (s.p == len(s.s)) {
 		s.d = s.d[..0];
 		s.s = s.s[..0];
@@ -40,7 +40,7 @@ export fn peek_token(s: *tokenizer) ([]u8 | void) = {
 	};
 	if (s.p > len(s.s)) {
 		s.p = match (index(s.s, s.d)) {
-		case i: size =>
+		case let i: size =>
 			yield i;
 		case void =>
 			yield len(s.s);
@@ -72,7 +72,7 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 
 	assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
 	match (next_token(&t)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		assert(equal([4, 5], b));
 	case void =>
 		abort();
@@ -86,7 +86,7 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 
 	assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
 	match (next_token(&t)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		assert(equal([], b));
 	case void =>
 		abort();
@@ -94,7 +94,7 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 
 	assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
 	match (next_token(&t)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		assert(equal([1], b));
 	case void =>
 		abort();
@@ -102,7 +102,7 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 
 	assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
 	match (next_token(&t)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		assert(equal([], b));
 	case void =>
 		abort();
@@ -115,21 +115,21 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	t = tokenize(input3, [1, 2]);
 
 	match (next_token(&t)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		assert(equal([1, 1], b));
 	case void =>
 		abort();
 	};
 
 	match (next_token(&t)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		assert(equal([1], b));
 	case void =>
 		abort();
 	};
 
 	match (next_token(&t)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		assert(equal([2], b));
 	case void =>
 		abort();
@@ -141,14 +141,14 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	t = tokenize(input4, [1, 2]);
 
 	match (next_token(&t)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		assert(equal([], b));
 	case void =>
 		abort();
 	};
 
 	match (next_token(&t)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		assert(equal([], b));
 	case void =>
 		abort();
@@ -161,14 +161,14 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	t = tokenize(input5, [24, 42]);
 
 	match (next_token(&t)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		assert(equal([], b));
 	case void =>
 		abort();
 	};
 
 	match (next_token(&t)) {
-	case b: []u8 =>
+	case let b: []u8 =>
 		assert(equal([1], b));
 	case void =>
 		abort();

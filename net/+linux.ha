@@ -25,9 +25,9 @@ export fn stream_accept(l: *listener) (io::file | error) = {
 	let sn = rt::sockaddr {...};
 	const sz = size(rt::sockaddr): u32;
 	const fd = match (rt::accept(l.fd, &sn, &sz)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case fd: int =>
+	case let fd: int =>
 		yield fd;
 	};
 	return io::fdopen(fd);

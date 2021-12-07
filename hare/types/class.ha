@@ -1,10 +1,10 @@
 // Returns true if the given type is a signed type.
 export fn is_signed(ty: const *_type) bool = {
 	match (ty.repr) {
-	case al: alias =>
+	case let al: alias =>
 		// TODO: al.secondary as *_type
 		return is_signed(al.secondary: const *_type);
-	case bi: builtin =>
+	case let bi: builtin =>
 		switch (bi) {
 		case builtin::F32, builtin::F64, builtin::I16, builtin::I32,
 		builtin::I64, builtin::I8, builtin::INT =>
@@ -12,7 +12,7 @@ export fn is_signed(ty: const *_type) bool = {
 		case =>
 			return false;
 		};
-	case e: _enum =>
+	case let e: _enum =>
 		switch (e.storage) {
 		case builtin::I16, builtin::I32, builtin::I64, builtin::I8,
 		builtin::INT =>
@@ -28,10 +28,10 @@ export fn is_signed(ty: const *_type) bool = {
 // Returns true if the given type is a floating-point type.
 export fn is_float(ty: const *_type) bool = {
 	match (ty.repr) {
-	case al: alias =>
+	case let al: alias =>
 		// TODO: al.secondary as *_type
 		return is_float(al.secondary: const *_type);
-	case bi: builtin =>
+	case let bi: builtin =>
 		switch (bi) {
 		case builtin::F32, builtin::F64 =>
 			return true;
@@ -46,10 +46,10 @@ export fn is_float(ty: const *_type) bool = {
 // Returns true if the given type is an integer type.
 export fn is_integer(ty: const *_type) bool = {
 	match (ty.repr) {
-	case al: alias =>
+	case let al: alias =>
 		// TODO: al.secondary as *_type
 		return is_integer(al.secondary: const *_type);
-	case bi: builtin =>
+	case let bi: builtin =>
 		switch (bi) {
 			case builtin::INT, builtin::UINT, builtin::I16,
 			builtin::I32, builtin::I64, builtin::I8, builtin::U16,

@@ -38,7 +38,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 			ltok::CONST, ltok::YIELD)?) {
 	case void =>
 		yield binarithm(lexer, void, 0)?;
-	case tok: lex::token =>
+	case let tok: lex::token =>
 		yield switch (tok.0) {
 		case ltok::LABEL, ltok::LBRACE =>
 			yield compound_expr(lexer)?;
@@ -61,7 +61,7 @@ export fn expression(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 
 	const tok = match (try(lexer, atoks...)?) {
-	case tok: lex::token =>
+	case let tok: lex::token =>
 		yield tok;
 	case =>
 		return expr;
@@ -268,7 +268,7 @@ fn binarithm(
 	let lvalue = match (lvalue) {
 	case void =>
 		yield cast(lexer, void)?;
-	case expr: ast::expr =>
+	case let expr: ast::expr =>
 		yield expr;
 	};
 
@@ -341,7 +341,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::INSERT,
 		ltok::STATIC, ltok::SIZE, ltok::LEN, ltok::OFFSET,
 		ltok::DEFER)?) {
-	case tok: lex::token =>
+	case let tok: lex::token =>
 		yield tok;
 	case void =>
 		return postfix(lexer, void);
@@ -362,7 +362,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 		let tok = match (peek(lexer, ltok::LET, ltok::CONST,
 			ltok::ABORT, ltok::ASSERT, ltok::APPEND, ltok::INSERT,
 			ltok::DELETE)?) {
-		case tok: lex::token =>
+		case let tok: lex::token =>
 			yield tok;
 		case void =>
 			// TODO: The following is lame:
@@ -435,13 +435,13 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 	const lvalue = match (lvalue) {
 	case void =>
 		yield unarithm(lexer)?;
-	case e: ast::expr =>
+	case let e: ast::expr =>
 		yield e;
 	};
 	const tok = match (try(lexer, ltok::COLON, ltok::AS, ltok::IS)?) {
 	case void =>
 		return lvalue;
-	case tok: lex::token =>
+	case let tok: lex::token =>
 		yield tok.0;
 	};
 	const kind = switch (tok) {
@@ -496,7 +496,7 @@ fn control(lexer: *lex::lexer) (ast::expr | error) = {
 	let tok = want(lexer, ltok::BREAK, ltok::CONTINUE, ltok::RETURN)?;
 	let label = if (tok.0 == ltok::BREAK || tok.0 == ltok::CONTINUE) {
 		yield match (try(lexer, ltok::LABEL)?) {
-		case tok: lex::token =>
+		case let tok: lex::token =>
 			yield tok.1 as str;
 		case void =>
 			yield "";
@@ -753,7 +753,7 @@ fn plain_array(lexer: *lex::lexer) (ast::expr | error) = {
 		case void =>
 			want(lexer, ltok::RBRACKET)?;
 			break;
-		case tok: lex::token =>
+		case let tok: lex::token =>
 			switch (tok.0) {
 			case ltok::ELLIPSIS =>
 				expand = true;
@@ -827,7 +827,7 @@ fn struct_field(
 		const name = strings::dup(tok.1 as str);
 		const tok = match (try(lexer, ltok::COLON,
 			ltok::DOUBLE_COLON, ltok::EQUAL)?) {
-		case tok: lex::token =>
+		case let tok: lex::token =>
 			yield tok;
 		case void =>
 			let id: ast::ident = alloc([name]);
@@ -900,7 +900,7 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 	let lvalue = match (lvalue) {
 	case void =>
 		yield plain_expression(lexer)?;
-	case ex: ast::expr =>
+	case let ex: ast::expr =>
 		yield ex;
 	};
 
@@ -908,7 +908,7 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 		ltok::LBRACKET, ltok::QUESTION, ltok::LNOT)) {
 	case void =>
 		return lvalue;
-	case tok: lex::token =>
+	case let tok: lex::token =>
 		yield tok;
 	};
 
@@ -948,7 +948,7 @@ fn postfix_dot(
 	lvalue: ast::expr,
 ) (ast::expr | error) = {
 	match (try(lexer, ltok::NAME)?) {
-	case tok: lex::token =>
+	case let tok: lex::token =>
 		return ast::expr {
 			start = lvalue.start,
 			end = lex::prevloc(lexer),
@@ -1032,19 +1032,25 @@ fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 };
 
 fn match_case(lexer: *lex::lexer) (ast::match_case | error) = {
-	let tok = peek(lexer)? as lex::token;
+	let tok = lex::lex(lexer)?;
 	let loc = tok.2;
-	let nt = switch (tok.0) {
+	let name: str = "", typ: nullable *ast::_type = null;
+	switch (tok.0) {
 	case ltok::NULL =>
-		want(lexer, ltok::NULL)?;
-		yield ("", ast::_type {
+		typ = alloc(ast::_type {
 			start = loc,
 			end = lex::prevloc(lexer),
 			flags = 0,
 			repr = ast::builtin_type::NULL,
 		});
+	case ltok::LET =>
+		name = want(lexer, ltok::NAME)?.1 as str;
+		want(lexer, ltok::COLON)?;
+		typ = alloc(_type(lexer)?);
+	case ltok::ARROW => void;
 	case =>
-		yield nametype(lexer)?;
+		lex::unlex(lexer, tok);
+		typ = alloc(_type(lexer)?);
 	};
 	want(lexer, ltok::ARROW)?;
 	let exprs: []*ast::expr = [];
@@ -1053,9 +1059,11 @@ fn match_case(lexer: *lex::lexer) (ast::match_case | error) = {
 		want(lexer, ltok::SEMICOLON)?;
 	};
 
+	synassert(lex::mkloc(lexer), len(exprs) != 0, "Expected a match case")?;
+
 	return ast::match_case {
-		name  = nt.0,
-		_type = alloc(nt.1),
+		name = name,
+		_type = typ,
 		exprs = exprs,
 	};
 };
@@ -1073,7 +1081,7 @@ fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		want(lexer, ltok::CASE)?;
 
 		match (try(lexer, ltok::ARROW)?) {
-		case t: lex::token =>
+		case let t: lex::token =>
 			if (len(default) != 0) {
 				return syntaxerr(t.2,
 					"More than one default match case");
@@ -1108,7 +1116,7 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::LNOT, ltok::TIMES, ltok::BAND)) {
 	case void =>
 		return builtin(lexer);
-	case tok: lex::token =>
+	case let tok: lex::token =>
 		yield tok;
 	};
 
@@ -1146,7 +1154,7 @@ fn yield_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	match (try(lexer, ltok::SEMICOLON, ltok::LABEL)?) {
 	case void =>
 		value = alloc(expression(lexer)?);
-	case t: lex::token =>
+	case let t: lex::token =>
 		switch (t.0) {
 		case ltok::SEMICOLON =>
 			lex::unlex(lexer, t);

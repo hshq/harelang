@@ -6,9 +6,9 @@ use os;
 export fn isatty(fd: io::file) bool = {
 	let wsz = rt::winsize { ... };
 	match (rt::ioctl(fd, rt::TIOCGWINSZ, &wsz: *void)) {
-	case e: rt::errno =>
+	case let e: rt::errno =>
 		return false;
-	case r: int =>
+	case let r: int =>
 		return r == 0;
 	};
 };

@@ -69,15 +69,15 @@ export fn strerror(err: error) const str = {
 	// Should be more than enough for PATH_MAX * 2
 	static let buf: [4096]u8 = [0...];
 	match (err) {
-	case err: fs::error =>
+	case let err: fs::error =>
 		return fs::strerror(err);
-	case err: io::error =>
+	case let err: io::error =>
 		return io::strerror(err);
-	case err: parse::error =>
+	case let err: parse::error =>
 		return parse::strerror(err);
 	case module_not_found =>
 		return "Module not found";
-	case amb: ambiguous =>
+	case let amb: ambiguous =>
 		return fmt::bsprintf(buf, "Cannot choose between {} and {}",
 			amb.0, amb.1);
 	};

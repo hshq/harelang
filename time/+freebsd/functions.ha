@@ -32,7 +32,7 @@ export fn sleep(n: duration) void = {
 		match (rt::nanosleep(req, &res)) {
 		case void =>
 			return;
-		case err: rt::errno =>
+		case let err: rt::errno =>
 			switch (err) {
 			case rt::EINTR =>
 				req = &res;
@@ -80,7 +80,7 @@ export fn now(clock: clock) instant = {
 	match (rt::clock_gettime(clock, &tp)) {
 	case void =>
 		return timespec_to_instant(tp);
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		abort("Unexpected error from clock_gettime");
 	};
 };

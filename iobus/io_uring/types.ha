@@ -15,7 +15,7 @@ export fn strerror(err: error) const str = {
 	match (err) {
 	case nobuffers =>
 		return "iobus buffer pool exhausted";
-	case err: io_uring::error =>
+	case let err: io_uring::error =>
 		return io_uring::strerror(err);
 	};
 };
@@ -31,9 +31,9 @@ fn wraperror(err: io_uring::error) error = {
 
 fn cqe_result(res: *io_uring::cqe) (int | error) = {
 	match (io_uring::result(res)) {
-	case err: io_uring::error =>
+	case let err: io_uring::error =>
 		return wraperror(err);
-	case n: int =>
+	case let n: int =>
 		return n;
 	};
 };

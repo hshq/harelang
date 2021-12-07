@@ -11,9 +11,9 @@ export type platform_cmd = io::file;
 // void (to the child), or an error.
 export fn fork() (int | void | error) = {
 	match (rt::fork()) {
-	case err: rt::errno  =>
+	case let err: rt::errno  =>
 		return errors::errno(err);
-	case i: (int | void) =>
+	case let i: (int | void) =>
 		return i;
 	};
 };
@@ -44,9 +44,9 @@ export fn pipe() (io::file, io::file) = {
 
 fn open(path: str) (platform_cmd | error) = {
 	match (rt::access(path, rt::X_OK)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case b: bool =>
+	case let b: bool =>
 		if (!b) {
 			return errors::noaccess;
 		};
@@ -54,9 +54,9 @@ fn open(path: str) (platform_cmd | error) = {
 	// O_PATH is used because it allows us to use an executable for which we
 	// have execute permissions, but not read permissions.
 	match (rt::open(path, rt::O_PATH, 0u)) {
-	case fd: int =>
+	case let fd: int =>
 		return fd;
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	};
 };
@@ -85,7 +85,7 @@ fn platform_exec(cmd: *command) error = {
 	let need_devnull = false;
 	for (let i = 0z; i < len(cmd.files); i += 1) {
 		const from = match (cmd.files[i].0) {
-		case file: io::file =>
+		case let file: io::file =>
 			yield file;
 		case nullfd =>
 			need_devnull = true;
@@ -95,9 +95,9 @@ fn platform_exec(cmd: *command) error = {
 		};
 
 		cmd.files[i].0 = match (rt::fcntl(from, rt::F_DUPFD_CLOEXEC, 0)) {
-		case fd: int =>
+		case let fd: int =>
 			yield fd;
-		case err: rt::errno =>
+		case let err: rt::errno =>
 			return errors::errno(err);
 		};
 	};
@@ -108,7 +108,7 @@ fn platform_exec(cmd: *command) error = {
 
 	for (let i = 0z; i < len(cmd.files); i += 1) {
 		const from = match (cmd.files[i].0) {
-		case file: io::file =>
+		case let file: io::file =>
 			yield file;
 		case nullfd =>
 			yield devnull;
@@ -119,7 +119,7 @@ fn platform_exec(cmd: *command) error = {
 
 		match (rt::dup2(from, cmd.files[i].1)) {
 		case int => void;
-		case e: rt::errno =>
+		case let e: rt::errno =>
 			return errors::errno(e);
 		};
 	};
@@ -132,21 +132,21 @@ fn platform_start(cmd: *command) (process | errors::error) = {
 	// TODO: Let the user configure clone more to their taste (e.g. SIGCHLD)
 	let pipe: [2]int = [0...];
 	match (rt::pipe2(&pipe, rt::O_CLOEXEC)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case void => void;
 	};
 
 	match (rt::clone(null, 0, null, null, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case pid: int =>
+	case let pid: int =>
 		rt::close(pipe[1])!;
 		let errno: int = 0;
 		match (rt::read(pipe[0], &errno, size(int))) {
-		case err: rt::errno =>
+		case let err: rt::errno =>
 			return errors::errno(err);
-		case n: size =>
+		case let n: size =>
 			switch (n) {
 			case size(int) =>
 				return errors::errno(errno);

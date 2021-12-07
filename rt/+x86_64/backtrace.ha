@@ -14,7 +14,7 @@ export fn backtrace() frame = frame {
 export fn nextframe(sframe: frame) (frame | void) = {
 	let addr = sframe.addr: *nullable *void;
 	match (*addr) {
-	case a: *void =>
+	case let a: *void =>
 		return frame { addr = a };
 	case null =>
 		return;

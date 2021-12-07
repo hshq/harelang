@@ -104,14 +104,14 @@ export fn decode(
 ) (size | errors::invalid | io::error) = {
 	let dec = decoder(alphabet, in);
 	match (io::copy(out, &dec)) {
-	case err: io::error =>
+	case let err: io::error =>
 		match (err) {
 		case errors::invalid =>
 			return errors::invalid;
 		case =>
 			return err;
 		};
-	case s: size =>
+	case let s: size =>
 		return s;
 	};
 };
@@ -127,14 +127,14 @@ export fn decode_static(
 	defer io::close(buf);
 	let dec = decoder(alphabet, in);
 	match (io::copy(buf, &dec)) {
-	case err: io::error =>
+	case let err: io::error =>
 		match (err) {
 		case errors::invalid =>
 			return errors::invalid;
 		case =>
 			return err;
 		};
-	case s: size =>
+	case let s: size =>
 		return s;
 	};
 };
@@ -183,7 +183,7 @@ export fn decodeslice_static(
 	let in = bufio::fixed(in, io::mode::READ);
 	defer io::close(in); // bufio::finish?
 	match (decode_static(alphabet, out, in)) {
-	case s: size =>
+	case let s: size =>
 		return s;
 	case errors::invalid =>
 		return errors::invalid;
@@ -312,7 +312,7 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 					s.avail = 0;
 				};
 				break;
-			case err: io::error =>
+			case let err: io::error =>
 				return err;
 			};
 		} else {
@@ -341,7 +341,7 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 				s.waseof = true;
 				z += n;
 				break;
-			case err: io::error =>
+			case let err: io::error =>
 				return err;
 			};
 		} else {
@@ -371,7 +371,7 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 			return io::EOF;
 		};
 		break;
-	case err: io::error =>
+	case let err: io::error =>
 		return err;
 	};
 	return z;
@@ -400,12 +400,12 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 		defer free(out);
 
 		for (true) match (io::read(&dec, buf)) {
-		case z: size =>
+		case let z: size =>
 			append(out, buf[0]);
 			assert(z == 1);
 		case io::EOF =>
 			break;
-		case err: io::error =>
+		case let err: io::error =>
 			abort();
 		};
 
@@ -428,11 +428,11 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 		defer free(out);
 
 		for (true) match (io::read(&dec, buf)) {
-		case z: size =>
+		case let z: size =>
 			append(out, buf[..z]...);
 		case io::EOF =>
 			break;
-		case err: io::error =>
+		case let err: io::error =>
 			abort();
 		};
 

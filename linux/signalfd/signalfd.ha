@@ -37,9 +37,9 @@ export fn signalfd(
 	flags: int,
 ) (int | errors::error) = {
 	match (rt::signalfd(fd, mask, flags)) {
-	case fd: int =>
+	case let fd: int =>
 		return fd;
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	};
 };
@@ -48,9 +48,9 @@ export fn signalfd(
 export fn readsignal(fd: int) (siginfo | errors::error) = {
 	let si = siginfo { ... };
 	match (rt::read(fd, &si, size(siginfo))) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case z: size =>
+	case let z: size =>
 		assert(z == size(siginfo));
 		return si;
 	};

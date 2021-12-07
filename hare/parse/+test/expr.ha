@@ -232,11 +232,11 @@
 @test fn match_expr() void = {
 	roundtrip("export fn main() void = {
 	match (x) {
-	case i: size =>
+	case let i: size =>
 		return y;
 	case foo =>
 		return bar;
-	case foo: int =>
+	case let foo: int =>
 		return bar;
 	case foo::bar =>
 		return baz;
@@ -246,7 +246,7 @@
 		void;
 	};
 	match (x) {
-	case s: matchdata =>
+	case let s: matchdata =>
 		return y;
 	case str =>
 		return z;

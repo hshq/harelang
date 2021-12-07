@@ -13,7 +13,7 @@ fn process(ctx: *context, subunits: const []ast::subunit) (unit | error) = {
 		for (let j = 0z; j < len(subunit.decls); j += 1) {
 			let adecl = &subunit.decls[j];
 			let decl = match (process_decl(ctx, adecl)) {
-			case d: decl =>
+			case let d: decl =>
 				yield d;
 			case error =>
 				abort(); // TODO
@@ -31,13 +31,13 @@ fn process_decl(
 ) (decl | error) = {
 	// TODO: match on &decl.decl
 	match (decl.decl) {
-	case co: []ast::decl_const =>
+	case let co: []ast::decl_const =>
 		abort(); // TODO
-	case gl: []ast::decl_global =>
+	case let gl: []ast::decl_global =>
 		abort(); // TODO
-	case ty: []ast::decl_type =>
+	case let ty: []ast::decl_type =>
 		abort(); // TODO
-	case fu: ast::decl_func =>
+	case let fu: ast::decl_func =>
 		return process_func(ctx, decl, fu);
 	};
 };
@@ -56,7 +56,7 @@ fn process_func(
 
 	ctx.fntype = &fntype;
 	const body: nullable *expr = match (afndecl.body) {
-	case abody: ast::expr =>
+	case let abody: ast::expr =>
 		yield process_expr(ctx, &abody)?;
 	case void =>
 		yield null;
@@ -142,19 +142,19 @@ fn process_expr(
 fn process_access(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const access = aexpr.expr as ast::access_expr;
 	const op: (const *types::_type, access) = match (access) {
-	case ai: ast::access_identifier =>
+	case let ai: ast::access_identifier =>
 		const object = match (ctx_lookup(ctx, ai)) {
 		case null =>
 			abort(); // TODO: Error
-		case obj: *object =>
+		case let obj: *object =>
 			yield obj;
 		};
 		yield (object._type, object);
-	case ai: ast::access_index =>
+	case let ai: ast::access_index =>
 		abort(); // TODO
-	case af: ast::access_field =>
+	case let af: ast::access_field =>
 		abort(); // TODO
-	case at: ast::access_tuple =>
+	case let at: ast::access_tuple =>
 		abort(); // TODO
 	};
 	return alloc(expr {
@@ -197,7 +197,7 @@ fn process_binding(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 		const _type = match (item._type) {
 		case null =>
 			abort(); // TODO
-		case ty: *ast::_type =>
+		case let ty: *ast::_type =>
 			yield types::lookup(ctx.store, ty)!;
 		};
 		const object = scope_insert(ctx, object {
@@ -264,23 +264,23 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const constexpr = aexpr.expr as ast::constant_expr;
 	// TODO: Tuple unpacking
 	const er: (const *types::_type, constant) = match (constexpr) {
-	case v: ast::value =>
+	case let v: ast::value =>
 		yield (
 			// TODO: iconst/fconst lowering
 			types::lookup_builtin(ctx.store, match (v) {
 			case ast::_null =>
 				yield ast::builtin_type::NULL;
-			case b: bool =>
+			case let b: bool =>
 				yield ast::builtin_type::BOOL;
-			case s: str =>
+			case let s: str =>
 				yield ast::builtin_type::STR;
-			case r: rune =>
+			case let r: rune =>
 				yield ast::builtin_type::RUNE;
-			case i: i64 =>
+			case let i: i64 =>
 				yield ast::builtin_type::INT;
-			case u: u64 =>
+			case let u: u64 =>
 				yield ast::builtin_type::UINT;
-			case f: f64 =>
+			case let f: f64 =>
 				yield ast::builtin_type::F64;
 			case void =>
 				yield ast::builtin_type::VOID;
@@ -348,15 +348,15 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 		assert(expr.result.repr as types::builtin == _case.1);
 		const constexpr = expr.expr as constant;
 		match (_case.2) {
-		case s: str =>
+		case let s: str =>
 			assert(constexpr as str == s);
-		case r: rune =>
+		case let r: rune =>
 			assert(constexpr as rune == r);
-		case i: i64 =>
+		case let i: i64 =>
 			assert(constexpr as i64 == i);
-		case u: u64 =>
+		case let u: u64 =>
 			assert(constexpr as u64 == u);
-		case f: f64 =>
+		case let f: f64 =>
 			assert(constexpr as f64 == f);
 		case void =>
 			abort();
@@ -369,7 +369,7 @@ fn process_return(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const rval = match (ret) {
 	case null =>
 		yield null;
-	case aexpr: *ast::expr =>
+	case let aexpr: *ast::expr =>
 		yield process_expr(ctx, aexpr)?;
 	};
 	// TODO: assert(types::assignable(ctx.fntype.result, rval.type));

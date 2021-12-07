@@ -11,7 +11,7 @@ export fn replace(s: str, needle: str, target: str) str = {
 
 	for (true) {
 		const match_idx = match(index(res, needle)) {
-		case s: size =>
+		case let s: size =>
 			yield s;
 		case void =>
 			break;

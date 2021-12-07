@@ -307,7 +307,7 @@ fn struct_embed_or_field(
 	let id: ast::ident = match (try(lexer, ltok::COLON, ltok::DOUBLE_COLON)?) {
 	case void =>
 		yield alloc([name.1 as str]);
-	case tok: lex::token =>
+	case let tok: lex::token =>
 		yield switch (tok.0) {
 		case ltok::COLON =>
 			let field = ast::struct_field {
@@ -339,7 +339,7 @@ fn array_slice_type(lexer: *lex::lexer) (ast::_type | error) = {
 		ltok::TIMES, ltok::RBRACKET)?) {
 	case void =>
 		yield alloc(expression(lexer)?);
-	case tok: lex::token =>
+	case let tok: lex::token =>
 		yield switch (tok.0) {
 		case ltok::UNDERSCORE =>
 			yield ast::len_contextual;

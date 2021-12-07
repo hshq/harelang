@@ -35,7 +35,7 @@ fn st_read(s: *stream, buf: []u8) (size | EOF | error) = {
 	match (s.reader) {
 	case null =>
 		return errors::unsupported;
-	case r: *reader =>
+	case let r: *reader =>
 		return r(s, buf);
 	};
 };
@@ -44,7 +44,7 @@ fn st_write(s: *stream, buf: const []u8) (size | error) = {
 	match (s.writer) {
 	case null =>
 		return errors::unsupported;
-	case w: *writer =>
+	case let w: *writer =>
 		return w(s, buf);
 	};
 };
@@ -52,7 +52,7 @@ fn st_write(s: *stream, buf: const []u8) (size | error) = {
 fn st_close(s: *stream) void = {
 	match (s.closer) {
 	case null => void;
-	case c: *closer =>
+	case let c: *closer =>
 		c(s);
 	};
 };
@@ -61,7 +61,7 @@ fn st_seek(s: *stream, off: off, w: whence) (off | error) = {
 	match (s.seeker) {
 	case null =>
 		return errors::unsupported;
-	case sk: *seeker =>
+	case let sk: *seeker =>
 		return sk(s, off, w);
 	};
 };

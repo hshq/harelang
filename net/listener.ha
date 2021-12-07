@@ -5,7 +5,7 @@ use io;
 // available.
 export fn accept(l: *listener) (io::file | error) = {
 	match (l.accept) {
-	case f: *fn(l: *listener) (io::file | error) =>
+	case let f: *fn(l: *listener) (io::file | error) =>
 		return f(l);
 	case null =>
 		return errors::unsupported;
@@ -15,7 +15,7 @@ export fn accept(l: *listener) (io::file | error) = {
 // Shuts down a [[listener]] and frees resources associated with it.
 export fn shutdown(l: *listener) void = {
 	match (l.shutdown) {
-	case f: *fn(l: *listener) void =>
+	case let f: *fn(l: *listener) void =>
 		f(l);
 	case null => void;
 	};

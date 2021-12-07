@@ -7,7 +7,7 @@ use os;
 // close it using [[io::close]].
 export fn open() (io::file | error) = {
 	match (os::open("/dev/tty", fs::flags::RDWR, fs::flags::CLOEXEC)) {
-	case f: io::file =>
+	case let f: io::file =>
 		return f;
 	case fs::error =>
 		return errors::noentry;

@@ -29,7 +29,7 @@ fn emit(
 ) void = {
 	fmt::fprintf(to, "\t")!;
 	match (out) {
-	case val: qtypeval =>
+	case let val: qtypeval =>
 		const ty = val.0, val = val.1;
 		qval_emit(to, val);
 		fmt::fprintf(to, " ={} ", qtype_repr(ty))!;
@@ -211,16 +211,16 @@ fn emit(
 	})!;
 	for (let i = 0z; i < len(args); i += 1) {
 		const arg = match (args[i]) {
-		case v: value =>
+		case let v: value =>
 			yield v.value;
 		case =>
 			yield args[i];
 		};
 		match (arg) {
-		case v: value => abort(); // Invariant
-		case qv: qval =>
+		case let v: value => abort(); // Invariant
+		case let qv: qval =>
 			yield qval_emit(to, qv);
-		case qt: qtype =>
+		case let qt: qtype =>
 			abort(); // TODO
 		};
 		if (i + 1 < len(args)) {
@@ -232,16 +232,16 @@ fn emit(
 
 fn qval_emit(to: io::handle, qv: qval) void = {
 	match (qv) {
-	case g: global =>
+	case let g: global =>
 		fmt::fprintf(to, " ${}", g)!;
-	case t: temporary =>
+	case let t: temporary =>
 		fmt::fprintf(to, " %{}", t)!;
-	case l: label =>
+	case let l: label =>
 		fmt::fprintf(to, " @{}", l)!;
-	case c: constant =>
+	case let c: constant =>
 		match (c) {
 		case qvoid => abort();
-		case v: (u32 | u64 | f32 | f64 | str) =>
+		case let v: (u32 | u64 | f32 | f64 | str) =>
 			fmt::fprintf(to, " {}", v)!;
 		};
 	};
@@ -264,9 +264,9 @@ fn qinstr_store(
 	ty: *types::_type,
 ) qinstr = {
 	match (ty.repr) {
-	case al: types::alias =>
+	case let al: types::alias =>
 		return qinstr_store(ctx, al.secondary: *types::_type);
-	case bi: types::builtin =>
+	case let bi: types::builtin =>
 		switch (bi) {
 		case builtin::STR, builtin::VOID => abort();
 		case builtin::F32 =>
@@ -292,7 +292,7 @@ fn qinstr_store(
 		} else if (ctx.arch.ptr == &qword) {
 			return qinstr::STOREW;
 		} else abort();
-	case en: types::_enum => abort(); // TODO
+	case let en: types::_enum => abort(); // TODO
 	case => abort();
 	};
 };
@@ -302,9 +302,9 @@ fn qinstr_load(
 	ty: *types::_type,
 ) qinstr = {
 	match (ty.repr) {
-	case al: types::alias =>
+	case let al: types::alias =>
 		return qinstr_load(ctx, al.secondary: *types::_type);
-	case bi: types::builtin =>
+	case let bi: types::builtin =>
 		switch (bi) {
 		case builtin::STR, builtin::VOID => abort();
 		case builtin::F32 =>
@@ -342,7 +342,7 @@ fn qinstr_load(
 		} else if (ctx.arch.ptr == &qword) {
 			return qinstr::LOADUW;
 		} else abort();
-	case en: types::_enum => abort(); // TODO
+	case let en: types::_enum => abort(); // TODO
 	case => abort();
 	};
 };

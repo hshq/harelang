@@ -94,24 +94,24 @@ export fn main() void = {
 	const id: ast::ident =
 		if (len(cmd.args) < 1) []
 		else match (parse::identstr(cmd.args[0])) {
-		case err: parse::error =>
+		case let err: parse::error =>
 			fmt::fatal(parse::strerror(err));
-		case id: ast::ident =>
+		case let id: ast::ident =>
 			yield id;
 		};
 
 	let decl = "";
 	let dirname = if (len(id) < 2) id else id[..len(id) - 1];
 	const version = match (module::lookup(&ctx, id)) {
-	case ver: module::version =>
+	case let ver: module::version =>
 		yield ver;
-	case err: module::error =>
+	case let err: module::error =>
 		yield match (module::lookup(&ctx, dirname)) {
-		case ver: module::version =>
+		case let ver: module::version =>
 			assert(len(id) >= 2);
 			decl = id[len(id) - 1];
 			yield ver;
-		case err: module::error =>
+		case let err: module::error =>
 			fmt::fatal(
 				"Error scanning input module: {}",
 				module::strerror(err));
@@ -125,9 +125,9 @@ export fn main() void = {
 			continue;
 		};
 		match (scan(in.path)) {
-		case u: ast::subunit =>
+		case let u: ast::subunit =>
 			append(decls, u.decls...);
-		case err: error =>
+		case let err: error =>
 			fmt::fatal("Error: {}", strerror(err));
 		};
 	};
@@ -136,16 +136,16 @@ export fn main() void = {
 	defer free(rpath);
 	const readme: (io::file | void) = if (decl == "") {
 		yield match (os::open(rpath)) {
-		case err: fs::error =>
+		case let err: fs::error =>
 			yield void;
-		case f: io::file =>
+		case let f: io::file =>
 			yield f;
 		};
 	} else void;
 
 	defer match (readme) {
 	case void => void;
-	case f: io::file =>
+	case let f: io::file =>
 		io::close(f);
 	};
 
@@ -188,34 +188,34 @@ export fn main() void = {
 
 	match (emit(&ctx)) {
 	case void => void;
-	case err: error =>
+	case let err: error =>
 		fmt::fatal("Error: {}", strerror(err));
 	};
 
 	io::close(ctx.out);
 	match (ctx.pager) {
 	case void => void;
-	case proc: exec::process =>
+	case let proc: exec::process =>
 		exec::wait(&proc)!;
 	};
 };
 
 fn init_tty(ctx: *context) io::handle = {
 	const pager = match (os::getenv("PAGER")) {
-	case name: str =>
+	case let name: str =>
 		yield match (exec::cmd(name)) {
-		case cmd: exec::command =>
+		case let cmd: exec::command =>
 			yield cmd;
 		case exec::error =>
 			return os::stdout;
 		};
 	case void =>
 		yield match (exec::cmd("less")) {
-		case cmd: exec::command =>
+		case let cmd: exec::command =>
 			yield cmd;
 		case exec::error =>
 			yield match (exec::cmd("more")) {
-			case cmd: exec::command =>
+			case let cmd: exec::command =>
 				yield cmd;
 			case exec::error =>
 				return os::stdout;
@@ -236,21 +236,21 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 	};
 
 	match (decl.decl) {
-	case d: []ast::decl_const =>
+	case let d: []ast::decl_const =>
 		for (let i = 0z; i < len(d); i += 1) {
 			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
 				return true;
 			};
 		};
-	case d: ast::decl_func =>
+	case let d: ast::decl_func =>
 		return len(d.ident) == 1 && d.ident[0] == name;
-	case d: []ast::decl_global =>
+	case let d: []ast::decl_global =>
 		for (let i = 0z; i < len(d); i += 1) {
 			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
 				return true;
 			};
 		};
-	case d: []ast::decl_type =>
+	case let d: []ast::decl_type =>
 		for (let i = 0z; i < len(d); i += 1) {
 			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
 				return true;
@@ -262,9 +262,9 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 
 fn scan(path: str) (ast::subunit | error) = {
 	const input = match (os::open(path)) {
-	case f: io::file =>
+	case let f: io::file =>
 		yield f;
-	case err: fs::error =>
+	case let err: fs::error =>
 		fmt::fatal("Error reading {}: {}", path, fs::strerror(err));
 	};
 	defer io::close(input);

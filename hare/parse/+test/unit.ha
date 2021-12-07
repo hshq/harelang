@@ -141,9 +141,9 @@ use strings;
 	defer io::close(buf);
 	let lexer = lex::init(buf, "<test>", lex::flags::COMMENTS);
 	let decls = match (decls(&lexer)) {
-	case decls: []ast::decl =>
+	case let decls: []ast::decl =>
 		yield decls;
-	case err: error =>
+	case let err: error =>
 		fmt::errorln(strerror(err))!;
 		abort();
 	};

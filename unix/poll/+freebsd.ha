@@ -40,9 +40,9 @@ export fn poll(
 	time::duration_to_timespec(timeout, &ts);
 	let ts = if (timeout == INDEF) null else &ts;
 	match (rt::ppoll(fds: *[*]pollfd, len(fds): rt::nfds_t, ts, null)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case n: int =>
+	case let n: int =>
 		return n: uint;
 	};
 };

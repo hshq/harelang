@@ -84,7 +84,7 @@ fn getmemstream(in: io::handle) *memstream = {
 	match (in) {
 	case io::file =>
 		abort("Invalid use of bufio with unbuffered file");
-	case st: *io::stream =>
+	case let st: *io::stream =>
 		assert(st.closer == &dynamic_close);
 		return st: *memstream;
 	};

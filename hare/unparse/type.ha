@@ -87,10 +87,10 @@ fn struct_union_type(
 ) (size | io::error) = {
 	let z = 0z;
 	let membs = match (t.repr) {
-	case st: ast::struct_type =>
+	case let st: ast::struct_type =>
 		z += fmt::fprint(out, "struct {")?;
 		yield st: []ast::struct_member;
-	case ut: ast::union_type =>
+	case let ut: ast::union_type =>
 		z += fmt::fprint(out, "union {")?;
 		yield ut: []ast::struct_member;
 	};
@@ -101,18 +101,18 @@ fn struct_union_type(
 
 		match (membs[i]._offset) {
 		case null => void;
-		case ex: *ast::expr =>
+		case let ex: *ast::expr =>
 			z += fmt::fprint(out, "@offset(")?;
 			z += expr(out, indent, *ex)?;
 			z += fmt::fprint(out, ") ")?;
 		};
 
 		match (membs[i].member) {
-		case se: ast::struct_embedded =>
+		case let se: ast::struct_embedded =>
 			z += _type(out, indent, *se)?;
-		case sa: ast::struct_alias =>
+		case let sa: ast::struct_alias =>
 			z += ident(out, sa)?;
-		case sf: ast::struct_field =>
+		case let sf: ast::struct_field =>
 			z += fmt::fprintf(out, "{}: ", sf.name)?;
 			z += _type(out, indent, *sf._type)?;
 		};
@@ -141,14 +141,14 @@ export fn _type(
 		n += fmt::fprint(out, "!")?;
 	};
 	match (t.repr) {
-	case a: ast::alias_type =>
+	case let a: ast::alias_type =>
 		if (a.unwrap) {
 			n += fmt::fprint(out, "...")?;
 		};
 		n += ident(out, a.ident)?;
-	case b: ast::builtin_type =>
+	case let b: ast::builtin_type =>
 		n += fmt::fprint(out, builtin_type(b))?;
-	case e: ast::enum_type =>
+	case let e: ast::enum_type =>
 		if (e.storage != ast::builtin_type::INT) {
 			n += fmt::fprint(out, "enum",
 				builtin_type(e.storage), "{")?;
@@ -162,7 +162,7 @@ export fn _type(
 			n += fmt::fprint(out, value.name)?;
 			match (value.value) {
 			case null => void;
-			case e: *ast::expr =>
+			case let e: *ast::expr =>
 				n += fmt::fprint(out, " = ")?;
 				n += expr(out, indent, *e)?;
 			};
@@ -171,13 +171,13 @@ export fn _type(
 		indent -= 1;
 		n += newline(out, indent)?;
 		n += fmt::fprint(out, "}")?;
-	case f: ast::func_type =>
+	case let f: ast::func_type =>
 		if (f.attrs & ast::func_attrs::NORETURN != 0) {
 			n += fmt::fprint(out, "@noreturn ")?;
 		};
 		n += fmt::fprint(out, "fn")?;
 		n += prototype(out, indent, f)?;
-	case l: ast::list_type =>
+	case let l: ast::list_type =>
 		n += fmt::fprint(out, "[")?;
 		match (l.length) {
 		case ast::len_slice => void;
@@ -185,12 +185,12 @@ export fn _type(
 			n += fmt::fprint(out, "*")?;
 		case ast::len_contextual =>
 			n += fmt::fprint(out, "_")?;
-		case e: *ast::expr =>
+		case let e: *ast::expr =>
 			n += expr(out, indent, *e)?;
 		};
 		n += fmt::fprint(out, "]")?;
 		n += _type(out, indent, *l.members)?;
-	case p: ast::pointer_type =>
+	case let p: ast::pointer_type =>
 		if (p.flags & ast::pointer_flags::NULLABLE != 0) {
 			n += fmt::fprint(out, "nullable ")?;
 		};
@@ -200,7 +200,7 @@ export fn _type(
 		n += struct_union_type(out, indent, t)?;
 	case ast::union_type =>
 		n += struct_union_type(out, indent, t)?;
-	case t: ast::tagged_type =>
+	case let t: ast::tagged_type =>
 		n += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
 			n += _type(out, indent, *t[i])?;
@@ -209,7 +209,7 @@ export fn _type(
 			};
 		};
 		n += fmt::fprint(out, ")")?;
-	case t: ast::tuple_type =>
+	case let t: ast::tuple_type =>
 		n += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
 			n += _type(out, indent, *t[i])?;

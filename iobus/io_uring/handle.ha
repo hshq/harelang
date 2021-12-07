@@ -26,7 +26,7 @@ export fn handleof(res: result) *handle = {
 	match (io_uring::get_user(res)) {
 	case null =>
 		abort("I/O submission was prepared, but not enqueued. Did you pass it to iobus::enqueue or iobus::submit?");
-	case v: *void =>
+	case let v: *void =>
 		return v: *handle;
 	};
 };

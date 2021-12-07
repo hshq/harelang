@@ -9,9 +9,9 @@ use strings;
 // TODO: Expand to more kinds of errors
 fn printerr(err: parse::error) void = {
 	match (err) {
-	case err: lex::syntax =>
+	case let err: lex::syntax =>
 		printerr_syntax(err);
-	case err: io::error =>
+	case let err: io::error =>
 		fmt::errorln(io::strerror(err))!;
 	};
 };

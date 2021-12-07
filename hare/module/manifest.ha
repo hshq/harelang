@@ -55,9 +55,9 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	let file = match (fs::open(ctx.fs, mpath, fs::flags::RDONLY)) {
 	case errors::noentry =>
 		return manifest;
-	case err: fs::error =>
+	case let err: fs::error =>
 		return err;
-	case file: io::handle =>
+	case let file: io::handle =>
 		yield file;
 	};
 	defer io::close(file);
@@ -70,7 +70,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 		let line = match (bufio::scanline(file)?) {
 		case io::EOF =>
 			break;
-		case line: []u8 =>
+		case let line: []u8 =>
 			yield line;
 		};
 		defer free(line);
@@ -79,7 +79,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 		case utf8::invalid =>
 			// Treat an invalid manifest as empty
 			return manifest;
-		case s: str =>
+		case let s: str =>
 			yield s;
 		};
 
@@ -91,7 +91,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 		let kind = match (strings::next_token(&tok)) {
 		case void =>
 			continue;
-		case s: str =>
+		case let s: str =>
 			yield s;
 		};
 
@@ -100,11 +100,11 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 			let ver = match (strings::next_token(&tok)) {
 			case void =>
 				return manifest;
-			case s: str =>
+			case let s: str =>
 				yield s;
 			};
 			match (strconv::stoi(ver)) {
-			case v: int =>
+			case let v: int =>
 				if (v != VERSION) {
 					return manifest;
 				};
@@ -115,39 +115,39 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 			let hash = match (strings::next_token(&tok)) {
 			case void =>
 				return manifest;
-			case s: str =>
+			case let s: str =>
 				yield s;
 			}, path = match (strings::next_token(&tok)) {
 			case void =>
 				return manifest;
-			case s: str =>
+			case let s: str =>
 				yield s;
 			}, inode = match (strings::next_token(&tok)) {
 			case void =>
 				return manifest;
-			case s: str =>
+			case let s: str =>
 				yield s;
 			}, mtime = match (strings::next_token(&tok)) {
 			case void =>
 				return manifest;
-			case s: str =>
+			case let s: str =>
 				yield s;
 			};
 
 			let hash = match (hex::decode(hash)) {
-			case b: []u8 =>
+			case let b: []u8 =>
 				yield b;
 			case =>
 				return manifest;
 			};
 			let inode = match (strconv::stoz(inode)) {
-			case z: size =>
+			case let z: size =>
 				yield z;
 			case =>
 				return manifest;
 			};
 			let mtime = match (strconv::stoi64(mtime)) {
-			case i: i64 =>
+			case let i: i64 =>
 				yield time::from_unix(i);
 			case =>
 				return manifest;
@@ -157,7 +157,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 			let ftype = match (type_for_ext(path)) {
 			case void =>
 				return manifest;
-			case ft: filetype =>
+			case let ft: filetype =>
 				yield ft;
 			};
 
@@ -178,11 +178,11 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 			let modhash = match (strings::next_token(&tok)) {
 			case void =>
 				return manifest;
-			case s: str =>
+			case let s: str =>
 				yield s;
 			};
 			let modhash = match (hex::decode(modhash)) {
-			case b: []u8 =>
+			case let b: []u8 =>
 				yield b;
 			case =>
 				return manifest;
@@ -193,11 +193,11 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 				let hash = match (strings::next_token(&tok)) {
 				case void =>
 					break;
-				case s: str =>
+				case let s: str =>
 					yield s;
 				};
 				let hash = match (hex::decode(hash)) {
-				case b: []u8 =>
+				case let b: []u8 =>
 					yield b;
 				case =>
 					return manifest;
@@ -207,7 +207,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 				let input = match (getinput(inputs, hash)) {
 				case null =>
 					return manifest;
-				case i: *input =>
+				case let i: *input =>
 					yield i;
 				};
 				append(minputs, *input);
@@ -256,7 +256,7 @@ export fn current(manifest: *manifest, version: *version) bool = {
 	let cached = match (cached) {
 	case null =>
 		return false;
-	case v: *version =>
+	case let v: *version =>
 		yield v;
 	};
 

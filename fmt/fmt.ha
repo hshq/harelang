@@ -174,7 +174,7 @@ export fn fprintf(
 		let r: rune = match (strings::next(&iter)) {
 		case void =>
 			break;
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		};
 
@@ -182,7 +182,7 @@ export fn fprintf(
 			r = match (strings::next(&iter)) {
 			case void =>
 				abort("Invalid format string (unterminated '{')");
-			case r: rune =>
+			case let r: rune =>
 				yield r;
 			};
 
@@ -199,7 +199,7 @@ export fn fprintf(
 			};
 
 			const arg = match (arg) {
-			case arg: formattable =>
+			case let arg: formattable =>
 				yield arg;
 			case =>
 				abort("Invalid formattable");
@@ -208,7 +208,7 @@ export fn fprintf(
 			r = match (strings::next(&iter)) {
 			case void =>
 				abort("Invalid format string (unterminated '{')");
-			case r: rune =>
+			case let r: rune =>
 				yield r;
 			};
 
@@ -225,9 +225,9 @@ export fn fprintf(
 			};
 
 			match (pi) {
-			case pi: uint =>
+			case let pi: uint =>
 				match (args[pi]) {
-				case pmod: *modifiers =>
+				case let pmod: *modifiers =>
 					mod = pmod;
 				case =>
 					abort("Explicit parameter is not *fmt::modifier");
@@ -235,7 +235,7 @@ export fn fprintf(
 			case nextparam =>
 				i += 1;
 				match (args[i - 1]) {
-				case pmod: *modifiers =>
+				case let pmod: *modifiers =>
 					mod = pmod;
 				case =>
 					abort("Implicit parameter is not *fmt::modifier");
@@ -252,7 +252,7 @@ export fn fprintf(
 			match (strings::next(&iter)) {
 			case void =>
 				abort("Invalid format string (hanging '}')");
-			case r: rune =>
+			case let r: rune =>
 				assert(r == '}', "Invalid format string (hanging '}')");
 			};
 
@@ -303,22 +303,22 @@ fn format_raw(
 	mod: *modifiers,
 ) (size | io::error) = {
 	match (arg) {
-	case s: str =>
+	case let s: str =>
 		return io::write(out, strings::toutf8(s));
-	case r: rune =>
+	case let r: rune =>
 		return io::write(out, utf8::encoderune(r));
-	case b: bool =>
+	case let b: bool =>
 		return io::write(out,
 			strings::toutf8(if (b) "true" else "false"));
-	case n: types::numeric =>
+	case let n: types::numeric =>
 		const s = strconv::numerictosb(n, mod.base);
 		return io::write(out, strings::toutf8(s));
-	case p: uintptr =>
+	case let p: uintptr =>
 		const s = strconv::uptrtosb(p, mod.base);
 		return io::write(out, strings::toutf8(s));
-	case v: nullable *void =>
+	case let v: nullable *void =>
 		match (v) {
-		case v: *void =>
+		case let v: *void =>
 			let n = io::write(out, strings::toutf8("0x"))?;
 			const s = strconv::uptrtosb(v: uintptr,
 				strconv::base::HEX_LOWER);
@@ -339,7 +339,7 @@ fn scan_uint(iter: *strings::iterator) uint = {
 		let r = match (strings::next(iter)) {
 		case void =>
 			abort("Invalid format string (unterminated '{')");
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		};
 
@@ -350,7 +350,7 @@ fn scan_uint(iter: *strings::iterator) uint = {
 			match (strconv::stou(strings::fromutf8(num))) {
 			case (strconv::invalid | strconv::overflow) =>
 				abort("Invalid format string (invalid index)");
-			case u: uint =>
+			case let u: uint =>
 				return u;
 			};
 		};
@@ -365,7 +365,7 @@ fn scan_modifier_flags(iter: *strings::iterator, mod: *modifiers) void = {
 		let r = match (strings::next(iter)) {
 		case void =>
 			abort("Invalid format string (unterminated '{')");
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		};
 
@@ -403,7 +403,7 @@ fn scan_modifier_width(iter: *strings::iterator, mod: *modifiers) void = {
 	let r = match (strings::next(iter)) {
 	case void =>
 		abort("Invalid format string (unterminated '{')");
-	case r: rune =>
+	case let r: rune =>
 		yield r;
 	};
 
@@ -419,7 +419,7 @@ fn scan_modifier_precision(iter: *strings::iterator, mod: *modifiers) void = {
 	let r = match (strings::next(iter)) {
 	case void =>
 		abort("Invalid format string (unterminated '{')");
-	case r: rune =>
+	case let r: rune =>
 		yield r;
 	};
 
@@ -434,7 +434,7 @@ fn scan_modifier_base(iter: *strings::iterator, mod: *modifiers) void = {
 	let r = match (strings::next(iter)) {
 	case void =>
 		abort("Invalid format string (unterminated '{')");
-	case r: rune =>
+	case let r: rune =>
 		yield r;
 	};
 
@@ -462,7 +462,7 @@ fn scan_inline_modifiers(iter: *strings::iterator, mod: *modifiers) void = {
 	let terminated = match (strings::next(iter)) {
 	case void =>
 		yield false;
-	case r: rune =>
+	case let r: rune =>
 		yield r == '}';
 	};
 	assert(terminated, "Invalid format string (unterminated '{')");
@@ -472,7 +472,7 @@ fn scan_parameter_index(iter: *strings::iterator, pi: *paramindex) void = {
 	let r = match (strings::next(iter)) {
 	case void =>
 		abort("Invalid format string (unterminated '{')");
-	case r: rune =>
+	case let r: rune =>
 		yield r;
 	};
 
@@ -492,7 +492,7 @@ fn scan_parametric_modifiers(iter: *strings::iterator, pi: *paramindex) void = {
 	let terminated = match (strings::next(iter)) {
 	case void =>
 		yield false;
-	case r: rune =>
+	case let r: rune =>
 		yield r == '}';
 	};
 	assert(terminated, "Invalid format string (unterminated '{')");

@@ -3,7 +3,7 @@ use endian;
 
 export fn to_native(a: addr, port: u16) rt::sockaddr = {
 	match (a) {
-	case v4: addr4 =>
+	case let v4: addr4 =>
 		return rt::sockaddr {
 			in = rt::sockaddr_in {
 				sin_len = size(rt::in_addr): u8,
@@ -14,7 +14,7 @@ export fn to_native(a: addr, port: u16) rt::sockaddr = {
 			},
 			...
 		};
-	case v6: addr6 =>
+	case let v6: addr6 =>
 		return rt::sockaddr {
 			in6 = rt::sockaddr_in6 {
 				sin6_len = size(rt::in6_addr): u8,

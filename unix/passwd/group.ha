@@ -20,13 +20,13 @@ export type grent = struct {
 // the result using [[grent_finish]].
 export fn nextgr(in: io::handle) (grent | io::EOF | io::error | invalid) = {
 	let line = match (bufio::scanline(in)?) {
-	case ln: []u8 =>
+	case let ln: []u8 =>
 		yield ln;
 	case io::EOF =>
 		return io::EOF;
 	};
 	let line = match (strings::try_fromutf8(line)) {
-	case s: str =>
+	case let s: str =>
 		yield s;
 	case =>
 		return invalid;
@@ -40,7 +40,7 @@ export fn nextgr(in: io::handle) (grent | io::EOF | io::error | invalid) = {
 	};
 
 	let gid = match (strconv::stou(fields[2])) {
-	case u: uint =>
+	case let u: uint =>
 		yield u;
 	case =>
 		return invalid;
@@ -67,7 +67,7 @@ export fn grent_finish(ent: grent) void = {
 // See [[nextgr]] for low-level parsing API.
 export fn getgroup(name: str) (grent | void) = {
 	let file = match (os::open("/etc/group")) {
-	case f: io::file =>
+	case let f: io::file =>
 		yield f;
 	case =>
 		abort("Unable to open /etc/group");
@@ -76,7 +76,7 @@ export fn getgroup(name: str) (grent | void) = {
 
 	for (true) {
 		let ent = match (nextgr(file)) {
-		case e: grent =>
+		case let e: grent =>
 			yield e;
 		case io::EOF =>
 			break;

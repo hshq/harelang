@@ -24,9 +24,9 @@ fn sort_decls(decls: []ast::decl) summary = {
 		};
 
 		match (decl.decl) {
-		case f: ast::decl_func =>
+		case let f: ast::decl_func =>
 			append(sorted.funcs, decl);
-		case t: []ast::decl_type =>
+		case let t: []ast::decl_type =>
 			for (let j = 0z; j < len(t); j += 1) {
 				let bucket = &sorted.types;
 				if (t[j]._type.flags & ast::type_flags::ERROR == ast::type_flags::ERROR) {
@@ -44,7 +44,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 					docs = decl.docs,
 				});
 			};
-		case c: []ast::decl_const =>
+		case let c: []ast::decl_const =>
 			for (let j = 0z; j < len(c); j += 1) {
 				append(sorted.constants, ast::decl {
 					exported = true,
@@ -58,7 +58,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 					docs = decl.docs,
 				});
 			};
-		case g: []ast::decl_global =>
+		case let g: []ast::decl_global =>
 			for (let j = 0z; j < len(g); j += 1) {
 				append(sorted.globals, ast::decl {
 					exported = true,
@@ -97,15 +97,15 @@ fn decl_cmp(a: const *void, b: const *void) int = {
 
 fn decl_ident(decl: ast::decl) ast::ident = {
 	match (decl.decl) {
-	case f: ast::decl_func =>
+	case let f: ast::decl_func =>
 		return f.ident;
-	case t: []ast::decl_type =>
+	case let t: []ast::decl_type =>
 		assert(len(t) == 1);
 		return t[0].ident;
-	case c: []ast::decl_const =>
+	case let c: []ast::decl_const =>
 		assert(len(c) == 1);
 		return c[0].ident;
-	case g: []ast::decl_global =>
+	case let g: []ast::decl_global =>
 		assert(len(g) == 1);
 		return g[0].ident;
 	};

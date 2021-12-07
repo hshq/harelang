@@ -100,7 +100,7 @@ fn scope_lookup(scope: *scope, ident: ast::ident) nullable *object = {
 	match (scope.parent) {
 	case null =>
 		return null;
-	case scope: *scope =>
+	case let scope: *scope =>
 		return scope_lookup(scope, ident);
 	};
 };

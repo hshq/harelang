@@ -11,7 +11,7 @@ fn getsqe(bus: *bus) (*io_uring::sqe | queuefull) = {
 	match (io_uring::get_sqe(&bus.uring)) {
 	case null =>
 		return queuefull;
-	case sqe: *io_uring::sqe =>
+	case let sqe: *io_uring::sqe =>
 		return sqe;
 	};
 };
@@ -32,9 +32,9 @@ export fn read(
 	let sqe = getsqe(bus)?;
 	let flags = io_uring::flags::NONE;
 	let fd = match (file) {
-	case file: io::file =>
+	case let file: io::file =>
 		yield file: i32;
-	case file: registered_file =>
+	case let file: registered_file =>
 		flags |= io_uring::flags::FIXED_FILE;
 		yield file: i32;
 	};
@@ -65,9 +65,9 @@ export fn write(
 	let sqe = getsqe(bus)?;
 	let flags = io_uring::flags::NONE;
 	let fd = match (file) {
-	case file: io::file =>
+	case let file: io::file =>
 		yield file: i32;
-	case file: registered_file =>
+	case let file: registered_file =>
 		flags |= io_uring::flags::FIXED_FILE;
 		yield file: i32;
 	};
@@ -87,9 +87,9 @@ export fn close(bus: *bus, file: file) (handle | queuefull) = {
 	let sqe = getsqe(bus)?;
 	let flags = io_uring::flags::NONE;
 	let fd = match (file) {
-	case file: io::file =>
+	case let file: io::file =>
 		yield file: i32;
-	case file: registered_file =>
+	case let file: registered_file =>
 		flags |= io_uring::flags::FIXED_FILE;
 		yield file: i32;
 	};
@@ -114,9 +114,9 @@ export fn accept(bus: *bus, file: file) (handle | queuefull) = {
 	let sqe = getsqe(bus)?;
 	let flags = io_uring::flags::NONE;
 	let fd = match (file) {
-	case file: io::file =>
+	case let file: io::file =>
 		yield file: i32;
-	case file: registered_file =>
+	case let file: registered_file =>
 		flags |= io_uring::flags::FIXED_FILE;
 		yield file: i32;
 	};
@@ -142,10 +142,10 @@ export fn endaccept(res: result, opts: accept_opts...) (io::file | error) = {
 	const file = cqe_result(res)?: io::file;
 	for (let i = 0z; i < len(opts); i += 1) {
 		match (opts[i]) {
-		case addr: *ip::addr =>
+		case let addr: *ip::addr =>
 			let peer = ip::from_native(handle.accept.sockaddr);
 			*addr = peer.0;
-		case port: *u16 =>
+		case let port: *u16 =>
 			let peer = ip::from_native(handle.accept.sockaddr);
 			*port = peer.1;
 		};
@@ -163,9 +163,9 @@ export fn poll(
 	let sqe = getsqe(bus)?;
 	let flags = io_uring::flags::NONE;
 	let fd = match (file) {
-	case file: io::file =>
+	case let file: io::file =>
 		yield file: i32;
-	case file: registered_file =>
+	case let file: registered_file =>
 		flags |= io_uring::flags::FIXED_FILE;
 		yield file: i32;
 	};
@@ -310,9 +310,9 @@ export fn recv(
 	let sqe = getsqe(bus)?;
 	let iflags = io_uring::flags::NONE;
 	let fd = match (file) {
-	case file: io::file =>
+	case let file: io::file =>
 		yield file: i32;
-	case file: registered_file =>
+	case let file: registered_file =>
 		iflags |= io_uring::flags::FIXED_FILE;
 		yield file: i32;
 	};
@@ -336,9 +336,9 @@ export fn send(
 	let sqe = getsqe(bus)?;
 	let iflags = io_uring::flags::NONE;
 	let fd = match (file) {
-	case file: io::file =>
+	case let file: io::file =>
 		yield file: i32;
-	case file: registered_file =>
+	case let file: registered_file =>
 		iflags |= io_uring::flags::FIXED_FILE;
 		yield file: i32;
 	};

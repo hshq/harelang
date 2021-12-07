@@ -115,7 +115,7 @@ export fn isbuffered(in: io::handle) bool = {
 	match (in) {
 	case io::file =>
 		return false;
-	case st: *io::stream =>
+	case let st: *io::stream =>
 		return st.reader == &buffered_read || st.writer == &buffered_write;
 	};
 };
@@ -148,14 +148,14 @@ fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let n = if (len(buf) < len(s.rbuffer)) len(buf) else len(s.rbuffer);
 	if (n > s.ravail) {
 		let z = match (io::read(s.source, s.rbuffer[s.ravail..])) {
-		case err: io::error =>
+		case let err: io::error =>
 			return err;
 		case io::EOF =>
 			if (s.ravail == 0) {
 				return io::EOF;
 			};
 			yield 0z;
-		case z: size =>
+		case let z: size =>
 			yield z;
 		};
 		s.ravail += z;

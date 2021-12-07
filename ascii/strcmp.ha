@@ -15,13 +15,13 @@ export fn strcmp(a: str, b: str) (int | void) = {
 			case rune =>
 				return -1;
 			};
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		};
 		let rb = match (strings::next(&b)) {
 		case void =>
 			return 1;
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		};
 		if (!isascii(ra) || !isascii(rb)) {
@@ -46,13 +46,13 @@ export fn strcasecmp(a: str, b: str) (int | void) = {
 			case rune =>
 				return -1;
 			};
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		};
 		let rb = match (strings::next(&b)) {
 		case void =>
 			return 1;
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		};
 		if (!isascii(ra) || !isascii(rb)) {

@@ -16,7 +16,7 @@ export fn nextframe(sframe: frame) (frame | void) = {
 	match (*addr) {
 	case null =>
 		return;
-	case a: *void =>
+	case let a: *void =>
 		return frame { addr = a };
 	};
 };

@@ -6,9 +6,9 @@ use rt;
 // fields are initialized by the kernel.
 export fn setup(entries: u32, params: *params) (io_uring | error) = {
 	const fd = match (rt::io_uring_setup(entries, params)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case fd: int =>
+	case let fd: int =>
 		yield fd;
 	};
 
@@ -36,9 +36,9 @@ export fn setup(entries: u32, params: *params) (io_uring | error) = {
 			rt::PROT_READ | rt::PROT_WRITE,
 			rt::MAP_SHARED | rt::MAP_POPULATE,
 			fd, OFF_SQ_RING)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case ptr: *void =>
+	case let ptr: *void =>
 		yield ptr;
 	};
 
@@ -48,9 +48,9 @@ export fn setup(entries: u32, params: *params) (io_uring | error) = {
 			rt::PROT_READ | rt::PROT_WRITE,
 			rt::MAP_SHARED | rt::MAP_POPULATE,
 			fd, OFF_CQ_RING)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case ptr: *void =>
+	case let ptr: *void =>
 		yield ptr;
 	};
 
@@ -67,9 +67,9 @@ export fn setup(entries: u32, params: *params) (io_uring | error) = {
 			rt::PROT_READ | rt::PROT_WRITE,
 			rt::MAP_SHARED | rt::MAP_POPULATE,
 			fd, OFF_SQES)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case ptr: *void =>
+	case let ptr: *void =>
 		yield ptr: *[*]sqe;
 	};
 

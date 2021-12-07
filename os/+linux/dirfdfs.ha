@@ -160,9 +160,9 @@ fn _fs_open(
 	};
 
 	let fd = match (rt::openat2(fs.dirfd, path, oh, size(rt::open_how))) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errno_to_fs(err);
-	case fd: int =>
+	case let fd: int =>
 		yield fd;
 	};
 
@@ -240,7 +240,7 @@ fn fs_create(
 fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::unlinkat(fs.dirfd, path, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errno_to_fs(err);
 	case void => void;
 	};
@@ -249,7 +249,7 @@ fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {
 fn fs_rename(fs: *fs::fs, oldpath: str, newpath: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::renameat(fs.dirfd, oldpath, fs.dirfd, newpath, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errno_to_fs(err);
 	case void => void;
 	};
@@ -259,7 +259,7 @@ fn fs_stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 	let fs = fs: *os_filesystem;
 	let st = rt::st { ... };
 	match (rt::fstatat(fs.dirfd, path, &st, rt::AT_SYMLINK_NOFOLLOW)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errno_to_fs(err);
 	case void => void;
 	};
@@ -295,9 +295,9 @@ fn fs_readlink(fs: *fs::fs, path: str) (str | fs::error) = {
 	let fs = fs: *os_filesystem;
 	static let buf: [rt::PATH_MAX]u8 = [0...];
 	let z = match (rt::readlinkat(fs.dirfd, path, buf[..])) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errno_to_fs(err);
-	case z: size =>
+	case let z: size =>
 		yield z;
 	};
 	return strings::dup(strings::fromutf8(buf[..z]));
@@ -312,9 +312,9 @@ fn fs_subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 
 	let fd: int = match (rt::openat2(fs.dirfd, path,
 			&oh, size(rt::open_how))) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errno_to_fs(err);
-	case fd: int =>
+	case let fd: int =>
 		yield fd;
 	};
 
@@ -324,7 +324,7 @@ fn fs_subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 fn fs_rmdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::unlinkat(fs.dirfd, path, rt::AT_REMOVEDIR)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errno_to_fs(err);
 	case void => void;
 	};
@@ -333,7 +333,7 @@ fn fs_rmdir(fs: *fs::fs, path: str) (void | fs::error) = {
 fn fs_mkdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::mkdirat(fs.dirfd, path, 0o755)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errno_to_fs(err);
 	case void => void;
 	};
@@ -342,7 +342,7 @@ fn fs_mkdir(fs: *fs::fs, path: str) (void | fs::error) = {
 fn fs_chmod(fs: *fs::fs, path: str, mode: fs::mode) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::fchmodat(fs.dirfd, path, mode: uint, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errno_to_fs(err);
 	case void => void;
 	};
@@ -351,7 +351,7 @@ fn fs_chmod(fs: *fs::fs, path: str, mode: fs::mode) (void | fs::error) = {
 fn fs_chown(fs: *fs::fs, path: str, uid: uint, gid: uint) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::fchownat(fs.dirfd, path, uid, gid, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errno_to_fs(err);
 	case void => void;
 	};
@@ -378,7 +378,7 @@ fn fs_resolve(fs: *fs::fs, path: str) str = {
 			match (path::next(&iter)) {
 			case void =>
 				break;
-			case p: str =>
+			case let p: str =>
 				resolve_part(&parts, p);
 			};
 		};
@@ -388,7 +388,7 @@ fn fs_resolve(fs: *fs::fs, path: str) str = {
 		match (path::next(&iter)) {
 		case void =>
 			break;
-		case p: str =>
+		case let p: str =>
 			resolve_part(&parts, p);
 		};
 	};
@@ -417,14 +417,14 @@ fn fs_iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 	};
 	let fd: int = match (rt::openat2(fs.dirfd, path,
 			&oh, size(rt::open_how))) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errno_to_fs(err);
-	case fd: int =>
+	case let fd: int =>
 		yield fd;
 	};
 
 	let buf = match (rt::malloc(fs.getdents_bufsz)) {
-	case v: *void =>
+	case let v: *void =>
 		yield v: *[*]u8;
 	case null =>
 		return errors::nomem;

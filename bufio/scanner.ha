@@ -9,7 +9,7 @@ export fn scanbyte(file: io::handle) (u8 | io::EOF | io::error) = {
 	let buf: [1]u8 = [0...];
 
 	match (io::read(file, buf)?) {
-	case read: size =>
+	case let read: size =>
 		if (read > 0) {
 			return buf[0];
 		} else {
@@ -27,7 +27,7 @@ export fn scantok(file: io::handle, delim: u8...) ([]u8 | io::EOF | io::error) =
 
 	for (true) {
 		match (scanbyte(file)?) {
-		case res: u8 =>
+		case let res: u8 =>
 			if (bytes::contains(delim, res)) {
 				break;
 			};
@@ -54,7 +54,7 @@ export fn scanrune(
 ) (rune | utf8::invalid | io::EOF | io::error) = {
 	let b: [4]u8 = [0...];
 	match (io::read(file, b[..1])?) {
-	case n: size =>
+	case let n: size =>
 		assert(n == 1);
 	case io::EOF =>
 		return io::EOF;
@@ -70,7 +70,7 @@ export fn scanrune(
 	};
 
 	match (io::read(file, b[1..sz])?) {
-	case n: size =>
+	case let n: size =>
 		assert(n == sz - 1);
 	case io::EOF =>
 		return io::EOF;
@@ -78,7 +78,7 @@ export fn scanrune(
 
 	let dec = utf8::decode(b[..sz]);
 	match (utf8::next(&dec)?) {
-	case r: rune =>
+	case let r: rune =>
 		return r;
 	case (void | utf8::more) =>
 		return io::EOF;
@@ -141,7 +141,7 @@ export fn scanrune(
 		let want = expected[i];
 
 		match (scanrune(in)) {
-		case r: rune =>
+		case let r: rune =>
 			assert(want is rune && want as rune == r);
 		case io::EOF =>
 			assert(want is io::EOF);

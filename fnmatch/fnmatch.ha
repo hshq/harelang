@@ -45,14 +45,14 @@ export fn fnmatch(pattern: str, string: str, flag: flags...) bool = {
 	};
 	if (fl & flags::PATHNAME != 0) {
 		match (fnmatch_pathname(pattern, string, fl)) {
-		case b: bool =>
+		case let b: bool =>
 			return b;
 		case =>
 			return false;
 		};
 	} else {
 		match (fnmatch_internal(pattern, string, fl)) {
-		case b: bool =>
+		case let b: bool =>
 			return b;
 		case =>
 			return false;
@@ -75,7 +75,7 @@ fn fnmatch_pathname(
 		for (true) match (pat_next(&p_iter, fl)?) {
 		case end =>
 			break :outer;
-		case r: rune =>
+		case let r: rune =>
 			if (r == '/') break;
 		case bracket =>
 			match_bracket(&p_iter, '\0')?;
@@ -84,7 +84,7 @@ fn fnmatch_pathname(
 		let s = match (strings::next_token(&tok)) {
 		case void =>
 			return false;
-		case s: str =>
+		case let s: str =>
 			yield s;
 		};
 		strings::prev(&p_iter);
@@ -97,7 +97,7 @@ fn fnmatch_pathname(
 	let s = match(strings::next_token(&tok)) {
 	case void =>
 		return false;
-	case s: str =>
+	case let s: str =>
 		yield s;
 	};
 	let p = strings::iter_str(&start);
@@ -137,7 +137,7 @@ fn fnmatch_internal(
 			yield rn is rune;
 		case bracket =>
 			yield rn is rune && match_bracket(&p, rn: rune)?;
-		case r: rune =>
+		case let r: rune =>
 			yield rn is rune && rn: rune == r;
 		};
 		if (!t) {
@@ -183,7 +183,7 @@ fn fnmatch_internal(
 			yield rn is rune;
 		case bracket =>
 			yield rn is rune && match_bracket(&p, rn: rune)?;
-		case r: rune =>
+		case let r: rune =>
 			yield rn is rune && rn: rune == r;
 		case star =>
 			abort();
@@ -212,7 +212,7 @@ fn fnmatch_internal(
 				yield rn is rune;
 			case bracket =>
 				yield rn is rune && match_bracket(&p, rn: rune)?;
-			case r: rune =>
+			case let r: rune =>
 				yield rn is rune && r == rn: rune;
 			case star =>
 				p_copy = p;
@@ -317,7 +317,7 @@ fn match_ctype(it: *strings::iterator, c: rune) (bool | errors::invalid) = {
 	match (ctype_name_to_func(name)) {
 	case null =>
 		return errors::invalid;
-	case f: *fn(c: rune) bool =>
+	case let f: *fn(c: rune) bool =>
 		return f(c);
 	};
 };
@@ -340,7 +340,7 @@ fn ctype_name_to_func(name: str) nullable *fn(c: rune) bool = {
 	match (sort::search(map, size(funcmap), &name, &cmp)) {
 	case null =>
 		return null: nullable *fn(c: rune) bool;
-	case p: *void =>
+	case let p: *void =>
 		return (p: *funcmap).1;
 	};
 };
@@ -349,7 +349,7 @@ fn pat_next(pat: *strings::iterator, fl: flags) (token | errors::invalid) = {
 	let r = match (strings::next(pat)) {
 	case void =>
 		return end;
-	case r: rune =>
+	case let r: rune =>
 		yield r;
 	};
 	switch (r) {
@@ -370,7 +370,7 @@ fn pat_next(pat: *strings::iterator, fl: flags) (token | errors::invalid) = {
 
 fn advance_or_err(it: *strings::iterator) (rune | errors::invalid) = {
 	match (strings::next(it)) {
-	case r: rune =>
+	case let r: rune =>
 		return r;
 	case void =>
 		return errors::invalid;

@@ -34,9 +34,9 @@ export fn main() void = {
 		case 'T' => abort(); // TODO
 		case 'o' =>
 			out = match (os::create(opt.1, 0o644)) {
-			case f: io::file =>
+			case let f: io::file =>
 				yield f;
-			case e: fs::error =>
+			case let e: fs::error =>
 				fmt::fatal(fs::strerror(e));
 			};
 		case 't' => abort(); // TODO
@@ -60,9 +60,9 @@ export fn main() void = {
 
 	for (let i = 0z; i < len(cmd.args); i += 1) {
 		let input = match (os::open(cmd.args[i])) {
-		case f: io::file =>
+		case let f: io::file =>
 			yield f;
-		case err: fs::error =>
+		case let err: fs::error =>
 			fmt::fatal("Error opening {}: {}",
 				cmd.args[i], fs::strerror(err));
 		};
@@ -73,10 +73,10 @@ export fn main() void = {
 
 		let lexer = lex::init(bufin, cmd.args[i]);
 		let su = match (parse::subunit(&lexer)) {
-		case err: parse::error =>
+		case let err: parse::error =>
 			printerr(err);
 			os::exit(1);
-		case u: ast::subunit =>
+		case let u: ast::subunit =>
 			yield u;
 		};
 		append(subunits, su);
@@ -84,7 +84,7 @@ export fn main() void = {
 
 	let unit = match (unit::check(store, [], subunits)) {
 	case unit::error => abort(); // TODO
-	case u: unit::unit =>
+	case let u: unit::unit =>
 		yield u;
 	};
 	defer unit::unit_free(unit);

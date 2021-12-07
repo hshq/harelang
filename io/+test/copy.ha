@@ -32,7 +32,7 @@ fn test_copy_unsupported(a: *stream, b: *stream) (size | error) =
 @test fn copy() void = {
 	let a = test_copier_open(), b = test_copier_open();
 	match (copy(&b, &a)) {
-	case n: size =>
+	case let n: size =>
 		assert(n == 42);
 		assert(a.r == 42);
 		assert(b.w == 42);
@@ -47,7 +47,7 @@ fn test_copy_unsupported(a: *stream, b: *stream) (size | error) =
 	a.copier = &test_copier_copy;
 	b.copier = &test_copier_copy;
 	match (copy(&b, &a)) {
-	case n: size =>
+	case let n: size =>
 		assert(n == 1337);
 		assert(b.w == 62893);
 	case error =>
@@ -62,7 +62,7 @@ fn test_copy_unsupported(a: *stream, b: *stream) (size | error) =
 	a.copier = &test_copy_unsupported;
 	b.copier = &test_copy_unsupported;
 	match (copy(&b, &a)) {
-	case n: size =>
+	case let n: size =>
 		assert(n == 42);
 		assert(a.r == 42);
 		assert(b.w == 42);
@@ -77,7 +77,7 @@ fn test_copy_unsupported(a: *stream, b: *stream) (size | error) =
 	b.copier = &test_copy_unsupported;
 	b.writer = &teststream_write_short;
 	match (copy(&b, &a)) {
-	case n: size =>
+	case let n: size =>
 		assert(n == 42);
 		assert(a.r == 42);
 		assert(a.nreads == 1);

@@ -69,7 +69,7 @@ export fn main() void = {
 
 fn readcmd(state: *state) bool = {
 	const line = match (bufio::scanline(os::stdin)!) {
-	case line: []u8 =>
+	case let line: []u8 =>
 		yield strings::fromutf8(line);
 	case io::EOF =>
 		return false;

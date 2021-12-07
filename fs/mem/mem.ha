@@ -132,7 +132,7 @@ fn stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 	match (inode_find(fs: *inode, path)?.data) {
 	case directory =>
 		return fs::filestat { mode = fs::mode::DIR | 0o777, ... };
-	case f: file =>
+	case let f: file =>
 		return fs::filestat {
 			mode = fs::mode::REG | 0o777,
 			mask = fs::stat_mask::SIZE,
@@ -193,7 +193,7 @@ fn subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
 fn iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 	let ino = inode_find(fs: *inode, path)?;
 	match (ino.data) {
-	case d: directory =>
+	case let d: directory =>
 		return alloc(iterator {
 			next = &next,
 			parent = ino,
@@ -208,7 +208,7 @@ fn iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 fn next(iter: *fs::iterator) (fs::dirent | void) = {
 	match (_next(iter)) {
 	case null => void;
-	case ino: *inode =>
+	case let ino: *inode =>
 		return fs::dirent {
 			name = ino.name,
 			ftype = match (ino.data) {
@@ -231,7 +231,7 @@ fn _next(it: *fs::iterator) nullable *inode = {
 	for (iter.idx < len(p.ents)) match (p.ents[iter.idx]) {
 	case null =>
 		iter.idx += 1;
-	case ino: *inode =>
+	case let ino: *inode =>
 		iter.curr = ino.next;
 		return ino;
 	};
@@ -244,7 +244,7 @@ fn rmdir(fs: *fs::fs, path: str) (void | fs::error) = {
 		return errors::invalid;
 	};
 	match (ino.data) {
-	case d: directory =>
+	case let d: directory =>
 		if (ino.opencount != 0 || d.sz != 0) {
 			return errors::busy;
 		};
@@ -283,7 +283,7 @@ fn close_rec(ino: *inode) void = {
 	for (true) match (_next(&it)) {
 	case null =>
 		break;
-	case ino: *inode =>
+	case let ino: *inode =>
 		ino.parent = null;
 		match (ino.data) {
 		case file =>

@@ -48,6 +48,6 @@ case syntaxerr =>
 	yield "Syntax error";
 case utf8::invalid =>
 	yield "Document is not valid UTF-8";
-case err: io::error =>
+case let err: io::error =>
 	yield io::strerror(err);
 };

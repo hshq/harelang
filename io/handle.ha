@@ -12,9 +12,9 @@ export type handle = (file | *stream);
 // the number of bytes read.
 export fn read(h: handle, buf: []u8) (size | EOF | error) = {
 	match (h) {
-	case fd: file =>
+	case let fd: file =>
 		return fd_read(fd, buf);
-	case st: *stream =>
+	case let st: *stream =>
 		return st_read(st, buf);
 	};
 };
@@ -23,10 +23,12 @@ export fn read(h: handle, buf: []u8) (size | EOF | error) = {
 // returning the number of bytes written.
 export fn write(h: handle, buf: const []u8) (size | error) = {
 	match (h) {
-	case fd: file =>
+	case let fd: file =>
 		return fd_write(fd, buf);
-	case st: *stream =>
+	case let st: *stream =>
 		return st_write(st, buf);
+	case =>
+		abort();
 	};
 };
 
@@ -34,9 +36,9 @@ export fn write(h: handle, buf: const []u8) (size | error) = {
 // after calling this function.
 export fn close(h: handle) void = {
 	match (h) {
-	case fd: file =>
+	case let fd: file =>
 		fd_close(fd);
-	case st: *stream =>
+	case let st: *stream =>
 		st_close(st);
 	};
 };
@@ -44,9 +46,9 @@ export fn close(h: handle) void = {
 // Sets the offset within a [[handle]].
 export fn seek(h: handle, off: off, w: whence) (off | error) = {
 	match (h) {
-	case fd: file =>
+	case let fd: file =>
 		return fd_seek(fd, off, w);
-	case st: *stream =>
+	case let st: *stream =>
 		return st_seek(st, off, w);
 	};
 };

@@ -14,7 +14,7 @@ export fn nextframe(fp: *frame) (frame | void) = {
 	return match (fp.fp) {
 	case null =>
 		yield void;
-	case fp: *frame =>
+	case let fp: *frame =>
 		yield *fp;
 	};
 };

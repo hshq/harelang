@@ -8,13 +8,13 @@ export fn dup(s: const str) str = {
 	const id = match (in.data) {
 	case null =>
 		return ""; // Empty string
-	case b: *[*]u8 =>
+	case let b: *[*]u8 =>
 		yield b;
 	};
 	let buf: *[*]u8 = match (rt::malloc(in.length + 1)) {
 	case null =>
 		abort("Out of memory");
-	case v: *void =>
+	case let v: *void =>
 		yield v;
 	};
 	buf[..in.length + 1z] = id[..in.length + 1];
@@ -33,7 +33,7 @@ export fn dupall(s: []str) []str = {
 		data = match (rt::malloc(len(s) * size(str))) {
 		case null =>
 			abort("Out of memory");
-		case v: *void =>
+		case let v: *void =>
 			yield v;
 		},
 		length = len(s),

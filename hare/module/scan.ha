@@ -38,7 +38,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 		let ft = match (type_for_ext(path)) {
 		case void =>
 			return module_not_found;
-		case ft: filetype =>
+		case let ft: filetype =>
 			yield ft;
 		};
 		let st = fs::stat(ctx.fs, path)?;
@@ -62,9 +62,9 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 			inputs = inputs,
 			...
 		};
-	case err: fs::error =>
+	case let err: fs::error =>
 		return err;
-	case iter: *fs::iterator =>
+	case let iter: *fs::iterator =>
 		yield iter;
 	};
 	let ver = version {
@@ -107,7 +107,7 @@ export fn parse_name(name: str) (str, str, []tag) = {
 	let tags = match (parsetags(tags)) {
 	case void =>
 		return (base, ext, []);
-	case t: []tag =>
+	case let t: []tag =>
 		yield t;
 	};
 	let base = strings::sub(base, 0, i);
@@ -144,7 +144,7 @@ fn scan_directory(
 		const ent = match (fs::next(iter)) {
 		case void =>
 			break;
-		case ent: fs::dirent =>
+		case let ent: fs::dirent =>
 			yield ent;
 		};
 
@@ -328,7 +328,7 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 		let cand = path::join(ctx.paths[i - 1], ipath);
 		defer free(cand);
 		match (scan(ctx, cand)) {
-		case v: version =>
+		case let v: version =>
 			return v;
 		case error => void;
 		};
@@ -360,11 +360,11 @@ fn scan_file(
 	let imports = parse::imports(&lexer)?;
 	for (let i = 0z; i < len(imports); i += 1) {
 		let ident = match (imports[i]) {
-		case m: ast::import_module =>
+		case let m: ast::import_module =>
 			yield m: ast::ident;
-		case a: ast::import_alias =>
+		case let a: ast::import_alias =>
 			yield a.ident;
-		case o: ast::import_objects =>
+		case let o: ast::import_objects =>
 			yield o.ident;
 		};
 		if (!have_ident(deps, ident)) {
@@ -401,7 +401,7 @@ export fn parsetags(in: str) ([]tag | void) = {
 		let m = match (strings::next(&iter)) {
 		case void =>
 			break;
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		};
 		t.mode = switch (m) {
@@ -417,7 +417,7 @@ export fn parsetags(in: str) ([]tag | void) = {
 		for (true) match (strings::next(&iter)) {
 		case void =>
 			break;
-		case r: rune =>
+		case let r: rune =>
 			if (ascii::isalnum(r) || r == '_') {
 				strio::appendrune(buf, r)!;
 			} else {

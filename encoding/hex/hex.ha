@@ -51,7 +51,7 @@ export fn decode(s: str) ([]u8 | invalid) = {
 		let u = match (strconv::stou8b(oct, 16)) {
 		case (strconv::invalid | strconv::overflow) =>
 			return invalid;
-		case u: u8 =>
+		case let u: u8 =>
 			yield u;
 		};
 		append(buf, u);

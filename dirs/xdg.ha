@@ -5,13 +5,13 @@ use io;
 
 fn lookup(prog: str, var: str, default: str) str = {
 	match (os::getenv(var)) {
-	case s: str =>
+	case let s: str =>
 		const path = path::join(s, prog);
 		match (os::stat(path)) {
-		case err: fs::error =>
+		case let err: fs::error =>
 			os::mkdirs(path)!;
 			return path;
-		case st: fs::filestat =>
+		case let st: fs::filestat =>
 			if (fs::isdir(st.mode)) {
 				return path;
 			};

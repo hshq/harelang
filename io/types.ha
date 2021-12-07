@@ -15,7 +15,7 @@ export fn strerror(err: error) str = {
 	match (err) {
 	case underread =>
 		return "Insufficient data to read entire item";
-	case err: errors::error =>
+	case let err: errors::error =>
 		return errors::strerror(err);
 	};
 };

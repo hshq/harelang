@@ -59,7 +59,7 @@ fn verifysum(s: *reader) (io::EOF | io::error) = {
 		match (io::read(s.source, hash[n..])?) {
 		case io::EOF =>
 			return wraperror(decompress_err::EOF);
-		case z: size =>
+		case let z: size =>
 			n += z;
 		};
 	};
@@ -73,7 +73,7 @@ fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	match (io::read(&s.flate, buf)?) {
 	case io::EOF =>
 		return verifysum(s);
-	case z: size =>
+	case let z: size =>
 		buf = buf[..z];
 	};
 	return hash::write(&s.hash, buf);
@@ -91,7 +91,7 @@ export fn decompress(src: io::handle) (reader | io::error) = {
 		match (io::read(src, buf[n..])?) {
 		case io::EOF =>
 			return wraperror(decompress_err::EOF);
-		case z: size =>
+		case let z: size =>
 			n += z;
 		};
 	};
@@ -127,15 +127,15 @@ export fn decompress(src: io::handle) (reader | io::error) = {
 		let in = bufio::fixed(*vectors[i].1, io::mode::READ);
 		let out = bufio::dynamic(io::mode::WRITE);
 		let d = match (decompress(in)) {
-		case s: reader =>
+		case let s: reader =>
 			yield s;
-		case e: io::error =>
+		case let e: io::error =>
 			fmt::errorln(io::strerror(e))!;
 			abort();
 		};
 		match (io::copy(out, &d)) {
 		case size => void;
-		case e: io::error =>
+		case let e: io::error =>
 			fmt::errorfln("vector {}: {}", i, io::strerror(e))!;
 			abort();
 		};

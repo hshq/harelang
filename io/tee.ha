@@ -21,7 +21,7 @@ fn tee_read(s: *stream, buf: []u8) (size | EOF | error) = {
 	let z = match (read(s.source, buf)?) {
 	case EOF =>
 		return EOF;
-	case z: size =>
+	case let z: size =>
 		yield z;
 	};
 	for (let n = 0z; n < z) {

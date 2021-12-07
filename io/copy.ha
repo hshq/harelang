@@ -4,12 +4,12 @@ use errors;
 // return if the source handle is infinite.
 export fn copy(dest: handle, src: handle) (error | size) = {
 	match (dest) {
-	case fd: file =>
+	case let fd: file =>
 		if (src is file) {
 			return fd_copy(fd, src as file);
 		};
 		return copy_fallback(dest, src);
-	case st: *stream =>
+	case let st: *stream =>
 		if (!(src is *stream)) {
 			return copy_fallback(dest, src);
 		};
@@ -20,15 +20,15 @@ export fn copy(dest: handle, src: handle) (error | size) = {
 fn copy_streams(dest: *stream, src: *stream) (error | size) = {
 	match (dest.copier) {
 		case null => void;
-		case c: *copier =>
+		case let c: *copier =>
 			match (c(dest, src)) {
-			case err: error =>
+			case let err: error =>
 				match (err) {
 				case errors::unsupported => void;
 				case =>
 					return err;
 				};
-			case s: size =>
+			case let s: size =>
 				return s;
 			};
 	};
@@ -40,7 +40,7 @@ fn copy_fallback(dest: handle, src: handle) (error | size) = {
 	static let buf: [4096]u8 = [0...];
 	for (true) {
 		match (read(src, buf[..])?) {
-		case n: size =>
+		case let n: size =>
 			for (let i = 0z; i < n) {
 				let r = write(dest, buf[i..n])?;
 				w += r;

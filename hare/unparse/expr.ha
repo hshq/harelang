@@ -14,38 +14,38 @@ export fn expr(
 	e: ast::expr
 ) (size | io::error) = {
 	match (e.expr) {
-	case e: ast::access_expr =>
+	case let e: ast::access_expr =>
 		match (e) {
-		case id: ast::access_identifier =>
+		case let id: ast::access_identifier =>
 			return ident(out, id);
-		case ix: ast::access_index =>
+		case let ix: ast::access_index =>
 			let z = expr(out, indent, *ix.object)?;
 			z += fmt::fprintf(out, "[")?;
 			z += expr(out, indent, *ix.index)?;
 			z += fmt::fprintf(out, "]")?;
 			return z;
-		case fi: ast::access_field =>
+		case let fi: ast::access_field =>
 			let z = expr(out, indent, *fi.object)?;
 			z += fmt::fprintf(out, ".{}", fi.field)?;
 			return z;
-		case tp: ast::access_tuple =>
+		case let tp: ast::access_tuple =>
 			let z = expr(out, indent, *tp.object)?;
 			z += fmt::fprintf(out, ".")?;
 			z += expr(out, indent, *tp.value)?;
 			return z;
 		};
-	case e: ast::alloc_expr =>
+	case let e: ast::alloc_expr =>
 		let z = fmt::fprint(out, "alloc(")?;
 		z += expr(out, indent, *e.init)?;
 		match (e.capacity) {
 		case null => void;
-		case e: *ast::expr =>
+		case let e: *ast::expr =>
 			z += fmt::fprint(out, ", ")?;
 			z += expr(out, indent, *e)?;
 		};
 		z += fmt::fprint(out, ")")?;
 		return z;
-	case e: ast::append_expr =>
+	case let e: ast::append_expr =>
 		let z = if (e.is_static) fmt::fprint(out, "static ")? else 0z;
 		z += fmt::fprint(out, "append(")?;
 		z += expr(out, indent, *e.object)?;
@@ -59,7 +59,7 @@ export fn expr(
 		};
 		match (e.variadic) {
 		case null => void;
-		case v: *ast::expr =>
+		case let v: *ast::expr =>
 			if (len(e.values) != 0) {
 				z += fmt::fprint(out, ", ")?;
 			};
@@ -68,19 +68,19 @@ export fn expr(
 		};
 		z += fmt::fprint(out, ")")?;
 		return z;
-	case e: ast::assert_expr =>
+	case let e: ast::assert_expr =>
 		let z = fmt::fprint(
 			out, if (e.is_static) "static " else "")?;
 		// assert without a condition = abort
 		z += match (e.cond) {
-		case e: *ast::expr =>
+		case let e: *ast::expr =>
 			yield fmt::fprint(out, "assert(")? +
 				expr(out, indent, *e)?;
 		case null =>
 			yield fmt::fprint(out, "abort(")?;
 		};
 		z += match (e.message) {
-		case m: *ast::expr =>
+		case let m: *ast::expr =>
 			let z = 0z;
 			match (e.cond) {
 			case null => void;
@@ -94,7 +94,7 @@ export fn expr(
 		};
 		z += fmt::fprint(out, ")")?;
 		return z;
-	case e: ast::assign_expr =>
+	case let e: ast::assign_expr =>
 		let z = 0z;
 		if (e.indirect) {
 			z += fmt::fprint(out, "*")?;
@@ -103,7 +103,7 @@ export fn expr(
 		const op = match (e.op) {
 		case void =>
 			yield "=";
-		case op: ast::binarithm_op =>
+		case let op: ast::binarithm_op =>
 			yield switch (op) {
 			case ast::binarithm_op::BAND =>
 				yield "&=";
@@ -136,7 +136,7 @@ export fn expr(
 		z += fmt::fprintf(out, " {} ", op)?;
 		z += expr(out, indent, *e.value)?;
 		return z;
-	case e: ast::binarithm_expr =>
+	case let e: ast::binarithm_expr =>
 		let z = expr(out, indent, *e.lvalue)?;
 		z += fmt::fprintf(out, " {} ", switch (e.op) {
 		case ast::binarithm_op::BAND =>
@@ -180,7 +180,7 @@ export fn expr(
 		})?;
 		z += expr(out, indent, *e.rvalue)?;
 		return z;
-	case e: ast::binding_expr =>
+	case let e: ast::binding_expr =>
 		let z = fmt::fprintf(out, "{}{}",
 			if (e.is_static) "static " else "",
 			if (e.is_const) "const " else "let ")?;
@@ -189,7 +189,7 @@ export fn expr(
 			z += match (binding._type) {
 			case null =>
 				yield fmt::fprint(out, binding.name)?;
-			case t: *ast::_type =>
+			case let t: *ast::_type =>
 				let z = 0z;
 				z += fmt::fprintf(out, "{}: ",
 					binding.name)?;
@@ -203,13 +203,13 @@ export fn expr(
 			};
 		};
 		return z;
-	case e: ast::break_expr =>
+	case let e: ast::break_expr =>
 		let z = fmt::fprint(out, "break")?;
 		if (e != "") {
 			z += fmt::fprintf(out, " :{}", e)?;
 		};
 		return z;
-	case e: ast::call_expr =>
+	case let e: ast::call_expr =>
 		let z = expr(out, indent, *e.lvalue)?;
 		z += fmt::fprintf(out, "(")?;
 		for (let i = 0z; i < len(e.args); i += 1) {
@@ -223,7 +223,7 @@ export fn expr(
 		};
 		z += fmt::fprintf(out, ")")?;
 		return z;
-	case e: ast::cast_expr =>
+	case let e: ast::cast_expr =>
 		let z = expr(out, indent, *e.value)?;
 		const op = switch (e.kind) {
 		case ast::cast_kind::CAST =>
@@ -236,41 +236,41 @@ export fn expr(
 		z += fmt::fprintf(out, "{}", op)?;
 		z += _type(out, indent, *e._type)?;
 		return z;
-	case e: ast::constant_expr =>
+	case let e: ast::constant_expr =>
 		return constant(out, indent, e)?;
-	case e: ast::continue_expr =>
+	case let e: ast::continue_expr =>
 		let z = fmt::fprint(out, "continue")?;
 		if (e != "") {
 			z += fmt::fprintf(out, " :{}", e)?;
 		};
 		return z;
-	case e: ast::defer_expr =>
+	case let e: ast::defer_expr =>
 		return fmt::fprint(out, "defer ")? + expr(out, indent, *e)?;
-	case e: ast::delete_expr =>
+	case let e: ast::delete_expr =>
 		let z = if (e.is_static) fmt::fprint(out, "static ")? else 0z;
 		z += fmt::fprint(out, "delete(")?;
 		z += expr(out, indent, *e.object)?;
 		z += fmt::fprint(out, ")")?;
 		return z;
-	case e: ast::for_expr =>
+	case let e: ast::for_expr =>
 		return for_expr(out, indent, e)?;
-	case e: ast::free_expr =>
+	case let e: ast::free_expr =>
 		return fmt::fprint(out, "free(")?
 			+ expr(out, indent, *e)?
 			+ fmt::fprint(out, ")")?;
-	case e: ast::if_expr =>
+	case let e: ast::if_expr =>
 		let z = fmt::fprint(out, "if (")?;
 		z += expr(out, indent, *e.cond)?;
 		z += fmt::fprint(out, ") ")?;
 		z += expr(out, indent, *e.tbranch)?;
 		match (e.fbranch) {
 		case null => void;
-		case e: *ast::expr =>
+		case let e: *ast::expr =>
 			z += fmt::fprint(out, " else ")?;
 			z += expr(out, indent, *e)?;
 		};
 		return z;
-	case e: ast::insert_expr =>
+	case let e: ast::insert_expr =>
 		let z = if (e.is_static) fmt::fprint(out, "static ")? else 0z;
 		z += fmt::fprint(out, "insert(")?;
 		z += expr(out, indent, *e.object)?;
@@ -284,7 +284,7 @@ export fn expr(
 		};
 		match (e.variadic) {
 		case null => void;
-		case v: *ast::expr =>
+		case let v: *ast::expr =>
 			if (len(e.values) != 0) {
 				z += fmt::fprint(out, ", ")?;
 			};
@@ -293,7 +293,7 @@ export fn expr(
 		};
 		z += fmt::fprint(out, ")")?;
 		return z;
-	case e: ast::compound_expr =>
+	case let e: ast::compound_expr =>
 		let z = 0z;
 		if (e.label != "") {
 			z += fmt::fprintf(out, ":{} ", e.label)?;
@@ -307,55 +307,55 @@ export fn expr(
 		z += newline(out, indent)?;
 		z += fmt::fprintf(out, "}}")?;
 		return z;
-	case e: ast::match_expr =>
+	case let e: ast::match_expr =>
 		return match_expr(out, indent, e)?;
-	case e: ast::len_expr =>
+	case let e: ast::len_expr =>
 		let z = fmt::fprint(out, "len(")?;
 		z += expr(out, indent, *e)?;
 		z += fmt::fprint(out, ")")?;
 		return z;
-	case e: ast::size_expr =>
+	case let e: ast::size_expr =>
 		let z = fmt::fprint(out, "size(")?;
 		z += _type(out, indent, *e)?;
 		z += fmt::fprint(out, ")")?;
 		return z;
-	case e: ast::offset_expr =>
+	case let e: ast::offset_expr =>
 		let z = fmt::fprint(out, "offset(")?;
 		z += expr(out, indent, *e)?;
 		z += fmt::fprint(out, ")")?;
 		return z;
-	case e: ast::propagate_expr =>
+	case let e: ast::propagate_expr =>
 		let z = expr(out, indent, *e.expr)?;
 		z += fmt::fprintf(out, if (e.is_abort) "!" else "?")?;
 		return z;
-	case e: ast::return_expr =>
+	case let e: ast::return_expr =>
 		let z = fmt::fprint(out, "return")?;
 		match (e) {
 		case null => void;
-		case e: *ast::expr =>
+		case let e: *ast::expr =>
 			z += fmt::fprint(out, " ")?;
 			z += expr(out, indent, *e)?;
 		};
 		return z;
-	case e: ast::slice_expr =>
+	case let e: ast::slice_expr =>
 		let z = expr(out, indent, *e.object)?;
 		z += fmt::fprint(out, "[")?;
 		match (e.start) {
 		case null => void;
-		case e: *ast::expr =>
+		case let e: *ast::expr =>
 			z += expr(out, indent, *e)?;
 		};
 		z += fmt::fprint(out, "..")?;
 		match (e.end) {
 		case null => void;
-		case e: *ast::expr =>
+		case let e: *ast::expr =>
 			z += expr(out, indent, *e)?;
 		};
 		z += fmt::fprint(out, "]")?;
 		return z;
-	case e: ast::switch_expr =>
+	case let e: ast::switch_expr =>
 		return switch_expr(out, indent, e)?;
-	case e: ast::unarithm_expr =>
+	case let e: ast::unarithm_expr =>
 		let z = fmt::fprintf(out, "{}", switch (e.op) {
 		case ast::unarithm_op::ADDR =>
 			yield "&";
@@ -372,14 +372,14 @@ export fn expr(
 		})?;
 		z += expr(out, indent, *e.operand)?;
 		return z;
-	case e: ast::yield_expr =>
+	case let e: ast::yield_expr =>
 		let z = fmt::fprint(out, "yield")?;
 		if (e.label != "") {
 			z += fmt::fprintf(out, " :{}", e.label)?;
 		};
 		match (e.value) {
 		case null => void;
-		case v: *ast::expr =>
+		case let v: *ast::expr =>
 			z += fmt::fprint(out, if (e.label == "")
 				" " else ", ")?;
 			z += expr(out, indent, *v)?;
@@ -396,22 +396,22 @@ fn constant(
 	match (e) {
 	case void =>
 		return fmt::fprint(out, "void");
-	case v: ast::value =>
+	case let v: ast::value =>
 		return fmt::fprint(out, match (v) {
 		case void => abort();
 		case ast::_null =>
 			yield "null";
-		case v: (i64 | u64 | f64) =>
+		case let v: (i64 | u64 | f64) =>
 			yield v;
-		case b: bool =>
+		case let b: bool =>
 			return fmt::fprint(out, b);
 		// TODO: Escape these:
-		case s: str =>
+		case let s: str =>
 			return fmt::fprintf(out, "\"{}\"", s);
-		case r: rune =>
+		case let r: rune =>
 			return fmt::fprintf(out, "'{}'", r);
 		});
-	case ac: ast::array_constant =>
+	case let ac: ast::array_constant =>
 		let z = fmt::fprint(out, "[")?;
 		for (let i = 0z; i < len(ac.values); i += 1) {
 			z += expr(out, indent, *ac.values[i])?;
@@ -422,9 +422,9 @@ fn constant(
 		z += fmt::fprintf(out, "{}]",
 			if (ac.expand) "..." else "")?;
 		return z;
-	case sc: ast::struct_constant =>
+	case let sc: ast::struct_constant =>
 		return struct_constant(out, indent, sc)?;
-	case tu: ast::tuple_constant =>
+	case let tu: ast::tuple_constant =>
 		let z = fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(tu); i += 1) {
 			z += expr(out, indent, *tu[i])?;
@@ -453,17 +453,17 @@ fn struct_constant(
 	for (let i = 0z; i < len(sc.fields); i += 1) {
 		newline(out, indent)?;
 		match (sc.fields[i]) {
-		case sv: ast::struct_value =>
+		case let sv: ast::struct_value =>
 			match (sv._type) {
 			case null =>
 				z += fmt::fprintf(out, "{}", sv.name)?;
-			case t: *ast::_type =>
+			case let t: *ast::_type =>
 				z += fmt::fprintf(out, "{}: ", sv.name)?;
 				z += _type(out, indent, *t)?;
 			};
 			z += fmt::fprint(out, " = ")?;
 			z += expr(out, indent, *sv.init)?;
-		case sc: *ast::struct_constant =>
+		case let sc: *ast::struct_constant =>
 			z += constant(out, indent, *sc)?;
 		};
 		z += fmt::fprint(out, ",")?;
@@ -486,7 +486,7 @@ fn for_expr(
 	let z = fmt::fprintf(out, "for (")?;
 	match (e.bindings) {
 	case null => void;
-	case e: *ast::expr =>
+	case let e: *ast::expr =>
 		z += expr(out, indent, *e)?;
 		z += fmt::fprint(out, "; ")?;
 	};
@@ -495,7 +495,7 @@ fn for_expr(
 
 	match (e.afterthought) {
 	case null => void;
-	case e: *ast::expr =>
+	case let e: *ast::expr =>
 		z += fmt::fprint(out, "; ")?;
 		z += expr(out, indent, *e)?;
 	};
@@ -554,12 +554,20 @@ fn match_expr(
 
 	for (let i = 0z; i < len(e.cases); i += 1) {
 		z += newline(out, indent)?;
-		z += fmt::fprint(out, "case ")?;
+		z += fmt::fprint(out, "case")?;
 		const item = e.cases[i];
 		if (len(item.name) > 0) {
-			z += fmt::fprintf(out, "{}: ", item.name)?;
+			z += fmt::fprintf(out, " let {}", item.name)?;
 		};
-		z += _type(out, indent, *item._type)?;
+		match (item._type) {
+		case let typ: *ast::_type =>
+			if (len(item.name) > 0) {
+				z += fmt::fprint(out, ":")?;
+			};
+			z += fmt::fprint(out, " ")?;
+			z += _type(out, indent, *typ)?;
+		case null => void;
+		};
 		z += fmt::fprint(out, " =>")?;
 		for (let i = 0z; i < len(item.exprs); i += 1) {
 			z += newline(out, indent + 1)?;

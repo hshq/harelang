@@ -28,7 +28,7 @@ export fn string(in: io::handle) str = {
 	let stream = match (in) {
 	case io::file =>
 		abort("Invalid use of strio with io::file");
-	case st: *io::stream =>
+	case let st: *io::stream =>
 		yield st;
 	};
 

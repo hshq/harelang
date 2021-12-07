@@ -22,7 +22,7 @@ export fn must_get_sqe(ring: *io_uring) *sqe = {
 	match (get_sqe(ring)) {
 	case null =>
 		abort("I/O queue full");
-	case sq: *sqe =>
+	case let sq: *sqe =>
 		return sq;
 	};
 };
@@ -85,9 +85,9 @@ fn do_submit(
 	if (needs_enter(ring, &flags) || wait != 0) {
 		match (rt::io_uring_enter(ring.fd,
 				submitted, wait, flags, null)) {
-		case err: rt::errno =>
+		case let err: rt::errno =>
 			return errors::errno(err);
-		case n: uint =>
+		case let n: uint =>
 			return n;
 		};
 	} else {

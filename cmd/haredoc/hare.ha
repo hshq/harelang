@@ -14,12 +14,12 @@ fn emit_hare(ctx: *context) (void | error) = {
 
 	let first = true;
 	match (ctx.readme) {
-	case readme: io::file =>
+	case let readme: io::file =>
 		first = false;
 		for (true) {
 			match (bufio::scanline(readme)?) {
 			case io::EOF => break;
-			case b: []u8 =>
+			case let b: []u8 =>
 				fmt::fprintfln(ctx.out,
 					"// {}", strings::fromutf8(b))?;
 				free(b);
@@ -75,7 +75,7 @@ fn details_hare(ctx: *context, decl: ast::decl) (void | error) = {
 	for (true) {
 		match (strings::next_token(&iter)) {
 		case void => break;
-		case s: str =>
+		case let s: str =>
 			if (len(s) != 0) {
 				fmt::fprintfln(ctx.out, "//{}", s)?;
 			};
@@ -91,7 +91,7 @@ fn details_hare(ctx: *context, decl: ast::decl) (void | error) = {
 fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 	let n = 0z;
 	match (d.decl) {
-	case g: []ast::decl_global =>
+	case let g: []ast::decl_global =>
 		n += fmt::fprint(out,
 			if (g[0].is_const) "const " else "let ")?;
 		for (let i = 0z; i < len(g); i += 1) {
@@ -106,7 +106,7 @@ fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
-	case t: []ast::decl_type =>
+	case let t: []ast::decl_type =>
 		n += fmt::fprint(out, "type ")?;
 		for (let i = 0z; i < len(t); i += 1) {
 			n += unparse::ident(out, t[i].ident)?;
@@ -116,7 +116,7 @@ fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
-	case c: []ast::decl_const =>
+	case let c: []ast::decl_const =>
 		n += fmt::fprint(out, "def ")?;
 		for (let i = 0z; i < len(c); i += 1) {
 			n += unparse::ident(out, c[i].ident)?;
@@ -126,7 +126,7 @@ fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
-	case f: ast::decl_func =>
+	case let f: ast::decl_func =>
 		n += fmt::fprint(out, switch (f.attrs) {
 		case ast::fndecl_attrs::NONE =>
 			yield "";

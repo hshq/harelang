@@ -14,7 +14,7 @@ export fn termios_query(file: io::file) (termios | errors::error) = {
 
 	match (rt::ioctl(file, rt::TCGETS, &settings)) {
 	case int => void;
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	};
 
@@ -34,7 +34,7 @@ export fn termios_restore(termios: *const termios) void = {
 export fn termios_set(termios: *const termios) (void | errors::error) = {
 	match (rt::ioctl(termios.file, rt::TCSETS, &termios.current)) {
 	case int => void;
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	};
 };

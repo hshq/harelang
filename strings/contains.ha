@@ -3,9 +3,9 @@ use encoding::utf8;
 
 // Returns true if a string contains a rune or a sub-string.
 export fn contains(haystack: str, needle: (str | rune)) bool = match (needle) {
-case s: str  =>
+case let s: str  =>
 	yield bytes::contains(toutf8(haystack), toutf8(s));
-case r: rune =>
+case let r: rune =>
 	yield bytes::contains(toutf8(haystack), utf8::encoderune(r));
 };
 

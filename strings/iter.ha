@@ -31,7 +31,7 @@ export fn riter(src: str) iterator = {
 // [[unicode::graphiter]] instead.
 export fn next(iter: *iterator) (rune | void) = {
 	match (iter.push) {
-	case r: rune =>
+	case let r: rune =>
 		iter.push = void;
 		return r;
 	case void => void;
@@ -40,7 +40,7 @@ export fn next(iter: *iterator) (rune | void) = {
 	case void => void;
 	case (utf8::more | utf8::invalid) =>
 		abort("Invalid UTF-8 string (this should not happen)");
-	case r: rune =>
+	case let r: rune =>
 		yield r;
 	};
 };
@@ -54,7 +54,7 @@ export fn prev(iter: *iterator) (rune | void) = {
 		yield void;
 	case (utf8::more | utf8::invalid) =>
 		abort("Invalid UTF-8 string (this should not happen)");
-	case r: rune =>
+	case let r: rune =>
 		yield r;
 	};
 };
@@ -81,7 +81,7 @@ export fn iter_str(iter: *iterator) str = {
 	const expected1 = ['こ', 'ん'];
 	for (let i = 0z; i < len(expected1); i += 1) {
 		match (next(&s)) {
-		case r: rune =>
+		case let r: rune =>
 			assert(r == expected1[i]);
 		case void =>
 			abort();
@@ -92,7 +92,7 @@ export fn iter_str(iter: *iterator) str = {
 	const expected2 = ['ん', 'に', 'ち', 'は'];
 	for (let i = 0z; i < len(expected2); i += 1) {
 		match (next(&s)) {
-		case r: rune =>
+		case let r: rune =>
 			assert(r == expected2[i]);
 		case void =>
 			abort();
@@ -108,7 +108,7 @@ export fn iter_str(iter: *iterator) str = {
 	const expected3 = ['は', 'ち', 'に'];
 	for (let i = 0z; i< len(expected3); i += 1) {
 		match (prev(&s)) {
-		case r: rune =>
+		case let r: rune =>
 			assert(r == expected3[i]);
 		case void =>
 			abort();
@@ -126,7 +126,7 @@ export fn runes(s: str) []rune = {
 	for (true) {
 		match (next(&iter)) {
 		case void => break;
-		case r: rune =>
+		case let r: rune =>
 			append(sl, r);
 		};
 	};

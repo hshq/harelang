@@ -17,7 +17,7 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 
 	for (true) {
 		const r = match (strings::next(&iter)) {
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		case void =>
 			break;
@@ -27,7 +27,7 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 		switch (r) {
 		case ' ', '\t', '\n' =>
 			for (true) match (strings::next(&iter)) {
-			case r: rune =>
+			case let r: rune =>
 				if (r != ' ' && r != '\t' && r != '\n') {
 					strings::prev(&iter); // Unget
 					break;
@@ -64,7 +64,7 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 
 fn scan_backslash(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
 	const r = match (strings::next(in)) {
-	case r: rune =>
+	case let r: rune =>
 		yield r;
 	case void =>
 		return syntaxerr;
@@ -84,7 +84,7 @@ fn scan_backslash(out: io::handle, in: *strings::iterator) (void | syntaxerr) = 
 fn scan_double(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
 	for (true) {
 		const r = match (strings::next(in)) {
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		case void =>
 			return syntaxerr;
@@ -104,7 +104,7 @@ fn scan_double(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
 fn scan_single(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
 	for (true) {
 		const r = match (strings::next(in)) {
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		case void =>
 			return syntaxerr;

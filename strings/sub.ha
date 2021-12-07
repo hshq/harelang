@@ -6,7 +6,7 @@ fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {
 	let pos = 0z;
 	for (let i = 0z; i < end; i += 1) {
 		let r = match (strings::next(iter)) {
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		case void =>
 			break;
@@ -21,7 +21,7 @@ fn utf8_byte_len_unbounded(iter: *iterator) size = {
 	let pos = 0z;
 	for (true) {
 		let r = match (strings::next(iter)) {
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		case void =>
 			break;
@@ -44,7 +44,7 @@ export fn sub(s: str, start: size, end: (size | end)) str = {
 	let iter = iter(s);
 	let starti = utf8_byte_len_bounded(&iter, start);
 	let endi = match (end) {
-	case sz: size =>
+	case let sz: size =>
 		yield starti + utf8_byte_len_bounded(&iter, sz - start);
 	case end =>
 		yield starti + utf8_byte_len_unbounded(&iter);

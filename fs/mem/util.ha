@@ -34,7 +34,7 @@ fn ensure(parent: *inode) void = {
 		for (true) match (old[i]) {
 		case null =>
 			break;
-		case ino: *inode =>
+		case let ino: *inode =>
 			old[i] = ino.next;
 			_inode_insert(parent, ino);
 		};
@@ -64,7 +64,7 @@ fn unlink(parent: *inode, ino: *inode) void = {
 	for (true) match (it) {
 	case null =>
 		break;
-	case ii: *inode =>
+	case let ii: *inode =>
 		if (ii.hash == ino.hash && ii.name == ino.name) {
 			*prev = ii.next;
 			break;
@@ -79,9 +79,9 @@ fn unlink(parent: *inode, ino: *inode) void = {
 
 fn inode_free(ino: *inode) void = {
 	match (ino.data) {
-	case d: directory =>
+	case let d: directory =>
 		free(d.ents);
-	case f: file =>
+	case let f: file =>
 		free(f);
 	};
 	free(ino.name);
@@ -102,12 +102,12 @@ fn find_rec(dir: *inode, name: str, it: *path::iterator) (*inode | fs::error) = 
 	for (true) match (bucket) {
 	case null =>
 		break;
-	case ino: *inode =>
+	case let ino: *inode =>
 		if (name == ino.name) {
 			match (path::next(it)) {
 			case void =>
 				return ino;
-			case name: str =>
+			case let name: str =>
 				return find_rec(ino, name, it);
 			};
 		};

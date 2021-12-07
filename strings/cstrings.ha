@@ -44,12 +44,12 @@ export fn to_c(s: const str) *char = {
 	let ptr = match (ptr) {
 	case null =>
 		abort("Out of memory");
-	case p: *[*]u8 =>
+	case let p: *[*]u8 =>
 		yield p;
 	};
 	match ((&s: *types::string).data) {
 	case null => void;
-	case data: *[*]u8 =>
+	case let data: *[*]u8 =>
 		yield rt::memcpy(ptr, data, len(s));
 	};
 	ptr[len(s)] = 0;

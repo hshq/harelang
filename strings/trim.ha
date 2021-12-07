@@ -12,7 +12,7 @@ export fn ltrim(input: str, trim: rune...) str = {
 	let it = iter(input);
 	for (true) {
 		const r = match (next(&it)) {
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		case void =>
 			break;
@@ -42,7 +42,7 @@ export fn rtrim(input: str, trim: rune...) str = {
 	let it = riter(input);
 	for (true) {
 		const r = match (prev(&it)) {
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		case void =>
 			break;

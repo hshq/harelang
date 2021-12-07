@@ -28,7 +28,7 @@ fn addtags(tags: []module::tag, in: str) ([]module::tag | void) = {
 	let in = match (module::parsetags(in)) {
 	case void =>
 		return void;
-	case t: []module::tag =>
+	case let t: []module::tag =>
 		yield t;
 	};
 	defer free(in);
@@ -44,7 +44,7 @@ fn deltags(tags: []module::tag, in: str) ([]module::tag | void) = {
 	let in = match (module::parsetags(in)) {
 	case void =>
 		return void;
-	case t: []module::tag =>
+	case let t: []module::tag =>
 		yield t;
 	};
 	defer free(in);
@@ -111,14 +111,14 @@ fn build(args: []str) void = {
 			tags = match (addtags(tags, opt.1)) {
 			case void =>
 				fmt::fatal("Error parsing tags");
-			case t: []module::tag =>
+			case let t: []module::tag =>
 				yield t;
 			};
 		case 'X' =>
 			tags = match (deltags(tags, opt.1)) {
 			case void =>
 				fmt::fatal("Error parsing tags");
-			case t: []module::tag =>
+			case let t: []module::tag =>
 				yield t;
 			};
 		case =>
@@ -150,9 +150,9 @@ fn build(args: []str) void = {
 	defer plan_finish(&plan);
 
 	const ver = match (module::scan(&ctx, input)) {
-	case ver: module::version =>
+	case let ver: module::version =>
 		yield ver;
-	case err: module::error =>
+	case let err: module::error =>
 		fmt::fatal("Error scanning input module: {}",
 			module::strerror(err));
 	};
@@ -240,22 +240,22 @@ fn release(args: []str) void = {
 		case badversion =>
 			getopt::printusage(os::stderr, "release", help);
 			os::exit(1);
-		case ver: modversion =>
+		case let ver: modversion =>
 			yield ver;
 		};
 	};
 
 	match (do_release(next, dryrun)) {
 	case void => void;
-	case err: exec::error =>
+	case let err: exec::error =>
 		fmt::fatal(exec::strerror(err));
-	case err: errors::error =>
+	case let err: errors::error =>
 		fmt::fatal(errors::strerror(err));
-	case err: io::error =>
+	case let err: io::error =>
 		fmt::fatal(io::strerror(err));
-	case err: fs::error =>
+	case let err: fs::error =>
 		fmt::fatal(fs::strerror(err));
-	case err: git_error =>
+	case let err: git_error =>
 		fmt::fatal("git: {}", exec::exitstr(err));
 	case badversion =>
 		fmt::fatal("Error: invalid format string. Hare uses semantic versioning, in the form major.minor.patch.");
@@ -299,14 +299,14 @@ fn run(args: []str) void = {
 			tags = match (addtags(tags, opt.1)) {
 			case void =>
 				fmt::fatal("Error parsing tags");
-			case t: []module::tag =>
+			case let t: []module::tag =>
 				yield t;
 			};
 		case 'X' =>
 			tags = match (deltags(tags, opt.1)) {
 			case void =>
 				fmt::fatal("Error parsing tags");
-			case t: []module::tag =>
+			case let t: []module::tag =>
 				yield t;
 			};
 		case =>
@@ -337,9 +337,9 @@ fn run(args: []str) void = {
 	defer plan_finish(&plan);
 
 	const ver = match (module::scan(&ctx, input)) {
-	case ver: module::version =>
+	case let ver: module::version =>
 		yield ver;
-	case err: module::error =>
+	case let err: module::error =>
 		fmt::fatal("Error scanning input module: {}",
 			module::strerror(err));
 	};
@@ -360,9 +360,9 @@ fn run(args: []str) void = {
 		fmt::fatal("{} {}: build failed", os::args[0], os::args[1]);
 	};
 	const cmd = match (exec::cmd(output, runargs...)) {
-	case err: exec::error =>
+	case let err: exec::error =>
 		fmt::fatal("exec: {}", exec::strerror(err));
-	case cmd: exec::command =>
+	case let cmd: exec::command =>
 		yield cmd;
 	};
 	exec::setname(&cmd, input);
@@ -414,14 +414,14 @@ fn test(args: []str) void = {
 			tags = match (addtags(tags, opt.1)) {
 			case void =>
 				fmt::fatal("Error parsing tags");
-			case t: []module::tag =>
+			case let t: []module::tag =>
 				yield t;
 			};
 		case 'X' =>
 			tags = match (deltags(tags, opt.1)) {
 			case void =>
 				fmt::fatal("Error parsing tags");
-			case t: []module::tag =>
+			case let t: []module::tag =>
 				yield t;
 			};
 		case =>
@@ -455,9 +455,9 @@ fn test(args: []str) void = {
 	sched_module(&plan, ["rt"], &depends);
 
 	let items = match (module::walk(&ctx, input)) {
-	case items: []ast::ident =>
+	case let items: []ast::ident =>
 		yield items;
-	case err: module::error =>
+	case let err: module::error =>
 		fmt::fatal("Error scanning source root: {}",
 			module::strerror(err));
 	};
@@ -468,7 +468,7 @@ fn test(args: []str) void = {
 			continue;
 		};
 		match (module::lookup(plan.context, items[i])) {
-		case ver: module::version =>
+		case let ver: module::version =>
 			if (len(ver.inputs) == 0) continue;
 		case module::error =>
 			continue;
@@ -492,9 +492,9 @@ fn test(args: []str) void = {
 	};
 
 	const cmd = match (exec::cmd(output, runargs...)) {
-	case err: exec::error =>
+	case let err: exec::error =>
 		fmt::fatal("exec: {}", exec::strerror(err));
-	case cmd: exec::command =>
+	case let cmd: exec::command =>
 		yield cmd;
 	};
 	exec::setname(&cmd, input);
@@ -537,7 +537,7 @@ fn version(args: []str) void = {
 				const items = strings::join("\n\t\t", items...);
 				defer free(items);
 				fmt::printfln("HAREPATH\t{}", items)!;
-			case env: str =>
+			case let env: str =>
 				fmt::printf("HAREPATH\t")!;
 				bufio::flush(os::stdout)!;
 				fmt::errorf("(from environment)")!;
@@ -552,7 +552,7 @@ fn version(args: []str) void = {
 			const val = match (os::getenv("HAREPATH")) {
 			case void =>
 				yield HAREPATH;
-			case env: str =>
+			case let env: str =>
 				yield env;
 			};
 			fmt::printfln("HAREPATH\t{}", val)!;

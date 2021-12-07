@@ -22,23 +22,23 @@ fn _walk(
 	match (scan(ctx, path)) {
 	case error =>
 		void;
-	case ver: version =>
+	case let ver: version =>
 		append(items, ns);
 	};
 
 	let iter = match (fs::iter(ctx.fs, path)) {
 	case fs::wrongtype =>
 		return; // Single file "module"
-	case err: fs::error =>
+	case let err: fs::error =>
 		return err;
-	case iter: *fs::iterator =>
+	case let iter: *fs::iterator =>
 		yield iter;
 	};
 	for (true) {
 		const ent = match (fs::next(iter)) {
 		case void =>
 			break;
-		case ent: fs::dirent =>
+		case let ent: fs::dirent =>
 			yield ent;
 		};
 

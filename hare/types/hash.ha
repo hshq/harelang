@@ -62,7 +62,7 @@ fn type_storage(t: *_type) u8 = {
 		return storage::ALIAS;
 	case array =>
 		return storage::ARRAY;
-	case b: builtin =>
+	case let b: builtin =>
 		return builtin_storage(b);
 	case _enum =>
 		return storage::ENUM;
@@ -72,7 +72,7 @@ fn type_storage(t: *_type) u8 = {
 		return storage::POINTER;
 	case slice =>
 		return storage::SLICE;
-	case st: _struct =>
+	case let st: _struct =>
 		if (st.kind == struct_union::STRUCT) {
 			return storage::STRUCT;
 		} else {
@@ -112,35 +112,35 @@ export fn hash(t: *_type) u32 = {
 	write8(&id, t.flags);
 
 	match (t.repr) {
-	case a: alias =>
+	case let a: alias =>
 		for (let i = len(a.id); i > 0; i -= 1) {
 			hash::write(&id, strings::toutf8(a.id[i - 1]));
 			write8(&id, 0);
 		};
-	case a: array =>
+	case let a: array =>
 		write32(&id, hash(a.member));
 		static assert(size(u64) == size(size)); // TODO
 		write64(&id, a.length);
 	case builtin => void;
-	case e: _enum =>
+	case let e: _enum =>
 		write8(&id, builtin_storage(e.storage));
 		for (let i = 0z; i < len(e.values); i += 1) {
 			hash::write(&id, strings::toutf8(e.values[i].0));
 			write64(&id, e.values[i].1);
 		};
-	case f: func =>
+	case let f: func =>
 		write32(&id, hash(f.result));
 		write8(&id, f.variadism: u8);
 		write8(&id, f.flags: u8);
 		for (let i = 0z; i < len(f.params); i += 1) {
 			write32(&id, hash(f.params[i]));
 		};
-	case p: pointer =>
+	case let p: pointer =>
 		write8(&id, p.flags);
 		write32(&id, hash(p.referent));
-	case s: slice =>
+	case let s: slice =>
 		write32(&id, hash(s));
-	case st: _struct =>
+	case let st: _struct =>
 		for (let i = 0z; i < len(st.fields); i += 1) {
 			const field = st.fields[i];
 			hash::write(&id, strings::toutf8(field.name));
@@ -148,11 +148,11 @@ export fn hash(t: *_type) u32 = {
 			static assert(size(u64) == size(size)); // TODO
 			write64(&id, field.offs);
 		};
-	case tu: tuple =>
+	case let tu: tuple =>
 		for (let i = 0z; i < len(tu); i += 1) {
 			write32(&id, hash(tu[i]._type));
 		};
-	case ta: tagged =>
+	case let ta: tagged =>
 		for (let i = 0z; i < len(ta); i += 1) {
 			write32(&id, hash(ta[i]));
 		};

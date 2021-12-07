@@ -20,9 +20,9 @@ export fn connect(
 		yield rt::AF_INET6: int;
 	};
 	const sockfd = match (rt::socket(family, rt::SOCK_STREAM, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case fd: int =>
+	case let fd: int =>
 		yield fd;
 	};
 	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
@@ -34,7 +34,7 @@ export fn connect(
 	};
 	const sz = ip::native_addrlen(addr);
 	match (rt::connect(sockfd, &sockaddr, sz)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -55,9 +55,9 @@ export fn listen(
 		yield rt::AF_INET6: int;
 	};
 	const sockfd = match (rt::socket(family, rt::SOCK_STREAM, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case fd: int =>
+	case let fd: int =>
 		yield fd;
 	};
 	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
@@ -72,27 +72,27 @@ export fn listen(
 			setsockopt(sockfd, rt::SO_REUSEPORT, true)?;
 		case keepalive =>
 			setsockopt(sockfd, rt::SO_KEEPALIVE, true)?;
-		case b: backlog =>
+		case let b: backlog =>
 			bk = b;
-		case p: portassignment => void;
+		case let p: portassignment => void;
 		};
 	};
 
 	const sz = ip::native_addrlen(addr);
 	match (rt::bind(sockfd, &sockaddr, sz)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
 	match (rt::listen(sockfd, bk)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
 
 	for (let i = 0z; i < len(options); i += 1) {
 		let portout = match (options[i]) {
-		case p: portassignment =>
+		case let p: portassignment =>
 			yield p;
 		case =>
 			continue;
@@ -100,7 +100,7 @@ export fn listen(
 		let sn = rt::sockaddr {...};
 		let al = size(rt::sockaddr): u32;
 		match (rt::getsockname(sockfd, &sn, &al)) {
-		case err: rt::errno =>
+		case let err: rt::errno =>
 			return errors::errno(err);
 		case int => void;
 		};
@@ -136,7 +136,7 @@ fn setsockopt(
 	let val: int = if (value) 1 else 0;
 	match (rt::setsockopt(sockfd, rt::SOL_SOCKET, option,
 			&val: *void, size(int): u32)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};

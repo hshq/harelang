@@ -12,16 +12,16 @@ let pathbuf: [PATH_MAX + 1]u8 = [0...];
 
 fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
 	let path = match (path) {
-	case c: *const char =>
+	case let c: *const char =>
 		return c;
-	case s: str =>
+	case let s: str =>
 		let ptr = &s: *struct {
 			buf: *[*]u8,
 			length: size,
 			capacity: size,
 		};
 		yield ptr.buf[..ptr.length];
-	case b: []u8 =>
+	case let b: []u8 =>
 		yield b;
 	};
 	if (len(path) + 1 >= len(pathbuf)) {
@@ -196,7 +196,7 @@ export fn execveat(dirfd: int, path: path, argv: *[*]nullable *const char,
 	return match (wrap_return(syscall5(SYS_execveat, dirfd: u64,
 		path: uintptr: u64, argv: uintptr: u64,
 		envp: uintptr: u64, flags: u64))) {
-	case err: errno =>
+	case let err: errno =>
 		yield err;
 	case u64 =>
 		abort("unreachable");
@@ -249,7 +249,7 @@ export fn mmap(
 	let r = syscall6(SYS_mmap, addr: uintptr: u64,
 		length: u64, prot: u64, flags: u64, fd: u64, offs: u64);
 	return match (wrap_return(r)) {
-	case err: errno =>
+	case let err: errno =>
 		return if (r: int == -EPERM
 				&& addr == null
 				&& (flags & MAP_ANON) > 0
@@ -257,7 +257,7 @@ export fn mmap(
 			 // Fix up incorrect EPERM from kernel:
 			yield wrap_errno(ENOMEM);
 		} else err;
-	case n: u64 =>
+	case let n: u64 =>
 		yield n: uintptr: *void;
 	};
 };
@@ -282,14 +282,14 @@ export fn lseek(fd: int, off: i64, whence: uint) (i64 | errno) = {
 fn faccessat1(dirfd: int, path: *const char, mode: int) (bool | errno) = {
 	return match (wrap_return(syscall3(SYS_faccessat, dirfd: u64,
 		path: uintptr: u64, mode: u64))) {
-	case err: errno =>
+	case let err: errno =>
 		yield switch (err) {
 		case EACCES =>
 			yield false;
 		case =>
 			yield err;
 		};
-	case n: u64 =>
+	case let n: u64 =>
 		assert(n == 0);
 		yield true;
 	};
@@ -307,7 +307,7 @@ export fn faccessat(
 	let path = kpath(path)?;
 	match (wrap_return(syscall4(SYS_faccessat2, dirfd: u64,
 			path: uintptr: u64, mode: u64, flags: u64))) {
-	case err: errno =>
+	case let err: errno =>
 		switch (err) {
 		case EACCES =>
 			return false;
@@ -320,7 +320,7 @@ export fn faccessat(
 		case =>
 			return err;
 		};
-	case n: u64 =>
+	case let n: u64 =>
 		assert(n == 0);
 		return true;
 	};
@@ -344,13 +344,13 @@ export fn fcntl(fd: int, cmd: int, arg: fcntl_arg) (int | errno) = {
 	return wrap_return(match (arg) {
 	case void =>
 		yield syscall2(SYS_fcntl, _fd, _cmd);
-	case i: int =>
+	case let i: int =>
 		yield syscall3(SYS_fcntl, _fd, _cmd, i: u64);
-	case l: *st_flock =>
+	case let l: *st_flock =>
 		yield syscall3(SYS_fcntl, _fd, _cmd, l: uintptr: u64);
-	case o: *f_owner_ex =>
+	case let o: *f_owner_ex =>
 		yield syscall3(SYS_fcntl, _fd, _cmd, o: uintptr: u64);
-	case u: *u64 =>
+	case let u: *u64 =>
 		yield syscall3(SYS_fcntl, _fd, _cmd, u: uintptr: u64);
 	})?: int;
 };
@@ -577,9 +577,9 @@ export type ioctl_arg = (nullable *void | u64);
 export fn ioctl(fd: int, req: u64, arg: ioctl_arg) (int | errno) = {
 	let fd = fd: u64, req = req: u64;
 	return wrap_return(match (arg) {
-	case u: u64 =>
+	case let u: u64 =>
 		yield syscall3(SYS_ioctl, fd, req, u);
-	case v: nullable *void =>
+	case let v: nullable *void =>
 		yield syscall3(SYS_ioctl, fd, req, v: uintptr: u64);
 	})?: int;
 };

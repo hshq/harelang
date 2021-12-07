@@ -22,9 +22,9 @@ export fn strerror(err: error) const str = {
 		return "Attempted to dial an invalid address";
 	case unknown_service =>
 		return "Unknown service";
-	case err: net::error =>
+	case let err: net::error =>
 		return net::strerror(err);
-	case err: dns::error =>
+	case let err: dns::error =>
 		return dns::strerror(err);
 	};
 };

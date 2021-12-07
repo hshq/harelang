@@ -104,7 +104,7 @@ fn bits(d: *decompressor, want: u32) (u32 | io::error) = {
 		match (io::read(d.in, buf)?) {
 		case io::EOF =>
 			return wraperror(inflate_err::EOF);
-		case z: size =>
+		case let z: size =>
 			if (z < 1) {
 				continue; // Short read, retry
 			};
@@ -231,7 +231,7 @@ fn uncompressed_read(d: *decompressor) (void | io::EOF | io::error) = {
 	static let _buf: [1024]u8 = [0...];
 	let buf = if (len(_buf) > d.left: size) _buf[..d.left] else _buf[..];
 	let z = match (io::read(d.in, buf)?) {
-	case z: size =>
+	case let z: size =>
 		d.left -= z;
 		yield z;
 	case io::EOF =>
@@ -339,7 +339,7 @@ fn next(d: *decompressor) (void | io::EOF | io::error) = {
 			match (io::read(d.in, buf[n..])?) {
 			case io::EOF =>
 				return wraperror(inflate_err::EOF);
-			case z: size =>
+			case let z: size =>
 				n += z;
 			};
 		};
@@ -428,7 +428,7 @@ fn close(s: *io::stream) void = {
 	defer io::close(&s);
 	match (io::copy(outs, &s)) {
 	case size => void;
-	case e: io::error =>
+	case let e: io::error =>
 		fmt::errorln(io::strerror(e))!;
 		abort();
 	};

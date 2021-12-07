@@ -128,24 +128,24 @@ export type _type = struct {
 
 fn struct_type_free(t: (struct_type | union_type)) void = {
 	let membs = match (t) {
-	case s: struct_type =>
+	case let s: struct_type =>
 		yield s: []struct_member;
-	case u: union_type =>
+	case let u: union_type =>
 		yield u: []struct_member;
 	};
 	for (let i = 0z; i < len(membs); i += 1) {
 		match (membs[i]._offset) {
 		case null => void;
-		case e: *expr =>
+		case let e: *expr =>
 			expr_free(e);
 		};
 		match (membs[i].member) {
-		case f: struct_field =>
+		case let f: struct_field =>
 			free(f.name);
 			type_free(f._type);
-		case e: struct_embedded =>
+		case let e: struct_embedded =>
 			type_free(e: *_type);
-		case a: struct_alias =>
+		case let a: struct_alias =>
 			ident_free(a);
 		};
 	};
@@ -155,53 +155,53 @@ fn struct_type_free(t: (struct_type | union_type)) void = {
 // Frees resources associated with a [[_type]].
 export fn type_free(t: (_type | nullable *_type)) void = {
 	match (t) {
-	case t: nullable *_type =>
+	case let t: nullable *_type =>
 		match (t) {
 		case null => void;
-		case t: *_type =>
+		case let t: *_type =>
 			type_free(*t);
 			free(t);
 		};
-	case t: _type =>
+	case let t: _type =>
 		match (t.repr) {
-		case a: alias_type =>
+		case let a: alias_type =>
 			ident_free(a.ident);
 		case builtin_type => void;
-		case e: enum_type =>
+		case let e: enum_type =>
 			for (let i = 0z; i < len(e.values); i += 1) {
 				free(e.values[i].name);
 				match (e.values[i].value) {
 				case null => void;
-				case v: *expr =>
+				case let v: *expr =>
 					expr_free(v);
 				};
 			};
 			free(e.values);
-		case f: func_type =>
+		case let f: func_type =>
 			type_free(f.result);
 			for (let i = 0z; i < len(f.params); i += 1) {
 				free(f.params[i].name);
 				type_free(f.params[i]._type);
 			};
 			free(f.params);
-		case l: list_type =>
+		case let l: list_type =>
 			match (l.length) {
-			case e: *expr =>
+			case let e: *expr =>
 				expr_free(*e);
 				free(e);
 			case => void;
 			};
 			type_free(l.members);
-		case p: pointer_type =>
+		case let p: pointer_type =>
 			type_free(p.referent);
-		case s: (struct_type | union_type) =>
+		case let s: (struct_type | union_type) =>
 			struct_type_free(s);
-		case t: tagged_type =>
+		case let t: tagged_type =>
 			for (let i = 0z; i < len(t); i += 1) {
 				type_free(t[i]);
 			};
 			free(t);
-		case t: tuple_type =>
+		case let t: tuple_type =>
 			for (let i = 0z; i < len(t); i += 1) {
 				type_free(t[i]);
 			};

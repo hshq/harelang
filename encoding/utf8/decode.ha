@@ -9,9 +9,9 @@ export type decoder = struct {
 
 // Initializes a new UTF-8 decoder.
 export fn decode(src: (str | []u8)) decoder = match (src) {
-case s: str =>
+case let s: str =>
 	yield decoder { src = toutf8(s), ...  };
-case b: []u8 =>
+case let b: []u8 =>
 	yield decoder { src = b, ...  };
 };
 
@@ -97,7 +97,7 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 		match (next(&decoder)) {
 		case (invalid | more | void) =>
 			abort();
-		case r: rune =>
+		case let r: rune =>
 			assert(r == expected[i]);
 		};
 	};
@@ -107,7 +107,7 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 		match (prev(&decoder)) {
 		case (invalid | more | void) =>
 			abort();
-		case r: rune =>
+		case let r: rune =>
 			assert(r == expected[len(expected) - i - 1]);
 		};
 	};

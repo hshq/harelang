@@ -29,13 +29,13 @@ fn scan_decl(
 ) (void | types::deferred | error) = {
 	// TODO: match on &decl.decl
 	match (decl.decl) {
-	case co: []ast::decl_const =>
+	case let co: []ast::decl_const =>
 		abort(); // TODO
-	case gl: []ast::decl_global =>
+	case let gl: []ast::decl_global =>
 		abort(); // TODO
-	case ty: []ast::decl_type =>
+	case let ty: []ast::decl_type =>
 		abort(); // TODO
-	case fu: ast::decl_func =>
+	case let fu: ast::decl_func =>
 		return scan_func(ctx, decl, fu);
 	};
 };
@@ -47,11 +47,11 @@ fn scan_func(
 ) (void | types::deferred | error) = {
 	assert(func.attrs & ast::fndecl_attrs::TEST == 0); // TODO
 	const fntype = match (types::lookup(ctx.store, &func.prototype)) {
-	case err: types::error =>
+	case let err: types::error =>
 		return err;
 	case types::deferred =>
 		return types::deferred;
-	case fntype: const *types::_type =>
+	case let fntype: const *types::_type =>
 		yield fntype;
 	};
 	scope_insert(ctx, object {

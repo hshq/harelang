@@ -41,13 +41,13 @@ export fn strerror(err: error) const str = {
 		return "The name server does not support the requested kind of query";
 	case refused =>
 		return "The name server refuses to perform the specified operation for policy reasons";
-	case ue: unknown_error =>
+	case let ue: unknown_error =>
 		return fmt::bsprintf(buf, "Unknown DNS error {}", ue: u8);
 	case errors::overflow =>
 		return "The encoded message would exceed the buffer size";
 	case errors::timeout =>
 		return "The DNS request timed out";
-	case err: net::error =>
+	case let err: net::error =>
 		return net::strerror(err);
 	};
 };

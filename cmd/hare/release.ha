@@ -55,7 +55,7 @@ fn parseversion(in: str) (modversion | badversion) = {
 	const ptrs = [&major, &minor, &patch];
 	for (let i = 0z; i < len(items); i += 1) {
 		*ptrs[i] = match (strconv::stou(items[i])) {
-		case u: uint =>
+		case let u: uint =>
 			yield u;
 		case =>
 			return badversion;
@@ -83,9 +83,9 @@ fn do_release(
 	const lasttag = match (git_readcmd("describe", "--abbrev=0")) {
 	case git_error =>
 		return do_initial_release(next);
-	case err: release_error =>
+	case let err: release_error =>
 		return err;
-	case s: str =>
+	case let s: str =>
 		yield strings::rtrim(s);
 	};
 	defer free(lasttag);
@@ -118,7 +118,7 @@ fn do_release(
 
 fn do_initial_release(ver: (modversion | increment)) (void | release_error) = {
 	const ver = match (ver) {
-	case ver: modversion =>
+	case let ver: modversion =>
 		yield ver;
 	case increment =>
 		fmt::errorln("Error: cannot increment version number without a previous version to reference.")!;
@@ -151,9 +151,9 @@ fn nextversion(
 	next: (increment | modversion),
 ) modversion = {
 	const next = match (next) {
-	case incr: increment =>
+	case let incr: increment =>
 		yield incr;
-	case ver: modversion =>
+	case let ver: modversion =>
 		return ver;
 	};
 	switch (next) {
@@ -192,9 +192,9 @@ fn checkbehind() (void | release_error) = {
 		// Fails if there is no upstream, in which case we don't need to
 		// bother checking.
 		return;
-	case err: release_error =>
+	case let err: release_error =>
 		return err;
-	case s: str =>
+	case let s: str =>
 		yield s;
 	};
 	defer free(upstream);
@@ -206,7 +206,7 @@ fn checkbehind() (void | release_error) = {
 	match (git_runcmd("merge-base", "--is-ancestor", "HEAD@{upstream}", "HEAD")) {
 	case git_error =>
 		fmt::errorln("Warning! Your local branch is behind the upstream branch.")!;
-	case err: release_error =>
+	case let err: release_error =>
 		return err;
 	case => void;
 	};
@@ -223,7 +223,7 @@ fn shortlog(out: io::file, what: str) (void | release_error) = {
 fn choosekey() (str | release_error) = {
 	match (os::getenv("HAREKEY")) {
 	case void => void;
-	case name: str =>
+	case let name: str =>
 		return name;
 	};
 	const paths = [
@@ -247,7 +247,7 @@ fn choosekey() (str | release_error) = {
 	const line = match (bufio::scanline(os::stdin)?) {
 	case io::EOF =>
 		fmt::fatal("No suitable key available. Terminating.");
-	case line: []u8 =>
+	case let line: []u8 =>
 		yield strings::fromutf8(line);
 	};
 	defer free(line);
@@ -261,9 +261,9 @@ fn choosekey() (str | release_error) = {
 
 	const path = path::join(home, ".ssh", "id_ed25519");
 	const cmd = match (exec::cmd("ssh-keygen", "-t", "ed25519", "-f", path)) {
-	case cmd: exec::command =>
+	case let cmd: exec::command =>
 		yield cmd;
-	case err: exec::error =>
+	case let err: exec::error =>
 		fmt::fatal("ssh-keygen: command not found. Is openssh installed?");
 	};
 	const proc = exec::start(&cmd)?;

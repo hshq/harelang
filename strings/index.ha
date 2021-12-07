@@ -5,9 +5,9 @@ use bytes;
 // byte-wise index.
 export fn index(haystack: str, needle: (str | rune)) (size | void) = {
 	match (needle) {
-	case r: rune =>
+	case let r: rune =>
 		return index_rune(haystack, r);
-	case s: str =>
+	case let s: str =>
 		return index_string(haystack, s);
 	};
 };
@@ -16,7 +16,7 @@ fn index_rune(s: str, r: rune) (size | void) = {
 	let iter = iter(s);
 	for (let i = 0z; true; i += 1) {
 		match (next(&iter)) {
-		case n: rune =>
+		case let n: rune =>
 			if (r == n) {
 				return i;
 			};

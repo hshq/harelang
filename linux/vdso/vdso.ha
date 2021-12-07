@@ -41,7 +41,7 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 	const eh = match (sys_infoehdr()) {
 	case null =>
 		return null;
-	case x: *elf::header64 =>
+	case let x: *elf::header64 =>
 		yield x;
 	};
 
@@ -121,13 +121,13 @@ fn vdso_checkver(ctx: *vdso_ctx, version: str, num: u32) bool = {
 	let cur = match (ctx.verdef) {
 	case null =>
 		return true;
-	case vd: *elf::verdef64 =>
+	case let vd: *elf::verdef64 =>
 		yield vd;
 	};
 	const versym = match (ctx.versym) {
 	case null =>
 		return true;
-	case vs: *[*]u16 =>
+	case let vs: *[*]u16 =>
 		yield vs[num] & 0x7ff;
 	};
 	for (cur != prev) {
@@ -149,7 +149,7 @@ export fn getsym(symname: str, symver: str) nullable *void = {
 	const ctx = match (get_vdso_ctx()) {
 	case null =>
 		return null;
-	case x: *vdso_ctx =>
+	case let x: *vdso_ctx =>
 		yield x;
 	};
 

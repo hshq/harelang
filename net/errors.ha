@@ -12,7 +12,7 @@ export fn strerror(err: error) const str = {
 	match (err) {
 	case unknownproto =>
 		return "Unsupported protocol";
-	case err: errors::error =>
+	case let err: errors::error =>
 		return errors::strerror(err);
 	};
 };

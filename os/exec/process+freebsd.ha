@@ -52,9 +52,9 @@ export fn wait(proc: *process) (status | error) = {
 	let ru: rt::rusage = rt::rusage { ... };
 	let st: status = status { ... };
 	match (rt::wait4(*proc, &st.status, 0, &ru)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case pid: int =>
+	case let pid: int =>
 		assert(pid == *proc);
 	};
 	rusage(&st, &ru);
@@ -67,9 +67,9 @@ export fn peek(proc: *process) (status | void | error) = {
 	let ru: rt::rusage = rt::rusage { ... };
 	let st: status = status { ... };
 	match (rt::wait4(*proc, &st.status, 0, &ru)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case pid: int =>
+	case let pid: int =>
 		switch (pid) {
 		case 0 =>
 			return;
@@ -94,7 +94,7 @@ export type exit_status = (exited | signaled);
 export fn exitstr(status: exit_status) const str = {
 	static let buf: [1024]u8 = [0...];
 	match (status) {
-	case i: exited =>
+	case let i: exited =>
 		switch (i) {
 		case 0 =>
 			return "exited normally";
@@ -102,7 +102,7 @@ export fn exitstr(status: exit_status) const str = {
 			return fmt::bsprintf(buf, "exited with status {}",
 				i: int);
 		};
-	case s: signaled =>
+	case let s: signaled =>
 		// TODO: Add signal name
 		return fmt::bsprintf(buf, "exited with signal {}", s: int);
 	};
@@ -185,7 +185,7 @@ export fn kill(proc: process, sig: signal...) (void | errors::error) = {
 		abort("os::exec::signal illegally called with more than one signal");
 	};
 	match (rt::kill(proc, sig)) {
-	case errno: rt::errno =>
+	case let errno: rt::errno =>
 		return errors::errno(errno);
 	case void =>
 		return;

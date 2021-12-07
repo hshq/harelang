@@ -7,7 +7,7 @@ use rt;
 export fn winsize(fd: io::file) (ttysize | error) = {
 	let wsz = rt::winsize { ... };
 	match (rt::ioctl(fd, rt::TIOCGWINSZ, &wsz: *void)) {
-	case e: rt::errno =>
+	case let e: rt::errno =>
 		switch (e: int) {
 		case rt::EBADF =>
 			return errors::invalid;

@@ -49,9 +49,9 @@ type plan = struct {
 
 fn mkplan(ctx: *module::context, libs: []str) plan = {
 	const rtdir = match (module::lookup(ctx, ["rt"])) {
-	case err: module::error =>
+	case let err: module::error =>
 		fmt::fatal("Error resolving rt: {}", module::strerror(err));
-	case ver: module::version =>
+	case let ver: module::version =>
 		yield ver.basedir;
 	};
 
@@ -59,7 +59,7 @@ fn mkplan(ctx: *module::context, libs: []str) plan = {
 
 	const iter = os::iter(rtdir)!;
 	for (true) match (fs::next(iter)) {
-	case d: fs::dirent =>
+	case let d: fs::dirent =>
 		const p = module::parse_name(d.name);
 		defer module::tags_free(p.2);
 
@@ -148,15 +148,15 @@ fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 		let task = match (next) {
 		case null =>
 			abort();
-		case t: *task =>
+		case let t: *task =>
 			yield t;
 		};
 
 		match (execute(plan, task, verbose)) {
-		case err: exec::error =>
+		case let err: exec::error =>
 			fmt::fatal("Error: {}: {}", task.cmd[0],
 				exec::strerror(err));
-		case err: !exec::exit_status =>
+		case let err: !exec::exit_status =>
 			fmt::errorfln("Error: {}: {}", task.cmd[0],
 				exec::exitstr(err))!;
 			return err;
@@ -179,7 +179,7 @@ fn update_cache(plan: *plan, mod: modcache) void = {
 		versions = [mod.version],
 	};
 	match (module::manifest_write(plan.context, &manifest)) {
-	case err: module::error =>
+	case let err: module::error =>
 		fmt::fatal("Error updating module cache: {}",
 			module::strerror(err));
 	case void => void;

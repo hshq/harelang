@@ -69,7 +69,7 @@ export fn lookup(
 ) (const *_type | deferred | error) = {
 	const ty = fromast(store, ty)?;
 	if (ty.flags == 0) match (ty.repr) {
-	case b: builtin =>
+	case let b: builtin =>
 		switch (b) {
 		case builtin::CHAR =>
 			return &builtin_char;
@@ -118,14 +118,14 @@ export fn lookup(
 fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 	let sz = SIZE_UNDEFINED, align = SIZE_UNDEFINED;
 	const repr = match (atype.repr) {
-	case a: ast::alias_type =>
+	case let a: ast::alias_type =>
 		// TODO: This is incomplete
 		assert(!a.unwrap);
 		yield alias {
 			id = ast::ident_dup(a.ident),
 			secondary = null,
 		};
-	case b: ast::builtin_type =>
+	case let b: ast::builtin_type =>
 		// TODO: Tuple unpacking could improve this
 		yield switch (b) {
 		case ast::builtin_type::BOOL =>
@@ -203,16 +203,16 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 		case ast::builtin_type::ICONST, ast::builtin_type::FCONST =>
 			abort(); // TODO?
 		};
-	case f: ast::func_type =>
+	case let f: ast::func_type =>
 		yield func_from_ast(store, &f)?;
-	case p: ast::pointer_type =>
+	case let p: ast::pointer_type =>
 		sz = store.arch._pointer;
 		align = store.arch._pointer;
 		yield pointer {
 			referent = lookup(store, p.referent)?,
 			flags = p.flags: pointer_flags,
 		};
-	case st: ast::struct_type =>
+	case let st: ast::struct_type =>
 		let st = struct_from_ast(store, st, false)?;
 		sz = 0; align = 0;
 		for (let i = 0z; i < len(st.fields); i += 1) {
@@ -225,7 +225,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			};
 		};
 		yield st;
-	case un: ast::union_type =>
+	case let un: ast::union_type =>
 		let st = struct_from_ast(store, un, true)?;
 		sz = 0; align = 0;
 		for (let i = 0z; i < len(st.fields); i += 1) {
@@ -238,7 +238,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			};
 		};
 		yield st;
-	case ta: ast::tagged_type =>
+	case let ta: ast::tagged_type =>
 		let ta = tagged_from_ast(store, ta)?;
 		sz = 0; align = 0;
 		for (let i = 0z; i < len(ta); i += 1) {
@@ -254,7 +254,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 		};
 		sz += store.arch._int % align + store.arch._int;
 		yield ta;
-	case tu: ast::tuple_type =>
+	case let tu: ast::tuple_type =>
 		let tu = tuple_from_ast(store, tu)?;
 		sz = 0; align = 0;
 		for (let i = 0z; i < len(tu); i += 1) {
@@ -267,12 +267,12 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			};
 		};
 		yield tu;
-	case lt: ast::list_type =>
+	case let lt: ast::list_type =>
 		let r = list_from_ast(store, &lt)?;
 		sz = r.0;
 		align = r.1;
 		yield r.2;
-	case et: ast::enum_type =>
+	case let et: ast::enum_type =>
 		abort(); // TODO
 	};
 	if (sz != SIZE_UNDEFINED && sz != 0 && sz % align != 0) {
@@ -339,11 +339,11 @@ fn list_from_ast(
 			length = SIZE_UNDEFINED,
 			member = memb,
 		};
-	case ex: *ast::expr =>
+	case let ex: *ast::expr =>
 		const resolv = match (store.resolve) {
 		case null =>
 			return noresolver;
-		case r: *resolver =>
+		case let r: *resolver =>
 			yield r;
 		};
 		const length = resolv(store.rstate, store, ex)?;
@@ -368,11 +368,11 @@ fn _struct_from_ast(
 	const nfields = len(fields);
 	for (let i = 0z; i < len(membs); i += 1) {
 		*offs = match (membs[i]._offset) {
-		case ex: *ast::expr =>
+		case let ex: *ast::expr =>
 			yield match (store.resolve) {
 			case null =>
 				return noresolver;
-			case res: *resolver =>
+			case let res: *resolver =>
 				yield res(store.rstate, store, ex)?;
 			};
 		case null =>
@@ -380,11 +380,11 @@ fn _struct_from_ast(
 		};
 
 		const memb = match (membs[i].member) {
-		case se: ast::struct_embedded =>
+		case let se: ast::struct_embedded =>
 			let membs: []ast::struct_member = match (se.repr) {
-			case st: ast::struct_type =>
+			case let st: ast::struct_type =>
 				yield st;
-			case ut: ast::union_type =>
+			case let ut: ast::union_type =>
 				yield ut;
 			case =>
 				abort(); // Invariant
@@ -393,9 +393,9 @@ fn _struct_from_ast(
 				se.repr is ast::union_type,
 				fields, offs)?;
 			continue;
-		case se: ast::struct_alias =>
+		case let se: ast::struct_alias =>
 			abort(); // TODO
-		case sf: ast::struct_field =>
+		case let sf: ast::struct_field =>
 			yield sf;
 		};
 
@@ -447,7 +447,7 @@ fn tagged_collect(
 	types: *[]const *_type,
 ) (void | deferred | error) = {
 	for (let i = 0z; i < len(atype); i += 1) match (atype[i].repr) {
-	case ta: ast::tagged_type =>
+	case let ta: ast::tagged_type =>
 		tagged_collect(store, ta, types)?;
 	case =>
 		append(types, lookup(store, atype[i])?);
@@ -509,21 +509,21 @@ fn field_cmp(a: const *void, b: const *void) int = {
 
 fn type_finish(t: *_type) void = {
 	match (t.repr) {
-	case a: alias =>
+	case let a: alias =>
 		ast::ident_free(a.id);
 	case array => void;
 	case builtin => void;
-	case e: _enum =>
+	case let e: _enum =>
 		free(e.values);
-	case f: func =>
+	case let f: func =>
 		free(f.params);
 	case pointer => void;
-	case s: slice => void;
-	case st: _struct =>
+	case let s: slice => void;
+	case let st: _struct =>
 		free(st.fields);
-	case tu: tuple =>
+	case let tu: tuple =>
 		free(tu);
-	case ta: tagged =>
+	case let ta: tagged =>
 		free(ta);
 	};
 };

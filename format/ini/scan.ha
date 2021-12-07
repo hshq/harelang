@@ -48,7 +48,7 @@ export fn entry_finish(ent: entry) void = {
 export fn next(sc: *scanner) (entry | io::EOF | error) = {
 	for (true) {
 		const line = match (bufio::scanline(sc.in)?) {
-		case b: []u8 =>
+		case let b: []u8 =>
 			yield strings::try_fromutf8(b)?;
 		case io::EOF =>
 			return io::EOF;
@@ -66,7 +66,7 @@ export fn next(sc: *scanner) (entry | io::EOF | error) = {
 
 		if (strings::hasprefix(line, "[")) {
 			const end = match (strings::index(line, ']')) {
-			case idx: size =>
+			case let idx: size =>
 				yield idx;
 			case void =>
 				return sc.lineno: syntaxerr;
@@ -77,7 +77,7 @@ export fn next(sc: *scanner) (entry | io::EOF | error) = {
 		};
 
 		const eq = match (strings::index(line, '=')) {
-		case idx: size =>
+		case let idx: size =>
 			yield idx;
 		case void =>
 			return sc.lineno: syntaxerr;

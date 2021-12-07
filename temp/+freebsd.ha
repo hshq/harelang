@@ -65,9 +65,9 @@ export fn named(
 		match (fs::create_file(fs, fpath, fmode, oflags)) {
 		case errors::exists =>
 			continue;
-		case err: fs::error =>
+		case let err: fs::error =>
 			return err;
-		case f: io::file =>
+		case let f: io::file =>
 			return (f, strings::dup(fpath));
 		};
 	};
@@ -91,7 +91,7 @@ export fn dir() str = {
 
 	let path = path::join(get_tmpdir(), name);
 	match (os::mkdir(path)) {
-	case err: fs::error => abort("Could not create temp directory");
+	case let err: fs::error => abort("Could not create temp directory");
 	case void => void;
 	};
 	return path;

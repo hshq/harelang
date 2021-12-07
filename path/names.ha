@@ -19,7 +19,7 @@ export fn dirname(path: str) const str = {
 	let i = match (bytes::rindex(b, PATHSEP)) {
 	case void =>
 		return ".";
-	case z: size =>
+	case let z: size =>
 		yield z;
 	};
 	if (i == 0) {
@@ -65,7 +65,7 @@ export fn basename(path: str) const str = {
 	let i = match (bytes::rindex(b, PATHSEP)) {
 	case void =>
 		return path;
-	case z: size =>
+	case let z: size =>
 		yield if (z + 1 < len(b)) z + 1z else 0z;
 	};
 	return strings::fromutf8_unsafe(b[i..]);
@@ -102,7 +102,7 @@ export fn extension(p: str) (str, str) = {
 	let i = match (bytes::index(b, '.': u32: u8)) {
 	case void =>
 		return (p, "");
-	case z: size =>
+	case let z: size =>
 		yield z;
 	};
 	let e = b[i..];

@@ -17,7 +17,7 @@ case errors::exists =>
 	yield "File or directory exists";
 case errors::invalid =>
 	yield "Invalid argument";
-case err: io::error =>
+case let err: io::error =>
 	yield io::strerror(err);
 };
 
@@ -95,7 +95,7 @@ export fn readdir(fs: *fs, path: str) ([]dirent | error) = {
 	let ents: []dirent = [];
 	for (true) {
 		match (next(i)) {
-		case d: dirent =>
+		case let d: dirent =>
 			append(ents, dirent_dup(&d));
 		case void =>
 			break;

@@ -40,15 +40,15 @@ use strings;
 
 fn vassert(expected: value, actual: value) void = {
 	match (expected) {
-	case expected: str =>
+	case let expected: str =>
 		assert(actual as str == expected);
-	case expected: rune =>
+	case let expected: rune =>
 		assert(actual as rune == expected);
-	case expected: i64 =>
+	case let expected: i64 =>
 		assert(actual as i64 == expected);
-	case expected: u64 =>
+	case let expected: u64 =>
 		assert(actual as u64 == expected);
-	case expected: f64 =>
+	case let expected: f64 =>
 		assert(actual as f64 == expected);
 	case void =>
 		assert(actual is void);
@@ -62,9 +62,9 @@ fn lextest(in: str, expected: []token) void = {
 	for (let i = 0z; i < len(expected); i += 1) {
 		let etok = expected[i];
 		let tl = match (lex(&lexer)) {
-		case tl: token =>
+		case let tl: token =>
 			yield tl;
-		case err: error =>
+		case let err: error =>
 			fmt::errorfln("{}: {}", i, strerror(err))!;
 			abort();
 		};

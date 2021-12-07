@@ -60,7 +60,7 @@ export type decl = struct {
 
 // Frees resources associated with a declaration.
 export fn decl_free(d: decl) void = match (d.decl) {
-case g: []decl_global =>
+case let g: []decl_global =>
 	for (let i = 0z; i < len(g); i += 1) {
 		free(g[i].symbol);
 		ident_free(g[i].ident);
@@ -68,18 +68,18 @@ case g: []decl_global =>
 		expr_free(g[i].init);
 	};
 	free(g);
-case t: []decl_type =>
+case let t: []decl_type =>
 	for (let i = 0z; i < len(t); i += 1) {
 		ident_free(t[i].ident);
 		type_free(t[i]._type);
 	};
 	free(t);
-case f: decl_func =>
+case let f: decl_func =>
 	free(f.symbol);
 	ident_free(f.ident);
 	type_free(f.prototype);
 	if (f.body is expr) expr_free(f.body as expr);
-case c: []decl_const =>
+case let c: []decl_const =>
 	for (let i = 0z; i < len(c); i += 1) {
 		ident_free(c[i].ident);
 		type_free(c[i]._type);

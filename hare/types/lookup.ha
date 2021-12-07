@@ -3,7 +3,7 @@ use hare::ast;
 // Unwraps a type which may be aliased and returns the underlying type.
 export fn dealias(t: *_type) const *_type = {
 	for (true) match (t.repr) {
-	case a: alias =>
+	case let a: alias =>
 		assert(a.secondary != null);
 		t = a.secondary: const *_type;
 	case =>

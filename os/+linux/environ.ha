@@ -41,7 +41,7 @@ export fn getenv(name: const str) (str | void) = {
 		const eq: size = match (bytes::index(item[..ln], '=': u8)) {
 		case void =>
 			abort("Environment violates System-V invariants");
-		case i: size =>
+		case let i: size =>
 			yield i;
 		};
 		if (bytes::equal(name_b, item[..eq])) {
@@ -54,7 +54,7 @@ export fn getenv(name: const str) (str | void) = {
 // Looks up an environment variable and returns its value, or a default value if
 // unset.
 export fn tryenv(name: const str, default: str) str = match (getenv(name)) {
-case s: str =>
+case let s: str =>
 	yield s;
 case void =>
 	yield default;

@@ -188,9 +188,9 @@ export fn isneginf(n: f64) bool = {
 // Returns true if the given floating-point number is normal.
 export fn isnormal(n: types::floating) bool = {
 	match (n) {
-	case n: f32 =>
+	case let n: f32 =>
 		return isnormalf32(n);
-	case n: f64 =>
+	case let n: f64 =>
 		return isnormalf64(n);
 	};
 };
@@ -214,9 +214,9 @@ export fn isnormalf32(n: f32) bool = {
 // Returns true if the given floating-point number is subnormal.
 export fn issubnormal(n: types::floating) bool = {
 	match (n) {
-	case n: f32 =>
+	case let n: f32 =>
 		return issubnormalf32(n);
-	case n: f64 =>
+	case let n: f64 =>
 		return issubnormalf64(n);
 	};
 };
@@ -300,9 +300,9 @@ export fn absf32(n: f32) f32 = {
 // Returns the absolute value of floating-point number n.
 export fn absf(n: types::floating) f64 = {
 	match (n) {
-	case n: f64 =>
+	case let n: f64 =>
 		return absf64(n);
-	case n: f32 =>
+	case let n: f32 =>
 		return (absf32(n): f64);
 	};
 };
@@ -345,9 +345,9 @@ export fn signf32(x: f32) i64 = {
 // signed.
 export fn signf(x: types::floating) i64 = {
 	match (x) {
-	case n: f64 =>
+	case let n: f64 =>
 		return signf64(n);
-	case n: f32 =>
+	case let n: f32 =>
 		return signf32(n);
 	};
 };
@@ -377,9 +377,9 @@ export fn ispositivef32(x: f32) bool = signf32(x) == 1i32;
 // Returns whether or not x is positive.
 export fn ispositive(x: types::floating) bool = {
 	match (x) {
-	case n: f64 =>
+	case let n: f64 =>
 		return ispositivef64(n);
-	case n: f32 =>
+	case let n: f32 =>
 		return ispositivef32(n);
 	};
 };
@@ -393,9 +393,9 @@ export fn isnegativef32(x: f32) bool = signf32(x) == -1i32;
 // Returns whether or not x is negative.
 export fn isnegative(x: types::floating) bool = {
 	match (x) {
-	case n: f64 =>
+	case let n: f64 =>
 		return isnegativef64(n);
-	case n: f32 =>
+	case let n: f32 =>
 		return isnegativef32(n);
 	};
 };
@@ -415,9 +415,9 @@ export fn copysignf32(x: f32, y: f32) f32 = {
 // Returns x, but with the sign of y.
 export fn copysign(x: types::floating, y: types::floating) f64 = {
 	match (x) {
-	case n: f64 =>
+	case let n: f64 =>
 		return copysignf64(n, (y: f64));
-	case n: f32 =>
+	case let n: f32 =>
 		return (copysignf32(n, (y: f32)): f64);
 	};
 };
@@ -507,9 +507,9 @@ export fn frexpf32(n: f32) (f64, i64) = {
 // between 0.5 and 1.
 export fn frexp(n: types::floating) (f64, i64) = {
 	match (n) {
-	case n: f64 =>
+	case let n: f64 =>
 		return frexpf64(n);
-	case n: f32 =>
+	case let n: f32 =>
 		return frexpf32(n);
 	};
 };

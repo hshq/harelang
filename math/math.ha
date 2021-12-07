@@ -71,9 +71,9 @@ export fn eqwithinf32(x: f32, y: f32, tol: f32) bool = {
 export fn eqwithin(x: types::floating, y: types::floating,
 		tol: types::floating) bool = {
 	match (x) {
-	case n: f64 =>
+	case let n: f64 =>
 		return eqwithinf64(n, y as f64, tol as f64);
-	case n: f32 =>
+	case let n: f32 =>
 		return eqwithinf32(n, y as f32, tol as f32);
 	};
 };
@@ -91,9 +91,9 @@ export fn isclosef32(x: f32, y: f32) bool = {
 // Returns whether x and y are within [[STANDARD_TOL]] of each other.
 export fn isclose(x: types::floating, y: types::floating) bool = {
 	match (x) {
-	case n: f64 =>
+	case let n: f64 =>
 		return isclosef64(n, y as f64);
-	case n: f32 =>
+	case let n: f32 =>
 		return isclosef32(n, y as f32);
 	};
 };

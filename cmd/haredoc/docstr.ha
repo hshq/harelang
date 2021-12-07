@@ -35,7 +35,7 @@ fn parsedoc(in: io::handle) parser = {
 
 fn scandoc(par: *parser) (token | void) = {
 	const rn = match (bufio::scanrune(par.src)!) {
-	case rn: rune =>
+	case let rn: rune =>
 		yield rn;
 	case io::EOF =>
 		return;
@@ -74,7 +74,7 @@ fn scantext(par: *parser) (token | void) = {
 	for (true) {
 		const rn = match (bufio::scanrune(par.src)!) {
 		case io::EOF => break;
-		case rn: rune =>
+		case let rn: rune =>
 			yield rn;
 		};
 		switch (rn) {
@@ -85,7 +85,7 @@ fn scantext(par: *parser) (token | void) = {
 			strio::appendrune(buf, rn)!;
 			const rn = match (bufio::scanrune(par.src)!) {
 			case io::EOF => break;
-			case rn: rune =>
+			case let rn: rune =>
 				yield rn;
 			};
 			if (rn == '\n') {
@@ -108,7 +108,7 @@ fn scanref(par: *parser) (token | void) = {
 	match (bufio::scanrune(par.src)!) {
 	case io::EOF =>
 		return;
-	case rn: rune =>
+	case let rn: rune =>
 		if (rn != '[') {
 			abort();
 		};
@@ -116,7 +116,7 @@ fn scanref(par: *parser) (token | void) = {
 	match (bufio::scanrune(par.src)!) {
 	case io::EOF =>
 		return;
-	case rn: rune =>
+	case let rn: rune =>
 		if (rn != '[') {
 			bufio::unreadrune(par.src, rn);
 			return strings::dup("["): text;
@@ -128,7 +128,7 @@ fn scanref(par: *parser) (token | void) = {
 	// TODO: Handle invalid syntax here
 	for (true) {
 		match (bufio::scanrune(par.src)!) {
-		case rn: rune =>
+		case let rn: rune =>
 			switch (rn) {
 			case ']' =>
 				bufio::scanrune(par.src) as rune; // ]
@@ -149,7 +149,7 @@ fn scansample(par: *parser) (token | void) = {
 		match (bufio::scanrune(par.src)!) {
 		case io::EOF =>
 			return;
-		case rn: rune =>
+		case let rn: rune =>
 			switch (rn) {
 			case ' ' =>
 				nws += 1;
@@ -170,7 +170,7 @@ fn scansample(par: *parser) (token | void) = {
 	for (cont) {
 		const rn = match (bufio::scanrune(par.src)!) {
 		case io::EOF => break;
-		case rn: rune =>
+		case let rn: rune =>
 			yield rn;
 		};
 		switch (rn) {
@@ -185,7 +185,7 @@ fn scansample(par: *parser) (token | void) = {
 		for (let i = 0z; i < nws) {
 			match (bufio::scanrune(par.src)!) {
 			case io::EOF => break;
-			case rn: rune =>
+			case let rn: rune =>
 				switch (rn) {
 				case ' ' =>
 					i += 1;
@@ -218,7 +218,7 @@ fn scanlist(par: *parser) (token | void) = {
 	for (true) {
 		match (bufio::scanrune(par.src)!) {
 		case io::EOF => break;
-		case rn: rune =>
+		case let rn: rune =>
 			if (rn != '-') {
 				break;
 			};
@@ -226,7 +226,7 @@ fn scanlist(par: *parser) (token | void) = {
 		// XXX: multi-line list items
 		append(items, match (bufio::scanline(par.src)!) {
 		case io::EOF => break;
-		case u: []u8 =>
+		case let u: []u8 =>
 			yield strings::fromutf8(u);
 		});
 	};

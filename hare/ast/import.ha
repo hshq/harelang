@@ -19,12 +19,12 @@ export type import = (import_module | import_alias | import_objects);
 // Frees resources associated with an [[import]].
 export fn import_free(import: import) void = {
 	match (import) {
-	case m: import_module =>
+	case let m: import_module =>
 		ident_free(m: ident);
-	case a: import_alias =>
+	case let a: import_alias =>
 		ident_free(a.ident);
 		free(a.alias);
-	case o: import_objects =>
+	case let o: import_objects =>
 		ident_free(o.ident);
 		for (let i = 0z; i < len(o.objects); i += 1) {
 			free(o.objects[i]);

@@ -18,16 +18,16 @@ export fn resolve(
 	let port = match (strings::index(addr, ':')) {
 	case void =>
 		yield match (strconv::stou16(service)) {
-		case u: u16 =>
+		case let u: u16 =>
 			yield u;
 		case =>
 			yield 0u16;
 		};
-	case i: size =>
+	case let i: size =>
 		const sub = strings::sub(addr, i + 1, strings::end);
 		addr = strings::sub(addr, 0, i);
 		yield match (strconv::stou16(sub)) {
-		case u: u16 =>
+		case let u: u16 =>
 			yield u;
 		case =>
 			return invalid_address;
@@ -39,7 +39,7 @@ export fn resolve(
 
 	let addrs = resolve_addr(addr)?;
 	if (port == 0) match (lookup_service(proto, service)) {
-	case p: u16 =>
+	case let p: u16 =>
 		port = p;
 	case void => void;
 	};
@@ -60,7 +60,7 @@ export fn resolve(
 
 fn resolve_addr(addr: str) ([]ip::addr | error) = {
 	match (ip::parse(addr)) {
-	case addr: ip::addr =>
+	case let addr: ip::addr =>
 		// XXX: harec bug prevents just alloc'ing this
 		let addrs: []ip::addr = [];
 		append(addrs, addr);
@@ -138,9 +138,9 @@ fn collect_answers(addrs: *[]ip::addr, answers: *[]dns::rrecord) void = {
 	for (let i = 0z; i < len(answers); i += 1) {
 		match (answers[i].rdata) {
 		// XXX: harec bug prevents us from casting directly to ip::addr
-		case addr: dns::aaaa =>
+		case let addr: dns::aaaa =>
 			append(addrs, addr: ip::addr6: ip::addr);
-		case addr: dns::a =>
+		case let addr: dns::a =>
 			append(addrs, addr: ip::addr4: ip::addr);
 		case => void;
 		};

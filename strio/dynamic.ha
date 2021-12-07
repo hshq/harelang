@@ -29,7 +29,7 @@ fn get_dynamic_stream(in: io::handle) *dynamic_stream = {
 	match (in) {
 	case io::file =>
 		abort("Invalid use of strio on io::file");
-	case st: *io::stream =>
+	case let st: *io::stream =>
 		assert(st.writer == &dynamic_write,
 			"Invalid use of strio on non-strio I/O stream");
 		return st: *dynamic_stream;

@@ -113,7 +113,7 @@ export fn decode(in: io::handle) (uuid | invalid | io::error) = {
 		match (io::read(in, buf)?) {
 		case io::EOF =>
 			return invalid;
-		case z: size =>
+		case let z: size =>
 			assert(z == len(buf));
 		};
 		u[i] = match (strconv::stou8b(
@@ -123,7 +123,7 @@ export fn decode(in: io::handle) (uuid | invalid | io::error) = {
 			abort();
 		case strconv::invalid =>
 			return invalid;
-		case u: u8 =>
+		case let u: u8 =>
 			yield u;
 		};
 		if (i + 1 == TIME_MID
@@ -133,7 +133,7 @@ export fn decode(in: io::handle) (uuid | invalid | io::error) = {
 			match (io::read(in, buf[..1])?) {
 			case io::EOF =>
 				return invalid;
-			case z: size =>
+			case let z: size =>
 				assert(z == 1);
 			};
 			if (buf[0] != '-': u32: u8) {
@@ -149,11 +149,11 @@ export fn decodestr(in: str) (uuid | invalid) = {
 	let buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
 	defer io::close(buf);
 	match (decode(buf)) {
-	case err: io::error =>
+	case let err: io::error =>
 		abort();
 	case invalid =>
 		return invalid;
-	case u: uuid =>
+	case let u: uuid =>
 		return u;
 	};
 };
@@ -163,7 +163,7 @@ export fn decodestr(in: str) (uuid | invalid) = {
 	let id = match (decodestr(in)) {
 	case invalid =>
 		abort();
-	case u: uuid =>
+	case let u: uuid =>
 		yield u;
 	};
 	assert(compare(id, [

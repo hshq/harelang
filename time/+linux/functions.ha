@@ -33,7 +33,7 @@ export fn sleep(n: duration) void = {
 		match (rt::nanosleep(req, &res)) {
 		case void =>
 			return;
-		case err: rt::errno =>
+		case let err: rt::errno =>
 			switch (err) {
 			case rt::EINTR =>
 				req = &res;
@@ -84,7 +84,7 @@ fn now_vdso(clock: clock, tp: *rt::timespec) (void | rt::errno) = {
 	const vfn = match (cgt_vdso()) {
 	case null =>
 		return rt::wrap_errno(rt::ENOSYS);
-	case vfn: *fn(_: int, _: *rt::timespec) int =>
+	case let vfn: *fn(_: int, _: *rt::timespec) int =>
 		yield vfn;
 	};
 	const ret = vfn(clock, tp);
@@ -100,7 +100,7 @@ export fn now(clock: clock) instant = {
 	let err = match (now_vdso(clock, &tp)) {
 	case void =>
 		return timespec_to_instant(tp);
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		yield err;
 	};
 	if (err != rt::wrap_errno(rt::ENOSYS)) {
@@ -109,7 +109,7 @@ export fn now(clock: clock) instant = {
 	match (rt::clock_gettime(clock, &tp)) {
 	case void =>
 		return timespec_to_instant(tp);
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		abort("Unexpected error from clock_gettime");
 	};
 };

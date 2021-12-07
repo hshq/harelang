@@ -11,13 +11,13 @@ use errors;
 		abort();
 	};
 	match (read(&rlimit, buf)) {
-	case n: size =>
+	case let n: size =>
 		assert(n == 15);
 	case error =>
 		abort();
 	};
 	match (read(&rlimit, buf)) {
-	case n: size =>
+	case let n: size =>
 		assert(n == 5);
 	case error =>
 		abort();
@@ -30,13 +30,13 @@ use errors;
 		abort();
 	};
 	match (write(&wlimit, buf)) {
-	case n: size =>
+	case let n: size =>
 		assert(n == 15);
 	case error =>
 		abort();
 	};
 	match (write(&wlimit, buf)) {
-	case n: size =>
+	case let n: size =>
 		assert(n == 5);
 	case error =>
 		abort();

@@ -4,9 +4,9 @@ use encoding::utf8;
 // Returns true if 'in' has the given prefix.
 export fn hasprefix(in: str, prefix: (str | rune)) bool = {
 	let prefix = match (prefix) {
-	case r: rune =>
+	case let r: rune =>
 		yield utf8::encoderune(r);
-	case s: str =>
+	case let s: str =>
 		yield toutf8(s);
 	};
 	return bytes::hasprefix(toutf8(in), prefix);
@@ -22,9 +22,9 @@ export fn hasprefix(in: str, prefix: (str | rune)) bool = {
 // Returns true if 'in' has the given prefix.
 export fn hassuffix(in: str, suff: (str | rune)) bool = {
 	let suff = match (suff) {
-	case r: rune =>
+	case let r: rune =>
 		yield utf8::encoderune(r);
-	case s: str =>
+	case let s: str =>
 		yield toutf8(s);
 	};
 	return bytes::hassuffix(toutf8(in), suff);

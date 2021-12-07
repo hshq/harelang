@@ -41,13 +41,13 @@ export type invalid = !void;
 // Test if two [[addr]]s are equal.
 export fn equal(l: addr, r: addr) bool = {
 	match (l) {
-	case l: addr4 =>
+	case let l: addr4 =>
 		if (!(r is addr4)) {
 			return false;
 		};
 		let r = r as addr4;
 		return bytes::equal(l, r);
-	case l: addr6 =>
+	case let l: addr6 =>
 		if (!(r is addr6)) {
 			return false;
 		};
@@ -66,7 +66,7 @@ fn parsev4(st: str) (addr4 | invalid) = {
 			return invalid;
 		};
 		ret[i] = match (strconv::stou8(s)) {
-		case term: u8 =>
+		case let term: u8 =>
 			yield term;
 		case =>
 			return invalid;
@@ -95,7 +95,7 @@ fn parsev6(st: str) (addr6 | invalid) = {
 	let i = 0;
 	for (i < 16) {
 		let s = match (strings::next_token(&tok)) {
-		case s: str =>
+		case let s: str =>
 			yield s;
 		case void =>
 			break;
@@ -145,12 +145,12 @@ fn parsev6(st: str) (addr6 | invalid) = {
 // Parses an IP address.
 export fn parse(s: str) (addr | invalid) = {
 	match (parsev4(s)) {
-	case v4: addr4 =>
+	case let v4: addr4 =>
 		return v4;
 	case invalid => void;
 	};
 	match (parsev6(s)) {
-	case v6: addr6 =>
+	case let v6: addr6 =>
 		return v6;
 	case invalid => void;
 	};
@@ -252,7 +252,7 @@ export fn parsecidr(st: str) (subnet | invalid) = {
 	let addr = parse(ips)?;
 	let masks = wanttoken(&tok)?;
 	let val = match (strconv::stou8(masks)) {
-	case x: u8 =>
+	case let x: u8 =>
 		yield x;
 	case =>
 		return invalid;
@@ -292,9 +292,9 @@ fn masklen(addr: []u8) (void | size) = {
 fn fmtmask(s: io::handle, mask: addr) (io::error | size) = {
 	let ret = 0z;
 	let slice = match (mask) {
-	case v4: addr4 =>
+	case let v4: addr4 =>
 		yield v4[..];
-	case v6: addr6 =>
+	case let v6: addr6 =>
 		yield v6[..];
 	};
 	match (masklen(slice)) {
@@ -304,7 +304,7 @@ fn fmtmask(s: io::handle, mask: addr) (io::error | size) = {
 		for (let i = 0z; i < len(slice); i += 1) {
 			ret += fmt::fprintf(s, "{:x}", slice[i])?;
 		};
-	case n: size =>
+	case let n: size =>
 		// Standard CIDR integer
 		ret += fmt::fprintf(s, "{}", n)?;
 	};
@@ -322,11 +322,11 @@ fn fmtsubnet(s: io::handle, subnet: subnet) (io::error | size) = {
 // Formats an [[addr]] or [[subnet]] and prints it to a stream.
 export fn fmt(s: io::handle, item: (...addr | subnet)) (io::error | size) = {
 	match (item) {
-	case v4: addr4 =>
+	case let v4: addr4 =>
 		return fmtv4(s, v4)?;
-	case v6: addr6 =>
+	case let v6: addr6 =>
 		return fmtv6(s, v6)?;
-	case sub: subnet =>
+	case let sub: subnet =>
 		return fmtsubnet(s, sub);
 	};
 };
@@ -344,7 +344,7 @@ export fn string(item: (...addr | subnet)) str = {
 
 fn wanttoken(tok: *strings::tokenizer) (str | invalid) = {
 	match (strings::next_token(tok)) {
-	case s: str =>
+	case let s: str =>
 		return s;
 	case void =>
 		return invalid;

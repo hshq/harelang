@@ -11,14 +11,14 @@ export fn clone(
 		flags: u64, stack: uintptr: u64,
 		parent_tid: uintptr: u64, child_tid: uintptr: u64,
 		tls))) {
-	case u: u64 =>
+	case let u: u64 =>
 		switch (u) {
 		case 0 =>
 			return;
 		case =>
 			return u: int;
 		};
-	case err: errno =>
+	case let err: errno =>
 		return err;
 	};
 };

@@ -11,15 +11,15 @@ use types;
 // established.
 export fn connect(addr: addr) (io::file | net::error) = {
 	let sockaddr = match (to_native(addr)) {
-	case a: rt::sockaddr =>
+	case let a: rt::sockaddr =>
 		yield a;
 	case invalid =>
 		return errors::unsupported; // path too long
 	};
 	const sockfd = match (rt::socket(rt::AF_UNIX: int, rt::SOCK_STREAM, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case fd: int =>
+	case let fd: int =>
 		yield fd;
 	};
 	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
@@ -27,7 +27,7 @@ export fn connect(addr: addr) (io::file | net::error) = {
 
 	const sz = size(rt::sockaddr_un): u32;
 	match (rt::connect(sockfd, &sockaddr, sz)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -41,15 +41,15 @@ export fn listen(
 	options: listen_option...
 ) (*net::listener | net::error) = {
 	let sockaddr = match (to_native(addr)) {
-	case a: rt::sockaddr =>
+	case let a: rt::sockaddr =>
 		yield a;
 	case invalid =>
 		return errors::unsupported; // path too long
 	};
 	const sockfd = match (rt::socket(rt::AF_UNIX: int, rt::SOCK_STREAM, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case fd: int =>
+	case let fd: int =>
 		yield fd;
 	};
 	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
@@ -62,12 +62,12 @@ export fn listen(
 	};
 
 	match (rt::bind(sockfd, &sockaddr, size(rt::sockaddr_un): u32)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
 	match (rt::listen(sockfd, bk)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -96,7 +96,7 @@ fn to_native(addr: addr) (rt::sockaddr | invalid) = {
 	};
 	match ((&addr: *types::string).data) {
 	case null => void;
-	case data: *[*]u8 =>
+	case let data: *[*]u8 =>
 		rt::memcpy(&ret.un.sun_path, data, len(addr));
 	};
 	ret.un.sun_path[len(addr)] = 0;

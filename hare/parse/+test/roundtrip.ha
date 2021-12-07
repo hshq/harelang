@@ -15,9 +15,9 @@ fn roundtrip(src: str) void = {
 	let u = ast::subunit {
 		imports = [],
 		decls: []ast::decl = match (decls(&lexer)) {
-		case decls: []ast::decl =>
+		case let decls: []ast::decl =>
 			yield decls;
-		case err: error =>
+		case let err: error =>
 			fmt::errorln(strerror(err))!;
 			abort();
 		},

@@ -87,7 +87,7 @@ fn xmltest(input: str, expected: []token, error: bool) void = {
 	let parser = parse(in) as *parser;
 	for (let i = 0z; i < len(expected); i += 1) {
 		let tok = match (scan(parser)) {
-		case tok: token =>
+		case let tok: token =>
 			yield tok;
 		case void =>
 			abort("Expected token, got void");
@@ -95,16 +95,16 @@ fn xmltest(input: str, expected: []token, error: bool) void = {
 			abort("Expected token, got syntax error");
 		};
 		match (tok) {
-		case el: elementstart =>
+		case let el: elementstart =>
 			let ex = expected[i] as elementstart;
 			assert(el == ex);
-		case at: attribute =>
+		case let at: attribute =>
 			let ex = expected[i] as attribute;
 			assert(at.0 == ex.0 && at.1 == ex.1);
-		case tx: text =>
+		case let tx: text =>
 			let ex = expected[i] as text;
 			assert(tx == ex);
-		case el: elementend =>
+		case let el: elementend =>
 			let ex = expected[i] as elementend;
 			assert(el == ex);
 		};

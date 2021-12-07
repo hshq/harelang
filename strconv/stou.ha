@@ -27,7 +27,7 @@ export fn stou64b(s: str, base: uint) (u64 | invalid | overflow) = {
 	let iter = strings::iter(s);
 	for (true) {
 		let r: rune = match (strings::next(&iter)) {
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		case void =>
 			break;
@@ -36,7 +36,7 @@ export fn stou64b(s: str, base: uint) (u64 | invalid | overflow) = {
 		let digit = match (rune_to_integer(r)) {
 		case void =>
 			return (iter.dec.offs - 1): invalid;
-		case d: u64 =>
+		case let d: u64 =>
 			yield d;
 		};
 
@@ -111,16 +111,16 @@ export fn stozb(s: str, base: uint) (size | invalid | overflow) = {
 	static assert(size(size) == size(u32) || size(size) == size(u64));
 	if (size(size) == size(u32)) {
 		match (stou32b(s, base)) {
-		case v: (invalid | overflow) =>
+		case let v: (invalid | overflow) =>
 			return v;
-		case n: u32 =>
+		case let n: u32 =>
 			return n: size;
 		};
 	} else {
 		match (stou64b(s, base)) {
-		case v: (invalid | overflow) =>
+		case let v: (invalid | overflow) =>
 			return v;
-		case n: u64 =>
+		case let n: u64 =>
 			return n: size;
 		};
 	};

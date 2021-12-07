@@ -2,9 +2,9 @@
 // bytes, or void if it is not found.
 export fn index(haystack: []u8, needle: (u8 | []u8)) (size | void) = {
 	return match (needle) {
-	case b: u8 =>
+	case let b: u8 =>
 		yield index_byte(haystack, b);
-	case b: []u8 =>
+	case let b: []u8 =>
 		yield index_slice(haystack, b);
 	};
 };
@@ -31,9 +31,9 @@ case =>
 // bytes, or void if it is not found.
 export fn rindex(haystack: []u8, needle: (u8 | []u8)) (size | void) = {
 	match (needle) {
-	case b: u8 =>
+	case let b: u8 =>
 		return rindex_byte(haystack, b);
-	case b: []u8 =>
+	case let b: []u8 =>
 		return rindex_slice(haystack, b);
 	};
 };

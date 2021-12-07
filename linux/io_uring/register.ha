@@ -11,7 +11,7 @@ export fn register_buffers(ring: *io_uring, iov: []rt::iovec) (void | error) = {
 	assert(len(iov) <= types::UINT_MAX);
 	match (rt::io_uring_register(ring.fd, regop::REGISTER_BUFFERS,
 			iov: *[*]rt::iovec, len(iov): uint)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -21,7 +21,7 @@ export fn register_buffers(ring: *io_uring, iov: []rt::iovec) (void | error) = {
 export fn unregister_buffers(ring: *io_uring) (void | error) = {
 	match (rt::io_uring_register(ring.fd,
 			regop::UNREGISTER_BUFFERS, null, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -34,7 +34,7 @@ export fn register_files(ring: *io_uring, files: []int) (void | error) = {
 	assert(len(files) <= types::UINT_MAX);
 	match (rt::io_uring_register(ring.fd, regop::REGISTER_FILES,
 			files: *[*]int, len(files): uint)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -49,7 +49,7 @@ export fn register_files_update(
 	assert(len(updates) <= types::UINT_MAX);
 	match (rt::io_uring_register(ring.fd, regop::REGISTER_FILES_UPDATE,
 			updates: *[*]files_update, len(updates): uint)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -59,7 +59,7 @@ export fn register_files_update(
 export fn unregister_files(ring: *io_uring) (void | error) = {
 	match (rt::io_uring_register(ring.fd,
 			regop::UNREGISTER_FILES, null, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -70,7 +70,7 @@ export fn unregister_files(ring: *io_uring) (void | error) = {
 export fn register_eventfd(ring: *io_uring, fd: int) (void | error) = {
 	match (rt::io_uring_register(ring.fd,
 			regop::REGISTER_EVENTFD, &fd, 1)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -81,7 +81,7 @@ export fn register_eventfd(ring: *io_uring, fd: int) (void | error) = {
 export fn register_eventfd_async(ring: *io_uring, fd: int) (void | error) = {
 	match (rt::io_uring_register(ring.fd,
 			regop::REGISTER_EVENTFD_ASYNC, &fd, 1)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -91,7 +91,7 @@ export fn register_eventfd_async(ring: *io_uring, fd: int) (void | error) = {
 export fn unregister_eventfd(ring: *io_uring) (void | error) = {
 	match (rt::io_uring_register(ring.fd,
 			regop::UNREGISTER_EVENTFD, null, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -116,7 +116,7 @@ export fn register_personality(ring: *io_uring) int = {
 			regop::REGISTER_PERSONALITY, null, 0)) {
 	case rt::errno =>
 		abort("Unexpected io_uring REGISTER_PERSONALITY error");
-	case i: int =>
+	case let i: int =>
 		return i;
 	};
 };
@@ -126,7 +126,7 @@ export fn register_personality(ring: *io_uring) int = {
 export fn unregister_personality(ring: *io_uring, id: int) (void | error) = {
 	match (rt::io_uring_register(ring.fd,
 			regop::UNREGISTER_PERSONALITY, null, id: uint)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -138,7 +138,7 @@ export fn unregister_personality(ring: *io_uring, id: int) (void | error) = {
 export fn register_enable_rings(ring: *io_uring) (void | error) = {
 	match (rt::io_uring_register(ring.fd,
 			regop::REGISTER_ENABLE_RINGS, null, 0)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};
@@ -152,7 +152,7 @@ export fn register_restrictions(ring: *io_uring, res: []restriction) (void | err
 	assert(len(res) < types::UINT_MAX);
 	match (rt::io_uring_register(ring.fd, regop::REGISTER_RESTRICTIONS,
 			res: *[*]restriction, len(res): uint)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;
 	};

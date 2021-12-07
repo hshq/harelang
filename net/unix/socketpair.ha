@@ -9,7 +9,7 @@ use io;
 export fn socketpair() ((io::file, io::file) | net::error) = {
 	let sv: [2]int = [0...];
 	match (rt::socketpair(rt::AF_UNIX : int, rt::SOCK_STREAM : int, 0, &sv)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	case =>
 		return (io::fdopen(sv[0]), io::fdopen(sv[1]));

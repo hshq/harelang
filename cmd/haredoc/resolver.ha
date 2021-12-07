@@ -20,14 +20,14 @@ fn resolve(ctx: *context, what: ast::ident) ((ast::ident, symkind) | void) = {
 		let partial = what[..len(what) - 1];
 
 		match (module::lookup(ctx.mctx, partial)) {
-		case ver: module::version =>
+		case let ver: module::version =>
 			return (what, symkind::SYMBOL);
 		case module::error => void;
 		};
 	};
 
 	match (module::lookup(ctx.mctx, what)) {
-	case ver: module::version =>
+	case let ver: module::version =>
 		return (what, symkind::MODULE);
 	case module::error => void;
 	};

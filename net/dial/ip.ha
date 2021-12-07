@@ -12,9 +12,9 @@ fn dial_tcp(addr: str, service: str) (io::file | error) = {
 	for (let i = 0z; i < len(addrs); i += 1) {
 		const addr = addrs[i];
 		match (tcp::connect(addr, port)) {
-		case conn: io::file =>
+		case let conn: io::file =>
 			return conn;
-		case err: net::error =>
+		case let err: net::error =>
 			if (i + 1 >= len(addrs)) {
 				return err;
 			};
@@ -29,9 +29,9 @@ fn dial_udp(addr: str, service: str) (io::file | error) = {
 	for (let i = 0z; i < len(addrs); i += 1) {
 		const addr = addrs[i];
 		match (udp::connect(addr, port)) {
-		case sock: io::file =>
+		case let sock: io::file =>
 			return sock;
-		case err: net::error =>
+		case let err: net::error =>
 			if (i + 1 >= len(addrs)) {
 				return err;
 			};

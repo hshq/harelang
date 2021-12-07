@@ -38,7 +38,7 @@ fn qtype_lookup(
 	extype: bool,
 ) const *qtype = {
 	match (_type.repr) {
-	case bi: builtin =>
+	case let bi: builtin =>
 		switch (bi) {
 		case builtin::CHAR =>
 			return if (extype) &qbyte else &qword;
@@ -81,10 +81,10 @@ fn qtype_repr(qtype: const *qtype) const str = {
 	// XXX: This dereference should not be necessary after the match
 	// overhaul
 	match (*qtype) {
-	case st: stype =>
+	case let st: stype =>
 		static let buf: [1]u8 = [0...];
 		return fmt::bsprintf(buf, "{}", st: rune);
-	case qc: qcompound => abort(); // TODO
+	case let qc: qcompound => abort(); // TODO
 	case void =>
 		return "";
 	};

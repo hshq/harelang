@@ -10,7 +10,7 @@ fn ncmp(a: const *void, b: const *void) int = {
 		match (search(nums[..], size(int), &key, &ncmp): nullable *int) {
 		case null =>
 			abort();
-		case p: *int =>
+		case let p: *int =>
 			assert(p == &nums[i] && *p == nums[i]);
 		};
 	};

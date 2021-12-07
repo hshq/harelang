@@ -30,11 +30,11 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 	};
 
 	let ver = match (module::lookup(plan.context, ident)) {
-	case err: module::error =>
+	case let err: module::error =>
 		let ident = unparse::identstr(ident);
 		fmt::fatal("Error resolving {}: {}", ident,
 			module::strerror(err));
-	case ver: module::version =>
+	case let ver: module::version =>
 		yield ver;
 	};
 
@@ -197,10 +197,10 @@ fn sched_hare_object(
 		// overwriting with just the latest
 		let manifest = match (module::manifest_load(
 				plan.context, namespace)) {
-		case err: module::error =>
+		case let err: module::error =>
 			fmt::fatal("Error reading cache entry for {}: {}", ns,
 				module::strerror(err));
-		case m: module::manifest =>
+		case let m: module::manifest =>
 			yield m;
 		};
 		defer module::manifest_finish(&manifest);
@@ -219,7 +219,7 @@ fn sched_hare_object(
 		};
 		match (os::mkdirs(path)) {
 		case void => void;
-		case err: fs::error =>
+		case let err: fs::error =>
 			fmt::fatal("Error: mkdirs {}: {}", path,
 				fs::strerror(err));
 		};

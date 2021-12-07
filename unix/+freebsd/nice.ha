@@ -18,7 +18,7 @@ export fn nice(inc: int) (void | errors::error) = {
 	};
 	match (rt::setpriority(rt::PRIO_PROCESS, 0, prio)) {
 	case void => void;
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	};
 };

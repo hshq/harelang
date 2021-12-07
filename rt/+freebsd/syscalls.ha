@@ -12,16 +12,16 @@ let pathbuf: [PATH_MAX + 1]u8 = [0...];
 
 fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
 	let path = match (path) {
-	case c: *const char =>
+	case let c: *const char =>
 		return c;
-	case s: str =>
+	case let s: str =>
 		let ptr = &s: *struct {
 			buf: *[*]u8,
 			length: size,
 			capacity: size,
 		};
 		yield ptr.buf[..ptr.length];
-	case b: []u8 =>
+	case let b: []u8 =>
 		yield b;
 	};
 	if (len(path) + 1 >= len(pathbuf)) {
@@ -172,14 +172,14 @@ export fn faccessat(
 	let path = kpath(path)?;
 	match (wrap_return(syscall4(SYS_faccessat, dirfd: u64,
 		path: uintptr: u64, mode: u64, flags: u64))) {
-	case err: errno =>
+	case let err: errno =>
 		switch (err) {
 		case EACCES =>
 			return false;
 		case =>
 			return err;
 		};
-	case n: u64 =>
+	case let n: u64 =>
 		assert(n == 0);
 		return true;
 	};
@@ -258,7 +258,7 @@ export fn fexecve(fd: int, argv: *[*]nullable *const char,
 		envp: *[*]nullable *const char) errno = {
 	return match (wrap_return(syscall3(SYS_fexecve, fd: u64,
 		argv: uintptr: u64, envp: uintptr: u64))) {
-	case err: errno =>
+	case let err: errno =>
 		yield err;
 	case u64 =>
 		abort("unreachable");
@@ -342,11 +342,11 @@ export fn fcntl(fd: int, cmd: int, arg: fcntl_arg) (int | errno) = {
 	return wrap_return(match (arg) {
 	case void =>
 		yield syscall2(SYS_fcntl, _fd, _cmd);
-	case i: int =>
+	case let i: int =>
 		yield syscall3(SYS_fcntl, _fd, _cmd, i: u64);
-	case l: *st_flock =>
+	case let l: *st_flock =>
 		yield syscall3(SYS_fcntl, _fd, _cmd, l: uintptr: u64);
-	case u: *u64 =>
+	case let u: *u64 =>
 		yield syscall3(SYS_fcntl, _fd, _cmd, u: uintptr: u64);
 	})?: int;
 };

@@ -4,7 +4,7 @@ export fn drain(in: io::handle) ([]u8 | io::error) = {
 	static let buf: [4096]u8 = [0...];
 	for (true) {
 		match (read(in, buf[..])?) {
-		case n: size =>
+		case let n: size =>
 			append(sink, buf[..n]...);
 		case EOF =>
 			break;

@@ -59,9 +59,9 @@ export fn mmap(
 	offs: size
 ) (*void | errors::error) = {
 	match (rt::mmap(addr, length, prot, flags, fd, offs)) {
-	case ptr: *void =>
+	case let ptr: *void =>
 		return ptr;
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	};
 };
@@ -71,7 +71,7 @@ export fn munmap(addr: *void, length: size) (void | errors::error) = {
 	match (rt::munmap(addr, length)) {
 	case void =>
 		return;
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
 	};
 };

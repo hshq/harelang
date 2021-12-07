@@ -132,14 +132,14 @@ export fn parse(args: []str, help: help...) command = {
 				let p: parameter_help = match (help[j]) {
 				case cmd_help =>
 					continue :help;
-				case f: flag_help =>
+				case let f: flag_help =>
 					if (r == f.0) {
 						append(opts, (r, ""));
 						continue :flag;
 					} else {
 						continue :help;
 					};
-				case p: parameter_help =>
+				case let p: parameter_help =>
 					yield if (r == p.0) p else
 						continue :help;
 				};
@@ -247,16 +247,16 @@ export fn printhelp(out: io::handle, name: str, help: []help) void = {
 
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
 	case cmd_help => void;
-	case f: flag_help =>
+	case let f: flag_help =>
 		fmt::fprintfln(out, "-{}: {}", f.0: rune, f.1)!;
-	case p: parameter_help =>
+	case let p: parameter_help =>
 		fmt::fprintfln(out, "-{} <{}>: {}", p.0: rune, p.1, p.2)!;
 	};
 };
 
 fn errmsg(name: str, err: str, opt: (rune | void), help: []help) void = {
 	fmt::errorfln("{}: {}{}", name, err, match (opt) {
-	case r: rune =>
+	case let r: rune =>
 		yield r;
 	case void =>
 		yield "";

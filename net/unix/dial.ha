@@ -4,9 +4,9 @@ use net;
 
 fn dial_unix(addr: str, service: str) (io::file | dial::error) = {
 	match (connect(addr)) {
-	case conn: io::file =>
+	case let conn: io::file =>
 		return conn;
-	case err: net::error =>
+	case let err: net::error =>
 		return err;
 	};
 };

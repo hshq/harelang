@@ -29,7 +29,7 @@ export fn load() []ip::addr = {
 		const line = match (bufio::scanline(file)) {
 		case io::EOF =>
 			break;
-		case line: []u8 =>
+		case let line: []u8 =>
 			yield line;
 		};
 		defer free(line);
@@ -43,7 +43,7 @@ export fn load() []ip::addr = {
 		const tok = match (bufio::scantok(scanner, ' ', '\t')!) {
 		case io::EOF =>
 			break;
-		case tok: []u8 =>
+		case let tok: []u8 =>
 			yield tok;
 		};
 		defer free(tok);
@@ -54,7 +54,7 @@ export fn load() []ip::addr = {
 		const tok = match (bufio::scantok(scanner, ' ')!) {
 		case io::EOF =>
 			break;
-		case tok: []u8 =>
+		case let tok: []u8 =>
 			yield tok;
 		};
 		defer free(tok);

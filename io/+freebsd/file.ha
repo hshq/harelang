@@ -16,9 +16,9 @@ export fn fdopen(fd: int) file = fd;
 
 fn fd_read(fd: file, buf: []u8) (size | EOF | error) = {
 	match (rt::read(fd, buf: *[*]u8, len(buf))) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case n: size =>
+	case let n: size =>
 		switch (n) {
 		case 0 =>
 			return EOF;
@@ -30,9 +30,9 @@ fn fd_read(fd: file, buf: []u8) (size | EOF | error) = {
 
 fn fd_write(fd: file, buf: const []u8) (size | error) = {
 	match (rt::write(fd, buf: *const [*]u8, len(buf))) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case n: size =>
+	case let n: size =>
 		return n;
 	};
 };
@@ -45,9 +45,9 @@ fn fd_seek(
 	whence: whence,
 ) (off | error) = {
 	match (rt::lseek(fd, off: i64, whence: uint)) {
-	case err: rt::errno =>
+	case let err: rt::errno =>
 		return errors::errno(err);
-	case n: i64 =>
+	case let n: i64 =>
 		return n: off;
 	};
 };
