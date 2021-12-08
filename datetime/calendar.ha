@@ -26,7 +26,7 @@ export fn epochal(dt: *datetime) int = {
 		// Use calc_epochal_from_*? How to avoid recursion?
 		// When to rely on input validation?
 		abort("TODO");
-	case e: int =>
+	case let e: int =>
 		return e;
 	};
 };
@@ -40,7 +40,7 @@ export fn era(dt: *datetime) int = {
 		};
 		dt.date.era = calc_era(dt.date.year: int);
 		return dt.date.era: int;
-	case a: int =>
+	case let a: int =>
 		return a;
 	};
 };
@@ -57,7 +57,7 @@ export fn year(dt: *datetime) int = {
 		dt.date.month = ymd.1;
 		dt.date.day = ymd.2;
 		return dt.date.year: int;
-	case y: int =>
+	case let y: int =>
 		return y;
 	};
 };
@@ -74,7 +74,7 @@ export fn month(dt: *datetime) int = {
 		dt.date.month = ymd.1;
 		dt.date.day = ymd.2;
 		return dt.date.month: int;
-	case y: int =>
+	case let y: int =>
 		return y;
 	};
 };
@@ -91,7 +91,7 @@ export fn day(dt: *datetime) int = {
 		dt.date.month = ymd.1;
 		dt.date.day = ymd.2;
 		return dt.date.day: int;
-	case y: int =>
+	case let y: int =>
 		return y;
 	};
 };
@@ -105,7 +105,7 @@ export fn weekday(dt: *datetime) int = {
 		};
 		dt.date.weekday = calc_weekday(dt.date.epochal: int);
 		return dt.date.weekday: int;
-	case y: int =>
+	case let y: int =>
 		return y;
 	};
 };
@@ -129,7 +129,7 @@ export fn yearday(dt: *datetime) int = {
 			dt.date.day: int,
 		);
 		return dt.date.yearday: int;
-	case yd: int =>
+	case let yd: int =>
 		return yd;
 	};
 };
@@ -157,7 +157,7 @@ export fn isoweekyear(dt: *datetime) int = {
 			dt.date.weekday: int,
 		);
 		return dt.date.isoweekyear: int;
-	case iwy: int =>
+	case let iwy: int =>
 		return iwy;
 	};
 };
@@ -177,7 +177,7 @@ export fn week(dt: *datetime) int = {
 			dt.date.weekday: int,
 		);
 		return dt.date.week: int;
-	case w: int =>
+	case let w: int =>
 		return w;
 	};
 };
@@ -205,7 +205,7 @@ export fn isoweek(dt: *datetime) int = {
 			dt.date.yearday: int,
 		);
 		return dt.date.isoweek: int;
-	case iw: int =>
+	case let iw: int =>
 		return iw;
 	};
 };
@@ -220,7 +220,7 @@ export fn hour(dt: *datetime) int = {
 	match (dt.time.hour) {
 	case void =>
 		abort("TODO");
-	case h: int =>
+	case let h: int =>
 		return h;
 	};
 };
@@ -230,7 +230,7 @@ export fn min(dt: *datetime) int = {
 	match (dt.time.min) {
 	case void =>
 		abort("TODO");
-	case m: int =>
+	case let m: int =>
 		return m;
 	};
 };
@@ -240,7 +240,7 @@ export fn sec(dt: *datetime) int = {
 	match (dt.time.sec) {
 	case void =>
 		abort("TODO");
-	case s: int =>
+	case let s: int =>
 		return s;
 	};
 };
@@ -250,7 +250,7 @@ export fn nsec(dt: *datetime) int = {
 	match (dt.time.nsec) {
 	case void =>
 		abort("TODO");
-	case n: int =>
+	case let n: int =>
 		return n;
 	};
 };

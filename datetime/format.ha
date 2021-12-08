@@ -65,7 +65,7 @@ fn get_max_n_digits(iter: *strings::iterator, n: uint) (int | errors::invalid) =
 		let r: rune = match (strings::next(iter)) {
 			case void =>
 				break;
-			case r: rune =>
+			case let r: rune =>
 				yield r;
 		};
 		if (!ascii::isdigit(r)) {
@@ -80,7 +80,7 @@ fn get_max_n_digits(iter: *strings::iterator, n: uint) (int | errors::invalid) =
 		};
 	};
 	return match (strconv::stoi(strio::string(bufstr))) {
-	case res: int =>
+	case let res: int =>
 		yield res;
 	case =>
 		yield errors::invalid;
@@ -91,7 +91,7 @@ fn eat_one_rune(iter: *strings::iterator, needle: rune) (uint | errors::invalid)
 	let s_r = match (strings::next(iter)) {
 	case void =>
 		return errors::invalid;
-	case r: rune =>
+	case let r: rune =>
 		yield r;
 	};
 	if (s_r == needle) {
@@ -125,7 +125,7 @@ export fn strptime(format: str, s: str, dt: *datetime) (void | errors::invalid) 
 		let format_r: rune = match (strings::next(&format_iter)) {
 		case void =>
 			break;
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		};
 
@@ -138,7 +138,7 @@ export fn strptime(format: str, s: str, dt: *datetime) (void | errors::invalid) 
 			let s_r = match (strings::next(&s_iter)) {
 			case void =>
 				return errors::invalid;
-			case r: rune =>
+			case let r: rune =>
 				yield r;
 			};
 			if (s_r != format_r) {
@@ -189,7 +189,7 @@ export fn strptime(format: str, s: str, dt: *datetime) (void | errors::invalid) 
 			};
 			const hour = get_max_n_digits(&s_iter, max_n_digits);
 			dt.time.hour = match (hour) {
-			case hour: int =>
+			case let hour: int =>
 				yield if (hour > 12) {
 					yield clamp_int(hour - 12, 1, 12);
 				} else {
@@ -257,7 +257,7 @@ export fn strptime(format: str, s: str, dt: *datetime) (void | errors::invalid) 
 			eat_one_rune(&s_iter, '\t')?;
 		case 'u', 'w' =>
 			dt.date.weekday = match (get_max_n_digits(&s_iter, 1)) {
-			case i: int =>
+			case let i: int =>
 				yield if (format_r == 'w') {
 					yield if (i == 0) {
 						yield 7;
@@ -354,7 +354,7 @@ export fn strptime(format: str, s: str, dt: *datetime) (void | errors::invalid) 
 			// TODO: Localization
 			// Time
 			dt.time.hour = match (get_max_n_digits(&s_iter, 2)) {
-			case hour: int =>
+			case let hour: int =>
 				yield if (hour > 12) {
 					yield clamp_int(hour - 12, 1, 12);
 				} else {
@@ -455,7 +455,7 @@ export fn fmttime(h: io::handle, format: str, dt: *datetime) (size | errors::inv
 		let r: rune = match (strings::next(&iter)) {
 		case void =>
 			break;
-		case r: rune =>
+		case let r: rune =>
 			yield r;
 		};
 

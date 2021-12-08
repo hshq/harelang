@@ -66,7 +66,7 @@ export fn hop(dt: datetime, pp: period...) datetime = {
 //
 // TODO:
 // How to handle overflows and predictability with cal-arithm in general?
-export fn add(m: datetime, flag: int, pp: period...) datetime = {
+export fn add(dt: datetime, flag: int, pp: period...) datetime = {
 	// TODO
 	for (let i = 0z; i < len(pp); i += 1) {
 		const p = pp[i];
