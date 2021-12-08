@@ -1,5 +1,5 @@
 use time;
-use chrono;
+use time::chrono;
 
 
 // The epoch of the Julian Day Number

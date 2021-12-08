@@ -21,6 +21,5 @@ export type moment = struct {
 // 1970-01-01 is "the Hare date-epoch". It was chosen out of simplicity to match
 // the UNIX timescale epoch. This shouldn't affect performance in calendar
 // implementations because they can convert to other epochs if they so desire.
-// (as of writing) chrono::isocal:: converts to the Julian epoch for
-// calculations.
+// (as of writing) datetime:: converts to the Julian epoch for calculations.
 export type epochal = i64;

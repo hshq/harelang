@@ -181,21 +181,13 @@ bytes() {
 	gen_ssa bytes types
 }
 
-chrono() {
-	gen_srcs chrono \
-		chronology.ha \
-		timescales.ha \
-		timezone.ha
-	gen_ssa chrono time
-}
-
-chrono_isocal() {
-	gen_srcs chrono::isocal \
+datetime() {
+	gen_srcs datetime \
 		calendar.ha \
 		datetime.ha \
 		date.ha \
 		time.ha
-	gen_ssa chrono::isocal chrono time
+	gen_ssa datetime time time::chrono
 }
 
 compress_flate() {
@@ -1180,6 +1172,14 @@ time() {
 	gen_ssa -pfreebsd time
 }
 
+time_chrono() {
+	gen_srcs time::chrono \
+		chronology.ha \
+		timescales.ha \
+		timezone.ha
+	gen_ssa time::chrono time
+}
+
 types() {
 	gen_srcs types \
 		limits.ha \
@@ -1271,8 +1271,6 @@ uuid() {
 modules="ascii
 bufio
 bytes
-chrono
-chrono::isocal
 compress::flate
 compress::zlib
 crypto
@@ -1292,6 +1290,7 @@ crypto::sha1
 crypto::sha256
 crypto::sha512
 crypto::curve25519
+datetime
 dirs
 encoding::base64
 encoding::base32
@@ -1348,6 +1347,7 @@ strings
 strio
 temp			linux freebsd
 time			linux freebsd
+time::chrono
 types
 unix			linux freebsd
 unix::hosts

@@ -1,4 +1,4 @@
-use chrono;
+use time::chrono;
 
 // Represents an ISO calendar date.
 // Instances created from isocal:: functions are guaranteed to be valid.

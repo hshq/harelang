@@ -148,18 +148,6 @@ stdlib_deps_any+=$(stdlib_bytes_any)
 stdlib_bytes_linux=$(stdlib_bytes_any)
 stdlib_bytes_freebsd=$(stdlib_bytes_any)
 
-# gen_lib chrono (any)
-stdlib_chrono_any=$(HARECACHE)/chrono/chrono-any.o
-stdlib_deps_any+=$(stdlib_chrono_any)
-stdlib_chrono_linux=$(stdlib_chrono_any)
-stdlib_chrono_freebsd=$(stdlib_chrono_any)
-
-# gen_lib chrono::isocal (any)
-stdlib_chrono_isocal_any=$(HARECACHE)/chrono/isocal/chrono_isocal-any.o
-stdlib_deps_any+=$(stdlib_chrono_isocal_any)
-stdlib_chrono_isocal_linux=$(stdlib_chrono_isocal_any)
-stdlib_chrono_isocal_freebsd=$(stdlib_chrono_isocal_any)
-
 # gen_lib compress::flate (any)
 stdlib_compress_flate_any=$(HARECACHE)/compress/flate/compress_flate-any.o
 stdlib_deps_any+=$(stdlib_compress_flate_any)
@@ -275,6 +263,12 @@ stdlib_crypto_curve25519_any=$(HARECACHE)/crypto/curve25519/crypto_curve25519-an
 stdlib_deps_any+=$(stdlib_crypto_curve25519_any)
 stdlib_crypto_curve25519_linux=$(stdlib_crypto_curve25519_any)
 stdlib_crypto_curve25519_freebsd=$(stdlib_crypto_curve25519_any)
+
+# gen_lib datetime (any)
+stdlib_datetime_any=$(HARECACHE)/datetime/datetime-any.o
+stdlib_deps_any+=$(stdlib_datetime_any)
+stdlib_datetime_linux=$(stdlib_datetime_any)
+stdlib_datetime_freebsd=$(stdlib_datetime_any)
 
 # gen_lib dirs (any)
 stdlib_dirs_any=$(HARECACHE)/dirs/dirs-any.o
@@ -622,6 +616,12 @@ stdlib_deps_linux+=$(stdlib_time_linux)
 stdlib_time_freebsd=$(HARECACHE)/time/time-freebsd.o
 stdlib_deps_freebsd+=$(stdlib_time_freebsd)
 
+# gen_lib time::chrono (any)
+stdlib_time_chrono_any=$(HARECACHE)/time/chrono/time_chrono-any.o
+stdlib_deps_any+=$(stdlib_time_chrono_any)
+stdlib_time_chrono_linux=$(stdlib_time_chrono_any)
+stdlib_time_chrono_freebsd=$(stdlib_time_chrono_any)
+
 # gen_lib types (any)
 stdlib_types_any=$(HARECACHE)/types/types-any.o
 stdlib_deps_any+=$(stdlib_types_any)
@@ -718,31 +718,6 @@ $(HARECACHE)/bytes/bytes-any.ssa: $(stdlib_bytes_any_srcs) $(stdlib_rt) $(stdlib
 	@mkdir -p $(HARECACHE)/bytes
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbytes \
 		-t$(HARECACHE)/bytes/bytes.td $(stdlib_bytes_any_srcs)
-
-# chrono (+any)
-stdlib_chrono_any_srcs= \
-	$(STDLIB)/chrono/chronology.ha \
-	$(STDLIB)/chrono/timescales.ha \
-	$(STDLIB)/chrono/timezone.ha
-
-$(HARECACHE)/chrono/chrono-any.ssa: $(stdlib_chrono_any_srcs) $(stdlib_rt) $(stdlib_time_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/chrono
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nchrono \
-		-t$(HARECACHE)/chrono/chrono.td $(stdlib_chrono_any_srcs)
-
-# chrono::isocal (+any)
-stdlib_chrono_isocal_any_srcs= \
-	$(STDLIB)/chrono/isocal/calendar.ha \
-	$(STDLIB)/chrono/isocal/datetime.ha \
-	$(STDLIB)/chrono/isocal/date.ha \
-	$(STDLIB)/chrono/isocal/time.ha
-
-$(HARECACHE)/chrono/isocal/chrono_isocal-any.ssa: $(stdlib_chrono_isocal_any_srcs) $(stdlib_rt) $(stdlib_chrono_$(PLATFORM)) $(stdlib_time_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/chrono/isocal
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nchrono::isocal \
-		-t$(HARECACHE)/chrono/isocal/chrono_isocal.td $(stdlib_chrono_isocal_any_srcs)
 
 # compress::flate (+any)
 stdlib_compress_flate_any_srcs= \
@@ -951,6 +926,19 @@ $(HARECACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(stdlib_crypto_curve2
 	@mkdir -p $(HARECACHE)/crypto/curve25519
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::curve25519 \
 		-t$(HARECACHE)/crypto/curve25519/crypto_curve25519.td $(stdlib_crypto_curve25519_any_srcs)
+
+# datetime (+any)
+stdlib_datetime_any_srcs= \
+	$(STDLIB)/datetime/calendar.ha \
+	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/date.ha \
+	$(STDLIB)/datetime/time.ha
+
+$(HARECACHE)/datetime/datetime-any.ssa: $(stdlib_datetime_any_srcs) $(stdlib_rt) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/datetime
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ndatetime \
+		-t$(HARECACHE)/datetime/datetime.td $(stdlib_datetime_any_srcs)
 
 # dirs (+any)
 stdlib_dirs_any_srcs= \
@@ -1797,6 +1785,18 @@ $(HARECACHE)/time/time-freebsd.ssa: $(stdlib_time_freebsd_srcs) $(stdlib_rt)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime \
 		-t$(HARECACHE)/time/time.td $(stdlib_time_freebsd_srcs)
 
+# time::chrono (+any)
+stdlib_time_chrono_any_srcs= \
+	$(STDLIB)/time/chrono/chronology.ha \
+	$(STDLIB)/time/chrono/timescales.ha \
+	$(STDLIB)/time/chrono/timezone.ha
+
+$(HARECACHE)/time/chrono/time_chrono-any.ssa: $(stdlib_time_chrono_any_srcs) $(stdlib_rt) $(stdlib_time_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/time/chrono
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::chrono \
+		-t$(HARECACHE)/time/chrono/time_chrono.td $(stdlib_time_chrono_any_srcs)
+
 # types (+any)
 stdlib_types_any_srcs= \
 	$(STDLIB)/types/limits.ha \
@@ -2092,18 +2092,6 @@ testlib_deps_any+=$(testlib_bytes_any)
 testlib_bytes_linux=$(testlib_bytes_any)
 testlib_bytes_freebsd=$(testlib_bytes_any)
 
-# gen_lib chrono (any)
-testlib_chrono_any=$(TESTCACHE)/chrono/chrono-any.o
-testlib_deps_any+=$(testlib_chrono_any)
-testlib_chrono_linux=$(testlib_chrono_any)
-testlib_chrono_freebsd=$(testlib_chrono_any)
-
-# gen_lib chrono::isocal (any)
-testlib_chrono_isocal_any=$(TESTCACHE)/chrono/isocal/chrono_isocal-any.o
-testlib_deps_any+=$(testlib_chrono_isocal_any)
-testlib_chrono_isocal_linux=$(testlib_chrono_isocal_any)
-testlib_chrono_isocal_freebsd=$(testlib_chrono_isocal_any)
-
 # gen_lib compress::flate (any)
 testlib_compress_flate_any=$(TESTCACHE)/compress/flate/compress_flate-any.o
 testlib_deps_any+=$(testlib_compress_flate_any)
@@ -2219,6 +2207,12 @@ testlib_crypto_curve25519_any=$(TESTCACHE)/crypto/curve25519/crypto_curve25519-a
 testlib_deps_any+=$(testlib_crypto_curve25519_any)
 testlib_crypto_curve25519_linux=$(testlib_crypto_curve25519_any)
 testlib_crypto_curve25519_freebsd=$(testlib_crypto_curve25519_any)
+
+# gen_lib datetime (any)
+testlib_datetime_any=$(TESTCACHE)/datetime/datetime-any.o
+testlib_deps_any+=$(testlib_datetime_any)
+testlib_datetime_linux=$(testlib_datetime_any)
+testlib_datetime_freebsd=$(testlib_datetime_any)
 
 # gen_lib dirs (any)
 testlib_dirs_any=$(TESTCACHE)/dirs/dirs-any.o
@@ -2566,6 +2560,12 @@ testlib_deps_linux+=$(testlib_time_linux)
 testlib_time_freebsd=$(TESTCACHE)/time/time-freebsd.o
 testlib_deps_freebsd+=$(testlib_time_freebsd)
 
+# gen_lib time::chrono (any)
+testlib_time_chrono_any=$(TESTCACHE)/time/chrono/time_chrono-any.o
+testlib_deps_any+=$(testlib_time_chrono_any)
+testlib_time_chrono_linux=$(testlib_time_chrono_any)
+testlib_time_chrono_freebsd=$(testlib_time_chrono_any)
+
 # gen_lib types (any)
 testlib_types_any=$(TESTCACHE)/types/types-any.o
 testlib_deps_any+=$(testlib_types_any)
@@ -2662,31 +2662,6 @@ $(TESTCACHE)/bytes/bytes-any.ssa: $(testlib_bytes_any_srcs) $(testlib_rt) $(test
 	@mkdir -p $(TESTCACHE)/bytes
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbytes \
 		-t$(TESTCACHE)/bytes/bytes.td $(testlib_bytes_any_srcs)
-
-# chrono (+any)
-testlib_chrono_any_srcs= \
-	$(STDLIB)/chrono/chronology.ha \
-	$(STDLIB)/chrono/timescales.ha \
-	$(STDLIB)/chrono/timezone.ha
-
-$(TESTCACHE)/chrono/chrono-any.ssa: $(testlib_chrono_any_srcs) $(testlib_rt) $(testlib_time_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/chrono
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nchrono \
-		-t$(TESTCACHE)/chrono/chrono.td $(testlib_chrono_any_srcs)
-
-# chrono::isocal (+any)
-testlib_chrono_isocal_any_srcs= \
-	$(STDLIB)/chrono/isocal/calendar.ha \
-	$(STDLIB)/chrono/isocal/datetime.ha \
-	$(STDLIB)/chrono/isocal/date.ha \
-	$(STDLIB)/chrono/isocal/time.ha
-
-$(TESTCACHE)/chrono/isocal/chrono_isocal-any.ssa: $(testlib_chrono_isocal_any_srcs) $(testlib_rt) $(testlib_chrono_$(PLATFORM)) $(testlib_time_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/chrono/isocal
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nchrono::isocal \
-		-t$(TESTCACHE)/chrono/isocal/chrono_isocal.td $(testlib_chrono_isocal_any_srcs)
 
 # compress::flate (+any)
 testlib_compress_flate_any_srcs= \
@@ -2912,6 +2887,19 @@ $(TESTCACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(testlib_crypto_curve
 	@mkdir -p $(TESTCACHE)/crypto/curve25519
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::curve25519 \
 		-t$(TESTCACHE)/crypto/curve25519/crypto_curve25519.td $(testlib_crypto_curve25519_any_srcs)
+
+# datetime (+any)
+testlib_datetime_any_srcs= \
+	$(STDLIB)/datetime/calendar.ha \
+	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/date.ha \
+	$(STDLIB)/datetime/time.ha
+
+$(TESTCACHE)/datetime/datetime-any.ssa: $(testlib_datetime_any_srcs) $(testlib_rt) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/datetime
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndatetime \
+		-t$(TESTCACHE)/datetime/datetime.td $(testlib_datetime_any_srcs)
 
 # dirs (+any)
 testlib_dirs_any_srcs= \
@@ -3785,6 +3773,18 @@ $(TESTCACHE)/time/time-freebsd.ssa: $(testlib_time_freebsd_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/time
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
 		-t$(TESTCACHE)/time/time.td $(testlib_time_freebsd_srcs)
+
+# time::chrono (+any)
+testlib_time_chrono_any_srcs= \
+	$(STDLIB)/time/chrono/chronology.ha \
+	$(STDLIB)/time/chrono/timescales.ha \
+	$(STDLIB)/time/chrono/timezone.ha
+
+$(TESTCACHE)/time/chrono/time_chrono-any.ssa: $(testlib_time_chrono_any_srcs) $(testlib_rt) $(testlib_time_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time/chrono
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
+		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_any_srcs)
 
 # types (+any)
 testlib_types_any_srcs= \

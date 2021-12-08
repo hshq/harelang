@@ -1,5 +1,5 @@
 use time;
-use chrono;
+use time::chrono;
 use errors;
 
 // Represents a ISO datetime
