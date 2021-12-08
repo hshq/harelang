@@ -280,7 +280,7 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 	// If we get here, we have pushed out all cached bytes and are ready to
 	// read some more. Reset the internal buffer here.
 	buf = [INVALID_OR_PAD...];
-	for (true) match (io::read(s.input, buf)) {
+	for (true) match (io::read(s.input, buf)?) {
 	case size =>
 		for (let i = 0z; i < 2; i += 1) {
 			if (decoder[buf[i]] == INVALID_OR_PAD) {
@@ -301,7 +301,7 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 			s.avail += 1;
 			// End of stream...
 			let extra: []u8 = [0];
-			match (io::read(s.input, extra)) {
+			match (io::read(s.input, extra)?) {
 			case size =>
 				return errors::invalid;
 			case io::EOF =>
@@ -312,8 +312,6 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 					s.avail = 0;
 				};
 				break;
-			case let err: io::error =>
-				return err;
 			};
 		} else {
 			buf[2] = decoder[buf[2]];
@@ -329,7 +327,7 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 			];
 			s.avail += 2;
 			let extra: []u8 = [0];
-			match (io::read(s.input, extra)) {
+			match (io::read(s.input, extra)?) {
 			case size =>
 				return errors::invalid;
 			case io::EOF =>
@@ -341,8 +339,6 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 				s.waseof = true;
 				z += n;
 				break;
-			case let err: io::error =>
-				return err;
 			};
 		} else {
 			buf[3] = decoder[buf[3]];
@@ -371,8 +367,6 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 			return io::EOF;
 		};
 		break;
-	case let err: io::error =>
-		return err;
 	};
 	return z;
 };
@@ -399,14 +393,12 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 		let out: []u8 = [];
 		defer free(out);
 
-		for (true) match (io::read(&dec, buf)) {
+		for (true) match (io::read(&dec, buf)!) {
 		case let z: size =>
 			append(out, buf[0]);
 			assert(z == 1);
 		case io::EOF =>
 			break;
-		case let err: io::error =>
-			abort();
 		};
 
 		assert(bytes::equal(out, strings::toutf8(expected)));
@@ -427,13 +419,11 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 		let out: []u8 = [];
 		defer free(out);
 
-		for (true) match (io::read(&dec, buf)) {
+		for (true) match (io::read(&dec, buf)!) {
 		case let z: size =>
 			append(out, buf[..z]...);
 		case io::EOF =>
 			break;
-		case let err: io::error =>
-			abort();
 		};
 
 		assert(bytes::equal(out, strings::toutf8(expected)));
