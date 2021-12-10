@@ -2387,7 +2387,7 @@ testlib_crypto_blake2b_any_srcs= \
 	$(STDLIB)/crypto/blake2b/+test.ha \
 	$(STDLIB)/crypto/blake2b/vectors+test.ha
 
-$(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(testlib_crypto_blake2b_any_srcs) $(testlib_rt) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM))
+$(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(testlib_crypto_blake2b_any_srcs) $(testlib_rt) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/blake2b
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::blake2b \

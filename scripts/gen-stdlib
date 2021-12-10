@@ -212,11 +212,13 @@ crypto_blake2b() {
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_crypto_blake2b
+		gen_ssa crypto::blake2b encoding::hex fmt hash io strings \
+			strio crypto::math endian
 	else
 		gensrcs_crypto_blake2b +test.ha vectors+test.ha
+		gen_ssa crypto::blake2b encoding::hex fmt hash io strings \
+			strio crypto::math endian bytes
 	fi
-	gen_ssa crypto::blake2b encoding::hex fmt hash io strings strio \
-		crypto::math endian
 }
 
 crypto_cipher() {

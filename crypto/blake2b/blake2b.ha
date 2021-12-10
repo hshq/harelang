@@ -76,16 +76,13 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 	let h = st: *digest;
 	let length = len(buf);
 	let buf = buf[..];
-	if (h.blocklen == BSIZE) {
-		assert(h.tlow == 0 && h.thigh == 0 && h.keylen != 0);
-		h.tlow += BSIZE;
-	};
+
 	for (h.blocklen + len(buf) > BSIZE) {
 		const n = BSIZE - h.blocklen;
 		h.block[h.blocklen..] = buf[..n];
 		buf = buf[n..];
 
-		h.tlow += n;
+		h.tlow += BSIZE;
 		if (h.tlow < n: u64) h.thigh += 1;
 
 		compress(&h.h, &h.block, h.tlow, h.thigh, false);
