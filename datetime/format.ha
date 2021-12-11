@@ -1,6 +1,6 @@
 use ascii;
 use errors;
-use fmt;
+use fmtlib = fmt;
 use io;
 use strconv;
 use strings;
@@ -40,76 +40,9 @@ def MONTHS_SHORT: [_]str = [
 	"Oct", "Nov", "Dec",
 ];
 
-fn get_default_locale_string_index(iter: *strings::iterator, list: []str) (int | errors::invalid) = {
-	const name = strings::iter_str(iter);
-	if (len(name) == 0) {
-		return errors::invalid;
-	};
-	for(let i = 0z; i < len(list); i += 1) {
-		if (strings::hasprefix(name, list[i])) {
-			// Consume name
-			for (let j = 0z; j < len(list[i]); j += 1) {
-				strings::next(iter);
-			};
-			return (i: int) + 1;
-		};
-	};
-	return errors::invalid;
-};
-
-fn get_max_n_digits(iter: *strings::iterator, n: uint) (int | errors::invalid) = {
-	let buf: [64]u8 = [0...];
-	let bufstr = strio::fixed(buf);
-	defer io::close(bufstr);
-	for (let i = 0z; i < n; i += 1) {
-		let r: rune = match (strings::next(iter)) {
-			case void =>
-				break;
-			case let r: rune =>
-				yield r;
-		};
-		if (!ascii::isdigit(r)) {
-			strings::prev(iter);
-			break;
-		};
-		match (strio::appendrune(bufstr, r)) {
-		case io::error =>
-			return errors::invalid;
-		case =>
-			void;
-		};
-	};
-	return match (strconv::stoi(strio::string(bufstr))) {
-	case let res: int =>
-		yield res;
-	case =>
-		yield errors::invalid;
-	};
-};
-
-fn eat_one_rune(iter: *strings::iterator, needle: rune) (uint | errors::invalid) = {
-	let s_r = match (strings::next(iter)) {
-	case void =>
-		return errors::invalid;
-	case let r: rune =>
-		yield r;
-	};
-	if (s_r == needle) {
-		return 1;
-	} else {
-		strings::prev(iter);
-		return 0;
-	};
-};
-
-fn clamp_int(i: int, min: int, max: int) int = {
-	return if (i < min) {
-		yield min;
-	} else if (i > max) {
-		yield max;
-	} else {
-		yield i;
-	};
+// TODO: docstr, reconcile fn names
+export fn parse(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
+	strptime(fmt, s, dt)?;
 };
 
 // Parses a datetime string into a [[datetime::datetime]].
@@ -117,8 +50,8 @@ fn clamp_int(i: int, min: int, max: int) int = {
 // The resulting [[datetime::datetime]] may not contain sufficient information
 // to be valid. Incremental parsing of data is possible, but the caller should
 // validate the [[datetime::datetime]] when appropriate.
-export fn strptime(format: str, s: str, dt: *datetime) (void | errors::invalid) = {
-	const format_iter = strings::iter(format);
+export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
+	const format_iter = strings::iter(fmt);
 	const s_iter = strings::iter(s);
 	let escaped = false;
 	for (true) {
@@ -290,38 +223,38 @@ export fn strptime(format: str, s: str, dt: *datetime) (void | errors::invalid) 
 			dt.date.weekday = get_default_locale_string_index(
 				&s_iter, WEEKDAYS_SHORT[..])?;
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
-				fmt::printfln("no space after weekday")!;
+				fmtlib::printfln("no space after weekday")!;
 				return errors::invalid;
 			};
 			dt.date.month = get_default_locale_string_index(
 				&s_iter, MONTHS_SHORT[..])?;
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
-				fmt::printfln("no space after month")!;
+				fmtlib::printfln("no space after month")!;
 				return errors::invalid;
 			};
 			const max_n_digits = 2 - eat_one_rune(&s_iter, ' ')?;
 			dt.date.day = clamp_int(
 				get_max_n_digits(&s_iter, max_n_digits)?, 1, 31);
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
-				fmt::printfln("no space after day")!;
+				fmtlib::printfln("no space after day")!;
 				return errors::invalid;
 			};
 			dt.time.hour = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 23);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
-				fmt::printfln("no : after hour")!;
+				fmtlib::printfln("no : after hour")!;
 				return errors::invalid;
 			};
 			dt.time.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
-				fmt::printfln("no : after minute")!;
+				fmtlib::printfln("no : after minute")!;
 				return errors::invalid;
 			};
 			dt.time.sec = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 61);
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
-				fmt::printfln("no space after sec")!;
+				fmtlib::printfln("no space after sec")!;
 				return errors::invalid;
 			};
 			dt.date.year = get_max_n_digits(&s_iter, 4)?;
@@ -431,24 +364,24 @@ export fn strptime(format: str, s: str, dt: *datetime) (void | errors::invalid) 
 
 // Formats a [[datetime]] and writes it into a caller supplied buffer.
 // The returned string is borrowed from this buffer.
-export fn bstrftime(buf: []u8, format: str, dt: *datetime) (str | errors::invalid | io::error) = {
+export fn bstrftime(buf: []u8, fmt: str, dt: *datetime) (str | errors::invalid | io::error) = {
 	let sink = strio::fixed(buf);
 	defer io::close(sink);
-	fmttime(sink, format, dt)?;
+	format(sink, fmt, dt)?;
 	return strio::string(sink);
 };
 
 // Formats a [[datetime]] and writes it into a heap-allocated string.
 // The caller must free the return value.
-export fn strftime(format: str, dt: *datetime) (str | errors::invalid | io::error) = {
+export fn strftime(fmt: str, dt: *datetime) (str | errors::invalid | io::error) = {
 	let sink = strio::dynamic();
-	fmttime(sink, format, dt)?;
+	format(sink, fmt, dt)?;
 	return strio::finish(sink);
 };
 
 // Formats a [[datetime]] and writes it into a [[io::handle]].
-export fn fmttime(h: io::handle, format: str, dt: *datetime) (size | errors::invalid | io::error) = {
-	const iter = strings::iter(format);
+export fn format(h: io::handle, fmt: str, dt: *datetime) (size | errors::invalid | io::error) = {
+	const iter = strings::iter(fmt);
 	let escaped = false;
 	let n = 0z;
 	for (true) {
@@ -491,9 +424,9 @@ export fn fmttime(h: io::handle, format: str, dt: *datetime) (size | errors::inv
 		case 'D' =>
 			yield strftime("%m/%d/%y", dt)?;
 		case 'd' =>
-			yield fmt::asprintf("{:02}", day(dt));
+			yield fmtlib::asprintf("{:02}", day(dt));
 		case 'e' =>
-			yield fmt::asprintf("{:2}", day(dt));
+			yield fmtlib::asprintf("{:2}", day(dt));
 		case 'F' =>
 			yield strftime("%Y-%m-%d", dt)?;
 		case 'g' =>
@@ -503,13 +436,13 @@ export fn fmttime(h: io::handle, format: str, dt: *datetime) (size | errors::inv
 		case 'G' =>
 			yield strconv::itos(isoweekyear(dt));
 		case 'H' =>
-			yield fmt::asprintf("{:02}", hour(dt));
+			yield fmtlib::asprintf("{:02}", hour(dt));
 		case 'I' =>
 			let mod_hour = hour(dt) % 12;
 			if (mod_hour == 0) {
 				mod_hour = 12;
 			};
-			yield fmt::asprintf("{:02}", mod_hour);
+			yield fmtlib::asprintf("{:02}", mod_hour);
 		case 'j' =>
 			yield strconv::itos(yearday(dt));
 		case 'k' =>
@@ -521,9 +454,9 @@ export fn fmttime(h: io::handle, format: str, dt: *datetime) (size | errors::inv
 			};
 			yield strconv::itos(mod_hour);
 		case 'm' =>
-			yield fmt::asprintf("{:02}", month(dt));
+			yield fmtlib::asprintf("{:02}", month(dt));
 		case 'M' =>
-			yield fmt::asprintf("{:02}", min(dt));
+			yield fmtlib::asprintf("{:02}", min(dt));
 		case 'n' =>
 			yield "\n";
 		case 'N' =>
@@ -548,7 +481,7 @@ export fn fmttime(h: io::handle, format: str, dt: *datetime) (size | errors::inv
 		case 'R' =>
 			yield strftime("%H:%M", dt)?;
 		case 'S' =>
-			yield fmt::asprintf("{:02}", sec(dt));
+			yield fmtlib::asprintf("{:02}", sec(dt));
 		case 't' =>
 			yield "\t";
 		case 'T' =>
@@ -556,15 +489,15 @@ export fn fmttime(h: io::handle, format: str, dt: *datetime) (size | errors::inv
 		case 'u' =>
 			yield strconv::itos(weekday(dt));
 		case 'U' =>
-			// yield fmt::asprintf("{:02}", week_starting_sunday(dt));
+			// yield fmtlib::asprintf("{:02}", week_starting_sunday(dt));
 			// TODO
 			yield "";
 		case 'V' =>
-			yield fmt::asprintf("{:02}", isoweek(dt));
+			yield fmtlib::asprintf("{:02}", isoweek(dt));
 		case 'w' =>
 			yield strconv::itos(weekday(dt) % 7);
 		case 'W' =>
-			yield fmt::asprintf("{:02}", week(dt));
+			yield fmtlib::asprintf("{:02}", week(dt));
 		case 'x' =>
 			// TODO: Localization
 			yield strftime("%m/%d/%y", dt)?;
@@ -596,4 +529,76 @@ export fn fmttime(h: io::handle, format: str, dt: *datetime) (size | errors::inv
 		n += strio::concat(h, s)?;
 	};
 	return n;
+};
+
+fn get_default_locale_string_index(iter: *strings::iterator, list: []str) (int | errors::invalid) = {
+	const name = strings::iter_str(iter);
+	if (len(name) == 0) {
+		return errors::invalid;
+	};
+	for(let i = 0z; i < len(list); i += 1) {
+		if (strings::hasprefix(name, list[i])) {
+			// Consume name
+			for (let j = 0z; j < len(list[i]); j += 1) {
+				strings::next(iter);
+			};
+			return (i: int) + 1;
+		};
+	};
+	return errors::invalid;
+};
+
+fn get_max_n_digits(iter: *strings::iterator, n: uint) (int | errors::invalid) = {
+	let buf: [64]u8 = [0...];
+	let bufstr = strio::fixed(buf);
+	defer io::close(bufstr);
+	for (let i = 0z; i < n; i += 1) {
+		let r: rune = match (strings::next(iter)) {
+			case void =>
+				break;
+			case let r: rune =>
+				yield r;
+		};
+		if (!ascii::isdigit(r)) {
+			strings::prev(iter);
+			break;
+		};
+		match (strio::appendrune(bufstr, r)) {
+		case io::error =>
+			return errors::invalid;
+		case =>
+			void;
+		};
+	};
+	return match (strconv::stoi(strio::string(bufstr))) {
+	case let res: int =>
+		yield res;
+	case =>
+		yield errors::invalid;
+	};
+};
+
+fn eat_one_rune(iter: *strings::iterator, needle: rune) (uint | errors::invalid) = {
+	let s_r = match (strings::next(iter)) {
+	case void =>
+		return errors::invalid;
+	case let r: rune =>
+		yield r;
+	};
+	if (s_r == needle) {
+		return 1;
+	} else {
+		strings::prev(iter);
+		return 0;
+	};
+};
+
+fn clamp_int(i: int, min: int, max: int) int = {
+	return if (i < min) {
+		yield min;
+	} else if (i > max) {
+		yield max;
+	} else {
+		yield i;
+	};
 };
