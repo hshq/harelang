@@ -210,7 +210,7 @@ fn fmtv6(s: io::handle, a: addr6) (io::error | size) = {
 fn fillmask(mask: []u8, val: u8) void = {
 	rt::memset(&mask[0], 0xFF, len(mask));
 	let i: int = len(mask): int - 1;
-	val = 32 - val;
+	val = len(mask): u8 * 8 - val;
 	for (val >= 8) {
 		mask[i] = 0x00;
 		val -= 8;
