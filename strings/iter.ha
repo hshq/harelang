@@ -4,12 +4,16 @@ use encoding::utf8;
 export type iterator = struct {
 	dec:  utf8::decoder,
 	push: (rune | void),
+	next: *fn(_: *utf8::decoder) (rune | void | utf8::more | utf8::invalid),
+	prev: *fn(_: *utf8::decoder) (rune | void | utf8::more | utf8::invalid),
 };
 
 // Initializes a string iterator, starting at the beginning of the string.
 export fn iter(src: str) iterator = iterator {
 	dec = utf8::decode(src),
 	push = void,
+	next = &utf8::next,
+	prev = &utf8::prev,
 };
 
 // Initializes a string iterator, starting at the end of the string.
@@ -17,6 +21,8 @@ export fn riter(src: str) iterator = {
 	let ret = iterator {
 		dec = utf8::decode(src),
 		push = void,
+		next = &utf8::prev,
+		prev = &utf8::next,
 	};
 	ret.dec.offs = len(src);
 	return ret;
@@ -36,7 +42,7 @@ export fn next(iter: *iterator) (rune | void) = {
 		return r;
 	case void => void;
 	};
-	return match (utf8::next(&iter.dec)) {
+	return match (iter.next(&iter.dec)) {
 	case void => void;
 	case (utf8::more | utf8::invalid) =>
 		abort("Invalid UTF-8 string (this should not happen)");
@@ -49,7 +55,7 @@ export fn next(iter: *iterator) (rune | void) = {
 // string.
 export fn prev(iter: *iterator) (rune | void) = {
 	assert(iter.push is void);
-	return match (utf8::prev(&iter.dec)) {
+	return match (iter.prev(&iter.dec)) {
 	case void =>
 		yield void;
 	case (utf8::more | utf8::invalid) =>
@@ -107,15 +113,15 @@ export fn iter_str(iter: *iterator) str = {
 	s = riter("にちは");
 	const expected3 = ['は', 'ち', 'に'];
 	for (let i = 0z; i< len(expected3); i += 1) {
-		match (prev(&s)) {
+		match (next(&s)) {
 		case let r: rune =>
 			assert(r == expected3[i]);
 		case void =>
 			abort();
 		};
 	};
-	assert(prev(&s) is void);
-	assert(next(&s) as rune == 'に');
+	assert(next(&s) is void);
+	assert(prev(&s) as rune == 'に');
 };
 
 // Returns a slice of runes for a string in O(n). The caller must free the

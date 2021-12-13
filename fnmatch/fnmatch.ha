@@ -165,13 +165,13 @@ fn fnmatch_internal(
 	let s_copy = s;
 	s = strings::riter(string);
 	for (let i = 0z; i < cnt; i += 1) {
-		strings::prev(&s);
+		strings::next(&s);
 	};
 
 	// match the tail
 	let s_last = s;
 	for (true) {
-		let rn = strings::next(&s);
+		let rn = strings::prev(&s);
 		let matches = match (pat_next(&p, fl)?) {
 		case end =>
 			if (rn is void) {

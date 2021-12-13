@@ -41,7 +41,7 @@ export fn rtrim(input: str, trim: rune...) str = {
 	};
 	let it = riter(input);
 	for (true) {
-		const r = match (prev(&it)) {
+		const r = match (next(&it)) {
 		case let r: rune =>
 			yield r;
 		case void =>
@@ -55,7 +55,7 @@ export fn rtrim(input: str, trim: rune...) str = {
 			};
 		};
 		if (!found) {
-			next(&it);
+			prev(&it);
 			break;
 		};
 	};
