@@ -376,8 +376,6 @@ fn fs_close(fs: *fs::fs) void = {
 	rt::close(fs.dirfd)!;
 };
 
-def BUFSIZ: size = 2048;
-
 // Based on musl's readdir
 type os_iterator = struct {
 	iter: fs::iterator,
