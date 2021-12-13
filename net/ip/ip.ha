@@ -350,3 +350,44 @@ fn wanttoken(tok: *strings::tokenizer) (str | invalid) = {
 		return invalid;
 	};
 };
+
+// Returns whether an [[addr]] (or another [[subnet]]) is contained
+// within a [[subnet]].
+export fn subnet_contains(sub: subnet, item: (addr | subnet)) bool = {
+	let addr: subnet = match (item) {
+	case let addr: addr =>
+		yield subnet{
+			addr = addr,
+			mask = sub.mask,
+		};
+	case let sub: subnet =>
+		yield sub;
+	};
+	// Get byte slices for both addresses and masks.
+	let ipa = match (sub.addr) {
+		case let v4: addr4 => yield v4[..];
+		case let v6: addr6 => yield v6[..];
+	};
+	let maska = match (sub.mask) {
+		case let v4: addr4 => yield v4[..];
+		case let v6: addr6 => yield v6[..];
+	};
+	let ipb = match (addr.addr) {
+		case let v4: addr4 => yield v4[..];
+		case let v6: addr6 => yield v6[..];
+	};
+	let maskb = match (addr.mask) {
+		case let v4: addr4 => yield v4[..];
+		case let v6: addr6 => yield v6[..];
+	};
+	if (len(ipa) != len(ipb) || len(maska) != len(maskb) || len(ipa) != len(maska)) {
+		// Mismatched addr4 and addr6 addresses / masks.
+		return false;
+	};
+	for (let i = 0z; i < len(ipa); i += 1) {
+		if (ipa[i] & maska[i] != ipb[i] & maska[i] || maska[i] > maskb[i]) {
+			return false;
+		};
+	};
+	return true;
+};

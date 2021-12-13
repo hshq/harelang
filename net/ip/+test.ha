@@ -84,3 +84,33 @@ fn subnet_test_simple(s: str) void = {
 		subnet_test_simple(subnet_tests[i]);
 	};
 };
+
+@test fn test_subnet_contains() void = {
+	let addr_tests: [](str, str, bool) = [
+		// a, b, want
+		("10.10.10.0/24", "10.10.10.0",   true),
+		("10.10.10.0/24", "10.10.10.255", true),
+		("10.10.10.0/24", "10.10.11.0",   false),
+		("127.0.0.1/24",  "::1",          false),
+		("::1/8",         "::1",          true),
+	];
+	let cidr_tests: [](str, str, bool) = [
+		// a, b, want
+		("10.10.10.0/24", "10.10.10.0/24", true),
+		("10.10.10.0/24", "10.10.10.0/25", true),
+		("10.10.10.0/24", "10.10.10.0/23", false),
+		("10.10.10.0/24", "10.10.11.0/24", false),
+	];
+	for (let i = 0z; i < len(addr_tests); i += 1) {
+		const input = addr_tests[i];
+		let a = parsecidr(input.0)!;
+		let b = parse(input.1)!;
+		assert(subnet_contains(a, b) == input.2);
+	};
+	for (let i = 0z; i < len(cidr_tests); i += 1) {
+		const input = cidr_tests[i];
+		let a = parsecidr(input.0)!;
+		let b = parsecidr(input.1)!;
+		assert(subnet_contains(a, b) == input.2);
+	};
+};
