@@ -36,6 +36,7 @@ export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 			yield alloc([
 				strings::dup(harepath),
 				dirs::data("hare"),
+				strings::dup("vendor"),
 				strings::dup("."),
 			]);
 		case let s: str =>
@@ -44,6 +45,7 @@ export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 			for (let i = 0z; i < len(sl); i += 1) {
 				append(path, strings::dup(sl[i]));
 			};
+			append(path, strings::dup("vendor"));
 			append(path, strings::dup("."));
 			free(sl);
 			yield path;
