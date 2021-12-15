@@ -1,13 +1,21 @@
 use time;
 
 // Represents the locality of a datetime
-export type locality = (local | zoffset | *timezone);
+export type locality = (local | zoffset | *timezone | *tzalias);
 
 // Represents its associated datetime as local
 export type local = void;
 
 // Represents a simple, constant zone offset
 export type zoffset = time::duration;
+
+// Represents a timezone; a political region with a ruleset regarding offsets
+export type timezone = struct {
+	name: str, // "Europe/Amsterdam"
+	scale: *timescale,
+	zones: []zone,
+	trans: []zonetran,
+};
 
 // Represents a conditional offset, dependant on the time of year
 export type zone = struct {
@@ -17,17 +25,18 @@ export type zone = struct {
 	dst: bool, // true
 };
 
-// Represents a timezone; a political region with a ruleset regarding offsets
-export type timezone = struct {
-	aliasof: (void | *timezone),
-	scale: *timescale,
-	zones: []zone,
-	applied: *fn(m: moment) uint,
-	name: str, // "Europe/Amsterdam"
+// Represents a timezone transition
+export type zonetran = struct {
+	when: time::instant,
+	zoneindex: int,
+};
+
+export type tzalias = struct {
+	name: str,
+	tz: *timezone,
 };
 
 export const TZ_UTC: timezone = timezone {
-	aliasof = void,
 	scale = &UTC,
 	zones = [
 		zone {
@@ -37,12 +46,11 @@ export const TZ_UTC: timezone = timezone {
 			dst = false,
 		},
 	],
-	applied = &zone_const,
+	trans = [],
 	name = "Etc/UTC",
 };
 
 export const TZ_TAI: timezone = timezone {
-	aliasof = void,
 	scale = &TAI,
 	zones = [
 		zone {
@@ -52,10 +60,6 @@ export const TZ_TAI: timezone = timezone {
 			dst = false,
 		},
 	],
-	applied = &zone_const,
+	trans = [],
 	name = "",
-};
-
-fn zone_const(m: moment) uint = {
-	return 0u;
 };
