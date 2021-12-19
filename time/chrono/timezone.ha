@@ -4,7 +4,6 @@ use time;
 export type locality = struct {
 	zrepr: str, // %Z
 	zoffset: zoffset, // %z
-	timezone: (*timezone | local),
 };
 
 // A destructured dual std/dst POSIX timezone. See tzset(3).

@@ -20,15 +20,17 @@ export def EPOCH_COMMONERA: i64 = -719164;
 
 // Evaluates a [[datetime]]'s number of days since the calendar epoch 0000-01-01
 export fn epochal(dt: *datetime) chrono::epochal = {
-	match (dt.date) {
-	case void =>
-		// How to resolve?
-		// Use calc_epochal_from_*? How to avoid recursion?
-		// When to rely on input validation?
-		abort("TODO");
-	case let e: chrono::epochal =>
-		return e;
-	};
+	return dt.date;
+
+//	match (dt.date) {
+//	case void =>
+//		// How to resolve?
+//		// Use calc_epochal_from_*? How to avoid recursion?
+//		// When to rely on input validation?
+//		abort("TODO");
+//	case let e: chrono::epochal =>
+//		return e;
+//	};
 };
 
 // Evaluates a [[datetime]]'s era
@@ -49,9 +51,6 @@ export fn era(dt: *datetime) int = {
 export fn year(dt: *datetime) int = {
 	match (dt.year) {
 	case void =>
-		if (dt.date is void) {
-			epochal(dt);
-		};
 		const ymd = calc_ymd(dt.date: chrono::epochal);
 		dt.year = ymd.0;
 		dt.month = ymd.1;
@@ -66,9 +65,6 @@ export fn year(dt: *datetime) int = {
 export fn month(dt: *datetime) int = {
 	match (dt.month) {
 	case void =>
-		if (dt.date is void) {
-			epochal(dt);
-		};
 		const ymd = calc_ymd(dt.date: chrono::epochal);
 		dt.year = ymd.0;
 		dt.month = ymd.1;
@@ -83,9 +79,6 @@ export fn month(dt: *datetime) int = {
 export fn day(dt: *datetime) int = {
 	match (dt.day) {
 	case void =>
-		if (dt.date is void) {
-			epochal(dt);
-		};
 		const ymd = calc_ymd(dt.date: chrono::epochal);
 		dt.year = ymd.0;
 		dt.month = ymd.1;
@@ -100,9 +93,6 @@ export fn day(dt: *datetime) int = {
 export fn weekday(dt: *datetime) int = {
 	match (dt.weekday) {
 	case void =>
-		if (dt.date is void) {
-			epochal(dt);
-		};
 		dt.weekday = calc_weekday(dt.date: chrono::epochal);
 		return dt.weekday: int;
 	case let y: int =>

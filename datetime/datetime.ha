@@ -5,9 +5,7 @@ use time::chrono;
 // Represents a datetime; a single, reasonably unique moment in time, specified
 // by a calendar date and a wallclock time, contextualised within a locality.
 export type datetime = struct {
-	date:        (void | chrono::epochal),
-	time:        (void | time::duration),
-	loc:         chrono::locality,
+	chrono::moment,
 
 	era:         (void | int),
 	year:        (void | int),
@@ -28,9 +26,10 @@ export type datetime = struct {
 
 
 fn init() datetime = datetime {
-	date        = void,
-	time        = void,
-	loc         = chrono::locality{ timezone = chrono::local, ... },
+	date        = 0,
+	time        = 0,
+	loc         = chrono::locality{ ... },
+	tz          = chrono::local,
 
 	era         = void,
 	year        = void,
@@ -61,12 +60,14 @@ export fn new(
 	min: int,
 	sec: int,
 	nsec: int,
-	loc: chrono::locality,
+	zoffset: chrono::zoffset,
+	tz: (*chrono::timezone | void),
 ) (datetime | errors::invalid) = {
 	const dt = datetime {
 		date        = calc_epochal_from_ymd(year, month, day)?,
 		time        = calc_time_from_hmsn(hour, min, sec, nsec)?,
-		loc         = loc,
+		loc         = chrono::locality{ zoffset = zoffset, ... },
+		tz          = if (tz is void) chrono::local else tz: *chrono::timezone,
 
 		era         = void,
 		year        = year,
@@ -90,21 +91,22 @@ export fn new(
 export fn now() datetime = {
 	const i = time::now(time::clock::REALTIME);
 	const unix = time::unix(i);
-	const daynum = (unix / 86400);
-	const date = calc_ymd(daynum);
+	const date = (unix / 86400);
+	const caldate = calc_ymd(date);
 	const dt = datetime {
-		date        = daynum,
+		date        = date,
 		time        = ((i.sec / 86400) * time::NANOSECOND + i.nsec),
 
 		// TODO: What to do here? How to get the timezone from
 		// /etc/localtime or $TZ? How to determine the system's
 		// timescale?  Assuming UTC may be sufficient.
-		loc         = chrono::locality{ timezone = chrono::local, ... },
+		loc         = chrono::locality{ ... },
+		tz          = chrono::local,
 
 		era         = void,
-		year        = date.0,
-		month       = date.1,
-		day         = date.2,
+		year        = caldate.0,
+		month       = caldate.1,
+		day         = caldate.2,
 		isoweekyear = void,
 		isoweek     = void,
 		week        = void,
