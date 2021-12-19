@@ -1,6 +1,6 @@
 use ascii;
 use errors;
-use fmtlib = fmt;
+use fmt;
 use io;
 use strconv;
 use strings;
@@ -41,8 +41,8 @@ def MONTHS_SHORT: [_]str = [
 ];
 
 // TODO: docstr, reconcile fn names
-export fn parse(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
-	strptime(fmt, s, dt)?;
+export fn parse(layout: str, s: str, dt: *datetime) (void | errors::invalid) = {
+	strptime(layout, s, dt)?;
 };
 
 // Parses a datetime string into a [[datetime::datetime]].
@@ -50,8 +50,8 @@ export fn parse(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 // The resulting [[datetime::datetime]] may not contain sufficient information
 // to be valid. Incremental parsing of data is possible, but the caller should
 // validate the [[datetime::datetime]] when appropriate.
-export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
-	const format_iter = strings::iter(fmt);
+export fn strptime(layout: str, s: str, dt: *datetime) (void | errors::invalid) = {
+	const format_iter = strings::iter(layout);
 	const s_iter = strings::iter(s);
 	let escaped = false;
 	for (true) {
@@ -223,38 +223,38 @@ export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 			dt.weekday = get_default_locale_string_index(
 				&s_iter, WEEKDAYS_SHORT[..])?;
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
-				fmtlib::printfln("no space after weekday")!;
+				fmt::printfln("no space after weekday")!;
 				return errors::invalid;
 			};
 			dt.month = get_default_locale_string_index(
 				&s_iter, MONTHS_SHORT[..])?;
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
-				fmtlib::printfln("no space after month")!;
+				fmt::printfln("no space after month")!;
 				return errors::invalid;
 			};
 			const max_n_digits = 2 - eat_one_rune(&s_iter, ' ')?;
 			dt.day = clamp_int(
 				get_max_n_digits(&s_iter, max_n_digits)?, 1, 31);
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
-				fmtlib::printfln("no space after day")!;
+				fmt::printfln("no space after day")!;
 				return errors::invalid;
 			};
 			dt.hour = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 23);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
-				fmtlib::printfln("no : after hour")!;
+				fmt::printfln("no : after hour")!;
 				return errors::invalid;
 			};
 			dt.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
-				fmtlib::printfln("no : after minute")!;
+				fmt::printfln("no : after minute")!;
 				return errors::invalid;
 			};
 			dt.sec = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 61);
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
-				fmtlib::printfln("no space after sec")!;
+				fmt::printfln("no space after sec")!;
 				return errors::invalid;
 			};
 			dt.year = get_max_n_digits(&s_iter, 4)?;
@@ -364,24 +364,24 @@ export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 
 // Formats a [[datetime]] and writes it into a caller supplied buffer.
 // The returned string is borrowed from this buffer.
-export fn bstrftime(buf: []u8, fmt: str, dt: *datetime) (str | errors::invalid | io::error) = {
+export fn bstrftime(buf: []u8, layout: str, dt: *datetime) (str | errors::invalid | io::error) = {
 	let sink = strio::fixed(buf);
 	defer io::close(sink);
-	format(sink, fmt, dt)?;
+	format(sink, layout, dt)?;
 	return strio::string(sink);
 };
 
 // Formats a [[datetime]] and writes it into a heap-allocated string.
 // The caller must free the return value.
-export fn strftime(fmt: str, dt: *datetime) (str | errors::invalid | io::error) = {
+export fn strftime(layout: str, dt: *datetime) (str | errors::invalid | io::error) = {
 	let sink = strio::dynamic();
-	format(sink, fmt, dt)?;
+	format(sink, layout, dt)?;
 	return strio::finish(sink);
 };
 
 // Formats a [[datetime]] and writes it into a [[io::handle]].
-export fn format(h: io::handle, fmt: str, dt: *datetime) (size | errors::invalid | io::error) = {
-	const iter = strings::iter(fmt);
+export fn format(h: io::handle, layout: str, dt: *datetime) (size | errors::invalid | io::error) = {
+	const iter = strings::iter(layout);
 	let escaped = false;
 	let n = 0z;
 	for (true) {
@@ -424,9 +424,9 @@ export fn format(h: io::handle, fmt: str, dt: *datetime) (size | errors::invalid
 		case 'D' =>
 			yield strftime("%m/%d/%y", dt)?;
 		case 'd' =>
-			yield fmtlib::asprintf("{:02}", day(dt));
+			yield fmt::asprintf("{:02}", day(dt));
 		case 'e' =>
-			yield fmtlib::asprintf("{:2}", day(dt));
+			yield fmt::asprintf("{:2}", day(dt));
 		case 'F' =>
 			yield strftime("%Y-%m-%d", dt)?;
 		case 'g' =>
@@ -436,13 +436,13 @@ export fn format(h: io::handle, fmt: str, dt: *datetime) (size | errors::invalid
 		case 'G' =>
 			yield strconv::itos(isoweekyear(dt));
 		case 'H' =>
-			yield fmtlib::asprintf("{:02}", hour(dt));
+			yield fmt::asprintf("{:02}", hour(dt));
 		case 'I' =>
 			let mod_hour = hour(dt) % 12;
 			if (mod_hour == 0) {
 				mod_hour = 12;
 			};
-			yield fmtlib::asprintf("{:02}", mod_hour);
+			yield fmt::asprintf("{:02}", mod_hour);
 		case 'j' =>
 			yield strconv::itos(yearday(dt));
 		case 'k' =>
@@ -454,9 +454,9 @@ export fn format(h: io::handle, fmt: str, dt: *datetime) (size | errors::invalid
 			};
 			yield strconv::itos(mod_hour);
 		case 'm' =>
-			yield fmtlib::asprintf("{:02}", month(dt));
+			yield fmt::asprintf("{:02}", month(dt));
 		case 'M' =>
-			yield fmtlib::asprintf("{:02}", min(dt));
+			yield fmt::asprintf("{:02}", min(dt));
 		case 'n' =>
 			yield "\n";
 		case 'N' =>
@@ -481,7 +481,7 @@ export fn format(h: io::handle, fmt: str, dt: *datetime) (size | errors::invalid
 		case 'R' =>
 			yield strftime("%H:%M", dt)?;
 		case 'S' =>
-			yield fmtlib::asprintf("{:02}", sec(dt));
+			yield fmt::asprintf("{:02}", sec(dt));
 		case 't' =>
 			yield "\t";
 		case 'T' =>
@@ -489,15 +489,15 @@ export fn format(h: io::handle, fmt: str, dt: *datetime) (size | errors::invalid
 		case 'u' =>
 			yield strconv::itos(weekday(dt));
 		case 'U' =>
-			// yield fmtlib::asprintf("{:02}", week_starting_sunday(dt));
+			// yield fmt::asprintf("{:02}", week_starting_sunday(dt));
 			// TODO
 			yield "";
 		case 'V' =>
-			yield fmtlib::asprintf("{:02}", isoweek(dt));
+			yield fmt::asprintf("{:02}", isoweek(dt));
 		case 'w' =>
 			yield strconv::itos(weekday(dt) % 7);
 		case 'W' =>
-			yield fmtlib::asprintf("{:02}", week(dt));
+			yield fmt::asprintf("{:02}", week(dt));
 		case 'x' =>
 			// TODO: Localization
 			yield strftime("%m/%d/%y", dt)?;
