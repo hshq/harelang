@@ -1,32 +1,6 @@
 use errors;
 use time::chrono;
 
-export type localdate = struct {
-	epochal:     (void | int),
-	era:         (void | int),
-	year:        (void | int),
-	month:       (void | int),
-	day:         (void | int),
-	yearday:     (void | int),
-	isoweekyear: (void | int),
-	isoweek:     (void | int),
-	week:        (void | int),
-	weekday:     (void | int),
-};
-
-fn init_date() localdate = localdate {
-	epochal     = void,
-	era         = void,
-	year        = void,
-	month       = void,
-	day         = void,
-	yearday     = void,
-	isoweekyear = void,
-	isoweek     = void,
-	week        = void,
-	weekday     = void,
-};
-
 // Calculates whether a given year is a leap year.
 export fn is_leap_year(y: int) bool = {
 	return if (y % 4 != 0) false
@@ -45,7 +19,7 @@ fn calc_era(y: int) int = {
 };
 
 // Calculates the (year, month, day), given an epochal day
-fn calc_ymd(e: int) (int, int, int) = {
+fn calc_ymd(e: chrono::epochal) (int, int, int) = {
 	// Algorithm adapted from:
 	// https://en.wikipedia.org/wiki/Julian_day#Julian_or_Gregorian_calendar_from_Julian_day_number
 	//
@@ -201,73 +175,3 @@ fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | errors::invalid) = {
 	// TODO
 	return 0;
 };
-
-//	// Converts a [[chrono::epochal]] to a [[localdate]]. The fields in "date" are
-//	// populated acording to which fields in "want" are non-void.
-//	//
-//	//	let date = localdate { ... };
-//	//	let want = localdate { year=0, month=0, day=0, ... };
-//	// 	conv_epochal_localdate(10724, &date, &want);
-//	// 	assert(date == localdate { year=1999, month=5, day=13, ... });
-//	//
-//	export fn conv_epochal_localdate(
-//		e: chrono::epochal,
-//		date: *localdate,
-//		want: *localdate,
-//	) void = {
-//		if (want.year is int || want.month is int || want.day is int) {
-//			const ymd = calc_ymd(e: int);
-//			date.year = ymd.0;
-//			date.month = ymd.1;
-//			date.day = ymd.2;
-//		};
-//	
-//		if (want.yearday is int) {
-//			if (date.year is void || date.month is void || date.day is void) {
-//				const ymd = calc_ymd(e: int);
-//				date.year = ymd.0;
-//				date.month = ymd.1;
-//				date.day = ymd.2;
-//			};
-//			calc_yearday(date.year: int, date.month: int, date.day: int);
-//		};
-//	
-//		if (want.week is int) {
-//			// TODO
-//			//calc_isoweek(e);
-//			void;
-//		};
-//	
-//		if (want.weekday is int) {
-//			date.weekday = calc_weekday(e);
-//		};
-//	};
-
-//	// Converts a [[localdate]] to a [[chrono::epochal]].
-//	// Fails if there is insufficient information in the given [[localdate]].
-//	export fn conv_localdate_epochal(ld: localdate) (chrono::epochal | errors::invalid) = {
-//		if (
-//			ld.year is int
-//			&& ld.month is int
-//			&& ld.day is int
-//		) {
-//			return calc_epochal_from_ymd(
-//				ld.year: int,
-//				ld.month: int,
-//				ld.day: int,
-//			);
-//		} else if (
-//			ld.year is int
-//			&& ld.week is int
-//			&& ld.weekday is int
-//		) {
-//			return 0; // TODO
-//		} else if (
-//			ld.year is int
-//			&& ld.yearday is int
-//		) {
-//			return 0; // TODO
-//		};
-//	
-//		return errors::invalid;
-//	};

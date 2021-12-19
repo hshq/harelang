@@ -1,15 +1,31 @@
 use time;
 
-// Represents the locality of a datetime
-export type locality = (local | zoffset | *timezone | *tzalias);
+// The locality of a datetime
+export type locality = struct {
+	zrepr: str, // %Z
+	zoffset: zoffset, // %z
+	timezone: (*timezone | local),
+};
+
+// A destructured dual std/dst POSIX timezone. See tzset(3).
+type tzname = struct {
+	std_name: str,
+	std_offset: zoffset,
+	dst_name: str,
+	dst_offset: zoffset,
+	dst_start: str,
+	dst_starttime: str,
+	dst_end: str,
+	dst_endtime: str,
+};
 
 // Represents its associated datetime as local
 export type local = void;
 
-// Represents a simple, constant zone offset
+// A simple, constant zone offset
 export type zoffset = time::duration;
 
-// Represents a timezone; a political region with a ruleset regarding offsets
+// A timezone; a political region with a ruleset regarding offsets
 export type timezone = struct {
 	name: str, // "Europe/Amsterdam"
 	scale: *timescale,
@@ -17,7 +33,7 @@ export type timezone = struct {
 	trans: []zonetran,
 };
 
-// Represents a conditional offset, dependant on the time of year
+// A conditional offset, dependant on the time of year
 export type zone = struct {
 	zoffset: zoffset, // 2 * time::HOUR
 	name: str, // "Central European Summer Time"
@@ -25,7 +41,7 @@ export type zone = struct {
 	dst: bool, // true
 };
 
-// Represents a timezone transition
+// A timezone transition
 export type zonetran = struct {
 	when: time::instant,
 	zoneindex: int,

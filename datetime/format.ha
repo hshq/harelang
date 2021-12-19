@@ -85,35 +85,35 @@ export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 		// Basic specifiers
 		case 'a' =>
 			// TODO: Localization
-			dt.date.weekday = get_default_locale_string_index(
+			dt.weekday = get_default_locale_string_index(
 				&s_iter, WEEKDAYS_SHORT[..])?;
 		case 'A' =>
 			// TODO: Localization
-			dt.date.weekday = get_default_locale_string_index(
+			dt.weekday = get_default_locale_string_index(
 				&s_iter, WEEKDAYS[..])?;
 		case 'b', 'h' =>
 			// TODO: Localization
-			dt.date.month = get_default_locale_string_index(
+			dt.month = get_default_locale_string_index(
 				&s_iter, MONTHS_SHORT[..])?;
 		case 'B' =>
 			// TODO: Localization
-			dt.date.month = get_default_locale_string_index(
+			dt.month = get_default_locale_string_index(
 				&s_iter, MONTHS[..])?;
 		case 'd', 'e' =>
 			let max_n_digits = 2u;
 			if (format_r == 'e') {
 				max_n_digits -= eat_one_rune(&s_iter, ' ')?;
 			};
-			dt.date.day = clamp_int(
+			dt.day = clamp_int(
 				get_max_n_digits(&s_iter, max_n_digits)?, 1, 31);
 		case 'G' =>
-			dt.date.isoweekyear = get_max_n_digits(&s_iter, 4)?;
+			dt.isoweekyear = get_max_n_digits(&s_iter, 4)?;
 		case 'H', 'k' =>
 			let max_n_digits = 2u;
 			if (format_r == 'k') {
 				max_n_digits -= eat_one_rune(&s_iter, ' ')?;
 			};
-			dt.time.hour = clamp_int(
+			dt.hour = clamp_int(
 				get_max_n_digits(&s_iter, max_n_digits)?, 0, 23);
 		case 'I', 'l' =>
 			let max_n_digits = 2u;
@@ -121,7 +121,7 @@ export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 				max_n_digits -= eat_one_rune(&s_iter, ' ')?;
 			};
 			const hour = get_max_n_digits(&s_iter, max_n_digits);
-			dt.time.hour = match (hour) {
+			dt.hour = match (hour) {
 			case let hour: int =>
 				yield if (hour > 12) {
 					yield clamp_int(hour - 12, 1, 12);
@@ -132,22 +132,22 @@ export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 				return errors::invalid;
 			};
 		case 'j' =>
-			dt.date.yearday = clamp_int(
+			dt.yearday = clamp_int(
 				get_max_n_digits(&s_iter, 3)?, 1, 366);
 		case 'm' =>
-			dt.date.month = clamp_int(
+			dt.month = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 12);
 		case 'M' =>
-			dt.time.min = clamp_int(
+			dt.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 		case 'n' =>
 			eat_one_rune(&s_iter, '\n')?;
 		case 'N' =>
-			dt.time.nsec = clamp_int(
+			dt.nsec = clamp_int(
 				get_max_n_digits(&s_iter, 3)?, 0, 999);
 		case 'p', 'P' =>
 			// TODO: Localization
-			if (dt.time.hour is void) {
+			if (dt.hour is void) {
 				// We can't change the hour's am/pm because we
 				// have no hour.
 				return errors::invalid;
@@ -164,19 +164,19 @@ export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 				yield "pm";
 			};
 			if (strings::hasprefix(rest, prefix_am)) {
-				if (dt.time.hour as int > 12) {
+				if (dt.hour as int > 12) {
 					// 13 AM?
 					return errors::invalid;
-				} else if (dt.time.hour as int == 12) {
-					dt.time.hour = 0;
+				} else if (dt.hour as int == 12) {
+					dt.hour = 0;
 				};
 			} else if (strings::hasprefix(rest, prefix_pm)) {
-				if (dt.time.hour as int > 12) {
+				if (dt.hour as int > 12) {
 					// 13 PM?
 					return errors::invalid;
-				} else if (dt.time.hour as int < 12) {
-					dt.time.hour =
-						(dt.time.hour as int) + 12;
+				} else if (dt.hour as int < 12) {
+					dt.hour =
+						(dt.hour as int) + 12;
 				};
 			} else {
 				return errors::invalid;
@@ -184,12 +184,12 @@ export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 			strings::next(&s_iter);
 			strings::next(&s_iter);
 		case 'S' =>
-			dt.time.sec = clamp_int(
+			dt.sec = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 61);
 		case 't' =>
 			eat_one_rune(&s_iter, '\t')?;
 		case 'u', 'w' =>
-			dt.date.weekday = match (get_max_n_digits(&s_iter, 1)) {
+			dt.weekday = match (get_max_n_digits(&s_iter, 1)) {
 			case let i: int =>
 				yield if (format_r == 'w') {
 					yield if (i == 0) {
@@ -204,13 +204,13 @@ export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 				return errors::invalid;
 			};
 		case 'U', 'W' =>
-			dt.date.week = clamp_int(
+			dt.week = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 53);
 		case 'V' =>
-			dt.date.isoweek = clamp_int(
+			dt.isoweek = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 53);
 		case 'Y' =>
-			dt.date.year = get_max_n_digits(&s_iter, 4)?;
+			dt.year = get_max_n_digits(&s_iter, 4)?;
 		case 'z' =>
 			// TODO
 			continue;
@@ -220,73 +220,73 @@ export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 		// Expansion specifiers
 		case 'c' =>
 			// TODO: Localization
-			dt.date.weekday = get_default_locale_string_index(
+			dt.weekday = get_default_locale_string_index(
 				&s_iter, WEEKDAYS_SHORT[..])?;
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
 				fmtlib::printfln("no space after weekday")!;
 				return errors::invalid;
 			};
-			dt.date.month = get_default_locale_string_index(
+			dt.month = get_default_locale_string_index(
 				&s_iter, MONTHS_SHORT[..])?;
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
 				fmtlib::printfln("no space after month")!;
 				return errors::invalid;
 			};
 			const max_n_digits = 2 - eat_one_rune(&s_iter, ' ')?;
-			dt.date.day = clamp_int(
+			dt.day = clamp_int(
 				get_max_n_digits(&s_iter, max_n_digits)?, 1, 31);
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
 				fmtlib::printfln("no space after day")!;
 				return errors::invalid;
 			};
-			dt.time.hour = clamp_int(
+			dt.hour = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 23);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				fmtlib::printfln("no : after hour")!;
 				return errors::invalid;
 			};
-			dt.time.min = clamp_int(
+			dt.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				fmtlib::printfln("no : after minute")!;
 				return errors::invalid;
 			};
-			dt.time.sec = clamp_int(
+			dt.sec = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 61);
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
 				fmtlib::printfln("no space after sec")!;
 				return errors::invalid;
 			};
-			dt.date.year = get_max_n_digits(&s_iter, 4)?;
+			dt.year = get_max_n_digits(&s_iter, 4)?;
 		case 'D', 'x' =>
 			// TODO: Localization for %x
-			dt.date.month = clamp_int(
+			dt.month = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 12);
 			if (eat_one_rune(&s_iter, '/')? != 1) {
 				return errors::invalid;
 			};
-			dt.date.day = clamp_int(
+			dt.day = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 31);
 			if (eat_one_rune(&s_iter, '/')? != 1) {
 				return errors::invalid;
 			};
-			dt.date.year = get_max_n_digits(&s_iter, 4)?;
+			dt.year = get_max_n_digits(&s_iter, 4)?;
 		case 'F' =>
-			dt.date.year = get_max_n_digits(&s_iter, 4)?;
+			dt.year = get_max_n_digits(&s_iter, 4)?;
 			if (eat_one_rune(&s_iter, '-')? != 1) {
 				return errors::invalid;
 			};
-			dt.date.month = clamp_int(
+			dt.month = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 12);
 			if (eat_one_rune(&s_iter, '-')? != 1) {
 				return errors::invalid;
 			};
-			dt.date.day = clamp_int(
+			dt.day = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 31);
 		case 'r' =>
 			// TODO: Localization
 			// Time
-			dt.time.hour = match (get_max_n_digits(&s_iter, 2)) {
+			dt.hour = match (get_max_n_digits(&s_iter, 2)) {
 			case let hour: int =>
 				yield if (hour > 12) {
 					yield clamp_int(hour - 12, 1, 12);
@@ -299,12 +299,12 @@ export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				return errors::invalid;
 			};
-			dt.time.min = clamp_int(
+			dt.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				return errors::invalid;
 			};
-			dt.time.sec = clamp_int(
+			dt.sec = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 61);
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
 				return errors::invalid;
@@ -312,19 +312,19 @@ export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 			let rest = strings::iter_str(&s_iter);
 			// AM/PM
 			if (strings::hasprefix(rest, "AM")) {
-				if (dt.time.hour as int > 12) {
+				if (dt.hour as int > 12) {
 					// 13 AM?
 					return errors::invalid;
-				} else if (dt.time.hour as int == 12) {
-					dt.time.hour = 0;
+				} else if (dt.hour as int == 12) {
+					dt.hour = 0;
 				};
 			} else if (strings::hasprefix(rest, "PM")) {
-				if (dt.time.hour as int > 12) {
+				if (dt.hour as int > 12) {
 					// 13 PM?
 					return errors::invalid;
-				} else if (dt.time.hour as int < 12) {
-					dt.time.hour =
-						(dt.time.hour as int) + 12;
+				} else if (dt.hour as int < 12) {
+					dt.hour =
+						(dt.hour as int) + 12;
 				};
 			} else {
 				return errors::invalid;
@@ -332,26 +332,26 @@ export fn strptime(fmt: str, s: str, dt: *datetime) (void | errors::invalid) = {
 			strings::next(&s_iter);
 			strings::next(&s_iter);
 		case 'R' =>
-			dt.time.hour = clamp_int(
+			dt.hour = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 23);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				return errors::invalid;
 			};
-			dt.time.min = clamp_int(
+			dt.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 		case 'T', 'X' =>
 			// TODO: Localization for %X
-			dt.time.hour = clamp_int(
+			dt.hour = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 23);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				return errors::invalid;
 			};
-			dt.time.min = clamp_int(
+			dt.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				return errors::invalid;
 			};
-			dt.time.sec = clamp_int(
+			dt.sec = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 61);
 
 		case =>

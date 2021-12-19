@@ -1,17 +1,6 @@
 use time;
 use time::chrono;
 
-// Represents the locality of a [[datetime]]
-//
-// Notes: how to expand?
-export type locality = (chrono::local | tzrepr);
-
-export type tzrepr = struct {
-	name: str,
-	abbrev: str,
-	zoffset: localtime,
-};
-
 // Retrieves a IANA timezone object by name
 export fn tzdb(name: str) chrono::timezone = {
 	// TODO
