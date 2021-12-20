@@ -1,5 +1,7 @@
 use time;
 
+export type locality = (*timezone | *tzlink);
+
 // The zoneinfo of a datetime
 export type zoneinfo = struct {
 	zabbrev: str, // %Z
@@ -32,7 +34,7 @@ export type zonetran = struct {
 };
 
 // An alias to a timezone
-export type tzalias = struct {
+export type tzlink = struct {
 	name: str,
 	tz: *timezone,
 };

@@ -5,7 +5,7 @@ export type moment = struct {
 	date: epochal,
 	time: time::duration,
 	zone: zone,
-	tz: *timezone,
+	loc: locality,
 };
 
 // An ordinal day on earth since the calendar epoch (zeroth day) 1970-01-01

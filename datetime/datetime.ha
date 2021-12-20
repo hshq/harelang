@@ -29,7 +29,7 @@ fn init() datetime = datetime {
 	date        = 0,
 	time        = 0,
 	zone        = chrono::zone{ ... },
-	tz          = &chrono::local,
+	loc         = &chrono::local,
 
 	era         = void,
 	year        = void,
@@ -61,13 +61,13 @@ export fn new(
 	sec: int,
 	nsec: int,
 	zoffset: chrono::zoffset,
-	tz: (*chrono::timezone | void),
+	loc: (*chrono::timezone | void),
 ) (datetime | errors::invalid) = {
 	const dt = datetime {
 		date        = calc_epochal_from_ymd(year, month, day)?,
 		time        = calc_time_from_hmsn(hour, min, sec, nsec)?,
 		zone        = chrono::zone{ zoffset = zoffset, ... },
-		tz          = if (tz is void) &chrono::local else tz: *chrono::timezone,
+		loc         = if (loc is void) &chrono::local else loc: *chrono::timezone,
 
 		era         = void,
 		year        = year,
@@ -101,7 +101,7 @@ export fn now() datetime = {
 		// /etc/localtime or $TZ? How to determine the system's
 		// timescale?  Assuming UTC may be sufficient.
 		zone        = chrono::zone{ ... },
-		tz          = &chrono::local,
+		loc         = &chrono::local,
 
 		era         = void,
 		year        = caldate.0,
