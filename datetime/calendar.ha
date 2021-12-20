@@ -20,17 +20,7 @@ export def EPOCH_COMMONERA: i64 = -719164;
 
 // Evaluates a [[datetime]]'s number of days since the calendar epoch 0000-01-01
 export fn epochal(dt: *datetime) chrono::epochal = {
-	return dt.date;
-
-//	match (dt.date) {
-//	case void =>
-//		// How to resolve?
-//		// Use calc_epochal_from_*? How to avoid recursion?
-//		// When to rely on input validation?
-//		abort("TODO");
-//	case let e: chrono::epochal =>
-//		return e;
-//	};
+	return dt.date - EPOCH_COMMONERA;
 };
 
 // Evaluates a [[datetime]]'s era
