@@ -1,25 +1,10 @@
 use time;
 
-// The locality of a datetime
-export type locality = struct {
-	zrepr: str, // %Z
+// The zoneinfo of a datetime
+export type zoneinfo = struct {
+	zabbrev: str, // %Z
 	zoffset: zoffset, // %z
 };
-
-// A destructured dual std/dst POSIX timezone. See tzset(3).
-type tzname = struct {
-	std_name: str,
-	std_offset: zoffset,
-	dst_name: str,
-	dst_offset: zoffset,
-	dst_start: str,
-	dst_starttime: str,
-	dst_end: str,
-	dst_endtime: str,
-};
-
-// Represents its associated datetime as local
-export type local = void;
 
 // A simple, constant zone offset
 export type zoffset = time::duration;
@@ -46,12 +31,39 @@ export type zonetran = struct {
 	zoneindex: int,
 };
 
+// An alias to a timezone
 export type tzalias = struct {
 	name: str,
 	tz: *timezone,
 };
 
-export const TZ_UTC: timezone = timezone {
+// A destructured dual std/dst POSIX timezone. See tzset(3).
+type tzname = struct {
+	std_name: str,
+	std_offset: zoffset,
+	dst_name: str,
+	dst_offset: zoffset,
+	dst_start: str,
+	dst_starttime: str,
+	dst_end: str,
+	dst_endtime: str,
+};
+
+export const local: timezone = timezone {
+	scale = &UTC,
+	zones = [
+		zone {
+			zoffset = 0 * time::SECOND,
+			name = "Local Time",
+			abbrev = "",
+			dst = false,
+		},
+	],
+	trans = [],
+	name = "",
+};
+
+export const UTC0: timezone = timezone {
 	scale = &UTC,
 	zones = [
 		zone {
@@ -65,7 +77,7 @@ export const TZ_UTC: timezone = timezone {
 	name = "Etc/UTC",
 };
 
-export const TZ_TAI: timezone = timezone {
+export const TAI0: timezone = timezone {
 	scale = &TAI,
 	zones = [
 		zone {
