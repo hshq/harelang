@@ -1,0 +1,21 @@
+This module provides an implementation of the argon2 key derivation function as
+described by RFC 9106. This is the recommended algorithm for password hashing in
+Hare programs, and for deriving keys for use with other cryptographic
+algorithms. Some thought must be given to the appropriate configuration for your
+use case. Some general advice is provided here; if in doubt, consult the RFC.
+
+The argon2 parameters are configured via the [[config]] structure. To determine
+the appropriate configuration parameters for a particular use-case, consult
+section 4 of the RFC. Otherwise, sane defaults for common scenarios are provided
+via [[default_config]] and [[low_mem_config]]; consult the docs of each
+configuration for details.
+
+Once a suitable configuration has been selected, the user must provide a salt.
+This salt should be stored alongside the hash, should be unique for each
+password, and should be random: see [[crypto::random]]. The salt and hash
+lengths are configurable, the recommended defaults are 16 and 32 bytes
+respectively.
+
+Equipped with the necessary parameters, the user may call the appropriate argon2
+variant via [[argon2d]], [[argon2i]], or [[argon2id]]. If unsure which to use,
+choose [[argon2i]].

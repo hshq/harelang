@@ -150,6 +150,12 @@ stdlib_deps_any+=$(stdlib_crypto_aes_any)
 stdlib_crypto_aes_linux=$(stdlib_crypto_aes_any)
 stdlib_crypto_aes_freebsd=$(stdlib_crypto_aes_any)
 
+# gen_lib crypto::argon2 (any)
+stdlib_crypto_argon2_any=$(HARECACHE)/crypto/argon2/crypto_argon2-any.o
+stdlib_deps_any+=$(stdlib_crypto_argon2_any)
+stdlib_crypto_argon2_linux=$(stdlib_crypto_argon2_any)
+stdlib_crypto_argon2_freebsd=$(stdlib_crypto_argon2_any)
+
 # gen_lib crypto::blake2b (any)
 stdlib_crypto_blake2b_any=$(HARECACHE)/crypto/blake2b/crypto_blake2b-any.o
 stdlib_deps_any+=$(stdlib_crypto_blake2b_any)
@@ -662,6 +668,16 @@ $(HARECACHE)/crypto/aes/crypto_aes-any.ssa: $(stdlib_crypto_aes_any_srcs) $(stdl
 	@mkdir -p $(HARECACHE)/crypto/aes
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::aes \
 		-t$(HARECACHE)/crypto/aes/crypto_aes.td $(stdlib_crypto_aes_any_srcs)
+
+# crypto::argon2 (+any)
+stdlib_crypto_argon2_any_srcs= \
+	$(STDLIB)/crypto/argon2/argon2.ha
+
+$(HARECACHE)/crypto/argon2/crypto_argon2-any.ssa: $(stdlib_crypto_argon2_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_blake2b_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/argon2
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::argon2 \
+		-t$(HARECACHE)/crypto/argon2/crypto_argon2.td $(stdlib_crypto_argon2_any_srcs)
 
 # crypto::blake2b (+any)
 stdlib_crypto_blake2b_any_srcs= \
@@ -1864,6 +1880,12 @@ testlib_deps_any+=$(testlib_crypto_aes_any)
 testlib_crypto_aes_linux=$(testlib_crypto_aes_any)
 testlib_crypto_aes_freebsd=$(testlib_crypto_aes_any)
 
+# gen_lib crypto::argon2 (any)
+testlib_crypto_argon2_any=$(TESTCACHE)/crypto/argon2/crypto_argon2-any.o
+testlib_deps_any+=$(testlib_crypto_argon2_any)
+testlib_crypto_argon2_linux=$(testlib_crypto_argon2_any)
+testlib_crypto_argon2_freebsd=$(testlib_crypto_argon2_any)
+
 # gen_lib crypto::blake2b (any)
 testlib_crypto_blake2b_any=$(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.o
 testlib_deps_any+=$(testlib_crypto_blake2b_any)
@@ -2380,6 +2402,17 @@ $(TESTCACHE)/crypto/aes/crypto_aes-any.ssa: $(testlib_crypto_aes_any_srcs) $(tes
 	@mkdir -p $(TESTCACHE)/crypto/aes
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::aes \
 		-t$(TESTCACHE)/crypto/aes/crypto_aes.td $(testlib_crypto_aes_any_srcs)
+
+# crypto::argon2 (+any)
+testlib_crypto_argon2_any_srcs= \
+	$(STDLIB)/crypto/argon2/argon2.ha \
+	$(STDLIB)/crypto/argon2/+test.ha
+
+$(TESTCACHE)/crypto/argon2/crypto_argon2-any.ssa: $(testlib_crypto_argon2_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_blake2b_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/argon2
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::argon2 \
+		-t$(TESTCACHE)/crypto/argon2/crypto_argon2.td $(testlib_crypto_argon2_any_srcs)
 
 # crypto::blake2b (+any)
 testlib_crypto_blake2b_any_srcs= \

@@ -202,6 +202,18 @@ crypto_aes() {
 	fi
 }
 
+crypto_argon2() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::argon2 argon2.ha
+	else
+		gen_srcs crypto::argon2 argon2.ha +test.ha
+	fi
+
+	gen_ssa crypto::argon2 bufio bytes crypto::blake2b \
+		crypto::math endian errors hash io rt types
+}
+
 gensrcs_crypto_blake2b() {
 	gen_srcs crypto::blake2b \
 		blake2b.ha \
@@ -1095,6 +1107,7 @@ bytes
 compress::flate
 compress::zlib
 crypto::aes
+crypto::argon2
 crypto::blake2b
 crypto::cipher
 crypto::hmac
