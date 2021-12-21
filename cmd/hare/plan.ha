@@ -230,5 +230,3 @@ fn mkfile(plan: *plan, input: str, ext: str) str = {
 	plan.counter += 1;
 	return path::join(plan.workdir, name);
 };
-
-fn mkdepends(t: *task...) []*task = alloc(t);

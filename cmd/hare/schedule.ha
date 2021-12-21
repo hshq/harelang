@@ -62,7 +62,7 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
-		depend = mkdepends(depend...),
+		depend = alloc(depend...),
 		cmd = alloc([
 			// C compiler is used as linker if we -l something
 			os::tryenv("LD",
@@ -100,7 +100,7 @@ fn sched_ar(plan: *plan, output: str, depend: *task...) *task = {
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
-		depend = mkdepends(depend...),
+		depend = alloc(depend...),
 		cmd = alloc([
 			os::tryenv("AR", "ar"), "-csr", output,
 		]),
@@ -118,7 +118,7 @@ fn sched_as(plan: *plan, output: str, input: str, depend: *task...) *task = {
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
-		depend = mkdepends(depend...),
+		depend = alloc(depend...),
 		cmd = alloc([
 			os::tryenv("AS", "as"), "-g", "-o", output, input,
 		]),
@@ -132,7 +132,7 @@ fn sched_qbe(plan: *plan, output: str, depend: *task) *task = {
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
-		depend = mkdepends(depend),
+		depend = alloc([depend]),
 		cmd = alloc([
 			os::tryenv("QBE", "qbe"), "-o", output, depend.output,
 		]),
@@ -162,7 +162,7 @@ fn sched_hare_object(
 	let harec = alloc(task {
 		status = status::SCHEDULED,
 		output = ssa,
-		depend = mkdepends(depend...),
+		depend = alloc(depend...),
 		cmd = alloc([
 			os::tryenv("HAREC", "harec"), "-o", ssa,
 		]),
