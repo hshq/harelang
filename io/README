@@ -11,7 +11,7 @@ one of its subtypes.
 
 The [[io::file]] type provides access to an object, usually a file descriptor,
 which is provided by the host operating system. It represents objects such as a
-file on disk, an open newtork connection, and so on. The use of [[io::file]] is
+file on disk, an open network connection, and so on. The use of [[io::file]] is
 generally required when working with host I/O, such as for modules like
 [[iobus]] or [[unix::poll]].
 
