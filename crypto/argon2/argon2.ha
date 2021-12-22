@@ -9,7 +9,7 @@ use io;
 use rt;
 use types;
 
-// Current implemented version of argon2
+// Latest version of argon2 supported by this implementation (1.3).
 export def VERSION: u8 = 0x13;
 
 // Number of u64 elements of one block.
@@ -38,7 +38,7 @@ type mode = enum {
 // still compute the correct hash if this value is greater than one.
 //
 // 'version' specifies the version of the argon2 function. The implementation 
-// currently only supports version 1.3. Use [[argon2::VERSION]] here.
+// currently only supports version 1.3. Use [[VERSION]] here.
 //
 // 'secret' and 'data' are optional byte arrays that are applied to the initial
 // state. Consult the RFC for details.
