@@ -14,7 +14,7 @@ use sort;
 use strings;
 use strio;
 
-def ABI_VERSION: u8 = 2;
+def ABI_VERSION: u8 = 3;
 
 // Scans the files in a directory for eligible build inputs and returns a
 // [[version]] which includes all applicable files and their dependencies.
