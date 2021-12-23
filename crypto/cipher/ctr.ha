@@ -17,7 +17,7 @@ export type ctr_stream = struct {
 // underlying block cipher usually provides constants which define the lengths
 // of these buffers for static allocation.
 //
-// The user must call [[ctr_finish]] when they are done using the stream to
+// The user must call [[finish]] when they are done using the stream to
 // securely erase secret information stored in the stream state.
 export fn ctr(b: *block, iv: []u8, buf: []u8) ctr_stream = {
 	assert(len(iv) == blocksz(b), "iv is of invalid block size");
@@ -47,18 +47,13 @@ export fn ctr(b: *block, iv: []u8, buf: []u8) ctr_stream = {
 
 	return ctr_stream {
 		xor = &ctr_stream_xor,
+		finish = &ctr_finish,
 		b = b,
 		counter = counter,
 		xorbuf = xorbuf,
 		// mark all as used to force fill xorbuf
 		xorused = xorbufsz,
 	};
-};
-
-// Discards state associated with a CTR stream, securely erasing secret data
-// from memory.
-export fn ctr_finish(ctr: *ctr_stream) void = {
-	bytes::zero(ctr.xorbuf);
 };
 
 fn ctr_stream_xor(s: *stream, dest: []u8, src: []u8) void = {
@@ -96,3 +91,9 @@ fn fill_xorbuf(ctr: *ctr_stream) void = {
 	encrypt(ctr.b, ctr.xorbuf, ctr.xorbuf);
 	ctr.xorused = 0;
 };
+
+fn ctr_finish(s: *stream) void = {
+	let ctr = s: *ctr_stream;
+	bytes::zero(ctr.xorbuf);
+};
+

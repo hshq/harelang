@@ -691,6 +691,7 @@ $(HARECACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(stdlib_crypto_blake2b_any_
 
 # crypto::cipher (+any)
 stdlib_crypto_cipher_any_srcs= \
+	$(STDLIB)/crypto/cipher/cipher.ha \
 	$(STDLIB)/crypto/cipher/block.ha \
 	$(STDLIB)/crypto/cipher/cbc.ha \
 	$(STDLIB)/crypto/cipher/ctr.ha \
@@ -2428,6 +2429,7 @@ $(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(testlib_crypto_blake2b_any
 
 # crypto::cipher (+any)
 testlib_crypto_cipher_any_srcs= \
+	$(STDLIB)/crypto/cipher/cipher.ha \
 	$(STDLIB)/crypto/cipher/block.ha \
 	$(STDLIB)/crypto/cipher/cbc.ha \
 	$(STDLIB)/crypto/cipher/ctr.ha \

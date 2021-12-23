@@ -23,7 +23,3 @@ export fn encrypt(b: *block, dest: []u8, src: []u8) void =
 // Decrypt up to [[nparallel]] blocks from 'src' and writes to 'dest'.
 export fn decrypt(b: *block, dest: []u8, src: []u8) void =
 	b.decrypt(b, dest, src);
-
-// Discards any state associated with a block cipher algorithm, securely erasing
-// secret data from memory.
-export fn finish(b: *block) void = b.finish(b);

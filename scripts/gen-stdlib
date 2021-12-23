@@ -235,6 +235,7 @@ crypto_blake2b() {
 
 crypto_cipher() {
 	gen_srcs crypto::cipher \
+		cipher.ha \
 		block.ha \
 		cbc.ha \
 		ctr.ha \
