@@ -17,7 +17,7 @@ export type cbc_mode = struct {
 export fn cbc_encryptor(b: *block, iv: []u8, buf: []u8) cbc_mode = {
 	assert(len(iv) == blocksz(b),
 		"len(iv) must be the same as the block size");
-	assert(len(buf) == blocksz(b) * 2, 
+	assert(len(buf) == blocksz(b) * 2,
 		"buffer needs to be two times of the block size");
 
 	const bsz = blocksz(b);
@@ -42,7 +42,7 @@ export fn cbc_encryptor(b: *block, iv: []u8, buf: []u8) cbc_mode = {
 export fn cbc_decryptor(b: *block, iv: []u8, buf: []u8) cbc_mode = {
 	assert(len(iv) == blocksz(b),
 		"len(iv) must be the same as block length sz");
-	assert(len(buf) == blocksz(b) * 2, 
+	assert(len(buf) == blocksz(b) * 2,
 		"buffer needs to be two times of the block size");
 
 	const bsz = blocksz(b);
