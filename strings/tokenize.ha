@@ -130,3 +130,35 @@ export fn split(in: str, delim: str) []str = splitN(in, delim, types::SIZE_MAX);
 		assert(expected2[i] == actual2[i]);
 	};
 };
+
+// Returns a string "cut" along the first instance of a delimiter, returning
+// everything up to the delimiter, and everything after the delimiter, in a
+// tuple.
+//
+// 	strings::cut("hello=world=foobar", "=")	// ("hello", "world=foobar")
+// 	strings::cut("hello world", "=")	// ("hello world", "")
+//
+// The return value is borrowed from the 'in' parameter.
+export fn cut(in: str, delim: str) (str, str) = {
+	const tok = tokenize(in, delim);
+	let res = ("", "");
+	match (next_token(&tok)) {
+	case let s: str =>
+		res.0 = s;
+	case void =>
+		return res;
+	};
+	res.1 = remaining_tokens(&tok);
+	return res;
+};
+
+@test fn cut() void = {
+	const sample = cut("hello=world", "=");
+	assert(sample.0 == "hello" && sample.1 == "world");
+	const sample = cut("hello=world=foobar", "=");
+	assert(sample.0 == "hello" && sample.1 == "world=foobar");
+	const sample = cut("hello world", "=");
+	assert(sample.0 == "hello world" && sample.1 == "");
+	const sample = cut("", "=");
+	assert(sample.0 == "" && sample.1 == "");
+};
