@@ -70,10 +70,10 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFOR
 	@$(LD) -T $(rtscript) -o $@ \
 		$(TESTCACHE)/hare.o $(testlib_deps_any) $(testlib_deps_$(PLATFORM))
 
-.bin/harec: .bin/hare $(harec_srcs)
+.bin/harec2: .bin/hare $(harec_srcs)
 	@mkdir -p .bin
 	@printf 'HARE\t$@\n'
-	@env HAREPATH=. ./.bin/hare build -o .bin/harec ./cmd/harec
+	@env HAREPATH=. ./.bin/hare build -o .bin/harec2 ./cmd/harec
 
 .bin/haredoc: .bin/hare $(haredoc_srcs)
 	@mkdir -p .bin
@@ -91,6 +91,6 @@ clean:
 check: .bin/hare-tests
 	@./.bin/hare-tests
 
-all: .bin/hare .bin/harec .bin/haredoc
+all: .bin/hare .bin/harec2 .bin/haredoc
 
-.PHONY: all clean check .bin/harec .bin/haredoc
+.PHONY: all clean check .bin/harec2 .bin/haredoc
