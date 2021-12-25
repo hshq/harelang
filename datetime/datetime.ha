@@ -24,7 +24,6 @@ export type datetime = struct {
 };
 
 
-
 fn init() datetime = datetime {
 	date        = 0,
 	time        = 0,
@@ -92,7 +91,6 @@ export fn now() datetime = {
 	const i = time::now(time::clock::REALTIME);
 	const unix = time::unix(i);
 	const date = (unix / 86400);
-	const caldate = calc_ymd(date);
 	const dt = datetime {
 		date        = date,
 		time        = ((i.sec / 86400) * time::NANOSECOND + i.nsec),
@@ -104,9 +102,9 @@ export fn now() datetime = {
 		loc         = &chrono::local,
 
 		era         = void,
-		year        = caldate.0,
-		month       = caldate.1,
-		day         = caldate.2,
+		year        = void,
+		month       = void,
+		day         = void,
 		isoweekyear = void,
 		isoweek     = void,
 		week        = void,
