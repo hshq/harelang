@@ -1,5 +1,3 @@
-use strings;
-
 export type limitstream = struct {
 	stream,
 	source: handle,
