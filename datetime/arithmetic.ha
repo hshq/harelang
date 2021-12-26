@@ -25,6 +25,12 @@ export type calculus = enum int {
 	PHYSICAL,
 };
 
+// Calculates the difference between two datetimes
+export fn diff(a: datetime, b: datetime) period = {
+	// TODO
+	return period { ... };
+};
+
 // Hops, starting from a datetime, to static inter-period points along the
 // calendar, according to the given periods, and returns a new datetime.
 // Inter-period points are the starts of years, months, days, etc.
