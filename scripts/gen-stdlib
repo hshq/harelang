@@ -276,6 +276,18 @@ crypto_random() {
 	gen_ssa -pfreebsd crypto::random rt io errors
 }
 
+crypto_salsa() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::salsa salsa20.ha
+		gen_ssa crypto::salsa bytes crypto::cipher crypto::math endian
+	else
+		gen_srcs crypto::salsa salsa20.ha +test.ha
+		gen_ssa crypto::salsa bytes crypto::cipher crypto::math endian \
+			types
+	fi
+}
+
 gensrcs_crypto_sha256() {
 	gen_srcs crypto::sha256 \
 		sha256.ha \
@@ -1115,6 +1127,7 @@ crypto::hmac
 crypto::math
 crypto::random	linux freebsd
 crypto::md5
+crypto::salsa
 crypto::sha1
 crypto::sha256
 crypto::sha512

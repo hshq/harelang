@@ -194,6 +194,12 @@ stdlib_deps_any+=$(stdlib_crypto_md5_any)
 stdlib_crypto_md5_linux=$(stdlib_crypto_md5_any)
 stdlib_crypto_md5_freebsd=$(stdlib_crypto_md5_any)
 
+# gen_lib crypto::salsa (any)
+stdlib_crypto_salsa_any=$(HARECACHE)/crypto/salsa/crypto_salsa-any.o
+stdlib_deps_any+=$(stdlib_crypto_salsa_any)
+stdlib_crypto_salsa_linux=$(stdlib_crypto_salsa_any)
+stdlib_crypto_salsa_freebsd=$(stdlib_crypto_salsa_any)
+
 # gen_lib crypto::sha1 (any)
 stdlib_crypto_sha1_any=$(HARECACHE)/crypto/sha1/crypto_sha1-any.o
 stdlib_deps_any+=$(stdlib_crypto_sha1_any)
@@ -754,6 +760,16 @@ $(HARECACHE)/crypto/md5/crypto_md5-any.ssa: $(stdlib_crypto_md5_any_srcs) $(stdl
 	@mkdir -p $(HARECACHE)/crypto/md5
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::md5 \
 		-t$(HARECACHE)/crypto/md5/crypto_md5.td $(stdlib_crypto_md5_any_srcs)
+
+# crypto::salsa (+any)
+stdlib_crypto_salsa_any_srcs= \
+	$(STDLIB)/crypto/salsa/salsa20.ha
+
+$(HARECACHE)/crypto/salsa/crypto_salsa-any.ssa: $(stdlib_crypto_salsa_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/salsa
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::salsa \
+		-t$(HARECACHE)/crypto/salsa/crypto_salsa.td $(stdlib_crypto_salsa_any_srcs)
 
 # crypto::sha1 (+any)
 stdlib_crypto_sha1_any_srcs= \
@@ -1925,6 +1941,12 @@ testlib_deps_any+=$(testlib_crypto_md5_any)
 testlib_crypto_md5_linux=$(testlib_crypto_md5_any)
 testlib_crypto_md5_freebsd=$(testlib_crypto_md5_any)
 
+# gen_lib crypto::salsa (any)
+testlib_crypto_salsa_any=$(TESTCACHE)/crypto/salsa/crypto_salsa-any.o
+testlib_deps_any+=$(testlib_crypto_salsa_any)
+testlib_crypto_salsa_linux=$(testlib_crypto_salsa_any)
+testlib_crypto_salsa_freebsd=$(testlib_crypto_salsa_any)
+
 # gen_lib crypto::sha1 (any)
 testlib_crypto_sha1_any=$(TESTCACHE)/crypto/sha1/crypto_sha1-any.o
 testlib_deps_any+=$(testlib_crypto_sha1_any)
@@ -2494,6 +2516,17 @@ $(TESTCACHE)/crypto/md5/crypto_md5-any.ssa: $(testlib_crypto_md5_any_srcs) $(tes
 	@mkdir -p $(TESTCACHE)/crypto/md5
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::md5 \
 		-t$(TESTCACHE)/crypto/md5/crypto_md5.td $(testlib_crypto_md5_any_srcs)
+
+# crypto::salsa (+any)
+testlib_crypto_salsa_any_srcs= \
+	$(STDLIB)/crypto/salsa/salsa20.ha \
+	$(STDLIB)/crypto/salsa/+test.ha
+
+$(TESTCACHE)/crypto/salsa/crypto_salsa-any.ssa: $(testlib_crypto_salsa_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/salsa
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::salsa \
+		-t$(TESTCACHE)/crypto/salsa/crypto_salsa.td $(testlib_crypto_salsa_any_srcs)
 
 # crypto::sha1 (+any)
 testlib_crypto_sha1_any_srcs= \
