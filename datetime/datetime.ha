@@ -49,7 +49,7 @@ fn init() datetime = datetime {
 // Creates a new datetime
 //
 //	// 2038 January 19th 03:14:07.000
-// 	datetime::new(2038, 01, 19, 03, 14, 07, 0, chrono::local)
+// 	datetime::new(2038, 01, 19, 03, 14, 07, 0, 0, &chrono::local)
 //
 export fn new(
 	year: int,
