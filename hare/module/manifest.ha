@@ -237,7 +237,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 
 // Returns true if the desired module version is present and current in this
 // manifest.
-export fn current(manifest: *manifest, version: *version) bool = {
+export fn current(man: *manifest, ver: *version) bool = {
 	// TODO: This is kind of dumb. What we really need to do is:
 	// 1. Update scan to avoid hashing the file if a manifest is present,
 	//    and indicate that the hash is cached somewhere in the type. Get an
@@ -247,9 +247,9 @@ export fn current(manifest: *manifest, version: *version) bool = {
 	//    check the hash and update the manifest to the new inode/mtime if
 	//    the hash matches. If not, the module is not current; rebuild.
 	let cached: nullable *version = null;
-	for (let i = 0z; i < len(manifest.versions); i += 1) {
-		if (bytes::equal(manifest.versions[i].hash, version.hash)) {
-			cached = &manifest.versions[i];
+	for (let i = 0z; i < len(man.versions); i += 1) {
+		if (bytes::equal(man.versions[i].hash, ver.hash)) {
+			cached = &man.versions[i];
 			break;
 		};
 	};
@@ -260,7 +260,7 @@ export fn current(manifest: *manifest, version: *version) bool = {
 		yield v;
 	};
 
-	assert(len(cached.inputs) == len(version.inputs));
+	assert(len(cached.inputs) == len(ver.inputs));
 	for (let i = 0z; i < len(cached.inputs); i += 1) {
 		let a = cached.inputs[i], b = cached.inputs[i];
 		assert(a.path == b.path);
@@ -274,8 +274,8 @@ export fn current(manifest: *manifest, version: *version) bool = {
 };
 
 // Writes a module manifest to the build cache.
-export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
-	let ipath = identpath(manifest.ident);
+export fn manifest_write(ctx: *context, man: *manifest) (void | error) = {
+	let ipath = identpath(man.ident);
 	defer free(ipath);
 	let cachedir = path::join(ctx.cache, ipath);
 	defer free(cachedir);
@@ -291,14 +291,14 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 		free(name);
 	};
 
-	let ident = unparse::identstr(manifest.ident);
+	let ident = unparse::identstr(man.ident);
 	defer free(ident);
 	fmt::fprintfln(file, "# {}", ident)?;
 	fmt::fprintln(file, "# This file is an internal Hare implementation detail.")?;
 	fmt::fprintln(file, "# The format is not stable.")?;
 	fmt::fprintfln(file, "version {}", VERSION)?;
-	for (let i = 0z; i < len(manifest.inputs); i += 1) {
-		const input = manifest.inputs[i];
+	for (let i = 0z; i < len(man.inputs); i += 1) {
+		const input = man.inputs[i];
 		let hash = hex::encodestr(input.hash);
 		defer free(hash);
 
@@ -309,8 +309,8 @@ export fn manifest_write(ctx: *context, manifest: *manifest) (void | error) = {
 			time::unix(input.stat.mtime))?;
 	};
 
-	for (let i = 0z; i < len(manifest.versions); i += 1) {
-		const ver = manifest.versions[i];
+	for (let i = 0z; i < len(man.versions); i += 1) {
+		const ver = man.versions[i];
 		let hash = hex::encodestr(ver.hash);
 		defer free(hash);
 

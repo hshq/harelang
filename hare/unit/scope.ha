@@ -60,9 +60,9 @@ fn scope_push(ctx: *context, class: scope_class) *scope = {
 };
 
 fn scope_pop(ctx: *context) *scope = {
-	const scope = ctx.scope;
+	const top_scope = ctx.scope;
 	ctx.scope = ctx.scope.parent: *scope; // TODO: as *scope
-	return scope;
+	return top_scope;
 };
 
 fn ident_hash(ident: ast::ident) u64 = {
@@ -88,19 +88,19 @@ fn scope_insert(ctx: *context, obj: object) *object = {
 fn ctx_lookup(ctx: *context, ident: ast::ident) nullable *object =
 	scope_lookup(ctx.scope, ident);
 
-fn scope_lookup(scope: *scope, ident: ast::ident) nullable *object = {
+fn scope_lookup(scp: *scope, ident: ast::ident) nullable *object = {
 	const hash = ident_hash(ident);
-	const bucket = scope.hashmap[hash: size % SCOPE_BUCKETS];
+	const bucket = scp.hashmap[hash: size % SCOPE_BUCKETS];
 	for (let i = 0z; i < len(bucket); i += 1) {
 		if (ast::ident_eq(bucket[i].name, ident)
 				|| ast::ident_eq(bucket[i].ident, ident)) {
 			return bucket[i];
 		};
 	};
-	match (scope.parent) {
+	match (scp.parent) {
 	case null =>
 		return null;
-	case let scope: *scope =>
-		return scope_lookup(scope, ident);
+	case let s: *scope =>
+		return scope_lookup(s, ident);
 	};
 };

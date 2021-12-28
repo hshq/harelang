@@ -252,9 +252,9 @@ fn resolve(
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 4 * 5);
 	assert(htype.align == 4);
-	let array = htype.repr as array;
-	assert(array.member.repr as builtin == builtin::I32);
-	assert(array.length == 5);
+	let arr = htype.repr as array;
+	assert(arr.member.repr as builtin == builtin::I32);
+	assert(arr.length == 5);
 
 	// Unbounded array
 	let atype = parse_type("[*]i32");
@@ -262,9 +262,9 @@ fn resolve(
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == SIZE_UNDEFINED);
 	assert(htype.align == 4);
-	let array = htype.repr as array;
-	assert(array.member.repr as builtin == builtin::I32);
-	assert(array.length == SIZE_UNDEFINED);
+	let arr = htype.repr as array;
+	assert(arr.member.repr as builtin == builtin::I32);
+	assert(arr.length == SIZE_UNDEFINED);
 
 	// Contextual array (equivalent to unbounded at this compilation stage)
 	let atype = parse_type("[_]i32");
@@ -272,9 +272,9 @@ fn resolve(
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == SIZE_UNDEFINED);
 	assert(htype.align == 4);
-	let array = htype.repr as array;
-	assert(array.member.repr as builtin == builtin::I32);
-	assert(array.length == SIZE_UNDEFINED);
+	let arr = htype.repr as array;
+	assert(arr.member.repr as builtin == builtin::I32);
+	assert(arr.length == SIZE_UNDEFINED);
 };
 
 @test fn funcs() void = {

@@ -140,8 +140,8 @@ fn process_expr(
 };
 
 fn process_access(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
-	const access = aexpr.expr as ast::access_expr;
-	const op: (const *types::_type, access) = match (access) {
+	const access_expr = aexpr.expr as ast::access_expr;
+	const op: (const *types::_type, access) = match (access_expr) {
 	case let ai: ast::access_identifier =>
 		const object = match (ctx_lookup(ctx, ai)) {
 		case null =>
@@ -222,13 +222,13 @@ fn process_binding(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 };
 
 fn process_compound(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
-	const compound = aexpr.expr as ast::compound_expr;
+	const compound_expr = aexpr.expr as ast::compound_expr;
 	const scope = scope_push(ctx, scope_class::COMPOUND);
 
-	let exprs: compound = alloc([], len(compound.exprs));
+	let exprs: compound = alloc([], len(compound_expr.exprs));
 	let i = 0z;
-	for (i < len(compound.exprs); i += 1) {
-		append(exprs, process_expr(ctx, compound.exprs[i])?);
+	for (i < len(compound_expr.exprs); i += 1) {
+		append(exprs, process_expr(ctx, compound_expr.exprs[i])?);
 	};
 
 	scope_pop(ctx);
@@ -387,18 +387,18 @@ fn process_return(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	defer freetestctx(&ctx);
 	const aexpr = parse_expr("return;");
 	defer ast::expr_free(aexpr);
-	const expr = process_return(&ctx, aexpr)!;
-	assert(expr.terminates);
-	assert(expr.result.repr as types::builtin == types::builtin::VOID);
-	const rval = expr.expr as _return;
+	const ret_expr = process_return(&ctx, aexpr)!;
+	assert(ret_expr.terminates);
+	assert(ret_expr.result.repr as types::builtin == types::builtin::VOID);
+	const rval = ret_expr.expr as _return;
 	assert(rval == null);
 
 	const aexpr = parse_expr("return 10;");
 	defer ast::expr_free(aexpr);
-	const expr = process_return(&ctx, aexpr)!;
-	assert(expr.terminates);
-	assert(expr.result.repr as types::builtin == types::builtin::VOID);
-	const rval = expr.expr as _return;
+	const ret_expr = process_return(&ctx, aexpr)!;
+	assert(ret_expr.terminates);
+	assert(ret_expr.result.repr as types::builtin == types::builtin::VOID);
+	const rval = ret_expr.expr as _return;
 	assert(rval != null);
 	assert((rval: *expr).expr is constant);
 };

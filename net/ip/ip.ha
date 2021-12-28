@@ -354,10 +354,10 @@ fn wanttoken(tok: *strings::tokenizer) (str | invalid) = {
 // Returns whether an [[addr]] (or another [[subnet]]) is contained
 // within a [[subnet]].
 export fn subnet_contains(sub: subnet, item: (addr | subnet)) bool = {
-	let addr: subnet = match (item) {
-	case let addr: addr =>
+	let a: subnet = match (item) {
+	case let a: addr =>
 		yield subnet{
-			addr = addr,
+			addr = a,
 			mask = sub.mask,
 		};
 	case let sub: subnet =>
@@ -372,11 +372,11 @@ export fn subnet_contains(sub: subnet, item: (addr | subnet)) bool = {
 		case let v4: addr4 => yield v4[..];
 		case let v6: addr6 => yield v6[..];
 	};
-	let ipb = match (addr.addr) {
+	let ipb = match (a.addr) {
 		case let v4: addr4 => yield v4[..];
 		case let v6: addr6 => yield v6[..];
 	};
-	let maskb = match (addr.mask) {
+	let maskb = match (a.mask) {
 		case let v4: addr4 => yield v4[..];
 		case let v6: addr6 => yield v6[..];
 	};

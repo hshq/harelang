@@ -46,7 +46,7 @@ export fn sub(s: str, start: size, end: (size | end)) str = {
 	let endi = match (end) {
 	case let sz: size =>
 		yield starti + utf8_byte_len_bounded(&iter, sz - start);
-	case end =>
+	case =>
 		yield starti + utf8_byte_len_unbounded(&iter);
 	};
 	let bytes = toutf8(s);

@@ -81,7 +81,7 @@ use strings;
 	], true);
 };
 
-fn xmltest(input: str, expected: []token, error: bool) void = {
+fn xmltest(input: str, expected: []token, err: bool) void = {
 	let in = bufio::fixed(strings::toutf8(input), io::mode::READ);
 	defer io::close(in);
 	let parser = parse(in) as *parser;
@@ -109,7 +109,7 @@ fn xmltest(input: str, expected: []token, error: bool) void = {
 			assert(el == ex);
 		};
 	};
-	if (error) {
+	if (err) {
 		assert(scan(parser) is error);
 	} else {
 		assert(scan(parser) is void);

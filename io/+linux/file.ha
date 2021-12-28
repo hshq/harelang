@@ -41,10 +41,10 @@ fn fd_close(fd: file) void = rt::close(fd)!;
 
 fn fd_seek(
 	fd: file,
-	off: off,
+	offs: off,
 	whence: whence,
 ) (off | error) = {
-	match (rt::lseek(fd, off: i64, whence: uint)) {
+	match (rt::lseek(fd, offs: i64, whence: uint)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let n: i64 =>

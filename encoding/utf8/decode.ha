@@ -114,8 +114,8 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	assert(prev(&decoder) is void);
 
 	// TODO: Test more invalid sequences
-	const invalid: [_]u8 = [0xA0, 0xA1];
-	decoder = decode(invalid);
+	const inv: [_]u8 = [0xA0, 0xA1];
+	decoder = decode(inv);
 	assert(next(&decoder) is invalid);
 	decoder.offs = 2;
 	assert(prev(&decoder) is more);
