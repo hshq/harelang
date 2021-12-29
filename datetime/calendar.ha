@@ -199,7 +199,12 @@ export fn isoweek(dt: *datetime) int = {
 export fn hour(dt: *datetime) int = {
 	match (dt.hour) {
 	case void =>
-		abort("TODO");
+		const hmsn = calc_hmsn(dt.time: time::duration);
+		dt.hour = hmsn.0;
+		dt.min = hmsn.1;
+		dt.sec = hmsn.2;
+		dt.nsec = hmsn.3;
+		return dt.hour: int;
 	case let h: int =>
 		return h;
 	};
@@ -209,7 +214,12 @@ export fn hour(dt: *datetime) int = {
 export fn min(dt: *datetime) int = {
 	match (dt.min) {
 	case void =>
-		abort("TODO");
+		const hmsn = calc_hmsn(dt.time: time::duration);
+		dt.hour = hmsn.0;
+		dt.min = hmsn.1;
+		dt.sec = hmsn.2;
+		dt.nsec = hmsn.3;
+		return dt.min: int;
 	case let m: int =>
 		return m;
 	};
@@ -219,7 +229,12 @@ export fn min(dt: *datetime) int = {
 export fn sec(dt: *datetime) int = {
 	match (dt.sec) {
 	case void =>
-		abort("TODO");
+		const hmsn = calc_hmsn(dt.time: time::duration);
+		dt.hour = hmsn.0;
+		dt.min = hmsn.1;
+		dt.sec = hmsn.2;
+		dt.nsec = hmsn.3;
+		return dt.sec: int;
 	case let s: int =>
 		return s;
 	};
@@ -229,7 +244,12 @@ export fn sec(dt: *datetime) int = {
 export fn nsec(dt: *datetime) int = {
 	match (dt.nsec) {
 	case void =>
-		abort("TODO");
+		const hmsn = calc_hmsn(dt.time: time::duration);
+		dt.hour = hmsn.0;
+		dt.min = hmsn.1;
+		dt.sec = hmsn.2;
+		dt.nsec = hmsn.3;
+		return dt.nsec: int;
 	case let n: int =>
 		return n;
 	};
