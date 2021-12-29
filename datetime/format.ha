@@ -61,13 +61,61 @@ export fn newparser() parser = parser {
 // - year, yearday
 // - year, week, weekday
 // - isoyear, isoweek, weekday
-export fn endparse() (datetime | insufficient) = {
+export fn endparse(p: *parser) (datetime | insufficient | errors::invalid) = {
 	// TODO
-	abort("TODO");
+	if (
+		p.datetime.year is int &&
+		p.datetime.month is int &&
+		p.datetime.day is int
+	) {
+		p.datetime.date = calc_epochal_from_ymd(
+			p.datetime.year as int,
+			p.datetime.month as int,
+			p.datetime.day as int,
+		)?;
+	} else if (
+		p.datetime.year is int &&
+		p.datetime.yearday is int
+	) {
+		p.datetime.date = calc_epochal_from_yd(
+			p.datetime.year as int,
+			p.datetime.yearday as int,
+		)?;
+	} else if (
+		p.datetime.year is int &&
+		p.datetime.week is int &&
+		p.datetime.weekday is int
+	) {
+		p.datetime.date = calc_epochal_from_ywd(
+			p.datetime.year as int,
+			p.datetime.week as int,
+			p.datetime.weekday as int,
+		)?;
+//
+// TODO: calendar.ha: calc_epochal_from_isoywd()
+//
+//	} else if (
+//		p.datetime.isoyear is int &&
+//		p.datetime.isoweek is int &&
+//		p.datetime.weekday is int
+//	) {
+//		p.datetime.date = calc_epochal_from_isoywd(
+//			p.datetime.isoyear as int,
+//			p.datetime.isoweek as int,
+//			p.datetime.weekday as int,
+//		)?;
+//
+	} else {
+		return insufficient;
+	};
+
+	// TODO: fill in timelike fields, or leave as zeros?
+
+	return p.datetime;
 };
 
 // TODO: docstr, reconcile fn names
-export fn parse(p: parser, layout: str, s: str) (void | errors::invalid) = {
+export fn parse(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 	strptime(p, layout, s)?;
 };
 
@@ -76,7 +124,7 @@ export fn parse(p: parser, layout: str, s: str) (void | errors::invalid) = {
 // The resulting [[datetime::datetime]] may not contain sufficient information
 // to be valid. Incremental parsing of data is possible, but the caller should
 // validate the [[datetime::datetime]] when appropriate.
-export fn strptime(p: parser, layout: str, s: str) (void | errors::invalid) = {
+export fn strptime(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 	const format_iter = strings::iter(layout);
 	const s_iter = strings::iter(s);
 	let escaped = false;
