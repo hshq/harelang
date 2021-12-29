@@ -1,8 +1,6 @@
 use errors;
 use time;
 
-// TODO: rework the following functions and their signatures
-
 fn calc_hmsn(t: time::duration) (int, int, int, int) = {
 	const hour = (t / time::HOUR): int;
 	const min = ((t / time::MINUTE) % 60): int;
