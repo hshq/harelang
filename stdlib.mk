@@ -2895,11 +2895,9 @@ $(TESTCACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(testlib_crypto_curve
 testlib_datetime_any_srcs= \
 	$(STDLIB)/datetime/arithmetic.ha \
 	$(STDLIB)/datetime/calendar.ha \
-	$(STDLIB)/datetime/date+test.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
 	$(STDLIB)/datetime/format.ha \
-	$(STDLIB)/datetime/format+test.ha \
 	$(STDLIB)/datetime/time.ha \
 	$(STDLIB)/datetime/timezone.ha
 

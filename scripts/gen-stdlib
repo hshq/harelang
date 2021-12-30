@@ -196,11 +196,9 @@ datetime() {
 		gen_srcs datetime \
 			arithmetic.ha \
 			calendar.ha \
-			date+test.ha \
 			date.ha \
 			datetime.ha \
 			format.ha \
-			format+test.ha \
 			time.ha \
 			timezone.ha
 	fi
