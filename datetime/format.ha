@@ -41,82 +41,9 @@ def MONTHS_SHORT: [_]str = [
 	"Oct", "Nov", "Dec",
 ];
 
-// A parser has insufficient information and cannot create a valid datetime.
-export type insufficient = !void;
-
-// Constructs a new datetime from multiple calls to [[parse]].
-// The datetime is returned via [[endparse]].
-export type parser = struct {
-	datetime: datetime,
-};
-
-// Creates a new [[parser]]
-export fn newparser() parser = parser {
-	datetime = init(),
-};
-
-// Returns a valid datetime from a parser. The following approaches will be
-// tried in order until a valid datetime is produced, or fail otherwise:
-// - year, month, day
-// - year, yearday
-// - year, week, weekday
-// - isoyear, isoweek, weekday
-export fn endparse(p: *parser) (datetime | insufficient | errors::invalid) = {
-	// TODO
-	if (
-		p.datetime.year is int &&
-		p.datetime.month is int &&
-		p.datetime.day is int
-	) {
-		p.datetime.date = calc_epochal_from_ymd(
-			p.datetime.year as int,
-			p.datetime.month as int,
-			p.datetime.day as int,
-		)?;
-	} else if (
-		p.datetime.year is int &&
-		p.datetime.yearday is int
-	) {
-		p.datetime.date = calc_epochal_from_yd(
-			p.datetime.year as int,
-			p.datetime.yearday as int,
-		)?;
-	} else if (
-		p.datetime.year is int &&
-		p.datetime.week is int &&
-		p.datetime.weekday is int
-	) {
-		p.datetime.date = calc_epochal_from_ywd(
-			p.datetime.year as int,
-			p.datetime.week as int,
-			p.datetime.weekday as int,
-		)?;
-//
-// TODO: calendar.ha: calc_epochal_from_isoywd()
-//
-//	} else if (
-//		p.datetime.isoyear is int &&
-//		p.datetime.isoweek is int &&
-//		p.datetime.weekday is int
-//	) {
-//		p.datetime.date = calc_epochal_from_isoywd(
-//			p.datetime.isoyear as int,
-//			p.datetime.isoweek as int,
-//			p.datetime.weekday as int,
-//		)?;
-//
-	} else {
-		return insufficient;
-	};
-
-	// TODO: fill in timelike fields, or leave as zeros?
-
-	return p.datetime;
-};
-
 // TODO: docstr, reconcile fn names
-export fn parse(p: *parser, layout: str, s: str) (void | errors::invalid) = {
-	strptime(p, layout, s)?;
+export fn parse(b: *builder, layout: str, s: str) (void | errors::invalid) = {
+	strptime(b, layout, s)?;
 };
 
 // Parses a datetime string into a [[datetime::datetime]].
@@ -124,7 +51,7 @@ export fn parse(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 // The resulting [[datetime::datetime]] may not contain sufficient information
 // to be valid. Incremental parsing of data is possible, but the caller should
 // validate the [[datetime::datetime]] when appropriate.
-export fn strptime(p: *parser, layout: str, s: str) (void | errors::invalid) = {
+export fn strptime(b: *builder, layout: str, s: str) (void | errors::invalid) = {
 	const format_iter = strings::iter(layout);
 	const s_iter = strings::iter(s);
 	let escaped = false;
@@ -159,35 +86,35 @@ export fn strptime(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 		// Basic specifiers
 		case 'a' =>
 			// TODO: Localization
-			p.datetime.weekday = get_default_locale_string_index(
+			b.weekday = get_default_locale_string_index(
 				&s_iter, WEEKDAYS_SHORT[..])?;
 		case 'A' =>
 			// TODO: Localization
-			p.datetime.weekday = get_default_locale_string_index(
+			b.weekday = get_default_locale_string_index(
 				&s_iter, WEEKDAYS[..])?;
 		case 'b', 'h' =>
 			// TODO: Localization
-			p.datetime.month = get_default_locale_string_index(
+			b.month = get_default_locale_string_index(
 				&s_iter, MONTHS_SHORT[..])?;
 		case 'B' =>
 			// TODO: Localization
-			p.datetime.month = get_default_locale_string_index(
+			b.month = get_default_locale_string_index(
 				&s_iter, MONTHS[..])?;
 		case 'd', 'e' =>
 			let max_n_digits = 2u;
 			if (format_r == 'e') {
 				max_n_digits -= eat_one_rune(&s_iter, ' ')?;
 			};
-			p.datetime.day = clamp_int(
+			b.day = clamp_int(
 				get_max_n_digits(&s_iter, max_n_digits)?, 1, 31);
 		case 'G' =>
-			p.datetime.isoweekyear = get_max_n_digits(&s_iter, 4)?;
+			b.isoweekyear = get_max_n_digits(&s_iter, 4)?;
 		case 'H', 'k' =>
 			let max_n_digits = 2u;
 			if (format_r == 'k') {
 				max_n_digits -= eat_one_rune(&s_iter, ' ')?;
 			};
-			p.datetime.hour = clamp_int(
+			b.hour = clamp_int(
 				get_max_n_digits(&s_iter, max_n_digits)?, 0, 23);
 		case 'I', 'l' =>
 			let max_n_digits = 2u;
@@ -195,7 +122,7 @@ export fn strptime(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 				max_n_digits -= eat_one_rune(&s_iter, ' ')?;
 			};
 			const hour = get_max_n_digits(&s_iter, max_n_digits);
-			p.datetime.hour = match (hour) {
+			b.hour = match (hour) {
 			case let hour: int =>
 				yield if (hour > 12) {
 					yield clamp_int(hour - 12, 1, 12);
@@ -206,22 +133,22 @@ export fn strptime(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 				return errors::invalid;
 			};
 		case 'j' =>
-			p.datetime.yearday = clamp_int(
+			b.yearday = clamp_int(
 				get_max_n_digits(&s_iter, 3)?, 1, 366);
 		case 'm' =>
-			p.datetime.month = clamp_int(
+			b.month = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 12);
 		case 'M' =>
-			p.datetime.min = clamp_int(
+			b.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 		case 'n' =>
 			eat_one_rune(&s_iter, '\n')?;
 		case 'N' =>
-			p.datetime.nsec = clamp_int(
+			b.nsec = clamp_int(
 				get_max_n_digits(&s_iter, 3)?, 0, 999);
 		case 'p', 'P' =>
 			// TODO: Localization
-			if (p.datetime.hour is void) {
+			if (b.hour is void) {
 				// We can't change the hour's am/pm because we
 				// have no hour.
 				return errors::invalid;
@@ -238,19 +165,19 @@ export fn strptime(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 				yield "pm";
 			};
 			if (strings::hasprefix(rest, prefix_am)) {
-				if (p.datetime.hour as int > 12) {
+				if (b.hour as int > 12) {
 					// 13 AM?
 					return errors::invalid;
-				} else if (p.datetime.hour as int == 12) {
-					p.datetime.hour = 0;
+				} else if (b.hour as int == 12) {
+					b.hour = 0;
 				};
 			} else if (strings::hasprefix(rest, prefix_pm)) {
-				if (p.datetime.hour as int > 12) {
+				if (b.hour as int > 12) {
 					// 13 PM?
 					return errors::invalid;
-				} else if (p.datetime.hour as int < 12) {
-					p.datetime.hour =
-						(p.datetime.hour as int) + 12;
+				} else if (b.hour as int < 12) {
+					b.hour =
+						(b.hour as int) + 12;
 				};
 			} else {
 				return errors::invalid;
@@ -258,12 +185,12 @@ export fn strptime(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 			strings::next(&s_iter);
 			strings::next(&s_iter);
 		case 'S' =>
-			p.datetime.sec = clamp_int(
+			b.sec = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 61);
 		case 't' =>
 			eat_one_rune(&s_iter, '\t')?;
 		case 'u', 'w' =>
-			p.datetime.weekday = match (get_max_n_digits(&s_iter, 1)) {
+			b.weekday = match (get_max_n_digits(&s_iter, 1)) {
 			case let i: int =>
 				yield if (format_r == 'w') {
 					yield if (i == 0) {
@@ -278,13 +205,13 @@ export fn strptime(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 				return errors::invalid;
 			};
 		case 'U', 'W' =>
-			p.datetime.week = clamp_int(
+			b.week = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 53);
 		case 'V' =>
-			p.datetime.isoweek = clamp_int(
+			b.isoweek = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 53);
 		case 'Y' =>
-			p.datetime.year = get_max_n_digits(&s_iter, 4)?;
+			b.year = get_max_n_digits(&s_iter, 4)?;
 		case 'z' =>
 			// TODO
 			continue;
@@ -294,73 +221,73 @@ export fn strptime(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 		// Expansion specifiers
 		case 'c' =>
 			// TODO: Localization
-			p.datetime.weekday = get_default_locale_string_index(
+			b.weekday = get_default_locale_string_index(
 				&s_iter, WEEKDAYS_SHORT[..])?;
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
 				fmt::printfln("no space after weekday")!;
 				return errors::invalid;
 			};
-			p.datetime.month = get_default_locale_string_index(
+			b.month = get_default_locale_string_index(
 				&s_iter, MONTHS_SHORT[..])?;
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
 				fmt::printfln("no space after month")!;
 				return errors::invalid;
 			};
 			const max_n_digits = 2 - eat_one_rune(&s_iter, ' ')?;
-			p.datetime.day = clamp_int(
+			b.day = clamp_int(
 				get_max_n_digits(&s_iter, max_n_digits)?, 1, 31);
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
 				fmt::printfln("no space after day")!;
 				return errors::invalid;
 			};
-			p.datetime.hour = clamp_int(
+			b.hour = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 23);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				fmt::printfln("no : after hour")!;
 				return errors::invalid;
 			};
-			p.datetime.min = clamp_int(
+			b.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				fmt::printfln("no : after minute")!;
 				return errors::invalid;
 			};
-			p.datetime.sec = clamp_int(
+			b.sec = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 61);
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
 				fmt::printfln("no space after sec")!;
 				return errors::invalid;
 			};
-			p.datetime.year = get_max_n_digits(&s_iter, 4)?;
+			b.year = get_max_n_digits(&s_iter, 4)?;
 		case 'D', 'x' =>
 			// TODO: Localization for %x
-			p.datetime.month = clamp_int(
+			b.month = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 12);
 			if (eat_one_rune(&s_iter, '/')? != 1) {
 				return errors::invalid;
 			};
-			p.datetime.day = clamp_int(
+			b.day = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 31);
 			if (eat_one_rune(&s_iter, '/')? != 1) {
 				return errors::invalid;
 			};
-			p.datetime.year = get_max_n_digits(&s_iter, 4)?;
+			b.year = get_max_n_digits(&s_iter, 4)?;
 		case 'F' =>
-			p.datetime.year = get_max_n_digits(&s_iter, 4)?;
+			b.year = get_max_n_digits(&s_iter, 4)?;
 			if (eat_one_rune(&s_iter, '-')? != 1) {
 				return errors::invalid;
 			};
-			p.datetime.month = clamp_int(
+			b.month = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 12);
 			if (eat_one_rune(&s_iter, '-')? != 1) {
 				return errors::invalid;
 			};
-			p.datetime.day = clamp_int(
+			b.day = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 31);
 		case 'r' =>
 			// TODO: Localization
 			// Time
-			p.datetime.hour = match (get_max_n_digits(&s_iter, 2)) {
+			b.hour = match (get_max_n_digits(&s_iter, 2)) {
 			case let hour: int =>
 				yield if (hour > 12) {
 					yield clamp_int(hour - 12, 1, 12);
@@ -373,12 +300,12 @@ export fn strptime(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				return errors::invalid;
 			};
-			p.datetime.min = clamp_int(
+			b.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				return errors::invalid;
 			};
-			p.datetime.sec = clamp_int(
+			b.sec = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 61);
 			if (eat_one_rune(&s_iter, ' ')? != 1) {
 				return errors::invalid;
@@ -386,19 +313,19 @@ export fn strptime(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 			let rest = strings::iter_str(&s_iter);
 			// AM/PM
 			if (strings::hasprefix(rest, "AM")) {
-				if (p.datetime.hour as int > 12) {
+				if (b.hour as int > 12) {
 					// 13 AM?
 					return errors::invalid;
-				} else if (p.datetime.hour as int == 12) {
-					p.datetime.hour = 0;
+				} else if (b.hour as int == 12) {
+					b.hour = 0;
 				};
 			} else if (strings::hasprefix(rest, "PM")) {
-				if (p.datetime.hour as int > 12) {
+				if (b.hour as int > 12) {
 					// 13 PM?
 					return errors::invalid;
-				} else if (p.datetime.hour as int < 12) {
-					p.datetime.hour =
-						(p.datetime.hour as int) + 12;
+				} else if (b.hour as int < 12) {
+					b.hour =
+						(b.hour as int) + 12;
 				};
 			} else {
 				return errors::invalid;
@@ -406,26 +333,26 @@ export fn strptime(p: *parser, layout: str, s: str) (void | errors::invalid) = {
 			strings::next(&s_iter);
 			strings::next(&s_iter);
 		case 'R' =>
-			p.datetime.hour = clamp_int(
+			b.hour = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 23);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				return errors::invalid;
 			};
-			p.datetime.min = clamp_int(
+			b.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 		case 'T', 'X' =>
 			// TODO: Localization for %X
-			p.datetime.hour = clamp_int(
+			b.hour = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 23);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				return errors::invalid;
 			};
-			p.datetime.min = clamp_int(
+			b.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 			if (eat_one_rune(&s_iter, ':')? != 1) {
 				return errors::invalid;
 			};
-			p.datetime.sec = clamp_int(
+			b.sec = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 61);
 
 		case =>

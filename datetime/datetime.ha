@@ -124,3 +124,83 @@ export fn validate(dt: datetime) bool = {
 	// TODO
 	return true;
 };
+
+
+// A builder has insufficient information and cannot create a valid datetime.
+export type insufficient = !void;
+
+// Constructs a new datetime, from assigning values to its fields, or multiple
+// calls to [[parse]]. A valid datetime is returned via [[build]].
+export type builder = datetime;
+
+// Creates a new [[builder]]
+export fn newbuilder() builder = init(): builder;
+
+// Returns a valid datetime from a builder. The following approaches will be
+// tried in order until a valid datetime is produced, or fail otherwise:
+// - year, month, day
+// - year, yearday
+// - year, week, weekday
+// - isoyear, isoweek, weekday
+//
+// TODO: Should we use an enum to select the approach?
+export fn build(f: *builder, m: method...) (datetime | insufficient | errors::invalid) = {
+	if (len(m) == 0) {
+		m = [method::ALL];
+	};
+
+	for (let i = 0z; i < len(m); i += 1) {
+		const M = m[i];
+		if (
+			M & method::YMD != 0 &&
+			f.year is int &&
+			f.month is int &&
+			f.day is int
+		) {
+			f.date = calc_epochal_from_ymd(
+				f.year as int,
+				f.month as int,
+				f.day as int,
+			)?;
+			return *f: datetime;
+		};
+
+		if (
+			M & method::YD != 0 &&
+			f.year is int &&
+			f.yearday is int
+		) {
+			f.date = calc_epochal_from_yd(
+				f.year as int,
+				f.yearday as int,
+			)?;
+			return *f: datetime;
+		};
+
+		if (
+			M & method::YWD != 0 &&
+			f.year is int &&
+			f.week is int &&
+			f.weekday is int
+		) {
+			f.date = calc_epochal_from_ywd(
+				f.year as int,
+				f.week as int,
+				f.weekday as int,
+			)?;
+			return *f: datetime;
+		};
+
+		// TODO: calendar.ha: calc_epochal_from_isoywd()
+	};
+
+	return insufficient;
+};
+
+export type method = enum uint {
+	YMD    = 1 << 0,
+	YD     = 1 << 1,
+	YWD    = 1 << 2,
+	ISOYWD = 1 << 4,
+	ALL    = YMD | YD | YWD | ISOYWD,
+};

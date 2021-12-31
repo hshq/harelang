@@ -166,14 +166,12 @@ fn calc_epochal_from_ymd(y: int, m: int, d: int) (chrono::epochal | errors::inva
 
 // Calculates the [[chrono::epochal]], given a (year, week, weekday) date
 fn calc_epochal_from_ywd(y: int, w: int, wd: int) (chrono::epochal | errors::invalid) = {
-	// TODO
-	return 0;
+	abort("TODO");
 };
 
 // Calculates the [[chrono::epochal]], given a (year, yearday) date
 fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | errors::invalid) = {
-	// TODO
-	return 0;
+	abort("TODO");
 };
 
 @test fn calc_epochal_from_ymd() void = {
