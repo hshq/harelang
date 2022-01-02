@@ -34,16 +34,16 @@ fn want(lexer: *lex::lexer, want: lex::ltok...) (lex::token | error) = {
 	};
 
 	let buf = strio::dynamic();
-	defer io::close(buf);
+	defer io::close(&buf);
 	for (let i = 0z; i < len(want); i += 1) {
 		const tstr = lex::tokstr((want[i], void, lex::mkloc(lexer)));
-		fmt::fprintf(buf, "'{}'", tstr)!;
+		fmt::fprintf(&buf, "'{}'", tstr)!;
 		if (i + 1 < len(want)) {
-			fmt::fprint(buf, ", ")!;
+			fmt::fprint(&buf, ", ")!;
 		};
 	};
 	return syntaxerr(lex::mkloc(lexer), "Unexpected '{}', was expecting {}",
-		lex::tokstr(tok), strio::string(buf));
+		lex::tokstr(tok), strio::string(&buf));
 };
 
 // Looks for a matching ltok from the lexer, and if not present, unlexes the

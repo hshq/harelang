@@ -82,9 +82,8 @@ export fn uri(out: io::handle, in: uuid) (size | io::error) = {
 export fn encodestr(in: uuid) str = {
 	static let buf: [UUID_STRLEN]u8 = [0...];
 	let sink = strio::fixed(buf);
-	defer io::close(sink);
-	encode(sink, in) as size;
-	return strio::string(sink);
+	encode(&sink, in) as size;
+	return strio::string(&sink);
 };
 
 // Encodes a UUID as a string. The return value is statically allocated, the
@@ -92,9 +91,8 @@ export fn encodestr(in: uuid) str = {
 export fn encodeuri(in: uuid) str = {
 	static let buf: [UUID_URILEN]u8 = [0...];
 	let sink = strio::fixed(buf);
-	defer io::close(sink);
-	uri(sink, in) as size;
-	return strio::string(sink);
+	uri(&sink, in) as size;
+	return strio::string(&sink);
 };
 
 @test fn encode() void = {

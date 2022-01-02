@@ -23,8 +23,9 @@ use strio;
 		};
 		hash::finish(&blake, sum);
 		let out = strio::dynamic();
-		hex::encode(out, sum)!;
-		assert(strio::string(out) == vectors[i].out);
+		defer io::close(&out);
+		hex::encode(&out, sum)!;
+		assert(strio::string(&out) == vectors[i].out);
 	};
 
 	let blake = blake2b([], 64);
@@ -49,15 +50,15 @@ use strio;
 		hash::sum(&blake, sum);
 
 		let hex = strio::dynamic();
-		defer io::close(hex);
+		defer io::close(&hex);
 
 		for (let j = 0z; j < len(sum); j += 1) {
-			fmt::fprintf(hex, "{:02x}", sum[j])!;
+			fmt::fprintf(&hex, "{:02x}", sum[j])!;
 		};
 
-		if (strio::string(hex) != vector.1) {
+		if (strio::string(&hex) != vector.1) {
 			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(hex), vector.1)!;
+				i, strio::string(&hex), vector.1)!;
 			abort();
 		};
 	};

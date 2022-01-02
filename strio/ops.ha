@@ -21,10 +21,10 @@ export fn concat(out: io::handle, strs: str...) (size | io::error) = {
 
 @test fn concat() void = {
 	let st = dynamic();
-	defer io::close(st);
-	concat(st, "hello") as size;
-	concat(st, " ", "world") as size;
-	assert(string(st) == "hello world");
+	defer io::close(&st);
+	concat(&st, "hello") as size;
+	concat(&st, " ", "world") as size;
+	assert(string(&st) == "hello world");
 };
 
 // Joins several strings together by a delimiter and writes them to a handle.
@@ -55,15 +55,15 @@ export fn join(out: io::handle, delim: str, strs: str...) (size | io::error) = {
 
 @test fn join() void = {
 	let st = dynamic();
-	defer io::close(st);
-	join(st, "::", "hello", "world") as size;
-	assert(string(st) == "hello::world");
-	truncate(st);
-	join(st, "::") as size;
-	assert(string(st) == "");
-	truncate(st);
-	join(st, "::", "foo") as size;
-	assert(string(st) == "foo");
+	defer io::close(&st);
+	join(&st, "::", "hello", "world") as size;
+	assert(string(&st) == "hello::world");
+	truncate(&st);
+	join(&st, "::") as size;
+	assert(string(&st) == "");
+	truncate(&st);
+	join(&st, "::", "foo") as size;
+	assert(string(&st) == "foo");
 };
 
 // Joins several strings together by a delimiter and writes them to a handle, in
@@ -94,15 +94,15 @@ export fn rjoin(out: io::handle, delim: str, strs: str...) (size | io::error) = 
 
 @test fn rjoin() void = {
 	let st = dynamic();
-	defer io::close(st);
-	rjoin(st, "::", "hello", "world") as size;
-	assert(string(st) == "world::hello");
-	truncate(st);
-	rjoin(st, "::") as size;
-	assert(string(st) == "");
-	truncate(st);
-	rjoin(st, "::", "foo") as size;
-	assert(string(st) == "foo");
+	defer io::close(&st);
+	rjoin(&st, "::", "hello", "world") as size;
+	assert(string(&st) == "world::hello");
+	truncate(&st);
+	rjoin(&st, "::") as size;
+	assert(string(&st) == "");
+	truncate(&st);
+	rjoin(&st, "::", "foo") as size;
+	assert(string(&st) == "foo");
 };
 
 // Appends a rune to a stream.

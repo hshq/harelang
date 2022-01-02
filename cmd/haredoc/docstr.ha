@@ -82,7 +82,7 @@ fn scantext(par: *parser) (token | void) = {
 			bufio::unreadrune(par.src, rn);
 			break;
 		case '\n' =>
-			strio::appendrune(buf, rn)!;
+			strio::appendrune(&buf, rn)!;
 			const rn = match (bufio::scanrune(par.src)!) {
 			case io::EOF => break;
 			case let rn: rune =>
@@ -94,10 +94,10 @@ fn scantext(par: *parser) (token | void) = {
 			};
 			bufio::unreadrune(par.src, rn);
 		case =>
-			strio::appendrune(buf, rn)!;
+			strio::appendrune(&buf, rn)!;
 		};
 	};
-	let result = strio::finish(buf);
+	let result = strio::string(&buf);
 	if (len(result) == 0) {
 		return;
 	};
@@ -124,7 +124,7 @@ fn scanref(par: *parser) (token | void) = {
 	};
 
 	const buf = strio::dynamic();
-	defer io::close(buf);
+	defer io::close(&buf);
 	// TODO: Handle invalid syntax here
 	for (true) {
 		match (bufio::scanrune(par.src)!) {
@@ -134,12 +134,12 @@ fn scanref(par: *parser) (token | void) = {
 				bufio::scanrune(par.src) as rune; // ]
 				break;
 			case =>
-				strio::appendrune(buf, rn)!;
+				strio::appendrune(&buf, rn)!;
 			};
 		case io::EOF => break;
 		};
 	};
-	let id = parse::identstr(strio::string(buf)) as ast::ident;
+	let id = parse::identstr(strio::string(&buf)) as ast::ident;
 	return id: reference;
 };
 
@@ -175,9 +175,9 @@ fn scansample(par: *parser) (token | void) = {
 		};
 		switch (rn) {
 		case '\n' =>
-			strio::appendrune(buf, rn)!;
+			strio::appendrune(&buf, rn)!;
 		case =>
-			strio::appendrune(buf, rn)!;
+			strio::appendrune(&buf, rn)!;
 			continue;
 		};
 
@@ -192,7 +192,7 @@ fn scansample(par: *parser) (token | void) = {
 				case '\t' =>
 					i += 8;
 				case '\n' =>
-					strio::appendrune(buf, rn)!;
+					strio::appendrune(&buf, rn)!;
 					i = 0;
 				case =>
 					bufio::unreadrune(par.src, rn);
@@ -203,7 +203,7 @@ fn scansample(par: *parser) (token | void) = {
 		};
 	};
 
-	let buf = strio::finish(buf);
+	let buf = strio::string(&buf);
 
 	// Trim trailing newlines
 	for (strings::hassuffix(buf, "\n")) {

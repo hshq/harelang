@@ -42,19 +42,19 @@ fn html_escape(out: io::handle, in: str) (size | io::error) = {
 
 @test fn html_escape() void = {
        let sink = strio::dynamic();
-       defer io::close(sink);
-       html_escape(sink, "hello world!")!;
-       assert(strio::string(sink) == "hello world!");
+       defer io::close(&sink);
+       html_escape(&sink, "hello world!")!;
+       assert(strio::string(&sink) == "hello world!");
 
        let sink = strio::dynamic();
-       defer io::close(sink);
-       html_escape(sink, "\"hello world!\"")!;
-       assert(strio::string(sink) == "&quot;hello world!&quot;");
+       defer io::close(&sink);
+       html_escape(&sink, "\"hello world!\"")!;
+       assert(strio::string(&sink) == "&quot;hello world!&quot;");
 
        let sink = strio::dynamic();
-       defer io::close(sink);
-       html_escape(sink, "<hello & 'world'!>")!;
-       assert(strio::string(sink) == "&lt;hello &amp; &apos;world&apos;!&gt;");
+       defer io::close(&sink);
+       html_escape(&sink, "<hello & 'world'!>")!;
+       assert(strio::string(&sink) == "&lt;hello &amp; &apos;world&apos;!&gt;");
 };
 
 // Formats output as HTML
@@ -66,7 +66,7 @@ fn emit_html(ctx: *context) (void | error) = {
 	if (ctx.template) head(ctx.ident)?;
 
 	if (len(ident) == 0) {
-		fmt::fprintf(ctx.out, 
+		fmt::fprintf(ctx.out,
 			"<h2>The Hare standard library <span class='heading-extra'>",
 			ident)?;
 	} else {
@@ -567,10 +567,10 @@ fn type_html(
 	brief: bool,
 ) (size | io::error) = {
 	let buf = strio::dynamic();
-	defer io::close(buf);
-	unparse::_type(buf, indent, _type)?;
+	defer io::close(&buf);
+	unparse::_type(&buf, indent, _type)?;
 	if (brief) {
-		return html_escape(out, strio::string(buf))?;
+		return html_escape(out, strio::string(&buf))?;
 	};
 
 	// TODO: More detailed formatter which can find aliases nested deeper in
@@ -711,14 +711,14 @@ fn breadcrumb(ident: ast::ident) str = {
 		return "";
 	};
 	let buf = strio::dynamic();
-	fmt::fprintf(buf, "<a href='/'>stdlib</a> » ")!;
+	fmt::fprintf(&buf, "<a href='/'>stdlib</a> » ")!;
 	for (let i = 0z; i < len(ident) - 1; i += 1) {
 		let ipath = module::identpath(ident[..i+1]);
 		defer free(ipath);
-		fmt::fprintf(buf, "<a href='/{}'>{}</a>::", ipath, ident[i])!;
+		fmt::fprintf(&buf, "<a href='/{}'>{}</a>::", ipath, ident[i])!;
 	};
-	fmt::fprint(buf, ident[len(ident) - 1])!;
-	return strio::finish(buf);
+	fmt::fprint(&buf, ident[len(ident) - 1])!;
+	return strio::string(&buf);
 };
 
 fn head(ident: ast::ident) (void | error) = {
@@ -731,7 +731,7 @@ fn head(ident: ast::ident) (void | error) = {
 	const title =
 		if (len(id) == 0)
 			fmt::asprintf("Hare documentation")
-		else 
+		else
 			fmt::asprintf("{} — Hare documentation", id);
 	defer free(title);
 
@@ -848,7 +848,7 @@ h4:target + pre {
 
 details {
 	background: #eee;
-	margin: 1rem -1rem 1rem; 
+	margin: 1rem -1rem 1rem;
 }
 
 summary {

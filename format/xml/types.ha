@@ -1,6 +1,7 @@
 use encoding::utf8;
 use io;
 use os;
+use strio;
 
 export type parser = struct {
 	in: io::handle,
@@ -10,9 +11,9 @@ export type parser = struct {
 	tags: []str,
 
 	// strio buffers:
-	namebuf: io::handle,
-	entbuf: io::handle,
-	textbuf: io::handle,
+	namebuf: strio::dynamic_stream,
+	entbuf: strio::dynamic_stream,
+	textbuf: strio::dynamic_stream,
 };
 
 export type state = enum {

@@ -73,8 +73,8 @@ export fn encode(
 // returns it. The caller must free the return value.
 export fn encodestr(alphabet: []u8, b: []u8) str = {
 	let sink = strio::dynamic();
-	encode(alphabet, sink, b) as size;
-	return strio::finish(sink);
+	encode(alphabet, &sink, b) as size;
+	return strio::string(&sink);
 };
 
 @test fn encode() void = {

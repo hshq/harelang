@@ -99,11 +99,11 @@ export fn identpath(name: ast::ident) str = {
 export fn identuscore(ident: ast::ident) str = {
 	let buf = strio::dynamic();
 	for (let i = 0z; i < len(ident); i += 1) {
-		fmt::fprintf(buf, "{}{}", ident[i],
+		fmt::fprintf(&buf, "{}{}", ident[i],
 			if (i + 1 < len(ident)) "_"
 			else "") as size;
 	};
-	return strio::finish(buf);
+	return strio::string(&buf);
 };
 
 @test fn identuscore() void = {

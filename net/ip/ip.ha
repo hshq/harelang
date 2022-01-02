@@ -338,8 +338,8 @@ export fn string(item: (...addr | subnet)) str = {
 	// Maximum length of an IPv6 address plus its netmask in hexadecimal
 	static let buf: [64]u8 = [0...];
 	let stream = strio::fixed(buf);
-	fmt(stream, item) as size;
-	return strio::string(stream);
+	fmt(&stream, item) as size;
+	return strio::string(&stream);
 };
 
 fn wanttoken(tok: *strings::tokenizer) (str | invalid) = {

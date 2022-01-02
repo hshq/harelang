@@ -43,9 +43,9 @@ export fn parser_free(par: *parser) void = {
 	if (par.close) {
 		io::close(par.in);
 	};
-	io::close(par.namebuf);
-	io::close(par.entbuf);
-	io::close(par.textbuf);
+	io::close(&par.namebuf);
+	io::close(&par.entbuf);
+	io::close(&par.textbuf);
 	for (let i = 0z; i < len(par.tags); i += 1) {
 		free(par.tags[i]);
 	};
@@ -126,16 +126,16 @@ fn poptag(par: *parser, expect: str) (str | error) = {
 	if (expect != "" && expect != pop) {
 		return syntaxerr;
 	};
-	strio::reset(par.namebuf);
-	strio::concat(par.namebuf, pop)!;
-	return strio::string(par.namebuf);
+	strio::reset(&par.namebuf);
+	strio::concat(&par.namebuf, pop)!;
+	return strio::string(&par.namebuf);
 };
 
 fn scan_attr(par: *parser) (token | error) = {
-	let name = scan_name(par, par.namebuf)?;
+	let name = scan_name(par, &par.namebuf)?;
 	want(par, OPTWS, '=', OPTWS)?;
 	let quot = quote(par)?;
-	strio::reset(par.textbuf);
+	strio::reset(&par.textbuf);
 	for (true) match (bufio::scanrune(par.in)?) {
 	case io::EOF =>
 		return syntaxerr;
@@ -150,9 +150,9 @@ fn scan_attr(par: *parser) (token | error) = {
 			yield rn;
 		};
 		if (rn == quot) break;
-		strio::appendrune(par.textbuf, rn)?;
+		strio::appendrune(&par.textbuf, rn)?;
 	};
-	return (name, strio::string(par.textbuf)): attribute;
+	return (name, strio::string(&par.textbuf)): attribute;
 };
 
 fn scan_comment(par: *parser) (token | void | error) = {
@@ -201,7 +201,7 @@ fn scan_comment(par: *parser) (token | void | error) = {
 };
 
 fn scan_cdata(par: *parser) (text | error) = {
-	strio::reset(par.textbuf);
+	strio::reset(&par.textbuf);
 	for (true) {
 		const rn = match (bufio::scanrune(par.in)?) {
 		case io::EOF =>
@@ -210,7 +210,7 @@ fn scan_cdata(par: *parser) (text | error) = {
 			yield rn;
 		};
 		if (rn != ']') {
-			strio::appendrune(par.textbuf, rn)!;
+			strio::appendrune(&par.textbuf, rn)!;
 			continue;
 		};
 		const rn = match (bufio::scanrune(par.in)?) {
@@ -220,7 +220,7 @@ fn scan_cdata(par: *parser) (text | error) = {
 			yield rn;
 		};
 		if (rn != ']') {
-			strio::appendrune(par.textbuf, rn)!;
+			strio::appendrune(&par.textbuf, rn)!;
 			continue;
 		};
 		const rn = match (bufio::scanrune(par.in)?) {
@@ -230,13 +230,13 @@ fn scan_cdata(par: *parser) (text | error) = {
 			yield rn;
 		};
 		if (rn == '>') break;
-		strio::appendrune(par.textbuf, rn)!;
+		strio::appendrune(&par.textbuf, rn)!;
 	};
-	return strio::string(par.textbuf): text;
+	return strio::string(&par.textbuf): text;
 };
 
 fn scan_content(par: *parser) (text | error) = {
-	strio::reset(par.textbuf);
+	strio::reset(&par.textbuf);
 	for (true) match (bufio::scanrune(par.in)?) {
 	case io::EOF =>
 		break;
@@ -251,9 +251,9 @@ fn scan_content(par: *parser) (text | error) = {
 		case =>
 			yield rn;
 		};
-		strio::appendrune(par.textbuf, rn)?;
+		strio::appendrune(&par.textbuf, rn)?;
 	};
-	return strio::string(par.textbuf);
+	return strio::string(&par.textbuf);
 };
 
 fn scan_element(par: *parser) (token | error) = {
@@ -270,7 +270,7 @@ fn scan_element(par: *parser) (token | error) = {
 			bufio::unreadrune(par.in, rn);
 		};
 	};
-	let name = scan_name(par, par.namebuf)?;
+	let name = scan_name(par, &par.namebuf)?;
 	if (close) {
 		poptag(par, name)?;
 		return name: elementend;
@@ -312,7 +312,7 @@ fn scan_charref(par: *parser) (rune | error) = {
 		};
 	};
 
-	strio::reset(par.entbuf);
+	strio::reset(&par.entbuf);
 	for (true) {
 		let rn = match (bufio::scanrune(par.in)?) {
 		case io::EOF =>
@@ -321,17 +321,17 @@ fn scan_charref(par: *parser) (rune | error) = {
 			yield rn;
 		};
 		if (ascii::isdigit(rn)) {
-			strio::appendrune(par.entbuf, rn)?;
+			strio::appendrune(&par.entbuf, rn)?;
 		} else if (rn == ';') {
 			break;
 		} else {
 			return syntaxerr;
 		};
 	};
-	if (len(strio::string(par.entbuf)) == 0) {
+	if (len(strio::string(&par.entbuf)) == 0) {
 		return syntaxerr;
 	};
-	match (strconv::stou32b(strio::string(par.entbuf), base)) {
+	match (strconv::stou32b(strio::string(&par.entbuf), base)) {
 	case let u: u32 =>
 		return u: rune;
 	case (strconv::invalid | strconv::overflow) =>
@@ -340,7 +340,7 @@ fn scan_charref(par: *parser) (rune | error) = {
 };
 
 fn scan_namedent(par: *parser) (rune | error) = {
-	const name = scan_name(par, par.entbuf)?;
+	const name = scan_name(par, &par.entbuf)?;
 	want(par, ';')?;
 	const map = [
 		("lt", '<'),
@@ -359,7 +359,7 @@ fn scan_namedent(par: *parser) (rune | error) = {
 	return syntaxerr;
 };
 
-fn scan_name(par: *parser, buf: io::handle) (str | error) = {
+fn scan_name(par: *parser, buf: *strio::dynamic_stream) (str | error) = {
 	strio::reset(buf);
 
 	const rn = match (bufio::scanrune(par.in)?) {

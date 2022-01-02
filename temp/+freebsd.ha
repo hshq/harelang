@@ -85,9 +85,8 @@ export fn dir() str = {
 	random::buffer(buf[..]);
 
 	let sink = strio::fixed(name);
-	defer io::close(sink);
-	hex::encode(sink, buf) as size;
-	let name = strio::string(sink);
+	hex::encode(&sink, buf) as size;
+	let name = strio::string(&sink);
 
 	let path = path::join(get_tmpdir(), name);
 	match (os::mkdir(path)) {

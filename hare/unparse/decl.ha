@@ -89,8 +89,8 @@ export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 
 fn decl_test(d: ast::decl, expected: str) bool = {
 	let buf = strio::dynamic();
-	decl(buf, d) as size;
-	let s = strio::finish(buf);
+	decl(&buf, d) as size;
+	let s = strio::string(&buf);
 	defer free(s);
 	return s == expected;
 };

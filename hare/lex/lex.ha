@@ -229,7 +229,7 @@ fn lex_string(lex: *lexer, loc: location) (token | error) = {
 		else {
 			unget(lex, r);
 			let r = lex_rune(lex, loc)?;
-			strio::appendrune(buf, r)?;
+			strio::appendrune(&buf, r)?;
 		};
 	};
 	match (nextw(lex)?) {
@@ -238,13 +238,13 @@ fn lex_string(lex: *lexer, loc: location) (token | error) = {
 		if (r.0 == '"') {
 			const tok = lex_string(lex, loc)?;
 			const next = tok.1 as str;
-			strio::concat(buf, next)!;
+			strio::concat(&buf, next)!;
 			free(next);
 		} else {
 			unget(lex, r);
 		};
 	};
-	return (ltok::LIT_STR, strio::finish(buf), loc);
+	return (ltok::LIT_STR, strio::string(&buf), loc);
 };
 
 fn lex_rn_str(lex: *lexer) (token | error) = {
@@ -281,7 +281,7 @@ fn lex_name(lex: *lexer, loc: location, label: bool) (token | error) = {
 	match (next(lex)) {
 	case let r: (rune, location) =>
 		assert(is_name(r.0, false));
-		strio::appendrune(buf, r.0)!;
+		strio::appendrune(&buf, r.0)!;
 	case (io::EOF | io::error) =>
 		abort();
 	};
@@ -293,10 +293,10 @@ fn lex_name(lex: *lexer, loc: location, label: bool) (token | error) = {
 			unget(lex, r);
 			break;
 		};
-		strio::appendrune(buf, r.0)?;
+		strio::appendrune(&buf, r.0)?;
 	};
 
-	let n = strio::finish(buf);
+	let n = strio::string(&buf);
 	if (label) {
 		return (ltok::LABEL, n, loc);
 	};
@@ -327,17 +327,17 @@ fn lex_comment(lexr: *lexer) (token | error) = {
 	};
 
 	let buf = strio::dynamic();
-	defer io::close(buf);
+	defer io::close(&buf);
 	for (true) match (next(lexr)?) {
 	case io::EOF =>
 		break;
 	case let r: (rune, location) =>
-		strio::appendrune(buf, r.0)!;
+		strio::appendrune(&buf, r.0)!;
 		if (r.0 == '\n') {
 			break;
 		};
 	};
-	let new = strings::concat(lexr.comment, strio::string(buf));
+	let new = strings::concat(lexr.comment, strio::string(&buf));
 	free(lexr.comment);
 	lexr.comment = new;
 	return lex(lexr);

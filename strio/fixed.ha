@@ -1,46 +1,35 @@
 use io;
 use strings;
 
-type fixed_stream = struct {
+export type fixed_stream = struct {
 	stream: io::stream,
 	buf: []u8,
 	cur: []u8,
 };
 
 // Creates a write-only string stream using the provided buffer for storage.
-// The program aborts if writes would exceed the buffer's capacity.
-export fn fixed(in: []u8) io::handle = {
-	let s = alloc(fixed_stream {
+// The program aborts if writes would exceed the buffer's capacity. The stream
+// doesn't need to be closed.
+export fn fixed(in: []u8) fixed_stream = {
+	return fixed_stream {
 		stream = io::stream {
 			writer = &fixed_write,
-			closer = &fixed_close,
 			...
 		},
 		buf = in,
 		cur = in,
-	});
-	return &s.stream;
+	};
 };
 
 // Returns the current contents of the buffer as a string. Aborts the program if
 // invalid UTF-8 has been written to the buffer.
-export fn string(in: io::handle) str = {
-	let stream = match (in) {
-	case io::file =>
-		abort("Invalid use of strio with io::file");
-	case let st: *io::stream =>
-		yield st;
-	};
-
-	if (stream.writer == &fixed_write) {
-		let stream = stream: *fixed_stream;
-		const n = len(stream.buf) - len(stream.cur);
-		return strings::fromutf8(stream.buf[..n]);
-	} else if (stream.writer == &dynamic_write) {
-		let stream = stream: *dynamic_stream;
-		return strings::fromutf8(stream.buf);
-	} else {
-		abort("strio::string called on non-strio stream");
+export fn string(in: (*fixed_stream | *dynamic_stream)) str = {
+	match (in) {
+	case let s: *fixed_stream =>
+		const n = len(s.buf) - len(s.cur);
+		return strings::fromutf8(s.buf[..n]);
+	case let s: *dynamic_stream =>
+		return strings::fromutf8(s.buf);
 	};
 };
 
@@ -55,15 +44,10 @@ fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	return n;
 };
 
-fn fixed_close(s: *io::stream) void = {
-	free(s);
-};
-
 @test fn fixed() void = {
 	static let buf: [1024]u8 = [0...];
 	let stream = fixed(buf);
-	defer io::close(stream);
-	io::write(stream, strings::toutf8("hello ")) as size;
-	io::write(stream, strings::toutf8("world")) as size;
-	assert(string(stream) == "hello world");
+	io::write(&stream, strings::toutf8("hello ")) as size;
+	io::write(&stream, strings::toutf8("world")) as size;
+	assert(string(&stream) == "hello world");
 };

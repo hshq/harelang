@@ -224,8 +224,8 @@ export fn _type(
 
 fn type_test(t: ast::_type, expected: str) bool = {
 	let buf = strio::dynamic();
-	_type(buf, 0, t) as size;
-	let s = strio::finish(buf);
+	_type(&buf, 0, t) as size;
+	let s = strio::string(&buf);
 	defer free(s);
 	return s == expected;
 };

@@ -36,18 +36,18 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 				break;
 			};
 			if (!first) {
-				append(slice, strio::finish(s));
+				append(slice, strio::string(&s));
 				s = strio::dynamic();
 			};
 			dirty = false;
 		case '\\' =>
-			scan_backslash(s, &iter)?;
+			scan_backslash(&s, &iter)?;
 		case '"' =>
-			scan_double(s, &iter)?;
+			scan_double(&s, &iter)?;
 		case '\'' =>
-			scan_single(s, &iter)?;
+			scan_single(&s, &iter)?;
 		case =>
-			strio::appendrune(s, r)!;
+			strio::appendrune(&s, r)!;
 		};
 
 		if (first) {
@@ -56,7 +56,7 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 	};
 
 	if (dirty) {
-		append(slice, strio::finish(s));
+		append(slice, strio::string(&s));
 	};
 
 	return slice;

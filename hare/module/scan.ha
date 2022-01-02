@@ -419,13 +419,13 @@ export fn parsetags(in: str) ([]tag | void) = {
 			break;
 		case let r: rune =>
 			if (ascii::isalnum(r) || r == '_') {
-				strio::appendrune(buf, r)!;
+				strio::appendrune(&buf, r)!;
 			} else {
 				strings::push(&iter, r);
 				break;
 			};
 		};
-		t.name = strio::finish(buf);
+		t.name = strio::string(&buf);
 		append(tags, t);
 	};
 	return tags;

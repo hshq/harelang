@@ -29,24 +29,24 @@ export fn import(out: io::handle, i: ast::import) (size | io::error) = {
 
 @test fn import() void = {
 	let buf = strio::dynamic();
-	import(buf, ["foo", "bar", "baz"]) as size;
-	let s = strio::finish(buf);
+	import(&buf, ["foo", "bar", "baz"]) as size;
+	let s = strio::string(&buf);
 	assert(s == "use foo::bar::baz;");
 	free(s);
 	buf = strio::dynamic();
-	import(buf, ast::import_alias {
+	import(&buf, ast::import_alias {
 		ident = ["foo"],
 		alias = "bar",
 	}) as size;
-	s = strio::finish(buf);
+	s = strio::string(&buf);
 	assert(s == "use bar = foo;");
 	free(s);
 	buf = strio::dynamic();
-	import(buf, ast::import_objects {
+	import(&buf, ast::import_objects {
 		ident = ["foo"],
 		objects = ["bar", "baz"],
 	}) as size;
-	s = strio::finish(buf);
+	s = strio::string(&buf);
 	assert(s == "use foo::{bar, baz};");
 	free(s);
 };

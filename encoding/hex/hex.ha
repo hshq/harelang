@@ -27,8 +27,8 @@ export fn encode(sink: io::handle, b: []u8) (size | io::error) = {
 // free the return value.
 export fn encodestr(b: []u8) str = {
 	let sink = strio::dynamic();
-	encode(sink, b) as size;
-	return strio::finish(sink);
+	encode(&sink, b) as size;
+	return strio::string(&sink);
 };
 
 @test fn encode() void = {
@@ -111,9 +111,10 @@ export fn dump(out: io::handle, data: []u8) (void | io::error) = {
 	];
 
 	let sink = strio::dynamic();
-	dump(sink, in) as void;
+	defer io::close(&sink);
+	dump(&sink, in) as void;
 
-	let s = strio::finish(sink);
+	let s = strio::string(&sink);
 	assert(s ==
 		"00000000  7f 45 4c 46 02 01 01 00  ca fe ba be de ad f0 0d  |.ELF............|\n"
 		"00000010  ce fe ba be de ad f0 0d                           |........|\n");
