@@ -367,17 +367,16 @@ export fn strptime(b: *builder, layout: str, s: str) (void | errors::invalid) = 
 // The returned string is borrowed from this buffer.
 export fn bstrftime(buf: []u8, layout: str, dt: *datetime) (str | errors::invalid | io::error) = {
 	let sink = strio::fixed(buf);
-	defer io::close(sink);
-	format(sink, layout, dt)?;
-	return strio::string(sink);
+	format(&sink, layout, dt)?;
+	return strio::string(&sink);
 };
 
 // Formats a [[datetime]] and writes it into a heap-allocated string.
 // The caller must free the return value.
 export fn strftime(layout: str, dt: *datetime) (str | errors::invalid | io::error) = {
 	let sink = strio::dynamic();
-	format(sink, layout, dt)?;
-	return strio::finish(sink);
+	format(&sink, layout, dt)?;
+	return strio::string(&sink);
 };
 
 // Formats a [[datetime]] and writes it into a [[io::handle]].
@@ -552,7 +551,6 @@ fn get_default_locale_string_index(iter: *strings::iterator, list: []str) (int |
 fn get_max_n_digits(iter: *strings::iterator, n: uint) (int | errors::invalid) = {
 	let buf: [64]u8 = [0...];
 	let bufstr = strio::fixed(buf);
-	defer io::close(bufstr);
 	for (let i = 0z; i < n; i += 1) {
 		let r: rune = match (strings::next(iter)) {
 			case void =>
@@ -564,14 +562,14 @@ fn get_max_n_digits(iter: *strings::iterator, n: uint) (int | errors::invalid) =
 			strings::prev(iter);
 			break;
 		};
-		match (strio::appendrune(bufstr, r)) {
+		match (strio::appendrune(&bufstr, r)) {
 		case io::error =>
 			return errors::invalid;
 		case =>
 			void;
 		};
 	};
-	return match (strconv::stoi(strio::string(bufstr))) {
+	return match (strconv::stoi(strio::string(&bufstr))) {
 	case let res: int =>
 		yield res;
 	case =>
