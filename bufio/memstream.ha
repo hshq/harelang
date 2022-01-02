@@ -3,24 +3,22 @@ use io;
 use strings;
 use errors;
 
-type memstream = struct {
+export type memstream = struct {
 	stream: io::stream,
 	buf: []u8,
 	pos: size,
 };
 
-// Creates an [[io::stream]] for a fixed, caller-supplied buffer. Supports
+// Creates a stream for a fixed, caller-supplied buffer. Supports
 // either read or write, but not both. Readable streams are seekable. The
-// program aborts if writes would exceed the buffer's capacity.
-export fn fixed(in: []u8, mode: io::mode) *io::stream = {
-	let s = alloc(memstream {
-		stream = io::stream {
-			closer = &fixed_close,
-			...
-		},
+// program aborts if writes would exceed the buffer's capacity. The stream
+// doesn't have to be closed.
+export fn fixed(in: []u8, mode: io::mode) memstream = {
+	let s = memstream {
+		stream = io::stream { ... },
 		buf = in,
 		pos = 0,
-	});
+	};
 	if (mode & io::mode::READ == io::mode::READ) {
 		assert(mode & io::mode::WRITE != io::mode::WRITE);
 		s.stream.reader = &read;
@@ -30,7 +28,7 @@ export fn fixed(in: []u8, mode: io::mode) *io::stream = {
 		assert(mode & io::mode::READ != io::mode::READ);
 		s.stream.writer = &fixed_write;
 	};
-	return &s.stream;
+	return s;
 };
 
 fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
@@ -45,24 +43,20 @@ fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	return n;
 };
 
-fn fixed_close(s: *io::stream) void = free(s);
-
 // Creates an [[io::stream]] which dynamically allocates a buffer to store writes
 // into. Subsequent reads will consume the buffered data. Upon failure to
 // allocate sufficient memory to store writes, the program aborts.
 //
-// Calling [[io::close]] on this stream will free the buffer. Call
-// [[bufio::finish]] instead to free up resources associated with the stream,
-// but transfer ownership of the buffer to the caller.
-export fn dynamic(mode: io::mode) *io::stream = dynamic_from([], mode);
+// Calling [[io::close]] on this stream will free the buffer. If stream's
+// data is transferred via [[buffer]], it shouldn't be closed as long as the
+// data is freed.
+export fn dynamic(mode: io::mode) memstream = dynamic_from([], mode);
 
 // Like [[dynamic]], but takes an existing slice as input. Writes are appended
 // to it and reads consume bytes from the initial buffer, plus any additional
-// writes. Like [[dynamic]], calling [[io::close]] will free the buffer, and
-// [[bufio::finish]] can be used to return ownership of the buffer to the
-// caller.
-export fn dynamic_from(in: []u8, mode: io::mode) *io::stream = {
-	let s = alloc(memstream {
+// writes. Like [[dynamic]], calling [[io::close]] will free the buffer.
+export fn dynamic_from(in: []u8, mode: io::mode) memstream = {
+	let s = memstream {
 		stream = io::stream {
 			closer = &dynamic_close,
 			seeker = &seek,
@@ -70,55 +64,33 @@ export fn dynamic_from(in: []u8, mode: io::mode) *io::stream = {
 		},
 		buf = in,
 		pos = 0,
-	}): *io::stream;
+	};
 	if (mode & io::mode::READ == io::mode::READ) {
-		s.reader = &read;
+		s.stream.reader = &read;
 	};
 	if (mode & io::mode::WRITE == io::mode::WRITE) {
-		s.writer = &dynamic_write;
+		s.stream.writer = &dynamic_write;
 	};
 	return s;
 };
 
-fn getmemstream(in: io::handle) *memstream = {
-	match (in) {
-	case io::file =>
-		abort("Invalid use of bufio with unbuffered file");
-	case let st: *io::stream =>
-		assert(st.closer == &dynamic_close);
-		return st: *memstream;
-	};
-};
-
-// Closes the stream without freeing the dynamic buffer, instead transferring
-// ownership of it to the caller.
-export fn finish(in: io::handle) []u8 = {
-	let s = getmemstream(in);
-	let buf = s.buf;
-	free(s);
-	return buf;
-};
-
-// Returns the current buffer.
-export fn buffer(in: io::handle) []u8 = {
-	const s = getmemstream(in);
-	return s.buf;
+// Returns the current buffer of a [[fixed]] or [[dynamic]] stream.
+export fn buffer(in: *memstream) []u8 = {
+	return in.buf;
 };
 
 // Resets the dynamic buffer's length to zero, but keeps the allocated memory
 // around for future writes.
-export fn reset(in: io::handle) void = {
-	const s = getmemstream(in);
-	s.pos = 0;
-	s.buf = s.buf[..0];
+export fn reset(in: *memstream) void = {
+	in.pos = 0;
+	in.buf = in.buf[..0];
 };
 
 // Truncates the dynamic buffer, freeing memory associated with it and setting
 // its length to zero.
-export fn truncate(in: io::handle) (void | errors::unsupported) = {
-	let s = getmemstream(in);
-	s.pos = 0;
-	delete(s.buf[..]);
+export fn truncate(in: *memstream) (void | errors::unsupported) = {
+	in.pos = 0;
+	delete(in.buf[..]);
 };
 
 fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
@@ -131,7 +103,6 @@ fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 fn dynamic_close(s: *io::stream) void = {
 	const s = s: *memstream;
 	free(s.buf);
-	free(s);
 };
 
 fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
@@ -178,59 +149,59 @@ fn seek(
 
 @test fn dynamic() void = {
 	let s = dynamic(io::mode::RDWR);
-	assert(io::write(s, [1, 2, 3]) as size == 3);
-	assert(bytes::equal(buffer(s), [1, 2, 3]));
-	assert(io::write(s, [4, 5]) as size == 2);
-	assert(bytes::equal(buffer(s), [1, 2, 3, 4, 5]));
+	assert(io::write(&s, [1, 2, 3]) as size == 3);
+	assert(bytes::equal(buffer(&s), [1, 2, 3]));
+	assert(io::write(&s, [4, 5]) as size == 2);
+	assert(bytes::equal(buffer(&s), [1, 2, 3, 4, 5]));
 	let buf: [2]u8 = [0...];
-	assert(io::seek(s, 0, io::whence::SET) as io::off == 0: io::off);
-	assert(io::read(s, buf[..]) as size == 2 && bytes::equal(buf, [1, 2]));
-	assert(io::read(s, buf[..]) as size == 2 && bytes::equal(buf, [3, 4]));
-	assert(io::read(s, buf[..]) as size == 1 && buf[0] == 5);
-	assert(io::read(s, buf[..]) is io::EOF);
-	assert(io::write(s, [6, 7, 8]) as size == 3);
-	assert(bytes::equal(buffer(s), [1, 2, 3, 4, 5, 6, 7, 8]));
+	assert(io::seek(&s, 0, io::whence::SET) as io::off == 0: io::off);
+	assert(io::read(&s, buf[..]) as size == 2 && bytes::equal(buf, [1, 2]));
+	assert(io::read(&s, buf[..]) as size == 2 && bytes::equal(buf, [3, 4]));
+	assert(io::read(&s, buf[..]) as size == 1 && buf[0] == 5);
+	assert(io::read(&s, buf[..]) is io::EOF);
+	assert(io::write(&s, [6, 7, 8]) as size == 3);
+	assert(bytes::equal(buffer(&s), [1, 2, 3, 4, 5, 6, 7, 8]));
 	reset(s);
-	assert(len(buffer(s)) == 0);
-	assert(io::write(s, [1, 2, 3]) as size == 3);
-	assert(truncate(s) is void);
-	assert(len(buffer(s)) == 0);
+	assert(len(buffer(&s)) == 0);
+	assert(io::write(&s, [1, 2, 3]) as size == 3);
+	assert(truncate(&s) is void);
+	assert(len(buffer(&s)) == 0);
 
 	let sl: []u8 = alloc([1, 2, 3]);
 	let s = dynamic_from(sl, io::mode::WRITE);
-	assert(io::write(s, [0, 0]) as size == 2);
-	assert(io::seek(s, 0, io::whence::END) as io::off == 5: io::off);
-	assert(io::write(s, [4, 5, 6]) as size == 3);
-	assert(bytes::equal(buffer(s), [0, 0, 1, 2, 3, 4, 5, 6]));
-	assert(io::read(s, buf[..]) as io::error is errors::unsupported);
-	io::close(s);
+	assert(io::write(&s, [0, 0]) as size == 2);
+	assert(io::seek(&s, 0, io::whence::END) as io::off == 5: io::off);
+	assert(io::write(&s, [4, 5, 6]) as size == 3);
+	assert(bytes::equal(buffer(&s), [0, 0, 1, 2, 3, 4, 5, 6]));
+	assert(io::read(&s, buf[..]) as io::error is errors::unsupported);
+	io::close(&s);
 
 	sl = alloc([1, 2]);
 	let s = dynamic_from(sl, io::mode::READ);
-	assert(io::read(s, buf[..1]) as size == 1 && buf[0] == 1);
-	assert(io::seek(s, 1, io::whence::CUR) as io::off == 2: io::off);
-	assert(io::read(s, buf[..]) is io::EOF);
-	assert(io::write(s, [1, 2]) as io::error is errors::unsupported);
-	io::close(s);
+	assert(io::read(&s, buf[..1]) as size == 1 && buf[0] == 1);
+	assert(io::seek(&s, 1, io::whence::CUR) as io::off == 2: io::off);
+	assert(io::read(&s, buf[..]) is io::EOF);
+	assert(io::write(&s, [1, 2]) as io::error is errors::unsupported);
+	io::close(&s);
 };
 
 @test fn fixed() void = {
 	let buf: [1024]u8 = [0...];
 	let stream = fixed(buf, io::mode::WRITE);
-	defer io::close(stream);
+	defer io::close(&stream);
 
 	let n = 0z;
-	n += io::write(stream, strings::toutf8("hello ")) as size;
-	n += io::write(stream, strings::toutf8("world")) as size;
+	n += io::write(&stream, strings::toutf8("hello ")) as size;
+	n += io::write(&stream, strings::toutf8("world")) as size;
 	assert(bytes::equal(buf[..n], strings::toutf8("hello world")));
-	assert(io::seek(stream, 6, io::whence::SET)
+	assert(io::seek(&stream, 6, io::whence::SET)
 		as io::error is errors::unsupported);
 
 	let out: [2]u8 = [0...];
 	let s = fixed([1u8, 2u8], io::mode::READ);
-	defer io::close(s);
-	assert(io::read(s, out[..1]) as size == 1 && out[0] == 1);
-	assert(io::seek(s, 1, io::whence::CUR) as io::off == 2: io::off);
-	assert(io::read(s, buf[..]) is io::EOF);
-	assert(io::write(s, [1, 2]) as io::error is errors::unsupported);
+	defer io::close(&s);
+	assert(io::read(&s, out[..1]) as size == 1 && out[0] == 1);
+	assert(io::seek(&s, 1, io::whence::CUR) as io::off == 2: io::off);
+	assert(io::read(&s, buf[..]) is io::EOF);
+	assert(io::write(&s, [1, 2]) as io::error is errors::unsupported);
 };

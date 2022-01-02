@@ -29,9 +29,7 @@ export fn lookup(name: str) []ip::addr = {
 		};
 
 		const scanner = bufio::fixed(line, io::mode::READ);
-		defer io::close(scanner);
-
-		const tok = match (bufio::scantok(scanner, ' ', '\t')!) {
+		const tok = match (bufio::scantok(&scanner, ' ', '\t')!) {
 		case io::EOF =>
 			break;
 		case let tok: []u8 =>
@@ -41,7 +39,7 @@ export fn lookup(name: str) []ip::addr = {
 		const addr = ip::parse(strings::fromutf8(tok))!;
 
 		for (true) {
-			const tok = match (bufio::scantok(scanner, ' ', '\t')!) {
+			const tok = match (bufio::scantok(&scanner, ' ', '\t')!) {
 			case io::EOF =>
 				break;
 			case let tok: []u8 =>

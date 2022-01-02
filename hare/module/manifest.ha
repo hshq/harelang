@@ -67,7 +67,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	let buf: [4096]u8 = [0...];
 	let file = bufio::buffered(file, buf, []);
 	for (true) {
-		let line = match (bufio::scanline(file)?) {
+		let line = match (bufio::scanline(&file)?) {
 		case io::EOF =>
 			break;
 		case let line: []u8 =>

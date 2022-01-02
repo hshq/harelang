@@ -145,8 +145,7 @@ export fn decode(in: io::handle) (uuid | invalid | io::error) = {
 // Decodes a UUID from a string.
 export fn decodestr(in: str) (uuid | invalid) = {
 	let buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
-	defer io::close(buf);
-	match (decode(buf)) {
+	match (decode(&buf)) {
 	case let err: io::error =>
 		abort();
 	case invalid =>

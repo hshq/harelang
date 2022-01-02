@@ -270,7 +270,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 
 	if (len(decl.docs) != 0) {
 		const buf = strings::toutf8(decl.docs);
-		markup_html(ctx, bufio::fixed(buf, io::mode::READ))?;
+		markup_html(ctx, &bufio::fixed(buf, io::mode::READ))?;
 	} else {
 		fmt::fprintln(ctx.out, "</details>")?;
 	};

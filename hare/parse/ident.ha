@@ -42,7 +42,6 @@ export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 // caller needn't provide a lexer instance.
 export fn identstr(in: str) (ast::ident | error) = {
 	const buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
-	defer io::close(buf);
-	const lexer = lex::init(buf, "<string>");
+	const lexer = lex::init(&buf, "<string>");
 	return ident(&lexer);
 };

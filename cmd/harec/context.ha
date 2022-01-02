@@ -1,10 +1,11 @@
+use bufio;
 use io;
 use hare::types;
 use hare::unit;
 
 type context = struct {
 	out: io::handle,
-	buf: io::handle,
+	buf: bufio::memstream,
 	store: *types::typestore,
 	unit: *unit::unit,
 	arch: struct {

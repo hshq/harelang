@@ -25,7 +25,7 @@ fn gen(out: io::handle, store: *types::typestore, unit: *unit::unit) void = {
 		},
 		...
 	};
-	defer io::close(ctx.buf);
+	defer io::close(&ctx.buf);
 	for (let i = 0z; i < len(unit.decls); i += 1) {
 		match (unit.decls[i].decl) {
 		case let func: unit::decl_func =>
@@ -73,20 +73,20 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	// on-demand at the start of the function, rather than spread out
 	// through the body. This is more reliable on qbe's ARM backend, and
 	// generates better IL besides.
-	bufio::reset(ctx.buf);
+	bufio::reset(&ctx.buf);
 
-	fmt::fprintln(ctx.buf, mklabel(ctx, "body"))!;
+	fmt::fprintln(&ctx.buf, mklabel(ctx, "body"))!;
 
 	const rval = gen_expr(ctx, body);
 	if (!body.terminates) {
 		if (has_rval) {
-			emit(ctx.buf, void, qinstr::RET, rval);
+			emit(&ctx.buf, void, qinstr::RET, rval);
 		} else {
-			emit(ctx.buf, void, qinstr::RET);
+			emit(&ctx.buf, void, qinstr::RET);
 		};
 	};
 
-	io::write(ctx.out, bufio::buffer(ctx.buf))!;
+	io::write(ctx.out, bufio::buffer(&ctx.buf))!;
 	fmt::fprintln(ctx.out, "}\n")!;
 };
 
@@ -103,7 +103,7 @@ fn gen_store(ctx: *context, object: value, value: value) void = {
 	case => void; // Handled below
 	};
 	const instr = qinstr_store(ctx, object._type);
-	emit(ctx.buf, void, instr, value, object);
+	emit(&ctx.buf, void, instr, value, object);
 };
 
 fn gen_load(ctx: *context, object: value) value = {
@@ -121,7 +121,7 @@ fn gen_load(ctx: *context, object: value) value = {
 	const instr = qinstr_load(ctx, object._type);
 	const temp = mktemp(ctx);
 	const ty = qtype_lookup(ctx, object._type, false);
-	emit(ctx.buf, (ty, temp), instr, object);
+	emit(&ctx.buf, (ty, temp), instr, object);
 	return value {
 		value = temp,
 		_type = object._type,
@@ -196,7 +196,7 @@ fn gen_binding(ctx: *context, expr: *unit::expr) value = {
 		// const lval, instr = allocval(value);
 		const instr = qinstr_alloc(value._type);
 		const lval = mklval(ctx, value);
-		emit(ctx.buf, lval, instr, value._type.sz);
+		emit(&ctx.buf, lval, instr, value._type.sz);
 		gen_expr_at(ctx, item.init, value);
 	};
 	return vvoid;
@@ -238,9 +238,9 @@ fn gen_return(ctx: *context, expr: *unit::expr) value = {
 	const rexpr = expr.expr as unit::_return;
 	match (rexpr) {
 	case null =>
-		emit(ctx.buf, void, qinstr::RET);
+		emit(&ctx.buf, void, qinstr::RET);
 	case let expr: *unit::expr =>
-		emit(ctx.buf, void, qinstr::RET, gen_expr(ctx, expr));
+		emit(&ctx.buf, void, qinstr::RET, gen_expr(ctx, expr));
 	};
 	return vvoid;
 };

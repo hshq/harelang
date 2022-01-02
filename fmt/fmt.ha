@@ -37,16 +37,15 @@ export fn errorfln(fmt: str, args: field...) (io::error | size) =
 // caller must free the return value.
 export fn asprintf(fmt: str, args: field...) str = {
 	let buf = bufio::dynamic(io::mode::WRITE);
-	assert(fprintf(buf, fmt, args...) is size);
-	return strings::fromutf8_unsafe(bufio::finish(buf));
+	assert(fprintf(&buf, fmt, args...) is size);
+	return strings::fromutf8_unsafe(bufio::buffer(&buf));
 };
 
 // Formats text for printing and writes it into a caller supplied buffer. The
 // returned string is borrowed from this buffer.
 export fn bsprintf(buf: []u8, fmt: str, args: field...) str = {
 	let sink = bufio::fixed(buf, io::mode::WRITE);
-	defer io::close(sink);
-	let l = fprintf(sink, fmt, args...) as size;
+	let l = fprintf(&sink, fmt, args...) as size;
 	return strings::fromutf8_unsafe(buf[..l]);
 };
 
@@ -92,8 +91,8 @@ export fn errorln(args: formattable...) (io::error | size) =
 // the return value.
 export fn asprint(args: formattable...) str = {
 	let buf = bufio::dynamic(io::mode::WRITE);
-	assert(fprint(buf, args...) is size);
-	return strings::fromutf8_unsafe(bufio::finish(buf));
+	assert(fprint(&buf, args...) is size);
+	return strings::fromutf8_unsafe(bufio::buffer(&buf));
 };
 
 // Formats values for printing using the default format modifiers and writes
@@ -101,8 +100,7 @@ export fn asprint(args: formattable...) str = {
 // is borrowed from this buffer.
 export fn bsprint(buf: []u8, args: formattable...) str = {
 	let sink = bufio::fixed(buf, io::mode::WRITE);
-	defer io::close(sink);
-	assert(fprint(sink, args...) is size);
+	assert(fprint(&sink, args...) is size);
 	return strings::fromutf8_unsafe(buf);
 };
 

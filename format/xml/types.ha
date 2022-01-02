@@ -1,10 +1,11 @@
+use bufio;
 use encoding::utf8;
 use io;
 use os;
 use strio;
 
 export type parser = struct {
-	in: io::handle,
+	in: *bufio::bufstream,
 	buf: [os::BUFSIZ]u8,
 	close: bool,
 	state: state,

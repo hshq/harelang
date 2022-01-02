@@ -37,7 +37,7 @@ type mode = enum {
 // implementation of argon2 does not process hashes in parallel, though it will
 // still compute the correct hash if this value is greater than one.
 //
-// 'version' specifies the version of the argon2 function. The implementation 
+// 'version' specifies the version of the argon2 function. The implementation
 // currently only supports version 1.3. Use [[VERSION]] here.
 //
 // 'secret' and 'data' are optional byte arrays that are applied to the initial
@@ -99,7 +99,7 @@ type context = struct {
 // is recommended, and 4 bytes is the minimum.
 //
 // The argon2d mode uses data-dependent memory access and is suitable for
-// applications with no threats of side-channel timing attacks. 
+// applications with no threats of side-channel timing attacks.
 export fn argon2d(
 	dest: []u8,
 	password: []u8,
@@ -338,26 +338,25 @@ fn varhash(dest: []u8, block: []u8) void = {
 	let v: [64]u8 = [0...];
 	let h = blake2b::blake2b([], 64);
 	let destbuf = bufio::fixed(dest, io::mode::WRITE);
-	defer io::close(destbuf);
 
 	hash_leputu32(&h, len(dest): u32);
 	hash::write(&h, block);
 	hash::sum(&h, v[..]);
 
-	io::write(destbuf, v[..32])!;
+	io::write(&destbuf, v[..32])!;
 
 	for (let i = 1z; i < r; i += 1) {
 		hash::reset(&h);
 		hash::write(&h, v[..]);
 		hash::sum(&h, v[..]);
-		io::write(destbuf, v[..32])!;
+		io::write(&destbuf, v[..32])!;
 	};
 
 	const remainder = len(dest) - 32 * r;
 	let hend = blake2b::blake2b([], remainder);
 	hash::write(&hend, v[..]);
 	hash::finish(&hend, v[..remainder]);
-	io::write(destbuf, v[..remainder])!;
+	io::write(&destbuf, v[..remainder])!;
 };
 
 fn divceil(dividend: u32, divisor: u32) u32 = {

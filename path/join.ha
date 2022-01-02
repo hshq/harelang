@@ -18,15 +18,15 @@ export fn join(paths: str...) str = {
 			l -= 1;
 		};
 		for (let q = 0z; q < l) {
-			let w = io::write(sink, buf[q..l]) as size;
+			let w = io::write(&sink, buf[q..l]) as size;
 			q += w;
 		};
 		if (i + 1 < len(paths)) {
-			assert(io::write(sink, [PATHSEP]) as size == 1);
+			assert(io::write(&sink, [PATHSEP]) as size == 1);
 		};
 	};
 
-	return strings::fromutf8_unsafe(bufio::finish(sink));
+	return strings::fromutf8_unsafe(bufio::buffer(&sink));
 };
 
 @test fn join() void = {

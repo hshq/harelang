@@ -69,9 +69,9 @@ export fn main() void = {
 		defer io::close(input);
 		static let buf: [os::BUFSIZ]u8 = [0...];
 		let bufin = bufio::buffered(input, buf, []);
-		defer io::close(bufin);
+		defer io::close(&bufin);
 
-		let lexer = lex::init(bufin, cmd.args[i]);
+		let lexer = lex::init(&bufin, cmd.args[i]);
 		let su = match (parse::subunit(&lexer)) {
 		case let err: parse::error =>
 			printerr(err);

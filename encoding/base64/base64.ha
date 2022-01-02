@@ -124,9 +124,8 @@ export fn decode_static(
 	in: io::handle,
 ) (size | errors::invalid | io::error) = {
 	let buf = bufio::fixed(out, io::mode::WRITE);
-	defer io::close(buf);
 	let dec = decoder(alphabet, in);
-	match (io::copy(buf, &dec)) {
+	match (io::copy(&buf, &dec)) {
 	case let err: io::error =>
 		match (err) {
 		case errors::invalid =>
@@ -162,14 +161,13 @@ export fn decodestr_static(
 export fn decodeslice(alphabet: []u8, in: []u8) ([]u8 | errors::invalid) = {
 	let out = bufio::dynamic(io::mode::WRITE);
 	let in = bufio::fixed(in, io::mode::READ);
-	defer io::close(in);
-	let dec = decoder(alphabet, in);
-	match (io::copy(out, &dec)) {
+	let dec = decoder(alphabet, &in);
+	match (io::copy(&out, &dec)) {
 	case io::error =>
-		io::close(out);
+		io::close(&out);
 		return errors::invalid;
 	case size =>
-		return bufio::finish(out);
+		return bufio::buffer(&out);
 	};
 };
 
@@ -181,8 +179,7 @@ export fn decodeslice_static(
 	in: []u8,
 ) (size | errors::invalid) = {
 	let in = bufio::fixed(in, io::mode::READ);
-	defer io::close(in); // bufio::finish?
-	match (decode_static(alphabet, out, in)) {
+	match (decode_static(alphabet, out, &in)) {
 	case let s: size =>
 		return s;
 	case errors::invalid =>

@@ -21,7 +21,7 @@ type docstate = enum {
 };
 
 type parser = struct {
-	src: io::handle,
+	src: bufio::bufstream,
 	state: docstate,
 };
 
@@ -34,14 +34,14 @@ fn parsedoc(in: io::handle) parser = {
 };
 
 fn scandoc(par: *parser) (token | void) = {
-	const rn = match (bufio::scanrune(par.src)!) {
+	const rn = match (bufio::scanrune(&par.src)!) {
 	case let rn: rune =>
 		yield rn;
 	case io::EOF =>
 		return;
 	};
 
-	bufio::unreadrune(par.src, rn);
+	bufio::unreadrune(&par.src, rn);
 	switch (par.state) {
 	case docstate::TEXT =>
 		switch (rn) {
@@ -72,18 +72,18 @@ fn scantext(par: *parser) (token | void) = {
 	// TODO: Collapse whitespace
 	const buf = strio::dynamic();
 	for (true) {
-		const rn = match (bufio::scanrune(par.src)!) {
+		const rn = match (bufio::scanrune(&par.src)!) {
 		case io::EOF => break;
 		case let rn: rune =>
 			yield rn;
 		};
 		switch (rn) {
 		case '[' =>
-			bufio::unreadrune(par.src, rn);
+			bufio::unreadrune(&par.src, rn);
 			break;
 		case '\n' =>
 			strio::appendrune(&buf, rn)!;
-			const rn = match (bufio::scanrune(par.src)!) {
+			const rn = match (bufio::scanrune(&par.src)!) {
 			case io::EOF => break;
 			case let rn: rune =>
 				yield rn;
@@ -92,7 +92,7 @@ fn scantext(par: *parser) (token | void) = {
 				par.state = docstate::PARAGRAPH;
 				break;
 			};
-			bufio::unreadrune(par.src, rn);
+			bufio::unreadrune(&par.src, rn);
 		case =>
 			strio::appendrune(&buf, rn)!;
 		};
@@ -105,7 +105,7 @@ fn scantext(par: *parser) (token | void) = {
 };
 
 fn scanref(par: *parser) (token | void) = {
-	match (bufio::scanrune(par.src)!) {
+	match (bufio::scanrune(&par.src)!) {
 	case io::EOF =>
 		return;
 	case let rn: rune =>
@@ -113,12 +113,12 @@ fn scanref(par: *parser) (token | void) = {
 			abort();
 		};
 	};
-	match (bufio::scanrune(par.src)!) {
+	match (bufio::scanrune(&par.src)!) {
 	case io::EOF =>
 		return;
 	case let rn: rune =>
 		if (rn != '[') {
-			bufio::unreadrune(par.src, rn);
+			bufio::unreadrune(&par.src, rn);
 			return strings::dup("["): text;
 		};
 	};
@@ -127,11 +127,11 @@ fn scanref(par: *parser) (token | void) = {
 	defer io::close(&buf);
 	// TODO: Handle invalid syntax here
 	for (true) {
-		match (bufio::scanrune(par.src)!) {
+		match (bufio::scanrune(&par.src)!) {
 		case let rn: rune =>
 			switch (rn) {
 			case ']' =>
-				bufio::scanrune(par.src) as rune; // ]
+				bufio::scanrune(&par.src) as rune; // ]
 				break;
 			case =>
 				strio::appendrune(&buf, rn)!;
@@ -146,7 +146,7 @@ fn scanref(par: *parser) (token | void) = {
 fn scansample(par: *parser) (token | void) = {
 	let nws = 0z;
 	for (true) {
-		match (bufio::scanrune(par.src)!) {
+		match (bufio::scanrune(&par.src)!) {
 		case io::EOF =>
 			return;
 		case let rn: rune =>
@@ -156,7 +156,7 @@ fn scansample(par: *parser) (token | void) = {
 			case '\t' =>
 				nws += 8;
 			case =>
-				bufio::unreadrune(par.src, rn);
+				bufio::unreadrune(&par.src, rn);
 				break;
 			};
 		};
@@ -168,7 +168,7 @@ fn scansample(par: *parser) (token | void) = {
 	let cont = true;
 	let buf = strio::dynamic();
 	for (cont) {
-		const rn = match (bufio::scanrune(par.src)!) {
+		const rn = match (bufio::scanrune(&par.src)!) {
 		case io::EOF => break;
 		case let rn: rune =>
 			yield rn;
@@ -183,7 +183,7 @@ fn scansample(par: *parser) (token | void) = {
 
 		// Consume whitespace
 		for (let i = 0z; i < nws) {
-			match (bufio::scanrune(par.src)!) {
+			match (bufio::scanrune(&par.src)!) {
 			case io::EOF => break;
 			case let rn: rune =>
 				switch (rn) {
@@ -195,7 +195,7 @@ fn scansample(par: *parser) (token | void) = {
 					strio::appendrune(&buf, rn)!;
 					i = 0;
 				case =>
-					bufio::unreadrune(par.src, rn);
+					bufio::unreadrune(&par.src, rn);
 					cont = false;
 					break;
 				};
@@ -216,7 +216,7 @@ fn scansample(par: *parser) (token | void) = {
 fn scanlist(par: *parser) (token | void) = {
 	let items: list = [];
 	for (true) {
-		match (bufio::scanrune(par.src)!) {
+		match (bufio::scanrune(&par.src)!) {
 		case io::EOF => break;
 		case let rn: rune =>
 			if (rn != '-') {
@@ -224,7 +224,7 @@ fn scanlist(par: *parser) (token | void) = {
 			};
 		};
 		// XXX: multi-line list items
-		append(items, match (bufio::scanline(par.src)!) {
+		append(items, match (bufio::scanline(&par.src)!) {
 		case io::EOF => break;
 		case let u: []u8 =>
 			yield strings::fromutf8(u);

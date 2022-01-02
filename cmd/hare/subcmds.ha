@@ -539,7 +539,7 @@ fn version(args: []str) void = {
 				fmt::printfln("HAREPATH\t{}", items)!;
 			case let env: str =>
 				fmt::printf("HAREPATH\t")!;
-				bufio::flush(os::stdout)!;
+				bufio::flush(&os::stdout_bufio)!;
 				fmt::errorf("(from environment)")!;
 				const items = strings::split(env, ":");
 				defer free(items);
