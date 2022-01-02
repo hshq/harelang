@@ -188,7 +188,7 @@ fn sched_hare_object(
 		let env = module::identuscore(namespace);
 		defer free(env);
 
-		append(harec.cmd, "-N", ns);
+		append(harec.cmd, ["-N", ns]...);
 		append(plan.environ, (
 			fmt::asprintf("HARE_VERSION_{}", env), version,
 		));
@@ -223,14 +223,14 @@ fn sched_hare_object(
 			fmt::fatal("Error: mkdirs {}: {}", path,
 				fs::strerror(err));
 		};
-		append(harec.cmd, "-t", path::join(path, td));
+		append(harec.cmd, ["-t", path::join(path, td)]...);
 		yield path::join(path, name);
 	} else {
 		// XXX: This is probably kind of dumb
 		// It would be better to apply any defines which affect this
 		// namespace instead
 		for (let i = 0z; i < len(plan.context.defines); i += 1) {
-			append(harec.cmd, "-D", plan.context.defines[i]);
+			append(harec.cmd, ["-D", plan.context.defines[i]]...);
 		};
 
 		yield mkfile(plan, ns, "o"); // TODO: Should exes go in the cache?
@@ -287,6 +287,7 @@ fn sched_hare_exe(
 	// TODO: We should be able to use partial variadic application
 	let link: []*task = alloc([], len(depend));
 	defer free(link);
-	append(link, obj, depend...);
+	append(link, obj);
+	append(link, depend...);
 	return sched_ld(plan, strings::dup(output), link...);
 };

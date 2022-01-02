@@ -41,7 +41,8 @@ export fn cmd(name: str, args: str...) (command | error) = {
 		files = [],
 		...
 	};
-	append(cmd.argv, name, args...);
+	append(cmd.argv, name);
+	append(cmd.argv, args...);
 	append(cmd.env, env...);
 	return cmd;
 };
