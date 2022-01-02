@@ -2,11 +2,12 @@ use errors;
 use rt;
 use strings;
 
-// This is an opaque type which encloses an OS-level file handle resource (on
-// Unix, a file descriptor, or "fd") within a stream. It can be used as an
-// [[stream]] in most situations, but there are some APIs which require an
-// [[file]] with some OS-level handle backing it - this type is used for such
-// APIs.
+// This is an opaque type which encloses an OS-level file handle resource. It
+// can be used as an [[stream]] in most situations, but there are some APIs
+// which require an [[file]] with some OS-level handle backing it - this type is
+// used for such APIs.
+//
+// On Linux, [[io::file]] is a file descriptor.
 export type file = int;
 
 // Opens a Unix file descriptor as a file. This is a low-level interface, to
