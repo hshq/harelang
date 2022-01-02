@@ -126,20 +126,20 @@ export fn decompress(src: io::handle) (reader | io::error) = {
 	for (let i = 1z; i < len(vectors); i += 1) {
 		let in = bufio::fixed(*vectors[i].1, io::mode::READ);
 		let out = bufio::dynamic(io::mode::WRITE);
-		let d = match (decompress(in)) {
+		let d = match (decompress(&in)) {
 		case let s: reader =>
 			yield s;
 		case let e: io::error =>
 			fmt::errorln(io::strerror(e))!;
 			abort();
 		};
-		match (io::copy(out, &d)) {
+		match (io::copy(&out, &d)) {
 		case size => void;
 		case let e: io::error =>
 			fmt::errorfln("vector {}: {}", i, io::strerror(e))!;
 			abort();
 		};
-		let s = bufio::finish(out);
+		let s = bufio::buffer(&out);
 		assert(bytes::equal(s, *vectors[i].0));
 	};
 };

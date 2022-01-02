@@ -117,9 +117,8 @@ export fn getuser(username: str) (pwent | void) = {
 	let buf = bufio::fixed(strings::toutf8(
 		"sircmpwn:x:1000:1000:sircmpwn's comment:/home/sircmpwn:/bin/mrsh\n"
 		"alex:x:1001:1001::/home/alex:/bin/zsh"), io::mode::READ);
-	defer io::close(buf);
 
-	let ent = nextpw(buf) as pwent;
+	let ent = nextpw(&buf) as pwent;
 	defer pwent_finish(ent);
 
 	assert(ent.username == "sircmpwn");
@@ -130,7 +129,7 @@ export fn getuser(username: str) (pwent | void) = {
 	assert(ent.homedir == "/home/sircmpwn");
 	assert(ent.shell == "/bin/mrsh");
 
-	let ent = nextpw(buf) as pwent;
+	let ent = nextpw(&buf) as pwent;
 	defer pwent_finish(ent);
 
 	assert(ent.username == "alex");
@@ -142,5 +141,5 @@ export fn getuser(username: str) (pwent | void) = {
 	assert(ent.shell == "/bin/zsh");
 
 	// No more entries
-	assert(nextpw(buf) is io::EOF);
+	assert(nextpw(&buf) is io::EOF);
 };

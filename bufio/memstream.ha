@@ -161,7 +161,7 @@ fn seek(
 	assert(io::read(&s, buf[..]) is io::EOF);
 	assert(io::write(&s, [6, 7, 8]) as size == 3);
 	assert(bytes::equal(buffer(&s), [1, 2, 3, 4, 5, 6, 7, 8]));
-	reset(s);
+	reset(&s);
 	assert(len(buffer(&s)) == 0);
 	assert(io::write(&s, [1, 2, 3]) as size == 3);
 	assert(truncate(&s) is void);

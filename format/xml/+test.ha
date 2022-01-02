@@ -83,8 +83,7 @@ use strings;
 
 fn xmltest(input: str, expected: []token, err: bool) void = {
 	let in = bufio::fixed(strings::toutf8(input), io::mode::READ);
-	defer io::close(in);
-	let parser = parse(in) as *parser;
+	let parser = parse(&in) as *parser;
 	for (let i = 0z; i < len(expected); i += 1) {
 		let tok = match (scan(parser)) {
 		case let tok: token =>

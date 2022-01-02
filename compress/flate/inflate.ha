@@ -424,15 +424,15 @@ fn close(s: *io::stream) void = {
 
 	let ins = bufio::fixed(in, io::mode::READ);
 	let outs = bufio::dynamic(io::mode::WRITE);
-	let s = inflate(ins);
+	let s = inflate(&ins);
 	defer io::close(&s);
-	match (io::copy(outs, &s)) {
+	match (io::copy(&outs, &s)) {
 	case size => void;
 	case let e: io::error =>
 		fmt::errorln(io::strerror(e))!;
 		abort();
 	};
-	let out = bufio::finish(outs);
+	let out = bufio::buffer(&outs);
 	defer free(out);
 	assert(bytes::equal(expected, out));
 };

@@ -9,8 +9,7 @@ use strings;
 
 fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	let buf = bufio::fixed(strings::toutf8(srcs[i]), mode::READ);
-	defer io::close(buf);
-	let lexer = lex::init(buf, "<test>");
+	let lexer = lex::init(&buf, "<test>");
 	let exp = match (expression(&lexer)) {
 	case let exp: ast::expr =>
 		yield exp;
@@ -68,8 +67,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	// We want to check the location of nested expressions, so this can't
 	// use expr_testloc
 	let buf = bufio::fixed(strings::toutf8("foo: bar: baz"), mode::READ);
-	defer io::close(buf);
-	let lexer = lex::init(buf, "<test>");
+	let lexer = lex::init(&buf, "<test>");
 	let exp = match (expression(&lexer)) {
 	case let exp: ast::expr =>
 		yield exp;
@@ -92,8 +90,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 
 fn type_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	let buf = bufio::fixed(strings::toutf8(srcs[i]), mode::READ);
-	defer io::close(buf);
-	let lexer = lex::init(buf, "<test>");
+	let lexer = lex::init(&buf, "<test>");
 	let typ = match (_type(&lexer)) {
 	case let typ: ast::_type =>
 		yield typ;

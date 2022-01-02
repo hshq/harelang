@@ -9,8 +9,7 @@ use fmt;
 
 fn parse_type(in: str) ast::_type = {
 	let buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
-	defer io::close(buf);
-	let lex = lex::init(buf, "<test>");
+	let lex = lex::init(&buf, "<test>");
 	return parse::_type(&lex)!;
 };
 

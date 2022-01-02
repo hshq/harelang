@@ -99,9 +99,8 @@ export fn getgroup(name: str) (grent | void) = {
 		"root:x:0:root\n"
 		"mail:x:12:\n"
 		"video:x:986:alex,wmuser"), io::mode::READ);
-	defer free(buf);
 
-	let ent = nextgr(buf) as grent;
+	let ent = nextgr(&buf) as grent;
 	defer grent_finish(ent);
 
 	assert(ent.name == "root");
@@ -110,7 +109,7 @@ export fn getgroup(name: str) (grent | void) = {
 	assert(len(ent.userlist) == 1);
 	assert(ent.userlist[0] == "root");
 
-	let ent = nextgr(buf) as grent;
+	let ent = nextgr(&buf) as grent;
 	defer grent_finish(ent);
 
 	assert(ent.name == "mail");
@@ -118,7 +117,7 @@ export fn getgroup(name: str) (grent | void) = {
 	assert(ent.gid == 12);
 	assert(len(ent.userlist) == 0);
 
-	let ent = nextgr(buf) as grent;
+	let ent = nextgr(&buf) as grent;
 	defer grent_finish(ent);
 
 	assert(ent.name == "video");
@@ -129,5 +128,5 @@ export fn getgroup(name: str) (grent | void) = {
 	assert(ent.userlist[1] == "wmuser");
 
 	// No more entries
-	assert(nextgr(buf) is io::EOF);
+	assert(nextgr(&buf) is io::EOF);
 };

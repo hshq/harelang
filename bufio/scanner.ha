@@ -87,44 +87,41 @@ export fn scanrune(
 
 @test fn scanbyte() void = {
 	let buf = fixed([1, 3, 3, 7], io::mode::READ);
-	defer io::close(buf);
 
-	assert(scanbyte(buf) as u8 == 1);
-	assert(scanbyte(buf) as u8 == 3);
-	assert(scanbyte(buf) as u8 == 3);
-	assert(scanbyte(buf) as u8 == 7);
-	assert(scanbyte(buf) is io::EOF);
+	assert(scanbyte(&buf) as u8 == 1);
+	assert(scanbyte(&buf) as u8 == 3);
+	assert(scanbyte(&buf) as u8 == 3);
+	assert(scanbyte(&buf) as u8 == 7);
+	assert(scanbyte(&buf) is io::EOF);
 };
 
 @test fn scantok() void = {
 	let buf = fixed([1, 3, 4, 5, 3, 7], io::mode::READ);
-	defer io::close(buf);
 
-	let tok = scantok(buf, 4) as []u8;
+	let tok = scantok(&buf, 4) as []u8;
 	defer free(tok);
 	assert(bytes::equal(tok, [1, 3]));
 
-	let tok = scantok(buf, 7) as []u8;
+	let tok = scantok(&buf, 7) as []u8;
 	defer free(tok);
 	assert(bytes::equal(tok, [5, 3]));
 
-	assert(scantok(buf, 1) is io::EOF);
+	assert(scantok(&buf, 1) is io::EOF);
 };
 
 @test fn scanline() void = {
 	let helloworld = strings::toutf8("hello\nworld");
 	let buf = fixed(helloworld, io::mode::READ);
-	defer io::close(buf);
 
-	let line = scanline(buf) as []u8;
+	let line = scanline(&buf) as []u8;
 	defer free(line);
 	assert(bytes::equal(line, strings::toutf8("hello")));
 
-	let line = scanline(buf) as []u8;
+	let line = scanline(&buf) as []u8;
 	defer free(line);
 	assert(bytes::equal(line, strings::toutf8("world")));
 
-	assert(scanline(buf) is io::EOF);
+	assert(scanline(&buf) is io::EOF);
 };
 
 @test fn scanrune() void = {
@@ -132,7 +129,6 @@ export fn scanrune(
 		0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3, 0x81,
 		0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0x00,
 	], io::mode::READ);
-	defer io::close(in);
 
 	const expected: [_](rune | utf8::invalid | io::EOF | io::error) = [
 		'こ', 'ん', 'に', 'ち', 'は', '\0', io::EOF,
@@ -140,7 +136,7 @@ export fn scanrune(
 	for (let i = 0z; i < len(expected); i += 1) {
 		let want = expected[i];
 
-		match (scanrune(in)) {
+		match (scanrune(&in)) {
 		case let r: rune =>
 			assert(want is rune && want as rune == r);
 		case io::EOF =>

@@ -383,7 +383,7 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 		let b = strings::toutf8(s);
 		let input = bufio::fixed(b, io::mode::READ);
 
-		let dec = decoder(standard, input);
+		let dec = decoder(standard, &input);
 		defer io::close(&dec);
 
 		let buf: [1]u8 = [0];
@@ -409,7 +409,7 @@ fn decodestream_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) =
 		let b = strings::toutf8(s);
 		let input = bufio::fixed(b, io::mode::READ);
 
-		let dec = decoder(standard, input);
+		let dec = decoder(standard, &input);
 		defer io::close(&dec);
 
 		let buf: [24]u8 = [0...];

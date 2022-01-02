@@ -22,6 +22,7 @@ export fn parse(in: io::handle) (*parser | error) = {
 	// stack is so that we have a consistent address for the bufio buffer.
 	// This is kind of lame, maybe we can avoid that.
 	let par = alloc(parser {
+		in = null: *bufio::bufstream,
 		close = false,
 		namebuf = strio::dynamic(),
 		entbuf = strio::dynamic(),
@@ -31,7 +32,7 @@ export fn parse(in: io::handle) (*parser | error) = {
 	if (bufio::isbuffered(in)) {
 		par.in = in as *io::stream: *bufio::bufstream;
 	} else {
-		par.in = alloc(bufio::buffered(par.in, par.buf[..], []));
+		par.in = alloc(bufio::buffered(in, par.buf[..], []));
 		par.close = true;
 	};
 	prolog(par)?;

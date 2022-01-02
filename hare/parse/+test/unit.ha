@@ -10,8 +10,7 @@ use strings;
 	{
 		const in = "use foo;";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		defer io::close(buf);
-		let lexer = lex::init(buf, "<test>");
+		let lexer = lex::init(&buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
 			ast::import_free(mods[i]);
@@ -33,8 +32,7 @@ use strings;
 			"use baz::bat;\n\n"
 			"export fn main() void = void;";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		defer io::close(buf);
-		let lexer = lex::init(buf, "<test>");
+		let lexer = lex::init(&buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
 			ast::import_free(mods[i]);
@@ -63,8 +61,7 @@ use strings;
 			"use qux = quux::corge;\n"
 			"export fn main() void = void;";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		defer io::close(buf);
-		let lexer = lex::init(buf, "<test>");
+		let lexer = lex::init(&buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
 			ast::import_free(mods[i]);
@@ -95,8 +92,7 @@ use strings;
 			"use quux::corge::{grault, garply,};\n"
 			"export fn main() void = void;";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		defer io::close(buf);
-		let lexer = lex::init(buf, "<test>");
+		let lexer = lex::init(&buf, "<test>");
 		let mods = imports(&lexer) as []ast::import;
 		defer for (let i = 0z; i < len(mods); i += 1) {
 			ast::import_free(mods[i]);
@@ -138,8 +134,7 @@ use strings;
 @test fn docs() void = {
 	const src = "// Example text\nexport fn main() void = void;\n";
 	let buf = bufio::fixed(strings::toutf8(src), mode::READ);
-	defer io::close(buf);
-	let lexer = lex::init(buf, "<test>", lex::flags::COMMENTS);
+	let lexer = lex::init(&buf, "<test>", lex::flags::COMMENTS);
 	let decls = match (decls(&lexer)) {
 	case let decls: []ast::decl =>
 		yield decls;

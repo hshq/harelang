@@ -6,8 +6,7 @@ use strings;
 
 @test fn unget() void = {
 	let buf = bufio::fixed(strings::toutf8("z"), mode::READ);
-	defer io::close(buf);
-	let lexer = init(buf, "<test>");
+	let lexer = init(&buf, "<test>");
 	unget(&lexer, ('x', location { path = "<test>", line = 1, col = 2 }));
 	unget(&lexer, ('y', location { path = "<test>", line = 1, col = 3 }));
 	let r = next(&lexer) as (rune, location);
@@ -57,8 +56,7 @@ fn vassert(expected: value, actual: value) void = {
 
 fn lextest(in: str, expected: []token) void = {
 	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-	defer io::close(buf);
-	let lexer = init(buf, "<test>");
+	let lexer = init(&buf, "<test>");
 	for (let i = 0z; i < len(expected); i += 1) {
 		let etok = expected[i];
 		let tl = match (lex(&lexer)) {
@@ -181,8 +179,7 @@ fn loc(line: uint, col: uint) location = location {
 	let keywords = bmap[..ltok::LAST_KEYWORD+1];
 	for (let i = 0z; i < len(keywords); i += 1) {
 		let buf = bufio::fixed(strings::toutf8(keywords[i]), mode::READ);
-		defer io::close(buf);
-		let lexer = init(buf, "<test>");
+		let lexer = init(&buf, "<test>");
 		let tok = lex(&lexer) as token;
 		assert(tok.0 == i: ltok);
 	};
@@ -199,8 +196,7 @@ fn loc(line: uint, col: uint) location = location {
 
 	let in = "// foo\n// bar\nhello world// baz\n\n// bad\ntest";
 	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-	defer io::close(buf);
-	let lexer = init(buf, "<input>", flags::COMMENTS);
+	let lexer = init(&buf, "<input>", flags::COMMENTS);
 	assert(lex(&lexer) is token);
 	assert(comment(&lexer) == " foo\n bar\n");
 	assert(lex(&lexer) is token);
@@ -301,8 +297,7 @@ type op = enum {
 @test fn loc() void = {
 	const src = "h 	ello: my	name is Inigo Montoya";
 	let buf = bufio::fixed(strings::toutf8(src), mode::READ);
-	defer io::close(buf);
-	let lexer = init(buf, "<test>");
+	let lexer = init(&buf, "<test>");
 	const ops: [_]op = [
 		op::NEXT,
 		op::NEXT,

@@ -9,8 +9,7 @@ use strings;
 	{
 		const in = "foo";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		defer io::close(buf);
-		let lexer = lex::init(buf, "<test>");
+		let lexer = lex::init(&buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 1);
@@ -22,8 +21,7 @@ use strings;
 	{
 		const in = "foo::bar";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		defer io::close(buf);
-		let lexer = lex::init(buf, "<test>");
+		let lexer = lex::init(&buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 2);
@@ -35,8 +33,7 @@ use strings;
 	{
 		const in = "foo::bar::baz";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		defer io::close(buf);
-		let lexer = lex::init(buf, "<test>");
+		let lexer = lex::init(&buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 3);
@@ -49,8 +46,7 @@ use strings;
 	{
 		const in = "foo::bar;";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		defer io::close(buf);
-		let lexer = lex::init(buf, "<test>");
+		let lexer = lex::init(&buf, "<test>");
 		let ident = ident(&lexer) as ast::ident;
 		defer ast::ident_free(ident);
 		assert(len(ident) == 2);

@@ -11,8 +11,7 @@ description=The hacker's forge
 [harelang.org]
 name=Hare
 description=The Hare programming language"), io::mode::READ);
-	defer io::close(buf);
-	const sc = scan(buf);
+	const sc = scan(&buf);
 	defer finish(&sc);
 
 	// [sourcehut.org]
@@ -34,8 +33,7 @@ exec=env VARIABLE=value binary
 # Unicode
 trademark=™
 "), io::mode::READ);
-	defer io::close(buf);
-	const sc = scan(buf);
+	const sc = scan(&buf);
 	defer finish(&sc);
 
 	ini_test(&sc, "", "exec", "env VARIABLE=value binary");
@@ -47,16 +45,14 @@ trademark=™
 @test fn invalid() void = {
 	// Missing equal sign
 	const buf = bufio::fixed(strings::toutf8("novalue\n"), io::mode::READ);
-	defer io::close(buf);
-	const sc = scan(buf);
+	const sc = scan(&buf);
 	defer finish(&sc);
 
 	assert(next(&sc) as error is syntaxerr); // TODO: test line numbering?
 
 	// Unterminated section header
 	const buf = bufio::fixed(strings::toutf8("[dangling\n"), io::mode::READ);
-	defer io::close(buf);
-	const sc = scan(buf);
+	const sc = scan(&buf);
 	defer finish(&sc);
 
 	assert(next(&sc) as error is syntaxerr);

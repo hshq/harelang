@@ -8,8 +8,7 @@ use strings;
 
 fn parse_expr(src: str) *ast::expr = {
 	const stream = bufio::fixed(strings::toutf8(src), io::mode::READ);
-	defer io::close(stream);
-	const lexer = lex::init(stream, "<test>");
+	const lexer = lex::init(&stream, "<test>");
 	return alloc(parse::expression(&lexer)!);
 };
 
