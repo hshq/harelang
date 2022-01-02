@@ -35,7 +35,7 @@ export def BUFSIZ: size = 4096; // 4 KiB
 	stdin = &stdin_bufio;
 
 	static let stdoutbuf: [BUFSIZ]u8 = [0...];
-	stdout_bufio = bufio::buffered(0, [], stdoutbuf);
+	stdout_bufio = bufio::buffered(1, [], stdoutbuf);
 	stdout = &stdout_bufio;
 };
 
