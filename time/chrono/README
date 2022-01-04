@@ -1,5 +1,6 @@
 The time::chrono submodule provides the basis for chronology in Hare,
-namely timescales, leap seconds, and "moments", an abstracted datetime
-for calendars to interface with.
+namely [[timescale]]s (leap second handling), [[timezone]]s, and the
+[[moment]] type, an abstracted datetime for calendars to interface with.
 
-For working with the ISO calendar, see the [[datetime]] submodule.
+For working with the ISO 8601 Gregorian calendar, see the [[datetime]]
+submodule.

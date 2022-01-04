@@ -2,8 +2,12 @@ use errors;
 use time;
 use time::chrono;
 
-// Represents a datetime; a single, reasonably unique moment in time, specified
-// by a calendar date and a wallclock time, contextualised within a locality.
+// A valid date & time, localized in a timezone; an extended chrono::moment,
+// optimized for use with the Gregorian chronology.
+//
+// Fields of type (void | int) should be treated as private. Their values are
+// produced and cached via their respectively named functions ([[year]], etc).
+// Direct field assignements will result in errors; see [[builder]].
 export type datetime = struct {
 	chrono::moment,
 
@@ -48,8 +52,8 @@ fn init() datetime = datetime {
 
 // Creates a new datetime
 //
-//	// 2038 January 19th 03:14:07.000
-// 	datetime::new(2038, 01, 19, 03, 14, 07, 0, 0, &chrono::local)
+// 	// 2038 January 19th 03:14:07.618 +0000
+// 	datetime::new(2038, 01, 19, 03, 14, 07, 618 0, &chrono::local)
 //
 export fn new(
 	year: int,
@@ -129,21 +133,24 @@ export fn validate(dt: datetime) bool = {
 // A builder has insufficient information and cannot create a valid datetime.
 export type insufficient = !void;
 
-// Constructs a new datetime, from assigning values to its fields, or multiple
-// calls to [[parse]]. A valid datetime is returned via [[build]].
+// Constructs a new datetime. Start with [[newbuilder]]. Collect enough datetime
+// information incrementally by direct field assignments or multiple calls to
+// [[parse]]. Finish with [[build]].
+//
+// 	let builder = datetime::newbuilder();
+// 	datetime::parse(&builder, "Year: %Y", "Year: 2038");
+// 	datetime::parse(&builder, "Month: %m", "Month: 01");
+// 	builder.day = 19;
+// 	let dt = datetime::build(&builder, datetime::method::YMD);
+//
 export type builder = datetime;
 
 // Creates a new [[builder]]
 export fn newbuilder() builder = init(): builder;
 
-// Returns a valid datetime from a builder. The following approaches will be
-// tried in order until a valid datetime is produced, or fail otherwise:
-// - year, month, day
-// - year, yearday
-// - year, week, weekday
-// - isoyear, isoweek, weekday
-//
-// TODO: Should we use an enum to select the approach?
+// Returns a datetime from a builder. The provided methods will be tried in
+// order until a valid datetime is produced, or fail otherwise. The default
+// method is [[method::ALL]].
 export fn build(f: *builder, m: method...) (datetime | insufficient | errors::invalid) = {
 	if (len(m) == 0) {
 		m = [method::ALL];
@@ -197,10 +204,18 @@ export fn build(f: *builder, m: method...) (datetime | insufficient | errors::in
 	return insufficient;
 };
 
+// Specifies which [[builder]] fields (and what method) to use to calculate the
+// epochal, and thus a valid datetime.
 export type method = enum uint {
+	// year, month, day
 	YMD    = 1 << 0,
+	// year, yearday
 	YD     = 1 << 1,
+	// year, week, weekday
 	YWD    = 1 << 2,
+	// isoyear, isoweek, weekday
 	ISOYWD = 1 << 4,
+
+	// all methods, in order as presented here
 	ALL    = YMD | YD | YWD | ISOYWD,
 };

@@ -41,17 +41,14 @@ def MONTHS_SHORT: [_]str = [
 	"Oct", "Nov", "Dec",
 ];
 
-// TODO: docstr, reconcile fn names
-export fn parse(b: *builder, layout: str, s: str) (void | errors::invalid) = {
-	strptime(b, layout, s)?;
-};
-
-// Parses a datetime string into a [[datetime::datetime]].
+// Parses a datetime string into a [[builder]], using a "layout" format string
+// with specifiers from POSIX strptime(3). Partial, incremental parsing is
+// allowed.
 //
-// The resulting [[datetime::datetime]] may not contain sufficient information
-// to be valid. Incremental parsing of data is possible, but the caller should
-// validate the [[datetime::datetime]] when appropriate.
-export fn strptime(b: *builder, layout: str, s: str) (void | errors::invalid) = {
+// 	datetime::parse(&b, "%Y-%m-%d", "2038-01-19");
+// 	datetime::parse(&b, "%H:%M:%S", "03:14:07");
+//
+export fn parse(b: *builder, layout: str, s: str) (void | errors::invalid) = {
 	const format_iter = strings::iter(layout);
 	const s_iter = strings::iter(s);
 	let escaped = false;
@@ -365,22 +362,22 @@ export fn strptime(b: *builder, layout: str, s: str) (void | errors::invalid) = 
 
 // Formats a [[datetime]] and writes it into a caller supplied buffer.
 // The returned string is borrowed from this buffer.
-export fn bstrftime(buf: []u8, layout: str, dt: *datetime) (str | errors::invalid | io::error) = {
+export fn bformat(buf: []u8, layout: str, dt: *datetime) (str | errors::invalid | io::error) = {
 	let sink = strio::fixed(buf);
-	format(&sink, layout, dt)?;
+	fmtstream(&sink, layout, dt)?;
 	return strio::string(&sink);
 };
 
 // Formats a [[datetime]] and writes it into a heap-allocated string.
 // The caller must free the return value.
-export fn strftime(layout: str, dt: *datetime) (str | errors::invalid | io::error) = {
+export fn format(layout: str, dt: *datetime) (str | errors::invalid | io::error) = {
 	let sink = strio::dynamic();
-	format(&sink, layout, dt)?;
+	fmtstream(&sink, layout, dt)?;
 	return strio::string(&sink);
 };
 
-// Formats a [[datetime]] and writes it into a [[io::handle]].
-export fn format(h: io::handle, layout: str, dt: *datetime) (size | errors::invalid | io::error) = {
+// Formats a [[datetime]] and writes to an [[io::handle]].
+export fn fmtstream(h: io::handle, layout: str, dt: *datetime) (size | errors::invalid | io::error) = {
 	const iter = strings::iter(layout);
 	let escaped = false;
 	let n = 0z;
@@ -418,17 +415,17 @@ export fn format(h: io::handle, layout: str, dt: *datetime) (size | errors::inva
 			yield MONTHS[month(dt) - 1];
 		case 'c' =>
 			// TODO: Localization
-			yield strftime("%a %b %e %H:%M:%S %Y", dt)?;
+			yield format("%a %b %e %H:%M:%S %Y", dt)?;
 		case 'C' =>
 			yield strconv::itos(year(dt) / 100);
 		case 'D' =>
-			yield strftime("%m/%d/%y", dt)?;
+			yield format("%m/%d/%y", dt)?;
 		case 'd' =>
 			yield fmt::asprintf("{:02}", day(dt));
 		case 'e' =>
 			yield fmt::asprintf("{:2}", day(dt));
 		case 'F' =>
-			yield strftime("%Y-%m-%d", dt)?;
+			yield format("%Y-%m-%d", dt)?;
 		case 'g' =>
 			let year_str = strconv::itos(isoweekyear(dt));
 			yield strings::sub(year_str,
@@ -477,15 +474,15 @@ export fn format(h: io::handle, layout: str, dt: *datetime) (size | errors::inva
 			};
 		case 'r' =>
 			// TODO: Localization
-			yield strftime("%I:%M:%S %p", dt)?;
+			yield format("%I:%M:%S %p", dt)?;
 		case 'R' =>
-			yield strftime("%H:%M", dt)?;
+			yield format("%H:%M", dt)?;
 		case 'S' =>
 			yield fmt::asprintf("{:02}", sec(dt));
 		case 't' =>
 			yield "\t";
 		case 'T' =>
-			yield strftime("%H:%M:%S", dt)?;
+			yield format("%H:%M:%S", dt)?;
 		case 'u' =>
 			yield strconv::itos(weekday(dt));
 		case 'U' =>
@@ -500,10 +497,10 @@ export fn format(h: io::handle, layout: str, dt: *datetime) (size | errors::inva
 			yield fmt::asprintf("{:02}", week(dt));
 		case 'x' =>
 			// TODO: Localization
-			yield strftime("%m/%d/%y", dt)?;
+			yield format("%m/%d/%y", dt)?;
 		case 'X' =>
 			// TODO: Localization
-			yield strftime("%H:%M:%S", dt)?;
+			yield format("%H:%M:%S", dt)?;
 		case 'y' =>
 			let year_str = strconv::itos(year(dt));
 			yield strings::sub(year_str,
@@ -602,12 +599,12 @@ fn clamp_int(i: int, min: int, max: int) int = {
 	};
 };
 
-// TODO: Refactor this once the rest of the strptime() refactoring is done
-// @test fn strptime() void = {
+// TODO: Refactor this once the rest of the parse() refactoring is done
+// @test fn parse() void = {
 // 	let dt = datetime {...};
 
 // 	// General tests
-// 	strptime("%Y-%m-%d %H:%M:%S.%N", "1994-08-27 11:01:02.123", &dt)!;
+// 	parse("%Y-%m-%d %H:%M:%S.%N", "1994-08-27 11:01:02.123", &dt)!;
 // 	assert(dt.year as int == 1994 &&
 // 		dt.month as int == 08 &&
 // 		dt.day as int == 27 &&
@@ -616,91 +613,91 @@ fn clamp_int(i: int, min: int, max: int) int = {
 // 		dt.sec as int == 02 &&
 // 		dt.nsec as int == 123, "invalid parsing results");
 
-// 	strptime("%k:%M:%S.%N%n%t%%", " 9:01:02.123\n\t%", &dt)!;
+// 	parse("%k:%M:%S.%N%n%t%%", " 9:01:02.123\n\t%", &dt)!;
 // 	assert(dt.hour as int == 9 &&
 // 		dt.min as int == 01 &&
 // 		dt.sec as int == 02 &&
 // 		dt.nsec as int == 123, "invalid parsing results");
 
-// 	strptime("%G-%m-%e", "994-8- 9", &dt)!;
+// 	parse("%G-%m-%e", "994-8- 9", &dt)!;
 // 	assert(dt.isoweekyear as int == 994 &&
 // 		dt.month as int == 8 &&
 // 		dt.day as int == 9, "invalid parsing results");
 
 // 	// General errors
-// 	assert(strptime("%Y-%m-%d", "1a94-08-27", &dt) is errors::invalid,
+// 	assert(parse("%Y-%m-%d", "1a94-08-27", &dt) is errors::invalid,
 // 		"invalid datetime string did not throw error");
 
-// 	assert(strptime("%Y-%m-%d", "1994-123-27", &dt) is errors::invalid,
+// 	assert(parse("%Y-%m-%d", "1994-123-27", &dt) is errors::invalid,
 // 		"invalid datetime string did not throw error");
 
-// 	assert(strptime("%Y-%m-%d", "a994-08-27", &dt) is errors::invalid,
+// 	assert(parse("%Y-%m-%d", "a994-08-27", &dt) is errors::invalid,
 // 		"invalid datetime string did not throw error");
 
 // 	// Basic specifiers
-// 	strptime("%a", "Tue", &dt)!;
+// 	parse("%a", "Tue", &dt)!;
 // 	assert(dt.weekday as int == 2, "invalid parsing results");
 
-// 	strptime("%a %d", "Tue 27", &dt)!;
+// 	parse("%a %d", "Tue 27", &dt)!;
 // 	assert(dt.weekday as int == 2 &&
 // 		dt.day as int == 27, "invalid parsing results");
 
-// 	strptime("%A", "Tuesday", &dt)!;
+// 	parse("%A", "Tuesday", &dt)!;
 // 	assert(dt.weekday as int == 2, "invalid parsing results");
 
-// 	strptime("%b", "Feb", &dt)!;
+// 	parse("%b", "Feb", &dt)!;
 // 	assert(dt.month as int == 2, "invalid parsing results");
 
-// 	strptime("%h", "Feb", &dt)!;
+// 	parse("%h", "Feb", &dt)!;
 // 	assert(dt.month as int == 2, "invalid parsing results");
 
-// 	strptime("%B", "February", &dt)!;
+// 	parse("%B", "February", &dt)!;
 // 	assert(dt.month as int == 2, "invalid parsing results");
 
-// 	strptime("%I", "14", &dt)!;
+// 	parse("%I", "14", &dt)!;
 // 	assert(dt.hour as int == 2, "invalid parsing results");
 
-// 	strptime("%j", "123", &dt)!;
+// 	parse("%j", "123", &dt)!;
 // 	assert(dt.yearday as int == 123, "invalid parsing results");
 
-// 	strptime("%l", " 9", &dt)!;
+// 	parse("%l", " 9", &dt)!;
 // 	assert(dt.hour as int == 9, "invalid parsing results");
 
-// 	strptime("%H %p", "6 AM", &dt)!;
+// 	parse("%H %p", "6 AM", &dt)!;
 // 	assert(dt.hour as int == 6, "invalid parsing results");
 
-// 	strptime("%H %p", "6 PM", &dt)!;
+// 	parse("%H %p", "6 PM", &dt)!;
 // 	assert(dt.hour as int == 18, "invalid parsing results");
 
-// 	assert(strptime("%H %p", "13 PM", &dt) is errors::invalid,
+// 	assert(parse("%H %p", "13 PM", &dt) is errors::invalid,
 // 		"invalid parsing results");
 
-// 	assert(strptime("%H %p", "PM 6", &dt) is errors::invalid,
+// 	assert(parse("%H %p", "PM 6", &dt) is errors::invalid,
 // 		"invalid parsing results");
 
-// 	strptime("%H %P", "6 am", &dt)!;
+// 	parse("%H %P", "6 am", &dt)!;
 // 	assert(dt.hour as int == 6, "invalid parsing results");
 
-// 	strptime("%u", "7", &dt)!;
+// 	parse("%u", "7", &dt)!;
 // 	assert(dt.weekday as int == 7, "invalid parsing results");
 
-// 	strptime("%U", "2", &dt)!;
+// 	parse("%U", "2", &dt)!;
 // 	assert(dt.week as int == 2, "invalid parsing results");
 
-// 	strptime("%U", "99", &dt)!;
+// 	parse("%U", "99", &dt)!;
 // 	assert(dt.week as int == 53, "invalid parsing results");
 
-// 	strptime("%V", "12", &dt)!;
+// 	parse("%V", "12", &dt)!;
 // 	assert(dt.isoweek as int == 12, "invalid parsing results");
 
-// 	strptime("%w", "0", &dt)!;
+// 	parse("%w", "0", &dt)!;
 // 	assert(dt.weekday as int == 7, "invalid parsing results");
 
-// 	strptime("%W", "2", &dt)!;
+// 	parse("%W", "2", &dt)!;
 // 	assert(dt.week as int == 2, "invalid parsing results");
 
 // 	// Expansion specifiers
-// 	strptime("%c", "Tue Feb  2 22:12:50 1994", &dt)!;
+// 	parse("%c", "Tue Feb  2 22:12:50 1994", &dt)!;
 // 	assert(dt.day as int == 2 &&
 // 		dt.month as int == 2 &&
 // 		dt.year as int == 1994 &&
@@ -709,31 +706,31 @@ fn clamp_int(i: int, min: int, max: int) int = {
 // 		dt.min as int == 12 &&
 // 		dt.sec as int == 50, "invalid parsing results");
 
-// 	strptime("%D", "08/2/1994", &dt)!;
+// 	parse("%D", "08/2/1994", &dt)!;
 // 	assert(dt.day as int == 2 &&
 // 		dt.month as int == 8 &&
 // 		dt.year as int == 1994, "invalid parsing results");
 
-// 	strptime("%F", "1994-08-27", &dt)!;
+// 	parse("%F", "1994-08-27", &dt)!;
 // 	assert(dt.day as int == 27 &&
 // 		dt.month as int == 08 &&
 // 		dt.year as int == 1994, "invalid parsing results");
 
-// 	strptime("%r", "04:20:12 PM", &dt)!;
+// 	parse("%r", "04:20:12 PM", &dt)!;
 // 	assert(dt.hour as int == 16 &&
 // 		dt.min as int == 20 &&
 // 		dt.sec as int == 12, "invalid parsing results");
 
-// 	strptime("%r", "04:20:12 AM", &dt)!;
+// 	parse("%r", "04:20:12 AM", &dt)!;
 // 	assert(dt.hour as int == 04 &&
 // 		dt.min as int == 20 &&
 // 		dt.sec as int == 12, "invalid parsing results");
 
-// 	strptime("%R", "12:2", &dt)!;
+// 	parse("%R", "12:2", &dt)!;
 // 	assert(dt.hour as int == 12 &&
 // 		dt.min as int == 2, "invalid parsing results");
 
-// 	strptime("%T", "12:2:12", &dt)!;
+// 	parse("%T", "12:2:12", &dt)!;
 // 	assert(dt.hour as int == 12 &&
 // 		dt.min as int == 2 &&
 // 		dt.sec as int == 12, "invalid parsing results");

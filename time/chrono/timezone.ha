@@ -51,6 +51,12 @@ type tzname = struct {
 	dst_endtime: str,
 };
 
+@init set_local_timezone() void {
+	// TODO
+	// set time::chrono::local to a correct timezone
+	return;
+};
+
 export const local: timezone = timezone {
 	scale = &UTC,
 	zones = [

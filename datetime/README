@@ -1,5 +1,19 @@
-The datetime module implements the international standard proleptic
-Gregorian calendar, as per ISO 8601.
+The datetime module implements the international de facto "Gregorian"
+chronology, based on the astronomically numbered, proleptic Gregorian
+calendar, as per ISO 8601. It provides [[datetime]], a representation of
+civil date/time and an extension of the [[chrono::moment]] type,
+optimized for dealing with the Gregorian chronology.
 
-This module provides datetimes, timezones, offsets, and the arithmetics,
-formatting, parsing, serialization, and conversion thereof.
+Datetimes are created with [[new]] or [[now]], or be constructed piece
+by piece via a [[builder]].
+
+For arithmetics, use [[diff]], [[add]] and [[hop]]. Note that
+calendrical arithmetic is highly irregular with many edge cases, so
+think carefully about what you want.
+
+[[datetime]] instances are designed to always be valid and internally
+consistent. The one exception is during timezone transitions.
+Non-existant datetimes should be tested for by attempting to converting
+them to their "normal" timezone (usually UTC0).
+
+Both formatting and parsing use POSIX specifiers (see strptime(3)).

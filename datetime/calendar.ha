@@ -2,10 +2,9 @@ use errors;
 use time;
 use time::chrono;
 
-// TODO: reconcile what epochs to use for time::chrono and datetime::
-//
-// 1970-01-01 "Hare epoch"
-// 0000-01-01 Gregorian epoch
+// Hare internally uses the Unix epoch (1970-01-01) for calendrical logic. Here
+// we provide useful constant for working with the proleptic Gregorian calendar,
+// as offsets from the Hare epoch.
 
 // The Hare epoch of the Julian Day Number
 export def EPOCH_JULIAN: i64 = -2440588;

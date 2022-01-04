@@ -8,5 +8,6 @@ export type moment = struct {
 	loc: locality,
 };
 
-// An ordinal day on earth since the calendar epoch (zeroth day) 1970-01-01
+// An ordinal day (on Earth or otherwise) since the Hare epoch (zeroth day)
+// 1970-01-01
 export type epochal = i64;
