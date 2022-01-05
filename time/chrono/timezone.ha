@@ -51,13 +51,14 @@ type tzname = struct {
 	dst_endtime: str,
 };
 
-@init set_local_timezone() void {
-	// TODO
-	// set time::chrono::local to a correct timezone
+// The system's local timezone, set during initialisation
+export const local: *timezone = &TZ_local;
+
+// TODO: set time::chrono::local to a correct timezone
+@init fn set_local_timezone() void = {
 	return;
 };
-
-export const local: timezone = timezone {
+const TZ_local: timezone = timezone {
 	scale = &UTC,
 	zones = [
 		zone {
@@ -71,7 +72,10 @@ export const local: timezone = timezone {
 	name = "",
 };
 
-export const UTC0: timezone = timezone {
+// The UTC "Zulu" timezone
+export const UTC_Z: *timezone = &TZ_UTC;
+
+const TZ_UTC: timezone = timezone {
 	scale = &UTC,
 	zones = [
 		zone {
@@ -85,7 +89,10 @@ export const UTC0: timezone = timezone {
 	name = "Etc/UTC",
 };
 
-export const TAI0: timezone = timezone {
+// The TAI "Zulu" timezone
+export const TAI_Z: *timezone = &TZ_TAI;
+
+const TZ_TAI: timezone = timezone {
 	scale = &TAI,
 	zones = [
 		zone {
