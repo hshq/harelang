@@ -47,6 +47,8 @@ export fn absi(n: types::integer) i64 = {
 		return (absi32(n): i64);
 	case let n: i64 =>
 		return (absi64(n): i64);
+	case let n: int =>
+		return (absi64(n): i64);
 	};
 };
 
@@ -123,6 +125,8 @@ export fn signi(n: types::integer) i64 = {
 	case let n: i32 =>
 		return (signi32(n): i64);
 	case let n: i64 =>
+		return (signi64(n): i64);
+	case let n: int =>
 		return (signi64(n): i64);
 	};
 };
