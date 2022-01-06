@@ -769,7 +769,7 @@ export type dt = enum i64 {
 	// Total size, in bytes, of the RELA relocation table.
 	RELASZ = 8,
 	// Size, in bytes, of each RELA relocation entry.
-	REALENT = 9,
+	RELAENT = 9,
 	// Total size, in bytes, of the string table.
 	STRSZ = 10,
 	// Size, in bytes, of each symbol table entry.
