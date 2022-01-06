@@ -7,6 +7,8 @@ use strings;
 use strio;
 use time::chrono;
 
+export def ISO8601: str = "%FT%T";
+
 def WEEKDAYS: [_]str = [
 	"Monday",
 	"Tuesday",
