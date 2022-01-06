@@ -25,6 +25,52 @@ export type calculus = enum int {
 	PHYSICAL,
 };
 
+// Returns whether or not two dates are numerically equal
+export fn eq(a: *datetime, b: *datetime) bool = {
+	// TODO: Factor timezones into this
+	return a.date == b.date && a.time == b.time;
+};
+
+@test fn eq() void = {
+	const d0 = new(2022, 02, 04, 03, 14, 07, 00, 0, chrono::local)!;
+	const d_eq = new(2022, 02, 04, 03, 14, 07, 00, 0, chrono::local)!;
+	const d_neq = new(2022, 02, 04, 03, 14, 07, 01, 0, chrono::local)!;
+	assert(eq(&d0, &d_eq), "equal dates erroneously treated as unequal");
+	assert(!eq(&d0, &d_neq), "unequal dates erroneously treated as equal");
+};
+
+// Returns whether or not the first date is after the second date
+export fn is_after(a: *datetime, b: *datetime) bool = {
+	// TODO: Factor timezones into this
+	return !eq(a, b) &&
+		(a.date > b.date || a.date == b.date && a.time > b.time);
+};
+
+@test fn is_after() void = {
+	const d0 = new(2022, 02, 04, 03, 14, 07, 00, 0, chrono::local)!;
+	const d_eq = new(2022, 02, 04, 03, 14, 07, 00, 0, chrono::local)!;
+	const d_gt = new(2022, 02, 04, 04, 01, 01, 01, 0, chrono::local)!;
+	const d_lt = new(2020, 02, 04, 33, 14, 07, 01, 0, chrono::local)!;
+	assert(is_after(&d0, &d_lt), "incorrect date ordering in is_after()");
+	assert(!is_after(&d0, &d_eq), "incorrect date ordering in is_after()");
+	assert(!is_after(&d0, &d_gt), "incorrect date ordering in is_after()");
+};
+
+// Returns whether or not the first date is before the second date
+export fn is_before(a: *datetime, b: *datetime) bool = {
+	return !eq(a, b) && !is_after(a, b);
+};
+
+@test fn is_before() void = {
+	const d0 = new(2022, 02, 04, 03, 14, 07, 00, 0, chrono::local)!;
+	const d_eq = new(2022, 02, 04, 03, 14, 07, 00, 0, chrono::local)!;
+	const d_gt = new(2022, 02, 04, 04, 01, 01, 01, 0, chrono::local)!;
+	const d_lt = new(2020, 02, 04, 33, 14, 07, 01, 0, chrono::local)!;
+	assert(!is_before(&d0, &d_lt), "incorrect date ordering in is_before()");
+	assert(!is_before(&d0, &d_eq), "incorrect date ordering in is_before()");
+	assert(is_before(&d0, &d_gt), "incorrect date ordering in is_before()");
+};
+
 // Calculates the difference between two datetimes
 export fn diff(a: datetime, b: datetime) period = {
 	// TODO
