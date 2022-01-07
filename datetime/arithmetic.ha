@@ -93,6 +93,19 @@ export fn diff(a: datetime, b: datetime) period = {
 	return period { ... };
 };
 
+// Returns whether or not two periods are numerically equal
+export fn period_eq(a: period, b: period) bool = {
+	return a.eras == b.eras &&
+		a.years == b.years &&
+		a.months == b.months &&
+		a.weeks == b.weeks &&
+		a.days == b.days &&
+		a.hours == b.hours &&
+		a.minutes == b.minutes &&
+		a.seconds == b.seconds &&
+		a.nanoseconds == b.nanoseconds;
+};
+
 // Hops, starting from a datetime, to static inter-period points along the
 // calendar, according to the given periods, and returns a new datetime.
 // Inter-period points are the starts of years, months, days, etc.
