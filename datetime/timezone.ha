@@ -12,12 +12,6 @@ export fn tzdb(name: str) chrono::timezone = {
 // Some example timezones
 //
 
-// "Europe/Amsterdam" timezone
-export const TZ_Europe_Amsterdam: chrono::tzlink = chrono::tzlink {
-	name = "Europe/Amsterdam",
-	tz = &TZ_CET,
-};
-
 // "CET", "Central European Time" timezone
 export const TZ_CET: chrono::timezone = chrono::timezone {
 	name = "CET",

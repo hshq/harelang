@@ -1,6 +1,6 @@
 use time;
 
-export type locality = (*timezone | *tzlink);
+export type locality = *timezone;
 
 // The zoneinfo of a datetime
 export type zoneinfo = struct {
@@ -31,12 +31,6 @@ export type zone = struct {
 export type zonetran = struct {
 	when: time::instant,
 	zoneindex: int,
-};
-
-// An alias to a timezone
-export type tzlink = struct {
-	name: str,
-	tz: *timezone,
 };
 
 // A destructured dual std/dst POSIX timezone. See tzset(3).
