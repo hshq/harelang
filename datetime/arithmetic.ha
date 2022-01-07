@@ -19,6 +19,22 @@ export type period = struct {
 	nanoseconds: int,
 };
 
+// Prints to stdout the representation of a period.
+//
+// TODO: This is a debug utility. Remove this in favour of changing format() to
+// accept arguments of type (*datetime | period), using the "intervals" standard
+// representation provided by ISO 8601.
+//
+// See https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
+export fn print_period(p: period) void = {
+	fmt::printfln(
+		"eras: {}\nyears: {}\nmonths: {}\nweeks: {}\ndays: {}\n"
+		"hours: {}\nminutes: {}\nseconds: {}\nnanoseconds: {}\n",
+		p.eras, p.years, p.months, p.weeks, p.days, p.hours,
+		p.minutes, p.seconds, p.nanoseconds
+	)!;
+};
+
 // Specifies behaviour during calendar arithmetic
 export type calculus = enum int {
 	LOGICAL,
