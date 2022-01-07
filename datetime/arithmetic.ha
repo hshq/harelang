@@ -1,3 +1,4 @@
+use fmt;
 use time::chrono;
 
 // Represents a span of time in the proleptic Gregorian calendar,
