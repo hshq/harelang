@@ -9,6 +9,31 @@ export fn is_leap_year(y: int) bool = {
 	else true;
 };
 
+// Calculates the number of days in the given month of the given year
+fn calc_n_days_in_month(y: int, m: int) int = {
+	const days_per_month: [_]int = [
+		31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+	];
+	if (m == 2) {
+		if (is_leap_year(y)) {
+			return 29;
+		} else {
+			return 28;
+		};
+	} else {
+		return days_per_month[m - 1];
+	};
+};
+
+// Calculates the number of days in a year
+fn calc_n_days_in_year(y: int) int = {
+	if (is_leap_year(y)) {
+		return 366;
+	} else {
+		return 365;
+	};
+};
+
 // Calculates the era, given a year
 fn calc_era(y: int) int = {
 	return if (y >= 0) {
