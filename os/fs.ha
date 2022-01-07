@@ -60,6 +60,10 @@ export fn chown(path: str, uid: uint, gid: uint) (void | fs::error) = fs::chown(
 // the return value.
 export fn resolve(path: str) str = fs::resolve(cwd, path);
 
+// Returns the path referred to by a symbolic link. The caller must free the
+// return value.
+export fn readlink(path: str) (str | fs::error) = fs::readlink(cwd, path);
+
 // Opens a file.
 //
 // If no flags are provided, [[fs::flags::RDONLY]], [[fs::flags::NOCTTY]],
