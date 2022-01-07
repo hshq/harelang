@@ -11,12 +11,21 @@ export fn join(paths: str...) str = {
 	let sink = bufio::dynamic(io::mode::WRITE);
 	let utf8 = true;
 	for (let i = 0z; i < len(paths); i += 1) {
-		let buf = strings::toutf8(paths[i]);
+		const buf = strings::toutf8(paths[i]);
+		if (len(buf) == 0) {
+			continue; // Empty path component, discard
+		} else if (len(buf) == 1 && buf[0] == PATHSEP && i == 0) {
+			// "/" as the first component
+			io::write(&sink, [PATHSEP])!;
+			continue;
+		};
+
+		// Trim away trailing PATHSEPs, if present
 		let l = len(buf);
-		if (l == 0) continue;
 		for (l > 0 && buf[l - 1] == PATHSEP) {
 			l -= 1;
 		};
+
 		for (let q = 0z; q < l) {
 			let w = io::write(&sink, buf[q..l]) as size;
 			q += w;
@@ -62,4 +71,8 @@ export fn join(paths: str...) str = {
 	let p = join("/", "foo", "bar", "baz");
 	defer free(p);
 	assert(p == "/foo/bar/baz");
+
+	let i = join("/");
+	defer free(i);
+	assert(i == "/");
 };
