@@ -35,7 +35,7 @@ fn calc_n_days_in_year(y: int) int = {
 };
 
 // Calculates whether a given (year, month, date) is valid
-export fn is_ymd_valid(y: int, m: int, d: int) bool = {
+export fn is_valid_ymd(y: int, m: int, d: int) bool = {
 	return m >= 1 && m <= 12 && d >= 1 &&
 		d <= calc_n_days_in_month(y, m);
 };
@@ -180,7 +180,7 @@ fn calc_zeroweekday(wd: int) int = {
 
 // Calculates the [[chrono::epochal]], given a (year, month, day) date
 fn calc_epochal_from_ymd(y: int, m: int, d: int) (chrono::epochal | errors::invalid) = {
-	if (!is_ymd_valid(y, m, d)) {
+	if (!is_valid_ymd(y, m, d)) {
 		return errors::invalid;
 	};
 	// Algorithm adapted from:
