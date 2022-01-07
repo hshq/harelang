@@ -53,7 +53,7 @@ fn init() datetime = datetime {
 // Creates a new datetime
 //
 // 	// 2038 January 19th 03:14:07.618 +0000
-// 	datetime::new(2038, 01, 19, 03, 14, 07, 618 0, &chrono::local)
+// 	datetime::new(2038, 01, 19, 03, 14, 07, 618, 0, chrono::local)
 //
 export fn new(
 	year: int,
@@ -88,6 +88,44 @@ export fn new(
 		nsec        = nsec,
 	};
 	return dt;
+};
+
+// Creates a copy of a datetime
+export fn clone(dt: datetime) datetime = {
+	return datetime {
+		date        = dt.date,
+		time        = dt.time,
+		zone        = dt.zone,
+		loc         = dt.loc,
+
+		era         = dt.era,
+		year        = dt.year,
+		month       = dt.month,
+		day         = dt.day,
+		isoweekyear = dt.isoweekyear,
+		isoweek     = dt.isoweek,
+		week        = dt.week,
+		weekday     = dt.weekday,
+		yearday     = dt.yearday,
+
+		hour        = dt.hour,
+		min         = dt.min,
+		sec         = dt.sec,
+		nsec        = dt.nsec,
+	};
+};
+
+@test fn clone() void = {
+	let d0 = datetime::new(2038, 01, 19, 03, 14, 07, 0, 0, chrono::local)!;
+	let d1 = clone(d0);
+	assert(d0.year as int == d1.year as int &&
+		d0.month as int == d1.month as int &&
+		d0.day as int == d1.day as int &&
+		d0.hour as int == d1.hour as int &&
+		d0.min as int == d1.min as int &&
+		d0.sec as int == d1.sec as int &&
+		d0.nsec as int == d1.nsec as int,
+		"cloned date not equal to original date");
 };
 
 // Returns the current datetime
