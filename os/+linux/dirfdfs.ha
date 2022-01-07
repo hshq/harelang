@@ -296,7 +296,12 @@ fn fs_readlink(fs: *fs::fs, path: str) (str | fs::error) = {
 	static let buf: [rt::PATH_MAX]u8 = [0...];
 	let z = match (rt::readlinkat(fs.dirfd, path, buf[..])) {
 	case let err: rt::errno =>
-		return errno_to_fs(err);
+		switch (err) {
+		case rt::EINVAL =>
+			return fs::wrongtype;
+		case =>
+			return errno_to_fs(err);
+		};
 	case let z: size =>
 		yield z;
 	};
