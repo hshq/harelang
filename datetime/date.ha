@@ -55,7 +55,7 @@ fn calc_ymd(e: chrono::epochal) (int, int, int) = {
 	// https://en.wikipedia.org/wiki/Julian_day#Julian_or_Gregorian_calendar_from_Julian_day_number
 	//
 	// Alternate methods of date calculation should be explored.
-	const J = e - EPOCH_JULIAN;
+	const J = e - EPOCHAL_JULIAN;
 
 	// TODO: substitute numbers where possible
 	const b = 274277;
@@ -194,7 +194,7 @@ fn calc_epochal_from_ymd(y: int, m: int, d: int) (chrono::epochal | errors::inva
 		+ d
 		- 32075
 	);
-	const e = jdn + EPOCH_JULIAN;
+	const e = jdn + EPOCHAL_JULIAN;
 	return e;
 };
 

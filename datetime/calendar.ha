@@ -7,10 +7,10 @@ use time::chrono;
 // as offsets from the Hare epoch.
 
 // The Hare epoch of the Julian Day Number
-export def EPOCH_JULIAN: i64 = -2440588;
+export def EPOCHAL_JULIAN: i64 = -2440588;
 
-// The Hare epoch of the Common Era
-export def EPOCH_COMMONERA: i64 = -719164;
+// The Hare epoch of the Gregorian Common Era
+export def EPOCHAL_GREGORIAN: i64 = -719164;
 
 
 //
@@ -19,7 +19,7 @@ export def EPOCH_COMMONERA: i64 = -719164;
 
 // Evaluates a [[datetime]]'s number of days since the calendar epoch 0000-01-01
 export fn epochal(dt: *datetime) chrono::epochal = {
-	return dt.date - EPOCH_COMMONERA;
+	return dt.date - EPOCHAL_GREGORIAN;
 };
 
 // Evaluates a [[datetime]]'s era
