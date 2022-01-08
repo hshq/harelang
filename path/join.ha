@@ -36,6 +36,10 @@ export fn add(buf: *buffer, items: str...) (void | errors::overflow) = {
 	reset(&buf);
 	add(&buf, "/", "foo/bar", "baz")!;
 	assert(string(&buf) == "/foo/bar/baz");
+
+	reset(&buf);
+	add(&buf, "./foo/bar")!;
+	assert(string(&buf) == "foo/bar");
 };
 
 // Joins a list of path components together, normalizes it, and returns the

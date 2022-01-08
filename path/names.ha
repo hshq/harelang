@@ -4,7 +4,7 @@ use strings;
 
 // Returns the directory name for a given path. For a path to a file name, this
 // returns the directory in which that file resides. For a path to a directory,
-// this returns the path to its parent directory. The return value is eitherr
+// this returns the path to its parent directory. The return value is either
 // borrowed from the input or statically allocated), use [[dup]] to extend its
 // lifetime or modify it.
 export fn dirname(path: str) const str = {

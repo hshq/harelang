@@ -31,15 +31,24 @@ export fn dup(buf: *buffer) buffer = {
 // Returns the current path stored in this buffer. The path will always be
 // normalized, which is to say that it will not include any of the following:
 //
-// - "." components
 // - Redundant ".." components
-// - Repeated path separators
+// - Redundant path separators
+// - Any "." components, except in the case of "."
+// - Trailing slashes, except in the case of "/"
 //
 // "/usr//bin/../bin/./hare" becomes "/usr/bin/hare" and "../../foo/bar" is
 // unchanged.
 export fn string(buf: *buffer) str = {
-	return strings::fromutf8_unsafe(buf.cur);
+	const value = strings::fromutf8_unsafe(buf.cur);
+	if (value == "") {
+		return ".";
+	};
+	return value;
 };
+
+const dot: []u8 = ['.': u8];
+const dotdot: []u8 = ['.': u8, '.': u8];
+const dotdotslash: []u8 = ['.': u8, '.': u8, PATHSEP];
 
 // Normalizes and appends a path component to a buffer.
 //
@@ -58,11 +67,42 @@ fn appendnorm(buf: *buffer, elem: (str | []u8)) (void | errors::overflow) = {
 			return;
 		};
 		return;
-	} else if (bytes::equal(elem, ['.': u8])) {
+	} else if (bytes::equal(elem, dot)) {
 		return;
-	} else if (bytes::equal(elem, ['.': u8, '.': u8])) {
-		abort(); // TODO
+	} else if (bytes::equal(elem, dotdot)) {
+		return parent(buf);
 	};
+	return doappend(buf, elem);
+};
+
+// Moves the buffer to the parent of the current directory.
+fn parent(buf: *buffer) (void | errors::overflow) = {
+	let ascending = true;
+	const iter = iter(buf);
+	for (true) {
+		match (next(&iter)) {
+		case let elem: str =>
+			if (elem != "..") {
+				ascending = false;
+				break;
+			};
+		case void =>
+			break;
+		};
+	};
+	if (ascending) {
+		// If we are appending ".." to a path which is entirely composed
+		// of ".." elements, then we want to append it normally, so that
+		// "../.." becomes "../../.." instead of "..".
+		return doappend(buf, dotdot);
+	};
+	// XXX: This is not super efficient
+	const name = dirname(string(buf));
+	reset(buf);
+	add(buf, name)?;
+};
+
+fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	if (len(buf.cur) + len(elem) + 1 >= PATH_MAX) {
 		return errors::overflow;
 	};
@@ -74,7 +114,7 @@ fn appendnorm(buf: *buffer, elem: (str | []u8)) (void | errors::overflow) = {
 
 @test fn appendnorm() void = {
 	let buf = init();
-	assert(string(&buf) == "");
+	assert(string(&buf) == ".");
 	appendnorm(&buf, "foo")!;
 	appendnorm(&buf, "bar")!;
 	appendnorm(&buf, "baz")!;
@@ -99,4 +139,26 @@ fn appendnorm(buf: *buffer, elem: (str | []u8)) (void | errors::overflow) = {
 	appendnorm(&buf, "/")!;
 	appendnorm(&buf, "/")!;
 	assert(string(&buf) == "/");
+
+	let buf = init();
+	appendnorm(&buf, ".")!;
+	appendnorm(&buf, "foo")!;
+	assert(string(&buf) == "foo");
+
+	let buf = init();
+	appendnorm(&buf, "..")!;
+	assert(string(&buf) == "..");
+	appendnorm(&buf, "..")!;
+	assert(string(&buf) == "../..");
+	appendnorm(&buf, "..")!;
+	assert(string(&buf) == "../../..");
+
+	let buf = init();
+	appendnorm(&buf, "foo")!;
+	appendnorm(&buf, "bar")!;
+	assert(string(&buf) == "foo/bar");
+	appendnorm(&buf, "..")!;
+	assert(string(&buf) == "foo");
+	appendnorm(&buf, "..")!;
+	assert(string(&buf) == ".");
 };
