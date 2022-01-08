@@ -229,14 +229,15 @@ export fn rmdirall(fs: *fs, path: str) (void | error) = {
 			if (ent.name == "." || ent.name == "..") {
 				continue;
 			};
-			let p = path::join(path, ent.name);
-			defer free(p);
+			let buf = alloc(path::init());
+			defer free(buf);
+			const path = path::set(buf, path, ent.name)!;
 
 			switch (ent.ftype & mode::DIR) {
 			case mode::DIR =>
-				rmdirall(fs, p)?;
+				rmdirall(fs, path)?;
 			case =>
-				remove(fs, p)?;
+				remove(fs, path)?;
 			};
 		case void =>
 			break;
