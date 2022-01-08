@@ -57,7 +57,7 @@ export fn dup_static(new: *buffer, old: *buffer) void = {
 // components, or repeated path separators (e.g. "/usr//bin/../bin/./hare"
 // becomes "/usr/bin/hare").
 export fn path(buf: *buffer) str = {
-	return strings::fromutf8(buf.cur);
+	return strings::fromutf8_unsafe(buf.cur);
 };
 
 // Overwrites the contents of a [[buffer]] with an arbitrary path.
