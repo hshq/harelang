@@ -16,12 +16,7 @@ let pathsep: []u8 = [PATHSEP];
 // Returns an iterator which yields each component of a path. If the path is
 // absolute, the first component will be the root path (e.g. "/").
 export fn iter(path: (str | *buffer)) iterator = {
-	let path = match (path) {
-	case let s: str =>
-		yield strings::toutf8(s);
-	case let b: *buffer =>
-		yield b.cur;
-	};
+	let path = getbytes(path);
 	let flags = iflags::NONE;
 	if (len(path) > 0 && path[0] == PATHSEP) {
 		flags |= iflags::ABSOLUTE;

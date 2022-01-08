@@ -7,7 +7,8 @@ use strings;
 // this returns the path to its parent directory. The return value is either
 // borrowed from the input or statically allocated), use [[dup]] to extend its
 // lifetime or modify it.
-export fn dirname(path: str) const str = {
+export fn dirname(path: (str | *buffer)) const str = {
+	let path = getstring(path);
 	if (path == "") {
 		return ".";
 	};
@@ -53,7 +54,8 @@ export fn dirname(path: str) const str = {
 // returns the file name. For a path to a directory, this returns the directory
 // name. The return value is either borrowed from the input or statically
 // allocated, use [[dup]] to extend its lifetime or modify it.
-export fn basename(path: str) const str = {
+export fn basename(path: (str | *buffer)) const str = {
+	let path = getstring(path);
 	if (path == "") {
 		return ".";
 	};
