@@ -15,19 +15,24 @@ let pathsep: []u8 = [PATHSEP];
 
 // Returns an iterator which yields each component of a path. If the path is
 // absolute, the first component will be the root path (e.g. "/").
-export fn iter(path: str) iterator = {
-	let flags = iflags::NONE;
-	let pb = strings::toutf8(path);
-	if (len(pb) > 0 && pb[0] == PATHSEP) {
-		flags |= iflags::ABSOLUTE;
-		pb = pb[1..];
+export fn iter(path: (str | *buffer)) iterator = {
+	let path = match (path) {
+	case let s: str =>
+		yield strings::toutf8(s);
+	case let b: *buffer =>
+		yield b.cur;
 	};
-	if (len(pb) > 1 && pb[len(pb) - 1] == PATHSEP) {
-		pb = pb[..len(pb) - 1];
+	let flags = iflags::NONE;
+	if (len(path) > 0 && path[0] == PATHSEP) {
+		flags |= iflags::ABSOLUTE;
+		path = path[1..];
+	};
+	if (len(path) > 1 && path[len(path) - 1] == PATHSEP) {
+		path = path[..len(path) - 1];
 	};
 
 	return iterator {
-		tok = bytes::tokenize(pb, pathsep),
+		tok = bytes::tokenize(path, pathsep),
 		flags = flags,
 	};
 };

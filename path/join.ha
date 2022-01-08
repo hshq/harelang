@@ -2,7 +2,7 @@ use bytes;
 use errors;
 use strings;
 
-// Joins several path elements together and appends them to a path buffer.
+// Joins several path elements together and copies them into a path buffer.
 export fn add(buf: *buffer, items: str...) (void | errors::overflow) = {
 	for (let i = 0z; i < len(items); i += 1) {
 		const elem = strings::toutf8(items[i]);
