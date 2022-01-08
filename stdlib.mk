@@ -500,6 +500,12 @@ stdlib_deps_any+=$(stdlib_path_any)
 stdlib_path_linux=$(stdlib_path_any)
 stdlib_path_freebsd=$(stdlib_path_any)
 
+# gen_lib pathbuf (any)
+stdlib_pathbuf_any=$(HARECACHE)/pathbuf/pathbuf-any.o
+stdlib_deps_any+=$(stdlib_pathbuf_any)
+stdlib_pathbuf_linux=$(stdlib_pathbuf_any)
+stdlib_pathbuf_freebsd=$(stdlib_pathbuf_any)
+
 # gen_lib shlex (any)
 stdlib_shlex_any=$(HARECACHE)/shlex/shlex-any.o
 stdlib_deps_any+=$(stdlib_shlex_any)
@@ -1487,6 +1493,16 @@ $(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_st
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Npath \
 		-t$(HARECACHE)/path/path.td $(stdlib_path_any_srcs)
 
+# pathbuf (+any)
+stdlib_pathbuf_any_srcs= \
+	$(STDLIB)/pathbuf/buffer.ha
+
+$(HARECACHE)/pathbuf/pathbuf-any.ssa: $(stdlib_pathbuf_any_srcs) $(stdlib_rt) $(stdlib_path_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/pathbuf
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Npathbuf \
+		-t$(HARECACHE)/pathbuf/pathbuf.td $(stdlib_pathbuf_any_srcs)
+
 # shlex (+any)
 stdlib_shlex_any_srcs= \
 	$(STDLIB)/shlex/split.ha
@@ -2250,6 +2266,12 @@ testlib_path_any=$(TESTCACHE)/path/path-any.o
 testlib_deps_any+=$(testlib_path_any)
 testlib_path_linux=$(testlib_path_any)
 testlib_path_freebsd=$(testlib_path_any)
+
+# gen_lib pathbuf (any)
+testlib_pathbuf_any=$(TESTCACHE)/pathbuf/pathbuf-any.o
+testlib_deps_any+=$(testlib_pathbuf_any)
+testlib_pathbuf_linux=$(testlib_pathbuf_any)
+testlib_pathbuf_freebsd=$(testlib_pathbuf_any)
 
 # gen_lib shlex (any)
 testlib_shlex_any=$(TESTCACHE)/shlex/shlex-any.o
@@ -3273,6 +3295,16 @@ $(TESTCACHE)/path/path-any.ssa: $(testlib_path_any_srcs) $(testlib_rt) $(testlib
 	@mkdir -p $(TESTCACHE)/path
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Npath \
 		-t$(TESTCACHE)/path/path.td $(testlib_path_any_srcs)
+
+# pathbuf (+any)
+testlib_pathbuf_any_srcs= \
+	$(STDLIB)/pathbuf/buffer.ha
+
+$(TESTCACHE)/pathbuf/pathbuf-any.ssa: $(testlib_pathbuf_any_srcs) $(testlib_rt) $(testlib_path_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/pathbuf
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Npathbuf \
+		-t$(TESTCACHE)/pathbuf/pathbuf.td $(testlib_pathbuf_any_srcs)
 
 # shlex (+any)
 testlib_shlex_any_srcs= \

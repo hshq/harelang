@@ -920,6 +920,12 @@ path() {
 	gen_ssa path strings bufio bytes io
 }
 
+pathbuf() {
+	gen_srcs pathbuf \
+		buffer.ha
+	gen_ssa pathbuf path
+}
+
 gensrcs_strconv() {
 	gen_srcs strconv \
 		types.ha \
@@ -1181,6 +1187,7 @@ math::random
 os				linux freebsd
 os::exec		linux freebsd
 path
+pathbuf
 shlex
 slice
 sort
