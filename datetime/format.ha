@@ -13,6 +13,8 @@ use time::chrono;
 export def RFC3999: str = "%Y-%m-%dT%H:%M:%S%z";
 export def EMAIL: str = "%a, %d %b %Y %H:%M:%S %z";
 export def POSIX: str = "%a %b %e %H:%M:%S %Z %Y";
+export def STAMP: str = "%Y-%m-%d %H:%M:%S";
+export def STAMP_NANO: str = "%Y-%m-%d %H:%M:%S.%N";
 
 def WEEKDAYS: [_]str = [
 	"Monday",
@@ -464,7 +466,7 @@ export fn fmtstream(h: io::handle, layout: str, dt: *datetime) (size | errors::i
 		case 'n' =>
 			yield "\n";
 		case 'N' =>
-			yield strconv::itos(nsec(dt));
+			yield fmt::asprintf("{:09}", strconv::itos(nsec(dt)));
 		case 'p' =>
 			// TODO: Localization
 			yield if (hour(dt) < 12) {
