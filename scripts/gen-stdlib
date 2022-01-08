@@ -922,7 +922,8 @@ path() {
 
 pathbuf() {
 	gen_srcs pathbuf \
-		buffer.ha
+		buffer.ha \
+		ops.ha
 	gen_ssa pathbuf path
 }
 

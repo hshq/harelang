@@ -23,6 +23,15 @@ export fn init_static(buf: *buffer) void = {
 	reset(buf);
 };
 
+// Initializes a new path buffer and sets its initial value from a set of path
+// components.
+export fn initfrom(items: str...) (buffer | errors::overflow) = {
+	let buf = buffer { ... };
+	reset(&buf);
+	join(&buf, items...)?;
+	return buf;
+};
+
 // Resets a path buffer to its initial state (an empty path).
 export fn reset(buf: *buffer) void = {
 	buf.cur = buf.buf[..0];
@@ -53,17 +62,8 @@ export fn path(buf: *buffer) str = {
 
 // Overwrites the contents of a [[buffer]] with an arbitrary path.
 export fn setpath(buf: *buffer, path: str) (void | errors::overflow) = {
-	const path = strings::toutf8(path);
-	const tok = bytes::tokenize(path, [path::PATHSEP]);
-	for (true) {
-		const next = match (bytes::next_token(&tok)) {
-		case let tok: []u8 =>
-			yield tok;
-		case void =>
-			break;
-		};
-		appendnorm(buf, next)?;
-	};
+	reset(buf);
+	join(buf, path)?;
 };
 
 // Normalizes and appends a path component to a buffer.

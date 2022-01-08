@@ -1495,7 +1495,8 @@ $(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_st
 
 # pathbuf (+any)
 stdlib_pathbuf_any_srcs= \
-	$(STDLIB)/pathbuf/buffer.ha
+	$(STDLIB)/pathbuf/buffer.ha \
+	$(STDLIB)/pathbuf/ops.ha
 
 $(HARECACHE)/pathbuf/pathbuf-any.ssa: $(stdlib_pathbuf_any_srcs) $(stdlib_rt) $(stdlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -3298,7 +3299,8 @@ $(TESTCACHE)/path/path-any.ssa: $(testlib_path_any_srcs) $(testlib_rt) $(testlib
 
 # pathbuf (+any)
 testlib_pathbuf_any_srcs= \
-	$(STDLIB)/pathbuf/buffer.ha
+	$(STDLIB)/pathbuf/buffer.ha \
+	$(STDLIB)/pathbuf/ops.ha
 
 $(TESTCACHE)/pathbuf/pathbuf-any.ssa: $(testlib_pathbuf_any_srcs) $(testlib_rt) $(testlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
