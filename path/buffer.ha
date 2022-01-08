@@ -167,6 +167,10 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	appendnorm(&buf, ".")!;
 	appendnorm(&buf, "foo")!;
 	assert(string(&buf) == "foo");
+	appendnorm(&buf, "..")!;
+	assert(string(&buf) == ".");
+	appendnorm(&buf, "..")!;
+	assert(string(&buf) == "..");
 
 	reset(&buf);
 	appendnorm(&buf, "..")!;
