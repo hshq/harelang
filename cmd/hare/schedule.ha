@@ -213,10 +213,10 @@ fn sched_hare_object(
 		let td = fmt::asprintf("{}.td", version);
 		defer free(td);
 
-		let path = plan.context.cache;
-		for (let i = 0z; i < len(namespace); i += 1) {
-			path = path::join(path, namespace[i]);
-		};
+		let buf = path::init();
+		path::set(&buf, plan.context.cache)!;
+		path::add(&buf, namespace...)!;
+		const path = path::string(&buf);
 		match (os::mkdirs(path)) {
 		case void => void;
 		case let err: fs::error =>
