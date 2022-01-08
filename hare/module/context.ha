@@ -35,7 +35,7 @@ export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 		case void =>
 			yield alloc([
 				strings::dup(harepath),
-				dirs::data("hare"),
+				strings::dup(dirs::data("hare")),
 				strings::dup("vendor"),
 				strings::dup("."),
 			]);
@@ -52,7 +52,7 @@ export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 		},
 		cache: str = match (os::getenv("HARECACHE")) {
 		case void =>
-			yield dirs::cache("hare");
+			yield strings::dup(dirs::cache("hare"));
 		case let s: str =>
 			yield strings::dup(s);
 		},

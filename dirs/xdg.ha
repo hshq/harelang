@@ -4,9 +4,11 @@ use path;
 use io;
 
 fn lookup(prog: str, var: str, default: str) str = {
+	static let buf = path::buffer { ... };
+	path::reset(&buf);
 	match (os::getenv(var)) {
 	case let s: str =>
-		const path = path::join(s, prog);
+		const path = path::add(&buf, s, prog)!;
 		match (os::stat(path)) {
 		case let err: fs::error =>
 			os::mkdirs(path)!;
@@ -19,14 +21,16 @@ fn lookup(prog: str, var: str, default: str) str = {
 	case void => void;
 	};
 
-	let home = os::getenv("HOME") as str;
-	let path = path::join(home, default, prog);
+	const home = os::getenv("HOME") as str;
+	const path = path::set(&buf, home, default, prog)!;
 	os::mkdirs(path)!;
 	return path;
 };
 
 // Returns a directory suitable for storing config files. If 'prog' is given, a
-// unique path for this program to store data will be returned.
+// unique path for this program to store data will be returned. The return value
+// is statically allocated and will be overwritten on subsequent calls to any
+// function in the dirs module.
 export fn config(prog: str) str = lookup(prog, "XDG_CONFIG_HOME", ".config");
 
 // Returns an [[fs::fs]] for storing config files. If 'prog' is given, a unique
@@ -34,7 +38,9 @@ export fn config(prog: str) str = lookup(prog, "XDG_CONFIG_HOME", ".config");
 export fn configfs(prog: str) *fs::fs = os::diropen(config(prog)) as *fs::fs;
 
 // Returns a directory suitable for cache files. If 'prog' is given, a unique
-// path for this program to store data will be returned.
+// path for this program to store data will be returned. The return value is
+// statically allocated and will be overwritten on subsequent calls to any
+// function in the dirs module.
 export fn cache(prog: str) str = lookup(prog, "XDG_CACHE_HOME", ".cache");
 
 // Returns an [[fs::fs]] for cache files. If 'prog' is given, a unique path for
@@ -42,9 +48,14 @@ export fn cache(prog: str) str = lookup(prog, "XDG_CACHE_HOME", ".cache");
 export fn cachefs(prog: str) *fs::fs = os::diropen(cache(prog)) as *fs::fs;
 
 // Returns a directory suitable for persistent data files. If 'prog' is given, a
-// unique path for this program to store data will be returned.
-export fn data(prog: str) str =
-	lookup(prog, "XDG_DATA_HOME", path::join(".local", "share"));
+// unique path for this program to store data will be returned. The return value
+// is statically allocated and will be overwritten on subsequent calls to any
+// function in the dirs module.
+export fn data(prog: str) str = {
+	static let buf = path::buffer { ... };
+	const fragment = path::set(&buf, ".local", "share")!;
+	return lookup(prog, "XDG_DATA_HOME", fragment);
+};
 
 // Returns an [[fs::fs]] for persistent data files. If 'prog' is given, a unique
 // path for this program to store data will be returned.
