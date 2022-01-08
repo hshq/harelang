@@ -1,0 +1,23 @@
+The pathbuf module provides for the efficient and consistent manipulation of
+filesystem paths through the [[buffer]] type.
+
+	let buf = pathbuf::init();
+	pathbuf::join(&buf, "/", "foo", "bar", "baz.txt");
+	io::println(pathbuf::string()); // "/foo/bar/baz.txt"
+	pathbuf::join(&buf, "../.././hello.txt");
+	io::println(pathbuf::string()); // "/foo/hello.txt"
+
+The buffer object includes an array of length [[path::PATH_MAX]], which can be
+somewhat large - on Linux it's 4096. You can allocate this on the stack in most
+cases, but you may prefer to allocate it elsewhere depending on your needs.
+
+	// Stack allocated
+	let buf = pathbuf::init();
+
+	// Statically allocated
+	static let buf = pathbuf::buffer { ... };
+	pathbuf::init_static(&buf);
+
+	// Heap allocated
+	let buf = alloc(pathbuf::init());
+	defer free(buf);
