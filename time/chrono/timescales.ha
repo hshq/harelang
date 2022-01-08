@@ -1,7 +1,9 @@
 use time;
 
-// Represents a linear scale of time, with an epoch.
+// Represents a scale of time; a time standard
 export type timescale = struct {
+	name: str,
+	abbrev: str,
 	to_tai: *ts_converter,
 	from_tai: *ts_converter,
 };
@@ -26,6 +28,8 @@ export type nonexistent = !void;
 // The realisation of proper time on Earth's geoid.
 // Continuous (no leap seconds).
 export const TAI: timescale = timescale {
+	name = "International Atomic Time",
+	abbrev = "TAI",
 	to_tai = &conv_tai_tai,
 	from_tai = &conv_tai_tai,
 };
@@ -47,6 +51,8 @@ fn conv_tai_tai(i: time::instant) (time::instant | ambiguous | nonexistent) = {
 // Based on TAI, with an offset, changed roughly biannually.
 // Discontinuous (has leap seconds).
 export const UTC: timescale = timescale {
+	name = "Coordinated Universal Time",
+	abbrev = "UTC",
 	to_tai = &conv_utc_tai,
 	from_tai = &conv_tai_utc,
 };
@@ -74,6 +80,8 @@ fn conv_utc_tai(utc: time::instant) (time::instant | ambiguous | nonexistent) = 
 // Based on UTC, near 1-to-1 correspondence.
 // Discontinuous (has leap seconds).
 export const UNIX: timescale = timescale {
+	name = "Unix Time",
+	abbrev = "UNIX",
 	to_tai = &conv_utc_tai,
 	from_tai = &conv_tai_utc,
 };
@@ -101,6 +109,8 @@ fn conv_unix_tai(unix: time::instant) (time::instant | ambiguous | nonexistent) 
 // Based on TAI, constant -19 second offset.
 // Continuous (no leap seconds).
 export const GPS: timescale = timescale {
+	name = "Global Positioning System Time",
+	abbrev = "GPS",
 	to_tai = &conv_utc_tai,
 	from_tai = &conv_tai_utc,
 };
@@ -128,6 +138,8 @@ fn conv_gps_tai(gps: time::instant) (time::instant | ambiguous | nonexistent) = 
 // Based on TAI, with a constant offset.
 // Continuous (no leap seconds).
 export const TT: timescale = timescale {
+	name = "Terrestrial Time",
+	abbrev = "TT",
 	to_tai = &conv_tt_tai,
 	from_tai = &conv_tai_tt,
 };
@@ -157,6 +169,8 @@ fn conv_tt_tai(tt: time::instant) (time::instant | ambiguous | nonexistent) = {
 // Based on TT, with a constant factor.
 // Continuous (no leap seconds).
 export const MTC: timescale = timescale {
+	name = "Coordinated Martian Time",
+	abbrev = "MTC",
 	to_tai = &conv_mtc_tai,
 	from_tai = &conv_tai_mtc,
 };
