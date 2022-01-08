@@ -1,6 +1,8 @@
 use errors;
 use time;
 
+// Calculates the wall clock (hour, minute, second, nanosecond),
+// given a time since the start of a day
 fn calc_hmsn(t: time::duration) (int, int, int, int) = {
 	const hour = (t / time::HOUR): int;
 	const min = ((t / time::MINUTE) % 60): int;
@@ -9,6 +11,8 @@ fn calc_hmsn(t: time::duration) (int, int, int, int) = {
 	return (hour, min, sec, nsec);
 };
 
+// Calculates the time since the start of a day,
+// given a wall clock (hour, minute, second, nanosecond)
 fn calc_time_from_hmsn(
 	hour: int,
 	min: int,

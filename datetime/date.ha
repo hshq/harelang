@@ -1,6 +1,22 @@
 use errors;
 use time::chrono;
 
+// Hare internally uses the Unix epoch (1970-01-01) for calendrical logic. Here
+// we provide useful constant for working with the proleptic Gregorian calendar,
+// as offsets from the Hare epoch.
+
+// The Hare epoch of the Julian Day Number
+export def EPOCHAL_JULIAN: i64 = -2440588;
+
+// The Hare epoch of the Gregorian Common Era
+export def EPOCHAL_GREGORIAN: i64 = -719164;
+
+// Calculates whether a given (year, month, date) is valid
+export fn is_valid_ymd(y: int, m: int, d: int) bool = {
+	return m >= 1 && m <= 12 && d >= 1 &&
+		d <= calc_n_days_in_month(y, m);
+};
+
 // Calculates whether a given year is a leap year.
 export fn is_leap_year(y: int) bool = {
 	return if (y % 4 != 0) false
@@ -32,12 +48,6 @@ fn calc_n_days_in_year(y: int) int = {
 	} else {
 		return 365;
 	};
-};
-
-// Calculates whether a given (year, month, date) is valid
-export fn is_valid_ymd(y: int, m: int, d: int) bool = {
-	return m >= 1 && m <= 12 && d >= 1 &&
-		d <= calc_n_days_in_month(y, m);
 };
 
 // Calculates the era, given a year

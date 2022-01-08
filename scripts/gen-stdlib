@@ -186,7 +186,7 @@ datetime() {
 	then
 		gen_srcs datetime \
 			arithmetic.ha \
-			calendar.ha \
+			chronology.ha \
 			date.ha \
 			datetime.ha \
 			format.ha \
@@ -195,7 +195,7 @@ datetime() {
 	else
 		gen_srcs datetime \
 			arithmetic.ha \
-			calendar.ha \
+			chronology.ha \
 			date.ha \
 			datetime.ha \
 			format.ha \

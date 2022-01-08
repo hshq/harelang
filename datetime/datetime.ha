@@ -27,7 +27,6 @@ export type datetime = struct {
 	nsec:        (void | int),
 };
 
-
 fn init() datetime = datetime {
 	date        = 0,
 	time        = 0,
@@ -88,6 +87,34 @@ export fn new(
 	return dt;
 };
 
+// Returns the current datetime
+export fn now() datetime = {
+	const i = time::now(time::clock::REALTIME);
+	const unix = time::unix(i);
+	const date = (unix / 86400);
+	const dt = datetime {
+		date        = date,
+		time        = ((i.sec / 86400) * time::NANOSECOND + i.nsec),
+		loc         = chrono::local,
+
+		era         = void,
+		year        = void,
+		month       = void,
+		day         = void,
+		isoweekyear = void,
+		isoweek     = void,
+		week        = void,
+		weekday     = void,
+		yearday     = void,
+
+		hour = (i.sec / 3600): int % 24,
+		min  = (i.sec / 60): int % 60,
+		sec  = i.sec: int % 60,
+		nsec = i.nsec: int,
+	};
+	return dt;
+};
+
 // Creates a copy of a datetime
 export fn clone(dt: datetime) datetime = {
 	return datetime {
@@ -112,57 +139,14 @@ export fn clone(dt: datetime) datetime = {
 	};
 };
 
-@test fn clone() void = {
-	let d0 = datetime::new(2038, 01, 19, 03, 14, 07, 0, 0, chrono::local)!;
-	let d1 = clone(d0);
-	assert(d0.year as int == d1.year as int &&
-		d0.month as int == d1.month as int &&
-		d0.day as int == d1.day as int &&
-		d0.hour as int == d1.hour as int &&
-		d0.min as int == d1.min as int &&
-		d0.sec as int == d1.sec as int &&
-		d0.nsec as int == d1.nsec as int,
-		"cloned date not equal to original date");
-};
-
-// Returns the current datetime
-export fn now() datetime = {
-	const i = time::now(time::clock::REALTIME);
-	const unix = time::unix(i);
-	const date = (unix / 86400);
-	const dt = datetime {
-		date        = date,
-		time        = ((i.sec / 86400) * time::NANOSECOND + i.nsec),
-
-		// TODO: What to do here? How to get the timezone from
-		// /etc/localtime or $TZ? How to determine the system's
-		// timescale?  Assuming UTC may be sufficient.
-		loc         = chrono::local,
-
-		era         = void,
-		year        = void,
-		month       = void,
-		day         = void,
-		isoweekyear = void,
-		isoweek     = void,
-		week        = void,
-		weekday     = void,
-		yearday     = void,
-
-		hour = (i.sec / 3600): int % 24,
-		min  = (i.sec / 60): int % 60,
-		sec  = i.sec: int % 60,
-		nsec = i.nsec: int,
+// Converts a [[datetime]] to a [[chrono::moment]]
+export fn to_moment(dt: datetime) chrono::moment = {
+	return chrono::moment {
+		date = dt.date,
+		time = dt.time,
+		loc = dt.loc,
 	};
-	return dt;
 };
-
-// Validates a datetime's internal date & time values
-export fn validate(dt: datetime) bool = {
-	// TODO
-	return true;
-};
-
 
 // A builder has insufficient information and cannot create a valid datetime.
 export type insufficient = !void;
@@ -254,10 +238,15 @@ export type method = enum uint {
 	ALL    = YMD | YD | YWD | ISOYWD,
 };
 
-export fn to_moment(dt: datetime) chrono::moment = {
-	return chrono::moment {
-		date = dt.date,
-		time = dt.time,
-		loc = dt.loc,
-	};
+@test fn clone() void = {
+	let d0 = datetime::new(2038, 01, 19, 03, 14, 07, 0, 0, chrono::local)!;
+	let d1 = clone(d0);
+	assert(d0.year as int == d1.year as int &&
+		d0.month as int == d1.month as int &&
+		d0.day as int == d1.day as int &&
+		d0.hour as int == d1.hour as int &&
+		d0.min as int == d1.min as int &&
+		d0.sec as int == d1.sec as int &&
+		d0.nsec as int == d1.nsec as int,
+		"cloned date not equal to original date");
 };

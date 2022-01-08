@@ -2,27 +2,12 @@ use errors;
 use time;
 use time::chrono;
 
-// Hare internally uses the Unix epoch (1970-01-01) for calendrical logic. Here
-// we provide useful constant for working with the proleptic Gregorian calendar,
-// as offsets from the Hare epoch.
-
-// The Hare epoch of the Julian Day Number
-export def EPOCHAL_JULIAN: i64 = -2440588;
-
-// The Hare epoch of the Gregorian Common Era
-export def EPOCHAL_GREGORIAN: i64 = -719164;
-
-
-//
-// date-like
-//
-
-// Evaluates a [[datetime]]'s number of days since the calendar epoch 0000-01-01
+// Returns a [[datetime]]'s number of days since the calendar epoch 0000-01-01
 export fn epochal(dt: *datetime) chrono::epochal = {
 	return dt.date - EPOCHAL_GREGORIAN;
 };
 
-// Evaluates a [[datetime]]'s era
+// Returns a [[datetime]]'s era
 export fn era(dt: *datetime) int = {
 	match (dt.era) {
 	case void =>
@@ -36,7 +21,7 @@ export fn era(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a [[datetime]]'s year
+// Returns a [[datetime]]'s year
 export fn year(dt: *datetime) int = {
 	match (dt.year) {
 	case void =>
@@ -50,7 +35,7 @@ export fn year(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a [[datetime]]'s month of the year
+// Returns a [[datetime]]'s month of the year
 export fn month(dt: *datetime) int = {
 	match (dt.month) {
 	case void =>
@@ -64,7 +49,7 @@ export fn month(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a [[datetime]]'s day of the month
+// Returns a [[datetime]]'s day of the month
 export fn day(dt: *datetime) int = {
 	match (dt.day) {
 	case void =>
@@ -78,7 +63,7 @@ export fn day(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a [[datetime]]'s day of the week
+// Returns a [[datetime]]'s day of the week
 export fn weekday(dt: *datetime) int = {
 	match (dt.weekday) {
 	case void =>
@@ -89,7 +74,7 @@ export fn weekday(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a [[datetime]]'s ordinal day of the year
+// Returns a [[datetime]]'s ordinal day of the year
 export fn yearday(dt: *datetime) int = {
 	match (dt.yearday) {
 	case void =>
@@ -113,7 +98,7 @@ export fn yearday(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a [[datetime]]'s ISO week-numbering year
+// Returns a [[datetime]]'s ISO week-numbering year
 export fn isoweekyear(dt: *datetime) int = {
 	match (dt.isoweekyear) {
 	case void =>
@@ -141,7 +126,7 @@ export fn isoweekyear(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a [[datetime]]'s Gregorian week
+// Returns a [[datetime]]'s Gregorian week
 export fn week(dt: *datetime) int = {
 	match (dt.week) {
 	case void =>
@@ -161,7 +146,7 @@ export fn week(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a [[datetime]]'s ISO week
+// Returns a [[datetime]]'s ISO week
 export fn isoweek(dt: *datetime) int = {
 	match (dt.isoweek) {
 	case void =>
@@ -189,12 +174,7 @@ export fn isoweek(dt: *datetime) int = {
 	};
 };
 
-
-//
-// time-like
-//
-
-// Evaluates a [[datetime]]'s hour of the day
+// Returns a [[datetime]]'s hour of the day
 export fn hour(dt: *datetime) int = {
 	match (dt.hour) {
 	case void =>
@@ -209,7 +189,7 @@ export fn hour(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a [[datetime]]'s minute of the hour
+// Returns a [[datetime]]'s minute of the hour
 export fn min(dt: *datetime) int = {
 	match (dt.min) {
 	case void =>
@@ -224,7 +204,7 @@ export fn min(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a [[datetime]]'s second of the minute
+// Returns a [[datetime]]'s second of the minute
 export fn sec(dt: *datetime) int = {
 	// TODO: localize datetimes for all functions here. Use localised date
 	// and time in place of the given datetime's date and time.
@@ -243,7 +223,7 @@ export fn sec(dt: *datetime) int = {
 	};
 };
 
-// Evaluates a [[datetime]]'s nanosecond of the second
+// Returns a [[datetime]]'s nanosecond of the second
 export fn nsec(dt: *datetime) int = {
 	match (dt.nsec) {
 	case void =>
