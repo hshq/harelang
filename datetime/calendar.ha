@@ -226,6 +226,10 @@ export fn min(dt: *datetime) int = {
 
 // Evaluates a [[datetime]]'s second of the minute
 export fn sec(dt: *datetime) int = {
+	// TODO: localize datetimes for all functions here. Use localised date
+	// and time in place of the given datetime's date and time.
+	const ldt = chrono::localize(to_moment(*dt));
+
 	match (dt.sec) {
 	case void =>
 		const hmsn = calc_hmsn(dt.time: time::duration);

@@ -31,7 +31,6 @@ export type datetime = struct {
 fn init() datetime = datetime {
 	date        = 0,
 	time        = 0,
-	zone        = chrono::zone{ ... },
 	loc         = chrono::local,
 
 	era         = void,
@@ -63,13 +62,12 @@ export fn new(
 	min: int,
 	sec: int,
 	nsec: int,
-	zoffset: chrono::zoffset,
+	zoffset: time::duration,
 	loc: (*chrono::timezone | void),
 ) (datetime | errors::invalid) = {
 	const dt = datetime {
 		date        = calc_epochal_from_ymd(year, month, day)?,
 		time        = calc_time_from_hmsn(hour, min, sec, nsec)?,
-		zone        = chrono::zone{ zoffset = zoffset, ... },
 		loc         = if (loc is void) chrono::local else loc: *chrono::timezone,
 
 		era         = void,
@@ -95,7 +93,6 @@ export fn clone(dt: datetime) datetime = {
 	return datetime {
 		date        = dt.date,
 		time        = dt.time,
-		zone        = dt.zone,
 		loc         = dt.loc,
 
 		era         = dt.era,
@@ -140,7 +137,6 @@ export fn now() datetime = {
 		// TODO: What to do here? How to get the timezone from
 		// /etc/localtime or $TZ? How to determine the system's
 		// timescale?  Assuming UTC may be sufficient.
-		zone        = chrono::zone{ ... },
 		loc         = chrono::local,
 
 		era         = void,
@@ -256,4 +252,12 @@ export type method = enum uint {
 
 	// all methods, in order as presented here
 	ALL    = YMD | YD | YWD | ISOYWD,
+};
+
+export fn to_moment(dt: datetime) chrono::moment = {
+	return chrono::moment {
+		date = dt.date,
+		time = dt.time,
+		loc = dt.loc,
+	};
 };

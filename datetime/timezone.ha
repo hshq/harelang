@@ -15,7 +15,8 @@ export fn tzdb(name: str) chrono::timezone = {
 // "CET", "Central European Time" timezone
 export const TZ_CET: chrono::timezone = chrono::timezone {
 	name = "CET",
-	scale = &chrono::UTC,
+	timescale = &chrono::UTC,
+	daylength = chrono::EARTH_DAY,
 	zones = [
 		chrono::zone {
 			zoffset = 1 * time::HOUR,
@@ -30,5 +31,5 @@ export const TZ_CET: chrono::timezone = chrono::timezone {
 			dst = true,
 		},
 	],
-	trans = [],
+	transitions = [],
 };
