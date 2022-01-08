@@ -7,7 +7,12 @@ use strings;
 use strio;
 use time::chrono;
 
-export def ISO8601: str = "%FT%T";
+// TODO: implement modern long form "{year}-{month}-{day}" syntax alongside
+// POSIX strftime "%Y-%m-%d" syntax.
+
+export def RFC3999: str = "%Y-%m-%dT%H:%M:%S%z";
+export def EMAIL: str = "%a, %d %b %Y %H:%M:%S %z";
+export def POSIX: str = "%a %b %e %H:%M:%S %Z %Y";
 
 def WEEKDAYS: [_]str = [
 	"Monday",
