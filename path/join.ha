@@ -3,7 +3,8 @@ use errors;
 use strings;
 
 // Joins several path elements together and copies them into a path buffer.
-export fn add(buf: *buffer, items: str...) (void | errors::overflow) = {
+// Returns the new string value of the path.
+export fn add(buf: *buffer, items: str...) (str | errors::overflow) = {
 	for (let i = 0z; i < len(items); i += 1) {
 		const elem = strings::toutf8(items[i]);
 		const tok = bytes::tokenize(elem, pathsep);
@@ -22,6 +23,7 @@ export fn add(buf: *buffer, items: str...) (void | errors::overflow) = {
 			appendnorm(buf, next)?;
 		};
 	};
+	return string(buf);
 };
 
 @test fn add() void = {

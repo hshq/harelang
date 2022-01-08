@@ -20,8 +20,8 @@ export fn reset(buf: *buffer) void = {
 };
 
 // Sets the value of a path buffer to a list of components, overwriting any
-// previous value.
-export fn set(buf: *buffer, items: str...) (void | errors::overflow) = {
+// previous value. Returns the new string value of the path.
+export fn set(buf: *buffer, items: str...) (str | errors::overflow) = {
 	reset(buf);
 	return add(buf, items...);
 };
