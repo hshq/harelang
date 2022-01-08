@@ -164,7 +164,7 @@ export const MTC: timescale = timescale {
 def FACTOR_TERRESTRIAL_MARTIAN: f64 = 1.0274912517;
 
 fn conv_tai_mtc(tai: time::instant) (time::instant | ambiguous | nonexistent) = {
-	// TODO: propagated ambiguous errors, how to reason about?
+	// TODO: handle propagated ambiguous errors
 	const tt = TT.from_tai(tai)?;
 	const mtc = time::instant {
 		sec = (tt.sec: f64 * FACTOR_TERRESTRIAL_MARTIAN): i64,
@@ -178,7 +178,7 @@ fn conv_mtc_tai(mtc: time::instant) (time::instant | ambiguous | nonexistent) = 
 		sec = (mtc.sec: f64 / FACTOR_TERRESTRIAL_MARTIAN): i64,
 		nsec = mtc.nsec,
 	};
-	// TODO: propagated ambiguous errors, how to reason about?
+	// TODO: handle propagated ambiguous errors
 	const tai = TT.to_tai(tt)?;
 	return tai;
 };

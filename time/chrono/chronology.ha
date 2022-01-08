@@ -16,7 +16,8 @@ export type epochal = i64;
 export def EARTH_DAY: time::duration = 86400 * time::SECOND;
 
 // The following are temporary constants for demonstration of non-terrestrial
-// timescales, and should probably be moved to a third-party martian:: library.
+// timescales as proof of feasibility, and should probably be moved to a
+// third-party martian:: library.
 //
 // TODO: figure out a future-proof naming convention.
 
