@@ -19,6 +19,13 @@ export fn reset(buf: *buffer) void = {
 	buf.cur = buf.buf[..0];
 };
 
+// Sets the value of a path buffer to a list of components, overwriting any
+// previous value.
+export fn set(buf: *buffer, items: str...) (void | errors::overflow) = {
+	reset(buf);
+	return add(buf, items...);
+};
+
 // Creates a copy of another path buffer, which can be modified without
 // affecting the original.
 export fn dup(buf: *buffer) buffer = {
