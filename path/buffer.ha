@@ -41,10 +41,18 @@ export fn dup(buf: *buffer) buffer = {
 // - Redundant ".." components
 // - Redundant path separators
 // - Any "." components, except in the case of "."
-// - Trailing slashes, except in the case of "/"
 //
 // "/usr//bin/../bin/./hare" becomes "/usr/bin/hare" and "../../foo/bar" is
-// unchanged.
+// unchanged. The path will only end in a slash if the last item which was
+// added ended in "/", like so:
+//
+// 	let buf = path::init();
+// 	path::set(&buf, "foo", "bar")!;
+// 	assert(string(&buf) == "foo/bar");
+// 	path::set(&buf, "foo", "bar/")!;
+// 	assert(string(&buf) == "foo/bar/");
+// 	path::set(&buf, "foo", "bar", "/")!;
+// 	assert(string(&buf) == "foo/bar/");
 export fn string(buf: *buffer) str = {
 	const value = strings::fromutf8_unsafe(buf.cur);
 	if (value == "") {
@@ -172,4 +180,14 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	assert(string(&buf) == "..");
 	appendnorm(&buf, "..")!;
 	assert(string(&buf) == "../..");
+
+	let buf = path::init();
+ 	path::set(&buf, "foo", "bar")!;
+ 	assert(string(&buf) == "foo/bar");
+ 	path::set(&buf, "foo", "bar/")!;
+ 	assert(string(&buf) == "foo/bar/");
+ 	path::set(&buf, "foo", "bar", "/")!;
+ 	assert(string(&buf) == "foo/bar/");
+ 	path::add(&buf, "/baz")!;
+ 	assert(string(&buf) == "foo/bar/baz");
 };
