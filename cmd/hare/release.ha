@@ -226,20 +226,21 @@ fn choosekey() (str | release_error) = {
 	case let name: str =>
 		return name;
 	};
+
 	const paths = [
 		"id_ed25519",
 		"id_ecdsa",
 		"id_rsa",
 		"id_dsa",
 	];
+	let buf = path::init();
 	const home = os::getenv("HOME") as str;
 	for (let i = 0z; i < len(paths); i += 1) {
-		const cand = path::join(home, ".ssh", paths[i]);
+		const cand = path::set(&buf, home, ".ssh", paths[i])!;
 		if (os::stat(cand) is fs::error) {
-			free(cand);
 			continue;
 		};
-		return cand;
+		return strings::dup(cand);
 	};
 	fmt::errorln("No suitable SSH key found to sign releases with.")!;
 
@@ -255,11 +256,10 @@ fn choosekey() (str | release_error) = {
 		fmt::fatal("No suitable key available. Terminating.");
 	};
 
-	const parent = path::join(home, ".ssh");
-	defer free(parent);
+	const parent = path::set(&buf, home, ".ssh")!;
 	os::mkdirs(parent)?;
 
-	const path = path::join(home, ".ssh", "id_ed25519");
+	const path = path::set(&buf, home, ".ssh", "id_ed25519")!;
 	const cmd = match (exec::cmd("ssh-keygen", "-t", "ed25519", "-f", path)) {
 	case let cmd: exec::command =>
 		yield cmd;
@@ -270,15 +270,15 @@ fn choosekey() (str | release_error) = {
 	const status = exec::wait(&proc)?;
 	exec::check(&status)?;
 	fmt::println("You will be prompted to enter your password again to create the release signature.")!;
-	return path;
+	return strings::dup(path);
 };
 
 fn signtag(tmpdir: str, name: str, tag: str, key: str) (void | release_error) = {
 	// This could work without the agent if it were not for the fact that
 	// ssh-keygen is bloody stupid when it comes to prompting you for your
 	// password.
-	const socket = path::join(tmpdir, "agent");
-	defer free(socket);
+	let buf = path::init();
+	const socket = path::set(&buf, tmpdir, "agent")!;
 	const agent = exec::cmd("ssh-agent", "-Da", socket)?;
 	exec::nullstd(&agent);
 	const agent = exec::start(&agent)?;
