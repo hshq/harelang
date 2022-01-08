@@ -229,6 +229,8 @@ export fn rmdirall(fs: *fs, path: str) (void | error) = {
 			if (ent.name == "." || ent.name == "..") {
 				continue;
 			};
+			// XXX: This could probably be more efficient if we
+			// re-used the buffer further down the call stack.
 			let buf = alloc(path::init());
 			defer free(buf);
 			const path = path::set(buf, path, ent.name)!;
