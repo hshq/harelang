@@ -63,6 +63,12 @@ export fn string(buf: *buffer) str = {
 	return value;
 };
 
+// Like [[string]] but the return value is copied to the heap and must be freed
+// by the caller.
+export fn allocate(buf: *buffer) str = {
+	return strings::dup(string(buf));
+};
+
 const dot: []u8 = ['.': u8];
 const dotdot: []u8 = ['.': u8, '.': u8];
 const dotdotslash: []u8 = ['.': u8, '.': u8, PATHSEP];

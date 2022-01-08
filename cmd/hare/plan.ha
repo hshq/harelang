@@ -55,20 +55,20 @@ fn mkplan(ctx: *module::context, libs: []str) plan = {
 		yield ver.basedir;
 	};
 
-	let script = ("", 0z);
-
+	// Look up the most appropriate hare.sc file
+	let ntag = 0z;
+	const buf = path::init();
 	const iter = os::iter(rtdir)!;
 	for (true) match (fs::next(iter)) {
 	case let d: fs::dirent =>
 		const p = module::parse_name(d.name);
-		defer module::tags_free(p.2);
+		const name = p.0, ext = p.1, tags = p.2;
+		defer module::tags_free(tags);
 
-		if (len(p.2) >= script.1
-				&& p.0 == "hare" && p.1 == ".sc"
-				&& module::tagcompat(ctx.tags, p.2)) {
-			free(script.0);
-			script.0 = path::join(rtdir, d.name);
-			script.1 = len(p.2);
+		if (len(tags) >= ntag && name == "hare" && ext == ".sc"
+				&& module::tagcompat(ctx.tags, tags)) {
+			ntag = len(tags);
+			path::set(&buf, rtdir, d.name)!;
 		};
 	case void =>
 		break;
@@ -77,7 +77,7 @@ fn mkplan(ctx: *module::context, libs: []str) plan = {
 	return plan {
 		context = ctx,
 		workdir = temp::dir(),
-		script = script.0,
+		script = path::allocate(&buf),
 		environ = alloc([
 			(strings::dup("HARECACHE"), strings::dup(ctx.cache)),
 		]),
