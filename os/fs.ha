@@ -91,7 +91,7 @@ export fn create(
 // Canonicalizes a path in this filesystem by resolving all symlinks and
 // collapsing any "." or ".." path components.
 //
-// This function is a thin shim over [[fs::resolve]], and the return value is
-// statically allocated by [[fs::resolve]]. Thus, calls to this function or to
-// [[fs::resolve]] will overwrite the return value of either function.
+// This function is a thin shim over [[fs::realpath]], and the return value is
+// statically allocated by [[fs::realpath]]. Thus, calls to this function or to
+// [[fs::realpath]] will overwrite the return value of either function.
 export fn realpath(path: str) (str | fs::error) = fs::realpath(cwd, path);
