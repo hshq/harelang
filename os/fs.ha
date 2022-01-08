@@ -87,3 +87,11 @@ export fn create(
 	mode: fs::mode,
 	flags: fs::flags...
 ) (io::file | fs::error) = fs::create_file(cwd, path, mode, flags...);
+
+// Canonicalizes a path in this filesystem by resolving all symlinks and
+// collapsing any "." or ".." path components.
+//
+// This function is a thin shim over [[fs::resolve]], and the return value is
+// statically allocated by [[fs::resolve]]. Thus, calls to this function or to
+// [[fs::resolve]] will overwrite the return value of either function.
+export fn realpath(path: str) (str | fs::error) = fs::realpath(cwd, path);

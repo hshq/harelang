@@ -110,3 +110,69 @@ export fn dirents_free(d: []dirent) void = {
 		dirent_free(&d[i]);
 	};
 };
+
+// Removes a directory, and anything in it.
+export fn rmdirall(fs: *fs, path: str) (void | error) = {
+	let it = iter(fs, path)?;
+	for (true) {
+		match (next(it)) {
+		case let ent: dirent =>
+			if (ent.name == "." || ent.name == "..") {
+				continue;
+			};
+			// XXX: This could probably be more efficient if we
+			// re-used the buffer further down the call stack.
+			let buf = alloc(path::init());
+			defer free(buf);
+			const path = path::set(buf, path, ent.name)!;
+
+			switch (ent.ftype & mode::DIR) {
+			case mode::DIR =>
+				rmdirall(fs, path)?;
+			case =>
+				remove(fs, path)?;
+			};
+		case void =>
+			break;
+		};
+	};
+	if (path != "") {
+		return rmdir(fs, path);
+	};
+};
+
+// Canonicalizes a path in this filesystem by resolving all symlinks and
+// collapsing any "." or ".." path components. The return value is statically
+// allocated and will be overwritten on subsequent calls.
+export fn realpath(fs: *fs, path: str) (str | error) = {
+	static let buf = path::buffer { ... };
+	path::reset(&buf);
+
+	const iter = path::iter(path);
+	for (true) {
+		const item = match (path::next(&iter)) {
+		case let item: str =>
+			yield item;
+		case void =>
+			break;
+		};
+
+		const item = path::add(&buf, item)!;
+		const link = match (fs::readlink(fs, item)) {
+		case let link: str =>
+			yield link;
+		case wrongtype =>
+			continue;
+		case let err: error =>
+			return err;
+		};
+
+		if (!path::abs(link)) {
+			path::add(&buf, "..", link)!;
+		} else {
+			path::set(&buf, link)!;
+		};
+	};
+
+	return path::string(&buf);
+};

@@ -220,36 +220,6 @@ export fn rmdir(fs: *fs, path: str) (void | error) = {
 	};
 };
 
-// Removes a directory, and anything in it.
-export fn rmdirall(fs: *fs, path: str) (void | error) = {
-	let it = iter(fs, path)?;
-	for (true) {
-		match (next(it)) {
-		case let ent: dirent =>
-			if (ent.name == "." || ent.name == "..") {
-				continue;
-			};
-			// XXX: This could probably be more efficient if we
-			// re-used the buffer further down the call stack.
-			let buf = alloc(path::init());
-			defer free(buf);
-			const path = path::set(buf, path, ent.name)!;
-
-			switch (ent.ftype & mode::DIR) {
-			case mode::DIR =>
-				rmdirall(fs, path)?;
-			case =>
-				remove(fs, path)?;
-			};
-		case void =>
-			break;
-		};
-	};
-	if (path != "") {
-		return rmdir(fs, path);
-	};
-};
-
 // Creates a directory and returns a subdir for it. Some filesystems support
 // doing this operation atomically, but if not, a fallback is used.
 export fn mksubdir(fs: *fs, path: str) (*fs | error) = {
