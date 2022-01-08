@@ -1195,6 +1195,12 @@ time_chrono() {
 	gen_ssa time::chrono time
 }
 
+time_olsen() {
+	gen_srcs time::olsen \
+		olsen.ha
+	gen_ssa time::olsen  time time::chrono datetime
+}
+
 types() {
 	gen_srcs types \
 		limits.ha \
@@ -1363,6 +1369,7 @@ strio
 temp			linux freebsd
 time			linux freebsd
 time::chrono
+time::olsen
 types
 unix			linux freebsd
 unix::hosts

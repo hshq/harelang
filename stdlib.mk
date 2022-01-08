@@ -622,6 +622,12 @@ stdlib_deps_any+=$(stdlib_time_chrono_any)
 stdlib_time_chrono_linux=$(stdlib_time_chrono_any)
 stdlib_time_chrono_freebsd=$(stdlib_time_chrono_any)
 
+# gen_lib time::olsen (any)
+stdlib_time_olsen_any=$(HARECACHE)/time/olsen/time_olsen-any.o
+stdlib_deps_any+=$(stdlib_time_olsen_any)
+stdlib_time_olsen_linux=$(stdlib_time_olsen_any)
+stdlib_time_olsen_freebsd=$(stdlib_time_olsen_any)
+
 # gen_lib types (any)
 stdlib_types_any=$(HARECACHE)/types/types-any.o
 stdlib_deps_any+=$(stdlib_types_any)
@@ -1800,6 +1806,16 @@ $(HARECACHE)/time/chrono/time_chrono-any.ssa: $(stdlib_time_chrono_any_srcs) $(s
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::chrono \
 		-t$(HARECACHE)/time/chrono/time_chrono.td $(stdlib_time_chrono_any_srcs)
 
+# time::olsen (+any)
+stdlib_time_olsen_any_srcs= \
+	$(STDLIB)/time/olsen/olsen.ha
+
+$(HARECACHE)/time/olsen/time_olsen-any.ssa: $(stdlib_time_olsen_any_srcs) $(stdlib_rt) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM)) $(stdlib_datetime_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/time/olsen
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::olsen \
+		-t$(HARECACHE)/time/olsen/time_olsen.td $(stdlib_time_olsen_any_srcs)
+
 # types (+any)
 stdlib_types_any_srcs= \
 	$(STDLIB)/types/limits.ha \
@@ -2568,6 +2584,12 @@ testlib_time_chrono_any=$(TESTCACHE)/time/chrono/time_chrono-any.o
 testlib_deps_any+=$(testlib_time_chrono_any)
 testlib_time_chrono_linux=$(testlib_time_chrono_any)
 testlib_time_chrono_freebsd=$(testlib_time_chrono_any)
+
+# gen_lib time::olsen (any)
+testlib_time_olsen_any=$(TESTCACHE)/time/olsen/time_olsen-any.o
+testlib_deps_any+=$(testlib_time_olsen_any)
+testlib_time_olsen_linux=$(testlib_time_olsen_any)
+testlib_time_olsen_freebsd=$(testlib_time_olsen_any)
 
 # gen_lib types (any)
 testlib_types_any=$(TESTCACHE)/types/types-any.o
@@ -3791,6 +3813,16 @@ $(TESTCACHE)/time/chrono/time_chrono-any.ssa: $(testlib_time_chrono_any_srcs) $(
 	@mkdir -p $(TESTCACHE)/time/chrono
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
 		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_any_srcs)
+
+# time::olsen (+any)
+testlib_time_olsen_any_srcs= \
+	$(STDLIB)/time/olsen/olsen.ha
+
+$(TESTCACHE)/time/olsen/time_olsen-any.ssa: $(testlib_time_olsen_any_srcs) $(testlib_rt) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM)) $(testlib_datetime_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time/olsen
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::olsen \
+		-t$(TESTCACHE)/time/olsen/time_olsen.td $(testlib_time_olsen_any_srcs)
 
 # types (+any)
 testlib_types_any_srcs= \

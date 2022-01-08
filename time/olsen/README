@@ -1,0 +1,5 @@
+The time::olsen module provides access to the IANA Time Zone Database.
+This module parses the timezone data normally installed on your system.
+The database is also known as zoneinfo, tzdata, or the Olsen database.
+
+See https://www.iana.org/time-zones
