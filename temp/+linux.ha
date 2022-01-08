@@ -45,8 +45,9 @@ export fn file(
 };
 
 // Creates a named temporary file in the given directory of the given
-// filesystem. The caller is responsible for removing the file and freeing the
-// name when they're done with it.
+// filesystem. The caller is responsible for closing and removing the file when
+// they're done with it. The name is statically allocated, and will be
+// overwritten on subsequent calls.
 //
 // The I/O mode must be either [[io::mode::WRITE]] or [[io::mode::RDWR]].
 //
@@ -69,20 +70,23 @@ export fn named(
 		oflags |= fs::flags::WRONLY;
 	};
 
-	// TODO: Use path::pathbuf
-	static let pathbuf: [4096]u8 = [0...];
+	static let pathbuf = path::buffer { ... };
+	static let namebuf: [32]u8 = [0...];
 	for (true) {
 		let rand: [size(u64)]u8 = [0...];
 		random::buffer(rand);
+
 		const id = *(&rand[0]: *u64);
-		const fpath = fmt::bsprintf(pathbuf, "{}/temp.{}", path, id);
-		match (fs::create_file(fs, fpath, fmode, oflags)) {
+		const name = fmt::bsprintf(namebuf, "temp.{}", id);
+		const path = path::set(&pathbuf, path, name)!;
+
+		match (fs::create_file(fs, path, fmode, oflags)) {
 		case errors::exists =>
 			continue;
 		case let err: fs::error =>
 			return err;
 		case let f: io::file =>
-			return (f, strings::dup(fpath));
+			return (f, path);
 		};
 	};
 	abort(); // Unreachable
@@ -93,16 +97,19 @@ export fn named(
 // but not that it will be removed automatically; the caller must remove it when
 // they're done using it via [[os::rmdir]] or [[os::rmdirall]].
 //
-// The caller must free the return value.
+// The return value is statically allocated and will be overwritten on
+// subsequent calls.
 export fn dir() str = {
-	let buf: [8]u8 = [0...], name: [16]u8 = [0...];
+	const buf: [8]u8 = [0...], name: [16]u8 = [0...];
 	random::buffer(buf[..]);
 
-	let sink = strio::fixed(name);
+	const sink = strio::fixed(name);
 	hex::encode(&sink, buf) as size;
-	let name = strio::string(&sink);
+	const name = strio::string(&sink);
 
-	let path = path::join(get_tmpdir(), name);
+	static let buf = path::buffer { ... };
+	path::set(&buf, get_tmpdir(), name)!;
+	const path = path::string(&buf);
 	match (os::mkdir(path)) {
 	case let err: fs::error => abort("Could not create temp directory");
 	case void => void;

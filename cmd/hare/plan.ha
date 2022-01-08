@@ -90,7 +90,6 @@ fn plan_finish(plan: *plan) void = {
 	if (os::getenv("HARE_DEBUG_WORKDIR") is void) {
 		os::rmdirall(plan.workdir)!;
 	};
-	free(plan.workdir);
 
 	for (let i = 0z; i < len(plan.complete); i += 1) {
 		let task = plan.complete[i];

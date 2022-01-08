@@ -288,7 +288,6 @@ export fn manifest_write(ctx: *context, man: *manifest) (void | error) = {
 	defer {
 		fs::remove(ctx.fs, name): void;
 		io::close(file);
-		free(name);
 	};
 
 	let ident = unparse::identstr(man.ident);
