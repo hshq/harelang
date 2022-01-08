@@ -141,7 +141,7 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	appendnorm(&buf, ".")!;
 	assert(string(&buf) == "foo/bar/baz/bad");
 
-	let buf = init();
+	reset(&buf);
 	appendnorm(&buf, "/")!;
 	appendnorm(&buf, "foo")!;
 	appendnorm(&buf, "bar")!;
@@ -151,18 +151,18 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	appendnorm(&buf, "/")!;
 	assert(string(&buf) == "/foo/bar/baz");
 
-	let buf = init();
+	reset(&buf);
 	appendnorm(&buf, "/")!;
 	appendnorm(&buf, "/")!;
 	appendnorm(&buf, "/")!;
 	assert(string(&buf) == "/");
 
-	let buf = init();
+	reset(&buf);
 	appendnorm(&buf, ".")!;
 	appendnorm(&buf, "foo")!;
 	assert(string(&buf) == "foo");
 
-	let buf = init();
+	reset(&buf);
 	appendnorm(&buf, "..")!;
 	assert(string(&buf) == "..");
 	appendnorm(&buf, "..")!;
@@ -170,7 +170,7 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	appendnorm(&buf, "..")!;
 	assert(string(&buf) == "../../..");
 
-	let buf = init();
+	reset(&buf);
 	appendnorm(&buf, "foo")!;
 	appendnorm(&buf, "bar")!;
 	assert(string(&buf) == "foo/bar");
@@ -183,7 +183,6 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	appendnorm(&buf, "..")!;
 	assert(string(&buf) == "../..");
 
-	let buf = init();
  	set(&buf, "foo", "bar")!;
  	assert(string(&buf) == "foo/bar");
  	set(&buf, "foo", "bar/")!;
