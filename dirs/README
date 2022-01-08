@@ -1,0 +1,5 @@
+The dirs module provides access to common paths and directories used for storing
+application data. This module is compatible with the XDG base directories
+specification:
+
+https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
