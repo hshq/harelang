@@ -3,3 +3,28 @@ The path module provides utilities for working with filesystem paths.
 Note that Hare expects paths to be valid UTF-8 strings. If you require the use
 of non-UTF-8 paths (ideally for only as long as it takes to delete or rename
 those files), see the low-level functions available from [[rt]].
+
+Use of the [[buffer]] type is recommended for efficient and consistent
+manipulation of filesystem paths.
+
+	let buf = path::init();
+	path::add(&buf, "/", "foo", "bar", "baz.txt");
+	io::println(path::string(&buf)); // "/foo/bar/baz.txt"
+
+	path::add(&buf, "../.././hello.txt");
+	io::println(path::string(&buf)); // "/foo/hello.txt"
+
+The buffer object includes an array of length [[PATH_MAX]], which can be
+somewhat large; on Linux it's 4096 bytes. You can allocate this on the stack in
+most cases, but you may prefer to allocate it elsewhere depending on your needs.
+
+	// Stack allocated
+	let buf = path::init();
+
+	// Statically allocated
+	static let buf = path::buffer { ... };
+	pathbuf::reset(&buf);
+
+	// Heap allocated
+	let buf = alloc(path::init());
+	defer free(buf);

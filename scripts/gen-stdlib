@@ -913,18 +913,12 @@ os_exec() {
 path() {
 	gen_srcs path \
 		'+$(PLATFORM).ha' \
+		buffer.ha \
 		util.ha \
 		join.ha \
 		names.ha \
 		iter.ha
 	gen_ssa path strings bufio bytes io
-}
-
-pathbuf() {
-	gen_srcs pathbuf \
-		buffer.ha \
-		ops.ha
-	gen_ssa pathbuf path
 }
 
 gensrcs_strconv() {
@@ -1188,7 +1182,6 @@ math::random
 os				linux freebsd
 os::exec		linux freebsd
 path
-pathbuf
 shlex
 slice
 sort
