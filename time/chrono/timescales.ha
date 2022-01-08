@@ -95,7 +95,6 @@ fn conv_unix_tai(unix: time::instant) (time::instant | ambiguous | nonexistent) 
 };
 
 
-
 // Global Positioning System Time
 //
 // Used for GPS coordination.
@@ -122,3 +121,64 @@ fn conv_gps_tai(gps: time::instant) (time::instant | ambiguous | nonexistent) = 
 	return tai;
 };
 
+
+// Terrestrial Time
+//
+// Used for astronomical timekeeping.
+// Based on TAI, with a constant offset.
+// Continuous (no leap seconds).
+export const TT: timescale = timescale {
+	to_tai = &conv_tt_tai,
+	from_tai = &conv_tai_tt,
+};
+
+def TT_OFFSET: time::duration = 32.184 * time::SECOND;
+
+fn conv_tai_tt(tai: time::instant) (time::instant | ambiguous | nonexistent) = {
+	const tt = time::instant {
+		sec = tai.sec + (TT_OFFSET / time::SECOND),
+		nsec = tai.nsec + (TT_OFFSET % time::SECOND),
+	};
+	return tt;
+};
+
+fn conv_tt_tai(tt: time::instant) (time::instant | ambiguous | nonexistent) = {
+	const tai = time::instant {
+		sec = tt.sec - (TT_OFFSET / time::SECOND),
+		nsec = tt.nsec + (TT_OFFSET % time::SECOND),
+	};
+	return tai;
+};
+
+
+// Coordinated Martian Time
+//
+// Used for local solar time on Mars.
+// Based on TT, with a constant factor.
+// Continuous (no leap seconds).
+export const MTC: timescale = timescale {
+	to_tai = &conv_mtc_tai,
+	from_tai = &conv_tai_mtc,
+};
+
+def FACTOR_TERRESTRIAL_MARTIAN: f64 = 1.0274912517;
+
+fn conv_tai_mtc(tai: time::instant) (time::instant | ambiguous | nonexistent) = {
+	// TODO: propagated ambiguous errors, how to reason about?
+	const tt = TT.from_tai(tai)?;
+	const mtc = time::instant {
+		sec = (tt.sec: f64 * FACTOR_TERRESTRIAL_MARTIAN): i64,
+		nsec = tt.nsec,
+	};
+	return mtc;
+};
+
+fn conv_mtc_tai(mtc: time::instant) (time::instant | ambiguous | nonexistent) = {
+	const tt = time::instant {
+		sec = (mtc.sec: f64 / FACTOR_TERRESTRIAL_MARTIAN): i64,
+		nsec = mtc.nsec,
+	};
+	// TODO: propagated ambiguous errors, how to reason about?
+	const tai = TT.to_tai(tt)?;
+	return tai;
+};

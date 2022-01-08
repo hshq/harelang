@@ -95,7 +95,7 @@ const TZ_local: timezone = timezone {
 	transitions = [],
 };
 
-// The UTC "Zulu" timezone
+// The UTC (Coordinated Universal Time) "Zulu" timezone
 export const UTC_Z: *timezone = &TZ_UTC;
 
 const TZ_UTC: timezone = timezone {
@@ -113,7 +113,7 @@ const TZ_UTC: timezone = timezone {
 	transitions = [],
 };
 
-// The TAI "Zulu" timezone
+// The TAI (International Atomic Time) "Zulu" timezone
 export const TAI_Z: *timezone = &TZ_TAI;
 
 const TZ_TAI: timezone = timezone {
@@ -125,6 +125,24 @@ const TZ_TAI: timezone = timezone {
 			zoffset = 0 * time::SECOND,
 			name = "International Atomic Time",
 			abbrev = "TAI",
+			dst = false,
+		},
+	],
+	transitions = [],
+};
+
+// The MTC (Coordinated Martian Time) "Zulu" timezone
+export const MTC_Z: *timezone = &TZ_MTC;
+
+const TZ_MTC: timezone = timezone {
+	name = "",
+	timescale = &MTC,
+	daylength = MARS_MARTIAN_SOL,
+	zones = [
+		zone {
+			zoffset = 0 * time::SECOND,
+			name = "Coordinated Martian Time",
+			abbrev = "MTC",
 			dst = false,
 		},
 	],
