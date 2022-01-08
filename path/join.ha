@@ -49,7 +49,5 @@ export fn add(buf: *buffer, items: str...) (str | errors::overflow) = {
 // path would exceed [[PATH_MAX]], the program aborts.
 export fn join(items: str...) str = {
 	static let buf = buffer { ... };
-	reset(&buf);
-	add(&buf, items...)!;
-	return strings::dup(string(&buf));
+	return strings::dup(set(&buf, items...)!);
 };
