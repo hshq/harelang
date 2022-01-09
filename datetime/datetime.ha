@@ -139,7 +139,16 @@ export fn clone(dt: datetime) datetime = {
 	};
 };
 
-// Converts a [[datetime]] to a [[chrono::moment]]
+// Creates a [[datetime]] from a [[chrono::moment]]
+export fn from_moment(m: chrono::moment) datetime = {
+	const dt = init();
+	dt.date = m.date;
+	dt.time = m.time;
+	dt.loc = m.loc;
+	return dt;
+};
+
+// Creates a [[chrono::moment]] from a [[datetime]]
 export fn to_moment(dt: datetime) chrono::moment = {
 	return chrono::moment {
 		date = dt.date,
