@@ -333,42 +333,14 @@ fn fs_chown(fs: *fs::fs, path: str, uid: uint, gid: uint) (void | fs::error) = {
 	};
 };
 
-fn resolve_part(parts: *[]str, part: str) void = {
-	if (part == ".") {
-		// no-op
-		void;
-	} else if (part == "..") {
-		if (len(parts) != 0) {
-			delete(parts[len(parts) - 1]);
-		};
-	} else {
-		append(parts, part);
-	};
-};
-
 fn fs_resolve(fs: *fs::fs, path: str) str = {
-	let parts: []str = [];
-	if (!path::abs(path)) {
-		let iter = path::iter(getcwd());
-		for (true) {
-			match (path::next(&iter)) {
-			case void =>
-				break;
-			case let p: str =>
-				resolve_part(&parts, p);
-			};
-		};
+	if (path::abs(path)) {
+		return path;
 	};
-	let iter = path::iter(path);
-	for (true) {
-		match (path::next(&iter)) {
-		case void =>
-			break;
-		case let p: str =>
-			resolve_part(&parts, p);
-		};
-	};
-	return path::join(parts...);
+	// XXX: This approach might not be right if this fs is based on a subdir
+	static let buf = path::buffer { ... };
+	path::set(&buf, os::getcwd(), path)!;
+	return path::string(&buf);
 };
 
 fn fs_close(fs: *fs::fs) void = {

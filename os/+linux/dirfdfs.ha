@@ -366,6 +366,7 @@ fn fs_resolve(fs: *fs::fs, path: str) str = {
 	if (path::abs(path)) {
 		return path;
 	};
+	// XXX: This approach might not be right if this fs is based on a subdir
 	static let buf = path::buffer { ... };
 	path::set(&buf, os::getcwd(), path)!;
 	return path::string(&buf);
