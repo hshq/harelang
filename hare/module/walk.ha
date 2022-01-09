@@ -34,6 +34,8 @@ fn _walk(
 	case let iter: *fs::iterator =>
 		yield iter;
 	};
+
+	// TODO: Refactor me to use path::buffer
 	for (true) {
 		const ent = match (fs::next(iter)) {
 		case void =>
@@ -60,11 +62,8 @@ fn _walk(
 			let linkpath = path::join(path, ent.name);
 			defer free(linkpath);
 			let linkpath = fs::readlink(ctx.fs, linkpath)?;
-			defer free(linkpath);
 			if (!path::abs(linkpath)) {
-				let newpath = path::join(path, linkpath);
-				free(linkpath);
-				linkpath = newpath;
+				linkpath = path::join(path, linkpath);
 			};
 
 			const st = fs::stat(ctx.fs, linkpath)?;

@@ -141,6 +141,7 @@ fn scan_directory(
 		free(dirs);
 	};
 
+	let pathbuf = path::init();
 	for (true) {
 		const ent = match (fs::next(iter)) {
 		case void =>
@@ -151,14 +152,10 @@ fn scan_directory(
 
 		switch (ent.ftype) {
 		case fs::mode::LINK =>
-			let linkpath = path::join(path, ent.name);
-			defer free(linkpath);
-			let linkpath = fs::readlink(ctx.fs, linkpath)?;
-			defer free(linkpath);
+			let linkpath = path::set(&pathbuf, path, ent.name)!;
+			linkpath = fs::readlink(ctx.fs, linkpath)?;
 			if (!path::abs(linkpath)) {
-				let newpath = path::join(path, linkpath);
-				free(linkpath);
-				linkpath = newpath;
+				linkpath = path::set(&pathbuf, path, linkpath)!;
 			};
 
 			const st = fs::stat(ctx.fs, linkpath)?;

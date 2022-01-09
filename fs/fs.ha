@@ -154,8 +154,8 @@ export fn exists(fs: *fs, path: str) bool = {
 	};
 };
 
-// Returns the path referred to by a symbolic link. The caller must free the
-// return value.
+// Returns the path referred to by a symbolic link. The return value is
+// statically allocated and will be overwritten on subsequent calls.
 export fn readlink(fs: *fs, path: str) (str | error) = {
 	match (fs.readlink) {
 	case null =>
