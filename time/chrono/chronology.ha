@@ -45,6 +45,16 @@ export fn from_instant(i: time::instant, loc: locality) moment = {
 	return m;
 };
 
+// Creates a new [[time::instant]] from a [[moment]]
+export fn to_instant(m: moment) time::instant = {
+	const daysec = (m.loc.daylength / time::SECOND);
+	const i = time::instant {
+		sec = (m.date: i64 * daysec) + (m.time / time::SECOND),
+		nsec = m.time % time::SECOND,
+	};
+	return i;
+};
+
 // The temporal length of a day on Earth.
 // Interpreted with an appropriate timescale like UTC, TAI, GPS.
 export def EARTH_DAY: time::duration = 86400 * time::SECOND;
