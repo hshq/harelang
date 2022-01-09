@@ -296,12 +296,6 @@ stdlib_deps_any+=$(stdlib_fs_any)
 stdlib_fs_linux=$(stdlib_fs_any)
 stdlib_fs_freebsd=$(stdlib_fs_any)
 
-# gen_lib fs::mem (any)
-stdlib_fs_mem_any=$(HARECACHE)/fs/mem/fs_mem-any.o
-stdlib_deps_any+=$(stdlib_fs_mem_any)
-stdlib_fs_mem_linux=$(stdlib_fs_mem_any)
-stdlib_fs_mem_freebsd=$(stdlib_fs_mem_any)
-
 # gen_lib getopt (any)
 stdlib_getopt_any=$(HARECACHE)/getopt/getopt-any.o
 stdlib_deps_any+=$(stdlib_getopt_any)
@@ -946,18 +940,6 @@ $(HARECACHE)/fs/fs-any.ssa: $(stdlib_fs_any_srcs) $(stdlib_rt) $(stdlib_io_$(PLA
 	@mkdir -p $(HARECACHE)/fs
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfs \
 		-t$(HARECACHE)/fs/fs.td $(stdlib_fs_any_srcs)
-
-# fs::mem (+any)
-stdlib_fs_mem_any_srcs= \
-	$(STDLIB)/fs/mem/mem.ha \
-	$(STDLIB)/fs/mem/stream.ha \
-	$(STDLIB)/fs/mem/util.ha
-
-$(HARECACHE)/fs/mem/fs_mem-any.ssa: $(stdlib_fs_mem_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_hash_fnv_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/fs/mem
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nfs::mem \
-		-t$(HARECACHE)/fs/mem/fs_mem.td $(stdlib_fs_mem_any_srcs)
 
 # getopt (+any)
 stdlib_getopt_any_srcs= \
@@ -2048,12 +2030,6 @@ testlib_deps_any+=$(testlib_fs_any)
 testlib_fs_linux=$(testlib_fs_any)
 testlib_fs_freebsd=$(testlib_fs_any)
 
-# gen_lib fs::mem (any)
-testlib_fs_mem_any=$(TESTCACHE)/fs/mem/fs_mem-any.o
-testlib_deps_any+=$(testlib_fs_mem_any)
-testlib_fs_mem_linux=$(testlib_fs_mem_any)
-testlib_fs_mem_freebsd=$(testlib_fs_mem_any)
-
 # gen_lib getopt (any)
 testlib_getopt_any=$(TESTCACHE)/getopt/getopt-any.o
 testlib_deps_any+=$(testlib_getopt_any)
@@ -2715,19 +2691,6 @@ $(TESTCACHE)/fs/fs-any.ssa: $(testlib_fs_any_srcs) $(testlib_rt) $(testlib_io_$(
 	@mkdir -p $(TESTCACHE)/fs
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs \
 		-t$(TESTCACHE)/fs/fs.td $(testlib_fs_any_srcs)
-
-# fs::mem (+any)
-testlib_fs_mem_any_srcs= \
-	$(STDLIB)/fs/mem/mem.ha \
-	$(STDLIB)/fs/mem/stream.ha \
-	$(STDLIB)/fs/mem/util.ha \
-	$(STDLIB)/fs/mem/+test.ha
-
-$(TESTCACHE)/fs/mem/fs_mem-any.ssa: $(testlib_fs_mem_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_hash_fnv_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/fs/mem
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs::mem \
-		-t$(TESTCACHE)/fs/mem/fs_mem.td $(testlib_fs_mem_any_srcs)
 
 # getopt (+any)
 testlib_getopt_any_srcs= \

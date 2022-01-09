@@ -466,24 +466,6 @@ fs() {
 	gen_ssa fs io strings path time errors
 }
 
-gensrcs_fs_mem() {
-	gen_srcs fs::mem \
-		mem.ha \
-		stream.ha \
-		util.ha \
-		$*
-}
-
-fs_mem() {
-	if [ $testing -eq 0 ]
-	then
-		gensrcs_fs_mem
-	else
-		gensrcs_fs_mem +test.ha
-	fi
-	gen_ssa fs::mem bufio errors fs hash hash::fnv io path strconv strings types
-}
-
 getopt() {
 	gen_srcs getopt \
 		getopts.ha
@@ -1149,7 +1131,6 @@ format::elf
 format::ini
 format::xml
 fs
-fs::mem
 getopt
 hare::ast
 hare::lex
