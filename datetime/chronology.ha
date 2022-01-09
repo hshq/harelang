@@ -4,7 +4,8 @@ use time::chrono;
 
 // Returns a [[datetime]]'s number of days since the calendar epoch 0000-01-01
 export fn epochal(dt: *datetime) chrono::epochal = {
-	return dt.date - EPOCHAL_GREGORIAN;
+	const ldt = localize(*dt);
+	return ldt.date - EPOCHAL_GREGORIAN;
 };
 
 // Returns a [[datetime]]'s era
@@ -23,9 +24,10 @@ export fn era(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s year
 export fn year(dt: *datetime) int = {
+	const ldt = localize(*dt);
 	match (dt.year) {
 	case void =>
-		const ymd = calc_ymd(dt.date: chrono::epochal);
+		const ymd = calc_ymd(ldt.date: chrono::epochal);
 		dt.year = ymd.0;
 		dt.month = ymd.1;
 		dt.day = ymd.2;
@@ -37,9 +39,10 @@ export fn year(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s month of the year
 export fn month(dt: *datetime) int = {
+	const ldt = localize(*dt);
 	match (dt.month) {
 	case void =>
-		const ymd = calc_ymd(dt.date: chrono::epochal);
+		const ymd = calc_ymd(ldt.date: chrono::epochal);
 		dt.year = ymd.0;
 		dt.month = ymd.1;
 		dt.day = ymd.2;
@@ -51,9 +54,10 @@ export fn month(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s day of the month
 export fn day(dt: *datetime) int = {
+	const ldt = localize(*dt);
 	match (dt.day) {
 	case void =>
-		const ymd = calc_ymd(dt.date: chrono::epochal);
+		const ymd = calc_ymd(ldt.date: chrono::epochal);
 		dt.year = ymd.0;
 		dt.month = ymd.1;
 		dt.day = ymd.2;
@@ -65,9 +69,10 @@ export fn day(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s day of the week
 export fn weekday(dt: *datetime) int = {
+	const ldt = localize(*dt);
 	match (dt.weekday) {
 	case void =>
-		dt.weekday = calc_weekday(dt.date: chrono::epochal);
+		dt.weekday = calc_weekday(ldt.date: chrono::epochal);
 		return dt.weekday: int;
 	case let y: int =>
 		return y;
@@ -176,9 +181,10 @@ export fn isoweek(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s hour of the day
 export fn hour(dt: *datetime) int = {
+	const ldt = localize(*dt);
 	match (dt.hour) {
 	case void =>
-		const hmsn = calc_hmsn(dt.time: time::duration);
+		const hmsn = calc_hmsn(ldt.time: time::duration);
 		dt.hour = hmsn.0;
 		dt.min = hmsn.1;
 		dt.sec = hmsn.2;
@@ -191,9 +197,10 @@ export fn hour(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s minute of the hour
 export fn min(dt: *datetime) int = {
+	const ldt = localize(*dt);
 	match (dt.min) {
 	case void =>
-		const hmsn = calc_hmsn(dt.time: time::duration);
+		const hmsn = calc_hmsn(ldt.time: time::duration);
 		dt.hour = hmsn.0;
 		dt.min = hmsn.1;
 		dt.sec = hmsn.2;
@@ -206,13 +213,10 @@ export fn min(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s second of the minute
 export fn sec(dt: *datetime) int = {
-	// TODO: localize datetimes for all functions here. Use localised date
-	// and time in place of the given datetime's date and time.
 	const ldt = localize(*dt);
-
 	match (dt.sec) {
 	case void =>
-		const hmsn = calc_hmsn(dt.time: time::duration);
+		const hmsn = calc_hmsn(ldt.time: time::duration);
 		dt.hour = hmsn.0;
 		dt.min = hmsn.1;
 		dt.sec = hmsn.2;
@@ -225,9 +229,10 @@ export fn sec(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s nanosecond of the second
 export fn nsec(dt: *datetime) int = {
+	const ldt = localize(*dt);
 	match (dt.nsec) {
 	case void =>
-		const hmsn = calc_hmsn(dt.time: time::duration);
+		const hmsn = calc_hmsn(ldt.time: time::duration);
 		dt.hour = hmsn.0;
 		dt.min = hmsn.1;
 		dt.sec = hmsn.2;
