@@ -11,18 +11,23 @@ export def EPOCHAL_JULIAN: i64 = -2440588;
 // The Hare epoch of the Gregorian Common Era
 export def EPOCHAL_GREGORIAN: i64 = -719164;
 
-// Calculates whether a given (year, month, date) is valid
-export fn is_valid_ymd(y: int, m: int, d: int) bool = {
-	return m >= 1 && m <= 12 && d >= 1 &&
-		d <= calc_n_days_in_month(y, m);
-};
-
 // Calculates whether a given year is a leap year.
 export fn is_leap_year(y: int) bool = {
 	return if (y % 4 != 0) false
 	else if (y % 100 != 0) true
 	else if (y % 400 != 0) false
 	else true;
+};
+
+// Calculates whether a given (year, month, date) is valid
+fn is_valid_ymd(y: int, m: int, d: int) bool = {
+	return m >= 1 && m <= 12 && d >= 1 &&
+		d <= calc_n_days_in_month(y, m);
+};
+
+// Returns whether a (year, yearday) date is valid
+fn is_valid_yd(y: int, yd: int) bool = {
+	return yd >= 1 && yd <= calc_n_days_in_year(y);
 };
 
 // Calculates the number of days in the given month of the given year
@@ -213,9 +218,32 @@ fn calc_epochal_from_ywd(y: int, w: int, wd: int) (chrono::epochal | errors::inv
 	abort("TODO");
 };
 
+// Calculates a (year, month, day) date given a (year, yearday) date
+fn calc_ymd_from_yd(y: int, yd: int) ((int, int, int) | errors::invalid) = {
+	if (!is_valid_yd(y, yd)) {
+		return errors::invalid;
+	};
+	let m: int = 1;
+	let monthdays = calc_n_days_in_month(y, m);
+	let d = yd;
+	for (true) {
+		if (m > 12) {
+			return errors::invalid;
+		};
+		if (d <= monthdays) {
+			return (y, m, d);
+		};
+		d -= monthdays;
+		m += 1;
+		monthdays = calc_n_days_in_month(y, m);
+	};
+	return errors::invalid;
+};
+
 // Calculates the [[chrono::epochal]], given a (year, yearday) date
 fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | errors::invalid) = {
-	abort("TODO");
+	const ymd = calc_ymd_from_yd(y, yd)?;
+	return calc_epochal_from_ymd(ymd.0, ymd.1, ymd.2)?;
 };
 
 @test fn calc_epochal_from_ymd() void = {
@@ -265,6 +293,91 @@ fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | errors::invalid) = {
 			assert(actual as chrono::epochal == expect, "epochal miscalculation");
 		};
 	};
+};
+
+@test fn calc_ymd_from_yd() void = {
+	const cases = [
+		((-0768, 01, 01), 1),
+		((-0768, 02, 05), 36),
+		((-0001, 12, 31), 365),
+		(( 0000, 01, 01), 1),
+		(( 0000, 01, 02), 2),
+		(( 0000, 12, 31), 366),
+		(( 0001, 01, 01), 1),
+		(( 0001, 01, 02), 2),
+		(( 1965, 03, 23), 82),
+		(( 1969, 12, 31), 365),
+		(( 1970, 01, 01), 1),
+		(( 1970, 01, 02), 2),
+		(( 1999, 12, 31), 365),
+		(( 2000, 01, 01), 1),
+		(( 2000, 01, 02), 2),
+		(( 2020, 01, 01), 1),
+		(( 2022, 02, 28), 59),
+		(( 2022, 03, 01), 60),
+		(( 2023, 12, 31), 365),
+		(( 2024, 02, 28), 59),
+		(( 2024, 02, 29), 60),
+		(( 2024, 03, 01), 61),
+		(( 2024, 12, 12), 347),
+		(( 2024, 12, 31), 366),
+		(( 2038, 01, 18), 18),
+		(( 2038, 01, 19), 19),
+		(( 2038, 01, 20), 20),
+		(( 2243, 10, 17), 290),
+		(( 4707, 11, 28), 332),
+		(( 4707, 11, 29), 333),
+		((29349, 01, 25), 25),
+	];
+
+	for (let i = 0z; i < len(cases); i += 1) {
+		const expected = cases[i].0;
+		const yd = cases[i].1;
+		const actual = calc_ymd_from_yd(expected.0, yd)!;
+		assert(expected.0 == actual.0 &&
+			expected.1 == actual.1 &&
+			expected.2 == actual.2,
+			"incorrect calc_ymd_from_yd() result");
+	};
+};
+
+@test fn calc_epochal_from_yd() void = {
+	const cases = [
+		(-0768, 36,  -999999),
+		(-0001, 365, -719529),
+		( 0000, 1,   -719528),
+		( 0000, 2,   -719527),
+		( 0000, 366, -719163),
+		( 0001, 1,   -719162),
+		( 0001, 2,   -719161),
+		( 1965, 82,  -1745  ),
+		( 1969, 365, -1     ),
+		( 1970, 1,   0      ),
+		( 1970, 2,   1      ),
+		( 1999, 365, 10956  ),
+		( 2000, 1,   10957  ),
+		( 2000, 2,   10958  ),
+		( 2038, 18,  24854  ),
+		( 2038, 19,  24855  ),
+		( 2038, 20,  24856  ),
+		( 2243, 290, 100000 ),
+		( 4707, 332, 999999 ),
+		( 4707, 333, 1000000),
+		(29349, 25,  9999999),
+	];
+
+	for (let i = 0z; i < len(cases); i += 1) {
+		const y = cases[i].0;
+		const yd = cases[i].1;
+		const expected = cases[i].2;
+		const actual = calc_epochal_from_yd(y, yd)!;
+		assert(expected == actual,
+			"error in epochal calculation from yd");
+	};
+	assert(calc_epochal_from_yd(2020, 0) is errors::invalid,
+		"calc_epochal_from_yd() did not reject invalid yearday");
+	assert(calc_epochal_from_yd(2020, 400) is errors::invalid,
+		"calc_epochal_from_yd() did not reject invalid yearday");
 };
 
 @test fn calc_ymd() void = {
