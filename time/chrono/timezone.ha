@@ -79,14 +79,14 @@ export fn lookupzone(m: moment) zone = {
 };
 
 // The system's local timezone, set during initialisation
-export const local: *timezone = &TZ_local;
+export const local: locality = &TZ_local;
 
 // TODO: set time::chrono::local to a correct timezone
 @init fn set_local_timezone() void = {
 	return;
 };
 const TZ_local: timezone = timezone {
-	name = "",
+	name = "Local",
 	timescale = &UTC,
 	daylength = EARTH_DAY,
 	zones = [
@@ -101,10 +101,10 @@ const TZ_local: timezone = timezone {
 };
 
 // The UTC (Coordinated Universal Time) "Zulu" timezone
-export const UTC_Z: *timezone = &TZ_UTC;
+export const UTC_Z: locality = &TZ_UTC;
 
 const TZ_UTC: timezone = timezone {
-	name = "Etc/UTC",
+	name = "UTC",
 	timescale = &UTC,
 	daylength = EARTH_DAY,
 	zones = [
@@ -119,7 +119,7 @@ const TZ_UTC: timezone = timezone {
 };
 
 // The TAI (International Atomic Time) "Zulu" timezone
-export const TAI_Z: *timezone = &TZ_TAI;
+export const TAI_Z: locality = &TZ_TAI;
 
 const TZ_TAI: timezone = timezone {
 	name = "",
@@ -137,7 +137,7 @@ const TZ_TAI: timezone = timezone {
 };
 
 // The MTC (Coordinated Martian Time) "Zulu" timezone
-export const MTC_Z: *timezone = &TZ_MTC;
+export const MTC_Z: locality = &TZ_MTC;
 
 const TZ_MTC: timezone = timezone {
 	name = "",
