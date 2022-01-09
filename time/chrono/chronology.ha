@@ -56,7 +56,7 @@ export def EARTH_DAY: time::duration = 86400 * time::SECOND;
 // TODO: figure out a future-proof naming convention.
 
 // The temporal length of a solar day on Marth, in Martian seconds
-export def MARS_MARTIAN_SOL: time::duration = 86400 * time::SECOND;
+export def MARS_SOL_MARTIAN: time::duration = 86400 * time::SECOND;
 
 // The temporal length of a solar day on Marth, in Earth (SI) seconds
-export def MARS_TERRESTRIAL_SOL: time::duration = 88775.244147 * time::SECOND;
+export def MARS_SOL_TERRESTRIAL: time::duration = 88775.244147 * time::SECOND;

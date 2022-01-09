@@ -156,17 +156,17 @@ const TZ_TAI: timezone = timezone {
 	transitions = [],
 };
 
-// The MTC (Coordinated Martian Time) "Zulu" timezone
+// The MTC (Coordinated Mars Time) "Zulu" timezone
 export const MTC_Z: locality = &TZ_MTC;
 
 const TZ_MTC: timezone = timezone {
 	name = "",
 	timescale = &MTC,
-	daylength = MARS_MARTIAN_SOL,
+	daylength = MARS_SOL_MARTIAN,
 	zones = [
 		zone {
 			zoffset = 0 * time::SECOND,
-			name = "Coordinated Martian Time",
+			name = "Coordinated Mars Time",
 			abbrev = "MTC",
 			dst = false,
 		},

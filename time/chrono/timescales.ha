@@ -163,13 +163,13 @@ fn conv_tt_tai(tt: time::instant) (time::instant | ambiguous | nonexistent) = {
 };
 
 
-// Coordinated Martian Time
+// Coordinated Mars Time
 //
 // Used for local solar time on Mars.
 // Based on TT, with a constant factor.
 // Continuous (no leap seconds).
 export const MTC: timescale = timescale {
-	name = "Coordinated Martian Time",
+	name = "Coordinated Mars Time",
 	abbrev = "MTC",
 	to_tai = &conv_mtc_tai,
 	from_tai = &conv_tai_mtc,
