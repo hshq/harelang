@@ -215,7 +215,15 @@ fn calc_epochal_from_ymd(y: int, m: int, d: int) (chrono::epochal | errors::inva
 
 // Calculates the [[chrono::epochal]], given a (year, week, weekday) date
 fn calc_epochal_from_ywd(y: int, w: int, wd: int) (chrono::epochal | errors::invalid) = {
-	abort("TODO");
+	const jan1 = calc_epochal_from_ymd(y, 1, 1)?;
+	const jan1_wd = calc_weekday(jan1);
+	const yd = if (w == 0) {
+		yield wd - jan1_wd + 1;
+	} else {
+		yield (7 - jan1_wd + 1) + (7 * (w - 1)) + wd;
+	};
+	const ymd = calc_ymd_from_yd(y, yd)?;
+	return calc_epochal_from_ymd(ymd.0, ymd.1, ymd.2)?;
 };
 
 // Calculates a (year, month, day) date given a (year, yearday) date
@@ -338,6 +346,50 @@ fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | errors::invalid) = {
 			expected.1 == actual.1 &&
 			expected.2 == actual.2,
 			"incorrect calc_ymd_from_yd() result");
+	};
+};
+
+@test fn calc_epochal_from_ywd() void = {
+	const cases = [
+		((-0768, 00, 4), -1000034),
+		((-0768, 05, 4), -999999),
+		((-0001, 52, 5), -719529),
+		(( 0000, 00, 6), -719528),
+		(( 0000, 00, 7), -719527),
+		(( 0000, 52, 7), -719163),
+		(( 0001, 00, 1), -719162),
+		(( 0001, 00, 2), -719161),
+		(( 1965, 12, 2), -1745),
+		(( 1969, 52, 3), -1),
+		(( 1970, 00, 4), 0),
+		(( 1970, 00, 5), 1),
+		(( 1999, 52, 5), 10956),
+		(( 2000, 00, 6), 10957),
+		(( 2000, 00, 7), 10958),
+		(( 2020, 00, 3), 18262),
+		(( 2022, 09, 1), 19051),
+		(( 2022, 09, 2), 19052),
+		(( 2023, 51, 7), 19715),
+		(( 2024, 08, 3), 19781),
+		(( 2024, 08, 4), 19782),
+		(( 2024, 08, 5), 19783),
+		(( 2024, 49, 4), 20069),
+		(( 2024, 52, 2), 20088),
+		(( 2038, 03, 1), 24854),
+		(( 2038, 03, 2), 24855),
+		(( 2038, 03, 3), 24856),
+		(( 2243, 41, 2), 99993),
+		(( 4707, 47, 4), 999999),
+		(( 4707, 47, 5), 1000000),
+		((29349, 03, 6), 9999999),
+	];
+
+	for (let i = 0z; i < len(cases); i += 1) {
+		const ywd = cases[i].0;
+		const expected = cases[i].1;
+		const actual = calc_epochal_from_ywd(ywd.0, ywd.1, ywd.2)!;
+		assert(actual == expected,
+			"incorrect calc_epochal_from_ywd() result");
 	};
 };
 
