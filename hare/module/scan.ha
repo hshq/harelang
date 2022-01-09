@@ -41,9 +41,10 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 		case let ft: filetype =>
 			yield ft;
 		};
+		let path = fs::resolve(ctx.fs, path);
 		let st = fs::stat(ctx.fs, path)?;
 		let in = input {
-			path = fs::resolve(ctx.fs, path),
+			path = strings::dup(path),
 			stat = st,
 			ft = ft,
 			hash = scan_file(ctx, path, &deps)?,
@@ -57,7 +58,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 
 		return version {
 			hash = sumbuf,
-			basedir = path::dirname(fs::resolve(ctx.fs, path)),
+			basedir = strings::dup(path::dirname(path)),
 			depends = deps,
 			inputs = inputs,
 			...
@@ -303,9 +304,10 @@ fn scan_directory(
 			let iter = fs::iter(ctx.fs, path)?;
 			scan_directory(ctx, ver, sha, path, iter)?;
 		} else {
+			let path = fs::resolve(ctx.fs, path);
 			let st = fs::stat(ctx.fs, path)?;
 			let in = input {
-				path = fs::resolve(ctx.fs, path),
+				path = strings::dup(path),
 				stat = st,
 				ft = type_for_ext(path) as filetype,
 				hash = scan_file(ctx, path, &ver.depends)?,

@@ -252,16 +252,19 @@ export fn chown(fs: *fs, path: str, uid: uint, gid: uint) (void | error) = {
 	};
 };
 
-// Resolves a path to its absolute, normalized value. This consoldates ./ and
-// ../ sequences, roots the path, and returns a new path. The caller must free
-// the return value.
+// Resolves a path to its absolute, normalized value. Relative paths will be
+// rooted (if supported by the fs implementation), and "." and ".." components
+// will be reduced. This function does not follow symlinks: see [[realpath]] if
+// you need this behavior.
 export fn resolve(fs: *fs, path: str) str = {
 	match (fs.resolve) {
 	case null => void;
 	case let f: *resolvefunc =>
 		return f(fs, path);
 	};
-	abort(); // TODO
+	static let buf = path::buffer { ... };
+	path::set(&buf, path)!;
+	return path::string(&buf);
 };
 
 // Returns the next directory entry from an interator, or void if none remain.
