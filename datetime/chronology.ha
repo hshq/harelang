@@ -208,7 +208,7 @@ export fn min(dt: *datetime) int = {
 export fn sec(dt: *datetime) int = {
 	// TODO: localize datetimes for all functions here. Use localised date
 	// and time in place of the given datetime's date and time.
-	const ldt = chrono::localize(to_moment(*dt));
+	const ldt = localize(*dt);
 
 	match (dt.sec) {
 	case void =>
