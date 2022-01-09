@@ -1,5 +1,6 @@
 use time;
 
+// The virtual region a moment is interpreted in
 export type locality = *timezone;
 
 // A timezone; a political region with a ruleset regarding offsets for

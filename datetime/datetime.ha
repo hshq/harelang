@@ -31,6 +31,7 @@ fn init() datetime = datetime {
 	date        = 0,
 	time        = 0,
 	loc         = chrono::local,
+	zone        = void,
 
 	era         = void,
 	year        = void,
@@ -48,10 +49,10 @@ fn init() datetime = datetime {
 	nsec        = void,
 };
 
-// Creates a new datetime
+// Creates a new datetime. When loc=void, defaults to chrono::local.
 //
-// 	// 2038 January 19th 03:14:07.618 +0000
-// 	datetime::new(2038, 01, 19, 03, 14, 07, 618, 0, chrono::local)
+// 	// 2038 January 19th 03:14:07.000000618 +0000 Local
+// 	datetime::new(2038, 01, 19, 03, 14, 07, 618, 0000, void)
 //
 export fn new(
 	year: int,
@@ -68,6 +69,7 @@ export fn new(
 		date        = calc_epochal_from_ymd(year, month, day)?,
 		time        = calc_time_from_hmsn(hour, min, sec, nsec)?,
 		loc         = if (loc is void) chrono::local else loc: *chrono::timezone,
+		zone        = void,
 
 		era         = void,
 		year        = year,
@@ -87,40 +89,22 @@ export fn new(
 	return dt;
 };
 
-// Returns the current datetime
+// Returns a [[datetime]] of the immediate system time
 export fn now() datetime = {
+	// TODO: should the clock and timezone be choosable?
 	const i = time::now(time::clock::REALTIME);
-	const unix = time::unix(i);
-	const date = (unix / 86400);
-	const dt = datetime {
-		date        = date,
-		time        = ((i.sec / 86400) * time::NANOSECOND + i.nsec),
-		loc         = chrono::local,
-
-		era         = void,
-		year        = void,
-		month       = void,
-		day         = void,
-		isoweekyear = void,
-		isoweek     = void,
-		week        = void,
-		weekday     = void,
-		yearday     = void,
-
-		hour = (i.sec / 3600): int % 24,
-		min  = (i.sec / 60): int % 60,
-		sec  = i.sec: int % 60,
-		nsec = i.nsec: int,
-	};
+	const m = chrono::from_instant(i, chrono::local);
+	const dt = from_moment(m);
 	return dt;
 };
 
-// Creates a copy of a datetime
+// Creates a copy of a [[datetime]]
 export fn clone(dt: datetime) datetime = {
 	return datetime {
 		date        = dt.date,
 		time        = dt.time,
 		loc         = dt.loc,
+		zone        = dt.zone,
 
 		era         = dt.era,
 		year        = dt.year,
@@ -145,6 +129,7 @@ export fn from_moment(m: chrono::moment) datetime = {
 	dt.date = m.date;
 	dt.time = m.time;
 	dt.loc = m.loc;
+	dt.zone = m.zone;
 	return dt;
 };
 
@@ -154,6 +139,7 @@ export fn to_moment(dt: datetime) chrono::moment = {
 		date = dt.date,
 		time = dt.time,
 		loc = dt.loc,
+		zone = dt.zone,
 	};
 };
 

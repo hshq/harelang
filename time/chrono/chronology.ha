@@ -2,14 +2,48 @@ use time;
 
 // A date & time, within a locality, intepreted via a chronology
 export type moment = struct {
+	// The ordinal day (on Earth or otherwise)
+	// since the Hare epoch (zeroth day) 1970-01-01
 	date: epochal,
+
+	// The time since the start of the day
 	time: time::duration,
+
+	// The timezone used for interpreting a moment's date and time
 	loc: locality,
+
+	// The cached temporal zone this moment observes
+	zone: (zone | void),
 };
 
 // An ordinal day (on Earth or otherwise) since the Hare epoch (zeroth day)
 // 1970-01-01
 export type epochal = i64;
+
+// Creates a new [[moment]]
+export fn new(date: epochal, time: time::duration, loc: locality) moment = {
+	return moment {
+		date = date,
+		time = time,
+		loc = loc,
+		zone = void,
+	};
+};
+
+// Creates a new [[moment]] from a [[time::instant]] in a [[locality]]
+export fn from_instant(i: time::instant, loc: locality) moment = {
+	const daysec = (loc.daylength / time::SECOND);
+	const m = moment {
+		date = i.sec / daysec,
+		time = (
+			(i.sec % daysec) * time::SECOND
+			+ i.nsec * time::NANOSECOND
+		),
+		loc = loc,
+		zone = void,
+	};
+	return m;
+};
 
 // The temporal length of a day on Earth.
 // Interpreted with an appropriate timescale like UTC, TAI, GPS.
