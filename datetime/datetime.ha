@@ -99,29 +99,7 @@ export fn now() datetime = {
 };
 
 // Creates a copy of a [[datetime]]
-export fn clone(dt: datetime) datetime = {
-	return datetime {
-		date        = dt.date,
-		time        = dt.time,
-		loc         = dt.loc,
-		zone        = dt.zone,
-
-		era         = dt.era,
-		year        = dt.year,
-		month       = dt.month,
-		day         = dt.day,
-		isoweekyear = dt.isoweekyear,
-		isoweek     = dt.isoweek,
-		week        = dt.week,
-		weekday     = dt.weekday,
-		yearday     = dt.yearday,
-
-		hour        = dt.hour,
-		min         = dt.min,
-		sec         = dt.sec,
-		nsec        = dt.nsec,
-	};
-};
+export fn clone(dt: datetime) datetime = dt;
 
 // Creates a [[datetime]] from a [[chrono::moment]]
 export fn from_moment(m: chrono::moment) datetime = {
