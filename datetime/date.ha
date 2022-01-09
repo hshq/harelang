@@ -102,7 +102,7 @@ fn calc_yearday(y: int, m: int, d: int) int = {
 		273, 304, 334,
 	];
 
-	if (m >= 2 && is_leap_year(y)) {
+	if (m >= 3 && is_leap_year(y)) {
 		return months_firsts[m - 1] + d + 1;
 	} else {
 		return months_firsts[m - 1] + d;
@@ -303,7 +303,7 @@ fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | errors::invalid) = {
 
 @test fn calc_yearday() void = {
 	const cases = [
-		((-0768, 02, 05),  037),
+		((-0768, 02, 05),  036),
 		((-0001, 12, 31),  365),
 		(( 0000, 01, 01),  001),
 		(( 0000, 01, 02),  002),
@@ -317,6 +317,7 @@ fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | errors::invalid) = {
 		(( 1999, 12, 31),  365),
 		(( 2000, 01, 01),  001),
 		(( 2000, 01, 02),  002),
+		(( 2020, 02, 12),  043),
 		(( 2038, 01, 18),  018),
 		(( 2038, 01, 19),  019),
 		(( 2038, 01, 20),  020),
