@@ -1,10 +1,13 @@
 use time;
 use time::chrono;
 
-// Retrieves a IANA timezone object by name
-export fn tzdb(name: str) chrono::timezone = {
+// Transforms and creates a new [[datetime]] in a different [[chrono::locality]]
+export fn in(loc: chrono::locality, dt: datetime) datetime = {
 	// TODO
-	return chrono::timezone { ... };
+	const old = to_moment(dt);
+	const new = chrono::in(loc, old);
+	const new_dt = from_moment(new);
+	return new_dt;
 };
 
 

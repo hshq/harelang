@@ -58,9 +58,13 @@ type tzname = struct {
 	dst_endtime: str,
 };
 
+// Transforms and creates a new [[moment]] in a different [[locality]]
+export fn in(loc: locality, m: moment) moment = {
+	return new(m.date, m.time, m.loc); // resets .zone
+};
+
 // Returns a fictitious moment which assumes it's own locality is the normal
-// locality. The given timezone is consulted to find the current zone, and its
-// offset is applied to the new .date and .time fields.
+// locality. Its .date & .time fields are adjusted by its current zone's offset.
 export fn localize(m: moment) moment = {
 	const zone = lookupzone(m);
 	const newtime = m.time + zone.zoffset;
