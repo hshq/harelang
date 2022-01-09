@@ -66,15 +66,35 @@ export fn in(loc: locality, m: moment) moment = {
 // Returns a fictitious moment which assumes it's own locality is the normal
 // locality. Its .date & .time fields are adjusted by its current zone's offset.
 export fn localize(m: moment) moment = {
-	const zone = lookupzone(m);
+	const zone = lookupzone(&m);
 	const newtime = m.time + zone.zoffset;
 	m.time = newtime % m.loc.daylength;
 	m.date += (newtime / m.loc.daylength);
 	return m;
 };
 
-export fn lookupzone(m: moment) zone = {
+// Finds a [[moment]]'s currently observed zone
+export fn lookupzone(m: *moment) zone = {
+	if (m.zone is zone) {
+		return m.zone as zone;
+	};
+
+	if (len(m.loc.zones) == 0) {
+		// TODO: redesign to avoid this?
+		abort("timezones should have at least one zone");
+	};
+	if (len(m.loc.zones) == 1) {
+		const z = m.loc.zones[0];
+		m.zone = z;
+		return z;
+	};
+
 	// TODO: search through m.loc.trans using m.date and m.time
+	if (len(m.loc.zones) > 1) {
+		const z = m.loc.zones[0];
+		m.zone = z;
+		return z;
+	};
 	return zone{ ... };
 };
 

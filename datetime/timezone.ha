@@ -14,3 +14,11 @@ export fn in(loc: chrono::locality, dt: datetime) datetime = {
 export fn localize(dt: datetime) datetime = {
 	return from_moment(chrono::localize(to_moment(dt)));
 };
+
+// Finds a [[datetime]]'s currently observed zone
+export fn lookupzone(dt: *datetime) chrono::zone = {
+	const m = to_moment(*dt);
+	const z = chrono::lookupzone(&m);
+	dt.zone = z;
+	return z;
+};
