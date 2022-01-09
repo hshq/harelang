@@ -60,7 +60,7 @@ type tzname = struct {
 
 // Transforms and creates a new [[moment]] in a different [[locality]]
 export fn in(loc: locality, m: moment) moment = {
-	return new(m.date, m.time, m.loc); // resets .zone
+	return new(m.date, m.time, loc); // resets .zone
 };
 
 // Returns a fictitious moment which assumes it's own locality is the normal
