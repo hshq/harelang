@@ -64,8 +64,8 @@ export fn dispatch(bus: *bus) (result | error) = {
 		// XXX: Internal SQEs may have to be more sophisticated in the
 		// future, we'll see
 		if (io_uring::get_user(res) == &internal_sqe) {
-			io_uring::result(res)!;
-			done(bus, res);
+			io_uring::result(res)!; // Assert success
+			io_uring::cqe_seen(&bus.uring, res);
 			continue;
 		};
 		const handle = handleof(res);
