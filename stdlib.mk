@@ -188,12 +188,6 @@ stdlib_deps_linux+=$(stdlib_crypto_random_linux)
 stdlib_crypto_random_freebsd=$(HARECACHE)/crypto/random/crypto_random-freebsd.o
 stdlib_deps_freebsd+=$(stdlib_crypto_random_freebsd)
 
-# gen_lib crypto::md5 (any)
-stdlib_crypto_md5_any=$(HARECACHE)/crypto/md5/crypto_md5-any.o
-stdlib_deps_any+=$(stdlib_crypto_md5_any)
-stdlib_crypto_md5_linux=$(stdlib_crypto_md5_any)
-stdlib_crypto_md5_freebsd=$(stdlib_crypto_md5_any)
-
 # gen_lib crypto::salsa (any)
 stdlib_crypto_salsa_any=$(HARECACHE)/crypto/salsa/crypto_salsa-any.o
 stdlib_deps_any+=$(stdlib_crypto_salsa_any)
@@ -744,16 +738,6 @@ $(HARECACHE)/crypto/random/crypto_random-freebsd.ssa: $(stdlib_crypto_random_fre
 	@mkdir -p $(HARECACHE)/crypto/random
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(HARECACHE)/crypto/random/crypto_random.td $(stdlib_crypto_random_freebsd_srcs)
-
-# crypto::md5 (+any)
-stdlib_crypto_md5_any_srcs= \
-	$(STDLIB)/crypto/md5/md5.ha
-
-$(HARECACHE)/crypto/md5/crypto_md5-any.ssa: $(stdlib_crypto_md5_any_srcs) $(stdlib_rt) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/crypto/md5
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::md5 \
-		-t$(HARECACHE)/crypto/md5/crypto_md5.td $(stdlib_crypto_md5_any_srcs)
 
 # crypto::salsa (+any)
 stdlib_crypto_salsa_any_srcs= \
@@ -1922,12 +1906,6 @@ testlib_deps_linux+=$(testlib_crypto_random_linux)
 testlib_crypto_random_freebsd=$(TESTCACHE)/crypto/random/crypto_random-freebsd.o
 testlib_deps_freebsd+=$(testlib_crypto_random_freebsd)
 
-# gen_lib crypto::md5 (any)
-testlib_crypto_md5_any=$(TESTCACHE)/crypto/md5/crypto_md5-any.o
-testlib_deps_any+=$(testlib_crypto_md5_any)
-testlib_crypto_md5_linux=$(testlib_crypto_md5_any)
-testlib_crypto_md5_freebsd=$(testlib_crypto_md5_any)
-
 # gen_lib crypto::salsa (any)
 testlib_crypto_salsa_any=$(TESTCACHE)/crypto/salsa/crypto_salsa-any.o
 testlib_deps_any+=$(testlib_crypto_salsa_any)
@@ -2486,17 +2464,6 @@ $(TESTCACHE)/crypto/random/crypto_random-freebsd.ssa: $(testlib_crypto_random_fr
 	@mkdir -p $(TESTCACHE)/crypto/random
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_freebsd_srcs)
-
-# crypto::md5 (+any)
-testlib_crypto_md5_any_srcs= \
-	$(STDLIB)/crypto/md5/md5.ha \
-	$(STDLIB)/crypto/md5/+test.ha
-
-$(TESTCACHE)/crypto/md5/crypto_md5-any.ssa: $(testlib_crypto_md5_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/crypto/md5
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::md5 \
-		-t$(TESTCACHE)/crypto/md5/crypto_md5.td $(testlib_crypto_md5_any_srcs)
 
 # crypto::salsa (+any)
 testlib_crypto_salsa_any_srcs= \

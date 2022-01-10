@@ -332,17 +332,6 @@ crypto_sha512() {
 	fi
 }
 
-crypto_md5() {
-	if [ $testing -eq 0 ]
-	then
-		gen_srcs crypto::md5 md5.ha
-		gen_ssa crypto::md5 hash io endian
-	else
-		gen_srcs crypto::md5 md5.ha +test.ha
-		gen_ssa crypto::md5 hash endian fmt strings encoding::hex
-	fi
-}
-
 crypto_curve25519() {
 	if [ $testing -eq 0 ]
 	then
@@ -1113,7 +1102,6 @@ crypto::cipher
 crypto::hmac
 crypto::math
 crypto::random	linux freebsd
-crypto::md5
 crypto::salsa
 crypto::sha1
 crypto::sha256
