@@ -277,6 +277,19 @@ crypto_math() {
 	gen_ssa crypto::math
 }
 
+crypto_poly1305() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::poly1305 \
+			poly1305.ha
+	else
+		gen_srcs crypto::poly1305 \
+			poly1305.ha \
+			+test.ha
+	fi
+	gen_ssa crypto::poly1305 bytes crypto::mac endian encoding::hex io
+}
+
 crypto_random() {
 	gen_srcs -plinux crypto::random \
 		+linux.ha \
@@ -1117,6 +1130,7 @@ crypto::hmac
 crypto::mac
 crypto::math
 crypto::random	linux freebsd
+crypto::poly1305
 crypto::salsa
 crypto::sha1
 crypto::sha256

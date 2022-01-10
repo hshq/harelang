@@ -200,6 +200,12 @@ stdlib_deps_linux+=$(stdlib_crypto_random_linux)
 stdlib_crypto_random_freebsd=$(HARECACHE)/crypto/random/crypto_random-freebsd.o
 stdlib_deps_freebsd+=$(stdlib_crypto_random_freebsd)
 
+# gen_lib crypto::poly1305 (any)
+stdlib_crypto_poly1305_any=$(HARECACHE)/crypto/poly1305/crypto_poly1305-any.o
+stdlib_deps_any+=$(stdlib_crypto_poly1305_any)
+stdlib_crypto_poly1305_linux=$(stdlib_crypto_poly1305_any)
+stdlib_crypto_poly1305_freebsd=$(stdlib_crypto_poly1305_any)
+
 # gen_lib crypto::salsa (any)
 stdlib_crypto_salsa_any=$(HARECACHE)/crypto/salsa/crypto_salsa-any.o
 stdlib_deps_any+=$(stdlib_crypto_salsa_any)
@@ -771,6 +777,16 @@ $(HARECACHE)/crypto/random/crypto_random-freebsd.ssa: $(stdlib_crypto_random_fre
 	@mkdir -p $(HARECACHE)/crypto/random
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(HARECACHE)/crypto/random/crypto_random.td $(stdlib_crypto_random_freebsd_srcs)
+
+# crypto::poly1305 (+any)
+stdlib_crypto_poly1305_any_srcs= \
+	$(STDLIB)/crypto/poly1305/poly1305.ha
+
+$(HARECACHE)/crypto/poly1305/crypto_poly1305-any.ssa: $(stdlib_crypto_poly1305_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/poly1305
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::poly1305 \
+		-t$(HARECACHE)/crypto/poly1305/crypto_poly1305.td $(stdlib_crypto_poly1305_any_srcs)
 
 # crypto::salsa (+any)
 stdlib_crypto_salsa_any_srcs= \
@@ -1951,6 +1967,12 @@ testlib_deps_linux+=$(testlib_crypto_random_linux)
 testlib_crypto_random_freebsd=$(TESTCACHE)/crypto/random/crypto_random-freebsd.o
 testlib_deps_freebsd+=$(testlib_crypto_random_freebsd)
 
+# gen_lib crypto::poly1305 (any)
+testlib_crypto_poly1305_any=$(TESTCACHE)/crypto/poly1305/crypto_poly1305-any.o
+testlib_deps_any+=$(testlib_crypto_poly1305_any)
+testlib_crypto_poly1305_linux=$(testlib_crypto_poly1305_any)
+testlib_crypto_poly1305_freebsd=$(testlib_crypto_poly1305_any)
+
 # gen_lib crypto::salsa (any)
 testlib_crypto_salsa_any=$(TESTCACHE)/crypto/salsa/crypto_salsa-any.o
 testlib_deps_any+=$(testlib_crypto_salsa_any)
@@ -2530,6 +2552,17 @@ $(TESTCACHE)/crypto/random/crypto_random-freebsd.ssa: $(testlib_crypto_random_fr
 	@mkdir -p $(TESTCACHE)/crypto/random
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_freebsd_srcs)
+
+# crypto::poly1305 (+any)
+testlib_crypto_poly1305_any_srcs= \
+	$(STDLIB)/crypto/poly1305/poly1305.ha \
+	$(STDLIB)/crypto/poly1305/+test.ha
+
+$(TESTCACHE)/crypto/poly1305/crypto_poly1305-any.ssa: $(testlib_crypto_poly1305_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/poly1305
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::poly1305 \
+		-t$(TESTCACHE)/crypto/poly1305/crypto_poly1305.td $(testlib_crypto_poly1305_any_srcs)
 
 # crypto::salsa (+any)
 testlib_crypto_salsa_any_srcs= \
