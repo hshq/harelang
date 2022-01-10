@@ -28,6 +28,10 @@ use crypto::argon2;
 // memory, and if it does not take long enough, increase the amount of memory.
 // If you have reached the maximum amount of memory you are able to use,
 // increase passes.
+//
+// The current implementation of this function uses argon2i version 1.3 with the
+// provided number of memory blocks, passes equal to passes + 3, and parallelism
+// set to one.
 export fn derivekey(
 	dest: []u8,
 	salt: []u8,
