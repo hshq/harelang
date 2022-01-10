@@ -144,6 +144,12 @@ stdlib_deps_any+=$(stdlib_compress_zlib_any)
 stdlib_compress_zlib_linux=$(stdlib_compress_zlib_any)
 stdlib_compress_zlib_freebsd=$(stdlib_compress_zlib_any)
 
+# gen_lib crypto (any)
+stdlib_crypto_any=$(HARECACHE)/crypto/crypto-any.o
+stdlib_deps_any+=$(stdlib_crypto_any)
+stdlib_crypto_linux=$(stdlib_crypto_any)
+stdlib_crypto_freebsd=$(stdlib_crypto_any)
+
 # gen_lib crypto::aes (any)
 stdlib_crypto_aes_any=$(HARECACHE)/crypto/aes/crypto_aes-any.o
 stdlib_deps_any+=$(stdlib_crypto_aes_any)
@@ -652,6 +658,17 @@ $(HARECACHE)/compress/zlib/compress_zlib-any.ssa: $(stdlib_compress_zlib_any_src
 	@mkdir -p $(HARECACHE)/compress/zlib
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncompress::zlib \
 		-t$(HARECACHE)/compress/zlib/compress_zlib.td $(stdlib_compress_zlib_any_srcs)
+
+# crypto (+any)
+stdlib_crypto_any_srcs= \
+	$(STDLIB)/crypto/authenc.ha \
+	$(STDLIB)/crypto/keyderiv.ha
+
+$(HARECACHE)/crypto/crypto-any.ssa: $(stdlib_crypto_any_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_crypto_argon2_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto \
+		-t$(HARECACHE)/crypto/crypto.td $(stdlib_crypto_any_srcs)
 
 # crypto::aes (+any)
 stdlib_crypto_aes_any_srcs= \
@@ -1862,6 +1879,12 @@ testlib_deps_any+=$(testlib_compress_zlib_any)
 testlib_compress_zlib_linux=$(testlib_compress_zlib_any)
 testlib_compress_zlib_freebsd=$(testlib_compress_zlib_any)
 
+# gen_lib crypto (any)
+testlib_crypto_any=$(TESTCACHE)/crypto/crypto-any.o
+testlib_deps_any+=$(testlib_crypto_any)
+testlib_crypto_linux=$(testlib_crypto_any)
+testlib_crypto_freebsd=$(testlib_crypto_any)
+
 # gen_lib crypto::aes (any)
 testlib_crypto_aes_any=$(TESTCACHE)/crypto/aes/crypto_aes-any.o
 testlib_deps_any+=$(testlib_crypto_aes_any)
@@ -2371,6 +2394,17 @@ $(TESTCACHE)/compress/zlib/compress_zlib-any.ssa: $(testlib_compress_zlib_any_sr
 	@mkdir -p $(TESTCACHE)/compress/zlib
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncompress::zlib \
 		-t$(TESTCACHE)/compress/zlib/compress_zlib.td $(testlib_compress_zlib_any_srcs)
+
+# crypto (+any)
+testlib_crypto_any_srcs= \
+	$(STDLIB)/crypto/authenc.ha \
+	$(STDLIB)/crypto/keyderiv.ha
+
+$(TESTCACHE)/crypto/crypto-any.ssa: $(testlib_crypto_any_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_crypto_argon2_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto \
+		-t$(TESTCACHE)/crypto/crypto.td $(testlib_crypto_any_srcs)
 
 # crypto::aes (+any)
 testlib_crypto_aes_any_srcs= \

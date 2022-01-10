@@ -185,6 +185,13 @@ compress_zlib() {
 		hash::adler32 io fmt
 }
 
+crypto() {
+	gen_srcs crypto \
+		authenc.ha \
+		keyderiv.ha
+	gen_ssa crypto errors crypto::argon2
+}
+
 gensrcs_crypto_aes() {
 	gen_srcs crypto::aes \
 		aes_ct64.ha \
@@ -1095,6 +1102,7 @@ bufio
 bytes
 compress::flate
 compress::zlib
+crypto
 crypto::aes
 crypto::argon2
 crypto::blake2b

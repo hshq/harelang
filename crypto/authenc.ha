@@ -1,3 +1,5 @@
+use errors;
+
 // A secret session key.
 export type sessionkey = [32]u8;
 
