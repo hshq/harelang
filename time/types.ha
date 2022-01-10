@@ -33,7 +33,4 @@ export type instant = struct {
 };
 
 // Represents a unique interval of time between two instants.
-export type interval = struct {
-	start: instant,
-	end: instant,
-};
+export type interval = (instant, instant);
