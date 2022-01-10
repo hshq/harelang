@@ -67,9 +67,16 @@ export fn in(loc: locality, m: moment) moment = {
 // locality. Its .date & .time fields are adjusted by its current zone's offset.
 export fn localize(m: moment) moment = {
 	const zone = lookupzone(&m);
-	const newtime = m.time + zone.zoffset;
-	m.time = newtime % m.loc.daylength;
-	m.date += (newtime / m.loc.daylength);
+	const daylen = m.loc.daylength;
+
+	const tnew = m.time + zone.zoffset;
+	const t = (if (tnew >= 0) tnew else tnew + daylen) % daylen;
+
+	const dnew = (tnew / daylen): int;
+	const d = m.date + (if (tnew >= 0) dnew else dnew - 1);
+
+	m.time = t;
+	m.date = d;
 	return m;
 };
 
@@ -95,7 +102,29 @@ export fn lookupzone(m: *moment) zone = {
 		m.zone = z;
 		return z;
 	};
-	return zone{ ... };
+
+	abort("TODO");
+};
+
+// Creates a [[timezone]] with a single [[zone]], useful for fixed offsets
+//
+// 	let hawaii = chrono::fixedzone(&chrono::UTC, chrono::EARTH_DAY,
+// 		chrono::zone {
+// 			zoffset = -10 * time::HOUR,
+// 			name = "Hawaiian Reef",
+// 			abbrev = "HARE",
+// 			dst = false,
+// 		},
+// 	);
+//
+export fn fixedzone(ts: *timescale, daylen: time::duration, z: zone) timezone = {
+	return timezone {
+		name = z.name,
+		timescale = ts,
+		daylength = daylen,
+		zones = alloc([z]),
+		transitions = [],
+	};
 };
 
 // The system's local timezone, set during initialisation
