@@ -180,6 +180,12 @@ stdlib_deps_any+=$(stdlib_crypto_hmac_any)
 stdlib_crypto_hmac_linux=$(stdlib_crypto_hmac_any)
 stdlib_crypto_hmac_freebsd=$(stdlib_crypto_hmac_any)
 
+# gen_lib crypto::mac (any)
+stdlib_crypto_mac_any=$(HARECACHE)/crypto/mac/crypto_mac-any.o
+stdlib_deps_any+=$(stdlib_crypto_mac_any)
+stdlib_crypto_mac_linux=$(stdlib_crypto_mac_any)
+stdlib_crypto_mac_freebsd=$(stdlib_crypto_mac_any)
+
 # gen_lib crypto::math (any)
 stdlib_crypto_math_any=$(HARECACHE)/crypto/math/crypto_math-any.o
 stdlib_deps_any+=$(stdlib_crypto_math_any)
@@ -723,6 +729,16 @@ $(HARECACHE)/crypto/hmac/crypto_hmac-any.ssa: $(stdlib_crypto_hmac_any_srcs) $(s
 	@mkdir -p $(HARECACHE)/crypto/hmac
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::hmac \
 		-t$(HARECACHE)/crypto/hmac/crypto_hmac.td $(stdlib_crypto_hmac_any_srcs)
+
+# crypto::mac (+any)
+stdlib_crypto_mac_any_srcs= \
+	$(STDLIB)/crypto/mac/mac.ha
+
+$(HARECACHE)/crypto/mac/crypto_mac-any.ssa: $(stdlib_crypto_mac_any_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/mac
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::mac \
+		-t$(HARECACHE)/crypto/mac/crypto_mac.td $(stdlib_crypto_mac_any_srcs)
 
 # crypto::math (+any)
 stdlib_crypto_math_any_srcs= \
@@ -1915,6 +1931,12 @@ testlib_deps_any+=$(testlib_crypto_hmac_any)
 testlib_crypto_hmac_linux=$(testlib_crypto_hmac_any)
 testlib_crypto_hmac_freebsd=$(testlib_crypto_hmac_any)
 
+# gen_lib crypto::mac (any)
+testlib_crypto_mac_any=$(TESTCACHE)/crypto/mac/crypto_mac-any.o
+testlib_deps_any+=$(testlib_crypto_mac_any)
+testlib_crypto_mac_linux=$(testlib_crypto_mac_any)
+testlib_crypto_mac_freebsd=$(testlib_crypto_mac_any)
+
 # gen_lib crypto::math (any)
 testlib_crypto_math_any=$(TESTCACHE)/crypto/math/crypto_math-any.o
 testlib_deps_any+=$(testlib_crypto_math_any)
@@ -2466,6 +2488,16 @@ $(TESTCACHE)/crypto/hmac/crypto_hmac-any.ssa: $(testlib_crypto_hmac_any_srcs) $(
 	@mkdir -p $(TESTCACHE)/crypto/hmac
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::hmac \
 		-t$(TESTCACHE)/crypto/hmac/crypto_hmac.td $(testlib_crypto_hmac_any_srcs)
+
+# crypto::mac (+any)
+testlib_crypto_mac_any_srcs= \
+	$(STDLIB)/crypto/mac/mac.ha
+
+$(TESTCACHE)/crypto/mac/crypto_mac-any.ssa: $(testlib_crypto_mac_any_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/mac
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::mac \
+		-t$(TESTCACHE)/crypto/mac/crypto_mac.td $(testlib_crypto_mac_any_srcs)
 
 # crypto::math (+any)
 testlib_crypto_math_any_srcs= \

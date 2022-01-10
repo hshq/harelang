@@ -265,6 +265,12 @@ crypto_hmac() {
 	fi
 }
 
+crypto_mac() {
+	gen_srcs crypto::mac \
+		mac.ha
+	gen_ssa crypto::mac io
+}
+
 crypto_math() {
 	gen_srcs crypto::math \
 		bits.ha
@@ -1108,6 +1114,7 @@ crypto::argon2
 crypto::blake2b
 crypto::cipher
 crypto::hmac
+crypto::mac
 crypto::math
 crypto::random	linux freebsd
 crypto::salsa

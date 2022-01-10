@@ -1,0 +1,2 @@
+mac provides a generic interface for use with message authentication code (MAC)
+functions.
