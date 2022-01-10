@@ -52,8 +52,3 @@ export fn sz(h: *hash) size = h.sz;
 
 // Returns the block size of the hash.
 export fn bsz(h: *hash) size = h.bsz;
-
-// General purpose type for creating hash functions, such as via
-// [[crypto::sha256::create]]. Note that hashes created this way must be freed
-// by the caller.
-export type createfunc = fn() *hash::hash;

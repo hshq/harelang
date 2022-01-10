@@ -53,9 +53,6 @@ export fn sha256() state = {
 	return sha;
 };
 
-// [[hash::createfunc]] to allocate a hash state to compute SHA-256
-export fn create() *hash::hash = alloc(sha256());
-
 fn reset(h: *hash::hash) void = {
 	let h = h: *state;
 	h.h[0] = init0;
