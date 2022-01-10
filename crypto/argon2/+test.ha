@@ -24,7 +24,7 @@ use bytes;
 		...
 	};
 
-	argon2d(result[..], pass, salt, cfg)!;
+	argon2d(result[..], pass, salt, &cfg)!;
 
 	assert(bytes::equal(result, expected));
 };
@@ -56,7 +56,7 @@ use bytes;
 		...
 	};
 
-	argon2d(result[..], pass, salt, cfg)!;
+	argon2d(result[..], pass, salt, &cfg)!;
 
 	assert(bytes::equal(result, expected));
 };
@@ -89,7 +89,7 @@ use bytes;
 		...
 	};
 
-	argon2i(result[..], pass, salt, cfg)!;
+	argon2i(result[..], pass, salt, &cfg)!;
 
 	assert(bytes::equal(result, expected));
 };
@@ -121,7 +121,7 @@ use bytes;
 		...
 	};
 
-	argon2id(result[..], pass, salt, cfg)!;
+	argon2id(result[..], pass, salt, &cfg)!;
 
 	assert(bytes::equal(result, expected));
 };

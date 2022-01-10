@@ -104,7 +104,7 @@ export fn argon2d(
 	dest: []u8,
 	password: []u8,
 	salt: []u8,
-	cfg: config
+	cfg: *config,
 ) (void | nomem) = {
 	return argon2(dest, password, salt, cfg, mode::D);
 };
@@ -122,7 +122,7 @@ export fn argon2i(
 	dest: []u8,
 	password: []u8,
 	salt: []u8,
-	cfg: config
+	cfg: *config,
 ) (void | nomem) = {
 	return argon2(dest, password, salt, cfg, mode::I);
 };
@@ -138,7 +138,7 @@ export fn argon2id(
 	dest: []u8,
 	password: []u8,
 	salt: []u8,
-	cfg: config
+	cfg: *config,
 ) (void | nomem) = {
 	return argon2(dest, password, salt, cfg, mode::ID);
 };
@@ -147,7 +147,7 @@ fn argon2(
 	dest: []u8,
 	password: []u8,
 	salt: []u8,
-	cfg: config,
+	cfg: *config,
 	mode: mode,
 ) (void | nomem) = {
 	assert(endian::host == &endian::little, "TODO big endian support");
@@ -218,7 +218,7 @@ fn argon2(
 	for (ctx.pass < cfg.passes; ctx.pass += 1) {
 		for (let s = 0z; s < SLICES; s += 1) {
 			for (let i = 0z; i < ctx.rows; i += 1) {
-				segproc(&cfg, &ctx, i, s);
+				segproc(cfg, &ctx, i, s);
 			};
 		};
 	};
@@ -286,7 +286,7 @@ fn inithash(
 	taglen: u32,
 	password: []u8,
 	salt: []u8,
-	cfg: config,
+	cfg: *config,
 	mode: mode,
 	memsize: u32,
 ) void = {
