@@ -27,9 +27,9 @@ export type stream = struct {
 	rounds: size,
 };
 
-// Create a Salsa20 or XSalsa20 stream. Needs to be initalized with either
-// [[salsa20_init]] or [[xsalsa20_init]]. It must be finished with
-// [[crypto::cipher::finish]].
+// Create a Salsa20 or XSalsa20 stream. Must be initalized with either
+// [[salsa20_init]] or [[xsalsa20_init]], and must be finished with
+// [[crypto::cipher::finish]] afterwards to wipe sensitive data from memory.
 export fn salsa20() stream = {
 	return stream {
 		xor = &stream_xor,

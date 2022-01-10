@@ -168,6 +168,12 @@ stdlib_deps_any+=$(stdlib_crypto_blake2b_any)
 stdlib_crypto_blake2b_linux=$(stdlib_crypto_blake2b_any)
 stdlib_crypto_blake2b_freebsd=$(stdlib_crypto_blake2b_any)
 
+# gen_lib crypto::chacha (any)
+stdlib_crypto_chacha_any=$(HARECACHE)/crypto/chacha/crypto_chacha-any.o
+stdlib_deps_any+=$(stdlib_crypto_chacha_any)
+stdlib_crypto_chacha_linux=$(stdlib_crypto_chacha_any)
+stdlib_crypto_chacha_freebsd=$(stdlib_crypto_chacha_any)
+
 # gen_lib crypto::cipher (any)
 stdlib_crypto_cipher_any=$(HARECACHE)/crypto/cipher/crypto_cipher-any.o
 stdlib_deps_any+=$(stdlib_crypto_cipher_any)
@@ -711,6 +717,16 @@ $(HARECACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(stdlib_crypto_blake2b_any_
 	@mkdir -p $(HARECACHE)/crypto/blake2b
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::blake2b \
 		-t$(HARECACHE)/crypto/blake2b/crypto_blake2b.td $(stdlib_crypto_blake2b_any_srcs)
+
+# crypto::chacha (+any)
+stdlib_crypto_chacha_any_srcs= \
+	$(STDLIB)/crypto/chacha/chacha20.ha
+
+$(HARECACHE)/crypto/chacha/crypto_chacha-any.ssa: $(stdlib_crypto_chacha_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/chacha
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::chacha \
+		-t$(HARECACHE)/crypto/chacha/crypto_chacha.td $(stdlib_crypto_chacha_any_srcs)
 
 # crypto::cipher (+any)
 stdlib_crypto_cipher_any_srcs= \
@@ -1935,6 +1951,12 @@ testlib_deps_any+=$(testlib_crypto_blake2b_any)
 testlib_crypto_blake2b_linux=$(testlib_crypto_blake2b_any)
 testlib_crypto_blake2b_freebsd=$(testlib_crypto_blake2b_any)
 
+# gen_lib crypto::chacha (any)
+testlib_crypto_chacha_any=$(TESTCACHE)/crypto/chacha/crypto_chacha-any.o
+testlib_deps_any+=$(testlib_crypto_chacha_any)
+testlib_crypto_chacha_linux=$(testlib_crypto_chacha_any)
+testlib_crypto_chacha_freebsd=$(testlib_crypto_chacha_any)
+
 # gen_lib crypto::cipher (any)
 testlib_crypto_cipher_any=$(TESTCACHE)/crypto/cipher/crypto_cipher-any.o
 testlib_deps_any+=$(testlib_crypto_cipher_any)
@@ -2485,6 +2507,17 @@ $(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(testlib_crypto_blake2b_any
 	@mkdir -p $(TESTCACHE)/crypto/blake2b
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::blake2b \
 		-t$(TESTCACHE)/crypto/blake2b/crypto_blake2b.td $(testlib_crypto_blake2b_any_srcs)
+
+# crypto::chacha (+any)
+testlib_crypto_chacha_any_srcs= \
+	$(STDLIB)/crypto/chacha/chacha20.ha \
+	$(STDLIB)/crypto/chacha/+test.ha
+
+$(TESTCACHE)/crypto/chacha/crypto_chacha-any.ssa: $(testlib_crypto_chacha_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/chacha
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::chacha \
+		-t$(TESTCACHE)/crypto/chacha/crypto_chacha.td $(testlib_crypto_chacha_any_srcs)
 
 # crypto::cipher (+any)
 testlib_crypto_cipher_any_srcs= \

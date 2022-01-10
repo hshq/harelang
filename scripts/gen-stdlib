@@ -240,6 +240,17 @@ crypto_blake2b() {
 	fi
 }
 
+crypto_chacha() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::chacha chacha20.ha
+		gen_ssa crypto::chacha bytes crypto::cipher crypto::math endian
+	else
+		gen_srcs crypto::chacha chacha20.ha +test.ha
+		gen_ssa crypto::chacha bytes crypto::cipher crypto::math endian
+	fi
+}
+
 crypto_cipher() {
 	gen_srcs crypto::cipher \
 		cipher.ha \
@@ -1125,6 +1136,7 @@ crypto
 crypto::aes
 crypto::argon2
 crypto::blake2b
+crypto::chacha
 crypto::cipher
 crypto::hmac
 crypto::mac
