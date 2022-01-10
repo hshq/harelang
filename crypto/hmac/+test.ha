@@ -1,4 +1,5 @@
 use bytes;
+use crypto::mac;
 use crypto::sha1;
 use encoding::hex;
 use hash;
@@ -7,17 +8,19 @@ use strings;
 
 fn assert_hmac_sha1(keystr: str, vectors: [](str, [20]u8)) void = {
 	let key = strings::toutf8(keystr);
-	let hmac = hmac(&sha1::create, key);
-	defer io::close(&hmac);
+	let h = sha1::sha1();
 
 	for (let i = 0z; i < len(vectors); i += 1) {
+		hash::reset(&h);
+		let hmac = hmac(&h, key);
+		defer mac::finish(&hmac);
+
 		const vector = vectors[i];
 
-		hash::reset(&hmac);
-		hash::write(&hmac, strings::toutf8(vector.0));
+		mac::write(&hmac, strings::toutf8(vector.0));
 
 		let sum: [sha1::SIZE]u8 = [0...];
-		hash::sum(&hmac, sum);
+		mac::sum(&hmac, sum);
 
 		assert(bytes::equal(vector.1, sum));
 	};
@@ -121,35 +124,4 @@ fn assert_hmac_sha1(keystr: str, vectors: [](str, [20]u8)) void = {
 	let key = "xxabcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhi"
 		"jklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu";
 	assert_hmac_sha1(key, vectors);
-};
-
-@test fn hmac_sha1_write_after_sum() void = {
-	const result: [2][20]u8 = [
-		[
-			0x98, 0x66, 0x91, 0x5d, 0x9e, 0xa9, 0x29, 0x0c, 0xe3,
-			0x07, 0x28, 0x5e, 0x6a, 0x86, 0xed, 0xe1, 0xca, 0x1a,
-			0x0b, 0x6f,
-		],
-		[
-			0x30, 0x81, 0xd5, 0x60, 0xa1, 0x81, 0x21, 0x1d, 0x25,
-			0xb3, 0xe4, 0xf3, 0xa7, 0x1e, 0x3a, 0x76, 0xae, 0x27,
-			0xce, 0xfa,
-		],
-	];
-
-	let sha = sha1::sha1();
-	let hmac = hmac(&sha1::create, strings::toutf8("love"));
-
-	hash::reset(&hmac);
-	hash::write(&hmac, strings::toutf8("abcdefghbcdefghicdefghijdefghij"));
-
-	let sum: [sha1::SIZE]u8 = [0...];
-	hash::sum(&hmac, sum);
-
-	assert(bytes::equal(result[0], sum));
-
-	hash::write(&hmac, strings::toutf8("appendstuff"));
-	hash::finish(&hmac, sum);
-
-	assert(bytes::equal(result[1], sum));
 };

@@ -724,7 +724,7 @@ $(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_src
 stdlib_crypto_hmac_any_srcs= \
 	$(STDLIB)/crypto/hmac/hmac.ha
 
-$(HARECACHE)/crypto/hmac/crypto_hmac-any.ssa: $(stdlib_crypto_hmac_any_srcs) $(stdlib_rt) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
+$(HARECACHE)/crypto/hmac/crypto_hmac-any.ssa: $(stdlib_crypto_hmac_any_srcs) $(stdlib_rt) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/hmac
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::hmac \
@@ -2483,7 +2483,7 @@ testlib_crypto_hmac_any_srcs= \
 	$(STDLIB)/crypto/hmac/hmac.ha \
 	$(STDLIB)/crypto/hmac/+test.ha
 
-$(TESTCACHE)/crypto/hmac/crypto_hmac-any.ssa: $(testlib_crypto_hmac_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_crypto_sha1_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/crypto/hmac/crypto_hmac-any.ssa: $(testlib_crypto_hmac_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_crypto_sha1_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/hmac
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::hmac \

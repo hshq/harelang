@@ -1,105 +1,76 @@
 use bytes;
-use crypto::math;
+use crypto::mac;
 use hash;
 use io;
 
 export type state = struct {
-	hash::hash,
-	hinner: *hash::hash,
-	houter: *hash::hash,
-	okeypad: []u8,
-	ikeypad: []u8,
-	sumbuf: []u8,
+	mac::mac,
+	h: *hash::hash,
+	keypad: []u8,
 };
 
-// Creates a [[hash::hash]] that computes an HMAC using the provided hash
-// creation function, e.g. [[crypto::sha256::create]].
+// Creates a [[crypto::mac::mac]] that computes an HMAC using the provided hash
+// function 'h'.
 //
-// The caller must take extra care to call [[hash::close]] when they are
-// finished using the hash, which, in addition to freeing state associated with
-// the hash, will securely erase state which contains secret information.
-export fn hmac(create: *hash::createfunc, key: []u8) state = {
-	let hinner = create(), houter = create();
-	let bsz = hash::bsz(hinner);
-	let ikeypad: []u8 = bytes_alloc(bsz, 0);
+// The caller must take extra care to call [[mac::finish]] when they are
+// finished using the MAC function, which, in addition to freeing state
+// associated with the MAC, will securely erase state which contains secret
+// information.
+export fn hmac(h: *hash::hash, key: []u8) state = {
+	let bsz = hash::bsz(h);
+	let keypad: []u8 = alloc([0...], bsz);
 
-	// use ikeypad to store the prepared key temporarly to avoid an
-	// additional allocation.
 	if (len(key) > bsz) {
-		hash::write(hinner, key);
-		hash::sum(hinner, ikeypad);
-		hash::reset(hinner);
+		hash::write(h, key);
+		hash::sum(h, keypad);
+		hash::reset(h);
 	} else {
-		ikeypad[..len(key)] = key[..];
-	};
-
-	let okeypad: []u8 = alloc([], bsz);
-	for (let i = 0z; i < bsz; i += 1) {
-		append(okeypad, 0x5c ^ ikeypad[i]);
+		keypad[..len(key)] = key[..];
 	};
 
 	for (let i = 0z; i < bsz; i += 1) {
-		ikeypad[i] = 0x36 ^ ikeypad[i];
+		keypad[i] = 0x36 ^ keypad[i];
 	};
 
-	hash::write(hinner, ikeypad);
+	hash::write(h, keypad);
+
+	for (let i = 0z; i < bsz; i += 1) {
+		// keypad for the outer hash is xored with 0x5c instead of 0x36
+		keypad[i] = keypad[i] ^ 0x36 ^ 0x5c;
+	};
 
 	return state {
 		writer = &write,
-		reset = &reset,
 		sum = &sum,
-		closer = &close,
-		sz = hash::sz(hinner),
+		finish = &finish,
+		sz = hash::sz(h),
 		bsz = bsz,
-		hinner = hinner,
-		houter = houter,
-		okeypad = okeypad,
-		ikeypad = ikeypad,
-		sumbuf = bytes_alloc(hash::sz(hinner), 0),
+		h = h,
+		keypad = keypad,
 		...
 	};
 };
 
-fn close(s: *io::stream) void = {
-	let h: *state = s: *state;
-	bytes::zero(h.okeypad);
-	bytes::zero(h.ikeypad);
-	free(h.okeypad);
-	free(h.ikeypad);
-	free(h.sumbuf);
-	io::close(h.hinner);
-	io::close(h.houter);
-	free(h.hinner);
-	free(h.houter);
-};
-
-// TODO: https://todo.sr.ht/~sircmpwn/hare/285
-fn bytes_alloc(s: size, v: u8) []u8 = {
-	let b: []u8 = alloc([], s);
-	for (let i = 0z; i < s; i += 1) {
-		append(b, 0);
-	};
-	return b;
-};
-
 fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
-	let h = st: *state;
-	return hash::write(h.hinner, buf);
+	let hm = st: *state;
+	return hash::write(hm.h, buf);
 };
 
-fn sum(hash: *hash::hash, buf: []u8) void = {
-	let h = hash: *state;
+fn sum(mac: *mac::mac, buf: []u8) void = {
+	let hm = mac: *state;
 
-	hash::sum(h.hinner, h.sumbuf[0..h.hinner.sz]);
+	hash::sum(hm.h, buf);
 
-	hash::reset(h.houter);
-	hash::write(h.houter, h.okeypad);
-	hash::write(h.houter, h.sumbuf[0..h.hinner.sz]);
-	hash::sum(h.houter, buf);
+	hash::reset(hm.h);
+	hash::write(hm.h, hm.keypad);
+	hash::write(hm.h, buf);
+	hash::sum(hm.h, buf);
 };
 
-fn reset(hash: *hash::hash) void = {
-	let h = hash: *state;
-	hash::reset(h.hinner);
-	hash::write(h.hinner, h.ikeypad);
+fn finish(mac: *mac::mac) void = {
+	let hm = mac: *state;
+
+	bytes::zero(hm.keypad);
+	free(hm.keypad);
+	io::close(hm.h);
 };
