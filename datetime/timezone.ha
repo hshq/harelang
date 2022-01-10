@@ -9,13 +9,17 @@ export fn in(loc: chrono::locality, dt: datetime) datetime = {
 	return new_dt;
 };
 
-// Returns a fictitious datetime which assumes it's own locality is the normal
-// locality. Its fields are adjusted by its current zone's offset.
+// Returns a fictitious [[datetime]] which is adjusted and normalized as if its
+// locality was the normal locality. Its fields are adjusted by its current
+// [[chrono::zone]]'s offset.
+//
+// This is a utility function for use by other modules's internal calculations.
+// You probably shouldn't use this directly.
 export fn localize(dt: datetime) datetime = {
 	return from_moment(chrono::localize(to_moment(dt)));
 };
 
-// Finds a [[datetime]]'s currently observed zone
+// Finds and returns a [[datetime]]'s currently observed zone
 export fn lookupzone(dt: *datetime) chrono::zone = {
 	const m = to_moment(*dt);
 	const z = chrono::lookupzone(&m);

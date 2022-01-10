@@ -63,8 +63,12 @@ export fn in(loc: locality, m: moment) moment = {
 	return new(m.date, m.time, loc); // resets .zone
 };
 
-// Returns a fictitious moment which assumes it's own locality is the normal
-// locality. Its .date & .time fields are adjusted by its current zone's offset.
+// Returns a fictitious [[moment]] which is adjusted and normalized as if its
+// locality was the normal locality. Its fields are adjusted by its current
+// [[zone]]'s offset.
+//
+// This is a utility function for use by other modules's internal calculations.
+// You probably shouldn't use this directly.
 export fn localize(m: moment) moment = {
 	const zone = lookupzone(&m);
 	const daylen = m.loc.daylength;
@@ -80,7 +84,7 @@ export fn localize(m: moment) moment = {
 	return m;
 };
 
-// Finds a [[moment]]'s currently observed zone
+// Finds and returns a [[moment]]'s currently observed zone
 export fn lookupzone(m: *moment) zone = {
 	if (m.zone is zone) {
 		return m.zone as zone;
