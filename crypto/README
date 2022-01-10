@@ -1,4 +1,49 @@
-The crypto module provides implementations of various cryptography-related
-standards.
+Important notice: Hare's cryptography implementations have not been audited. You
+can contribute to the funding of an independent audit of our cryptography
+implementation on OpenCollective:
 
-Be advised that Hare's cryptography implementations have not been audited.
+TODO: Add link
+
+The "crypto" module provides easy-to-use and hard-to-misuse functions for doing
+various high-level cryptographic operations. This is the recommended approach
+for most cryptographic applications. For applications which need them, direct
+access to supported cryptographic primitives is provided in submodules.
+
+Cryptography is a difficult, high-risk domain of programming. The life and
+well-being of your users may depend on your ability to implement cryptographic
+applications with due care. Please carefully read all of the documentation,
+double-check your work, and seek second opinions and independent review of your
+code. Our documentation and API design aims to prevent easy mistakes from being
+made, but it is no substitute for a good backround in applied cryptography. We
+recommend the "Crypto 101" course as a good general introduction to
+cryptography:
+
+https://www.crypto101.io
+
+There are a few additional modules and functions which are of interest to users
+of the crypto module. Access to secure random data is provided by the
+[[crypto::random]] module. The ability to securely erase sensitive data in RAM
+is provided by [[bytes::zero]]. Note also that [[bytes::equal]] is not suitable
+for constant-time comparisons; equality comparisons in a cryptographic context
+should utilize [[compare]] instead.
+
+TODO: Add something based on mlock to deal with storing sensitive information,
+and add a note here about it.
+
+We reserve the right to make breaking changes to this module in the future,
+which may prevent data prepared by old versions from being readable by new
+versions. Such changes will be accompanied with an increment of the major
+version of the standard library, as well as a changelog explaining what changes
+are required of downstream users, and a migration procedure will be prepared.
+The hare-announce mailing list is the appropriate way to be notified of these
+changes:
+
+https://lists.sr.ht/~sircmpwn/hare-announce
+
+The following features are offered in this module:
+
+- [[encrypt]] and [[decrypt]] provide authenticated encryption.
+- [[sign]] and [[verify]] provide public key message signing and verification.
+- [[exchange]] provides a secure key exchange function.
+- [[derivekey]] implements key derivation, which is also recommended for hashing passwords.
+- [[hash]] provides a [[hash::hash]] algorithm suitable for cryptographic use.
