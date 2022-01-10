@@ -97,6 +97,9 @@ export fn xsalsa20_init(
 	endian::leputu32(dkey[28..], state[9]);
 
 	salsa20_init(s, &dkey, nonce[16..]: *[NONCESIZE]u8);
+
+	bytes::zero((state[..]: *[*]u8)[..64]);
+	bytes::zero(dkey);
 };
 
 // Advances the key stream to "seek" to a future state by 'counter' times
