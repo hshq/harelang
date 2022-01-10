@@ -129,7 +129,7 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	if (len(buf.cur) + len(elem) + 1 >= PATH_MAX) {
 		return errors::overflow;
 	};
-	if (len(buf.cur) > 1 && buf.cur[len(buf.cur) - 1] != PATHSEP) {
+	if (len(buf.cur) > 0 && buf.cur[len(buf.cur) - 1] != PATHSEP) {
 		static append(buf.cur, PATHSEP);
 	};
 	static append(buf.cur, elem...);
@@ -193,12 +193,17 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	appendnorm(&buf, "..")!;
 	assert(string(&buf) == "../..");
 
- 	set(&buf, "foo", "bar")!;
- 	assert(string(&buf) == "foo/bar");
- 	set(&buf, "foo", "bar/")!;
- 	assert(string(&buf) == "foo/bar/");
- 	set(&buf, "foo", "bar", "/")!;
- 	assert(string(&buf) == "foo/bar/");
- 	add(&buf, "/baz")!;
- 	assert(string(&buf) == "foo/bar/baz");
+	set(&buf, "foo", "bar")!;
+	assert(string(&buf) == "foo/bar");
+	set(&buf, "foo", "bar/")!;
+	assert(string(&buf) == "foo/bar/");
+	set(&buf, "foo", "bar", "/")!;
+	assert(string(&buf) == "foo/bar/");
+	add(&buf, "/baz")!;
+	assert(string(&buf) == "foo/bar/baz");
+
+	reset(&buf);
+	appendnorm(&buf, "a")!;
+	appendnorm(&buf, "b")!;
+	assert(string(&buf) == "a/b");
 };
