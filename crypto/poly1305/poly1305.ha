@@ -62,10 +62,10 @@ fn write(st: *io::stream, bbuf: const []u8) (size | io::error) = {
 	const written = len(buf);
 
 	for (len(buf) > 0) {
-		const n = if (len(buf) - p.cidx < BLOCKSIZE) {
-			yield len(buf) - p.cidx;
+		const n = if (len(buf) <= BLOCKSIZE - p.cidx) {
+			yield len(buf);
 		} else {
-			yield BLOCKSIZE;
+			yield BLOCKSIZE - p.cidx;
 		};
 
 		p.c[p.cidx..] = buf[..n];
