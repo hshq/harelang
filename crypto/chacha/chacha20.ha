@@ -113,6 +113,9 @@ export fn xchacha20_init(
 // [[BLOCKSIZE]].
 export fn setctr(s: *stream, counter: u32) void = {
 	s.state[12] = counter;
+
+	// enforce block generation
+	s.xorused = BLOCKSIZE;
 };
 
 fn stream_xor(c: *cipher::stream, dest: []u8, src: []u8) void = {
