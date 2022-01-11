@@ -3,7 +3,6 @@
 use bytes;
 use crypto::mac;
 use endian;
-use encoding::hex;
 use io;
 
 // Internal block size in bytes.
@@ -12,6 +11,7 @@ export def BLOCKSIZE: size = 16;
 // Length of the resulting MAC in bytes.
 export def SIZE: size = 16;
 
+// Poly1305 key.
 export type key = [32]u8;
 
 export type state = struct {
@@ -38,7 +38,7 @@ export fn poly1305() state = {
 };
 
 // Initialises the MAC with given one time key.
-export fn init(p: *state, key: key) void = {
+export fn init(p: *state, key: *key) void = {
 	leputu32slice(p.r, key);
 	leputu32slice(p.pad, key[16..]);
 

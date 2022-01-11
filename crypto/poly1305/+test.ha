@@ -21,7 +21,7 @@ use encoding::hex;
 	let result: [16]u8 = [0...];
 
 	let p = poly1305();
-	init(&p, key);
+	init(&p, &key);
 	mac::write(&p, message);
 	mac::sum(&p, result);
 	mac::finish(&p);
@@ -46,7 +46,7 @@ use encoding::hex;
 	let result: [16]u8 = [0...];
 
 	let p = poly1305();
-	init(&p, key);
+	init(&p, &key);
 	mac::sum(&p, result);
 	mac::finish(&p);
 
@@ -77,7 +77,7 @@ use encoding::hex;
 	let result: [16]u8 = [0...];
 
 	let p = poly1305();
-	init(&p, key);
+	init(&p, &key);
 	mac::write(&p, message);
 	mac::sum(&p, result);
 	mac::finish(&p);
@@ -112,7 +112,7 @@ use encoding::hex;
 	let result: [16]u8 = [0...];
 
 	let p = poly1305();
-	init(&p, key);
+	init(&p, &key);
 	mac::write(&p, message);
 	mac::sum(&p, result);
 	mac::finish(&p);
