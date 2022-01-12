@@ -61,7 +61,7 @@ export fn cmpslice(x: []u8, y: []u8) int = {
 	assert(len(x) == len(y), "slices must have the same length");
 	let v: u8 = 0;
 	for (let i = 0z; i < len(x); i += 1) {
-		v = x[i] ^ y[i];
+		v |= x[i] ^ y[i];
 	};
 	return cmpu8(v, 0);
 };
@@ -69,6 +69,13 @@ export fn cmpslice(x: []u8, y: []u8) int = {
 @test fn cmpslice() void = {
 	assert(cmpslice([], []) == 1);
 	assert(cmpslice([0], [0]) == 1);
+	assert(cmpslice([1], [0]) == 0);
+	assert(cmpslice([1, 0], [0, 0]) == 0);
+	assert(cmpslice([0, 0], [0, 0]) == 1);
+
+	assert(cmpslice([0x12, 0xAB], [0x12, 0xAB]) == 1);
+	assert(cmpslice([0x12, 0xAB], [0x12, 0xAC]) == 0);
+	assert(cmpslice([0x12, 0xAB], [0x11, 0xAB]) == 0);
 };
 
 // Compare two bytes in constant time. Returns 1 if the bytes are the same
