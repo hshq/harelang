@@ -90,5 +90,16 @@ export fn decrypt(
 	additional: []u8...
 ) ([]u8 | errors::invalid);
 
+// Compares two slices and returns true if they are equal. Comparison is done
+// in constant time, meaning that the time it takes depends only on the size of
+// the slices and not the content.
+export fn compare(a: []u8, b: []u8) bool = {
+	if (len(a) != len(b)) {
+		return false;
+	};
+
+	return math::cmpslice(a, b) == 1;
+};
+
 // TODO: Add additional entry-points which provide a finer degree of control
 // over buffer usage.
