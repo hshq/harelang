@@ -1,3 +1,10 @@
+use bytes;
+use crypto::chacha;
+use crypto::cipher;
+use crypto::poly1305;
+use crypto::mac;
+use crypto::math;
+use endian;
 use errors;
 
 // A secret session key.
@@ -7,7 +14,7 @@ export type sessionkey = [32]u8;
 export type nonce = [24]u8;
 
 // A message authentication code.
-export type mac = [24]u8;
+export type mac = [16]u8;
 
 // An encrypted, authenticated message.
 export type box = (mac, nonce, []u8);
@@ -66,8 +73,66 @@ export fn encrypt(
 	key: *sessionkey,
 	nonce: *nonce,
 	plaintext: []u8,
-	additional: []u8...
-) box;
+	additional: []u8...,
+) box = {
+	let s = chacha::chacha20();
+	chacha::xchacha20_init(&s, key, nonce);
+
+	let otk: poly1305::key = [0...];
+	defer bytes::zero(otk);
+
+	cipher::stream_xor(&s, otk[..], otk[..]);
+	chacha::setctr(&s, 1);
+
+	let ciphertext = plaintext;
+	cipher::stream_xor(&s, ciphertext, plaintext);
+	cipher::finish(&s);
+
+	let m: mac = [0...];
+	writemac(&m, &otk, ciphertext, additional...);
+	return (m, *nonce, ciphertext);
+};
+
+fn writemac(
+	m: *mac,
+	otk: *poly1305::key,
+	ciphertext: []u8,
+	additional: []u8...,
+) void = {
+	let poly = poly1305::poly1305();
+	poly1305::init(&poly, otk);
+	defer mac::finish(&poly);
+
+	const pad: [16]u8 = [0...];
+
+	let adlen: size = 0;
+	for (let i = 0z; i < len(additional); i += 1) {
+		adlen += len(additional[i]);
+		mac::write(&poly, additional[i]);
+	};
+	let padlen: size = 0;
+	if (adlen > 0) {
+		padlen = poly1305::BLOCKSIZE - (adlen % poly1305::BLOCKSIZE);
+		mac::write(&poly, pad[..padlen]);
+	};
+
+	mac::write(&poly, ciphertext);
+	if (len(ciphertext) > 0) {
+		padlen = poly1305::BLOCKSIZE
+			- (len(ciphertext) % poly1305::BLOCKSIZE);
+		mac::write(&poly, pad[..padlen]);
+	};
+
+	let nbuf: [8]u8 = [0...];
+	endian::leputu64(nbuf, adlen: u32);
+	mac::write(&poly, nbuf);
+
+	endian::leputu64(nbuf, len(ciphertext): u32);
+	mac::write(&poly, nbuf);
+
+	mac::sum(&poly, m[..]);
+};
+
 
 // Authenticates and decrypts a message encrypted with [[encrypt]]. If the
 // decryption is successful, the plaintext slice is returned, and if not,
@@ -88,7 +153,31 @@ export fn decrypt(
 	key: *sessionkey,
 	box: *box,
 	additional: []u8...
-) ([]u8 | errors::invalid);
+) ([]u8 | errors::invalid) = {
+	let s = chacha::chacha20();
+	chacha::xchacha20_init(&s, key, &box.1);
+
+	let otk: poly1305::key = [0...];
+	defer bytes::zero(otk);
+
+	cipher::stream_xor(&s, otk[..], otk[..]);
+	chacha::setctr(&s, 1);
+
+	let ciphertext = box.2;
+	let m: mac = [0...];
+	writemac(&m, &otk, ciphertext, additional...);
+
+	if (!compare(m, box.0)) {
+		bytes::zero(ciphertext);
+		return errors::invalid;
+	};
+
+	let plaintext = ciphertext;
+	cipher::stream_xor(&s, plaintext, ciphertext);
+	cipher::finish(&s);
+
+	return plaintext;
+};
 
 // Compares two slices and returns true if they are equal. Comparison is done
 // in constant time, meaning that the time it takes depends only on the size of

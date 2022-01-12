@@ -186,10 +186,23 @@ compress_zlib() {
 }
 
 crypto() {
-	gen_srcs crypto \
-		authenc.ha \
-		keyderiv.ha
-	gen_ssa crypto errors crypto::argon2
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto \
+			authenc.ha \
+			keyderiv.ha
+		gen_ssa crypto bytes crypto::argon2 crypto::chacha \
+			crypto::cihper crypto::poly1305 crypto::mac \
+			crypto::math endian errors
+	else
+		gen_srcs crypto \
+			authenc.ha \
+			keyderiv.ha \
+			+test/authenc.ha
+		gen_ssa crypto bytes crypto::argon2 crypto::chacha \
+			crypto::cihper crypto::poly1305 crypto::mac \
+			crypto::math endian errors
+	fi
 }
 
 gensrcs_crypto_aes() {

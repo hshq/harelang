@@ -682,7 +682,7 @@ stdlib_crypto_any_srcs= \
 	$(STDLIB)/crypto/authenc.ha \
 	$(STDLIB)/crypto/keyderiv.ha
 
-$(HARECACHE)/crypto/crypto-any.ssa: $(stdlib_crypto_any_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_crypto_argon2_$(PLATFORM))
+$(HARECACHE)/crypto/crypto-any.ssa: $(stdlib_crypto_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_argon2_$(PLATFORM)) $(stdlib_crypto_chacha_$(PLATFORM)) $(stdlib_crypto_cihper_$(PLATFORM)) $(stdlib_crypto_poly1305_$(PLATFORM)) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto \
@@ -2464,9 +2464,10 @@ $(TESTCACHE)/compress/zlib/compress_zlib-any.ssa: $(testlib_compress_zlib_any_sr
 # crypto (+any)
 testlib_crypto_any_srcs= \
 	$(STDLIB)/crypto/authenc.ha \
-	$(STDLIB)/crypto/keyderiv.ha
+	$(STDLIB)/crypto/keyderiv.ha \
+	$(STDLIB)/crypto/+test/authenc.ha
 
-$(TESTCACHE)/crypto/crypto-any.ssa: $(testlib_crypto_any_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_crypto_argon2_$(PLATFORM))
+$(TESTCACHE)/crypto/crypto-any.ssa: $(testlib_crypto_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_argon2_$(PLATFORM)) $(testlib_crypto_chacha_$(PLATFORM)) $(testlib_crypto_cihper_$(PLATFORM)) $(testlib_crypto_poly1305_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto \
