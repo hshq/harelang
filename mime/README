@@ -1,0 +1,3 @@
+The mime package implements a subset of RFC 2045, namely the subset necessary to
+handle parsing and encoding Media Types (formerly "MIME types"), and to map them
+with file extensions.

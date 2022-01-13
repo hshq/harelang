@@ -781,6 +781,12 @@ math() {
 	gen_ssa math types
 }
 
+mime() {
+	gen_srcs mime \
+		parse.ha
+	gen_ssa mime ascii errors string
+}
+
 net() {
 	gen_srcs -plinux net \
 		+linux.ha \
@@ -1194,6 +1200,8 @@ linux::signalfd	linux
 linux::io_uring	linux
 linux::vdso		linux
 math
+math::random
+mime
 net				linux freebsd
 net::dial
 net::dns
@@ -1201,7 +1209,6 @@ net::ip			linux freebsd
 net::tcp		linux freebsd
 net::udp		linux freebsd
 net::unix		linux freebsd
-math::random
 os				linux freebsd
 os::exec		linux freebsd
 path
