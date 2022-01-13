@@ -212,7 +212,7 @@ export type tcflag = enum uint {
 	NOFLSH     = 0x80000000,
 };
 
-export type cc = enum u8 {
+export type cc = enum char {
 	VEOF      = 0,
 	VEOL      = 1,
 	VEOL2     = 2,
