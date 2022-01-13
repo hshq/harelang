@@ -1797,6 +1797,7 @@ $(HARECACHE)/time/time-freebsd.ssa: $(stdlib_time_freebsd_srcs) $(stdlib_rt)
 # time::chrono (+any)
 stdlib_time_chrono_any_srcs= \
 	$(STDLIB)/time/chrono/chronology.ha \
+	$(STDLIB)/time/chrono/leapsec.ha \
 	$(STDLIB)/time/chrono/timescale.ha \
 	$(STDLIB)/time/chrono/timezone.ha
 
@@ -3805,6 +3806,7 @@ $(TESTCACHE)/time/time-freebsd.ssa: $(testlib_time_freebsd_srcs) $(testlib_rt)
 # time::chrono (+any)
 testlib_time_chrono_any_srcs= \
 	$(STDLIB)/time/chrono/chronology.ha \
+	$(STDLIB)/time/chrono/leapsec.ha \
 	$(STDLIB)/time/chrono/timescale.ha \
 	$(STDLIB)/time/chrono/timezone.ha
 

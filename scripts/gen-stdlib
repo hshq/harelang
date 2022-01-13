@@ -1178,6 +1178,7 @@ time() {
 time_chrono() {
 	gen_srcs time::chrono \
 		chronology.ha \
+		leapsec.ha \
 		timescale.ha \
 		timezone.ha
 	gen_ssa time::chrono time
