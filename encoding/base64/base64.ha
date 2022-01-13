@@ -88,7 +88,7 @@ export fn encodestr(alphabet: []u8, b: []u8) str = {
 		"Zm9vYmE=",
 		"Zm9vYmFy"
 	];
-	for (let i = 0z; i < len(in); i += 1) {
+	for (let i = 0z; i <= len(in); i += 1) {
 		let s = encodestr(standard, in[..i]);
 		defer free(s);
 		assert(s == expect[i]);
@@ -216,7 +216,6 @@ export fn decodeslice_static(
 		"AA=A",
 		"Zg==Zg==",
 	];
-	const badindex: [_]size = [1, 2, 3, 0, 0, 1, 3, 4];
 	for (let i = 0z; i < len(bad); i += 1) {
 		let result = decodestr(standard, bad[i]);
 		assert(result is errors::invalid);
