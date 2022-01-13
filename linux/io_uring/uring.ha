@@ -142,11 +142,9 @@ export type sqe = struct {
 		splice_flags: splice_flags,
 	},
 	user_data: u64,
-	// TODO: Remove the names on these embedded types
-	// See https://todo.sr.ht/~sircmpwn/hare/493
 	union {
-		extras: struct {
-			buffers: union {
+		struct {
+			union {
 				buf_index: u16,
 				buf_group: u16,
 			},
