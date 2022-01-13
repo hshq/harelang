@@ -103,25 +103,15 @@ fn writemac(
 	poly1305::init(&poly, otk);
 	defer mac::finish(&poly);
 
-	const pad: [16]u8 = [0...];
-
 	let adlen: size = 0;
 	for (let i = 0z; i < len(additional); i += 1) {
 		adlen += len(additional[i]);
 		mac::write(&poly, additional[i]);
 	};
-	let padlen: size = 0;
-	if (adlen > 0) {
-		padlen = poly1305::BLOCKSIZE - (adlen % poly1305::BLOCKSIZE);
-		mac::write(&poly, pad[..padlen]);
-	};
+	polypad(&poly, adlen);
 
 	mac::write(&poly, ciphertext);
-	if (len(ciphertext) > 0) {
-		padlen = poly1305::BLOCKSIZE
-			- (len(ciphertext) % poly1305::BLOCKSIZE);
-		mac::write(&poly, pad[..padlen]);
-	};
+	polypad(&poly, len(ciphertext));
 
 	let nbuf: [8]u8 = [0...];
 	endian::leputu64(nbuf, adlen: u32);
@@ -131,6 +121,16 @@ fn writemac(
 	mac::write(&poly, nbuf);
 
 	mac::sum(&poly, m[..]);
+};
+
+fn polypad(p: *poly1305::state, n: size) void = {
+	if (n % poly1305::BLOCKSIZE == 0) {
+		return;
+	};
+
+	const pad: [poly1305::BLOCKSIZE]u8 = [0...];
+	const padlen = poly1305::BLOCKSIZE - (n % poly1305::BLOCKSIZE);
+	mac::write(p, pad[..padlen]);
 };
 
 
