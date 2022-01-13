@@ -61,10 +61,7 @@ export fn resolve(
 fn resolve_addr(addr: str) ([]ip::addr | error) = {
 	match (ip::parse(addr)) {
 	case let addr: ip::addr =>
-		// XXX: harec bug prevents just alloc'ing this
-		let addrs: []ip::addr = [];
-		append(addrs, addr);
-		return addrs;
+		return alloc([addr]);
 	case ip::invalid => void;
 	};
 
