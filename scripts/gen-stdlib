@@ -182,26 +182,14 @@ bytes() {
 }
 
 datetime() {
-	if [ $testing -eq 0 ]
-	then
-		gen_srcs datetime \
-			arithmetic.ha \
-			chronology.ha \
-			date.ha \
-			datetime.ha \
-			format.ha \
-			time.ha \
-			timezone.ha
-	else
-		gen_srcs datetime \
-			arithmetic.ha \
-			chronology.ha \
-			date.ha \
-			datetime.ha \
-			format.ha \
-			time.ha \
-			timezone.ha
-	fi
+	gen_srcs datetime \
+		arithmetic.ha \
+		chronology.ha \
+		date.ha \
+		datetime.ha \
+		format.ha \
+		time.ha \
+		timezone.ha
 	gen_ssa datetime  errors fmt strings strio time time::chrono
 }
 
@@ -1190,7 +1178,7 @@ time() {
 time_chrono() {
 	gen_srcs time::chrono \
 		chronology.ha \
-		timescales.ha \
+		timescale.ha \
 		timezone.ha
 	gen_ssa time::chrono time
 }
