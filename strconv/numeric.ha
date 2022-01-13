@@ -72,7 +72,7 @@ export fn floatingtosb(n: types::floating, b: base) const str = {
 	assert(b == base::DEC);
 	match (n) {
 	case let f: f32 =>
-		abort(); // TODO
+		return f32tos(f);
 	case let f: f64 =>
 		return f64tos(f);
 	};
