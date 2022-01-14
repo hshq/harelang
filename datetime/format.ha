@@ -385,10 +385,230 @@ export fn format(layout: str, dt: *datetime) (str | errors::invalid | io::error)
 	return strio::string(&sink);
 };
 
+fn fmt_short(r: rune, dt: *datetime) (str | errors::invalid | io::error) = {
+	return switch (r) {
+	case 'a' =>
+		// TODO: Localization
+		yield WEEKDAYS_SHORT[weekday(dt) - 1];
+	case 'A' =>
+		// TODO: Localization
+		yield WEEKDAYS[weekday(dt) - 1];
+	case 'b', 'h' =>
+		// TODO: Localization
+		yield MONTHS_SHORT[month(dt) - 1];
+	case 'B' =>
+		// TODO: Localization
+		yield MONTHS[month(dt) - 1];
+	case 'c' =>
+		// TODO: Localization
+		yield format("%a %b %e %H:%M:%S %Y", dt)?;
+	case 'C' =>
+		yield strconv::itos(year(dt) / 100);
+	case 'D' =>
+		yield format("%m/%d/%y", dt)?;
+	case 'd' =>
+		yield fmt::asprintf("{:02}", day(dt));
+	case 'e' =>
+		yield fmt::asprintf("{:2}", day(dt));
+	case 'F' =>
+		yield format("%Y-%m-%d", dt)?;
+	case 'g' =>
+		let year_str = strconv::itos(isoweekyear(dt));
+		yield strings::sub(year_str, len(year_str) - 2, strings::end);
+	case 'G' =>
+		yield strconv::itos(isoweekyear(dt));
+	case 'H' =>
+		yield fmt::asprintf("{:02}", hour(dt));
+	case 'I' =>
+		yield fmt::asprintf("{:02}", hour12(dt));
+	case 'j' =>
+		yield strconv::itos(yearday(dt));
+	case 'k' =>
+		yield strconv::itos(hour(dt));
+	case 'l' =>
+		yield strconv::itos(hour12(dt));
+	case 'm' =>
+		yield fmt::asprintf("{:02}", month(dt));
+	case 'M' =>
+		yield fmt::asprintf("{:02}", min(dt));
+	case 'n' =>
+		yield "\n";
+	case 'N' =>
+		yield fmt::asprintf("{:09}", strconv::itos(nsec(dt)));
+	case 'p' =>
+		// TODO: Localization
+		yield if (hour(dt) < 12) {
+			yield "AM";
+		} else {
+			yield "PM";
+		};
+	case 'P' =>
+		// TODO: Localization
+		yield if (hour(dt) < 12) {
+			yield "am";
+		} else {
+			yield "pm";
+		};
+	case 'r' =>
+		// TODO: Localization
+		yield format("%I:%M:%S %p", dt)?;
+	case 'R' =>
+		yield format("%H:%M", dt)?;
+	case 'S' =>
+		yield fmt::asprintf("{:02}", sec(dt));
+	case 't' =>
+		yield "\t";
+	case 'T' =>
+		yield format("%H:%M:%S", dt)?;
+	case 'u' =>
+		yield strconv::itos(weekday(dt));
+	case 'U' =>
+		// yield fmt::asprintf("{:02}", week_starting_sunday(dt));
+		// TODO
+		yield "";
+	case 'V' =>
+		yield fmt::asprintf("{:02}", isoweek(dt));
+	case 'w' =>
+		yield strconv::itos(weekday(dt) % 7);
+	case 'W' =>
+		yield fmt::asprintf("{:02}", week(dt));
+	case 'x' =>
+		// TODO: Localization
+		yield format("%m/%d/%y", dt)?;
+	case 'X' =>
+		// TODO: Localization
+		yield format("%H:%M:%S", dt)?;
+	case 'y' =>
+		let year_str = strconv::itos(year(dt));
+		yield strings::sub(year_str, len(year_str) - 2, strings::end);
+	case 'Y' =>
+		yield strconv::itos(year(dt));
+	case 'z' =>
+		//yield get_tz_hhmm(dt);
+		// TODO
+		yield "";
+	case 'Z' =>
+		//yield get_tz_name(dt);
+		// TODO
+		yield "";
+	case '%' =>
+		yield "%";
+	case =>
+		// Pass-through invalid conversion specifier
+		// characters.
+		const passthrough = strio::dynamic();
+		strio::appendrune(&passthrough, '%')!;
+		strio::appendrune(&passthrough, r)!;
+		yield strio::string(&passthrough);
+	};
+};
+
+fn fmt_long(
+	iter: *strings::iterator,
+	dt: *datetime
+) (str | errors::invalid | io::error) = {
+	const rest = strings::iter_str(iter);
+	const closing_idx = match (strings::index(rest, '}')) {
+	case let s: size =>
+		yield s;
+	case void =>
+		return errors::invalid;
+	};
+	const specifier = strings::sub(rest, 0, closing_idx);
+	eat_runes_until(iter, '}')?;
+
+	return switch (specifier) {
+	case "year" =>
+		yield strconv::itos(year(dt));
+	case "year_short" =>
+		let year_str = strconv::itos(year(dt));
+		yield strings::sub(year_str, len(year_str) - 2, strings::end);
+	case "month" =>
+		yield fmt::asprintf("{:02}", month(dt));
+	case "monthname" =>
+		// TODO: Localization
+		yield MONTHS[month(dt) - 1];
+	case "monthname_short" =>
+		// TODO: Localization
+		yield MONTHS_SHORT[month(dt) - 1];
+	case "week" =>
+		yield fmt::asprintf("{:02}", week(dt));
+	case "day" =>
+		yield fmt::asprintf("{:02}", day(dt));
+	case "yearday" =>
+		yield strconv::itos(yearday(dt));
+	case "weekday" =>
+		// TODO: Localization
+		yield WEEKDAYS[weekday(dt) - 1];
+	case "weekday_short" =>
+		// TODO: Localization
+		yield WEEKDAYS_SHORT[weekday(dt) - 1];
+	case "weekday_number" =>
+		yield strconv::itos(weekday(dt));
+	case "hour" =>
+		yield fmt::asprintf("{:02}", hour(dt));
+	case "hour_12" =>
+		yield fmt::asprintf("{:02}", hour12(dt));
+	case "minute", "min" =>
+		yield fmt::asprintf("{:02}", min(dt));
+	case "second", "sec" =>
+		yield fmt::asprintf("{:02}", sec(dt));
+	case "nanosecond", "nsec" =>
+		yield fmt::asprintf("{:09}", strconv::itos(nsec(dt)));
+	case "ampm" =>
+		// TODO: Localization
+		yield if (hour(dt) < 12) {
+			yield "am";
+		} else {
+			yield "pm";
+		};
+	case "ampm_upper" =>
+		// TODO: Localization
+		yield if (hour(dt) < 12) {
+			yield "AM";
+		} else {
+			yield "PM";
+		};
+	case "time_hm" =>
+		yield format("%H:%M", dt)?;
+	case "time" =>
+		yield format("%H:%M:%S", dt)?;
+	case "date" =>
+		yield format("%d/%m/%Y", dt)?;
+	case "date_iso" =>
+		yield format("%Y-%m-%d", dt)?;
+	case "century" =>
+		yield strconv::itos(year(dt) / 100);
+	case "rfc3999" =>
+		yield format(RFC3999, dt)?;
+	case "email" =>
+		yield format(EMAIL, dt)?;
+	case "posix" =>
+		yield format(POSIX, dt)?;
+	case "stamp" =>
+		yield format(STAMP, dt)?;
+	case "stamp_nano" =>
+		yield format(STAMP_NANO, dt)?;
+	case =>
+		// Pass-through invalid conversion specifier
+		// characters.
+		const passthrough = strio::dynamic();
+		strio::appendrune(&passthrough, '{')!;
+		strio::concat(&passthrough, specifier)!;
+		strio::appendrune(&passthrough, '}')!;
+		yield strio::string(&passthrough);
+
+	};
+};
+
 // Formats a [[datetime]] and writes to an [[io::handle]].
-export fn fmtstream(h: io::handle, layout: str, dt: *datetime) (size | errors::invalid | io::error) = {
+export fn fmtstream(
+	h: io::handle,
+	layout: str,
+	dt: *datetime
+) (size | errors::invalid | io::error) = {
 	const iter = strings::iter(layout);
-	let escaped = false;
+	let short_escaped = false;
 	let n = 0z;
 	for (true) {
 		let r: rune = match (strings::next(&iter)) {
@@ -398,141 +618,20 @@ export fn fmtstream(h: io::handle, layout: str, dt: *datetime) (size | errors::i
 			yield r;
 		};
 
-		if (!escaped && r == '%') {
-			escaped = true;
-			continue;
-		};
-
-		if (!escaped) {
-			strio::appendrune(h, r)?;
-			continue;
-		};
-
-		escaped = false;
-		let s = switch (r) {
-		case 'a' =>
-			// TODO: Localization
-			yield WEEKDAYS_SHORT[weekday(dt) - 1];
-		case 'A' =>
-			// TODO: Localization
-			yield WEEKDAYS[weekday(dt) - 1];
-		case 'b', 'h' =>
-			// TODO: Localization
-			yield MONTHS_SHORT[month(dt) - 1];
-		case 'B' =>
-			// TODO: Localization
-			yield MONTHS[month(dt) - 1];
-		case 'c' =>
-			// TODO: Localization
-			yield format("%a %b %e %H:%M:%S %Y", dt)?;
-		case 'C' =>
-			yield strconv::itos(year(dt) / 100);
-		case 'D' =>
-			yield format("%m/%d/%y", dt)?;
-		case 'd' =>
-			yield fmt::asprintf("{:02}", day(dt));
-		case 'e' =>
-			yield fmt::asprintf("{:2}", day(dt));
-		case 'F' =>
-			yield format("%Y-%m-%d", dt)?;
-		case 'g' =>
-			let year_str = strconv::itos(isoweekyear(dt));
-			yield strings::sub(year_str,
-				len(year_str) - 2, strings::end);
-		case 'G' =>
-			yield strconv::itos(isoweekyear(dt));
-		case 'H' =>
-			yield fmt::asprintf("{:02}", hour(dt));
-		case 'I' =>
-			let mod_hour = hour(dt) % 12;
-			if (mod_hour == 0) {
-				mod_hour = 12;
-			};
-			yield fmt::asprintf("{:02}", mod_hour);
-		case 'j' =>
-			yield strconv::itos(yearday(dt));
-		case 'k' =>
-			yield strconv::itos(hour(dt));
-		case 'l' =>
-			let mod_hour = hour(dt) % 12;
-			if (mod_hour == 0) {
-				mod_hour = 12;
-			};
-			yield strconv::itos(mod_hour);
-		case 'm' =>
-			yield fmt::asprintf("{:02}", month(dt));
-		case 'M' =>
-			yield fmt::asprintf("{:02}", min(dt));
-		case 'n' =>
-			yield "\n";
-		case 'N' =>
-			yield fmt::asprintf("{:09}", strconv::itos(nsec(dt)));
-		case 'p' =>
-			// TODO: Localization
-			yield if (hour(dt) < 12) {
-				yield "AM";
+		if (r == '{') {
+			n += strio::concat(h, fmt_long(&iter, dt)?)?;
+		} else {
+			if (short_escaped) {
+				short_escaped = false;
+				n += strio::concat(h, fmt_short(r, dt)?)?;
 			} else {
-				yield "PM";
+				if (r == '%') {
+					short_escaped = true;
+				} else {
+					strio::appendrune(h, r)?;
+				};
 			};
-		case 'P' =>
-			// TODO: Localization
-			yield if (hour(dt) < 12) {
-				yield "am";
-			} else {
-				yield "pm";
-			};
-		case 'r' =>
-			// TODO: Localization
-			yield format("%I:%M:%S %p", dt)?;
-		case 'R' =>
-			yield format("%H:%M", dt)?;
-		case 'S' =>
-			yield fmt::asprintf("{:02}", sec(dt));
-		case 't' =>
-			yield "\t";
-		case 'T' =>
-			yield format("%H:%M:%S", dt)?;
-		case 'u' =>
-			yield strconv::itos(weekday(dt));
-		case 'U' =>
-			// yield fmt::asprintf("{:02}", week_starting_sunday(dt));
-			// TODO
-			yield "";
-		case 'V' =>
-			yield fmt::asprintf("{:02}", isoweek(dt));
-		case 'w' =>
-			yield strconv::itos(weekday(dt) % 7);
-		case 'W' =>
-			yield fmt::asprintf("{:02}", week(dt));
-		case 'x' =>
-			// TODO: Localization
-			yield format("%m/%d/%y", dt)?;
-		case 'X' =>
-			// TODO: Localization
-			yield format("%H:%M:%S", dt)?;
-		case 'y' =>
-			let year_str = strconv::itos(year(dt));
-			yield strings::sub(year_str,
-				len(year_str) - 2, strings::end);
-		case 'Y' =>
-			yield strconv::itos(year(dt));
-		case 'z' =>
-			//yield get_tz_hhmm(dt);
-			// TODO
-			yield "";
-		case 'Z' =>
-			//yield get_tz_name(dt);
-			// TODO
-			yield "";
-		case '%' =>
-			yield "%";
-		case =>
-			// Pass-through invalid conversion specifier characters.
-			strio::appendrune(h, '%')?;
-			strio::appendrune(h, r)?;
-			continue;
 		};
-		n += strio::concat(h, s)?;
 	};
 	return n;
 };
@@ -598,6 +697,23 @@ fn eat_one_rune(iter: *strings::iterator, needle: rune) (uint | errors::invalid)
 	};
 };
 
+fn eat_runes_until(iter: *strings::iterator, needle: rune) (uint | errors::invalid) = {
+	let n: uint = 0u;
+	for (true) {
+		let s_r = match (strings::next(iter)) {
+		case void =>
+			return errors::invalid;
+		case let r: rune =>
+			yield r;
+		};
+		n += 1;
+		if (s_r == needle) {
+			break;
+		};
+	};
+	return n;
+};
+
 fn clamp_int(i: int, min: int, max: int) int = {
 	return if (i < min) {
 		yield min;
@@ -605,6 +721,120 @@ fn clamp_int(i: int, min: int, max: int) int = {
 		yield max;
 	} else {
 		yield i;
+	};
+};
+
+fn hour12(dt: *datetime) int = {
+	let mod_hour = hour(dt) % 12;
+	if (mod_hour == 0) {
+		mod_hour = 12;
+	};
+	return mod_hour;
+};
+
+@test fn format() void = {
+	const dt = new(1994, 01, 01, 02, 17, 05, 24, 0, chrono::local)!;
+
+	const cases = [
+		// special characters
+		("%t", "\t"),
+		("%n", "\n"),
+		("%%", "%"),
+		// hour
+		("%H", "02"),
+		("%k", "2"),
+		("%I", "02"),
+		("%l", "2"),
+		("{hour}", "02"),
+		("{hour_12}", "02"),
+		// minute
+		("%M", "17"),
+		("{minute}", "17"),
+		// second
+		("%S", "05"),
+		("{second}", "05"),
+		// nanosecond
+		("%N", "000000024"),
+		("{nanosecond}", "000000024"),
+		// am/pm
+		("%p", "AM"),
+		("{ampm_upper}", "AM"),
+		("%P", "am"),
+		("{ampm}", "am"),
+		// day
+		("%d", "01"),
+		("%e", " 1"),
+		("{day}", "01"),
+		// month
+		("%m", "01"),
+		("{month}", "01"),
+		// year
+		("%Y", "1994"),
+		("{year}", "1994"),
+		("%y", "94"),
+		("{year_short}", "94"),
+		// month name
+		("%b", "Jan"),
+		("%h", "Jan"),
+		("{monthname_short}", "Jan"),
+		("%B", "January"),
+		("{monthname}", "January"),
+		// weekday
+		("%u", "6"),
+		("%w", "6"),
+		("{weekday_number}", "6"),
+		("%a", "Sat"),
+		("{weekday_short}", "Sat"),
+		("%A", "Saturday"),
+		("{weekday}", "Saturday"),
+		// yearday
+		("%j", "1"),
+		("{yearday}", "1"),
+		// week
+		("%W", "00"),
+		("{week}", "00"),
+		// isoweek
+		("%V", "01"),
+		// isoyear
+		("%G", "1993"),
+		("%g", "93"),
+		// time
+		("%R", "02:17"),
+		("{time_hm}", "02:17"),
+		("%T", "02:17:05"),
+		("%X", "02:17:05"),
+		("{time}", "02:17:05"),
+		("%r", "02:17:05 AM"),
+		// datetime
+		("%c", "Sat Jan  1 02:17:05 1994"),
+		// date
+		("%x", "01/01/94"),
+		("%D", "01/01/94"),
+		("{date}", "01/01/1994"),
+		("%F", "1994-01-01"),
+		("{date_iso}", "1994-01-01"),
+		// century
+		("%C", "19"),
+		("{century}", "19"),
+		// standards
+		("{rfc3999}", "1994-01-01T02:17:05"),
+		("{email}", "Sat, 01 Jan 1994 02:17:05 "),
+		("{posix}", "Sat Jan  1 02:17:05  1994"),
+		("{stamp}", "1994-01-01 02:17:05"),
+		("{stamp_nano}", "1994-01-01 02:17:05.000000024"),
+	];
+
+	for (let i = 0z; i < len(cases); i += 1) {
+		const layout = cases[i].0;
+		const expected = cases[i].1;
+		const actual = format(layout, &dt)!;
+		if (actual != expected) {
+			fmt::printfln(
+				"expected format({}, &dt) to be {} but was {}",
+				layout, expected, actual
+			)!;
+			abort();
+		};
 	};
 };
 
