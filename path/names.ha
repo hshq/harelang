@@ -92,7 +92,8 @@ export fn basename(path: (str | *buffer)) const str = {
 // 	extension("foo/example") => ("example", "")
 // 	extension("foo/example.txt") => ("example", ".txt")
 // 	extension("foo/example.tar.gz") => ("example", ".tar.gz")
-export fn extension(p: str) (str, str) = {
+export fn extension(p: (str | *buffer)) (str, str) = {
+	let p = getstring(p);
 	if (p == "") {
 		return ("", "");
 	};
