@@ -34,3 +34,12 @@ export type instant = struct {
 
 // Represents a unique interval of time between two instants.
 export type interval = (instant, instant);
+
+// All error types which are concerned with the handling of [[instant]]s.
+export type error = !(ambiguous | nonexistent);
+
+// The conversion of an [[instant]] has multiple possible results.
+export type ambiguous = ![]instant;
+
+// The conversion of an [[instant]] has no possible result.
+export type nonexistent = !void;

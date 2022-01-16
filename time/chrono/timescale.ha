@@ -9,19 +9,7 @@ export type timescale = struct {
 };
 
 // Converts one [[time::instant]] in one [[chrono::timescale]] to another
-export type ts_converter = fn(i: time::instant) (time::instant | ambiguous | nonexistent);
-
-// All error type which can be returned from chronological functions
-export type error = !(ambiguous | nonexistent);
-
-// Represents multiple possible corresponding [[time::instant]]s attained by a
-// timescale conversion
-export type ambiguous = ![]time::instant;
-
-// Represents the absence of a corresponding [[time::instant]] following a
-// timescale conversion
-export type nonexistent = !void;
-
+export type ts_converter = fn(i: time::instant) (time::instant | time::error);
 
 // International Atomic Time
 //
@@ -34,7 +22,7 @@ export const TAI: timescale = timescale {
 	from_tai = &conv_tai_tai,
 };
 
-fn conv_tai_tai(i: time::instant) (time::instant | ambiguous | nonexistent) = {
+fn conv_tai_tai(i: time::instant) (time::instant | time::error) = {
 	return i;
 };
 
@@ -57,7 +45,7 @@ export const UTC: timescale = timescale {
 	from_tai = &conv_tai_utc,
 };
 
-fn conv_tai_utc(tai: time::instant) (time::instant | ambiguous | nonexistent) = {
+fn conv_tai_utc(tai: time::instant) (time::instant | time::error) = {
 	const utc = time::instant {
 		sec = tai.sec - 37,
 		nsec = tai.nsec,
@@ -65,7 +53,7 @@ fn conv_tai_utc(tai: time::instant) (time::instant | ambiguous | nonexistent) = 
 	return utc;
 };
 
-fn conv_utc_tai(utc: time::instant) (time::instant | ambiguous | nonexistent) = {
+fn conv_utc_tai(utc: time::instant) (time::instant | time::error) = {
 	const tai = time::instant {
 		sec = utc.sec + 37,
 		nsec = utc.nsec,
@@ -86,7 +74,7 @@ export const UNIX: timescale = timescale {
 	from_tai = &conv_tai_utc,
 };
 
-fn conv_tai_unix(tai: time::instant) (time::instant | ambiguous | nonexistent) = {
+fn conv_tai_unix(tai: time::instant) (time::instant | time::error) = {
 	const unix = time::instant {
 		sec = tai.sec - 37,
 		nsec = tai.nsec,
@@ -94,7 +82,7 @@ fn conv_tai_unix(tai: time::instant) (time::instant | ambiguous | nonexistent) =
 	return unix;
 };
 
-fn conv_unix_tai(unix: time::instant) (time::instant | ambiguous | nonexistent) = {
+fn conv_unix_tai(unix: time::instant) (time::instant | time::error) = {
 	const tai = time::instant {
 		sec = unix.sec + 37,
 		nsec = unix.nsec,
@@ -115,7 +103,7 @@ export const GPS: timescale = timescale {
 	from_tai = &conv_tai_utc,
 };
 
-fn conv_tai_gps(tai: time::instant) (time::instant | ambiguous | nonexistent) = {
+fn conv_tai_gps(tai: time::instant) (time::instant | time::error) = {
 	const gps = time::instant {
 		sec = tai.sec - 19,
 		nsec = tai.nsec,
@@ -123,7 +111,7 @@ fn conv_tai_gps(tai: time::instant) (time::instant | ambiguous | nonexistent) = 
 	return gps;
 };
 
-fn conv_gps_tai(gps: time::instant) (time::instant | ambiguous | nonexistent) = {
+fn conv_gps_tai(gps: time::instant) (time::instant | time::error) = {
 	const tai = time::instant {
 		sec = gps.sec + 19,
 		nsec = gps.nsec,
@@ -146,7 +134,7 @@ export const TT: timescale = timescale {
 
 def TT_OFFSET: time::duration = 32.184 * time::SECOND;
 
-fn conv_tai_tt(tai: time::instant) (time::instant | ambiguous | nonexistent) = {
+fn conv_tai_tt(tai: time::instant) (time::instant | time::error) = {
 	const tt = time::instant {
 		sec = tai.sec + (TT_OFFSET / time::SECOND),
 		nsec = tai.nsec + (TT_OFFSET % time::SECOND),
@@ -154,7 +142,7 @@ fn conv_tai_tt(tai: time::instant) (time::instant | ambiguous | nonexistent) = {
 	return tt;
 };
 
-fn conv_tt_tai(tt: time::instant) (time::instant | ambiguous | nonexistent) = {
+fn conv_tt_tai(tt: time::instant) (time::instant | time::error) = {
 	const tai = time::instant {
 		sec = tt.sec - (TT_OFFSET / time::SECOND),
 		nsec = tt.nsec + (TT_OFFSET % time::SECOND),
@@ -177,7 +165,7 @@ export const MTC: timescale = timescale {
 
 def FACTOR_TERRESTRIAL_MARTIAN: f64 = 1.0274912517;
 
-fn conv_tai_mtc(tai: time::instant) (time::instant | ambiguous | nonexistent) = {
+fn conv_tai_mtc(tai: time::instant) (time::instant | time::error) = {
 	// TODO: handle propagated ambiguous errors
 	const tt = TT.from_tai(tai)?;
 	const mtc = time::instant {
@@ -187,7 +175,7 @@ fn conv_tai_mtc(tai: time::instant) (time::instant | ambiguous | nonexistent) = 
 	return mtc;
 };
 
-fn conv_mtc_tai(mtc: time::instant) (time::instant | ambiguous | nonexistent) = {
+fn conv_mtc_tai(mtc: time::instant) (time::instant | time::error) = {
 	const tt = time::instant {
 		sec = (mtc.sec: f64 / FACTOR_TERRESTRIAL_MARTIAN): i64,
 		nsec = mtc.nsec,
