@@ -10,7 +10,7 @@ use time::chrono;
 // TODO: implement modern long form "{year}-{month}-{day}" syntax alongside
 // POSIX strftime "%Y-%m-%d" syntax.
 
-export def RFC3999: str = "%Y-%m-%dT%H:%M:%S%z";
+export def RFC3339: str = "%Y-%m-%dT%H:%M:%S%z";
 export def EMAIL: str = "%a, %d %b %Y %H:%M:%S %z";
 export def POSIX: str = "%a %b %e %H:%M:%S %Z %Y";
 export def STAMP: str = "%Y-%m-%d %H:%M:%S";
@@ -579,16 +579,6 @@ fn fmt_long(
 		yield format("%Y-%m-%d", dt)?;
 	case "century" =>
 		yield strconv::itos(year(dt) / 100);
-	case "rfc3999" =>
-		yield format(RFC3999, dt)?;
-	case "email" =>
-		yield format(EMAIL, dt)?;
-	case "posix" =>
-		yield format(POSIX, dt)?;
-	case "stamp" =>
-		yield format(STAMP, dt)?;
-	case "stamp_nano" =>
-		yield format(STAMP_NANO, dt)?;
 	case =>
 		// Pass-through invalid conversion specifier
 		// characters.
@@ -817,11 +807,6 @@ fn hour12(dt: *datetime) int = {
 		("%C", "19"),
 		("{century}", "19"),
 		// standards
-		("{rfc3999}", "1994-01-01T02:17:05"),
-		("{email}", "Sat, 01 Jan 1994 02:17:05 "),
-		("{posix}", "Sat Jan  1 02:17:05  1994"),
-		("{stamp}", "1994-01-01 02:17:05"),
-		("{stamp_nano}", "1994-01-01 02:17:05.000000024"),
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {
