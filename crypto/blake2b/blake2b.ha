@@ -79,7 +79,7 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 
 	for (h.blocklen + len(buf) > BSIZE) {
 		const n = BSIZE - h.blocklen;
-		h.block[h.blocklen..] = buf[..n];
+		h.block[h.blocklen..h.blocklen + n] = buf[..n];
 		buf = buf[n..];
 
 		h.tlow += BSIZE;

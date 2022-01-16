@@ -103,7 +103,7 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 		// Compute how many bytes can be copied into h.x
 		let r = len(h.x) - h.nx;
 		let n = if (nn > r) r else nn;
-		h.x[h.nx..] = b[..n];
+		h.x[h.nx..h.nx + n] = b[..n];
 		h.nx += n;
 		if (h.nx == chunk) {
 			block(h, h.x[..]);
@@ -162,7 +162,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 
         // We only copy the necessary bytes from fixed-size array into the
         // returned slice. The size is already found in the inner hash struct.
-	buf[..] = dig[..d.sz];
+	buf[..d.sz] = dig[..d.sz];
 };
 
 fn reset(h: *hash::hash) void = {

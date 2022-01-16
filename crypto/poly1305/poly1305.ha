@@ -68,7 +68,7 @@ fn write(st: *io::stream, bbuf: const []u8) (size | io::error) = {
 			yield BLOCKSIZE - p.cidx;
 		};
 
-		p.c[p.cidx..] = buf[..n];
+		p.c[p.cidx..p.cidx + n] = buf[..n];
 		p.cidx += n;
 		buf = buf[n..];
 

@@ -76,7 +76,7 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 		let n = if (len(b) > len(h.x) - h.nx) {
 			yield len(h.x) - h.nx;
 		} else len(b);
-		h.x[h.nx..] = b[..n];
+		h.x[h.nx..h.nx + n] = b[..n];
 		h.nx += n;
 		if (h.nx == chunk) {
 			block(h, h.x[..]);
@@ -91,7 +91,7 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 	};
 	if (len(b) > 0) {
 		let n = len(b);
-		h.x[..n] = b[..];
+		h.x[..n] = b[..n];
 		h.nx = n;
 	};
 	return n;

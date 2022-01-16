@@ -50,7 +50,7 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 		// Compute how many bytes can be copied into h.x
 		let r = len(h.x) - h.nx;
 		let n = if (nn > r) r else nn;
-		h.x[h.nx..] = b[..n];
+		h.x[h.nx..h.nx + n] = b[..n];
 		h.nx += n;
 		if (h.nx == chunk) {
 			block(h, h.x[..]);
@@ -65,7 +65,7 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 	};
 	if (len(b) > 0) {
 		let n = len(b);
-		h.x[..n] = b[..];
+		h.x[..n] = b[..n];
 		h.nx = n;
 	};
 	return nn;
