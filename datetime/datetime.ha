@@ -111,6 +111,16 @@ export fn from_moment(m: chrono::moment) datetime = {
 	return dt;
 };
 
+// Creates a [[datetime]] from a string, parsed according to a layout,
+// using [[method::ALL]], or fails otherwise.
+//
+// TODO: allow the user to specify methods for security?
+export fn from_str(layout: str, s: str) (datetime | insufficient | errors::invalid) = {
+	const b = newbuilder();
+	parse(&b, layout, s)?;
+	return build(&b)?;
+};
+
 // Creates a [[chrono::moment]] from a [[datetime]]
 export fn to_moment(dt: datetime) chrono::moment = {
 	return chrono::moment {
