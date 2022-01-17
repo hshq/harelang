@@ -739,6 +739,7 @@ fn head(ident: ast::ident) (void | error) = {
 	fmt::printfln("<!doctype html>
 <html lang='en'>
 <meta charset='utf-8' />
+<meta name='viewport' content='width=device-width, initial-scale=1' />
 <title>{}</title>", title)?;
 	fmt::println("<style>
 body {
