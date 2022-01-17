@@ -745,6 +745,7 @@ body {
 	font-family: sans-serif;
 	line-height: 1.3;
 	margin: 0 auto;
+	padding: 0 1rem;
 }
 
 nav:not(#TableOfContents) {
