@@ -7,9 +7,6 @@ use strings;
 use strio;
 use time::chrono;
 
-// TODO: implement modern long form "{year}-{month}-{day}" syntax alongside
-// POSIX strftime "%Y-%m-%d" syntax.
-
 export def RFC3339: str = "%Y-%m-%dT%H:%M:%S%z";
 export def EMAIL: str = "%a, %d %b %Y %H:%M:%S %z";
 export def POSIX: str = "%a %b %e %H:%M:%S %Z %Y";
@@ -385,7 +382,7 @@ export fn format(layout: str, dt: *datetime) (str | errors::invalid | io::error)
 	return strio::string(&sink);
 };
 
-fn fmt_short(r: rune, dt: *datetime) (str | errors::invalid | io::error) = {
+fn fmt_specifier(r: rune, dt: *datetime) (str | errors::invalid | io::error) = {
 	return switch (r) {
 	case 'a' =>
 		// TODO: Localization
@@ -503,94 +500,6 @@ fn fmt_short(r: rune, dt: *datetime) (str | errors::invalid | io::error) = {
 	};
 };
 
-fn fmt_long(
-	iter: *strings::iterator,
-	dt: *datetime
-) (str | errors::invalid | io::error) = {
-	const rest = strings::iter_str(iter);
-	const closing_idx = match (strings::index(rest, '}')) {
-	case let s: size =>
-		yield s;
-	case void =>
-		return errors::invalid;
-	};
-	const specifier = strings::sub(rest, 0, closing_idx);
-	eat_runes_until(iter, '}')?;
-
-	return switch (specifier) {
-	case "year" =>
-		yield strconv::itos(year(dt));
-	case "year_short" =>
-		let year_str = strconv::itos(year(dt));
-		yield strings::sub(year_str, len(year_str) - 2, strings::end);
-	case "month" =>
-		yield fmt::asprintf("{:02}", month(dt));
-	case "monthname" =>
-		// TODO: Localization
-		yield MONTHS[month(dt) - 1];
-	case "monthname_short" =>
-		// TODO: Localization
-		yield MONTHS_SHORT[month(dt) - 1];
-	case "week" =>
-		yield fmt::asprintf("{:02}", week(dt));
-	case "day" =>
-		yield fmt::asprintf("{:02}", day(dt));
-	case "yearday" =>
-		yield strconv::itos(yearday(dt));
-	case "weekday" =>
-		// TODO: Localization
-		yield WEEKDAYS[weekday(dt) - 1];
-	case "weekday_short" =>
-		// TODO: Localization
-		yield WEEKDAYS_SHORT[weekday(dt) - 1];
-	case "weekday_number" =>
-		yield strconv::itos(weekday(dt));
-	case "hour" =>
-		yield fmt::asprintf("{:02}", hour(dt));
-	case "hour_12" =>
-		yield fmt::asprintf("{:02}", hour12(dt));
-	case "minute", "min" =>
-		yield fmt::asprintf("{:02}", min(dt));
-	case "second", "sec" =>
-		yield fmt::asprintf("{:02}", sec(dt));
-	case "nanosecond", "nsec" =>
-		yield fmt::asprintf("{:09}", strconv::itos(nsec(dt)));
-	case "ampm" =>
-		// TODO: Localization
-		yield if (hour(dt) < 12) {
-			yield "am";
-		} else {
-			yield "pm";
-		};
-	case "ampm_upper" =>
-		// TODO: Localization
-		yield if (hour(dt) < 12) {
-			yield "AM";
-		} else {
-			yield "PM";
-		};
-	case "time_hm" =>
-		yield format("%H:%M", dt)?;
-	case "time" =>
-		yield format("%H:%M:%S", dt)?;
-	case "date" =>
-		yield format("%d/%m/%Y", dt)?;
-	case "date_iso" =>
-		yield format("%Y-%m-%d", dt)?;
-	case "century" =>
-		yield strconv::itos(year(dt) / 100);
-	case =>
-		// Pass-through invalid conversion specifier
-		// characters.
-		const passthrough = strio::dynamic();
-		strio::appendrune(&passthrough, '{')!;
-		strio::concat(&passthrough, specifier)!;
-		strio::appendrune(&passthrough, '}')!;
-		yield strio::string(&passthrough);
-
-	};
-};
-
 // Formats a [[datetime]] and writes to an [[io::handle]].
 export fn fmtstream(
 	h: io::handle,
@@ -598,7 +507,7 @@ export fn fmtstream(
 	dt: *datetime
 ) (size | errors::invalid | io::error) = {
 	const iter = strings::iter(layout);
-	let short_escaped = false;
+	let escaped = false;
 	let n = 0z;
 	for (true) {
 		let r: rune = match (strings::next(&iter)) {
@@ -608,18 +517,14 @@ export fn fmtstream(
 			yield r;
 		};
 
-		if (r == '{') {
-			n += strio::concat(h, fmt_long(&iter, dt)?)?;
+		if (escaped) {
+			escaped = false;
+			n += strio::concat(h, fmt_specifier(r, dt)?)?;
 		} else {
-			if (short_escaped) {
-				short_escaped = false;
-				n += strio::concat(h, fmt_short(r, dt)?)?;
+			if (r == '%') {
+				escaped = true;
 			} else {
-				if (r == '%') {
-					short_escaped = true;
-				} else {
-					strio::appendrune(h, r)?;
-				};
+				strio::appendrune(h, r)?;
 			};
 		};
 	};
@@ -687,23 +592,6 @@ fn eat_one_rune(iter: *strings::iterator, needle: rune) (uint | errors::invalid)
 	};
 };
 
-fn eat_runes_until(iter: *strings::iterator, needle: rune) (uint | errors::invalid) = {
-	let n: uint = 0u;
-	for (true) {
-		let s_r = match (strings::next(iter)) {
-		case void =>
-			return errors::invalid;
-		case let r: rune =>
-			yield r;
-		};
-		n += 1;
-		if (s_r == needle) {
-			break;
-		};
-	};
-	return n;
-};
-
 fn clamp_int(i: int, min: int, max: int) int = {
 	return if (i < min) {
 		yield min;
@@ -735,54 +623,36 @@ fn hour12(dt: *datetime) int = {
 		("%k", "2"),
 		("%I", "02"),
 		("%l", "2"),
-		("{hour}", "02"),
-		("{hour_12}", "02"),
 		// minute
 		("%M", "17"),
-		("{minute}", "17"),
 		// second
 		("%S", "05"),
-		("{second}", "05"),
 		// nanosecond
 		("%N", "000000024"),
-		("{nanosecond}", "000000024"),
 		// am/pm
 		("%p", "AM"),
-		("{ampm_upper}", "AM"),
 		("%P", "am"),
-		("{ampm}", "am"),
 		// day
 		("%d", "01"),
 		("%e", " 1"),
-		("{day}", "01"),
 		// month
 		("%m", "01"),
-		("{month}", "01"),
 		// year
 		("%Y", "1994"),
-		("{year}", "1994"),
 		("%y", "94"),
-		("{year_short}", "94"),
 		// month name
 		("%b", "Jan"),
 		("%h", "Jan"),
-		("{monthname_short}", "Jan"),
 		("%B", "January"),
-		("{monthname}", "January"),
 		// weekday
 		("%u", "6"),
 		("%w", "6"),
-		("{weekday_number}", "6"),
 		("%a", "Sat"),
-		("{weekday_short}", "Sat"),
 		("%A", "Saturday"),
-		("{weekday}", "Saturday"),
 		// yearday
 		("%j", "1"),
-		("{yearday}", "1"),
 		// week
 		("%W", "00"),
-		("{week}", "00"),
 		// isoweek
 		("%V", "01"),
 		// isoyear
@@ -790,23 +660,17 @@ fn hour12(dt: *datetime) int = {
 		("%g", "93"),
 		// time
 		("%R", "02:17"),
-		("{time_hm}", "02:17"),
 		("%T", "02:17:05"),
 		("%X", "02:17:05"),
-		("{time}", "02:17:05"),
 		("%r", "02:17:05 AM"),
 		// datetime
 		("%c", "Sat Jan  1 02:17:05 1994"),
 		// date
 		("%x", "01/01/94"),
 		("%D", "01/01/94"),
-		("{date}", "01/01/1994"),
 		("%F", "1994-01-01"),
-		("{date_iso}", "1994-01-01"),
 		// century
 		("%C", "19"),
-		("{century}", "19"),
-		// standards
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {
