@@ -88,19 +88,15 @@ export fn parse(b: *builder, layout: str, s: str) (void | errors::invalid) = {
 		switch (format_r) {
 		// Basic specifiers
 		case 'a' =>
-			// TODO: Localization
 			b.weekday = get_default_locale_string_index(
 				&s_iter, WEEKDAYS_SHORT[..])?;
 		case 'A' =>
-			// TODO: Localization
 			b.weekday = get_default_locale_string_index(
 				&s_iter, WEEKDAYS[..])?;
 		case 'b' =>
-			// TODO: Localization
 			b.month = get_default_locale_string_index(
 				&s_iter, MONTHS_SHORT[..])?;
 		case 'B' =>
-			// TODO: Localization
 			b.month = get_default_locale_string_index(
 				&s_iter, MONTHS[..])?;
 		case 'd' =>
@@ -137,7 +133,6 @@ export fn parse(b: *builder, layout: str, s: str) (void | errors::invalid) = {
 			b.nsec = clamp_int(
 				get_max_n_digits(&s_iter, 3)?, 0, 999);
 		case 'p' =>
-			// TODO: Localization
 			if (b.hour is void) {
 				// We can't change the hour's am/pm because we
 				// have no hour.
@@ -220,16 +215,12 @@ export fn format(layout: str, dt: *datetime) (str | errors::invalid | io::error)
 fn fmt_specifier(r: rune, dt: *datetime) (str | errors::invalid | io::error) = {
 	return switch (r) {
 	case 'a' =>
-		// TODO: Localization
 		yield WEEKDAYS_SHORT[weekday(dt) - 1];
 	case 'A' =>
-		// TODO: Localization
 		yield WEEKDAYS[weekday(dt) - 1];
 	case 'b' =>
-		// TODO: Localization
 		yield MONTHS_SHORT[month(dt) - 1];
 	case 'B' =>
-		// TODO: Localization
 		yield MONTHS[month(dt) - 1];
 	case 'd' =>
 		yield fmt::asprintf("{:02}", day(dt));
@@ -246,7 +237,6 @@ fn fmt_specifier(r: rune, dt: *datetime) (str | errors::invalid | io::error) = {
 	case 'N' =>
 		yield fmt::asprintf("{:09}", strconv::itos(nsec(dt)));
 	case 'p' =>
-		// TODO: Localization
 		yield if (hour(dt) < 12) {
 			yield "AM";
 		} else {
