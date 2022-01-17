@@ -865,6 +865,41 @@ details pre {
 		padding: 0;
 	}
 }
+
+@media(prefers-color-scheme: dark) {
+	body {
+		background: #121415;
+		color: #e1dfdc;
+	}
+
+	img[src='/mascot.jpg'] {
+		filter: invert(.92);
+	}
+
+	a {
+		color: #78bef8;
+	}
+
+	a:visited {
+		color: #48a7f5;
+	}
+
+	pre {
+		background-color: #1c1e20;
+	}
+
+	summary {
+		background: #1c1e20;
+	}
+
+	h3 {
+		border-bottom: solid #1c1e20;
+	}
+
+	h4:target + pre {
+		background: #162329;
+	}
+}
 </style>
 <nav>
 	<img
