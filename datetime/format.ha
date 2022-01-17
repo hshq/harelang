@@ -9,7 +9,7 @@ use time::chrono;
 
 export def RFC3339: str = "%Y-%m-%dT%H:%M:%S%z";
 export def EMAIL: str = "%a, %d %b %Y %H:%M:%S %z";
-export def POSIX: str = "%a %b %e %H:%M:%S %Z %Y";
+export def POSIX: str = "%a %b %d %H:%M:%S %Z %Y";
 export def STAMP: str = "%Y-%m-%d %H:%M:%S";
 export def STAMP_NANO: str = "%Y-%m-%d %H:%M:%S.%N";
 
@@ -390,46 +390,24 @@ fn fmt_specifier(r: rune, dt: *datetime) (str | errors::invalid | io::error) = {
 	case 'A' =>
 		// TODO: Localization
 		yield WEEKDAYS[weekday(dt) - 1];
-	case 'b', 'h' =>
+	case 'b' =>
 		// TODO: Localization
 		yield MONTHS_SHORT[month(dt) - 1];
 	case 'B' =>
 		// TODO: Localization
 		yield MONTHS[month(dt) - 1];
-	case 'c' =>
-		// TODO: Localization
-		yield format("%a %b %e %H:%M:%S %Y", dt)?;
-	case 'C' =>
-		yield strconv::itos(year(dt) / 100);
-	case 'D' =>
-		yield format("%m/%d/%y", dt)?;
 	case 'd' =>
 		yield fmt::asprintf("{:02}", day(dt));
-	case 'e' =>
-		yield fmt::asprintf("{:2}", day(dt));
-	case 'F' =>
-		yield format("%Y-%m-%d", dt)?;
-	case 'g' =>
-		let year_str = strconv::itos(isoweekyear(dt));
-		yield strings::sub(year_str, len(year_str) - 2, strings::end);
-	case 'G' =>
-		yield strconv::itos(isoweekyear(dt));
 	case 'H' =>
 		yield fmt::asprintf("{:02}", hour(dt));
 	case 'I' =>
 		yield fmt::asprintf("{:02}", hour12(dt));
 	case 'j' =>
 		yield strconv::itos(yearday(dt));
-	case 'k' =>
-		yield strconv::itos(hour(dt));
-	case 'l' =>
-		yield strconv::itos(hour12(dt));
 	case 'm' =>
 		yield fmt::asprintf("{:02}", month(dt));
 	case 'M' =>
 		yield fmt::asprintf("{:02}", min(dt));
-	case 'n' =>
-		yield "\n";
 	case 'N' =>
 		yield fmt::asprintf("{:09}", strconv::itos(nsec(dt)));
 	case 'p' =>
@@ -439,42 +417,18 @@ fn fmt_specifier(r: rune, dt: *datetime) (str | errors::invalid | io::error) = {
 		} else {
 			yield "PM";
 		};
-	case 'P' =>
-		// TODO: Localization
-		yield if (hour(dt) < 12) {
-			yield "am";
-		} else {
-			yield "pm";
-		};
-	case 'r' =>
-		// TODO: Localization
-		yield format("%I:%M:%S %p", dt)?;
-	case 'R' =>
-		yield format("%H:%M", dt)?;
 	case 'S' =>
 		yield fmt::asprintf("{:02}", sec(dt));
-	case 't' =>
-		yield "\t";
-	case 'T' =>
-		yield format("%H:%M:%S", dt)?;
 	case 'u' =>
 		yield strconv::itos(weekday(dt));
 	case 'U' =>
 		// yield fmt::asprintf("{:02}", week_starting_sunday(dt));
 		// TODO
 		yield "";
-	case 'V' =>
-		yield fmt::asprintf("{:02}", isoweek(dt));
 	case 'w' =>
 		yield strconv::itos(weekday(dt) % 7);
 	case 'W' =>
 		yield fmt::asprintf("{:02}", week(dt));
-	case 'x' =>
-		// TODO: Localization
-		yield format("%m/%d/%y", dt)?;
-	case 'X' =>
-		// TODO: Localization
-		yield format("%H:%M:%S", dt)?;
 	case 'y' =>
 		let year_str = strconv::itos(year(dt));
 		yield strings::sub(year_str, len(year_str) - 2, strings::end);
@@ -615,14 +569,10 @@ fn hour12(dt: *datetime) int = {
 
 	const cases = [
 		// special characters
-		("%t", "\t"),
-		("%n", "\n"),
 		("%%", "%"),
 		// hour
 		("%H", "02"),
-		("%k", "2"),
 		("%I", "02"),
-		("%l", "2"),
 		// minute
 		("%M", "17"),
 		// second
@@ -631,10 +581,8 @@ fn hour12(dt: *datetime) int = {
 		("%N", "000000024"),
 		// am/pm
 		("%p", "AM"),
-		("%P", "am"),
 		// day
 		("%d", "01"),
-		("%e", " 1"),
 		// month
 		("%m", "01"),
 		// year
@@ -642,7 +590,6 @@ fn hour12(dt: *datetime) int = {
 		("%y", "94"),
 		// month name
 		("%b", "Jan"),
-		("%h", "Jan"),
 		("%B", "January"),
 		// weekday
 		("%u", "6"),
@@ -653,24 +600,6 @@ fn hour12(dt: *datetime) int = {
 		("%j", "1"),
 		// week
 		("%W", "00"),
-		// isoweek
-		("%V", "01"),
-		// isoyear
-		("%G", "1993"),
-		("%g", "93"),
-		// time
-		("%R", "02:17"),
-		("%T", "02:17:05"),
-		("%X", "02:17:05"),
-		("%r", "02:17:05 AM"),
-		// datetime
-		("%c", "Sat Jan  1 02:17:05 1994"),
-		// date
-		("%x", "01/01/94"),
-		("%D", "01/01/94"),
-		("%F", "1994-01-01"),
-		// century
-		("%C", "19"),
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {
