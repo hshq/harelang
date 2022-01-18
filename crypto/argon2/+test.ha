@@ -36,7 +36,7 @@ use bytes;
 	let data: [12]u8 = [4...];
 	let result: [32]u8 = [0...];
 
-	let mem: *[32 * BLOCKSIZE]u64 = alloc([0...]);
+	let mem: []u64 = alloc([0...], 32z * BLOCKSIZE);
 	defer free(mem);
 
 	let expected: [_]u8 = [
@@ -69,7 +69,7 @@ use bytes;
 	let data: [12]u8 = [4...];
 	let result: [32]u8 = [0...];
 
-	let mem: *[32 * BLOCKSIZE]u64 = alloc([0...]);
+	let mem: []u64 = alloc([0...], 32z * BLOCKSIZE);
 	defer free(mem);
 
 	let expected: [_]u8 = [
@@ -101,7 +101,7 @@ use bytes;
 	let data: [12]u8 = [4...];
 	let result: [32]u8 = [0...];
 
-	let mem: *[32 * BLOCKSIZE]u64 = alloc([0...]);
+	let mem: []u64 = alloc([0...], 32z * BLOCKSIZE);
 	defer free(mem);
 
 	let expected: [_]u8 = [
