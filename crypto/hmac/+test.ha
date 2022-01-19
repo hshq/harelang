@@ -1,6 +1,7 @@
 use bytes;
 use crypto::mac;
 use crypto::sha1;
+use crypto::sha256;
 use encoding::hex;
 use hash;
 use io;
@@ -126,3 +127,21 @@ fn assert_hmac_sha1(keystr: str, vectors: [](str, [20]u8)) void = {
 		"jklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu";
 	assert_hmac_sha1(key, vectors);
 };
+
+@test fn sha256() void = {
+	const expected: [_]u8 = [
+		0xb6, 0x13, 0x67, 0x9a, 0x08, 0x14, 0xd9, 0xec, 0x77, 0x2f,
+		0x95, 0xd7, 0x78, 0xc3, 0x5f, 0xc5, 0xff, 0x16, 0x97, 0xc4,
+		0x93, 0x71, 0x56, 0x53, 0xc6, 0xc7, 0x12, 0x14, 0x42, 0x92,
+		0xc5, 0xad,
+	];
+
+	let hmac = sha256([]);
+	defer mac::finish(&hmac);
+
+	let sum: [sha256::SIZE]u8 = [0...];
+	mac::sum(&hmac, sum);
+
+	assert(bytes::equal(expected, sum));
+};
+

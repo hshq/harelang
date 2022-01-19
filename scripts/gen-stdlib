@@ -278,14 +278,16 @@ crypto_hmac() {
 	if [ $testing -eq 0 ]
 	then
 		gen_srcs crypto::hmac \
-			hmac.ha
-		gen_ssa crypto::hmac crypto::mac hash io bytes
+			hmac.ha \
+			sha256.ha
+		gen_ssa crypto::hmac crypto::mac crypto::sha256 hash io bytes
 	else
 		gen_srcs crypto::hmac \
 			hmac.ha \
+			sha256.ha \
 			+test.ha
 		gen_ssa crypto::hmac bytes crypto::mac hash crypto::sha1 \
-			encoding::hex io strings
+			crypto::sha256 encoding::hex io strings
 	fi
 }
 
