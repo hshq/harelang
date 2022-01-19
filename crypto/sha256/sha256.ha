@@ -6,8 +6,10 @@ use io;
 // The size, in bytes, of a SHA-256 digest.
 export def SIZE: size = 32;
 
+// The internal block size.
+export def BLOCKSIZE: size = 64;
+
 // This is loosely based on the Go implementation
-def chunk: size = 64;
 def init0: u32 = 0x6A09E667;
 def init1: u32 = 0xBB67AE85;
 def init2: u32 = 0x3C6EF372;
@@ -34,7 +36,7 @@ const k: [_]u32 = [
 export type state = struct {
 	hash::hash,
 	h: [8]u32,
-	x: [chunk]u8,
+	x: [BLOCKSIZE]u8,
 	nx: size,
 	ln: size,
 };
@@ -46,7 +48,7 @@ export fn sha256() state = {
 		sum = &sum,
 		reset = &reset,
 		sz = SIZE,
-		bsz = chunk,
+		bsz = BLOCKSIZE,
 		...
 	};
 	hash::reset(&sha);
@@ -78,14 +80,14 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 		} else len(b);
 		h.x[h.nx..h.nx + n] = b[..n];
 		h.nx += n;
-		if (h.nx == chunk) {
+		if (h.nx == BLOCKSIZE) {
 			block(h, h.x[..]);
 			h.nx = 0;
 		};
 		b = b[n..];
 	};
-	if (len(b) >= chunk) {
-		let n = len(b) & ~(chunk - 1);
+	if (len(b) >= BLOCKSIZE) {
+		let n = len(b) & ~(BLOCKSIZE - 1);
 		block(h, b[..n]);
 		b = b[n..];
 	};
@@ -131,7 +133,7 @@ fn block(h: *state, buf: []u8) void = {
 	let w: [64]u32 = [0...];
 	let h0 = h.h[0], h1 = h.h[1], h2 = h.h[2], h3 = h.h[3],
 		h4 = h.h[4], h5 = h.h[5], h6 = h.h[6], h7 = h.h[7];
-	for (len(buf) >= chunk) {
+	for (len(buf) >= BLOCKSIZE) {
 		for (let i = 0; i < 16; i += 1) {
 			let j = i * 4;
 			w[i] = buf[j]: u32 << 24
@@ -183,7 +185,7 @@ fn block(h: *state, buf: []u8) void = {
 		h6 += g;
 		h7 += h;
 
-		buf = buf[chunk..];
+		buf = buf[BLOCKSIZE..];
 	};
 
 	h.h[0] = h0;
