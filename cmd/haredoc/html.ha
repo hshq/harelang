@@ -886,20 +886,28 @@ details pre {
 		color: #48a7f5;
 	}
 
-	pre {
-		background-color: #1c1e20;
-	}
-
 	summary {
-		background: #1c1e20;
+		background: #16191c;
 	}
 
 	h3 {
-		border-bottom: solid #1c1e20;
+		border-bottom: solid #16191c;
 	}
 
 	h4:target + pre {
 		background: #162329;
+	}
+
+	pre {
+		background-color: #16191c;
+	}
+
+	pre .keyword {
+		color: #69f;
+	}
+
+	pre .type {
+		color: #3cf;
 	}
 }
 </style>
