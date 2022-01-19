@@ -10,16 +10,37 @@ export type state = struct {
 };
 
 // Creates a [[crypto::mac::mac]] that computes an HMAC using the provided hash
-// function 'h'.
+// function 'h' with given 'key'. The caller must provide a 'buf' of
+// [[hash::bsz]] bytes. Use the BLOCKSIZE constant of the given hash function to
+// allocate the memory statically.
 //
 // The caller must take extra care to call [[mac::finish]] when they are
 // finished using the MAC function, which, in addition to freeing state
 // associated with the MAC, will securely erase state which contains secret
 // information.
-export fn hmac(h: *hash::hash, key: []u8) state = {
-	let bsz = hash::bsz(h);
-	let keypad: []u8 = alloc([0...], bsz);
+export fn hmac(h: *hash::hash, key: []u8, buf: []u8) state = {
+	const bsz = hash::bsz(h);
 
+	assert(len(buf) >= bsz, "buf must be at least the size of one "
+		"block of the given hash function");
+	let keypad = buf[..bsz];
+
+	init(h, key, keypad);
+
+	return state {
+		h = h,
+		sz = hash::sz(h),
+		bsz = bsz,
+		writer = &write,
+		sum = &gensum,
+		finish = &finish,
+		keypad = keypad,
+		...
+	};
+};
+
+fn init(h: *hash::hash, key: []u8, keypad: []u8) void = {
+	const bsz = hash::bsz(h);
 	if (len(key) > bsz) {
 		hash::write(h, key);
 		hash::sum(h, keypad);
@@ -38,17 +59,6 @@ export fn hmac(h: *hash::hash, key: []u8) state = {
 		// keypad for the outer hash is xored with 0x5c instead of 0x36
 		keypad[i] = keypad[i] ^ 0x36 ^ 0x5c;
 	};
-
-	return state {
-		writer = &write,
-		sum = &sum,
-		finish = &finish,
-		sz = hash::sz(h),
-		bsz = bsz,
-		h = h,
-		keypad = keypad,
-		...
-	};
 };
 
 fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
@@ -56,21 +66,22 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 	return hash::write(hm.h, buf);
 };
 
-fn sum(mac: *mac::mac, buf: []u8) void = {
+fn sum(h: *hash::hash, keypad: []u8, dest: []u8) void = {
+	hash::sum(h, dest);
+
+	hash::reset(h);
+	hash::write(h, keypad);
+	hash::write(h, dest);
+	hash::sum(h, dest);
+};
+
+fn gensum(mac: *mac::mac, dest: []u8) void = {
 	let hm = mac: *state;
-
-	hash::sum(hm.h, buf);
-
-	hash::reset(hm.h);
-	hash::write(hm.h, hm.keypad);
-	hash::write(hm.h, buf);
-	hash::sum(hm.h, buf);
+	sum(hm.h, hm.keypad, dest);
 };
 
 fn finish(mac: *mac::mac) void = {
 	let hm = mac: *state;
-
 	bytes::zero(hm.keypad);
-	free(hm.keypad);
 	io::close(hm.h);
 };

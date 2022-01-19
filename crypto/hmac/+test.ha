@@ -9,10 +9,11 @@ use strings;
 fn assert_hmac_sha1(keystr: str, vectors: [](str, [20]u8)) void = {
 	let key = strings::toutf8(keystr);
 	let h = sha1::sha1();
+	let buf: [sha1::BLOCKSIZE]u8 = [0...];
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		hash::reset(&h);
-		let hmac = hmac(&h, key);
+		let hmac = hmac(&h, key, buf);
 		defer mac::finish(&hmac);
 
 		const vector = vectors[i];
