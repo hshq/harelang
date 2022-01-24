@@ -39,13 +39,13 @@ const tz_europe__amsterdam: chrono::timezone = chrono::timezone{
 		chrono::zone {
 			zoffset = 1 * time::HOUR,
 			name = "Central European Time",
-			abbrev = "CET",
+			abbr = "CET",
 			dst = false,
 		},
 		chrono::zone {
 			zoffset = 2 * time::HOUR,
 			name = "Central European Summer Time",
-			abbrev = "CEST",
+			abbr = "CEST",
 			dst = true,
 		},
 	],
@@ -63,13 +63,13 @@ const tz_cet: chrono::timezone = chrono::timezone{
 		chrono::zone {
 			zoffset = 1 * time::HOUR,
 			name = "Central European Time",
-			abbrev = "CET",
+			abbr = "CET",
 			dst = false,
 		},
 		chrono::zone {
 			zoffset = 2 * time::HOUR,
 			name = "Central European Summer Time",
-			abbrev = "CEST",
+			abbr = "CEST",
 			dst = true,
 		},
 	],

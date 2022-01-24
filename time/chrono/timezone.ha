@@ -34,7 +34,7 @@ export type zone = struct {
 	name: str,
 
 	// The abbreviated name ("CEST")
-	abbrev: str,
+	abbr: str,
 
 	// Indicator of Daylight Saving Time
 	dst: bool, // true
@@ -116,7 +116,7 @@ export fn lookupzone(m: *moment) zone = {
 // 		chrono::zone {
 // 			zoffset = -10 * time::HOUR,
 // 			name = "Hawaiian Reef",
-// 			abbrev = "HARE",
+// 			abbr = "HARE",
 // 			dst = false,
 // 		},
 // 	);
@@ -146,7 +146,7 @@ const TZ_local: timezone = timezone {
 		zone {
 			zoffset = 0 * time::SECOND,
 			name = "Local Time",
-			abbrev = "",
+			abbr = "",
 			dst = false,
 		},
 	],
@@ -164,7 +164,7 @@ const TZ_UTC: timezone = timezone {
 		zone {
 			zoffset = 0 * time::SECOND,
 			name = "Universal Coordinated Time",
-			abbrev = "UTC",
+			abbr = "UTC",
 			dst = false,
 		},
 	],
@@ -182,7 +182,7 @@ const TZ_TAI: timezone = timezone {
 		zone {
 			zoffset = 0 * time::SECOND,
 			name = "International Atomic Time",
-			abbrev = "TAI",
+			abbr = "TAI",
 			dst = false,
 		},
 	],
@@ -200,7 +200,7 @@ const TZ_MTC: timezone = timezone {
 		zone {
 			zoffset = 0 * time::SECOND,
 			name = "Coordinated Mars Time",
-			abbrev = "MTC",
+			abbr = "MTC",
 			dst = false,
 		},
 	],

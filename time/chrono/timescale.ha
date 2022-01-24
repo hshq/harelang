@@ -3,7 +3,7 @@ use time;
 // Represents a scale of time; a time standard
 export type timescale = struct {
 	name: str,
-	abbrev: str,
+	abbr: str,
 	to_tai: *ts_converter,
 	from_tai: *ts_converter,
 };
@@ -17,7 +17,7 @@ export type ts_converter = fn(i: time::instant) (time::instant | time::error);
 // Continuous (no leap seconds).
 export const TAI: timescale = timescale {
 	name = "International Atomic Time",
-	abbrev = "TAI",
+	abbr = "TAI",
 	to_tai = &conv_tai_tai,
 	from_tai = &conv_tai_tai,
 };
@@ -40,7 +40,7 @@ fn conv_tai_tai(i: time::instant) (time::instant | time::error) = {
 // Discontinuous (has leap seconds).
 export const UTC: timescale = timescale {
 	name = "Coordinated Universal Time",
-	abbrev = "UTC",
+	abbr = "UTC",
 	to_tai = &conv_utc_tai,
 	from_tai = &conv_tai_utc,
 };
@@ -69,7 +69,7 @@ fn conv_utc_tai(utc: time::instant) (time::instant | time::error) = {
 // Discontinuous (has leap seconds).
 export const UNIX: timescale = timescale {
 	name = "Unix Time",
-	abbrev = "UNIX",
+	abbr = "UNIX",
 	to_tai = &conv_utc_tai,
 	from_tai = &conv_tai_utc,
 };
@@ -98,7 +98,7 @@ fn conv_unix_tai(unix: time::instant) (time::instant | time::error) = {
 // Continuous (no leap seconds).
 export const GPS: timescale = timescale {
 	name = "Global Positioning System Time",
-	abbrev = "GPS",
+	abbr = "GPS",
 	to_tai = &conv_utc_tai,
 	from_tai = &conv_tai_utc,
 };
@@ -127,7 +127,7 @@ fn conv_gps_tai(gps: time::instant) (time::instant | time::error) = {
 // Continuous (no leap seconds).
 export const TT: timescale = timescale {
 	name = "Terrestrial Time",
-	abbrev = "TT",
+	abbr = "TT",
 	to_tai = &conv_tt_tai,
 	from_tai = &conv_tai_tt,
 };
@@ -158,7 +158,7 @@ fn conv_tt_tai(tt: time::instant) (time::instant | time::error) = {
 // Continuous (no leap seconds).
 export const MTC: timescale = timescale {
 	name = "Coordinated Mars Time",
-	abbrev = "MTC",
+	abbr = "MTC",
 	to_tai = &conv_mtc_tai,
 	from_tai = &conv_tai_mtc,
 };
