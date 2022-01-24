@@ -50,6 +50,7 @@ const tz_europe__amsterdam: chrono::timezone = chrono::timezone{
 		},
 	],
 	transitions = [],
+	posix_extend = "",
 };
 
 // CET (Central European Time) timezone
@@ -74,4 +75,5 @@ const tz_cet: chrono::timezone = chrono::timezone{
 		},
 	],
 	transitions = [],
+	posix_extend = "",
 };

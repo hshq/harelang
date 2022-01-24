@@ -23,6 +23,12 @@ export type timezone = struct {
 
 	// The transitions between this timezone's zones
 	transitions: []transition,
+
+	// A timezone specifier in the POSIX "expanded" TZ format.
+	// See https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap08.html
+	//
+	// Used for extending calculations beyond the last known transition.
+	posix_extend: str,
 };
 
 // A timezone state, with an offset for calculating localized civil time
@@ -128,6 +134,7 @@ export fn fixedzone(ts: *timescale, daylen: time::duration, z: zone) timezone = 
 		daylength = daylen,
 		zones = alloc([z]),
 		transitions = [],
+		posix_extend = "",
 	};
 };
 
@@ -151,6 +158,7 @@ const TZ_local: timezone = timezone {
 		},
 	],
 	transitions = [],
+	posix_extend = "",
 };
 
 // The UTC (Coordinated Universal Time) "Zulu" timezone
@@ -169,6 +177,7 @@ const TZ_UTC: timezone = timezone {
 		},
 	],
 	transitions = [],
+	posix_extend = "",
 };
 
 // The TAI (International Atomic Time) "Zulu" timezone
@@ -187,6 +196,7 @@ const TZ_TAI: timezone = timezone {
 		},
 	],
 	transitions = [],
+	posix_extend = "",
 };
 
 // The MTC (Coordinated Mars Time) "Zulu" timezone
@@ -205,4 +215,5 @@ const TZ_MTC: timezone = timezone {
 		},
 	],
 	transitions = [],
+	posix_extend = "",
 };
