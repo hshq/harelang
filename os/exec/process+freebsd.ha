@@ -6,6 +6,11 @@ use fmt;
 // Stores information about a child process.
 export type process = int;
 
+// Returns the currently running [[process]].
+export fn self() process = {
+	return rt::getpid();
+};
+
 // Stores information about an exited process.
 export type status = struct {
 	status: int,
