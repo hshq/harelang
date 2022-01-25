@@ -1187,7 +1187,7 @@ time_chrono() {
 time_olson() {
 	gen_srcs time::olson \
 		olson.ha
-	gen_ssa time::olson  time time::chrono datetime
+	gen_ssa time::olson  endian errors fs io os path strings time time::chrono
 }
 
 types() {
