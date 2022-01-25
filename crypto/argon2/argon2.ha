@@ -292,6 +292,7 @@ fn inithash(
 ) void = {
 	let u32buf: [4]u8 = [0...];
 	let h = blake2b::blake2b([], 64);
+	defer hash::close(&h);
 
 	hash_leputu32(&h, cfg.parallel);
 	hash_leputu32(&h, taglen);
@@ -326,6 +327,7 @@ fn varhash(dest: []u8, block: []u8) void = {
 
 	if (len(dest) <= 64) {
 		let h = blake2b::blake2b([], len(dest));
+		defer hash::close(&h);
 		hash_leputu32(&h, len(dest): u32);
 		hash::write(&h, block);
 		hash::finish(&h, dest);
@@ -337,6 +339,8 @@ fn varhash(dest: []u8, block: []u8) void = {
 	const r = divceil(len(dest): u32, 32) - 2;
 	let v: [64]u8 = [0...];
 	let h = blake2b::blake2b([], 64);
+	defer hash::close(&h);
+
 	let destbuf = bufio::fixed(dest, io::mode::WRITE);
 
 	hash_leputu32(&h, len(dest): u32);
@@ -354,6 +358,7 @@ fn varhash(dest: []u8, block: []u8) void = {
 
 	const remainder = len(dest) - 32 * r;
 	let hend = blake2b::blake2b([], remainder);
+	defer hash::close(&hend);
 	hash::write(&hend, v[..]);
 	hash::finish(&hend, v[..remainder]);
 	io::write(&destbuf, v[..remainder])!;
