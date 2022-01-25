@@ -184,19 +184,22 @@ export fn fprintf(
 				yield r;
 			};
 
-			let arg = if (r == '{') {
+			if (r == '{') {
 				n += io::write(h, utf8::encoderune('{'))?;
 				continue;
-			} else if (ascii::isdigit(r)) {
+			};
+
+			const idx = if (ascii::isdigit(r)) {
 				strings::push(&iter, r);
-				yield args[scan_uint(&iter)];
+				yield scan_uint(&iter): size;
 			} else {
 				strings::push(&iter, r);
 				i += 1;
-				yield args[i - 1];
+				yield i - 1;
 			};
+			assert(idx < len(args), "Not enough parameters given");
 
-			const arg = match (arg) {
+			const arg = match (args[idx]) {
 			case let arg: formattable =>
 				yield arg;
 			case =>
