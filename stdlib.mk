@@ -718,7 +718,7 @@ $(HARECACHE)/crypto/argon2/crypto_argon2-any.ssa: $(stdlib_crypto_argon2_any_src
 stdlib_crypto_blake2b_any_srcs= \
 	$(STDLIB)/crypto/blake2b/blake2b.ha
 
-$(HARECACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(stdlib_crypto_blake2b_any_srcs) $(stdlib_rt) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
+$(HARECACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(stdlib_crypto_blake2b_any_srcs) $(stdlib_rt) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/blake2b
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::blake2b \
@@ -825,7 +825,7 @@ $(HARECACHE)/crypto/salsa/crypto_salsa-any.ssa: $(stdlib_crypto_salsa_any_srcs) 
 stdlib_crypto_sha1_any_srcs= \
 	$(STDLIB)/crypto/sha1/sha1.ha
 
-$(HARECACHE)/crypto/sha1/crypto_sha1-any.ssa: $(stdlib_crypto_sha1_any_srcs) $(stdlib_rt) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
+$(HARECACHE)/crypto/sha1/crypto_sha1-any.ssa: $(stdlib_crypto_sha1_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/sha1
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::sha1 \
@@ -835,7 +835,7 @@ $(HARECACHE)/crypto/sha1/crypto_sha1-any.ssa: $(stdlib_crypto_sha1_any_srcs) $(s
 stdlib_crypto_sha256_any_srcs= \
 	$(STDLIB)/crypto/sha256/sha256.ha
 
-$(HARECACHE)/crypto/sha256/crypto_sha256-any.ssa: $(stdlib_crypto_sha256_any_srcs) $(stdlib_rt) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
+$(HARECACHE)/crypto/sha256/crypto_sha256-any.ssa: $(stdlib_crypto_sha256_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/sha256
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::sha256 \
@@ -845,7 +845,7 @@ $(HARECACHE)/crypto/sha256/crypto_sha256-any.ssa: $(stdlib_crypto_sha256_any_src
 stdlib_crypto_sha512_any_srcs= \
 	$(STDLIB)/crypto/sha512/sha512.ha
 
-$(HARECACHE)/crypto/sha512/crypto_sha512-any.ssa: $(stdlib_crypto_sha512_any_srcs) $(stdlib_rt) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
+$(HARECACHE)/crypto/sha512/crypto_sha512-any.ssa: $(stdlib_crypto_sha512_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/sha512
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::sha512 \
@@ -2638,7 +2638,7 @@ testlib_crypto_sha1_any_srcs= \
 	$(STDLIB)/crypto/sha1/sha1.ha \
 	$(STDLIB)/crypto/sha1/+test.ha
 
-$(TESTCACHE)/crypto/sha1/crypto_sha1-any.ssa: $(testlib_crypto_sha1_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
+$(TESTCACHE)/crypto/sha1/crypto_sha1-any.ssa: $(testlib_crypto_sha1_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/sha1
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha1 \
@@ -2649,7 +2649,7 @@ testlib_crypto_sha256_any_srcs= \
 	$(STDLIB)/crypto/sha256/sha256.ha \
 	$(STDLIB)/crypto/sha256/+test.ha
 
-$(TESTCACHE)/crypto/sha256/crypto_sha256-any.ssa: $(testlib_crypto_sha256_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
+$(TESTCACHE)/crypto/sha256/crypto_sha256-any.ssa: $(testlib_crypto_sha256_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/sha256
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha256 \
@@ -2660,7 +2660,7 @@ testlib_crypto_sha512_any_srcs= \
 	$(STDLIB)/crypto/sha512/sha512.ha \
 	$(STDLIB)/crypto/sha512/+test.ha
 
-$(TESTCACHE)/crypto/sha512/crypto_sha512-any.ssa: $(testlib_crypto_sha512_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
+$(TESTCACHE)/crypto/sha512/crypto_sha512-any.ssa: $(testlib_crypto_sha512_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/sha512
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha512 \

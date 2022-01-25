@@ -1,5 +1,6 @@
 use hash;
 use io;
+use bytes;
 use crypto::math;
 use endian;
 
@@ -25,10 +26,14 @@ export type digest = struct {
 
 // Creates a [[hash::hash]] which computes a SHA-1 hash. Note that this
 // alogorithm is no longer considered secure. Where possible, applications are
-// encouraged to use [[crypto::sha256]] or [[crypto::sha512]] instead.
+// encouraged to use [[crypto::sha256]] or [[crypto::sha512]] instead. If this
+// function is used to hash sensitive information, the caller should call
+// [[hash::close]] to erase sentitive data from memory after use; if not, the
+// use of [[hash::close]] is optional.
 export fn sha1() digest = {
 	let sha = digest {
 		writer = &write,
+		closer = &close,
 		sum = &sum,
 		reset = &reset,
 		sz = SIZE,
@@ -86,6 +91,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 	let h = h: *digest;
 	let copy = *h;
 	let h = &copy;
+	defer hash::close(h);
 
 	// Padding. Add a 1 bit and 0 bits until 56 bytes mod 64.
 	let ln = h.ln;
@@ -206,4 +212,10 @@ fn block(h: *digest, p: []u8) void = {
 	h.h[2] = h2;
 	h.h[3] = h3;
 	h.h[4] = h4;
+};
+
+fn close(stream: *io::stream) void = {
+	let s = stream: *digest;
+	bytes::zero((s.h[..]: *[*]u8)[..len(s.h) * size(u32)]);
+	bytes::zero(s.x);
 };

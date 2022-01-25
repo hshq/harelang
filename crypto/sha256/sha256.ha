@@ -1,4 +1,5 @@
 use crypto::math;
+use bytes;
 use endian;
 use hash;
 use io;
@@ -41,10 +42,14 @@ export type state = struct {
 	ln: size,
 };
 
-// Creates a [[hash::hash]] which computes a SHA-256 hash.
+// Creates a [[hash::hash]] which computes a SHA-256 hash. If this function is
+// used to hash sensitive information, the caller should call [[hash::close]] to
+// erase sentitive data from memory after use; if not, the use of
+// [[hash::close]] is optional.
 export fn sha256() state = {
 	let sha = state {
 		writer = &write,
+		closer = &close,
 		sum = &sum,
 		reset = &reset,
 		sz = SIZE,
@@ -103,6 +108,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 	let h = h: *state;
 	let copy = *h;
 	let h = &copy;
+	defer hash::close(h);
 
 	// Add padding
 	let ln = h.ln;
@@ -196,4 +202,10 @@ fn block(h: *state, buf: []u8) void = {
 	h.h[5] = h5;
 	h.h[6] = h6;
 	h.h[7] = h7;
+};
+
+fn close(stream: *io::stream) void = {
+	let s = stream: *state;
+	bytes::zero((s.h[..]: *[*]u8)[..len(s.h) * size(u32)]);
+	bytes::zero(s.x);
 };

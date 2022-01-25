@@ -1,3 +1,4 @@
+use bytes;
 use crypto::math;
 use endian;
 use hash;
@@ -65,22 +66,35 @@ export type digest = struct {
 	var: variant,
 };
 
-// Creates a [[hash::hash]] which computes a SHA-512 hash.
+// Creates a [[hash::hash]] which computes a SHA-512 hash. If this function is
+// used to hash sensitive information, the caller should call [[hash::close]] to
+// erase sentitive data from memory after use; if not, the use of
+// [[hash::close]] is optional.
 export fn sha512() digest = init(variant::SHA512, SIZE);
 
-// Creates a [[hash::hash]] which computes a SHA-512/224 hash.
+// Creates a [[hash::hash]] which computes a SHA-512/224 hash. If this function
+// is used to hash sensitive information, the caller should call [[hash::close]]
+// to erase sentitive data from memory after use; if not, the use of
+// [[hash::close]] is optional.
 export fn sha512_224() digest = init(variant::SHA512_224, SIZE224);
 
-// Creates a [[hash::hash]] which computes a SHA-512/256 hash.
+// Creates a [[hash::hash]] which computes a SHA-512/256 hash. If this function
+// is used to hash sensitive information, the caller should call [[hash::close]]
+// to erase sentitive data from memory after use; if not, the use of
+// [[hash::close]] is optional.
 export fn sha512_256() digest = init(variant::SHA512_256, SIZE256);
 
-// Creates a [[hash::hash]] which computes a SHA-384 hash.
+// Creates a [[hash::hash]] which computes a SHA-384 hash. If this function is
+// used to hash sensitive information, the caller should call [[hash::close]] to
+// erase sentitive data from memory after use; if not, the use of
+// [[hash::close]] is optional.
 export fn sha384() digest = init(variant::SHA384, SIZE384);
 
 // Internal initialization function
 fn init(var: variant, sz: size) digest = {
 	let sha = digest {
 		writer = &write,
+		closer = &close,
 		sum = &sum,
 		reset = &reset,
 		sz = sz,
@@ -128,6 +142,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 	let d = h: *digest;
 	let copy = *d;
 	let d = &copy;
+	defer hash::close(d);
 
 	// Padding. Add a 1 bit and 0 bits until 112 bytes mod 128
 	let ln = d.ln;
@@ -312,4 +327,10 @@ fn block(h: *digest, p: []u8) void = {
 	h.h[5] = h5;
 	h.h[6] = h6;
 	h.h[7] = h7;
+};
+
+fn close(stream: *io::stream) void = {
+	let s = stream: *digest;
+	bytes::zero((s.h[..]: *[*]u8)[..len(s.h) * size(u32)]);
+	bytes::zero(s.x);
 };

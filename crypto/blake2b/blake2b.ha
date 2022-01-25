@@ -1,3 +1,4 @@
+use bytes;
 use crypto::math;
 use endian;
 use hash;
@@ -44,9 +45,10 @@ export type digest = struct {
 };
 
 // Creates a [[hash::hash]] which computes a BLAKE2b hash with a given key and a
-// given hash size. The size must be between 1 and 64, inclusive. This hash
-// function does not allocate any additional state, so you do not need to call
-// [[hash::close]] when you are done with it.
+// given hash size. The size must be between 1 and 64, inclusive. If this
+// function is used to hash sensitive information, the caller should call
+// [[hash::close]] to erase sentitive data from memory after use; if not, the
+// use of [[hash::close]] is optional.
 export fn blake2b(key: []u8, sz: size) digest = {
 	assert(1 <= sz);
 	assert(sz <= 64);
@@ -57,6 +59,7 @@ export fn blake2b(key: []u8, sz: size) digest = {
 	keyblock[..len(key)] = key;
 	return digest {
 		writer = &write,
+		closer = &close,
 		sum = &sum,
 		reset = &reset,
 		sz = sz,
@@ -97,6 +100,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 	let h = h: *digest;
 	let copy = *h;
 	let h = &copy;
+	defer hash::close(h);
 
 	h.tlow += h.blocklen;
 	if (h.tlow < h.blocklen: u64) h.thigh += 1;
@@ -163,4 +167,11 @@ fn mix(v: *[16]u64, a: size, b: size, c: size, d: size, x: u64, y: u64) void = {
 	v[d] = math::rotr64(v[d] ^ v[a], R3);
 	v[c] = v[c] + v[d];
 	v[b] = math::rotr64(v[b] ^ v[c], R4);
+};
+
+fn close(stream: *io::stream) void = {
+	let s = stream: *digest;
+	bytes::zero((s.h[..]: *[*]u8)[..len(s.h) * size(u32)]);
+	bytes::zero(s.block);
+	bytes::zero(s.key);
 };
