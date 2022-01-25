@@ -749,3 +749,108 @@ export fn modfracf32(n: f32) (i32, f32) = {
 	assert(res.0 == 23i32);
 	assert(res.1 == 0.50f32);
 };
+
+// Returns the f32 that is closest to [[x]] in direction of [[y]]. Returns NaN
+// if either parameter is NaN. Returns [[x]] if both parameters are same.
+export fn nextafterf32(x: f32, y: f32) f32 = {
+	if (isnan(x) || isnan(y)) {
+		return x + y;
+	};
+	let ux = f32bits(x);
+	let uy = f32bits(y);
+	if (ux == uy) {
+		return x;
+	};
+
+	let absx = ux & 0x7fffffff, absy = uy & 0x7fffffff;
+	if (absx == 0) {
+		if (absy == 0) {
+			return x;
+		};
+		ux = uy & 0x80000000 | 1;
+	} else if (absx > absy || (ux ^ uy) & 0x80000000 != 0) {
+		ux -= 1;
+	} else {
+		ux += 1;
+	};
+	// TODO handle over/underflow
+	return f32frombits(ux);
+};
+
+// Returns the f64 that is closest to [[x]] in direction of [[y]]. Returns NaN
+// if either parameter is NaN. Returns [[x]] if both parameters are same.
+export fn nextafterf64(x: f64, y: f64) f64 = {
+	if (isnan(x) || isnan(y)) {
+		return x + y;
+	};
+	let ux = f64bits(x);
+	let uy = f64bits(y);
+	if (ux == uy) {
+		return x;
+	};
+
+	let absx = ux & ~(1u64 << 63), absy = uy & ~(1u64 << 63);
+	if (absx == 0) {
+		if (absy == 0) {
+			return x;
+		};
+		ux = uy & (1u64 << 63) | 1u64;
+	} else if (absx > absy || (ux ^ uy) & (1u64 << 63) != 0) {
+		ux -= 1;
+	} else {
+		ux += 1;
+	};
+	// TODO handle over/underflow
+	return f64frombits(ux);
+};
+
+@test fn nextafter() void = {
+	let f = &f64frombits;
+	// from musl's testsuite
+	assert(nextafterf64(f(0xc0202239f3c6a8f1), f(0x40122484b9ef31f0)) == f(0xc0202239f3c6a8f0));
+	assert(nextafterf64(f(0x401161868e18bc67), f(0xc021c6a6cdce75e8)) == f(0x401161868e18bc66));
+	assert(nextafterf64(f(0xc020c34b3e01e6e7), f(0xc0061bde29e83f6d)) == f(0xc020c34b3e01e6e6));
+	assert(nextafterf64(f(0xc01a206f0a19dcc4), f(0x40124527f7b576ac)) == f(0xc01a206f0a19dcc3));
+	assert(nextafterf64(f(0x402288bbb0d6a1e6), f(0x40133edd910a3c01)) == f(0x402288bbb0d6a1e5));
+	assert(nextafterf64(f(0xc019ccd8be03f495), f(0x3fe52fb12ef638a1)) == f(0xc019ccd8be03f494));
+	assert(nextafterf64(f(0x401f6f80ed2eab44), f(0x3faab3ff8575b21d)) == f(0x401f6f80ed2eab43));
+	assert(nextafterf64(f(0xbfe95882b433fad3), f(0x401eb4a2e7ce0693)) == f(0xbfe95882b433fad2));
+	assert(nextafterf64(f(0x3fe3b3d617ae3c4a), f(0x40001860611d75e1)) == f(0x3fe3b3d617ae3c4b));
+	assert(nextafterf64(f(0xbfe1e159e36313ee), f(0x3fa081bd34224213)) == f(0xbfe1e159e36313ed));
+
+	assert(nextafterf64(f(0xbfe1e159e36313ee), f(0xbfe1e159e36313ee)) == f(0xbfe1e159e36313ee));
+	assert(nextafterf64(0.0f64, 1.0f64) == f(0x1));
+	assert(nextafterf64(0.0f64, -1.0f64) == f(0x8000000000000001));
+	assert(nextafterf64(-0.0f64, 1.0f64) == f(0x1));
+	assert(nextafterf64(-0.0f64, -1.0f64) == f(0x8000000000000001));
+	assert(nextafterf64(0.0f64, 0.0f64) == 0.0f64);
+	assert(nextafterf64(-0.0f64, 0.0f64) == 0.0f64);
+	assert(nextafterf64(0.0f64, -0.0f64) == -0.0f64);
+	assert(isnan(nextafterf64(1.0f64, NAN)));
+	assert(isnan(nextafterf64(NAN, -2f64)));
+	assert(isnan(nextafterf64(NAN, NAN)));
+
+	let f = &f32frombits;
+	assert(nextafterf32(f(0xc10111d0), f(0x40912426)) == f(0xc10111cf));
+	assert(nextafterf32(f(0x408b0c34), f(0xc10e3536)) == f(0x408b0c33));
+	assert(nextafterf32(f(0xc1061a5a), f(0xc030def1)) == f(0xc1061a59));
+	assert(nextafterf32(f(0xc0d10378), f(0x40922940)) == f(0xc0d10377));
+	assert(nextafterf32(f(0x411445de), f(0x4099f6ed)) == f(0x411445dd));
+	assert(nextafterf32(f(0xc0ce66c6), f(0x3f297d89)) == f(0xc0ce66c5));
+	assert(nextafterf32(f(0x40fb7c07), f(0x3d559ffc)) == f(0x40fb7c06));
+	assert(nextafterf32(f(0xbf4ac416), f(0x40f5a517)) == f(0xbf4ac415));
+	assert(nextafterf32(f(0x3f1d9eb1), f(0x4000c303)) == f(0x3f1d9eb2));
+	assert(nextafterf32(f(0xbf0f0acf), f(0x3d040dea)) == f(0xbf0f0ace));
+
+	assert(nextafterf32(f(0xbf0f0acf), f(0xbf0f0acf)) == f(0xbf0f0acf));
+	assert(nextafterf32(0.0f32, 1.0f32) == f(0x1));
+	assert(nextafterf32(0.0f32, -1.0f32) == f(0x80000001));
+	assert(nextafterf32(-0.0f32, 1.0f32) == f(0x1));
+	assert(nextafterf32(-0.0f32, -1.0f32) == f(0x80000001));
+	assert(nextafterf32(0.0f32, 0.0f32) == 0.0f32);
+	assert(nextafterf32(-0.0f32, 0.0f32) == 0.0f32);
+	assert(nextafterf32(0.0f32, -0.0f32) == -0.0f32);
+	assert(isnan(nextafterf32(1.0f32, NAN)));
+	assert(isnan(nextafterf32(NAN, -2f32)));
+	assert(isnan(nextafterf32(NAN, NAN)));
+};
