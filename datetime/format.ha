@@ -260,13 +260,11 @@ fn fmt_specifier(r: rune, dt: *datetime) (str | errors::invalid | io::error) = {
 	case 'Y' =>
 		yield strconv::itos(year(dt));
 	case 'z' =>
-		//yield get_tz_hhmm(dt);
-		// TODO
-		yield "";
+		// TODO: test
+		const z = calc_hmsn(dt.zone.zoffset);
+		yield fmt::asprintf("{:+02}{:02}", z.0, z.1);
 	case 'Z' =>
-		//yield get_tz_name(dt);
-		// TODO
-		yield "";
+		yield dt.zone.abbr;
 	case '%' =>
 		yield "%";
 	case =>
