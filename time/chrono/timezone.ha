@@ -90,30 +90,56 @@ export fn localize(m: moment) moment = {
 	return m;
 };
 
-// Finds and returns a [[moment]]'s currently observed zone
+// Finds, sets and returns a [[moment]]'s currently observed zone
 export fn lookupzone(m: *moment) zone = {
-	if (m.zone is zone) {
-		return m.zone as zone;
-	};
-
 	if (len(m.loc.zones) == 0) {
-		// TODO: redesign to avoid this?
-		abort("timezones should have at least one zone");
+		// TODO: what to do? not ideal to assume UTC_Z
+		abort("lookup(): timezones should have at least one zone");
 	};
+
 	if (len(m.loc.zones) == 1) {
-		const z = m.loc.zones[0];
-		m.zone = z;
-		return z;
+		m.zone = m.loc.zones[0];
+		return m.zone;
 	};
 
-	// TODO: search through m.loc.trans using m.date and m.time
-	if (len(m.loc.zones) > 1) {
-		const z = m.loc.zones[0];
-		m.zone = z;
-		return z;
+	const inst = to_instant(*m);
+
+	if (
+		len(m.loc.transitions) == 0
+		|| time::compare(inst, m.loc.transitions[0].when) == -1
+	) {
+		// TODO: special case
+		abort("lookupzone(): time is before known transitions");
 	};
 
-	abort("TODO");
+	let lo = 0z;
+	let hi = len(m.loc.transitions);
+	for (hi - lo > 1) {
+		const mid = lo + (hi - lo) / 2;
+		const middle = m.loc.transitions[mid].when;
+		switch (time::compare(inst, middle)) {
+		case -1 =>
+			hi = mid;
+		case 0 =>
+			lo = mid; break;
+		case 1 =>
+			lo = mid;
+		case =>
+			abort("Unreachable");
+		};
+	};
+
+	m.zone = m.loc.zones[m.loc.transitions[lo].zoneindex];
+
+	// if we've reached the end of the locality's transitions, try its
+	// posix_extend string
+	//
+	// TODO: important
+	if (lo == len(m.loc.transitions) - 1 && m.loc.posix_extend != "") {
+		void;
+	};
+
+	return m.zone;
 };
 
 // Creates a [[timezone]] with a single [[zone]], useful for fixed offsets

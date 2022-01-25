@@ -10,10 +10,15 @@ export type moment = struct {
 	time: time::duration,
 
 	// The timezone used for interpreting a moment's date and time
+	//
+	// TODO: make locality nullable? would make moment "{ ... }" initable
+	// without a "new" function, though all functions would have to default
+	// to a particular locality, which might be bad design considering we
+	// don't just support UTC_Z.
 	loc: locality,
 
-	// The cached temporal zone this moment observes
-	zone: (zone | void),
+	// The current [[zone]] this moment observes
+	zone: zone,
 };
 
 // An ordinal day (on Earth or otherwise) since the Hare epoch (zeroth day)
@@ -22,27 +27,22 @@ export type epochal = i64;
 
 // Creates a new [[moment]]
 export fn new(date: epochal, time: time::duration, loc: locality) moment = {
-	return moment {
+	const m = moment {
 		date = date,
 		time = time,
 		loc = loc,
-		zone = void,
+		zone = zone { ... },
 	};
+	lookupzone(&m);
+	return m;
 };
 
 // Creates a new [[moment]] from a [[time::instant]] in a [[locality]]
 export fn from_instant(i: time::instant, loc: locality) moment = {
 	const daysec = (loc.daylength / time::SECOND);
-	const m = moment {
-		date = i.sec / daysec,
-		time = (
-			(i.sec % daysec) * time::SECOND
-			+ i.nsec * time::NANOSECOND
-		),
-		loc = loc,
-		zone = void,
-	};
-	return m;
+	const d = i.sec / daysec;
+	const t = (i.sec % daysec) * time::SECOND + i.nsec * time::NANOSECOND;
+	return new(d, t, loc);
 };
 
 // Creates a new [[time::instant]] from a [[moment]]

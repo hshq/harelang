@@ -31,7 +31,7 @@ fn init() datetime = datetime {
 	date        = 0,
 	time        = 0,
 	loc         = chrono::local,
-	zone        = void,
+	zone        = chrono::zone { ... },
 
 	era         = void,
 	year        = void,
@@ -65,28 +65,12 @@ export fn new(
 	zoffset: time::duration,
 	loc: (*chrono::timezone | void),
 ) (datetime | errors::invalid) = {
-	const dt = datetime {
-		date        = calc_epochal_from_ymd(year, month, day)?,
-		time        = calc_time_from_hmsn(hour, min, sec, nsec)?,
-		loc         = if (loc is void) chrono::local else loc: *chrono::timezone,
-		zone        = void,
-
-		era         = void,
-		year        = year,
-		month       = month,
-		day         = day,
-		isoweekyear = void,
-		isoweek     = void,
-		week        = void,
-		weekday     = void,
-		yearday     = void,
-
-		hour        = hour,
-		min         = min,
-		sec         = sec,
-		nsec        = nsec,
-	};
-	return dt;
+	const m = chrono::new(
+		calc_epochal_from_ymd(year, month, day)?,
+		calc_time_from_hmsn(hour, min, sec, nsec)?,
+		if (loc is void) chrono::local else loc: *chrono::timezone,
+	);
+	return from_moment(m);
 };
 
 // Returns a [[datetime]] of the immediate system time
@@ -94,8 +78,7 @@ export fn now() datetime = {
 	// TODO: should the clock and timezone be choosable?
 	const i = time::now(time::clock::REALTIME);
 	const m = chrono::from_instant(i, chrono::local);
-	const dt = from_moment(m);
-	return dt;
+	return from_moment(m);
 };
 
 // Creates a copy of a [[datetime]]
