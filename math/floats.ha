@@ -63,8 +63,12 @@ export def F64_MAX_NORMAL: f64 = 1.7976931348623157e+308;
 // The smallest representable normal f64 value.
 export def F64_MIN_NORMAL: f64 = 2.2250738585072014e-308;
 
-// THe smallest (subnormal) f64 value greater than zero.
+// The smallest (subnormal) f64 value greater than zero.
 export def F64_MIN: f64 = 5.0e-324;
+
+// The difference between 1 and the smallest f64 representable value that is
+// greater than 1.
+export def F64_EPS: f64 = 2.22040000000000004884e-16;
 
 // The largest representable f32 value which is less than Infinity.
 export def F32_MAX_NORMAL: f32 = 3.4028234e+38;
@@ -74,6 +78,10 @@ export def F32_MIN_NORMAL: f32 = 1.1754944e-38;
 
 // The smallest (subnormal) f32 value greater than zero.
 export def F32_MIN: f32 = 1.0e-45;
+
+// The difference between 1 and the smallest f32 representable value that is
+// greater than 1.
+export def F32_EPS: f32 = 1.1920928955078125e-7;
 
 // The mask that gets an f64's sign.
 def F64_SIGN_MASK: u64 = 1u64 << 63;
