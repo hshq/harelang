@@ -47,7 +47,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 			path = strings::dup(path),
 			stat = st,
 			ft = ft,
-			hash = scan_file(ctx, path, &deps)?,
+			hash = scan_file(ctx, path, ft, &deps)?,
 			...
 		};
 		append(inputs, in);
@@ -303,11 +303,12 @@ fn scan_directory(
 		} else {
 			let path = fs::resolve(ctx.fs, path);
 			let st = fs::stat(ctx.fs, path)?;
+			let ftype = type_for_ext(path) as filetype;
 			let in = input {
 				path = strings::dup(path),
 				stat = st,
-				ft = type_for_ext(path) as filetype,
-				hash = scan_file(ctx, path, &ver.depends)?,
+				ft = ftype,
+				hash = scan_file(ctx, path, ftype, &ver.depends)?,
 				basename = inputs[i].1,
 				tags = inputs[i].2,
 				...
@@ -346,6 +347,7 @@ fn type_for_ext(name: str) (filetype | void) = {
 fn scan_file(
 	ctx: *context,
 	path: str,
+	ftype: filetype,
 	deps: *[]ast::ident,
 ) ([]u8 | error) = {
 	let f = fs::open(ctx.fs, path)?;
@@ -354,24 +356,28 @@ fn scan_file(
 	hash::write(&sha, strings::toutf8(path));
 	hash::write(&sha, [ABI_VERSION]);
 
-	let tee = io::tee(f, &sha);
-	let lexer = lex::init(&tee, path);
-	let imports = parse::imports(&lexer)?;
-	for (let i = 0z; i < len(imports); i += 1) {
-		let ident = match (imports[i]) {
-		case let m: ast::import_module =>
-			yield m: ast::ident;
-		case let a: ast::import_alias =>
-			yield a.ident;
-		case let o: ast::import_objects =>
-			yield o.ident;
+	if (ftype == filetype::HARE) {
+		let tee = io::tee(f, &sha);
+		let lexer = lex::init(&tee, path);
+		let imports = parse::imports(&lexer)?;
+		for (let i = 0z; i < len(imports); i += 1) {
+			let ident = match (imports[i]) {
+			case let m: ast::import_module =>
+				yield m: ast::ident;
+			case let a: ast::import_alias =>
+				yield a.ident;
+			case let o: ast::import_objects =>
+				yield o.ident;
+			};
+			if (!have_ident(deps, ident)) {
+				append(deps, ident);
+			};
 		};
-		if (!have_ident(deps, ident)) {
-			append(deps, ident);
-		};
+		// Finish spooling out the file for the SHA
+		io::copy(io::empty, &tee)?;
+	} else {
+		io::copy(&sha, f)?;
 	};
-
-	io::copy(io::empty, &tee)?; // Finish spooling out the file for the SHA
 
 	let tmp: [sha256::SIZE]u8 = [0...];
 	hash::sum(&sha, tmp);
