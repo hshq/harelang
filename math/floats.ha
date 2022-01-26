@@ -862,3 +862,68 @@ export fn nextafterf64(x: f64, y: f64) f64 = {
 	assert(isnan(nextafterf32(NAN, -2f32)));
 	assert(isnan(nextafterf32(NAN, NAN)));
 };
+
+// Round a f32 to nearest integer value in floating point format
+fn nearbyintf32(x: f32) f32 = {
+	let n = f32bits(x);
+	let e = n >> 23 & 0xff;
+	if (e >= 0x7f + 23) {
+		return x;
+	};
+	let s = n >> 31;
+	let y = if (s != 0.0)
+		x - 1.0 / F32_EPS + 1.0 / F32_EPS
+	else
+		x + 1.0 / F32_EPS - 1.0 / F32_EPS;
+
+	if (y == 0.0f32)
+		return if (s != 0) -0.0f32 else 0.0f32
+	else
+		return y;
+};
+
+// Round a f64 to nearest integer value in floating point format
+fn nearbyintf64(x: f64) f64 = {
+	let n = f64bits(x);
+	let e = n >> 52 & 0x7ff;
+	if (e >= 0x3ff + 52) {
+		return x;
+	};
+	let s = n >> 63;
+	let y = if (s != 0.0)
+		x - 1.0 / F64_EPS + 1.0 / F64_EPS
+	else
+		x + 1.0 / F64_EPS - 1.0 / F64_EPS;
+
+	if (y == 0.0f64)
+		return if (s != 0) -0.0f64 else 0.0f64
+	else
+		return y;
+};
+
+@test fn nearbyint() void = {
+	// from musl's testsuite
+	let f = &f64frombits;
+	assert(nearbyintf64(f(0xc0202239f3c6a8f1)) == f(0xc020000000000000));
+	assert(nearbyintf64(f(0x401161868e18bc67)) == f(0x4010000000000000));
+	assert(nearbyintf64(f(0xc020c34b3e01e6e7)) == f(0xc020000000000000));
+	assert(nearbyintf64(f(0xc01a206f0a19dcc4)) == f(0xc01c000000000000));
+	assert(nearbyintf64(f(0x402288bbb0d6a1e6)) == f(0x4022000000000000));
+	assert(nearbyintf64(f(0x3fe52efd0cd80497)) == f(0x3ff0000000000000));
+	assert(nearbyintf64(f(0xbfda05cc754481d1)) == f(0x8000000000000000));
+	assert(nearbyintf64(f(0x3fe1f9ef934745cb)) == f(0x3ff0000000000000));
+	assert(nearbyintf64(f(0x3fe8c5db097f7442)) == f(0x3ff0000000000000));
+	assert(nearbyintf64(f(0xbfe5b86ea8118a0e)) == f(0xbff0000000000000));
+
+	let f = &f32frombits;
+	assert(nearbyintf32(f(0xc10111d0)) == f(0xc1000000));
+	assert(nearbyintf32(f(0x408b0c34)) == f(0x40800000));
+	assert(nearbyintf32(f(0xc1061a5a)) == f(0xc1000000));
+	assert(nearbyintf32(f(0xc0d10378)) == f(0xc0e00000));
+	assert(nearbyintf32(f(0x411445de)) == f(0x41100000));
+	assert(nearbyintf32(f(0x3f2977e8)) == f(0x3f800000));
+	assert(nearbyintf32(f(0xbed02e64)) == f(0x80000000));
+	assert(nearbyintf32(f(0x3f0fcf7d)) == f(0x3f800000));
+	assert(nearbyintf32(f(0x3f462ed8)) == f(0x3f800000));
+	assert(nearbyintf32(f(0xbf2dc375)) == f(0xbf800000));
+};
