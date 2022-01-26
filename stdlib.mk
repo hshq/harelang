@@ -156,6 +156,12 @@ stdlib_deps_any+=$(stdlib_crypto_aes_any)
 stdlib_crypto_aes_linux=$(stdlib_crypto_aes_any)
 stdlib_crypto_aes_freebsd=$(stdlib_crypto_aes_any)
 
+# gen_lib crypto::aes::xts (any)
+stdlib_crypto_aes_xts_any=$(HARECACHE)/crypto/aes/xts/crypto_aes_xts-any.o
+stdlib_deps_any+=$(stdlib_crypto_aes_xts_any)
+stdlib_crypto_aes_xts_linux=$(stdlib_crypto_aes_xts_any)
+stdlib_crypto_aes_xts_freebsd=$(stdlib_crypto_aes_xts_any)
+
 # gen_lib crypto::argon2 (any)
 stdlib_crypto_argon2_any=$(HARECACHE)/crypto/argon2/crypto_argon2-any.o
 stdlib_deps_any+=$(stdlib_crypto_argon2_any)
@@ -703,6 +709,16 @@ $(HARECACHE)/crypto/aes/crypto_aes-any.ssa: $(stdlib_crypto_aes_any_srcs) $(stdl
 	@mkdir -p $(HARECACHE)/crypto/aes
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::aes \
 		-t$(HARECACHE)/crypto/aes/crypto_aes.td $(stdlib_crypto_aes_any_srcs)
+
+# crypto::aes::xts (+any)
+stdlib_crypto_aes_xts_any_srcs= \
+	$(STDLIB)/crypto/aes/xts/xts.ha
+
+$(HARECACHE)/crypto/aes/xts/crypto_aes_xts-any.ssa: $(stdlib_crypto_aes_xts_any_srcs) $(stdlib_rt) $(stdlib_crypto_aes_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/aes/xts
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::aes::xts \
+		-t$(HARECACHE)/crypto/aes/xts/crypto_aes_xts.td $(stdlib_crypto_aes_xts_any_srcs)
 
 # crypto::argon2 (+any)
 stdlib_crypto_argon2_any_srcs= \
@@ -1956,6 +1972,12 @@ testlib_deps_any+=$(testlib_crypto_aes_any)
 testlib_crypto_aes_linux=$(testlib_crypto_aes_any)
 testlib_crypto_aes_freebsd=$(testlib_crypto_aes_any)
 
+# gen_lib crypto::aes::xts (any)
+testlib_crypto_aes_xts_any=$(TESTCACHE)/crypto/aes/xts/crypto_aes_xts-any.o
+testlib_deps_any+=$(testlib_crypto_aes_xts_any)
+testlib_crypto_aes_xts_linux=$(testlib_crypto_aes_xts_any)
+testlib_crypto_aes_xts_freebsd=$(testlib_crypto_aes_xts_any)
+
 # gen_lib crypto::argon2 (any)
 testlib_crypto_argon2_any=$(TESTCACHE)/crypto/argon2/crypto_argon2-any.o
 testlib_deps_any+=$(testlib_crypto_argon2_any)
@@ -2508,6 +2530,17 @@ $(TESTCACHE)/crypto/aes/crypto_aes-any.ssa: $(testlib_crypto_aes_any_srcs) $(tes
 	@mkdir -p $(TESTCACHE)/crypto/aes
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::aes \
 		-t$(TESTCACHE)/crypto/aes/crypto_aes.td $(testlib_crypto_aes_any_srcs)
+
+# crypto::aes::xts (+any)
+testlib_crypto_aes_xts_any_srcs= \
+	$(STDLIB)/crypto/aes/xts/xts.ha \
+	$(STDLIB)/crypto/aes/xts/+test.ha
+
+$(TESTCACHE)/crypto/aes/xts/crypto_aes_xts-any.ssa: $(testlib_crypto_aes_xts_any_srcs) $(testlib_rt) $(testlib_crypto_aes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/aes/xts
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::aes::xts \
+		-t$(TESTCACHE)/crypto/aes/xts/crypto_aes_xts.td $(testlib_crypto_aes_xts_any_srcs)
 
 # crypto::argon2 (+any)
 testlib_crypto_argon2_any_srcs= \

@@ -222,6 +222,16 @@ crypto_aes() {
 	fi
 }
 
+crypto_aes_xts() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::aes::xts xts.ha
+	else
+		gen_srcs crypto::aes::xts xts.ha +test.ha
+	fi
+	gen_ssa crypto::aes::xts crypto::aes crypto::cipher bytes
+}
+
 crypto_argon2() {
 	if [ $testing -eq 0 ]
 	then
@@ -1155,6 +1165,7 @@ compress::flate
 compress::zlib
 crypto
 crypto::aes
+crypto::aes::xts
 crypto::argon2
 crypto::blake2b
 crypto::chacha

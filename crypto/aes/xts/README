@@ -1,0 +1,26 @@
+xts implements the AES-XTS cipher mode as defined in the IEEE Std 1619-2007.
+
+AES-XTS is an unauthenticated transparent encryption scheme designed for use
+cases like disk encryption. Transparent in the sense that the output size is the
+same as the input size, and that blocks can be written or read in an arbitrary
+order. Similarly to the ECB mode, XTS operates in blocks which are a multiple of
+the AES block size.
+
+The security guarantees can be compared to the ECB ones, but with a different
+key for each block. That means following vulnerabilities exist:
+
+- Traffic analysis: An observer can see when a certain block is written back to
+  disk with a different value.
+- Replay: An adversary may change a block back to an old value, if write access
+  is available.
+- Changing sectors: Changing of the cipher text will result in "random" plain
+  text. Authentication or error detection can be done before encryption, to 
+  resist such attacks.
+
+This is a low-level module which implements cryptographic primitives. Direct use
+of cryptographic primitives is not recommended for non-experts, as incorrect use
+of these primitives can easily lead to the introduction of security
+vulnerabilities. Non-experts are advised to use the high-level operations
+available in the top-level [[crypto]] module.
+
+Be advised that Hare's cryptography implementations have not been audited.
