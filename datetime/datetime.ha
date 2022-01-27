@@ -52,8 +52,36 @@ fn init() datetime = datetime {
 // Creates a new datetime. When loc=void, defaults to chrono::local.
 //
 // 	// 2038 January 19th 03:14:07.000000618 +0000 Local
-// 	datetime::new(2038, 01, 19, 03, 14, 07, 618, 0000, void)
+// 	datetime::new(2038, 01, 19, 03, 14, 07, 618, void, void);
 //
+// 	// 2038 January 19th 03:14:07.000000618 +0100 Europe/Amsterdam
+// 	datetime::new(2038, 01, 19, 03, 14, 07, 618,
+// 		1 * time::HOUR, &olson::tz("Europe/Amsterdam"));
+//
+// TODO: revise examples
+//
+// zoffset is the zone offset from the normal timezone (in most cases, UTC0).
+// For example, the "Asia/Tokyo" timezone has a single zoffset of +9 hours,
+// but the "Australia/Sydney" timezone has zoffsets +10 hours and +11 hours, as
+// they observe Daylight Saving Time.
+//
+// if specified (non-void), zoffset must match one of the timezone's observed
+// zoffsets, or will fail. See [[chrono::fixedzone]] for custom timezones.
+//
+// You may omit the zoffset. If the givem timezone has a single zone, [[new]]
+// will use that zone's zoffset. Otherwise [[new]] will try to infer the zoffset
+// from the multiple zones. This will fail during certain timezone transitions,
+// where certain datetimes are [[ambiguous]] or [[nonexistant]]. For example:
+//
+// - In the Europe/Amsterdam timezone, at 1995 March 26th,
+//   the local time 02:30 was never observed,
+//   as the clock jumped forward 1 hour from 01:00 CET.
+//
+// - In the Europe/Amsterdam timezone, at 1995 September 24th,
+//   the local time 02:30 was observed twice (00:30 UTC & 01:30 UTC),
+//   as the clock jumped back 1 hour from 02:00 CEST.
+//
+// TODO: implement as described.
 export fn new(
 	year: int,
 	month: int,
@@ -62,9 +90,20 @@ export fn new(
 	min: int,
 	sec: int,
 	nsec: int,
-	zoffset: time::duration,
+
+	// normal offset (offset from normal timezone (UTC0, TAI0, etc.))
+	//
+	// TODO: type `(time::duration | first | last)`? Would automatically
+	// pick the first/last occurence of an ambiguous datetime, as described
+	// above.
+	zoffset: (time::duration | void),
+
+	// TODO: should this be `nullable *chrono::timezone`?
+	// would interface better with other code, i presume.
 	loc: (*chrono::timezone | void),
 ) (datetime | errors::invalid) = {
+	// TODO: set the correct values according to the given zoffset and
+	// locality/timezone.
 	const m = chrono::new(
 		calc_epochal_from_ymd(year, month, day)?,
 		calc_time_from_hmsn(hour, min, sec, nsec)?,

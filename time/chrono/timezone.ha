@@ -142,7 +142,8 @@ export fn lookupzone(m: *moment) zone = {
 	return m.zone;
 };
 
-// Creates a [[timezone]] with a single [[zone]], useful for fixed offsets
+// Creates a [[timezone]] with a single [[zone]]. Useful for fixed offsets.
+// For example, replicate the civil time Hawaii timezone on Earth:
 //
 // 	let hawaii = chrono::fixedzone(&chrono::UTC, chrono::EARTH_DAY,
 // 		chrono::zone {
