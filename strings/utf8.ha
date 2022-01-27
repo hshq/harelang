@@ -1,8 +1,9 @@
 use encoding::utf8;
 use types;
 
-// Converts a byte slice into a string WITHOUT checking that the byte slice is a
-// valid UTF-8 string.
+// Converts a byte slice into a string, but does not test if it is valid UTF-8.
+// This is faster than the safe equivalent, but if the string is not valid UTF-8
+// it may cause undefined behavior. The return value is borrowed from the input.
 export fn fromutf8_unsafe(in: []u8) str = {
 	const s = types::string {
 		data     = in: *[*]u8,
@@ -12,9 +13,9 @@ export fn fromutf8_unsafe(in: []u8) str = {
 	return *(&s: *const str);
 };
 
-// Converts a byte slice into a string. Aborts if the bytes contain invalid
-// UTF-8. To handle such an error without aborting, see
-// [[encoding::utf8::decode]] instead.
+// Converts a byte slice into a string, aborting the program if the bytes
+// contain invalid UTF-8. The return value is borrowed from the input. To handle
+// errors without aborting, see [[try_fromutf8]] or [[encoding::utf8]].
 export fn fromutf8(in: []u8) str = {
 	let s = fromutf8_unsafe(in);
 	assert(utf8::valid(s), "attempted to load invalid UTF-8 string");
@@ -31,7 +32,8 @@ export fn try_fromutf8(in: []u8) (str | utf8::invalid) = {
 	return s;
 };
 
-// Converts a string to a UTF-8 slice.
+// Converts a string to a UTF-8 byte slice. The return value is borrowed from
+// the input.
 export fn toutf8(in: str) []u8 = *(&in: *[]u8);
 
 @test fn utf8() void = {
