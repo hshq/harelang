@@ -763,6 +763,9 @@ nav:not(#TableOfContents) {
 
 nav:not(#TableOfContents) img {
 	grid-area: logo;
+	position: relative;
+	right: 1rem;
+	border-radius: 128px;
 }
 
 nav:not(#TableOfContents) h1 {
@@ -874,8 +877,8 @@ details pre {
 		color: #e1dfdc;
 	}
 
-	img[src='/mascot.jpg'] {
-		filter: invert(.92);
+	img[src='https://harelang.org/mascot.jpg'] {
+		filter: invert(.88);
 	}
 
 	a {
@@ -899,7 +902,7 @@ details pre {
 	}
 
 	pre {
-		background-color: #16191c;
+		background-color: #24272b;
 	}
 
 	pre .keyword {
@@ -913,7 +916,7 @@ details pre {
 </style>
 <nav>
 	<img
-		src='/mascot.jpg'
+		src='https://harelang.org/mascot.jpg'
 		alt='An inked drawing of the Hare mascot, a fuzzy rabbit'
 		width='128' height='128' />
 	<h1>Hare documentation</h1>
