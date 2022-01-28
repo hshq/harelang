@@ -8,12 +8,12 @@ export type mimetype = struct {
 	exts: []str,
 };
 
-// List of media types with a statically allocated fields (though the list
-// itself is dynamically allocated).
+// List of media types with statically allocated fields (though the list itself
+// is dynamically allocated).
 let static_db: []mimetype = [];
 
-// List of media types with a heap-allocated fields, used when loading mime
-// types from the system database.
+// List of media types with heap-allocated fields, used when loading mime types
+// from the system database.
 let heap_db: []mimetype = [];
 
 def MIME_BUCKETS: size = 256;
