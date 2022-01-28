@@ -60,7 +60,7 @@ fn init() datetime = datetime {
 //
 // TODO: revise examples
 //
-// zoffset is the zone offset from the normal timezone (in most cases, UTC0).
+// zoffset is the zone offset from the normal timezone (in most cases, UTC_Z).
 // For example, the "Asia/Tokyo" timezone has a single zoffset of +9 hours,
 // but the "Australia/Sydney" timezone has zoffsets +10 hours and +11 hours, as
 // they observe Daylight Saving Time.
@@ -75,11 +75,11 @@ fn init() datetime = datetime {
 //
 // - In the Europe/Amsterdam timezone, at 1995 March 26th,
 //   the local time 02:30 was never observed,
-//   as the clock jumped forward 1 hour from 01:00 CET.
+//   as the clock jumped forward 1 hour from 02:00 CET to 03:00 CEST.
 //
 // - In the Europe/Amsterdam timezone, at 1995 September 24th,
 //   the local time 02:30 was observed twice (00:30 UTC & 01:30 UTC),
-//   as the clock jumped back 1 hour from 02:00 CEST.
+//   as the clock jumped back 1 hour from 03:00 CEST to 02:00 CET.
 //
 // TODO: implement as described.
 export fn new(
@@ -113,14 +113,17 @@ export fn new(
 };
 
 // Returns a [[datetime]] of the immediate system time
+//
+// TODO: specify appropriate params like a time::clock and chrono::timezone.
 export fn now() datetime = {
-	// TODO: should the clock and timezone be choosable?
 	const i = time::now(time::clock::REALTIME);
 	const m = chrono::from_instant(i, chrono::local);
 	return from_moment(m);
 };
 
 // Creates a copy of a [[datetime]]
+//
+// TODO: remove, seems useless.
 export fn clone(dt: datetime) datetime = dt;
 
 // Creates a [[datetime]] from a [[chrono::moment]]

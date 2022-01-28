@@ -47,9 +47,11 @@ def MONTHS_SHORT: [_]str = [
 	"Oct", "Nov", "Dec",
 ];
 
+// TODO: Document specifiers (%Y, %m, etc) used here, in README or otherwise.
+
 // Parses a datetime string into a [[builder]], using a "layout" format string
-// with specifiers from POSIX strptime(3). Partial, incremental parsing is
-// allowed.
+// with a subset of specifiers from POSIX strptime(3). Partial, incremental
+// parsing is allowed.
 //
 // 	datetime::parse(&b, "%Y-%m-%d", "2038-01-19");
 // 	datetime::parse(&b, "%H:%M:%S", "03:14:07");

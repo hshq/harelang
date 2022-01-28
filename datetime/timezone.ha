@@ -15,6 +15,10 @@ export fn in(loc: chrono::locality, dt: datetime) datetime = {
 //
 // This is a utility function for use by other modules's internal calculations.
 // You probably shouldn't use this directly.
+//
+// TODO: Rename [[localize]] to something less confusing and more dangerous
+// sounding? Perhaps not export it? It's use is special case and often not
+// what users want.
 export fn localize(dt: datetime) datetime = {
 	return from_moment(chrono::localize(to_moment(dt)));
 };

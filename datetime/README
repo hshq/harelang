@@ -29,10 +29,6 @@ in the [[time::olson]] module.
 TODO: Settle on consistent naming and language for localisation.
 "timezone" or "locality"?
 
-TODO: Rename [[localize]] to something less confusing and more dangerous
-sounding? Perhaps not export it? It's use is special case and often not
-what users want.
-
 Both formatting and parsing use a sensible subset of the POSIX
 format specifiers (see strptime(3)), and it is trivial to contruct your
 own textual representations with the functions herein.
