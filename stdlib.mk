@@ -1320,6 +1320,8 @@ $(HARECACHE)/math/random/math_random-any.ssa: $(stdlib_math_random_any_srcs) $(s
 
 # mime (+any)
 stdlib_mime_any_srcs= \
+	$(STDLIB)/mime/database.ha \
+	$(STDLIB)/mime/lookup.ha \
 	$(STDLIB)/mime/parse.ha
 
 $(HARECACHE)/mime/mime-any.ssa: $(stdlib_mime_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_string_$(PLATFORM))
@@ -3172,6 +3174,8 @@ $(TESTCACHE)/math/random/math_random-any.ssa: $(testlib_math_random_any_srcs) $(
 
 # mime (+any)
 testlib_mime_any_srcs= \
+	$(STDLIB)/mime/database.ha \
+	$(STDLIB)/mime/lookup.ha \
 	$(STDLIB)/mime/parse.ha
 
 $(TESTCACHE)/mime/mime-any.ssa: $(testlib_mime_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_string_$(PLATFORM))

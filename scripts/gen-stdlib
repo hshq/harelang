@@ -795,6 +795,8 @@ math() {
 
 mime() {
 	gen_srcs mime \
+		database.ha \
+		lookup.ha \
 		parse.ha
 	gen_ssa mime ascii errors string
 }
