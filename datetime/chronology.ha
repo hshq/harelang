@@ -2,14 +2,58 @@ use errors;
 use time;
 use time::chrono;
 
+// Fucntions renamed here to avoid namespace conflict, like in the parameters of
+// the [[new]] function.
+
 // Returns a [[datetime]]'s number of days since the calendar epoch 0000-01-01
-export fn epochal(dt: *datetime) chrono::epochal = {
+export fn epochal(dt: *datetime) chrono::epochal = _epochal(dt);
+
+// Returns a [[datetime]]'s era
+export fn era(dt: *datetime) int = _era(dt);
+
+// Returns a [[datetime]]'s year
+export fn year(dt: *datetime) int = _year(dt);
+
+// Returns a [[datetime]]'s month of the year
+export fn month(dt: *datetime) int = _month(dt);
+
+// Returns a [[datetime]]'s day of the month
+export fn day(dt: *datetime) int = _day(dt);
+
+// Returns a [[datetime]]'s day of the week
+export fn weekday(dt: *datetime) int = _weekday(dt);
+
+// Returns a [[datetime]]'s ordinal day of the year
+export fn yearday(dt: *datetime) int = _yearday(dt);
+
+// Returns a [[datetime]]'s ISO week-numbering year
+export fn isoweekyear(dt: *datetime) int = _isoweekyear(dt);
+
+// Returns a [[datetime]]'s Gregorian week
+export fn week(dt: *datetime) int = _week(dt);
+
+// Returns a [[datetime]]'s ISO week
+export fn isoweek(dt: *datetime) int = _isoweek(dt);
+
+// Returns a [[datetime]]'s hour of the day
+export fn hour(dt: *datetime) int = _hour(dt);
+
+// Returns a [[datetime]]'s minute of the hour
+export fn min(dt: *datetime) int = _min(dt);
+
+// Returns a [[datetime]]'s second of the minute
+export fn sec(dt: *datetime) int = _sec(dt);
+
+// Returns a [[datetime]]'s nanosecond of the second
+export fn nsec(dt: *datetime) int = _nsec(dt);
+
+
+fn _epochal(dt: *datetime) chrono::epochal = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	return ldt.date - EPOCHAL_GREGORIAN;
 };
 
-// Returns a [[datetime]]'s era
-export fn era(dt: *datetime) int = {
+fn _era(dt: *datetime) int = {
 	match (dt.era) {
 	case void =>
 		if (dt.year is void) {
@@ -22,8 +66,7 @@ export fn era(dt: *datetime) int = {
 	};
 };
 
-// Returns a [[datetime]]'s year
-export fn year(dt: *datetime) int = {
+fn _year(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.year) {
 	case void =>
@@ -37,8 +80,7 @@ export fn year(dt: *datetime) int = {
 	};
 };
 
-// Returns a [[datetime]]'s month of the year
-export fn month(dt: *datetime) int = {
+fn _month(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.month) {
 	case void =>
@@ -52,8 +94,7 @@ export fn month(dt: *datetime) int = {
 	};
 };
 
-// Returns a [[datetime]]'s day of the month
-export fn day(dt: *datetime) int = {
+fn _day(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.day) {
 	case void =>
@@ -67,8 +108,7 @@ export fn day(dt: *datetime) int = {
 	};
 };
 
-// Returns a [[datetime]]'s day of the week
-export fn weekday(dt: *datetime) int = {
+fn _weekday(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.weekday) {
 	case void =>
@@ -79,8 +119,7 @@ export fn weekday(dt: *datetime) int = {
 	};
 };
 
-// Returns a [[datetime]]'s ordinal day of the year
-export fn yearday(dt: *datetime) int = {
+fn _yearday(dt: *datetime) int = {
 	match (dt.yearday) {
 	case void =>
 		if (dt.year is void) {
@@ -103,8 +142,7 @@ export fn yearday(dt: *datetime) int = {
 	};
 };
 
-// Returns a [[datetime]]'s ISO week-numbering year
-export fn isoweekyear(dt: *datetime) int = {
+fn _isoweekyear(dt: *datetime) int = {
 	match (dt.isoweekyear) {
 	case void =>
 		if (dt.year is void) {
@@ -131,8 +169,7 @@ export fn isoweekyear(dt: *datetime) int = {
 	};
 };
 
-// Returns a [[datetime]]'s Gregorian week
-export fn week(dt: *datetime) int = {
+fn _week(dt: *datetime) int = {
 	match (dt.week) {
 	case void =>
 		if (dt.yearday is void) {
@@ -151,8 +188,7 @@ export fn week(dt: *datetime) int = {
 	};
 };
 
-// Returns a [[datetime]]'s ISO week
-export fn isoweek(dt: *datetime) int = {
+fn _isoweek(dt: *datetime) int = {
 	match (dt.isoweek) {
 	case void =>
 		if (dt.year is void) {
@@ -179,8 +215,7 @@ export fn isoweek(dt: *datetime) int = {
 	};
 };
 
-// Returns a [[datetime]]'s hour of the day
-export fn hour(dt: *datetime) int = {
+fn _hour(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.hour) {
 	case void =>
@@ -195,8 +230,7 @@ export fn hour(dt: *datetime) int = {
 	};
 };
 
-// Returns a [[datetime]]'s minute of the hour
-export fn min(dt: *datetime) int = {
+fn _min(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.min) {
 	case void =>
@@ -211,8 +245,7 @@ export fn min(dt: *datetime) int = {
 	};
 };
 
-// Returns a [[datetime]]'s second of the minute
-export fn sec(dt: *datetime) int = {
+fn _sec(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.sec) {
 	case void =>
@@ -227,8 +260,7 @@ export fn sec(dt: *datetime) int = {
 	};
 };
 
-// Returns a [[datetime]]'s nanosecond of the second
-export fn nsec(dt: *datetime) int = {
+fn _nsec(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.nsec) {
 	case void =>

@@ -26,6 +26,10 @@ export type moment = struct {
 export type epochal = i64;
 
 // Creates a new [[moment]]
+//
+// TODO: Check for `time` value bounds overflow. Should we:
+// a. Return an error?
+// b. "Correct" by overflowing? See datetime::new();
 export fn new(date: epochal, time: time::duration, loc: locality) moment = {
 	const m = moment {
 		date = date,

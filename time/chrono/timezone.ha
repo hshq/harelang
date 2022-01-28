@@ -129,7 +129,7 @@ export fn lookupzone(m: *moment) zone = {
 	// if we've reached the end of the locality's transitions, try its
 	// posix_extend string
 	//
-	// TODO: important
+	// TODO: Unfinished; complete.
 	if (lo == len(m.loc.transitions) - 1 && m.loc.posix_extend != "") {
 		void;
 	};

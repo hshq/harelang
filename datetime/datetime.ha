@@ -81,7 +81,9 @@ fn init() datetime = datetime {
 //   the local time 02:30 was observed twice (00:30 UTC & 01:30 UTC),
 //   as the clock jumped back 1 hour from 03:00 CEST to 02:00 CET.
 //
-// TODO: implement as described.
+// TODO: Implement as described.
+// TODO: Allow and correct for overflowing units like Golang? Most likely not.
+// Defeats the purpose of validation at creation. I see little benefit.
 export fn new(
 	year: int,
 	month: int,
@@ -101,10 +103,14 @@ export fn new(
 	// TODO: should this be `nullable *chrono::timezone`?
 	// would interface better with other code, i presume.
 	loc: (*chrono::timezone | void),
+
+// TODO: improve variety of errors.
+// `invaliddatetime = !void` ?
+// `invaliddatetime = !datetime::builder` ?
 ) (datetime | errors::invalid) = {
 	// TODO: set the correct values according to the given zoffset and
 	// locality/timezone.
-	const m = chrono::new(
+	let m = chrono::new(
 		calc_epochal_from_ymd(year, month, day)?,
 		calc_time_from_hmsn(hour, min, sec, nsec)?,
 		if (loc is void) chrono::local else loc: *chrono::timezone,
@@ -112,16 +118,33 @@ export fn new(
 
 	// figuring out what zone this moment observes
 	if (zoffset is time::duration) {
-		// transform inversely to the moment that would transform to the
-		// current moment, then perform a zone lookup.
-		void;
+		// transform inversely to the moment that would transform back
+		// to the current moment, then perform a zone lookup.
+		m = chrono::transform(m, -(zoffset as time::duration));
+		chrono::lookupzone(&m);
 	} else {
 		// just perform a zone lookup, then try that zone and the
-		// neighboring zones.
+		// zones that are observed before and after.
+		//const z0 = chrono::lookupzone(*m);
+		//m = chrono::transform(m, -z0.zoffset);
 		void;
 	};
 
-	return from_moment(m);
+	const dt = from_moment(m);
+	if (
+		year == _year(&dt)
+		&& month == _month(&dt)
+		&& day == _day(&dt)
+		&& hour == _hour(&dt)
+		&& min == _min(&dt)
+		&& sec == _sec(&dt)
+		&& nsec == _nsec(&dt)
+	) {
+		void;
+	} else {
+		return errors::invalid;
+	};
+	return dt;
 };
 
 // Returns a [[datetime]] of the immediate system time
