@@ -38,7 +38,6 @@ export fn register(mime: mimetype...) void = {
 			const hash = fnv::string(item.exts[i]);
 			let bucket = &exttable[hash % len(exttable)];
 			append(bucket, item);
-			assert(len(bucket) > 0);
 		};
 	};
 };
