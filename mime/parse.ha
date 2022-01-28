@@ -47,6 +47,9 @@ export fn next_param(in: *type_params) ((str, str) | void | errors::invalid) = {
 	// common in the wild. ¯\_(ツ)_/¯
 	items.0 = strings::trim(items.0);
 	items.1 = strings::trim(items.1);
+	if (len(items.0) == 0 || len(items.1) == 0) {
+		return errors::invalid;
+	};
 
 	if (strings::hasprefix(items.1, "\"")) {
 		items.1 = quoted(items.1)?;
@@ -106,4 +109,12 @@ fn typevalid(in: str) (void | errors::invalid) = {
 	const param = next_param(&params)! as (str, str);
 	assert(param.0 == "foo" && param.1 == "bar baz");
 	assert(next_param(&params) is void);
+
+	assert(parse("hi") is errors::invalid);
+	assert(parse("text/ spaces ") is errors::invalid);
+	assert(parse("text/@") is errors::invalid);
+
+	const res = parse("text/plain;charset")!;
+	assert(res.0 == "text/plain");
+	assert(next_param(&res.1) is errors::invalid);
 };
