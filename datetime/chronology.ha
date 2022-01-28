@@ -57,7 +57,7 @@ fn _era(dt: *datetime) int = {
 	match (dt.era) {
 	case void =>
 		if (dt.year is void) {
-			dt.year = year(dt);
+			dt.year = _year(dt);
 		};
 		dt.era = calc_era(dt.year: int);
 		return dt.era: int;
@@ -123,13 +123,13 @@ fn _yearday(dt: *datetime) int = {
 	match (dt.yearday) {
 	case void =>
 		if (dt.year is void) {
-			year(dt);
+			_year(dt);
 		};
 		if (dt.month is void) {
-			month(dt);
+			_month(dt);
 		};
 		if (dt.day is void) {
-			day(dt);
+			_day(dt);
 		};
 		dt.yearday = calc_yearday(
 			dt.year: int,
@@ -146,16 +146,16 @@ fn _isoweekyear(dt: *datetime) int = {
 	match (dt.isoweekyear) {
 	case void =>
 		if (dt.year is void) {
-			year(dt);
+			_year(dt);
 		};
 		if (dt.month is void) {
-			month(dt);
+			_month(dt);
 		};
 		if (dt.day is void) {
-			day(dt);
+			_day(dt);
 		};
 		if (dt.weekday is void) {
-			weekday(dt);
+			_weekday(dt);
 		};
 		dt.isoweekyear = calc_isoweekyear(
 			dt.year: int,
@@ -173,10 +173,10 @@ fn _week(dt: *datetime) int = {
 	match (dt.week) {
 	case void =>
 		if (dt.yearday is void) {
-			yearday(dt);
+			_yearday(dt);
 		};
 		if (dt.weekday is void) {
-			weekday(dt);
+			_weekday(dt);
 		};
 		dt.week = calc_week(
 			dt.yearday: int,
@@ -192,16 +192,16 @@ fn _isoweek(dt: *datetime) int = {
 	match (dt.isoweek) {
 	case void =>
 		if (dt.year is void) {
-			year(dt);
+			_year(dt);
 		};
 		if (dt.week is void) {
-			week(dt);
+			_week(dt);
 		};
 		if (dt.weekday is void) {
-			weekday(dt);
+			_weekday(dt);
 		};
 		if (dt.yearday is void) {
-			yearday(dt);
+			_yearday(dt);
 		};
 		dt.isoweek = calc_isoweek(
 			dt.year: int,
