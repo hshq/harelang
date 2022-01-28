@@ -9,18 +9,10 @@ export fn in(loc: chrono::locality, dt: datetime) datetime = {
 	return new_dt;
 };
 
-// Returns a fictitious [[datetime]] which is adjusted and normalized as if its
-// locality was the normal locality. Its fields are adjusted by its current
-// [[chrono::zone]]'s offset.
-//
-// This is a utility function for use by other modules's internal calculations.
-// You probably shouldn't use this directly.
-//
-// TODO: Rename [[localize]] to something less confusing and more dangerous
-// sounding? Perhaps not export it? It's use is special case and often not
-// what users want.
-export fn localize(dt: datetime) datetime = {
-	return from_moment(chrono::localize(to_moment(dt)));
+// Returns a fictitious [[datetime]] which is shifted in time by a zone offset.
+// This is a utility function. Use with caution.
+export fn transform(dt: datetime, zo: time::duration) datetime = {
+	return from_moment(chrono::transform(to_moment(dt), zo));
 };
 
 // Finds and returns a [[datetime]]'s currently observed zone

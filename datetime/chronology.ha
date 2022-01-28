@@ -4,7 +4,7 @@ use time::chrono;
 
 // Returns a [[datetime]]'s number of days since the calendar epoch 0000-01-01
 export fn epochal(dt: *datetime) chrono::epochal = {
-	const ldt = localize(*dt);
+	const ldt = transform(*dt, dt.zone.zoffset);
 	return ldt.date - EPOCHAL_GREGORIAN;
 };
 
@@ -24,7 +24,7 @@ export fn era(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s year
 export fn year(dt: *datetime) int = {
-	const ldt = localize(*dt);
+	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.year) {
 	case void =>
 		const ymd = calc_ymd(ldt.date: chrono::epochal);
@@ -39,7 +39,7 @@ export fn year(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s month of the year
 export fn month(dt: *datetime) int = {
-	const ldt = localize(*dt);
+	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.month) {
 	case void =>
 		const ymd = calc_ymd(ldt.date: chrono::epochal);
@@ -54,7 +54,7 @@ export fn month(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s day of the month
 export fn day(dt: *datetime) int = {
-	const ldt = localize(*dt);
+	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.day) {
 	case void =>
 		const ymd = calc_ymd(ldt.date: chrono::epochal);
@@ -69,7 +69,7 @@ export fn day(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s day of the week
 export fn weekday(dt: *datetime) int = {
-	const ldt = localize(*dt);
+	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.weekday) {
 	case void =>
 		dt.weekday = calc_weekday(ldt.date: chrono::epochal);
@@ -181,7 +181,7 @@ export fn isoweek(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s hour of the day
 export fn hour(dt: *datetime) int = {
-	const ldt = localize(*dt);
+	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.hour) {
 	case void =>
 		const hmsn = calc_hmsn(ldt.time: time::duration);
@@ -197,7 +197,7 @@ export fn hour(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s minute of the hour
 export fn min(dt: *datetime) int = {
-	const ldt = localize(*dt);
+	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.min) {
 	case void =>
 		const hmsn = calc_hmsn(ldt.time: time::duration);
@@ -213,7 +213,7 @@ export fn min(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s second of the minute
 export fn sec(dt: *datetime) int = {
-	const ldt = localize(*dt);
+	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.sec) {
 	case void =>
 		const hmsn = calc_hmsn(ldt.time: time::duration);
@@ -229,7 +229,7 @@ export fn sec(dt: *datetime) int = {
 
 // Returns a [[datetime]]'s nanosecond of the second
 export fn nsec(dt: *datetime) int = {
-	const ldt = localize(*dt);
+	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.nsec) {
 	case void =>
 		const hmsn = calc_hmsn(ldt.time: time::duration);

@@ -64,29 +64,24 @@ type tzname = struct {
 	dst_endtime: str,
 };
 
-// Transforms and creates a new [[moment]] in a different [[locality]]
+// Converts a [[moment]] to one in a different [[locality]]
 export fn in(loc: locality, m: moment) moment = {
 	return new(m.date, m.time, loc); // resets .zone
 };
 
-// Returns a fictitious [[moment]] which is adjusted and normalized as if its
-// locality was the normal locality. Its fields are adjusted by its current
-// [[zone]]'s offset.
-//
-// This is a utility function for use by other modules's internal calculations.
-// You probably shouldn't use this directly.
-export fn localize(m: moment) moment = {
-	const zone = lookupzone(&m);
+// Returns a fictitious [[moment]] which is shifted in time by a zone offset.
+// This is a utility function for external modules. Use with caution.
+export fn transform(m: moment, zo: time::duration) moment = {
 	const daylen = m.loc.daylength;
 
-	const tnew = m.time + zone.zoffset;
-	const t = (if (tnew >= 0) tnew else tnew + daylen) % daylen;
+	const t = m.time + zo;
+	const mtime = (if (t >= 0) t else t + daylen) % daylen;
 
-	const dnew = (tnew / daylen): int;
-	const d = m.date + (if (tnew >= 0) dnew else dnew - 1);
+	const d = (t / daylen): int;
+	const mdate = m.date + (if (t >= 0) d else d - 1);
 
-	m.time = t;
-	m.date = d;
+	m.time = mtime;
+	m.date = mdate;
 	return m;
 };
 

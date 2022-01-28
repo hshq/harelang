@@ -1811,7 +1811,7 @@ $(HARECACHE)/time/chrono/time_chrono-any.ssa: $(stdlib_time_chrono_any_srcs) $(s
 stdlib_time_olson_any_srcs= \
 	$(STDLIB)/time/olson/olson.ha
 
-$(HARECACHE)/time/olson/time_olson-any.ssa: $(stdlib_time_olson_any_srcs) $(stdlib_rt) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM)) $(stdlib_datetime_$(PLATFORM))
+$(HARECACHE)/time/olson/time_olson-any.ssa: $(stdlib_time_olson_any_srcs) $(stdlib_rt) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time/olson
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::olson \
@@ -3820,7 +3820,7 @@ $(TESTCACHE)/time/chrono/time_chrono-any.ssa: $(testlib_time_chrono_any_srcs) $(
 testlib_time_olson_any_srcs= \
 	$(STDLIB)/time/olson/olson.ha
 
-$(TESTCACHE)/time/olson/time_olson-any.ssa: $(testlib_time_olson_any_srcs) $(testlib_rt) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM)) $(testlib_datetime_$(PLATFORM))
+$(TESTCACHE)/time/olson/time_olson-any.ssa: $(testlib_time_olson_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time/olson
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::olson \

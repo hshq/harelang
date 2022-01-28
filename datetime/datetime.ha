@@ -109,6 +109,18 @@ export fn new(
 		calc_time_from_hmsn(hour, min, sec, nsec)?,
 		if (loc is void) chrono::local else loc: *chrono::timezone,
 	);
+
+	// figuring out what zone this moment observes
+	if (zoffset is time::duration) {
+		// transform inversely to the moment that would transform to the
+		// current moment, then perform a zone lookup.
+		void;
+	} else {
+		// just perform a zone lookup, then try that zone and the
+		// neighboring zones.
+		void;
+	};
+
 	return from_moment(m);
 };
 
