@@ -1,3 +1,9 @@
 The mime package implements a subset of RFC 2045, namely the subset necessary to
 handle parsing and encoding Media Types (formerly "MIME types"), and to map them
 with file extensions.
+
+This module implements a "reasonable subset" of the specification which aims to
+address contemporary use-cases of Media Types outside of the broader context of
+the Content-Type header as it's used by emails. The implementation should not
+parse any Media Types which are not conformant, but may not parse all conformant
+Media Types.

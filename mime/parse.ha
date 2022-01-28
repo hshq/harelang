@@ -1,26 +1,10 @@
 use ascii;
 use errors;
 use strings;
+use io; // XXX: TEMP
 
 const tspecial: str = "()<>@,;:\\/[]?=";
 export type type_params = strings::tokenizer;
-
-fn typevalid(in: str) (void | errors::invalid) = {
-	const miter = strings::iter(in);
-	for (true) {
-		const rn = match (strings::next(&miter)) {
-		case let rn: rune =>
-			yield rn;
-		case void =>
-			break;
-		};
-		if (!ascii::isascii(rn) || rn == ' '
-				|| ascii::iscntrl(rn)
-				|| strings::contains(tspecial, rn)) {
-			return errors::invalid;
-		};
-	};
-};
 
 // Parses a Media Type, returning a tuple of the content type (e.g.
 // "text/plain") and a parameter parser object, or [[errors::invalid]] if the
@@ -65,15 +49,47 @@ export fn next_param(in: *type_params) ((str, str) | void | errors::invalid) = {
 	items.1 = strings::trim(items.1);
 
 	if (strings::hasprefix(items.1, "\"")) {
-		// So you handed mime::next_param a seemingly valid parameter
-		// and ended up getting this error instead. Good. That's means
-		// you're motivated to deal with this! YOU read the RFC's ABNF
-		// grammar and figure out how this should be implemented. I sure
-		// as hell don't have the patience for this shitty RFC.
-		return errors::invalid;
+		items.1 = quoted(items.1)?;
 	};
 
 	return (items.0, items.1);
+};
+
+fn quoted(in: str) (str | errors::invalid) = {
+	// We have only a basic implementation of quoted-string. It has a couple
+	// of problems:
+	//
+	// 1. The RFC does not define it very well
+	// 2. The parts of the RFC which are ill-defined are rarely used
+	// 3. Implementing quoted-pair would require allocating a new string
+	//
+	// This implementation should handle most Media Types seen in practice
+	// unless they're doing something weird and ill-advised with them.
+	in = strings::sub(in, 1, strings::end);
+	const items = strings::cut(in, "\"");
+	if (strings::contains(in, "\\")
+			|| strings::contains(in, "\r")
+			|| strings::contains(in, "\n")) {
+		return errors::invalid;
+	};
+	return items.0;
+};
+
+fn typevalid(in: str) (void | errors::invalid) = {
+	const miter = strings::iter(in);
+	for (true) {
+		const rn = match (strings::next(&miter)) {
+		case let rn: rune =>
+			yield rn;
+		case void =>
+			break;
+		};
+		if (!ascii::isascii(rn) || rn == ' '
+				|| ascii::iscntrl(rn)
+				|| strings::contains(tspecial, rn)) {
+			return errors::invalid;
+		};
+	};
 };
 
 @test fn parse() void = {
@@ -83,12 +99,12 @@ export fn next_param(in: *type_params) ((str, str) | void | errors::invalid) = {
 	const res = parse("image/png")!;
 	assert(res.0 == "image/png");
 
-	const res = parse("application/svg+xml; charset=utf-8; foo=bar")!;
+	const res = parse("application/svg+xml; charset=utf-8; foo=\"bar baz\"")!;
 	assert(res.0 == "application/svg+xml");
 	const params = res.1;
 	const param = next_param(&params)! as (str, str);
 	assert(param.0 == "charset" && param.1 == "utf-8");
 	const param = next_param(&params)! as (str, str);
-	assert(param.0 == "foo" && param.1 == "bar");
+	assert(param.0 == "foo" && param.1 == "bar baz");
 	assert(next_param(&params) is void);
 };
