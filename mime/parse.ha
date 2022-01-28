@@ -65,14 +65,13 @@ fn quoted(in: str) (str | errors::invalid) = {
 	//
 	// This implementation should handle most Media Types seen in practice
 	// unless they're doing something weird and ill-advised with them.
-	in = strings::sub(in, 1, strings::end);
-	const items = strings::cut(in, "\"");
+	in = strings::trim(in, '"');
 	if (strings::contains(in, "\\")
 			|| strings::contains(in, "\r")
 			|| strings::contains(in, "\n")) {
 		return errors::invalid;
 	};
-	return items.0;
+	return in;
 };
 
 fn typevalid(in: str) (void | errors::invalid) = {
