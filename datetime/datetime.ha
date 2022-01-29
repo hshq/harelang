@@ -82,8 +82,18 @@ fn init() datetime = datetime {
 //   as the clock jumped back 1 hour from 03:00 CEST to 02:00 CET.
 //
 // TODO: Implement as described.
+//
 // TODO: Allow and correct for overflowing units like Golang? Most likely not.
 // Defeats the purpose of validation at creation. I see little benefit.
+//
+// TODO: use the following function signature?:
+//
+// 	fn new(loc: <...>, zo: <...>, values: int...)
+//
+// Which would allow shorter calls when precision is not necessary:
+//
+// 	new(UTC, 0, 1972, 09) // 1972-09-01 00:00:00.000000000 +0000 UTC
+//
 export fn new(
 	year: int,
 	month: int,
