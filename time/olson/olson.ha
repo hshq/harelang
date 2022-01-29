@@ -16,17 +16,11 @@ export type invalidtzif = !void;
 // Olson timezones default to using the [[chrono::UTC]] timescale and
 // [[chrono::EARTH_DAY]] daylength.
 //
-// TODO: tidy up errors?
-// TODO: return locality instead? see below.
+// TODO: Tidy up errors.
+//
 export fn tz(name: str) (chrono::timezone | errors::overflow | fs::error | io::error | invalidtzif) = {
 	switch (name) {
 	case "Local" =>
-		// returning a timezone instead of a locality (pointer to
-		// timezone) avoids hidden allocation, but if we decide that
-		// chrono::local might change during the lifetime of a long
-		// running program (say, some daemon which is smart enough to
-		// update it's zones as time months go by), we lose this
-		// ability.
 		return *chrono::local;
 	case "UTC" =>
 		return *chrono::UTC_Z;
