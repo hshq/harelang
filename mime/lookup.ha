@@ -1,5 +1,6 @@
 use hash::fnv;
 use strings;
+use io; // XXX: TEMP
 
 // Looks up a Media Type based on the mime type string, returning null if
 // unknown.

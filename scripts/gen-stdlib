@@ -794,11 +794,15 @@ math() {
 }
 
 mime() {
+	# This module is not built by default because gen-stdlib does not do a good
+	# job of resolving @init dependency ordering issues
 	gen_srcs mime \
 		database.ha \
 		lookup.ha \
-		parse.ha
-	gen_ssa mime ascii errors string
+		parse.ha \
+		system.ha
+	gen_ssa mime ascii errors string hash::fnv encoding::utf8 bufio \
+		errors fs io os
 }
 
 net() {
@@ -1216,7 +1220,6 @@ linux::io_uring	linux
 linux::vdso		linux
 math
 math::random
-mime
 net				linux freebsd
 net::dial
 net::dns

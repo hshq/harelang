@@ -444,12 +444,6 @@ stdlib_deps_any+=$(stdlib_math_random_any)
 stdlib_math_random_linux=$(stdlib_math_random_any)
 stdlib_math_random_freebsd=$(stdlib_math_random_any)
 
-# gen_lib mime (any)
-stdlib_mime_any=$(HARECACHE)/mime/mime-any.o
-stdlib_deps_any+=$(stdlib_mime_any)
-stdlib_mime_linux=$(stdlib_mime_any)
-stdlib_mime_freebsd=$(stdlib_mime_any)
-
 # gen_lib net (linux)
 stdlib_net_linux=$(HARECACHE)/net/net-linux.o
 stdlib_deps_linux+=$(stdlib_net_linux)
@@ -1317,18 +1311,6 @@ $(HARECACHE)/math/random/math_random-any.ssa: $(stdlib_math_random_any_srcs) $(s
 	@mkdir -p $(HARECACHE)/math/random
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nmath::random \
 		-t$(HARECACHE)/math/random/math_random.td $(stdlib_math_random_any_srcs)
-
-# mime (+any)
-stdlib_mime_any_srcs= \
-	$(STDLIB)/mime/database.ha \
-	$(STDLIB)/mime/lookup.ha \
-	$(STDLIB)/mime/parse.ha
-
-$(HARECACHE)/mime/mime-any.ssa: $(stdlib_mime_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_string_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/mime
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nmime \
-		-t$(HARECACHE)/mime/mime.td $(stdlib_mime_any_srcs)
 
 # net (+linux)
 stdlib_net_linux_srcs= \
@@ -2262,12 +2244,6 @@ testlib_deps_any+=$(testlib_math_random_any)
 testlib_math_random_linux=$(testlib_math_random_any)
 testlib_math_random_freebsd=$(testlib_math_random_any)
 
-# gen_lib mime (any)
-testlib_mime_any=$(TESTCACHE)/mime/mime-any.o
-testlib_deps_any+=$(testlib_mime_any)
-testlib_mime_linux=$(testlib_mime_any)
-testlib_mime_freebsd=$(testlib_mime_any)
-
 # gen_lib net (linux)
 testlib_net_linux=$(TESTCACHE)/net/net-linux.o
 testlib_deps_linux+=$(testlib_net_linux)
@@ -3171,18 +3147,6 @@ $(TESTCACHE)/math/random/math_random-any.ssa: $(testlib_math_random_any_srcs) $(
 	@mkdir -p $(TESTCACHE)/math/random
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath::random \
 		-t$(TESTCACHE)/math/random/math_random.td $(testlib_math_random_any_srcs)
-
-# mime (+any)
-testlib_mime_any_srcs= \
-	$(STDLIB)/mime/database.ha \
-	$(STDLIB)/mime/lookup.ha \
-	$(STDLIB)/mime/parse.ha
-
-$(TESTCACHE)/mime/mime-any.ssa: $(testlib_mime_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_string_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/mime
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmime \
-		-t$(TESTCACHE)/mime/mime.td $(testlib_mime_any_srcs)
 
 # net (+linux)
 testlib_net_linux_srcs= \
