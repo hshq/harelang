@@ -7,9 +7,10 @@ use strings;
 use strio;
 use time::chrono;
 
-export def RFC3339: str = "%Y-%m-%dT%H:%M:%S%z";
 export def EMAIL: str = "%a, %d %b %Y %H:%M:%S %z";
+export def EMAILZ: str = "%a, %d %b %Y %H:%M:%S %z %Z";
 export def POSIX: str = "%a %b %d %H:%M:%S %Z %Y";
+export def RFC3339: str = "%Y-%m-%dT%H:%M:%S%z";
 export def STAMP: str = "%Y-%m-%d %H:%M:%S";
 export def STAMP_NANO: str = "%Y-%m-%d %H:%M:%S.%N";
 
