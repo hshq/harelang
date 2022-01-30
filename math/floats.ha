@@ -871,7 +871,7 @@ fn nearbyintf32(x: f32) f32 = {
 		return x;
 	};
 	let s = n >> 31;
-	let y = if (s != 0.0)
+	let y = if (s != 0)
 		x - 1.0 / F32_EPS + 1.0 / F32_EPS
 	else
 		x + 1.0 / F32_EPS - 1.0 / F32_EPS;
@@ -890,7 +890,7 @@ fn nearbyintf64(x: f64) f64 = {
 		return x;
 	};
 	let s = n >> 63;
-	let y = if (s != 0.0)
+	let y = if (s != 0)
 		x - 1.0 / F64_EPS + 1.0 / F64_EPS
 	else
 		x + 1.0 / F64_EPS - 1.0 / F64_EPS;
