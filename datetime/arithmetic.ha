@@ -188,31 +188,47 @@ export fn start_of(u: unit, dt: datetime) datetime = {
 	// zoffset once the API is solidified a bit
 	return switch (u) {
 	case unit::ERA =>
-		yield new(01, 01, 01, 00, 00, 00, 0,
-			0, dt.loc)!;
+		yield new(dt.loc, 0,
+			01, 01, 01,
+			00, 00, 00, 0,
+		)!;
 	case unit::YEAR =>
-		yield new(year(&dt), 01, 01, 00, 00, 00, 0,
-			0, dt.loc)!;
+		yield new(dt.loc, 0,
+			year(&dt), 01, 01,
+			00, 00, 00, 0,
+		)!;
 	case unit::MONTH =>
-		yield new(year(&dt), month(&dt), 01, 00, 00, 00, 0,
-			0, dt.loc)!;
+		yield new(dt.loc, 0,
+			year(&dt), month(&dt), 01,
+			00, 00, 00, 0,
+		)!;
 	case unit::WEEK =>
-		const new_epochal = dt.date - (weekday(&dt) - 1);
-		const new_ymd = calc_ymd(new_epochal);
-		yield new(new_ymd.0, new_ymd.1, new_ymd.2, 00, 00, 00, 0,
-			0, dt.loc)!;
+		const epochal = dt.date - (weekday(&dt) - 1);
+		const ymd = calc_ymd(epochal);
+		yield new(dt.loc, 0,
+			ymd.0, ymd.1, ymd.2,
+			00, 00, 00, 0,
+		)!;
 	case unit::DAY =>
-		yield new(year(&dt), month(&dt), day(&dt), 00, 00, 00, 0,
-			0, dt.loc)!;
+		yield new(dt.loc, 0,
+			year(&dt), month(&dt), day(&dt),
+			00, 00, 00, 0,
+		)!;
 	case unit::HOUR =>
-		yield new(year(&dt), month(&dt), day(&dt), hour(&dt), 00, 00, 0,
-			0, dt.loc)!;
+		yield new(dt.loc, 0,
+			year(&dt), month(&dt), day(&dt),
+			hour(&dt), 00, 00, 0,
+		)!;
 	case unit::MINUTE =>
-		yield new(year(&dt), month(&dt), day(&dt), hour(&dt), min(&dt),
-			00, 0, 0, dt.loc)!;
+		yield new(dt.loc, 0,
+			year(&dt), month(&dt), day(&dt),
+			hour(&dt), min(&dt), 00, 0,
+		)!;
 	case unit::SECOND =>
-		yield new(year(&dt), month(&dt), day(&dt), hour(&dt), min(&dt),
-			sec(&dt), 0, 0, dt.loc)!;
+		yield new(dt.loc, 0,
+			year(&dt), month(&dt), day(&dt),
+			hour(&dt), min(&dt), sec(&dt), 0,
+		)!;
 	case unit::NANOSECOND =>
 		yield dt;
 	};
@@ -294,6 +310,7 @@ export fn hop(dt: datetime, pp: period...) datetime = {
 // 		days   = -4, // 2020-04-09 12:30:45
 // 	});
 export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
+	// TODO: Use builder to simplify some code.
 	let d_year = year(&dt);
 	let d_month = month(&dt);
 	let d_day = day(&dt);
@@ -384,8 +401,9 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 		};
 	};
 	// TODO: Add zoffset back in here once API is settled
-	return new(d_year, d_month, d_day, d_hour, d_min, d_sec, d_nsec: int,
-		0, dt.loc)!;
+	return new(dt.loc, 0,
+		d_year, d_month, d_day, d_hour, d_min, d_sec, d_nsec: int,
+	)!;
 };
 
 // Subtracts a calendrical period of time to a datetime, largest units first.
@@ -421,7 +439,7 @@ fn absi(n: i64) i64 = {
 };
 
 @test fn eq() void = {
-	const dt = new(2022, 02, 04, 03, 14, 07, 00, 0, chrono::UTC_Z)!;
+	const dt = new(chrono::UTC_Z, 0, 2022, 02, 04, 03, 14, 07, 0)!;
 	const cases = [
 		((-768, 01, 01, 03, 14, 07, 0), false),
 		((1, 1, 01, 14, 00, 00, 1234), false),
@@ -431,18 +449,17 @@ fn absi(n: i64) i64 = {
 		((5555, 05, 05, 05, 55, 55, 5555), false),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
-		const parts = cases[i].0;
+		const c = cases[i].0;
 		const expected = cases[i].1;
-		const case_dt = new(parts.0, parts.1, parts.2,
-			parts.3, parts.4, parts.5, parts.6,
-			0, chrono::UTC_Z)!;
+		const case_dt = new(chrono::UTC_Z, 0,
+			 c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
 		assert(eq(dt, case_dt) == expected,
 			"equality comparison failed");
 	};
 };
 
 @test fn is_after() void = {
-	const dt = new(2022, 02, 04, 03, 14, 07, 0, 0, chrono::UTC_Z)!;
+	const dt = new(chrono::UTC_Z, 0, 2022, 02, 04, 03, 14, 07, 0)!;
 	const cases = [
 		((-768, 01, 01, 03, 14, 07, 0), false),
 		((1, 1, 01, 14, 00, 00, 1234), false),
@@ -453,11 +470,10 @@ fn absi(n: i64) i64 = {
 		((5555, 05, 05, 05, 55, 55, 5555), true),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
-		const parts = cases[i].0;
+		const c = cases[i].0;
 		const expected = cases[i].1;
-		const case_dt = new(parts.0, parts.1, parts.2,
-			parts.3, parts.4, parts.5, parts.6,
-			0, chrono::UTC_Z)!;
+		const case_dt = new(chrono::UTC_Z, 0,
+			 c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
 		assert(is_after(case_dt, dt) == expected,
 			"incorrect date ordering in is_after()");
 	};
@@ -475,11 +491,10 @@ fn absi(n: i64) i64 = {
 		((5555, 05, 05, 05, 55, 55, 5555), false),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
-		const parts = cases[i].0;
+		const c = cases[i].0;
 		const expected = cases[i].1;
-		const case_dt = new(parts.0, parts.1, parts.2,
-			parts.3, parts.4, parts.5, parts.6,
-			0, chrono::UTC_Z)!;
+		const case_dt = new(chrono::UTC_Z, 0,
+			 c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
 		assert(is_before(case_dt, dt) == expected,
 			"incorrect date ordering in is_before()");
 	};
@@ -488,8 +503,8 @@ fn absi(n: i64) i64 = {
 @test fn diff() void = {
 	const cases = [
 		(
-			new(2021, 01, 15, 00, 00, 00, 0, 0, chrono::UTC_Z)!,
-			new(2022, 02, 16, 00, 00, 00, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2021, 01, 15, 00, 00, 00, 0)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 16, 00, 00, 00, 0)!,
 			period {
 				years = 1,
 				months = 1,
@@ -498,8 +513,8 @@ fn absi(n: i64) i64 = {
 			},
 		),
 		(
-			new(2021, 01, 15, 00, 00, 00, 0, 0, chrono::UTC_Z)!,
-			new(2022, 03, 27, 00, 00, 00, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2021, 01, 15, 00, 00, 00, 0)!,
+			new(chrono::UTC_Z, 0, 2022, 03, 27, 00, 00, 00, 0)!,
 			period {
 				years = 1,
 				months = 2,
@@ -508,8 +523,8 @@ fn absi(n: i64) i64 = {
 			},
 		),
 		(
-			new(2021, 01, 15, 00, 00, 00, 0, 0, chrono::UTC_Z)!,
-			new(2022, 03, 14, 00, 00, 00, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2021, 01, 15, 00, 00, 00, 0)!,
+			new(chrono::UTC_Z, 0, 2022, 03, 14, 00, 00, 00, 0)!,
 			period {
 				years = 1,
 				months = 1,
@@ -518,16 +533,16 @@ fn absi(n: i64) i64 = {
 			},
 		),
 		(
-			new(2021, 01, 15, 00, 00, 00, 0, 0, chrono::UTC_Z)!,
-			new(2021, 01, 16, 00, 00, 00, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2021, 01, 15, 00, 00, 00, 0)!,
+			new(chrono::UTC_Z, 0, 2021, 01, 16, 00, 00, 00, 0)!,
 			period {
 				days = 1,
 				...
 			},
 		),
 		(
-			new(2021, 01, 15, 00, 00, 00, 0, 0, chrono::UTC_Z)!,
-			new(2021, 01, 16, 01, 03, 02, 4, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2021, 01, 15, 00, 00, 00, 0)!,
+			new(chrono::UTC_Z, 0, 2021, 01, 16, 01, 03, 02, 4)!,
 			period {
 				days = 1,
 				hours = 1,
@@ -538,8 +553,8 @@ fn absi(n: i64) i64 = {
 			},
 		),
 		(
-			new(2021, 01, 15, 02, 03, 02, 2, 0, chrono::UTC_Z)!,
-			new(2021, 01, 16, 01, 01, 02, 4, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2021, 01, 15, 02, 03, 02, 2)!,
+			new(chrono::UTC_Z, 0, 2021, 01, 16, 01, 01, 02, 4)!,
 			period {
 				hours = 22,
 				minutes = 58,
@@ -548,8 +563,8 @@ fn absi(n: i64) i64 = {
 			},
 		),
 		(
-			new(0500, 01, 01, 00, 00, 00, 0, 0, chrono::UTC_Z)!,
-			new(3500, 01, 01, 00, 06, 00, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 0500, 01, 01, 00, 00, 00, 0)!,
+			new(chrono::UTC_Z, 0, 3500, 01, 01, 00, 06, 00, 0)!,
 			period {
 				years = 3000,
 				minutes = 6,
@@ -557,8 +572,8 @@ fn absi(n: i64) i64 = {
 			},
 		),
 		(
-			new(-500, 01, 01, 00, 00, 00, 0, 0, chrono::UTC_Z)!,
-			new(2500, 01, 01, 00, 06, 00, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, -500, 01, 01, 00, 00, 00, 0)!,
+			new(chrono::UTC_Z, 0, 2500, 01, 01, 00, 06, 00, 0)!,
 			period {
 				years = 3000,
 				minutes = 6,
@@ -566,8 +581,8 @@ fn absi(n: i64) i64 = {
 			},
 		),
 		(
-			new(2000, 01, 01, 00, 00, 00, 0, 0, chrono::UTC_Z)!,
-			new(2000, 01, 01, 00, 06, 00, 999999999, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2000, 01, 01, 00, 00, 00, 0)!,
+			new(chrono::UTC_Z, 0, 2000, 01, 01, 00, 06, 00, 999999999)!,
 			period {
 				minutes = 6,
 				nanoseconds = 999999999,
@@ -575,16 +590,16 @@ fn absi(n: i64) i64 = {
 			},
 		),
 		(
-			new(2000, 01, 01, 00, 06, 00, 999999999, 0, chrono::UTC_Z)!,
-			new(2000, 01, 01, 00, 06, 01, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2000, 01, 01, 00, 06, 00, 999999999)!,
+			new(chrono::UTC_Z, 0, 2000, 01, 01, 00, 06, 01, 0)!,
 			period {
 				nanoseconds = 1,
 				...
 			},
 		),
 		(
-			new(-9000, 01, 01, 00, 06, 00, 999999999, 0, chrono::UTC_Z)!,
-			new(9000, 01, 01, 00, 06, 01, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, -9000, 01, 01, 00, 06, 00, 999999999)!,
+			new(chrono::UTC_Z, 0, 9000, 01, 01, 00, 06, 01, 0)!,
 			period {
 				years = 18000,
 				nanoseconds = 1,
@@ -604,25 +619,25 @@ fn absi(n: i64) i64 = {
 @test fn diff_in_unit() void = {
 	const cases = [
 		(
-			new(1994, 08, 27, 11, 20, 01, 2, 0, chrono::UTC_Z)!,
-			new(2022, 01, 05, 13, 53, 30, 20, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 1994, 08, 27, 11, 20, 01, 2)!,
+			new(chrono::UTC_Z, 0, 2022, 01, 05, 13, 53, 30, 20)!,
 			(27, 328, 1427, 9993, 239834, 14390073, 863404409i64,
 				(863404409i64 * time::SECOND) + 18),
 		),
 		(
-			new(1994, 08, 28, 11, 20, 01, 2, 0, chrono::UTC_Z)!,
-			new(1994, 08, 27, 11, 20, 01, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 1994, 08, 28, 11, 20, 01, 2)!,
+			new(chrono::UTC_Z, 0, 1994, 08, 27, 11, 20, 01, 0)!,
 			(0, 0, 0, 1, 24, 1440, 86400i64,
 				(86400i64 * time::SECOND) + 2),
 		),
 		(
-			new(1994, 08, 27, 11, 20, 01, 0, 0, chrono::UTC_Z)!,
-			new(1994, 08, 27, 11, 20, 01, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 1994, 08, 27, 11, 20, 01, 0)!,
+			new(chrono::UTC_Z, 0, 1994, 08, 27, 11, 20, 01, 0)!,
 			(0, 0, 0, 0, 0, 0, 0i64, 0i64),
 		),
 		(
-			new(-500, 01, 01, 00, 59, 01, 0, 0, chrono::UTC_Z)!,
-			new(2000, 01, 01, 23, 01, 01, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, -500, 01, 01, 00, 59, 01, 0)!,
+			new(chrono::UTC_Z, 0, 2000, 01, 01, 23, 01, 01, 0)!,
 			(2500, 30000, 130443, 913106, 913106 * 24 + 22,
 				(913106 * 24 + 22) * 60 + 2,
 				((913106 * 24 + 22) * 60 + 2) * 60i64,
@@ -654,151 +669,149 @@ fn absi(n: i64) i64 = {
 };
 
 @test fn start_of() void = {
-	const dt = new(1994, 08, 27, 11, 20, 01, 2, 0, chrono::UTC_Z)!;
+	const dt = new(chrono::UTC_Z, 0, 1994, 08, 27, 11, 20, 01, 2)!;
 	assert(eq(start_of(unit::ERA, dt),
-			new(01, 01, 01, 00, 00, 00, 0, 0, chrono::UTC_Z)!),
+			new(chrono::UTC_Z, 0, 01, 01, 01, 00, 00, 00, 0)!),
 		"invalid start_of() result");
 	assert(eq(start_of(unit::YEAR, dt),
-			new(1994, 01, 01, 00, 00, 00, 0, 0, chrono::UTC_Z)!),
+			new(chrono::UTC_Z, 0, 1994, 01, 01, 00, 00, 00, 0)!),
 		"invalid start_of() result");
 	assert(eq(start_of(unit::MONTH, dt),
-			new(1994, 08, 01, 00, 00, 00, 0, 0, chrono::UTC_Z)!),
+			new(chrono::UTC_Z, 0, 1994, 08, 01, 00, 00, 00, 0)!),
 		"invalid start_of() result");
 	assert(eq(start_of(unit::WEEK, dt),
-			new(1994, 08, 22, 00, 00, 00, 0, 0, chrono::UTC_Z)!),
+			new(chrono::UTC_Z, 0, 1994, 08, 22, 00, 00, 00, 0)!),
 		"invalid start_of() result");
 	assert(eq(start_of(unit::DAY, dt),
-			new(1994, 08, 27, 00, 00, 00, 0, 0, chrono::UTC_Z)!),
+			new(chrono::UTC_Z, 0, 1994, 08, 27, 00, 00, 00, 0)!),
 		"invalid start_of() result");
 	assert(eq(start_of(unit::HOUR, dt),
-			new(1994, 08, 27, 11, 00, 00, 0, 0, chrono::UTC_Z)!),
+			new(chrono::UTC_Z, 0, 1994, 08, 27, 11, 00, 00, 0)!),
 		"invalid start_of() result");
 	assert(eq(start_of(unit::MINUTE, dt),
-			new(1994, 08, 27, 11, 20, 00, 0, 0, chrono::UTC_Z)!),
+			new(chrono::UTC_Z, 0, 1994, 08, 27, 11, 20, 00, 0)!),
 		"invalid start_of() result");
 	assert(eq(start_of(unit::SECOND, dt),
-			new(1994, 08, 27, 11, 20, 01, 0, 0, chrono::UTC_Z)!),
+			new(chrono::UTC_Z, 0, 1994, 08, 27, 11, 20, 01, 0)!),
 		"invalid start_of() result");
 	assert(eq(start_of(unit::NANOSECOND, dt), dt),
 		"invalid start_of() result");
 };
 
 @test fn add() void = {
-	const d = new(2022, 02, 04, 03, 14, 07, 0, 0, chrono::UTC_Z)!;
+	const d = new(chrono::UTC_Z, 0, 2022, 02, 04, 03, 14, 07, 0)!;
 	const cases = [
 		(
 			period { years = 1, ... },
-			new(2023, 02, 04, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2023, 02, 04, 03, 14, 07, 0)!,
 		),
 		(
 			period { years = -23, ... },
-			new(1999, 02, 04, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 1999, 02, 04, 03, 14, 07, 0)!,
 		),
 		(
 			period { months = 2, ... },
-			new(2022, 04, 04, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 04, 04, 03, 14, 07, 0)!,
 		),
 		(
 			period { months = 11, ... },
-			new(2023, 01, 04, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2023, 01, 04, 03, 14, 07, 0)!,
 		),
 		(
 			period { months = -1, ... },
-			new(2022, 01, 04, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 01, 04, 03, 14, 07, 0)!,
 		),
 		(
 			period { months = -2, ... },
-			new(2021, 12, 04, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2021, 12, 04, 03, 14, 07, 0)!,
 		),
 		(
 			period { days = 3, ... },
-			new(2022, 02, 07, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 07, 03, 14, 07, 0)!,
 		),
 		(
 			period { days = 33, ... },
-			new(2022, 03, 09, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 03, 09, 03, 14, 07, 0)!,
 		),
 		(
 			period { days = 333, ... },
-			new(2023, 01, 03, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2023, 01, 03, 03, 14, 07, 0)!,
 		),
 		(
 			period { days = -2, ... },
-			new(2022, 02, 02, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 02, 03, 14, 07, 0)!,
 		),
 		(
 			period { days = -4, ... },
-			new(2022, 01, 31, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 01, 31, 03, 14, 07, 0)!,
 		),
 		(
 			period { days = -1337, ... },
-			new(2018, 06, 08, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2018, 06, 08, 03, 14, 07, 0)!,
 		),
 		(
 			period { hours = 1, ... },
-			new(2022, 02, 04, 04, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 04, 04, 14, 07, 0)!,
 		),
 		(
 			period { hours = 24, ... },
-			new(2022, 02, 05, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 05, 03, 14, 07, 0)!,
 		),
 		(
 			period { hours = 25, ... },
-			new(2022, 02, 05, 04, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 05, 04, 14, 07, 0)!,
 		),
 		(
 			period { hours = 123456, ... },
-			new(2036, 03, 06, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2036, 03, 06, 03, 14, 07, 0)!,
 		),
 		(
 			period { hours = -2, ... },
-			new(2022, 02, 04, 01, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 04, 01, 14, 07, 0)!,
 		),
 		(
 			period { hours = -24, ... },
-			new(2022, 02, 03, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 03, 03, 14, 07, 0)!,
 		),
 		(
 			period { hours = -123456, ... },
-			new(2008, 01, 05, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2008, 01, 05, 03, 14, 07, 0)!,
 		),
 		(
 			period { seconds = 2, ... },
-			new(2022, 02, 04, 03, 14, 09, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 04, 03, 14, 09, 0)!,
 		),
 		(
 			period { seconds = 666666666, ... },
-			new(2043, 03, 22, 04, 25, 13, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2043, 03, 22, 04, 25, 13, 0)!,
 		),
 		(
 			period { seconds = -2, ... },
-			new(2022, 02, 04, 03, 14, 05, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 04, 03, 14, 05, 0)!,
 		),
 		(
 			period { seconds = -666666666, ... },
-			new(2000, 12, 20, 02, 03, 01, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2000, 12, 20, 02, 03, 01, 0)!,
 		),
 		(
 			period { nanoseconds = 123, ... },
-			new(2022, 02, 04, 03, 14, 07, 123, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 04, 03, 14, 07, 123)!,
 		),
 		(
 			period { nanoseconds = 1361661361461, ... },
-			new(2022, 02, 04, 03, 36, 48, 661361461,
-				0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 04, 03, 36, 48, 661361461)!,
 		),
 		(
 			period { nanoseconds = -1361661361461, ... },
-			new(2022, 02, 04, 02, 51, 25, 338638539,
-				0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 02, 04, 02, 51, 25, 338638539)!,
 		),
 		(
 			period { months = 1, seconds = -666666666, ... },
-			new(2001, 01, 17, 02, 03, 01, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2001, 01, 17, 02, 03, 01, 0)!,
 		),
 		(
 			period { months = 1, seconds = -666666666, ... },
-			new(2001, 01, 17, 02, 03, 01, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2001, 01, 17, 02, 03, 01, 0)!,
 		),
 		(
 			period {
@@ -812,8 +825,7 @@ fn absi(n: i64) i64 = {
 				nanoseconds = -8,
 				...
 			},
-			new(2020, 11, 08, 22, 07, 59, 999999992,
-				0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2020, 11, 08, 22, 07, 59, 999999992)!,
 		),
 		(
 			period {
@@ -827,7 +839,7 @@ fn absi(n: i64) i64 = {
 				nanoseconds = 8,
 				...
 			},
-			new(2023, 04, 29, 08, 20, 14, 8, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2023, 04, 29, 08, 20, 14, 8)!,
 		),
 		(
 			period {
@@ -841,8 +853,7 @@ fn absi(n: i64) i64 = {
 				nanoseconds = -34,
 				...
 			},
-			new(2022, 12, 20, 11, 01, 27, 999999966,
-				0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2022, 12, 20, 11, 01, 27, 999999966)!,
 		),
 		(
 			period {
@@ -856,8 +867,7 @@ fn absi(n: i64) i64 = {
 				nanoseconds = -86400000000000,
 				...
 			},
-			new(2021, 01, 02, 16, 14, 07, 0,
-				0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2021, 01, 02, 16, 14, 07, 0)!,
 		),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
@@ -877,19 +887,19 @@ fn absi(n: i64) i64 = {
 };
 
 @test fn subtract() void = {
-	const d = new(2022, 02, 04, 03, 14, 07, 0, 0, chrono::UTC_Z)!;
+	const d = new(chrono::UTC_Z, 0, 2022, 02, 04, 03, 14, 07, 0)!;
 	const cases = [
 		(
 			period { years = 1, ... },
-			new(2021, 02, 04, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2021, 02, 04, 03, 14, 07, 0)!,
 		),
 		(
 			period { months = 2, ... },
-			new(2021, 12, 04, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2021, 12, 04, 03, 14, 07, 0)!,
 		),
 		(
 			period { months = 14, ... },
-			new(2020, 12, 04, 03, 14, 07, 0, 0, chrono::UTC_Z)!,
+			new(chrono::UTC_Z, 0, 2020, 12, 04, 03, 14, 07, 0)!,
 		),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {

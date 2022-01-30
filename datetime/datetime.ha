@@ -51,21 +51,24 @@ fn init() datetime = datetime {
 
 // Creates a new datetime. When loc=void, defaults to chrono::local.
 //
-// 	// 2038 January 19th 03:14:07.000000618 +0000 Local
-// 	datetime::new(2038, 01, 19, 03, 14, 07, 618, void, void);
+// 	// 0000 Jan  1st 00:00:00.000000000 +0000 UTC
+// 	datetime::new(chrono::UTC_Z, 0);
 //
-// 	// 2038 January 19th 03:14:07.000000618 +0100 Europe/Amsterdam
-// 	datetime::new(2038, 01, 19, 03, 14, 07, 618,
-// 		1 * time::HOUR, &olson::tz("Europe/Amsterdam"));
+// 	// 2038 Jan 19th 03:14:07.000000618 +0000 UTC
+// 	datetime::new(chrono::UTC_Z, 0, 2038, 01, 19, 03, 14, 07, 618);
+//
+// 	// 2038 Jan 19th 02:00:00.000000000 +0100 Europe/Amsterdam
+// 	datetime::new(&olson::tz("Europe/Amsterdam"), 1 * time::HOUR,
+// 		2038, 01, 19, 02);
 //
 // TODO: revise examples
 //
-// zoffset is the zone offset from the normal timezone (in most cases, UTC_Z).
-// For example, the "Asia/Tokyo" timezone has a single zoffset of +9 hours,
-// but the "Australia/Sydney" timezone has zoffsets +10 hours and +11 hours, as
-// they observe Daylight Saving Time.
+// zo is the zone offset from the normal timezone (in most cases, UTC_Z). For
+// example, the "Asia/Tokyo" timezone has a single zoffset of +9 hours, but the
+// "Australia/Sydney" timezone has zoffsets +10 hours and +11 hours, as they
+// observe Daylight Saving Time.
 //
-// if specified (non-void), zoffset must match one of the timezone's observed
+// if specified (non-void), zo must match one of the timezone's observed
 // zoffsets, or will fail. See [[chrono::fixedzone]] for custom timezones.
 //
 // You may omit the zoffset. If the givem timezone has a single zone, [[new]]
@@ -86,39 +89,48 @@ fn init() datetime = datetime {
 // TODO: Allow and correct for overflowing units like Golang? Most likely not.
 // Defeats the purpose of validation at creation. I see little benefit.
 //
-// TODO: use the following function signature?:
-//
-// 	fn new(loc: <...>, zo: <...>, values: int...)
-//
-// Which would allow shorter calls when precision is not necessary:
-//
-// 	new(UTC, 0, 1972, 09) // 1972-09-01 00:00:00.000000000 +0000 UTC
-//
 export fn new(
-	year: int,
-	month: int,
-	day: int,
-	hour: int,
-	min: int,
-	sec: int,
-	nsec: int,
-
-	// normal offset (offset from normal timezone (UTC0, TAI0, etc.))
-	//
-	// TODO: type `(time::duration | first | last)`? Would automatically
-	// pick the first/last occurence of an ambiguous datetime, as described
-	// above.
-	zoffset: (time::duration | void),
-
 	// TODO: should this be `nullable *chrono::timezone`?
 	// would interface better with other code, i presume.
 	loc: (*chrono::timezone | void),
+
+	// normal offset (offset from normal timezone (UTC0, TAI0, etc.))
+	//
+	// TODO: type `(time::duration | first | last)`? or
+	// TODO: type `(time::duration | enum { FIRST, LAST } )`?
+	// Would automatically pick the first/last occurence of an ambiguous
+	// datetime, as described above.
+	zo: (time::duration | void),
+
+	fields: int...
 
 // TODO: improve variety of errors.
 // `invaliddatetime = !void` ?
 // `invaliddatetime = !datetime::builder` ?
 ) (datetime | errors::invalid) = {
-	// TODO: Set the correct values according to the given zoffset and
+	let defaults: [_]int = [
+		0, 1, 1,    // year month day
+		0, 0, 0, 0, // hour min sec nsec
+	];
+
+	if (len(fields) > len(defaults)) {
+		// cannot specify more than 7 fields
+		return errors::invalid;
+	};
+
+	for (let i = 0z; i < len(fields); i += 1) {
+		defaults[i] = fields[i];
+	};
+
+	const year  = defaults[0];
+	const month = defaults[1];
+	const day   = defaults[2];
+	const hour  = defaults[3];
+	const min   = defaults[4];
+	const sec   = defaults[5];
+	const nsec  = defaults[6];
+
+	// TODO: Set the correct values according to the given zo and
 	// locality/timezone.
 	let m = chrono::new(
 		calc_epochal_from_ymd(year, month, day)?,
@@ -127,10 +139,10 @@ export fn new(
 	);
 
 	// figuring out what zone this moment observes
-	if (zoffset is time::duration) {
+	if (zo is time::duration) {
 		// Transform inversely to the moment that would transform back
 		// to the current moment, then perform a zone lookup.
-		m = chrono::transform(m, -(zoffset as time::duration));
+		m = chrono::transform(m, -(zo as time::duration));
 		chrono::lookupzone(&m);
 	} else {
 		// Just perform a zone lookup, then try that zone and the
@@ -293,7 +305,7 @@ export type method = enum uint {
 };
 
 @test fn clone() void = {
-	let d0 = datetime::new(2038, 01, 19, 03, 14, 07, 0, 0, chrono::local)!;
+	let d0 = datetime::new(chrono::UTC_Z, 0, 2038, 01, 19, 03, 14, 07, 0)!;
 	let d1 = clone(d0);
 	assert(d0.year as int == d1.year as int &&
 		d0.month as int == d1.month as int &&

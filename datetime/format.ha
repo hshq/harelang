@@ -397,7 +397,7 @@ fn hour12(dt: *datetime) int = {
 };
 
 @test fn format() void = {
-	const dt = new(1994, 01, 01, 02, 17, 05, 24, 0, chrono::local)!;
+	const dt = new(chrono::UTC_Z, 0, 1994, 01, 01, 02, 17, 05, 24)!;
 
 	const cases = [
 		// special characters
