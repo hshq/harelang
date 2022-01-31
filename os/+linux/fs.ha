@@ -3,7 +3,6 @@ use fs;
 use path;
 use rt;
 use strings;
-use io;
 
 @init fn init() void = {
 	static let cwd_fs = os_filesystem { ... };
