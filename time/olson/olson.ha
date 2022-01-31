@@ -1,3 +1,4 @@
+use bufio;
 use endian;
 use errors;
 use fs;
@@ -43,7 +44,11 @@ export fn tz(name: str) (chrono::timezone | errors::overflow | fs::error | io::e
 	path::add(&filepath, prefix, name)?;
 	const fpath = path::string(&filepath);
 	const file = os::open(fpath)?;
-	const tz = parse_tzif(file, chrono::timezone {
+	defer io::close(file);
+
+	static let buf: [os::BUFSIZ]u8 = [0...];
+	const file = bufio::buffered(file, buf, []);
+	const tz = parse_tzif(&file, chrono::timezone {
 		name = name,
 		timescale = &chrono::utc,
 		daylength = chrono::EARTH_DAY,
