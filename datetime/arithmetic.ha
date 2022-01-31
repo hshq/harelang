@@ -452,7 +452,7 @@ fn absi(n: i64) i64 = {
 		const c = cases[i].0;
 		const expected = cases[i].1;
 		const case_dt = new(chrono::UTC, 0,
-			 c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
+			c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
 		assert(eq(dt, case_dt) == expected,
 			"equality comparison failed");
 	};
@@ -473,7 +473,7 @@ fn absi(n: i64) i64 = {
 		const c = cases[i].0;
 		const expected = cases[i].1;
 		const case_dt = new(chrono::UTC, 0,
-			 c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
+			c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
 		assert(is_after(case_dt, dt) == expected,
 			"incorrect date ordering in is_after()");
 	};
@@ -494,7 +494,7 @@ fn absi(n: i64) i64 = {
 		const c = cases[i].0;
 		const expected = cases[i].1;
 		const case_dt = new(chrono::UTC, 0,
-			 c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
+			c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
 		assert(is_before(case_dt, dt) == expected,
 			"incorrect date ordering in is_before()");
 	};
