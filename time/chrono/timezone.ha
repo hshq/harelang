@@ -9,7 +9,7 @@ export type timezone = struct {
 	// The textual identifier ("Europe/Amsterdam")
 	name: str,
 
-	// The base timescale (chrono::UTC)
+	// The base timescale (chrono::utc)
 	timescale: *timescale,
 
 	// The duration of a day in this timezone (24 * time::HOUR)
@@ -88,7 +88,7 @@ export fn transform(m: moment, zo: time::duration) moment = {
 // Finds, sets and returns a [[moment]]'s currently observed zone
 export fn lookupzone(m: *moment) zone = {
 	if (len(m.loc.zones) == 0) {
-		// TODO: what to do? not ideal to assume UTC_Z
+		// TODO: what to do? not ideal to assume UTC
 		abort("lookup(): timezones should have at least one zone");
 	};
 
@@ -140,7 +140,7 @@ export fn lookupzone(m: *moment) zone = {
 // Creates a [[timezone]] with a single [[zone]]. Useful for fixed offsets.
 // For example, replicate the civil time Hawaii timezone on Earth:
 //
-// 	let hawaii = chrono::fixedzone(&chrono::UTC, chrono::EARTH_DAY,
+// 	let hawaii = chrono::fixedzone(&chrono::utc, chrono::EARTH_DAY,
 // 		chrono::zone {
 // 			zoffset = -10 * time::HOUR,
 // 			name = "Hawaiian Reef",
@@ -161,15 +161,15 @@ export fn fixedzone(ts: *timescale, daylen: time::duration, z: zone) timezone = 
 };
 
 // The system's local timezone, set during initialisation
-export const local: locality = &TZ_local;
+export const LOCAL: locality = &TZ_local;
 
-// TODO: set time::chrono::local to a correct timezone
+// TODO: set time::chrono::LOCAL to a correct timezone
 @init fn set_local_timezone() void = {
 	return;
 };
 const TZ_local: timezone = timezone {
-	name = "Local",
-	timescale = &UTC,
+	name = "Local Time",
+	timescale = &utc,
 	daylength = EARTH_DAY,
 	zones = [
 		zone {
@@ -184,11 +184,11 @@ const TZ_local: timezone = timezone {
 };
 
 // The UTC (Coordinated Universal Time) "Zulu" timezone
-export const UTC_Z: locality = &TZ_UTC;
+export const UTC: locality = &TZ_UTC;
 
 const TZ_UTC: timezone = timezone {
 	name = "UTC",
-	timescale = &UTC,
+	timescale = &utc,
 	daylength = EARTH_DAY,
 	zones = [
 		zone {
@@ -203,11 +203,11 @@ const TZ_UTC: timezone = timezone {
 };
 
 // The TAI (International Atomic Time) "Zulu" timezone
-export const TAI_Z: locality = &TZ_TAI;
+export const TAI: locality = &TZ_TAI;
 
 const TZ_TAI: timezone = timezone {
 	name = "",
-	timescale = &TAI,
+	timescale = &tai,
 	daylength = EARTH_DAY,
 	zones = [
 		zone {
@@ -222,11 +222,11 @@ const TZ_TAI: timezone = timezone {
 };
 
 // The MTC (Coordinated Mars Time) "Zulu" timezone
-export const MTC_Z: locality = &TZ_MTC;
+export const MTC: locality = &TZ_MTC;
 
 const TZ_MTC: timezone = timezone {
 	name = "",
-	timescale = &MTC,
+	timescale = &mtc,
 	daylength = MARS_SOL_MARTIAN,
 	zones = [
 		zone {

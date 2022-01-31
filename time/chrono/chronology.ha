@@ -14,7 +14,7 @@ export type moment = struct {
 	// TODO: make locality nullable? would make moment "{ ... }" initable
 	// without a "new" function, though all functions would have to default
 	// to a particular locality, which might be bad design considering we
-	// don't just support UTC_Z.
+	// don't just support UTC.
 	loc: locality,
 
 	// The current [[zone]] this moment observes
@@ -60,7 +60,7 @@ export fn to_instant(m: moment) time::instant = {
 };
 
 // The temporal length of a day on Earth.
-// Interpreted with an appropriate timescale like UTC, TAI, GPS.
+// Interpreted with an appropriate timescale like utc, tai, gps.
 export def EARTH_DAY: time::duration = 86400 * time::SECOND;
 
 // The following are temporary constants for demonstration of non-terrestrial

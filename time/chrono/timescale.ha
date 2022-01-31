@@ -15,7 +15,7 @@ export type ts_converter = fn(i: time::instant) (time::instant | time::error);
 //
 // The realisation of proper time on Earth's geoid.
 // Continuous (no leap seconds).
-export const TAI: timescale = timescale {
+export const tai: timescale = timescale {
 	name = "International Atomic Time",
 	abbr = "TAI",
 	to_tai = &conv_tai_tai,
@@ -38,27 +38,27 @@ fn conv_tai_tai(i: time::instant) (time::instant | time::error) = {
 // Used as the basis of civil timekeeping.
 // Based on TAI, with an offset, changed roughly biannually.
 // Discontinuous (has leap seconds).
-export const UTC: timescale = timescale {
+export const utc: timescale = timescale {
 	name = "Coordinated Universal Time",
 	abbr = "UTC",
 	to_tai = &conv_utc_tai,
 	from_tai = &conv_tai_utc,
 };
 
-fn conv_tai_utc(tai: time::instant) (time::instant | time::error) = {
-	const utc = time::instant {
-		sec = tai.sec - 37,
-		nsec = tai.nsec,
+fn conv_tai_utc(a: time::instant) (time::instant | time::error) = {
+	const b = time::instant {
+		sec = a.sec - 37,
+		nsec = a.nsec,
 	};
-	return utc;
+	return b;
 };
 
-fn conv_utc_tai(utc: time::instant) (time::instant | time::error) = {
-	const tai = time::instant {
-		sec = utc.sec + 37,
-		nsec = utc.nsec,
+fn conv_utc_tai(a: time::instant) (time::instant | time::error) = {
+	const b = time::instant {
+		sec = a.sec + 37,
+		nsec = a.nsec,
 	};
-	return tai;
+	return b;
 };
 
 
@@ -67,27 +67,27 @@ fn conv_utc_tai(utc: time::instant) (time::instant | time::error) = {
 // Used for computer timekeeping.
 // Based on UTC, near 1-to-1 correspondence.
 // Discontinuous (has leap seconds).
-export const UNIX: timescale = timescale {
+export const unix: timescale = timescale {
 	name = "Unix Time",
 	abbr = "UNIX",
 	to_tai = &conv_utc_tai,
 	from_tai = &conv_tai_utc,
 };
 
-fn conv_tai_unix(tai: time::instant) (time::instant | time::error) = {
-	const unix = time::instant {
-		sec = tai.sec - 37,
-		nsec = tai.nsec,
+fn conv_tai_unix(a: time::instant) (time::instant | time::error) = {
+	const b = time::instant {
+		sec = a.sec - 37,
+		nsec = a.nsec,
 	};
-	return unix;
+	return b;
 };
 
-fn conv_unix_tai(unix: time::instant) (time::instant | time::error) = {
-	const tai = time::instant {
-		sec = unix.sec + 37,
-		nsec = unix.nsec,
+fn conv_unix_tai(a: time::instant) (time::instant | time::error) = {
+	const b = time::instant {
+		sec = a.sec + 37,
+		nsec = a.nsec,
 	};
-	return tai;
+	return b;
 };
 
 
@@ -96,27 +96,27 @@ fn conv_unix_tai(unix: time::instant) (time::instant | time::error) = {
 // Used for GPS coordination.
 // Based on TAI, constant -19 second offset.
 // Continuous (no leap seconds).
-export const GPS: timescale = timescale {
+export const gps: timescale = timescale {
 	name = "Global Positioning System Time",
 	abbr = "GPS",
 	to_tai = &conv_utc_tai,
 	from_tai = &conv_tai_utc,
 };
 
-fn conv_tai_gps(tai: time::instant) (time::instant | time::error) = {
-	const gps = time::instant {
-		sec = tai.sec - 19,
-		nsec = tai.nsec,
+fn conv_tai_gps(a: time::instant) (time::instant | time::error) = {
+	const b = time::instant {
+		sec = a.sec - 19,
+		nsec = a.nsec,
 	};
-	return gps;
+	return b;
 };
 
-fn conv_gps_tai(gps: time::instant) (time::instant | time::error) = {
-	const tai = time::instant {
-		sec = gps.sec + 19,
-		nsec = gps.nsec,
+fn conv_gps_tai(a: time::instant) (time::instant | time::error) = {
+	const b = time::instant {
+		sec = a.sec + 19,
+		nsec = a.nsec,
 	};
-	return tai;
+	return b;
 };
 
 
@@ -134,20 +134,20 @@ export const TT: timescale = timescale {
 
 def TT_OFFSET: time::duration = 32.184 * time::SECOND;
 
-fn conv_tai_tt(tai: time::instant) (time::instant | time::error) = {
+fn conv_tai_tt(a: time::instant) (time::instant | time::error) = {
 	const tt = time::instant {
-		sec = tai.sec + (TT_OFFSET / time::SECOND),
-		nsec = tai.nsec + (TT_OFFSET % time::SECOND),
+		sec = a.sec + (TT_OFFSET / time::SECOND),
+		nsec = a.nsec + (TT_OFFSET % time::SECOND),
 	};
 	return tt;
 };
 
 fn conv_tt_tai(tt: time::instant) (time::instant | time::error) = {
-	const tai = time::instant {
+	const b = time::instant {
 		sec = tt.sec - (TT_OFFSET / time::SECOND),
 		nsec = tt.nsec + (TT_OFFSET % time::SECOND),
 	};
-	return tai;
+	return b;
 };
 
 
@@ -162,7 +162,7 @@ fn conv_tt_tai(tt: time::instant) (time::instant | time::error) = {
 // Used for local solar time on Mars.
 // Based on TT, with a constant factor.
 // Continuous (no leap seconds).
-export const MTC: timescale = timescale {
+export const mtc: timescale = timescale {
 	name = "Coordinated Mars Time",
 	abbr = "MTC",
 	to_tai = &conv_mtc_tai,
@@ -171,22 +171,22 @@ export const MTC: timescale = timescale {
 
 def FACTOR_TERRESTRIAL_MARTIAN: f64 = 1.0274912517;
 
-fn conv_tai_mtc(tai: time::instant) (time::instant | time::error) = {
+fn conv_tai_mtc(a: time::instant) (time::instant | time::error) = {
 	// TODO: handle propagated ambiguous errors
-	const tt = TT.from_tai(tai)?;
-	const mtc = time::instant {
+	const tt = TT.from_tai(a)?;
+	const b = time::instant {
 		sec = (tt.sec: f64 * FACTOR_TERRESTRIAL_MARTIAN): i64,
 		nsec = tt.nsec,
 	};
-	return mtc;
+	return b;
 };
 
-fn conv_mtc_tai(mtc: time::instant) (time::instant | time::error) = {
+fn conv_mtc_tai(a: time::instant) (time::instant | time::error) = {
 	const tt = time::instant {
-		sec = (mtc.sec: f64 / FACTOR_TERRESTRIAL_MARTIAN): i64,
-		nsec = mtc.nsec,
+		sec = (a.sec: f64 / FACTOR_TERRESTRIAL_MARTIAN): i64,
+		nsec = a.nsec,
 	};
 	// TODO: handle propagated ambiguous errors
-	const tai = TT.to_tai(tt)?;
-	return tai;
+	const b = TT.to_tai(tt)?;
+	return b;
 };

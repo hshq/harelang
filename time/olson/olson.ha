@@ -13,7 +13,7 @@ export type invalidtzif = !void;
 
 // Parses and retrieves a [[chrono::timezone]] from the system zoneinfo
 // database, or if applicable, from an internal selection of timezones. All
-// Olson timezones default to using the [[chrono::UTC]] timescale and
+// Olson timezones default to using the [[chrono::utc]] timescale and
 // [[chrono::EARTH_DAY]] daylength.
 //
 // TODO: Tidy up errors.
@@ -21,13 +21,13 @@ export type invalidtzif = !void;
 export fn tz(name: str) (chrono::timezone | errors::overflow | fs::error | io::error | invalidtzif) = {
 	switch (name) {
 	case "Local" =>
-		return *chrono::local;
+		return *chrono::LOCAL;
 	case "UTC" =>
-		return *chrono::UTC_Z;
+		return *chrono::UTC;
 	case "TAI" =>
-		return *chrono::TAI_Z;
+		return *chrono::TAI;
 	case "MTC" =>
-		return *chrono::MTC_Z;
+		return *chrono::MTC;
 	case =>
 		void;
 	};
@@ -45,7 +45,7 @@ export fn tz(name: str) (chrono::timezone | errors::overflow | fs::error | io::e
 	const file = os::open(fpath)?;
 	const tz = parse_tzif(file, chrono::timezone {
 		name = name,
-		timescale = &chrono::UTC,
+		timescale = &chrono::utc,
 		daylength = chrono::EARTH_DAY,
 		...
 	})?;

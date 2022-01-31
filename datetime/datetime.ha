@@ -30,7 +30,7 @@ export type datetime = struct {
 fn init() datetime = datetime {
 	date        = 0,
 	time        = 0,
-	loc         = chrono::local,
+	loc         = chrono::LOCAL,
 	zone        = chrono::zone { ... },
 
 	era         = void,
@@ -135,7 +135,7 @@ export fn new(
 	let m = chrono::new(
 		calc_epochal_from_ymd(year, month, day)?,
 		calc_time_from_hmsn(hour, min, sec, nsec)?,
-		if (loc is void) chrono::local else loc: *chrono::timezone,
+		if (loc is void) chrono::LOCAL else loc: *chrono::timezone,
 	);
 
 	// figuring out what zone this moment observes
@@ -175,7 +175,7 @@ export fn new(
 // TODO: specify appropriate params like a time::clock and chrono::timezone.
 export fn now() datetime = {
 	const i = time::now(time::clock::REALTIME);
-	const m = chrono::from_instant(i, chrono::local);
+	const m = chrono::from_instant(i, chrono::LOCAL);
 	return from_moment(m);
 };
 
