@@ -67,8 +67,6 @@ export fn in(loc: locality, m: moment) moment = {
 	return new(m.date, m.time, loc); // resets .zone
 };
 
-// Returns a fictitious [[moment]] which is shifted in time by a zone offset.
-// This is a utility function for external modules. Use with caution.
 export fn transform(m: moment, zo: time::duration) moment = {
 	const daylen = m.loc.daylength;
 
