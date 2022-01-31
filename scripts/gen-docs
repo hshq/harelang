@@ -15,6 +15,8 @@ getmods() (
 			echo $module
 		fi
 	done
+	# mime is not listed in gen-stdlib for dependency reasons
+	echo mime
 )
 modules="$(getmods)"
 
