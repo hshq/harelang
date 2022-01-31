@@ -13,8 +13,6 @@ export type timezone = struct {
 	timescale: *timescale,
 
 	// The duration of a day in this timezone (24 * time::HOUR)
-	// TODO: Make this a function? Some planets may have greater rotational
-	// acceleration, meaning daylength would change over time.
 	daylength: time::duration,
 
 	// The possible temporal zones a locality with this timezone can observe
