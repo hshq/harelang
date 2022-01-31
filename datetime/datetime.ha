@@ -52,10 +52,10 @@ fn init() datetime = datetime {
 // Creates a new datetime. When loc=void, defaults to chrono::local.
 //
 // 	// 0000 Jan  1st 00:00:00.000000000 +0000 UTC
-// 	datetime::new(chrono::UTC_Z, 0);
+// 	datetime::new(chrono::UTC, 0);
 //
 // 	// 2038 Jan 19th 03:14:07.000000618 +0000 UTC
-// 	datetime::new(chrono::UTC_Z, 0, 2038, 01, 19, 03, 14, 07, 618);
+// 	datetime::new(chrono::UTC, 0, 2038, 01, 19, 03, 14, 07, 618);
 //
 // 	// 2038 Jan 19th 02:00:00.000000000 +0100 Europe/Amsterdam
 // 	datetime::new(&olson::tz("Europe/Amsterdam"), 1 * time::HOUR,
@@ -63,7 +63,7 @@ fn init() datetime = datetime {
 //
 // TODO: revise examples
 //
-// zo is the zone offset from the normal timezone (in most cases, UTC_Z). For
+// zo is the zone offset from the normal timezone (in most cases, UTC). For
 // example, the "Asia/Tokyo" timezone has a single zoffset of +9 hours, but the
 // "Australia/Sydney" timezone has zoffsets +10 hours and +11 hours, as they
 // observe Daylight Saving Time.
@@ -305,7 +305,7 @@ export type method = enum uint {
 };
 
 @test fn clone() void = {
-	let d0 = datetime::new(chrono::UTC_Z, 0, 2038, 01, 19, 03, 14, 07, 0)!;
+	let d0 = datetime::new(chrono::UTC, 0, 2038, 01, 19, 03, 14, 07, 0)!;
 	let d1 = clone(d0);
 	assert(d0.year as int == d1.year as int &&
 		d0.month as int == d1.month as int &&
