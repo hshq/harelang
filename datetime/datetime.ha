@@ -89,6 +89,8 @@ fn init() datetime = datetime {
 // TODO: Allow and correct for overflowing units like Golang? Most likely not.
 // Defeats the purpose of validation at creation. I see little benefit.
 //
+// TODO: fix calls with `years <= -4715`. https://todo.sr.ht/~sircmpwn/hare/565
+//
 export fn new(
 	// TODO: should this be `nullable *chrono::timezone`?
 	// would interface better with other code, i presume.
