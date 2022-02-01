@@ -197,7 +197,7 @@ export fn from_moment(m: chrono::moment) datetime = {
 export fn from_str(layout: str, s: str) (datetime | insufficient | errors::invalid) = {
 	const b = newmock();
 	parse(&b, layout, s)?;
-	return build(&b)?;
+	return finish(&b)?;
 };
 
 // Creates a [[chrono::moment]] from a [[datetime]]
@@ -215,13 +215,13 @@ export type insufficient = !void;
 
 // Constructs a new datetime. Start with [[newmock]]. Collect enough datetime
 // information incrementally by direct field assignments or multiple calls to
-// [[parse]]. Finish with [[build]].
+// [[parse]]. Finish with [[finish]].
 //
 // 	let mock = datetime::newmock();
 // 	datetime::parse(&mock, "Year: %Y", "Year: 2038");
 // 	datetime::parse(&mock, "Month: %m", "Month: 01");
 // 	mock.day = 19;
-// 	let dt = datetime::build(&mock, datetime::strategy::YMD);
+// 	let dt = datetime::finish(&mock, datetime::strategy::YMD);
 //
 export type mock = datetime;
 
@@ -231,7 +231,7 @@ export fn newmock() mock = init(): mock;
 // Returns a datetime from a mock. The provided [[strategy]]s will be tried in
 // order until a valid datetime is produced, or fail otherwise. The default
 // strategy is [[strategy::ALL]].
-export fn build(f: *mock, m: strategy...) (datetime | insufficient | errors::invalid) = {
+export fn finish(f: *mock, m: strategy...) (datetime | insufficient | errors::invalid) = {
 	if (len(m) == 0) {
 		m = [strategy::ALL];
 	};
