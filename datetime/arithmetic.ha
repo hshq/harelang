@@ -294,7 +294,7 @@ export fn hop(dt: datetime, pp: period...) datetime = {
 // 		days   = -4, // 2020-04-09 12:30:45
 // 	});
 export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
-	// TODO: Use builder to simplify some code.
+	// TODO: Use [[mock]] to simplify some code.
 	let d_year = year(&dt);
 	let d_month = month(&dt);
 	let d_day = day(&dt);

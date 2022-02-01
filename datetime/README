@@ -6,9 +6,9 @@ the [[chrono::moment]] type, optimized for dealing with the Gregorian
 chronology.
 
 Datetimes are created with [[new]], [[now]], or with one of the various
-"from_" functions. Alternatively, use a [[builder]] to construct a
-datetime piece-by-piece, by field assignements or by parsing strings
-with [[parse]].
+"from_" functions. Alternatively, use a [[mock]] to construct a datetime
+piece-by-piece, by field assignements or by parsing strings with
+[[parse]].
 
 [[datetime]] instances are designed to be always valid and internally
 consistent. They should be treated as immutable, and their fields as
@@ -19,7 +19,7 @@ pointer, which is used only for internal caching.
 [[datetime]] fields are accessed, evaluated, and cached via the various
 "field" functions ([[year]], [[month]], [[day]], etc). Accessing or
 modifying a [[datetime]]'s fields directly is highly discouraged. See
-[[builder]] for "modifiable datetimes".
+[[mock]] for "modifiable datetimes".
 
 [[datetime]]s may be localized to different [[chrono::timezone]]s via
 the [[in]] function. The "field" functions will evaluate the correct

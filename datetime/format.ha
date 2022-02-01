@@ -55,14 +55,14 @@ def MONTHS_SHORT: [_]str = [
 //
 // See https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
 
-// Parses a datetime string into a [[builder]], using a "layout" format string
+// Parses a datetime string into a [[mock]], using a "layout" format string
 // with a subset of specifiers from POSIX strptime(3). Partial, incremental
 // parsing is possible.
 //
-// 	datetime::parse(&b, "%Y-%m-%d", "2038-01-19");
-// 	datetime::parse(&b, "%H:%M:%S", "03:14:07");
+// 	datetime::parse(&mok, "%Y-%m-%d", "2038-01-19");
+// 	datetime::parse(&mok, "%H:%M:%S", "03:14:07");
 //
-export fn parse(b: *builder, layout: str, s: str) (void | errors::invalid) = {
+export fn parse(mok: *mock, layout: str, s: str) (void | errors::invalid) = {
 	const format_iter = strings::iter(layout);
 	const s_iter = strings::iter(s);
 	let escaped = false;
@@ -96,29 +96,29 @@ export fn parse(b: *builder, layout: str, s: str) (void | errors::invalid) = {
 		switch (format_r) {
 		// Basic specifiers
 		case 'a' =>
-			b.weekday = get_default_locale_string_index(
+			mok.weekday = get_default_locale_string_index(
 				&s_iter, WEEKDAYS_SHORT[..])?;
 		case 'A' =>
-			b.weekday = get_default_locale_string_index(
+			mok.weekday = get_default_locale_string_index(
 				&s_iter, WEEKDAYS[..])?;
 		case 'b' =>
-			b.month = get_default_locale_string_index(
+			mok.month = get_default_locale_string_index(
 				&s_iter, MONTHS_SHORT[..])?;
 		case 'B' =>
-			b.month = get_default_locale_string_index(
+			mok.month = get_default_locale_string_index(
 				&s_iter, MONTHS[..])?;
 		case 'd' =>
 			let max_n_digits = 2u;
-			b.day = clamp_int(
+			mok.day = clamp_int(
 				get_max_n_digits(&s_iter, max_n_digits)?, 1, 31);
 		case 'H' =>
 			let max_n_digits = 2u;
-			b.hour = clamp_int(
+			mok.hour = clamp_int(
 				get_max_n_digits(&s_iter, max_n_digits)?, 0, 23);
 		case 'I' =>
 			let max_n_digits = 2u;
 			const hour = get_max_n_digits(&s_iter, max_n_digits);
-			b.hour = match (hour) {
+			mok.hour = match (hour) {
 			case let hour: int =>
 				yield if (hour > 12) {
 					yield clamp_int(hour - 12, 1, 12);
@@ -129,38 +129,38 @@ export fn parse(b: *builder, layout: str, s: str) (void | errors::invalid) = {
 				return errors::invalid;
 			};
 		case 'j' =>
-			b.yearday = clamp_int(
+			mok.yearday = clamp_int(
 				get_max_n_digits(&s_iter, 3)?, 1, 366);
 		case 'm' =>
-			b.month = clamp_int(
+			mok.month = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 12);
 		case 'M' =>
-			b.min = clamp_int(
+			mok.min = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 		case 'N' =>
-			b.nsec = clamp_int(
+			mok.nsec = clamp_int(
 				get_max_n_digits(&s_iter, 3)?, 0, 999);
 		case 'p' =>
-			if (b.hour is void) {
+			if (mok.hour is void) {
 				// We can't change the hour's am/pm because we
 				// have no hour.
 				return errors::invalid;
 			};
 			const rest = strings::iter_str(&s_iter);
 			if (strings::hasprefix(rest, "AM")) {
-				if (b.hour as int > 12) {
+				if (mok.hour as int > 12) {
 					// 13 AM?
 					return errors::invalid;
-				} else if (b.hour as int == 12) {
-					b.hour = 0;
+				} else if (mok.hour as int == 12) {
+					mok.hour = 0;
 				};
 			} else if (strings::hasprefix(rest, "PM")) {
-				if (b.hour as int > 12) {
+				if (mok.hour as int > 12) {
 					// 13 PM?
 					return errors::invalid;
-				} else if (b.hour as int < 12) {
-					b.hour =
-						(b.hour as int) + 12;
+				} else if (mok.hour as int < 12) {
+					mok.hour =
+						(mok.hour as int) + 12;
 				};
 			} else {
 				return errors::invalid;
@@ -168,10 +168,10 @@ export fn parse(b: *builder, layout: str, s: str) (void | errors::invalid) = {
 			strings::next(&s_iter);
 			strings::next(&s_iter);
 		case 'S' =>
-			b.sec = clamp_int(
+			mok.sec = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 61);
 		case 'u', 'w' =>
-			b.weekday = match (get_max_n_digits(&s_iter, 1)) {
+			mok.weekday = match (get_max_n_digits(&s_iter, 1)) {
 			case let i: int =>
 				yield if (format_r == 'w') {
 					yield if (i == 0) {
@@ -186,10 +186,10 @@ export fn parse(b: *builder, layout: str, s: str) (void | errors::invalid) = {
 				return errors::invalid;
 			};
 		case 'U', 'W' =>
-			b.week = clamp_int(
+			mok.week = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 53);
 		case 'Y' =>
-			b.year = get_max_n_digits(&s_iter, 4)?;
+			mok.year = get_max_n_digits(&s_iter, 4)?;
 		case 'z' =>
 			// TODO
 			continue;
