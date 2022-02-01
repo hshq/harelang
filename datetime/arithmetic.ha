@@ -1,6 +1,7 @@
 use fmt;
-use time::chrono;
+use math;
 use time;
+use time::chrono;
 
 // Represents a span of time in the proleptic Gregorian calendar,
 // using relative units of time. Used for calendar arithmetic.
@@ -126,7 +127,7 @@ export fn diff(a: datetime, b: datetime) period = {
 export fn diff_in_unit(a: datetime, b: datetime, u: unit) i64 = {
 	return switch (u) {
 	case unit::ERA =>
-		yield absi(era(&a) - era(&b));
+		yield math::absi(era(&a) - era(&b));
 	case unit::YEAR =>
 		yield diff(a, b).years;
 	case unit::MONTH =>
@@ -135,7 +136,7 @@ export fn diff_in_unit(a: datetime, b: datetime, u: unit) i64 = {
 	case unit::WEEK =>
 		yield diff_in_unit(a, b, unit::DAY) / 7;
 	case unit::DAY =>
-		yield absi(a.date - b.date): int;
+		yield math::absi(a.date - b.date): int;
 	case unit::HOUR =>
 		const full_diff = diff(a, b);
 		yield (diff_in_unit(a, b, unit::DAY) * 24) + full_diff.hours;
@@ -353,7 +354,7 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 			const ns_in_day = 24 * time::HOUR;
 			let overflowed_days = 0;
 
-			if (absi(p.nanoseconds) > ns_in_day) {
+			if (math::absi(p.nanoseconds) > ns_in_day) {
 				overflowed_days +=
 					((p.nanoseconds / ns_in_day): int);
 				p.nanoseconds %= ns_in_day;
@@ -411,15 +412,6 @@ export fn subtract(dt: datetime, flag: calculus, pp: period...) datetime = {
 		pp[i].nanoseconds *= -1;
 	};
 	return add(dt, flag, pp...);
-};
-
-// Copied from math:: to avoid dependancy.
-fn absi(n: i64) i64 = {
-	if (n < 0) {
-		return -n;
-	} else {
-		return n;
-	};
 };
 
 @test fn eq() void = {
