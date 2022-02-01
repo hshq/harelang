@@ -89,11 +89,9 @@ fn init() datetime = datetime {
 // TODO: fix calls with `years <= -4715`. https://todo.sr.ht/~sircmpwn/hare/565
 //
 export fn new(
-	// TODO: should this be `nullable *chrono::timezone`?
-	// would interface better with other code, i presume.
-	loc: (*chrono::timezone | void),
+	loc: chrono::locality,
 
-	// normal offset (offset from normal timezone (UTC0, TAI0, etc.))
+	// normal offset (offset from normal timezone (UTC, TAI, etc.))
 	//
 	// TODO: type `(time::duration | first | last)`? or
 	// TODO: type `(time::duration | enum { FIRST, LAST } )`?
@@ -132,7 +130,7 @@ export fn new(
 	let m = chrono::moment {
 		date = calc_epochal_from_ymd(year, month, day)?,
 		time = calc_time_from_hmsn(hour, min, sec, nsec)?,
-		loc = if (loc is void) chrono::LOCAL else loc: *chrono::timezone,
+		loc = loc,
 		zone = chrono::zone { ... },
 	};
 

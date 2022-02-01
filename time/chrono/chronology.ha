@@ -13,11 +13,6 @@ export type moment = struct {
 	time: time::duration,
 
 	// The timezone used for interpreting a moment's date and time
-	//
-	// TODO: make locality nullable? would make moment "{ ... }" initable
-	// without a "new" function, though all functions would have to default
-	// to a particular locality, which might be bad design considering we
-	// don't just support UTC.
 	loc: locality,
 
 	// The current [[zone]] this moment observes
