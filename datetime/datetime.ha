@@ -2,12 +2,6 @@ use errors;
 use time;
 use time::chrono;
 
-// A valid date & time, localized in a timezone; an extended chrono::moment,
-// optimized for use with the Gregorian chronology.
-//
-// Fields of type (void | int) should be treated as private. Their values are
-// produced and cached via their respectively named functions ([[year]], etc).
-// Direct field assignements will result in errors; see [[builder]].
 export type datetime = struct {
 	chrono::moment,
 
