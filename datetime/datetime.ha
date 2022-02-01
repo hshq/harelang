@@ -2,6 +2,9 @@ use errors;
 use time;
 use time::chrono;
 
+// The given combination of date, time, and locality is invalid.
+export type invalid = !chrono::invalid;
+
 export type datetime = struct {
 	chrono::moment,
 
@@ -103,7 +106,7 @@ export fn new(
 // TODO: improve variety of errors.
 // `invaliddatetime = !void` ?
 // `invaliddatetime = !datetime::mock` ?
-) (datetime | errors::invalid) = {
+) (datetime | invalid) = {
 	let defaults: [_]int = [
 		0, 1, 1,    // year month day
 		0, 0, 0, 0, // hour min sec nsec
@@ -111,7 +114,7 @@ export fn new(
 
 	if (len(fields) > len(defaults)) {
 		// cannot specify more than 7 fields
-		return errors::invalid;
+		return invalid;
 	};
 
 	for (let i = 0z; i < len(fields); i += 1) {
@@ -126,14 +129,16 @@ export fn new(
 	const sec   = defaults[5];
 	const nsec  = defaults[6];
 
+	let m = chrono::moment {
+		date = calc_epochal_from_ymd(year, month, day)?,
+		time = calc_time_from_hmsn(hour, min, sec, nsec)?,
+		loc = if (loc is void) chrono::LOCAL else loc: *chrono::timezone,
+		zone = chrono::zone { ... },
+	};
+
 	// TODO: Set the correct values according to the given zo and
 	// locality/timezone.
-	let m = chrono::new(
-		calc_epochal_from_ymd(year, month, day)?,
-		calc_time_from_hmsn(hour, min, sec, nsec)?,
-		if (loc is void) chrono::LOCAL else loc: *chrono::timezone,
-	);
-
+	//
 	// figuring out what zone this moment observes
 	if (zo is time::duration) {
 		// Transform inversely to the moment that would transform back
@@ -161,7 +166,7 @@ export fn new(
 	) {
 		void;
 	} else {
-		return errors::invalid;
+		return invalid;
 	};
 	return dt;
 };
@@ -194,7 +199,7 @@ export fn from_moment(m: chrono::moment) datetime = {
 // using [[strategy::ALL]], or fails otherwise.
 //
 // TODO: allow the user to specify [[strategy]] for security?
-export fn from_str(layout: str, s: str) (datetime | insufficient | errors::invalid) = {
+export fn from_str(layout: str, s: str) (datetime | insufficient | invalid) = {
 	const b = newmock();
 	parse(&b, layout, s)?;
 	return finish(&b)?;
@@ -231,7 +236,7 @@ export fn newmock() mock = init(): mock;
 // Returns a datetime from a mock. The provided [[strategy]]s will be tried in
 // order until a valid datetime is produced, or fail otherwise. The default
 // strategy is [[strategy::ALL]].
-export fn finish(f: *mock, m: strategy...) (datetime | insufficient | errors::invalid) = {
+export fn finish(f: *mock, m: strategy...) (datetime | insufficient | invalid) = {
 	if (len(m) == 0) {
 		m = [strategy::ALL];
 	};

@@ -20,7 +20,7 @@ fn calc_time_from_hmsn(
 	min: int,
 	sec: int,
 	nsec: int,
-) (time::duration | errors::invalid) = {
+) (time::duration | invalid) = {
 	const t = (
 		(hour * time::HOUR) +
 		(min * time::MINUTE) +

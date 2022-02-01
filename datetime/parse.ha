@@ -8,7 +8,7 @@ use strings;
 // 	datetime::parse(&mok, "%Y-%m-%d", "2038-01-19");
 // 	datetime::parse(&mok, "%H:%M:%S", "03:14:07");
 //
-export fn parse(mok: *mock, layout: str, s: str) (void | errors::invalid) = {
+export fn parse(mok: *mock, layout: str, s: str) (void | invalid) = {
 	const format_iter = strings::iter(layout);
 	const s_iter = strings::iter(s);
 	let escaped = false;
@@ -28,12 +28,12 @@ export fn parse(mok: *mock, layout: str, s: str) (void | errors::invalid) = {
 		if (!escaped) {
 			let s_r = match (strings::next(&s_iter)) {
 			case void =>
-				return errors::invalid;
+				return invalid;
 			case let r: rune =>
 				yield r;
 			};
 			if (s_r != format_r) {
-				return errors::invalid;
+				return invalid;
 			};
 			continue;
 		};
@@ -72,7 +72,7 @@ export fn parse(mok: *mock, layout: str, s: str) (void | errors::invalid) = {
 					yield clamp_int(hour, 1, 12);
 				};
 			case =>
-				return errors::invalid;
+				return invalid;
 			};
 		case 'j' =>
 			mok.yearday = clamp_int(
@@ -90,26 +90,26 @@ export fn parse(mok: *mock, layout: str, s: str) (void | errors::invalid) = {
 			if (mok.hour is void) {
 				// We can't change the hour's am/pm because we
 				// have no hour.
-				return errors::invalid;
+				return invalid;
 			};
 			const rest = strings::iter_str(&s_iter);
 			if (strings::hasprefix(rest, "AM")) {
 				if (mok.hour as int > 12) {
 					// 13 AM?
-					return errors::invalid;
+					return invalid;
 				} else if (mok.hour as int == 12) {
 					mok.hour = 0;
 				};
 			} else if (strings::hasprefix(rest, "PM")) {
 				if (mok.hour as int > 12) {
 					// 13 PM?
-					return errors::invalid;
+					return invalid;
 				} else if (mok.hour as int < 12) {
 					mok.hour =
 						(mok.hour as int) + 12;
 				};
 			} else {
-				return errors::invalid;
+				return invalid;
 			};
 			strings::next(&s_iter);
 			strings::next(&s_iter);
@@ -129,7 +129,7 @@ export fn parse(mok: *mock, layout: str, s: str) (void | errors::invalid) = {
 					yield clamp_int(i, 1, 7);
 				};
 			case =>
-				return errors::invalid;
+				return invalid;
 			};
 		case 'U', 'W' =>
 			mok.week = clamp_int(

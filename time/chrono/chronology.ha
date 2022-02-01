@@ -1,5 +1,8 @@
 use time;
 
+// This date, time, and locality combination is invalid.
+export type invalid = !void;
+
 // A date & time, within a locality, intepreted via a chronology
 export type moment = struct {
 	// The ordinal day (on Earth or otherwise)
@@ -26,11 +29,10 @@ export type moment = struct {
 export type epochal = i64;
 
 // Creates a new [[moment]]
-//
-// TODO: Check for `time` value bounds overflow. Should we:
-// a. Return an error?
-// b. "Correct" by overflowing? See datetime::new();
-export fn new(date: epochal, time: time::duration, loc: locality) moment = {
+export fn new(date: epochal, time: time::duration, loc: locality) (moment | invalid) = {
+	if (time > loc.daylength) {
+		return invalid;
+	};
 	const m = moment {
 		date = date,
 		time = time,
@@ -46,7 +48,8 @@ export fn from_instant(i: time::instant, loc: locality) moment = {
 	const daysec = (loc.daylength / time::SECOND);
 	const d = i.sec / daysec;
 	const t = (i.sec % daysec) * time::SECOND + i.nsec * time::NANOSECOND;
-	return new(d, t, loc);
+	assert(t < loc.daylength, "Internal error: time excedes daylength");
+	return new(d, t, loc)!;
 };
 
 // Creates a new [[time::instant]] from a [[moment]]

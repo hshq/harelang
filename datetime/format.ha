@@ -57,7 +57,7 @@ def MONTHS_SHORT: [_]str = [
 
 // Formats a [[datetime]] and writes it into a caller supplied buffer.
 // The returned string is borrowed from this buffer.
-export fn bformat(buf: []u8, layout: str, dt: *datetime) (str | errors::invalid | io::error) = {
+export fn bformat(buf: []u8, layout: str, dt: *datetime) (str | invalid | io::error) = {
 	let sink = strio::fixed(buf);
 	fmtstream(&sink, layout, dt)?;
 	return strio::string(&sink);
@@ -65,13 +65,13 @@ export fn bformat(buf: []u8, layout: str, dt: *datetime) (str | errors::invalid 
 
 // Formats a [[datetime]] and writes it into a heap-allocated string.
 // The caller must free the return value.
-export fn format(layout: str, dt: *datetime) (str | errors::invalid | io::error) = {
+export fn format(layout: str, dt: *datetime) (str | invalid | io::error) = {
 	let sink = strio::dynamic();
 	fmtstream(&sink, layout, dt)?;
 	return strio::string(&sink);
 };
 
-fn fmt_specifier(r: rune, dt: *datetime) (str | errors::invalid | io::error) = {
+fn fmt_specifier(r: rune, dt: *datetime) (str | invalid | io::error) = {
 	return switch (r) {
 	case 'a' =>
 		yield WEEKDAYS_SHORT[weekday(dt) - 1];
@@ -147,7 +147,7 @@ export fn fmtstream(
 	h: io::handle,
 	layout: str,
 	dt: *datetime
-) (size | errors::invalid | io::error) = {
+) (size | invalid | io::error) = {
 	const iter = strings::iter(layout);
 	let escaped = false;
 	let n = 0z;
@@ -173,10 +173,10 @@ export fn fmtstream(
 	return n;
 };
 
-fn get_default_locale_string_index(iter: *strings::iterator, list: []str) (int | errors::invalid) = {
+fn get_default_locale_string_index(iter: *strings::iterator, list: []str) (int | invalid) = {
 	const name = strings::iter_str(iter);
 	if (len(name) == 0) {
-		return errors::invalid;
+		return invalid;
 	};
 	for(let i = 0z; i < len(list); i += 1) {
 		if (strings::hasprefix(name, list[i])) {
@@ -187,10 +187,10 @@ fn get_default_locale_string_index(iter: *strings::iterator, list: []str) (int |
 			return (i: int) + 1;
 		};
 	};
-	return errors::invalid;
+	return invalid;
 };
 
-fn get_max_n_digits(iter: *strings::iterator, n: uint) (int | errors::invalid) = {
+fn get_max_n_digits(iter: *strings::iterator, n: uint) (int | invalid) = {
 	let buf: [64]u8 = [0...];
 	let bufstr = strio::fixed(buf);
 	for (let i = 0z; i < n; i += 1) {
@@ -206,7 +206,7 @@ fn get_max_n_digits(iter: *strings::iterator, n: uint) (int | errors::invalid) =
 		};
 		match (strio::appendrune(&bufstr, r)) {
 		case io::error =>
-			return errors::invalid;
+			return invalid;
 		case =>
 			void;
 		};
@@ -215,14 +215,14 @@ fn get_max_n_digits(iter: *strings::iterator, n: uint) (int | errors::invalid) =
 	case let res: int =>
 		yield res;
 	case =>
-		yield errors::invalid;
+		yield invalid;
 	};
 };
 
-fn eat_one_rune(iter: *strings::iterator, needle: rune) (uint | errors::invalid) = {
+fn eat_one_rune(iter: *strings::iterator, needle: rune) (uint | invalid) = {
 	let s_r = match (strings::next(iter)) {
 	case void =>
-		return errors::invalid;
+		return invalid;
 	case let r: rune =>
 		yield r;
 	};
@@ -319,13 +319,13 @@ fn hour12(dt: *datetime) int = {
 // 		dt.nsec as int == 123, "invalid parsing results");
 
 // 	// General errors
-// 	assert(parse("%Y-%m-%d", "1a94-08-27", &dt) is errors::invalid,
+// 	assert(parse("%Y-%m-%d", "1a94-08-27", &dt) is invalid,
 // 		"invalid datetime string did not throw error");
 
-// 	assert(parse("%Y-%m-%d", "1994-123-27", &dt) is errors::invalid,
+// 	assert(parse("%Y-%m-%d", "1994-123-27", &dt) is invalid,
 // 		"invalid datetime string did not throw error");
 
-// 	assert(parse("%Y-%m-%d", "a994-08-27", &dt) is errors::invalid,
+// 	assert(parse("%Y-%m-%d", "a994-08-27", &dt) is invalid,
 // 		"invalid datetime string did not throw error");
 
 // 	// Basic specifiers
@@ -357,10 +357,10 @@ fn hour12(dt: *datetime) int = {
 // 	parse("%H %p", "6 PM", &dt)!;
 // 	assert(dt.hour as int == 18, "invalid parsing results");
 
-// 	assert(parse("%H %p", "13 PM", &dt) is errors::invalid,
+// 	assert(parse("%H %p", "13 PM", &dt) is invalid,
 // 		"invalid parsing results");
 
-// 	assert(parse("%H %p", "PM 6", &dt) is errors::invalid,
+// 	assert(parse("%H %p", "PM 6", &dt) is invalid,
 // 		"invalid parsing results");
 
 // 	parse("%u", "7", &dt)!;
