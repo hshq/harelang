@@ -622,11 +622,11 @@ stdlib_deps_any+=$(stdlib_time_chrono_any)
 stdlib_time_chrono_linux=$(stdlib_time_chrono_any)
 stdlib_time_chrono_freebsd=$(stdlib_time_chrono_any)
 
-# gen_lib time::olson (any)
-stdlib_time_olson_any=$(HARECACHE)/time/olson/time_olson-any.o
-stdlib_deps_any+=$(stdlib_time_olson_any)
-stdlib_time_olson_linux=$(stdlib_time_olson_any)
-stdlib_time_olson_freebsd=$(stdlib_time_olson_any)
+# gen_lib time::tzdb (any)
+stdlib_time_tzdb_any=$(HARECACHE)/time/tzdb/time_tzdb-any.o
+stdlib_deps_any+=$(stdlib_time_tzdb_any)
+stdlib_time_tzdb_linux=$(stdlib_time_tzdb_any)
+stdlib_time_tzdb_freebsd=$(stdlib_time_tzdb_any)
 
 # gen_lib types (any)
 stdlib_types_any=$(HARECACHE)/types/types-any.o
@@ -1807,15 +1807,15 @@ $(HARECACHE)/time/chrono/time_chrono-any.ssa: $(stdlib_time_chrono_any_srcs) $(s
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::chrono \
 		-t$(HARECACHE)/time/chrono/time_chrono.td $(stdlib_time_chrono_any_srcs)
 
-# time::olson (+any)
-stdlib_time_olson_any_srcs= \
-	$(STDLIB)/time/olson/olson.ha
+# time::tzdb (+any)
+stdlib_time_tzdb_any_srcs= \
+	$(STDLIB)/time/tzdb/tzdb.ha
 
-$(HARECACHE)/time/olson/time_olson-any.ssa: $(stdlib_time_olson_any_srcs) $(stdlib_rt) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
+$(HARECACHE)/time/tzdb/time_tzdb-any.ssa: $(stdlib_time_tzdb_any_srcs) $(stdlib_rt) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/time/olson
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::olson \
-		-t$(HARECACHE)/time/olson/time_olson.td $(stdlib_time_olson_any_srcs)
+	@mkdir -p $(HARECACHE)/time/tzdb
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::tzdb \
+		-t$(HARECACHE)/time/tzdb/time_tzdb.td $(stdlib_time_tzdb_any_srcs)
 
 # types (+any)
 stdlib_types_any_srcs= \
@@ -2586,11 +2586,11 @@ testlib_deps_any+=$(testlib_time_chrono_any)
 testlib_time_chrono_linux=$(testlib_time_chrono_any)
 testlib_time_chrono_freebsd=$(testlib_time_chrono_any)
 
-# gen_lib time::olson (any)
-testlib_time_olson_any=$(TESTCACHE)/time/olson/time_olson-any.o
-testlib_deps_any+=$(testlib_time_olson_any)
-testlib_time_olson_linux=$(testlib_time_olson_any)
-testlib_time_olson_freebsd=$(testlib_time_olson_any)
+# gen_lib time::tzdb (any)
+testlib_time_tzdb_any=$(TESTCACHE)/time/tzdb/time_tzdb-any.o
+testlib_deps_any+=$(testlib_time_tzdb_any)
+testlib_time_tzdb_linux=$(testlib_time_tzdb_any)
+testlib_time_tzdb_freebsd=$(testlib_time_tzdb_any)
 
 # gen_lib types (any)
 testlib_types_any=$(TESTCACHE)/types/types-any.o
@@ -3816,15 +3816,15 @@ $(TESTCACHE)/time/chrono/time_chrono-any.ssa: $(testlib_time_chrono_any_srcs) $(
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
 		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_any_srcs)
 
-# time::olson (+any)
-testlib_time_olson_any_srcs= \
-	$(STDLIB)/time/olson/olson.ha
+# time::tzdb (+any)
+testlib_time_tzdb_any_srcs= \
+	$(STDLIB)/time/tzdb/tzdb.ha
 
-$(TESTCACHE)/time/olson/time_olson-any.ssa: $(testlib_time_olson_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
+$(TESTCACHE)/time/tzdb/time_tzdb-any.ssa: $(testlib_time_tzdb_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/time/olson
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::olson \
-		-t$(TESTCACHE)/time/olson/time_olson.td $(testlib_time_olson_any_srcs)
+	@mkdir -p $(TESTCACHE)/time/tzdb
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::tzdb \
+		-t$(TESTCACHE)/time/tzdb/time_tzdb.td $(testlib_time_tzdb_any_srcs)
 
 # types (+any)
 testlib_types_any_srcs= \

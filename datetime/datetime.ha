@@ -46,13 +46,13 @@ fn init() datetime = datetime {
 // Creates a new datetime. When loc=void, defaults to chrono::local.
 //
 // 	// 0000 Jan  1st 00:00:00.000000000 +0000 UTC
-// 	datetime::new(chrono::UTC, 0);
+// 	datetime::new(time::chrono::UTC, 0);
 //
 // 	// 2038 Jan 19th 03:14:07.000000618 +0000 UTC
-// 	datetime::new(chrono::UTC, 0, 2038, 01, 19, 03, 14, 07, 618);
+// 	datetime::new(time::chrono::UTC, 0, 2038, 01, 19, 03, 14, 07, 618);
 //
 // 	// 2038 Jan 19th 02:00:00.000000000 +0100 Europe/Amsterdam
-// 	datetime::new(&olson::tz("Europe/Amsterdam"), 1 * time::HOUR,
+// 	datetime::new(&time::tzdb::tz("Europe/Amsterdam"), 1 * time::HOUR,
 // 		2038, 01, 19, 02);
 //
 // TODO: revise examples

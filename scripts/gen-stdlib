@@ -1184,10 +1184,10 @@ time_chrono() {
 	gen_ssa time::chrono time
 }
 
-time_olson() {
-	gen_srcs time::olson \
-		olson.ha
-	gen_ssa time::olson  endian errors fs io os path strings time time::chrono
+time_tzdb() {
+	gen_srcs time::tzdb \
+		tzdb.ha
+	gen_ssa time::tzdb  endian errors fs io os path strings time time::chrono
 }
 
 types() {
@@ -1358,7 +1358,7 @@ strio
 temp			linux freebsd
 time			linux freebsd
 time::chrono
-time::olson
+time::tzdb
 types
 unix			linux freebsd
 unix::hosts

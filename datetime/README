@@ -24,7 +24,7 @@ modifying a [[datetime]]'s fields directly is highly discouraged. See
 [[datetime]]s may be localized to different [[chrono::timezone]]s via
 the [[in]] function. The "field" functions will evaluate the correct
 values accordingly. You'll find a standard selection of world timezones
-in the [[time::olson]] module.
+in the [[time::tzdb]] module.
 
 TODO: Settle on consistent naming and language for localisation.
 "timezone" or "locality"?

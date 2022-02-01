@@ -13,8 +13,8 @@ use time::chrono;
 export type invalidtzif = !void;
 
 // Parses and retrieves a [[chrono::timezone]] from the system zoneinfo
-// database, or if applicable, from an internal selection of timezones. All
-// Olson timezones default to using the [[chrono::utc]] timescale and
+// database, or if applicable, from an internal selection of timezones.
+// All tzdb timezones default to the [[chrono::utc]] timescale and
 // [[chrono::EARTH_DAY]] daylength.
 //
 // TODO: Tidy up errors.
