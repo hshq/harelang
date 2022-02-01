@@ -50,6 +50,11 @@ def MONTHS_SHORT: [_]str = [
 
 // TODO: Document specifiers (%Y, %m, etc) used here, in README or otherwise.
 
+// TODO: Make format() accept parameters of type (datetime | period), using the
+// "intervals" standard representation provided by ISO 8601?
+//
+// See https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
+
 // Parses a datetime string into a [[builder]], using a "layout" format string
 // with a subset of specifiers from POSIX strptime(3). Partial, incremental
 // parsing is possible.

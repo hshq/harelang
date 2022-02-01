@@ -21,22 +21,6 @@ export type period = struct {
 	nanoseconds: i64,
 };
 
-// Prints to stdout the representation of a period.
-//
-// TODO: This is a debug utility. Remove this in favour of changing format() to
-// accept arguments of type (datetime | period), using the "intervals" standard
-// representation provided by ISO 8601.
-//
-// See https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
-export fn print_period(p: period) void = {
-	fmt::printfln(
-		"eras: {}\nyears: {}\nmonths: {}\nweeks: {}\ndays: {}\n"
-		"hours: {}\nminutes: {}\nseconds: {}\nnanoseconds: {}",
-		p.eras, p.years, p.months, p.weeks, p.days, p.hours,
-		p.minutes, p.seconds, p.nanoseconds
-	)!;
-};
-
 // Specifies behaviour during calendar arithmetic
 //
 // * DEFAULT
@@ -874,14 +858,6 @@ fn absi(n: i64) i64 = {
 		const p = cases[i].0;
 		const expected = cases[i].1;
 		const actual = add(d, calculus::DEFAULT, p);
-		if (!eq(actual, expected)) {
-			fmt::printfln("attempting to add:")!;
-			print_period(p);
-			fmt::printfln("expected {}",
-				format("%F %T.%N", &expected)!)!;
-			fmt::printfln("was {}\n",
-				format("%F %T.%N", &actual)!)!;
-		};
 		assert(eq(actual, expected), "addition miscalculation");
 	};
 };
