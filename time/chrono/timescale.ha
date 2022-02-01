@@ -62,35 +62,6 @@ fn conv_utc_tai(a: time::instant) (time::instant | time::error) = {
 };
 
 
-// Unix Time
-//
-// Used for computer timekeeping.
-// Based on UTC, near 1-to-1 correspondence.
-// Discontinuous (has leap seconds).
-export const unix: timescale = timescale {
-	name = "Unix Time",
-	abbr = "UNIX",
-	to_tai = &conv_utc_tai,
-	from_tai = &conv_tai_utc,
-};
-
-fn conv_tai_unix(a: time::instant) (time::instant | time::error) = {
-	const b = time::instant {
-		sec = a.sec - 37,
-		nsec = a.nsec,
-	};
-	return b;
-};
-
-fn conv_unix_tai(a: time::instant) (time::instant | time::error) = {
-	const b = time::instant {
-		sec = a.sec + 37,
-		nsec = a.nsec,
-	};
-	return b;
-};
-
-
 // Global Positioning System Time
 //
 // Used for GPS coordination.
