@@ -940,6 +940,7 @@ stdlib_datetime_any_srcs= \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
 	$(STDLIB)/datetime/format.ha \
+	$(STDLIB)/datetime/parse.ha \
 	$(STDLIB)/datetime/time.ha \
 	$(STDLIB)/datetime/timezone.ha
 
@@ -2921,6 +2922,7 @@ testlib_datetime_any_srcs= \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
 	$(STDLIB)/datetime/format.ha \
+	$(STDLIB)/datetime/parse.ha \
 	$(STDLIB)/datetime/time.ha \
 	$(STDLIB)/datetime/timezone.ha
 

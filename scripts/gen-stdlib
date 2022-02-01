@@ -188,6 +188,7 @@ datetime() {
 		date.ha \
 		datetime.ha \
 		format.ha \
+		parse.ha \
 		time.ha \
 		timezone.ha
 	gen_ssa datetime  errors fmt strings strio time time::chrono
