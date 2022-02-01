@@ -417,6 +417,12 @@ encoding_base64() {
 	gen_ssa encoding::base64 bufio bytes io strio strings
 }
 
+encoding_base32() {
+	gen_srcs encoding::base32 \
+		base32.ha
+	gen_ssa encoding::base32 bufio bytes errors io strings
+}
+
 encoding_hex() {
 	gen_srcs encoding::hex \
 		hex.ha
@@ -1188,6 +1194,7 @@ crypto::sha512
 crypto::curve25519
 dirs
 encoding::base64
+encoding::base32
 encoding::hex
 encoding::utf8
 endian

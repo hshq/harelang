@@ -260,6 +260,12 @@ stdlib_deps_any+=$(stdlib_encoding_base64_any)
 stdlib_encoding_base64_linux=$(stdlib_encoding_base64_any)
 stdlib_encoding_base64_freebsd=$(stdlib_encoding_base64_any)
 
+# gen_lib encoding::base32 (any)
+stdlib_encoding_base32_any=$(HARECACHE)/encoding/base32/encoding_base32-any.o
+stdlib_deps_any+=$(stdlib_encoding_base32_any)
+stdlib_encoding_base32_linux=$(stdlib_encoding_base32_any)
+stdlib_encoding_base32_freebsd=$(stdlib_encoding_base32_any)
+
 # gen_lib encoding::hex (any)
 stdlib_encoding_hex_any=$(HARECACHE)/encoding/hex/encoding_hex-any.o
 stdlib_deps_any+=$(stdlib_encoding_hex_any)
@@ -890,6 +896,16 @@ $(HARECACHE)/encoding/base64/encoding_base64-any.ssa: $(stdlib_encoding_base64_a
 	@mkdir -p $(HARECACHE)/encoding/base64
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::base64 \
 		-t$(HARECACHE)/encoding/base64/encoding_base64.td $(stdlib_encoding_base64_any_srcs)
+
+# encoding::base32 (+any)
+stdlib_encoding_base32_any_srcs= \
+	$(STDLIB)/encoding/base32/base32.ha
+
+$(HARECACHE)/encoding/base32/encoding_base32-any.ssa: $(stdlib_encoding_base32_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/encoding/base32
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::base32 \
+		-t$(HARECACHE)/encoding/base32/encoding_base32.td $(stdlib_encoding_base32_any_srcs)
 
 # encoding::hex (+any)
 stdlib_encoding_hex_any_srcs= \
@@ -2060,6 +2076,12 @@ testlib_deps_any+=$(testlib_encoding_base64_any)
 testlib_encoding_base64_linux=$(testlib_encoding_base64_any)
 testlib_encoding_base64_freebsd=$(testlib_encoding_base64_any)
 
+# gen_lib encoding::base32 (any)
+testlib_encoding_base32_any=$(TESTCACHE)/encoding/base32/encoding_base32-any.o
+testlib_deps_any+=$(testlib_encoding_base32_any)
+testlib_encoding_base32_linux=$(testlib_encoding_base32_any)
+testlib_encoding_base32_freebsd=$(testlib_encoding_base32_any)
+
 # gen_lib encoding::hex (any)
 testlib_encoding_hex_any=$(TESTCACHE)/encoding/hex/encoding_hex-any.o
 testlib_deps_any+=$(testlib_encoding_hex_any)
@@ -2707,6 +2729,16 @@ $(TESTCACHE)/encoding/base64/encoding_base64-any.ssa: $(testlib_encoding_base64_
 	@mkdir -p $(TESTCACHE)/encoding/base64
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::base64 \
 		-t$(TESTCACHE)/encoding/base64/encoding_base64.td $(testlib_encoding_base64_any_srcs)
+
+# encoding::base32 (+any)
+testlib_encoding_base32_any_srcs= \
+	$(STDLIB)/encoding/base32/base32.ha
+
+$(TESTCACHE)/encoding/base32/encoding_base32-any.ssa: $(testlib_encoding_base32_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/encoding/base32
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::base32 \
+		-t$(TESTCACHE)/encoding/base32/encoding_base32.td $(testlib_encoding_base32_any_srcs)
 
 # encoding::hex (+any)
 testlib_encoding_hex_any_srcs= \

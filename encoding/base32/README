@@ -1,0 +1,5 @@
+Implementation of the base-32 encoding scheme as defined by RFC 4648.
+
+Due to security concerns described by the RFC, this implementation rejects invalid padding.
+
+https://datatracker.ietf.org/doc/html/rfc4648#section-12
