@@ -191,9 +191,9 @@ export fn from_moment(m: chrono::moment) datetime = {
 };
 
 // Creates a [[datetime]] from a string, parsed according to a layout,
-// using [[method::ALL]], or fails otherwise.
+// using [[strategy::ALL]], or fails otherwise.
 //
-// TODO: allow the user to specify methods for security?
+// TODO: allow the user to specify [[strategy]] for security?
 export fn from_str(layout: str, s: str) (datetime | insufficient | errors::invalid) = {
 	const b = newbuilder();
 	parse(&b, layout, s)?;
@@ -221,25 +221,25 @@ export type insufficient = !void;
 // 	datetime::parse(&builder, "Year: %Y", "Year: 2038");
 // 	datetime::parse(&builder, "Month: %m", "Month: 01");
 // 	builder.day = 19;
-// 	let dt = datetime::build(&builder, datetime::method::YMD);
+// 	let dt = datetime::build(&builder, datetime::strategy::YMD);
 //
 export type builder = datetime;
 
 // Creates a new [[builder]]
 export fn newbuilder() builder = init(): builder;
 
-// Returns a datetime from a builder. The provided methods will be tried in
+// Returns a datetime from a builder. The provided [[strategy]]s will be tried in
 // order until a valid datetime is produced, or fail otherwise. The default
-// method is [[method::ALL]].
-export fn build(f: *builder, m: method...) (datetime | insufficient | errors::invalid) = {
+// strategy is [[strategy::ALL]].
+export fn build(f: *builder, m: strategy...) (datetime | insufficient | errors::invalid) = {
 	if (len(m) == 0) {
-		m = [method::ALL];
+		m = [strategy::ALL];
 	};
 
 	for (let i = 0z; i < len(m); i += 1) {
 		const M = m[i];
 		if (
-			M & method::YMD != 0 &&
+			M & strategy::YMD != 0 &&
 			f.year is int &&
 			f.month is int &&
 			f.day is int
@@ -253,7 +253,7 @@ export fn build(f: *builder, m: method...) (datetime | insufficient | errors::in
 		};
 
 		if (
-			M & method::YD != 0 &&
+			M & strategy::YD != 0 &&
 			f.year is int &&
 			f.yearday is int
 		) {
@@ -265,7 +265,7 @@ export fn build(f: *builder, m: method...) (datetime | insufficient | errors::in
 		};
 
 		if (
-			M & method::YWD != 0 &&
+			M & strategy::YWD != 0 &&
 			f.year is int &&
 			f.week is int &&
 			f.weekday is int
@@ -284,9 +284,9 @@ export fn build(f: *builder, m: method...) (datetime | insufficient | errors::in
 	return insufficient;
 };
 
-// Specifies which [[builder]] fields (and what method) to use to calculate the
+// Specifies which [[builder]] fields (and what strategy) to use to calculate the
 // epochal, and thus a valid datetime.
-export type method = enum uint {
+export type strategy = enum uint {
 	// year, month, day
 	YMD    = 1 << 0,
 	// year, yearday
@@ -296,7 +296,7 @@ export type method = enum uint {
 	// isoyear, isoweek, weekday
 	ISOYWD = 1 << 4,
 
-	// all methods, in order as presented here
+	// all strategies, in order as presented here
 	ALL    = YMD | YD | YWD | ISOYWD,
 };
 
