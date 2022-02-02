@@ -1,4 +1,9 @@
-use time;
+use bufio;
+use fmt;
+use io;
+use os;
+use strconv;
+use strings;
 
 // Hare uses raw leap second informtion when dealing with the UTC and TAI
 // timescales. This information is source from a standard file installed at
@@ -18,38 +23,41 @@ use time;
 // design also inhibits our ambitions for dealing with multiple, dynamic
 // timescales. Therefore, we have decided to take an alternative approach.
 
+// The filepath of the leap-seconds.list file
+export def UTC_LEAPSECS_FILE: str = "/usr/share/zoneinfo/leap-seconds.list";
+
 // UTC timestamps and their TAI offsets, sourced from leap-seconds.list
-// updated: 8 July 2016
-// expires: 28 June 2022
-//
-// TODO: Initialise this data from /usr/share/zoneinfo/leap-seconds.list
-const leaps_utc: [](i64, i64) = [
-	(2272060800, 10),
-	(2287785600, 11),
-	(2303683200, 12),
-	(2335219200, 13),
-	(2366755200, 14),
-	(2398291200, 15),
-	(2429913600, 16),
-	(2461449600, 17),
-	(2492985600, 18),
-	(2524521600, 19),
-	(2571782400, 20),
-	(2603318400, 21),
-	(2634854400, 22),
-	(2698012800, 23),
-	(2776982400, 24),
-	(2840140800, 25),
-	(2871676800, 26),
-	(2918937600, 27),
-	(2950473600, 28),
-	(2982009600, 29),
-	(3029443200, 30),
-	(3076704000, 31),
-	(3124137600, 32),
-	(3345062400, 33),
-	(3439756800, 34),
-	(3550089600, 35),
-	(3644697600, 36),
-	(3692217600, 37),
-];
+let utc_leapsecs: [](i64, i64) = [];
+
+// TODO: BUG: Cannot compile harec2 with this line.
+//@init fn init_utc_leapsecs() void = init_utc_leapsecs();
+
+fn init_utc_leapsecs() void = {
+	const file = os::open(UTC_LEAPSECS_FILE)!;
+	read_leapsecfile(file, &utc_leapsecs)!;
+};
+
+fn read_leapsecfile(h: io::handle, leapsecs: *[](i64, i64)) (void | io::error) = {
+	for (true) {
+		const line = match (bufio::scanline(h)) {
+		case let err: io::error =>
+			return err;
+		case io::EOF =>
+			return;
+		case let line: []u8 =>
+			yield line;
+		};
+		const line = fmt::bsprint(line);
+		if (strings::hasprefix(line, '#')) {
+			continue;
+		};
+		const pair = strings::splitN(line, "\t", 3);
+		if (len(pair) < 2) {
+			continue;
+		};
+		const a = strconv::stoi64(pair[0])!;
+		const b = strconv::stoi64(pair[1])!;
+		const pair = (a: i64, b: i64);
+		append(utc_leapsecs, pair);
+	};
+};

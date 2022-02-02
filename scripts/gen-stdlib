@@ -1182,7 +1182,7 @@ time_chrono() {
 		leapsec.ha \
 		timescale.ha \
 		timezone.ha
-	gen_ssa time::chrono time
+	gen_ssa time::chrono  bufio fmt io os strconv strings time
 }
 
 time_tzdb() {

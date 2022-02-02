@@ -1802,7 +1802,7 @@ stdlib_time_chrono_any_srcs= \
 	$(STDLIB)/time/chrono/timescale.ha \
 	$(STDLIB)/time/chrono/timezone.ha
 
-$(HARECACHE)/time/chrono/time_chrono-any.ssa: $(stdlib_time_chrono_any_srcs) $(stdlib_rt) $(stdlib_time_$(PLATFORM))
+$(HARECACHE)/time/chrono/time_chrono-any.ssa: $(stdlib_time_chrono_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time/chrono
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::chrono \
@@ -3812,7 +3812,7 @@ testlib_time_chrono_any_srcs= \
 	$(STDLIB)/time/chrono/timescale.ha \
 	$(STDLIB)/time/chrono/timezone.ha
 
-$(TESTCACHE)/time/chrono/time_chrono-any.ssa: $(testlib_time_chrono_any_srcs) $(testlib_rt) $(testlib_time_$(PLATFORM))
+$(TESTCACHE)/time/chrono/time_chrono-any.ssa: $(testlib_time_chrono_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time/chrono
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
