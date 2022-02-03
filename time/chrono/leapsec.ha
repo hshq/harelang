@@ -24,12 +24,18 @@ use strings;
 // timescales. Therefore, we have decided to take an alternative approach.
 
 // The filepath of the leap-seconds.list file
+export def SECS_1900_1970: i64 = 2208988800;
+
+// The filepath of the leap-seconds.list file
 export def UTC_LEAPSECS_FILE: str = "/usr/share/zoneinfo/leap-seconds.list";
 
 // UTC timestamps and their TAI offsets, sourced from leap-seconds.list
 let utc_leapsecs: [](i64, i64) = [];
 
-// TODO: BUG: Cannot compile harec2 with this line.
+// TODO: Fix, cannot compile harec2 with this line. This code is currenlty
+// called where it's needed, as a workaround. Remember to prune this function
+// call elsewhere once this @init is fixed.
+//
 //@init fn init_utc_leapsecs() void = init_utc_leapsecs();
 
 fn init_utc_leapsecs() void = {
@@ -57,6 +63,7 @@ fn read_leapsecfile(h: io::handle, leapsecs: *[](i64, i64)) (void | io::error) =
 		};
 		const a = strconv::stoi64(pair[0])!;
 		const b = strconv::stoi64(pair[1])!;
+		const a = a - SECS_1900_1970;
 		const pair = (a: i64, b: i64);
 		append(utc_leapsecs, pair);
 	};

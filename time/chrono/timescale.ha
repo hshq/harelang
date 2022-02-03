@@ -46,6 +46,15 @@ export const utc: timescale = timescale {
 };
 
 fn conv_tai_utc(a: time::instant) (time::instant | time::error) = {
+	init_utc_leapsecs();
+
+	const idx = lookup_leaps(utc_leapsecs, time::unix(a));
+	const ofst = utc_leapsecs[idx].1;
+
+	if (time::unix(a) == utc_leapsecs[idx].0) {
+		void;
+	};
+
 	const b = time::instant {
 		sec = a.sec - 37,
 		nsec = a.nsec,
@@ -54,11 +63,43 @@ fn conv_tai_utc(a: time::instant) (time::instant | time::error) = {
 };
 
 fn conv_utc_tai(a: time::instant) (time::instant | time::error) = {
+	init_utc_leapsecs();
+
+	const idx = lookup_leaps(utc_leapsecs, time::unix(a));
+	const ofst = utc_leapsecs[idx].1;
+
+	if (time::unix(a) == utc_leapsecs[idx].0) {
+		void;
+	};
+
 	const b = time::instant {
-		sec = a.sec + 37,
+		sec = a.sec + ofst,
 		nsec = a.nsec,
 	};
 	return b;
+};
+
+fn lookup_leaps(list: [](i64, i64), t: i64) size = {
+	let lo = 0z, hi = len(list);
+	for (hi - lo > 1) {
+		const mid = lo + (hi - lo) / 2;
+		const middle = list[mid].0;
+		const cmp = time::compare(
+			time::from_unix(t),
+			time::from_unix(middle),
+		);
+		switch (cmp) {
+		case -1 =>
+			hi = mid;
+		case 0 =>
+			lo = mid; break;
+		case 1 =>
+			lo = mid;
+		case =>
+			abort("Unreachable");
+		};
+	};
+	return lo;
 };
 
 
