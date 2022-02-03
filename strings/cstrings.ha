@@ -40,18 +40,20 @@ export fn fromc(cstr: *const char) const str = {
 // Converts a Hare string to a C string. The result is allocated, the caller
 // must free it when they're done.
 export fn to_c(s: const str) *char = {
-	let ptr = rt::malloc(len(s) + 1): nullable *[*]u8;
-	let ptr = match (ptr) {
-	case null =>
-		abort("Out of memory");
-	case let p: *[*]u8 =>
-		yield p;
+	let slice: []u8 = alloc([0...], len(s) + 1);
+	return to_cbuf(s, slice);
+};
+
+// Converts a Hare string to a C string. The result is stored into a
+// user-supplied buffer.
+export fn to_cbuf(s: const str, sl: []u8) *char = {
+	if (len(sl) < len(s) + 1) {
+		abort("to_cbuf: buffer has insufficient space for string plus NUL");
 	};
-	match ((&s: *types::string).data) {
-	case null => void;
-	case let data: *[*]u8 =>
-		yield rt::memcpy(ptr, data, len(s));
-	};
-	ptr[len(s)] = 0;
-	return ptr: *char;
+
+	const s = &s: *[]u8;
+	sl[..len(s)] = s[..];
+	sl[len(s)] = 0;
+
+	return (*(&sl: *types::slice)).data: *char;
 };
