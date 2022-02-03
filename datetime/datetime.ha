@@ -193,6 +193,11 @@ export fn from_moment(m: chrono::moment) datetime = {
 	return dt;
 };
 
+// Creates a [[datetime]] from a [[time::instant]]
+export fn from_instant(i: time::instant, loc: chrono::locality) datetime = {
+	return from_moment(chrono::from_instant(i, loc));
+};
+
 // Creates a [[datetime]] from a string, parsed according to a layout,
 // using [[strategy::ALL]], or fails otherwise.
 //
