@@ -24,7 +24,7 @@ def WEEKDAYS: [_]str = [
 	"Sunday",
 ];
 
-def WEEKDAYS_SHORT: [_]str = ["Mon", "Tue", "Wed", "Thu", "Fr", "Sat", "Sun"];
+def WEEKDAYS_SHORT: [_]str = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 def MONTHS: [_]str = [
 	"January",
