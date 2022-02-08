@@ -14,7 +14,8 @@ fn limitstream_create(source: handle, limit: size) limitstream = {
 
 // Create an overlay stream that only allows a limited amount of bytes to be
 // read from the underlying stream. This stream does not need to be closed, and
-// closing it does not close the underlying stream.
+// closing it does not close the underlying stream. Reading any data beyond the
+// given limit causes the reader to return [[io::EOF]].
 export fn limitreader(source: handle, limit: size) limitstream = {
 	let stream = limitstream_create(source, limit);
 	stream.reader = &limit_read;
@@ -23,7 +24,8 @@ export fn limitreader(source: handle, limit: size) limitstream = {
 
 // Create an overlay stream that only allows a limited amount of bytes to be
 // written to the underlying stream. This stream does not need to be closed, and
-// closing it does not close the underlying stream.
+// closing it does not close the underlying stream. Writing beyond the given
+// limit causes the writer to return short writes (as few as zero bytes).
 export fn limitwriter(source: handle, limit: size) limitstream = {
 	let stream = limitstream_create(source, limit);
 	stream.writer = &limit_write;
@@ -32,6 +34,9 @@ export fn limitwriter(source: handle, limit: size) limitstream = {
 
 fn limit_read(s: *stream, buf: []u8) (size | EOF | error) = {
 	let stream = s: *limitstream;
+	if (stream.limit == 0) {
+		return io::EOF;
+	};
 	if (len(buf) > stream.limit) {
 		buf = buf[..stream.limit];
 	};
@@ -41,6 +46,9 @@ fn limit_read(s: *stream, buf: []u8) (size | EOF | error) = {
 
 fn limit_write(s: *stream, buf: const []u8) (size | error) = {
 	let stream = s: *limitstream;
+	if (stream.limit == 0) {
+		return 0;
+	};
 	let slice = if (len(buf) > stream.limit) {
 		yield buf[..stream.limit];
 	} else {

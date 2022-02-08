@@ -22,6 +22,7 @@ use errors;
 	case error =>
 		abort();
 	};
+	assert(read(&rlimit, buf) is io::EOF);
 
 	let wlimit = limitwriter(&source, 20);
 	match (read(&wlimit, buf)) {
@@ -41,4 +42,5 @@ use errors;
 	case error =>
 		abort();
 	};
+	assert(write(&wlimit, buf) as size == 0z);
 };
