@@ -93,4 +93,13 @@ check: .bin/hare-tests
 
 all: .bin/hare .bin/harec2 .bin/haredoc
 
-.PHONY: all clean check .bin/harec2 .bin/haredoc
+install: all docs
+	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1 \
+		$(DESTDIR)$(SRCDIR)/hare/stdlib $(DESTDIR)$(LOCALSRCDIR)
+	install -m755 .bin/hare $(DESTDIR)$(BINDIR)/hare
+	install -m755 .bin/haredoc $(DESTDIR)$(BINDIR)/haredoc
+	install -m644 docs/hare.1 $(DESTDIR)$(MANDIR)/man1/hare.1
+	install -m644 docs/haredoc.1 $(DESTDIR)$(MANDIR)/man1/haredoc.1
+	./scripts/install-mods "$(DESTDIR)$(SRCDIR)/hare/stdlib"
+
+.PHONY: all clean check install .bin/harec2 .bin/haredoc
