@@ -17,6 +17,35 @@ export fn next(r: *random) u64 = {
 	return *r ^ *r >> 31;
 };
 
+// Returns a pseudo-random 32-bit unsigned integer in the half-open interval
+// [0,n).
+export fn u32n(r: *random, n: u32) u32 = {
+	// https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
+	// https://lemire.me/blog/2016/06/30/fast-random-shuffling/
+	let prod = next(r): u32: u64 * n: u64;
+	let leftover = prod: u32;
+	if (leftover < n) {
+		let thresh = -n % n;
+		for (leftover < thresh) {
+			prod = next(r): u32: u64 * n: u64;
+			leftover = prod: u32;
+		};
+	};
+	return (prod >> 32): u32;
+};
+
+// Returns a pseudo-random 64-bit unsigned integer in the half-open interval
+// [0,n).
+export fn u64n(r: *random, n: u64) u64 = {
+	// Powers of 2 can be handled more efficiently
+	if (n & n - 1 == 0) return next(r) & n - 1;
+	// Equivalent to 2^64 - 1 - 2^64 % n
+	let max = -1 - -n % n;
+	let out = next(r);
+	for (out > max) out = next(r);
+	return out % n;
+};
+
 @test fn rng() void = {
 	let r = init(0);
 	let expected: [_]u64 = [
@@ -27,5 +56,17 @@ export fn next(r: *random) u64 = {
 	];
 	for (let i = 0z; i < len(expected); i += 1) {
 		assert(next(&r) == expected[i]);
+	};
+
+	for (let i = 0z; i < 1000; i += 1) {
+		assert(u32n(&r, 3) < 3);
+	};
+
+	for (let i = 0z; i < 1000; i += 1) {
+		assert(u64n(&r, 3) < 3);
+	};
+	for (let i = 0z; i < 1000; i += 1) {
+		// Powers of 2 have a separate codepath
+		assert(u64n(&r, 2) < 2);
 	};
 };
