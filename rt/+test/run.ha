@@ -25,6 +25,7 @@ export fn tests_main() size = {
 
 	let failures: [](str, abort_reason) = [];
 	let npass = 0z, nfail = 0z;
+	let default_round = fegetround();
 	print("Running ");
 	print(ztos(ntest));
 	print(" tests:\n\n");
@@ -43,6 +44,10 @@ export fn tests_main() size = {
 			print("FAIL\n");
 			continue;
 		};
+
+		fesetround(default_round);
+		feclearexcept(~0u);
+
 		test_start[i].func();
 
 		npass += 1;

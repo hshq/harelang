@@ -34,6 +34,7 @@ gensrcs_rt() {
 		+linux/socket.ha \
 		'+$(ARCH)'/jmp.ha \
 		'+$(ARCH)'/backtrace.ha \
+		fenv_defs.ha \
 		ensure.ha \
 		jmp.ha \
 		malloc.ha \
@@ -55,6 +56,7 @@ gensrcs_rt() {
 		+freebsd/types.ha \
 		+'$(ARCH)'/jmp.ha \
 		+'$(ARCH)'/backtrace.ha \
+		fenv_defs.ha \
 		ensure.ha \
 		jmp.ha \
 		malloc.ha \
@@ -95,6 +97,7 @@ ${stdlib}_asm=\$($cache)/rt/syscall.o \\
 	\$($cache)/rt/longjmp.o \\
 	\$($cache)/rt/restore.o \\
 	\$($cache)/rt/getfp.o \\
+	\$($cache)/rt/fenv.o \\
 	\$($cache)/rt/start.o
 
 \$($cache)/rt/syscall.o: \$(STDLIB)/rt/+\$(PLATFORM)/syscall+\$(ARCH).s
@@ -113,6 +116,11 @@ ${stdlib}_asm=\$($cache)/rt/syscall.o \\
 	@\$(AS) -o \$@ \$<
 
 \$($cache)/rt/restore.o: \$(STDLIB)/rt/+\$(ARCH)/restore.s
+	@printf 'AS \t\$@\n'
+	@mkdir -p \$($cache)/rt
+	@\$(AS) -o \$@ \$<
+
+\$($cache)/rt/fenv.o: \$(STDLIB)/rt/+\$(ARCH)/fenv.s
 	@printf 'AS \t\$@\n'
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$<
@@ -786,7 +794,13 @@ linux_vdso() {
 
 gensrcs_math() {
 	gen_srcs math \
-		math.ha floats.ha ints.ha uints.ha trig.ha \
+		math.ha \
+		fenv_func.ha \
+		'fenv+$(ARCH).ha' \
+		floats.ha  \
+		ints.ha \
+		uints.ha \
+		trig.ha \
 		$*
 }
 

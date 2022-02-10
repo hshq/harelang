@@ -18,6 +18,7 @@ stdlib_rt_linux_srcs= \
 	$(STDLIB)/rt/+linux/socket.ha \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
+	$(STDLIB)/rt/fenv_defs.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -42,6 +43,7 @@ stdlib_rt_freebsd_srcs= \
 	$(STDLIB)/rt/+freebsd/types.ha \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
+	$(STDLIB)/rt/fenv_defs.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -74,6 +76,7 @@ stdlib_asm=$(HARECACHE)/rt/syscall.o \
 	$(HARECACHE)/rt/longjmp.o \
 	$(HARECACHE)/rt/restore.o \
 	$(HARECACHE)/rt/getfp.o \
+	$(HARECACHE)/rt/fenv.o \
 	$(HARECACHE)/rt/start.o
 
 $(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
@@ -92,6 +95,11 @@ $(HARECACHE)/rt/longjmp.o: $(STDLIB)/rt/+$(ARCH)/longjmp.s
 	@$(AS) -o $@ $<
 
 $(HARECACHE)/rt/restore.o: $(STDLIB)/rt/+$(ARCH)/restore.s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(HARECACHE)/rt
+	@$(AS) -o $@ $<
+
+$(HARECACHE)/rt/fenv.o: $(STDLIB)/rt/+$(ARCH)/fenv.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $<
@@ -1307,6 +1315,8 @@ $(HARECACHE)/linux/vdso/linux_vdso-linux.ssa: $(stdlib_linux_vdso_linux_srcs) $(
 # math (+any)
 stdlib_math_any_srcs= \
 	$(STDLIB)/math/math.ha \
+	$(STDLIB)/math/fenv_func.ha \
+	$(STDLIB)/math/fenv+$(ARCH).ha \
 	$(STDLIB)/math/floats.ha \
 	$(STDLIB)/math/ints.ha \
 	$(STDLIB)/math/uints.ha \
@@ -1826,6 +1836,7 @@ testlib_rt_linux_srcs= \
 	$(STDLIB)/rt/+linux/socket.ha \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
+	$(STDLIB)/rt/fenv_defs.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -1854,6 +1865,7 @@ testlib_rt_freebsd_srcs= \
 	$(STDLIB)/rt/+freebsd/types.ha \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
+	$(STDLIB)/rt/fenv_defs.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -1890,6 +1902,7 @@ testlib_asm=$(TESTCACHE)/rt/syscall.o \
 	$(TESTCACHE)/rt/longjmp.o \
 	$(TESTCACHE)/rt/restore.o \
 	$(TESTCACHE)/rt/getfp.o \
+	$(TESTCACHE)/rt/fenv.o \
 	$(TESTCACHE)/rt/start.o
 
 $(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
@@ -1908,6 +1921,11 @@ $(TESTCACHE)/rt/longjmp.o: $(STDLIB)/rt/+$(ARCH)/longjmp.s
 	@$(AS) -o $@ $<
 
 $(TESTCACHE)/rt/restore.o: $(STDLIB)/rt/+$(ARCH)/restore.s
+	@printf 'AS \t$@\n'
+	@mkdir -p $(TESTCACHE)/rt
+	@$(AS) -o $@ $<
+
+$(TESTCACHE)/rt/fenv.o: $(STDLIB)/rt/+$(ARCH)/fenv.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $<
@@ -3158,6 +3176,8 @@ $(TESTCACHE)/linux/vdso/linux_vdso-linux.ssa: $(testlib_linux_vdso_linux_srcs) $
 # math (+any)
 testlib_math_any_srcs= \
 	$(STDLIB)/math/math.ha \
+	$(STDLIB)/math/fenv_func.ha \
+	$(STDLIB)/math/fenv+$(ARCH).ha \
 	$(STDLIB)/math/floats.ha \
 	$(STDLIB)/math/ints.ha \
 	$(STDLIB)/math/uints.ha \
