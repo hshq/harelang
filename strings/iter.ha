@@ -1,6 +1,5 @@
 use encoding::utf8;
 
-// An iterator which yields each rune from a string.
 export type iterator = struct {
 	dec:  utf8::decoder,
 	push: (rune | void),
@@ -8,7 +7,19 @@ export type iterator = struct {
 	prev: *fn(_: *utf8::decoder) (rune | void | utf8::more | utf8::invalid),
 };
 
-// Initializes a string iterator, starting at the beginning of the string.
+// Initializes a string iterator, starting at the beginning of the string. You
+// may copy the iterator to save its state.
+//
+//	let iter = strings::iter("hi!");
+//	iter::next(&iter);	// 'h'
+//	iter::next(&iter);	// 'i'
+//
+//	// Copying the iterator copies its state:
+//	let dup = iter;
+//	iter::next(&iter);	// '!'
+//	iter::next(&iter);	// void
+//	iter::next(&dup);	// '!'
+//	iter::next(&dup);	// void
 export fn iter(src: str) iterator = iterator {
 	dec = utf8::decode(src),
 	push = void,
@@ -16,8 +27,11 @@ export fn iter(src: str) iterator = iterator {
 	prev = &utf8::prev,
 };
 
-// Initializes a string iterator, starting at the end of the string.
+// Initializes a string iterator, starting at the end of the string and moving
+// backwards with each call to [[next]].
 export fn riter(src: str) iterator = {
+	// TODO: Add rnext et al to avoid blowing up the stack footprint with
+	// next/prev pointers
 	let ret = iterator {
 		dec = utf8::decode(src),
 		push = void,
@@ -71,6 +85,8 @@ export fn prev(iter: *iterator) (rune | void) = {
 // This does not modify the underlying string, and as such, subsequent calls to
 // functions like [[prev]] or [[iter_str]] will behave as if push were never called.
 export fn push(iter: *iterator, r: rune) void = {
+	// TODO: This should probably be removed, and the push field removed
+	// from the struct.
 	assert(iter.push is void);
 	iter.push = r;
 };
