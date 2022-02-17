@@ -4,6 +4,7 @@ use hare::ast;
 use hare::lex;
 use strio;
 
+// Unparses an [[ast::decl]].
 export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 	let n = 0z;
 	if (d.exported) {
