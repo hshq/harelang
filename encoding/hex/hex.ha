@@ -50,6 +50,7 @@ export fn decode(s: str) ([]u8 | invalid) = {
 		let oct = strings::fromutf8_unsafe(s[i * 2..i * 2 + 2]);
 		let u = match (strconv::stou8b(oct, 16)) {
 		case (strconv::invalid | strconv::overflow) =>
+			free(buf);
 			return invalid;
 		case let u: u8 =>
 			yield u;
