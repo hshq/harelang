@@ -35,7 +35,12 @@ export fn parse(in: io::handle) (*parser | error) = {
 		par.in = alloc(bufio::buffered(in, par.buf[..], []));
 		par.close = true;
 	};
-	prolog(par)?;
+	match (prolog(par)) {
+	case void => void;
+	case let err: error =>
+		parser_free(par);
+		return err;
+	};
 	return par;
 };
 
