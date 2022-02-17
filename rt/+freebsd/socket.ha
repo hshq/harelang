@@ -172,6 +172,12 @@ export def SOCK_SEQPACKET: int = 5;
 export def SOCK_CLOEXEC: int = 0x10000000;
 export def SOCK_NONBLOCK: int = 0x20000000;
 
+export def IPPROTO_IP = 0;
+export def IPPROTO_ICMP = 1;
+export def IPPROTO_TCP = 6;
+export def IPPROTO_UDP = 17;
+export def IPPROTO_IPV6 = 41;
+export def IPPROTO_RAW = 255;
 export def IPPROTO_HOPOPTS: int = 0;
 export def IPPROTO_IGMP: int = 2;
 export def IPPROTO_GGP: int = 3;
@@ -268,8 +274,20 @@ export def IPPROTO_SCCSP: int = 96;
 export def IPPROTO_ETHERIP: int = 97;
 export def IPPROTO_ENCAP: int = 98;
 export def IPPROTO_APES: int = 99;
-// TODO: There are more but honestly I'm runing out of patience and I've never
-// seen anyone use these constants anyway
+export def IPPROTO_GMTP = 100;
+export def IPPROTO_IPCOMP = 108;
+export def IPPROTO_SCTP = 132;
+export def IPPROTO_MH = 135;
+export def IPPROTO_UDPLITE = 136;
+export def IPPROTO_HIP = 139;
+export def IPPROTO_SHIM6 = 140;
+export def IPPROTO_PIM = 103;
+export def IPPROTO_CARP = 112;
+export def IPPROTO_PGM = 113;
+export def IPPROTO_MPLS = 137;
+export def IPPROTO_PFSYNC = 240;
+export def IPPROTO_RESERVED_253 = 253;
+export def IPPROTO_RESERVED_254 = 254;
 
 export def MSG_OOB: int = 0x00000001;
 export def MSG_PEEK: int = 0x00000002;
