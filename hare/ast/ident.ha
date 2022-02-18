@@ -10,12 +10,7 @@ export type ident = []str;
 export def IDENT_MAX: size = 255;
 
 // Frees resources associated with an [[ident]]ifier.
-export fn ident_free(ident: ident) void = {
-	for (let i = 0z; i < len(ident); i += 1) {
-		free(ident[i]);
-	};
-	free(ident);
-};
+export fn ident_free(ident: ident) void = strings::freeall(ident);
 
 // Returns true if two [[ident]]s are identical.
 export fn ident_eq(a: ident, b: ident) bool = {
@@ -31,10 +26,4 @@ export fn ident_eq(a: ident, b: ident) bool = {
 };
 
 // Duplicates an [[ident]].
-export fn ident_dup(id: ident) ident = {
-	let new: ident = alloc([], len(id));
-	for (let i = 0z; i < len(id); i += 1) {
-		append(new, strings::dup(id[0]));
-	};
-	return new;
-};
+export fn ident_dup(id: ident) ident = strings::dupall(id);
