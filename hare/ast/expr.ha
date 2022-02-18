@@ -206,8 +206,15 @@ export type _null = void;
 // A scalar value.
 export type value = (void | bool | _null | ...lex::value);
 
+// An integer or float constant.
+export type number_constant = struct {
+	suff: lex::ltok,
+	value: (i64 | u64 | f64),
+};
+
 // A constant expression.
-export type constant_expr = (value | array_constant | struct_constant | tuple_constant);
+export type constant_expr = (value | array_constant | number_constant |
+	struct_constant | tuple_constant);
 
 // A continue expression. The label is set to empty string if absent.
 //
@@ -463,6 +470,7 @@ case let e: expr =>
 				expr_free(t[i]);
 			};
 			free(t);
+		case number_constant => void;
 		};
 	case let c: continue_expr =>
 		free(c);

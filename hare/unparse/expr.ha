@@ -1,6 +1,7 @@
 use io;
 use fmt;
 use hare::ast;
+use hare::lex::{ltok};
 use hare::lex;
 
 // Unparses an [[ast::expr]].
@@ -432,6 +433,38 @@ fn constant(
 		z += fmt::fprintf(out, "{}]",
 			if (ac.expand) "..." else "")?;
 		return z;
+	case let v: ast::number_constant =>
+		return fmt::fprintf(out, "{}{}", v.value, switch (v.suff) {
+		case ltok::LIT_U8 =>
+			yield "u8";
+		case ltok::LIT_U16 =>
+			yield "u16";
+		case ltok::LIT_U32 =>
+			yield "u32";
+		case ltok::LIT_U64 =>
+			yield "u64";
+		case ltok::LIT_UINT =>
+			yield "u";
+		case ltok::LIT_SIZE =>
+			yield "z";
+		case ltok::LIT_I8 =>
+			yield "i8";
+		case ltok::LIT_I16 =>
+			yield "i16";
+		case ltok::LIT_I32 =>
+			yield "i32";
+		case ltok::LIT_I64 =>
+			yield "i64";
+		case ltok::LIT_INT =>
+			yield "i";
+		case ltok::LIT_ICONST, ltok::LIT_FCONST =>
+			yield "";
+		case ltok::LIT_F32 =>
+			yield "f32";
+		case ltok::LIT_F64 =>
+			yield "f64";
+		case => abort();
+		});
 	case let sc: ast::struct_constant =>
 		return struct_constant(out, indent, sc)?;
 	case let tu: ast::tuple_constant =>

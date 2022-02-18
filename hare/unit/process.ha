@@ -289,6 +289,38 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 		);
 	case ast::array_constant =>
 		abort(); // TODO
+	case let v: ast::number_constant =>
+		yield (
+			types::lookup_builtin(ctx.store, switch (v.suff) {
+			case lex::ltok::LIT_U8 =>
+				yield ast::builtin_type::U8;
+			case lex::ltok::LIT_U16 =>
+				yield ast::builtin_type::U16;
+			case lex::ltok::LIT_U32 =>
+				yield ast::builtin_type::U32;
+			case lex::ltok::LIT_U64 =>
+				yield ast::builtin_type::U64;
+			case lex::ltok::LIT_UINT =>
+				yield ast::builtin_type::UINT;
+			case lex::ltok::LIT_SIZE =>
+				yield ast::builtin_type::SIZE;
+			case lex::ltok::LIT_I8 =>
+				yield ast::builtin_type::I8;
+			case lex::ltok::LIT_I16 =>
+				yield ast::builtin_type::I16;
+			case lex::ltok::LIT_I32 =>
+				yield ast::builtin_type::I32;
+			case lex::ltok::LIT_I64 =>
+				yield ast::builtin_type::I64;
+			case lex::ltok::LIT_INT, lex::ltok::LIT_ICONST =>
+				yield ast::builtin_type::INT;
+			case lex::ltok::LIT_F32 =>
+				yield ast::builtin_type::F32;
+			case lex::ltok::LIT_F64, lex::ltok::LIT_FCONST =>
+				yield ast::builtin_type::F64;
+			}),
+			v.value,
+		);
 	case ast::struct_constant =>
 		abort(); // TODO
 	case ast::tuple_constant =>

@@ -467,13 +467,22 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 
 fn constant(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = want(lexer)?;
-	const expr: ast::value = switch (tok.0) {
+	const expr: ast::constant_expr = switch (tok.0) {
+	case ltok::LIT_RUNE, ltok::LIT_STR =>
+		yield tok.1;
 	case ltok::LIT_U8, ltok::LIT_U16, ltok::LIT_U32, ltok::LIT_U64,
 		ltok::LIT_UINT, ltok::LIT_SIZE, ltok::LIT_I8, ltok::LIT_I16,
 		ltok::LIT_I32, ltok::LIT_I64, ltok::LIT_INT, ltok::LIT_ICONST,
-		ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST, ltok::LIT_RUNE,
-		ltok::LIT_STR =>
-		yield tok.1;
+		ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST =>
+		const value = match (tok.1) {
+		case let v: (i64 | u64 | f64) =>
+			yield v;
+		case => abort();
+		};
+		yield ast::number_constant {
+			suff = tok.0,
+			value = value,
+		};
 	case ltok::VOID =>
 		yield void;
 	case ltok::TRUE =>
@@ -960,10 +969,11 @@ fn postfix_dot(
 	case void =>
 		let con = constant(lexer)?;
 		let val = con.expr as ast::constant_expr;
-		synassert(lex::mkloc(lexer), val is ast::value,
+		synassert(lex::mkloc(lexer), val is ast::number_constant,
 			"Expected integer constant")?;
-		let val = val as ast::value;
-		synassert(lex::mkloc(lexer), val is i64,
+		let val = val as ast::number_constant;
+		synassert(lex::mkloc(lexer),
+			val.value is i64 && val.suff == ltok::LIT_ICONST,
 			"Expected integer constant")?;
 		return ast::expr {
 			start = lvalue.start,

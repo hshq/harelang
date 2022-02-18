@@ -40,8 +40,8 @@ fn resolve(
 	expr: const *ast::expr,
 ) (size | deferred | error) = {
 	let expr = expr.expr as ast::constant_expr;
-	let val = expr as ast::value;
-	let ival = val as i64;
+	let n = expr as ast::number_constant;
+	let ival = n.value as i64;
 	assert(ival >= 0);
 	return ival: size;
 };
