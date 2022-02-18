@@ -301,8 +301,7 @@ export fn expr(
 		z += fmt::fprintf(out, "{{")?;
 		for (let i = 0z; i < len(e.exprs); i += 1) {
 			z += newline(out, indent + 1)?;
-			z += expr(out, indent + 1, *e.exprs[i])?;
-			z += fmt::fprintf(out, ";")?;
+			z += stmt(out, indent + 1, *e.exprs[i])?;
 		};
 		z += newline(out, indent)?;
 		z += fmt::fprintf(out, "}}")?;
@@ -386,6 +385,17 @@ export fn expr(
 		};
 		return z;
 	};
+};
+
+fn stmt(
+	out: io::handle,
+	indent: size,
+	e: ast::expr
+) (size | io::error) = {
+	let n = 0z;
+	n += expr(out, indent, e)?;
+	n += fmt::fprint(out, ";")?;
+	return n;
 };
 
 fn constant(
@@ -512,7 +522,6 @@ fn switch_expr(
 	let z = fmt::fprint(out, "switch (")?;
 	z += expr(out, indent, *e.value)?;
 	z += fmt::fprint(out, ") {")?;
-	indent += 1;
 
 	for (let i = 0z; i < len(e.cases); i += 1) {
 		z += newline(out, indent)?;
@@ -530,14 +539,9 @@ fn switch_expr(
 			};
 			z += fmt::fprint(out, " =>")?;
 		};
-		for (let j = 0z; j < len(item.exprs); j += 1) {
-			z += newline(out, indent + 1)?;
-			z += expr(out, indent + 1, *item.exprs[j])?;
-			z += fmt::fprint(out, ";")?;
-		};
+		z += case_exprs(out, indent + 1, item.exprs)?;
 	};
 
-	indent -= 1;
 	z += newline(out, indent)?;
 	z += fmt::fprint(out, "}")?;
 	return z;
@@ -569,24 +573,43 @@ fn match_expr(
 		case null => void;
 		};
 		z += fmt::fprint(out, " =>")?;
-		for (let i = 0z; i < len(item.exprs); i += 1) {
-			z += newline(out, indent + 1)?;
-			z += expr(out, indent + 1, *item.exprs[i])?;
-			z += fmt::fprint(out, ";")?;
-		};
+		z += case_exprs(out, indent + 1, item.exprs)?;
 	};
 
 	if (len(e.default) != 0) {
 		z += newline(out, indent)?;
 		z += fmt::fprint(out, "case =>")?;
-		for (let i = 0z; i < len(e.default); i += 1) {
-			z += newline(out, indent + 1)?;
-			z += expr(out, indent + 1, *e.default[i])?;
-			z += fmt::fprint(out, ";")?;
-		};
+		z += case_exprs(out, indent + 1, e.default)!;
 	};
 
 	z += newline(out, indent)?;
 	z += fmt::fprint(out, "}")?;
+	return z;
+};
+
+fn case_exprs(
+	out: io::handle,
+	indent: size,
+	exprs: []*ast::expr,
+) (size | io::error) = {
+	let z = 0z;
+
+	if (len(exprs) == 1) match (exprs[0].expr) {
+	case let e: ast::assert_expr =>
+		if (e.cond == null) {
+			// abort() expression
+			z += fmt::fprint(out, " ")?;
+			z += stmt(out, indent, *exprs[0])?;
+			return z;
+		};
+	case let e: ast::value =>
+		if (e is void) return fmt::fprint(out, " void;")?;
+	case => void;
+	};
+	for (let j = 0z; j < len(exprs); j += 1) {
+		z += newline(out, indent)?;
+		z += stmt(out, indent, *exprs[j])?;
+	};
+
 	return z;
 };

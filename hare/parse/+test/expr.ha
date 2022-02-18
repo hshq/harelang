@@ -218,12 +218,12 @@
 @test fn switch_expr() void = {
 	roundtrip("export fn main() void = {
 	switch (x) {
-		case 1234, 4321 =>
-			return y;
-		case 1337 =>
-			return z;
-		case =>
-			return q;
+	case 1234, 4321 =>
+		return y;
+	case 1337 =>
+		return z;
+	case =>
+		return q;
 	};
 };
 ");
@@ -240,10 +240,8 @@
 		return bar;
 	case foo::bar =>
 		return baz;
-	case null =>
-		void;
-	case *int =>
-		void;
+	case null => void;
+	case *int => void;
 	};
 	match (x) {
 	case let s: matchdata =>
