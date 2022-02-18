@@ -85,13 +85,8 @@
 };
 
 @test fn constant() void = {
-	// XXX: nested-expression should probably be tested here, but it
-	// presents a problem for round tripping because it does not end up in
-	// the AST. We would need unparse to be able to tell that a given AST
-	// does not match the precedence requirements, and thus infer that
-	// parenthesis are needed to unparse it correctly.
 	roundtrip("export fn main() void = {
-	2 + -4 + void + true + \"hello\" + '?';
+	2 + (-4 + void) * true / (\"hello\" << '?');
 	[1, 2, 3, 4];
 	[1, 2, 3, 4...];
 	(1, 2, 3);

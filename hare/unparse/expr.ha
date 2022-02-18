@@ -1,14 +1,11 @@
 use io;
 use fmt;
 use hare::ast;
+use hare::ast::{binarithm_op};
 use hare::lex::{ltok};
 use hare::lex;
 
 // Unparses an [[ast::expr]].
-//
-// A known limitation of the current implementation is that precedence between
-// binary operators (e.g. +) is not accounted for, so such expressions may
-// produce a different AST if parsed again.
 export fn expr(
 	out: io::handle,
 	indent: size,
@@ -104,33 +101,33 @@ export fn expr(
 		const op = match (e.op) {
 		case void =>
 			yield "=";
-		case let op: ast::binarithm_op =>
+		case let op: binarithm_op =>
 			yield switch (op) {
-			case ast::binarithm_op::BAND =>
+			case binarithm_op::BAND =>
 				yield "&=";
-			case ast::binarithm_op::LAND =>
+			case binarithm_op::LAND =>
 				yield "&&=";
-			case ast::binarithm_op::BOR =>
+			case binarithm_op::BOR =>
 				yield "|=";
-			case ast::binarithm_op::LOR =>
+			case binarithm_op::LOR =>
 				yield "||=";
-			case ast::binarithm_op::DIV =>
+			case binarithm_op::DIV =>
 				yield "/=";
-			case ast::binarithm_op::LSHIFT =>
+			case binarithm_op::LSHIFT =>
 				yield "<<=";
-			case ast::binarithm_op::MINUS =>
+			case binarithm_op::MINUS =>
 				yield "-=";
-			case ast::binarithm_op::MODULO =>
+			case binarithm_op::MODULO =>
 				yield "%=";
-			case ast::binarithm_op::PLUS =>
+			case binarithm_op::PLUS =>
 				yield "+=";
-			case ast::binarithm_op::RSHIFT =>
+			case binarithm_op::RSHIFT =>
 				yield ">>=";
-			case ast::binarithm_op::TIMES =>
+			case binarithm_op::TIMES =>
 				yield "*=";
-			case ast::binarithm_op::BXOR =>
+			case binarithm_op::BXOR =>
 				yield "^=";
-			case ast::binarithm_op::LXOR =>
+			case binarithm_op::LXOR =>
 				yield "^^=";
 			};
 		};
@@ -138,48 +135,49 @@ export fn expr(
 		z += expr(out, indent, *e.value)?;
 		return z;
 	case let e: ast::binarithm_expr =>
-		let z = expr(out, indent, *e.lvalue)?;
+		const prec = binprecedence(e.op);
+		let z = binexprval(out, indent, *e.lvalue, prec)?;
 		z += fmt::fprintf(out, " {} ", switch (e.op) {
-		case ast::binarithm_op::BAND =>
+		case binarithm_op::BAND =>
 			yield "&";
-		case ast::binarithm_op::BOR =>
+		case binarithm_op::BOR =>
 			yield "|";
-		case ast::binarithm_op::DIV =>
+		case binarithm_op::DIV =>
 			yield "/";
-		case ast::binarithm_op::GT =>
+		case binarithm_op::GT =>
 			yield ">";
-		case ast::binarithm_op::GTEQ =>
+		case binarithm_op::GTEQ =>
 			yield ">=";
-		case ast::binarithm_op::LAND =>
+		case binarithm_op::LAND =>
 			yield "&&";
-		case ast::binarithm_op::LEQUAL =>
+		case binarithm_op::LEQUAL =>
 			yield "==";
-		case ast::binarithm_op::LESS =>
+		case binarithm_op::LESS =>
 			yield "<";
-		case ast::binarithm_op::LESSEQ =>
+		case binarithm_op::LESSEQ =>
 			yield "<=";
-		case ast::binarithm_op::LOR =>
+		case binarithm_op::LOR =>
 			yield "||";
-		case ast::binarithm_op::LSHIFT =>
+		case binarithm_op::LSHIFT =>
 			yield "<<";
-		case ast::binarithm_op::LXOR =>
+		case binarithm_op::LXOR =>
 			yield "^^";
-		case ast::binarithm_op::MINUS =>
+		case binarithm_op::MINUS =>
 			yield "-";
-		case ast::binarithm_op::MODULO =>
+		case binarithm_op::MODULO =>
 			yield "%";
-		case ast::binarithm_op::NEQUAL =>
+		case binarithm_op::NEQUAL =>
 			yield "!=";
-		case ast::binarithm_op::PLUS =>
+		case binarithm_op::PLUS =>
 			yield "+";
-		case ast::binarithm_op::RSHIFT =>
+		case binarithm_op::RSHIFT =>
 			yield ">>";
-		case ast::binarithm_op::TIMES =>
+		case binarithm_op::TIMES =>
 			yield "*";
-		case ast::binarithm_op::BXOR =>
+		case binarithm_op::BXOR =>
 			yield "^";
 		})?;
-		z += expr(out, indent, *e.rvalue)?;
+		z += binexprval(out, indent, *e.rvalue, prec)?;
 		return z;
 	case let e: ast::binding_expr =>
 		let z = fmt::fprintf(out, "{}{}",
@@ -386,6 +384,55 @@ export fn expr(
 		};
 		return z;
 	};
+};
+
+fn binprecedence(op: binarithm_op) uint = {
+	switch (op) {
+	case binarithm_op::DIV, binarithm_op::MODULO, binarithm_op::TIMES =>
+		return 10;
+	case binarithm_op::MINUS, binarithm_op::PLUS =>
+		return 9;
+	case binarithm_op::LSHIFT, binarithm_op::RSHIFT =>
+		return 8;
+	case binarithm_op::BAND =>
+		return 7;
+	case binarithm_op::BXOR =>
+		return 6;
+	case binarithm_op::BOR =>
+		return 5;
+	case binarithm_op::GT, binarithm_op::GTEQ,
+		binarithm_op::LESS, binarithm_op::LESSEQ =>
+		return 4;
+	case binarithm_op::LEQUAL, binarithm_op::NEQUAL =>
+		return 3;
+	case binarithm_op::LAND =>
+		return 2;
+	case binarithm_op::LXOR =>
+		return 1;
+	case binarithm_op::LOR =>
+		return 0;
+	};
+};
+
+fn binexprval(
+	out: io::handle,
+	indent: size,
+	e: ast::expr,
+	prec: uint,
+) (size | io::error) = {
+	let z = 0z;
+	match (e.expr) {
+	case let b: ast::binarithm_expr =>
+		if (binprecedence(b.op) < prec) {
+			z += fmt::fprint(out, "(")?;
+			z += expr(out, indent, e)?;
+			z += fmt::fprint(out, ")")?;
+			return z;
+		};
+	case => void;
+	};
+	z += expr(out, indent, e)?;
+	return z;
 };
 
 fn stmt(
