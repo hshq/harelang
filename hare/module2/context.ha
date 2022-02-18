@@ -1,0 +1,77 @@
+use dirs;
+use os;
+use fs;
+use strings;
+
+// The inclusive/exclusive state for a build tag.
+export type tag_mode = enum {
+	INCLUSIVE,
+	EXCLUSIVE,
+};
+
+// A build tag, e.g. +x86_64.
+export type tag = struct {
+	name: str,
+	mode: tag_mode,
+};
+
+// Configuration options for a Hare module context.
+export type config = struct {
+	fs: *fs::fs,
+	paths: []str,
+	tags: []tag,
+	defines: []str,
+};
+
+export type context = struct {
+	fs: *fs::fs,
+	paths: []str,
+	cache: str,
+	tags: []tag,
+	defines: []str,
+};
+
+// Creates a Hare module context using the specified configuration.
+//
+// The context borrows the config parameters for the duration of its lifetime.
+// Call [[context_finish]] to clean up resources associated with this object.
+export fn context_init(conf: *config) context = {
+	let paths: []str = match (os::getenv("HAREPATH")) {
+	case void =>
+		yield alloc(conf.paths...);
+	case let path: str =>
+		let paths: []str = [];
+
+		const tok = strings::tokenize(path, ":");
+		for (true) match (strings::next_token(&tok)) {
+		case let tok: str =>
+			append(paths, tok);
+		case void =>
+			break;
+		};
+
+		yield paths;
+	};
+	insert(paths[0], ".");
+
+	const cache = match (os::getenv("HARECACHE")) {
+	case void =>
+		yield strings::dup(dirs::cache("hare"));
+	case let s: str =>
+		yield strings::dup(s);
+	};
+
+	return context {
+		fs = conf.fs,
+		tags = conf.tags,
+		defines = conf.defines,
+		paths = paths,
+		cache = cache,
+	};
+};
+
+// Frees resources associated with a [[context]].
+export fn context_finish(ctx: *context) void = {
+	free(ctx.paths); // The strings themselves are borrowed
+	free(ctx.cache);
+};

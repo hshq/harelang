@@ -398,6 +398,12 @@ stdlib_deps_any += $(stdlib_hare_module_any)
 stdlib_hare_module_linux = $(stdlib_hare_module_any)
 stdlib_hare_module_freebsd = $(stdlib_hare_module_any)
 
+# gen_lib hare::module2 (any)
+stdlib_hare_module2_any=$(HARECACHE)/hare/module2/hare_module2-any.o
+stdlib_deps_any+=$(stdlib_hare_module2_any)
+stdlib_hare_module2_linux=$(stdlib_hare_module2_any)
+stdlib_hare_module2_freebsd=$(stdlib_hare_module2_any)
+
 # gen_lib hare::parse (any)
 stdlib_hare_parse_any = $(HARECACHE)/hare/parse/hare_parse-any.o
 stdlib_deps_any += $(stdlib_hare_parse_any)
@@ -1248,6 +1254,16 @@ $(HARECACHE)/hare/module/hare_module-any.ssa: $(stdlib_hare_module_any_srcs) $(s
 	@mkdir -p $(HARECACHE)/hare/module
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::module \
 		-t$(HARECACHE)/hare/module/hare_module.td $(stdlib_hare_module_any_srcs)
+
+# hare::module2 (+any)
+stdlib_hare_module2_any_srcs= \
+	$(STDLIB)/hare/module2/context.ha
+
+$(HARECACHE)/hare/module2/hare_module2-any.ssa: $(stdlib_hare_module2_any_srcs) $(stdlib_rt) $(stdlib_dirs_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hare/module2
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::module2 \
+		-t$(HARECACHE)/hare/module2/hare_module2.td $(stdlib_hare_module2_any_srcs)
 
 # hare::parse (+any)
 stdlib_hare_parse_any_srcs = \
@@ -2515,6 +2531,12 @@ testlib_deps_any += $(testlib_hare_module_any)
 testlib_hare_module_linux = $(testlib_hare_module_any)
 testlib_hare_module_freebsd = $(testlib_hare_module_any)
 
+# gen_lib hare::module2 (any)
+testlib_hare_module2_any=$(TESTCACHE)/hare/module2/hare_module2-any.o
+testlib_deps_any+=$(testlib_hare_module2_any)
+testlib_hare_module2_linux=$(testlib_hare_module2_any)
+testlib_hare_module2_freebsd=$(testlib_hare_module2_any)
+
 # gen_lib hare::parse (any)
 testlib_hare_parse_any = $(TESTCACHE)/hare/parse/hare_parse-any.o
 testlib_deps_any += $(testlib_hare_parse_any)
@@ -3394,6 +3416,16 @@ $(TESTCACHE)/hare/module/hare_module-any.ssa: $(testlib_hare_module_any_srcs) $(
 	@mkdir -p $(TESTCACHE)/hare/module
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module \
 		-t$(TESTCACHE)/hare/module/hare_module.td $(testlib_hare_module_any_srcs)
+
+# hare::module2 (+any)
+testlib_hare_module2_any_srcs= \
+	$(STDLIB)/hare/module2/context.ha
+
+$(TESTCACHE)/hare/module2/hare_module2-any.ssa: $(testlib_hare_module2_any_srcs) $(testlib_rt) $(testlib_dirs_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/module2
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module2 \
+		-t$(TESTCACHE)/hare/module2/hare_module2.td $(testlib_hare_module2_any_srcs)
 
 # hare::parse (+any)
 testlib_hare_parse_any_srcs = \

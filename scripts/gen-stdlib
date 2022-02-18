@@ -745,6 +745,12 @@ hare_module() {
 		strconv os encoding::hex sort errors temp
 }
 
+hare_module2() {
+	gen_srcs hare::module2 \
+		context.ha
+	gen_ssa hare::module2 dirs os fs strings
+}
+
 gensrcs_hare_parse() {
 	gen_srcs hare::parse \
 		decl.ha \
@@ -1439,6 +1445,7 @@ glob
 hare::ast
 hare::lex
 hare::module
+hare::module2
 hare::parse
 hare::types
 hare::unit
