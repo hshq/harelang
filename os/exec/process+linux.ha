@@ -1,7 +1,6 @@
 use errors;
 use rt;
 use fmt;
-// TODO: Add function to wait on all/any children
 
 // Stores information about a child process.
 export type process = int;
@@ -50,6 +49,43 @@ export fn wait(proc: *process) (status | error) = {
 	};
 	rusage(&st, &ru);
 	return st;
+};
+
+// Waits for the first child process to complete, then returns its process info
+// and status
+export fn waitany() ((process, status) | error) = {
+	let ru: rt::rusage = rt::rusage { ... };
+	let st: status = status { ... };
+	match (rt::wait4(-1, &st.status, 0, &ru)) {
+	case let err: rt::errno =>
+		return errors::errno(err);
+	case let pid: int =>
+		rusage(&st, &ru);
+		return (pid, st);
+	};
+};
+
+// Waits for all children to terminate succesfully. If a child process exits
+// with a nonzero status, returns its process info and exit status immediately,
+// not waiting for the remaining children.
+export fn waitall() (uint | error | !(process, exit_status)) = {
+	let st: status = status { ... };
+	let ru: rt::rusage = rt::rusage { ... };
+	for (let i = 0u; true; i += 1) match (rt::wait4(-1, &st.status, 0, &ru)) {
+	case let err: rt::errno =>
+		if (err: int == rt::ECHILD) {
+			return i;
+		} else {
+			return errors::errno(err);
+		};
+	case let pid: int =>
+		match (check(&st)) {
+		case void => void;
+		case let es: !exit_status =>
+			return (pid, es);
+		};
+	};
+	abort("unreachable");
 };
 
 // Checks for process completion, returning its status information on
