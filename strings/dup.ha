@@ -1,5 +1,3 @@
-use bytes;
-use rt;
 use types;
 
 // Duplicates a string. Aborts on allocation failure.
@@ -11,15 +9,10 @@ export fn dup(s: const str) str = {
 	case let b: *[*]u8 =>
 		yield b;
 	};
-	let buf: *[*]u8 = match (rt::malloc(in.length + 1)) {
-	case null =>
-		abort("Out of memory");
-	case let v: *void =>
-		yield v;
-	};
+	let buf: []u8 = alloc([0...], in.length + 1);
 	buf[..in.length + 1z] = id[..in.length + 1];
 	let out = types::string {
-		data = buf,
+		data = buf: *[*]u8,
 		length = in.length,
 		capacity = in.length,
 	};
@@ -29,21 +22,10 @@ export fn dup(s: const str) str = {
 // Creates a copy of a []str slice with all the strings duplicated. The result
 // must be freed using [[freeall]].
 export fn dupall(s: []str) []str = {
-	let newsl = *(&types::slice {
-		data = match (rt::malloc(len(s) * size(str))) {
-		case null =>
-			abort("Out of memory");
-		case let v: *void =>
-			yield v;
-		},
-		length = len(s),
-		capacity = len(s),
-	}: *[]str);
-
+	let newsl = alloc([""...], len(s));
 	for (let i = 0z; i < len(s); i += 1) {
 		newsl[i] = strings::dup(s[i]);
 	};
-
 	return newsl;
 };
 
