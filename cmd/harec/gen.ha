@@ -50,7 +50,7 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 
 	const ident = module::identuscore(fndecl.ident);
 	defer free(ident);
-	fmt::fprintf(ctx.out, "{}function section \".text.{}\" \"ax\"",
+	fmt::fprintf(ctx.out, "{}section \".text.{}\" \"ax\" function",
 		if (decl.exported) "export " else "", ident)!;
 	const rtype = fntype.result;
 	const has_rval =
