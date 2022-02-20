@@ -92,9 +92,9 @@ export fn remaining_tokens(s: *tokenizer) str = {
 
 // Splits a string into tokens delimited by 'delim', returning a slice of up to
 // N tokens. The caller must free this slice. The strings within the slice are
-// borrowed from 'in', and needn't be freed - but should be [[strings::dup_all]]'d
+// borrowed from 'in', and needn't be freed - but should be [[strings::dupall]]'d
 // if they should outlive 'in'.
-export fn splitN(in: str, delim: str, n: size) []str = {
+export fn splitn(in: str, delim: str, n: size) []str = {
 	let toks: []str = alloc([]);
 	let tok = tokenize(in, delim);
 	for (let i = 0z; i < n - 1z; i += 1) {
@@ -111,13 +111,13 @@ export fn splitN(in: str, delim: str, n: size) []str = {
 
 // Splits a string into tokens delimited by 'delim'.  The caller must free the
 // returned slice. The strings within the slice are borrowed from 'in', and
-// needn't be freed - but must be [[strings::dup_all]]'d if they should outlive
+// needn't be freed - but must be [[strings::dupall]]'d if they should outlive
 // 'in'.
-export fn split(in: str, delim: str) []str = splitN(in, delim, types::SIZE_MAX);
+export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 
 @test fn split() void = {
 	const expected = ["Hello,", "my", "name", "is Drew"];
-	const actual = splitN("Hello, my name is Drew", " ", 4z);
+	const actual = splitn("Hello, my name is Drew", " ", 4z);
 	assert(len(expected) == len(actual));
 	for (let i = 0z; i < len(expected); i += 1) {
 		assert(expected[i] == actual[i]);
