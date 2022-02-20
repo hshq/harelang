@@ -393,7 +393,7 @@ export def SIG_SETMASK: int = 2;
 
 def SI_MAX_SIZE: size = 128 / size(u8);
 
-export type sigval_t = union {
+export type sigval = union {
 	sival_t: int,
 	sival_ptr: *void,
 };
@@ -419,7 +419,7 @@ export type siginfo = union {
 			struct {
 				si_tid: timer_t,
 				si_overrun: int,
-				_sigval: sigval_t, // @ signals
+				_sigval: sigval, // @ signals
 				si_sys_private: int,
 			},
 
@@ -428,7 +428,7 @@ export type siginfo = union {
 				_sig_pid: pid_t, // @kill
 				_sig_uid: u32, // @ kill
 				union {
-					si_value: sigval_t,
+					si_value: sigval,
 					si_int: int,
 					si_ptr: *void,
 				}

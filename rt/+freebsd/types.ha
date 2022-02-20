@@ -40,6 +40,11 @@ export type siginfo = struct {
 	si_addr: *void,
 };
 
+export type sigval = union {
+	sival_t: int,
+	sival_ptr: *void,
+};
+
 export type pollfd = struct {
 	fd: int,
 	events: i16,
