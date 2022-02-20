@@ -7,4 +7,4 @@ implementation, and may not be portable to other Hare implementations.
 
 This module also provides access to the Hare cache via [[manifest]]s and their
 related functions, but this is not considered stable, and may be changed if we
-overhaul the cache format to implement better cachcing strategies.
+overhaul the cache format to implement better caching strategies.
