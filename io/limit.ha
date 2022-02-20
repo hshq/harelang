@@ -35,7 +35,7 @@ export fn limitwriter(source: handle, limit: size) limitstream = {
 fn limit_read(s: *stream, buf: []u8) (size | EOF | error) = {
 	let stream = s: *limitstream;
 	if (stream.limit == 0) {
-		return io::EOF;
+		return EOF;
 	};
 	if (len(buf) > stream.limit) {
 		buf = buf[..stream.limit];

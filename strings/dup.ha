@@ -24,7 +24,7 @@ export fn dup(s: const str) str = {
 export fn dupall(s: []str) []str = {
 	let newsl = alloc([""...], len(s));
 	for (let i = 0z; i < len(s); i += 1) {
-		newsl[i] = strings::dup(s[i]);
+		newsl[i] = dup(s[i]);
 	};
 	return newsl;
 };

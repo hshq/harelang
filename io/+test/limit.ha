@@ -22,7 +22,7 @@ use errors;
 	case error =>
 		abort();
 	};
-	assert(read(&rlimit, buf) is io::EOF);
+	assert(read(&rlimit, buf) is EOF);
 
 	let wlimit = limitwriter(&source, 20);
 	match (read(&wlimit, buf)) {

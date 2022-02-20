@@ -5,7 +5,7 @@ const _empty: stream = stream {
 };
 
 // A [[stream]] which always reads EOF and discards any writes.
-export const empty: *io::stream = &_empty;
+export const empty: *stream = &_empty;
 
 fn empty_read(s: *stream, buf: []u8) (size | EOF | error) = EOF;
 

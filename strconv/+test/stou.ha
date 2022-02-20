@@ -1,8 +1,8 @@
 @test fn stou() void = {
-	assert(stou64("") as invalid == 0: strconv::invalid);
-	assert(stou64("abc") as invalid == 0: strconv::invalid);
-	assert(stou64("1a") as invalid == 1: strconv::invalid);
-	assert(stou64("-1") as invalid == 0: strconv::invalid);
+	assert(stou64("") as invalid == 0: invalid);
+	assert(stou64("abc") as invalid == 0: invalid);
+	assert(stou64("1a") as invalid == 1: invalid);
+	assert(stou64("-1") as invalid == 0: invalid);
 
 	assert(stou64("18446744073709551616") is overflow);
 	assert(stou64("184467440737095516150") is overflow);

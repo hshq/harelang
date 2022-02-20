@@ -158,7 +158,7 @@ export fn realpath(fs: *fs, path: str) (str | error) = {
 		};
 
 		const item = path::add(&buf, item)!;
-		const link = match (fs::readlink(fs, item)) {
+		const link = match (readlink(fs, item)) {
 		case let link: str =>
 			yield link;
 		case wrongtype =>

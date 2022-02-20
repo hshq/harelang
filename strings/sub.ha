@@ -5,7 +5,7 @@ export type end = void;
 fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {
 	let pos = 0z;
 	for (let i = 0z; i < end; i += 1) {
-		let r = match (strings::next(iter)) {
+		let r = match (next(iter)) {
 		case let r: rune =>
 			yield r;
 		case void =>
@@ -20,7 +20,7 @@ fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {
 fn utf8_byte_len_unbounded(iter: *iterator) size = {
 	let pos = 0z;
 	for (true) {
-		let r = match (strings::next(iter)) {
+		let r = match (next(iter)) {
 		case let r: rune =>
 			yield r;
 		case void =>

@@ -6,8 +6,8 @@
 export fn readitem(in: handle, item: *void, itemsz: size) (size | error) = {
 	let buf = item: *[*]u8, i = 0z;
 	for (i < itemsz) {
-		match (io::read(in, buf[..(itemsz - i)])) {
-		case io::EOF =>
+		match (read(in, buf[..(itemsz - i)])) {
+		case EOF =>
 			return underread;
 		case let z: size =>
 			i += z;
@@ -31,7 +31,7 @@ export fn readitems(in: handle, items: []void, itemsz: size) (size | error) = {
 export fn writeitem(out: handle, item: *void, itemsz: size) (size | error) = {
 	let buf = item: *[*]u8, i = 0z;
 	for (i < itemsz) {
-		i += io::write(out, buf[i..(itemsz - i)])?;
+		i += write(out, buf[i..(itemsz - i)])?;
 	};
 	return i;
 };
