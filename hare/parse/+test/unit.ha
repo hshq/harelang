@@ -132,18 +132,10 @@ use strings;
 };
 
 @test fn docs() void = {
-	const src = "// Example text\nexport fn main() void = void;\n";
-	let buf = bufio::fixed(strings::toutf8(src), mode::READ);
-	let lexer = lex::init(&buf, "<test>", lex::flags::COMMENTS);
-	let decls = match (decls(&lexer)) {
-	case let decls: []ast::decl =>
-		yield decls;
-	case let err: error =>
-		fmt::errorln(strerror(err))!;
-		abort();
-	};
-	defer for (let i = 0z; i < len(decls); i += 1) {
-		ast::decl_free(decls[i]);
-	};
-	assert(decls[0].docs == " Example text\n");
+	roundtrip("// According to all known laws of aviation, there is no\n"
+		"// way that a bee should be able to fly. Its wings are too\n"
+		"// small to get its fat little body off the ground. The bee,\n"
+		"// of course, flies anyway, because bees don't care what\n"
+		"// humans think is impossible.\n"
+		"export fn main() void = void;\n");
 };

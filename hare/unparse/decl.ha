@@ -2,11 +2,15 @@ use io;
 use fmt;
 use hare::ast;
 use hare::lex;
+use strings;
 use strio;
 
 // Unparses an [[ast::decl]].
 export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 	let n = 0z;
+	if (len(d.docs) > 0) {
+		n += comment(out, d.docs, 0)?;
+	};
 	if (d.exported) {
 		n += fmt::fprint(out, "export ")?;
 	};
@@ -85,6 +89,20 @@ export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 		};
 	};
 	n += fmt::fprint(out, ";")?;
+	return n;
+};
+
+fn comment(out: io::handle, s: str, indent: size) (size | io::error) = {
+	let n = 0z;
+	const lines = strings::split(s, "\n");
+	defer free(lines);
+	assert(len(lines) > 0);
+	for (let i = 0z; i < len(lines) - 1; i += 1) {
+		for (let j = 0z; j < indent; j += 1) {
+			n += fmt::fprint(out, "\t")?;
+		};
+		n += fmt::fprintfln(out, "//{}", lines[i])?;
+	};
 	return n;
 };
 

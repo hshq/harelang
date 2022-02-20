@@ -10,7 +10,7 @@ use strio;
 
 fn roundtrip(src: str) void = {
 	let buf = bufio::fixed(strings::toutf8(src), mode::READ);
-	let lexer = lex::init(&buf, "<test>");
+	let lexer = lex::init(&buf, "<test>", lex::flags::COMMENTS);
 	let u = ast::subunit {
 		imports = [],
 		decls: []ast::decl = match (decls(&lexer)) {
