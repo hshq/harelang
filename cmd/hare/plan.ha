@@ -2,11 +2,14 @@ use fmt;
 use fs;
 use hare::ast;
 use hare::module;
+use io;
+use math;
 use os::exec;
 use os;
 use path;
 use strings;
 use temp;
+use unix::tty;
 
 type status = enum {
 	SCHEDULED,
@@ -19,12 +22,18 @@ type task = struct {
 	depend: []*task,
 	output: str,
 	cmd: []str,
+	module: (str | void),
 };
 
 fn task_free(task: *task) void = {
 	free(task.depend);
 	free(task.output);
 	free(task.cmd);
+	match (task.module) {
+	case let s: str =>
+		free(s);
+	case => void;
+	};
 	free(task);
 };
 
@@ -126,6 +135,16 @@ fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 		};
 	};
 
+	let current_module = "";
+	let current = 0z;
+	const total = len(plan.scheduled);
+	// Disable progress when used with -v
+	const term = if (!verbose && tty::isatty(os::stderr)) {
+		yield os::stderr;
+	} else {
+		yield;
+	};
+
 	for (len(plan.scheduled) != 0) {
 		let next: nullable *task = null;
 		let i = 0z;
@@ -151,6 +170,34 @@ fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 			yield t;
 		};
 
+		match (task.module) {
+		case let s: str =>
+			current_module = s;
+		case => void;
+		};
+
+		match (term) {
+		case let term: io::file =>
+			current += 1;
+			fmt::fprintf(term, "\r\x1b[K[{%}/{}] [",
+				current, &fmt::modifiers {
+					width = math::ceilf64(math::log10f64(
+						total: f64)): uint,
+					...
+				},
+				total)!;
+			const stop = (current: f64 / total: f64 * 50.0): size;
+			for (let i = 0z; i < 50; i += 1) {
+				if (i > stop) {
+					fmt::fprint(term, ".")!;
+				} else {
+					fmt::fprint(term, "#")!;
+				};
+			};
+			fmt::fprintf(term, "] {}", current_module)!;
+		case => void;
+		};
+
 		match (execute(plan, task, verbose)) {
 		case let err: exec::error =>
 			fmt::fatal("Error: {}: {}", task.cmd[0],
@@ -166,6 +213,12 @@ fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 
 		delete(plan.scheduled[i]);
 		append(plan.complete, task);
+	};
+
+	match (term) {
+	case let term: io::file =>
+		fmt::fprintln(term)!;
+	case => void;
 	};
 
 	update_modcache(plan);

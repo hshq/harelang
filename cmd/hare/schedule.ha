@@ -70,6 +70,7 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 			"-T", plan.script,
 			"-o", output,
 		]),
+		module = void,
 	});
 
 	// Using --gc-sections will not work when using cc as the linker
@@ -104,6 +105,7 @@ fn sched_ar(plan: *plan, output: str, depend: *task...) *task = {
 		cmd = alloc([
 			os::tryenv("AR", "ar"), "-csr", output,
 		]),
+		module = void,
 	});
 	for (let i = 0z; i < len(depend); i += 1) {
 		assert(strings::hassuffix(depend[i].output, ".o"));
@@ -122,6 +124,7 @@ fn sched_as(plan: *plan, output: str, input: str, depend: *task...) *task = {
 		cmd = alloc([
 			os::tryenv("AS", "as"), "-g", "-o", output, input,
 		]),
+		module = void,
 	});
 	append(plan.scheduled, task);
 	return task;
@@ -136,6 +139,7 @@ fn sched_qbe(plan: *plan, output: str, depend: *task) *task = {
 		cmd = alloc([
 			os::tryenv("QBE", "qbe"), "-o", output, depend.output,
 		]),
+		module = void,
 	});
 	append(plan.scheduled, task);
 	return task;
@@ -166,6 +170,7 @@ fn sched_hare_object(
 		cmd = alloc([
 			os::tryenv("HAREC", "harec"), "-o", ssa,
 		]),
+		module = strings::dup(ns),
 	});
 
 	for (let i = 0z; i < len(plan.context.tags); i += 1) {
