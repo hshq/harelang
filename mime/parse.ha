@@ -1,7 +1,6 @@
 use ascii;
 use errors;
 use strings;
-use io; // XXX: TEMP
 
 const tspecial: str = "()<>@,;:\\/[]?=";
 export type type_params = strings::tokenizer;
