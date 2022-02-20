@@ -1,3 +1,4 @@
+use bufio;
 use fmt;
 use fs;
 use getopt;
@@ -93,7 +94,7 @@ export fn main() void = {
 
 	const id: ast::ident =
 		if (len(cmd.args) < 1) []
-		else match (parse::identstr(cmd.args[0])) {
+		else match (parseident(cmd.args[0])) {
 		case let err: parse::error =>
 			fmt::fatal(parse::strerror(err));
 		case let id: ast::ident =>
@@ -200,6 +201,41 @@ export fn main() void = {
 	};
 };
 
+// Nearly identical to parse::identstr, except alphanumeric lexical tokens are
+// converted to strings. For example, this function will parse `rt::abort` as a
+// valid identifier.
+fn parseident(in: str) (ast::ident | parse::error) = {
+	const buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
+	const lexer = lex::init(&buf, "<string>");
+	let ident: []str = []; // TODO: errdefer
+	let z = 0z;
+	for (true) {
+		const tok = lex::lex(&lexer)?;
+		const name = if (tok.0 == lex::ltok::NAME) {
+			yield tok.1 as str;
+		} else if (tok.0 < lex::ltok::LAST_KEYWORD) {
+			yield lex::tokstr(tok);
+		} else {
+			lex::unlex(&lexer, tok);
+			const loc = lex::mkloc(&lexer);
+			const why = "Unexpected trailing :: in ident";
+			return (loc, why): lex::syntax: parse::error;
+		};
+		append(ident, name);
+		z += len(name);
+		if (lex::lex(&lexer)?.0 != lex::ltok::DOUBLE_COLON) {
+			break;
+		};
+		z += 1;
+	};
+	if (z > ast::IDENT_MAX) {
+		const loc = lex::mkloc(&lexer);
+		const why = "Identifier exceeds maximum length";
+		return (loc, why): lex::syntax: parse::error;
+	};
+	return ident;
+};
+
 fn init_tty(ctx: *context) io::handle = {
 	const pager = match (os::getenv("PAGER")) {
 	case let name: str =>
@@ -243,7 +279,12 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 			};
 		};
 	case let d: ast::decl_func =>
-		return len(d.ident) == 1 && d.ident[0] == name;
+		if (len(d.ident) == 1 && d.ident[0] == name) {
+			return true;
+		};
+		const sym = strings::split(d.symbol, ".");
+		defer free(sym);
+		return len(sym) > 0 && sym[len(sym) - 1] == name;
 	case let d: []ast::decl_global =>
 		for (let i = 0z; i < len(d); i += 1) {
 			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
