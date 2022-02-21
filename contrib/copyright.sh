@@ -5,19 +5,33 @@ files=$(find . -name '*.ha')
 for file in $files; do
   printf "$file\n"
 
-  # Get lines from `git blame`, which will be in sets of three:
-  # author Author Name
-  # author-mail test@example.com
-  # author-time 1644500475
-  # author Other Author
-  # ...
-  authorinfo=$(git blame $file --porcelain | grep '^author\(-mail\|-time\)\? ' | sed 's/author[^ ]* //')
+  authorinfo=$(git blame $file --porcelain --incremental)
 
   # Format as: Author Name <test@example.com>;2011
   year_authorinfo=""
-  while read author; read mail; read timestamp; do
-    year=$(date +%Y -d @${timestamp})
-    year_authorinfo="${year_authorinfo}${author} ${mail};${year}\n"
+  ignore_this_commit=false
+  while read line; do
+    if [ "$ignore_this_commit" = true ]; then
+      case $line in
+        "filename "*) ignore_this_commit=false ;;
+        *) ;;
+      esac
+    else
+      case $line in
+        # Add commits that updated the copyright info here in order to ignore them
+        "b791275bfb0fe5d7928c19635e75fd3d98e3ba97"*) ignore_this_commit=true ;;
+        # This is the “not committed yet” commit
+        "0000000000000000000000000000000000000000"*) ignore_this_commit=true ;;
+        "author "*) author=$(printf '%s' "$line" | sed 's/author //' ) ;;
+        "author-mail "*) mail=$(printf '%s' "$line" | sed 's/author-mail //' ) ;;
+        "author-time "*) timestamp=$(printf '%s' "$line" | sed 's/author-time //' ) ;;
+        "filename "*)
+          year=$(date +%Y -d @${timestamp})
+          year_authorinfo="${year_authorinfo}${author} ${mail};${year}\n"
+          ;;
+        *) ;;
+      esac
+    fi
   done <<EOF
   $authorinfo
 EOF
