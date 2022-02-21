@@ -226,24 +226,27 @@ fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 	};
 };
 
-fn lex_string(lex: *lexer, loc: location) (token | error) = {
+fn lex_string(lex: *lexer, loc: location, delim: rune) (token | error) = {
+	let ret: token = (ltok::LIT_STR, "", loc);
 	let buf = strio::dynamic();
 	for (true) match (next(lex)?) {
 	case io::EOF =>
 		return syntaxerr(loc, "unexpected EOF scanning string literal");
 	case let r: (rune, location) =>
-		if (r.0 == '"') break
-		else {
+		if (r.0 == delim) break
+		else if (delim == '"') {
 			unget(lex, r);
 			let r = lex_rune(lex, loc)?;
 			strio::appendrune(&buf, r)?;
+		} else {
+			strio::appendrune(&buf, r.0)?;
 		};
 	};
 	match (nextw(lex)?) {
 	case io::EOF => void;
 	case let r: (rune, location) =>
 		if (r.0 == '"') {
-			const tok = lex_string(lex, loc)?;
+			const tok = lex_string(lex, loc, r.0)?;
 			const next = tok.1 as str;
 			strio::concat(&buf, next)!;
 			free(next);
@@ -264,8 +267,8 @@ fn lex_rn_str(lex: *lexer) (token | error) = {
 	};
 	switch (r) {
 	case '\'' => void;
-	case '\"' =>
-		return lex_string(lex, loc);
+	case '\"', '`' =>
+		return lex_string(lex, loc, r);
 	case =>
 		abort(); // Invariant
 	};
