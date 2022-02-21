@@ -221,7 +221,7 @@ fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 
 	match (term) {
 	case let term: io::file =>
-		fmt::fprintln(term)!;
+		fmt::fprint(term, "\r\x1b[K")!;
 	case => void;
 	};
 
