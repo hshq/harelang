@@ -11,15 +11,15 @@ export type iterator = struct {
 // may copy the iterator to save its state.
 //
 //	let iter = strings::iter("hi!");
-//	iter::next(&iter);	// 'h'
-//	iter::next(&iter);	// 'i'
+//	strings::next(&iter);	// 'h'
+//	strings::next(&iter);	// 'i'
 //
 //	// Copying the iterator copies its state:
 //	let dup = iter;
-//	iter::next(&iter);	// '!'
-//	iter::next(&iter);	// void
-//	iter::next(&dup);	// '!'
-//	iter::next(&dup);	// void
+//	strings::next(&iter);	// '!'
+//	strings::next(&iter);	// void
+//	strings::next(&dup);	// '!'
+//	strings::next(&dup);	// void
 export fn iter(src: str) iterator = iterator {
 	dec = utf8::decode(src),
 	push = void,
