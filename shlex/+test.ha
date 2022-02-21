@@ -3,25 +3,25 @@
 use strings;
 
 @test fn split() void = {
-	const s = split("hello\\ world")!;
+	const s = split(`hello\ world`)!;
 	defer strings::freeall(s);
 	assert(len(s) == 1);
 	assert(s[0] == "hello world");
 
-	const s = split("'hello\\ world'")!;
+	const s = split(`'hello\ world'`)!;
 	defer strings::freeall(s);
 	assert(len(s) == 1);
-	assert(s[0] == "hello\\ world");
+	assert(s[0] == `hello\ world`);
 
-	const s = split("\"hello\\\\world\"")!;
+	const s = split(`"hello\\world"`)!;
 	defer strings::freeall(s);
 	assert(len(s) == 1);
-	assert(s[0] == "hello\\world");
+	assert(s[0] == `hello\world`);
 
-	const s = split("\"hello \"'\"'\"world\"'\"'")!;
+	const s = split(`"hello "'"'"world"'"'`)!;
 	defer strings::freeall(s);
 	assert(len(s) == 1);
-	assert(s[0] == "hello \"world\"");
+	assert(s[0] == `hello "world"`);
 
 	const s = split("hello '' world")!;
 	defer strings::freeall(s);
@@ -42,7 +42,7 @@ use strings;
 	assert(s[0] == "Leading");
 	assert(s[1] == "spaces");
 
-	const s = split("with\\ backslashes 'single quoted' \"double quoted\"")!;
+	const s = split(`with\ backslashes 'single quoted' "double quoted"`)!;
 	defer strings::freeall(s);
 	assert(len(s) == 3);
 	assert(s[0] == "with backslashes");
@@ -56,7 +56,7 @@ use strings;
 	assert(s[1] == "42");
 
 	// Invalid
-	assert(split("\"dangling double quote") is syntaxerr);
+	assert(split(`"dangling double quote`) is syntaxerr);
 	assert(split("'dangling single quote") is syntaxerr);
-	assert(split("unterminated\\ backslash \\") is syntaxerr);
+	assert(split(`unterminated\ backslash \`) is syntaxerr);
 };
