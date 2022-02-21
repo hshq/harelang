@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // TODO: work when _NSIG != 32
 
 export fn sigemptyset(set: *sigset) int = {

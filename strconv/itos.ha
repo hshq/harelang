@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Andri Yngvason <andri@yngvason.is>
+// (c) 2021 Armin Weigl <tb46305@gmail.com>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use bytes;
 use types;
 use strings;

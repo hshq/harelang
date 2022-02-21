@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+
 // Returns the new PID to the parent, void to the child, or errno if something
 // goes wrong.
 export fn clone(

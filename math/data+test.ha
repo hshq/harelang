@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Alexey Yerin <yyp@disroot.org>
+// (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
+
 // The test data below is based on Go's implementation, and came with the
 // following note and copyright notice:
 //

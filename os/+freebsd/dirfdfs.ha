@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
 use bytes;
 use errors;
 use encoding::utf8;

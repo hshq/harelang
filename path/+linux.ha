@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
+
 // Path separator, platform-specific.
 export def PATHSEP: u8 = '/': u32: u8;
 

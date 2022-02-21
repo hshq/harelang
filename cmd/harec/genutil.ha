@@ -1,3 +1,5 @@
+// License: GPL-3.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use fmt;
 
 fn mklabel(ctx: *context, name: str) str = {

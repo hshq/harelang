@@ -1,3 +1,6 @@
+// License: GPL-3.0
+// (c) 2022 Alexey Yerin <yyp@disroot.org>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use bufio;
 use io;
 use hare::types;

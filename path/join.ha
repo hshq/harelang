@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 use bytes;
 use errors;
 use strings;

@@ -1,3 +1,5 @@
+// License: GPL-3.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use bufio;
 use fmt;
 use hare::ast;

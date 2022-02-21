@@ -1,3 +1,8 @@
+// License: MPL-2.0
+// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+
 // Returns the offset of the first instance of "needle" in a "haystack" of
 // bytes, or void if it is not found.
 export fn index(haystack: []u8, needle: (u8 | []u8)) (size | void) = {

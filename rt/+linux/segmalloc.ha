@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+
 // Allocates a segment.
 fn segmalloc(n: size) nullable *void = {
 	return match (mmap(null, n, PROT_READ | PROT_WRITE,

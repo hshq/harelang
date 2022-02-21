@@ -1,3 +1,9 @@
+// License: MPL-2.0
+// (c) 2022 Ajay R <ar324@protonmail.com>
+// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Miccah Castorina <contact@miccah.io>
 use encoding::utf8;
 
 export type iterator = struct {

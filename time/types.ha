@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Alexey Yerin <yyp@disroot.org>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // The elapsed time between two instants, in nanoseconds. The largest
 // representable duration is about 290 years.
 export type duration = i64;

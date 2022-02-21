@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+
 // TODO: Examine the ABI constraints of [[handle]]. Would it be better to make
 // stream an integer representing an internal handle into a stream table? This
 // would reduce performance for streams somewhat via the indirect lookup, but

@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // Returns true if the two byte sequences are identical.
 export fn equal(a: []u8, b: []u8) bool = {
 	if (len(a) != len(b)) {

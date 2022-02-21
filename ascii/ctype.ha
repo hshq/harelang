@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 def U: u8 = 0o1;
 def L: u8 = 0o2;
 def N: u8 = 0o4;

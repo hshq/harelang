@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // Performs a binary search over a sorted slice. 'in' shall be the sorted slice,
 // and 'sz' shall be the size of each array member. The 'cmp' function will be
 // called with the key value and an array member, and shall return a integer

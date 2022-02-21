@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+
 export @noreturn @symbol("rt.abort") fn _abort(msg: str) void = {
 	reason = abort_reason { loc = "", msg = msg };
 	longjmp(&jmp, 1);

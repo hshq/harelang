@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 type string = struct {
 	data: *[*]u8,
 	length: size,

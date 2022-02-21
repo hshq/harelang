@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021-2022 Armin Preiml <apreiml@strohwolke.at>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use bytes;
 use crypto::mac;
 use hash;

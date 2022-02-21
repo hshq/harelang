@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 export @noreturn @symbol("rt.abort") fn _abort(msg: str) void = {
 	platform_abort(msg);
 };

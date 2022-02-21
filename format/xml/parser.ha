@@ -1,3 +1,9 @@
+// License: MPL-2.0
+// (c) 2022 Alexey Yerin <yyp@disroot.org>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2022 Sebastian <sebastian@sebsite.pw>
+
 // Are you an intrepid programmer seeking to fork this module to create a more
 // sophisticated XML parser supporting a broader set of features? Good news: all
 // of the features you need to implement are annotated throughout with

@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2022 Alexey Yerin <yyp@disroot.org>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use errors;
 use io;
 use strings;

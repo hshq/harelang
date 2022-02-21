@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // Adds a [[duration]] to an [[instant]], returning an instant further in the
 // future (given a positive duration), or further in the past (given a negative
 // duration).

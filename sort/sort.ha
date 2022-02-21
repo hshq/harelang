@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Steven Guikal <void@fluix.one>
+
 // Sorts a slice of items in place. Provide a slice of 'items', the size of each
 // member, and a function to compare one member to another. The 'cmp' function
 // will be called with two pointers to values within the items slice, and shall

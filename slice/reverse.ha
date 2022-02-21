@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // Reverses a slice.
 export fn reverse(b: []void, membsz: size) void = {
 	if (len(b) == 0) {

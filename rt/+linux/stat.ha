@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 export fn mkdev(major: u32, minor: u32) dev_t =
 	((major: u64 & 0xFFFFF000) << 32) |
 	((major: u64 & 0x00000FFF) << 8)  |

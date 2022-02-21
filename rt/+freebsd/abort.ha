@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 fn platform_abort(msg: str) void = {
 	const prefix = "Abort: ";
 	const linefeed = "\n";

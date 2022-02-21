@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+
 // This is a simple memory allocator, based on Appel, Andrew W., and David A.
 // Naumann. "Verified sequential malloc/free." It is not thread-safe.
 //

@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021-2022 Alexey Yerin <yyp@disroot.org>
+
 export fn start_linux() void = {
 	// Here we use a cool strategy of re-constructing argv and argc without
 	// knowing their original values. Since environ is placed just after

@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use types;
 
 // Truncates a slice, setting its length to zero without freeing the underlying

@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+
 // Implements the curve25519 elliptic curve
 
 // Implementations used for reference

@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // Minimum value which can be stored in an int type.
 export def INT_MIN: int = I32_MIN;
 

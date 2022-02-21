@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // Represents an error returned from the FreeBSD kernel.
 export type errno = !int;
 

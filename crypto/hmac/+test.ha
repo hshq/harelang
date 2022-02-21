@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021-2022 Armin Preiml <apreiml@strohwolke.at>
 use bytes;
 use crypto::mac;
 use crypto::sha1;

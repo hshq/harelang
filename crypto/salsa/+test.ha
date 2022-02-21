@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021 Armin Preiml <apreiml@strohwolke.at>
 use bytes;
 use crypto::cipher;
 use types;

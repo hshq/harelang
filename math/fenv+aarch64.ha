@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+
 // Defines flags characterizing types of floating point exceptions,
 // Each of the flags is only defined when the target platform supports handling
 // the corresponding exception. Flags NONE and ALL are always

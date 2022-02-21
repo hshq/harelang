@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
+
 // TODO: work when _NSIG != 64
 
 export fn sigemptyset(set: *sigset) int = {

@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use rt;
 
 // Wraps an [[rt::errno]] to produce an [[errors::opaque]]. This is a non-portable

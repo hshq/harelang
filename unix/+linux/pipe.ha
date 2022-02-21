@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
 use errors;
 use io;
 use rt;

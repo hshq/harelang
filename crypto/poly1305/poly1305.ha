@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2022 Armin Preiml <apreiml@strohwolke.at>
+
 // This implementation was ported from Loup Vaillants monocypher project.
 
 use bytes;

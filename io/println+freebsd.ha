@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use rt;
 
 // Prints strings to stdout, separated by spaces, and followed by a newline.

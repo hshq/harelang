@@ -1,3 +1,8 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+
 fn syscall0(_: u64) u64;
 fn syscall1(_: u64, _: u64) u64;
 fn syscall2(_: u64, _: u64, _: u64) u64;

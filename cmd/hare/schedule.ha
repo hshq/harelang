@@ -1,3 +1,8 @@
+// License: GPL-3.0
+// (c) 2021-2022 Alexey Yerin <yyp@disroot.org>
+// (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
 use encoding::hex;
 use fmt;
 use fs;

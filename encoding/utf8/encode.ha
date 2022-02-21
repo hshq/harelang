@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // Encodes a rune as UTF-8 and returns the result as a slice. The return value
 // is statically allocated, and will not be consistent after subsequent calls to
 // encoderune.

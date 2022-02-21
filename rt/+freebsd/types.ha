@@ -1,3 +1,9 @@
+// License: MPL-2.0
+// (c) 2021 Alexey Yerin <yyp@disroot.org>
+// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2022 Sebastian <sebastian@sebsite.pw>
+
 export type time_t = i64;
 export type suseconds_t = i64;
 export type dev_t = u64;

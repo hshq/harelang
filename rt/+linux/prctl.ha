@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+
 export def PR_SET_PDEATHSIG: int = 1;
 export def PR_GET_PDEATHSIG: int = 2;
 export def PR_GET_DUMPABLE: u64 = 3;

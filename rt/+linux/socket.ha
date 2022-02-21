@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
+
 export type sa_family_t = u16;
 export type socklen_t = uint;
 

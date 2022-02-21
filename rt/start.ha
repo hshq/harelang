@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Armin Weigl <tb46305@gmail.com>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 @symbol("main") fn main() void;
 
 const @symbol("__init_array_start") init_start: [*]*fn() void;

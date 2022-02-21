@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 export let builtin_char: _type = _type {
 	repr = builtin::CHAR,
 	sz = 1, align = 1,

@@ -1,3 +1,11 @@
+// License: MPL-2.0
+// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Sudipto Mallick <smlckz@disroot.org>
+// (c) 2021 Sudipto Mallick <smlckz@envs.net>
+// (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
+
 // Using Ryū: fast float-to-string conversion algorithm by Ulf Adams.
 // https://doi.org/10.1145/3192366.3192369
 // This Hare implementation is translated from the original

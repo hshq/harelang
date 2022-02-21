@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
 use bytes;
 use fmt;
 use io;

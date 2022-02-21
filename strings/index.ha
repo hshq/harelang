@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
 use bytes;
 
 // Returns the index of the first occurance of 'needle' in the 'haystack', or

@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2022 Armin Preiml <apreiml@strohwolke.at>
 use io;
 
 // The general purpose interface for a MAC function.

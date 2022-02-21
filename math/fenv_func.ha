@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
 use rt;
 
 // Accepts a set of flags from [[fexcept]] ORed together and clears

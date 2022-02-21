@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021-2022 Eyal Sawady <ecs@d2evs.net>
 use crypto::random;
 use net::dns;
 use net::ip;

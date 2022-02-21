@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use rt;
 
 // Returns the current process user ID.

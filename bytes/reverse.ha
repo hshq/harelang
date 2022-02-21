@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // Reverses a slice of bytes.
 export fn reverse(b: []u8) void = {
 	if (len(b) == 0) {

@@ -1,3 +1,12 @@
+// License: MPL-2.0
+// (c) 2021 Alexey Yerin <yyp@disroot.org>
+// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Kiëd Llaentenn <kiedtl@tilde.team>
+// (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
+// (c) 2022 Sebastian <sebastian@sebsite.pw>
+
 export type off_t = u64;
 export type dev_t = u64;
 export type ino_t = u64;

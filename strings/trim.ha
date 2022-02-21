@@ -1,3 +1,8 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Miccah Castorina <contact@miccah.io>
+// (c) 2021 Sudipto Mallick <smlckz@disroot.org>
 use encoding::utf8;
 
 const whitespace: [_]rune = [' ', '\n', '\t', '\r'];

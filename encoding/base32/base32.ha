@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2022 Ajay R <ar324@protonmail.com>
 use ascii;
 use bufio;
 use bytes;

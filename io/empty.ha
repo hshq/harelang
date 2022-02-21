@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 const _empty: stream = stream {
 	reader = &empty_read,
 	writer = &empty_write,

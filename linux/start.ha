@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
 use rt;
 use format::elf;
 

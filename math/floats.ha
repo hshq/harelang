@@ -1,3 +1,9 @@
+// License: MPL-2.0
+// (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021-2022 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Sudipto Mallick <smlckz@disroot.org>
+// (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
 use types;
 
 // Returns the binary representation of the given f64.

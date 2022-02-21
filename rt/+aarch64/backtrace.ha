@@ -1,3 +1,8 @@
+// License: MPL-2.0
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
+// (c) 2021 Sudipto Mallick <smlckz@disroot.org>
+
 fn getfp() **void;
 
 // Details for a stack frame. Contents are architecture-specific.

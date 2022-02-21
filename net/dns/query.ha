@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use errors;
 use io;
 use net::ip;

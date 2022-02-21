@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Alexey Yerin <yyp@disroot.org>
+
 // Allocates n bytes of memory and returns a pointer to them, or null if there
 // is insufficient memory.
 export fn malloc(n: size) nullable *void = {

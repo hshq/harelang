@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
+
 // Sections of the code below are based on Go's implementation, which is, in
 // turn, based on:
 // * the Cephes Mathematical Library (cephes/cmath/{sin,..}), available from

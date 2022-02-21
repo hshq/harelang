@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+
 // An "opaque" error is used as a portable error type for an underlying error
 // which is implementation-specific. It provides a function which can be used to
 // produce a string describing the error, and a small storage area for arbitrary

@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // A tagged union of all signed integer types.
 export type signed = (i8 | i16 | i32 | i64 | int);
 

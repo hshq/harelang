@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 fn bytes_reverse(b: []u8) void = {
 	if (len(b) == 0) {
 		return;

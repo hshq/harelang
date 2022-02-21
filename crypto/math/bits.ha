@@ -1,3 +1,8 @@
+// License: MPL-2.0
+// (c) 2021-2022 Armin Preiml <apreiml@strohwolke.at>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+
 // Rotates a 32-bit unsigned integer left by k bits. k may be negative to rotate
 // right instead, or see [[rotr32]].
 export fn rotl32(x: u32, k: int) u32 = {

@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Armin Preiml <apreiml@strohwolke.at>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // An abstract interface for implementing block ciphers.
 export type block = struct {
 	blocksz: size,

@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
+
 // Replaces all instances of 'needle' with 'target' in 's'.
 // The caller must free the return value.
 export fn replace(s: str, needle: str, target: str) str = {

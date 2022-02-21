@@ -1,3 +1,10 @@
+// License: MPL-2.0
+// (c) 2021-2022 Alexey Yerin <yyp@disroot.org>
+// (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Kiëd Llaentenn <kiedtl@tilde.team>
+// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
 use ascii;
 use bytes;
 use crypto::sha256;

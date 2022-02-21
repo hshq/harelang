@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2022 Alexey Yerin <yyp@disroot.org>
 use rt;
 use format::elf;
 

@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use types;
 
 const masks: [_]u8 = [0x7F, 0x1F, 0x0F, 0x07, 0x03, 0x01];

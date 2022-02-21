@@ -1,3 +1,8 @@
+// License: MPL-2.0
+// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+
 // Provides default dialers for tcp and udp
 use io;
 use net;

@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 export fn memmove(dest: *void, src: *void, n: size) void = {
 	let d = dest: *[*]u8, s = src: *[*]u8;
 	if (d: uintptr == s: uintptr) {

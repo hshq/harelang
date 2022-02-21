@@ -1,3 +1,8 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Sudipto Mallick <smlckz@disroot.org>
+// (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
+
 // Using the Eisel-Lemire algorithm [1] for fast parsing of floating-point
 // numbers, with Simple Decimal Conversion algorithm [2] as fallback.
 // [1]: https://nigeltao.github.io/blog/2020/eisel-lemire.html

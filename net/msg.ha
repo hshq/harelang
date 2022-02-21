@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // TODO:
 // - Set name field
 // - Figure out the portability mess that is this interface

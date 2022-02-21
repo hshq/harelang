@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Armin Weigl <tb46305@gmail.com>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // The set of functions used for endian-aware encoding.
 export type endian = struct {
 	getu16: *fn(buf: []u8) u16,

@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
 use errors;
 
 fn test_copier_read(s: *stream, buf: []u8) (size | EOF | error) = {

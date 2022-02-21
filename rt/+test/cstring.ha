@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 fn c_strlen(cstr: *const char) size = {
 	const ptr = cstr: *[*]u8;
 	let ln = 0z;

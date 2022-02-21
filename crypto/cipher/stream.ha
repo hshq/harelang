@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Armin Preiml <apreiml@strohwolke.at>
+
 // An abstract interface for implementing cipher streams
 export type stream = struct {
 	xor: *fn(s: *stream, dest: []u8, src: []u8) void,

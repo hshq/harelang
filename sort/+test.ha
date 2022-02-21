@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+
 fn ncmp(a: const *void, b: const *void) int = {
 	let a = a: const *int, b = b: const *int;
 	return *a - *b;

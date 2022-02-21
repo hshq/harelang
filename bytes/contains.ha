@@ -1,3 +1,8 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+
 // Returns true if a byte slice contains a byte or a sequence of bytes.
 export fn contains(haystack: []u8, needle: (u8 | []u8)) bool = match (needle) {
 case let b: u8 =>

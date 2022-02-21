@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 export def SYS_syscall: u64 = 0;
 export def SYS_exit: u64 = 1;
 export def SYS_fork: u64 = 2;

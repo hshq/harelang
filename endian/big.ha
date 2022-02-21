@@ -1,3 +1,7 @@
+// License: MPL-2.0
+// (c) 2021 Armin Weigl <tb46305@gmail.com>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // Reads a u16 from a buffer in big-endian order.
 export fn begetu16(buf: []u8) u16 = {
 	return

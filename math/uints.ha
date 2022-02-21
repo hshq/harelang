@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
+
 // Sections of the code below are based on Go's implementation, in particular
 // https://raw.githubusercontent.com/golang/go/master/src/math/bits/bits.go.
 //

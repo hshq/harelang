@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 // Configuration for a specific architecture.
 export type arch = struct {
 	_int: size,

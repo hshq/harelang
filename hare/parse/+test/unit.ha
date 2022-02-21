@@ -1,3 +1,9 @@
+// License: MPL-2.0
+// (c) 2022 Alexey Yerin <yyp@disroot.org>
+// (c) 2021 Armin Weigl <tb46305@gmail.com>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2022 Sebastian <sebastian@sebsite.pw>
 use bufio;
 use fmt;
 use hare::ast;

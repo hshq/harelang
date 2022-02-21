@@ -1,3 +1,8 @@
+// License: MPL-2.0
+// (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+
 // Reads an entire "item", i.e. one Hare object, from an I/O handle. This
 // function may use multiple reads, but if [[EOF]] is encountered before the
 // entire object is read, an [[underread]] error is returned. Otherwise, the

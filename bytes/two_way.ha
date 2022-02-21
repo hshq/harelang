@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
 use types;
 
 // Implements the so called Two-way string matching algorithm by Crochemore and

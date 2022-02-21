@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
 use hare::ast;
 use hare::types;
 use hash::fnv;

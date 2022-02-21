@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+
 @test fn struct_union() void = {
 	roundtrip("export type foo = struct {
 	@offset(void) x: int,

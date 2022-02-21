@@ -1,3 +1,6 @@
+// License: GPL-3.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
 use hare::ast;
 use hare::module;
 

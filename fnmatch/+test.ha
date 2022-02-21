@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+
 type testcase = (str, str, bool, []flags);
 
 const testcases: [_]testcase = [

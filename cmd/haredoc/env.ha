@@ -1,3 +1,6 @@
+// License: GPL-3.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2022 Haelwenn (lanodan) Monnier <contact@hacktivis.me>
 use hare::module;
 use os::exec;
 use os;
