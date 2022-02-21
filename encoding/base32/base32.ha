@@ -1,3 +1,4 @@
+use ascii;
 use bufio;
 use bytes;
 use errors;
@@ -22,11 +23,11 @@ export const hex_encoding: encoding = encoding { ... };
 // Initializes a new encoding based on the passed alphabet, which must be a
 // 32-byte ASCII string.
 export fn encoding_init(enc: *encoding, alphabet: str) void = {
-	let runes = strings::runes(alphabet);
-	assert(len(runes) == 32);
-	defer free(runes);
+	const alphabet = strings::toutf8(alphabet);
+	assert(len(alphabet) == 32);
 	for (let i: u8 = 0; i < 32; i += 1) {
-		let ch = runes[i]: u32: u8;
+		const ch = alphabet[i];
+		assert(ascii::isascii(ch: u32: rune));
 		enc.encmap[i] = ch;
 		enc.decmap[ch] = i;
 		enc.valid[ch] = true;

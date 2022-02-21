@@ -428,7 +428,7 @@ encoding_base64() {
 encoding_base32() {
 	gen_srcs encoding::base32 \
 		base32.ha
-	gen_ssa encoding::base32 bufio bytes errors io strings os
+	gen_ssa encoding::base32 ascii bufio bytes errors io strings os
 }
 
 encoding_hex() {
