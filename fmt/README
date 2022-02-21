@@ -12,8 +12,8 @@ modifiers, and parametric format modifiers.
 
 Inline format modifiers are a series of characters within a format sequence.
 You may use a colon to add format modifiers; for example, "{:x}" will format an
-argument in hexadecimal, and "{3:-10}" will left-align the 3rd argument to at
-least 10 characters.
+argument in hexadecimal, and "{3:-10}" will left-align the 4rd argument (zero
+indexed) to at least 10 characters.
 
 The format modifiers takes the form of an optional flag character:
 
