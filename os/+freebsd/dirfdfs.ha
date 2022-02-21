@@ -342,7 +342,7 @@ fn fs_resolve(fs: *fs::fs, path: str) str = {
 	};
 	// XXX: This approach might not be right if this fs is based on a subdir
 	static let buf = path::buffer { ... };
-	path::set(&buf, os::getcwd(), path)!;
+	path::set(&buf, getcwd(), path)!;
 	return path::string(&buf);
 };
 
