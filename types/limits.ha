@@ -21,7 +21,7 @@ export def I32_MIN: i32 = -2147483648;
 export def I32_MAX: i32 = 2147483647;
 
 // Minimum value which can be stored in an i64 type
-export def I64_MIN: i64 = -9223372036854775808;
+export def I64_MIN: i64 = -9223372036854775808i64;
 
 // Maximum value which can be stored in an i64 type.
 export def I64_MAX: i64 = 9223372036854775807;

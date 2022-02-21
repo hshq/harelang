@@ -3,6 +3,7 @@
 // (c) 2021 Andri Yngvason <andri@yngvason.is>
 // (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
+use types;
 
 @test fn stoi() void = {
 	assert(stoi64("") as invalid == 0: invalid);
@@ -16,8 +17,8 @@
 	assert(stoi64("1") as i64 == 1);
 	assert(stoi64("+1") as i64 == 1);
 	assert(stoi64("-1") as i64 == -1);
-	assert(stoi64("9223372036854775807") as i64 == 9223372036854775807);
-	assert(stoi64("-9223372036854775808") as i64 == -9223372036854775808);
+	assert(stoi64("9223372036854775807") as i64 == types::I64_MAX);
+	assert(stoi64("-9223372036854775808") as i64 == types::I64_MIN);
 
 	assert(stoi32("2147483648") is overflow);
 	assert(stoi32("-2147483649") is overflow);
