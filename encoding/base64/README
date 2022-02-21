@@ -1,17 +1,18 @@
-Implementation of the base 64 encoding as defined by RFC 4648.
+Implementation of the base64 encoding scheme as defined by RFC 4648.
 
-There are various functions available for decoding and encoding. The decode
-family accepts an [[io::handle]] as input, while the decodeslice and decodestr
-family of functions accept slices and strings as input, respectively.
-[[decode]] accepts an [[io::handle]] for the output, and [[decodeslice]] and
-[[decodestr]] dynamically allocate a slice or string to write the output to, and
-return it to the caller (who is then responsible for freeing it). The _static
-family of functions, such as [[decode_static]], accept a caller-allocated slice
-to write the output to. A similar set of functions is provided for encoding.
+A stream-based encoding and decoding interface is available via [[new_encoder]]
+and [[new_decoder]], which transparently encode or decode bytes to or from
+base64 when reading from or writing to an underlying I/O handle.
 
-Each function accepts the desired base64 alphabet as its first argument. You may
-provide your own alphabet, but [[standard]] and [[urlsafe]], as defined by the
-RFC, are provided for your convenience.
+Convenience functions for decoding to or from byte slices or strings are also
+available; see [[encodeslice]], [[decodeslice]], [[encodestr]], and
+[[decodestr]]. These functions dynamically allocate their return value; use the
+stream interface if you require static allocation.
+
+Each function accepts the desired base64 encoding alphabet as its first
+argument. [[std_encoding]] and [[url_encoding]], as defined by the RFC, are
+provided for your convenience, but you may create your own encoding using
+[[encoding_init]].
 
 Due to security concerns described by the RFC, this implementation rejects
 invalid padding.

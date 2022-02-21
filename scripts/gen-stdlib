@@ -422,7 +422,7 @@ dirs() {
 encoding_base64() {
 	gen_srcs encoding::base64 \
 		base64.ha
-	gen_ssa encoding::base64 bufio bytes io strio strings
+	gen_ssa encoding::base64 ascii bufio bytes errors io os strings
 }
 
 encoding_base32() {

@@ -899,7 +899,7 @@ $(HARECACHE)/dirs/dirs-any.ssa: $(stdlib_dirs_any_srcs) $(stdlib_rt) $(stdlib_fs
 stdlib_encoding_base64_any_srcs= \
 	$(STDLIB)/encoding/base64/base64.ha
 
-$(HARECACHE)/encoding/base64/encoding_base64-any.ssa: $(stdlib_encoding_base64_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+$(HARECACHE)/encoding/base64/encoding_base64-any.ssa: $(stdlib_encoding_base64_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/base64
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::base64 \
@@ -2742,7 +2742,7 @@ $(TESTCACHE)/dirs/dirs-any.ssa: $(testlib_dirs_any_srcs) $(testlib_rt) $(testlib
 testlib_encoding_base64_any_srcs= \
 	$(STDLIB)/encoding/base64/base64.ha
 
-$(TESTCACHE)/encoding/base64/encoding_base64-any.ssa: $(testlib_encoding_base64_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/encoding/base64/encoding_base64-any.ssa: $(testlib_encoding_base64_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/encoding/base64
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::base64 \
