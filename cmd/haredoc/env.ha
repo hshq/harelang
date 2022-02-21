@@ -16,6 +16,5 @@ fn default_tags() []module::tag = {
 };
 
 fn default_harepath() str = {
-	// TODO: Same deal
-	return "/usr/share/src/hare/stdlib:/usr/share/src/hare/third-party";
+	return HAREPATH;
 };

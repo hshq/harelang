@@ -78,7 +78,9 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFOR
 .bin/haredoc: .bin/hare $(haredoc_srcs)
 	@mkdir -p .bin
 	@printf 'HARE\t$@\n'
-	@env HAREPATH=. ./.bin/hare build -o .bin/haredoc ./cmd/haredoc
+	@env HAREPATH=. ./.bin/hare build \
+		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
+		-o .bin/haredoc ./cmd/haredoc
 
 docs/hare.1: docs/hare.scd
 docs/haredoc.1: docs/haredoc.scd
