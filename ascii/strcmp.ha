@@ -16,6 +16,12 @@ export fn strcmp(a: str, b: str) (int | void) = {
 			case void =>
 				return 0;
 			case rune =>
+				for (true) match (strings::next(&b)) {
+				case void =>
+					break;
+				case let r: rune =>
+					if (!isascii(r)) return;
+				};
 				return -1;
 			};
 		case let r: rune =>
@@ -23,6 +29,12 @@ export fn strcmp(a: str, b: str) (int | void) = {
 		};
 		let rb = match (strings::next(&b)) {
 		case void =>
+			for (true) match (strings::next(&a)) {
+			case void =>
+				break;
+			case let r: rune =>
+				if (!isascii(r)) return;
+			};
 			return 1;
 		case let r: rune =>
 			yield r;
@@ -51,6 +63,12 @@ export fn strcasecmp(a: str, b: str) (int | void) = {
 			case void =>
 				return 0;
 			case rune =>
+				for (true) match (strings::next(&b)) {
+				case void =>
+					break;
+				case let r: rune =>
+					if (!isascii(r)) return;
+				};
 				return -1;
 			};
 		case let r: rune =>
@@ -58,6 +76,12 @@ export fn strcasecmp(a: str, b: str) (int | void) = {
 		};
 		let rb = match (strings::next(&b)) {
 		case void =>
+			for (true) match (strings::next(&a)) {
+			case void =>
+				break;
+			case let r: rune =>
+				if (!isascii(r)) return;
+			};
 			return 1;
 		case let r: rune =>
 			yield r;
