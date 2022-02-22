@@ -98,10 +98,12 @@ export fn strcasecmp(a: str, b: str) (int | void) = {
 
 @test fn strcmp() void = {
 	assert(strcmp("ABC", "ABC") as int == 0);
-	assert(strcmp("ABC", "AB") as int == 1);
-	assert(strcmp("AB", "ABC") as int == -1);
-	assert(strcmp("BCD", "ABC") as int == 1);
+	assert(strcmp("ABC", "AB") as int > 0);
+	assert(strcmp("AB", "ABC") as int < 0);
+	assert(strcmp("BCD", "ABC") as int > 0);
 	assert(strcmp("ABC", "こんにちは") is void);
-	assert(strcmp("ABC", "abc") as int != 0);
+	assert(strcmp("ABC", "ABCこんにちは") is void);
+	assert(strcmp("ABCこんにちは", "AB") is void);
+	assert(strcmp("ABC", "abc") as int < 0);
 	assert(strcasecmp("ABC", "abc") as int == 0);
 };
