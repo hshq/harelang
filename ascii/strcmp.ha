@@ -36,8 +36,12 @@ export fn strcmp(a: str, b: str) (int | void) = {
 	};
 };
 
-// Similar to [[strcmp]], but compares strings irrespective of their uppercase or
-// lowercase classification within the ASCII character set.
+// Compares two strings by their ASCII sort order, treating all capital letters
+// as their lowercase counterpart (i.e. a case-insensitive comparison is
+// performed). If either string is not entirely composed of ASCII characters,
+// void is returned. Otherwise, zero is returned if the strings are equal, a
+// negative value if a is less than b, or a positive value if a is greater than
+// b.
 export fn strcasecmp(a: str, b: str) (int | void) = {
 	let a = strings::iter(a), b = strings::iter(b);
 	for (true) {
