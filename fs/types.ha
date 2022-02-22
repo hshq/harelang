@@ -30,6 +30,24 @@ export type error = !(
 	cannotrename |
 	io::error);
 
+// Returns a human-friendly representation of an error.
+export fn strerror(err: error) const str = match (err) {
+case wrongtype =>
+	yield "Wrong entry type for requested operation";
+case cannotrename =>
+	yield "Unable to perform rename operation (try move instead)";
+case errors::noentry =>
+	yield "File or directory not found";
+case errors::noaccess =>
+	yield "Permission denied";
+case errors::exists =>
+	yield "File or directory exists";
+case errors::invalid =>
+	yield "Invalid argument";
+case let err: io::error =>
+	yield io::strerror(err);
+};
+
 // File mode information. These bits do not necessarily reflect the underlying
 // operating system's mode representation, though they were chosen to be
 // consistent with typical Unix file permissions. All implementations shall

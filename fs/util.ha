@@ -8,24 +8,6 @@ use io;
 use path;
 use strings;
 
-// Returns a human-friendly representation of an error.
-export fn strerror(err: error) const str = match (err) {
-case wrongtype =>
-	yield "Wrong entry type for requested operation";
-case cannotrename =>
-	yield "Unable to perform rename operation (try move instead)";
-case errors::noentry =>
-	yield "File or directory not found";
-case errors::noaccess =>
-	yield "Permission denied";
-case errors::exists =>
-	yield "File or directory exists";
-case errors::invalid =>
-	yield "Invalid argument";
-case let err: io::error =>
-	yield io::strerror(err);
-};
-
 // Converts a mode into a Unix-like mode string (e.g. "-rw-r--r--"). The string
 // is statically allocated, use [[strings::dup]] to duplicate it or it will be
 // overwritten on subsequent calls.
