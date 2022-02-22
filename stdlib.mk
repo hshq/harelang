@@ -1620,6 +1620,7 @@ stdlib_strings_any_srcs= \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/iter.ha \
+	$(STDLIB)/strings/strcmp.ha \
 	$(STDLIB)/strings/sub.ha \
 	$(STDLIB)/strings/suffix.ha \
 	$(STDLIB)/strings/tokenize.ha \
@@ -3488,6 +3489,7 @@ testlib_strings_any_srcs= \
 	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/iter.ha \
+	$(STDLIB)/strings/strcmp.ha \
 	$(STDLIB)/strings/sub.ha \
 	$(STDLIB)/strings/suffix.ha \
 	$(STDLIB)/strings/tokenize.ha \
