@@ -1,5 +1,5 @@
-encoding::xml provides a simple parser of the useful subset of the XML 1.0
-(Fifth Edition) specification as defined by the W3C. Features omitted are:
+format::xml provides a simple parser of the useful subset of the XML 1.0 (Fifth
+Edition) specification as defined by the W3C. Features omitted are:
 
 - Support for user-defined entities
 - Support for UTF-16 inputs or a UTF-8 BOM
