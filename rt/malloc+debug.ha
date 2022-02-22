@@ -22,10 +22,10 @@ type auxv64 = struct {
 
 @init fn init() void = {
 	let i = 0;
-	for (rt::envp[i] != null) {
+	for (envp[i] != null) {
 		i += 1;
 	};
-	let auxv = &rt::envp[i + 1]: *[*]auxv64;
+	let auxv = &envp[i + 1]: *[*]auxv64;
 	for (let i = 0z; auxv[i].a_type != 0; i += 1) {
 		if (auxv[i].a_type == AUXV_PAGESZ) {
 			pagesz = auxv[i].a_val: size;
@@ -43,8 +43,10 @@ export fn malloc(n: size) nullable *void = {
 		z += pagesz - z % pagesz;
 	};
 	let seg = match (segmalloc(z)) {
-		null => return null,
-		ptr: *void => ptr,
+	case null =>
+		return null;
+	case let ptr: *void =>
+		yield ptr;
 	};
 	let user = &(seg: *[*]u8)[z - n];
 	let segptr = &(user: *[*]*void)[-1];
