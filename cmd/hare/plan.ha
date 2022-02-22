@@ -7,7 +7,6 @@ use fs;
 use hare::ast;
 use hare::module;
 use io;
-use math;
 use os::exec;
 use os;
 use path;
@@ -58,6 +57,14 @@ type plan = struct {
 	libs: []str,
 	environ: [](str, str),
 	modmap: [64][]modcache,
+	progress: plan_progress,
+};
+
+type plan_progress = struct {
+	tty: (io::file | void),
+	complete: size,
+	total: size,
+	current_module: str,
 };
 
 fn mkplan(ctx: *module::context, libs: []str) plan = {
@@ -95,6 +102,10 @@ fn mkplan(ctx: *module::context, libs: []str) plan = {
 			(strings::dup("HARECACHE"), strings::dup(ctx.cache)),
 		]),
 		libs = libs,
+		progress = plan_progress {
+			tty = if (tty::isatty(os::stderr)) os::stderr else void,
+			...
+		},
 		...
 	};
 };
@@ -128,25 +139,24 @@ fn plan_finish(plan: *plan) void = {
 	for (let i = 0z; i < len(plan.modmap); i += 1) {
 		free(plan.modmap[i]);
 	};
+
+	match (plan.progress.tty) {
+	case let f: io::file =>
+		io::close(f);
+	case => void;
+	};
 };
 
 fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
+	plan.progress.total = len(plan.scheduled);
+
 	if (verbose) {
+		plan.progress.tty = void;
 		for (let i = 0z; i < len(plan.environ); i += 1) {
 			// TODO: Uncomment this with shlex::quote
 			let item = plan.environ[i];
 			fmt::errorfln("# {}={}", item.0, item.1)!;
 		};
-	};
-
-	let current_module = "";
-	let current = 0z;
-	const total = len(plan.scheduled);
-	// Disable progress when used with -v
-	const term = if (!verbose && tty::isatty(os::stderr)) {
-		yield os::stderr;
-	} else {
-		yield;
 	};
 
 	for (len(plan.scheduled) != 0) {
@@ -176,37 +186,19 @@ fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 
 		match (task.module) {
 		case let s: str =>
-			current_module = s;
+			plan.progress.current_module = s;
 		case => void;
 		};
 
-		match (term) {
-		case let term: io::file =>
-			current += 1;
-			fmt::fprintf(term, "\r\x1b[K[{%}/{}] [",
-				current, &fmt::modifiers {
-					width = math::ceilf64(math::log10f64(
-						total: f64)): uint,
-					...
-				},
-				total)!;
-			const stop = (current: f64 / total: f64 * 50.0): size;
-			for (let i = 0z; i < 50; i += 1) {
-				if (i > stop) {
-					fmt::fprint(term, ".")!;
-				} else {
-					fmt::fprint(term, "#")!;
-				};
-			};
-			fmt::fprintf(term, "] {}", current_module)!;
-		case => void;
-		};
+		progress_increment(plan);
 
 		match (execute(plan, task, verbose)) {
 		case let err: exec::error =>
+			progress_clear(plan);
 			fmt::fatal("Error: {}: {}", task.cmd[0],
 				exec::strerror(err));
 		case let err: !exec::exit_status =>
+			progress_clear(plan);
 			fmt::errorfln("Error: {}: {}", task.cmd[0],
 				exec::exitstr(err))!;
 			return err;
@@ -219,12 +211,7 @@ fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 		append(plan.complete, task);
 	};
 
-	match (term) {
-	case let term: io::file =>
-		fmt::fprint(term, "\r\x1b[K")!;
-	case => void;
-	};
-
+	progress_clear(plan);
 	update_modcache(plan);
 };
 
@@ -268,13 +255,39 @@ fn execute(
 		fmt::errorln()!;
 	};
 
-	let cmd = exec::cmd(task.cmd[0], task.cmd[1..]...)?;
+	let cmd = exec::cmd(task.cmd[0], task.cmd[1..]...)!;
 	for (let i = 0z; i < len(plan.environ); i += 1) {
 		let e = plan.environ[i];
 		exec::setenv(&cmd, e.0, e.1);
 	};
 
+	const pipe = if (plan.progress.tty is io::file) {
+		const pipe = exec::pipe();
+		exec::addfile(&cmd, os::stderr, pipe.1);
+		yield pipe;
+	} else (0: io::file, 0: io::file);
+
 	let proc = exec::start(&cmd)?;
+	if (pipe.0 != 0) {
+		io::close(pipe.1);
+	};
+
+	let cleared = false;
+	if (pipe.0 != 0) {
+		for (true) {
+			let buf: [os::BUFSIZ]u8 = [0...];
+			match (io::read(pipe.0, buf)!) {
+			case let n: size =>
+				if (!cleared) {
+					progress_clear(plan);
+					cleared = true;
+				};
+				io::write(os::stderr, buf[..n])!;
+			case io::EOF =>
+				break;
+			};
+		};
+	};
 	let st = exec::wait(&proc)?;
 	return exec::check(&st);
 };
