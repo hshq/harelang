@@ -43,6 +43,186 @@ export fn encoding_init(enc: *encoding, alphabet: str) void = {
 	encoding_init(&hex_encoding, hex_alpha);
 };
 
+export type encoder = struct {
+	io::stream,
+	out: io::handle,
+	enc: *encoding,
+	buf: [4]u8, // leftover input
+	avail: size, // bytes available in buf
+	err: (void | io::error),
+};
+
+// Creates a stream that encodes writes as base-32 before writing them to a
+// secondary stream. The encoder stream must be closed to finalize any unwritten
+// bytes. Closing this stream will not close the underlying stream.
+export fn new_encoder(
+	enc: *encoding,
+	out: io::handle,
+) encoder = {
+	return encoder {
+		writer = &encode_writer,
+		closer = &encode_closer,
+		out = out,
+		enc = enc,
+		err = void,
+		...
+	};
+};
+
+fn encode_writer(
+	s: *io::stream,
+	in: const []u8
+) (size | io::error) = {
+	let s = s: *encoder;
+	match(s.err) {
+	case let err: io::error =>
+		return err;
+	case void =>
+		yield;
+	};
+	let n = 0z; // number of bytes processed
+	let l = len(in);
+	let i = 0z;
+	for (i + 4 < l + s.avail; i += 5) {
+		static let b: [5]u8 = [0...]; // 5 bytes -> (enc) 8 bytes
+		if (i < s.avail) {
+			for (let j = 0z; j < s.avail; j += 1) {
+				b[j] = s.buf[i];
+			};
+			for (let j = s.avail; j < 5; j += 1) {
+				b[j] = in[j - s.avail];
+			};
+		} else {
+			for (let j = 0z; j < 5; j += 1) {
+				b[j] = in[j - s.avail + i];
+			};
+		};
+		let encb: [8]u8 = [
+			s.enc.encmap[b[0] >> 3],
+			s.enc.encmap[(b[0] & 0x7) << 2 | (b[1] & 0xC0) >> 6],
+			s.enc.encmap[(b[1] & 0x3E) >> 1],
+			s.enc.encmap[(b[1] & 0x1) << 4 | (b[2] & 0xF0) >> 4],
+			s.enc.encmap[(b[2] & 0xF) << 1 | (b[3] & 0x80) >> 7],
+			s.enc.encmap[(b[3] & 0x7C) >> 2],
+			s.enc.encmap[(b[3] & 0x3) << 3 | (b[4] & 0xE0) >> 5],
+			s.enc.encmap[b[4] & 0x1F],
+		];
+		match(io::write(s.out, encb)) {
+		case let err: io::error =>
+			s.err = err;
+			return err;
+		case size =>
+			yield;
+		};
+		n += 5;
+	};
+	// storing leftover bytes
+	if (l + s.avail < 5) {
+		for (let j = s.avail; j < s.avail + l; j += 1) {
+			s.buf[j] = in[j - s.avail];
+		};
+	} else {
+		const begin = (l + s.avail) / 5 * 5;
+		for (let j = begin; j < l + s.avail; j += 1) {
+			s.buf[j - begin] = in[j - s.avail];
+		};
+	};
+	s.avail = (l + s.avail) % 5;
+	return n;
+};
+
+fn encode_closer(s: *io::stream) void = {
+	let s = s: *encoder;
+	if (s.avail == 0) {
+		return;
+	};
+	static let b: [5]u8 = [0...]; // the 5 bytes that will be encoded into 8 bytes
+	for (let i = 0z; i < 5; i += 1) {
+		b[i] = if (i < s.avail) s.buf[i] else 0;
+	};
+	let encb: [8]u8 = [
+		s.enc.encmap[b[0] >> 3],
+		s.enc.encmap[(b[0] & 0x7) << 2 | (b[1] & 0xC0) >> 6],
+		s.enc.encmap[(b[1] & 0x3E) >> 1],
+		s.enc.encmap[(b[1] & 0x1) << 4 | (b[2] & 0xF0) >> 4],
+		s.enc.encmap[(b[2] & 0xF) << 1 | (b[3] & 0x80) >> 7],
+		s.enc.encmap[(b[3] & 0x7C) >> 2],
+		s.enc.encmap[(b[3] & 0x3) << 3 | (b[4] & 0xE0) >> 5],
+		s.enc.encmap[b[4] & 0x1F],
+	];
+	// adding padding as input length was not a multiple of 5
+	//                        0  1  2  3  4
+	static const npa: []u8 = [0, 6, 4, 3, 1];
+	const np = npa[s.avail];
+	for (let i = 0z; i < np; i += 1) {
+		encb[7 - i] = PADDING;
+	};
+	io::write(s.out, encb)!; // TODO https://todo.sr.ht/~sircmpwn/hare/568
+};
+
+// Encodes a byte slice in base-32, using the given encoding, returning a slice
+// of ASCII bytes. The caller must free the return value.
+export fn encodeslice(enc: *encoding, in: []u8) []u8 = {
+	let out = bufio::dynamic(io::mode::WRITE);
+	let encoder = new_encoder(enc, &out);
+	io::write(&encoder, in)!;
+	io::close(&encoder);
+	return bufio::buffer(&out);
+};
+
+// Encodes a byte slice in base-32, using the given encoding, returning a
+// string. The caller must free the return value.
+export fn encodestr(enc: *encoding, in: []u8) str = {
+	return strings::fromutf8(encodeslice(enc, in));
+};
+
+@test fn encode() void = {
+	// RFC 4648 test vectors
+	const in: [_]u8 = ['f', 'o', 'o', 'b', 'a', 'r'];
+	const expect: [_]str = [
+		"",
+		"MY======",
+		"MZXQ====",
+		"MZXW6===",
+		"MZXW6YQ=",
+		"MZXW6YTB",
+		"MZXW6YTBOI======",
+	];
+	const expect_hex: [_]str = [
+		"",
+		"CO======",
+		"CPNG====",
+		"CPNMU===",
+		"CPNMUOG=",
+		"CPNMUOJ1",
+		"CPNMUOJ1E8======",
+	];
+	for (let i = 0z; i <= len(in); i += 1) {
+		let out = bufio::dynamic(io::mode::RDWR);
+		let enc = new_encoder(&std_encoding, &out);
+		io::write(&enc, in[..i]) as size;
+		io::close(&enc);
+		let outb = bufio::buffer(&out);
+		assert(bytes::equal(outb, strings::toutf8(expect[i])));
+		free(outb);
+		// Testing encodestr should cover encodeslice too
+		let s = encodestr(&std_encoding, in[..i]);
+		defer free(s);
+		assert(s == expect[i]);
+
+		out = bufio::dynamic(io::mode::RDWR);
+		enc = new_encoder(&hex_encoding, &out);
+		io::write(&enc, in[..i]) as size;
+		io::close(&enc);
+		let outb = bufio::buffer(&out);
+		assert(bytes::equal(outb, strings::toutf8(expect_hex[i])));
+		free(outb);
+		let s = encodestr(&hex_encoding, in[..i]);
+		defer free(s);
+		assert(s == expect_hex[i]);
+	};
+};
+
 export type decoder = struct {
 	io::stream,
 	in: io::handle,
@@ -282,185 +462,5 @@ export fn decodestr(enc: *encoding, in: str) ([]u8 | errors::invalid) = {
 
 		// Testing decodestr should cover decodeslice too
 		assert(decodestr(invalid[i].1, invalid[i].0) is errors::invalid);
-	};
-};
-
-export type encoder = struct {
-	io::stream,
-	out: io::handle,
-	enc: *encoding,
-	buf: [4]u8, // leftover input
-	avail: size, // bytes available in buf
-	err: (void | io::error),
-};
-
-// Creates a stream that encodes writes as base-32 before writing them to a
-// secondary stream. The encoder stream must be closed to finalize any unwritten
-// bytes. Closing this stream will not close the underlying stream.
-export fn new_encoder(
-	enc: *encoding,
-	out: io::handle,
-) encoder = {
-	return encoder {
-		writer = &encode_writer,
-		closer = &encode_closer,
-		out = out,
-		enc = enc,
-		err = void,
-		...
-	};
-};
-
-fn encode_writer(
-	s: *io::stream,
-	in: const []u8
-) (size | io::error) = {
-	let s = s: *encoder;
-	match(s.err) {
-	case let err: io::error =>
-		return err;
-	case void =>
-		yield;
-	};
-	let n = 0z; // number of bytes processed
-	let l = len(in);
-	let i = 0z;
-	for (i + 4 < l + s.avail; i += 5) {
-		static let b: [5]u8 = [0...]; // 5 bytes -> (enc) 8 bytes
-		if (i < s.avail) {
-			for (let j = 0z; j < s.avail; j += 1) {
-				b[j] = s.buf[i];
-			};
-			for (let j = s.avail; j < 5; j += 1) {
-				b[j] = in[j - s.avail];
-			};
-		} else {
-			for (let j = 0z; j < 5; j += 1) {
-				b[j] = in[j - s.avail + i];
-			};
-		};
-		let encb: [8]u8 = [
-			s.enc.encmap[b[0] >> 3],
-			s.enc.encmap[(b[0] & 0x7) << 2 | (b[1] & 0xC0) >> 6],
-			s.enc.encmap[(b[1] & 0x3E) >> 1],
-			s.enc.encmap[(b[1] & 0x1) << 4 | (b[2] & 0xF0) >> 4],
-			s.enc.encmap[(b[2] & 0xF) << 1 | (b[3] & 0x80) >> 7],
-			s.enc.encmap[(b[3] & 0x7C) >> 2],
-			s.enc.encmap[(b[3] & 0x3) << 3 | (b[4] & 0xE0) >> 5],
-			s.enc.encmap[b[4] & 0x1F],
-		];
-		match(io::write(s.out, encb)) {
-		case let err: io::error =>
-			s.err = err;
-			return err;
-		case size =>
-			yield;
-		};
-		n += 5;
-	};
-	// storing leftover bytes
-	if (l + s.avail < 5) {
-		for (let j = s.avail; j < s.avail + l; j += 1) {
-			s.buf[j] = in[j - s.avail];
-		};
-	} else {
-		const begin = (l + s.avail) / 5 * 5;
-		for (let j = begin; j < l + s.avail; j += 1) {
-			s.buf[j - begin] = in[j - s.avail];
-		};
-	};
-	s.avail = (l + s.avail) % 5;
-	return n;
-};
-
-fn encode_closer(s: *io::stream) void = {
-	let s = s: *encoder;
-	if (s.avail == 0) {
-		return;
-	};
-	static let b: [5]u8 = [0...]; // the 5 bytes that will be encoded into 8 bytes
-	for (let i = 0z; i < 5; i += 1) {
-		b[i] = if (i < s.avail) s.buf[i] else 0;
-	};
-	let encb: [8]u8 = [
-		s.enc.encmap[b[0] >> 3],
-		s.enc.encmap[(b[0] & 0x7) << 2 | (b[1] & 0xC0) >> 6],
-		s.enc.encmap[(b[1] & 0x3E) >> 1],
-		s.enc.encmap[(b[1] & 0x1) << 4 | (b[2] & 0xF0) >> 4],
-		s.enc.encmap[(b[2] & 0xF) << 1 | (b[3] & 0x80) >> 7],
-		s.enc.encmap[(b[3] & 0x7C) >> 2],
-		s.enc.encmap[(b[3] & 0x3) << 3 | (b[4] & 0xE0) >> 5],
-		s.enc.encmap[b[4] & 0x1F],
-	];
-	// adding padding as input length was not a multiple of 5
-	//                        0  1  2  3  4
-	static const npa: []u8 = [0, 6, 4, 3, 1];
-	const np = npa[s.avail];
-	for (let i = 0z; i < np; i += 1) {
-		encb[7 - i] = PADDING;
-	};
-	io::write(s.out, encb)!; // TODO https://todo.sr.ht/~sircmpwn/hare/568
-};
-
-// Encodes a byte slice in base-32, using the given encoding, returning a slice
-// of ASCII bytes. The caller must free the return value.
-export fn encodeslice(enc: *encoding, in: []u8) []u8 = {
-	let out = bufio::dynamic(io::mode::WRITE);
-	let encoder = new_encoder(enc, &out);
-	io::write(&encoder, in)!;
-	io::close(&encoder);
-	return bufio::buffer(&out);
-};
-
-// Encodes a byte slice in base-32, using the given encoding, returning a
-// string. The caller must free the return value.
-export fn encodestr(enc: *encoding, in: []u8) str = {
-	return strings::fromutf8(encodeslice(enc, in));
-};
-
-@test fn encode() void = {
-	// RFC 4648 test vectors
-	const in: [_]u8 = ['f', 'o', 'o', 'b', 'a', 'r'];
-	const expect: [_]str = [
-		"",
-		"MY======",
-		"MZXQ====",
-		"MZXW6===",
-		"MZXW6YQ=",
-		"MZXW6YTB",
-		"MZXW6YTBOI======",
-	];
-	const expect_hex: [_]str = [
-		"",
-		"CO======",
-		"CPNG====",
-		"CPNMU===",
-		"CPNMUOG=",
-		"CPNMUOJ1",
-		"CPNMUOJ1E8======",
-	];
-	for (let i = 0z; i <= len(in); i += 1) {
-		let out = bufio::dynamic(io::mode::RDWR);
-		let enc = new_encoder(&std_encoding, &out);
-		io::write(&enc, in[..i]) as size;
-		io::close(&enc);
-		let outb = bufio::buffer(&out);
-		assert(bytes::equal(outb, strings::toutf8(expect[i])));
-		free(outb);
-		// Testing encodestr should cover encodeslice too
-		let s = encodestr(&std_encoding, in[..i]);
-		defer free(s);
-		assert(s == expect[i]);
-
-		out = bufio::dynamic(io::mode::RDWR);
-		enc = new_encoder(&hex_encoding, &out);
-		io::write(&enc, in[..i]) as size;
-		io::close(&enc);
-		let outb = bufio::buffer(&out);
-		assert(bytes::equal(outb, strings::toutf8(expect_hex[i])));
-		free(outb);
-		let s = encodestr(&hex_encoding, in[..i]);
-		defer free(s);
-		assert(s == expect_hex[i]);
 	};
 };
