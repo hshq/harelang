@@ -14,7 +14,7 @@ key for each block. That means following vulnerabilities exist:
 - Replay: An adversary may change a block back to an old value, if write access
   is available.
 - Changing sectors: Changing of the cipher text will result in "random" plain
-  text. Authentication or error detection can be done before encryption, to 
+  text. Authentication or error detection can be done before encryption, to
   resist such attacks.
 
 This is a low-level module which implements cryptographic primitives. Direct use

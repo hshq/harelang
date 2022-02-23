@@ -234,7 +234,7 @@ export fn sendfile(
 	count: size,
 ) (size | errno) = wrap_return(syscall4(SYS_sendfile,
 	out: u64, in: u64, offs: uintptr: u64, count: u64))?: size;
-	
+
 export @noreturn fn exit(status: int) void = syscall1(SYS_exit, status: u64);
 
 export fn kill(pid: int, signal: int) (void | errno) = {
@@ -273,13 +273,11 @@ export fn munmap(addr: *void, length: size) (void | errno) = {
 	wrap_return(syscall2(SYS_munmap,
 		addr: uintptr: u64, length: u64))?;
 };
-	
 
 export fn mprotect(addr: *void, length: size, prot: uint) (void | errno) = {
 	wrap_return(syscall3(SYS_mprotect,
 		addr: uintptr: u64, length: u64, prot: u64))?;
 };
-	
 
 export fn lseek(fd: int, off: i64, whence: uint) (i64 | errno) = {
 	return wrap_return(syscall3(SYS_lseek,

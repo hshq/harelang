@@ -13,7 +13,7 @@ export type sha256state = struct {
 };
 
 // Creates a [[crypto::mac::mac]] that computes an HMAC with given 'key' using
-// SHA256 as underlying hash function. 
+// SHA256 as underlying hash function.
 //
 // The caller must take extra care to call [[mac::finish]] when they are
 // finished using the MAC function, which, in addition to freeing state

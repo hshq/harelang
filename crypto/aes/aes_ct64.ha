@@ -48,7 +48,7 @@ export type ct64_block = struct {
 	sk_exp: [120]u64,
 };
 
-// Returns an AES [[crypto::cipher::block]] cipher implementation optimized for 
+// Returns an AES [[crypto::cipher::block]] cipher implementation optimized for
 // constant time operation on 64-bit systems.
 //
 // The caller must call [[ct64_init]] to add a key to the cipher before using

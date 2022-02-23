@@ -7,7 +7,7 @@ export type stream = struct {
 	finish: *fn(s: *stream) void,
 };
 
-// Applies xor of the key produced by the stream to src and writes the result 
+// Applies xor of the key produced by the stream to src and writes the result
 // in dest. 'dest' and 'src' may be the same slice, and both slices must have
 // the same length.
 export fn stream_xor(s: *stream, dest: []u8, src: []u8) void = {

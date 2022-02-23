@@ -81,7 +81,7 @@ export fn trim(input: str, exclude: rune...) str =
 	assert(ltrim("((()(())))())", '(', ')') == "");
 	assert(ltrim("abacadabra", 'a', 'b', 'c', 'd') == "ra");
 	assert(ltrim("𝚊𝚋𝚊𝚌𝚊𝚍𝚊𝚋𝚛𝚊", '𝚊', '𝚋', '𝚌', '𝚍') == "𝚛𝚊");
-	
+
 	assert(rtrim("") == "");
 	assert(rtrim("hello   ") == "hello");
 	assert(rtrim("hello, world\r\n\r\n") == "hello, world");

@@ -10,7 +10,7 @@ export type block = struct {
 	x: [aes::BLOCKSIZE]u8,
 };
 
-// Creates a AES-XTS instance. Must be initialized with [[init]] and always be 
+// Creates a AES-XTS instance. Must be initialized with [[init]] and always be
 // finished using [[finish]] to erase sensitive state from memory.
 export fn xts() block = block {
 	b1 = aes::ct64(),

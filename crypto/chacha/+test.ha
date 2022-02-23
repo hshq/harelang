@@ -164,7 +164,7 @@ const xcipher: [_]u8 = [
 	xchacha20_init(&c, &xkey, &xnonce);
 	defer cipher::finish(&c);
 
-	// just encrypt a few bytes of each block, to check if setctr works 
+	// just encrypt a few bytes of each block, to check if setctr works
 	setctr(&c, 1);
 	cipher::stream_xor(&c, result[..5], xmsg[..5]);
 

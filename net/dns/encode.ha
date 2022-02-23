@@ -102,7 +102,7 @@ fn rrecord_encode(enc: *encoder, r: *rrecord) (void | error) = {
 };
 
 fn encode_op(op: *op) u16 =
-	(op.qr: u16 << 15u16) | 
+	(op.qr: u16 << 15u16) |
 	(op.opcode: u16 << 11u16) |
 	(if (op.aa) 0b0000010000000000u16 else 0u16) |
 	(if (op.tc) 0b0000001000000000u16 else 0u16) |

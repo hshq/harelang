@@ -58,10 +58,10 @@ export type box = (mac, nonce, []u8);
 // 	let nonce: crypto::nonce = [0...];
 // 	random::buffer(key); // Or some other means of establishing the key
 // 	random::buffer(nonce);
-//	
+//
 // 	let buf: [64]u8 = [0...]; // Populate with your message
 // 	let box = crypto::encrypt(&key, &nonce, buf[..], buf[..]);
-//	
+//
 //	// To decrypt this message:
 // 	let plaintext = match (crypto::decrypt(&key, &box, buf[..])) {
 // 	case let buf: []u8 =>
