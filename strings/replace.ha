@@ -2,34 +2,27 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
 
+use bytes;
+
 // Replaces all instances of 'needle' with 'target' in 's'.
 // The caller must free the return value.
 export fn replace(s: str, needle: str, target: str) str = {
-	let res = dup(s);
-
-	let n_needle_runes = 0z;
-	let needle_iter = iter(needle);
-	for (!(next(&needle_iter) is void)) {
-		n_needle_runes += 1;
-	};
-
+	let res = toutf8(dup(s));
+	let needle = toutf8(needle);
+	let target = toutf8(target);
+	let match_idx = 0z;
 	for (true) {
-		const match_idx = match(index(res, needle)) {
+		match_idx = match(bytes::index(res[match_idx..], needle)) {
 		case let s: size =>
-			yield s;
+			yield s - match_idx;
 		case void =>
 			break;
 		};
-		let old_res = res;
-		const bytes = toutf8(res);
-		// TODO: Stop allocating so much, as it will become a perf issue
-		// with many replacements.
-		res = concat(sub(res, 0, match_idx),
-			target,
-			sub(res, match_idx + n_needle_runes, end));
-		free(old_res);
+		delete(res[match_idx..match_idx + len(needle)]);
+		insert(res[match_idx], target...);
+		match_idx += len(needle);
 	};
-	return res;
+	return fromutf8(res);
 };
 
 @test fn replace() void = {
