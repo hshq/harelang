@@ -80,30 +80,30 @@ export fn stoib(s: str, base: uint) (int | invalid | overflow) = {
 
 // Converts a string to an i64 in base 10, If the string contains any
 // non-numeric characters, or if it's empty, [[strconv::invalid]] is returned. If
-// the number is too large to be represented by a u64, [[strconv::overflow]] is
+// the number is too large to be represented by an i64, [[strconv::overflow]] is
 // returned.
 export fn stoi64(s: str) (i64 | invalid | overflow) = stoi64b(s, 10);
 
 // Converts a string to an i32 in base 10, If the string contains any
 // non-numeric characters, or if it's empty, [[strconv::invalid]] is returned. If
-// the number is too large to be represented by a u32, [[strconv::overflow]] is
+// the number is too large to be represented by an i32, [[strconv::overflow]] is
 // returned.
 export fn stoi32(s: str) (i32 | invalid | overflow) = stoi32b(s, 10);
 
 // Converts a string to an i16 in base 10, If the string contains any
 // non-numeric characters, or if it's empty, [[strconv::invalid]] is returned. If
-// the number is too large to be represented by a u16, [[strconv::overflow]] is
+// the number is too large to be represented by an i16, [[strconv::overflow]] is
 // returned.
 export fn stoi16(s: str) (i16 | invalid | overflow) = stoi16b(s, 10);
 
 // Converts a string to an i8 in base 10, If the string contains any
 // non-numeric characters, or if it's empty, [[strconv::invalid]] is returned. If
-// the number is too large to be represented by a u8, [[strconv::overflow]] is
+// the number is too large to be represented by an i8, [[strconv::overflow]] is
 // returned.
 export fn stoi8(s: str) (i8 | invalid | overflow) = stoi8b(s, 10);
 
 // Converts a string to an int in base 10, If the string contains any
 // non-numeric characters, or if it's empty, [[strconv::invalid]] is returned. If
-// the number is too large to be represented by a uint, [[strconv::overflow]] is
+// the number is too large to be represented by an int, [[strconv::overflow]] is
 // returned.
 export fn stoi(s: str) (int | invalid | overflow) = stoib(s, 10);
