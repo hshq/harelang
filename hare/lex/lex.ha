@@ -109,7 +109,7 @@ export fn lex(lex: *lexer) (token | error) = {
 	};
 
 	let tok = switch (r.0) {
-	case '"', '\'' =>
+	case '"', '\'', '`' =>
 		unget(lex, r);
 		return lex_rn_str(lex);
 	case '.', '<', '>', '&', '|', '^' =>
