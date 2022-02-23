@@ -116,8 +116,8 @@ fn decode_reader(
 	let valid = true;
 	let np = 0; // Number of padding chars.
 	let p = true; // Pad allowed in buf
-	for (let i = nr: i64 - 1; i >= 0; i -= 1) {
-		const ch = buf[i];
+	for (let i = nr; i > 0; i -= 1) {
+		const ch = buf[i - 1];
 		if (ch == PADDING) {
 			if(s.pad || !p) {
 				valid = false;
