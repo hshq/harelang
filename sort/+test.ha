@@ -22,9 +22,6 @@ fn ncmp(a: const *void, b: const *void) int = {
 	assert(search(nums[..], size(int), &key, &ncmp) == null);
 };
 
-fn io::errorln(items: str...) void;
-fn strconv::itos(in: int) str;
-
 @test fn sort() void = {
 	let nums = [
 		1, 6, 10, 7, 8, 10, 10, 3, 7, 5, 5, 8, 1, 1, 1, 9, 2, 3, 1, 4,
