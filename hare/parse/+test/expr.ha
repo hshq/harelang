@@ -43,7 +43,7 @@
 };
 
 @test fn builtin() void = {
-	roundtrip("export fn main() void = {
+	roundtrip(`export fn main() void = {
 	alloc(1234);
 	alloc(4321, 1234);
 	append(x, 10);
@@ -52,13 +52,13 @@
 	append(x, y, z, q...);
 	static append(x, 10);
 	abort();
-	abort(\"surprize\");
+	abort("surprize");
 	static abort();
-	static abort(\"surprize\");
+	static abort("surprize");
 	assert(x == 12);
-	assert(x == 12, \"number mismatch\");
+	assert(x == 12, "number mismatch");
 	static assert(x == 12);
-	static assert(x == 12, \"number mismatch\");
+	static assert(x == 12, "number mismatch");
 	delete(x[10]);
 	delete(x[10..20]);
 	delete(x[..]);
@@ -73,7 +73,7 @@
 	offset(foo.bar);
 	size(u32);
 };
-");
+`);
 };
 
 @test fn call() void = {
@@ -92,8 +92,8 @@
 };
 
 @test fn constant() void = {
-	roundtrip("export fn main() void = {
-	2 + (-4 + void) * true / (\"hello\" << '?');
+	roundtrip(`export fn main() void = {
+	2 + (-4 + void) * true / ("hello" << '?');
 	[1, 2, 3, 4];
 	[1, 2, 3, 4...];
 	(1, 2, 3);
@@ -147,7 +147,7 @@
 	1337i64;
 	1337u64;
 };
-");
+`);
 };
 
 @test fn control() void = {

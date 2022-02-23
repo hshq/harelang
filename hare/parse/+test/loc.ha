@@ -38,8 +38,8 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	expr_testloc("foo", "foo[bar]", "foo.bar", "foo.1");
 	expr_testloc("alloc(foo)");
 	expr_testloc("append(foo, bar)", "append(foo, bar, baz)");
-	expr_testloc("assert(foo)", "assert(foo, \"bar\")", "abort()",
-		"abort(\"foo\")");
+	expr_testloc("assert(foo)", `assert(foo, "bar")`, "abort()",
+		`abort("foo")`);
 	expr_testloc("foo = bar");
 	expr_testloc("foo * bar");
 	expr_testloc("let foo: bar = baz", "let foo: bar = baz, quux = quuux",
@@ -50,7 +50,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	expr_testloc("[foo, bar]", "[foo, bar...]");
 	expr_testloc("foo { bar = baz, ... }", "struct { foo: bar = baz, }");
 	expr_testloc("(foo, bar)");
-	expr_testloc("null", "void", "true", "\"שלום\"");
+	expr_testloc("null", "void", "true", `"שלום"`);
 	expr_testloc("continue :foo");
 	expr_testloc("defer foo");
 	expr_testloc("delete(foo[bar])", "delete(foo[bar..baz])");
