@@ -32,7 +32,7 @@ export fn stoi64b(s: str, base: uint) (i64 | invalid | overflow) = {
 };
 
 // Converts a string to an i32 in the given base. If the string contains any
-// non-numeric characters, except '-' or '+'  at the start, or if it's empty,
+// non-numeric characters, except '-' or '+' at the start, or if it's empty,
 // [[strconv::invalid]] is returned. If the number is too large to be represented
 // by an i32, [[strconv::overflow]] is returned.
 export fn stoi32b(s: str, base: uint) (i32 | invalid | overflow) = {
