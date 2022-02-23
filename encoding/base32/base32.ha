@@ -52,12 +52,12 @@ export type decoder = struct {
 	state: (void | io::EOF | io::error),
 };
 
-// Creates a stream that decodes base-32 input from a secondary stream. This
-// stream does not need to be closed, and closing it will not close the
+// Creates a stream that reads and decodes base-32 data from a secondary stream.
+// This stream does not need to be closed, and closing it will not close the
 // underlying stream.
 export fn new_decoder(
-	in: io::handle,
 	enc: *encoding,
+	in: io::handle,
 ) decoder = {
 	return decoder {
 		reader = &decode_reader,
@@ -167,6 +167,30 @@ fn decode_reader(
 	return n + rem;
 };
 
+// Decodes a byte slice of ASCII-encoded base-32 data, using the given encoding,
+// returning a slice of decoded bytes. The caller must free the return value.
+export fn decodeslice(
+	enc: *encoding,
+	in: []u8,
+) ([]u8 | errors::invalid) = {
+	let in = bufio::fixed(in, io::mode::READ);
+	let decoder = new_decoder(enc, &in);
+	let out = bufio::dynamic(io::mode::WRITE);
+	match (io::copy(&out, &decoder)) {
+	case io::error =>
+		io::close(&out);
+		return errors::invalid;
+	case size =>
+		return bufio::buffer(&out);
+	};
+};
+
+// Decodes a string of ASCII-encoded base-32 data, using the given encoding,
+// returning a slice of decoded bytes. The caller must free the return value.
+export fn decodestr(enc: *encoding, in: str) ([]u8 | errors::invalid) = {
+	return decodeslice(enc, strings::toutf8(in));
+};
+
 @test fn decode() void = {
 	const cases: [_](str, str, *encoding) = [
 		("", "", &std_encoding),
@@ -186,7 +210,7 @@ fn decode_reader(
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
 		let in = bufio::fixed(strings::toutf8(cases[i].0), io::mode::READ);
-		let dec = new_decoder(&in, cases[i].2);
+		let dec = new_decoder(cases[i].2, &in);
 		let buf: [1]u8 = [0];
 		let out: []u8 = [];
 		defer free(out);
@@ -199,11 +223,16 @@ fn decode_reader(
 			break;
 		};
 		assert(bytes::equal(out, strings::toutf8(cases[i].1)));
+
+		// Testing decodestr should cover decodeslice too
+		let decb = decodestr(cases[i].2, cases[i].0) as []u8;
+		defer free(decb);
+		assert(bytes::equal(decb, strings::toutf8(cases[i].1)));
 	};
 	// Repeat of the above, but with a larger buffer
 	for (let i = 0z; i < len(cases); i += 1) {
 		let in = bufio::fixed(strings::toutf8(cases[i].0), io::mode::READ);
-		let dec = new_decoder(&in, cases[i].2);
+		let dec = new_decoder(cases[i].2, &in);
 		let buf: [1024]u8 = [0...];
 		let out: []u8 = [];
 		defer free(out);
@@ -238,7 +267,7 @@ fn decode_reader(
 	];
 	for (let i = 0z; i < len(invalid); i += 1) {
 		let in = bufio::fixed(strings::toutf8(invalid[i].0), io::mode::READ);
-		let dec = new_decoder(&in, invalid[i].1);
+		let dec = new_decoder(invalid[i].1, &in);
 		let buf: [1]u8 = [0...];
 		let valid = false;
 		for (true) match(io::read(&dec, buf)) {
@@ -250,6 +279,9 @@ fn decode_reader(
 			break;
 		};
 		assert(valid == false, "valid is not false");
+
+		// Testing decodestr should cover decodeslice too
+		assert(decodestr(invalid[i].1, invalid[i].0) is errors::invalid);
 	};
 };
 
@@ -262,13 +294,12 @@ export type encoder = struct {
 	err: (void | io::error),
 };
 
-// Creates a stream that encodes data into base-32 and writes to a secondary
-// stream. This stream needs to be closed to flush out unwritten bytes, as
-// base-32 encoding operates in 5-byte blocks. Closing this stream will not
-// close the underlying stream.
+// Creates a stream that encodes writes as base-32 before writing them to a
+// secondary stream. The encoder stream must be closed to finalize any unwritten
+// bytes. Closing this stream will not close the underlying stream.
 export fn new_encoder(
-	out: io::handle,
 	enc: *encoding,
+	out: io::handle,
 ) encoder = {
 	return encoder {
 		writer = &encode_writer,
@@ -371,6 +402,22 @@ fn encode_closer(s: *io::stream) void = {
 	io::write(s.out, encb)!; // TODO https://todo.sr.ht/~sircmpwn/hare/568
 };
 
+// Encodes a byte slice in base-32, using the given encoding, returning a slice
+// of ASCII bytes. The caller must free the return value.
+export fn encodeslice(enc: *encoding, in: []u8) []u8 = {
+	let out = bufio::dynamic(io::mode::WRITE);
+	let encoder = new_encoder(enc, &out);
+	io::write(&encoder, in)!;
+	io::close(&encoder);
+	return bufio::buffer(&out);
+};
+
+// Encodes a byte slice in base-32, using the given encoding, returning a
+// string. The caller must free the return value.
+export fn encodestr(enc: *encoding, in: []u8) str = {
+	return strings::fromutf8(encodeslice(enc, in));
+};
+
 @test fn encode() void = {
 	// RFC 4648 test vectors
 	const in: [_]u8 = ['f', 'o', 'o', 'b', 'a', 'r'];
@@ -394,19 +441,26 @@ fn encode_closer(s: *io::stream) void = {
 	];
 	for (let i = 0z; i <= len(in); i += 1) {
 		let out = bufio::dynamic(io::mode::RDWR);
-		let enc = new_encoder(&out, &std_encoding);
+		let enc = new_encoder(&std_encoding, &out);
 		io::write(&enc, in[..i]) as size;
 		io::close(&enc);
 		let outb = bufio::buffer(&out);
 		assert(bytes::equal(outb, strings::toutf8(expect[i])));
 		free(outb);
+		// Testing encodestr should cover encodeslice too
+		let s = encodestr(&std_encoding, in[..i]);
+		defer free(s);
+		assert(s == expect[i]);
 
 		out = bufio::dynamic(io::mode::RDWR);
-		enc = new_encoder(&out, &hex_encoding);
+		enc = new_encoder(&hex_encoding, &out);
 		io::write(&enc, in[..i]) as size;
 		io::close(&enc);
-		outb = bufio::buffer(&out);
+		let outb = bufio::buffer(&out);
 		assert(bytes::equal(outb, strings::toutf8(expect_hex[i])));
 		free(outb);
+		let s = encodestr(&hex_encoding, in[..i]);
+		defer free(s);
+		assert(s == expect_hex[i]);
 	};
 };
