@@ -16,8 +16,10 @@ with it and send feedback (we're in #hare on irc.libera.chat), but please keep
 it to yourself. We don't want to announce this project until it's much, much
 more mature.
 
-Ask in the IRC channel to get access to the private bug tracker and mailing
-lists.
+[Email Drew DeVault][email] to request access to the private bug tracker,
+mailing lists, and IRC channel.
+
+[email]: mailto:sir@cmpwn.com
 
 ## Build status
 
