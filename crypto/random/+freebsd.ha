@@ -8,7 +8,7 @@ use io;
 // Fills the given buffer with cryptographically random data. If the system is
 // unable to provide random data, abort. If you need to handle errors or want to
 // use whatever random data the system can provide, even if less than the
-// requested amont, use [[stream]] instead.
+// requested amount, use [[stream]] instead.
 export fn buffer(buf: []u8) void = {
 	let n = 0z;
 	for (n < len(buf)) {
