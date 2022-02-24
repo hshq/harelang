@@ -365,16 +365,8 @@ fn scan_file(
 		let lexer = lex::init(&tee, path);
 		let imports = parse::imports(&lexer)?;
 		for (let i = 0z; i < len(imports); i += 1) {
-			let ident = match (imports[i]) {
-			case let m: ast::import_module =>
-				yield m: ast::ident;
-			case let a: ast::import_alias =>
-				yield a.ident;
-			case let o: ast::import_objects =>
-				yield o.ident;
-			};
-			if (!have_ident(deps, ident)) {
-				append(deps, ident);
+			if (!have_ident(deps, imports[i].ident)) {
+				append(deps, imports[i].ident);
 			};
 		};
 		// Finish spooling out the file for the SHA

@@ -5,12 +5,21 @@ use hare::ast;
 use hare::lex;
 use hare::lex::{ltok};
 
-fn name_list(lexer: *lex::lexer) ([]str | error) = {
-	let names: []str = [];
-	for (true) {
-		append(names, want(lexer, ltok::NAME)?.1 as str);
+use fmt;
 
-		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
+fn name_list(lexer: *lex::lexer) ([]((str | void), str) | error) = {
+	let names: []((str | void), str) = [];
+	for (true) {
+		append(names, (void, want(lexer, ltok::NAME)?.1 as str));
+		match (try(lexer, ltok::EQUAL)?) {
+		case void => void;
+		case =>
+			let name = &names[len(names) - 1];
+			name.0 = name.1;
+			name.1 = want(lexer, ltok::NAME)?.1 as str;
+		};
+
+		switch (want(lexer, ltok::EQUAL, ltok::COMMA, ltok::RBRACE)?.0) {
 		case ltok::COMMA =>
 			match (try(lexer, ltok::RBRACE)?) {
 			case void => void;
@@ -34,33 +43,41 @@ export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 		case => void;
 		};
 
-		let name = ident_trailing(lexer)?;
-		switch (want(lexer, ltok::SEMICOLON, ltok::LBRACE,
-			ltok::EQUAL)?.0) {
-		case ltok::SEMICOLON =>
-			synassert(lex::mkloc(lexer), !name.1,
-				"Unexpected trailing :: in ident")?;
-			append(imports, name.0: ast::import_module);
-		case ltok::LBRACE =>
-			synassert(lex::mkloc(lexer), name.1,
-				"Expected trailing :: in ident")?;
-			let objects = name_list(lexer)?;
-			append(imports, ast::import_objects {
-				ident = name.0,
-				objects = objects,
-			});
-			want(lexer, ltok::SEMICOLON)?;
-		case ltok::EQUAL =>
-			synassert(lex::mkloc(lexer),
-				len(name.0) == 1 && !name.1,
-				"Expected name, not ident")?;
-			let ident = ident(lexer)?;
-			append(imports, ast::import_alias {
-				ident = ident,
-				alias = name.0[0],
-			});
-			want(lexer, ltok::SEMICOLON)?;
-		case => abort(); // Unreachable
+		append(imports, ast::import { ... });
+		let import = &imports[len(imports) - 1];
+		for (true) {
+			let name = ident_trailing(lexer)?;
+			import.ident = name.0;
+			switch (want(lexer, ltok::SEMICOLON, ltok::LBRACE,
+				ltok::EQUAL, ltok::TIMES)?.0) {
+			case ltok::SEMICOLON =>
+				synassert(lex::mkloc(lexer), !name.1,
+					"Unexpected trailing :: in ident")?;
+				break;
+			case ltok::LBRACE =>
+				synassert(lex::mkloc(lexer), name.1,
+					"Expected trailing :: in ident")?;
+				import.mode |= ast::import_mode::MEMBERS;
+				import.objects = name_list(lexer)?;
+				want(lexer, ltok::SEMICOLON)?;
+				break;
+			case ltok::EQUAL =>
+				synassert(lex::mkloc(lexer),
+					len(name.0) == 1 && !name.1,
+					"Expected name, not ident")?;
+				import.alias = name.0[0];
+				import.mode |= ast::import_mode::ALIAS;
+			case ltok::TIMES =>
+				synassert(lex::mkloc(lexer), name.1,
+					"Expected trailing :: in ident")?;
+				synassert(lex::mkloc(lexer),
+					import.mode & ast::import_mode::ALIAS == 0,
+					"Unexpected * after aliased import")?;
+				import.mode |= ast::import_mode::WILDCARD;
+				want(lexer, ltok::SEMICOLON)?;
+				break;
+			case => abort(); // Unreachable
+			};
 		};
 	};
 	return imports;

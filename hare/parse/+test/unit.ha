@@ -12,118 +12,111 @@ use io::{mode};
 use io;
 use strings;
 
+fn import_eq(i1: ast::import, i2: ast::import) bool = {
+	if (i1.mode != i2.mode) {
+		return false;
+	};
+	if (!ast::ident_eq(i1.ident, i2.ident)) {
+		return false;
+	};
+	let mode = i1.mode;
+	if (mode & ast::import_mode::ALIAS != 0 && i1.alias != i2.alias) {
+		return false;
+	};
+	if (mode & ast::import_mode::MEMBERS != 0) {
+		for (let i = 0z; i < len(i1.objects); i += 1) {
+			let o1 = i1.objects[i], o2 = i2.objects[i];
+			if (o1.0 is void ^^ o2.0 is void) {
+				return false;
+			};
+			if (o1.0 is str && o1.0: str != o2.0: str) {
+				return false;
+			};
+			if (o1.1 != o2.1) {
+				return false;
+			};
+		};
+	};
+	return true;
+};
+
+type import_tuple = (ast::import_mode, ast::ident, str, []((str | void), str));
+
+fn tup_to_import(tup: import_tuple) ast::import = ast::import {
+	mode = tup.0,
+	ident = tup.1,
+	alias = tup.2,
+	objects = tup.3,
+	...
+};
+
 @test fn imports() void = {
-	{
-		const in = "use foo;";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		let lexer = lex::init(&buf, "<test>");
-		let mods = imports(&lexer) as []ast::import;
-		defer for (let i = 0z; i < len(mods); i += 1) {
-			ast::import_free(mods[i]);
-		};
+	const in =
+		"use foo;\n"
+		"use bar;\n"
+		"use baz::bat;\n\n"
 
-		assert(len(mods) == 1);
-		assert(mods[0] is ast::import_module);
+		"use foo = bar;\n"
+		"use baz = bat;\n"
+		"use qux = quux::corge;\n"
 
-		let mod = mods[0] as ast::import_module;
-		assert(len(mod) == 1 && mod[0] == "foo");
-		let tok = lex::lex(&lexer) as lex::token;
-		assert(tok.0 == lex::ltok::EOF);
+		"use foo::*;"
+		"use foo::bar::quux::*;"
+
+		"use foo::{bar};\n"
+		"use foo::{bar,};\n"
+		"use baz::{bat, qux};\n"
+		"use quux::corge::{grault, garply,};\n"
+
+		"use quux::{alias = grault};\n"
+		"use quux::{alias = grault,};\n"
+		"use quux::{alias = grault, garply};\n"
+		"use quux::{alias = grault, alias2 = garply};\n"
+
+		"use alias = quux::corge::{grault, garply,};\n"
+		"use modalias = quux::{alias = grault, alias2 = garply};\n"
+
+		"export fn main() void = void;";
+	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+	let lexer = lex::init(&buf, "<test>");
+	let mods = imports(&lexer)!;
+	defer for (let i = 0z; i < len(mods); i += 1) {
+		ast::import_free(mods[i]);
 	};
 
-	{
-		const in =
-			"use foo;\n"
-			"use bar;\n"
-			"use baz::bat;\n\n"
-			"export fn main() void = void;";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		let lexer = lex::init(&buf, "<test>");
-		let mods = imports(&lexer) as []ast::import;
-		defer for (let i = 0z; i < len(mods); i += 1) {
-			ast::import_free(mods[i]);
-		};
+	let expected: [_]import_tuple = [
+		(ast::import_mode::IDENT, ["foo"], "", []),
+		(ast::import_mode::IDENT, ["bar"], "", []),
+		(ast::import_mode::IDENT, ["baz", "bat"], "", []),
+		(ast::import_mode::ALIAS, ["bar"], "foo", []),
+		(ast::import_mode::ALIAS, ["bat"], "baz", []),
+		(ast::import_mode::ALIAS, ["quux", "corge"], "qux", []),
+		(ast::import_mode::WILDCARD, ["foo"], "", []),
+		(ast::import_mode::WILDCARD, ["foo", "bar", "quux"], "", []),
+		(ast::import_mode::MEMBERS, ["foo"], "", [(void, "bar")]),
+		(ast::import_mode::MEMBERS, ["foo"], "", [(void, "bar")]),
+		(ast::import_mode::MEMBERS, ["baz"], "", [(void, "bat"), (void, "qux")]),
+		(ast::import_mode::MEMBERS,
+			["quux", "corge"], "", [(void, "grault"), (void, "garply")]),
+		(ast::import_mode::MEMBERS, ["quux"], "", [("alias", "grault")]),
+		(ast::import_mode::MEMBERS, ["quux"], "", [("alias", "grault")]),
+		(ast::import_mode::MEMBERS,
+			["quux"], "", [("alias", "grault"), (void, "garply")]),
+		(ast::import_mode::MEMBERS,
+			["quux"], "", [("alias", "grault"), ("alias2", "garply")]),
+		(ast::import_mode::MEMBERS | ast::import_mode::ALIAS,
+			["quux", "corge"], "alias", [(void, "grault"), (void, "garply")]),
+		(ast::import_mode::MEMBERS | ast::import_mode::ALIAS,
+			["quux"], "modalias", [("alias", "grault"), ("alias2", "garply")]),
+	];
 
-		assert(len(mods) == 3);
-		let expected: [_][]str = [["foo"], ["bar"], ["baz", "bat"]];
-
-		for (let i = 0z; i < len(mods); i += 1) {
-			assert(mods[i] is ast::import_module);
-			let mod = mods[i] as ast::import_module;
-			assert(len(mod) == len(expected[i]));
-			for (let j = 0z; j < len(expected[i]); j += 1z) {
-				assert(mod[j] == expected[i][j]);
-			};
-		};
-
-		let tok = lex::lex(&lexer) as lex::token;
-		assert(tok.0 == lex::ltok::EXPORT);
+	assert(len(mods) == len(expected));
+	for (let i = 0z; i < len(mods); i += 1) {
+		assert(import_eq(mods[i], tup_to_import(expected[i])));
 	};
 
-	{
-		const in =
-			"use foo = bar;\n"
-			"use baz = bat;\n"
-			"use qux = quux::corge;\n"
-			"export fn main() void = void;";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		let lexer = lex::init(&buf, "<test>");
-		let mods = imports(&lexer) as []ast::import;
-		defer for (let i = 0z; i < len(mods); i += 1) {
-			ast::import_free(mods[i]);
-		};
-
-		assert(len(mods) == 3);
-		let expected: [_](str, []str) = [
-			("foo", ["bar"]),
-			("baz", ["bat"]),
-			("qux", ["quux", "corge"])
-		];
-
-		for (let i = 0z; i < len(mods); i += 1) {
-			assert(mods[i] is ast::import_alias);
-			let mod = mods[i] as ast::import_alias;
-			assert(mod.alias == expected[i].0);
-			assert(len(mod.ident) == len(expected[i].1));
-			for (let j = 0z; j < len(expected[i].1); j += 1z) {
-				assert(mod.ident[j] == expected[i].1[j]);
-			};
-		};
-	};
-
-	{
-		const in =
-			"use foo::{bar};\n"
-			"use baz::{bat, qux};\n"
-			"use quux::corge::{grault, garply,};\n"
-			"export fn main() void = void;";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-		let lexer = lex::init(&buf, "<test>");
-		let mods = imports(&lexer) as []ast::import;
-		defer for (let i = 0z; i < len(mods); i += 1) {
-			ast::import_free(mods[i]);
-		};
-
-		assert(len(mods) == 3);
-		let expected: [_]([]str, []str) = [
-			(["foo"], ["bar"]),
-			(["baz"], ["bat", "qux"]),
-			(["quux", "corge"], ["grault", "garply"])
-		];
-
-		for (let i = 0z; i < len(mods); i += 1) {
-			assert(mods[i] is ast::import_objects);
-			let mod = mods[i] as ast::import_objects;
-			assert(len(mod.objects) == len(expected[i].1));
-			for (let j = 0z; j < len(expected[i].0); j += 1z) {
-				assert(mod.objects[j] == expected[i].1[j]);
-			};
-			assert(len(mod.ident) == len(expected[i].0));
-			for (let j = 0z; j < len(expected[i].0); j += 1z) {
-				assert(mod.ident[j] == expected[i].0[j]);
-			};
-		};
-	};
+	let tok = lex::lex(&lexer) as lex::token;
+	assert(tok.0 == lex::ltok::EXPORT);
 };
 
 @test fn decls() void = {
