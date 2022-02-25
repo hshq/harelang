@@ -406,3 +406,11 @@ export def CLOCK_MONOTONIC_FAST: int = 12;
 export def CLOCK_SECOND: int = 13;
 export def CLOCK_THREAD_CPUTIME_ID: int = 14;
 export def CLOCK_PROCESS_CPUTIME_ID: int = 15;
+
+export def WNOHANG: int = 1;
+export def WUNTRACED: int = 2;
+export def WSTOPPED: int = WUNTRACED;
+export def WCONTINUED: int = 4;
+export def WNOWAIT: int = 8;
+export def WEXITED: int = 16;
+export def WTRAPPED: int = 32;
