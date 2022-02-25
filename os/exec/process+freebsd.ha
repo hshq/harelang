@@ -111,7 +111,7 @@ export fn waitall() (uint | error | !(process, exit_status)) = {
 export fn peek(proc: *process) (status | void | error) = {
 	let ru: rt::rusage = rt::rusage { ... };
 	let st: status = status { ... };
-	match (rt::wait4(*proc, &st.status, 0, &ru)) {
+	match (rt::wait4(*proc, &st.status, rt::WNOHANG, &ru)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let pid: int =>
@@ -124,6 +124,24 @@ export fn peek(proc: *process) (status | void | error) = {
 	};
 	rusage(&st, &ru);
 	return st;
+};
+
+// Waits for the first child process to complete, then returns its process info
+// and status
+export fn peekany() ((process, status) | void | error) = {
+	let ru: rt::rusage = rt::rusage { ... };
+	let st: status = status { ... };
+	match (rt::wait4(-1, &st.status, rt::WNOHANG, &ru)) {
+	case let err: rt::errno =>
+		return errors::errno(err);
+	case let pid: int =>
+		switch (pid) {
+		case 0 =>
+			return;
+		case =>
+			return (pid, st);
+		};
+	};
 };
 
 // The exit status code of a process.
