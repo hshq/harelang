@@ -27,9 +27,9 @@ export fn dup(s: const str) str = {
 // Creates a copy of a []str slice with all the strings duplicated. The result
 // must be freed using [[freeall]].
 export fn dupall(s: []str) []str = {
-	let newsl = alloc([""...], len(s));
+	let newsl: []str = alloc([], len(s));
 	for (let i = 0z; i < len(s); i += 1) {
-		newsl[i] = dup(s[i]);
+		append(newsl, dup(s[i]));
 	};
 	return newsl;
 };
@@ -50,4 +50,24 @@ export fn freeall(s: []str) void = {
 	s = dup("hello");
 	assert(s == "hello");
 	free(s);
+};
+
+@test fn dupall() void = {
+	const payload: []str = [];
+
+	let s = dupall(payload);
+	assert(len(s) == len(payload));
+	for (let i = 0z; i < len(s); i += 1) {
+		assert(s[i] == payload[i]);
+	};
+	freeall(s);
+
+	const payload: []str = ["a", "aaa"];
+
+	let s = dupall(payload);
+	assert(len(s) == len(payload));
+	for (let i = 0z; i < len(s); i += 1) {
+		assert(s[i] == payload[i]);
+	};
+	freeall(s);
 };
