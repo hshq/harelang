@@ -139,12 +139,6 @@ fn plan_finish(plan: *plan) void = {
 	for (let i = 0z; i < len(plan.modmap); i += 1) {
 		free(plan.modmap[i]);
 	};
-
-	match (plan.progress.tty) {
-	case let f: io::file =>
-		io::close(f);
-	case => void;
-	};
 };
 
 fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
