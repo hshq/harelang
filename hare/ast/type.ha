@@ -20,6 +20,7 @@ export type builtin_type = enum {
 export type enum_field = struct {
 	name: str,
 	value: nullable *expr,
+	loc: lex::location,
 };
 
 // enum { FOO = 0, BAR, ... }

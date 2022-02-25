@@ -280,10 +280,12 @@ fn type_test(t: ast::_type, expected: str) bool = {
 			ast::enum_field {
 				name = "FOO",
 				value = null,
+				loc = loc,
 			},
 			ast::enum_field {
 				name = "BAR",
 				value = &expr_void,
+				loc = loc,
 			},
 		],
 	};

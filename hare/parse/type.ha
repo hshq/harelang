@@ -391,6 +391,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 			break;
 		};
 
+		const loc = lex::mkloc(lexer);
 		let name = want(lexer, ltok::NAME)?;
 		let value: nullable *ast::expr =
 			if (try(lexer, ltok::EQUAL) is lex::token)
@@ -400,6 +401,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 		append(membs, ast::enum_field {
 			name = name.1 as str,
 			value = value,
+			loc = loc,
 		});
 
 		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
