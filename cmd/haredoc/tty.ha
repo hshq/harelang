@@ -258,19 +258,17 @@ fn type_tty(
 		n += fmt::fprint(out, "\x1b[36m" "const " "\x1b[0m")?;
 	};
 	if (t.flags & ast::type_flags::ERROR != 0) {
-		if (t.repr is ast::builtin_type) {
-			n += fmt::fprint(out, "\x1b[36m" "!" "\x1b[0m")?;
-		} else {
-			n += fmt::fprint(out, "!")?;
-		};
+		n += fmt::fprint(out, "!")?;
 	};
 
 	match (t.repr) {
 	case let a: ast::alias_type =>
+		n += fmt::fprint(out, "\x1b[36m")?;
 		if (a.unwrap) {
 			n += fmt::fprint(out, "...")?;
 		};
 		n += unparse::ident(out, a.ident)?;
+		n += fmt::fprint(out, "\x1b[0m")?;
 	case let b: ast::builtin_type =>
 		n += fmt::fprintf(out, "\x1b[36m" "{}" "\x1b[0m",
 			builtin_type(b))?;
