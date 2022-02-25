@@ -6,7 +6,7 @@ haredoc - reads and formats Hare documentation
 
 # SYNOPSIS
 
-*haredoc* [-t] [-F _format_] [_identifiers_...]
+*haredoc* [-at] [-F _format_] [_identifiers_...]
 
 # DESCRIPTION
 
@@ -17,6 +17,9 @@ and optionally prepares it for viewing in various output formats. By default,
 See *DOCUMENTATION FORMAT* for details on the format.
 
 # OPTIONS
+
+*-a*
+	Show undocumented members (only applies to -Fhare and -Ftty).
 
 *-F* _format_
 	Select output format (one of "html", "gemtext", "hare", or "tty").
