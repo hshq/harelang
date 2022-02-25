@@ -36,7 +36,8 @@ export fn concat(strs: str...) str = {
 	free(s);
 };
 
-// Joins several strings together by placing a delimiter between them.
+// Joins several strings together by placing a delimiter between them. The
+// caller must free the return value.
 export fn join(delim: str, strs: str...) str = {
 	let z = 0z;
 	for (let i = 0z; i < len(strs); i += 1) {
