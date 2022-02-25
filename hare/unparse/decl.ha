@@ -160,8 +160,9 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 	};
 
 	let d = ast::decl {
-		loc = loc,
 		exported = false,
+		start = loc,
+		end = loc,
 		decl = [
 			ast::decl_global {
 				is_const = false,

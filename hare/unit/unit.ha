@@ -24,7 +24,8 @@ export type decl_func = struct {
 // A declaration within a unit.
 export type decl = struct {
 	exported: bool,
-	loc: lex::location,
+	start: lex::location,
+	end: lex::location,
 	decl: (decl_func | void), // TODO: Other decl types
 };
 

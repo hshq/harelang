@@ -181,6 +181,7 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 	let decls: []ast::decl = [];
 	for (true) {
 		if (peek(lexer, ltok::EOF)? is lex::token) break;
+		const start = lex::mkloc(lexer);
 		let comment = "";
 		let exported = match (try(lexer, ltok::EXPORT)?) {
 		case void =>
@@ -210,7 +211,8 @@ export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 		};
 		append(decls, ast::decl {
 			exported = exported,
-			loc = lex::mkloc(lexer),
+			start = start,
+			end = lex::mkloc(lexer),
 			decl = decl,
 			docs = comment,
 		});

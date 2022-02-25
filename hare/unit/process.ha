@@ -70,7 +70,8 @@ fn process_func(
 
 	return decl {
 		exported = adecl.exported,
-		loc = adecl.loc,
+		start = adecl.start,
+		end = adecl.end,
 		decl = decl_func {
 			symbol = afndecl.symbol,
 			// TODO: Add namespace to ident

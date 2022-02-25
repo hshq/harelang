@@ -37,7 +37,8 @@ fn sort_decls(decls: []ast::decl) summary = {
 				};
 				append(bucket, ast::decl {
 					exported = true,
-					loc = decl.loc,
+					start = decl.start,
+					end = decl.end,
 					decl = {
 						// XXX: Kind of bad
 						let new: []ast::decl_type = [];
@@ -51,7 +52,8 @@ fn sort_decls(decls: []ast::decl) summary = {
 			for (let j = 0z; j < len(c); j += 1) {
 				append(sorted.constants, ast::decl {
 					exported = true,
-					loc = decl.loc,
+					start = decl.start,
+					end = decl.end,
 					decl = {
 						// XXX: Kind of bad
 						let new: []ast::decl_const = [];
@@ -65,7 +67,8 @@ fn sort_decls(decls: []ast::decl) summary = {
 			for (let j = 0z; j < len(g); j += 1) {
 				append(sorted.globals, ast::decl {
 					exported = true,
-					loc = decl.loc,
+					start = decl.start,
+					end = decl.end,
 					decl = {
 						// XXX: Kind of bad
 						let new: []ast::decl_global = [];
