@@ -171,21 +171,36 @@ fn alloc_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const start = want(lexer, ltok::ALLOC)?;
 	want(lexer, ltok::LPAREN)?;
 
-	const init = expression(lexer)?;
-	const cap: nullable *ast::expr =
-		if (try(lexer, ltok::COMMA)? is lex::token) {
-			yield alloc(expression(lexer)?);
-		} else null;
-
-	want(lexer, ltok::RPAREN)?;
+	const init = alloc(expression(lexer)?);
+	const expr =
+		switch (want(lexer, ltok::COMMA, ltok::ELLIPSIS, ltok::RPAREN)?.0) {
+		case ltok::COMMA =>
+			const cap = alloc(expression(lexer)?);
+			want(lexer, ltok::RPAREN)?;
+			yield ast::alloc_expr {
+				init = init,
+				form = ast::alloc_form::COPY,
+				capacity = cap,
+			};
+		case ltok::ELLIPSIS =>
+			want(lexer, ltok::RPAREN)?;
+			yield ast::alloc_expr {
+				init = init,
+				form = ast::alloc_form::COPY,
+				capacity = null,
+			};
+		case ltok::RPAREN =>
+			yield ast::alloc_expr {
+				init = init,
+				form = ast::alloc_form::OBJECT,
+				capacity = null,
+			};
+		};
 
 	return ast::expr {
 		start = start.2,
 		end = lex::prevloc(lexer),
-		expr = ast::alloc_expr {
-			init = alloc(init),
-			capacity = cap,
-		},
+		expr = expr,
 	};
 };
 

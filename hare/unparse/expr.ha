@@ -41,7 +41,10 @@ export fn expr(
 		let z = fmt::fprint(out, "alloc(")?;
 		z += expr(out, indent, *e.init)?;
 		match (e.capacity) {
-		case null => void;
+		case null =>
+			if (e.form == ast::alloc_form::COPY) {
+				z += fmt::fprint(out, "...")?;
+			};
 		case let e: *ast::expr =>
 			z += fmt::fprint(out, ", ")?;
 			z += expr(out, indent, *e)?;

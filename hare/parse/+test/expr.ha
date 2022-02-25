@@ -45,6 +45,7 @@
 @test fn builtin() void = {
 	roundtrip(`export fn main() void = {
 	alloc(1234);
+	alloc(1234...);
 	alloc(4321, 1234);
 	append(x, 10);
 	append(x, 10...);

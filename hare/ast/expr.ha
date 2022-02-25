@@ -37,11 +37,23 @@ export type access_tuple = struct {
 export type access_expr =
 	(access_identifier | access_index | access_field | access_tuple);
 
+// The form of an allocation expression.
+//
+// 	alloc(foo)    // OBJECT
+// 	alloc(foo...) // COPY
+export type alloc_form = enum {
+	OBJECT,
+	COPY,
+};
+
 // An allocation expression.
 //
 // 	alloc(foo)
+// 	alloc(foo...)
+// 	alloc(foo, bar)
 export type alloc_expr = struct {
 	init: *expr,
+	form: alloc_form,
 	capacity: nullable *expr,
 };
 
