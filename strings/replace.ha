@@ -4,8 +4,8 @@
 
 use bytes;
 
-// Replaces all instances of 'needle' with 'target' in 's'.
-// The caller must free the return value.
+// Returns a new string duplicated from 's', but with all instances of 'needle'
+// replaced with 'target'. The caller must free the return value.
 export fn replace(s: str, needle: str, target: str) str = {
 	let res = toutf8(dup(s));
 	let needle = toutf8(needle);
