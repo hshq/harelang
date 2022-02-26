@@ -30,6 +30,6 @@ export fn replace(s: str, needle: str, target: str) str = {
 	assert(replace("I like dogs, dogs, birds, dogs", "dogs", "cats") ==
 		"I like cats, cats, birds, cats");
 	assert(replace("aaaaaa", "aa", "a") == "aaa");
-	assert(replace("aaaaaa", "a", "aa") == "aaaaaa");
+	assert(replace("aaa", "a", "aa") == "aaaaaa");
 	assert(replace("こんにちは", "にち", "ばん") == "こんばんは");
 };
