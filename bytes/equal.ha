@@ -2,6 +2,10 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
 // Returns true if the two byte sequences are identical.
+//
+// This function should NOT be used with sensitive data such as cryptographic
+// hashes. In such a case, the constant-time [[crypto::compare]] should be used
+// instead.
 export fn equal(a: []u8, b: []u8) bool = {
 	if (len(a) != len(b)) {
 		return false;
