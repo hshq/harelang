@@ -14,13 +14,13 @@ export fn replace(s: str, needle: str, target: str) str = {
 	for (true) {
 		match_idx = match(bytes::index(res[match_idx..], needle)) {
 		case let s: size =>
-			yield s - match_idx;
+			yield match_idx + s;
 		case void =>
 			break;
 		};
 		delete(res[match_idx..match_idx + len(needle)]);
 		insert(res[match_idx], target...);
-		match_idx += len(needle);
+		match_idx += len(target);
 	};
 	return fromutf8(res);
 };
