@@ -1067,7 +1067,8 @@ strings() {
 		tokenize.ha \
 		utf8.ha \
 		index.ha \
-		trim.ha
+		trim.ha \
+		strcmp.ha
 	gen_ssa strings bytes encoding::utf8 types
 }
 
