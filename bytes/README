@@ -1,2 +1,2 @@
-The bytes modules provides support functions for working with slices of bytes
+The bytes module provides support functions for working with slices of bytes
 ([]u8).
