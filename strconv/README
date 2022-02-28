@@ -1,0 +1,2 @@
+The strconv module provides functions for parsing strings into numeric datatypes
+and formatting numbers into strings.
