@@ -429,54 +429,6 @@ fn unparse_html(out: io::handle, d: ast::decl) (size | io::error) = {
 };
 
 // Forked from [[hare::unparse]].
-fn builtin_type(b: ast::builtin_type) str = {
-	switch (b) {
-	case ast::builtin_type::FCONST, ast::builtin_type::ICONST =>
-		abort("ICONST and FCONST have no lexical representation");
-	case ast::builtin_type::BOOL =>
-		return "bool";
-	case ast::builtin_type::CHAR =>
-		return "char";
-	case ast::builtin_type::F32 =>
-		return "f32";
-	case ast::builtin_type::F64 =>
-		return "f64";
-	case ast::builtin_type::I16 =>
-		return "i16";
-	case ast::builtin_type::I32 =>
-		return "i32";
-	case ast::builtin_type::I64 =>
-		return "i64";
-	case ast::builtin_type::I8 =>
-		return "i8";
-	case ast::builtin_type::INT =>
-		return "int";
-	case ast::builtin_type::NULL =>
-		return "null";
-	case ast::builtin_type::RUNE =>
-		return "rune";
-	case ast::builtin_type::SIZE =>
-		return "size";
-	case ast::builtin_type::STR =>
-		return "str";
-	case ast::builtin_type::U16 =>
-		return "u16";
-	case ast::builtin_type::U32 =>
-		return "u32";
-	case ast::builtin_type::U64 =>
-		return "u64";
-	case ast::builtin_type::U8 =>
-		return "u8";
-	case ast::builtin_type::UINT =>
-		return "uint";
-	case ast::builtin_type::UINTPTR =>
-		return "uintptr";
-	case ast::builtin_type::VOID =>
-		return "void";
-	};
-};
-
-// Forked from [[hare::unparse]].
 fn newline(out: io::handle, indent: size) (size | io::error) = {
 	let n = 0z;
 	n += fmt::fprint(out, "\n")?;
@@ -496,7 +448,7 @@ fn enum_html(
 	z += fmt::fprint(out, "<span class='type'>enum</span> ")?;
 	if (t.storage != ast::builtin_type::INT) {
 		z += fmt::fprintf(out, "<span class='type'>{}</span> ",
-			builtin_type(t.storage))?;
+			unparse::builtin_type(t.storage))?;
 	};
 	z += fmt::fprint(out, "{")?;
 	for (let i = 0z; i < len(t.values); i += 1) {
@@ -605,7 +557,7 @@ fn type_html(
 		z += unparse::ident(out, a.ident)?;
 	case let t: ast::builtin_type =>
 		z += fmt::fprintf(out, "<span class='type'>{}</span>",
-			builtin_type(t))?;
+			unparse::builtin_type(t))?;
 	case let t: ast::tagged_type =>
 		z += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
