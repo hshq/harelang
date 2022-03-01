@@ -147,6 +147,9 @@
 	1337u32;
 	1337i64;
 	1337u64;
+	"backslashes\\and \"double quotes\"";
+	'\'';
+	'\\';
 };
 `);
 };

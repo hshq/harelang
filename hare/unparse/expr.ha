@@ -9,6 +9,7 @@ use hare::ast;
 use hare::ast::{binarithm_op};
 use hare::lex::{ltok};
 use hare::lex;
+use strings;
 
 // Unparses an [[ast::expr]].
 export fn expr(
@@ -471,11 +472,17 @@ fn constant(
 			yield v;
 		case let b: bool =>
 			return fmt::fprint(out, b);
-		// TODO: Escape these:
 		case let s: str =>
-			return fmt::fprintf(out, "\"{}\"", s);
+			const s = strings::multireplace(s,
+				(`\`, `\\`), (`"`, `\"`));
+			defer free(s);
+			return fmt::fprintf(out, `"{}"`, s);
 		case let r: rune =>
-			return fmt::fprintf(out, "'{}'", r);
+			if (r == '\'' || r == '\\') {
+				return fmt::fprintf(out, `'\{}'`, r);
+			} else {
+				return fmt::fprintf(out, "'{}'", r);
+			};
 		});
 	case let ac: ast::array_constant =>
 		let z = fmt::fprint(out, "[")?;
