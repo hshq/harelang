@@ -7,20 +7,30 @@ use bytes;
 // Returns a new string duplicated from 's', but with all instances of 'needle'
 // replaced with 'target'. The caller must free the return value.
 export fn replace(s: str, needle: str, target: str) str = {
+	return multireplace(s, (needle, target));
+};
+
+// For each tuple given by 'repls', a replacement of 's' is done like in
+// [[replace]], in the order that they are passed as arguments. This function is
+// nearly equivalent to calling [[replace]] multiple times, except only one new
+// string is allocated. The caller must free the return value.
+export fn multireplace(s: str, repls: (str, str)...) str = {
 	let res = toutf8(dup(s));
-	let needle = toutf8(needle);
-	let target = toutf8(target);
-	let match_idx = 0z;
-	for (true) {
-		match_idx = match(bytes::index(res[match_idx..], needle)) {
-		case let s: size =>
-			yield match_idx + s;
-		case void =>
-			break;
+	for (let i = 0z; i < len(repls); i += 1) {
+		let needle = toutf8(repls[i].0);
+		let target = toutf8(repls[i].1);
+		let idx = 0z;
+		for (true) {
+			idx = match(bytes::index(res[idx..], needle)) {
+			case let s: size =>
+				yield s + idx;
+			case void =>
+				break;
+			};
+			delete(res[idx..idx + len(needle)]);
+			insert(res[idx], target...);
+			idx += len(target);
 		};
-		delete(res[match_idx..match_idx + len(needle)]);
-		insert(res[match_idx], target...);
-		match_idx += len(target);
 	};
 	return fromutf8(res);
 };
@@ -32,4 +42,11 @@ export fn replace(s: str, needle: str, target: str) str = {
 	assert(replace("aaaaaa", "aa", "a") == "aaa");
 	assert(replace("aaa", "a", "aa") == "aaaaaa");
 	assert(replace("こんにちは", "にち", "ばん") == "こんばんは");
+};
+
+@test fn multireplace() void = {
+	assert(multireplace("Hello world", ("Hello", "Greetings"),
+		("world", "globe")) == "Greetings globe");
+	assert(multireplace("ababa", ("a", "ba"), ("b", "a"), ("a", "c")) ==
+		"cccccccc");
 };
