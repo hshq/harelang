@@ -328,22 +328,52 @@ fn type_tty(
 	case ast::union_type =>
 		n += struct_union_type_tty(out, indent, t)?;
 	case let t: ast::tagged_type =>
-		n += fmt::fprint(out, "(")?;
+		// rough estimate of current line length
+		let linelen: size = n + (indent + 1) * 8;
+		n = 0;
+		linelen += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
-			n += type_tty(out, indent, *t[i])?;
-			if (i + 1 < len(t)) {
-				n += fmt::fprint(out, " | ")?;
+			linelen += type_tty(out, indent, *t[i])?;
+			if (i + 1 == len(t)) break;
+			linelen += fmt::fprint(out, " |")?;
+			// use 72 instead of 80 to give a bit of leeway for long
+			// type names
+			if (linelen > 72) {
+				n += linelen;
+				linelen = (indent + 1) * 8;
+				n += fmt::fprintln(out)?;
+				for (let i = 0z; i <= indent; i += 1) {
+					n += fmt::fprint(out, "\t")?;
+				};
+			} else {
+				linelen += fmt::fprint(out, " ")?;
 			};
 		};
+		n += linelen;
 		n += fmt::fprint(out, ")")?;
 	case let t: ast::tuple_type =>
-		n += fmt::fprint(out, "(")?;
+		// rough estimate of current line length
+		let linelen: size = n + (indent + 1) * 8;
+		n = 0;
+		linelen += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
-			n += type_tty(out, indent, *t[i])?;
-			if (i + 1 < len(t)) {
-				n += fmt::fprint(out, ", ")?;
+			linelen += type_tty(out, indent, *t[i])?;
+			if (i + 1 == len(t)) break;
+			linelen += fmt::fprint(out, ",")?;
+			// use 72 instead of 80 to give a bit of leeway for long
+			// type names
+			if (linelen > 72) {
+				n += linelen;
+				linelen = (indent + 1) * 8;
+				n += fmt::fprintln(out)?;
+				for (let i = 0z; i <= indent; i += 1) {
+					n += fmt::fprint(out, "\t")?;
+				};
+			} else {
+				linelen += fmt::fprint(out, " ")?;
 			};
 		};
+		n += linelen;
 		n += fmt::fprint(out, ")")?;
 	};
 	return n;

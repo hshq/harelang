@@ -559,22 +559,52 @@ fn type_html(
 		z += fmt::fprintf(out, "<span class='type'>{}</span>",
 			unparse::builtin_type(t))?;
 	case let t: ast::tagged_type =>
-		z += fmt::fprint(out, "(")?;
+		// rough estimate of current line length
+		let linelen: size = z + (indent + 1) * 8;
+		z = 0;
+		linelen += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
-			z += type_html(out, indent, *t[i], brief)?;
-			if (i < len(t) - 1) {
-				z += fmt::fprint(out, " | ")?;
+			linelen += type_html(out, indent, *t[i], brief)?;
+			if (i + 1 == len(t)) break;
+			linelen += fmt::fprint(out, " |")?;
+			// use 72 instead of 80 to give a bit of leeway for long
+			// type names
+			if (linelen > 72) {
+				z += linelen;
+				linelen = (indent + 1) * 8;
+				z += fmt::fprintln(out)?;
+				for (let i = 0z; i < indent; i += 1) {
+					z += fmt::fprint(out, "\t")?;
+				};
+			} else {
+				linelen += fmt::fprint(out, " ")?;
 			};
 		};
+		z += linelen;
 		z += fmt::fprint(out, ")")?;
 	case let t: ast::tuple_type =>
-		z += fmt::fprint(out, "(")?;
+		// rough estimate of current line length
+		let linelen: size = z + (indent + 1) * 8;
+		z = 0;
+		linelen += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
-			z += type_html(out, indent, *t[i], brief)?;
-			if (i < len(t) - 1) {
-				z += fmt::fprint(out, ", ")?;
+			linelen += type_html(out, indent, *t[i], brief)?;
+			if (i + 1 == len(t)) break;
+			linelen += fmt::fprint(out, ",")?;
+			// use 72 instead of 80 to give a bit of leeway for long
+			// type names
+			if (linelen > 72) {
+				z += linelen;
+				linelen = (indent + 1) * 8;
+				z += fmt::fprintln(out)?;
+				for (let i = 0z; i < indent; i += 1) {
+					z += fmt::fprint(out, "\t")?;
+				};
+			} else {
+				linelen += fmt::fprint(out, " ")?;
 			};
 		};
+		z += linelen;
 		z += fmt::fprint(out, ")")?;
 	case let t: ast::pointer_type =>
 		if (t.flags & ast::pointer_flags::NULLABLE != 0) {
