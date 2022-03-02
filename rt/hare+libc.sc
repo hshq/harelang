@@ -10,6 +10,10 @@ SECTIONS {
 		*(.data.*)
 	}
 
+	.rela.plt : {
+		*(.rela.plt)
+	}
+
 	.init_array : {
 		PROVIDE_HIDDEN (__init_array_start = .);
 		KEEP (*(.init_array))
