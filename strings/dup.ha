@@ -14,8 +14,7 @@ export fn dup(s: const str) str = {
 	case let b: *[*]u8 =>
 		yield b;
 	};
-	let buf: []u8 = alloc([0...], in.length + 1);
-	buf[..in.length + 1z] = id[..in.length + 1];
+	let buf: []u8 = alloc(id[..in.length], in.length);
 	let out = types::string {
 		data = buf: *[*]u8,
 		length = in.length,
