@@ -12,7 +12,7 @@ use strings;
 fn parse_expr(src: str) *ast::expr = {
 	const stream = bufio::fixed(strings::toutf8(src), io::mode::READ);
 	const lexer = lex::init(&stream, "<test>");
-	return alloc(parse::expression(&lexer)!);
+	return alloc(parse::expr(&lexer)!);
 };
 
 fn mktestctx() context = context {

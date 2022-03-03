@@ -40,7 +40,7 @@ fn decl_const(
 		want(lexer, ltok::COLON)?;
 		const _type = _type(lexer)?;
 		want(lexer, ltok::EQUAL)?;
-		const init: *ast::expr = alloc(expression(lexer)?);
+		const init: *ast::expr = alloc(expr(lexer)?);
 		append(decl, ast::decl_const {
 			ident = ident,
 			_type = _type,
@@ -73,7 +73,7 @@ fn decl_global(
 		const init: nullable *ast::expr =
 			match (try(lexer, ltok::EQUAL)?) {
 			case lex::token =>
-				yield alloc(expression(lexer)?);
+				yield alloc(expr(lexer)?);
 			case void =>
 				yield null;
 			};
@@ -157,7 +157,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 				len(params[i].name) > 0,
 				"Expected parameter name in function declaration")?;
 		};
-		yield expression(lexer)?;
+		yield expr(lexer)?;
 	case ltok::SEMICOLON =>
 		yield lex::unlex(lexer, tok);
 	};

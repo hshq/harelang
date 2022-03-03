@@ -251,7 +251,7 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 			yield null;
 		case lex::token =>
 			want(lexer, ltok::LPAREN)?;
-			let ex = expression(lexer)?;
+			let ex = expr(lexer)?;
 			want(lexer, ltok::RPAREN)?;
 			yield alloc(ex);
 		};
@@ -342,7 +342,7 @@ fn array_slice_type(lexer: *lex::lexer) (ast::_type | error) = {
 	let length = match (try(lexer, ltok::UNDERSCORE,
 		ltok::TIMES, ltok::RBRACKET)?) {
 	case void =>
-		yield alloc(expression(lexer)?);
+		yield alloc(expr(lexer)?);
 	case let tok: lex::token =>
 		yield switch (tok.0) {
 		case ltok::UNDERSCORE =>
@@ -395,7 +395,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 		let name = want(lexer, ltok::NAME)?;
 		let value: nullable *ast::expr =
 			if (try(lexer, ltok::EQUAL) is lex::token)
-				alloc(expression(lexer)?)
+				alloc(expr(lexer)?)
 			else null;
 
 		append(membs, ast::enum_field {
