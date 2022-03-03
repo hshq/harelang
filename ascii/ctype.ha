@@ -68,7 +68,8 @@ export fn isalnum(c: rune) bool =
 export fn isprint(c: rune) bool =
 	if (!isascii(c)) false else cclass[c: u32]&(P|U|L|N|B) > 0;
 
-// Returns true if an ASCII character is any printable character other than space.
+// Returns true if an ASCII character is any printable character other than
+// space.
 export fn isgraph(c: rune) bool =
 	if (!isascii(c)) false else cclass[c: u32]&(P|U|L|N) > 0;
 
