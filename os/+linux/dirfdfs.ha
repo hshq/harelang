@@ -78,7 +78,6 @@ fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 			iter = &fs_iter,
 			stat = &fs_stat,
 			readlink = &fs_readlink,
-			subdir = &fs_subdir,
 			mkdir = &fs_mkdir,
 			rmdir = &fs_rmdir,
 			chmod = &fs_chmod,
@@ -313,24 +312,6 @@ fn fs_readlink(fs: *fs::fs, path: str) (str | fs::error) = {
 		yield z;
 	};
 	return strings::fromutf8(buf[..z]);
-};
-
-fn fs_subdir(fs: *fs::fs, path: str) (*fs::fs | fs::error) = {
-	let fs = fs: *os_filesystem;
-	let oh = rt::open_how {
-		flags = (rt::O_RDONLY | rt::O_CLOEXEC | rt::O_DIRECTORY): u64,
-		...
-	};
-
-	let fd: int = match (rt::openat2(fs.dirfd, path,
-			&oh, size(rt::open_how))) {
-	case let err: rt::errno =>
-		return errno_to_fs(err);
-	case let fd: int =>
-		yield fd;
-	};
-
-	return dirfdopen(fd);
 };
 
 fn fs_rmdir(fs: *fs::fs, path: str) (void | fs::error) = {

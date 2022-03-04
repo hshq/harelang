@@ -176,18 +176,6 @@ export fn readlink(fs: *fs, path: str) (str | error) = {
 	};
 };
 
-// Opens a new filesystem for a subdirectory. The subdirectory must be closed
-// separately from the parent filesystem, and its lifetime can outlive that of
-// its parent.
-export fn subdir(fs: *fs, path: str) (*fs | error) = {
-	match (fs.subdir) {
-	case null =>
-		return errors::unsupported;
-	case let f: *subdirfunc =>
-		return f(fs, path);
-	};
-};
-
 // Creates a directory.
 export fn mkdir(fs: *fs, path: str) (void | error) = {
 	match (fs.mkdir) {
@@ -227,18 +215,6 @@ export fn rmdir(fs: *fs, path: str) (void | error) = {
 	case null =>
 		return errors::unsupported;
 	case let f: *rmdirfunc =>
-		return f(fs, path);
-	};
-};
-
-// Creates a directory and returns a subdir for it. Some filesystems support
-// doing this operation atomically, but if not, a fallback is used.
-export fn mksubdir(fs: *fs, path: str) (*fs | error) = {
-	match (fs.mksubdir) {
-	case null =>
-		mkdir(fs, path)?;
-		return subdir(fs, path);
-	case let f: *mksubdirfunc =>
 		return f(fs, path);
 	};
 };

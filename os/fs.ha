@@ -33,9 +33,6 @@ export fn readdir(path: str) ([]fs::dirent | fs::error) = fs::readdir(cwd, path)
 // Returns file information for a given path.
 export fn stat(path: str) (fs::filestat | fs::error) = fs::stat(cwd, path);
 
-// Opens a directory as a filesystem.
-export fn diropen(path: str) (*fs::fs | fs::error) = fs::subdir(cwd, path);
-
 // Creates a directory.
 export fn mkdir(path: str) (void | fs::error) = fs::mkdir(cwd, path);
 
@@ -48,10 +45,6 @@ export fn rmdir(path: str) (void | fs::error) = fs::rmdir(cwd, path);
 
 // Removes a directory, and anything in it.
 export fn rmdirall(path: str) (void | fs::error) = fs::rmdirall(cwd, path);
-
-// Creates a directory and returns a subdir for it. Some filesystems support
-// doing this operation atomically, but if not, a fallback is used.
-export fn mksubdir(path: str) (*fs::fs | fs::error) = fs::mksubdir(cwd, path);
 
 // Changes mode flags on a file or directory. Type bits are discared.
 export fn chmod(path: str, mode: fs::mode) (void | fs::error) = fs::chmod(cwd, path, mode);
@@ -99,3 +92,9 @@ export fn create(
 // statically allocated by [[fs::realpath]]. Thus, calls to this function or to
 // [[fs::realpath]] will overwrite the return value of either function.
 export fn realpath(path: str) (str | fs::error) = fs::realpath(cwd, path);
+
+// Opens a directory as a filesystem.
+export fn diropen(path: str) (*fs::fs | fs::error) = {
+	const file = open(path, fs::flags::DIRECTORY | fs::flags::RDONLY)?;
+	return dirfdopen(file);
+};

@@ -192,10 +192,8 @@ export type removefunc = fn(fs: *fs, path: str) (void | error);
 export type renamefunc = fn(fs: *fs, oldpath: str, newpath: str) (void | error);
 export type iterfunc = fn(fs: *fs, path: str) (*iterator | error);
 export type statfunc = fn(fs: *fs, path: str) (filestat | error);
-export type subdirfunc = fn(fs: *fs, path: str) (*fs | error);
 export type mkdirfunc = fn(fs: *fs, path: str) (void | error);
 export type rmdirfunc = fn(fs: *fs, path: str) (void | error);
-export type mksubdirfunc = fn(fs: *fs, path: str) (*fs | error);
 export type chmodfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
 export type chownfunc = fn(fs: *fs, path: str, uid: uint, gid: uint) (void | error);
 export type resolvefunc = fn(fs: *fs, path: str) str;
@@ -274,17 +272,11 @@ export type fs = struct {
 	// the return value.
 	readlink: nullable *readlinkfunc,
 
-	// Opens a new filesystem for a subdirectory.
-	subdir: nullable *subdirfunc,
-
 	// Creates a directory.
 	mkdir: nullable *mkdirfunc,
 
 	// Removes a directory. The target directory must be empty.
 	rmdir: nullable *rmdirfunc,
-
-	// Creates a directory and returns a subdir for it.
-	mksubdir: nullable *mksubdirfunc,
 
 	// Changes mode flags on a file or directory.
 	chmod: nullable *chmodfunc,
