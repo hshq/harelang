@@ -68,6 +68,7 @@ export type error = !(
 	module_not_found |
 	ambiguous);
 
+// Returns a human-friendly representation of an error.
 export fn strerror(err: error) const str = {
 	// Should be more than enough for PATH_MAX * 2
 	static let buf: [4096]u8 = [0...];
