@@ -51,6 +51,21 @@ export fn chroot(target: str) (void | fs::error) = {
 	};
 };
 
+// Returns true if the given mode of access is permissible. The use of this
+// function is discouraged as it can allow for a race condition to occur betwen
+// testing for the desired access mode and actually using the file should the
+// permissions of the file change between these operations. It is recommended
+// instead to attempt to use the file directly and to handle any errors that
+// should occur at that time.
+export fn access(path: str, mode: amode) (bool | fs::error) = {
+	match (rt::access(path, mode)) {
+	case let b: bool =>
+		return b;
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	};
+};
+
 // TODO: FreeBSD
 // export fn mkfifo(path: str, mode: fs::mode) (void | fs::error) = {
 // export fn mkblk(
