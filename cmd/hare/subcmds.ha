@@ -179,6 +179,9 @@ fn build(args: []str) void = {
 	case !exec::exit_status =>
 		fmt::fatal("{} {}: build failed", os::args[0], os::args[1]);
 	};
+	if (tty::isatty(os::stdout_file)) {
+		io::write(os::stdout_file, ['\a'])!;
+	};
 };
 
 fn cache(args: []str) void = {
