@@ -103,6 +103,33 @@ export fn unlinkat(dirfd: int, path: path, flags: int) (void | errno) = {
 		dirfd: u64, path: uintptr: u64, flags: u64))?;
 };
 
+export fn linkat(
+	olddirfd: int,
+	oldpath: str,
+	newdirfd: int,
+	newpath: str,
+	flags: int,
+) (void | errno) = {
+	let oldpath = kpath(oldpath)?;
+	static let newpathbuf: [PATH_MAX + 1]u8 = [0...];
+	let newpath = copy_kpath(newpath, newpathbuf)?;
+	wrap_return(syscall5(SYS_linkat,
+		olddirfd: u64, oldpath: uintptr: u64,
+		newdirfd: u64, newpath: uintptr: u64, flags: u64))?;
+};
+
+export fn symlinkat(
+	target: str,
+	newdirfd: int,
+	linkpath: str,
+) (void | errno) = {
+	let target = kpath(target)?;
+	static let linkpathbuf: [PATH_MAX + 1]u8 = [0...];
+	let linkpath = copy_kpath(linkpath, linkpathbuf)?;
+	wrap_return(syscall3(SYS_symlinkat, target: uintptr: u64,
+		newdirfd: u64, linkpath: uintptr: u64))?;
+};
+
 export fn mknodat(
 	dirfd: int,
 	path: path,

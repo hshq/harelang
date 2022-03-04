@@ -84,6 +84,8 @@ fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 			chmod = &fs_chmod,
 			chown = &fs_chown,
 			resolve = &fs_resolve,
+			link = &fs_link,
+			symlink = &fs_symlink,
 			...
 		},
 		dirfd = fd,
@@ -375,6 +377,24 @@ fn fs_resolve(fs: *fs::fs, path: str) str = {
 	static let buf = path::buffer { ... };
 	path::set(&buf, getcwd(), path)!;
 	return path::string(&buf);
+};
+
+fn fs_link(fs: *fs::fs, old: str, new: str) (void | fs::error) = {
+	let fs = fs: *os_filesystem;
+	match (rt::linkat(fs.dirfd, old, fs.dirfd, new, 0)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
+	};
+};
+
+fn fs_symlink(fs: *fs::fs, target: str, path: str) (void | fs::error) = {
+	let fs = fs: *os_filesystem;
+	match (rt::symlinkat(target, fs.dirfd, path)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
+	};
 };
 
 fn fs_close(fs: *fs::fs) void = {

@@ -200,6 +200,8 @@ export type chmodfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
 export type chownfunc = fn(fs: *fs, path: str, uid: uint, gid: uint) (void | error);
 export type resolvefunc = fn(fs: *fs, path: str) str;
 export type readlinkfunc = fn(fs: *fs, path: str) (str | error);
+export type linkfunc = fn(fs: *fs, old: str, new: str) (void | error);
+export type symlinkfunc = fn(fs: *fs, target: str, path: str) (void | error);
 
 export type openfunc = fn(
 	fs: *fs,
@@ -294,6 +296,12 @@ export type fs = struct {
 	// implementation does not provide this, [resolve] presumes that
 	// relative paths are rooted (i.e. "foo" == "/foo").
 	resolve: nullable *resolvefunc,
+
+	// Creates a new (hard) link.
+	link: nullable *linkfunc,
+
+	// Creates a new symbolic link.
+	symlink: nullable *symlinkfunc,
 };
 
 export type nextfunc = fn(iter: *iterator) (dirent | void);
