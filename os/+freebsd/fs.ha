@@ -51,6 +51,14 @@ export fn chroot(target: str) (void | fs::error) = {
 	};
 };
 
+// Access modes for [[access]].
+export type amode = enum int {
+	F_OK = rt::F_OK,
+	R_OK = rt::R_OK,
+	W_OK = rt::W_OK,
+	X_OK = rt::X_OK,
+};
+
 // Returns true if the given mode of access is permissible. The use of this
 // function is discouraged as it can allow for a race condition to occur betwen
 // testing for the desired access mode and actually using the file should the
