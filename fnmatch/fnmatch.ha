@@ -95,7 +95,7 @@ fn fnmatch_pathname(
 			yield s;
 		};
 		strings::prev(&p_iter);
-		let p = cut_tail(strings::iter_str(&start), &p_iter);
+		let p = cut_tail(strings::iterstr(&start), &p_iter);
 		strings::next(&p_iter);
 		if (!fnmatch_internal(p, s, fl)?) {
 			return false;
@@ -107,7 +107,7 @@ fn fnmatch_pathname(
 	case let s: str =>
 		yield s;
 	};
-	let p = strings::iter_str(&start);
+	let p = strings::iterstr(&start);
 	return fnmatch_internal(p, s, fl)? && strings::next_token(&tok) is void;
 };
 
@@ -201,11 +201,11 @@ fn fnmatch_internal(
 	};
 
 	// match the "sea of stars" in the middle
-	s_copy = strings::iter(cut_tail(strings::iter_str(&s_copy), &s_last));
-	p_copy = strings::iter(cut_tail(strings::iter_str(&p_copy), &p_last.0));
+	s_copy = strings::iter(cut_tail(strings::iterstr(&s_copy), &s_last));
+	p_copy = strings::iter(cut_tail(strings::iterstr(&p_copy), &p_last.0));
 	for (true) :outer {
 		p = p_copy;
-		if (len(strings::iter_str(&p)) == 0) {
+		if (len(strings::iterstr(&p)) == 0) {
 			return true;
 		};
 		s = s_copy;
@@ -297,7 +297,7 @@ fn match_bracket(
 		};
 	};
 
-	let cnt = len(strings::iter_str(&old)) - len(strings::iter_str(it));
+	let cnt = len(strings::iterstr(&old)) - len(strings::iterstr(it));
 	if (last is rune && first == last: rune && cnt >= 4) {
 		switch (first) {
 		case '=', '.', ':' =>
@@ -309,7 +309,7 @@ fn match_bracket(
 };
 
 fn match_ctype(it: *strings::iterator, c: rune) (bool | errors::invalid) = {
-	let s = strings::iter_str(it);
+	let s = strings::iterstr(it);
 	let i = 0z;
 	for (let r = '\0'; r != ':'; i+= 1) {
 		r = advance_or_err(it)?;
@@ -385,7 +385,7 @@ fn advance_or_err(it: *strings::iterator) (rune | errors::invalid) = {
 };
 
 fn cut_tail(s: str, it: *strings::iterator) str = {
-	let s_len = len(s), t_len = len(strings::iter_str(it));
+	let s_len = len(s), t_len = len(strings::iterstr(it));
 	let b = strings::toutf8(s);
 	return strings::fromutf8(b[..s_len - t_len]);
 };

@@ -89,7 +89,7 @@ export fn prev(iter: *iterator) (rune | void) = {
 // un-reading it. The next call using this iterator *must* be [[next]]; all other
 // functions will cause the program to abort until the pushed rune is consumed.
 // This does not modify the underlying string, and as such, subsequent calls to
-// functions like [[prev]] or [[iter_str]] will behave as if push were never called.
+// functions like [[prev]] or [[iterstr]] will behave as if push were never called.
 export fn push(iter: *iterator, r: rune) void = {
 	// TODO: This should probably be removed, and the push field removed
 	// from the struct.
@@ -98,7 +98,7 @@ export fn push(iter: *iterator, r: rune) void = {
 };
 
 // Return a substring from the next rune to the end of the string.
-export fn iter_str(iter: *iterator) str = {
+export fn iterstr(iter: *iterator) str = {
 	assert(iter.push is void);
 	return fromutf8(iter.dec.src[iter.dec.offs..]);
 };
@@ -115,7 +115,7 @@ export fn iter_str(iter: *iterator) str = {
 			abort();
 		};
 	};
-	assert(iter_str(&s) == "にちは");
+	assert(iterstr(&s) == "にちは");
 	assert(prev(&s) as rune == 'ん');
 	const expected2 = ['ん', 'に', 'ち', 'は'];
 	for (let i = 0z; i < len(expected2); i += 1) {
