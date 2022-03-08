@@ -38,20 +38,13 @@ export fn expr(lexer: *lex::lexer) (ast::expr | error) = {
 				operand = alloc(ex),
 			},
 		}, 0);
-	} else match (peek(lexer, ltok::LBRACE, ltok::MATCH,
-			ltok::SWITCH, ltok::IF, ltok::LABEL, ltok::FOR,
+	} else match (peek(lexer, ltok::IF, ltok::FOR,
 			ltok::BREAK, ltok::CONTINUE, ltok::RETURN, ltok::LET,
 			ltok::CONST, ltok::YIELD)?) {
 	case void =>
 		yield binarithm(lexer, void, 0)?;
 	case let tok: lex::token =>
 		yield switch (tok.0) {
-		case ltok::LABEL, ltok::LBRACE =>
-			yield compound_expr(lexer)?;
-		case ltok::MATCH =>
-			yield match_expr(lexer)?;
-		case ltok::SWITCH =>
-			yield switch_expr(lexer)?;
 		case ltok::IF =>
 			yield if_expr(lexer)?;
 		case ltok::FOR =>
@@ -1144,11 +1137,24 @@ fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (try(lexer,
 		ltok::PLUS, ltok::MINUS, ltok::BNOT,
-		ltok::LNOT, ltok::TIMES, ltok::BAND)) {
+		ltok::LNOT, ltok::TIMES, ltok::BAND,
+		ltok::SWITCH, ltok::MATCH, ltok::LABEL, ltok::LBRACE)) {
 	case void =>
 		return builtin(lexer);
 	case let tok: lex::token =>
-		yield tok;
+		yield switch (tok.0) {
+		case ltok::SWITCH =>
+			lex::unlex(lexer, tok);
+			return switch_expr(lexer);
+		case ltok::MATCH =>
+			lex::unlex(lexer, tok);
+			return match_expr(lexer);
+		case ltok::LABEL, ltok::LBRACE =>
+			lex::unlex(lexer, tok);
+			return compound_expr(lexer);
+		case =>
+			yield tok;
+		};
 	};
 
 	const op = switch (tok.0) {
