@@ -207,8 +207,9 @@ export fn main() void = {
 };
 
 // Nearly identical to parse::identstr, except alphanumeric lexical tokens are
-// converted to strings. For example, this function will parse `rt::abort` as a
-// valid identifier.
+// converted to strings and there must be no trailing tokens that don't belong
+// to the ident in the string. For example, this function will parse `rt::abort`
+// as a valid identifier.
 fn parseident(in: str) (ast::ident | parse::error) = {
 	const buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
 	const lexer = lex::init(&buf, "<string>");
@@ -228,10 +229,19 @@ fn parseident(in: str) (ast::ident | parse::error) = {
 		};
 		append(ident, name);
 		z += len(name);
-		if (lex::lex(&lexer)?.0 != lex::ltok::DOUBLE_COLON) {
+		const tok = lex::lex(&lexer)?;
+		switch (tok.0) {
+		case lex::ltok::EOF =>
 			break;
+		case lex::ltok::DOUBLE_COLON =>
+			z += 1;
+		case =>
+			lex::unlex(&lexer, tok);
+			const loc = lex::mkloc(&lexer);
+			const why = fmt::asprintf("Unexpected '{}' in ident\n",
+				lex::tokstr(tok));
+			return (loc, why): lex::syntax: parse::error;
 		};
-		z += 1;
 	};
 	if (z > ast::IDENT_MAX) {
 		const loc = lex::mkloc(&lexer);
@@ -328,4 +338,10 @@ fn emit(ctx: *context) (void | error) = {
 		emit_html(ctx)?;
 	case format::GEMTEXT => abort(); // TODO
 	};
+};
+
+@test fn parseident() void = {
+	assert(parseident("hare::lex") is ast::ident);
+	assert(parseident("strings::dup*{}&@") is parse::error);
+	assert(parseident("foo::bar::") is parse::error);
 };
