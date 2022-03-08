@@ -1014,17 +1014,16 @@ fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		want(lexer, ltok::CASE)?;
 
 		let opts: []*ast::expr = [];
-		if (try(lexer, ltok::ARROW)? is void) {
-			for (true) {
-				append(opts, alloc(expr(lexer)?));
-
-				if (try(lexer, ltok::COMMA)? is void) {
-					want(lexer, ltok::ARROW)?;
+		if (try(lexer, ltok::ARROW)? is void) for (true) {
+			append(opts, alloc(expr(lexer)?));
+			switch (want(lexer, ltok::ARROW, ltok::COMMA)?.0) {
+			case ltok::ARROW =>
+				break;
+			case ltok::COMMA =>
+				if (try(lexer, ltok::ARROW)? is lex::token) {
 					break;
 				};
 			};
-			synassert(lex::mkloc(lexer), len(opts) != 0,
-				"Expected a list of options")?;
 		};
 
 		let exprs: []*ast::expr = [];
