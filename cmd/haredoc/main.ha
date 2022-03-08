@@ -101,7 +101,7 @@ export fn main() void = {
 		if (len(cmd.args) < 1) []
 		else match (parseident(cmd.args[0])) {
 		case let err: parse::error =>
-			fmt::fatal(parse::strerror(err));
+			fmt::fatal("{}", parse::strerror(err));
 		case let id: ast::ident =>
 			yield id;
 		};
