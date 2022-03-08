@@ -295,7 +295,8 @@ export type len_expr = *expr;
 
 // A match case.
 //
-// 	name: type => expr
+//	case type => exprs
+//	case let name: type => exprs
 export type match_case = struct {
 	name: str,
 	_type: nullable *_type,
@@ -304,7 +305,7 @@ export type match_case = struct {
 
 // A match expression.
 //
-// 	match (foo) { _: int => bar, ... }
+// 	match (foo) { case int => bar; ... }
 export type match_expr = struct {
 	value: *expr,
 	cases: []match_case,
@@ -345,7 +346,7 @@ export type slice_expr = struct {
 
 // A switch case.
 //
-// 	value => expr
+// 	case value => exprs
 export type switch_case = struct {
 	options: []*expr, // [] for default case
 	exprs: []*expr,
@@ -353,7 +354,7 @@ export type switch_case = struct {
 
 // A switch expression.
 //
-// 	switch (foo) { bar => baz, ... }
+// 	switch (foo) { case bar => baz; ... }
 export type switch_expr = struct {
 	value: *expr,
 	cases: []switch_case,
