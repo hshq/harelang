@@ -95,7 +95,9 @@ export fn tests_main() size = {
 	return nfail;
 };
 
-fn print(msg: str) void = write(1, *(&msg: **void): *const char, len(msg))!;
+fn print(msg: str) void = {
+	write(1, *(&msg: **void): *const char, len(msg))!;
+};
 
 fn dots(n: size) void = {
 	// XXX: this is slow, I guess
