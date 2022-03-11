@@ -4,13 +4,6 @@ use hare::ast;
 use hare::lex;
 use hare::types;
 
-// Attributes applicable to a function declaration.
-export type fndecl_attrs = enum {
-	NONE,
-	FINI,
-	INIT,
-	TEST,
-};
 
 // A function declaration.
 export type decl_func = struct {
@@ -18,7 +11,7 @@ export type decl_func = struct {
 	ident: ast::ident,
 	prototype: const *types::_type,
 	body: nullable *expr,
-	attrs: fndecl_attrs,
+	attrs: ast::fndecl_attrs,
 };
 
 // A declaration within a unit.

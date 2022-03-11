@@ -79,7 +79,7 @@ fn process_func(
 			prototype = prototype,
 			body = body,
 			// TODO: We should make these enums inherited
-			attrs = afndecl.attrs: fndecl_attrs,
+			attrs = afndecl.attrs: ast::fndecl_attrs,
 		},
 	};
 };
