@@ -1,4 +1,4 @@
-This package provides the poly1305 MAC as defined in RFC 8439.
+This module provides the poly1305 MAC as defined in RFC 8439.
 
 This is a low-level module which implements cryptographic primitives. Direct use
 of cryptographic primitives is not recommended for non-experts, as incorrect use

@@ -1,5 +1,5 @@
-The net package provides some general-purpose interfaces and support code, but
-generally users are directed to the subpackages, where implementations of
+The net module provides some general-purpose interfaces and support code, but
+generally users are directed to the submodules, where implementations of
 various network protocols are provided, such as [[net::tcp]] or [[net::dns]].
 
 A porcelain API for establishing an outgoing connection, able to automatically
