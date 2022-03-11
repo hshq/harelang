@@ -149,12 +149,7 @@ fn is_name(r: rune, num: bool) bool =
 
 fn ncmp(a: const *void, b: const *void) int = {
 	let a = a: const *str, b = b: const *str;
-	match (ascii::strcmp(*a, *b)) {
-	case void =>
-		abort("non-ascii name"); // TODO: Bubble me up
-	case let i: int =>
-		return i;
-	};
+	return strings::strcmp(*a, *b);
 };
 
 fn lex_unicode(lex: *lexer, loc: location, n: size) (rune | error) = {
