@@ -32,7 +32,7 @@ export type decl_type = struct {
 	_type: _type,
 };
 
-// Represents the @fini/@init/@test attributes associated with a function.
+// Attributes applicable to a function declaration.
 export type fndecl_attrs = enum {
 	NONE,
 	FINI,
