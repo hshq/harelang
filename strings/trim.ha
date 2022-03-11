@@ -74,6 +74,24 @@ export fn rtrim(input: str, trim: rune...) str = {
 export fn trim(input: str, exclude: rune...) str =
 	ltrim(rtrim(input, exclude...), exclude...);
 
+// Returns a string (borrowed from given input string) after trimming off the
+// given prefix. If the input string doesn't have the given prefix, it is
+// returned unmodified.
+export fn trimprefix(input: str, trim: str) str = {
+	if (!hasprefix(input, trim)) return input;
+	const slice = toutf8(input);
+	return fromutf8(slice[len(trim)..]);
+};
+
+// Returns a string (borrowed from given input string) after trimming off the
+// given suffix. If the input string doesn't have the given suffix, it is
+// returned unmodified.
+export fn trimsuffix(input: str, trim: str) str = {
+	if (!hassuffix(input, trim)) return input;
+	const slice = toutf8(input);
+	return fromutf8(slice[..len(input) - len(trim)]);
+};
+
 @test fn trim() void = {
 	assert(ltrim("") == "");
 	assert(ltrim("  hi") == "hi");
@@ -97,5 +115,14 @@ export fn trim(input: str, exclude: rune...) str =
 	assert(trim("AAAΑА𝖠AAAA", 'A') == "ΑА𝖠");
 	assert(trim("  চিত্ত যেথা ভয়শূন্য, উচ্চ যেথা শির  ") == "চিত্ত যেথা ভয়শূন্য, উচ্চ যেথা শির");
 	assert(trim("𝖺𝖻𝖺𝖼𝖺𝖽𝖺𝖻‌𝗋‌𝖺𝖼𝖺𝖽𝖺𝖻𝖼𝖺", '𝖺', '𝖻', '𝖼', '𝖽') == "‌𝗋‌");
-};
 
+	assert(trimprefix("", "") == "");
+	assert(trimprefix("", "blablabla") == "");
+	assert(trimprefix("hello, world", "hello") == ", world");
+	assert(trimprefix("blablabla", "bla") == "blabla");
+
+	assert(trimsuffix("", "") == "");
+	assert(trimsuffix("", "blablabla") == "");
+	assert(trimsuffix("hello, world", "world") == "hello, ");
+	assert(trimsuffix("blablabla", "bla") == "blabla");
+};
