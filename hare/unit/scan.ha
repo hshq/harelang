@@ -66,5 +66,4 @@ fn scan_func(
 		_type = fntype,
 		...
 	});
-	return;
 };

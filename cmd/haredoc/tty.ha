@@ -89,7 +89,6 @@ fn details_tty(ctx: *context, decl: ast::decl) (void | error) = {
 
 	unparse_tty(ctx.out, decl)?;
 	fmt::fprintln(ctx.out)?;
-	return;
 };
 
 // Forked from [[hare::unparse]]
