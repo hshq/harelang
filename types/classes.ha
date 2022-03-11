@@ -19,7 +19,7 @@ export type numeric = (...integer | ...floating);
 // A type representing the internal structure of strings, useful for low-level
 // string manipulation.
 export type string = struct {
-	// UTF-8 encoded octets, plus a NUL terminator.
+	// UTF-8 encoded octets.
 	data: nullable *[*]u8,
 
 	// The length capacity, in octets of UTF-8 data, not including the NUL
