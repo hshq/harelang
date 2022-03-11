@@ -365,7 +365,7 @@ fn wanttoken(tok: *strings::tokenizer) (str | invalid) = {
 export fn subnet_contains(sub: subnet, item: (addr | subnet)) bool = {
 	let a: subnet = match (item) {
 	case let a: addr =>
-		yield subnet{
+		yield subnet {
 			addr = a,
 			mask = sub.mask,
 		};
