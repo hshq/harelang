@@ -41,7 +41,7 @@ export fn fromc(cstr: *const char) const str = {
 	return s;
 };
 
-// Converts a Hare string to a C string. The result is allocated, the caller
+// Converts a Hare string to a C string. The result is allocated; the caller
 // must free it when they're done.
 export fn to_c(s: const str) *char = {
 	let slice: []u8 = alloc([0...], len(s) + 1);

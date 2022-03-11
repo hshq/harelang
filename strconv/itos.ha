@@ -29,17 +29,17 @@ export fn i64tosb(i: i64, b: base) const str = {
 	return *(&s: *str);
 };
 
-// Converts a i32 to a string in the given base. The return value is statically
+// Converts an i32 to a string in the given base. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn i32tosb(i: i32, b: base) const str = i64tosb(i, b);
 
-// Converts a i16 to a string in the given base. The return value is statically
+// Converts an i16 to a string in the given base. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn i16tosb(i: i16, b: base) const str = i64tosb(i, b);
 
-// Converts a i8 to a string in the given base. The return value is statically
+// Converts an i8 to a string in the given base. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn i8tosb(i: i8, b: base) const str = i64tosb(i, b);
@@ -49,27 +49,27 @@ export fn i8tosb(i: i8, b: base) const str = i64tosb(i, b);
 // [[strings::dup]] to duplicate the result.
 export fn itosb(i: int, b: base) const str = i64tosb(i, b);
 
-// Converts a i64 to a string in base 10. The return value is statically
+// Converts an i64 to a string in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn i64tos(i: i64) const str = i64tosb(i, base::DEC);
 
-// Converts a i32 to a string in base 10. The return value is statically
+// Converts an i32 to a string in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn i32tos(i: i32) const str = i64tos(i);
 
-// Converts a i16 to a string in base 10. The return value is statically
+// Converts an i16 to a string in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn i16tos(i: i16) const str = i64tos(i);
 
-// Converts a i8 to a string in base 10. The return value is statically
+// Converts an i8 to a string in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn i8tos(i: i8) const str = i64tos(i);
 
-// Converts a int to a string in base 10. The return value is statically
+// Converts an int to a string in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
 // duplicate the result.
 export fn itos(i: int) const str = i64tos(i);

@@ -23,7 +23,7 @@ most cases, but you may prefer to allocate it elsewhere depending on your needs.
 
 	// Statically allocated
 	static let buf = path::buffer { ... };
-	pathbuf::reset(&buf);
+	path::reset(&buf);
 
 	// Heap allocated
 	let buf = alloc(path::init());
