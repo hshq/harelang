@@ -7,9 +7,11 @@ use strings;
 
 // Returns the directory name for a given path. For a path to a file name, this
 // returns the directory in which that file resides. For a path to a directory,
-// this returns the path to its parent directory. The return value is either
-// borrowed from the input or statically allocated), use [[strings::dup]] to
-// extend its lifetime or modify it.
+// this returns the path to its parent directory. If the path consists solely of
+// the target's path separator, a string to the path is returned unmodified. If
+// the path is empty, "." is returned. The return value is either borrowed from
+// the input or statically allocated); use [[strings::dup]] to extend its
+// lifetime or modify it.
 export fn dirname(path: (str | *buffer)) const str = {
 	let path = getstring(path);
 	if (path == "") {
@@ -55,8 +57,10 @@ export fn dirname(path: (str | *buffer)) const str = {
 
 // Returns the final component of a given path. For a path to a file name, this
 // returns the file name. For a path to a directory, this returns the directory
-// name. The return value is either borrowed from the input or statically
-// allocated, use [[strings::dup]] to extend its lifetime or modify it.
+// name. If the path consists solely of the target's path separator, a string of
+// the path is returned unmodified. If the path is empty, "." is returned. The
+// return value is either borrowed from the input or statically allocated; use
+// [[strings::dup]] to extend its lifetime or modify it.
 export fn basename(path: (str | *buffer)) const str = {
 	let path = getstring(path);
 	if (path == "") {
