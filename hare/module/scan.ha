@@ -6,9 +6,7 @@
 // (c) 2021 Kiëd Llaentenn <kiedtl@tilde.team>
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
 use ascii;
-use bytes;
 use crypto::sha256;
-use encoding::utf8;
 use fs;
 use hare::ast;
 use hare::lex;
@@ -16,7 +14,6 @@ use hare::parse;
 use hash;
 use io;
 use path;
-use slice;
 use sort;
 use strings;
 use strio;

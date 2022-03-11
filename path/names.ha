@@ -3,7 +3,6 @@
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 use bytes;
-use encoding::utf8;
 use strings;
 
 // Returns the directory name for a given path. For a path to a file name, this
