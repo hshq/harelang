@@ -1,0 +1,4 @@
+The time module provides basic timekeeping primitives and access to the
+system's clocks.
+
+For more human abstractions of time, see the [[chrono]] module.

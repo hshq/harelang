@@ -1,0 +1,4 @@
+The chrono module provides the basis for chronology, namely timescales
+and leap seconds, and abstracted interfaces for calendars and datetimes.
+
+For working with the ISO calendar, see the [[chrono::isocal]] submodule.

@@ -148,6 +148,18 @@ stdlib_deps_any+=$(stdlib_bytes_any)
 stdlib_bytes_linux=$(stdlib_bytes_any)
 stdlib_bytes_freebsd=$(stdlib_bytes_any)
 
+# gen_lib chrono (any)
+stdlib_chrono_any=$(HARECACHE)/chrono/chrono-any.o
+stdlib_deps_any+=$(stdlib_chrono_any)
+stdlib_chrono_linux=$(stdlib_chrono_any)
+stdlib_chrono_freebsd=$(stdlib_chrono_any)
+
+# gen_lib chrono::isocal (any)
+stdlib_chrono_isocal_any=$(HARECACHE)/chrono/isocal/chrono_isocal-any.o
+stdlib_deps_any+=$(stdlib_chrono_isocal_any)
+stdlib_chrono_isocal_linux=$(stdlib_chrono_isocal_any)
+stdlib_chrono_isocal_freebsd=$(stdlib_chrono_isocal_any)
+
 # gen_lib compress::flate (any)
 stdlib_compress_flate_any=$(HARECACHE)/compress/flate/compress_flate-any.o
 stdlib_deps_any+=$(stdlib_compress_flate_any)
@@ -706,6 +718,29 @@ $(HARECACHE)/bytes/bytes-any.ssa: $(stdlib_bytes_any_srcs) $(stdlib_rt) $(stdlib
 	@mkdir -p $(HARECACHE)/bytes
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbytes \
 		-t$(HARECACHE)/bytes/bytes.td $(stdlib_bytes_any_srcs)
+
+# chrono (+any)
+stdlib_chrono_any_srcs= \
+	$(STDLIB)/chrono/chronology.ha \
+	$(STDLIB)/chrono/timescales.ha \
+	$(STDLIB)/chrono/calendar.ha
+
+$(HARECACHE)/chrono/chrono-any.ssa: $(stdlib_chrono_any_srcs) $(stdlib_rt) $(stdlib_time_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/chrono
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nchrono \
+		-t$(HARECACHE)/chrono/chrono.td $(stdlib_chrono_any_srcs)
+
+# chrono::isocal (+any)
+stdlib_chrono_isocal_any_srcs= \
+	$(STDLIB)/chrono/isocal/datetime.ha \
+	$(STDLIB)/chrono/isocal/types.ha
+
+$(HARECACHE)/chrono/isocal/chrono_isocal-any.ssa: $(stdlib_chrono_isocal_any_srcs) $(stdlib_rt) $(stdlib_chrono_$(PLATFORM)) $(stdlib_time_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/chrono/isocal
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nchrono::isocal \
+		-t$(HARECACHE)/chrono/isocal/chrono_isocal.td $(stdlib_chrono_isocal_any_srcs)
 
 # compress::flate (+any)
 stdlib_compress_flate_any_srcs= \
@@ -1739,6 +1774,7 @@ stdlib_time_linux_srcs= \
 	$(STDLIB)/time/+linux/functions.ha \
 	$(STDLIB)/time/+linux/+$(ARCH).ha \
 	$(STDLIB)/time/arithm.ha \
+	$(STDLIB)/time/conv.ha \
 	$(STDLIB)/time/types.ha
 
 $(HARECACHE)/time/time-linux.ssa: $(stdlib_time_linux_srcs) $(stdlib_rt) $(stdlib_linux_vdso_$(PLATFORM))
@@ -2053,6 +2089,18 @@ testlib_bytes_any=$(TESTCACHE)/bytes/bytes-any.o
 testlib_deps_any+=$(testlib_bytes_any)
 testlib_bytes_linux=$(testlib_bytes_any)
 testlib_bytes_freebsd=$(testlib_bytes_any)
+
+# gen_lib chrono (any)
+testlib_chrono_any=$(TESTCACHE)/chrono/chrono-any.o
+testlib_deps_any+=$(testlib_chrono_any)
+testlib_chrono_linux=$(testlib_chrono_any)
+testlib_chrono_freebsd=$(testlib_chrono_any)
+
+# gen_lib chrono::isocal (any)
+testlib_chrono_isocal_any=$(TESTCACHE)/chrono/isocal/chrono_isocal-any.o
+testlib_deps_any+=$(testlib_chrono_isocal_any)
+testlib_chrono_isocal_linux=$(testlib_chrono_isocal_any)
+testlib_chrono_isocal_freebsd=$(testlib_chrono_isocal_any)
 
 # gen_lib compress::flate (any)
 testlib_compress_flate_any=$(TESTCACHE)/compress/flate/compress_flate-any.o
@@ -2612,6 +2660,29 @@ $(TESTCACHE)/bytes/bytes-any.ssa: $(testlib_bytes_any_srcs) $(testlib_rt) $(test
 	@mkdir -p $(TESTCACHE)/bytes
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbytes \
 		-t$(TESTCACHE)/bytes/bytes.td $(testlib_bytes_any_srcs)
+
+# chrono (+any)
+testlib_chrono_any_srcs= \
+	$(STDLIB)/chrono/chronology.ha \
+	$(STDLIB)/chrono/timescales.ha \
+	$(STDLIB)/chrono/calendar.ha
+
+$(TESTCACHE)/chrono/chrono-any.ssa: $(testlib_chrono_any_srcs) $(testlib_rt) $(testlib_time_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/chrono
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nchrono \
+		-t$(TESTCACHE)/chrono/chrono.td $(testlib_chrono_any_srcs)
+
+# chrono::isocal (+any)
+testlib_chrono_isocal_any_srcs= \
+	$(STDLIB)/chrono/isocal/datetime.ha \
+	$(STDLIB)/chrono/isocal/types.ha
+
+$(TESTCACHE)/chrono/isocal/chrono_isocal-any.ssa: $(testlib_chrono_isocal_any_srcs) $(testlib_rt) $(testlib_chrono_$(PLATFORM)) $(testlib_time_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/chrono/isocal
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nchrono::isocal \
+		-t$(TESTCACHE)/chrono/isocal/chrono_isocal.td $(testlib_chrono_isocal_any_srcs)
 
 # compress::flate (+any)
 testlib_compress_flate_any_srcs= \
@@ -3690,6 +3761,7 @@ testlib_time_linux_srcs= \
 	$(STDLIB)/time/+linux/functions.ha \
 	$(STDLIB)/time/+linux/+$(ARCH).ha \
 	$(STDLIB)/time/arithm.ha \
+	$(STDLIB)/time/conv.ha \
 	$(STDLIB)/time/types.ha
 
 $(TESTCACHE)/time/time-linux.ssa: $(testlib_time_linux_srcs) $(testlib_rt) $(testlib_linux_vdso_$(PLATFORM))

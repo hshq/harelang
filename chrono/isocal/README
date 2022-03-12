@@ -1,0 +1,5 @@
+The chrono::isocal submodule implements the international standard
+proleptic Gregorian calendar, as per ISO 8601.
+
+This module provides datetimes, timezones, offsets, and the arithmetics,
+formatting, parsing, serialization, and conversion thereof.

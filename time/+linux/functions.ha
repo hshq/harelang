@@ -7,15 +7,15 @@ use linux::vdso;
 
 // Converts a [[duration]] to an [[rt::timespec]]. This function is
 // non-portable.
-export fn duration_to_timespec(n: duration, ts: *rt::timespec) void = {
-	ts.tv_sec = n / SECOND;
-	ts.tv_nsec = n % SECOND;
+export fn duration_to_timespec(d: duration, ts: *rt::timespec) void = {
+	ts.tv_sec  = d / SECOND;
+	ts.tv_nsec = d % SECOND;
 };
 
 // Converts an [[instant]] to an [[rt::timespec]]. This function is
 // non-portable.
 export fn instant_to_timespec(t: instant, ts: *rt::timespec) void = {
-	ts.tv_sec = t.sec;
+	ts.tv_sec  = t.sec;
 	ts.tv_nsec = t.nsec;
 };
 
@@ -27,9 +27,9 @@ export fn timespec_to_instant(ts: rt::timespec) instant = instant {
 };
 
 // Yields the process to the kernel and returns after the requested duration.
-export fn sleep(n: duration) void = {
+export fn sleep(d: duration) void = {
 	let in = rt::timespec { ... };
-	duration_to_timespec(n, &in);
+	duration_to_timespec(d, &in);
 	let req = &in;
 
 	for (true) {

@@ -181,6 +181,21 @@ bytes() {
 	gen_ssa bytes types
 }
 
+chrono() {
+	gen_srcs chrono \
+		chronology.ha \
+		timescales.ha \
+		calendar.ha
+	gen_ssa chrono time
+}
+
+chrono_isocal() {
+	gen_srcs chrono::isocal \
+		datetime.ha \
+		types.ha
+	gen_ssa chrono::isocal chrono time
+}
+
 compress_flate() {
 	gen_srcs compress::flate \
 		inflate.ha
@@ -1153,6 +1168,7 @@ time() {
 		+linux/functions.ha \
 		+linux/+'$(ARCH)'.ha \
 		arithm.ha \
+		conv.ha \
 		types.ha
 	gen_ssa -plinux time linux::vdso
 	gen_srcs -pfreebsd time \
@@ -1253,6 +1269,8 @@ uuid() {
 modules="ascii
 bufio
 bytes
+chrono
+chrono::isocal
 compress::flate
 compress::zlib
 crypto

@@ -27,28 +27,13 @@ export def HOUR: duration = 60 * MINUTE;
 // Represents a specific instant in time as seconds (+nanoseconds) since an
 // arbitrary epoch. Instants may only be meaningfully compared with other
 // instants sourced from the same clock.
-export type instant = struct { sec: i64, nsec: i64 };
-
-// The return value is negative if a < b, zero if a == b, and positive if a > b.
-export fn compare(a: instant, b: instant) int = {
-	return if (a.sec < b.sec) -1 else if (a.sec > b.sec) 1 else
-		if (a.nsec < b.nsec) -1 else if (a.nsec > b.nsec) 1 else 0;
+export type instant = struct {
+	sec: i64,
+	nsec: i64,
 };
 
-// Converts the given [[instant]] to a Unix timestamp.
-export fn unix(a: instant) i64 = a.sec;
-
-// Returns a [[instant]] from a Unix timestamp.
-export fn from_unix(u: i64) instant = instant {
-	sec = u,
-	nsec = 0,
-};
-
-@test fn compare() void = {
-	let a = now(clock::MONOTONIC);
-	sleep(1 * MILLISECOND);
-	let b = now(clock::MONOTONIC);
-	assert(compare(a, b) < 0);
-	assert(compare(b, a) > 0);
-	assert(compare(a, a) == 0);
+// Represents a unique interval of time between two instants.
+export type interval = struct {
+	start: instant,
+	end: instant,
 };
