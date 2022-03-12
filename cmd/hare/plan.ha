@@ -96,7 +96,7 @@ fn mkplan(ctx: *module::context, libs: []str) plan = {
 
 	return plan {
 		context = ctx,
-		workdir = temp::dir(),
+		workdir = os::tryenv("HARE_DEBUG_WORKDIR", temp::dir()),
 		script = path::allocate(&buf),
 		environ = alloc([
 			(strings::dup("HARECACHE"), strings::dup(ctx.cache)),
