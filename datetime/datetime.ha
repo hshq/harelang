@@ -108,7 +108,7 @@ export fn new(
 // `invaliddatetime = !void` ?
 // `invaliddatetime = !datetime::builder` ?
 ) (datetime | errors::invalid) = {
-	// TODO: set the correct values according to the given zoffset and
+	// TODO: Set the correct values according to the given zoffset and
 	// locality/timezone.
 	let m = chrono::new(
 		calc_epochal_from_ymd(year, month, day)?,
@@ -118,16 +118,17 @@ export fn new(
 
 	// figuring out what zone this moment observes
 	if (zoffset is time::duration) {
-		// transform inversely to the moment that would transform back
+		// Transform inversely to the moment that would transform back
 		// to the current moment, then perform a zone lookup.
 		m = chrono::transform(m, -(zoffset as time::duration));
 		chrono::lookupzone(&m);
 	} else {
-		// just perform a zone lookup, then try that zone and the
-		// zones that are observed before and after.
+		// Just perform a zone lookup, then try that zone and the
+		// zones that are observed before and after. This requires
+		// knowlegde of the transition index.
 		//const z0 = chrono::lookupzone(*m);
 		//m = chrono::transform(m, -z0.zoffset);
-		void;
+		abort("TODO"); // TODO
 	};
 
 	const dt = from_moment(m);
@@ -158,7 +159,7 @@ export fn now() datetime = {
 
 // Creates a copy of a [[datetime]]
 //
-// TODO: remove, seems useless.
+// TODO: remove, purge from other functions, seems useless.
 export fn clone(dt: datetime) datetime = dt;
 
 // Creates a [[datetime]] from a [[chrono::moment]]

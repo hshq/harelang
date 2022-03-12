@@ -151,6 +151,12 @@ fn conv_tt_tai(tt: time::instant) (time::instant | time::error) = {
 };
 
 
+// Authur David Olson had expressed for Martian time support in this database
+// project <https://data.iana.org/time-zones/theory.html>:
+//
+// > The tz database does not currently support Mars time, but it is documented
+// > here in the hopes that support will be added eventually. 8
+
 // Coordinated Mars Time
 //
 // Used for local solar time on Mars.

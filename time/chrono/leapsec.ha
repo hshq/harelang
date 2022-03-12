@@ -1,36 +1,28 @@
 use time;
 
+// Hare uses raw leap second informtion when dealing with the UTC and TAI
+// timescales. This information is source from a standard file installed at
+// /usr/share/zoneinfo/leap-seconds.list, which itself is fetched from and
+// periodically maintained at:
+//
+// <ftp://ftp.nist.gov/pub/time/leap-seconds.list>
+// <ftp://ftp.boulder.nist.gov/pub/time/leap-seconds.list>
+//
+// This is in contrast to legacy systems which rely on TZif files, which are
+// installed typically at /usr/share/zoneinfo, as part of the "Olson" IANA
+// Timezone databse. These files couple timezone and leap second information
+// into one datablock.
+//
+// Depending on a system's installation, leap second information may be
+// deliberately left out of the TZif files, or duplicated throughout. This
+// design also inhibits our ambitions for dealing with multiple, dynamic
+// timescales. Therefore, we have decided to take an alternative approach.
+
 // UTC timestamps and their TAI offsets, sourced from leap-seconds.list
 // updated: 8 July 2016
 // expires: 28 June 2022
 //
-// TODO:
-// this is a temporary hard-coded list. read leap-second data from a source.
-//
-// Separating concerns of timezones and timescale has proven troublesome, since
-// data of timezone transitions and leap seconds are both encoded in the TZif
-// files generated from the Olson/tz project, and typically installed at
-// /usr/share/zoneinfo. Thus, for typical programs in a minimal system like
-// Alpine, the entire system can only be configured to run either with or
-// without adherence to leap second information.
-//
-// Olson himself has expressed for the support of Martian time, which with our
-// approach, may depend on multi-timescale support:
-//
-// > The tz database does not currently support Mars time, but it is documented
-// > here in the hopes that support will be added eventually. 8
-//
-// Some systems have an ideal /usr/share/zoneinfo/leap-seconds.list file, which
-// is directly downloaded from a periodically maintained file at
-// <ftp://ftp.nist.gov/pub/time/leap-seconds.list> or
-// <ftp://ftp.boulder.nist.gov/pub/time/leap-seconds.list>. This file contains a
-// list of Unix timestamps (2272060800) and absolute timescale offsets (+10). A
-// good solution ought to use this.
-//
-// Some systems have a less ideal /usr/share/zoneinfo/leapseconds file, which is
-// generated from leap-seconds.list using an awk script, and contains Gregorian
-// datetime timestamps (1972 Jun 30 23:59:60) and relative timescale corrections
-// (+S, -S). This may be a fallback solution.
+// TODO: Initialise this data from /usr/share/zoneinfo/leap-seconds.list
 const leaps_utc: [](i64, i64) = [
 	(2272060800, 10),
 	(2287785600, 11),

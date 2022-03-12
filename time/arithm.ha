@@ -20,7 +20,7 @@ export fn diff(a: instant, b: instant) duration = {
 //  0 if a and b are simultaneous;
 // +1 if b precedes a;
 //
-// Notes:
+// XXX:
 // At first seems superceded by elapsed, but useful when you need values at
 // compile time:
 // 	switch (compare(a, b)) {

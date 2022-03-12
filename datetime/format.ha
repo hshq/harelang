@@ -51,7 +51,7 @@ def MONTHS_SHORT: [_]str = [
 
 // Parses a datetime string into a [[builder]], using a "layout" format string
 // with a subset of specifiers from POSIX strptime(3). Partial, incremental
-// parsing is allowed.
+// parsing is possible.
 //
 // 	datetime::parse(&b, "%Y-%m-%d", "2038-01-19");
 // 	datetime::parse(&b, "%H:%M:%S", "03:14:07");

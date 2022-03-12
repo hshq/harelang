@@ -2,14 +2,6 @@ use fmt;
 use time::chrono;
 use time;
 
-fn absi(n: i64) i64 = {
-	if (n < 0) {
-		return -n;
-	} else {
-		return n;
-	};
-};
-
 // Represents a span of time in the proleptic Gregorian calendar,
 // using relative units of time. Used for calendar arithmetic.
 export type period = struct {
@@ -417,6 +409,15 @@ export fn subtract(dt: datetime, flag: calculus, pp: period...) datetime = {
 		pp[i].nanoseconds *= -1;
 	};
 	return add(dt, flag, pp...);
+};
+
+// Copied from math:: to avoid dependancy.
+fn absi(n: i64) i64 = {
+	if (n < 0) {
+		return -n;
+	} else {
+		return n;
+	};
 };
 
 @test fn eq() void = {
