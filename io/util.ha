@@ -30,6 +30,25 @@ export fn readitems(in: handle, items: []void, itemsz: size) (size | error) = {
 	return len(items);
 };
 
+// Reads an entire buffer, perhaps issuing several [[read]] calls to do so. If
+// EOF is immediately encountered, it is returned; if [[EOF]] is encountered
+// partway through reading the buffer, [[underread]] is returned.
+export fn readall(in: handle, buf: []u8) (size | EOF | error) = {
+	let z: size = 0;
+	for (z < len(buf)) {
+		match (read(in, buf[z..])?) {
+		case EOF =>
+			if (z == 0) {
+				return EOF;
+			};
+			return underread;
+		case let n: size =>
+			z += n;
+		};
+	};
+	return z;
+};
+
 // Writes an entire "item", i.e. one Hare object, to an I/O handle. This
 // function may use multiple writes. The return value is the total number of
 // bytes written (which shall be equal to itemsz).
@@ -43,8 +62,17 @@ export fn writeitem(out: handle, item: *void, itemsz: size) (size | error) = {
 
 // Writes several "items", i.e. Hare objects, to an I/O handle. The return value
 // is the number of items written.
-export fn writeitems(in: handle, items: []void, itemsz: size) (size | error) = {
+export fn writeitems(out: handle, items: []void, itemsz: size) (size | error) = {
 	let buf = items: *[*]u8;
-	writeitem(in, buf, len(items) * itemsz)?;
+	writeitem(out, buf, len(items) * itemsz)?;
 	return len(items);
+};
+
+// Writes an entire buffer, perhaps issuing several [[write]] calls to do so.
+export fn writeall(out: handle, buf: []u8) (size | error) = {
+	let z: size = 0;
+	for (z < len(buf)) {
+		z += write(out, buf[z..])?;
+	};
+	return z;
 };
