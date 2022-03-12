@@ -106,13 +106,11 @@ fn bits(d: *decompressor, want: u32) (u32 | io::error) = {
 	let val = d.bitbuf;
 	for (d.cnt < want) {
 		let buf: [_]u8 = [0];
-		match (io::read(d.in, buf)?) {
+		match (io::readall(d.in, buf)?) {
 		case io::EOF =>
 			return wraperror(inflate_err::EOF);
-		case let z: size =>
-			if (z < 1) {
-				continue; // Short read, retry
-			};
+		case size =>
+			yield;
 		};
 		val |= buf[0] << d.cnt;
 		d.cnt += 8;
