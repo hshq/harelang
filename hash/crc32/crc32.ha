@@ -224,6 +224,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 	endian::host.putu32(buf, ~h.cval);
 };
 
+// Returns the computed 32-bit CRC.
 export fn sum32(h: *hash::hash) u32 = {
 	assert(h.reset == &reset);
 	let h = h: *state;

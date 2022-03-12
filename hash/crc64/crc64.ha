@@ -256,6 +256,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 	endian::host.putu64(buf, ~h.cval);
 };
 
+// Returns the 64-bit computed CRC.
 export fn sum64(h: *hash::hash) u64 = {
 	assert(h.reset == &reset);
 	let h = h: *state;
