@@ -73,7 +73,7 @@ export fn basename(path: (str | *buffer)) const str = {
 	let b = strings::toutf8(trimmed);
 	let i = match (bytes::rindex(b, PATHSEP)) {
 	case void =>
-		return path;
+		return trimmed;
 	case let z: size =>
 		yield if (z + 1 < len(b)) z + 1z else 0z;
 	};
