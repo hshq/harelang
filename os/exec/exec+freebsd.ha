@@ -127,7 +127,7 @@ fn platform_exec(cmd: *command) error = {
 	};
 
 	return errors::errno(rt::fexecve(cmd.platform,
-		argv: *[*]nullable *const char, envp));
+		argv: *[*]nullable *const char, envp: *[*]nullable *const char));
 };
 
 fn platform_start(cmd: *command) (process | errors::error) = {

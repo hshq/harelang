@@ -127,8 +127,9 @@ fn platform_exec(cmd: *command) error = {
 		};
 	};
 
-	return errors::errno(rt::execveat(cmd.platform, strings::c_empty,
-		argv: *[*]nullable *const char, envp, rt::AT_EMPTY_PATH));
+	return errors::errno(rt::execveat(cmd.platform,
+		strings::c_empty, argv: *[*]nullable *const char,
+		envp: *[*]nullable *const char, rt::AT_EMPTY_PATH));
 };
 
 fn platform_start(cmd: *command) (process | errors::error) = {

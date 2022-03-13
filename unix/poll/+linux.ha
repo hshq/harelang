@@ -42,7 +42,7 @@ export fn poll(
 	let ts = rt::timespec { ... };
 	time::duration_to_timespec(timeout, &ts);
 	let ts = if (timeout == INDEF) null else &ts;
-	match (rt::ppoll(fds: *[*]pollfd, len(fds), ts, null)) {
+	match (rt::ppoll(fds: *[*]pollfd: *[*]rt::pollfd, len(fds), ts, null)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let n: int =>
