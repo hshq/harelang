@@ -4,7 +4,7 @@ use io;
 use net;
 
 // Dials a remote address, establishing a connection and returning the resulting
-// [[io::stream]]. The proto parameter should be the transport protocol (e.g.
+// [[io::file]]. The proto parameter should be the transport protocol (e.g.
 // "tcp"), the address parameter should be the remote address, and the service
 // should be the name of the service, or the default port to use.
 //
