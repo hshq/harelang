@@ -1,0 +1,38 @@
+version 2
+
+# module <cache key> <type>
+# identifies the attributes of an object or archive file in the cache (named
+# after its cache key + type extension (.o or .a))
+module dfd937a31a4e959ed026d489d7af3d52c143317e793b4a3b3b289d00e28e4517 object
+	# base directory
+	base /usr/src/hare/stdlib/net/dial
+	# directory <mtime> <path>
+	directory 1645531089 /usr/src/hare/stdlib/net/dial
+	# file <sha> <mtime> <path>
+	file 6c8f16a0e2724a96a1799586110d14a4d26c0319a294ab3f19c7b47db88dfc40 1645531089 /usr/src/hare/stdlib/net/dial/dial.ha
+	file 6c8f16a0e2724a96a1799586110d14a4d26c0319a294ab3f19c7b47db88dfc40 1645531089 /usr/src/hare/stdlib/net/dial/dial.ha
+	file 6c8f16a0e2724a96a1799586110d14a4d26c0319a294ab3f19c7b47db88dfc40 1645531089 /usr/src/hare/stdlib/net/dial/dial.ha
+	# config hash (-D, compiler ABI, etc)
+	config dfd937a31a4e959ed026d489d7af3d52c143317e793b4a3b3b289d00e28e4517 
+	# abi <hash>				# ABI for *this* module
+	abi dfd937a31a4e959ed026d489d7af3d52c143317e793b4a3b3b289d00e28e4517 
+	# dependency <ident> <abi hash>		# ABI for this module's *dependencies*
+	dependency net dfd937a31a4e959ed026d489d7af3d52c143317e793b4a3b3b289d00e28e4517 
+	dependency net::tcp dfd937a31a4e959ed026d489d7af3d52c143317e793b4a3b3b289d00e28e4517
+
+# cache key is formed by hashing:
+# - list of input file hashes
+# - config hash
+# - dependency abi hashes
+#
+# A module is up-to-date if:
+# - All of its directories have a valid cached mtime, or
+# 	- All of its files have a valid cached mtime, or
+# 	- All of its files have a valid cached SHA
+#   and,
+# - Its config hash matches
+# - The most up-to-date version of their dependencies have a matching ABI hash
+#
+# If a module is NOT up-to-date, it is scheduled for rebuild, and its new ABI
+# hash is computed so that any dependencies of that module can consult it to
+# determine if they also need to be rebuilt.

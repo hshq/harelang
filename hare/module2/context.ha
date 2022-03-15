@@ -35,7 +35,7 @@ export type context = struct {
 //
 // The context borrows the config parameters for the duration of its lifetime.
 // Call [[context_finish]] to clean up resources associated with this object.
-export fn context_init(conf: *config) context = {
+export fn newcontext(conf: *config) context = {
 	let paths: []str = match (os::getenv("HAREPATH")) {
 	case void =>
 		yield alloc(conf.paths...);
