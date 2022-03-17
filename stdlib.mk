@@ -510,6 +510,12 @@ stdlib_deps_linux+=$(stdlib_net_unix_linux)
 stdlib_net_unix_freebsd=$(HARECACHE)/net/unix/net_unix-freebsd.o
 stdlib_deps_freebsd+=$(stdlib_net_unix_freebsd)
 
+# gen_lib net::uri (any)
+stdlib_net_uri_any=$(HARECACHE)/net/uri/net_uri-any.o
+stdlib_deps_any+=$(stdlib_net_uri_any)
+stdlib_net_uri_linux=$(stdlib_net_uri_any)
+stdlib_net_uri_freebsd=$(stdlib_net_uri_any)
+
 # gen_lib os (linux)
 stdlib_os_linux=$(HARECACHE)/os/os-linux.o
 stdlib_deps_linux+=$(stdlib_os_linux)
@@ -1491,6 +1497,18 @@ $(HARECACHE)/net/unix/net_unix-freebsd.ssa: $(stdlib_net_unix_freebsd_srcs) $(st
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::unix \
 		-t$(HARECACHE)/net/unix/net_unix.td $(stdlib_net_unix_freebsd_srcs)
 
+# net::uri (+any)
+stdlib_net_uri_any_srcs= \
+	$(STDLIB)/net/uri/fmt.ha \
+	$(STDLIB)/net/uri/parse.ha \
+	$(STDLIB)/net/uri/uri.ha
+
+$(HARECACHE)/net/uri/net_uri-any.ssa: $(stdlib_net_uri_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_ip_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/net/uri
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::uri \
+		-t$(HARECACHE)/net/uri/net_uri.td $(stdlib_net_uri_any_srcs)
+
 # os (+linux)
 stdlib_os_linux_srcs= \
 	$(STDLIB)/os/+linux/environ.ha \
@@ -2338,6 +2356,12 @@ testlib_deps_linux+=$(testlib_net_unix_linux)
 # gen_lib net::unix (freebsd)
 testlib_net_unix_freebsd=$(TESTCACHE)/net/unix/net_unix-freebsd.o
 testlib_deps_freebsd+=$(testlib_net_unix_freebsd)
+
+# gen_lib net::uri (any)
+testlib_net_uri_any=$(TESTCACHE)/net/uri/net_uri-any.o
+testlib_deps_any+=$(testlib_net_uri_any)
+testlib_net_uri_linux=$(testlib_net_uri_any)
+testlib_net_uri_freebsd=$(testlib_net_uri_any)
 
 # gen_lib os (linux)
 testlib_os_linux=$(TESTCACHE)/os/os-linux.o
@@ -3357,6 +3381,19 @@ $(TESTCACHE)/net/unix/net_unix-freebsd.ssa: $(testlib_net_unix_freebsd_srcs) $(t
 	@mkdir -p $(TESTCACHE)/net/unix
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \
 		-t$(TESTCACHE)/net/unix/net_unix.td $(testlib_net_unix_freebsd_srcs)
+
+# net::uri (+any)
+testlib_net_uri_any_srcs= \
+	$(STDLIB)/net/uri/fmt.ha \
+	$(STDLIB)/net/uri/parse.ha \
+	$(STDLIB)/net/uri/uri.ha \
+	$(STDLIB)/net/uri/+test.ha
+
+$(TESTCACHE)/net/uri/net_uri-any.ssa: $(testlib_net_uri_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_ip_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/uri
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::uri \
+		-t$(TESTCACHE)/net/uri/net_uri.td $(testlib_net_uri_any_srcs)
 
 # os (+linux)
 testlib_os_linux_srcs= \

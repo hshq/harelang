@@ -1,0 +1,2 @@
+The net::uri module provides utilities for parsing Uniform Resource Identifiers
+(RFC 3986).

@@ -1,0 +1,375 @@
+use ascii;
+use io;
+use net::ip;
+use strconv;
+use strings;
+use strio;
+
+// The URI provided to [[parse]] is invalid.
+export type invalid = !void;
+
+// Parses a URI string into [[uri]] structure. The return value must be freed
+// using [[uri_finish]].
+export fn parse(in: str) (uri | invalid) = {
+	let in = strings::iter(in);
+
+	const scheme = parse_scheme(&in)?;
+
+	// Determine hier-part variant
+	let path = "";
+	let authority = ("", 0u16, "");
+	match (strings::next(&in)) {
+	case let r: rune =>
+		switch (r) {
+		case '/' =>
+			// Either "//"+authority+path-abempty or path-absolute
+			switch (wantrune(&in)?) {
+			case '/' =>
+				// "//" + authority + path-abempty
+				authority = parse_authority(&in)?;
+				match (strings::next(&in)) {
+				case let r: rune =>
+					switch (r) {
+					case '?', '#' =>
+						// path-empty
+						strings::prev(&in);
+					case '/' =>
+						// path-absolute
+						strings::prev(&in);
+						path = parse_path(&in,
+							path_mode::ABSOLUTE)?;
+					case =>
+						return invalid;
+					};
+				case => void; // path-empty
+				};
+			case =>
+				// path-absolute
+				strings::prev(&in);
+				path = parse_path(&in, path_mode::ABSOLUTE)?;
+			};
+		case =>
+			// path-rootless
+			strings::prev(&in);
+			path = parse_path(&in, path_mode::ROOTLESS)?;
+		};
+	case => void; // path-empty
+	};
+
+	let query = "";
+	match (strings::next(&in)) {
+	case let r: rune =>
+		if (r == '?') {
+			query = parse_query(&in)?;
+		} else {
+			strings::prev(&in);
+		};
+	case => void;
+	};
+
+	let fragment = "";
+	match (strings::next(&in)) {
+	case let r: rune =>
+		if (r == '#') {
+			fragment = parse_fragment(&in)?;
+		} else {
+			strings::prev(&in);
+		};
+	case => void;
+	};
+
+	return uri {
+		scheme = scheme,
+
+		host = match (ip::parse(authority.0)) {
+		case let a: ip::addr =>
+			yield a;
+		case ip::invalid =>
+			yield authority.0;
+		},
+		port = authority.1,
+		userinfo = authority.2,
+
+		path = path,
+		query = query,
+		fragment = fragment,
+	};
+};
+
+fn parse_scheme(in: *strings::iterator) (str | invalid) = {
+	let buf = strio::dynamic();
+
+	for (let i = 0z; true; i += 1) {
+		const r = wantrune(in)?;
+		if (i > 0 && r == ':') {
+			break;
+		};
+		if (i == 0) {
+			if (!ascii::isalpha(r)) {
+				return invalid;
+			};
+		} else {
+			if (!ascii::isalnum(r) && !strings::contains("+-.", r)) {
+				return invalid;
+			};
+		};
+		strio::appendrune(&buf, r)!;
+	};
+
+	return strio::string(&buf);
+};
+
+fn parse_authority(in: *strings::iterator) ((str, u16, str) | invalid) = {
+	// Scan everything until '@' or ':' or '/', then decide what it is
+	let buf = strio::dynamic();
+	defer io::close(&buf);
+	let host = "";
+	let port = 0u16;
+	let userinfo = "";
+
+	for (true) {
+		const r = match (strings::next(in)) {
+		case let r: rune =>
+			yield r;
+		case void =>
+			break;
+		};
+
+		if (r == '[') {
+			if (len(strio::string(&buf)) > 0) {
+				if (len(userinfo) > 0) {
+					return invalid;
+				} else {
+					userinfo = percent_decode(
+						strio::string(&buf))?;
+				};
+			};
+			strio::reset(&buf);
+
+			for (true) {
+				const r = wantrune(in)?;
+				if (r == ']') {
+					break;
+				};
+				strio::appendrune(&buf, r)!;
+			};
+
+			host = percent_decode(strio::string(&buf))?;
+		} else if (r == ':' || !is_userinfo(r) && !is_host(r)) {
+			if (len(userinfo) > 0 && is_userinfo(r)) {
+				return invalid;
+			};
+
+			if (r == '@') {
+				// This was userinfo+host[+port]
+				userinfo = percent_decode(strio::string(&buf))?;
+				strio::reset(&buf);
+			};
+			if (r == '/') {
+				// This was just host
+				strings::prev(in);
+				host = percent_decode(strio::string(&buf))?;
+				break;
+			};
+			if (r == ':') {
+				// This was host+port
+				host = percent_decode(strio::string(&buf))?;
+				port = parse_port(in)?;
+				break;
+			};
+		} else {
+			strio::appendrune(&buf, r)!;
+		};
+	};
+
+	// In end of string case
+	if (len(host) == 0) {
+		host = percent_decode(strio::string(&buf))?;
+	};
+
+	return (host, port, userinfo);
+};
+
+type path_mode = enum {
+	ABSOLUTE,
+	ROOTLESS,
+};
+
+fn parse_path(in: *strings::iterator, mode: path_mode) (str | invalid) = {
+	let buf = strio::dynamic();
+	defer io::close(&buf);
+
+	// With rootless path, we need at least one segment
+	if (mode == path_mode::ROOTLESS) {
+		for (let i = 0z; true; i += 1) {
+			match (strings::next(in)) {
+			case let r: rune =>
+				if (r == '?' || r == '#') {
+					strings::prev(in);
+					break;
+				};
+				if (r == '/') {
+					if (i == 0) {
+						return invalid;
+					} else {
+						strio::appendrune(&buf, '/')!;
+						break;
+					};
+				};
+				if (!is_pchar(r)) {
+					return invalid;
+				};
+				strio::appendrune(&buf, r)!;
+			case void =>
+				break;
+			};
+		};
+	};
+
+	for (true) {
+		match (strings::next(in)) {
+		case let r: rune =>
+			if (r == '?' || r == '#') {
+				strings::prev(in);
+				break;
+			};
+			if (!is_pchar(r) && r != '/') {
+				return invalid;
+			};
+			strio::appendrune(&buf, r)!;
+		case void =>
+			break;
+		};
+	};
+
+	return percent_decode(strio::string(&buf));
+};
+
+fn parse_query(in: *strings::iterator) (str | invalid) = {
+	let buf = strio::dynamic();
+
+	for (true) {
+		match (strings::next(in)) {
+		case let r: rune =>
+			if (r == '#') {
+				strings::prev(in);
+				break;
+			};
+			if (!is_pchar(r) && r != '/' && r != '?') {
+				return invalid;
+			};
+			strio::appendrune(&buf, r)!;
+		case void =>
+			break;
+		};
+	};
+
+	return strio::string(&buf);
+};
+
+fn parse_fragment(in: *strings::iterator) (str | invalid) = {
+	let buf = strio::dynamic();
+	defer io::close(&buf);
+
+	for (true) {
+		match (strings::next(in)) {
+		case let r: rune =>
+			if (!is_pchar(r) && r != '/' && r != '?') {
+				return invalid;
+			};
+			strio::appendrune(&buf, r)!;
+		case void =>
+			break;
+		};
+	};
+
+	return percent_decode(strio::string(&buf))?;
+};
+
+fn parse_port(in: *strings::iterator) (u16 | invalid) = {
+	let buf = strio::dynamic();
+	defer io::close(&buf);
+	for (true) {
+		const r = match (strings::next(in)) {
+		case let r: rune =>
+			yield r;
+		case void =>
+			break;
+		};
+
+		if (!ascii::isdigit(r)) {
+			strings::prev(in);
+			break;
+		};
+		strio::appendrune(&buf, r)!;
+	};
+
+	match (strconv::stou16(strio::string(&buf))) {
+	case let port: u16 =>
+		if (port == 0) {
+			// There's no port 0
+			return invalid;
+		};
+		return port;
+	case =>
+		return invalid;
+	};
+};
+
+fn percent_decode(s: str) (str | invalid) = {
+	let buf = strio::dynamic();
+	let iter = strings::iter(s);
+	for (true) {
+		match (strings::next(&iter)) {
+		case let r: rune =>
+			if (r == '%') {
+				let tmp = strio::dynamic();
+				defer io::close(&tmp);
+				for (let i = 0z; i < 2; i += 1) {
+					const r = wantrune(&iter)?;
+					strio::appendrune(&tmp, r)!;
+				};
+
+				match (strconv::stou8b(strio::string(&tmp),
+					strconv::base::HEX)) {
+				case let ord: u8 =>
+					strio::appendrune(&buf, ord: u32: rune)!;
+				case =>
+					return invalid;
+				};
+			} else {
+				strio::appendrune(&buf, r)!;
+			};
+		case void =>
+			break;
+		};
+	};
+	return strio::string(&buf);
+};
+
+fn wantrune(iter: *strings::iterator) (rune | invalid) = {
+	match (strings::next(iter)) {
+	case let r: rune =>
+		return r;
+	case =>
+		return invalid;
+	};
+};
+
+fn is_userinfo(r: rune) bool =
+	// unreserved + sub-delim + ":"
+	ascii::isalnum(r) || strings::contains("-._~!$&'()*+,;=:", r)
+	// %-encoded
+	|| r == '%' || ascii::isxdigit(r);
+
+fn is_host(r: rune) bool =
+	// unreserved + sub-delim
+	ascii::isalnum(r) || strings::contains("-._~!$&'()*+,;=", r)
+	// %-encoded
+	|| r == '%' || ascii::isxdigit(r);
+
+fn is_pchar(r: rune) bool =
+	// unreserved + sub-delim + ":"/"@"
+	ascii::isalnum(r) || strings::contains("-._~!$&'()*+,;=:@", r)
+	// %-encoded
+	|| r == '%' || ascii::isxdigit(r);

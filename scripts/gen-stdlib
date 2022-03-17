@@ -933,6 +933,27 @@ net_unix() {
 	gen_ssa -pfreebsd net::unix net errors os io strings types fmt net::dial
 }
 
+gensrcs_net_uri() {
+	gen_srcs net::uri \
+		fmt.ha \
+		parse.ha \
+		uri.ha \
+		$*
+}
+
+net_uri() {
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_net_uri
+	else
+		gensrcs_net_uri \
+			+test.ha
+	fi
+	gen_ssa net::uri \
+		ascii ip net::ip strconv strings strio
+}
+
+
 math_random() {
 	gen_srcs math::random \
 		random.ha
@@ -1251,6 +1272,7 @@ net::ip			linux freebsd
 net::tcp		linux freebsd
 net::udp		linux freebsd
 net::unix		linux freebsd
+net::uri
 os				linux freebsd
 os::exec		linux freebsd
 path
