@@ -14,7 +14,7 @@ export fn start_linux() void = {
 	};
 
 	argc = i;
-	argv = (argv_ptr + size(*char): uintptr): **char;
+	argv = (argv_ptr + size(*char): uintptr): *[*]*char;
 	envp = c_environ;
 };
 
