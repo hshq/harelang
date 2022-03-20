@@ -154,7 +154,7 @@ fn ncmp(a: const *void, b: const *void) int = {
 
 fn lex_unicode(lex: *lexer, loc: location, n: size) (rune | error) = {
 	assert(n < 9);
-	let buf: [9]u8 = [0...];
+	let buf: [8]u8 = [0...];
 	for (let i = 0z; i < n; i += 1z) {
 		let r = match (next(lex)?) {
 		case io::EOF =>
