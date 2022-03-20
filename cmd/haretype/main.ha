@@ -2,6 +2,7 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 use bufio;
 use fmt;
+use getopt;
 use hare::ast;
 use hare::lex;
 use hare::parse;
@@ -9,36 +10,85 @@ use hare::types;
 use hare::unparse;
 use io;
 use os;
+use path;
 use strings;
 
+fn typeinfo(
+	store: *types::typestore,
+	s: str,
+) (void | io::error | parse::error | types::deferred | types::error) = {
+	const hatype = if (s == "null") {
+		fmt::println("null")?;
+		yield types::lookup_builtin(store, ast::builtin_type::NULL);
+	} else {
+		const stream = bufio::fixed(strings::toutf8(s), io::mode::READ);
+		const stream = &stream.stream;
+		defer io::close(stream);
+		const lexer = lex::init(stream, "-");
+		const atype = parse::_type(&lexer)?;
+		defer ast::type_free(atype);
+		const typ = types::lookup(store, &atype)?;
+		unparse::_type(os::stdout, 0, atype)?;
+		fmt::println()?;
+		yield typ;
+	};
+	fmt::println("\tid:", hatype.id)?;
+	fmt::println("\tsize:",
+		if (hatype.sz == types::SIZE_UNDEFINED) "undefined"
+		else hatype.sz)?;
+	fmt::println("\talign:",
+		if (hatype.align == types::SIZE_UNDEFINED) "undefined"
+		else hatype.align)?;
+};
+
 export fn main() void = {
-	const store = types::store(types::x86_64, null, null);
-	defer types::store_free(store);
-	for (let i = 1z; i < len(os::args); i += 1) {
-		const hatype = if (os::args[i] == "null") {
-			fmt::println("null")!;
-			yield types::lookup_builtin(store,
-				ast::builtin_type::NULL);
-		} else {
-			const stream = bufio::fixed(
-				strings::toutf8(os::args[i]),
-				io::mode::READ);
-			defer io::close(stream);
-			const lexer = lex::init(stream, "-");
-			const atype = parse::_type(&lexer)!;
-			defer ast::type_free(atype);
-			unparse::_type(os::stdout, 0, atype)!;
-			fmt::println()!;
-			yield types::lookup(store, &atype)!;
+	// TODO: use system architecture
+	// Currently this isn't necessary, since all supported CPU targets have
+	// the same int and pointer sizes, but this may be needed in the future.
+	let arch = types::x86_64;
+
+	const help: []getopt::help = [
+		"prints information about Hare types",
+		('m', "arch", "set target architecture (x86_64, aarch64, riscv64)"),
+		"types...",
+	];
+	const cmd = getopt::parse(os::args, help...);
+	defer getopt::finish(&cmd);
+	for (let i = 0z; i < len(cmd.opts); i += 1) {
+		const opt = cmd.opts[i];
+		switch (opt.0) {
+		// TODO: tags
+		case 'm' =>
+			arch = switch (opt.1) {
+			case "x86_64" =>
+				yield types::x86_64;
+			case "aarch64" =>
+				yield types::aarch64;
+			case "riscv64" =>
+				yield types::riscv64;
+			case =>
+				fmt::fatal("Unsupported architecture");
+			};
 		};
-		fmt::printfln("\tid: {}", hatype.id)!;
-		fmt::printfln("\tsize: {}",
-			if (hatype.sz == types::SIZE_UNDEFINED)
-				"undefined"
-			else hatype.sz)!;
-		fmt::printfln("\talign: {}",
-			if (hatype.align == types::SIZE_UNDEFINED)
-				"undefined"
-			else hatype.align)!;
+	};
+	if (len(cmd.args) == 0) {
+		const name = path::basename(os::args[0]);
+		getopt::printusage(os::stderr, name, help);
+		os::exit(1);
+	};
+
+	const store = types::store(arch, null, null);
+	defer types::store_free(store);
+	for (let i = 0z; i < len(cmd.args); i += 1) {
+		match (typeinfo(store, cmd.args[i])) {
+		case void => void;
+		case let err: io::error =>
+			fmt::fatal("I/O error: {}", io::strerror(err));
+		case let err: parse::error =>
+			fmt::fatal("{}", parse::strerror(err));
+		case (types::deferred | types::error) =>
+			// XXX: hare::types should provide a strerror function
+			fmt::fatal("Invalid type");
+		};
 	};
 };
