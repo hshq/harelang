@@ -659,8 +659,8 @@ fn lex3(lex: *lexer) (token | error) = {
 	let r = next(lex)? as (rune, location);
 	let toks = switch (r.0) {
 	case '.' =>
-		let tok = if (try(lex, '.') is void) ltok::DOT
-			else if (try(lex, '.') is void) ltok::SLICE
+		let tok = if (try(lex, '.')? is void) ltok::DOT
+			else if (try(lex, '.')? is void) ltok::SLICE
 			else ltok::ELLIPSIS;
 		return (tok, void, r.1);
 	case '<' =>
