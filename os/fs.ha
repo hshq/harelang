@@ -52,9 +52,10 @@ export fn chmod(path: str, mode: fs::mode) (void | fs::error) = fs::chmod(cwd, p
 // Changes ownership of a file.
 export fn chown(path: str, uid: uint, gid: uint) (void | fs::error) = fs::chown(cwd, path, uid, gid);
 
-// Resolves a path to its absolute, normalized value. This consoldates ./ and
-// ../ sequences, roots the path, and returns a new path. The caller must free
-// the return value.
+// Resolves a path to its absolute, normalized value. Relative paths will be
+// rooted (if supported by the host filesystem), and "." and ".." components
+// will be reduced. This function does not follow symlinks; see [[realpath]] if
+// you need this behavior. The caller must free the return value.
 export fn resolve(path: str) str = fs::resolve(cwd, path);
 
 // Returns the path referred to by a symbolic link. The return value is
