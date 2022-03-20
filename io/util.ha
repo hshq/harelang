@@ -52,8 +52,13 @@ export fn readall(in: handle, buf: []u8) (size | EOF | error) = {
 // Writes an entire "item", i.e. one Hare object, to an I/O handle. This
 // function may use multiple writes. The return value is the total number of
 // bytes written (which shall be equal to itemsz).
-export fn writeitem(out: handle, item: *void, itemsz: size) (size | error) = {
-	let buf = item: *[*]u8, i = 0z;
+export fn writeitem(
+	out: handle,
+	item: *const void,
+	itemsz: size,
+) (size | error) = {
+	const buf = item: *[*]u8;
+	let i = 0z;
 	for (i < itemsz) {
 		i += write(out, buf[i..(itemsz - i)])?;
 	};
@@ -62,8 +67,12 @@ export fn writeitem(out: handle, item: *void, itemsz: size) (size | error) = {
 
 // Writes several "items", i.e. Hare objects, to an I/O handle. If successful,
 // all items will be written. The return value is the number of items written.
-export fn writeitems(in: handle, items: []void, itemsz: size) (size | error) = {
-	let buf = items: *[*]u8;
+export fn writeitems(
+	out: handle,
+	items: []const void,
+	itemsz: size,
+) (size | error) = {
+	const buf = items: *[*]u8;
 	writeitem(out, buf, len(items) * itemsz)?;
 	return len(items);
 };
