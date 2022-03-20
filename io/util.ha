@@ -60,9 +60,9 @@ export fn writeitem(out: handle, item: *void, itemsz: size) (size | error) = {
 	return i;
 };
 
-// Writes several "items", i.e. Hare objects, to an I/O handle. The return value
-// is the number of items written.
-export fn writeitems(out: handle, items: []void, itemsz: size) (size | error) = {
+// Writes several "items", i.e. Hare objects, to an I/O handle. If successful,
+// all items will be written. The return value is the number of items written.
+export fn writeitems(in: handle, items: []void, itemsz: size) (size | error) = {
 	let buf = items: *[*]u8;
 	writeitem(out, buf, len(items) * itemsz)?;
 	return len(items);
