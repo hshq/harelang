@@ -4,7 +4,6 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 use fmt;
-use hare::ast;
 use hare::lex::{ltok};
 use hare::lex;
 use io;
@@ -91,46 +90,5 @@ fn peek(
 fn synassert(loc: lex::location, cond: bool, msg: str) (void | error) = {
 	if (!cond) {
 		return syntaxerr(loc, "{}", msg);
-	};
-};
-
-fn nametype(lexer: *lex::lexer) ((str, ast::_type) | error) = {
-	let tok = peek(lexer)? as lex::token;
-	const start = tok.2;
-	switch (tok.0) {
-	case ltok::NAME =>
-		let name = tok.1 as str;
-		want(lexer, ltok::NAME)?;
-		tok = peek(lexer)? as lex::token;
-		switch (tok.0) {
-		case ltok::COLON =>
-			want(lexer, ltok::COLON)?;
-			return (name, _type(lexer)?);
-		case ltok::DOUBLE_COLON =>
-			want(lexer, ltok::DOUBLE_COLON)?;
-			let id = ident(lexer)?;
-			insert(id[0], name);
-			return ("", ast::_type {
-				start = start,
-				end = lex::prevloc(lexer),
-				flags = 0,
-				repr = ast::alias_type {
-					unwrap = false,
-					ident = id,
-				},
-			});
-		case =>
-			return ("", ast::_type {
-				start = start,
-				end = lex::prevloc(lexer),
-				flags = 0,
-				repr = ast::alias_type {
-					unwrap = false,
-					ident = alloc([name]),
-				},
-			});
-		};
-	case =>
-		return ("", _type(lexer)?);
 	};
 };
