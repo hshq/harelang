@@ -457,7 +457,6 @@ export type siginfo = union {
 				si_addr: *void,
 
 				union {
-
 					// used when si_code=BUS_MCEERR_AR or
 					// used when si_code=BUS_MCEERR_AO
 					si_addr_lsb: i16,
@@ -487,7 +486,6 @@ export type siginfo = union {
 				si_syscall: int,
 				si_arch: uint,
 			},
-
 		},
 	},
 	_si_pad: [SI_MAX_SIZE - 3 * size(int)]u8,
