@@ -21,3 +21,10 @@ export const aarch64: arch = arch {
 	_pointer = 8,
 	_size = 8,
 };
+
+// [[arch]] configuration for riscv64.
+export const riscv64: arch = arch {
+	_int = 4,
+	_pointer = 8,
+	_size = 8,
+};
