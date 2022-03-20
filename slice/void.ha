@@ -3,19 +3,10 @@
 use rt;
 use types;
 
-// Appends an item, or items, to a slice, returning a new slice.
+// Appends an item, or multiple items, to a slice.
 export fn appendto(sl: *[]void, itemsz: size, items: const *void...) void = {
-	if (len(items) == 0) {
-		return;
-	};
-	let sl = sl: *types::slice;
-	let end = sl.length;
-	sl.length += len(items);
-	rt::ensure(sl, itemsz);
-	let data = sl.data: *[*]u8;
-	for (let i = 0z; i < len(items); i += 1) {
-		rt::memcpy(&data[(end + i) * itemsz], items[i], itemsz);
-	};
+	const repr = sl: *types::slice;
+	insertinto(sl, itemsz, repr.length, items...);
 };
 
 @test fn appendto() void = {
@@ -23,6 +14,63 @@ export fn appendto(sl: *[]void, itemsz: size, items: const *void...) void = {
 	let num = 1337;
 	appendto(&input: *[]void, size(int), &num, &num);
 	assert(len(input) == 2 && input[0] == 1337 && input[1] == 1337);
+	num = 7331;
+	appendto(&input: *[]void, size(int), &num);
+	assert(len(input) == 3 && input[0] == 1337 && input[1] == 1337
+		&& input[2] == 7331);
+	free(input);
+};
+
+// Inserts an item, or multiple items, to a slice, in O(n) time.
+export fn insertinto(
+	sl: *[]void,
+	itemsz: size,
+	idx: size,
+	items: const *void...
+) void = {
+	if (len(items) == 0) {
+		return;
+	};
+	let sl = sl: *types::slice;
+	sl.length += len(items);
+	rt::ensure(sl, itemsz);
+	let data = sl.data: *[*]u8;
+	rt::memmove(&data[(idx + len(items)) * itemsz], &data[idx * itemsz],
+		(sl.length - len(items) - idx) * itemsz);
+	for (let i = 0z; i < len(items); i += 1) {
+		rt::memcpy(&data[(idx + i) * itemsz], items[i], itemsz);
+	};
+};
+
+@test fn insertinto() void = {
+	let input: []int = alloc([1, 3], 2);
+	let num = 2;
+	insertinto(&input: *[]void, size(int), 1, &num, &num);
+	assert(len(input) == 4 && input[0] == 1 && input[1] == 2
+		&& input[2] == 2 && input[3] == 3);
+	free(input);
+};
+
+// Deletes a range of items from a slice, in O(n) time, without freeing memory.
+export fn deletefrom(sl: *[]void, itemsz: size, start: size, end: size) void = {
+	assert(start <= end);
+	if (start == end) {
+		return;
+	};
+	let sl = sl: *types::slice;
+	let data = sl.data: *[*]u8;
+	rt::memmove(&data[start * itemsz], &data[end * itemsz],
+		(sl.length - start) * itemsz);
+	sl.length -= end - start;
+};
+
+@test fn deletefrom() void = {
+	let input: []int = alloc([1, 2, 3, 4, 5], 5);
+	deletefrom(&input: *[]void, size(int), 1, 1);
+	assert(len(input) == 5);
+	deletefrom(&input: *[]void, size(int), 1, 3);
+	assert(len(input) == 3 && input[0] == 1 && input[1] == 4
+		&& input[2] == 5);
 	free(input);
 };
 
