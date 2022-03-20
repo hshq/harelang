@@ -1,7 +1,7 @@
-[[net::dial]] provides a single function to facilitate the establishment of
-outgoing network connections. It handles port selection, address parsing,
-protocol and service lookup, DNS lookup (via /etc/hosts, /etc/resolv.conf, etc),
-SRV record resolution, and so on. See [[dial]] for details.
+net::dial provides a single function to facilitate the establishment of outgoing
+network connections. It handles port selection, address parsing, protocol and
+service lookup, DNS lookup (via /etc/hosts, /etc/resolv.conf, etc), SRV record
+resolution, and so on. See [[dial]] for details.
 
 Modules implementing their own network protocols are also able to add themselves
 to the protocol and service registry. The protocol registry is used for
