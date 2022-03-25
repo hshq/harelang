@@ -1,4 +1,5 @@
 use bufio;
+use encoding::hex;
 use fmt;
 use hare::ast;
 use hare::lex;
@@ -48,5 +49,34 @@ export fn main() void = {
 		yield path;
 	};
 	defer free(path);
-	fmt::println(path)!;
+
+	let mod = match (module2::scan(&ctx, path)) {
+	case let err: module2::error =>
+		fmt::errorf("Error scanning ")!;
+		unparse::ident(os::stderr, ident)!;
+		fmt::fatal(": {}", module2::strerror(err));
+	case let mod: module2::module =>
+		yield mod;
+	};
+
+	fmt::printfln("Base: {}", mod.base)!;
+
+	fmt::print("ABI hash: ")!;
+	hex::encode(os::stdout, mod.abi)!;
+	fmt::println()!;
+
+	fmt::println("Dependencies:")!;
+	for (let i = 0z; i < len(mod.depends); i += 1) {
+		const depend = mod.depends[i];
+		fmt::print("- ")!;
+		unparse::ident(os::stdout, depend)!;
+		fmt::println()!;
+	};
+
+	fmt::println("Input files:")!;
+	for (let i = 0z; i < len(mod.inputs); i += 1) {
+		fmt::printf("- {} ", mod.inputs[i].path)!;
+		hex::encode(os::stdout, mod.inputs[i].hash)!;
+		fmt::println()!;
+	};
 };

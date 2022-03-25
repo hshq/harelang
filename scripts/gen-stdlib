@@ -747,13 +747,15 @@ hare_module() {
 
 hare_module2() {
 	gen_srcs hare::module2 \
+		abi.ha \
 		context.ha \
 		error.ha \
 		ident.ha \
 		resolve.ha \
 		scan.ha
 	gen_ssa hare::module2 dirs os fs strings path fmt hare::ast errors \
-		strio io hare::parse
+		strio io hare::parse hare::lex crypto::sha256 sort ascii \
+		hare::unparse
 }
 
 gensrcs_hare_parse() {

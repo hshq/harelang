@@ -34,6 +34,9 @@ export fn ismodule(ctx: *context, path: str) bool = {
 		case let ent: fs::dirent =>
 			yield ent;
 		};
+		if (ent.name == "." || ent.name == "..") {
+			continue;
+		};
 
 		if (fs::isfile(ent.ftype)) {
 			if (ismodinput(ent.name)) {
