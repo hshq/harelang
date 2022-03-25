@@ -4,6 +4,7 @@
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+// (c) 2022 Umar Getagazov <umar@handlerug.me>
 
 // Note: ast::ident should never have to be escaped
 use bufio;
@@ -100,29 +101,48 @@ fn emit_html(ctx: *context) (void | error) = {
 		fmt::fprintln(ctx.out, "</div>")?;
 	};
 
-	if (len(ctx.version.subdirs) != 0) {
-		// TODO: Verify that these are actually modules
+	let identpath = module::identpath(ctx.ident);
+	defer free(identpath);
+
+	let submodules: []str = [];
+	defer free(submodules);
+
+	for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
+		let dir = ctx.version.subdirs[i];
+		// XXX: the list of reserved directory names is not yet
+		// finalized. See https://todo.sr.ht/~sircmpwn/hare/516
+		if (dir == "contrib") continue;
+		if (dir == "cmd") continue;
+		if (dir == "docs") continue;
+		if (dir == "ext") continue;
+		if (dir == "vendor") continue;
+		if (dir == "scripts") continue;
+
+		let path = path::join(identpath, dir);
+		defer free(path);
+		if (module::scan(ctx.mctx, path) is module::error) {
+			continue;
+		};
+
+		append(submodules, dir);
+	};
+
+	if (len(submodules) != 0) {
 		if (len(ctx.ident) == 0) {
 			fmt::fprintln(ctx.out, "<h3>Modules</h3>")?;
 		} else {
 			fmt::fprintln(ctx.out, "<h3>Submodules</h3>")?;
 		};
 		fmt::fprintln(ctx.out, "<ul class='submodules'>")?;
-		for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
-			let dir = ctx.version.subdirs[i];
-			if (dir == "cmd") continue;
-			if (dir == "docs") continue;
-			if (dir == "scripts") continue;
-
-			let path = module::identpath(ctx.ident);
-			defer free(path);
-			let path = path::join("/", path, dir);
+		for (let i = 0z; i < len(submodules); i += 1) {
+			let submodule = submodules[i];
+			let path = path::join("/", identpath, submodule);
 			defer free(path);
 
 			fmt::fprintf(ctx.out, "<li><a href='")?;
 			html_escape(ctx.out, path)?;
 			fmt::fprintf(ctx.out, "'>")?;
-			html_escape(ctx.out, dir)?;
+			html_escape(ctx.out, submodule)?;
 			fmt::fprintfln(ctx.out, "</a></li>")?;
 		};
 		fmt::fprintln(ctx.out, "</ul>")?;
