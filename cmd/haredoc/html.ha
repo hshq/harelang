@@ -15,6 +15,7 @@ use hare::lex;
 use hare::module;
 use hare::unparse;
 use io;
+use net::uri;
 use os;
 use path;
 use strings;
@@ -355,17 +356,17 @@ fn markup_html(ctx: *context, in: io::handle) (void | io::error) = {
 			fmt::fprintln(ctx.out)?;
 			fmt::fprint(ctx.out, "<p>")?;
 		case let tx: text =>
-			if (strings::hasprefix(tx, "https://")) {
-				// Temporary hack
+			defer free(tx);
+			match (uri::parse(strings::trim(tx))) {
+			case let uri: uri::uri =>
+				defer uri::finish(&uri);
 				fmt::fprint(ctx.out, "<a rel='nofollow noopener' href='")?;
-				html_escape(ctx.out, tx)?;
+				uri::fmt(ctx.out, &uri)?;
 				fmt::fprint(ctx.out, "'>")?;
 				html_escape(ctx.out, tx)?;
 				fmt::fprint(ctx.out, "</a>")?;
-				free(tx);
-			} else {
+			case uri::invalid =>
 				html_escape(ctx.out, tx)?;
-				free(tx);
 			};
 		case let re: reference =>
 			htmlref(ctx, re)?;
