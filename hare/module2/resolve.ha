@@ -34,7 +34,7 @@ export fn ismodule(ctx: *context, path: str) bool = {
 		case let ent: fs::dirent =>
 			yield ent;
 		};
-		if (ent.name == "." || ent.name == "..") {
+		if (strings::hasprefix(ent.name, ".")) {
 			continue;
 		};
 

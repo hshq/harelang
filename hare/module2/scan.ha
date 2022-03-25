@@ -53,7 +53,7 @@ export fn scan(ctx: *context, path: str) (module | error) = {
 		case let ent: fs::dirent =>
 			yield ent;
 		};
-		if (ent.name == "." || ent.name == "..") {
+		if (strings::hasprefix(ent.name, ".")) {
 			continue;
 		};
 
