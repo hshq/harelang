@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2022 Alexey Yerin <yyp@disroot.org>
+// (c) 2022 Umar Getagazov <umar@handlerug.me>
 use ascii;
 use io;
 use net::ip;
@@ -9,7 +12,7 @@ use strio;
 export type invalid = !void;
 
 // Parses a URI string into [[uri]] structure. The return value must be freed
-// using [[uri_finish]].
+// using [[finish]].
 export fn parse(in: str) (uri | invalid) = {
 	let in = strings::iter(in);
 
