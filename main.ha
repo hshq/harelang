@@ -5,6 +5,7 @@ use hare::lex;
 use hare::parse;
 use hare::module2;
 use hare::module2::{tag_mode};
+use hare::unparse;
 use io;
 use os;
 use strings;
@@ -40,7 +41,9 @@ export fn main() void = {
 
 	const path = match (module2::resolve(&ctx, ident)) {
 	case let err: module2::error =>
-		fmt::fatal(module2::strerror(err));
+		fmt::errorf("Error resolving ")!;
+		unparse::ident(os::stderr, ident)!;
+		fmt::fatal(": {}", module2::strerror(err));
 	case let path: str =>
 		yield path;
 	};

@@ -14,7 +14,6 @@ export fn strerror(err: error) const str = {
 	case let err: fs::error =>
 		return fs::strerror(err);
 	case modnotfound =>
-		// TODO: put the module name in here
 		return "Module not found";
 	};
 };
