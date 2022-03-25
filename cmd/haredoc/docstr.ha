@@ -3,6 +3,7 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+// (c) 2022 Umar Getagazov <umar@handlerug.me>
 use ascii;
 use bufio;
 use encoding::utf8;
@@ -17,12 +18,13 @@ type paragraph = void;
 type text = str;
 type reference = ast::ident;
 type sample = str;
-type list = []str;
-type token = (paragraph | text | reference | sample | list);
+type listitem = void;
+type token = (paragraph | text | reference | sample | listitem);
 
 type docstate = enum {
 	PARAGRAPH,
 	TEXT,
+	LIST,
 };
 
 type parser = struct {
@@ -52,6 +54,15 @@ fn scandoc(par: *parser) (token | void) = {
 		switch (rn) {
 		case '[' =>
 			return scanref(par);
+		case =>
+			return scantext(par);
+		};
+	case docstate::LIST =>
+		switch (rn) {
+		case '[' =>
+			return scanref(par);
+		case '-' =>
+			return scanlist(par);
 		case =>
 			return scantext(par);
 		};
@@ -98,6 +109,9 @@ fn scantext(par: *parser) (token | void) = {
 				break;
 			};
 			bufio::unreadrune(&par.src, rn);
+			if (par.state == docstate::LIST) {
+				break;
+			};
 		case =>
 			strio::appendrune(&buf, rn)!;
 		};
@@ -219,21 +233,22 @@ fn scansample(par: *parser) (token | void) = {
 };
 
 fn scanlist(par: *parser) (token | void) = {
-	let items: list = [];
-	for (true) {
-		match (bufio::scanrune(&par.src)!) {
-		case io::EOF => break;
-		case let rn: rune =>
-			if (rn != '-') {
-				break;
-			};
+	match (bufio::scanrune(&par.src)!) {
+	case io::EOF => return void;
+	case let rn: rune =>
+		if (rn != '-') {
+			abort();
 		};
-		// XXX: multi-line list items
-		append(items, match (bufio::scanline(&par.src)!) {
-		case io::EOF => break;
-		case let u: []u8 =>
-			yield strings::fromutf8(u);
-		});
 	};
-	return items;
+	const rn = match (bufio::scanrune(&par.src)!) {
+	case io::EOF => return void;
+	case let rn: rune =>
+		yield rn;
+	};
+	if (rn != ' ') {
+		bufio::unreadrune(&par.src, rn);
+		return strings::dup("-"): text;
+	};
+	par.state = docstate::LIST;
+	return listitem;
 };

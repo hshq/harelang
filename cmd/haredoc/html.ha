@@ -345,14 +345,23 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 
 fn markup_html(ctx: *context, in: io::handle) (void | io::error) = {
 	let parser = parsedoc(in);
+	let waslist = false;
 	for (true) {
 		const tok = match (scandoc(&parser)) {
-			case void => break;
+			case void =>
+				if (waslist) {
+					fmt::fprintln(ctx.out, "</ul>")?;
+				};
+				break;
 			case let tok: token =>
 				yield tok;
 			};
 		match (tok) {
 		case paragraph =>
+			if (waslist) {
+				fmt::fprintln(ctx.out, "</ul>")?;
+				waslist = false;
+			};
 			fmt::fprintln(ctx.out)?;
 			fmt::fprint(ctx.out, "<p>")?;
 		case let tx: text =>
@@ -371,18 +380,20 @@ fn markup_html(ctx: *context, in: io::handle) (void | io::error) = {
 		case let re: reference =>
 			htmlref(ctx, re)?;
 		case let sa: sample =>
+			if (waslist) {
+				fmt::fprintln(ctx.out, "</ul>")?;
+				waslist = false;
+			};
 			fmt::fprint(ctx.out, "<pre class='sample'>")?;
 			html_escape(ctx.out, sa)?;
 			fmt::fprint(ctx.out, "</pre>")?;
 			free(sa);
-		case let li: list =>
-			fmt::fprintln(ctx.out, "<ul>")?;
-			for (let i = 0z; i < len(li); i += 1) {
-				fmt::fprintln(ctx.out, "<li>")?;
-				html_escape(ctx.out, li[i])?;
-				fmt::fprintln(ctx.out, "</li>")?;
+		case listitem =>
+			if (!waslist) {
+				fmt::fprintln(ctx.out, "<ul>")?;
+				waslist = true;
 			};
-			fmt::fprintln(ctx.out, "</ul>")?;
+			fmt::fprint(ctx.out, "<li>")?;
 		};
 	};
 	fmt::fprintln(ctx.out)?;
