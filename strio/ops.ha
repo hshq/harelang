@@ -1,6 +1,7 @@
 // License: MPL-2.0
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2022 Yasumasa Tada <ytada@spartan.dev>
 use encoding::utf8;
 use io;
 use strings;
@@ -11,13 +12,7 @@ use strings;
 export fn concat(out: io::handle, strs: str...) (size | io::error) = {
 	let n = 0z;
 	for (let i = 0z; i < len(strs); i += 1) {
-		let q = 0z;
-		let buf = strings::toutf8(strs[i]);
-		for (q < len(buf)) {
-			let w = io::write(out, buf[q..])?;
-			n += w;
-			q -= w;
-		};
+		n += io::writeall(out, strings::toutf8(strs[i]))?;
 	};
 	return n;
 };
@@ -37,20 +32,9 @@ export fn join(out: io::handle, delim: str, strs: str...) (size | io::error) = {
 	let n = 0z;
 	let delim = strings::toutf8(delim);
 	for (let i = 0z; i < len(strs); i += 1) {
-		let q = 0z;
-		let buf = strings::toutf8(strs[i]);
-		for (q < len(buf)) {
-			let w = io::write(out, buf[q..])?;
-			n += w;
-			q -= w;
-		};
+		n += io::writeall(out, strings::toutf8(strs[i]))?;
 		if (i + 1 < len(strs)) {
-			let q = 0z;
-			for (q < len(delim)) {
-				let w = io::write(out, delim[q..])?;
-				n += w;
-				q -= w;
-			};
+			n += io::writeall(out, delim)?;
 		};
 	};
 	return n;
@@ -76,20 +60,9 @@ export fn rjoin(out: io::handle, delim: str, strs: str...) (size | io::error) = 
 	let n = 0z;
 	let delim = strings::toutf8(delim);
 	for (let i = len(strs); i > 0; i -= 1) {
-		let q = 0z;
-		let buf = strings::toutf8(strs[i - 1]);
-		for (q < len(buf)) {
-			let w = io::write(out, buf[q..])?;
-			n += w;
-			q -= w;
-		};
+		n += io::writeall(out, strings::toutf8(strs[i - 1]))?;
 		if (i - 1 > 0) {
-			let q = 0z;
-			for (q < len(delim)) {
-				let w = io::write(out, delim[q..])?;
-				n += w;
-				q -= w;
-			};
+			n += io::writeall(out, delim)?;
 		};
 	};
 	return n;
