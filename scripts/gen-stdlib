@@ -748,8 +748,12 @@ hare_module() {
 hare_module2() {
 	gen_srcs hare::module2 \
 		context.ha \
-		ident.ha
-	gen_ssa hare::module2 dirs os fs strings path fmt hare::ast errors strio
+		error.ha \
+		ident.ha \
+		resolve.ha \
+		scan.ha
+	gen_ssa hare::module2 dirs os fs strings path fmt hare::ast errors \
+		strio io hare::parse
 }
 
 gensrcs_hare_parse() {
