@@ -21,8 +21,7 @@ export fn wait(ring: *io_uring) (*cqe | error) = {
 	case let err: error =>
 		return err;
 	case let cq: nullable *cqe =>
-		assert(cq != null); // XXX: Correct?
-		return cq: *cqe;
+		return cq as *cqe; // XXX: Correct?
 	};
 };
 

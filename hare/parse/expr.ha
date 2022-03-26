@@ -694,8 +694,8 @@ fn indexing(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
 		} else ast::access_index {
 			object = alloc(lvalue),
 			index = {
-				assert(start != null && end == null);
-				yield start: *ast::expr;
+				assert(end == null);
+				yield start as *ast::expr;
 			},
 		},
 	};

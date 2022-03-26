@@ -438,6 +438,5 @@ fn process_return(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	assert(ret_expr.terminates);
 	assert(ret_expr.result.repr as types::builtin == types::builtin::VOID);
 	const rval = ret_expr.expr as _return;
-	assert(rval != null);
-	assert((rval: *expr).expr is constant);
+	assert((rval as *expr).expr is constant);
 };

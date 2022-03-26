@@ -7,8 +7,7 @@ use hare::ast;
 export fn dealias(t: *_type) const *_type = {
 	for (true) match (t.repr) {
 	case let a: alias =>
-		assert(a.secondary != null);
-		t = a.secondary: const *_type;
+		t = a.secondary as const *_type;
 	case =>
 		break;
 	};

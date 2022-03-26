@@ -170,14 +170,8 @@ fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 				break;
 			};
 		};
-		// TODO: This can be a type assertion
-		let task = match (next) {
-		case null =>
-			abort();
-		case let t: *task =>
-			yield t;
-		};
 
+		let task = next as *task;
 		match (task.module) {
 		case let s: str =>
 			plan.progress.current_module = s;

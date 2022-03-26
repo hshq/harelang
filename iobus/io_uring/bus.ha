@@ -94,11 +94,7 @@ fn _dispatch(bus: *bus) (result | error) = {
 		return err: error;
 	case uint => void;
 	};
-	match (io_uring::peek(&bus.uring)?) {
-	case null => abort();
-	case let cqe: *io_uring::cqe =>
-		return cqe: result;
-	};
+	return io_uring::peek(&bus.uring)? as *io_uring::cqe;
 };
 
 // Registers a file with the iobus, returning a [[registered_file]] object to
