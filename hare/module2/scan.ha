@@ -114,7 +114,17 @@ fn scanhare(ctx: *context, state: *scan_state, path: str) (file | error) = {
 };
 
 fn scanasm(ctx: *context, mod: *module, path: str) (file | error) = {
-	abort(); // TODO
+	const input = fs::open(ctx.fs, path)?;
+	defer io::close(input);
+	let sha = sha256::sha256();
+	io::copy(&sha, input)?;
+	let result = file {
+		path = strings::dup(path),
+		ftype = filetype::ASM,
+		...
+	};
+	hash::finish(&sha, result.hash);
+	return result;
 };
 
 fn included(ctx: *context, path: str) bool = {
