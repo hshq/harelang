@@ -83,13 +83,16 @@ fn _scan(
 		path::set(buf, path, ent.name)!;
 		if (fs::isfile(ent.ftype)) {
 			const path = path::string(buf);
-			if (included(ctx, path)) {
+			if (included(ctx, path, false)) {
 				append(inputs, strings::dup(path));
 			};
 		} else if (fs::isdir(ent.ftype)) {
-			const path = strings::dup(path::string(buf));
-			defer free(path);
-			_scan(ctx, mod, path, inputs, buf)?;
+			const path = path::string(buf);
+			if (included(ctx, path, true)) {
+				const path = strings::dup(path);
+				defer free(path);
+				_scan(ctx, mod, path, inputs, buf)?;
+			};
 		} else if (fs::islink(ent.ftype)) {
 			abort(); // TODO
 		};
@@ -139,12 +142,18 @@ fn scanasm(ctx: *context, mod: *module, path: str) (file | error) = {
 	return result;
 };
 
-fn included(ctx: *context, path: str) bool = {
-	if (!ismodinput(path)) {
+fn included(ctx: *context, path: str, isdir: bool) bool = {
+	const basename = path::basename(path);
+	if (isdir) {
+		if (!strings::hasprefix(basename, "+")
+				&& !strings::hasprefix(basename, "-")) {
+			return false;
+		};
+	} else if (!ismodinput(basename)) {
 		return false;
 	};
 	// XXX: Would be nice to avoid allocating the tags here
-	const tags = parse_name(path::basename(path));
+	const tags = parse_name(basename);
 	defer tags_free(tags);
 	return tagcompat(ctx.tags, tags);
 };
