@@ -27,7 +27,7 @@ for file in $files; do
         "author-time "*) timestamp=$(printf '%s' "$line" | sed 's/author-time //' ) ;;
         "filename "*)
           year=$(date +%Y -d @${timestamp})
-          year_authorinfo="${year_authorinfo}${author} ${mail};${year}\n"
+          year_authorinfo=$(printf '%s\n%s' "${year_authorinfo}" "${author} ${mail};${year}")
           ;;
         *) ;;
       esac
@@ -37,7 +37,7 @@ for file in $files; do
 EOF
 
   # Get only the unique author names
-  uniq_authors="$(printf '%s' "$year_authorinfo" | awk -F ';' '{print $1}' | sort -u)"
+  uniq_authors="$(printf '%s\n' "$year_authorinfo" | tail -n +2 | awk -F ';' '{print $1}' | sort -u)"
 
   # Get all years for each author, and condense them into one line per author,
   # with the earliest contribution as the start year, and the latest
@@ -47,21 +47,21 @@ EOF
     years_for_author="$(printf '%s' "$year_authorinfo" | awk -F ';' "{if (\$1 == \"$author\") print \$2}")"
     min_year="$(printf '%s' "$years_for_author" | sort | head -n 1)"
     max_year="$(printf '%s' "$years_for_author" | sort | tail -n 1)"
-    if [ $min_year = $max_year ]; then
-      condensed_authorinfo="${condensed_authorinfo}${author};${min_year}\n"
+    if [ "$min_year" = "$max_year" ]; then
+      condensed_authorinfo=$(printf '%s\n%s' "$condensed_authorinfo" "$author;$min_year")
     else
-      condensed_authorinfo="${condensed_authorinfo}${author};${min_year}-${max_year}\n"
+      condensed_authorinfo=$(printf '%s\n%s' "$condensed_authorinfo" "$author;$min_year-$max_year")
     fi
   done <<EOF
   $uniq_authors
 EOF
 
-  sorted_condensed_authorinfo="$(printf '%s' "$condensed_authorinfo" | sort -u)"
+  sorted_condensed_authorinfo="$(printf '%s' "$condensed_authorinfo" | tail -n +2 | sort -u)"
   formatted_authorinfo="$(printf '%s' "$sorted_condensed_authorinfo" | awk -F ';' '{print "// (c) " $2 " " $1}')"
 
   case $file in
-    "./cmd/"*) header="// License: GPL-3.0\n$formatted_authorinfo\n" ;;
-    *) header="// License: MPL-2.0\n$formatted_authorinfo\n" ;;
+    "./cmd/"*) header="// License: GPL-3.0" ;;
+    *) header="// License: MPL-2.0" ;;
   esac
 
   n_existing_license_lines=$(sed '/\(^\/\/ License\|^\/\/ (c)\|^$\)/! Q' $file | wc -l)
@@ -71,10 +71,10 @@ EOF
 
   if [ -z "$(sed -n '1{/^use/p};q' copyright_tmp)" ]; then
     # File does not start with "use"
-    printf '%s\n' "$header" | cat - copyright_tmp > $file
+    printf '%s\n%s\n\n' "$header" "$formatted_authorinfo" | cat - copyright_tmp > $file
   else
     # File starts with "use"
-    printf '%s' "$header" | cat - copyright_tmp > $file
+    printf '%s\n%s\n' "$header" "$formatted_authorinfo" | cat - copyright_tmp > $file
   fi
 
   rm copyright_tmp
