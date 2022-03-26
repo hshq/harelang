@@ -49,6 +49,25 @@ export fn scan(ctx: *context, path: str) (module | error) = {
 	defer strings::freeall(inputs);
 
 	let buf = path::init();
+	_scan(ctx, &state.mod, path, &inputs, &buf)?;
+	sort::sort(inputs, size(str), &strcmp);
+
+	for (let i = 0z; i < len(inputs); i += 1) {
+		const file = scanfile(ctx, &state, inputs[i])?;
+		append(state.mod.inputs, file);
+	};
+
+	hash::finish(&state.abi, state.mod.abi);
+	return state.mod;
+};
+
+fn _scan(
+	ctx: *context,
+	mod: *module,
+	path: str,
+	inputs: *[]str,
+	buf: *path::buffer,
+) (void | error) = {
 	const iter = fs::iter(ctx.fs, path)?;
 	for (true) {
 		const ent = match (fs::next(iter)) {
@@ -61,28 +80,20 @@ export fn scan(ctx: *context, path: str) (module | error) = {
 			continue;
 		};
 
-		path::set(&buf, state.mod.base, ent.name)!;
+		path::set(buf, path, ent.name)!;
 		if (fs::isfile(ent.ftype)) {
-			const path = path::string(&buf);
+			const path = path::string(buf);
 			if (included(ctx, path)) {
 				append(inputs, strings::dup(path));
 			};
 		} else if (fs::isdir(ent.ftype)) {
-			abort(); // TODO
+			const path = strings::dup(path::string(buf));
+			defer free(path);
+			_scan(ctx, mod, path, inputs, buf)?;
 		} else if (fs::islink(ent.ftype)) {
 			abort(); // TODO
 		};
 	};
-
-	sort::sort(inputs, size(str), &strcmp);
-
-	for (let i = 0z; i < len(inputs); i += 1) {
-		const file = scanfile(ctx, &state, inputs[i])?;
-		append(state.mod.inputs, file);
-	};
-
-	hash::finish(&state.abi, state.mod.abi);
-	return state.mod;
 };
 
 // Note: Must be called in alphabetical order so that the ABI hash is computed
@@ -118,6 +129,7 @@ fn scanasm(ctx: *context, mod: *module, path: str) (file | error) = {
 	defer io::close(input);
 	let sha = sha256::sha256();
 	io::copy(&sha, input)?;
+
 	let result = file {
 		path = strings::dup(path),
 		ftype = filetype::ASM,
