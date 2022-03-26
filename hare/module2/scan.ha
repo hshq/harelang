@@ -1,3 +1,4 @@
+use ascii;
 use crypto::sha256;
 use fs;
 use hare::ast;
@@ -5,6 +6,7 @@ use hare::parse;
 use hash;
 use io;
 use path;
+use sort;
 use strings;
 
 type scan_state = struct {
@@ -43,7 +45,9 @@ export fn scan(ctx: *context, path: str) (module | error) = {
 		abi = sha256::sha256(),
 	};
 
-	// TODO: alpha-sort inputs and filter by tags
+	let inputs: []str = [];
+	defer strings::freeall(inputs);
+
 	let buf = path::init();
 	const iter = fs::iter(ctx.fs, path)?;
 	for (true) {
@@ -59,16 +63,22 @@ export fn scan(ctx: *context, path: str) (module | error) = {
 
 		path::set(&buf, state.mod.base, ent.name)!;
 		if (fs::isfile(ent.ftype)) {
-			if (ismodinput(ent.name)) {
-				const path = path::string(&buf);
-				const file = scanfile(ctx, &state, path)?;
-				append(state.mod.inputs, file);
+			const path = path::string(&buf);
+			if (included(ctx, path)) {
+				append(inputs, strings::dup(path));
 			};
 		} else if (fs::isdir(ent.ftype)) {
 			abort(); // TODO
 		} else if (fs::islink(ent.ftype)) {
 			abort(); // TODO
 		};
+	};
+
+	sort::sort(inputs, size(str), &strcmp);
+
+	for (let i = 0z; i < len(inputs); i += 1) {
+		const file = scanfile(ctx, &state, inputs[i])?;
+		append(state.mod.inputs, file);
 	};
 
 	hash::finish(&state.abi, state.mod.abi);
@@ -105,4 +115,20 @@ fn scanhare(ctx: *context, state: *scan_state, path: str) (file | error) = {
 
 fn scanasm(ctx: *context, mod: *module, path: str) (file | error) = {
 	abort(); // TODO
+};
+
+fn included(ctx: *context, path: str) bool = {
+	if (!ismodinput(path)) {
+		return false;
+	};
+	// XXX: Would be nice to avoid allocating the tags here
+	const tags = parse_name(path::basename(path));
+	defer tags_free(tags);
+	return tagcompat(ctx.tags, tags);
+};
+
+fn strcmp(a: const *void, b: const *void) int = {
+	const a = a: const *str;
+	const b = b: const *str;
+	return ascii::strcmp(*a, *b) as int;
 };

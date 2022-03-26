@@ -3,18 +3,6 @@ use os;
 use fs;
 use strings;
 
-// The inclusive/exclusive state for a build tag.
-export type tag_mode = enum {
-	INCLUSIVE,
-	EXCLUSIVE,
-};
-
-// A build tag, e.g. +x86_64.
-export type tag = struct {
-	name: str,
-	mode: tag_mode,
-};
-
 // Configuration options for a Hare module context.
 export type config = struct {
 	fs: *fs::fs,

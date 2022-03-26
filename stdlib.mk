@@ -1262,7 +1262,8 @@ stdlib_hare_module2_any_srcs= \
 	$(STDLIB)/hare/module2/error.ha \
 	$(STDLIB)/hare/module2/ident.ha \
 	$(STDLIB)/hare/module2/resolve.ha \
-	$(STDLIB)/hare/module2/scan.ha
+	$(STDLIB)/hare/module2/scan.ha \
+	$(STDLIB)/hare/module2/tags.ha
 
 $(HARECACHE)/hare/module2/hare_module2-any.ssa: $(stdlib_hare_module2_any_srcs) $(stdlib_rt) $(stdlib_dirs_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_hare_lex_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_hare_unparse_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -3429,7 +3430,8 @@ testlib_hare_module2_any_srcs= \
 	$(STDLIB)/hare/module2/error.ha \
 	$(STDLIB)/hare/module2/ident.ha \
 	$(STDLIB)/hare/module2/resolve.ha \
-	$(STDLIB)/hare/module2/scan.ha
+	$(STDLIB)/hare/module2/scan.ha \
+	$(STDLIB)/hare/module2/tags.ha
 
 $(TESTCACHE)/hare/module2/hare_module2-any.ssa: $(testlib_hare_module2_any_srcs) $(testlib_rt) $(testlib_dirs_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM))
 	@printf 'HAREC \t$@\n'

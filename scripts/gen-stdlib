@@ -752,7 +752,8 @@ hare_module2() {
 		error.ha \
 		ident.ha \
 		resolve.ha \
-		scan.ha
+		scan.ha \
+		tags.ha
 	gen_ssa hare::module2 dirs os fs strings path fmt hare::ast errors \
 		strio io hare::parse hare::lex crypto::sha256 sort ascii \
 		hare::unparse
