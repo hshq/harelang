@@ -14,7 +14,7 @@ use sort;
 // Scans from an I/O handle, adding any dependencies to the module depends, and
 // updating the module ABI hash.
 fn scanabi(state: *scan_state, path: str, in: io::handle) (void | error) = {
-	static let rbuf: [os::BUFSIZ]u8 = [0...];
+	let rbuf: [os::BUFSIZ]u8 = [0...];
 	let bufin = bufio::buffered(in, rbuf, []);
 
 	// XXX: This function allocates a memory to store a complete AST, which

@@ -748,6 +748,7 @@ hare_module() {
 hare_module2() {
 	gen_srcs hare::module2 \
 		abi.ha \
+		cache.ha \
 		context.ha \
 		error.ha \
 		ident.ha \
@@ -756,7 +757,7 @@ hare_module2() {
 		tags.ha
 	gen_ssa hare::module2 dirs os fs strings path fmt hare::ast errors \
 		strio io hare::parse hare::lex crypto::sha256 sort ascii \
-		hare::unparse
+		hare::unparse time
 }
 
 gensrcs_hare_parse() {

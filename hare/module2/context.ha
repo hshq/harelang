@@ -1,6 +1,8 @@
+use ascii;
 use dirs;
 use os;
 use fs;
+use sort;
 use strings;
 
 // Configuration options for a Hare module context.
@@ -49,9 +51,13 @@ export fn newcontext(conf: *config) context = {
 		yield strings::dup(s);
 	};
 
+	let tags: []tag = alloc(conf.tags...);
+	sort::sort(tags, size(tag), &tag_cmp);
+	// XXX: We might want to check for conflicting tags (e.g. +linux-linux)
+
 	return context {
 		fs = conf.fs,
-		tags = conf.tags,
+		tags = tags,
 		defines = conf.defines,
 		paths = paths,
 		cache = cache,
@@ -62,4 +68,11 @@ export fn newcontext(conf: *config) context = {
 export fn context_finish(ctx: *context) void = {
 	free(ctx.paths); // The strings themselves are borrowed
 	free(ctx.cache);
+	free(ctx.tags);
+};
+
+fn tag_cmp(a: const *void, b: const *void) int = {
+	const a = a: const *tag;
+	const b = b: const *tag;
+	return ascii::strcmp(a.name, b.name) as int;
 };

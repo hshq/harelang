@@ -1,4 +1,5 @@
 use bufio;
+use crypto::sha256;
 use encoding::hex;
 use fmt;
 use hare::ast;
@@ -51,7 +52,7 @@ export fn main() void = {
 	};
 	defer free(path);
 
-	let mod = match (module2::scan(&ctx, path)) {
+	let mod = match (module2::scan(&ctx, ident, path)) {
 	case let err: module2::error =>
 		fmt::errorf("Error scanning ")!;
 		unparse::ident(os::stderr, ident)!;
@@ -60,31 +61,17 @@ export fn main() void = {
 		yield mod;
 	};
 
-	fmt::printfln("Base: {}", mod.base)!;
-
-	fmt::print("ABI hash: ")!;
-	hex::encode(os::stdout, mod.abi)!;
-	fmt::println()!;
-
-	fmt::println("Dependencies:")!;
-	for (let i = 0z; i < len(mod.depends); i += 1) {
-		const depend = mod.depends[i];
-		fmt::print("- ")!;
-		unparse::ident(os::stdout, depend)!;
-		fmt::println()!;
-	};
-
-	fmt::println("Input files:")!;
-	for (let i = 0z; i < len(mod.inputs); i += 1) {
-		fmt::printf("- {} {} ", mod.inputs[i].path,
-			time::unix(mod.inputs[i].mtime))!;
-		hex::encode(os::stdout, mod.inputs[i].hash)!;
-		fmt::println()!;
-	};
-
-	fmt::println("Input directories:")!;
-	for (let i = 0z; i < len(mod.dirs); i += 1) {
-		fmt::printfln("- {} {}", mod.dirs[i].path,
-			time::unix(mod.dirs[i].mtime))!;
-	};
+	const testhash = hex::decode("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")!;
+	module2::write_cacheentry(&ctx, os::stdout, &mod, [
+		&module2::module {
+			ident = ["fmt"],
+			abi = *(testhash: *[*]u8: *[sha256::SIZE]u8),
+			...
+		},
+		&module2::module {
+			ident = ["io"],
+			abi = *(testhash: *[*]u8: *[sha256::SIZE]u8),
+			...
+		},
+	])!;
 };

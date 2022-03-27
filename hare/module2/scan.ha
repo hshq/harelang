@@ -17,6 +17,7 @@ type scan_state = struct {
 
 export type module = struct {
 	base: str,
+	ident: ast::ident,
 	abi: [sha256::SIZE]u8,
 	hash: [sha256::SIZE]u8,
 	depends: []ast::ident,
@@ -27,6 +28,11 @@ export type module = struct {
 export type filetype = enum {
 	ASM,
 	HARE,
+};
+
+export type target = enum {
+	OBJECT,
+	ARCHIVE,
 };
 
 export type file = struct {
@@ -44,10 +50,12 @@ export type directory = struct {
 // Scans a directory containing a Hare module, returning a list of input files,
 // dependencies, the ABI hash, and so on. The caller must pass the return value
 // to [[module_finish]] when they are done using it.
-export fn scan(ctx: *context, path: str) (module | error) = {
+export fn scan(ctx: *context, ident: ast::ident, path: str) (module | error) = {
+	path = fs::resolve(ctx.fs, path);
 	let state = scan_state {
 		mod = module {
-			base = strings::dup(path),
+			base = path,
+			ident = ast::ident_dup(ident),
 			...
 		},
 		abi = sha256::sha256(),
