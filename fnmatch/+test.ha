@@ -74,6 +74,8 @@ const testcases: [_]testcase = [
 	("[.a.]", "a", false, []),
 
 	("[[:alnum:]]", "7", true, []),
+	("[[:alpha:]]", "[", false, []),
+	("[[:alpha:]]", "[[", false, []),
 	("[[alpha:]]", "a]", true, []),
 	("[[alpha:]]", ":]", true, []),
 	("[[:alpha:]]", "a", true, []),
@@ -101,7 +103,9 @@ const testcases: [_]testcase = [
 	("[!-ac]", "b", true, []),
 
 	("[![:alnum:]]", "a", false, []),
+	("[![:alpha:]]", "[", true, []),
 	("[![:alnum:]]a", "a]a", false, []),
+	("[![:alpha:]]a", "[a", true, []),
 	("[![:alnum:][:digit:]]", "a", false, []),
 
 	(".", ".", true, [flags::PERIOD]),

@@ -254,7 +254,7 @@ fn match_bracket(
 		inv = true;
 		first = advance_or_err(it)?;
 	};
-	let found = (first == c);
+	let found = (first != '[' && first == c);
 	let last: (rune | void) = first;
 	if (first == ']') {
 		first = advance_or_err(it)?;
