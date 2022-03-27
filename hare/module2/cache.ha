@@ -101,6 +101,7 @@ fn cachekey(
 	};
 	hash::write(&key, [0]);
 
+	// TODO: Sort dependencies
 	for (let i = 0z; i < len(deps); i += 1) {
 		hash::write(&key, deps[i].abi);
 		hash::write(&key, [0]);

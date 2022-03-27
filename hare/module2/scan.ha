@@ -68,6 +68,9 @@ export fn scan(ctx: *context, ident: ast::ident, path: str) (module | error) = {
 	_scan(ctx, &state.mod, path, &inputs, &buf)?;
 	sort::sort(inputs, size(str), &strcmp);
 
+	// We collect & scan the input files in two different stages so that we
+	// can sort them in between, keeping the hashes consistent regardless of
+	// the order they're returned from the host.
 	for (let i = 0z; i < len(inputs); i += 1) {
 		const file = scanfile(ctx, &state, inputs[i])?;
 		append(state.mod.inputs, file);
