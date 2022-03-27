@@ -60,6 +60,7 @@ export fn main() void = {
 	case let mod: module2::module =>
 		yield mod;
 	};
+	defer module2::module_finish(&mod);
 
 	const testhash = hex::decode("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")!;
 	module2::write_cacheentry(&ctx, os::stdout, &mod, [

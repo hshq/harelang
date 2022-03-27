@@ -77,6 +77,27 @@ export fn scan(ctx: *context, ident: ast::ident, path: str) (module | error) = {
 	return state.mod;
 };
 
+// Frees resources associated with a [[module]].
+export fn module_finish(mod: *module) void = {
+	free(mod.base);
+	ast::ident_free(mod.ident);
+
+	for (let i = 0z; i < len(mod.depends); i += 1) {
+		ast::ident_free(mod.depends[i]);
+	};
+	free(mod.depends);
+
+	for (let i = 0z; i < len(mod.inputs); i += 1) {
+		free(mod.inputs[i].path);
+	};
+	free(mod.inputs);
+
+	for (let i = 0z; i < len(mod.dirs); i += 1) {
+		free(mod.dirs[i].path);
+	};
+	free(mod.dirs);
+};
+
 fn _scan(
 	ctx: *context,
 	mod: *module,
