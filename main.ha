@@ -81,4 +81,10 @@ export fn main() void = {
 		hex::encode(os::stdout, mod.inputs[i].hash)!;
 		fmt::println()!;
 	};
+
+	fmt::println("Input directories:")!;
+	for (let i = 0z; i < len(mod.dirs); i += 1) {
+		fmt::printfln("- {} {}", mod.dirs[i].path,
+			time::unix(mod.dirs[i].mtime))!;
+	};
 };

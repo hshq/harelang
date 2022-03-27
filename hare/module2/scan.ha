@@ -21,6 +21,7 @@ export type module = struct {
 	hash: [sha256::SIZE]u8,
 	depends: []ast::ident,
 	inputs: []file,
+	dirs: []directory,
 };
 
 export type filetype = enum {
@@ -32,6 +33,11 @@ export type file = struct {
 	path: str,
 	ftype: filetype,
 	hash: [sha256::SIZE]u8,
+	mtime: time::instant,
+};
+
+export type directory = struct {
+	path: str,
 	mtime: time::instant,
 };
 
@@ -70,6 +76,13 @@ fn _scan(
 	inputs: *[]str,
 	buf: *path::buffer,
 ) (void | error) = {
+	const st = fs::stat(ctx.fs, path)?;
+	assert(st.mask & fs::stat_mask::MTIME > 0);
+	append(mod.dirs, directory {
+		path = strings::dup(path),
+		mtime = st.mtime,
+	});
+
 	const iter = fs::iter(ctx.fs, path)?;
 	for (true) {
 		const ent = match (fs::next(iter)) {
