@@ -340,6 +340,12 @@ stdlib_deps_any+=$(stdlib_getopt_any)
 stdlib_getopt_linux=$(stdlib_getopt_any)
 stdlib_getopt_freebsd=$(stdlib_getopt_any)
 
+# gen_lib glob (any)
+stdlib_glob_any=$(HARECACHE)/glob/glob-any.o
+stdlib_deps_any+=$(stdlib_glob_any)
+stdlib_glob_linux=$(stdlib_glob_any)
+stdlib_glob_freebsd=$(stdlib_glob_any)
+
 # gen_lib hare::ast (any)
 stdlib_hare_ast_any=$(HARECACHE)/hare/ast/hare_ast-any.o
 stdlib_deps_any+=$(stdlib_hare_ast_any)
@@ -1050,6 +1056,16 @@ $(HARECACHE)/getopt/getopt-any.ssa: $(stdlib_getopt_any_srcs) $(stdlib_rt) $(std
 	@mkdir -p $(HARECACHE)/getopt
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ngetopt \
 		-t$(HARECACHE)/getopt/getopt.td $(stdlib_getopt_any_srcs)
+
+# glob (+any)
+stdlib_glob_any_srcs= \
+	$(STDLIB)/glob/glob.ha
+
+$(HARECACHE)/glob/glob-any.ssa: $(stdlib_glob_any_srcs) $(stdlib_rt) $(stdlib_fnmatch_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/glob
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nglob \
+		-t$(HARECACHE)/glob/glob.td $(stdlib_glob_any_srcs)
 
 # hare::ast (+any)
 stdlib_hare_ast_any_srcs= \
@@ -2203,6 +2219,12 @@ testlib_deps_any+=$(testlib_getopt_any)
 testlib_getopt_linux=$(testlib_getopt_any)
 testlib_getopt_freebsd=$(testlib_getopt_any)
 
+# gen_lib glob (any)
+testlib_glob_any=$(TESTCACHE)/glob/glob-any.o
+testlib_deps_any+=$(testlib_glob_any)
+testlib_glob_linux=$(testlib_glob_any)
+testlib_glob_freebsd=$(testlib_glob_any)
+
 # gen_lib hare::ast (any)
 testlib_hare_ast_any=$(TESTCACHE)/hare/ast/hare_ast-any.o
 testlib_deps_any+=$(testlib_hare_ast_any)
@@ -2933,6 +2955,17 @@ $(TESTCACHE)/getopt/getopt-any.ssa: $(testlib_getopt_any_srcs) $(testlib_rt) $(t
 	@mkdir -p $(TESTCACHE)/getopt
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ngetopt \
 		-t$(TESTCACHE)/getopt/getopt.td $(testlib_getopt_any_srcs)
+
+# glob (+any)
+testlib_glob_any_srcs= \
+	$(STDLIB)/glob/glob.ha \
+	$(STDLIB)/glob/+test.ha
+
+$(TESTCACHE)/glob/glob-any.ssa: $(testlib_glob_any_srcs) $(testlib_rt) $(testlib_fnmatch_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/glob
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nglob \
+		-t$(TESTCACHE)/glob/glob.td $(testlib_glob_any_srcs)
 
 # hare::ast (+any)
 testlib_hare_ast_any_srcs= \

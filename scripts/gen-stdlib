@@ -537,6 +537,16 @@ getopt() {
 	gen_ssa getopt encoding::utf8 fmt io os strings
 }
 
+glob() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs glob glob.ha
+	else
+		gen_srcs glob glob.ha +test.ha
+	fi
+	gen_ssa glob fnmatch fs io os sort strings strio 
+}
+
 hare_ast() {
 	gen_srcs hare::ast \
 		decl.ha \
@@ -1252,6 +1262,7 @@ format::ini
 format::xml
 fs
 getopt
+glob
 hare::ast
 hare::lex
 hare::module
