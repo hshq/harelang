@@ -1,4 +1,5 @@
 use ascii;
+use bufio;
 use crypto::sha256;
 use fmt;
 use hare::ast;
@@ -7,15 +8,19 @@ use hare::parse;
 use hare::unparse;
 use hash;
 use io;
+use os;
 use sort;
 
 // Scans from an I/O handle, adding any dependencies to the module depends, and
 // updating the module ABI hash.
 fn scanabi(state: *scan_state, path: str, in: io::handle) (void | error) = {
+	static let rbuf: [os::BUFSIZ]u8 = [0...];
+	let bufin = bufio::buffered(in, rbuf, []);
+
 	// XXX: This function allocates a memory to store a complete AST, which
 	// would probably not be necessary if we had a better parser design.
 	let mod = &state.mod;
-	let lexer = lex::init(in, path);
+	let lexer = lex::init(&bufin, path);
 	let unit = parse::subunit(&lexer)?;
 	defer ast::subunit_free(unit);
 
