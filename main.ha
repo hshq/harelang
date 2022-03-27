@@ -3,13 +3,14 @@ use encoding::hex;
 use fmt;
 use hare::ast;
 use hare::lex;
-use hare::parse;
 use hare::module2;
 use hare::module2::{tag_mode};
+use hare::parse;
 use hare::unparse;
 use io;
 use os;
 use strings;
+use time;
 
 export fn main() void = {
 	const conf = module2::config {
@@ -75,7 +76,8 @@ export fn main() void = {
 
 	fmt::println("Input files:")!;
 	for (let i = 0z; i < len(mod.inputs); i += 1) {
-		fmt::printf("- {} ", mod.inputs[i].path)!;
+		fmt::printf("- {} {} ", mod.inputs[i].path,
+			time::unix(mod.inputs[i].mtime))!;
 		hex::encode(os::stdout, mod.inputs[i].hash)!;
 		fmt::println()!;
 	};

@@ -8,6 +8,7 @@ use io;
 use path;
 use sort;
 use strings;
+use time;
 
 type scan_state = struct {
 	mod: module,
@@ -31,6 +32,7 @@ export type file = struct {
 	path: str,
 	ftype: filetype,
 	hash: [sha256::SIZE]u8,
+	mtime: time::instant,
 };
 
 // Scans a directory containing a Hare module, returning a list of input files,
@@ -118,9 +120,13 @@ fn scanhare(ctx: *context, state: *scan_state, path: str) (file | error) = {
 	const input = &io::tee(input, &sha);
 	scanabi(state, path, input)?;
 
+	const st = fs::stat(ctx.fs, path)?;
+	assert(st.mask & fs::stat_mask::MTIME > 0);
+
 	let result = file {
 		path = strings::dup(path),
 		ftype = filetype::HARE,
+		mtime = st.mtime,
 		...
 	};
 	hash::finish(&sha, result.hash);
@@ -133,9 +139,13 @@ fn scanasm(ctx: *context, mod: *module, path: str) (file | error) = {
 	let sha = sha256::sha256();
 	io::copy(&sha, input)?;
 
+	const st = fs::stat(ctx.fs, path)?;
+	assert(st.mask & fs::stat_mask::MTIME > 0);
+
 	let result = file {
 		path = strings::dup(path),
 		ftype = filetype::ASM,
+		mtime = st.mtime,
 		...
 	};
 	hash::finish(&sha, result.hash);
