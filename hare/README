@@ -6,5 +6,6 @@ code itself (how meta). The modules available are:
 - [[hare::lex]]: a lexer for Hare programs
 - [[hare::module]]: module resolution and Hare cache management
 - [[hare::parse]]: a parser for Hare programs
+- [[hare::types]]: an implementation of the Hare type system
 - [[hare::unit]]: Hare type checker
 - [[hare::unparse]]: a Hare "unparser", converts [[hare::ast]] into source code
