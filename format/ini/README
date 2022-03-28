@@ -1,0 +1,11 @@
+format::ini provides a parser for DOS-style INI files:
+
+	# This is a comment
+	[harelang.org]
+	name=Hare
+	description=The Hare programming language
+
+	[blablabla]
+	key=value
+	# Unicode
+	trademark=™
