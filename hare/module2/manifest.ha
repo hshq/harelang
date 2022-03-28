@@ -149,7 +149,7 @@ export fn modules_finish(mods: []module) void = {
 
 // Writes a set of modules to the cache.
 export fn store(ctx: *context, mods: []module) (void | error) = {
-	assert(len(mods) > 0, "Cannot store zero mods");
+	assert(len(mods) > 0, "Cannot store empty manifest");
 	const ident = mods[0].ident;
 
 	const cache = dirs::cache("hare2");
@@ -184,6 +184,9 @@ export fn store(ctx: *context, mods: []module) (void | error) = {
 
 	let wbuf: [os::BUFSIZ]u8 = [0...];
 	let out = bufio::buffered(out, [], wbuf);
+	defer io::close(&out);
+	fmt::fprintln(&out, "version 2")?;
+
 	for (let i = 0z; i < len(mods); i += 1) {
 		storemod(ctx, &out, &mods[i])?;
 	};
