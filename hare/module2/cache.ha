@@ -25,6 +25,13 @@ export fn iscurrent(ctx: *context, mod: *module) bool = {
 };
 
 fn _iscurrent(ctx: *context, mod: *module) (bool | error) = {
+	// TODO: This would be improved if we added a database to the context
+	// which stored module singletons which can be partially filled in. We
+	// can use that as a place to stash filestats and hashes during
+	// iscurrent so that scan can skip some work later on, or so that we can
+	// update the module cache entry with new mtimes if the hashes are
+	// unchanged.
+
 	// The process for determining if a module is current is the following:
 	//
 	// 1. Determine if the file list is current. Check the mtimes of all of
@@ -35,10 +42,6 @@ fn _iscurrent(ctx: *context, mod: *module) (bool | error) = {
 	// 3. Determine if the file contents are current based on their hash.
 	for (let i = 0z; i < len(mod.dirs); i += 1) {
 		const dir = mod.dirs[i];
-		// XXX: It would be nice if we did all of this work/syscalls
-		// fetching file stats and computing hashes, found out it was
-		// not current, then stored those results in a module singleton
-		// so that scan can skip some work later on.
 		const st = fs::stat(ctx.fs, dir.path)?;
 		assert(st.mask & fs::stat_mask::MTIME > 0);
 		if (time::compare(st.mtime, dir.mtime) != 0) {
