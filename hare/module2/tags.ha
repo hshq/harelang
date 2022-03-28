@@ -16,7 +16,7 @@ export type tag = struct {
 };
 
 // Given a file or directory name, parses and returns any applicable tags.
-export fn parse_name(name: str) []tag = {
+export fn parsename(name: str) []tag = {
 	let base = path::extension(name).0;
 	let p = strings::index(base, '+');
 	let m = strings::index(base, '-');

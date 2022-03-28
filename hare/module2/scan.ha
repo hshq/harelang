@@ -177,7 +177,7 @@ fn included(ctx: *context, path: str, isdir: bool) bool = {
 		return false;
 	};
 	// XXX: Would be nice to avoid allocating the tags here
-	const tags = parse_name(basename);
+	const tags = parsename(basename);
 	defer tags_free(tags);
 	return tagcompat(ctx.tags, tags);
 };
