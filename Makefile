@@ -30,7 +30,11 @@ hare_srcs = \
 	./cmd/hare/schedule.ha \
 	./cmd/hare/subcmds.ha
 
-harec_srcs = \
+hare2_srcs=\
+	./cmd/hare2/main.ha \
+	./cmd/hare2/subcmds.ha
+
+harec_srcs=\
 	./cmd/harec/main.ha \
 	./cmd/harec/errors.ha
 
@@ -76,6 +80,11 @@ $(BINOUT)/harec2: $(BINOUT)/hare $(harec_srcs)
 	@printf 'HARE\t%s\n' "$@"
 	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build -o $(BINOUT)/harec2 cmd/harec
 
+$(BINOUT)/hare2: .bin/hare $(hare2_srcs)
+	@mkdir -p .bin
+	@printf 'HARE\t$@\n'
+	@env HAREPATH=. ./.bin/hare build -o .bin/hare2 ./cmd/hare2
+
 $(BINOUT)/haredoc: $(BINOUT)/hare $(haredoc_srcs)
 	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
@@ -100,7 +109,7 @@ check: $(BINOUT)/hare-tests
 scripts/gen-docs: scripts/gen-stdlib
 scripts/gen-stdlib: scripts/gen-stdlib.sh
 
-all: $(BINOUT)/hare $(BINOUT)/harec2 $(BINOUT)/haredoc
+all: $(BINOUT)/hare $(BINOUT)/hare2 $(BINOUT)/harec2 $(BINOUT)/haredoc
 
 install: docs scripts/install-mods
 	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1 \
