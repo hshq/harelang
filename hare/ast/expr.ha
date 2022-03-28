@@ -34,8 +34,8 @@ export type access_tuple = struct {
 };
 
 // An access expression.
-export type access_expr =
-	(access_identifier | access_index | access_field | access_tuple);
+export type access_expr = (access_identifier | access_index | access_field
+	| access_tuple);
 
 // The form of an allocation expression.
 //

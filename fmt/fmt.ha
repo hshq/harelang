@@ -19,8 +19,8 @@ use types;
 export type field = (...formattable | *modifiers);
 
 // Tagged union of all types which are formattable.
-export type formattable =
-	(...types::numeric | uintptr | str | rune | bool | nullable *void | void);
+export type formattable = (...types::numeric | uintptr | str | rune | bool |
+	nullable *void | void);
 
 // Formats text for printing and writes it to [[os::stdout]].
 export fn printf(fmt: str, args: field...) (io::error | size) =
