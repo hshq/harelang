@@ -2,6 +2,8 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
+use bytes;
+use encoding::utf8;
 
 // Returns the index of the first occurance of 'needle' in the 'haystack', or
 // void if not present. The index returned is the rune-wise index, not the
@@ -65,4 +67,29 @@ fn index_string(s: str, needle: str) (size | void) = {
 	assert(index("hello world!", "word") is void);
 	assert(index("こんにちは", "ちは") as size == 3);
 	assert(index("こんにちは", "きょうは") is void);
+};
+
+// Returns the byte-wise index of the first occurance of 'needle' in the
+// 'haystack', or void if not present.
+export fn byteindex(haystack: str, needle: (str | rune)) (size | void) = {
+	return bytes::index(toutf8(haystack), match (needle) {
+	case let s: str =>
+		yield toutf8(s);
+	case let r: rune =>
+		yield if (r: u32 <= 0x7f) r: u32: u8 else utf8::encoderune(r);
+	});
+};
+
+@test fn byteindex() void = {
+	assert(byteindex("hello world", 'w') as size == 6);
+	assert(byteindex("こんにちは", 'ち') as size == 9);
+	assert(byteindex("こんにちは", 'q') is void);
+
+	assert(byteindex("hello", "hello") as size == 0);
+	assert(byteindex("hello world!", "hello") as size == 0);
+	assert(byteindex("hello world!", "world") as size == 6);
+	assert(byteindex("hello world!", "orld!") as size == 7);
+	assert(byteindex("hello world!", "word") is void);
+	assert(byteindex("こんにちは", "ちは") as size == 9);
+	assert(byteindex("こんにちは", "きょうは") is void);
 };
