@@ -156,6 +156,7 @@ export fn store(ctx: *context, mods: []module) (void | error) = {
 	let buf = path::init();
 	path::set(&buf, cache)!;
 	identpath(&buf, ident)!;
+	fs::mkdirs(ctx.fs, path::string(&buf))?;
 	path::add(&buf, ".manifest")!;
 
 	let mpath = "";
@@ -168,12 +169,15 @@ export fn store(ctx: *context, mods: []module) (void | error) = {
 		static let sbuf: [32]u8 = [0...];
 		path::add(&buf, "..", fmt::bsprintf(sbuf, ".manifest.{}", i))!;
 
-		match (fs::create(ctx.fs, mpath, 0o644, flags)) {
+		match (fs::create(ctx.fs, path::string(&buf), 0o644, flags)) {
 		case let h: io::handle =>
 			mpath = strings::dup(path::string(&buf));
 			out = h;
 			break;
-		case => continue;
+		case errors::busy =>
+			continue;
+		case let err: fs::error =>
+			return err;
 		};
 	};
 	defer io::close(out);

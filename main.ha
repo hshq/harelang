@@ -87,5 +87,11 @@ export fn main() void = {
 
 	fmt::println()!;
 	module2::cachekey(&ctx, &mod.cachekey, &mod, []);
-	module2::storemod(&ctx, os::stdout, &mod)!;
+	match (module2::store(&ctx, [mod])) {
+	case let err: module2::error =>
+		fmt::errorf("Error writing cache for ")!;
+		unparse::ident(os::stderr, ident)!;
+		fmt::fatal(": {}", module2::strerror(err));
+	case => yield;
+	};
 };
