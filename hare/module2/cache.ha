@@ -1,3 +1,4 @@
+use ascii;
 use bytes;
 use crypto::sha256;
 use encoding::hex;
@@ -6,6 +7,8 @@ use fs;
 use hare::unparse;
 use hash;
 use io;
+use path;
+use sort;
 use strings;
 use time;
 
@@ -22,21 +25,30 @@ export fn iscurrent(ctx: *context, mod: *module) bool = {
 };
 
 fn _iscurrent(ctx: *context, mod: *module) (bool | error) = {
-	let current = true;
+	// The process for determining if a module is current is the following:
+	//
+	// 1. Determine if the file list is current. Check the mtimes of all of
+	//    the directories; if they match the cache, assume that they are
+	//    unmodified and the file list is current. Otherwise, readdir to
+	//    determine if the input list is current.
+	// 2. Determine if the file contents are current using their mtimes.
+	// 3. Determine if the file contents are current based on their hash.
 	for (let i = 0z; i < len(mod.dirs); i += 1) {
 		const dir = mod.dirs[i];
+		// XXX: It would be nice if we did all of this work/syscalls
+		// fetching file stats and computing hashes, found out it was
+		// not current, then stored those results in a module singleton
+		// so that scan can skip some work later on.
 		const st = fs::stat(ctx.fs, dir.path)?;
 		assert(st.mask & fs::stat_mask::MTIME > 0);
 		if (time::compare(st.mtime, dir.mtime) != 0) {
-			current = false;
-			break;
+			if (!isdircurrent(ctx, mod, dir.path)?) {
+				return false;
+			};
 		};
 	};
-	if (current) {
-		return true;
-	};
 
-	current = true;
+	let current = true;
 	for (let i = 0z; i < len(mod.inputs); i += 1) {
 		const input = &mod.inputs[i];
 		const st = fs::stat(ctx.fs, input.path)?;
@@ -66,6 +78,59 @@ fn _iscurrent(ctx: *context, mod: *module) (bool | error) = {
 	};
 
 	return current;
+};
+
+fn isdircurrent(ctx: *context, mod: *module, path: str) (bool | error) = {
+	let iter = fs::iter(ctx.fs, mod.base)?;
+	let buf = path::init();
+	for (true) {
+		const ent = match (fs::next(iter)) {
+		case void =>
+			break;
+		case let ent: fs::dirent =>
+			yield ent;
+		};
+
+		path::set(&buf, mod.base, ent.name)!;
+		if (!included(ctx, path::string(&buf), fs::isdir(ent.ftype))) {
+			continue;
+		};
+
+		if (fs::isfile(ent.ftype)) {
+			const key = file {
+				path = path::string(&buf),
+				...
+			};
+			const item = sort::search(mod.inputs, size(file), &key, &filecmp);
+			if (item == null) {
+				return false;
+			};
+		} else if (fs::isdir(ent.ftype)) {
+			const key = directory {
+				path = path::string(&buf),
+				...
+			};
+			const item = sort::search(mod.dirs, size(directory), &key, &dircmp);
+			if (item == null) {
+				return false;
+			};
+		} else if (fs::islink(ent.ftype)) {
+			abort(); // TODO
+		};
+	};
+	return true;
+};
+
+fn filecmp(a: const *void, b: const *void) int = {
+	const a = a: const *file;
+	const b = b: const *file;
+	return ascii::strcmp(a.path, b.path) as int;
+};
+
+fn dircmp(a: const *void, b: const *void) int = {
+	const a = a: const *directory;
+	const b = b: const *directory;
+	return ascii::strcmp(a.path, b.path) as int;
 };
 
 // Writes a cache entry for the given module built with the given version of its
