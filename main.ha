@@ -87,5 +87,5 @@ export fn main() void = {
 
 	fmt::println()!;
 	module2::cachekey(&ctx, &mod.cachekey, &mod, []);
-	module2::write_cacheentry(&ctx, os::stdout, &mod)!;
+	module2::storemod(&ctx, os::stdout, &mod)!;
 };

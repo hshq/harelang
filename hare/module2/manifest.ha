@@ -1,10 +1,14 @@
 use bufio;
+use bytes;
 use dirs;
+use crypto::sha256;
 use encoding::hex;
 use errors;
+use fmt;
 use fs;
 use hare::ast;
 use hare::parse;
+use hare::unparse;
 use io;
 use os;
 use path;
@@ -141,4 +145,104 @@ export fn modules_finish(mods: []module) void = {
 		module_finish(&mods[i]);
 	};
 	free(mods);
+};
+
+// Writes a set of modules to the cache.
+export fn store(ctx: *context, mods: []module) (void | error) = {
+	assert(len(mods) > 0, "Cannot store zero mods");
+	const ident = mods[0].ident;
+
+	const cache = dirs::cache("hare2");
+	let buf = path::init();
+	path::set(&buf, cache)!;
+	identpath(&buf, ident)!;
+	path::add(&buf, ".manifest")!;
+
+	let mpath = "";
+	defer free(mpath);
+
+	let out: io::handle = io::empty;
+	let waiting = false;
+	const flags = fs::flags::WRONLY | fs::flags::EXCL;
+	for (let i = 0z; true; i += 1) {
+		static let sbuf: [32]u8 = [0...];
+		path::add(&buf, "..", fmt::bsprintf(sbuf, ".manifest.{}", i))!;
+
+		match (fs::create(ctx.fs, mpath, 0o644, flags)) {
+		case let h: io::handle =>
+			mpath = strings::dup(path::string(&buf));
+			out = h;
+			break;
+		case => continue;
+		};
+	};
+	defer io::close(out);
+
+	let wbuf: [os::BUFSIZ]u8 = [0...];
+	let out = bufio::buffered(out, [], wbuf);
+	for (let i = 0z; i < len(mods); i += 1) {
+		storemod(ctx, &out, &mods[i])?;
+	};
+
+	path::set(&buf, cache)!;
+	identpath(&buf, ident)!;
+	path::add(&buf, "manifest")!;
+
+	fs::rename(ctx.fs, mpath, path::string(&buf))?;
+};
+
+fn storemod(
+	ctx: *context,
+	out: io::handle,
+	mod: *module,
+) (void | error) = {
+	const zeroes: [sha256::SIZE]u8 = [0...];
+	assert(!bytes::equal(mod.cachekey, zeroes),
+		"Attempted to write incomplete module to cache");
+
+	fmt::fprint(out, "module ")?;
+	hex::encode(out, mod.cachekey)?;
+	fmt::fprintln(out)?;
+
+	fmt::fprintfln(out, "\tbase {}", mod.base)?;
+
+	fmt::fprintf(out, "\ttags")?;
+	for (let i = 0z; i < len(ctx.tags); i += 1) {
+		fmt::fprintf(out, " {}{}", switch (ctx.tags[i].mode) {
+		case tag_mode::INCLUSIVE =>
+			yield '+';
+		case tag_mode::EXCLUSIVE =>
+			yield '-';
+		}, ctx.tags[i].name)?;
+	};
+	fmt::fprintln(out)?;
+
+	// TODO: Add config hash
+
+	fmt::fprintf(out, "\tabi ")?;
+	hex::encode(out, mod.abi)?;
+	fmt::fprintln(out)?;
+
+	for (let i = 0z; i < len(mod.dirs); i += 1) {
+		const dir = &mod.dirs[i];
+		fmt::fprintfln(out, "\tdirectory {} {}",
+			time::unix(dir.mtime), dir.path)?;
+	};
+
+	for (let i = 0z; i < len(mod.inputs); i += 1) {
+		const input = &mod.inputs[i];
+		fmt::fprintf(out, "\tfile ")?;
+		hex::encode(out, input.hash)?;
+		fmt::fprintfln(out, " {} {}",
+			time::unix(input.mtime), input.path)?;
+	};
+
+	for (let i = 0z; i < len(mod.depends); i += 1) {
+		const dep = &mod.depends[i];
+		fmt::fprintf(out, "\tdependency ")?;
+		unparse::ident(out, dep.ident)?;
+		fmt::fprintf(out, " ")?;
+		hex::encode(out, dep.abi)?;
+		fmt::fprintln(out)?;
+	};
 };
