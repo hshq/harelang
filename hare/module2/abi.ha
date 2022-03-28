@@ -25,9 +25,12 @@ fn scanabi(state: *scan_state, path: str, in: io::handle) (void | error) = {
 	defer ast::subunit_free(unit);
 
 	for (let i = 0z; i < len(unit.imports); i += 1) {
-		if (!have_ident(&mod.depends, unit.imports[i].ident)) {
+		if (!havedep(&mod.depends, unit.imports[i].ident)) {
 			let id = ast::ident_dup(unit.imports[i].ident);
-			append(mod.depends, id);
+			append(mod.depends, dependency {
+				ident = id,
+				...
+			});
 		};
 	};
 
@@ -64,9 +67,9 @@ fn scanabi(state: *scan_state, path: str, in: io::handle) (void | error) = {
 	};
 };
 
-fn have_ident(sl: *[]ast::ident, id: ast::ident) bool = {
+fn havedep(sl: *[]dependency, id: ast::ident) bool = {
 	for (let i = 0z; i < len(sl); i += 1) {
-		if (ast::ident_eq(sl[i], id)) {
+		if (ast::ident_eq(sl[i].ident, id)) {
 			return true;
 		};
 	};

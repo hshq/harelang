@@ -752,12 +752,14 @@ hare_module2() {
 		context.ha \
 		error.ha \
 		ident.ha \
+		manifest.ha \
 		resolve.ha \
 		scan.ha \
-		tags.ha
+		tags.ha \
+		types.ha
 	gen_ssa hare::module2 dirs os fs strings path fmt hare::ast errors \
 		strio io hare::parse hare::lex crypto::sha256 sort ascii \
-		hare::unparse time
+		hare::unparse time bytes
 }
 
 gensrcs_hare_parse() {

@@ -1,3 +1,4 @@
+use bytes;
 use crypto::sha256;
 use encoding::hex;
 use fmt;
@@ -15,21 +16,14 @@ export fn write_cacheentry(
 	ctx: *context,
 	out: io::handle,
 	mod: *module,
-	deps: []*module,
 ) (void | error) = {
-	let key: [sha256::SIZE]u8 = [0...];
-	cachekey(ctx, &key, mod, deps);
-
-	const target = gettarget(mod);
+	const zeroes: [sha256::SIZE]u8 = [0...];
+	assert(!bytes::equal(mod.cachekey, zeroes),
+		"Attempted to write incomplete module to cache");
 
 	fmt::fprint(out, "module ")?;
-	hex::encode(out, key)?;
-	fmt::fprintfln(out, " {}", switch (target) {
-	case target::ARCHIVE =>
-		yield "archive";
-	case target::OBJECT =>
-		yield "object";
-	})?;
+	hex::encode(out, mod.cachekey)?;
+	fmt::fprintln(out)?;
 
 	fmt::fprintfln(out, "\tbase {}", mod.base)?;
 
@@ -64,8 +58,8 @@ export fn write_cacheentry(
 			time::unix(input.mtime), input.path)?;
 	};
 
-	for (let i = 0z; i < len(deps); i += 1) {
-		const dep = &deps[i];
+	for (let i = 0z; i < len(mod.depends); i += 1) {
+		const dep = &mod.depends[i];
 		fmt::fprintf(out, "\tdependency ")?;
 		unparse::ident(out, dep.ident)?;
 		fmt::fprintf(out, " ")?;
@@ -109,13 +103,4 @@ fn cachekey(
 	hash::write(&key, [0]);
 
 	hash::finish(&key, out);
-};
-
-fn gettarget(mod: *module) target = {
-	for (let i = 0z; i < len(mod.inputs); i += 1) {
-		if (mod.inputs[i].ftype == filetype::ASM) {
-			return target::ARCHIVE;
-		};
-	};
-	return target::OBJECT;
 };

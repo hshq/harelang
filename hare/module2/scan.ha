@@ -15,43 +15,12 @@ type scan_state = struct {
 	abi: sha256::state,
 };
 
-export type module = struct {
-	base: str,
-	ident: ast::ident,
-	abi: [sha256::SIZE]u8,
-	hash: [sha256::SIZE]u8,
-	depends: []ast::ident,
-	inputs: []file,
-	dirs: []directory,
-};
-
-export type filetype = enum {
-	ASM,
-	HARE,
-};
-
-export type target = enum {
-	OBJECT,
-	ARCHIVE,
-};
-
-export type file = struct {
-	path: str,
-	ftype: filetype,
-	hash: [sha256::SIZE]u8,
-	mtime: time::instant,
-};
-
-export type directory = struct {
-	path: str,
-	mtime: time::instant,
-};
-
 // Scans a directory containing a Hare module, returning a list of input files,
 // dependencies, the ABI hash, and so on. The caller must pass the return value
-// to [[module_finish]] when they are done using it.
+// to [[module_finish]] when they are done using it. This function bypasses the
+// cache and always loads modules directly from disk.
 export fn scan(ctx: *context, ident: ast::ident, path: str) (module | error) = {
-	path = fs::resolve(ctx.fs, path);
+	path = strings::dup(fs::resolve(ctx.fs, path));
 	let state = scan_state {
 		mod = module {
 			base = path,
@@ -86,7 +55,7 @@ export fn module_finish(mod: *module) void = {
 	ast::ident_free(mod.ident);
 
 	for (let i = 0z; i < len(mod.depends); i += 1) {
-		ast::ident_free(mod.depends[i]);
+		ast::ident_free(mod.depends[i].ident);
 	};
 	free(mod.depends);
 
