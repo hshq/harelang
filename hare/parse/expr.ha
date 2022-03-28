@@ -1223,9 +1223,9 @@ fn binop_for_tok(tok: lex::token) ast::binarithm_op = {
 		return ast::binarithm_op::BXOR;
 	case ltok::DIV =>
 		return ast::binarithm_op::DIV;
-	case ltok::GREATER =>
+	case ltok::GT =>
 		return ast::binarithm_op::GT;
-	case ltok::GREATEREQ =>
+	case ltok::GTEQ =>
 		return ast::binarithm_op::GTEQ;
 	case ltok::LAND =>
 		return ast::binarithm_op::LAND;
@@ -1267,7 +1267,7 @@ fn precedence(tok: lex::token) int = {
 		return 2;
 	case ltok::LEQUAL, ltok::NEQUAL =>
 		return 3;
-	case ltok::LESS, ltok::LESSEQ, ltok::GREATER, ltok::GREATEREQ =>
+	case ltok::LESS, ltok::LESSEQ, ltok::GT, ltok::GTEQ =>
 		return 4;
 	case ltok::BOR =>
 		return 5;

@@ -142,9 +142,9 @@ fn loc(line: uint, col: uint) location = location {
 		(ltok::LSHIFT, void, loc(1, 12)),
 		(ltok::LESSEQ, void, loc(1, 15)),
 		(ltok::LSHIFTEQ, void, loc(1, 18)),
-		(ltok::GREATER, void, loc(1, 22)),
+		(ltok::GT, void, loc(1, 22)),
 		(ltok::RSHIFT, void, loc(1, 24)),
-		(ltok::GREATEREQ, void, loc(1, 27)),
+		(ltok::GTEQ, void, loc(1, 27)),
 		(ltok::RSHIFTEQ, void, loc(1, 30)),
 		(ltok::RSHIFT, void, loc(1, 34)),
 	];

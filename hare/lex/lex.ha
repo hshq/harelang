@@ -666,7 +666,7 @@ fn lex3(lex: *lexer) (token | error) = {
 	case '<' =>
 		yield [ltok::LESS, ltok::LESSEQ, ltok::LSHIFT, ltok::LSHIFTEQ];
 	case '>' =>
-		yield [ltok::GREATER, ltok::GREATEREQ, ltok::RSHIFT,
+		yield [ltok::GT, ltok::GTEQ, ltok::RSHIFT,
 			ltok::RSHIFTEQ];
 	case '&' =>
 		yield [ltok::BAND, ltok::BANDEQ, ltok::LAND, ltok::LANDEQ];
