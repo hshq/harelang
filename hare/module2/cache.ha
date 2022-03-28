@@ -2,11 +2,71 @@ use bytes;
 use crypto::sha256;
 use encoding::hex;
 use fmt;
+use fs;
 use hare::unparse;
 use hash;
 use io;
 use strings;
 use time;
+
+// Returns true if the given module is "current" (up to date). Note that this
+// function does not test for ABI compatibility with its dependencies.
+export fn iscurrent(ctx: *context, mod: *module) bool = {
+	// Treat errors as if the module is outdated
+	match (_iscurrent(ctx, mod)) {
+	case let b: bool =>
+		return b;
+	case error =>
+		return false;
+	};
+};
+
+fn _iscurrent(ctx: *context, mod: *module) (bool | error) = {
+	let current = true;
+	for (let i = 0z; i < len(mod.dirs); i += 1) {
+		const dir = mod.dirs[i];
+		const st = fs::stat(ctx.fs, dir.path)?;
+		assert(st.mask & fs::stat_mask::MTIME > 0);
+		if (time::compare(st.mtime, dir.mtime) != 0) {
+			current = false;
+			break;
+		};
+	};
+	if (current) {
+		return true;
+	};
+
+	current = true;
+	for (let i = 0z; i < len(mod.inputs); i += 1) {
+		const input = &mod.inputs[i];
+		const st = fs::stat(ctx.fs, input.path)?;
+		assert(st.mask & fs::stat_mask::MTIME > 0);
+		if (time::compare(st.mtime, input.mtime) != 0) {
+			current = false;
+			break;
+		};
+	};
+	if (current) {
+		return true;
+	};
+
+	current = true;
+	for (let i = 0z; i < len(mod.inputs); i += 1) {
+		const input = &mod.inputs[i];
+		const file = fs::open(ctx.fs, input.path)?;
+		defer io::close(file);
+		let sha = sha256::sha256();
+		io::copy(&sha, file)?;
+		let hash: [sha256::SIZE]u8 = [0...];
+		hash::finish(&sha, hash);
+		if (!bytes::equal(hash, input.hash)) {
+			current = false;
+			break;
+		};
+	};
+
+	return current;
+};
 
 // Writes a cache entry for the given module built with the given version of its
 // dependencies.
@@ -68,7 +128,8 @@ export fn write_cacheentry(
 	};
 };
 
-fn cachekey(
+// XXX: Temporarily exported
+export fn cachekey(
 	ctx: *context,
 	out: *[sha256::SIZE]u8,
 	mod: *module,

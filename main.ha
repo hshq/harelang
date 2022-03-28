@@ -44,7 +44,7 @@ export fn main() void = {
 
 	let cache = match (module2::load(&ctx, ident)) {
 	case let err: module2::error =>
-		fmt::errorf("Error scanning ")!;
+		fmt::errorf("Error loading ")!;
 		unparse::ident(os::stderr, ident)!;
 		fmt::fatal(": {}", module2::strerror(err));
 	case let mods: []module2::module =>
@@ -55,12 +55,37 @@ export fn main() void = {
 	fmt::printfln("Cached versions of {}:", os::args[1])!;
 	for (let i = 0z; i < len(cache); i += 1) {
 		const mod = &cache[i];
-		fmt::print("Cache key: ")!;
+		fmt::println(mod.base)!;
+		fmt::print("\tCache key: ")!;
 		hex::encode(os::stdout, mod.cachekey)!;
 		fmt::println()!;
-		fmt::print("ABI key: ")!;
+		fmt::print("\tABI key: ")!;
 		hex::encode(os::stdout, mod.abi)!;
 		fmt::println()!;
-		fmt::printfln("Base directory: {}", mod.base)!;
+		fmt::printfln("\tIs current: {}",
+			module2::iscurrent(&ctx, mod))!;
 	};
+
+	let path = match (module2::resolve(&ctx, ident)) {
+	case let err: module2::error =>
+		fmt::errorf("Error resolving ")!;
+		unparse::ident(os::stderr, ident)!;
+		fmt::fatal(": {}", module2::strerror(err));
+	case let path: str =>
+		yield path;
+	};
+	defer free(path);
+
+	let mod = match (module2::scan(&ctx, ident, path)) {
+	case let err: module2::error =>
+		fmt::errorf("Error scanning ")!;
+		unparse::ident(os::stderr, ident)!;
+		fmt::fatal(": {}", module2::strerror(err));
+	case let mod: module2::module =>
+		yield mod;
+	};
+
+	fmt::println()!;
+	module2::cachekey(&ctx, &mod.cachekey, &mod, []);
+	module2::write_cacheentry(&ctx, os::stdout, &mod)!;
 };
