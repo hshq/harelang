@@ -205,8 +205,7 @@ fn append_insert_expr(
 	want(lexer, ltok::LPAREN)?;
 
 	const object = if (tok.0 == ltok::APPEND) objsel(lexer)?
-		else postfix(lexer, void)?;
-	// TODO: Assert that this was an indexing expression
+		else idxexpr(lexer)?;
 	want(lexer, ltok::COMMA)?;
 
 	let variadic: nullable *ast::expr = null;
@@ -705,6 +704,14 @@ fn objsel(lexer: *lex::lexer) (ast::expr | error) = {
 	let expr = postfix(lexer, void)?;
 	synassert(lex::mkloc(lexer), expr.expr is ast::access_expr,
 		"Expected object selector")?;
+	return expr;
+};
+
+fn idxexpr(lexer: *lex::lexer) (ast::expr | error) = {
+	const expr = postfix(lexer, void)?;
+	synassert(lex::mkloc(lexer), expr.expr is ast::access_expr
+		&& expr.expr as ast::access_expr is ast::access_index,
+		"Expected indexing expression")?;
 	return expr;
 };
 
