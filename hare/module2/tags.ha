@@ -15,30 +15,6 @@ export type tag = struct {
 	mode: tag_mode,
 };
 
-// Given a file or directory name, parses and returns any applicable tags.
-export fn parsename(name: str) []tag = {
-	let base = path::extension(name).0;
-	let p = strings::index(base, '+');
-	let m = strings::index(base, '-');
-	if (p is void && m is void) {
-		return [];
-	};
-	let i: size =
-		if (p is void && m is size) m: size
-		else if (m is void && p is size) p: size
-		else if (m: size < p: size) m: size
-		else p: size;
-	let tags = strings::sub(base, i, strings::end);
-	let tags = match (parsetags(tags)) {
-	case void =>
-		return [];
-	case let t: []tag =>
-		yield t;
-	};
-	let base = strings::sub(base, 0, i);
-	return tags;
-};
-
 // Parses a set of build tags, returning void if the string is an invalid tag
 // set. The caller must free the return value with [[tags_free]].
 export fn parsetags(in: str) ([]tag | void) = {
@@ -79,6 +55,38 @@ export fn parsetags(in: str) ([]tag | void) = {
 	return tags;
 };
 
+// Frees a set of tags.
+export fn tags_free(tags: []tag) void = {
+	for (let i = 0z; i < len(tags); i += 1) {
+		free(tags[i].name);
+	};
+	free(tags);
+};
+
+// Given a file or directory name, parses and returns any applicable tags.
+export fn parsename(name: str) []tag = {
+	let base = path::extension(name).0;
+	let p = strings::index(base, '+');
+	let m = strings::index(base, '-');
+	if (p is void && m is void) {
+		return [];
+	};
+	let i: size =
+		if (p is void && m is size) m: size
+		else if (m is void && p is size) p: size
+		else if (m: size < p: size) m: size
+		else p: size;
+	let tags = strings::sub(base, i, strings::end);
+	let tags = match (parsetags(tags)) {
+	case void =>
+		return [];
+	case let t: []tag =>
+		yield t;
+	};
+	let base = strings::sub(base, 0, i);
+	return tags;
+};
+
 // Compares two tag sets and tells you if they are compatible.
 export fn tagcompat(conf: []tag, target: []tag) bool = {
 	// XXX: O(n²), lame
@@ -98,12 +106,4 @@ export fn tagcompat(conf: []tag, target: []tag) bool = {
 		};
 	};
 	return true;
-};
-
-// Frees a set of tags.
-export fn tags_free(tags: []tag) void = {
-	for (let i = 0z; i < len(tags); i += 1) {
-		free(tags[i].name);
-	};
-	free(tags);
 };
