@@ -79,11 +79,8 @@ fn _scan(
 ) (void | error) = {
 	const st = fs::stat(ctx.fs, path)?;
 	assert(st.mask & fs::stat_mask::MTIME > 0);
-	append(mod.dirs, directory {
-		path = strings::dup(path),
-		mtime = st.mtime,
-	});
 
+	let empty = true;
 	const iter = fs::iter(ctx.fs, path)?;
 	for (true) {
 		const ent = match (fs::next(iter)) {
@@ -101,6 +98,7 @@ fn _scan(
 			const path = path::string(buf);
 			if (included(ctx, path, false)) {
 				append(inputs, strings::dup(path));
+				empty = false;
 			};
 		} else if (fs::isdir(ent.ftype)) {
 			const path = path::string(buf);
@@ -108,10 +106,18 @@ fn _scan(
 				const path = strings::dup(path);
 				defer free(path);
 				_scan(ctx, mod, path, inputs, buf)?;
+				empty = false;
 			};
 		} else if (fs::islink(ent.ftype)) {
 			abort(); // TODO
 		};
+	};
+
+	if (!empty) {
+		append(mod.dirs, directory {
+			path = strings::dup(path),
+			mtime = st.mtime,
+		});
 	};
 };
 
