@@ -41,5 +41,11 @@ export type bar = enum uint {
 	Z,
 	Q,
 };
+export type baz = enum rune {
+	X = void,
+	Y = void,
+	Z,
+	Q,
+};
 ");
 };

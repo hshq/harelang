@@ -374,13 +374,19 @@ fn array_slice_type(lexer: *lex::lexer) (ast::_type | error) = {
 fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 	let start = want(lexer, ltok::ENUM)?;
 
-	const storage = match (try(lexer, ltok::LBRACE)?) {
+	const storage = match (try(lexer, ltok::LBRACE, ltok::RUNE)?) {
 	case void =>
 		let storage = integer_type(lexer)?;
 		want(lexer, ltok::LBRACE)?;
 		yield storage;
-	case lex::token =>
-		yield builtin_type::INT;
+	case let tok: lex::token =>
+		yield switch (tok.0) {
+		case ltok::LBRACE =>
+			yield builtin_type::INT;
+		case ltok::RUNE =>
+			want(lexer, ltok::LBRACE)?;
+			yield builtin_type::RUNE;
+		};
 	};
 
 	let membs: []ast::enum_field = [];
