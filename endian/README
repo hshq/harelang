@@ -1,0 +1,8 @@
+The endian module provides support functions for converting the byte encoding
+("endianness") of integers. The following abbreviations are used throughout the
+module:
+
+- be - big endian; most significant byte first
+- le - little endian; least significant byte first
+- h - the endianness of the host system
+- n - the endianness of the network (big endian)
