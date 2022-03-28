@@ -81,7 +81,7 @@ fn _iscurrent(ctx: *context, mod: *module) (bool | error) = {
 };
 
 fn isdircurrent(ctx: *context, mod: *module, path: str) (bool | error) = {
-	let iter = fs::iter(ctx.fs, mod.base)?;
+	let iter = fs::iter(ctx.fs, path)?;
 	let buf = path::init();
 	for (true) {
 		const ent = match (fs::next(iter)) {
@@ -90,8 +90,11 @@ fn isdircurrent(ctx: *context, mod: *module, path: str) (bool | error) = {
 		case let ent: fs::dirent =>
 			yield ent;
 		};
+		if (strings::hasprefix(ent.name, ".")) {
+			continue;
+		};
 
-		path::set(&buf, mod.base, ent.name)!;
+		path::set(&buf, path, ent.name)!;
 		if (!included(ctx, path::string(&buf), fs::isdir(ent.ftype))) {
 			continue;
 		};
