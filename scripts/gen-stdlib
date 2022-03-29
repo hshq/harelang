@@ -633,7 +633,7 @@ hare_module() {
 		walk.ha
 	gen_ssa hare::module \
 		hare::ast hare::lex hare::parse hare::unparse strio fs io strings hash \
-		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time slice bufio \
+		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time slices bufio \
 		strconv os encoding::hex sort errors temp
 }
 
@@ -1038,12 +1038,12 @@ shlex() {
 	gen_ssa shlex bufio io strings strio
 }
 
-slice() {
-	gen_srcs slice \
+slices() {
+	gen_srcs slices \
 		reverse.ha \
 		trunc.ha \
 		void.ha
-	gen_ssa slice types
+	gen_ssa slices types
 }
 
 gensrcs_sort() {
@@ -1277,7 +1277,7 @@ os				linux freebsd
 os::exec		linux freebsd
 path
 shlex
-slice
+slices
 sort
 strconv
 strings

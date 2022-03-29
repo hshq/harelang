@@ -5,7 +5,7 @@
 // - Set name field
 // - Figure out the portability mess that is this interface
 use rt;
-use slice;
+use slices;
 use fmt;
 
 export type msghdr = struct {
@@ -37,8 +37,8 @@ export fn finish(msg: *msghdr) void = {
 // vectors or control messages without a re-allocation, which improves
 // performance if the new configuration fits into the same amount of memory.
 export fn reset(msg: *msghdr) void = {
-	slice::trunc(&msg.control: *[]void);
-	slice::trunc(&msg.vectors: *[]void);
+	slices::trunc(&msg.control: *[]void);
+	slices::trunc(&msg.vectors: *[]void);
 };
 
 // Adds an I/O vector to the message.

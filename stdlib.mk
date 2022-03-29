@@ -544,11 +544,11 @@ stdlib_deps_any+=$(stdlib_shlex_any)
 stdlib_shlex_linux=$(stdlib_shlex_any)
 stdlib_shlex_freebsd=$(stdlib_shlex_any)
 
-# gen_lib slice (any)
-stdlib_slice_any=$(HARECACHE)/slice/slice-any.o
-stdlib_deps_any+=$(stdlib_slice_any)
-stdlib_slice_linux=$(stdlib_slice_any)
-stdlib_slice_freebsd=$(stdlib_slice_any)
+# gen_lib slices (any)
+stdlib_slices_any=$(HARECACHE)/slices/slices-any.o
+stdlib_deps_any+=$(stdlib_slices_any)
+stdlib_slices_linux=$(stdlib_slices_any)
+stdlib_slices_freebsd=$(stdlib_slices_any)
 
 # gen_lib sort (any)
 stdlib_sort_any=$(HARECACHE)/sort/sort-any.o
@@ -1081,7 +1081,7 @@ stdlib_hare_module_any_srcs= \
 	$(STDLIB)/hare/module/manifest.ha \
 	$(STDLIB)/hare/module/walk.ha
 
-$(HARECACHE)/hare/module/hare_module-any.ssa: $(stdlib_hare_module_any_srcs) $(stdlib_rt) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_lex_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_hare_unparse_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_dirs_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_slice_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_temp_$(PLATFORM))
+$(HARECACHE)/hare/module/hare_module-any.ssa: $(stdlib_hare_module_any_srcs) $(stdlib_rt) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_lex_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_hare_unparse_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_dirs_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_slices_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_temp_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/module
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::module \
@@ -1590,17 +1590,17 @@ $(HARECACHE)/shlex/shlex-any.ssa: $(stdlib_shlex_any_srcs) $(stdlib_rt) $(stdlib
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nshlex \
 		-t$(HARECACHE)/shlex/shlex.td $(stdlib_shlex_any_srcs)
 
-# slice (+any)
-stdlib_slice_any_srcs= \
-	$(STDLIB)/slice/reverse.ha \
-	$(STDLIB)/slice/trunc.ha \
-	$(STDLIB)/slice/void.ha
+# slices (+any)
+stdlib_slices_any_srcs= \
+	$(STDLIB)/slices/reverse.ha \
+	$(STDLIB)/slices/trunc.ha \
+	$(STDLIB)/slices/void.ha
 
-$(HARECACHE)/slice/slice-any.ssa: $(stdlib_slice_any_srcs) $(stdlib_rt) $(stdlib_types_$(PLATFORM))
+$(HARECACHE)/slices/slices-any.ssa: $(stdlib_slices_any_srcs) $(stdlib_rt) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/slice
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nslice \
-		-t$(HARECACHE)/slice/slice.td $(stdlib_slice_any_srcs)
+	@mkdir -p $(HARECACHE)/slices
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nslices \
+		-t$(HARECACHE)/slices/slices.td $(stdlib_slices_any_srcs)
 
 # sort (+any)
 stdlib_sort_any_srcs= \
@@ -2391,11 +2391,11 @@ testlib_deps_any+=$(testlib_shlex_any)
 testlib_shlex_linux=$(testlib_shlex_any)
 testlib_shlex_freebsd=$(testlib_shlex_any)
 
-# gen_lib slice (any)
-testlib_slice_any=$(TESTCACHE)/slice/slice-any.o
-testlib_deps_any+=$(testlib_slice_any)
-testlib_slice_linux=$(testlib_slice_any)
-testlib_slice_freebsd=$(testlib_slice_any)
+# gen_lib slices (any)
+testlib_slices_any=$(TESTCACHE)/slices/slices-any.o
+testlib_deps_any+=$(testlib_slices_any)
+testlib_slices_linux=$(testlib_slices_any)
+testlib_slices_freebsd=$(testlib_slices_any)
 
 # gen_lib sort (any)
 testlib_sort_any=$(TESTCACHE)/sort/sort-any.o
@@ -2949,7 +2949,7 @@ testlib_hare_module_any_srcs= \
 	$(STDLIB)/hare/module/manifest.ha \
 	$(STDLIB)/hare/module/walk.ha
 
-$(TESTCACHE)/hare/module/hare_module-any.ssa: $(testlib_hare_module_any_srcs) $(testlib_rt) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_dirs_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_slice_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_temp_$(PLATFORM))
+$(TESTCACHE)/hare/module/hare_module-any.ssa: $(testlib_hare_module_any_srcs) $(testlib_rt) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_dirs_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_slices_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_temp_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/module
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module \
@@ -3477,17 +3477,17 @@ $(TESTCACHE)/shlex/shlex-any.ssa: $(testlib_shlex_any_srcs) $(testlib_rt) $(test
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nshlex \
 		-t$(TESTCACHE)/shlex/shlex.td $(testlib_shlex_any_srcs)
 
-# slice (+any)
-testlib_slice_any_srcs= \
-	$(STDLIB)/slice/reverse.ha \
-	$(STDLIB)/slice/trunc.ha \
-	$(STDLIB)/slice/void.ha
+# slices (+any)
+testlib_slices_any_srcs= \
+	$(STDLIB)/slices/reverse.ha \
+	$(STDLIB)/slices/trunc.ha \
+	$(STDLIB)/slices/void.ha
 
-$(TESTCACHE)/slice/slice-any.ssa: $(testlib_slice_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM))
+$(TESTCACHE)/slices/slices-any.ssa: $(testlib_slices_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/slice
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nslice \
-		-t$(TESTCACHE)/slice/slice.td $(testlib_slice_any_srcs)
+	@mkdir -p $(TESTCACHE)/slices
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nslices \
+		-t$(TESTCACHE)/slices/slices.td $(testlib_slices_any_srcs)
 
 # sort (+any)
 testlib_sort_any_srcs= \
