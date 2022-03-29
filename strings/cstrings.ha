@@ -4,13 +4,6 @@
 // (c) 2022 Vlad-Stefan Harbuz <vlad@vladh.net>
 use encoding::utf8;
 use types;
-use rt;
-
-let emptybuf: [1]u8 = [0];
-
-// A C-compatible empty string. Empty Hare strings have a null pointer instead
-// of containing only '\0', so a special string is needed for this case.
-export let c_empty: *const char = &emptybuf: *[*]u8: *const char;
 
 // Computes the length of a NUL-terminated C string, in octets, in O(n). The
 // computed length does not include the NUL terminator.
