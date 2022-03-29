@@ -15,7 +15,8 @@ getmods() (
 			echo $module
 		fi
 	done
-	# mime is not listed in gen-stdlib for dependency reasons
+	# Not listed in the stdlib for various reasons:
+	echo crypto::keystore
 	echo mime
 )
 modules="$(getmods)"
