@@ -35,10 +35,13 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 	};
 
 	// XXX: It would be faster if we decoded and measured at the same time.
-	const n = utf8sz(d.src[d.offs]);
-	if (n == types::SIZE_MAX) {
+	const n = match (utf8sz(d.src[d.offs])) {
+	case let z: size =>
+		yield z;
+	case void =>
 		return invalid;
-	} else if (d.offs + n > len(d.src)) {
+	};
+	if (d.offs + n > len(d.src)) {
 		return more;
 	};
 	let bytes = d.src[d.offs..d.offs+n];
@@ -84,10 +87,12 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 		return more;
 	};
 	d.offs -= n;
-	if (n != utf8sz(d.src[d.offs])) {
+	match (utf8sz(d.src[d.offs])) {
+	case let z: size =>
+		return if (n == z) r: rune else invalid;
+	case void =>
 		return invalid;
 	};
-	return r: rune;
 };
 
 @test fn decode() void = {
@@ -150,12 +155,12 @@ export fn valid(src: (str | []u8)) bool = {
 	abort();
 };
 
-// Returns the expected length of a UTF-8 character in bytes.
-export fn utf8sz(c: u8) size = {
+// Returns the expected length of a UTF-8 codepoint in bytes given its first
+// byte, or void if the given byte doesn't begin a valid UTF-8 sequence.
+export fn utf8sz(c: u8) (size | void) = {
 	for (let i = 0z; i < len(sizes); i += 1) {
 		if (c & sizes[i].mask == sizes[i].result) {
 			return sizes[i].octets;
 		};
 	};
-	return types::SIZE_MAX;
 };

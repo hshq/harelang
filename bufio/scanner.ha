@@ -64,8 +64,10 @@ export fn scanrune(
 		return io::EOF;
 	};
 
-	const sz = utf8::utf8sz(b[0]);
-	if (sz == types::SIZE_MAX) {
+	const sz = match (utf8::utf8sz(b[0])) {
+	case let z: size =>
+		yield z;
+	case void =>
 		return utf8::invalid;
 	};
 
