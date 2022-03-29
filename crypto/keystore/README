@@ -1,0 +1,15 @@
+Important notice: Hare's cryptography implementations have not been audited. You
+can contribute to the funding of an independent audit of our cryptography
+implementation on OpenCollective:
+
+TODO: Add link
+
+The keystore module provides a means of securely storing private information,
+ideally through the assistance of operating system key storage facilities. The
+purpose of this feature is to store private data without keeping it in the
+process's address space, so that bugs which can lead to reading process memory
+cannot recover the key while it's not actively in use.
+
+On platforms without a suitable feature, a fallback implementation stores the
+secrets in the process heap, providing no security. This is an opportunistic API
+which allows your program to take advantage of these features if available.
