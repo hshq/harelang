@@ -15,6 +15,11 @@ export fn newkey(buf: []u8, name: str) (key | errors::error) = {
 	};
 };
 
+// Destroys a secure key.
+export fn destroy(key: key) void = {
+	keyctl::revoke(key)!;
+};
+
 // Reads secret data from a secure key. When the caller is done using the secret
 // buffer, they should use [[bytes::zero]] to securely wipe the buffer memory.
 export fn read(key: key, buf: []u8) size = {
