@@ -718,7 +718,7 @@ export fn munlock(addr: *void, length: size) (void | errno) = {
 		length: u64))?: void;
 };
 
-export fn mlockall(flags: int) (void | errno) = {
+export fn mlockall(flags: uint) (void | errno) = {
 	return wrap_return(syscall1(SYS_mlockall, flags: u64))?: void;
 };
 

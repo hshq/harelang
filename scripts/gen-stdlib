@@ -969,11 +969,12 @@ math_random() {
 
 os() {
 	gen_srcs -plinux os \
+		+linux/dirfdfs.ha \
 		+linux/environ.ha \
 		+linux/exit.ha \
-		+linux/dirfdfs.ha \
-		+linux/stdfd.ha \
 		+linux/fs.ha \
+		+linux/memory.ha \
+		+linux/stdfd.ha \
 		fs.ha
 	gen_ssa -plinux os io strings types fs encoding::utf8 bytes bufio errors
 

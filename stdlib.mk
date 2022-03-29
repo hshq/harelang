@@ -1526,11 +1526,12 @@ $(HARECACHE)/net/uri/net_uri-any.ssa: $(stdlib_net_uri_any_srcs) $(stdlib_rt) $(
 
 # os (+linux)
 stdlib_os_linux_srcs= \
+	$(STDLIB)/os/+linux/dirfdfs.ha \
 	$(STDLIB)/os/+linux/environ.ha \
 	$(STDLIB)/os/+linux/exit.ha \
-	$(STDLIB)/os/+linux/dirfdfs.ha \
-	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/+linux/fs.ha \
+	$(STDLIB)/os/+linux/memory.ha \
+	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/fs.ha
 
 $(HARECACHE)/os/os-linux.ssa: $(stdlib_os_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
@@ -3427,11 +3428,12 @@ $(TESTCACHE)/net/uri/net_uri-any.ssa: $(testlib_net_uri_any_srcs) $(testlib_rt) 
 
 # os (+linux)
 testlib_os_linux_srcs= \
+	$(STDLIB)/os/+linux/dirfdfs.ha \
 	$(STDLIB)/os/+linux/environ.ha \
 	$(STDLIB)/os/+linux/exit.ha \
-	$(STDLIB)/os/+linux/dirfdfs.ha \
-	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/+linux/fs.ha \
+	$(STDLIB)/os/+linux/memory.ha \
+	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/fs.ha
 
 $(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
