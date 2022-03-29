@@ -21,7 +21,7 @@ export fn fromc_unsafe(cstr: *const char) const str = {
 	const s = types::string {
 		data = cstr: *[*]u8,
 		length = l,
-		capacity = l,
+		capacity = l + 1,
 	};
 	return *(&s: *const str);
 };
