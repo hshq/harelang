@@ -1,0 +1,3 @@
+linux::keyctl provides an interface to the Linux kernel's key management
+facilities. Documentation for this module is sparse; the reader is encouraged to
+consult the Linux man pages for complete details.

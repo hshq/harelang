@@ -736,3 +736,27 @@ export fn prctl(
 	return wrap_return(syscall5(SYS_prctl, option: u64, arg2, arg3, arg4,
 		arg5))?: int;
 };
+
+export fn add_key(
+	keytype: *const char,
+	name: *const char,
+	payload: *void,
+	plen: size,
+	keyring: int,
+) (int | errno) = {
+	return wrap_return(syscall5(SYS_add_key,
+		keytype: uintptr: u64, name: uintptr: u64,
+		payload: uintptr: u64, plen: u64,
+		keyring: u64))?: int;
+};
+
+export fn keyctl(
+	operation: int,
+	arg2: u64,
+	arg3: u64,
+	arg4: u64,
+	arg5: u64,
+) (int | errno) = {
+	return wrap_return(syscall5(SYS_keyctl, operation: u64,
+		arg2, arg3, arg4, arg5))?: int;
+};

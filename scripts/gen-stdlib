@@ -769,6 +769,13 @@ linux() {
 	gen_ssa -plinux linux format::elf
 }
 
+linux_keyctl() {
+	gen_srcs -plinux linux::keyctl \
+		keyctl.ha \
+		types.ha
+	gen_ssa -plinux linux::keyctl rt errors strings bytes
+}
+
 linux_signalfd() {
 	gen_srcs -plinux linux::signalfd \
 		signalfd.ha
@@ -1260,8 +1267,9 @@ hash::fnv
 io				linux freebsd
 iobus::io_uring	linux
 linux			linux
-linux::signalfd	linux
-linux::io_uring	linux
+linux::keyctl		linux
+linux::signalfd		linux
+linux::io_uring		linux
 linux::vdso		linux
 math
 math::random
