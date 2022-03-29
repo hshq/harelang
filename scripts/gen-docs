@@ -26,6 +26,11 @@ mkdir -p docs/html/
 haredoc -Fhtml > docs/html/index.html
 for mod in $modules compress format encoding math crypto hare rt iobus
 do
+	if [ $mod = "format::ini" ]
+	then
+		# https://todo.sr.ht/~sircmpwn/hare/598
+		continue
+	fi
 	echo $mod
 	path="$(echo $mod | sed -e 's?::?/?g')"
 	mkdir -p docs/html/$path
