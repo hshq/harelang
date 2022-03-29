@@ -167,6 +167,19 @@ export fn encodeslice(enc: *encoding, in: []u8) []u8 = {
 	return bufio::buffer(&out);
 };
 
+// Encodes base64 data using the given alphabet and writes it to a stream,
+// returning the number of bytes of data written (i.e. len(buf)).
+export fn encode(
+	out: io::handle,
+	enc: *encoding,
+	buf: []u8,
+) (size | io::error) = {
+	// TODO: rename new_encoder to newencoder etc; reverse params
+	const enc = new_encoder(enc, out);
+	defer io::close(&enc);
+	return io::writeall(&enc, buf)?;
+};
+
 // Encodes a byte slice in base 64, using the given encoding, returning a
 // string. The caller must free the return value.
 export fn encodestr(enc: *encoding, in: []u8) str = {
@@ -344,6 +357,18 @@ export fn decodeslice(
 // returning a slice of decoded bytes. The caller must free the return value.
 export fn decodestr(enc: *encoding, in: str) ([]u8 | errors::invalid) = {
 	return decodeslice(enc, strings::toutf8(in));
+};
+
+// Decodes base64 data from a stream using the given alphabet, returning the
+// number of bytes of bytes read (i.e. len(buf)).
+export fn decode(
+	in: io::handle,
+	enc: *encoding,
+	buf: []u8,
+) (size | io::EOF | io::error) = {
+	const enc = new_decoder(enc, in);
+	defer io::close(&enc);
+	return io::readall(&enc, buf)?;
 };
 
 @test fn decode() void = {
