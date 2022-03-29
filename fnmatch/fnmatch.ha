@@ -369,7 +369,7 @@ fn pat_next(pat: *strings::iterator, fl: flags) (token | errors::invalid) = {
 	case '\\' =>
 		// TODO: remove ? (harec bug workaround)
 		return if (fl & flags::NOESCAPE == 0) advance_or_err(pat)?
-			else '\\': token; // TODO: remove cast (harec bug workaround)
+			else '\\';
 	case =>
 		return r;
 	};
