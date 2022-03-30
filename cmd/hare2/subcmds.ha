@@ -2,7 +2,12 @@
 // (c) 2021-2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
+use fmt;
+use fs;
 use getopt;
+use hare::module2;
+use os;
+use strings;
 
 fn build(args: []str) void = {
 	const help: []getopt::help = [
@@ -20,7 +25,30 @@ fn build(args: []str) void = {
 	];
 	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
-	abort(); // TODO
+
+	const input =
+		if (len(cmd.args) == 0) os::getcwd()
+		else if (len(cmd.args) == 1) cmd.args[0]
+		else {
+			getopt::printusage(os::stderr, args[0], help...);
+			os::exit(1);
+		};
+
+	const conf = module2::config {
+		fs = os::cwd,
+		tags = default_tags(),
+		...
+	};
+	const ctx = module2::newcontext(&conf);
+	defer module2::context_finish(&ctx);
+
+	const root = match (scanroot(&ctx, input)) {
+	case let mod: module2::module =>
+		yield mod;
+	case let err: module2::error =>
+		fmt::fatal("Error scanning input module: {}",
+			module2::strerror(err));
+	};
 };
 
 fn cache(args: []str) void = {
@@ -100,4 +128,31 @@ fn version(args: []str) void = {
 	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 	abort(); // TODO
+};
+
+fn default_tags() []module2::tag = {
+	return alloc([module2::tag {
+		name = strings::dup(os::machine()),
+		mode = module2::tag_mode::INCLUSIVE,
+	}, module2::tag {
+		name = strings::dup(PLATFORM),
+		mode = module2::tag_mode::INCLUSIVE,
+	}]);
+};
+
+// Selects module::scan or module::scanfile as appropriate for a given input.
+fn scanroot(
+	ctx: *module2::context,
+	path: str,
+) (module2::module | module2::error) = {
+	const st = os::stat(path)?;
+	if (fs::isfile(st.mode)) {
+		return module2::scanfile(ctx, path);
+	} else if (fs::isdir(st.mode)) {
+		return module2::scan(ctx, [], path);
+	} else if (fs::islink(st.mode)) {
+		abort(); // TODO
+	} else {
+		fmt::fatal("Error: unknown input type");
+	};
 };

@@ -41,10 +41,28 @@ export fn scan(ctx: *context, ident: ast::ident, path: str) (module | error) = {
 	// can sort them in between, keeping the hashes consistent regardless of
 	// the order they're returned from the host.
 	for (let i = 0z; i < len(inputs); i += 1) {
-		const file = scanfile(ctx, &state, inputs[i])?;
+		const file = scaninput(ctx, &state, inputs[i])?;
 		append(state.mod.inputs, file);
 	};
 
+	hash::finish(&state.abi, state.mod.abi);
+	return state.mod;
+};
+
+// Scans a single-file module at the root of the Hare namespace, returning the
+// resulting [[module]]. The caller must pass the return value to
+// [[module_finish]] when they are done using it.
+export fn scanfile(ctx: *context, path: str) (module | error) = {
+	path = strings::dup(fs::resolve(ctx.fs, path));
+	let state = scan_state {
+		mod = module {
+			base = path,
+			...
+		},
+		abi = sha256::sha256(),
+	};
+	const file = scaninput(ctx, &state, path)?;
+	append(state.mod.inputs, file);
 	hash::finish(&state.abi, state.mod.abi);
 	return state.mod;
 };
@@ -123,7 +141,7 @@ fn _scan(
 
 // Note: Must be called in alphabetical order so that the ABI hash is computed
 // correctly.
-fn scanfile(ctx: *context, state: *scan_state, path: str) (file | error) = {
+fn scaninput(ctx: *context, state: *scan_state, path: str) (file | error) = {
 	if (isharesrc(path)) {
 		return scanhare(ctx, state, path);
 	} else if (isasmsrc(path)) {
