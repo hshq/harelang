@@ -557,10 +557,10 @@ fn type_html(
 	_type: ast::_type,
 	brief: bool,
 ) (size | io::error) = {
-	let buf = strio::dynamic();
-	defer io::close(&buf);
-	unparse::_type(&buf, indent, _type)?;
 	if (brief) {
+		let buf = strio::dynamic();
+		defer io::close(&buf);
+		unparse::_type(&buf, indent, _type)?;
 		return html_escape(out, strio::string(&buf))?;
 	};
 
