@@ -120,4 +120,5 @@ install: docs scripts/install-mods
 	install -m644 docs/haredoc.1 $(DESTDIR)$(MANDIR)/man1/haredoc.1
 	./scripts/install-mods "$(DESTDIR)$(SRCDIR)/hare/stdlib"
 
-.PHONY: all clean check docs install $(BINOUT)/harec2 $(BINOUT)/haredoc
+.PHONY: all clean check docs install
+.PHONY: $(BINOUT)/harec2 $(BINOUT)/haredoc $(BINOUT)/hare2

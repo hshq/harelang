@@ -13,6 +13,7 @@ export type config = struct {
 	defines: []str,
 };
 
+// A Hare module context.
 export type context = struct {
 	fs: *fs::fs,
 	paths: []str,
