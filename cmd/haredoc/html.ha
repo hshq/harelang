@@ -339,6 +339,14 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 		defer free(ipath);
 		fmt::fprintf(ctx.out, "<a href='/{}#{}' class='ref'>{}</a>",
 			ipath, id[len(id) - 1], ident)?;
+	case symkind::ENUM_LOCAL =>
+		fmt::fprintf(ctx.out, "<a href='#{}' class='ref'>{}</a>",
+			id[len(id) - 2], ident)?;
+	case symkind::ENUM_REMOTE =>
+		let ipath = module::identpath(id[..len(id) - 2]);
+		defer free(ipath);
+		fmt::fprintf(ctx.out, "<a href='/{}#{}' class='ref'>{}</a>",
+			ipath, id[len(id) - 2], ident)?;
 	};
 	free(ident);
 };
