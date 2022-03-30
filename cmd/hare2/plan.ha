@@ -1,3 +1,5 @@
+// The purpose of this file is to prepare a "build plan", which is then executed
+// in queue.ha.
 use hare::ast;
 use hare::module2;
 use hare::unparse;
@@ -11,8 +13,7 @@ type plan = struct {
 	ctx: *module2::context,
 	schedule: []*task,
 	complete: []*task,
-	mods: []*module,
-	modcache: [64][]*module,
+	modcache: [64][]module,
 };
 
 type status = enum {
@@ -27,9 +28,9 @@ type task = struct {
 
 type module = struct {
 	hash: size,
+	task: *task,
 	ident: ast::ident,
-	mod: module2::module,
-	cache: []module2::module,
+	mod: *module2::module, // TODO: Free me
 };
 
 fn newplan(ctx: *module2::context) plan = plan {
@@ -37,45 +38,59 @@ fn newplan(ctx: *module2::context) plan = plan {
 	...
 };
 
-fn schedule(plan: *plan, ident: ast::ident) (*module | module2::error) = {
-	fmt::println("schedule", unparse::identstr(ident))!;
-	const hash = identhash(ident);
+fn plan_finish(plan: *plan) void = {
+	return; // TODO
+};
+
+fn sched_module(
+	plan: *plan,
+	mod: *module2::module,
+) *task = {
+	const hash = identhash(mod.ident);
 	const bucket = &plan.modcache[hash % len(plan.modcache)];
 	for (let i = 0z; i < len(bucket); i += 1) {
 		if (hash == bucket[i].hash) {
-			return bucket[i];
+			return bucket[i].task;
 		};
 	};
 
-	const ctx = plan.ctx;
-	const path = module2::resolve(ctx, ident)?;
-	defer free(path);
-	const path = strings::dup(os::resolve(path));
-	defer free(path);
-
-	const cache = module2::load(ctx, ident)?;
-	for (let i = 0z; i < len(cache); i += 1) {
-		if (cache[i].base == path) {
-			abort(); // TODO
+	let depends: []*task = [];
+	for (let i = 0z; i < len(mod.depends); i += 1) {
+		// TODO: Much of this code should go somewhere else imho
+		const dep = mod.depends[i];
+		const modpath = match (module2::resolve(plan.ctx, dep.ident)) {
+		case let path: str =>
+			yield path;
+		case let err: module2::error =>
+			modfatal(dep.ident, err);
 		};
+		const depmod = match (module2::scan(plan.ctx, dep.ident, modpath)) {
+		case let mod: module2::module =>
+			yield mod;
+		case let err: module2::error =>
+			modfatal(dep.ident, err);
+		};
+		const obj = sched_module(plan, &depmod);
+		append(depends, obj);
 	};
+	defer free(depends);
 
-	const mod = module2::scan(ctx, ident, path)?;
-	const mod = alloc(module {
-		cache = cache,
+	let obj = sched_hare_object(plan, mod, depends...);
+	append(bucket, module {
 		hash = hash,
-		ident = ident,
+		task = obj,
+		ident = mod.ident,
 		mod = mod,
 	});
-	append(plan.mods, mod);
-	append(bucket, mod);
+	return obj;
+};
 
-	for (let i = 0z; i < len(mod.mod.depends); i += 1) {
-		const dep = &mod.mod.depends[i];
-		schedule(plan, dep.ident)?;
-	};
-
-	return mod;
+fn sched_hare_object(
+	plan: *plan,
+	mod: *module2::module,
+	depends: []*task,
+) *task = {
+	abort(); // TODO
 };
 
 fn identhash(id: ast::ident) size = {
@@ -85,4 +100,13 @@ fn identhash(id: ast::ident) size = {
 		hash::write(&fnv, [0]);
 	};
 	return fnv::sum64(&fnv): size;
+};
+
+@noreturn fn modfatal(
+	ident: ast::ident,
+	err: module2::error,
+) void = {
+	const name = unparse::identstr(ident);
+	defer free(name);
+	fmt::fatal("Error resolving {}: {}", module2::strerror(err));
 };

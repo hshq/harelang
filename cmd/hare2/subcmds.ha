@@ -49,6 +49,10 @@ fn build(args: []str) void = {
 		fmt::fatal("Error scanning input module: {}",
 			module2::strerror(err));
 	};
+
+	let plan = newplan(&ctx);
+	defer plan_finish(&plan);
+	sched_module(&plan, &root);
 };
 
 fn cache(args: []str) void = {
