@@ -109,7 +109,7 @@ fn scantext(par: *parser) (token | void) = {
 				break;
 			};
 			bufio::unreadrune(&par.src, rn);
-			if (par.state == docstate::LIST) {
+			if (rn == '-' && par.state == docstate::LIST) {
 				break;
 			};
 		case =>
@@ -223,12 +223,8 @@ fn scansample(par: *parser) (token | void) = {
 	};
 
 	let buf = strio::string(&buf);
-
 	// Trim trailing newlines
-	for (strings::hassuffix(buf, "\n")) {
-		buf = strings::sub(buf, 0, len(buf) - 1);
-	};
-
+	buf = strings::rtrim(buf, '\n');
 	return buf: sample;
 };
 
