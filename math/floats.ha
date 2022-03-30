@@ -764,8 +764,8 @@ export fn modfracf32(n: f32) (i32, f32) = {
 	assert(res.1 == 0.50f32);
 };
 
-// Returns the f32 that is closest to [[x]] in direction of [[y]]. Returns NaN
-// if either parameter is NaN. Returns [[x]] if both parameters are same.
+// Returns the f32 that is closest to 'x' in direction of 'y'. Returns NaN
+// if either parameter is NaN. Returns 'x' if both parameters are same.
 export fn nextafterf32(x: f32, y: f32) f32 = {
 	if (isnan(x) || isnan(y)) {
 		return x + y;
@@ -791,8 +791,8 @@ export fn nextafterf32(x: f32, y: f32) f32 = {
 	return f32frombits(ux);
 };
 
-// Returns the f64 that is closest to [[x]] in direction of [[y]]. Returns NaN
-// if either parameter is NaN. Returns [[x]] if both parameters are same.
+// Returns the f64 that is closest to 'x' in direction of 'y' Returns NaN
+// if either parameter is NaN. Returns 'x' if both parameters are same.
 export fn nextafterf64(x: f64, y: f64) f64 = {
 	if (isnan(x) || isnan(y)) {
 		return x + y;

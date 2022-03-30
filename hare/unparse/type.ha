@@ -130,7 +130,7 @@ fn struct_union_type(
 	return z;
 };
 
-// Unparses an [[ast::_type]].
+// Unparses a [[hare::ast::_type]].
 export fn _type(
 	out: io::handle,
 	indent: size,

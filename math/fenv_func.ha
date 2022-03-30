@@ -10,7 +10,7 @@ export fn clearexcept(ex: fexcept) void = rt::feclearexcept(ex: uint);
 // exceptions corresponding to the given flags.
 export fn raiseexcept(ex: fexcept) void = rt::feraiseexcept(ex: uint);
 
-// Accepts a set of flags from [[except]] ORed together and returns
+// Accepts a set of flags from [[fexcept]] ORed together and returns
 // the subset that is currently raised
 export fn testexcept(ex: fexcept) fexcept = rt::fetestexcept(ex: uint): fexcept;
 

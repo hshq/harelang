@@ -32,7 +32,7 @@ export fn init(b: *block, key: []u8) void = {
 def GF_128_FDBK: u8 = 0x87;
 
 // Encrypts a block given its 'sector' number. The block must be a multiple of
-// [[aes::BLOCKSIZE]] (16 bytes) in length.
+// [[crypto::aes::BLOCKSIZE]] (16 bytes) in length.
 export fn encrypt(b: *block, dest: []u8, src: []u8, sector: u64) void = {
 	assert(len(src) == len(dest) && len(src) % aes::BLOCKSIZE == 0);
 

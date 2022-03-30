@@ -7,7 +7,7 @@ use io;
 use hare::ast;
 use strio;
 
-// Unparses an [[ast::import]].
+// Unparses a [[hare::ast::import]].
 export fn import(out: io::handle, import: ast::import) (size | io::error) = {
 	let n = 0z;
 	n += fmt::fprint(out, "use ")?;

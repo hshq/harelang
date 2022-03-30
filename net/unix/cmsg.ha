@@ -21,7 +21,7 @@ export fn allocfiles(buf: *net::msghdr, nfile: size) void = {
 };
 
 // Receives files from an ancillary data buffer which was previously prepared
-// with [[prepfiles]].
+// with [[allocfiles]].
 export fn recvfiles(buf: *net::msghdr, nfile: size) []io::file = {
 	match (net::getcontrol(buf,
 		nfile * size(io::file),

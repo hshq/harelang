@@ -207,7 +207,7 @@ export type cqring_flags = enum u32 {
 	EVENTFD_DISABLED = 1 << 0,
 };
 
-// Flags for [[setup]].
+// Flags for setup operation.
 export type setup_flags = enum u32 {
 	NONE = 0,
 	// io_context is polled
@@ -252,7 +252,7 @@ export type features = enum u32 {
 	POLL_32BITS = 1 << 6,
 };
 
-// Flags for [[enter]].
+// Flags for enter operation.
 export type enter_flags = enum uint {
 	NONE = 0,
 	GETEVENTS = 1 << 0,
@@ -260,7 +260,7 @@ export type enter_flags = enum uint {
 	SQ_WAIT = 1 << 2,
 };
 
-// Operations for [[register]].
+// Register operations.
 export type regop = enum uint {
 	REGISTER_BUFFERS,
 	UNREGISTER_BUFFERS,

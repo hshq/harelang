@@ -1,7 +1,7 @@
 hare::parse provides a parser for Hare source code. The [[subunit]] function
 will parse a single Hare source file and return a [[hare::ast::subunit]]. Other
 functions provide parsers for various important Hare sub-terminals, such as
-[[expression]]s and [[imports]]. See the Hare specification for more details:
+[[decls]] and [[imports]]. See the Hare specification for more details:
 
 https://harelang.org/specification
 

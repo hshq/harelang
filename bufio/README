@@ -11,9 +11,9 @@ bufio-managed dynamically allocated buffer. This creates an [[io::stream]] which
 efficiently soaks up writes into a dynamically allocated byte slice.
 
 Both [[fixed]] and [[dynamic]] provide access to the underlying buffer via
-[[buffer]] or [[finish]]. The user may also call [[reset]], which empties the
-buffer but does not free the underlying storage, allowing the user to re-use the
-same buffer for many operations.
+[[buffer]]. The user may also call [[reset]], which empties the buffer but does
+not free the underlying storage, allowing the user to re-use the same buffer
+for many operations.
 
 A third stream implementation, [[buffered]], is used to batch read and write
 operations against an underlying stream. The caller may use small, frequent read

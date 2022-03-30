@@ -17,7 +17,7 @@ export type state = struct {
 // [[hash::bsz]] bytes. Use the BLOCKSIZE constant of the given hash function to
 // allocate the memory statically.
 //
-// The caller must take extra care to call [[mac::finish]] when they are
+// The caller must take extra care to call [[crypto::mac::finish]] when they are
 // finished using the MAC function, which, in addition to freeing state
 // associated with the MAC, will securely erase state which contains secret
 // information.

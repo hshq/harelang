@@ -11,7 +11,7 @@ use hare::lex::{ltok};
 use hare::lex;
 use strings;
 
-// Unparses an [[ast::expr]].
+// Unparses a [[hare::ast::expr]].
 export fn expr(
 	out: io::handle,
 	indent: size,

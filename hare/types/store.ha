@@ -9,8 +9,8 @@ use sort;
 
 def BUCKETS: size = 65535;
 
-// A function which evaluates an [[ast::expr]], providing either a size result
-// or an error.
+// A function which evaluates a [[hare::ast::expr]], providing either a size
+// result or an error.
 export type resolver = fn(
 	rstate: nullable *void,
 	store: *typestore,
@@ -29,9 +29,9 @@ export type typestore = struct {
 };
 
 // Initializes a new type store. Optionally, provide a function which
-// type-checks and evaluates an [[ast::expr]]. If a resolver is not provided,
-// looking up types with an expression component (e.g. [2 + 2]int) will return
-// [[noresolver]].
+// type-checks and evaluates an [[hare::ast::expr]]. If a resolver is not
+// provided, looking up types with an expression component (e.g. [2 + 2]int)
+// will return [[noresolver]].
 export fn store(
 	arch: arch,
 	resolver: nullable *resolver,
@@ -66,7 +66,7 @@ export type noresolver = !void;
 // All possible errors for [[lookup]].
 export type error = !(noresolver | errors::opaque);
 
-// Retrieves a [[_type]] for a given [[ast::_type]].
+// Retrieves a [[_type]] for a given [[hare::ast::_type]].
 export fn lookup(
 	store: *typestore,
 	ty: *ast::_type,

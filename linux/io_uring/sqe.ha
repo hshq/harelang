@@ -148,7 +148,7 @@ export fn fsync(
 
 // Adds a request to poll a file descriptor for the given set of poll events.
 // This will only happen once, the poll request must be submitted with a new SQE
-// to re-poll the file descriptor later. The caller must call [[setuser]] to
+// to re-poll the file descriptor later. The caller must call [[set_user]] to
 // provide a user data field in order to use [[poll_remove]] to remove this poll
 // request later.
 export fn poll_add(
@@ -163,7 +163,7 @@ export fn poll_add(
 };
 
 // Removes an existing poll request by matching the SQE's user_data field. See
-// [[setuser]].
+// [[set_user]].
 export fn poll_remove(sqe: *sqe, user_data: *void, flags: flags...) void = {
 	preprw(sqe, op::POLL_REMOVE, -1, null, 0, 0, flags...);
 	set_user(sqe, user_data);
@@ -228,7 +228,7 @@ export fn recv(
 // Prepares a timeout operation for an [[sqe]]. "ts" should be a timespec
 // describing the desired timeout, and "events" may optionally be used to define
 // a number of completion events to wake after (or zero to wake only after the
-// timeout expires). The caller must call [[setuser]] to provide a user data
+// timeout expires). The caller must call [[set_user]] to provide a user data
 // field in order to use [[timeout_remove]] to cancel this timeout later.
 export fn timeout(
 	sqe: *sqe,
@@ -242,7 +242,7 @@ export fn timeout(
 };
 
 // Removes an existing timeout request by matching the SQE's user_data field.
-// See [[setuser]].
+// See [[set_user]].
 export fn timeout_remove(
 	sqe: *sqe,
 	user_data: *void,
@@ -254,7 +254,7 @@ export fn timeout_remove(
 };
 
 // Updates an existing timeout request by matching the SQE's user_data field.
-// See [[setuser]].
+// See [[set_user]].
 export fn timeout_update(
 	sqe: *sqe,
 	user_data: *void,
@@ -271,7 +271,7 @@ export fn timeout_update(
 // Prepares a timeout operation for an [[sqe]] which is linked to the previous
 // SQE, effectively setting an upper limit on how long that SQE can take to
 // complete. "ts" should be a timespec describing the desired timeout. The
-// caller must call [[setuser]] to provide a user data field in order to use
+// caller must call [[set_user]] to provide a user data field in order to use
 // [[timeout_remove]] to cancel this timeout later.
 export fn link_timeout(
 	sqe: *sqe,

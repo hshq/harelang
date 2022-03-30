@@ -12,7 +12,7 @@ use unix::hosts;
 // including /etc/hosts lookup and SRV resolution, and returns a list of
 // candidate IP addresses and the appropriate port, or an error.
 //
-// The caller must free the [[ip::addr]] slice.
+// The caller must free the [[net::ip::addr]] slice.
 export fn resolve(
 	proto: str,
 	addr: str,

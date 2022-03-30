@@ -10,7 +10,7 @@ use hare::lex;
 use strings;
 use strio;
 
-// Unparses an [[ast::decl]].
+// Unparses a [[hare::ast::decl]].
 export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 	let n = 0z;
 	if (len(d.docs) > 0) {
