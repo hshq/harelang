@@ -1,6 +1,7 @@
 // License: MPL-2.0
 // (c) 2021 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// TODO: Not in love with this interface
 use io;
 use rt;
 use errors;
@@ -59,5 +60,12 @@ export fn makeraw(termios: *termios) (void | errors::error) = {
 		| rt::tcflag::ICANON | rt::tcflag::IEXTEN
 		| rt::tcflag::ISIG);
 
+	termios_set(termios)?;
+};
+
+// Disables "echo" on this terminal. Users should call [[termios_restore]] to
+// restore settings.
+export fn noecho(termios: *termios) (void | errors::error) = {
+	termios.current.c_lflag &= ~rt::tcflag::ECHO;
 	termios_set(termios)?;
 };
