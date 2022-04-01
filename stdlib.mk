@@ -1219,7 +1219,6 @@ $(HARECACHE)/hash/fnv/hash_fnv-any.ssa: $(stdlib_hash_fnv_any_srcs) $(stdlib_rt)
 # io (+linux)
 stdlib_io_linux_srcs= \
 	$(STDLIB)/io/arch+$(ARCH).ha \
-	$(STDLIB)/io/println+linux.ha \
 	$(STDLIB)/io/+linux/file.ha \
 	$(STDLIB)/io/+linux/mmap.ha \
 	$(STDLIB)/io/+linux/vector.ha \
@@ -1237,7 +1236,6 @@ stdlib_io_linux_srcs= \
 # io (+freebsd)
 stdlib_io_freebsd_srcs= \
 	$(STDLIB)/io/arch+$(ARCH).ha \
-	$(STDLIB)/io/println+freebsd.ha \
 	$(STDLIB)/io/+freebsd/file.ha \
 	$(STDLIB)/io/+freebsd/mmap.ha \
 	$(STDLIB)/io/+freebsd/vector.ha \
@@ -3113,7 +3111,6 @@ $(TESTCACHE)/hash/fnv/hash_fnv-any.ssa: $(testlib_hash_fnv_any_srcs) $(testlib_r
 # io (+linux)
 testlib_io_linux_srcs= \
 	$(STDLIB)/io/arch+$(ARCH).ha \
-	$(STDLIB)/io/println+linux.ha \
 	$(STDLIB)/io/+linux/file.ha \
 	$(STDLIB)/io/+linux/mmap.ha \
 	$(STDLIB)/io/+linux/vector.ha \
@@ -3134,7 +3131,6 @@ testlib_io_linux_srcs= \
 # io (+freebsd)
 testlib_io_freebsd_srcs= \
 	$(STDLIB)/io/arch+$(ARCH).ha \
-	$(STDLIB)/io/println+freebsd.ha \
 	$(STDLIB)/io/+freebsd/file.ha \
 	$(STDLIB)/io/+freebsd/mmap.ha \
 	$(STDLIB)/io/+freebsd/vector.ha \

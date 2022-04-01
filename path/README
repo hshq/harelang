@@ -9,10 +9,10 @@ manipulation of filesystem paths.
 
 	let buf = path::init();
 	path::add(&buf, "/", "foo", "bar", "baz.txt");
-	io::println(path::string(&buf)); // "/foo/bar/baz.txt"
+	fmt::println(path::string(&buf))!; // "/foo/bar/baz.txt"
 
 	path::add(&buf, "../.././hello.txt");
-	io::println(path::string(&buf)); // "/foo/hello.txt"
+	fmt::println(path::string(&buf))!; // "/foo/hello.txt"
 
 The buffer object includes an array of length [[PATH_MAX]], which can be
 somewhat large; on Linux it's 4096 bytes. You can allocate this on the stack in

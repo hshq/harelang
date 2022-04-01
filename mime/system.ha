@@ -1,8 +1,9 @@
 // License: MPL-2.0
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 use bufio;
-use errors;
 use encoding::utf8;
+use errors;
+use fmt;
 use fs;
 use io;
 use os;
@@ -29,7 +30,7 @@ fn load_systemdb() (void | fs::error | io::error) = {
 		case let bytes: []u8 =>
 			yield match (strings::try_fromutf8(bytes)) {
 			case utf8::invalid =>
-				io::errorln("Warning: /etc/mime.types contains invalid UTF-8");
+				fmt::errorln("Warning: /etc/mime.types contains invalid UTF-8")!;
 				return;
 			case let s: str =>
 				yield s;

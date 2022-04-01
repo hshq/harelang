@@ -706,7 +706,6 @@ hash_fnv() {
 gensrcs_io() {
 	gen_srcs -plinux io \
 		'arch+$(ARCH).ha' \
-		println+linux.ha \
 		+linux/file.ha \
 		+linux/mmap.ha \
 		+linux/vector.ha \
@@ -723,7 +722,6 @@ gensrcs_io() {
 		$*
 	gen_srcs -pfreebsd io \
 		'arch+$(ARCH).ha' \
-		println+freebsd.ha \
 		+freebsd/file.ha \
 		+freebsd/mmap.ha \
 		+freebsd/vector.ha \
@@ -831,7 +829,7 @@ mime() {
 		parse.ha \
 		system.ha
 	gen_ssa mime ascii errors string hash::fnv encoding::utf8 bufio \
-		errors fs io os
+		errors fs io os fmt
 }
 
 net() {
