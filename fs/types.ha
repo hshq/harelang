@@ -296,10 +296,19 @@ export type fs = struct {
 	symlink: nullable *symlinkfunc,
 };
 
+// A function which returns the next directory from an [[iterator]].
 export type nextfunc = fn(iter: *iterator) (dirent | void);
 
+// A function which frees state associated with an [[iterator]].
+export type finishfunc = fn(iter: *iterator) void;
+
+// A directory iterator. To implement a directory iterator for a filesystem,
+// subtype this struct to store any necessary state and populate the pointers
+// with your implementation.
 export type iterator = struct {
 	// Returns the next member of the directory, or void if there are none
 	// remaining.
 	next: *nextfunc,
+	// Frees resources associated with the iterator.
+	finish: nullable *finishfunc,
 };

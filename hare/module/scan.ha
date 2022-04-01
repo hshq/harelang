@@ -72,6 +72,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 	case let iter: *fs::iterator =>
 		yield iter;
 	};
+	defer fs::finish(iter);
 	let ver = version {
 		basedir = strings::dup(path),
 		...

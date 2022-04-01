@@ -79,6 +79,7 @@ fn mkplan(ctx: *module::context, libs: []str) plan = {
 	let ntag = 0z;
 	const buf = path::init();
 	const iter = os::iter(rtdir)!;
+	defer os::finish(iter);
 	for (true) match (fs::next(iter)) {
 	case let d: fs::dirent =>
 		const p = module::parse_name(d.name);

@@ -26,6 +26,9 @@ export fn move(oldpath: str, newpath: str) (void | fs::error) =
 // Creates an [[fs::iterator]] for a given directory to read its contents.
 export fn iter(path: str) (*fs::iterator | fs::error) = fs::iter(cwd, path);
 
+// Frees state associated with a directory iterator.
+export fn finish(iter: *fs::iterator) void = fs::finish(iter);
+
 // Reads all entries from a directory. The caller must free the return value
 // with [[fs::dirents_free]].
 export fn readdir(path: str) ([]fs::dirent | fs::error) = fs::readdir(cwd, path);

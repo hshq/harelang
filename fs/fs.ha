@@ -140,6 +140,16 @@ export fn iter(fs: *fs, path: str) (*iterator | error) = {
 	};
 };
 
+// Frees state associated with an [[iterator]].
+export fn finish(iter: *iterator) void = {
+	match (iter.finish) {
+	case null =>
+		yield;
+	case let f: *finishfunc =>
+		return f(iter);
+	};
+};
+
 // Obtains information about a file or directory. If the target is a symlink,
 // information is returned about the link, not its target.
 export fn stat(fs: *fs, path: str) (filestat | error) = {
