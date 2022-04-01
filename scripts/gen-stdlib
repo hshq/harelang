@@ -709,6 +709,7 @@ gensrcs_io() {
 		println+linux.ha \
 		+linux/file.ha \
 		+linux/mmap.ha \
+		+linux/vector.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \
@@ -725,6 +726,7 @@ gensrcs_io() {
 		println+freebsd.ha \
 		+freebsd/file.ha \
 		+freebsd/mmap.ha \
+		+freebsd/vector.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \

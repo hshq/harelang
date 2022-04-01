@@ -53,6 +53,16 @@ export fn write(fd: int, buf: *const void, count: size) (size | errno) = {
 		fd: u64, buf: uintptr: u64, count: u64))?: size;
 };
 
+export fn readv(fd: int, iov: const *[*]iovec, iovcnt: int) (size | errno) = {
+	return wrap_return(syscall3(SYS_readv,
+		fd: u64, iov: uintptr: u64, iovcnt: u64))?: size;
+};
+
+export fn writev(fd: int, iov: const *[*]iovec, iovcnt: int) (size | errno) = {
+	return wrap_return(syscall3(SYS_writev,
+		fd: u64, iov: uintptr: u64, iovcnt: u64))?: size;
+};
+
 export fn close(fd: int) (void | errno) = {
 	wrap_return(syscall1(SYS_close, fd: u64))?;
 };

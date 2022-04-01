@@ -1222,6 +1222,7 @@ stdlib_io_linux_srcs= \
 	$(STDLIB)/io/println+linux.ha \
 	$(STDLIB)/io/+linux/file.ha \
 	$(STDLIB)/io/+linux/mmap.ha \
+	$(STDLIB)/io/+linux/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
@@ -1239,6 +1240,7 @@ stdlib_io_freebsd_srcs= \
 	$(STDLIB)/io/println+freebsd.ha \
 	$(STDLIB)/io/+freebsd/file.ha \
 	$(STDLIB)/io/+freebsd/mmap.ha \
+	$(STDLIB)/io/+freebsd/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
@@ -3114,6 +3116,7 @@ testlib_io_linux_srcs= \
 	$(STDLIB)/io/println+linux.ha \
 	$(STDLIB)/io/+linux/file.ha \
 	$(STDLIB)/io/+linux/mmap.ha \
+	$(STDLIB)/io/+linux/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
@@ -3134,6 +3137,7 @@ testlib_io_freebsd_srcs= \
 	$(STDLIB)/io/println+freebsd.ha \
 	$(STDLIB)/io/+freebsd/file.ha \
 	$(STDLIB)/io/+freebsd/mmap.ha \
+	$(STDLIB)/io/+freebsd/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
