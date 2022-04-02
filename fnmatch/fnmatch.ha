@@ -10,7 +10,7 @@ use errors;
 use strings;
 use sort;
 
-// A set of flags that alter the matching behavior of [[fnmatch::fnmatch]]
+// A set of flags that alter the matching behavior of [[fnmatch]]
 export type flags = enum uint {
 	NONE = 0,
 
@@ -21,9 +21,9 @@ export type flags = enum uint {
 	// character
 	NOESCAPE = 1u << 1,
 	// If this flag is set, a '.' at the beginning of the string can only
-	// be matched by a literal '.' in the pattern. If
-	// [[fnmatch::flags::PATHNAME]] is set simultaneously, this behavior also
-	// apply to any periods immediately following a slash.
+	// be matched by a literal '.' in the pattern. If [[flags::PATHNAME]] is
+	// set simultaneously, this behavior also apply to any periods
+	// immediately following a slash.
 	PERIOD = 1u << 2,
 };
 
@@ -43,8 +43,7 @@ type token = (rune | bracket | star | question | end);
 // - all other characters only match themselves
 //
 // A set of flags that alter the matching behavior may be passed to
-// [[fnmatch::fnmatch]]. For an explanation of their meaning, see
-// [[fnmatch::flags]].
+// [[fnmatch]]. For an explanation of their meaning, see [[flags]].
 export fn fnmatch(pattern: str, string: str, flag: flags...) bool = {
 	let fl: flags = 0;
 	for (let i = 0z; i < len(flag); i += 1) {

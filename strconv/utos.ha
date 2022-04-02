@@ -97,7 +97,7 @@ export fn utos(u: uint) const str = u64tos(u);
 
 // Converts a size to a string in base 10. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [[strings::dup]] to
-// duplicate the result, or [[strconv::itosb]] to pass your own string buffer.
+// duplicate the result, or [[itosb]] to pass your own string buffer.
 export fn ztos(z: size) const str = u64tos(z);
 
 // Converts a uintptr to a string in base 10. The return value is statically

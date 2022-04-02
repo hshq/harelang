@@ -11,7 +11,7 @@ use strings;
 // require a [[file]] with some OS-level handle backing it - this type is used
 // for such APIs.
 //
-// On Linux, [[io::file]] is a file descriptor.
+// On Linux, [[file]] is a file descriptor.
 export type file = int;
 
 // Opens a Unix file descriptor as a file. This is a low-level interface, to

@@ -531,11 +531,11 @@ fn stof32exact(mant: u32, exp: i32, neg: bool) (f32 | void) = {
 };
 
 // Converts a string to a f64. If the string is not syntactically well-formed
-// floating-point number in base 10, [[strconv::invalid]] is returned. If the
-// string represents a floating-point number that is larger than the largest
-// finite f64 number, [[strconv::overflow]] is returned. Zero is returned if the
-// string represents a floating-point number that is smaller than the f64 number
-// nearest to zero with respective sign.
+// floating-point number in base 10, [[invalid]] is returned. If the string
+// represents a floating-point number that is larger than the largest finite f64
+// number, [[overflow]] is returned. Zero is returned if the string represents a
+// floating-point number that is smaller than the f64 number nearest to zero
+// with respective sign.
 export fn stof64(s: str) (f64 | invalid | overflow) = {
 	const p = fast_parse(s)?;
 	if (p is fast_parsed_float) {
@@ -560,11 +560,11 @@ export fn stof64(s: str) (f64 | invalid | overflow) = {
 };
 
 // Converts a string to a f32. If the string is not syntactically well-formed
-// floating-point number in base 10, [[strconv::invalid]] is returned. If the
-// string represents a floating-point number that is larger than the largest
-// finite f64 number, [[strconv::overflow]] is returned. Zero is returned if the
-// string represents a floating-point number that is smaller than the f32 number
-// nearest to zero with respective sign.
+// floating-point number in base 10, [[invalid]] is returned. If the string
+// represents a floating-point number that is larger than the largest finite f64
+// number, [[overflow]] is returned. Zero is returned if the string represents a
+// floating-point number that is smaller than the f32 number nearest to zero
+// with respective sign.
 export fn stof32(s: str) (f32 | invalid | overflow) = {
 	const p = fast_parse(s)?;
 	if (p is fast_parsed_float) {

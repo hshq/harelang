@@ -131,12 +131,12 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 // 	exec::addfile(&cmd, os::stderr, os::stdout_file);
 // 	exec::addfile(&cmd, os::stdout_file, os::stderr);
 //
-// Pass [[os::exec::nullfd]] in the 'from' argument to map the child's file
-// descriptor to /dev/null or the appropriate platform-specific equivalent.
+// Pass [[nullfd]] in the 'from' argument to map the child's file descriptor to
+// /dev/null or the appropriate platform-specific equivalent.
 //
-// Pass [[os::exec::closefd]] in the 'from' argument to close a file descriptor
-// which was not opened with the CLOEXEC flag. Note that Hare opens all files
-// with CLOEXEC by default, so this is not usually necessary.
+// Pass [[closefd]] in the 'from' argument to close a file descriptor which was
+// not opened with the CLOEXEC flag. Note that Hare opens all files with CLOEXEC
+// by default, so this is not usually necessary.
 //
 // To write to a process's stdin, capture its stdout, or pipe two programs
 // together, see the [[pipe]] function.

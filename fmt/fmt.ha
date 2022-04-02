@@ -14,8 +14,8 @@ use strconv;
 use strings;
 use types;
 
-// Tagged union of the [[fmt::formattable]] types and [[fmt::modifiers]]. Used
-// for functions which accept format strings.
+// Tagged union of the [[formattable]] types and [[modifiers]]. Used for
+// functions which accept format strings.
 export type field = (...formattable | *modifiers);
 
 // Tagged union of all types which are formattable.

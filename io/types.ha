@@ -54,13 +54,13 @@ export type closer = fn(s: *stream) void;
 
 // The interface for a stream which has first-class support for copying data
 // from another stream. Often this only works if the second stream is of the
-// same underlying stream type. This is optional, [[io::copy]] still works even
-// with a stream which does not implement this (it falls back to calling read
-// and write in a loop).
+// same underlying stream type. This is optional, [[copy]] still works even with
+// a stream which does not implement this (it falls back to calling read and
+// write in a loop).
 //
 // Returns the number of bytes copied, or an error if one occured. Do not close
 // either stream. If the operation is unsupported for this particular pair of
-// streams, return [[errors::unsupported]] to have [[io::copy]] proceed with its
+// streams, return [[errors::unsupported]] to have [[copy]] proceed with its
 // fallback implementation.
 export type copier = fn(to: *stream, from: *stream) (size | error);
 

@@ -287,5 +287,5 @@ export fn symlink(fs: *fs, target: str, path: str) (void | error) = {
 // Returns the next directory entry from an interator, or void if none remain.
 // It is a programming error to call this again after it has returned void. The
 // file stat returned may only have the type bits set on the file mode; callers
-// should call [[fs::stat]] to obtain the detailed file mode.
+// should call [[stat]] to obtain the detailed file mode.
 export fn next(iter: *iterator) (dirent | void) = iter.next(iter);

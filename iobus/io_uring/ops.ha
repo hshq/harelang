@@ -258,7 +258,7 @@ export fn create(
 	return handle;
 };
 
-// Returns the new file handle from an [[create]] operation.
+// Returns the new file handle from a [[create]] operation.
 export fn endcreate(bus: *bus, res: result) (io::file | error) = {
 	let handle = handleof(res);
 	assert(handle.sqe.opcode == io_uring::op::OPENAT,

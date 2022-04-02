@@ -20,7 +20,7 @@ fn limitstream_create(source: handle, limit: size) limitstream = {
 // Create an overlay stream that only allows a limited amount of bytes to be
 // read from the underlying stream. This stream does not need to be closed, and
 // closing it does not close the underlying stream. Reading any data beyond the
-// given limit causes the reader to return [[io::EOF]].
+// given limit causes the reader to return [[EOF]].
 export fn limitreader(source: handle, limit: size) limitstream = {
 	let stream = limitstream_create(source, limit);
 	stream.reader = &limit_read;
