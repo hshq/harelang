@@ -1066,6 +1066,7 @@ slices() {
 
 gensrcs_sort() {
 	gen_srcs sort \
+		bisect.ha \
 		search.ha \
 		sort.ha \
 		types.ha \

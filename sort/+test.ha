@@ -2,6 +2,40 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 
+@test fn lbisect() void = {
+	const nums = [1, 3, 4, 4, 5, 7, 9, 11, 11, 11];
+	for (let i = 0z; i < len(nums); i += 1) {
+		if (i != 0 && nums[i - 1] == nums[i]) continue;
+		const key = nums[i];
+		assert(lbisect(nums, size(int), &key, &icmp) == i);
+	};
+	const n = 0;
+	assert(lbisect(nums, size(int), &n, &icmp) == 0);
+	const n = 6;
+	assert(lbisect(nums, size(int), &n, &icmp) == 5);
+	const n = 8;
+	assert(lbisect(nums, size(int), &n, &icmp) == 6);
+	const n = 12;
+	assert(lbisect(nums, size(int), &n, &icmp) == len(nums));
+};
+
+@test fn rbisect() void = {
+	const nums = [1, 3, 4, 4, 5, 7, 9, 11, 11, 11];
+	for (let i = 0z; i < len(nums); i += 1) {
+		if (i != len(nums) - 1 && nums[i + 1] == nums[i]) continue;
+		const key = nums[i];
+		assert(rbisect(nums, size(int), &key, &icmp) == i + 1);
+	};
+	const n = 0;
+	assert(rbisect(nums, size(int), &n, &icmp) == 0);
+	const n = 6;
+	assert(rbisect(nums, size(int), &n, &icmp) == 5);
+	const n = 8;
+	assert(rbisect(nums, size(int), &n, &icmp) == 6);
+	const n = 12;
+	assert(rbisect(nums, size(int), &n, &icmp) == len(nums));
+};
+
 @test fn search() void = {
 	const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 	for (let i = 0z; i < len(nums); i += 1) {

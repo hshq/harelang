@@ -1636,6 +1636,7 @@ $(HARECACHE)/slices/slices-any.ssa: $(stdlib_slices_any_srcs) $(stdlib_rt) $(std
 
 # sort (+any)
 stdlib_sort_any_srcs= \
+	$(STDLIB)/sort/bisect.ha \
 	$(STDLIB)/sort/search.ha \
 	$(STDLIB)/sort/sort.ha \
 	$(STDLIB)/sort/types.ha
@@ -3557,6 +3558,7 @@ $(TESTCACHE)/slices/slices-any.ssa: $(testlib_slices_any_srcs) $(testlib_rt) $(t
 
 # sort (+any)
 testlib_sort_any_srcs= \
+	$(STDLIB)/sort/bisect.ha \
 	$(STDLIB)/sort/search.ha \
 	$(STDLIB)/sort/sort.ha \
 	$(STDLIB)/sort/types.ha \
