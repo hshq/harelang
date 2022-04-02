@@ -10,7 +10,7 @@ export fn search(
 	in: []const void,
 	sz: size,
 	key: const *void,
-	cmp: *fn(a: const *void, b: const *void) int,
+	cmp: *cmpfunc,
 ) nullable *const void = {
 	let ba = in: *[*]u8;
 	for (let nmemb = len(in); nmemb > 0) {

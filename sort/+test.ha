@@ -2,20 +2,15 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 
-fn ncmp(a: const *void, b: const *void) int = {
-	let a = a: const *int, b = b: const *int;
-	return *a - *b;
-};
-
 @test fn search() void = {
 	const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 	for (let i = 0z; i < len(nums); i += 1) {
 		const key = nums[i];
-		const p = search(nums, size(int), &key, &ncmp) as *const int;
+		const p = search(nums, size(int), &key, &icmp) as *const int;
 		assert(p == &nums[i] && *p == nums[i]);
 	};
 	const key = 1337;
-	assert(search(nums[..], size(int), &key, &ncmp) == null);
+	assert(search(nums, size(int), &key, &icmp) is null);
 };
 
 @test fn sort() void = {
@@ -26,7 +21,7 @@ fn ncmp(a: const *void, b: const *void) int = {
 		5, 2, 3, 7, 10, 7, 7, 5, 5, 2, 3, 4, 5, 3, 6, 2, 3, 6, 8, 8, 9,
 		7, 10, 4, 10, 3, 2, 7, 10, 8, 8, 2, 2, 5, 3, 7, 4, 1,
 	];
-	sort(nums[..], size(int), &ncmp);
+	sort(nums, size(int), &icmp);
 	for (let i = 1z; i < len(nums); i += 1) {
 		assert(nums[i] >= nums[i - 1]);
 	};

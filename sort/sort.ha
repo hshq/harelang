@@ -10,11 +10,7 @@
 // argument.
 //
 // This implementation provides a stable sort.
-export fn sort(
-	items: []void,
-	itemsz: size,
-	cmp: *fn(a: const *void, b: const *void) int,
-) void = {
+export fn sort(items: []void, itemsz: size, cmp: *cmpfunc) void = {
 	if (len(items) < 256) {
 		insort(items, itemsz, cmp);
 		return;
@@ -39,7 +35,7 @@ fn search_rightmost(
 	in: []void,
 	sz: size,
 	key: const *void,
-	cmp: *fn(a: const *void, b: const *void) int,
+	cmp: *cmpfunc,
 ) size = {
 	let l = 0z;
 	let r = len(in);
@@ -55,11 +51,7 @@ fn search_rightmost(
 	return r - 1;
 };
 
-fn insort(
-	items: []void,
-	itemsz: size,
-	cmp: *fn(a: const *void, b: const *void) int,
-) void = {
+fn insort(items: []void, itemsz: size, cmp: *cmpfunc) void = {
 	let ba = items: *[*]u8;
 	for (let i = 0z; i < len(items); i += 1) {
 		let bound = search_rightmost(items[0..i], itemsz,
