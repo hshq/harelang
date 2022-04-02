@@ -2,14 +2,10 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Steven Guikal <void@fluix.one>
 
-// Sorts a slice of items in place. Provide a slice of 'items', the size of each
-// member, and a function to compare one member to another. The 'cmp' function
-// will be called with two pointers to values within the items slice, and shall
-// return an integer less than, equal to, or greater than zero if the first
-// argument is, respectively, less than, equal to, or greater than the second
-// argument.
+// Sorts a slice of items in place.
 //
-// This implementation provides a stable sort.
+// Note that this function may (temporarily) allocate, and will abort on
+// allocation failure.
 export fn sort(items: []void, itemsz: size, cmp: *cmpfunc) void = {
 	if (len(items) < 256) {
 		insort(items, itemsz, cmp);

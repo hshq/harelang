@@ -1,11 +1,8 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
-// Performs a binary search over a sorted slice. 'in' shall be the sorted slice,
-// and 'sz' shall be the size of each array member. The 'cmp' function will be
-// called with the key value and an array member, and shall return an integer
-// less than, equal to, or greater than zero if the key is, respectively, less
-// than, equal to, or greater than the array member.
+// Performs a binary search over a sorted slice. If the key is found, a pointer
+// to the matching item in the slice is returned. Otherwise, null is returned.
 export fn search(
 	in: []const void,
 	sz: size,
