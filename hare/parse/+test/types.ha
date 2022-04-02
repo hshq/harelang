@@ -8,6 +8,7 @@
 };
 export type bar = union {
 	x: int,
+	// docs docs docs
 	y: int,
 };
 export type baz = struct {
@@ -31,9 +32,11 @@ export type bat = [void]int;
 @test fn enum_type() void = {
 	roundtrip("export type foo = enum {
 	X = void,
+	// foo
+	// bar
 	Y = void,
-	Z,
-	Q,
+	Z, // foo
+	Q, // bar
 };
 export type bar = enum uint {
 	X = void,

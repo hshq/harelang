@@ -24,11 +24,10 @@ fn emit_tty(ctx: *context) (void | error) = {
 		for (true) match (bufio::scanline(readme)?) {
 		case io::EOF => break;
 		case let b: []u8 =>
+			defer free(b);
 			firstline = false;
-			fmt::fprintfln(ctx.out,
-				"\x1b[1m" "// {}" "\x1b[0m",
-				strings::fromutf8(b))?;
-			free(b);
+			insert(b[0], ' ');
+			comment_tty(ctx.out, strings::fromutf8(b))?;
 		};
 	case void => void;
 	};
@@ -49,6 +48,27 @@ fn emit_tty(ctx: *context) (void | error) = {
 	for (let i = 0z; i < len(summary.funcs); i += 1) {
 		details_tty(ctx, summary.funcs[i])?;
 	};
+};
+
+fn comment_tty(out: io::handle, s: str) (size | io::error) = {
+	return fmt::fprintfln(out, "\x1b[1m" "//{}" "\x1b[0m", s)?;
+};
+
+fn docs_tty(out: io::handle, s: str, indent: size) (size | io::error) = {
+	const iter = strings::tokenize(s, "\n");
+	let z = 0z;
+	for (true) match (strings::next_token(&iter)) {
+	case let s: str =>
+		if (!(strings::peek_token(&iter) is void)) {
+			z += comment_tty(out, s)?;
+			for (let i = 0z; i < indent; i += 1) {
+				z += fmt::fprint(out, "\t")?;
+			};
+		};
+	case void => break;
+	};
+
+	return z;
 };
 
 fn isws(s: str) bool = {
@@ -75,18 +95,7 @@ fn details_tty(ctx: *context, decl: ast::decl) (void | error) = {
 	};
 	firstline = false;
 
-	const iter = strings::tokenize(decl.docs, "\n");
-	for (true) {
-		match (strings::next_token(&iter)) {
-		case let s: str =>
-			if (!(strings::peek_token(&iter) is void)) {
-				fmt::fprintfln(ctx.out,
-					"\x1b[1m" "//{}" "\x1b[0m", s)?;
-			};
-		case void => break;
-		};
-	};
-
+	docs_tty(ctx.out, decl.docs, 0)?;
 	unparse_tty(ctx.out, decl)?;
 	fmt::fprintln(ctx.out)?;
 };
@@ -194,7 +203,7 @@ fn prototype_tty(
 	return n;
 };
 
-// newline() and builtin_type() are from cmd/haredoc/html.ha
+// newline(), builtin_type(), and multiline_comment() are from html.ha
 
 // Forked from [[hare::unparse]]
 fn struct_union_type_tty(
@@ -217,6 +226,9 @@ fn struct_union_type_tty(
 	indent += 1z;
 	for (let i = 0z; i < len(membs); i += 1) {
 		z += newline(out, indent)?;
+		if (membs[i].docs != "") {
+			z += docs_tty(out, membs[i].docs, indent)?;
+		};
 
 		match (membs[i]._offset) {
 		case null => void;
@@ -278,11 +290,22 @@ fn type_tty(
 				"\x1b[36m" "{} " "\x1b[0m",
 				unparse::builtin_type(e.storage))?;
 		};
-		n += fmt::fprint(out, "{")?;
+		n += fmt::fprintln(out, "{")?;
 		indent += 1;
 		for (let i = 0z; i < len(e.values); i += 1) {
-			n += newline(out, indent)?;
+			for (let i = 0z; i < indent; i += 1) {
+				n += fmt::fprint(out, "\t")?;
+			};
 			let value = e.values[i];
+			let wrotedocs = false;
+			if (value.docs != "") {
+				// Check if comment should go above or next to
+				// field
+				if (multiline_comment(value.docs)) {
+					n += docs_tty(out, value.docs, indent)?;
+					wrotedocs = true;
+				};
+			};
 			n += fmt::fprint(out, value.name)?;
 			match (value.value) {
 			case null => void;
@@ -291,9 +314,17 @@ fn type_tty(
 				n += unparse::expr(out, indent, *e)?;
 			};
 			n += fmt::fprint(out, ",")?;
+			if (value.docs != "" && !wrotedocs) {
+				n += fmt::fprint(out, " ")?;
+				n += docs_tty(out, value.docs, 0)?;
+			} else {
+				n += fmt::fprintln(out)?;
+			};
 		};
 		indent -= 1;
-		n += newline(out, indent)?;
+		for (let i = 0z; i < indent; i += 1) {
+			n += fmt::fprint(out, "\t")?;
+		};
 		n += fmt::fprint(out, "}")?;
 	case let f: ast::func_type =>
 		if (f.attrs & ast::func_attrs::NORETURN != 0) {

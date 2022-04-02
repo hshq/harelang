@@ -92,6 +92,7 @@ export type assign_expr = struct {
 // A binary arithmetic operator
 export type binarithm_op = enum {
 	// TODO: Rehome this with the checked AST?
+
 	BAND,	// &
 	BOR,	// |
 	DIV,	// /
@@ -157,6 +158,7 @@ export type call_expr = struct {
 // The kind of cast expression being used.
 export type cast_kind = enum {
 	// TODO: Should this be rehomed with the checked AST?
+
 	CAST,
 	ASSERTION,
 	TEST,
@@ -363,6 +365,7 @@ export type switch_expr = struct {
 // A unary operator
 export type unarithm_op = enum {
 	// TODO: Should this be rehomed with the checked AST?
+
 	ADDR,	// &
 	BNOT,	// ~
 	DEREF,	// *

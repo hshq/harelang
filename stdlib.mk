@@ -1166,7 +1166,7 @@ stdlib_hare_unparse_any_srcs= \
 	$(STDLIB)/hare/unparse/unit.ha \
 	$(STDLIB)/hare/unparse/util.ha
 
-$(HARECACHE)/hare/unparse/hare_unparse-any.ssa: $(stdlib_hare_unparse_any_srcs) $(stdlib_rt) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM))
+$(HARECACHE)/hare/unparse/hare_unparse-any.ssa: $(stdlib_hare_unparse_any_srcs) $(stdlib_rt) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/unparse
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::unparse \
@@ -3075,7 +3075,7 @@ testlib_hare_unparse_any_srcs= \
 	$(STDLIB)/hare/unparse/unit.ha \
 	$(STDLIB)/hare/unparse/util.ha
 
-$(TESTCACHE)/hare/unparse/hare_unparse-any.ssa: $(testlib_hare_unparse_any_srcs) $(testlib_rt) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM))
+$(TESTCACHE)/hare/unparse/hare_unparse-any.ssa: $(testlib_hare_unparse_any_srcs) $(testlib_rt) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/unparse
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::unparse \

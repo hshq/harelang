@@ -6,6 +6,7 @@ use fmt;
 use io;
 use hare::ast;
 use hare::lex;
+use strings;
 use strio;
 
 // Returns a builtin type as a string.
@@ -101,7 +102,13 @@ fn struct_union_type(
 
 	indent += 1z;
 	for (let i = 0z; i < len(membs); i += 1) {
-		z += newline(out, indent)?;
+		z += fmt::fprintln(out)?;
+		if (membs[i].docs != "") {
+			z += comment(out, membs[i].docs, indent)?;
+		};
+		for (let i = 0z; i < indent; i += 1) {
+			z += fmt::fprint(out, "\t")?;
+		};
 
 		match (membs[i]._offset) {
 		case null => void;
@@ -130,7 +137,10 @@ fn struct_union_type(
 	return z;
 };
 
-// Unparses a [[hare::ast::_type]].
+fn multiline_comment(s: str) bool =
+	strings::byteindex(s, '\n') as size != len(s) - 1;
+
+// Unparses an [[ast::_type]].
 export fn _type(
 	out: io::handle,
 	indent: size,
@@ -160,9 +170,21 @@ export fn _type(
 			n += fmt::fprint(out, "enum {")?;
 		};
 		indent += 1;
+		n += fmt::fprintln(out)?;
 		for (let i = 0z; i < len(e.values); i += 1) {
-			n += newline(out, indent)?;
 			let value = e.values[i];
+			let wrotedocs = false;
+			if (value.docs != "") {
+				// Check if comment should go above or next to
+				// field
+				if (multiline_comment(value.docs)) {
+					n += comment(out, value.docs, indent)?;
+					wrotedocs = true;
+				};
+			};
+			for (let i = 0z; i < indent; i += 1) {
+				n += fmt::fprint(out, "\t")?;
+			};
 			n += fmt::fprint(out, value.name)?;
 			match (value.value) {
 			case null => void;
@@ -171,9 +193,17 @@ export fn _type(
 				n += expr(out, indent, *e)?;
 			};
 			n += fmt::fprint(out, ",")?;
+			if (value.docs != "" && !wrotedocs) {
+				n += fmt::fprint(out, " ")?;
+				n += comment(out, value.docs, 0)?;
+			} else {
+				n += fmt::fprintln(out)?;
+			};
 		};
 		indent -= 1;
-		n += newline(out, indent)?;
+		for (let i = 0z; i < indent; i += 1) {
+			n += fmt::fprint(out, "\t")?;
+		};
 		n += fmt::fprint(out, "}")?;
 	case let f: ast::func_type =>
 		if (f.attrs & ast::func_attrs::NORETURN != 0) {
@@ -311,11 +341,13 @@ fn type_test(t: ast::_type, expected: str) bool = {
 				name = "FOO",
 				value = null,
 				loc = loc,
+				docs = "",
 			},
 			ast::enum_field {
 				name = "BAR",
 				value = &expr_void,
 				loc = loc,
+				docs = "",
 			},
 		],
 	};

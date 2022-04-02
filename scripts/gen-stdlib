@@ -613,7 +613,7 @@ hare_unparse() {
 		type.ha \
 		unit.ha \
 		util.ha
-	gen_ssa hare::unparse fmt io strio hare::ast
+	gen_ssa hare::unparse fmt io strings strio hare::ast
 }
 
 gensrcs_hare_lex() {

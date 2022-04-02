@@ -207,7 +207,7 @@ fn loc(line: uint, col: uint) location = location {
 	assert(lex(&lexer) is token);
 	assert(comment(&lexer) == " foo\n bar\n");
 	assert(lex(&lexer) is token);
-	assert(comment(&lexer) == "");
+	assert(comment(&lexer) == " baz\n");
 	assert(lex(&lexer) is token);
 	assert(comment(&lexer) == " bad\n");
 };

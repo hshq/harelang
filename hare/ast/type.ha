@@ -21,6 +21,7 @@ export type enum_field = struct {
 	name: str,
 	value: nullable *expr,
 	loc: lex::location,
+	docs: str,
 };
 
 // enum { FOO = 0, BAR, ... }
@@ -100,6 +101,9 @@ export type struct_alias = ident;
 export type struct_member = struct {
 	_offset: nullable *expr,
 	member: (struct_field | struct_embedded | struct_alias),
+
+	// Only valid if the lexer has comments enabled
+	docs: str,
 };
 
 // struct { ... }
@@ -139,6 +143,7 @@ fn struct_type_free(t: (struct_type | union_type)) void = {
 		yield u: []struct_member;
 	};
 	for (let i = 0z; i < len(membs); i += 1) {
+		free(membs[i].docs);
 		match (membs[i]._offset) {
 		case null => void;
 		case let e: *expr =>

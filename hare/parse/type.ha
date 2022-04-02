@@ -6,6 +6,7 @@ use hare::ast;
 use hare::ast::{builtin_type};
 use hare::lex;
 use hare::lex::{ltok};
+use strings;
 
 fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 	let variadism = ast::variadism::NONE;
@@ -246,10 +247,13 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 			break;
 		};
 
+		let comment = "";
+
 		let offs: nullable *ast::expr = match (try(lexer, ltok::ATTR_OFFSET)?) {
 		case void =>
 			yield null;
 		case lex::token =>
+			comment = strings::dup(lex::comment(lexer));
 			want(lexer, ltok::LPAREN)?;
 			let ex = expr(lexer)?;
 			want(lexer, ltok::RPAREN)?;
@@ -257,10 +261,13 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 		};
 
 		let tok = want(lexer, ltok::NAME, ltok::STRUCT, ltok::UNION)?;
+		if (comment == "") {
+			comment = strings::dup(lex::comment(lexer));
+		};
 		switch (tok.0) {
 		case ltok::NAME =>
 			lex::unlex(lexer, tok);
-			let memb = struct_embed_or_field(lexer, offs)?;
+			let memb = struct_embed_or_field(lexer, offs, comment)?;
 			append(membs, memb);
 		case ltok::STRUCT, ltok::UNION =>
 			lex::unlex(lexer, tok);
@@ -268,6 +275,7 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 			append(membs, ast::struct_member {
 				_offset = offs,
 				member = alloc(subtype),
+				docs = comment,
 			});
 		case => abort();
 		};
@@ -296,6 +304,7 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 fn struct_embed_or_field(
 	lexer: *lex::lexer,
 	offs: nullable *ast::expr,
+	comment: str,
 ) (ast::struct_member | error) = {
 	// Disambiguates between `name: type` and `identifier`
 	//
@@ -321,6 +330,7 @@ fn struct_embed_or_field(
 			return ast::struct_member {
 				_offset = offs,
 				member = field,
+				docs = comment,
 			};
 		case ltok::DOUBLE_COLON =>
 			let id = ident(lexer)?;
@@ -333,6 +343,7 @@ fn struct_embed_or_field(
 	return ast::struct_member {
 		_offset = offs,
 		member = id: ast::struct_alias,
+		docs = comment,
 	};
 };
 
@@ -399,19 +410,26 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 
 		const loc = lex::mkloc(lexer);
 		let name = want(lexer, ltok::NAME)?;
+		let comment = strings::dup(lex::comment(lexer));
 		let value: nullable *ast::expr =
 			if (try(lexer, ltok::EQUAL) is lex::token)
 				alloc(expr(lexer)?)
 			else null;
 
-		append(membs, ast::enum_field {
+		defer append(membs, ast::enum_field {
 			name = name.1 as str,
 			value = value,
 			loc = loc,
+			docs = comment,
 		});
 
 		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
-		case ltok::COMMA => void;
+		case ltok::COMMA =>
+			const linecomment = lex::comment(lexer);
+			if (linecomment != "") {
+				free(comment);
+				comment = strings::dup(linecomment);
+			};
 		case ltok::RBRACE => break;
 		case => abort();
 		};

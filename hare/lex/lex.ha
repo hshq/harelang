@@ -141,6 +141,8 @@ export fn lex(lex: *lexer) (token | error) = {
 	case =>
 		return syntaxerr(r.1, "invalid character");
 	};
+
+	line_comment(lex)?;
 	return (tok, void, r.1);
 };
 
@@ -249,6 +251,7 @@ fn lex_string(lex: *lexer, loc: location, delim: rune) (token | error) = {
 			unget(lex, r);
 		};
 	};
+	line_comment(lex)?;
 	return (ltok::LIT_STR, strio::string(&buf), loc);
 };
 
@@ -278,6 +281,7 @@ fn lex_rn_str(lex: *lexer) (token | error) = {
 			return syntaxerr(n.1, "expected \"\'\"");
 		};
 	};
+	line_comment(lex)?;
 	return ret;
 };
 
@@ -301,6 +305,8 @@ fn lex_name(lex: *lexer, loc: location, label: bool) (token | error) = {
 		strio::appendrune(&buf, r.0)?;
 	};
 
+	line_comment(lex)?;
+
 	let n = strio::string(&buf);
 	if (label) {
 		return (ltok::LABEL, n, loc);
@@ -318,7 +324,35 @@ fn lex_name(lex: *lexer, loc: location, label: bool) (token | error) = {
 	};
 };
 
-fn lex_comment(lexr: *lexer) (token | error) = {
+fn line_comment(lex: *lexer) (void | error) = {
+	if (lex.flags & flags::COMMENTS != flags::COMMENTS) {
+		return;
+	};
+
+	let r: (rune, location) = ('\0', location { ... });
+	for (true) match (try(lex, '\t', ' ', '/')?) {
+	case void =>
+		return;
+	case let v: (rune, location) =>
+		switch (v.0) {
+		case '\t', ' ' => void;
+		case '/' =>
+			r = v;
+			break;
+		};
+	};
+
+	if (try(lex, '/')? is void) {
+		unget(lex, r);
+		return;
+	};
+
+	free(lex.comment);
+	lex.comment = "";
+	lex_comment(lex)?;
+};
+
+fn lex_comment(lexr: *lexer) (void | error) = {
 	if (lexr.flags & flags::COMMENTS != flags::COMMENTS) {
 		for (true) match (next(lexr)?) {
 		case io::EOF =>
@@ -328,7 +362,7 @@ fn lex_comment(lexr: *lexer) (token | error) = {
 				break;
 			};
 		};
-		return lex(lexr);
+		return;
 	};
 
 	let buf = strio::dynamic();
@@ -345,7 +379,6 @@ fn lex_comment(lexr: *lexer) (token | error) = {
 	let new = strings::concat(lexr.comment, strio::string(&buf));
 	free(lexr.comment);
 	lexr.comment = new;
-	return lex(lexr);
 };
 
 fn lex_literal(lex: *lexer) (token | error) = {
@@ -574,26 +607,29 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		return syntaxerr(loc, "overflow in exponent");
 	};
 
+	line_comment(lex)?;
 	return (suff, val, loc);
 };
 
-fn lex2(lex: *lexer) (token | error) = {
-	let first = next(lex)? as (rune, location);
+fn lex2(lexr: *lexer) (token | error) = {
+	let first = next(lexr)? as (rune, location);
 	let tok: (ltok, [](rune, ltok)) = switch (first.0) {
 	case '*' =>
 		yield (ltok::TIMES, [('=', ltok::TIMESEQ)]);
 	case '%' =>
 		yield (ltok::MODULO, [('=', ltok::MODEQ)]);
 	case '/' =>
-		match (next(lex)?) {
+		match (next(lexr)?) {
 		case let r: (rune, location) =>
 			switch (r.0) {
 			case '=' =>
+				line_comment(lexr)?;
 				return (ltok::DIVEQ, void, first.1);
 			case '/' =>
-				return lex_comment(lex);
+				lex_comment(lexr)?;
+				return lex(lexr);
 			case =>
-				unget(lex, r);
+				unget(lexr, r);
 				return (ltok::DIV, void, first.1);
 			};
 		case io::EOF =>
@@ -602,18 +638,20 @@ fn lex2(lex: *lexer) (token | error) = {
 	case '+' =>
 		yield (ltok::PLUS, [('=', ltok::PLUSEQ)]);
 	case '-' =>
-		match (next(lex)?) {
+		match (next(lexr)?) {
 		case let r: (rune, location) =>
 			switch (r.0) {
 			case '=' =>
+				line_comment(lexr)?;
 				return (ltok::MINUSEQ, void, first.1);
 			case =>
 				if (ascii::isdigit(r.0)) {
-					unget(lex, r);
-					unget(lex, first);
-					return lex_literal(lex);
+					unget(lexr, r);
+					unget(lexr, first);
+					return lex_literal(lexr);
 				} else {
-					unget(lex, r);
+					unget(lexr, r);
+					line_comment(lexr)?;
 					return (ltok::MINUS, void, first.1);
 				};
 			};
@@ -621,15 +659,17 @@ fn lex2(lex: *lexer) (token | error) = {
 			return (ltok::MINUS, void, first.1);
 		};
 	case ':' =>
-		match (next(lex)?) {
+		match (next(lexr)?) {
 		case let r: (rune, location) =>
 			switch (r.0) {
 			case ':' =>
+				line_comment(lexr)?;
 				return (ltok::DOUBLE_COLON, void, first.1);
 			case =>
-				unget(lex, r);
+				unget(lexr, r);
+				line_comment(lexr)?;
 				return if (is_name(r.0, false)) {
-					yield lex_name(lex, first.1, true)?;
+					yield lex_name(lexr, first.1, true)?;
 				} else (ltok::COLON, void, first.1);
 			};
 		case io::EOF =>
@@ -642,14 +682,16 @@ fn lex2(lex: *lexer) (token | error) = {
 	case =>
 		return syntaxerr(first.1, "unknown token sequence");
 	};
-	match (next(lex)?) {
+	match (next(lexr)?) {
 	case let r: (rune, location) =>
 		for (let i = 0z; i < len(tok.1); i += 1) {
 			if (tok.1[i].0 == r.0) {
+				line_comment(lexr)?;
 				return (tok.1[i].1, void, first.1);
 			};
 		};
-		unget(lex, r);
+		unget(lexr, r);
+		line_comment(lexr)?;
 	case io::EOF => void;
 	};
 	return (tok.0, void, first.1);
@@ -662,6 +704,7 @@ fn lex3(lex: *lexer) (token | error) = {
 		let tok = if (try(lex, '.')? is void) ltok::DOT
 			else if (try(lex, '.')? is void) ltok::SLICE
 			else ltok::ELLIPSIS;
+		line_comment(lex)?;
 		return (tok, void, r.1);
 	case '<' =>
 		yield [ltok::LESS, ltok::LESSEQ, ltok::LSHIFT, ltok::LSHIFTEQ];
@@ -693,6 +736,7 @@ fn lex3(lex: *lexer) (token | error) = {
 			};
 		};
 	};
+	line_comment(lex)?;
 	return (toks[idx], void, r.1);
 };
 
@@ -731,12 +775,18 @@ fn nextw(lex: *lexer) ((rune, location) | io::EOF | io::error) = {
 	case let e: (io::error | io::EOF) =>
 		return e;
 	case let r: (rune, location) =>
-		if (!ascii::isspace(r.0)) {
-			return r;
-		} else {
+		if (ascii::isspace(r.0)) {
+			if (r.0 == '\n') {
+				free(lex.comment);
+				lex.comment = "";
+			};
+			continue;
+		};
+		if (!is_name(r.0, true) && r.0 != '/') {
 			free(lex.comment);
 			lex.comment = "";
 		};
+		return r;
 	};
 	abort();
 };

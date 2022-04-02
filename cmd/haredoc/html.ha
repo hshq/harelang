@@ -478,6 +478,9 @@ fn newline(out: io::handle, indent: size) (size | io::error) = {
 	return n;
 };
 
+fn multiline_comment(s: str) bool =
+	strings::byteindex(s, '\n') as size != len(s) - 1;
+
 fn enum_html(
 	out: io::handle,
 	indent: size,

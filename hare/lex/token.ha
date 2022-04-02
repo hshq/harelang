@@ -9,6 +9,7 @@ use strings;
 export type ltok = enum uint {
 	// Keep ordered with bmap
 	// Alpha sorted
+
 	ATTR_FINI,
 	ATTR_INIT,
 	ATTR_NORETURN,
@@ -75,6 +76,7 @@ export type ltok = enum uint {
 	LAST_KEYWORD = YIELD,
 
 	// Operators
+
 	ARROW,
 	BAND,
 	BANDEQ,
