@@ -16,6 +16,10 @@ export fn sort(items: []void, itemsz: size, cmp: *cmpfunc) void = {
 	insort(items, itemsz, cmp);
 };
 
+// Sorts a slice of strings in place. Sorting is done with respect to Unicode
+// codepoints; see [[strings::strcmp]].
+export fn strings(items: []str) void = sort(items, size(str), &scmp);
+
 fn swap(a: *void, b: *void, sz: size) void = {
 	let a = a: *[*]u8, b = b: *[*]u8;
 	for (let i = 0z; i < sz; i += 1) {

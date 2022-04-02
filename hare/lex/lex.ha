@@ -149,11 +149,6 @@ export fn lex(lex: *lexer) (token | error) = {
 fn is_name(r: rune, num: bool) bool =
 	ascii::isalpha(r) || r == '_' || r == '@' || (num && ascii::isdigit(r));
 
-fn ncmp(a: const *void, b: const *void) int = {
-	let a = a: const *str, b = b: const *str;
-	return strings::strcmp(*a, *b);
-};
-
 fn lex_unicode(lex: *lexer, loc: location, n: size) (rune | error) = {
 	assert(n < 9);
 	let buf: [8]u8 = [0...];
@@ -312,15 +307,12 @@ fn lex_name(lex: *lexer, loc: location, label: bool) (token | error) = {
 		return (ltok::LABEL, n, loc);
 	};
 
-	match (sort::search(bmap[..ltok::LAST_KEYWORD+1],
-			size(str), &n, &ncmp)) {
-	case null =>
+	match (sort::searchstrings(bmap[..ltok::LAST_KEYWORD+1], n)) {
+	case void =>
 		return (ltok::NAME, n, loc);
-	case let v: *void =>
-		defer free(n);
-		let tok = v: uintptr - &bmap[0]: uintptr;
-		tok /= size(str): uintptr;
-		return (tok: ltok, void, loc);
+	case let i: size =>
+		free(n);
+		return (i: ltok, void, loc);
 	};
 };
 

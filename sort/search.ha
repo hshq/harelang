@@ -24,3 +24,16 @@ export fn search(
 	};
 	return null;
 };
+
+// Performs a binary search over a sorted slice of strings. Sorting is done with
+// respect to Unicode codepoints; see [[strings::strcmp]]. The index of the
+// matching item in the slice is returned if found, otherwise void is returned.
+export fn searchstrings(in: []const str, key: str) (size | void) = {
+	match (search(in, size(str), &key, &scmp)) {
+	case null =>
+		return void;
+	case let v: *const void =>
+		const offs = (v: uintptr - in: *[*]const str: uintptr);
+		return (offs / size(str): uintptr): size;
+	};
+};

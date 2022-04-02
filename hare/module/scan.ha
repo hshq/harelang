@@ -120,12 +120,6 @@ export fn parse_name(name: str) (str, str, []tag) = {
 	return (base, ext, tags);
 };
 
-fn strcmp(a: const *void, b: const *void) int = {
-	const a = *(a: const *str);
-	const b = *(b: const *str);
-	return ascii::strcmp(a, b) as int;
-};
-
 fn scan_directory(
 	ctx: *context,
 	ver: *version,
@@ -180,8 +174,8 @@ fn scan_directory(
 	};
 
 	// Sorted to keep the hash consistent
-	sort::sort(dirs, size(str), &strcmp);
-	sort::sort(files, size(str), &strcmp);
+	sort::strings(dirs);
+	sort::strings(files);
 
 	// Tuple of is_directory, basename, tags, and path to a candidate input.
 	let inputs: [](bool, str, []tag, str) = [];
