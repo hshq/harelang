@@ -346,8 +346,8 @@ fn ctype_name_to_func(name: str) nullable *fn(c: rune) bool = {
 	match (sort::search(map, size(funcmap), &name, &cmp)) {
 	case null =>
 		return null: nullable *fn(c: rune) bool;
-	case let p: *void =>
-		return (p: *funcmap).1;
+	case let p: *const void =>
+		return (p: *const funcmap).1;
 	};
 };
 

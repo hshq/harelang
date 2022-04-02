@@ -7,11 +7,11 @@
 // less than, equal to, or greater than zero if the key is, respectively, less
 // than, equal to, or greater than the array member.
 export fn search(
-	in: []void,
+	in: []const void,
 	sz: size,
 	key: const *void,
 	cmp: *fn(a: const *void, b: const *void) int,
-) nullable *void = {
+) nullable *const void = {
 	let ba = in: *[*]u8;
 	for (let nmemb = len(in); nmemb > 0) {
 		let v = &ba[nmemb / 2 * sz];
