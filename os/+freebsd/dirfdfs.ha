@@ -364,6 +364,7 @@ fn fs_iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 	let iter = alloc(os_iterator {
 		iter = fs::iterator {
 			next = &iter_next,
+			finish = &iter_finish,
 		},
 		fd = fd,
 		buf = buf[..fs.getdents_bufsz],
@@ -378,9 +379,6 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 		let n = rt::getdents(iter.fd,
 			iter.buf: *[*]u8, len(iter.buf)) as size;
 		if (n == 0) {
-			rt::close(iter.fd)!;
-			free(iter.buf);
-			free(iter);
 			return;
 		};
 		iter.buf_end = n;
@@ -414,4 +412,11 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 		name = name,
 		ftype = ftype,
 	};
+};
+
+fn iter_finish(iter: *fs::iterator) void = {
+	let iter = iter: *os_iterator;
+	rt::close(iter.fd)!;
+	free(iter.buf);
+	free(iter);
 };
