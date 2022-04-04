@@ -85,7 +85,6 @@ fn encode_writer(
 	case void =>
 		yield;
 	};
-	let n = 0z; // number of bytes processed
 	let l = len(in);
 	let i = 0z;
 	for (i + 2 < l + s.avail; i += 3) {
@@ -115,7 +114,6 @@ fn encode_writer(
 		case size =>
 			yield;
 		};
-		n += 3;
 	};
 	// storing leftover bytes
 	if (l + s.avail < 3) {
@@ -129,7 +127,7 @@ fn encode_writer(
 		};
 	};
 	s.avail = (l + s.avail) % 3;
-	return n;
+	return l;
 };
 
 fn encode_closer(s: *io::stream) void = {
