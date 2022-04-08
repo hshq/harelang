@@ -1,7 +1,6 @@
-This is a NFA-based regex implementation. It closely adheres to the POSIX
-Extended Regular Expressions specification [0]. Matching is guaranteed to run in
-linear time, and various optimisations have been implemented to ensure good
-performance on most inputs.
+The regex module provides an implementation of regular expressions which adheres
+closely to the POSIX Extended Regular Expressions (ERE) specification[0]. This
+implementation computes matches in linear time.
 
 By default, matches will be found anywhere in the given string. The ^ and $
 characters can be used to anchor the match to the beginning or end of the
