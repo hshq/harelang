@@ -49,10 +49,11 @@ export fn asprintf(fmt: str, args: field...) str = {
 };
 
 // Formats text for printing and writes it into a caller supplied buffer. The
-// returned string is borrowed from this buffer.
+// returned string is borrowed from this buffer. Aborts if the buffer isn't
+// large enough to hold the formatted text.
 export fn bsprintf(buf: []u8, fmt: str, args: field...) str = {
 	let sink = bufio::fixed(buf, io::mode::WRITE);
-	let l = fprintf(&sink, fmt, args...) as size;
+	let l = fprintf(&sink, fmt, args...)!;
 	return strings::fromutf8_unsafe(buf[..l]);
 };
 
@@ -104,11 +105,12 @@ export fn asprint(args: formattable...) str = {
 
 // Formats values for printing using the default format modifiers and writes
 // them into a caller supplied buffer separated by spaces. The returned string
-// is borrowed from this buffer.
+// is borrowed from this buffer. Aborts if the buffer isn't large enough to hold
+// the formatted text.
 export fn bsprint(buf: []u8, args: formattable...) str = {
 	let sink = bufio::fixed(buf, io::mode::WRITE);
-	assert(fprint(&sink, args...) is size);
-	return strings::fromutf8_unsafe(buf);
+	let l = fprint(&sink, args...)!;
+	return strings::fromutf8_unsafe(buf[..l]);
 };
 
 // Formats values for printing using the default format modifiers and writes
