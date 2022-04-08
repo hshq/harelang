@@ -10,7 +10,6 @@ use endian;
 use errors::{nomem};
 use hash;
 use io;
-use rt;
 use types;
 
 // Latest version of argon2 supported by this implementation (1.3).
@@ -174,14 +173,8 @@ fn argon2(
 		assert(memsize >= 8 * cfg.parallel
 			&& memsize <= types::U32_MAX);
 
-		// TODO https://todo.sr.ht/~sircmpwn/hare/285
 		let membytes = memsize * BLOCKSIZE * 8;
-		let mem = match (rt::malloc(membytes): nullable *[*]u64) {
-		case null =>
-			return nomem;
-		case let mem: *[*]u64 =>
-			yield mem;
-		};
+		let mem: []u64 = alloc([0...], membytes);
 		yield mem[..membytes / 8];
 	};
 	// round down memory to nearest multiple of 4 times parallel
