@@ -143,17 +143,10 @@ export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 // 	strings::cut("hello world", "=")	// ("hello world", "")
 //
 // The return value is borrowed from the 'in' parameter.
+// Caller must ensure delimiter is not an empty string
 export fn cut(in: str, delim: str) (str, str) = {
-	const tok = tokenize(in, delim);
-	let res = ("", "");
-	match (next_token(&tok)) {
-	case let s: str =>
-		res.0 = s;
-	case void =>
-		return res;
-	};
-	res.1 = remaining_tokens(&tok);
-	return res;
+	let c = bytes::cut(toutf8(in), toutf8(delim));
+	return (fromutf8_unsafe(c.0), fromutf8_unsafe(c.1));
 };
 
 @test fn cut() void = {
