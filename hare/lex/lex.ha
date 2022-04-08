@@ -368,9 +368,9 @@ fn lex_comment(lexr: *lexer) (void | error) = {
 			break;
 		};
 	};
-	let new = strings::concat(lexr.comment, strio::string(&buf));
-	free(lexr.comment);
-	lexr.comment = new;
+	let bytes = strings::toutf8(lexr.comment);
+	append(bytes, strings::toutf8(strio::string(&buf))...);
+	lexr.comment = strings::fromutf8(bytes);
 };
 
 fn lex_literal(lex: *lexer) (token | error) = {
