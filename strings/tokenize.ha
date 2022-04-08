@@ -46,51 +46,23 @@ export fn remaining_tokens(s: *tokenizer) str = {
 
 @test fn tokenize() void = {
 	let tok = tokenize("Hello, my name is drew", " ");
-	match (next_token(&tok)) {
-	case let s: str =>
-		assert(s == "Hello,");
-	case void =>
-		abort();
-	};
-
-	match (next_token(&tok)) {
-	case let s: str =>
-		assert(s == "my");
-	case void =>
-		abort();
-	};
-
-	match (peek_token(&tok)) {
-	case let s: str =>
-		assert(s == "name");
-	case void =>
-		abort();
-	};
-
-
-	match (next_token(&tok)) {
-	case let s: str =>
-		assert(s == "name");
-	case void =>
-		abort();
-	};
-
+	assert(next_token(&tok) as str == "Hello,");
+	assert(next_token(&tok) as str == "my");
+	assert(peek_token(&tok) as str == "name");
+	assert(next_token(&tok) as str == "name");
 	assert(remaining_tokens(&tok) == "is drew");
 	assert(peek_token(&tok) as str == "is");
 	assert(remaining_tokens(&tok) == "is drew");
 
-	tok = tokenize("foo", "foo");
-
+	let tok = tokenize("foo", "foo");
 	assert(peek_token(&tok) as str == "");
 	assert(next_token(&tok) as str == "");
-
 	assert(peek_token(&tok) as str == "");
 	assert(next_token(&tok) as str == "");
-
 	assert(peek_token(&tok) is void);
 	assert(next_token(&tok) is void);
 
-	tok = tokenize("", "foo");
+	let tok = tokenize("", "foo");
 	assert(peek_token(&tok) is void);
 	assert(next_token(&tok) is void);
 };
