@@ -511,6 +511,7 @@ fn scan_parametric_modifiers(iter: *strings::iterator, pi: *paramindex) void = {
 @test fn fmt() void = {
 	let buf: [1024]u8 = [0...];
 
+	assert(bsprint(buf, "hello world") == "hello world");
 	assert(bsprintf(buf, "hello world") == "hello world");
 	assert(bsprintf(buf, "{} {}", "hello", "world") == "hello world");
 	assert(bsprintf(buf, "{0} {1}", "hello", "world") == "hello world");
