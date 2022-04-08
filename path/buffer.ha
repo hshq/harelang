@@ -72,9 +72,9 @@ export fn allocate(buf: *buffer) str = {
 	return strings::dup(string(buf));
 };
 
-const dot: []u8 = ['.': u8];
-const dotdot: []u8 = ['.': u8, '.': u8];
-const dotdotslash: []u8 = ['.': u8, '.': u8, PATHSEP];
+const dot: []u8 = ['.'];
+const dotdot: []u8 = ['.', '.'];
+const dotdotslash: []u8 = ['.', '.', PATHSEP];
 
 // Normalizes and appends a path component to a buffer.
 //

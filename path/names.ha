@@ -109,7 +109,7 @@ export fn extension(p: (str | *buffer)) (str, str) = {
 	if (len(b) == 0 || b[len(b) - 1] == PATHSEP) {
 		return (p, "");
 	};
-	let i = match (bytes::index(b, '.': u32: u8)) {
+	let i = match (bytes::index(b, '.')) {
 	case void =>
 		return (p, "");
 	case let z: size =>

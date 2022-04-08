@@ -16,11 +16,11 @@ export fn stoi64b(s: str, base: uint) (i64 | invalid | overflow) = {
 	let sign = 1i64;
 	let max = types::I64_MAX: u64;
 	let start = 0z;
-	if (b[0] == '-': u32: u8) {
+	if (b[0] == '-') {
 		sign = -1;
 		max += 1;
 		start = 1;
-	} else if (b[0] == '+': u32: u8) {
+	} else if (b[0] == '+') {
 		start = 1;
 	};
 	let u = stou64b(strings::fromutf8_unsafe(b[start..]), base);

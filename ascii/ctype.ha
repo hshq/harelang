@@ -87,7 +87,7 @@ export fn isascii(c: rune) bool = c: u32 <= 0o177;
 // if it was not a lowercase letter (or was not ASCII).
 export fn toupper(c: rune) rune = {
 	return if (islower(c)) {
-		yield (c: u32 - ('a': u32) + ('A': u32)): rune;
+		yield (c: u32 - 'a' + 'A'): rune;
 	} else c;
 };
 
@@ -95,7 +95,7 @@ export fn toupper(c: rune) rune = {
 // if it was not an uppercase letter (or was not ASCII).
 export fn tolower(c: rune) rune = {
 	return if (isupper(c)) {
-		yield (c: u32 - ('A': u32) + ('a': u32)): rune;
+		yield (c: u32 - 'A' + 'a'): rune;
 	} else c;
 };
 

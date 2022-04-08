@@ -51,7 +51,7 @@ export fn next(iter: *iterator) (str | void) = {
 };
 
 @test fn iter() void = {
-	assert(PATHSEP == '/': u32: u8); // meh
+	assert(PATHSEP == '/'); // meh
 	let i = iter("/foo/bar/baz");
 	assert(next(&i) as str == "/");
 	assert(next(&i) as str == "foo");

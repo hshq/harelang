@@ -70,7 +70,7 @@ export fn fprintfln(
 	fmt: str,
 	args: field...
 ) (io::error | size) = {
-	return fprintf(h, fmt, args...)? + io::write(h, ['\n': u32: u8])?;
+	return fprintf(h, fmt, args...)? + io::write(h, ['\n'])?;
 };
 
 // Formats values for printing using the default format modifiers and writes
@@ -114,7 +114,7 @@ export fn bsprint(buf: []u8, args: formattable...) str = {
 // Formats values for printing using the default format modifiers and writes
 // them to an [[io::handle]] separated by spaces and followed by a line feed.
 export fn fprintln(h: io::handle, args: formattable...) (io::error | size) = {
-	return fprint(h, args...)? + io::write(h, ['\n': u32: u8])?;
+	return fprint(h, args...)? + io::write(h, ['\n'])?;
 };
 
 // Formats values for printing using the default format modifiers and writes
@@ -125,7 +125,7 @@ export fn fprint(h: io::handle, args: formattable...) (io::error | size) = {
 	for (let i = 0z; i < len(args); i += 1) {
 		n += format(h, args[i], &mod)?;
 		if (i != len(args) - 1) {
-			n += io::write(h, [' ': u32: u8])?;
+			n += io::write(h, [' '])?;
 		};
 	};
 	return n;

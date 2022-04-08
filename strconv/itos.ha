@@ -17,7 +17,7 @@ export fn i64tosb(i: i64, b: base) const str = {
 
 	let s = types::string { data = &buf, ... };
 
-	buf[0] = '-': u32: u8;
+	buf[0] = '-';
 	s.length = 1;
 
 	let u = strings::toutf8(u64tosb((-i): u64, b));

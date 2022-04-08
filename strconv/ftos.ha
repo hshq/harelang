@@ -521,7 +521,7 @@ def F32_DECIMAL_DIGITS: i32 = 9;
 def F64_DECIMAL_DIGITS: i32 = 17;
 
 fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
-	const zch = '0': u32: u8;
+	const zch = '0': u8;
 	const n = mantissa, e = exponent, olen = declen(n);
 	const exp = e + olen: i32 - 1;
 	// use scientific notation for numbers whose exponent is beyond the
@@ -543,7 +543,7 @@ fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
 			return (e + olen: i32): size;
 		} else if (exp < 0) {
 			buf[0] = zch;
-			buf[1] = '.': u32: u8;
+			buf[1] = '.';
 			let k = -e + 1;
 			let m = n;
 			for (let a = olen: i32; a > 0; a -= 1) {
@@ -567,7 +567,7 @@ fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
 				k -= 1;
 				m = mby10;
 			};
-			buf[k] = '.': u32: u8;
+			buf[k] = '.';
 			k -= 1;
 			for (k >= 0; k -= 1) {
 				const mby10 = m / 10;
@@ -592,14 +592,14 @@ fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
 				k -= 1;
 				m = mby10;
 			};
-			buf[k] = '.': u32: u8;
+			buf[k] = '.';
 			buf[0] = zch + m: u8;
 			h = olen: i32 + 1;
 		};
-		buf[h] = 'e': u32: u8;
+		buf[h] = 'e';
 		h += 1;
 		let ex = if (exp < 0) {
-			buf[h] = '-': u32: u8;
+			buf[h] = '-';
 			h += 1;
 			yield -exp;
 		} else exp;
@@ -643,7 +643,7 @@ export fn f64tos(n: f64) const str = {
 	};
 	const d = f64todecf64(mantissa, exponent);
 	if (sign != 0) {
-		buf[0] = '-': u32: u8;
+		buf[0] = '-';
 	};
 	let z = encode_base10(buf[sign..], d.mantissa, d.exponent,
 			F64_DECIMAL_DIGITS) + sign;
@@ -677,7 +677,7 @@ export fn f32tos(n: f32) const str = {
 	};
 	const d = f32todecf32(mantissa, exponent);
 	if (sign != 0) {
-		buf[0] = '-': u32: u8;
+		buf[0] = '-';
 	};
 	let z = encode_base10(buf[sign..], d.mantissa, d.exponent,
 			F32_DECIMAL_DIGITS) + sign;

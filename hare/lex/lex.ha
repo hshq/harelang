@@ -568,7 +568,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		case strconv::invalid =>
 			abort();
 		case strconv::overflow =>
-			yield if (chars[0] != '-': u32: u8) {
+			yield if (chars[0] != '-') {
 				suff = ltok::LIT_U64;
 				yield strconv::stou64b(val, base);
 			} else strconv::overflow;

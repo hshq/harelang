@@ -41,7 +41,7 @@ export fn getenv(name: const str) (str | void) = {
 	for (let i = 0z; rt::envp[i] != null; i += 1) {
 		const item = rt::envp[i]: *[*]u8;
 		const ln = strings::cstrlen(item: *char);
-		const eq: size = match (bytes::index(item[..ln], '=': u8)) {
+		const eq: size = match (bytes::index(item[..ln], '=')) {
 		case void =>
 			abort("Environment violates System-V invariants");
 		case let i: size =>

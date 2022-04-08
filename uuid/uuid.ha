@@ -138,7 +138,7 @@ export fn decode(in: io::handle) (uuid | invalid | io::error) = {
 			case let z: size =>
 				assert(z == 1);
 			};
-			if (buf[0] != '-': u32: u8) {
+			if (buf[0] != '-') {
 				return invalid;
 			};
 		};

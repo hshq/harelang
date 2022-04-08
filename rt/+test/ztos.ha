@@ -25,12 +25,12 @@ fn ztos(u: size) const str = {
 	};
 
 	if (u == 0) {
-		s.b[s.l] = '0': u32: u8;
+		s.b[s.l] = '0';
 		s.l += 1;
 	};
 
 	for (u > 0) {
-		s.b[s.l] = '0': u32: u8 + (u % 10): u8;
+		s.b[s.l] = '0' + (u % 10): u8;
 		s.l += 1;
 		u /= 10;
 	};

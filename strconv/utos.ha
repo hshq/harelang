@@ -26,7 +26,7 @@ export fn u64tosb(u: u64, b: base) const str = {
 
 	let s = types::string { data = &buf, ... };
 	if (u == 0) {
-		buf[s.length] = '0': u32: u8;
+		buf[s.length] = '0';
 		s.length += 1z;
 	};
 

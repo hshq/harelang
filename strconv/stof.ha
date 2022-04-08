@@ -210,31 +210,31 @@ fn fast_parse(s: str) (fast_parsed_float | void | invalid) = {
 	};
 	let buf = strings::toutf8(s);
 	let i = 0z, neg = false, trunc = false;
-	if (buf[i] == '-': u32: u8) {
+	if (buf[i] == '-') {
 		neg = true;
 		i += 1;
-	} else if (buf[i] == '+': u32: u8) {
+	} else if (buf[i] == '+') {
 		i += 1;
 	};
 	let sawdot = false, sawdigits = false;
 	let nd = 0, ndmant = 0, dp = 0;
 	let mant = 0u64, exp = 0i32;
 	for (i < len(s); i += 1) {
-		if (buf[i] == '.': u32: u8) {
+		if (buf[i] == '.') {
 			if (sawdot) return i: invalid;
 			sawdot = true;
 			dp = nd;
 		} else if (ascii::isdigit(buf[i]: u32: rune)) {
 			sawdigits = true;
-			if (buf[i] == '0': u32: u8 && nd == 0) {
+			if (buf[i] == '0' && nd == 0) {
 				dp -= 1;
 				continue;
 			};
 			nd += 1;
 			if (ndmant < 19) {
-				mant = mant * 10 + buf[i] - '0': u32: u8;
+				mant = mant * 10 + buf[i] - '0';
 				ndmant += 1;
-			} else if (buf[i] != '0': u32: u8) {
+			} else if (buf[i] != '0') {
 				trunc = true;
 			};
 		} else break;
@@ -243,13 +243,13 @@ fn fast_parse(s: str) (fast_parsed_float | void | invalid) = {
 	if (!sawdot) {
 		dp = nd;
 	};
-	if (i < len(s) && (buf[i] == 'e': u32: u8 || buf[i] == 'E': u32: u8)) {
+	if (i < len(s) && (buf[i] == 'e' || buf[i] == 'E')) {
 		i += 1;
 		if (i >= len(s)) return i: invalid;
 		let expsign: int = 1;
-		if (buf[i] == '+': u32: u8) {
+		if (buf[i] == '+') {
 			i += 1;
-		} else if (buf[i] == '-': u32: u8) {
+		} else if (buf[i] == '-') {
 			expsign = -1;
 			i += 1;
 		};
@@ -258,7 +258,7 @@ fn fast_parse(s: str) (fast_parsed_float | void | invalid) = {
 		let e: int = 0;
 		for (i < len(s) && ascii::isdigit(buf[i]: u32: rune); i += 1) {
 			if (e < 10000) {
-				e = e * 10 + buf[i]: int - '0': u32: int;
+				e = e * 10 + (buf[i] - '0'): int;
 			};
 		};
 		dp += e * expsign;
@@ -281,29 +281,29 @@ fn decimal_parse(d: *decimal, s: str) (void | invalid) = {
 	const buf = strings::toutf8(s);
 	d.negative = false;
 	d.truncated = false;
-	if (buf[0] == '+': u32: u8) {
+	if (buf[0] == '+') {
 		i += 1;
-	} else if (buf[0] == '-': u32: u8) {
+	} else if (buf[0] == '-') {
 		d.negative = true;
 		i += 1;
 	};
 	let sawdot = false, sawdigits = false;
 	let nd: u32 = 0, dp: i32 = 0;
 	for (i < len(s); i += 1) {
-		if (buf[i] == '.': u32: u8) {
+		if (buf[i] == '.') {
 			if (sawdot) return i: invalid;
 			sawdot = true;
 			d.decimal_point = d.num_digits: int;
 		} else if (ascii::isdigit(buf[i]: u32: rune)) {
 			sawdigits = true;
-			if (buf[i] == '0': u32: u8 && d.num_digits == 0) {
+			if (buf[i] == '0' && d.num_digits == 0) {
 				d.decimal_point -= 1;
 				continue;
 			};
 			if (d.num_digits < len(d.digits)) {
-				d.digits[d.num_digits] = buf[i] - '0': u32: u8;
+				d.digits[d.num_digits] = buf[i] - '0';
 				d.num_digits += 1;
-			} else if (buf[i] != '0': u32: u8) {
+			} else if (buf[i] != '0') {
 				d.truncated = true;
 			};
 		} else break;
@@ -312,13 +312,13 @@ fn decimal_parse(d: *decimal, s: str) (void | invalid) = {
 	if (!sawdot) {
 		d.decimal_point = d.num_digits: int;
 	};
-	if (i < len(s) && (buf[i] == 'e': u32: u8 || buf[i] == 'E': u32: u8)) {
+	if (i < len(s) && (buf[i] == 'e' || buf[i] == 'E')) {
 		i += 1;
 		if (i >= len(s)) return i: invalid;
 		let expsign: int = 1;
-		if (buf[i] == '+': u32: u8) {
+		if (buf[i] == '+') {
 			i += 1;
-		} else if (buf[i] == '-': u32: u8) {
+		} else if (buf[i] == '-') {
 			expsign = -1;
 			i += 1;
 		};
@@ -327,7 +327,7 @@ fn decimal_parse(d: *decimal, s: str) (void | invalid) = {
 		let e: int = 0;
 		for (i < len(s) && ascii::isdigit(buf[i]: u32: rune); i += 1) {
 			if (e < 10000) {
-				e = e * 10 + buf[i]: int - '0': u32: int;
+				e = e * 10 + (buf[i] - '0'): int;
 			};
 		};
 		d.decimal_point += e * expsign;

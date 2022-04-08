@@ -40,7 +40,7 @@ export fn buffered(
 	rbuf: []u8,
 	wbuf: []u8,
 ) bufstream = {
-	static let flush_default = ['\n': u32: u8];
+	static let flush_default = ['\n': u8];
 	let s = bufstream {
 		stream = io::stream {
 			closer = &buffered_close_static,
