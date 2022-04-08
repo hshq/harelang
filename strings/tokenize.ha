@@ -12,10 +12,12 @@ export type tokenizer = bytes::tokenizer;
 // Returns a tokenizer which yields sub-strings tokenized by a delimiter.
 //
 // 	let tok = strings::tokenize("hello, my name is drew", " ");
-// 	assert(strings::next_token(tok) == "hello,");
-// 	assert(strings::next_token(tok) == "my");
-// 	assert(strings::next_token(tok) == "name");
+// 	assert(strings::next_token(tok) as str == "hello,");
+// 	assert(strings::next_token(tok) as str == "my");
+// 	assert(strings::next_token(tok) as str == "name");
 // 	assert(strings::remaining_tokens(tok) == "is drew");
+//
+// The caller must ensure that 'delimiter' is not an empty string.
 export fn tokenize(s: str, delim: str) tokenizer =
 	bytes::tokenize(toutf8(s), toutf8(delim));
 
@@ -71,8 +73,10 @@ export fn remaining_tokens(s: *tokenizer) str = {
 // N tokens. The caller must free this slice. The strings within the slice are
 // borrowed from 'in', and needn't be freed - but should be [[dupall]]'d if they
 // should outlive 'in'.
+//
+// The caller must ensure that 'delimiter' is not an empty string.
 export fn splitn(in: str, delim: str, n: size) []str = {
-	let toks: []str = alloc([]);
+	let toks: []str = [];
 	let tok = tokenize(in, delim);
 	for (let i = 0z; i < n - 1z; i += 1) {
 		match (next_token(&tok)) {
@@ -89,6 +93,8 @@ export fn splitn(in: str, delim: str, n: size) []str = {
 // Splits a string into tokens delimited by 'delim'.  The caller must free the
 // returned slice. The strings within the slice are borrowed from 'in', and
 // needn't be freed - but must be [[dupall]]'d if they should outlive 'in'.
+//
+// The caller must ensure that 'delimiter' is not an empty string.
 export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 
 @test fn split() void = {
@@ -114,8 +120,8 @@ export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 // 	strings::cut("hello=world=foobar", "=")	// ("hello", "world=foobar")
 // 	strings::cut("hello world", "=")	// ("hello world", "")
 //
-// The return value is borrowed from the 'in' parameter.
-// Caller must ensure delimiter is not an empty string
+// The return value is borrowed from the 'in' parameter.  The caller must ensure
+// that 'delimiter' is not an empty string.
 export fn cut(in: str, delim: str) (str, str) = {
 	let c = bytes::cut(toutf8(in), toutf8(delim));
 	return (fromutf8_unsafe(c.0), fromutf8_unsafe(c.1));

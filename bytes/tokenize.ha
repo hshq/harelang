@@ -7,7 +7,7 @@ use types;
 export type tokenizer = struct { s: []u8, d: []u8, p: size };
 
 // Returns a tokenizer which yields sub-slices tokenized by a delimiter. The
-// caller must ensure "delim" is not an empty slice.
+// caller must ensure that 'delimiter' is not an empty slice.
 export fn tokenize(s: []u8, delim: []u8) tokenizer = {
 	assert(len(delim) > 0, "bytes::tokenize called with empty slice");
 	if (len(s) == 0) {
@@ -118,7 +118,7 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 // everything up to the delimiter, and everything after the delimiter, in a
 // tuple.
 //
-// Caller must ensure delimiter is not an empty slice.
+// The caller must ensure that 'delimiter' is not an empty slice.
 export fn cut(in: []u8, delim: ([]u8 | u8)) ([]u8, []u8) = {
 	let ln = if (delim is u8) {
 		yield 1z;
