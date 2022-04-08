@@ -78,18 +78,18 @@
 };
 
 @test fn call() void = {
-	roundtrip("export fn main() void = test();\n"
-		"export fn main() void = test(void, void, void);\n"
-		"export fn main() void = test(void, void, void...);\n"
+	roundtrip("export fn main() void = test();\n\n"
+		"export fn main() void = test(void, void, void);\n\n"
+		"export fn main() void = test(void, void, void...);\n\n"
 		"export fn main() void = test()()(void);\n");
 };
 
 @test fn cast() void = {
-	roundtrip("export fn main() void = void: int;\n"
-		"export fn main() void = void as int;\n"
-		"export fn main() void = void is int;\n"
-		"export fn main() void = void: int: uint: u16: u8;\n"
-		"export fn main() void = void: int as uint: u16 is u8;\n"
+	roundtrip("export fn main() void = void: int;\n\n"
+		"export fn main() void = void as int;\n\n"
+		"export fn main() void = void is int;\n\n"
+		"export fn main() void = void: int: uint: u16: u8;\n\n"
+		"export fn main() void = void: int as uint: u16 is u8;\n\n"
 		"export fn main() void = {\n\tyield void;\n}: int;\n");
 };
 
@@ -213,22 +213,22 @@
 };
 
 @test fn postfix() void = {
-	roundtrip("export fn main() void = x.y;\n"
-		"export fn main() void = x.y.z.q;\n"
-		"export fn main() void = x().y;\n"
-		"export fn main() void = x.42;\n"
-		"export fn main() void = x().y.0.q;\n"
-		"export fn main() void = x?;\n"
-		"export fn main() void = x!;\n"
-		"export fn main() void = x()?.y;\n"
-		"export fn main() void = x[10];\n"
+	roundtrip("export fn main() void = x.y;\n\n"
+		"export fn main() void = x.y.z.q;\n\n"
+		"export fn main() void = x().y;\n\n"
+		"export fn main() void = x.42;\n\n"
+		"export fn main() void = x().y.0.q;\n\n"
+		"export fn main() void = x?;\n\n"
+		"export fn main() void = x!;\n\n"
+		"export fn main() void = x()?.y;\n\n"
+		"export fn main() void = x[10];\n\n"
 		"export fn main() void = x[10 + 10][20];\n");
 };
 
 @test fn slice() void = {
-	roundtrip("export fn main() void = x[..];\n"
-		"export fn main() void = x[123..];\n"
-		"export fn main() void = x[123..321];\n"
+	roundtrip("export fn main() void = x[..];\n\n"
+		"export fn main() void = x[123..];\n\n"
+		"export fn main() void = x[123..321];\n\n"
 		"export fn main() void = x[..321];\n");
 };
 
@@ -273,17 +273,17 @@
 };
 
 @test fn unarithm() void = {
-	roundtrip("export fn main() void = +void;\n"
-		"export fn main() void = -void;\n"
-		"export fn main() void = *void;\n"
-		"export fn main() void = ~void;\n"
-		"export fn main() void = !void;\n"
+	roundtrip("export fn main() void = +void;\n\n"
+		"export fn main() void = -void;\n\n"
+		"export fn main() void = *void;\n\n"
+		"export fn main() void = ~void;\n\n"
+		"export fn main() void = !void;\n\n"
 		"export fn main() void = &void;\n");
 };
 
 @test fn yield_expr() void = {
-	roundtrip("export fn main() void = yield;\n"
-		"export fn main() void = yield void;\n"
-		"export fn main() void = yield :foo;\n"
+	roundtrip("export fn main() void = yield;\n\n"
+		"export fn main() void = yield void;\n\n"
+		"export fn main() void = yield :foo;\n\n"
 		"export fn main() void = yield :foo, void;\n");
 };

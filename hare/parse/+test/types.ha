@@ -6,11 +6,13 @@
 	@offset(void) x: int,
 	y: int,
 };
+
 export type bar = union {
 	x: int,
 	// docs docs docs
 	y: int,
 };
+
 export type baz = struct {
 	embedded,
 	struct {
@@ -23,8 +25,11 @@ export type baz = struct {
 
 @test fn array_slice() void = {
 	roundtrip("export type foo = []int;
+
 export type bar = [*]int;
+
 export type baz = [_]int;
+
 export type bat = [void]int;
 ");
 };
@@ -38,12 +43,14 @@ export type bat = [void]int;
 	Z, // foo
 	Q, // bar
 };
+
 export type bar = enum uint {
 	X = void,
 	Y = void,
 	Z,
 	Q,
 };
+
 export type baz = enum rune {
 	X = void,
 	Y = void,

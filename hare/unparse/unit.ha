@@ -14,6 +14,7 @@ export fn subunit(out: io::handle, s: ast::subunit) (size | io::error) = {
 	};
 	for (let i = 0z; i < len(s.decls); i += 1) {
 		n += decl(out, s.decls[i])?;
+		if (i < len(s.decls) - 1) n += fmt::fprintln(out)?;
 		n += fmt::fprintln(out)?;
 	};
 	return n;

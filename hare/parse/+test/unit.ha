@@ -120,13 +120,13 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 };
 
 @test fn decls() void = {
-	roundtrip("export type foo::bar = *int, baz = const void;\n"
-		"type foo = ...bar;\n"
-		"type foo = nullable *fn(x: rune, _: int) void;\n"
-		"export let @symbol(\"_\") foo::bar: int = void, baz: int = void;\n"
-		"def foo::bar: int = void;\n"
-		"@symbol(\".f9$oo\") fn foo(bar: int, baz: int...) void;\n"
-		"@test fn foo(_: int, ...) void;\n"
+	roundtrip("export type foo::bar = *int, baz = const void;\n\n"
+		"type foo = ...bar;\n\n"
+		"type foo = nullable *fn(x: rune, _: int) void;\n\n"
+		"export let @symbol(\"_\") foo::bar: int = void, baz: int = void;\n\n"
+		"def foo::bar: int = void;\n\n"
+		"@symbol(\".f9$oo\") fn foo(bar: int, baz: int...) void;\n\n"
+		"@test fn foo(_: int, ...) void;\n\n"
 		"export fn main() void = void;\n");
 };
 
