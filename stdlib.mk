@@ -548,6 +548,12 @@ stdlib_deps_any+=$(stdlib_path_any)
 stdlib_path_linux=$(stdlib_path_any)
 stdlib_path_freebsd=$(stdlib_path_any)
 
+# gen_lib regex (any)
+stdlib_regex_any=$(HARECACHE)/regex/regex-any.o
+stdlib_deps_any+=$(stdlib_regex_any)
+stdlib_regex_linux=$(stdlib_regex_any)
+stdlib_regex_freebsd=$(stdlib_regex_any)
+
 # gen_lib shlex (any)
 stdlib_shlex_any=$(HARECACHE)/shlex/shlex-any.o
 stdlib_deps_any+=$(stdlib_shlex_any)
@@ -1612,6 +1618,16 @@ $(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_st
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Npath \
 		-t$(HARECACHE)/path/path.td $(stdlib_path_any_srcs)
 
+# regex (+any)
+stdlib_regex_any_srcs= \
+	$(STDLIB)/regex/regex.ha
+
+$(HARECACHE)/regex/regex-any.ssa: $(stdlib_regex_any_srcs) $(stdlib_rt) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/regex
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nregex \
+		-t$(HARECACHE)/regex/regex.td $(stdlib_regex_any_srcs)
+
 # shlex (+any)
 stdlib_shlex_any_srcs= \
 	$(STDLIB)/shlex/split.ha
@@ -2428,6 +2444,12 @@ testlib_path_any=$(TESTCACHE)/path/path-any.o
 testlib_deps_any+=$(testlib_path_any)
 testlib_path_linux=$(testlib_path_any)
 testlib_path_freebsd=$(testlib_path_any)
+
+# gen_lib regex (any)
+testlib_regex_any=$(TESTCACHE)/regex/regex-any.o
+testlib_deps_any+=$(testlib_regex_any)
+testlib_regex_linux=$(testlib_regex_any)
+testlib_regex_freebsd=$(testlib_regex_any)
 
 # gen_lib shlex (any)
 testlib_shlex_any=$(TESTCACHE)/shlex/shlex-any.o
@@ -3532,6 +3554,17 @@ $(TESTCACHE)/path/path-any.ssa: $(testlib_path_any_srcs) $(testlib_rt) $(testlib
 	@mkdir -p $(TESTCACHE)/path
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Npath \
 		-t$(TESTCACHE)/path/path.td $(testlib_path_any_srcs)
+
+# regex (+any)
+testlib_regex_any_srcs= \
+	$(STDLIB)/regex/regex.ha \
+	$(STDLIB)/regex/+test.ha
+
+$(TESTCACHE)/regex/regex-any.ssa: $(testlib_regex_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/regex
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nregex \
+		-t$(TESTCACHE)/regex/regex.td $(testlib_regex_any_srcs)
 
 # shlex (+any)
 testlib_shlex_any_srcs= \

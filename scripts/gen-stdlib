@@ -1025,6 +1025,16 @@ path() {
 	gen_ssa path strings bufio bytes io
 }
 
+regex() {
+	if [ $testing -eq 0 ]; then
+		gen_srcs regex regex.ha
+		gen_ssa regex encoding::utf8 errors strconv strings
+	else
+		gen_srcs regex regex.ha +test.ha
+		gen_ssa regex encoding::utf8 errors strconv strings fmt io os
+	fi
+}
+
 gensrcs_strconv() {
 	gen_srcs strconv \
 		types.ha \
@@ -1298,6 +1308,7 @@ net::uri
 os				linux freebsd
 os::exec		linux freebsd
 path
+regex
 shlex
 slices
 sort
