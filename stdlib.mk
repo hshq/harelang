@@ -1640,6 +1640,7 @@ $(HARECACHE)/shlex/shlex-any.ssa: $(stdlib_shlex_any_srcs) $(stdlib_rt) $(stdlib
 
 # slices (+any)
 stdlib_slices_any_srcs= \
+	$(STDLIB)/slices/cap.ha \
 	$(STDLIB)/slices/reverse.ha \
 	$(STDLIB)/slices/trunc.ha \
 	$(STDLIB)/slices/void.ha
@@ -1683,6 +1684,7 @@ $(HARECACHE)/strconv/strconv-any.ssa: $(stdlib_strconv_any_srcs) $(stdlib_rt) $(
 
 # strings (+any)
 stdlib_strings_any_srcs= \
+	$(STDLIB)/strings/cap.ha \
 	$(STDLIB)/strings/concat.ha \
 	$(STDLIB)/strings/contains.ha \
 	$(STDLIB)/strings/cstrings.ha \
@@ -3579,6 +3581,7 @@ $(TESTCACHE)/shlex/shlex-any.ssa: $(testlib_shlex_any_srcs) $(testlib_rt) $(test
 
 # slices (+any)
 testlib_slices_any_srcs= \
+	$(STDLIB)/slices/cap.ha \
 	$(STDLIB)/slices/reverse.ha \
 	$(STDLIB)/slices/trunc.ha \
 	$(STDLIB)/slices/void.ha
@@ -3625,6 +3628,7 @@ $(TESTCACHE)/strconv/strconv-any.ssa: $(testlib_strconv_any_srcs) $(testlib_rt) 
 
 # strings (+any)
 testlib_strings_any_srcs= \
+	$(STDLIB)/strings/cap.ha \
 	$(STDLIB)/strings/concat.ha \
 	$(STDLIB)/strings/contains.ha \
 	$(STDLIB)/strings/cstrings.ha \
