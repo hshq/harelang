@@ -52,7 +52,8 @@ export fn isdigit(c: rune) bool =
 export fn isxdigit(c: rune) bool =
 	if (!isascii(c)) false else cclass[c: u32]&X > 0;
 
-// Returns true if an ASCII character is a space.
+// Returns true if an ASCII character is a white-space character -
+// one of '\f', '\n', '\r', '\t', '\v', ' '.
 export fn isspace(c: rune) bool =
 	if (!isascii(c)) false else cclass[c: u32]&S > 0;
 
