@@ -14,20 +14,23 @@ export type memstream = struct {
 	pos: size,
 };
 
-// Creates a stream for a fixed, caller-supplied buffer. Supports
-// either read or write, but not both. Readable streams are seekable. The
-// program aborts if writes would exceed the buffer's capacity. The stream
+// Creates a stream for a fixed, caller-supplied buffer. Supports either read or
+// write, but not both. All fixed streams are seekable; seeking a write stream
+// will cause subsequent writes to overwrite existing contents of the buffer.
+// The program aborts if writes would exceed the buffer's capacity. The stream
 // doesn't have to be closed.
 export fn fixed(in: []u8, mode: io::mode) memstream = {
 	let s = memstream {
-		stream = io::stream { ... },
+		stream = io::stream {
+			seeker = &seek,
+			...
+		},
 		buf = in,
 		pos = 0,
 	};
 	if (mode & io::mode::READ == io::mode::READ) {
 		assert(mode & io::mode::WRITE != io::mode::WRITE);
 		s.stream.reader = &read;
-		s.stream.seeker = &seek;
 	};
 	if (mode & io::mode::WRITE == io::mode::WRITE) {
 		assert(mode & io::mode::READ != io::mode::READ);
@@ -37,14 +40,17 @@ export fn fixed(in: []u8, mode: io::mode) memstream = {
 };
 
 fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
-	// TODO: make seekable
-	let stream = s: *memstream;
-	if (len(stream.buf) == 0) {
+	let s = s: *memstream;
+	if (s.pos >= len(s.buf)) {
 		abort("bufio::fixed buffer exceeded");
 	};
-	const n = if (len(buf) > len(stream.buf)) len(stream.buf) else len(buf);
-	stream.buf[..n] = buf[..n];
-	stream.buf = stream.buf[n..];
+	const n = if (len(buf) > len(s.buf[s.pos..])) {
+		yield len(s.buf[s.pos..]);
+	} else {
+		yield len(buf);
+	};
+	s.buf[s.pos..s.pos+n] = buf[..n];
+	s.pos += n;
 	return n;
 };
 
@@ -199,8 +205,9 @@ fn seek(
 	n += io::write(&stream, strings::toutf8("hello ")) as size;
 	n += io::write(&stream, strings::toutf8("world")) as size;
 	assert(bytes::equal(buf[..n], strings::toutf8("hello world")));
-	assert(io::seek(&stream, 6, io::whence::SET)
-		as io::error is errors::unsupported);
+	assert(io::seek(&stream, 6, io::whence::SET) as io::off == 6: io::off);
+	io::write(&stream, strings::toutf8("asdf")) as size;
+	assert(bytes::equal(buf[..n], strings::toutf8("hello asdfd")));
 
 	let out: [2]u8 = [0...];
 	let s = fixed([1u8, 2u8], io::mode::READ);
