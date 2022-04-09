@@ -20,6 +20,20 @@ export fn sort(items: []void, itemsz: size, cmp: *cmpfunc) void = {
 // codepoints; see [[strings::strcmp]].
 export fn strings(items: []str) void = sort(items, size(str), &scmp);
 
+// Checks if all of the items in a slice are sorted.
+export fn sorted(items: []void, itemsz: size, cmp: *cmpfunc) bool = {
+	for (let i = 0z; i < len(items) - 1; i += 1) {
+		if (cmp(&items[i], &items[i + 1]) > 0) {
+			return false;
+		};
+	};
+	return true;
+};
+
+// Checks if all of the strings in a slice are sorted. Order is checked with
+// respect to Unicode codepoints; see [[strings::strcmp]].
+export fn strings_sorted(items: []str) bool = sorted(items, size(str), &scmp);
+
 fn swap(a: *void, b: *void, sz: size) void = {
 	let a = a: *[*]u8, b = b: *[*]u8;
 	for (let i = 0z; i < sz; i += 1) {
