@@ -13,7 +13,7 @@ fn from_c_unsafe(cstr: *const char) const str = {
 	const s = struct {
 		data: *[*]u8   = cstr: *[*]u8,
 		length: size   = l,
-		capacity: size = l,
+		capacity: size = l + 1,
 	};
 	return *(&s: *const str);
 };
