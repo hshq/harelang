@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2022 Yasumasa Tada <ytada@spartan.dev>
 use fnmatch;
 use fs;
 use io;
@@ -6,19 +8,22 @@ use sort;
 use strings;
 use strio;
 
-// Currently flags are not supported.
+// Not all flags are currently supported.
 export type flag = enum uint {
 	NONE = 0,
 	ERR = 1u << 1,
 	MARK = 1u << 2,
 	NOCHECK = 1u << 3,
 	NOESCAPE = 1u << 4,
+	// Ordinary, [[next]] sorts the matching pathnames. When this flag is
+	// used, the order of pathnames returned is unspecified.
 	NOSORT = 1u << 5,
 };
 
 export type generator = struct {
 	pats: strstack,
 	matc: size,
+	flgs: uint,
 	tmps: strio::dynamic_stream,
 };
 
@@ -30,11 +35,16 @@ export type strstack = struct {
 // Returns a generator of pathnames matching a pattern. The result must be
 // freed using [[globfree]].
 export fn glob(pattern: const str, flags: flag...) generator = {
-	let init = strstack_init();
-	strstack_push(&init, pattern);
+	let ss = strstack_init();
+	strstack_push(&ss, pattern);
+	let bs = 0u;
+	for (let i = 0z; i < len(flags); i += 1) {
+		bs |= flags[i];
+	};
 	return generator {
-		pats = init,
+		pats = ss,
 		matc = 0,
+		flgs = bs,
 		tmps = strio::dynamic(),
 	};
 };
@@ -100,8 +110,10 @@ fn next_match(fs: *fs::fs, gen: *generator) (const str | void | fs::error) = {
 		};
 		strstack_push(&gen.pats, dir, de.name, "/", rem);
 	};
+	if (gen.flgs & flag::NOSORT == 0) {
+		strstack_sort(&gen.pats, l);
+	};
 
-	strstack_sort(&gen.pats, l);
 	return next_match(fs, gen);
 };
 
