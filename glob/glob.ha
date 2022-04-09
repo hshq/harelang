@@ -95,12 +95,13 @@ fn next_match(fs: *fs::fs, gen: *generator) (const str | void | fs::error) = {
 		rem = strings::sub(p, ends.1, strings::end);
 	};
 
+	let flgs = fnmatch::flags::PERIOD;
 	let it = fs::iter(fs, if (len(dir) > 0) dir else ".")?;
 	for (true) match (fs::next(it)) {
 	case void =>
 		break;
 	case let de: fs::dirent =>
-		if (!fnmatch::fnmatch(pat, de.name)) {
+		if (!fnmatch::fnmatch(pat, de.name, flgs)) {
 			continue;
 		};
 		if (len(rem) == 0) {
