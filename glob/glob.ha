@@ -75,7 +75,7 @@ fn next_match(fs: *fs::fs, gen: *generator) (const str | void | fs::error) = {
 	const l = strstack_size(&gen.pats);
 
 	const ends = split_pattern(p);
-	let dir = strings::sub(p, 0, ends.0);
+	const dir = strings::sub(p, 0, ends.0);
 	let pat = strings::sub(p, ends.0, ends.1);
 	if (strings::hassuffix(pat, '/')) {
 		pat = strings::sub(pat, 0, len(pat) - 1);
@@ -90,8 +90,9 @@ fn next_match(fs: *fs::fs, gen: *generator) (const str | void | fs::error) = {
 	case void =>
 		break;
 	case let de: fs::dirent =>
-		if (!fnmatch::fnmatch(pat, de.name))
+		if (!fnmatch::fnmatch(pat, de.name)) {
 			continue;
+		};
 		if (len(rem) == 0) {
 			strstack_push(&gen.pats, dir, de.name);
 			gen.matc += 1;
@@ -127,7 +128,8 @@ fn split_pattern(p: const str) (size, size) = {
 		};
 	};
 	
-	// p[dirend..patend] is a path component which has special characters.
+	// p[dirend..patend] is the first path component which has special
+	// characters.
 	let patend = len(p);
 	for (true) match (strings::next(&pos.0)) {
 	case void =>
@@ -151,8 +153,9 @@ fn strstack_init() strstack = strstack {
 };
 
 fn strstack_free(ss: *strstack) void = {
-	for (let i = 0z; i < len(ss.bufv); i += 1)
+	for (let i = 0z; i < len(ss.bufv); i += 1) {
 		io::close(&ss.bufv[i]);
+	};
 };
 
 fn strstack_size(ss: *strstack) size = ss.bufc;
@@ -167,13 +170,17 @@ fn strstack_push(ss: *strstack, strs: const str...) void = {
 };
 
 fn strstack_pop(ss: *strstack) (const str | void) = {
-	if (ss.bufc == 0) return;
+	if (ss.bufc == 0) {
+		return;
+	};
 	ss.bufc -= 1;
 	return strio::string(&ss.bufv[ss.bufc]);
 };
 
 fn strstack_sort(ss: *strstack, pos: size) void = {
-	if (pos > ss.bufc) return;
+	if (pos > ss.bufc) {
+		return;
+	};
 	let s = ss.bufv[pos..ss.bufc];
 	sort::sort(s, size(strio::dynamic_stream), &bufcmp);
 };
