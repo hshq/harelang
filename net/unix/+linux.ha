@@ -87,7 +87,7 @@ export fn listen(
 
 // Converts a UNIX socket address to a native sockaddr.
 fn to_native(addr: addr) (rt::sockaddr | invalid) = {
-	// sun_path should be null-terminated and fit into rt::UNIX_PATH_MAX
+	// sun_path should be NUL-terminated and fit into rt::UNIX_PATH_MAX
 	if (len(addr) > rt::UNIX_PATH_MAX - 1) {
 		return invalid;
 	};
