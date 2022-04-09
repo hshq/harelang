@@ -5,6 +5,7 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 use io;
 use bufio;
+use fmt;
 use strings;
 
 @test fn basic() void = {
@@ -25,7 +26,7 @@ use strings;
 		"foobar": elementend,
 		"\n": text,
 		"root": elementend,
-	], false);
+	], void);
 };
 
 @test fn comments() void = {
@@ -42,7 +43,7 @@ use strings;
 		"hello": elementend,
 		"\n": text,
 		"root": elementend,
-	], false);
+	], void);
 };
 
 @test fn entities() void = {
@@ -58,7 +59,7 @@ use strings;
 		"hello": elementend,
 		"\n": text,
 		"root": elementend,
-	], false);
+	], void);
 };
 
 @test fn cdata() void = {
@@ -71,11 +72,15 @@ use strings;
 		"Hello world &foo <bar>": text,
 		"\n": text,
 		"root": elementend,
-	], false);
+	], void);
 };
 
 @test fn errors() void = {
 	xmltest("<?xml version='1.0' encoding='utf-8' ?>
+<!--
+comment which spans
+multiple lines
+-->
 <root>
 	<hello name='foobar'></world>
 </root>", [
@@ -83,10 +88,10 @@ use strings;
 		"\n\t": text,
 		"hello": elementstart,
 		("name", "foobar"): attribute,
-	], true);
+	], 7);
 };
 
-fn xmltest(input: str, expected: []token, err: bool) void = {
+fn xmltest(input: str, expected: []token, err: (void | size)) void = {
 	let in = bufio::fixed(strings::toutf8(input), io::mode::READ);
 	let parser = parse(&in) as *parser;
 	for (let i = 0z; i < len(expected); i += 1) {
@@ -95,8 +100,8 @@ fn xmltest(input: str, expected: []token, err: bool) void = {
 			yield tok;
 		case void =>
 			abort("Expected token, got void");
-		case syntaxerr =>
-			abort("Expected token, got syntax error");
+		case let err: syntaxerr =>
+			fmt::fatal("{}", strerror(err));
 		};
 		match (tok) {
 		case let el: elementstart =>
@@ -117,9 +122,10 @@ fn xmltest(input: str, expected: []token, err: bool) void = {
 			assert(el == ex);
 		};
 	};
-	if (err) {
-		assert(scan(parser) is error);
-	} else {
+	match (err) {
+	case void =>
 		assert(scan(parser) is void);
+	case let z: size =>
+		assert(scan(parser) as syntaxerr: size == z);
 	};
 };

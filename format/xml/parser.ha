@@ -33,6 +33,7 @@ export fn parse(in: io::handle) (*parser | error) = {
 		namebuf = strio::dynamic(),
 		entbuf = strio::dynamic(),
 		textbuf = strio::dynamic(),
+		line = 1,
 		...
 	});
 	if (bufio::isbuffered(in)) {
@@ -77,7 +78,7 @@ export fn scan(par: *parser) (token | void | error) = {
 	let rn: rune = match (bufio::scanrune(par.in)?) {
 	case io::EOF =>
 		if (par.state == state::ROOT) {
-			return syntaxerr;
+			return par.line: syntaxerr;
 		} else {
 			return;
 		};
@@ -90,7 +91,7 @@ export fn scan(par: *parser) (token | void | error) = {
 		case '<' =>
 			const next = match (bufio::scanrune(par.in)?) {
 			case io::EOF =>
-				return syntaxerr;
+				return par.line: syntaxerr;
 			case let rn: rune =>
 				bufio::unreadrune(par.in, rn);
 				yield rn;
@@ -108,7 +109,7 @@ export fn scan(par: *parser) (token | void | error) = {
 			return el;
 		case =>
 			if (par.state == state::ROOT) {
-				return syntaxerr;
+				return par.line: syntaxerr;
 			};
 			bufio::unreadrune(par.in, rn);
 			return scan_content(par)?;
@@ -122,7 +123,7 @@ export fn scan(par: *parser) (token | void | error) = {
 			par.state = state::ELEMENT;
 			return scan(par)?;
 		} else if (!isnamestart(rn)) {
-			return syntaxerr;
+			return par.line: syntaxerr;
 		};
 		bufio::unreadrune(par.in, rn);
 		return scan_attr(par)?;
@@ -131,13 +132,13 @@ export fn scan(par: *parser) (token | void | error) = {
 
 fn poptag(par: *parser, expect: str) (str | error) = {
 	if (len(par.tags) == 0) {
-		return syntaxerr;
+		return par.line: syntaxerr;
 	};
 	let pop = par.tags[len(par.tags) - 1];
 	delete(par.tags[len(par.tags) - 1]);
 	defer free(pop);
 	if (expect != "" && expect != pop) {
-		return syntaxerr;
+		return par.line: syntaxerr;
 	};
 	strio::reset(&par.namebuf);
 	strio::concat(&par.namebuf, pop)!;
@@ -151,14 +152,17 @@ fn scan_attr(par: *parser) (token | error) = {
 	strio::reset(&par.textbuf);
 	for (true) match (bufio::scanrune(par.in)?) {
 	case io::EOF =>
-		return syntaxerr;
+		return par.line: syntaxerr;
 	case let rn: rune =>
 		rn = switch (rn) {
 		case '<' =>
-			return syntaxerr;
+			return par.line: syntaxerr;
 		case '&' =>
 			bufio::unreadrune(par.in, rn);
 			yield scan_entity(par)?;
+		case '\n' =>
+			par.line += 1;
+			yield rn;
 		case =>
 			yield rn;
 		};
@@ -172,7 +176,7 @@ fn scan_comment(par: *parser) (token | void | error) = {
 	want(par, "<!")?;
 	match (bufio::scanrune(par.in)?) {
 	case io::EOF =>
-		return syntaxerr;
+		return par.line: syntaxerr;
 	case let rn: rune =>
 		switch (rn) {
 		case '-' => // Comments
@@ -180,35 +184,43 @@ fn scan_comment(par: *parser) (token | void | error) = {
 		case '[' =>
 			want(par, "CDATA[")?;
 			if (par.state != state::ELEMENT) {
-				return syntaxerr;
+				return par.line: syntaxerr;
 			};
 			return scan_cdata(par)?;
 		case =>
-			return syntaxerr;
+			return par.line: syntaxerr;
 		};
 	};
 	for (true) {
 		const rn = match (bufio::scanrune(par.in)?) {
 		case io::EOF =>
-			return syntaxerr;
+			return par.line: syntaxerr;
 		case let rn: rune =>
+			if (rn == '\n') par.line += 1;
 			yield rn;
 		};
 		if (rn != '-') continue;
 		const rn = match (bufio::scanrune(par.in)?) {
 		case io::EOF =>
-			return syntaxerr;
+			return par.line: syntaxerr;
 		case let rn: rune =>
+			if (rn == '\n') par.line += 1;
 			yield rn;
 		};
 		if (rn != '-') continue;
 		const rn = match (bufio::scanrune(par.in)?) {
 		case io::EOF =>
-			return syntaxerr;
+			return par.line: syntaxerr;
 		case let rn: rune =>
 			yield rn;
 		};
-		if (rn == '>') break;
+		switch (rn) {
+		case '>' =>
+			break;
+		case '\n' =>
+			par.line += 1;
+		case => void;
+		};
 	};
 	return scan(par);
 };
@@ -218,31 +230,39 @@ fn scan_cdata(par: *parser) (text | error) = {
 	for (true) {
 		const rn = match (bufio::scanrune(par.in)?) {
 		case io::EOF =>
-			return syntaxerr;
+			return par.line: syntaxerr;
 		case let rn: rune =>
 			yield rn;
 		};
 		if (rn != ']') {
+			if (rn == '\n') par.line += 1;
 			strio::appendrune(&par.textbuf, rn)!;
 			continue;
 		};
 		const rn = match (bufio::scanrune(par.in)?) {
 		case io::EOF =>
-			return syntaxerr;
+			return par.line: syntaxerr;
 		case let rn: rune =>
 			yield rn;
 		};
 		if (rn != ']') {
+			if (rn == '\n') par.line += 1;
 			strio::appendrune(&par.textbuf, rn)!;
 			continue;
 		};
 		const rn = match (bufio::scanrune(par.in)?) {
 		case io::EOF =>
-			return syntaxerr;
+			return par.line: syntaxerr;
 		case let rn: rune =>
 			yield rn;
 		};
-		if (rn == '>') break;
+		switch (rn) {
+		case '>' =>
+			break;
+		case '\n' =>
+			par.line += 1;
+		case => void;
+		};
 		strio::appendrune(&par.textbuf, rn)!;
 	};
 	return strio::string(&par.textbuf): text;
@@ -261,6 +281,9 @@ fn scan_content(par: *parser) (text | error) = {
 		case '&', '%' =>
 			bufio::unreadrune(par.in, rn);
 			yield scan_entity(par)?;
+		case '\n' =>
+			par.line += 1;
+			yield rn;
 		case =>
 			yield rn;
 		};
@@ -274,11 +297,14 @@ fn scan_element(par: *parser) (token | error) = {
 	let close = false;
 	match (bufio::scanrune(par.in)?) {
 	case io::EOF =>
-		return syntaxerr;
+		return par.line: syntaxerr;
 	case let rn: rune =>
 		switch (rn) {
 		case '/' =>
 			close = true;
+		case '\n' =>
+			par.line += 1;
+			bufio::unreadrune(par.in, rn);
 		case =>
 			bufio::unreadrune(par.in, rn);
 		};
@@ -297,7 +323,7 @@ fn scan_entity(par: *parser) (rune | error) = {
 	want(par, '&')?;
 	let rn = match (bufio::scanrune(par.in)?) {
 	case io::EOF =>
-		return syntaxerr;
+		return par.line: syntaxerr;
 	case let rn: rune =>
 		yield rn;
 	};
@@ -305,7 +331,9 @@ fn scan_entity(par: *parser) (rune | error) = {
 	case '#' =>
 		return scan_charref(par);
 	case '%' =>
-		return syntaxerr; // XXX: Deliberate omission: PEReference
+		return par.line: syntaxerr; // XXX: Deliberate omission: PEReference
+	case '\n' =>
+		return par.line: syntaxerr;
 	case =>
 		bufio::unreadrune(par.in, rn);
 		return scan_namedent(par);
@@ -316,7 +344,7 @@ fn scan_charref(par: *parser) (rune | error) = {
 	let base = strconv::base::DEC;
 	match (bufio::scanrune(par.in)?) {
 	case io::EOF =>
-		return syntaxerr;
+		return par.line: syntaxerr;
 	case let rn: rune =>
 		if (rn == 'x') {
 			base = strconv::base::HEX;
@@ -329,7 +357,7 @@ fn scan_charref(par: *parser) (rune | error) = {
 	for (true) {
 		let rn = match (bufio::scanrune(par.in)?) {
 		case io::EOF =>
-			return syntaxerr;
+			return par.line: syntaxerr;
 		case let rn: rune =>
 			yield rn;
 		};
@@ -338,17 +366,17 @@ fn scan_charref(par: *parser) (rune | error) = {
 		} else if (rn == ';') {
 			break;
 		} else {
-			return syntaxerr;
+			return par.line: syntaxerr;
 		};
 	};
 	if (len(strio::string(&par.entbuf)) == 0) {
-		return syntaxerr;
+		return par.line: syntaxerr;
 	};
 	match (strconv::stou32b(strio::string(&par.entbuf), base)) {
 	case let u: u32 =>
 		return u: rune;
 	case (strconv::invalid | strconv::overflow) =>
-		return syntaxerr;
+		return par.line: syntaxerr;
 	};
 };
 
@@ -369,7 +397,7 @@ fn scan_namedent(par: *parser) (rune | error) = {
 	};
 	// XXX: Deliberate ommission: this only supports the pre-defined
 	// entities as defined by XML 1.0 (Fifth Edition) section 4.6.
-	return syntaxerr;
+	return par.line: syntaxerr;
 };
 
 fn scan_name(par: *parser, buf: *strio::dynamic_stream) (str | error) = {
@@ -377,18 +405,18 @@ fn scan_name(par: *parser, buf: *strio::dynamic_stream) (str | error) = {
 
 	const rn = match (bufio::scanrune(par.in)?) {
 	case io::EOF =>
-		return syntaxerr;
+		return par.line: syntaxerr;
 	case let rn: rune =>
 		yield rn;
 	};
 	if (!isnamestart(rn)) {
-		return syntaxerr;
+		return par.line: syntaxerr;
 	};
 	strio::appendrune(buf, rn)!;
 
 	for (true) match (bufio::scanrune(par.in)?) {
 	case io::EOF =>
-		return syntaxerr;
+		return par.line: syntaxerr;
 	case let rn: rune =>
 		if (isname(rn)) {
 			strio::appendrune(buf, rn)!;
@@ -436,7 +464,7 @@ fn prolog(par: *parser) (void | error) = {
 	if (encoding) {
 		let attr = scan_attr(par)? as attribute;
 		if (attr.0 != "encoding") {
-			return syntaxerr;
+			return par.line: syntaxerr;
 		};
 		// XXX: Deliberate omission: all values other than utf-8
 		match (ascii::strcasecmp(attr.1, "utf-8")) {
@@ -460,15 +488,15 @@ fn prolog(par: *parser) (void | error) = {
 	if (standalone) {
 		let attr = scan_attr(par)? as attribute;
 		if (attr.0 != "standalone") {
-			return syntaxerr;
+			return par.line: syntaxerr;
 		};
 		// XXX: Deliberate omission: non-standalone documents
 		match (ascii::strcasecmp(attr.1, "yes")) {
 		case void =>
-			return syntaxerr;
+			return par.line: syntaxerr;
 		case let n: int =>
 			if (n != 0) {
-				return syntaxerr;
+				return par.line: syntaxerr;
 			};
 		};
 	};
@@ -490,10 +518,10 @@ fn quote(par: *parser) (rune | error) = {
 		case '"', '\'' =>
 			return rn;
 		case =>
-			return syntaxerr;
+			return par.line: syntaxerr;
 		};
 	case =>
-		return syntaxerr;
+		return par.line: syntaxerr;
 	};
 };
 
@@ -503,12 +531,15 @@ fn want(par: *parser, tok: (rune | str | whitespace)...) (bool | error) = {
 	case let x: rune =>
 		let have = match (bufio::scanrune(par.in)?) {
 		case io::EOF =>
-			return syntaxerr;
+			return par.line: syntaxerr;
 		case let rn: rune =>
 			yield rn;
 		};
 		if (have != x) {
-			return syntaxerr;
+			return par.line: syntaxerr;
+		};
+		if (x == '\n') {
+			par.line += 1;
 		};
 	case let x: str =>
 		let iter = strings::iter(x);
@@ -528,9 +559,12 @@ fn want(par: *parser, tok: (rune | str | whitespace)...) (bool | error) = {
 				bufio::unreadrune(par.in, rn);
 				break;
 			};
+			if (rn == '\n') {
+				par.line += 1;
+			};
 		};
 		if (ws && n < 1) {
-			return syntaxerr;
+			return par.line: syntaxerr;
 		};
 		hadws = n >= 1;
 	};

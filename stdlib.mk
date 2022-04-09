@@ -1035,7 +1035,7 @@ stdlib_format_xml_any_srcs= \
 	$(STDLIB)/format/xml/parser.ha \
 	$(STDLIB)/format/xml/chars.ha
 
-$(HARECACHE)/format/xml/format_xml-any.ssa: $(stdlib_format_xml_any_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
+$(HARECACHE)/format/xml/format_xml-any.ssa: $(stdlib_format_xml_any_srcs) $(stdlib_rt) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/format/xml
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::xml \
@@ -2954,7 +2954,7 @@ testlib_format_xml_any_srcs= \
 	$(STDLIB)/format/xml/chars.ha \
 	$(STDLIB)/format/xml/+test.ha
 
-$(TESTCACHE)/format/xml/format_xml-any.ssa: $(testlib_format_xml_any_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+$(TESTCACHE)/format/xml/format_xml-any.ssa: $(testlib_format_xml_any_srcs) $(testlib_rt) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_os_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/format/xml
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::xml \
