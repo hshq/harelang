@@ -107,7 +107,11 @@ fn xmltest(input: str, expected: []token, err: bool) void = {
 			assert(at.0 == ex.0 && at.1 == ex.1);
 		case let tx: text =>
 			let ex = expected[i] as text;
-			assert(tx == ex);
+			if (tx != ex) {
+				fmt::errorfln("=== wanted\n{}", ex)!;
+				fmt::errorfln("=== got\n{}", tx)!;
+				abort();
+			};
 		case let el: elementend =>
 			let ex = expected[i] as elementend;
 			assert(el == ex);
