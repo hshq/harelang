@@ -556,7 +556,7 @@ fn struct_constant(
 	z += fmt::fprint(out, " {")?;
 	indent += 1;
 	for (let i = 0z; i < len(sc.fields); i += 1) {
-		newline(out, indent)?;
+		z += newline(out, indent)?;
 		match (sc.fields[i]) {
 		case let sv: ast::struct_value =>
 			match (sv._type) {
@@ -574,12 +574,12 @@ fn struct_constant(
 		z += fmt::fprint(out, ",")?;
 	};
 	if (sc.autofill) {
-		newline(out, indent)?;
-		fmt::fprint(out, "...")?;
+		z += newline(out, indent)?;
+		z += fmt::fprint(out, "...")?;
 	};
 	indent -= 1;
-	newline(out, indent)?;
-	fmt::fprint(out, "}")?;
+	z += newline(out, indent)?;
+	z += fmt::fprint(out, "}")?;
 	return z;
 };
 
