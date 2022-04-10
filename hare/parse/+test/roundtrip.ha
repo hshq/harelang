@@ -29,8 +29,9 @@ fn roundtrip(src: str) void = {
 	defer ast::subunit_free(u);
 	let out = strio::dynamic();
 	defer io::close(&out);
-	unparse::subunit(&out, u) as size;
+	let z = unparse::subunit(&out, u) as size;
 	let unsrc = strio::string(&out);
+	assert(z == len(unsrc));
 	if (unsrc != src) {
 		fmt::errorfln("=== wanted\n{}", src)!;
 		fmt::errorfln("=== got\n{}", unsrc)!;
