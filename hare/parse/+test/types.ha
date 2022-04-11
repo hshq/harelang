@@ -59,3 +59,20 @@ export type baz = enum rune {
 };
 ");
 };
+
+@test fn tuple() void = {
+	roundtrip("export type foo = (int, str);
+
+export type bar = (a, b::c, d);
+");
+};
+
+@test fn tagged_union() void = {
+	roundtrip("export type foo = (size | void);
+
+export type bar = (a | b::c | ...d);
+
+export type baz = (bat | foo::bar::baz | long_type_name | yet_another_very_long_type_name |
+	this_spans_multiple_lines | for_readability);
+");
+};
