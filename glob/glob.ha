@@ -8,23 +8,25 @@ use sort;
 use strings;
 use strio;
 
-// Not all flags are currently supported.
-export type flag = enum uint {
+// MARK is currently not supported.
+export type flags = enum uint {
 	NONE = 0,
 	MARK = 1 << 1,
 	// If the pattern does not match any pathname, the pattern string is
 	// returned.
 	NOCHECK = 1 << 2,
+	// Backslash escaping is disabled. A backslash character is treated as 
+	// an ordinary character.
 	NOESCAPE = 1 << 3,
-	// Ordinary, [[next]] sorts the matching pathnames. When this flag is
-	// used, the order of pathnames returned is unspecified.
+	// Pathname sorting is disabled. The order of pathnames returned is
+	// unspecified.
 	NOSORT = 1 << 4,
 };
 
 export type generator = struct {
 	pats: strstack,
 	matc: size,
-	flgs: uint,
+	flgs: flags,
 	tmps: strio::dynamic_stream,
 };
 
@@ -43,10 +45,10 @@ export type failure = struct {
 
 // Returns a generator of pathnames matching a pattern. The result must be
 // freed using [[globfree]].
-export fn glob(pattern: str, flags: flag...) generator = {
+export fn glob(pattern: str, flags: flags...) generator = {
 	let ss = strstack_init();
 	strstack_push(&ss, pattern);
-	let bs = 0u;
+	let bs = flags::NONE;
 	for (let i = 0z; i < len(flags); i += 1) {
 		bs |= flags[i];
 	};
@@ -73,7 +75,7 @@ export fn next(gen: *generator) (str | void | failure) = {
 		&& len(strio::string(&gen.tmps)) == 0;
 	return match (next_match(os::cwd, gen)) {
 	case void =>
-		if (init && gen.flgs & flag::NOCHECK != 0) {
+		if (init && gen.flgs & flags::NOCHECK != 0) {
 			return strio::string(&gen.tmps);
 		};
 		return void;
@@ -112,6 +114,9 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 	};
 
 	let flgs = fnmatch::flags::PERIOD;
+	if (gen.flgs & flags::NOESCAPE != 0) {
+		flgs |= fnmatch::flags::NOESCAPE;
+	};
 	let it = match(fs::iter(fs, if (len(dir) > 0) dir else ".")) {
 	case let i: *fs::iterator =>
 		yield i;
@@ -135,7 +140,7 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 		};
 		strstack_push(&gen.pats, dir, de.name, "/", rem);
 	};
-	if (gen.flgs & flag::NOSORT == 0) {
+	if (gen.flgs & flags::NOSORT == 0) {
 		strstack_sort(&gen.pats, l);
 	};
 
@@ -144,6 +149,9 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 
 fn split_pattern(p: str) (size, size) = {
 	let pos = (strings::iter(p), 0z);
+
+	// TODO: Handle '\' in brackets correctly.
+	// TODO: Handle escaped '/' correctly.
 
 	// p[0..dirend] is path components which contain no special
 	// characters.

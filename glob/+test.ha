@@ -1,26 +1,37 @@
 use fnmatch;
 
 @test fn glob() void = {
-	const cases: [_]str = [
-		"/u??/*in/a*",
-		"/?sr/[sb]in/*[[:digit:]]*",
-		"/*.?a",
-		"./*.[[:alpha:]]a",
-		"[[:punct:]]*",
-		"/",
-		"//",
-		".",
-		"..",
+	const cases: [_](str, flags) = [
+		("/u??/*in/a*", flags::NONE),
+		("/u*r/l?[bc]*/[bg]*", flags::NOSORT),
+		("/?sr/[sb]in/*[[:digit:]]*", flags::NONE),
+		("/h??\\e/*/.*", flags::NOSORT),
+		("/\\h??e/*/.*", flags::NOSORT | flags::NOESCAPE),
+		("/r*/*", flags::NOSORT),
+		("/*.?a", flags::NOCHECK),
+		("./*.[[:alpha:]]a", flags::NONE),
+		("./\\a[bd]c", flags::NOESCAPE),
+		("./\\a[be]c", flags::NONE),
+		("[[:punct:]]*", flags::NONE),
+		("/", flags::NONE),
+		("//", flags::NONE),
+		(".", flags::NONE),
+		("..", flags::NONE),
 	];
-	const flags = [fnmatch::flags::PATHNAME];
 	for (let i = 0z; i < len(cases); i += 1) {
-		let gen = glob(cases[i]);
+		let gen = glob(cases[i].0, cases[i].1);
 		defer globfree(&gen);
 		for (true) match (next(&gen)) {
 		case void =>
 			break;
+		case failure =>
+			continue;
 		case let s: str =>
-			assert(fnmatch::fnmatch(cases[i], s, flags...));
+			let bs = fnmatch::flags::PATHNAME;
+			if (cases[i].1 & flags::NOESCAPE != 0) {
+				bs |= fnmatch::flags::NOESCAPE;
+			};
+			assert(fnmatch::fnmatch(cases[i].0, s, bs));
 		};
 	};
 };
