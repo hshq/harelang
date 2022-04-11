@@ -34,7 +34,7 @@ export type strstack = struct {
 
 // Returns a generator of pathnames matching a pattern. The result must be
 // freed using [[globfree]].
-export fn glob(pattern: const str, flags: flag...) generator = {
+export fn glob(pattern: str, flags: flag...) generator = {
 	let ss = strstack_init();
 	strstack_push(&ss, pattern);
 	let bs = 0u;
@@ -57,22 +57,22 @@ export fn globfree(gen: *generator) void = {
 
 // Returns a generated pathname. The returned string is valid until [[next]]
 // is called again.
-export fn next(gen: *generator) (const str | void) = {
+export fn next(gen: *generator) (str | void) = {
 	match (next_match(os::cwd, gen)) {
 	case fs::error =>
 		return next(gen); // TODO: Handle errors.
 	case void =>
 		return;
-	case let m: const str =>
+	case let m: str =>
 		return m;
 	};
 };
 
-fn next_match(fs: *fs::fs, gen: *generator) (const str | void | fs::error) = {
+fn next_match(fs: *fs::fs, gen: *generator) (str | void | fs::error) = {
 	const p = match (strstack_pop(&gen.pats)) {
 	case void =>
 		return;
-	case let s: const str =>
+	case let s: str =>
 		if (gen.matc > 0) {
 			gen.matc -= 1;
 			return s;
@@ -118,7 +118,7 @@ fn next_match(fs: *fs::fs, gen: *generator) (const str | void | fs::error) = {
 	return next_match(fs, gen);
 };
 
-fn split_pattern(p: const str) (size, size) = {
+fn split_pattern(p: str) (size, size) = {
 	let pos = (strings::iter(p), 0z);
 
 	// p[0..dirend] is path components which have no special characters.
@@ -134,7 +134,9 @@ fn split_pattern(p: const str) (size, size) = {
 		case '[' =>
 			brk = true;
 		case ']' =>
-			if (brk) break;
+			if (brk) {
+				break;
+			};
 		case '/' =>
 			dirend = pos.1;
 		case => void;
@@ -173,7 +175,7 @@ fn strstack_free(ss: *strstack) void = {
 
 fn strstack_size(ss: *strstack) size = ss.bufc;
 
-fn strstack_push(ss: *strstack, strs: const str...) void = {
+fn strstack_push(ss: *strstack, strs: str...) void = {
 	if (ss.bufc == len(ss.bufv)) {
 		append(ss.bufv, strio::dynamic());
 	};
@@ -182,7 +184,7 @@ fn strstack_push(ss: *strstack, strs: const str...) void = {
 	ss.bufc += 1;
 };
 
-fn strstack_pop(ss: *strstack) (const str | void) = {
+fn strstack_pop(ss: *strstack) (str | void) = {
 	if (ss.bufc == 0) {
 		return;
 	};

@@ -19,7 +19,7 @@ use fnmatch;
 		for (true) match (next(&gen)) {
 		case void =>
 			break;
-		case let s: const str =>
+		case let s: str =>
 			assert(fnmatch::fnmatch(cases[i], s, flags...));
 		};
 	};
