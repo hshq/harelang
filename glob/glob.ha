@@ -36,7 +36,7 @@ export type strstack = struct {
 };
 
 // Information about an unsuccessful search.
-export type failure = struct {
+export type failure = !struct {
 	// The path that cannot be opened or read.
 	path: str,
 	// The actual filesystem error.
