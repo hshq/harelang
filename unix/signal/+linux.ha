@@ -140,32 +140,6 @@ export type flag = enum int {
 
 export type signal = int;
 
-// Value populated by calls to read(2) for the signalfd.
-export type sigfdinfo = struct {
-	signo: u32,
-	errno: i32,
-	code: i32,
-	pid: u32,
-	uid: u32,
-	fd: int,
-	tid: u32,
-	band: u32,
-	overrun: u32,
-	trapno: u32,
-	status: i32,
-	int_: i32,
-	ptr: u64,
-	utime: u64,
-	stime: u64,
-	addr: u64,
-	addr_lsb: u16,
-	pad2: u16,
-	ssi_syscall: i32,
-	call_addr: u64,
-	arch: u32,
-	pad: [128 - 14 * 4 - 5 * 8 - 2 * 2]u8,
-};
-
 // Creates or updates a signal file. Pass -1 to create a new signalfd, or an
 // existing signalfd to update it.
 export fn signalfd(
@@ -195,14 +169,19 @@ export fn signalfd(
 };
 
 // Reads pending signal info from a signalfd.
-export fn readsignal(fd: io::file) (sigfdinfo | errors::error) = {
-	let si = sigfdinfo { ... };
-	match (rt::read(fd, &si, size(sigfdinfo))) {
+export fn read(fd: io::file) (siginfo | errors::error) = {
+	let si = rt::signalfd_siginfo { ... };
+	match (rt::read(fd, &si, size(rt::signalfd_siginfo))) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let z: size =>
-		assert(z == size(sigfdinfo));
-		return si;
+		assert(z == size(rt::signalfd_siginfo));
+	};
+	return siginfo {
+		signo = si.ssi_signo: signal,
+		errno = si.ssi_errno: rt::errno,
+		code = si.ssi_code,
+		...
 	};
 };
 
