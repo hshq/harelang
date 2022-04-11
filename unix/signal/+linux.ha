@@ -183,7 +183,7 @@ export fn update(
 		};
 	};
 
-	match (rt::signalfd(fd, &sa_mask, sa_flags)) {
+	match (rt::signalfd(fd, &sa_mask, sa_flags | rt::SFD_CLOEXEC)) {
 	case int =>
 		return;
 	case let err: rt::errno =>
