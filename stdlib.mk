@@ -452,10 +452,6 @@ stdlib_deps_linux+=$(stdlib_linux_linux)
 stdlib_linux_keyctl_linux=$(HARECACHE)/linux/keyctl/linux_keyctl-linux.o
 stdlib_deps_linux+=$(stdlib_linux_keyctl_linux)
 
-# gen_lib linux::signalfd (linux)
-stdlib_linux_signalfd_linux=$(HARECACHE)/linux/signalfd/linux_signalfd-linux.o
-stdlib_deps_linux+=$(stdlib_linux_signalfd_linux)
-
 # gen_lib linux::io_uring (linux)
 stdlib_linux_io_uring_linux=$(HARECACHE)/linux/io_uring/linux_io_uring-linux.o
 stdlib_deps_linux+=$(stdlib_linux_io_uring_linux)
@@ -1331,16 +1327,6 @@ $(HARECACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(stdlib_linux_keyctl_linux_sr
 	@mkdir -p $(HARECACHE)/linux/keyctl
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::keyctl \
 		-t$(HARECACHE)/linux/keyctl/linux_keyctl.td $(stdlib_linux_keyctl_linux_srcs)
-
-# linux::signalfd (+linux)
-stdlib_linux_signalfd_linux_srcs= \
-	$(STDLIB)/linux/signalfd/signalfd.ha
-
-$(HARECACHE)/linux/signalfd/linux_signalfd-linux.ssa: $(stdlib_linux_signalfd_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/linux/signalfd
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::signalfd \
-		-t$(HARECACHE)/linux/signalfd/linux_signalfd.td $(stdlib_linux_signalfd_linux_srcs)
 
 # linux::io_uring (+linux)
 stdlib_linux_io_uring_linux_srcs= \
@@ -2374,10 +2360,6 @@ testlib_deps_linux+=$(testlib_linux_linux)
 testlib_linux_keyctl_linux=$(TESTCACHE)/linux/keyctl/linux_keyctl-linux.o
 testlib_deps_linux+=$(testlib_linux_keyctl_linux)
 
-# gen_lib linux::signalfd (linux)
-testlib_linux_signalfd_linux=$(TESTCACHE)/linux/signalfd/linux_signalfd-linux.o
-testlib_deps_linux+=$(testlib_linux_signalfd_linux)
-
 # gen_lib linux::io_uring (linux)
 testlib_linux_io_uring_linux=$(TESTCACHE)/linux/io_uring/linux_io_uring-linux.o
 testlib_deps_linux+=$(testlib_linux_io_uring_linux)
@@ -3289,16 +3271,6 @@ $(TESTCACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(testlib_linux_keyctl_linux_s
 	@mkdir -p $(TESTCACHE)/linux/keyctl
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::keyctl \
 		-t$(TESTCACHE)/linux/keyctl/linux_keyctl.td $(testlib_linux_keyctl_linux_srcs)
-
-# linux::signalfd (+linux)
-testlib_linux_signalfd_linux_srcs= \
-	$(STDLIB)/linux/signalfd/signalfd.ha
-
-$(TESTCACHE)/linux/signalfd/linux_signalfd-linux.ssa: $(testlib_linux_signalfd_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/linux/signalfd
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::signalfd \
-		-t$(TESTCACHE)/linux/signalfd/linux_signalfd.td $(testlib_linux_signalfd_linux_srcs)
 
 # linux::io_uring (+linux)
 testlib_linux_io_uring_linux_srcs= \

@@ -797,12 +797,6 @@ linux_keyctl() {
 	gen_ssa -plinux linux::keyctl rt errors strings bytes
 }
 
-linux_signalfd() {
-	gen_srcs -plinux linux::signalfd \
-		signalfd.ha
-	gen_ssa -plinux linux::signalfd errors
-}
-
 linux_io_uring() {
 	gen_srcs -plinux linux::io_uring \
 		cqe.ha \
@@ -1312,7 +1306,6 @@ io			linux freebsd
 iobus::io_uring	linux
 linux			linux
 linux::keyctl		linux
-linux::signalfd		linux
 linux::io_uring		linux
 linux::vdso		linux
 math
