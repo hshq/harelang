@@ -11,13 +11,12 @@ use strio;
 // Not all flags are currently supported.
 export type flag = enum uint {
 	NONE = 0,
-	ERR = 1u << 1,
-	MARK = 1u << 2,
-	NOCHECK = 1u << 3,
-	NOESCAPE = 1u << 4,
+	MARK = 1u << 1,
+	NOCHECK = 1u << 2,
+	NOESCAPE = 1u << 3,
 	// Ordinary, [[next]] sorts the matching pathnames. When this flag is
 	// used, the order of pathnames returned is unspecified.
-	NOSORT = 1u << 5,
+	NOSORT = 1u << 4,
 };
 
 export type generator = struct {
@@ -30,6 +29,14 @@ export type generator = struct {
 export type strstack = struct {
 	bufv: []strio::dynamic_stream,
 	bufc: size,
+};
+
+// Information about an unsuccessful search.
+export type failure = struct {
+	// The path that cannot be opened or read.
+	path: str,
+	// The actual filesystem error.
+	error: fs::error,
 };
 
 // Returns a generator of pathnames matching a pattern. The result must be
@@ -56,19 +63,13 @@ export fn globfree(gen: *generator) void = {
 };
 
 // Returns a generated pathname. The returned string is valid until [[next]]
-// is called again.
-export fn next(gen: *generator) (str | void) = {
-	match (next_match(os::cwd, gen)) {
-	case fs::error =>
-		return next(gen); // TODO: Handle errors.
-	case void =>
-		return;
-	case let m: str =>
-		return m;
-	};
-};
+// is called again. If, during the search, a directory is encountered that
+// cannot be opened or read, a [[failure]] object is returned instead.
+// [[next]] can be repeatedly called until void is returned.
+export fn next(gen: *generator) (str | void | failure) =
+	next_match(os::cwd, gen);
 
-fn next_match(fs: *fs::fs, gen: *generator) (str | void | fs::error) = {
+fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 	const p = match (strstack_pop(&gen.pats)) {
 	case void =>
 		return;
@@ -96,7 +97,15 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | fs::error) = {
 	};
 
 	let flgs = fnmatch::flags::PERIOD;
-	let it = fs::iter(fs, if (len(dir) > 0) dir else ".")?;
+	let it = match(fs::iter(fs, if (len(dir) > 0) dir else ".")) {
+	case let i: *fs::iterator =>
+		yield i;
+	case let e: fs::error =>
+		return failure {
+			path = dir,
+			error = e,
+		};
+	};
 	for (true) match (fs::next(it)) {
 	case void =>
 		break;
@@ -121,7 +130,8 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | fs::error) = {
 fn split_pattern(p: str) (size, size) = {
 	let pos = (strings::iter(p), 0z);
 
-	// p[0..dirend] is path components which have no special characters.
+	// p[0..dirend] is path components which contain no special
+	// characters.
 	let dirend = 0z;
 	for (let brk = false; true) match (strings::next(&pos.0)) {
 	case void =>
@@ -143,8 +153,8 @@ fn split_pattern(p: str) (size, size) = {
 		};
 	};
 	
-	// p[dirend..patend] is the first path component which has special
-	// characters.
+	// p[dirend..patend] is the first path component which contains
+	// special characters.
 	let patend = len(p);
 	for (true) match (strings::next(&pos.0)) {
 	case void =>
