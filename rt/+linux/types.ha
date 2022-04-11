@@ -400,7 +400,7 @@ export def SIG_BLOCK: int = 0;
 export def SIG_UNBLOCK: int = 1;
 export def SIG_SETMASK: int = 2;
 
-def SI_MAX_SIZE: size = 128 / size(u8);
+def SI_MAX_SIZE: size = 128;
 
 export type sigval = union {
 	sival_t: int,

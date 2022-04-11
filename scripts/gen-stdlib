@@ -1225,6 +1225,13 @@ unix_resolvconf() {
 	gen_ssa unix::resolvconf os io bufio net::ip strings
 }
 
+unix_signal() {
+	gen_srcs -plinux unix::signal \
+		types.ha \
+		+linux.ha
+	gen_ssa -plinux unix::signal
+}
+
 unix_tty() {
 	gen_srcs -plinux unix::tty \
         types.ha \
@@ -1301,7 +1308,7 @@ hash::crc16
 hash::crc32
 hash::crc64
 hash::fnv
-io				linux freebsd
+io			linux freebsd
 iobus::io_uring	linux
 linux			linux
 linux::keyctl		linux
@@ -1310,7 +1317,7 @@ linux::io_uring		linux
 linux::vdso		linux
 math
 math::random
-net				linux freebsd
+net			linux freebsd
 net::dial
 net::dns
 net::ip			linux freebsd
@@ -1318,7 +1325,7 @@ net::tcp		linux freebsd
 net::udp		linux freebsd
 net::unix		linux freebsd
 net::uri
-os				linux freebsd
+os			linux freebsd
 os::exec		linux freebsd
 path
 regex
@@ -1336,6 +1343,7 @@ unix::hosts
 unix::passwd
 unix::poll		linux freebsd
 unix::resolvconf
+unix::signal		linux
 unix::tty		linux freebsd
 uuid"
 stdlib() {

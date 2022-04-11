@@ -654,6 +654,10 @@ stdlib_deps_any+=$(stdlib_unix_resolvconf_any)
 stdlib_unix_resolvconf_linux=$(stdlib_unix_resolvconf_any)
 stdlib_unix_resolvconf_freebsd=$(stdlib_unix_resolvconf_any)
 
+# gen_lib unix::signal (linux)
+stdlib_unix_signal_linux=$(HARECACHE)/unix/signal/unix_signal-linux.o
+stdlib_deps_linux+=$(stdlib_unix_signal_linux)
+
 # gen_lib unix::tty (linux)
 stdlib_unix_tty_linux=$(HARECACHE)/unix/tty/unix_tty-linux.o
 stdlib_deps_linux+=$(stdlib_unix_tty_linux)
@@ -1863,6 +1867,17 @@ $(HARECACHE)/unix/resolvconf/unix_resolvconf-any.ssa: $(stdlib_unix_resolvconf_a
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::resolvconf \
 		-t$(HARECACHE)/unix/resolvconf/unix_resolvconf.td $(stdlib_unix_resolvconf_any_srcs)
 
+# unix::signal (+linux)
+stdlib_unix_signal_linux_srcs= \
+	$(STDLIB)/unix/signal/types.ha \
+	$(STDLIB)/unix/signal/+linux.ha
+
+$(HARECACHE)/unix/signal/unix_signal-linux.ssa: $(stdlib_unix_signal_linux_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/signal
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::signal \
+		-t$(HARECACHE)/unix/signal/unix_signal.td $(stdlib_unix_signal_linux_srcs)
+
 # unix::tty (+linux)
 stdlib_unix_tty_linux_srcs= \
 	$(STDLIB)/unix/tty/types.ha \
@@ -2560,6 +2575,10 @@ testlib_unix_resolvconf_any=$(TESTCACHE)/unix/resolvconf/unix_resolvconf-any.o
 testlib_deps_any+=$(testlib_unix_resolvconf_any)
 testlib_unix_resolvconf_linux=$(testlib_unix_resolvconf_any)
 testlib_unix_resolvconf_freebsd=$(testlib_unix_resolvconf_any)
+
+# gen_lib unix::signal (linux)
+testlib_unix_signal_linux=$(TESTCACHE)/unix/signal/unix_signal-linux.o
+testlib_deps_linux+=$(testlib_unix_signal_linux)
 
 # gen_lib unix::tty (linux)
 testlib_unix_tty_linux=$(TESTCACHE)/unix/tty/unix_tty-linux.o
@@ -3814,6 +3833,17 @@ $(TESTCACHE)/unix/resolvconf/unix_resolvconf-any.ssa: $(testlib_unix_resolvconf_
 	@mkdir -p $(TESTCACHE)/unix/resolvconf
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \
 		-t$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td $(testlib_unix_resolvconf_any_srcs)
+
+# unix::signal (+linux)
+testlib_unix_signal_linux_srcs= \
+	$(STDLIB)/unix/signal/types.ha \
+	$(STDLIB)/unix/signal/+linux.ha
+
+$(TESTCACHE)/unix/signal/unix_signal-linux.ssa: $(testlib_unix_signal_linux_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/signal
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
+		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_linux_srcs)
 
 # unix::tty (+linux)
 testlib_unix_tty_linux_srcs= \
