@@ -15,7 +15,7 @@ export fn handle(
 	handler: *handler,
 	opt: (flag | sigset)...
 ) sigaction = {
-	let sa_mask = newset();
+	let sa_mask = newsigset();
 
 	let sa_flags = 0u64, nmask = 0;
 	for (let i = 0z; i < len(opt); i += 1) {
@@ -62,34 +62,34 @@ export type sigset = rt::sigset;
 
 // Creates a new signal set filled in with the provided signals (or empty if
 // none are provided).
-export fn newset(items: signal...) sigset = {
+export fn newsigset(items: signal...) sigset = {
 	let set = sigset { ... };
 	rt::sigemptyset(&set);
-	set_add(&set, items...);
+	sigset_add(&set, items...);
 	return set;
 };
 
 // Sets a [[sigset]] to empty.
-export fn set_empty(set: *sigset) void = {
+export fn sigset_empty(set: *sigset) void = {
 	rt::sigemptyset(set);
 };
 
 // Adds signals to a [[sigset]].
-export fn set_add(set: *sigset, items: signal...) void = {
+export fn sigset_add(set: *sigset, items: signal...) void = {
 	for (let i = 0z; i < len(items); i += 1) {
 		rt::sigaddset(set, items[i])!;
 	};
 };
 
 // Removes signals from a [[sigset]].
-export fn set_del(set: *sigset, items: signal...) void = {
+export fn sigset_del(set: *sigset, items: signal...) void = {
 	for (let i = 0z; i < len(items); i += 1) {
 		rt::sigdelset(set, items[i])!;
 	};
 };
 
 // Returns true if the given signal is a member of this [[sigset]].
-export fn set_member(set: *sigset, item: signal) bool = {
+export fn sigset_member(set: *sigset, item: signal) bool = {
 	return rt::sigismember(set, item)! == 1;
 };
 
@@ -140,23 +140,10 @@ export type flag = enum int {
 
 export type signal = int;
 
-// Creates a signal file.
-export fn signalfd(opt: (flag | sigset)...) (io::file | errors::error) = {
-	let sa_mask = newset();
-
-	let sa_flags = 0, nmask = 0;
-	for (let i = 0z; i < len(opt); i += 1) {
-		match (opt[i]) {
-		case let flag: flag =>
-			sa_flags |= flag;
-		case let mask: sigset =>
-			assert(nmask == 0, "Multiple signal masks provided to signal::signalfd");
-			nmask += 1;
-			sa_mask = mask;
-		};
-	};
-
-	match (rt::signalfd(-1, &sa_mask, sa_flags)) {
+// Creates a signal file that handles the given set of signals.
+export fn signalfd(signals: signal...) (io::file | errors::error) = {
+	let sa_mask = newsigset(signals...);
+	match (rt::signalfd(-1, &sa_mask, rt::SFD_CLOEXEC)) {
 	case let fd: int =>
 		return fd;
 	case let err: rt::errno =>
@@ -164,26 +151,12 @@ export fn signalfd(opt: (flag | sigset)...) (io::file | errors::error) = {
 	};
 };
 
-// Updates a signalfd with new options.
-export fn update(
-	fd: io::file,
-	opt: (flag | sigset)...
-) (void | errors::error) = {
-	let sa_mask = newset();
+// Updates a signalfd with a new set of signals. The signal set is overwritten,
+// rather than appended to, with the provided set of signals.
+export fn update(fd: io::file, signals: signal...) (void | errors::error) = {
+	let sa_mask = newsigset(signals...);
 
-	let sa_flags = 0, nmask = 0;
-	for (let i = 0z; i < len(opt); i += 1) {
-		match (opt[i]) {
-		case let flag: flag =>
-			sa_flags |= flag;
-		case let mask: sigset =>
-			assert(nmask == 0, "Multiple signal masks provided to signal::update");
-			nmask += 1;
-			sa_mask = mask;
-		};
-	};
-
-	match (rt::signalfd(fd, &sa_mask, sa_flags | rt::SFD_CLOEXEC)) {
+	match (rt::signalfd(fd, &sa_mask, rt::SFD_CLOEXEC)) {
 	case int =>
 		return;
 	case let err: rt::errno =>
