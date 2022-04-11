@@ -188,7 +188,7 @@ export fn read(fd: io::file) (siginfo | errors::error) = {
 // Hangup.
 export def SIGHUP: signal = rt::SIGHUP;
 // Terminal signalerrupt signal.
-export def SIGsignal: signal = rt::SIGINT;
+export def SIGINT: signal = rt::SIGINT;
 // Terminal quit signal.
 export def SIGQUIT: signal = rt::SIGQUIT;
 // Illegal instruction.
