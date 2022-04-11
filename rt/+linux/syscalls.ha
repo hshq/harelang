@@ -510,7 +510,7 @@ export fn signalfd(fd: int, mask: *const sigset, flags: int) (int | errno) = {
 
 export fn sigprocmask(
 	how: int,
-	set: *const sigset,
+	set: nullable *const sigset,
 	old: nullable *sigset
 ) (int | errno) = {
 	return wrap_return(syscall4(SYS_rt_sigprocmask,

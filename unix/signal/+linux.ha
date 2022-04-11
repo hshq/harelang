@@ -56,11 +56,33 @@ export fn restore(signum: signal, action: *sigaction) void = {
 	};
 };
 
-// Sets the process's signal mask, returning the previous mask.
-export fn procmask(how: how, signals: signal...) sigset = {
+// Adds the given list of signals to the process's current signal mask,
+// returning the old signal mask. This is a convenience function around
+// [[setprocmask]].
+export fn block(signals: signal...) sigset = {
 	let new = newsigset(signals...);
+	return setprocmask(how::BLOCK, &new);
+};
+
+// Removes the given list of signals from the process's current signal mask,
+// returning the old signal mask. This is a convenience function around
+// [[setprocmask]].
+export fn unblock(signals: signal...) sigset = {
+	let new = newsigset(signals...);
+	return setprocmask(how::UNBLOCK, &new);
+};
+
+// Sets the process's signal mask, returning the previous mask.
+export fn setprocmask(how: how, mask: *sigset) sigset = {
 	let old = sigset { ... };
-	rt::sigprocmask(how, &new, &old)!;
+	rt::sigprocmask(how, mask, &old)!;
+	return old;
+};
+
+// Gets the current process's signal mask.
+export fn getprocmask() sigset = {
+	let old = sigset { ... };
+	rt::sigprocmask(how::SETMASK, null, &old)!;
 	return old;
 };
 
