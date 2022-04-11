@@ -11,12 +11,14 @@ use strio;
 // Not all flags are currently supported.
 export type flag = enum uint {
 	NONE = 0,
-	MARK = 1u << 1,
-	NOCHECK = 1u << 2,
-	NOESCAPE = 1u << 3,
+	MARK = 1 << 1,
+	// If the pattern does not match any pathname, the pattern string is
+	// returned.
+	NOCHECK = 1 << 2,
+	NOESCAPE = 1 << 3,
 	// Ordinary, [[next]] sorts the matching pathnames. When this flag is
 	// used, the order of pathnames returned is unspecified.
-	NOSORT = 1u << 4,
+	NOSORT = 1 << 4,
 };
 
 export type generator = struct {
@@ -66,8 +68,21 @@ export fn globfree(gen: *generator) void = {
 // is called again. If, during the search, a directory is encountered that
 // cannot be opened or read, a [[failure]] object is returned instead.
 // [[next]] can be repeatedly called until void is returned.
-export fn next(gen: *generator) (str | void | failure) =
-	next_match(os::cwd, gen);
+export fn next(gen: *generator) (str | void | failure) = {
+	const init = strstack_size(&gen.pats) == 1
+		&& len(strio::string(&gen.tmps)) == 0;
+	return match (next_match(os::cwd, gen)) {
+	case void =>
+		if (init && gen.flgs & flag::NOCHECK != 0) {
+			return strio::string(&gen.tmps);
+		};
+		return void;
+	case let f: failure =>
+		return f;
+	case let s: str =>
+		return s;
+	};
+};
 
 fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 	const p = match (strstack_pop(&gen.pats)) {
