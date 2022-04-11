@@ -140,12 +140,8 @@ export type flag = enum int {
 
 export type signal = int;
 
-// Creates or updates a signal file. Pass -1 to create a new signalfd, or an
-// existing signalfd to update it.
-export fn signalfd(
-	fd: io::file,
-	opt: (flag | sigset)...
-) (io::file | errors::error) = {
+// Creates a signal file.
+export fn signalfd(opt: (flag | sigset)...) (io::file | errors::error) = {
 	let sa_mask = newset();
 
 	let sa_flags = 0, nmask = 0;
@@ -154,15 +150,42 @@ export fn signalfd(
 		case let flag: flag =>
 			sa_flags |= flag;
 		case let mask: sigset =>
-			assert(nmask == 0, "Multiple signal masks provided to signal::handle");
+			assert(nmask == 0, "Multiple signal masks provided to signal::signalfd");
+			nmask += 1;
+			sa_mask = mask;
+		};
+	};
+
+	match (rt::signalfd(-1, &sa_mask, sa_flags)) {
+	case let fd: int =>
+		return fd;
+	case let err: rt::errno =>
+		return errors::errno(err);
+	};
+};
+
+// Updates a signalfd with new options.
+export fn update(
+	fd: io::file,
+	opt: (flag | sigset)...
+) (void | errors::error) = {
+	let sa_mask = newset();
+
+	let sa_flags = 0, nmask = 0;
+	for (let i = 0z; i < len(opt); i += 1) {
+		match (opt[i]) {
+		case let flag: flag =>
+			sa_flags |= flag;
+		case let mask: sigset =>
+			assert(nmask == 0, "Multiple signal masks provided to signal::update");
 			nmask += 1;
 			sa_mask = mask;
 		};
 	};
 
 	match (rt::signalfd(fd, &sa_mask, sa_flags)) {
-	case let fd: int =>
-		return fd;
+	case int =>
+		return;
 	case let err: rt::errno =>
 		return errors::errno(err);
 	};
