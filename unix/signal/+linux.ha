@@ -56,6 +56,24 @@ export fn restore(signum: signal, action: *sigaction) void = {
 	};
 };
 
+// Sets the process's signal mask, returning the previous mask.
+export fn procmask(how: how, signals: signal...) sigset = {
+	let new = newsigset(signals...);
+	let old = sigset { ... };
+	rt::sigprocmask(how, &new, &old)!;
+	return old;
+};
+
+// Defines the modes of operation for [[procmask]].
+export type how = enum int {
+	// Adds the given set of signals to the current mask.
+	BLOCK = rt::SIG_BLOCK,
+	// Removes the given set of signals from the current mask.
+	UNBLOCK = rt::SIG_UNBLOCK,
+	// Sets the process mask to the given set.
+	SETMASK = rt::SIG_SETMASK,
+};
+
 export type sigaction = rt::sigact;
 
 export type sigset = rt::sigset;
