@@ -36,6 +36,9 @@ export type refused = !void;
 // Unable to allocate sufficient memory for the requested operation.
 export type nomem = !void;
 
+// An operation was interrupted.
+export type interrupted = !void;
+
 // A tagged union of all error types.
 export type error = !(
 	busy |
@@ -49,5 +52,6 @@ export type error = !(
 	cancelled |
 	refused |
 	nomem |
+	interrupted |
 	opaque
 );
