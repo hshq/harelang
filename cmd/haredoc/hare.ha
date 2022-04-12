@@ -151,37 +151,9 @@ fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 		};
 		n += fmt::fprint(out, "fn ")?;
 		n += unparse::ident(out, f.ident)?;
-		n += prototype_hare(out, 0,
+		n += unparse::prototype(out, 0,
 			f.prototype.repr as ast::func_type)?;
 	};
 	n += fmt::fprint(out, ";")?;
-	return n;
-};
-
-fn prototype_hare(
-	out: io::handle,
-	indent: size,
-	t: ast::func_type,
-) (size | io::error) = {
-	let n = 0z;
-	n += fmt::fprint(out, "(")?;
-	for (let i = 0z; i < len(t.params); i += 1) {
-		let param = t.params[i];
-		n += fmt::fprintf(out, "{}: ",
-			if (len(param.name) == 0) "_" else param.name)?;
-		n += unparse::_type(out, indent, *param._type)?;
-		if (i + 1 == len(t.params)
-				&& t.variadism == ast::variadism::HARE) {
-			n += fmt::fprintf(out, "...")?;
-		};
-		if (i + 1 < len(t.params)) {
-			n += fmt::fprint(out, ", ")?;
-		};
-	};
-	if (t.variadism == ast::variadism::C) {
-		n += fmt::fprint(out, ", ...")?;
-	};
-	n += fmt::fprint(out, ") ")?;
-	n += unparse::_type(out, indent, *t.result)?;
 	return n;
 };

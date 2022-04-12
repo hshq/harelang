@@ -6,6 +6,7 @@ use ascii;
 use bufio;
 use fmt;
 use hare::ast;
+use hare::ast::{variadism};
 use hare::lex;
 use hare::unparse;
 use io;
@@ -182,24 +183,89 @@ fn prototype_tty(
 ) (size | io::error) = {
 	let n = 0z;
 	n += fmt::fprint(out, "(")?;
-	for (let i = 0z; i < len(t.params); i += 1) {
-		let param = t.params[i];
-		n += fmt::fprintf(out, "{}: ",
-			if (len(param.name) == 0) "_" else param.name)?;
-		n += type_tty(out, indent, *param._type)?;
-		if (i + 1 == len(t.params)
-				&& t.variadism == ast::variadism::HARE) {
-			n += fmt::fprintf(out, "...")?;
+
+	let typenames: []str = [];
+	// TODO: https://todo.sr.ht/~sircmpwn/hare/581
+	if (len(t.params) > 0) {
+		typenames = alloc([""...], len(t.params));
+	};
+	defer strings::freeall(typenames);
+	let retname = "";
+	defer free(retname);
+
+	// estimate length of prototype to determine if it should span multiple
+	// lines
+	const linelen = if (len(t.params) == 0) {
+		let strm = strio::dynamic();
+		defer io::close(&strm)!;
+		type_tty(&strm, indent, *t.result)?;
+		retname = strings::dup(strio::string(&strm));
+		yield 0z; // only use one line if there's no parameters
+	} else {
+		let strm = strio::dynamic();
+		defer io::close(&strm)!;
+		let linelen = indent * 8 + 5;
+		linelen += if (len(t.params) != 0) len(t.params) * 3 - 1 else 0;
+		for (let i = 0z; i < len(t.params); i += 1) {
+			const param = t.params[i];
+			linelen += unparse::_type(&strm, indent, *param._type)?;
+			typenames[i] = strings::dup(strio::string(&strm));
+			linelen += if (param.name == "") 1 else len(param.name);
+			strio::reset(&strm);
 		};
-		if (i + 1 < len(t.params)) {
+		switch (t.variadism) {
+		case variadism::NONE => void;
+		case variadism::HARE =>
+			linelen += 3;
+		case variadism::C =>
+			linelen += 5;
+		};
+		linelen += type_tty(&strm, indent, *t.result)?;
+		retname = strings::dup(strio::string(&strm));
+		yield linelen;
+	};
+
+	// use 72 instead of 80 to give a bit of leeway for preceding text
+	if (linelen > 72) {
+		indent += 1;
+		for (let i = 0z; i < len(t.params); i += 1) {
+			const param = t.params[i];
+			n += newline(out, indent)?;
+			n += fmt::fprintf(out, "{}: ",
+				if (param.name == "") "_" else param.name)?;
+			n += fmt::fprint(out, typenames[i])?;
+			if (i + 1 == len(t.params)
+					&& t.variadism == variadism::HARE) {
+				n += fmt::fprint(out, "...")?;
+			} else {
+				n += fmt::fprint(out, ",")?;
+			};
+		};
+		if (t.variadism == variadism::C) {
+			n += newline(out, indent)?;
+			n += fmt::fprint(out, "...")?;
+		};
+		indent -= 1;
+		n += newline(out, indent)?;
+	} else for (let i = 0z; i < len(t.params); i += 1) {
+		const param = t.params[i];
+		n += fmt::fprintf(out, "\x1b[36m" "{}" "\x1b[0m" ": ",
+			if (param.name == "") "_" else param.name)?;
+		n += fmt::fprint(out, typenames[i])?;
+		if (i + 1 == len(t.params)) {
+			switch (t.variadism) {
+			case variadism::NONE => void;
+			case variadism::HARE =>
+				n += fmt::fprint(out, "...")?;
+			case variadism::C =>
+				n += fmt::fprint(out, ", ...")?;
+			};
+		} else {
 			n += fmt::fprint(out, ", ")?;
 		};
 	};
-	if (t.variadism == ast::variadism::C) {
-		n += fmt::fprint(out, ", ...")?;
-	};
-	n += fmt::fprint(out, ") ")?;
-	n += type_tty(out, indent, *t.result)?;
+
+	n += fmt::fprint(out, ")", retname)?;
 	return n;
 };
 
