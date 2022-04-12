@@ -26,6 +26,8 @@ export fn errno(errno: rt::errno) error = {
 		return busy;
 	case rt::EINTR =>
 		return interrupted;
+	case rt::EAGAIN =>
+		return again;
 	case => void;
 	};
 

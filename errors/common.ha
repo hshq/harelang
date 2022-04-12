@@ -39,6 +39,9 @@ export type nomem = !void;
 // An operation was interrupted.
 export type interrupted = !void;
 
+// The user should attempt an operation again.
+export type again = !void;
+
 // A tagged union of all error types.
 export type error = !(
 	busy |
@@ -53,5 +56,6 @@ export type error = !(
 	refused |
 	nomem |
 	interrupted |
+	again |
 	opaque
 );

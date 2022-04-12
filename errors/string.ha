@@ -35,6 +35,10 @@ case refused =>
 	yield "A connection attempt was refused";
 case nomem =>
 	yield "Unable to allocate sufficient memory for the requested operation";
+case interrupted =>
+	yield "Operation interrupted";
+case again =>
+	yield "Try again";
 case let op: opaque =>
 	yield op.strerror(&op.data);
 };
