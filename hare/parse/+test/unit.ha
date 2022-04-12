@@ -127,7 +127,12 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 		"def foo::bar: int = void;\n\n"
 		"@symbol(\".f9$oo\") fn foo(bar: int, baz: int...) void;\n\n"
 		"@test fn foo(_: int, ...) void;\n\n"
-		"export fn main() void = void;\n");
+		"export fn main() void = void;\n\n"
+		"fn long(\n"
+			"\tfirst: *const void,\n"
+			"\tsecond: (void | rune | str),\n"
+			"\tthird: size...\n"
+		") nullable *const void;\n");
 };
 
 @test fn docs() void = {

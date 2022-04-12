@@ -197,13 +197,13 @@ fn prototype_tty(
 	// lines
 	const linelen = if (len(t.params) == 0) {
 		let strm = strio::dynamic();
-		defer io::close(&strm)!;
+		defer io::close(&strm);
 		type_tty(&strm, indent, *t.result)?;
 		retname = strings::dup(strio::string(&strm));
 		yield 0z; // only use one line if there's no parameters
 	} else {
 		let strm = strio::dynamic();
-		defer io::close(&strm)!;
+		defer io::close(&strm);
 		let linelen = indent * 8 + 5;
 		linelen += if (len(t.params) != 0) len(t.params) * 3 - 1 else 0;
 		for (let i = 0z; i < len(t.params); i += 1) {
