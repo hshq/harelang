@@ -1858,7 +1858,7 @@ stdlib_unix_signal_linux_srcs= \
 	$(STDLIB)/unix/signal/types.ha \
 	$(STDLIB)/unix/signal/+linux.ha
 
-$(HARECACHE)/unix/signal/unix_signal-linux.ssa: $(stdlib_unix_signal_linux_srcs) $(stdlib_rt)
+$(HARECACHE)/unix/signal/unix_signal-linux.ssa: $(stdlib_unix_signal_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/signal
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::signal \
@@ -3811,7 +3811,7 @@ testlib_unix_signal_linux_srcs= \
 	$(STDLIB)/unix/signal/types.ha \
 	$(STDLIB)/unix/signal/+linux.ha
 
-$(TESTCACHE)/unix/signal/unix_signal-linux.ssa: $(testlib_unix_signal_linux_srcs) $(testlib_rt)
+$(TESTCACHE)/unix/signal/unix_signal-linux.ssa: $(testlib_unix_signal_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/signal
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \

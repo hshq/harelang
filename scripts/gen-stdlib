@@ -1223,7 +1223,7 @@ unix_signal() {
 	gen_srcs -plinux unix::signal \
 		types.ha \
 		+linux.ha
-	gen_ssa -plinux unix::signal
+	gen_ssa -plinux unix::signal io errors
 }
 
 unix_tty() {
