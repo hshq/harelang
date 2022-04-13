@@ -50,14 +50,14 @@ export fn eq(a: datetime, b: datetime) bool = {
 };
 
 // Returns true if the first date is after the second date.
-export fn is_after(a: datetime, b: datetime) bool = {
+export fn after(a: datetime, b: datetime) bool = {
 	return !eq(a, b) &&
 		(a.date > b.date || a.date == b.date && a.time > b.time);
 };
 
 // Returns true if the first date is before the second date.
-export fn is_before(a: datetime, b: datetime) bool = {
-	return !eq(a, b) && !is_after(a, b);
+export fn before(a: datetime, b: datetime) bool = {
+	return !eq(a, b) && !after(a, b);
 };
 
 // Calculates the difference between two datetimes.
@@ -66,7 +66,7 @@ export fn diff(a: datetime, b: datetime) period = {
 	if (eq(a, b)) {
 		return res;
 	};
-	if (is_after(b, a)) {
+	if (after(b, a)) {
 		const tmp = a;
 		a = b;
 		b = tmp;
@@ -436,7 +436,7 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 	};
 };
 
-@test fn is_after() void = {
+@test fn after() void = {
 	const dt = new(chrono::UTC, 0, 2022, 02, 04, 03, 14, 07, 0)!;
 	const cases = [
 		((-768, 01, 01, 03, 14, 07, 0), false),
@@ -452,12 +452,12 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 		const expected = cases[i].1;
 		const case_dt = new(chrono::UTC, 0,
 			c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
-		assert(is_after(case_dt, dt) == expected,
-			"incorrect date ordering in is_after()");
+		assert(after(case_dt, dt) == expected,
+			"incorrect date ordering in after()");
 	};
 };
 
-@test fn is_before() void = {
+@test fn before() void = {
 	const dt = new(chrono::UTC, 0, 2022, 02, 04, 03, 14, 07, 0)!;
 	const cases = [
 		((-768, 01, 01, 03, 14, 07, 0), true),
@@ -473,8 +473,8 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 		const expected = cases[i].1;
 		const case_dt = new(chrono::UTC, 0,
 			c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
-		assert(is_before(case_dt, dt) == expected,
-			"incorrect date ordering in is_before()");
+		assert(before(case_dt, dt) == expected,
+			"incorrect date ordering in before()");
 	};
 };
 
