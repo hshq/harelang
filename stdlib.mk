@@ -622,12 +622,6 @@ stdlib_deps_any+=$(stdlib_time_chrono_any)
 stdlib_time_chrono_linux=$(stdlib_time_chrono_any)
 stdlib_time_chrono_freebsd=$(stdlib_time_chrono_any)
 
-# gen_lib time::tzdb (any)
-stdlib_time_tzdb_any=$(HARECACHE)/time/tzdb/time_tzdb-any.o
-stdlib_deps_any+=$(stdlib_time_tzdb_any)
-stdlib_time_tzdb_linux=$(stdlib_time_tzdb_any)
-stdlib_time_tzdb_freebsd=$(stdlib_time_tzdb_any)
-
 # gen_lib types (any)
 stdlib_types_any=$(HARECACHE)/types/types-any.o
 stdlib_deps_any+=$(stdlib_types_any)
@@ -1801,23 +1795,14 @@ stdlib_time_chrono_any_srcs= \
 	$(STDLIB)/time/chrono/chronology.ha \
 	$(STDLIB)/time/chrono/leapsec.ha \
 	$(STDLIB)/time/chrono/timescale.ha \
-	$(STDLIB)/time/chrono/timezone.ha
+	$(STDLIB)/time/chrono/timezone.ha \
+	$(STDLIB)/time/chrono/tzdb.ha
 
-$(HARECACHE)/time/chrono/time_chrono-any.ssa: $(stdlib_time_chrono_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM))
+$(HARECACHE)/time/chrono/time_chrono-any.ssa: $(stdlib_time_chrono_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time/chrono
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::chrono \
 		-t$(HARECACHE)/time/chrono/time_chrono.td $(stdlib_time_chrono_any_srcs)
-
-# time::tzdb (+any)
-stdlib_time_tzdb_any_srcs= \
-	$(STDLIB)/time/tzdb/tzdb.ha
-
-$(HARECACHE)/time/tzdb/time_tzdb-any.ssa: $(stdlib_time_tzdb_any_srcs) $(stdlib_rt) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/time/tzdb
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::tzdb \
-		-t$(HARECACHE)/time/tzdb/time_tzdb.td $(stdlib_time_tzdb_any_srcs)
 
 # types (+any)
 stdlib_types_any_srcs= \
@@ -2587,12 +2572,6 @@ testlib_time_chrono_any=$(TESTCACHE)/time/chrono/time_chrono-any.o
 testlib_deps_any+=$(testlib_time_chrono_any)
 testlib_time_chrono_linux=$(testlib_time_chrono_any)
 testlib_time_chrono_freebsd=$(testlib_time_chrono_any)
-
-# gen_lib time::tzdb (any)
-testlib_time_tzdb_any=$(TESTCACHE)/time/tzdb/time_tzdb-any.o
-testlib_deps_any+=$(testlib_time_tzdb_any)
-testlib_time_tzdb_linux=$(testlib_time_tzdb_any)
-testlib_time_tzdb_freebsd=$(testlib_time_tzdb_any)
 
 # gen_lib types (any)
 testlib_types_any=$(TESTCACHE)/types/types-any.o
@@ -3812,23 +3791,14 @@ testlib_time_chrono_any_srcs= \
 	$(STDLIB)/time/chrono/chronology.ha \
 	$(STDLIB)/time/chrono/leapsec.ha \
 	$(STDLIB)/time/chrono/timescale.ha \
-	$(STDLIB)/time/chrono/timezone.ha
+	$(STDLIB)/time/chrono/timezone.ha \
+	$(STDLIB)/time/chrono/tzdb.ha
 
-$(TESTCACHE)/time/chrono/time_chrono-any.ssa: $(testlib_time_chrono_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM))
+$(TESTCACHE)/time/chrono/time_chrono-any.ssa: $(testlib_time_chrono_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time/chrono
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
 		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_any_srcs)
-
-# time::tzdb (+any)
-testlib_time_tzdb_any_srcs= \
-	$(STDLIB)/time/tzdb/tzdb.ha
-
-$(TESTCACHE)/time/tzdb/time_tzdb-any.ssa: $(testlib_time_tzdb_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/time/tzdb
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::tzdb \
-		-t$(TESTCACHE)/time/tzdb/time_tzdb.td $(testlib_time_tzdb_any_srcs)
 
 # types (+any)
 testlib_types_any_srcs= \

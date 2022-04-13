@@ -22,7 +22,7 @@ use of the [[builder]] interface is recommended.
 [[datetime]]s may be localized to different [[time::chrono::timezone]]s via the
 [[in]] function. The "field" functions will evaluate the correct values
 accordingly. You'll find a standard selection of world timezones in the
-[[time::tzdb]] module.
+[[time::chrono]] module.
 
 To convert datetimes to and from strings, use [[parse]] and [[format]].
 

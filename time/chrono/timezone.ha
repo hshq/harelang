@@ -1,3 +1,7 @@
+use bufio;
+use io;
+use os;
+use path;
 use time;
 
 // The virtual region a moment is interpreted in
@@ -160,18 +164,49 @@ export fn fixedzone(ts: *timescale, daylen: time::duration, z: zone) timezone = 
 // The system's local timezone, set during initialisation
 export const LOCAL: locality = &TZ_local;
 
-// TODO: set time::chrono::LOCAL to a correct timezone
 @init fn set_local_timezone() void = {
-	return;
+	match (os::getenv("TZ")) {
+	case let zone: str =>
+		TZ_local = match (tz(zone)) {
+		case let tz: timezone =>
+			yield tz;
+		case =>
+			return;
+		};
+	case void =>
+		// TODO: Update this path on +linux et al
+		const file = match (os::open("/etc/localtime")) {
+		case let file: io::file =>
+			yield file;
+		case =>
+			return;
+		};
+		defer io::close(file);
+
+		static let buf: [os::BUFSIZ]u8 = [0...];
+		const file = bufio::buffered(file, buf, []);
+		TZ_local = match (parse_tzif(&file, timezone {
+			name = "Local time",
+			timescale = &utc,
+			daylength = EARTH_DAY,
+			...
+		})) {
+		case let tz: timezone =>
+			yield tz;
+		case =>
+			return;
+		};
+	};
 };
-const TZ_local: timezone = timezone {
-	name = "Local Time",
+
+let TZ_local: timezone = timezone {
+	name = "Local time",
 	timescale = &utc,
 	daylength = EARTH_DAY,
 	zones = [
 		zone {
 			zoffset = 0 * time::SECOND,
-			name = "Local Time",
+			name = "Local time",
 			abbr = "",
 			dst = false,
 		},

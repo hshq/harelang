@@ -7,7 +7,6 @@ use os;
 use path;
 use strings;
 use time;
-use time::chrono;
 
 // Some TZif data is invalid
 export type invalidtzif = !void;
@@ -31,21 +30,7 @@ export fn strerror(err: error) const str = {
 // database, or if applicable, from an internal selection of timezones.
 // All tzdb timezones default to the [[chrono::utc]] timescale and
 // [[chrono::EARTH_DAY]] daylength.
-export fn tz(name: str) (chrono::timezone | error) = {
-	// TODO: Tidy up errors.
-	switch (name) {
-	case "Local" =>
-		return *chrono::LOCAL;
-	case "UTC" =>
-		return *chrono::UTC;
-	case "TAI" =>
-		return *chrono::TAI;
-	case "MTC" =>
-		return *chrono::MTC;
-	case =>
-		void;
-	};
-
+export fn tz(name: str) (timezone | fs::error | io::error | invalidtzif) = {
 	// TODO: Move this path to +linux et al
 	const prefix = "/usr/share/zoneinfo/";
 
@@ -57,10 +42,10 @@ export fn tz(name: str) (chrono::timezone | error) = {
 
 	static let buf: [os::BUFSIZ]u8 = [0...];
 	const file = bufio::buffered(file, buf, []);
-	const tz = parse_tzif(&file, chrono::timezone {
+	const tz = parse_tzif(&file, timezone {
 		name = name,
-		timescale = &chrono::utc,
-		daylength = chrono::EARTH_DAY,
+		timescale = &utc,
+		daylength = EARTH_DAY,
 		...
 	})?;
 
@@ -73,8 +58,8 @@ export fn tz(name: str) (chrono::timezone | error) = {
 // See: https://datatracker.ietf.org/doc/html/rfc8536
 fn parse_tzif(
 	h: io::handle,
-	tz: chrono::timezone,
-) (chrono::timezone | invalidtzif | io::error) = {
+	tz: timezone,
+) (timezone | invalidtzif | io::error) = {
 	const buf1: [1]u8 = [0...];
 	const buf4: [4]u8 = [0...];
 	const buf8: [8]u8 = [0...];
@@ -208,10 +193,10 @@ fn parse_tzif(
 	// assemble structured data
 
 	// assemble zones
-	let zones: []chrono::zone = [];
+	let zones: []zone = [];
 	for (let i = 0z; i < typecnt; i += 1) {
 		const idx = i * 6;
-		const zone = chrono::zone { ... };
+		const zone = zone { ... };
 
 		// offset
 		const zoffset = endian::begetu32(zonedata[idx..idx + 4]): i32;
@@ -252,14 +237,14 @@ fn parse_tzif(
 	};
 
 	// assemble transitions
-	let transitions: []chrono::transition = [];
+	let transitions: []transition = [];
 	for (let i = 0z; i < timecnt; i += 1) {
 		const zoneindex = zone_indicies[i]: int;
 		if (zoneindex < 0 || zoneindex > (typecnt: int - 1)) {
 			return invalidtzif;
 		};
 
-		const tx = chrono::transition {
+		const tx = transition {
 			when = time::instant {
 				sec = transition_times[i],
 				...

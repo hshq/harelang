@@ -1182,14 +1182,10 @@ time_chrono() {
 		chronology.ha \
 		leapsec.ha \
 		timescale.ha \
-		timezone.ha
-	gen_ssa time::chrono  bufio fmt io os strconv strings time
-}
-
-time_tzdb() {
-	gen_srcs time::tzdb \
+		timezone.ha \
 		tzdb.ha
-	gen_ssa time::tzdb  endian errors fs io os path strings time time::chrono
+	gen_ssa time::chrono bufio endian errors fs fmt io os strconv \
+		strings time path
 }
 
 types() {
@@ -1360,7 +1356,6 @@ strio
 temp			linux freebsd
 time			linux freebsd
 time::chrono
-time::tzdb
 types
 unix			linux freebsd
 unix::hosts

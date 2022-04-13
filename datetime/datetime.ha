@@ -55,7 +55,7 @@ fn init() datetime = datetime {
 // 	datetime::new(time::chrono::UTC, 0, 2038, 01, 19, 03, 14, 07, 618);
 //
 // 	// 2038 Jan 19th 02:00:00.000000000 +0100 Europe/Amsterdam
-// 	datetime::new(&time::tzdb::tz("Europe/Amsterdam"), 1 * time::HOUR,
+// 	datetime::new(&time::chrono::tz("Europe/Amsterdam"), 1 * time::HOUR,
 // 		2038, 01, 19, 02);
 //
 // 'offs' is the zone offset from the normal timezone (in most cases, UTC). For
