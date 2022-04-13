@@ -61,12 +61,6 @@ export fn to_instant(m: moment) time::instant = {
 // Interpreted with an appropriate timescale like utc, tai, gps.
 export def EARTH_DAY: time::duration = 86400 * time::SECOND;
 
-// The following are temporary constants for demonstration of non-terrestrial
-// timescales as proof of feasibility, and should probably be moved to a
-// third-party martian:: library.
-//
-// TODO: figure out a future-proof naming convention.
-
 // The temporal length of a solar day on Marth, in Martian seconds
 export def MARS_SOL_MARTIAN: time::duration = 86400 * time::SECOND;
 

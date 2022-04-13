@@ -15,22 +15,8 @@ export fn diff(a: instant, b: instant) duration = {
 	return ((b.sec - a.sec) * SECOND) + (b.nsec - a.nsec);
 };
 
-// Returns:
-// -1 if a precedes b;
-//  0 if a and b are simultaneous;
-// +1 if b precedes a;
-//
-// XXX:
-// At first seems superceded by elapsed, but useful when you need values at
-// compile time:
-// 	switch (compare(a, b)) {
-// 	case -1 => ...;
-// 	case  0 => ...;
-// 	case  1 => ...;
-// 	case => abort("Unreachable")
-// 	};
-//
-// Would it be better as an enum, to avoid that abort()?
+// Returns -1 if a precedes b, 0 if a and b are simultaneous, or +1 if b
+// precedes a.
 export fn compare(a: instant, b: instant) i8 = {
 	return if (a.sec < b.sec) -1
 	else if (a.sec > b.sec) 1
