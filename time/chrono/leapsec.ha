@@ -1,5 +1,6 @@
 use bufio;
 use fmt;
+use fs;
 use io;
 use os;
 use strconv;
@@ -32,14 +33,14 @@ export def UTC_LEAPSECS_FILE: str = "/usr/share/zoneinfo/leap-seconds.list";
 // UTC timestamps and their TAI offsets, sourced from leap-seconds.list
 let utc_leapsecs: [](i64, i64) = [];
 
-// TODO: Fix, cannot compile harec2 with this line. This code is currenlty
-// called where it's needed, as a workaround. Remember to prune this function
-// call elsewhere once this @init is fixed.
-//
-//@init fn init_utc_leapsecs() void = init_utc_leapsecs();
-
-fn init_utc_leapsecs() void = {
-	const file = os::open(UTC_LEAPSECS_FILE)!;
+@init fn init_utc_leapsecs() void = {
+	os::init_cwd();
+	const file = match (os::open(UTC_LEAPSECS_FILE)) {
+	case let file: io::file =>
+		yield file;
+	case fs::error =>
+		return;
+	};
 	read_leapsecfile(file, &utc_leapsecs)!;
 };
 

@@ -7,9 +7,16 @@ use path;
 use rt;
 use strings;
 
-@init fn init() void = {
+export fn init_cwd() void = {
+	// XXX: Workaround for https://todo.sr.ht/~sircmpwn/hare/616
 	static let cwd_fs = os_filesystem { ... };
-	cwd = static_dirfdopen(rt::AT_FDCWD, &cwd_fs);
+	if (cwd_fs.dirfd == 0) {
+		cwd = static_dirfdopen(rt::AT_FDCWD, &cwd_fs);
+	};
+};
+
+@init fn init() void = {
+	init_cwd();
 };
 
 // Returns the current working directory. The return value is statically

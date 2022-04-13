@@ -46,8 +46,6 @@ export const utc: timescale = timescale {
 };
 
 fn conv_tai_utc(a: time::instant) (time::instant | time::error) = {
-	init_utc_leapsecs();
-
 	const idx = lookup_leaps(utc_leapsecs, time::unix(a));
 	const ofst = utc_leapsecs[idx].1;
 
@@ -63,8 +61,6 @@ fn conv_tai_utc(a: time::instant) (time::instant | time::error) = {
 };
 
 fn conv_utc_tai(a: time::instant) (time::instant | time::error) = {
-	init_utc_leapsecs();
-
 	const idx = lookup_leaps(utc_leapsecs, time::unix(a));
 	const ofst = utc_leapsecs[idx].1;
 
