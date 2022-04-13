@@ -92,7 +92,7 @@ export fn parse(mok: *mock, layout: str, s: str) (void | invalid) = {
 				// have no hour.
 				return invalid;
 			};
-			const rest = strings::iter_str(&s_iter);
+			const rest = strings::iterstr(&s_iter);
 			if (strings::hasprefix(rest, "AM")) {
 				if (mok.hour as int > 12) {
 					// 13 AM?

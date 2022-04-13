@@ -314,7 +314,7 @@ export type strategy = enum uint {
 };
 
 @test fn clone() void = {
-	let d0 = datetime::new(chrono::UTC, 0, 2038, 01, 19, 03, 14, 07, 0)!;
+	let d0 = new(chrono::UTC, 0, 2038, 01, 19, 03, 14, 07, 0)!;
 	let d1 = clone(d0);
 	assert(d0.year as int == d1.year as int &&
 		d0.month as int == d1.month as int &&

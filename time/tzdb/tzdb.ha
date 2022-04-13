@@ -154,28 +154,28 @@ fn parse_tzif(
 
 	const transition_times: []i64 = [];
 	if (is64) {
-		readitems8(h, &transition_times, timecnt);
+		readitems8(h, &transition_times, timecnt)?;
 	} else {
-		readitems4(h, &transition_times, timecnt);
+		readitems4(h, &transition_times, timecnt)?;
 	};
 
 	const zone_indicies: []u8 = [];
-	readbytes(h, &zone_indicies, timecnt);
+	readbytes(h, &zone_indicies, timecnt)?;
 
 	const zonedata: []u8 = [];
-	readbytes(h, &zonedata, typecnt * 6);
+	readbytes(h, &zonedata, typecnt * 6)?;
 
 	const abbrdata: []u8 = [];
-	readbytes(h, &abbrdata, charcnt);
+	readbytes(h, &abbrdata, charcnt)?;
 
 	const leapdata: []u8 = [];
-	readbytes(h, &leapdata, leapcnt * (timesz: u32 + 4));
+	readbytes(h, &leapdata, leapcnt * (timesz: u32 + 4))?;
 
 	const stdwalldata: []u8 = [];
-	readbytes(h, &stdwalldata, isstdcnt);
+	readbytes(h, &stdwalldata, isstdcnt)?;
 
 	const normlocaldata: []u8 = [];
-	readbytes(h, &normlocaldata, isutcnt);
+	readbytes(h, &normlocaldata, isutcnt)?;
 
 	// read footer
 
@@ -285,7 +285,11 @@ fn read(h: io::handle, buf: []u8) (void | invalidtzif | io::error) = {
 	};
 };
 
-fn readbytes(h: io::handle, items: *[]u8, n: size) void = {
+fn readbytes(
+	h: io::handle,
+	items: *[]u8,
+	n: size,
+) (void | invalidtzif | io::error) = {
 	const buf: [1]u8 = [0];
 	for (let i = 0z; i < n; i += 1) {
 		read(h, buf)?;
@@ -294,7 +298,11 @@ fn readbytes(h: io::handle, items: *[]u8, n: size) void = {
 	};
 };
 
-fn readitems8(h: io::handle, items: *[]i64, n: size) void = {
+fn readitems8(
+	h: io::handle,
+	items: *[]i64,
+	n: size,
+) (void | invalidtzif | io::error) = {
 	const buf: [8]u8 = [0...];
 	for (let i = 0z; i < n; i += 1) {
 		read(h, buf)?;
@@ -303,7 +311,11 @@ fn readitems8(h: io::handle, items: *[]i64, n: size) void = {
 	};
 };
 
-fn readitems4(h: io::handle, items: *[]i64, n: size) void = {
+fn readitems4(
+	h: io::handle,
+	items: *[]i64,
+	n: size,
+) (void | invalidtzif | io::error) = {
 	const buf: [4]u8 = [0...];
 	for (let i = 0z; i < n; i += 1) {
 		read(h, buf)?;

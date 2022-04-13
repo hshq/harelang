@@ -174,7 +174,7 @@ export fn fmtstream(
 };
 
 fn get_default_locale_string_index(iter: *strings::iterator, list: []str) (int | invalid) = {
-	const name = strings::iter_str(iter);
+	const name = strings::iterstr(iter);
 	if (len(name) == 0) {
 		return invalid;
 	};

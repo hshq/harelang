@@ -57,7 +57,7 @@ fn read_leapsecfile(h: io::handle, leapsecs: *[](i64, i64)) (void | io::error) =
 		if (strings::hasprefix(line, '#')) {
 			continue;
 		};
-		const pair = strings::splitN(line, "\t", 3);
+		const pair = strings::splitn(line, "\t", 3);
 		if (len(pair) < 2) {
 			continue;
 		};

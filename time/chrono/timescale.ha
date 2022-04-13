@@ -144,7 +144,7 @@ export const TT: timescale = timescale {
 	from_tai = &conv_tai_tt,
 };
 
-def TT_OFFSET: time::duration = 32.184 * time::SECOND;
+def TT_OFFSET: time::duration = (32.184 * time::SECOND: f64): time::duration;
 
 fn conv_tai_tt(a: time::instant) (time::instant | time::error) = {
 	const tt = time::instant {

@@ -127,7 +127,7 @@ export fn diff(a: datetime, b: datetime) period = {
 export fn diff_in_unit(a: datetime, b: datetime, u: unit) i64 = {
 	return switch (u) {
 	case unit::ERA =>
-		yield math::absi(era(&a) - era(&b));
+		yield math::absi(era(&a) - era(&b)): i64;
 	case unit::YEAR =>
 		yield diff(a, b).years;
 	case unit::MONTH =>
@@ -354,7 +354,7 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 			const ns_in_day = 24 * time::HOUR;
 			let overflowed_days = 0;
 
-			if (math::absi(p.nanoseconds) > ns_in_day) {
+			if (math::absi(p.nanoseconds): i64 > ns_in_day) {
 				overflowed_days +=
 					((p.nanoseconds / ns_in_day): int);
 				p.nanoseconds %= ns_in_day;
