@@ -1,0 +1,8 @@
+The log module provides a simple interface for application logging. The
+[[logger]] interface provides an abstraction that users may implement for custom
+logging logic. We provide a simple logger implementation that prefixes each line
+with the current timestamp; to initialize such a logger see [[new]].
+
+A global logger is also provided for simple applications to use, [[global]],
+which is an instance of the standard logger that writes to [[os::stdout]] by
+default. The user may configure a new global logger via [[setlogger]].
