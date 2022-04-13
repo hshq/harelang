@@ -121,10 +121,9 @@ export fn diff(a: datetime, b: datetime) period = {
 	return res;
 };
 
-// Calculates the difference between two datetimes using the given unit. An
-// integer is returned, with the fractional part of the difference being
-// truncated.
-export fn diff_in_unit(a: datetime, b: datetime, u: unit) i64 = {
+// Calculates the difference between two datetimes using the given unit,
+// truncating towards zero.
+export fn unitdiff(a: datetime, b: datetime, u: unit) i64 = {
 	return switch (u) {
 	case unit::ERA =>
 		yield math::absi(era(&a) - era(&b)): i64;
@@ -134,21 +133,21 @@ export fn diff_in_unit(a: datetime, b: datetime, u: unit) i64 = {
 		const full_diff = diff(a, b);
 		yield full_diff.years * 12 + full_diff.months;
 	case unit::WEEK =>
-		yield diff_in_unit(a, b, unit::DAY) / 7;
+		yield unitdiff(a, b, unit::DAY) / 7;
 	case unit::DAY =>
 		yield math::absi(a.date - b.date): int;
 	case unit::HOUR =>
 		const full_diff = diff(a, b);
-		yield (diff_in_unit(a, b, unit::DAY) * 24) + full_diff.hours;
+		yield (unitdiff(a, b, unit::DAY) * 24) + full_diff.hours;
 	case unit::MINUTE =>
 		const full_diff = diff(a, b);
-		yield diff_in_unit(a, b, unit::HOUR) * 60 + full_diff.minutes;
+		yield unitdiff(a, b, unit::HOUR) * 60 + full_diff.minutes;
 	case unit::SECOND =>
 		const full_diff = diff(a, b);
-		yield diff_in_unit(a, b, unit::MINUTE) * 60 + full_diff.seconds;
+		yield unitdiff(a, b, unit::MINUTE) * 60 + full_diff.seconds;
 	case unit::NANOSECOND =>
 		const full_diff = diff(a, b);
-		yield diff_in_unit(a, b, unit::SECOND) * time::SECOND +
+		yield unitdiff(a, b, unit::SECOND) * time::SECOND +
 			full_diff.nanoseconds;
 	};
 };
@@ -593,7 +592,7 @@ export fn subtract(dt: datetime, flag: calculus, pp: period...) datetime = {
 	};
 };
 
-@test fn diff_in_unit() void = {
+@test fn unitdiff() void = {
 	const cases = [
 		(
 			new(chrono::UTC, 0, 1994, 08, 27, 11, 20, 01, 2)!,
@@ -626,21 +625,21 @@ export fn subtract(dt: datetime, flag: calculus, pp: period...) datetime = {
 		const dta = cases[i].0;
 		const dtb = cases[i].1;
 		const expected = cases[i].2;
-		assert(diff_in_unit(dtb, dta, unit::YEAR) == expected.0,
+		assert(unitdiff(dtb, dta, unit::YEAR) == expected.0,
 			"invalid diff_in_years() result");
-		assert(diff_in_unit(dtb, dta, unit::MONTH) == expected.1,
+		assert(unitdiff(dtb, dta, unit::MONTH) == expected.1,
 			"invalid diff_in_months() result");
-		assert(diff_in_unit(dtb, dta, unit::WEEK) == expected.2,
+		assert(unitdiff(dtb, dta, unit::WEEK) == expected.2,
 			"invalid diff_in_weeks() result");
-		assert(diff_in_unit(dtb, dta, unit::DAY) == expected.3,
+		assert(unitdiff(dtb, dta, unit::DAY) == expected.3,
 			"invalid diff_in_days() result");
-		assert(diff_in_unit(dtb, dta, unit::HOUR) == expected.4,
+		assert(unitdiff(dtb, dta, unit::HOUR) == expected.4,
 			"invalid diff_in_hours() result");
-		assert(diff_in_unit(dtb, dta, unit::MINUTE) == expected.5,
+		assert(unitdiff(dtb, dta, unit::MINUTE) == expected.5,
 			"invalid diff_in_minutes() result");
-		assert(diff_in_unit(dtb, dta, unit::SECOND) == expected.6,
+		assert(unitdiff(dtb, dta, unit::SECOND) == expected.6,
 			"invalid diff_in_seconds() result");
-		assert(diff_in_unit(dtb, dta, unit::NANOSECOND) == expected.7,
+		assert(unitdiff(dtb, dta, unit::NANOSECOND) == expected.7,
 			"invalid diff_in_nanoseconds() result");
 	};
 };
