@@ -122,8 +122,8 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 };
 
 // Configures a file in the child process's file table, such that the file
-// described by the 'from' parameter is mapped onto file descriptor slot 'to'
-// in the child process via dup(2).
+// described by the 'source' parameter is mapped onto file descriptor slot
+// 'source' in the child process via dup(2).
 //
 // This operation is performed atomically, such that the following code swaps
 // stdout and stderr:
@@ -131,21 +131,21 @@ export fn setenv(cmd: *command, key: str, value: str) void = {
 // 	exec::addfile(&cmd, os::stderr, os::stdout_file);
 // 	exec::addfile(&cmd, os::stdout_file, os::stderr);
 //
-// Pass [[nullfd]] in the 'from' argument to map the child's file descriptor to
-// /dev/null or the appropriate platform-specific equivalent.
+// Pass [[nullfd]] in the 'source' argument to map the child's file descriptor
+// to /dev/null or the appropriate platform-specific equivalent.
 //
-// Pass [[closefd]] in the 'from' argument to close a file descriptor which was
-// not opened with the CLOEXEC flag. Note that Hare opens all files with CLOEXEC
-// by default, so this is not usually necessary.
+// Pass [[closefd]] in the 'source' argument to close a file descriptor which
+// was not opened with the CLOEXEC flag. Note that Hare opens all files with
+// CLOEXEC by default, so this is not usually necessary.
 //
 // To write to a process's stdin, capture its stdout, or pipe two programs
 // together, see the [[pipe]] function.
 export fn addfile(
 	cmd: *command,
-	to: io::file,
-	from: (io::file | nullfd | closefd),
+	child: io::file,
+	source: (io::file | nullfd | closefd),
 ) void = {
-	append(cmd.files, (from, to));
+	append(cmd.files, (source, child));
 };
 
 // Closes all standard files (stdin, stdout, and stderr) in the child process.
