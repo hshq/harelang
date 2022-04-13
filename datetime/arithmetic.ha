@@ -219,16 +219,16 @@ export fn truncate(dt: datetime, u: unit) datetime = {
 	};
 };
 
-// Hops, starting from a datetime, to static inter-period points along the
-// calendar, according to the given periods, and returns a new datetime.
-// Inter-period points are the starts of years, months, days, etc.
+// Given a datetime and a period, "hops" to the minimum value of each field
+// (years, months, days, etc) plus or minus an offset, and returns a new
+// datetime. This can be used, for example, to find the start of last year.
 //
-// hop() consults each period's fields in order of largest to smallest
-// calendrically (from years to nanoseconds).
+// Consults each period's fields from most to least significant (from years to
+// nanoseconds).
 //
-// If a field's value N is zero, nothing happens. Otherwise, hop() will reckon
-// to the Nth inter-period point from where last reckoned. This repeats until
-// all the given period's fields are exhausted.
+// If a field's value N is zero, nothing happens. Otherwise, hop will reckon to
+// the Nth inter-period point from where last reckoned. This repeats until all
+// the given period's fields are exhausted.
 //
 // 	let dt = ... // 1999-05-13 12:30:45
 // 	datetime::hop(dt, datetime::period {
@@ -285,8 +285,9 @@ export fn hop(dt: datetime, pp: period...) datetime = {
 	return new_dt;
 };
 
-// Adds a calendrical period of time to a datetime, largest units first.
-// Tries to conserve relative distance from cyclical points on the calendar.
+// Adds a period of time to a datetime, most significant units first. Conserves
+// relative distance from cyclical points on the calendar when possible. This
+// can be used, for example, to find the date one year from now.
 //
 // 	let dt = ... // 1999-05-13 12:30:45
 // 	datetime::add(dt, datetime::calculus::DEFAULT, datetime::period {
@@ -295,7 +296,7 @@ export fn hop(dt: datetime, pp: period...) datetime = {
 // 		days   = -4, // 2020-04-09 12:30:45
 // 	});
 export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
-	// TODO: Use [[mock]] to simplify some code.
+	// TODO: Use [[builder]] to simplify some code.
 	let d_year = year(&dt);
 	let d_month = month(&dt);
 	let d_day = day(&dt);
@@ -391,8 +392,9 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 	)!;
 };
 
-// Subtracts a calendrical period of time to a datetime, largest units first.
-// Tries to conserve relative distance from cyclical points on the calendar.
+// Subtracts a calendrical period of time to a datetime, most significant units
+// first. Conserves relative distance from cyclical points on the calendar when
+// possible.
 //
 // 	let dt = ... // 1999-05-13 12:30:45
 // 	datetime::subtract(dt, datetime::calculus::DEFAULT, datetime::period {
@@ -400,7 +402,7 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 // 		months = -1, // 1977-06-13 12:30:45
 // 		days   = -4, // 1977-06-17 12:30:45
 // 	});
-export fn subtract(dt: datetime, flag: calculus, pp: period...) datetime = {
+export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 	for (let i = 0z; i < len(pp); i += 1) {
 		pp[i].eras *= -1;
 		pp[i].years *= -1;
@@ -854,7 +856,7 @@ export fn subtract(dt: datetime, flag: calculus, pp: period...) datetime = {
 	};
 };
 
-@test fn subtract() void = {
+@test fn sub() void = {
 	const d = new(chrono::UTC, 0, 2022, 02, 04, 03, 14, 07, 0)!;
 	const cases = [
 		(
@@ -873,7 +875,7 @@ export fn subtract(dt: datetime, flag: calculus, pp: period...) datetime = {
 	for (let i = 0z; i < len(cases); i += 1) {
 		const p = cases[i].0;
 		const expected = cases[i].1;
-		const actual = subtract(d, calculus::DEFAULT, p);
+		const actual = sub(d, calculus::DEFAULT, p);
 		assert(eq(actual, expected), "subtraction miscalculation");
 	};
 };
