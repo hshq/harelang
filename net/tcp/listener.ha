@@ -3,14 +3,10 @@
 use io;
 use net;
 
-// Accepts the next connection from a listener. Blocks until a new connection is
+// Accepts the next connection from a socket. Blocks until a new connection is
 // available. This is a convenience wrapper around [[net::accept]].
-export fn accept(l: *net::listener) (io::file | net::error) = {
-	return net::accept(l);
-};
+export fn accept(sock: io::file) (io::file | net::error) = net::accept(sock);
 
-// Shuts down a [[net::listener]] and frees resources associated with it. This
-// is a convenience wrapper around [[net::shutdown]].
-export fn shutdown(l: *net::listener) void = {
-	return net::shutdown(l);
-};
+// Shuts down a listening socket. This is a convenience wrapper around
+// [[net::shutdown]].
+export fn shutdown(sock: io::file) void = net::shutdown(sock);

@@ -39,11 +39,11 @@ export fn connect(addr: addr) (io::file | net::error) = {
 	return io::fdopen(sockfd);
 };
 
-// Binds a UNIX socket listener to the given path.
+// Binds a UNIX socket to the given path.
 export fn listen(
 	addr: addr,
 	options: listen_option...
-) (*net::listener | net::error) = {
+) (io::file | net::error) = {
 	let sockaddr = match (to_native(addr)) {
 	case let a: rt::sockaddr =>
 		yield a;
@@ -76,13 +76,7 @@ export fn listen(
 	case int => void;
 	};
 
-	return alloc(net::stream_listener {
-		l = net::listener {
-			accept = &net::stream_accept,
-			shutdown = &net::stream_shutdown,
-		},
-		fd = sockfd,
-	}): *net::listener;
+	return sockfd;
 };
 
 // Converts a UNIX socket address to a native sockaddr.

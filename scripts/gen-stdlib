@@ -851,14 +851,12 @@ net() {
 	gen_srcs -plinux net \
 		+linux.ha \
 		errors.ha \
-		listener.ha \
 		msg.ha
 	gen_ssa -plinux net io os strings net::ip errors rt fmt
 
 	gen_srcs -pfreebsd net \
 		+freebsd.ha \
 		errors.ha \
-		listener.ha \
 		msg.ha
 	gen_ssa -pfreebsd net io os strings net::ip errors rt fmt
 }

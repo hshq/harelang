@@ -1383,7 +1383,6 @@ $(HARECACHE)/math/random/math_random-any.ssa: $(stdlib_math_random_any_srcs) $(s
 stdlib_net_linux_srcs= \
 	$(STDLIB)/net/+linux.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/listener.ha \
 	$(STDLIB)/net/msg.ha
 
 $(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
@@ -1396,7 +1395,6 @@ $(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_i
 stdlib_net_freebsd_srcs= \
 	$(STDLIB)/net/+freebsd.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/listener.ha \
 	$(STDLIB)/net/msg.ha
 
 $(HARECACHE)/net/net-freebsd.ssa: $(stdlib_net_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
@@ -3328,7 +3326,6 @@ $(TESTCACHE)/math/random/math_random-any.ssa: $(testlib_math_random_any_srcs) $(
 testlib_net_linux_srcs= \
 	$(STDLIB)/net/+linux.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/listener.ha \
 	$(STDLIB)/net/msg.ha
 
 $(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
@@ -3341,7 +3338,6 @@ $(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testli
 testlib_net_freebsd_srcs= \
 	$(STDLIB)/net/+freebsd.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/listener.ha \
 	$(STDLIB)/net/msg.ha
 
 $(TESTCACHE)/net/net-freebsd.ssa: $(testlib_net_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))

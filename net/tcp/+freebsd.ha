@@ -44,12 +44,12 @@ export fn connect(
 	return io::fdopen(sockfd);
 };
 
-// Binds a TCP listener to the given address.
+// Binds a TCP socket to the given address.
 export fn listen(
 	addr: ip::addr,
 	port: u16,
 	options: listen_option...
-) (*net::listener | net::error) = {
+) (io::file | net::error) = {
 	const sockaddr = ip::to_native(addr, port);
 	const family = match (addr) {
 	case ip::addr4 =>
@@ -111,13 +111,7 @@ export fn listen(
 		*portout = addr.1;
 	};
 
-	return alloc(net::stream_listener {
-		l = net::listener {
-			accept = &net::stream_accept,
-			shutdown = &net::stream_shutdown,
-		},
-		fd = sockfd,
-	}): *net::listener;
+	return sockfd;
 };
 
 // Returns the remote address for a given connection, or void if none is
