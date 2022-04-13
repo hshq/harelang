@@ -103,7 +103,7 @@ export fn new(
 
 // TODO: improve variety of errors.
 // `invaliddatetime = !void` ?
-// `invaliddatetime = !datetime::mock` ?
+// `invaliddatetime = !datetime::builder` ?
 ) (datetime | invalid) = {
 	let defaults: [_]int = [
 		0, 1, 1,    // year month day
@@ -205,10 +205,9 @@ export fn to_instant(dt: datetime) time::instant = {
 
 // Creates a [[datetime]] from a string, parsed according to a layout,
 // using [[strategy::ALL]], or fails otherwise.
-//
-// TODO: allow the user to specify [[strategy]] for security?
 export fn from_str(layout: str, s: str) (datetime | insufficient | invalid) = {
-	const b = newmock();
+	// XXX: Should we allow the user to specify [[strategy]] for security?
+	const b = newbuilder();
 	parse(&b, layout, s)?;
 	return finish(&b)?;
 };
@@ -223,28 +222,27 @@ export fn to_moment(dt: datetime) chrono::moment = {
 	};
 };
 
-// A [[mock]] has insufficient information and cannot create a valid datetime.
+// A [[builder]] has insufficient information and cannot create a valid datetime.
 export type insufficient = !void;
 
-// Constructs a new datetime. Start with [[newmock]]. Collect enough datetime
-// information incrementally by direct field assignments or multiple calls to
-// [[parse]]. Finish with [[finish]].
+// Constructs a new datetime. Start with [[newbuilder]], then collect enough
+// datetime information incrementally by direct field assignments and/or one or
+// more calls to [[parse]]. Finish with [[finish]].
 //
-// 	let mock = datetime::newmock();
-// 	datetime::parse(&mock, "Year: %Y", "Year: 2038");
-// 	datetime::parse(&mock, "Month: %m", "Month: 01");
-// 	mock.day = 19;
-// 	let dt = datetime::finish(&mock, datetime::strategy::YMD);
-//
-export type mock = datetime;
+// 	let builder = datetime::newbuilder();
+// 	datetime::parse(&builder, "Year: %Y", "Year: 2038");
+// 	datetime::parse(&builder, "Month: %m", "Month: 01");
+// 	builder.day = 19;
+// 	let dt = datetime::finish(&builder, datetime::strategy::YMD);
+export type builder = datetime;
 
-// Creates a new [[mock]]
-export fn newmock() mock = init(): mock;
+// Creates a new [[builder]]
+export fn newbuilder() builder = init(): builder;
 
-// Returns a datetime from a mock. The provided [[strategy]]s will be tried in
-// order until a valid datetime is produced, or fail otherwise. The default
+// Returns a datetime from a builder. The provided [[strategy]]s will be tried
+// in order until a valid datetime is produced, or fail otherwise. The default
 // strategy is [[strategy::ALL]].
-export fn finish(f: *mock, m: strategy...) (datetime | insufficient | invalid) = {
+export fn finish(f: *builder, m: strategy...) (datetime | insufficient | invalid) = {
 	if (len(m) == 0) {
 		m = [strategy::ALL];
 	};
@@ -297,7 +295,7 @@ export fn finish(f: *mock, m: strategy...) (datetime | insufficient | invalid) =
 	return insufficient;
 };
 
-// Specifies which [[mock]] fields (and what strategy) to use to calculate the
+// Specifies which [[builder]] fields (and what strategy) to use to calculate the
 // epochal, and thus a valid datetime.
 export type strategy = enum uint {
 	// year, month, day
