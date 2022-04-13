@@ -1,8 +1,8 @@
 The datetime module implements the common international "Gregorian" chronology,
 based on the astronomically numbered proleptic Gregorian calendar, as per ISO
 8601, and the common 24 hour clock. It provides [[datetime]], a representation
-of civil date/time and an extension of the [[chrono::moment]] type, optimized
-for dealing with the Gregorian chronology.
+of civil date/time and an extension of the [[time::chrono::moment]] type,
+optimized for dealing with the Gregorian chronology.
 
 Datetimes are created with [[new]], [[now]], or with one of the various "from_"
 functions. Alternatively, use a [[builder]] to construct a datetime
@@ -19,10 +19,10 @@ functions ([[year]], [[month]], [[day]], etc). Accessing or modifying a
 [[datetime]]'s fields directly is discouraged. To mutate a datetime in code, the
 use of the [[builder]] interface is recommended.
 
-[[datetime]]s may be localized to different [[chrono::timezone]]s via the [[in]]
-function. The "field" functions will evaluate the correct values accordingly.
-You'll find a standard selection of world timezones in the [[time::tzdb]]
-module.
+[[datetime]]s may be localized to different [[time::chrono::timezone]]s via the
+[[in]] function. The "field" functions will evaluate the correct values
+accordingly. You'll find a standard selection of world timezones in the
+[[time::tzdb]] module.
 
 To convert datetimes to and from strings, use [[parse]] and [[format]].
 

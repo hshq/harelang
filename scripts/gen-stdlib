@@ -1172,6 +1172,7 @@ time() {
 	gen_srcs -pfreebsd time \
 		+freebsd/functions.ha \
 		arithm.ha \
+		conv.ha \
 		types.ha
 	gen_ssa -pfreebsd time
 }

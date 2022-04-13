@@ -1787,6 +1787,7 @@ $(HARECACHE)/time/time-linux.ssa: $(stdlib_time_linux_srcs) $(stdlib_rt) $(stdli
 stdlib_time_freebsd_srcs= \
 	$(STDLIB)/time/+freebsd/functions.ha \
 	$(STDLIB)/time/arithm.ha \
+	$(STDLIB)/time/conv.ha \
 	$(STDLIB)/time/types.ha
 
 $(HARECACHE)/time/time-freebsd.ssa: $(stdlib_time_freebsd_srcs) $(stdlib_rt)
@@ -3797,6 +3798,7 @@ $(TESTCACHE)/time/time-linux.ssa: $(testlib_time_linux_srcs) $(testlib_rt) $(tes
 testlib_time_freebsd_srcs= \
 	$(STDLIB)/time/+freebsd/functions.ha \
 	$(STDLIB)/time/arithm.ha \
+	$(STDLIB)/time/conv.ha \
 	$(STDLIB)/time/types.ha
 
 $(TESTCACHE)/time/time-freebsd.ssa: $(testlib_time_freebsd_srcs) $(testlib_rt)
