@@ -827,6 +827,11 @@ linux_vdso() {
 	gen_ssa -plinux linux::vdso linux strings format::elf
 }
 
+log() {
+	gen_srcs log logger.ha global.ha funcs.ha
+	gen_ssa log fmt io os
+}
+
 gensrcs_math() {
 	gen_srcs math \
 		math.ha \
@@ -1333,6 +1338,7 @@ linux			linux
 linux::keyctl		linux
 linux::io_uring		linux
 linux::vdso		linux
+log
 math
 math::random
 net			linux freebsd

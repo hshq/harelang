@@ -466,6 +466,12 @@ stdlib_deps_linux+=$(stdlib_linux_io_uring_linux)
 stdlib_linux_vdso_linux=$(HARECACHE)/linux/vdso/linux_vdso-linux.o
 stdlib_deps_linux+=$(stdlib_linux_vdso_linux)
 
+# gen_lib log (any)
+stdlib_log_any=$(HARECACHE)/log/log-any.o
+stdlib_deps_any+=$(stdlib_log_any)
+stdlib_log_linux=$(stdlib_log_any)
+stdlib_log_freebsd=$(stdlib_log_any)
+
 # gen_lib math (any)
 stdlib_math_any=$(HARECACHE)/math/math-any.o
 stdlib_deps_any+=$(stdlib_math_any)
@@ -1381,6 +1387,18 @@ $(HARECACHE)/linux/vdso/linux_vdso-linux.ssa: $(stdlib_linux_vdso_linux_srcs) $(
 	@mkdir -p $(HARECACHE)/linux/vdso
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::vdso \
 		-t$(HARECACHE)/linux/vdso/linux_vdso.td $(stdlib_linux_vdso_linux_srcs)
+
+# log (+any)
+stdlib_log_any_srcs= \
+	$(STDLIB)/log/logger.ha \
+	$(STDLIB)/log/global.ha \
+	$(STDLIB)/log/funcs.ha
+
+$(HARECACHE)/log/log-any.ssa: $(stdlib_log_any_srcs) $(stdlib_rt) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/log
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlog \
+		-t$(HARECACHE)/log/log.td $(stdlib_log_any_srcs)
 
 # math (+any)
 stdlib_math_any_srcs= \
@@ -2417,6 +2435,12 @@ testlib_deps_linux+=$(testlib_linux_io_uring_linux)
 testlib_linux_vdso_linux=$(TESTCACHE)/linux/vdso/linux_vdso-linux.o
 testlib_deps_linux+=$(testlib_linux_vdso_linux)
 
+# gen_lib log (any)
+testlib_log_any=$(TESTCACHE)/log/log-any.o
+testlib_deps_any+=$(testlib_log_any)
+testlib_log_linux=$(testlib_log_any)
+testlib_log_freebsd=$(testlib_log_any)
+
 # gen_lib math (any)
 testlib_math_any=$(TESTCACHE)/math/math-any.o
 testlib_deps_any+=$(testlib_math_any)
@@ -3368,6 +3392,18 @@ $(TESTCACHE)/linux/vdso/linux_vdso-linux.ssa: $(testlib_linux_vdso_linux_srcs) $
 	@mkdir -p $(TESTCACHE)/linux/vdso
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::vdso \
 		-t$(TESTCACHE)/linux/vdso/linux_vdso.td $(testlib_linux_vdso_linux_srcs)
+
+# log (+any)
+testlib_log_any_srcs= \
+	$(STDLIB)/log/logger.ha \
+	$(STDLIB)/log/global.ha \
+	$(STDLIB)/log/funcs.ha
+
+$(TESTCACHE)/log/log-any.ssa: $(testlib_log_any_srcs) $(testlib_rt) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/log
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \
+		-t$(TESTCACHE)/log/log.td $(testlib_log_any_srcs)
 
 # math (+any)
 testlib_math_any_srcs= \
