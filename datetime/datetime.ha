@@ -58,8 +58,6 @@ fn init() datetime = datetime {
 // 	datetime::new(&time::tzdb::tz("Europe/Amsterdam"), 1 * time::HOUR,
 // 		2038, 01, 19, 02);
 //
-// TODO: revise examples
-//
 // 'offs' is the zone offset from the normal timezone (in most cases, UTC). For
 // example, the "Asia/Tokyo" timezone has a single zoffset of +9 hours, but the
 // "Australia/Sydney" timezone has zoffsets +10 hours and +11 hours, as they
@@ -85,12 +83,11 @@ export fn new(
 	offs: (time::duration | void),
 	fields: int...
 ) (datetime | invalid) = {
-	// TODO: Implement as described.
-	//
-	// TODO: Allow and correct for overflowing units like Golang? Most likely not.
-	// Defeats the purpose of validation at creation. I see little benefit.
-	//
-	// TODO: fix calls with `years <= -4715`. https://todo.sr.ht/~sircmpwn/hare/565
+	// TODO: 
+	// - revise examples
+	// - Implement as described.
+	// - fix calls with `years <= -4715`.
+	//   https://todo.sr.ht/~sircmpwn/hare/565
 	let defaults: [_]int = [
 		0, 1, 1,    // year month day
 		0, 0, 0, 0, // hour min sec nsec
@@ -155,21 +152,16 @@ export fn new(
 	return dt;
 };
 
-// Returns a [[datetime]] of the immediate system time
-//
-// TODO: specify appropriate params like a time::clock and chrono::timezone.
+// Returns a [[datetime]] for the immediate system time.
 export fn now() datetime = {
+	// TODO: specify appropriate params like a time::clock and
+	// chrono::timezone.
 	const i = time::now(time::clock::REALTIME);
 	const m = chrono::from_instant(i, chrono::LOCAL);
 	return from_moment(m);
 };
 
-// Creates a copy of a [[datetime]]
-//
-// TODO: remove, purge from other functions, seems useless.
-export fn clone(dt: datetime) datetime = dt;
-
-// Creates a [[datetime]] from a [[chrono::moment]]
+// Creates a [[datetime]] from a [[chrono::moment]].
 export fn from_moment(m: chrono::moment) datetime = {
 	const dt = init();
 	dt.date = m.date;
@@ -179,12 +171,12 @@ export fn from_moment(m: chrono::moment) datetime = {
 	return dt;
 };
 
-// Creates a [[datetime]] from a [[time::instant]]
+// Creates a [[datetime]] from a [[time::instant]].
 export fn from_instant(i: time::instant, loc: chrono::locality) datetime = {
 	return from_moment(chrono::from_instant(i, loc));
 };
 
-// Creates a [[time::instant]] from a [[datetime]]
+// Creates a [[time::instant]] from a [[datetime]].
 export fn to_instant(dt: datetime) time::instant = {
 	return chrono::to_instant(to_moment(dt));
 };
@@ -295,17 +287,4 @@ export type strategy = enum uint {
 
 	// all strategies, in order as presented here
 	ALL    = YMD | YD | YWD | ISOYWD,
-};
-
-@test fn clone() void = {
-	let d0 = new(chrono::UTC, 0, 2038, 01, 19, 03, 14, 07, 0)!;
-	let d1 = clone(d0);
-	assert(d0.year as int == d1.year as int &&
-		d0.month as int == d1.month as int &&
-		d0.day as int == d1.day as int &&
-		d0.hour as int == d1.hour as int &&
-		d0.min as int == d1.min as int &&
-		d0.sec as int == d1.sec as int &&
-		d0.nsec as int == d1.nsec as int,
-		"cloned date not equal to original date");
 };

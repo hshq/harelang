@@ -238,7 +238,7 @@ export fn start_of(u: unit, dt: datetime) datetime = {
 // 	});
 //
 export fn hop(dt: datetime, pp: period...) datetime = {
-	let new_dt = clone(dt);
+	let new_dt = dt;
 	for (let i = 0z; i < len(pp); i += 1) {
 		const p = pp[i];
 
