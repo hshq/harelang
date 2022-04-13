@@ -55,71 +55,76 @@ def MONTHS_SHORT: [_]str = [
 //
 // See https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
 
-// Formats a [[datetime]] and writes it into a caller supplied buffer.
-// The returned string is borrowed from this buffer.
-export fn bformat(buf: []u8, layout: str, dt: *datetime) (str | invalid | io::error) = {
+// Formats a [[datetime]] and writes it into a caller supplied buffer. The
+// returned string is borrowed from this buffer.
+export fn bsformat(
+	buf: []u8,
+	layout: str,
+	dt: *datetime,
+) (str | invalid | io::error) = {
 	let sink = strio::fixed(buf);
-	fmtstream(&sink, layout, dt)?;
+	format(&sink, layout, dt)?;
 	return strio::string(&sink);
 };
 
-// Formats a [[datetime]] and writes it into a heap-allocated string.
-// The caller must free the return value.
-export fn format(layout: str, dt: *datetime) (str | invalid | io::error) = {
+// Formats a [[datetime]] and writes it into a heap-allocated string. The caller
+// must free the return value.
+export fn asformat(layout: str, dt: *datetime) (str | invalid | io::error) = {
 	let sink = strio::dynamic();
-	fmtstream(&sink, layout, dt)?;
+	format(&sink, layout, dt)?;
 	return strio::string(&sink);
 };
 
-fn fmt_specifier(r: rune, dt: *datetime) (str | invalid | io::error) = {
-	return switch (r) {
+fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
+	switch (r) {
 	case 'a' =>
-		yield WEEKDAYS_SHORT[weekday(dt) - 1];
+		return fmt::fprint(out, WEEKDAYS_SHORT[weekday(dt) - 1]);
 	case 'A' =>
-		yield WEEKDAYS[weekday(dt) - 1];
+		return fmt::fprint(out, WEEKDAYS[weekday(dt) - 1]);
 	case 'b' =>
-		yield MONTHS_SHORT[month(dt) - 1];
+		return fmt::fprint(out, MONTHS_SHORT[month(dt) - 1]);
 	case 'B' =>
-		yield MONTHS[month(dt) - 1];
+		return fmt::fprint(out, MONTHS[month(dt) - 1]);
 	case 'd' =>
-		yield fmt::asprintf("{:02}", day(dt));
+		return fmt::fprintf(out, "{:02}", day(dt));
 	case 'H' =>
-		yield fmt::asprintf("{:02}", hour(dt));
+		return fmt::fprintf(out, "{:02}", hour(dt));
 	case 'I' =>
-		yield fmt::asprintf("{:02}", hour12(dt));
+		return fmt::fprintf(out, "{:02}", hour12(dt));
 	case 'j' =>
-		yield strconv::itos(yearday(dt));
+		return fmt::fprint(out, strconv::itos(yearday(dt)));
 	case 'm' =>
-		yield fmt::asprintf("{:02}", month(dt));
+		return fmt::fprintf(out, "{:02}", month(dt));
 	case 'M' =>
-		yield fmt::asprintf("{:02}", min(dt));
+		return fmt::fprintf(out, "{:02}", min(dt));
 	case 'N' =>
-		yield fmt::asprintf("{:09}", strconv::itos(nsec(dt)));
+		return fmt::fprintf(out, "{:09}", strconv::itos(nsec(dt)));
 	case 'p' =>
-		yield if (hour(dt) < 12) {
+		const s = if (hour(dt) < 12) {
 			yield "AM";
 		} else {
 			yield "PM";
 		};
+		return fmt::fprint(out, s);
 	case 'S' =>
-		yield fmt::asprintf("{:02}", sec(dt));
+		return fmt::fprintf(out, "{:02}", sec(dt));
 	case 'u' =>
-		yield strconv::itos(weekday(dt));
+		return fmt::fprint(out, strconv::itos(weekday(dt)));
 	case 'U' =>
-		// yield fmt::asprintf("{:02}", week_starting_sunday(dt));
-		// TODO
-		yield "";
+		// return fmt::fprintf(out, "{:02}", week_starting_sunday(dt));
+		abort("datetime::format: %U: TODO"); // TODO
 	case 'w' =>
-		yield strconv::itos(weekday(dt) % 7);
+		return fmt::fprint(out, strconv::itos(weekday(dt) % 7));
 	case 'W' =>
-		yield fmt::asprintf("{:02}", week(dt));
+		return fmt::fprintf(out, "{:02}", week(dt));
 	case 'y' =>
 		let year_str = strconv::itos(year(dt));
-		yield strings::sub(year_str, len(year_str) - 2, strings::end);
+		year_str = strings::sub(year_str, len(year_str) - 2, strings::end);
+		return fmt::fprint(out, year_str);
 	case 'Y' =>
-		yield strconv::itos(year(dt));
+		return fmt::fprint(out, strconv::itos(year(dt)));
 	case 'z' =>
-		// TODO: test
+		// TODO: test me
 		let pm = '+';
 		const z = if (dt.zone.zoffset >= 0) {
 			yield calc_hmsn(dt.zone.zoffset);
@@ -127,23 +132,18 @@ fn fmt_specifier(r: rune, dt: *datetime) (str | invalid | io::error) = {
 			pm = '-';
 			yield calc_hmsn(-dt.zone.zoffset);
 		};
-		yield fmt::asprintf("{}{:02}{:02}", pm, z.0, z.1);
+		return fmt::fprintf(out, "{}{:02}{:02}", pm, z.0, z.1);
 	case 'Z' =>
-		yield dt.zone.abbr;
+		return fmt::fprint(out, dt.zone.abbr);
 	case '%' =>
-		yield "%";
+		return fmt::fprint(out, "%");
 	case =>
-		// Pass-through invalid conversion specifier
-		// characters.
-		const passthrough = strio::dynamic();
-		strio::appendrune(&passthrough, '%')!;
-		strio::appendrune(&passthrough, r)!;
-		yield strio::string(&passthrough);
+		abort("Invalid format string provided to datetime::format");
 	};
 };
 
 // Formats a [[datetime]] and writes to an [[io::handle]].
-export fn fmtstream(
+export fn format(
 	h: io::handle,
 	layout: str,
 	dt: *datetime
@@ -161,7 +161,7 @@ export fn fmtstream(
 
 		if (escaped) {
 			escaped = false;
-			n += strio::concat(h, fmt_specifier(r, dt)?)?;
+			n += fmtout(h, r, dt)?;
 		} else {
 			if (r == '%') {
 				escaped = true;
@@ -293,7 +293,8 @@ fn hour12(dt: *datetime) int = {
 	for (let i = 0z; i < len(cases); i += 1) {
 		const layout = cases[i].0;
 		const expected = cases[i].1;
-		const actual = format(layout, &dt)!;
+		const actual = asformat(layout, &dt)!;
+		defer free(actual);
 		if (actual != expected) {
 			fmt::printfln(
 				"expected format({}, &dt) to be {} but was {}",

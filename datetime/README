@@ -16,17 +16,15 @@ internal caching.
 
 [[datetime]] fields are accessed, evaluated, and cached via the various "field"
 functions ([[year]], [[month]], [[day]], etc). Accessing or modifying a
-[[datetime]]'s fields directly is highly discouraged. See [[mock]] for
-"modifiable datetimes".
+[[datetime]]'s fields directly is discouraged. To mutate a datetime in code, the
+use of the [[builder]] interface is recommended.
 
 [[datetime]]s may be localized to different [[chrono::timezone]]s via the [[in]]
 function. The "field" functions will evaluate the correct values accordingly.
 You'll find a standard selection of world timezones in the [[time::tzdb]]
 module.
 
-Both formatting and parsing use a sensible subset of the POSIX format specifiers
-(see strptime(3)), and it is trivial to contruct your own textual
-representations with the functions herein.
+To convert datetimes to and from strings, use [[parse]] and [[format]].
 
 For arithmetics, use [[diff]], [[add]] and [[hop]]. Note that calendrical
 arithmetic is highly irregular with many edge cases, so think carefully about
