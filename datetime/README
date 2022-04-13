@@ -5,8 +5,8 @@ of civil date/time and an extension of the [[chrono::moment]] type, optimized
 for dealing with the Gregorian chronology.
 
 Datetimes are created with [[new]], [[now]], or with one of the various "from_"
-functions. Alternatively, use a [[mock]] to construct a datetime piece-by-piece,
-by field assignements or by parsing strings with [[parse]].
+functions. Alternatively, use a [[builder]] to construct a datetime
+piece-by-piece, by field assignements or by parsing strings with [[parse]].
 
 [[datetime]] instances are designed to be always valid and internally
 consistent. They should be treated as immutable, and their fields as private.
