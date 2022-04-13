@@ -7,11 +7,22 @@ use strings;
 use strio;
 use time::chrono;
 
+// [[datetime::format]] string for the email date format.
 export def EMAIL: str = "%a, %d %b %Y %H:%M:%S %z";
+
+// [[datetime::format]] string for the email date format, with time zone.
 export def EMAILZ: str = "%a, %d %b %Y %H:%M:%S %z %Z";
+
+// [[datetime::format]] string used by default for POSIX date(1).
 export def POSIX: str = "%a %b %d %H:%M:%S %Z %Y";
+
+// [[datetime::format]] string compatible with RFC 3339.
 export def RFC3339: str = "%Y-%m-%dT%H:%M:%S%z";
+
+// [[datetime::format]] string providing the current timestamp.
 export def STAMP: str = "%Y-%m-%d %H:%M:%S";
+
+// [[datetime::format]] string providing the current timestamp with nanoseconds.
 export def STAMP_NANO: str = "%Y-%m-%d %H:%M:%S.%N";
 
 def WEEKDAYS: [_]str = [
