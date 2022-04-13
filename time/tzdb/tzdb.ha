@@ -12,14 +12,27 @@ use time::chrono;
 // Some TZif data is invalid
 export type invalidtzif = !void;
 
+// Possible errors returned from [[tz]].
+export type error = !(fs::error | io::error | invalidtzif);
+
+// Converts an [[error]] to a human-friendly representation.
+export fn strerror(err: error) const str = {
+	match (err) {
+	case invalidtzif =>
+		return "Invalid TZif data in time zone";
+	case let err: fs::error =>
+		return fs::strerror(err);
+	case let err: io::error =>
+		return io::strerror(err);
+	};
+};
+
 // Parses and retrieves a [[chrono::timezone]] from the system zoneinfo
 // database, or if applicable, from an internal selection of timezones.
 // All tzdb timezones default to the [[chrono::utc]] timescale and
 // [[chrono::EARTH_DAY]] daylength.
-//
-// TODO: Tidy up errors.
-//
-export fn tz(name: str) (chrono::timezone | errors::overflow | fs::error | io::error | invalidtzif) = {
+export fn tz(name: str) (chrono::timezone | error) = {
+	// TODO: Tidy up errors.
 	switch (name) {
 	case "Local" =>
 		return *chrono::LOCAL;
@@ -33,15 +46,11 @@ export fn tz(name: str) (chrono::timezone | errors::overflow | fs::error | io::e
 		void;
 	};
 
-	// Try reading from a TZif file installed in on the system.
-	//
-	// TODO: try various prefixes for various OSs, try reading from
-	// installed zip files, etc.
+	// TODO: Move this path to +linux et al
 	const prefix = "/usr/share/zoneinfo/";
 
-	// TODO: try names like "./nearby/tzif_file" or "/abs/path/tzif_file"?
 	const filepath = path::init();
-	path::add(&filepath, prefix, name)?;
+	path::add(&filepath, prefix, name)!;
 	const fpath = path::string(&filepath);
 	const file = os::open(fpath)?;
 	defer io::close(file);
@@ -72,13 +81,13 @@ fn parse_tzif(
 	const buf15: [15]u8 = [0...];
 
 	// test for magic "TZif"
-	read(h, buf4)?;
+	mustread(h, buf4)?;
 	if (strings::fromutf8(buf4) != "TZif") {
 		return invalidtzif;
 	};
 
 	// read version
-	read(h, buf1)?;
+	mustread(h, buf1)?;
 	const version = switch (buf1[0]) {
 	case 0 =>
 		yield 1;
@@ -91,15 +100,15 @@ fn parse_tzif(
 	};
 
 	// skip padding
-	read(h, buf15)?;
+	mustread(h, buf15)?;
 
 	// read counts
-	read(h, buf4)?; let isutcnt = endian::begetu32(buf4);
-	read(h, buf4)?; let isstdcnt = endian::begetu32(buf4);
-	read(h, buf4)?; let leapcnt = endian::begetu32(buf4);
-	read(h, buf4)?; let timecnt = endian::begetu32(buf4);
-	read(h, buf4)?; let typecnt = endian::begetu32(buf4);
-	read(h, buf4)?; let charcnt = endian::begetu32(buf4);
+	mustread(h, buf4)?; let isutcnt = endian::begetu32(buf4);
+	mustread(h, buf4)?; let isstdcnt = endian::begetu32(buf4);
+	mustread(h, buf4)?; let leapcnt = endian::begetu32(buf4);
+	mustread(h, buf4)?; let timecnt = endian::begetu32(buf4);
+	mustread(h, buf4)?; let typecnt = endian::begetu32(buf4);
+	mustread(h, buf4)?; let charcnt = endian::begetu32(buf4);
 
 	let is64 = false;
 	if (version > 1) {
@@ -119,16 +128,16 @@ fn parse_tzif(
 			+ 20
 		);
 		for (let i = 0z; i < skip; i += 1) {
-			read(h, buf1)?;
+			mustread(h, buf1)?;
 		};
 
 		// read version 2 counts
-		read(h, buf4)?; isutcnt = endian::begetu32(buf4);
-		read(h, buf4)?; isstdcnt = endian::begetu32(buf4);
-		read(h, buf4)?; leapcnt = endian::begetu32(buf4);
-		read(h, buf4)?; timecnt = endian::begetu32(buf4);
-		read(h, buf4)?; typecnt = endian::begetu32(buf4);
-		read(h, buf4)?; charcnt = endian::begetu32(buf4);
+		mustread(h, buf4)?; isutcnt = endian::begetu32(buf4);
+		mustread(h, buf4)?; isstdcnt = endian::begetu32(buf4);
+		mustread(h, buf4)?; leapcnt = endian::begetu32(buf4);
+		mustread(h, buf4)?; timecnt = endian::begetu32(buf4);
+		mustread(h, buf4)?; typecnt = endian::begetu32(buf4);
+		mustread(h, buf4)?; charcnt = endian::begetu32(buf4);
 	};
 
 	if (typecnt == 0 || charcnt == 0) {
@@ -180,12 +189,12 @@ fn parse_tzif(
 	// read footer
 
 	let footerdata: []u8 = [];
-	read(h, buf1)?;
+	mustread(h, buf1)?;
 	if (buf1[0] != 0x0A) { // '\n' newline
 		return invalidtzif;
 	};
 	for (let start = true; true; start = false) {
-		read(h, buf1)?;
+		mustread(h, buf1)?;
 		if (buf1[0] == 0x0A) { // '\n' newline
 			break;
 		};
@@ -271,17 +280,14 @@ fn parse_tzif(
 	return tz;
 };
 
-// Error wrapper for [[io::read]]
-fn read(h: io::handle, buf: []u8) (void | invalidtzif | io::error) = {
-	match (io::read(h, buf)) {
+fn mustread(h: io::handle, buf: []u8) (void | invalidtzif | io::error) = {
+	match (io::readall(h, buf)) {
 	case let err: io::error =>
 		return err;
 	case io::EOF =>
 		return invalidtzif;
-	case let sz: size =>
-		if (sz != len(buf)) {
-			return invalidtzif;
-		};
+	case size =>
+		return;
 	};
 };
 
@@ -292,7 +298,7 @@ fn readbytes(
 ) (void | invalidtzif | io::error) = {
 	const buf: [1]u8 = [0];
 	for (let i = 0z; i < n; i += 1) {
-		read(h, buf)?;
+		mustread(h, buf)?;
 		const it = buf[0];
 		append(items, it);
 	};
@@ -305,7 +311,7 @@ fn readitems8(
 ) (void | invalidtzif | io::error) = {
 	const buf: [8]u8 = [0...];
 	for (let i = 0z; i < n; i += 1) {
-		read(h, buf)?;
+		mustread(h, buf)?;
 		const it = endian::begetu64(buf): i64;
 		append(items, it);
 	};
@@ -318,7 +324,7 @@ fn readitems4(
 ) (void | invalidtzif | io::error) = {
 	const buf: [4]u8 = [0...];
 	for (let i = 0z; i < n; i += 1) {
-		read(h, buf)?;
+		mustread(h, buf)?;
 		const it = endian::begetu32(buf): i64;
 		append(items, it);
 	};
