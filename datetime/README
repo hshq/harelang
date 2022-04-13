@@ -1,38 +1,33 @@
-The datetime module implements the common international "Gregorian"
-chronology, based on the astronomically numbered proleptic Gregorian
-calendar, as per ISO 8601, and the common 24 hour clock. It provides
-[[datetime]], a representation of civil date/time and an extension of
-the [[chrono::moment]] type, optimized for dealing with the Gregorian
-chronology.
+The datetime module implements the common international "Gregorian" chronology,
+based on the astronomically numbered proleptic Gregorian calendar, as per ISO
+8601, and the common 24 hour clock. It provides [[datetime]], a representation
+of civil date/time and an extension of the [[chrono::moment]] type, optimized
+for dealing with the Gregorian chronology.
 
-Datetimes are created with [[new]], [[now]], or with one of the various
-"from_" functions. Alternatively, use a [[mock]] to construct a datetime
-piece-by-piece, by field assignements or by parsing strings with
-[[parse]].
+Datetimes are created with [[new]], [[now]], or with one of the various "from_"
+functions. Alternatively, use a [[mock]] to construct a datetime piece-by-piece,
+by field assignements or by parsing strings with [[parse]].
 
 [[datetime]] instances are designed to be always valid and internally
-consistent. They should be treated as immutable, and their fields as
-private. All functions herein return valid datetimes (or appropriate
-errors), and never modify a datetime's value, even if passed as a
-pointer, which is used only for internal caching.
+consistent. They should be treated as immutable, and their fields as private.
+All functions herein return valid datetimes (or appropriate errors), and never
+modify a datetime's value, even if passed as a pointer, which is used only for
+internal caching.
 
-[[datetime]] fields are accessed, evaluated, and cached via the various
-"field" functions ([[year]], [[month]], [[day]], etc). Accessing or
-modifying a [[datetime]]'s fields directly is highly discouraged. See
-[[mock]] for "modifiable datetimes".
+[[datetime]] fields are accessed, evaluated, and cached via the various "field"
+functions ([[year]], [[month]], [[day]], etc). Accessing or modifying a
+[[datetime]]'s fields directly is highly discouraged. See [[mock]] for
+"modifiable datetimes".
 
-[[datetime]]s may be localized to different [[chrono::timezone]]s via
-the [[in]] function. The "field" functions will evaluate the correct
-values accordingly. You'll find a standard selection of world timezones
-in the [[time::tzdb]] module.
+[[datetime]]s may be localized to different [[chrono::timezone]]s via the [[in]]
+function. The "field" functions will evaluate the correct values accordingly.
+You'll find a standard selection of world timezones in the [[time::tzdb]]
+module.
 
-TODO: Settle on consistent naming and language for localisation.
-"timezone" or "locality"?
+Both formatting and parsing use a sensible subset of the POSIX format specifiers
+(see strptime(3)), and it is trivial to contruct your own textual
+representations with the functions herein.
 
-Both formatting and parsing use a sensible subset of the POSIX
-format specifiers (see strptime(3)), and it is trivial to contruct your
-own textual representations with the functions herein.
-
-For arithmetics, use [[diff]], [[add]] and [[hop]]. Note that
-calendrical arithmetic is highly irregular with many edge cases, so
-think carefully about what you want.
+For arithmetics, use [[diff]], [[add]] and [[hop]]. Note that calendrical
+arithmetic is highly irregular with many edge cases, so think carefully about
+what you want.
