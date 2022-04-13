@@ -60,12 +60,12 @@ fn init() datetime = datetime {
 //
 // TODO: revise examples
 //
-// zo is the zone offset from the normal timezone (in most cases, UTC). For
+// 'offs' is the zone offset from the normal timezone (in most cases, UTC). For
 // example, the "Asia/Tokyo" timezone has a single zoffset of +9 hours, but the
 // "Australia/Sydney" timezone has zoffsets +10 hours and +11 hours, as they
 // observe Daylight Saving Time.
 //
-// if specified (non-void), zo must match one of the timezone's observed
+// If specified (non-void), 'offs' must match one of the timezone's observed
 // zoffsets, or will fail. See [[chrono::fixedzone]] for custom timezones.
 //
 // You may omit the zoffset. If the givem timezone has a single zone, [[new]]
@@ -80,31 +80,17 @@ fn init() datetime = datetime {
 // - In the Europe/Amsterdam timezone, at 1995 September 24th,
 //   the local time 02:30 was observed twice (00:30 UTC & 01:30 UTC),
 //   as the clock jumped back 1 hour from 03:00 CEST to 02:00 CET.
-//
-// TODO: Implement as described.
-//
-// TODO: Allow and correct for overflowing units like Golang? Most likely not.
-// Defeats the purpose of validation at creation. I see little benefit.
-//
-// TODO: fix calls with `years <= -4715`. https://todo.sr.ht/~sircmpwn/hare/565
-//
 export fn new(
 	loc: chrono::locality,
-
-	// normal offset (offset from normal timezone (UTC, TAI, etc.))
-	//
-	// TODO: type `(time::duration | first | last)`? or
-	// TODO: type `(time::duration | enum { FIRST, LAST } )`?
-	// Would automatically pick the first/last occurence of an ambiguous
-	// datetime, as described above.
-	zo: (time::duration | void),
-
+	offs: (time::duration | void),
 	fields: int...
-
-// TODO: improve variety of errors.
-// `invaliddatetime = !void` ?
-// `invaliddatetime = !datetime::builder` ?
 ) (datetime | invalid) = {
+	// TODO: Implement as described.
+	//
+	// TODO: Allow and correct for overflowing units like Golang? Most likely not.
+	// Defeats the purpose of validation at creation. I see little benefit.
+	//
+	// TODO: fix calls with `years <= -4715`. https://todo.sr.ht/~sircmpwn/hare/565
 	let defaults: [_]int = [
 		0, 1, 1,    // year month day
 		0, 0, 0, 0, // hour min sec nsec
@@ -138,10 +124,10 @@ export fn new(
 	// locality/timezone.
 	//
 	// figuring out what zone this moment observes
-	if (zo is time::duration) {
+	if (offs is time::duration) {
 		// Transform inversely to the moment that would transform back
 		// to the current moment, then perform a zone lookup.
-		m = chrono::transform(m, -(zo as time::duration));
+		m = chrono::transform(m, -(offs as time::duration));
 		chrono::lookupzone(&m);
 	} else {
 		// Just perform a zone lookup, then try that zone and the
