@@ -7,7 +7,6 @@ use strings;
 //
 // 	datetime::parse(&builder, "%Y-%m-%d", "2038-01-19");
 // 	datetime::parse(&builder, "%H:%M:%S", "03:14:07");
-//
 export fn parse(build: *builder, layout: str, s: str) (void | invalid) = {
 	const format_iter = strings::iter(layout);
 	const s_iter = strings::iter(s);
