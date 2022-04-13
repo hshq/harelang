@@ -3,8 +3,8 @@ use math;
 use time;
 use time::chrono;
 
-// Represents a span of time in the proleptic Gregorian calendar,
-// using relative units of time. Used for calendar arithmetic.
+// Represents a span of time in the proleptic Gregorian calendar, using relative
+// units of time. Used for calendar arithmetic.
 export type period = struct {
 	eras: int,
 	years: int,
@@ -22,17 +22,16 @@ export type period = struct {
 	nanoseconds: i64,
 };
 
-// Specifies behaviour during calendar arithmetic
-//
-// * DEFAULT
-// Units are added in the order of largest (years) to smallest (nanoseconds). If
-// the resulting date does not exist, the first extant date previous to the
-// initial result is returned.
+// Specifies the behaviour of calendar arithmetic.
 export type calculus = enum int {
+	// Units are added in the order of largest (years) to smallest
+	// (nanoseconds). If the resulting date does not exist, the first extant
+	// date previous to the initial result is returned.
 	DEFAULT,
 };
+// TODO: ^ Expand this
 
-// The various datetime units that can be used for arithmetic
+// The various datetime units that can be used for arithmetic.
 export type unit = enum int {
 	ERA,
 	YEAR,
@@ -45,23 +44,23 @@ export type unit = enum int {
 	NANOSECOND,
 };
 
-// Returns whether or not two dates are numerically equal
+// Returns true if two dates are numerically equal.
 export fn eq(a: datetime, b: datetime) bool = {
 	return a.date == b.date && a.time == b.time;
 };
 
-// Returns whether or not the first date is after the second date
+// Returns true if the first date is after the second date.
 export fn is_after(a: datetime, b: datetime) bool = {
 	return !eq(a, b) &&
 		(a.date > b.date || a.date == b.date && a.time > b.time);
 };
 
-// Returns whether or not the first date is before the second date
+// Returns true if the first date is before the second date.
 export fn is_before(a: datetime, b: datetime) bool = {
 	return !eq(a, b) && !is_after(a, b);
 };
 
-// Calculates the difference between two datetimes
+// Calculates the difference between two datetimes.
 export fn diff(a: datetime, b: datetime) period = {
 	let res = period { ... };
 	if (eq(a, b)) {
@@ -122,8 +121,9 @@ export fn diff(a: datetime, b: datetime) period = {
 	return res;
 };
 
-// Calculates the difference between two datetimes in the given unit. An integer
-// is returned, with the fractional part of the difference being discarded.
+// Calculates the difference between two datetimes using the given unit. An
+// integer is returned, with the fractional part of the difference being
+// truncated.
 export fn diff_in_unit(a: datetime, b: datetime, u: unit) i64 = {
 	return switch (u) {
 	case unit::ERA =>
@@ -153,7 +153,7 @@ export fn diff_in_unit(a: datetime, b: datetime, u: unit) i64 = {
 	};
 };
 
-// Returns whether or not two periods are numerically equal
+// Returns true if two periods are numerically equal.
 export fn period_eq(a: period, b: period) bool = {
 	return a.eras == b.eras &&
 		a.years == b.years &&
@@ -166,9 +166,10 @@ export fn period_eq(a: period, b: period) bool = {
 		a.nanoseconds == b.nanoseconds;
 };
 
-// Returns the given datetime at the start of a particular given unit, e.g.
-// the start of the day or the start of the minute.
-export fn start_of(u: unit, dt: datetime) datetime = {
+// Truncates the given datetime at the provided unit. For example, truncating to
+// the nearest [[unit::YEAR]] will set the month, day, hour, minute, seconds,
+// and nanoseconds fields to their minimum values.
+export fn truncate(dt: datetime, u: unit) datetime = {
 	// TODO: Replace all of the 0s for the zoffset with the actual
 	// zoffset once the API is solidified a bit
 	return switch (u) {
@@ -245,37 +246,37 @@ export fn hop(dt: datetime, pp: period...) datetime = {
 		if (p.years != 0) {
 			const dt_inc = add(new_dt, calculus::DEFAULT,
 				period { years = p.years, ... });
-			new_dt = start_of(unit::YEAR, dt_inc);
+			new_dt = truncate(dt_inc, unit::YEAR);
 		};
 		if (p.months != 0) {
 			const dt_inc = add(new_dt, calculus::DEFAULT,
 				period { months = p.months, ... });
-			new_dt = start_of(unit::MONTH, dt_inc);
+			new_dt = truncate(dt_inc, unit::MONTH);
 		};
 		if (p.weeks != 0) {
 			const dt_inc = add(new_dt, calculus::DEFAULT,
 				period { weeks = p.weeks, ... });
-			new_dt = start_of(unit::WEEK, dt_inc);
+			new_dt = truncate(dt_inc, unit::WEEK);
 		};
 		if (p.days != 0) {
 			const dt_inc = add(new_dt, calculus::DEFAULT,
 				period { days = p.days, ... });
-			new_dt = start_of(unit::DAY, dt_inc);
+			new_dt = truncate(dt_inc, unit::DAY);
 		};
 		if (p.hours != 0) {
 			const dt_inc = add(new_dt, calculus::DEFAULT,
 				period { hours = p.hours, ... });
-			new_dt = start_of(unit::HOUR, dt_inc);
+			new_dt = truncate(dt_inc, unit::HOUR);
 		};
 		if (p.minutes != 0) {
 			const dt_inc = add(new_dt, calculus::DEFAULT,
 				period { minutes = p.minutes, ... });
-			new_dt = start_of(unit::MINUTE, dt_inc);
+			new_dt = truncate(dt_inc, unit::MINUTE);
 		};
 		if (p.seconds != 0) {
 			const dt_inc = add(new_dt, calculus::DEFAULT,
 				period { seconds = p.seconds, ... });
-			new_dt = start_of(unit::SECOND, dt_inc);
+			new_dt = truncate(dt_inc, unit::SECOND);
 		};
 		if (p.nanoseconds != 0) {
 			new_dt = add(new_dt, calculus::DEFAULT,
@@ -644,34 +645,34 @@ export fn subtract(dt: datetime, flag: calculus, pp: period...) datetime = {
 	};
 };
 
-@test fn start_of() void = {
+@test fn truncate() void = {
 	const dt = new(chrono::UTC, 0, 1994, 08, 27, 11, 20, 01, 2)!;
-	assert(eq(start_of(unit::ERA, dt),
+	assert(eq(truncate(dt, unit::ERA),
 			new(chrono::UTC, 0, 01, 01, 01, 00, 00, 00, 0)!),
-		"invalid start_of() result");
-	assert(eq(start_of(unit::YEAR, dt),
+		"invalid truncate() result");
+	assert(eq(truncate(dt, unit::YEAR),
 			new(chrono::UTC, 0, 1994, 01, 01, 00, 00, 00, 0)!),
-		"invalid start_of() result");
-	assert(eq(start_of(unit::MONTH, dt),
+		"invalid truncate() result");
+	assert(eq(truncate(dt, unit::MONTH),
 			new(chrono::UTC, 0, 1994, 08, 01, 00, 00, 00, 0)!),
-		"invalid start_of() result");
-	assert(eq(start_of(unit::WEEK, dt),
+		"invalid truncate() result");
+	assert(eq(truncate(dt, unit::WEEK),
 			new(chrono::UTC, 0, 1994, 08, 22, 00, 00, 00, 0)!),
-		"invalid start_of() result");
-	assert(eq(start_of(unit::DAY, dt),
+		"invalid truncate() result");
+	assert(eq(truncate(dt, unit::DAY),
 			new(chrono::UTC, 0, 1994, 08, 27, 00, 00, 00, 0)!),
-		"invalid start_of() result");
-	assert(eq(start_of(unit::HOUR, dt),
+		"invalid truncate() result");
+	assert(eq(truncate(dt, unit::HOUR),
 			new(chrono::UTC, 0, 1994, 08, 27, 11, 00, 00, 0)!),
-		"invalid start_of() result");
-	assert(eq(start_of(unit::MINUTE, dt),
+		"invalid truncate() result");
+	assert(eq(truncate(dt, unit::MINUTE),
 			new(chrono::UTC, 0, 1994, 08, 27, 11, 20, 00, 0)!),
-		"invalid start_of() result");
-	assert(eq(start_of(unit::SECOND, dt),
+		"invalid truncate() result");
+	assert(eq(truncate(dt, unit::SECOND),
 			new(chrono::UTC, 0, 1994, 08, 27, 11, 20, 01, 0)!),
-		"invalid start_of() result");
-	assert(eq(start_of(unit::NANOSECOND, dt), dt),
-		"invalid start_of() result");
+		"invalid truncate() result");
+	assert(eq(truncate(dt, unit::NANOSECOND), dt),
+		"invalid truncate() result");
 };
 
 @test fn add() void = {
