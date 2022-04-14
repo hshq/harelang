@@ -440,6 +440,17 @@ crypto_curve25519() {
 	fi
 }
 
+crypto_ed25519() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::ed25519 ed25519.ha edwards25519.ha
+		gen_ssa crypto::ed25519
+	else
+		gen_srcs crypto::ed25519 ed25519.ha edwards25519.ha +test.ha
+		gen_ssa crypto::ed25519 bytes crypto::sha512 hash encoding::hex strings
+	fi
+}
+
 dirs() {
 	gen_srcs dirs \
 		xdg.ha
@@ -1307,6 +1318,7 @@ crypto::sha1
 crypto::sha256
 crypto::sha512
 crypto::curve25519
+crypto::ed25519
 datetime
 dirs
 encoding::base64
