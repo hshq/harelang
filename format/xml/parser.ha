@@ -467,13 +467,11 @@ fn prolog(par: *parser) (void | error) = {
 			return par.line: syntaxerr;
 		};
 		// XXX: Deliberate omission: all values other than utf-8
-		match (ascii::strcasecmp(attr.1, "utf-8")) {
-		case void =>
+		if (!ascii::validstr(attr.1)) {
 			return utf8::invalid;
-		case let n: int =>
-			if (n != 0) {
-				return utf8::invalid;
-			};
+		};
+		if (ascii::strcasecmp(attr.1, "utf-8") != 0) {
+			return utf8::invalid;
 		};
 	};
 
@@ -491,13 +489,11 @@ fn prolog(par: *parser) (void | error) = {
 			return par.line: syntaxerr;
 		};
 		// XXX: Deliberate omission: non-standalone documents
-		match (ascii::strcasecmp(attr.1, "yes")) {
-		case void =>
+		if (!ascii::validstr(attr.1)) {
 			return par.line: syntaxerr;
-		case let n: int =>
-			if (n != 0) {
-				return par.line: syntaxerr;
-			};
+		};
+		if (ascii::strcasecmp(attr.1, "yes") != 0) {
+			return par.line: syntaxerr;
 		};
 	};
 

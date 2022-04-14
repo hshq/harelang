@@ -109,15 +109,13 @@ fn decode_name(dec: *decoder) ([]str | format) = {
 			break;
 		};
 
-		const name = dec.cur[..z];
+		const name = strings::fromutf8(dec.cur[..z]);
 		dec.cur = dec.cur[z..];
-		for (let i = 0z; i < len(name); i += 1) {
-			if (!ascii::valid(name[i]: u32: rune)) {
-				return format;
-			};
+		if (!ascii::validstr(name)) {
+			return format;
 		};
 
-		append(names, strings::dup(strings::fromutf8(name)));
+		append(names, strings::dup(name));
 	};
 	return names;
 };
