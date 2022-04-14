@@ -112,7 +112,7 @@ fn decode_name(dec: *decoder) ([]str | format) = {
 		const name = dec.cur[..z];
 		dec.cur = dec.cur[z..];
 		for (let i = 0z; i < len(name); i += 1) {
-			if (!ascii::isascii(name[i]: u32: rune)) {
+			if (!ascii::valid(name[i]: u32: rune)) {
 				return format;
 			};
 		};

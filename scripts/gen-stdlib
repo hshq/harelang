@@ -157,7 +157,8 @@ EOF
 ascii() {
 	gen_srcs ascii \
 		ctype.ha \
-		strcmp.ha
+		strcmp.ha \
+		valid.ha
 	gen_ssa ascii strings
 }
 
@@ -601,7 +602,7 @@ hare_types() {
 	else
 		gensrcs_hare_types
 	fi
-	gen_ssa hare::types hare::ast hare::parse hash hash::fnv endian io
+	gen_ssa hare::types hare::ast hare::parse hash hash::fnv endian io strings
 }
 
 gensrcs_hare_unit() {

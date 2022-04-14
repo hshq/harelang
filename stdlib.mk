@@ -689,7 +689,8 @@ stdlib_uuid_freebsd=$(stdlib_uuid_any)
 # ascii (+any)
 stdlib_ascii_any_srcs= \
 	$(STDLIB)/ascii/ctype.ha \
-	$(STDLIB)/ascii/strcmp.ha
+	$(STDLIB)/ascii/strcmp.ha \
+	$(STDLIB)/ascii/valid.ha
 
 $(HARECACHE)/ascii/ascii-any.ssa: $(stdlib_ascii_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -1182,7 +1183,7 @@ stdlib_hare_types_any_srcs= \
 	$(STDLIB)/hare/types/store.ha \
 	$(STDLIB)/hare/types/types.ha
 
-$(HARECACHE)/hare/types/hare_types-any.ssa: $(stdlib_hare_types_any_srcs) $(stdlib_rt) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_hash_fnv_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
+$(HARECACHE)/hare/types/hare_types-any.ssa: $(stdlib_hare_types_any_srcs) $(stdlib_rt) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_hash_fnv_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/types
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::types \
@@ -2658,7 +2659,8 @@ testlib_uuid_freebsd=$(testlib_uuid_any)
 # ascii (+any)
 testlib_ascii_any_srcs= \
 	$(STDLIB)/ascii/ctype.ha \
-	$(STDLIB)/ascii/strcmp.ha
+	$(STDLIB)/ascii/strcmp.ha \
+	$(STDLIB)/ascii/valid.ha
 
 $(TESTCACHE)/ascii/ascii-any.ssa: $(testlib_ascii_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -3180,7 +3182,7 @@ testlib_hare_types_any_srcs= \
 	$(STDLIB)/hare/types/types.ha \
 	$(STDLIB)/hare/types/+test.ha
 
-$(TESTCACHE)/hare/types/hare_types-any.ssa: $(testlib_hare_types_any_srcs) $(testlib_rt) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_hash_fnv_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+$(TESTCACHE)/hare/types/hare_types-any.ssa: $(testlib_hare_types_any_srcs) $(testlib_rt) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_hash_fnv_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/types
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::types \
