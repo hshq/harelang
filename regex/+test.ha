@@ -286,8 +286,6 @@ fn run_findall_case(
 		(`^test[[:space:]]+$`, "test ", matchres::MATCH, 0, -1),
 		(`^test[[:upper:]]+$`, "testa", matchres::NOMATCH, 0, -1),
 		(`^test[[:upper:]]+$`, "testA", matchres::MATCH, 0, -1),
-		(`^test[[:word:]]+$`, "test!2", matchres::NOMATCH, 0, -1),
-		(`^test[[:word:]]+$`, "test_2", matchres::MATCH, 0, -1),
 		(`^test[[:xdigit:]]+$`, "testCAFE", matchres::MATCH, 0, -1),
 		// [:alpha:] etc. plus extra characters
 		(`^test[[:digit:]][[:alpha:]]$`, "test1a", matchres::MATCH, 0, -1),

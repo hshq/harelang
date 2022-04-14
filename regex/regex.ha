@@ -53,7 +53,7 @@ type newmatch = void;
 
 export type charclass = enum {
 	ALNUM, ALPHA, BLANK, CNTRL, DIGIT, GRAPH, LOWER, PRINT, PUNCT, SPACE,
-	UPPER, WORD, XDIGIT,
+	UPPER, XDIGIT,
 };
 export type charset = [](charset_lit_item | charset_range_item |
 	charset_class_item),
@@ -72,7 +72,6 @@ const charclass_names: [](charclass, str) = [
 	(charclass::PUNCT, ":punct:]"),
 	(charclass::SPACE, ":space:]"),
 	(charclass::UPPER, ":upper:]"),
-	(charclass::WORD, ":word:]"),
 	(charclass::XDIGIT, ":xdigit:]"),
 ];
 const charclass_fns: [](charclass, *fn(c: rune) bool) = [
@@ -87,7 +86,6 @@ const charclass_fns: [](charclass, *fn(c: rune) bool) = [
 	(charclass::PUNCT, &ascii::ispunct),
 	(charclass::SPACE, &ascii::isspace),
 	(charclass::UPPER, &ascii::isupper),
-	(charclass::WORD, &isword),
 	(charclass::XDIGIT, &ascii::isxdigit),
 ];
 const multibyte_err: error = "Character ranges do not support characters larger than one byte.";
@@ -115,8 +113,6 @@ fn find_last_groupstart(insts: *[]inst) (size | error) = {
 	};
 	return `Encountered ")" token without matching "("`: error;
 };
-
-fn isword(c: rune) bool = ascii::isalnum(c) || c == '_';
 
 fn handle_bracket(
 	insts: *[]inst,
