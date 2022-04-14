@@ -69,6 +69,7 @@ export def S_IFSOCK: mode_t = 0o140000;
 export def O_RDONLY: int	= 0o0;
 export def O_WRONLY: int	= 0o1;
 export def O_RDWR: int		= 0o2;
+export def O_ACCMODE: int	= 0o3;
 export def O_CREATE: int	= 0o100;
 export def O_EXCLUSIVE: int	= 0o200;
 export def O_NOCTTY: int	= 0o400;

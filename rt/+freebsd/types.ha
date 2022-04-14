@@ -270,6 +270,7 @@ export def DT_WHT: u8 = 14;
 export def O_RDONLY: int = 0x0000;
 export def O_WRONLY: int = 0x0001;
 export def O_RDWR: int = 0x0002;
+export def O_ACCMODE: int = 0x0003;
 export def O_NONBLOCK: int = 0x0004;
 export def O_APPEND: int = 0x0008;
 export def O_SHLOCK: int = 0x0010;
