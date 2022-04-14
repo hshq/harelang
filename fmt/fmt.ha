@@ -176,6 +176,7 @@ export fn fprintf(
 	args: field...
 ) (io::error | size) = {
 	let n = 0z, i = 0z;
+	let checkunused = true;
 	let iter = strings::iter(fmt);
 	for (true) {
 		let r: rune = match (strings::next(&iter)) {
@@ -200,6 +201,7 @@ export fn fprintf(
 
 			const idx = if (ascii::isdigit(r)) {
 				strings::push(&iter, r);
+				checkunused = false;
 				yield scan_uint(&iter): size;
 			} else {
 				strings::push(&iter, r);
@@ -236,6 +238,7 @@ export fn fprintf(
 
 			match (pi) {
 			case let pi: uint =>
+				checkunused = false;
 				match (args[pi]) {
 				case let pmod: *modifiers =>
 					mod = pmod;
@@ -272,6 +275,7 @@ export fn fprintf(
 		};
 	};
 
+	assert(!checkunused || i == len(args), "Too many parameters given");
 	return n;
 };
 
