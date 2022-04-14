@@ -2,10 +2,10 @@
 // (c) 2021 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
-use ascii;
 use errors;
 use hare::ast;
 use sort;
+use strings;
 
 def BUCKETS: size = 65535;
 
@@ -508,7 +508,7 @@ fn tuple_from_ast(
 
 fn field_cmp(a: const *void, b: const *void) int = {
 	const a = a: const *struct_field, b = b: *const struct_field;
-	return ascii::strcmp(a.name, b.name) as int;
+	return strings::strcmp(a.name, b.name);
 };
 
 fn type_finish(t: *_type) void = {

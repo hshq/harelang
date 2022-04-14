@@ -1,9 +1,9 @@
 // License: GPL-3.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
-use ascii;
 use hare::ast;
 use sort;
+use strings;
 
 type summary = struct {
 	constants: []ast::decl,
@@ -98,7 +98,7 @@ fn decl_cmp(a: const *void, b: const *void) int = {
 		return -1;
 	};
 	const id_a = decl_ident(a), id_b = decl_ident(b);
-	return ascii::strcmp(id_a[len(id_a) - 1], id_b[len(id_b) - 1]) as int;
+	return strings::strcmp(id_a[len(id_a) - 1], id_b[len(id_b) - 1]);
 };
 
 fn decl_ident(decl: ast::decl) ast::ident = {
