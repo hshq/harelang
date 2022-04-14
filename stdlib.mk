@@ -1395,7 +1395,7 @@ stdlib_log_any_srcs= \
 	$(STDLIB)/log/global.ha \
 	$(STDLIB)/log/funcs.ha
 
-$(HARECACHE)/log/log-any.ssa: $(stdlib_log_any_srcs) $(stdlib_rt) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
+$(HARECACHE)/log/log-any.ssa: $(stdlib_log_any_srcs) $(stdlib_rt) $(stdlib_datetime_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/log
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlog \
@@ -3401,7 +3401,7 @@ testlib_log_any_srcs= \
 	$(STDLIB)/log/global.ha \
 	$(STDLIB)/log/funcs.ha
 
-$(TESTCACHE)/log/log-any.ssa: $(testlib_log_any_srcs) $(testlib_rt) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+$(TESTCACHE)/log/log-any.ssa: $(testlib_log_any_srcs) $(testlib_rt) $(testlib_datetime_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/log
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \

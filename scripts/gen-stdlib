@@ -830,7 +830,7 @@ linux_vdso() {
 
 log() {
 	gen_srcs log logger.ha global.ha funcs.ha
-	gen_ssa log fmt io os
+	gen_ssa log datetime fmt io os
 }
 
 gensrcs_math() {
