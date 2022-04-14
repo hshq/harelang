@@ -38,5 +38,10 @@ export fn strcasecmp(a: str, b: str) int = {
 };
 
 @test fn strcmp() void = {
-	assert(strcasecmp("ABC", "abc") as int == 0);
+	assert(strcasecmp("ABC", "ABC") == 0);
+	assert(strcasecmp("ABC", "abc") == 0);
+	assert(strcasecmp("ABC", "aB") > 0);
+	assert(strcasecmp("ab", "Abc") < 0);
+	assert(strcasecmp("bcd", "ABC") > 0);
+	assert(strcasecmp("ABC", "[[[") > 0);
 };
