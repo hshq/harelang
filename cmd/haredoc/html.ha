@@ -76,13 +76,9 @@ fn emit_html(ctx: *context) (void | error) = {
 	if (ctx.template) head(ctx.ident)?;
 
 	if (len(ident) == 0) {
-		fmt::fprintf(ctx.out,
-			"<h2>The Hare standard library <span class='heading-extra'>",
-			ident)?;
+		fmt::fprintf(ctx.out, "<h2>The Hare standard library <span class='heading-extra'>")?;
 	} else {
-		fmt::fprintf(ctx.out,
-			"<h2>{} <span class='heading-extra'>",
-			ident)?;
+		fmt::fprintf(ctx.out, "<h2>{} <span class='heading-extra'>", ident)?;
 	};
 	for (let i = 0z; i < len(ctx.tags); i += 1) {
 		const mode = switch (ctx.tags[i].mode) {
