@@ -52,8 +52,8 @@ type thread = struct {
 type newmatch = void;
 
 export type charclass = enum {
-	ALNUM, ALPHA, ASCII, BLANK, CNTRL, DIGIT, GRAPH, LOWER, PRINT, PUNCT,
-	SPACE, UPPER, WORD, XDIGIT,
+	ALNUM, ALPHA, BLANK, CNTRL, DIGIT, GRAPH, LOWER, PRINT, PUNCT, SPACE,
+	UPPER, WORD, XDIGIT,
 };
 export type charset = [](charset_lit_item | charset_range_item |
 	charset_class_item),
@@ -63,7 +63,6 @@ export type charset = [](charset_lit_item | charset_range_item |
 const charclass_names: [](charclass, str) = [
 	(charclass::ALNUM, ":alnum:]"),
 	(charclass::ALPHA, ":alpha:]"),
-	(charclass::ASCII, ":ascii:]"),
 	(charclass::BLANK, ":blank:]"),
 	(charclass::CNTRL, ":cntrl:]"),
 	(charclass::DIGIT, ":digit:]"),
@@ -79,7 +78,6 @@ const charclass_names: [](charclass, str) = [
 const charclass_fns: [](charclass, *fn(c: rune) bool) = [
 	(charclass::ALNUM, &ascii::isalnum),
 	(charclass::ALPHA, &ascii::isalpha),
-	(charclass::ASCII, &ascii::isascii),
 	(charclass::BLANK, &ascii::isblank),
 	(charclass::CNTRL, &ascii::iscntrl),
 	(charclass::DIGIT, &ascii::isdigit),
