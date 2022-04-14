@@ -4,6 +4,7 @@ bufio
 bytes
 compress
 crypto
+datetime
 dirs
 encoding
 endian
@@ -18,6 +19,7 @@ hash
 io
 iobus
 linux
+log
 math
 mime
 net
