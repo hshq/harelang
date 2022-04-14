@@ -50,7 +50,7 @@ export type func_param = struct {
 	_type: *_type,
 };
 
-// fn(foo: int, ..., baz: ...int) int
+// fn(foo: int, baz: int...) int
 export type func_type = struct {
 	result: *_type,
 	attrs: func_attrs,
@@ -112,7 +112,7 @@ export type struct_type = []struct_member;
 // union { ... }
 export type union_type = []struct_member;
 
-// (int | bool, ...)
+// (int | bool)
 export type tagged_type = []*_type;
 
 // (int, bool, ...)
