@@ -87,7 +87,7 @@ fn typevalid(in: str) (void | errors::invalid) = {
 		case void =>
 			break;
 		};
-		if (!ascii::isascii(rn) || rn == ' '
+		if (!ascii::valid(rn) || rn == ' '
 				|| ascii::iscntrl(rn)
 				|| strings::contains(tspecial, rn)) {
 			return errors::invalid;

@@ -34,55 +34,52 @@ const cclass: []u8 = [
 
 // Returns true if an ASCII character is a letter.
 export fn isalpha(c: rune) bool =
-	if (!isascii(c)) false else cclass[c: u32]&(U|L) > 0;
+	if (!valid(c)) false else cclass[c: u32]&(U|L) > 0;
 
 // Returns true if an ASCII character is uppercase.
 export fn isupper(c: rune) bool =
-	if (!isascii(c)) false else cclass[c: u32]&U > 0;
+	if (!valid(c)) false else cclass[c: u32]&U > 0;
 
 // Returns true if an ASCII character is lowercase.
 export fn islower(c: rune) bool =
-	if (!isascii(c)) false else cclass[c: u32]&L > 0;
+	if (!valid(c)) false else cclass[c: u32]&L > 0;
 
 // Returns true if an ASCII character is a digit.
 export fn isdigit(c: rune) bool =
-	if (!isascii(c)) false else cclass[c: u32]&N > 0;
+	if (!valid(c)) false else cclass[c: u32]&N > 0;
 
 // Returns true if an ASCII character is a hexadecimal digit.
 export fn isxdigit(c: rune) bool =
-	if (!isascii(c)) false else cclass[c: u32]&X > 0;
+	if (!valid(c)) false else cclass[c: u32]&X > 0;
 
 // Returns true if an ASCII character is a white-space character -
 // one of '\f', '\n', '\r', '\t', '\v', ' '.
 export fn isspace(c: rune) bool =
-	if (!isascii(c)) false else cclass[c: u32]&S > 0;
+	if (!valid(c)) false else cclass[c: u32]&S > 0;
 
 // Returns true if an ASCII character is punctuation.
 export fn ispunct(c: rune) bool =
-	if (!isascii(c)) false else cclass[c: u32]&P > 0;
+	if (!valid(c)) false else cclass[c: u32]&P > 0;
 
 // Returns true if an ASCII character is alphanumeric.
 export fn isalnum(c: rune) bool =
-	if (!isascii(c)) false else cclass[c: u32]&(U|L|N) > 0;
+	if (!valid(c)) false else cclass[c: u32]&(U|L|N) > 0;
 
 // Returns true if an ASCII character is printable.
 export fn isprint(c: rune) bool =
-	if (!isascii(c)) false else cclass[c: u32]&(P|U|L|N|B) > 0;
+	if (!valid(c)) false else cclass[c: u32]&(P|U|L|N|B) > 0;
 
 // Returns true if an ASCII character is any printable character other than
 // space.
 export fn isgraph(c: rune) bool =
-	if (!isascii(c)) false else cclass[c: u32]&(P|U|L|N) > 0;
+	if (!valid(c)) false else cclass[c: u32]&(P|U|L|N) > 0;
 
 // Returns true if an ASCII character is a control character.
 export fn iscntrl(c: rune) bool =
-	if (!isascii(c)) false else cclass[c: u32]&C > 0;
+	if (!valid(c)) false else cclass[c: u32]&C > 0;
 
 // Returns true if a rune is a space or a tab.
 export fn isblank(c: rune) bool = (c == ' ' || c == '\t');
-
-// Returns true if a rune is a valid ASCII character.
-export fn isascii(c: rune) bool = c: u32 <= 0o177;
 
 // Returns the uppercase form of an ASCII character, or the original character
 // if it was not a lowercase letter (or was not ASCII).
@@ -105,8 +102,6 @@ export fn tolower(c: rune) rune = {
 	assert(isspace(' ') && !isspace('x') && !isspace('こ'));
 	assert(isalnum('a') && isalnum('8') && !isalnum('こ'));
 	assert(!ispunct('\0') && iscntrl('\b'));
-	assert(isascii('a') && isascii('\0') && isascii('\x7F'));
-	assert(!isascii('\x80') && !isascii('こ'));
 	assert(tolower('A') == 'a' && tolower('こ') == 'こ');
 	assert(isblank(' ') && isblank('\t') && !isblank('6'));
 };

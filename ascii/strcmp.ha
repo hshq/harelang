@@ -20,7 +20,7 @@ export fn strcmp(a: str, b: str) (int | void) = {
 				case void =>
 					break;
 				case let r: rune =>
-					if (!isascii(r)) return;
+					if (!valid(r)) return;
 				};
 				return -1;
 			};
@@ -39,7 +39,7 @@ export fn strcmp(a: str, b: str) (int | void) = {
 		case let r: rune =>
 			yield r;
 		};
-		if (!isascii(ra) || !isascii(rb)) {
+		if (!valid(ra) || !valid(rb)) {
 			return;
 		};
 		if (ra != rb) {
@@ -67,7 +67,7 @@ export fn strcasecmp(a: str, b: str) (int | void) = {
 				case void =>
 					break;
 				case let r: rune =>
-					if (!isascii(r)) return;
+					if (!valid(r)) return;
 				};
 				return -1;
 			};

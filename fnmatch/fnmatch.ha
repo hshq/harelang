@@ -312,7 +312,7 @@ fn match_ctype(it: *strings::iterator, c: rune) (bool | errors::invalid) = {
 	let i = 0z;
 	for (let r = '\0'; r != ':'; i+= 1) {
 		r = advance_or_err(it)?;
-		if (!ascii::isascii(r)) {
+		if (!ascii::valid(r)) {
 			return errors::invalid;
 		};
 	};

@@ -34,7 +34,7 @@ export fn encoding_init(enc: *encoding, alphabet: str) void = {
 	assert(len(alphabet) == 64);
 	for (let i: u8 = 0; i < 64; i += 1) {
 		const ch = alphabet[i];
-		assert(ascii::isascii(ch: u32: rune));
+		assert(ascii::valid(ch: u32: rune));
 		enc.encmap[i] = ch;
 		enc.decmap[ch] = i;
 		enc.valid[ch] = true;
