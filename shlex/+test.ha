@@ -60,3 +60,17 @@ use strings;
 	assert(split("'dangling single quote") is syntaxerr);
 	assert(split(`unterminated\ backslash \`) is syntaxerr);
 };
+
+@test fn quote() void = {
+	const bare = quotestr(`hello`);
+	defer free(bare);
+	assert(bare == `hello`);
+
+	const spaces = quotestr(`hello world`);
+	defer free(spaces);
+	assert(spaces == `"hello world"`);
+
+	const quotes = quotestr(`'hello' "world"`);
+	defer free(quotes);
+	assert(quotes == `"'hello' "'"'"world"'"'""`);
+};

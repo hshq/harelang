@@ -1674,6 +1674,7 @@ $(HARECACHE)/regex/regex-any.ssa: $(stdlib_regex_any_srcs) $(stdlib_rt) $(stdlib
 
 # shlex (+any)
 stdlib_shlex_any_srcs= \
+	$(STDLIB)/shlex/escape.ha \
 	$(STDLIB)/shlex/split.ha
 
 $(HARECACHE)/shlex/shlex-any.ssa: $(stdlib_shlex_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM))
@@ -3685,6 +3686,7 @@ $(TESTCACHE)/regex/regex-any.ssa: $(testlib_regex_any_srcs) $(testlib_rt) $(test
 
 # shlex (+any)
 testlib_shlex_any_srcs= \
+	$(STDLIB)/shlex/escape.ha \
 	$(STDLIB)/shlex/split.ha \
 	$(STDLIB)/shlex/+test.ha
 
