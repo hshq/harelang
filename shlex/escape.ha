@@ -14,15 +14,14 @@ fn is_safe(s: str) bool = {
 			break;
 		};
 
-		if (!ascii::isprint(rn) || ascii::isspace(rn)) {
-			return false;
-		};
 
 		switch (rn) {
 		case '@', '%', '+', '=', ':', ',', '.', '/', '-' =>
-			return false;
+			return true;
 		case =>
-			yield;
+			if (!ascii::isalnum(rn) || ascii::isspace(rn)) {
+				return false;
+			};
 		};
 	};
 	return true;
