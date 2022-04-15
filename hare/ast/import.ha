@@ -23,7 +23,7 @@ export type import = struct {
 };
 
 // Frees resources associated with an [[import]].
-export fn import_free(import: import) void = {
+export fn import_finish(import: import) void = {
 	ident_free(import.ident);
 	if (import.mode == import_mode::ALIAS) {
 		free(import.alias);
