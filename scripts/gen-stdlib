@@ -441,7 +441,7 @@ crypto_curve25519() {
 dirs() {
 	gen_srcs dirs \
 		xdg.ha
-	gen_ssa dirs fs os path
+	gen_ssa dirs fs io os path
 }
 
 encoding_base64() {
