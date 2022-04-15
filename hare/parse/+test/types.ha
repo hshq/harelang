@@ -64,6 +64,9 @@ export type baz = enum rune {
 	roundtrip("export type foo = (int, str);
 
 export type bar = (a, b::c, d);
+
+export type baz = (bat, foo::bar::baz, long_type_name, yet_another_very_long_type_name,
+	this_spans_multiple_lines, for_readability);
 ");
 };
 
