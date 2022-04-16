@@ -197,6 +197,31 @@ fn emit_html(ctx: *context) (void | error) = {
 	};
 };
 
+fn comment_html(out: io::handle, s: str) (size | io::error) = {
+	// TODO: handle [[references]]
+	let z = fmt::fprint(out, "<span class='comment'>//")?;
+	z += html_escape(out, s)?;
+	z += fmt::fprint(out, "</span><br>")?;
+	return z;
+};
+
+fn docs_html(out: io::handle, s: str, indent: size) (size | io::error) = {
+	const iter = strings::tokenize(s, "\n");
+	let z = 0z;
+	for (true) match (strings::next_token(&iter)) {
+	case let s: str =>
+		if (!(strings::peek_token(&iter) is void)) {
+			z += comment_html(out, s)?;
+			for (let i = 0z; i < indent; i += 1) {
+				z += fmt::fprint(out, "\t")?;
+			};
+		};
+	case void => break;
+	};
+
+	return z;
+};
+
 fn tocentries(
 	out: io::handle,
 	decls: []ast::decl,
@@ -213,7 +238,7 @@ fn tocentries(
 		if (!undoc && decls[i].docs == "") {
 			fmt::fprintfln(
 				out,
-				"{}<span style='color: #444'>// Undocumented {}:</span>",
+				"{}<span class='comment'>// Undocumented {}:</span>",
 				if (i == 0) "" else "\n",
 				lname)?;
 			undoc = true;
@@ -490,11 +515,22 @@ fn enum_html(
 		z += fmt::fprintf(out, "<span class='type'>{}</span> ",
 			unparse::builtin_type(t.storage))?;
 	};
-	z += fmt::fprint(out, "{")?;
+	z += fmt::fprintln(out, "{")?;
+	indent += 1;
 	for (let i = 0z; i < len(t.values); i += 1) {
+		for (let i = 0z; i < indent; i += 1) {
+			z += fmt::fprint(out, "\t")?;
+		};
 		const val = t.values[i];
+		let wrotedocs = false;
+		if (val.docs != "") {
+			// Check if comment should go above or next to field
+			if (multiline_comment(val.docs)) {
+				z += docs_html(out, val.docs, indent)?;
+				wrotedocs = true;
+			};
+		};
 
-		z += newline(out, indent + 1)?;
 		z += fmt::fprint(out, val.name)?;
 
 		match (val.value) {
@@ -505,6 +541,17 @@ fn enum_html(
 		};
 
 		z += fmt::fprint(out, ",")?;
+
+		if (val.docs != "" && !wrotedocs) {
+			z += fmt::fprint(out, " ")?;
+			z += docs_html(out, val.docs, 0)?;
+		} else {
+			z += fmt::fprintln(out)?;
+		};
+	};
+	indent -= 1;
+	for (let i = 0z; i < indent; i += 1) {
+		z += fmt::fprint(out, "\t")?;
 	};
 	z += newline(out, indent)?;
 	z += fmt::fprint(out, "}")?;
@@ -532,6 +579,9 @@ fn struct_union_html(
 		const member = members[i];
 
 		z += newline(out, indent)?;
+		if (member.docs != "" && !brief) {
+			z += docs_html(out, member.docs, indent)?;
+		};
 		match (member._offset) {
 		case null => void;
 		case let expr: *ast::expr =>
@@ -940,6 +990,11 @@ details pre {
 	margin: 0;
 }
 
+.comment {
+	color: #000;
+	font-weight: bold;
+}
+
 @media(max-width: 1000px) {
 	main {
 		padding: 0;
@@ -986,6 +1041,10 @@ details pre {
 
 	pre .type {
 		color: #3cf;
+	}
+
+	.comment {
+		color: #fff;
 	}
 }
 </style>
