@@ -17,7 +17,7 @@ fn is_safe(s: str) bool = {
 
 		switch (rn) {
 		case '@', '%', '+', '=', ':', ',', '.', '/', '-' =>
-			return true;
+			void;
 		case =>
 			if (!ascii::isalnum(rn) || ascii::isspace(rn)) {
 				return false;
