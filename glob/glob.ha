@@ -8,9 +8,11 @@ use sort;
 use strings;
 use strio;
 
-// MARK is currently not supported.
+// Flags used to control the behavior of [[next]].
 export type flags = enum uint {
 	NONE = 0,
+	// Slash appending is enabled. A slash character is appended to each
+	// pathname that is a directory that matches the pattern.
 	MARK = 1 << 1,
 	// If the pattern does not match any pathname, the pattern string is
 	// returned.
@@ -47,7 +49,7 @@ export type failure = !struct {
 // freed using [[globfree]].
 export fn glob(pattern: str, flags: flags...) generator = {
 	let ss = strstack_init();
-	strstack_push(&ss, pattern);
+	strio::concat(strstack_push(&ss), pattern)!;
 	let bs = flags::NONE;
 	for (let i = 0z; i < len(flags); i += 1) {
 		bs |= flags[i];
@@ -118,14 +120,15 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 		flgs |= fnmatch::flags::NOESCAPE;
 	};
 	let it = match(fs::iter(fs, if (len(dir) > 0) dir else ".")) {
-	case let i: *fs::iterator =>
-		yield i;
 	case let e: fs::error =>
 		return failure {
 			path = dir,
 			error = e,
 		};
+	case let i: *fs::iterator =>
+		yield i;
 	};
+	defer fs::finish(it);
 	for (true) match (fs::next(it)) {
 	case void =>
 		break;
@@ -133,12 +136,33 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 		if (!fnmatch::fnmatch(pat, de.name, flgs)) {
 			continue;
 		};
-		if (len(rem) == 0) {
-			strstack_push(&gen.pats, dir, de.name);
-			gen.matc += 1;
+		let b = strstack_push(&gen.pats);
+		if (len(rem) > 0) {
+			strio::concat(b, dir, de.name, "/", rem)!;
 			continue;
 		};
-		strstack_push(&gen.pats, dir, de.name, "/", rem);
+		strio::concat(b, dir, de.name)!;
+		if (gen.flgs & flags::MARK != 0) {
+			let m = fs::isdir(de.ftype);
+			// POSIX does not specify the behavior when a pathname
+			// that matches the pattern is a symlink to a
+			// directory. But in major implementation a slash
+			// character is appended in this case.
+			if (fs::islink(de.ftype)) {
+				match (fs::realpath(fs, strio::string(b))) {
+				case let r: str =>
+					match (fs::stat(fs, r)) {
+					case let s: fs::filestat =>
+						m = fs::isdir(s.mode);
+					};
+				};
+			};
+			if (m) {
+				strio::concat(b, "/")!;
+			};
+		};
+		gen.matc += 1;
+
 	};
 	if (gen.flgs & flags::NOSORT == 0) {
 		strstack_sort(&gen.pats, l);
@@ -204,17 +228,19 @@ fn strstack_free(ss: *strstack) void = {
 	for (let i = 0z; i < len(ss.bufv); i += 1) {
 		io::close(&ss.bufv[i]);
 	};
+	free(ss.bufv);
 };
 
 fn strstack_size(ss: *strstack) size = ss.bufc;
 
-fn strstack_push(ss: *strstack, strs: str...) void = {
+fn strstack_push(ss: *strstack) *strio::dynamic_stream = {
 	if (ss.bufc == len(ss.bufv)) {
 		append(ss.bufv, strio::dynamic());
 	};
-	strio::reset(&ss.bufv[ss.bufc]);
-	strio::concat(&ss.bufv[ss.bufc], strs...)!;
+	let b = &ss.bufv[ss.bufc];
+	strio::reset(b);
 	ss.bufc += 1;
+	return b;
 };
 
 fn strstack_pop(ss: *strstack) (str | void) = {

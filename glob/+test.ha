@@ -1,11 +1,12 @@
 use fnmatch;
+use strings;
 
 @test fn glob() void = {
 	const cases: [_](str, flags) = [
 		("/u??/*in/a*", flags::NONE),
 		("/u*r/l?[bc]*/[bg]*", flags::NOSORT),
-		("/?sr/[sb]in/*[[:digit:]]*", flags::NONE),
-		("/h??\\e/*/.*", flags::NOSORT),
+		("/?sr/[sb]in/*[[:digit:]]*", flags::MARK),
+		("/h??\\e/*/.*", flags::NOSORT | flags::MARK),
 		("/\\h??e/*/.*", flags::NOSORT | flags::NOESCAPE),
 		("/r*/*", flags::NOSORT),
 		("/*.?a", flags::NOCHECK),
@@ -31,7 +32,14 @@ use fnmatch;
 			if (cases[i].1 & flags::NOESCAPE != 0) {
 				bs |= fnmatch::flags::NOESCAPE;
 			};
-			assert(fnmatch::fnmatch(cases[i].0, s, bs));
+			assert(fnmatch::fnmatch(cases[i].0, s, bs)
+				|| cases[i].1 & flags::MARK != 0
+				&& fnmatch::fnmatch(
+					cases[i].0,
+					strings::rtrim(s, '/'),
+					bs
+				)
+			);
 		};
 	};
 };
