@@ -833,7 +833,7 @@ stdlib_crypto_hmac_any_srcs= \
 	$(STDLIB)/crypto/hmac/sha1.ha \
 	$(STDLIB)/crypto/hmac/sha256.ha
 
-$(HARECACHE)/crypto/hmac/crypto_hmac-any.ssa: $(stdlib_crypto_hmac_any_srcs) $(stdlib_rt) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
+$(HARECACHE)/crypto/hmac/crypto_hmac-any.ssa: $(stdlib_crypto_hmac_any_srcs) $(stdlib_rt) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_crypto_sha1_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/hmac
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::hmac \
