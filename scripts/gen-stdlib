@@ -322,11 +322,13 @@ crypto_hmac() {
 	then
 		gen_srcs crypto::hmac \
 			hmac.ha \
+			sha1.ha \
 			sha256.ha
 		gen_ssa crypto::hmac crypto::mac crypto::sha256 hash io bytes
 	else
 		gen_srcs crypto::hmac \
 			hmac.ha \
+			sha1.ha \
 			sha256.ha \
 			+test.ha
 		gen_ssa crypto::hmac bytes crypto::mac hash crypto::sha1 \

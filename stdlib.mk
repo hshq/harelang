@@ -824,6 +824,7 @@ $(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_src
 # crypto::hmac (+any)
 stdlib_crypto_hmac_any_srcs= \
 	$(STDLIB)/crypto/hmac/hmac.ha \
+	$(STDLIB)/crypto/hmac/sha1.ha \
 	$(STDLIB)/crypto/hmac/sha256.ha
 
 $(HARECACHE)/crypto/hmac/crypto_hmac-any.ssa: $(stdlib_crypto_hmac_any_srcs) $(stdlib_rt) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
@@ -2805,6 +2806,7 @@ $(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_sr
 # crypto::hmac (+any)
 testlib_crypto_hmac_any_srcs= \
 	$(STDLIB)/crypto/hmac/hmac.ha \
+	$(STDLIB)/crypto/hmac/sha1.ha \
 	$(STDLIB)/crypto/hmac/sha256.ha \
 	$(STDLIB)/crypto/hmac/+test.ha
 

@@ -21,7 +21,7 @@ def init2: u32 = 0x98BADCFE;
 def init3: u32 = 0x10325476;
 def init4: u32 = 0xC3D2E1F0;
 
-export type digest = struct {
+export type state = struct {
 	hash::hash,
 	h: [5]u32,
 	x: [chunk]u8,
@@ -35,8 +35,8 @@ export type digest = struct {
 // function is used to hash sensitive information, the caller should call
 // [[hash::close]] to erase sentitive data from memory after use; if not, the
 // use of [[hash::close]] is optional.
-export fn sha1() digest = {
-	let sha = digest {
+export fn sha1() state = {
+	let sha = state {
 		writer = &write,
 		closer = &close,
 		sum = &sum,
@@ -50,7 +50,7 @@ export fn sha1() digest = {
 };
 
 fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
-	let h = st: *digest;
+	let h = st: *state;
 	let b: []u8 = buf;
 	let nn = len(buf);
 
@@ -82,7 +82,7 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 };
 
 fn reset(h: *hash::hash) void = {
-	let h = h: *digest;
+	let h = h: *state;
 	h.h[0] = init0;
 	h.h[1] = init1;
 	h.h[2] = init2;
@@ -93,7 +93,7 @@ fn reset(h: *hash::hash) void = {
 };
 
 fn sum(h: *hash::hash, buf: []u8) void = {
-	let h = h: *digest;
+	let h = h: *state;
 	let copy = *h;
 	let h = &copy;
 	defer hash::close(h);
@@ -126,7 +126,7 @@ let K2: u32 = 0x8F1BBCDC;
 let K3: u32 = 0xCA62C1D6;
 
 // A generic, pure Hare version of the SHA-1 block step
-fn block(h: *digest, p: []u8) void = {
+fn block(h: *state, p: []u8) void = {
 	let w: [16]u32 = [0...];
 
 	let h0 = h.h[0];
@@ -220,7 +220,7 @@ fn block(h: *digest, p: []u8) void = {
 };
 
 fn close(stream: *io::stream) void = {
-	let s = stream: *digest;
+	let s = stream: *state;
 	bytes::zero((s.h[..]: *[*]u8)[..len(s.h) * size(u32)]);
 	bytes::zero(s.x);
 };
