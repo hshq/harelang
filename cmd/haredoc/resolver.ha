@@ -135,7 +135,7 @@ fn lookup_remote_enum(ctx: *context, what: ast::ident) (ast::ident | void) = {
 	let decls: []ast::decl = [];
 	defer {
 		for (let i = 0z; i < len(decls); i += 1) {
-			ast::decl_free(decls[i]);
+			ast::decl_finish(decls[i]);
 		};
 		free(decls);
 	};

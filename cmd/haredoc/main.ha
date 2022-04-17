@@ -161,7 +161,7 @@ export fn main() void = {
 			if (has_decl(decls[i], decl)) {
 				append(new, decls[i]);
 			} else {
-				ast::decl_free(decls[i]);
+				ast::decl_finish(decls[i]);
 			};
 		};
 		if (len(new) == 0) {

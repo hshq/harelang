@@ -63,7 +63,7 @@ export type decl = struct {
 };
 
 // Frees resources associated with a declaration.
-export fn decl_free(d: decl) void = {
+export fn decl_finish(d: decl) void = {
 	free(d.docs);
 	match (d.decl) {
 	case let g: []decl_global =>

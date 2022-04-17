@@ -15,7 +15,7 @@ export fn subunit_finish(u: subunit) void = {
 	};
 	free(u.imports);
 	for (let i = 0z; i < len(u.decls); i += 1) {
-		decl_free(u.decls[i]);
+		decl_finish(u.decls[i]);
 	};
 	free(u.decls);
 };
