@@ -1,0 +1,15 @@
+The crypto::blowfish module provides an implementation of Bruce Schneier's
+Blowfish encryption standard via the [[crypto::cipher::block]] interface. The
+use of this algorithm is not recommended except for legacy use-cases; prefer
+[[aes]] when possible.
+
+When combined with a block cipher mode from [[crypto::cipher]], suitable buffer
+lengths for static allocation are provided as constants such as [[BLOCKSIZE]].
+
+This is a low-level module which implements cryptographic primitives. Direct use
+of cryptographic primitives is not recommended for non-experts, as incorrect use
+of these primitives can easily lead to the introduction of security
+vulnerabilities. Non-experts are advised to use the high-level operations
+available in the top-level [[crypto]] module.
+
+Be advised that Hare's cryptography implementations have not been audited.

@@ -296,6 +296,25 @@ crypto_blake2b() {
 	fi
 }
 
+gensrcs_crypto_blowfish() {
+	gen_srcs crypto::blowfish \
+		blowfish.ha \
+		const.ha \
+		$*
+}
+
+crypto_blowfish() {
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_crypto_blowfish
+		gen_ssa crypto::blowfish bytes crypto::cipher endian
+	else
+		gensrcs_crypto_blowfish +test.ha
+		gen_ssa crypto::blowfish bytes crypto::cipher endian \
+			os encoding::hex fmt
+	fi
+}
+
 crypto_chacha() {
 	if [ $testing -eq 0 ]
 	then
@@ -1306,6 +1325,7 @@ crypto::aes
 crypto::aes::xts
 crypto::argon2
 crypto::blake2b
+crypto::blowfish
 crypto::chacha
 crypto::cipher
 crypto::hmac
