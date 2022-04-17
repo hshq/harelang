@@ -2830,7 +2830,7 @@ testlib_crypto_blowfish_any_srcs= \
 	$(STDLIB)/crypto/blowfish/const.ha \
 	$(STDLIB)/crypto/blowfish/+test.ha
 
-$(TESTCACHE)/crypto/blowfish/crypto_blowfish-any.ssa: $(testlib_crypto_blowfish_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
+$(TESTCACHE)/crypto/blowfish/crypto_blowfish-any.ssa: $(testlib_crypto_blowfish_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/blowfish
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::blowfish \

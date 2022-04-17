@@ -307,12 +307,10 @@ crypto_blowfish() {
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_crypto_blowfish
-		gen_ssa crypto::blowfish bytes crypto::cipher endian
 	else
 		gensrcs_crypto_blowfish +test.ha
-		gen_ssa crypto::blowfish bytes crypto::cipher endian \
-			os encoding::hex fmt
 	fi
+	gen_ssa crypto::blowfish bytes crypto::cipher endian
 }
 
 crypto_chacha() {

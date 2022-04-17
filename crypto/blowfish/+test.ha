@@ -1,8 +1,5 @@
 use bytes;
 use crypto::cipher;
-use encoding::hex;
-use fmt;
-use os;
 
 const key_vectors: [_][8]u8 = [
 	[0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
