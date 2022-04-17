@@ -718,7 +718,7 @@ hare_parse() {
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_hare_parse
-		gen_ssa hare::parse hare::ast hare::lex hare::unparse fmt
+		gen_ssa hare::parse ascii hare::ast hare::lex fmt strings
 	else
 		gensrcs_hare_parse \
 			+test/expr.ha \
@@ -727,8 +727,8 @@ hare_parse() {
 			+test/roundtrip.ha \
 			+test/types.ha \
 			+test/unit.ha
-		gen_ssa hare::parse bufio fmt hare::ast hare::lex hare::unparse io \
-			strings strio fmt
+		gen_ssa hare::parse ascii bufio hare::ast hare::lex \
+			hare::unparse io strio fmt strings
 	fi
 }
 

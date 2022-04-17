@@ -5,7 +5,6 @@ use ascii;
 use hare::ast;
 use hare::lex::{ltok};
 use hare::lex;
-use hare::unparse;
 use strings;
 
 fn attr_symbol(lexer: *lex::lexer) (str | error) = {

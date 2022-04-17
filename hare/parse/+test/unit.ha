@@ -5,11 +5,9 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
 use bufio;
-use fmt;
 use hare::ast;
 use hare::lex;
 use io::{mode};
-use io;
 use strings;
 
 fn import_eq(i1: ast::import, i2: ast::import) bool = {
