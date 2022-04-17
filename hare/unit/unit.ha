@@ -28,7 +28,7 @@ export type unit = struct {
 	decls: []decl,
 };
 
-export fn unit_free(unit: unit) void = {
+export fn unit_finish(unit: unit) void = {
 	// TODO
 	return;
 };

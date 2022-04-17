@@ -91,6 +91,6 @@ export fn main() void = {
 	case let u: unit::unit =>
 		yield u;
 	};
-	defer unit::unit_free(unit);
+	defer unit::unit_finish(unit);
 	gen(out, store, &unit);
 };
