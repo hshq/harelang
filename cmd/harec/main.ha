@@ -59,7 +59,7 @@ export fn main() void = {
 
 	let subunits: []ast::subunit = [];
 	defer for (let i = 0z; i < len(subunits); i += 1) {
-		ast::subunit_free(subunits[i]);
+		ast::subunit_finish(subunits[i]);
 	};
 
 	for (let i = 0z; i < len(cmd.args); i += 1) {

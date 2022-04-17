@@ -9,7 +9,7 @@ export type subunit = struct {
 };
 
 // Frees resources associated with a [[subunit]].
-export fn subunit_free(u: subunit) void = {
+export fn subunit_finish(u: subunit) void = {
 	for (let i = 0z; i < len(u.imports); i += 1) {
 		import_finish(u.imports[i]);
 	};
