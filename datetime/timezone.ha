@@ -5,7 +5,7 @@ use time;
 use time::chrono;
 
 // Transforms and creates a new [[datetime]] in a different
-// [[chrono::locality]].
+// [[time::chrono::locality]].
 export fn in(loc: chrono::locality, dt: datetime) datetime = {
 	const old = to_moment(dt);
 	const new = chrono::in(loc, old);

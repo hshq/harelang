@@ -8,7 +8,7 @@ export type timescale = struct {
 	from_tai: *ts_converter,
 };
 
-// Converts one [[time::instant]] in one [[chrono::timescale]] to another
+// Converts one [[time::instant]] from one [[timescale]] to another
 export type ts_converter = fn(i: time::instant) (time::instant | time::error);
 
 // International Atomic Time

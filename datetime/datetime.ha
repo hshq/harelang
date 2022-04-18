@@ -67,12 +67,12 @@ fn init() datetime = datetime {
 // observe Daylight Saving Time.
 //
 // If specified (non-void), 'offs' must match one of the timezone's observed
-// zoffsets, or will fail. See [[chrono::fixedzone]] for custom timezones.
+// zoffsets, or will fail. See [[time::chrono::fixedzone]] for custom timezones.
 //
 // You may omit the zoffset. If the givem timezone has a single zone, [[new]]
 // will use that zone's zoffset. Otherwise [[new]] will try to infer the zoffset
 // from the multiple zones. This will fail during certain timezone transitions,
-// where certain datetimes are [[ambiguous]] or [[nonexistant]]. For example:
+// where certain datetimes are ambiguous or nonexistent. For example:
 //
 // - In the Europe/Amsterdam timezone, at 1995 March 26th,
 //   the local time 02:30 was never observed,
@@ -164,7 +164,7 @@ export fn now() datetime = {
 	return from_moment(m);
 };
 
-// Creates a [[datetime]] from a [[chrono::moment]].
+// Creates a [[datetime]] from a [[time::chrono::moment]].
 export fn from_moment(m: chrono::moment) datetime = {
 	const dt = init();
 	dt.date = m.date;
@@ -193,7 +193,7 @@ export fn from_str(layout: str, s: str) (datetime | insufficient | invalid) = {
 	return finish(&b)?;
 };
 
-// Creates a [[chrono::moment]] from a [[datetime]]
+// Creates a [[time::chrono::moment]] from a [[datetime]]
 export fn to_moment(dt: datetime) chrono::moment = {
 	return chrono::moment {
 		date = dt.date,

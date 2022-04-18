@@ -26,10 +26,9 @@ export fn strerror(err: error) const str = {
 	};
 };
 
-// Parses and retrieves a [[chrono::timezone]] from the system zoneinfo
-// database, or if applicable, from an internal selection of timezones.
-// All tzdb timezones default to the [[chrono::utc]] timescale and
-// [[chrono::EARTH_DAY]] daylength.
+// Parses and retrieves a [[timezone]] from the system's zoneinfo database, or
+// if applicable, from an internal selection of timezones. All timezones
+// provided default to the [[utc]] timescale and [[EARTH_DAY]] daylength.
 export fn tz(name: str) (timezone | fs::error | io::error | invalidtzif) = {
 	// TODO: Move this path to +linux et al
 	const prefix = "/usr/share/zoneinfo/";
