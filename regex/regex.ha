@@ -9,14 +9,13 @@ use strings;
 // A string describing the error the occurred.
 export type error = !str;
 
-export type match_type = enum { ANCHORED, FLOATING };
 export type inst_lit = rune,
 	inst_charset = struct { idx: size, is_positive: bool },
 	inst_any = void,
 	inst_split = size,
 	inst_jump = size,
 	inst_skip = void,
-	inst_match = match_type,
+	inst_match = bool,
 	inst_groupstart = void,
 	inst_groupend = void,
 	inst_repeat = struct {
@@ -219,7 +218,7 @@ export fn compile(expr: str) (regex | error) = {
 	let charsets: []charset = alloc([]);
 	let iter = strings::iter(expr);
 	let r_idx = 0z;
-	let match_type = match_type::FLOATING;
+	let anchored = false;
 	let curr_alt_jump_idx = -1;
 	let in_bracket = false;
 	let skip_charclass_rest = false;
@@ -272,7 +271,7 @@ export fn compile(expr: str) (regex | error) = {
 			if (r_idx != len(expr) - 1) {
 				return `Anchor character "$" may only occur at the end of the expression`: error;
 			};
-			match_type = match_type::ANCHORED;
+			anchored = true;
 		case '[' =>
 			in_bracket = true;
 		case ']' =>
@@ -392,7 +391,7 @@ export fn compile(expr: str) (regex | error) = {
 		r_idx += 1;
 	};
 
-	append(insts, match_type: inst_match);
+	append(insts, anchored: inst_match);
 
 	return regex {
 		insts = insts,
@@ -521,11 +520,10 @@ fn run_thread(
 			threads[i].start_idx = str_idx: size;
 			add_thread(threads, i, new_pc);
 			break;
-		case inst_match =>
+		case let anchored: inst_match =>
 			// Do not match if we need an end-anchored match, but we
 			// have not exhausted our string
-			const mt = re.insts[threads[i].pc]: inst_match: match_type;
-			if (mt == match_type::ANCHORED && !(r_or_end is void)) {
+			if (anchored && !(r_or_end is void)) {
 				threads[i].failed = true;
 				return;
 			};
