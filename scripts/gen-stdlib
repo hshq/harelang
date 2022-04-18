@@ -1116,7 +1116,7 @@ shlex() {
 		gensrcs_shlex \
 			+test.ha
 	fi
-	gen_ssa shlex bufio io strings strio
+	gen_ssa shlex ascii bufio encoding::utf8 io strings strio
 }
 
 slices() {
