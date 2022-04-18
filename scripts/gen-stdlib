@@ -540,24 +540,6 @@ format_ini() {
 	gen_ssa format::ini bufio encoding::utf8 fmt io strings
 }
 
-gensrcs_format_xml() {
-	gen_srcs format::xml \
-		types.ha \
-		parser.ha \
-		chars.ha \
-		$*
-}
-
-format_xml() {
-	if [ $testing -eq 0 ]
-	then
-		gensrcs_format_xml
-	else
-		gensrcs_format_xml +test.ha
-	fi
-	gen_ssa format::xml fmt io bufio strings ascii strio os
-}
-
 fs() {
 	gen_srcs fs \
 		types.ha \
@@ -1306,7 +1288,6 @@ fmt
 fnmatch
 format::elf
 format::ini
-format::xml
 fs
 getopt
 glob
