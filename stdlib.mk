@@ -963,7 +963,7 @@ stdlib_crypto_ed25519_any_srcs= \
 	$(STDLIB)/crypto/ed25519/ed25519.ha \
 	$(STDLIB)/crypto/ed25519/edwards25519.ha
 
-$(HARECACHE)/crypto/ed25519/crypto_ed25519-any.ssa: $(stdlib_crypto_ed25519_any_srcs) $(stdlib_rt)
+$(HARECACHE)/crypto/ed25519/crypto_ed25519-any.ssa: $(stdlib_crypto_ed25519_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_sha512_$(PLATFORM)) $(stdlib_hash_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/ed25519
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::ed25519 \
