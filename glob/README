@@ -1,0 +1,4 @@
+The glob module provides an implementation of file globbing compatible with the
+behavior described by POSIX.
+
+https://pubs.opengroup.org/onlinepubs/9699919799/functions/glob.html

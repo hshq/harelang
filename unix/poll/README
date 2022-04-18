@@ -1,0 +1,4 @@
+unix::poll provides an interface for polling activity on file descriptors,
+compatible with the behavior defined by POSIX.
+
+https://pubs.opengroup.org/onlinepubs/9699919799/functions/poll.html
