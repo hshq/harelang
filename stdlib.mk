@@ -148,18 +148,6 @@ stdlib_deps_any+=$(stdlib_bytes_any)
 stdlib_bytes_linux=$(stdlib_bytes_any)
 stdlib_bytes_freebsd=$(stdlib_bytes_any)
 
-# gen_lib compress::flate (any)
-stdlib_compress_flate_any=$(HARECACHE)/compress/flate/compress_flate-any.o
-stdlib_deps_any+=$(stdlib_compress_flate_any)
-stdlib_compress_flate_linux=$(stdlib_compress_flate_any)
-stdlib_compress_flate_freebsd=$(stdlib_compress_flate_any)
-
-# gen_lib compress::zlib (any)
-stdlib_compress_zlib_any=$(HARECACHE)/compress/zlib/compress_zlib-any.o
-stdlib_deps_any+=$(stdlib_compress_zlib_any)
-stdlib_compress_zlib_linux=$(stdlib_compress_zlib_any)
-stdlib_compress_zlib_freebsd=$(stdlib_compress_zlib_any)
-
 # gen_lib crypto (any)
 stdlib_crypto_any=$(HARECACHE)/crypto/crypto-any.o
 stdlib_deps_any+=$(stdlib_crypto_any)
@@ -729,26 +717,6 @@ $(HARECACHE)/bytes/bytes-any.ssa: $(stdlib_bytes_any_srcs) $(stdlib_rt) $(stdlib
 	@mkdir -p $(HARECACHE)/bytes
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nbytes \
 		-t$(HARECACHE)/bytes/bytes.td $(stdlib_bytes_any_srcs)
-
-# compress::flate (+any)
-stdlib_compress_flate_any_srcs= \
-	$(STDLIB)/compress/flate/inflate.ha
-
-$(HARECACHE)/compress/flate/compress_flate-any.ssa: $(stdlib_compress_flate_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/compress/flate
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncompress::flate \
-		-t$(HARECACHE)/compress/flate/compress_flate.td $(stdlib_compress_flate_any_srcs)
-
-# compress::zlib (+any)
-stdlib_compress_zlib_any_srcs= \
-	$(STDLIB)/compress/zlib/reader.ha
-
-$(HARECACHE)/compress/zlib/compress_zlib-any.ssa: $(stdlib_compress_zlib_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_compress_flate_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_hash_adler32_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/compress/zlib
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncompress::zlib \
-		-t$(HARECACHE)/compress/zlib/compress_zlib.td $(stdlib_compress_zlib_any_srcs)
 
 # crypto (+any)
 stdlib_crypto_any_srcs= \
@@ -2117,18 +2085,6 @@ testlib_deps_any+=$(testlib_bytes_any)
 testlib_bytes_linux=$(testlib_bytes_any)
 testlib_bytes_freebsd=$(testlib_bytes_any)
 
-# gen_lib compress::flate (any)
-testlib_compress_flate_any=$(TESTCACHE)/compress/flate/compress_flate-any.o
-testlib_deps_any+=$(testlib_compress_flate_any)
-testlib_compress_flate_linux=$(testlib_compress_flate_any)
-testlib_compress_flate_freebsd=$(testlib_compress_flate_any)
-
-# gen_lib compress::zlib (any)
-testlib_compress_zlib_any=$(TESTCACHE)/compress/zlib/compress_zlib-any.o
-testlib_deps_any+=$(testlib_compress_zlib_any)
-testlib_compress_zlib_linux=$(testlib_compress_zlib_any)
-testlib_compress_zlib_freebsd=$(testlib_compress_zlib_any)
-
 # gen_lib crypto (any)
 testlib_crypto_any=$(TESTCACHE)/crypto/crypto-any.o
 testlib_deps_any+=$(testlib_crypto_any)
@@ -2698,27 +2654,6 @@ $(TESTCACHE)/bytes/bytes-any.ssa: $(testlib_bytes_any_srcs) $(testlib_rt) $(test
 	@mkdir -p $(TESTCACHE)/bytes
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbytes \
 		-t$(TESTCACHE)/bytes/bytes.td $(testlib_bytes_any_srcs)
-
-# compress::flate (+any)
-testlib_compress_flate_any_srcs= \
-	$(STDLIB)/compress/flate/inflate.ha
-
-$(TESTCACHE)/compress/flate/compress_flate-any.ssa: $(testlib_compress_flate_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/compress/flate
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncompress::flate \
-		-t$(TESTCACHE)/compress/flate/compress_flate.td $(testlib_compress_flate_any_srcs)
-
-# compress::zlib (+any)
-testlib_compress_zlib_any_srcs= \
-	$(STDLIB)/compress/zlib/data+test.ha \
-	$(STDLIB)/compress/zlib/reader.ha
-
-$(TESTCACHE)/compress/zlib/compress_zlib-any.ssa: $(testlib_compress_zlib_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_compress_flate_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_hash_adler32_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/compress/zlib
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncompress::zlib \
-		-t$(TESTCACHE)/compress/zlib/compress_zlib.td $(testlib_compress_zlib_any_srcs)
 
 # crypto (+any)
 testlib_crypto_any_srcs= \

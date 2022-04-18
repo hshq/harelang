@@ -5,7 +5,6 @@ use io;
 use os;
 use strings;
 
-def PERFTEST_ON: bool = false;
 type matchres = enum { MATCH, NOMATCH, ERROR };
 
 fn run_find_case(
@@ -529,37 +528,6 @@ fn run_findall_case(
 		};
 		run_find_case(expr, string, should_match, start, end);
 	};
-
-	if (PERFTEST_ON) {
-		const f = os::open("compress/zlib/data+test.ha")!;
-		const buf: [2000000]u8 = [0...];
-		io::read(f, buf)!;
-		const test_data = strings::fromutf8(buf);
-
-		const perf_cases = [
-			(
-				`^a*a*a*a*a*a*a*a*a*a*a*a*a*a*a*a*aaaaaaaaaaaaaaaa$`,
-				"aaaaaaaaaaaaaaaa",
-				matchres::MATCH,
-				0, -1
-			),
-			(`.*.*.*rand_out`, test_data, matchres::MATCH, 0, 1211255),
-			(`0x`, test_data, matchres::MATCH, 86, 88),
-		];
-
-		for (let i = 0z; i < len(perf_cases); i += 1) {
-			const expr = perf_cases[i].0;
-			const string = perf_cases[i].1;
-			const should_match = perf_cases[i].2;
-			const start = perf_cases[i].3;
-			const end = if (perf_cases[i].4 == -1) {
-				yield len(string): int;
-			} else {
-				yield perf_cases[i].4;
-			};
-			run_find_case(expr, string, should_match, start, end);
-		};
-	};
 };
 
 @test fn findall() void = {
@@ -573,24 +541,5 @@ fn run_findall_case(
 		const should_match = cases[i].2;
 		const count = cases[i].3;
 		run_findall_case(expr, string, should_match, count);
-	};
-
-	if (PERFTEST_ON) {
-		const f = os::open("compress/zlib/data+test.ha")!;
-		const buf: [2000000]u8 = [0...];
-		io::read(f, buf)!;
-		const test_data = strings::fromutf8(buf);
-
-		const perf_cases = [
-			(`0x`, test_data, matchres::MATCH, 199053),
-		];
-
-		for (let i = 0z; i < len(perf_cases); i += 1) {
-			const expr = perf_cases[i].0;
-			const string = perf_cases[i].1;
-			const should_match = perf_cases[i].2;
-			const count = perf_cases[i].3;
-			run_findall_case(expr, string, should_match, count);
-		};
 	};
 };

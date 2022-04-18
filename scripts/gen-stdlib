@@ -195,26 +195,6 @@ datetime() {
 	gen_ssa datetime  errors fmt strings strio time time::chrono
 }
 
-compress_flate() {
-	gen_srcs compress::flate \
-		inflate.ha
-	gen_ssa compress::flate bufio bytes endian errors io fmt
-}
-
-compress_zlib() {
-	if [ $testing -eq 0 ]
-	then
-		gen_srcs compress::zlib \
-			reader.ha
-	else
-		gen_srcs compress::zlib \
-			data+test.ha \
-			reader.ha
-	fi
-	gen_ssa compress::zlib bufio bytes compress::flate endian errors hash \
-		hash::adler32 io fmt
-}
-
 crypto() {
 	if [ $testing -eq 0 ]
 	then
@@ -1295,8 +1275,6 @@ uuid() {
 modules="ascii
 bufio
 bytes
-compress::flate
-compress::zlib
 crypto
 crypto::aes
 crypto::aes::xts
