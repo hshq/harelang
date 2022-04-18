@@ -2,7 +2,7 @@ Important notice: Hare's cryptography implementations have not been audited. You
 can contribute to the funding of an independent audit of our cryptography
 implementation on OpenCollective:
 
-TODO: Add link
+https://opencollective.com/hare/projects/cryptography-audit
 
 The "crypto" module provides easy-to-use and hard-to-misuse functions for doing
 various high-level cryptographic operations. This is the recommended approach
