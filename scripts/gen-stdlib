@@ -817,16 +817,6 @@ io() {
 	gen_ssa -pfreebsd io strings errors
 }
 
-iobus_io_uring() {
-	gen_srcs -plinux iobus::io_uring \
-		bus.ha \
-		handle.ha \
-		ops.ha \
-		pool.ha \
-		types.ha
-	gen_ssa -plinux iobus::io_uring errors io linux::io_uring net::ip unix::poll
-}
-
 linux() {
 	gen_srcs -plinux linux \
 		start.ha \
@@ -1367,7 +1357,6 @@ hash::crc32
 hash::crc64
 hash::fnv
 io			linux freebsd
-iobus::io_uring	linux
 linux			linux
 linux::keyctl		linux
 linux::io_uring		linux

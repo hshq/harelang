@@ -24,7 +24,7 @@ modules="$(getmods)"
 mkdir -p docs/html/
 
 haredoc -Fhtml > docs/html/index.html
-for mod in $modules compress format encoding math crypto hare rt iobus
+for mod in $modules compress format encoding math crypto hare rt
 do
 	echo $mod
 	path="$(echo $mod | sed -e 's?::?/?g')"

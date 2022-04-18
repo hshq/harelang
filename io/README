@@ -11,8 +11,7 @@ unless they specifically require the special semantics of one of its subtypes.
 The [[file]] type provides access to an object, usually a file descriptor, which
 is provided by the host operating system. It represents objects such as a file
 on disk, an open network connection, and so on. The use of [[file]] is generally
-required when working with host I/O, such as for modules like [[iobus]] or
-[[unix::poll]].
+required when working with host I/O, such as with [[unix::poll]].
 
 The [[stream]] type is an abstraction that allows Hare programs to implement
 their own I/O objects by providing implementations of [[read]], [[write]], and

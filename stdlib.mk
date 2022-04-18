@@ -458,10 +458,6 @@ stdlib_deps_linux+=$(stdlib_io_linux)
 stdlib_io_freebsd=$(HARECACHE)/io/io-freebsd.o
 stdlib_deps_freebsd+=$(stdlib_io_freebsd)
 
-# gen_lib iobus::io_uring (linux)
-stdlib_iobus_io_uring_linux=$(HARECACHE)/iobus/io_uring/iobus_io_uring-linux.o
-stdlib_deps_linux+=$(stdlib_iobus_io_uring_linux)
-
 # gen_lib linux (linux)
 stdlib_linux_linux=$(HARECACHE)/linux/linux-linux.o
 stdlib_deps_linux+=$(stdlib_linux_linux)
@@ -1362,20 +1358,6 @@ $(HARECACHE)/io/io-freebsd.ssa: $(stdlib_io_freebsd_srcs) $(stdlib_rt) $(stdlib_
 	@mkdir -p $(HARECACHE)/io
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
 		-t$(HARECACHE)/io/io.td $(stdlib_io_freebsd_srcs)
-
-# iobus::io_uring (+linux)
-stdlib_iobus_io_uring_linux_srcs= \
-	$(STDLIB)/iobus/io_uring/bus.ha \
-	$(STDLIB)/iobus/io_uring/handle.ha \
-	$(STDLIB)/iobus/io_uring/ops.ha \
-	$(STDLIB)/iobus/io_uring/pool.ha \
-	$(STDLIB)/iobus/io_uring/types.ha
-
-$(HARECACHE)/iobus/io_uring/iobus_io_uring-linux.ssa: $(stdlib_iobus_io_uring_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_linux_io_uring_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_unix_poll_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/iobus/io_uring
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Niobus::io_uring \
-		-t$(HARECACHE)/iobus/io_uring/iobus_io_uring.td $(stdlib_iobus_io_uring_linux_srcs)
 
 # linux (+linux)
 stdlib_linux_linux_srcs= \
@@ -2464,10 +2446,6 @@ testlib_deps_linux+=$(testlib_io_linux)
 testlib_io_freebsd=$(TESTCACHE)/io/io-freebsd.o
 testlib_deps_freebsd+=$(testlib_io_freebsd)
 
-# gen_lib iobus::io_uring (linux)
-testlib_iobus_io_uring_linux=$(TESTCACHE)/iobus/io_uring/iobus_io_uring-linux.o
-testlib_deps_linux+=$(testlib_iobus_io_uring_linux)
-
 # gen_lib linux (linux)
 testlib_linux_linux=$(TESTCACHE)/linux/linux-linux.o
 testlib_deps_linux+=$(testlib_linux_linux)
@@ -3406,20 +3384,6 @@ $(TESTCACHE)/io/io-freebsd.ssa: $(testlib_io_freebsd_srcs) $(testlib_rt) $(testl
 	@mkdir -p $(TESTCACHE)/io
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
 		-t$(TESTCACHE)/io/io.td $(testlib_io_freebsd_srcs)
-
-# iobus::io_uring (+linux)
-testlib_iobus_io_uring_linux_srcs= \
-	$(STDLIB)/iobus/io_uring/bus.ha \
-	$(STDLIB)/iobus/io_uring/handle.ha \
-	$(STDLIB)/iobus/io_uring/ops.ha \
-	$(STDLIB)/iobus/io_uring/pool.ha \
-	$(STDLIB)/iobus/io_uring/types.ha
-
-$(TESTCACHE)/iobus/io_uring/iobus_io_uring-linux.ssa: $(testlib_iobus_io_uring_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_linux_io_uring_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_unix_poll_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/iobus/io_uring
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Niobus::io_uring \
-		-t$(TESTCACHE)/iobus/io_uring/iobus_io_uring.td $(testlib_iobus_io_uring_linux_srcs)
 
 # linux (+linux)
 testlib_linux_linux_srcs= \

@@ -4,6 +4,3 @@ familiar with io_uring. Thus, it is recommended that a reading of this module is
 paired with the Linux documentation, which may be available from your local
 liburing package under the io_uring_setup, io_uring_enter, and io_uring_register
 man pages.
-
-For a high-level I/O multiplexing interface, which takes advantage of io_uring
-if available, users are encouraged to use [[iobus]] instead.
