@@ -831,17 +831,6 @@ linux_keyctl() {
 	gen_ssa -plinux linux::keyctl rt errors strings bytes
 }
 
-linux_io_uring() {
-	gen_srcs -plinux linux::io_uring \
-		cqe.ha \
-		queue.ha \
-		register.ha \
-		setup.ha \
-		sqe.ha \
-		uring.ha
-	gen_ssa -plinux linux::io_uring errors types
-}
-
 linux_vdso() {
 	gen_srcs -plinux linux::vdso \
 		vdso.ha
@@ -1359,7 +1348,6 @@ hash::fnv
 io			linux freebsd
 linux			linux
 linux::keyctl		linux
-linux::io_uring		linux
 linux::vdso		linux
 log
 math

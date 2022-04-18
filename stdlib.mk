@@ -466,10 +466,6 @@ stdlib_deps_linux+=$(stdlib_linux_linux)
 stdlib_linux_keyctl_linux=$(HARECACHE)/linux/keyctl/linux_keyctl-linux.o
 stdlib_deps_linux+=$(stdlib_linux_keyctl_linux)
 
-# gen_lib linux::io_uring (linux)
-stdlib_linux_io_uring_linux=$(HARECACHE)/linux/io_uring/linux_io_uring-linux.o
-stdlib_deps_linux+=$(stdlib_linux_io_uring_linux)
-
 # gen_lib linux::vdso (linux)
 stdlib_linux_vdso_linux=$(HARECACHE)/linux/vdso/linux_vdso-linux.o
 stdlib_deps_linux+=$(stdlib_linux_vdso_linux)
@@ -1380,21 +1376,6 @@ $(HARECACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(stdlib_linux_keyctl_linux_sr
 	@mkdir -p $(HARECACHE)/linux/keyctl
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::keyctl \
 		-t$(HARECACHE)/linux/keyctl/linux_keyctl.td $(stdlib_linux_keyctl_linux_srcs)
-
-# linux::io_uring (+linux)
-stdlib_linux_io_uring_linux_srcs= \
-	$(STDLIB)/linux/io_uring/cqe.ha \
-	$(STDLIB)/linux/io_uring/queue.ha \
-	$(STDLIB)/linux/io_uring/register.ha \
-	$(STDLIB)/linux/io_uring/setup.ha \
-	$(STDLIB)/linux/io_uring/sqe.ha \
-	$(STDLIB)/linux/io_uring/uring.ha
-
-$(HARECACHE)/linux/io_uring/linux_io_uring-linux.ssa: $(stdlib_linux_io_uring_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/linux/io_uring
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::io_uring \
-		-t$(HARECACHE)/linux/io_uring/linux_io_uring.td $(stdlib_linux_io_uring_linux_srcs)
 
 # linux::vdso (+linux)
 stdlib_linux_vdso_linux_srcs= \
@@ -2454,10 +2435,6 @@ testlib_deps_linux+=$(testlib_linux_linux)
 testlib_linux_keyctl_linux=$(TESTCACHE)/linux/keyctl/linux_keyctl-linux.o
 testlib_deps_linux+=$(testlib_linux_keyctl_linux)
 
-# gen_lib linux::io_uring (linux)
-testlib_linux_io_uring_linux=$(TESTCACHE)/linux/io_uring/linux_io_uring-linux.o
-testlib_deps_linux+=$(testlib_linux_io_uring_linux)
-
 # gen_lib linux::vdso (linux)
 testlib_linux_vdso_linux=$(TESTCACHE)/linux/vdso/linux_vdso-linux.o
 testlib_deps_linux+=$(testlib_linux_vdso_linux)
@@ -3406,21 +3383,6 @@ $(TESTCACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(testlib_linux_keyctl_linux_s
 	@mkdir -p $(TESTCACHE)/linux/keyctl
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::keyctl \
 		-t$(TESTCACHE)/linux/keyctl/linux_keyctl.td $(testlib_linux_keyctl_linux_srcs)
-
-# linux::io_uring (+linux)
-testlib_linux_io_uring_linux_srcs= \
-	$(STDLIB)/linux/io_uring/cqe.ha \
-	$(STDLIB)/linux/io_uring/queue.ha \
-	$(STDLIB)/linux/io_uring/register.ha \
-	$(STDLIB)/linux/io_uring/setup.ha \
-	$(STDLIB)/linux/io_uring/sqe.ha \
-	$(STDLIB)/linux/io_uring/uring.ha
-
-$(TESTCACHE)/linux/io_uring/linux_io_uring-linux.ssa: $(testlib_linux_io_uring_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_types_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/linux/io_uring
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::io_uring \
-		-t$(TESTCACHE)/linux/io_uring/linux_io_uring.td $(testlib_linux_io_uring_linux_srcs)
 
 # linux::vdso (+linux)
 testlib_linux_vdso_linux_srcs= \

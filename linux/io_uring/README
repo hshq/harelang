@@ -1,6 +1,0 @@
-The io_uring module provides access to Linux's io_uring subsystem. The
-documentation for this module is somewhat scarce: users are presumed to be
-familiar with io_uring. Thus, it is recommended that a reading of this module is
-paired with the Linux documentation, which may be available from your local
-liburing package under the io_uring_setup, io_uring_enter, and io_uring_register
-man pages.
