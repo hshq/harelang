@@ -1194,9 +1194,15 @@ unix() {
 }
 
 unix_hosts() {
-	gen_srcs unix::hosts \
-        lookup.ha
-	gen_ssa unix::hosts os io bufio net::ip strings
+	gen_srcs -plinux unix::hosts \
+		+linux.ha \
+		lookup.ha
+	gen_ssa -plinux unix::hosts os io bufio net::ip strings
+
+	gen_srcs -pfreebsd unix::hosts \
+		+freebsd.ha \
+		lookup.ha
+	gen_ssa -pfreebsd unix::hosts os io bufio net::ip strings
 }
 
 unix_passwd() {
@@ -1216,9 +1222,15 @@ unix_poll() {
 }
 
 unix_resolvconf() {
-	gen_srcs unix::resolvconf \
-        load.ha
-	gen_ssa unix::resolvconf os io bufio net::ip strings
+	gen_srcs -plinux unix::resolvconf \
+		+linux.ha \
+		load.ha
+	gen_ssa -plinux unix::resolvconf os io bufio net::ip strings
+
+	gen_srcs -pfreebsd unix::resolvconf \
+		+freebsd.ha \
+		load.ha
+	gen_ssa -pfreebsd unix::resolvconf os io bufio net::ip strings
 }
 
 unix_signal() {
@@ -1334,10 +1346,10 @@ time			linux freebsd
 time::chrono
 types
 unix			linux freebsd
-unix::hosts
+unix::hosts	linux freebsd
 unix::passwd
 unix::poll		linux freebsd
-unix::resolvconf
+unix::resolvconf	linux freebsd
 unix::signal		linux
 unix::tty		linux freebsd
 uuid"

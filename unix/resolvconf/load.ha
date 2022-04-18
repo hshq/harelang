@@ -8,9 +8,6 @@ use net::ip;
 use os;
 use strings;
 
-// XXX: Different platforms may want to configure a different path
-def path: str = "/etc/resolv.conf";
-
 let cache: []ip::addr = [];
 
 @fini fn fini() void = {
@@ -26,7 +23,7 @@ export fn load() []ip::addr = {
 		return cache;
 	};
 
-	const file = os::open(path)!;
+	const file = os::open(PATH)!;
 	defer io::close(file);
 
 	for (true) {

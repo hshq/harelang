@@ -628,11 +628,13 @@ stdlib_deps_linux+=$(stdlib_unix_linux)
 stdlib_unix_freebsd=$(HARECACHE)/unix/unix-freebsd.o
 stdlib_deps_freebsd+=$(stdlib_unix_freebsd)
 
-# gen_lib unix::hosts (any)
-stdlib_unix_hosts_any=$(HARECACHE)/unix/hosts/unix_hosts-any.o
-stdlib_deps_any+=$(stdlib_unix_hosts_any)
-stdlib_unix_hosts_linux=$(stdlib_unix_hosts_any)
-stdlib_unix_hosts_freebsd=$(stdlib_unix_hosts_any)
+# gen_lib unix::hosts (linux)
+stdlib_unix_hosts_linux=$(HARECACHE)/unix/hosts/unix_hosts-linux.o
+stdlib_deps_linux+=$(stdlib_unix_hosts_linux)
+
+# gen_lib unix::hosts (freebsd)
+stdlib_unix_hosts_freebsd=$(HARECACHE)/unix/hosts/unix_hosts-freebsd.o
+stdlib_deps_freebsd+=$(stdlib_unix_hosts_freebsd)
 
 # gen_lib unix::passwd (any)
 stdlib_unix_passwd_any=$(HARECACHE)/unix/passwd/unix_passwd-any.o
@@ -648,11 +650,13 @@ stdlib_deps_linux+=$(stdlib_unix_poll_linux)
 stdlib_unix_poll_freebsd=$(HARECACHE)/unix/poll/unix_poll-freebsd.o
 stdlib_deps_freebsd+=$(stdlib_unix_poll_freebsd)
 
-# gen_lib unix::resolvconf (any)
-stdlib_unix_resolvconf_any=$(HARECACHE)/unix/resolvconf/unix_resolvconf-any.o
-stdlib_deps_any+=$(stdlib_unix_resolvconf_any)
-stdlib_unix_resolvconf_linux=$(stdlib_unix_resolvconf_any)
-stdlib_unix_resolvconf_freebsd=$(stdlib_unix_resolvconf_any)
+# gen_lib unix::resolvconf (linux)
+stdlib_unix_resolvconf_linux=$(HARECACHE)/unix/resolvconf/unix_resolvconf-linux.o
+stdlib_deps_linux+=$(stdlib_unix_resolvconf_linux)
+
+# gen_lib unix::resolvconf (freebsd)
+stdlib_unix_resolvconf_freebsd=$(HARECACHE)/unix/resolvconf/unix_resolvconf-freebsd.o
+stdlib_deps_freebsd+=$(stdlib_unix_resolvconf_freebsd)
 
 # gen_lib unix::signal (linux)
 stdlib_unix_signal_linux=$(HARECACHE)/unix/signal/unix_signal-linux.o
@@ -1812,15 +1816,27 @@ $(HARECACHE)/unix/unix-freebsd.ssa: $(stdlib_unix_freebsd_srcs) $(stdlib_rt) $(s
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix \
 		-t$(HARECACHE)/unix/unix.td $(stdlib_unix_freebsd_srcs)
 
-# unix::hosts (+any)
-stdlib_unix_hosts_any_srcs= \
+# unix::hosts (+linux)
+stdlib_unix_hosts_linux_srcs= \
+	$(STDLIB)/unix/hosts/+linux.ha \
 	$(STDLIB)/unix/hosts/lookup.ha
 
-$(HARECACHE)/unix/hosts/unix_hosts-any.ssa: $(stdlib_unix_hosts_any_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+$(HARECACHE)/unix/hosts/unix_hosts-linux.ssa: $(stdlib_unix_hosts_linux_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/hosts
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::hosts \
-		-t$(HARECACHE)/unix/hosts/unix_hosts.td $(stdlib_unix_hosts_any_srcs)
+		-t$(HARECACHE)/unix/hosts/unix_hosts.td $(stdlib_unix_hosts_linux_srcs)
+
+# unix::hosts (+freebsd)
+stdlib_unix_hosts_freebsd_srcs= \
+	$(STDLIB)/unix/hosts/+freebsd.ha \
+	$(STDLIB)/unix/hosts/lookup.ha
+
+$(HARECACHE)/unix/hosts/unix_hosts-freebsd.ssa: $(stdlib_unix_hosts_freebsd_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/hosts
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::hosts \
+		-t$(HARECACHE)/unix/hosts/unix_hosts.td $(stdlib_unix_hosts_freebsd_srcs)
 
 # unix::passwd (+any)
 stdlib_unix_passwd_any_srcs= \
@@ -1854,15 +1870,27 @@ $(HARECACHE)/unix/poll/unix_poll-freebsd.ssa: $(stdlib_unix_poll_freebsd_srcs) $
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::poll \
 		-t$(HARECACHE)/unix/poll/unix_poll.td $(stdlib_unix_poll_freebsd_srcs)
 
-# unix::resolvconf (+any)
-stdlib_unix_resolvconf_any_srcs= \
+# unix::resolvconf (+linux)
+stdlib_unix_resolvconf_linux_srcs= \
+	$(STDLIB)/unix/resolvconf/+linux.ha \
 	$(STDLIB)/unix/resolvconf/load.ha
 
-$(HARECACHE)/unix/resolvconf/unix_resolvconf-any.ssa: $(stdlib_unix_resolvconf_any_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+$(HARECACHE)/unix/resolvconf/unix_resolvconf-linux.ssa: $(stdlib_unix_resolvconf_linux_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/resolvconf
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::resolvconf \
-		-t$(HARECACHE)/unix/resolvconf/unix_resolvconf.td $(stdlib_unix_resolvconf_any_srcs)
+		-t$(HARECACHE)/unix/resolvconf/unix_resolvconf.td $(stdlib_unix_resolvconf_linux_srcs)
+
+# unix::resolvconf (+freebsd)
+stdlib_unix_resolvconf_freebsd_srcs= \
+	$(STDLIB)/unix/resolvconf/+freebsd.ha \
+	$(STDLIB)/unix/resolvconf/load.ha
+
+$(HARECACHE)/unix/resolvconf/unix_resolvconf-freebsd.ssa: $(stdlib_unix_resolvconf_freebsd_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/resolvconf
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::resolvconf \
+		-t$(HARECACHE)/unix/resolvconf/unix_resolvconf.td $(stdlib_unix_resolvconf_freebsd_srcs)
 
 # unix::signal (+linux)
 stdlib_unix_signal_linux_srcs= \
@@ -2547,11 +2575,13 @@ testlib_deps_linux+=$(testlib_unix_linux)
 testlib_unix_freebsd=$(TESTCACHE)/unix/unix-freebsd.o
 testlib_deps_freebsd+=$(testlib_unix_freebsd)
 
-# gen_lib unix::hosts (any)
-testlib_unix_hosts_any=$(TESTCACHE)/unix/hosts/unix_hosts-any.o
-testlib_deps_any+=$(testlib_unix_hosts_any)
-testlib_unix_hosts_linux=$(testlib_unix_hosts_any)
-testlib_unix_hosts_freebsd=$(testlib_unix_hosts_any)
+# gen_lib unix::hosts (linux)
+testlib_unix_hosts_linux=$(TESTCACHE)/unix/hosts/unix_hosts-linux.o
+testlib_deps_linux+=$(testlib_unix_hosts_linux)
+
+# gen_lib unix::hosts (freebsd)
+testlib_unix_hosts_freebsd=$(TESTCACHE)/unix/hosts/unix_hosts-freebsd.o
+testlib_deps_freebsd+=$(testlib_unix_hosts_freebsd)
 
 # gen_lib unix::passwd (any)
 testlib_unix_passwd_any=$(TESTCACHE)/unix/passwd/unix_passwd-any.o
@@ -2567,11 +2597,13 @@ testlib_deps_linux+=$(testlib_unix_poll_linux)
 testlib_unix_poll_freebsd=$(TESTCACHE)/unix/poll/unix_poll-freebsd.o
 testlib_deps_freebsd+=$(testlib_unix_poll_freebsd)
 
-# gen_lib unix::resolvconf (any)
-testlib_unix_resolvconf_any=$(TESTCACHE)/unix/resolvconf/unix_resolvconf-any.o
-testlib_deps_any+=$(testlib_unix_resolvconf_any)
-testlib_unix_resolvconf_linux=$(testlib_unix_resolvconf_any)
-testlib_unix_resolvconf_freebsd=$(testlib_unix_resolvconf_any)
+# gen_lib unix::resolvconf (linux)
+testlib_unix_resolvconf_linux=$(TESTCACHE)/unix/resolvconf/unix_resolvconf-linux.o
+testlib_deps_linux+=$(testlib_unix_resolvconf_linux)
+
+# gen_lib unix::resolvconf (freebsd)
+testlib_unix_resolvconf_freebsd=$(TESTCACHE)/unix/resolvconf/unix_resolvconf-freebsd.o
+testlib_deps_freebsd+=$(testlib_unix_resolvconf_freebsd)
 
 # gen_lib unix::signal (linux)
 testlib_unix_signal_linux=$(TESTCACHE)/unix/signal/unix_signal-linux.o
@@ -3776,15 +3808,27 @@ $(TESTCACHE)/unix/unix-freebsd.ssa: $(testlib_unix_freebsd_srcs) $(testlib_rt) $
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
 		-t$(TESTCACHE)/unix/unix.td $(testlib_unix_freebsd_srcs)
 
-# unix::hosts (+any)
-testlib_unix_hosts_any_srcs= \
+# unix::hosts (+linux)
+testlib_unix_hosts_linux_srcs= \
+	$(STDLIB)/unix/hosts/+linux.ha \
 	$(STDLIB)/unix/hosts/lookup.ha
 
-$(TESTCACHE)/unix/hosts/unix_hosts-any.ssa: $(testlib_unix_hosts_any_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/unix/hosts/unix_hosts-linux.ssa: $(testlib_unix_hosts_linux_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/hosts
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
-		-t$(TESTCACHE)/unix/hosts/unix_hosts.td $(testlib_unix_hosts_any_srcs)
+		-t$(TESTCACHE)/unix/hosts/unix_hosts.td $(testlib_unix_hosts_linux_srcs)
+
+# unix::hosts (+freebsd)
+testlib_unix_hosts_freebsd_srcs= \
+	$(STDLIB)/unix/hosts/+freebsd.ha \
+	$(STDLIB)/unix/hosts/lookup.ha
+
+$(TESTCACHE)/unix/hosts/unix_hosts-freebsd.ssa: $(testlib_unix_hosts_freebsd_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/hosts
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
+		-t$(TESTCACHE)/unix/hosts/unix_hosts.td $(testlib_unix_hosts_freebsd_srcs)
 
 # unix::passwd (+any)
 testlib_unix_passwd_any_srcs= \
@@ -3818,15 +3862,27 @@ $(TESTCACHE)/unix/poll/unix_poll-freebsd.ssa: $(testlib_unix_poll_freebsd_srcs) 
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \
 		-t$(TESTCACHE)/unix/poll/unix_poll.td $(testlib_unix_poll_freebsd_srcs)
 
-# unix::resolvconf (+any)
-testlib_unix_resolvconf_any_srcs= \
+# unix::resolvconf (+linux)
+testlib_unix_resolvconf_linux_srcs= \
+	$(STDLIB)/unix/resolvconf/+linux.ha \
 	$(STDLIB)/unix/resolvconf/load.ha
 
-$(TESTCACHE)/unix/resolvconf/unix_resolvconf-any.ssa: $(testlib_unix_resolvconf_any_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/unix/resolvconf/unix_resolvconf-linux.ssa: $(testlib_unix_resolvconf_linux_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/resolvconf
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \
-		-t$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td $(testlib_unix_resolvconf_any_srcs)
+		-t$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td $(testlib_unix_resolvconf_linux_srcs)
+
+# unix::resolvconf (+freebsd)
+testlib_unix_resolvconf_freebsd_srcs= \
+	$(STDLIB)/unix/resolvconf/+freebsd.ha \
+	$(STDLIB)/unix/resolvconf/load.ha
+
+$(TESTCACHE)/unix/resolvconf/unix_resolvconf-freebsd.ssa: $(testlib_unix_resolvconf_freebsd_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/resolvconf
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \
+		-t$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td $(testlib_unix_resolvconf_freebsd_srcs)
 
 # unix::signal (+linux)
 testlib_unix_signal_linux_srcs= \
