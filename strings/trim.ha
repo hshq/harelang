@@ -67,7 +67,7 @@ export fn rtrim(input: str, trim: rune...) str = {
 			break;
 		};
 	};
-	return fromutf8(it.dec.src[..it.dec.offs]);
+	return fromutf8_unsafe(it.dec.src[..it.dec.offs]);
 };
 
 // Returns a string (borrowed from given input string) after trimming off of
@@ -83,7 +83,7 @@ export fn trim(input: str, exclude: rune...) str =
 export fn trimprefix(input: str, trim: str) str = {
 	if (!hasprefix(input, trim)) return input;
 	const slice = toutf8(input);
-	return fromutf8(slice[len(trim)..]);
+	return fromutf8_unsafe(slice[len(trim)..]);
 };
 
 // Returns a string (borrowed from given input string) after trimming off the
@@ -92,7 +92,7 @@ export fn trimprefix(input: str, trim: str) str = {
 export fn trimsuffix(input: str, trim: str) str = {
 	if (!hassuffix(input, trim)) return input;
 	const slice = toutf8(input);
-	return fromutf8(slice[..len(input) - len(trim)]);
+	return fromutf8_unsafe(slice[..len(input) - len(trim)]);
 };
 
 @test fn trim() void = {
