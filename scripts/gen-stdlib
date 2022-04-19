@@ -1124,8 +1124,7 @@ strings() {
 
 strio() {
 	gen_srcs strio \
-		dynamic.ha \
-		fixed.ha \
+		stream.ha \
 		ops.ha
 	gen_ssa strio io strings slices encoding::utf8 errors
 }

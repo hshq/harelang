@@ -1706,8 +1706,7 @@ $(HARECACHE)/strings/strings-any.ssa: $(stdlib_strings_any_srcs) $(stdlib_rt) $(
 
 # strio (+any)
 stdlib_strio_any_srcs= \
-	$(STDLIB)/strio/dynamic.ha \
-	$(STDLIB)/strio/fixed.ha \
+	$(STDLIB)/strio/stream.ha \
 	$(STDLIB)/strio/ops.ha
 
 $(HARECACHE)/strio/strio-any.ssa: $(stdlib_strio_any_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_slices_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
@@ -3699,8 +3698,7 @@ $(TESTCACHE)/strings/strings-any.ssa: $(testlib_strings_any_srcs) $(testlib_rt) 
 
 # strio (+any)
 testlib_strio_any_srcs= \
-	$(STDLIB)/strio/dynamic.ha \
-	$(STDLIB)/strio/fixed.ha \
+	$(STDLIB)/strio/stream.ha \
 	$(STDLIB)/strio/ops.ha
 
 $(TESTCACHE)/strio/strio-any.ssa: $(testlib_strio_any_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_slices_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
