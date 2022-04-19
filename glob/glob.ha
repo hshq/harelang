@@ -154,7 +154,9 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 					match (fs::stat(fs, r)) {
 					case let s: fs::filestat =>
 						m = fs::isdir(s.mode);
+					case fs::error => void;
 					};
+				case fs::error => void;
 				};
 			};
 			if (m) {
@@ -162,7 +164,6 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 			};
 		};
 		gen.matc += 1;
-
 	};
 	if (gen.flgs & flags::NOSORT == 0) {
 		strstack_sort(&gen.pats, l);
