@@ -365,7 +365,6 @@ export fn decode(
 	buf: []u8,
 ) (size | io::EOF | io::error) = {
 	const enc = new_decoder(enc, in);
-	defer io::close(&enc);
 	return io::readall(&enc, buf)?;
 };
 
