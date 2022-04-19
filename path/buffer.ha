@@ -7,7 +7,7 @@ use strings;
 
 export type buffer = struct {
 	buf: [PATH_MAX]u8,
-	cur: []u8,
+	end: size,
 };
 
 // Initializes a new path buffer.
@@ -19,7 +19,7 @@ export fn init() buffer = {
 
 // Resets a path buffer to its initial state.
 export fn reset(buf: *buffer) void = {
-	buf.cur = buf.buf[..0];
+	buf.end = 0;
 };
 
 // Sets the value of a path buffer to a list of components, overwriting any
@@ -34,7 +34,7 @@ export fn set(buf: *buffer, items: str...) (str | errors::overflow) = {
 export fn dup(buf: *buffer) buffer = {
 	let new = buffer { ... };
 	new.buf[..] = buf.buf[..];
-	new.cur = new.buf[..0];
+	new.end = 0;
 	return new;
 };
 
@@ -59,7 +59,7 @@ export fn dup(buf: *buffer) buffer = {
 // 	path::set(&buf, "foo", "bar", "/")!;
 // 	assert(path::string(&buf) == "foo/bar/");
 export fn string(buf: *buffer) str = {
-	const value = strings::fromutf8_unsafe(buf.cur);
+	const value = strings::fromutf8_unsafe(buf.buf[..buf.end]);
 	if (value == "") {
 		return ".";
 	};
@@ -88,8 +88,9 @@ fn appendnorm(buf: *buffer, elem: (str | []u8)) (void | errors::overflow) = {
 		yield strings::toutf8(string);
 	};
 	if (len(elem) == 1 && elem[0] == PATHSEP) {
-		if (len(buf.cur) == 0) {
-			static append(buf.cur, PATHSEP);
+		if (buf.end == 0) {
+			buf.buf[0] = PATHSEP;
+			buf.end += 1;
 			return;
 		};
 		return;
@@ -129,13 +130,15 @@ fn parent(buf: *buffer) (void | errors::overflow) = {
 };
 
 fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
-	if (len(buf.cur) + len(elem) + 1 >= PATH_MAX) {
+	if (buf.end + len(elem) + 1 >= PATH_MAX) {
 		return errors::overflow;
 	};
-	if (len(buf.cur) > 0 && buf.cur[len(buf.cur) - 1] != PATHSEP) {
-		static append(buf.cur, PATHSEP);
+	if (buf.end > 0 && buf.buf[buf.end - 1] != PATHSEP) {
+		buf.buf[buf.end] = PATHSEP;
+		buf.end += 1;
 	};
-	static append(buf.cur, elem...);
+	buf.buf[buf.end..buf.end + len(elem)] = elem;
+	buf.end += len(elem);
 };
 
 @test fn appendnorm() void = {

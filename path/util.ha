@@ -7,7 +7,7 @@ fn getbytes(in: (str | *buffer)) []u8 = {
 	case let st: str =>
 		return strings::toutf8(st);
 	case let buf: *buffer =>
-		return buf.cur;
+		return buf.buf[..buf.end];
 	};
 };
 
