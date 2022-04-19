@@ -29,11 +29,11 @@ export type generator = struct {
 	pats: strstack,
 	matc: size,
 	flgs: flags,
-	tmps: strio::dynamic_stream,
+	tmps: strio::stream,
 };
 
 export type strstack = struct {
-	bufv: []strio::dynamic_stream,
+	bufv: []strio::stream,
 	bufc: size,
 };
 
@@ -234,7 +234,7 @@ fn strstack_free(ss: *strstack) void = {
 
 fn strstack_size(ss: *strstack) size = ss.bufc;
 
-fn strstack_push(ss: *strstack) *strio::dynamic_stream = {
+fn strstack_push(ss: *strstack) *strio::stream = {
 	if (ss.bufc == len(ss.bufv)) {
 		append(ss.bufv, strio::dynamic());
 	};
@@ -257,11 +257,11 @@ fn strstack_sort(ss: *strstack, pos: size) void = {
 		return;
 	};
 	let s = ss.bufv[pos..ss.bufc];
-	sort::sort(s, size(strio::dynamic_stream), &bufcmp);
+	sort::sort(s, size(strio::stream), &bufcmp);
 };
 
 fn bufcmp(a: const *void, b: const *void) int =
 	strings::strcmp(
-		strio::string(b: *strio::dynamic_stream),
-		strio::string(a: *strio::dynamic_stream),
+		strio::string(b: *strio::stream),
+		strio::string(a: *strio::stream),
 	);

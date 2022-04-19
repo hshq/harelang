@@ -1127,7 +1127,7 @@ strio() {
 		dynamic.ha \
 		fixed.ha \
 		ops.ha
-	gen_ssa strio io strings encoding::utf8 errors
+	gen_ssa strio io strings slices encoding::utf8 errors
 }
 
 temp() {
