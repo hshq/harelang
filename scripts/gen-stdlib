@@ -177,6 +177,7 @@ bytes() {
 		index.ha \
 		reverse.ha \
 		tokenize.ha \
+		trim.ha \
 		two_way.ha \
 		zero.ha
 	gen_ssa bytes types

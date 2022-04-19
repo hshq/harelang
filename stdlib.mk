@@ -707,6 +707,7 @@ stdlib_bytes_any_srcs= \
 	$(STDLIB)/bytes/index.ha \
 	$(STDLIB)/bytes/reverse.ha \
 	$(STDLIB)/bytes/tokenize.ha \
+	$(STDLIB)/bytes/trim.ha \
 	$(STDLIB)/bytes/two_way.ha \
 	$(STDLIB)/bytes/zero.ha
 
@@ -2654,6 +2655,7 @@ testlib_bytes_any_srcs= \
 	$(STDLIB)/bytes/index.ha \
 	$(STDLIB)/bytes/reverse.ha \
 	$(STDLIB)/bytes/tokenize.ha \
+	$(STDLIB)/bytes/trim.ha \
 	$(STDLIB)/bytes/two_way.ha \
 	$(STDLIB)/bytes/zero.ha
 
