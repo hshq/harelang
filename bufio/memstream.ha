@@ -14,11 +14,10 @@ export type memstream = struct {
 	pos: size,
 };
 
-// Creates a stream for a fixed, caller-supplied buffer. Supports either read or
-// write, but not both. All fixed streams are seekable; seeking a write stream
-// will cause subsequent writes to overwrite existing contents of the buffer.
-// The program aborts if writes would exceed the buffer's capacity. The stream
-// doesn't have to be closed.
+// Creates a stream for a fixed, caller-supplied buffer. All fixed streams are
+// seekable; seeking a write stream will cause subsequent writes to overwrite
+// existing contents of the buffer. The program aborts if writes would exceed
+// the buffer's capacity. The stream doesn't have to be closed.
 export fn fixed(in: []u8, mode: io::mode) memstream = {
 	let s = memstream {
 		stream = io::stream {
@@ -29,11 +28,9 @@ export fn fixed(in: []u8, mode: io::mode) memstream = {
 		pos = 0,
 	};
 	if (mode & io::mode::READ == io::mode::READ) {
-		assert(mode & io::mode::WRITE != io::mode::WRITE);
 		s.stream.reader = &read;
 	};
 	if (mode & io::mode::WRITE == io::mode::WRITE) {
-		assert(mode & io::mode::READ != io::mode::READ);
 		s.stream.writer = &fixed_write;
 	};
 	return s;
