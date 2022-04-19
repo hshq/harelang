@@ -3,16 +3,18 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2021 Miccah Castorina <contact@miccah.io>
 // (c) 2021 Sudipto Mallick <smlckz@disroot.org>
+use bytes;
 use encoding::utf8;
 
-const whitespace: [_]rune = [' ', '\n', '\t', '\r'];
+const whitespace: [_]u8 = [' ', '\n', '\t', '\r'];
 
 // Returns a string (borrowed from given input string) after trimming off of
 // the start of the input string the characters in the given list of runes. If
 // no runes are given, returns the string with leading whitespace stripped off.
 export fn ltrim(input: str, trim: rune...) str = {
 	if (len(trim) == 0) {
-		trim = whitespace;
+		let input = toutf8(input);
+		return fromutf8_unsafe(bytes::ltrim(input, whitespace...));
 	};
 	let it = iter(input);
 	for (true) {
@@ -42,7 +44,8 @@ export fn ltrim(input: str, trim: rune...) str = {
 // runes are given, returns the string with trailing whitespace stripped off.
 export fn rtrim(input: str, trim: rune...) str = {
 	if (len(trim) == 0) {
-		trim = whitespace;
+		let input = toutf8(input);
+		return fromutf8_unsafe(bytes::rtrim(input, whitespace...));
 	};
 	let it = riter(input);
 	for (true) {
