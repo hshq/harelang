@@ -22,6 +22,7 @@ export fn fixed(in: []u8, mode: io::mode) memstream = {
 	let s = memstream {
 		stream = io::stream {
 			seeker = &seek,
+			copier = &copy,
 			...
 		},
 		buf = in,
@@ -68,6 +69,7 @@ export fn dynamic_from(in: []u8, mode: io::mode) memstream = {
 		stream = io::stream {
 			closer = &dynamic_close,
 			seeker = &seek,
+			copier = &copy,
 			...
 		},
 		buf = in,
@@ -155,6 +157,14 @@ fn seek(
 	return s.pos: io::off;
 };
 
+fn copy(dest: *io::stream, src: *io::stream) (io::error | size) = {
+	if (src.reader != &read || src.writer == null) {
+		return errors::unsupported;
+	};
+	let src = src: *memstream;
+	return (dest.writer: *io::writer)(dest, src.buf[src.pos..]);
+};
+
 @test fn dynamic() void = {
 	let s = dynamic(io::mode::RDWR);
 	assert(io::write(&s, [1, 2, 3]) as size == 3);
@@ -191,6 +201,12 @@ fn seek(
 	assert(io::read(&s, buf[..]) is io::EOF);
 	assert(io::write(&s, [1, 2]) as io::error is errors::unsupported);
 	io::close(&s);
+
+	let in: [6]u8 = [0, 1, 2, 3, 4, 5];
+	let source = dynamic_from(in, io::mode::READ);
+	let sink = dynamic(io::mode::WRITE);
+	io::copy(&sink, &source)!;
+	assert(bytes::equal(in, buffer(&sink)));
 };
 
 @test fn fixed() void = {
@@ -213,4 +229,11 @@ fn seek(
 	assert(io::seek(&s, 1, io::whence::CUR) as io::off == 2: io::off);
 	assert(io::read(&s, buf[..]) is io::EOF);
 	assert(io::write(&s, [1, 2]) as io::error is errors::unsupported);
+
+	let in: [6]u8 = [0, 1, 2, 3, 4, 5];
+	let out: [6]u8 = [0...];
+	let source = fixed(in, io::mode::READ);
+	let sink = fixed(out, io::mode::WRITE);
+	io::copy(&sink, &source)!;
+	assert(bytes::equal(in, out));
 };
