@@ -29,15 +29,6 @@ export fn set(buf: *buffer, items: str...) (str | errors::overflow) = {
 	return add(buf, items...);
 };
 
-// Creates a copy of another path buffer, which can be modified without
-// affecting the original.
-export fn dup(buf: *buffer) buffer = {
-	let new = buffer { ... };
-	new.buf[..] = buf.buf[..];
-	new.end = 0;
-	return new;
-};
-
 // Returns the current path stored in this buffer. The path will always be
 // normalized, which is to say that it will not include any of the following:
 //
