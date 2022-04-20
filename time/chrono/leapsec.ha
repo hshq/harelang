@@ -24,7 +24,7 @@ use strings;
 // design also inhibits our ambitions for dealing with multiple, dynamic
 // timescales. Therefore, we have decided to take an alternative approach.
 
-// The filepath of the leap-seconds.list file
+// The number of seconds between the years 1900 and 1970.
 export def SECS_1900_1970: i64 = 2208988800;
 
 // The filepath of the leap-seconds.list file
