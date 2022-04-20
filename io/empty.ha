@@ -2,11 +2,13 @@
 // (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
-const _empty: stream = stream {
+const _empty_vt: vtable = vtable {
 	reader = &empty_read,
 	writer = &empty_write,
 	...
 };
+
+const _empty: stream = &_empty_vt;
 
 // A [[stream]] which always reads EOF and discards any writes.
 export const empty: *stream = &_empty;

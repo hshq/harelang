@@ -29,6 +29,12 @@ export type state = struct {
 	ln: size,
 };
 
+const sha1_vtable: io::vtable = io::vtable {
+	writer = &write,
+	closer = &close,
+	...
+};
+
 // Creates a [[hash::hash]] which computes a SHA-1 hash. Note that this
 // alogorithm is no longer considered secure. Where possible, applications are
 // encouraged to use [[crypto::sha256]] or [[crypto::sha512]] instead. If this
@@ -37,8 +43,7 @@ export type state = struct {
 // use of [[hash::close]] is optional.
 export fn sha1() state = {
 	let sha = state {
-		writer = &write,
-		closer = &close,
+		stream = &sha1_vtable,
 		sum = &sum,
 		reset = &reset,
 		sz = SIZE,

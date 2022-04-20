@@ -181,6 +181,11 @@ export type state = struct {
 	cval: u16,
 };
 
+const crc16_vtable: io::vtable = io::vtable {
+	writer = &write,
+	...
+};
+
 // Creates a [[hash::hash]] which computes the CRC-16 algorithm. This hash
 // function does not allocate any state, so you do not need to call
 // [[hash::close]] when you are done with it.
@@ -189,7 +194,7 @@ export type state = struct {
 // [[ccitt_table]], [[dect_table]], or [[ansi_table]]); a table for a
 // custom polynomial, populated by [[memoize]] function, may also be used.
 export fn crc16(table: *[256]u16) state = state {
-	writer = &write,
+	stream = &crc16_vtable,
 	sum = &sum,
 	reset = &reset,
 	sz = SIZE,

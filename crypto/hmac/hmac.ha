@@ -12,6 +12,11 @@ export type state = struct {
 	keypad: []u8,
 };
 
+const hmac_vtable: io::vtable = io::vtable {
+	writer = &write,
+	...
+};
+
 // Creates a [[crypto::mac::mac]] that computes an HMAC using the provided hash
 // function 'h' with given 'key'. The caller must provide a 'buf' of
 // [[hash::bsz]] bytes. Use the BLOCKSIZE constant of the given hash function to
@@ -32,9 +37,9 @@ export fn hmac(h: *hash::hash, key: []u8, buf: []u8) state = {
 
 	return state {
 		h = h,
+		stream = &hmac_vtable,
 		sz = hash::sz(h),
 		bsz = bsz,
-		writer = &write,
 		sum = &gensum,
 		finish = &finish,
 		keypad = keypad,

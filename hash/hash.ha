@@ -4,11 +4,12 @@
 // (c) 2021 Kiëd Llaentenn <kiedtl@tilde.team>
 use io;
 use fmt;
+// TODO: Use a vtable-based approach for this like io::stream
 
 // The general purpose interface for a hashing function.
 export type hash = struct {
 	// A stream which only supports writes and never returns errors.
-	io::stream,
+	stream: io::stream,
 
 	// Returns the current hash.
 	sum: *fn(hash: *hash, buf: []u8) void,

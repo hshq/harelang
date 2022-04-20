@@ -220,6 +220,11 @@ export type state = struct {
 	cval: u64,
 };
 
+const crc64_vtable: io::vtable = io::vtable {
+	writer = &write,
+	...
+};
+
 // Creates a [[hash::hash]] which computes the CRC-64 algorithm. This hash
 // function does not allocate any state, so you do not need to call
 // [[hash::close]] when you are done with it.
@@ -228,7 +233,7 @@ export type state = struct {
 // [[iso_table]] or [[ecma_table]]); a table for a custom polynomial, populated
 // by [[memoize]] function, may also be used.
 export fn crc64(table: *[256]u64) state = state {
-	writer = &write,
+	stream = &crc64_vtable,
 	sum = &sum,
 	reset = &reset,
 	sz = SIZE,

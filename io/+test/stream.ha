@@ -3,8 +3,14 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 use strings;
 
+const teststream_vtable: vtable = vtable {
+	reader = &teststream_read,
+	writer = &teststream_write,
+	...
+};
+
 type teststream = struct {
-	stream,
+	stream: stream,
 	r: size,
 	nreads: size,
 	w: size,
@@ -12,8 +18,7 @@ type teststream = struct {
 };
 
 fn teststream_open() teststream = teststream {
-	reader = &teststream_read,
-	writer = &teststream_write,
+	stream = &teststream_vtable,
 	...
 };
 

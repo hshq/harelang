@@ -48,6 +48,12 @@ export type digest = struct {
 	keylen: size,
 };
 
+const blake2b_vtable: io::vtable = io::vtable {
+	writer = &write,
+	closer = &close,
+	...
+};
+
 // Creates a [[hash::hash]] which computes a BLAKE2b hash with a given key and a
 // given hash size. The size must be between 1 and 64, inclusive. If this
 // function is used to hash sensitive information, the caller should call
@@ -62,8 +68,7 @@ export fn blake2b(key: []u8, sz: size) digest = {
 	let keyblock: [BSIZE]u8 = [0...];
 	keyblock[..len(key)] = key;
 	return digest {
-		writer = &write,
-		closer = &close,
+		stream = &blake2b_vtable,
 		sum = &sum,
 		reset = &reset,
 		sz = sz,

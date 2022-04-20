@@ -1,11 +1,16 @@
 // License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 
 export type teestream = struct {
-	stream,
+	vtable: stream,
 	source: handle,
 	sink: handle,
+};
+
+const tee_vtable: vtable = vtable {
+	reader = &tee_read,
+	...
 };
 
 // Creates a reader which copies reads into a sink before forwarding them to the
@@ -13,7 +18,7 @@ export type teestream = struct {
 // the secondary streams.
 export fn tee(source: handle, sink: handle) teestream = {
 	return teestream {
-		reader = &tee_read,
+		vtable = &tee_vtable,
 		source = source,
 		sink = sink,
 		...

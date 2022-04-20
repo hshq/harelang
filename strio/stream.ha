@@ -5,6 +5,11 @@ use io;
 use slices;
 use strings;
 
+const fixed_vtable: io::vtable = io::vtable {
+	writer = &fixed_write,
+	...
+};
+
 export type stream = struct {
 	stream: io::stream,
 	buf: []u8,
@@ -27,10 +32,7 @@ export fn reset(in: *stream) void = {
 // doesn't need to be closed.
 export fn fixed(in: []u8) stream = {
 	return stream {
-		stream = io::stream {
-			writer = &fixed_write,
-			...
-		},
+		stream = &fixed_vtable,
 		buf = in[..0],
 	};
 };
@@ -54,6 +56,12 @@ fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	assert(string(&stream) == "hello world");
 };
 
+const dynamic_vtable: io::vtable = io::vtable {
+	writer = &dynamic_write,
+	closer = &dynamic_close,
+	...
+};
+
 // Creates a write-only string stream using an allocated buffer for storage, for
 // efficiently building strings.
 //
@@ -62,11 +70,7 @@ fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 // freed.
 export fn dynamic() stream = {
 	return stream {
-		stream = io::stream {
-			writer = &dynamic_write,
-			closer = &dynamic_close,
-			...
-		},
+		stream = &dynamic_vtable,
 		buf = [],
 	};
 };

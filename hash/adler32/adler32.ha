@@ -16,11 +16,16 @@ export type state = struct {
 	b: u32,
 };
 
+const adler32_vtable: io::vtable = io::vtable {
+	writer = &write,
+	...
+};
+
 // Creates a [[hash::hash]] which computes the Adler-32 checksum algorithm. This
 // hash does not allocate any state, so you do not need to call [[hash::close]]
 // when you are done with it.
 export fn adler32() state = state {
-	writer = &write,
+	stream = &adler32_vtable,
 	sum = &sum,
 	reset = &reset,
 	sz = 4,

@@ -12,6 +12,11 @@ export type sha1state = struct {
 	keypad: [sha1::BLOCKSIZE]u8,
 };
 
+const sha1_vtable: io::vtable = io::vtable {
+	writer = &sha1write,
+	...
+};
+
 // Creates a [[crypto::mac::mac]] that computes an HMAC with given 'key' using
 // SHA1 as underlying hash function.
 //
@@ -22,9 +27,9 @@ export type sha1state = struct {
 export fn sha1(key: []u8) sha1state = {
 	let s = sha1state {
 		h = sha1::sha1(),
+		stream = &sha1_vtable,
 		sz = sha1::SIZE,
 		bsz = sha1::BLOCKSIZE,
-		writer = &sha1write,
 		sum = &sha1sum,
 		finish = &sha1finish,
 		...

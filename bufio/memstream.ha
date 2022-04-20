@@ -14,25 +14,44 @@ export type memstream = struct {
 	pos: size,
 };
 
+const memstream_vt_r: io::vtable = io::vtable {
+	seeker = &seek,
+	copier = &copy,
+	reader = &read,
+	...
+};
+
+const fixed_vt_w: io::vtable = io::vtable {
+	seeker = &seek,
+	copier = &copy,
+	writer = &fixed_write,
+	...
+};
+
+const fixed_vt_rw: io::vtable = io::vtable {
+	seeker = &seek,
+	copier = &copy,
+	reader = &read,
+	writer = &fixed_write,
+	...
+};
+
 // Creates a stream for a fixed, caller-supplied buffer. All fixed streams are
 // seekable; seeking a write stream will cause subsequent writes to overwrite
 // existing contents of the buffer. The program aborts if writes would exceed
 // the buffer's capacity. The stream doesn't have to be closed.
 export fn fixed(in: []u8, mode: io::mode) memstream = {
 	let s = memstream {
-		stream = io::stream {
-			seeker = &seek,
-			copier = &copy,
-			...
-		},
+		stream = &memstream_vt_r,
 		buf = in,
 		pos = 0,
 	};
-	if (mode & io::mode::READ == io::mode::READ) {
-		s.stream.reader = &read;
-	};
-	if (mode & io::mode::WRITE == io::mode::WRITE) {
-		s.stream.writer = &fixed_write;
+	if (mode & io::mode::RDWR == io::mode::RDWR) {
+		s.stream = &fixed_vt_rw;
+	} else if (mode & io::mode::WRITE == io::mode::WRITE) {
+		s.stream = &fixed_vt_w;
+	} else if (mode & io::mode::READ == io::mode::READ) {
+		s.stream = &memstream_vt_r;
 	};
 	return s;
 };
@@ -52,6 +71,21 @@ fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	return n;
 };
 
+const dynamic_vt_w: io::vtable = io::vtable {
+	seeker = &seek,
+	copier = &copy,
+	writer = &dynamic_write,
+	...
+};
+
+const dynamic_vt_rw: io::vtable = io::vtable {
+	seeker = &seek,
+	copier = &copy,
+	reader = &read,
+	writer = &dynamic_write,
+	...
+};
+
 // Creates an [[io::stream]] which dynamically allocates a buffer to store writes
 // into. Subsequent reads will consume the buffered data. Upon failure to
 // allocate sufficient memory to store writes, the program aborts.
@@ -66,20 +100,16 @@ export fn dynamic(mode: io::mode) memstream = dynamic_from([], mode);
 // writes. Like [[dynamic]], calling [[io::close]] will free the buffer.
 export fn dynamic_from(in: []u8, mode: io::mode) memstream = {
 	let s = memstream {
-		stream = io::stream {
-			closer = &dynamic_close,
-			seeker = &seek,
-			copier = &copy,
-			...
-		},
+		stream = &memstream_vt_r,
 		buf = in,
 		pos = 0,
 	};
-	if (mode & io::mode::READ == io::mode::READ) {
-		s.stream.reader = &read;
-	};
-	if (mode & io::mode::WRITE == io::mode::WRITE) {
-		s.stream.writer = &dynamic_write;
+	if (mode & io::mode::RDWR == io::mode::RDWR) {
+		s.stream = &dynamic_vt_rw;
+	} else if (mode & io::mode::WRITE == io::mode::WRITE) {
+		s.stream = &dynamic_vt_w;
+	} else if (mode & io::mode::READ == io::mode::READ) {
+		s.stream = &memstream_vt_r;
 	};
 	return s;
 };

@@ -49,12 +49,18 @@ export fn encoding_init(enc: *encoding, alphabet: str) void = {
 };
 
 export type encoder = struct {
-	io::stream,
+	stream: io::stream,
 	out: io::handle,
 	enc: *encoding,
 	buf: [2]u8, // leftover input
 	avail: size, // bytes available in buf
 	err: (void | io::error),
+};
+
+const encoder_vtable: io::vtable = io::vtable {
+	writer = &encode_writer,
+	closer = &encode_closer,
+	...
 };
 
 // Creates a stream that encodes writes as base64 before writing them to a
@@ -65,8 +71,7 @@ export fn new_encoder(
 	out: io::handle,
 ) encoder = {
 	return encoder {
-		writer = &encode_writer,
-		closer = &encode_closer,
+		stream = &encoder_vtable,
 		out = out,
 		enc = enc,
 		err = void,
@@ -213,12 +218,17 @@ export fn encodestr(enc: *encoding, in: []u8) str = {
 };
 
 export type decoder = struct {
-	io::stream,
+	stream: io::stream,
 	in: io::handle,
 	enc: *encoding,
 	avail: []u8, // leftover decoded output
 	pad: bool, // if padding was seen in a previous read
 	state: (void | io::EOF | io::error),
+};
+
+const decoder_vtable: io::vtable = io::vtable {
+	reader = &decode_reader,
+	...
 };
 
 // Creates a stream that reads and decodes base 64 data from a secondary stream.
@@ -229,7 +239,7 @@ export fn new_decoder(
 	in: io::handle,
 ) decoder = {
 	return decoder {
-		reader = &decode_reader,
+		stream = &decoder_vtable,
 		in = in,
 		enc = enc,
 		state = void,

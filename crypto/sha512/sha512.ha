@@ -96,11 +96,16 @@ export fn sha512_256() digest = init(variant::SHA512_256, SIZE256);
 // [[hash::close]] is optional.
 export fn sha384() digest = init(variant::SHA384, SIZE384);
 
+const sha512_vtable: io::vtable = io::vtable {
+	writer = &write,
+	closer = &close,
+	...
+};
+
 // Internal initialization function
 fn init(var: variant, sz: size) digest = {
 	let sha = digest {
-		writer = &write,
-		closer = &close,
+		stream = &sha512_vtable,
 		sum = &sum,
 		reset = &reset,
 		sz = sz,

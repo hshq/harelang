@@ -740,7 +740,6 @@ gensrcs_io() {
 		copy.ha \
 		drain.ha \
 		empty.ha \
-		filestream.ha \
 		handle.ha \
 		limit.ha \
 		stream.ha \
@@ -756,7 +755,6 @@ gensrcs_io() {
 		copy.ha \
 		drain.ha \
 		empty.ha \
-		filestream.ha \
 		handle.ha \
 		limit.ha \
 		stream.ha \
@@ -772,7 +770,6 @@ io() {
 		gensrcs_io
 	else
 		gensrcs_io \
-			+test/copy.ha \
 			+test/limit.ha \
 			+test/stream.ha
 	fi

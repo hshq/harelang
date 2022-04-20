@@ -1,11 +1,12 @@
 // License: MPL-2.0
 // (c) 2022 Armin Preiml <apreiml@strohwolke.at>
 use io;
+// TODO: Use a vtable-based approach like io::stream
 
 // The general purpose interface for a MAC function.
 export type mac = struct {
 	// A stream which only supports writes and never returns errors.
-	io::stream,
+	stream: io::stream,
 
 	// Writes the resulting MAC to 'buf'. Must only be called once, and must
 	// be followed by calling [[finish]].

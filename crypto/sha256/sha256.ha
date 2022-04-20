@@ -46,14 +46,19 @@ export type state = struct {
 	ln: size,
 };
 
+const sha256_vtable: io::vtable = io::vtable {
+	writer = &write,
+	closer = &close,
+	...
+};
+
 // Creates a [[hash::hash]] which computes a SHA-256 hash. If this function is
 // used to hash sensitive information, the caller should call [[hash::close]] to
 // erase sentitive data from memory after use; if not, the use of
 // [[hash::close]] is optional.
 export fn sha256() state = {
 	let sha = state {
-		writer = &write,
-		closer = &close,
+		stream = &sha256_vtable,
 		sum = &sum,
 		reset = &reset,
 		sz = SIZE,

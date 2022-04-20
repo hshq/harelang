@@ -26,12 +26,17 @@ export type state = struct {
 	cidx: size,
 };
 
+const poly1305_vtable: io::vtable = io::vtable {
+	writer = &write,
+	...
+};
+
 // Creates a [[crypto::mac::mac]] that computes the poly1305 MAC. It needs to
 // be initialised using [[init]]. Like the other MACs it needs to be finished
 // using [[crypto::mac::finish]] after use.
 export fn poly1305() state = {
 	return state {
-		writer = &write,
+		stream = &poly1305_vtable,
 		sum = &sum,
 		finish = &finish,
 		sz = SIZE,

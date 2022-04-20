@@ -188,6 +188,11 @@ export type state = struct {
 	cval: u32,
 };
 
+const crc32_vtable: io::vtable = io::vtable {
+	writer = &write,
+	...
+};
+
 // Creates a [[hash::hash]] which computes the CRC-32 algorithm. This hash
 // function does not allocate any state, so you do not need to call
 // [[hash::close]] when you are done with it.
@@ -196,7 +201,7 @@ export type state = struct {
 // [[ieee_table]], [[castagnoli_table]], or [[koopman_table]]); a table for a
 // custom polynomial, populated by [[memoize]] function, may also be used.
 export fn crc32(table: *[256]u32) state = state {
-	writer = &write,
+	stream = &crc32_vtable,
 	sum = &sum,
 	reset = &reset,
 	sz = SIZE,

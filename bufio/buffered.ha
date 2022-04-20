@@ -9,6 +9,25 @@ use errors;
 use io;
 use strings;
 
+const buffered_vtable_r: io::vtable = io::vtable {
+	closer = &buffered_close_static,
+	reader = &buffered_read,
+	...
+};
+
+const buffered_vtable_w: io::vtable = io::vtable {
+	closer = &buffered_close_static,
+	writer = &buffered_write,
+	...
+};
+
+const buffered_vtable_rw: io::vtable = io::vtable {
+	closer = &buffered_close_static,
+	reader = &buffered_read,
+	writer = &buffered_write,
+	...
+};
+
 export type bufstream = struct {
 	stream: io::stream,
 	source: io::handle,
@@ -42,22 +61,19 @@ export fn buffered(
 ) bufstream = {
 	static let flush_default = ['\n': u8];
 	let s = bufstream {
-		stream = io::stream {
-			closer = &buffered_close_static,
-			...
-		},
 		source = src,
 		rbuffer = rbuf,
 		wbuffer = wbuf,
 		flush = flush_default,
 		...
 	};
-	if (len(rbuf) != 0) {
-		s.stream.reader = &buffered_read;
-	};
-	if (len(wbuf) != 0) {
-		s.stream.writer = &buffered_write;
-	};
+	if (len(rbuf) != 0 && len(wbuf) != 0) {
+		s.stream = &buffered_vtable_rw;
+	} else if (len(rbuf) != 0) {
+		s.stream = &buffered_vtable_r;
+	} else if (len(wbuf) != 0) {
+		s.stream = &buffered_vtable_w;
+	} else abort("Must provide at least one buffer to bufio::buffered");
 	if (len(rbuf) != 0 && len(wbuf) != 0) {
 		assert(rbuf: *[*]u8 != wbuf: *[*]u8,
 			"Cannot use bufio::buffered with same buffer for reads and writes");

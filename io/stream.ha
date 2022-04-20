@@ -1,25 +1,33 @@
 // License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
 use errors;
 
-// A stream of bytes which supports some subset of read, write, close, seek, or
-// copy operations. To create a custom stream, embed this type as the first
-// member of a struct with user-specific data and fill out these fields as
-// appropriate.
+// A stream is a pointer to a [[vtable]] which allows for user-defined I/O
+// abstractions to implement some subset of read, write, seek, close, and other
+// I/O functionality in userspace.
+export type stream = *vtable;
+
+// The vtable type defines a set of virtual functions for a [[stream]]. To
+// create a custom stream type, embed
 //
 //	export type my_stream = struct {
-//		io::stream,
+//		vtable: io::stream,
 //		fd: int,
+//	};
+//
+//	const my_vtable: io::vtable = io::vtable {
+//		reader = &my_stream_read,
+//		writer = &my_stream_write,
+//		closer = null,
+//		...
 //	};
 //
 //	export fn open(path: str) my_stream = {
 //		let fd = // ...
 //		return my_stream {
-//			reader = &my_stream_read,
-//			writer = &my_stream_write,
-//			closer = null,
+//			vtable = &my_vtable,
 //			fd = fd,
 //			...
 //		});
@@ -27,7 +35,7 @@ use errors;
 //
 //	let stream = open("example");
 //	io::read(&stream, buf)!;
-export type stream = struct {
+export type vtable = struct {
 	reader: nullable *reader,
 	writer: nullable *writer,
 	closer: nullable *closer,

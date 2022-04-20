@@ -4,10 +4,12 @@
 use io;
 use rt;
 
-let _stream: io::stream = io::stream {
+let _stream_vt: io::vtable = io::vtable {
 	reader = &rand_reader,
 	...
 };
+
+const _stream: io::stream = &_stream_vt;
 
 // An [[io::handle]] which returns cryptographically random data on reads. Be
 // aware, it may return less than you asked for!

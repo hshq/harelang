@@ -1273,7 +1273,6 @@ stdlib_io_linux_srcs= \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
-	$(STDLIB)/io/filestream.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/stream.ha \
@@ -1290,7 +1289,6 @@ stdlib_io_freebsd_srcs= \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
-	$(STDLIB)/io/filestream.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/stream.ha \
@@ -3250,14 +3248,12 @@ testlib_io_linux_srcs= \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
-	$(STDLIB)/io/filestream.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
-	$(STDLIB)/io/+test/copy.ha \
 	$(STDLIB)/io/+test/limit.ha \
 	$(STDLIB)/io/+test/stream.ha
 
@@ -3270,14 +3266,12 @@ testlib_io_freebsd_srcs= \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
-	$(STDLIB)/io/filestream.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
-	$(STDLIB)/io/+test/copy.ha \
 	$(STDLIB)/io/+test/limit.ha \
 	$(STDLIB)/io/+test/stream.ha
 

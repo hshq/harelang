@@ -332,7 +332,7 @@ fn resolve(
 	assert(htype.align == 8);
 	let t = htype.repr as tagged;
 	assert(len(t) == 3);
-	assert(t[0].repr as builtin == builtin::INT);
-	assert(t[1].repr as builtin == builtin::VOID);
-	assert(t[2].repr as builtin == builtin::STR);
+	assert(t[0].repr as builtin == builtin::STR);
+	assert(t[1].repr as builtin == builtin::INT);
+	assert(t[2].repr as builtin == builtin::VOID);
 };
