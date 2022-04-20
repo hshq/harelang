@@ -5,9 +5,20 @@
 // Adds a [[duration]] to an [[instant]], returning an instant further in the
 // future (given a positive duration), or further in the past (given a negative
 // duration).
-export fn add(a: instant, d: duration) instant = instant {
-	sec = a.sec + d / SECOND,
-	nsec = a.nsec + d,
+export fn add(a: instant, d: duration) instant = {
+	if (d == 0) {
+		return a;
+	} else if (d > 0) {
+		return instant {
+			sec = a.sec + (a.nsec + d) / SECOND,
+			nsec = (a.nsec + d) % SECOND,
+		};
+	} else {
+		return instant {
+			sec = a.sec + (a.nsec + d - SECOND + NANOSECOND) / SECOND,
+			nsec = (a.nsec + (d % SECOND) + SECOND) % SECOND,
+		};
+	};
 };
 
 // Returns the [[duration]] from [[instant]] "a" to [[instant]] "b".
