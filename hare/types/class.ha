@@ -6,8 +6,7 @@
 export fn is_signed(ty: const *_type) bool = {
 	match (ty.repr) {
 	case let al: alias =>
-		// TODO: al.secondary as *_type
-		return is_signed(al.secondary: const *_type);
+		return is_signed(al.secondary as const *_type);
 	case let bi: builtin =>
 		switch (bi) {
 		case builtin::F32, builtin::F64, builtin::I16, builtin::I32,
@@ -33,8 +32,7 @@ export fn is_signed(ty: const *_type) bool = {
 export fn is_float(ty: const *_type) bool = {
 	match (ty.repr) {
 	case let al: alias =>
-		// TODO: al.secondary as *_type
-		return is_float(al.secondary: const *_type);
+		return is_float(al.secondary as const *_type);
 	case let bi: builtin =>
 		switch (bi) {
 		case builtin::F32, builtin::F64 =>
@@ -51,8 +49,7 @@ export fn is_float(ty: const *_type) bool = {
 export fn is_integer(ty: const *_type) bool = {
 	match (ty.repr) {
 	case let al: alias =>
-		// TODO: al.secondary as *_type
-		return is_integer(al.secondary: const *_type);
+		return is_integer(al.secondary as const *_type);
 	case let bi: builtin =>
 		switch (bi) {
 			case builtin::INT, builtin::UINT, builtin::I16,
