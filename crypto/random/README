@@ -1,0 +1,5 @@
+crypto::random provides a cryptographically secure random number generator,
+which yields a nondeterministic sequence of random numbers.
+
+If true randomness isn't required for your use case, you may be better off using
+[[math::random]]'s pseudorandom number generator.
