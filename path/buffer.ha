@@ -49,6 +49,9 @@ export fn set(buf: *buffer, items: str...) (str | errors::overflow) = {
 //
 // 	path::set(&buf, "foo", "bar", "/")!;
 // 	assert(path::string(&buf) == "foo/bar/");
+//
+// The return value is borrowed from the buffer. Use [[allocate]] to extend the
+// lifetime of the string.
 export fn string(buf: *buffer) str = {
 	const value = strings::fromutf8_unsafe(buf.buf[..buf.end]);
 	if (value == "") {
