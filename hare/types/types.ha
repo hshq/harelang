@@ -21,6 +21,7 @@ export type array = struct {
 // A built-in primitive type (int, bool, str, etc).
 export type builtin = enum u8 {
 	// Keep me consistent with ast::builtin
+
 	BOOL, CHAR, F32, F64, FCONST, I16, I32, I64, I8, ICONST, INT, NULL,
 	RUNE, SIZE, STR, U16, U32, U64, U8, UINT, UINTPTR, VALIST, VOID,
 };
@@ -54,8 +55,9 @@ export type func = struct {
 
 // Flags which apply to a pointer type.
 export type pointer_flags = enum u8 {
-	NONE = 0,
 	// Keep me consistent with ast::pointer_flags
+
+	NONE = 0,
 	NULLABLE = 1 << 0,
 };
 
@@ -105,8 +107,9 @@ export type tuple_value = struct {
 
 // Flags for a Hare type.
 export type flags = enum u8 {
-	NONE = 0,
 	// Keep me consistent with ast::type_flags
+
+	NONE = 0,
 	CONST = 1 << 0,
 	ERROR = 1 << 1,
 };
