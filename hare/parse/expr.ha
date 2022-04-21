@@ -530,7 +530,8 @@ fn control(lexer: *lex::lexer) (ast::expr | error) = {
 	case ltok::CONTINUE =>
 		yield label: ast::continue_expr;
 	case ltok::RETURN =>
-		yield match (peek(lexer, ltok::COMMA, ltok::SEMICOLON)?) {
+		yield match (peek(lexer, ltok::COMMA,
+			ltok::SEMICOLON, ltok::EOF)?) {
 		case void =>
 			yield alloc(expr(lexer)?): ast::return_expr;
 		case lex::token =>
@@ -1194,12 +1195,12 @@ fn yield_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const start = want(lexer, ltok::YIELD)?;
 	let label = "";
 	let value: nullable *ast::expr = null;
-	match (try(lexer, ltok::SEMICOLON, ltok::LABEL)?) {
+	match (try(lexer, ltok::SEMICOLON, ltok::LABEL, ltok::EOF)?) {
 	case void =>
 		value = alloc(expr(lexer)?);
 	case let t: lex::token =>
 		switch (t.0) {
-		case ltok::SEMICOLON =>
+		case ltok::SEMICOLON, ltok::EOF =>
 			lex::unlex(lexer, t);
 		case ltok::LABEL =>
 			label = t.1 as str;
