@@ -13,7 +13,7 @@ export type stream = *vtable;
 // create a custom stream type, embed
 //
 //	export type my_stream = struct {
-//		vtable: io::stream,
+//		vtable: io::vtable,
 //		fd: int,
 //	};
 //
