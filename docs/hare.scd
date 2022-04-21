@@ -235,8 +235,9 @@ The *-t* flag for *hare build* is used for cross-compilation, and selects a
 architecture different from the host to target. The list of supported
 architectures is:
 
-- x86_64
 - aarch64
+- riscv64
+- x86_64
 
 The system usually provides reasonable defaults for the *AR*, *AS*, and *LD*
 tools based on the desired target. However, you may wish to set these variables
