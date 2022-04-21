@@ -38,8 +38,12 @@ type token = (rune | bracket | star | question | end);
 //
 // - '?' matches any single character
 // - '*' matches any string, including the empty string
-// - '[' and ']' enclose a bracket expression. Matching rules for bracket expressions are identical to those of bracket subexpressions in regular expressions, except that '!' takes the role of '^' when placed right after the opening '['.
-// - '\' escapes the following character, e. g. "\*" only matches literal '*' and has no special meaning
+// - '[' and ']' enclose a bracket expression. Matching rules for bracket
+//   expressions are identical to those of bracket subexpressions in regular
+//   expressions, except that '!' takes the role of '^' when placed right after
+//   the opening '['.
+// - '\' escapes the following character, e. g. "\*" only matches literal '*'
+//   and has no special meaning
 // - all other characters only match themselves
 //
 // A set of flags that alter the matching behavior may be passed to
@@ -310,7 +314,7 @@ fn match_bracket(
 fn match_ctype(it: *strings::iterator, c: rune) (bool | errors::invalid) = {
 	let s = strings::iterstr(it);
 	let i = 0z;
-	for (let r = '\0'; r != ':'; i+= 1) {
+	for (let r = '\0'; r != ':'; i += 1) {
 		r = advance_or_err(it)?;
 		if (!ascii::valid(r)) {
 			return errors::invalid;
