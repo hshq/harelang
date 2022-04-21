@@ -448,7 +448,7 @@ export fn decode(
 		let buf: [1]u8 = [0...];
 		let valid = false;
 		for (true) match(io::read(&decoder, buf)) {
-		case errors::invalid=>
+		case errors::invalid =>
 			break;
 		case size =>
 			valid = true;

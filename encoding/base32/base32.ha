@@ -459,7 +459,7 @@ export fn decodestr(enc: *encoding, in: str) ([]u8 | errors::invalid) = {
 		let buf: [1]u8 = [0...];
 		let valid = false;
 		for (true) match(io::read(&dec, buf)) {
-		case errors::invalid=>
+		case errors::invalid =>
 			break;
 		case size =>
 			valid = true;
