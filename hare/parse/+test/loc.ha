@@ -40,8 +40,9 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	expr_testloc("append(foo, bar)", "append(foo, bar, baz)");
 	expr_testloc("assert(foo)", `assert(foo, "bar")`, "abort()",
 		`abort("foo")`);
+	expr_testloc("foo is bar", "foo as bar");
 	expr_testloc("foo = bar");
-	expr_testloc("foo * bar");
+	expr_testloc("foo * bar", "foo && bar");
 	expr_testloc("let foo: bar = baz", "let foo: bar = baz, quux = quuux",
 		"const foo: bar = baz", "const foo: bar = baz, quux = quuux");
 	expr_testloc("break", "break :foo");
@@ -50,24 +51,29 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	expr_testloc("[foo, bar]", "[foo, bar...]");
 	expr_testloc("foo { bar = baz, ... }", "struct { foo: bar = baz, }");
 	expr_testloc("(foo, bar)");
-	expr_testloc("null", "void", "true", `"שלום"`);
-	expr_testloc("continue :foo");
+	expr_testloc("null", "void", "true", `"שלום"`, "'a'");
+	expr_testloc("[foo, bar]");
+	expr_testloc("123", "-123.456", "123z", "123e+456");
+	expr_testloc("continue", "continue :foo");
 	expr_testloc("defer foo");
 	expr_testloc("delete(foo[bar])", "delete(foo[bar..baz])");
 	expr_testloc("for (let foo = 0; bar; baz) quux",
 		"for (let bar = 0; baz; quux) quuux");
 	expr_testloc("free(foo)");
 	expr_testloc("if (foo) bar", "if (foo) bar else baz");
+	expr_testloc("insert(foo[0], bar)", "insert(foo[0], bar, baz)");
 	expr_testloc("len(foo)");
 	expr_testloc("{ foo; bar; }");
 	expr_testloc("match (foo) { case => bar; }");
-	expr_testloc("foo?");
-	expr_testloc("return foo");
+	expr_testloc("offset(foo)");
+	expr_testloc("foo?", "foo!");
+	expr_testloc("return", "return foo");
 	expr_testloc("size(int)");
 	expr_testloc("switch (foo) { case => bar; }");
 	expr_testloc("foo[bar..baz]");
 	expr_testloc("&foo");
 	expr_testloc("vastart()", "vaarg(ap)", "vaend(ap)");
+	expr_testloc("yield", "yield foo", "yield :foo, bar");
 
 	// We want to check the location of nested expressions, so this can't
 	// use expr_testloc
