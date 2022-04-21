@@ -87,8 +87,7 @@ export fn main() void = {
 		case let err: parse::error =>
 			fmt::fatal("{}", parse::strerror(err));
 		case (types::deferred | types::error) =>
-			// XXX: hare::types should provide a strerror function
-			fmt::fatal("Invalid type");
+			fmt::fatal("{}", types::strerror(err));
 		};
 	};
 };
