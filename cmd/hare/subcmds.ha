@@ -511,7 +511,7 @@ fn test(args: []str) void = {
 fn version(args: []str) void = {
 	const help: []getopt::help = [
 		"provides version information for the Hare environment",
-		('v', "print more information"),
+		('v', "print build parameters"),
 	];
 	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
