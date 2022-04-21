@@ -33,7 +33,7 @@ export fn cmd(name: str, args: str...) (command | error) = {
 					return nocmd;
 				};
 			} else {
-				yield match (lookup(name)) {
+				yield match (lookup(name)?) {
 				case void =>
 					return nocmd;
 				case let p: platform_cmd =>
@@ -165,7 +165,7 @@ export fn nullstd(cmd: *command) void = {
 	addfile(cmd, os::stderr, nullfd);
 };
 
-fn lookup(name: str) (platform_cmd | void) = {
+fn lookup(name: str) (platform_cmd | void | error) = {
 	const path = match (os::getenv("PATH")) {
 	case void =>
 		return;
@@ -183,8 +183,10 @@ fn lookup(name: str) (platform_cmd | void) = {
 		let path = strings::concat(item, "/", name);
 		defer free(path);
 		match (open(path)) {
-		case let err: error =>
+		case (errors::noaccess | errors::noentry) =>
 			continue;
+		case let err: error =>
+			return err;
 		case let p: platform_cmd =>
 			return p;
 		};
