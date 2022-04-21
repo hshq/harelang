@@ -105,7 +105,7 @@ value, and optional context, separated by tabs.
 ## hare deps
 
 *-d*
-	Print depenency graph as a dot file for use with *graphviz*(1).
+	Print dependency graph as a dot file for use with *graphviz*(1).
 
 *-M*
 	Print rules compatible with POSIX *make*(1).
