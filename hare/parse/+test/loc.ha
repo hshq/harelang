@@ -108,7 +108,7 @@ fn type_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 		fmt::errorln(strerror(err))!;
 		abort();
 	};
-	defer ast::type_free(typ);
+	defer ast::type_finish(typ);
 	let runes = 0z;
 	let d = utf8::decode(srcs[i]);
 	for (true) match (utf8::next(&d)!) {

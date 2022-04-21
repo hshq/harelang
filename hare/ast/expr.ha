@@ -473,7 +473,7 @@ case let e: expr =>
 	case let b: binding_expr =>
 		for (let i = 0z; i < len(b.bindings); i += 1) {
 			free(b.bindings[i].name);
-			type_free(b.bindings[i]._type);
+			type_finish(b.bindings[i]._type);
 			expr_free(b.bindings[i].init);
 		};
 		free(b.bindings);
@@ -487,7 +487,7 @@ case let e: expr =>
 		free(c.args);
 	case let c: cast_expr =>
 		expr_free(c.value);
-		type_free(c._type);
+		type_finish(c._type);
 	case let c: compound_expr =>
 		for (let i = 0z; i < len(c.exprs); i += 1) {
 			expr_free(c.exprs[i]);
@@ -545,7 +545,7 @@ case let e: expr =>
 		expr_free(m.value);
 		for (let i = 0z; i < len(m.cases); i += 1) {
 			free(m.cases[i].name);
-			type_free(m.cases[i]._type);
+			type_finish(m.cases[i]._type);
 			const exprs = m.cases[i].exprs;
 			for (let i = 0z; i < len(exprs); i += 1) {
 				expr_free(exprs[i]);
@@ -564,7 +564,7 @@ case let e: expr =>
 	case let r: return_expr =>
 		expr_free(r: *expr);
 	case let s: size_expr =>
-		type_free(s: *_type);
+		type_finish(s: *_type);
 	case let s: slice_expr =>
 		expr_free(s.object);
 		expr_free(s.start);
@@ -607,7 +607,7 @@ fn struct_constant_free(s: struct_constant) void = {
 		match (s.fields[i]) {
 		case let v: struct_value =>
 			free(v.name);
-			type_free(v._type);
+			type_finish(v._type);
 			expr_free(v.init);
 		case let c: *struct_constant =>
 			struct_constant_free(*c);

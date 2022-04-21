@@ -26,7 +26,7 @@ fn typeinfo(
 		defer io::close(stream);
 		const lexer = lex::init(stream, "-");
 		const atype = parse::_type(&lexer)?;
-		defer ast::type_free(atype);
+		defer ast::type_finish(atype);
 		const typ = types::lookup(store, &atype)?;
 		unparse::_type(os::stdout, 0, atype)?;
 		fmt::println()?;

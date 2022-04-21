@@ -70,25 +70,25 @@ export fn decl_finish(d: decl) void = {
 		for (let i = 0z; i < len(g); i += 1) {
 			free(g[i].symbol);
 			ident_free(g[i].ident);
-			type_free(g[i]._type);
+			type_finish(g[i]._type);
 			expr_free(g[i].init);
 		};
 		free(g);
 	case let t: []decl_type =>
 		for (let i = 0z; i < len(t); i += 1) {
 			ident_free(t[i].ident);
-			type_free(t[i]._type);
+			type_finish(t[i]._type);
 		};
 		free(t);
 	case let f: decl_func =>
 		free(f.symbol);
 		ident_free(f.ident);
-		type_free(f.prototype);
+		type_finish(f.prototype);
 		if (f.body is expr) expr_free(f.body as expr);
 	case let c: []decl_const =>
 		for (let i = 0z; i < len(c); i += 1) {
 			ident_free(c[i].ident);
-			type_free(c[i]._type);
+			type_finish(c[i]._type);
 			expr_free(c[i].init);
 		};
 		free(c);

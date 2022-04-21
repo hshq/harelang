@@ -135,7 +135,7 @@ export type _type = struct {
 		tagged_type | tuple_type),
 };
 
-fn struct_type_free(t: (struct_type | union_type)) void = {
+fn struct_type_finish(t: (struct_type | union_type)) void = {
 	let membs = match (t) {
 	case let s: struct_type =>
 		yield s: []struct_member;
@@ -152,9 +152,9 @@ fn struct_type_free(t: (struct_type | union_type)) void = {
 		match (membs[i].member) {
 		case let f: struct_field =>
 			free(f.name);
-			type_free(f._type);
+			type_finish(f._type);
 		case let e: struct_embedded =>
-			type_free(e: *_type);
+			type_finish(e: *_type);
 		case let a: struct_alias =>
 			ident_free(a);
 		};
@@ -163,13 +163,13 @@ fn struct_type_free(t: (struct_type | union_type)) void = {
 };
 
 // Frees resources associated with a [[_type]].
-export fn type_free(t: (_type | nullable *_type)) void = {
+export fn type_finish(t: (_type | nullable *_type)) void = {
 	match (t) {
 	case let t: nullable *_type =>
 		match (t) {
 		case null => void;
 		case let t: *_type =>
-			type_free(*t);
+			type_finish(*t);
 			free(t);
 		};
 	case let t: _type =>
@@ -188,10 +188,10 @@ export fn type_free(t: (_type | nullable *_type)) void = {
 			};
 			free(e.values);
 		case let f: func_type =>
-			type_free(f.result);
+			type_finish(f.result);
 			for (let i = 0z; i < len(f.params); i += 1) {
 				free(f.params[i].name);
-				type_free(f.params[i]._type);
+				type_finish(f.params[i]._type);
 			};
 			free(f.params);
 		case let l: list_type =>
@@ -201,19 +201,19 @@ export fn type_free(t: (_type | nullable *_type)) void = {
 				free(e);
 			case => void;
 			};
-			type_free(l.members);
+			type_finish(l.members);
 		case let p: pointer_type =>
-			type_free(p.referent);
+			type_finish(p.referent);
 		case let s: (struct_type | union_type) =>
-			struct_type_free(s);
+			struct_type_finish(s);
 		case let t: tagged_type =>
 			for (let i = 0z; i < len(t); i += 1) {
-				type_free(t[i]);
+				type_finish(t[i]);
 			};
 			free(t);
 		case let t: tuple_type =>
 			for (let i = 0z; i < len(t); i += 1) {
-				type_free(t[i]);
+				type_finish(t[i]);
 			};
 			free(t);
 		};
