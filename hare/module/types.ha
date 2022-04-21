@@ -36,6 +36,7 @@ export type version = struct {
 	subdirs: []str,
 };
 
+// The filetype of a file within a module.
 export type filetype = enum {
 	HARE,
 	ASSEMBLY,
