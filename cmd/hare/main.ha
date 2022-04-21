@@ -12,7 +12,8 @@ def HAREPATH: str = ".";
 export fn main() void = {
 	const help: []getopt::help = [
 		"compile, run, and test Hare programs",
-		"<build | cache | deps | run | test | version>", "args...",
+		"<build | cache | deps | release | run | test | version>",
+		"args...",
 	];
 	const cmd = getopt::parse(os::args, help...);
 	defer getopt::finish(&cmd);
