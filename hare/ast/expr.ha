@@ -503,7 +503,7 @@ case let e: expr =>
 			};
 			free(a.values);
 		case let s: struct_constant =>
-			struct_constant_free(s);
+			struct_constant_finish(s);
 		case let t: tuple_constant =>
 			for (let i = 0z; i < len(t); i += 1) {
 				expr_finish(t[i]);
@@ -601,7 +601,7 @@ case let e: expr =>
 	};
 };
 
-fn struct_constant_free(s: struct_constant) void = {
+fn struct_constant_finish(s: struct_constant) void = {
 	ident_free(s.alias);
 	for (let i = 0z; i < len(s.fields); i += 1) {
 		match (s.fields[i]) {
@@ -610,7 +610,7 @@ fn struct_constant_free(s: struct_constant) void = {
 			type_finish(v._type);
 			expr_finish(v.init);
 		case let c: *struct_constant =>
-			struct_constant_free(*c);
+			struct_constant_finish(*c);
 			free(c);
 		};
 	};
