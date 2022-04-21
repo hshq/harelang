@@ -20,13 +20,14 @@ use strio;
 		let in = hex::decode(vectors[i].in)!;
 		defer free(in);
 		let blake = blake2b(key, len(out));
+		defer hash::close(&blake);
 		hash::write(&blake, in);
 		let sum: []u8 = alloc([], len(out));
 		defer free(sum);
 		for (let i = 0z; i < len(out); i += 1) {
 			append(sum, 0);
 		};
-		hash::finish(&blake, sum);
+		hash::sum(&blake, sum);
 		let out = strio::dynamic();
 		defer io::close(&out);
 		hex::encode(&out, sum)!;
@@ -96,9 +97,10 @@ use strio;
 	let result: [32]u8 = [0...];
 
 	let h = blake2b([], len(result));
+	defer hash::close(&h);
 	hash::write(&h, in[..4]);
 	hash::write(&h, in[4..]);
-	hash::finish(&h, result[..]);
+	hash::sum(&h, result[..]);
 
 	assert(bytes::equal(expected, result));
 };

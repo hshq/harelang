@@ -32,7 +32,7 @@ export fn private_init(out: *privatekey, seed: *seed) void = {
 	let h: [64]u8 = [0...];
 	let sha = sha512::sha512();
 	hash::write(&sha, seed[..]);
-	hash::finish(&sha, h[..]);
+	hash::sum(&sha, h[..]);
 	hash::close(&sha);
 
 	let s: scalar = [0...];
@@ -60,7 +60,7 @@ export fn sign(priv: *privatekey, msg: []u8) [SIGNATURESZ]u8 = {
 	let h: [64]u8 = [0...];
 	let sha = sha512::sha512();
 	hash::write(&sha, priv[0..SEEDSZ]);
-	hash::finish(&sha, h);
+	hash::sum(&sha, h);
 	let esk: scalar = [0...];
 	esk[..] = h[0..32];
 	scalar_clamp(&esk);
@@ -69,7 +69,7 @@ export fn sign(priv: *privatekey, msg: []u8) [SIGNATURESZ]u8 = {
 	hash::write(&sha, h[32..64]);
 	hash::write(&sha, msg);
 	let msg_digest: [64]u8 = [0...];
-	hash::finish(&sha, msg_digest);
+	hash::sum(&sha, msg_digest);
 	let msg_reduced: scalar = [0...];
 	scalar_reduce(&msg_reduced, &msg_digest);
 
@@ -83,7 +83,7 @@ export fn sign(priv: *privatekey, msg: []u8) [SIGNATURESZ]u8 = {
 	hash::write(&sha, priv[32..64]);
 	hash::write(&sha, msg);
 	let hram: [64]u8 = [0...];
-	hash::finish(&sha, hram);
+	hash::sum(&sha, hram);
 	hash::close(&sha);
 	let hram_reduced: scalar = [0...];
 	scalar_reduce(&hram_reduced, &hram);
@@ -111,7 +111,8 @@ export fn verify(pub: *publickey, msg: []u8, sig: *[SIGNATURESZ]u8) bool = {
 	hash::write(&sha, pub[..]);
 	hash::write(&sha, msg);
 	let hram: [64]u8 = [0...];
-	hash::finish(&sha, hram);
+	hash::sum(&sha, hram);
+	hash::close(&sha);
 
 	let hram_reduced: scalar = [0...];
 	scalar_reduce(&hram_reduced, &hram);

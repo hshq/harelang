@@ -309,7 +309,7 @@ fn inithash(
 	hash_leputu32(&h, len(cfg.data): u32);
 	hash::write(&h, cfg.data);
 
-	hash::finish(&h, dest[..]);
+	hash::sum(&h, dest[..]);
 };
 
 fn hash_leputu32(h: *hash::hash, u: u32) void = {
@@ -327,7 +327,7 @@ fn varhash(dest: []u8, block: []u8) void = {
 		defer hash::close(&h);
 		hash_leputu32(&h, len(dest): u32);
 		hash::write(&h, block);
-		hash::finish(&h, dest);
+		hash::sum(&h, dest);
 		return;
 	};
 
@@ -357,7 +357,7 @@ fn varhash(dest: []u8, block: []u8) void = {
 	let hend = blake2b::blake2b([], remainder);
 	defer hash::close(&hend);
 	hash::write(&hend, v[..]);
-	hash::finish(&hend, v[..remainder]);
+	hash::sum(&hend, v[..remainder]);
 	io::write(&destbuf, v[..remainder])!;
 };
 
