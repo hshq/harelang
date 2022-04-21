@@ -13,7 +13,7 @@ export type alias_type = struct {
 // A built-in primitive type (int, bool, str, etc).
 export type builtin_type = enum {
 	BOOL, CHAR, F32, F64, FCONST, I16, I32, I64, I8, ICONST, INT, NULL,
-	RUNE, SIZE, STR, U16, U32, U64, U8, UINT, UINTPTR, VOID,
+	RUNE, SIZE, STR, U16, U32, U64, U8, UINT, UINTPTR, VALIST, VOID,
 };
 
 // An enumeration field (and optional value).

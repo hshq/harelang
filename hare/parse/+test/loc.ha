@@ -67,6 +67,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	expr_testloc("switch (foo) { case => bar; }");
 	expr_testloc("foo[bar..baz]");
 	expr_testloc("&foo");
+	expr_testloc("vastart()", "vaarg(ap)", "vaend(ap)");
 
 	// We want to check the location of nested expressions, so this can't
 	// use expr_testloc

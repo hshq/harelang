@@ -379,6 +379,21 @@ export fn expr(
 		})?;
 		z += expr(out, indent, *e.operand)?;
 		return z;
+	case let e: ast::variadic_expr =>
+		match (e) {
+		case ast::vastart_expr =>
+			return fmt::fprint(out, "vastart()")?;
+		case let e: ast::vaarg_expr =>
+			let z = fmt::fprint(out, "vaarg(")?;
+			z += expr(out, indent, *e)?;
+			z += fmt::fprint(out, ")")?;
+			return z;
+		case let e: ast::vaend_expr =>
+			let z = fmt::fprint(out, "vaend(")?;
+			z += expr(out, indent, *e)?;
+			z += fmt::fprint(out, ")")?;
+			return z;
+		};
 	case let e: ast::yield_expr =>
 		let z = fmt::fprint(out, "yield")?;
 		if (e.label != "") {

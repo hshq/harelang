@@ -382,6 +382,24 @@ export type unarithm_expr = struct {
 	operand: *expr,
 };
 
+// A vastart expression.
+//
+// 	vastart()
+export type vastart_expr = void;
+
+// A vaarg expression.
+//
+// 	vaarg(ap)
+export type vaarg_expr = *expr;
+
+// A vaend expression.
+//
+// 	vaend(ap)
+export type vaend_expr = *expr;
+
+// A C-style variadic expression.
+export type variadic_expr = (vastart_expr | vaarg_expr | vaend_expr);
+
 // A yield expression.
 //
 // 	yield foo
@@ -400,7 +418,8 @@ export type expr = struct {
 		defer_expr | delete_expr | for_expr | free_expr | if_expr |
 		insert_expr | compound_expr | match_expr | len_expr |
 		size_expr | offset_expr | propagate_expr | return_expr |
-		slice_expr | switch_expr | unarithm_expr | yield_expr),
+		slice_expr | switch_expr | unarithm_expr | variadic_expr |
+		yield_expr),
 };
 
 // Frees resources associated with a Hare [[expr]]ession.
@@ -568,6 +587,14 @@ case let e: expr =>
 		free(s.cases);
 	case let u: unarithm_expr =>
 		expr_free(u.operand);
+	case let v: variadic_expr =>
+		match (v) {
+		case vastart_expr => void;
+		case let v: vaarg_expr =>
+			expr_free(v);
+		case let v: vaend_expr =>
+			expr_free(v);
+		};
 	case let y: yield_expr =>
 		free(y.label);
 		expr_free(y.value);

@@ -353,7 +353,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (peek(lexer, ltok::ALLOC, ltok::APPEND, ltok::FREE,
 		ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::INSERT,
 		ltok::STATIC, ltok::SIZE, ltok::LEN, ltok::OFFSET,
-		ltok::DEFER)?) {
+		ltok::DEFER, ltok::VASTART, ltok::VAARG, ltok::VAEND)?) {
 	case let tok: lex::token =>
 		yield tok;
 	case void =>
@@ -401,6 +401,35 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 			start = tok.2,
 			end = lex::prevloc(lexer),
 			expr = expr: ast::defer_expr,
+		};
+	case ltok::VASTART =>
+		want(lexer, ltok::VASTART)?;
+		want(lexer, ltok::LPAREN)?;
+		want(lexer, ltok::RPAREN)?;
+		return ast::expr {
+			start = tok.2,
+			end = lex::prevloc(lexer),
+			expr = void: ast::vastart_expr: ast::variadic_expr,
+		};
+	case ltok::VAARG =>
+		want(lexer, ltok::VAARG)?;
+		want(lexer, ltok::LPAREN)?;
+		const expr = alloc(expr(lexer)?);
+		want(lexer, ltok::RPAREN)?;
+		return ast::expr {
+			start = tok.2,
+			end = lex::prevloc(lexer),
+			expr = expr: ast::vaarg_expr: ast::variadic_expr,
+		};
+	case ltok::VAEND =>
+		want(lexer, ltok::VAEND)?;
+		want(lexer, ltok::LPAREN)?;
+		const expr = alloc(expr(lexer)?);
+		want(lexer, ltok::RPAREN)?;
+		return ast::expr {
+			start = tok.2,
+			end = lex::prevloc(lexer),
+			expr = expr: ast::vaend_expr: ast::variadic_expr,
 		};
 	case => abort(); // Invariant
 	};
