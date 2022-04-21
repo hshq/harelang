@@ -409,7 +409,7 @@ export type sigval = union {
 };
 
 
-//#define __ADDR_BND_PKEY_PAD (__alignof__(void *) < sizeof(short) ? sizeof(short) : __alignof__(void *))
+// #define __ADDR_BND_PKEY_PAD (_Alignof(void *) < sizeof(short) ? sizeof(short) : _Alignof(void *))
 def __ADDR_BND_PKEY_PAD: size = 8;
 
 export type siginfo = union {
