@@ -15,7 +15,7 @@ export type context = struct {
 	// Filesystem to use for the cache and source files.
 	fs: *fs::fs,
 	// List of paths to search, generally populated from HAREPATH plus some
-	// baked-in default.
+	// baked-in defaults.
 	paths: []str,
 	// Path to the Hare cache, generally populated from HARECACHE and
 	// defaulting to $XDG_CACHE_HOME/hare.
