@@ -20,7 +20,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	case let err: error =>
 		fmt::fatal("{}: {}", srcs[i], strerror(err));
 	};
-	defer ast::expr_free(exp);
+	defer ast::expr_finish(exp);
 	let runes = 0z;
 	let d = utf8::decode(srcs[i]);
 	for (true) match (utf8::next(&d)!) {
@@ -85,7 +85,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 		fmt::errorln(strerror(err))!;
 		abort();
 	};
-	defer ast::expr_free(exp);
+	defer ast::expr_finish(exp);
 	assert(exp.start.line == 1 && exp.start.col == 1);
 	assert(exp.end.line == 1 && exp.end.col == 13);
 	let c = exp.expr as ast::cast_expr;

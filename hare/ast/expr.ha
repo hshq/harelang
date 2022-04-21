@@ -423,12 +423,12 @@ export type expr = struct {
 };
 
 // Frees resources associated with a Hare [[expr]]ession.
-export fn expr_free(e: (expr | nullable *expr)) void = match (e) {
+export fn expr_finish(e: (expr | nullable *expr)) void = match (e) {
 case let e: nullable *expr =>
 	match (e) {
 	case null => void;
 	case let e: *expr =>
-		expr_free(*e);
+		expr_finish(*e);
 		free(e);
 	};
 case let e: expr =>
@@ -438,59 +438,59 @@ case let e: expr =>
 		case let i: access_identifier =>
 			ident_free(i);
 		case let i: access_index =>
-			expr_free(i.object);
-			expr_free(i.index);
+			expr_finish(i.object);
+			expr_finish(i.index);
 		case let f: access_field =>
-			expr_free(f.object);
+			expr_finish(f.object);
 			free(f.field);
 		case let t: access_tuple =>
-			expr_free(t.object);
-			expr_free(t.value);
+			expr_finish(t.object);
+			expr_finish(t.value);
 		};
 	case let a: alloc_expr =>
-		expr_free(a.init);
-		expr_free(a.capacity);
+		expr_finish(a.init);
+		expr_finish(a.capacity);
 	case let a: append_expr =>
-		expr_free(a.object);
+		expr_finish(a.object);
 		match (a.variadic) {
 		case null => void;
 		case let v: *expr =>
-			expr_free(v);
+			expr_finish(v);
 		};
 		for (let i = 0z; i < len(a.values); i += 1) {
-			expr_free(a.values[i]);
+			expr_finish(a.values[i]);
 		};
 		free(a.values);
 	case let a: assert_expr =>
-		expr_free(a.cond);
-		expr_free(a.message);
+		expr_finish(a.cond);
+		expr_finish(a.message);
 	case let a: assign_expr =>
-		expr_free(a.object);
-		expr_free(a.value);
+		expr_finish(a.object);
+		expr_finish(a.value);
 	case let b: binarithm_expr =>
-		expr_free(b.lvalue);
-		expr_free(b.rvalue);
+		expr_finish(b.lvalue);
+		expr_finish(b.rvalue);
 	case let b: binding_expr =>
 		for (let i = 0z; i < len(b.bindings); i += 1) {
 			free(b.bindings[i].name);
 			type_finish(b.bindings[i]._type);
-			expr_free(b.bindings[i].init);
+			expr_finish(b.bindings[i].init);
 		};
 		free(b.bindings);
 	case let b: break_expr =>
 		free(b);
 	case let c: call_expr =>
-		expr_free(c.lvalue);
+		expr_finish(c.lvalue);
 		for (let i = 0z; i < len(c.args); i += 1) {
-			expr_free(c.args[i]);
+			expr_finish(c.args[i]);
 		};
 		free(c.args);
 	case let c: cast_expr =>
-		expr_free(c.value);
+		expr_finish(c.value);
 		type_finish(c._type);
 	case let c: compound_expr =>
 		for (let i = 0z; i < len(c.exprs); i += 1) {
-			expr_free(c.exprs[i]);
+			expr_finish(c.exprs[i]);
 		};
 		free(c.exprs);
 		free(c.label);
@@ -499,14 +499,14 @@ case let e: expr =>
 		case (void | _null | ...lex::value) => void;
 		case let a: array_constant =>
 			for (let i = 0z; i < len(a.values); i += 1) {
-				expr_free(a.values[i]);
+				expr_finish(a.values[i]);
 			};
 			free(a.values);
 		case let s: struct_constant =>
 			struct_constant_free(s);
 		case let t: tuple_constant =>
 			for (let i = 0z; i < len(t); i += 1) {
-				expr_free(t[i]);
+				expr_finish(t[i]);
 			};
 			free(t);
 		case number_constant => void;
@@ -514,90 +514,90 @@ case let e: expr =>
 	case let c: continue_expr =>
 		free(c);
 	case let d: defer_expr =>
-		expr_free(d: *expr);
+		expr_finish(d: *expr);
 	case let d: delete_expr =>
-		expr_free(d.object);
+		expr_finish(d.object);
 	case let f: for_expr =>
-		expr_free(f.bindings);
-		expr_free(f.cond);
-		expr_free(f.afterthought);
-		expr_free(f.body);
+		expr_finish(f.bindings);
+		expr_finish(f.cond);
+		expr_finish(f.afterthought);
+		expr_finish(f.body);
 	case let f: free_expr =>
-		expr_free(f: *expr);
+		expr_finish(f: *expr);
 	case let i: if_expr =>
-		expr_free(i.cond);
-		expr_free(i.tbranch);
-		expr_free(i.fbranch);
+		expr_finish(i.cond);
+		expr_finish(i.tbranch);
+		expr_finish(i.fbranch);
 	case let e: insert_expr =>
-		expr_free(e.object);
+		expr_finish(e.object);
 		match (e.variadic) {
 		case null => void;
 		case let v: *expr =>
-			expr_free(v);
+			expr_finish(v);
 		};
 		for (let i = 0z; i < len(e.values); i += 1) {
-			expr_free(e.values[i]);
+			expr_finish(e.values[i]);
 		};
 		free(e.values);
 	case let l: len_expr =>
-		expr_free(l: *expr);
+		expr_finish(l: *expr);
 	case let m: match_expr =>
-		expr_free(m.value);
+		expr_finish(m.value);
 		for (let i = 0z; i < len(m.cases); i += 1) {
 			free(m.cases[i].name);
 			type_finish(m.cases[i]._type);
 			const exprs = m.cases[i].exprs;
 			for (let i = 0z; i < len(exprs); i += 1) {
-				expr_free(exprs[i]);
+				expr_finish(exprs[i]);
 			};
 			free(exprs);
 		};
 		free(m.cases);
 		for (let i = 0z; i < len(m.default); i += 1) {
-			expr_free(m.default[i]);
+			expr_finish(m.default[i]);
 		};
 		free(m.default);
 	case let o: offset_expr =>
-		expr_free(o: *expr);
+		expr_finish(o: *expr);
 	case let p: propagate_expr =>
-		expr_free(p.expr);
+		expr_finish(p.expr);
 	case let r: return_expr =>
-		expr_free(r: *expr);
+		expr_finish(r: *expr);
 	case let s: size_expr =>
 		type_finish(s: *_type);
 	case let s: slice_expr =>
-		expr_free(s.object);
-		expr_free(s.start);
-		expr_free(s.end);
+		expr_finish(s.object);
+		expr_finish(s.start);
+		expr_finish(s.end);
 	case let s: switch_expr =>
-		expr_free(s.value);
+		expr_finish(s.value);
 		for (let i = 0z; i < len(s.cases); i += 1) {
 			let opts = s.cases[i].options;
 			for (let j = 0z; j < len(opts); j += 1) {
-				expr_free(opts[j]);
+				expr_finish(opts[j]);
 			};
 			free(opts);
 
 			let exprs = s.cases[i].exprs;
 			for (let j = 0z; j < len(exprs); j += 1) {
-				expr_free(exprs[j]);
+				expr_finish(exprs[j]);
 			};
 			free(exprs);
 		};
 		free(s.cases);
 	case let u: unarithm_expr =>
-		expr_free(u.operand);
+		expr_finish(u.operand);
 	case let v: variadic_expr =>
 		match (v) {
 		case vastart_expr => void;
 		case let v: vaarg_expr =>
-			expr_free(v);
+			expr_finish(v);
 		case let v: vaend_expr =>
-			expr_free(v);
+			expr_finish(v);
 		};
 	case let y: yield_expr =>
 		free(y.label);
-		expr_free(y.value);
+		expr_finish(y.value);
 	};
 };
 
@@ -608,7 +608,7 @@ fn struct_constant_free(s: struct_constant) void = {
 		case let v: struct_value =>
 			free(v.name);
 			type_finish(v._type);
-			expr_free(v.init);
+			expr_finish(v.init);
 		case let c: *struct_constant =>
 			struct_constant_free(*c);
 			free(c);

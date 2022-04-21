@@ -147,7 +147,7 @@ fn struct_type_finish(t: (struct_type | union_type)) void = {
 		match (membs[i]._offset) {
 		case null => void;
 		case let e: *expr =>
-			expr_free(e);
+			expr_finish(e);
 		};
 		match (membs[i].member) {
 		case let f: struct_field =>
@@ -183,7 +183,7 @@ export fn type_finish(t: (_type | nullable *_type)) void = {
 				match (e.values[i].value) {
 				case null => void;
 				case let v: *expr =>
-					expr_free(v);
+					expr_finish(v);
 				};
 			};
 			free(e.values);
@@ -197,8 +197,7 @@ export fn type_finish(t: (_type | nullable *_type)) void = {
 		case let l: list_type =>
 			match (l.length) {
 			case let e: *expr =>
-				expr_free(*e);
-				free(e);
+				expr_finish(e);
 			case => void;
 			};
 			type_finish(l.members);
