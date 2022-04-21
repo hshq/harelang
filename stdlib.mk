@@ -2908,7 +2908,7 @@ testlib_crypto_sha256_any_srcs= \
 	$(STDLIB)/crypto/sha256/sha256.ha \
 	$(STDLIB)/crypto/sha256/+test.ha
 
-$(TESTCACHE)/crypto/sha256/crypto_sha256-any.ssa: $(testlib_crypto_sha256_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
+$(TESTCACHE)/crypto/sha256/crypto_sha256-any.ssa: $(testlib_crypto_sha256_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/sha256
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha256 \

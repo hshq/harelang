@@ -411,7 +411,7 @@ crypto_sha256() {
 	else
 		gensrcs_crypto_sha256 \
 			+test.ha
-		genssa_crypto_sha256 hash fmt strings encoding::hex
+		genssa_crypto_sha256 fmt strings encoding::hex
 	fi
 }
 
