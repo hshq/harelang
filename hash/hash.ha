@@ -22,21 +22,13 @@ export type hash = struct {
 
 	// Internal block size of the hash. Writing data to the hash
 	// function in chunks of this size will not require padding to
-	// obtain the final hash, such that [[hash::sum]] shall return
-	// the same checksum as [[hash::finish]].
+	// obtain the final hash.
 	bsz: size,
 };
 
 // Writes an input to the hash function.
 export fn write(h: *hash, buf: const []u8) size =
 	io::write(h, buf) as size;
-
-// Finalizes the hash, frees resources associated with the hash, and populate
-// buf with the sum.
-export fn finish(h: *hash, buf: []u8) void = {
-	sum(h, buf);
-	io::close(h);
-};
 
 // Closes a hash, freeing its resources and discarding the checksum.
 export fn close(h: *hash) void = io::close(h);
