@@ -18,8 +18,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	case let exp: ast::expr =>
 		yield exp;
 	case let err: error =>
-		fmt::errorln(strerror(err))!;
-		abort();
+		fmt::fatal("{}: {}", srcs[i], strerror(err));
 	};
 	defer ast::expr_free(exp);
 	let runes = 0z;
