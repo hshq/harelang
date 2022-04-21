@@ -270,7 +270,8 @@ tags, use "-X^".
 The following environment variables affect *hare*'s execution:
 
 |[ *HARECACHE*
-:< The path to the object cache. Defaults to _~/.cache/hare_.
+:< The path to the object cache. Defaults to _$XDG_CACHE_HOME/hare_, or
+   _~/.cache/hare_ if that doesn't exist.
 |  *HAREPATH*
 :  See *DEPENDENCY RESOLUTION*.
 |  *HAREFLAGS*
