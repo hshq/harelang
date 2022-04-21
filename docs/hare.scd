@@ -31,7 +31,7 @@ hare - compiles, runs, and tests Hare programs
 	[-T _tags_] [-X _tags_]++
 	_tests_
 
-*hare* version
+*hare* version [-v]
 
 # DESCRIPTION
 
@@ -54,11 +54,11 @@ made eligible for the test run. If the _test_ argument is omitted, all tests are
 run. Otherwise, the list of named tests are run. *hare test* adds the +test and
 +debug tags to the default build tags.
 
-*hare version* prints version information for the *hare* program, as well as
-some information about the build parameters. The output format is consistent for
-machine reading: the first line is "Hare version $version". Subsequent lines
-give configuration values in the form of a name, value, and optional context,
-separated by tabs.
+*hare version* prints version information for the *hare* program. If *-v* is
+supplied, it also prints information about the build parameters. The output
+format is consistent for machine reading: the first line is always "Hare version
+$version". Subsequent lines give configuration values in the form of a name,
+value, and optional context, separated by tabs.
 
 # OPTIONS
 
@@ -174,6 +174,11 @@ separated by tabs.
 *-X* _tags_
 	Unsets build tags. See *CUSTOMIZING BUILD TAGS*.
 
+## hare version
+
+*-v*
+	Show build parameters.
+
 # MODULES
 
 The _path_ argument to *hare build* and *hare run* are used to identify the
@@ -224,10 +229,10 @@ dependency graph.
 Dependencies are searched for by examining first the current working directory,
 then each component of the *HAREPATH* environment variable in order, which is a
 list of paths separated by colons. The default value of the *HAREPATH* may be
-found with the *hare version* command. Typically, it is set to include the path
-to the standard library installed on the system, as well as a system-provided
-storage location for third-party modules installed via the system package
-manager.
+found with the *hare version -v* command. Typically, it is set to include the
+path to the standard library installed on the system, as well as a
+system-provided storage location for third-party modules installed via the
+system package manager.
 
 # ARCHITECTURES
 
@@ -257,7 +262,7 @@ constraints, use the *-X* in a similar fashion; "-X +foo-bar" will reverse the
 previous *-T* example.
 
 Some tags are enabled by default, enabling features for the host platform. You
-can view the default tagset by running *hare version*. To remove all default
+can view the default tagset by running *hare version -v*. To remove all default
 tags, use "-X^".
 
 # ENVIRONMENT
