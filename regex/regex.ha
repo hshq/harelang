@@ -24,6 +24,7 @@ export type inst_lit = rune,
 		min: (void | size),
 		max: (void | size),
 	};
+
 export type inst = (inst_lit | inst_any | inst_split | inst_jump |
 	inst_skip | inst_match | inst_charset |
 	inst_groupstart | inst_groupend |
@@ -59,6 +60,7 @@ export type charset = [](charset_lit_item | charset_range_item |
 	charset_lit_item = rune,
 	charset_range_item = (u8, u8),
 	charset_class_item = charclass;
+
 const charclass_names: [](charclass, str) = [
 	(charclass::ALNUM, ":alnum:]"),
 	(charclass::ALPHA, ":alpha:]"),
@@ -73,6 +75,7 @@ const charclass_names: [](charclass, str) = [
 	(charclass::UPPER, ":upper:]"),
 	(charclass::XDIGIT, ":xdigit:]"),
 ];
+
 const charclass_fns: [](charclass, *fn(c: rune) bool) = [
 	(charclass::ALNUM, &ascii::isalnum),
 	(charclass::ALPHA, &ascii::isalpha),
@@ -150,11 +153,11 @@ fn handle_bracket(
 		return;
 	};
 
-	const is_range = peek1 is rune && peek1 as rune == '-' &&
-		!(peek2 is void) && !(peek3 is void);
+	const is_range = peek1 is rune && peek1 as rune == '-'
+		&& !(peek2 is void) && !(peek3 is void);
 	const range_end = peek2;
-	const is_first_char = *bracket_idx == 0 || *bracket_idx == 1 &&
-		!*is_charset_positive;
+	const is_first_char = *bracket_idx == 0 || *bracket_idx == 1
+		&& !*is_charset_positive;
 	if (r == ']' && !is_first_char) {
 		const newinst = inst_charset {
 			idx = len(charsets) - 1,
@@ -166,8 +169,8 @@ fn handle_bracket(
 		*is_charset_positive = true;
 	} else if (r == '^' && *bracket_idx == 0) {
 		*is_charset_positive = false;
-	} else if (r == '[' && !(peek1 is void) &&
-			peek1 as rune == ':') {
+	} else if (r == '[' && !(peek1 is void)
+			&& peek1 as rune == ':') {
 		const rest = strings::iterstr(iter);
 		const n_cc = len(charclass_names);
 		for (let cc_idx = 0z; cc_idx < n_cc; cc_idx += 1) {
@@ -473,10 +476,10 @@ fn add_thread(threads: *[]thread, parent_idx: size, new_pc: size) void = {
 	// Do not add this thread if there is already another thread with
 	// the same PC
 	for (let i = 0z; i < len(threads); i += 1) {
-		if (threads[i].pc == new_pc &&
-				!threads[i].matched &&
-				threads[i].start_idx <
-					threads[parent_idx].start_idx) {
+		if (threads[i].pc == new_pc
+				&& !threads[i].matched
+				&& threads[i].start_idx
+				< threads[parent_idx].start_idx) {
 			return;
 		};
 	};
@@ -560,17 +563,17 @@ fn run_thread(
 		case let ir: inst_repeat =>
 			assert(ir.id < len(threads[i].rep_counters));
 			threads[i].rep_counters[ir.id] += 1;
-			if (ir.max is size &&
-					threads[i].rep_counters[ir.id] >
-					ir.max as size) {
+			if (ir.max is size
+					&& threads[i].rep_counters[ir.id]
+					> ir.max as size) {
 				threads[i].failed = true;
 				return;
 			};
 			const new_pc = threads[i].pc + 1;
 			threads[i].pc = ir.origin;
-			if (ir.min is void ||
-					threads[i].rep_counters[ir.id] >=
-					ir.min as size) {
+			if (ir.min is void
+					|| threads[i].rep_counters[ir.id]
+					>= ir.min as size) {
 				add_thread(threads, i, new_pc);
 			};
 		};
@@ -679,11 +682,12 @@ fn search(
 			let best_n_groups = 0z;
 			let best_idx = 0z;
 			for (let i = 0z; i < len(threads); i += 1) {
-				let match_len = threads[i].root_group.end -
-					threads[i].root_group.start;
-				const is_better = match_len > best_len ||
-					match_len == best_len &&
-					len(threads[i].groups) > best_n_groups;
+				let match_len = threads[i].root_group.end
+					- threads[i].root_group.start;
+				const is_better = match_len > best_len
+					|| match_len == best_len
+					&& len(threads[i].groups)
+					> best_n_groups;
 				if (is_better) {
 					best_len = match_len;
 					best_idx = i;
@@ -703,12 +707,12 @@ fn search(
 		for (let i = 0z; i < len(threads); i += 1) {
 			const res = run_thread(i, re, string, &threads,
 				r_or_end, *str_idx)?;
-			const matchlen = threads[i].root_group.end -
-				threads[i].root_group.start;
-			const is_better = res is newmatch && matchlen > 0 &&
-				(first_match_idx is void ||
-					threads[i].start_idx <
-						first_match_idx as size);
+			const matchlen = threads[i].root_group.end
+				- threads[i].root_group.start;
+			const is_better = res is newmatch && matchlen > 0
+				&& (first_match_idx is void
+					|| threads[i].start_idx
+						< first_match_idx as size);
 			if (is_better) {
 				first_match_idx = threads[i].start_idx;
 			};
@@ -718,8 +722,8 @@ fn search(
 		// start after the earliest non-zero-length matched thread
 		if (first_match_idx is size) {
 			for (let i = 0z; i < len(threads); i += 1) {
-				if (threads[i].start_idx >
-						first_match_idx as size) {
+				if (threads[i].start_idx
+						> first_match_idx as size) {
 					threads[i].failed = true;
 				};
 			};
@@ -732,11 +736,11 @@ fn search(
 		for (let i = 0i64; i < len(threads): i64 - 1; i += 1) {
 			for (let j = i + 1; j < len(threads): i64; j += 1) {
 				const same_pc = threads[i].pc == threads[j].pc;
-				const none_matched = !threads[j].matched &&
-					!threads[i].matched;
+				const none_matched = !threads[j].matched
+					&& !threads[i].matched;
 				if (same_pc && none_matched) {
-					if (threads[i].start_idx <=
-							threads[j].start_idx) {
+					if (threads[i].start_idx
+							<= threads[j].start_idx) {
 						delete_thread(j: size, &threads);
 						j -= 1;
 					} else {
