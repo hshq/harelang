@@ -69,7 +69,7 @@ fn try(
 };
 
 // Looks for a matching ltok from the lexer, unlexes the token, and returns
-// it; or void if it was not a ltok.
+// it; or void if it was not an ltok.
 fn peek(
 	lexer: *lex::lexer,
 	want: lex::ltok...
