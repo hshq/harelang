@@ -184,7 +184,7 @@ bytes() {
 }
 
 datetime() {
-	gen_srcs datetime \
+	gen_srcs -plinux datetime \
 		arithmetic.ha \
 		chronology.ha \
 		date.ha \
@@ -193,7 +193,17 @@ datetime() {
 		parse.ha \
 		time.ha \
 		timezone.ha
-	gen_ssa datetime  errors fmt strings strio time time::chrono
+	gen_ssa -plinux datetime errors fmt strings strio time time::chrono
+	gen_srcs -pfreebsd datetime \
+		arithmetic.ha \
+		chronology.ha \
+		date.ha \
+		datetime.ha \
+		format.ha \
+		parse.ha \
+		time.ha \
+		timezone.ha
+	gen_ssa -pfreebsd datetime errors fmt strings strio time time::chrono
 }
 
 crypto() {
@@ -798,8 +808,10 @@ linux_vdso() {
 }
 
 log() {
-	gen_srcs log logger.ha global.ha funcs.ha
-	gen_ssa log datetime fmt io os
+	gen_srcs -plinux log logger.ha global.ha funcs.ha
+	gen_ssa -plinux log datetime fmt io os
+	gen_srcs -pfreebsd log logger.ha global.ha funcs.ha
+	gen_ssa -pfreebsd log datetime fmt io os
 }
 
 gensrcs_math() {
@@ -1153,13 +1165,23 @@ time() {
 }
 
 time_chrono() {
-	gen_srcs time::chrono \
+	gen_srcs -plinux time::chrono \
+		+linux.ha \
 		chronology.ha \
 		leapsec.ha \
 		timescale.ha \
 		timezone.ha \
 		tzdb.ha
-	gen_ssa time::chrono bufio endian errors fs fmt io os strconv \
+	gen_ssa -plinux time::chrono bufio endian errors fs fmt io os strconv \
+		strings time path
+	gen_srcs -pfreebsd time::chrono \
+		+freebsd.ha \
+		chronology.ha \
+		leapsec.ha \
+		timescale.ha \
+		timezone.ha \
+		tzdb.ha
+	gen_ssa -pfreebsd time::chrono bufio endian errors fs fmt io os strconv \
 		strings time path
 }
 
@@ -1285,7 +1307,7 @@ crypto::sha256
 crypto::sha512
 crypto::curve25519
 crypto::ed25519
-datetime
+datetime	linux freebsd
 dirs
 encoding::base64
 encoding::base32
@@ -1317,7 +1339,7 @@ io			linux freebsd
 linux			linux
 linux::keyctl		linux
 linux::vdso		linux
-log
+log	linux freebsd
 math
 math::random
 net			linux freebsd
@@ -1340,7 +1362,7 @@ strings
 strio
 temp			linux freebsd
 time			linux freebsd
-time::chrono
+time::chrono	linux freebsd
 types
 unix			linux freebsd
 unix::hosts	linux freebsd

@@ -30,11 +30,8 @@ export fn strerror(err: error) const str = {
 // if applicable, from an internal selection of timezones. All timezones
 // provided default to the [[utc]] timescale and [[EARTH_DAY]] daylength.
 export fn tz(name: str) (timezone | fs::error | io::error | invalidtzif) = {
-	// TODO: Move this path to +linux et al
-	const prefix = "/usr/share/zoneinfo/";
-
 	const filepath = path::init();
-	path::add(&filepath, prefix, name)!;
+	path::add(&filepath, ZONEINFO_PREFIX, name)!;
 	const fpath = path::string(&filepath);
 	const file = os::open(fpath)?;
 	defer io::close(file);

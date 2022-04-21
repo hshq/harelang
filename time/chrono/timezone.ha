@@ -174,8 +174,7 @@ export const LOCAL: locality = &TZ_local;
 			return;
 		};
 	case void =>
-		// TODO: Update this path on +linux et al
-		const file = match (os::open("/etc/localtime")) {
+		const file = match (os::open(LOCALTIME_PATH)) {
 		case let file: io::file =>
 			yield file;
 		case =>
