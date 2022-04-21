@@ -344,4 +344,5 @@ fn emit(ctx: *context) (void | error) = {
 	assert(parseident("hare::lex") is ast::ident);
 	assert(parseident("strings::dup*{}&@") is parse::error);
 	assert(parseident("foo::bar::") is parse::error);
+	assert(parseident("rt::abort") is ast::ident);
 };
