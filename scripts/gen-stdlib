@@ -1125,7 +1125,7 @@ strings() {
 		utf8.ha \
 		index.ha \
 		trim.ha \
-		strcmp.ha \
+		compare.ha \
 		pad.ha \
 		replace.ha
 	gen_ssa strings bytes encoding::utf8 types

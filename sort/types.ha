@@ -10,7 +10,7 @@ export type cmpfunc = fn(a: const *void, b: const *void) int;
 
 fn scmp(a: const *void, b: const *void) int = {
 	const a = a: const *str, b = b: const *str;
-	return strings::strcmp(*a, *b);
+	return strings::compare(*a, *b);
 };
 
 fn icmp(a: const *void, b: const *void) int = {

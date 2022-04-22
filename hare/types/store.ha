@@ -516,7 +516,7 @@ fn tuple_from_ast(
 
 fn field_cmp(a: const *void, b: const *void) int = {
 	const a = a: const *struct_field, b = b: *const struct_field;
-	return strings::strcmp(a.name, b.name);
+	return strings::compare(a.name, b.name);
 };
 
 fn type_finish(t: *_type) void = {

@@ -1727,7 +1727,7 @@ stdlib_strings_any_srcs= \
 	$(STDLIB)/strings/utf8.ha \
 	$(STDLIB)/strings/index.ha \
 	$(STDLIB)/strings/trim.ha \
-	$(STDLIB)/strings/strcmp.ha \
+	$(STDLIB)/strings/compare.ha \
 	$(STDLIB)/strings/pad.ha \
 	$(STDLIB)/strings/replace.ha
 
@@ -3766,7 +3766,7 @@ testlib_strings_any_srcs= \
 	$(STDLIB)/strings/utf8.ha \
 	$(STDLIB)/strings/index.ha \
 	$(STDLIB)/strings/trim.ha \
-	$(STDLIB)/strings/strcmp.ha \
+	$(STDLIB)/strings/compare.ha \
 	$(STDLIB)/strings/pad.ha \
 	$(STDLIB)/strings/replace.ha
 

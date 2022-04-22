@@ -261,7 +261,7 @@ fn strstack_sort(ss: *strstack, pos: size) void = {
 };
 
 fn bufcmp(a: const *void, b: const *void) int =
-	strings::strcmp(
+	strings::compare(
 		strio::string(b: *strio::stream),
 		strio::string(a: *strio::stream),
 	);

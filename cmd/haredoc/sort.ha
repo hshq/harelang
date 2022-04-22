@@ -98,7 +98,7 @@ fn decl_cmp(a: const *void, b: const *void) int = {
 		return -1;
 	};
 	const id_a = decl_ident(a), id_b = decl_ident(b);
-	return strings::strcmp(id_a[len(id_a) - 1], id_b[len(id_b) - 1]);
+	return strings::compare(id_a[len(id_a) - 1], id_b[len(id_b) - 1]);
 };
 
 fn decl_ident(decl: ast::decl) ast::ident = {

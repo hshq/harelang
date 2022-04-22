@@ -335,7 +335,7 @@ fn match_ctype(it: *strings::iterator, c: rune) (bool | errors::invalid) = {
 type funcmap = (str, *fn(c: rune) bool);
 
 fn cmp(a: const *void, b: const *void) int =
-	strings::strcmp((a: *funcmap).0, *(b: const *str));
+	strings::compare((a: *funcmap).0, *(b: const *str));
 
 fn ctype_name_to_func(name: str) nullable *fn(c: rune) bool = {
 	const map: [_]funcmap = [
