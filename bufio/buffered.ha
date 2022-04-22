@@ -67,16 +67,14 @@ export fn buffered(
 		...
 	};
 	if (len(rbuf) != 0 && len(wbuf) != 0) {
+		assert(rbuf: *[*]u8 != wbuf: *[*]u8,
+			"Cannot use bufio::buffered with same buffer for reads and writes");
 		s.stream = &buffered_vtable_rw;
 	} else if (len(rbuf) != 0) {
 		s.stream = &buffered_vtable_r;
 	} else if (len(wbuf) != 0) {
 		s.stream = &buffered_vtable_w;
 	} else abort("Must provide at least one buffer to bufio::buffered");
-	if (len(rbuf) != 0 && len(wbuf) != 0) {
-		assert(rbuf: *[*]u8 != wbuf: *[*]u8,
-			"Cannot use bufio::buffered with same buffer for reads and writes");
-	};
 	return s;
 };
 
