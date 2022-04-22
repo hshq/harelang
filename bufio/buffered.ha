@@ -130,11 +130,15 @@ fn buffered_close_static(s: *io::stream) void = {
 fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	assert(s.reader == &buffered_read);
 	let s = s: *bufstream;
-	let n = if (len(buf) < len(s.rbuffer)) len(buf) else len(s.rbuffer);
-	if (n > s.ravail) {
-		let z = match (io::read(s.source, s.rbuffer[s.ravail..])) {
-		case let err: io::error =>
-			return err;
+	if (len(buf) < s.ravail) {
+		buf[..] = s.rbuffer[..len(buf)];
+		s.rbuffer[..s.ravail - len(buf)] = s.rbuffer[len(buf)..s.ravail];
+		s.ravail -= len(buf);
+		return len(buf);
+	};
+	buf[..s.ravail] = s.rbuffer[..s.ravail];
+	if (len(buf) - s.ravail < len(s.rbuffer)) {
+		let z = match (io::read(s.source, s.rbuffer)?) {
 		case io::EOF =>
 			if (s.ravail == 0) {
 				return io::EOF;
@@ -143,15 +147,23 @@ fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 		case let z: size =>
 			yield z;
 		};
-		s.ravail += z;
-		n = if (n > s.ravail) s.ravail else n;
-		assert(n != 0);
+		let n = if (len(buf) < z + s.ravail) len(buf) else z + s.ravail;
+		buf[s.ravail..n] = s.rbuffer[..n - s.ravail];
+		s.rbuffer[..len(s.rbuffer) - (n - s.ravail)] = s.rbuffer[n - s.ravail..];
+		s.ravail = z - (n - s.ravail);
+		return n;
+	} else {
+		s.ravail = 0;
+		match (io::read(s.source, buf)?) {
+		case io::EOF =>
+			if (s.ravail == 0) {
+				return io::EOF;
+			};
+			return 0z;
+		case let z: size =>
+			return z;
+		};
 	};
-
-	buf[..n] = s.rbuffer[..n];
-	s.rbuffer[..len(s.rbuffer) - n] = s.rbuffer[n..];
-	s.ravail -= n;
-	return n;
 };
 
 fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
@@ -217,10 +229,8 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	defer io::close(&f);
 
 	let buf: [32]u8 = [0...];
-	assert(io::read(&f, buf) as size == 16);
-	assert(source.pos == 16);
-
-	assert(io::read(&f, buf[16..]) as size == 16);
+	assert(io::read(&f, buf) as size == 32);
+	assert(source.pos == 32);
 	assert(bytes::equal(buf, sourcebuf));
 	assert(io::read(&f, buf) is io::EOF);
 	assert(source.pos == len(source.buf));
