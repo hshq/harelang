@@ -19,7 +19,7 @@ stdlib_rt_linux_srcs= \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
-	$(STDLIB)/rt/+x86_64/cpuid.ha \
+	$(STDLIB)/rt/+$(ARCH)/cpuid.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -45,7 +45,7 @@ stdlib_rt_freebsd_srcs= \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
-	$(STDLIB)/rt/+x86_64/cpuid.ha \
+	$(STDLIB)/rt/+$(ARCH)/cpuid.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -2007,7 +2007,7 @@ testlib_rt_linux_srcs= \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
-	$(STDLIB)/rt/+x86_64/cpuid.ha \
+	$(STDLIB)/rt/+$(ARCH)/cpuid.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
@@ -2037,7 +2037,7 @@ testlib_rt_freebsd_srcs= \
 	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
-	$(STDLIB)/rt/+x86_64/cpuid.ha \
+	$(STDLIB)/rt/+$(ARCH)/cpuid.ha \
 	$(STDLIB)/rt/ensure.ha \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \

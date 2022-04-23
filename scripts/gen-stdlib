@@ -35,7 +35,7 @@ gensrcs_rt() {
 		'+$(ARCH)'/jmp.ha \
 		'+$(ARCH)'/backtrace.ha \
 		fenv_defs.ha \
-		+x86_64/cpuid.ha \
+		'+$(ARCH)'/cpuid.ha \
 		ensure.ha \
 		jmp.ha \
 		malloc.ha \
@@ -58,7 +58,7 @@ gensrcs_rt() {
 		+'$(ARCH)'/jmp.ha \
 		+'$(ARCH)'/backtrace.ha \
 		fenv_defs.ha \
-		+x86_64/cpuid.ha \
+		+'$(ARCH)'/cpuid.ha \
 		ensure.ha \
 		jmp.ha \
 		malloc.ha \
