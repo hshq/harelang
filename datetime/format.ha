@@ -29,6 +29,10 @@ export def STAMP: str = "%Y-%m-%d %H:%M:%S";
 // [[datetime::format]] string providing the current timestamp with nanoseconds.
 export def STAMP_NANO: str = "%Y-%m-%d %H:%M:%S.%N";
 
+// [[datetime::format]] string providing the current timestamp with nanoseconds,
+// zone offset, zone abbreviation, and locality.
+export def STAMP_NOZL: str = "%Y-%m-%d %H:%M:%S.%N %z %Z %L";
+
 def WEEKDAYS: [_]str = [
 	"Monday",
 	"Tuesday",
@@ -108,6 +112,8 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 		return fmt::fprintf(out, "{:02}", hour12(dt));
 	case 'j' =>
 		return fmt::fprint(out, strconv::itos(yearday(dt)));
+	case 'L' =>
+		return fmt::fprint(out, dt.loc.name);
 	case 'm' =>
 		return fmt::fprintf(out, "{:02}", month(dt));
 	case 'M' =>

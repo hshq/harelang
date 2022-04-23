@@ -80,6 +80,9 @@ export fn parse(build: *builder, layout: str, s: str) (void | invalid) = {
 		case 'j' =>
 			build.yearday = clamp_int(
 				get_max_n_digits(&s_iter, 3)?, 1, 366);
+		case 'L' =>
+			// TODO: Parse %L (locality/timezone name/ID).
+			continue;
 		case 'm' =>
 			build.month = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 12);
