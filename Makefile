@@ -1,9 +1,9 @@
 .POSIX:
 .SUFFIXES:
 include config.mk
-TESTCACHE=$(HARECACHE)/+test
-TESTHAREFLAGS=$(HAREFLAGS) -T
-STDLIB=.
+TESTCACHE = $(HARECACHE)/+test
+TESTHAREFLAGS = $(HAREFLAGS) -T
+STDLIB = .
 
 all:
 
@@ -22,7 +22,7 @@ all:
 
 include stdlib.mk
 
-hare_srcs=\
+hare_srcs = \
 	./cmd/hare/main.ha \
 	./cmd/hare/plan.ha \
 	./cmd/hare/progress.ha \
@@ -30,11 +30,11 @@ hare_srcs=\
 	./cmd/hare/schedule.ha \
 	./cmd/hare/subcmds.ha
 
-harec_srcs=\
+harec_srcs = \
 	./cmd/harec/main.ha \
 	./cmd/harec/errors.ha
 
-haredoc_srcs=\
+haredoc_srcs = \
 	./cmd/haredoc/main.ha \
 	./cmd/haredoc/errors.ha \
 	./cmd/haredoc/env.ha \

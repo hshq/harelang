@@ -31,7 +31,7 @@ gen_srcs() {
 	var="$(mod_var "$mod" "$platform")"
 
 	printf '# %s (+%s)\n' "$mod" "$platform"
-	printf '%s_srcs= \\\n' "$var"
+	printf '%s_srcs = \\\n' "$var"
 	while [ $# -ne 0 ]
 	do
 		if [ $# -eq 1 ]
@@ -105,13 +105,13 @@ gen_lib() {
 	path=$(mod_path "$mod")
 	file=$(mod_file "$mod")
 	var=$(mod_var "$mod" "$platform")
-	printf "%s=\$(%s)/%s/%s-%s.o\n" "$var" "$cache" "$path" "$file" "$platform"
-	printf '%s_deps_%s+=$(%s)\n' "$stdlib" "$platform" "$var"
+	printf "%s = \$(%s)/%s/%s-%s.o\n" "$var" "$cache" "$path" "$file" "$platform"
+	printf '%s_deps_%s += $(%s)\n' "$stdlib" "$platform" "$var"
 	if [ "$platform" = "any" ]
 	then
 		for p in $all_platforms
 		do
-			printf '%s=$(%s)\n' "$(mod_var "$mod" "$p")" "$var"
+			printf '%s = $(%s)\n' "$(mod_var "$mod" "$p")" "$var"
 		done
 	fi
 	printf '\n'

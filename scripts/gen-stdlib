@@ -73,7 +73,7 @@ rt() {
 	# This one is complicated, don't use it as a reference for other modules
 	if [ $testing -eq 0 ]
 	then
-		printf '%s\n' 'rtscript=$(STDLIB)/rt/hare.sc'
+		printf '%s\n' 'rtscript = $(STDLIB)/rt/hare.sc'
 		gensrcs_rt \
 			abort.ha \
 			start.ha
@@ -94,7 +94,7 @@ rt() {
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$<
 
-${stdlib}_asm=\$($cache)/rt/syscall.o \\
+${stdlib}_asm = \$($cache)/rt/syscall.o \\
 	\$($cache)/rt/setjmp.o \\
 	\$($cache)/rt/longjmp.o \\
 	\$($cache)/rt/restore.o \\
@@ -146,10 +146,10 @@ ${stdlib}_asm=\$($cache)/rt/syscall.o \\
 	@printf 'AR\t\$@\n'
 	@\$(AR) -csr \$@ \$($cache)/rt/rt-freebsd.o \$(${stdlib}_asm)
 
-${stdlib}_rt=\$($cache)/rt/rt-\$(PLATFORM).a
-${stdlib}_deps_linux+=\$(${stdlib}_rt)
-${stdlib}_deps_freebsd+=\$(${stdlib}_rt)
-${stdlib}_deps_any+=\$(${stdlib}_rt)
+${stdlib}_rt = \$($cache)/rt/rt-\$(PLATFORM).a
+${stdlib}_deps_linux += \$(${stdlib}_rt)
+${stdlib}_deps_freebsd += \$(${stdlib}_rt)
+${stdlib}_deps_any += \$(${stdlib}_rt)
 
 EOF
 }
