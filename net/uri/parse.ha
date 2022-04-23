@@ -321,13 +321,19 @@ fn parse_port(in: *strings::iterator) (u16 | invalid) = {
 
 fn percent_decode(s: str) (str | invalid) = {
 	let buf = strio::dynamic();
+	percent_decode_static(&buf, s)?;
+	return strio::string(&buf);
+};
+
+fn percent_decode_static(out: io::handle, s: str) (void | invalid) = {
 	let iter = strings::iter(s);
+	let tmp = strio::dynamic();
+	defer io::close(&tmp);
 	for (true) {
 		match (strings::next(&iter)) {
 		case let r: rune =>
 			if (r == '%') {
-				let tmp = strio::dynamic();
-				defer io::close(&tmp);
+				strio::reset(&tmp);
 				for (let i = 0z; i < 2; i += 1) {
 					const r = wantrune(&iter)?;
 					strio::appendrune(&tmp, r)!;
@@ -336,18 +342,17 @@ fn percent_decode(s: str) (str | invalid) = {
 				match (strconv::stou8b(strio::string(&tmp),
 					strconv::base::HEX)) {
 				case let ord: u8 =>
-					strio::appendrune(&buf, ord: u32: rune)!;
+					strio::appendrune(out, ord: u32: rune)!;
 				case =>
 					return invalid;
 				};
 			} else {
-				strio::appendrune(&buf, r)!;
+				strio::appendrune(out, r)!;
 			};
 		case void =>
 			break;
 		};
 	};
-	return strio::string(&buf);
 };
 
 fn wantrune(iter: *strings::iterator) (rune | invalid) = {

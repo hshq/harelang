@@ -1582,6 +1582,7 @@ $(HARECACHE)/net/unix/net_unix-freebsd.ssa: $(stdlib_net_unix_freebsd_srcs) $(st
 stdlib_net_uri_any_srcs = \
 	$(STDLIB)/net/uri/fmt.ha \
 	$(STDLIB)/net/uri/parse.ha \
+	$(STDLIB)/net/uri/query.ha \
 	$(STDLIB)/net/uri/uri.ha
 
 $(HARECACHE)/net/uri/net_uri-any.ssa: $(stdlib_net_uri_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_ip_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM))
@@ -3629,6 +3630,7 @@ $(TESTCACHE)/net/unix/net_unix-freebsd.ssa: $(testlib_net_unix_freebsd_srcs) $(t
 testlib_net_uri_any_srcs = \
 	$(STDLIB)/net/uri/fmt.ha \
 	$(STDLIB)/net/uri/parse.ha \
+	$(STDLIB)/net/uri/query.ha \
 	$(STDLIB)/net/uri/uri.ha \
 	$(STDLIB)/net/uri/+test.ha
 

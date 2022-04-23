@@ -963,6 +963,7 @@ gensrcs_net_uri() {
 	gen_srcs net::uri \
 		fmt.ha \
 		parse.ha \
+		query.ha \
 		uri.ha \
 		$*
 }
