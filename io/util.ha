@@ -13,7 +13,7 @@ export fn readitem(in: handle, item: *void, itemsz: size) (size | error) = {
 	for (i < itemsz) {
 		match (read(in, buf[..(itemsz - i)])) {
 		case EOF =>
-			return underread;
+			return i: underread: error;
 		case let z: size =>
 			i += z;
 		};
@@ -41,7 +41,7 @@ export fn readall(in: handle, buf: []u8) (size | EOF | error) = {
 			if (z == 0) {
 				return EOF;
 			};
-			return underread;
+			return z: underread: error;
 		case let n: size =>
 			z += n;
 		};

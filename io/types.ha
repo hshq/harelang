@@ -4,8 +4,9 @@
 use errors;
 
 // Returned by [[readitem]], [[readitems]] and [[readall]] if the I/O handle
-// returned [[EOF]] prior to completely reading an item.
-export type underread = !void;
+// returned [[EOF]] prior to completely reading an item. Stores the amount that
+// was succesfully read.
+export type underread = !size;
 
 // Any error which may be returned from an I/O function.
 export type error = !(...errors::error | underread);

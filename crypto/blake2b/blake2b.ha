@@ -84,7 +84,7 @@ export fn blake2b(key: []u8, sz: size) digest = {
 };
 
 fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
-	if (len(buf) == 0) return 0;
+	if (len(buf) == 0) return 0z;
 	let h = st: *digest;
 	let length = len(buf);
 	let buf = buf[..];

@@ -58,7 +58,7 @@ fn limit_read(s: *stream, buf: []u8) (size | EOF | error) = {
 fn limit_write(s: *stream, buf: const []u8) (size | error) = {
 	let stream = s: *limitstream;
 	if (stream.limit == 0) {
-		return 0;
+		return 0z;
 	};
 	let slice = if (len(buf) > stream.limit) {
 		yield buf[..stream.limit];
