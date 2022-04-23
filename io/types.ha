@@ -3,8 +3,8 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 use errors;
 
-// Returned by [[readitem]] and [[readitems]] if the I/O handle returned [[EOF]]
-// prior to completely reading an item.
+// Returned by [[readitem]], [[readitems]] and [[readall]] if the I/O handle
+// returned [[EOF]] prior to completely reading an item.
 export type underread = !void;
 
 // Any error which may be returned from an I/O function.
