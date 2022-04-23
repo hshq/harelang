@@ -6,7 +6,7 @@ use errors;
 use strings;
 
 // Parses a datetime string into a [[builder]], using a "layout" format string
-// with a subset of specifiers from POSIX strptime(3). Partial, incremental
+// with a set of specifiers as documented under [[format]]. Partial, incremental
 // parsing is possible.
 //
 // 	datetime::parse(&builder, "%Y-%m-%d", "2038-01-19");

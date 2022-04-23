@@ -163,7 +163,40 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 	};
 };
 
-// Formats a [[datetime]] and writes to an [[io::handle]].
+// Formats a [[datetime]] according to a layout and writes to an [[io::handle]].
+//
+// The layout may contain any of the following format specifiers listed below.
+// Implemented are a subset of the POSIX strftime(3) format specifiers, as well
+// as some others. Use of unimplemented specifiers or an otherwise invalid
+// layout will cause an abort.
+//
+// 	%% -- A literal '%' character.
+// 	%a -- The abbreviated name of the day of the week.
+// 	%A -- The full name of the day of the week.
+// 	%b -- The abbreviated name of the month.
+// 	%B -- The full name of the month.
+// 	%d -- The day of the month (decimal, range 01 to 31).
+// 	%H -- The hour of the day as from a 24-hour clock (range 00 to 23).
+// 	%I -- The hour of the day as from a 12-hour clock (range 01 to 12).
+// 	%j -- The ordinal day of the year (range 001 to 366).
+// 	%L -- The locality's name (the timezone's identifier).
+// 	%m -- The month (decimal, range 01 to 12).
+// 	%M -- The minute (decimal, range 00 to 59).
+// 	%N -- The nanosecond of the second (range 000000000 to 999999999).
+// 	%p -- Either "AM" or "PM" according to the current time.
+// 	      "AM" includes midnight, and "PM" includes noon.
+// 	%S -- The second of the minute (range 00 to 60).
+// 	%u -- The day of the week (decimal, range 1 to 7). 1 represents Monday.
+// 	%U -- The week number of the current year (range 00 to 53),
+// 	      starting with the first Sunday as the first day of week 01.
+// 	%w -- The day of the week (decimal, range 0 to 6). 1 represents Sunday.
+// 	%W -- The week number of the current year (range 00 to 53),
+// 	      starting with the first Monday as the first day of week 01.
+// 	%y -- The year without the century digits (range 00 to 99).
+// 	%Y -- The year.
+// 	%z -- The observed zone offset.
+// 	%Z -- The observed zone abbreviation.
+//
 export fn format(
 	h: io::handle,
 	layout: str,
