@@ -92,11 +92,3 @@ export fn read(id: serial, buf: []u8) (size | error) = {
 	return keyctl(command::READ, id: u64,
 		buf: uintptr: u64, bufln: u64, 0)?: size;
 };
-
-@test fn keyctl() void = {
-	const payload = strings::toutf8("hello world");
-	const key = add_key("user", "example", payload, PROCESS_KEYRING)!;
-	let buffer: [64]u8 = [0...];
-	const n = read(key, buffer[..])!;
-	assert(bytes::equal(buffer[..n], payload));
-};
