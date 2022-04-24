@@ -36,6 +36,7 @@ export type bufstream = struct {
 	ravail: size,
 	wavail: size,
 	flush: []u8,
+	unread: []u8,
 };
 
 // Creates a stream which buffers reads and writes for the underlying stream.
@@ -96,17 +97,16 @@ export fn setflush(s: *bufstream, b: []u8) void = {
 
 // Unreads a slice of bytes. The next read calls on this buffer will consume the
 // un-read data before consuming further data from the underlying source, or any
-// buffered data. The amount of data that can be un-read is guaranteed to be at
-// least as much as the size of the previous read from the stream.
+// buffered data.
 export fn unread(s: *bufstream, buf: []u8) void = {
-	assert(len(buf) + s.ravail > len(s.rbuffer));
-	s.rbuffer[len(buf)..len(buf) + s.ravail] = s.rbuffer[..s.ravail];
-	s.rbuffer[..len(buf)] = buf;
+	append(s.unread, buf...);
 };
 
 // Unreads a rune; see [[unread]].
-export fn unreadrune(s: *bufstream, rn: rune) void =
-	unread(s, utf8::encoderune(rn));
+export fn unreadrune(s: *bufstream, rn: rune) void = {
+	const buf = utf8::encoderune(rn);
+	insert(s.unread[0], buf...);
+};
 
 // Returns true if an [[io::handle]] is a [[buffered]] stream.
 export fn isbuffered(in: io::handle) bool = {
@@ -128,6 +128,13 @@ fn buffered_close_static(s: *io::stream) void = {
 fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	assert(s.reader == &buffered_read);
 	let s = s: *bufstream;
+	if (len(s.unread) != 0) {
+		let n = if (len(buf) < len(s.unread)) len(buf) else len(s.unread);
+		buf[..n] = s.unread[..n];
+		delete(s.unread[..n]);
+		return n;
+	};
+
 	let n = if (len(buf) < len(s.rbuffer)) len(buf) else len(s.rbuffer);
 	if (n > s.ravail) {
 		let z = match (io::read(s.source, s.rbuffer[s.ravail..])) {
