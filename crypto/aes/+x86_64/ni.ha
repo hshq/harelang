@@ -28,7 +28,7 @@ export fn x86ni_available() bool = {
 export fn x86ni() x86ni_block = {
 	return x86ni_block {
 		blocksz = BLOCKSIZE,
-		nparallel = CT64_NPARALLEL,
+		nparallel = 1,
 		encrypt = &x86ni_encrypt,
 		decrypt = &x86ni_decrypt,
 		finish = &x86ni_finish,
