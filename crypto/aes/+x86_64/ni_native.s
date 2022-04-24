@@ -52,6 +52,9 @@ enc_key_128:
 	call key_expand_128
 	movdqu %xmm1, 0xa0(%rcx) 
 
+	# return rklen
+	mov $176, %rax
+
 	jmp dec_key
 key_expand_128: 
 	vpslldq $0x4, %xmm1, %xmm3
@@ -124,6 +127,9 @@ enc_key_192:
 	movdqu %xmm1, 0xc0(%rcx)
 	movdqu %xmm3, %xmm5
 
+	# return rklen
+	mov $208, %rax
+
 	jmp dec_key
 
 key_expand_192:
@@ -191,6 +197,10 @@ enc_key_256:
 	aeskeygenassist $0x40, %xmm3, %xmm2
 	call key_expand_256_a
 	movdqu %xmm1, 0xe0(%rcx)
+
+	# return rklen
+	mov $240, %rax
+
 	jmp dec_key
 
 key_expand_256_a:
@@ -224,17 +234,10 @@ key_expand_256_b:
 dec_key:
 	movq 0x40(%rbp), %rdx # &dec_rk
 
-	# store key in reverse order, therefore add rklen to rk pointer
-	mov $0x18, %rbx
-	je rklen_dec_key_192
-	jle rklen_dec_key_256
-	add $160, %rdx
-	jmp dec_key_start
-rklen_dec_key_192:
-	add $192, %rdx
-	jmp dec_key_start
-rklen_dec_key_256:
-	add $224, %rdx
+	# store key in reverse order, therefore add offset to last rk item
+	add %rax, %rdx
+	sub $16, %rdx
+
 
 dec_key_start:
 	movdqu 0x0(%rcx), %xmm1
@@ -268,15 +271,13 @@ dec_key_start:
 	aesimc %xmm1, %xmm1
 	movdqu %xmm1, -0x90(%rdx)
 
+	mov $208, %rbx
 	cmp %rax, %rbx
 	je dec_key_192
 	jle dec_key_256
 
 	movdqu 0xa0(%rcx), %xmm1
 	movdqu %xmm1, -0xa0(%rdx)
-
-	# return rklen
-	movl $176, %eax
 
 	jmp key_exp_end
 
@@ -292,8 +293,6 @@ dec_key_192:
 	movdqu 0xc0(%rcx), %xmm1
 	movdqu %xmm1, -0xc0(%rdx)
 
-	# return rklen
-	movl $208, %eax
 	jmp key_exp_end
 dec_key_256:
 	movdqu 0xa0(%rcx), %xmm1
@@ -312,9 +311,6 @@ dec_key_256:
 
 	movdqu 0xe0(%rcx), %xmm1
 	movdqu %xmm1, -0xe0(%rdx)
-
-	# return rklen
-	movl $240, %eax
 
 key_exp_end:
 	pxor %xmm0, %xmm0
