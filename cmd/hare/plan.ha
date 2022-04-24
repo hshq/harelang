@@ -244,7 +244,13 @@ fn execute(
 		fmt::errorln()!;
 	};
 
-	let cmd = exec::cmd(task.cmd[0], task.cmd[1..]...)!;
+	let cmd = match (exec::cmd(task.cmd[0], task.cmd[1..]...)) {
+	case let cmd: exec::command =>
+		yield cmd;
+	case let err: exec::error =>
+		fmt::fatal("Error resolving {}: {}", task.cmd[0],
+			exec::strerror(err));
+	};
 	for (let i = 0z; i < len(plan.environ); i += 1) {
 		let e = plan.environ[i];
 		exec::setenv(&cmd, e.0, e.1);
