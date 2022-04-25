@@ -4,6 +4,7 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+// (c) 2022 Vincent Dagonneau <v@vda.io>
 
 fn syscall0(_: u64) u64;
 fn syscall1(_: u64, _: u64) u64;
@@ -290,7 +291,7 @@ export fn mmap(
 				&& addr == null
 				&& (flags & MAP_ANON) > 0
 				&& (flags & MAP_FIXED) == 0) {
-			 // Fix up incorrect EPERM from kernel:
+			// Fix up incorrect EPERM from kernel:
 			yield wrap_errno(ENOMEM);
 		} else err;
 	case let n: u64 =>
@@ -759,4 +760,12 @@ export fn keyctl(
 ) (int | errno) = {
 	return wrap_return(syscall5(SYS_keyctl, operation: u64,
 		arg2, arg3, arg4, arg5))?: int;
+};
+
+export fn getsid(pid: int) (int | errno) = {
+	return wrap_return(syscall1(SYS_getsid, pid: u64))?: int;
+};
+
+export fn setsid() (void | errno) = {
+	return wrap_return(syscall0(SYS_setsid))?: void;
 };

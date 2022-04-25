@@ -6,6 +6,7 @@
 // (c) 2021 Kiëd Llaentenn <kiedtl@tilde.team>
 // (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
+// (c) 2022 Vincent Dagonneau <v@vda.io>
 
 export type off_t = u64;
 export type dev_t = u64;
@@ -713,6 +714,8 @@ export type tcflag = enum uint {
 
 
 export def TIOCGWINSZ: u64 = 0x5413;
+export def TIOCSCTTY: u64 = 0x540e;
+export def TIOCNOTTY: u64 = 0x5422;
 export def TCGETS: u64 = 0x5401;
 export def TCSETS: u64 = 0x5402;
 
