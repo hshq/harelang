@@ -86,8 +86,10 @@ export fn main() void = {
 			fmt::fatal("I/O error: {}", io::strerror(err));
 		case let err: parse::error =>
 			fmt::fatal("{}", parse::strerror(err));
-		case (types::deferred | types::error) =>
+		case let err: types::error =>
 			fmt::fatal("{}", types::strerror(err));
+		case types::deferred =>
+			fmt::fatal("Invalid type");
 		};
 	};
 };
