@@ -57,11 +57,16 @@ export fn fnv32() state32 = state32 {
 	...
 };
 
+const fnv32a_vtable: io::vtable = io::vtable {
+	writer = &fnv32a_write,
+	...
+};
+
 // Creates a [[hash::hash]] which computes the FNV-1a 32-bit hash function. This
 // hash does not allocate any state, so you do not need to call [[hash::close]]
 // when you're done with it.
 export fn fnv32a() state32 = state32 {
-	stream = &fnv32_vtable,
+	stream = &fnv32a_vtable,
 	sum = &fnv32_sum,
 	reset = &fnv32_reset,
 	sz = 4,
@@ -88,11 +93,16 @@ export fn fnv64() state64 = state64 {
 	...
 };
 
+const fnv64a_vtable: io::vtable = io::vtable {
+	writer = &fnv64a_write,
+	...
+};
+
 // Creates a [[hash::hash]] which computes the FNV-1a 64-bit hash function. This
 // hash does not allocate any state, so you do not need to call [[hash::close]]
 // when you're done with it.
 export fn fnv64a() state64 = state64 {
-	stream = &fnv64_vtable,
+	stream = &fnv64a_vtable,
 	sum = &fnv64_sum,
 	reset = &fnv64_reset,
 	sz = 8,
