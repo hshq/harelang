@@ -45,8 +45,10 @@ let utc_leapsecs: [](i64, i64) = [];
 };
 
 fn read_leapsecfile(h: io::handle, leapsecs: *[](i64, i64)) (void | io::error) = {
+	let buffer: [os::BUFSIZ]u8 = [0...];
+	const b = bufio::buffered(h, buffer, []);
 	for (true) {
-		const line = match (bufio::scanline(h)) {
+		const line = match (bufio::scanline(&b)) {
 		case let err: io::error =>
 			return err;
 		case io::EOF =>
