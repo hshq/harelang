@@ -249,9 +249,11 @@ fn prototype_tty(
 		n += newline(out, indent)?;
 	} else for (let i = 0z; i < len(t.params); i += 1) {
 		const param = t.params[i];
-		n += fmt::fprintf(out, "\x1b[36m" "{}" "\x1b[0m" ": ",
+		n += fmt::fprintf(out, "{}" "\x1b[0m" ": ",
 			if (param.name == "") "_" else param.name)?;
+		n += fmt::fprint(out, "\x1b[36m")?;
 		n += fmt::fprint(out, typenames[i])?;
+		n += fmt::fprint(out, "\x1b[0m")?;
 		if (i + 1 == len(t.params)) {
 			switch (t.variadism) {
 			case variadism::NONE => void;
