@@ -572,7 +572,7 @@ glob() {
 	else
 		gen_srcs glob glob.ha +test.ha
 	fi
-	gen_ssa glob fnmatch fs io os sort strings strio 
+	gen_ssa glob fnmatch fs io os sort strings strio
 }
 
 hare_ast() {
@@ -799,6 +799,12 @@ linux_keyctl() {
 		keyctl.ha \
 		types.ha
 	gen_ssa -plinux linux::keyctl rt errors strings bytes
+}
+
+linux_timerfd() {
+	gen_srcs -plinux linux::timerfd \
+		timerfd.ha
+	gen_ssa -plinux linux::timerfd errors
 }
 
 linux_vdso() {
@@ -1048,7 +1054,7 @@ gensrcs_strconv() {
 		numeric.ha \
 		ftos.ha \
 		stof.ha \
-        stof_data.ha \
+		stof_data.ha \
 		$*
 }
 
@@ -1261,7 +1267,7 @@ unix_signal() {
 
 unix_tty() {
 	gen_srcs -plinux unix::tty \
-        types.ha \
+		types.ha \
 		+linux/isatty.ha \
 		+linux/open.ha \
 		+linux/termios.ha \
@@ -1269,7 +1275,7 @@ unix_tty() {
 	gen_ssa -plinux unix::tty rt fs io os
 
 	gen_srcs -pfreebsd unix::tty \
-        types.ha \
+		types.ha \
 		+freebsd/isatty.ha \
 		+freebsd/open.ha \
 		+freebsd/winsize.ha
@@ -1338,6 +1344,7 @@ hash::fnv
 io			linux freebsd
 linux			linux
 linux::keyctl		linux
+linux::timerfd	linux
 linux::vdso		linux
 log	linux freebsd
 math

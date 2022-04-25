@@ -1,0 +1,131 @@
+// License: MPL-2.0
+// (c) 2021 Vincent Dagonneau <v@vda.io>
+
+use errors;
+use rt;
+use time;
+use io;
+use endian;
+
+// The timer will trigger only once, after the set duration and never after.
+export type oneshot = time::duration;
+
+// The timer will trigger once after a configured delay, then periodically at
+// the given interval.
+export type interval_delayed = (time::duration, time::duration);
+
+// The timer will trigger periodically at the given interval.
+export type interval = time::duration;
+
+// The expiration configuration for the timer.
+export type expiration = (oneshot | interval | interval_delayed);
+
+const empty_timerspec: rt::itimerspec = rt::itimerspec {
+	it_interval = rt::timespec { tv_sec = 0, tv_nsec = 0 },
+	it_value = rt::timespec { tv_sec = 0, tv_nsec = 0 },
+};
+
+// Creates a new timerfd. The timer is initially configured without an
+// expiration; see [[set]] to configure it.
+export fn new(
+	clockid: time::clock,
+	flags: int
+) (io::file | errors::error) = {
+	match (rt::timerfd_create(clockid, flags)) {
+	case let fd: int =>
+		return fd;
+	case let err: rt::errno =>
+		return errors::errno(err);
+	};
+};
+
+// Sets the expiration configuration for a timerfd, overwriting any
+// previously set expiration.
+export fn set(
+	t: io::file,
+	exp: expiration,
+	flags: int
+) (void | errors::error) = {
+	let interval_timespec = rt::timespec { ... };
+	const timerspec = match (exp) {
+	case let o: oneshot =>
+		time::duration_to_timespec(o, &interval_timespec);
+		yield rt::itimerspec {
+			it_interval = rt::timespec { tv_sec = 0, tv_nsec = 0 },
+			it_value = interval_timespec,
+		};
+	case let i: interval =>
+		time::duration_to_timespec(i, &interval_timespec);
+		yield rt::itimerspec {
+			it_interval = interval_timespec,
+			it_value = interval_timespec,
+		};
+	case let id: interval_delayed =>
+		let delay_timespec = rt::timespec { ... };
+		time::duration_to_timespec(id.0, &interval_timespec);
+		time::duration_to_timespec(id.1, &delay_timespec);
+		yield rt::itimerspec {
+			it_interval = interval_timespec,
+			it_value = delay_timespec,
+		};
+	};
+
+	match (rt::timerfd_settime(t, flags, &timerspec, null)) {
+	case let ok: int =>
+		return;
+	case let err: rt::errno =>
+		return errors::errno(err);
+	};
+};
+
+// Unsets any expiration that was previously set on the given timer.
+export fn unset(
+	t: io::file,
+) (void | errors::error) = {
+	match (rt::timerfd_settime(t, 0, &empty_timerspec, null)) {
+	case int =>
+		return;
+	case let err: rt::errno =>
+		return errors::errno(err);
+	};
+};
+
+// Reading from the timerfd returns the number of time the timer expired. This
+// call can be blocking or not depending on the flags passed to [[timerfd_create]].
+// Reading from a blocking unset timerfd will block forever.
+export fn read(
+	t: io::file
+) (u64 | errors::error) = {
+	let expirations: [8]u8 = [0...];
+	io::read(t, expirations)!;
+	return endian::host.getu64(expirations);
+};
+
+@test fn timerfd() void = {
+	let blocking_fd = new(time::clock::MONOTONIC, 0)!;
+
+	// one-shot blocking
+	// the first read should block and eventually return 1
+	// subsequent reads will block indefinitely
+	set(blocking_fd, 100: oneshot, 0)!;
+	let one = read(blocking_fd)!;
+	assert(one == 1);
+
+	// interval blocking
+	// the first read should block and eventually return the number of time
+	// the timer expired
+	// subsequent reads should return instantly with the number of time the
+	// timer expired since the last read
+	set(blocking_fd, 100: interval, 0)!;
+	let first = read(blocking_fd)!;
+	let second = read(blocking_fd)!;
+
+	assert(first > 0);
+	assert(second > 0);
+
+	// unset blocking timer
+	// reading here would block us forever
+	unset(blocking_fd)!;
+
+	io::close(blocking_fd);
+};

@@ -70,6 +70,14 @@ export type clock = enum {
 	// Time since the system was booted. Increases monotonically and, unlike
 	// [[MONOTONIC]], continues to tick while the system is suspended.
 	BOOT = 7,
+
+	// This clock is like [[REALTIME]], but will wake the system if it is suspended.
+	REALTIME_ALARM = 8,
+	// This clock is like [[BOOT]], but will wake the system if it is suspended.
+	BOOT_ALARM = 9,
+
+	// A system-wide clock derived from wall-clock time but ignoring leap seconds.
+	TAI = 11,
 };
 
 fn cgt_vdso() nullable *fn(_: int, _: *rt::timespec) int = {

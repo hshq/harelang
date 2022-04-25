@@ -1,0 +1,4 @@
+This module provides support for Linux's timerfd interface. For details,
+consult the Linux man page timer_create(2).
+
+
