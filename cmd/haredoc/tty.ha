@@ -52,7 +52,7 @@ fn emit_tty(ctx: *context) (void | error) = {
 };
 
 fn comment_tty(out: io::handle, s: str) (size | io::error) = {
-	return fmt::fprintfln(out, "\x1b[1m" "//{}" "\x1b[0m", s)?;
+	return fmt::fprintfln(out, "\x1b[0m" "//{}" "\x1b[0m", s)?;
 };
 
 fn docs_tty(out: io::handle, s: str, indent: size) (size | io::error) = {
@@ -109,7 +109,7 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 		n += fmt::fprint(out, "\x1b[34m")?;
 		n += fmt::fprint(out,
 			if (g[0].is_const) "const " else "let ")?;
-		n += fmt::fprint(out, "\x1b[0m")?;
+		n += fmt::fprint(out, "\x1b[0;1m")?;
 		for (let i = 0z; i < len(g); i += 1) {
 			if (len(g[i].symbol) != 0) {
 				n += fmt::fprintf(out,
@@ -117,27 +117,27 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 					g[i].symbol)?;
 			};
 			n += unparse::ident(out, g[i].ident)?;
-			n += fmt::fprint(out, ": ")?;
+			n += fmt::fprint(out, "\x1b[0m" ": ")?;
 			n += type_tty(out, 0, g[i]._type)?;
 			if (i + 1 < len(g)) {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
 	case let c: []ast::decl_const =>
-		n += fmt::fprintf(out, "\x1b[34m" "def " "\x1b[0m")?;
+		n += fmt::fprintf(out, "\x1b[34m" "def " "\x1b[0;1m")?;
 		for (let i = 0z; i < len(c); i += 1) {
 			n += unparse::ident(out, c[i].ident)?;
-			n += fmt::fprint(out, ": ")?;
+			n += fmt::fprint(out, "\x1b[0m" ": ")?;
 			n += type_tty(out, 0, c[i]._type)?;
 			if (i + 1 < len(c)) {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
 	case let t: []ast::decl_type =>
-		n += fmt::fprint(out, "\x1b[34m" "type " "\x1b[0m")?;
+		n += fmt::fprint(out, "\x1b[34m" "type " "\x1b[0;1m")?;
 		for (let i = 0z; i < len(t); i += 1) {
 			n += unparse::ident(out, t[i].ident)?;
-			n += fmt::fprint(out, " = ")?;
+			n += fmt::fprint(out, "\x1b[0m" " = ")?;
 			n += type_tty(out, 0, t[i]._type)?;
 			if (i + 1 < len(t)) {
 				n += fmt::fprint(out, ", ")?;
@@ -167,8 +167,9 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 				"\x1b[33m" "@symbol(\"{}\") " "\x1b[0m",
 				f.symbol)?;
 		};
-		n += fmt::fprint(out, "\x1b[34m" "fn " "\x1b[0m")?;
+		n += fmt::fprint(out, "\x1b[34m" "fn " "\x1b[0;1m")?;
 		n += unparse::ident(out, f.ident)?;
+		n += fmt::fprint(out, "\x1b[0m")?;
 		n += prototype_tty(out, 0,
 			f.prototype.repr as ast::func_type)?;
 	};
