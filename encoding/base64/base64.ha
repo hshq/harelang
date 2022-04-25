@@ -66,7 +66,7 @@ const encoder_vtable: io::vtable = io::vtable {
 // Creates a stream that encodes writes as base64 before writing them to a
 // secondary stream. The encoder stream must be closed to finalize any unwritten
 // bytes. Closing this stream will not close the underlying stream.
-export fn new_encoder(
+export fn newencoder(
 	enc: *encoding,
 	out: io::handle,
 ) encoder = {
@@ -164,8 +164,8 @@ fn encode_closer(s: *io::stream) void = {
 // of ASCII bytes. The caller must free the return value.
 export fn encodeslice(enc: *encoding, in: []u8) []u8 = {
 	let out = bufio::dynamic(io::mode::WRITE);
-	let encoder = new_encoder(enc, &out);
-	io::write(&encoder, in)!;
+	let encoder = newencoder(enc, &out);
+	io::writeall(&encoder, in)!;
 	io::close(&encoder);
 	return bufio::buffer(&out);
 };
@@ -177,8 +177,7 @@ export fn encode(
 	enc: *encoding,
 	buf: []u8,
 ) (size | io::error) = {
-	// TODO: rename new_encoder to newencoder etc; reverse params
-	const enc = new_encoder(enc, out);
+	const enc = newencoder(enc, out);
 	defer io::close(&enc);
 	return io::writeall(&enc, buf)?;
 };
@@ -203,8 +202,8 @@ export fn encodestr(enc: *encoding, in: []u8) str = {
 	];
 	for (let i = 0z; i <= len(in); i += 1) {
 		let out = bufio::dynamic(io::mode::WRITE);
-		let encoder = new_encoder(&std_encoding, &out);
-		io::write(&encoder, in[..i])!;
+		let encoder = newencoder(&std_encoding, &out);
+		io::writeall(&encoder, in[..i])!;
 		io::close(&encoder);
 		let encb = bufio::buffer(&out);
 		defer free(encb);
@@ -234,7 +233,7 @@ const decoder_vtable: io::vtable = io::vtable {
 // Creates a stream that reads and decodes base 64 data from a secondary stream.
 // This stream does not need to be closed, and closing it will not close the
 // underlying stream.
-export fn new_decoder(
+export fn newdecoder(
 	enc: *encoding,
 	in: io::handle,
 ) decoder = {
@@ -350,7 +349,7 @@ export fn decodeslice(
 	in: []u8,
 ) ([]u8 | errors::invalid) = {
 	let in = bufio::fixed(in, io::mode::READ);
-	let decoder = new_decoder(enc, &in);
+	let decoder = newdecoder(enc, &in);
 	let out = bufio::dynamic(io::mode::WRITE);
 	match (io::copy(&out, &decoder)) {
 	case io::error =>
@@ -374,7 +373,7 @@ export fn decode(
 	enc: *encoding,
 	buf: []u8,
 ) (size | io::EOF | io::error) = {
-	const enc = new_decoder(enc, in);
+	const enc = newdecoder(enc, in);
 	return io::readall(&enc, buf)?;
 };
 
@@ -391,7 +390,7 @@ export fn decode(
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
 		let in = bufio::fixed(strings::toutf8(cases[i].0), io::mode::READ);
-		let decoder = new_decoder(cases[i].2, &in);
+		let decoder = newdecoder(cases[i].2, &in);
 		let buf: [1]u8 = [0];
 		let decb: []u8 = [];
 		defer free(decb);
@@ -413,7 +412,7 @@ export fn decode(
 	// Repeat of the above, but with a larger buffer
 	for (let i = 0z; i < len(cases); i += 1) {
 		let in = bufio::fixed(strings::toutf8(cases[i].0), io::mode::READ);
-		let decoder = new_decoder(cases[i].2, &in);
+		let decoder = newdecoder(cases[i].2, &in);
 		let buf: [1024]u8 = [0...];
 		let decb: []u8 = [];
 		defer free(decb);
@@ -444,7 +443,7 @@ export fn decode(
 	];
 	for (let i = 0z; i < len(invalid); i += 1) {
 		let in = bufio::fixed(strings::toutf8(invalid[i].0), io::mode::READ);
-		let decoder = new_decoder(invalid[i].1, &in);
+		let decoder = newdecoder(invalid[i].1, &in);
 		let buf: [1]u8 = [0...];
 		let valid = false;
 		for (true) match(io::read(&decoder, buf)) {
