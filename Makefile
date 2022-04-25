@@ -74,12 +74,12 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFOR
 .bin/harec2: .bin/hare $(harec_srcs)
 	@mkdir -p .bin
 	@printf 'HARE\t$@\n'
-	@env HAREPATH=. ./.bin/hare build -o .bin/harec2 ./cmd/harec
+	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) ./.bin/hare build -o .bin/harec2 ./cmd/harec
 
 .bin/haredoc: .bin/hare $(haredoc_srcs)
 	@mkdir -p .bin
 	@printf 'HARE\t$@\n'
-	@env HAREPATH=. ./.bin/hare build \
+	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) ./.bin/hare build \
 		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
 		-o .bin/haredoc ./cmd/haredoc
 
