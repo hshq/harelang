@@ -1046,6 +1046,10 @@ details pre {
 	.comment {
 		color: #fff;
 	}
+
+	.heading-extra {
+		color: #9b9997;
+	}
 }
 </style>
 <nav>
