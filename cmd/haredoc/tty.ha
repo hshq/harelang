@@ -33,6 +33,8 @@ fn emit_tty(ctx: *context) (void | error) = {
 	case void => void;
 	};
 
+	emit_submodules(ctx)?;
+
 	// XXX: Should we emit the dependencies, too?
 	for (let i = 0z; i < len(summary.types); i += 1) {
 		details_tty(ctx, summary.types[i])?;

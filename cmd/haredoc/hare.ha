@@ -6,6 +6,7 @@ use bufio;
 use fmt;
 use hare::ast;
 use hare::lex;
+use hare::module;
 use hare::unparse;
 use io;
 use os;
@@ -31,6 +32,8 @@ fn emit_hare(ctx: *context) (void | error) = {
 		};
 	case void => void;
 	};
+
+	emit_submodules(ctx)?;
 
 	// XXX: Should we emit the dependencies, too?
 	for (let i = 0z; i < len(summary.types); i += 1) {
@@ -67,6 +70,54 @@ fn emit_hare(ctx: *context) (void | error) = {
 		};
 		first = false;
 		details_hare(ctx, summary.funcs[i])?;
+	};
+};
+
+fn emit_submodules(ctx: *context) (void | error) = {
+	let identpath = module::identpath(ctx.ident);
+	defer free(identpath);
+
+	let submodules: []str = [];
+	defer free(submodules);
+
+	for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
+		let dir = ctx.version.subdirs[i];
+		// XXX: the list of reserved directory names is not yet
+		// finalized. See https://todo.sr.ht/~sircmpwn/hare/516
+		if (dir == "contrib") continue;
+		if (dir == "cmd") continue;
+		if (dir == "docs") continue;
+		if (dir == "ext") continue;
+		if (dir == "vendor") continue;
+		if (dir == "scripts") continue;
+
+		let submod = [identpath, dir]: ast::ident;
+		if (module::lookup(ctx.mctx, submod) is module::error) {
+			continue;
+		};
+
+		append(submodules, dir);
+	};
+
+	if (len(submodules) != 0) {
+		fmt::fprintln(ctx.out)?;
+		if (len(ctx.ident) == 0) {
+			fmt::fprintln(ctx.out, "// Modules")?;
+		} else {
+			fmt::fprintln(ctx.out, "// Submodules")?;
+		};
+		for (let i = 0z; i < len(submodules); i += 1) {
+			let submodule = if (len(ctx.ident) != 0) {
+				yield strings::concat(identpath, "::", submodules[i]);
+			} else {
+				yield submodules[i];
+			};
+			defer free(submodule);
+
+			fmt::fprintf(ctx.out, "// - [[")?;
+			fmt::fprintf(ctx.out, submodule)?;
+			fmt::fprintfln(ctx.out, "]]")?;
+		};
 	};
 };
 
