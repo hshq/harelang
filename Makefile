@@ -96,7 +96,7 @@ check: .bin/hare-tests
 
 all: .bin/hare .bin/harec2 .bin/haredoc
 
-install: all docs
+install: docs
 	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1 \
 		$(DESTDIR)$(SRCDIR)/hare/stdlib $(DESTDIR)$(LOCALSRCDIR)
 	install -m755 .bin/hare $(DESTDIR)$(BINDIR)/hare
