@@ -21,7 +21,7 @@ use strings;
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
 		let gen = glob(cases[i].0, cases[i].1);
-		defer globfree(&gen);
+		defer finish(&gen);
 		for (true) match (next(&gen)) {
 		case void =>
 			break;

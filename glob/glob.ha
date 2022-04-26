@@ -46,7 +46,7 @@ export type failure = !struct {
 };
 
 // Returns a generator of pathnames matching a pattern. The result must be
-// freed using [[globfree]].
+// freed using [[finish]].
 export fn glob(pattern: str, flags: flags...) generator = {
 	let ss = strstack_init();
 	strio::concat(strstack_push(&ss), pattern)!;
@@ -63,7 +63,7 @@ export fn glob(pattern: str, flags: flags...) generator = {
 };
 
 // Frees all memory allocated by the generator.
-export fn globfree(gen: *generator) void = {
+export fn finish(gen: *generator) void = {
 	strstack_free(&gen.pats);
 	io::close(&gen.tmps);
 };
