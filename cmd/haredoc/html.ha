@@ -116,9 +116,8 @@ fn emit_html(ctx: *context) (void | error) = {
 		if (dir == "vendor") continue;
 		if (dir == "scripts") continue;
 
-		let path = path::join(identpath, dir);
-		defer free(path);
-		if (module::scan(ctx.mctx, path) is module::error) {
+		let submod = [identpath, dir]: ast::ident;
+		if (module::lookup(ctx.mctx, submod) is module::error) {
 			continue;
 		};
 
