@@ -454,6 +454,10 @@ fn parse_repetition(
 		};
 	};
 
+	if (len(min_str) == 0 && len(max_str) > 0) {
+		return "Invalid repetition minimum value": error;
+	};
+
 	const rep_len = if (is_single_arg) {
 		yield len(min_str);
 	} else {
