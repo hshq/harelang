@@ -87,14 +87,14 @@ fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	return len(buf);
 };
 
-fn dynamic_close(s: *io::stream) void = {
+fn dynamic_close(s: *io::stream) (void | io::error) = {
 	const s = s: *stream;
 	free(s.buf);
 };
 
 @test fn dynamic() void = {
 	let stream = dynamic();
-	defer io::close(&stream);
+	defer io::close(&stream)!;
 	io::write(&stream, strings::toutf8("hello ")) as size;
 	io::write(&stream, strings::toutf8("world")) as size;
 	assert(string(&stream) == "hello world");

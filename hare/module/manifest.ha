@@ -66,16 +66,18 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	case let file: io::handle =>
 		yield file;
 	};
-	defer io::close(file);
 
 	let inputs: []input = [], versions: []version = [];
 
 	let buf: [4096]u8 = [0...];
 	let file = bufio::buffered(file, buf, []);
 	for (true) {
-		let line = match (bufio::scanline(&file)?) {
+		let line = match (bufio::scanline(&file)) {
 		case io::EOF =>
 			break;
+		case let err: io::error =>
+			io::close(&file): void;
+			return err;
 		case let line: []u8 =>
 			yield line;
 		};
@@ -236,6 +238,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 		};
 	};
 
+	io::close(&file)?;
 	manifest.inputs = inputs;
 	manifest.versions = versions;
 	return manifest;
@@ -293,7 +296,7 @@ export fn manifest_write(ctx: *context, man: *manifest) (void | error) = {
 	let name = file.1, file = file.0;
 	defer {
 		fs::remove(ctx.fs, name): void;
-		io::close(file);
+		io::close(file)!;
 	};
 
 	let ident = unparse::identstr(man.ident);

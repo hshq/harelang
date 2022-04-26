@@ -95,7 +95,7 @@ export fn getuser(username: str) (pwent | void) = {
 	case =>
 		abort("Can't open /etc/passwd");
 	};
-	defer io::close(file);
+	defer io::close(file)!;
 
 	for (true) {
 		let ent = match (nextpw(file)) {

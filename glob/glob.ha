@@ -65,7 +65,7 @@ export fn glob(pattern: str, flags: flags...) generator = {
 // Frees all memory allocated by the generator.
 export fn finish(gen: *generator) void = {
 	strstack_free(&gen.pats);
-	io::close(&gen.tmps);
+	io::close(&gen.tmps)!;
 };
 
 // Returns a generated pathname. The returned string is valid until [[next]]
@@ -227,7 +227,7 @@ fn strstack_init() strstack = strstack {
 
 fn strstack_free(ss: *strstack) void = {
 	for (let i = 0z; i < len(ss.bufv); i += 1) {
-		io::close(&ss.bufv[i]);
+		io::close(&ss.bufv[i])!;
 	};
 	free(ss.bufv);
 };

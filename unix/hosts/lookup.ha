@@ -14,7 +14,7 @@ export fn lookup(name: str) []ip::addr = {
 	// XXX: Would be cool if we could do this without allocating anything
 	// XXX: Would be cool to have meaningful error handling(?)
 	const file = os::open(PATH)!;
-	defer io::close(file);
+	defer io::close(file)!;
 
 	let addrs: []ip::addr = [];
 	for (true) {

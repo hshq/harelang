@@ -38,12 +38,12 @@ export fn write(h: handle, buf: const []u8) (size | error) = {
 
 // Closes a [[handle]]. No further operations against this handle are permitted
 // after calling this function.
-export fn close(h: handle) void = {
+export fn close(h: handle) (void | error) = {
 	match (h) {
 	case let fd: file =>
 		fd_close(fd);
 	case let st: *stream =>
-		st_close(st);
+		st_close(st)?;
 	};
 };
 

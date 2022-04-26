@@ -358,7 +358,7 @@ fn lex_comment(lexr: *lexer) (void | error) = {
 	};
 
 	let buf = strio::dynamic();
-	defer io::close(&buf);
+	defer io::close(&buf)!;
 	for (true) match (next(lexr)?) {
 	case io::EOF =>
 		break;

@@ -180,7 +180,7 @@ export const LOCAL: locality = &TZ_local;
 		case =>
 			return;
 		};
-		defer io::close(file);
+		defer io::close(file)!;
 
 		static let buf: [os::BUFSIZ]u8 = [0...];
 		const file = bufio::buffered(file, buf, []);

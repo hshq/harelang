@@ -16,8 +16,8 @@ export fn decodequery(q: const str) query_decoder = query_decoder {
 
 // Frees resources associated with the [[query_decoder]].
 export fn query_finish(dec: *query_decoder) void = {
-	io::close(&dec.bufs.0);
-	io::close(&dec.bufs.1);
+	io::close(&dec.bufs.0)!;
+	io::close(&dec.bufs.1)!;
 };
 
 // Retrieves the next (key, value) pair from the query. The return value is

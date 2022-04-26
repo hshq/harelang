@@ -178,7 +178,7 @@ fn mix(v: *[16]u64, a: size, b: size, c: size, d: size, x: u64, y: u64) void = {
 	v[b] = math::rotr64(v[b] ^ v[c], R4);
 };
 
-fn close(stream: *io::stream) void = {
+fn close(stream: *io::stream) (void | io::error) = {
 	let s = stream: *digest;
 	bytes::zero((s.h[..]: *[*]u8)[..len(s.h) * size(u32)]);
 	bytes::zero(s.block);

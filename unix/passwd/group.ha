@@ -76,7 +76,7 @@ export fn getgroup(name: str) (grent | void) = {
 	case =>
 		abort("Unable to open /etc/group");
 	};
-	defer io::close(file);
+	defer io::close(file)!;
 
 	for (true) {
 		let ent = match (nextgr(file)) {

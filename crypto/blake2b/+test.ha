@@ -29,7 +29,7 @@ use strio;
 		};
 		hash::sum(&blake, sum);
 		let out = strio::dynamic();
-		defer io::close(&out);
+		defer io::close(&out)!;
 		hex::encode(&out, sum)!;
 		assert(strio::string(&out) == vectors[i].out);
 	};
@@ -56,7 +56,7 @@ use strio;
 		hash::sum(&blake, sum);
 
 		let hex = strio::dynamic();
-		defer io::close(&hex);
+		defer io::close(&hex)!;
 
 		for (let j = 0z; j < len(sum); j += 1) {
 			fmt::fprintf(&hex, "{:02x}", sum[j])!;

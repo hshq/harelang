@@ -52,5 +52,5 @@ fn sha1sum(mac: *mac::mac, dest: []u8) void = {
 fn sha1finish(mac: *mac::mac) void = {
 	let hm = mac: *sha1state;
 	bytes::zero(hm.keypad);
-	io::close(&hm.h);
+	io::close(&hm.h)!;
 };

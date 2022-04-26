@@ -224,7 +224,7 @@ fn block(h: *state, p: []u8) void = {
 	h.h[4] = h4;
 };
 
-fn close(stream: *io::stream) void = {
+fn close(stream: *io::stream) (void | io::error) = {
 	let s = stream: *state;
 	bytes::zero((s.h[..]: *[*]u8)[..len(s.h) * size(u32)]);
 	bytes::zero(s.x);

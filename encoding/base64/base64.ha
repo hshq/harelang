@@ -135,7 +135,7 @@ fn encode_writer(
 	return l;
 };
 
-fn encode_closer(s: *io::stream) void = {
+fn encode_closer(s: *io::stream) (void | io::error) = {
 	let s = s: *encoder;
 	if (s.avail == 0) {
 		return;
@@ -157,7 +157,7 @@ fn encode_closer(s: *io::stream) void = {
 	for (let i = 0z; i < np; i += 1) {
 		encb[3 - i] = PADDING;
 	};
-	io::write(s.out, encb)!; // TODO https://todo.sr.ht/~sircmpwn/hare/568
+	io::write(s.out, encb)?;
 };
 
 // Encodes a byte slice in base 64, using the given encoding, returning a slice
@@ -166,7 +166,7 @@ export fn encodeslice(enc: *encoding, in: []u8) []u8 = {
 	let out = bufio::dynamic(io::mode::WRITE);
 	let encoder = newencoder(enc, &out);
 	io::writeall(&encoder, in)!;
-	io::close(&encoder);
+	io::close(&encoder)!;
 	return bufio::buffer(&out);
 };
 
@@ -178,8 +178,14 @@ export fn encode(
 	buf: []u8,
 ) (size | io::error) = {
 	const enc = newencoder(enc, out);
-	defer io::close(&enc);
-	return io::writeall(&enc, buf)?;
+	match (io::writeall(&enc, buf)) {
+	case let z: size =>
+		io::close(&enc)?;
+		return z;
+	case let err: io::error =>
+		io::close(&enc): void;
+		return err;
+	};
 };
 
 // Encodes a byte slice in base 64, using the given encoding, returning a
@@ -204,7 +210,7 @@ export fn encodestr(enc: *encoding, in: []u8) str = {
 		let out = bufio::dynamic(io::mode::WRITE);
 		let encoder = newencoder(&std_encoding, &out);
 		io::writeall(&encoder, in[..i])!;
-		io::close(&encoder);
+		io::close(&encoder)!;
 		let encb = bufio::buffer(&out);
 		defer free(encb);
 		assert(bytes::equal(encb, strings::toutf8(expect[i])));
@@ -353,7 +359,7 @@ export fn decodeslice(
 	let out = bufio::dynamic(io::mode::WRITE);
 	match (io::copy(&out, &decoder)) {
 	case io::error =>
-		io::close(&out);
+		io::close(&out)!;
 		return errors::invalid;
 	case size =>
 		return bufio::buffer(&out);
@@ -374,7 +380,14 @@ export fn decode(
 	buf: []u8,
 ) (size | io::EOF | io::error) = {
 	const enc = newdecoder(enc, in);
-	return io::readall(&enc, buf)?;
+	match (io::readall(&enc, buf)) {
+	case let ret: (size | io::EOF) =>
+		io::close(&enc)?;
+		return ret;
+	case let err: io::error =>
+		io::close(&enc): void;
+		return err;
+	};
 };
 
 @test fn decode() void = {

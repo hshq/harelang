@@ -26,9 +26,9 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 	};
 
 	let socket4 = udp::listen(ip::ANY_V4, 0)?;
-	defer io::close(socket4);
+	defer io::close(socket4)!;
 	let socket6 = udp::listen(ip::ANY_V6, 0)?;
-	defer io::close(socket6);
+	defer io::close(socket6)!;
 	const pollfd: [_]poll::pollfd = [
 		poll::pollfd {
 			fd = socket4,

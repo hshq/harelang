@@ -117,7 +117,7 @@ export fn dump(out: io::handle, data: []u8) (void | io::error) = {
 	];
 
 	let sink = strio::dynamic();
-	defer io::close(&sink);
+	defer io::close(&sink)!;
 	dump(&sink, in) as void;
 
 	let s = strio::string(&sink);

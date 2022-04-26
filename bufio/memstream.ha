@@ -140,7 +140,7 @@ fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	return len(buf);
 };
 
-fn dynamic_close(s: *io::stream) void = {
+fn dynamic_close(s: *io::stream) (void | io::error) = {
 	const s = s: *memstream;
 	free(s.buf);
 };
@@ -222,7 +222,7 @@ fn copy(dest: *io::stream, src: *io::stream) (io::error | size) = {
 	assert(io::write(&s, [4, 5, 6]) as size == 3);
 	assert(bytes::equal(buffer(&s), [0, 0, 1, 2, 3, 4, 5, 6]));
 	assert(io::read(&s, buf[..]) as io::error is errors::unsupported);
-	io::close(&s);
+	io::close(&s)!;
 
 	sl = alloc([1, 2]);
 	let s = dynamic_from(sl, io::mode::READ);
@@ -230,7 +230,7 @@ fn copy(dest: *io::stream, src: *io::stream) (io::error | size) = {
 	assert(io::seek(&s, 1, io::whence::CUR) as io::off == 2: io::off);
 	assert(io::read(&s, buf[..]) is io::EOF);
 	assert(io::write(&s, [1, 2]) as io::error is errors::unsupported);
-	io::close(&s);
+	io::close(&s)!;
 
 	let in: [6]u8 = [0, 1, 2, 3, 4, 5];
 	let source = dynamic_from(in, io::mode::READ);
@@ -242,7 +242,7 @@ fn copy(dest: *io::stream, src: *io::stream) (io::error | size) = {
 @test fn fixed() void = {
 	let buf: [1024]u8 = [0...];
 	let stream = fixed(buf, io::mode::WRITE);
-	defer io::close(&stream);
+	defer io::close(&stream)!;
 
 	let n = 0z;
 	n += io::write(&stream, strings::toutf8("hello ")) as size;
@@ -254,7 +254,7 @@ fn copy(dest: *io::stream, src: *io::stream) (io::error | size) = {
 
 	let out: [2]u8 = [0...];
 	let s = fixed([1u8, 2u8], io::mode::READ);
-	defer io::close(&s);
+	defer io::close(&s)!;
 	assert(io::read(&s, out[..1]) as size == 1 && out[0] == 1);
 	assert(io::seek(&s, 1, io::whence::CUR) as io::off == 2: io::off);
 	assert(io::read(&s, buf[..]) is io::EOF);

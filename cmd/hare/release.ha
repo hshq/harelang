@@ -108,7 +108,7 @@ fn do_release(
 	defer os::rmdirall(dir)!;
 	const changelog = temp::named(os::cwd, dir, io::mode::WRITE)?;
 	const clfile = changelog.0, changelog = changelog.1;
-	defer io::close(clfile);
+	defer io::close(clfile)!;
 	fmt::fprintfln(clfile, changelog_template, lasttag, name, newtag)?;
 	shortlog(clfile, range)?;
 
@@ -139,7 +139,7 @@ fn do_initial_release(ver: (modversion | increment)) (void | release_error) = {
 	defer os::rmdirall(dir)!;
 	const changelog = temp::named(os::cwd, dir, io::mode::WRITE)?;
 	const clfile = changelog.0, changelog = changelog.1;
-	defer io::close(clfile);
+	defer io::close(clfile)!;
 	fmt::fprintfln(clfile, initial_template, name, newtag)?;
 
 	git_runcmd("tag", "-aeF", changelog, newtag)?;
@@ -318,10 +318,10 @@ fn signtag(tmpdir: str, name: str, tag: str, key: str) (void | release_error) = 
 	const archive = exec::start(&archive)?;
 	const ssh = exec::start(&ssh)?;
 	const note = exec::start(&note)?;
-	io::close(pipe1.0);
-	io::close(pipe1.1);
-	io::close(pipe2.0);
-	io::close(pipe2.1);
+	io::close(pipe1.0)?;
+	io::close(pipe1.1)?;
+	io::close(pipe2.0)?;
+	io::close(pipe2.1)?;
 	exec::check(&exec::wait(&archive)?)?;
 	exec::check(&exec::wait(&ssh)?)?;
 	exec::check(&exec::wait(&note)?)?;
@@ -337,12 +337,12 @@ fn git_runcmd(args: str...) (void | release_error) = {
 
 fn git_readcmd(args: str...) (str | release_error) = {
 	const pipe = exec::pipe();
-	defer io::close(pipe.0);
+	defer io::close(pipe.0)!;
 	const cmd = exec::cmd("git", args...)?;
 	exec::addfile(&cmd, os::stdout_file, pipe.1);
 	exec::addfile(&cmd, os::stderr, exec::nullfd);
 	const proc = exec::start(&cmd)?;
-	io::close(pipe.1);
+	io::close(pipe.1)?;
 	const result = io::drain(pipe.0)?;
 	const status = exec::wait(&proc)?;
 	exec::check(&status)?;

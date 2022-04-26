@@ -134,7 +134,7 @@ fn encode_writer(
 	return l;
 };
 
-fn encode_closer(s: *io::stream) void = {
+fn encode_closer(s: *io::stream) (void | io::error) = {
 	let s = s: *encoder;
 	if (s.avail == 0) {
 		return;
@@ -169,7 +169,7 @@ export fn encodeslice(enc: *encoding, in: []u8) []u8 = {
 	let out = bufio::dynamic(io::mode::WRITE);
 	let encoder = new_encoder(enc, &out);
 	io::write(&encoder, in)!;
-	io::close(&encoder);
+	io::close(&encoder)!;
 	return bufio::buffer(&out);
 };
 
@@ -204,7 +204,7 @@ export fn encodestr(enc: *encoding, in: []u8) str = {
 		let out = bufio::dynamic(io::mode::RDWR);
 		let enc = new_encoder(&std_encoding, &out);
 		io::write(&enc, in[..i]) as size;
-		io::close(&enc);
+		io::close(&enc)!;
 		let outb = bufio::buffer(&out);
 		assert(bytes::equal(outb, strings::toutf8(expect[i])));
 		free(outb);
@@ -216,7 +216,7 @@ export fn encodestr(enc: *encoding, in: []u8) str = {
 		out = bufio::dynamic(io::mode::RDWR);
 		enc = new_encoder(&hex_encoding, &out);
 		io::write(&enc, in[..i]) as size;
-		io::close(&enc);
+		io::close(&enc)!;
 		let outb = bufio::buffer(&out);
 		assert(bytes::equal(outb, strings::toutf8(expect_hex[i])));
 		free(outb);
@@ -366,7 +366,7 @@ export fn decodeslice(
 	let out = bufio::dynamic(io::mode::WRITE);
 	match (io::copy(&out, &decoder)) {
 	case io::error =>
-		io::close(&out);
+		io::close(&out)!;
 		return errors::invalid;
 	case size =>
 		return bufio::buffer(&out);

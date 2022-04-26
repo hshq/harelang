@@ -31,7 +31,7 @@ export fn write(h: *hash, buf: const []u8) size =
 	io::write(h, buf) as size;
 
 // Closes a hash, freeing its resources and discarding the checksum.
-export fn close(h: *hash) void = io::close(h);
+export fn close(h: *hash) void = io::close(h)!;
 
 // Populates the user-provided buffer with the current sum.
 export fn sum(h: *hash, buf: []u8) void = {

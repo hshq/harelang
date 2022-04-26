@@ -143,7 +143,7 @@ fn scanref(par: *parser) (token | void) = {
 	};
 
 	const buf = strio::dynamic();
-	defer io::close(&buf);
+	defer io::close(&buf)!;
 	// TODO: Handle invalid syntax here
 	for (true) {
 		match (bufio::scanrune(&par.src)!) {

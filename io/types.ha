@@ -51,7 +51,7 @@ export type writer = fn(s: *stream, buf: const []u8) (size | error);
 
 // The interface for a stream which can be closed. This function should close
 // and free any underlying resources, and cannot be used again.
-export type closer = fn(s: *stream) void;
+export type closer = fn(s: *stream) (void | error);
 
 // The interface for a stream which has first-class support for copying data
 // from another stream. Often this only works if the second stream is of the

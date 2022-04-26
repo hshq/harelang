@@ -23,7 +23,7 @@ fn typeinfo(
 	} else {
 		const stream = bufio::fixed(strings::toutf8(s), io::mode::READ);
 		const stream = &stream.stream;
-		defer io::close(stream);
+		defer io::close(stream)!;
 		const lexer = lex::init(stream, "-");
 		const atype = parse::_type(&lexer)?;
 		defer ast::type_finish(atype);

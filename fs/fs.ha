@@ -116,15 +116,23 @@ export fn move(fs: *fs, oldpath: str, newpath: str) (void | error) = {
 	let st = stat(fs, oldpath)?;
 	assert(isfile(st.mode), "TODO: move non-regular files");
 	let old = open(fs, oldpath)?;
-	defer io::close(old);
-	let new = create(fs, newpath, st.mode)?;
-	defer io::close(new);
+	let new = match (create(fs, newpath, st.mode)) {
+	case let h: io::handle =>
+		yield h;
+	case let err: error =>
+		io::close(old): void;
+		return err;
+	};
 	match (io::copy(new, old)) {
 	case let err: io::error =>
+		io::close(new): void;
+		io::close(old): void;
 		remove(fs, newpath)?;
 		return err;
 	case size => void;
 	};
+	io::close(new)?;
+	io::close(old)?;
 	remove(fs, oldpath)?;
 };
 

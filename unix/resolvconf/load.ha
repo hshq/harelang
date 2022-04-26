@@ -24,7 +24,7 @@ export fn load() []ip::addr = {
 	};
 
 	const file = os::open(PATH)!;
-	defer io::close(file);
+	defer io::close(file)!;
 
 	for (true) {
 		const line = match (bufio::scanline(file)) {

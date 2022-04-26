@@ -52,17 +52,17 @@ fn html_escape(out: io::handle, in: str) (size | io::error) = {
 
 @test fn html_escape() void = {
        let sink = strio::dynamic();
-       defer io::close(&sink);
+       defer io::close(&sink)!;
        html_escape(&sink, "hello world!")!;
        assert(strio::string(&sink) == "hello world!");
 
        let sink = strio::dynamic();
-       defer io::close(&sink);
+       defer io::close(&sink)!;
        html_escape(&sink, "\"hello world!\"")!;
        assert(strio::string(&sink) == "&quot;hello world!&quot;");
 
        let sink = strio::dynamic();
-       defer io::close(&sink);
+       defer io::close(&sink)!;
        html_escape(&sink, "<hello & 'world'!>")!;
        assert(strio::string(&sink) == "&lt;hello &amp; &apos;world&apos;!&gt;");
 };
@@ -616,7 +616,7 @@ fn type_html(
 ) (size | io::error) = {
 	if (brief) {
 		let buf = strio::dynamic();
-		defer io::close(&buf);
+		defer io::close(&buf)!;
 		unparse::_type(&buf, indent, _type)?;
 		return html_escape(out, strio::string(&buf))?;
 	};

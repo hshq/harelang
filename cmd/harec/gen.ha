@@ -29,7 +29,7 @@ fn gen(out: io::handle, store: *types::typestore, unit: *unit::unit) void = {
 		},
 		...
 	};
-	defer io::close(&ctx.buf);
+	defer io::close(&ctx.buf)!;
 	for (let i = 0z; i < len(unit.decls); i += 1) {
 		match (unit.decls[i].decl) {
 		case let func: unit::decl_func =>

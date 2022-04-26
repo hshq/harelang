@@ -125,7 +125,7 @@ fn parse_scheme(in: *strings::iterator) (str | invalid) = {
 fn parse_authority(in: *strings::iterator) ((str, u16, str) | invalid) = {
 	// Scan everything until '@' or ':' or '/', then decide what it is
 	let buf = strio::dynamic();
-	defer io::close(&buf);
+	defer io::close(&buf)!;
 	let host = "";
 	let port = 0u16;
 	let userinfo = "";
@@ -200,7 +200,7 @@ type path_mode = enum {
 
 fn parse_path(in: *strings::iterator, mode: path_mode) (str | invalid) = {
 	let buf = strio::dynamic();
-	defer io::close(&buf);
+	defer io::close(&buf)!;
 
 	// With rootless path, we need at least one segment
 	if (mode == path_mode::ROOTLESS) {
@@ -272,7 +272,7 @@ fn parse_query(in: *strings::iterator) (str | invalid) = {
 
 fn parse_fragment(in: *strings::iterator) (str | invalid) = {
 	let buf = strio::dynamic();
-	defer io::close(&buf);
+	defer io::close(&buf)!;
 
 	for (true) {
 		match (strings::next(in)) {
@@ -291,7 +291,7 @@ fn parse_fragment(in: *strings::iterator) (str | invalid) = {
 
 fn parse_port(in: *strings::iterator) (u16 | invalid) = {
 	let buf = strio::dynamic();
-	defer io::close(&buf);
+	defer io::close(&buf)!;
 	for (true) {
 		const r = match (strings::next(in)) {
 		case let r: rune =>
@@ -328,7 +328,7 @@ fn percent_decode(s: str) (str | invalid) = {
 fn percent_decode_static(out: io::handle, s: str) (void | invalid) = {
 	let iter = strings::iter(s);
 	let tmp = strio::dynamic();
-	defer io::close(&tmp);
+	defer io::close(&tmp)!;
 	for (true) {
 		match (strings::next(&iter)) {
 		case let r: rune =>

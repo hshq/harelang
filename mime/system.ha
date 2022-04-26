@@ -19,19 +19,23 @@ export def SYSTEM_DB: str = "/etc/mime.types";
 
 fn load_systemdb() (void | fs::error | io::error) = {
 	const file = os::open(SYSTEM_DB)?;
-	defer io::close(file);
 
 	let buf: [os::BUFSIZ]u8 = [0...];
-	const file = bufio::buffered(file, buf, []);
-	defer io::close(&file);
+	const strm = bufio::buffered(file, buf, []);
 
 	for (true) {
-		const line = match (bufio::scanline(&file)?) {
+		const line = match (bufio::scanline(&strm)?) {
 		case let bytes: []u8 =>
 			yield match (strings::try_fromutf8(bytes)) {
 			case utf8::invalid =>
 				fmt::errorln("Warning: /etc/mime.types contains invalid UTF-8")!;
+				io::close(&strm)?;
+				io::close(file)?;
 				return;
+			case let err: io::error =>
+				io::close(&strm): void;
+				io::close(file): void;
+				return err;
 			case let s: str =>
 				yield s;
 			};
@@ -68,6 +72,9 @@ fn load_systemdb() (void | fs::error | io::error) = {
 		};
 		register_heap(entry);
 	};
+
+	io::close(&strm)?;
+	io::close(file)?;
 };
 
 fn register_heap(mime: *mimetype...) void = {

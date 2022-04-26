@@ -38,7 +38,7 @@ fn want(lexer: *lex::lexer, want: lex::ltok...) (lex::token | error) = {
 	};
 
 	let buf = strio::dynamic();
-	defer io::close(&buf);
+	defer io::close(&buf)!;
 	for (let i = 0z; i < len(want); i += 1) {
 		const tstr = if (want[i] == ltok::NAME) "name"
 			else lex::tokstr((want[i], void, lex::mkloc(lexer)));

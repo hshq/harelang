@@ -52,5 +52,5 @@ fn sha256sum(mac: *mac::mac, dest: []u8) void = {
 fn sha256finish(mac: *mac::mac) void = {
 	let hm = mac: *sha256state;
 	bytes::zero(hm.keypad);
-	io::close(&hm.h);
+	io::close(&hm.h)!;
 };

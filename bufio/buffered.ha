@@ -118,10 +118,10 @@ export fn isbuffered(in: io::handle) bool = {
 	};
 };
 
-fn buffered_close_static(s: *io::stream) void = {
+fn buffered_close_static(s: *io::stream) (void | io::error) = {
 	assert(s.closer == &buffered_close_static);
 	if (s.writer != null) {
-		flush(s: *bufstream)!;
+		flush(s: *bufstream)?;
 	};
 };
 
@@ -199,11 +199,11 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 @test fn buffered_read() void = {
 	let sourcebuf: []u8 = [1, 3, 3, 7];
 	let source = fixed(sourcebuf, io::mode::READ);
-	defer io::close(&source);
+	defer io::close(&source)!;
 
 	let rbuf: [1024]u8 = [0...];
 	let f = buffered(&source, rbuf, []);
-	defer io::close(&f);
+	defer io::close(&f)!;
 
 	let buf: [1024]u8 = [0...];
 	assert(io::read(&f, buf[..2]) as size == 2);
@@ -219,7 +219,7 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 
 	let rbuf: [16]u8 = [0...];
 	let f = buffered(&source, rbuf, []);
-	defer io::close(&f);
+	defer io::close(&f)!;
 
 	let buf: [32]u8 = [0...];
 	assert(io::read(&f, buf) as size == 16);
@@ -234,11 +234,11 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 @test fn buffered_write() void = {
 	// Normal case
 	let sink = dynamic(io::mode::WRITE);
-	defer io::close(&sink);
+	defer io::close(&sink)!;
 
 	let wbuf: [1024]u8 = [0...];
 	let f = buffered(&sink, [], wbuf);
-	defer io::close(&f);
+	defer io::close(&f)!;
 
 	assert(io::write(&f, [1, 3, 3, 7]) as size == 4);
 	assert(len(buffer(&sink)) == 0);
@@ -248,7 +248,7 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 
 	// Test flushing via buffer exhaustion
 	let sink = dynamic(io::mode::WRITE);
-	defer io::close(&sink);
+	defer io::close(&sink)!;
 
 	let wbuf: [4]u8 = [0...];
 	let f = buffered(&sink, [], wbuf);
@@ -257,12 +257,12 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	assert(len(buffer(&sink)) == 0);
 	assert(io::write(&f, [1, 3, 3, 7]) as size == 4);
 	assert(bytes::equal(buffer(&sink), [1, 3, 3, 7]));
-	io::close(&f); // Should flush
+	io::close(&f)!; // Should flush
 	assert(bytes::equal(buffer(&sink), [1, 3, 3, 7, 1, 3, 3, 7]));
 
 	// Test flushing via flush characters
 	let sink = dynamic(io::mode::WRITE);
-	defer io::close(&sink);
+	defer io::close(&sink)!;
 
 	let wbuf: [1024]u8 = [0...];
 	let f = buffered(&sink, [], wbuf);

@@ -19,7 +19,7 @@ export fn concat(out: io::handle, strs: str...) (size | io::error) = {
 
 @test fn concat() void = {
 	let st = dynamic();
-	defer io::close(&st);
+	defer io::close(&st)!;
 	concat(&st, "hello") as size;
 	concat(&st, " ", "world") as size;
 	assert(string(&st) == "hello world");
@@ -42,7 +42,7 @@ export fn join(out: io::handle, delim: str, strs: str...) (size | io::error) = {
 
 @test fn join() void = {
 	let st = dynamic();
-	defer io::close(&st);
+	defer io::close(&st)!;
 	join(&st, "::", "hello", "world") as size;
 	assert(string(&st) == "hello::world");
 	truncate(&st);
@@ -70,7 +70,7 @@ export fn rjoin(out: io::handle, delim: str, strs: str...) (size | io::error) = 
 
 @test fn rjoin() void = {
 	let st = dynamic();
-	defer io::close(&st);
+	defer io::close(&st)!;
 	rjoin(&st, "::", "hello", "world") as size;
 	assert(string(&st) == "world::hello");
 	truncate(&st);

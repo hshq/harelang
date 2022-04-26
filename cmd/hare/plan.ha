@@ -239,9 +239,9 @@ fn execute(
 ) (void | exec::error | !exec::exit_status) = {
 	if (verbose) {
 		for (let i = 0z; i < len(task.cmd); i += 1) {
-			fmt::errorf("{} ", task.cmd[i])!;
+			fmt::errorf("{} ", task.cmd[i])?;
 		};
-		fmt::errorln()!;
+		fmt::errorln()?;
 	};
 
 	let cmd = match (exec::cmd(task.cmd[0], task.cmd[1..]...)) {
@@ -264,20 +264,20 @@ fn execute(
 
 	let proc = exec::start(&cmd)?;
 	if (pipe.0 != 0) {
-		io::close(pipe.1);
+		io::close(pipe.1)?;
 	};
 
 	let cleared = false;
 	if (pipe.0 != 0) {
 		for (true) {
 			let buf: [os::BUFSIZ]u8 = [0...];
-			match (io::read(pipe.0, buf)!) {
+			match (io::read(pipe.0, buf)?) {
 			case let n: size =>
 				if (!cleared) {
 					progress_clear(plan);
 					cleared = true;
 				};
-				io::write(os::stderr, buf[..n])!;
+				io::write(os::stderr, buf[..n])?;
 			case io::EOF =>
 				break;
 			};

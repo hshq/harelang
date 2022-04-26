@@ -152,7 +152,7 @@ export fn main() void = {
 	defer match (readme) {
 	case void => void;
 	case let f: io::file =>
-		io::close(f);
+		io::close(f)!;
 	};
 
 	if (decl != "") {
@@ -198,7 +198,7 @@ export fn main() void = {
 		fmt::fatal("Error: {}", strerror(err));
 	};
 
-	io::close(ctx.out);
+	io::close(ctx.out)!;
 	match (ctx.pager) {
 	case void => void;
 	case let proc: exec::process =>
@@ -323,7 +323,7 @@ fn scan(path: str) (ast::subunit | error) = {
 	case let err: fs::error =>
 		fmt::fatal("Error reading {}: {}", path, fs::strerror(err));
 	};
-	defer io::close(input);
+	defer io::close(input)!;
 	const lexer = lex::init(input, path, lex::flags::COMMENTS);
 	return parse::subunit(&lexer)?;
 };

@@ -61,11 +61,11 @@ fn st_write(s: *stream, buf: const []u8) (size | error) = {
 	};
 };
 
-fn st_close(s: *stream) void = {
+fn st_close(s: *stream) (void | error) = {
 	match (s.closer) {
 	case null => void;
 	case let c: *closer =>
-		c(s);
+		c(s)?;
 	};
 };
 

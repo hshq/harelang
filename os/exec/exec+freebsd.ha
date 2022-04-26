@@ -36,10 +36,10 @@ export fn fork() (int | void | error) = {
 // 	let pipe = exec::pipe();
 // 	exec::addfile(&cmd, pipe.1, os::stdout_file);
 // 	let proc = exec::start(&cmd)!;
-// 	io::close(pipe.1);
+// 	io::close(pipe.1)!;
 //
 // 	let data = io::drain(pipe.0)!;
-// 	io::close(pipe.0);
+// 	io::close(pipe.0)!;
 // 	exec::wait(&proc)!;
 export fn pipe() (io::file, io::file) = {
 	return unix::pipe()!;
@@ -115,7 +115,7 @@ fn platform_exec(cmd: *command) error = {
 		case nullfd =>
 			yield devnull;
 		case closefd =>
-			io::close(cmd.files[i].1);
+			io::close(cmd.files[i].1)?;
 			continue;
 		};
 

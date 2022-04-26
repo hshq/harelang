@@ -34,18 +34,28 @@ export fn tz(name: str) (timezone | fs::error | io::error | invalidtzif) = {
 	path::add(&filepath, ZONEINFO_PREFIX, name)!;
 	const fpath = path::string(&filepath);
 	const file = os::open(fpath)?;
-	defer io::close(file);
 
 	static let buf: [os::BUFSIZ]u8 = [0...];
-	const file = bufio::buffered(file, buf, []);
-	const tz = parse_tzif(&file, timezone {
+	const bufstrm = bufio::buffered(file, buf, []);
+	match (parse_tzif(&bufstrm, timezone {
 		name = name,
 		timescale = &utc,
 		daylength = EARTH_DAY,
 		...
-	})?;
-
-	return tz;
+	})) {
+	case let tz: timezone =>
+		io::close(&bufstrm)?;
+		io::close(file)?;
+		return tz;
+	case invalidtzif =>
+		io::close(&bufstrm): void;
+		io::close(file): void;
+		return invalidtzif;
+	case let err: io::error =>
+		io::close(&bufstrm): void;
+		io::close(file): void;
+		return err;
+	};
 };
 
 // Parses data in the TZif format, and returns the given timezone with the

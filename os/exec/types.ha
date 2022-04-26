@@ -22,7 +22,7 @@ export type command = struct {
 export type nocmd = !void;
 
 // All errors that can be returned from os::exec.
-export type error = !(nocmd | ...errors::error);
+export type error = !(nocmd | ...errors::error | io::error);
 
 // Returns a human-readable message for the given error.
 export fn strerror(err: error) const str = {
@@ -31,6 +31,8 @@ export fn strerror(err: error) const str = {
 		return "Command not found";
 	case let err: errors::opaque =>
 		return errors::strerror(err);
+	case let err: io::error =>
+		return io::strerror(err);
 	};
 };
 

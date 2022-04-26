@@ -127,5 +127,5 @@ export fn read(
 	// reading here would block us forever
 	unset(blocking_fd)!;
 
-	io::close(blocking_fd);
+	io::close(blocking_fd)!;
 };
