@@ -993,7 +993,7 @@ $(HARECACHE)/datetime/datetime-freebsd.ssa: $(stdlib_datetime_freebsd_srcs) $(st
 stdlib_dirs_any_srcs = \
 	$(STDLIB)/dirs/xdg.ha
 
-$(HARECACHE)/dirs/dirs-any.ssa: $(stdlib_dirs_any_srcs) $(stdlib_rt) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM))
+$(HARECACHE)/dirs/dirs-any.ssa: $(stdlib_dirs_any_srcs) $(stdlib_rt) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/dirs
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ndirs \
@@ -3040,7 +3040,7 @@ $(TESTCACHE)/datetime/datetime-freebsd.ssa: $(testlib_datetime_freebsd_srcs) $(t
 testlib_dirs_any_srcs = \
 	$(STDLIB)/dirs/xdg.ha
 
-$(TESTCACHE)/dirs/dirs-any.ssa: $(testlib_dirs_any_srcs) $(testlib_rt) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM))
+$(TESTCACHE)/dirs/dirs-any.ssa: $(testlib_dirs_any_srcs) $(testlib_rt) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/dirs
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndirs \

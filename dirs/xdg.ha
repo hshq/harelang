@@ -2,6 +2,7 @@
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
+use fmt;
 use fs;
 use os;
 use path;
@@ -27,7 +28,13 @@ fn lookup(prog: str, var: str, default: str) str = {
 
 	const home = os::getenv("HOME") as str;
 	const path = path::set(&buf, home, default, prog)!;
-	os::mkdirs(path)!;
+	match (os::mkdirs(path)) {
+	case void =>
+		yield;
+	case let err: fs::error =>
+		fmt::fatal("Error creating {}: {}",
+			path, fs::strerror(err));
+	};
 	return path;
 };
 

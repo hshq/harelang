@@ -474,7 +474,7 @@ crypto_ed25519() {
 dirs() {
 	gen_srcs dirs \
 		xdg.ha
-	gen_ssa dirs fs io os path
+	gen_ssa dirs fs io os path fmt
 }
 
 encoding_base64() {
