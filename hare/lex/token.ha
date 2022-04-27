@@ -338,7 +338,8 @@ export fn tokstr(tok: token) const str = {
 	case ltok::NAME =>
 		return tok.1 as str;
 	case ltok::LABEL =>
-		abort(); // TODO
+		// XXX: strings::concat(":", tok.1 as str)?
+		return "label";
 	case ltok::EOF =>
 		return "EOF";
 	case =>
