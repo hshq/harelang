@@ -238,7 +238,7 @@ fn parseident(in: str) (ast::ident | parse::error) = {
 		case =>
 			lex::unlex(&lexer, tok);
 			const loc = lex::mkloc(&lexer);
-			const why = fmt::asprintf("Unexpected '{}' in ident\n",
+			const why = fmt::asprintf("Unexpected '{}' in ident",
 				lex::tokstr(tok));
 			return (loc, why): lex::syntax: parse::error;
 		};
