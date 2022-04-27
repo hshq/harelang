@@ -6,14 +6,10 @@ use errors;
 
 // A stream is a pointer to a [[vtable]] which allows for user-defined I/O
 // abstractions to implement some subset of read, write, seek, close, and other
-// I/O functionality in userspace.
-export type stream = *vtable;
-
-// The vtable type defines a set of virtual functions for a [[stream]]. To
-// create a custom stream type, embed
+// I/O functionality in userspace. Embed to create a custom stream type:
 //
 //	export type my_stream = struct {
-//		vtable: io::vtable,
+//		vtable: io::stream,
 //		fd: int,
 //	};
 //
@@ -35,6 +31,9 @@ export type stream = *vtable;
 //
 //	let stream = open("example");
 //	io::read(&stream, buf)!;
+export type stream = *vtable;
+
+// The vtable type defines a set of virtual functions for a [[stream]].
 export type vtable = struct {
 	reader: nullable *reader,
 	writer: nullable *writer,
