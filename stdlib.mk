@@ -172,6 +172,12 @@ stdlib_deps_any += $(stdlib_crypto_argon2_any)
 stdlib_crypto_argon2_linux = $(stdlib_crypto_argon2_any)
 stdlib_crypto_argon2_freebsd = $(stdlib_crypto_argon2_any)
 
+# gen_lib crypto::bcrypt (any)
+stdlib_crypto_bcrypt_any = $(HARECACHE)/crypto/bcrypt/crypto_bcrypt-any.o
+stdlib_deps_any += $(stdlib_crypto_bcrypt_any)
+stdlib_crypto_bcrypt_linux = $(stdlib_crypto_bcrypt_any)
+stdlib_crypto_bcrypt_freebsd = $(stdlib_crypto_bcrypt_any)
+
 # gen_lib crypto::blake2b (any)
 stdlib_crypto_blake2b_any = $(HARECACHE)/crypto/blake2b/crypto_blake2b-any.o
 stdlib_deps_any += $(stdlib_crypto_blake2b_any)
@@ -767,6 +773,17 @@ $(HARECACHE)/crypto/argon2/crypto_argon2-any.ssa: $(stdlib_crypto_argon2_any_src
 	@mkdir -p $(HARECACHE)/crypto/argon2
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::argon2 \
 		-t$(HARECACHE)/crypto/argon2/crypto_argon2.td $(stdlib_crypto_argon2_any_srcs)
+
+# crypto::bcrypt (+any)
+stdlib_crypto_bcrypt_any_srcs = \
+	$(STDLIB)/crypto/bcrypt/bcrypt.ha \
+	$(STDLIB)/crypto/bcrypt/base64.ha
+
+$(HARECACHE)/crypto/bcrypt/crypto_bcrypt-any.ssa: $(stdlib_crypto_bcrypt_any_srcs) $(stdlib_rt) $(stdlib_crypto_blowfish_$(PLATFORM)) $(stdlib_encoding_base64_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_crypto_$(PLATFORM)) $(stdlib_crypto_random_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/bcrypt
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::bcrypt \
+		-t$(HARECACHE)/crypto/bcrypt/crypto_bcrypt.td $(stdlib_crypto_bcrypt_any_srcs)
 
 # crypto::blake2b (+any)
 stdlib_crypto_blake2b_any_srcs = \
@@ -2183,6 +2200,12 @@ testlib_deps_any += $(testlib_crypto_argon2_any)
 testlib_crypto_argon2_linux = $(testlib_crypto_argon2_any)
 testlib_crypto_argon2_freebsd = $(testlib_crypto_argon2_any)
 
+# gen_lib crypto::bcrypt (any)
+testlib_crypto_bcrypt_any = $(TESTCACHE)/crypto/bcrypt/crypto_bcrypt-any.o
+testlib_deps_any += $(testlib_crypto_bcrypt_any)
+testlib_crypto_bcrypt_linux = $(testlib_crypto_bcrypt_any)
+testlib_crypto_bcrypt_freebsd = $(testlib_crypto_bcrypt_any)
+
 # gen_lib crypto::blake2b (any)
 testlib_crypto_blake2b_any = $(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.o
 testlib_deps_any += $(testlib_crypto_blake2b_any)
@@ -2784,6 +2807,18 @@ $(TESTCACHE)/crypto/argon2/crypto_argon2-any.ssa: $(testlib_crypto_argon2_any_sr
 	@mkdir -p $(TESTCACHE)/crypto/argon2
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::argon2 \
 		-t$(TESTCACHE)/crypto/argon2/crypto_argon2.td $(testlib_crypto_argon2_any_srcs)
+
+# crypto::bcrypt (+any)
+testlib_crypto_bcrypt_any_srcs = \
+	$(STDLIB)/crypto/bcrypt/bcrypt.ha \
+	$(STDLIB)/crypto/bcrypt/base64.ha \
+	$(STDLIB)/crypto/bcrypt/+test.ha
+
+$(TESTCACHE)/crypto/bcrypt/crypto_bcrypt-any.ssa: $(testlib_crypto_bcrypt_any_srcs) $(testlib_rt) $(testlib_crypto_blowfish_$(PLATFORM)) $(testlib_encoding_base64_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_crypto_$(PLATFORM)) $(testlib_crypto_random_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_strconv_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/bcrypt
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::bcrypt \
+		-t$(TESTCACHE)/crypto/bcrypt/crypto_bcrypt.td $(testlib_crypto_bcrypt_any_srcs)
 
 # crypto::blake2b (+any)
 testlib_crypto_blake2b_any_srcs = \

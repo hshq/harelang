@@ -268,6 +268,18 @@ crypto_argon2() {
 		crypto::math endian errors hash io rt types
 }
 
+crypto_bcrypt() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::bcrypt bcrypt.ha base64.ha
+	else
+		gen_srcs crypto::bcrypt bcrypt.ha base64.ha +test.ha
+	fi
+	gen_ssa crypto::bcrypt crypto::blowfish encoding::base64 bufio io \
+		crypto crypto::random errors crypto::cipher strings fmt bytes \
+		strconv
+}
+
 gensrcs_crypto_blake2b() {
 	gen_srcs crypto::blake2b \
 		blake2b.ha \
@@ -1299,6 +1311,7 @@ crypto
 crypto::aes
 crypto::aes::xts
 crypto::argon2
+crypto::bcrypt
 crypto::blake2b
 crypto::blowfish
 crypto::chacha
