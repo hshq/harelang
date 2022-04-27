@@ -66,6 +66,11 @@ fn init_vector(c: *state, l: *u32, r: *u32, vec: []u32) void = {
 
 // Performs salted key expansion for a Blowfish cipher.
 export fn init_salt(c: *state, key: []u8, salt: []u8) void = {
+	if (len(salt) == 0) {
+		init(c, key);
+		return;
+	};
+
 	assert(len(key) > 0 && len(key) <= 56, "Invalid blowfish key size");
 	let j = 0z;
 	for (let i = 0z; i < 18; i += 1) {
@@ -93,6 +98,8 @@ fn init_vector_salt(
 		*l ^= getword(salt, j);
 		*r ^= getword(salt, j);
 		const v = encrypt(c, *l, *r);
+		*l = v.0;
+		*r = v.1;
 		vec[i] = *l;
 		vec[i+1] = *r;
 	};
@@ -196,10 +203,13 @@ fn decrypt(c: *state, l: u32, r: u32) (u32, u32) = {
 // buffer.
 fn getword(b: []u8, i: *size) u32 = {
 	let j = *i;
-	const w = endian::begetu32(b[j..j+4]);
-	j += 4;
-	if (j >= len(b)) {
-		j = 0;
+	let w = 0u32;
+	for (let i = 0; i < 4; i += 1) {
+		w = w<<8 | b[j]: u32;
+		j += 1;
+		if (j >= len(b)) {
+			j = 0;
+		};
 	};
 	*i = j;
 	return w;
