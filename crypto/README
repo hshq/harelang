@@ -14,7 +14,7 @@ well-being of your users may depend on your ability to implement cryptographic
 applications with due care. Please carefully read all of the documentation,
 double-check your work, and seek second opinions and independent review of your
 code. Our documentation and API design aims to prevent easy mistakes from being
-made, but it is no substitute for a good backround in applied cryptography. We
+made, but it is no substitute for a good background in applied cryptography. We
 recommend the "Crypto 101" course as a good general introduction to
 cryptography:
 
