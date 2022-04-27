@@ -351,6 +351,14 @@ fn run_findall_case(
 			"M15 4QN",
 			matchres::MATCH, 0, -1
 		),
+		(`^[^-a]`, "-bcd", matchres::NOMATCH, 0, 0),
+		(`^[-a]`, "-bcd", matchres::MATCH, 0, 1),
+		(`[^ac-]`, "bde", matchres::MATCH, 0, 1),
+		(`[-ac]`, "foo-de", matchres::MATCH, 3, 4),
+		(`[-ac]`, "def", matchres::NOMATCH, 0, 0),
+		(`foo[-ac]bar`, "foo-bar", matchres::MATCH, 0, 7),
+		(`[ac-]$`, "bde-", matchres::MATCH, 3, 4),
+		(`^[A-Za-z_-]+$`, "foo", matchres::MATCH, 0, 3),
 		// tests from perl
 		(`abc`, "abc", matchres::MATCH, 0, -1),
 		(`abc`, "xbc", matchres::NOMATCH, 0, 0),

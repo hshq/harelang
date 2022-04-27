@@ -154,7 +154,8 @@ fn handle_bracket(
 	};
 
 	const is_range = peek1 is rune && peek1 as rune == '-'
-		&& !(peek2 is void) && !(peek3 is void);
+		&& !(peek2 is void) && !(peek3 is void)
+		&& !(peek2 as rune == ']');
 	const range_end = peek2;
 	const is_first_char = *bracket_idx == 0 || *bracket_idx == 1
 		&& !*is_charset_positive;
