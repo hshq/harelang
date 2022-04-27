@@ -804,7 +804,7 @@ linux_keyctl() {
 linux_timerfd() {
 	gen_srcs -plinux linux::timerfd \
 		timerfd.ha
-	gen_ssa -plinux linux::timerfd errors
+	gen_ssa -plinux linux::timerfd errors rt time io endian
 }
 
 linux_vdso() {

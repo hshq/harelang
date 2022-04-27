@@ -451,8 +451,8 @@ stdlib_linux_keyctl_linux = $(HARECACHE)/linux/keyctl/linux_keyctl-linux.o
 stdlib_deps_linux += $(stdlib_linux_keyctl_linux)
 
 # gen_lib linux::timerfd (linux)
-stdlib_linux_timerfd_linux=$(HARECACHE)/linux/timerfd/linux_timerfd-linux.o
-stdlib_deps_linux+=$(stdlib_linux_timerfd_linux)
+stdlib_linux_timerfd_linux = $(HARECACHE)/linux/timerfd/linux_timerfd-linux.o
+stdlib_deps_linux += $(stdlib_linux_timerfd_linux)
 
 # gen_lib linux::vdso (linux)
 stdlib_linux_vdso_linux = $(HARECACHE)/linux/vdso/linux_vdso-linux.o
@@ -1358,10 +1358,10 @@ $(HARECACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(stdlib_linux_keyctl_linux_sr
 		-t$(HARECACHE)/linux/keyctl/linux_keyctl.td $(stdlib_linux_keyctl_linux_srcs)
 
 # linux::timerfd (+linux)
-stdlib_linux_timerfd_linux_srcs= \
+stdlib_linux_timerfd_linux_srcs = \
 	$(STDLIB)/linux/timerfd/timerfd.ha
 
-$(HARECACHE)/linux/timerfd/linux_timerfd-linux.ssa: $(stdlib_linux_timerfd_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM))
+$(HARECACHE)/linux/timerfd/linux_timerfd-linux.ssa: $(stdlib_linux_timerfd_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/linux/timerfd
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::timerfd \
@@ -2462,8 +2462,8 @@ testlib_linux_keyctl_linux = $(TESTCACHE)/linux/keyctl/linux_keyctl-linux.o
 testlib_deps_linux += $(testlib_linux_keyctl_linux)
 
 # gen_lib linux::timerfd (linux)
-testlib_linux_timerfd_linux=$(TESTCACHE)/linux/timerfd/linux_timerfd-linux.o
-testlib_deps_linux+=$(testlib_linux_timerfd_linux)
+testlib_linux_timerfd_linux = $(TESTCACHE)/linux/timerfd/linux_timerfd-linux.o
+testlib_deps_linux += $(testlib_linux_timerfd_linux)
 
 # gen_lib linux::vdso (linux)
 testlib_linux_vdso_linux = $(TESTCACHE)/linux/vdso/linux_vdso-linux.o
@@ -3403,10 +3403,10 @@ $(TESTCACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(testlib_linux_keyctl_linux_s
 		-t$(TESTCACHE)/linux/keyctl/linux_keyctl.td $(testlib_linux_keyctl_linux_srcs)
 
 # linux::timerfd (+linux)
-testlib_linux_timerfd_linux_srcs= \
+testlib_linux_timerfd_linux_srcs = \
 	$(STDLIB)/linux/timerfd/timerfd.ha
 
-$(TESTCACHE)/linux/timerfd/linux_timerfd-linux.ssa: $(testlib_linux_timerfd_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM))
+$(TESTCACHE)/linux/timerfd/linux_timerfd-linux.ssa: $(testlib_linux_timerfd_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/linux/timerfd
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::timerfd \
