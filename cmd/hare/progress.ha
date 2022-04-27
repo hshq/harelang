@@ -1,6 +1,7 @@
 use fmt;
 use io;
 use math;
+use unix::tty;
 
 fn progress_update(plan: *plan) void = {
 	const tty = match (plan.progress.tty) {
@@ -9,18 +10,30 @@ fn progress_update(plan: *plan) void = {
 	case =>
 		return;
 	};
+
+	const width = match (tty::winsize(tty)) {
+	case let ts: tty::ttysize =>
+		yield if (ts.columns > 64) 64 else ts.columns;
+	case =>
+		yield 64;
+	}: size;
+
 	const complete = plan.progress.complete,
 		total = plan.progress.total,
 		current_module = plan.progress.current_module;
 
+	const total_width = math::ceilf64(math::log10f64(total: f64)): size;
+	const counter_width = 1 + total_width + 1 + total_width + 3;
+	const progress_width = width - counter_width - 2 - len(current_module);
+
 	fmt::fprintf(tty, "\r\x1b[K[{%}/{}] [",
 		complete, &fmt::modifiers {
-			width = math::ceilf64(math::log10f64(total: f64)): uint,
+			width = total_width: uint,
 			...
 		},
 		total)!;
-	const stop = (complete: f64 / total: f64 * 50.0): size;
-	for (let i = 0z; i < 50; i += 1) {
+	const stop = (complete: f64 / total: f64 * progress_width: f64): size;
+	for (let i = 0z; i < progress_width; i += 1) {
 		if (i > stop) {
 			fmt::fprint(tty, ".")!;
 		} else {
