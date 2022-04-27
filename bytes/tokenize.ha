@@ -4,7 +4,11 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 use types;
 
-export type tokenizer = struct { s: []u8, d: []u8, p: size };
+export type tokenizer = struct {
+	s: []u8,
+	d: []u8,
+	p: size,
+};
 
 // Returns a tokenizer which yields sub-slices tokenized by a delimiter. The
 // caller must ensure that 'delimiter' is not an empty slice.
