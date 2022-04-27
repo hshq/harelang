@@ -57,7 +57,7 @@ const blake2b_vtable: io::vtable = io::vtable {
 // Creates a [[hash::hash]] which computes a BLAKE2b hash with a given key and a
 // given hash size. The size must be between 1 and 64, inclusive. If this
 // function is used to hash sensitive information, the caller should call
-// [[hash::close]] to erase sentitive data from memory after use; if not, the
+// [[hash::close]] to erase sensitive data from memory after use; if not, the
 // use of [[hash::close]] is optional.
 export fn blake2b(key: []u8, sz: size) digest = {
 	assert(1 <= sz);

@@ -20,7 +20,7 @@ export def BLOCKSIZE: size = 64;
 def ROUNDS: size = 20;
 const magic: [4]u32 = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574];
 
-// Create a Chacha20 or XChacha20 stream. Needs to be initalized with either
+// Create a Chacha20 or XChacha20 stream. Needs to be initialized with either
 // [[chacha20_init]] or [[xchacha20_init]]. It must be finished with
 // [[crypto::cipher::finish]].
 export type stream = struct {

@@ -54,7 +54,7 @@ const sha256_vtable: io::vtable = io::vtable {
 
 // Creates a [[hash::hash]] which computes a SHA-256 hash. If this function is
 // used to hash sensitive information, the caller should call [[hash::close]] to
-// erase sentitive data from memory after use; if not, the use of
+// erase sensitive data from memory after use; if not, the use of
 // [[hash::close]] is optional.
 export fn sha256() state = {
 	let sha = state {

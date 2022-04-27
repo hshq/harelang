@@ -192,7 +192,7 @@ fn decrypt(c: *state, l: u32, r: u32) (u32, u32) = {
 	return (xr, xl);
 };
 
-// Gets the next word from b and updates the index, looping around in a cicular
+// Gets the next word from b and updates the index, looping around in a circular
 // buffer.
 fn getword(b: []u8, i: *size) u32 = {
 	let j = *i;

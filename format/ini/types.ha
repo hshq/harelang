@@ -6,7 +6,7 @@ use encoding::utf8;
 use fmt;
 use io;
 
-// A syntax error occured during parsing.
+// A syntax error occurred during parsing.
 export type syntaxerr = !size;
 
 // Any error that may occur during parsing.

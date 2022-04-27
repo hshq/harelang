@@ -3,7 +3,7 @@
 use types;
 
 // Implements the so called Two-way string matching algorithm by Crochemore and
-// Perrin. It preprocesses the needle in O(len(needle)) steps and performs the
+// Perrin. It pre-processes the needle in O(len(needle)) steps and performs the
 // matching in O(len(haystack)) steps. It does so without any space overhead.
 fn index_tw(haystack: []u8, needle: []u8) (size | void) = {
 	const n = len(haystack);
@@ -15,7 +15,7 @@ fn index_tw(haystack: []u8, needle: []u8) (size | void) = {
 		return if (equal(haystack, needle)) 0 else void;
 	};
 
-	// preprocessing
+	// pre-processing
 	let tup1 = max_suf(needle, false);
 	let i = tup1.0, p = tup1.1;
 	let tup2 = max_suf(needle, true);
@@ -88,7 +88,7 @@ fn max_suf(x: []u8, inv: bool) (size, size) = {
 			j += 1;
 			k = 1;
 			p = 1;
-	 	};
+		};
 	};
 	return (i, p);
 };

@@ -845,7 +845,7 @@ export type dt = enum i64 {
 	HIPROC = 0x7FFFFFFF,
 };
 
-// Auxillary vector
+// Auxiliary vector
 export type auxv64 = struct {
 	// Entry type
 	a_type: at,
@@ -857,7 +857,7 @@ export type auxv64 = struct {
 	}
 };
 
-// Legal auxillary vector entry types
+// Legal auxiliary vector entry types
 export type at = enum u64 {
 	// End of vector
 	NULL = 0,
@@ -968,7 +968,7 @@ export type verdef64 = struct {
 	vd_next: u32,
 };
 
-// Auxillary version information
+// Auxiliary version information
 export type verdaux64 = struct {
 	vda_name: u32,
 	vda_next: u32,

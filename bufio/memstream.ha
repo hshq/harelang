@@ -86,12 +86,12 @@ const dynamic_vt_rw: io::vtable = io::vtable {
 	...
 };
 
-// Creates an [[io::stream]] which dynamically allocates a buffer to store writes
-// into. Subsequent reads will consume the buffered data. Upon failure to
+// Creates an [[io::stream]] which dynamically allocates a buffer to store
+// writes into. Subsequent reads will consume the buffered data. Upon failure to
 // allocate sufficient memory to store writes, the program aborts.
 //
-// Calling [[io::close]] on this stream will free the buffer. If stream's
-// data is transferred via [[buffer]], it shouldn't be closed as long as the
+// Calling [[io::close]] on this stream will free the buffer. If a stream's data
+// is transferred via [[buffer]], the stream shouldn't be closed as long as the
 // data is freed.
 export fn dynamic(mode: io::mode) memstream = dynamic_from([], mode);
 

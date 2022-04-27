@@ -74,25 +74,25 @@ export type digest = struct {
 
 // Creates a [[hash::hash]] which computes a SHA-512 hash. If this function is
 // used to hash sensitive information, the caller should call [[hash::close]] to
-// erase sentitive data from memory after use; if not, the use of
+// erase sensitive data from memory after use; if not, the use of
 // [[hash::close]] is optional.
 export fn sha512() digest = init(variant::SHA512, SIZE);
 
 // Creates a [[hash::hash]] which computes a SHA-512/224 hash. If this function
 // is used to hash sensitive information, the caller should call [[hash::close]]
-// to erase sentitive data from memory after use; if not, the use of
+// to erase sensitive data from memory after use; if not, the use of
 // [[hash::close]] is optional.
 export fn sha512_224() digest = init(variant::SHA512_224, SIZE224);
 
 // Creates a [[hash::hash]] which computes a SHA-512/256 hash. If this function
 // is used to hash sensitive information, the caller should call [[hash::close]]
-// to erase sentitive data from memory after use; if not, the use of
+// to erase sensitive data from memory after use; if not, the use of
 // [[hash::close]] is optional.
 export fn sha512_256() digest = init(variant::SHA512_256, SIZE256);
 
 // Creates a [[hash::hash]] which computes a SHA-384 hash. If this function is
 // used to hash sensitive information, the caller should call [[hash::close]] to
-// erase sentitive data from memory after use; if not, the use of
+// erase sensitive data from memory after use; if not, the use of
 // [[hash::close]] is optional.
 export fn sha384() digest = init(variant::SHA384, SIZE384);
 

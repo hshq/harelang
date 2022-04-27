@@ -41,7 +41,7 @@ case let b: []u8 =>
 case => void;
 };
 
-// Same as next_token(), but does not advance the cursor
+// Same as [[next_token]], but does not advance the cursor
 export fn peek_token(s: *tokenizer) ([]u8 | void) = {
 	if (len(s.d) == 0) {
 		return;
@@ -118,9 +118,9 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	assert(next_token(&t) is void);
 };
 
-// Returns a the slice "cut" along the first instance of a delimiter, returning
-// everything up to the delimiter, and everything after the delimiter, in a
-// tuple.
+// Returns the input slice "cut" along the first instance of a delimiter,
+// returning everything up to the delimiter, and everything after the delimiter,
+// in a tuple. The contents are borrowed from the input slice.
 //
 // The caller must ensure that 'delimiter' is not an empty slice.
 export fn cut(in: []u8, delim: ([]u8 | u8)) ([]u8, []u8) = {

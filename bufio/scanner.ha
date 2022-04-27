@@ -47,7 +47,7 @@ export fn scantok(file: io::handle, delim: u8...) ([]u8 | io::EOF | io::error) =
 	return buf;
 };
 
-// Reads a slice of bytes until a newline character (\n, 0x10). Newline itself
+// Reads a slice of bytes until a newline character (\n, 0x0A). Newline itself
 // is not included. The return value must be freed by the caller.
 export fn scanline(file: io::handle) ([]u8 | io::EOF | io::error) =
 	scantok(file, '\n');

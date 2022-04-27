@@ -4,7 +4,7 @@ use errors;
 use time;
 use time::chrono;
 
-// Fucntions renamed here to avoid namespace conflict, like in the parameters of
+// Functions renamed here to avoid namespace conflict, like in the parameters of
 // the [[new]] function.
 
 // Returns a [[datetime]]'s number of days since the calendar epoch 0000-01-01
