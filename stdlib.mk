@@ -71,7 +71,7 @@ $(HARECACHE)/rt/rt-freebsd.ssa: $(stdlib_rt_freebsd_srcs) $(stdlib_rt)
 $(HARECACHE)/rt/start.o: $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH)-libc.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH)-libc.s
 
 stdlib_asm = $(HARECACHE)/rt/syscall.o \
 	$(HARECACHE)/rt/setjmp.o \
@@ -85,37 +85,37 @@ stdlib_asm = $(HARECACHE)/rt/syscall.o \
 $(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
 
 $(HARECACHE)/rt/setjmp.o: $(STDLIB)/rt/+$(ARCH)/setjmp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/setjmp.s
 
 $(HARECACHE)/rt/longjmp.o: $(STDLIB)/rt/+$(ARCH)/longjmp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/longjmp.s
 
 $(HARECACHE)/rt/restore.o: $(STDLIB)/rt/+$(ARCH)/restore.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/restore.s
 
 $(HARECACHE)/rt/fenv.o: $(STDLIB)/rt/+$(ARCH)/fenv.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/fenv.s
 
 $(HARECACHE)/rt/getfp.o: $(STDLIB)/rt/+$(ARCH)/getfp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/getfp.s
 
 $(HARECACHE)/rt/cpuid_native.o: $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 
 $(HARECACHE)/rt/rt-linux.a: $(HARECACHE)/rt/rt-linux.o $(stdlib_asm)
 	@printf 'AR\t$@\n'
@@ -2099,7 +2099,7 @@ $(TESTCACHE)/rt/rt-freebsd.ssa: $(testlib_rt_freebsd_srcs) $(testlib_rt)
 $(TESTCACHE)/rt/start.o: $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH)-libc.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH)-libc.s
 
 testlib_asm = $(TESTCACHE)/rt/syscall.o \
 	$(TESTCACHE)/rt/setjmp.o \
@@ -2113,37 +2113,37 @@ testlib_asm = $(TESTCACHE)/rt/syscall.o \
 $(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
 
 $(TESTCACHE)/rt/setjmp.o: $(STDLIB)/rt/+$(ARCH)/setjmp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/setjmp.s
 
 $(TESTCACHE)/rt/longjmp.o: $(STDLIB)/rt/+$(ARCH)/longjmp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/longjmp.s
 
 $(TESTCACHE)/rt/restore.o: $(STDLIB)/rt/+$(ARCH)/restore.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/restore.s
 
 $(TESTCACHE)/rt/fenv.o: $(STDLIB)/rt/+$(ARCH)/fenv.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/fenv.s
 
 $(TESTCACHE)/rt/getfp.o: $(STDLIB)/rt/+$(ARCH)/getfp.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/getfp.s
 
 $(TESTCACHE)/rt/cpuid_native.o: $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 	@printf 'AS \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@$(AS) -o $@ $<
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 
 $(TESTCACHE)/rt/rt-linux.a: $(TESTCACHE)/rt/rt-linux.o $(testlib_asm)
 	@printf 'AR\t$@\n'
