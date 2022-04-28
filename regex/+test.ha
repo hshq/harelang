@@ -19,12 +19,12 @@ fn run_find_case(
 	case let e: error =>
 		if (expected == matchres::MATCH) {
 			fmt::println(e)!;
-			fmt::fatal("Expected expression /{}/ to match, but it errored",
+			fmt::fatalf("Expected expression /{}/ to match, but it errored",
 				expr, string);
 		};
 		if (expected == matchres::NOMATCH) {
 			fmt::println(e)!;
-			fmt::fatal("Expected expression /{}/ to not match, but it errored",
+			fmt::fatalf("Expected expression /{}/ to not match, but it errored",
 				expr, string);
 		};
 		return;
@@ -33,39 +33,39 @@ fn run_find_case(
 	match (find(re, string)) {
 	case void =>
 		if (expected == matchres::MATCH) {
-			fmt::fatal("Expected expression /{}/ to match string \"{}\", but it did not",
+			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it did not",
 				expr, string);
 		};
 		if (expected == matchres::ERROR) {
-			fmt::fatal("Expression /{}/ failed to match, but should have errored",
+			fmt::fatalf("Expression /{}/ failed to match, but should have errored",
 				expr, string);
 		};
 
 	case let m: []matchgroup =>
 		if (expected == matchres::NOMATCH) {
-			fmt::fatal("Expected expression /{}/ to not match string \"{}\", but it did",
+			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
 				expr, string);
 		};
 		if (expected == matchres::ERROR) {
-			fmt::fatal("Expression /{}/ matched, but should have errored",
+			fmt::fatalf("Expression /{}/ matched, but should have errored",
 				expr, string);
 		};
 		if (start: size != m[0].start) {
-			fmt::fatal("Expected start of main match group to be {} but it was {}",
+			fmt::fatalf("Expected start of main match group to be {} but it was {}",
 				start, m[0].start);
 		};
 		if (end: size != m[0].end) {
-			fmt::fatal("Expected end of main match group to be {} but it was {}",
+			fmt::fatalf("Expected end of main match group to be {} but it was {}",
 				end, m[0].end);
 		};
 
 	case let e: error =>
 		if (expected == matchres::MATCH) {
-			fmt::fatal("Expected expression /{}/ to match, but it errored",
+			fmt::fatalf("Expected expression /{}/ to match, but it errored",
 				expr, string);
 		};
 		if (expected == matchres::NOMATCH) {
-			fmt::fatal("Expected expression /{}/ to not match, but it errored",
+			fmt::fatalf("Expected expression /{}/ to not match, but it errored",
 				expr, string);
 		};
 	};
@@ -82,12 +82,12 @@ fn run_findall_case(
 	case let e: error =>
 		if (expected == matchres::MATCH) {
 			fmt::println(e)!;
-			fmt::fatal("Expected expression /{}/ to match, but it errored",
+			fmt::fatalf("Expected expression /{}/ to match, but it errored",
 				expr, string);
 		};
 		if (expected == matchres::NOMATCH) {
 			fmt::println(e)!;
-			fmt::fatal("Expected expression /{}/ to not match, but it errored",
+			fmt::fatalf("Expected expression /{}/ to not match, but it errored",
 				expr, string);
 		};
 		return;
@@ -96,35 +96,35 @@ fn run_findall_case(
 	match (findall(re, string)) {
 	case void =>
 		if (expected == matchres::MATCH) {
-			fmt::fatal("Expected expression /{}/ to match string \"{}\", but it did not",
+			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it did not",
 				expr, string);
 		};
 		if (expected == matchres::ERROR) {
-			fmt::fatal("Expression /{}/ failed to match, but should have errored",
+			fmt::fatalf("Expression /{}/ failed to match, but should have errored",
 				expr, string);
 		};
 
 	case let groupsets: [][]matchgroup =>
 		if (expected == matchres::NOMATCH) {
-			fmt::fatal("Expected expression /{}/ to not match string \"{}\", but it did",
+			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
 				expr, string);
 		};
 		if (expected == matchres::ERROR) {
-			fmt::fatal("Expression /{}/ matched, but should have errored",
+			fmt::fatalf("Expression /{}/ matched, but should have errored",
 				expr, string);
 		};
 		if (count: size != len(groupsets)) {
-			fmt::fatal("Expected to find {} matches but found {}",
+			fmt::fatalf("Expected to find {} matches but found {}",
 				count, len(groupsets));
 		};
 
 	case let e: error =>
 		if (expected == matchres::MATCH) {
-			fmt::fatal("Expected expression /{}/ to match, but it errored",
+			fmt::fatalf("Expected expression /{}/ to match, but it errored",
 				expr, string);
 		};
 		if (expected == matchres::NOMATCH) {
-			fmt::fatal("Expected expression /{}/ to not match, but it errored",
+			fmt::fatalf("Expected expression /{}/ to not match, but it errored",
 				expr, string);
 		};
 	};

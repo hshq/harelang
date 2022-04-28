@@ -59,8 +59,16 @@ export fn bsprintf(buf: []u8, fmt: str, args: field...) str = {
 
 // Formats text for printing and writes it to [[os::stderr]], followed by a line
 // feed, then exits the program with an error status.
-export @noreturn fn fatal(fmt: str, args: field...) void = {
+export @noreturn fn fatalf(fmt: str, args: field...) void = {
 	fprintfln(os::stderr, fmt, args...)!;
+	os::exit(1);
+};
+
+// Formats values for printing using the default format modifiers and writes
+// them to [[os::stderr]] separated by spaces and followed by a line feed, then
+// exits the program with an error status.
+export @noreturn fn fatal(args: formattable...) void = {
+	fprintln(os::stderr, args...)!;
 	os::exit(1);
 };
 

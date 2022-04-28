@@ -67,7 +67,7 @@ export fn main() void = {
 		case let f: io::file =>
 			yield f;
 		case let err: fs::error =>
-			fmt::fatal("Error opening {}: {}",
+			fmt::fatalf("Error opening {}: {}",
 				cmd.args[i], fs::strerror(err));
 		};
 		defer io::close(input)!;

@@ -72,7 +72,7 @@ export fn main() void = {
 			case "gemtext" =>
 				fmt = format::GEMTEXT;
 			case =>
-				fmt::fatal("Invalid format {}", opt.1);
+				fmt::fatal("Invalid format", opt.1);
 			};
 		case 't' =>
 			template = false;
@@ -101,7 +101,7 @@ export fn main() void = {
 		if (len(cmd.args) < 1) []
 		else match (parseident(cmd.args[0])) {
 		case let err: parse::error =>
-			fmt::fatal("{}", parse::strerror(err));
+			fmt::fatal(parse::strerror(err));
 		case let id: ast::ident =>
 			yield id;
 		};
@@ -118,8 +118,7 @@ export fn main() void = {
 			decl = id[len(id) - 1];
 			yield ver;
 		case let err: module::error =>
-			fmt::fatal(
-				"Error scanning input module: {}",
+			fmt::fatal("Error scanning input module:",
 				module::strerror(err));
 		};
 	};
@@ -134,7 +133,7 @@ export fn main() void = {
 		case let u: ast::subunit =>
 			append(decls, u.decls...);
 		case let err: error =>
-			fmt::fatal("Error: {}", strerror(err));
+			fmt::fatal("Error:", strerror(err));
 		};
 	};
 
@@ -165,7 +164,7 @@ export fn main() void = {
 			};
 		};
 		if (len(new) == 0) {
-			fmt::fatal("Could not find {}::{}",
+			fmt::fatalf("Could not find {}::{}",
 				unparse::identstr(dirname), decl);
 		};
 		free(decls);
@@ -195,7 +194,7 @@ export fn main() void = {
 	match (emit(&ctx)) {
 	case void => void;
 	case let err: error =>
-		fmt::fatal("Error: {}", strerror(err));
+		fmt::fatal("Error:", strerror(err));
 	};
 
 	io::close(ctx.out)!;
@@ -321,7 +320,7 @@ fn scan(path: str) (ast::subunit | error) = {
 	case let f: io::file =>
 		yield f;
 	case let err: fs::error =>
-		fmt::fatal("Error reading {}: {}", path, fs::strerror(err));
+		fmt::fatalf("Error reading {}: {}", path, fs::strerror(err));
 	};
 	defer io::close(input)!;
 	const lexer = lex::init(input, path, lex::flags::COMMENTS);

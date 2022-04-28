@@ -83,11 +83,11 @@ export fn main() void = {
 		match (typeinfo(store, cmd.args[i])) {
 		case void => void;
 		case let err: io::error =>
-			fmt::fatal("I/O error: {}", io::strerror(err));
+			fmt::fatal("I/O error:", io::strerror(err));
 		case let err: parse::error =>
-			fmt::fatal("{}", parse::strerror(err));
+			fmt::fatal(parse::strerror(err));
 		case let err: types::error =>
-			fmt::fatal("{}", types::strerror(err));
+			fmt::fatal(types::strerror(err));
 		case types::deferred =>
 			fmt::fatal("Invalid type");
 		};

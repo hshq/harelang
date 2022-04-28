@@ -149,7 +149,7 @@ fn lookup_remote_enum(ctx: *context, what: ast::ident) (ast::ident | void) = {
 		case let u: ast::subunit =>
 			append(decls, u.decls...);
 		case let err: error =>
-			fmt::fatal("Error: {}", strerror(err));
+			fmt::fatal("Error:", strerror(err));
 		};
 	};
 

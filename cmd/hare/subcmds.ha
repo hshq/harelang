@@ -157,7 +157,7 @@ fn build(args: []str) void = {
 	case let ver: module::version =>
 		yield ver;
 	case let err: module::error =>
-		fmt::fatal("Error scanning input module: {}",
+		fmt::fatal("Error scanning input module:",
 			module::strerror(err));
 	};
 
@@ -177,7 +177,7 @@ fn build(args: []str) void = {
 	match (plan_execute(&plan, verbose)) {
 	case void => void;
 	case !exec::exit_status =>
-		fmt::fatal("{} {}: build failed", os::args[0], os::args[1]);
+		fmt::fatalf("{} {}: build failed", os::args[0], os::args[1]);
 	};
 	if (tty::isatty(os::stdout_file)) {
 		fmt::print("\a")!;
@@ -263,7 +263,7 @@ fn release(args: []str) void = {
 	case let err: fs::error =>
 		fmt::fatal(fs::strerror(err));
 	case let err: git_error =>
-		fmt::fatal("git: {}", exec::exitstr(err));
+		fmt::fatal("git:", exec::exitstr(err));
 	case badversion =>
 		fmt::fatal("Error: invalid format string. Hare uses semantic versioning, in the form major.minor.patch.");
 	};
@@ -347,7 +347,7 @@ fn run(args: []str) void = {
 	case let ver: module::version =>
 		yield ver;
 	case let err: module::error =>
-		fmt::fatal("Error scanning input module: {}",
+		fmt::fatal("Error scanning input module:",
 			module::strerror(err));
 	};
 
@@ -364,11 +364,11 @@ fn run(args: []str) void = {
 	match (plan_execute(&plan, verbose)) {
 	case void => void;
 	case !exec::exit_status =>
-		fmt::fatal("{} {}: build failed", os::args[0], os::args[1]);
+		fmt::fatalf("{} {}: build failed", os::args[0], os::args[1]);
 	};
 	const cmd = match (exec::cmd(output, runargs...)) {
 	case let err: exec::error =>
-		fmt::fatal("exec: {}", exec::strerror(err));
+		fmt::fatal("exec:", exec::strerror(err));
 	case let cmd: exec::command =>
 		yield cmd;
 	};
@@ -465,7 +465,7 @@ fn test(args: []str) void = {
 	case let items: []ast::ident =>
 		yield items;
 	case let err: module::error =>
-		fmt::fatal("Error scanning source root: {}",
+		fmt::fatal("Error scanning source root:",
 			module::strerror(err));
 	};
 
@@ -491,7 +491,7 @@ fn test(args: []str) void = {
 	match (plan_execute(&plan, verbose)) {
 	case void => void;
 	case !exec::exit_status =>
-		fmt::fatal("{} {}: build failed", os::args[0], os::args[1]);
+		fmt::fatalf("{} {}: build failed", os::args[0], os::args[1]);
 	};
 
 	if (have_output) {
@@ -500,7 +500,7 @@ fn test(args: []str) void = {
 
 	const cmd = match (exec::cmd(output, runargs...)) {
 	case let err: exec::error =>
-		fmt::fatal("exec: {}", exec::strerror(err));
+		fmt::fatal("exec:", exec::strerror(err));
 	case let cmd: exec::command =>
 		yield cmd;
 	};

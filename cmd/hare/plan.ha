@@ -70,7 +70,7 @@ type plan_progress = struct {
 fn mkplan(ctx: *module::context, libs: []str) plan = {
 	const rtdir = match (module::lookup(ctx, ["rt"])) {
 	case let err: module::error =>
-		fmt::fatal("Error resolving rt: {}", module::strerror(err));
+		fmt::fatal("Error resolving rt:", module::strerror(err));
 	case let ver: module::version =>
 		yield ver.basedir;
 	};
@@ -184,7 +184,7 @@ fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 		match (execute(plan, task, verbose)) {
 		case let err: exec::error =>
 			progress_clear(plan);
-			fmt::fatal("Error: {}: {}", task.cmd[0],
+			fmt::fatalf("Error: {}: {}", task.cmd[0],
 				exec::strerror(err));
 		case let err: !exec::exit_status =>
 			progress_clear(plan);
@@ -212,7 +212,7 @@ fn update_cache(plan: *plan, mod: modcache) void = {
 	};
 	match (module::manifest_write(plan.context, &manifest)) {
 	case let err: module::error =>
-		fmt::fatal("Error updating module cache: {}",
+		fmt::fatal("Error updating module cache:",
 			module::strerror(err));
 	case void => void;
 	};
@@ -248,7 +248,7 @@ fn execute(
 	case let cmd: exec::command =>
 		yield cmd;
 	case let err: exec::error =>
-		fmt::fatal("Error resolving {}: {}", task.cmd[0],
+		fmt::fatalf("Error resolving {}: {}", task.cmd[0],
 			exec::strerror(err));
 	};
 	for (let i = 0z; i < len(plan.environ); i += 1) {

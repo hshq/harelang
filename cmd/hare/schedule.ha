@@ -37,7 +37,7 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 	let ver = match (module::lookup(plan.context, ident)) {
 	case let err: module::error =>
 		let ident = unparse::identstr(ident);
-		fmt::fatal("Error resolving {}: {}", ident,
+		fmt::fatalf("Error resolving {}: {}", ident,
 			module::strerror(err));
 	case let ver: module::version =>
 		yield ver;
@@ -208,7 +208,7 @@ fn sched_hare_object(
 		let manifest = match (module::manifest_load(
 				plan.context, namespace)) {
 		case let err: module::error =>
-			fmt::fatal("Error reading cache entry for {}: {}", ns,
+			fmt::fatalf("Error reading cache entry for {}: {}", ns,
 				module::strerror(err));
 		case let m: module::manifest =>
 			yield m;
@@ -230,7 +230,7 @@ fn sched_hare_object(
 		match (os::mkdirs(path)) {
 		case void => void;
 		case let err: fs::error =>
-			fmt::fatal("Error: mkdirs {}: {}", path,
+			fmt::fatalf("Error: mkdirs {}: {}", path,
 				fs::strerror(err));
 		};
 		append(harec.cmd, ["-t", path::join(path, td)]...);
