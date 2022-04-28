@@ -20,10 +20,10 @@ tasks:
 - hare: |
     cd hare
     sed -e 's/linux/freebsd/g' < config.example.mk > config.mk
-    gmake
+    make
 - tests: |
     cd hare
-    gmake .bin/hare-tests
+    make .bin/hare-tests
 - check: |
     cd hare
-    gmake check
+    make check
