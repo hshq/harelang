@@ -77,7 +77,7 @@ export @noreturn fn exec(cmd: *command) void = {
 export fn start(cmd: *command) (error | process) = {
 	defer finish(cmd);
 	match (platform_start(cmd)) {
-	case let err: errors::opaque =>
+	case let err: errors::error =>
 		return err;
 	case let proc: process =>
 		return proc;
