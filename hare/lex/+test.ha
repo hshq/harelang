@@ -289,6 +289,19 @@ fn loc(line: uint, col: uint) location = location {
 	lextest(in, expected);
 };
 
+@test fn invalid() void = {
+	// Using \x80 within a string literal will cause this to output an
+	// empty string
+	const in = ['1': u8, 0x80];
+
+	let buf = bufio::fixed(in, mode::READ);
+	let lexer = init(&buf, "<test>");
+
+	const s = lex(&lexer) as syntax;
+	assert(s.1 == "Source file is not valid UTF-8");
+};
+
+
 // Small virtual machine for testing mkloc/prevloc.
 // NEXT, UNGET, LEX, and UNLEX call the obvious functions (with UNGET and UNLEX
 // pulling from a buffer that NEXT/LEX feed into).

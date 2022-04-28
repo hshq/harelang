@@ -247,6 +247,7 @@ fn lex_string(lex: *lexer, loc: location, delim: rune) (token | error) = {
 		};
 	};
 	line_comment(lex)?;
+
 	return (ltok::LIT_STR, strio::string(&buf), loc);
 };
 
@@ -740,7 +741,7 @@ export fn unlex(lex: *lexer, tok: token) void = {
 	lex.un = tok;
 };
 
-fn next(lex: *lexer) ((rune, location) | io::EOF | io::error) = {
+fn next(lex: *lexer) ((rune, location) | syntax | io::EOF | io::error) = {
 	match (lex.rb[0]) {
 	case void => void;
 	case let r: ((rune, location) | io::EOF) =>
@@ -759,6 +760,8 @@ fn next(lex: *lexer) ((rune, location) | io::EOF | io::error) = {
 		lex.prevrlocs[0] = loc;
 		lexloc(lex, r);
 		return (r, loc);
+	case utf8::invalid =>
+		return syntaxerr(mkloc(lex), "Source file is not valid UTF-8");
 	};
 };
 
@@ -783,7 +786,10 @@ fn nextw(lex: *lexer) ((rune, location) | io::EOF | io::error) = {
 	abort();
 };
 
-fn try(lex: *lexer, want: rune...) ((rune, location) | void | io::error) = {
+fn try(
+	lex: *lexer,
+	want: rune...
+) ((rune, location) | syntax | void | io::error) = {
 	let r = match (next(lex)?) {
 	case io::EOF =>
 		return;
