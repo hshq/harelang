@@ -6,12 +6,12 @@ By default, matches will be found anywhere in the given string. The ^ and $
 characters can be used to anchor the match to the beginning or end of the
 string.
 
-find() returns a slice of [[regex::matchgroup]]s for the first match. The
-first [[regex::matchgroup]] represents the entire match, while the rest
-represent the submatches, specified in the expression using (parens).
+find() returns a slice of [[matchgroup]]s for the first match. The first
+[[matchgroup]] represents the entire match, while the rest represent the
+submatches, specified in the expression using (parens).
 
 findall() finds all non-overlapping matches in the given string and returns
-a slice of slices of [[regex::matchgroup]]s.
+a slice of slices of [[matchgroup]]s.
 
 This module implements the POSIX match disambiguation rules by returning
 the longest match among the leftmost matches.
