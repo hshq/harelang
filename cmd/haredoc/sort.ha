@@ -39,12 +39,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 					exported = true,
 					start = decl.start,
 					end = decl.end,
-					decl = {
-						// XXX: Kind of bad
-						let new: []ast::decl_type = [];
-						append(new, t[j]);
-						yield new;
-					},
+					decl = alloc([t[j]]),
 					docs = decl.docs,
 				});
 			};
@@ -54,12 +49,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 					exported = true,
 					start = decl.start,
 					end = decl.end,
-					decl = {
-						// XXX: Kind of bad
-						let new: []ast::decl_const = [];
-						append(new, c[j]);
-						yield new;
-					},
+					decl = alloc([c[j]]),
 					docs = decl.docs,
 				});
 			};
@@ -69,12 +59,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 					exported = true,
 					start = decl.start,
 					end = decl.end,
-					decl = {
-						// XXX: Kind of bad
-						let new: []ast::decl_global = [];
-						append(new, g[j]);
-						yield new;
-					},
+					decl = alloc([g[j]]),
 					docs = decl.docs,
 				});
 			};
