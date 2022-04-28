@@ -54,7 +54,7 @@ fn emit_tty(ctx: *context) (void | error) = {
 };
 
 fn comment_tty(out: io::handle, s: str) (size | io::error) = {
-	return fmt::fprintfln(out, "\x1b[0m" "//{}" "\x1b[0m", s)?;
+	return fmt::fprintfln(out, "\x1b[1m" "//{}" "\x1b[0m", s)?;
 };
 
 fn docs_tty(out: io::handle, s: str, indent: size) (size | io::error) = {
@@ -108,45 +108,45 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 	let n = 0z;
 	match (d.decl) {
 	case let g: []ast::decl_global =>
-		n += fmt::fprint(out, "\x1b[94m")?;
+		n += fmt::fprint(out, "\x1b[34m")?;
 		n += fmt::fprint(out,
 			if (g[0].is_const) "const " else "let ")?;
-		n += fmt::fprint(out, "\x1b[0;1m")?;
+		n += fmt::fprint(out, "\x1b[0m")?;
 		for (let i = 0z; i < len(g); i += 1) {
 			if (len(g[i].symbol) != 0) {
 				n += fmt::fprintf(out,
-					"\x1b[93m" "@symbol(\"{}\") " "\x1b[0m",
+					"\x1b[33m" "@symbol(\"{}\") " "\x1b[0m",
 					g[i].symbol)?;
 			};
 			n += unparse::ident(out, g[i].ident)?;
-			n += fmt::fprint(out, "\x1b[0m" ": ")?;
+			n += fmt::fprint(out, ": ")?;
 			n += type_tty(out, 0, g[i]._type)?;
 			if (i + 1 < len(g)) {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
 	case let c: []ast::decl_const =>
-		n += fmt::fprintf(out, "\x1b[94m" "def " "\x1b[0;1m")?;
+		n += fmt::fprintf(out, "\x1b[34m" "def " "\x1b[0m")?;
 		for (let i = 0z; i < len(c); i += 1) {
 			n += unparse::ident(out, c[i].ident)?;
-			n += fmt::fprint(out, "\x1b[0m" ": ")?;
+			n += fmt::fprint(out, ": ")?;
 			n += type_tty(out, 0, c[i]._type)?;
 			if (i + 1 < len(c)) {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
 	case let t: []ast::decl_type =>
-		n += fmt::fprint(out, "\x1b[94m" "type " "\x1b[0;1m")?;
+		n += fmt::fprint(out, "\x1b[34m" "type " "\x1b[0m")?;
 		for (let i = 0z; i < len(t); i += 1) {
 			n += unparse::ident(out, t[i].ident)?;
-			n += fmt::fprint(out, "\x1b[0m" " = ")?;
+			n += fmt::fprint(out, " = ")?;
 			n += type_tty(out, 0, t[i]._type)?;
 			if (i + 1 < len(t)) {
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
 	case let f: ast::decl_func =>
-		n += fmt::fprint(out, "\x1b[93m")?;
+		n += fmt::fprint(out, "\x1b[33m")?;
 		n += fmt::fprint(out, switch (f.attrs) {
 		case ast::fndecl_attrs::NONE =>
 			yield "";
@@ -162,16 +162,15 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 		let p = f.prototype.repr as ast::func_type;
 		if (p.attrs & ast::func_attrs::NORETURN != 0) {
 			n += fmt::fprint(out,
-				"\x1b[93m" "@noreturn " "\x1b[0m")?;
+				"\x1b[33m" "@noreturn " "\x1b[0m")?;
 		};
 		if (len(f.symbol) != 0) {
 			n += fmt::fprintf(out,
-				"\x1b[93m" "@symbol(\"{}\") " "\x1b[0m",
+				"\x1b[33m" "@symbol(\"{}\") " "\x1b[0m",
 				f.symbol)?;
 		};
-		n += fmt::fprint(out, "\x1b[94m" "fn " "\x1b[0;1m")?;
+		n += fmt::fprint(out, "\x1b[34m" "fn " "\x1b[0m")?;
 		n += unparse::ident(out, f.ident)?;
-		n += fmt::fprint(out, "\x1b[0m")?;
 		n += prototype_tty(out, 0,
 			f.prototype.repr as ast::func_type)?;
 	};
@@ -254,7 +253,7 @@ fn prototype_tty(
 		const param = t.params[i];
 		n += fmt::fprintf(out, "{}" "\x1b[0m" ": ",
 			if (param.name == "") "_" else param.name)?;
-		n += fmt::fprint(out, "\x1b[96m")?;
+		n += fmt::fprint(out, "\x1b[36m")?;
 		n += fmt::fprint(out, typenames[i])?;
 		n += fmt::fprint(out, "\x1b[0m")?;
 		if (i + 1 == len(t.params)) {
@@ -286,11 +285,11 @@ fn struct_union_type_tty(
 	let membs = match (t.repr) {
 	case let st: ast::struct_type =>
 		z += fmt::fprint(out,
-			"\x1b[96m" "struct" "\x1b[0m" " {")?;
+			"\x1b[36m" "struct" "\x1b[0m" " {")?;
 		yield st: []ast::struct_member;
 	case let ut: ast::union_type =>
 		z += fmt::fprint(out,
-			"\x1b[96m" "union" "\x1b[0m" " {")?;
+			"\x1b[36m" "union" "\x1b[0m" " {")?;
 		yield ut: []ast::struct_member;
 	};
 
@@ -304,7 +303,7 @@ fn struct_union_type_tty(
 		match (membs[i]._offset) {
 		case null => void;
 		case let ex: *ast::expr =>
-			z += fmt::fprint(out, "\x1b[93m" "@offset(")?;
+			z += fmt::fprint(out, "\x1b[33m" "@offset(")?;
 			z += unparse::expr(out, indent, *ex)?;
 			z += fmt::fprint(out, ") \x1b[0m")?;
 		};
@@ -337,7 +336,7 @@ fn type_tty(
 	let n = 0z;
 	if (t.flags & ast::type_flags::CONST != 0
 			&& !(t.repr is ast::func_type)) {
-		n += fmt::fprint(out, "\x1b[96m" "const " "\x1b[0m")?;
+		n += fmt::fprint(out, "\x1b[36m" "const " "\x1b[0m")?;
 	};
 	if (t.flags & ast::type_flags::ERROR != 0) {
 		n += fmt::fprint(out, "!")?;
@@ -345,20 +344,20 @@ fn type_tty(
 
 	match (t.repr) {
 	case let a: ast::alias_type =>
-		n += fmt::fprint(out, "\x1b[96m")?;
+		n += fmt::fprint(out, "\x1b[36m")?;
 		if (a.unwrap) {
 			n += fmt::fprint(out, "...")?;
 		};
 		n += unparse::ident(out, a.ident)?;
 		n += fmt::fprint(out, "\x1b[0m")?;
 	case let b: ast::builtin_type =>
-		n += fmt::fprintf(out, "\x1b[96m" "{}" "\x1b[0m",
+		n += fmt::fprintf(out, "\x1b[36m" "{}" "\x1b[0m",
 			unparse::builtin_type(b))?;
 	case let e: ast::enum_type =>
-		n += fmt::fprint(out, "\x1b[96m" "enum " "\x1b[0m")?;
+		n += fmt::fprint(out, "\x1b[36m" "enum " "\x1b[0m")?;
 		if (e.storage != ast::builtin_type::INT) {
 			n += fmt::fprintf(out,
-				"\x1b[96m" "{} " "\x1b[0m",
+				"\x1b[36m" "{} " "\x1b[0m",
 				unparse::builtin_type(e.storage))?;
 		};
 		n += fmt::fprintln(out, "{")?;
@@ -400,9 +399,9 @@ fn type_tty(
 	case let f: ast::func_type =>
 		if (f.attrs & ast::func_attrs::NORETURN != 0) {
 			n += fmt::fprint(out,
-				"\x1b[93m" "@noreturn " "\x1b[0m")?;
+				"\x1b[33m" "@noreturn " "\x1b[0m")?;
 		};
-		n += fmt::fprint(out, "\x1b[94m" "fn" "\x1b[0m")?;
+		n += fmt::fprint(out, "\x1b[34m" "fn" "\x1b[0m")?;
 		n += prototype_tty(out, indent, f)?;
 	case let l: ast::list_type =>
 		n += fmt::fprint(out, "[")?;
@@ -420,7 +419,7 @@ fn type_tty(
 	case let p: ast::pointer_type =>
 		if (p.flags & ast::pointer_flags::NULLABLE != 0) {
 			n += fmt::fprint(out,
-				"\x1b[96m" "nullable " "\x1b[0m")?;
+				"\x1b[36m" "nullable " "\x1b[0m")?;
 		};
 		n += fmt::fprint(out, "*")?;
 		n += type_tty(out, indent, *p.referent)?;
