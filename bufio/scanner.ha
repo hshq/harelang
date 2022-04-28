@@ -12,7 +12,7 @@ use types;
 export fn scanbyte(file: io::handle) (u8 | io::EOF | io::error) = {
 	let buf: [1]u8 = [0...];
 
-	match (io::read(file, buf)?) {
+	match (io::readall(file, buf)?) {
 	case let read: size =>
 		if (read > 0) {
 			return buf[0];
@@ -57,9 +57,8 @@ export fn scanrune(
 	file: io::handle,
 ) (rune | utf8::invalid | io::EOF | io::error) = {
 	let b: [4]u8 = [0...];
-	match (io::read(file, b[..1])?) {
-	case let n: size =>
-		assert(n == 1);
+	match (io::readall(file, b[..1])?) {
+	case let n: size => void;
 	case io::EOF =>
 		return io::EOF;
 	};
@@ -75,9 +74,8 @@ export fn scanrune(
 		return b[0]: u32: rune;
 	};
 
-	match (io::read(file, b[1..sz])?) {
-	case let n: size =>
-		assert(n == sz - 1);
+	match (io::readall(file, b[1..sz])?) {
+	case let n: size => void;
 	case io::EOF =>
 		return io::EOF;
 	};

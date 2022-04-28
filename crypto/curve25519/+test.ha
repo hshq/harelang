@@ -203,9 +203,8 @@ use crypto::random;
 	let s: [SCALARSZ]u8 = [0...];
 	let u: [POINTSZ]u8 = [0...];
 
-	// FIXME(laumann): check that enough was read
-	io::read(random::stream, s[..])!;
-	io::read(random::stream, u[..])!;
+	io::readall(random::stream, s[..])!;
+	io::readall(random::stream, u[..])!;
 
 	let hi0: [32]u8 = [0...];
 	let hi1: [32]u8 = [0...];

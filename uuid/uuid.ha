@@ -112,11 +112,10 @@ export fn decode(in: io::handle) (uuid | invalid | io::error) = {
 	let u: uuid = [0...];
 	for (let i = 0z; i < len(u); i += 1) {
 		let buf: [2]u8 = [0...];
-		match (io::read(in, buf)?) {
+		match (io::readall(in, buf)?) {
 		case io::EOF =>
 			return invalid;
-		case let z: size =>
-			assert(z == len(buf));
+		case let z: size => void;
 		};
 		u[i] = match (strconv::stou8b(
 				strings::fromutf8_unsafe(buf),
@@ -132,11 +131,10 @@ export fn decode(in: io::handle) (uuid | invalid | io::error) = {
 				|| i + 1 == TIME_HI_AND_VERSION
 				|| i + 1 == CLOCK_SEQ_HI_AND_RESERVED
 				|| i + 1 == NODE) {
-			match (io::read(in, buf[..1])?) {
+			match (io::readall(in, buf[..1])?) {
 			case io::EOF =>
 				return invalid;
-			case let z: size =>
-				assert(z == 1);
+			case let z: size => void;
 			};
 			if (buf[0] != '-') {
 				return invalid;

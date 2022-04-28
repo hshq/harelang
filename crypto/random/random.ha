@@ -30,7 +30,7 @@ export let stream: *io::stream = &_stream;
 @test fn reader() void = {
 	let buf: [4096]u8 = [0...];
 	let test: []u8 = [];
-	match (io::read(stream, buf[..])) {
+	match (io::readall(stream, buf[..])) {
 	case (io::error | io::EOF) =>
 		abort();
 	case let n: size =>
