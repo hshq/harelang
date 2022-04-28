@@ -20,7 +20,7 @@ export fn add(buf: *buffer, items: str...) (str | errors::overflow) = {
 			if (len(next) == 0 && j == 0) {
 				// Handles the add("/foo") case as
 				// add("/", "foo");
-				appendnorm(buf, "/")?;
+				appendnorm(buf, pathsepstr)?;
 			};
 			appendnorm(buf, next)?;
 		};
@@ -31,19 +31,33 @@ export fn add(buf: *buffer, items: str...) (str | errors::overflow) = {
 @test fn add() void = {
 	let buf = init();
 	add(&buf, "foo", "bar", "baz")!;
-	assert(string(&buf) == "foo/bar/baz");
+	let s = strings::join(pathsepstr, "foo", "bar", "baz");
+	assert(string(&buf) == s);
+	free(s);
 
 	reset(&buf);
-	add(&buf, "/foo/bar", "baz")!;
-	assert(string(&buf) == "/foo/bar/baz");
+	s = strings::join(pathsepstr, "", "foo", "bar");
+	add(&buf, s, "baz")!;
+	free(s);
+	s = strings::join(pathsepstr, "", "foo", "bar", "baz");
+	assert(string(&buf) == s);
+	free(s);
 
 	reset(&buf);
-	add(&buf, "/", "foo/bar", "baz")!;
-	assert(string(&buf) == "/foo/bar/baz");
+	s = strings::join(pathsepstr, "foo", "bar");
+	add(&buf, pathsepstr, s, "baz")!;
+	free(s);
+	s = strings::join(pathsepstr, "", "foo", "bar", "baz");
+	assert(string(&buf) == s);
+	free(s);
 
 	reset(&buf);
-	add(&buf, "./foo/bar")!;
-	assert(string(&buf) == "foo/bar");
+	s = strings::join(pathsepstr, ".", "foo", "bar");
+	add(&buf, s)!;
+	free(s);
+	s = strings::join(pathsepstr, "foo", "bar");
+	assert(string(&buf) == s);
+	free(s);
 };
 
 // Joins a list of path components together, normalizes it, and returns the

@@ -19,7 +19,7 @@ export fn dirname(path: (str | *buffer)) const str = {
 	};
 	let trimmed = strings::rtrim(path, PATHSEP: u32: rune);
 	if (trimmed == "") {
-		return "/";
+		return pathsepstr;
 	};
 	let b = strings::toutf8(trimmed);
 	let i = match (bytes::rindex(b, PATHSEP)) {
@@ -34,25 +34,29 @@ export fn dirname(path: (str | *buffer)) const str = {
 	path = strings::fromutf8_unsafe(b[..i]);
 	path = strings::rtrim(path, PATHSEP: u32: rune);
 	if (path == "") {
-		return "/";
+		return pathsepstr;
 	};
 	return path;
 };
 
 @test fn dirname() void = {
-	assert(dirname("/foo/bar") == "/foo");
-	assert(dirname("/foo") == "/");
-	assert(dirname("/") == "/");
-	assert(dirname("//") == "/");
-	assert(dirname("///") == "/");
-	assert(dirname("foo/bar") == "foo");
-	assert(dirname("") == ".");
-	assert(dirname("foo") == ".");
-	assert(dirname("foo/") == ".");
-	assert(dirname("foo//") == ".");
-	assert(dirname("///foo") == "/");
-	assert(dirname("///foo//") == "/");
-	assert(dirname("//foo///bar//") == "//foo");
+	assertpatheql(&dirname, pathsepstr, "", "foo");
+	assertpatheql(&dirname, pathsepstr, pathsepstr);
+	assertpatheql(&dirname, pathsepstr, "", "", "");
+	assertpatheql(&dirname, pathsepstr, "", "", "", "");
+	assertpatheql(&dirname, "foo", "foo", "bar");
+	assertpatheql(&dirname, ".", "");
+	assertpatheql(&dirname, ".", "foo");
+	assertpatheql(&dirname, ".", "foo", "");
+	assertpatheql(&dirname, ".", "foo", "", "");
+	assertpatheql(&dirname, pathsepstr, "", "", "", "foo");
+	assertpatheql(&dirname, pathsepstr, "", "", "", "foo", "", "");
+	let expected = strings::concat(pathsepstr, "foo");
+	assertpatheql(&dirname, expected, "", "foo", "bar");
+	free(expected);
+	expected = strings::concat(pathsepstr, pathsepstr, "foo");
+	assertpatheql(&dirname, expected, "", "", "foo", "", "", "bar", "", "");
+	free(expected);
 };
 
 // Returns the final component of a given path. For a path to a file name, this
@@ -68,7 +72,7 @@ export fn basename(path: (str | *buffer)) const str = {
 	};
 	let trimmed = strings::rtrim(path, PATHSEP: u32: rune);
 	if (trimmed == "") {
-		return "/";
+		return pathsepstr;
 	};
 	let b = strings::toutf8(trimmed);
 	let i = match (bytes::rindex(b, PATHSEP)) {
@@ -81,14 +85,17 @@ export fn basename(path: (str | *buffer)) const str = {
 };
 
 @test fn basename() void = {
-	assert(basename("/foo/bar") == "bar");
-	assert(basename("/foo") == "foo");
-	assert(basename("/") == "/");
-	assert(basename("//") == "/");
-	assert(basename("///") == "/");
-	assert(basename("foo/bar") == "bar");
-	assert(basename("foo/bar//") == "bar");
-	assert(basename("foo") == "foo");
+	assertpatheql(&basename, "bar", "", "foo", "bar");
+	assertpatheql(&basename, "foo", "", "foo");
+	assertpatheql(&basename, pathsepstr, pathsepstr);
+	assertpatheql(&basename, pathsepstr, "", "", "");
+	assertpatheql(&basename, pathsepstr, "", "", "", "");
+	assertpatheql(&basename, "bar", "foo", "bar");
+	assertpatheql(&basename, "bar", "foo", "bar", "", "");
+	assertpatheql(&basename, "foo", "foo");
+	assertpatheql(&basename, "foo", "foo", "");
+	assertpatheql(&basename, "bar", "foo", "bar", "");
+	assertpatheql(&basename, ".", "");
 };
 
 // Returns the file name and extension for a path. The return value is borrowed
@@ -121,14 +128,27 @@ export fn extension(p: (str | *buffer)) (str, str) = {
 };
 
 @test fn extension() void = {
-	assert(extension("").0 == "");
-	assert(extension("").1 == "");
-	assert(extension("foo/bar").0 == "bar");
-	assert(extension("foo/bar").1 == "");
-	assert(extension("foo/bar.txt").0 == "bar");
-	assert(extension("foo/bar.txt").1 == ".txt");
-	assert(extension("foo/bar.tar.gz").0 == "bar");
-	assert(extension("foo/bar.tar.gz").1 == ".tar.gz");
-	assert(extension("foo.bar/baz.ha").0 == "baz");
-	assert(extension("foo.bar/baz.ha").1 == ".ha");
+	assertpatheql(&ext0, "", "");
+	assertpatheql(&ext1, "", "");
+	assertpatheql(&ext0, "bar", "foo", "bar");
+	assertpatheql(&ext1, "", "foo", "bar");
+	assertpatheql(&ext0, "bar", "foo", "bar.txt");
+	assertpatheql(&ext1, ".txt", "foo", "bar.txt");
+	assertpatheql(&ext0, "bar", "foo", "bar.tar.gz");
+	assertpatheql(&ext1, ".tar.gz", "foo", "bar.tar.gz");
+	assertpatheql(&ext0, "baz", "foo.bar", "baz.ha");
+	assertpatheql(&ext1, ".ha", "foo.bar", "baz.ha");
 };
+
+fn assertpatheql(
+	func: *fn(path: (str | *buffer)) const str,
+	expected: str,
+	path: str...
+) void = {
+	const s = strings::join(pathsepstr, path...);
+	assert(func(s) == expected);
+	free(s);
+};
+
+fn ext0(p: (str | *buffer)) const str = extension(p).0;
+fn ext1(p: (str | *buffer)) const str = extension(p).1;

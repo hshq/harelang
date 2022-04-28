@@ -36,9 +36,9 @@ export fn set(buf: *buffer, items: str...) (str | errors::overflow) = {
 // - Redundant path separators
 // - Any "." components, except in the case of "."
 //
-// "/usr//bin/../bin/./hare" becomes "/usr/bin/hare" and "../../foo/bar" is
-// unchanged. The path will only end in a slash if the last item which was
-// added ended in "/", like so:
+// Assuming that PATHSEP is '/', "/usr//bin/../bin/./hare" becomes
+// "/usr/bin/hare" and "../../foo/bar" is unchanged. The path will only end in a
+// slash if the last item which was added ended in PATHSEP, like so:
 //
 // 	let buf = path::init();
 // 	path::set(&buf, "foo", "bar")!;
@@ -141,27 +141,33 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	appendnorm(&buf, "foo")!;
 	appendnorm(&buf, "bar")!;
 	appendnorm(&buf, "baz")!;
-	assert(string(&buf) == "foo/bar/baz");
+	let s = strings::join(pathsepstr, "foo", "bar", "baz");
+	assert(string(&buf) == s);
 	appendnorm(&buf, ".")!;
 	appendnorm(&buf, "bad")!;
 	appendnorm(&buf, ".")!;
-	assert(string(&buf) == "foo/bar/baz/bad");
+	free(s);
+	s = strings::join(pathsepstr, "foo", "bar", "baz", "bad");
+	assert(string(&buf) == s);
+	free(s);
 
 	reset(&buf);
-	appendnorm(&buf, "/")!;
+	appendnorm(&buf, pathsepstr)!;
 	appendnorm(&buf, "foo")!;
 	appendnorm(&buf, "bar")!;
 	appendnorm(&buf, "baz")!;
-	assert(string(&buf) == "/foo/bar/baz");
-	appendnorm(&buf, "/")!;
-	appendnorm(&buf, "/")!;
-	assert(string(&buf) == "/foo/bar/baz");
+	s = strings::join(pathsepstr, "", "foo", "bar", "baz");
+	assert(string(&buf) == s);
+	appendnorm(&buf, pathsepstr)!;
+	appendnorm(&buf, pathsepstr)!;
+	assert(string(&buf) == s);
+	free(s);
 
 	reset(&buf);
-	appendnorm(&buf, "/")!;
-	appendnorm(&buf, "/")!;
-	appendnorm(&buf, "/")!;
-	assert(string(&buf) == "/");
+	appendnorm(&buf, pathsepstr)!;
+	appendnorm(&buf, pathsepstr)!;
+	appendnorm(&buf, pathsepstr)!;
+	assert(string(&buf) == pathsepstr);
 
 	reset(&buf);
 	appendnorm(&buf, ".")!;
@@ -176,14 +182,20 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	appendnorm(&buf, "..")!;
 	assert(string(&buf) == "..");
 	appendnorm(&buf, "..")!;
-	assert(string(&buf) == "../..");
+	s = strings::join(pathsepstr, "..", "..");
+	assert(string(&buf) == s);
+	free(s);
 	appendnorm(&buf, "..")!;
-	assert(string(&buf) == "../../..");
+	s = strings::join(pathsepstr, "..", "..", "..");
+	assert(string(&buf) == s);
+	free(s);
 
 	reset(&buf);
 	appendnorm(&buf, "foo")!;
 	appendnorm(&buf, "bar")!;
-	assert(string(&buf) == "foo/bar");
+	s = strings::join(pathsepstr, "foo", "bar");
+	assert(string(&buf) == s);
+	free(s);
 	appendnorm(&buf, "..")!;
 	assert(string(&buf) == "foo");
 	appendnorm(&buf, "..")!;
@@ -191,19 +203,33 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	appendnorm(&buf, "..")!;
 	assert(string(&buf) == "..");
 	appendnorm(&buf, "..")!;
-	assert(string(&buf) == "../..");
+	s = strings::join(pathsepstr, "..", "..");
+	assert(string(&buf) == s);
+	free(s);
 
 	set(&buf, "foo", "bar")!;
-	assert(string(&buf) == "foo/bar");
-	set(&buf, "foo", "bar/")!;
-	assert(string(&buf) == "foo/bar/");
-	set(&buf, "foo", "bar", "/")!;
-	assert(string(&buf) == "foo/bar/");
-	add(&buf, "/baz")!;
-	assert(string(&buf) == "foo/bar/baz");
+	s = strings::join(pathsepstr, "foo", "bar");
+	assert(string(&buf) == s);
+	free(s);
+	s = strings::concat("bar", pathsepstr);
+	set(&buf, "foo", s)!;
+	free(s);
+	s = strings::join(pathsepstr, "foo", "bar", "");
+	assert(string(&buf) == s);
+	set(&buf, "foo", "bar", pathsepstr)!;
+	assert(string(&buf) == s);
+	free(s);
+	s = strings::concat(pathsepstr, "baz");
+	add(&buf, s)!;
+	free(s);
+	s = strings::join(pathsepstr, "foo", "bar", "baz");
+	assert(string(&buf) == s);
+	free(s);
 
 	reset(&buf);
 	appendnorm(&buf, "a")!;
 	appendnorm(&buf, "b")!;
-	assert(string(&buf) == "a/b");
+	s = strings::join(pathsepstr, "a", "b");
+	assert(string(&buf) == s);
+	free(s);
 };

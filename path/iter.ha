@@ -51,14 +51,17 @@ export fn next(iter: *iterator) (str | void) = {
 };
 
 @test fn iter() void = {
-	assert(PATHSEP == '/'); // meh
-	let i = iter("/foo/bar/baz");
-	assert(next(&i) as str == "/");
+	const s = strings::join(pathsepstr, "", "foo", "bar", "baz");
+	let i = iter(s);
+	assert(next(&i) as str == pathsepstr);
 	assert(next(&i) as str == "foo");
 	assert(next(&i) as str == "bar");
 	assert(next(&i) as str == "baz");
 	assert(next(&i) is void);
-	let i = iter("foo/bar/baz/");
+	free(s);
+
+	const s = strings::join(pathsepstr, "foo", "bar", "baz", "");
+	let i = iter(s);
 	assert(next(&i) as str == "foo");
 	assert(next(&i) as str == "bar");
 	assert(next(&i) as str == "baz");
@@ -66,8 +69,9 @@ export fn next(iter: *iterator) (str | void) = {
 	let i = iter("foo");
 	assert(next(&i) as str == "foo");
 	assert(next(&i) is void);
+	free(s);
 
-	let i = iter("/");
-	assert(next(&i) as str == "/");
+	let i = iter(pathsepstr);
+	assert(next(&i) as str == pathsepstr);
 	assert(next(&i) is void);
 };
