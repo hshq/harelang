@@ -21,8 +21,14 @@ export fn printfln(fmt: str, fields: fmt::field...) void = {
 	lprintfln(global, fmt, fields...);
 };
 
+// Prints data to the log with a newline, then terminates the process.
+export @noreturn fn lfatal(log: *logger, fields: fmt::formattable...) void = {
+	lprintln(log, fields...);
+	os::exit(1);
+};
+
 // Formats and prints data to the log, then terminates the process.
-export @noreturn fn lfatal(
+export @noreturn fn lfatalf(
 	log: *logger,
 	fmt: str,
 	fields: fmt::field...
@@ -31,8 +37,14 @@ export @noreturn fn lfatal(
 	os::exit(1);
 };
 
+// Prints data to the global log, then terminates the process.
+export @noreturn fn fatal(fields: fmt::formattable...) void = {
+	lprintln(global, fields...);
+	os::exit(1);
+};
+
 // Formats and prints data to the global log, then terminates the process.
-export @noreturn fn fatal(fmt: str, fields: fmt::field...) void = {
+export @noreturn fn fatalf(fmt: str, fields: fmt::field...) void = {
 	lprintfln(global, fmt, fields...);
 	os::exit(1);
 };
