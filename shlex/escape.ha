@@ -28,17 +28,15 @@ fn is_safe(s: str) bool = {
 };
 
 // Quotes a shell string and writes it to the provided I/O handle.
-export fn quote(sink: io::handle, s: str) (void | io::error) = {
+export fn quote(sink: io::handle, s: str) (size | io::error) = {
 	if (len(s) == 0) {
-		io::write(sink, strings::toutf8(`''`))?;
-		return;
+		return io::writeall(sink, strings::toutf8(`''`))?;
 	};
 	if (is_safe(s)) {
-		io::write(sink, strings::toutf8(s))?;
-		return;
+		return io::writeall(sink, strings::toutf8(s))?;
 	};
 
-	io::write(sink, ['"'])?;
+	let z = io::writeall(sink, ['"'])?;
 
 	const iter = strings::iter(s);
 	for (true) {
@@ -50,13 +48,14 @@ export fn quote(sink: io::handle, s: str) (void | io::error) = {
 		};
 
 		if (rn == '"') {
-			io::write(sink, strings::toutf8(`"'"'"`))?;
+			z += io::writeall(sink, strings::toutf8(`"'"'"`))?;
 		} else {
-			io::write(sink, utf8::encoderune(rn))?;
+			z += io::writeall(sink, utf8::encoderune(rn))?;
 		};
 	};
 
-	io::write(sink, ['"'])?;
+	z += io::writeall(sink, ['"'])?;
+	return z;
 };
 
 // Quotes a shell string and returns a new string. The caller must free the

@@ -1,6 +1,8 @@
 // License: MPL-2.0
 // (c) 2021 Alexey Yerin <yyp@disroot.org>
+use io;
 use strings;
+use strio;
 
 @test fn split() void = {
 	const s = split(`hello\ world`)!;
@@ -61,16 +63,16 @@ use strings;
 	assert(split(`unterminated\ backslash \`) is syntaxerr);
 };
 
+fn testquote(sink: *strio::stream, s: str, expected: str) void = {
+	assert(quote(sink, s)! == len(expected));
+	assert(strio::string(sink) == expected);
+	strio::reset(sink);
+};
+
 @test fn quote() void = {
-	const bare = quotestr(`hello`);
-	defer free(bare);
-	assert(bare == `hello`);
-
-	const spaces = quotestr(`hello world`);
-	defer free(spaces);
-	assert(spaces == `"hello world"`);
-
-	const quotes = quotestr(`'hello' "world"`);
-	defer free(quotes);
-	assert(quotes == `"'hello' "'"'"world"'"'""`);
+	const sink = strio::dynamic();
+	defer io::close(&sink)!;
+	testquote(&sink, `hello`, `hello`);
+	testquote(&sink, `hello world`, `"hello world"`);
+	testquote(&sink, `'hello' "world"`, `"'hello' "'"'"world"'"'""`);
 };
