@@ -17,7 +17,7 @@ export fn sort(items: []void, itemsz: size, cmp: *cmpfunc) void = {
 };
 
 // Sorts a slice of strings in place. Sorting is done with respect to Unicode
-// codepoints; see [[strings::strcmp]].
+// codepoints; see [[strings::compare]].
 export fn strings(items: []str) void = sort(items, size(str), &scmp);
 
 // Checks if all of the items in a slice are sorted.
@@ -31,7 +31,7 @@ export fn sorted(items: []void, itemsz: size, cmp: *cmpfunc) bool = {
 };
 
 // Checks if all of the strings in a slice are sorted. Order is checked with
-// respect to Unicode codepoints; see [[strings::strcmp]].
+// respect to Unicode codepoints; see [[strings::compare]].
 export fn strings_sorted(items: []str) bool = sorted(items, size(str), &scmp);
 
 fn swap(a: *void, b: *void, sz: size) void = {
