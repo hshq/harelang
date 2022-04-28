@@ -28,7 +28,7 @@ the longest match among the leftmost matches.
 		// the main match, as well as all submatches.
 	};
 
-	const all_matches = regex::findall(re, "Hello hare, hello hare.")!;
+	const all_matches = regex::findall(re, "Hello Hare, hello Hare.")!;
 	match (all_matches) {
 	case void => void;
 	case let groupsets: [][]regex::matchgroup =>
