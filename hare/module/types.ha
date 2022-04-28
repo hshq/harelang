@@ -56,7 +56,7 @@ export type input = struct {
 };
 
 // The requested module could not be found.
-export type module_not_found = !void;
+export type notfound = !void;
 
 // We are unable to select from two ambiguous options for an input file.
 export type ambiguous = !(str, str);
@@ -66,7 +66,7 @@ export type error = !(
 	fs::error |
 	io::error |
 	parse::error |
-	module_not_found |
+	notfound |
 	ambiguous);
 
 // Returns a human-friendly representation of an error.
@@ -80,7 +80,7 @@ export fn strerror(err: error) const str = {
 		return io::strerror(err);
 	case let err: parse::error =>
 		return parse::strerror(err);
-	case module_not_found =>
+	case notfound =>
 		return "Module not found";
 	case let amb: ambiguous =>
 		return fmt::bsprintf(buf, "Cannot choose between {} and {}",

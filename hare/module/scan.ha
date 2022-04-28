@@ -41,7 +41,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 		let deps: []ast::ident = [];
 		let ft = match (type_for_ext(path)) {
 		case void =>
-			return module_not_found;
+			return notfound;
 		case let ft: filetype =>
 			yield ft;
 		};
@@ -83,7 +83,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 	defer free(readme);
 	if (len(ver.inputs) == 0 && !fs::exists(ctx.fs, readme)) {
 		// TODO: HACK: README is a workaround for haredoc issues
-		return module_not_found;
+		return notfound;
 	};
 
 	let tmp: [sha256::SIZE]u8 = [0...];
@@ -332,7 +332,7 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 		case error => void;
 		};
 	};
-	return module_not_found;
+	return notfound;
 };
 
 fn type_for_ext(name: str) (filetype | void) = {
