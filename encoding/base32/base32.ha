@@ -160,7 +160,7 @@ fn encode_closer(s: *io::stream) (void | io::error) = {
 	for (let i = 0z; i < np; i += 1) {
 		encb[7 - i] = PADDING;
 	};
-	io::write(s.out, encb)!; // TODO https://todo.sr.ht/~sircmpwn/hare/568
+	io::writeall(s.out, encb)!;
 };
 
 // Encodes a byte slice in base-32, using the given encoding, returning a slice
@@ -168,7 +168,7 @@ fn encode_closer(s: *io::stream) (void | io::error) = {
 export fn encodeslice(enc: *encoding, in: []u8) []u8 = {
 	let out = bufio::dynamic(io::mode::WRITE);
 	let encoder = new_encoder(enc, &out);
-	io::write(&encoder, in)!;
+	io::writeall(&encoder, in)!;
 	io::close(&encoder)!;
 	return bufio::buffer(&out);
 };
@@ -203,7 +203,7 @@ export fn encodestr(enc: *encoding, in: []u8) str = {
 	for (let i = 0z; i <= len(in); i += 1) {
 		let out = bufio::dynamic(io::mode::RDWR);
 		let enc = new_encoder(&std_encoding, &out);
-		io::write(&enc, in[..i]) as size;
+		io::writeall(&enc, in[..i]) as size;
 		io::close(&enc)!;
 		let outb = bufio::buffer(&out);
 		assert(bytes::equal(outb, strings::toutf8(expect[i])));
@@ -215,7 +215,7 @@ export fn encodestr(enc: *encoding, in: []u8) str = {
 
 		out = bufio::dynamic(io::mode::RDWR);
 		enc = new_encoder(&hex_encoding, &out);
-		io::write(&enc, in[..i]) as size;
+		io::writeall(&enc, in[..i]) as size;
 		io::close(&enc)!;
 		let outb = bufio::buffer(&out);
 		assert(bytes::equal(outb, strings::toutf8(expect_hex[i])));

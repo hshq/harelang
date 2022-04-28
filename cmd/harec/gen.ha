@@ -90,7 +90,7 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 		};
 	};
 
-	io::write(ctx.out, bufio::buffer(&ctx.buf))!;
+	io::writeall(ctx.out, bufio::buffer(&ctx.buf))!;
 	fmt::fprintln(ctx.out, "}\n")!;
 };
 

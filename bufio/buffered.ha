@@ -84,7 +84,7 @@ export fn flush(s: *bufstream) (io::error | void) = {
 	if (s.wavail == 0) {
 		return;
 	};
-	io::write(s.source, s.wbuffer[..s.wavail])?;
+	io::writeall(s.source, s.wbuffer[..s.wavail])?;
 	s.wavail = 0;
 	return;
 };
@@ -240,9 +240,9 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let f = buffered(&sink, [], wbuf);
 	defer io::close(&f)!;
 
-	assert(io::write(&f, [1, 3, 3, 7]) as size == 4);
+	assert(io::writeall(&f, [1, 3, 3, 7]) as size == 4);
 	assert(len(buffer(&sink)) == 0);
-	assert(io::write(&f, [1, 3, 3, 7]) as size == 4);
+	assert(io::writeall(&f, [1, 3, 3, 7]) as size == 4);
 	assert(flush(&f) is void);
 	assert(bytes::equal(buffer(&sink), [1, 3, 3, 7, 1, 3, 3, 7]));
 
@@ -253,9 +253,9 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let wbuf: [4]u8 = [0...];
 	let f = buffered(&sink, [], wbuf);
 
-	assert(io::write(&f, [1, 3, 3, 7]) as size == 4);
+	assert(io::writeall(&f, [1, 3, 3, 7]) as size == 4);
 	assert(len(buffer(&sink)) == 0);
-	assert(io::write(&f, [1, 3, 3, 7]) as size == 4);
+	assert(io::writeall(&f, [1, 3, 3, 7]) as size == 4);
 	assert(bytes::equal(buffer(&sink), [1, 3, 3, 7]));
 	io::close(&f)!; // Should flush
 	assert(bytes::equal(buffer(&sink), [1, 3, 3, 7, 1, 3, 3, 7]));
@@ -267,8 +267,8 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let wbuf: [1024]u8 = [0...];
 	let f = buffered(&sink, [], wbuf);
 
-	assert(io::write(&f, strings::toutf8("hello")) as size == 5);
+	assert(io::writeall(&f, strings::toutf8("hello")) as size == 5);
 	assert(len(buffer(&sink)) == 0);
-	assert(io::write(&f, strings::toutf8(" world!\n")) as size == 8);
+	assert(io::writeall(&f, strings::toutf8(" world!\n")) as size == 8);
 	assert(bytes::equal(buffer(&sink), strings::toutf8("hello world!\n")));
 };

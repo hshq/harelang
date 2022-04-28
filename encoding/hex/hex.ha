@@ -21,9 +21,9 @@ export fn encode(sink: io::handle, b: []u8) (size | io::error) = {
 	for (let i = 0z; i < len(b); i += 1) {
 		let s = strconv::u8tosb(b[i], strconv::base::HEX_LOWER);
 		if (len(s) == 1) {
-			z += io::write(sink, ['0'])?;
+			z += fmt::fprint(sink, "0")?;
 		};
-		z += io::write(sink, strings::toutf8(s))?;
+		z += fmt::fprint(sink, s)?;
 	};
 	return z;
 };

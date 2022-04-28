@@ -51,8 +51,8 @@ fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 @test fn fixed() void = {
 	static let buf: [1024]u8 = [0...];
 	let stream = fixed(buf);
-	io::write(&stream, strings::toutf8("hello ")) as size;
-	io::write(&stream, strings::toutf8("world")) as size;
+	io::writeall(&stream, strings::toutf8("hello ")) as size;
+	io::writeall(&stream, strings::toutf8("world")) as size;
 	assert(string(&stream) == "hello world");
 };
 
@@ -95,7 +95,7 @@ fn dynamic_close(s: *io::stream) (void | io::error) = {
 @test fn dynamic() void = {
 	let stream = dynamic();
 	defer io::close(&stream)!;
-	io::write(&stream, strings::toutf8("hello ")) as size;
-	io::write(&stream, strings::toutf8("world")) as size;
+	io::writeall(&stream, strings::toutf8("hello ")) as size;
+	io::writeall(&stream, strings::toutf8("world")) as size;
 	assert(string(&stream) == "hello world");
 };

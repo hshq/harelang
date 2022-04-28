@@ -83,4 +83,4 @@ export fn rjoin(out: io::handle, delim: str, strs: str...) (size | io::error) = 
 
 // Appends a rune to a stream.
 export fn appendrune(out: io::handle, r: rune) (size | io::error) =
-	io::write(out, utf8::encoderune(r));
+	io::writeall(out, utf8::encoderune(r));

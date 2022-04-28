@@ -31,19 +31,19 @@ fn html_escape(out: io::handle, in: str) (size | io::error) = {
 		match (strings::next(&iter)) {
 		case void => break;
 		case let rn: rune =>
-			z += io::write(out, switch (rn) {
+			z += fmt::fprint(out, switch (rn) {
 			case '&' =>
-				yield strings::toutf8("&amp;");
+				yield "&amp;";
 			case '<' =>
-				yield strings::toutf8("&lt;");
+				yield "&lt;";
 			case '>' =>
-				yield strings::toutf8("&gt;");
+				yield "&gt;";
 			case '"' =>
-				yield strings::toutf8("&quot;");
+				yield "&quot;";
 			case '\'' =>
-				yield strings::toutf8("&apos;");
+				yield "&apos;";
 			case =>
-				yield utf8::encoderune(rn);
+				yield strings::fromutf8(utf8::encoderune(rn));
 			})?;
 		};
 	};

@@ -180,7 +180,7 @@ fn build(args: []str) void = {
 		fmt::fatal("{} {}: build failed", os::args[0], os::args[1]);
 	};
 	if (tty::isatty(os::stdout_file)) {
-		io::write(os::stdout_file, ['\a'])!;
+		fmt::print("\a")!;
 	};
 };
 

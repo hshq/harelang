@@ -277,7 +277,7 @@ fn execute(
 					progress_clear(plan);
 					cleared = true;
 				};
-				io::write(os::stderr, buf[..n])?;
+				io::writeall(os::stderr, buf[..n])?;
 			case io::EOF =>
 				break;
 			};

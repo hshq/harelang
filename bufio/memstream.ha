@@ -197,9 +197,9 @@ fn copy(dest: *io::stream, src: *io::stream) (io::error | size) = {
 
 @test fn dynamic() void = {
 	let s = dynamic(io::mode::RDWR);
-	assert(io::write(&s, [1, 2, 3]) as size == 3);
+	assert(io::writeall(&s, [1, 2, 3]) as size == 3);
 	assert(bytes::equal(buffer(&s), [1, 2, 3]));
-	assert(io::write(&s, [4, 5]) as size == 2);
+	assert(io::writeall(&s, [4, 5]) as size == 2);
 	assert(bytes::equal(buffer(&s), [1, 2, 3, 4, 5]));
 	let buf: [2]u8 = [0...];
 	assert(io::seek(&s, 0, io::whence::SET) as io::off == 0: io::off);
@@ -207,19 +207,19 @@ fn copy(dest: *io::stream, src: *io::stream) (io::error | size) = {
 	assert(io::read(&s, buf[..]) as size == 2 && bytes::equal(buf, [3, 4]));
 	assert(io::read(&s, buf[..]) as size == 1 && buf[0] == 5);
 	assert(io::read(&s, buf[..]) is io::EOF);
-	assert(io::write(&s, [6, 7, 8]) as size == 3);
+	assert(io::writeall(&s, [6, 7, 8]) as size == 3);
 	assert(bytes::equal(buffer(&s), [1, 2, 3, 4, 5, 6, 7, 8]));
 	reset(&s);
 	assert(len(buffer(&s)) == 0);
-	assert(io::write(&s, [1, 2, 3]) as size == 3);
+	assert(io::writeall(&s, [1, 2, 3]) as size == 3);
 	assert(truncate(&s) is void);
 	assert(len(buffer(&s)) == 0);
 
 	let sl: []u8 = alloc([1, 2, 3]);
 	let s = dynamic_from(sl, io::mode::WRITE);
-	assert(io::write(&s, [0, 0]) as size == 2);
+	assert(io::writeall(&s, [0, 0]) as size == 2);
 	assert(io::seek(&s, 0, io::whence::END) as io::off == 5: io::off);
-	assert(io::write(&s, [4, 5, 6]) as size == 3);
+	assert(io::writeall(&s, [4, 5, 6]) as size == 3);
 	assert(bytes::equal(buffer(&s), [0, 0, 1, 2, 3, 4, 5, 6]));
 	assert(io::read(&s, buf[..]) as io::error is errors::unsupported);
 	io::close(&s)!;
@@ -230,6 +230,8 @@ fn copy(dest: *io::stream, src: *io::stream) (io::error | size) = {
 	assert(io::seek(&s, 1, io::whence::CUR) as io::off == 2: io::off);
 	assert(io::read(&s, buf[..]) is io::EOF);
 	assert(io::write(&s, [1, 2]) as io::error is errors::unsupported);
+	io::close(&s)!;
+	assert(io::writeall(&s, [1, 2]) as io::error is errors::unsupported);
 	io::close(&s)!;
 
 	let in: [6]u8 = [0, 1, 2, 3, 4, 5];
@@ -245,11 +247,11 @@ fn copy(dest: *io::stream, src: *io::stream) (io::error | size) = {
 	defer io::close(&stream)!;
 
 	let n = 0z;
-	n += io::write(&stream, strings::toutf8("hello ")) as size;
-	n += io::write(&stream, strings::toutf8("world")) as size;
+	n += io::writeall(&stream, strings::toutf8("hello ")) as size;
+	n += io::writeall(&stream, strings::toutf8("world")) as size;
 	assert(bytes::equal(buf[..n], strings::toutf8("hello world")));
 	assert(io::seek(&stream, 6, io::whence::SET) as io::off == 6: io::off);
-	io::write(&stream, strings::toutf8("asdf")) as size;
+	io::writeall(&stream, strings::toutf8("asdf")) as size;
 	assert(bytes::equal(buf[..n], strings::toutf8("hello asdfd")));
 
 	let out: [2]u8 = [0...];
@@ -258,7 +260,7 @@ fn copy(dest: *io::stream, src: *io::stream) (io::error | size) = {
 	assert(io::read(&s, out[..1]) as size == 1 && out[0] == 1);
 	assert(io::seek(&s, 1, io::whence::CUR) as io::off == 2: io::off);
 	assert(io::read(&s, buf[..]) is io::EOF);
-	assert(io::write(&s, [1, 2]) as io::error is errors::unsupported);
+	assert(io::writeall(&s, [1, 2]) as io::error is errors::unsupported);
 
 	let in: [6]u8 = [0, 1, 2, 3, 4, 5];
 	let out: [6]u8 = [0...];

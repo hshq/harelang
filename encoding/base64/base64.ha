@@ -157,7 +157,7 @@ fn encode_closer(s: *io::stream) (void | io::error) = {
 	for (let i = 0z; i < np; i += 1) {
 		encb[3 - i] = PADDING;
 	};
-	io::write(s.out, encb)?;
+	io::writeall(s.out, encb)?;
 };
 
 // Encodes a byte slice in base 64, using the given encoding, returning a slice

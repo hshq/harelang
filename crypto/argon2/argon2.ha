@@ -344,13 +344,13 @@ fn varhash(dest: []u8, block: []u8) void = {
 	hash::write(&h, block);
 	hash::sum(&h, v[..]);
 
-	io::write(&destbuf, v[..32])!;
+	io::writeall(&destbuf, v[..32])!;
 
 	for (let i = 1z; i < r; i += 1) {
 		hash::reset(&h);
 		hash::write(&h, v[..]);
 		hash::sum(&h, v[..]);
-		io::write(&destbuf, v[..32])!;
+		io::writeall(&destbuf, v[..32])!;
 	};
 
 	const remainder = len(dest) - 32 * r;
@@ -358,7 +358,7 @@ fn varhash(dest: []u8, block: []u8) void = {
 	defer hash::close(&hend);
 	hash::write(&hend, v[..]);
 	hash::sum(&hend, v[..remainder]);
-	io::write(&destbuf, v[..remainder])!;
+	io::writeall(&destbuf, v[..remainder])!;
 };
 
 fn divceil(dividend: u32, divisor: u32) u32 = {
