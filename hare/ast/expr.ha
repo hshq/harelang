@@ -222,7 +222,7 @@ export type tuple_constant = []*expr;
 export type _null = void;
 
 // A scalar value.
-export type value = (void | bool | _null | ...lex::value);
+export type value = (bool | _null | ...lex::value);
 
 // An integer or float constant.
 export type number_constant = struct {
