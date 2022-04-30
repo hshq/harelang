@@ -770,7 +770,7 @@ fn search(
 
 
 // Attempts to match a regular expression against a string and returns the
-// either the longest leftmost match or all matches.
+// longest leftmost match, or void if there is no match.
 export fn find(re: regex, string: str) (void | []matchgroup | error) = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
@@ -778,7 +778,7 @@ export fn find(re: regex, string: str) (void | []matchgroup | error) = {
 };
 
 // Attempts to match a regular expression against a string and returns all
-// non-overlapping matches.
+// non-overlapping matches, or void if there are no matches.
 export fn findall(re: regex, string: str) (void | [][]matchgroup | error) = {
 	let res: [][]matchgroup = [];
 	let str_idx = -1;
