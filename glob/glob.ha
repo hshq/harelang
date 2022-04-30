@@ -107,7 +107,8 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 	const ends = split_pattern(p);
 	const dir = strings::sub(p, 0, ends.0);
 	let pat = strings::sub(p, ends.0, ends.1);
-	if (strings::hassuffix(pat, '/')) {
+	const patm = strings::hassuffix(pat, '/');
+	if (patm) {
 		pat = strings::sub(pat, 0, len(pat) - 1);
 	};
 	let rem = "";
@@ -129,20 +130,25 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 		yield i;
 	};
 	defer fs::finish(it);
+
 	for (true) match (fs::next(it)) {
 	case void =>
 		break;
 	case let de: fs::dirent =>
+		if (patm && !fs::isdir(de.ftype) && !fs::islink(de.ftype)) {
+			continue;
+		};
 		if (!fnmatch::fnmatch(pat, de.name, flgs)) {
 			continue;
 		};
+
 		let b = strstack_push(&gen.pats);
 		if (len(rem) > 0) {
 			strio::concat(b, dir, de.name, "/", rem)!;
 			continue;
 		};
 		strio::concat(b, dir, de.name)!;
-		if (gen.flgs & flags::MARK != 0) {
+		if (patm || gen.flgs & flags::MARK != 0) {
 			let m = fs::isdir(de.ftype);
 			// POSIX does not specify the behavior when a pathname
 			// that matches the pattern is a symlink to a
@@ -161,6 +167,9 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 			};
 			if (m) {
 				strio::concat(b, "/")!;
+			} else if (patm) {
+				strstack_pop(&gen.pats);
+				continue;
 			};
 		};
 		gen.matc += 1;
