@@ -68,8 +68,6 @@ def MONTHS_SHORT: [_]str = [
 	"Oct", "Nov", "Dec",
 ];
 
-// TODO: Document specifiers (%Y, %m, etc) used here, in README or otherwise.
-
 // TODO: Make format() accept parameters of type (datetime | period), using the
 // "intervals" standard representation provided by ISO 8601?
 //
