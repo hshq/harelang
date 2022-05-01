@@ -36,7 +36,6 @@ export type bufstream = struct {
 	ravail: size,
 	wavail: size,
 	flush: []u8,
-	unread: []u8,
 };
 
 // Creates a stream which buffers reads and writes for the underlying stream.
@@ -95,17 +94,24 @@ export fn setflush(s: *bufstream, b: []u8) void = {
 	s.flush = b;
 };
 
-// Unreads a slice of bytes. The next read calls on this buffer will consume the
-// un-read data before consuming further data from the underlying source, or any
-// buffered data.
+// "Unreads" a slice of bytes, such that the next call to "read" will return
+// these bytes before reading any new data from the underlying source. The
+// unread data must fit into the read buffer's available space. The amount of
+// data which can be unread before the user makes any reads from a buffered
+// stream is equal to the length of the read buffer, and otherwise it is equal
+// to the length of the return value of the last call to [[io::read]] using this
+// buffered stream.
 export fn unread(s: *bufstream, buf: []u8) void = {
-	append(s.unread, buf...);
+	assert(len(s.rbuffer) - s.ravail >= len(buf),
+		"Attempted to unread more data than buffer has available");
+	let sl = s.rbuffer[..s.ravail];
+	static insert(sl[0], buf...);
 };
 
 // Unreads a rune; see [[unread]].
 export fn unreadrune(s: *bufstream, rn: rune) void = {
 	const buf = utf8::encoderune(rn);
-	insert(s.unread[0], buf...);
+	unread(s, buf);
 };
 
 // Returns true if an [[io::handle]] is a [[buffered]] stream.
@@ -128,13 +134,6 @@ fn buffered_close_static(s: *io::stream) (void | io::error) = {
 fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	assert(s.reader == &buffered_read);
 	let s = s: *bufstream;
-	if (len(s.unread) != 0) {
-		let n = if (len(buf) < len(s.unread)) len(buf) else len(s.unread);
-		buf[..n] = s.unread[..n];
-		delete(s.unread[..n]);
-		return n;
-	};
-
 	let n = if (len(buf) < len(s.rbuffer)) len(buf) else len(s.rbuffer);
 	if (n > s.ravail) {
 		let z = match (io::read(s.source, s.rbuffer[s.ravail..])) {
@@ -271,4 +270,32 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	assert(len(buffer(&sink)) == 0);
 	assert(io::writeall(&f, strings::toutf8(" world!\n")) as size == 8);
 	assert(bytes::equal(buffer(&sink), strings::toutf8("hello world!\n")));
+};
+
+@test fn unread() void = {
+	let rbuf: [8]u8 = [0...];
+	let f = buffered(io::zero, rbuf, []);
+
+	let buf: [16]u8 = [42...];
+	assert(io::read(&f, buf[..4]) as size == 4);
+	assert(buf[0] == 0);
+	assert(buf[1] == 0);
+	assert(buf[2] == 0);
+	assert(buf[3] == 0);
+	unread(&f, [1, 2, 3, 4]);
+
+	assert(io::read(&f, buf[..8]) as size == 8);
+	assert(buf[0] == 1);
+	assert(buf[1] == 2);
+	assert(buf[2] == 3);
+	assert(buf[3] == 4);
+	assert(buf[4] == 0);
+	assert(buf[5] == 0);
+	assert(buf[6] == 0);
+	assert(buf[7] == 0);
+
+	assert(io::read(&f, buf) as size == 8);
+	for (let i = 0z; i < 8; i += 1) {
+		assert(buf[i] == 0);
+	};
 };
