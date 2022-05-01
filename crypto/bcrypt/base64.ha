@@ -8,8 +8,6 @@ use bufio;
 use encoding::base64;
 use errors;
 use io;
-use fmt; // XXX: TEMP
-use strings;
 
 const alpha: str = "./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 const b64encoding: base64::encoding = base64::encoding { ... };
