@@ -100,7 +100,8 @@ export fn setflush(s: *bufstream, b: []u8) void = {
 // data which can be unread before the user makes any reads from a buffered
 // stream is equal to the length of the read buffer, and otherwise it is equal
 // to the length of the return value of the last call to [[io::read]] using this
-// buffered stream.
+// buffered stream. Attempting to unread more data than can fit into the read
+// buffer will abort the program.
 export fn unread(s: *bufstream, buf: []u8) void = {
 	assert(len(s.rbuffer) - s.ravail >= len(buf),
 		"Attempted to unread more data than buffer has available");
