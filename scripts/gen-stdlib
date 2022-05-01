@@ -768,6 +768,7 @@ gensrcs_io() {
 		tee.ha \
 		types.ha \
 		util.ha \
+		zero.ha \
 		$*
 	gen_srcs -pfreebsd io \
 		'arch+$(ARCH).ha' \
@@ -783,6 +784,7 @@ gensrcs_io() {
 		tee.ha \
 		types.ha \
 		util.ha \
+		zero.ha \
 		$*
 }
 
@@ -795,8 +797,8 @@ io() {
 			+test/limit.ha \
 			+test/stream.ha
 	fi
-	gen_ssa -plinux io strings errors
-	gen_ssa -pfreebsd io strings errors
+	gen_ssa -plinux io strings errors bytes
+	gen_ssa -pfreebsd io strings errors bytes
 }
 
 linux() {
