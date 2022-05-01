@@ -107,6 +107,7 @@ export fn unread(s: *bufstream, buf: []u8) void = {
 		"Attempted to unread more data than buffer has available");
 	let sl = s.rbuffer[..s.ravail];
 	static insert(sl[0], buf...);
+	s.ravail += len(buf);
 };
 
 // Unreads a rune; see [[unread]].
@@ -299,4 +300,12 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	for (let i = 0z; i < 8; i += 1) {
 		assert(buf[i] == 0);
 	};
+
+	let input: []u8 = [1, 2, 3, 4];
+	let f = buffered(&fixed(input, io::mode::READ), rbuf, []);
+
+	assert(io::read(&f, buf) as size == 4);
+	unread(&f, [1, 2, 3, 4]);
+	assert(io::read(&f, buf) as size == 4);
+	assert(io::read(&f, buf) is io::EOF);
 };
