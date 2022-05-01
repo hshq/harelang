@@ -133,16 +133,13 @@ fn load(input: []u8) (hash | errors::invalid) = {
 		return errors::invalid;
 	};
 
-	const data = strings::toutf8(loadtok(&tok)?);
+	let data = strings::toutf8(loadtok(&tok)?);
 	if (!(loadtok(&tok) is errors::invalid)) {
 		return errors::invalid;
 	};
 
-	// XXX: There's some issue with alloc(data[..]...)
-	hash.salt = data[..ENCODED_SALT_SIZE];
-	hash.salt = alloc(hash.salt...);
-	hash.hash = data[ENCODED_SALT_SIZE..];
-	hash.hash = alloc(hash.hash...);
+	hash.salt = alloc(data[..ENCODED_SALT_SIZE]...);
+	hash.hash = alloc(data[ENCODED_SALT_SIZE..]...);
 	return hash;
 };
 
