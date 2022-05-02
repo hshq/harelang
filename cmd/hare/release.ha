@@ -20,7 +20,7 @@ type increment = enum {
 };
 
 type modversion = (uint, uint, uint);
-type git_error = exec::exit_status;
+type git_error = !exec::exit_status;
 type badversion = !void;
 type release_error = !(exec::error | io::error | fs::error | errors::error
 	| badversion | git_error);
