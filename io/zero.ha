@@ -11,7 +11,7 @@ const _zero_vt: vtable = vtable {
 
 const _zero: stream = &_zero_vt;
 
-// A [[stream]] which always reads zereos and discards any writes.
+// A [[stream]] which always reads zeroes and discards any writes.
 export const zero: *stream = &_zero;
 
 fn zero_read(s: *stream, buf: []u8) (size | EOF | error) = {
