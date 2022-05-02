@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2022 Drew DeVault <sir@cmpwn.com>
 use ascii;
 use bufio;
 use encoding::base64;
