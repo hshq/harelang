@@ -154,15 +154,17 @@ export type dirent = struct {
 	ftype: mode,
 };
 
-// Duplicates a [[dirent]] object. Call [[dirent_free]] to get rid of it later.
+// Duplicates a [[dirent]] object. Call [[dirent_finish]] to get rid of it
+// later.
 export fn dirent_dup(e: *dirent) dirent = {
 	let new = *e;
 	new.name = strings::dup(e.name);
 	return new;
 };
 
-// Frees a [[dirent]] object which was duplicated with [[dirent_dup]].
-export fn dirent_free(e: *dirent) void = free(e.name);
+// Frees memory associated with a [[dirent]] object which was duplicated with
+// [[dirent_dup]].
+export fn dirent_finish(e: *dirent) void = free(e.name);
 
 // Flags to use for opening a file. Not all operating systems support all flags;
 // at a minimum, RDONLY, WRONLY, RDWR, and CREATE will be supported.

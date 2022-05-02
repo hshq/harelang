@@ -94,8 +94,9 @@ export fn readdir(fs: *fs, path: str) ([]dirent | error) = {
 // Frees a slice of [[dirent]]s.
 export fn dirents_free(d: []dirent) void = {
 	for (let i = 0z; i < len(d); i += 1) {
-		dirent_free(&d[i]);
+		dirent_finish(&d[i]);
 	};
+	free(d);
 };
 
 // Removes a directory, and anything in it.
