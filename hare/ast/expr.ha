@@ -253,9 +253,9 @@ export type delete_expr = struct {
 	is_static: bool,
 };
 
-// A for loop. The label is set to empty string if absent.
+// A for loop.
 //
-// 	:label for (let foo = 0; foo < bar; baz) quux
+// 	for (let foo = 0; foo < bar; baz) quux
 export type for_expr = struct {
 	bindings: nullable *expr,
 	cond: *expr,
