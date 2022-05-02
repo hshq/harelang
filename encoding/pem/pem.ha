@@ -103,8 +103,9 @@ export fn next(dec: *decoder) ((str, pemdecoder) | io::EOF | io::error) = {
 		};
 
 		strio::reset(&dec.label);
-		strio::concat(&dec.label, strings::sub(line,
-				len(begin), len(line) - len(suffix)))!;
+		const label = strings::sub(line,
+			len(begin), len(line) - len(suffix));
+		strio::concat(&dec.label, label)!;
 
 		return (strio::string(&dec.label), pemdecoder {
 			stream = &pemdecoder_vt,
