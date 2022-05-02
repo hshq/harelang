@@ -22,7 +22,6 @@ export type decoder = struct {
 export type b64stream = struct {
 	stream: io::stream,
 	in: *bufio::bufstream,
-	readend: bool,
 };
 
 export type pemdecoder = struct {
@@ -129,7 +128,6 @@ fn pem_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 		st.b64_in = b64stream {
 			stream = &b64stream_r_vt,
 			in = st.in,
-			readend = false,
 		};
 		st.b64 = base64::newdecoder(&base64::std_encoding, &st.b64_in);
 		st.b64_ready = true;
