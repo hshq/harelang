@@ -1,0 +1,2 @@
+The PEM module implements RFC 7468, commonly known as the PEM format, which is
+widely used for cryptographic data formats.
