@@ -404,7 +404,7 @@ export type variadic_expr = (vastart_expr | vaarg_expr | vaend_expr);
 //
 // 	yield foo
 export type yield_expr = struct {
-	label: str,
+	label: label,
 	value: nullable *expr,
 };
 
