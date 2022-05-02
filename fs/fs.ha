@@ -260,7 +260,8 @@ export fn chown(fs: *fs, path: str, uid: uint, gid: uint) (void | error) = {
 // Resolves a path to its absolute, normalized value. Relative paths will be
 // rooted (if supported by the fs implementation), and "." and ".." components
 // will be reduced. This function does not follow symlinks; see [[realpath]] if
-// you need this behavior. The caller must free the return value.
+// you need this behavior. The return value is statically allocated; use
+// [[strings::dup]] to extend its lifetime.
 export fn resolve(fs: *fs, path: str) str = {
 	match (fs.resolve) {
 	case null => void;
