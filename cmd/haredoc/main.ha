@@ -89,7 +89,7 @@ export fn main() void = {
 	};
 
 	let decls: []ast::decl = [];
-	defer free(decls); // TODO: Free interior state
+	defer free(decls);
 
 	let tags = default_tags();
 	defer module::tags_free(tags);
@@ -171,6 +171,10 @@ export fn main() void = {
 		decls = new;
 
 		show_undocumented = true;
+	};
+
+	defer for (let i = 0z; i < len(decls); i += 1) {
+		ast::decl_finish(decls[i]);
 	};
 
 	const ctx = context {
