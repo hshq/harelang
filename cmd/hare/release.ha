@@ -22,8 +22,8 @@ type increment = enum {
 type modversion = (uint, uint, uint);
 type git_error = !exec::exit_status;
 type badversion = !void;
-type release_error = !(exec::error | io::error | fs::error | errors::error
-	| badversion | git_error);
+type release_error = !(exec::error | io::error | fs::error | errors::error |
+	badversion | git_error);
 
 const changelog_template: str = "# This is the changelog for your release. It has been automatically pre-filled
 # with the changes from version {} via git-shortlog(1). Please review the
