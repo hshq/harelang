@@ -167,6 +167,8 @@ fn sched_hare_object(
 	};
 
 	const ns = unparse::identstr(namespace);
+	const displayed_ns = if (len(ns) == 0) "(root)" else ns;
+
 	let ssa = mkfile(plan, ns, "ssa");
 	let harec = alloc(task {
 		status = status::SCHEDULED,
@@ -208,8 +210,8 @@ fn sched_hare_object(
 		let manifest = match (module::manifest_load(
 				plan.context, namespace)) {
 		case let err: module::error =>
-			fmt::fatalf("Error reading cache entry for {}: {}", ns,
-				module::strerror(err));
+			fmt::fatalf("Error reading cache entry for {}: {}",
+				displayed_ns, module::strerror(err));
 		case let m: module::manifest =>
 			yield m;
 		};
@@ -255,7 +257,8 @@ fn sched_hare_object(
 		};
 	};
 	if (hare_inputs == 0) {
-		fmt::fatalf("Error: Module {} has no Hare input files", ns);
+		fmt::fatalf("Error: Module {} has no Hare input files",
+			displayed_ns);
 	};
 
 	if (current) {
