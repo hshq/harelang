@@ -246,11 +246,16 @@ fn sched_hare_object(
 		yield mkfile(plan, ns, "o"); // TODO: Should exes go in the cache?
 	};
 
+	let hare_inputs = 0z;
 	for (let i = 0z; i < len(ver.inputs); i += 1) {
 		let path = ver.inputs[i].path;
 		if (strings::hassuffix(path, ".ha")) {
 			append(harec.cmd, path);
+			hare_inputs += 1;
 		};
+	};
+	if (hare_inputs == 0) {
+		fmt::fatalf("Error: Module {} has no Hare input files", ns);
 	};
 
 	if (current) {
