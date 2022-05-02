@@ -10,7 +10,7 @@ use strings;
 // this returns the path to its parent directory. If the path consists solely of
 // the target's path separator, a string to the path is returned unmodified. If
 // the path is empty, "." is returned. The return value is either borrowed from
-// the input or statically allocated); use [[strings::dup]] to extend its
+// the input or statically allocated; use [[strings::dup]] to extend its
 // lifetime or modify it.
 export fn dirname(path: (str | *buffer)) const str = {
 	let path = getstring(path);
