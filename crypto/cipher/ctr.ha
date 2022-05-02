@@ -61,11 +61,7 @@ export fn ctr(b: *block, iv: []u8, buf: []u8) ctr_stream = {
 
 fn ctr_stream_xor(s: *stream, dest: []u8, src: []u8) void = {
 	let ctr = s: *ctr_stream;
-	const bsz = blocksz(ctr.b);
-	const nparallel = nparallel(ctr.b);
-	let i = 0z;
-
-	for (true) {
+	for (let i = 0z; true) {
 		for (ctr.xorused < len(ctr.xorbuf)) {
 			dest[i] = src[i] ^ ctr.xorbuf[ctr.xorused];
 			ctr.xorused += 1;
