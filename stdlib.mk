@@ -302,6 +302,12 @@ stdlib_deps_any += $(stdlib_encoding_hex_any)
 stdlib_encoding_hex_linux = $(stdlib_encoding_hex_any)
 stdlib_encoding_hex_freebsd = $(stdlib_encoding_hex_any)
 
+# gen_lib encoding::pem (any)
+stdlib_encoding_pem_any = $(HARECACHE)/encoding/pem/encoding_pem-any.o
+stdlib_deps_any += $(stdlib_encoding_pem_any)
+stdlib_encoding_pem_linux = $(stdlib_encoding_pem_any)
+stdlib_encoding_pem_freebsd = $(stdlib_encoding_pem_any)
+
 # gen_lib encoding::utf8 (any)
 stdlib_encoding_utf8_any = $(HARECACHE)/encoding/utf8/encoding_utf8-any.o
 stdlib_deps_any += $(stdlib_encoding_utf8_any)
@@ -1028,6 +1034,16 @@ $(HARECACHE)/encoding/hex/encoding_hex-any.ssa: $(stdlib_encoding_hex_any_srcs) 
 	@mkdir -p $(HARECACHE)/encoding/hex
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::hex \
 		-t$(HARECACHE)/encoding/hex/encoding_hex.td $(stdlib_encoding_hex_any_srcs)
+
+# encoding::pem (+any)
+stdlib_encoding_pem_any_srcs = \
+	$(STDLIB)/encoding/pem/pem.ha
+
+$(HARECACHE)/encoding/pem/encoding_pem-any.ssa: $(stdlib_encoding_pem_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_base64_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/encoding/pem
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::pem \
+		-t$(HARECACHE)/encoding/pem/encoding_pem.td $(stdlib_encoding_pem_any_srcs)
 
 # encoding::utf8 (+any)
 stdlib_encoding_utf8_any_srcs = \
@@ -2332,6 +2348,12 @@ testlib_deps_any += $(testlib_encoding_hex_any)
 testlib_encoding_hex_linux = $(testlib_encoding_hex_any)
 testlib_encoding_hex_freebsd = $(testlib_encoding_hex_any)
 
+# gen_lib encoding::pem (any)
+testlib_encoding_pem_any = $(TESTCACHE)/encoding/pem/encoding_pem-any.o
+testlib_deps_any += $(testlib_encoding_pem_any)
+testlib_encoding_pem_linux = $(testlib_encoding_pem_any)
+testlib_encoding_pem_freebsd = $(testlib_encoding_pem_any)
+
 # gen_lib encoding::utf8 (any)
 testlib_encoding_utf8_any = $(TESTCACHE)/encoding/utf8/encoding_utf8-any.o
 testlib_deps_any += $(testlib_encoding_utf8_any)
@@ -3077,6 +3099,17 @@ $(TESTCACHE)/encoding/hex/encoding_hex-any.ssa: $(testlib_encoding_hex_any_srcs)
 	@mkdir -p $(TESTCACHE)/encoding/hex
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::hex \
 		-t$(TESTCACHE)/encoding/hex/encoding_hex.td $(testlib_encoding_hex_any_srcs)
+
+# encoding::pem (+any)
+testlib_encoding_pem_any_srcs = \
+	$(STDLIB)/encoding/pem/pem.ha \
+	$(STDLIB)/encoding/pem/+test.ha
+
+$(TESTCACHE)/encoding/pem/encoding_pem-any.ssa: $(testlib_encoding_pem_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_base64_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/encoding/pem
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::pem \
+		-t$(TESTCACHE)/encoding/pem/encoding_pem.td $(testlib_encoding_pem_any_srcs)
 
 # encoding::utf8 (+any)
 testlib_encoding_utf8_any_srcs = \
