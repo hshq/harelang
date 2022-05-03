@@ -180,7 +180,7 @@ fn calc_isoweek(y: int, w: int, wd: int, yd: int) int = {
 // given a yearday and Gregorian weekday.
 // All days in a new year before the year's first Monday belong to week 0.
 fn calc_week(yd: int, wd: int) int = {
-	return (5 + yd - wd) / 7;
+	return (yd + 7 - wd) / 7;
 };
 
 // Calculates the weekday, given a epochal day,
@@ -499,6 +499,33 @@ fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | invalid) = {
 		const expect = cases[i].1;
 		const actual = calc_yearday(params.0, params.1, params.2);
 		assert(expect == actual, "yearday miscalculation");
+	};
+};
+
+@test fn calc_week() void = {
+	const cases = [
+		((1, 1), 1),
+		((1, 2), 0),
+		((1, 3), 0),
+		((1, 4), 0),
+		((1, 5), 0),
+		((1, 6), 0),
+		((1, 7), 0),
+		((21, 2), 3),
+		((61, 3), 9),
+		((193, 5), 27),
+		((229, 1), 33),
+		((286, 4), 41),
+		((341, 7), 48),
+		((365, 6), 52),
+		((366, 1), 53),
+	];
+
+	for (let i = 0z; i < len(cases); i += 1) {
+		const params = cases[i].0;
+		const expect = cases[i].1;
+		const actual = calc_week(params.0, params.1);
+		assert(expect == actual, "week miscalculation");
 	};
 };
 
