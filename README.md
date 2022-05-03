@@ -2,13 +2,6 @@
 
 Hare is a systems programming language.
 
-## Principles
-
-1. Trust the programmer.
-2. Provide tools the programmer may use when they don't trust themselves.
-3. Prefer explicit behavior over implicit behavior.
-4. A good program must be both correct and simple.
-
 ## Build status
 
 <dl>
