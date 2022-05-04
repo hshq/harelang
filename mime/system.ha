@@ -24,7 +24,7 @@ fn load_systemdb() (void | fs::error | io::error) = {
 	const strm = bufio::buffered(file, buf, []);
 
 	for (true) {
-		const line = match (bufio::scanline(&strm)?) {
+		const line = match (bufio::scanline(&strm)) {
 		case let bytes: []u8 =>
 			yield match (strings::try_fromutf8(bytes)) {
 			case utf8::invalid =>
@@ -32,13 +32,13 @@ fn load_systemdb() (void | fs::error | io::error) = {
 				io::close(&strm)?;
 				io::close(file)?;
 				return;
-			case let err: io::error =>
-				io::close(&strm): void;
-				io::close(file): void;
-				return err;
 			case let s: str =>
 				yield s;
 			};
+		case let err: io::error =>
+			io::close(&strm): void;
+			io::close(file): void;
+			return err;
 		case io::EOF =>
 			break;
 		};
