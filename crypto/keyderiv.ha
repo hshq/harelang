@@ -48,5 +48,5 @@ export fn derivekey(
 		version = argon2::VERSION,
 		...
 	};
-	return argon2::argon2i(dest, password, salt, &config);
+	return argon2::argon2id(dest, password, salt, &config);
 };
