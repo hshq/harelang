@@ -238,6 +238,18 @@ export fn execveat(dirfd: int, path: path, argv: *[*]nullable *const char,
 	};
 };
 
+export fn execve(path: path, argv: *[*]nullable *const char,
+		envp: *[*]nullable *const char) errno = {
+	let path = kpath(path)?;
+	return match (wrap_return(syscall3(SYS_execve, path: uintptr: u64,
+		argv: uintptr, envp: uintptr))) {
+	case let err: errno =>
+		yield err;
+	case u64 =>
+		abort("unreachable");
+	};
+};
+
 // Returns the new PID to the parent, void to the child, or errno if something
 // goes wrong.
 export fn fork() (int | void | errno) = clone(null, SIGCHLD, null, null, 0);
