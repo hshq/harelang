@@ -421,6 +421,11 @@ export fn accept(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) 
 		sockfd: u64, addr: uintptr: u64, addrlen: uintptr: u64))?: int;
 };
 
+export fn accept4(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32, flags: int) (int | errno) = {
+	return wrap_return(syscall4(SYS_accept,
+		sockfd: u64, addr: uintptr: u64, addrlen: uintptr: u64, flags: u64))?: int;
+};
+
 export fn recvfrom(sockfd: int, buf: *void, len_: size, flags: int,
 	src_addr: nullable *sockaddr, addrlen: nullable *u32
 ) (size | errno) = {

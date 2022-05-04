@@ -1,6 +1,7 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2022 Noah Pederson <noah@packetlost.dev>
 use errors;
 use fmt;
 use io;
@@ -9,12 +10,30 @@ use os;
 use rt;
 use strings;
 
+// Optional flags to [[accept]] to be set on the returned [[io::file]].
+// See the O_CLOEXEC and O_NONBLOCK sections of open(2) for details.
+export type sockflags = enum int {
+	CLOEXEC = rt::SOCK_CLOEXEC,
+	NONBLOCK = rt::SOCK_NONBLOCK
+};
+
 // Accepts the next connection from a socket. Blocks until a new connection is
-// available.
-export fn accept(sock: io::file) (io::file | error) = {
+// available. Optionally accepts CLOEXEC and NONBLOCK flags. If flags are
+// supplied, the [[io::file]] returned will have the supplied flags set.
+// If no flags are supplied, CLOEXEC is used by default.
+export fn accept(sock: io::file, flags: sockflags...) (io::file | error) = {
 	let sn = rt::sockaddr {...};
 	const sz = size(rt::sockaddr): u32;
-	const fd = match (rt::accept(sock, &sn, &sz)) {
+	// Default to CLOEXEC if no flags are supplied
+	if (len(flags) == 0) {
+		flags = [sockflags::CLOEXEC];
+	};
+	// Apply any supplied flags
+	let f = 0i;
+	for (let i = 0z; i < len(flags); i += 1) {
+		f |= flags[i];
+	};
+	const fd = match (rt::accept4(sock, &sn, &sz, f)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
