@@ -812,3 +812,6 @@ export fn freeall(s: [][]matchgroup) void = {
 	};
 	free(s);
 };
+
+// Converts regex [[error]] into a user-friendly string.
+export fn strerror(err: error) str = err;
