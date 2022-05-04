@@ -119,8 +119,6 @@ export fn argon2d(
 // The argon2i mode uses data-independent memory access and is suitable for
 // password hashing and key derivation. It makes more passes over memory to
 // protect from trade-off attacks.
-//
-// If you are unsure which variant to use, argon2i is recommended.
 export fn argon2i(
 	dest: []u8,
 	password: []u8,
@@ -137,6 +135,8 @@ export fn argon2i(
 // The argon2id mode works by using argon2i for the first half of the first pass
 // and argon2d further on. It provides therefore protection from side-channel
 // attacks and brute-force cost savings due to memory trade-offs.
+//
+// If you are unsure which variant to use, argon2id is recommended.
 export fn argon2id(
 	dest: []u8,
 	password: []u8,

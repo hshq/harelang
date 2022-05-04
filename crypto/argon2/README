@@ -18,7 +18,8 @@ respectively.
 
 Equipped with the necessary parameters, the user may call the appropriate argon2
 variant via [[argon2d]], [[argon2i]], or [[argon2id]]. If unsure which to use,
-choose [[argon2i]].
+choose [[argon2id]]. The RFC is the authoratative source on the appropriate
+argon2 variant and configuration parameters for your use-case.
 
 This is a low-level module which implements cryptographic primitives. Direct use
 of cryptographic primitives is not recommended for non-experts, as incorrect use
