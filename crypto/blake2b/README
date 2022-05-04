@@ -1,0 +1,11 @@
+This module implements the blake2b password hashing algorithm, bug-for-bug
+compatible with the classic OpenBSD implementation. It is not recommended except
+in cases of backwards-compatibility with legacy systems.
+
+This is a low-level module which implements cryptographic primitives. Direct use
+of cryptographic primitives is not recommended for non-experts, as incorrect use
+of these primitives can easily lead to the introduction of security
+vulnerabilities. Non-experts are advised to use the high-level operations
+available in the top-level [[crypto]] module.
+
+Be advised that Hare's cryptography implementations have not been audited.
