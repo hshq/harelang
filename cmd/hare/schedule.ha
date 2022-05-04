@@ -29,7 +29,8 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 	let hash = ident_hash(ident);
 	let bucket = &plan.modmap[hash % len(plan.modmap)];
 	for (let i = 0z; i < len(bucket); i += 1) {
-		if (bucket[i].hash == hash) {
+		if (bucket[i].hash == hash
+				&& ast::ident_eq(bucket[i].ident, ident)) {
 			return bucket[i].task;
 		};
 	};
