@@ -44,26 +44,47 @@ use strings;
 	};
 };
 
-@test fn split_pattern() void = {
-	const cases: [_](str, size, size) = [
-		("foo/bar/baz", 8, 11),
-		("/foo/bar/baz", 9, 12),
-		("/foobarbaz", 1, 10),
-		("foo/bar/baz/", 12, 12),
-		("foobarbaz/", 10, 10),
-		("foobarbaz", 0, 9),
-		("foo/b?r/baz", 4, 8),
-		("foob*rbaz/", 0, 10),
-		("foo[bar]baz", 0, 11),
-		("fo[o/ba[r/baz", 10, 13),
-		("fo]o/bar/b[az", 9, 13),
-		("foo/ba]r/b]az", 9, 13),
-		("foo/ba[r/b]az", 9, 13),
-		("fo[o/bar/b]az", 9, 13),
+@test fn pattern_parse() void = {
+	const cases: [_](str, bool, str, str, str) = [
+		("foo/bar/baz", true, "foo/bar/", "baz", ""),
+		("foo/b\\ar/baz", true, "foo/b\\ar/", "baz", ""),
+		("foo/b\\ar/baz", false, "foo/bar/", "baz", ""),
+		("/foo/bar/baz", true, "/foo/bar/", "baz", ""),
+		("/foo\\/bar/baz", true, "/foo\\/bar/", "baz", ""),
+		("/foo\\/bar/baz", false, "/foo/bar/", "baz", ""),
+		("/foo/bar\\/baz", true, "/foo/bar\\/", "baz", ""),
+		("/foo/bar\\/baz", false, "/foo/bar/", "baz", ""),
+		("/foobarbaz", true, "/", "foobarbaz", ""),
+		("foo/bar/baz/", true, "foo/bar/baz/", "", ""),
+		("foobarbaz/", true, "foobarbaz/", "", ""),
+		("foobarbaz", true, "", "foobarbaz", ""),
+		("foo/b?r/baz", true, "foo/", "b?r/", "baz"),
+		("foo/b?r\\/baz", true, "foo/", "b?r\\/", "baz"),
+		("foo/b?r\\/baz", false, "foo/", "b?r/", "baz"),
+		("foob*rbaz/", true, "", "foob*rbaz/", ""),
+		("foo[bar]baz", true, "", "foo[bar]baz", ""),
+		("foo/b[ar]/baz/", true, "foo/", "b[ar]/", "baz/"),
+		("foo/b[a\\r]/baz/", false, "foo/", "b[a\\r]/", "baz/"),
+		("foo/b[a\\r]/baz/", true, "foo/", "b[a\\r]/", "baz/"),
+		("foo/b[ar]/baz\\/", true, "foo/", "b[ar]/", "baz\\/"),
+		("foo/b[ar]/baz\\/", false, "foo/", "b[ar]/", "baz\\/"),
+		("foo/b\\[ar]/baz\\/", true, "foo/", "b\\[ar]/", "baz\\/"),
+		("foo/b\\[ar]/baz\\/", false, "foo/b[ar]/baz/", "", ""),
+		("fo[o/ba[r/baz", true, "fo[o/ba[r/", "baz", ""),
+		("fo]o/bar/b[az", false, "fo]o/bar/", "b[az", ""),
+		("foo/ba]r/b]az", true, "foo/ba]r/", "b]az", ""),
+		("foo/ba[r/b]az", false, "foo/ba[r/", "b]az", ""),
+		("fo[o/bar/b]az", true, "fo[o/bar/", "b]az", ""),
 	];
+	let p = pattern_init();
+	defer pattern_free(&p);
 	for (let i = 0z; i < len(cases); i += 1) {
-		const ends = split_pattern(cases[i].0);
-		assert(ends.0 == cases[i].1);
-		assert(ends.1 == cases[i].2);
+		pattern_parse(&p, cases[i].0, cases[i].1);
+		const dir = pattern_dir(&p);
+		const pat = pattern_pat(&p);
+		const rem = pattern_rem(&p);
+		assert(strings::compare(dir, cases[i].2) == 0);
+		assert(strings::compare(pat, cases[i].3) == 0);
+		assert(strings::compare(rem, cases[i].4) == 0);
 	};
 };
