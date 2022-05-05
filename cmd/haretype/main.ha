@@ -22,9 +22,8 @@ fn typeinfo(
 		yield types::lookup_builtin(store, ast::builtin_type::NULL);
 	} else {
 		const stream = bufio::fixed(strings::toutf8(s), io::mode::READ);
-		const stream = &stream.stream;
-		defer io::close(stream)!;
-		const lexer = lex::init(stream, "-");
+		defer io::close(&stream)!;
+		const lexer = lex::init(&stream, "-");
 		const atype = parse::_type(&lexer)?;
 		defer ast::type_finish(atype);
 		const typ = types::lookup(store, &atype)?;
