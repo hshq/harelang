@@ -33,7 +33,8 @@ export fn finish(iter: *fs::iterator) void = fs::finish(iter);
 // with [[fs::dirents_free]].
 export fn readdir(path: str) ([]fs::dirent | fs::error) = fs::readdir(cwd, path);
 
-// Returns file information for a given path.
+// Returns file information for a given path. If the target is a symlink,
+// information is returned about the link, not its target.
 export fn stat(path: str) (fs::filestat | fs::error) = fs::stat(cwd, path);
 
 // Creates a directory.
