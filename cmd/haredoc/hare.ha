@@ -108,7 +108,9 @@ fn emit_submodules(ctx: *context) (void | error) = {
 		};
 		for (let i = 0z; i < len(submodules); i += 1) {
 			let submodule = if (len(ctx.ident) != 0) {
-				yield strings::concat(identpath, "::", submodules[i]);
+				const s = unparse::identstr(ctx.ident);
+				defer free(s);
+				yield strings::concat(s, "::", submodules[i]);
 			} else {
 				yield submodules[i];
 			};
