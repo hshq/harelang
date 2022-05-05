@@ -214,7 +214,7 @@ fn scan_directory(
 
 		let path = path::join(path, name);
 		let tuple = (true, strings::dup(base), tags, path);
-		let superceeded = false;
+		let superceded = false;
 		for (let j = 0z; j < len(inputs); j += 1) {
 			if (inputs[j].1 != base) {
 				continue;
@@ -225,17 +225,17 @@ fn scan_directory(
 				tags_free(inputs[j].2);
 				free(inputs[j].3);
 				inputs[j] = tuple;
-				superceeded = true;
+				superceded = true;
 				break;
 			} else if (len(theirs) > len(tags)) {
 				// They are more specific
-				superceeded = true;
+				superceded = true;
 				break;
 			} else if (len(base) != 0) {
 				return (path, inputs[j].3): ambiguous;
 			};
 		};
-		if (!superceeded) {
+		if (!superceded) {
 			append(inputs, tuple);
 		};
 	};
@@ -260,7 +260,7 @@ fn scan_directory(
 
 		let path = path::join(path, name);
 		let tuple = (false, base, tags, path);
-		let superceeded = false;
+		let superceded = false;
 		for (let j = 0z; j < len(inputs); j += 1) {
 			if (inputs[j].1 != base) {
 				continue;
@@ -272,17 +272,17 @@ fn scan_directory(
 				tags_free(inputs[j].2);
 				free(inputs[j].3);
 				inputs[j] = tuple;
-				superceeded = true;
+				superceded = true;
 				break;
 			} else if (len(theirs) > len(tags)) {
 				// They are more specific
-				superceeded = true;
+				superceded = true;
 				break;
 			} else if (len(base) != 0) {
 				return (path, inputs[j].3): ambiguous;
 			};
 		};
-		if (!superceeded) {
+		if (!superceded) {
 			append(inputs, tuple);
 		};
 	};
