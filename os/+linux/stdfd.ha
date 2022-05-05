@@ -4,12 +4,12 @@
 use bufio;
 use io;
 
-export let stdin_bufio: bufio::bufstream = bufio::bufstream {
+let stdin_bufio: bufio::bufstream = bufio::bufstream {
 	source = 0,
 	...
 };
 
-export let stdout_bufio: bufio::bufstream = bufio::bufstream {
+let stdout_bufio: bufio::bufstream = bufio::bufstream {
 	source = 1,
 	...
 };
