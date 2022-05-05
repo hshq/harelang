@@ -6,7 +6,7 @@ use rt;
 use strings;
 
 // This is an opaque type which encloses an OS-level file handle resource. It
-// can be used as a [[stream]] in most situations, but there are some APIs which
+// can be used as a [[handle]] in most situations, but there are some APIs which
 // require a [[file]] with some OS-level handle backing it - this type is used
 // for such APIs.
 //
