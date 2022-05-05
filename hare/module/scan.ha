@@ -199,10 +199,8 @@ fn scan_directory(
 		let parsed = parse_name(name);
 		let base = parsed.0, tags = parsed.2;
 
-		let d = strings::toutf8(name);
-		if (len(d) == 0 || (
-			!strings::hasprefix(name, "+") &&
-			!strings::hasprefix(name, "-"))) {
+		if (!strings::hasprefix(name, "+")
+				&& !strings::hasprefix(name, "-")) {
 			if (!strings::hasprefix(name, ".")) {
 				append(ver.subdirs, strings::dup(name));
 			};
