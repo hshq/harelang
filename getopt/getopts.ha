@@ -67,55 +67,6 @@ export type help = (cmd_help | flag_help | parameter_help);
 // [[os::stderr]] and [[os::exit]] is called with a nonzero exit status. The
 // argument list must include the command name as the first item; [[os::args]]
 // fulfills this criteria.
-//
-// The caller provides [[help]] arguments to specify which command line flags and
-// parameters are supported, and to provide some brief help text which describes
-// their use. Provide [[flag_help]] to add a flag which does not take a parameter,
-// and [[parameter_help]] to add a flag with a required parameter. The first
-// [[cmd_help]] is used as a short, one-line summary of the command's purpose, and
-// any later [[cmd_help]] arguments are used to provide the name of any arguments
-// which follow the options list.
-//
-// By convention, the caller should sort the list of options, first providing
-// all flags, then all parameters, alpha-sorted within each group by the flag
-// rune.
-//
-// 	// Usage for sed
-// 	const cmd = getopt::parse(os::args,
-// 		"stream editor",
-// 		('E', "use extended regular expressions"),
-// 		('s', "treat files as separate, rather than one continuous stream"),
-// 		('i', "edit files in place"),
-// 		('z', "separate lines by NUL characters"),
-// 		('e', "script", "execute commands from script"),
-// 		('f', "file", "execute commands from a file"),
-// 		"files...",
-// 	);
-// 	defer getopt::finish(&cmd);
-//
-// 	for (let i = 0z; i < len(cmd.opts); i += 1) {
-// 		let opt = cmd.opts[i];
-// 		switch (opt.0) {
-// 		case 'E' =>
-// 			extended = true;
-// 		case 's' =>
-// 			continuous = false;
-// 		// ...
-// 		case 'e' =>
-// 			script = opt.1;
-// 		case 'f' =>
-// 			file = opt.1;
-// 		};
-// 	};
-//
-// 	for (let i = 0z; i < len(cmd.args); i += 1) {
-// 		let arg = cmd.args[i];
-// 		// ...
-// 	};
-//
-// If "-h" is not among the options defined by the caller, the "-h" option
-// will cause a summary of the command usage to be printed to stderr, and
-// [[os::exit]] will be called with a successful exit status.
 export fn parse(args: []str, help: help...) command = {
 	let opts: []option = [];
 	let i = 1z;
