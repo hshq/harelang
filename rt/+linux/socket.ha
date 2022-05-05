@@ -63,14 +63,6 @@ export type msghdr = struct {
 	msg_flags: int
 };
 
-export type cmsghdr = struct {
-	// XXX: This structure differs on big-endian machines
-	cmsg_len: socklen_t,
-	_padding: int,
-	cmsg_level: int,
-	cmsg_type: int,
-};
-
 export type cmsg = struct {
 	hdr: cmsghdr,
 	cmsg_data: [*]u8,

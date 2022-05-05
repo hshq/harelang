@@ -32,3 +32,10 @@ export fn clone(
 
 export def O_DIRECTORY: int = 0o40000;
 export def O_DIRECT: int = 0o200000;
+
+export type cmsghdr = struct {
+	cmsg_len: socklen_t,
+	_padding: int,
+	cmsg_level: int,
+	cmsg_type: int,
+};
