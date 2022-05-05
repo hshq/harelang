@@ -129,15 +129,8 @@ fn scan_directory(
 ) (void | error) = {
 	let files: []str = [], dirs: []str = [];
 	defer {
-		for (let i = 0z; i < len(files); i += 1) {
-			free(files[i]);
-		};
-		free(files);
-
-		for (let i = 0z; i < len(dirs); i += 1) {
-			free(dirs[i]);
-		};
-		free(dirs);
+		strings::freeall(files);
+		strings::freeall(dirs);
 	};
 
 	let pathbuf = path::init();
