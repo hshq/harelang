@@ -347,10 +347,10 @@ fn ctype_name_to_func(name: str) nullable *fn(c: rune) bool = {
 		("upper", &ascii::isupper), ("xdigit",&ascii::isxdigit),
 	];
 	match (sort::search(map, size(funcmap), &name, &cmp)) {
-	case null =>
+	case void =>
 		return null: nullable *fn(c: rune) bool;
-	case let p: *const void =>
-		return (p: *const funcmap).1;
+	case let ind: size =>
+		return map[ind].1;
 	};
 };
 
