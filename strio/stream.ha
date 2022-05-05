@@ -16,7 +16,9 @@ export type stream = struct {
 };
 
 // Returns the current contents of the buffer as a string. Aborts the program if
-// invalid UTF-8 has been written to the buffer.
+// invalid UTF-8 has been written to the buffer. The return value is borrowed
+// from the stream, and will be freed when the stream is closed. Use
+// [[strings::dup]] to extend its lifetime.
 export fn string(in: *stream) str = {
 	return strings::fromutf8(in.buf);
 };
@@ -65,9 +67,7 @@ const dynamic_vtable: io::vtable = io::vtable {
 // Creates a write-only string stream using an allocated buffer for storage, for
 // efficiently building strings.
 //
-// Calling [[io::close]] on this stream will free the buffer. If stream's data
-// is transfered via [[string]], it shouldn't be closed as long if the data is
-// freed.
+// Calling [[io::close]] on this stream will free the buffer.
 export fn dynamic() stream = {
 	return stream {
 		stream = &dynamic_vtable,
