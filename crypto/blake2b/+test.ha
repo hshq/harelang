@@ -13,11 +13,11 @@ use strio;
 
 @test fn blake2b() void = {
 	for (let i = 0z; i < len(vectors); i += 1) {
-		let key = hex::decode(vectors[i].key)!;
+		let key = hex::decodestr(vectors[i].key)!;
 		defer free(key);
-		let out = hex::decode(vectors[i].out)!;
+		let out = hex::decodestr(vectors[i].out)!;
 		defer free(out);
-		let in = hex::decode(vectors[i].in)!;
+		let in = hex::decodestr(vectors[i].in)!;
 		defer free(in);
 		let blake = blake2b(key, len(out));
 		defer hash::close(&blake);
@@ -30,7 +30,8 @@ use strio;
 		hash::sum(&blake, sum);
 		let out = strio::dynamic();
 		defer io::close(&out)!;
-		hex::encode(&out, sum)!;
+		let enc = hex::newencoder(&out);
+		io::write(&enc, sum)!;
 		assert(strio::string(&out) == vectors[i].out);
 	};
 

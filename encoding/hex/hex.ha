@@ -4,36 +4,76 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
 use ascii;
+use bufio;
 use bytes;
+use errors;
 use fmt;
 use io;
+use os;
 use strconv;
 use strings;
 use strio;
 
-// Returned when attempting to decode a string which contains invalid hex
-// characters.
-export type invalid = !void;
+export type encoder = struct {
+	stream: io::stream,
+	out: io::handle,
+	err: (void | io::error),
+};
 
-// Encodes a byte slice as a hexadecimal string and writes it to an I/O handle.
-export fn encode(sink: io::handle, b: []u8) (size | io::error) = {
+const encoder_vtable: io::vtable = io::vtable {
+	writer = &encode_writer,
+	...
+};
+
+// Creates a stream that encodes writes as lowercase hexadecimal before writing
+// them to a secondary stream. Closing this stream will not close the underlying
+// stream.
+export fn newencoder(out: io::handle) encoder = {
+	return encoder {
+		stream = &encoder_vtable,
+		out = out,
+		err = void,
+	};
+};
+
+fn encode_writer(s: *io::stream, in: const []u8) (size | io::error) = {
+	const s = s: *encoder;
+	match(s.err) {
+	case let err: io::error =>
+	     return err;
+	case void =>
+	     yield;
+	};
 	let z = 0z;
-	for (let i = 0z; i < len(b); i += 1) {
-		let s = strconv::u8tosb(b[i], strconv::base::HEX_LOWER);
-		if (len(s) == 1) {
-			z += fmt::fprint(sink, "0")?;
+	for (let i = 0z; i < len(in); i += 1) {
+		const r = strconv::u8tosb(in[i], strconv::base::HEX_LOWER);
+		if (len(r) == 1) {
+			match(fmt::fprint(s.out, "0")) {
+			case let b: size =>
+				z += b;
+			case let err: io::error =>
+				s.err = err;
+				return err;
+			};
 		};
-		z += fmt::fprint(sink, s)?;
+		match(fmt::fprint(s.out, r)) {
+		case let b: size =>
+			z += b;
+		case let err: io::error =>
+			s.err = err;
+			return err;
+		};
 	};
 	return z;
 };
 
 // Encodes a byte slice as a hexadecimal string and returns it. The caller must
 // free the return value.
-export fn encodestr(b: []u8) str = {
-	let sink = strio::dynamic();
-	encode(&sink, b) as size;
-	return strio::string(&sink);
+export fn encodestr(in: []u8) str = {
+	const out = strio::dynamic();
+	const enc = newencoder(&out);
+	io::writeall(&enc, in)!;
+	return strio::string(&out);
 };
 
 @test fn encode() void = {
@@ -43,34 +83,95 @@ export fn encodestr(b: []u8) str = {
 	assert(s == "cafebabedeadf00d");
 };
 
-// Decodes a string of hexadecimal bytes into a byte slice. The caller must free
-// the return value.
-export fn decode(s: str) ([]u8 | invalid) = {
-	if (len(s) % 2 != 0) {
-		return invalid;
+export type decoder = struct {
+	stream: io::stream,
+	in: io::handle,
+	state: (void | io::EOF | io::error),
+};
+
+const decoder_vtable: io::vtable = io::vtable {
+	reader = &decode_reader,
+	...
+};
+
+// Creates a stream that reads and decodes hexadecimal data from a secondary
+// stream.  This stream does not need to be closed, and closing it will not
+// close the underlying stream.
+export fn newdecoder(in: io::handle) decoder = {
+	return decoder {
+		stream = &decoder_vtable,
+		in = in,
+		state = void,
+		...
 	};
-	let buf: []u8 = alloc([], len(s) / 2);
-	let s = strings::toutf8(s);
-	for (let i = 0z; i < len(s) / 2; i += 1) {
-		let oct = strings::fromutf8_unsafe(s[i * 2..i * 2 + 2]);
-		let u = match (strconv::stou8b(oct, 16)) {
+};
+
+fn decode_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) = {
+	const s = s: *decoder;
+	match(s.state) {
+	case let err: (io::EOF | io::error) =>
+		return err;
+	case void =>
+	     yield;
+	};
+	static let buf: [os::BUFSIZ]u8 = [0...];
+	let n = len(out) * 2;
+	if (n > os::BUFSIZ) {
+		n = os::BUFSIZ;
+	};
+	let nr = 0z;
+	for (nr < n) {
+		match(io::read(s.in, buf[nr..n])) {
+		case let n: size =>
+			nr += n;
+		case io::EOF =>
+			s.state = io::EOF;
+			break;
+		case let err: io::error =>
+			s.state = err;
+			return err;
+		};
+	};
+	if (nr % 2 != 0) {
+		s.state = errors::invalid;
+		return errors::invalid;
+	};
+	const l = nr / 2;
+	for (let i = 0z; i < l; i += 1) {
+		const oct = strings::fromutf8_unsafe(buf[i * 2..i * 2 + 2]);
+		const u = match (strconv::stou8b(oct, 16)) {
 		case (strconv::invalid | strconv::overflow) =>
-			free(buf);
-			return invalid;
+			s.state = errors::invalid;
+			return errors::invalid;
 		case let u: u8 =>
 			yield u;
 		};
-		append(buf, u);
+		out[i] = u;
 	};
-	return buf;
+	return l;
+};
+
+// Decodes a string of hexadecimal bytes into a byte slice. The caller must free
+// the return value.
+export fn decodestr(s: str) ([]u8 | io::error) = {
+	let s = strings::toutf8(s);
+	const in = bufio::fixed(s, io::mode::READ);
+	const decoder = newdecoder(&in);
+	const out = bufio::dynamic(io::mode::WRITE);
+	match(io::copy(&out, &decoder)) {
+	case size =>
+	     return bufio::buffer(&out);
+	case let err: io::error =>
+	     return err;
+	};
 };
 
 @test fn decode() void = {
-	let s = decode("cafebabedeadf00d") as []u8;
+	let s = decodestr("cafebabedeadf00d") as []u8;
 	defer free(s);
 	assert(bytes::equal(s, [0xCA, 0xFE, 0xBA, 0xBE, 0xDE, 0xAD, 0xF0, 0x0D]));
 
-	decode("this is not hex") as invalid: void;
+	decodestr("this is not hex") as errors::invalid: void;
 };
 
 // Outputs a dump of hex data alongside the offset and an ASCII representation

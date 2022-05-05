@@ -142,7 +142,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 				yield s;
 			};
 
-			let hash = match (hex::decode(hash)) {
+			let hash = match (hex::decodestr(hash)) {
 			case let b: []u8 =>
 				yield b;
 			case =>
@@ -189,7 +189,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 			case let s: str =>
 				yield s;
 			};
-			let modhash = match (hex::decode(modhash)) {
+			let modhash = match (hex::decodestr(modhash)) {
 			case let b: []u8 =>
 				yield b;
 			case =>
@@ -204,7 +204,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 				case let s: str =>
 					yield s;
 				};
-				let hash = match (hex::decode(hash)) {
+				let hash = match (hex::decodestr(hash)) {
 				case let b: []u8 =>
 					yield b;
 				case =>
