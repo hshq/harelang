@@ -188,7 +188,7 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 // 	%u -- The day of the week (decimal, range 1 to 7). 1 represents Monday.
 // 	%U -- The week number of the current year (range 00 to 53),
 // 	      starting with the first Sunday as the first day of week 01.
-// 	%w -- The day of the week (decimal, range 0 to 6). 1 represents Sunday.
+// 	%w -- The day of the week (decimal, range 0 to 6). 0 represents Sunday.
 // 	%W -- The week number of the current year (range 00 to 53),
 // 	      starting with the first Monday as the first day of week 01.
 // 	%y -- The year without the century digits (range 00 to 99).
