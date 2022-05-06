@@ -94,7 +94,8 @@ export fn dir() str = {
 	random::buffer(buf[..]);
 
 	let sink = strio::fixed(name);
-	hex::encode(&sink, buf) as size;
+	const enc = hex::newencoder(&sink);
+	io::write(&enc, buf)!;
 	let name = strio::string(&sink);
 
 	static let buf = path::buffer { ... };
