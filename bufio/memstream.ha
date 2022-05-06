@@ -57,6 +57,9 @@ export fn fixed(in: []u8, mode: io::mode) memstream = {
 };
 
 fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
+	if (len(buf) == 0) {
+		return 0z;
+	};
 	let s = s: *memstream;
 	if (s.pos >= len(s.buf)) {
 		abort("bufio::fixed buffer exceeded");
@@ -268,4 +271,6 @@ fn copy(dest: *io::stream, src: *io::stream) (io::error | size) = {
 	let sink = fixed(out, io::mode::WRITE);
 	io::copy(&sink, &source)!;
 	assert(bytes::equal(in, out));
+
+	assert(io::write(&sink, [])! == 0);
 };
