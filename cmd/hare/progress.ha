@@ -13,7 +13,7 @@ fn progress_update(plan: *plan) void = {
 
 	const width = match (tty::winsize(tty)) {
 	case let ts: tty::ttysize =>
-		yield if (ts.columns > 64) 64 else ts.columns;
+		yield if (ts.columns > 64 || ts.columns == 0) 64 else ts.columns;
 	case =>
 		yield 64;
 	}: size;
