@@ -90,6 +90,7 @@ use crypto::random;
 	let out: [SCALARSZ]u8 = [0...];
 
 	for (let i = 0z; i < 200; i += 1) {
+		clamp(&x);
 		x25519(&out, &x, &BASEPOINT);
 		x[..] = out[..];
 	};
@@ -187,7 +188,9 @@ use crypto::random;
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let got: [SCALARSZ]u8 = [0...];
-		scalarmult(&got, &vectors[i].0, &vectors[i].1);
+		let scalar = vectors[i].0;
+		clamp(&scalar);
+		scalarmult(&got, &scalar, &vectors[i].1);
 		if (!bytes::equal(got[..], vectors[i].2[..])) {
 			fmt::errorfln("Case i={} failed", i)!;
 			printvector("in", &vectors[i].0);

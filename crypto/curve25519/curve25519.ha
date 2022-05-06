@@ -38,15 +38,19 @@ export fn scalarmult_base(
 	scalarmult(out, scalar, &BASEPOINT);
 };
 
+// Prepares the scalar to avoid particular attacks. See the "clamping" section
+// in Kleppmann's paper.
+export fn clamp(scalar: *[SCALARSZ]u8) void = {
+	scalar[0] &= 0xf8;
+	scalar[31] = (scalar[31] & 0x7f) | 0x40;
+};
+
 // Set out to the product (scalar * point)
 export fn scalarmult(
 	out: *[SCALARSZ]u8,
 	scalar: const *[SCALARSZ]u8,
 	point: const *[POINTSZ]u8
 ) void = {
-	let clamped: [32]u8 = *scalar;
-	clamped[0] &= 0xf8;
-	clamped[31] = (clamped[31] & 0x7f) | 0x40;
 	let x = unpack25519(point);
 	let b: elem = *&x;
 	let a: elem = [1, 0...];
@@ -57,7 +61,7 @@ export fn scalarmult(
 
 	for (let i = 254i; i >= 0; i -= 1) {
 		let iz = i : size;
-		let bit = ((clamped[iz >> 3] >> (iz & 7)) & 1) : i64;
+		let bit = ((scalar[iz >> 3] >> (iz & 7)) & 1) : i64;
 		swap25519(&a, &b, bit);
 		swap25519(&c, &d, bit);
 		addfe(&e, &a, &c);
