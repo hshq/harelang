@@ -1,5 +1,8 @@
 This module implements the ed25519 signature algorithm, as defined by RFC 8032.
 
+Do not use the same secret key for both key exchanges and signatures. The public
+keys are different and revealing both may leak information.
+
 This is a low-level module which implements cryptographic primitives. Direct use
 of cryptographic primitives is not recommended for non-experts, as incorrect use
 of these primitives can easily lead to the introduction of security
