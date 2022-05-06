@@ -54,26 +54,35 @@ export fn mode_perm(m: mode) mode = (m: uint & 0o777u): mode;
 // Returns the type bits of a file mode.
 export fn mode_type(m: mode) mode = (m: uint & ~0o777u): mode;
 
+// bit mask for the file type bit field
+def IFMT: mode = 0o0170000u: mode;
+
 // Returns true if this item is a regular file.
-export fn isfile(mode: mode) bool = mode & mode::REG == mode::REG;
+export fn isfile(mode: mode) bool = mode & IFMT == mode::REG;
 
 // Returns true if this item is a FIFO (named pipe).
-export fn isfifo(mode: mode) bool = mode & mode::FIFO == mode::FIFO;
+export fn isfifo(mode: mode) bool = mode & IFMT == mode::FIFO;
 
 // Returns true if this item is a directory.
-export fn isdir(mode: mode) bool = mode & mode::DIR == mode::DIR;
+export fn isdir(mode: mode) bool = mode & IFMT == mode::DIR;
 
 // Returns true if this item is a character device.
-export fn ischdev(mode: mode) bool = mode & mode::CHR == mode::CHR;
+export fn ischdev(mode: mode) bool = mode & IFMT == mode::CHR;
 
 // Returns true if this item is a block device.
-export fn isblockdev(mode: mode) bool = mode & mode::BLK == mode::BLK;
+export fn isblockdev(mode: mode) bool = mode & IFMT == mode::BLK;
 
 // Returns true if this item is a symbolic link.
-export fn islink(mode: mode) bool = mode & mode::LINK == mode::LINK;
+export fn islink(mode: mode) bool = mode & IFMT == mode::LINK;
 
 // Returns true if this item is a Unix socket.
-export fn issocket(mode: mode) bool = mode & mode::SOCK == mode::SOCK;
+export fn issocket(mode: mode) bool = mode & IFMT == mode::SOCK;
+
+@test fn modes() void = {
+	const foo = mode::LINK | 0o755: mode;
+	assert(islink(foo));
+	assert(!isfile(foo));
+};
 
 // Reads all entries from a directory. The caller must free the return value
 // with [[dirents_free]].
