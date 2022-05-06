@@ -471,6 +471,18 @@ crypto_ed25519() {
 	fi
 }
 
+crypto_x25519() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::x25519 x25519.ha
+		gen_ssa crypto::x25519 crypto::curve25519
+	else
+		gen_srcs crypto::x25519 x25519.ha +test.ha
+		gen_ssa crypto::x25519 bytes crypto::curve25519 encoding::hex \
+			crypto::random
+	fi
+}
+
 dirs() {
 	gen_srcs dirs \
 		xdg.ha
@@ -1343,6 +1355,7 @@ crypto::sha256
 crypto::sha512
 crypto::curve25519
 crypto::ed25519
+crypto::x25519
 datetime	linux freebsd
 dirs
 encoding::base64

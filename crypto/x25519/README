@@ -1,0 +1,13 @@
+The crypto::x25519 module provides functions to generate key pairs and to
+derive shared keys between them, based on curve25519.
+
+A key pair is created by generating a private key with [[newkey]] and deriving
+the public key with [[pubkey]]. A shared key can be found by using [[derive]].
+
+This is a low-level module which implements cryptographic primitives. Direct use
+of cryptographic primitives is not recommended for non-experts, as incorrect use
+of these primitives can easily lead to the introduction of security
+vulnerabilities. Non-experts are advised to use the high-level operations
+available in the top-level [[crypto]] module.
+
+Be advised that Hare's cryptography implementations have not been audited.

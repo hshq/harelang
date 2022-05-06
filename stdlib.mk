@@ -270,6 +270,12 @@ stdlib_deps_any += $(stdlib_crypto_ed25519_any)
 stdlib_crypto_ed25519_linux = $(stdlib_crypto_ed25519_any)
 stdlib_crypto_ed25519_freebsd = $(stdlib_crypto_ed25519_any)
 
+# gen_lib crypto::x25519 (any)
+stdlib_crypto_x25519_any = $(HARECACHE)/crypto/x25519/crypto_x25519-any.o
+stdlib_deps_any += $(stdlib_crypto_x25519_any)
+stdlib_crypto_x25519_linux = $(stdlib_crypto_x25519_any)
+stdlib_crypto_x25519_freebsd = $(stdlib_crypto_x25519_any)
+
 # gen_lib datetime (linux)
 stdlib_datetime_linux = $(HARECACHE)/datetime/datetime-linux.o
 stdlib_deps_linux += $(stdlib_datetime_linux)
@@ -960,6 +966,16 @@ $(HARECACHE)/crypto/ed25519/crypto_ed25519-any.ssa: $(stdlib_crypto_ed25519_any_
 	@mkdir -p $(HARECACHE)/crypto/ed25519
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::ed25519 \
 		-t$(HARECACHE)/crypto/ed25519/crypto_ed25519.td $(stdlib_crypto_ed25519_any_srcs)
+
+# crypto::x25519 (+any)
+stdlib_crypto_x25519_any_srcs = \
+	$(STDLIB)/crypto/x25519/x25519.ha
+
+$(HARECACHE)/crypto/x25519/crypto_x25519-any.ssa: $(stdlib_crypto_x25519_any_srcs) $(stdlib_rt) $(stdlib_crypto_curve25519_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/x25519
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::x25519 \
+		-t$(HARECACHE)/crypto/x25519/crypto_x25519.td $(stdlib_crypto_x25519_any_srcs)
 
 # datetime (+linux)
 stdlib_datetime_linux_srcs = \
@@ -2316,6 +2332,12 @@ testlib_deps_any += $(testlib_crypto_ed25519_any)
 testlib_crypto_ed25519_linux = $(testlib_crypto_ed25519_any)
 testlib_crypto_ed25519_freebsd = $(testlib_crypto_ed25519_any)
 
+# gen_lib crypto::x25519 (any)
+testlib_crypto_x25519_any = $(TESTCACHE)/crypto/x25519/crypto_x25519-any.o
+testlib_deps_any += $(testlib_crypto_x25519_any)
+testlib_crypto_x25519_linux = $(testlib_crypto_x25519_any)
+testlib_crypto_x25519_freebsd = $(testlib_crypto_x25519_any)
+
 # gen_lib datetime (linux)
 testlib_datetime_linux = $(TESTCACHE)/datetime/datetime-linux.o
 testlib_deps_linux += $(testlib_datetime_linux)
@@ -3025,6 +3047,17 @@ $(TESTCACHE)/crypto/ed25519/crypto_ed25519-any.ssa: $(testlib_crypto_ed25519_any
 	@mkdir -p $(TESTCACHE)/crypto/ed25519
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::ed25519 \
 		-t$(TESTCACHE)/crypto/ed25519/crypto_ed25519.td $(testlib_crypto_ed25519_any_srcs)
+
+# crypto::x25519 (+any)
+testlib_crypto_x25519_any_srcs = \
+	$(STDLIB)/crypto/x25519/x25519.ha \
+	$(STDLIB)/crypto/x25519/+test.ha
+
+$(TESTCACHE)/crypto/x25519/crypto_x25519-any.ssa: $(testlib_crypto_x25519_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_curve25519_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_crypto_random_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/x25519
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::x25519 \
+		-t$(TESTCACHE)/crypto/x25519/crypto_x25519.td $(testlib_crypto_x25519_any_srcs)
 
 # datetime (+linux)
 testlib_datetime_linux_srcs = \
