@@ -504,7 +504,7 @@ fn add_thread(threads: *[]thread, parent_idx: size, new_pc: size) void = {
 
 fn run_thread(
 	i: size,
-	re: regex,
+	re: *regex,
 	string: str,
 	threads: *[]thread,
 	r_or_end: (rune | void),
@@ -648,7 +648,7 @@ fn run_thread(
 // Attempts to match a regular expression against a string and returns the
 // either the longest leftmost match or all matches.
 fn search(
-	re: regex,
+	re: *regex,
 	string: str,
 	str_iter: *strings::iterator,
 	str_idx: *int
@@ -771,7 +771,7 @@ fn search(
 
 // Attempts to match a regular expression against a string and returns the
 // longest leftmost match, or void if there is no match.
-export fn find(re: regex, string: str) (void | []matchgroup | error) = {
+export fn find(re: *regex, string: str) (void | []matchgroup | error) = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
 	return search(re, string, &str_iter, &str_idx);
@@ -779,7 +779,7 @@ export fn find(re: regex, string: str) (void | []matchgroup | error) = {
 
 // Attempts to match a regular expression against a string and returns all
 // non-overlapping matches, or void if there are no matches.
-export fn findall(re: regex, string: str) (void | [][]matchgroup | error) = {
+export fn findall(re: *regex, string: str) (void | [][]matchgroup | error) = {
 	let res: [][]matchgroup = [];
 	let str_idx = -1;
 	let str_iter = strings::iter(string);

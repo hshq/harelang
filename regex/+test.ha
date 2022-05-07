@@ -30,7 +30,7 @@ fn run_find_case(
 		return;
 	};
 
-	match (find(re, string)) {
+	match (find(&re, string)) {
 	case void =>
 		if (expected == matchres::MATCH) {
 			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it did not",
@@ -93,7 +93,7 @@ fn run_findall_case(
 		return;
 	};
 
-	match (findall(re, string)) {
+	match (findall(&re, string)) {
 	case void =>
 		if (expected == matchres::MATCH) {
 			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it did not",
