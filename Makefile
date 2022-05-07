@@ -94,9 +94,12 @@ clean:
 check: .bin/hare-tests
 	@./.bin/hare-tests
 
+scripts/gen-docs: scripts/gen-stdlib
+scripts/gen-stdlib: scripts/gen-stdlib.sh
+
 all: .bin/hare .bin/harec2 .bin/haredoc
 
-install: docs
+install: docs scripts/install-mods
 	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1 \
 		$(DESTDIR)$(SRCDIR)/hare/stdlib $(DESTDIR)$(LOCALSRCDIR)
 	install -m755 .bin/hare $(DESTDIR)$(BINDIR)/hare
