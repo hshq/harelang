@@ -134,7 +134,7 @@ export fn iterstr(iter: *iterator) str = {
 
 	s = riter("にちは");
 	const expected3 = ['は', 'ち', 'に'];
-	for (let i = 0z; i< len(expected3); i += 1) {
+	for (let i = 0z; i < len(expected3); i += 1) {
 		match (next(&s)) {
 		case let r: rune =>
 			assert(r == expected3[i]);
