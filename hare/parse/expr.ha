@@ -948,11 +948,10 @@ fn plain_tuple(
 		};
 	};
 
-	// XXX: Why do we have to cast this twice? harec bug?
 	return ast::expr {
 		start = start,
 		end = lex::prevloc(lexer),
-		expr = values: ast::tuple_constant: ast::constant_expr,
+		expr = values: ast::tuple_constant,
 	};
 };
 
