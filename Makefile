@@ -83,6 +83,9 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFOR
 		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
 		-o .bin/haredoc ./cmd/haredoc
 
+docs/html: .bin/haredoc scripts/gen-docs
+	./scripts/gen-docs
+
 docs/hare.1: docs/hare.scd
 docs/haredoc.1: docs/haredoc.scd
 
