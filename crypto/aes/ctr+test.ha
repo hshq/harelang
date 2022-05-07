@@ -1,10 +1,13 @@
 // License: MPL-2.0
-// (c) 2021 Armin Preiml <apreiml@strohwolke.at>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-use crypto::cipher;
+// (c) 2022 Armin Preiml <apreiml@strohwolke.at>
+// (c) 2022 Drew DeVault <sir@cmpwn.com>
 use bytes;
+use bufio;
+use crypto::cipher;
+use errors;
+use io;
 
-@test fn ctr_encrypt_zero_iv() void = {
+@test fn ctr_zero_iv() void = {
 	const key: [_]u8 = [
 		0xc3, 0x43, 0x2a, 0xf7, 0xcf, 0x56, 0x72, 0xad,
 		0x0f, 0x4d, 0xab, 0xee, 0xf5, 0x32, 0x0e, 0x33,
@@ -27,16 +30,30 @@ use bytes;
 
 	let result: [16]u8 = [0...];
 	let buf: [CTR_BUFSIZE]u8 = [0...];
+	let resultbuf = bufio::fixed(result, io::mode::WRITE);
 
 	let b = ct64();
 	ct64_init(&b, key);
 	defer cipher::finish(&b);
 
-	let ctr = cipher::ctr(&b, iv[..], buf[..]);
-	defer cipher::finish(&ctr);
+	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
 
-	cipher::stream_xor(&ctr, result, plain);
+	const s = io::writeall(&ctr, plain)!;
+	assert(s == len(plain));
 	assert(bytes::equal(cipher, result));
+	io::close(&ctr)!;
+
+	const zero: [CTR_BUFSIZE]u8 = [0...];
+	const bsz = cipher::blocksz(&b);
+	assert(bytes::equal(ctr.xorbuf, zero[bsz..]));
+
+	result = [0...];
+	buf = [0...];
+	let cipherbuf = bufio::fixed(cipher, io::mode::READ);
+	let ctr = cipher::ctr(&cipherbuf, &b, iv[..], buf[..]);
+	const s = io::readall(&ctr, result)!;
+	assert(s as size == len(plain));
+	assert(bytes::equal(plain, result));
 };
 
 @test fn ctr_encrypt_max_iv() void = {
@@ -63,16 +80,17 @@ use bytes;
 	];
 
 	let result: [18]u8 = [0...];
+	let resultbuf = bufio::fixed(result, io::mode::WRITE);
 	let buf: [CTR_BUFSIZE]u8 = [0...];
 
 	let b = ct64();
 	ct64_init(&b, key);
 	defer cipher::finish(&b);
 
-	let ctr = cipher::ctr(&b, iv[..], buf[..]);
-	defer cipher::finish(&ctr);
+	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
+	defer io::close(&ctr)!;
 
-	cipher::stream_xor(&ctr, result, plain);
+	io::write(&ctr, plain)!;
 	assert(bytes::equal(cipher, result));
 };
 
@@ -114,17 +132,24 @@ use bytes;
 	];
 
 	let result: [80]u8 = [0...];
+	let resultbuf = bufio::fixed(result, io::mode::WRITE);
 	let buf: [CTR_BUFSIZE]u8 = [0...];
 
 	let b = ct64();
 	ct64_init(&b, key);
 	defer cipher::finish(&b);
 
-	let ctr = cipher::ctr(&b, iv[..], buf[..]);
-	defer cipher::finish(&ctr);
-
-	cipher::stream_xor(&ctr, result, plain);
+	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
+	const n = io::writeall(&ctr, plain)!;
+	assert(n == len(cipher));
 	assert(bytes::equal(cipher, result));
+	io::close(&ctr)!;
+
+	let cipherbuf = bufio::fixed(cipher, io::mode::READ);
+	let ctr = cipher::ctr(&cipherbuf, &b, iv[..], buf[..]);
+	const n = io::readall(&ctr, result)!;
+	assert(n as size == len(plain));
+	assert(bytes::equal(plain, result));
 };
 
 @test fn ctr_test_multiple_calls() void = {
@@ -165,23 +190,28 @@ use bytes;
 	];
 
 	let result: [80]u8 = [0...];
+	let resultbuf = bufio::fixed(result, io::mode::WRITE);
 	let buf: [CTR_BUFSIZE]u8 = [0...];
 
 	let b = ct64();
 	ct64_init(&b, key);
 	defer cipher::finish(&b);
 
-	let ctr = cipher::ctr(&b, iv[..], buf[..]);
-	defer cipher::finish(&ctr);
-	cipher::stream_xor(&ctr, result[0..32], plain[0..32]);
-	cipher::stream_xor(&ctr, result[32..], plain[32..]);
+	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
+	defer io::close(&ctr)!;
+	let n = 0z;
+	n += io::write(&ctr, plain[0..32])!;
+	n += io::write(&ctr, plain[32..])!;
+	// previous call only writes 32 bytes. Write remaining here.
+	n += io::write(&ctr, plain[64..])!;
+	assert(n == len(plain));
 	assert(bytes::equal(cipher, result));
 
-	// test nparallel blocks
-	ctr = cipher::ctr(&b, iv[..], buf[..]);
-	cipher::stream_xor(&ctr, result[0..64], plain[0..64]);
-	cipher::stream_xor(&ctr, result[64..], plain[64..]);
-	assert(bytes::equal(cipher, result));
+	let cipherbuf = bufio::fixed(cipher, io::mode::READ);
+	let ctr = cipher::ctr(&cipherbuf, &b, iv[..], buf[..]);
+	const n = io::readall(&ctr, result)!;
+	assert(n as size == len(plain));
+	assert(bytes::equal(plain, result));
 };
 
 @test fn ctr_encrypt_in_place() void = {
@@ -212,10 +242,11 @@ use bytes;
 	defer cipher::finish(&b);
 
 	let buf: [CTR_BUFSIZE]u8 = [0...];
-	let ctr = cipher::ctr(&b, iv[..], buf[..]);
-	defer cipher::finish(&ctr);
+	let resultbuf = bufio::fixed(result, io::mode::WRITE);
+	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
+	defer io::close(&ctr)!;
 
-	cipher::stream_xor(&ctr, result, result);
+	io::write(&ctr, result)!;
 	assert(bytes::equal(cipher, result));
 };
 
@@ -247,9 +278,145 @@ use bytes;
 	defer cipher::finish(&b);
 
 	let buf: [64]u8 = [0...];
-	let ctr = cipher::ctr(&b, iv[..], buf[..]);
-	defer cipher::finish(&ctr);
+	let resultbuf = bufio::fixed(result, io::mode::WRITE);
 
-	cipher::stream_xor(&ctr, result, result);
+	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
+	defer io::close(&ctr)!;
+
+	io::write(&ctr, result)!;
+	assert(bytes::equal(cipher, result));
+};
+
+@test fn empty_write() void = {
+	const key: [_]u8 = [
+		0x3f, 0xf8, 0x68, 0x06, 0xe4, 0xcc, 0x88, 0x11,
+		0xa6, 0xba, 0x14, 0xb6, 0x0b, 0x4c, 0x5a, 0xef,
+	];
+
+	const iv: [_]u8 = [
+		0xc5, 0x4c, 0x99, 0xd2, 0xd0, 0xef, 0xf5, 0xde,
+		0x95, 0x38, 0x45, 0x34, 0xeb, 0xa2, 0xad, 0xa0,
+	];
+
+	let b = ct64();
+	ct64_init(&b, key);
+	defer cipher::finish(&b);
+
+	let buf: [64]u8 = [0...];
+	let result: [1]u8 = [0];
+	let resultbuf = bufio::fixed(result, io::mode::WRITE);
+
+	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
+	defer io::close(&ctr)!;
+
+	const n = io::write(&ctr, [])!;
+	assert(n == 0);
+};
+
+type err_stream = struct {
+	stream: io::stream,
+	out: io::handle,
+	err: io::error,
+	limit: size,
+};
+
+const err_stream_vtable: io::vtable = io::vtable {
+	writer = &err_writer,
+	...
+};
+
+fn err_writer(s: *io::stream, buf: const []u8) (size | io::error) = {
+	let s = s: *err_stream;
+
+	if (s.limit == 0) {
+		return s.err;
+	};
+
+	const n = if (len(buf) < s.limit) {
+		yield len(buf);
+	} else {
+		return s.err;
+	};
+
+	match(io::write(s.out, buf[..n])) {
+	case let z: size =>
+		s.limit -= z;
+		return n;
+	case let e: io::error =>
+		return e;
+	};
+};
+
+fn errwriter(out: io::handle, limit: size, err: io::error) err_stream = {
+	return err_stream {
+		stream = &err_stream_vtable,
+		out = out,
+		limit = limit,
+		err = err,
+	};
+};
+
+@test fn ctr_test_retry() void = {
+	const key: [_]u8 = [
+		0xae, 0x0c, 0x47, 0x6d, 0xce, 0x69, 0xdf, 0x52,
+		0xf7, 0x5e, 0x1f, 0x16, 0x7e, 0xea, 0x1c, 0xf0,
+	];
+
+	const iv: [_]u8 = [
+		0x9a, 0x11, 0xd7, 0x24, 0x43, 0x86, 0x50, 0xf0,
+		0xd9, 0x8c, 0x0d, 0x0d, 0x7a, 0x2e, 0x95, 0x72,
+	];
+
+	const plain: [_]u8 = [
+		0x05, 0xc8, 0x4a, 0xf7, 0xba, 0x4b, 0xc2, 0x4f,
+		0xd3, 0x63, 0xf3, 0x20, 0x51, 0x2b, 0x65, 0xec,
+		0x4c, 0xe7, 0x7f, 0x78, 0x17, 0x45, 0x0c, 0x6e,
+		0xff, 0xf1, 0x73, 0x97, 0x42, 0x4d, 0x4a, 0x30,
+		0x5d, 0xb2, 0x79, 0x45, 0xca, 0x20, 0x10, 0x5b,
+		0x2c, 0x34, 0x4c, 0xed, 0x42, 0x59, 0x61, 0x3a,
+		0x66, 0xa3, 0x2e, 0x74, 0xa8, 0xbb, 0x9c, 0xe9,
+		0x4e, 0xda, 0x33, 0x97, 0x98, 0x41, 0x9a, 0xf0,
+		0xbb, 0x6d, 0xcb, 0x5d, 0x15, 0x60, 0x26, 0x7c,
+		0x6c, 0xe5, 0xa4, 0xaf, 0x52, 0x14, 0x29, 0x2f,
+	];
+
+	const cipher: [_]u8 = [
+		0xc1, 0xe5, 0x15, 0x76, 0x5b, 0xb2, 0x3a, 0xbc,
+		0xc4, 0x71, 0xdf, 0xcc, 0x20, 0xe0, 0x63, 0xd6,
+		0xb3, 0x7d, 0x48, 0x51, 0xe0, 0xd1, 0xcb, 0x07,
+		0xa3, 0xc8, 0xc6, 0xb9, 0x43, 0xa9, 0x1e, 0x70,
+		0xb2, 0x1e, 0xbe, 0xc3, 0x11, 0x36, 0xb2, 0x64,
+		0x7c, 0xaf, 0x89, 0x46, 0x17, 0x60, 0x90, 0x19,
+		0x23, 0x53, 0xd1, 0xce, 0xc6, 0x5c, 0x50, 0x9c,
+		0x8c, 0x1d, 0xa8, 0xee, 0x44, 0x9c, 0xa2, 0xb2,
+		0x97, 0x62, 0x39, 0xcc, 0x91, 0xb0, 0xcc, 0x2c,
+		0x1b, 0x4c, 0xc3, 0x5d, 0xc3, 0xfa, 0xe9, 0x98,
+	];
+
+	let result: [80]u8 = [0...];
+	let resultbuf = bufio::fixed(result, io::mode::WRITE);
+	let errw = errwriter(&resultbuf, 20, errors::again);
+	let buf: [CTR_BUFSIZE]u8 = [0...];
+
+	let b = ct64();
+	ct64_init(&b, key);
+	defer cipher::finish(&b);
+
+	let ctr = cipher::ctr(&errw, &b, iv[..], buf[..]);
+	defer io::close(&ctr)!;
+	let n = 0z;
+	match (io::write(&ctr, plain[..64])) {
+	case errors::again =>
+		yield;
+	case size =>
+		assert(false);
+	};
+
+	errw.limit = 999;
+
+	// try again
+	n += io::write(&ctr, plain[..64])!;
+	n += io::write(&ctr, plain[64..])!;
+	assert(n == len(plain));
 	assert(bytes::equal(cipher, result));
 };
