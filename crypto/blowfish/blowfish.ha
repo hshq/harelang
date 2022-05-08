@@ -40,7 +40,6 @@ export fn new() state = {
 
 // Performs key expansion for a Blowfish cipher.
 export fn init(c: *state, key: []u8) void = {
-	assert(len(key) > 0 && len(key) <= 56, "Invalid blowfish key size");
 	let j = 0z;
 	for (let i = 0z; i < len(c.p); i += 1) {
 		c.p[i] ^= getword(key, &j);
@@ -71,7 +70,7 @@ export fn init_salt(c: *state, key: []u8, salt: []u8) void = {
 		return;
 	};
 
-	assert(len(key) > 0 && len(key) <= 56, "Invalid blowfish key size");
+	assert(len(key) >= 1, "Invalid blowfish key size");
 	let j = 0z;
 	for (let i = 0z; i < 18; i += 1) {
 		c.p[i] ^= getword(key, &j);
