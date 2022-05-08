@@ -32,7 +32,7 @@ fn lookup(prog: str, var: str, default: str) str = {
 	case void =>
 		yield;
 	case let err: fs::error =>
-		fmt::fatal("Error creating {}: {}",
+		fmt::fatalf("Error creating {}: {}",
 			path, fs::strerror(err));
 	};
 	return path;
