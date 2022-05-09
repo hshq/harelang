@@ -1,7 +1,9 @@
 // License: MPL-2.0
 // (c) 2022 Armin Preiml <apreiml@strohwolke.at>
+use bufio;
 use bytes;
 use crypto::cipher;
+use io;
 
 // test vector taken from rfc8439
 @test fn chacha20() void = {
@@ -46,20 +48,26 @@ use crypto::cipher;
 
 	let result: [114]u8 = [0...];
 
-	let c = chacha20();
-	chacha20_init(&c, &key, &nonce);
-	setctr(&c, 1);
-	defer cipher::finish(&c);
+	let cipherbuf = bufio::fixed(result, io::mode::WRITE);
 
-	cipher::stream_xor(&c, result, msg);
+	let c = chacha20();
+	defer io::close(&c)!;
+
+	chacha20_init(&c, &cipherbuf, &key, &nonce);
+	setctr(&c, 1);
+
+	const n = io::writeall(&c, msg)!;
+	assert(n == len(msg));
 	assert(bytes::equal(cipher, result));
 
 	result = [0...];
-	chacha20_init(&c, &key, &nonce);
+	cipherbuf = bufio::fixed(result, io::mode::WRITE);
+
+	chacha20_init(&c, &cipherbuf, &key, &nonce);
 	setctr(&c, 1);
-	cipher::stream_xor(&c, result[..10], msg[..10]);
-	cipher::stream_xor(&c, result[10..63], msg[10..63]);
-	cipher::stream_xor(&c, result[63..], msg[63..]);
+	io::write(&c, msg[..10])!;
+	io::write(&c, msg[10..63])!;
+	io::writeall(&c, msg[63..])!;
 	assert(bytes::equal(cipher, result));
 };
 
@@ -147,32 +155,36 @@ const xcipher: [_]u8 = [
 
 @test fn xchacha20() void = {
 	let result: [304]u8 = [0...];
+	let cipherbuf = bufio::fixed(result, io::mode::WRITE);
 
 	let c = chacha20();
-	xchacha20_init(&c, &xkey, &xnonce);
-	defer cipher::finish(&c);
+	defer io::close(&c)!;
+
+	xchacha20_init(&c, &cipherbuf, &xkey, &xnonce);
 	setctr(&c, 1);
 
-	cipher::stream_xor(&c, result, xmsg);
+	io::writeall(&c, xmsg)!;
 	assert(bytes::equal(xcipher, result));
 };
 
 @test fn skipblocks() void = {
 	let result: [18]u8 = [0...];
+	let cipherbuf = bufio::fixed(result, io::mode::WRITE);
 
 	let c = chacha20();
-	xchacha20_init(&c, &xkey, &xnonce);
-	defer cipher::finish(&c);
+	defer io::close(&c)!;
+
+	xchacha20_init(&c, &cipherbuf, &xkey, &xnonce);
 
 	// just encrypt a few bytes of each block, to check if setctr works
 	setctr(&c, 1);
-	cipher::stream_xor(&c, result[..5], xmsg[..5]);
+	io::writeall(&c, xmsg[..5])!;
 
 	setctr(&c, 2);
-	cipher::stream_xor(&c, result[5..11], xmsg[64..70]);
+	io::writeall(&c, xmsg[64..70])!;
 
 	setctr(&c, 3);
-	cipher::stream_xor(&c, result[11..], xmsg[128..135]);
+	io::writeall(&c, xmsg[128..135])!;
 
 	assert(bytes::equal(result[..5], xcipher[..5]));
 	assert(bytes::equal(result[5..11], xcipher[64..70]));

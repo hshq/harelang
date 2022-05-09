@@ -2,6 +2,7 @@
 // (c) 2022 Armin Preiml <apreiml@strohwolke.at>
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 use bytes;
+use bufio;
 use crypto::chacha;
 use crypto::cipher;
 use crypto::poly1305;
@@ -9,6 +10,7 @@ use crypto::mac;
 use crypto::math;
 use endian;
 use errors;
+use io;
 
 // A secret session key.
 export type sessionkey = [32]u8;
@@ -79,17 +81,21 @@ export fn encrypt(
 	additional: []u8...,
 ) box = {
 	let s = chacha::chacha20();
-	chacha::xchacha20_init(&s, key, nonce);
+	defer io::close(&s)!;
 
 	let otk: poly1305::key = [0...];
 	defer bytes::zero(otk);
 
-	cipher::stream_xor(&s, otk[..], otk[..]);
-	chacha::setctr(&s, 1);
+	let otkbuf = bufio::fixed(otk, io::mode::WRITE);
+	chacha::xchacha20_init(&s, &otkbuf, key, nonce);
+	io::writeall(&s, otk[..])!;
 
 	let ciphertext = plaintext;
-	cipher::stream_xor(&s, ciphertext, plaintext);
-	cipher::finish(&s);
+	let cipherbuf = bufio::fixed(ciphertext, io::mode::WRITE);
+
+	chacha::xchacha20_init(&s, &cipherbuf, key, nonce);
+	chacha::setctr(&s, 1);
+	io::writeall(&s, plaintext)!;
 
 	let m: mac = [0...];
 	writemac(&m, &otk, ciphertext, additional...);
@@ -158,15 +164,17 @@ export fn decrypt(
 	additional: []u8...
 ) ([]u8 | errors::invalid) = {
 	let s = chacha::chacha20();
-	chacha::xchacha20_init(&s, key, &box.1);
+	defer io::close(&s)!;
 
 	let otk: poly1305::key = [0...];
 	defer bytes::zero(otk);
 
-	cipher::stream_xor(&s, otk[..], otk[..]);
-	chacha::setctr(&s, 1);
+	let otkbuf = bufio::fixed(otk, io::mode::WRITE);
+	chacha::xchacha20_init(&s, &otkbuf, key, &box.1);
+	io::writeall(&s, otk)!;
 
 	let ciphertext = box.2;
+
 	let m: mac = [0...];
 	writemac(&m, &otk, ciphertext, additional...);
 
@@ -176,8 +184,12 @@ export fn decrypt(
 	};
 
 	let plaintext = ciphertext;
-	cipher::stream_xor(&s, plaintext, ciphertext);
-	cipher::finish(&s);
+	let cipherbuf = bufio::fixed(ciphertext, io::mode::READ);
+
+	chacha::xchacha20_init(&s, &cipherbuf, key, &box.1);
+	chacha::setctr(&s, 1);
+
+	io::readall(&s, plaintext)!;
 
 	return plaintext;
 };

@@ -212,17 +212,17 @@ crypto() {
 		gen_srcs crypto \
 			authenc.ha \
 			keyderiv.ha
-		gen_ssa crypto bytes crypto::argon2 crypto::chacha \
+		gen_ssa crypto bufio bytes crypto::argon2 crypto::chacha \
 			crypto::cihper crypto::poly1305 crypto::mac \
-			crypto::math endian errors
+			crypto::math endian errors io
 	else
 		gen_srcs crypto \
 			authenc.ha \
 			keyderiv.ha \
 			+test/authenc.ha
-		gen_ssa crypto bytes crypto::argon2 crypto::chacha \
+		gen_ssa crypto bytes bufio crypto::argon2 crypto::chacha \
 			crypto::cihper crypto::poly1305 crypto::mac \
-			crypto::math endian errors
+			crypto::math endian errors io
 	fi
 }
 
@@ -322,10 +322,12 @@ crypto_chacha() {
 	if [ $testing -eq 0 ]
 	then
 		gen_srcs crypto::chacha chacha20.ha
-		gen_ssa crypto::chacha bytes crypto::cipher crypto::math endian
+		gen_ssa crypto::chacha bytes crypto::cipher crypto::math \
+			endian io
 	else
 		gen_srcs crypto::chacha chacha20.ha +test.ha
-		gen_ssa crypto::chacha bytes crypto::cipher crypto::math endian
+		gen_ssa crypto::chacha bytes crypto::cipher crypto::math \
+			endian io
 	fi
 }
 

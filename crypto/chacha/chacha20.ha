@@ -4,6 +4,7 @@ use bytes;
 use crypto::cipher;
 use crypto::math::{rotl32, xor};
 use endian;
+use io;
 
 // Size of a Chacha key, in bytes.
 export def KEYSIZE: size = 32;
@@ -20,11 +21,9 @@ export def BLOCKSIZE: size = 64;
 def ROUNDS: size = 20;
 const magic: [4]u32 = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574];
 
-// Create a Chacha20 or XChacha20 stream. Needs to be initialized with either
-// [[chacha20_init]] or [[xchacha20_init]]. It must be finished with
-// [[crypto::cipher::finish]].
+// A ChaCha20 or XChaCha20 [[cipher::xorstream]] depending on intialisation.
 export type stream = struct {
-	cipher::stream,
+	cipher::xorstream,
 	state: [16]u32,
 	xorbuf: [BLOCKSIZE]u8,
 	xorused: size,
@@ -32,12 +31,12 @@ export type stream = struct {
 };
 
 // Creates a ChaCha20 or XChaCha20 stream cipher. Must be initialized with
-// [[chacha20_init]] or [[xchacha20_init]] prior to use, and must be finished
-// with [[crypto::cipher::finish]] afterwards to wipe sensitive data from
-// memory.
+// [[chacha20_init]] or [[xchacha20_init]] prior to use, and must be closed
+// with [[io::close]] after use to wipe sensitive data from memory.
 export fn chacha20() stream = {
 	return stream {
-		xor = &stream_xor,
+		keybuf = &keybuf,
+		advance = &advance,
 		finish = &finish,
 		xorused = BLOCKSIZE,
 		rounds = ROUNDS,
@@ -48,9 +47,12 @@ export fn chacha20() stream = {
 // Initialize a Chacha20 stream.
 export fn chacha20_init(
 	s: *stream,
+	h: io::handle,
 	key: *[KEYSIZE]u8,
 	nonce: *[NONCESIZE]u8
 ) void = {
+	cipher::xorstream_init(s, h);
+
 	s.state[0] = magic[0];
 	s.state[1] = magic[1];
 	s.state[2] = magic[2];
@@ -73,6 +75,7 @@ export fn chacha20_init(
 // Initialise a XChacha20 stream.
 export fn xchacha20_init(
 	s: *stream,
+	h: io::handle,
 	key: *[KEYSIZE]u8,
 	nonce: *[XNONCESIZE]u8
 ) void = {
@@ -104,7 +107,7 @@ export fn xchacha20_init(
 	let dnonce: [NONCESIZE]u8 = [0...];
 	dnonce[4..] = nonce[16..];
 
-	chacha20_init(s, &dkey, &dnonce);
+	chacha20_init(s, h, &dkey, &dnonce);
 
 	bytes::zero((state: []u8: *[*]u8)[..BLOCKSIZE]);
 	bytes::zero(dkey);
@@ -120,32 +123,25 @@ export fn setctr(s: *stream, counter: u32) void = {
 	s.xorused = BLOCKSIZE;
 };
 
-fn stream_xor(c: *cipher::stream, dest: []u8, src: []u8) void = {
-	let s = c: *stream;
+fn keybuf(s: *cipher::xorstream) []u8 = {
+	let s = s: *stream;
 
-	for (len(dest) > 0) {
-		if (s.xorused >= BLOCKSIZE) {
-			block((s.xorbuf: []u8: *[*]u32)[..16], &s.state,
-				s.rounds);
-			// TODO on big endian systems s.xorbuf values need to
-			// be converted from little endian.
-			s.state[12] += 1;
-			s.xorused = 0;
-		};
-
-		const max = if (len(dest) > (BLOCKSIZE - s.xorused)) {
-			yield BLOCKSIZE - s.xorused;
-		} else {
-			yield len(dest);
-		};
-
-		xor(dest[..max], src[..max],
-			s.xorbuf[s.xorused..s.xorused + max]);
-		s.xorused += max;
-
-		dest = dest[max..];
-		src = src[max..];
+	if (s.xorused >= BLOCKSIZE) {
+		block((s.xorbuf: []u8: *[*]u32)[..16], &s.state,
+			s.rounds);
+		// TODO on big endian systems s.xorbuf values need to
+		// be converted from little endian.
+		s.state[12] += 1;
+		s.xorused = 0;
 	};
+
+	return s.xorbuf[s.xorused..];
+};
+
+fn advance(s: *cipher::xorstream, n: size) void = {
+	let s = s: *stream;
+	assert(n <= len(s.xorbuf));
+	s.xorused += n;
 };
 
 fn block(dest: []u32, state: *[16]u32, rounds: size) void = {
@@ -193,7 +189,7 @@ fn qr(a: *u32, b: *u32, c: *u32, d: *u32) void = {
 	*b = rotl32(*b, 7);
 };
 
-fn finish(c: *cipher::stream) void = {
+fn finish(c: *cipher::xorstream) void = {
 	let s = c: *stream;
 	bytes::zero((s.state[..]: *[*]u8)[..BLOCKSIZE]);
 	bytes::zero(s.xorbuf);
