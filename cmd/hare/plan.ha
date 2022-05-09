@@ -65,6 +65,7 @@ type plan_progress = struct {
 	complete: size,
 	total: size,
 	current_module: str,
+	maxwidth: size,
 };
 
 fn mkplan(ctx: *module::context, libs: []str) plan = {

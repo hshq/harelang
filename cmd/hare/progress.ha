@@ -13,7 +13,7 @@ fn progress_update(plan: *plan) void = {
 
 	const width = match (tty::winsize(tty)) {
 	case let ts: tty::ttysize =>
-		yield if (ts.columns > 64 || ts.columns == 0) 64 else ts.columns;
+		yield if (ts.columns > 80 || ts.columns == 0) 80 else ts.columns;
 	case =>
 		yield 64;
 	}: size;
@@ -24,7 +24,7 @@ fn progress_update(plan: *plan) void = {
 
 	const total_width = math::ceilf64(math::log10f64(total: f64)): size;
 	const counter_width = 1 + total_width + 1 + total_width + 3;
-	const progress_width = width - counter_width - 2 - len(current_module);
+	const progress_width = width - counter_width - 2 - plan.progress.maxwidth;
 
 	fmt::fprintf(tty, "\r\x1b[K[{%}/{}] [",
 		complete, &fmt::modifiers {

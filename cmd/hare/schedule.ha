@@ -169,6 +169,8 @@ fn sched_hare_object(
 
 	const ns = unparse::identstr(namespace);
 	const displayed_ns = if (len(ns) == 0) "(root)" else ns;
+	if (len(ns) > plan.progress.maxwidth)
+		plan.progress.maxwidth = len(ns);
 
 	let ssa = mkfile(plan, ns, "ssa");
 	let harec = alloc(task {
