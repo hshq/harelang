@@ -32,3 +32,11 @@ export type comma = void;
 // All tokens which can be returned from the JSON tokenizer.
 export type token = (arraystart | arrayend | objstart |
 	objend | colon | comma | str | f64 | bool | _null);
+
+// Converts an [[error]] into a user-friendly string.
+export fn strerror(err: error) const str = match (err) {
+case invalid =>
+	yield "Invalid JSON token encountered";
+case let err: io::error =>
+	yield io::strerror(err);
+};
