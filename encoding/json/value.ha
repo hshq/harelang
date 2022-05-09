@@ -1,11 +1,13 @@
 use hash::fnv;
 use strings;
+use fmt; // XXX TEMP
+use types;
 
 // TODO: Resize table as appropriate
-def DEFAULT_OBJECT_BUCKETS: size = 32;
+def OBJECT_BUCKETS: size = 32;
 
 export type object = struct {
-	buckets: [][](str, value),
+	buckets: [OBJECT_BUCKETS][](str, value),
 };
 
 // A JSON value.
@@ -14,9 +16,7 @@ export type value = (f64 | str | bool | _null | []value | object);
 // Initializes a new (empty) JSON object. Call [[finish]] to free associated
 // resources when you're done using it.
 export fn newobject() object = {
-	return object {
-		buckets = alloc([[]...], DEFAULT_OBJECT_BUCKETS),
-	};
+	return object { ... };
 };
 
 // Gets a value from a JSON object. The return value is borrowed from the
@@ -32,18 +32,17 @@ export fn get(obj: *object, key: str) (*value | void) = {
 };
 
 // Sets a value in a JSON object. Assumes ownership over the provided value.
-export fn set(obj: *object, key: str, val: const *value) void = {
-	const val = dup(val);
+export fn set(obj: *object, key: str, val: value) void = {
 	const hash = fnv::string64(key): size;
 	const bucket = &obj.buckets[hash % len(obj.buckets)];
 	for (let i = 0z; i < len(bucket); i += 1) {
 		if (bucket[i].0 == key) {
-			finish(&bucket[i].1);
-			bucket[i].1 = val;
+			finish(bucket[i].1);
+			bucket[i].1 = dup(val);
 			return;
 		};
 	};
-	append(bucket, (strings::dup(key), val));
+	append(bucket, (strings::dup(key), dup(val)));
 };
 
 // Deletes a value from a JSON object.
@@ -53,7 +52,7 @@ export fn del(obj: *object, key: str) void = {
 	for (let i = 0z; i < len(bucket); i += 1) {
 		if (bucket[i].0 == key) {
 			free(bucket[i].0);
-			finish(&bucket[i].1);
+			finish(bucket[i].1);
 			delete(bucket[i]);
 			break;
 		};
@@ -62,40 +61,42 @@ export fn del(obj: *object, key: str) void = {
 
 // Duplicates a JSON value. The caller must pass the return value to [[finish]]
 // to free associated resources when they're done using it.
-export fn dup(val: *value) value = {
-	// XXX: Match overhaul
-	match (*val) {
+export fn dup(val: value) value = {
+	match (val) {
 	case let s: str =>
 		return strings::dup(s);
 	case let v: []value =>
 		let new: []value = alloc([], len(v));
 		for (let i = 0z; i < len(v); i += 1) {
-			append(new, dup(&v[i]));
+			append(new, dup(v[i]));
 		};
 		return new;
 	case let o: object =>
 		abort(); // TODO: Implement me after iter
+	case =>
+		return val;
 	};
 };
 
 // Frees state associated with a JSON value.
-export fn finish(val: *value) void = {
-	// XXX: Match overhaul
-	match (*val) {
+export fn finish(val: value) void = {
+	match (val) {
 	case let s: str =>
 		free(s);
 	case let v: []value =>
 		for (let i = 0z; i < len(v); i += 1) {
-			finish(&v[i]);
+			finish(v[i]);
 		};
 		free(v);
 	case let o: object =>
 		for (let i = 0z; i < len(o.buckets); i += 1) {
-			for (let j = 0z; j < len(o.buckets[i]); j += 1) {
-				free(&o.buckets[i][j].0);
-				finish(&o.buckets[i][j].1);
+			const bucket = &o.buckets[i];
+			for (let j = 0z; j < len(bucket); j += 1) {
+				free(bucket[j].0);
+				finish(bucket[j].1);
 			};
-			free(o.buckets[i]);
+			// TODO: https://todo.sr.ht/~sircmpwn/hare/690
+			//free(bucket);
 		};
 	case => void;
 	};
