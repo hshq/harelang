@@ -22,12 +22,10 @@ export type string = struct {
 	// UTF-8 encoded octets.
 	data: nullable *[*]u8,
 
-	// The length capacity, in octets of UTF-8 data, not including the NUL
-	// terminator.
+	// The length capacity, in octets of UTF-8 data.
 	length: size,
 
-	// The allocated capacity, in octets of UTF-8 data, not including the
-	// NUL terminator.
+	// The allocated capacity, in octets of UTF-8 data.
 	capacity: size,
 };
 
