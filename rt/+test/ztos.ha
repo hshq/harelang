@@ -15,7 +15,7 @@ fn bytes_reverse(b: []u8) void = {
 };
 
 fn ztos(u: size) const str = {
-	static let buf: [21]u8 = [0...]; // 20 digits plus NUL
+	static let buf: [20]u8 = [0...];
 	buf = [0...];
 
 	let s = struct {
@@ -36,6 +36,5 @@ fn ztos(u: size) const str = {
 	};
 
 	bytes_reverse(s.b[..s.l]);
-	s.b[s.l] = 0;
 	return *(&s: *str);
 };
