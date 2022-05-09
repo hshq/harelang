@@ -3,7 +3,7 @@
 use rt;
 use types;
 
-// Appends an item, or multiple items, to a slice.
+// Appends an item, or multiple items, to a slice, reallocating if necessary.
 export fn appendto(sl: *[]void, itemsz: size, items: const *void...) void = {
 	const repr = sl: *types::slice;
 	insertinto(sl, itemsz, repr.length, items...);
@@ -21,7 +21,19 @@ export fn appendto(sl: *[]void, itemsz: size, items: const *void...) void = {
 	free(input);
 };
 
-// Inserts an item, or multiple items, to a slice, in O(n) time.
+// Appends an item, or multiple items, to a slice. Aborts if the slice's
+// capacity isn't large enough to fit the items.
+export fn static_appendto(
+	sl: *[]void,
+	itemsz: size,
+	items: const *void...
+) void = {
+	const repr = sl: *types::slice;
+	static_insertinto(sl, itemsz, repr.length, items...);
+};
+
+// Inserts an item, or multiple items, to a slice, in O(n) time, reallocating if
+// necessary.
 export fn insertinto(
 	sl: *[]void,
 	itemsz: size,
@@ -51,17 +63,44 @@ export fn insertinto(
 	free(input);
 };
 
-// Deletes a range of items from a slice, in O(n) time, without freeing memory.
-export fn deletefrom(sl: *[]void, itemsz: size, start: size, end: size) void = {
-	assert(start <= end);
-	if (start == end) {
+// Inserts an item, or multiple items, into a slice, in O(n) time. Aborts if the
+// slice's capacity isn't large enough to fit the items.
+export fn static_insertinto(
+	sl: *[]void,
+	itemsz: size,
+	idx: size,
+	items: const *void...
+) void = {
+	if (len(items) == 0) {
 		return;
 	};
 	let sl = sl: *types::slice;
+	sl.length += len(items);
+	assert(sl.length <= sl.capacity,
+		"static insert/append exceeds slice capacity");
 	let data = sl.data: *[*]u8;
-	rt::memmove(&data[start * itemsz], &data[end * itemsz],
-		(sl.length - start) * itemsz);
-	sl.length -= end - start;
+	rt::memmove(&data[(idx + len(items)) * itemsz], &data[idx * itemsz],
+		(sl.length - len(items) - idx) * itemsz);
+	for (let i = 0z; i < len(items); i += 1) {
+		rt::memcpy(&data[(idx + i) * itemsz], items[i], itemsz);
+	};
+};
+
+// Deletes a range of items from a slice, in O(n) time. The slice may be
+// reallocated. Reallocation will never fail.
+export fn deletefrom(sl: *[]void, itemsz: size, start: size, end: size) void = {
+	static_deletefrom(sl, itemsz, start, end);
+	let sl = sl: *types::slice;
+	if (sl.length <= sl.capacity / 2) {
+		// TODO: switch to using alloc() once it's possible to handle
+		// copy allocation errors
+		match (rt::realloc(sl.data, sl.length * itemsz)) {
+		case null => void;
+		case let p: *void =>
+			sl.data = p;
+			sl.capacity = sl.length;
+		};
+	};
 };
 
 @test fn deletefrom() void = {
@@ -72,6 +111,24 @@ export fn deletefrom(sl: *[]void, itemsz: size, start: size, end: size) void = {
 	assert(len(input) == 3 && input[0] == 1 && input[1] == 4
 		&& input[2] == 5);
 	free(input);
+};
+
+// Deletes a range of items from a slice, in O(n) time, without freeing memory.
+export fn static_deletefrom(
+	sl: *[]void,
+	itemsz: size,
+	start: size,
+	end: size,
+) void = {
+	assert(start <= end);
+	if (start == end) {
+		return;
+	};
+	let sl = sl: *types::slice;
+	let data = sl.data: *[*]u8;
+	rt::memmove(&data[start * itemsz], &data[end * itemsz],
+		(sl.length - start) * itemsz);
+	sl.length -= end - start;
 };
 
 // Swaps two elements of a slice.
