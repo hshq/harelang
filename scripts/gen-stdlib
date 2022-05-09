@@ -509,6 +509,22 @@ encoding_hex() {
 	gen_ssa encoding::hex ascii bytes fmt io strconv strio strings
 }
 
+encoding_json() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs encoding::json \
+			types.ha \
+			lex.ha
+	else
+		gen_srcs encoding::json \
+			types.ha \
+			lex.ha \
+			+test/lexer.ha
+	fi
+	gen_ssa encoding::json ascii bufio io strio os encoding::utf8 strings \
+		strconv
+}
+
 encoding_pem() {
 	if [ $testing -eq 0 ]
 	then
@@ -1363,6 +1379,7 @@ dirs
 encoding::base64
 encoding::base32
 encoding::hex
+encoding::json
 encoding::pem
 encoding::utf8
 endian

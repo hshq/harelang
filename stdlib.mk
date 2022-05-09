@@ -308,6 +308,12 @@ stdlib_deps_any += $(stdlib_encoding_hex_any)
 stdlib_encoding_hex_linux = $(stdlib_encoding_hex_any)
 stdlib_encoding_hex_freebsd = $(stdlib_encoding_hex_any)
 
+# gen_lib encoding::json (any)
+stdlib_encoding_json_any = $(HARECACHE)/encoding/json/encoding_json-any.o
+stdlib_deps_any += $(stdlib_encoding_json_any)
+stdlib_encoding_json_linux = $(stdlib_encoding_json_any)
+stdlib_encoding_json_freebsd = $(stdlib_encoding_json_any)
+
 # gen_lib encoding::pem (any)
 stdlib_encoding_pem_any = $(HARECACHE)/encoding/pem/encoding_pem-any.o
 stdlib_deps_any += $(stdlib_encoding_pem_any)
@@ -1050,6 +1056,17 @@ $(HARECACHE)/encoding/hex/encoding_hex-any.ssa: $(stdlib_encoding_hex_any_srcs) 
 	@mkdir -p $(HARECACHE)/encoding/hex
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::hex \
 		-t$(HARECACHE)/encoding/hex/encoding_hex.td $(stdlib_encoding_hex_any_srcs)
+
+# encoding::json (+any)
+stdlib_encoding_json_any_srcs = \
+	$(STDLIB)/encoding/json/types.ha \
+	$(STDLIB)/encoding/json/lex.ha
+
+$(HARECACHE)/encoding/json/encoding_json-any.ssa: $(stdlib_encoding_json_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/encoding/json
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::json \
+		-t$(HARECACHE)/encoding/json/encoding_json.td $(stdlib_encoding_json_any_srcs)
 
 # encoding::pem (+any)
 stdlib_encoding_pem_any_srcs = \
@@ -2370,6 +2387,12 @@ testlib_deps_any += $(testlib_encoding_hex_any)
 testlib_encoding_hex_linux = $(testlib_encoding_hex_any)
 testlib_encoding_hex_freebsd = $(testlib_encoding_hex_any)
 
+# gen_lib encoding::json (any)
+testlib_encoding_json_any = $(TESTCACHE)/encoding/json/encoding_json-any.o
+testlib_deps_any += $(testlib_encoding_json_any)
+testlib_encoding_json_linux = $(testlib_encoding_json_any)
+testlib_encoding_json_freebsd = $(testlib_encoding_json_any)
+
 # gen_lib encoding::pem (any)
 testlib_encoding_pem_any = $(TESTCACHE)/encoding/pem/encoding_pem-any.o
 testlib_deps_any += $(testlib_encoding_pem_any)
@@ -3132,6 +3155,18 @@ $(TESTCACHE)/encoding/hex/encoding_hex-any.ssa: $(testlib_encoding_hex_any_srcs)
 	@mkdir -p $(TESTCACHE)/encoding/hex
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::hex \
 		-t$(TESTCACHE)/encoding/hex/encoding_hex.td $(testlib_encoding_hex_any_srcs)
+
+# encoding::json (+any)
+testlib_encoding_json_any_srcs = \
+	$(STDLIB)/encoding/json/types.ha \
+	$(STDLIB)/encoding/json/lex.ha \
+	$(STDLIB)/encoding/json/+test/lexer.ha
+
+$(TESTCACHE)/encoding/json/encoding_json-any.ssa: $(testlib_encoding_json_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/encoding/json
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::json \
+		-t$(TESTCACHE)/encoding/json/encoding_json.td $(testlib_encoding_json_any_srcs)
 
 # encoding::pem (+any)
 testlib_encoding_pem_any_srcs = \
