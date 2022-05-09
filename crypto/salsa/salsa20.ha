@@ -4,6 +4,7 @@ use bytes;
 use crypto::cipher;
 use crypto::math::{rotl32, xor};
 use endian;
+use io;
 
 // Size of a Salsa key, in bytes.
 export def KEYSIZE: size = 32;
@@ -22,7 +23,7 @@ export def BLOCKSIZE: size = 64;
 const magic: [4]u32 = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574];
 
 export type stream = struct {
-	cipher::stream,
+	cipher::xorstream,
 	state: [16]u32,
 	xorbuf: [BLOCKSIZE]u8,
 	xorused: size,
@@ -30,11 +31,12 @@ export type stream = struct {
 };
 
 // Create a Salsa20 or XSalsa20 stream. Must be initialized with either
-// [[salsa20_init]] or [[xsalsa20_init]], and must be finished with
-// [[crypto::cipher::finish]] afterwards to wipe sensitive data from memory.
+// [[salsa20_init]] or [[xsalsa20_init]], and must be closed with [[io::close]]
+// after use to wipe sensitive data from memory.
 export fn salsa20() stream = {
 	return stream {
-		xor = &stream_xor,
+		keybuf = &keybuf,
+		advance = &advance,
 		finish = &finish,
 		xorused = BLOCKSIZE,
 		rounds = ROUNDS,
@@ -69,18 +71,22 @@ fn init(
 // Initialize a Salsa20 stream.
 export fn salsa20_init(
 	s: *stream,
+	h: io::handle,
 	key: *[KEYSIZE]u8,
 	nonce: *[NONCESIZE]u8,
 ) void = {
 	let counter: [8]u8 = [0...];
 	init(&s.state, key, nonce, &counter);
 	s.xorused = BLOCKSIZE;
+
+	cipher::xorstream_init(s, h);
 };
 
 // Initialize an XSalsa20 stream. XSalsa20 differs from Salsa20 via the use of a
 // larger nonce parameter.
 export fn xsalsa20_init(
 	s: *stream,
+	h: io::handle,
 	key: *[KEYSIZE]u8,
 	nonce: *[XNONCESIZE]u8
 ) void = {
@@ -98,7 +104,7 @@ export fn xsalsa20_init(
 	endian::leputu32(dkey[24..28], state[8]);
 	endian::leputu32(dkey[28..], state[9]);
 
-	salsa20_init(s, &dkey, nonce[16..]: *[NONCESIZE]u8);
+	salsa20_init(s, h, &dkey, nonce[16..]: *[NONCESIZE]u8);
 
 	bytes::zero((state[..]: *[*]u8)[..64]);
 	bytes::zero(dkey);
@@ -112,33 +118,24 @@ export fn setctr(s: *stream, counter: u64) void = {
 	s.xorused = BLOCKSIZE;
 };
 
-fn stream_xor(cs: *cipher::stream, dest: []u8, src: []u8) void = {
-	assert(endian::host == &endian::little, "TODO big-endian");
-	let s = cs: *stream;
-
-	for (len(dest) > 0) {
-		if (s.xorused >= BLOCKSIZE) {
-			block((s.xorbuf[..]: *[*]u32)[..16], &s.state, s.rounds);
-			s.state[8] += 1;
-			if (s.state[8] == 0) {
-				s.state[9] += 1;
-			};
-			s.xorused = 0;
+fn keybuf(s: *cipher::xorstream) []u8 = {
+	let s = s: *stream;
+	if (s.xorused >= BLOCKSIZE) {
+		block((s.xorbuf[..]: *[*]u32)[..16], &s.state, s.rounds);
+		s.state[8] += 1;
+		if (s.state[8] == 0) {
+			s.state[9] += 1;
 		};
-
-		const max = if (len(dest) > (BLOCKSIZE - s.xorused)) {
-			yield BLOCKSIZE - s.xorused;
-		} else {
-			yield len(dest);
-		};
-
-		xor(dest[..max], src[..max],
-			s.xorbuf[s.xorused..s.xorused + max]);
-		s.xorused += max;
-
-		dest = dest[max..];
-		src = src[max..];
+		s.xorused = 0;
 	};
+
+	return s.xorbuf[s.xorused..];
+};
+
+fn advance(s: *cipher::xorstream, n: size) void = {
+	let s = s: *stream;
+	assert(n <= len(s.xorbuf));
+	s.xorused += n;
 };
 
 fn block(dest: []u32, state: *[16]u32, rounds: size) void = {
@@ -174,8 +171,8 @@ fn qr(a: *u32, b: *u32, c: *u32, d: *u32) void = {
 	*a ^= rotl32(*d + *c, 18);
 };
 
-fn finish(cs: *cipher::stream) void = {
-	let s = cs: *stream;
+fn finish(s: *cipher::xorstream) void = {
+	let s = s: *stream;
 	bytes::zero((s.state[..]: *[*]u8)[..len(s.state) * size(u32)]);
 	bytes::zero(s.xorbuf);
 };

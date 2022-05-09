@@ -1,8 +1,10 @@
 // License: MPL-2.0
 // (c) 2021 Armin Preiml <apreiml@strohwolke.at>
+use bufio;
 use bytes;
 use crypto::cipher;
 use types;
+use io;
 
 @test fn qr() void = {
 	let s: [4]u32 = [0xe7e8c006, 0xc4f9417d, 0x6479b4b2, 0x68c67137];
@@ -55,12 +57,14 @@ use types;
 	];
 
 	let result: [116]u8 = [0...];
+	let cipherbuf = bufio::fixed(result, io::mode::WRITE);
 
 	let c = salsa20();
-	xsalsa20_init(&c, &key, &nonce);
-	defer cipher::finish(&c);
+	defer io::close(&c)!;
 
-	cipher::stream_xor(&c, result, msg);
+	xsalsa20_init(&c, &cipherbuf, &key, &nonce);
+
+	io::writeall(&c, msg)!;
 	assert(bytes::equal(cipher, result));
 };
 
@@ -106,13 +110,15 @@ use types;
 	];
 
 	let result: [116]u8 = [0...];
+	let cipherbuf = bufio::fixed(result, io::mode::WRITE);
 
 	let c = salsa20();
-	xsalsa20_init(&c, &key, &nonce);
-	setctr(&c, types::U32_MAX);
-	defer cipher::finish(&c);
+	defer io::close(&c)!;
 
-	cipher::stream_xor(&c, result, msg);
+	xsalsa20_init(&c, &cipherbuf, &key, &nonce);
+	setctr(&c, types::U32_MAX);
+
+	io::writeall(&c, msg)!;
 	assert(bytes::equal(cipher, result));
 };
 
@@ -159,12 +165,14 @@ use types;
 
 
 	let result: [116]u8 = [0...];
+	let cipherbuf = bufio::fixed(result, io::mode::WRITE);
 
 	let c = salsa20();
-	xsalsa20_init(&c, &key, &nonce);
-	setctr(&c, types::U64_MAX);
-	defer cipher::finish(&c);
+	defer io::close(&c)!;
 
-	cipher::stream_xor(&c, result, msg);
+	xsalsa20_init(&c, &cipherbuf, &key, &nonce);
+	setctr(&c, types::U64_MAX);
+
+	io::writeall(&c, msg)!;
 	assert(bytes::equal(cipher, result));
 };

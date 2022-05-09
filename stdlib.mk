@@ -916,7 +916,7 @@ $(HARECACHE)/crypto/poly1305/crypto_poly1305-any.ssa: $(stdlib_crypto_poly1305_a
 stdlib_crypto_salsa_any_srcs = \
 	$(STDLIB)/crypto/salsa/salsa20.ha
 
-$(HARECACHE)/crypto/salsa/crypto_salsa-any.ssa: $(stdlib_crypto_salsa_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
+$(HARECACHE)/crypto/salsa/crypto_salsa-any.ssa: $(stdlib_crypto_salsa_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/salsa
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::salsa \
@@ -3010,7 +3010,7 @@ testlib_crypto_salsa_any_srcs = \
 	$(STDLIB)/crypto/salsa/salsa20.ha \
 	$(STDLIB)/crypto/salsa/+test.ha
 
-$(TESTCACHE)/crypto/salsa/crypto_salsa-any.ssa: $(testlib_crypto_salsa_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+$(TESTCACHE)/crypto/salsa/crypto_salsa-any.ssa: $(testlib_crypto_salsa_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/salsa
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::salsa \

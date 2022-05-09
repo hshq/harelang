@@ -401,11 +401,12 @@ crypto_salsa() {
 	if [ $testing -eq 0 ]
 	then
 		gen_srcs crypto::salsa salsa20.ha
-		gen_ssa crypto::salsa bytes crypto::cipher crypto::math endian
+		gen_ssa crypto::salsa bytes crypto::cipher crypto::math endian \
+			io
 	else
 		gen_srcs crypto::salsa salsa20.ha +test.ha
-		gen_ssa crypto::salsa bytes crypto::cipher crypto::math endian \
-			types
+		gen_ssa crypto::salsa bytes bufio crypto::cipher crypto::math \
+			endian types io
 	fi
 }
 

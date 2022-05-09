@@ -2,11 +2,11 @@ crypto::salsa provides an implementation of the Salsa20 and XSalsa20 stream
 ciphers, per "Salsa20 specification" by Daniel J. Bernstein.
 
 Use [[salsa20]] to create a stream and either [[xsalsa20_init]] or
-[[salsa20_init]] to set key and nonce of the appropriate size, [[NONCESIZE]] for
-salsa20 or [[XNONCESIZE]] for XSalsa20. After calling the appropriate init
-function, [[crypto::cipher::stream_xor]] may be used to encrypt blocks. The
-stream must be finished with [[crypto::cipher::finish]] to wipe sensitive data
-from memory.
+[[salsa20_init]] to set handle, key and nonce of the appropriate size,
+[[NONCESIZE]] for salsa20 or [[XNONCESIZE]] for XSalsa20. After calling the
+appropriate init function, [[io::write]] may be used to encrypt blocks to the
+handle or [[io::read]] to decrypt blocks from the handle. The stream must be
+closed with [[io::close]] to wipe sensitive data from memory.
 
 Writing blocks of length [[BLOCKSIZE]] is not required. However, seeking the key
 stream with [[setctr]] only operates in units of [[BLOCKSIZE]].
