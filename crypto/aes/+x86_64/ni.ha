@@ -60,7 +60,7 @@ fn x86ni_finish(block: *cipher::block) void = {
 };
 
 // Expands encryption and decryption key and returns the size of the round keys.
-export fn x86ni_keyexp(key: []u8, enc_rk: []u8, dec_rk: []u8) u8;
-export fn x86ni_asencrypt(key_exp: []u8, dest: []u8, src: []u8) void;
-export fn x86ni_asdecrypt(key_exp: []u8, dest: []u8, src: []u8) void;
+fn x86ni_keyexp(key: []u8, enc_rk: []u8, dec_rk: []u8) u8;
+fn x86ni_asencrypt(key_exp: []u8, dest: []u8, src: []u8) void;
+fn x86ni_asdecrypt(key_exp: []u8, dest: []u8, src: []u8) void;
 
