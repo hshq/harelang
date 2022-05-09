@@ -1,7 +1,7 @@
+// License: MPL-2.0
+// (c) 2022 Drew DeVault <sir@cmpwn.com>
 use hash::fnv;
 use strings;
-use fmt; // XXX TEMP
-use types;
 
 // TODO: Resize table as appropriate
 def OBJECT_BUCKETS: size = 32;

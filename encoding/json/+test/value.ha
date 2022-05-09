@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2022 Drew DeVault <sir@cmpwn.com>
+
 @test fn object() void = {
 	let obj = newobject();
 	defer finish(obj);
