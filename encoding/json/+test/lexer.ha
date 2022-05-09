@@ -22,7 +22,7 @@ use io;
 		const src = strings::toutf8(cases[i].0);
 		const src = bufio::fixed(src, io::mode::READ);
 		const lexer = lex(&src);
-		defer finish(&lexer);
+		defer close(&lexer);
 
 		for (let j = 0z; j < len(cases[i].1); j += 1) {
 			const want = cases[i].1[j];

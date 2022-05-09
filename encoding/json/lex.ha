@@ -14,7 +14,7 @@ export type lexer = struct {
 };
 
 // Creates a new JSON lexer. The caller can obtain tokens with [[next]] and
-// should pass the result to [[finish]] when they're done with it.
+// should pass the result to [[close]] when they're done with it.
 export fn lex(src: io::handle) lexer = {
 	let buf: []u8 = alloc([0...], os::BUFSIZ);
 	return lexer {
@@ -25,7 +25,7 @@ export fn lex(src: io::handle) lexer = {
 };
 
 // Frees state associated with a JSON lexer.
-export fn finish(lex: *lexer) void = {
+export fn close(lex: *lexer) void = {
 	free(lex.buffer);
 	io::close(&lex.strbuf)!;
 };
