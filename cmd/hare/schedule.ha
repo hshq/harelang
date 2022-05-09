@@ -3,6 +3,7 @@
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+// (c) 2022 Jon Eskin <eskinjp@gmail.com>
 use encoding::hex;
 use fmt;
 use fs;
@@ -232,7 +233,7 @@ fn sched_hare_object(
 		path::set(&buf, plan.context.cache)!;
 		path::add(&buf, namespace...)!;
 		const path = path::string(&buf);
-		match (os::mkdirs(path)) {
+		match (os::mkdirs(path, 0o755)) {
 		case void => void;
 		case let err: fs::error =>
 			fmt::fatalf("Error: mkdirs {}: {}", path,

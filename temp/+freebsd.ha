@@ -2,6 +2,7 @@
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2022 Jon Eskin <eskinjp@gmail.com>
 use crypto::random;
 use encoding::hex;
 use errors;
@@ -101,7 +102,7 @@ export fn dir() str = {
 	static let buf = path::buffer { ... };
 	path::set(&buf, get_tmpdir(), name)!;
 	const path = path::string(&buf);
-	match (os::mkdir(path)) {
+	match (os::mkdir(path,0o755)) {
 	case let err: fs::error => abort("Could not create temp directory");
 	case void => void;
 	};

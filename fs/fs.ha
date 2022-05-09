@@ -5,6 +5,7 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
 // (c) 2021 Umar Getagazov <umar@handlerug.me>
+// (c) 2022 Jon Eskin <eskinjp@gmail.com>
 use errors;
 use io;
 use path;
@@ -195,27 +196,27 @@ export fn readlink(fs: *fs, path: str) (str | error) = {
 };
 
 // Creates a directory.
-export fn mkdir(fs: *fs, path: str) (void | error) = {
+export fn mkdir(fs: *fs, path: str, mode: mode) (void | error) = {
 	match (fs.mkdir) {
 	case null =>
 		return errors::unsupported;
 	case let f: *mkdirfunc =>
-		return f(fs, path);
+		return f(fs, path, mode);
 	};
 };
 
 // Makes a directory, and all non-extant directories in its path.
-export fn mkdirs(fs: *fs, path: str) (void | error) = {
+export fn mkdirs(fs: *fs, path: str, mode: mode) (void | error) = {
 	let parent = path::dirname(path);
 	if (path != parent) {
-		match (mkdirs(fs, parent)) {
+		match (mkdirs(fs, parent, mode)) {
 		case errors::exists => void;
 		case void => void;
 		case let err: error =>
 			return err;
 		};
 	};
-	match (mkdir(fs, path)) {
+	match (mkdir(fs, path, mode)) {
 	case errors::exists => void;
 	case void => void;
 	case let err: error =>

@@ -1,6 +1,7 @@
 // License: GPL-3.0
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2022 Jon Eskin <eskinjp@gmail.com>
 use bufio;
 use errors;
 use fmt;
@@ -260,7 +261,7 @@ fn choosekey() (str | release_error) = {
 	};
 
 	const parent = path::set(&buf, home, ".ssh")!;
-	os::mkdirs(parent)?;
+	os::mkdirs(parent, 0o755)?;
 
 	const path = path::set(&buf, home, ".ssh", "id_ed25519")!;
 	const cmd = match (exec::cmd("ssh-keygen", "-t", "ed25519", "-f", path)) {

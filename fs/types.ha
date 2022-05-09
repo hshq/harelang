@@ -2,6 +2,7 @@
 // (c) 2021 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2022 Jon Eskin <eskinjp@gmail.com>
 use errors;
 use io;
 use path;
@@ -196,7 +197,7 @@ export type removefunc = fn(fs: *fs, path: str) (void | error);
 export type renamefunc = fn(fs: *fs, oldpath: str, newpath: str) (void | error);
 export type iterfunc = fn(fs: *fs, path: str) (*iterator | error);
 export type statfunc = fn(fs: *fs, path: str) (filestat | error);
-export type mkdirfunc = fn(fs: *fs, path: str) (void | error);
+export type mkdirfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
 export type rmdirfunc = fn(fs: *fs, path: str) (void | error);
 export type chmodfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
 export type chownfunc = fn(fs: *fs, path: str, uid: uint, gid: uint) (void | error);

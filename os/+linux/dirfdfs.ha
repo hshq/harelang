@@ -3,6 +3,7 @@
 // (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2022 Jon Eskin <eskinjp@gmail.com>
 use bytes;
 use errors;
 use encoding::utf8;
@@ -313,9 +314,9 @@ fn fs_rmdir(fs: *fs::fs, path: str) (void | fs::error) = {
 	};
 };
 
-fn fs_mkdir(fs: *fs::fs, path: str) (void | fs::error) = {
+fn fs_mkdir(fs: *fs::fs, path: str, mode: fs::mode) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
-	match (rt::mkdirat(fs.dirfd, path, 0o755)) {
+	match (rt::mkdirat(fs.dirfd, path, mode: uint)) {
 	case let err: rt::errno =>
 		return errno_to_fs(err);
 	case void => void;

@@ -2,6 +2,7 @@
 // (c) 2021 Alexey Yerin <yyp@disroot.org>
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2022 Jon Eskin <eskinjp@gmail.com>
 use fs;
 use io;
 use path;
@@ -38,10 +39,10 @@ export fn readdir(path: str) ([]fs::dirent | fs::error) = fs::readdir(cwd, path)
 export fn stat(path: str) (fs::filestat | fs::error) = fs::stat(cwd, path);
 
 // Creates a directory.
-export fn mkdir(path: str) (void | fs::error) = fs::mkdir(cwd, path);
+export fn mkdir(path: str, mode: fs::mode) (void | fs::error) = fs::mkdir(cwd, path, mode);
 
 // Creates a directory, and all non-extant directories in its path.
-export fn mkdirs(path: str) (void | fs::error) = fs::mkdirs(cwd, path);
+export fn mkdirs(path: str, mode: fs::mode) (void | fs::error) = fs::mkdirs(cwd, path, mode);
 
 // Removes a directory. The target directory must be empty; see [[rmdirall]] to
 // remove its contents as well.
