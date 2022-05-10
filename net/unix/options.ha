@@ -1,9 +1,13 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
+use net;
 
 // Configures the backlog size for a listener. If not specified, a sensible
 // default (10) is used.
 export type backlog = u32;
 
+// Options for [[connect]].
+export type connect_option = net::sockflags;
+
 // Options for [[listen]].
-export type listen_option = backlog;
+export type listen_option = (backlog | net::sockflags);

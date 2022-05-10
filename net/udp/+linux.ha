@@ -12,6 +12,7 @@ use rt;
 export fn connect(
 	dest: ip::addr,
 	port: u16,
+	options: connect_option...
 ) (io::file | net::error) = {
 	const family = match (dest) {
 	case ip::addr4 =>
@@ -19,7 +20,13 @@ export fn connect(
 	case ip::addr6 =>
 		yield rt::AF_INET6: int;
 	};
-	const sockfd = match (rt::socket(family, rt::SOCK_DGRAM | rt::SOCK_CLOEXEC, 0)) {
+	let f = 0i;
+	for (let i = 0z; i < len(options); i += 1) {
+		// Only sockflags for now
+		f |= options[i];
+	};
+	f ^= rt::SOCK_CLOEXEC; // invert CLOEXEC
+	const sockfd = match (rt::socket(family, rt::SOCK_DGRAM | f, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
@@ -48,7 +55,16 @@ export fn listen(
 	case ip::addr6 =>
 		yield rt::AF_INET6: int;
 	};
-	const sockfd = match (rt::socket(family, rt::SOCK_DGRAM | rt::SOCK_CLOEXEC, 0)) {
+	let f = 0i;
+	for (let i = 0z; i < len(options); i += 1) {
+		match (options[i]) {
+		case let fl: net::sockflags =>
+			f |= fl;
+		case => void;
+		};
+	};
+	f ^= rt::SOCK_CLOEXEC; // invert CLOEXEC
+	const sockfd = match (rt::socket(family, rt::SOCK_DGRAM | f, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
@@ -64,7 +80,12 @@ export fn listen(
 	};
 
 	for (let i = 0z; i < len(options); i += 1) {
-		// The only option is portassignment right now
+		let portout = match (options[i]) {
+		case let p: portassignment =>
+			yield p;
+		case =>
+			continue;
+		};
 		let sn = rt::sockaddr {...};
 		let al = size(rt::sockaddr): u32;
 		match (rt::getsockname(sockfd, &sn, &al)) {
@@ -73,7 +94,7 @@ export fn listen(
 		case int => void;
 		};
 		const addr = ip::from_native(sn);
-		*options[i] = addr.1;
+		*portout = addr.1;
 	};
 
 	return io::fdopen(sockfd);

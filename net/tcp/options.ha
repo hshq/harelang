@@ -1,5 +1,6 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
+use net;
 
 // Enables keep-alive for a socket.
 export type keepalive = void;
@@ -20,7 +21,7 @@ export type reuseaddr = void;
 export type portassignment = *u16;
 
 // Options for [[connect]].
-export type connect_option = keepalive;
+export type connect_option = (keepalive | net::sockflags);
 
 // Options for [[listen]].
 export type listen_option = (
@@ -28,4 +29,5 @@ export type listen_option = (
 	reuseport |
 	reuseaddr |
 	backlog |
-	portassignment);
+	portassignment |
+	net::sockflags);

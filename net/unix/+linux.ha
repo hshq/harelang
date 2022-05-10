@@ -13,14 +13,23 @@ use types;
 
 // Opens a UNIX socket connection to the path. Blocks until the connection is
 // established.
-export fn connect(addr: addr) (io::file | net::error) = {
+export fn connect(
+	addr: addr,
+	options: connect_option...
+) (io::file | net::error) = {
 	let sockaddr = match (to_native(addr)) {
 	case let a: rt::sockaddr =>
 		yield a;
 	case invalid =>
 		return errors::unsupported; // path too long
 	};
-	const sockfd = match (rt::socket(rt::AF_UNIX: int, rt::SOCK_STREAM | rt::SOCK_CLOEXEC, 0)) {
+	let f = 0i;
+	for (let i = 0z; i < len(options); i += 1) {
+		// Only sockflags for now
+		f |= options[i];
+	};
+	f ^= rt::SOCK_CLOEXEC; // invert CLOEXEC
+	const sockfd = match (rt::socket(rt::AF_UNIX: int, rt::SOCK_STREAM | f, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
@@ -48,7 +57,16 @@ export fn listen(
 	case invalid =>
 		return errors::unsupported; // path too long
 	};
-	const sockfd = match (rt::socket(rt::AF_UNIX: int, rt::SOCK_STREAM | rt::SOCK_CLOEXEC, 0)) {
+	let f = 0i;
+	for (let i = 0z; i < len(options); i += 1) {
+		match (options[i]) {
+		case let fl: net::sockflags =>
+			f |= fl;
+		case => void;
+		};
+	};
+	f ^= rt::SOCK_CLOEXEC; // invert CLOEXEC
+	const sockfd = match (rt::socket(rt::AF_UNIX: int, rt::SOCK_STREAM | f, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
@@ -57,8 +75,11 @@ export fn listen(
 
 	let bk: u32 = 10;
 	for (let i = 0z; i < len(options); i += 1) {
-		// Only option is backlog right now
-		bk = options[i];
+		match (options[i]) {
+		case let b: backlog =>
+			bk = b;
+		case => void;
+		};
 	};
 
 	match (rt::bind(sockfd, &sockaddr, size(rt::sockaddr_un): u32)) {

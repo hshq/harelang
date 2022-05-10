@@ -22,7 +22,16 @@ export fn connect(
 	case ip::addr6 =>
 		yield rt::AF_INET6: int;
 	};
-	const sockfd = match (rt::socket(family, rt::SOCK_STREAM | rt::SOCK_CLOEXEC, 0)) {
+	let f = 0i;
+	for (let i = 0z; i < len(options); i += 1) {
+		match (options[i]) {
+		case let fl: net::sockflags =>
+			f |= fl;
+		case => void;
+		};
+	};
+	f ^= rt::SOCK_CLOEXEC; // invert CLOEXEC
+	const sockfd = match (rt::socket(family, rt::SOCK_STREAM | f, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
@@ -30,8 +39,11 @@ export fn connect(
 	};
 
 	for (let i = 0z; i < len(options); i += 1) {
-		// The only option is keepalive right now
-		setsockopt(sockfd, rt::SO_KEEPALIVE, true)?;
+		match (options[i]) {
+		case keepalive =>
+			setsockopt(sockfd, rt::SO_KEEPALIVE, true)?;
+		case => void;
+		};
 	};
 	const sz = size(rt::sockaddr): u32;
 	match (rt::connect(sockfd, &sockaddr, sz)) {
@@ -55,7 +67,16 @@ export fn listen(
 	case ip::addr6 =>
 		yield rt::AF_INET6: int;
 	};
-	const sockfd = match (rt::socket(family, rt::SOCK_STREAM | rt::SOCK_CLOEXEC, 0)) {
+	let f = 0i;
+	for (let i = 0z; i < len(options); i += 1) {
+		match (options[i]) {
+		case let fl: net::sockflags =>
+			f |= fl;
+		case => void;
+		};
+	};
+	f ^= rt::SOCK_CLOEXEC; // invert CLOEXEC
+	const sockfd = match (rt::socket(family, rt::SOCK_STREAM | f, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
@@ -73,7 +94,7 @@ export fn listen(
 			setsockopt(sockfd, rt::SO_KEEPALIVE, true)?;
 		case let b: backlog =>
 			bk = b;
-		case let p: portassignment => void;
+		case => void;
 		};
 	};
 
