@@ -242,6 +242,8 @@ export def F_SETOWN_EX: int = 15;
 export def F_GETOWN_EX: int = 16;
 export def F_GETOWNER_UIDS: int = 17;
 
+export def FD_CLOEXEC: int = 1;
+
 export type st_flock = struct {
 	l_type: i16,
 	l_whence: i16,

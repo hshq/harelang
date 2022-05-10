@@ -120,10 +120,20 @@ fn platform_exec(cmd: *command) error = {
 			continue;
 		};
 
-		match (rt::dup2(from, cmd.files[i].1)) {
-		case int => void;
-		case let e: rt::errno =>
-			return errors::errno(e);
+		if (cmd.files[i].1 == from) {
+			let flags = match (rt::fcntl(from, rt::F_GETFD, 0)) {
+			case let flags: int =>
+				yield flags;
+			case let e: rt::errno =>
+				return errors::errno(e);
+			};
+			rt::fcntl(from, rt::F_SETFD, flags & ~rt::FD_CLOEXEC)!;
+		} else {
+			match (rt::dup2(from, cmd.files[i].1)) {
+			case int => void;
+			case let e: rt::errno =>
+				return errors::errno(e);
+			};
 		};
 	};
 
