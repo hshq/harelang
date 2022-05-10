@@ -51,11 +51,6 @@ type os_filesystem = struct {
 
 // Opens a file descriptor as an [[fs::fs]]. This file descriptor must be a
 // directory file. The file will be closed when the fs is closed.
-//
-// If no other flags are provided to [[fs::open]] and [[fs::create]] when used with
-// a dirfdfs, [[fs::flags::NOCTTY]] and [[fs::flags::CLOEXEC]] are used when opening
-// the file. If you pass your own flags, it is recommended that you add these
-// unless you know that you do not want them.
 export fn dirfdopen(fd: io::file, resolve: resolve_flags...) *fs::fs = {
 	let ofs = alloc(os_filesystem { ... });
 	let fs = static_dirfdopen(fd, ofs);
@@ -180,15 +175,11 @@ fn fs_open_file(
 	path: str,
 	flags: fs::flags...
 ) (io::file | fs::error) = {
-	let oflags = 0;
-	if (len(flags) == 0z) {
-		oflags |= (fs::flags::NOCTTY
-			| fs::flags::CLOEXEC
-			| fs::flags::RDONLY): int;
-	};
+	let oflags = fs::flags::RDONLY: int;
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i]: int;
 	};
+	oflags ^= fs::flags::CTTY | fs::flags::NOCLOEXEC; // invert NOCTTY/CLOEXEC
 
 	if ((oflags: fs::flags & fs::flags::DIRECTORY) == fs::flags::DIRECTORY) {
 		// This is arch-specific
@@ -217,13 +208,12 @@ fn fs_create_file(
 ) (io::file | fs::error) = {
 	let oflags = 0;
 	if (len(flags) == 0z) {
-		oflags |= (fs::flags::NOCTTY
-			| fs::flags::CLOEXEC
-			| fs::flags::WRONLY): int;
+		oflags |= fs::flags::WRONLY;
 	};
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i]: int;
 	};
+	oflags ^= fs::flags::CTTY | fs::flags::NOCLOEXEC; // invert NOCTTY/CLOEXEC
 	oflags |= fs::flags::CREATE: int;
 
 	let oh = rt::open_how {

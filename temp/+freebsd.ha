@@ -53,7 +53,7 @@ export fn named(
 	assert(len(mode) == 0 || len(mode) == 1);
 
 	let fmode = if (len(mode) != 0) mode[0] else 0o644: fs::mode;
-	let oflags = fs::flags::EXCL | fs::flags::CLOEXEC;
+	let oflags = fs::flags::EXCL;
 	if (iomode == io::mode::RDWR) {
 		oflags |= fs::flags::RDWR;
 	} else {

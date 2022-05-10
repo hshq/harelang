@@ -19,11 +19,6 @@ type os_filesystem = struct {
 
 // Opens a file descriptor as an [[fs::fs]]. This file descriptor must be a
 // directory file. The file will be closed when the fs is closed.
-//
-// If no other flags are provided to [[fs::open]] and [[fs::create]] when used with
-// a dirfdfs, [[fs::flags::NOCTTY]] and [[fs::flags::CLOEXEC]] are used when opening
-// the file. If you pass your own flags, it is recommended that you add these
-// unless you know that you do not want them.
 export fn dirfdopen(fd: io::file) *fs::fs = {
 	let ofs = alloc(os_filesystem { ... });
 	let fs = static_dirfdopen(fd, ofs);
@@ -112,7 +107,7 @@ fn _fs_open(
 };
 
 fn fsflags_to_bsd(flags: fs::flags) int = {
-	let out = 0;
+	let out = rt::O_NOCTTY | rt::O_CLOEXEC;
 	if (flags & fs::flags::WRONLY > 0) {
 		out |= rt::O_WRONLY;
 	};
@@ -125,8 +120,8 @@ fn fsflags_to_bsd(flags: fs::flags) int = {
 	if (flags & fs::flags::EXCL > 0) {
 		out |= rt::O_EXCL;
 	};
-	if (flags & fs::flags::NOCTTY > 0) {
-		out |= rt::O_NOCTTY;
+	if (flags & fs::flags::CTTY > 0) {
+		out &= ~rt::O_NOCTTY;
 	};
 	if (flags & fs::flags::TRUNC > 0) {
 		out |= rt::O_TRUNC;
@@ -152,8 +147,8 @@ fn fsflags_to_bsd(flags: fs::flags) int = {
 	if (flags & fs::flags::NOFOLLOW > 0) {
 		out |= rt::O_NOFOLLOW;
 	};
-	if (flags & fs::flags::CLOEXEC > 0) {
-		out |= rt::O_CLOEXEC;
+	if (flags & fs::flags::NOCLOEXEC > 0) {
+		out &= ~rt::O_CLOEXEC;
 	};
 	if (flags & fs::flags::PATH > 0) {
 		abort("fs::flags::PATH is not supported on FreeBSD");
@@ -173,12 +168,10 @@ fn fs_open_file(
 	flags: fs::flags...
 ) (io::file | fs::error) = {
 	let oflags = fs::flags::RDONLY;
-	if (len(flags) == 0z) {
-		oflags |= fs::flags::NOCTTY | fs::flags::CLOEXEC;
-	};
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i];
 	};
+	oflags ^= fs::flags::CTTY | fs::flags::NOCLOEXEC; // invert NOCTTY/CLOEXEC
 	return _fs_open(fs, path, fsflags_to_bsd(oflags), 0);
 };
 
@@ -194,13 +187,14 @@ fn fs_create_file(
 	mode: fs::mode,
 	flags: fs::flags...
 ) (io::file | fs::error) = {
-	let oflags = fs::flags::RDONLY;
+	let oflags = 0;
 	if (len(flags) == 0z) {
-		oflags |= fs::flags::NOCTTY | fs::flags::CLOEXEC;
+		oflags |= fs::flags::WRONLY;
 	};
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i];
 	};
+	oflags ^= fs::flags::CTTY | fs::flags::NOCLOEXEC; // invert NOCTTY/CLOEXEC
 	oflags |= fs::flags::CREATE;
 	return _fs_open(fs, path, fsflags_to_bsd(oflags), mode)?;
 };
