@@ -20,14 +20,12 @@ export fn connect(addr: addr) (io::file | net::error) = {
 	case invalid =>
 		return errors::unsupported; // path too long
 	};
-	const sockfd = match (rt::socket(rt::AF_UNIX: int, rt::SOCK_STREAM, 0)) {
+	const sockfd = match (rt::socket(rt::AF_UNIX: int, rt::SOCK_STREAM | rt::SOCK_CLOEXEC, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
 		yield fd;
 	};
-	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
-	rt::fcntl(sockfd, rt::F_SETFL, flags | rt::O_CLOEXEC)!;
 
 	const sz = size(rt::sockaddr_un): u32;
 	match (rt::connect(sockfd, &sockaddr, sz)) {
@@ -50,14 +48,12 @@ export fn listen(
 	case invalid =>
 		return errors::unsupported; // path too long
 	};
-	const sockfd = match (rt::socket(rt::AF_UNIX: int, rt::SOCK_STREAM, 0)) {
+	const sockfd = match (rt::socket(rt::AF_UNIX: int, rt::SOCK_STREAM | rt::SOCK_CLOEXEC, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
 		yield fd;
 	};
-	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
-	rt::fcntl(sockfd, rt::F_SETFL, flags | rt::O_CLOEXEC)!;
 
 	let bk: u32 = 10;
 	for (let i = 0z; i < len(options); i += 1) {

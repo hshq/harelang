@@ -11,7 +11,7 @@ use io;
 // domain and returns an unnamed pair of sockets of type [[rt::SOCK_STREAM]].
 export fn socketpair() ((io::file, io::file) | net::error) = {
 	let sv: [2]int = [0...];
-	match (rt::socketpair(rt::AF_UNIX : int, rt::SOCK_STREAM : int, 0, &sv)) {
+	match (rt::socketpair(rt::AF_UNIX : int, (rt::SOCK_STREAM | rt::SOCK_CLOEXEC) : int, 0, &sv)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case =>

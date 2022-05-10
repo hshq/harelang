@@ -22,14 +22,12 @@ export fn connect(
 	case ip::addr6 =>
 		yield rt::AF_INET6: int;
 	};
-	const sockfd = match (rt::socket(family, rt::SOCK_STREAM, 0)) {
+	const sockfd = match (rt::socket(family, rt::SOCK_STREAM | rt::SOCK_CLOEXEC, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
 		yield fd;
 	};
-	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
-	rt::fcntl(sockfd, rt::F_SETFL, flags | rt::O_CLOEXEC)!;
 
 	for (let i = 0z; i < len(options); i += 1) {
 		// The only option is keepalive right now
@@ -57,14 +55,12 @@ export fn listen(
 	case ip::addr6 =>
 		yield rt::AF_INET6: int;
 	};
-	const sockfd = match (rt::socket(family, rt::SOCK_STREAM, 0)) {
+	const sockfd = match (rt::socket(family, rt::SOCK_STREAM | rt::SOCK_CLOEXEC, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
 		yield fd;
 	};
-	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
-	rt::fcntl(sockfd, rt::F_SETFL, flags | rt::O_CLOEXEC)!;
 
 	let bk: u32 = 10;
 	for (let i = 0z; i < len(options); i += 1) {

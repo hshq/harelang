@@ -19,7 +19,7 @@ export fn connect(
 	case ip::addr6 =>
 		yield rt::AF_INET6: int;
 	};
-	const sockfd = match (rt::socket(family, rt::SOCK_DGRAM, 0)) {
+	const sockfd = match (rt::socket(family, rt::SOCK_DGRAM | rt::SOCK_CLOEXEC, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
@@ -48,14 +48,12 @@ export fn listen(
 	case ip::addr6 =>
 		yield rt::AF_INET6: int;
 	};
-	const sockfd = match (rt::socket(family, rt::SOCK_DGRAM, 0)) {
+	const sockfd = match (rt::socket(family, rt::SOCK_DGRAM | rt::SOCK_CLOEXEC, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>
 		yield fd;
 	};
-	let flags = rt::fcntl(sockfd, rt::F_GETFL, 0)!;
-	rt::fcntl(sockfd, rt::F_SETFL, flags | rt::O_CLOEXEC)!;
 
 	const sockaddr = ip::to_native(addr, port);
 	const sz = size(rt::sockaddr): u32;
