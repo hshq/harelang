@@ -34,7 +34,6 @@ use io;
 
 	let b = ct64();
 	ct64_init(&b, key);
-	defer cipher::finish(&b);
 
 	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
 
@@ -46,6 +45,9 @@ use io;
 	const zero: [CTR_BUFSIZE]u8 = [0...];
 	const bsz = cipher::blocksz(&b);
 	assert(bytes::equal(ctr.xorbuf, zero[bsz..]));
+
+	let b = ct64();
+	ct64_init(&b, key);
 
 	result = [0...];
 	buf = [0...];
@@ -85,7 +87,6 @@ use io;
 
 	let b = ct64();
 	ct64_init(&b, key);
-	defer cipher::finish(&b);
 
 	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
 	defer io::close(&ctr)!;
@@ -137,7 +138,6 @@ use io;
 
 	let b = ct64();
 	ct64_init(&b, key);
-	defer cipher::finish(&b);
 
 	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
 	const n = io::writeall(&ctr, plain)!;
@@ -145,11 +145,15 @@ use io;
 	assert(bytes::equal(cipher, result));
 	io::close(&ctr)!;
 
+	let b = ct64();
+	ct64_init(&b, key);
+
 	let cipherbuf = bufio::fixed(cipher, io::mode::READ);
 	let ctr = cipher::ctr(&cipherbuf, &b, iv[..], buf[..]);
 	const n = io::readall(&ctr, result)!;
 	assert(n as size == len(plain));
 	assert(bytes::equal(plain, result));
+	io::close(&ctr)!;
 };
 
 @test fn ctr_test_multiple_calls() void = {
@@ -195,7 +199,6 @@ use io;
 
 	let b = ct64();
 	ct64_init(&b, key);
-	defer cipher::finish(&b);
 
 	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
 	defer io::close(&ctr)!;

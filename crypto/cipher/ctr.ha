@@ -26,7 +26,8 @@ export type ctr_stream = struct {
 // of these buffers for static allocation.
 //
 // The user must call [[io::close]] when they are done using the stream to
-// securely erase secret information stored in the stream state.
+// securely erase secret information stored in the stream state. This will also
+// finish the underlying [[block]] cipher.
 export fn ctr(h: io::handle, b: *block, iv: []u8, buf: []u8) ctr_stream = {
 	assert(len(iv) == blocksz(b), "iv is of invalid block size");
 	assert(len(buf) >= blocksz(b) * 2, "buf must be at least 2 * blocksize");
@@ -109,4 +110,5 @@ fn ctr_advance(s: *xorstream, n: size) void = {
 fn ctr_finish(s: *xorstream) void = {
 	let ctr = s: *ctr_stream;
 	bytes::zero(ctr.xorbuf);
+	finish(ctr.b);
 };
