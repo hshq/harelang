@@ -98,7 +98,7 @@ export fn dirfs_clone(fs: *fs::fs, resolve: resolve_flags...) *fs::fs = {
 	for (let i = 0z; i < len(resolve); i += 1) {
 		new.resolve |= resolve[i];
 	};
-	new.dirfd = rt::dup(new.dirfd) as int;
+	new.dirfd = rt::fcntl(new.dirfd, rt::F_DUPFD_CLOEXEC, 0) as int;
 	return &new.fs;
 };
 
