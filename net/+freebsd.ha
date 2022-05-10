@@ -12,27 +12,24 @@ use strings;
 
 // Optional flags to [[accept]] to be set on the returned [[io::file]].
 // See the O_CLOEXEC and O_NONBLOCK sections of open(2) for details.
+// Note that CLOEXEC is on by default, and NOCLOEXEC flag disables it.
 export type sockflags = enum int {
-	CLOEXEC = rt::SOCK_CLOEXEC,
+	NOCLOEXEC = rt::SOCK_CLOEXEC,
 	NONBLOCK = rt::SOCK_NONBLOCK
 };
 
 // Accepts the next connection from a socket. Blocks until a new connection is
-// available. Optionally accepts CLOEXEC and NONBLOCK flags. If flags are
+// available. Optionally accepts NOCLOEXEC and NONBLOCK flags. If flags are
 // supplied, the [[io::file]] returned will have the supplied flags set.
-// If no flags are supplied, CLOEXEC is used by default.
 export fn accept(sock: io::file, flags: sockflags...) (io::file | error) = {
 	let sn = rt::sockaddr {...};
 	const sz = size(rt::sockaddr): u32;
-	// Default to CLOEXEC if no flags are supplied
-	if (len(flags) == 0) {
-		flags = [sockflags::CLOEXEC];
-	};
 	// Apply any supplied flags
 	let f = 0i;
 	for (let i = 0z; i < len(flags); i += 1) {
 		f |= flags[i];
 	};
+	f ^= rt::SOCK_CLOEXEC; // invert CLOEXEC
 	const fd = match (rt::accept4(sock, &sn, &sz, f)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
