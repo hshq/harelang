@@ -76,11 +76,28 @@ export fn encodestr(in: []u8) str = {
 	return strio::string(&out);
 };
 
-@test fn encode() void = {
+@test fn encodestr() void = {
 	let in: [_]u8 = [0xCA, 0xFE, 0xBA, 0xBE, 0xDE, 0xAD, 0xF0, 0x0D];
 	let s = encodestr(in);
 	defer free(s);
 	assert(s == "cafebabedeadf00d");
+};
+
+// Encodes a byte slice as a hexadecimal string and writes it to an
+// [[io::handle]].
+export fn encode(out: io::handle, in: []u8) (size | io::error) = {
+	const enc = newencoder(out);
+	return io::writeall(&enc, in);
+};
+
+@test fn encode() void = {
+	const in: [_]u8 = [0xCA, 0xFE, 0xBA, 0xBE, 0xDE, 0xAD, 0xF0, 0x0D];
+
+	let out = strio::dynamic();
+	defer io::close(&out)!;
+
+	encode(&out, in)!;
+	assert(strio::string(&out) == "cafebabedeadf00d");
 };
 
 export type decoder = struct {
