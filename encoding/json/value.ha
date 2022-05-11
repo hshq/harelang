@@ -31,8 +31,8 @@ export fn get(obj: *object, key: str) (*value | void) = {
 	};
 };
 
-// Sets a value in a JSON object. Assumes ownership over the provided value.
-export fn set(obj: *object, key: str, val: value) void = {
+// Sets a value in a JSON object.
+export fn set(obj: *object, key: const str, val: const value) void = {
 	const hash = fnv::string64(key): size;
 	const bucket = &obj.buckets[hash % len(obj.buckets)];
 	for (let i = 0z; i < len(bucket); i += 1) {
@@ -46,7 +46,7 @@ export fn set(obj: *object, key: str, val: value) void = {
 };
 
 // Deletes a value from a JSON object.
-export fn del(obj: *object, key: str) void = {
+export fn del(obj: *object, key: const str) void = {
 	const hash = fnv::string64(key): size;
 	const bucket = &obj.buckets[hash % len(obj.buckets)];
 	for (let i = 0z; i < len(bucket); i += 1) {
