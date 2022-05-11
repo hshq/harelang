@@ -13,6 +13,7 @@ export type lexer = struct {
 	src: bufio::bufstream,
 	buffer: []u8,
 	strbuf: strio::stream,
+	un: (token | void),
 };
 
 // Creates a new JSON lexer. The caller can obtain tokens with [[next]] and
@@ -23,6 +24,7 @@ export fn lex(src: io::handle) lexer = {
 		src = bufio::buffered(src, buf, []),
 		buffer = buf,
 		strbuf = strio::dynamic(),
+		un = void,
 	};
 };
 
@@ -35,6 +37,13 @@ export fn close(lex: *lexer) void = {
 // Returns the next token from a JSON lexer. The return value is borrowed from
 // the lexer and will be overwritten on subsequent calls.
 export fn next(lex: *lexer) (token | io::EOF | error) = {
+	match (lex.un) {
+	case void => void;
+	case let tok: token =>
+		lex.un = void;
+		return tok;
+	};
+
 	const rn = match (nextrunews(lex)?) {
 	case io::EOF =>
 		return io::EOF;
@@ -80,6 +89,14 @@ export fn next(lex: *lexer) (token | io::EOF | error) = {
 	case =>
 		return invalid;
 	};
+};
+
+// "Unlexes" a token from the lexer, such that the next call to [[next]] will
+// return that token again. Only one token can be unlexed at a time, otherwise
+// the program will abort.
+fn unlex(lex: *lexer, tok: token) void = {
+	assert(lex.un is void, "encoding::json::unlex called twice in a row");
+	lex.un = tok;
 };
 
 // Scans until encountering a non-alphabetical character, returning the
@@ -131,7 +148,8 @@ fn scan_number(lex: *lexer) (token | error) = {
 				void;
 			case =>
 				if (!ascii::isdigit(rn)) {
-					return invalid;
+					bufio::unreadrune(&lex.src, rn);
+					break;
 				};
 			};
 		case numstate::FRACTION =>
