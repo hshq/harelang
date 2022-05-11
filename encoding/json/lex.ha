@@ -103,6 +103,7 @@ fn unlex(lex: *lexer, tok: token) void = {
 // resulting word.
 fn scan_word(lex: *lexer) (str | error) = {
 	strio::reset(&lex.strbuf);
+
 	for (true) {
 		const rn = match (nextrune(lex)?) {
 		case let rn: rune =>
@@ -116,6 +117,7 @@ fn scan_word(lex: *lexer) (str | error) = {
 		};
 		strio::appendrune(&lex.strbuf, rn)!;
 	};
+
 	return strio::string(&lex.strbuf);
 };
 

@@ -25,7 +25,7 @@ fn _load(lexer: *lexer) (value | error) = {
 	case let f: f64 =>
 		return f;
 	case let s: str =>
-		return s;
+		return strings::dup(s);
 	case arraystart =>
 		return _load_array(lexer);
 	case objstart =>
@@ -76,6 +76,7 @@ fn _load_obj(lexer: *lexer) (value | error) = {
 		};
 
 		const val = _load(lexer)?;
+		defer finish(val);
 		set(&obj, key, val);
 
 		tok = mustscan(lexer)?;
