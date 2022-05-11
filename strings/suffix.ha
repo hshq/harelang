@@ -23,7 +23,7 @@ export fn hasprefix(in: str, prefix: (str | rune)) bool = {
 	assert(!hasprefix("hello world", 'q'));
 };
 
-// Returns true if 'in' has the given prefix.
+// Returns true if 'in' has the given suffix.
 export fn hassuffix(in: str, suff: (str | rune)) bool = {
 	let suff = match (suff) {
 	case let r: rune =>
