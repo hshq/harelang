@@ -1,0 +1,11 @@
+This module provides an implementation of the JavaScript Object Notation (JSON)
+format, defined by RFC 7159. A lexer for JSON values is provided, which may be
+initialized with [[lex]] and provides tokens via [[next]], and which uses a
+relatively small amount of memory and provides relatively few gurantees
+regarding the compliance of the input with the JSON grammar.
+
+Additionally, the [[value]] type is provided to store any value JSON value, as
+well as helpers like [[newobject]], [[get]], and [[set]]. One can load a JSON
+value from an input stream into a heap-allocated [[value]] via [[load]], which
+enforces all of JSON's grammar constraints and returns an object which must be
+freed with [[finish]].
