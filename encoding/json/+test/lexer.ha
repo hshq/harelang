@@ -21,16 +21,16 @@ use io;
 	for (let i = 0z; i < len(cases); i += 1) {
 		const src = strings::toutf8(cases[i].0);
 		const src = bufio::fixed(src, io::mode::READ);
-		const lexer = lex(&src);
+		const lexer = newlexer(&src);
 		defer close(&lexer);
 
 		for (let j = 0z; j < len(cases[i].1); j += 1) {
 			const want = cases[i].1[j];
-			const have = next(&lexer)! as token;
+			const have = lex(&lexer)! as token;
 			assert(tokeq(want, have));
 		};
 
-		assert(next(&lexer) is io::EOF);
+		assert(lex(&lexer) is io::EOF);
 	};
 };
 

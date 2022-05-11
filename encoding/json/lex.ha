@@ -16,9 +16,9 @@ export type lexer = struct {
 	un: (token | void),
 };
 
-// Creates a new JSON lexer. The caller can obtain tokens with [[next]] and
+// Creates a new JSON lexer. The caller may obtain tokens with [[lex]] and
 // should pass the result to [[close]] when they're done with it.
-export fn lex(src: io::handle) lexer = {
+export fn newlexer(src: io::handle) lexer = {
 	let buf: []u8 = alloc([0...], os::BUFSIZ);
 	return lexer {
 		src = bufio::buffered(src, buf, []),
@@ -36,7 +36,7 @@ export fn close(lex: *lexer) void = {
 
 // Returns the next token from a JSON lexer. The return value is borrowed from
 // the lexer and will be overwritten on subsequent calls.
-export fn next(lex: *lexer) (token | io::EOF | error) = {
+export fn lex(lex: *lexer) (token | io::EOF | error) = {
 	match (lex.un) {
 	case void => void;
 	case let tok: token =>
@@ -91,7 +91,7 @@ export fn next(lex: *lexer) (token | io::EOF | error) = {
 	};
 };
 
-// "Unlexes" a token from the lexer, such that the next call to [[next]] will
+// "Unlexes" a token from the lexer, such that the next call to [[lex]] will
 // return that token again. Only one token can be unlexed at a time, otherwise
 // the program will abort.
 fn unlex(lex: *lexer, tok: token) void = {

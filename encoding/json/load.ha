@@ -10,13 +10,13 @@ use strings;
 // [[io::limitreader]] or similar, or use the JSON lexer ([[lex]]) directly into
 // your program if dealing with potentially malicious inputs.
 export fn load(src: io::handle) (value | error) = {
-	const lex = lex(src);
+	const lex = newlexer(src);
 	defer close(&lex);
 	return _load(&lex);
 };
 
-fn _load(lex: *lexer) (value | error) = {
-	const tok = mustscan(lex)?;
+fn _load(lexer: *lexer) (value | error) = {
+	const tok = mustscan(lexer)?;
 	match (tok) {
 	case _null =>
 		return _null;
@@ -27,28 +27,28 @@ fn _load(lex: *lexer) (value | error) = {
 	case let s: str =>
 		return s;
 	case arraystart =>
-		return _load_array(lex);
+		return _load_array(lexer);
 	case objstart =>
-		return _load_obj(lex);
+		return _load_obj(lexer);
 	case (arrayend | objend | colon | comma) =>
 		return invalid;
 	};
 };
 
-fn _load_array(lex: *lexer) (value | error) = {
+fn _load_array(lexer: *lexer) (value | error) = {
 	let array: []value = [];
 	for (true) {
-		let tok = mustscan(lex)?;
+		let tok = mustscan(lexer)?;
 		match (tok) {
 		case arrayend =>
 			break;
 		case =>
-			unlex(lex, tok);
+			unlex(lexer, tok);
 		};
 
-		append(array, _load(lex)?);
+		append(array, _load(lexer)?);
 
-		tok = mustscan(lex)?;
+		tok = mustscan(lexer)?;
 		match (tok) {
 		case comma => void;
 		case arrayend => break;
@@ -58,10 +58,10 @@ fn _load_array(lex: *lexer) (value | error) = {
 	return array;
 };
 
-fn _load_obj(lex: *lexer) (value | error) = {
+fn _load_obj(lexer: *lexer) (value | error) = {
 	let obj = newobject();
 	for (true) {
-		let tok = mustscan(lex)?;
+		let tok = mustscan(lexer)?;
 		const key = match (tok) {
 		case let s: str =>
 			yield strings::dup(s);
@@ -70,15 +70,15 @@ fn _load_obj(lex: *lexer) (value | error) = {
 		};
 		defer free(key);
 
-		tok = mustscan(lex)?;
+		tok = mustscan(lexer)?;
 		if (!(tok is colon)) {
 			return invalid;
 		};
 
-		const val = _load(lex)?;
+		const val = _load(lexer)?;
 		set(&obj, key, val);
 
-		tok = mustscan(lex)?;
+		tok = mustscan(lexer)?;
 		match (tok) {
 		case comma => void;
 		case objend => break;
@@ -89,8 +89,8 @@ fn _load_obj(lex: *lexer) (value | error) = {
 	return obj;
 };
 
-fn mustscan(lex: *lexer) (token | error) = {
-	match (next(lex)?) {
+fn mustscan(lexer: *lexer) (token | error) = {
+	match (lex(lexer)?) {
 	case io::EOF =>
 		return invalid;
 	case let tok: token =>

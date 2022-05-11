@@ -59,6 +59,30 @@ export fn del(obj: *object, key: const str) void = {
 	};
 };
 
+export type iterator = struct {
+	obj: *object,
+	i: size,
+	j: size,
+};
+
+// Creates an iterator that enumerates over the key/value pairs in an
+// [[object]].
+export fn iter(obj: *object) iterator = {
+	return iterator { obj = obj, ... };
+};
+
+// Returns the next key/value pair from this iterator, or void if none remain.
+export fn next(iter: *iterator) ((const str, const *value) | void) = {
+	for (iter.i < len(iter.obj.buckets); iter.i += 1) {
+		const bucket = &iter.obj.buckets[iter.i];
+		for (iter.j < len(bucket); iter.j += 1) {
+			const key = bucket[iter.j].0;
+			const val = &bucket[iter.j].1;
+			return (key, val);
+		};
+	};
+};
+
 // Duplicates a JSON value. The caller must pass the return value to [[finish]]
 // to free associated resources when they're done using it.
 export fn dup(val: value) value = {
@@ -72,7 +96,18 @@ export fn dup(val: value) value = {
 		};
 		return new;
 	case let o: object =>
-		abort(); // TODO: Implement me after iter
+		let new = newobject();
+		const i = iter(&o);
+		for (true) {
+			const pair = match (next(&i)) {
+			case void =>
+				break;
+			case let pair: (const str, const *value) =>
+				yield pair;
+			};
+			set(&new, pair.0, *pair.1);
+		};
+		return new;
 	case =>
 		return val;
 	};
