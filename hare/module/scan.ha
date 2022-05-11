@@ -257,7 +257,7 @@ fn scan_directory(
 		};
 
 		let path = path::join(path, name);
-		let tuple = (false, base, tags, path);
+		let tuple = (false, strings::dup(base), tags, path);
 		let superceded = false;
 		for (let j = 0z; j < len(inputs); j += 1) {
 			if (inputs[j].1 != base) {
