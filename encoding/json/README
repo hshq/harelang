@@ -1,5 +1,6 @@
 This module provides an implementation of the JavaScript Object Notation (JSON)
-format, defined by RFC 7159. A lexer for JSON values is provided, which may be
+format, as defined by RFC 8259. Note that several other, incompatible
+specifications exist. A lexer for JSON values is provided, which may be
 initialized with [[lex]] and provides tokens via [[next]], and which uses a
 relatively small amount of memory and provides relatively few gurantees
 regarding the compliance of the input with the JSON grammar.
