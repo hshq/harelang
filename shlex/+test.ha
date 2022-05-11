@@ -75,4 +75,5 @@ fn testquote(sink: *strio::stream, s: str, expected: str) void = {
 	testquote(&sink, `hello`, `hello`);
 	testquote(&sink, `hello world`, `"hello world"`);
 	testquote(&sink, `'hello' "world"`, `"'hello' "'"'"world"'"'""`);
+	testquote(&sink, `hello\world`, `"hello\\world"`);
 };

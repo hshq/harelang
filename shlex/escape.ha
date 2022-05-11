@@ -49,6 +49,8 @@ export fn quote(sink: io::handle, s: str) (size | io::error) = {
 
 		if (rn == '"') {
 			z += io::writeall(sink, strings::toutf8(`"'"'"`))?;
+		} else if (rn == '\\') {
+			z += io::writeall(sink, strings::toutf8(`\\`))?;
 		} else {
 			z += io::writeall(sink, utf8::encoderune(rn))?;
 		};
