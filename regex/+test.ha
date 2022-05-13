@@ -1,9 +1,6 @@
 // License: MPL-2.0
 // (c) 2022 Vlad-Stefan Harbuz <vlad@vladh.net>
 use fmt;
-use io;
-use os;
-use strings;
 
 type matchres = enum { MATCH, NOMATCH, ERROR };
 
