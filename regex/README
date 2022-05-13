@@ -26,6 +26,9 @@ the longest match among the leftmost matches.
 		defer free(groups);
 		// The match groups provide the content, start index and end
 		// index of the main match, as well as all submatches.
+		fmt::printfln("{} ({}, {})", groups[0].content,
+			groups[0].start,
+			groups[0].end)!;
 	};
 
 	const all_matches = regex::findall(&re, "Hello Hare, hello Hare.")!;
@@ -35,6 +38,11 @@ the longest match among the leftmost matches.
 		defer regex::freeall(groupsets);
 		// A slice of multiple match group sets, which can be used
 		// similarly to the find() example.
+		for (let i = 0z; i < len(groupsets); i += 1) {
+			fmt::printfln("{} ({}, {})", groupsets[i][0].content,
+				groupsets[i][0].start,
+				groupsets[i][0].end)!;
+		};
 	};
 
 [0]: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html#tag_09_04
