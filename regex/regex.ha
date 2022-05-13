@@ -651,7 +651,8 @@ fn search(
 	re: *regex,
 	string: str,
 	str_iter: *strings::iterator,
-	str_idx: *int
+	str_idx: *int,
+	need_captures: bool
 ) (void | []capture | error) = {
 	let threads: []thread = alloc([
 		thread { captures = alloc([]), ... }
@@ -714,6 +715,9 @@ fn search(
 				r_or_end, *str_idx)?;
 			const matchlen = threads[i].root_capture.end
 				- threads[i].root_capture.start;
+			if (res is newmatch && matchlen > 0 && !need_captures) {
+				return []: []capture;
+			};
 			const is_better = res is newmatch && matchlen > 0
 				&& (first_match_idx is void
 					|| threads[i].start_idx
@@ -768,13 +772,23 @@ fn search(
 	return void;
 };
 
+// Returns whether or not a regex matches a string.
+export fn test(re: *regex, string: str) (bool | error) = {
+	let str_idx = -1;
+	let str_iter = strings::iter(string);
+	match (search(re, string, &str_iter, &str_idx, false)?) {
+	case void => return false;
+	case []capture => return true;
+	};
+};
+
 
 // Attempts to match a regular expression against a string and returns the
 // longest leftmost match, or void if there is no match.
 export fn find(re: *regex, string: str) (void | []capture | error) = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
-	return search(re, string, &str_iter, &str_idx);
+	return search(re, string, &str_iter, &str_idx, true);
 };
 
 // Attempts to match a regular expression against a string and returns all
@@ -784,7 +798,7 @@ export fn findall(re: *regex, string: str) (void | [][]capture | error) = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
 	for (true) {
-		const findres = search(re, string, &str_iter, &str_idx)?;
+		const findres = search(re, string, &str_iter, &str_idx, true)?;
 		match (findres) {
 		case let m: []capture =>
 			append(res, m);
