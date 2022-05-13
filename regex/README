@@ -24,8 +24,8 @@ the longest match among the leftmost matches.
 	case void => void;
 	case let groups: []regex::matchgroup =>
 		defer free(groups);
-		// The match groups provide the content, start index and end index of
-		// the main match, as well as all submatches.
+		// The match groups provide the content, start index and end
+		// index of the main match, as well as all submatches.
 	};
 
 	const all_matches = regex::findall(&re, "Hello Hare, hello Hare.")!;
@@ -33,8 +33,8 @@ the longest match among the leftmost matches.
 	case void => void;
 	case let groupsets: [][]regex::matchgroup =>
 		defer regex::freeall(groupsets);
-		// A slice of multiple match group sets, which can be used similarly
-		// to the find() example.
+		// A slice of multiple match group sets, which can be used
+		// similarly to the find() example.
 	};
 
 [0]: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html#tag_09_04
