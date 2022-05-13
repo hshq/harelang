@@ -20,6 +20,9 @@ the longest match among the leftmost matches.
 	const re = regex::compile(`[Hh]are`)!;
 	defer regex::regex_finish(&re);
 
+	const does_match = regex::test(&re, "Hello Hare, hello Hare.")!;
+	fmt::printfln("matched? {}", does_match)!;
+
 	const first_match = regex::find(&re, "Hello Hare, hello Hare.")!;
 	match (first_match) {
 	case void => void;
