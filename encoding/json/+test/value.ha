@@ -18,3 +18,18 @@
 	del(&obj, "hello");
 	assert(get(&obj, "hello") is void);
 };
+
+@test fn iterator() void = {
+	let obj = newobject();
+	defer finish(obj);
+
+	set(&obj, "hello", "world");
+	set(&obj, "foo", "bar");
+	set(&obj, "the answer", 42.0);
+
+	let it = iter(&obj);
+	assert(next(&it) is (const str, const *value));
+	assert(next(&it) is (const str, const *value));
+	assert(next(&it) is (const str, const *value));
+	assert(next(&it) is void);
+};

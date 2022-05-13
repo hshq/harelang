@@ -75,11 +75,13 @@ export fn iter(obj: *object) iterator = {
 export fn next(iter: *iterator) ((const str, const *value) | void) = {
 	for (iter.i < len(iter.obj.buckets); iter.i += 1) {
 		const bucket = &iter.obj.buckets[iter.i];
-		for (iter.j < len(bucket); iter.j += 1) {
+		for (iter.j < len(bucket)) {
 			const key = bucket[iter.j].0;
 			const val = &bucket[iter.j].1;
+			iter.j += 1;
 			return (key, val);
 		};
+		iter.j = 0;
 	};
 };
 
