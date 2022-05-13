@@ -24,7 +24,7 @@ the longest match among the leftmost matches.
 	match (first_match) {
 	case void => void;
 	case let captures: []regex::capture =>
-		defer free(captures);
+		defer regex::free_captures(captures);
 		// captures[0]: The full matching string.
 		// captures[1...]: A capture for every capture group.
 		fmt::printfln("{} ({}, {})", captures[0].content,
@@ -36,7 +36,7 @@ the longest match among the leftmost matches.
 	match (all_matches) {
 	case void => void;
 	case let matches: [][]regex::capture =>
-		defer regex::freeall(matches);
+		defer regex::free_matches(matches);
 		// matches[0]: All captures for the first match.
 		// matches[0][0]: The full matching string for the first match.
 		// matches[0][1...]: A capture for every capture group in the

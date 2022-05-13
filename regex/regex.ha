@@ -805,10 +805,15 @@ export fn findall(re: *regex, string: str) (void | [][]capture | error) = {
 	return res;
 };
 
+// Frees a slice of captures.
+export fn free_captures(s: []capture) void = {
+	free(s);
+};
+
 // Frees each match in a slice of matches, as well as the slice itself.
-export fn freeall(s: [][]capture) void = {
+export fn free_matches(s: [][]capture) void = {
 	for (let i = 0z; i < len(s); i += 1) {
-		free(s[i]);
+		free_captures(s[i]);
 	};
 	free(s);
 };
