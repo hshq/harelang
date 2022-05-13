@@ -31,7 +31,7 @@ export type inst = (inst_lit | inst_any | inst_split | inst_jump |
 	inst_repeat);
 
 // A (sub)match found as a result of matching a certain string against a regex.
-export type matchgroup = struct {
+export type capture = struct {
 	content: str,
 	start: size,
 	end: size,
@@ -40,10 +40,10 @@ export type matchgroup = struct {
 type thread = struct {
 	pc: size,
 	start_idx: size,
-	root_group: matchgroup,
-	groups: []matchgroup,
-	curr_group: matchgroup,
-	curr_group_inited: bool,
+	root_capture: capture,
+	captures: []capture,
+	curr_capture: capture,
+	curr_capture_inited: bool,
 	rep_counters: []size,
 	matched: bool,
 	failed: bool,
@@ -468,7 +468,7 @@ fn parse_repetition(
 };
 
 fn delete_thread(i: size, threads: *[]thread) void = {
-	free(threads[i].groups);
+	free(threads[i].captures);
 	free(threads[i].rep_counters);
 	delete(threads[i]);
 };
@@ -492,11 +492,11 @@ fn add_thread(threads: *[]thread, parent_idx: size, new_pc: size) void = {
 	append(threads, thread {
 		pc = new_pc,
 		start_idx = threads[parent_idx].start_idx,
-		curr_group = threads[parent_idx].curr_group,
-		curr_group_inited = threads[parent_idx].curr_group_inited,
+		curr_capture = threads[parent_idx].curr_capture,
+		curr_capture_inited = threads[parent_idx].curr_capture_inited,
 		matched = threads[parent_idx].matched,
 		failed = threads[parent_idx].failed,
-		groups = alloc(threads[parent_idx].groups...),
+		captures = alloc(threads[parent_idx].captures...),
 		rep_counters = alloc(threads[parent_idx].rep_counters...),
 		...
 	});
@@ -535,7 +535,7 @@ fn run_thread(
 				threads[i].failed = true;
 				return;
 			};
-			threads[i].root_group = matchgroup {
+			threads[i].root_capture = capture {
 				start = threads[i].start_idx,
 				end = str_idx: size,
 				// TODO: This is a perf issue for large strings
@@ -546,24 +546,24 @@ fn run_thread(
 			threads[i].matched = true;
 			return newmatch;
 		case inst_groupstart =>
-			if (threads[i].curr_group_inited) {
+			if (threads[i].curr_capture_inited) {
 				return "Found nested capture groups in expression, which are not supported": error;
 			};
-			threads[i].curr_group.start = str_idx: size;
-			threads[i].curr_group_inited = true;
+			threads[i].curr_capture.start = str_idx: size;
+			threads[i].curr_capture_inited = true;
 			threads[i].pc += 1;
 		case inst_groupend =>
-			if (!threads[i].curr_group_inited) {
+			if (!threads[i].curr_capture_inited) {
 				return `Found a groupend token ")" without having previously seen a groupstart token "("`: error;
 			};
-			threads[i].curr_group.end = str_idx: size;
+			threads[i].curr_capture.end = str_idx: size;
 			// TODO: This is a perf issue for large strings
-			threads[i].curr_group.content = strings::sub(string,
-				threads[i].curr_group.start,
-				threads[i].curr_group.end);
-			append(threads[i].groups, threads[i].curr_group);
-			threads[i].curr_group = matchgroup { ... };
-			threads[i].curr_group_inited = false;
+			threads[i].curr_capture.content = strings::sub(string,
+				threads[i].curr_capture.start,
+				threads[i].curr_capture.end);
+			append(threads[i].captures, threads[i].curr_capture);
+			threads[i].curr_capture = capture { ... };
+			threads[i].curr_capture_inited = false;
 			threads[i].pc += 1;
 		case let ir: inst_repeat =>
 			assert(ir.id < len(threads[i].rep_counters));
@@ -652,16 +652,16 @@ fn search(
 	string: str,
 	str_iter: *strings::iterator,
 	str_idx: *int
-) (void | []matchgroup | error) = {
+) (void | []capture | error) = {
 	let threads: []thread = alloc([
-		thread { groups = [], ... }
+		thread { captures = [], ... }
 	]);
 	if (re.n_reps > 0) {
 		threads[0].rep_counters = alloc([0...], re.n_reps);
 	};
 	defer {
 		for (let i = 0z; i < len(threads); i += 1) {
-			free(threads[i].groups);
+			free(threads[i].captures);
 			free(threads[i].rep_counters);
 		};
 		free(threads);
@@ -684,25 +684,25 @@ fn search(
 
 		if (all_matched) {
 			let best_len = 0z;
-			let best_n_groups = 0z;
+			let best_n_captures = 0z;
 			let best_idx = 0z;
 			for (let i = 0z; i < len(threads); i += 1) {
-				let match_len = threads[i].root_group.end
-					- threads[i].root_group.start;
+				let match_len = threads[i].root_capture.end
+					- threads[i].root_capture.start;
 				const is_better = match_len > best_len
 					|| match_len == best_len
-					&& len(threads[i].groups)
-					> best_n_groups;
+					&& len(threads[i].captures)
+					> best_n_captures;
 				if (is_better) {
 					best_len = match_len;
 					best_idx = i;
-					best_n_groups = len(threads[i].groups);
+					best_n_captures = len(threads[i].captures);
 				};
 			};
-			let res: []matchgroup = alloc([],
-				len(threads[best_idx].groups) + 1);
-			append(res, threads[best_idx].root_group);
-			append(res, threads[best_idx].groups...);
+			let res: []capture = alloc([],
+				len(threads[best_idx].captures) + 1);
+			append(res, threads[best_idx].root_capture);
+			append(res, threads[best_idx].captures...);
 			return res;
 		};
 
@@ -712,8 +712,8 @@ fn search(
 		for (let i = 0z; i < len(threads); i += 1) {
 			const res = run_thread(i, re, string, &threads,
 				r_or_end, *str_idx)?;
-			const matchlen = threads[i].root_group.end
-				- threads[i].root_group.start;
+			const matchlen = threads[i].root_capture.end
+				- threads[i].root_capture.start;
 			const is_better = res is newmatch && matchlen > 0
 				&& (first_match_idx is void
 					|| threads[i].start_idx
@@ -771,7 +771,7 @@ fn search(
 
 // Attempts to match a regular expression against a string and returns the
 // longest leftmost match, or void if there is no match.
-export fn find(re: *regex, string: str) (void | []matchgroup | error) = {
+export fn find(re: *regex, string: str) (void | []capture | error) = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
 	return search(re, string, &str_iter, &str_idx);
@@ -779,14 +779,14 @@ export fn find(re: *regex, string: str) (void | []matchgroup | error) = {
 
 // Attempts to match a regular expression against a string and returns all
 // non-overlapping matches, or void if there are no matches.
-export fn findall(re: *regex, string: str) (void | [][]matchgroup | error) = {
-	let res: [][]matchgroup = [];
+export fn findall(re: *regex, string: str) (void | [][]capture | error) = {
+	let res: [][]capture = [];
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
 	for (true) {
 		const findres = search(re, string, &str_iter, &str_idx)?;
 		match (findres) {
-		case let m: []matchgroup =>
+		case let m: []capture =>
 			append(res, m);
 			assert(str_idx: size >= m[0].end);
 			for (str_idx: size > m[0].end) {
@@ -805,8 +805,8 @@ export fn findall(re: *regex, string: str) (void | [][]matchgroup | error) = {
 	return res;
 };
 
-// Frees all the matches in a slice and the slice itself.
-export fn freeall(s: [][]matchgroup) void = {
+// Frees each match in a slice of matches, as well as the slice itself.
+export fn freeall(s: [][]capture) void = {
 	for (let i = 0z; i < len(s); i += 1) {
 		free(s[i]);
 	};

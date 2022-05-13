@@ -41,7 +41,7 @@ fn run_find_case(
 				expr, string);
 		};
 
-	case let m: []matchgroup =>
+	case let m: []capture =>
 		if (expected == matchres::NOMATCH) {
 			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
 				expr, string);
@@ -51,11 +51,11 @@ fn run_find_case(
 				expr, string);
 		};
 		if (start: size != m[0].start) {
-			fmt::fatalf("Expected start of main match group to be {} but it was {}",
+			fmt::fatalf("Expected start of main capture to be {} but it was {}",
 				start, m[0].start);
 		};
 		if (end: size != m[0].end) {
-			fmt::fatalf("Expected end of main match group to be {} but it was {}",
+			fmt::fatalf("Expected end of main capture to be {} but it was {}",
 				end, m[0].end);
 		};
 
@@ -104,7 +104,7 @@ fn run_findall_case(
 				expr, string);
 		};
 
-	case let groupsets: [][]matchgroup =>
+	case let groupsets: [][]capture =>
 		if (expected == matchres::NOMATCH) {
 			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
 				expr, string);
