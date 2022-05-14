@@ -396,3 +396,23 @@ type op = enum {
 			&& ploc.col == vector[i].1.col);
 	};
 };
+
+@test fn access_tuple() void = {
+	const in = "((0, 1), 2).0.1";
+	const expected: []token = [
+		(ltok::LPAREN, void, loc(1, 1)),
+		(ltok::LPAREN, void, loc(1, 2)),
+		(ltok::LIT_ICONST, 0, loc(1, 3)),
+		(ltok::COMMA, void, loc(1, 4)),
+		(ltok::LIT_ICONST, 1, loc(1, 6)),
+		(ltok::RPAREN, void, loc(1, 7)),
+		(ltok::COMMA, void, loc(1, 8)),
+		(ltok::LIT_ICONST, 2, loc(1, 10)),
+		(ltok::RPAREN, void, loc(1, 11)),
+		(ltok::DOT, void, loc(1, 12)),
+		(ltok::LIT_ICONST, 0, loc(1, 13)),
+		(ltok::DOT, void, loc(1, 14)),
+		(ltok::LIT_ICONST, 1, loc(1, 15)),
+	];
+	lextest(in, expected);
+};

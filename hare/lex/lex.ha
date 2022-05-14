@@ -27,6 +27,7 @@ export type lexer = struct {
 	prevrlocs: [3]location,
 	flags: flags,
 	comment: str,
+	require_int: bool,
 };
 
 // Flags which apply to this lexer
@@ -70,7 +71,7 @@ export fn init(in: io::handle, path: str, flags: flags...) lexer = {
 		prevunlocs = [(loc, loc)...],
 		prevrlocs = [loc...],
 		flags = f,
-		comment = "",
+		...
 	};
 };
 
@@ -99,13 +100,15 @@ export fn lex(lex: *lexer) (token | error) = {
 		yield r;
 	};
 
-	if (is_name(r.0, false)) {
-		unget(lex, r);
-		return lex_name(lex, r.1, false);
-	};
 	if (ascii::isdigit(r.0)) {
 		unget(lex, r);
 		return lex_literal(lex);
+	};
+
+	lex.require_int = false;
+	if (is_name(r.0, false)) {
+		unget(lex, r);
+		return lex_name(lex, r.1, false);
 	};
 
 	let tok = switch (r.0) {
@@ -454,7 +457,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		if (!strings::contains(basechrs, r.0)) switch (r.0) {
 		case '.' =>
 			if (float || exp is size || suff is size
-					|| base != 10) {
+					|| base != 10 || lex.require_int) {
 				unget(lex, r);
 				break;
 			} else {
@@ -515,6 +518,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		} else append(chars, utf8::encoderune(r.0)...);
 	};
 	if (end == 0) end = len(chars);
+	lex.require_int = false;
 
 	let exp = match (exp) {
 	case void =>
@@ -710,9 +714,12 @@ fn lex3(lex: *lexer) (token | error) = {
 	let r = next(lex)? as (rune, location);
 	let toks = switch (r.0) {
 	case '.' =>
-		let tok = if (try(lex, '.')? is void) ltok::DOT
-			else if (try(lex, '.')? is void) ltok::SLICE
-			else ltok::ELLIPSIS;
+		let tok = if (try(lex, '.')? is void) {
+			lex.require_int = true;
+			yield ltok::DOT;
+		} else if (try(lex, '.')? is void) {
+			yield ltok::SLICE;
+		} else ltok::ELLIPSIS;
 		line_comment(lex)?;
 		return (tok, void, r.1);
 	case '<' =>
