@@ -71,6 +71,9 @@ export fn main() void = {
 			yield dir::IOW;
 		case "_IOWR" =>
 			yield dir::IOWR;
+		case =>
+			fmt::fatalf("Unknown ioctl direction {}",
+				groups[1].content);
 		};
 		const ioctl = parseioctl(store, dir, groups[2].content);
 
