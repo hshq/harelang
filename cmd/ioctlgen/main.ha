@@ -46,14 +46,14 @@ export fn main() void = {
 		};
 		defer free(line);
 
-		if (regex::test(&typedefre, line)!) {
+		if (regex::test(&typedefre, line)) {
 			bufio::unreadrune(os::stdin, '\n');
 			bufio::unread(os::stdin, strings::toutf8(line));
 			loadtype(store);
 			continue;
 		};
 
-		let groups = match (regex::find(&ioctlre, line)!) {
+		let groups = match (regex::find(&ioctlre, line)) {
 		case void =>
 			fmt::println(line)!;
 			continue;
