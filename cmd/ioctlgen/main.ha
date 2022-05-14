@@ -47,8 +47,8 @@ export fn main() void = {
 		case void =>
 			fmt::println(line)!;
 			continue;
-		case let mg: []regex::matchgroup =>
-			yield mg;
+		case let cap: []regex::capture =>
+			yield cap;
 		};
 		defer free(groups);
 
