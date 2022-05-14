@@ -273,8 +273,6 @@ fn prototype_tty(
 	return n;
 };
 
-// newline(), builtin_type(), and multiline_comment() are from html.ha
-
 // Forked from [[hare::unparse]]
 fn struct_union_type_tty(
 	out: io::handle,
