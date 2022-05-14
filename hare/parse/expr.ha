@@ -1022,9 +1022,6 @@ fn postfix_dot(
 		synassert(lex::mkloc(lexer), val is ast::number_constant,
 			"Expected integer constant")?;
 		let val = val as ast::number_constant;
-		synassert(lex::mkloc(lexer),
-			val.value is i64 && val.suff == ltok::LIT_ICONST,
-			"Expected integer constant")?;
 		return ast::expr {
 			start = lvalue.start,
 			end = lex::prevloc(lexer),
