@@ -19,8 +19,8 @@ let typedefre: regex::regex = regex::regex { ... };
 };
 
 @fini fn fini() void = {
-	regex::regex_finish(&ioctlre);
-	regex::regex_finish(&typedefre);
+	regex::finish(&ioctlre);
+	regex::finish(&typedefre);
 };
 
 type dir = enum u32 {
