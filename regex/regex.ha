@@ -90,7 +90,6 @@ const charclass_fns: [](charclass, *fn(c: rune) bool) = [
 	(charclass::UPPER, &ascii::isupper),
 	(charclass::XDIGIT, &ascii::isxdigit),
 ];
-const multibyte_err: error = "Character ranges do not support characters larger than one byte.";
 
 export type regex = struct {
 	insts: []inst,
@@ -188,15 +187,11 @@ fn handle_bracket(
 		};
 	} else if (is_range) {
 		const start_enc = utf8::encoderune(r);
-		if (len(start_enc) > 1) {
-			return multibyte_err;
-		};
+		assert(len(start_enc) == 1, "Character ranges do not currently support characters larger than one byte");
 		const start_b = start_enc[0];
 
 		const end_enc = utf8::encoderune(range_end as rune);
-		if (len(end_enc) > 1) {
-			return multibyte_err;
-		};
+		assert(len(end_enc) == 1, "Character ranges do not currently support characters larger than one byte");
 		const end_b = end_enc[0];
 
 		if (end_b < start_b) {
@@ -285,6 +280,9 @@ export fn compile(expr: str) (regex | error) = {
 				append(insts, r: inst_lit);
 			};
 		case '(' =>
+			if (n_groupstarts > 0) {
+				return "Found nested capture groups in expression, which are not supported": error;
+			};
 			append(insts, void: inst_groupstart);
 			n_groupstarts += 1;
 		case ')' =>
@@ -441,6 +439,8 @@ fn parse_repetition(
 			};
 		case => return "Invalid repetition minimum value": error;
 		};
+	} else {
+		min = 0;
 	};
 
 	if (len(max_str) > 0) {
@@ -453,10 +453,6 @@ fn parse_repetition(
 			};
 		case => return "Invalid repetition maximum value": error;
 		};
-	};
-
-	if (len(min_str) == 0 && len(max_str) > 0) {
-		return "Invalid repetition minimum value": error;
 	};
 
 	const rep_len = if (is_single_arg) {
@@ -509,7 +505,7 @@ fn run_thread(
 	threads: *[]thread,
 	r_or_end: (rune | void),
 	str_idx: int
-) (void | error | newmatch) = {
+) (void | newmatch) = {
 	if (threads[i].matched) {
 		return;
 	};
@@ -546,16 +542,12 @@ fn run_thread(
 			threads[i].matched = true;
 			return newmatch;
 		case inst_groupstart =>
-			if (threads[i].curr_capture_inited) {
-				return "Found nested capture groups in expression, which are not supported": error;
-			};
+			assert(!threads[i].curr_capture_inited, "Found nested capture groups in expression, which are not supported");
 			threads[i].curr_capture.start = str_idx: size;
 			threads[i].curr_capture_inited = true;
 			threads[i].pc += 1;
 		case inst_groupend =>
-			if (!threads[i].curr_capture_inited) {
-				return `Found a groupend token ")" without having previously seen a groupstart token "("`: error;
-			};
+			assert(threads[i].curr_capture_inited, `Found a groupend token ")" without having previously seen a groupstart token "(". Please report this as a bug`);
 			threads[i].curr_capture.end = str_idx: size;
 			// TODO: This is a perf issue for large strings
 			threads[i].curr_capture.content = strings::sub(string,
@@ -615,9 +607,7 @@ fn run_thread(
 			};
 		case let range: charset_range_item =>
 			const r_enc = utf8::encoderune(r);
-			if (len(r_enc) > 1) {
-				return multibyte_err;
-			};
+			assert(len(r_enc) == 1, "Character ranges do not currently support characters larger than one byte");
 			const r_b = r_enc[0];
 			if (r_b >= range.0 && r_b <= range.1) {
 				// Succeeded if positive match
@@ -653,7 +643,7 @@ fn search(
 	str_iter: *strings::iterator,
 	str_idx: *int,
 	need_captures: bool
-) (void | []capture | error) = {
+) (void | []capture) = {
 	let threads: []thread = alloc([
 		thread { captures = alloc([]), ... }
 	]);
@@ -712,7 +702,7 @@ fn search(
 
 		for (let i = 0z; i < len(threads); i += 1) {
 			const res = run_thread(i, re, string, &threads,
-				r_or_end, *str_idx)?;
+				r_or_end, *str_idx);
 			const matchlen = threads[i].root_capture.end
 				- threads[i].root_capture.start;
 			if (res is newmatch && matchlen > 0 && !need_captures) {
@@ -773,10 +763,10 @@ fn search(
 };
 
 // Returns whether or not a regex matches a string.
-export fn test(re: *regex, string: str) (bool | error) = {
+export fn test(re: *regex, string: str) bool = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
-	match (search(re, string, &str_iter, &str_idx, false)?) {
+	match (search(re, string, &str_iter, &str_idx, false)) {
 	case void => return false;
 	case []capture => return true;
 	};
@@ -785,7 +775,7 @@ export fn test(re: *regex, string: str) (bool | error) = {
 
 // Attempts to match a regular expression against a string and returns the
 // longest leftmost match, or void if there is no match.
-export fn find(re: *regex, string: str) (void | []capture | error) = {
+export fn find(re: *regex, string: str) (void | []capture) = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
 	return search(re, string, &str_iter, &str_idx, true);
@@ -793,12 +783,12 @@ export fn find(re: *regex, string: str) (void | []capture | error) = {
 
 // Attempts to match a regular expression against a string and returns all
 // non-overlapping matches, or void if there are no matches.
-export fn findall(re: *regex, string: str) (void | [][]capture | error) = {
+export fn findall(re: *regex, string: str) (void | [][]capture) = {
 	let res: [][]capture = alloc([]);
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
 	for (true) {
-		const findres = search(re, string, &str_iter, &str_idx, true)?;
+		const findres = search(re, string, &str_iter, &str_idx, true);
 		match (findres) {
 		case let m: []capture =>
 			append(res, m);

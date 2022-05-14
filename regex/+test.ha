@@ -16,15 +16,20 @@ fn run_find_case(
 	case let e: error =>
 		if (expected == matchres::MATCH) {
 			fmt::println(e)!;
-			fmt::fatalf("Expected expression /{}/ to match, but it errored",
+			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it errored",
 				expr, string);
 		};
 		if (expected == matchres::NOMATCH) {
 			fmt::println(e)!;
-			fmt::fatalf("Expected expression /{}/ to not match, but it errored",
+			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it errored",
 				expr, string);
 		};
 		return;
+	};
+
+	if (expected == matchres::ERROR) {
+		fmt::fatalf("Expected expression /{}/ to have error caught during compilation, but it did not",
+			expr);
 	};
 
 	match (find(&re, string)) {
@@ -33,18 +38,10 @@ fn run_find_case(
 			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it did not",
 				expr, string);
 		};
-		if (expected == matchres::ERROR) {
-			fmt::fatalf("Expression /{}/ failed to match, but should have errored",
-				expr, string);
-		};
 
 	case let m: []capture =>
 		if (expected == matchres::NOMATCH) {
 			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
-				expr, string);
-		};
-		if (expected == matchres::ERROR) {
-			fmt::fatalf("Expression /{}/ matched, but should have errored",
 				expr, string);
 		};
 		if (start: size != m[0].start) {
@@ -54,16 +51,6 @@ fn run_find_case(
 		if (end: size != m[0].end) {
 			fmt::fatalf("Expected end of main capture to be {} but it was {}",
 				end, m[0].end);
-		};
-
-	case let e: error =>
-		if (expected == matchres::MATCH) {
-			fmt::fatalf("Expected expression /{}/ to match, but it errored",
-				expr, string);
-		};
-		if (expected == matchres::NOMATCH) {
-			fmt::fatalf("Expected expression /{}/ to not match, but it errored",
-				expr, string);
 		};
 	};
 };
@@ -90,14 +77,15 @@ fn run_findall_case(
 		return;
 	};
 
+	if (expected == matchres::ERROR) {
+		fmt::fatalf("Expected expression /{}/ to have error caught during compilation, but it did not",
+			expr);
+	};
+
 	match (findall(&re, string)) {
 	case void =>
 		if (expected == matchres::MATCH) {
 			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it did not",
-				expr, string);
-		};
-		if (expected == matchres::ERROR) {
-			fmt::fatalf("Expression /{}/ failed to match, but should have errored",
 				expr, string);
 		};
 
@@ -106,23 +94,9 @@ fn run_findall_case(
 			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
 				expr, string);
 		};
-		if (expected == matchres::ERROR) {
-			fmt::fatalf("Expression /{}/ matched, but should have errored",
-				expr, string);
-		};
 		if (count: size != len(groupsets)) {
 			fmt::fatalf("Expected to find {} matches but found {}",
 				count, len(groupsets));
-		};
-
-	case let e: error =>
-		if (expected == matchres::MATCH) {
-			fmt::fatalf("Expected expression /{}/ to match, but it errored",
-				expr, string);
-		};
-		if (expected == matchres::NOMATCH) {
-			fmt::fatalf("Expected expression /{}/ to not match, but it errored",
-				expr, string);
 		};
 	};
 };
@@ -309,9 +283,10 @@ fn run_findall_case(
 		(`^x(abc){1,2}$`, "xabc", matchres::MATCH, 0, -1),
 		(`^x(abc){1,2}$`, "xabcabc", matchres::MATCH, 0, -1),
 		(`^x(abc){1,2}$`, "xabcabcabc", matchres::NOMATCH, 0, -1),
-		(`^x(abc){,2}$`, "xabc", matchres::ERROR, 0, -1),
-		(`^x(abc){,2}$`, "xabcabc", matchres::ERROR, 0, -1),
-		(`^x(abc){,2}$`, "xabcabcabc", matchres::ERROR, 0, -1),
+		(`^x(abc){,2}$`, "xabc", matchres::MATCH, 0, -1),
+		(`^x(abc){,2}$`, "xabcabc", matchres::MATCH, 0, -1),
+		(`^x(abc){,2}`, "xabcabcabc", matchres::MATCH, 0, 7),
+		(`^x(abc){,2}$`, "xabcabcabc", matchres::NOMATCH, 0, -1),
 		(`^x(abc){1,}$`, "xabc", matchres::MATCH, 0, -1),
 		(`^x(abc){1,}$`, "xabcabc", matchres::MATCH, 0, -1),
 		(`^x(abc){3,}$`, "xabcabc", matchres::NOMATCH, 0, -1),
@@ -481,6 +456,7 @@ fn run_findall_case(
 		// (`a|b|c|d|e`, "e", matchres::MATCH, 0, -1),
 		// (`(a|b|c|d|e)f`, "ef", matchres::MATCH, 0, -1),
 		// TODO: nested capture groups
+		(`((a))`, "abc", matchres::ERROR, 0, -1),
 		// (`((a))`, "abc", matchres::MATCH, 0, -1),
 		// (`((a)(b)c)(d)`, "abcd", matchres::MATCH, 0, -1),
 		// (`(bc+d$|ef*g.|h?i(j|k))`, "effgz", matchres::MATCH, 0, -1),
