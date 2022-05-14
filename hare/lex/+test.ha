@@ -240,19 +240,18 @@ fn loc(line: uint, col: uint) location = location {
 };
 
 @test fn strings() void = {
-	const in = "\"a\" \"b\" \"\\a\" \"\\b\" \"\\f\" \"\\n\" \"\\r\" "
-		"\"\\t\" \"\\v\" \"\\0\" \"\\\\\" \"\\\'\"";
+	const in = `"a" "b" "\a" "\b" "\f" "\n" "\r" "\t" "\v" "\0" "\\" "\'"`;
 	const expected: [_]token = [
 		(ltok::LIT_STR, "ab\a\b\f\n\r\t\v\0\\\'", loc(1, 1)),
 	];
 	// TODO: test \x and \u and \U
 	lextest(in, expected);
-	const in = "\"ab\\a\\b\\f\\n\\r\\t\\v\\0\\\\\\'\"";
+	const in = `"ab\a\b\f\n\r\t\v\0\\\'"`;
 	const expected: [_]token = [
 		(ltok::LIT_STR, "ab\a\b\f\n\r\t\v\0\\\'", loc(1, 1)),
 	];
 	lextest(in, expected);
-	const in = "\"hello world\", \"こんにちは\", \"return\", \"foo\"";
+	const in = `"hello world", "こんにちは", "return", "foo"`;
 	const expected: [_]token = [
 		(ltok::LIT_STR, "hello world", loc(1, 1)),
 		(ltok::COMMA, void, loc(1, 14)),
