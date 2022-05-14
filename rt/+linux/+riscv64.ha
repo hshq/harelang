@@ -3,6 +3,9 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2021 Michael Forney <mforney@mforney.org>
 
+// #define __ADDR_BND_PKEY_PAD (_Alignof(void *) < sizeof(short) ? sizeof(short) : _Alignof(void *))
+def __ADDR_BND_PKEY_PAD: size = 8;
+
 // Returns the new PID to the parent, void to the child, or errno if something
 // goes wrong.
 export fn clone(

@@ -409,10 +409,6 @@ export type sigval = union {
 	sival_ptr: *void,
 };
 
-
-// #define __ADDR_BND_PKEY_PAD (_Alignof(void *) < sizeof(short) ? sizeof(short) : _Alignof(void *))
-def __ADDR_BND_PKEY_PAD: size = 8;
-
 export type siginfo = union {
 	struct {
 		si_signo: int,
