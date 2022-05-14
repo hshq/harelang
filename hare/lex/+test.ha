@@ -73,6 +73,10 @@ fn lextest(in: str, expected: []token) void = {
 			fmt::errorfln("{}: {}", i, strerror(err))!;
 			abort();
 		};
+		if (tl.0 != etok.0) {
+			fmt::errorfln("Expected {}, got {}",
+				tokstr(etok), tokstr(tl))!;
+		};
 		assert(tl.0 == etok.0);
 		vassert(tl.1, etok.1);
 		if (tl.2.line != etok.2.line || tl.2.col != etok.2.col
