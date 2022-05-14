@@ -99,7 +99,16 @@ export fn flush(s: io::handle) (io::error | void) = {
 
 // Sets the list of bytes which will cause the stream to flush when written. By
 // default, the stream will flush when a newline (\n) is written.
-export fn setflush(s: *bufstream, b: []u8) void = {
+export fn setflush(s: io::handle, b: []u8) void = {
+	let s = match (s) {
+	case let st: *io::stream =>
+		if (st.writer != &buffered_write) {
+			abort("Attempted to set flush bytes on unbuffered stream");
+		};
+		yield st: *bufstream;
+	case =>
+		abort("Attempted to set flush bytes on unbuffered stream");
+	};
 	s.flush = b;
 };
 
@@ -111,7 +120,16 @@ export fn setflush(s: *bufstream, b: []u8) void = {
 // to the length of the return value of the last call to [[io::read]] using this
 // buffered stream. Attempting to unread more data than can fit into the read
 // buffer will abort the program.
-export fn unread(s: *bufstream, buf: []u8) void = {
+export fn unread(s: io::handle, buf: []u8) void = {
+	let s = match (s) {
+	case let st: *io::stream =>
+		if (st.reader != &buffered_read) {
+			abort("Attempted unread on unbuffered stream");
+		};
+		yield st: *bufstream;
+	case =>
+		abort("Attempted unread on unbuffered stream");
+	};
 	assert(len(s.rbuffer) - s.ravail >= len(buf),
 		"Attempted to unread more data than buffer has available");
 	let sl = s.rbuffer[..s.ravail];
@@ -120,7 +138,7 @@ export fn unread(s: *bufstream, buf: []u8) void = {
 };
 
 // Unreads a rune; see [[unread]].
-export fn unreadrune(s: *bufstream, rn: rune) void = {
+export fn unreadrune(s: io::handle, rn: rune) void = {
 	const buf = utf8::encoderune(rn);
 	unread(s, buf);
 };
