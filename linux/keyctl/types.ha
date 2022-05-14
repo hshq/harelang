@@ -6,6 +6,7 @@ export type serial = i32;
 // Returned when a desired key was not found.
 export type nokey = !void;
 
+// A tagged union of all possible error types.
 export type error = !(nokey | errors::error);
 
 // The caller's thread-specific keyring.
