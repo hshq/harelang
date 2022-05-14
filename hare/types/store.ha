@@ -54,6 +54,49 @@ export fn store_free(store: *typestore) void = {
 	free(store);
 };
 
+// Creates a new type alias.
+export fn createalias(
+	store: *typestore,
+	ident: const ast::ident,
+	of: const *_type,
+) const *_type = {
+	const atype: _type = _type {
+		flags = of.flags,
+		repr = alias {
+			id = ast::ident_dup(ident),
+			secondary = of,
+		},
+		id = 0,
+		sz = of.sz,
+		align = of.align,
+	};
+	const id = hash(&atype);
+	atype.id = id;
+
+	// Fill in forward-referenced aliases
+	match (lookup(store, &ast::_type {
+		repr = ast::alias_type {
+			unwrap = false,
+			ident = ident,
+		},
+		...
+	})) {
+	case error =>
+		yield;
+	case deferred =>
+		yield;
+	case let ty: const *_type =>
+		let ty = ty: *_type;
+		*ty = atype;
+		return ty;
+	};
+
+	// Or create a new alias
+	let bucket = &store.map[id % BUCKETS];
+	append(bucket, atype);
+	return &bucket[len(bucket) - 1];
+};
+
 // Returned from [[lookup]] when we are unable to resolve this type, but it does
 // not necessarily have an error. This occurs when a type includes an unknown
 // forward reference.

@@ -336,3 +336,37 @@ fn resolve(
 	assert(t[1].repr as builtin == builtin::VOID);
 	assert(t[2].repr as builtin == builtin::STR);
 };
+
+@test fn alias() void = {
+	let st = store(x86_64, &resolve, null);
+	defer store_free(st);
+
+	const of = lookup_builtin(st, ast::builtin_type::U64);
+	const al = createalias(st, ["myalias"], of);
+	assert(al.sz == 8);
+	assert(al.align == 8);
+	assert(al.flags == 0);
+	assert((al.repr as alias).secondary == of);
+
+	const atype = parse_type("myalias");
+	defer ast::type_finish(atype);
+	const htype = lookup(st, &atype)!;
+	assert(htype == al);
+};
+
+@test fn forwardref() void = {
+	let st = store(x86_64, &resolve, null);
+	defer store_free(st);
+
+	const atype = parse_type("myalias");
+	defer ast::type_finish(atype);
+	const htype = lookup(st, &atype)!;
+	assert((htype.repr as alias).secondary == null);
+
+	const of = lookup_builtin(st, ast::builtin_type::U64);
+	const al = createalias(st, ["myalias"], of);
+	assert(htype.sz == 8);
+	assert(htype.align == 8);
+	assert(htype.flags == 0);
+	assert((htype.repr as alias).secondary == of);
+};
