@@ -342,7 +342,7 @@ fn resolve(
 	defer store_free(st);
 
 	const of = lookup_builtin(st, ast::builtin_type::U64);
-	const al = createalias(st, ["myalias"], of);
+	const al = newalias(st, ["myalias"], of);
 	assert(al.sz == 8);
 	assert(al.align == 8);
 	assert(al.flags == 0);
@@ -364,7 +364,7 @@ fn resolve(
 	assert((htype.repr as alias).secondary == null);
 
 	const of = lookup_builtin(st, ast::builtin_type::U64);
-	const al = createalias(st, ["myalias"], of);
+	const al = newalias(st, ["myalias"], of);
 	assert(htype.sz == 8);
 	assert(htype.align == 8);
 	assert(htype.flags == 0);

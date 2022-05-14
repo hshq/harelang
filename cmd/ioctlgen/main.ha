@@ -99,7 +99,7 @@ fn loadtype(store: *types::typestore) void = {
 	};
 	const tdecl = tdecl[0];
 	const of = types::lookup(store, &tdecl._type)!;
-	types::createalias(store, tdecl.ident, of);
+	types::newalias(store, tdecl.ident, of);
 };
 
 fn parseioctl(store: *types::typestore, d: dir, params: str) ioctl = {

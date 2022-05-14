@@ -55,7 +55,7 @@ export fn store_free(store: *typestore) void = {
 };
 
 // Creates a new type alias.
-export fn createalias(
+export fn newalias(
 	store: *typestore,
 	ident: const ast::ident,
 	of: const *_type,
