@@ -2,10 +2,11 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 use hare::lex;
+use hare::module;
 use hare::parse;
 use io;
 
-type error = !(lex::error | parse::error | io::error);
+type error = !(lex::error | parse::error | io::error | module::error);
 
 fn strerror(err: error) str = {
 	match (err) {
@@ -15,5 +16,7 @@ fn strerror(err: error) str = {
 		return parse::strerror(err);
 	case let err: io::error =>
 		return io::strerror(err);
+	case let err: module::error =>
+		return module::strerror(err);
 	};
 };

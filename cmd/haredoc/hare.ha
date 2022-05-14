@@ -78,7 +78,7 @@ fn emit_submodules(ctx: *context) (void | error) = {
 	defer free(identpath);
 
 	let submodules: []str = [];
-	defer free(submodules);
+	defer strings::freeall(submodules);
 
 	for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
 		let dir = ctx.version.subdirs[i];
@@ -92,8 +92,14 @@ fn emit_submodules(ctx: *context) (void | error) = {
 		if (dir == "scripts") continue;
 
 		let submod = [identpath, dir]: ast::ident;
-		if (module::lookup(ctx.mctx, submod) is module::error) {
+		match (module::lookup(ctx.mctx, submod)) {
+		case let ver: module::version =>
+			// TODO: free version data
+			void;
+		case module::notfound =>
 			continue;
+		case let err: module::error =>
+			return err;
 		};
 
 		append(submodules, dir);
@@ -112,7 +118,7 @@ fn emit_submodules(ctx: *context) (void | error) = {
 				defer free(s);
 				yield strings::concat(s, "::", submodules[i]);
 			} else {
-				yield submodules[i];
+				yield strings::dup(submodules[i]);
 			};
 			defer free(submodule);
 
