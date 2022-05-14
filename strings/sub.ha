@@ -43,8 +43,8 @@ fn utf8_byte_len_unbounded(iter: *iterator) size = {
 // substring is the same as that of the original string.
 //
 // Note that substringing runewise is not always the correct thing to do, and it
-// may cause unexpected linguistic errors to arise. You may need to use
-// [[unicode::graphsub]] instead.
+// may cause unexpected linguistic errors to arise. You may want to use a
+// third-party Unicode module instead.
 export fn sub(s: str, start: size, end: (size | end)) str = {
 	let iter = iter(s);
 	let starti = utf8_byte_len_bounded(&iter, start);

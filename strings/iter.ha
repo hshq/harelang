@@ -53,8 +53,8 @@ export fn riter(src: str) iterator = {
 // Be aware that a rune is not the minimum lexographical unit of language in
 // Unicode strings. If you use these runes to construct a new string,
 // reordering, editing, or omitting any of the runes without careful discretion
-// may cause linguistic errors to arise. To avoid this, you may need to use
-// [[unicode::graphiter]] instead.
+// may cause linguistic errors to arise. To avoid this, you may need to use a
+// third-party Unicode module instead.
 export fn next(iter: *iterator) (rune | void) = {
 	match (iter.push) {
 	case let r: rune =>
