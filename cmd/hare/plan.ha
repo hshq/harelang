@@ -83,7 +83,7 @@ fn mkplan(ctx: *module::context, libs: []str) plan = {
 	defer os::finish(iter);
 	for (true) match (fs::next(iter)) {
 	case let d: fs::dirent =>
-		const p = module::parse_name(d.name);
+		const p = module::parsename(d.name);
 		const name = p.0, ext = p.1, tags = p.2;
 		defer module::tags_free(tags);
 

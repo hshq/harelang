@@ -161,7 +161,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 				return manifest;
 			};
 
-			let parsed = parse_name(path);
+			let parsed = parsename(path);
 			let ftype = match (type_for_ext(path)) {
 			case void =>
 				return manifest;

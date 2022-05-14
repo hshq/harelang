@@ -95,7 +95,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 
 // Given a file or directory name, parses it into the basename, extension, and
 // tag set.
-export fn parse_name(name: str) (str, str, []tag) = {
+export fn parsename(name: str) (str, str, []tag) = {
 	let ext = path::extension(name);
 	let base = ext.0, ext = ext.1;
 
@@ -196,7 +196,7 @@ fn scan_directory(
 
 	for (let i = 0z; i < len(dirs); i += 1) {
 		let name = dirs[i];
-		let parsed = parse_name(name);
+		let parsed = parsename(name);
 		let base = parsed.0, tags = parsed.2;
 
 		if (!strings::hasprefix(name, "+")
@@ -240,7 +240,7 @@ fn scan_directory(
 
 	for (let i = 0z; i < len(files); i += 1) {
 		let name = files[i];
-		let parsed = parse_name(name);
+		let parsed = parsename(name);
 		let base = parsed.0, ext = parsed.1, tags = parsed.2;
 
 		let eligible = false;
