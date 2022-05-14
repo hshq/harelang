@@ -11,13 +11,16 @@ use regex;
 use strings;
 
 let ioctlre: regex::regex = regex::regex { ... };
+let typedefre: regex::regex = regex::regex { ... };
 
 @init fn init() void = {
 	ioctlre = regex::compile(`@(_IO[RW]*)\((.*)\)`)!;
+	typedefre = regex::compile(`^(export )?type `)!;
 };
 
 @fini fn fini() void = {
 	regex::regex_finish(&ioctlre);
+	regex::regex_finish(&typedefre);
 };
 
 type dir = enum u64 {
@@ -42,6 +45,13 @@ export fn main() void = {
 			yield strings::fromutf8(line);
 		};
 		defer free(line);
+
+		if (regex::test(&typedefre, line)!) {
+			bufio::unreadrune(os::stdin, '\n');
+			bufio::unread(os::stdin, strings::toutf8(line));
+			loadtype(store);
+			continue;
+		};
 
 		let groups = match (regex::find(&ioctlre, line)!) {
 		case void =>
@@ -69,6 +79,26 @@ export fn main() void = {
 	};
 };
 
+fn loadtype(store: *types::typestore) void = {
+	const tee = io::tee(os::stdin, os::stdout);
+	const lex = lex::init(&tee, "<ioctl>");
+	const decl = match (parse::decl(&lex)) {
+	case let err: parse::error =>
+		fmt::fatal("Error parsing type declaration:",
+			parse::strerror(err));
+	case let decl: ast::decl =>
+		yield decl;
+	};
+
+	const tdecl = decl.decl as []ast::decl_type;
+	if (len(tdecl) != 1) {
+		fmt::fatal("Multiple type declarations are unsupported");
+	};
+	const tdecl = tdecl[0];
+	const of = types::lookup(store, &tdecl._type)!;
+	types::createalias(store, tdecl.ident, of);
+};
+
 fn parseioctl(store: *types::typestore, d: dir, params: str) ioctl = {
 	const buf = bufio::fixed(strings::toutf8(params), io::mode::READ);
 	const lex = lex::init(&buf, "<ioctl>");
@@ -93,7 +123,7 @@ fn parseioctl(store: *types::typestore, d: dir, params: str) ioctl = {
 	case let err: types::error =>
 		fmt::fatal("Error:", types::strerror(err));
 	case types::deferred =>
-		fmt::fatal("Error: this tool does not support reverse declarations");
+		fmt::fatal("Error: this tool does not support forward references");
 	case let ty: const *types::_type =>
 		yield ty;
 	};
