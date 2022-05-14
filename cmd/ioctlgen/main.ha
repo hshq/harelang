@@ -65,7 +65,7 @@ export fn main() void = {
 		const ioctl = parseioctl(store, dir, groups[2].content);
 
 		const prefix = strings::sub(line, 0, groups[1].start - 1);
-		fmt::printfln("{}{};", prefix, ioctlno(&ioctl))!;
+		fmt::printfln("{}0x{:x};", prefix, ioctlno(&ioctl))!;
 	};
 };
 
