@@ -23,14 +23,14 @@ let typedefre: regex::regex = regex::regex { ... };
 	regex::regex_finish(&typedefre);
 };
 
-type dir = enum u64 {
+type dir = enum u32 {
 	IO = 0,
 	IOW = 1,
 	IOR = 2,
 	IOWR = IOW | IOR,
 };
 
-type ioctl = (dir, rune, u64, const nullable *types::_type);
+type ioctl = (dir, rune, u32, const nullable *types::_type);
 
 export fn main() void = {
 	// TODO: Configurable arch
@@ -111,7 +111,7 @@ fn parseioctl(store: *types::typestore, d: dir, params: str) ioctl = {
 	const num = expect(&lex, ltok::LIT_ICONST).1 as i64;
 
 	if (d == dir::IO) {
-		return (d, rn, num: u64, null);
+		return (d, rn, num: u32, null);
 	};
 
 	expect(&lex, ltok::COMMA);
@@ -131,7 +131,7 @@ fn parseioctl(store: *types::typestore, d: dir, params: str) ioctl = {
 		yield ty;
 	};
 
-	return (d, rn, num: u64, ty);
+	return (d, rn, num: u32, ty);
 };
 
 fn expect(lex: *lex::lexer, want: ltok) lex::token = {
@@ -146,25 +146,25 @@ fn expect(lex: *lex::lexer, want: ltok) lex::token = {
 	};
 };
 
-def IOC_NRBITS: u64 = 8;
-def IOC_TYPEBITS: u64 = 8;
-def IOC_SIZEBITS: u64 = 14; // XXX: Arch-specific
-def IOC_DIRBITS: u64 = 2; // XXX: Arch-specific
+def IOC_NRBITS: u32 = 8;
+def IOC_TYPEBITS: u32 = 8;
+def IOC_SIZEBITS: u32 = 14; // XXX: Arch-specific
+def IOC_DIRBITS: u32 = 2; // XXX: Arch-specific
 
-def IOC_NRSHIFT: u64 = 0;
-def IOC_TYPESHIFT: u64 = IOC_NRSHIFT + IOC_NRBITS;
-def IOC_SIZESHIFT: u64 = IOC_TYPESHIFT + IOC_TYPEBITS;
-def IOC_DIRSHIFT: u64 = IOC_SIZESHIFT + IOC_SIZEBITS;
+def IOC_NRSHIFT: u32 = 0;
+def IOC_TYPESHIFT: u32 = IOC_NRSHIFT + IOC_NRBITS;
+def IOC_SIZESHIFT: u32 = IOC_TYPESHIFT + IOC_TYPEBITS;
+def IOC_DIRSHIFT: u32 = IOC_SIZESHIFT + IOC_SIZEBITS;
 
-fn ioctlno(io: *ioctl) u64 = {
+fn ioctlno(io: *ioctl) u32 = {
 	const ty = match (io.3) {
 	case let ty: const *types::_type =>
 		yield ty.sz;
 	case null =>
 		yield 0z;
 	};
-	return (io.0: u64 << IOC_DIRSHIFT) |
-		(io.1: u32: u64 << IOC_TYPESHIFT) |
+	return (io.0: u32 << IOC_DIRSHIFT) |
+		(io.1: u32 << IOC_TYPESHIFT) |
 		(io.2 << IOC_NRSHIFT) |
-		(ty: u64 << IOC_SIZESHIFT);
+		(ty: u32 << IOC_SIZESHIFT);
 };
