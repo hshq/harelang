@@ -175,47 +175,52 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 	};
 };
 
+// Parses a declaration.
+export fn decl(lexer: *lex::lexer) (ast::decl | error) = {
+	const start = lex::mkloc(lexer);
+	let comment = "";
+	let exported = match (try(lexer, ltok::EXPORT)?) {
+	case void =>
+		yield false;
+	case lex::token =>
+		comment = strings::dup(lex::comment(lexer));
+		yield true;
+	};
+	const toks = [ltok::CONST, ltok::LET, ltok::DEF, ltok::TYPE];
+	const next = try(lexer, toks...)?;
+	if (comment == "") {
+		comment = strings::dup(lex::comment(lexer));
+	};
+	let decl = match (next) {
+	case void =>
+		yield decl_func(lexer)?;
+	case let t: lex::token =>
+		yield switch (t.0) {
+		case ltok::TYPE =>
+			yield decl_type(lexer)?;
+		case ltok::LET, ltok::CONST =>
+			yield decl_global(lexer, t.0)?;
+		case ltok::DEF =>
+			yield decl_const(lexer, t.0)?;
+		case => abort();
+		};
+	};
+	want(lexer, ltok::SEMICOLON)?;
+	return ast::decl {
+		exported = exported,
+		start = start,
+		end = lex::mkloc(lexer),
+		decl = decl,
+		docs = comment,
+	};
+};
+
 // Parses the declarations for a sub-unit.
 export fn decls(lexer: *lex::lexer) ([]ast::decl | error) = {
 	let decls: []ast::decl = [];
 	for (true) {
 		if (peek(lexer, ltok::EOF)? is lex::token) break;
-		const start = lex::mkloc(lexer);
-		let comment = "";
-		let exported = match (try(lexer, ltok::EXPORT)?) {
-		case void =>
-			yield false;
-		case lex::token =>
-			comment = strings::dup(lex::comment(lexer));
-			yield true;
-		};
-		const toks = [ltok::CONST, ltok::LET, ltok::DEF, ltok::TYPE];
-		const next = try(lexer, toks...)?;
-		if (comment == "") {
-			comment = strings::dup(lex::comment(lexer));
-		};
-		let decl = match (next) {
-		case void =>
-			yield decl_func(lexer)?;
-		case let t: lex::token =>
-			yield switch (t.0) {
-			case ltok::TYPE =>
-				yield decl_type(lexer)?;
-			case ltok::LET, ltok::CONST =>
-				yield decl_global(lexer, t.0)?;
-			case ltok::DEF =>
-				yield decl_const(lexer, t.0)?;
-			case => abort();
-			};
-		};
-		append(decls, ast::decl {
-			exported = exported,
-			start = start,
-			end = lex::mkloc(lexer),
-			decl = decl,
-			docs = comment,
-		});
-		want(lexer, ltok::SEMICOLON)?;
+		append(decls, decl(lexer)?);
 	};
 	return decls;
 };
