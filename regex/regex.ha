@@ -99,7 +99,7 @@ export type regex = struct {
 };
 
 // Frees the memory used by a regex.
-export fn regex_finish(re: *regex) void = {
+export fn finish(re: *regex) void = {
 	free(re.insts);
 	for (let i = 0z; i < len(re.charsets); i += 1) {
 		free(re.charsets[i]);
