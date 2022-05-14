@@ -191,6 +191,9 @@
 	for (let x = 10; x < 10; x) {
 		x;
 	};
+	for (static let x = 0; x < 10) {
+		x;
+	};
 };
 ");
 };

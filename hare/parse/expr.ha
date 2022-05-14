@@ -628,11 +628,15 @@ fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	want(lexer, ltok::LPAREN)?;
 
 	const bindings: nullable *ast::expr =
-		match (peek(lexer, ltok::LET, ltok::CONST)?) {
+		match (peek(lexer, ltok::LET, ltok::CONST, ltok::STATIC)?) {
 		case void =>
 			yield null;
-		case lex::token =>
-			const bindings = alloc(binding(lexer, false)?);
+		case let tok: lex::token =>
+			let is_static = if (tok.0 == ltok::STATIC) {
+				want(lexer, ltok::STATIC)?;
+				yield true;
+			} else false;
+			const bindings = alloc(binding(lexer, is_static)?);
 			want(lexer, ltok::SEMICOLON)?;
 			yield bindings;
 		};
