@@ -234,20 +234,36 @@ fn lex_string(lex: *lexer, loc: location, delim: rune) (token | error) = {
 			strio::appendrune(&buf, r.0)?;
 		};
 	};
-	match (nextw(lex)?) {
-	case io::EOF => void;
+	for (true) match (nextw(lex)?) {
+	case io::EOF =>
+		break;
 	case let r: (rune, location) =>
-		if (r.0 == '"') {
+		switch (r.0) {
+		case '"', '`' =>
 			const tok = lex_string(lex, loc, r.0)?;
 			const next = tok.1 as str;
 			strio::concat(&buf, next)!;
 			free(next);
-		} else {
+			break;
+		case '/' =>
+			match (nextw(lex)?) {
+			case io::EOF =>
+				unget(lex, r);
+			case let s: (rune, location) =>
+				if (s.0 == '/') {
+					lex_comment(lex)?;
+					continue;
+				} else {
+					unget(lex, s);
+					unget(lex, r);
+				};
+			};
+			break;
+		case =>
 			unget(lex, r);
+			break;
 		};
 	};
-	line_comment(lex)?;
-
 	return (ltok::LIT_STR, strio::string(&buf), loc);
 };
 

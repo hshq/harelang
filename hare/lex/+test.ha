@@ -259,6 +259,13 @@ fn loc(line: uint, col: uint) location = location {
 		(ltok::LIT_STR, "foo", loc(1, 35)),
 	];
 	lextest(in, expected);
+	const in = "\"foo\"\n"
+		"// bar\n"
+		"\"baz\"";
+	const expected: [_]token = [
+		(ltok::LIT_STR, "foobaz", loc(1, 1)),
+	];
+	lextest(in, expected);
 };
 
 @test fn literals() void = {
