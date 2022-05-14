@@ -137,3 +137,11 @@ export type caps = enum u8 {
 	CAPS1_NS_KEY_TAG = 0x02,
 	CAPS1_NOTIFICATIONS = 0x04,
 };
+
+// Converts an [[error]] into a human-friendly string.
+export fn strerror(err: error) const str = match (err) {
+case nokey =>
+	return "A desired key was not found";
+case let err: errors::error =>
+	return errors::strerror(err);
+};
