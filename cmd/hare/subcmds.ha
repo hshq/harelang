@@ -93,7 +93,9 @@ fn build(args: []str) void = {
 	let output = "";
 	let goal = goal::EXE;
 	let defines: []str = [];
+	defer free(defines);
 	let libs: []str = [];
+	defer free(libs);
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
@@ -288,7 +290,9 @@ fn run(args: []str) void = {
 
 	let verbose = false;
 	let defines: []str = [];
+	defer free(defines);
 	let libs: []str = [];
+	defer free(libs);
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
@@ -401,7 +405,9 @@ fn test(args: []str) void = {
 	let output = "";
 	let verbose = false;
 	let defines: []str = [];
+	defer free(defines);
 	let libs: []str = [];
+	defer free(libs);
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		const opt = cmd.opts[i];
 		switch (opt.0) {
