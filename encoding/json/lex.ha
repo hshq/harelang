@@ -310,7 +310,7 @@ fn scan_escape(lex: *lexer) (rune | error) = {
 	};
 };
 
-// Gets the next rune from the I/O source
+// Gets the next rune from the lexer.
 fn nextrune(lex: *lexer) (rune | io::EOF | error) = {
 	if (lex.rb is rune) {
 		const r = lex.rb as rune;
@@ -329,7 +329,7 @@ fn nextrune(lex: *lexer) (rune | io::EOF | error) = {
 	};
 };
 
-// Like nextrune but skips whitespace tokens
+// Like nextrune but skips whitespace.
 fn nextrunews(lex: *lexer) (rune | io::EOF | error) = {
 	for (true) {
 		match (nextrune(lex)?) {
