@@ -95,7 +95,7 @@ export fn lex(lex: *lexer) (token | io::EOF | error) = {
 // "Unlexes" a token from the lexer, such that the next call to [[lex]] will
 // return that token again. Only one token can be unlexed at a time, otherwise
 // the program will abort.
-fn unlex(lex: *lexer, tok: token) void = {
+export fn unlex(lex: *lexer, tok: token) void = {
 	assert(lex.un is void, "encoding::json::unlex called twice in a row");
 	lex.un = tok;
 };
