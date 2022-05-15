@@ -22,7 +22,7 @@ export fn newobject() object = {
 // Gets a value from a JSON object. The return value is borrowed from the
 // object.
 export fn get(obj: *object, key: str) (*value | void) = {
-	const hash = fnv::string64(key): size;
+	const hash = fnv::string(key);
 	const bucket = &obj.buckets[hash % len(obj.buckets)];
 	for (let i = 0z; i < len(bucket); i += 1) {
 		if (bucket[i].0 == key) {
@@ -33,7 +33,7 @@ export fn get(obj: *object, key: str) (*value | void) = {
 
 // Sets a value in a JSON object.
 export fn set(obj: *object, key: const str, val: const value) void = {
-	const hash = fnv::string64(key): size;
+	const hash = fnv::string(key);
 	const bucket = &obj.buckets[hash % len(obj.buckets)];
 	for (let i = 0z; i < len(bucket); i += 1) {
 		if (bucket[i].0 == key) {
@@ -47,7 +47,7 @@ export fn set(obj: *object, key: const str, val: const value) void = {
 
 // Deletes a value from a JSON object.
 export fn del(obj: *object, key: const str) void = {
-	const hash = fnv::string64(key): size;
+	const hash = fnv::string(key);
 	const bucket = &obj.buckets[hash % len(obj.buckets)];
 	for (let i = 0z; i < len(bucket); i += 1) {
 		if (bucket[i].0 == key) {
