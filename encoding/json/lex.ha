@@ -250,6 +250,9 @@ fn scan_str(lex: *lexer) (token | error) = {
 			const rn = scan_escape(lex)?;
 			strio::appendrune(&lex.strbuf, rn)!;
 		case =>
+			if (iscntrl(rn)) {
+				return invalid;
+			};
 			strio::appendrune(&lex.strbuf, rn)!;
 		};
 	};
@@ -346,3 +349,5 @@ fn unget(lex: *lexer, r: rune) void = {
 	assert(lex.rb is void);
 	lex.rb = r;
 };
+
+fn iscntrl(r: rune) bool = r: u32 < 0x20;
