@@ -242,9 +242,10 @@ crypto_aes() {
 		gensrcs_crypto_aes \
 			ct64+test.ha \
 			cbc+test.ha \
-			ctr+test.ha
-		gen_ssa crypto::aes bytes crypto::cipher crypto::math endian \
-			rt io bufio errors
+			ctr+test.ha \
+			+test/gcm.ha
+		gen_ssa crypto::aes bufio bytes crypto::cipher crypto::math \
+			endian errors io rt 
 	fi
 }
 
@@ -337,8 +338,10 @@ crypto_cipher() {
 		block.ha \
 		cbc.ha \
 		ctr.ha \
-		stream.ha
-	gen_ssa crypto::cipher crypto::math bytes io
+		stream.ha \
+		gcm.ha \
+		ghash.ha
+	gen_ssa crypto::cipher crypto::math bytes endian errors io types
 }
 
 crypto_hmac() {
