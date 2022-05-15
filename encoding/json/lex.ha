@@ -334,7 +334,7 @@ fn nextrunews(lex: *lexer) (rune | io::EOF | error) = {
 	for (true) {
 		match (nextrune(lex)?) {
 		case let rn: rune =>
-			if (ascii::isspace(rn)) {
+			if (isspace(rn)) {
 				continue;
 			};
 			return rn;
@@ -351,3 +351,5 @@ fn unget(lex: *lexer, r: rune) void = {
 };
 
 fn iscntrl(r: rune) bool = r: u32 < 0x20;
+
+fn isspace(r: rune) bool = ascii::isspace(r) && r != '\f';
