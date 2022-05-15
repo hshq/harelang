@@ -73,7 +73,7 @@ export fn lex(lex: *lexer) (token | io::EOF | error) = {
 		yield;
 	};
 
-	if (ascii::isdigit(rn) || rn == '+' || rn == '-') {
+	if (ascii::isdigit(rn) || rn == '-') {
 		unget(lex, rn);
 		return scan_number(lex)?;
 	};
@@ -123,15 +123,21 @@ fn scan_word(lex: *lexer) (str | error) = {
 };
 
 type numstate = enum {
+	SIGN,
+	START,
+	ZERO,
 	INTEGER,
+	FRACSTART,
 	FRACTION,
+	EXPSIGN,
+	EXPSTART,
 	EXPONENT,
 };
 
 fn scan_number(lex: *lexer) (token | error) = {
 	strio::reset(&lex.strbuf);
 
-	let state = numstate::INTEGER;
+	let state = numstate::SIGN;
 	for (true) {
 		const rn = match (nextrune(lex)?) {
 		case let rn: rune =>
@@ -141,30 +147,73 @@ fn scan_number(lex: *lexer) (token | error) = {
 		};
 
 		switch (state) {
+		case numstate::SIGN =>
+			state = numstate::START;
+			if (rn != '-') {
+				unget(lex, rn);
+				continue;
+			};
+		case numstate::START =>
+			switch (rn) {
+			case '0' =>
+				state = numstate::ZERO;
+			case =>
+				if (!ascii::isdigit(rn)) {
+					return invalid;
+				};
+				state = numstate::INTEGER;
+			};
+		case numstate::ZERO =>
+			switch (rn) {
+			case '.' =>
+				state = numstate::FRACSTART;
+			case 'e', 'E' =>
+				state = numstate::EXPSIGN;
+			case =>
+				if (ascii::isdigit(rn)) {
+					return invalid;
+				};
+				unget(lex, rn);
+				break;
+			};
 		case numstate::INTEGER =>
 			switch (rn) {
 			case '.' =>
-				state = numstate::FRACTION;
+				state = numstate::FRACSTART;
 			case 'e', 'E' =>
-				state = numstate::EXPONENT;
-			case '+', '-' =>
-				void;
+				state = numstate::EXPSIGN;
 			case =>
 				if (!ascii::isdigit(rn)) {
 					unget(lex, rn);
 					break;
 				};
 			};
+		case numstate::FRACSTART =>
+			if (!ascii::isdigit(rn)) {
+				return invalid;
+			};
+			state = numstate::FRACTION;
 		case numstate::FRACTION =>
 			switch (rn) {
 			case 'e', 'E' =>
-				state = numstate::EXPONENT;
+				state = numstate::EXPSIGN;
 			case =>
 				if (!ascii::isdigit(rn)) {
 					unget(lex, rn);
 					break;
 				};
 			};
+		case numstate::EXPSIGN =>
+			state = numstate::EXPSTART;
+			if (rn != '+' && rn != '-') {
+				unget(lex, rn);
+				continue;
+			};
+		case numstate::EXPSTART =>
+			if (!ascii::isdigit(rn)) {
+				return invalid;
+			};
+			state = numstate::EXPONENT;
 		case numstate::EXPONENT =>
 			if (!ascii::isdigit(rn)) {
 				unget(lex, rn);
