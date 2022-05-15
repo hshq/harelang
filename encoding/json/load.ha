@@ -37,15 +37,15 @@ fn _load(lexer: *lexer) (value | error) = {
 
 fn _load_array(lexer: *lexer) (value | error) = {
 	let array: []value = [];
-	for (true) {
-		let tok = mustscan(lexer)?;
-		match (tok) {
-		case arrayend =>
-			break;
-		case =>
-			unlex(lexer, tok);
-		};
+	let tok = mustscan(lexer)?;
+	match (tok) {
+	case arrayend =>
+		return array;
+	case =>
+		unlex(lexer, tok);
+	};
 
+	for (true) {
 		append(array, _load(lexer)?);
 
 		tok = mustscan(lexer)?;
@@ -60,12 +60,19 @@ fn _load_array(lexer: *lexer) (value | error) = {
 
 fn _load_obj(lexer: *lexer) (value | error) = {
 	let obj = newobject();
+	let tok = mustscan(lexer)?;
+	match (tok) {
+	case objend =>
+		return obj;
+	case =>
+		unlex(lexer, tok);
+	};
+
 	for (true) {
 		let tok = mustscan(lexer)?;
 		const key = match (tok) {
 		case let s: str =>
 			yield strings::dup(s);
-		case objend => break;
 		case => return invalid;
 		};
 		defer free(key);
