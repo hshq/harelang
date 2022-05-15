@@ -10,10 +10,11 @@ use strings;
 use strio;
 
 export type lexer = struct {
-	src: bufio::bufstream,
+	src: io::handle,
 	buffer: []u8,
 	strbuf: strio::stream,
 	un: (token | void),
+	rb: (rune | void),
 };
 
 // Creates a new JSON lexer. The caller may obtain tokens with [[lex]] and
@@ -21,17 +22,17 @@ export type lexer = struct {
 export fn newlexer(src: io::handle) lexer = {
 	let buf: []u8 = alloc([0...], os::BUFSIZ);
 	return lexer {
-		src = bufio::buffered(src, buf, []),
+		src = src,
 		buffer = buf,
 		strbuf = strio::dynamic(),
 		un = void,
+		rb = void,
 	};
 };
 
 // Frees state associated with a JSON lexer.
 export fn close(lex: *lexer) void = {
 	free(lex.buffer);
-	io::close(&lex.strbuf)!;
 };
 
 // Returns the next token from a JSON lexer. The return value is borrowed from
@@ -73,11 +74,11 @@ export fn lex(lex: *lexer) (token | io::EOF | error) = {
 	};
 
 	if (ascii::isdigit(rn) || rn == '+' || rn == '-') {
-		bufio::unreadrune(&lex.src, rn);
+		unget(lex, rn);
 		return scan_number(lex)?;
 	};
 
-	bufio::unreadrune(&lex.src, rn);
+	unget(lex, rn);
 	const word = scan_word(lex)?;
 	switch (word) {
 	case "true" =>
@@ -112,7 +113,7 @@ fn scan_word(lex: *lexer) (str | error) = {
 			break;
 		};
 		if (!ascii::isalpha(rn)) {
-			bufio::unreadrune(&lex.src, rn);
+			unget(lex, rn);
 			break;
 		};
 		strio::appendrune(&lex.strbuf, rn)!;
@@ -150,7 +151,7 @@ fn scan_number(lex: *lexer) (token | error) = {
 				void;
 			case =>
 				if (!ascii::isdigit(rn)) {
-					bufio::unreadrune(&lex.src, rn);
+					unget(lex, rn);
 					break;
 				};
 			};
@@ -160,13 +161,13 @@ fn scan_number(lex: *lexer) (token | error) = {
 				state = numstate::EXPONENT;
 			case =>
 				if (!ascii::isdigit(rn)) {
-					bufio::unreadrune(&lex.src, rn);
+					unget(lex, rn);
 					break;
 				};
 			};
 		case numstate::EXPONENT =>
 			if (!ascii::isdigit(rn)) {
-				bufio::unreadrune(&lex.src, rn);
+				unget(lex, rn);
 				break;
 			};
 		};
@@ -234,7 +235,7 @@ fn scan_escape(lex: *lexer) (rune | error) = {
 		return '\t';
 	case 'u' =>
 		let buf: [4]u8 = [0...];
-		match (io::readall(&lex.src, buf)?) {
+		match (io::readall(lex.src, buf)?) {
 		case io::EOF =>
 			return invalid;
 		case size =>
@@ -257,7 +258,12 @@ fn scan_escape(lex: *lexer) (rune | error) = {
 
 // Gets the next rune from the I/O source
 fn nextrune(lex: *lexer) (rune | io::EOF | error) = {
-	match (bufio::scanrune(&lex.src)) {
+	if (lex.rb is rune) {
+		const r = lex.rb as rune;
+		lex.rb = void;
+		return r;
+	};
+	match (bufio::scanrune(lex.src)) {
 	case let err: io::error =>
 		return err;
 	case utf8::invalid =>
@@ -283,4 +289,9 @@ fn nextrunews(lex: *lexer) (rune | io::EOF | error) = {
 		};
 	};
 	abort(); // Unreachable
+};
+
+fn unget(lex: *lexer, r: rune) void = {
+	assert(lex.rb is void);
+	lex.rb = r;
 };
