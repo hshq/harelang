@@ -302,6 +302,8 @@ fn scan_escape(lex: *lexer) (rune | error) = {
 		case =>
 			return invalid;
 		};
+	case =>
+		return invalid;
 	};
 };
 
