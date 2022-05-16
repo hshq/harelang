@@ -1,0 +1,15 @@
+This module implements hexadecimal encoding and decoding.
+
+A stream-based encoding and decoding interface is available via [[newencoder]]
+and [[newdecoder]], which transparently encode or decode bytes to or from
+hexadecimal representation when writing to or reading from an underlying I/O
+handle.
+
+Convenience functions for encoding a byte slice into a hexadecimal string or
+decoding from a string into a byte slice are also available; see [[encodestr]]
+and [[decodestr]]. These functions dynamically allocate their return values; use
+the stream interface if you require static allocation.
+
+Note that writes are always encoded as lowercase hexidecimal characters, but the
+functions in this module can decode both upper- and lower-case hexidecimal
+characters.
