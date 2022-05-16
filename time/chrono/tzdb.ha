@@ -1,6 +1,7 @@
 // License: MPL-2.0
 // (c) 2021-2022 Byron Torres <b@torresjrjr.com>
 use bufio;
+use bytes;
 use endian;
 use errors;
 use fs;
@@ -76,8 +77,7 @@ fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 
 	// test for magic "TZif"
 	mustread(h, buf4)?;
-	// TODO: Use non-aborting bytes comparison.
-	if (strings::fromutf8(buf4) != "TZif") {
+	if (!bytes::equal(buf4, ['T': u8, 'Z': u8, 'i': u8, 'f': u8])) {
 		return invalidtzif;
 	};
 
