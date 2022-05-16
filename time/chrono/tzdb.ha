@@ -140,17 +140,9 @@ fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 		return invalidtzif;
 	};
 
-	if (isutcnt != 0 && isutcnt != typecnt) {
+	if (!(isutcnt == 0 || isutcnt == typecnt)
+			&& (isstdcnt == 0 && isstdcnt == typecnt)) {
 		return invalidtzif;
-	};
-
-	if (isstdcnt != 0 && isstdcnt != typecnt) {
-		return invalidtzif;
-	};
-
-	// TODO: if and how to handle? check Olson's tz code for behaviour.
-	if (isutcnt != 0 && isstdcnt != 0) {
-		void;
 	};
 
 	const timesz = if (is64) 8 else 4;
