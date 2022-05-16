@@ -41,13 +41,15 @@ export fn tz(name: str) (timezone | fs::error | io::error | invalidtzif) = {
 
 	static let buf: [os::BUFSIZ]u8 = [0...];
 	const bufstrm = bufio::buffered(file, buf, []);
-	match (parse_tzif(&bufstrm, timezone {
+
+	let tz = timezone {
 		name = name,
 		timescale = &utc,
 		daylength = EARTH_DAY,
 		...
-	})) {
-	case let tz: timezone =>
+	};
+	match (parse_tzif(&bufstrm, &tz)) {
+	case void =>
 		io::close(&bufstrm)?;
 		io::close(file)?;
 		return tz;
@@ -66,10 +68,7 @@ export fn tz(name: str) (timezone | fs::error | io::error | invalidtzif) = {
 // fields "zones", "transitions", and "posix_extend" of the given [[timezone]].
 //
 // See: https://datatracker.ietf.org/doc/html/rfc8536
-fn parse_tzif(
-	h: io::handle,
-	tz: timezone, // TODO: Make tz a pointer.
-) (timezone | invalidtzif | io::error) = {
+fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 	const buf1: [1]u8 = [0...];
 	const buf4: [4]u8 = [0...];
 	const buf8: [8]u8 = [0...];
@@ -273,7 +272,6 @@ fn parse_tzif(
 	tz.zones = zones;
 	tz.transitions = transitions;
 	tz.posix_extend = posix_extend;
-	return tz;
 };
 
 fn mustread(h: io::handle, buf: []u8) (void | invalidtzif | io::error) = {

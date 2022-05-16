@@ -190,17 +190,8 @@ export const LOCAL: locality = &TZ_local;
 
 		static let buf: [os::BUFSIZ]u8 = [0...];
 		const file = bufio::buffered(file, buf, []);
-		TZ_local = match (parse_tzif(&file, timezone {
-			name = "Local time",
-			timescale = &utc,
-			daylength = EARTH_DAY,
-			...
-		})) {
-		case let tz: timezone =>
-			yield tz;
-		case =>
-			return;
-		};
+
+		match (parse_tzif(&file, &TZ_local)) { case => void; };
 	};
 };
 
