@@ -1246,8 +1246,8 @@ time_chrono() {
 		timescale.ha \
 		timezone.ha \
 		tzdb.ha
-	gen_ssa -plinux time::chrono bufio endian errors fs fmt io os strconv \
-		strings time path
+	gen_ssa -plinux time::chrono \
+		bufio bytes encoding::utf8 endian errors fs io os strconv strings time path
 	gen_srcs -pfreebsd time::chrono \
 		+freebsd.ha \
 		chronology.ha \
@@ -1255,8 +1255,8 @@ time_chrono() {
 		timescale.ha \
 		timezone.ha \
 		tzdb.ha
-	gen_ssa -pfreebsd time::chrono bufio endian errors fs fmt io os strconv \
-		strings time path
+	gen_ssa -pfreebsd time::chrono \
+		bufio bytes encoding::utf8 endian errors fs io os strconv strings time path
 }
 
 types() {
