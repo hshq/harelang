@@ -458,6 +458,12 @@ stdlib_deps_any += $(stdlib_hash_fnv_any)
 stdlib_hash_fnv_linux = $(stdlib_hash_fnv_any)
 stdlib_hash_fnv_freebsd = $(stdlib_hash_fnv_any)
 
+# gen_lib hash::siphash (any)
+stdlib_hash_siphash_any = $(HARECACHE)/hash/siphash/hash_siphash-any.o
+stdlib_deps_any += $(stdlib_hash_siphash_any)
+stdlib_hash_siphash_linux = $(stdlib_hash_siphash_any)
+stdlib_hash_siphash_freebsd = $(stdlib_hash_siphash_any)
+
 # gen_lib io (linux)
 stdlib_io_linux = $(HARECACHE)/io/io-linux.o
 stdlib_deps_linux += $(stdlib_io_linux)
@@ -1358,6 +1364,16 @@ $(HARECACHE)/hash/fnv/hash_fnv-any.ssa: $(stdlib_hash_fnv_any_srcs) $(stdlib_rt)
 	@mkdir -p $(HARECACHE)/hash/fnv
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::fnv \
 		-t$(HARECACHE)/hash/fnv/hash_fnv.td $(stdlib_hash_fnv_any_srcs)
+
+# hash::siphash (+any)
+stdlib_hash_siphash_any_srcs = \
+	$(STDLIB)/hash/siphash/siphash.ha
+
+$(HARECACHE)/hash/siphash/hash_siphash-any.ssa: $(stdlib_hash_siphash_any_srcs) $(stdlib_rt) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hash/siphash
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::siphash \
+		-t$(HARECACHE)/hash/siphash/hash_siphash.td $(stdlib_hash_siphash_any_srcs)
 
 # io (+linux)
 stdlib_io_linux_srcs = \
@@ -2539,6 +2555,12 @@ testlib_deps_any += $(testlib_hash_fnv_any)
 testlib_hash_fnv_linux = $(testlib_hash_fnv_any)
 testlib_hash_fnv_freebsd = $(testlib_hash_fnv_any)
 
+# gen_lib hash::siphash (any)
+testlib_hash_siphash_any = $(TESTCACHE)/hash/siphash/hash_siphash-any.o
+testlib_deps_any += $(testlib_hash_siphash_any)
+testlib_hash_siphash_linux = $(testlib_hash_siphash_any)
+testlib_hash_siphash_freebsd = $(testlib_hash_siphash_any)
+
 # gen_lib io (linux)
 testlib_io_linux = $(TESTCACHE)/io/io-linux.o
 testlib_deps_linux += $(testlib_io_linux)
@@ -3475,6 +3497,17 @@ $(TESTCACHE)/hash/fnv/hash_fnv-any.ssa: $(testlib_hash_fnv_any_srcs) $(testlib_r
 	@mkdir -p $(TESTCACHE)/hash/fnv
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::fnv \
 		-t$(TESTCACHE)/hash/fnv/hash_fnv.td $(testlib_hash_fnv_any_srcs)
+
+# hash::siphash (+any)
+testlib_hash_siphash_any_srcs = \
+	$(STDLIB)/hash/siphash/siphash.ha \
+	$(STDLIB)/hash/siphash/+test.ha
+
+$(TESTCACHE)/hash/siphash/hash_siphash-any.ssa: $(testlib_hash_siphash_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash/siphash
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::siphash \
+		-t$(TESTCACHE)/hash/siphash/hash_siphash.td $(testlib_hash_siphash_any_srcs)
 
 # io (+linux)
 testlib_io_linux_srcs = \

@@ -806,6 +806,17 @@ hash_fnv() {
 	gen_ssa hash::fnv hash io strings
 }
 
+hash_siphash() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs hash::siphash siphash.ha
+		gen_ssa hash::siphash hash io endian
+	else
+		gen_srcs hash::siphash siphash.ha +test.ha
+		gen_ssa hash::siphash hash io endian fmt strio strings
+	fi
+}
+
 gensrcs_io() {
 	gen_srcs -plinux io \
 		'arch+$(ARCH).ha' \
@@ -1413,6 +1424,7 @@ hash::crc16
 hash::crc32
 hash::crc64
 hash::fnv
+hash::siphash
 io			linux freebsd
 linux			linux
 linux::keyctl		linux
