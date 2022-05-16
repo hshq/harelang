@@ -2,11 +2,11 @@ Implementation of the base64 encoding scheme as defined by RFC 4648.
 
 A stream-based encoding and decoding interface is available via [[newencoder]]
 and [[newdecoder]], which transparently encode or decode bytes to or from base64
-when reading from or writing to an underlying I/O handle.
+when writing to or reading from an underlying I/O handle.
 
-Convenience functions for decoding to or from byte slices or strings are also
-available; see [[encodeslice]], [[decodeslice]], [[encodestr]], and
-[[decodestr]]. These functions dynamically allocate their return value; use the
+Convenience functions for encoding to or decoding from a byte slice or a string
+are also available; see [[encodeslice]], [[decodeslice]], [[encodestr]], and
+[[decodestr]]. These functions dynamically allocate their return values; use the
 stream interface if you require static allocation.
 
 Each function accepts the desired base64 encoding alphabet as its first
