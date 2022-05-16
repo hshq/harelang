@@ -1,6 +1,8 @@
+// License: MPL-2.0
+// (c) 2021-2022 Byron Torres <b@torresjrjr.com>
 use time;
 
-// Represents a scale of time; a time standard
+// Represents a scale of time; a time standard.
 export type timescale = struct {
 	name: str,
 	abbr: str,
@@ -8,7 +10,7 @@ export type timescale = struct {
 	from_tai: *ts_converter,
 };
 
-// Converts one [[time::instant]] from one [[timescale]] to another
+// Converts one [[time::instant]] from one [[timescale]] to another.
 export type ts_converter = fn(i: time::instant) (time::instant | time::error);
 
 // International Atomic Time
@@ -28,15 +30,17 @@ fn conv_tai_tai(i: time::instant) (time::instant | time::error) = {
 
 
 // TODO: Write proper conversion functions for all timescales.
-// Functions are to return two or no instants, depending on any leap second
-// events, and use a proper leap second table.
-// https://www.ietf.org/timezones/data/leap-seconds.list
+//
+// Ticket: https://todo.sr.ht/~sircmpwn/hare/642
+//
+// For UTC, conversion functions are to return two or no instants, depending on
+// any leap second events, and use a proper leap second table. See leapsec.ha.
 
 
 // Coordinated Universal Time
 //
 // Used as the basis of civil timekeeping.
-// Based on TAI, with an offset, changed roughly biannually.
+// Based on TAI; time-dependent offset.
 // Discontinuous (has leap seconds).
 export const utc: timescale = timescale {
 	name = "Coordinated Universal Time",
@@ -102,7 +106,7 @@ fn lookup_leaps(list: [](i64, i64), t: i64) size = {
 // Global Positioning System Time
 //
 // Used for GPS coordination.
-// Based on TAI, constant -19 second offset.
+// Based on TAI; constant -19 second offset.
 // Continuous (no leap seconds).
 export const gps: timescale = timescale {
 	name = "Global Positioning System Time",
@@ -131,7 +135,7 @@ fn conv_gps_tai(a: time::instant) (time::instant | time::error) = {
 // Terrestrial Time
 //
 // Used for astronomical timekeeping.
-// Based on TAI, with a constant offset.
+// Based on TAI; constant +32.184 offset.
 // Continuous (no leap seconds).
 export const TT: timescale = timescale {
 	name = "Terrestrial Time",
@@ -159,16 +163,16 @@ fn conv_tt_tai(tt: time::instant) (time::instant | time::error) = {
 };
 
 
-// Authur David Olson had expressed for Martian time support in this database
-// project <https://data.iana.org/time-zones/theory.html>:
+// Arthur David Olson had expressed support for Martian time in his timezone
+// database project <https://data.iana.org/time-zones/theory.html>:
 //
 // > The tz database does not currently support Mars time, but it is documented
-// > here in the hopes that support will be added eventually. 8
+// > here in the hopes that support will be added eventually.
 
 // Coordinated Mars Time
 //
-// Used for local solar time on Mars.
-// Based on TT, with a constant factor.
+// Used for timekeeping on Mars.
+// Based on TT; constant factor.
 // Continuous (no leap seconds).
 export const mtc: timescale = timescale {
 	name = "Coordinated Mars Time",

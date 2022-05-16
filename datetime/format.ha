@@ -11,26 +11,28 @@ use strings;
 use strio;
 use time::chrono;
 
-// [[datetime::format]] string for the email date format.
+// [[datetime::format]] layout for the email date format.
 export def EMAIL: str = "%a, %d %b %Y %H:%M:%S %z";
 
-// [[datetime::format]] string for the email date format, with zone offset and
+// [[datetime::format]] layout for the email date format, with zone offset and
 // zone abbreviation.
 export def EMAILZ: str = "%a, %d %b %Y %H:%M:%S %z %Z";
 
-// [[datetime::format]] string used by default for POSIX date(1).
+// [[datetime::format]] layout partly compatible with the default layout format
+// for the POSIX locale. %d is used in place of POSIX %e.
 export def POSIX: str = "%a %b %d %H:%M:%S %Z %Y";
+// TODO: Actually implement '%e' and thus the POSIX layout format?
 
-// [[datetime::format]] string compatible with RFC 3339.
+// [[datetime::format]] layout compatible with RFC 3339.
 export def RFC3339: str = "%Y-%m-%dT%H:%M:%S%z";
 
-// [[datetime::format]] string for a simple timestamp.
+// [[datetime::format]] layout for a simple timestamp.
 export def STAMP: str = "%Y-%m-%d %H:%M:%S";
 
-// [[datetime::format]] string for a simple timestamp with nanoseconds.
+// [[datetime::format]] layout for a simple timestamp with nanoseconds.
 export def STAMP_NANO: str = "%Y-%m-%d %H:%M:%S.%N";
 
-// [[datetime::format]] string for a simple timestamp with nanoseconds,
+// [[datetime::format]] layout for a simple timestamp with nanoseconds,
 // zone offset, zone abbreviation, and locality.
 export def STAMP_NOZL: str = "%Y-%m-%d %H:%M:%S.%N %z %Z %L";
 
@@ -72,9 +74,11 @@ def MONTHS_SHORT: [_]str = [
 // "intervals" standard representation provided by ISO 8601?
 //
 // See https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
+//
+// Ticket: https://todo.sr.ht/~sircmpwn/hare/650
 
-// Formats a [[datetime]] and writes it into a caller supplied buffer. The
-// returned string is borrowed from this buffer.
+// Formats a [[datetime]] and writes it into a caller supplied buffer.
+// The returned string is borrowed from this buffer.
 export fn bsformat(
 	buf: []u8,
 	layout: str,
@@ -85,8 +89,8 @@ export fn bsformat(
 	return strio::string(&sink);
 };
 
-// Formats a [[datetime]] and writes it into a heap-allocated string. The caller
-// must free the return value.
+// Formats a [[datetime]] and writes it into a heap-allocated string.
+// The caller must free the return value.
 export fn asformat(layout: str, dt: *datetime) (str | invalid | io::error) = {
 	let sink = strio::dynamic();
 	format(&sink, layout, dt)?;
@@ -358,6 +362,8 @@ fn hour12(dt: *datetime) int = {
 };
 
 // TODO: Refactor this once the rest of the parse() refactoring is done
+// Ticket: https://todo.sr.ht/~sircmpwn/hare/648
+
 // @test fn parse() void = {
 // 	let dt = datetime {...};
 

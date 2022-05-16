@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021-2022 Byron Torres <b@torresjrjr.com>
 use bufio;
 use endian;
 use errors;
@@ -8,16 +10,18 @@ use path;
 use strings;
 use time;
 
-// Some TZif data is invalid
+// Invalid TZif data.
 export type invalidtzif = !void;
 
 // Possible errors returned from [[tz]].
 export type error = !(fs::error | io::error | invalidtzif);
+// TODO: Move to an appropriate file, and add other chrono error types.
 
 // Converts an [[error]] to a human-friendly representation.
 export fn strerror(err: error) const str = {
 	match (err) {
 	case invalidtzif =>
+		// TODO: Improve error string.
 		return "Invalid TZif data in time zone";
 	case let err: fs::error =>
 		return fs::strerror(err);
@@ -26,10 +30,11 @@ export fn strerror(err: error) const str = {
 	};
 };
 
-// Parses and retrieves a [[timezone]] from the system's zoneinfo database, or
-// if applicable, from an internal selection of timezones. All timezones
-// provided default to the [[utc]] timescale and [[EARTH_DAY]] daylength.
+// Finds and loads a [[timezone]] from the system's Timezone database, normally
+// located at /usr/share/zoneinfo. All timezones provided default to the [[utc]]
+// [[timescale]] and [[EARTH_DAY]] day-length.
 export fn tz(name: str) (timezone | fs::error | io::error | invalidtzif) = {
+// TODO: Consolidate errors (use chrono::error?).
 	const filepath = path::init();
 	path::add(&filepath, ZONEINFO_PREFIX, name)!;
 	const fpath = path::string(&filepath);
@@ -58,13 +63,13 @@ export fn tz(name: str) (timezone | fs::error | io::error | invalidtzif) = {
 	};
 };
 
-// Parses data in the TZif format, and returns the given timezone with the
-// fields "zones", "transitions", and "posix_extend" filled.
+// Parses data in the TZif "Time Zone Information Format", and initialises the
+// fields "zones", "transitions", and "posix_extend" of the given [[timezone]].
 //
 // See: https://datatracker.ietf.org/doc/html/rfc8536
 fn parse_tzif(
 	h: io::handle,
-	tz: timezone,
+	tz: timezone, // TODO: Make tz a pointer.
 ) (timezone | invalidtzif | io::error) = {
 	const buf1: [1]u8 = [0...];
 	const buf4: [4]u8 = [0...];
@@ -73,6 +78,7 @@ fn parse_tzif(
 
 	// test for magic "TZif"
 	mustread(h, buf4)?;
+	// TODO: Use non-aborting bytes comparison.
 	if (strings::fromutf8(buf4) != "TZif") {
 		return invalidtzif;
 	};

@@ -1,14 +1,17 @@
+// License: MPL-2.0
+// (c) 2021-2022 Byron Torres <b@torresjrjr.com>
 use bufio;
 use io;
 use os;
 use path;
 use time;
 
-// The virtual region a moment is interpreted in
+// The locality of a [[moment]]. Contains information about how to present a
+// moment's chronological values.
 export type locality = *timezone;
 
-// A timezone; a political region with a ruleset regarding offsets for
-// calculating localized civil time
+// A timezone; a political or general region with a ruleset regarding offsets
+// for calculating localized civil time.
 export type timezone = struct {
 	// The textual identifier ("Europe/Amsterdam")
 	name: str,
@@ -33,7 +36,7 @@ export type timezone = struct {
 	posix_extend: str,
 };
 
-// A timezone state, with an offset for calculating localized civil time
+// A [[timezone]] state, with an offset for calculating localized civil time.
 export type zone = struct {
 	// The offset from the normal timezone (2 * time::HOUR)
 	zoffset: time::duration,
@@ -48,7 +51,7 @@ export type zone = struct {
 	dst: bool, // true
 };
 
-// A timezone transition between two zones
+// A [[timezone]] transition between two [[zone]]s.
 export type transition = struct {
 	when: time::instant,
 	zoneindex: int,
@@ -66,7 +69,7 @@ type tzname = struct {
 	dst_endtime: str,
 };
 
-// Converts a [[moment]] to one in a different [[locality]]
+// Creates an equivalent [[moment]] with a different [[locality]].
 export fn in(loc: locality, m: moment) moment = {
 	assert(m.time < loc.daylength, "Internal error: time excedes daylength");
 	return new(m.date, m.time, loc)!; // resets .zone
@@ -86,8 +89,9 @@ export fn transform(m: moment, zo: time::duration) moment = {
 	return m;
 };
 
-// Finds, sets and returns a [[moment]]'s currently observed zone
+// Finds, sets and returns a [[moment]]'s currently observed zone.
 export fn lookupzone(m: *moment) zone = {
+	// TODO: https://todo.sr.ht/~sircmpwn/hare/643
 	if (len(m.loc.zones) == 0) {
 		// TODO: what to do? not ideal to assume UTC
 		abort("lookup(): timezones should have at least one zone");
@@ -161,7 +165,9 @@ export fn fixedzone(ts: *timescale, daylen: time::duration, z: zone) timezone = 
 	};
 };
 
-// The system's local timezone, set during initialisation
+// The system's [[locality]]; the system's local [[timezone]].
+//
+// This is set during initialisation.
 export const LOCAL: locality = &TZ_local;
 
 @init fn set_local_timezone() void = {
@@ -214,7 +220,7 @@ let TZ_local: timezone = timezone {
 	posix_extend = "",
 };
 
-// The UTC (Coordinated Universal Time) "Zulu" timezone
+// The UTC (Coordinated Universal Time) "Zulu" [[timezone]] as a [[locality]].
 export const UTC: locality = &TZ_UTC;
 
 const TZ_UTC: timezone = timezone {
@@ -233,7 +239,7 @@ const TZ_UTC: timezone = timezone {
 	posix_extend = "",
 };
 
-// The TAI (International Atomic Time) "Zulu" timezone
+// The TAI (International Atomic Time) "Zulu" [[timezone]] as a [[locality]].
 export const TAI: locality = &TZ_TAI;
 
 const TZ_TAI: timezone = timezone {
@@ -252,7 +258,7 @@ const TZ_TAI: timezone = timezone {
 	posix_extend = "",
 };
 
-// The MTC (Coordinated Mars Time) "Zulu" timezone
+// The MTC (Coordinated Mars Time) "Zulu" [[timezone]] as a [[locality]].
 export const MTC: locality = &TZ_MTC;
 
 const TZ_MTC: timezone = timezone {

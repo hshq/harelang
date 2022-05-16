@@ -5,16 +5,16 @@ use errors;
 use time::chrono;
 
 // Hare internally uses the Unix epoch (1970-01-01) for calendrical logic. Here
-// we provide useful constant for working with the proleptic Gregorian calendar,
-// as offsets from the Hare epoch.
+// we provide useful constant for working with the astronomically numbered
+// proleptic Gregorian calendar, as offsets from the Hare epoch.
 
-// The Hare epoch of the Julian Day Number
+// The Hare epoch of the Julian Day Number.
 export def EPOCHAL_JULIAN: i64 = -2440588;
 
-// The Hare epoch of the Gregorian Common Era
+// The Hare epoch of the Gregorian Common Era.
 export def EPOCHAL_GREGORIAN: i64 = -719164;
 
-// Calculates whether a given year is a leap year.
+// Calculates whether a year is a leap year.
 export fn is_leap_year(y: int) bool = {
 	return if (y % 4 != 0) false
 	else if (y % 100 != 0) true
@@ -22,18 +22,18 @@ export fn is_leap_year(y: int) bool = {
 	else true;
 };
 
-// Calculates whether a given (year, month, date) is valid
+// Calculates whether a given year, month, and day-of-month, is a valid date.
 fn is_valid_ymd(y: int, m: int, d: int) bool = {
 	return m >= 1 && m <= 12 && d >= 1 &&
 		d <= calc_n_days_in_month(y, m);
 };
 
-// Returns whether a (year, yearday) date is valid
+// Calculates whether a given year, and day-of-year, is a valid date.
 fn is_valid_yd(y: int, yd: int) bool = {
 	return yd >= 1 && yd <= calc_n_days_in_year(y);
 };
 
-// Calculates the number of days in the given month of the given year
+// Calculates the number of days in the given month of the given year.
 fn calc_n_days_in_month(y: int, m: int) int = {
 	const days_per_month: [_]int = [
 		31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
@@ -49,7 +49,7 @@ fn calc_n_days_in_month(y: int, m: int) int = {
 	};
 };
 
-// Calculates the number of days in a year
+// Calculates the number of days in a given year.
 fn calc_n_days_in_year(y: int) int = {
 	if (is_leap_year(y)) {
 		return 366;
@@ -58,7 +58,7 @@ fn calc_n_days_in_year(y: int) int = {
 	};
 };
 
-// Calculates the era, given a year
+// Calculates the era, given a year.
 fn calc_era(y: int) int = {
 	return if (y >= 0) {
 		yield 1; // CE "Common Era"
@@ -67,7 +67,7 @@ fn calc_era(y: int) int = {
 	};
 };
 
-// Calculates the (year, month, day), given an epochal day
+// Calculates the year, month, and day-of-month, given an epochal day.
 fn calc_ymd(e: chrono::epochal) (int, int, int) = {
 	// Algorithm adapted from:
 	// https://en.wikipedia.org/wiki/Julian_day#Julian_or_Gregorian_calendar_from_Julian_day_number
@@ -101,7 +101,7 @@ fn calc_ymd(e: chrono::epochal) (int, int, int) = {
 	return (Y: int, M: int, D: int);
 };
 
-// Calculates the day of a year, given a (year, month, day) date
+// Calculates the day-of-year, given a year, month, and day-of-month.
 fn calc_yearday(y: int, m: int, d: int) int = {
 	const months_firsts: [_]int = [
 		0, 31, 59,
@@ -118,7 +118,7 @@ fn calc_yearday(y: int, m: int, d: int) int = {
 };
 
 // Calculates the ISO week-numbering year,
-// given a (year, month, day, weekday) date
+// given a year, month, day-of-month, and day-of-week.
 fn calc_isoweekyear(y: int, m: int, d: int, wd: int) int = {
 	if (
 		// if the date is within a week whose Thurday
@@ -145,7 +145,8 @@ fn calc_isoweekyear(y: int, m: int, d: int, wd: int) int = {
 	};
 };
 
-// Calculates the ISO week, given a (year, week, weekday, yearday) date
+// Calculates the ISO week,
+// given a year, week, day-of-week, and day-of-year.
 fn calc_isoweek(y: int, w: int, wd: int, yd: int) int = {
 	const jan1wd = (yd - wd + 7) % 7 + 1;
 
@@ -177,33 +178,34 @@ fn calc_isoweek(y: int, w: int, wd: int, yd: int) int = {
 };
 
 // Calculates the week within a Gregorian year [0..53],
-// given a yearday and Gregorian weekday.
-// All days in a new year before the year's first Monday belong to week 0.
+// given a day-of-year and day-of-week.
+// All days in a year before the year's first Monday belong to week 0.
 fn calc_week(yd: int, wd: int) int = {
 	return (yd + 7 - wd) / 7;
 };
 
 // Calculates the week within a Gregorian year [0..53],
-// given a yearday and Gregorian weekday.
-// All days in a new year before the year's first Sunday belong to week 0.
+// given a day-of-year and day-of-week.
+// All days in a year before the year's first Sunday belong to week 0.
 fn calc_week_starting_sunday(yd: int, wd: int) int = {
 	return (yd + 6 - (wd % 7)) / 7;
 };
 
-// Calculates the weekday, given a epochal day,
-// from Monday=1 to Sunday=7
+// Calculates the day-of-week, given a epochal day,
+// from Monday=1 to Sunday=7.
 fn calc_weekday(e: chrono::epochal) int = {
 	const wd = ((e + 3) % 7 + 1): int;
 	return if (wd > 0) wd else wd + 7;
 };
 
-// Calculates the zeroed weekday, given a weekday,
-// from Monday=0 to Sunday=6
+// Calculates the zero-indexed day-of-week, given a day-of-week,
+// from Monday=0 to Sunday=6.
 fn calc_zeroweekday(wd: int) int = {
 	return wd - 1;
 };
 
-// Calculates the [[chrono::epochal]], given a (year, month, day) date
+// Calculates the [[chrono::epochal]],
+// given a year, month, and day-of-month.
 fn calc_epochal_from_ymd(y: int, m: int, d: int) (chrono::epochal | invalid) = {
 	if (!is_valid_ymd(y, m, d)) {
 		return invalid;
@@ -211,7 +213,7 @@ fn calc_epochal_from_ymd(y: int, m: int, d: int) (chrono::epochal | invalid) = {
 	// Algorithm adapted from:
 	// https://en.wikipedia.org/wiki/Julian_day
 	//
-	// Alternate methods of date calculation should be explored.
+	// TODO: Review, cite, verify, annotate.
 	const jdn = (
 		(1461 * (y + 4800 + (m - 14) / 12)) / 4
 		+ (367 * (m - 2 - 12 * ((m - 14) / 12))) / 12
@@ -223,7 +225,8 @@ fn calc_epochal_from_ymd(y: int, m: int, d: int) (chrono::epochal | invalid) = {
 	return e;
 };
 
-// Calculates the [[chrono::epochal]], given a (year, week, weekday) date
+// Calculates the [[chrono::epochal]],
+// given a year, week, and day-of-week.
 fn calc_epochal_from_ywd(y: int, w: int, wd: int) (chrono::epochal | invalid) = {
 	const jan1 = calc_epochal_from_ymd(y, 1, 1)?;
 	const jan1_wd = calc_weekday(jan1);
@@ -236,7 +239,8 @@ fn calc_epochal_from_ywd(y: int, w: int, wd: int) (chrono::epochal | invalid) = 
 	return calc_epochal_from_ymd(ymd.0, ymd.1, ymd.2)?;
 };
 
-// Calculates a (year, month, day) date given a (year, yearday) date
+// Calculates a year, month, and day-of-month,
+// given a year and day-of-year.
 fn calc_ymd_from_yd(y: int, yd: int) ((int, int, int) | invalid) = {
 	if (!is_valid_yd(y, yd)) {
 		return invalid;
@@ -258,7 +262,8 @@ fn calc_ymd_from_yd(y: int, yd: int) ((int, int, int) | invalid) = {
 	return invalid;
 };
 
-// Calculates the [[chrono::epochal]], given a (year, yearday) date
+// Calculates the [[chrono::epochal]],
+// given a year and day-of-year.
 fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | invalid) = {
 	const ymd = calc_ymd_from_yd(y, yd)?;
 	return calc_epochal_from_ymd(ymd.0, ymd.1, ymd.2)?;

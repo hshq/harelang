@@ -4,52 +4,55 @@ use errors;
 use time;
 use time::chrono;
 
-// Functions renamed here to avoid namespace conflict, like in the parameters of
-// the [[new]] function.
+// These functions are renamed to avoid namespace conflicts, like in the
+// parameters of the [[new]] function.
 
-// Returns a [[datetime]]'s number of days since the calendar epoch 0000-01-01
+// TODO: For [[epochal]]: Use Hare epoch or Gregorian epoch? Make two function?
+// TODO: Create an exported [[zeroweekday]] field function.
+
+// Returns a [[datetime]]'s number of days since the calendar epoch 0000-01-01.
 export fn epochal(dt: *datetime) chrono::epochal = _epochal(dt);
 
-// Returns a [[datetime]]'s era
+// Returns a [[datetime]]'s era.
 export fn era(dt: *datetime) int = _era(dt);
 
-// Returns a [[datetime]]'s year
+// Returns a [[datetime]]'s year.
 export fn year(dt: *datetime) int = _year(dt);
 
-// Returns a [[datetime]]'s month of the year
+// Returns a [[datetime]]'s month of the year.
 export fn month(dt: *datetime) int = _month(dt);
 
-// Returns a [[datetime]]'s day of the month
+// Returns a [[datetime]]'s day of the month.
 export fn day(dt: *datetime) int = _day(dt);
 
-// Returns a [[datetime]]'s day of the week
+// Returns a [[datetime]]'s day of the week.
 export fn weekday(dt: *datetime) int = _weekday(dt);
 
-// Returns a [[datetime]]'s ordinal day of the year
+// Returns a [[datetime]]'s ordinal day of the year.
 export fn yearday(dt: *datetime) int = _yearday(dt);
 
-// Returns a [[datetime]]'s ISO week-numbering year
+// Returns a [[datetime]]'s ISO week-numbering year.
 export fn isoweekyear(dt: *datetime) int = _isoweekyear(dt);
 
-// Returns a [[datetime]]'s Gregorian week
+// Returns a [[datetime]]'s Gregorian week.
 export fn week(dt: *datetime) int = _week(dt);
 
-// Returns a [[datetime]]'s Gregorian week starting Sunday
+// Returns a [[datetime]]'s Gregorian week starting Sunday.
 export fn week_starting_sunday(dt: *datetime) int = _week_starting_sunday(dt);
 
-// Returns a [[datetime]]'s ISO week
+// Returns a [[datetime]]'s ISO week.
 export fn isoweek(dt: *datetime) int = _isoweek(dt);
 
-// Returns a [[datetime]]'s hour of the day
+// Returns a [[datetime]]'s hour of the day.
 export fn hour(dt: *datetime) int = _hour(dt);
 
-// Returns a [[datetime]]'s minute of the hour
+// Returns a [[datetime]]'s minute of the hour.
 export fn min(dt: *datetime) int = _min(dt);
 
-// Returns a [[datetime]]'s second of the minute
+// Returns a [[datetime]]'s second of the minute.
 export fn sec(dt: *datetime) int = _sec(dt);
 
-// Returns a [[datetime]]'s nanosecond of the second
+// Returns a [[datetime]]'s nanosecond of the second.
 export fn nsec(dt: *datetime) int = _nsec(dt);
 
 

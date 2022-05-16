@@ -5,7 +5,7 @@ use errors;
 use time;
 use time::chrono;
 
-// The given combination of date, time, and locality is invalid.
+// Invalid [[datetime]].
 export type invalid = !chrono::invalid;
 
 export type datetime = struct {
@@ -88,7 +88,7 @@ export fn new(
 	offs: (time::duration | void),
 	fields: int...
 ) (datetime | invalid) = {
-	// TODO: 
+	// TODO:
 	// - revise examples
 	// - Implement as described.
 	// - fix calls with `years <= -4715`.
@@ -157,10 +157,14 @@ export fn new(
 	return dt;
 };
 
-// Returns a [[datetime]] for the immediate system time.
+// Returns a [[datetime]] of the current system time,
+// using [[time::clock::REALTIME]] and [[time::chrono::LOCAL]].
 export fn now() datetime = {
-	// TODO: specify appropriate params like a time::clock and
-	// chrono::timezone.
+	// TODO: Consider adding function parameters.
+	// Should [[now]] specify appropriate params like a time::clock and
+	// chrono::timezone? Perhaps a separate function, [[from_clock]].
+	//
+	// https://todo.sr.ht/~sircmpwn/hare/645
 	const i = time::now(time::clock::REALTIME);
 	const m = chrono::from_instant(i, chrono::LOCAL);
 	return from_moment(m);
@@ -176,7 +180,8 @@ export fn from_moment(m: chrono::moment) datetime = {
 	return dt;
 };
 
-// Creates a [[datetime]] from a [[time::instant]].
+// Creates a [[datetime]] from a [[time::instant]]
+// in a [[time::chrono::locality]].
 export fn from_instant(i: time::instant, loc: chrono::locality) datetime = {
 	return from_moment(chrono::from_instant(i, loc));
 };
@@ -187,7 +192,7 @@ export fn to_instant(dt: datetime) time::instant = {
 };
 
 // Creates a [[datetime]] from a string, parsed according to a layout,
-// using [[strategy::ALL]], or fails otherwise.
+// using [[strategy::ALL]], or otherwise fails.
 export fn from_str(layout: str, s: str) (datetime | insufficient | invalid) = {
 	// XXX: Should we allow the user to specify [[strategy]] for security?
 	const b = newbuilder();
@@ -195,7 +200,7 @@ export fn from_str(layout: str, s: str) (datetime | insufficient | invalid) = {
 	return finish(&b)?;
 };
 
-// Creates a [[time::chrono::moment]] from a [[datetime]]
+// Creates a [[time::chrono::moment]] from a [[datetime]].
 export fn to_moment(dt: datetime) chrono::moment = {
 	return chrono::moment {
 		date = dt.date,
@@ -208,23 +213,27 @@ export fn to_moment(dt: datetime) chrono::moment = {
 // A [[builder]] has insufficient information and cannot create a valid datetime.
 export type insufficient = !void;
 
-// Constructs a new datetime. Start with [[newbuilder]], then collect enough
-// datetime information incrementally by direct field assignments and/or one or
-// more calls to [[parse]]. Finish with [[finish]].
+// A pseudo-datetime; a [[datetime]] which may hold invalid values, and does not
+// guarantee internal validity or consistency.
+//
+// This can be used to construct new [[datetime]]s. Start with [[newbuilder]],
+// then collect enough datetime information incrementally by direct field
+// assignments and/or one or more calls to [[parse]]. Finish with [[finish]].
 //
 // 	let builder = datetime::newbuilder();
 // 	datetime::parse(&builder, "Year: %Y", "Year: 2038");
 // 	datetime::parse(&builder, "Month: %m", "Month: 01");
 // 	builder.day = 19;
 // 	let dt = datetime::finish(&builder, datetime::strategy::YMD);
+//
 export type builder = datetime;
 
-// Creates a new [[builder]]
+// Creates a new [[builder]].
 export fn newbuilder() builder = init(): builder;
 
-// Returns a datetime from a builder. The provided [[strategy]]s will be tried
-// in order until a valid datetime is produced, or fail otherwise. The default
-// strategy is [[strategy::ALL]].
+// Returns a [[datetime]] from a [[builder]]. The provided [[strategy]]s will be
+// tried in order until a valid datetime is produced, or otherwise fail. The
+// default strategy is [[strategy::ALL]].
 export fn finish(f: *builder, m: strategy...) (datetime | insufficient | invalid) = {
 	if (len(m) == 0) {
 		m = [strategy::ALL];
@@ -278,8 +287,8 @@ export fn finish(f: *builder, m: strategy...) (datetime | insufficient | invalid
 	return insufficient;
 };
 
-// Specifies which [[builder]] fields (and what strategy) to use to calculate the
-// epochal, and thus a valid datetime.
+// Specifies which [[builder]] fields and what strategy to use to calculate the
+// epochal, and thus a valid [[datetime]].
 export type strategy = enum uint {
 	// year, month, day
 	YMD    = 1 << 0,

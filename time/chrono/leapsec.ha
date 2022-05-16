@@ -1,3 +1,5 @@
+// License: MPL-2.0
+// (c) 2021-2022 Byron Torres <b@torresjrjr.com>
 use bufio;
 use fmt;
 use fs;
@@ -6,31 +8,35 @@ use os;
 use strconv;
 use strings;
 
-// Hare uses raw leap second informtion when dealing with the UTC and TAI
+// Hare uses raw leap second information when dealing with the UTC and TAI
 // timescales. This information is source from a standard file installed at
 // /usr/share/zoneinfo/leap-seconds.list, which itself is fetched from and
-// periodically maintained at:
+// periodically maintained at various observatories.
 //
-// <ftp://ftp.nist.gov/pub/time/leap-seconds.list>
-// <ftp://ftp.boulder.nist.gov/pub/time/leap-seconds.list>
+// https://data.iana.org/time-zones/code/leap-seconds.list
+// https://www.ietf.org/timezones/data/leap-seconds.list
+// ftp://ftp.nist.gov/pub/time/leap-seconds.list
+// ftp://ftp.boulder.nist.gov/pub/time/leap-seconds.list
 //
-// This is in contrast to legacy systems which rely on TZif files, which are
+// This is in contrast to previous systems which rely on TZif files, which are
 // installed typically at /usr/share/zoneinfo, as part of the "Olson" IANA
-// Timezone databse. These files couple timezone and leap second information
-// into one datablock.
+// Timezone database. These files couple timezone and leap second data.
 //
 // Depending on a system's installation, leap second information may be
 // deliberately left out of the TZif files, or duplicated throughout. This
 // design also inhibits our ambitions for dealing with multiple, dynamic
 // timescales. Therefore, we have decided to take an alternative approach.
 
-// The number of seconds between the years 1900 and 1970.
+// The number of seconds between the years 1900 and 1970. This number is
+// deliberately hypothetical since timekeeping before atomic clocks was not
+// accurate enough to account for small changes in time.
 export def SECS_1900_1970: i64 = 2208988800;
 
-// The filepath of the leap-seconds.list file
+// The filepath of the system's leap-seconds.list file.
 export def UTC_LEAPSECS_FILE: str = "/usr/share/zoneinfo/leap-seconds.list";
 
-// UTC timestamps and their TAI offsets, sourced from leap-seconds.list
+// UTC timestamps and their offsets from TAI, sourced from the system's
+// leap-seconds.list file.
 let utc_leapsecs: [](i64, i64) = [];
 
 @init fn init_utc_leapsecs() void = {

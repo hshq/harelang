@@ -26,13 +26,14 @@ export def HOUR: duration = 60 * MINUTE;
 
 // Represents a specific instant in time as seconds (+nanoseconds) since an
 // arbitrary epoch. Instants may only be meaningfully compared with other
-// instants sourced from the same clock.
+// instants sourced from the same clock, or handled by the same
+// [[time::chrono::timescale]]
 export type instant = struct {
 	sec: i64,
 	nsec: i64,
 };
 
-// Represents a unique interval of time between two instants.
+// Represents a unique interval of time between two [[instant]]s.
 export type interval = (instant, instant);
 
 // All error types which are concerned with the handling of [[instant]]s.

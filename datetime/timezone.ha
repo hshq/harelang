@@ -4,7 +4,7 @@
 use time;
 use time::chrono;
 
-// Transforms and creates a new [[datetime]] in a different
+// Creates an equivalent [[datetime]] with a different
 // [[time::chrono::locality]].
 export fn in(loc: chrono::locality, dt: datetime) datetime = {
 	const old = to_moment(dt);
@@ -13,7 +13,7 @@ export fn in(loc: chrono::locality, dt: datetime) datetime = {
 	return new_dt;
 };
 
-// Finds and returns a [[datetime]]'s currently observed zone.
+// Finds, sets and returns a [[datetime]]'s currently observed zone.
 export fn lookupzone(dt: *datetime) chrono::zone = {
 	const m = to_moment(*dt);
 	const z = chrono::lookupzone(&m);

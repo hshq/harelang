@@ -7,8 +7,8 @@ use math;
 use time;
 use time::chrono;
 
-// Represents a span of time in the proleptic Gregorian calendar, using relative
-// units of time. Used for calendar arithmetic.
+// Represents a span of time in the Gregorian chronology, using nominal units of
+// time. Used for datetime arithmetic.
 export type period = struct {
 	eras: int,
 	years: int,
@@ -35,7 +35,7 @@ export type calculus = enum int {
 };
 // TODO: ^ Expand this
 
-// The various datetime units that can be used for arithmetic.
+// The nominal units of the Gregorian chronology. Used for datetime arithmetic.
 export type unit = enum int {
 	ERA,
 	YEAR,
@@ -48,23 +48,32 @@ export type unit = enum int {
 	NANOSECOND,
 };
 
-// Returns true if two dates are numerically equal.
+// Returns true if two [[datetime]]s are equivalent.
+//
+// Equivalence means they represent the same moment in time,
+// regardless of their [[locality]] or observed chronological values.
 export fn eq(a: datetime, b: datetime) bool = {
 	return a.date == b.date && a.time == b.time;
 };
 
-// Returns true if the first date is after the second date.
+// Returns true if [[datetime]] "a" succeeds [[datetime]] "b".
+//
+// Temporal order is evaluated in a universal frame of reference,
+// regardless of their [[locality]] or observed chronological values.
 export fn after(a: datetime, b: datetime) bool = {
 	return !eq(a, b) &&
 		(a.date > b.date || a.date == b.date && a.time > b.time);
 };
 
-// Returns true if the first date is before the second date.
+// Returns true if [[datetime]] "a" precedes [[datetime]] "b".
+//
+// Temporal order is evaluated in a universal frame of reference,
+// regardless of their [[locality]] or observed chronological values.
 export fn before(a: datetime, b: datetime) bool = {
 	return !eq(a, b) && !after(a, b);
 };
 
-// Calculates the difference between two datetimes.
+// Calculates the [[period]] between two [[datetime]]s.
 export fn diff(a: datetime, b: datetime) period = {
 	let res = period { ... };
 	if (eq(a, b)) {
@@ -125,8 +134,8 @@ export fn diff(a: datetime, b: datetime) period = {
 	return res;
 };
 
-// Calculates the difference between two datetimes using the given unit,
-// truncating towards zero.
+// Calculates the difference between two [[datetime]]s using the given nominal
+// [[unit]], truncating towards zero.
 export fn unitdiff(a: datetime, b: datetime, u: unit) i64 = {
 	return switch (u) {
 	case unit::ERA =>
@@ -156,7 +165,7 @@ export fn unitdiff(a: datetime, b: datetime, u: unit) i64 = {
 	};
 };
 
-// Returns true if two periods are numerically equal.
+// Returns true if two [[period]]s are numerically equal.
 export fn period_eq(a: period, b: period) bool = {
 	return a.eras == b.eras &&
 		a.years == b.years &&
@@ -169,9 +178,10 @@ export fn period_eq(a: period, b: period) bool = {
 		a.nanoseconds == b.nanoseconds;
 };
 
-// Truncates the given datetime at the provided unit. For example, truncating to
-// the nearest [[unit::YEAR]] will set the month, day, hour, minute, seconds,
-// and nanoseconds fields to their minimum values.
+// Truncates the given [[datetime]] at the provided nominal [[unit]].
+//
+// For example, truncating to the nearest [[unit::MONTH]] will set the day,
+// hour, minute, seconds, and nanoseconds fields to their minimum values.
 export fn truncate(dt: datetime, u: unit) datetime = {
 	// TODO: Replace all of the 0s for the zoffset with the actual
 	// zoffset once the API is solidified a bit
@@ -223,16 +233,16 @@ export fn truncate(dt: datetime, u: unit) datetime = {
 	};
 };
 
-// Given a datetime and a period, "hops" to the minimum value of each field
-// (years, months, days, etc) plus or minus an offset, and returns a new
+// Given a [[datetime]] and a [[period]], "hops" to the minimum value of each
+// field (years, months, days, etc) plus or minus an offset, and returns a new
 // datetime. This can be used, for example, to find the start of last year.
 //
 // Consults each period's fields from most to least significant (from years to
 // nanoseconds).
 //
-// If a field's value N is zero, nothing happens. Otherwise, hop will reckon to
-// the Nth inter-period point from where last reckoned. This repeats until all
-// the given period's fields are exhausted.
+// If a period's field's value N is zero, it's a no-op. Otherwise, hop will
+// reckon to the Nth inter-period point from where last reckoned. This repeats
+// until all the given period's fields are exhausted.
 //
 // 	let dt = ... // 1999-05-13 12:30:45
 // 	datetime::hop(dt, datetime::period {
@@ -299,6 +309,7 @@ export fn hop(dt: datetime, pp: period...) datetime = {
 // 		months = -1, // 2021-04-13 12:30:45
 // 		days   = -4, // 2020-04-09 12:30:45
 // 	});
+//
 export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 	// TODO: Use [[builder]] to simplify some code.
 	let d_year = year(&dt);
@@ -406,6 +417,7 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 // 		months = -1, // 1977-06-13 12:30:45
 // 		days   = -4, // 1977-06-17 12:30:45
 // 	});
+//
 export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 	for (let i = 0z; i < len(pp); i += 1) {
 		pp[i].eras *= -1;

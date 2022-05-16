@@ -5,12 +5,13 @@
 use errors;
 use strings;
 
-// Parses a datetime string into a [[builder]], using a "layout" format string
-// with a set of specifiers as documented under [[format]]. Partial, incremental
-// parsing is possible.
+// Parses a date/time string into a [[builder]], according to a layout format
+// string with specifiers as documented under [[format]]. Partial, sequential,
+// aggregative parsing is possible.
 //
 // 	datetime::parse(&builder, "%Y-%m-%d", "2038-01-19");
 // 	datetime::parse(&builder, "%H:%M:%S", "03:14:07");
+//
 export fn parse(build: *builder, layout: str, s: str) (void | invalid) = {
 	const format_iter = strings::iter(layout);
 	const s_iter = strings::iter(s);
