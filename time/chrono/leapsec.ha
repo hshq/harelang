@@ -1,7 +1,6 @@
 // License: MPL-2.0
 // (c) 2021-2022 Byron Torres <b@torresjrjr.com>
 use bufio;
-use fmt;
 use fs;
 use io;
 use os;
@@ -47,22 +46,24 @@ let utc_leapsecs: [](i64, i64) = [];
 	case fs::error =>
 		return;
 	};
-	read_leapsecfile(file, &utc_leapsecs)!;
+	defer io::close(file)!;
+	read_utc_leapsecs_file(file, &utc_leapsecs)!;
 };
 
-fn read_leapsecfile(h: io::handle, leapsecs: *[](i64, i64)) (void | io::error) = {
-	let buffer: [os::BUFSIZ]u8 = [0...];
-	const b = bufio::buffered(h, buffer, []);
+fn read_utc_leapsecs_file(
+	h: io::handle,
+	leapsecs: *[](i64, i64),
+) (void | io::error) = {
 	for (true) {
-		const line = match (bufio::scanline(&b)) {
+		const line = match (bufio::scanline(h)) {
 		case let err: io::error =>
 			return err;
 		case io::EOF =>
 			return;
 		case let line: []u8 =>
-			yield line;
+			yield strings::fromutf8(line);
 		};
-		const line = fmt::bsprint(line);
+		defer free(line);
 		if (strings::hasprefix(line, '#')) {
 			continue;
 		};
