@@ -21,8 +21,7 @@ export type error = !(fs::error | io::error | invalidtzif);
 export fn strerror(err: error) const str = {
 	match (err) {
 	case invalidtzif =>
-		// TODO: Improve error string.
-		return "Invalid TZif data in time zone";
+		return "Invalid TZif data";
 	case let err: fs::error =>
 		return fs::strerror(err);
 	case let err: io::error =>
