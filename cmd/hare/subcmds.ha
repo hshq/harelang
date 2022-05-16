@@ -106,13 +106,13 @@ fn build(args: []str) void = {
 		case 'D' =>
 			append(defines, opt.1);
 		case 'j' =>
-			abort(); // TODO
+			abort("-j option not implemented yet."); // TODO
 		case 'l' =>
 			append(libs, opt.1);
 		case 'o' =>
 			output = opt.1;
 		case 't' =>
-			abort(); // TODO
+			abort("-t option not implemented yet."); // TODO
 		case 'T' =>
 			tags = match (addtags(tags, opt.1)) {
 			case void =>
@@ -195,7 +195,7 @@ fn cache(args: []str) void = {
 	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
-	abort(); // TODO
+	abort("cache subcommand not implemented yet."); // TODO
 };
 
 fn deps(args: []str) void = {
@@ -210,7 +210,7 @@ fn deps(args: []str) void = {
 	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
-	abort(); // TODO
+	abort("deps subcommand not implemented yet."); // TODO
 };
 
 fn release(args: []str) void = {
@@ -301,11 +301,11 @@ fn run(args: []str) void = {
 		case 'D' =>
 			append(defines, opt.1);
 		case 'j' =>
-			abort(); // TODO
+			abort("-j option not implemented yet."); // TODO
 		case 'l' =>
 			append(libs, opt.1);
 		case 't' =>
-			abort(); // TODO
+			abort("-t option not implemented yet."); // TODO
 		case 'T' =>
 			tags = match (addtags(tags, opt.1)) {
 			case void =>
@@ -416,11 +416,11 @@ fn test(args: []str) void = {
 		case 'D' =>
 			append(defines, opt.1);
 		case 'j' =>
-			abort(); // TODO
+			abort("-j option not implemented yet."); // TODO
 		case 'l' =>
 			append(libs, opt.1);
 		case 't' =>
-			abort(); // TODO
+			abort("-t option not implemented yet."); // TODO
 		case 'o' =>
 			output = opt.1;
 		case 'T' =>
