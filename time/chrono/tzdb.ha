@@ -2,6 +2,7 @@
 // (c) 2021-2022 Byron Torres <b@torresjrjr.com>
 use bufio;
 use bytes;
+use encoding::utf8;
 use endian;
 use errors;
 use fs;
@@ -198,7 +199,12 @@ fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 		};
 		append(footerdata, buf1...);
 	};
-	const posix_extend = strings::fromutf8(footerdata);
+	const posix_extend = match (strings::try_fromutf8(footerdata)) {
+	case let s: str =>
+		yield s;
+	case encoding::utf8::invalid =>
+		return invalidtzif;
+	};
 
 	// assemble structured data
 
@@ -240,7 +246,12 @@ fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 		if (len(bytes) == 0) { // no NUL encountered
 			return invalidtzif;
 		};
-		const abbr = strings::fromutf8(bytes);
+		const abbr = match (strings::try_fromutf8(bytes)) {
+		case let s: str =>
+			yield s;
+		case encoding::utf8::invalid =>
+			return invalidtzif;
+		};
 		zone.abbr = abbr;
 
 		append(zones, zone);

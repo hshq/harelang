@@ -1,6 +1,7 @@
 // License: MPL-2.0
 // (c) 2021-2022 Byron Torres <b@torresjrjr.com>
 use bufio;
+use encoding::utf8;
 use fs;
 use io;
 use os;
@@ -53,7 +54,7 @@ let utc_leapsecs: [](i64, i64) = [];
 fn read_utc_leapsecs_file(
 	h: io::handle,
 	leapsecs: *[](i64, i64),
-) (void | io::error) = {
+) (void | io::error | encoding::utf8::invalid) = {
 	for (true) {
 		const line = match (bufio::scanline(h)) {
 		case let err: io::error =>
@@ -61,7 +62,7 @@ fn read_utc_leapsecs_file(
 		case io::EOF =>
 			return;
 		case let line: []u8 =>
-			yield strings::fromutf8(line);
+			yield strings::try_fromutf8(line)?;
 		};
 		defer free(line);
 		if (strings::hasprefix(line, '#')) {
