@@ -31,7 +31,7 @@ export fn get(obj: *object, key: str) (*value | void) = {
 	};
 };
 
-// Sets a value in a JSON object.
+// Sets a value in a JSON object. The key and value will be duplicated.
 export fn set(obj: *object, key: const str, val: const value) void = {
 	const hash = fnv::string(key);
 	const bucket = &obj.buckets[hash % len(obj.buckets)];
