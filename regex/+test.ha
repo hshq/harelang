@@ -31,6 +31,7 @@ fn run_find_case(
 		fmt::fatalf("Expected expression /{}/ to have error caught during compilation, but it did not",
 			expr);
 	};
+	defer finish(&re);
 
 	match (find(&re, string)) {
 	case void =>
@@ -39,18 +40,19 @@ fn run_find_case(
 				expr, string);
 		};
 
-	case let m: []capture =>
+	case let captures: []capture =>
+		defer free_captures(captures);
 		if (expected == matchres::NOMATCH) {
 			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
 				expr, string);
 		};
-		if (start: size != m[0].start) {
+		if (start: size != captures[0].start) {
 			fmt::fatalf("Expected start of main capture to be {} but it was {}",
-				start, m[0].start);
+				start, captures[0].start);
 		};
-		if (end: size != m[0].end) {
+		if (end: size != captures[0].end) {
 			fmt::fatalf("Expected end of main capture to be {} but it was {}",
-				end, m[0].end);
+				end, captures[0].end);
 		};
 	};
 };
@@ -76,6 +78,7 @@ fn run_findall_case(
 		};
 		return;
 	};
+	defer finish(&re);
 
 	if (expected == matchres::ERROR) {
 		fmt::fatalf("Expected expression /{}/ to have error caught during compilation, but it did not",
@@ -89,14 +92,15 @@ fn run_findall_case(
 				expr, string);
 		};
 
-	case let groupsets: [][]capture =>
+	case let matches: [][]capture =>
+		defer free_matches(matches);
 		if (expected == matchres::NOMATCH) {
 			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
 				expr, string);
 		};
-		if (count: size != len(groupsets)) {
+		if (count: size != len(matches)) {
 			fmt::fatalf("Expected to find {} matches but found {}",
-				count, len(groupsets));
+				count, len(matches));
 		};
 	};
 };
