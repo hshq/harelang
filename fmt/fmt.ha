@@ -79,7 +79,7 @@ export fn fprintfln(
 	fmt: str,
 	args: field...
 ) (io::error | size) = {
-	return fprintf(h, fmt, args...)? + io::writeall(h, ['\n'])?;
+	return fprintf(h, fmt, args...)? + io::write(h, ['\n'])?;
 };
 
 // Formats values for printing using the default format modifiers and writes
@@ -124,7 +124,7 @@ export fn bsprint(buf: []u8, args: formattable...) str = {
 // Formats values for printing using the default format modifiers and writes
 // them to an [[io::handle]] separated by spaces and followed by a line feed.
 export fn fprintln(h: io::handle, args: formattable...) (io::error | size) = {
-	return fprint(h, args...)? + io::writeall(h, ['\n'])?;
+	return fprint(h, args...)? + io::write(h, ['\n'])?;
 };
 
 // Formats values for printing using the default format modifiers and writes
@@ -135,7 +135,7 @@ export fn fprint(h: io::handle, args: formattable...) (io::error | size) = {
 	for (let i = 0z; i < len(args); i += 1) {
 		n += format(h, args[i], &mod)?;
 		if (i != len(args) - 1) {
-			n += io::writeall(h, [' '])?;
+			n += io::write(h, [' '])?;
 		};
 	};
 	return n;
@@ -203,7 +203,7 @@ export fn fprintf(
 			};
 
 			if (r == '{') {
-				n += io::writeall(h, utf8::encoderune('{'))?;
+				n += io::write(h, utf8::encoderune('{'))?;
 				continue;
 			};
 
@@ -277,9 +277,9 @@ export fn fprintf(
 				assert(r == '}', "Invalid format string (hanging '}')");
 			};
 
-			n += io::writeall(h, utf8::encoderune('}'))?;
+			n += io::write(h, utf8::encoderune('}'))?;
 		} else {
-			n += io::writeall(h, utf8::encoderune(r))?;
+			n += io::write(h, utf8::encoderune(r))?;
 		};
 	};
 
@@ -309,7 +309,7 @@ fn format(
 	};
 
 	for (z < mod.width: size) {
-		z += io::writeall(out, pad)?;
+		z += io::write(out, pad)?;
 	};
 
 	if (mod.padding != padding::ALIGN_LEFT) {
@@ -326,31 +326,31 @@ fn format_raw(
 ) (size | io::error) = {
 	match (arg) {
 	case let s: str =>
-		return io::writeall(out, strings::toutf8(s));
+		return io::write(out, strings::toutf8(s));
 	case let r: rune =>
-		return io::writeall(out, utf8::encoderune(r));
+		return io::write(out, utf8::encoderune(r));
 	case let b: bool =>
-		return io::writeall(out,
+		return io::write(out,
 			strings::toutf8(if (b) "true" else "false"));
 	case let n: types::numeric =>
 		const s = strconv::numerictosb(n, mod.base);
-		return io::writeall(out, strings::toutf8(s));
+		return io::write(out, strings::toutf8(s));
 	case let p: uintptr =>
 		const s = strconv::uptrtosb(p, mod.base);
-		return io::writeall(out, strings::toutf8(s));
+		return io::write(out, strings::toutf8(s));
 	case let v: nullable *void =>
 		match (v) {
 		case let v: *void =>
-			let n = io::writeall(out, strings::toutf8("0x"))?;
+			let n = io::write(out, strings::toutf8("0x"))?;
 			const s = strconv::uptrtosb(v: uintptr,
 				strconv::base::HEX_LOWER);
-			n += io::writeall(out, strings::toutf8(s))?;
+			n += io::write(out, strings::toutf8(s))?;
 			return n;
 		case null =>
 			return format(out, "(null)", mod);
 		};
 	case void =>
-		return io::writeall(out, strings::toutf8("void"));
+		return io::write(out, strings::toutf8("void"));
 	};
 };
 
