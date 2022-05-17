@@ -188,7 +188,7 @@ fn fs_create_file(
 	mode: fs::mode,
 	flags: fs::flags...
 ) (io::file | fs::error) = {
-	let oflags = 0;
+	let oflags: fs::flags = 0;
 	if (len(flags) == 0z) {
 		oflags |= fs::flags::WRONLY;
 	};
