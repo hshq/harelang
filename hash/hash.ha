@@ -15,7 +15,7 @@ export type hash = struct {
 	sum: *fn(hash: *hash, buf: []u8) void,
 
 	// Resets the hash function to its initial state.
-	reset: *fn(hash: *hash) void,
+	reset: nullable *fn(hash: *hash) void,
 
 	// Size of the hash in bytes.
 	sz: size,
@@ -40,7 +40,12 @@ export fn sum(h: *hash, buf: []u8) void = {
 };
 
 // Resets the hash function to its initial state.
-export fn reset(h: *hash) void = h.reset(h);
+export fn reset(h: *hash) void = match (h.reset) {
+case let f: *fn(hash: *hash) void =>
+	f(h);
+case null =>
+	abort("this hash cannot be reset");
+};
 
 // Returns the size of the hash in bytes. This is consistent regardless
 // of the hash state.
