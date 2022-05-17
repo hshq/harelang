@@ -4,6 +4,7 @@ use ascii;
 use bufio;
 use encoding::base64;
 use errors;
+use fmt;
 use io;
 use os;
 use strings;
@@ -194,4 +195,46 @@ fn b64_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	};
 
 	return len(sub);
+};
+
+export type pemencoder = struct {
+	stream: io::stream,
+	out: *io::stream,
+	b64: base64::encoder,
+	label: str,
+};
+
+const pemencoder_vt: io::vtable = io::vtable {
+	writer = &pem_write,
+	closer = &pem_wclose,
+	...
+};
+
+// Creates a new PEM encoder stream. The stream has to be closed to write the
+// trailer.
+export fn newencoder(label: str, s: *io::stream) (pemencoder | io::error) = {
+	fmt::fprintf(s, "{}{}{}\n", begin, label, suffix)?;
+	return pemencoder {
+		stream = &pemencoder_vt,
+		out = s,
+		b64 = base64::newencoder(&base64::std_encoding, s),
+		label = label,
+	};
+};
+
+fn pem_write(s: *io::stream, buf: const []u8) (size | io::error) = {
+	let s = s: *pemencoder;
+	let buf = buf: []u8;
+	let z = 0z;
+	for (len(buf) >= 48; buf = buf[48..]) {
+		z += io::writeall(&s.b64, buf[..48])?;
+		z += io::write(s.out, ['\n'])?;
+	};
+	return z + io::writeall(&s.b64, buf)?;
+};
+
+fn pem_wclose(s: *io::stream) (void | io::error) = {
+	let s = s: *pemencoder;
+	io::close(&s.b64)?;
+	fmt::fprintf(s.out, "\n{}{}{}\n", end, s.label, suffix)?;
 };

@@ -3,9 +3,14 @@
 use bufio;
 use bytes;
 use io;
+use fmt;
 use strings;
+use strio;
 
 @test fn read() void = {
+	const testcert_str = fmt::asprintf(
+		"garbage\ngarbage\ngarbage\n{}garbage\n", cert_str);
+	defer free(testcert_str);
 	const in = bufio::fixed(strings::toutf8(testcert_str), io::mode::READ);
 	const dec = newdecoder(&in);
 	defer finish(&dec);
@@ -22,6 +27,8 @@ use strings;
 };
 
 @test fn read_many() void = {
+	const testmany = fmt::asprintf("{}{}", cert_str, privkey_str);
+	defer free(testmany);
 	const in = bufio::fixed(strings::toutf8(testmany), io::mode::READ);
 	const dec = newdecoder(&in);
 	defer finish(&dec);
@@ -40,11 +47,24 @@ use strings;
 	assert(next(&dec) is io::EOF);
 };
 
-const testcert_str: str = `
-garbage
-garbage
-garbage
------BEGIN CERTIFICATE-----
+@test fn write() void = {
+	let out = strio::dynamic();
+	const stream = newencoder("CERTIFICATE", &out)!;
+	io::writeall(&stream, testcert_bin)!;
+	io::close(&stream)!;
+	assert(strio::string(&out) == cert_str);
+	io::close(&out)!;
+
+	let out = strio::dynamic();
+	const stream = newencoder("PRIVATE KEY", &out)!;
+	io::writeall(&stream, testprivkey_bin)!;
+	io::close(&stream)!;
+	assert(strio::string(&out) == privkey_str);
+	io::close(&out)!;
+};
+
+const cert_str: str =
+`-----BEGIN CERTIFICATE-----
 MIICLDCCAdKgAwIBAgIBADAKBggqhkjOPQQDAjB9MQswCQYDVQQGEwJCRTEPMA0G
 A1UEChMGR251VExTMSUwIwYDVQQLExxHbnVUTFMgY2VydGlmaWNhdGUgYXV0aG9y
 aXR5MQ8wDQYDVQQIEwZMZXV2ZW4xJTAjBgNVBAMTHEdudVRMUyBjZXJ0aWZpY2F0
@@ -58,7 +78,6 @@ DwEB/wQFAwMHBgAwHQYDVR0OBBYEFPC0gf6YEr+1KLlkQAPLzB9mTigDMAoGCCqG
 SM49BAMCA0gAMEUCIDGuwD1KPyG+hRf88MeyMQcqOFZD0TbVleF+UsAGQ4enAiEA
 l4wOuDwKQa+upc8GftXE2C//4mKANBC6It01gUaTIpo=
 -----END CERTIFICATE-----
-garbage
 `;
 
 const testcert_bin: [_]u8 = [
@@ -111,22 +130,8 @@ const testcert_bin: [_]u8 = [
 	0x22, 0xdd, 0x35, 0x81, 0x46, 0x93, 0x22, 0x9a,
 ];
 
-const testmany: str = `
------BEGIN CERTIFICATE-----
-MIICLDCCAdKgAwIBAgIBADAKBggqhkjOPQQDAjB9MQswCQYDVQQGEwJCRTEPMA0G
-A1UEChMGR251VExTMSUwIwYDVQQLExxHbnVUTFMgY2VydGlmaWNhdGUgYXV0aG9y
-aXR5MQ8wDQYDVQQIEwZMZXV2ZW4xJTAjBgNVBAMTHEdudVRMUyBjZXJ0aWZpY2F0
-ZSBhdXRob3JpdHkwHhcNMTEwNTIzMjAzODIxWhcNMTIxMjIyMDc0MTUxWjB9MQsw
-CQYDVQQGEwJCRTEPMA0GA1UEChMGR251VExTMSUwIwYDVQQLExxHbnVUTFMgY2Vy
-dGlmaWNhdGUgYXV0aG9yaXR5MQ8wDQYDVQQIEwZMZXV2ZW4xJTAjBgNVBAMTHEdu
-dVRMUyBjZXJ0aWZpY2F0ZSBhdXRob3JpdHkwWTATBgcqhkjOPQIBBggqhkjOPQMB
-BwNCAARS2I0jiuNn14Y2sSALCX3IybqiIJUvxUpj+oNfzngvj/Niyv2394BWnW4X
-uQ4RTEiywK87WRcWMGgJB5kX/t2no0MwQTAPBgNVHRMBAf8EBTADAQH/MA8GA1Ud
-DwEB/wQFAwMHBgAwHQYDVR0OBBYEFPC0gf6YEr+1KLlkQAPLzB9mTigDMAoGCCqG
-SM49BAMCA0gAMEUCIDGuwD1KPyG+hRf88MeyMQcqOFZD0TbVleF+UsAGQ4enAiEA
-l4wOuDwKQa+upc8GftXE2C//4mKANBC6It01gUaTIpo=
------END CERTIFICATE-----
------BEGIN PRIVATE KEY-----
+const privkey_str: str =
+`-----BEGIN PRIVATE KEY-----
 MIGEAgEAMBAGByqGSM49AgEGBSuBBAAKBG0wawIBAQQgVcB/UNPxalR9zDYAjQIf
 jojUDiQuGnSJrFEEzZPT/92hRANCAASc7UJtgnF/abqWM60T3XNJEzBv5ez9TdwK
 H0M6xpM2q+53wmsN/eYLdgtjgBd3DBmHtPilCkiFICXyaA8z9LkJ
