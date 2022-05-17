@@ -34,12 +34,15 @@ export type inst = (inst_lit | inst_any | inst_split | inst_jump |
 export type capture = struct {
 	content: str,
 	start: size,
+	start_bytesize: size,
 	end: size,
+	end_bytesize: size
 };
 
 type thread = struct {
 	pc: size,
 	start_idx: size,
+	start_bytesize: size,
 	root_capture: capture,
 	captures: []capture,
 	curr_capture: capture,
@@ -488,6 +491,7 @@ fn add_thread(threads: *[]thread, parent_idx: size, new_pc: size) void = {
 	append(threads, thread {
 		pc = new_pc,
 		start_idx = threads[parent_idx].start_idx,
+		start_bytesize = threads[parent_idx].start_bytesize,
 		curr_capture = threads[parent_idx].curr_capture,
 		curr_capture_inited = threads[parent_idx].curr_capture_inited,
 		matched = threads[parent_idx].matched,
@@ -504,8 +508,10 @@ fn run_thread(
 	string: str,
 	threads: *[]thread,
 	r_or_end: (rune | void),
-	str_idx: int
+	str_idx: int,
+	str_bytesize: size
 ) (void | newmatch) = {
+	const str_bytes = strings::toutf8(string);
 	if (threads[i].matched) {
 		return;
 	};
@@ -522,6 +528,7 @@ fn run_thread(
 		case inst_skip =>
 			const new_pc = threads[i].pc + 1;
 			threads[i].start_idx = str_idx: size;
+			threads[i].start_bytesize = str_bytesize;
 			add_thread(threads, i, new_pc);
 			break;
 		case let anchored: inst_match =>
@@ -531,28 +538,30 @@ fn run_thread(
 				threads[i].failed = true;
 				return;
 			};
+			const content = strings::fromutf8_unsafe(str_bytes[
+				threads[i].start_bytesize..str_bytesize]);
 			threads[i].root_capture = capture {
 				start = threads[i].start_idx,
+				start_bytesize = threads[i].start_bytesize,
 				end = str_idx: size,
-				// TODO: This is a perf issue for large strings
-				content = strings::sub(string,
-					threads[i].start_idx,
-					str_idx: size),
+				end_bytesize = str_bytesize,
+				content = content,
 			};
 			threads[i].matched = true;
 			return newmatch;
 		case inst_groupstart =>
 			assert(!threads[i].curr_capture_inited, "Found nested capture groups in expression, which are not supported");
 			threads[i].curr_capture.start = str_idx: size;
+			threads[i].curr_capture.start_bytesize = str_bytesize;
 			threads[i].curr_capture_inited = true;
 			threads[i].pc += 1;
 		case inst_groupend =>
 			assert(threads[i].curr_capture_inited, `Found a groupend token ")" without having previously seen a groupstart token "(". Please report this as a bug`);
 			threads[i].curr_capture.end = str_idx: size;
-			// TODO: This is a perf issue for large strings
-			threads[i].curr_capture.content = strings::sub(string,
-				threads[i].curr_capture.start,
-				threads[i].curr_capture.end);
+			threads[i].curr_capture.end_bytesize = str_bytesize;
+			const content = strings::fromutf8_unsafe(str_bytes[
+				threads[i].curr_capture.start_bytesize..
+				threads[i].curr_capture.end_bytesize]);
 			append(threads[i].captures, threads[i].curr_capture);
 			threads[i].curr_capture = capture { ... };
 			threads[i].curr_capture_inited = false;
@@ -642,6 +651,7 @@ fn search(
 	string: str,
 	str_iter: *strings::iterator,
 	str_idx: *int,
+	str_bytesize: *size,
 	need_captures: bool
 ) (void | []capture) = {
 	let threads: []thread = alloc([
@@ -659,8 +669,11 @@ fn search(
 	};
 
 	let first_match_idx: (void | size) = void;
+	let last_bytesize = 0z;
 
 	for (true) {
+		*str_bytesize += last_bytesize;
+
 		if (len(threads) == 0) {
 			return void;
 		};
@@ -699,10 +712,13 @@ fn search(
 
 		const r_or_end = strings::next(str_iter);
 		*str_idx += 1;
+		if (r_or_end is rune) {
+			last_bytesize = utf8::runesz(r_or_end as rune);
+		};
 
 		for (let i = 0z; i < len(threads); i += 1) {
 			const res = run_thread(i, re, string, &threads,
-				r_or_end, *str_idx);
+				r_or_end, *str_idx, *str_bytesize);
 			const matchlen = threads[i].root_capture.end
 				- threads[i].root_capture.start;
 			if (res is newmatch && matchlen > 0 && !need_captures) {
@@ -766,7 +782,8 @@ fn search(
 export fn test(re: *regex, string: str) bool = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
-	match (search(re, string, &str_iter, &str_idx, false)) {
+	let str_bytesize = 0z;
+	match (search(re, string, &str_iter, &str_idx, &str_bytesize, false)) {
 	case void => return false;
 	case []capture => return true;
 	};
@@ -778,7 +795,8 @@ export fn test(re: *regex, string: str) bool = {
 export fn find(re: *regex, string: str) (void | []capture) = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
-	return search(re, string, &str_iter, &str_idx, true);
+	let str_bytesize = 0z;
+	return search(re, string, &str_iter, &str_idx, &str_bytesize, true);
 };
 
 // Attempts to match a regular expression against a string and returns all
@@ -787,8 +805,10 @@ export fn findall(re: *regex, string: str) (void | [][]capture) = {
 	let res: [][]capture = alloc([]);
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
+	let str_bytesize = 0z;
 	for (true) {
-		const findres = search(re, string, &str_iter, &str_idx, true);
+		const findres = search(re, string, &str_iter, &str_idx,
+			&str_bytesize, true);
 		match (findres) {
 		case let m: []capture =>
 			append(res, m);

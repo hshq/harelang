@@ -61,7 +61,8 @@ fn run_findall_case(
 	expr: str,
 	string: str,
 	expected: matchres,
-	count: int
+	count: int,
+	targets: []str
 ) void = {
 	const re = match (compile(expr)) {
 	case let re: regex => yield re;
@@ -101,6 +102,13 @@ fn run_findall_case(
 		if (count: size != len(matches)) {
 			fmt::fatalf("Expected to find {} matches but found {}",
 				count, len(matches));
+		};
+		for (let i = 0z; i < len(matches); i += 1) {
+			if (matches[i][0].content != targets[i]) {
+				fmt::printfln("Expected submatch to be {} but it was {}",
+					targets[i], matches[i][0].content)!;
+				assert(false);
+			};
 		};
 	};
 };
@@ -521,7 +529,8 @@ fn run_findall_case(
 
 @test fn findall() void = {
 	const cases = [
-		(`ab.`, "hello abc and abz test abq thanks", matchres::MATCH, 3),
+		(`ab.`, "hello abc and abあ test abq thanks", matchres::MATCH, 3,
+			["abc", "abあ", "abq"]),
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {
@@ -529,6 +538,7 @@ fn run_findall_case(
 		const string = cases[i].1;
 		const should_match = cases[i].2;
 		const count = cases[i].3;
-		run_findall_case(expr, string, should_match, count);
+		const targets = cases[i].4;
+		run_findall_case(expr, string, should_match, count, targets);
 	};
 };
