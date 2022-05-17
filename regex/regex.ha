@@ -62,36 +62,21 @@ export type charset = [](charset_lit_item | charset_range_item |
 	charset_class_item),
 	charset_lit_item = rune,
 	charset_range_item = (u8, u8),
-	charset_class_item = charclass;
+	charset_class_item = *fn(c: rune) bool;
 
-const charclass_names: [](charclass, str) = [
-	(charclass::ALNUM, ":alnum:]"),
-	(charclass::ALPHA, ":alpha:]"),
-	(charclass::BLANK, ":blank:]"),
-	(charclass::CNTRL, ":cntrl:]"),
-	(charclass::DIGIT, ":digit:]"),
-	(charclass::GRAPH, ":graph:]"),
-	(charclass::LOWER, ":lower:]"),
-	(charclass::PRINT, ":print:]"),
-	(charclass::PUNCT, ":punct:]"),
-	(charclass::SPACE, ":space:]"),
-	(charclass::UPPER, ":upper:]"),
-	(charclass::XDIGIT, ":xdigit:]"),
-];
-
-const charclass_fns: [](charclass, *fn(c: rune) bool) = [
-	(charclass::ALNUM, &ascii::isalnum),
-	(charclass::ALPHA, &ascii::isalpha),
-	(charclass::BLANK, &ascii::isblank),
-	(charclass::CNTRL, &ascii::iscntrl),
-	(charclass::DIGIT, &ascii::isdigit),
-	(charclass::GRAPH, &ascii::isgraph),
-	(charclass::LOWER, &ascii::islower),
-	(charclass::PRINT, &ascii::isprint),
-	(charclass::PUNCT, &ascii::ispunct),
-	(charclass::SPACE, &ascii::isspace),
-	(charclass::UPPER, &ascii::isupper),
-	(charclass::XDIGIT, &ascii::isxdigit),
+const charclass_map: [](str, *fn(c: rune) bool) = [
+	(":alnum:]", &ascii::isalnum),
+	(":alpha:]", &ascii::isalpha),
+	(":blank:]", &ascii::isblank),
+	(":cntrl:]", &ascii::iscntrl),
+	(":digit:]", &ascii::isdigit),
+	(":graph:]", &ascii::isgraph),
+	(":lower:]", &ascii::islower),
+	(":print:]", &ascii::isprint),
+	(":punct:]", &ascii::ispunct),
+	(":space:]", &ascii::isspace),
+	(":upper:]", &ascii::isupper),
+	(":xdigit:]", &ascii::isxdigit),
 ];
 
 export type regex = struct {
@@ -175,12 +160,11 @@ fn handle_bracket(
 	} else if (r == '[' && !(peek1 is void)
 			&& peek1 as rune == ':') {
 		const rest = strings::iterstr(iter);
-		const n_cc = len(charclass_names);
+		const n_cc = len(charclass_map);
 		for (let cc_idx = 0z; cc_idx < n_cc; cc_idx += 1) {
-			const cc = charclass_names[cc_idx];
-			if (strings::hasprefix(rest, cc.1)) {
+			if (strings::hasprefix(rest, charclass_map[cc_idx].0)) {
 				append(charsets[len(charsets) - 1],
-					cc.0: charset_class_item);
+					charclass_map[cc_idx].1);
 				*skip_charclass_rest = true;
 				break;
 			};
@@ -624,16 +608,12 @@ fn run_thread(
 				matched = cs.is_positive;
 				break;
 			};
-		case let class: charset_class_item =>
-			const n_cc = len(charclass_fns);
-			for (let cc_idx = 0z; cc_idx < n_cc; cc_idx += 1) {
-				const cc = charclass_fns[cc_idx];
-				if (cc.0 == class: charclass && cc.1(r)) {
-					// Succeeded if positive match
-					// Failed if negative match
-					matched = cs.is_positive;
-					break;
-				};
+		case let classfn: charset_class_item =>
+			if (classfn(r)) {
+				// Succeeded if positive match
+				// Failed if negative match
+				matched = cs.is_positive;
+				break;
 			};
 		};
 		if (!matched) {
