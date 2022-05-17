@@ -24,6 +24,9 @@ const sip_vtable: io::vtable = io::vtable {
 // Creates a [hash::hash] that computes SipHash-c-d with the given 16 byte key,
 // where c denotes number of compression rounds and d denotes number of
 // finalization rounds. Recommended values for c and d are 2 and 4 respectively.
+// Calling [[hash::close]] on this function will erase its state information.
+// This function does not provide reset functionality and calling
+// [[hash::reset]] on it will terminate execution.
 export fn siphash(c: u8, d: u8, key: *[16]u8) state = {
 	let h = state {
 		stream = &sip_vtable,

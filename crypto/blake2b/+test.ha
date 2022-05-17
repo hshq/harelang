@@ -35,7 +35,6 @@ use strio;
 		assert(strio::string(&out) == vectors[i].out);
 	};
 
-	let blake = blake2b([], 64);
 	const vectors = [
 		("", "786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce"),
 		("abc", "ba80a53f981c4d0d6a2797b69f12f6e94c212f14685ac4b74b12bb6fdbffa2d17d87c5392aab792dc252d5de4533cc9518d38aa8dbf1925ab92386edd4009923"),
@@ -49,7 +48,8 @@ use strio;
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		const vector = vectors[i];
-		hash::reset(&blake);
+		let blake = blake2b([], 64);
+		defer hash::close(&blake);
 		hash::write(&blake, strings::toutf8(vector.0));
 
 		static let sum: [64]u8 = [0...];

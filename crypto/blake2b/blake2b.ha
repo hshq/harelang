@@ -44,8 +44,6 @@ export type digest = struct {
 	thigh: u64,
 	block: [BSIZE]u8,
 	blocklen: size,
-	key: [BSIZE]u8,
-	keylen: size,
 };
 
 const blake2b_vtable: io::vtable = io::vtable {
@@ -58,7 +56,8 @@ const blake2b_vtable: io::vtable = io::vtable {
 // given hash size. The size must be between 1 and 64, inclusive. If this
 // function is used to hash sensitive information, the caller should call
 // [[hash::close]] to erase sensitive data from memory after use; if not, the
-// use of [[hash::close]] is optional.
+// use of [[hash::close]] is optional. This function does not provide reset
+// functionality and calling [[hash::reset]] on it will terminate execution.
 export fn blake2b(key: []u8, sz: size) digest = {
 	assert(1 <= sz);
 	assert(sz <= 64);
@@ -70,15 +69,12 @@ export fn blake2b(key: []u8, sz: size) digest = {
 	return digest {
 		stream = &blake2b_vtable,
 		sum = &sum,
-		reset = &reset,
 		sz = sz,
 		h = h,
 		tlow = 0,
 		thigh = 0,
 		block = keyblock,
 		blocklen = if (len(key) > 0) BSIZE else 0,
-		key = keyblock,
-		keylen = len(key),
 		...
 	};
 };
@@ -124,16 +120,6 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 	for (let i = 0z; i < h.sz / 8; i += 1) {
 		endian::leputu64(buf[i * 8..i * 8 + 8], h.h[i]);
 	};
-};
-
-fn reset(h: *hash::hash) void = {
-	let h = h: *digest;
-	h.h = iv;
-	h.h[0] ^= 0x01010000 ^ (h.keylen << 8) ^ h.sz;
-	h.tlow = 0;
-	h.thigh = 0;
-	h.block = h.key;
-	h.blocklen = if (h.keylen > 0) BSIZE else 0;
 };
 
 // Compression function F
@@ -182,5 +168,4 @@ fn close(stream: *io::stream) (void | io::error) = {
 	let s = stream: *digest;
 	bytes::zero((s.h[..]: *[*]u8)[..len(s.h) * size(u32)]);
 	bytes::zero(s.block);
-	bytes::zero(s.key);
 };

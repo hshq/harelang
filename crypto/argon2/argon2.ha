@@ -335,21 +335,22 @@ fn varhash(dest: []u8, block: []u8) void = {
 	// avoid leaking the dest len.
 	const r = divceil(len(dest): u32, 32) - 2;
 	let v: [64]u8 = [0...];
-	let h = blake2b::blake2b([], 64);
-	defer hash::close(&h);
 
 	let destbuf = bufio::fixed(dest, io::mode::WRITE);
 
+	let h = blake2b::blake2b([], 64);
 	hash_leputu32(&h, len(dest): u32);
 	hash::write(&h, block);
 	hash::sum(&h, v[..]);
+	hash::close(&h);
 
 	io::writeall(&destbuf, v[..32])!;
 
 	for (let i = 1z; i < r; i += 1) {
-		hash::reset(&h);
+		let h = blake2b::blake2b([], 64);
 		hash::write(&h, v[..]);
 		hash::sum(&h, v[..]);
+		hash::close(&h);
 		io::writeall(&destbuf, v[..32])!;
 	};
 
