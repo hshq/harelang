@@ -11,10 +11,8 @@ use hare::lex;
 use hare::parse;
 use hare::types;
 use hare::unit;
-use hare::unparse;
 use io;
 use os;
-use unix;
 
 export fn main() void = {
 	let usage: []getopt::help = [
