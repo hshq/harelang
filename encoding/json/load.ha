@@ -1,3 +1,4 @@
+use bufio;
 use io;
 use strings;
 use types;
@@ -26,6 +27,17 @@ export fn load(src: io::handle, opts: load_option...) (value | error) = {
 	const lex = newlexer(src);
 	defer close(&lex);
 	return _load(&lex, 0, limit);
+};
+
+// Parses a JSON value from the given string, returning the value or an error.
+// The return value is allocated on the heap; use [[finish]] to free it up when
+// you're done using it.
+//
+// See the documentation for [[load]] for information on dealing with
+// potentially malicious inputs.
+export fn loadstr(input: str, opts: load_option...) (value | error) = {
+	let src = bufio::fixed(strings::toutf8(input), io::mode::READ);
+	return load(&src, opts...);
 };
 
 fn _load(lexer: *lexer, level: uint, limit: uint) (value | error) = {
