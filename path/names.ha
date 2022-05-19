@@ -105,7 +105,7 @@ export fn basename(path: (str | *buffer)) const str = {
 //
 // 	extension("foo/example") => ("example", "")
 // 	extension("foo/example.txt") => ("example", ".txt")
-// 	extension("foo/example.tar.gz") => ("example", ".tar.gz")
+// 	extension("foo/example.tar.gz") => ("example.tar", ".gz")
 export fn extension(p: (str | *buffer)) (str, str) = {
 	let p = getstring(p);
 	if (p == "") {
@@ -116,7 +116,7 @@ export fn extension(p: (str | *buffer)) (str, str) = {
 	if (len(b) == 0 || b[len(b) - 1] == PATHSEP) {
 		return (p, "");
 	};
-	let i = match (bytes::index(b, '.')) {
+	let i = match (bytes::rindex(b, '.')) {
 	case void =>
 		return (p, "");
 	case let z: size =>
@@ -134,8 +134,8 @@ export fn extension(p: (str | *buffer)) (str, str) = {
 	assertpatheql(&ext1, "", "foo", "bar");
 	assertpatheql(&ext0, "bar", "foo", "bar.txt");
 	assertpatheql(&ext1, ".txt", "foo", "bar.txt");
-	assertpatheql(&ext0, "bar", "foo", "bar.tar.gz");
-	assertpatheql(&ext1, ".tar.gz", "foo", "bar.tar.gz");
+	assertpatheql(&ext0, "bar.tar", "foo", "bar.tar.gz");
+	assertpatheql(&ext1, ".gz", "foo", "bar.tar.gz");
 	assertpatheql(&ext0, "baz", "foo.bar", "baz.ha");
 	assertpatheql(&ext1, ".ha", "foo.bar", "baz.ha");
 };
