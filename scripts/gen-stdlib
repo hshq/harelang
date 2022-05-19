@@ -729,7 +729,7 @@ hare_lex() {
 		gensrcs_hare_lex \
 			+test.ha
 	fi
-	gen_ssa hare::lex io bufio strings types fmt sort strio
+	gen_ssa hare::lex io bufio strings fmt sort strio
 }
 
 hare_module() {
@@ -761,7 +761,8 @@ hare_parse() {
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_hare_parse
-		gen_ssa hare::parse ascii hare::ast hare::lex fmt strings
+		gen_ssa hare::parse ascii hare::ast hare::lex fmt types \
+			strings math
 	else
 		gensrcs_hare_parse \
 			+test/expr.ha \
@@ -771,7 +772,7 @@ hare_parse() {
 			+test/types.ha \
 			+test/unit.ha
 		gen_ssa hare::parse ascii bufio hare::ast hare::lex \
-			hare::unparse io strio fmt strings
+			hare::unparse io strio fmt strings math
 	fi
 }
 

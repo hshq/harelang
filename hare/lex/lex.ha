@@ -14,7 +14,6 @@ use sort;
 use strconv;
 use strings;
 use strio;
-use types;
 
 export type lexer = struct {
 	in: io::handle,
@@ -402,22 +401,13 @@ fn lex_literal(lex: *lexer) (token | error) = {
 	case let r: (rune, location) =>
 		yield r;
 	};
-	if (r.0 == '-') {
-		append(chars, utf8::encoderune(r.0)...);
-		r = match (next(lex)?) {
-		case io::EOF =>
-			return (ltok::EOF, void, loc);
-		case let r: (rune, location) =>
-			yield r;
-		};
-	};
 
 	let base = 10u;
 	if (r.0 == '0') {
 		append(chars, utf8::encoderune(r.0)...);
 		r = match (next(lex)?) {
 		case io::EOF =>
-			return (ltok::LIT_ICONST, 0i64, loc);
+			return (ltok::LIT_ICONST, 0u64, loc);
 		case let r: (rune, location) =>
 			yield r;
 		};
@@ -579,35 +569,14 @@ fn lex_literal(lex: *lexer) (token | error) = {
 
 	let val = strings::fromutf8(chars[..end]);
 	let val = switch (suff) {
-	case ltok::LIT_U8, ltok::LIT_U16, ltok::LIT_U32, ltok::LIT_U64,
-	ltok::LIT_UINT, ltok::LIT_SIZE =>
-		yield strconv::stou64b(val, base);
-	case ltok::LIT_ICONST =>
-		yield match (strconv::stoi64b(val, base)) {
-		case let i: i64 =>
-			yield i;
-		case strconv::invalid =>
-			abort();
-		case strconv::overflow =>
-			yield if (chars[0] != '-') {
-				suff = ltok::LIT_U64;
-				yield strconv::stou64b(val, base);
-			} else strconv::overflow;
-		};
-	case ltok::LIT_I8, ltok::LIT_I16, ltok::LIT_I32, ltok::LIT_I64,
-	ltok::LIT_INT =>
-		yield strconv::stoi64b(val, base);
 	case ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST =>
 		val = strings::fromutf8(chars[..floatend]);
 		yield strconv::stof64(val);
+	case =>
+		yield strconv::stou64b(val, base);
 	};
 	let val = match (val) {
 	case let val: u64 =>
-		for (let i = 0z; i < exp; i += 1) {
-			val *= 10;
-		};
-		yield val;
-	case let val: i64 =>
 		for (let i = 0z; i < exp; i += 1) {
 			val *= 10;
 		};
@@ -658,15 +627,9 @@ fn lex2(lexr: *lexer) (token | error) = {
 				line_comment(lexr)?;
 				return (ltok::MINUSEQ, void, first.1);
 			case =>
-				if (ascii::isdigit(r.0)) {
-					unget(lexr, r);
-					unget(lexr, first);
-					return lex_literal(lexr);
-				} else {
-					unget(lexr, r);
-					line_comment(lexr)?;
-					return (ltok::MINUS, void, first.1);
-				};
+				unget(lexr, r);
+				line_comment(lexr)?;
+				return (ltok::MINUS, void, first.1);
 			};
 		case io::EOF =>
 			return (ltok::MINUS, void, first.1);

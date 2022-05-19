@@ -50,8 +50,6 @@ fn vassert(expected: value, actual: value) void = {
 		assert(actual as str == expected);
 	case let expected: rune =>
 		assert(actual as rune == expected);
-	case let expected: i64 =>
-		assert(actual as i64 == expected);
 	case let expected: u64 =>
 		assert(actual as u64 == expected);
 	case let expected: f64 =>
@@ -277,18 +275,22 @@ fn loc(line: uint, col: uint) location = location {
 		"0b00000010000001100000011100001111000000100000011000000111i64\n"
 		"13.37 13.37f32 13.37f64 6.022e23 1.616255e-35f64 1e-1";
 	const expected: [_]token = [
-		(ltok::LIT_ICONST, 1e5i64, loc(1, 1)),
-		(ltok::LIT_I32, -1i64, loc(1, 5)),
-		(ltok::LIT_U64, 9223372036854775809u64, loc(1, 11)),
+		(ltok::LIT_ICONST, 1e5u64, loc(1, 1)),
+		(ltok::MINUS, void, loc(1, 5)),
+		(ltok::LIT_I32, 1u64, loc(1, 6)),
+		(ltok::LIT_ICONST, 9223372036854775809u64, loc(1, 11)),
 		(ltok::LIT_SIZE, 1e2u64, loc(1, 31)),
 		(ltok::LIT_U8, 255u64, loc(1, 36)),
 		(ltok::LIT_U16, 0o42u64, loc(1, 42)),
 		(ltok::LIT_U32, 0b1000101u64, loc(2, 1)),
 		(ltok::LIT_U64, 0xDEADBEEFu64, loc(2, 14)),
-		(ltok::LIT_I8, -0b10i64, loc(2, 28)),
-		(ltok::LIT_I16, -5e0i64, loc(2, 36)),
-		(ltok::LIT_I32, -0o16i64, loc(2, 44)),
-		(ltok::LIT_I64, 0b00000010000001100000011100001111000000100000011000000111i64, loc(3, 1)),
+		(ltok::MINUS, void, loc(2, 28)),
+		(ltok::LIT_I8, 0b10u64, loc(2, 29)),
+		(ltok::MINUS, void, loc(2, 36)),
+		(ltok::LIT_I16, 5e0u64, loc(2, 37)),
+		(ltok::MINUS, void, loc(2, 44)),
+		(ltok::LIT_I32, 0o16u64, loc(2, 45)),
+		(ltok::LIT_I64, 0b00000010000001100000011100001111000000100000011000000111u64, loc(3, 1)),
 		(ltok::LIT_FCONST, 13.37, loc(4, 1)),
 		(ltok::LIT_F32, 13.37, loc(4, 7)),
 		(ltok::LIT_F64, 13.37, loc(4, 16)),

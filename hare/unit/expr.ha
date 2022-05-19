@@ -52,7 +52,7 @@ export type bindings = []binding;
 export type compound = []*expr;
 
 // The value of a constant expression.
-export type constant = ast::value; // TODO: composite types
+export type constant = (...ast::value | i64 | u64 | f64); // TODO: composite types
 
 // A return expression, i.e. return <value>
 export type _return = nullable *expr;

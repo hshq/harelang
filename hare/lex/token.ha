@@ -282,7 +282,7 @@ const bmap: [_]str = [
 export type _null = void;
 
 // A token value, used for tokens such as '1337' (an integer).
-export type value = (str | rune | i64 | u64 | f64 | void);
+export type value = (str | rune | u64 | f64 | void);
 
 // A location within a source file.
 // The path is borrowed from the file name given to the lexer.

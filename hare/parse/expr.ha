@@ -7,6 +7,8 @@
 use hare::ast;
 use hare::lex::{ltok};
 use hare::lex;
+use math;
+use types;
 use strings;
 
 // Parses an expression.
@@ -511,19 +513,34 @@ fn constant(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = want(lexer)?;
 	const expr: ast::constant_expr = switch (tok.0) {
 	case ltok::LIT_RUNE, ltok::LIT_STR =>
-		yield tok.1;
+		yield tok.1 as (rune | str);
 	case ltok::LIT_U8, ltok::LIT_U16, ltok::LIT_U32, ltok::LIT_U64,
-		ltok::LIT_UINT, ltok::LIT_SIZE, ltok::LIT_I8, ltok::LIT_I16,
-		ltok::LIT_I32, ltok::LIT_I64, ltok::LIT_INT, ltok::LIT_ICONST,
-		ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST =>
-		const value = match (tok.1) {
-		case let v: (i64 | u64 | f64) =>
-			yield v;
-		case => abort();
-		};
+		ltok::LIT_UINT, ltok::LIT_SIZE =>
 		yield ast::number_constant {
 			suff = tok.0,
-			value = value,
+			value = tok.1 as u64,
+			sign = false,
+		};
+	case ltok::LIT_I8, ltok::LIT_I16, ltok::LIT_I32, ltok::LIT_I64,
+		ltok::LIT_INT =>
+		const n = tok.1 as u64;
+		yield ast::number_constant {
+			suff = tok.0,
+			value = n: i64,
+			sign = false,
+		};
+	case ltok::LIT_ICONST =>
+		const n = tok.1 as u64;
+		yield ast::number_constant {
+			suff = tok.0,
+			value = if (n <= types::I64_MAX: u64) n: i64 else n,
+			sign = false,
+		};
+	case ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST =>
+		yield ast::number_constant {
+			suff = tok.0,
+			value = tok.1 as f64,
+			sign = false,
 		};
 	case ltok::VOID =>
 		yield void;
@@ -1209,14 +1226,44 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 	case => abort();
 	};
 
-	let operand = unarithm(lexer)?;
+	const operand = unarithm(lexer)?;
+	const expr = :blk {
+		if (op == ast::unarithm_op::MINUS) match (operand.expr) {
+		case let c: ast::constant_expr =>
+			match (c) {
+			case let n: ast::number_constant =>
+				// TODO: tuple unpacking
+				let sign = false;
+				const val = match (n.value) {
+				case let i: i64 =>
+					sign = i < 0;
+					yield -i;
+				case let u: u64 => void;
+				case let f: f64 =>
+					sign = math::signf64(f) < 0;
+					yield -f;
+				};
+
+				if (val is void) yield;
+				yield :blk, ast::number_constant {
+					suff = n.suff,
+					value = val as (i64 | f64),
+					sign = sign,
+				}: ast::constant_expr;
+			case => void;
+			};
+		case => void;
+		};
+
+		yield ast::unarithm_expr {
+			op = op,
+			operand = alloc(operand),
+		};
+	};
 	return ast::expr {
 		start = tok.2,
 		end = lex::prevloc(lexer),
-		expr = ast::unarithm_expr {
-			op = op,
-			operand = alloc(operand),
-		},
+		expr = expr,
 	};
 };
 

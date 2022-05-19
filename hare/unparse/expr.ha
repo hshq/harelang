@@ -483,8 +483,6 @@ fn constant(
 		case void => abort();
 		case ast::_null =>
 			yield "null";
-		case let v: (i64 | u64 | f64) =>
-			yield v;
 		case let b: bool =>
 			return fmt::fprint(out, b);
 		case let s: str =>

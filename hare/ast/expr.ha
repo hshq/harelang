@@ -222,12 +222,13 @@ export type tuple_constant = []*expr;
 export type _null = void;
 
 // A scalar value.
-export type value = (bool | _null | ...lex::value);
+export type value = (bool | _null | str | rune | void);
 
 // An integer or float constant.
 export type number_constant = struct {
 	suff: lex::ltok,
 	value: (i64 | u64 | f64),
+	sign: bool, // true if negative, false otherwise
 };
 
 // A constant expression.
@@ -496,7 +497,6 @@ case let e: expr =>
 		free(c.label);
 	case let c: constant_expr =>
 		match (c) {
-		case (void | _null | ...lex::value) => void;
 		case let a: array_constant =>
 			for (let i = 0z; i < len(a.values); i += 1) {
 				expr_finish(a.values[i]);
@@ -509,7 +509,7 @@ case let e: expr =>
 				expr_finish(t[i]);
 			};
 			free(t);
-		case number_constant => void;
+		case (value | number_constant) => void;
 		};
 	case let c: continue_expr =>
 		free(c);

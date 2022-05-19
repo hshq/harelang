@@ -283,12 +283,6 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 				yield ast::builtin_type::STR;
 			case let r: rune =>
 				yield ast::builtin_type::RUNE;
-			case let i: i64 =>
-				yield ast::builtin_type::INT;
-			case let u: u64 =>
-				yield ast::builtin_type::UINT;
-			case let f: f64 =>
-				yield ast::builtin_type::F64;
 			case void =>
 				yield ast::builtin_type::VOID;
 			}),
@@ -372,7 +366,7 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	assert(expr.result.repr as types::builtin == types::builtin::NULL);
 	assert(expr.expr is constant);
 
-	const cases: [_](str, types::builtin, ast::value) = [
+	const cases: [_](str, types::builtin, constant) = [
 		("1234", types::builtin::INT, 1234),
 		("1234u", types::builtin::UINT, 1234u),
 		("\"hello world\"", types::builtin::STR, "hello world"),
