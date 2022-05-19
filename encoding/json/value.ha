@@ -118,6 +118,45 @@ export fn dup(val: value) value = {
 	};
 };
 
+// Checks two JSON values for equality.
+export fn equal(a: value, b: value) bool = {
+	match (a) {
+	case _null =>
+		return b is _null;
+	case let a: bool =>
+		return b is bool && a == b as bool;
+	case let a: f64 =>
+		return b is f64 && a == b as f64;
+	case let a: str =>
+		return b is str && a == b as str;
+	case let a: []value =>
+		if (!(b is []value)) return false;
+		const b = b as []value;
+		if (len(a) != len(b)) return false;
+		for (let i = 0z; i < len(a); i += 1) {
+			if (!equal(a[i], b[i])) {
+				return false;
+			};
+		};
+		return true;
+	case let a: object =>
+		if (!(b is object)) return false;
+		let a = iter(&a), b = iter(&(b as object));
+		for (true) match (next(&a)) {
+		case let a: (const str, const *value) =>
+			match (next(&b)) {
+			case let b: (const str, const *value) =>
+				if (a.0 != b.0 || !equal(*a.1, *b.1)) {
+					return false;
+				};
+			};
+		case void =>
+			return next(&b) is void;
+		};
+		return true;
+	};
+};
+
 // Frees state associated with a JSON value.
 export fn finish(val: value) void = {
 	match (val) {
