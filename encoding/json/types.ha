@@ -5,8 +5,11 @@ use io;
 // An invalid JSON token was encountered.
 export type invalid = !void;
 
+// The maximum nesting limit was reached.
+export type limitreached = !void;
+
 // A tagged union of all possible errors returned from this module.
-export type error = !(invalid | io::error);
+export type error = !(invalid | limitreached | io::error);
 
 // The JSON null value.
 export type _null = void;

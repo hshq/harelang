@@ -1072,7 +1072,7 @@ stdlib_encoding_json_any_srcs = \
 	$(STDLIB)/encoding/json/load.ha \
 	$(STDLIB)/encoding/json/value.ha
 
-$(HARECACHE)/encoding/json/encoding_json-any.ssa: $(stdlib_encoding_json_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_hash_fnv_$(PLATFORM))
+$(HARECACHE)/encoding/json/encoding_json-any.ssa: $(stdlib_encoding_json_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_hash_fnv_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/json
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::json \
@@ -3195,7 +3195,7 @@ testlib_encoding_json_any_srcs = \
 	$(STDLIB)/encoding/json/+test/load.ha \
 	$(STDLIB)/encoding/json/+test/value.ha
 
-$(TESTCACHE)/encoding/json/encoding_json-any.ssa: $(testlib_encoding_json_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_hash_fnv_$(PLATFORM))
+$(TESTCACHE)/encoding/json/encoding_json-any.ssa: $(testlib_encoding_json_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_hash_fnv_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/encoding/json
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::json \

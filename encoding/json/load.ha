@@ -1,21 +1,34 @@
 use io;
 use strings;
+use types;
+
+// Options for [[load]].
+export type load_option = nestlimit;
+
+// The maximum number of nested objects or arrays that can be entered before
+// erroring out.
+export type nestlimit = uint;
 
 // Parses a JSON value from the given [[io::handle]], returning the value or an
 // error. The return value is allocated on the heap; use [[finish]] to free it
 // up when you're done using it.
 //
-// This code assumes non-antagonistic inputs, and does not limit recursion depth
-// or memory usage. You may want to incorporate something like
-// [[io::limitreader]] or similar, or use the JSON lexer ([[lex]]) directly into
-// your program if dealing with potentially malicious inputs.
-export fn load(src: io::handle) (value | error) = {
+// By default, this function assumes non-antagonistic inputs, and does not limit
+// recursion depth or memory usage. You may want to set a custom [[nestlimit]],
+// or incorporate an [[io::limitreader]] or similar. Alternatively, you can use
+// the JSON lexer ([[lex]]) directly if dealing with potentially malicious
+// inputs.
+export fn load(src: io::handle, opts: load_option...) (value | error) = {
+	let limit = types::UINT_MAX;
+	for (let i = 0z; i < len(opts); i += 1) {
+		limit = opts[i]: nestlimit: uint;
+	};
 	const lex = newlexer(src);
 	defer close(&lex);
-	return _load(&lex);
+	return _load(&lex, 0, limit);
 };
 
-fn _load(lexer: *lexer) (value | error) = {
+fn _load(lexer: *lexer, level: uint, limit: uint) (value | error) = {
 	const tok = mustscan(lexer)?;
 	match (tok) {
 	case _null =>
@@ -27,15 +40,21 @@ fn _load(lexer: *lexer) (value | error) = {
 	case let s: str =>
 		return strings::dup(s);
 	case arraystart =>
-		return _load_array(lexer);
+		if (level == limit) {
+			return limitreached;
+		};
+		return _load_array(lexer, level + 1, limit);
 	case objstart =>
-		return _load_obj(lexer);
+		if (level == limit) {
+			return limitreached;
+		};
+		return _load_obj(lexer, level + 1, limit);
 	case (arrayend | objend | colon | comma) =>
 		return invalid;
 	};
 };
 
-fn _load_array(lexer: *lexer) (value | error) = {
+fn _load_array(lexer: *lexer, level: uint, limit: uint) (value | error) = {
 	let array: []value = [];
 	let tok = mustscan(lexer)?;
 	match (tok) {
@@ -46,7 +65,7 @@ fn _load_array(lexer: *lexer) (value | error) = {
 	};
 
 	for (true) {
-		append(array, _load(lexer)?);
+		append(array, _load(lexer, level, limit)?);
 
 		tok = mustscan(lexer)?;
 		match (tok) {
@@ -58,7 +77,7 @@ fn _load_array(lexer: *lexer) (value | error) = {
 	return array;
 };
 
-fn _load_obj(lexer: *lexer) (value | error) = {
+fn _load_obj(lexer: *lexer, level: uint, limit: uint) (value | error) = {
 	let obj = newobject();
 	let tok = mustscan(lexer)?;
 	match (tok) {
@@ -82,7 +101,7 @@ fn _load_obj(lexer: *lexer) (value | error) = {
 			return invalid;
 		};
 
-		const val = _load(lexer)?;
+		const val = _load(lexer, level, limit)?;
 		defer finish(val);
 		set(&obj, key, val);
 

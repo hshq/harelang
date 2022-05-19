@@ -1,7 +1,6 @@
 use bufio;
 use io;
 use strings;
-use fmt;
 
 @test fn load() void = {
 	const input = `1234`;
@@ -40,4 +39,13 @@ use fmt;
 	const obj = val as object;
 	assert(*(get(&obj, "hello") as *value) as str == "world");
 	assert(*(get(&obj, "answer") as *value) as f64 == 42.0);
+};
+
+@test fn nestlimit() void = {
+	const input = `{ "foo": [[[{"bar": ["baz"]}]]] }`;
+	const reader = bufio::fixed(strings::toutf8(input), io::mode::READ);
+	const val = load(&reader, 6: nestlimit)!;
+	finish(val);
+	io::seek(&reader, 0, io::whence::SET)!;
+	assert(load(&reader, 5: nestlimit) is limitreached);
 };
