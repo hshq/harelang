@@ -62,6 +62,17 @@ export fn del(obj: *object, keys: const str...) void = {
 	};
 };
 
+// Clears all values from a JSON object, leaving it empty.
+export fn reset(obj: *object) void = {
+	let it = iter(obj);
+	for (true) match (next(&it)) {
+	case void =>
+		break;
+	case let v: (const str, const *value) =>
+		del(obj, v.0);
+	};
+};
+
 export type iterator = struct {
 	obj: *object,
 	i: size,
