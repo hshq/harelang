@@ -522,19 +522,21 @@ encoding_json() {
 			types.ha \
 			lex.ha \
 			load.ha \
+			dump.ha \
 			value.ha
 	else
 		gen_srcs encoding::json \
 			types.ha \
 			lex.ha \
 			load.ha \
+			dump.ha \
 			value.ha \
 			+test/lexer.ha \
 			+test/load.ha \
 			+test/value.ha
 	fi
 	gen_ssa encoding::json ascii bufio io strio os encoding::utf8 strings \
-		strconv hash::fnv types
+		strconv hash::fnv fmt types
 }
 
 encoding_pem() {
