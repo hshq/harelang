@@ -45,16 +45,19 @@ export fn set(obj: *object, key: const str, val: const value) void = {
 	append(bucket, (strings::dup(key), dup(val)));
 };
 
-// Deletes a value from a JSON object.
-export fn del(obj: *object, key: const str) void = {
-	const hash = fnv::string(key);
-	const bucket = &obj.buckets[hash % len(obj.buckets)];
-	for (let i = 0z; i < len(bucket); i += 1) {
-		if (bucket[i].0 == key) {
-			free(bucket[i].0);
-			finish(bucket[i].1);
-			delete(bucket[i]);
-			break;
+// Deletes values from a JSON object, if they are present.
+export fn del(obj: *object, keys: const str...) void = {
+	for (let i = 0z; i < len(keys); i += 1) {
+		const key = keys[i];
+		const hash = fnv::string(key);
+		const bucket = &obj.buckets[hash % len(obj.buckets)];
+		for (let i = 0z; i < len(bucket); i += 1) {
+			if (bucket[i].0 == key) {
+				free(bucket[i].0);
+				finish(bucket[i].1);
+				delete(bucket[i]);
+				break;
+			};
 		};
 	};
 };
