@@ -10,6 +10,7 @@ use io;
 use os::exec;
 use os;
 use path;
+use shlex;
 use strings;
 use temp;
 use unix::tty;
@@ -148,9 +149,9 @@ fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 	if (verbose) {
 		plan.progress.tty = void;
 		for (let i = 0z; i < len(plan.environ); i += 1) {
-			// TODO: Uncomment this with shlex::quote
 			let item = plan.environ[i];
-			fmt::errorfln("# {}={}", item.0, item.1)!;
+			fmt::errorf("# {}=", item.0)!;
+			shlex::quote(os::stderr, item.1)!;
 		};
 	};
 
