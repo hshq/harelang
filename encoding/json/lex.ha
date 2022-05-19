@@ -15,6 +15,10 @@ export type lexer = struct {
 	strbuf: strio::stream,
 	un: (token | void),
 	rb: (rune | void),
+	loc: (uint, uint),
+	prevloc: (uint, uint),
+	nextloc: (uint, uint),
+	prevrloc: (uint, uint),
 };
 
 // Creates a new JSON lexer. The caller may obtain tokens with [[lex]] and
@@ -27,6 +31,8 @@ export fn newlexer(src: io::handle) lexer = {
 		strbuf = strio::dynamic(),
 		un = void,
 		rb = void,
+		loc = (1, 0),
+		...
 	};
 };
 
@@ -39,9 +45,12 @@ export fn close(lex: *lexer) void = {
 // the lexer and will be overwritten on subsequent calls.
 export fn lex(lex: *lexer) (token | io::EOF | error) = {
 	match (lex.un) {
-	case void => void;
+	case void =>
+		lex.prevloc = lex.loc;
 	case let tok: token =>
 		lex.un = void;
+		lex.prevloc = lex.loc;
+		lex.loc = lex.nextloc;
 		return tok;
 	};
 
@@ -68,14 +77,16 @@ export fn lex(lex: *lexer) (token | io::EOF | error) = {
 	case '"' =>
 		return scan_str(lex)?;
 	case =>
-		return invalid;
-	case =>
 		yield;
 	};
 
 	if (ascii::isdigit(rn) || rn == '-') {
 		unget(lex, rn);
 		return scan_number(lex)?;
+	};
+
+	if (!ascii::isalpha(rn)) {
+		return lex.loc: invalid;
 	};
 
 	unget(lex, rn);
@@ -88,7 +99,7 @@ export fn lex(lex: *lexer) (token | io::EOF | error) = {
 	case "null" =>
 		return _null;
 	case =>
-		return invalid;
+		return lex.loc: invalid;
 	};
 };
 
@@ -98,6 +109,8 @@ export fn lex(lex: *lexer) (token | io::EOF | error) = {
 export fn unlex(lex: *lexer, tok: token) void = {
 	assert(lex.un is void, "encoding::json::unlex called twice in a row");
 	lex.un = tok;
+	lex.nextloc = lex.loc;
+	lex.loc = lex.prevloc;
 };
 
 // Scans until encountering a non-alphabetical character, returning the
@@ -159,7 +172,7 @@ fn scan_number(lex: *lexer) (token | error) = {
 				state = numstate::ZERO;
 			case =>
 				if (!ascii::isdigit(rn)) {
-					return invalid;
+					return lex.loc: invalid;
 				};
 				state = numstate::INTEGER;
 			};
@@ -171,7 +184,7 @@ fn scan_number(lex: *lexer) (token | error) = {
 				state = numstate::EXPSIGN;
 			case =>
 				if (ascii::isdigit(rn)) {
-					return invalid;
+					return lex.loc: invalid;
 				};
 				unget(lex, rn);
 				break;
@@ -190,7 +203,7 @@ fn scan_number(lex: *lexer) (token | error) = {
 			};
 		case numstate::FRACSTART =>
 			if (!ascii::isdigit(rn)) {
-				return invalid;
+				return lex.loc: invalid;
 			};
 			state = numstate::FRACTION;
 		case numstate::FRACTION =>
@@ -211,7 +224,7 @@ fn scan_number(lex: *lexer) (token | error) = {
 			};
 		case numstate::EXPSTART =>
 			if (!ascii::isdigit(rn)) {
-				return invalid;
+				return lex.loc: invalid;
 			};
 			state = numstate::EXPONENT;
 		case numstate::EXPONENT =>
@@ -228,7 +241,7 @@ fn scan_number(lex: *lexer) (token | error) = {
 	case let f: f64 =>
 		return f;
 	case =>
-		return invalid;
+		return lex.loc: invalid;
 	};
 };
 
@@ -240,7 +253,8 @@ fn scan_str(lex: *lexer) (token | error) = {
 		case let rn: rune =>
 			yield rn;
 		case io::EOF =>
-			return invalid;
+			lex.loc.1 += 1;
+			return lex.loc: invalid;
 		};
 
 		switch (rn) {
@@ -251,7 +265,7 @@ fn scan_str(lex: *lexer) (token | error) = {
 			strio::appendrune(&lex.strbuf, rn)!;
 		case =>
 			if (iscntrl(rn)) {
-				return invalid;
+				return lex.loc: invalid;
 			};
 			strio::appendrune(&lex.strbuf, rn)!;
 		};
@@ -265,7 +279,7 @@ fn scan_escape(lex: *lexer) (rune | error) = {
 	case let rn: rune =>
 		yield rn;
 	case io::EOF =>
-		return invalid;
+		return lex.loc: invalid;
 	};
 
 	switch (rn) {
@@ -289,7 +303,7 @@ fn scan_escape(lex: *lexer) (rune | error) = {
 		let buf: [4]u8 = [0...];
 		match (io::readall(lex.src, buf)?) {
 		case io::EOF =>
-			return invalid;
+			return lex.loc: invalid;
 		case size =>
 			yield;
 		};
@@ -297,34 +311,47 @@ fn scan_escape(lex: *lexer) (rune | error) = {
 		case let s: str =>
 			yield s;
 		case =>
-			return invalid;
+			return lex.loc: invalid;
 		};
 		match (strconv::stou32b(s, strconv::base::HEX)) {
 		case let u: u32 =>
+			lex.loc.1 += 4;
 			return u: rune;
 		case =>
-			return invalid;
+			return lex.loc: invalid;
 		};
 	case =>
-		return invalid;
+		return lex.loc: invalid;
 	};
 };
 
 // Gets the next rune from the lexer.
 fn nextrune(lex: *lexer) (rune | io::EOF | error) = {
 	if (lex.rb is rune) {
+		lex.prevrloc = lex.loc;
 		const r = lex.rb as rune;
 		lex.rb = void;
+		if (r == '\n') {
+			lex.loc = (lex.loc.0 + 1, 0);
+		} else {
+			lex.loc.1 += 1;
+		};
 		return r;
 	};
 	match (bufio::scanrune(lex.src)) {
 	case let err: io::error =>
 		return err;
 	case utf8::invalid =>
-		return invalid;
+		return lex.loc: invalid;
 	case io::EOF =>
 		return io::EOF;
 	case let rn: rune =>
+		lex.prevrloc = lex.loc;
+		if (rn == '\n') {
+			lex.loc = (lex.loc.0 + 1, 0);
+		} else {
+			lex.loc.1 += 1;
+		};
 		return rn;
 	};
 };
@@ -348,6 +375,7 @@ fn nextrunews(lex: *lexer) (rune | io::EOF | error) = {
 fn unget(lex: *lexer, r: rune) void = {
 	assert(lex.rb is void);
 	lex.rb = r;
+	lex.loc = lex.prevrloc;
 };
 
 fn iscntrl(r: rune) bool = r: u32 < 0x20;

@@ -62,7 +62,7 @@ fn _load(lexer: *lexer, level: uint, limit: uint) (value | error) = {
 		};
 		return _load_obj(lexer, level + 1, limit);
 	case (arrayend | objend | colon | comma) =>
-		return invalid;
+		return lexer.loc: invalid;
 	};
 };
 
@@ -83,7 +83,8 @@ fn _load_array(lexer: *lexer, level: uint, limit: uint) (value | error) = {
 		match (tok) {
 		case comma => void;
 		case arrayend => break;
-		case => return invalid;
+		case =>
+			return lexer.loc: invalid;
 		};
 	};
 	return array;
@@ -104,13 +105,14 @@ fn _load_obj(lexer: *lexer, level: uint, limit: uint) (value | error) = {
 		const key = match (tok) {
 		case let s: str =>
 			yield strings::dup(s);
-		case => return invalid;
+		case =>
+			return lexer.loc: invalid;
 		};
 		defer free(key);
 
 		tok = mustscan(lexer)?;
 		if (!(tok is colon)) {
-			return invalid;
+			return lexer.loc: invalid;
 		};
 
 		const val = _load(lexer, level, limit)?;
@@ -121,7 +123,8 @@ fn _load_obj(lexer: *lexer, level: uint, limit: uint) (value | error) = {
 		match (tok) {
 		case comma => void;
 		case objend => break;
-		case => return invalid;
+		case =>
+			return lexer.loc: invalid;
 		};
 	};
 
@@ -131,7 +134,8 @@ fn _load_obj(lexer: *lexer, level: uint, limit: uint) (value | error) = {
 fn mustscan(lexer: *lexer) (token | error) = {
 	match (lex(lexer)?) {
 	case io::EOF =>
-		return invalid;
+		lexer.loc.1 += 1;
+		return lexer.loc: invalid;
 	case let tok: token =>
 		return tok;
 	};
