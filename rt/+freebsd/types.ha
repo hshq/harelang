@@ -378,11 +378,12 @@ export def F_SEAL_GROW: int = 0x0004;
 export def F_SEAL_WRITE: int = 0x0008;
 
 export def FD_CLOEXEC: int = 1;
-export def F_RDLCK: int = 1;
-export def F_UNLCK: int = 2;
-export def F_WRLCK: int = 3;
 export def F_UNLCKSYS: int = 4;
 export def F_CANCEL: int = 5;
+
+export def F_RDLCK: i16 = 1;
+export def F_UNLCK: i16 = 2;
+export def F_WRLCK: i16 = 3;
 
 export def PRIO_PROCESS: int = 0;
 export def PRIO_PGRP: int = 1;
