@@ -543,9 +543,10 @@ fn run_thread(
 			assert(threads[i].curr_capture_inited, `Found a groupend token ")" without having previously seen a groupstart token "(". Please report this as a bug`);
 			threads[i].curr_capture.end = str_idx: size;
 			threads[i].curr_capture.end_bytesize = str_bytesize;
-			const content = strings::fromutf8_unsafe(str_bytes[
-				threads[i].curr_capture.start_bytesize..
-				threads[i].curr_capture.end_bytesize]);
+			threads[i].curr_capture.content =
+				strings::fromutf8_unsafe(str_bytes[
+					threads[i].curr_capture.start_bytesize..
+					threads[i].curr_capture.end_bytesize]);
 			append(threads[i].captures, threads[i].curr_capture);
 			threads[i].curr_capture = capture { ... };
 			threads[i].curr_capture_inited = false;

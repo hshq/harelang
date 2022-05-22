@@ -57,11 +57,29 @@ fn run_find_case(
 	};
 };
 
+fn run_submatch_case(
+	expr: str,
+	string: str,
+	expected: matchres,
+	count: size,
+	targets: []str
+) void = {
+	const re = compile(expr)!;
+	defer finish(&re);
+
+	const captures = find(&re, string) as []capture;
+	defer free_captures(captures);
+	assert(len(captures) == count, "Invalid number of captures");
+	for (let i = 0z; i < len(targets); i += 1) {
+		assert(targets[i] == captures[i].content, "Invalid capture");
+	};
+};
+
 fn run_findall_case(
 	expr: str,
 	string: str,
 	expected: matchres,
-	count: int,
+	count: size,
 	targets: []str
 ) void = {
 	const re = match (compile(expr)) {
@@ -99,7 +117,7 @@ fn run_findall_case(
 			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
 				expr, string);
 		};
-		if (count: size != len(matches)) {
+		if (count != len(matches)) {
 			fmt::fatalf("Expected to find {} matches but found {}",
 				count, len(matches));
 		};
@@ -525,11 +543,26 @@ fn run_findall_case(
 		};
 		run_find_case(expr, string, should_match, start, end);
 	};
+
+	const submatch_cases = [
+		// literals
+		(`aaa ([^ ]*) (...)`, "aaa bbb ccc", matchres::MATCH, 3z,
+			["aaa bbb ccc", "bbb", "ccc"]),
+	];
+
+	for (let i = 0z; i < len(submatch_cases); i += 1) {
+		const expr = submatch_cases[i].0;
+		const string = submatch_cases[i].1;
+		const should_match = submatch_cases[i].2;
+		const count = submatch_cases[i].3;
+		const targets = submatch_cases[i].4;
+		run_submatch_case(expr, string, should_match, count, targets);
+	};
 };
 
 @test fn findall() void = {
 	const cases = [
-		(`ab.`, "hello abc and abあ test abq thanks", matchres::MATCH, 3,
+		(`ab.`, "hello abc and abあ test abq thanks", matchres::MATCH, 3z,
 			["abc", "abあ", "abq"]),
 	];
 
