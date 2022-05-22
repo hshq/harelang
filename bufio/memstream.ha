@@ -136,6 +136,17 @@ export fn truncate(in: *memstream) (void | errors::unsupported) = {
 	delete(in.buf[..]);
 };
 
+// Reads data from a [[dynamic]] or [[fixed]] stream and returns a slice
+// borrowed from the internal buffer.
+export fn borrowedread(st: *memstream, amt: size) ([]u8 | io::EOF) = {
+	if (len(st.buf) - st.pos <= amt) {
+		return io::EOF;
+	};
+	let buf = st.buf[st.pos..st.pos + amt];
+	st.pos += len(buf);
+	return buf;
+};
+
 fn dynamic_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *memstream;
 	insert(s.buf[s.pos], buf...);
