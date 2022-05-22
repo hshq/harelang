@@ -56,6 +56,7 @@ fn deltags(tags: []module::tag, in: str) ([]module::tag | void) = {
 		for (let j = 0z; j < len(in); j += 1) {
 			if (tags[i].name == in[j].name
 					&& tags[i].mode == in[j].mode) {
+				free(tags[i].name);
 				delete(tags[i]);
 				i -= 1;
 			};
