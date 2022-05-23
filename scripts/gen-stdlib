@@ -1210,6 +1210,7 @@ strings() {
 		cstrings.ha \
 		dup.ha \
 		iter.ha \
+		runes.ha \
 		sub.ha \
 		suffix.ha \
 		tokenize.ha \
