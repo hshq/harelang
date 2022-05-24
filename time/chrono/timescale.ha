@@ -171,24 +171,62 @@ export const mtc: timescale = timescale {
 	from_tai = &conv_tai_mtc,
 };
 
+// Factor f, where Martian-time * f == Earth-time.
 def FACTOR_TERRESTRIAL_MARTIAN: f64 = 1.0274912517;
 
+// [[time::duration]] in Earth-time between the Unix epoch of 1970 Jan 1st
+// midnight, and the Earth-Mars convergence date of 2000 Jan 6th midnight.
+def DELTA_UNIXEPOCH_JANSIX: time::duration = 10962 * 24 * time::HOUR;
+
+// [[time::duration]] in Mars-time between the Mars Sol Date epoch corresponding
+// to the Gregorian Earth date 1873 Dec 29th, and the Earth-Mars convergence
+// date of 2000 Jan 6.
+def DELTA_MARSEPOCH_JANSIX: time::duration = 44796 * 24 * time::HOUR;
+
+// [[time::duration]] in Mars-time between the midnights of 2000 Jan 6th on
+// Earth and Mars. Earth's midnight occurred first.
+def DELTA_JANSIX_ADJUSTMENT: time::duration = 82944 * time::MILLISECOND;
+
 fn conv_tai_mtc(a: time::instant) (time::instant | time::error) = {
-	// TODO: handle propagated ambiguous errors
-	const b = tt.from_tai(a)?;
-	const c = time::instant {
-		sec = (b.sec: f64 * FACTOR_TERRESTRIAL_MARTIAN): i64,
-		nsec = b.nsec,
-	};
-	return c;
+	// Get the "Terrestrial Time".
+	// '!' since TT and TAI are continuous.
+	const b = tt.from_tai(a)!;
+
+	// Change epoch from the Unix epoch 1970 Jan 1st (Terrestrial Time)
+	// to the Earth-Mars convergence date 2000 Jan 6th midnight.
+	const b = time::add(b, -DELTA_UNIXEPOCH_JANSIX);
+
+	// Scale from Earth-time to Mars-time.
+	const b = time::mult(b, 1.0 / FACTOR_TERRESTRIAL_MARTIAN);
+
+	// Slightly adjust epoch for the actual Martian midnight.
+	// Earth's midnight occurred before Mars'.
+	const b = time::add(b, -DELTA_JANSIX_ADJUSTMENT);
+
+	// Change epoch to that of the Mars Sol Date.
+	const b = time::add(b, +DELTA_MARSEPOCH_JANSIX);
+
+	return b;
 };
 
 fn conv_mtc_tai(a: time::instant) (time::instant | time::error) = {
-	const b = time::instant {
-		sec = (a.sec: f64 / FACTOR_TERRESTRIAL_MARTIAN): i64,
-		nsec = a.nsec,
-	};
-	// TODO: handle propagated ambiguous errors
-	const c = tt.to_tai(b)?;
-	return c;
+	// Change epoch from that of the Mars Sol Date
+	// to the Earth-Mars convergence date 2000 Jan 6th.
+	const b = time::add(a, -DELTA_MARSEPOCH_JANSIX);
+
+	// Slightly adjust epoch for the actual Martian midnight.
+	// Earth's midnight occurred before Mars'.
+	const b = time::add(b, +DELTA_JANSIX_ADJUSTMENT);
+
+	// Scale from Mars-time to Earth-time.
+	const b = time::mult(b, FACTOR_TERRESTRIAL_MARTIAN);
+
+	// Change epoch to the Unix epoch 1970 Jan 1st (Terrestrial Time).
+	const b = time::add(b, +DELTA_UNIXEPOCH_JANSIX);
+
+	// Get the TAI time.
+	// '!' since TT and TAI are continuous.
+	const b = tt.from_tai(b)!;
+
+	return b;
 };
