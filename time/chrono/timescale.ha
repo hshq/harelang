@@ -137,7 +137,7 @@ fn conv_gps_tai(a: time::instant) (time::instant | time::error) = {
 // Used for astronomical timekeeping.
 // Based on TAI; constant +32.184 offset.
 // Continuous (no leap seconds).
-export const TT: timescale = timescale {
+export const tt: timescale = timescale {
 	name = "Terrestrial Time",
 	abbr = "TT",
 	to_tai = &conv_tt_tai,
@@ -147,17 +147,17 @@ export const TT: timescale = timescale {
 def TT_OFFSET: time::duration = (32.184 * time::SECOND: f64): time::duration;
 
 fn conv_tai_tt(a: time::instant) (time::instant | time::error) = {
-	const tt = time::instant {
+	const b = time::instant {
 		sec = a.sec + (TT_OFFSET / time::SECOND),
 		nsec = a.nsec + (TT_OFFSET % time::SECOND),
 	};
-	return tt;
+	return b;
 };
 
-fn conv_tt_tai(tt: time::instant) (time::instant | time::error) = {
+fn conv_tt_tai(a: time::instant) (time::instant | time::error) = {
 	const b = time::instant {
-		sec = tt.sec - (TT_OFFSET / time::SECOND),
-		nsec = tt.nsec + (TT_OFFSET % time::SECOND),
+		sec = a.sec - (TT_OFFSET / time::SECOND),
+		nsec = a.nsec + (TT_OFFSET % time::SECOND),
 	};
 	return b;
 };
@@ -185,20 +185,20 @@ def FACTOR_TERRESTRIAL_MARTIAN: f64 = 1.0274912517;
 
 fn conv_tai_mtc(a: time::instant) (time::instant | time::error) = {
 	// TODO: handle propagated ambiguous errors
-	const tt = TT.from_tai(a)?;
-	const b = time::instant {
-		sec = (tt.sec: f64 * FACTOR_TERRESTRIAL_MARTIAN): i64,
-		nsec = tt.nsec,
+	const b = tt.from_tai(a)?;
+	const c = time::instant {
+		sec = (b.sec: f64 * FACTOR_TERRESTRIAL_MARTIAN): i64,
+		nsec = b.nsec,
 	};
-	return b;
+	return c;
 };
 
 fn conv_mtc_tai(a: time::instant) (time::instant | time::error) = {
-	const tt = time::instant {
+	const b = time::instant {
 		sec = (a.sec: f64 / FACTOR_TERRESTRIAL_MARTIAN): i64,
 		nsec = a.nsec,
 	};
 	// TODO: handle propagated ambiguous errors
-	const b = TT.to_tai(tt)?;
-	return b;
+	const c = tt.to_tai(b)?;
+	return c;
 };
