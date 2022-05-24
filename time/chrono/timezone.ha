@@ -71,7 +71,30 @@ type tzname = struct {
 };
 
 // Creates an equivalent [[moment]] with a different [[locality]].
+//
+// If the old and new localities have different timescales, a direct conversion
+// between them will be tried, and will abort if unsuccessful. To avoid this,
+// consider manually converting moments to instants, and those instants between
+// timescales.
 export fn in(loc: locality, m: moment) moment = {
+	if (m.loc.timescale != loc.timescale) {
+		const i = to_instant(m);
+		const i = match (m.loc.timescale.to_tai(i)) {
+		case let i: time::instant =>
+			yield i;
+		case time::error =>
+			abort("time::chrono::in(): direct timescale conversion failed");
+		};
+		const i = match (loc.timescale.from_tai(i)) {
+		case let i: time::instant =>
+			yield i;
+		case time::error =>
+			abort("time::chrono::in(): direct timescale conversion failed");
+		};
+		const m = from_instant(i, loc);
+		return m;
+	};
+
 	assert(m.time < loc.daylength, "Internal error: time excedes daylength");
 	return new(loc, m.date, m.time)!; // resets .zone
 };
