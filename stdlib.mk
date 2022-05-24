@@ -1897,7 +1897,7 @@ stdlib_time_linux_srcs = \
 	$(STDLIB)/time/conv.ha \
 	$(STDLIB)/time/types.ha
 
-$(HARECACHE)/time/time-linux.ssa: $(stdlib_time_linux_srcs) $(stdlib_rt) $(stdlib_linux_vdso_$(PLATFORM))
+$(HARECACHE)/time/time-linux.ssa: $(stdlib_time_linux_srcs) $(stdlib_rt) $(stdlib_linux_vdso_$(PLATFORM)) $(stdlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime \
@@ -1910,7 +1910,7 @@ stdlib_time_freebsd_srcs = \
 	$(STDLIB)/time/conv.ha \
 	$(STDLIB)/time/types.ha
 
-$(HARECACHE)/time/time-freebsd.ssa: $(stdlib_time_freebsd_srcs) $(stdlib_rt)
+$(HARECACHE)/time/time-freebsd.ssa: $(stdlib_time_freebsd_srcs) $(stdlib_rt) $(stdlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime \
@@ -4066,7 +4066,7 @@ testlib_time_linux_srcs = \
 	$(STDLIB)/time/conv.ha \
 	$(STDLIB)/time/types.ha
 
-$(TESTCACHE)/time/time-linux.ssa: $(testlib_time_linux_srcs) $(testlib_rt) $(testlib_linux_vdso_$(PLATFORM))
+$(TESTCACHE)/time/time-linux.ssa: $(testlib_time_linux_srcs) $(testlib_rt) $(testlib_linux_vdso_$(PLATFORM)) $(testlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
@@ -4079,7 +4079,7 @@ testlib_time_freebsd_srcs = \
 	$(STDLIB)/time/conv.ha \
 	$(STDLIB)/time/types.ha
 
-$(TESTCACHE)/time/time-freebsd.ssa: $(testlib_time_freebsd_srcs) $(testlib_rt)
+$(TESTCACHE)/time/time-freebsd.ssa: $(testlib_time_freebsd_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \

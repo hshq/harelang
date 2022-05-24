@@ -1,6 +1,7 @@
 // License: MPL-2.0
 // (c) 2022 Byron Torres <b@torresjrjr.com>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
+use math;
 
 // Adds a [[duration]] to an [[instant]], returning an instant further in the
 // future (given a positive duration), or further in the past (given a negative
@@ -34,6 +35,46 @@ export fn compare(a: instant, b: instant) i8 = {
 	else if (a.nsec < b.nsec) -1
 	else if (a.nsec > b.nsec) 1
 	else 0;
+};
+
+// Scales the given [[instant]]'s scalar value by a factor 'f'. Make sure to
+// know what epoch you're dealing with.
+export fn mult(a: instant, f: f64) instant = {
+	// use positive numbers for convenience
+	const positive = if (a.sec < 0 ^^ f < 0.0) false else true;
+	const f = if (f < 0.0) -f else f;
+	const asec: i64 = if (a.sec < 0) -a.sec - 1 else a.sec;
+	const ansec: i64 = if (a.sec < 0) SECOND - a.nsec else a.nsec;
+
+	// initial multiply
+	const fsec = (asec: f64 * f);
+	const bsec = fsec: i64;
+	const fnsec = (ansec: f64 * f);
+	const bnsec = fnsec: i64;
+
+	// get seconds overflow (nsec remainder)
+	const secrem = math::modf64(fsec, 1.0);
+	const addnsec = (secrem * SECOND: f64): i64;
+
+	// add overflows
+	const b = instant {
+		sec = bsec,
+		nsec = ansec,
+	};
+	const b = add(b, bnsec - ansec); // add nsec overflow
+	const b = add(b, addnsec);       // add sec overflow
+
+	// switch back to original sign
+	const b = if (positive) {
+		yield b;
+	} else {
+		yield instant {
+			sec = -b.sec - 1,
+			nsec = SECOND - b.nsec,
+		};
+	};
+
+	return b;
 };
 
 @test fn add() void = {
@@ -122,4 +163,62 @@ export fn compare(a: instant, b: instant) i8 = {
 	assert(compare(a, b) < 0);
 	assert(compare(b, a) > 0);
 	assert(compare(a, a) == 0);
+};
+
+@test fn mult() void = {
+	const cases = [
+	//	instant a        factor f      instant b    interpretations
+		( 0, 000000000,   000.000,   0, 000000000), //  0.000000000
+		( 9, 000000000,   000.000,   0, 000000000), //  0.000000000
+		( 0, 999999999,   000.000,   0, 000000000), //  0.000000000
+		( 9, 999999999,   000.000,   0, 000000000), //  0.000000000
+
+		( 1, 000000000,   001.000,   1, 000000000), //  1.000000000
+		( 9, 000000000,   001.000,   9, 000000000), //  9.000000000
+		( 1, 999999999,   001.000,   1, 999999999), //  1.999999999
+		( 9, 999999999,   001.000,   9, 999999999), //  9.999999999
+
+		( 1, 000000000,   000.001,   0, 001000000), //  0.001000000
+		( 1, 000000000,   000.010,   0, 010000000), //  0.010000000
+		( 1, 000000000,   000.100,   0, 100000000), //  0.100000000
+
+		(-1, 000000000,   000.001,  -1, 999000000), // -0.001000000
+		(-1, 000000000,   000.010,  -1, 990000000), // -0.010000000
+		(-1, 000000000,   000.100,  -1, 900000000), // -0.100000000
+		(-1, 000000000,   001.000,  -1, 000000000), // -1.000000000
+
+		( 0, 500000000,   000.001,   0, 000500000), //  0.005000000
+		( 0, 500000000,   000.010,   0, 005000000), //  0.050000000
+		( 0, 500000000,   000.100,   0, 050000000), //  0.500000000
+
+		( 2, 000000000,   000.001,   0, 002000000), //  0.002000000
+		( 2, 000000000,   000.010,   0, 020000000), //  0.020000000
+		( 2, 000000000,   000.100,   0, 200000000), //  0.200000000
+
+		( 3, 141592653,   003.141,   9, 867742523), //  9.867742523073
+		( 2, 718281828,   002.718,   7, 388290007), //  7.388290008504 (rounds down?)
+		( 1, 414213562,   001.414,   1, 999697975), //  1.999697976668 (rounds down?)
+
+		( 3, 141592653,  -003.141, -10, 132257477), // -9.867742523073
+		( 2, 718281828,  -002.718,  -8, 611709993), // -7.388290008504
+		( 1, 414213562,  -001.414,  -2, 000302025), // -1.999697976668
+
+		(-4, 858407347,   003.141, -10, 132257477), // -9.867742523073
+		(-3, 281718172,   002.718,  -8, 611709993), // -7.388290008504
+		(-2, 585786438,   001.414,  -2, 000302025), // -1.999697976668
+
+		(-4, 858407347,  -003.141,   9, 867742523), //  9.867742523073
+		(-3, 281718172,  -002.718,   7, 388290007), //  7.388290008504
+		(-2, 585786438,  -001.414,   1, 999697975), //  1.999697976668
+	];
+
+	for (let i = 0z; i < len(cases); i += 1) {
+		const C = cases[i];
+		const a = instant { sec = C.0, nsec = C.1 };
+		const f = C.2;
+		const b = instant { sec = C.3, nsec = C.4 };
+		const B = mult(a, f);
+		assert(B.sec == b.sec, "time::mult() .sec error");
+		assert(B.nsec == b.nsec, "time::mult() .nsec error");
+	};
 };
