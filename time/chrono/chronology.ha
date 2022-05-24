@@ -9,7 +9,7 @@ export type invalid = !void;
 export type moment = struct {
 	// The ordinal day (on Earth or otherwise)
 	// since the Hare epoch (zeroth day) 1970-01-01
-	date: epochal,
+	date: date,
 
 	// The time since the start of the day
 	time: time::duration,
@@ -21,22 +21,22 @@ export type moment = struct {
 	zone: zone,
 };
 
-// An ordinal day (on Earth or otherwise) since the Hare epoch (zeroth day)
-// 1970-01-01.
-export type epochal = i64;
+// An ordinal day since an epoch. The Hare epoch (zeroth day) 1970 Jan 1st is
+// used for terrestrial chronologies.
+export type date = i64;
 
 // Creates a new [[moment]].
 export fn new(
 	loc: locality,
-	date: epochal,
-	time: time::duration,
+	d: date,
+	t: time::duration,
 ) (moment | invalid) = {
-	if (time > loc.daylength) {
+	if (t > loc.daylength) {
 		return invalid;
 	};
 	const m = moment {
-		date = date,
-		time = time,
+		date = d,
+		time = t,
 		loc = loc,
 		zone = zone { ... },
 	};

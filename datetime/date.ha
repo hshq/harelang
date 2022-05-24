@@ -68,7 +68,7 @@ fn calc_era(y: int) int = {
 };
 
 // Calculates the year, month, and day-of-month, given an epochal day.
-fn calc_ymd(e: chrono::epochal) (int, int, int) = {
+fn calc_ymd(e: chrono::date) (int, int, int) = {
 	// Algorithm adapted from:
 	// https://en.wikipedia.org/wiki/Julian_day#Julian_or_Gregorian_calendar_from_Julian_day_number
 	//
@@ -193,7 +193,7 @@ fn calc_week_starting_sunday(yd: int, wd: int) int = {
 
 // Calculates the day-of-week, given a epochal day,
 // from Monday=1 to Sunday=7.
-fn calc_weekday(e: chrono::epochal) int = {
+fn calc_weekday(e: chrono::date) int = {
 	const wd = ((e + 3) % 7 + 1): int;
 	return if (wd > 0) wd else wd + 7;
 };
@@ -204,9 +204,9 @@ fn calc_zeroweekday(wd: int) int = {
 	return wd - 1;
 };
 
-// Calculates the [[chrono::epochal]],
+// Calculates the [[chrono::date]],
 // given a year, month, and day-of-month.
-fn calc_epochal_from_ymd(y: int, m: int, d: int) (chrono::epochal | invalid) = {
+fn calc_date_from_ymd(y: int, m: int, d: int) (chrono::date | invalid) = {
 	if (!is_valid_ymd(y, m, d)) {
 		return invalid;
 	};
@@ -225,10 +225,10 @@ fn calc_epochal_from_ymd(y: int, m: int, d: int) (chrono::epochal | invalid) = {
 	return e;
 };
 
-// Calculates the [[chrono::epochal]],
+// Calculates the [[chrono::date]],
 // given a year, week, and day-of-week.
-fn calc_epochal_from_ywd(y: int, w: int, wd: int) (chrono::epochal | invalid) = {
-	const jan1 = calc_epochal_from_ymd(y, 1, 1)?;
+fn calc_date_from_ywd(y: int, w: int, wd: int) (chrono::date | invalid) = {
+	const jan1 = calc_date_from_ymd(y, 1, 1)?;
 	const jan1_wd = calc_weekday(jan1);
 	const yd = if (w == 0) {
 		yield wd - jan1_wd + 1;
@@ -236,7 +236,7 @@ fn calc_epochal_from_ywd(y: int, w: int, wd: int) (chrono::epochal | invalid) = 
 		yield (7 - jan1_wd + 1) + (7 * (w - 1)) + wd;
 	};
 	const ymd = calc_ymd_from_yd(y, yd)?;
-	return calc_epochal_from_ymd(ymd.0, ymd.1, ymd.2)?;
+	return calc_date_from_ymd(ymd.0, ymd.1, ymd.2)?;
 };
 
 // Calculates a year, month, and day-of-month,
@@ -262,14 +262,14 @@ fn calc_ymd_from_yd(y: int, yd: int) ((int, int, int) | invalid) = {
 	return invalid;
 };
 
-// Calculates the [[chrono::epochal]],
+// Calculates the [[chrono::date]],
 // given a year and day-of-year.
-fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | invalid) = {
+fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
 	const ymd = calc_ymd_from_yd(y, yd)?;
-	return calc_epochal_from_ymd(ymd.0, ymd.1, ymd.2)?;
+	return calc_date_from_ymd(ymd.0, ymd.1, ymd.2)?;
 };
 
-@test fn calc_epochal_from_ymd() void = {
+@test fn calc_date_from_ymd() void = {
 	const cases = [
 		((-0768, 02, 05),  -999999, false),
 		((-0001, 12, 31),  -719529, false),
@@ -305,15 +305,15 @@ fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | invalid) = {
 		const params = cases[i].0;
 		const expect = cases[i].1;
 		const should_error = cases[i].2;
-		const actual = calc_epochal_from_ymd(
+		const actual = calc_date_from_ymd(
 			params.0, params.1, params.2,
 		);
 
 		if (should_error) {
 			assert(actual is invalid, "invalid date accepted");
 		} else {
-			assert(actual is chrono::epochal, "valid date not accepted");
-			assert(actual as chrono::epochal == expect, "epochal miscalculation");
+			assert(actual is chrono::date, "valid date not accepted");
+			assert(actual as chrono::date == expect, "date miscalculation");
 		};
 	};
 };
@@ -364,7 +364,7 @@ fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | invalid) = {
 	};
 };
 
-@test fn calc_epochal_from_ywd() void = {
+@test fn calc_date_from_ywd() void = {
 	const cases = [
 		((-0768, 00, 4), -1000034),
 		((-0768, 05, 4), -999999),
@@ -402,13 +402,13 @@ fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | invalid) = {
 	for (let i = 0z; i < len(cases); i += 1) {
 		const ywd = cases[i].0;
 		const expected = cases[i].1;
-		const actual = calc_epochal_from_ywd(ywd.0, ywd.1, ywd.2)!;
+		const actual = calc_date_from_ywd(ywd.0, ywd.1, ywd.2)!;
 		assert(actual == expected,
-			"incorrect calc_epochal_from_ywd() result");
+			"incorrect calc_date_from_ywd() result");
 	};
 };
 
-@test fn calc_epochal_from_yd() void = {
+@test fn calc_date_from_yd() void = {
 	const cases = [
 		(-0768, 36,  -999999),
 		(-0001, 365, -719529),
@@ -437,14 +437,14 @@ fn calc_epochal_from_yd(y: int, yd: int) (chrono::epochal | invalid) = {
 		const y = cases[i].0;
 		const yd = cases[i].1;
 		const expected = cases[i].2;
-		const actual = calc_epochal_from_yd(y, yd)!;
+		const actual = calc_date_from_yd(y, yd)!;
 		assert(expected == actual,
-			"error in epochal calculation from yd");
+			"error in date calculation from yd");
 	};
-	assert(calc_epochal_from_yd(2020, 0) is invalid,
-		"calc_epochal_from_yd() did not reject invalid yearday");
-	assert(calc_epochal_from_yd(2020, 400) is invalid,
-		"calc_epochal_from_yd() did not reject invalid yearday");
+	assert(calc_date_from_yd(2020, 0) is invalid,
+		"calc_date_from_yd() did not reject invalid yearday");
+	assert(calc_date_from_yd(2020, 400) is invalid,
+		"calc_date_from_yd() did not reject invalid yearday");
 };
 
 @test fn calc_ymd() void = {

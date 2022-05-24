@@ -202,8 +202,8 @@ export fn truncate(dt: datetime, u: unit) datetime = {
 			00, 00, 00, 0,
 		)!;
 	case unit::WEEK =>
-		const epochal = dt.date - (weekday(&dt) - 1);
-		const ymd = calc_ymd(epochal);
+		const date = dt.date - (weekday(&dt) - 1);
+		const ymd = calc_ymd(date);
 		yield new(dt.loc, 0,
 			ymd.0, ymd.1, ymd.2,
 			00, 00, 00, 0,
@@ -322,7 +322,7 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 	for (let i = 0z; i < len(pp); i += 1) {
 		const p = pp[i];
 
-		let latest_epochal = dt.date;
+		let latest_date = dt.date;
 
 		if (p.years != 0) {
 			d_year += p.years;
@@ -346,14 +346,14 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 		if (p.weeks != 0) {
 			p.days += p.weeks * 7;
 		};
-		latest_epochal = calc_epochal_from_ymd(
+		latest_date = calc_date_from_ymd(
 			d_year, d_month, d_day)!;
 		if (p.days != 0) {
-			const new_ymd = calc_ymd(latest_epochal + p.days);
+			const new_ymd = calc_ymd(latest_date + p.days);
 			d_year = new_ymd.0;
 			d_month = new_ymd.1;
 			d_day = new_ymd.2;
-			latest_epochal = calc_epochal_from_ymd(
+			latest_date = calc_date_from_ymd(
 				d_year, d_month, d_day)!;
 		};
 
@@ -387,9 +387,9 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 			};
 
 			if (overflowed_days != 0) {
-				const new_epochal = latest_epochal +
+				const new_date = latest_date +
 					overflowed_days;
-				const new_ymd = calc_ymd(new_epochal);
+				const new_ymd = calc_ymd(new_date);
 				d_year = new_ymd.0;
 				d_month = new_ymd.1;
 				d_day = new_ymd.2;

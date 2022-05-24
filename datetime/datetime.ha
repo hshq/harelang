@@ -116,7 +116,7 @@ export fn new(
 	const nsec  = defaults[6];
 
 	let m = chrono::moment {
-		date = calc_epochal_from_ymd(year, month, day)?,
+		date = calc_date_from_ymd(year, month, day)?,
 		time = calc_time_from_hmsn(hour, min, sec, nsec)?,
 		loc = loc,
 		zone = chrono::zone { ... },
@@ -247,7 +247,7 @@ export fn finish(f: *builder, m: strategy...) (datetime | insufficient | invalid
 			f.month is int &&
 			f.day is int
 		) {
-			f.date = calc_epochal_from_ymd(
+			f.date = calc_date_from_ymd(
 				f.year as int,
 				f.month as int,
 				f.day as int,
@@ -260,7 +260,7 @@ export fn finish(f: *builder, m: strategy...) (datetime | insufficient | invalid
 			f.year is int &&
 			f.yearday is int
 		) {
-			f.date = calc_epochal_from_yd(
+			f.date = calc_date_from_yd(
 				f.year as int,
 				f.yearday as int,
 			)?;
@@ -273,7 +273,7 @@ export fn finish(f: *builder, m: strategy...) (datetime | insufficient | invalid
 			f.week is int &&
 			f.weekday is int
 		) {
-			f.date = calc_epochal_from_ywd(
+			f.date = calc_date_from_ywd(
 				f.year as int,
 				f.week as int,
 				f.weekday as int,
@@ -281,14 +281,14 @@ export fn finish(f: *builder, m: strategy...) (datetime | insufficient | invalid
 			return *f: datetime;
 		};
 
-		// TODO: calendar.ha: calc_epochal_from_isoywd()
+		// TODO: calendar.ha: calc_date_from_isoywd()
 	};
 
 	return insufficient;
 };
 
 // Specifies which [[builder]] fields and what strategy to use to calculate the
-// epochal, and thus a valid [[datetime]].
+// date, and thus a valid [[datetime]].
 export type strategy = enum uint {
 	// year, month, day
 	YMD    = 1 << 0,

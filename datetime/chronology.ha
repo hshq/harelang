@@ -11,7 +11,7 @@ use time::chrono;
 // TODO: Create an exported [[zeroweekday]] field function.
 
 // Returns a [[datetime]]'s number of days since the calendar epoch 0000-01-01.
-export fn epochal(dt: *datetime) chrono::epochal = _epochal(dt);
+export fn epochal(dt: *datetime) chrono::date = _epochal(dt);
 
 // Returns a [[datetime]]'s era.
 export fn era(dt: *datetime) int = _era(dt);
@@ -56,7 +56,7 @@ export fn sec(dt: *datetime) int = _sec(dt);
 export fn nsec(dt: *datetime) int = _nsec(dt);
 
 
-fn _epochal(dt: *datetime) chrono::epochal = {
+fn _epochal(dt: *datetime) chrono::date = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	return ldt.date - EPOCHAL_GREGORIAN;
 };
@@ -78,7 +78,7 @@ fn _year(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.year) {
 	case void =>
-		const ymd = calc_ymd(ldt.date: chrono::epochal);
+		const ymd = calc_ymd(ldt.date: chrono::date);
 		dt.year = ymd.0;
 		dt.month = ymd.1;
 		dt.day = ymd.2;
@@ -92,7 +92,7 @@ fn _month(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.month) {
 	case void =>
-		const ymd = calc_ymd(ldt.date: chrono::epochal);
+		const ymd = calc_ymd(ldt.date: chrono::date);
 		dt.year = ymd.0;
 		dt.month = ymd.1;
 		dt.day = ymd.2;
@@ -106,7 +106,7 @@ fn _day(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.day) {
 	case void =>
-		const ymd = calc_ymd(ldt.date: chrono::epochal);
+		const ymd = calc_ymd(ldt.date: chrono::date);
 		dt.year = ymd.0;
 		dt.month = ymd.1;
 		dt.day = ymd.2;
@@ -120,7 +120,7 @@ fn _weekday(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.weekday) {
 	case void =>
-		dt.weekday = calc_weekday(ldt.date: chrono::epochal);
+		dt.weekday = calc_weekday(ldt.date: chrono::date);
 		return dt.weekday: int;
 	case let y: int =>
 		return y;
