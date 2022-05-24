@@ -4,6 +4,7 @@ use bufio;
 use io;
 use os;
 use path;
+use strings;
 use time;
 
 // The locality of a [[moment]]. Contains information about how to present a
@@ -167,48 +168,65 @@ export fn fixedzone(ts: *timescale, daylen: time::duration, z: zone) timezone = 
 
 // The system's [[locality]]; the system's local [[timezone]].
 //
-// This is set during initialisation.
-export const LOCAL: locality = &TZ_local;
+// This is set during a program's initialisation, where the TZ environment
+// variable is tried, otherwise the /etc/localtime file is tried, otherwise a
+// default is used.
+//
+// The default timezone is equivalent to that of [[UTC]], with "Local" being the
+// name of both the timezone and its single zero-offset zone.
+export const LOCAL: locality = &TZ_LOCAL;
 
-@init fn set_local_timezone() void = {
-	match (os::getenv("TZ")) {
-	case let zone: str =>
-		TZ_local = match (tz(zone)) {
-		case let tz: timezone =>
-			yield tz;
-		case =>
-			return;
-		};
-	case void =>
-		const file = match (os::open(LOCALTIME_PATH)) {
-		case let file: io::file =>
-			yield file;
-		case =>
-			return;
-		};
-		defer io::close(file)!;
-
-		static let buf: [os::BUFSIZ]u8 = [0...];
-		const file = bufio::buffered(file, buf, []);
-
-		match (parse_tzif(&file, &TZ_local)) { case => void; };
-	};
-};
-
-let TZ_local: timezone = timezone {
-	name = "Local time",
+let TZ_LOCAL: timezone = timezone {
+	name = "Local",
 	timescale = &utc,
 	daylength = EARTH_DAY,
 	zones = [
 		zone {
 			zoffset = 0 * time::SECOND,
-			name = "Local time",
+			name = "Local",
 			abbr = "",
 			dst = false,
 		},
 	],
 	transitions = [],
 	posix_extend = "",
+};
+
+@init fn set_local_timezone() void = {
+	match (os::getenv("TZ")) {
+	case let zone: str =>
+		TZ_LOCAL = match (tz(zone)) {
+		case let tz: timezone =>
+			yield tz;
+		case =>
+			return;
+		};
+	case void =>
+		const filepath = match (os::readlink(LOCALTIME_PATH)) {
+		case let fp: str =>
+			yield fp;
+		case =>
+			return;
+		};
+
+		const file = match (os::open(filepath)) {
+		case let f: io::file =>
+			yield f;
+		case =>
+			return;
+		};
+		defer io::close(file)!;
+
+		if (strings::hasprefix(filepath, ZONEINFO_PREFIX)) {
+			TZ_LOCAL.name = strings::trimprefix(
+				filepath, ZONEINFO_PREFIX,
+			);
+		};
+
+		static let buf: [os::BUFSIZ]u8 = [0...];
+		const file = bufio::buffered(file, buf, []);
+		match (parse_tzif(&file, &TZ_LOCAL)) { case => void; };
+	};
 };
 
 // The UTC (Coordinated Universal Time) "Zulu" [[timezone]] as a [[locality]].
