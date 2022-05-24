@@ -50,7 +50,7 @@ export const utc: timescale = timescale {
 };
 
 fn conv_tai_utc(a: time::instant) (time::instant | time::error) = {
-	const idx = lookup_leaps(utc_leapsecs, time::unix(a));
+	const idx = lookup_leaps(&utc_leapsecs, time::unix(a));
 	const ofst = utc_leapsecs[idx].1;
 
 	if (time::unix(a) == utc_leapsecs[idx].0) {
@@ -65,7 +65,7 @@ fn conv_tai_utc(a: time::instant) (time::instant | time::error) = {
 };
 
 fn conv_utc_tai(a: time::instant) (time::instant | time::error) = {
-	const idx = lookup_leaps(utc_leapsecs, time::unix(a));
+	const idx = lookup_leaps(&utc_leapsecs, time::unix(a));
 	const ofst = utc_leapsecs[idx].1;
 
 	if (time::unix(a) == utc_leapsecs[idx].0) {
@@ -79,7 +79,7 @@ fn conv_utc_tai(a: time::instant) (time::instant | time::error) = {
 	return b;
 };
 
-fn lookup_leaps(list: [](i64, i64), t: i64) size = {
+fn lookup_leaps(list: *[](i64, i64), t: i64) size = {
 	let lo = 0z, hi = len(list);
 	for (hi - lo > 1) {
 		const mid = lo + (hi - lo) / 2;
