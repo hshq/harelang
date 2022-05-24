@@ -102,7 +102,7 @@ fn fe_cmp(a: const *elem, b: const *elem) u8 = {
 	let x: scalar = [0...];
 	fe_encode(&x, a);
 	let y: scalar = [0...];
-	fe_encode(&y, a);
+	fe_encode(&y, b);
 
 	// constant-time compare
 	let d: u32 = 0;
@@ -342,13 +342,13 @@ fn point_decode(p: *point, in: *[POINTSZ]u8) bool = {
 
 	fe_square(&chk, &p.x);
 	fe_mul(&chk, &chk, &den);
-	if (fe_cmp(&chk, &num) == 1) {
+	if (fe_cmp(&chk, &num) != 0) {
 		fe_mul(&p.x, &p.x, &I);
 	};
 
 	fe_square(&chk, &p.x);
 	fe_mul(&chk, &chk, &den);
-	if (fe_cmp(&chk, &num) == 1) {
+	if (fe_cmp(&chk, &num) != 0) {
 		return false;
 	};
 
