@@ -267,6 +267,44 @@ const TZ_TAI: timezone = timezone {
 	posix_extend = "",
 };
 
+// The GPS (Global Positioning System) "Zulu" [[timezone]] as a [[locality]].
+export const GPS: locality = &TZ_GPS;
+
+const TZ_GPS: timezone = timezone {
+	name = "",
+	timescale = &gps,
+	daylength = EARTH_DAY,
+	zones = [
+		zone {
+			zoffset = 0 * time::SECOND,
+			name = "Global Positioning System",
+			abbr = "GPS",
+			dst = false,
+		},
+	],
+	transitions = [],
+	posix_extend = "",
+};
+
+// The TT (Terrestrial Time) "Zulu" [[timezone]] as a [[locality]].
+export const TT: locality = &TZ_TT;
+
+const TZ_TT: timezone = timezone {
+	name = "",
+	timescale = &tt,
+	daylength = EARTH_DAY,
+	zones = [
+		zone {
+			zoffset = 0 * time::SECOND,
+			name = "Terrestrial Time",
+			abbr = "TT",
+			dst = false,
+		},
+	],
+	transitions = [],
+	posix_extend = "",
+};
+
 // The MTC (Coordinated Mars Time) "Zulu" [[timezone]] as a [[locality]].
 export const MTC: locality = &TZ_MTC;
 
