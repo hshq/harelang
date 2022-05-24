@@ -72,7 +72,7 @@ type tzname = struct {
 // Creates an equivalent [[moment]] with a different [[locality]].
 export fn in(loc: locality, m: moment) moment = {
 	assert(m.time < loc.daylength, "Internal error: time excedes daylength");
-	return new(m.date, m.time, loc)!; // resets .zone
+	return new(loc, m.date, m.time)!; // resets .zone
 };
 
 export fn transform(m: moment, zo: time::duration) moment = {

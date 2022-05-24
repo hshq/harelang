@@ -26,7 +26,11 @@ export type moment = struct {
 export type epochal = i64;
 
 // Creates a new [[moment]].
-export fn new(date: epochal, time: time::duration, loc: locality) (moment | invalid) = {
+export fn new(
+	loc: locality,
+	date: epochal,
+	time: time::duration,
+) (moment | invalid) = {
 	if (time > loc.daylength) {
 		return invalid;
 	};
@@ -46,7 +50,7 @@ export fn from_instant(i: time::instant, loc: locality) moment = {
 	const d = i.sec / daysec;
 	const t = (i.sec % daysec) * time::SECOND + i.nsec * time::NANOSECOND;
 	assert(t < loc.daylength, "Internal error: time excedes daylength");
-	return new(d, t, loc)!;
+	return new(loc, d, t)!;
 };
 
 // Creates a new [[time::instant]] from a [[moment]].
