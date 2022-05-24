@@ -181,7 +181,7 @@ fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 	if (buf1[0] != 0x0A) { // '\n' newline
 		return invalidtzif;
 	};
-	for (let start = true; true; start = false) {
+	for (true) {
 		mustread(h, buf1)?;
 		if (buf1[0] == 0x0A) { // '\n' newline
 			break;
