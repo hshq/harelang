@@ -144,22 +144,16 @@ export const tt: timescale = timescale {
 	from_tai = &conv_tai_tt,
 };
 
-def TT_OFFSET: time::duration = (32.184 * time::SECOND: f64): time::duration;
+// The constant offset between TT (Terrestrial Time) and TAI (International
+// Atomic Time). Used by [[tt]].
+def TT_OFFSET: time::duration = 32184 * time::MILLISECOND; // 32.184 seconds
 
 fn conv_tai_tt(a: time::instant) (time::instant | time::error) = {
-	const b = time::instant {
-		sec = a.sec + (TT_OFFSET / time::SECOND),
-		nsec = a.nsec + (TT_OFFSET % time::SECOND),
-	};
-	return b;
+	return time::add(a, +TT_OFFSET);
 };
 
 fn conv_tt_tai(a: time::instant) (time::instant | time::error) = {
-	const b = time::instant {
-		sec = a.sec - (TT_OFFSET / time::SECOND),
-		nsec = a.nsec + (TT_OFFSET % time::SECOND),
-	};
-	return b;
+	return time::add(a, -TT_OFFSET);
 };
 
 
