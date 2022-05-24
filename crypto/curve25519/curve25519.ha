@@ -19,6 +19,13 @@ export def POINTSZ: size = 32;
 // The canonical Curve25519 generator
 export const BASEPOINT: [POINTSZ]u8 = [9, 0...];
 
+// An internal representation used for arithmetic operations.
+def FIELDSZ: size = 16;
+type elem = [FIELDSZ]i64;
+
+// Constant used in scalar multiplication.
+const _121665: elem = [0xdb41, 1, 0...];
+
 // Compute the result of the scalar multiplication (scalar * point) and put the
 // result in out.
 export fn x25519(
@@ -51,9 +58,12 @@ export fn scalarmult(
 	scalar: const *[SCALARSZ]u8,
 	point: const *[POINTSZ]u8
 ) void = {
+	let clamped: [SCALARSZ]u8 = *scalar;
+	clamp(&clamped);
+
 	let x = unpack25519(point);
-	let b: elem = *&x;
 	let a: elem = [1, 0...];
+	let b: elem = x;
 	let c: elem = [0...];
 	let d: elem = [1, 0...];
 	let e: elem = [0...];
@@ -61,7 +71,7 @@ export fn scalarmult(
 
 	for (let i = 254i; i >= 0; i -= 1) {
 		let iz = i : size;
-		let bit = ((scalar[iz >> 3] >> (iz & 7)) & 1) : i64;
+		let bit = ((clamped[iz >> 3] >> (iz & 7)) & 1) : i64;
 		swap25519(&a, &b, bit);
 		swap25519(&c, &d, bit);
 		addfe(&e, &a, &c);
@@ -91,18 +101,11 @@ export fn scalarmult(
 	pack25519(out, &a);
 };
 
-// An internal representation used for arithmetic operations.
-def FIELDSZ: size = 16;
-type elem = [FIELDSZ]i64;
-
-// Constant used in scalar multiplication.
-const _121665: elem = [0xdb41, 1, 0...];
-
 fn unpack25519(in: *[SCALARSZ]u8) elem = {
 	let fe: elem = [0...];
 
 	for (let i = 0z; i < FIELDSZ; i += 1) {
-		fe[i] = in[2 * i] : i64 + ((in[2 * i + 1] : i64) << 8);
+		fe[i] = in[2 * i]: i64 + ((in[2 * i + 1]: i64) << 8);
 	};
 	fe[15] &= 0x7fff;
 
