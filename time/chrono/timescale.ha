@@ -115,20 +115,16 @@ export const gps: timescale = timescale {
 	from_tai = &conv_tai_utc,
 };
 
+// The constant offset between GPS-Time (Global Positioning System Time) and TAI
+// (International Atomic Time). Used by [[gps]].
+def GPS_OFFSET: time::duration = -19 * time::SECOND;
+
 fn conv_tai_gps(a: time::instant) (time::instant | time::error) = {
-	const b = time::instant {
-		sec = a.sec - 19,
-		nsec = a.nsec,
-	};
-	return b;
+	return time::add(a, +GPS_OFFSET);
 };
 
 fn conv_gps_tai(a: time::instant) (time::instant | time::error) = {
-	const b = time::instant {
-		sec = a.sec + 19,
-		nsec = a.nsec,
-	};
-	return b;
+	return time::add(a, -GPS_OFFSET);
 };
 
 
