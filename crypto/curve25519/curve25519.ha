@@ -1,5 +1,6 @@
 // License: MPL-2.0
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+use bytes;
 
 // Implements the curve25519 elliptic curve
 
@@ -59,6 +60,7 @@ export fn scalarmult(
 	point: const *[POINTSZ]u8
 ) void = {
 	let clamped: [SCALARSZ]u8 = *scalar;
+	defer bytes::zero(clamped);
 	clamp(&clamped);
 
 	let x = unpack25519(point);

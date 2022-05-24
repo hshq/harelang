@@ -461,7 +461,7 @@ crypto_curve25519() {
 	if [ $testing -eq 0 ]
 	then
 		gen_srcs crypto::curve25519 curve25519.ha
-		gen_ssa crypto::curve25519
+		gen_ssa crypto::curve25519 bytes
 	else
 		gen_srcs crypto::curve25519 curve25519.ha +test.ha
 		gen_ssa crypto::curve25519 bytes fmt io encoding::hex crypto::random

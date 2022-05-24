@@ -964,7 +964,7 @@ $(HARECACHE)/crypto/sha512/crypto_sha512-any.ssa: $(stdlib_crypto_sha512_any_src
 stdlib_crypto_curve25519_any_srcs = \
 	$(STDLIB)/crypto/curve25519/curve25519.ha
 
-$(HARECACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(stdlib_crypto_curve25519_any_srcs) $(stdlib_rt)
+$(HARECACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(stdlib_crypto_curve25519_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/curve25519
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::curve25519 \
