@@ -70,8 +70,6 @@ fn scandoc(par: *parser) (token | void) = {
 		switch (rn) {
 		case ' ', '\t' =>
 			return scansample(par);
-		case '[' =>
-			return scanref(par);
 		case '-' =>
 			return scanlist(par);
 		case =>
