@@ -50,16 +50,16 @@ export type unit = enum int {
 
 // Returns true if two [[datetime]]s are equivalent.
 //
-// Equivalence means they represent the same moment in time,
-// regardless of their [[locality]] or observed chronological values.
+// Equivalence means they represent the same moment in time, regardless of their
+// locality or observed chronological values.
 export fn eq(a: datetime, b: datetime) bool = {
 	return a.date == b.date && a.time == b.time;
 };
 
 // Returns true if [[datetime]] "a" succeeds [[datetime]] "b".
 //
-// Temporal order is evaluated in a universal frame of reference,
-// regardless of their [[locality]] or observed chronological values.
+// Temporal order is evaluated in a universal frame of reference, regardless of
+// their locality or observed chronological values.
 export fn after(a: datetime, b: datetime) bool = {
 	return !eq(a, b) &&
 		(a.date > b.date || a.date == b.date && a.time > b.time);
@@ -67,8 +67,8 @@ export fn after(a: datetime, b: datetime) bool = {
 
 // Returns true if [[datetime]] "a" precedes [[datetime]] "b".
 //
-// Temporal order is evaluated in a universal frame of reference,
-// regardless of their [[locality]] or observed chronological values.
+// Temporal order is evaluated in a universal frame of reference, regardless of
+// their locality or observed chronological values.
 export fn before(a: datetime, b: datetime) bool = {
 	return !eq(a, b) && !after(a, b);
 };

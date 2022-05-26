@@ -91,8 +91,8 @@ export fn unset(
 };
 
 // Reading from the timerfd returns the number of time the timer expired. This
-// call can be blocking or not depending on the flags passed to [[timerfd_create]].
-// Reading from a blocking unset timerfd will block forever.
+// call can be blocking or not depending on the flags passed to [[new]]. Reading
+// from a blocking unset timerfd will block forever.
 export fn read(
 	t: io::file
 ) (u64 | errors::error) = {

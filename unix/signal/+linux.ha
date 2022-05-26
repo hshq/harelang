@@ -86,7 +86,7 @@ export fn getprocmask() sigset = {
 	return old;
 };
 
-// Defines the modes of operation for [[procmask]].
+// Defines the modes of operation for [[setprocmask]].
 export type how = enum int {
 	// Adds the given set of signals to the current mask.
 	BLOCK = rt::SIG_BLOCK,

@@ -208,7 +208,7 @@ fn struct_union_type(
 fn multiline_comment(s: str) bool =
 	strings::byteindex(s, '\n') as size != len(s) - 1;
 
-// Unparses an [[ast::_type]].
+// Unparses a [[hare::ast::_type]].
 export fn _type(
 	out: io::handle,
 	indent: size,

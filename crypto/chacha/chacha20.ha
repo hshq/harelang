@@ -21,7 +21,8 @@ export def BLOCKSIZE: size = 64;
 def ROUNDS: size = 20;
 const magic: [4]u32 = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574];
 
-// A ChaCha20 or XChaCha20 [[cipher::xorstream]] depending on intialisation.
+// A ChaCha20 or XChaCha20 [[crypto::cipher::xorstream]] depending on
+// intialisation.
 export type stream = struct {
 	cipher::xorstream,
 	state: [16]u32,
