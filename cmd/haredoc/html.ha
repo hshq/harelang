@@ -16,6 +16,7 @@ use hare::lex;
 use hare::module;
 use hare::unparse;
 use io;
+use net::ip;
 use net::uri;
 use os;
 use path;
@@ -400,11 +401,15 @@ fn markup_html(ctx: *context, in: io::handle) (void | io::error) = {
 			match (uri::parse(strings::trim(tx))) {
 			case let uri: uri::uri =>
 				defer uri::finish(&uri);
-				fmt::fprint(ctx.out, "<a rel='nofollow noopener' href='")?;
-				uri::fmt(ctx.out, &uri)?;
-				fmt::fprint(ctx.out, "'>")?;
-				html_escape(ctx.out, tx)?;
-				fmt::fprint(ctx.out, "</a>")?;
+				if (uri.host is net::ip::addr || len(uri.host as str) > 0) {
+					fmt::fprint(ctx.out, "<a rel='nofollow noopener' href='")?;
+					uri::fmt(ctx.out, &uri)?;
+					fmt::fprint(ctx.out, "'>")?;
+					html_escape(ctx.out, tx)?;
+					fmt::fprint(ctx.out, "</a>")?;
+				} else {
+					html_escape(ctx.out, tx)?;
+				};
 			case uri::invalid =>
 				html_escape(ctx.out, tx)?;
 			};
