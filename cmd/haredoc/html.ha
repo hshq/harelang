@@ -318,7 +318,9 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 	fmt::fprintln(ctx.out, "</pre>")?;
 
 	if (len(decl.docs) != 0) {
-		const buf = strings::toutf8(decl.docs);
+		const trimmed = trim_comment(decl.docs);
+		defer free(trimmed);
+		const buf = strings::toutf8(trimmed);
 		markup_html(ctx, &bufio::fixed(buf, io::mode::READ))?;
 	} else {
 		fmt::fprintln(ctx.out, "</details>")?;

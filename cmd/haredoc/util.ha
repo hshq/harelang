@@ -3,6 +3,7 @@
 use fmt;
 use io;
 use strings;
+use strio;
 
 // Forked from [[hare::unparse]].
 fn newline(out: io::handle, indent: size) (size | io::error) = {
@@ -16,3 +17,18 @@ fn newline(out: io::handle, indent: size) (size | io::error) = {
 
 fn multiline_comment(s: str) bool =
 	strings::byteindex(s, '\n') as size != len(s) - 1;
+
+fn trim_comment(s: str) str = {
+	let trimmed = strio::dynamic();
+	let tok = strings::tokenize(s, "\n");
+	for (true) {
+		const line = match (strings::next_token(&tok)) {
+		case void =>
+			break;
+		case let line: str =>
+			yield line;
+		};
+		strio::concat(&trimmed, strings::trimprefix(line, " "), "\n")!;
+	};
+	return strings::dup(strio::string(&trimmed));
+};
