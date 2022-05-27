@@ -199,7 +199,7 @@ fn b64_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 
 export type pemencoder = struct {
 	stream: io::stream,
-	out: *io::stream,
+	out: io::handle,
 	b64: base64::encoder,
 	label: str,
 };
@@ -212,7 +212,7 @@ const pemencoder_vt: io::vtable = io::vtable {
 
 // Creates a new PEM encoder stream. The stream has to be closed to write the
 // trailer.
-export fn newencoder(label: str, s: *io::stream) (pemencoder | io::error) = {
+export fn newencoder(label: str, s: io::handle) (pemencoder | io::error) = {
 	fmt::fprintf(s, "{}{}{}\n", begin, label, suffix)?;
 	return pemencoder {
 		stream = &pemencoder_vt,
