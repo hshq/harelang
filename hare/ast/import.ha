@@ -1,6 +1,7 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
+use hare::lex;
 
 // Variants of the import statement
 export type import_mode = enum uint {
@@ -16,6 +17,8 @@ export type import_mode = enum uint {
 
 // An imported module.
 export type import = struct {
+	start: lex::location,
+	end: lex::location,
 	mode: import_mode,
 	ident: ident,
 	alias: str,

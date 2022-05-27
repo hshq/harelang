@@ -45,6 +45,7 @@ export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 
 		append(imports, ast::import { ... });
 		let import = &imports[len(imports) - 1];
+		import.start = lex::mkloc(lexer);
 		for (true) {
 			let name = ident_trailing(lexer)?;
 			import.ident = name.0;
@@ -79,6 +80,7 @@ export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 			case => abort(); // Unreachable
 			};
 		};
+		import.end = lex::mkloc(lexer);
 	};
 	return imports;
 };
