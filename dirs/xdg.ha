@@ -3,11 +3,14 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
 // (c) 2022 Jon Eskin <eskinjp@gmail.com>
+// (c) 2022 Simon Ser <contact@emersion.fr>
+use errors;
 use fmt;
 use fs;
 use os;
 use path;
 use io;
+use unix;
 
 fn lookup(prog: str, var: str, default: str) str = {
 	static let buf = path::buffer { ... };
@@ -87,3 +90,32 @@ export fn state(prog: str) str = {
 
 // Returns an [[fs::fs]] for storing program state data.
 export fn statefs(prog: str) *fs::fs = os::diropen(state(prog)) as *fs::fs;
+
+// Returns a directory suitable for storing non-essential runtime files and
+// other file objects (such as sockets, named pipes, and so on). Applications
+// should use this directory for communication and synchronization purposes and
+// should not place larger files in it, since it might reside in runtime memory
+// and cannot necessarily be swapped out to disk.
+//
+// The specification requires the directory to be owned by the current user and
+// not be world-readable. No fallback is implemented in case XDG_RUNTIME_DIR is
+// unset or incorrectly set up.
+export fn runtime() (str | fs::error) = {
+	let path = match (os::getenv("XDG_RUNTIME_DIR")) {
+	case let path: str =>
+		yield path;
+	case void =>
+		return errors::noentry;
+	};
+
+	const st = os::stat(path)?;
+	const uid = unix::getuid();
+	if (st.uid != uid || fs::mode_perm(st.mode) != fs::mode::USER_RWX) {
+		return errors::noaccess;
+	};
+	if (!fs::isdir(st.mode)) {
+		return fs::wrongtype;
+	};
+
+	return path;
+};
