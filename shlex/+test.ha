@@ -1,5 +1,6 @@
 // License: MPL-2.0
 // (c) 2021 Alexey Yerin <yyp@disroot.org>
+// (c) 2022 Drew DeVault <sir@cmpwn.com>
 use io;
 use strings;
 use strio;
@@ -73,7 +74,7 @@ fn testquote(sink: *strio::stream, s: str, expected: str) void = {
 	const sink = strio::dynamic();
 	defer io::close(&sink)!;
 	testquote(&sink, `hello`, `hello`);
-	testquote(&sink, `hello world`, `"hello world"`);
-	testquote(&sink, `'hello' "world"`, `"'hello' "'"'"world"'"'""`);
-	testquote(&sink, `hello\world`, `"hello\\world"`);
+	testquote(&sink, `hello world`, `'hello world'`);
+	testquote(&sink, `'hello' "world"`, `''"'"'hello'"'"' "world"'`);
+	testquote(&sink, `hello\world`, `'hello\world'`);
 };

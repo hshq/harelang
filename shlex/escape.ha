@@ -1,3 +1,6 @@
+// License: MPL-2.0
+// (c) 2021 Alexey Yerin <yyp@disroot.org>
+// (c) 2022 Drew DeVault <sir@cmpwn.com>
 use ascii;
 use encoding::utf8;
 use io;
@@ -36,7 +39,7 @@ export fn quote(sink: io::handle, s: str) (size | io::error) = {
 		return io::writeall(sink, strings::toutf8(s))?;
 	};
 
-	let z = io::writeall(sink, ['"'])?;
+	let z = io::writeall(sink, ['\''])?;
 
 	const iter = strings::iter(s);
 	for (true) {
@@ -47,16 +50,14 @@ export fn quote(sink: io::handle, s: str) (size | io::error) = {
 			break;
 		};
 
-		if (rn == '"') {
-			z += io::writeall(sink, strings::toutf8(`"'"'"`))?;
-		} else if (rn == '\\') {
-			z += io::writeall(sink, strings::toutf8(`\\`))?;
+		if (rn == '\'') {
+			z += io::writeall(sink, strings::toutf8(`'"'"'`))?;
 		} else {
 			z += io::writeall(sink, utf8::encoderune(rn))?;
 		};
 	};
 
-	z += io::writeall(sink, ['"'])?;
+	z += io::writeall(sink, ['\''])?;
 	return z;
 };
 
