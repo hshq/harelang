@@ -61,6 +61,16 @@ use strio;
 	io::close(&stream)!;
 	assert(strio::string(&out) == privkey_str);
 	io::close(&out)!;
+
+	// test short writes
+	let out = strio::dynamic();
+	const stream = newencoder("CERTIFICATE", &out)!;
+	for (let i = 0z; i < len(testcert_bin); i += 1) {
+		io::write(&stream, [testcert_bin[i]])!;
+	};
+	io::close(&stream)!;
+	assert(strio::string(&out) == cert_str);
+	io::close(&out)!;
 };
 
 const cert_str: str =

@@ -202,6 +202,8 @@ export type pemencoder = struct {
 	out: io::handle,
 	b64: base64::encoder,
 	label: str,
+	buf: [48]u8,
+	ln: u8,
 };
 
 const pemencoder_vt: io::vtable = io::vtable {
@@ -219,22 +221,35 @@ export fn newencoder(label: str, s: io::handle) (pemencoder | io::error) = {
 		out = s,
 		b64 = base64::newencoder(&base64::std_encoding, s),
 		label = label,
+		...
 	};
 };
 
 fn pem_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *pemencoder;
 	let buf = buf: []u8;
+	if (len(buf) < len(s.buf) - s.ln) {
+		s.buf[s.ln..s.ln+len(buf)] = buf[..];
+		s.ln += len(buf): u8;
+		return len(buf);
+	};
 	let z = 0z;
+	s.buf[s.ln..] = buf[..len(s.buf) - s.ln];
+	z += io::writeall(&s.b64, s.buf)?;
+	z += io::write(s.out, ['\n'])?;
+	buf = buf[len(s.buf) - s.ln..];
 	for (len(buf) >= 48; buf = buf[48..]) {
 		z += io::writeall(&s.b64, buf[..48])?;
 		z += io::write(s.out, ['\n'])?;
 	};
-	return z + io::writeall(&s.b64, buf)?;
+	s.ln = len(buf): u8;
+	s.buf[..s.ln] = buf;
+	return z + s.ln;
 };
 
 fn pem_wclose(s: *io::stream) (void | io::error) = {
 	let s = s: *pemencoder;
+	io::writeall(&s.b64, s.buf[..s.ln])?;
 	io::close(&s.b64)?;
 	fmt::fprintf(s.out, "\n{}{}{}\n", end, s.label, suffix)?;
 };
