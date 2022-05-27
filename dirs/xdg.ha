@@ -15,6 +15,9 @@ fn lookup(prog: str, var: str, default: str) str = {
 	match (os::getenv(var)) {
 	case let s: str =>
 		const path = path::add(&buf, s, prog)!;
+		if (!path::abs(path)) {
+			yield;
+		};
 		match (os::stat(path)) {
 		case let err: fs::error =>
 			os::mkdirs(path, 0o755)!;
