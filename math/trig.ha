@@ -1012,3 +1012,54 @@ export fn atanhf64(x: f64) f64 = {
 	assert(isnan(atanhf64(INF)));
 	assert(isnan(atanhf64(NAN)));
 };
+
+// Returns the square root of a*a + b*b, taking care to avoid unnecessary
+// overflow and underflow.
+export fn hypotf64(a: f64, b: f64) f64 = {
+	if (isinf(a) || isinf(b)) {
+		return INF;
+	} else if (isnan(a) || isnan(b)) {
+		return NAN;
+	};
+	a = absf64(a);
+	b = absf64(b);
+	if (a < b) {
+		const temp = a;
+		a = b;
+		b = temp;
+	};
+	if (a == 0f64) {
+		return 0f64;
+	};
+	b = b / a;
+	return a * sqrtf64(1f64 + b * b);
+};
+
+@test fn hypot() void = {
+	for (let idx = 0z; idx < 10; idx += 1) {
+		const a = absf64(1e200f64 * TEST_TANH[idx] * SQRT_2);
+		assert(isclose(
+			hypotf64(1e200f64 * TEST_TANH[idx],
+				1e200f64 * TEST_TANH[idx]),
+			a));
+	};
+	assert(hypotf64(-INF, -INF) == INF);
+	assert(hypotf64(-INF, 0f64) == INF);
+	assert(hypotf64(-INF, INF) == INF);
+	assert(hypotf64(-INF, NAN) == INF);
+	assert(hypotf64(-0f64, -0f64) == 0f64);
+	assert(hypotf64(-0f64, 0f64) == 0f64);
+	assert(hypotf64(0f64, -0f64) == 0f64);
+	assert(hypotf64(0f64, 0f64) == 0f64);
+	assert(hypotf64(0f64, -INF) == INF);
+	assert(hypotf64(0f64, INF) == INF);
+	assert(isnan(hypotf64(0f64, NAN)));
+	assert(hypotf64(INF, -INF) == INF);
+	assert(hypotf64(INF, 0f64) == INF);
+	assert(hypotf64(INF, INF) == INF);
+	assert(hypotf64(INF, NAN) == INF);
+	assert(hypotf64(NAN, -INF) == INF);
+	assert(isnan(hypotf64(NAN, 0f64)));
+	assert(hypotf64(NAN, INF) == INF);
+	assert(isnan(hypotf64(NAN, NAN)));
+};
