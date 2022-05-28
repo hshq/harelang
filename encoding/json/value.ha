@@ -4,7 +4,7 @@ use hash::fnv;
 use strings;
 
 // TODO: Resize table as appropriate
-def OBJECT_BUCKETS: size = 32;
+export def OBJECT_BUCKETS: size = 32;
 
 export type object = struct {
 	buckets: [OBJECT_BUCKETS][](str, value),

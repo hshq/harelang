@@ -7,7 +7,7 @@ use hare::ast;
 use sort;
 use strings;
 
-def BUCKETS: size = 65535;
+export def BUCKETS: size = 65535;
 
 // A function which evaluates a [[hare::ast::expr]], providing either a size
 // result or an error.
