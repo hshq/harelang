@@ -59,31 +59,31 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFOR
 		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
 		-o $@ $(hare_srcs)
 
-.bin/hare: $(HARECACHE)/hare.o
-	@mkdir -p .bin
+$(BINOUT)/hare: $(HARECACHE)/hare.o
+	@mkdir -p $(BINOUT)
 	@printf 'LD\t%s\n' "$@"
 	@$(LD) --gc-sections -T $(rtscript) -o $@ \
 		$(HARECACHE)/hare.o $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM))
 
-.bin/hare-tests: $(TESTCACHE)/hare.o
-	@mkdir -p .bin
+$(BINOUT)/hare-tests: $(TESTCACHE)/hare.o
+	@mkdir -p $(BINOUT)
 	@printf 'LD\t%s\n' "$@"
 	@$(LD) -T $(rtscript) -o $@ \
 		$(TESTCACHE)/hare.o $(testlib_deps_any) $(testlib_deps_$(PLATFORM))
 
-.bin/harec2: .bin/hare $(harec_srcs)
-	@mkdir -p .bin
+$(BINOUT)/harec2: $(BINOUT)/hare $(harec_srcs)
+	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
-	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) .bin/hare build -o .bin/harec2 cmd/harec
+	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build -o $(BINOUT)/harec2 cmd/harec
 
-.bin/haredoc: .bin/hare $(haredoc_srcs)
-	@mkdir -p .bin
+$(BINOUT)/haredoc: $(BINOUT)/hare $(haredoc_srcs)
+	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
-	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) .bin/hare build \
+	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build \
 		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
-		-o .bin/haredoc ./cmd/haredoc
+		-o $(BINOUT)/haredoc ./cmd/haredoc
 
-docs/html: .bin/haredoc scripts/gen-docs
+docs/html: $(BINOUT)/haredoc scripts/gen-docs
 	./scripts/gen-docs
 
 docs/hare.1: docs/hare.scd
@@ -94,21 +94,21 @@ docs: docs/hare.1 docs/haredoc.1
 clean:
 	rm -rf .cache .bin docs/hare.1 docs/haredoc.1
 
-check: .bin/hare-tests
-	@./.bin/hare-tests
+check: $(BINOUT)/hare-tests
+	@$(BINOUT)/hare-tests
 
 scripts/gen-docs: scripts/gen-stdlib
 scripts/gen-stdlib: scripts/gen-stdlib.sh
 
-all: .bin/hare .bin/harec2 .bin/haredoc
+all: $(BINOUT)/hare $(BINOUT)/harec2 $(BINOUT)/haredoc
 
 install: docs scripts/install-mods
 	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1 \
 		$(DESTDIR)$(SRCDIR)/hare/stdlib $(DESTDIR)$(LOCALSRCDIR)
-	install -m755 .bin/hare $(DESTDIR)$(BINDIR)/hare
-	install -m755 .bin/haredoc $(DESTDIR)$(BINDIR)/haredoc
+	install -m755 $(BINOUT)/hare $(DESTDIR)$(BINDIR)/hare
+	install -m755 $(BINOUT)/haredoc $(DESTDIR)$(BINDIR)/haredoc
 	install -m644 docs/hare.1 $(DESTDIR)$(MANDIR)/man1/hare.1
 	install -m644 docs/haredoc.1 $(DESTDIR)$(MANDIR)/man1/haredoc.1
 	./scripts/install-mods "$(DESTDIR)$(SRCDIR)/hare/stdlib"
 
-.PHONY: all clean check docs install .bin/harec2 .bin/haredoc
+.PHONY: all clean check docs install $(BINOUT)/harec2 $(BINOUT)/haredoc
