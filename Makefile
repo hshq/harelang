@@ -92,7 +92,7 @@ docs/haredoc.1: docs/haredoc.scd
 docs: docs/hare.1 docs/haredoc.1
 
 clean:
-	rm -rf .cache .bin docs/hare.1 docs/haredoc.1
+	rm -rf $(HARECACHE) $(BINOUT) docs/hare.1 docs/haredoc.1
 
 check: $(BINOUT)/hare-tests
 	@$(BINOUT)/hare-tests
