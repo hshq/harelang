@@ -1013,6 +1013,59 @@ export fn atanhf64(x: f64) f64 = {
 	assert(isnan(atanhf64(NAN)));
 };
 
+// Returns the arctangent, in radians, of y / x.
+export fn atan2f64(y: f64, x: f64) f64 = {
+	if (isnan(y) || isnan(x)) {
+		return NAN;
+	} else if (y == 0f64) {
+		x = if (x >= 0f64 && signf64(x) > 0) 0f64 else PI;
+		return copysignf64(x, y);
+	} else if (x == 0f64) {
+		return copysignf64(PI / 2f64, y);
+	} else if (isinf(x)) {
+		if (signf64(x) > 0) {
+			x = if (isinf(y)) PI / 4f64 else 0f64;
+			return copysignf64(x, y);
+		} else {
+			x = if (isinf(y)) 3f64 * PI / 4f64 else PI;
+			return copysignf64(x, y);
+		};
+	} else if (isinf(y)) {
+		return copysignf64(PI / 2f64, y);
+	};
+
+	const q = atanf64(y / x);
+	if (x < 0f64) {
+		return if (q <= 0f64) q + PI else q - PI;
+	};
+	return q;
+};
+
+@test fn atan2() void = {
+	for (let idx = 0z; idx < 10; idx += 1) {
+		assert(isclose(
+			atan2f64(10f64, TEST_INPUTS[idx]),
+			TEST_ATAN2[idx]));
+	};
+	assert(isnan(atan2f64(-INF, NAN)));
+	assert(atan2f64(-PI, INF) == -0f64);
+	assert(isnan(atan2f64(-PI, NAN)));
+	assert(atan2f64(-0f64, 0f64) == -0f64);
+	assert(atan2f64(-0f64, PI) == -0f64);
+	assert(atan2f64(-0f64, INF) == -0f64);
+	assert(isnan(atan2f64(-0f64, NAN)));
+	assert(atan2f64(0f64, 0f64) == 0f64);
+	assert(atan2f64(0f64, PI) == 0f64);
+	assert(atan2f64(0f64, INF) == 0f64);
+	assert(isnan(atan2f64(0f64, NAN)));
+	assert(atan2f64(PI, INF) == 0f64);
+	assert(atan2f64(1f64, INF) == 0f64);
+	assert(atan2f64(-1f64, INF) == -0f64);
+	assert(isnan(atan2f64(PI, NAN)));
+	assert(isnan(atan2f64(INF, NAN)));
+	assert(isnan(atan2f64(NAN, NAN)));
+};
+
 // Returns the square root of a*a + b*b, taking care to avoid unnecessary
 // overflow and underflow.
 export fn hypotf64(a: f64, b: f64) f64 = {
