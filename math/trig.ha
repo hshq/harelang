@@ -207,10 +207,9 @@ fn trig_reduce(x: f64) (u64, f64) = {
 		const j = reduced.0;
 		const z = reduced.1;
 		const xred = (j: i64: f64) * (PI / 4f64) + z;
-		assert(eqwithin(
+		assert(isclose(
 			sinf64(TEST_INPUTS[idx]),
-			sinf64(xred),
-			1e-6f64));
+			sinf64(xred)));
 	};
 };
 
@@ -605,10 +604,9 @@ export fn asinf64(x: f64) f64 = {
 
 @test fn asin() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(eqwithin(
+		assert(isclose(
 			asinf64(TEST_INPUTS[idx] / 10f64),
-			TEST_ASIN[idx],
-			1e-6f64));
+			TEST_ASIN[idx]));
 	};
 	assert(isnan(asinf64(-PI)));
 	assert(asinf64(-0f64) == -0f64);
@@ -624,10 +622,9 @@ export fn acosf64(x: f64) f64 = {
 
 @test fn acos() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(eqwithin(
+		assert(isclose(
 			acosf64(TEST_INPUTS[idx] / 10f64),
-			TEST_ACOS[idx],
-			1e-6f64));
+			TEST_ACOS[idx]));
 	};
 	assert(isnan(acosf64(-PI)));
 	assert(acosf64(1f64) == 0f64);
@@ -668,10 +665,9 @@ export fn atanf64(x: f64) f64 = {
 
 @test fn atan() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(eqwithin(
+		assert(isclose(
 			atanf64(TEST_INPUTS[idx]),
-			TEST_ATAN[idx],
-			1e-6f64));
+			TEST_ATAN[idx]));
 	};
 	assert(atanf64(-INF) == -PI / 2f64);
 	assert(atanf64(-0f64) == -0f64);
@@ -747,10 +743,9 @@ export fn coshf64(x: f64) f64 = {
 
 @test fn cosh() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(eqwithin(
+		assert(isclose(
 			coshf64(TEST_INPUTS[idx]),
-			TEST_COSH[idx],
-			1e-6f64));
+			TEST_COSH[idx]));
 	};
 	assert(coshf64(-INF) == INF);
 	assert(coshf64(-0f64) == 1f64);
@@ -826,10 +821,9 @@ export fn tanhf64(x: f64) f64 = {
 
 @test fn tanh() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(eqwithin(
+		assert(isclose(
 			tanhf64(TEST_INPUTS[idx]),
-			TEST_TANH[idx],
-			1e-6f64));
+			TEST_TANH[idx]));
 	};
 	assert(tanhf64(-INF) == -1f64);
 	assert(tanhf64(-0f64) == -0f64);
@@ -889,10 +883,9 @@ export fn asinhf64(x: f64) f64 = {
 
 @test fn asinh() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(eqwithin(
+		assert(isclose(
 			asinhf64(TEST_INPUTS[idx]),
-			TEST_ASINH[idx],
-			1e-6f64));
+			TEST_ASINH[idx]));
 	};
 	assert(asinhf64(-INF) == -INF);
 	assert(asinhf64(-0f64) == -0f64);
@@ -938,10 +931,9 @@ export fn acoshf64(x: f64) f64 = {
 
 @test fn acosh() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(eqwithin(
+		assert(isclose(
 			acoshf64(1f64 + absf64(TEST_INPUTS[idx])),
-			TEST_ACOSH[idx],
-			1e-6f64));
+			TEST_ACOSH[idx]));
 	};
 	assert(isnan(acoshf64(-INF)));
 	assert(isnan(acoshf64(0.5f64)));

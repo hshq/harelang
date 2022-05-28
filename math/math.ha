@@ -1032,10 +1032,9 @@ export fn truncf64(x: f64) f64 = {
 
 @test fn trunc() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(eqwithin(
+		assert(isclose(
 			truncf64(TEST_INPUTS[idx]),
-			TEST_TRUNC[idx],
-			1e-6f64));
+			TEST_TRUNC[idx]));
 	};
 	assert(truncf64(-INF) == -INF);
 	assert(truncf64(-0f64) == -0f64);
