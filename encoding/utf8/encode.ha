@@ -20,7 +20,7 @@ export fn encoderune(r: rune) []u8 = {
 		n = 4;
 	};
 
-	static let buf: [6]u8 = [0...];
+	static let buf: [4]u8 = [0...];
 	for (let i = n - 1; i > 0; i -= 1) {
 		buf[i] = ch: u8 & 0x3F | 0x80;
 		ch >>= 6;
