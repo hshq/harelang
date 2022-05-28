@@ -502,6 +502,12 @@ stdlib_deps_any += $(stdlib_math_any)
 stdlib_math_linux = $(stdlib_math_any)
 stdlib_math_freebsd = $(stdlib_math_any)
 
+# gen_lib math::complex (any)
+stdlib_math_complex_any = $(HARECACHE)/math/complex/math_complex-any.o
+stdlib_deps_any += $(stdlib_math_complex_any)
+stdlib_math_complex_linux = $(stdlib_math_complex_any)
+stdlib_math_complex_freebsd = $(stdlib_math_complex_any)
+
 # gen_lib math::random (any)
 stdlib_math_random_any = $(HARECACHE)/math/random/math_random-any.o
 stdlib_deps_any += $(stdlib_math_random_any)
@@ -1505,6 +1511,16 @@ $(HARECACHE)/math/math-any.ssa: $(stdlib_math_any_srcs) $(stdlib_rt) $(stdlib_ty
 	@mkdir -p $(HARECACHE)/math
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nmath \
 		-t$(HARECACHE)/math/math.td $(stdlib_math_any_srcs)
+
+# math::complex (+any)
+stdlib_math_complex_any_srcs = \
+	$(STDLIB)/math/complex/complex.ha
+
+$(HARECACHE)/math/complex/math_complex-any.ssa: $(stdlib_math_complex_any_srcs) $(stdlib_rt) $(stdlib_math_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/math/complex
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nmath::complex \
+		-t$(HARECACHE)/math/complex/math_complex.td $(stdlib_math_complex_any_srcs)
 
 # math::random (+any)
 stdlib_math_random_any_srcs = \
@@ -2603,6 +2619,12 @@ testlib_deps_any += $(testlib_math_any)
 testlib_math_linux = $(testlib_math_any)
 testlib_math_freebsd = $(testlib_math_any)
 
+# gen_lib math::complex (any)
+testlib_math_complex_any = $(TESTCACHE)/math/complex/math_complex-any.o
+testlib_deps_any += $(testlib_math_complex_any)
+testlib_math_complex_linux = $(testlib_math_complex_any)
+testlib_math_complex_freebsd = $(testlib_math_complex_any)
+
 # gen_lib math::random (any)
 testlib_math_random_any = $(TESTCACHE)/math/random/math_random-any.o
 testlib_deps_any += $(testlib_math_random_any)
@@ -3649,6 +3671,17 @@ $(TESTCACHE)/math/math-any.ssa: $(testlib_math_any_srcs) $(testlib_rt) $(testlib
 	@mkdir -p $(TESTCACHE)/math
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath \
 		-t$(TESTCACHE)/math/math.td $(testlib_math_any_srcs)
+
+# math::complex (+any)
+testlib_math_complex_any_srcs = \
+	$(STDLIB)/math/complex/complex.ha \
+	$(STDLIB)/math/complex/+test.ha
+
+$(TESTCACHE)/math/complex/math_complex-any.ssa: $(testlib_math_complex_any_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/math/complex
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath::complex \
+		-t$(TESTCACHE)/math/complex/math_complex.td $(testlib_math_complex_any_srcs)
 
 # math::random (+any)
 testlib_math_random_any_srcs = \

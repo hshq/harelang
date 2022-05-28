@@ -1064,6 +1064,22 @@ net_uri() {
 		ascii ip net::ip strconv strings strio
 }
 
+gensrcs_math_complex() {
+	gen_srcs math::complex \
+		complex.ha \
+		$*
+}
+
+math_complex() {
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_math_complex
+	else
+		gensrcs_math_complex \
+			+test.ha
+	fi
+	gen_ssa math::complex math
+}
 
 math_random() {
 	gen_srcs math::random \
@@ -1439,6 +1455,7 @@ linux::timerfd	linux
 linux::vdso		linux
 log	linux freebsd
 math
+math::complex
 math::random
 net			linux freebsd
 net::dial
