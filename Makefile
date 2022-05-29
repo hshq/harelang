@@ -43,7 +43,7 @@ haredoc_srcs = \
 	./cmd/haredoc/sort.ha \
 	./cmd/haredoc/resolver.ha
 
-$(HARECACHE)/hare.ssa: $(hare_srcs) $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM))
+$(HARECACHE)/hare.ssa: $(hare_srcs) $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM)) scripts/version
 	@printf 'HAREC\t%s\n' "$@"
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) \
 		-D PLATFORM:str='"'"$(PLATFORM)"'"' \
@@ -51,7 +51,7 @@ $(HARECACHE)/hare.ssa: $(hare_srcs) $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM)
 		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
 		-o $@ $(hare_srcs)
 
-$(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFORM))
+$(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFORM)) scripts/version
 	@printf 'HAREC\t%s\n' "$@"
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) \
 		-D PLATFORM:str='"'"$(PLATFORM)"'"' \
