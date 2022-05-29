@@ -9,15 +9,15 @@ all:
 
 .SUFFIXES: .ha .ssa .s .o .scd .1
 .ssa.s:
-	@printf 'QBE\t$@\n'
+	@printf 'QBE\t%s\n' "$@"
 	@$(QBE) -o $@ $<
 
 .s.o:
-	@printf 'AS\t$@\n'
+	@printf 'AS\t%s\n' "$@"
 	@$(AS) -g -o $@ $<
 
 .scd.1:
-	@printf 'SCDOC\t$@\n'
+	@printf 'SCDOC\t%s\n' "$@"
 	@$(SCDOC) < $< > $@
 
 include stdlib.mk
@@ -44,7 +44,7 @@ haredoc_srcs = \
 	./cmd/haredoc/resolver.ha
 
 $(HARECACHE)/hare.ssa: $(hare_srcs) $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM))
-	@printf 'HAREC\t$@\n'
+	@printf 'HAREC\t%s\n' "$@"
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) \
 		-D PLATFORM:str='"'"$(PLATFORM)"'"' \
 		-D VERSION:str='"'"$$(./scripts/version)"'"' \
@@ -52,7 +52,7 @@ $(HARECACHE)/hare.ssa: $(hare_srcs) $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM)
 		-o $@ $(hare_srcs)
 
 $(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFORM))
-	@printf 'HAREC\t$@\n'
+	@printf 'HAREC\t%s\n' "$@"
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) \
 		-D PLATFORM:str='"'"$(PLATFORM)"'"' \
 		-D VERSION:str='"'"$$(./scripts/version)"'"' \
@@ -61,25 +61,25 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFOR
 
 .bin/hare: $(HARECACHE)/hare.o
 	@mkdir -p .bin
-	@printf 'LD\t$@\n'
+	@printf 'LD\t%s\n' "$@"
 	@$(LD) --gc-sections -T $(rtscript) -o $@ \
 		$(HARECACHE)/hare.o $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM))
 
 .bin/hare-tests: $(TESTCACHE)/hare.o
 	@mkdir -p .bin
-	@printf 'LD\t$@\n'
+	@printf 'LD\t%s\n' "$@"
 	@$(LD) -T $(rtscript) -o $@ \
 		$(TESTCACHE)/hare.o $(testlib_deps_any) $(testlib_deps_$(PLATFORM))
 
 .bin/harec2: .bin/hare $(harec_srcs)
 	@mkdir -p .bin
-	@printf 'HARE\t$@\n'
-	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) ./.bin/hare build -o .bin/harec2 ./cmd/harec
+	@printf 'HARE\t%s\n' "$@"
+	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) .bin/hare build -o .bin/harec2 cmd/harec
 
 .bin/haredoc: .bin/hare $(haredoc_srcs)
 	@mkdir -p .bin
-	@printf 'HARE\t$@\n'
-	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) ./.bin/hare build \
+	@printf 'HARE\t%s\n' "$@"
+	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) .bin/hare build \
 		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
 		-o .bin/haredoc ./cmd/haredoc
 

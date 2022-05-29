@@ -90,7 +90,7 @@ rt() {
 	gen_ssa -pfreebsd rt
 	cat <<EOF
 \$($cache)/rt/start.o: \$(STDLIB)/rt/+\$(PLATFORM)/start+\$(ARCH)-libc.s
-	@printf 'AS \t\$@\n'
+	@printf 'AS \t%s\n' "\$@"
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(PLATFORM)/start+\$(ARCH)-libc.s
 
@@ -104,46 +104,46 @@ ${stdlib}_asm = \$($cache)/rt/syscall.o \\
 	\$($cache)/rt/cpuid_native.o
 
 \$($cache)/rt/syscall.o: \$(STDLIB)/rt/+\$(PLATFORM)/syscall+\$(ARCH).s
-	@printf 'AS \t\$@\n'
+	@printf 'AS \t%s\n' "\$@"
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(PLATFORM)/syscall+\$(ARCH).s
 
 \$($cache)/rt/setjmp.o: \$(STDLIB)/rt/+\$(ARCH)/setjmp.s
-	@printf 'AS \t\$@\n'
+	@printf 'AS \t%s\n' "\$@"
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(ARCH)/setjmp.s
 
 \$($cache)/rt/longjmp.o: \$(STDLIB)/rt/+\$(ARCH)/longjmp.s
-	@printf 'AS \t\$@\n'
+	@printf 'AS \t%s\n' "\$@"
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(ARCH)/longjmp.s
 
 \$($cache)/rt/restore.o: \$(STDLIB)/rt/+\$(ARCH)/restore.s
-	@printf 'AS \t\$@\n'
+	@printf 'AS \t%s\n' "\$@"
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(ARCH)/restore.s
 
 \$($cache)/rt/fenv.o: \$(STDLIB)/rt/+\$(ARCH)/fenv.s
-	@printf 'AS \t\$@\n'
+	@printf 'AS \t%s\n' "\$@"
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(ARCH)/fenv.s
 
 \$($cache)/rt/getfp.o: \$(STDLIB)/rt/+\$(ARCH)/getfp.s
-	@printf 'AS \t\$@\n'
+	@printf 'AS \t%s\n' "\$@"
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(ARCH)/getfp.s
 
 \$($cache)/rt/cpuid_native.o: \$(STDLIB)/rt/+\$(ARCH)/cpuid_native.s
-	@printf 'AS \t\$@\n'
+	@printf 'AS \t%s\n' "\$@"
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(ARCH)/cpuid_native.s
 
 \$($cache)/rt/rt-linux.a: \$($cache)/rt/rt-linux.o \$(${stdlib}_asm)
-	@printf 'AR\t\$@\n'
+	@printf 'AS \t%s\n' "\$@"
 	@\$(AR) -csr \$@ \$($cache)/rt/rt-linux.o \$(${stdlib}_asm)
 
 \$($cache)/rt/rt-freebsd.a: \$($cache)/rt/rt-freebsd.o \$(${stdlib}_asm)
-	@printf 'AR\t\$@\n'
+	@printf 'AS \t%s\n' "\$@"
 	@\$(AR) -csr \$@ \$($cache)/rt/rt-freebsd.o \$(${stdlib}_asm)
 
 ${stdlib}_rt = \$($cache)/rt/rt-\$(PLATFORM).a

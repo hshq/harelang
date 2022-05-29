@@ -69,7 +69,7 @@ $(HARECACHE)/rt/rt-freebsd.ssa: $(stdlib_rt_freebsd_srcs) $(stdlib_rt)
 		-t$(HARECACHE)/rt/rt.td $(stdlib_rt_freebsd_srcs)
 
 $(HARECACHE)/rt/start.o: $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH)-libc.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH)-libc.s
 
@@ -83,46 +83,46 @@ stdlib_asm = $(HARECACHE)/rt/syscall.o \
 	$(HARECACHE)/rt/cpuid_native.o
 
 $(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
 
 $(HARECACHE)/rt/setjmp.o: $(STDLIB)/rt/+$(ARCH)/setjmp.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/setjmp.s
 
 $(HARECACHE)/rt/longjmp.o: $(STDLIB)/rt/+$(ARCH)/longjmp.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/longjmp.s
 
 $(HARECACHE)/rt/restore.o: $(STDLIB)/rt/+$(ARCH)/restore.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/restore.s
 
 $(HARECACHE)/rt/fenv.o: $(STDLIB)/rt/+$(ARCH)/fenv.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/fenv.s
 
 $(HARECACHE)/rt/getfp.o: $(STDLIB)/rt/+$(ARCH)/getfp.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/getfp.s
 
 $(HARECACHE)/rt/cpuid_native.o: $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 
 $(HARECACHE)/rt/rt-linux.a: $(HARECACHE)/rt/rt-linux.o $(stdlib_asm)
-	@printf 'AR\t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@$(AR) -csr $@ $(HARECACHE)/rt/rt-linux.o $(stdlib_asm)
 
 $(HARECACHE)/rt/rt-freebsd.a: $(HARECACHE)/rt/rt-freebsd.o $(stdlib_asm)
-	@printf 'AR\t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@$(AR) -csr $@ $(HARECACHE)/rt/rt-freebsd.o $(stdlib_asm)
 
 stdlib_rt = $(HARECACHE)/rt/rt-$(PLATFORM).a
@@ -2186,7 +2186,7 @@ $(TESTCACHE)/rt/rt-freebsd.ssa: $(testlib_rt_freebsd_srcs) $(testlib_rt)
 		-t$(TESTCACHE)/rt/rt.td $(testlib_rt_freebsd_srcs)
 
 $(TESTCACHE)/rt/start.o: $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH)-libc.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH)-libc.s
 
@@ -2200,46 +2200,46 @@ testlib_asm = $(TESTCACHE)/rt/syscall.o \
 	$(TESTCACHE)/rt/cpuid_native.o
 
 $(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
 
 $(TESTCACHE)/rt/setjmp.o: $(STDLIB)/rt/+$(ARCH)/setjmp.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/setjmp.s
 
 $(TESTCACHE)/rt/longjmp.o: $(STDLIB)/rt/+$(ARCH)/longjmp.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/longjmp.s
 
 $(TESTCACHE)/rt/restore.o: $(STDLIB)/rt/+$(ARCH)/restore.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/restore.s
 
 $(TESTCACHE)/rt/fenv.o: $(STDLIB)/rt/+$(ARCH)/fenv.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/fenv.s
 
 $(TESTCACHE)/rt/getfp.o: $(STDLIB)/rt/+$(ARCH)/getfp.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/getfp.s
 
 $(TESTCACHE)/rt/cpuid_native.o: $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
-	@printf 'AS \t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 
 $(TESTCACHE)/rt/rt-linux.a: $(TESTCACHE)/rt/rt-linux.o $(testlib_asm)
-	@printf 'AR\t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@$(AR) -csr $@ $(TESTCACHE)/rt/rt-linux.o $(testlib_asm)
 
 $(TESTCACHE)/rt/rt-freebsd.a: $(TESTCACHE)/rt/rt-freebsd.o $(testlib_asm)
-	@printf 'AR\t$@\n'
+	@printf 'AS \t%s\n' "$@"
 	@$(AR) -csr $@ $(TESTCACHE)/rt/rt-freebsd.o $(testlib_asm)
 
 testlib_rt = $(TESTCACHE)/rt/rt-$(PLATFORM).a
