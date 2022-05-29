@@ -33,7 +33,7 @@ fn emit_tty(ctx: *context) (void | error) = {
 	case void => void;
 	};
 
-	emit_submodules(ctx)?;
+	emit_submodules_tty(ctx)?;
 
 	// XXX: Should we emit the dependencies, too?
 	for (let i = 0z; i < len(summary.types); i += 1) {
@@ -50,6 +50,35 @@ fn emit_tty(ctx: *context) (void | error) = {
 	};
 	for (let i = 0z; i < len(summary.funcs); i += 1) {
 		details_tty(ctx, summary.funcs[i])?;
+	};
+};
+
+fn emit_submodules_tty(ctx: *context) (void | error) = {
+	const submodules = submodules(ctx)?;
+	defer strings::freeall(submodules);
+
+	if (len(submodules) != 0) {
+		fmt::fprintln(ctx.out)?;
+		if (len(ctx.ident) == 0) {
+			fmt::fprintln(ctx.out,
+				"\x1b[1m" "// Modules" "\x1b[0m")?;
+		} else {
+			fmt::fprintln(ctx.out,
+				"\x1b[1m" "// Submodules" "\x1b[0m")?;
+		};
+		for (let i = 0z; i < len(submodules); i += 1) {
+			let submodule = if (len(ctx.ident) != 0) {
+				const s = unparse::identstr(ctx.ident);
+				defer free(s);
+				yield strings::concat(s, "::", submodules[i]);
+			} else {
+				yield strings::dup(submodules[i]);
+			};
+			defer free(submodule);
+
+			fmt::fprintfln(ctx.out,
+				"\x1b[1m" "// - [[{}]]" "\x1b[0m", submodule)?;
+		};
 	};
 };
 

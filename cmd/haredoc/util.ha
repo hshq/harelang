@@ -1,6 +1,9 @@
 // License: GPL-3.0
+// (c) 2022 Bryan Torres <b@torresjrjr.com>
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
 use fmt;
+use hare::ast;
+use hare::module;
 use io;
 use strings;
 use strio;
@@ -31,4 +34,37 @@ fn trim_comment(s: str) str = {
 		strio::concat(&trimmed, strings::trimprefix(line, " "), "\n")!;
 	};
 	return strings::dup(strio::string(&trimmed));
+};
+
+fn submodules(ctx: *context) ([]str | error) = {
+	let identpath = module::identpath(ctx.ident);
+	defer free(identpath);
+
+	let submodules: []str = [];
+	for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
+		let dir = ctx.version.subdirs[i];
+		// XXX: the list of reserved directory names is not yet
+		// finalized. See https://todo.sr.ht/~sircmpwn/hare/516
+		if (dir == "contrib") continue;
+		if (dir == "cmd") continue;
+		if (dir == "docs") continue;
+		if (dir == "ext") continue;
+		if (dir == "vendor") continue;
+		if (dir == "scripts") continue;
+
+		let submod = [identpath, dir]: ast::ident;
+		match (module::lookup(ctx.mctx, submod)) {
+		case let ver: module::version =>
+			// TODO: free version data
+			void;
+		case module::notfound =>
+			continue;
+		case let err: module::error =>
+			return err;
+		};
+
+		append(submodules, dir);
+	};
+
+	return submodules;
 };

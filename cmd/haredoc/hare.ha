@@ -33,7 +33,7 @@ fn emit_hare(ctx: *context) (void | error) = {
 	case void => void;
 	};
 
-	emit_submodules(ctx)?;
+	emit_submodules_hare(ctx)?;
 
 	// XXX: Should we emit the dependencies, too?
 	for (let i = 0z; i < len(summary.types); i += 1) {
@@ -73,37 +73,9 @@ fn emit_hare(ctx: *context) (void | error) = {
 	};
 };
 
-fn emit_submodules(ctx: *context) (void | error) = {
-	let identpath = module::identpath(ctx.ident);
-	defer free(identpath);
-
-	let submodules: []str = [];
+fn emit_submodules_hare(ctx: *context) (void | error) = {
+	const submodules = submodules(ctx)?;
 	defer strings::freeall(submodules);
-
-	for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
-		let dir = ctx.version.subdirs[i];
-		// XXX: the list of reserved directory names is not yet
-		// finalized. See https://todo.sr.ht/~sircmpwn/hare/516
-		if (dir == "contrib") continue;
-		if (dir == "cmd") continue;
-		if (dir == "docs") continue;
-		if (dir == "ext") continue;
-		if (dir == "vendor") continue;
-		if (dir == "scripts") continue;
-
-		let submod = [identpath, dir]: ast::ident;
-		match (module::lookup(ctx.mctx, submod)) {
-		case let ver: module::version =>
-			// TODO: free version data
-			void;
-		case module::notfound =>
-			continue;
-		case let err: module::error =>
-			return err;
-		};
-
-		append(submodules, dir);
-	};
 
 	if (len(submodules) != 0) {
 		fmt::fprintln(ctx.out)?;
