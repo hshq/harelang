@@ -78,6 +78,7 @@ const dynamic_vt_w: io::vtable = io::vtable {
 	seeker = &seek,
 	copier = &copy,
 	writer = &dynamic_write,
+	closer = &dynamic_close,
 	...
 };
 
@@ -86,6 +87,7 @@ const dynamic_vt_rw: io::vtable = io::vtable {
 	copier = &copy,
 	reader = &read,
 	writer = &dynamic_write,
+	closer = &dynamic_close,
 	...
 };
 
