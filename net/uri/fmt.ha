@@ -33,7 +33,7 @@ export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
 		n += ip::fmt(out, addr)?;
 	};
 	if (u.port != 0) {
-		n += fmt::fprintf(out, ":{}")?;
+		n += fmt::fprintf(out, ":{}", u.port)?;
 	};
 	n += fmt::fprint(out, u.path)?;
 	if (len(u.query) > 0) {
