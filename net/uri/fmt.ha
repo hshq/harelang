@@ -37,6 +37,7 @@ export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
 	};
 	n += fmt::fprint(out, u.path)?;
 	if (len(u.query) > 0) {
+		n += fmt::fprint(out, "?")?;
 		n += percent_encode(out, u.query)?;
 	};
 	if (len(u.fragment) > 0) {
