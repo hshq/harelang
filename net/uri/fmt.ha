@@ -20,7 +20,8 @@ export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
 	};
 	match (u.host) {
 	case let host: str =>
-		if (len(host) > 0) {
+		// file scheme is allowed an empty host
+		if (len(host) > 0 || u.scheme == "file") {
 			if (!slashes_w) {
 				n += fmt::fprint(out, "//")?;
 			};
