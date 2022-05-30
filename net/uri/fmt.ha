@@ -30,7 +30,7 @@ export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
 		if (!slashes_w) {
 			n += fmt::fprint(out, "//")?;
 		};
-		n += ip::fmt(out, addr)?;
+		n += fmtaddr(out, addr)?;
 	};
 	if (u.port != 0) {
 		n += fmt::fprintf(out, ":{}", u.port)?;
@@ -44,6 +44,19 @@ export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
 		n += percent_encode(out, u.fragment)?;
 	};
 
+	return n;
+};
+
+fn fmtaddr(out: io::handle, addr: ip::addr) (size | io::error) = {
+	let n = 0z;
+	match (addr) {
+	case let addr: ip::addr4 =>
+		n += ip::fmt(out, addr)?;
+	case let addr: ip::addr6 =>
+		n += fmt::fprintf(out, "[")?;
+		n += ip::fmt(out, addr)?;
+		n += fmt::fprintf(out, "]")?;
+	};
 	return n;
 };
 
