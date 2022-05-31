@@ -152,6 +152,7 @@ fn plan_execute(plan: *plan, verbose: bool) (void | !exec::exit_status) = {
 			let item = plan.environ[i];
 			fmt::errorf("# {}=", item.0)!;
 			shlex::quote(os::stderr, item.1)!;
+			fmt::errorln()!;
 		};
 	};
 
