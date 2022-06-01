@@ -139,7 +139,7 @@ export fn move(fs: *fs, oldpath: str, newpath: str) (void | error) = {
 
 // Returns an iterator for a path, which yields the contents of a directory.
 // Pass empty string to yield from the root. The order in which entries are
-// returned is undefined.
+// returned is undefined. The return value must be finished with [[fs::finish]].
 export fn iter(fs: *fs, path: str) (*iterator | error) = {
 	match (fs.iter) {
 	case null =>
