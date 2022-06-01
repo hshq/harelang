@@ -289,6 +289,7 @@ fn scan_directory(
 		let isdir = inputs[i].0, path = inputs[i].3;
 		if (isdir) {
 			let iter = fs::iter(ctx.fs, path)?;
+			defer fs::finish(iter);
 			scan_directory(ctx, ver, sha, path, iter)?;
 		} else {
 			let path = fs::resolve(ctx.fs, path);

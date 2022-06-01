@@ -37,6 +37,7 @@ fn _walk(
 	case let iter: *fs::iterator =>
 		yield iter;
 	};
+	defer fs::finish(iter);
 
 	// TODO: Refactor me to use path::buffer
 	for (true) {
