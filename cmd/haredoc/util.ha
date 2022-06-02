@@ -1,5 +1,5 @@
 // License: GPL-3.0
-// (c) 2022 Bryan Torres <b@torresjrjr.com>
+// (c) 2022 Byron Torres <b@torresjrjr.com>
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
 use fmt;
 use hare::ast;
