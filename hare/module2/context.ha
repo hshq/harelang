@@ -1,4 +1,3 @@
-use ascii;
 use dirs;
 use os;
 use fs;
@@ -75,5 +74,5 @@ export fn context_finish(ctx: *context) void = {
 fn tag_cmp(a: const *void, b: const *void) int = {
 	const a = a: const *tag;
 	const b = b: const *tag;
-	return ascii::strcmp(a.name, b.name) as int;
+	return strings::compare(a.name, b.name);
 };

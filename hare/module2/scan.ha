@@ -1,4 +1,3 @@
-use ascii;
 use crypto::sha256;
 use fs;
 use hare::ast;
@@ -45,7 +44,7 @@ export fn scan(ctx: *context, ident: ast::ident, path: str) (module | error) = {
 		append(state.mod.inputs, file);
 	};
 
-	hash::finish(&state.abi, state.mod.abi);
+	hash::sum(&state.abi, state.mod.abi);
 	return state.mod;
 };
 
@@ -63,7 +62,7 @@ export fn scanfile(ctx: *context, path: str) (module | error) = {
 	};
 	const file = scaninput(ctx, &state, path)?;
 	append(state.mod.inputs, file);
-	hash::finish(&state.abi, state.mod.abi);
+	hash::sum(&state.abi, state.mod.abi);
 	return state.mod;
 };
 
@@ -153,7 +152,7 @@ fn scaninput(ctx: *context, state: *scan_state, path: str) (file | error) = {
 
 fn scanhare(ctx: *context, state: *scan_state, path: str) (file | error) = {
 	const input = fs::open(ctx.fs, path)?;
-	defer io::close(input);
+	defer io::close(input)!;
 	let sha = sha256::sha256();
 	const input = &io::tee(input, &sha);
 	scanabi(state, path, input)?;
@@ -167,13 +166,13 @@ fn scanhare(ctx: *context, state: *scan_state, path: str) (file | error) = {
 		mtime = st.mtime,
 		...
 	};
-	hash::finish(&sha, result.hash);
+	hash::sum(&sha, result.hash);
 	return result;
 };
 
 fn scanasm(ctx: *context, mod: *module, path: str) (file | error) = {
 	const input = fs::open(ctx.fs, path)?;
-	defer io::close(input);
+	defer io::close(input)!;
 	let sha = sha256::sha256();
 	io::copy(&sha, input)?;
 
@@ -186,7 +185,7 @@ fn scanasm(ctx: *context, mod: *module, path: str) (file | error) = {
 		mtime = st.mtime,
 		...
 	};
-	hash::finish(&sha, result.hash);
+	hash::sum(&sha, result.hash);
 	return result;
 };
 
@@ -209,5 +208,5 @@ fn included(ctx: *context, path: str, isdir: bool) bool = {
 fn strcmp(a: const *void, b: const *void) int = {
 	const a = a: const *str;
 	const b = b: const *str;
-	return ascii::strcmp(*a, *b) as int;
+	return strings::compare(*a, *b);
 };

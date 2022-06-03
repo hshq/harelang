@@ -1,4 +1,3 @@
-use ascii;
 use bufio;
 use crypto::sha256;
 use fmt;
@@ -10,6 +9,7 @@ use hash;
 use io;
 use os;
 use sort;
+use strings;
 
 // Scans from an I/O handle, adding any dependencies to the module depends, and
 // updating the module ABI hash.
@@ -22,7 +22,7 @@ fn scanabi(state: *scan_state, path: str, in: io::handle) (void | error) = {
 	let mod = &state.mod;
 	let lexer = lex::init(&bufin, path);
 	let unit = parse::subunit(&lexer)?;
-	defer ast::subunit_free(unit);
+	defer ast::subunit_finish(unit);
 
 	for (let i = 0z; i < len(unit.imports); i += 1) {
 		if (!havedep(&mod.depends, unit.imports[i].ident)) {
@@ -107,7 +107,7 @@ fn decl_cmp(a: const *void, b: const *void) int = {
 	const a = a: const *ast::decl;
 	const b = b: const *ast::decl;
 	const id_a = decl_ident(a), id_b = decl_ident(b);
-	return ascii::strcmp(id_a[len(id_a) - 1], id_b[len(id_b) - 1]) as int;
+	return strings::compare(id_a[len(id_a) - 1], id_b[len(id_b) - 1]);
 };
 
 fn decl_ident(decl: *ast::decl) ast::ident = {

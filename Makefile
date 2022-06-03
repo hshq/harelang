@@ -81,7 +81,7 @@ $(BINOUT)/harec2: $(BINOUT)/hare $(harec_srcs)
 	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build -o $(BINOUT)/harec2 cmd/harec
 
 $(BINOUT)/hare2: .bin/hare $(hare2_srcs)
-	@mkdir -p .bin
+	@mkdir -p $(BINOUT)
 	@printf 'HARE\t$@\n'
 	@env HAREPATH=. ./.bin/hare build -o .bin/hare2 ./cmd/hare2
 

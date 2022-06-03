@@ -34,7 +34,7 @@ export fn load(ctx: *context, ident: ast::ident) ([]module | error) = {
 	case =>
 		return [];
 	};
-	defer io::close(in);
+	defer io::close(in)!;
 
 	// XXX: Reduce unnecessary allocations
 	// https://todo.sr.ht/~sircmpwn/hare/562
@@ -76,20 +76,18 @@ export fn load(ctx: *context, ident: ast::ident) ([]module | error) = {
 			};
 			first = false;
 
-			// XXX: https://todo.sr.ht/~sircmpwn/hare/596
 			mod = module { ... };
-			const cachekey = hex::decode(args)!;
-			defer free(cachekey);
-			mod.cachekey[..] = cachekey[..];
+			const decoder = hex::newdecoder(&bufio::fixed(
+					strings::toutf8(args), io::mode::READ));
+			io::readall(&decoder, mod.cachekey)!;
 		case "base" =>
 			mod.base = strings::dup(args);
 		case "tags" =>
 			yield; // TODO
 		case "abi" =>
-			// XXX: https://todo.sr.ht/~sircmpwn/hare/596
-			const abi = hex::decode(args)!;
-			defer free(abi);
-			mod.abi[..] = abi[..];
+			const decoder = hex::newdecoder(&bufio::fixed(
+					strings::toutf8(args), io::mode::READ));
+			io::readall(&decoder, mod.abi)!;
 		case "directory" =>
 			const args = strings::cut(args, " ");
 			const mtime = time::from_unix(strconv::stoi64(args.0)!);
@@ -102,9 +100,6 @@ export fn load(ctx: *context, ident: ast::ident) ([]module | error) = {
 			const args = strings::splitn(args, " ", 3);
 			defer free(args);
 
-			// XXX: https://todo.sr.ht/~sircmpwn/hare/596
-			const hash = hex::decode(args[0])!;
-			defer free(hash);
 			const mtime = time::from_unix(strconv::stoi64(args[1])!);
 			const path = strings::dup(args[2]);
 
@@ -118,18 +113,19 @@ export fn load(ctx: *context, ident: ast::ident) ([]module | error) = {
 				ftype = ftype,
 				...
 			};
-			input.hash[..] = hash[..];
+			const decoder = hex::newdecoder(&bufio::fixed(
+					strings::toutf8(args[0]),
+					io::mode::READ));
+			io::readall(&decoder, input.hash)!;
 			append(mod.inputs, input);
 		case "dependency" =>
 			const args = strings::cut(args, " ");
-
-			// XXX: https://todo.sr.ht/~sircmpwn/hare/596
 			const ident = parse::identstr(args.0)!;
-			const abi = hex::decode(args.1)!;
-			defer free(abi);
-
 			let dep = dependency { ident = ident, ... };
-			dep.abi[..] = abi[..];
+			const decoder = hex::newdecoder(&bufio::fixed(
+					strings::toutf8(args.1),
+					io::mode::READ));
+			io::readall(&decoder, dep.abi)!;
 			append(mod.depends, dep);
 		case => abort("Invalid cache manifest");
 		};
@@ -156,7 +152,7 @@ export fn store(ctx: *context, mods: []module) (void | error) = {
 	let buf = path::init();
 	path::set(&buf, cache)!;
 	identpath(&buf, ident)!;
-	fs::mkdirs(ctx.fs, path::string(&buf))?;
+	fs::mkdirs(ctx.fs, path::string(&buf), 0o755)?;
 	path::add(&buf, ".manifest")!;
 
 	let mpath = "";
@@ -180,11 +176,11 @@ export fn store(ctx: *context, mods: []module) (void | error) = {
 			return err;
 		};
 	};
-	defer io::close(out);
+	defer io::close(out)!;
 
 	let wbuf: [os::BUFSIZ]u8 = [0...];
 	let out = bufio::buffered(out, [], wbuf);
-	defer io::close(&out);
+	defer io::close(&out)!;
 	fmt::fprintln(&out, "version 2")?;
 
 	for (let i = 0z; i < len(mods); i += 1) {

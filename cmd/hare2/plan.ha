@@ -120,8 +120,8 @@ fn sched_hare_object(
 
 	let cmd = mkcmd("HAREC", "harec", "-o", ssa);
 	const ctx = plan.ctx;
-	if (len(mod.namespace) != 0) {
-		const version = hex::encodestr(mod.hash);
+	if (len(mod.ident) != 0) {
+		const version = hex::encodestr(mod.cachekey);
 		defer free(version);
 		let uscoreid = module2::identuscore(mod.ident);
 		defer free(uscoreid);

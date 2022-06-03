@@ -1,0 +1,2 @@
+- may want to move cache pieces out of stdlib and into cmd/hare2
+- different approach for caching the main module?

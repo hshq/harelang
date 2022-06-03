@@ -1,4 +1,3 @@
-use ascii;
 use bytes;
 use crypto::sha256;
 use fs;
@@ -66,11 +65,11 @@ fn _iscurrent(ctx: *context, mod: *module) (bool | error) = {
 	for (let i = 0z; i < len(mod.inputs); i += 1) {
 		const input = &mod.inputs[i];
 		const file = fs::open(ctx.fs, input.path)?;
-		defer io::close(file);
+		defer io::close(file)!;
 		let sha = sha256::sha256();
 		io::copy(&sha, file)?;
 		let hash: [sha256::SIZE]u8 = [0...];
-		hash::finish(&sha, hash);
+		hash::sum(&sha, hash);
 		if (!bytes::equal(hash, input.hash)) {
 			current = false;
 			break;
@@ -105,7 +104,7 @@ fn isdircurrent(ctx: *context, mod: *module, path: str) (bool | error) = {
 				...
 			};
 			const item = sort::search(mod.inputs, size(file), &key, &filecmp);
-			if (item == null) {
+			if (item is void) {
 				return false;
 			};
 		} else if (fs::isdir(ent.ftype)) {
@@ -114,7 +113,7 @@ fn isdircurrent(ctx: *context, mod: *module, path: str) (bool | error) = {
 				...
 			};
 			const item = sort::search(mod.dirs, size(directory), &key, &dircmp);
-			if (item == null) {
+			if (item is void) {
 				return false;
 			};
 		} else if (fs::islink(ent.ftype)) {
@@ -127,13 +126,13 @@ fn isdircurrent(ctx: *context, mod: *module, path: str) (bool | error) = {
 fn filecmp(a: const *void, b: const *void) int = {
 	const a = a: const *file;
 	const b = b: const *file;
-	return ascii::strcmp(a.path, b.path) as int;
+	return strings::compare(a.path, b.path);
 };
 
 fn dircmp(a: const *void, b: const *void) int = {
 	const a = a: const *directory;
 	const b = b: const *directory;
-	return ascii::strcmp(a.path, b.path) as int;
+	return strings::compare(a.path, b.path);
 };
 
 // XXX: Temporarily exported
@@ -170,6 +169,5 @@ export fn cachekey(
 		hash::write(&key, [0]);
 	};
 	hash::write(&key, [0]);
-
-	hash::finish(&key, out);
+	hash::sum(&key, out);
 };
