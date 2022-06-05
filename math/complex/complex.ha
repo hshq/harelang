@@ -73,15 +73,34 @@ export fn c64to128(z: c64) c128 = (z.0: f64, z.1: f64);
 // Truncates a [[c128]] to a [[c64]]. Precision may be lost.
 export fn c128to64(z: c128) c64 = (z.0: f32, z.1: f32);
 
+// Adds two complex numbers
+export fn addc64(a: c64, b: c64) c64 = (a.0 + b.0, a.1 + b.1);
+
 // Adds two complex numbers.
 export fn addc128(a: c128, b: c128) c128 = (a.0 + b.0, a.1 + b.1);
+
+// Subtracts two complex numbers.
+export fn subc64(a: c64, b: c64) c64 = (a.0 - b.0, a.1 - b.1);
 
 // Subtracts two complex numbers.
 export fn subc128(a: c128, b: c128) c128 = (a.0 - b.0, a.1 - b.1);
 
 // Multiplies two complex numbers.
+export fn mulc64(a: c64, b: c64) c64 =
+	(a.0 * b.0 - a.1 * b.1, a.1 * b.0 + a.0 * b.1);
+
+// Multiplies two complex numbers.
 export fn mulc128(a: c128, b: c128) c128 =
 	(a.0 * b.0 - a.1 * b.1, a.1 * b.0 + a.0 * b.1);
+
+// Divides two complex numbers.
+export fn divc64(a: c64, b: c64) c64 = {
+	const denom = b.0 * b.0 + b.1 * b.1;
+	return (
+		(a.0 * b.0 + a.1 * b.1) / denom,
+		(a.1 * b.0 - a.0 * b.1) / denom,
+	);
+};
 
 // Divides two complex numbers.
 export fn divc128(a: c128, b: c128) c128 = {
@@ -142,6 +161,9 @@ export fn isnan(z: c128) bool =
 export fn logc128(z: c128) c128 = (math::logf64(absc128(z)), argc128(z));
 
 // Negates z.
+export fn negc64(z: c64) c64 = (-z.0, -z.1);
+
+// Negates z.
 export fn negc128(z: c128) c128 = (-z.0, -z.1);
 
 // Creates a new [[c128]] from the polar coordinates (r, theta).
@@ -178,6 +200,12 @@ export fn powc128(a: c128, b: c128) c128 = {
 	};
 	return rectc128(r, theta);
 };
+
+// Projects z onto the surface of a Riemann Sphere. If z is finite, it projects
+// to itself. If z is infinite, it projects to positive infinity on the real
+// axis.
+export fn projc64(z: c64) c64 =
+	if (!isinf(c64to128(z))) z else (math::INF, math::copysignf32(0f32, z.1));
 
 // Projects z onto the surface of a Riemann Sphere. If z is finite, it projects
 // to itself. If z is infinite, it projects to positive infinity on the real
