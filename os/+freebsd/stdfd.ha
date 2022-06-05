@@ -44,5 +44,5 @@ export def BUFSIZ: size = 4096; // 4 KiB
 
 @fini fn fini_stdfd() void = {
 	// Flush any pending writes
-	io::close(stdout)!;
+	io::close(stdout): void;
 };
