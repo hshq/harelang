@@ -1,7 +1,7 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 use errors;
-use io;
+use net;
 use net::ip;
 use net::udp;
 use time;
@@ -26,9 +26,9 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 	};
 
 	let socket4 = udp::listen(ip::ANY_V4, 0)?;
-	defer io::close(socket4)!;
+	defer net::close(socket4)!;
 	let socket6 = udp::listen(ip::ANY_V6, 0)?;
-	defer io::close(socket6)!;
+	defer net::close(socket6)!;
 	const pollfd: [_]poll::pollfd = [
 		poll::pollfd {
 			fd = socket4,

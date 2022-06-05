@@ -15,7 +15,7 @@ use types;
 export fn connect(
 	addr: addr,
 	options: connect_option...
-) (io::file | net::error) = {
+) (net::socket | net::error) = {
 	let sockaddr = match (to_native(addr)) {
 	case let a: rt::sockaddr =>
 		yield a;
@@ -49,7 +49,7 @@ export fn connect(
 export fn listen(
 	addr: addr,
 	options: listen_option...
-) (io::file | net::error) = {
+) (net::socket | net::error) = {
 	let sockaddr = match (to_native(addr)) {
 	case let a: rt::sockaddr =>
 		yield a;

@@ -5,8 +5,11 @@ use net;
 
 // Accepts the next connection from a socket. Blocks until a new connection is
 // available. This is a convenience wrapper around [[net::accept]].
-export fn accept(sock: io::file, flags: net::sockflags...) (io::file | net::error) = net::accept(sock, flags...);
+export fn accept(
+	sock: net::socket,
+	flags: net::sockflags...
+) (net::socket | net::error) = net::accept(sock, flags...);
 
 // Shuts down a listening socket. This is a convenience wrapper around
 // [[net::shutdown]].
-export fn shutdown(sock: io::file) void = net::shutdown(sock);
+export fn shutdown(sock: net::socket) void = net::shutdown(sock);

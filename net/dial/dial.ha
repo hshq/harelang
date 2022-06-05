@@ -1,10 +1,9 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
-use io;
 use net;
 
 // Dials a remote address, establishing a connection and returning the resulting
-// [[io::file]]. The proto parameter should be the transport protocol (e.g.
+// [[net::socket]]. The proto parameter should be the transport protocol (e.g.
 // "tcp"), the address parameter should be the remote address, and the service
 // should be the name of the service, or the default port to use.
 //
@@ -35,7 +34,7 @@ export fn dial(
 	proto: str,
 	address: str,
 	service: str,
-) (io::file | error) = {
+) (net::socket | error) = {
 	for (let i = 0z; i < len(default_protocols); i += 1) {
 		const p = default_protocols[i];
 		if (p.name == proto) {

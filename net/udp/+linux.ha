@@ -13,7 +13,7 @@ export fn connect(
 	dest: ip::addr,
 	port: u16,
 	options: connect_option...
-) (io::file | net::error) = {
+) (net::socket | net::error) = {
 	const family = match (dest) {
 	case ip::addr4 =>
 		yield rt::AF_INET: int;
@@ -48,7 +48,7 @@ export fn listen(
 	addr: ip::addr,
 	port: u16,
 	options: listen_option...
-) (io::file | net::error) = {
+) (net::socket | net::error) = {
 	const family = match (addr) {
 	case ip::addr4 =>
 		yield rt::AF_INET: int;
@@ -101,7 +101,7 @@ export fn listen(
 };
 
 // Sends a UDP packet to the destination previously specified by [[connect]].
-export fn send(sock: io::file, buf: []u8) (size | net::error) = {
+export fn send(sock: net::socket, buf: []u8) (size | net::error) = {
 	match (rt::send(sock, buf: *[*]u8, len(buf), 0)) {
 	case let sz: size =>
 		return sz;
@@ -112,7 +112,7 @@ export fn send(sock: io::file, buf: []u8) (size | net::error) = {
 
 // Sends a UDP packet using this socket.
 export fn sendto(
-	sock: io::file,
+	sock: net::socket,
 	buf: []u8,
 	dest: ip::addr,
 	port: u16,
@@ -129,7 +129,7 @@ export fn sendto(
 
 // Receives a UDP packet from a bound socket.
 export fn recvfrom(
-	sock: io::file,
+	sock: net::socket,
 	buf: []u8,
 	src: nullable *ip::addr,
 	port: nullable *u16,

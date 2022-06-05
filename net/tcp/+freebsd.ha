@@ -14,7 +14,7 @@ export fn connect(
 	addr: ip::addr,
 	port: u16,
 	options: connect_option...
-) (io::file | net::error) = {
+) (net::socket | net::error) = {
 	const sockaddr = ip::to_native(addr, port);
 	const family = match (addr) {
 	case ip::addr4 =>
@@ -59,7 +59,7 @@ export fn listen(
 	addr: ip::addr,
 	port: u16,
 	options: listen_option...
-) (io::file | net::error) = {
+) (net::socket | net::error) = {
 	const sockaddr = ip::to_native(addr, port);
 	const family = match (addr) {
 	case ip::addr4 =>
@@ -133,7 +133,7 @@ export fn listen(
 
 // Returns the remote address for a given connection, or void if none is
 // available.
-export fn peeraddr(peer: io::file) ((ip::addr, u16) | void) = {
+export fn peeraddr(peer: net::socket) ((ip::addr, u16) | void) = {
 	let sn = rt::sockaddr {...};
 	let sz = size(rt::sockaddr): u32;
 	if (rt::getpeername(peer, &sn, &sz) is rt::errno) {

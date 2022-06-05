@@ -1,8 +1,6 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
-use errors;
-use io;
 use net;
 use net::dns;
 
@@ -33,7 +31,7 @@ export fn strerror(err: error) const str = {
 };
 
 // A dialer is a function which implements dial for a specific protocol.
-export type dialer = fn(addr: str, service: str) (io::file | error);
+export type dialer = fn(addr: str, service: str) (net::socket | error);
 
 type protocol = struct {
 	name: str,
