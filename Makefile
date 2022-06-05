@@ -80,6 +80,7 @@ $(BINOUT)/haredoc: $(BINOUT)/hare $(haredoc_srcs)
 	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
 	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build \
+		-D PLATFORM:str='"'"$(PLATFORM)"'"' \
 		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
 		-o $(BINOUT)/haredoc ./cmd/haredoc
 

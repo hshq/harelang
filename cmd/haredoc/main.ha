@@ -48,11 +48,16 @@ export fn main() void = {
 	};
 	let template = true;
 	let show_undocumented = false;
+	let tags = default_tags();
+	defer module::tags_free(tags);
+
 	const help: [_]getopt::help = [
 		"reads and formats Hare documentation",
 		('F', "format", "specify output format (hare, tty, html, or gemtext)"),
-		('t', "disable HTML template (requires postprocessing)"),
+		('T', "tags...", "set build tags"),
+		('X', "tags...", "unset build tags"),
 		('a', "show undocumented members (only applies to -Fhare and -Ftty)"),
+		('t', "disable HTML template (requires postprocessing)"),
 		"[identifiers...]",
 	];
 	const cmd = getopt::parse(os::args, help...);
@@ -74,6 +79,20 @@ export fn main() void = {
 			case =>
 				fmt::fatal("Invalid format", opt.1);
 			};
+		case 'T' =>
+			tags = match (addtags(tags, opt.1)) {
+			case void =>
+				fmt::fatal("Error parsing tags");
+			case let t: []module::tag =>
+				yield t;
+			};
+		case 'X' =>
+			tags = match (deltags(tags, opt.1)) {
+			case void =>
+				fmt::fatal("Error parsing tags");
+			case let t: []module::tag =>
+				yield t;
+			};
 		case 't' =>
 			template = false;
 		case 'a' =>
@@ -90,9 +109,6 @@ export fn main() void = {
 
 	let decls: []ast::decl = [];
 	defer free(decls);
-
-	let tags = default_tags();
-	defer module::tags_free(tags);
 
 	let ctx = module::context_init(tags, [], default_harepath());
 	defer module::context_finish(&ctx);
