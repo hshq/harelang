@@ -8,7 +8,3 @@ export fn accept(
 	sock: net::socket,
 	flags: net::sockflags...
 ) (net::socket | net::error) = net::accept(sock, flags...);
-
-// Shuts down a listening socket. This is a convenience wrapper around
-// [[net::shutdown]].
-export fn shutdown(sock: net::socket) void = net::shutdown(sock);

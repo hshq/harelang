@@ -3,12 +3,8 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2022 Noah Pederson <noah@packetlost.dev>
 use errors;
-use fmt;
 use io;
-use net::ip;
-use os;
 use rt;
-use strings;
 
 // A network socket.
 export type socket = io::file;
@@ -40,11 +36,6 @@ export fn accept(sock: socket, flags: sockflags...) (socket | error) = {
 		yield fd;
 	};
 	return io::fdopen(fd);
-};
-
-// Shuts down a listening socket.
-export fn shutdown(sock: socket) void = {
-	io::close(sock)!;
 };
 
 fn msg_to_native(msg: *msghdr) *rt::msghdr = {
@@ -80,4 +71,19 @@ export fn recvmsg(sock: socket, msg: *msghdr) (size | error) = {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	};
+};
+
+// Closes a [[socket]]. No further operations against this socket are permitted
+// after calling this function. Closing a socket can fail only under certain
+// conditions (for example, closing a socket twice, or an interrupted syscall).
+// However, the user should not attempt to close the file again on failure - at
+// best the user should print a diagnostic message and move on. See close(2) for
+// details.
+//
+// On FreeBSD, this function is an alias for [[io::close]].
+export fn close(sock: socket) (void | error) = match (io::close(sock)) {
+case void => void;
+case io::underread => abort();
+case let err: errors::error =>
+	yield err;
 };
