@@ -198,7 +198,7 @@ export fn logf64(x: f64) f64 = {
 	const L7 = 1.479819860511658591e-01; // 3fc2f112 df3e5244
 
 	// special cases
-	if (isnan(x) || isposinf(x)) {
+	if (isnan(x) || x == INF) {
 		return x;
 	} else if (x < 0f64) {
 		return NAN;
@@ -237,8 +237,8 @@ export fn logf64(x: f64) f64 = {
 	assert(logf64(E) == 1f64);
 	assert(logf64(54.598150033144239078110261202860878402790f64) == 4f64);
 	assert(isnan(logf64(-1f64)));
-	assert(isposinf(logf64(INF)));
-	assert(isneginf(logf64(0f64)));
+	assert(logf64(INF) == INF);
+	assert(logf64(0f64) == -INF);
 	assert(isnan(logf64(NAN)));
 };
 
@@ -364,7 +364,7 @@ export fn log1pf64(x: f64) f64 = {
 		return NAN;
 	} else if (x == -1f64) {
 		return -INF;
-	} else if (isposinf(x)) {
+	} else if (x == INF) {
 		return INF;
 	};
 
@@ -551,9 +551,9 @@ export fn expf64(x: f64) f64 = {
 	const underflow = -7.45133219101941108420e+02;
 	const near_zero = 1f64 / ((1i64 << 28i64): f64);
 
-	if (isnan(x) || isposinf(x)) {
+	if (isnan(x) || x == INF) {
 		return x;
-	} else if (isneginf(x)) {
+	} else if (x == -INF) {
 		return 0f64;
 	} else if (x > overflow) {
 		return INF;
@@ -582,9 +582,9 @@ export fn exp2f64(x: f64) f64 = {
 	const overflow = 1.0239999999999999e+03;
 	const underflow = -1.0740e+03;
 
-	if (isnan(x) || isposinf(x)) {
+	if (isnan(x) || x == INF) {
 		return x;
-	} else if (isneginf(x)) {
+	} else if (x == -INF) {
 		return 0f64;
 	} else if (x > overflow) {
 		return INF;
@@ -700,7 +700,7 @@ export fn exp2f64(x: f64) f64 = {
 export fn sqrtf64(x: f64) f64 = {
 	if (x == 0f64) {
 		return x;
-	} else if (isnan(x) || isposinf(x)) {
+	} else if (isnan(x) || x == INF) {
 		return x;
 	} else if (x < 0f64) {
 		return NAN;
@@ -771,7 +771,7 @@ export fn sqrtf64(x: f64) f64 = {
 	assert(sqrtf64(powf64(123f64, 2f64)) == 123f64);
 	assert(sqrtf64(0f64) == 0f64);
 	assert(isnan(sqrtf64(NAN)));
-	assert(isposinf(sqrtf64(INF)));
+	assert(sqrtf64(INF) == INF);
 	assert(isnan(sqrtf64(-2f64)));
 };
 
@@ -811,12 +811,12 @@ export fn powf64(x: f64, p: f64) f64 = {
 	} else if (isinf(p)) {
 		if (x == -1f64) {
 			return 1f64;
-		} else if ((absf64(x) < 1f64) == isposinf(p)) {
+		} else if ((absf64(x) < 1f64) == (p == INF)) {
 			return 0f64;
 		};
 		return INF;
 	} else if (isinf(x)) {
-		if (isneginf(x)) {
+		if (x == -INF) {
 			return powf64(-0f64, -p);
 		} else if (p < 0f64) {
 			return 0f64;
@@ -930,17 +930,17 @@ export fn powf64(x: f64, p: f64) f64 = {
 	// pow(x, NaN) = NaN
 	assert(isnan(powf64(123f64, NAN)));
 	// pow(±0, y) = ±Inf for y an odd integer < 0
-	assert(isposinf(powf64(0f64, -3f64)));
-	assert(isneginf(powf64(-0f64, -3f64)));
+	assert(powf64(0f64, -3f64) == INF);
+	assert(powf64(-0f64, -3f64) == -INF);
 	// pow(±0, -Inf) = +Inf
-	assert(isposinf(powf64(0f64, -INF)));
-	assert(isposinf(powf64(-0f64, -INF)));
+	assert(powf64(0f64, -INF) == INF);
+	assert(powf64(-0f64, -INF) == INF);
 	// pow(±0, +Inf) = +0
 	assert(powf64(0f64, INF) == 0f64);
 	assert(powf64(-0f64, INF) == 0f64);
 	// pow(±0, y) = +Inf for finite y < 0 and not an odd integer
-	assert(isposinf(powf64(0f64, -2f64)));
-	assert(isposinf(powf64(-0f64, -2f64)));
+	assert(powf64(0f64, -2f64) == INF);
+	assert(powf64(0f64, -2f64) == INF);
 	//pow(±0, y) = ±0 for y an odd integer > 0
 	assert(powf64(0f64, 123f64) == 0f64);
 	const neg_zero = powf64(-0f64, 123f64);
@@ -952,17 +952,17 @@ export fn powf64(x: f64, p: f64) f64 = {
 	assert(powf64(-1f64, INF) == 1f64);
 	assert(powf64(-1f64, -INF) == 1f64);
 	// pow(x, +Inf) = +Inf for |x| > 1
-	assert(isposinf(powf64(123f64, INF)));
+	assert(powf64(123f64, INF) == INF);
 	// pow(x, -Inf) = +0 for |x| > 1
 	assert(powf64(123f64, -INF) == 0f64);
 	// pow(x, +Inf) = +0 for |x| < 1
 	assert(powf64(0.5f64, INF) == 0f64);
 	assert(powf64(-0.5f64, INF) == 0f64);
 	// pow(x, -Inf) = +Inf for |x| < 1
-	assert(isposinf(powf64(0.5f64, -INF)));
-	assert(isposinf(powf64(-0.5f64, -INF)));
+	assert(powf64(0.5f64, -INF) == INF);
+	assert(powf64(-0.5f64, -INF) == INF);
 	// pow(+Inf, y) = +Inf for y > 0
-	assert(isposinf(powf64(INF, 123f64)));
+	assert(powf64(INF, 123f64) == INF);
 	// pow(+Inf, y) = +0 for y < 0
 	assert(powf64(INF, -1f64) == 0f64);
 	// pow(-Inf, y) = pow(-0, -y)

@@ -85,8 +85,8 @@ export type fround = enum uint {
 
 	assert(getround() == fround::TONEAREST);
 	assert(isnan(nearbyintf64(f(0x7ff8000000000000))));
-	assert(isposinf(nearbyintf64(f(0x7ff0000000000000))));
-	assert(isneginf(nearbyintf64(f(0xfff0000000000000))));
+	assert(nearbyintf64(f(0x7ff0000000000000)) == INF);
+	assert(nearbyintf64(f(0xfff0000000000000)) == -INF);
 	assert(nearbyintf64(f(0x0)) == f(0x0));
 	assert(nearbyintf64(f(0x8000000000000000)) == f(0x8000000000000000));
 	assert(nearbyintf64(f(0x3ff0000000000000)) == f(0x3ff0000000000000));
@@ -103,8 +103,8 @@ export type fround = enum uint {
 	setround(fround::DOWNWARD);
 	assert(getround() == fround::DOWNWARD);
 	assert(isnan(nearbyintf64(f(0x7ff8000000000000))));
-	assert(isposinf(nearbyintf64(f(0x7ff0000000000000))));
-	assert(isneginf(nearbyintf64(f(0xfff0000000000000))));
+	assert(nearbyintf64(f(0x7ff0000000000000)) == INF);
+	assert(nearbyintf64(f(0xfff0000000000000)) == -INF);
 	assert(nearbyintf64(f(0x0)) == f(0x0));
 	assert(nearbyintf64(f(0x8000000000000000)) == f(0x8000000000000000));
 	assert(nearbyintf64(f(0x3ff0000000000000)) == f(0x3ff0000000000000));
@@ -121,8 +121,8 @@ export type fround = enum uint {
 	setround(fround::UPWARD);
 	assert(getround() == fround::UPWARD);
 	assert(isnan(nearbyintf64(f(0x7ff8000000000000))));
-	assert(isposinf(nearbyintf64(f(0x7ff0000000000000))));
-	assert(isneginf(nearbyintf64(f(0xfff0000000000000))));
+	assert(nearbyintf64(f(0x7ff0000000000000)) == INF);
+	assert(nearbyintf64(f(0xfff0000000000000)) == -INF);
 	assert(nearbyintf64(f(0x0)) == f(0x0));
 	assert(nearbyintf64(f(0x8000000000000000)) == f(0x8000000000000000));
 	assert(nearbyintf64(f(0x3ff0000000000000)) == f(0x3ff0000000000000));
@@ -141,8 +141,8 @@ export type fround = enum uint {
 	setround(fround::TONEAREST);
 	assert(getround() == fround::TONEAREST);
 	assert(isnan(nearbyintf32(f(0x7fc00000))));
-	assert(isposinf(nearbyintf32(f(0x7f800000))));
-	assert(isneginf(nearbyintf32(f(0xff800000))));
+	assert(nearbyintf32(f(0x7f800000)) == INF);
+	assert(nearbyintf32(f(0xff800000)) == -INF);
 	assert(nearbyintf32(f(0x0)) == f(0x0));
 	assert(nearbyintf32(f(0x80000000)) == f(0x80000000));
 	assert(nearbyintf32(f(0x3f800000)) == f(0x3f800000));
@@ -159,8 +159,8 @@ export type fround = enum uint {
 	setround(fround::DOWNWARD);
 	assert(getround() == fround::DOWNWARD);
 	assert(isnan(nearbyintf32(f(0x7fc00000))));
-	assert(isposinf(nearbyintf32(f(0x7f800000))));
-	assert(isneginf(nearbyintf32(f(0xff800000))));
+	assert(nearbyintf32(f(0x7f800000)) == INF);
+	assert(nearbyintf32(f(0xff800000)) == -INF);
 	assert(nearbyintf32(f(0x0)) == f(0x0));
 	assert(nearbyintf32(f(0x80000000)) == f(0x80000000));
 	assert(nearbyintf32(f(0x3f800000)) == f(0x3f800000));
@@ -177,8 +177,8 @@ export type fround = enum uint {
 	setround(fround::UPWARD);
 	assert(getround() == fround::UPWARD);
 	assert(isnan(nearbyintf32(f(0x7fc00000))));
-	assert(isposinf(nearbyintf32(f(0x7f800000))));
-	assert(isneginf(nearbyintf32(f(0xff800000))));
+	assert(nearbyintf32(f(0x7f800000)) == INF);
+	assert(nearbyintf32(f(0xff800000)) == -INF);
 	assert(nearbyintf32(f(0x0)) == f(0x0));
 	assert(nearbyintf32(f(0x80000000)) == f(0x80000000));
 	assert(nearbyintf32(f(0x3f800000)) == f(0x3f800000));

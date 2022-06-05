@@ -177,26 +177,12 @@ export fn isinf(n: f64) bool = {
 	return exp == F64_EXPONENT_MASK && mant == 0;
 };
 
-// Returns true if the given floating-point number is positive infinity.
-export fn isposinf(n: f64) bool = {
-	return isinf(n) && signf64(n) == 1i64;
-};
-
-// Returns true if the given floating-point number is negative infinity.
-export fn isneginf(n: f64) bool = {
-	return isinf(n) && signf64(n) == -1i64;
-};
-
 @test fn isinf() void = {
 	assert(isinf(INF));
 	assert(isinf(-INF));
 	assert(!isinf(NAN));
 	assert(!isinf(1.23));
 	assert(!isinf(-1.23f32));
-	assert(isposinf(INF));
-	assert(!isposinf(-INF));
-	assert(isneginf(-INF));
-	assert(!isneginf(INF));
 };
 
 // Returns true if the given floating-point number is normal.
