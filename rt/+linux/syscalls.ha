@@ -786,3 +786,18 @@ export fn getsid(pid: int) (int | errno) = {
 export fn setsid() (void | errno) = {
 	return wrap_return(syscall0(SYS_setsid))?: void;
 };
+
+export fn mount(
+	source: *const char,
+	target: *const char,
+	filesystemtype: *const char,
+	mountflags: u64,
+	data: nullable *void
+) (void | errno) = {
+	wrap_return(syscall5(SYS_mount, source: uintptr, target: uintptr,
+		filesystemtype: uintptr, mountflags: u64, data: uintptr))?;
+};
+
+export fn umount2(target: *const char, flags: int) (void | errno) = {
+	wrap_return(syscall2(SYS_umount2, target: uintptr, flags: u64))?;
+};
