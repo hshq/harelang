@@ -189,7 +189,7 @@ export fn addu64(x: u64, y: u64, carry: u64) (u64, u64) = {
 	return (sum, carry_out);
 };
 
-// Calls either addu32() or addu64() depending on UINT_SIZE.
+// Calls either addu32() or addu64() depending on size(uint).
 export fn addu(x: uint, y: uint, carry: uint) (uint, uint) = {
 	if (UINT_SIZE == 32) {
 		const res = addu32((x: u32), (y: u32), (carry: u32));
@@ -260,7 +260,7 @@ export fn subu64(x: u64, y: u64, borrow: u64) (u64, u64) = {
 	return (diff, borrow_out);
 };
 
-// Calls either mulu32() or mulu64() depending on UINT_SIZE.
+// Calls either mulu32() or mulu64() depending on size(uint).
 export fn subu(x: uint, y: uint, carry: uint) (uint, uint) = {
 	if (UINT_SIZE == 32) {
 		const res = subu32((x: u32), (y: u32), (carry: u32));
@@ -337,7 +337,7 @@ export fn mulu64(x: u64, y: u64) (u64, u64) = {
 	return (hi, lo);
 };
 
-// Calls either mulu32() or mulu64() depending on UINT_SIZE.
+// Calls either mulu32() or mulu64() depending on size(uint).
 export fn mulu(x: uint, y: uint) (uint, uint) = {
 	if (UINT_SIZE == 32) {
 		const res = mulu32((x: u32), (y: u32));
@@ -433,7 +433,7 @@ export fn divu64(hi: u64, lo: u64, y: u64) (u64, u64) = {
 	return (quo, rem);
 };
 
-// Calls either divu32() or divu64() depending on UINT_SIZE.
+// Calls either divu32() or divu64() depending on size(uint).
 export fn divu(hi: uint, lo: uint, y: uint) (uint, uint) = {
 	if (UINT_SIZE == 32) {
 		const res = divu32((hi: u32), (lo: u32), (y: u32));
@@ -511,7 +511,7 @@ export fn remu64(hi: u64, lo: u64, y: u64) u64 = {
 	return res.1;
 };
 
-// Calls either remu32() or remu64() depending on UINT_SIZE.
+// Calls either remu32() or remu64() depending on size(uint).
 export fn remu(hi: uint, lo: uint, y: uint) uint = {
 	if (UINT_SIZE == 32) {
 		return (remu32((hi: u32), (lo: u32), (y: u32)): uint);
