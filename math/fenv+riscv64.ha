@@ -16,7 +16,7 @@
 // 	math::clearexcept(math::fexcept::ALL);
 // 	let a = 0.0/0.0;
 // 	let e = math::testexcept(math::fexcept::INVALID | math::fexcept::INEXACT);
-export type fexcept =  enum uint {
+export type fexcept = enum uint {
 	// No flags set
 	NONE = 0,
 	// Occurs when there is no well-defined result of an operation, such as

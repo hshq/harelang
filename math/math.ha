@@ -73,8 +73,11 @@ export fn eqwithinf32(x: f32, y: f32, tol: f32) bool = {
 };
 
 // Returns whether x and y are within tol of each other.
-export fn eqwithin(x: types::floating, y: types::floating,
-		tol: types::floating) bool = {
+export fn eqwithin(
+	x: types::floating,
+	y: types::floating,
+	tol: types::floating,
+) bool = {
 	match (x) {
 	case let n: f64 =>
 		return eqwithinf64(n, y as f64, tol as f64);
