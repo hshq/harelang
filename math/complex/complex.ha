@@ -131,6 +131,17 @@ export fn equalc64(a: c64, b: c64) bool = a.0 == b.0 && a.1 == b.1;
 // round-off errors into account.
 export fn equalc128(a: c128, b: c128) bool = a.0 == b.0 && a.1 == b.1;
 
+// Checks if two complex numbers are equal. Be sure to take floating point
+// round-off errors into account.
+export fn equal(a: complex, b: complex) bool = {
+	match (a) {
+	case let a: c64 =>
+		return equalc64(a, b as c64);
+	case let a: c128 =>
+		return equalc128(a, b as c128);
+	};
+};
+
 // Returns [[math::E]] raised to the power of z.
 export fn expc128(z: c128) c128 = {
 	if (math::isinf(z.0)) {
