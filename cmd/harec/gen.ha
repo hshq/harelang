@@ -196,8 +196,6 @@ fn gen_binding(ctx: *context, expr: *unit::expr) value = {
 			value = temp,
 			_type = item.object._type,
 		};
-		// TODO: tuple unpacking
-		// const lval, instr = allocval(value);
 		const instr = qinstr_alloc(value._type);
 		const lval = mklval(ctx, value);
 		emit(&ctx.buf, lval, instr, value._type.sz);

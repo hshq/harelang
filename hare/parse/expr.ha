@@ -1232,7 +1232,6 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 		case let c: ast::constant_expr =>
 			match (c) {
 			case let n: ast::number_constant =>
-				// TODO: tuple unpacking
 				let sign = false;
 				const val = match (n.value) {
 				case let i: i64 =>
