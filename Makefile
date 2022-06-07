@@ -28,7 +28,8 @@ hare_srcs = \
 	./cmd/hare/progress.ha \
 	./cmd/hare/release.ha \
 	./cmd/hare/schedule.ha \
-	./cmd/hare/subcmds.ha
+	./cmd/hare/subcmds.ha \
+	./cmd/hare/target.ha
 
 harec_srcs = \
 	./cmd/harec/main.ha \
@@ -43,21 +44,17 @@ haredoc_srcs = \
 	./cmd/haredoc/sort.ha \
 	./cmd/haredoc/resolver.ha
 
+include targets.mk
+
 $(HARECACHE)/hare.ssa: $(hare_srcs) $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM)) scripts/version
 	@printf 'HAREC\t%s\n' "$@"
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) \
-		-D PLATFORM:str='"'"$(PLATFORM)"'"' \
-		-D VERSION:str='"'"$$(./scripts/version)"'"' \
-		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
-		-o $@ $(hare_srcs)
+		$(HARE_DEFINES) -o $@ $(hare_srcs)
 
 $(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFORM)) scripts/version
 	@printf 'HAREC\t%s\n' "$@"
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) \
-		-D PLATFORM:str='"'"$(PLATFORM)"'"' \
-		-D VERSION:str='"'"$$(./scripts/version)"'"' \
-		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
-		-o $@ $(hare_srcs)
+		$(HARE_DEFINES) -o $@ $(hare_srcs)
 
 $(BINOUT)/hare: $(HARECACHE)/hare.o
 	@mkdir -p $(BINOUT)
@@ -74,15 +71,14 @@ $(BINOUT)/hare-tests: $(TESTCACHE)/hare.o
 $(BINOUT)/harec2: $(BINOUT)/hare $(harec_srcs)
 	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
-	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build -o $(BINOUT)/harec2 cmd/harec
+	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build \
+		$(HARE_DEFINES) -o $(BINOUT)/harec2 cmd/harec
 
 $(BINOUT)/haredoc: $(BINOUT)/hare $(haredoc_srcs)
 	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
 	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build \
-		-D PLATFORM:str='"'"$(PLATFORM)"'"' \
-		-D HAREPATH:str='"'"$(HAREPATH)"'"' \
-		-o $(BINOUT)/haredoc ./cmd/haredoc
+		$(HARE_DEFINES) -o $(BINOUT)/haredoc ./cmd/haredoc
 
 docs/html: $(BINOUT)/haredoc scripts/gen-docs
 	./scripts/gen-docs

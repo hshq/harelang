@@ -5,5 +5,4 @@ _start:
 	mov x30, #0
 	mov x0, sp
 	add sp, x0, #-16
-	and sp, sp, #-16
 	b rt.start_linux

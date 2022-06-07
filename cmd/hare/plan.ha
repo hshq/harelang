@@ -50,6 +50,7 @@ type modcache = struct {
 
 type plan = struct {
 	context: *module::context,
+	target: *target,
 	workdir: str,
 	counter: uint,
 	scheduled: []*task,
@@ -69,7 +70,11 @@ type plan_progress = struct {
 	maxwidth: size,
 };
 
-fn mkplan(ctx: *module::context, libs: []str) plan = {
+fn mkplan(
+	ctx: *module::context,
+	libs: []str,
+	target: *target,
+) plan = {
 	const rtdir = match (module::lookup(ctx, ["rt"])) {
 	case let err: module::error =>
 		fmt::fatal("Error resolving rt:", module::strerror(err));
@@ -99,6 +104,7 @@ fn mkplan(ctx: *module::context, libs: []str) plan = {
 
 	return plan {
 		context = ctx,
+		target = target,
 		workdir = os::tryenv("HARE_DEBUG_WORKDIR", temp::dir()),
 		script = path::allocate(&buf),
 		environ = alloc([

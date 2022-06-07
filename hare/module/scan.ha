@@ -443,6 +443,18 @@ export fn tags_free(tags: []tag) void = {
 	free(tags);
 };
 
+// Duplicates a set of tags.
+export fn tags_dup(tags: []tag) []tag = {
+	let new: []tag = alloc([], len(tags));
+	for (let i = 0z; i < len(tags); i += 1) {
+		append(new, tag {
+			name = strings::dup(tags[i].name),
+			mode = tags[i].mode,
+		});
+	};
+	return new;
+};
+
 // Compares two tag sets and tells you if they are compatible.
 export fn tagcompat(have: []tag, want: []tag) bool = {
 	// XXX: O(n²), lame

@@ -66,14 +66,19 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 
 // Schedules a task which compiles objects into an executable.
 fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
+	const ld_cmd = os::tryenv("LD", if (len(plan.libs) > 0) {
+		// C compiler is used as linker if we -l something
+		yield plan.target.cc_cmd;
+	} else {
+		yield plan.target.ld_cmd;
+	});
+
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
 		depend = alloc(depend...),
 		cmd = alloc([
-			// C compiler is used as linker if we -l something
-			os::tryenv("LD",
-				if (len(plan.libs) > 0) "cc" else "ld"),
+			ld_cmd,
 			"-T", plan.script,
 			"-o", output,
 		]),
@@ -105,13 +110,12 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 
 // Schedules a task which merges objects into an archive.
 fn sched_ar(plan: *plan, output: str, depend: *task...) *task = {
+	const ar_cmd = os::tryenv("AR", plan.target.ar_cmd);
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
 		depend = alloc(depend...),
-		cmd = alloc([
-			os::tryenv("AR", "ar"), "-csr", output,
-		]),
+		cmd = alloc([ar_cmd, "-csr", output]),
 		module = void,
 	});
 	for (let i = 0z; i < len(depend); i += 1) {
@@ -124,13 +128,12 @@ fn sched_ar(plan: *plan, output: str, depend: *task...) *task = {
 
 // Schedules a task which compiles assembly into an object.
 fn sched_as(plan: *plan, output: str, input: str, depend: *task...) *task = {
+	const as_cmd = os::tryenv("AS", plan.target.as_cmd);
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
 		depend = alloc(depend...),
-		cmd = alloc([
-			os::tryenv("AS", "as"), "-g", "-o", output, input,
-		]),
+		cmd = alloc([as_cmd, "-g", "-o", output, input]),
 		module = void,
 	});
 	append(plan.scheduled, task);
@@ -139,12 +142,16 @@ fn sched_as(plan: *plan, output: str, input: str, depend: *task...) *task = {
 
 // Schedules a task which compiles an SSA file into assembly.
 fn sched_qbe(plan: *plan, output: str, depend: *task) *task = {
+	const qbe_cmd = os::tryenv("QBE", "qbe");
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
 		depend = alloc([depend]),
 		cmd = alloc([
-			os::tryenv("QBE", "qbe"), "-o", output, depend.output,
+			qbe_cmd,
+			"-t", plan.target.qbe_target,
+			"-o", output,
+			depend.output,
 		]),
 		module = void,
 	});
