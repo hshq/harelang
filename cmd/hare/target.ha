@@ -21,7 +21,6 @@ fn default_target() *target = {
 };
 
 // TODO:
-// - Source default target information from here
 // - Implement cross compiling to other kernels (e.g. Linux => FreeBSD)
 // - sysroots
 const targets: [_]target = [
