@@ -31,7 +31,7 @@ SCDOC = scdoc
 HARECACHE = .cache
 BINOUT = .bin
 
-# Cross-compiling settings
+# Cross-compiler toolchains
 AARCH64_AS=aarch64-as
 AARCH64_AR=aarch64-ar
 AARCH64_CC=aarch64-cc
@@ -42,7 +42,7 @@ RISCV64_AR=riscv64-ar
 RISCV64_CC=riscv64-cc
 RISCV64_LD=riscv64-ld
 
-X86_64_AS=x86_64-as
-X86_64_AR=x86_64-ar
-X86_64_CC=x86_64-cc
-X86_64_LD=x86_64-ld
+X86_64_AS=as
+X86_64_AR=ar
+X86_64_CC=cc
+X86_64_LD=ld
