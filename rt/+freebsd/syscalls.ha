@@ -494,3 +494,7 @@ export fn sysctlbyname(name: str, oldp: nullable *void, oldlenp: nullable *size,
 export fn dup2(oldfd: int, newfd: int) (int | errno) = {
 	return wrap_return(syscall2(SYS_dup2, oldfd: u64, newfd: u64))?: int;
 };
+
+export fn posix_openpt(flags: int) (int | errno) = {
+	return wrap_return(syscall1(SYS_posix_openpt, flags: u64))?: int;
+};
