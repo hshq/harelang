@@ -10,14 +10,16 @@ use unix;
 
 export type platform_cmd = io::file;
 
-// Forks the current process, returning the pid of the child (to the parent) and
-// void (to the child), or an error.
-export fn fork() (int | void | error) = {
+// Forks the current process, returning the [[process]] of the child (to the
+// parent) and void (to the child), or an error.
+export fn fork() (process | void | error) = {
 	match (rt::fork()) {
 	case let err: rt::errno  =>
 		return errors::errno(err);
-	case let i: (int | void) =>
-		return i;
+	case let i: int =>
+		return i: process;
+	case void =>
+		return void;
 	};
 };
 
