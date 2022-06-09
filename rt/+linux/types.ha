@@ -726,3 +726,95 @@ export def MLOCK_ONFAULT: uint = 0x01;
 export def MCL_CURRENT: int = 1;
 export def MCL_FUTURE: int = 2;
 export def MCL_ONFAULT: int = 4;
+
+export def PTRACE_TRACEME: int = 0;
+export def PTRACE_PEEKTEXT: int = 1;
+export def PTRACE_PEEKDATA: int = 2;
+export def PTRACE_PEEKUSER: int = 3;
+export def PTRACE_POKETEXT: int = 4;
+export def PTRACE_POKEDATA: int = 5;
+export def PTRACE_POKEUSER: int = 6;
+export def PTRACE_CONT: int = 7;
+export def PTRACE_KILL: int = 8;
+export def PTRACE_SINGLESTEP: int = 9;
+export def PTRACE_GETREGS: int = 12;
+export def PTRACE_SETREGS: int = 13;
+export def PTRACE_GETFPREGS: int = 14;
+export def PTRACE_SETFPREGS: int = 15;
+export def PTRACE_ATTACH: int = 16;
+export def PTRACE_DETACH: int = 17;
+export def PTRACE_GETFPXREGS: int = 18;
+export def PTRACE_SETFPXREGS: int = 19;
+export def PTRACE_SYSCALL: int = 24;
+export def PTRACE_SETOPTIONS: int = 0x4200;
+export def PTRACE_GETEVENTMSG: int = 0x4201;
+export def PTRACE_GETSIGINFO: int = 0x4202;
+export def PTRACE_SETSIGINFO: int = 0x4203;
+export def PTRACE_GETREGSET: int = 0x4204;
+export def PTRACE_SETREGSET: int = 0x4205;
+export def PTRACE_SEIZE: int = 0x4206;
+export def PTRACE_INTERRUPT: int = 0x4207;
+export def PTRACE_LISTEN: int = 0x4208;
+export def PTRACE_PEEKSIGINFO: int = 0x4209;
+export def PTRACE_GETSIGMASK: int = 0x420a;
+export def PTRACE_SETSIGMASK: int = 0x420b;
+export def PTRACE_SECCOMP_GET_FILTER: int = 0x420c;
+export def PTRACE_SECCOMP_GET_METADATA: int = 0x420d;
+export def PTRACE_GET_SYSCALL_INFO: int = 0x420e;
+export def PTRACE_GET_RSEQ_CONFIGURATION: int =	0x420f;
+
+export def PTRACE_O_TRACESYSGOOD: u64 = 0x00000001;
+export def PTRACE_O_TRACEFORK: u64 = 0x00000002;
+export def PTRACE_O_TRACEVFORK: u64 = 0x00000004;
+export def PTRACE_O_TRACECLONE: u64 = 0x00000008;
+export def PTRACE_O_TRACEEXEC: u64 = 0x00000010;
+export def PTRACE_O_TRACEVFORKDONE: u64 = 0x00000020;
+export def PTRACE_O_TRACEEXIT: u64 = 0x00000040;
+export def PTRACE_O_TRACESECCOMP: u64 = 0x00000080;
+export def PTRACE_O_EXITKILL: u64 = 0x00100000;
+export def PTRACE_O_SUSPEND_SECCOMP: u64 = 0x00200000;
+export def PTRACE_O_MASK: u64 = 0x003000ff;
+
+export def PTRACE_EVENT_FORK: int = 1;
+export def PTRACE_EVENT_VFORK: int = 2;
+export def PTRACE_EVENT_CLONE: int = 3;
+export def PTRACE_EVENT_EXEC: int = 4;
+export def PTRACE_EVENT_VFORK_DONE: int = 5;
+export def PTRACE_EVENT_EXIT: int = 6;
+export def PTRACE_EVENT_SECCOMP: int = 7;
+export def PTRACE_EVENT_STOP: int = 128;
+
+export def PTRACE_SYSCALL_INFO_NONE: u8 = 0;
+export def PTRACE_SYSCALL_INFO_ENTRY: u8 = 1;
+export def PTRACE_SYSCALL_INFO_EXIT: u8 = 2;
+export def PTRACE_SYSCALL_INFO_SECCOMP: u8 = 3;
+
+export def PTRACE_PEEKSIGINFO_SHARED: u32 = 1;
+
+export type ptrace_peeksiginfo_args = struct {
+	off: u64,
+	flags: u32,
+	nr: i32,
+};
+
+export type ptrace_syscall_info = struct {
+	op: u8,
+	arch: u32,
+	instruction_pointer: u64,
+	stack_pointer: u64,
+	union {
+		entry: struct {
+			nr: u64,
+			args: [6]u64,
+		},
+		exit: struct {
+			rval: i64,
+			is_error: u8,
+		},
+		seccomp: struct {
+			nr: u64,
+			args: [6]u64,
+			ret_data: u64,
+		},
+	},
+};

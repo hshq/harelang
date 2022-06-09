@@ -801,3 +801,25 @@ export fn mount(
 export fn umount2(target: *const char, flags: int) (void | errno) = {
 	wrap_return(syscall2(SYS_umount2, target: uintptr, flags: u64))?;
 };
+
+export fn ptrace(
+	request: int,
+	pid: int,
+	addr: uintptr,
+	data: uintptr,
+) (u64 | errno) = {
+	// PTRACE_PEEK* requests write into *data instead of just returing
+	// the word that they read
+	let result = 0u64;
+	const wrdata = request >= PTRACE_PEEKTEXT && request <= PTRACE_PEEKUSER;
+	if (wrdata) {
+		data = &result: uintptr;
+	};
+	const ret = wrap_return(syscall4(SYS_ptrace, request: u64, pid: u64,
+		addr, data))?: u64;
+	if (wrdata) {
+		return result;
+	} else {
+		return ret;
+	};
+};
