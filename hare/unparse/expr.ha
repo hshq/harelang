@@ -194,15 +194,32 @@ export fn expr(
 			if (e.is_const) "const " else "let ")?;
 		for (let i = 0z; i < len(e.bindings); i += 1) {
 			let binding = e.bindings[i];
+			match (binding.name) {
+			case let s: str =>
+				z += fmt::fprint(out, s)?;
+			case let u: ast::binding_unpack =>
+				z += fmt::fprint(out, "(")?;
+				for (let i = 0z; i < len(u); i += 1) {
+					match (u[i]) {
+					case let s: str =>
+						z += fmt::fprint(out, s)?;
+					case void =>
+						z += fmt::fprint(out, "_")?;
+					};
+					if (i + 1 < len(u)) {
+						z += fmt::fprint(out, ", ")?;
+					};
+				};
+				z += fmt::fprint(out, ")")?;
+			};
 			z += match (binding._type) {
-			case null =>
-				yield fmt::fprint(out, binding.name)?;
 			case let t: *ast::_type =>
 				let z = 0z;
-				z += fmt::fprintf(out, "{}: ",
-					binding.name)?;
+				z += fmt::fprintf(out, ": ")?;
 				z += _type(out, indent, *t)?;
 				yield z;
+			case null =>
+				yield 0z;
 			};
 			z += fmt::fprint(out, " = ")?;
 			z += expr(out, indent, *binding.init)?;

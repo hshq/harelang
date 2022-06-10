@@ -316,13 +316,43 @@ fn binarithm(
 	return lvalue;
 };
 
+fn binding_unpack(lexer: *lex::lexer) (ast::binding_unpack | error) = {
+	let fields: ast::binding_unpack = [];
+	for (true) {
+		const (tok, value, _) = want(lexer, ltok::NAME,
+			ltok::UNDERSCORE)?;
+		if (tok == ltok::UNDERSCORE) {
+			append(fields, void);
+		} else {
+			append(fields, value as str);
+		};
+		if (len(fields) == 1) {
+			want(lexer, ltok::COMMA)?;
+		} else {
+			match (try(lexer, ltok::COMMA)?) {
+			case void => break;
+			case lex::token => void;
+			};
+		};
+	};
+	want(lexer, ltok::RPAREN)?;
+	return fields;
+};
+
 fn binding(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
 	const loc = lex::mkloc(lexer);
 	const is_const = want(lexer, ltok::LET, ltok::CONST)?.0 == ltok::CONST;
 
 	let bindings: []ast::binding = [];
 	for (true) {
-		const name = want(lexer, ltok::NAME)?.1 as str;
+		const (tok, value, _) = want(lexer, ltok::NAME, ltok::LPAREN)?;
+		const name = switch (tok) {
+		case ltok::NAME =>
+			yield value as str;
+		case ltok::LPAREN =>
+			yield binding_unpack(lexer)?;
+		case => abort();
+		};
 		const btype: nullable *ast::_type =
 			if (try(lexer, ltok::COLON)? is lex::token) {
 				yield alloc(_type(lexer)?);

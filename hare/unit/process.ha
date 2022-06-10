@@ -209,8 +209,9 @@ fn process_binding(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 		};
 		const object = scope_insert(ctx, object {
 			kind = object_kind::BIND,
-			ident = ast::ident_dup([item.name]),
-			name = ast::ident_dup([item.name]),
+			// TODO: tuple unpacking
+			ident = ast::ident_dup([item.name as str]),
+			name = ast::ident_dup([item.name as str]),
 			_type = _type,
 			...
 		});

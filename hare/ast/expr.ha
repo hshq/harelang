@@ -126,11 +126,17 @@ export type binarithm_expr = struct {
 // A single variable biding.
 //
 // 	foo: int = bar
+// 	(foo, foo2): int = bar
 export type binding = struct {
-	name: str,
+	name: (str | binding_unpack),
 	_type: nullable *_type,
 	init: *expr,
 };
+
+// Tuple unpacking binding.
+//
+// 	(foo, _, bar)
+export type binding_unpack = [](str | void);
 
 // A variable binding expression.
 //
@@ -473,7 +479,19 @@ case let e: expr =>
 		expr_finish(b.rvalue);
 	case let b: binding_expr =>
 		for (let i = 0z; i < len(b.bindings); i += 1) {
-			free(b.bindings[i].name);
+			match (b.bindings[i].name) {
+			case let s: str =>
+				free(s);
+			case let u: binding_unpack =>
+				for (let i = 0z; i < len(u); i += 1) {
+					match (u[i]) {
+					case let s: str =>
+						free(s);
+					case => void;
+					};
+				};
+				free(u);
+			};
 			type_finish(b.bindings[i]._type);
 			expr_finish(b.bindings[i].init);
 		};
