@@ -159,9 +159,8 @@ fn calc_isoweekyear(y: int, m: int, d: int, wd: int) int = {
 
 // Calculates the ISO week,
 // given a year, week, day-of-week, and day-of-year.
-fn calc_isoweek(y: int, w: int, wd: int, yd: int) int = {
-	const jan1wd = (yd - wd + 7) % 7 + 1;
-
+fn calc_isoweek(y: int, w: int) int = {
+	const jan1wd = calc_janfirstweekday(y);
 	const iw = if (jan1wd == 1) {
 		yield w;
 	} else if (jan1wd == 2 || jan1wd == 3 || jan1wd == 4) {
@@ -240,12 +239,11 @@ fn calc_date_from_ymd(y: int, m: int, d: int) (chrono::date | invalid) = {
 // Calculates the [[chrono::date]],
 // given a year, week, and day-of-week.
 fn calc_date_from_ywd(y: int, w: int, wd: int) (chrono::date | invalid) = {
-	const jan1 = calc_date_from_ymd(y, 1, 1)?;
-	const jan1_wd = calc_weekday(jan1);
+	const jan1wd = calc_janfirstweekday(y);
 	const yd = if (w == 0) {
-		yield wd - jan1_wd + 1;
+		yield wd - jan1wd + 1;
 	} else {
-		yield (7 - jan1_wd + 1) + (7 * (w - 1)) + wd;
+		yield (7 - jan1wd + 1) + (7 * (w - 1)) + wd;
 	};
 	const ymd = calc_ymd_from_yd(y, yd)?;
 	return calc_date_from_ymd(ymd.0, ymd.1, ymd.2)?;

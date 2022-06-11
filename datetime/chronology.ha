@@ -224,17 +224,9 @@ fn _isoweek(dt: *datetime) int = {
 		if (dt.week is void) {
 			_week(dt);
 		};
-		if (dt.weekday is void) {
-			_weekday(dt);
-		};
-		if (dt.yearday is void) {
-			_yearday(dt);
-		};
 		dt.isoweek = calc_isoweek(
 			dt.year: int,
 			dt.week: int,
-			dt.weekday: int,
-			dt.yearday: int,
 		);
 		return dt.isoweek: int;
 	case let iw: int =>
