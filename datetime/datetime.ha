@@ -19,7 +19,7 @@ export type datetime = struct {
 	isoweekyear: (void | int),
 	isoweek:     (void | int),
 	week:        (void | int),
-	weeksunday:  (void | int),
+	sundayweek:  (void | int),
 	weekday:     (void | int),
 
 	hour:        (void | int),
@@ -42,7 +42,7 @@ fn init() datetime = datetime {
 	isoweekyear = void,
 	isoweek     = void,
 	week        = void,
-	weeksunday  = void,
+	sundayweek  = void,
 	weekday     = void,
 
 	hour        = void,

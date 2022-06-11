@@ -187,7 +187,7 @@ fn calc_week(yd: int, wd: int) int = {
 // Calculates the week within a Gregorian year [0..53],
 // given a day-of-year and day-of-week.
 // All days in a year before the year's first Sunday belong to week 0.
-fn calc_week_starting_sunday(yd: int, wd: int) int = {
+fn calc_sundayweek(yd: int, wd: int) int = {
 	return (yd + 6 - (wd % 7)) / 7;
 };
 
@@ -541,7 +541,7 @@ fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
 	};
 };
 
-@test fn calc_week_starting_sunday() void = {
+@test fn calc_sundayweek() void = {
 	const cases = [
 		((1, 1), 0),
 		((1, 2), 0),
@@ -563,7 +563,7 @@ fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
 	for (let i = 0z; i < len(cases); i += 1) {
 		const params = cases[i].0;
 		const expect = cases[i].1;
-		const actual = calc_week_starting_sunday(params.0, params.1);
+		const actual = calc_sundayweek(params.0, params.1);
 		assert(expect == actual, "week miscalculation");
 	};
 };

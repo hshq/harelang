@@ -34,11 +34,11 @@ export fn yearday(dt: *datetime) int = _yearday(dt);
 // Returns a [[datetime]]'s ISO week-numbering year.
 export fn isoweekyear(dt: *datetime) int = _isoweekyear(dt);
 
-// Returns a [[datetime]]'s Gregorian week.
+// Returns a [[datetime]]'s Gregorian week starting Monday.
 export fn week(dt: *datetime) int = _week(dt);
 
 // Returns a [[datetime]]'s Gregorian week starting Sunday.
-export fn week_starting_sunday(dt: *datetime) int = _week_starting_sunday(dt);
+export fn sundayweek(dt: *datetime) int = _sundayweek(dt);
 
 // Returns a [[datetime]]'s ISO week.
 export fn isoweek(dt: *datetime) int = _isoweek(dt);
@@ -196,8 +196,8 @@ fn _week(dt: *datetime) int = {
 	};
 };
 
-fn _week_starting_sunday(dt: *datetime) int = {
-	match (dt.week) {
+fn _sundayweek(dt: *datetime) int = {
+	match (dt.sundayweek) {
 	case void =>
 		if (dt.yearday is void) {
 			_yearday(dt);
@@ -205,11 +205,11 @@ fn _week_starting_sunday(dt: *datetime) int = {
 		if (dt.weekday is void) {
 			_weekday(dt);
 		};
-		dt.weeksunday = calc_week_starting_sunday(
+		dt.sundayweek = calc_sundayweek(
 			dt.yearday: int,
 			dt.weekday: int,
 		);
-		return dt.weeksunday: int;
+		return dt.sundayweek: int;
 	case let w: int =>
 		return w;
 	};

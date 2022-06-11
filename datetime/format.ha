@@ -135,7 +135,7 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 	case 'u' =>
 		return fmt::fprint(out, strconv::itos(weekday(dt)));
 	case 'U' =>
-		return fmt::fprintf(out, "{:02}", week_starting_sunday(dt));
+		return fmt::fprintf(out, "{:02}", _sundayweek(dt));
 	case 'w' =>
 		return fmt::fprint(out, strconv::itos(weekday(dt) % 7));
 	case 'W' =>
