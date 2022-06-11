@@ -58,6 +58,18 @@ fn calc_n_days_in_year(y: int) int = {
 	};
 };
 
+// Calculates the day-of-week of January 1st, given a year.
+fn calc_janfirstweekday(y: int) int = {
+	const y = (y % 400) + 400; // keep year > 0 (using Gegorian cycle)
+	// Gauss' algorithm
+	const wd = (
+		+ 5 * ((y - 1) % 4)
+		+ 4 * ((y - 1) % 100)
+		+ 6 * ((y - 1) % 400)
+	) % 7;
+	return wd + 1;
+};
+
 // Calculates the era, given a year.
 fn calc_era(y: int) int = {
 	return if (y >= 0) {
