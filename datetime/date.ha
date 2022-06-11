@@ -245,38 +245,16 @@ fn calc_date_from_ywd(y: int, w: int, wd: int) (chrono::date | invalid) = {
 	} else {
 		yield (7 - jan1wd + 1) + (7 * (w - 1)) + wd;
 	};
-	const ymd = calc_ymd_from_yd(y, yd)?;
-	return calc_date_from_ymd(ymd.0, ymd.1, ymd.2)?;
-};
-
-// Calculates a year, month, and day-of-month,
-// given a year and day-of-year.
-fn calc_ymd_from_yd(y: int, yd: int) ((int, int, int) | invalid) = {
-	if (!is_valid_yd(y, yd)) {
-		return invalid;
-	};
-	let m: int = 1;
-	let monthdays = calc_n_days_in_month(y, m);
-	let d = yd;
-	for (true) {
-		if (m > 12) {
-			return invalid;
-		};
-		if (d <= monthdays) {
-			return (y, m, d);
-		};
-		d -= monthdays;
-		m += 1;
-		monthdays = calc_n_days_in_month(y, m);
-	};
-	return invalid;
+	return calc_date_from_yd(y, yd)?;
 };
 
 // Calculates the [[chrono::date]],
 // given a year and day-of-year.
 fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
-	const ymd = calc_ymd_from_yd(y, yd)?;
-	return calc_date_from_ymd(ymd.0, ymd.1, ymd.2)?;
+	if (yd < 1 || yd > calc_n_days_in_year(y)) {
+		return invalid;
+	};
+	return calc_date_from_ymd(y, 1, 1)? + yd - 1;
 };
 
 @test fn calc_date_from_ymd() void = {
@@ -325,52 +303,6 @@ fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
 			assert(actual is chrono::date, "valid date not accepted");
 			assert(actual as chrono::date == expect, "date miscalculation");
 		};
-	};
-};
-
-@test fn calc_ymd_from_yd() void = {
-	const cases = [
-		((-0768, 01, 01), 1),
-		((-0768, 02, 05), 36),
-		((-0001, 12, 31), 365),
-		(( 0000, 01, 01), 1),
-		(( 0000, 01, 02), 2),
-		(( 0000, 12, 31), 366),
-		(( 0001, 01, 01), 1),
-		(( 0001, 01, 02), 2),
-		(( 1965, 03, 23), 82),
-		(( 1969, 12, 31), 365),
-		(( 1970, 01, 01), 1),
-		(( 1970, 01, 02), 2),
-		(( 1999, 12, 31), 365),
-		(( 2000, 01, 01), 1),
-		(( 2000, 01, 02), 2),
-		(( 2020, 01, 01), 1),
-		(( 2022, 02, 28), 59),
-		(( 2022, 03, 01), 60),
-		(( 2023, 12, 31), 365),
-		(( 2024, 02, 28), 59),
-		(( 2024, 02, 29), 60),
-		(( 2024, 03, 01), 61),
-		(( 2024, 12, 12), 347),
-		(( 2024, 12, 31), 366),
-		(( 2038, 01, 18), 18),
-		(( 2038, 01, 19), 19),
-		(( 2038, 01, 20), 20),
-		(( 2243, 10, 17), 290),
-		(( 4707, 11, 28), 332),
-		(( 4707, 11, 29), 333),
-		((29349, 01, 25), 25),
-	];
-
-	for (let i = 0z; i < len(cases); i += 1) {
-		const expected = cases[i].0;
-		const yd = cases[i].1;
-		const actual = calc_ymd_from_yd(expected.0, yd)!;
-		assert(expected.0 == actual.0 &&
-			expected.1 == actual.1 &&
-			expected.2 == actual.2,
-			"incorrect calc_ymd_from_yd() result");
 	};
 };
 
