@@ -240,11 +240,7 @@ fn calc_date_from_ymd(y: int, m: int, d: int) (chrono::date | invalid) = {
 // given a year, week, and day-of-week.
 fn calc_date_from_ywd(y: int, w: int, wd: int) (chrono::date | invalid) = {
 	const jan1wd = calc_janfirstweekday(y);
-	const yd = if (w == 0) {
-		yield wd - jan1wd + 1;
-	} else {
-		yield (7 - jan1wd + 1) + (7 * (w - 1)) + wd;
-	};
+	const yd = wd - jan1wd + 1 + 7 * w;
 	return calc_date_from_yd(y, yd)?;
 };
 
