@@ -96,7 +96,7 @@ export fn tests_main() size = {
 };
 
 fn print(msg: str) void = {
-	write(1, *(&msg: **void): *const char, len(msg))!;
+	write(STDOUT_FILENO, *(&msg: **void): *const char, len(msg))!;
 };
 
 fn dots(n: size) void = {

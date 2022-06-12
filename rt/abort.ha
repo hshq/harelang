@@ -19,11 +19,11 @@ export @noreturn fn abort_fixed(loc: str, i: int) void = {
 	const prefix = "Abort: ";
 	const sep = ": ";
 	const linefeed = "\n";
-	write(2, *(&prefix: **void): *const char, len(prefix)): void;
-	write(2, *(&loc: **void): *const char, len(loc)): void;
-	write(2, *(&sep: **void): *const char, len(sep)): void;
-	write(2, *(&reasons[i]: **void): *const char, len(reasons[i])): void;
-	write(2, *(&linefeed: **void): *const char, 1): void;
+	write(STDERR_FILENO, *(&prefix: **void): *const char, len(prefix)): void;
+	write(STDERR_FILENO, *(&loc: **void): *const char, len(loc)): void;
+	write(STDERR_FILENO, *(&sep: **void): *const char, len(sep)): void;
+	write(STDERR_FILENO, *(&reasons[i]: **void): *const char, len(reasons[i])): void;
+	write(STDERR_FILENO, *(&linefeed: **void): *const char, 1): void;
 	kill(getpid(), SIGABRT): void;
 	for (true) void;
 };

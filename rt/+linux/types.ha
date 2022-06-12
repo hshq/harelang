@@ -822,3 +822,7 @@ export type ptrace_syscall_info = struct {
 		},
 	},
 };
+
+export def STDIN_FILENO: int = 0;
+export def STDOUT_FILENO: int = 1;
+export def STDERR_FILENO: int = 2;

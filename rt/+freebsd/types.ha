@@ -419,3 +419,7 @@ export def WCONTINUED: int = 4;
 export def WNOWAIT: int = 8;
 export def WEXITED: int = 16;
 export def WTRAPPED: int = 32;
+
+export def STDIN_FILENO: int = 0;
+export def STDOUT_FILENO: int = 1;
+export def STDERR_FILENO: int = 2;
