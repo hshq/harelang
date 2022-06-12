@@ -12,7 +12,6 @@ use io;
 use os;
 use path;
 use strio;
-use strings;
 
 fn get_tmpdir() str = os::tryenv("TMPDIR", "/tmp");
 

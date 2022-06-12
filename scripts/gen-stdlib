@@ -1249,11 +1249,11 @@ strio() {
 temp() {
 	gen_srcs -plinux temp +linux.ha
 	gen_ssa -plinux temp \
-		crypto::random encoding::hex fs io os path strio fmt strings
+		crypto::random encoding::hex errors fs io os path strio fmt
 
 	gen_srcs -pfreebsd temp +freebsd.ha
 	gen_ssa -pfreebsd temp \
-		crypto::random encoding::hex fs io os path strio fmt strings
+		crypto::random encoding::hex errors fs io os path strio fmt
 }
 
 time() {
