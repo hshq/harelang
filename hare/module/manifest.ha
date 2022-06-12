@@ -292,8 +292,7 @@ export fn manifest_write(ctx: *context, man: *manifest) (void | error) = {
 	let mpath = path::join(cachedir, "manifest");
 	defer free(mpath);
 
-	let file = temp::named(ctx.fs, cachedir, io::mode::WRITE, 0o644)?;
-	let name = file.1, file = file.0;
+	let (file, name) = temp::named(ctx.fs, cachedir, io::mode::WRITE, 0o644)?;
 	defer {
 		fs::remove(ctx.fs, name): void;
 		io::close(file)!;
