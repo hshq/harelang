@@ -30,7 +30,7 @@ export def GROUP_KEYRING: serial = -6;
 // The caller's GID-session keyring.
 export def REQKEY_AUTH_KEY: serial = -7;
 
-// The Key ID for the [[request_key]] destination keyring.
+// The Key ID for the [[reqkey]] destination keyring.
 export def REQUESTOR_KEYRING: serial = -8;
 
 // request-key default keyrings
