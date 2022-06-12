@@ -45,6 +45,10 @@ case errors::exists =>
 	yield "File or directory exists";
 case errors::invalid =>
 	yield "Invalid argument";
+case errors::busy =>
+	yield "Device is busy";
+case errors::unsupported =>
+	yield "Operation not supported";
 case let err: io::error =>
 	yield io::strerror(err);
 };
