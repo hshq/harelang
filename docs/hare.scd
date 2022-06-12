@@ -36,10 +36,10 @@ hare - compiles, runs, and tests Hare programs
 # DESCRIPTION
 
 ; TODO: Decide on and document driver exit statuses
-*hare build* compiles a Hare program into an executable. The _path_ argument
-shall be either the path to a Hare source file, or to a directory which contains
-a Hare module (see *MODULES* below), or may be omitted, in which case the
-working directory shall contain the Hare module to build.
+*hare build* compiles a Hare program into an executable. The _path_ argument is
+a path to a Hare source file or a directory which contains a Hare module (see
+*MODULES* below). If no path is given, the Hare module contained in the current
+working directory is built.
 
 *hare deps* queries the dependencies graph of a Hare program. The _path_ argument
 is equivalent in usage to *hare build*.
@@ -73,12 +73,11 @@ value, and optional context, separated by tabs.
 	it.
 
 *-D* _ident:type=value_
-	Passed to *harec*(1) to define an object in the type system. _ident_
-	shall be the identifier of this object (e.g. foo::bar::baz), _type_
-	shall be its type (in Hare syntax, e.g. "str" or
-	"struct { x: int, y: int }"), and _value_ shall be the desired value (as a
-	Hare expression, e.g. "42"). Take care to address any necessary
-	escaping to avoid conflicts between your shell syntax and Hare syntax.
+	Passed to *harec*(1) to define a constant in the type system. _ident_ is
+	parsed as a Hare identifier (e.g. "foo::bar::baz"), _type_ as a Hare
+	type (e.g. "str" or "struct { x: int, y: int }"), and _value_ as a Hare
+	expression (e.g. "42"). Take care to address any necessary escaping to
+	avoid conflicts between your shell syntax and Hare syntax.
 
 *-j* _jobs_
 	Defines the maximum number of jobs which *hare* will execute in
@@ -123,12 +122,11 @@ value, and optional context, separated by tabs.
 	it.
 
 *-D* _ident:type=value_
-	Passed to *harec*(1) to define an object in the type system. _ident_
-	shall be the identifier of this object (e.g. foo::bar::baz), _type_
-	shall be its type (in Hare syntax, e.g. "str" or
-	"struct { x: int, y: int }"), and _value_ shall be the desired value (as a
-	Hare expression, e.g. "42"). Take care to address any necessary
-	escaping to avoid conflicts between your shell syntax and Hare syntax.
+	Passed to *harec*(1) to define a constant in the type system. _ident_ is
+	parsed as a Hare identifier (e.g. "foo::bar::baz"), _type_ as a Hare
+	type (e.g. "str" or "struct { x: int, y: int }"), and _value_ as a Hare
+	expression (e.g. "42"). Take care to address any necessary escaping to
+	avoid conflicts between your shell syntax and Hare syntax.
 
 *-j* _jobs_
 	Defines the maximum number of jobs which *hare* will execute in
@@ -152,12 +150,11 @@ value, and optional context, separated by tabs.
 	it.
 
 *-D* _ident:type=value_
-	Passed to *harec*(1) to define an object in the type system. _ident_
-	shall be the identifier of this object (e.g. foo::bar::baz), _type_
-	shall be its type (in Hare syntax, e.g. "str" or
-	"struct { x: int, y: int }"), and _value_ shall be the desired value (as a
-	Hare expression, e.g. "42"). Take care to address any necessary
-	escaping to avoid conflicts between your shell syntax and Hare syntax.
+	Passed to *harec*(1) to define a constant in the type system. _ident_ is
+	parsed as a Hare identifier (e.g. "foo::bar::baz"), _type_ as a Hare
+	type (e.g. "str" or "struct { x: int, y: int }"), and _value_ as a Hare
+	expression (e.g. "42"). Take care to address any necessary escaping to
+	avoid conflicts between your shell syntax and Hare syntax.
 
 *-j* _jobs_
 	Defines the maximum number of jobs which *hare* will execute in
