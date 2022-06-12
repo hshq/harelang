@@ -153,7 +153,6 @@ export type ltok = enum uint {
 	LAST_LITERAL = LIT_STR,
 
 	NAME,
-	LABEL,
 	EOF,
 };
 
@@ -337,9 +336,6 @@ export fn tokstr(tok: token) const str = {
 		return "str";
 	case ltok::NAME =>
 		return tok.1 as str;
-	case ltok::LABEL =>
-		// XXX: strings::concat(":", tok.1 as str)?
-		return "label";
 	case ltok::EOF =>
 		return "EOF";
 	case =>

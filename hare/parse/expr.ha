@@ -593,9 +593,9 @@ fn constant(lexer: *lex::lexer) (ast::expr | error) = {
 fn control(lexer: *lex::lexer) (ast::expr | error) = {
 	let tok = want(lexer, ltok::BREAK, ltok::CONTINUE, ltok::RETURN)?;
 	let label = if (tok.0 == ltok::BREAK || tok.0 == ltok::CONTINUE) {
-		yield match (try(lexer, ltok::LABEL)?) {
-		case let tok: lex::token =>
-			yield tok.1 as str;
+		yield match (try(lexer, ltok::COLON)?) {
+		case lex::token =>
+			yield want(lexer, ltok::NAME)?.1 as str;
 		case void =>
 			yield "";
 		};
@@ -640,11 +640,12 @@ fn delete_expr(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
 fn compound_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	let items: []*ast::expr = [];
 
-	const start = want(lexer, ltok::LBRACE, ltok::LABEL)?;
+	const start = want(lexer, ltok::LBRACE, ltok::COLON)?;
 	const label = switch (start.0) {
-	case ltok::LABEL =>
+	case ltok::COLON =>
+		const tok = want(lexer, ltok::NAME)?;
 		want(lexer, ltok::LBRACE)?;
-		yield start.1 as str;
+		yield tok.1 as str;
 	case =>
 		yield "";
 	};
@@ -1221,7 +1222,7 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (try(lexer,
 		ltok::PLUS, ltok::MINUS, ltok::BNOT,
 		ltok::LNOT, ltok::TIMES, ltok::BAND,
-		ltok::SWITCH, ltok::MATCH, ltok::LABEL, ltok::LBRACE)) {
+		ltok::SWITCH, ltok::MATCH, ltok::COLON, ltok::LBRACE)) {
 	case void =>
 		return builtin(lexer);
 	case let tok: lex::token =>
@@ -1232,7 +1233,7 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 		case ltok::MATCH =>
 			lex::unlex(lexer, tok);
 			return match_expr(lexer);
-		case ltok::LABEL, ltok::LBRACE =>
+		case ltok::COLON, ltok::LBRACE =>
 			lex::unlex(lexer, tok);
 			return compound_expr(lexer);
 		case =>
@@ -1300,15 +1301,15 @@ fn yield_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const start = want(lexer, ltok::YIELD)?;
 	let label = "";
 	let value: nullable *ast::expr = null;
-	match (try(lexer, ltok::SEMICOLON, ltok::LABEL, ltok::EOF)?) {
+	match (try(lexer, ltok::SEMICOLON, ltok::COLON, ltok::EOF)?) {
 	case void =>
 		value = alloc(expr(lexer)?);
 	case let t: lex::token =>
 		switch (t.0) {
 		case ltok::SEMICOLON, ltok::EOF =>
 			lex::unlex(lexer, t);
-		case ltok::LABEL =>
-			label = t.1 as str;
+		case ltok::COLON =>
+			label = want(lexer, ltok::NAME)?.1 as str;
 			match (try(lexer, ltok::COMMA)?) {
 			case void => void;
 			case lex::token =>

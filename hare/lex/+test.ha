@@ -179,7 +179,8 @@ fn loc(line: uint, col: uint) location = location {
 		(ltok::RETURN, void, loc(1, 13)),
 		(ltok::VOID, void, loc(1, 20)),
 		(ltok::NAME, "foobar", loc(1, 25)),
-		(ltok::LABEL, "foobaz", loc(1, 32)),
+		(ltok::COLON, void, loc(1, 32)),
+		(ltok::NAME, "foobaz", loc(1, 33)),
 	];
 	lextest(in, expected);
 };

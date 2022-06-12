@@ -107,7 +107,7 @@ export fn lex(lex: *lexer) (token | error) = {
 	lex.require_int = false;
 	if (is_name(r.0, false)) {
 		unget(lex, r);
-		return lex_name(lex, r.1, false);
+		return lex_name(lex, r.1);
 	};
 
 	let tok = switch (r.0) {
@@ -299,7 +299,7 @@ fn lex_rn_str(lex: *lexer) (token | error) = {
 	return ret;
 };
 
-fn lex_name(lex: *lexer, loc: location, label: bool) (token | error) = {
+fn lex_name(lex: *lexer, loc: location) (token | error) = {
 	let buf = strio::dynamic();
 	match (next(lex)) {
 	case let r: (rune, location) =>
@@ -322,9 +322,6 @@ fn lex_name(lex: *lexer, loc: location, label: bool) (token | error) = {
 	line_comment(lex)?;
 
 	let n = strio::string(&buf);
-	if (label) {
-		return (ltok::LABEL, n, loc);
-	};
 
 	match (sort::searchstrings(bmap[..ltok::LAST_KEYWORD+1], n)) {
 	case void =>
@@ -644,9 +641,7 @@ fn lex2(lexr: *lexer) (token | error) = {
 			case =>
 				unget(lexr, r);
 				line_comment(lexr)?;
-				return if (is_name(r.0, false)) {
-					yield lex_name(lexr, first.1, true)?;
-				} else (ltok::COLON, void, first.1);
+				return (ltok::COLON, void, first.1);
 			};
 		case io::EOF =>
 			return (ltok::COLON, void, first.1);
