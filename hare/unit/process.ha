@@ -148,7 +148,7 @@ fn process_expr(
 
 fn process_access(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const access_expr = aexpr.expr as ast::access_expr;
-	const op: (const *types::_type, access) = match (access_expr) {
+	const (result, ex) = match (access_expr) {
 	case let ai: ast::access_identifier =>
 		const object = match (ctx_lookup(ctx, ai)) {
 		case null =>
@@ -167,8 +167,8 @@ fn process_access(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	return alloc(expr {
 		start = aexpr.start,
 		end = aexpr.end,
-		result = op.0,
-		expr = op.1,
+		result = result,
+		expr = ex,
 		terminates = false,
 	});
 };
@@ -270,8 +270,7 @@ fn process_compound(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 
 fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const constexpr = aexpr.expr as ast::constant_expr;
-	// TODO: Tuple unpacking
-	const er: (const *types::_type, constant) = match (constexpr) {
+	const (result, ex) = match (constexpr) {
 	case let v: ast::value =>
 		yield (
 			// TODO: iconst/fconst lowering
@@ -287,7 +286,7 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 			case void =>
 				yield ast::builtin_type::VOID;
 			}),
-			v,
+			v: constant,
 		);
 	case ast::array_constant =>
 		abort(); // TODO
@@ -321,7 +320,7 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 			case lex::ltok::LIT_F64, lex::ltok::LIT_FCONST =>
 				yield ast::builtin_type::F64;
 			}),
-			v.value,
+			v.value: constant,
 		);
 	case ast::struct_constant =>
 		abort(); // TODO
@@ -331,8 +330,8 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	return alloc(expr {
 		start = aexpr.start,
 		end = aexpr.end,
-		result = er.0,
-		expr = er.1,
+		result = result,
+		expr = ex,
 		...
 	});
 };
