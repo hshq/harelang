@@ -5,12 +5,11 @@ sources:
 - git://c9x.me/qbe.git
 packages:
 - binutils
-- gmake
 tasks:
 - qbe: |
     cd qbe
-    gmake PREFIX=/usr
-    sudo gmake install PREFIX=/usr
+    make PREFIX=/usr
+    sudo make install PREFIX=/usr
 - harec: |
     mkdir harec/build
     cd harec/build
