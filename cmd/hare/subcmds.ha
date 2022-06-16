@@ -77,8 +77,8 @@ fn build(args: []str) void = {
 	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
-	let target = default_target();
-	let tags = module::tags_dup(target.tags);
+	let build_target = default_target();
+	let tags = module::tags_dup(build_target.tags);
 	defer module::tags_free(tags);
 
 	let verbose = false;
@@ -104,16 +104,13 @@ fn build(args: []str) void = {
 		case 'o' =>
 			output = opt.1;
 		case 't' =>
-			for (let i = 0z; i < len(targets); i += 1) {
-				if (targets[i].name == opt.1) {
-					target = &targets[i];
-					module::tags_free(tags);
-					tags = module::tags_dup(targets[i].tags);
-					break;
-				};
-			};
-			if (target == null) {
-				fmt::fatal("Unsupported target '{}'", opt.1);
+			match (get_target(opt.1)) {
+			case void =>
+				fmt::fatalf("Unsupported target '{}'", opt.1);
+			case let t: *target =>
+				build_target = t;
+				module::tags_free(tags);
+				tags = module::tags_dup(t.tags);
 			};
 		case 'T' =>
 			tags = match (addtags(tags, opt.1)) {
@@ -154,7 +151,7 @@ fn build(args: []str) void = {
 	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
-	const plan = mkplan(&ctx, libs, target);
+	const plan = mkplan(&ctx, libs, build_target);
 	defer plan_finish(&plan);
 
 	const ver = match (module::scan(&ctx, input)) {
@@ -287,8 +284,8 @@ fn run(args: []str) void = {
 	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
-	const target = default_target();
-	let tags = module::tags_dup(target.tags);
+	const build_target = default_target();
+	let tags = module::tags_dup(build_target.tags);
 	defer module::tags_free(tags);
 
 	let verbose = false;
@@ -347,7 +344,7 @@ fn run(args: []str) void = {
 	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
-	const plan = mkplan(&ctx, libs, target);
+	const plan = mkplan(&ctx, libs, build_target);
 	defer plan_finish(&plan);
 
 	const ver = match (module::scan(&ctx, input)) {
@@ -398,8 +395,8 @@ fn test(args: []str) void = {
 	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
-	const target = default_target();
-	let tags = module::tags_dup(target.tags);
+	const build_target = default_target();
+	let tags = module::tags_dup(build_target.tags);
 	append(tags, module::tag {
 		name = strings::dup("test"),
 		mode = module::tag_mode::INCLUSIVE,
@@ -464,7 +461,7 @@ fn test(args: []str) void = {
 	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
-	const plan = mkplan(&ctx, libs, target);
+	const plan = mkplan(&ctx, libs, build_target);
 	defer plan_finish(&plan);
 
 	let depends: []*task = [];
@@ -536,8 +533,8 @@ fn version(args: []str) void = {
 	if (verbose) {
 		fmt::errorln()!;
 		fmt::printf("Build tags\t")!;
-		const target = default_target();
-		const tags = target.tags;
+		const build_target = default_target();
+		const tags = build_target.tags;
 		for (let i = 0z; i < len(tags); i += 1) {
 			const tag = tags[i];
 			const inclusive = (tag.mode & module::tag_mode::INCLUSIVE) == 0;

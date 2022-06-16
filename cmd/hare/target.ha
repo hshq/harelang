@@ -12,12 +12,21 @@ type target = struct {
 };
 
 fn default_target() *target = {
+	let default = get_target(ARCH);
+	match (default) {
+	case void =>
+		abort("Build configuration error - unknown default target");
+	case let t: *target =>
+		return t;
+	};
+};
+
+fn get_target(name: str) (*target | void) = {
 	for (let i = 0z; i < len(targets); i += 1) {
-		if (targets[i].tags[0].name == ARCH) {
+		if (targets[i].name == name) {
 			return &targets[i];
 		};
 	};
-	abort("Build configuration error - unknown default target");
 };
 
 // TODO:
