@@ -1386,7 +1386,7 @@ stdlib_hash_fnv_any_srcs = \
 	$(STDLIB)/hash/fnv/+$(ARCH).ha \
 	$(STDLIB)/hash/fnv/fnv.ha
 
-$(HARECACHE)/hash/fnv/hash_fnv-any.ssa: $(stdlib_hash_fnv_any_srcs) $(stdlib_rt) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+$(HARECACHE)/hash/fnv/hash_fnv-any.ssa: $(stdlib_hash_fnv_any_srcs) $(stdlib_rt) $(stdlib_endian_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hash/fnv
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::fnv \
@@ -3558,7 +3558,7 @@ testlib_hash_fnv_any_srcs = \
 	$(STDLIB)/hash/fnv/+$(ARCH).ha \
 	$(STDLIB)/hash/fnv/fnv.ha
 
-$(TESTCACHE)/hash/fnv/hash_fnv-any.ssa: $(testlib_hash_fnv_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/hash/fnv/hash_fnv-any.ssa: $(testlib_hash_fnv_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hash/fnv
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::fnv \

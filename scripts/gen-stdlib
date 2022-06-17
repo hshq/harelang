@@ -817,7 +817,7 @@ hash_fnv() {
 	gen_srcs hash::fnv \
 		'+$(ARCH).ha' \
 		fnv.ha
-	gen_ssa hash::fnv hash io strings
+	gen_ssa hash::fnv endian hash io strings
 }
 
 hash_siphash() {
