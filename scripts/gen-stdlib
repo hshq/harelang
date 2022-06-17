@@ -371,7 +371,7 @@ crypto_mac() {
 
 crypto_math() {
 	gen_srcs crypto::math \
-		bits.ha
+		arithm.ha bits.ha
 	gen_ssa crypto::math
 }
 

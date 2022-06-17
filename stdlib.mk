@@ -892,6 +892,7 @@ $(HARECACHE)/crypto/mac/crypto_mac-any.ssa: $(stdlib_crypto_mac_any_srcs) $(stdl
 
 # crypto::math (+any)
 stdlib_crypto_math_any_srcs = \
+	$(STDLIB)/crypto/math/arithm.ha \
 	$(STDLIB)/crypto/math/bits.ha
 
 $(HARECACHE)/crypto/math/crypto_math-any.ssa: $(stdlib_crypto_math_any_srcs) $(stdlib_rt)
@@ -3040,6 +3041,7 @@ $(TESTCACHE)/crypto/mac/crypto_mac-any.ssa: $(testlib_crypto_mac_any_srcs) $(tes
 
 # crypto::math (+any)
 testlib_crypto_math_any_srcs = \
+	$(STDLIB)/crypto/math/arithm.ha \
 	$(STDLIB)/crypto/math/bits.ha
 
 $(TESTCACHE)/crypto/math/crypto_math-any.ssa: $(testlib_crypto_math_any_srcs) $(testlib_rt)
