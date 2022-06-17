@@ -202,7 +202,7 @@ export fn compare(a: []u8, b: []u8) bool = {
 		return false;
 	};
 
-	return math::cmpslice(a, b) == 1;
+	return math::eqslice(a, b) == 1;
 };
 
 // TODO: Add additional entry-points which provide a finer degree of control

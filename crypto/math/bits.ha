@@ -62,30 +62,30 @@ export fn xor(dest: []u8, a: []u8, b: []u8) void = {
 // Compare two byte slices in constant time.
 //
 // Returns 1 if the two slices have the same contents, 0 otherwise.
-export fn cmpslice(x: []u8, y: []u8) int = {
+export fn eqslice(x: []u8, y: []u8) int = {
 	assert(len(x) == len(y), "slices must have the same length");
 	let v: u8 = 0;
 	for (let i = 0z; i < len(x); i += 1) {
 		v |= x[i] ^ y[i];
 	};
-	return cmpu8(v, 0);
+	return equ8(v, 0);
 };
 
-@test fn cmpslice() void = {
-	assert(cmpslice([], []) == 1);
-	assert(cmpslice([0], [0]) == 1);
-	assert(cmpslice([1], [0]) == 0);
-	assert(cmpslice([1, 0], [0, 0]) == 0);
-	assert(cmpslice([0, 0], [0, 0]) == 1);
+@test fn eqslice() void = {
+	assert(eqslice([], []) == 1);
+	assert(eqslice([0], [0]) == 1);
+	assert(eqslice([1], [0]) == 0);
+	assert(eqslice([1, 0], [0, 0]) == 0);
+	assert(eqslice([0, 0], [0, 0]) == 1);
 
-	assert(cmpslice([0x12, 0xAB], [0x12, 0xAB]) == 1);
-	assert(cmpslice([0x12, 0xAB], [0x12, 0xAC]) == 0);
-	assert(cmpslice([0x12, 0xAB], [0x11, 0xAB]) == 0);
+	assert(eqslice([0x12, 0xAB], [0x12, 0xAB]) == 1);
+	assert(eqslice([0x12, 0xAB], [0x12, 0xAC]) == 0);
+	assert(eqslice([0x12, 0xAB], [0x11, 0xAB]) == 0);
 };
 
 // Compare two bytes in constant time. Returns 1 if the bytes are the same
 // value, 0 otherwise.
-export fn cmpu8(x: u8, y: u8) int = ((((x ^ y) : u32) - 1) >> 31) : int;
+export fn equ8(x: u8, y: u8) int = ((((x ^ y) : u32) - 1) >> 31) : int;
 
 // Returns x if ctl == 1 and y if ctl == 0.
 export fn muxu32(ctl: u32, x: u32, y: u32) u32 = y ^ ((-(ctl: i32)): u32 & (x ^ y));

@@ -1,7 +1,7 @@
 // License: MPL-2.0
 // (c) 2022 Armin Preiml <apreiml@strohwolke.at>
 use bytes;
-use crypto::math::{xor,cmpslice};
+use crypto::math::{xor,eqslice};
 use endian::{beputu64, beputu32, begetu32};
 use errors;
 use io;
@@ -227,7 +227,7 @@ export fn gcm_verify(s: *gcmstream, tag: [16]u8) (void | errors::invalid) = {
 	encrypt(s.block, tmp, s.y0);
 	xor(tmp, tmp, s.tagbuf);
 
-	if (cmpslice(tag, tmp) == 0) {
+	if (eqslice(tag, tmp) == 0) {
 		return errors::invalid;
 	};
 };
