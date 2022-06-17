@@ -815,6 +815,7 @@ hash_crc64() {
 
 hash_fnv() {
 	gen_srcs hash::fnv \
+		'+$(ARCH).ha' \
 		fnv.ha
 	gen_ssa hash::fnv hash io strings
 }

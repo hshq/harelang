@@ -1383,6 +1383,7 @@ $(HARECACHE)/hash/crc64/hash_crc64-any.ssa: $(stdlib_hash_crc64_any_srcs) $(stdl
 
 # hash::fnv (+any)
 stdlib_hash_fnv_any_srcs = \
+	$(STDLIB)/hash/fnv/+$(ARCH).ha \
 	$(STDLIB)/hash/fnv/fnv.ha
 
 $(HARECACHE)/hash/fnv/hash_fnv-any.ssa: $(stdlib_hash_fnv_any_srcs) $(stdlib_rt) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
@@ -3554,6 +3555,7 @@ $(TESTCACHE)/hash/crc64/hash_crc64-any.ssa: $(testlib_hash_crc64_any_srcs) $(tes
 
 # hash::fnv (+any)
 testlib_hash_fnv_any_srcs = \
+	$(STDLIB)/hash/fnv/+$(ARCH).ha \
 	$(STDLIB)/hash/fnv/fnv.ha
 
 $(TESTCACHE)/hash/fnv/hash_fnv-any.ssa: $(testlib_hash_fnv_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))

@@ -21,9 +21,6 @@ export type state64 = struct {
 	v: u64,
 };
 
-// Hashes a string, returning a size key, for use in a hash map.
-export fn string(s: str) size = string64(s): size;
-
 // Hashes a string, returning a 32-bit key.
 export fn string32(s: str) u32 = {
 	let hash = fnv32a();
