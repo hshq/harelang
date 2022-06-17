@@ -399,6 +399,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		yield r;
 	};
 
+	let started = false;
 	let base = 10u;
 	if (r.0 == '0') {
 		append(chars, utf8::encoderune(r.0)...);
@@ -416,6 +417,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		case 'x' =>
 			base = 16;
 		case =>
+			started = true;
 			unget(lex, r);
 		};
 	} else unget(lex, r);
@@ -443,6 +445,10 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		};
 		if (!strings::contains(basechrs, r.0)) switch (r.0) {
 		case '.' =>
+			if (!started) {
+				return syntaxerr(loc,
+					"Expected integer literal");
+			};
 			if (float || exp is size || suff is size
 					|| base != 10 || lex.require_int) {
 				unget(lex, r);
@@ -468,6 +474,10 @@ fn lex_literal(lex: *lexer) (token | error) = {
 				append(chars, utf8::encoderune('.')...);
 			};
 		case 'e', 'E' =>
+			if (!started) {
+				return syntaxerr(loc,
+					"Expected integer literal");
+			};
 			if (exp is size || suff is size || base != 10) {
 				unget(lex, r);
 				break;
@@ -490,7 +500,11 @@ fn lex_literal(lex: *lexer) (token | error) = {
 				basechrs = "0123456789";
 			};
 		case 'i', 'u', 'f', 'z' =>
-			if (suff is size) {
+			if (!started) {
+				return syntaxerr(loc,
+					"Expected integer literal");
+			};
+			if (suff is size || r.0 != 'f' && float) {
 				unget(lex, r);
 				break;
 			} else {
@@ -503,6 +517,10 @@ fn lex_literal(lex: *lexer) (token | error) = {
 			unget(lex, r);
 			break;
 		} else append(chars, utf8::encoderune(r.0)...);
+		started = true;
+	};
+	if (!started) {
+		return syntaxerr(loc, "expected integer literal");
 	};
 	if (end == 0) end = len(chars);
 	lex.require_int = false;
