@@ -86,3 +86,82 @@ export fn cmpslice(x: []u8, y: []u8) int = {
 // Compare two bytes in constant time. Returns 1 if the bytes are the same
 // value, 0 otherwise.
 export fn cmpu8(x: u8, y: u8) int = ((((x ^ y) : u32) - 1) >> 31) : int;
+
+// Returns x if ctl == 1 and y if ctl == 0.
+export fn muxu32(ctl: u32, x: u32, y: u32) u32 = y ^ ((-(ctl: i32)): u32 & (x ^ y));
+
+@test fn muxu32() void = {
+	assert(muxu32(1, 0x4, 0xff) == 0x4);
+	assert(muxu32(0, 0x4, 0xff) == 0xff);
+};
+
+// Negates first bit.
+export fn notu32(x: u32) u32 = x ^ 1;
+
+// Compares 'x' and 'y'. Returns 1 if they are equal or 0 otherwise.
+export fn equ32(x: u32, y: u32) u32 = {
+	let q = x ^ y;
+	return ((q | -(q: i32): u32) >> 31) ^ 1;
+};
+
+@test fn equ32() void = {
+	assert(equ32(0x4f, 0x4f) == 1);
+	assert(equ32(0x4f, 0x0) == 0);
+	assert(equ32(0x2, 0x6) == 0);
+};
+
+// Returns 1 if 'x' is zero or 0 if not.
+export fn eq0u32(x: i32) u32 = {
+	const q: u32 = x: u32;
+	return ~(q | -q) >> 31;
+};
+
+@test fn eq0u32() void = {
+	assert(eq0u32(0) == 1);
+	assert(eq0u32(1) == 0);
+	assert(eq0u32(0x1234) == 0);
+};
+
+
+// Returns 1 if x != y and 0 otherwise.
+export fn nequ32(x: u32, y: u32) u32 = {
+	let q = x ^ y;
+	return (q | -(q: i32): u32) >> 31;
+};
+
+// Returns 1 if x > y and 0 otherwise.
+export fn gtu32(x: u32, y: u32) u32 = {
+	let z: u32 = y - x;
+	return (z ^ ((x ^ y) & (x ^ z))) >> 31;
+};
+
+@test fn gtu32() void = {
+	assert(gtu32(1, 0) == 1);
+	assert(gtu32(0, 1) == 0);
+	assert(gtu32(0, 0) == 0);
+
+	assert(gtu32(0xf3, 0xf2) == 1);
+	assert(gtu32(0x20, 0xff) == 0);
+	assert(gtu32(0x23, 0x23) == 0);
+};
+
+// Returns 1 if x >= y and 0 otherwise.
+export fn geu32(x: u32, y: u32) u32 = notu32(gtu32(y, x));
+//
+// Returns 1 if x < y and 0 otherwise.
+export fn ltu32(x: u32, y: u32) u32 = gtu32(y, x);
+//
+// Returns 1 if x <= y and 0 otherwise.
+export fn leu32(x: u32, y: u32) u32 = notu32(gtu32(x, y));
+
+// Compares 'x' with 'y'. Returns -1 if x < y, 0 if x == y and 1 if x > x.
+export fn cmpu32(x: u32, y: u32) i32 = gtu32(x, y): i32 | -(gtu32(y, x): i32);
+
+@test fn cmpu32() void = {
+	assert(cmpu32(0, 0) == 0);
+	assert(cmpu32(0x34, 0x34) == 0);
+
+	assert(cmpu32(0x12, 0x34) == -1);
+	assert(cmpu32(0x87, 0x34) == 1);
+};
+
