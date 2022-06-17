@@ -6,10 +6,10 @@ use hash;
 use io;
 use strings;
 
-def prime32: u32 = 16777619;
-def prime64: u64 = 1099511628211;
-def basis32: u32 = 2166136261;
-def basis64: u64 = 14695981039346656037;
+def PRIME32: u32 = 16777619;
+def PRIME64: u64 = 1099511628211;
+def BASIS32: u32 = 2166136261;
+def BASIS64: u64 = 14695981039346656037;
 
 export type state32 = struct {
 	hash::hash,
@@ -53,7 +53,7 @@ export fn fnv32() state32 = state32 {
 	sum = &fnv32_sum,
 	reset = &fnv32_reset,
 	sz = 4,
-	v = basis32,
+	v = BASIS32,
 	...
 };
 
@@ -70,7 +70,7 @@ export fn fnv32a() state32 = state32 {
 	sum = &fnv32_sum,
 	reset = &fnv32_reset,
 	sz = 4,
-	v = basis32,
+	v = BASIS32,
 	...
 };
 
@@ -89,7 +89,7 @@ export fn fnv64() state64 = state64 {
 	sum = &fnv64_sum,
 	reset = &fnv64_reset,
 	sz = 8,
-	v = basis64,
+	v = BASIS64,
 	...
 };
 
@@ -106,14 +106,14 @@ export fn fnv64a() state64 = state64 {
 	sum = &fnv64_sum,
 	reset = &fnv64_reset,
 	sz = 8,
-	v = basis64,
+	v = BASIS64,
 	...
 };
 
 fn fnv32_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state32;
 	for (let i = 0z; i < len(buf); i += 1) {
-		s.v *= prime32;
+		s.v *= PRIME32;
 		s.v ^= buf[i];
 	};
 	return len(buf);
@@ -123,14 +123,14 @@ fn fnv32a_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state32;
 	for (let i = 0z; i < len(buf); i += 1) {
 		s.v ^= buf[i];
-		s.v *= prime32;
+		s.v *= PRIME32;
 	};
 	return len(buf);
 };
 
 fn fnv32_reset(h: *hash::hash) void = {
 	let h = h: *state32;
-	h.v = basis32;
+	h.v = BASIS32;
 };
 
 fn fnv32_sum(h: *hash::hash, buf: []u8) void = {
@@ -141,7 +141,7 @@ fn fnv32_sum(h: *hash::hash, buf: []u8) void = {
 fn fnv64_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state64;
 	for (let i = 0z; i < len(buf); i += 1) {
-		s.v *= prime64;
+		s.v *= PRIME64;
 		s.v ^= buf[i];
 	};
 	return len(buf);
@@ -151,14 +151,14 @@ fn fnv64a_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *state64;
 	for (let i = 0z; i < len(buf); i += 1) {
 		s.v ^= buf[i];
-		s.v *= prime64;
+		s.v *= PRIME64;
 	};
 	return len(buf);
 };
 
 fn fnv64_reset(h: *hash::hash) void = {
 	let h = h: *state64;
-	h.v = basis64;
+	h.v = BASIS64;
 };
 
 fn fnv64_sum(h: *hash::hash, buf: []u8) void = {
