@@ -504,7 +504,8 @@ fn lex_literal(lex: *lexer) (token | error) = {
 				return syntaxerr(loc,
 					"Expected integer literal");
 			};
-			if (suff is size || r.0 != 'f' && float) {
+			if (suff is size || r.0 != 'f' && float
+					|| r.0 == 'f' && base != 10) {
 				unget(lex, r);
 				break;
 			} else {
