@@ -40,12 +40,12 @@ export fn write(h: handle, buf: const []u8) (size | error) = {
 // after calling this function. Closing a file handle can fail only under
 // certain conditions (for example, closing a file twice, or an interrupted
 // syscall). However, the user should not attempt to close the file again on
-// failure - at best the user should print a diagnostic message and move on. See 
+// failure - at best the user should print a diagnostic message and move on. See
 // close(2) for details.
 export fn close(h: handle) (void | error) = {
 	match (h) {
 	case let fd: file =>
-		fd_close(fd);
+		fd_close(fd)?;
 	case let st: *stream =>
 		st_close(st)?;
 	};

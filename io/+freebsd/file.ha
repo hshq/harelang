@@ -41,7 +41,13 @@ fn fd_write(fd: file, buf: const []u8) (size | error) = {
 	};
 };
 
-fn fd_close(fd: file) void = rt::close(fd)!;
+fn fd_close(fd: file) (void | error) = {
+	match (rt::close(fd)) {
+	case void => void;
+	case let err: rt::errno =>
+		return errors::errno(err);
+	};
+};
 
 fn fd_seek(
 	fd: file,
