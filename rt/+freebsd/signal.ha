@@ -11,8 +11,8 @@ export fn sigemptyset(set: *sigset) int = {
 };
 
 export fn sigaddset(set: *sigset, signum: int) (int | errno) = {
-	if (signum > NSIG) {
-		return EINVAL;
+	if (signum < 1 || signum > NSIG) {
+		return wrap_errno(EINVAL);
 	};
 	signum -= 1;
 	set.__bits[signum >> 5] |= (1 << signum): u32;
@@ -20,8 +20,8 @@ export fn sigaddset(set: *sigset, signum: int) (int | errno) = {
 };
 
 export fn sigdelset(set: *sigset, signum: int) (int | errno) = {
-	if (signum > NSIG) {
-		return EINVAL;
+	if (signum < 1 || signum > NSIG) {
+		return wrap_errno(EINVAL);
 	};
 	signum -= 1;
 	set.__bits[signum >> 5] &= ~(1 << signum: u32);
@@ -29,8 +29,8 @@ export fn sigdelset(set: *sigset, signum: int) (int | errno) = {
 };
 
 export fn sigismember(set: *sigset, signum: int) (int | errno) = {
-	if (signum > NSIG) {
-		return EINVAL;
+	if (signum < 1 || signum > NSIG) {
+		return wrap_errno(EINVAL);
 	};
 	signum -= 1;
 	if ((set.__bits[signum >> 5] & (1 << signum: u32)) != 0) {

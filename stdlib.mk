@@ -2192,6 +2192,7 @@ testlib_rt_linux_srcs = \
 	$(STDLIB)/rt/+test/+$(PLATFORM).ha \
 	$(STDLIB)/rt/+test/cstring.ha \
 	$(STDLIB)/rt/+test/run.ha \
+	$(STDLIB)/rt/+test/signal.ha \
 	$(STDLIB)/rt/+test/ztos.ha
 
 # rt (+freebsd)
@@ -2222,6 +2223,7 @@ testlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/+test/+$(PLATFORM).ha \
 	$(STDLIB)/rt/+test/cstring.ha \
 	$(STDLIB)/rt/+test/run.ha \
+	$(STDLIB)/rt/+test/signal.ha \
 	$(STDLIB)/rt/+test/ztos.ha
 
 $(TESTCACHE)/rt/rt-linux.ssa: $(testlib_rt_linux_srcs) $(testlib_rt)

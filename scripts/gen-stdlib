@@ -84,6 +84,7 @@ rt() {
 			'+test/+$(PLATFORM).ha' \
 			+test/cstring.ha \
 			+test/run.ha \
+			+test/signal.ha \
 			+test/ztos.ha
 	fi
 	gen_ssa -plinux rt
