@@ -23,9 +23,6 @@
 
 	// It's ok to delete a signal that is not present in the set.
 	assert(!(sigdelset(&set, 10) is errno), "Unexpected error");
-
-	// sigfillset() always succeeds.
-	assert(!(sigfillset(&set) is errno), "Unexpected error");
 };
 
 // Test sigset operations fail for invalid signal numbers.

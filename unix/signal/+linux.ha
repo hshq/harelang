@@ -130,7 +130,7 @@ export fn sigset_del(set: *sigset, items: signal...) void = {
 
 // Returns true if the given signal is a member of this [[sigset]].
 export fn sigset_member(set: *sigset, item: signal) bool = {
-	return rt::sigismember(set, item)! == 1;
+	return rt::sigismember(set, item)!;
 };
 
 // Provides additional information about signal deliveries. Only the members
