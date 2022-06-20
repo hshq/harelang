@@ -92,7 +92,7 @@ export fn parse(build: *builder, layout: str, s: str) (void | invalid) = {
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 		case 'N' =>
 			build.nsec = clamp_int(
-				get_max_n_digits(&s_iter, 3)?, 0, 999);
+				get_max_n_digits(&s_iter, 9)?, 0, 999999999);
 		case 'p' =>
 			if (build.hour is void) {
 				// We can't change the hour's am/pm because we
