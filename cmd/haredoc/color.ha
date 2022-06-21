@@ -26,8 +26,8 @@ type syn = enum uint {
 // Colors/Renditions with defaults; SGR parameters for ANSI escape sequences.
 let COLORS: [_](str, str) = [
 	("normal"      ,  "0"),
-	("comment"     ,  "0"),
-	("primary"     ,  "1"),
+	("comment"     ,  "1"),
+	("primary"     ,  "0"),
 	("secondary"   ,  "0"),
 	("keyword"     , "94"),
 	("type"        , "96"),

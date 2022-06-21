@@ -70,8 +70,8 @@ syntax category. A valid _seq_ must contain either a single underscore "\_"; or
 digits and/or semicolons ";". Here are the initial default _key_=_seq_ entries.
 
 . normal        "0"
-. comment       "0"
-. primary       "1"
+. comment       "1"
+. primary       "0"
 . secondary     "0"
 . keyword       "94"
 . type          "96"
