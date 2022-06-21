@@ -4,6 +4,7 @@
 // (c) 2021-2022 Vlad-Stefan Harbuz <vlad@vladh.net>
 use errors;
 use strings;
+use time;
 
 // Parses a date/time string into a [[builder]], according to a layout format
 // string with specifiers as documented under [[format]]. Partial, sequential,
@@ -144,8 +145,24 @@ export fn parse(build: *builder, layout: str, s: str) (void | invalid) = {
 		case 'Y' =>
 			build.year = get_max_n_digits(&s_iter, 4)?;
 		case 'z' =>
-			// TODO
-			continue;
+			const rest = strings::iterstr(&s_iter);
+			if(strings::hasprefix(rest, 'Z') || strings::hasprefix(rest, 'z')) {
+				build.zone.zoffset = 0;
+			} else {
+				const prefix = strings::next(&s_iter);
+				build.zone.zoffset = get_max_n_digits(&s_iter, 2)? * time::HOUR;
+
+				const rest = strings::iterstr(&s_iter);
+				if(strings::hasprefix(rest, ":")) {
+					strings::next(&s_iter);
+				};
+
+				build.zone.zoffset += get_max_n_digits(&s_iter, 2)? * time::MINUTE;
+
+				if(prefix == '-') {
+					build.zone.zoffset *= -1;
+				};
+			};
 		case '%' =>
 			eat_one_rune(&s_iter, '%')?;
 
