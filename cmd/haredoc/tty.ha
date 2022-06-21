@@ -18,6 +18,7 @@ let firstline: bool = true;
 
 // Formats output as Hare source code (prototypes) with syntax highlighting
 fn emit_tty(ctx: *context) (void | error) = {
+	init_colors();
 	const summary = ctx.summary;
 
 	match (ctx.readme) {
@@ -60,11 +61,13 @@ fn emit_submodules_tty(ctx: *context) (void | error) = {
 	if (len(submodules) != 0) {
 		fmt::fprintln(ctx.out)?;
 		if (len(ctx.ident) == 0) {
-			fmt::fprintln(ctx.out,
-				"\x1b[1m" "// Modules" "\x1b[0m")?;
+			render(ctx.out, syn::COMMENT)?;
+			fmt::fprintln(ctx.out, "// Modules")?;
+			render(ctx.out, syn::NORMAL)?;
 		} else {
-			fmt::fprintln(ctx.out,
-				"\x1b[1m" "// Submodules" "\x1b[0m")?;
+			render(ctx.out, syn::COMMENT)?;
+			fmt::fprintln(ctx.out, "// Submodules")?;
+			render(ctx.out, syn::NORMAL)?;
 		};
 		for (let i = 0z; i < len(submodules); i += 1) {
 			let submodule = if (len(ctx.ident) != 0) {
@@ -76,14 +79,19 @@ fn emit_submodules_tty(ctx: *context) (void | error) = {
 			};
 			defer free(submodule);
 
-			fmt::fprintfln(ctx.out,
-				"\x1b[1m" "// - [[{}]]" "\x1b[0m", submodule)?;
+			render(ctx.out, syn::COMMENT)?;
+			fmt::fprintfln(ctx.out, "// - [[{}]]", submodule)?;
+			render(ctx.out, syn::NORMAL)?;
 		};
 	};
 };
 
 fn comment_tty(out: io::handle, s: str) (size | io::error) = {
-	return fmt::fprintfln(out, "\x1b[1m" "//{}" "\x1b[0m", s)?;
+	let n = 0z;
+	n += render(out, syn::COMMENT)?;
+	n += fmt::fprintfln(out, "//{}", s)?;
+	n += render(out, syn::NORMAL)?;
+	return n;
 };
 
 fn docs_tty(out: io::handle, s: str, indent: size) (size | io::error) = {
@@ -137,45 +145,59 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 	let n = 0z;
 	match (d.decl) {
 	case let g: []ast::decl_global =>
-		n += fmt::fprint(out, "\x1b[34m")?;
-		n += fmt::fprint(out,
-			if (g[0].is_const) "const " else "let ")?;
-		n += fmt::fprint(out, "\x1b[0m")?;
+		n += render(out, syn::KEYWORD)?;
+		n += fmt::fprint(out, if (g[0].is_const) "const " else "let ")?;
 		for (let i = 0z; i < len(g); i += 1) {
 			if (len(g[i].symbol) != 0) {
-				n += fmt::fprintf(out,
-					"\x1b[33m" "@symbol(\"{}\") " "\x1b[0m",
-					g[i].symbol)?;
+				n += render(out, syn::ATTRIBUTE)?;
+				n += fmt::fprintf(out, "@symbol(")?;
+				n += render(out, syn::STRING)?;
+				n += fmt::fprintf(out, `"{}"`, g[i].symbol)?;
+				n += render(out, syn::ATTRIBUTE)?;
+				n += fmt::fprintf(out, ") ")?;
+				n += render(out, syn::NORMAL)?;
 			};
+			n += render(out, syn::PRIMARY)?;
 			n += unparse::ident(out, g[i].ident)?;
+			n += render(out, syn::PUNCTUATION)?;
 			n += fmt::fprint(out, ": ")?;
 			n += type_tty(out, 0, g[i]._type)?;
 			if (i + 1 < len(g)) {
+				n += render(out, syn::PUNCTUATION)?;
 				n += fmt::fprint(out, ", ")?;
 			};
+			n += render(out, syn::NORMAL)?;
 		};
 	case let c: []ast::decl_const =>
-		n += fmt::fprintf(out, "\x1b[34m" "def " "\x1b[0m")?;
+		n += render(out, syn::KEYWORD)?;
+		n += fmt::fprintf(out, "def ")?;
 		for (let i = 0z; i < len(c); i += 1) {
+			n += render(out, syn::PRIMARY)?;
 			n += unparse::ident(out, c[i].ident)?;
+			n += render(out, syn::PUNCTUATION)?;
 			n += fmt::fprint(out, ": ")?;
 			n += type_tty(out, 0, c[i]._type)?;
 			if (i + 1 < len(c)) {
+				n += render(out, syn::PUNCTUATION)?;
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
 	case let t: []ast::decl_type =>
-		n += fmt::fprint(out, "\x1b[34m" "type " "\x1b[0m")?;
+		n += render(out, syn::KEYWORD)?;
+		n += fmt::fprint(out, "type ")?;
 		for (let i = 0z; i < len(t); i += 1) {
+			n += render(out, syn::PRIMARY)?;
 			n += unparse::ident(out, t[i].ident)?;
+			n += render(out, syn::PUNCTUATION)?;
 			n += fmt::fprint(out, " = ")?;
 			n += type_tty(out, 0, t[i]._type)?;
 			if (i + 1 < len(t)) {
+				n += render(out, syn::PUNCTUATION)?;
 				n += fmt::fprint(out, ", ")?;
 			};
 		};
 	case let f: ast::decl_func =>
-		n += fmt::fprint(out, "\x1b[33m")?;
+		n += render(out, syn::ATTRIBUTE)?;
 		n += fmt::fprint(out, switch (f.attrs) {
 		case ast::fndecl_attrs::NONE =>
 			yield "";
@@ -186,23 +208,31 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 		case ast::fndecl_attrs::TEST =>
 			yield "@test ";
 		})?;
-		n += fmt::fprint(out, "\x1b[0m")?;
+		n += render(out, syn::NORMAL)?;
 
 		let p = f.prototype.repr as ast::func_type;
 		if (p.attrs & ast::func_attrs::NORETURN != 0) {
-			n += fmt::fprint(out,
-				"\x1b[33m" "@noreturn " "\x1b[0m")?;
+			n += render(out, syn::ATTRIBUTE)?;
+			n += fmt::fprint(out, "@noreturn ")?;
+			n += render(out, syn::NORMAL)?;
 		};
 		if (len(f.symbol) != 0) {
-			n += fmt::fprintf(out,
-				"\x1b[33m" "@symbol(\"{}\") " "\x1b[0m",
-				f.symbol)?;
+			n += render(out, syn::ATTRIBUTE)?;
+			n += fmt::fprintf(out, "@symbol(")?;
+			n += render(out, syn::STRING)?;
+			n += fmt::fprintf(out, `"{}"`, f.symbol)?;
+			n += render(out, syn::ATTRIBUTE)?;
+			n += fmt::fprintf(out, ") ")?;
+			n += render(out, syn::NORMAL)?;
 		};
-		n += fmt::fprint(out, "\x1b[34m" "fn " "\x1b[0m")?;
+		n += render(out, syn::KEYWORD)?;
+		n += fmt::fprint(out, "fn ")?;
+		n += render(out, syn::PRIMARY)?;
 		n += unparse::ident(out, f.ident)?;
 		n += prototype_tty(out, 0,
 			f.prototype.repr as ast::func_type)?;
 	};
+	n += render(out, syn::PUNCTUATION)?;
 	n += fmt::fprint(out, ";")?;
 	return n;
 };
@@ -213,6 +243,7 @@ fn prototype_tty(
 	t: ast::func_type,
 ) (size | io::error) = {
 	let n = 0z;
+	n += render(out, syn::PUNCTUATION)?;
 	n += fmt::fprint(out, "(")?;
 
 	let typenames: []str = [];
@@ -262,42 +293,57 @@ fn prototype_tty(
 		for (let i = 0z; i < len(t.params); i += 1) {
 			const param = t.params[i];
 			n += newline(out, indent)?;
-			n += fmt::fprintf(out, "{}: ",
+			n += render(out, syn::SECONDARY)?;
+			n += fmt::fprint(out,
 				if (param.name == "") "_" else param.name)?;
+			n += render(out, syn::PUNCTUATION)?;
+			n += fmt::fprint(out, ": ")?;
+			n += render(out, syn::TYPE)?;
 			n += fmt::fprint(out, typenames[i])?;
 			if (i + 1 == len(t.params)
 					&& t.variadism == variadism::HARE) {
+				n += render(out, syn::OPERATOR)?;
 				n += fmt::fprint(out, "...")?;
 			} else {
+				n += render(out, syn::PUNCTUATION)?;
 				n += fmt::fprint(out, ",")?;
 			};
 		};
 		if (t.variadism == variadism::C) {
 			n += newline(out, indent)?;
+			n += render(out, syn::OPERATOR)?;
 			n += fmt::fprint(out, "...")?;
 		};
 		indent -= 1;
 		n += newline(out, indent)?;
 	} else for (let i = 0z; i < len(t.params); i += 1) {
 		const param = t.params[i];
-		n += fmt::fprintf(out, "{}" "\x1b[0m" ": ",
+		n += render(out, syn::SECONDARY)?;
+		n += fmt::fprint(out,
 			if (param.name == "") "_" else param.name)?;
-		n += fmt::fprint(out, "\x1b[36m")?;
+		n += render(out, syn::PUNCTUATION)?;
+		n += fmt::fprint(out, ": ")?;
+		n += render(out, syn::TYPE)?;
 		n += fmt::fprint(out, typenames[i])?;
-		n += fmt::fprint(out, "\x1b[0m")?;
 		if (i + 1 == len(t.params)) {
 			switch (t.variadism) {
 			case variadism::NONE => void;
 			case variadism::HARE =>
+				n += render(out, syn::OPERATOR)?;
 				n += fmt::fprint(out, "...")?;
 			case variadism::C =>
-				n += fmt::fprint(out, ", ...")?;
+				n += render(out, syn::PUNCTUATION)?;
+				n += fmt::fprint(out, ", ")?;
+				n += render(out, syn::OPERATOR)?;
+				n += fmt::fprint(out, "...")?;
 			};
 		} else {
+			n += render(out, syn::PUNCTUATION)?;
 			n += fmt::fprint(out, ", ")?;
 		};
 	};
 
+	n += render(out, syn::PUNCTUATION)?;
 	n += fmt::fprint(out, ")", retname)?;
 	return n;
 };
@@ -308,50 +354,63 @@ fn struct_union_type_tty(
 	indent: size,
 	t: ast::_type,
 ) (size | io::error) = {
-	let z = 0z;
+	let n = 0z;
 	let membs = match (t.repr) {
 	case let st: ast::struct_type =>
-		z += fmt::fprint(out,
-			"\x1b[36m" "struct" "\x1b[0m" " {")?;
+		n += render(out, syn::TYPE)?;
+		n += fmt::fprint(out, "struct")?;
+		n += render(out, syn::PUNCTUATION)?;
+		n += fmt::fprint(out, " {")?;
 		yield st: []ast::struct_member;
 	case let ut: ast::union_type =>
-		z += fmt::fprint(out,
-			"\x1b[36m" "union" "\x1b[0m" " {")?;
+		n += render(out, syn::TYPE)?;
+		n += fmt::fprint(out, "union")?;
+		n += render(out, syn::PUNCTUATION)?;
+		n += fmt::fprint(out, " {")?;
 		yield ut: []ast::struct_member;
 	};
 
 	indent += 1z;
 	for (let i = 0z; i < len(membs); i += 1) {
-		z += newline(out, indent)?;
+		n += newline(out, indent)?;
 		if (membs[i].docs != "") {
-			z += docs_tty(out, membs[i].docs, indent)?;
+			n += docs_tty(out, membs[i].docs, indent)?;
 		};
 
 		match (membs[i]._offset) {
 		case null => void;
 		case let ex: *ast::expr =>
-			z += fmt::fprint(out, "\x1b[33m" "@offset(")?;
-			z += unparse::expr(out, indent, *ex)?;
-			z += fmt::fprint(out, ") \x1b[0m")?;
+			n += render(out, syn::ATTRIBUTE)?;
+			n += fmt::fprint(out, "@offset(")?;
+			n += render(out, syn::NUMBER)?;
+			n += unparse::expr(out, indent, *ex)?;
+			n += render(out, syn::ATTRIBUTE)?;
+			n += fmt::fprint(out, ")")?;
+			n += render(out, syn::NORMAL)?;
 		};
 
 		match (membs[i].member) {
 		case let se: ast::struct_embedded =>
-			z += type_tty(out, indent, *se)?;
+			n += type_tty(out, indent, *se)?;
 		case let sa: ast::struct_alias =>
-			z += unparse::ident(out, sa)?;
+			n += unparse::ident(out, sa)?;
 		case let sf: ast::struct_field =>
-			z += fmt::fprintf(out, "{}: ", sf.name)?;
-			z += type_tty(out, indent, *sf._type)?;
+			n += render(out, syn::SECONDARY)?;
+			n += fmt::fprint(out, sf.name)?;
+			n += render(out, syn::PUNCTUATION)?;
+			n += fmt::fprint(out, ": ")?;
+			n += type_tty(out, indent, *sf._type)?;
 		};
 
-		z += fmt::fprint(out, ",")?;
+		n += render(out, syn::PUNCTUATION)?;
+		n += fmt::fprint(out, ",")?;
 	};
 
 	indent -= 1;
-	z += newline(out, indent)?;
-	z += fmt::fprint(out, "}")?;
-	return z;
+	n += newline(out, indent)?;
+	n += render(out, syn::PUNCTUATION)?;
+	n += fmt::fprint(out, "}")?;
+	return n;
 };
 
 // Forked from [[hare::unparse]]
@@ -363,30 +422,33 @@ fn type_tty(
 	let n = 0z;
 	if (t.flags & ast::type_flags::CONST != 0
 			&& !(t.repr is ast::func_type)) {
-		n += fmt::fprint(out, "\x1b[36m" "const " "\x1b[0m")?;
+		n += render(out, syn::TYPE)?;
+		n += fmt::fprint(out, "const ")?;
 	};
 	if (t.flags & ast::type_flags::ERROR != 0) {
+		n += render(out, syn::OPERATOR)?;
 		n += fmt::fprint(out, "!")?;
 	};
 
 	match (t.repr) {
 	case let a: ast::alias_type =>
-		n += fmt::fprint(out, "\x1b[36m")?;
 		if (a.unwrap) {
+			n += render(out, syn::OPERATOR)?;
 			n += fmt::fprint(out, "...")?;
 		};
+		n += render(out, syn::TYPE)?;
 		n += unparse::ident(out, a.ident)?;
-		n += fmt::fprint(out, "\x1b[0m")?;
 	case let b: ast::builtin_type =>
-		n += fmt::fprintf(out, "\x1b[36m" "{}" "\x1b[0m",
-			unparse::builtin_type(b))?;
+		n += render(out, syn::TYPE)?;
+		n += fmt::fprintf(out, "{}", unparse::builtin_type(b))?;
 	case let e: ast::enum_type =>
-		n += fmt::fprint(out, "\x1b[36m" "enum " "\x1b[0m")?;
+		n += render(out, syn::TYPE)?;
+		n += fmt::fprint(out, "enum ")?;
 		if (e.storage != ast::builtin_type::INT) {
 			n += fmt::fprintf(out,
-				"\x1b[36m" "{} " "\x1b[0m",
-				unparse::builtin_type(e.storage))?;
+				"{} ", unparse::builtin_type(e.storage))?;
 		};
+		n += render(out, syn::PUNCTUATION)?;
 		n += fmt::fprintln(out, "{")?;
 		indent += 1;
 		for (let i = 0z; i < len(e.values); i += 1) {
@@ -403,13 +465,17 @@ fn type_tty(
 					wrotedocs = true;
 				};
 			};
+			n += render(out, syn::SECONDARY)?;
 			n += fmt::fprint(out, value.name)?;
 			match (value.value) {
 			case null => void;
 			case let e: *ast::expr =>
+				n += render(out, syn::OPERATOR)?;
 				n += fmt::fprint(out, " = ")?;
+				n += render(out, syn::NORMAL)?;
 				n += unparse::expr(out, indent, *e)?;
 			};
+			n += render(out, syn::PUNCTUATION)?;
 			n += fmt::fprint(out, ",")?;
 			if (value.docs != "" && !wrotedocs) {
 				n += fmt::fprint(out, " ")?;
@@ -422,15 +488,18 @@ fn type_tty(
 		for (let i = 0z; i < indent; i += 1) {
 			n += fmt::fprint(out, "\t")?;
 		};
+		n += render(out, syn::PUNCTUATION)?;
 		n += fmt::fprint(out, "}")?;
 	case let f: ast::func_type =>
 		if (f.attrs & ast::func_attrs::NORETURN != 0) {
-			n += fmt::fprint(out,
-				"\x1b[33m" "@noreturn " "\x1b[0m")?;
+			n += render(out, syn::ATTRIBUTE)?;
+			n += fmt::fprint(out, "@noreturn ")?;
 		};
-		n += fmt::fprint(out, "\x1b[34m" "fn" "\x1b[0m")?;
+		n += render(out, syn::TYPE)?;
+		n += fmt::fprint(out, "fn")?;
 		n += prototype_tty(out, indent, f)?;
 	case let l: ast::list_type =>
+		n += render(out, syn::OPERATOR)?;
 		n += fmt::fprint(out, "[")?;
 		match (l.length) {
 		case ast::len_slice => void;
@@ -441,13 +510,15 @@ fn type_tty(
 		case let e: *ast::expr =>
 			n += unparse::expr(out, indent, *e)?;
 		};
+		n += render(out, syn::OPERATOR)?;
 		n += fmt::fprint(out, "]")?;
 		n += type_tty(out, indent, *l.members)?;
 	case let p: ast::pointer_type =>
 		if (p.flags & ast::pointer_flags::NULLABLE != 0) {
-			n += fmt::fprint(out,
-				"\x1b[36m" "nullable " "\x1b[0m")?;
+			n += render(out, syn::TYPE)?;
+			n += fmt::fprint(out, "nullable ")?;
 		};
+		n += render(out, syn::OPERATOR)?;
 		n += fmt::fprint(out, "*")?;
 		n += type_tty(out, indent, *p.referent)?;
 	case ast::struct_type =>
@@ -458,10 +529,12 @@ fn type_tty(
 		// rough estimate of current line length
 		let linelen: size = n + (indent + 1) * 8;
 		n = 0;
+		n += render(out, syn::PUNCTUATION)?;
 		linelen += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
 			linelen += type_tty(out, indent, *t[i])?;
 			if (i + 1 == len(t)) break;
+			n += render(out, syn::PUNCTUATION)?;
 			linelen += fmt::fprint(out, " |")?;
 			// use 72 instead of 80 to give a bit of leeway for long
 			// type names
@@ -477,15 +550,18 @@ fn type_tty(
 			};
 		};
 		n += linelen;
+		n += render(out, syn::PUNCTUATION)?;
 		n += fmt::fprint(out, ")")?;
 	case let t: ast::tuple_type =>
 		// rough estimate of current line length
 		let linelen: size = n + (indent + 1) * 8;
 		n = 0;
+		n += render(out, syn::PUNCTUATION)?;
 		linelen += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
 			linelen += type_tty(out, indent, *t[i])?;
 			if (i + 1 == len(t)) break;
+			n += render(out, syn::PUNCTUATION)?;
 			linelen += fmt::fprint(out, ",")?;
 			// use 72 instead of 80 to give a bit of leeway for long
 			// type names
@@ -501,6 +577,7 @@ fn type_tty(
 			};
 		};
 		n += linelen;
+		n += render(out, syn::PUNCTUATION)?;
 		n += fmt::fprint(out, ")")?;
 	};
 	return n;
