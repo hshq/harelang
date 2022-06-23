@@ -15,8 +15,6 @@ const sizes: [_]rsize = [
 	rsize { mask = 0xE0, result = 0xC0, octets = 2 },
 	rsize { mask = 0xF0, result = 0xE0, octets = 3 },
 	rsize { mask = 0xF8, result = 0xF0, octets = 4 },
-	rsize { mask = 0xFC, result = 0xF8, octets = 5 },
-	rsize { mask = 0xFE, result = 0xF8, octets = 6 },
 ];
 
 // Returns the size of a rune, in octets, when encoded as UTF-8.
