@@ -89,10 +89,10 @@ export fn parse(build: *builder, layout: str, s: str) (void | invalid) = {
 			build.month = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 1, 12);
 		case 'M' =>
-			build.min = clamp_int(
+			build.minute = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 59);
 		case 'N' =>
-			build.nsec = clamp_int(
+			build.nanosecond = clamp_int(
 				get_max_n_digits(&s_iter, 9)?, 0, 999999999);
 		case 'p' =>
 			if (build.hour is void) {
@@ -122,7 +122,7 @@ export fn parse(build: *builder, layout: str, s: str) (void | invalid) = {
 			strings::next(&s_iter);
 			strings::next(&s_iter);
 		case 'S' =>
-			build.sec = clamp_int(
+			build.second = clamp_int(
 				get_max_n_digits(&s_iter, 2)?, 0, 61);
 		case 'u', 'w' =>
 			build.weekday = match (get_max_n_digits(&s_iter, 1)) {

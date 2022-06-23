@@ -122,9 +122,9 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 	case 'm' =>
 		return fmt::fprintf(out, "{:02}", month(dt));
 	case 'M' =>
-		return fmt::fprintf(out, "{:02}", min(dt));
+		return fmt::fprintf(out, "{:02}", minute(dt));
 	case 'N' =>
-		return fmt::fprintf(out, "{:09}", strconv::itos(nsec(dt)));
+		return fmt::fprintf(out, "{:09}", strconv::itos(nanosecond(dt)));
 	case 'p' =>
 		const s = if (hour(dt) < 12) {
 			yield "AM";
@@ -135,9 +135,9 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 	case 's' =>
 		return fmt::fprintf(out, "{:02}", epochunix(dt));
 	case 'S' =>
-		return fmt::fprintf(out, "{:02}", sec(dt));
+		return fmt::fprintf(out, "{:02}", second(dt));
 	case 'T' =>
-		return fmt::fprintf(out, "{:02}:{:02}:{:02}", hour(dt), min(dt), sec(dt));
+		return fmt::fprintf(out, "{:02}:{:02}:{:02}", hour(dt), minute(dt), second(dt));
 	case 'u' =>
 		return fmt::fprint(out, strconv::itos(weekday(dt)));
 	case 'U' =>

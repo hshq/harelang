@@ -113,19 +113,19 @@ export fn diff(a: datetime, b: datetime) period = {
 		res.hours = 24 + res.hours;
 	};
 
-	res.minutes = min(&a) - min(&b);
+	res.minutes = minute(&a) - minute(&b);
 	if (res.minutes < 0) {
 		res.hours -= 1;
 		res.minutes = 60 + res.minutes;
 	};
 
-	res.seconds = sec(&a) - sec(&b);
+	res.seconds = second(&a) - second(&b);
 	if (res.seconds < 0) {
 		res.minutes -= 1;
 		res.seconds = 60 + res.seconds;
 	};
 
-	res.nanoseconds = nsec(&a) - nsec(&b);
+	res.nanoseconds = nanosecond(&a) - nanosecond(&b);
 	if (res.nanoseconds < 0) {
 		res.seconds -= 1;
 		res.nanoseconds = time::SECOND + res.nanoseconds;
@@ -221,12 +221,12 @@ export fn truncate(dt: datetime, u: unit) datetime = {
 	case unit::MINUTE =>
 		yield new(dt.loc, 0,
 			year(&dt), month(&dt), day(&dt),
-			hour(&dt), min(&dt), 0, 0,
+			hour(&dt), minute(&dt), 0, 0,
 		)!;
 	case unit::SECOND =>
 		yield new(dt.loc, 0,
 			year(&dt), month(&dt), day(&dt),
-			hour(&dt), min(&dt), sec(&dt), 0,
+			hour(&dt), minute(&dt), second(&dt), 0,
 		)!;
 	case unit::NANOSECOND =>
 		yield dt;
@@ -316,9 +316,9 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 	let d_month = month(&dt);
 	let d_day = day(&dt);
 	let d_hour = hour(&dt);
-	let d_min = min(&dt);
-	let d_sec = sec(&dt);
-	let d_nsec = ((nsec(&dt)): i64);
+	let d_minute = minute(&dt);
+	let d_second = second(&dt);
+	let d_nanosecond = ((nanosecond(&dt)): i64);
 	for (let i = 0z; i < len(pp); i += 1) {
 		const p = pp[i];
 
@@ -396,14 +396,14 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 			};
 			const new_hmsn = calc_hmsn(new_time);
 			d_hour = new_hmsn.0;
-			d_min = new_hmsn.1;
-			d_sec = new_hmsn.2;
-			d_nsec = new_hmsn.3;
+			d_minute = new_hmsn.1;
+			d_second = new_hmsn.2;
+			d_nanosecond = new_hmsn.3;
 		};
 	};
 	// TODO: Add zoffset back in here once API is settled
 	return new(dt.loc, 0,
-		d_year, d_month, d_day, d_hour, d_min, d_sec, d_nsec: int,
+		d_year, d_month, d_day, d_hour, d_minute, d_second, d_nanosecond: int,
 	)!;
 };
 

@@ -23,9 +23,9 @@ export type datetime = struct {
 	weekday:     (void | int),
 
 	hour:        (void | int),
-	min:         (void | int),
-	sec:         (void | int),
-	nsec:        (void | int),
+	minute:      (void | int),
+	second:      (void | int),
+	nanosecond:  (void | int),
 };
 
 fn init() datetime = datetime {
@@ -46,9 +46,9 @@ fn init() datetime = datetime {
 	weekday     = void,
 
 	hour        = void,
-	min         = void,
-	sec         = void,
-	nsec        = void,
+	minute      = void,
+	second      = void,
+	nanosecond  = void,
 };
 
 // Creates a new datetime. When loc=void, defaults to chrono::local.
@@ -146,9 +146,9 @@ export fn new(
 		&& month == _month(&dt)
 		&& day == _day(&dt)
 		&& hour == _hour(&dt)
-		&& min == _min(&dt)
-		&& sec == _sec(&dt)
-		&& nsec == _nsec(&dt)
+		&& min == _minute(&dt)
+		&& sec == _second(&dt)
+		&& nsec == _nanosecond(&dt)
 	) {
 		void;
 	} else {

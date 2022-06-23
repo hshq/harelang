@@ -50,13 +50,13 @@ export fn isoweek(dt: *datetime) int = _isoweek(dt);
 export fn hour(dt: *datetime) int = _hour(dt);
 
 // Returns a [[datetime]]'s minute of the hour.
-export fn min(dt: *datetime) int = _min(dt);
+export fn minute(dt: *datetime) int = _minute(dt);
 
 // Returns a [[datetime]]'s second of the minute.
-export fn sec(dt: *datetime) int = _sec(dt);
+export fn second(dt: *datetime) int = _second(dt);
 
 // Returns a [[datetime]]'s nanosecond of the second.
-export fn nsec(dt: *datetime) int = _nsec(dt);
+export fn nanosecond(dt: *datetime) int = _nanosecond(dt);
 
 fn _epochal(dt: *datetime) chrono::date = {
 	const ldt = transform(*dt, dt.zone.zoffset);
@@ -246,55 +246,55 @@ fn _hour(dt: *datetime) int = {
 	case void =>
 		const hmsn = calc_hmsn(ldt.time: time::duration);
 		dt.hour = hmsn.0;
-		dt.min = hmsn.1;
-		dt.sec = hmsn.2;
-		dt.nsec = hmsn.3;
+		dt.minute = hmsn.1;
+		dt.second = hmsn.2;
+		dt.nanosecond = hmsn.3;
 		return dt.hour: int;
 	case let h: int =>
 		return h;
 	};
 };
 
-fn _min(dt: *datetime) int = {
+fn _minute(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
-	match (dt.min) {
+	match (dt.minute) {
 	case void =>
 		const hmsn = calc_hmsn(ldt.time: time::duration);
 		dt.hour = hmsn.0;
-		dt.min = hmsn.1;
-		dt.sec = hmsn.2;
-		dt.nsec = hmsn.3;
-		return dt.min: int;
+		dt.minute = hmsn.1;
+		dt.second = hmsn.2;
+		dt.nanosecond = hmsn.3;
+		return dt.minute: int;
 	case let m: int =>
 		return m;
 	};
 };
 
-fn _sec(dt: *datetime) int = {
+fn _second(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
-	match (dt.sec) {
+	match (dt.second) {
 	case void =>
 		const hmsn = calc_hmsn(ldt.time: time::duration);
 		dt.hour = hmsn.0;
-		dt.min = hmsn.1;
-		dt.sec = hmsn.2;
-		dt.nsec = hmsn.3;
-		return dt.sec: int;
+		dt.minute = hmsn.1;
+		dt.second = hmsn.2;
+		dt.nanosecond = hmsn.3;
+		return dt.second: int;
 	case let s: int =>
 		return s;
 	};
 };
 
-fn _nsec(dt: *datetime) int = {
+fn _nanosecond(dt: *datetime) int = {
 	const ldt = transform(*dt, dt.zone.zoffset);
-	match (dt.nsec) {
+	match (dt.nanosecond) {
 	case void =>
 		const hmsn = calc_hmsn(ldt.time: time::duration);
 		dt.hour = hmsn.0;
-		dt.min = hmsn.1;
-		dt.sec = hmsn.2;
-		dt.nsec = hmsn.3;
-		return dt.nsec: int;
+		dt.minute = hmsn.1;
+		dt.second = hmsn.2;
+		dt.nanosecond = hmsn.3;
+		return dt.nanosecond: int;
 	case let n: int =>
 		return n;
 	};
