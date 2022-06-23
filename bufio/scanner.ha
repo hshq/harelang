@@ -74,18 +74,22 @@ export fn scanrune(
 		return b[0]: u32: rune;
 	};
 
-	match (io::readall(file, b[1..sz])?) {
+	match (io::readall(file, b[1..sz])) {
 	case let n: size => void;
 	case io::EOF =>
 		return io::EOF;
+	case let err: io::error =>
+		return if (err is io::underread) utf8::invalid else err;
 	};
 
 	let dec = utf8::decode(b[..sz]);
 	match (utf8::next(&dec)?) {
 	case let r: rune =>
 		return r;
-	case (void | utf8::more) =>
+	case void =>
 		return io::EOF;
+	case utf8::more =>
+		return utf8::invalid;
 	};
 };
 
