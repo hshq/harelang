@@ -42,7 +42,7 @@ export const INSTANT_MAX = instant {
 
 // Represents a specific instant in time as seconds (+nanoseconds) since an
 // arbitrary epoch. Instants may only be meaningfully compared with other
-// instants sourced from the same clock, or handled by the same
+// instants sourced from the same [[clock]], or handled by the same
 // [[time::chrono::timescale]]
 export type instant = struct {
 	sec: i64,
