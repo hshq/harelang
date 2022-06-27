@@ -97,7 +97,12 @@ export fn read(
 	t: io::file
 ) (u64 | errors::error) = {
 	let expirations: [8]u8 = [0...];
-	io::read(t, expirations)!;
+	match (rt::read(t, &expirations, len(expirations))) {
+	case let err: rt::errno =>
+		return errors::errno(err);
+	case let z: size =>
+		assert(z == len(expirations));
+	};
 	return endian::host.getu64(expirations);
 };
 
