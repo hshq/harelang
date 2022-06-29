@@ -621,6 +621,13 @@ format_ini() {
 	gen_ssa format::ini bufio encoding::utf8 fmt io strings
 }
 
+format_tar() {
+	gen_srcs format::tar \
+		types.ha \
+		reader.ha
+	gen_ssa format::tar
+}
+
 fs() {
 	gen_srcs fs \
 		types.ha \
@@ -1433,6 +1440,7 @@ fmt
 fnmatch
 format::elf
 format::ini
+format::tar
 fs
 getopt
 glob

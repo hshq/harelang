@@ -362,6 +362,12 @@ stdlib_deps_any += $(stdlib_format_ini_any)
 stdlib_format_ini_linux = $(stdlib_format_ini_any)
 stdlib_format_ini_freebsd = $(stdlib_format_ini_any)
 
+# gen_lib format::tar (any)
+stdlib_format_tar_any = $(HARECACHE)/format/tar/format_tar-any.o
+stdlib_deps_any += $(stdlib_format_tar_any)
+stdlib_format_tar_linux = $(stdlib_format_tar_any)
+stdlib_format_tar_freebsd = $(stdlib_format_tar_any)
+
 # gen_lib fs (any)
 stdlib_fs_any = $(HARECACHE)/fs/fs-any.o
 stdlib_deps_any += $(stdlib_fs_any)
@@ -1176,6 +1182,17 @@ $(HARECACHE)/format/ini/format_ini-any.ssa: $(stdlib_format_ini_any_srcs) $(stdl
 	@mkdir -p $(HARECACHE)/format/ini
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::ini \
 		-t$(HARECACHE)/format/ini/format_ini.td $(stdlib_format_ini_any_srcs)
+
+# format::tar (+any)
+stdlib_format_tar_any_srcs = \
+	$(STDLIB)/format/tar/types.ha \
+	$(STDLIB)/format/tar/reader.ha
+
+$(HARECACHE)/format/tar/format_tar-any.ssa: $(stdlib_format_tar_any_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/format/tar
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::tar \
+		-t$(HARECACHE)/format/tar/format_tar.td $(stdlib_format_tar_any_srcs)
 
 # fs (+any)
 stdlib_fs_any_srcs = \
@@ -2479,6 +2496,12 @@ testlib_deps_any += $(testlib_format_ini_any)
 testlib_format_ini_linux = $(testlib_format_ini_any)
 testlib_format_ini_freebsd = $(testlib_format_ini_any)
 
+# gen_lib format::tar (any)
+testlib_format_tar_any = $(TESTCACHE)/format/tar/format_tar-any.o
+testlib_deps_any += $(testlib_format_tar_any)
+testlib_format_tar_linux = $(testlib_format_tar_any)
+testlib_format_tar_freebsd = $(testlib_format_tar_any)
+
 # gen_lib fs (any)
 testlib_fs_any = $(TESTCACHE)/fs/fs-any.o
 testlib_deps_any += $(testlib_fs_any)
@@ -3320,6 +3343,17 @@ $(TESTCACHE)/format/ini/format_ini-any.ssa: $(testlib_format_ini_any_srcs) $(tes
 	@mkdir -p $(TESTCACHE)/format/ini
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::ini \
 		-t$(TESTCACHE)/format/ini/format_ini.td $(testlib_format_ini_any_srcs)
+
+# format::tar (+any)
+testlib_format_tar_any_srcs = \
+	$(STDLIB)/format/tar/types.ha \
+	$(STDLIB)/format/tar/reader.ha
+
+$(TESTCACHE)/format/tar/format_tar-any.ssa: $(testlib_format_tar_any_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/format/tar
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::tar \
+		-t$(TESTCACHE)/format/tar/format_tar.td $(testlib_format_tar_any_srcs)
 
 # fs (+any)
 testlib_fs_any_srcs = \

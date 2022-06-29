@@ -1,0 +1,8 @@
+This module provides an implementation of the tar archive format for Unix. The
+specific format implemented is USTAR, however, it is capable of reading most tar
+variants which are backwards-compatible with the original format (e.g. GNU tar).
+
+To read an archive, use [[read]] to create a reader, and [[next]] to enumerate
+its entries. The return value from [[next]] contains the file metadata and is an
+[[io::stream]] that you may read the file contents from. You may call [[skip]]
+to skip an archive entry without reading it.
