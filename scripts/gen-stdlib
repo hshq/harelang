@@ -625,7 +625,7 @@ format_tar() {
 	gen_srcs format::tar \
 		types.ha \
 		reader.ha
-	gen_ssa format::tar
+	gen_ssa format::tar bufio bytes endian errors io strconv strings strio
 }
 
 fs() {
