@@ -24,7 +24,9 @@ export fn rename(oldpath: str, newpath: str) (void | fs::error) =
 export fn move(oldpath: str, newpath: str) (void | fs::error) =
 	fs::move(cwd, oldpath, newpath);
 
-// Creates an [[fs::iterator]] for a given directory to read its contents.
+// Creates an [[fs::iterator]] for a given directory to read its contents. The
+// user should call [[fs::next]] to enumerate entries, and [[fs::finish]] when
+// done using the object.
 export fn iter(path: str) (*fs::iterator | fs::error) = fs::iter(cwd, path);
 
 // Frees state associated with a directory iterator.
