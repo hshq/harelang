@@ -344,6 +344,18 @@ crypto_cipher() {
 	gen_ssa crypto::cipher crypto::math bytes endian errors io types
 }
 
+crypto_hkdf() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::hkdf hkdf.ha
+		gen_ssa crypto::hkdf bytes crypto::hmac crypto::mac hash
+	else
+		gen_srcs crypto::hkdf hkdf.ha +test.ha
+		gen_ssa crypto::hkdf bytes crypto::hmac crypto::mac hash \
+			crypto::sha1 crypto::sha256
+	fi
+}
+
 crypto_hmac() {
 	if [ $testing -eq 0 ]
 	then
@@ -1415,6 +1427,7 @@ crypto::blake2b
 crypto::blowfish
 crypto::chacha
 crypto::cipher
+crypto::hkdf
 crypto::hmac
 crypto::mac
 crypto::math

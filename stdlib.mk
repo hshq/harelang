@@ -202,6 +202,12 @@ stdlib_deps_any += $(stdlib_crypto_cipher_any)
 stdlib_crypto_cipher_linux = $(stdlib_crypto_cipher_any)
 stdlib_crypto_cipher_freebsd = $(stdlib_crypto_cipher_any)
 
+# gen_lib crypto::hkdf (any)
+stdlib_crypto_hkdf_any = $(HARECACHE)/crypto/hkdf/crypto_hkdf-any.o
+stdlib_deps_any += $(stdlib_crypto_hkdf_any)
+stdlib_crypto_hkdf_linux = $(stdlib_crypto_hkdf_any)
+stdlib_crypto_hkdf_freebsd = $(stdlib_crypto_hkdf_any)
+
 # gen_lib crypto::hmac (any)
 stdlib_crypto_hmac_any = $(HARECACHE)/crypto/hmac/crypto_hmac-any.o
 stdlib_deps_any += $(stdlib_crypto_hmac_any)
@@ -867,6 +873,16 @@ $(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_src
 	@mkdir -p $(HARECACHE)/crypto/cipher
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::cipher \
 		-t$(HARECACHE)/crypto/cipher/crypto_cipher.td $(stdlib_crypto_cipher_any_srcs)
+
+# crypto::hkdf (+any)
+stdlib_crypto_hkdf_any_srcs = \
+	$(STDLIB)/crypto/hkdf/hkdf.ha
+
+$(HARECACHE)/crypto/hkdf/crypto_hkdf-any.ssa: $(stdlib_crypto_hkdf_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_hmac_$(PLATFORM)) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_hash_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/hkdf
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::hkdf \
+		-t$(HARECACHE)/crypto/hkdf/crypto_hkdf.td $(stdlib_crypto_hkdf_any_srcs)
 
 # crypto::hmac (+any)
 stdlib_crypto_hmac_any_srcs = \
@@ -2338,6 +2354,12 @@ testlib_deps_any += $(testlib_crypto_cipher_any)
 testlib_crypto_cipher_linux = $(testlib_crypto_cipher_any)
 testlib_crypto_cipher_freebsd = $(testlib_crypto_cipher_any)
 
+# gen_lib crypto::hkdf (any)
+testlib_crypto_hkdf_any = $(TESTCACHE)/crypto/hkdf/crypto_hkdf-any.o
+testlib_deps_any += $(testlib_crypto_hkdf_any)
+testlib_crypto_hkdf_linux = $(testlib_crypto_hkdf_any)
+testlib_crypto_hkdf_freebsd = $(testlib_crypto_hkdf_any)
+
 # gen_lib crypto::hmac (any)
 testlib_crypto_hmac_any = $(TESTCACHE)/crypto/hmac/crypto_hmac-any.o
 testlib_deps_any += $(testlib_crypto_hmac_any)
@@ -3015,6 +3037,17 @@ $(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_sr
 	@mkdir -p $(TESTCACHE)/crypto/cipher
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::cipher \
 		-t$(TESTCACHE)/crypto/cipher/crypto_cipher.td $(testlib_crypto_cipher_any_srcs)
+
+# crypto::hkdf (+any)
+testlib_crypto_hkdf_any_srcs = \
+	$(STDLIB)/crypto/hkdf/hkdf.ha \
+	$(STDLIB)/crypto/hkdf/+test.ha
+
+$(TESTCACHE)/crypto/hkdf/crypto_hkdf-any.ssa: $(testlib_crypto_hkdf_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_hmac_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_crypto_sha1_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/hkdf
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::hkdf \
+		-t$(TESTCACHE)/crypto/hkdf/crypto_hkdf.td $(testlib_crypto_hkdf_any_srcs)
 
 # crypto::hmac (+any)
 testlib_crypto_hmac_any_srcs = \
