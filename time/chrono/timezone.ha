@@ -229,7 +229,7 @@ let TZ_LOCAL: timezone = timezone {
 		case let fp: str =>
 			yield fp;
 		case =>
-			return;
+			yield LOCALTIME_PATH;
 		};
 
 		const file = match (os::open(filepath)) {
