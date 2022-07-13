@@ -94,7 +94,7 @@ fn mulshift64(m: u64, mul: (u64, u64), j: u32) u64 = {
 fn mulshiftall64(m: u64, mul: (u64, u64), j: i32, mm_shift: u32) (u64, u64, u64) = {
 	m <<= 1;
 	const r0 = u128mul(m, mul.0), r1 = u128mul(m, mul.1);
-	const lo = r0.lo, tmp = r0.hi, mid = r1.lo;
+	const lo = r0.lo, tmp = r0.hi, mid = tmp + r1.lo;
 	const hi = r1.hi + ibool(mid < tmp);
 	const lo2 = lo + mul.0;
 	const mid2 = mid + mul.1 + ibool(lo2 < lo);
