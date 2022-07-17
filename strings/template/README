@@ -6,10 +6,10 @@ The template format is a string with variable substituted using "$". Variable
 names must be alphanumeric ASCII characters (i.e. for which [[ascii::isalnum]]
 returns true). A literal "$" may be printed by using it twice: "$$".
 
-	const src = "Hello, $user! Your balance is $$$balance\n";
+	const src = "Hello, $user! Your balance is $$$balance.\n";
 	const template = template::compile(src)!;
 	defer template::finish(&template);
 	template::execute(&template, os::stdout,
 		("user", "ddevault"),
-		("balance", "1000"),
+		("balance", 1000),
 	)!; // "Hello, ddevault! Your balance is $1000.
