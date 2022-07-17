@@ -1,0 +1,163 @@
+// License: MPL-2.0
+// (c) 2022 Drew DeVault <sir@cmpwn.com>
+// TODO: Add ${whatever:x}-style formatting
+use ascii;
+use errors;
+use fmt;
+use io;
+use strings;
+use strio;
+
+export type literal = str;
+export type variable = str;
+export type instruction = (literal | variable);
+export type template = []instruction;
+
+// Parameters to execute with a template, a tuple of a variable name and a
+// formattable object.
+export type param = (str, fmt::formattable);
+
+// Compiles a template string. The return value must be freed with [[finish]]
+// after use.
+export fn compile(input: str) (template | errors::invalid) = {
+	let buf = strio::dynamic();
+	defer io::close(&buf)!;
+
+	let instrs: []instruction = [];
+	const iter = strings::iter(input);
+	for (true) {
+		const rn = match (strings::next(&iter)) {
+		case void =>
+			break;
+		case let rn: rune =>
+			yield rn;
+		};
+
+		if (rn == '$') {
+			const lit = strio::string(&buf);
+			append(instrs, strings::dup(lit): literal);
+			strio::reset(&buf);
+
+			parse_variable(&instrs, &iter, &buf)?;
+		} else {
+			strio::appendrune(&buf, rn)!;
+		};
+	};
+
+	if (len(strio::string(&buf)) != 0) {
+		const lit = strio::string(&buf);
+		append(instrs, strings::dup(lit): literal);
+	};
+
+	return instrs;
+};
+
+// Frees resources associated with a [[template]].
+export fn finish(tmpl: *template) void = {
+	for (let i = 0z; i < len(tmpl); i += 1) {
+		match (tmpl[i]) {
+		case let lit: literal =>
+			free(lit);
+		case let var: variable =>
+			free(var);
+		};
+	};
+	free(*tmpl);
+};
+
+// Executes a template, writing the output to the given [[io::handle]]. If the
+// template calls for a parameter which is not provided, an assertion will be
+// fired.
+export fn execute(
+	tmpl: *template,
+	out: io::handle,
+	params: param...
+) (size | io::error) = {
+	let z = 0z;
+	for (let i = 0z; i < len(tmpl); i += 1) {
+		match (tmpl[i]) {
+		case let lit: literal =>
+			z += fmt::fprint(out, lit)?;
+		case let var: variable =>
+			const value = get_param(var, params...);
+			z += fmt::fprint(out, value)?;
+		};
+	};
+	return z;
+};
+
+fn get_param(name: str, params: param...) fmt::formattable = {
+	// TODO: Consider preparing a parameter map or something
+	for (let i = 0z; i < len(params); i += 1) {
+		if (params[i].0 == name) {
+			return params[i].1;
+		};
+	};
+	abort("strings::tmpl: required parameter was not provided");
+};
+
+fn parse_variable(
+	instrs: *[]instruction,
+	iter: *strings::iterator,
+	buf: *strio::stream,
+) (void | errors::invalid) = {
+	const rn = match (strings::next(iter)) {
+	case let rn: rune =>
+		if (rn == '$') {
+			append(instrs, strings::dup("$"): literal);
+			return;
+		};
+		yield rn;
+	case =>
+		return errors::invalid;
+	};
+	strio::appendrune(buf, rn)!;
+
+	for (true) {
+		const rn = match (strings::next(iter)) {
+		case let rn: rune =>
+			yield rn;
+		case =>
+			return errors::invalid;
+		};
+
+		if (ascii::isalnum(rn)) {
+			strio::appendrune(buf, rn)!;
+		} else {
+			strings::prev(iter);
+			break;
+		};
+	};
+
+	const var = strio::string(buf);
+	append(instrs, strings::dup(var): variable);
+	strio::reset(buf);
+};
+
+def test_input: str = `Dear $recipient,
+
+I am the crown prince of $country. Your brother, $brother, has recently passed
+away in my country. I am writing to you to facilitate the transfer of his
+foreign bank account balance of $$1,000,000 to you.`;
+
+def test_output: str = `Dear Mrs. Johnson,
+
+I am the crown prince of South Africa. Your brother, Elon Musk, has recently passed
+away in my country. I am writing to you to facilitate the transfer of his
+foreign bank account balance of $1,000,000 to you.`;
+
+@test fn template() void = {
+	const tmpl = compile(test_input)!;
+	defer finish(&tmpl);
+
+	let buf = strio::dynamic();
+	defer io::close(&buf)!;
+
+	execute(&tmpl, &buf,
+		("recipient", "Mrs. Johnson"),
+		("country", "South Africa"),
+		("brother", "Elon Musk"),
+	)!;
+
+	assert(strio::string(&buf) == test_output);
+};

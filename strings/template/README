@@ -1,0 +1,15 @@
+This module provides support for formatting of large or complex strings beyond
+the scope of [[fmt]]. A template is compiled using [[compile]], then executed
+with [[execute]] to print formatted text to an [[io::handle]].
+
+The template format is a string with variable substituted using "$". Variable
+names must be alphanumeric ASCII characters (i.e. for which [[ascii::isalnum]]
+returns true). A literal "$" may be printed by using it twice: "$$".
+
+	const src = "Hello, $user! Your balance is $$$balance\n";
+	const template = template::compile(src)!;
+	defer template::finish(&template);
+	template::execute(&template, os::stdout,
+		("user", "ddevault"),
+		("balance", "1000"),
+	)!; // "Hello, ddevault! Your balance is $1000.

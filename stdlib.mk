@@ -642,6 +642,12 @@ stdlib_deps_any += $(stdlib_strings_any)
 stdlib_strings_linux = $(stdlib_strings_any)
 stdlib_strings_freebsd = $(stdlib_strings_any)
 
+# gen_lib strings::template (any)
+stdlib_strings_template_any = $(HARECACHE)/strings/template/strings_template-any.o
+stdlib_deps_any += $(stdlib_strings_template_any)
+stdlib_strings_template_linux = $(stdlib_strings_template_any)
+stdlib_strings_template_freebsd = $(stdlib_strings_template_any)
+
 # gen_lib strio (any)
 stdlib_strio_any = $(HARECACHE)/strio/strio-any.o
 stdlib_deps_any += $(stdlib_strio_any)
@@ -1893,6 +1899,16 @@ $(HARECACHE)/strings/strings-any.ssa: $(stdlib_strings_any_srcs) $(stdlib_rt) $(
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nstrings \
 		-t$(HARECACHE)/strings/strings.td $(stdlib_strings_any_srcs)
 
+# strings::template (+any)
+stdlib_strings_template_any_srcs = \
+	$(STDLIB)/strings/template/template.ha
+
+$(HARECACHE)/strings/template/strings_template-any.ssa: $(stdlib_strings_template_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/strings/template
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nstrings::template \
+		-t$(HARECACHE)/strings/template/strings_template.td $(stdlib_strings_template_any_srcs)
+
 # strio (+any)
 stdlib_strio_any_srcs = \
 	$(STDLIB)/strio/stream.ha \
@@ -2793,6 +2809,12 @@ testlib_strings_any = $(TESTCACHE)/strings/strings-any.o
 testlib_deps_any += $(testlib_strings_any)
 testlib_strings_linux = $(testlib_strings_any)
 testlib_strings_freebsd = $(testlib_strings_any)
+
+# gen_lib strings::template (any)
+testlib_strings_template_any = $(TESTCACHE)/strings/template/strings_template-any.o
+testlib_deps_any += $(testlib_strings_template_any)
+testlib_strings_template_linux = $(testlib_strings_template_any)
+testlib_strings_template_freebsd = $(testlib_strings_template_any)
 
 # gen_lib strio (any)
 testlib_strio_any = $(TESTCACHE)/strio/strio-any.o
@@ -4097,6 +4119,16 @@ $(TESTCACHE)/strings/strings-any.ssa: $(testlib_strings_any_srcs) $(testlib_rt) 
 	@mkdir -p $(TESTCACHE)/strings
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrings \
 		-t$(TESTCACHE)/strings/strings.td $(testlib_strings_any_srcs)
+
+# strings::template (+any)
+testlib_strings_template_any_srcs = \
+	$(STDLIB)/strings/template/template.ha
+
+$(TESTCACHE)/strings/template/strings_template-any.ssa: $(testlib_strings_template_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/strings/template
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrings::template \
+		-t$(TESTCACHE)/strings/template/strings_template.td $(testlib_strings_template_any_srcs)
 
 # strio (+any)
 testlib_strio_any_srcs = \

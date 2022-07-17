@@ -1259,6 +1259,12 @@ strings() {
 	gen_ssa strings bytes encoding::utf8 types
 }
 
+strings_template() {
+	gen_srcs strings::template \
+		template.ha
+	gen_ssa strings::template ascii errors fmt io strings strio
+}
+
 strio() {
 	gen_srcs strio \
 		stream.ha \
@@ -1498,6 +1504,7 @@ slices
 sort
 strconv
 strings
+strings::template
 strio
 temp			linux freebsd
 time			linux freebsd
