@@ -34,11 +34,21 @@ export fn compile(input: str) (template | errors::invalid) = {
 		};
 
 		if (rn == '$') {
-			const lit = strio::string(&buf);
-			append(instrs, strings::dup(lit): literal);
-			strio::reset(&buf);
+			match (strings::next(&iter)) {
+			case let next_rn: rune =>
+				if (next_rn == '$') {
+					strio::appendrune(&buf, rn)!;
+				} else {
+					strings::prev(&iter);
+					const lit = strio::string(&buf);
+					append(instrs, strings::dup(lit): literal);
+					strio::reset(&buf);
 
-			parse_variable(&instrs, &iter, &buf)?;
+					parse_variable(&instrs, &iter, &buf)?;
+				};
+			case =>
+				return errors::invalid;
+			};
 		} else {
 			strio::appendrune(&buf, rn)!;
 		};
@@ -101,18 +111,6 @@ fn parse_variable(
 	iter: *strings::iterator,
 	buf: *strio::stream,
 ) (void | errors::invalid) = {
-	const rn = match (strings::next(iter)) {
-	case let rn: rune =>
-		if (rn == '$') {
-			append(instrs, strings::dup("$"): literal);
-			return;
-		};
-		yield rn;
-	case =>
-		return errors::invalid;
-	};
-	strio::appendrune(buf, rn)!;
-
 	for (true) {
 		const rn = match (strings::next(iter)) {
 		case let rn: rune =>
