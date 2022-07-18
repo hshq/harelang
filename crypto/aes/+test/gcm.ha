@@ -652,3 +652,39 @@ const gcmtestcases: []gcmtestcase = [
 		};
 	};
 };
+
+@test fn gcm_inplace() void = {
+	for (let i = 0z; i < len(gcmtestcases); i += 1) {
+		const t = gcmtestcases[i];
+
+		let b = ct64();
+		ct64_init(&b, t.key);
+
+		let result: []u8 = if (len(t.plain) == 0) {
+			yield [];
+		} else {
+			let r: []u8 = alloc([0...], len(t.plain));
+			r[..] = t.plain[..];
+			yield r;
+		};
+		let resultbuf = bufio::fixed(result, io::mode::WRITE);
+
+		let gstream = cipher::gcm();
+		// beware: did not close the stream for sake of simplicity
+		cipher::gcm_init(&gstream, &resultbuf, &b, t.iv, t.additional);
+
+		io::writeall(&gstream, result)!;
+
+		const tag = cipher::gcm_seal(&gstream);
+		assert(bytes::equal(t.cipher, result));
+		assert(bytes::equal(t.tag, tag));
+
+		let resultbuf = bufio::fixed(result, io::mode::READ);
+		let gstream = cipher::gcm();
+		cipher::gcm_init(&gstream, &resultbuf, &b, t.iv, t.additional);
+		io::readall(&gstream, result)!;
+
+		assert(bytes::equal(t.plain, result));
+		cipher::gcm_verify(&gstream, t.tag)!;
+	};
+};
