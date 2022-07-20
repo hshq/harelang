@@ -13,22 +13,22 @@ use hash;
 export def SEEDSZ: size = 32;
 
 // The size of an Ed25519 public key.
-export def PUBLICKEYSZ: size = 32;
+export def PUBKEYSZ: size = 32;
 
 // The size of an Ed25519 private key.
-export def PRIVATEKEYSZ: size = 64;
+export def PRIVKEYSZ: size = 64;
 
 // The size of an Ed25519 signature.
 export def SIGNATURESZ: size = 64;
 
-export type privatekey = [PRIVATEKEYSZ]u8;
-export type publickey =[PUBLICKEYSZ]u8;
+export type privkey = [PRIVKEYSZ]u8;
+export type pubkey =[PUBKEYSZ]u8;
 export type seed = [SEEDSZ]u8;
 
 // Derives a new Ed25519 private key from a given seed. The seed must be
 // initialized to cryptographically random data; [[crypto::random]] is
 // recommended for this purpose.
-export fn private_init(out: *privatekey, seed: *seed) void = {
+export fn privkey_init(out: *privkey, seed: *seed) void = {
 	let h: [64]u8 = [0...];
 	let sha = sha512::sha512();
 	hash::write(&sha, seed[..]);
@@ -45,18 +45,18 @@ export fn private_init(out: *privatekey, seed: *seed) void = {
 	point_encode(&A_bytes, &A);
 
 	out[0..SEEDSZ] = seed[..];
-	out[SEEDSZ..PRIVATEKEYSZ] = A_bytes[..];
+	out[SEEDSZ..PRIVKEYSZ] = A_bytes[..];
 };
 
 // Derive the public key for a given private key.
-export fn skey_getpublic(priv: *privatekey) publickey = {
-	let pk: publickey = [0...];
+export fn privkey_getpubkey(priv: *privkey) pubkey = {
+	let pk: pubkey = [0...];
 	pk[0..] = priv[SEEDSZ..];
 	return pk;
 };
 
 // Signs a message with a private key, returning the signature.
-export fn sign(priv: *privatekey, msg: []u8) [SIGNATURESZ]u8 = {
+export fn sign(priv: *privkey, msg: []u8) [SIGNATURESZ]u8 = {
 	let h: [64]u8 = [0...];
 	let sha = sha512::sha512();
 	hash::write(&sha, priv[0..SEEDSZ]);
@@ -100,7 +100,7 @@ export fn sign(priv: *privatekey, msg: []u8) [SIGNATURESZ]u8 = {
 // Given a public key, verifies a signature produced with the
 // corresponding private key for a given message, returning true if the
 // signature is valid and false otherwise.
-export fn verify(pub: *publickey, msg: []u8, sig: *[SIGNATURESZ]u8) bool = {
+export fn verify(pub: *pubkey, msg: []u8, sig: *[SIGNATURESZ]u8) bool = {
 	let A = point { ... };
 	if (!point_decode(&A, pub)) {
 		return false;
