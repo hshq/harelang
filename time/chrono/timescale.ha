@@ -42,6 +42,11 @@ fn conv_tai_tai(i: time::instant) (time::instant | time::error) = {
 // Used as the basis of civil timekeeping.
 // Based on TAI; time-dependent offset.
 // Discontinuous (has leap seconds).
+//
+// During a program's initialization, this timescale initializes by loading its
+// UTC/TAI leap second data from [[UTC_LEAPSECS_FILE]]; otherwise, fails
+// silently. If failed, any attempt to consult UTC leapsec data (like calling
+// utc.to_tai(), utc.from_tai()) causes an abort. This includes [[chrono::in]].
 export const utc: timescale = timescale {
 	name = "Coordinated Universal Time",
 	abbr = "UTC",
@@ -50,6 +55,10 @@ export const utc: timescale = timescale {
 };
 
 fn conv_tai_utc(a: time::instant) (time::instant | time::error) = {
+	if (!utc_isinitialized) {
+		abort("utc timescale uninitialized");
+	};
+
 	const idx = lookup_leaps(&utc_leapsecs, time::unix(a));
 	const ofst = utc_leapsecs[idx].1;
 
@@ -65,6 +74,10 @@ fn conv_tai_utc(a: time::instant) (time::instant | time::error) = {
 };
 
 fn conv_utc_tai(a: time::instant) (time::instant | time::error) = {
+	if (!utc_isinitialized) {
+		abort("utc timescale uninitialized");
+	};
+
 	const idx = lookup_leaps(&utc_leapsecs, time::unix(a));
 	const ofst = utc_leapsecs[idx].1;
 

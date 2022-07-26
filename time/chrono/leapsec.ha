@@ -27,34 +27,47 @@ use strings;
 // design also inhibits our ambitions for dealing with multiple, dynamic
 // timescales. Therefore, we have decided to take an alternative approach.
 
+// Error initializing the [[utc]] [[timescale]].
+type utciniterror = !(fs::error | io::error | encoding::utf8::invalid);
+
 // The number of seconds between the years 1900 and 1970. This number is
 // deliberately hypothetical since timekeeping before atomic clocks was not
 // accurate enough to account for small changes in time.
 export def SECS_1900_1970: i64 = 2208988800;
 
-// The filepath of the system's leap-seconds.list file.
+// The filepath of the system's "leap-seconds.list" file, which contains UTC/TAI
+// leap second data.
 export def UTC_LEAPSECS_FILE: str = "/usr/share/zoneinfo/leap-seconds.list";
 
-// UTC timestamps and their offsets from TAI, sourced from the system's
-// leap-seconds.list file.
+// UTC/TAI leap second data; UTC timestamps and their offsets from TAI.
+// Sourced from [[UTC_LEAPSECS_FILE]].
 let utc_leapsecs: [](i64, i64) = [];
 
-@init fn init_utc_leapsecs() void = {
+let utc_isinitialized: bool = false;
+
+// Initializes the [[utc]] [[timescale]].
+@init fn init_utc() void = {
 	os::init_cwd();
-	const file = match (os::open(UTC_LEAPSECS_FILE)) {
-	case let file: io::file =>
-		yield file;
-	case fs::error =>
+	match (init_utc_leapsecs()) {
+	case void =>
+		utc_isinitialized = true;
+	case =>
 		return;
 	};
-	defer io::close(file)!;
-	read_utc_leapsecs_file(file, &utc_leapsecs)!;
 };
 
-fn read_utc_leapsecs_file(
+fn init_utc_leapsecs() (void | utciniterror) = {
+	const file = os::open(UTC_LEAPSECS_FILE)?;
+	defer io::close(file)!;
+	parse_utc_leapsecs(file, &utc_leapsecs)?;
+};
+
+// Parse UTC/TAI leap second data from [[UTC_LEAPSECS_FILE]].
+// See file for format details.
+fn parse_utc_leapsecs(
 	h: io::handle,
 	leapsecs: *[](i64, i64),
-) (void | io::error | encoding::utf8::invalid) = {
+) (void | encoding::utf8::invalid | io::error) = {
 	for (true) {
 		const line = match (bufio::scanline(h)) {
 		case let err: io::error =>

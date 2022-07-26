@@ -12,30 +12,16 @@ use path;
 use strings;
 use time;
 
+// Error concerning the Timezone database.
+export type tzdberror = !(invalidtzif | fs::error | io::error);
+
 // Invalid TZif data.
 export type invalidtzif = !void;
-
-// Possible errors returned from [[tz]].
-export type error = !(fs::error | io::error | invalidtzif);
-// TODO: Move to an appropriate file, and add other chrono error types.
-
-// Converts an [[error]] to a human-friendly representation.
-export fn strerror(err: error) const str = {
-	match (err) {
-	case invalidtzif =>
-		return "Invalid TZif data";
-	case let err: fs::error =>
-		return fs::strerror(err);
-	case let err: io::error =>
-		return io::strerror(err);
-	};
-};
 
 // Finds and loads a [[timezone]] from the system's Timezone database, normally
 // located at /usr/share/zoneinfo. All timezones provided default to the [[utc]]
 // [[timescale]] and [[EARTH_DAY]] day-length.
-export fn tz(name: str) (timezone | fs::error | io::error | invalidtzif) = {
-// TODO: Consolidate errors (use chrono::error?).
+export fn tz(name: str) (timezone | tzdberror) = {
 	const filepath = path::init();
 	path::add(&filepath, ZONEINFO_PREFIX, name)!;
 	const fpath = path::string(&filepath);

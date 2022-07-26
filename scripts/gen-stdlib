@@ -1305,21 +1305,23 @@ time_chrono() {
 	gen_srcs -plinux time::chrono \
 		+linux.ha \
 		chronology.ha \
+		error.ha \
 		leapsec.ha \
 		timescale.ha \
 		timezone.ha \
 		tzdb.ha
 	gen_ssa -plinux time::chrono \
-		bufio bytes encoding::utf8 endian errors fs io os strconv strings time path
+		bufio bytes encoding::utf8 endian errors fmt fs io os strconv strings time path
 	gen_srcs -pfreebsd time::chrono \
 		+freebsd.ha \
 		chronology.ha \
+		error.ha \
 		leapsec.ha \
 		timescale.ha \
 		timezone.ha \
 		tzdb.ha
 	gen_ssa -pfreebsd time::chrono \
-		bufio bytes encoding::utf8 endian errors fs io os strconv strings time path
+		bufio bytes encoding::utf8 endian errors fmt fs io os strconv strings time path
 }
 
 types() {
