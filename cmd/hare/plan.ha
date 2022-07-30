@@ -261,7 +261,7 @@ fn execute(
 	};
 	for (let i = 0z; i < len(plan.environ); i += 1) {
 		let e = plan.environ[i];
-		exec::setenv(&cmd, e.0, e.1);
+		exec::setenv(&cmd, e.0, e.1)!;
 	};
 
 	const pipe = if (plan.progress.tty is io::file) {

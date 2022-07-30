@@ -287,7 +287,7 @@ fn signtag(tmpdir: str, name: str, tag: str, key: str) (void | release_error) = 
 	defer exec::kill(agent)!;
 
 	const addkey = exec::cmd("ssh-add", key)?;
-	exec::setenv(&addkey, "SSH_AUTH_SOCK", socket);
+	exec::setenv(&addkey, "SSH_AUTH_SOCK", socket)!;
 	const addkey = exec::start(&addkey)?;
 	const addkey = exec::wait(&addkey)?;
 	exec::check(&addkey)?;
@@ -299,9 +299,9 @@ fn signtag(tmpdir: str, name: str, tag: str, key: str) (void | release_error) = 
 	const ssh = exec::cmd("ssh-keygen",
 		"-Y", "sign", "-f", key, "-n", "file")?;
 	const note = exec::cmd("git", "notes", "add", "-F", "-", tag)?;
-	exec::setenv(&note, "GIT_NOTES_REF", "refs/notes/signatures/tar.gz");
+	exec::setenv(&note, "GIT_NOTES_REF", "refs/notes/signatures/tar.gz")!;
 
-	exec::setenv(&ssh, "SSH_AUTH_SOCK", socket);
+	exec::setenv(&ssh, "SSH_AUTH_SOCK", socket)!;
 	// Squelch "Signing data on standard input" message
 	// TODO: It might be better to capture this and print it to stderr
 	// ourselves if ssh-keygen exits nonzero, so that the error details are

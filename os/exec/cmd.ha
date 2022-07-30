@@ -94,18 +94,20 @@ export fn clearenv(cmd: *command) void = {
 // current process environment. The 'key' must be a valid environment variable
 // name per POSIX definition 3.235. This includes underscores and alphanumeric
 // ASCII characters, and cannot begin with a number.
-export fn setenv(cmd: *command, key: str, value: str) void = {
+export fn setenv(cmd: *command, key: str, value: str) (void | errors::invalid) = {
 	let iter = strings::iter(key);
 	for (let i = 0z; true; i += 1) match (strings::next(&iter)) {
 	case void =>
 		break;
 	case let r: rune =>
 		if (i == 0) {
-			assert(r == '_' || ascii::isalpha(r),
-				"Invalid environment variable");
+			if(!(r == '_' || ascii::isalpha(r))) {
+				return errors::invalid;
+			};
 		} else {
-			assert(r == '_' || ascii::isalnum(r),
-				"Invalid environment variable");
+			if(!(r == '_' || ascii::isalnum(r))) {
+				return errors::invalid;
+			};
 		};
 	};
 
