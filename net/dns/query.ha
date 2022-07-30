@@ -42,20 +42,19 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 		},
 	];
 
-	let sendbuf: [512]u8 = [0...];
-	let z = encode(sendbuf, query)?;
+	let buf: [512]u8 = [0...];
+	let z = encode(buf, query)?;
 
 	// We send requests in parallel to all configured servers and take the
 	// first one which sends us a reasonable answer.
 	for (let i = 0z; i < len(servers); i += 1) match (servers[i]) {
 	case ip::addr4 =>
-		udp::sendto(socket4, sendbuf[..z], servers[i], 53)?;
+		udp::sendto(socket4, buf[..z], servers[i], 53)?;
 	case ip::addr6 =>
-		udp::sendto(socket6, sendbuf[..z], servers[i], 53)?;
+		udp::sendto(socket6, buf[..z], servers[i], 53)?;
 	};
 
 	let header = header { ... };
-	let recvbuf: [512]u8 = [0...];
 	for (true) {
 		let nevent = poll::poll(pollfd, timeout)!;
 		if (nevent == 0) {
@@ -64,10 +63,10 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 
 		let src: ip::addr = ip::ANY_V4;
 		if (pollfd[0].revents & poll::event::POLLIN != 0) {
-			z = udp::recvfrom(socket4, recvbuf, &src, null)?;
+			z = udp::recvfrom(socket4, buf, &src, null)?;
 		};
 		if (pollfd[1].revents & poll::event::POLLIN != 0) {
-			z = udp::recvfrom(socket6, recvbuf, &src, null)?;
+			z = udp::recvfrom(socket6, buf, &src, null)?;
 		};
 
 		let expected = false;
@@ -81,7 +80,7 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 			continue;
 		};
 
-		const dec = decoder_init(recvbuf[..z]);
+		const dec = decoder_init(buf[..z]);
 		decode_header(&dec, &header)?;
 		if (header.id == query.header.id && header.op.qr == qr::RESPONSE) {
 			break;
@@ -91,5 +90,5 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 	assert(!header.op.tc, "TODO: Retry with TCP for truncated DNS response");
 
 	check_rcode(header.op.rcode)?;
-	return decode(recvbuf[..z])?;
+	return decode(buf[..z])?;
 };
