@@ -90,11 +90,11 @@ export fn clearenv(cmd: *command) void = {
 	cmd.env = [];
 };
 
-// Adds or sets a variable in the command environment. This does not affect the
+// Removes a variable in the command environment. This does not affect the
 // current process environment. The 'key' must be a valid environment variable
 // name per POSIX definition 3.235. This includes underscores and alphanumeric
 // ASCII characters, and cannot begin with a number.
-export fn setenv(cmd: *command, key: str, value: str) (void | errors::invalid) = {
+export fn unsetenv(cmd: *command, key: str) (void | errors::invalid) = {
 	let iter = strings::iter(key);
 	for (let i = 0z; true; i += 1) match (strings::next(&iter)) {
 	case void =>
@@ -120,7 +120,16 @@ export fn setenv(cmd: *command, key: str, value: str) (void | errors::invalid) =
 			break;
 		};
 	};
-	append(cmd.env, strings::concat(fullkey, value));
+};
+
+
+// Adds or sets a variable in the command environment. This does not affect the
+// current process environment. The 'key' must be a valid environment variable
+// name per POSIX definition 3.235. This includes underscores and alphanumeric
+// ASCII characters, and cannot begin with a number.
+export fn setenv(cmd: *command, key: str, value: str) (void | errors::invalid) = {
+	unsetenv(cmd, key)?;
+	append(cmd.env, strings::join("=", key, value));
 };
 
 // Configures a file in the child process's file table, such that the file
