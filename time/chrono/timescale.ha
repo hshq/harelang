@@ -86,7 +86,7 @@ fn conv_utc_tai(a: time::instant) (time::instant | time::error) = {
 	};
 
 	const b = time::instant {
-		sec = a.sec + ofst,
+		sec = a.sec + 37,
 		nsec = a.nsec,
 	};
 	return b;
