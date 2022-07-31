@@ -286,7 +286,7 @@ const TZ_UTC: timezone = timezone {
 export const TAI: locality = &TZ_TAI;
 
 const TZ_TAI: timezone = timezone {
-	name = "",
+	name = "TAI",
 	timescale = &tai,
 	daylength = EARTH_DAY,
 	zones = [
@@ -305,7 +305,7 @@ const TZ_TAI: timezone = timezone {
 export const GPS: locality = &TZ_GPS;
 
 const TZ_GPS: timezone = timezone {
-	name = "",
+	name = "GPS",
 	timescale = &gps,
 	daylength = EARTH_DAY,
 	zones = [
@@ -324,7 +324,7 @@ const TZ_GPS: timezone = timezone {
 export const TT: locality = &TZ_TT;
 
 const TZ_TT: timezone = timezone {
-	name = "",
+	name = "TT",
 	timescale = &tt,
 	daylength = EARTH_DAY,
 	zones = [
@@ -343,7 +343,7 @@ const TZ_TT: timezone = timezone {
 export const MTC: locality = &TZ_MTC;
 
 const TZ_MTC: timezone = timezone {
-	name = "",
+	name = "MTC",
 	timescale = &mtc,
 	daylength = MARS_SOL_MARTIAN,
 	zones = [
