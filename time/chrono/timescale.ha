@@ -239,7 +239,7 @@ fn conv_mtc_tai(a: time::instant) (time::instant | time::error) = {
 
 	// Get the TAI time.
 	// '!' since TT and TAI are continuous.
-	const b = tt.from_tai(b)!;
+	const b = tt.to_tai(b)!;
 
 	return b;
 };
