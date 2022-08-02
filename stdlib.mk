@@ -1068,10 +1068,14 @@ stdlib_datetime_linux_srcs = \
 	$(STDLIB)/datetime/chronology.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/duration.ha \
 	$(STDLIB)/datetime/format.ha \
 	$(STDLIB)/datetime/parse.ha \
+	$(STDLIB)/datetime/period.ha \
+	$(STDLIB)/datetime/reckon.ha \
 	$(STDLIB)/datetime/time.ha \
-	$(STDLIB)/datetime/timezone.ha
+	$(STDLIB)/datetime/timezone.ha \
+	$(STDLIB)/datetime/virtual.ha
 
 $(HARECACHE)/datetime/datetime-linux.ssa: $(stdlib_datetime_linux_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -1085,10 +1089,14 @@ stdlib_datetime_freebsd_srcs = \
 	$(STDLIB)/datetime/chronology.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/duration.ha \
 	$(STDLIB)/datetime/format.ha \
 	$(STDLIB)/datetime/parse.ha \
+	$(STDLIB)/datetime/period.ha \
+	$(STDLIB)/datetime/reckon.ha \
 	$(STDLIB)/datetime/time.ha \
-	$(STDLIB)/datetime/timezone.ha
+	$(STDLIB)/datetime/timezone.ha \
+	$(STDLIB)/datetime/virtual.ha
 
 $(HARECACHE)/datetime/datetime-freebsd.ssa: $(stdlib_datetime_freebsd_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -1995,6 +2003,7 @@ $(HARECACHE)/time/time-freebsd.ssa: $(stdlib_time_freebsd_srcs) $(stdlib_rt) $(s
 
 # time::chrono (+linux)
 stdlib_time_chrono_linux_srcs = \
+	$(STDLIB)/time/chrono/arithmetic.ha \
 	$(STDLIB)/time/chrono/+linux.ha \
 	$(STDLIB)/time/chrono/chronology.ha \
 	$(STDLIB)/time/chrono/error.ha \
@@ -2011,6 +2020,7 @@ $(HARECACHE)/time/chrono/time_chrono-linux.ssa: $(stdlib_time_chrono_linux_srcs)
 
 # time::chrono (+freebsd)
 stdlib_time_chrono_freebsd_srcs = \
+	$(STDLIB)/time/chrono/arithmetic.ha \
 	$(STDLIB)/time/chrono/+freebsd.ha \
 	$(STDLIB)/time/chrono/chronology.ha \
 	$(STDLIB)/time/chrono/error.ha \
@@ -3302,10 +3312,14 @@ testlib_datetime_linux_srcs = \
 	$(STDLIB)/datetime/chronology.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/duration.ha \
 	$(STDLIB)/datetime/format.ha \
 	$(STDLIB)/datetime/parse.ha \
+	$(STDLIB)/datetime/period.ha \
+	$(STDLIB)/datetime/reckon.ha \
 	$(STDLIB)/datetime/time.ha \
-	$(STDLIB)/datetime/timezone.ha
+	$(STDLIB)/datetime/timezone.ha \
+	$(STDLIB)/datetime/virtual.ha
 
 $(TESTCACHE)/datetime/datetime-linux.ssa: $(testlib_datetime_linux_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -3319,10 +3333,14 @@ testlib_datetime_freebsd_srcs = \
 	$(STDLIB)/datetime/chronology.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/duration.ha \
 	$(STDLIB)/datetime/format.ha \
 	$(STDLIB)/datetime/parse.ha \
+	$(STDLIB)/datetime/period.ha \
+	$(STDLIB)/datetime/reckon.ha \
 	$(STDLIB)/datetime/time.ha \
-	$(STDLIB)/datetime/timezone.ha
+	$(STDLIB)/datetime/timezone.ha \
+	$(STDLIB)/datetime/virtual.ha
 
 $(TESTCACHE)/datetime/datetime-freebsd.ssa: $(testlib_datetime_freebsd_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -4260,6 +4278,7 @@ $(TESTCACHE)/time/time-freebsd.ssa: $(testlib_time_freebsd_srcs) $(testlib_rt) $
 
 # time::chrono (+linux)
 testlib_time_chrono_linux_srcs = \
+	$(STDLIB)/time/chrono/arithmetic.ha \
 	$(STDLIB)/time/chrono/+linux.ha \
 	$(STDLIB)/time/chrono/chronology.ha \
 	$(STDLIB)/time/chrono/error.ha \
@@ -4276,6 +4295,7 @@ $(TESTCACHE)/time/chrono/time_chrono-linux.ssa: $(testlib_time_chrono_linux_srcs
 
 # time::chrono (+freebsd)
 testlib_time_chrono_freebsd_srcs = \
+	$(STDLIB)/time/chrono/arithmetic.ha \
 	$(STDLIB)/time/chrono/+freebsd.ha \
 	$(STDLIB)/time/chrono/chronology.ha \
 	$(STDLIB)/time/chrono/error.ha \

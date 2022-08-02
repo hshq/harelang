@@ -15,7 +15,7 @@ export def EPOCHAL_JULIAN: i64 = -2440588;
 export def EPOCHAL_GREGORIAN: i64 = -719164;
 
 // Calculates whether a year is a leap year.
-export fn is_leap_year(y: int) bool = {
+export fn isleapyear(y: int) bool = {
 	return if (y % 4 != 0) false
 	else if (y % 100 != 0) true
 	else if (y % 400 != 0) false
@@ -25,49 +25,41 @@ export fn is_leap_year(y: int) bool = {
 // Calculates whether a given year, month, and day-of-month, is a valid date.
 fn is_valid_ymd(y: int, m: int, d: int) bool = {
 	return m >= 1 && m <= 12 && d >= 1 &&
-		d <= calc_n_days_in_month(y, m);
+		d <= calc_month_daycnt(y, m);
 };
 
 // Calculates whether a given year, and day-of-year, is a valid date.
 fn is_valid_yd(y: int, yd: int) bool = {
-	return yd >= 1 && yd <= calc_n_days_in_year(y);
+	return yd >= 1 && yd <= calc_year_daycnt(y);
 };
 
 // Calculates the number of days in the given month of the given year.
-fn calc_n_days_in_month(y: int, m: int) int = {
+fn calc_month_daycnt(y: int, m: int) int = {
 	const days_per_month: [_]int = [
 		31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 	];
 	if (m == 2) {
-		if (is_leap_year(y)) {
-			return 29;
-		} else {
-			return 28;
-		};
+		return if (isleapyear(y)) 29 else 28;
 	} else {
 		return days_per_month[m - 1];
 	};
 };
 
 // Calculates the number of days in a given year.
-fn calc_n_days_in_year(y: int) int = {
-	if (is_leap_year(y)) {
-		return 366;
-	} else {
-		return 365;
-	};
+fn calc_year_daycnt(y: int) int = {
+	return if (isleapyear(y)) 366 else 365;
 };
 
 // Calculates the day-of-week of January 1st, given a year.
 fn calc_janfirstweekday(y: int) int = {
-	const y = (y % 400) + 400; // keep year > 0 (using Gegorian cycle)
+	const y = (y % 400) + 400; // keep year > 0 (using Gregorian cycle)
 	// Gauss' algorithm
 	const wd = (
 		+ 5 * ((y - 1) % 4)
 		+ 4 * ((y - 1) % 100)
 		+ 6 * ((y - 1) % 400)
 	) % 7;
-	return wd + 1;
+	return wd;
 };
 
 // Calculates the era, given a year.
@@ -80,7 +72,7 @@ fn calc_era(y: int) int = {
 };
 
 // Calculates the year, month, and day-of-month, given an epochal day.
-fn calc_ymd(e: chrono::date) (int, int, int) = {
+fn calc_ymd(e: i64) (int, int, int) = {
 	// Algorithm adapted from:
 	// https://en.wikipedia.org/wiki/Julian_day#Julian_or_Gregorian_calendar_from_Julian_day_number
 	//
@@ -122,7 +114,7 @@ fn calc_yearday(y: int, m: int, d: int) int = {
 		273, 304, 334,
 	];
 
-	if (m >= 3 && is_leap_year(y)) {
+	if (m >= 3 && isleapyear(y)) {
 		return months_firsts[m - 1] + d + 1;
 	} else {
 		return months_firsts[m - 1] + d;
@@ -133,22 +125,22 @@ fn calc_yearday(y: int, m: int, d: int) int = {
 // given a year, month, day-of-month, and day-of-week.
 fn calc_isoweekyear(y: int, m: int, d: int, wd: int) int = {
 	if (
-		// if the date is within a week whose Thurday
-		// belongs to the previous gregorian year
+		// if the date is within a week whose Thursday
+		// belongs to the previous Gregorian year
 		m == 1 && (
-			(d == 1 && (wd == 5 || wd == 6 || wd == 7))
-			|| (d == 2 && (wd == 6 || wd == 7))
-			|| (d == 3 && wd == 7)
+			(d == 1 && (wd == 4 || wd == 5 || wd == 6))
+			|| (d == 2 && (wd == 5 || wd == 6))
+			|| (d == 3 && wd == 6)
 		)
 	) {
 		return y - 1;
 	} else if (
-		// if the date is within a week whose Thurday
-		// belongs to the next gregorian year
+		// if the date is within a week whose Thursday
+		// belongs to the next Gregorian year
 		m == 12 && (
-			(d == 29 && wd == 1)
-			|| (d == 30 && (wd == 1 || wd == 2))
-			|| (d == 31 && (wd == 1 || wd == 2 || wd == 3))
+			(d == 29 && wd == 0)
+			|| (d == 30 && (wd == 0 || wd == 1))
+			|| (d == 31 && (wd == 0 || wd == 1 || wd == 2))
 		)
 	) {
 		return y + 1;
@@ -160,64 +152,48 @@ fn calc_isoweekyear(y: int, m: int, d: int, wd: int) int = {
 // Calculates the ISO week,
 // given a year, week, day-of-week, and day-of-year.
 fn calc_isoweek(y: int, w: int) int = {
-	const jan1wd = calc_janfirstweekday(y);
-	const iw = if (jan1wd == 1) {
-		yield w;
-	} else if (jan1wd == 2 || jan1wd == 3 || jan1wd == 4) {
-		yield w + 1;
-	} else {
-		yield if (w == 0) {
-			yield if (jan1wd == 5) {
-				yield 53;
-			} else if (jan1wd == 6) {
-				yield if (is_leap_year(y - 1)) {
-					yield 53;
-				} else {
-					yield 52;
-				};
-			} else if (jan1wd == 7) {
-				yield 52;
-			} else {
-				// all jan1wd values exhausted
-				abort("Unreachable");
-			};
-		} else {
-			yield w;
+	switch (calc_janfirstweekday(y)) {
+	case 0 =>
+		return w;
+	case 1, 2, 3 =>
+		return w + 1;
+	case 4 =>
+		return if (w != 0) w else 53;
+	case 5 =>
+		return if (w != 0) w else {
+			yield if (isleapyear(y - 1)) 53 else 52;
 		};
+	case 6 =>
+		return if (w != 0) w else 52;
+	case =>
+		abort("Unreachable");
 	};
-	return iw;
 };
 
 // Calculates the week within a Gregorian year [0..53],
 // given a day-of-year and day-of-week.
 // All days in a year before the year's first Monday belong to week 0.
 fn calc_week(yd: int, wd: int) int = {
-	return (yd + 7 - wd) / 7;
+	return (yd + 6 - wd) / 7;
 };
 
 // Calculates the week within a Gregorian year [0..53],
 // given a day-of-year and day-of-week.
 // All days in a year before the year's first Sunday belong to week 0.
 fn calc_sundayweek(yd: int, wd: int) int = {
-	return (yd + 6 - (wd % 7)) / 7;
+	return (yd + 6 - ((wd + 1) % 7)) / 7;
 };
 
 // Calculates the day-of-week, given a epochal day,
-// from Monday=1 to Sunday=7.
-fn calc_weekday(e: chrono::date) int = {
-	const wd = ((e + 3) % 7 + 1): int;
-	return if (wd > 0) wd else wd + 7;
-};
-
-// Calculates the zero-indexed day-of-week, given a day-of-week,
 // from Monday=0 to Sunday=6.
-fn calc_zeroweekday(wd: int) int = {
-	return wd - 1;
+fn calc_weekday(e: i64) int = {
+	const wd = ((e + 3) % 7): int;
+	return (wd + 7) % 7;
 };
 
-// Calculates the [[chrono::date]],
+// Calculates the date,
 // given a year, month, and day-of-month.
-fn calc_date_from_ymd(y: int, m: int, d: int) (chrono::date | invalid) = {
+fn calc_date__ymd(y: int, m: int, d: int) (i64 | invalid) = {
 	if (!is_valid_ymd(y, m, d)) {
 		return invalid;
 	};
@@ -236,24 +212,24 @@ fn calc_date_from_ymd(y: int, m: int, d: int) (chrono::date | invalid) = {
 	return e;
 };
 
-// Calculates the [[chrono::date]],
+// Calculates the date,
 // given a year, week, and day-of-week.
-fn calc_date_from_ywd(y: int, w: int, wd: int) (chrono::date | invalid) = {
+fn calc_date__ywd(y: int, w: int, wd: int) (i64 | invalid) = {
 	const jan1wd = calc_janfirstweekday(y);
-	const yd = wd - jan1wd + 1 + 7 * w;
-	return calc_date_from_yd(y, yd)?;
+	const yd = wd - jan1wd + 7 * w;
+	return calc_date__yd(y, yd)?;
 };
 
-// Calculates the [[chrono::date]],
+// Calculates the date,
 // given a year and day-of-year.
-fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
-	if (yd < 1 || yd > calc_n_days_in_year(y)) {
+fn calc_date__yd(y: int, yd: int) (i64 | invalid) = {
+	if (yd < 1 || yd > calc_year_daycnt(y)) {
 		return invalid;
 	};
-	return calc_date_from_ymd(y, 1, 1)? + yd - 1;
+	return calc_date__ymd(y, 1, 1)? + yd - 1;
 };
 
-@test fn calc_date_from_ymd() void = {
+@test fn calc_date__ymd() void = {
 	const cases = [
 		(( -768,  2,  5),  -999999, false),
 		((   -1, 12, 31),  -719529, false),
@@ -289,20 +265,20 @@ fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
 		const params = cases[i].0;
 		const expect = cases[i].1;
 		const should_error = cases[i].2;
-		const actual = calc_date_from_ymd(
+		const actual = calc_date__ymd(
 			params.0, params.1, params.2,
 		);
 
 		if (should_error) {
 			assert(actual is invalid, "invalid date accepted");
 		} else {
-			assert(actual is chrono::date, "valid date not accepted");
-			assert(actual as chrono::date == expect, "date miscalculation");
+			assert(actual is i64, "valid date not accepted");
+			assert(actual as i64 == expect, "date miscalculation");
 		};
 	};
 };
 
-@test fn calc_date_from_ywd() void = {
+@test fn calc_date__ywd() void = {
 	const cases = [
 		(( -768,  0, 4), -1000034),
 		(( -768,  5, 4), -999999),
@@ -340,13 +316,13 @@ fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
 	for (let i = 0z; i < len(cases); i += 1) {
 		const ywd = cases[i].0;
 		const expected = cases[i].1;
-		const actual = calc_date_from_ywd(ywd.0, ywd.1, ywd.2)!;
+		const actual = calc_date__ywd(ywd.0, ywd.1, ywd.2)!;
 		assert(actual == expected,
-			"incorrect calc_date_from_ywd() result");
+			"incorrect calc_date__ywd() result");
 	};
 };
 
-@test fn calc_date_from_yd() void = {
+@test fn calc_date__yd() void = {
 	const cases = [
 		( -768, 36,  -999999),
 		(   -1, 365, -719529),
@@ -375,14 +351,14 @@ fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
 		const y = cases[i].0;
 		const yd = cases[i].1;
 		const expected = cases[i].2;
-		const actual = calc_date_from_yd(y, yd)!;
+		const actual = calc_date__yd(y, yd)!;
 		assert(expected == actual,
 			"error in date calculation from yd");
 	};
-	assert(calc_date_from_yd(2020, 0) is invalid,
-		"calc_date_from_yd() did not reject invalid yearday");
-	assert(calc_date_from_yd(2020, 400) is invalid,
-		"calc_date_from_yd() did not reject invalid yearday");
+	assert(calc_date__yd(2020, 0) is invalid,
+		"calc_date__yd() did not reject invalid yearday");
+	assert(calc_date__yd(2020, 400) is invalid,
+		"calc_date__yd() did not reject invalid yearday");
 };
 
 @test fn calc_ymd() void = {
@@ -454,21 +430,21 @@ fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
 
 @test fn calc_week() void = {
 	const cases = [
-		((1, 1), 1),
-		((1, 2), 0),
-		((1, 3), 0),
-		((1, 4), 0),
-		((1, 5), 0),
-		((1, 6), 0),
-		((1, 7), 0),
-		((21, 2), 3),
-		((61, 3), 9),
-		((193, 5), 27),
-		((229, 1), 33),
-		((286, 4), 41),
-		((341, 7), 48),
-		((365, 6), 52),
-		((366, 1), 53),
+		((  1, 0),  1),
+		((  1, 1),  0),
+		((  1, 2),  0),
+		((  1, 3),  0),
+		((  1, 4),  0),
+		((  1, 5),  0),
+		((  1, 6),  0),
+		(( 21, 1),  3),
+		(( 61, 2),  9),
+		((193, 4), 27),
+		((229, 0), 33),
+		((286, 3), 41),
+		((341, 6), 48),
+		((365, 5), 52),
+		((366, 0), 53),
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {
@@ -481,21 +457,21 @@ fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
 
 @test fn calc_sundayweek() void = {
 	const cases = [
-		((1, 1), 0),
-		((1, 2), 0),
-		((1, 3), 0),
-		((1, 4), 0),
-		((1, 5), 0),
-		((1, 6), 0),
-		((1, 7), 1),
-		((21, 2), 3),
-		((61, 3), 9),
-		((193, 5), 27),
-		((229, 1), 33),
-		((286, 4), 41),
-		((341, 7), 49),
-		((365, 6), 52),
-		((366, 1), 53),
+		((  1, 0),  0),
+		((  1, 1),  0),
+		((  1, 2),  0),
+		((  1, 3),  0),
+		((  1, 4),  0),
+		((  1, 5),  0),
+		((  1, 6),  1),
+		(( 21, 1),  3),
+		(( 61, 2),  9),
+		((193, 4), 27),
+		((229, 0), 33),
+		((286, 3), 41),
+		((341, 6), 49),
+		((365, 5), 52),
+		((366, 0), 53),
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {
@@ -508,27 +484,27 @@ fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
 
 @test fn calc_weekday() void = {
 	const cases = [
-		(-999999, 4), // -0768-02-05
-		(-719529, 5), // -0001-12-31
-		(-719528, 6), //  0000-01-01
-		(-719527, 7), //  0000-01-02
-		(-719163, 7), //  0000-12-31
-		(-719162, 1), //  0001-01-01
-		(-719161, 2), //  0001-01-02
-		(  -1745, 2), //  1965-03-23
-		(     -1, 3), //  1969-12-31
-		(      0, 4), //  1970-01-01
-		(      1, 5), //  1970-01-02
-		(  10956, 5), //  1999-12-31
-		(  10957, 6), //  2000-01-01
-		(  10958, 7), //  2000-01-02
-		(  24854, 1), //  2038-01-18
-		(  24855, 2), //  2038-01-19
-		(  24856, 3), //  2038-01-20
-		( 100000, 2), //  2243-10-17
-		( 999999, 4), //  4707-11-28
-		(1000000, 5), //  4707-11-29
-		(9999999, 6), // 29349-01-25
+		(-999999, 3), // -0768-02-05
+		(-719529, 4), // -0001-12-31
+		(-719528, 5), //  0000-01-01
+		(-719527, 6), //  0000-01-02
+		(-719163, 6), //  0000-12-31
+		(-719162, 0), //  0001-01-01
+		(-719161, 1), //  0001-01-02
+		(  -1745, 1), //  1965-03-23
+		(     -1, 2), //  1969-12-31
+		(      0, 3), //  1970-01-01
+		(      1, 4), //  1970-01-02
+		(  10956, 4), //  1999-12-31
+		(  10957, 5), //  2000-01-01
+		(  10958, 6), //  2000-01-02
+		(  24854, 0), //  2038-01-18
+		(  24855, 1), //  2038-01-19
+		(  24856, 2), //  2038-01-20
+		( 100000, 1), //  2243-10-17
+		( 999999, 3), //  4707-11-28
+		(1000000, 4), //  4707-11-29
+		(9999999, 5), // 29349-01-25
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
 		const paramt = cases[i].0;
@@ -541,77 +517,77 @@ fn calc_date_from_yd(y: int, yd: int) (chrono::date | invalid) = {
 @test fn calc_janfirstweekday() void = {
 	const cases = [
 	//	 year   weekday
-		(1969,  3),
-		(1970,  4),
-		(1971,  5),
-		(1972,  6),
-		(1973,  1),
-		(1974,  2),
-		(1975,  3),
-		(1976,  4),
-		(1977,  6),
-		(1978,  7),
-		(1979,  1),
-		(1980,  2),
-		(1981,  4),
-		(1982,  5),
-		(1983,  6),
-		(1984,  7),
-		(1985,  2),
-		(1986,  3),
-		(1987,  4),
-		(1988,  5),
-		(1989,  7),
-		(1990,  1),
-		(1991,  2),
-		(1992,  3),
-		(1993,  5),
-		(1994,  6),
-		(1995,  7),
-		(1996,  1),
-		(1997,  3),
-		(1998,  4),
-		(1999,  5),
-		(2000,  6),
-		(2001,  1),
-		(2002,  2),
-		(2003,  3),
-		(2004,  4),
-		(2005,  6),
-		(2006,  7),
-		(2007,  1),
-		(2008,  2),
-		(2009,  4),
-		(2010,  5),
-		(2011,  6),
-		(2012,  7),
-		(2013,  2),
-		(2014,  3),
-		(2015,  4),
-		(2016,  5),
-		(2017,  7),
-		(2018,  1),
-		(2019,  2),
-		(2020,  3),
-		(2021,  5),
-		(2022,  6),
-		(2023,  7),
-		(2024,  1),
-		(2025,  3),
-		(2026,  4),
-		(2027,  5),
-		(2028,  6),
-		(2029,  1),
-		(2030,  2),
-		(2031,  3),
-		(2032,  4),
-		(2033,  6),
-		(2034,  7),
-		(2035,  1),
-		(2036,  2),
-		(2037,  4),
-		(2038,  5),
-		(2039,  6),
+		(1969,  2),
+		(1970,  3),
+		(1971,  4),
+		(1972,  5),
+		(1973,  0),
+		(1974,  1),
+		(1975,  2),
+		(1976,  3),
+		(1977,  5),
+		(1978,  6),
+		(1979,  0),
+		(1980,  1),
+		(1981,  3),
+		(1982,  4),
+		(1983,  5),
+		(1984,  6),
+		(1985,  1),
+		(1986,  2),
+		(1987,  3),
+		(1988,  4),
+		(1989,  6),
+		(1990,  0),
+		(1991,  1),
+		(1992,  2),
+		(1993,  4),
+		(1994,  5),
+		(1995,  6),
+		(1996,  0),
+		(1997,  2),
+		(1998,  3),
+		(1999,  4),
+		(2000,  5),
+		(2001,  0),
+		(2002,  1),
+		(2003,  2),
+		(2004,  3),
+		(2005,  5),
+		(2006,  6),
+		(2007,  0),
+		(2008,  1),
+		(2009,  3),
+		(2010,  4),
+		(2011,  5),
+		(2012,  6),
+		(2013,  1),
+		(2014,  2),
+		(2015,  3),
+		(2016,  4),
+		(2017,  6),
+		(2018,  0),
+		(2019,  1),
+		(2020,  2),
+		(2021,  4),
+		(2022,  5),
+		(2023,  6),
+		(2024,  0),
+		(2025,  2),
+		(2026,  3),
+		(2027,  4),
+		(2028,  5),
+		(2029,  0),
+		(2030,  1),
+		(2031,  2),
+		(2032,  3),
+		(2033,  5),
+		(2034,  6),
+		(2035,  0),
+		(2036,  1),
+		(2037,  3),
+		(2038,  4),
+		(2039,  5),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
 		const paramt = cases[i].0;

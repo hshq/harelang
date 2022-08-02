@@ -4,28 +4,32 @@ based on the astronomically numbered proleptic Gregorian calendar, as per ISO
 of civil date/time and an extension of the [[time::chrono::moment]] type,
 optimized for dealing with the Gregorian chronology.
 
-Datetimes are created with [[new]], [[now]], or with one of the various "from_"
-functions. Alternatively, use a [[builder]] to construct a datetime
-piece-by-piece, by field assignements or by parsing strings with [[parse]].
+The [[time::chrono]] module has many useful functions which interoperate with
+datetimes. Any [[time::chrono]] function which accepts *moment also accepts
+*datetime.
 
-[[datetime]] instances are designed to be always valid and internally
-consistent. They should be treated as immutable, and their fields as private.
-All functions herein return valid datetimes (or appropriate errors), and never
-modify a datetime's value, even if passed as a pointer, which is used only for
-internal caching.
+Datetimes are created with [[new]], [[now]], or one of the "from_" functions.
+Alternatively, use the [[virtual]] interface to construct a datetime.
 
-[[datetime]] fields are accessed, evaluated, and cached via the various "field"
-functions ([[year]], [[month]], [[day]], etc). Accessing or modifying a
-[[datetime]]'s fields directly is discouraged. To mutate a datetime in code, the
-use of the [[builder]] interface is recommended.
+The [[virtual]] interface, coupled with the [[realize]] function, provides a way
+to handle uncertain or invalid datetime information intermediately, transform
+date/time values with arithmetic, [[parse]] date/time strings, and construct new
+datetimes safely.
 
-[[datetime]]s may be localized to different [[time::chrono::timezone]]s via the
-[[in]] function. The "field" functions will evaluate the correct values
+The "observe" functions accept a *datetime and evaluates one of its observed
+chronological values. This includes [[year]], [[month]], [[day]], [[hour]] etc.
+
+[[datetime]]s may be localized to different [[time::chrono::locality]]s via the
+[[in]] function. The "observe" functions will evaluate the correct values
 accordingly. You'll find a standard selection of world timezones in the
 [[time::chrono]] module.
 
-To convert datetimes to and from strings, use [[parse]] and [[format]].
+See [[parse]] and [[format]] for working with date/time strings.
 
-For arithmetics, use [[diff]], [[add]] and [[hop]]. Note that calendrical
-arithmetic is highly irregular with many edge cases, so think carefully about
-what you want.
+Timescale-wise datetime arithmetic using the [[time::duration]] type is possible,
+with [[add]] and [[time::chrono::diff]].
+
+Chronology-wise datetime arithmetic using the [[period]] type is possible, with
+[[reckon]] and the [[calculus]] type, [[pdiff]], [[unitdiff]], and [[truncate]].
+Note that chronological and calendrical arithmetic is highly irregular due to
+overflows and timezone discontinuities, so think carefully about what you want.

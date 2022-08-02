@@ -9,16 +9,17 @@ export type invalid = !void;
 // A moment in time within a [[locality]]. Create one with [[new]].
 //
 // Moments extend the [[time::instant]] type and couples it with a [[timescale]]
-// via the .loc field.
+// via its [[locality]] field.
 //
-// Moments observe a [[date]], time-of-day, and [[zone]], which are evaluated
-// and accessed by the [[getdate]], [[gettime]], and [[getzone]] functions.
+// This object should be treated as private and immutable. Directly mutating its
+// fields causes undefined behavour when used with module functions. Likewise,
+// interrogating the fields' type and value (e.g. using match statements) is
+// also improper.
 //
-// The [[time::chrono]] modules implements a small chronology of dates & times.
-// Higher level modules like [[datetime]] expand upon this with more complex
-// chronological values (years, hours, etc.). The [[datetime::datetime]] type
-// embeds this type, and other modules implementing other chronologies may
-// interoperate by passing pointers.
+// Moments observe a date, time-of-day, and [[zone]], which are evaluated and
+// obtained with the [[date]], [[time]], and [[mzone]] "observe" functions.
+// These values are derived from the embedded instant and locality information,
+// and thus are guaranteed to be valid.
 export type moment = struct {
 	// The embedded [[time::instant]] of this moment
 	time::instant,
@@ -26,102 +27,118 @@ export type moment = struct {
 	// The [[locality]] with which to interpret this moment
 	loc: locality,
 
+	// The observed [[zone]]
+	zone: nullable *zone,
+
 	// The observed ordinal day (on Earth or otherwise)
 	// since an abitrary epoch, like the Hare epoch 1970-01-01
-	date: (date | void),
+	date: (void | i64),
 
 	// The observed time since the start of the day
-	time: (time::duration | void),
-
-	// The observed [[zone]]
-	zone: (zone | void),
+	time: (void | time::duration),
 };
 
-// An ordinal day since an epoch. The Hare epoch (zeroth day) 1970 Jan 1st is
-// used for terrestrial chronologies.
-export type date = i64;
-
-// Creates a new [[moment]].
+// Creates a new [[moment]]. Uses a given [[time::instant]] with a [[timescale]]
+// associated with a given [[locality]].
 export fn new(loc: locality, inst: time::instant) moment = {
 	return moment {
-		loc = loc,
 		sec = inst.sec,
 		nsec = inst.nsec,
+		loc = loc,
+		zone = null,
 		date = void,
 		time = void,
-		zone = void,
 	};
 };
 
 // Evalutes, caches, and returns a [[moment]]'s observed [[zone]].
-export fn getzone(m: *moment) zone = {
+export fn mzone(m: *moment) zone = {
 	match (m.zone) {
-	case let z: zone =>
-		return z;
-	case void =>
-		return lookupzone(m);
+	case let z: *zone =>
+		return *z;
+	case null =>
+		const z = _lookupzone(m.loc, *(m: *time::instant));
+		m.zone = z;
+		return *z;
 	};
 };
 
 // Evaluates, caches, and returns a [[moment]]'s observed epochal date.
-export fn getdate(m: *moment) date = {
+//
+// For moments with [[locality]]s based on the [[utc]], [[tai]], [[gps]], and
+// similar timescales, their epoch date should be interpreted as the Unix epoch
+// (1970 Janurary 1st). Other timescales may suggest their own interpretations
+// applicable to other chronologies.
+export fn date(m: *moment) i64 = {
 	match (m.date) {
-	case let d: date =>
+	case let d: i64 =>
 		return d;
 	case void =>
-		return eval_datetime(m).0;
+		const (d, t) = calc_datetime(
+			m.loc, *(m: *time::instant), mzone(m).zoff,
+		);
+		m.time = t;
+		m.date = d;
+		return d;
 	};
 };
 
 // Evaluates, caches, and returns a [[moment]]'s observed time-of-day as a
 // [[time::duration]] since the start of a day.
-export fn gettime(m: *moment) time::duration = {
+export fn time(m: *moment) time::duration = {
 	match (m.time) {
 	case let t: time::duration =>
 		return t;
 	case void =>
-		return eval_datetime(m).1;
+		const (d, t) = calc_datetime(
+			m.loc, *(m: *time::instant), mzone(m).zoff,
+		);
+		m.time = t;
+		m.date = d;
+		return t;
 	};
 };
 
-// Evaluates, caches, and returns a [[moment]]'s observed date & time.
-fn eval_datetime(m: *moment) (date, time::duration) = {
-	const i = time::add(*(m: *time::instant), getzone(m).zoffset);
-	const day = m.loc.daylength;
+// Calculates the observed date and time-of-day of a [[time::instant]] in a
+// [[locality]] at a particular zone offset.
+fn calc_datetime(
+	loc: locality,
+	inst: time::instant,
+	zoff: time::duration,
+) (i64, time::duration) = {
+	const i = time::add(inst, zoff);
+	const day = loc.daylength;
 	const daysec = day / time::SECOND;
 	const d = if (i.sec >= 0) i.sec / daysec else (i.sec + 1) / daysec - 1;
 	const t = ((i.sec % daysec + daysec) * time::SECOND + i.nsec) % day;
-	m.time = t;
-	m.date = d;
 	return (d, t);
 };
 
-// Creates a [[moment]] from a given [[locality]], zone offset, [[date]] and
+// Creates a [[moment]] from a given [[locality]], zone offset, date, and
 // time-of-day.
 export fn from_datetime(
 	loc: locality,
 	zo: time::duration,
-	d: date,
+	d: i64,
 	t: time::duration,
 ) moment = {
 	const inst = calc_instant(loc.daylength, zo, d, t);
 	return moment {
-		loc = loc,
 		sec = inst.sec,
 		nsec = inst.nsec,
+		loc = loc,
+		zone = null,
 		date = d,
 		time = t,
-		zone = void
 	};
 };
 
 fn calc_instant(
 	day: time::duration, // length of a day
 	zo: time::duration,  // zone offset
-	d: date,             // date since epoch
+	d: i64,              // date since epoch
 	t: time::duration,   // time since start of day
 ) time::instant = {
-	// TODO: make sure this works across transitions
 	const daysec = (day / time::SECOND): i64;
 	const dayrem = day % time::SECOND;
 	let i = time::instant {

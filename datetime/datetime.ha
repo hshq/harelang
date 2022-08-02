@@ -8,6 +8,24 @@ use time::chrono;
 // Invalid [[datetime]].
 export type invalid = !chrono::invalid;
 
+// A date/time object; a [[time::chrono::moment]] wrapper optimized for the
+// Gregorian chronology
+//
+// It is by extension a [[time::instant]] wrapper, and carries information about
+// its [[time::chrono::timescale]] and [[time::chrono::locality]].
+//
+// This object should be treated as private and immutable. Directly mutating its
+// fields causes undefined behaviour when used with module functions. Likewise,
+// interrogating the fields' type and value (e.g. using match statements) is
+// also improper.
+//
+// A datetime observes various chronological values, cached in its fields. To
+// evaluate and obtain these values, use the various "observe" functions
+// ([[year]], [[day]], etc.). These values are derived from the embedded moment
+// information, and thus are guaranteed to be valid.
+//
+// See [[virtual]] for an public, mutable, intermediary representation of a
+// datetime, which waives guarantees of validity.
 export type datetime = struct {
 	chrono::moment,
 
@@ -29,12 +47,12 @@ export type datetime = struct {
 };
 
 fn init() datetime = datetime {
-	loc         = chrono::LOCAL,
 	sec         = 0,
 	nsec        = 0,
+	loc         = chrono::UTC,
+	zone        = null,
 	date        = void,
 	time        = void,
-	zone        = void,
 
 	era         = void,
 	year        = void,
@@ -53,28 +71,51 @@ fn init() datetime = datetime {
 	nanosecond  = void,
 };
 
-// Creates a new datetime. When loc=void, defaults to chrono::local.
+// Evaluates and populates all of a [[datetime]]'s fields.
+fn all(dt: *datetime) *datetime = {
+	_era(dt);
+	_year(dt);
+	_month(dt);
+	_day(dt);
+	_yearday(dt);
+	_isoweekyear(dt);
+	_isoweek(dt);
+	_week(dt);
+	_sundayweek(dt);
+	_weekday(dt);
+
+	_hour(dt);
+	_minute(dt);
+	_second(dt);
+	_nanosecond(dt);
+
+	return dt;
+};
+
+// Creates a new datetime. A maximum of 7 optional field arguments can be given:
+// year, month, day-of-month, hour, minute, second, nanosecond. 8 or more causes
+// an abort.
 //
-// 	// 0000 Jan  1st 00:00:00.000000000 +0000 UTC
+// 	// 0000-01-01 00:00:00.000000000 +0000 UTC UTC
 // 	datetime::new(time::chrono::UTC, 0);
 //
-// 	// 2038 Jan 19th 03:14:07.000000618 +0000 UTC
-// 	datetime::new(time::chrono::UTC, 0, 2038, 1, 19, 3, 14, 7, 618);
+// 	// 2019-12-27 20:07:08.000031415 +0000 UTC UTC
+// 	datetime::new(time::chrono::UTC, 0,  2019, 12, 27,  20, 07, 08, 31415);
 //
-// 	// 2038 Jan 19th 02:00:00.000000000 +0100 Europe/Amsterdam
-// 	datetime::new(&time::chrono::tz("Europe/Amsterdam"), 1 * time::HOUR,
-// 		2038, 1, 19, 2);
+// 	// 2019-12-27 21:00:00.000000000 +0100 CET Europe/Amsterdam
+// 	datetime::new(time::chrono::tz("Europe/Amsterdam")!, 1 * time::HOUR,
+// 		2019, 12, 27,  21);
 //
-// 'offs' is the zone offset from the normal timezone (in most cases, UTC). For
-// example, the "Asia/Tokyo" timezone has a single zoffset of +9 hours, but the
-// "Australia/Sydney" timezone has zoffsets +10 hours and +11 hours, as they
+// 'zo' is the zone offset from the normal timezone (in most cases, UTC). For
+// example, the "Asia/Tokyo" timezone has a single zoff of +9 hours, but the
+// "Australia/Sydney" timezone has zoffs +10 hours and +11 hours, as they
 // observe Daylight Saving Time.
 //
-// If specified (non-void), 'offs' must match one of the timezone's observed
-// zoffsets, or will fail. See [[time::chrono::fixedzone]] for custom timezones.
+// If specified (non-void), 'zo' must match one of the timezone's observed
+// zoffs, or will fail. See [[time::chrono::fixedzone]] for custom timezones.
 //
-// You may omit the zoffset. If the givem timezone has a single zone, [[new]]
-// will use that zone's zoffset. Otherwise [[new]] will try to infer the zoffset
+// You may omit the zoff. If the givem timezone has a single zone, [[new]]
+// will use that zone's zoff. Otherwise [[new]] will try to infer the zoff
 // from the multiple zones. This will fail during certain timezone transitions,
 // where certain datetimes are ambiguous or nonexistent. For example:
 //
@@ -95,30 +136,29 @@ export fn new(
 	// - Implement as described.
 	// - fix calls with `years <= -4715`.
 	//   https://todo.sr.ht/~sircmpwn/hare/565
-	let defaults: [_]int = [
+	let _fields: [_]int = [
 		0, 1, 1,    // year month day
 		0, 0, 0, 0, // hour min sec nsec
 	];
 
-	if (len(fields) > len(defaults)) {
-		// cannot specify more than 7 fields
-		return invalid;
+	if (len(fields) > len(_fields)) {
+		abort("datetime::new(): Too many field arguments");
 	};
 
 	for (let i = 0z; i < len(fields); i += 1) {
-		defaults[i] = fields[i];
+		_fields[i] = fields[i];
 	};
 
-	const year  = defaults[0];
-	const month = defaults[1];
-	const day   = defaults[2];
-	const hour  = defaults[3];
-	const min   = defaults[4];
-	const sec   = defaults[5];
-	const nsec  = defaults[6];
+	const year  = _fields[0];
+	const month = _fields[1];
+	const day   = _fields[2];
+	const hour  = _fields[3];
+	const min   = _fields[4];
+	const sec   = _fields[5];
+	const nsec  = _fields[6];
 
-	const mdate = calc_date_from_ymd(year, month, day)?;
-	const mtime = calc_time_from_hmsn(hour, min, sec, nsec)?;
+	const mdate = calc_date__ymd(year, month, day)?;
+	const mtime = calc_time__hmsn(hour, min, sec, nsec)?;
 
 	// create the moment
 	const m = match (zo) {
@@ -134,33 +174,41 @@ export fn new(
 	};
 
 	const dt = from_moment(m);
+
+	const zo = match (zo) {
+	case void =>
+		yield chrono::mzone(&m).zoff;
+	case let d: time::duration =>
+		yield d;
+	};
+
+	// check if input values are actually observed
 	if (
-		year == _year(&dt)
-		&& month == _month(&dt)
-		&& day == _day(&dt)
-		&& hour == _hour(&dt)
-		&& min == _minute(&dt)
-		&& sec == _second(&dt)
-		&& nsec == _nanosecond(&dt)
+		zo       != chrono::mzone(&dt).zoff
+		|| year  != _year(&dt)
+		|| month != _month(&dt)
+		|| day   != _day(&dt)
+		|| hour  != _hour(&dt)
+		|| min   != _minute(&dt)
+		|| sec   != _second(&dt)
+		|| nsec  != _nanosecond(&dt)
 	) {
-		void;
-	} else {
 		return invalid;
 	};
+
 	return dt;
 };
 
-// Returns a [[datetime]] of the current system time,
-// using [[time::clock::REALTIME]] and [[time::chrono::LOCAL]].
+// Returns a [[datetime]] of the current system time using
+// [[time::clock::REALTIME]], in the [[time::chrono::LOCAL]] locality.
 export fn now() datetime = {
-	// TODO: Consider adding function parameters.
-	// Should [[now]] specify appropriate params like a time::clock and
-	// chrono::timezone? Perhaps a separate function, [[from_clock]].
-	//
-	// https://todo.sr.ht/~sircmpwn/hare/645
-	const i = time::now(time::clock::REALTIME);
-	const m = chrono::new(chrono::LOCAL, i);
-	return from_moment(m);
+	return from_instant(chrono::LOCAL, time::now(time::clock::REALTIME));
+};
+
+// Returns a [[datetime]] of the current system time using
+// [[time::clock::REALTIME]], in the [[time::chrono::UTC]] locality.
+export fn nowutc() datetime = {
+	return from_instant(chrono::UTC, time::now(time::clock::REALTIME));
 };
 
 // Creates a [[datetime]] from a [[time::chrono::moment]].
@@ -181,104 +229,25 @@ export fn from_instant(loc: chrono::locality, i: time::instant) datetime = {
 	return from_moment(chrono::new(loc, i));
 };
 
-// Creates a [[datetime]] from a string, parsed according to a layout,
-// using [[strategy::ALL]], or otherwise fails.
-export fn from_str(layout: str, s: str) (datetime | insufficient | invalid) = {
-	// XXX: Should we allow the user to specify [[strategy]] for security?
-	const b = newbuilder();
-	parse(&b, layout, s)?;
-	return finish(&b)?;
-};
-
-// A [[builder]] has insufficient information and cannot create a valid datetime.
-export type insufficient = !void;
-
-// A pseudo-datetime; a [[datetime]] which may hold invalid values, and does not
-// guarantee internal validity or consistency.
+// Creates a [[datetime]] from a string, parsed according to a layout format.
+// See [[parse]] and [[format]].
 //
-// This can be used to construct new [[datetime]]s. Start with [[newbuilder]],
-// then collect enough datetime information incrementally by direct field
-// assignments and/or one or more calls to [[parse]]. Finish with [[finish]].
+// 	let new = datetime::from_str(
+// 		datetime::STAMP_NOZL,
+// 		"2019-12-27 22:07:08.000000000 +0100 CET Europe/Amsterdam",
+// 		locs...
+// 	)!;
 //
-// 	let builder = datetime::newbuilder();
-// 	datetime::parse(&builder, "Year: %Y", "Year: 2038");
-// 	datetime::parse(&builder, "Month: %m", "Month: 01");
-// 	builder.day = 19;
-// 	let dt = datetime::finish(&builder, datetime::strategy::YMD);
-//
-export type builder = datetime;
-
-// Creates a new [[builder]].
-export fn newbuilder() builder = init(): builder;
-
-// Returns a [[datetime]] from a [[builder]]. The provided [[strategy]]s will be
-// tried in order until a valid datetime is produced, or otherwise fail. The
-// default strategy is [[strategy::ALL]].
-export fn finish(f: *builder, m: strategy...) (datetime | insufficient | invalid) = {
-	if (len(m) == 0) {
-		m = [strategy::ALL];
-	};
-
-	for (let i = 0z; i < len(m); i += 1) {
-		const M = m[i];
-		if (
-			M & strategy::YMD != 0 &&
-			f.year is int &&
-			f.month is int &&
-			f.day is int
-		) {
-			f.date = calc_date_from_ymd(
-				f.year as int,
-				f.month as int,
-				f.day as int,
-			)?;
-			return *f: datetime;
-		};
-
-		if (
-			M & strategy::YD != 0 &&
-			f.year is int &&
-			f.yearday is int
-		) {
-			f.date = calc_date_from_yd(
-				f.year as int,
-				f.yearday as int,
-			)?;
-			return *f: datetime;
-		};
-
-		if (
-			M & strategy::YWD != 0 &&
-			f.year is int &&
-			f.week is int &&
-			f.weekday is int
-		) {
-			f.date = calc_date_from_ywd(
-				f.year as int,
-				f.week as int,
-				f.weekday as int,
-			)?;
-			return *f: datetime;
-		};
-
-		// TODO: calendar.ha: calc_date_from_isoywd()
-	};
-
-	return insufficient;
-};
-
-// Specifies which [[builder]] fields and what strategy to use to calculate the
-// date, and thus a valid [[datetime]].
-export type strategy = enum uint {
-	// year, month, day
-	YMD    = 1 << 0,
-	// year, yearday
-	YD     = 1 << 1,
-	// year, week, weekday
-	YWD    = 1 << 2,
-	// isoyear, isoweek, weekday
-	ISOYWD = 1 << 4,
-
-	// all strategies, in order as presented here
-	ALL    = YMD | YD | YWD | ISOYWD,
+// The datetime's [[time::chrono::locality]] will be selected from the provided
+// locality arguments. The 'name' field of these localities will be matched
+// against the parsed result for the %L specifier. If %L is not specified, or if
+// no locality is provided, [[time::chrono::UTC]] is used.
+export fn from_str(
+	layout: str,
+	s: str,
+	locs: time::chrono::locality...
+) (datetime | parsefail | insufficient | invalid) = {
+	const v = newvirtual();
+	parse(&v, layout, s)?;
+	return realize(v, locs...)?;
 };

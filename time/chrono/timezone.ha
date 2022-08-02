@@ -7,17 +7,17 @@ use path;
 use strings;
 use time;
 
-// The locality of a [[moment]]. Contains information about how to present a
-// moment's chronological values.
+// The locality of a [[moment]]. Contains information about how to calculate a
+// moment's observed chronological values.
 export type locality = *timezone;
 
-// A timezone; a political or general region with a ruleset regarding offsets
-// for calculating localized civil time.
+// A timezone; a political or otherwise theoretical region with a ruleset
+// regarding offsets for calculating localized date/time.
 export type timezone = struct {
 	// The textual identifier ("Europe/Amsterdam")
 	name: str,
 
-	// The base timescale (chrono::utc)
+	// The base timescale (time::chrono::utc)
 	timescale: *timescale,
 
 	// The duration of a day in this timezone (24 * time::HOUR)
@@ -37,10 +37,10 @@ export type timezone = struct {
 	posix_extend: str,
 };
 
-// A [[timezone]] state, with an offset for calculating localized civil time.
+// A [[timezone]] state, with an offset for calculating localized date/time.
 export type zone = struct {
 	// The offset from the normal timezone (2 * time::HOUR)
-	zoffset: time::duration,
+	zoff: time::duration,
 
 	// The full descriptive name ("Central European Summer Time")
 	name: str,
@@ -70,59 +70,69 @@ type tzname = struct {
 	dst_endtime: str,
 };
 
-// Creates an equivalent [[moment]] with a different [[locality]].
-//
-// If the old and new localities have different timescales, a direct conversion
-// between them will be tried, and will abort if unsuccessful. To avoid this,
-// consider manually converting moments to instants, and those instants between
-// timescales.
-export fn in(loc: locality, m: moment) moment = {
-	if (m.loc.timescale != loc.timescale) {
-		const i = *(&m: *time::instant);
-		const i = match (m.loc.timescale.to_tai(i)) {
-		case let i: time::instant =>
-			yield i;
-		case time::error =>
-			abort("time::chrono::in(): direct timescale conversion failed");
-		};
-		const i = match (loc.timescale.from_tai(i)) {
-		case let i: time::instant =>
-			yield i;
-		case time::error =>
-			abort("time::chrono::in(): direct timescale conversion failed");
-		};
-		return new(loc, i);
+// Frees a [[timezone]]. A [[locality]] argument can be passed.
+export fn timezone_free(tz: *timezone) void = {
+	free(tz.name);
+	for (let i = 0z; i < len(tz.zones); i += 1) {
+		zone_finish(&tz.zones[i]);
 	};
-	return new(loc, *(&m: *time::instant));
+	free(tz.zones);
+	free(tz.transitions);
+	free(tz.posix_extend);
+	free(tz);
 };
 
-// Finds, sets and returns a [[moment]]'s currently observed zone.
-export fn lookupzone(m: *moment) zone = {
+// Frees resources associated with a [[zone]].
+export fn zone_finish(z: *zone) void = {
+	free(z.name);
+	free(z.abbr);
+};
+
+// Creates an equivalent [[moment]] with a different [[locality]].
+//
+// If the moment's associated [[timescale]] and the target locality's timescale
+// are different, a conversion from one to the other via the TAI timescale will
+// be attempted. Any [[discontinuity]] occurrence will be returned. If a
+// discontinuity against TAI amongst the two timescales exist, consider
+// converting such instants manually.
+export fn in(loc: locality, m: moment) (moment | discontinuity) = {
+	let i = *(&m: *time::instant);
+	if (m.loc.timescale != loc.timescale) {
+		match (convert(i, m.loc.timescale, loc.timescale)) {
+		case analytical =>
+			return discontinuity;
+		case let i: time::instant =>
+			return new(loc, i);
+		};
+	};
+	return new(loc, i);
+};
+
+// Finds and returns a [[moment]]'s currently observed [[zone]].
+fn _lookupzone(loc: locality, inst: time::instant) *zone = {
 	// TODO: https://todo.sr.ht/~sircmpwn/hare/643
-	if (len(m.loc.zones) == 0) {
-		// TODO: what to do? not ideal to assume UTC
-		abort("lookupzone(): timezones should have at least one zone");
+	if (len(loc.zones) == 0) {
+		abort("time::chrono: Timezone has no zones");
 	};
 
-	if (len(m.loc.zones) == 1) {
-		m.zone = m.loc.zones[0];
-		return m.zone as zone;
+	if (len(loc.zones) == 1) {
+		return &loc.zones[0];
 	};
 
 	if (
-		len(m.loc.transitions) == 0
-		|| time::compare(*(m: *time::instant), m.loc.transitions[0].when) == -1
+		len(loc.transitions) == 0
+		|| time::compare(inst, loc.transitions[0].when) == -1
 	) {
 		// TODO: special case
 		abort("lookupzone(): time is before known transitions");
 	};
 
 	let lo = 0z;
-	let hi = len(m.loc.transitions);
+	let hi = len(loc.transitions);
 	for (hi - lo > 1) {
 		const mid = lo + (hi - lo) / 2;
-		const middle = m.loc.transitions[mid].when;
-		switch (time::compare(*(m: *time::instant), middle)) {
+		const middle = loc.transitions[mid].when;
+		switch (time::compare(inst, middle)) {
 		case -1 =>
 			hi = mid;
 		case 0 =>
@@ -134,17 +144,17 @@ export fn lookupzone(m: *moment) zone = {
 		};
 	};
 
-	m.zone = m.loc.zones[m.loc.transitions[lo].zoneindex];
+	const z = &loc.zones[loc.transitions[lo].zoneindex];
 
 	// if we've reached the end of the locality's transitions, try its
 	// posix_extend string
 	//
 	// TODO: Unfinished; complete.
-	if (lo == len(m.loc.transitions) - 1 && m.loc.posix_extend != "") {
+	if (lo == len(loc.transitions) - 1 && loc.posix_extend != "") {
 		void;
 	};
 
-	return m.zone as zone;
+	return z;
 };
 
 // Creates a [[timezone]] with a single [[zone]]. Useful for fixed offsets.
@@ -152,7 +162,7 @@ export fn lookupzone(m: *moment) zone = {
 //
 // 	let hawaii = chrono::fixedzone(&chrono::utc, chrono::EARTH_DAY,
 // 		chrono::zone {
-// 			zoffset = -10 * time::HOUR,
+// 			zoff = -10 * time::HOUR,
 // 			name = "Hawaiian Reef",
 // 			abbr = "HARE",
 // 			dst = false,
@@ -180,16 +190,16 @@ export fn fixedzone(ts: *timescale, daylen: time::duration, z: zone) timezone = 
 // name of both the timezone and its single zero-offset zone.
 export const LOCAL: locality = &TZ_LOCAL;
 
-def LOCAL_NAME: str = "Local";
+def TZ_LOCAL_NAME: str = "Local";
 
 let TZ_LOCAL: timezone = timezone {
-	name = LOCAL_NAME,
+	name = TZ_LOCAL_NAME,
 	timescale = &utc,
 	daylength = EARTH_DAY,
 	zones = [
 		zone {
-			zoffset = 0 * time::SECOND,
-			name = LOCAL_NAME,
+			zoff = 0 * time::SECOND,
+			name = TZ_LOCAL_NAME,
 			abbr = "",
 			dst = false,
 		},
@@ -198,20 +208,13 @@ let TZ_LOCAL: timezone = timezone {
 	posix_extend = "",
 };
 
-@fini fn free_tzdata() void = {
-	free(TZ_LOCAL.transitions);
-	switch(TZ_LOCAL.name) {
-	case LOCAL_NAME => void;
-	case =>
-		free(TZ_LOCAL.zones);
-	};
-};
-
-@init fn set_local_timezone() void = {
+@init fn init_tz_local() void = {
 	match (os::getenv("TZ")) {
-	case let zone: str =>
-		TZ_LOCAL = match (tz(zone)) {
-		case let tz: timezone =>
+	case let timezone: str =>
+		TZ_LOCAL = match (tz(timezone)) {
+		case let loc: locality =>
+			const tz = *loc;
+			timezone_free(loc);
 			yield tz;
 		case =>
 			return;
@@ -240,7 +243,16 @@ let TZ_LOCAL: timezone = timezone {
 
 		static let buf: [os::BUFSIZ]u8 = [0...];
 		const file = bufio::buffered(file, buf, []);
-		match (parse_tzif(&file, &TZ_LOCAL)) { case => void; };
+		load_tzif(&file, &TZ_LOCAL): void;
+	};
+};
+
+@fini fn free_tz_local() void = {
+	free(TZ_LOCAL.transitions);
+	switch(TZ_LOCAL.name) {
+	case TZ_LOCAL_NAME => void;
+	case =>
+		free(TZ_LOCAL.zones);
 	};
 };
 
@@ -253,7 +265,7 @@ const TZ_UTC: timezone = timezone {
 	daylength = EARTH_DAY,
 	zones = [
 		zone {
-			zoffset = 0 * time::SECOND,
+			zoff = 0 * time::SECOND,
 			name = "Universal Coordinated Time",
 			abbr = "UTC",
 			dst = false,
@@ -272,7 +284,7 @@ const TZ_TAI: timezone = timezone {
 	daylength = EARTH_DAY,
 	zones = [
 		zone {
-			zoffset = 0 * time::SECOND,
+			zoff = 0 * time::SECOND,
 			name = "International Atomic Time",
 			abbr = "TAI",
 			dst = false,
@@ -291,7 +303,7 @@ const TZ_GPS: timezone = timezone {
 	daylength = EARTH_DAY,
 	zones = [
 		zone {
-			zoffset = 0 * time::SECOND,
+			zoff = 0 * time::SECOND,
 			name = "Global Positioning System",
 			abbr = "GPS",
 			dst = false,
@@ -310,7 +322,7 @@ const TZ_TT: timezone = timezone {
 	daylength = EARTH_DAY,
 	zones = [
 		zone {
-			zoffset = 0 * time::SECOND,
+			zoff = 0 * time::SECOND,
 			name = "Terrestrial Time",
 			abbr = "TT",
 			dst = false,
@@ -329,7 +341,7 @@ const TZ_MTC: timezone = timezone {
 	daylength = MARS_SOL_MARTIAN,
 	zones = [
 		zone {
-			zoffset = 0 * time::SECOND,
+			zoff = 0 * time::SECOND,
 			name = "Coordinated Mars Time",
 			abbr = "MTC",
 			dst = false,

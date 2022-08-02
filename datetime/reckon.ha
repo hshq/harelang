@@ -1,0 +1,489 @@
+// License: MPL-2.0
+// (c) 2023 Byron Torres <b@torresjrjr.com>
+use time;
+use time::chrono;
+
+// Specifies the behaviour of [[reckon]] when doing chronological arithmetic.
+//
+// The FLOOR, CEIL, HOP, and FOLD specifies how to resolve sub-significant
+// overflows -- when a field's change in value causes any sub-significant
+// field's range to shrink below its current value and become invalid. For
+// example, adding 1 month to January 31st results in February 31st, a date with
+// an unresolved day field, since February permits only 28 or 29 days.
+export type calculus = enum uint {
+	// The default behaviour. Equivalent to CEIL.
+	DEFAULT = 0,
+
+	// Apply units in reverse order, from least to most significant.
+	REVSIG = 1 << 0,
+
+	// When a sub-significant overflow occurs, the unresolved field is set
+	// to its minimum valid value.
+	//
+	//     Feb 31 -> Feb 01
+	//     Aug 64 -> Aug 01
+	FLOOR = 1 << 1,
+
+	// When a sub-significant overflow occurs, the unresolved field is set
+	// to its maximum valid value.
+	//
+	//     Feb 31 -> Feb 28 / Feb 29   (leap year dependent)
+	//     Aug 64 -> Aug 31
+	CEIL = 1 << 2,
+
+	// When a sub-significant overflow occurs, the unresolved field is set
+	// to its new minimum valid value after the next super-significant field
+	// increments by one.
+	//
+	//     Feb 31 -> Mar 01
+	//     Aug 64 -> Sep 01
+	HOP = 1 << 3,
+
+	// When a sub-significant overflow occurs, the unresolved field's
+	// maximum valid value is subtracted from it's current value, and the
+	// next super-significant field increments by one. This process repeats
+	// until the unresolved field's value becomes valid (falls in range).
+	//
+	//     Feb 31 -> Mar 03 / Mar 02   (leap year dependent)
+	//     Aug 64 -> Sep 33 -> Oct 03
+	FOLD = 1 << 4,
+};
+
+// Reckons from a given [[datetime]] to a new one, via a set of [[period]]s.
+// This is a chronology-wise arithmetic operation. Each period is reckoned
+// independently in succession, applying (adding) their units from most to least
+// significant.
+//
+// The [[calculus]] parameter determines arithmetic and resolution behaviour
+// when encountering deviations (e.g. overflows).
+//
+// 	let dest = datetime::reckon(
+// 		start, // 2000-02-29 09:00:00
+// 		0,     // calculus::DEFAULT
+// 		datetime::period {
+// 			years  =  1, // becomes: 2001-02-28 09:00:00
+// 			months = -2, // becomes: 2000-12-28 09:00:00
+// 			days   =  4, // becomes: 2001-01-01 09:00:00
+// 		},
+// 	);
+//
+// See [[add]] for a timescale-wise arithmetic operation which uses
+// [[time::duration]].
+export fn reckon(dt: datetime, calc: calculus, ps: period...) datetime = {
+	let r = newvirtual(); // our reckoner
+	r.vloc       = dt.loc;
+	r.zoff       = chrono::mzone(&dt).zoff;
+	r.year       = _year(&dt);
+	r.month      = _month(&dt);
+	r.day        = _day(&dt);
+	r.hour       = _hour(&dt);
+	r.minute     = _minute(&dt);
+	r.second     = _second(&dt);
+	r.nanosecond = _nanosecond(&dt);
+
+	if (calc == calculus::DEFAULT) {
+		calc |= calculus::CEIL;
+	};
+
+	for (let i = 0z; i < len(ps); i += 1) if (calc & calculus::REVSIG == 0) {
+		const p = ps[i];
+		const fold = calculus::FOLD;
+
+		r.year = r.year as int + p.years: int;
+		reckon_days(&r, 0, calc); // bubble up potential Feb 29 overflow
+
+		reckon_months(&r, p.months);
+		reckon_days(&r,   0, calc); // bubble up potential overflows
+
+		reckon_days(&r, p.weeks * 7, fold);
+		reckon_days(&r, p.days,      fold);
+
+		// TODO: These functions aren't aware of top-down overflows.
+		// Handle overflows (e.g. [[zone]] changes).
+		reckon_hours(&r,       p.hours,       fold);
+		reckon_minutes(&r,     p.minutes,     fold);
+		reckon_seconds(&r,     p.seconds,     fold);
+		reckon_nanoseconds(&r, p.nanoseconds, fold);
+	} else {
+		const p = ps[i];
+		const fold = calculus::FOLD | calculus::REVSIG;
+
+		reckon_nanoseconds(&r, p.nanoseconds, fold);
+		reckon_seconds(&r,     p.seconds,     fold);
+		reckon_minutes(&r,     p.minutes,     fold);
+		reckon_hours(&r,       p.hours,       fold);
+		reckon_days(&r,        p.days,        fold);
+		reckon_days(&r,        p.weeks * 7,   fold);
+
+		reckon_months(&r, p.months);
+		reckon_days(&r,   0, calc); // bubble up potential overflows
+
+		r.year = r.year as int + p.years: int;
+		reckon_days(&r, 0, calc); // bubble up potential Feb 29 overflow
+	};
+
+	return realize(r)!;
+};
+
+fn reckon_months(r: *virtual, months: i64) void = {
+	let year  = r.year  as int;
+	let month = r.month as int;
+
+	month += months: int;
+
+	// month overflow
+	for (month > 12) {
+		month -= 12;
+		year  += 1;
+	};
+	for (month < 1) {
+		month += 12;
+		year  -= 1;
+	};
+
+	r.year  = year;
+	r.month = month;
+};
+
+fn reckon_days(r: *virtual, days: i64, calc: calculus) void = {
+	let year  = r.year  as int;
+	let month = r.month as int;
+	let day   = r.day   as int;
+
+	day += days: int;
+
+	// day overflow
+	let month_daycnt = calc_month_daycnt(year, month);
+	for (day > month_daycnt) {
+		if (calc & calculus::FLOOR != 0) {
+			day = 1;
+		} else if (calc & calculus::CEIL != 0) {
+			day = month_daycnt;
+		} else if (calc & calculus::HOP != 0) {
+			r.year  = year;
+			r.month = month;
+
+			reckon_months(r, 1);
+
+			year  = r.year  as int;
+			month = r.month as int;
+			day   = 1;
+		} else if (calc & calculus::FOLD != 0) {
+			r.year  = year;
+			r.month = month;
+
+			reckon_months(r, 1);
+
+			year   = r.year  as int;
+			month  = r.month as int;
+			day   -= month_daycnt;
+		};
+		month_daycnt = calc_month_daycnt(year, month);
+	};
+	for (day < 1) {
+		r.year  = year;
+		r.month = month;
+
+		reckon_months(r, -1);
+
+		year   = r.year  as int;
+		month  = r.month as int;
+		day   += calc_month_daycnt(year, month);
+	};
+
+	r.year  = year;
+	r.month = month;
+	r.day   = day;
+};
+
+fn reckon_hours(r: *virtual, hours: i64, calc: calculus) void = {
+	let hour = r.hour as int;
+
+	hour += hours: int;
+
+	// hour overflow
+	for (hour >= 24) {
+		reckon_days(r, 1, calc);
+		hour -= 24;
+	};
+	for (hour < 0) {
+		reckon_days(r, -1, calc);
+		hour += 24;
+	};
+
+	r.hour = hour;
+};
+
+fn reckon_minutes(r: *virtual, mins: i64, calc: calculus) void = {
+	let min = r.minute as int;
+
+	min += mins: int;
+
+	// minute overflow
+	for (min >= 60) {
+		reckon_hours(r, 1, calc);
+		min -= 60;
+	};
+	for (min < 0) {
+		reckon_hours(r, -1, calc);
+		min += 60;
+	};
+
+	r.minute = min;
+};
+
+fn reckon_seconds(r: *virtual, secs: i64, calc: calculus) void = {
+	let s = r.second as int;
+
+	s += secs: int;
+
+	// second overflow
+	for (s >= 60) {
+		reckon_minutes(r, 1, calc);
+		s -= 60;
+	};
+	for (s < 0) {
+		reckon_minutes(r, -1, calc);
+		s += 60;
+	};
+
+	r.second = s;
+};
+
+fn reckon_nanoseconds(r: *virtual, nsecs: i64, calc: calculus) void = {
+	let ns = r.nanosecond as int;
+
+	ns += nsecs: int;
+
+	// nanosecond overflow
+	for (ns >= 1000000000) { // 1E9 nanoseconds (1 second)
+		reckon_seconds(r, 1, calc);
+		ns -= 1000000000;
+	};
+	for (ns < 0) {
+		reckon_seconds(r, -1, calc);
+		ns += 1000000000;
+	};
+
+	r.nanosecond = ns;
+};
+
+@test fn reckon() void = {
+	const Amst = chrono::tz("Europe/Amsterdam")!;
+	defer chrono::timezone_free(Amst);
+
+	// no-op period, calculus::CEIL
+
+	let p = period { ... };
+
+	let a = new(chrono::UTC, 0)!;
+	let r = reckon(a, 0, p);
+	assert(chrono::eq(&a, &r)!, "01. incorrect result");
+
+	let a = new(chrono::UTC, 0,  2019, 12, 27,  21,  7,  8,         0)!;
+	let r = reckon(a, 0, p);
+	assert(chrono::eq(&a, &r)!, "02. incorrect result");
+
+	let a = new(Amst, 1 * time::HOUR,  2019, 12, 27,  22,  7,  8,         0)!;
+	let r = reckon(a, 0, p);
+	assert(chrono::eq(&a, &r)!, "03. incorrect result");
+
+	// generic periods, calculus::CEIL
+
+	let a = new(chrono::UTC, 0,  2019, 12, 27,  21,  7,  8,         0)!;
+
+	let r = reckon(a, 0, period {
+		years       = 1,
+		months      = 1,
+		days        = 1,
+		hours       = 1,
+		minutes     = 1,
+		seconds     = 1,
+		nanoseconds = 1,
+		...
+	});
+	let b = new(chrono::UTC, 0,  2021,  1, 28,  22,  8,  9,         1)!;
+	assert(chrono::eq(&b, &r)!, "04. incorrect result");
+
+	let r = reckon(a, 0, period {
+		years       = -1,
+		months      = -1,
+		days        = -1,
+		hours       = -1,
+		minutes     = -1,
+		seconds     = -1,
+		nanoseconds = -1,
+		...
+	});
+	let b = new(chrono::UTC, 0,  2018, 11, 26,  20,  6,  6, 999999999)!;
+	assert(chrono::eq(&b, &r)!, "05. incorrect result");
+
+	let r = reckon(a, 0, period {
+		years       = 100,
+		months      = 100,
+		days        = 100,
+		hours       = 100,
+		minutes     = 100,
+		seconds     = 100,
+		nanoseconds = 100,
+		...
+	});
+	let b = new(chrono::UTC, 0,  2128,  8, 10,   2, 48, 48,       100)!;
+	assert(chrono::eq(&b, &r)!, "06. incorrect result");
+
+	let r = reckon(a, 0, period {
+		years       = -100,
+		months      = -100,
+		days        = -100,
+		hours       = -100,
+		minutes     = -100,
+		seconds     = -100,
+		nanoseconds = -100,
+		...
+	});
+	let b = new(chrono::UTC, 0,  1911,  5, 15,  15, 25, 27, 999999900)!;
+	assert(chrono::eq(&b, &r)!, "07. incorrect result");
+
+	let r = reckon(a, 0, period {
+		weeks = 100,
+		...
+	});
+	let b = new(chrono::UTC, 0,  2021, 11, 26,  21,  7,  8,         0)!;
+	assert(chrono::eq(&b, &r)!, "08. incorrect result");
+
+	// calculus, February 29 overflows
+
+	let a = new(chrono::UTC, 0,  2000,  1, 31)!; // leap year
+	let p = period { months = 1, ... };
+
+	let r = reckon(a, calculus::FLOOR, p);
+	let b = new(chrono::UTC, 0,  2000,  2,  1)!;
+	assert(chrono::eq(&b, &r)!, "09. incorrect result");
+
+	let r = reckon(a, calculus::CEIL, p);
+	let b = new(chrono::UTC, 0,  2000,  2, 29)!;
+	assert(chrono::eq(&b, &r)!, "10. incorrect result");
+
+	let r = reckon(a, calculus::HOP, p);
+	let b = new(chrono::UTC, 0,  2000,  3,  1)!;
+	assert(chrono::eq(&b, &r)!, "11. incorrect result");
+
+	let r = reckon(a, calculus::FOLD, p);
+	let b = new(chrono::UTC, 0,  2000,  3,  2)!;
+	assert(chrono::eq(&b, &r)!, "12. incorrect result");
+
+	// calculus, February 28 overflows
+
+	let a = new(chrono::UTC, 0,  2000,  1, 31)!; // leap year
+	let p = period { years = 1, months = 1, ... };
+
+	let r = reckon(a, calculus::FLOOR, p);
+	let b = new(chrono::UTC, 0,  2001,  2,  1)!;
+	assert(chrono::eq(&b, &r)!, "13. incorrect result");
+
+	let r = reckon(a, calculus::CEIL, p);
+	let b = new(chrono::UTC, 0,  2001,  2, 28)!;
+	assert(chrono::eq(&b, &r)!, "14. incorrect result");
+
+	let r = reckon(a, calculus::HOP, p);
+	let b = new(chrono::UTC, 0,  2001,  3,  1)!;
+	assert(chrono::eq(&b, &r)!, "15. incorrect result");
+
+	let r = reckon(a, calculus::FOLD, p);
+	let b = new(chrono::UTC, 0,  2001,  3,  3)!;
+	assert(chrono::eq(&b, &r)!, "16. incorrect result");
+
+	// multiple periods
+
+	let a = new(chrono::UTC, 0,  2000, 12, 31)!;
+	let ps = [
+		period { years = +1, months = +1, days = +1, ... },
+		period { years = -1, months = -1, days = -1, ... },
+		period { years = -1, months = -1, days = -1, ... },
+		period { years = +1, months = +1, days = +1, ... },
+		period { hours = +1, minutes = +1, seconds = +1, ... },
+		period { hours = -1, minutes = -1, seconds = -1, ... },
+		period { hours = -1, minutes = -1, seconds = -1, ... },
+		period { hours = +1, minutes = +1, seconds = +1, ... },
+	];
+
+	let r = reckon(a, 0, ps[..1]...);
+	let b = new(chrono::UTC, 0,  2002,  2,  1)!;
+	assert(chrono::eq(&b, &r)!, "17. incorrect result");
+
+	let r = reckon(a, 0, ps[..2]...);
+	let b = new(chrono::UTC, 0,  2000, 12, 31)!;
+	assert(chrono::eq(&b, &r)!, "18. incorrect result");
+
+	let r = reckon(a, 0, ps[..3]...);
+	let b = new(chrono::UTC, 0,  1999, 11, 29)!;
+	assert(chrono::eq(&b, &r)!, "19. incorrect result");
+
+	let r = reckon(a, 0, ps[..4]...);
+	let b = new(chrono::UTC, 0,  2000, 12, 30)!;
+	assert(chrono::eq(&b, &r)!, "20. incorrect result");
+
+	let r = reckon(a, 0, ps[..5]...);
+	let b = new(chrono::UTC, 0,  2000, 12, 30,   1,  1,  1)!;
+	assert(chrono::eq(&b, &r)!, "21. incorrect result");
+
+	let r = reckon(a, 0, ps[..6]...);
+	let b = new(chrono::UTC, 0,  2000, 12, 30)!;
+	assert(chrono::eq(&b, &r)!, "22. incorrect result");
+
+	let r = reckon(a, 0, ps[..7]...);
+	let b = new(chrono::UTC, 0,  2000, 12, 29,  22, 58, 59)!;
+	assert(chrono::eq(&b, &r)!, "23. incorrect result");
+
+	let r = reckon(a, 0, ps[..8]...);
+	let b = new(chrono::UTC, 0,  2000, 12, 30)!;
+	assert(chrono::eq(&b, &r)!, "24. incorrect result");
+
+	// multiple periods, calculus::REVSIG
+
+	let a = new(chrono::UTC, 0,  2000, 12, 31)!;
+	let ps = [
+		period { years = +1, months = +1, days = +1, ... },
+		period { years = -1, months = -1, days = -1, ... },
+		period { years = -1, months = -1, days = -1, ... },
+		period { years = +1, months = +1, days = +1, ... },
+		period { hours = +1, minutes = +1, seconds = +1, ... },
+		period { hours = -1, minutes = -1, seconds = -1, ... },
+		period { hours = -1, minutes = -1, seconds = -1, ... },
+		period { hours = +1, minutes = +1, seconds = +1, ... },
+	];
+
+	let r = reckon(a, calculus::REVSIG, ps[..1]...);
+	let b = new(chrono::UTC, 0,  2002,  2,  1)!;
+	assert(chrono::eq(&b, &r)!, "25. incorrect result");
+
+	let r = reckon(a, calculus::REVSIG, ps[..2]...);
+	let b = new(chrono::UTC, 0,  2000, 12, 31)!;
+	assert(chrono::eq(&b, &r)!, "26. incorrect result");
+
+	let r = reckon(a, calculus::REVSIG, ps[..3]...);
+	let b = new(chrono::UTC, 0,  1999, 11, 30)!;
+	assert(chrono::eq(&b, &r)!, "27. incorrect result");
+
+	let r = reckon(a, calculus::REVSIG, ps[..4]...);
+	let b = new(chrono::UTC, 0,  2001,  1,  1)!;
+	assert(chrono::eq(&b, &r)!, "28. incorrect result");
+
+	let r = reckon(a, calculus::REVSIG, ps[..5]...);
+	let b = new(chrono::UTC, 0,  2001,  1,  1,   1,  1,  1)!;
+	assert(chrono::eq(&b, &r)!, "29. incorrect result");
+
+	let r = reckon(a, calculus::REVSIG, ps[..6]...);
+	let b = new(chrono::UTC, 0,  2001,  1,  1)!;
+	assert(chrono::eq(&b, &r)!, "30. incorrect result");
+
+	let r = reckon(a, calculus::REVSIG, ps[..7]...);
+	let b = new(chrono::UTC, 0,  2000, 12, 31,  22, 58, 59)!;
+	assert(chrono::eq(&b, &r)!, "31. incorrect result");
+
+	let r = reckon(a, calculus::REVSIG, ps[..8]...);
+	let b = new(chrono::UTC, 0,  2001,  1,  1)!;
+	assert(chrono::eq(&b, &r)!, "32. incorrect result");
+
+	return;
+};

@@ -6,6 +6,8 @@ use time::chrono;
 
 // Creates an equivalent [[datetime]] with a different
 // [[time::chrono::locality]].
-export fn in(loc: chrono::locality, dt: datetime) datetime = {
-	return from_moment(chrono::in(loc, *(&dt: *chrono::moment)));
+//
+// The [[discontinuity]] rules from [[time::chrono::in]] apply here.
+export fn in(loc: chrono::locality, dt: datetime) (datetime | chrono::discontinuity) = {
+	return from_moment(chrono::in(loc, *(&dt: *chrono::moment))?);
 };

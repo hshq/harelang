@@ -7,15 +7,6 @@ use time::chrono;
 // These functions are renamed to avoid namespace conflicts, like in the
 // parameters of the [[new]] function.
 
-// TODO: For [[epochal]]: Use Hare epoch or Gregorian epoch? Make two function?
-// TODO: Create an exported [[zeroweekday]] field function.
-
-// Returns a [[datetime]]'s number of days since the calendar epoch 0000-01-01.
-export fn epochal(dt: *datetime) chrono::date = _epochal(dt);
-
-// Returns a [[datetime]]'s number of seconds since the Unix epoch 1970-01-01.
-export fn epochunix(dt: *datetime) int = _epochunix(dt);
-
 // Returns a [[datetime]]'s era.
 export fn era(dt: *datetime) int = _era(dt);
 
@@ -28,7 +19,7 @@ export fn month(dt: *datetime) int = _month(dt);
 // Returns a [[datetime]]'s day of the month.
 export fn day(dt: *datetime) int = _day(dt);
 
-// Returns a [[datetime]]'s day of the week.
+// Returns a [[datetime]]'s day of the week; Monday=0 to Sunday=6.
 export fn weekday(dt: *datetime) int = _weekday(dt);
 
 // Returns a [[datetime]]'s ordinal day of the year.
@@ -58,14 +49,6 @@ export fn second(dt: *datetime) int = _second(dt);
 // Returns a [[datetime]]'s nanosecond of the second.
 export fn nanosecond(dt: *datetime) int = _nanosecond(dt);
 
-fn _epochal(dt: *datetime) chrono::date = {
-	return chrono::getdate(dt) - EPOCHAL_GREGORIAN;
-};
-
-fn _epochunix(dt: *datetime) int = {
-	return time::unix(*(dt: *time::instant)): int;
-};
-
 fn _era(dt: *datetime) int = {
 	match (dt.era) {
 	case void =>
@@ -82,7 +65,7 @@ fn _era(dt: *datetime) int = {
 fn _year(dt: *datetime) int = {
 	match (dt.year) {
 	case void =>
-		const ymd = calc_ymd(chrono::getdate(dt));
+		const ymd = calc_ymd(chrono::date(dt));
 		dt.year = ymd.0;
 		dt.month = ymd.1;
 		dt.day = ymd.2;
@@ -95,7 +78,7 @@ fn _year(dt: *datetime) int = {
 fn _month(dt: *datetime) int = {
 	match (dt.month) {
 	case void =>
-		const ymd = calc_ymd(chrono::getdate(dt));
+		const ymd = calc_ymd(chrono::date(dt));
 		dt.year = ymd.0;
 		dt.month = ymd.1;
 		dt.day = ymd.2;
@@ -108,7 +91,7 @@ fn _month(dt: *datetime) int = {
 fn _day(dt: *datetime) int = {
 	match (dt.day) {
 	case void =>
-		const ymd = calc_ymd(chrono::getdate(dt));
+		const ymd = calc_ymd(chrono::date(dt));
 		dt.year = ymd.0;
 		dt.month = ymd.1;
 		dt.day = ymd.2;
@@ -121,7 +104,7 @@ fn _day(dt: *datetime) int = {
 fn _weekday(dt: *datetime) int = {
 	match (dt.weekday) {
 	case void =>
-		dt.weekday = calc_weekday(chrono::getdate(dt));
+		dt.weekday = calc_weekday(chrono::date(dt));
 		return dt.weekday: int;
 	case let y: int =>
 		return y;
@@ -238,7 +221,7 @@ fn _isoweek(dt: *datetime) int = {
 fn _hour(dt: *datetime) int = {
 	match (dt.hour) {
 	case void =>
-		const hmsn = calc_hmsn(chrono::gettime(dt));
+		const hmsn = calc_hmsn(chrono::time(dt));
 		dt.hour = hmsn.0;
 		dt.minute = hmsn.1;
 		dt.second = hmsn.2;
@@ -252,7 +235,7 @@ fn _hour(dt: *datetime) int = {
 fn _minute(dt: *datetime) int = {
 	match (dt.minute) {
 	case void =>
-		const hmsn = calc_hmsn(chrono::gettime(dt));
+		const hmsn = calc_hmsn(chrono::time(dt));
 		dt.hour = hmsn.0;
 		dt.minute = hmsn.1;
 		dt.second = hmsn.2;
@@ -266,7 +249,7 @@ fn _minute(dt: *datetime) int = {
 fn _second(dt: *datetime) int = {
 	match (dt.second) {
 	case void =>
-		const hmsn = calc_hmsn(chrono::gettime(dt));
+		const hmsn = calc_hmsn(chrono::time(dt));
 		dt.hour = hmsn.0;
 		dt.minute = hmsn.1;
 		dt.second = hmsn.2;
@@ -280,7 +263,7 @@ fn _second(dt: *datetime) int = {
 fn _nanosecond(dt: *datetime) int = {
 	match (dt.nanosecond) {
 	case void =>
-		const hmsn = calc_hmsn(chrono::gettime(dt));
+		const hmsn = calc_hmsn(chrono::time(dt));
 		dt.hour = hmsn.0;
 		dt.minute = hmsn.1;
 		dt.second = hmsn.2;

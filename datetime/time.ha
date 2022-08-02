@@ -16,7 +16,7 @@ fn calc_hmsn(t: time::duration) (int, int, int, int) = {
 
 // Calculates the time since the start of a day,
 // given a wall clock (hour, minute, second, nanosecond).
-fn calc_time_from_hmsn(
+fn calc_time__hmsn(
 	hour: int,
 	min: int,
 	sec: int,
