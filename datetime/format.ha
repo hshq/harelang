@@ -109,6 +109,8 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 		return fmt::fprint(out, MONTHS[month(dt) - 1]);
 	case 'd' =>
 		return fmt::fprintf(out, "{:02}", day(dt));
+	case 'F' =>
+		return fmt::fprintf(out, "{:04}-{:02}-{:02}", year(dt), month(dt), day(dt));
 	case 'H' =>
 		return fmt::fprintf(out, "{:02}", hour(dt));
 	case 'I' =>
@@ -132,6 +134,8 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 		return fmt::fprint(out, s);
 	case 'S' =>
 		return fmt::fprintf(out, "{:02}", sec(dt));
+	case 'T' =>
+		return fmt::fprintf(out, "{:02}:{:02}:{:02}", hour(dt), min(dt), sec(dt));
 	case 'u' =>
 		return fmt::fprint(out, strconv::itos(weekday(dt)));
 	case 'U' =>
@@ -178,6 +182,7 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 // 	%b -- The abbreviated name of the month.
 // 	%B -- The full name of the month.
 // 	%d -- The day of the month (decimal, range 01 to 31).
+// 	%F -- The full date, equivalent to %Y-%m-%d
 // 	%H -- The hour of the day as from a 24-hour clock (range 00 to 23).
 // 	%I -- The hour of the day as from a 12-hour clock (range 01 to 12).
 // 	%j -- The ordinal day of the year (range 001 to 366).
@@ -188,6 +193,7 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 // 	%p -- Either "AM" or "PM" according to the current time.
 // 	      "AM" includes midnight, and "PM" includes noon.
 // 	%S -- The second of the minute (range 00 to 60).
+// 	%T -- The full time, equivalent to %H:%M:%S
 // 	%u -- The day of the week (decimal, range 1 to 7). 1 represents Monday.
 // 	%U -- The week number of the current year (range 00 to 53),
 // 	      starting with the first Sunday as the first day of week 01.
@@ -344,6 +350,10 @@ fn hour12(dt: *datetime) int = {
 		("%j", "1"),
 		// week
 		("%W", "00"),
+		// full date
+		("%F", "1994-01-01"),
+		// full time
+		("%T", "02:17:05"),
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {
