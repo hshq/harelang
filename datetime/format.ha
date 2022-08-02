@@ -132,6 +132,8 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 			yield "PM";
 		};
 		return fmt::fprint(out, s);
+	case 's' =>
+		return fmt::fprintf(out, "{:02}", epochunix(dt));
 	case 'S' =>
 		return fmt::fprintf(out, "{:02}", sec(dt));
 	case 'T' =>
@@ -192,6 +194,7 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 // 	%N -- The nanosecond of the second (range 000000000 to 999999999).
 // 	%p -- Either "AM" or "PM" according to the current time.
 // 	      "AM" includes midnight, and "PM" includes noon.
+// 	%s -- Number of seconds since 1970-01-01 00:00:00, the Unix epoch
 // 	%S -- The second of the minute (range 00 to 60).
 // 	%T -- The full time, equivalent to %H:%M:%S
 // 	%u -- The day of the week (decimal, range 1 to 7). 1 represents Monday.
@@ -354,6 +357,8 @@ fn hour12(dt: *datetime) int = {
 		("%F", "1994-01-01"),
 		// full time
 		("%T", "02:17:05"),
+		// Unix timestamp
+		("%s", "757390625"),
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {

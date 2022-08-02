@@ -13,6 +13,9 @@ use time::chrono;
 // Returns a [[datetime]]'s number of days since the calendar epoch 0000-01-01.
 export fn epochal(dt: *datetime) chrono::date = _epochal(dt);
 
+// Returns a [[datetime]]'s number of seconds since the Unix epoch 1970-01-01.
+export fn epochunix(dt: *datetime) int = _epochunix(dt);
+
 // Returns a [[datetime]]'s era.
 export fn era(dt: *datetime) int = _era(dt);
 
@@ -55,10 +58,13 @@ export fn sec(dt: *datetime) int = _sec(dt);
 // Returns a [[datetime]]'s nanosecond of the second.
 export fn nsec(dt: *datetime) int = _nsec(dt);
 
-
 fn _epochal(dt: *datetime) chrono::date = {
 	const ldt = transform(*dt, dt.zone.zoffset);
 	return ldt.date - EPOCHAL_GREGORIAN;
+};
+
+fn _epochunix(dt: *datetime) int = {
+	return to_instant(*dt).sec: int;
 };
 
 fn _era(dt: *datetime) int = {
