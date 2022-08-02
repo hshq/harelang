@@ -59,12 +59,11 @@ export fn second(dt: *datetime) int = _second(dt);
 export fn nanosecond(dt: *datetime) int = _nanosecond(dt);
 
 fn _epochal(dt: *datetime) chrono::date = {
-	const ldt = transform(*dt, dt.zone.zoffset);
-	return ldt.date - EPOCHAL_GREGORIAN;
+	return chrono::getdate(dt) - EPOCHAL_GREGORIAN;
 };
 
 fn _epochunix(dt: *datetime) int = {
-	return to_instant(*dt).sec: int;
+	return time::unix(*(dt: *time::instant)): int;
 };
 
 fn _era(dt: *datetime) int = {
@@ -81,10 +80,9 @@ fn _era(dt: *datetime) int = {
 };
 
 fn _year(dt: *datetime) int = {
-	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.year) {
 	case void =>
-		const ymd = calc_ymd(ldt.date: chrono::date);
+		const ymd = calc_ymd(chrono::getdate(dt));
 		dt.year = ymd.0;
 		dt.month = ymd.1;
 		dt.day = ymd.2;
@@ -95,10 +93,9 @@ fn _year(dt: *datetime) int = {
 };
 
 fn _month(dt: *datetime) int = {
-	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.month) {
 	case void =>
-		const ymd = calc_ymd(ldt.date: chrono::date);
+		const ymd = calc_ymd(chrono::getdate(dt));
 		dt.year = ymd.0;
 		dt.month = ymd.1;
 		dt.day = ymd.2;
@@ -109,10 +106,9 @@ fn _month(dt: *datetime) int = {
 };
 
 fn _day(dt: *datetime) int = {
-	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.day) {
 	case void =>
-		const ymd = calc_ymd(ldt.date: chrono::date);
+		const ymd = calc_ymd(chrono::getdate(dt));
 		dt.year = ymd.0;
 		dt.month = ymd.1;
 		dt.day = ymd.2;
@@ -123,10 +119,9 @@ fn _day(dt: *datetime) int = {
 };
 
 fn _weekday(dt: *datetime) int = {
-	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.weekday) {
 	case void =>
-		dt.weekday = calc_weekday(ldt.date: chrono::date);
+		dt.weekday = calc_weekday(chrono::getdate(dt));
 		return dt.weekday: int;
 	case let y: int =>
 		return y;
@@ -241,10 +236,9 @@ fn _isoweek(dt: *datetime) int = {
 };
 
 fn _hour(dt: *datetime) int = {
-	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.hour) {
 	case void =>
-		const hmsn = calc_hmsn(ldt.time: time::duration);
+		const hmsn = calc_hmsn(chrono::gettime(dt));
 		dt.hour = hmsn.0;
 		dt.minute = hmsn.1;
 		dt.second = hmsn.2;
@@ -256,10 +250,9 @@ fn _hour(dt: *datetime) int = {
 };
 
 fn _minute(dt: *datetime) int = {
-	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.minute) {
 	case void =>
-		const hmsn = calc_hmsn(ldt.time: time::duration);
+		const hmsn = calc_hmsn(chrono::gettime(dt));
 		dt.hour = hmsn.0;
 		dt.minute = hmsn.1;
 		dt.second = hmsn.2;
@@ -271,10 +264,9 @@ fn _minute(dt: *datetime) int = {
 };
 
 fn _second(dt: *datetime) int = {
-	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.second) {
 	case void =>
-		const hmsn = calc_hmsn(ldt.time: time::duration);
+		const hmsn = calc_hmsn(chrono::gettime(dt));
 		dt.hour = hmsn.0;
 		dt.minute = hmsn.1;
 		dt.second = hmsn.2;
@@ -286,10 +278,9 @@ fn _second(dt: *datetime) int = {
 };
 
 fn _nanosecond(dt: *datetime) int = {
-	const ldt = transform(*dt, dt.zone.zoffset);
 	match (dt.nanosecond) {
 	case void =>
-		const hmsn = calc_hmsn(ldt.time: time::duration);
+		const hmsn = calc_hmsn(chrono::gettime(dt));
 		dt.hour = hmsn.0;
 		dt.minute = hmsn.1;
 		dt.second = hmsn.2;

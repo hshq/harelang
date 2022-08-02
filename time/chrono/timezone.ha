@@ -78,7 +78,7 @@ type tzname = struct {
 // timescales.
 export fn in(loc: locality, m: moment) moment = {
 	if (m.loc.timescale != loc.timescale) {
-		const i = to_instant(m);
+		const i = *(&m: *time::instant);
 		const i = match (m.loc.timescale.to_tai(i)) {
 		case let i: time::instant =>
 			yield i;
@@ -91,26 +91,9 @@ export fn in(loc: locality, m: moment) moment = {
 		case time::error =>
 			abort("time::chrono::in(): direct timescale conversion failed");
 		};
-		const m = from_instant(i, loc);
-		return m;
+		return new(loc, i);
 	};
-
-	assert(m.time < loc.daylength, "Internal error: time excedes daylength");
-	return new(loc, m.date, m.time)!; // resets .zone
-};
-
-export fn transform(m: moment, zo: time::duration) moment = {
-	const daylen = m.loc.daylength;
-
-	const t = m.time + zo;
-	const mtime = (if (t >= 0) t else t + daylen) % daylen;
-
-	const d = (t / daylen): int;
-	const mdate = m.date + (if (t >= 0) d else d - 1);
-
-	m.time = mtime;
-	m.date = mdate;
-	return m;
+	return new(loc, *(&m: *time::instant));
 };
 
 // Finds, sets and returns a [[moment]]'s currently observed zone.
@@ -118,19 +101,17 @@ export fn lookupzone(m: *moment) zone = {
 	// TODO: https://todo.sr.ht/~sircmpwn/hare/643
 	if (len(m.loc.zones) == 0) {
 		// TODO: what to do? not ideal to assume UTC
-		abort("lookup(): timezones should have at least one zone");
+		abort("lookupzone(): timezones should have at least one zone");
 	};
 
 	if (len(m.loc.zones) == 1) {
 		m.zone = m.loc.zones[0];
-		return m.zone;
+		return m.zone as zone;
 	};
-
-	const inst = to_instant(*m);
 
 	if (
 		len(m.loc.transitions) == 0
-		|| time::compare(inst, m.loc.transitions[0].when) == -1
+		|| time::compare(*(m: *time::instant), m.loc.transitions[0].when) == -1
 	) {
 		// TODO: special case
 		abort("lookupzone(): time is before known transitions");
@@ -141,7 +122,7 @@ export fn lookupzone(m: *moment) zone = {
 	for (hi - lo > 1) {
 		const mid = lo + (hi - lo) / 2;
 		const middle = m.loc.transitions[mid].when;
-		switch (time::compare(inst, middle)) {
+		switch (time::compare(*(m: *time::instant), middle)) {
 		case -1 =>
 			hi = mid;
 		case 0 =>
@@ -163,7 +144,7 @@ export fn lookupzone(m: *moment) zone = {
 		void;
 	};
 
-	return m.zone;
+	return m.zone as zone;
 };
 
 // Creates a [[timezone]] with a single [[zone]]. Useful for fixed offsets.

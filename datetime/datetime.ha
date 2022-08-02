@@ -29,10 +29,12 @@ export type datetime = struct {
 };
 
 fn init() datetime = datetime {
-	date        = 0,
-	time        = 0,
 	loc         = chrono::LOCAL,
-	zone        = chrono::zone { ... },
+	sec         = 0,
+	nsec        = 0,
+	date        = void,
+	time        = void,
+	zone        = void,
 
 	era         = void,
 	year        = void,
@@ -85,7 +87,7 @@ fn init() datetime = datetime {
 //   as the clock jumped back 1 hour from 03:00 CEST to 02:00 CET.
 export fn new(
 	loc: chrono::locality,
-	offs: (time::duration | void),
+	zo: (time::duration | void),
 	fields: int...
 ) (datetime | invalid) = {
 	// TODO:
@@ -115,29 +117,20 @@ export fn new(
 	const sec   = defaults[5];
 	const nsec  = defaults[6];
 
-	let m = chrono::moment {
-		date = calc_date_from_ymd(year, month, day)?,
-		time = calc_time_from_hmsn(hour, min, sec, nsec)?,
-		loc = loc,
-		zone = chrono::zone { ... },
-	};
+	const mdate = calc_date_from_ymd(year, month, day)?;
+	const mtime = calc_time_from_hmsn(hour, min, sec, nsec)?;
 
-	// TODO: Set the correct values according to the given zo and
-	// locality/timezone.
-	//
-	// figuring out what zone this moment observes
-	if (offs is time::duration) {
-		// Transform inversely to the moment that would transform back
-		// to the current moment, then perform a zone lookup.
-		m = chrono::transform(m, -(offs as time::duration));
-		chrono::lookupzone(&m);
-	} else {
-		// Just perform a zone lookup, then try that zone and the
-		// zones that are observed before and after. This requires
-		// knowlegde of the transition index.
-		//const z0 = chrono::lookupzone(*m);
-		//m = chrono::transform(m, -z0.zoffset);
-		abort("TODO"); // TODO
+	// create the moment
+	const m = match (zo) {
+	case let zo: time::duration =>
+		yield chrono::from_datetime(loc, zo, mdate, mtime);
+	case void =>
+		// TODO: Deduce the zone offset
+		//
+		// perform a zone lookup, then try that zone and the zones that
+		// are observed before and after. This requires knowlegde of the
+		// transition index.
+		abort("TODO: datetime::new(zo=void)");
 	};
 
 	const dt = from_moment(m);
@@ -166,29 +159,26 @@ export fn now() datetime = {
 	//
 	// https://todo.sr.ht/~sircmpwn/hare/645
 	const i = time::now(time::clock::REALTIME);
-	const m = chrono::from_instant(i, chrono::LOCAL);
+	const m = chrono::new(chrono::LOCAL, i);
 	return from_moment(m);
 };
 
 // Creates a [[datetime]] from a [[time::chrono::moment]].
 export fn from_moment(m: chrono::moment) datetime = {
 	const dt = init();
+	dt.loc = m.loc;
+	dt.sec = m.sec;
+	dt.nsec = m.nsec;
 	dt.date = m.date;
 	dt.time = m.time;
-	dt.loc = m.loc;
 	dt.zone = m.zone;
 	return dt;
 };
 
 // Creates a [[datetime]] from a [[time::instant]]
 // in a [[time::chrono::locality]].
-export fn from_instant(i: time::instant, loc: chrono::locality) datetime = {
-	return from_moment(chrono::from_instant(i, loc));
-};
-
-// Creates a [[time::instant]] from a [[datetime]].
-export fn to_instant(dt: datetime) time::instant = {
-	return chrono::to_instant(to_moment(dt));
+export fn from_instant(loc: chrono::locality, i: time::instant) datetime = {
+	return from_moment(chrono::new(loc, i));
 };
 
 // Creates a [[datetime]] from a string, parsed according to a layout,
@@ -198,16 +188,6 @@ export fn from_str(layout: str, s: str) (datetime | insufficient | invalid) = {
 	const b = newbuilder();
 	parse(&b, layout, s)?;
 	return finish(&b)?;
-};
-
-// Creates a [[time::chrono::moment]] from a [[datetime]].
-export fn to_moment(dt: datetime) chrono::moment = {
-	return chrono::moment {
-		date = dt.date,
-		time = dt.time,
-		loc = dt.loc,
-		zone = dt.zone,
-	};
 };
 
 // A [[builder]] has insufficient information and cannot create a valid datetime.

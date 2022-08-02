@@ -155,15 +155,15 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 	case 'z' =>
 		// TODO: test me
 		let pm = '+';
-		const z = if (dt.zone.zoffset >= 0) {
-			yield calc_hmsn(dt.zone.zoffset);
+		const z = if (chrono::getzone(dt).zoffset >= 0) {
+			yield calc_hmsn(chrono::getzone(dt).zoffset);
 		} else {
 			pm = '-';
-			yield calc_hmsn(-dt.zone.zoffset);
+			yield calc_hmsn(-chrono::getzone(dt).zoffset);
 		};
 		return fmt::fprintf(out, "{}{:02}{:02}", pm, z.0, z.1);
 	case 'Z' =>
-		return fmt::fprint(out, dt.zone.abbr);
+		return fmt::fprint(out, chrono::getzone(dt).abbr);
 	case '%' =>
 		return fmt::fprint(out, "%");
 	case =>

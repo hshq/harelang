@@ -53,7 +53,7 @@ export type unit = enum int {
 // Equivalence means they represent the same moment in time, regardless of their
 // locality or observed chronological values.
 export fn eq(a: datetime, b: datetime) bool = {
-	return a.date == b.date && a.time == b.time;
+	return time::compare(*(&a: *time::instant), *(&b: *time::instant)) == 0;
 };
 
 // Returns true if [[datetime]] "a" succeeds [[datetime]] "b".
@@ -61,8 +61,7 @@ export fn eq(a: datetime, b: datetime) bool = {
 // Temporal order is evaluated in a universal frame of reference, regardless of
 // their locality or observed chronological values.
 export fn after(a: datetime, b: datetime) bool = {
-	return !eq(a, b) &&
-		(a.date > b.date || a.date == b.date && a.time > b.time);
+	return time::compare(*(&a: *time::instant), *(&b: *time::instant)) == +1;
 };
 
 // Returns true if [[datetime]] "a" precedes [[datetime]] "b".
@@ -70,7 +69,7 @@ export fn after(a: datetime, b: datetime) bool = {
 // Temporal order is evaluated in a universal frame of reference, regardless of
 // their locality or observed chronological values.
 export fn before(a: datetime, b: datetime) bool = {
-	return !eq(a, b) && !after(a, b);
+	return time::compare(*(&a: *time::instant), *(&b: *time::instant)) == -1;
 };
 
 // Calculates the [[period]] between two [[datetime]]s.
@@ -148,7 +147,7 @@ export fn unitdiff(a: datetime, b: datetime, u: unit) i64 = {
 	case unit::WEEK =>
 		yield unitdiff(a, b, unit::DAY) / 7;
 	case unit::DAY =>
-		yield math::absi(a.date - b.date): int;
+		yield math::absi(chrono::getdate(&a) - chrono::getdate(&b)): int;
 	case unit::HOUR =>
 		const full_diff = diff(a, b);
 		yield (unitdiff(a, b, unit::DAY) * 24) + full_diff.hours;
@@ -202,7 +201,7 @@ export fn truncate(dt: datetime, u: unit) datetime = {
 			0, 0, 0, 0,
 		)!;
 	case unit::WEEK =>
-		const date = dt.date - (weekday(&dt) - 1);
+		const date = chrono::getdate(&dt) - (weekday(&dt) - 1);
 		const ymd = calc_ymd(date);
 		yield new(dt.loc, 0,
 			ymd.0, ymd.1, ymd.2,
@@ -322,7 +321,7 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 	for (let i = 0z; i < len(pp); i += 1) {
 		const p = pp[i];
 
-		let latest_date = dt.date;
+		let latest_date = chrono::getdate(&dt);
 
 		if (p.years != 0) {
 			d_year += p.years;
@@ -346,8 +345,7 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 		if (p.weeks != 0) {
 			p.days += p.weeks * 7;
 		};
-		latest_date = calc_date_from_ymd(
-			d_year, d_month, d_day)!;
+		latest_date = calc_date_from_ymd(d_year, d_month, d_day)!;
 		if (p.days != 0) {
 			const new_ymd = calc_ymd(latest_date + p.days);
 			d_year = new_ymd.0;
@@ -376,7 +374,7 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 				p.nanoseconds %= ns_in_day;
 			};
 
-			let new_time = dt.time + p.nanoseconds;
+			let new_time = chrono::gettime(&dt) + p.nanoseconds;
 
 			if (new_time >= ns_in_day) {
 				overflowed_days += 1;
@@ -387,8 +385,7 @@ export fn add(dt: datetime, flag: calculus, pp: period...) datetime = {
 			};
 
 			if (overflowed_days != 0) {
-				const new_date = latest_date +
-					overflowed_days;
+				const new_date = latest_date + overflowed_days;
 				const new_ymd = calc_ymd(new_date);
 				d_year = new_ymd.0;
 				d_month = new_ymd.1;
@@ -430,68 +427,6 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 		pp[i].nanoseconds *= -1;
 	};
 	return add(dt, flag, pp...);
-};
-
-@test fn eq() void = {
-	const dt = new(chrono::UTC, 0, 2022, 2, 4, 3, 14, 7, 0)!;
-	const cases = [
-		((-768, 1,  1,  3, 14,  7,    0), false),
-		((   1, 1,  1, 14,  0,  0, 1234), false),
-		((2022, 2,  4,  3, 14,  7,    0), true),
-		((2022, 2,  4,  3, 14,  7,    1), false),
-		((2038, 1, 19,  3, 14,  7,    0), false),
-		((5555, 5,  5,  5, 55, 55, 5555), false),
-	];
-	for (let i = 0z; i < len(cases); i += 1) {
-		const c = cases[i].0;
-		const expected = cases[i].1;
-		const case_dt = new(chrono::UTC, 0,
-			c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
-		assert(eq(dt, case_dt) == expected,
-			"equality comparison failed");
-	};
-};
-
-@test fn after() void = {
-	const dt = new(chrono::UTC, 0, 2022, 2, 4, 3, 14, 7, 0)!;
-	const cases = [
-		((-768, 1,  1,  3, 14,  7,    0), false),
-		((   1, 1,  1, 14,  0,  0, 1234), false),
-		((2020, 2,  4,  3, 14,  7,    1), false),
-		((2022, 2,  4,  3, 14,  7,    0), false),
-		((2022, 2,  4,  4,  1,  1,    0), true),
-		((2038, 1, 19,  3, 14,  7,    0), true),
-		((5555, 5,  5,  5, 55, 55, 5555), true),
-	];
-	for (let i = 0z; i < len(cases); i += 1) {
-		const c = cases[i].0;
-		const expected = cases[i].1;
-		const case_dt = new(chrono::UTC, 0,
-			c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
-		assert(after(case_dt, dt) == expected,
-			"incorrect date ordering in after()");
-	};
-};
-
-@test fn before() void = {
-	const dt = new(chrono::UTC, 0, 2022, 2, 4, 3, 14, 7, 0)!;
-	const cases = [
-		((-768, 1,  1,  3, 14,  7,    0), true),
-		((   1, 1,  1, 14,  0,  0, 1234), true),
-		((2020, 2,  4,  3, 14,  7,    1), true),
-		((2022, 2,  4,  3, 14,  7,    0), false),
-		((2022, 2,  4,  4,  1,  1,    0), false),
-		((2038, 1, 19,  3, 14,  7,    0), false),
-		((5555, 5,  5,  5, 55, 55, 5555), false),
-	];
-	for (let i = 0z; i < len(cases); i += 1) {
-		const c = cases[i].0;
-		const expected = cases[i].1;
-		const case_dt = new(chrono::UTC, 0,
-			c.0, c.1, c.2, c.3, c.4, c.5, c.6)!;
-		assert(before(case_dt, dt) == expected,
-			"incorrect date ordering in before()");
-	};
 };
 
 @test fn diff() void = {

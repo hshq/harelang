@@ -5,6 +5,7 @@
 use errors;
 use strings;
 use time;
+use time::chrono;
 
 // Parses a date/time string into a [[builder]], according to a layout format
 // string with specifiers as documented under [[format]]. Partial, sequential,
@@ -147,20 +148,20 @@ export fn parse(build: *builder, layout: str, s: str) (void | invalid) = {
 		case 'z' =>
 			const rest = strings::iterstr(&s_iter);
 			if(strings::hasprefix(rest, 'Z') || strings::hasprefix(rest, 'z')) {
-				build.zone.zoffset = 0;
+				(build.zone: chrono::zone).zoffset = 0;
 			} else {
 				const prefix = strings::next(&s_iter);
-				build.zone.zoffset = get_max_n_digits(&s_iter, 2)? * time::HOUR;
+				(build.zone: chrono::zone).zoffset = get_max_n_digits(&s_iter, 2)? * time::HOUR;
 
 				const rest = strings::iterstr(&s_iter);
 				if(strings::hasprefix(rest, ":")) {
 					strings::next(&s_iter);
 				};
 
-				build.zone.zoffset += get_max_n_digits(&s_iter, 2)? * time::MINUTE;
+				(build.zone: chrono::zone).zoffset += get_max_n_digits(&s_iter, 2)? * time::MINUTE;
 
 				if(prefix == '-') {
-					build.zone.zoffset *= -1;
+					(build.zone: chrono::zone).zoffset *= -1;
 				};
 			};
 		case '%' =>
