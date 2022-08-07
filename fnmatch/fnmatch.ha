@@ -270,7 +270,7 @@ fn match_bracket(
 			let end = advance_or_err(it)?;
 			if (end == ']') {
 				// '-' at the end matches itself
-				strings::push(it, ']');
+				strings::prev(it);
 				last = '-';
 				found ||= (c == '-');
 				continue;
@@ -290,7 +290,7 @@ fn match_bracket(
 				let t = match_ctype(it, c)?;
 				found ||= t;
 			case =>
-				strings::push(it, next_rune);
+				strings::prev(it);
 				found ||= (c == '[');
 			};
 			last = '[';

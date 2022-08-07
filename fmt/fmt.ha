@@ -208,11 +208,11 @@ export fn fprintf(
 			};
 
 			const idx = if (ascii::isdigit(r)) {
-				strings::push(&iter, r);
+				strings::prev(&iter);
 				checkunused = false;
 				yield scan_uint(&iter): size;
 			} else {
-				strings::push(&iter, r);
+				strings::prev(&iter);
 				i += 1;
 				yield i - 1;
 			};
@@ -368,7 +368,7 @@ fn scan_uint(iter: *strings::iterator) uint = {
 		if (ascii::isdigit(r)) {
 			append(num, r: u32: u8);
 		} else {
-			strings::push(iter, r);
+			strings::prev(iter);
 			match (strconv::stou(strings::fromutf8(num))) {
 			case (strconv::invalid | strconv::overflow) =>
 				abort("Invalid format string (invalid index)");
@@ -401,7 +401,7 @@ fn scan_modifier_flags(iter: *strings::iterator, mod: *modifiers) void = {
 		case '+' =>
 			flags |= modflags::PLUS;
 		case =>
-			strings::push(iter, r);
+			strings::prev(iter);
 			break;
 		};
 	};
@@ -430,7 +430,7 @@ fn scan_modifier_width(iter: *strings::iterator, mod: *modifiers) void = {
 	};
 
 	let is_digit = ascii::isdigit(r);
-	strings::push(iter, r);
+	strings::prev(iter);
 
 	if (is_digit) {
 		mod.width = scan_uint(iter);
@@ -448,7 +448,7 @@ fn scan_modifier_precision(iter: *strings::iterator, mod: *modifiers) void = {
 	if (r == '.') {
 		mod.precision = scan_uint(iter);
 	} else {
-		strings::push(iter, r);
+		strings::prev(iter);
 	};
 };
 
@@ -470,7 +470,7 @@ fn scan_modifier_base(iter: *strings::iterator, mod: *modifiers) void = {
 	case 'b' =>
 		mod.base = strconv::base::BIN;
 	case =>
-		strings::push(iter, r);
+		strings::prev(iter);
 	};
 };
 
@@ -499,7 +499,7 @@ fn scan_parameter_index(iter: *strings::iterator, pi: *paramindex) void = {
 	};
 
 	let is_digit = ascii::isdigit(r);
-	strings::push(iter, r);
+	strings::prev(iter);
 	if (is_digit) {
 		*pi = scan_uint(iter);
 	} else {
