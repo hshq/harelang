@@ -49,7 +49,8 @@ export fn rotr64(x: u64, k: int) u64 = rotl64(x, -k);
 
 };
 
-// Stores the xor of a and b into dest.
+// Stores the xor of 'a' and 'b' into 'dest'. All parameters must have the same
+// length. 'dest' may be the same slice as 'a' and/or 'b'.
 export fn xor(dest: []u8, a: []u8, b: []u8) void = {
 	assert(len(dest) == len(a) && len(dest) == len(b),
 		"dest, a and b must have the same length");
