@@ -80,7 +80,28 @@ export fn xchacha20_init(
 	key: *[KEYSIZE]u8,
 	nonce: *[XNONCESIZE]u8
 ) void = {
+	let dkey: [32]u8 = [0...];
+	// XXX: https://todo.sr.ht/~sircmpwn/hare/719
+	let hnonce: [16]u8 = [0...];
+	hnonce[..] = nonce[..16];
+	hchacha20(&dkey, key, &hnonce);
+
+	let dnonce: [NONCESIZE]u8 = [0...];
+	dnonce[4..] = nonce[16..];
+
+	chacha20_init(s, h, &dkey, &dnonce);
+
+	bytes::zero(dkey);
+	bytes::zero(dnonce);
+	bytes::zero(hnonce);
+};
+
+// Derives a new key from 'key' and 'nonce' as used during XChaCha20
+// initialization. This function may only be used for specific purposes
+// such as X25519 key derivation. Do not use if in doubt.
+export fn hchacha20(out: *[32]u8, key: *[32]u8, nonce: *[16]u8) void = {
 	let state: [16]u32 = [0...];
+	defer bytes::zero((state: []u8: *[*]u8)[..BLOCKSIZE]);
 
 	state[0] = magic[0];
 	state[1] = magic[1];
@@ -99,20 +120,16 @@ export fn xchacha20_init(
 	state[14] = endian::legetu32(nonce[8..12]);
 	state[15] = endian::legetu32(nonce[12..16]);
 
-	hblock(state[..], &state, s.rounds);
+	hblock(state[..], &state, 20);
 
-	let dkey: [32]u8 = [0...];
-	dkey[..16] = (state: []u8: *[*]u8)[0..16];
-	dkey[16..] = (state: []u8: *[*]u8)[48..64];
-
-	let dnonce: [NONCESIZE]u8 = [0...];
-	dnonce[4..] = nonce[16..];
-
-	chacha20_init(s, h, &dkey, &dnonce);
-
-	bytes::zero((state: []u8: *[*]u8)[..BLOCKSIZE]);
-	bytes::zero(dkey);
-	bytes::zero(dnonce);
+	endian::leputu32(out[0..4], state[0]);
+	endian::leputu32(out[4..8], state[1]);
+	endian::leputu32(out[8..12], state[2]);
+	endian::leputu32(out[12..16], state[3]);
+	endian::leputu32(out[16..20], state[12]);
+	endian::leputu32(out[20..24], state[13]);
+	endian::leputu32(out[24..28], state[14]);
+	endian::leputu32(out[28..32], state[15]);
 };
 
 // Advances the key stream to "seek" to a future state by 'counter' times
