@@ -22,14 +22,65 @@ fn index_byte(haystack: []u8, needle: u8) (size | void) = {
 	};
 };
 
-fn index_slice(haystack: []u8, b: []u8) (size | void) = switch (len(b)) {
-// TODO special-case 2, 3, 4
-case 0 =>
-	yield 0;
-case 1 =>
-	yield index_byte(haystack, b[0]);
-case =>
-	yield index_tw(haystack, b);
+fn index_2bytes(haystack: []u8, needle: u16) (size | void) = {
+	if (len(haystack) > 1) {
+		let x = haystack[0]: u16;
+		for (let i = 1z; i < len(haystack); i += 1) {
+			x = x << 8 | haystack[i];
+			if (x == needle) {
+				return i - 1;
+			};
+		};
+	};
+};
+
+fn index_3bytes(haystack: []u8, needle: u32) (size | void) = {
+	if (len(haystack) > 2) {
+		let x = haystack[0]: u32 << 8 | haystack[1];
+		for (let i = 2z; i < len(haystack); i += 1) {
+			x = x << 16 >> 8 | haystack[i];
+			if (x == needle) {
+				return i - 2;
+			};
+		};
+	};
+};
+
+fn index_4bytes(haystack: []u8, needle: u32) (size | void) = {
+	if (len(haystack) > 3) {
+		let x = haystack[0]: u32 << 16 |
+			haystack[1]: u32 << 8 |
+			haystack[2];
+		for (let i = 3z; i < len(haystack); i += 1) {
+			x = x << 8 | haystack[i];
+			if (x == needle) {
+				return i - 3;
+			};
+		};
+	};
+};
+
+fn index_slice(haystack: []u8, b: []u8) (size | void) = {
+	switch (len(b)) {
+	case 0 =>
+		return 0;
+	case 1 =>
+		return index_byte(haystack, b[0]);
+	case 2 =>
+		return index_2bytes(haystack, b[0]: u16 << 8 | b[1]);
+	case 3 =>
+		return index_3bytes(
+			haystack,
+			b[0]: u32 << 16 | b[1]: u32 << 8 | b[2],
+		);
+	case 4 =>
+		return index_4bytes(
+			haystack,
+			b[0]: u32 << 24 | b[1]: u32 << 16 | b[2]: u32 << 8 | b[3],
+		);
+	case =>
+		return index_tw(haystack, b);
+	};
 };
 
 // Returns the offset of the last instance of "needle" in a "haystack" of
