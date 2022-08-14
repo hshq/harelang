@@ -9,6 +9,8 @@ use types;
 
 def GCMBLOCKSIZE: size = 16;
 
+export def GCMTAGSIZE: size = 16;
+
 export type gcmstream = struct {
 	stream: io::stream,
 	block: *block,
@@ -190,30 +192,29 @@ fn gcm_reader(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 
 // Finishes encryption and returns the authentication tag. After calling seal,
 // the user must not write any more data to the stream.
-export fn gcm_seal(s: *gcmstream) [16]u8 = {
+export fn gcm_seal(s: *gcmstream, tag: []u8) void = {
+	assert(len(tag) == GCMTAGSIZE);
 	if (s.xorbufpos > 0 && s.xorbufpos < GCMBLOCKSIZE) {
 		// last block was is not full, therefore the content was not
 		// hashed yet.
 		ghash_ctmul64(s.tagbuf, s.h, s.cipherbuf[..s.xorbufpos]);
 	};
 
-	let tmp: [16]u8 = [0...];
-	beputu64(tmp, s.adlen << 3);
-	beputu64(tmp[8..], s.clen << 3);
-	ghash_ctmul64(s.tagbuf, s.h, tmp);
+	beputu64(tag, s.adlen << 3);
+	beputu64(tag[8..], s.clen << 3);
+	ghash_ctmul64(s.tagbuf, s.h, tag);
 
 	// use tmp to store the resulting tag
-	encrypt(s.block, tmp, s.y0);
-	xor(tmp, tmp, s.tagbuf);
-
-	return tmp;
+	encrypt(s.block, tag, s.y0);
+	xor(tag, tag, s.tagbuf);
 };
 
 // Verifies the authentication tag against the decrypted data. Must be called
 // after reading all data from the stream to ensure that the data was not 
 // modified. If the data was modified, [[errors::invalid]] will be returned and
 // the data must not be trusted.
-export fn gcm_verify(s: *gcmstream, tag: [16]u8) (void | errors::invalid) = {
+export fn gcm_verify(s: *gcmstream, tag: []u8) (void | errors::invalid) = {
+	assert(len(tag) == GCMTAGSIZE);
 	if (s.xorbufpos > 0 && s.xorbufpos < GCMBLOCKSIZE) {
 		ghash_ctmul64(s.tagbuf, s.h, s.cipherbuf[..s.xorbufpos]);
 	};
