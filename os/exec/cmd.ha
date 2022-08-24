@@ -134,7 +134,7 @@ export fn setenv(cmd: *command, key: str, value: str) (void | errors::invalid) =
 
 // Configures a file in the child process's file table, such that the file
 // described by the 'source' parameter is mapped onto file descriptor slot
-// 'source' in the child process via dup(2).
+// 'child' in the child process via dup(2).
 //
 // This operation is performed atomically, such that the following code swaps
 // stdout and stderr:
