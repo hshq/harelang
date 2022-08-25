@@ -10,7 +10,6 @@ export type nullfd = void;
 // Used to close a file descriptor which does not have the CLOEXEC flag set.
 export type closefd = void;
 
-// An executable command.
 export type command = struct {
 	platform: platform_cmd,
 	argv: []str,
