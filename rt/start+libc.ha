@@ -4,8 +4,22 @@
 @symbol("main") fn main() void;
 @symbol("exit") fn c_exit(status: int) void;
 
+const @symbol("__fini_array_start") fini_start: [*]*fn() void;
+const @symbol("__fini_array_end") fini_end: [*]*fn() void;
+
+export fn init() void = void;
+
+// Run all global finalization functions.
+export fn fini() void = {
+	const nfini = (&fini_end: uintptr - &fini_start: uintptr): size
+		/ size(*fn() void);
+	for (let i = 0z; i < nfini; i += 1) {
+		fini_start[i]();
+	};
+};
+
 export @noreturn fn start_ha() void = {
-	// libc runs @init and @fini for us
+	// libc runs @init and @fini for us (unless rt::exit() is called)
 	main();
 	c_exit(0);
 };
