@@ -103,7 +103,8 @@ fn get_param(name: str, params: param...) fmt::formattable = {
 			return params[i].1;
 		};
 	};
-	abort("strings::tmpl: required parameter was not provided");
+	fmt::errorfln("strings::template: required parameter ${} was not provided", name)!;
+	abort();
 };
 
 fn parse_variable(
