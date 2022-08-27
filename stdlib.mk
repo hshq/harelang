@@ -1517,7 +1517,8 @@ $(HARECACHE)/linux/vdso/linux_vdso-linux.ssa: $(stdlib_linux_vdso_linux_srcs) $(
 stdlib_log_linux_srcs = \
 	$(STDLIB)/log/logger.ha \
 	$(STDLIB)/log/global.ha \
-	$(STDLIB)/log/funcs.ha
+	$(STDLIB)/log/funcs.ha \
+	$(STDLIB)/log/silent.ha
 
 $(HARECACHE)/log/log-linux.ssa: $(stdlib_log_linux_srcs) $(stdlib_rt) $(stdlib_datetime_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -1529,7 +1530,8 @@ $(HARECACHE)/log/log-linux.ssa: $(stdlib_log_linux_srcs) $(stdlib_rt) $(stdlib_d
 stdlib_log_freebsd_srcs = \
 	$(STDLIB)/log/logger.ha \
 	$(STDLIB)/log/global.ha \
-	$(STDLIB)/log/funcs.ha
+	$(STDLIB)/log/funcs.ha \
+	$(STDLIB)/log/silent.ha
 
 $(HARECACHE)/log/log-freebsd.ssa: $(stdlib_log_freebsd_srcs) $(stdlib_rt) $(stdlib_datetime_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -3732,7 +3734,8 @@ $(TESTCACHE)/linux/vdso/linux_vdso-linux.ssa: $(testlib_linux_vdso_linux_srcs) $
 testlib_log_linux_srcs = \
 	$(STDLIB)/log/logger.ha \
 	$(STDLIB)/log/global.ha \
-	$(STDLIB)/log/funcs.ha
+	$(STDLIB)/log/funcs.ha \
+	$(STDLIB)/log/silent.ha
 
 $(TESTCACHE)/log/log-linux.ssa: $(testlib_log_linux_srcs) $(testlib_rt) $(testlib_datetime_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -3744,7 +3747,8 @@ $(TESTCACHE)/log/log-linux.ssa: $(testlib_log_linux_srcs) $(testlib_rt) $(testli
 testlib_log_freebsd_srcs = \
 	$(STDLIB)/log/logger.ha \
 	$(STDLIB)/log/global.ha \
-	$(STDLIB)/log/funcs.ha
+	$(STDLIB)/log/funcs.ha \
+	$(STDLIB)/log/silent.ha
 
 $(TESTCACHE)/log/log-freebsd.ssa: $(testlib_log_freebsd_srcs) $(testlib_rt) $(testlib_datetime_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
 	@printf 'HAREC \t$@\n'

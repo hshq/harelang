@@ -919,9 +919,9 @@ linux_vdso() {
 }
 
 log() {
-	gen_srcs -plinux log logger.ha global.ha funcs.ha
+	gen_srcs -plinux log logger.ha global.ha funcs.ha silent.ha
 	gen_ssa -plinux log datetime fmt io os
-	gen_srcs -pfreebsd log logger.ha global.ha funcs.ha
+	gen_srcs -pfreebsd log logger.ha global.ha funcs.ha silent.ha
 	gen_ssa -pfreebsd log datetime fmt io os
 }
 
