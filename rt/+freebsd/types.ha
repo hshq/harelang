@@ -20,6 +20,7 @@ export type fflags_t = u32;
 export type mode_t = u16;
 export type nfds_t = uint;
 
+export def NGROUPS_MAX: size = 1023;
 export def NSIG: int = 32;
 
 export type sigset = struct {
