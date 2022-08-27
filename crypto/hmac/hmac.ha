@@ -26,7 +26,7 @@ const hmac_vtable: io::vtable = io::vtable {
 // finished using the MAC function, which, in addition to freeing state
 // associated with the MAC, will securely erase state which contains secret
 // information.
-export fn hmac(h: *hash::hash, key: []u8, buf: []u8) state = {
+export fn hmac(h: *hash::hash, key: const []u8, buf: []u8) state = {
 	const bsz = hash::bsz(h);
 
 	assert(len(buf) >= bsz, "buf must be at least the size of one "
