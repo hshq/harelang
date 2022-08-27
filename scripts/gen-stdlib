@@ -1337,7 +1337,8 @@ unix() {
 		+linux/pipe.ha \
 		+linux/umask.ha \
 		getuid.ha \
-		setuid.ha
+		setuid.ha \
+		groups.ha
 	gen_ssa -plinux unix errors fs io
 
 	gen_srcs -pfreebsd unix \
@@ -1345,7 +1346,8 @@ unix() {
 		+freebsd/pipe.ha \
 		+freebsd/umask.ha \
 		getuid.ha \
-		setuid.ha
+		setuid.ha \
+		groups.ha
 	gen_ssa -pfreebsd unix errors fs io
 }
 

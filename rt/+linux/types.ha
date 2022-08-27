@@ -24,6 +24,7 @@ export type timer_t = int;
 export type clock_t = i64;
 export type si_band_t = i64;
 
+export def NGROUPS_MAX: size = 32;
 export def NSIG: int = 64;
 
 export type sigset = struct {
@@ -214,7 +215,7 @@ export def MAP_HUGE_2GB: uint		= 31 << 26;
 export def MAP_HUGE_16GB: uint		= 34 << 26;
 
 export def PROT_NONE: uint	= 0;
-export def PROT_READ: uint 	= 1;
+export def PROT_READ: uint	= 1;
 export def PROT_WRITE: uint	= 2;
 export def PROT_EXEC: uint	= 4;
 export def PROT_GROWSDOWN: uint	= 0x01000000;

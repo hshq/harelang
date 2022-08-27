@@ -2015,7 +2015,8 @@ stdlib_unix_linux_srcs = \
 	$(STDLIB)/unix/+linux/pipe.ha \
 	$(STDLIB)/unix/+linux/umask.ha \
 	$(STDLIB)/unix/getuid.ha \
-	$(STDLIB)/unix/setuid.ha
+	$(STDLIB)/unix/setuid.ha \
+	$(STDLIB)/unix/groups.ha
 
 $(HARECACHE)/unix/unix-linux.ssa: $(stdlib_unix_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2029,7 +2030,8 @@ stdlib_unix_freebsd_srcs = \
 	$(STDLIB)/unix/+freebsd/pipe.ha \
 	$(STDLIB)/unix/+freebsd/umask.ha \
 	$(STDLIB)/unix/getuid.ha \
-	$(STDLIB)/unix/setuid.ha
+	$(STDLIB)/unix/setuid.ha \
+	$(STDLIB)/unix/groups.ha
 
 $(HARECACHE)/unix/unix-freebsd.ssa: $(stdlib_unix_freebsd_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -4238,7 +4240,8 @@ testlib_unix_linux_srcs = \
 	$(STDLIB)/unix/+linux/pipe.ha \
 	$(STDLIB)/unix/+linux/umask.ha \
 	$(STDLIB)/unix/getuid.ha \
-	$(STDLIB)/unix/setuid.ha
+	$(STDLIB)/unix/setuid.ha \
+	$(STDLIB)/unix/groups.ha
 
 $(TESTCACHE)/unix/unix-linux.ssa: $(testlib_unix_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -4252,7 +4255,8 @@ testlib_unix_freebsd_srcs = \
 	$(STDLIB)/unix/+freebsd/pipe.ha \
 	$(STDLIB)/unix/+freebsd/umask.ha \
 	$(STDLIB)/unix/getuid.ha \
-	$(STDLIB)/unix/setuid.ha
+	$(STDLIB)/unix/setuid.ha \
+	$(STDLIB)/unix/groups.ha
 
 $(TESTCACHE)/unix/unix-freebsd.ssa: $(testlib_unix_freebsd_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'

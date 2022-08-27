@@ -692,6 +692,16 @@ export fn getresgid(gid: *gid_t, egid: *gid_t, sgid: *gid_t) (void | errno) = {
 		sgid: uintptr: u64))?;
 };
 
+export fn getgroups(gids: []uint) (uint | errno) = {
+	return wrap_return(syscall2(SYS_getgroups,
+		len(gids): u64, gids: *[*]uint: uintptr: u64))?: uint;
+};
+
+export fn setgroups(gids: []uint) (void | errno) = {
+	wrap_return(syscall2(SYS_setgroups,
+		len(gids): u64, gids: *[*]uint: uintptr: u64))?;
+};
+
 export fn getpriority(which: int, who: id_t) (int | errno) = {
 	return wrap_return(syscall2(SYS_setpriority,
 		which: u64, who: u64))?: int;
