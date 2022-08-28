@@ -9,7 +9,7 @@ use io;
 
 // A thin wrapper around socketpair(2) that presumes [[rt::AF_UNIX]] for the
 // domain and returns an unnamed pair of sockets of type [[rt::SOCK_STREAM]].
-export fn socketpair(flags: net::sockflags...) ((io::file, io::file) | net::error) = {
+export fn socketpair(flags: net::sockflags...) ((net::socket, net::socket) | net::error) = {
 	let sv: [2]int = [0...];
 	// Apply any supplied flags
 	let f = 0i;
