@@ -27,7 +27,7 @@ export type pwent = struct {
 };
 
 // Reads a Unix-like password entry from an [[io::handle]]. The caller must free
-// the result using [[pwent_finish]].
+// the return value using [[pwent_finish]].
 export fn nextpw(file: io::handle) (pwent | io::EOF | io::error | invalid) = {
 	let line = match (bufio::scanline(file)?) {
 	case io::EOF =>
@@ -75,8 +75,8 @@ export fn nextpw(file: io::handle) (pwent | io::EOF | io::error | invalid) = {
 	};
 };
 
-// Frees resources associated with [[pwent]].
-export fn pwent_finish(ent: pwent) void = {
+// Frees resources associated with a [[pwent]].
+export fn pwent_finish(ent: *pwent) void = {
 	// pwent fields are sliced from one allocated string returned by
 	// bufio::scanline. Freeing the first field frees the entire string in
 	// one go.
@@ -85,7 +85,7 @@ export fn pwent_finish(ent: pwent) void = {
 
 // Looks up a user by name in a Unix-like password file. It expects a password
 // database file at /etc/passwd. Aborts if that file doesn't exist or is not
-// properly formatted.
+// properly formatted. The return value must be freed with [[pwent_finish]].
 //
 // See [[nextpw]] for low-level parsing API.
 export fn getuser(username: str) (pwent | void) = {
@@ -110,11 +110,43 @@ export fn getuser(username: str) (pwent | void) = {
 		if (ent.username == username) {
 			return ent;
 		} else {
-			pwent_finish(ent);
+			pwent_finish(&ent);
 		};
 	};
 
 	return;
+};
+
+// Looks up a user by ID in a Unix-like password file. It expects a password
+// database file at /etc/passwd. Aborts if that file doesn't exist or is not
+// properly formatted. The return value must be freed with [[pwent_finish]].
+//
+// See [[nextpw]] for low-level parsing API.
+export fn getuid(uid: uint) (pwent | void) = {
+	let file = match (os::open("/etc/passwd")) {
+	case let f: io::file =>
+		yield f;
+	case =>
+		abort("Can't open /etc/passwd");
+	};
+	defer io::close(file)!;
+
+	for (true) {
+		let ent = match (nextpw(file)) {
+		case let e: pwent =>
+			yield e;
+		case io::EOF =>
+			break;
+		case =>
+			abort("Invalid entry in /etc/passwd");
+		};
+
+		if (ent.uid == uid) {
+			return ent;
+		} else {
+			pwent_finish(&ent);
+		};
+	};
 };
 
 @test fn nextpw() void = {
@@ -123,7 +155,7 @@ export fn getuser(username: str) (pwent | void) = {
 		"alex:x:1001:1001::/home/alex:/bin/zsh"), io::mode::READ);
 
 	let ent = nextpw(&buf) as pwent;
-	defer pwent_finish(ent);
+	defer pwent_finish(&ent);
 
 	assert(ent.username == "sircmpwn");
 	assert(ent.password == "x");
@@ -134,7 +166,7 @@ export fn getuser(username: str) (pwent | void) = {
 	assert(ent.shell == "/bin/mrsh");
 
 	let ent = nextpw(&buf) as pwent;
-	defer pwent_finish(ent);
+	defer pwent_finish(&ent);
 
 	assert(ent.username == "alex");
 	assert(ent.password == "x");
