@@ -834,6 +834,6 @@ export fn ptrace(
 	};
 };
 
-export fn sync() (void | errno) = {
-	wrap_return(syscall0(SYS_sync))?;
+export fn sync() void = {
+	wrap_return(syscall0(SYS_sync))!;
 };
