@@ -833,3 +833,7 @@ export fn ptrace(
 		return ret;
 	};
 };
+
+export fn sync() (void | errno) = {
+	wrap_return(syscall0(SYS_sync))?;
+};
