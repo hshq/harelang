@@ -36,11 +36,22 @@ export fn fork() (process | void | error) = {
 // To capture the standard output of a process:
 //
 // 	let pipe = exec::pipe();
-// 	exec::addfile(&cmd, pipe.1, os::stdout_file);
+// 	exec::addfile(&cmd, os::stdout_file, pipe.1);
 // 	let proc = exec::start(&cmd)!;
 // 	io::close(pipe.1)!;
 //
 // 	let data = io::drain(pipe.0)!;
+// 	io::close(pipe.0)!;
+// 	exec::wait(&proc)!;
+//
+// To write to the standard input of a process:
+//
+// 	let pipe = exec::pipe();
+// 	exec::addfile(&cmd, os::stdin_file, pipe.0);
+// 	let proc = exec::start(&cmd)!;
+//
+// 	io::writeall(data)!;
+// 	io::close(pipe.1)!;
 // 	io::close(pipe.0)!;
 // 	exec::wait(&proc)!;
 export fn pipe() (io::file, io::file) = {
