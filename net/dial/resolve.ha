@@ -18,24 +18,42 @@ export fn resolve(
 	addr: str,
 	service: str,
 ) (([]ip::addr, u16) | error) = {
-	let port = match (strings::index(addr, ':')) {
-	case void =>
-		yield match (strconv::stou16(service)) {
-		case let u: u16 =>
-			yield u;
-		case =>
-			yield 0u16;
-		};
-	case let i: size =>
-		const sub = strings::sub(addr, i + 1, strings::end);
-		addr = strings::sub(addr, 0, i);
-		yield match (strconv::stou16(sub)) {
-		case let u: u16 =>
-			yield u;
-		case =>
+	let port = if (strings::hasprefix(addr, '[')) {
+		// [::1]:80
+		yield match (strings::index(addr, "]:")) {
+		case let i: size =>
+			const sub = strings::sub(addr, i + 2, strings::end);
+			addr = strings::sub(addr, 1, i);
+			yield match (strconv::stou16(sub)) {
+			case let u: u16 =>
+				yield u;
+			case =>
+				return invalid_address;
+			};
+		case void =>
 			return invalid_address;
 		};
+	} else {
+		yield match (strings::index(addr, ':')) {
+		case void =>
+			yield match (strconv::stou16(service)) {
+			case let u: u16 =>
+				yield u;
+			case =>
+				yield 0u16;
+			};
+		case let i: size =>
+			const sub = strings::sub(addr, i + 1, strings::end);
+			addr = strings::sub(addr, 0, i);
+			yield match (strconv::stou16(sub)) {
+			case let u: u16 =>
+				yield u;
+			case =>
+				return invalid_address;
+			};
+		};
 	};
+
 	if (service == "unknown" && port == 0) {
 		return unknown_service;
 	};
