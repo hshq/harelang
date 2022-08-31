@@ -96,9 +96,11 @@ export fn getuser(username: str) (pwent | void) = {
 		abort("Can't open /etc/passwd");
 	};
 	defer io::close(file)!;
+	let buffer: [os::BUFSIZ]u8 = [0...];
+	const buf = bufio::buffered(file, buffer, []);
 
 	for (true) {
-		let ent = match (nextpw(file)) {
+		let ent = match (nextpw(&buf)) {
 		case let e: pwent =>
 			yield e;
 		case io::EOF =>
@@ -147,6 +149,11 @@ export fn getuid(uid: uint) (pwent | void) = {
 			pwent_finish(&ent);
 		};
 	};
+};
+
+@test fn getuser() void = {
+	const u = getuser("root") as pwent;
+	assert(u.username == "root");
 };
 
 @test fn nextpw() void = {

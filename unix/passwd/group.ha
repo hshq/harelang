@@ -77,9 +77,11 @@ export fn getgroup(name: str) (grent | void) = {
 		abort("Unable to open /etc/group");
 	};
 	defer io::close(file)!;
-
+	let buffer: [os::BUFSIZ]u8 = [0...];
+	const buf = bufio::buffered(file, buffer, []);
+	
 	for (true) {
-		let ent = match (nextgr(file)) {
+		let ent = match (nextgr(&buf)) {
 		case let e: grent =>
 			yield e;
 		case io::EOF =>
@@ -125,6 +127,11 @@ export fn getgid(gid: uint) (grent | void) = {
 			grent_finish(&ent);
 		};
 	};
+};
+
+@test fn getgroup() void = {
+	const g = getgroup("root") as grent;
+	assert(g.name == "root");
 };
 
 @test fn nextgr() void = {
