@@ -102,6 +102,14 @@ fn mkplan(
 		break;
 	};
 
+	ar_tool.0 = target.ar_cmd;
+	as_tool.0 = target.as_cmd;
+	ld_tool.0 = if (len(libs) > 0) {
+		yield target.cc_cmd;
+	} else {
+		yield target.ld_cmd;
+	};
+
 	return plan {
 		context = ctx,
 		target = target,

@@ -14,8 +14,62 @@ use hash::fnv;
 use hash;
 use os;
 use path;
+use shlex;
 use strings;
 use strio;
+
+fn getenv(var: str) []str = {
+	let vals: []str = [];
+	match(os::getenv(var)) {
+	case let val: str =>
+		if(len(val) > 0) {
+			match(shlex::split(val)) {
+			case let val: []str =>
+				for(let i = 0z; i < len(val); i += 1) {
+					append(vals, val[i]);
+				};
+			case shlex::syntaxerr => void;
+			};
+		};
+	case void => void;
+	};
+
+	return vals;
+};
+
+// (executable name, executable variable, flags variable)
+type tool = (str, str, str);
+
+let ld_tool: tool = ("", "LD", "LDFLAGS");
+let as_tool: tool = ("", "AS", "ASFLAGS");
+let ar_tool: tool = ("", "AR", "ARFLAGS");
+let qbe_tool: tool = ("qbe", "QBE", "QBEFLAGS");
+
+fn getcmd(tool: *tool, args: str...) []str = {
+	let execargs: []str = [];
+
+	let vals = getenv(tool.1);
+	defer free(vals);
+	if (len(vals) == 0) {
+		append(execargs, tool.0);
+	} else {
+		for(let i = 0z; i < len(vals); i += 1) {
+			append(execargs, vals[i]);
+		};
+	};
+
+	let vals = getenv(tool.2);
+	defer free(vals);
+	for (let i = 0z; i < len(vals); i += 1) {
+		append(execargs, vals[i]);
+	};
+
+	for(let i = 0z; i < len(args); i += 1) {
+		append(execargs, args[i]);
+	};
+
+	return execargs;
+};
 
 fn ident_hash(ident: ast::ident) u32 = {
 	let hash = fnv::fnv32();
@@ -66,27 +120,18 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 
 // Schedules a task which compiles objects into an executable.
 fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
-	const ld_cmd = os::tryenv("LD", if (len(plan.libs) > 0) {
-		// C compiler is used as linker if we -l something
-		yield plan.target.cc_cmd;
-	} else {
-		yield plan.target.ld_cmd;
-	});
-
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
 		depend = alloc(depend...),
-		cmd = alloc([
-			ld_cmd,
+		cmd = getcmd(&ld_tool,
 			"-T", plan.script,
-			"-o", output,
-		]),
+			"-o", output),
 		module = void,
 	});
 
 	// Using --gc-sections will not work when using cc as the linker
-	if (len(plan.libs) == 0) {
+	if (len(plan.libs) == 0 && task.cmd[0] == plan.target.ld_cmd) {
 		append(task.cmd, "--gc-sections");
 	};
 
@@ -110,14 +155,24 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 
 // Schedules a task which merges objects into an archive.
 fn sched_ar(plan: *plan, output: str, depend: *task...) *task = {
-	const ar_cmd = os::tryenv("AR", plan.target.ar_cmd);
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
 		depend = alloc(depend...),
-		cmd = alloc([ar_cmd, "-csr", output]),
+		cmd = getcmd(&ar_tool),
 		module = void,
 	});
+
+	// If you specify flags in `$ARFLAGS' or a different archiver in `$AR',
+	// this assumes that you will pass the correct flags for creating an
+	// archive, and will not pass the default `-csr', since `ar' is picky
+	// about the order flags are given.
+	if (len(task.cmd) == 1 && task.cmd[0] == plan.target.ar_cmd) {
+		append(task.cmd, "-csr");
+	};
+
+	append(task.cmd, output);
+
 	for (let i = 0z; i < len(depend); i += 1) {
 		assert(strings::hassuffix(depend[i].output, ".o"));
 		append(task.cmd, depend[i].output);
@@ -128,31 +183,30 @@ fn sched_ar(plan: *plan, output: str, depend: *task...) *task = {
 
 // Schedules a task which compiles assembly into an object.
 fn sched_as(plan: *plan, output: str, input: str, depend: *task...) *task = {
-	const as_cmd = os::tryenv("AS", plan.target.as_cmd);
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
 		depend = alloc(depend...),
-		cmd = alloc([as_cmd, "-g", "-o", output, input]),
+		cmd = getcmd(&as_tool, "-g", "-o", output),
 		module = void,
 	});
+
+	append(task.cmd, input);
+
 	append(plan.scheduled, task);
 	return task;
 };
 
 // Schedules a task which compiles an SSA file into assembly.
 fn sched_qbe(plan: *plan, output: str, depend: *task) *task = {
-	const qbe_cmd = os::tryenv("QBE", "qbe");
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
 		depend = alloc([depend]),
-		cmd = alloc([
-			qbe_cmd,
+		cmd = getcmd(&qbe_tool,
 			"-t", plan.target.qbe_target,
 			"-o", output,
-			depend.output,
-		]),
+			depend.output),
 		module = void,
 	});
 	append(plan.scheduled, task);
