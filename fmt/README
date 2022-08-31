@@ -15,14 +15,14 @@ You may use a colon to add format modifiers; for example, "{:x}" will format an
 argument in hexadecimal, and "{3:-10}" will left-align the 4rd argument (zero
 indexed) to at least 10 characters.
 
-The format modifiers takes the form of an optional flag character:
+The format modifiers take the form of optional flag characters:
 
 - "0": Numeric values are zero-padded up to the required width.
 - "-": The value shall be left-aligned, and spaces inserted on the right to meet the required width. "-" takes precedence over "0" if both are used.
 - " ": (a space) insert a space before positive numbers, where "-" would be if it were negative.
 - "+": insert a "+" before positive numbers, where "-" would be if it were negative. "+" takes precedence over " " if both are used.
 
-Following the flag, an optional decimal number shall specify the minimum width
+Following the flags, an optional decimal number shall specify the minimum width
 of this field. If "0" or "-" were not given, the default behavior shall be to
 pad with spaces to achieve the necessary width.
 

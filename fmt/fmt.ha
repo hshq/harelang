@@ -9,6 +9,7 @@ use ascii;
 use bufio;
 use encoding::utf8;
 use io;
+use math;
 use os;
 use strconv;
 use strings;
@@ -292,10 +293,21 @@ fn format(
 	arg: formattable,
 	mod: *modifiers,
 ) (size | io::error) = {
-	let z = format_raw(io::empty, arg, mod)?;
+	let z = 0z;
 
+	let reprlen = 0z;
+	if (mod.padding == padding::ALIGN_LEFT) {
+		reprlen = format_raw(out, arg, mod, 0, [])?;
+		z += reprlen;
+	} else {
+		reprlen = format_raw(io::empty, arg, mod, 0, [])?;
+	};
+
+	let padlen = 0z;
 	let pad: []u8 = [];
-	if (z < mod.width: size) {
+
+	if (reprlen < mod.width: size) {
+		padlen = mod.width: size - reprlen;
 		pad = utf8::encoderune(switch (mod.padding) {
 		case padding::ZEROES =>
 			yield '0';
@@ -304,16 +316,18 @@ fn format(
 		});
 	};
 
-	if (mod.padding == padding::ALIGN_LEFT) {
-		format_raw(out, arg, mod)?;
-	};
-
-	for (z < mod.width: size) {
-		z += io::write(out, pad)?;
-	};
-
-	if (mod.padding != padding::ALIGN_LEFT) {
-		format_raw(out, arg, mod)?;
+	if (arg is types::numeric && mod.padding == padding::ZEROES) {
+		// if padlen != 0, then inner padding will be applied
+		z += format_raw(out, arg, mod, padlen, pad)?;
+	}
+	else {
+		for (let i = 0z; i < padlen) {
+			i += io::write(out, pad)?;
+		};
+		z += padlen;
+		if (mod.padding != padding::ALIGN_LEFT) {
+			z += format_raw(out, arg, mod, 0, [])?;
+		};
 	};
 
 	return z;
@@ -323,6 +337,8 @@ fn format_raw(
 	out: io::handle,
 	arg: formattable,
 	mod: *modifiers,
+	padlen: size,
+	pad: []u8,
 ) (size | io::error) = {
 	match (arg) {
 	case let s: str =>
@@ -333,24 +349,59 @@ fn format_raw(
 		return io::write(out,
 			strings::toutf8(if (b) "true" else "false"));
 	case let n: types::numeric =>
-		const s = strconv::numerictosb(n, mod.base);
-		return io::write(out, strings::toutf8(s));
+		const (s1, s2) = get_split_number_repr(n, mod);
+		let z = io::write(out, strings::toutf8(s1))?;
+		// apply inner padding if required
+		for (let i = 0z; i < padlen) {
+			i += io::write(out, pad)?;
+		};
+		z += padlen;
+		z += io::write(out, strings::toutf8(s2))?;
+		return z;
 	case let p: uintptr =>
 		const s = strconv::uptrtosb(p, mod.base);
 		return io::write(out, strings::toutf8(s));
 	case let v: nullable *void =>
 		match (v) {
 		case let v: *void =>
-			let n = io::write(out, strings::toutf8("0x"))?;
+			let z = io::write(out, strings::toutf8("0x"))?;
 			const s = strconv::uptrtosb(v: uintptr,
 				strconv::base::HEX_LOWER);
-			n += io::write(out, strings::toutf8(s))?;
-			return n;
+			z += io::write(out, strings::toutf8(s))?;
+			return z;
 		case null =>
-			return format(out, "(null)", mod);
+			return io::write(out, strings::toutf8("(null)"));
 		};
 	case void =>
 		return io::write(out, strings::toutf8("void"));
+	};
+};
+
+fn get_split_number_repr(n: types::numeric, mod: *modifiers) (str, str) = {
+	const s = strconv::numerictosb(n, mod.base);
+	if (is_negative(n)) {
+		return (
+			strings::sub(s, 0, 1),
+			strings::sub(s, 1, strings::end)
+		);
+	} else {
+		const prefix = switch (mod.negation) {
+		case negation::PLUS  => yield "+";
+		case negation::SPACE => yield " ";
+		case negation::NONE  => yield "";
+		};
+		return (prefix, s);
+	};
+};
+
+fn is_negative(n: types::numeric) bool = {
+	match (n) {
+	case let i: types::signed =>
+		return math::signi(i) < 0;
+	case let u: types::unsigned =>
+		return false;
+	case let f: types::floating =>
+		return math::signf(f) < 0;
 	};
 };
 
@@ -551,11 +602,31 @@ fn scan_parametric_modifiers(iter: *strings::iterator, pi: *paramindex) void = {
 		"world", &modifiers { ... },
 	) == "|hello|world|hello|");
 
-	assert(bsprintf(buf, "x: {:08x}", 0xBEEF) == "x: 0000beef");
 	assert(bsprintf(buf, "x: {:8X}", 0xBEEF) == "x:     BEEF");
+	assert(bsprintf(buf, "x: {:8X}", -0xBEEF) == "x:    -BEEF");
+	assert(bsprintf(buf, "x: {:+8X}", 0xBEEF) == "x:    +BEEF");
+	assert(bsprintf(buf, "x: {: 8X}", 0xBEEF) == "x:     BEEF");
+
+	assert(bsprintf(buf, "x: {:+ 8X}", 0xBEEF) == "x:    +BEEF");
+
 	assert(bsprintf(buf, "x: {:-8X}", 0xBEEF) == "x: BEEF    ");
+	assert(bsprintf(buf, "x: {:-8X}", -0xBEEF) == "x: -BEEF   ");
+	assert(bsprintf(buf, "x: {:-+8X}", 0xBEEF) == "x: +BEEF   ");
+	assert(bsprintf(buf, "x: {:- 8X}", 0xBEEF) == "x:  BEEF   ");
+
+	assert(bsprintf(buf, "x: {:08x}", 0xBEEF) == "x: 0000beef");
+	assert(bsprintf(buf, "x: {:08x}", -0xBEEF) == "x: -000beef");
+	assert(bsprintf(buf, "x: {:+08x}", 0xBEEF) == "x: +000beef");
+	assert(bsprintf(buf, "x: {: 08x}", 0xBEEF) == "x:  000beef");
+
+	assert(bsprintf(buf, "x: {:-08X}", 0xBEEF) == "x: BEEF    ");
+
 	assert(bsprintf(buf, "x: {:o}", 0o755) == "x: 755");
 	assert(bsprintf(buf, "x: {:b}", 0b11011) == "x: 11011");
+
+	assert(bsprintf(buf, "x: {:8}", "hello") == "x:    hello");
+	assert(bsprintf(buf, "x: {:-8}", "hello") == "x: hello   ");
+	assert(bsprintf(buf, "x: {:08}", "hello") == "x: 000hello");
 
 	assert(bsprintf(buf, "{} {} {} {} {}", true, false, null, 'x', void)
 		== "true false (null) x void");

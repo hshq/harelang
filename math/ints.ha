@@ -136,7 +136,7 @@ export fn signi64(n: i64) i64 = {
 };
 
 // Return 1 if n is positive, -1 if it's negative and 0 if it's 0.
-export fn signi(n: types::integer) i64 = {
+export fn signi(n: types::signed) i64 = {
 	match (n) {
 	case let n: i8 =>
 		return signi8(n): i64;
