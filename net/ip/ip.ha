@@ -7,13 +7,14 @@
 // (c) 2021 Miccah Castorina <contact@miccah.io>
 // (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
-use io;
-use strio;
-use fmt;
 use bytes;
-use rt;
+use endian;
+use fmt;
+use io;
+use rt; //TODO remove
 use strconv;
 use strings;
+use strio;
 
 // An IPv4 address.
 export type addr4 = [4]u8;
@@ -89,10 +90,10 @@ fn parsev4(st: str) (addr4 | invalid) = {
 
 fn parsev6(st: str) (addr6 | invalid) = {
 	let ret: addr6 = [0...];
-	let tok = strings::tokenize(st, ":");
 	if (st == "::") {
 		return ret;
 	};
+	let tok = strings::tokenize(st, ":");
 	let ells = -1;
 	if (strings::hasprefix(st, "::")) {
 		wanttoken(&tok)?;
@@ -116,17 +117,12 @@ fn parsev6(st: str) (addr6 | invalid) = {
 			ells = i;
 			continue;
 		};
-		let val = strconv::stou16b(s, 16);
-		if (val is u16) {
-			let v = val as u16;
-			ret[i] = (v >> 8): u8;
-			i += 1;
-			ret[i] = v: u8;
-			i += 1;
-			continue;
-		} else {
-			let v4 = parsev4(s)?;
-			rt::memcpy(&ret[i], &v4, 4);
+		match (strconv::stou16b(s, 16)) {
+		case let val: u16 =>
+			endian::beputu16(ret[i..], val);
+			i += 2;
+		case =>
+			ret[i..i + 4] = parsev4(s)?;
 			i += 4;
 			break;
 		};
@@ -138,13 +134,13 @@ fn parsev6(st: str) (addr6 | invalid) = {
 		if (i >= 15) {
 			return invalid;
 		};
-		rt::memcpy(
-			&ret[16 - (i - ells)],
-			&ret[ells], (i - ells): size);
-		rt::memset(&ret[ells], 0, (i - ells): size);
-	} else {
-		if (i != 16)
-			return invalid;
+		const n = i - ells;
+		ret[16 - n..16] = ret[ells..ells + n];
+		// TODO: after https://todo.sr.ht/~sircmpwn/hare/536
+		// ret[ells..ells + n] = [0...];
+		rt::memset(&ret[ells], 0, n: size);
+	} else if (i != 16) {
+		return invalid;
 	};
 
 	return ret;
@@ -217,6 +213,8 @@ fn fmtv6(s: io::handle, a: addr6) (io::error | size) = {
 // Fills a netmask according to the CIDR value
 // e.g. 23 -> [0xFF, 0xFF, 0xFD, 0x00]
 fn fillmask(mask: []u8, val: u8) void = {
+	// TODO: after https://todo.sr.ht/~sircmpwn/hare/536
+	// mask = [0xFF...];
 	rt::memset(&mask[0], 0xFF, len(mask));
 	let i: int = len(mask): int - 1;
 	val = len(mask): u8 * 8 - val;
