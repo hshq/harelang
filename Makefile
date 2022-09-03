@@ -101,7 +101,7 @@ all: $(BINOUT)/hare $(BINOUT)/harec2 $(BINOUT)/haredoc
 
 install: docs scripts/install-mods
 	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1 \
-		$(DESTDIR)$(SRCDIR)/hare/stdlib $(DESTDIR)$(LOCALSRCDIR)
+		$(DESTDIR)$(SRCDIR)/hare/stdlib
 	install -m755 $(BINOUT)/hare $(DESTDIR)$(BINDIR)/hare
 	install -m755 $(BINOUT)/haredoc $(DESTDIR)$(BINDIR)/haredoc
 	install -m644 docs/hare.1 $(DESTDIR)$(MANDIR)/man1/hare.1
