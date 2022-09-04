@@ -432,7 +432,7 @@ export fn accept(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) 
 };
 
 export fn accept4(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32, flags: int) (int | errno) = {
-	return wrap_return(syscall4(SYS_accept,
+	return wrap_return(syscall4(SYS_accept4,
 		sockfd: u64, addr: uintptr: u64, addrlen: uintptr: u64, flags: u64))?: int;
 };
 
