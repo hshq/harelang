@@ -121,23 +121,25 @@ export fn dirfile(fs: *fs::fs) io::file = {
 	return fs.dirfd;
 };
 
-fn errno_to_fs(err: rt::errno) fs::error = switch (err) {
-case rt::ENOENT =>
-	yield errors::noentry;
-case rt::EEXIST =>
-	yield errors::exists;
-case rt::EACCES =>
-	yield errors::noaccess;
-case rt::EBUSY =>
-	yield errors::busy;
-case rt::ENOTDIR =>
-	yield fs::wrongtype;
-case rt::EOPNOTSUPP, rt::ENOSYS =>
-	yield errors::unsupported;
-case rt::EXDEV =>
-	yield fs::cannotrename;
-case =>
-	yield errors::errno(err);
+fn errno_to_fs(err: rt::errno) fs::error = {
+	switch (err) {
+	case rt::ENOENT =>
+		return errors::noentry;
+	case rt::EEXIST =>
+		return errors::exists;
+	case rt::EACCES =>
+		return errors::noaccess;
+	case rt::EBUSY =>
+		return errors::busy;
+	case rt::ENOTDIR =>
+		return fs::wrongtype;
+	case rt::EOPNOTSUPP, rt::ENOSYS =>
+		return errors::unsupported;
+	case rt::EXDEV =>
+		return fs::cannotrename;
+	case =>
+		return errors::errno(err);
+	};
 };
 
 fn _fs_open(
