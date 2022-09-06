@@ -254,6 +254,9 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 			// Implementation detail: tags always follows module
 			// directive for a given module version
 			assert(found);
+
+			// Drain tokenizer
+			for (strings::next_token(&tok) is str) void;
 		case =>
 			return manifest;
 		};
