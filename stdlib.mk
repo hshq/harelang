@@ -190,6 +190,12 @@ stdlib_deps_any += $(stdlib_crypto_blowfish_any)
 stdlib_crypto_blowfish_linux = $(stdlib_crypto_blowfish_any)
 stdlib_crypto_blowfish_freebsd = $(stdlib_crypto_blowfish_any)
 
+# gen_lib crypto::bigint (any)
+stdlib_crypto_bigint_any = $(HARECACHE)/crypto/bigint/crypto_bigint-any.o
+stdlib_deps_any += $(stdlib_crypto_bigint_any)
+stdlib_crypto_bigint_linux = $(stdlib_crypto_bigint_any)
+stdlib_crypto_bigint_freebsd = $(stdlib_crypto_bigint_any)
+
 # gen_lib crypto::chacha (any)
 stdlib_crypto_chacha_any = $(HARECACHE)/crypto/chacha/crypto_chacha-any.o
 stdlib_deps_any += $(stdlib_crypto_chacha_any)
@@ -853,6 +859,20 @@ $(HARECACHE)/crypto/blowfish/crypto_blowfish-any.ssa: $(stdlib_crypto_blowfish_a
 	@mkdir -p $(HARECACHE)/crypto/blowfish
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::blowfish \
 		-t$(HARECACHE)/crypto/blowfish/crypto_blowfish.td $(stdlib_crypto_blowfish_any_srcs)
+
+# crypto::bigint (+any)
+stdlib_crypto_bigint_any_srcs = \
+	$(STDLIB)/crypto/bigint/arithm.ha \
+	$(STDLIB)/crypto/bigint/encoding.ha \
+	$(STDLIB)/crypto/bigint/monty.ha \
+	$(STDLIB)/crypto/bigint/types.ha \
+	$(STDLIB)/crypto/bigint/util.ha
+
+$(HARECACHE)/crypto/bigint/crypto_bigint-any.ssa: $(stdlib_crypto_bigint_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/bigint
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::bigint \
+		-t$(HARECACHE)/crypto/bigint/crypto_bigint.td $(stdlib_crypto_bigint_any_srcs)
 
 # crypto::chacha (+any)
 stdlib_crypto_chacha_any_srcs = \
@@ -2366,6 +2386,12 @@ testlib_deps_any += $(testlib_crypto_blowfish_any)
 testlib_crypto_blowfish_linux = $(testlib_crypto_blowfish_any)
 testlib_crypto_blowfish_freebsd = $(testlib_crypto_blowfish_any)
 
+# gen_lib crypto::bigint (any)
+testlib_crypto_bigint_any = $(TESTCACHE)/crypto/bigint/crypto_bigint-any.o
+testlib_deps_any += $(testlib_crypto_bigint_any)
+testlib_crypto_bigint_linux = $(testlib_crypto_bigint_any)
+testlib_crypto_bigint_freebsd = $(testlib_crypto_bigint_any)
+
 # gen_lib crypto::chacha (any)
 testlib_crypto_chacha_any = $(TESTCACHE)/crypto/chacha/crypto_chacha-any.o
 testlib_deps_any += $(testlib_crypto_chacha_any)
@@ -3040,6 +3066,24 @@ $(TESTCACHE)/crypto/blowfish/crypto_blowfish-any.ssa: $(testlib_crypto_blowfish_
 	@mkdir -p $(TESTCACHE)/crypto/blowfish
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::blowfish \
 		-t$(TESTCACHE)/crypto/blowfish/crypto_blowfish.td $(testlib_crypto_blowfish_any_srcs)
+
+# crypto::bigint (+any)
+testlib_crypto_bigint_any_srcs = \
+	$(STDLIB)/crypto/bigint/arithm.ha \
+	$(STDLIB)/crypto/bigint/encoding.ha \
+	$(STDLIB)/crypto/bigint/monty.ha \
+	$(STDLIB)/crypto/bigint/types.ha \
+	$(STDLIB)/crypto/bigint/util.ha \
+	$(STDLIB)/crypto/bigint/+test/arithm.ha \
+	$(STDLIB)/crypto/bigint/+test/encoding.ha \
+	$(STDLIB)/crypto/bigint/+test/monty.ha \
+	$(STDLIB)/crypto/bigint/+test/utils.ha
+
+$(TESTCACHE)/crypto/bigint/crypto_bigint-any.ssa: $(testlib_crypto_bigint_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/bigint
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::bigint \
+		-t$(TESTCACHE)/crypto/bigint/crypto_bigint.td $(testlib_crypto_bigint_any_srcs)
 
 # crypto::chacha (+any)
 testlib_crypto_chacha_any_srcs = \

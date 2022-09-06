@@ -320,6 +320,23 @@ crypto_blowfish() {
 	gen_ssa crypto::blowfish bytes crypto::cipher endian
 }
 
+gensrcs_crypto_bigint() {
+		gen_srcs crypto::bigint arithm.ha encoding.ha monty.ha types.ha \
+            util.ha $*
+}
+
+crypto_bigint() {
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_crypto_bigint
+        gen_ssa crypto::bigint bytes crypto::math
+	else
+		gensrcs_crypto_bigint +test/arithm.ha +test/encoding.ha \
+            +test/monty.ha +test/utils.ha
+        gen_ssa crypto::bigint bytes crypto::math encoding::hex
+	fi
+}
+
 crypto_chacha() {
 	if [ $testing -eq 0 ]
 	then
@@ -1436,6 +1453,7 @@ crypto::argon2
 crypto::bcrypt
 crypto::blake2b
 crypto::blowfish
+crypto::bigint
 crypto::chacha
 crypto::cipher
 crypto::hkdf

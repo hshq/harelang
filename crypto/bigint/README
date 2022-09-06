@@ -1,0 +1,23 @@
+Bigint provides constant time operations on big integers. This module is limited
+in scope, therefore the user must exercise caution and read the documentation
+carefully to avoid misuse. Restrictions apply to the compatibility of
+differently-sized big integers, and some functions require an uneven modulo.
+
+A big integer is an array of [[word]] and must be encoded using [[encode]],
+[[encodemod]] or [[encodereduce]]. See [[wordsize]] on how to calculate the
+required size of the array. The big integer will also store its announced bit
+length, i.e. the number of bits that are actually used to store its value; and
+the effective word length, i.e. the number of words that are actually used to
+store the value. The value may be decoded back to its byte format by [[decode]].
+
+Repeated modular multiplication is supported via montgomery multiplication. See
+[[to_monty]] and [[from_monty]] on how to convert from and back to this format
+and [[montymul]] for the actual multiplication operation.
+
+This is a low-level module which implements cryptographic primitives. Direct
+use of cryptographic primitives is not recommended for non-experts, as
+incorrect use of these primitives can easily lead to the introduction of
+security vulnerabilities. Non-experts are advised to use the high-level
+operations available in the top-level [[crypto]] module.
+
+Be advised that Hare's cryptography implementations have not been audited.
