@@ -34,6 +34,7 @@ export type version = struct {
 	depends: []ast::ident,
 	inputs: []input,
 	subdirs: []str,
+	tags: []tag,
 };
 
 // The filetype of a file within a module.

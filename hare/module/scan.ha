@@ -25,15 +25,15 @@ def ABI_VERSION: u8 = 4;
 export fn scan(ctx: *context, path: str) (version | error) = {
 	// TODO: Incorporate defines into the hash
 	let sha = sha256::sha256();
-	let found = false;
 	for (let i = 0z; i < len(ctx.tags); i += 1) {
-		if (ctx.tags[i].mode == tag_mode::INCLUSIVE
-				&& ctx.tags[i].name == "test") {
-			found = true;
-			break;
-		};
+		const tag = &ctx.tags[i];
+		hash::write(&sha, if (tag.mode == tag_mode::INCLUSIVE) {
+			yield [1];
+		} else {
+			yield [0];
+		});
+		hash::write(&sha, strings::toutf8(tag.name));
 	};
-	hash::write(&sha, [if (found) 1 else 0]);
 	let iter = match (fs::iter(ctx.fs, path)) {
 	case fs::wrongtype =>
 		// Single file case
@@ -65,6 +65,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 			basedir = strings::dup(path::dirname(path)),
 			depends = deps,
 			inputs = inputs,
+			tags = tags_dup(ctx.tags),
 			...
 		};
 	case let err: fs::error =>
@@ -75,6 +76,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 	defer fs::finish(iter);
 	let ver = version {
 		basedir = strings::dup(path),
+		tags = tags_dup(ctx.tags),
 		...
 	};
 	scan_directory(ctx, &ver, &sha, path, iter)?;

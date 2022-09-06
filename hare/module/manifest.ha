@@ -24,13 +24,14 @@ use temp;
 // The manifest file format is a series of line-oriented records. Lines starting
 // with # are ignored.
 //
-// - "version" indicates the manifest format version, currently 1.
+// - "version" indicates the manifest format version, currently 2.
 // - "input" is an input file, and its fields are the file hash, path, inode,
 //   and mtime as a Unix timestamp.
 // - "module" is a version of a module, and includes the module hash and the set
 //   of input hashes which produce it.
+// - "tags" is a list of tags associated with a module version
 
-def VERSION: int = 1;
+def VERSION: int = 2;
 
 fn getinput(in: []input, hash: []u8) nullable *input = {
 	for (let i = 0z; i < len(in); i += 1) {
@@ -226,6 +227,33 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 				inputs = minputs,
 				...
 			});
+		case "tags" =>
+			let modhash = match (strings::next_token(&tok)) {
+			case void =>
+				return manifest;
+			case let s: str =>
+				yield s;
+			};
+			let modhash = match (hex::decodestr(modhash)) {
+			case let b: []u8 =>
+				yield b;
+			case =>
+				return manifest;
+			};
+
+			const tags = strings::remaining_tokens(&tok);
+			const tags = parsetags(tags) as []tag;
+			let found = false;
+			for (let i = 0z; i < len(versions); i += 1) {
+				if (bytes::equal(versions[i].hash, modhash)) {
+					versions[i].tags = tags;
+					found = true;
+					break;
+				};
+			};
+			// Implementation detail: tags always follows module
+			// directive for a given module version
+			assert(found);
 		case =>
 			return manifest;
 		};
@@ -331,6 +359,20 @@ export fn manifest_write(ctx: *context, man: *manifest) (void | error) = {
 		};
 
 		fmt::fprintln(file)?;
+
+		fmt::fprintf(file, "tags {} ", hash)?;
+		for (let i = 0z; i < len(ver.tags); i += 1) {
+			const tag = &ver.tags[i];
+			fmt::fprintf(file, "{}{}",
+				switch (tag.mode) {
+				case tag_mode::INCLUSIVE =>
+					yield "+";
+				case tag_mode::EXCLUSIVE =>
+					yield "-";
+				},
+				tag.name)?;
+		};
+		fmt::fprintln(file)!;
 	};
 
 	fs::move(ctx.fs, name, mpath)?;
@@ -351,5 +393,6 @@ export fn manifest_finish(m: *manifest) void = {
 
 	for (let i = 0z; i < len(m.versions); i += 1) {
 		free(m.versions[i].inputs);
+		tags_free(m.versions[i].tags);
 	};
 };
