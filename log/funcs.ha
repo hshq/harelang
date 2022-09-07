@@ -27,23 +27,25 @@ export @noreturn fn lfatal(log: *logger, fields: fmt::formattable...) void = {
 	os::exit(1);
 };
 
-// Formats and prints data to the log, then terminates the process.
+// Formats and prints data to the log with new line, then terminates the
+// process.
 export @noreturn fn lfatalf(
 	log: *logger,
 	fmt: str,
 	fields: fmt::field...
 ) void = {
-	lprintfln(global, fmt, fields...);
+	lprintfln(log, fmt, fields...);
 	os::exit(1);
 };
 
-// Prints data to the global log, then terminates the process.
+// Prints data to the global log with new line, then terminates the process.
 export @noreturn fn fatal(fields: fmt::formattable...) void = {
 	lprintln(global, fields...);
 	os::exit(1);
 };
 
-// Formats and prints data to the global log, then terminates the process.
+// Formats and prints data to the global log with new line, then terminates the
+// process.
 export @noreturn fn fatalf(fmt: str, fields: fmt::field...) void = {
 	lprintfln(global, fmt, fields...);
 	os::exit(1);
