@@ -1,7 +1,7 @@
 use fmt;
 
 // A logger that does not print any messages.
-export let silent: *logger = &_silent;
+export const silent: *logger = &_silent;
 
 let _silent: logger = logger {
 	println = &silent_println,

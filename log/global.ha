@@ -5,7 +5,7 @@ use os;
 let global: *logger = &_default;
 
 // Default logger that writes to [[os::stderr]].
-export let default: *logger = &_default;
+export const default: *logger = &_default;
 
 let _default: stdlogger = stdlogger {
 	println = &log_println,
