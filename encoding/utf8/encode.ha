@@ -6,6 +6,9 @@
 // encoderune.
 export fn encoderune(r: rune) []u8 = {
 	let ch = r: u32, n = 0z, first = 0u8;
+	assert((ch < 0xD800 || ch > 0xDFFF) && ch <= 0x10FFFF,
+		"the rune is not a valid Unicode codepoint");
+
 	if (ch < 0x80) {
 		first = 0;
 		n = 1;
