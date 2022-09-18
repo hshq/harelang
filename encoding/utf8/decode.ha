@@ -2,7 +2,6 @@
 // (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
-use types;
 
 fn toutf8(in: str) []u8 = *(&in: *[]u8);
 
@@ -26,6 +25,18 @@ export type more = void;
 // Returned when an invalid UTF-8 sequence was found.
 export type invalid = !void;
 
+const leader_masks: [_]u8 = [0x7F, 0x3F, 0x1F, 0x0F];
+
+fn decode_leader(c: u8) ((size, u8) | invalid) = {
+	for (let i = 0z; i < len(sizes); i += 1) {
+		if (c & sizes[i].mask == sizes[i].result) {
+			return (sizes[i].octets, c & leader_masks[i]);
+		};
+	};
+	// Bad leading byte
+	return invalid;
+};
+
 // Returns the next rune from a decoder. void is returned when there are no
 // remaining codepoints.
 export fn next(d: *decoder) (rune | void | more | invalid) = {
@@ -34,31 +45,32 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 		return;
 	};
 
-	// XXX: It would be faster if we decoded and measured at the same time.
-	const n = match (utf8sz(d.src[d.offs])) {
-	case let z: size =>
-		yield z;
-	case void =>
-		return invalid;
-	};
+	const (n, leader) = decode_leader(d.src[d.offs])?;
 	if (d.offs + n > len(d.src)) {
 		return more;
 	};
-	let bytes = d.src[d.offs..d.offs+n];
+
+	let r = leader: u32;
+	if (n > 1) {
+		for (let i = 1z; i < n; i += 1) {
+			let byte = d.src[d.offs + i];
+			if ((byte & 0xC0) != 0x80) {
+				// Bad continuation byte
+				return invalid;
+			};
+			r <<= 6;
+			r |= byte & 0x3F;
+		};
+		if (r >= 0xD800 && r <= 0xDFFF) {
+			// UTF-16 surrogates
+			return invalid;
+		};
+		if (runesz(r: rune) != n) {
+			// Overlong encoding
+			return invalid;
+		};
+	};
 	d.offs += n;
-
-	let r = 0u32;
-	if (bytes[0] < 128) {
-		// ASCII
-		return bytes[0]: u32: rune;
-	};
-
-	const mask = masks[n - 1];
-	r = bytes[0] & mask;
-	for (let i = 1z; i < len(bytes); i += 1) {
-		r <<= 6;
-		r |= bytes[i] & 0x3F;
-	};
 	return r: rune;
 };
 
@@ -69,30 +81,44 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 		return;
 	};
 
-	let n = 0z;
 	let r = 0u32;
-
+	let n = 0z;
 	for (let i = 0z; i < d.offs; i += 1) {
-		if ((d.src[d.offs - i - 1] & 0xC0) == 0x80) {
-			let tmp: u32 = d.src[d.offs - i - 1] & 0x3F;
-			r |= tmp << (i * 6): u32;
+		let byte = d.src[d.offs - i - 1];
+		if ((byte & 0xC0) == 0x80) {
+			if (i == 3) {
+				// Too many continuation bytes in a row
+				return invalid;
+			};
+			byte &= 0x3F;
+			r |= byte << (i * 6): u32;
 		} else {
-			n = i + 1;
-			let tmp: u32 = d.src[d.offs - i - 1] & masks[i];
-			r |=  tmp << (i * 6): u32;
+			const nl = decode_leader(byte)?;
+			n = nl.0;
+			if (i + 1 != n) {
+				// Trailing continuation bytes
+				return invalid;
+			};
+			r |= nl.1 << (i * 6): u32;
 			break;
 		};
 	};
+
 	if (n == 0) {
 		return more;
+	} else if (n > 1) {
+		if (r >= 0xD800 && r <= 0xDFFF) {
+			// UTF-16 surrogates
+			return invalid;
+		};
+		if (runesz(r: rune) != n) {
+			// Overlong encoding
+			return invalid;
+		};
 	};
+
 	d.offs -= n;
-	match (utf8sz(d.src[d.offs])) {
-	case let z: size =>
-		return if (n == z) r: rune else invalid;
-	case void =>
-		return invalid;
-	};
+	return r: rune;
 };
 
 @test fn decode() void = {
@@ -122,7 +148,6 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	};
 	assert(prev(&decoder) is void);
 
-	// TODO: Test more invalid sequences
 	const inv: [_]u8 = [0xA0, 0xA1];
 	decoder = decode(inv);
 	assert(next(&decoder) is invalid);
@@ -133,6 +158,27 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	decoder = decode(incomplete);
 	assert(next(&decoder) is more);
 	decoder.offs = 2;
+	assert(prev(&decoder) is invalid);
+
+	const surrogate: [_]u8 = [0xED, 0xA0, 0x80];
+	decoder = decode(surrogate);
+	assert(next(&decoder) is invalid);
+	decoder.offs = 3;
+	assert(prev(&decoder) is invalid);
+
+	const overlong: [_]u8 = [0xF0, 0x82, 0x82, 0xAC];
+	decoder = decode(overlong);
+	assert(next(&decoder) is invalid);
+	decoder.offs = 4;
+	assert(prev(&decoder) is invalid);
+
+	const badcont: [_]u8 = [0xC2, 0xFF];
+	decoder = decode(badcont);
+	assert(next(&decoder) is invalid);
+
+	const extracont: [_]u8 = [0xC2, 0xA3, 0x95];
+	decoder = decode(extracont);
+	decoder.offs = 3;
 	assert(prev(&decoder) is invalid);
 };
 
