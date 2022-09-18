@@ -88,6 +88,7 @@ export fn issocket(mode: mode) bool = mode & IFMT == mode::SOCK;
 // with [[dirents_free]].
 export fn readdir(fs: *fs, path: str) ([]dirent | error) = {
 	let i = iter(fs, path)?;
+	defer finish(i);
 	let ents: []dirent = [];
 	for (true) {
 		match (next(i)) {
