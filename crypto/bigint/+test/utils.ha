@@ -5,7 +5,7 @@ export fn fromhex(h: str) []word = {
 	let n: []u8 = hex::decodestr(h)!;
 	defer free(n);
 
-	let i: []word = alloc([0...], wordsize(n));
+	let i: []word = alloc([0...], encodelen(n));
 	encode(i, n);
 	return i;
 };

@@ -8,8 +8,8 @@
 
 	const m0i = ninv31(m[1]);
 
-	to_monty(x, m);
-	from_monty(x, m, m0i);
+	tomonty(x, m);
+	frommonty(x, m, m0i);
 
 	assert(equalshex(x, "010064"));
 };
@@ -22,10 +22,10 @@
 
 	const m0i = ninv31(m[1]);
 
-	to_monty(x, m);
-	to_monty(y, m);
+	tomonty(x, m);
+	tomonty(y, m);
 	montymul(d, x, y, m, m0i);
-	from_monty(d, m, m0i);
+	frommonty(d, m, m0i);
 
 	assert(equalshex(d, "04544d"));
 
@@ -37,10 +37,10 @@
 	x = fromhexmod("0f98b7cf", m);
 	y = fromhexmod("04216b9c", m);
 
-	to_monty(x, m);
-	to_monty(y, m);
+	tomonty(x, m);
+	tomonty(y, m);
 	montymul(d, x, y, m, m0i);
-	from_monty(d, m, m0i);
+	frommonty(d, m, m0i);
 
 	assert(equalshex(d, "0d031f49"));
 

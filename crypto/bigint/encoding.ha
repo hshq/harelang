@@ -21,17 +21,17 @@
 // SOFTWARE.
 use crypto::math::*;
 
-// Minimal required words to store x into an []word. To statically allocate
+// Minimal required words to encode 'x' into an []word. To statically allocate
 // resources, following expression may be used:
 //
 //     ((number_of_bits + WORD_BITSIZE - 1) / WORD_BITSIZE) + 1
-export fn wordsize(x: []u8) size = {
+export fn encodelen(x: []u8) size = {
 	return (((len(x) * 8) + WORD_BITSIZE - 1) / WORD_BITSIZE) + 1;
 };
 
 // Encode 'src' from its big-endian unsigned encoding into the internal
 // representation. The caller must make sure that 'dest' has enough space to
-// store 'src'. See [[wordsize]] for how to calculate the required size.
+// store 'src'. See [[encodelen]] for how to calculate the required size.
 //
 // This function runs in constant time for given 'src' length.
 export fn encode(dest: []word, src: const []u8) void = {

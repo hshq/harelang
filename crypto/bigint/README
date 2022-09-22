@@ -4,7 +4,7 @@ carefully to avoid misuse. Restrictions apply to the compatibility of
 differently-sized big integers, and some functions require an uneven modulo.
 
 A big integer is an array of [[word]] and must be encoded using [[encode]],
-[[encodemod]] or [[encodereduce]]. See [[wordsize]] on how to calculate the
+[[encodemod]] or [[encodereduce]]. See [[encodelen]] on how to calculate the
 required size of the array. The big integer will also store its announced bit
 length, i.e. the number of bits that are actually used to store its value; and
 the effective word length, i.e. the number of words that are actually used to

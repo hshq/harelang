@@ -361,7 +361,7 @@ export fn modpow(
 	};
 
 	// Everything is done in Montgomery representation.
-	to_monty(x, m);
+	tomonty(x, m);
 
 	// Compute window contents. If the window has size one bit only,
 	// then t2 is set to x; otherwise, t2[0] is left untouched, and
@@ -441,6 +441,6 @@ export fn modpow(
 	};
 
 	// Convert back from Montgomery representation, and exit.
-	from_monty(x, m, m0i);
+	frommonty(x, m, m0i);
 	return 1;
 };

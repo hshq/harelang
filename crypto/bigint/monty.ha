@@ -23,7 +23,7 @@ use crypto::math::*;
 
 // Convert a modular integer to Montgomery representation. The integer 'x' must
 // be lower than 'm', but with the same announced bit length.
-export fn to_monty(x: []word, m: const []word) void = {
+export fn tomonty(x: []word, m: const []word) void = {
 	assert(equ32(x[0], m[0]) == 1);
 	for (let k: u32 = ewordlen(m); k > 0; k -= 1) {
 		muladd_small(x, 0, m);
@@ -35,7 +35,7 @@ export fn to_monty(x: []word, m: const []word) void = {
 // parameter is equal to -(1/m0) mod 2^32, where m0 is the least significant
 // value word of 'm' (this works only if 'm' is an odd integer). See [[ninv]]
 // for how to get this value.
-export fn from_monty(x: []word, m: const []word, m0i: word) void = {
+export fn frommonty(x: []word, m: const []word, m0i: word) void = {
 	assert(equ32(x[0], m[0]) == 1);
 	const mlen = ewordlen(m);
 	for (let u = 0z; u < mlen; u += 1) {
