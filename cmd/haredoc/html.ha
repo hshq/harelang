@@ -52,20 +52,20 @@ fn html_escape(out: io::handle, in: str) (size | io::error) = {
 };
 
 @test fn html_escape() void = {
-       let sink = strio::dynamic();
-       defer io::close(&sink)!;
-       html_escape(&sink, "hello world!")!;
-       assert(strio::string(&sink) == "hello world!");
+	let sink = strio::dynamic();
+	defer io::close(&sink)!;
+	html_escape(&sink, "hello world!")!;
+	assert(strio::string(&sink) == "hello world!");
 
-       let sink = strio::dynamic();
-       defer io::close(&sink)!;
-       html_escape(&sink, "\"hello world!\"")!;
-       assert(strio::string(&sink) == "&quot;hello world!&quot;");
+	let sink = strio::dynamic();
+	defer io::close(&sink)!;
+	html_escape(&sink, "\"hello world!\"")!;
+	assert(strio::string(&sink) == "&quot;hello world!&quot;");
 
-       let sink = strio::dynamic();
-       defer io::close(&sink)!;
-       html_escape(&sink, "<hello & 'world'!>")!;
-       assert(strio::string(&sink) == "&lt;hello &amp; &apos;world&apos;!&gt;");
+	let sink = strio::dynamic();
+	defer io::close(&sink)!;
+	html_escape(&sink, "<hello & 'world'!>")!;
+	assert(strio::string(&sink) == "&lt;hello &amp; &apos;world&apos;!&gt;");
 };
 
 // Formats output as HTML
