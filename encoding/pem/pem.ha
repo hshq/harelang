@@ -10,6 +10,7 @@ use os;
 use strings;
 use strio;
 
+
 const begin: str = "-----BEGIN ";
 const end: str = "-----END ";
 const suffix: str = "-----";
@@ -96,6 +97,7 @@ export fn next(dec: *decoder) ((str, pemdecoder) | io::EOF | io::error) = {
 			};
 		};
 		defer free(line);
+		const line = strings::rtrim(line, '\r');
 
 		if (!strings::hasprefix(line, begin)
 				|| !strings::hassuffix(line, suffix)) {
@@ -153,6 +155,7 @@ fn pem_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 		};
 	};
 	defer free(line);
+	const line = strings::rtrim(line, '\r');
 
 	if (!strings::hasprefix(line, end)
 			|| !strings::hassuffix(line, suffix)) {

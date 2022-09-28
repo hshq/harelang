@@ -7,6 +7,7 @@ use fmt;
 use strings;
 use strio;
 
+
 @test fn read() void = {
 	const testcert_str = fmt::asprintf(
 		"garbage\ngarbage\ngarbage\n{}garbage\n", cert_str);
@@ -162,3 +163,25 @@ const testprivkey_bin: [_]u8 = [
 	0xb4, 0xf8, 0xa5, 0x0a, 0x48, 0x85, 0x20, 0x25, 0xf2, 0x68, 0x0f, 0x33,
 	0xf4, 0xb9, 0x09,
 ];
+
+@test fn readcrlf() void = {
+	const test_str = fmt::asprintf(
+		"garbage\r\ngarbage\r\ngarbage\r\n{}garbage\r\n", testcrlf_str);
+	defer free(test_str);
+	const in = bufio::fixed(strings::toutf8(test_str), io::mode::READ);
+	const dec = newdecoder(&in);
+	defer finish(&dec);
+
+	const stream = next(&dec)! as (str, pemdecoder);
+	assert(stream.0 == "TEST");
+	static let buf: [1024]u8 = [0...];
+	assert(len(buf) >= len(testcert_bin));
+
+	const data = io::drain(&stream.1)!;
+	assert(bytes::equal(data, testcrlf_bin));
+
+	assert(next(&dec) is io::EOF);
+};
+
+const testcrlf_str: str = "-----BEGIN TEST-----\r\ndGVzdA==\r\n-----END TEST-----\r\n";
+const testcrlf_bin: [_]u8 = [0x74, 0x65, 0x73, 0x74];
