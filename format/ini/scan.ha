@@ -54,7 +54,7 @@ export fn next(sc: *scanner) (entry | io::EOF | error) = {
 	for (true) {
 		const line = match (bufio::scanline(sc.in)?) {
 		case let b: []u8 =>
-			yield strings::try_fromutf8(b)?;
+			yield strings::fromutf8(b)?;
 		case io::EOF =>
 			return io::EOF;
 		};

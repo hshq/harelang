@@ -26,7 +26,7 @@ fn load_systemdb() (void | fs::error | io::error) = {
 	for (true) {
 		const line = match (bufio::scanline(&strm)) {
 		case let bytes: []u8 =>
-			yield match (strings::try_fromutf8(bytes)) {
+			yield match (strings::fromutf8(bytes)) {
 			case utf8::invalid =>
 				fmt::errorln("Warning: /etc/mime.types contains invalid UTF-8")!;
 				io::close(&strm)?;

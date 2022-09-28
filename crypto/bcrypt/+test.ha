@@ -14,6 +14,6 @@ use fmt;
 	const salt = strings::toutf8("XajjQvNhvvRt5GSeFk1xFe");
 	const expect = "$2a$10$XajjQvNhvvRt5GSeFk1xFeyqRrsxkhBkUiQeg0dt.wU1qD4aFDcga";
 
-	const hash = strings::fromutf8(bcrypt(pass, salt, 10)!);
+	const hash = strings::fromutf8(bcrypt(pass, salt, 10)!)!;
 	assert(strings::hassuffix(expect, hash));
 };

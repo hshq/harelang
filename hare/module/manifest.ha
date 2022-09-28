@@ -84,7 +84,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 		};
 		defer free(line);
 
-		let line = match (strings::try_fromutf8(line)) {
+		let line = match (strings::fromutf8(line)) {
 		case utf8::invalid =>
 			// Treat an invalid manifest as empty
 			return manifest;

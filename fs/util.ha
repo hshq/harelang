@@ -37,7 +37,7 @@ export fn mode_str(m: mode) const str = {
 			else if (m & mode::OTHER_X == mode::OTHER_X) 'x'
 			else '-'): u32: u8,
 	];
-	return strings::fromutf8(buf);
+	return strings::fromutf8(buf)!;
 };
 
 @test fn mode_str() void = {

@@ -89,7 +89,7 @@ export fn next(dec: *decoder) ((str, pemdecoder) | io::EOF | io::error) = {
 		case io::EOF =>
 			return io::EOF;
 		case let line: []u8 =>
-			yield match (strings::try_fromutf8(line)) {
+			yield match (strings::fromutf8(line)) {
 			case let s: str =>
 				yield s;
 			case =>
@@ -147,7 +147,7 @@ fn pem_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	case io::EOF =>
 		return io::EOF;
 	case let line: []u8 =>
-		yield match (strings::try_fromutf8(line)) {
+		yield match (strings::fromutf8(line)) {
 		case let s: str =>
 			yield s;
 		case =>

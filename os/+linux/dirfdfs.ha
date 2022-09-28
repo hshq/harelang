@@ -304,7 +304,7 @@ fn fs_readlink(fs: *fs::fs, path: str) (str | fs::error) = {
 	case let z: size =>
 		yield z;
 	};
-	return strings::fromutf8(buf[..z]);
+	return strings::fromutf8(buf[..z])!;
 };
 
 fn fs_rmdir(fs: *fs::fs, path: str) (void | fs::error) = {

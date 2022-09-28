@@ -35,7 +35,7 @@ export fn nextpw(file: io::handle) (pwent | io::EOF | io::error | invalid) = {
 	case let ln: []u8 =>
 		yield ln;
 	};
-	let line = match (strings::try_fromutf8(line)) {
+	let line = match (strings::fromutf8(line)) {
 	case let s: str =>
 		yield s;
 	case =>

@@ -307,7 +307,7 @@ fn scan_escape(lex: *lexer) (rune | error) = {
 		case size =>
 			yield;
 		};
-		const s = match (strings::try_fromutf8(buf)) {
+		const s = match (strings::fromutf8(buf)) {
 		case let s: str =>
 			yield s;
 		case =>

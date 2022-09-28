@@ -386,7 +386,7 @@ fn lex_comment(lexr: *lexer) (void | error) = {
 	};
 	let bytes = strings::toutf8(lexr.comment);
 	append(bytes, strings::toutf8(strio::string(&buf))...);
-	lexr.comment = strings::fromutf8(bytes);
+	lexr.comment = strings::fromutf8(bytes)!;
 };
 
 fn lex_literal(lex: *lexer) (token | error) = {
@@ -536,7 +536,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		case let suff: size =>
 			yield suff;
 		};
-		yield strings::fromutf8(chars[exp..end]);
+		yield strings::fromutf8(chars[exp..end])!;
 	};
 	let exp = match (strconv::stoi(exp)) {
 	case let exp: int =>
@@ -555,7 +555,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 	};
 	let suff = match (suff) {
 	case let suff: size =>
-		yield strings::fromutf8(chars[suff..]);
+		yield strings::fromutf8(chars[suff..])!;
 	case void =>
 		yield "";
 	};
@@ -583,10 +583,10 @@ fn lex_literal(lex: *lexer) (token | error) = {
 				"invalid negative exponent of integer");
 	} else exp: size;
 
-	let val = strings::fromutf8(chars[..end]);
+	let val = strings::fromutf8(chars[..end])!;
 	let val = switch (suff) {
 	case ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST =>
-		val = strings::fromutf8(chars[..floatend]);
+		val = strings::fromutf8(chars[..floatend])!;
 		yield strconv::stof64(val);
 	case =>
 		yield strconv::stou64b(val, base);

@@ -29,7 +29,7 @@ export fn nextgr(in: io::handle) (grent | io::EOF | io::error | invalid) = {
 	case io::EOF =>
 		return io::EOF;
 	};
-	let line = match (strings::try_fromutf8(line)) {
+	let line = match (strings::fromutf8(line)) {
 	case let s: str =>
 		yield s;
 	case =>

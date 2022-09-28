@@ -24,7 +24,7 @@ export fn fromrunes(rs: []rune) str = {
 		const bs = encoding::utf8::encoderune(rs[i]);
 		append(bytes, bs...);
 	};
-	return fromutf8(bytes);
+	return fromutf8(bytes)!;
 };
 
 @test fn fromrunes() void = {

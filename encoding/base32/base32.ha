@@ -176,7 +176,7 @@ export fn encodeslice(enc: *encoding, in: []u8) []u8 = {
 // Encodes a byte slice in base-32, using the given encoding, returning a
 // string. The caller must free the return value.
 export fn encodestr(enc: *encoding, in: []u8) str = {
-	return strings::fromutf8(encodeslice(enc, in));
+	return strings::fromutf8(encodeslice(enc, in))!;
 };
 
 @test fn encode() void = {

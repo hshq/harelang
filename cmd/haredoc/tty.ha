@@ -29,7 +29,7 @@ fn emit_tty(ctx: *context) (void | error) = {
 			defer free(b);
 			firstline = false;
 			insert(b[0], ' ');
-			comment_tty(ctx.out, strings::fromutf8(b))?;
+			comment_tty(ctx.out, strings::fromutf8(b)!)?;
 		};
 	case void => void;
 	};

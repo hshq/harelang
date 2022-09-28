@@ -32,7 +32,7 @@ export fn multireplace(s: str, repls: (str, str)...) str = {
 			idx += len(target);
 		};
 	};
-	return fromutf8(res);
+	return fromutf8(res)!;
 };
 
 @test fn replace() void = {

@@ -75,7 +75,7 @@ fn parse_utc_leapsecs(
 		case io::EOF =>
 			return;
 		case let line: []u8 =>
-			yield strings::try_fromutf8(line)?;
+			yield strings::fromutf8(line)?;
 		};
 		defer free(line);
 		if (strings::hasprefix(line, '#')) {

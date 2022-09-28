@@ -26,7 +26,7 @@ fn emit_hare(ctx: *context) (void | error) = {
 			case io::EOF => break;
 			case let b: []u8 =>
 				fmt::fprintfln(ctx.out,
-					"// {}", strings::fromutf8(b))?;
+					"// {}", strings::fromutf8(b)!)?;
 				free(b);
 			};
 		};

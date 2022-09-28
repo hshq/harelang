@@ -15,18 +15,10 @@ export fn fromutf8_unsafe(in: []u8) str = {
 	return *(&s: *const str);
 };
 
-// Converts a byte slice into a string, aborting the program if the bytes
-// contain invalid UTF-8. The return value is borrowed from the input. To handle
-// errors without aborting, see [[try_fromutf8]] or [[encoding::utf8]].
-export fn fromutf8(in: []u8) str = {
-	let s = fromutf8_unsafe(in);
-	assert(utf8::valid(s), "attempted to load invalid UTF-8 string");
-	return s;
-};
-
-// Converts a byte slice into a string. If the slice contains invalid UTF-8
-// sequences, [[encoding::utf8::invalid]] is returned instead.
-export fn try_fromutf8(in: []u8) (str | utf8::invalid) = {
+// Converts a byte slice into a string. The return value is borrowed from the
+// input. If the slice contains invalid UTF-8 sequences,
+// [[encoding::utf8::invalid]] is returned instead.
+export fn fromutf8(in: []u8) (str | utf8::invalid) = {
 	let s = fromutf8_unsafe(in);
 	if (!utf8::valid(s)) {
 		return utf8::invalid;
@@ -41,6 +33,6 @@ export fn toutf8(in: str) []u8 = *(&in: *[]u8);
 @test fn utf8() void = {
 	assert(fromutf8([
 		0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64,
-	]) == "hello world");
-	assert(fromutf8([]) == "");
+	])! == "hello world");
+	assert(fromutf8([])! == "");
 };

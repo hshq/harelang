@@ -420,7 +420,7 @@ fn scan_uint(iter: *strings::iterator) uint = {
 			append(num, r: u32: u8);
 		} else {
 			strings::prev(iter);
-			match (strconv::stou(strings::fromutf8(num))) {
+			match (strconv::stou(strings::fromutf8(num)!)) {
 			case (strconv::invalid | strconv::overflow) =>
 				abort("Invalid format string (invalid index)");
 			case let u: uint =>

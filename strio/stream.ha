@@ -20,7 +20,7 @@ export type stream = struct {
 // from the stream, and will be freed when the stream is closed. Use
 // [[strings::dup]] to extend its lifetime.
 export fn string(in: *stream) str = {
-	return strings::fromutf8(in.buf);
+	return strings::fromutf8(in.buf)!;
 };
 
 // Resets the buffer's length to zero, but does not attempt to deallocate its

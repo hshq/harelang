@@ -177,7 +177,7 @@ fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 		};
 		append(footerdata, buf1...);
 	};
-	const posix_extend = match (strings::try_fromutf8(footerdata)) {
+	const posix_extend = match (strings::fromutf8(footerdata)) {
 	case let s: str =>
 		yield s;
 	case encoding::utf8::invalid =>
@@ -224,7 +224,7 @@ fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 		if (len(bytes) == 0) { // no NUL encountered
 			return invalidtzif;
 		};
-		const abbr = match (strings::try_fromutf8(bytes)) {
+		const abbr = match (strings::fromutf8(bytes)) {
 		case let s: str =>
 			yield s;
 		case encoding::utf8::invalid =>

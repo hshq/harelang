@@ -49,7 +49,7 @@ export fn getenv(name: const str) (str | void) = {
 		};
 		if (bytes::equal(name_b, item[..eq])) {
 			const ln = strings::cstrlen(item: *const char);
-			return strings::fromutf8(item[eq+1..ln]);
+			return strings::fromutf8(item[eq+1..ln])!;
 		};
 	};
 };
@@ -81,7 +81,7 @@ export fn sysname() const str = {
 	static let buf: [512]u8 = [0...];
 	let sz: size = len(buf);
 	rt::sysctlbyname("kern.ostype", &buf, &sz, null, 0)!;
-	return strings::fromutf8(buf[..(sz - 1)]);
+	return strings::fromutf8(buf[..(sz - 1)])!;
 };
 
 // Returns the host system hostname
@@ -89,7 +89,7 @@ export fn hostname() const str = {
 	static let buf: [512]u8 = [0...];
 	let sz: size = len(buf);
 	rt::sysctlbyname("kern.hostname", &buf, &sz, null, 0)!;
-	return strings::fromutf8(buf[..(sz - 1)]);
+	return strings::fromutf8(buf[..(sz - 1)])!;
 };
 
 // Returns the host kernel version
@@ -97,7 +97,7 @@ export fn release() const str = {
 	static let buf: [512]u8 = [0...];
 	let sz: size = len(buf);
 	rt::sysctlbyname("kern.osrelease", &buf, &sz, null, 0)!;
-	return strings::fromutf8(buf[..(sz - 1)]);
+	return strings::fromutf8(buf[..(sz - 1)])!;
 };
 
 // Returns the host operating system version
@@ -105,7 +105,7 @@ export fn version() const str = {
 	static let buf: [512]u8 = [0...];
 	let sz: size = len(buf);
 	rt::sysctlbyname("kern.version", &buf, &sz, null, 0)!;
-	return strings::fromutf8(buf[..(sz - 1)]);
+	return strings::fromutf8(buf[..(sz - 1)])!;
 };
 
 // Returns the host CPU architecture
@@ -113,7 +113,7 @@ export fn machine() const str = {
 	static let buf: [512]u8 = [0...];
 	let sz: size = len(buf);
 	rt::sysctlbyname("hw.machine", &buf, &sz, null, 0)!;
-	const mach = strings::fromutf8(buf[..(sz - 1)]);
+	const mach = strings::fromutf8(buf[..(sz - 1)])!;
 	// Translate to Hare names
 	switch (mach) {
 	case "amd64" =>

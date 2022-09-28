@@ -43,7 +43,7 @@ fn lookupio(name: str, src: io::handle) []ip::addr = {
 			yield tok;
 		};
 		defer free(tok);
-		const addr = ip::parse(strings::fromutf8(tok))!;
+		const addr = ip::parse(strings::fromutf8(tok)!)!;
 
 		for (true) {
 			const tok = match (bufio::scantok(&scanner, ' ', '\t')!) {
@@ -54,7 +54,7 @@ fn lookupio(name: str, src: io::handle) []ip::addr = {
 			};
 			defer free(tok);
 
-			if (strings::fromutf8(tok) == name) {
+			if (strings::fromutf8(tok)! == name) {
 				append(addrs, addr);
 			};
 		};

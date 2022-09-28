@@ -52,7 +52,7 @@ fn loadio(src: io::handle) []ip::addr = {
 			yield tok;
 		};
 		defer free(tok);
-		if (strings::fromutf8(tok) != "nameserver") {
+		if (strings::fromutf8(tok)! != "nameserver") {
 			continue;
 		};
 
@@ -63,7 +63,7 @@ fn loadio(src: io::handle) []ip::addr = {
 			yield tok;
 		};
 		defer free(tok);
-		append(cache, ip::parse(strings::fromutf8(tok))!);
+		append(cache, ip::parse(strings::fromutf8(tok)!)!);
 	};
 
 	return cache;

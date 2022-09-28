@@ -36,7 +36,7 @@ export fn ltrim(input: str, trim: rune...) str = {
 			break;
 		};
 	};
-	return fromutf8(it.dec.src[it.dec.offs..]);
+	return fromutf8(it.dec.src[it.dec.offs..])!;
 };
 
 // Returns a string (borrowed from given input string) after trimming off of

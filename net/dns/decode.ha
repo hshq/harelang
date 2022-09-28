@@ -109,7 +109,7 @@ fn decode_name(dec: *decoder) ([]str | format) = {
 			break;
 		};
 
-		const name = strings::fromutf8(dec.cur[..z]);
+		const name = strings::fromutf8(dec.cur[..z])!;
 		dec.cur = dec.cur[z..];
 		if (!ascii::validstr(name)) {
 			return format;

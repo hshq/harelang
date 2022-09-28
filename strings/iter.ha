@@ -88,7 +88,7 @@ fn next_backward(iter: *iterator) (rune | void) = {
 
 // Return a substring from the next rune to the end of the string.
 export fn iterstr(iter: *iterator) str = {
-	return fromutf8(iter.dec.src[iter.dec.offs..]);
+	return fromutf8(iter.dec.src[iter.dec.offs..])!;
 };
 
 @test fn iter() void = {

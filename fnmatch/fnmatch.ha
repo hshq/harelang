@@ -389,6 +389,6 @@ fn advance_or_err(it: *strings::iterator) (rune | errors::invalid) = {
 fn cut_tail(s: str, it: *strings::iterator) str = {
 	let s_len = len(s), t_len = len(strings::iterstr(it));
 	let b = strings::toutf8(s);
-	return strings::fromutf8(b[..s_len - t_len]);
+	return strings::fromutf8(b[..s_len - t_len])!;
 };
 

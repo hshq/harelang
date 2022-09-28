@@ -44,7 +44,7 @@ fn html_escape(out: io::handle, in: str) (size | io::error) = {
 			case '\'' =>
 				yield "&apos;";
 			case =>
-				yield strings::fromutf8(utf8::encoderune(rn));
+				yield strings::fromutf8(utf8::encoderune(rn))!;
 			})?;
 		};
 	};

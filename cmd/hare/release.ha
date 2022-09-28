@@ -251,7 +251,7 @@ fn choosekey() (str | release_error) = {
 	case io::EOF =>
 		fmt::fatal("No suitable key available. Terminating.");
 	case let line: []u8 =>
-		yield strings::fromutf8(line);
+		yield strings::fromutf8(line)!;
 	};
 	defer free(line);
 	if (line != "" && line != "y" && line != "Y") {
@@ -345,7 +345,7 @@ fn git_readcmd(args: str...) (str | release_error) = {
 	const result = io::drain(pipe.0)?;
 	const status = exec::wait(&proc)?;
 	exec::check(&status)?;
-	return strings::fromutf8(result);
+	return strings::fromutf8(result)!;
 };
 
 fn get_defaultbranch() (str | release_error) = {

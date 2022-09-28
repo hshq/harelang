@@ -146,7 +146,7 @@ fn load(input: []u8) (hash | errors::invalid) = {
 fn loadtok(tok: *bytes::tokenizer) (str | errors::invalid) = {
 	match (bytes::next_token(tok)) {
 	case let b: []u8 =>
-		match (strings::try_fromutf8(b)) {
+		match (strings::fromutf8(b)) {
 		case let s: str =>
 			return s;
 		case =>

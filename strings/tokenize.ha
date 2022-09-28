@@ -26,7 +26,7 @@ export fn tokenize(s: str, delim: str) tokenizer =
 export fn next_token(s: *tokenizer) (str | void) = {
 	return match (bytes::next_token(s)) {
 	case let b: []u8 =>
-		yield fromutf8(b);
+		yield fromutf8(b)!;
 	case void => void;
 	};
 };
@@ -35,7 +35,7 @@ export fn next_token(s: *tokenizer) (str | void) = {
 export fn peek_token(s: *tokenizer) (str | void) = {
 	return match (bytes::peek_token(s)) {
 	case let b: []u8 =>
-		yield fromutf8(b);
+		yield fromutf8(b)!;
 	case void => void;
 	};
 };
@@ -43,7 +43,7 @@ export fn peek_token(s: *tokenizer) (str | void) = {
 // Returns the remainder of the string associated with a tokenizer, without doing
 // any further tokenization.
 export fn remaining_tokens(s: *tokenizer) str = {
-	return fromutf8(bytes::remaining_tokens(s));
+	return fromutf8(bytes::remaining_tokens(s))!;
 };
 
 @test fn tokenize() void = {
