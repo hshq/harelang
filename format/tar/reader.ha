@@ -113,6 +113,7 @@ export fn skip(ent: *entry) (void | io::error) = {
 
 const file_vtable: io::vtable = io::vtable {
 	reader = &file_read,
+	seeker = &file_seek,
 	...
 };
 
@@ -152,6 +153,38 @@ fn file_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	};
 
 	return z;
+};
+
+fn file_seek(
+	s: *io::stream,
+	off: io::off,
+	w: io::whence,
+) (io::off | io::error) = {
+	let ent = s: *ent_reader;
+	assert(ent.vtable == &file_vtable);
+
+	const orig = ent.orig: io::off;
+	const cur = (ent.orig - ent.remain): io::off;
+	let new = switch (w) {
+	case io::whence::SET =>
+		yield off;
+	case io::whence::CUR =>
+		yield cur + off;
+	case io::whence::END =>
+		yield orig + off;
+	};
+
+	if (new < 0) {
+		new = 0;
+	} else if (new > orig) {
+		new = orig;
+	};
+
+	const rel = new - cur;
+	io::seek(ent.src, rel, io::whence::CUR)?;
+
+	ent.remain = (orig - new): size;
+	return new;
 };
 
 fn readstr(rd: *bufio::memstream, ln: size) str = {
