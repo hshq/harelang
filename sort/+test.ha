@@ -59,4 +59,15 @@
 	for (let i = 1z; i < len(nums); i += 1) {
 		assert(nums[i] >= nums[i - 1]);
 	};
+
+};
+
+@test fn sorted() void = {
+	let nums = [1, 3, 2];
+
+	assert(!sorted(nums, size(int), &icmp));
+
+	sort(nums, size(int), &icmp);
+	assert(sorted(nums, size(int), &icmp));
+	assert(sorted(nums[..0], size(int), &icmp));
 };

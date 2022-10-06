@@ -22,8 +22,9 @@ export fn strings(items: []str) void = sort(items, size(str), &scmp);
 
 // Checks if all of the items in a slice are sorted.
 export fn sorted(items: []void, itemsz: size, cmp: *cmpfunc) bool = {
-	for (let i = 0z; i < len(items) - 1; i += 1) {
-		if (cmp(&items[i], &items[i + 1]) > 0) {
+	let ba = items: *[*]u8;
+	for (let i = 1z; i < len(items); i += 1) {
+		if (cmp(&ba[(i - 1) * itemsz], &ba[i * itemsz]) > 0) {
 			return false;
 		};
 	};
