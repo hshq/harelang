@@ -107,7 +107,7 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 		append(depends, obj);
 	};
 
-	let obj = sched_hare_object(plan, ver, ident, depends...);
+	let obj = sched_hare_object(plan, ver, ident, void, depends...);
 	append(bucket, modcache {
 		hash = hash,
 		task = obj,
@@ -218,6 +218,7 @@ fn sched_hare_object(
 	plan: *plan,
 	ver: module::version,
 	namespace: ast::ident,
+	output: (void | str),
 	depend: *task...
 ) *task = {
 	// XXX: Do we care to support assembly-only modules?
@@ -260,7 +261,10 @@ fn sched_hare_object(
 	};
 
 	let current = false;
-	let output = if (len(namespace) != 0) {
+	let output = if (output is str) {
+		// TODO: Should we use the cache here?
+		yield fmt::asprintf("{}.{}", output, if (mixed) "a" else "o");
+	} else if (len(namespace) != 0) {
 		let version = hex::encodestr(ver.hash);
 		let env = module::identuscore(namespace);
 		defer free(env);
@@ -366,7 +370,7 @@ fn sched_hare_exe(
 	output: str,
 	depend: *task...
 ) *task = {
-	let obj = sched_hare_object(plan, ver, [], depend...);
+	let obj = sched_hare_object(plan, ver, [], void, depend...);
 	// TODO: We should be able to use partial variadic application
 	let link: []*task = alloc([], len(depend));
 	defer free(link);

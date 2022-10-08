@@ -131,8 +131,6 @@ fn build(args: []str) void = {
 		};
 	};
 
-	assert(goal == goal::EXE); // TODO
-
 	const input =
 		if (len(cmd.args) == 0) os::getcwd()
 		else if (len(cmd.args) == 1) cmd.args[0]
@@ -174,7 +172,13 @@ fn build(args: []str) void = {
 	if (output == "") {
 		output = path::basename(ver.basedir);
 	};
-	sched_hare_exe(&plan, ver, output, depends...);
+	switch (goal) {
+	case goal::EXE =>
+		sched_hare_exe(&plan, ver, output, depends...);
+	case goal::OBJ =>
+		let task = sched_hare_object(&plan, ver, [], output, depends...);
+		append(plan.scheduled, task);
+	};
 	match (plan_execute(&plan, verbose)) {
 	case void => void;
 	case !exec::exit_status =>
