@@ -11,6 +11,9 @@ export type invalid = !size;
 // requested data type.
 export type overflow = !void;
 
+// Any error which may be returned from a strconv function.
+export type error = (invalid | overflow);
+
 // The valid numeric bases for numeric conversions.
 export type base = enum uint {
 	// Base 2, binary
@@ -25,4 +28,14 @@ export type base = enum uint {
 	HEX = 16,
 	// Base 16, lowercase hexadecimal
 	HEX_LOWER = 17,
+};
+
+// Converts an strconv [[error]] into a user-friendly string.
+export fn strerror(err: error) str = {
+	match (err) {
+	case invalid =>
+		return "Input string is not an integer";
+	case overflow =>
+		return "Input number overflows integer type";
+	};
 };
