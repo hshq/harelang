@@ -836,3 +836,7 @@ export def SPLICE_F_MOVE: uint = 1;
 export def SPLICE_F_NONBLOCK: uint = 2;
 export def SPLICE_F_MORE: uint = 4;
 export def SPLICE_F_GIFT: uint = 8;
+
+export def SEEK_SET: int = 0;
+export def SEEK_CUR: int = 1;
+export def SEEK_END: int = 2;

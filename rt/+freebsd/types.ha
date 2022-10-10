@@ -424,3 +424,7 @@ export def WTRAPPED: int = 32;
 export def STDIN_FILENO: int = 0;
 export def STDOUT_FILENO: int = 1;
 export def STDERR_FILENO: int = 2;
+
+export def SEEK_SET: int = 0;
+export def SEEK_CUR: int = 1;
+export def SEEK_END: int = 2;
