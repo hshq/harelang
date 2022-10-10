@@ -1331,18 +1331,18 @@ unix() {
 		+linux/nice.ha \
 		+linux/pipe.ha \
 		+linux/umask.ha \
-		getuid.ha \
-		setuid.ha \
-		groups.ha
+		+linux/getuid.ha \
+		+linux/setuid.ha \
+		+linux/groups.ha
 	gen_ssa -plinux unix errors fs io
 
 	gen_srcs -pfreebsd unix \
 		+freebsd/nice.ha \
 		+freebsd/pipe.ha \
 		+freebsd/umask.ha \
-		getuid.ha \
-		setuid.ha \
-		groups.ha
+		+freebsd/getuid.ha \
+		+freebsd/setuid.ha \
+		+freebsd/groups.ha
 	gen_ssa -pfreebsd unix errors fs io
 }
 
