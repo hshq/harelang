@@ -67,7 +67,7 @@ export fn close(fd: int) (void | errno) = {
 	wrap_return(syscall1(SYS_close, fd: u64))?;
 };
 
-export fn lseek(fd: int, off: i64, whence: uint) (i64 | errno) = {
+export fn lseek(fd: int, off: i64, whence: int) (i64 | errno) = {
 	return wrap_return(syscall3(SYS_lseek,
 		fd: u64, off: u64, whence: u64))?: i64;
 };

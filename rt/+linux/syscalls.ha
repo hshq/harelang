@@ -321,7 +321,7 @@ export fn mprotect(addr: *void, length: size, prot: uint) (void | errno) = {
 		addr: uintptr: u64, length: u64, prot: u64))?;
 };
 
-export fn lseek(fd: int, off: i64, whence: uint) (i64 | errno) = {
+export fn lseek(fd: int, off: i64, whence: int) (i64 | errno) = {
 	return wrap_return(syscall3(SYS_lseek,
 		fd: u64, off: u64, whence: u64))?: i64;
 };

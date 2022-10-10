@@ -55,7 +55,7 @@ fn fd_seek(
 	offs: off,
 	whence: whence,
 ) (off | error) = {
-	match (rt::lseek(fd, offs: i64, whence: uint)) {
+	match (rt::lseek(fd, offs: i64, whence: int)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let n: i64 =>
