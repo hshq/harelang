@@ -44,11 +44,7 @@ fn copy_fallback(dest: handle, src: handle) (error | size) = {
 	for (true) {
 		match (read(src, buf[..])?) {
 		case let n: size =>
-			for (let i = 0z; i < n) {
-				let r = write(dest, buf[i..n])?;
-				w += r;
-				i += r;
-			};
+			w += writeall(dest, buf[..n])?;
 		case EOF =>
 			break;
 		};
