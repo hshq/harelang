@@ -827,3 +827,7 @@ export type ptrace_syscall_info = struct {
 export def STDIN_FILENO: int = 0;
 export def STDOUT_FILENO: int = 1;
 export def STDERR_FILENO: int = 2;
+
+export def MFD_CLOEXEC: uint = 1;
+export def MFD_ALLOW_SEALING: uint = 2;
+export def MFD_HUGETLB: uint = 4;

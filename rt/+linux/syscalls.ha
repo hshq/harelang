@@ -834,6 +834,12 @@ export fn ptrace(
 	};
 };
 
+
 export fn sync() void = {
 	wrap_return(syscall0(SYS_sync))!;
+};
+
+export fn memfd_create(name: *const char, flags: uint) (int | errno) = {
+	return wrap_return(syscall2(SYS_memfd_create,
+		name: uintptr: u64, flags: u64))?: int;
 };
