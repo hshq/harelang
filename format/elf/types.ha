@@ -550,9 +550,9 @@ export type sht = enum u32 {
 	// Environment-specific use
 	HIOS = 0x6FFFFFFF,
 	// Processor-specific use
-	LOPROC = 0x7000000,
+	LOPROC = 0x70000000,
 	// Processor-specific use
-	HIPROC = 0x7FFFFFF,
+	HIPROC = 0x7FFFFFFF,
 };
 
 // Section flags
