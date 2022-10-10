@@ -42,7 +42,7 @@ export fn main() void = {
 		case io::EOF =>
 			break;
 		case let line: []u8 =>
-			yield strings::fromutf8(line);
+			yield strings::fromutf8(line)!;
 		};
 		defer free(line);
 
