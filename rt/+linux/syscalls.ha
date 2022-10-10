@@ -867,3 +867,12 @@ export fn tee(fd_in: int, fd_out: int, ln: size, flags: uint) (size | errno) = {
 export fn alarm(seconds: uint) uint = {
 	return syscall1(SYS_alarm, seconds: u64): uint;
 };
+
+export fn fallocate(fd: int, mode: int, off: i64, ln: i64) (void | errno) = {
+	wrap_return(syscall4(SYS_fallocate,
+		fd: u64, mode: u64, off: u64, ln: u64))?;
+};
+
+export fn posix_fallocate(fd: int, off: i64, ln: i64) (void | errno) = {
+	fallocate(fd, 0, off, ln)?;
+};

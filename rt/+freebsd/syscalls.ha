@@ -508,3 +508,8 @@ export fn dup2(oldfd: int, newfd: int) (int | errno) = {
 export fn posix_openpt(flags: int) (int | errno) = {
 	return wrap_return(syscall1(SYS_posix_openpt, flags: u64))?: int;
 };
+
+export fn posix_fallocate(fd: int, off: i64, ln: i64) (void | errno) = {
+	wrap_return(syscall3(SYS_posix_fallocate,
+		fd: u64, off: u64, ln: u64))?;
+};
