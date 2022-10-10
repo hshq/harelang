@@ -857,3 +857,9 @@ export fn splice(
 		fd_out: u64, off_out: uintptr: u64,
 		ln: u64, flags: u64))?: size;
 };
+
+export fn tee(fd_in: int, fd_out: int, ln: size, flags: uint) (size | errno) = {
+	return wrap_return(syscall4(SYS_tee,
+		fd_in: u64, fd_out: u64,
+		ln: u64, flags: u64))?: size;
+};
