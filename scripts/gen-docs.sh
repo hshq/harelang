@@ -2,7 +2,7 @@
 srcdir="$(dirname "$0")"
 getmods() (
 	DOCS=1
-	. $srcdir/gen-stdlib
+	. "$srcdir"/gen-stdlib
 	IFS="
 "
 	for module in $modules; do
