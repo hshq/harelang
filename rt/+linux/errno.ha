@@ -652,6 +652,7 @@ export def ENOPROTOOPT: int	= 92;
 export def EPROTONOSUPPORT: int	= 93;
 export def ESOCKTNOSUPPORT: int	= 94;
 export def EOPNOTSUPP: int	= 95;
+export def ENOTSUP: int         = EOPNOTSUPP;
 export def EPFNOSUPPORT: int	= 96;
 export def EAFNOSUPPORT: int	= 97;
 export def EADDRINUSE: int	= 98;
