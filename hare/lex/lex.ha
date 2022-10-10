@@ -417,6 +417,10 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		case 'x' =>
 			base = 16;
 		case =>
+			if (ascii::isdigit(r.0)) {
+				return syntaxerr(loc,
+					"Leading zeros in number literals aren't permitted (for octal, use the 0o prefix instead)");
+			};
 			started = true;
 			unget(lex, r);
 		};

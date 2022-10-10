@@ -57,11 +57,11 @@ fn init() datetime = datetime {
 // 	datetime::new(time::chrono::UTC, 0);
 //
 // 	// 2038 Jan 19th 03:14:07.000000618 +0000 UTC
-// 	datetime::new(time::chrono::UTC, 0, 2038, 01, 19, 03, 14, 07, 618);
+// 	datetime::new(time::chrono::UTC, 0, 2038, 1, 19, 3, 14, 7, 618);
 //
 // 	// 2038 Jan 19th 02:00:00.000000000 +0100 Europe/Amsterdam
 // 	datetime::new(&time::chrono::tz("Europe/Amsterdam"), 1 * time::HOUR,
-// 		2038, 01, 19, 02);
+// 		2038, 1, 19, 2);
 //
 // 'offs' is the zone offset from the normal timezone (in most cases, UTC). For
 // example, the "Asia/Tokyo" timezone has a single zoffset of +9 hours, but the

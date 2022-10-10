@@ -188,40 +188,40 @@ export fn truncate(dt: datetime, u: unit) datetime = {
 	return switch (u) {
 	case unit::ERA =>
 		yield new(dt.loc, 0,
-			01, 01, 01,
-			00, 00, 00, 0,
+			1, 1, 1,
+			0, 0, 0, 0,
 		)!;
 	case unit::YEAR =>
 		yield new(dt.loc, 0,
-			year(&dt), 01, 01,
-			00, 00, 00, 0,
+			year(&dt), 1, 1,
+			0, 0, 0, 0,
 		)!;
 	case unit::MONTH =>
 		yield new(dt.loc, 0,
-			year(&dt), month(&dt), 01,
-			00, 00, 00, 0,
+			year(&dt), month(&dt), 1,
+			0, 0, 0, 0,
 		)!;
 	case unit::WEEK =>
 		const date = dt.date - (weekday(&dt) - 1);
 		const ymd = calc_ymd(date);
 		yield new(dt.loc, 0,
 			ymd.0, ymd.1, ymd.2,
-			00, 00, 00, 0,
+			0, 0, 0, 0,
 		)!;
 	case unit::DAY =>
 		yield new(dt.loc, 0,
 			year(&dt), month(&dt), day(&dt),
-			00, 00, 00, 0,
+			0, 0, 0, 0,
 		)!;
 	case unit::HOUR =>
 		yield new(dt.loc, 0,
 			year(&dt), month(&dt), day(&dt),
-			hour(&dt), 00, 00, 0,
+			hour(&dt), 0, 0, 0,
 		)!;
 	case unit::MINUTE =>
 		yield new(dt.loc, 0,
 			year(&dt), month(&dt), day(&dt),
-			hour(&dt), min(&dt), 00, 0,
+			hour(&dt), min(&dt), 0, 0,
 		)!;
 	case unit::SECOND =>
 		yield new(dt.loc, 0,
@@ -433,14 +433,14 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 };
 
 @test fn eq() void = {
-	const dt = new(chrono::UTC, 0, 2022, 02, 04, 03, 14, 07, 0)!;
+	const dt = new(chrono::UTC, 0, 2022, 2, 4, 3, 14, 7, 0)!;
 	const cases = [
-		((-768, 01, 01, 03, 14, 07, 0), false),
-		((1, 1, 01, 14, 00, 00, 1234), false),
-		((2022, 02, 04, 03, 14, 07, 0), true),
-		((2022, 02, 04, 03, 14, 07, 1), false),
-		((2038, 01, 19, 03, 14, 07, 0), false),
-		((5555, 05, 05, 05, 55, 55, 5555), false),
+		((-768, 1,  1,  3, 14,  7,    0), false),
+		((   1, 1,  1, 14,  0,  0, 1234), false),
+		((2022, 2,  4,  3, 14,  7,    0), true),
+		((2022, 2,  4,  3, 14,  7,    1), false),
+		((2038, 1, 19,  3, 14,  7,    0), false),
+		((5555, 5,  5,  5, 55, 55, 5555), false),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
 		const c = cases[i].0;
@@ -453,15 +453,15 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 };
 
 @test fn after() void = {
-	const dt = new(chrono::UTC, 0, 2022, 02, 04, 03, 14, 07, 0)!;
+	const dt = new(chrono::UTC, 0, 2022, 2, 4, 3, 14, 7, 0)!;
 	const cases = [
-		((-768, 01, 01, 03, 14, 07, 0), false),
-		((1, 1, 01, 14, 00, 00, 1234), false),
-		((2020, 02, 04, 03, 14, 07, 1), false),
-		((2022, 02, 04, 03, 14, 07, 0), false),
-		((2022, 02, 04, 04, 01, 01, 0), true),
-		((2038, 01, 19, 03, 14, 07, 0), true),
-		((5555, 05, 05, 05, 55, 55, 5555), true),
+		((-768, 1,  1,  3, 14,  7,    0), false),
+		((   1, 1,  1, 14,  0,  0, 1234), false),
+		((2020, 2,  4,  3, 14,  7,    1), false),
+		((2022, 2,  4,  3, 14,  7,    0), false),
+		((2022, 2,  4,  4,  1,  1,    0), true),
+		((2038, 1, 19,  3, 14,  7,    0), true),
+		((5555, 5,  5,  5, 55, 55, 5555), true),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
 		const c = cases[i].0;
@@ -474,15 +474,15 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 };
 
 @test fn before() void = {
-	const dt = new(chrono::UTC, 0, 2022, 02, 04, 03, 14, 07, 0)!;
+	const dt = new(chrono::UTC, 0, 2022, 2, 4, 3, 14, 7, 0)!;
 	const cases = [
-		((-768, 01, 01, 03, 14, 07, 0), true),
-		((1, 1, 01, 14, 00, 00, 1234), true),
-		((2020, 02, 04, 03, 14, 07, 1), true),
-		((2022, 02, 04, 03, 14, 07, 0), false),
-		((2022, 02, 04, 04, 01, 01, 0), false),
-		((2038, 01, 19, 03, 14, 07, 0), false),
-		((5555, 05, 05, 05, 55, 55, 5555), false),
+		((-768, 1,  1,  3, 14,  7,    0), true),
+		((   1, 1,  1, 14,  0,  0, 1234), true),
+		((2020, 2,  4,  3, 14,  7,    1), true),
+		((2022, 2,  4,  3, 14,  7,    0), false),
+		((2022, 2,  4,  4,  1,  1,    0), false),
+		((2038, 1, 19,  3, 14,  7,    0), false),
+		((5555, 5,  5,  5, 55, 55, 5555), false),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
 		const c = cases[i].0;
@@ -497,8 +497,8 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 @test fn diff() void = {
 	const cases = [
 		(
-			new(chrono::UTC, 0, 2021, 01, 15, 00, 00, 00, 0)!,
-			new(chrono::UTC, 0, 2022, 02, 16, 00, 00, 00, 0)!,
+			new(chrono::UTC, 0, 2021, 1, 15, 0, 0, 0, 0)!,
+			new(chrono::UTC, 0, 2022, 2, 16, 0, 0, 0, 0)!,
 			period {
 				years = 1,
 				months = 1,
@@ -507,8 +507,8 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 			},
 		),
 		(
-			new(chrono::UTC, 0, 2021, 01, 15, 00, 00, 00, 0)!,
-			new(chrono::UTC, 0, 2022, 03, 27, 00, 00, 00, 0)!,
+			new(chrono::UTC, 0, 2021, 1, 15, 0, 0, 0, 0)!,
+			new(chrono::UTC, 0, 2022, 3, 27, 0, 0, 0, 0)!,
 			period {
 				years = 1,
 				months = 2,
@@ -517,8 +517,8 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 			},
 		),
 		(
-			new(chrono::UTC, 0, 2021, 01, 15, 00, 00, 00, 0)!,
-			new(chrono::UTC, 0, 2022, 03, 14, 00, 00, 00, 0)!,
+			new(chrono::UTC, 0, 2021, 1, 15, 0, 0, 0, 0)!,
+			new(chrono::UTC, 0, 2022, 3, 14, 0, 0, 0, 0)!,
 			period {
 				years = 1,
 				months = 1,
@@ -527,16 +527,16 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 			},
 		),
 		(
-			new(chrono::UTC, 0, 2021, 01, 15, 00, 00, 00, 0)!,
-			new(chrono::UTC, 0, 2021, 01, 16, 00, 00, 00, 0)!,
+			new(chrono::UTC, 0, 2021, 1, 15, 0, 0, 0, 0)!,
+			new(chrono::UTC, 0, 2021, 1, 16, 0, 0, 0, 0)!,
 			period {
 				days = 1,
 				...
 			},
 		),
 		(
-			new(chrono::UTC, 0, 2021, 01, 15, 00, 00, 00, 0)!,
-			new(chrono::UTC, 0, 2021, 01, 16, 01, 03, 02, 4)!,
+			new(chrono::UTC, 0, 2021, 1, 15, 0, 0, 0, 0)!,
+			new(chrono::UTC, 0, 2021, 1, 16, 1, 3, 2, 4)!,
 			period {
 				days = 1,
 				hours = 1,
@@ -547,8 +547,8 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 			},
 		),
 		(
-			new(chrono::UTC, 0, 2021, 01, 15, 02, 03, 02, 2)!,
-			new(chrono::UTC, 0, 2021, 01, 16, 01, 01, 02, 4)!,
+			new(chrono::UTC, 0, 2021, 1, 15, 2, 3, 2, 2)!,
+			new(chrono::UTC, 0, 2021, 1, 16, 1, 1, 2, 4)!,
 			period {
 				hours = 22,
 				minutes = 58,
@@ -557,8 +557,8 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 			},
 		),
 		(
-			new(chrono::UTC, 0, 0500, 01, 01, 00, 00, 00, 0)!,
-			new(chrono::UTC, 0, 3500, 01, 01, 00, 06, 00, 0)!,
+			new(chrono::UTC, 0,  500, 1, 1, 0, 0, 0, 0)!,
+			new(chrono::UTC, 0, 3500, 1, 1, 0, 6, 0, 0)!,
 			period {
 				years = 3000,
 				minutes = 6,
@@ -566,8 +566,8 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 			},
 		),
 		(
-			new(chrono::UTC, 0, -500, 01, 01, 00, 00, 00, 0)!,
-			new(chrono::UTC, 0, 2500, 01, 01, 00, 06, 00, 0)!,
+			new(chrono::UTC, 0, -500, 1, 1, 0, 0, 0, 0)!,
+			new(chrono::UTC, 0, 2500, 1, 1, 0, 6, 0, 0)!,
 			period {
 				years = 3000,
 				minutes = 6,
@@ -575,8 +575,8 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 			},
 		),
 		(
-			new(chrono::UTC, 0, 2000, 01, 01, 00, 00, 00, 0)!,
-			new(chrono::UTC, 0, 2000, 01, 01, 00, 06, 00, 999999999)!,
+			new(chrono::UTC, 0, 2000, 1, 1, 0, 0, 0, 0)!,
+			new(chrono::UTC, 0, 2000, 1, 1, 0, 6, 0, 999999999)!,
 			period {
 				minutes = 6,
 				nanoseconds = 999999999,
@@ -584,16 +584,16 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 			},
 		),
 		(
-			new(chrono::UTC, 0, 2000, 01, 01, 00, 06, 00, 999999999)!,
-			new(chrono::UTC, 0, 2000, 01, 01, 00, 06, 01, 0)!,
+			new(chrono::UTC, 0, 2000, 1, 1, 0, 6, 0, 999999999)!,
+			new(chrono::UTC, 0, 2000, 1, 1, 0, 6, 1, 0)!,
 			period {
 				nanoseconds = 1,
 				...
 			},
 		),
 		(
-			new(chrono::UTC, 0, -4000, 01, 01, 00, 06, 00, 999999999)!,
-			new(chrono::UTC, 0, 4000, 01, 01, 00, 06, 01, 0)!,
+			new(chrono::UTC, 0, -4000, 1, 1, 0, 6, 0, 999999999)!,
+			new(chrono::UTC, 0, 4000,  1, 1, 0, 6, 1, 0)!,
 			period {
 				years = 8000,
 				nanoseconds = 1,
@@ -613,25 +613,25 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 @test fn unitdiff() void = {
 	const cases = [
 		(
-			new(chrono::UTC, 0, 1994, 08, 27, 11, 20, 01, 2)!,
-			new(chrono::UTC, 0, 2022, 01, 05, 13, 53, 30, 20)!,
+			new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 2)!,
+			new(chrono::UTC, 0, 2022, 1, 5, 13, 53, 30, 20)!,
 			(27, 328, 1427, 9993, 239834, 14390073, 863404409i64,
 				(863404409i64 * time::SECOND) + 18),
 		),
 		(
-			new(chrono::UTC, 0, 1994, 08, 28, 11, 20, 01, 2)!,
-			new(chrono::UTC, 0, 1994, 08, 27, 11, 20, 01, 0)!,
+			new(chrono::UTC, 0, 1994, 8, 28, 11, 20, 1, 2)!,
+			new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 0)!,
 			(0, 0, 0, 1, 24, 1440, 86400i64,
 				(86400i64 * time::SECOND) + 2),
 		),
 		(
-			new(chrono::UTC, 0, 1994, 08, 27, 11, 20, 01, 0)!,
-			new(chrono::UTC, 0, 1994, 08, 27, 11, 20, 01, 0)!,
+			new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 0)!,
+			new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 0)!,
 			(0, 0, 0, 0, 0, 0, 0i64, 0i64),
 		),
 		(
-			new(chrono::UTC, 0, -500, 01, 01, 00, 59, 01, 0)!,
-			new(chrono::UTC, 0, 2000, 01, 01, 23, 01, 01, 0)!,
+			new(chrono::UTC, 0, -500, 1, 1, 0, 59, 1, 0)!,
+			new(chrono::UTC, 0, 2000, 1, 1, 23, 1, 1, 0)!,
 			(2500, 30000, 130443, 913106, 913106 * 24 + 22,
 				(913106 * 24 + 22) * 60 + 2,
 				((913106 * 24 + 22) * 60 + 2) * 60i64,
@@ -663,149 +663,149 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 };
 
 @test fn truncate() void = {
-	const dt = new(chrono::UTC, 0, 1994, 08, 27, 11, 20, 01, 2)!;
+	const dt = new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 2)!;
 	assert(eq(truncate(dt, unit::ERA),
-			new(chrono::UTC, 0, 01, 01, 01, 00, 00, 00, 0)!),
+			new(chrono::UTC, 0, 1, 1, 1, 0, 0, 0, 0)!),
 		"invalid truncate() result");
 	assert(eq(truncate(dt, unit::YEAR),
-			new(chrono::UTC, 0, 1994, 01, 01, 00, 00, 00, 0)!),
+			new(chrono::UTC, 0, 1994, 1, 1, 0, 0, 0, 0)!),
 		"invalid truncate() result");
 	assert(eq(truncate(dt, unit::MONTH),
-			new(chrono::UTC, 0, 1994, 08, 01, 00, 00, 00, 0)!),
+			new(chrono::UTC, 0, 1994, 8, 1, 0, 0, 0, 0)!),
 		"invalid truncate() result");
 	assert(eq(truncate(dt, unit::WEEK),
-			new(chrono::UTC, 0, 1994, 08, 22, 00, 00, 00, 0)!),
+			new(chrono::UTC, 0, 1994, 8, 22, 0, 0, 0, 0)!),
 		"invalid truncate() result");
 	assert(eq(truncate(dt, unit::DAY),
-			new(chrono::UTC, 0, 1994, 08, 27, 00, 00, 00, 0)!),
+			new(chrono::UTC, 0, 1994, 8, 27, 0, 0, 0, 0)!),
 		"invalid truncate() result");
 	assert(eq(truncate(dt, unit::HOUR),
-			new(chrono::UTC, 0, 1994, 08, 27, 11, 00, 00, 0)!),
+			new(chrono::UTC, 0, 1994, 8, 27, 11, 0, 0, 0)!),
 		"invalid truncate() result");
 	assert(eq(truncate(dt, unit::MINUTE),
-			new(chrono::UTC, 0, 1994, 08, 27, 11, 20, 00, 0)!),
+			new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 0, 0)!),
 		"invalid truncate() result");
 	assert(eq(truncate(dt, unit::SECOND),
-			new(chrono::UTC, 0, 1994, 08, 27, 11, 20, 01, 0)!),
+			new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 0)!),
 		"invalid truncate() result");
 	assert(eq(truncate(dt, unit::NANOSECOND), dt),
 		"invalid truncate() result");
 };
 
 @test fn add() void = {
-	const d = new(chrono::UTC, 0, 2022, 02, 04, 03, 14, 07, 0)!;
+	const d = new(chrono::UTC, 0, 2022, 2, 4, 3, 14, 7, 0)!;
 	const cases = [
 		(
 			period { years = 1, ... },
-			new(chrono::UTC, 0, 2023, 02, 04, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2023, 2, 4, 3, 14, 7, 0)!,
 		),
 		(
 			period { years = -23, ... },
-			new(chrono::UTC, 0, 1999, 02, 04, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 1999, 2, 4, 3, 14, 7, 0)!,
 		),
 		(
 			period { months = 2, ... },
-			new(chrono::UTC, 0, 2022, 04, 04, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2022, 4, 4, 3, 14, 7, 0)!,
 		),
 		(
 			period { months = 11, ... },
-			new(chrono::UTC, 0, 2023, 01, 04, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2023, 1, 4, 3, 14, 7, 0)!,
 		),
 		(
 			period { months = -1, ... },
-			new(chrono::UTC, 0, 2022, 01, 04, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2022, 1, 4, 3, 14, 7, 0)!,
 		),
 		(
 			period { months = -2, ... },
-			new(chrono::UTC, 0, 2021, 12, 04, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2021, 12, 4, 3, 14, 7, 0)!,
 		),
 		(
 			period { days = 3, ... },
-			new(chrono::UTC, 0, 2022, 02, 07, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2022, 2, 7, 3, 14, 7, 0)!,
 		),
 		(
 			period { days = 33, ... },
-			new(chrono::UTC, 0, 2022, 03, 09, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2022, 3, 9, 3, 14, 7, 0)!,
 		),
 		(
 			period { days = 333, ... },
-			new(chrono::UTC, 0, 2023, 01, 03, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2023, 1, 3, 3, 14, 7, 0)!,
 		),
 		(
 			period { days = -2, ... },
-			new(chrono::UTC, 0, 2022, 02, 02, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2022, 2, 2, 3, 14, 7, 0)!,
 		),
 		(
 			period { days = -4, ... },
-			new(chrono::UTC, 0, 2022, 01, 31, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2022, 1, 31, 3, 14, 7, 0)!,
 		),
 		(
 			period { days = -1337, ... },
-			new(chrono::UTC, 0, 2018, 06, 08, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2018, 6, 8, 3, 14, 7, 0)!,
 		),
 		(
 			period { hours = 1, ... },
-			new(chrono::UTC, 0, 2022, 02, 04, 04, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2022, 2, 4, 4, 14, 7, 0)!,
 		),
 		(
 			period { hours = 24, ... },
-			new(chrono::UTC, 0, 2022, 02, 05, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2022, 2, 5, 3, 14, 7, 0)!,
 		),
 		(
 			period { hours = 25, ... },
-			new(chrono::UTC, 0, 2022, 02, 05, 04, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2022, 2, 5, 4, 14, 7, 0)!,
 		),
 		(
 			period { hours = 123456, ... },
-			new(chrono::UTC, 0, 2036, 03, 06, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2036, 3, 6, 3, 14, 7, 0)!,
 		),
 		(
 			period { hours = -2, ... },
-			new(chrono::UTC, 0, 2022, 02, 04, 01, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2022, 2, 4, 1, 14, 7, 0)!,
 		),
 		(
 			period { hours = -24, ... },
-			new(chrono::UTC, 0, 2022, 02, 03, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2022, 2, 3, 3, 14, 7, 0)!,
 		),
 		(
 			period { hours = -123456, ... },
-			new(chrono::UTC, 0, 2008, 01, 05, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2008, 1, 5, 3, 14, 7, 0)!,
 		),
 		(
 			period { seconds = 2, ... },
-			new(chrono::UTC, 0, 2022, 02, 04, 03, 14, 09, 0)!,
+			new(chrono::UTC, 0, 2022, 2, 4, 3, 14, 9, 0)!,
 		),
 		(
 			period { seconds = 666666666, ... },
-			new(chrono::UTC, 0, 2043, 03, 22, 04, 25, 13, 0)!,
+			new(chrono::UTC, 0, 2043, 3, 22, 4, 25, 13, 0)!,
 		),
 		(
 			period { seconds = -2, ... },
-			new(chrono::UTC, 0, 2022, 02, 04, 03, 14, 05, 0)!,
+			new(chrono::UTC, 0, 2022, 2, 4, 3, 14, 5, 0)!,
 		),
 		(
 			period { seconds = -666666666, ... },
-			new(chrono::UTC, 0, 2000, 12, 20, 02, 03, 01, 0)!,
+			new(chrono::UTC, 0, 2000, 12, 20, 2, 3, 1, 0)!,
 		),
 		(
 			period { nanoseconds = 123, ... },
-			new(chrono::UTC, 0, 2022, 02, 04, 03, 14, 07, 123)!,
+			new(chrono::UTC, 0, 2022, 2, 4, 3, 14, 7, 123)!,
 		),
 		(
 			period { nanoseconds = 1361661361461, ... },
-			new(chrono::UTC, 0, 2022, 02, 04, 03, 36, 48, 661361461)!,
+			new(chrono::UTC, 0, 2022, 2, 4, 3, 36, 48, 661361461)!,
 		),
 		(
 			period { nanoseconds = -1361661361461, ... },
-			new(chrono::UTC, 0, 2022, 02, 04, 02, 51, 25, 338638539)!,
+			new(chrono::UTC, 0, 2022, 2, 4, 2, 51, 25, 338638539)!,
 		),
 		(
 			period { months = 1, seconds = -666666666, ... },
-			new(chrono::UTC, 0, 2001, 01, 17, 02, 03, 01, 0)!,
+			new(chrono::UTC, 0, 2001, 1, 17, 2, 3, 1, 0)!,
 		),
 		(
 			period { months = 1, seconds = -666666666, ... },
-			new(chrono::UTC, 0, 2001, 01, 17, 02, 03, 01, 0)!,
+			new(chrono::UTC, 0, 2001, 1, 17, 2, 3, 1, 0)!,
 		),
 		(
 			period {
@@ -819,7 +819,7 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 				nanoseconds = -8,
 				...
 			},
-			new(chrono::UTC, 0, 2020, 11, 08, 22, 07, 59, 999999992)!,
+			new(chrono::UTC, 0, 2020, 11, 8, 22, 7, 59, 999999992)!,
 		),
 		(
 			period {
@@ -833,7 +833,7 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 				nanoseconds = 8,
 				...
 			},
-			new(chrono::UTC, 0, 2023, 04, 29, 08, 20, 14, 8)!,
+			new(chrono::UTC, 0, 2023, 4, 29, 8, 20, 14, 8)!,
 		),
 		(
 			period {
@@ -847,7 +847,7 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 				nanoseconds = -34,
 				...
 			},
-			new(chrono::UTC, 0, 2022, 12, 20, 11, 01, 27, 999999966)!,
+			new(chrono::UTC, 0, 2022, 12, 20, 11, 1, 27, 999999966)!,
 		),
 		(
 			period {
@@ -861,7 +861,7 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 				nanoseconds = -86400000000000,
 				...
 			},
-			new(chrono::UTC, 0, 2021, 01, 02, 16, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2021, 1, 2, 16, 14, 7, 0)!,
 		),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
@@ -873,19 +873,19 @@ export fn sub(dt: datetime, flag: calculus, pp: period...) datetime = {
 };
 
 @test fn sub() void = {
-	const d = new(chrono::UTC, 0, 2022, 02, 04, 03, 14, 07, 0)!;
+	const d = new(chrono::UTC, 0, 2022, 2, 4, 3, 14, 7, 0)!;
 	const cases = [
 		(
 			period { years = 1, ... },
-			new(chrono::UTC, 0, 2021, 02, 04, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2021, 2, 4, 3, 14, 7, 0)!,
 		),
 		(
 			period { months = 2, ... },
-			new(chrono::UTC, 0, 2021, 12, 04, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2021, 12, 4, 3, 14, 7, 0)!,
 		),
 		(
 			period { months = 14, ... },
-			new(chrono::UTC, 0, 2020, 12, 04, 03, 14, 07, 0)!,
+			new(chrono::UTC, 0, 2020, 12, 4, 3, 14, 7, 0)!,
 		),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {

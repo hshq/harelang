@@ -318,7 +318,7 @@ fn hour12(dt: *datetime) int = {
 };
 
 @test fn format() void = {
-	const dt = new(chrono::UTC, 0, 1994, 01, 01, 02, 17, 05, 24)!;
+	const dt = new(chrono::UTC, 0, 1994, 1, 1, 2, 17, 5, 24)!;
 
 	const cases = [
 		// special characters
@@ -385,11 +385,11 @@ fn hour12(dt: *datetime) int = {
 // 	// General tests
 // 	parse("%Y-%m-%d %H:%M:%S.%N", "1994-08-27 11:01:02.123", &dt)!;
 // 	assert(dt.year as int == 1994 &&
-// 		dt.month as int == 08 &&
+// 		dt.month as int == 8 &&
 // 		dt.day as int == 27 &&
 // 		dt.hour as int == 11 &&
-// 		dt.min as int == 01 &&
-// 		dt.sec as int == 02 &&
+// 		dt.min as int == 1 &&
+// 		dt.sec as int == 2 &&
 // 		dt.nsec as int == 123, "invalid parsing results");
 
 // 	// General errors
