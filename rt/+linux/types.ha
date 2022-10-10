@@ -831,3 +831,8 @@ export def STDERR_FILENO: int = 2;
 export def MFD_CLOEXEC: uint = 1;
 export def MFD_ALLOW_SEALING: uint = 2;
 export def MFD_HUGETLB: uint = 4;
+
+export def SPLICE_F_MOVE: uint = 1;
+export def SPLICE_F_NONBLOCK: uint = 2;
+export def SPLICE_F_MORE: uint = 4;
+export def SPLICE_F_GIFT: uint = 8;

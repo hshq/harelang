@@ -843,3 +843,17 @@ export fn memfd_create(name: *const char, flags: uint) (int | errno) = {
 	return wrap_return(syscall2(SYS_memfd_create,
 		name: uintptr: u64, flags: u64))?: int;
 };
+
+export fn splice(
+	fd_in: int,
+	off_in: nullable *u64,
+	fd_out: int,
+	off_out: nullable *u64,
+	ln: size,
+	flags: uint,
+) (size | errno) = {
+	return wrap_return(syscall6(SYS_splice,
+		fd_in: u64, off_in: uintptr: u64,
+		fd_out: u64, off_out: uintptr: u64,
+		ln: u64, flags: u64))?: size;
+};
