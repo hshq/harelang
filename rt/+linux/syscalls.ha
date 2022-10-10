@@ -863,3 +863,7 @@ export fn tee(fd_in: int, fd_out: int, ln: size, flags: uint) (size | errno) = {
 		fd_in: u64, fd_out: u64,
 		ln: u64, flags: u64))?: size;
 };
+
+export fn alarm(seconds: uint) uint = {
+	return syscall1(SYS_alarm, seconds: u64): uint;
+};
