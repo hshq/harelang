@@ -39,3 +39,5 @@ export type cmsghdr = struct {
 	cmsg_level: int,
 	cmsg_type: int,
 };
+
+export def EDEADLOCK: int = EDEADLK;
