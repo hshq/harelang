@@ -569,6 +569,7 @@ export def ENOEXEC: int		= 8;
 export def EBADF: int		= 9;
 export def ECHILD: int		= 10;
 export def EAGAIN: int		= 11;
+export def EWOULDBLOCK: int	= EAGAIN;
 export def ENOMEM: int		= 12;
 export def EACCES: int		= 13;
 export def EFAULT: int		= 14;
