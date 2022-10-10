@@ -1,4 +1,3 @@
-#!/bin/sh
 # Yes, I am entirely aware that this is a hack
 srcdir="$(dirname "$0")"
 getmods() (
@@ -23,11 +22,11 @@ modules="$(getmods)"
 
 mkdir -p docs/html/
 
-haredoc -Fhtml > docs/html/index.html
+"$BINOUT"/haredoc -Fhtml > docs/html/index.html
 for mod in $modules format encoding math crypto hare rt
 do
 	echo $mod
 	path="$(echo $mod | sed -e 's?::?/?g')"
 	mkdir -p docs/html/$path
-	haredoc -Fhtml $mod >docs/html/$path/index.html
+	"$BINOUT"/haredoc -Fhtml $mod > docs/html/$path/index.html
 done

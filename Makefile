@@ -80,8 +80,8 @@ $(BINOUT)/haredoc: $(BINOUT)/hare $(haredoc_srcs)
 	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build \
 		$(HARE_DEFINES) -o $(BINOUT)/haredoc ./cmd/haredoc
 
-docs/html: $(BINOUT)/haredoc scripts/gen-docs
-	./scripts/gen-docs
+docs/html: $(BINOUT)/haredoc scripts/gen-docs.sh
+	BINOUT=$(BINOUT) $(SHELL) ./scripts/gen-docs.sh
 
 docs/hare.1: docs/hare.scd
 docs/haredoc.1: docs/haredoc.scd
@@ -94,7 +94,7 @@ clean:
 check: $(BINOUT)/hare-tests
 	@$(BINOUT)/hare-tests
 
-scripts/gen-docs: scripts/gen-stdlib
+scripts/gen-docs.sh: scripts/gen-stdlib
 scripts/gen-stdlib: scripts/gen-stdlib.sh
 
 all: $(BINOUT)/hare $(BINOUT)/harec2 $(BINOUT)/haredoc

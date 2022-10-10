@@ -45,6 +45,6 @@ tasks:
         exit
     fi
     cd hare
-    ./scripts/gen-docs
+    make docs/html
     tar -C docs/html -cvz . > docs.tar.gz
     acurl -f https://pages.sr.ht/publish/docs.harelang.org -Fcontent=@docs.tar.gz
