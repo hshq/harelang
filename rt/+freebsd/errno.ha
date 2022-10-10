@@ -40,7 +40,7 @@ export fn strerror(err: errno) str = {
 		return "Bad file descriptor";
 	case ECHILD =>
 		return "No child processes";
-	case EAGAIN, EWOULDBLOCK =>
+	case EAGAIN =>
 		return "Resource temporarily unavailable";
 	case ENOMEM =>
 		return "Cannot allocate memory";
@@ -136,7 +136,7 @@ export fn strerror(err: errno) str = {
 		return "Protocol not supported";
 	case ESOCKTNOSUPPORT =>
 		return "Socket type not supported";
-	case ENOTSUP, EOPNOTSUPP =>
+	case EOPNOTSUPP =>
 		return "Operation not supported";
 	case EPFNOSUPPORT =>
 		return "Protocol family not supported";
@@ -244,8 +244,6 @@ export fn errname(err: errno) str = {
 		return "ECHILD";
 	case EAGAIN =>
 		return "EAGAIN";
-	case EWOULDBLOCK =>
-		return "EWOULDBLOCK";
 	case ENOMEM =>
 		return "ENOMEM";
 	case EACCES =>
@@ -340,8 +338,6 @@ export fn errname(err: errno) str = {
 		return "EPROTONOSUPPORT";
 	case ESOCKTNOSUPPORT =>
 		return "ESOCKTNOSUPPORT";
-	case ENOTSUP =>
-		return "ENOTSUP";
 	case EOPNOTSUPP =>
 		return "EOPNOTSUPP";
 	case EPFNOSUPPORT =>
