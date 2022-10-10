@@ -25,15 +25,9 @@ export fn load() []ip::addr = {
 
 	const file = os::open(PATH)!;
 	defer io::close(file)!;
-	return loadio(file);
-};
-
-fn loadio(src: io::handle) []ip::addr = {
-	let buffer: [os::BUFSIZ]u8 = [0...];
-	const buf = bufio::buffered(src, buffer, []);
 
 	for (true) {
-		const line = match (bufio::scanline(&buf)) {
+		const line = match (bufio::scanline(file)) {
 		case io::EOF =>
 			break;
 		case let line: []u8 =>
@@ -67,18 +61,4 @@ fn loadio(src: io::handle) []ip::addr = {
 	};
 
 	return cache;
-};
-
-@test fn load() void = {
-	let buf = bufio::fixed(strings::toutf8(
-		"# comment\n"
-		"nameserver 127.0.0.1\n"
-		"options edns0 trust-ad\n"
-		"search home"), io::mode::READ);
-	
-	const ips = loadio(&buf);
-	assert(len(ips) == 1);
-	const got = ips[0];
-	const want: ip::addr4 = [127, 0, 0, 1];
-	assert(ip::equal(got, want));
 };

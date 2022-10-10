@@ -15,16 +15,10 @@ export fn lookup(name: str) []ip::addr = {
 	// XXX: Would be cool to have meaningful error handling(?)
 	const file = os::open(PATH)!;
 	defer io::close(file)!;
-	return lookupio(name, file);
-};
-
-fn lookupio(name: str, src: io::handle) []ip::addr = {
-	let buffer: [os::BUFSIZ]u8 = [0...];
-	const buf = bufio::buffered(src, buffer, []);
 
 	let addrs: []ip::addr = [];
 	for (true) {
-		const line = match (bufio::scanline(&buf)) {
+		const line = match (bufio::scanline(file)) {
 		case io::EOF =>
 			break;
 		case let line: []u8 =>
@@ -60,21 +54,4 @@ fn lookupio(name: str, src: io::handle) []ip::addr = {
 		};
 	};
 	return addrs;
-};
-
-@test fn lookup() void = {
-	let buf = bufio::fixed(strings::toutf8(
-		"127.0.0.1	localhost\n"
-		"\n"
-		"# The following lines are desirable for IPv6 capable hosts\n"
-		"::1     ip6-localhost ip6-loopback\n"
-		"fe00::0 ip6-localnet\n"
-		"ff00::0 ip6-mcastprefix\n"
-		"ff02::1 ip6-allnodes\n"
-		"ff02::2 ip6-allrouters\n"), io::mode::READ);
-	const ips = lookupio("localhost", &buf);
-	assert(len(ips) == 1);
-	const got = ips[0];
-	const want: ip::addr4 = [127, 0, 0, 1];
-	assert(ip::equal(got, want));
 };
