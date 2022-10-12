@@ -1157,7 +1157,7 @@ stdlib_errors_any_srcs = \
 	$(STDLIB)/errors/string.ha \
 	$(STDLIB)/errors/rt.ha
 
-$(HARECACHE)/errors/errors-any.ssa: $(stdlib_errors_any_srcs) $(stdlib_rt)
+$(HARECACHE)/errors/errors-any.ssa: $(stdlib_errors_any_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/errors
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nerrors \
@@ -3364,7 +3364,7 @@ testlib_errors_any_srcs = \
 	$(STDLIB)/errors/string.ha \
 	$(STDLIB)/errors/rt.ha
 
-$(TESTCACHE)/errors/errors-any.ssa: $(testlib_errors_any_srcs) $(testlib_rt)
+$(TESTCACHE)/errors/errors-any.ssa: $(testlib_errors_any_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/errors
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nerrors \

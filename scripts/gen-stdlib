@@ -583,7 +583,7 @@ errors() {
 		opaque.ha \
 		string.ha \
 		rt.ha
-	gen_ssa errors
+	gen_ssa errors rt
 }
 
 fmt() {
