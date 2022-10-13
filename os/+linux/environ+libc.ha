@@ -49,7 +49,7 @@ export fn getenv(name: const str) (str | void) = {
 		};
 		if (bytes::equal(name_b, item[..eq])) {
 			const ln = strings::cstrlen(item: *const char);
-			return strings::fromutf8(item[eq+1..ln]);
+			return strings::fromutf8(item[eq+1..ln])!;
 		};
 	};
 };
