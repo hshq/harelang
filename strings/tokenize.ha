@@ -86,7 +86,11 @@ export fn splitn(in: str, delim: str, n: size) []str = {
 			return toks;
 		};
 	};
-	append(toks, remaining_tokens(&tok));
+	match(peek_token(&tok)) {
+	case void => void;
+	case let s: str =>
+		append(toks, remaining_tokens(&tok));
+	};
 	return toks;
 };
 
@@ -110,6 +114,13 @@ export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 	assert(len(expected2) == len(actual2));
 	for (let i = 0z; i < len(expected2); i += 1) {
 		assert(expected2[i] == actual2[i]);
+	};
+
+	const expected3 = ["one"];
+	const actual3 = splitn("one", "=", 2z);
+	assert(len(expected3) == len(actual3));
+	for (let i = 0z; i < len(expected3); i += 1) {
+		assert(expected3[i] == actual3[i]);
 	};
 };
 
