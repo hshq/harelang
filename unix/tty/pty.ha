@@ -39,7 +39,7 @@ export fn openpty() ((io::file, io::file) | fs::error) = {
 	};
 
 	fmt::fprintln(pty.0, "hello, world")!;
-	let s = strings::fromutf8(bufio::scanline(pty.1) as []u8);
+	let s = strings::fromutf8(bufio::scanline(pty.1) as []u8)!;
 	defer free(s);
 	assert(s == "hello, world");
 };

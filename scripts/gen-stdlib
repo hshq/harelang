@@ -1420,16 +1420,20 @@ unix_signal() {
 unix_tty() {
 	gen_srcs -plinux unix::tty \
 		types.ha \
+		pty.ha \
 		+linux/isatty.ha \
 		+linux/open.ha \
+		+linux/pty.ha \
 		+linux/termios.ha \
 		+linux/winsize.ha
 	gen_ssa -plinux unix::tty rt fs io os
 
 	gen_srcs -pfreebsd unix::tty \
 		types.ha \
+		pty.ha \
 		+freebsd/isatty.ha \
 		+freebsd/open.ha \
+		+freebsd/pty.ha \
 		+freebsd/winsize.ha
 	gen_ssa -pfreebsd unix::tty rt fs io os
 }
