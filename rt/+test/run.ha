@@ -89,6 +89,11 @@ export fn tests_main() size = {
 	print(" tests completed in ");
 	print(ztos(end.0));
 	print(".");
+	if (end.1 < 10) {
+		print("00");
+	} else if (end.1 < 100) {
+		print("0");
+	};
 	print(ztos(end.1));
 	print("s\n");
 
