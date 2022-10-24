@@ -12,6 +12,11 @@ fn time_start() void = {
 fn time_stop() (size, size) = {
 	let end: timespec = timespec { ... };
 	clock_gettime(CLOCK_MONOTONIC, &end) as void;
-	return ((end.tv_sec - start.tv_sec): size,
-		(end.tv_nsec - start.tv_nsec): size / 10000z);
+	let sec_diff = end.tv_sec - start.tv_sec;
+	let nsec_diff = end.tv_nsec - start.tv_nsec;
+	if (nsec_diff < 0) {
+		nsec_diff += 1000000000;
+		sec_diff -= 1;
+	};
+	return (sec_diff: size, nsec_diff: size / 1000000z);
 };
