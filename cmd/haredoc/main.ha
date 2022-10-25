@@ -123,14 +123,14 @@ export fn main() void = {
 		};
 
 	let decl = "";
-	let dirname = if (len(id) < 2) id else id[..len(id) - 1];
+	let dirname: ast::ident = if (len(id) < 2) [] else id[..len(id) - 1];
 	const version = match (module::lookup(&ctx, id)) {
 	case let ver: module::version =>
 		yield ver;
 	case let err: module::error =>
 		yield match (module::lookup(&ctx, dirname)) {
 		case let ver: module::version =>
-			assert(len(id) >= 2);
+			assert(len(id) >= 1);
 			decl = id[len(id) - 1];
 			yield ver;
 		case let err: module::error =>
