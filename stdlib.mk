@@ -2140,7 +2140,7 @@ stdlib_unix_tty_linux_srcs = \
 	$(STDLIB)/unix/tty/+linux/termios.ha \
 	$(STDLIB)/unix/tty/+linux/winsize.ha
 
-$(HARECACHE)/unix/tty/unix_tty-linux.ssa: $(stdlib_unix_tty_linux_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
+$(HARECACHE)/unix/tty/unix_tty-linux.ssa: $(stdlib_unix_tty_linux_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/tty
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::tty \
@@ -2155,7 +2155,7 @@ stdlib_unix_tty_freebsd_srcs = \
 	$(STDLIB)/unix/tty/+freebsd/pty.ha \
 	$(STDLIB)/unix/tty/+freebsd/winsize.ha
 
-$(HARECACHE)/unix/tty/unix_tty-freebsd.ssa: $(stdlib_unix_tty_freebsd_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
+$(HARECACHE)/unix/tty/unix_tty-freebsd.ssa: $(stdlib_unix_tty_freebsd_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/tty
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::tty \
@@ -4374,7 +4374,7 @@ testlib_unix_tty_linux_srcs = \
 	$(STDLIB)/unix/tty/+linux/termios.ha \
 	$(STDLIB)/unix/tty/+linux/winsize.ha
 
-$(TESTCACHE)/unix/tty/unix_tty-linux.ssa: $(testlib_unix_tty_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+$(TESTCACHE)/unix/tty/unix_tty-linux.ssa: $(testlib_unix_tty_linux_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/tty
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \
@@ -4389,7 +4389,7 @@ testlib_unix_tty_freebsd_srcs = \
 	$(STDLIB)/unix/tty/+freebsd/pty.ha \
 	$(STDLIB)/unix/tty/+freebsd/winsize.ha
 
-$(TESTCACHE)/unix/tty/unix_tty-freebsd.ssa: $(testlib_unix_tty_freebsd_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+$(TESTCACHE)/unix/tty/unix_tty-freebsd.ssa: $(testlib_unix_tty_freebsd_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/tty
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \

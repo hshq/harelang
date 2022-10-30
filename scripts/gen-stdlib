@@ -1402,7 +1402,7 @@ unix_tty() {
 		+linux/pty.ha \
 		+linux/termios.ha \
 		+linux/winsize.ha
-	gen_ssa -plinux unix::tty rt fs io os
+	gen_ssa -plinux unix::tty bufio errors fmt fs io os rt strings
 
 	gen_srcs -pfreebsd unix::tty \
 		types.ha \
@@ -1411,7 +1411,7 @@ unix_tty() {
 		+freebsd/open.ha \
 		+freebsd/pty.ha \
 		+freebsd/winsize.ha
-	gen_ssa -pfreebsd unix::tty rt fs io os
+	gen_ssa -pfreebsd unix::tty bufio errors fmt fs io os rt strings
 }
 
 uuid() {
