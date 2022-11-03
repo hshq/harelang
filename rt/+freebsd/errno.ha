@@ -104,8 +104,6 @@ export fn strerror(err: errno) str = {
 		return "No message of desired type";
 	case EIDRM =>
 		return "Identifier removed";
-	case ETIME =>
-		return "Timer expired";
 	case EREMOTE =>
 		return "Object is remote";
 	case ENOLINK =>
@@ -306,8 +304,6 @@ export fn errname(err: errno) str = {
 		return "ENOMSG";
 	case EIDRM =>
 		return "EIDRM";
-	case ETIME =>
-		return "ETIME";
 	case EREMOTE =>
 		return "EREMOTE";
 	case ENOLINK =>
@@ -483,7 +479,6 @@ export def ENOTCONN: int = 57;
 export def ESHUTDOWN: int = 58;
 export def ETOOMANYREFS: int = 59;
 export def ETIMEDOUT: int = 60;
-export def ETIME: int = ETIMEDOUT;
 export def ECONNREFUSED: int = 61;
 export def ELOOP: int = 62;
 export def ENAMETOOLONG: int = 63;

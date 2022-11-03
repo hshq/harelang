@@ -20,7 +20,7 @@ export fn errno(errno: rt::errno) error = {
 		return exists;
 	case rt::ENOENT =>
 		return noentry;
-	case rt::ETIME =>
+	case rt::ETIMEDOUT =>
 		return timeout;
 	case rt::EBUSY =>
 		return busy;
