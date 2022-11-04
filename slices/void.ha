@@ -121,13 +121,14 @@ export fn static_deletefrom(
 	end: size,
 ) void = {
 	assert(start <= end);
+	assert(itemsz != 0);
 	if (start == end) {
 		return;
 	};
 	let sl = sl: *types::slice;
 	let data = sl.data: *[*]u8;
 	rt::memmove(&data[start * itemsz], &data[end * itemsz],
-		(sl.length - start) * itemsz);
+		(sl.length - end) * itemsz);
 	sl.length -= end - start;
 };
 
