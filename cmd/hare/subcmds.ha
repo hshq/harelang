@@ -69,6 +69,7 @@ fn build(args: []str) void = {
 		('j', "jobs", "set parallelism for build"),
 		('l', "name", "link with a system library"),
 		('o', "path", "set output file name"),
+		('S', "sanitize", "enable the named sanitizers"),
 		('t', "arch", "set target architecture"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
@@ -88,6 +89,7 @@ fn build(args: []str) void = {
 	defer free(defines);
 	let libs: []str = [];
 	defer free(libs);
+	let sanitize = "";
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
@@ -103,6 +105,8 @@ fn build(args: []str) void = {
 			append(libs, opt.1);
 		case 'o' =>
 			output = opt.1;
+		case 'S' =>
+			sanitize = opt.1;
 		case 't' =>
 			match (get_target(opt.1)) {
 			case void =>
@@ -151,6 +155,7 @@ fn build(args: []str) void = {
 
 	const plan = mkplan(&ctx, libs, build_target);
 	defer plan_finish(&plan);
+	plan.sanitize = sanitize;
 
 	const ver = match (module::scan(&ctx, input)) {
 	case let ver: module::version =>
@@ -278,6 +283,7 @@ fn run(args: []str) void = {
 		('D', "ident:type=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
 		('l', "name", "link with a system library"),
+		('S', "sanitize", "enable the named sanitizers"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
 		"<path>", "<args...>",
@@ -294,6 +300,7 @@ fn run(args: []str) void = {
 	defer free(defines);
 	let libs: []str = [];
 	defer free(libs);
+	let sanitize = "";
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
@@ -305,6 +312,8 @@ fn run(args: []str) void = {
 			abort("-j option not implemented yet."); // TODO
 		case 'l' =>
 			append(libs, opt.1);
+		case 'S' =>
+			sanitize = opt.1;
 		case 't' =>
 			abort("-t option not implemented yet."); // TODO
 		case 'T' =>
@@ -347,6 +356,7 @@ fn run(args: []str) void = {
 
 	const plan = mkplan(&ctx, libs, build_target);
 	defer plan_finish(&plan);
+	plan.sanitize = sanitize;
 
 	const ver = match (module::scan(&ctx, input)) {
 	case let ver: module::version =>

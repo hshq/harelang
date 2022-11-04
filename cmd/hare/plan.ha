@@ -56,6 +56,7 @@ type plan = struct {
 	scheduled: []*task,
 	complete: []*task,
 	script: str,
+	sanitize: str,
 	libs: []str,
 	environ: [](str, str),
 	modmap: [64][]modcache,

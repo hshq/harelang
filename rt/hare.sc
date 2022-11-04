@@ -5,12 +5,13 @@ PHDRS {
 }
 ENTRY(_start);
 SECTIONS {
-	. = 0x8000000;
+	. = 0x4000000;
 	.text : {
 		KEEP (*(.text))
 		*(.text.*)
 	} :text
-	. = 0x80000000;
+
+	. = ALIGN(4096);
 	.data : {
 		KEEP (*(.data))
 		*(.data.*)

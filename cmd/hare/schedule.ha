@@ -245,6 +245,9 @@ fn sched_hare_object(
 		]),
 		module = strings::dup(ns),
 	});
+	if (plan.sanitize != "") {
+		append(harec.cmd, ["-S", plan.sanitize]...);
+	};
 
 	for (let i = 0z; i < len(plan.context.tags); i += 1) {
 		if (plan.context.tags[i].mode == module::tag_mode::INCLUSIVE
