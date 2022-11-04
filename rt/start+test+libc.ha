@@ -3,6 +3,9 @@
 
 export fn init() void = void;
 
+const @symbol("__fini_array_start") fini_start: [*]*fn() void;
+const @symbol("__fini_array_end") fini_end: [*]*fn() void;
+
 // Run all global finalization functions.
 export fn fini() void = {
 	const nfini = (&fini_end: uintptr - &fini_start: uintptr): size
