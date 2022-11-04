@@ -10,8 +10,12 @@ export type frame = struct {
 };
 
 // Returns the current stack frame. See [[nextframe]] to walk the stack.
-export fn backtrace() frame = frame {
-	addr = getfp()
+export fn backtrace() frame = {
+	let fp = frame {
+		addr = getfp()
+	};
+	// Skip the call to backtrace itself
+	return nextframe(f) as frame;
 };
 
 // Returns the frame above the current frame, if any.
