@@ -5,7 +5,10 @@
 use errors;
 
 // Any error that may occur during TTY-related tasks.
-export type error = !(errors::invalid | errors::unsupported | errors::noentry);
+export type error = !(errors::invalid
+					| errors::unsupported
+					| errors::noentry
+					| errors::overflow);
 
 // Converts an [[error]] to a human-friendly string.
 export fn strerror(err: error) str = {

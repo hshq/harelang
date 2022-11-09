@@ -1,0 +1,28 @@
+image: darwin/20.6.0
+sources:
+- https://git.sr.ht/~sircmpwn/hare
+- https://git.sr.ht/~sircmpwn/harec
+- git://c9x.me/qbe.git
+packages:
+- binutils
+tasks:
+- qbe: |
+    cd qbe
+    make PREFIX=/usr
+    sudo make install PREFIX=/usr
+- harec: |
+    mkdir harec/build
+    cd harec/build
+    ../configure --prefix=/usr
+    make -j2
+    sudo make install
+- hare: |
+    cd hare
+    sed -e 's/freebsd/darwin/g' < config.example.mk > config.mk
+    make
+- tests: |
+    cd hare
+    make .bin/hare-tests
+- check: |
+    cd hare
+    make check

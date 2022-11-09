@@ -15,7 +15,8 @@ srcdir="$(dirname "$0")"
 eval ". $srcdir/gen-stdlib.sh"
 
 all_platforms="linux
-freebsd"
+freebsd
+darwin"
 
 gensrcs_rt() {
 	gen_srcs -plinux rt \
@@ -67,6 +68,29 @@ gensrcs_rt() {
 		memset.ha \
 		strcmp.ha \
 		$*
+	gen_srcs -pdarwin rt \
+		+darwin/abort.ha \
+		+darwin/env.ha \
+		+darwin/errno.ha \
+		+darwin/platformstart.ha \
+		+darwin/segmalloc.ha \
+		+darwin/signal.ha \
+		+darwin/socket.ha \
+		+darwin/syscallno.ha \
+		+darwin/syscalls.ha \
+		+darwin/types.ha \
+		+'$(ARCH)'/jmp.ha \
+		+'$(ARCH)'/backtrace.ha \
+		fenv_defs.ha \
+		+'$(ARCH)'/cpuid.ha \
+		ensure.ha \
+		jmp.ha \
+		malloc.ha \
+		memcpy.ha \
+		memmove.ha \
+		memset.ha \
+		strcmp.ha \
+		$*
 }
 
 rt() {
@@ -89,6 +113,7 @@ rt() {
 	fi
 	gen_ssa -plinux rt
 	gen_ssa -pfreebsd rt
+	gen_ssa -pdarwin rt
 	cat <<EOF
 \$($cache)/rt/start.o: \$(STDLIB)/rt/+\$(PLATFORM)/start+\$(ARCH)-libc.s
 	@printf 'AS \t%s\n' "\$@"
@@ -140,16 +165,21 @@ ${stdlib}_asm = \$($cache)/rt/syscall.o \\
 	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(ARCH)/cpuid_native.s
 
 \$($cache)/rt/rt-linux.a: \$($cache)/rt/rt-linux.o \$(${stdlib}_asm)
-	@printf 'AS \t%s\n' "\$@"
+	@printf 'AR \t%s\n' "\$@"
 	@\$(AR) -csr \$@ \$($cache)/rt/rt-linux.o \$(${stdlib}_asm)
 
 \$($cache)/rt/rt-freebsd.a: \$($cache)/rt/rt-freebsd.o \$(${stdlib}_asm)
-	@printf 'AS \t%s\n' "\$@"
+	@printf 'AR \t%s\n' "\$@"
 	@\$(AR) -csr \$@ \$($cache)/rt/rt-freebsd.o \$(${stdlib}_asm)
+
+\$($cache)/rt/rt-darwin.a: \$($cache)/rt/rt-darwin.o \$(${stdlib}_asm)
+	@printf 'AR \t%s\n' "\$@"
+	@\$(AR) -csr \$@ \$($cache)/rt/rt-darwin.o \$(${stdlib}_asm)
 
 ${stdlib}_rt = \$($cache)/rt/rt-\$(PLATFORM).a
 ${stdlib}_deps_linux += \$(${stdlib}_rt)
 ${stdlib}_deps_freebsd += \$(${stdlib}_rt)
+${stdlib}_deps_darwin += \$(${stdlib}_rt)
 ${stdlib}_deps_any += \$(${stdlib}_rt)
 
 EOF
@@ -205,6 +235,16 @@ datetime() {
 		time.ha \
 		timezone.ha
 	gen_ssa -pfreebsd datetime errors fmt strings strio time time::chrono
+	gen_srcs -pdarwin datetime \
+		arithmetic.ha \
+		chronology.ha \
+		date.ha \
+		datetime.ha \
+		format.ha \
+		parse.ha \
+		time.ha \
+		timezone.ha
+	gen_ssa -pdarwin datetime errors fmt strings strio time time::chrono
 }
 
 crypto() {
@@ -246,7 +286,7 @@ crypto_aes() {
 			ctr+test.ha \
 			+test/gcm.ha
 		gen_ssa crypto::aes bufio bytes crypto::cipher crypto::math \
-			endian errors io rt 
+			endian errors io rt
 	fi
 }
 
@@ -428,6 +468,11 @@ crypto_random() {
 		+freebsd.ha \
 		random.ha
 	gen_ssa -pfreebsd crypto::random rt io errors
+
+	gen_srcs -pdarwin crypto::random \
+		+darwin.ha \
+		random.ha
+	gen_ssa -pdarwin crypto::random rt io errors
 }
 
 crypto_salsa() {
@@ -870,6 +915,22 @@ gensrcs_io() {
 		util.ha \
 		zero.ha \
 		$*
+	gen_srcs -pdarwin io \
+		'arch+$(ARCH).ha' \
+		+darwin/file.ha \
+		+darwin/mmap.ha \
+		+darwin/vector.ha \
+		copy.ha \
+		drain.ha \
+		empty.ha \
+		handle.ha \
+		limit.ha \
+		stream.ha \
+		tee.ha \
+		types.ha \
+		util.ha \
+		zero.ha \
+		$*
 }
 
 io() {
@@ -883,6 +944,7 @@ io() {
 	fi
 	gen_ssa -plinux io strings errors bytes
 	gen_ssa -pfreebsd io strings errors bytes
+	gen_ssa -pdarwin io strings errors bytes
 }
 
 linux() {
@@ -916,6 +978,8 @@ log() {
 	gen_ssa -plinux log datetime fmt io os
 	gen_srcs -pfreebsd log logger.ha global.ha funcs.ha silent.ha
 	gen_ssa -pfreebsd log datetime fmt io os
+	gen_srcs -pdarwin log logger.ha global.ha funcs.ha silent.ha
+	gen_ssa -pdarwin log datetime fmt io os
 }
 
 gensrcs_math() {
@@ -963,6 +1027,12 @@ net() {
 		errors.ha \
 		msg.ha
 	gen_ssa -pfreebsd net io errors rt fmt
+
+	gen_srcs -pdarwin net \
+		+darwin.ha \
+		errors.ha \
+		msg.ha
+	gen_ssa -pdarwin net io errors rt fmt
 }
 
 net_dial() {
@@ -995,6 +1065,10 @@ gensrcs_net_ip() {
 		+freebsd.ha \
 		ip.ha \
 		$*
+	gen_srcs -pdarwin net::ip \
+		+darwin.ha \
+		ip.ha \
+		$*
 }
 
 net_ip() {
@@ -1007,6 +1081,7 @@ net_ip() {
 	fi
 	gen_ssa -plinux net::ip bytes io strconv strings strio fmt
 	gen_ssa -pfreebsd net::ip bytes io strconv strings strio fmt
+	gen_ssa -pdarwin net::ip bytes io strconv strings strio fmt
 }
 
 net_tcp() {
@@ -1021,6 +1096,12 @@ net_tcp() {
 		listener.ha \
 		options.ha
 	gen_ssa -pfreebsd net::tcp io net net::ip os rt
+
+	gen_srcs -pdarwin net::tcp \
+		+darwin.ha \
+		listener.ha \
+		options.ha
+	gen_ssa -pdarwin net::tcp io net net::ip os rt
 }
 
 net_udp() {
@@ -1033,6 +1114,11 @@ net_udp() {
 		+freebsd.ha \
 		options.ha
 	gen_ssa -pfreebsd net::udp net net::ip errors rt os io
+
+	gen_srcs -pdarwin net::udp \
+		+darwin.ha \
+		options.ha
+	gen_ssa -pdarwin net::udp net net::ip errors rt os io
 }
 
 net_unix() {
@@ -1055,6 +1141,16 @@ net_unix() {
 		options.ha \
 		socketpair.ha
 	gen_ssa -pfreebsd net::unix net errors os io strings types fmt net::dial
+
+	gen_srcs -pdarwin net::unix \
+		+darwin.ha \
+		addr.ha \
+		cmsg.ha \
+		dial.ha \
+		listener.ha \
+		options.ha \
+		socketpair.ha
+	gen_ssa -pdarwin net::unix net errors os io strings types fmt net::dial
 }
 
 gensrcs_net_uri() {
@@ -1120,6 +1216,15 @@ os() {
 		+freebsd/fs.ha \
 		fs.ha
 	gen_ssa -pfreebsd os io strings types fs encoding::utf8 bytes bufio errors
+
+	gen_srcs -pdarwin os \
+		+darwin/environ.ha \
+		+darwin/exit.ha \
+		+darwin/dirfdfs.ha \
+		+darwin/stdfd.ha \
+		+darwin/fs.ha \
+		fs.ha
+	gen_ssa -pdarwin os io strings types fs encoding::utf8 bytes bufio errors
 }
 
 os_exec() {
@@ -1136,6 +1241,13 @@ os_exec() {
 		types.ha \
 		cmd.ha
 	gen_ssa -pfreebsd os::exec os strings fmt bytes path errors unix
+
+	gen_srcs -pdarwin os::exec \
+		exec+darwin.ha \
+		process+darwin.ha \
+		types.ha \
+		cmd.ha
+	gen_ssa -pdarwin os::exec os strings fmt bytes path errors unix
 }
 
 path() {
@@ -1274,9 +1386,13 @@ temp() {
 	gen_srcs -pfreebsd temp +freebsd.ha
 	gen_ssa -pfreebsd temp \
 		crypto::random encoding::hex errors fs io os path strio fmt
+
+	gen_srcs -pdarwin temp +darwin.ha
+	gen_ssa -pdarwin temp \
+		crypto::random encoding::hex errors fs io os path strio fmt
 }
 
-time() {
+function time() {
 	gen_srcs -plinux time \
 		+linux/functions.ha \
 		+linux/+'$(ARCH)'.ha \
@@ -1291,6 +1407,13 @@ time() {
 		conv.ha \
 		types.ha
 	gen_ssa -pfreebsd time \
+		math
+	gen_srcs -pdarwin time \
+		+darwin/functions.ha \
+		arithm.ha \
+		conv.ha \
+		types.ha
+	gen_ssa -pdarwin time \
 		math
 }
 
@@ -1314,6 +1437,16 @@ time_chrono() {
 		timezone.ha \
 		tzdb.ha
 	gen_ssa -pfreebsd time::chrono \
+		bufio bytes encoding::utf8 endian errors fmt fs io os strconv strings time path
+	gen_srcs -pdarwin time::chrono \
+		+darwin.ha \
+		chronology.ha \
+		error.ha \
+		leapsec.ha \
+		timescale.ha \
+		timezone.ha \
+		tzdb.ha
+	gen_ssa -pdarwin time::chrono \
 		bufio bytes encoding::utf8 endian errors fmt fs io os strconv strings time path
 }
 
@@ -1344,6 +1477,15 @@ unix() {
 		+freebsd/setuid.ha \
 		+freebsd/groups.ha
 	gen_ssa -pfreebsd unix errors fs io
+
+	gen_srcs -pdarwin unix \
+		+darwin/nice.ha \
+		+darwin/pipe.ha \
+		+darwin/umask.ha \
+		+darwin/getuid.ha \
+		+darwin/setuid.ha \
+		+darwin/groups.ha
+	gen_ssa -pdarwin unix errors fs io
 }
 
 unix_hosts() {
@@ -1356,6 +1498,11 @@ unix_hosts() {
 		+freebsd.ha \
 		lookup.ha
 	gen_ssa -pfreebsd unix::hosts os io bufio net::ip strings
+
+	gen_srcs -pdarwin unix::hosts \
+		+darwin.ha \
+		lookup.ha
+	gen_ssa -pdarwin unix::hosts os io bufio net::ip strings
 }
 
 unix_passwd() {
@@ -1372,6 +1519,9 @@ unix_poll() {
 
 	gen_srcs -pfreebsd unix::poll +freebsd.ha
 	gen_ssa -pfreebsd unix::poll rt errors time io
+
+	gen_srcs -pdarwin unix::poll +darwin.ha
+	gen_ssa -pdarwin unix::poll rt errors time io
 }
 
 unix_resolvconf() {
@@ -1384,6 +1534,11 @@ unix_resolvconf() {
 		+freebsd.ha \
 		load.ha
 	gen_ssa -pfreebsd unix::resolvconf os io bufio net::ip strings
+
+	gen_srcs -pdarwin unix::resolvconf \
+		+darwin.ha \
+		load.ha
+	gen_ssa -pdarwin unix::resolvconf os io bufio net::ip strings
 }
 
 unix_signal() {
@@ -1412,6 +1567,15 @@ unix_tty() {
 		+freebsd/pty.ha \
 		+freebsd/winsize.ha
 	gen_ssa -pfreebsd unix::tty bufio errors fmt fs io os rt strings
+
+	gen_srcs -pdarwin unix::tty \
+		types.ha \
+		pty.ha \
+		+darwin/isatty.ha \
+		+darwin/open.ha \
+		+darwin/pty.ha \
+		+darwin/winsize.ha
+	gen_ssa -pdarwin unix::tty bufio errors fmt fs io os rt strings
 }
 
 uuid() {
@@ -1440,7 +1604,7 @@ crypto::hkdf
 crypto::hmac
 crypto::mac
 crypto::math
-crypto::random	linux freebsd
+crypto::random	linux freebsd darwin
 crypto::poly1305
 crypto::salsa
 crypto::sha1
@@ -1449,7 +1613,7 @@ crypto::sha512
 crypto::curve25519
 crypto::ed25519
 crypto::x25519
-datetime	linux freebsd
+datetime	linux freebsd darwin
 dirs
 encoding::base64
 encoding::base32
@@ -1480,25 +1644,25 @@ hash::crc32
 hash::crc64
 hash::fnv
 hash::siphash
-io			linux freebsd
+io			linux freebsd darwin
 linux			linux
 linux::keyctl		linux
 linux::timerfd	linux
 linux::vdso		linux
-log	linux freebsd
+log	linux freebsd darwin
 math
 math::complex
 math::random
-net			linux freebsd
+net			linux freebsd darwin
 net::dial
 net::dns
-net::ip			linux freebsd
-net::tcp		linux freebsd
-net::udp		linux freebsd
-net::unix		linux freebsd
+net::ip			linux freebsd darwin
+net::tcp		linux freebsd darwin
+net::udp		linux freebsd darwin
+net::unix		linux freebsd darwin
 net::uri
-os			linux freebsd
-os::exec		linux freebsd
+os			linux freebsd darwin
+os::exec		linux freebsd darwin
 path
 regex
 shlex
@@ -1508,17 +1672,17 @@ strconv
 strings
 strings::template
 strio
-temp			linux freebsd
-time			linux freebsd
-time::chrono	linux freebsd
+temp			linux freebsd darwin
+time			linux freebsd darwin
+time::chrono	linux freebsd darwin
 types
-unix			linux freebsd
-unix::hosts	linux freebsd
+unix			linux freebsd darwin
+unix::hosts	linux freebsd darwin
 unix::passwd
-unix::poll		linux freebsd
-unix::resolvconf	linux freebsd
+unix::poll		linux freebsd darwin
+unix::resolvconf	linux freebsd darwin
 unix::signal		linux
-unix::tty		linux freebsd
+unix::tty		linux freebsd darwin
 uuid"
 stdlib() {
 	rt

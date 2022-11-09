@@ -14,7 +14,7 @@ all:
 
 .s.o:
 	@printf 'AS\t%s\n' "$@"
-	@$(AS) -g -o $@ $<
+	@$(AS) -o $@ $<
 
 .scd.1:
 	@printf 'SCDOC\t%s\n' "$@"

@@ -187,7 +187,8 @@ fn sched_as(plan: *plan, output: str, input: str, depend: *task...) *task = {
 		status = status::SCHEDULED,
 		output = output,
 		depend = alloc(depend...),
-		cmd = getcmd(&as_tool, "-g", "-o", output),
+		// cmd = getcmd(&as_tool, "-g", "-o", output),
+		cmd = getcmd(&as_tool, "-o", output),
 		module = void,
 	});
 

@@ -1,0 +1,560 @@
+// License: MPL-2.0
+// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+
+export def PATH_MAX: size = 1024z;
+export type path = (str | []u8 | *const char);
+let pathbuf: [PATH_MAX + 1]u8 = [0...];
+
+fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
+	let path = match (path) {
+	case let c: *const char =>
+		return c;
+	case let s: str =>
+		let ptr = &s: *struct {
+			buf: *[*]u8,
+			length: size,
+			capacity: size,
+		};
+		yield ptr.buf[..ptr.length];
+	case let b: []u8 =>
+		yield b;
+	};
+	if (len(path) + 1 >= len(pathbuf)) {
+		return ENAMETOOLONG;
+	};
+	memcpy(buf: *[*]u8, path: *[*]u8, len(path));
+	buf[len(path)] = 0;
+	return buf: *[*]u8: *const char;
+};
+
+// NUL terminates a string and stores it in a static buffer of PATH_MAX+1 bytes
+// in length.
+fn kpath(path: path) (*const char | errno) = {
+	return copy_kpath(path, pathbuf);
+};
+
+export fn read(fd: int, buf: *void, count: size) (size | errno) = {
+	return wrap_errno_return(c_read(fd, buf, count))?: size;
+};
+@symbol("read") fn c_read(fildes: int, buf: *void, nbyte: size) i64;
+
+export fn write(fd: int, buf: *const void, count: size) (size | errno) = {
+	return wrap_errno_return(c_write(fd, buf, count))?: size;
+};
+@symbol("write") fn c_write(fildes: int, buf: *const void, nbyte: size) i64;
+
+export fn readv(fd: int, iov: const *[*]iovec, iovcnt: int) (size | errno) = {
+	return wrap_errno_return(c_readv(fd, iov, iovcnt))?: size;
+};
+@symbol("readv") fn c_readv(d: int, iov: const *[*]iovec, iovcnt: int) i64;
+
+export fn writev(fd: int, iov: const *[*]iovec, iovcnt: int) (size | errno) = {
+	return wrap_errno_return(c_writev(fd, iov, iovcnt))?: size;
+};
+@symbol("writev") fn c_writev(fildes: int, iov: const *[*] iovec, iovcnt: int) i64;
+
+export fn close(fd: int) (void | errno) = {
+	wrap_errno_return(c_close(fd))?;
+};
+@symbol("close") fn c_close(fildes: int) int;
+
+export fn lseek(fd: int, off: i64, whence: int) (i64 | errno) = {
+	return wrap_errno_return(c_lseek(fd, off: off_t, whence): i64)?;
+};
+@symbol("lseek") fn c_lseek(fildes: int, off: off_t, whence: int) off_t;
+
+export fn pipe2(pipefd: *[2]int, flags: int) (void | errno) = {
+	wrap_errno_return(c_pipe(pipefd))?;
+};
+@symbol("pipe") fn c_pipe(fildes: *[2]int) int;
+
+export fn ioctl(fd: int, req: u64, arg: nullable *void) (int | errno) = {
+	return wrap_errno_return(c_ioctl(fd, req, arg))?: int;
+};
+@symbol("ioctl") fn c_ioctl(fildes: int, request: u64, arg: nullable *void) int;
+
+export fn openat(
+	dirfd: int,
+	path: path,
+	flags: int,
+	mode: uint,
+) (int | errno) = {
+	let path = kpath(path)?;
+	return wrap_errno_return(c_openat(dirfd, path, flags, mode))?: int;
+};
+@symbol("openat") fn c_openat(fd: int, path: *const char, oflag: int, mode: uint) int;
+
+export fn open(path: str, flags: int, mode: uint) (int | errno) = {
+	return openat(AT_FDCWD, path, flags, mode);
+};
+
+export fn unlink(path: path) (void | errno) = {
+	let path = kpath(path)?;
+	// wrap_errno_return(c_unlink(path))?;
+	wrap_errno_return(c_unlinkat(AT_FDCWD, path, 0))?;
+};
+// @symbol("unlink") fn c_unlink(path: *const char) int;
+
+export fn renameat(
+	olddirfd: int,
+	oldpath: str,
+	newdirfd: int,
+	newpath: str,
+) (void | errno) = {
+	let oldpath = kpath(oldpath)?;
+	static let newpathbuf: [PATH_MAX + 1]u8 = [0...];
+	let newpath = copy_kpath(newpath, newpathbuf)?;
+	wrap_errno_return(c_renameat(olddirfd, oldpath, newdirfd, newpath))?;
+};
+@symbol("renameat") fn c_renameat(fromfd: int, from: *const char,
+	tofd: int, to: *const char) int;
+
+export fn unlinkat(dirfd: int, path: path, flags: int) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_errno_return(c_unlinkat(dirfd, path, flags))?;
+};
+@symbol("unlinkat") fn c_unlinkat(fd: int, path: *const char, flag: int) int;
+
+export fn fstatat(fd: int, path: path, stat: *st, flag: int) (void | errno) = {
+	let path = kpath(path)?;
+	let fbstat = stat_t { ... };
+	wrap_errno_return(c_fstatat(fd, path, &fbstat, flag): i64)?;
+	stat.dev           = fbstat.st_dev;
+	stat.ino           = fbstat.st_ino;
+	stat.mode          = fbstat.st_mode;
+	stat.nlink         = fbstat.st_nlink;
+	stat.uid           = fbstat.st_uid;
+	stat.gid           = fbstat.st_gid;
+	stat.rdev          = fbstat.st_rdev;
+	stat.atime.tv_sec  = fbstat.st_atim.tv_sec;
+	stat.atime.tv_nsec = fbstat.st_atim.tv_nsec: i64;
+	stat.mtime.tv_sec  = fbstat.st_mtim.tv_sec;
+	stat.mtime.tv_nsec = fbstat.st_mtim.tv_nsec: i64;
+	stat.ctime.tv_sec  = fbstat.st_ctim.tv_sec;
+	stat.ctime.tv_nsec = fbstat.st_ctim.tv_nsec: i64;
+	stat.btime.tv_sec  = fbstat.st_birthtim.tv_sec;
+	stat.btime.tv_nsec = fbstat.st_birthtim.tv_nsec: i64;
+	stat.sz            = fbstat.st_size;
+	stat.blocks        = fbstat.st_blocks;
+	stat.blksz         = fbstat.st_blksize;
+	stat.flags         = fbstat.st_flags;
+};
+@symbol("fstatat") fn c_fstatat(fd: int, path: *const char, buf: *stat_t, flag: int) int;
+
+export fn readlinkat(
+	dirfd: int,
+	path: path,
+	buf: []u8,
+) (size | errno) = {
+	let path = kpath(path)?;
+	return wrap_errno_return(c_readlinkat(dirfd, path, &buf: *[*]u8: *char, len(buf)))?: size;
+};
+@symbol("readlinkat") fn c_readlinkat(fd: int, path: *const char,
+	buf: *char, bufsize: size) i64;
+
+export fn mkdirat(dirfd: int, path: path, mode: uint) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_errno_return(c_mkdirat(dirfd, path, mode: mode_t))?;
+};
+@symbol("mkdirat") fn c_mkdirat(fd: int, path: *const char, mode: mode_t) int;
+
+export fn fchmodat(dirfd: int, path: path, mode: uint, flags: int) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_errno_return(c_fchmodat(dirfd, path, mode: mode_t, flags))?;
+};
+@symbol("fchmodat") fn c_fchmodat(fd: int, path: *const char, mode: mode_t, flag: int) int;
+
+export fn fchownat(dirfd: int, path: path, uid: uint, gid: uint, flags: int) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_errno_return(c_fchownat(dirfd, path, uid, gid, flags))?;
+};
+@symbol("fchownat") fn c_fchownat(fd: int, path: *const char,
+	owner: uid_t, group: gid_t, flag: int) int;
+
+export fn faccessat(
+	dirfd: int,
+	path: path,
+	mode: int,
+	flags: int,
+) (bool | errno) = {
+	let path = kpath(path)?;
+	match (wrap_errno_return(c_faccessat(dirfd, path, mode, flags))) {
+	case let err: errno =>
+		switch (err) {
+		case EACCES =>
+			return false;
+		case =>
+			return err;
+		};
+	case let n: i64 =>
+		assert(n == 0);
+		return true;
+	};
+};
+@symbol("faccessat") fn c_faccessat(fd: int, path: *const char, mode: int, flag: int) int;
+
+// The use of this function is discouraged, as it can create race conditions.
+// TOCTOU is preferred: attempt to simply use the resource you need and handle
+// any access errors which occur.
+export fn access(path: path, mode: int) (bool | errno) =
+	faccessat(AT_FDCWD, path, mode, 0);
+
+export fn getdents(dirfd: int, buf: *void, nbytes: size) (size | errno) = {
+	let basep: i64 = 0;
+	return wrap_errno_return(c_getdirentries(dirfd, buf: *char, nbytes: int, &basep))?: size;
+};
+@symbol("getdirentries") fn c_getdirentries(fd: int, buf: *char, nbytes: int, basep: *i64) int;
+
+// The return value is statically allocated and must be duplicated before
+// calling getcwd again.
+export fn getcwd() (*const char | errno) = {
+	static let pathbuf: [PATH_MAX + 1]u8 = [0...];
+	if (c_getcwd(&pathbuf: *char, PATH_MAX + 1) == null) return get_c_errno();
+	return &pathbuf: *const char;
+};
+@symbol("getcwd") fn c_getcwd(buf: *char, bufsz: size) *char;
+
+export fn fchdir(fd: int) (void | errno) = {
+	wrap_errno_return(c_fchdir(fd))?;
+};
+@symbol("fchdir") fn c_fchdir(fildes: int) int;
+
+export fn chdir(path: path) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_errno_return(c_chdir(path))?;
+};
+@symbol("chdir") fn c_chdir(path: *const char) int;
+
+export fn chroot(path: path) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_errno_return(c_chroot(path))?;
+};
+@symbol("chroot") fn c_chroot(dirname: *const char) int;
+
+export fn mmap(
+	addr: nullable *void,
+	length: size,
+	prot: uint,
+	flags: uint,
+	fd: int,
+	offs: size
+) (errno | *void) = {
+	// let r = c_mmap(addr, length, prot: int, flags: int, fd, offs: size);
+	// return if (r == MAP_FAILED) get_c_errno() else r;
+	return wrap_errno_return(c_mmap(addr, length, prot: int, flags: int, fd, offs: off_t): uintptr: i64)?: uintptr: *void;
+};
+@symbol("mmap") fn c_mmap(addr: nullable *void, length: size,
+	prot: int, flags: int, fd: int, off: off_t) *void;
+// def MAP_FAILED: *void = -1: uintptr: *void;
+
+export fn munmap(addr: *void, length: size) (void | errno) = {
+	wrap_errno_return(c_munmap(addr, length))?;
+};
+@symbol("munmap") fn c_munmap(addr: *void, length: size) int;
+
+export @noreturn fn exit(status: int) void = c_exit(status);
+@symbol("exit") @noreturn fn c_exit(status: int) void;
+// export @symbol("exit") @noreturn fn exit(status: int) void;
+
+export fn kill(pid: int, signal: int) (void | errno) = {
+	wrap_errno_return(c_kill(pid: pid_t, signal))?;
+};
+@symbol("kill") fn c_kill(pid: pid_t, sig: int) int;
+
+export fn fork() (int | void | errno) = {
+	let n = wrap_errno_return(c_fork(): i64)?: int;
+	switch (n) {
+	case 0 =>
+		return;
+	case =>
+		return n;
+	};
+};
+@symbol("fork") fn c_fork() pid_t;
+
+export fn fexecve(fd: int, argv: *[*]nullable *const char,
+		envp: *[*]nullable *const char) errno = {
+	static let pathbuf: [MAXPATHLEN]u8 = [0...];
+	fcntl(fd, F_GETPATH, &pathbuf: *[*]u8)?;
+	return wrap_errno_return(c_execve(&pathbuf: *[*]u8: *const char, argv, envp)): errno;
+};
+
+export fn execve(
+	path: *const char,
+	argv: *[*]nullable *const char,
+	envp: *[*]nullable *const char,
+) errno = {
+	// assert(c_execve(path, argv, envp) == -1);
+	// // abort("unreachable");
+	// return get_c_errno();
+	return wrap_errno_return(c_execve(path, argv, envp)): errno;
+};
+@symbol("execve") fn c_execve(path: *const char,
+	argv: *[*]nullable *const char, envp: *[*]nullable *const char) int;
+
+export fn wait4(
+	pid: int,
+	wstatus: *int,
+	options: int,
+	rusage: nullable *rusage,
+) (int | errno) = {
+	return wrap_errno_return(c_wait4(pid: pid_t, wstatus, options, rusage): i64)?: int;
+};
+@symbol("wait4") fn c_wait4(pid: pid_t,
+	stat_loc: *int, options: int, rusage: nullable *void) pid_t;
+
+export fn wifexited(status: int) bool = wtermsig(status) == 0;
+export fn wexitstatus(status: int) int = (status & 0xff00) >> 8;
+
+export fn wtermsig(status: int) int = status & 0x7f;
+export fn wifsignaled(status: int) bool =
+	wtermsig(status) != 0o177 && wtermsig(status) != 0 && status != 0x13;
+
+// export @symbol("getpid") fn getpid() pid_t;
+export @symbol("getpid") fn getpid() int;
+
+export fn getpriority(which: int, who: id_t) (int | errno) = {
+	set_c_errno(0);
+	let prio = c_getpriority(which, who);
+	let err = get_c_errno();
+	return if (err != 0) err else prio;
+};
+@symbol("getpriority") fn c_getpriority(which: int, who: id_t) int;
+
+export fn setpriority(which: int, who: id_t, prio: int) (void | errno) = {
+	wrap_errno_return(c_setpriority(which, who, prio))?;
+};
+@symbol("setpriority") fn c_setpriority(which: int, who: id_t, prio: int) int;
+
+export fn umask(mode: mode_t) mode_t = {
+	return c_umask(mode);
+};
+@symbol("umask") fn c_umask(cmask: mode_t) mode_t;
+
+// export fn setresuid(uid: uid_t, euid: uid_t, suid: uid_t) (void | errno) = {
+// 	wrap_errno_return(c_setreuid(uid, euid))?;
+// };
+export fn setreuid(uid: uid_t, euid: uid_t) (void | errno) = {
+	wrap_errno_return(c_setreuid(uid, euid))?;
+};
+@symbol("setreuid") fn c_setreuid(ruid: uid_t, euid: uid_t) int;
+
+// export fn setresgid(gid: gid_t, egid: gid_t, sgid: gid_t) (void | errno) = {
+// 	wrap_errno_return(c_setregid(gid, egid))?;
+// };
+export fn setregid(gid: gid_t, egid: gid_t) (void | errno) = {
+	wrap_errno_return(c_setregid(gid, egid))?;
+};
+@symbol("setregid") fn c_setregid(rgid: gid_t, egid: gid_t) int;
+
+export fn getgroups(gids: []uint) (uint | errno) = {
+	return wrap_errno_return(c_getgroups(len(gids): int, &gids: *[]gid_t))?: int;
+};
+@symbol("getgroups") fn c_getgroups(gidsetsize: int, grouplist: *[]gid_t) int;
+
+export fn setgroups(gids: []uint) (void | errno) = {
+	wrap_errno_return(c_setgroups(len(gids): int, &gids: *const[]gid_t))?;
+};
+@symbol("setgroups") fn c_setgroups(ngroups: int, gidset: *const[]gid_t) int;
+
+// export fn getresuid(uid: *uid_t, euid: *uid_t, suid: *uid_t) (void | errno) = {
+// 	*uid  = c_getuid();
+// 	*euid = c_geteuid();
+// 	*suid = *euid;
+// };
+// @symbol("getuid") fn c_getuid() uid_t;
+// @symbol("geteuid") fn c_geteuid() uid_t;
+export @symbol("getuid") fn getuid() uid_t;
+export @symbol("geteuid") fn geteuid() uid_t;
+
+// export fn getresgid(gid: *gid_t, egid: *gid_t, sgid: *gid_t) (void | errno) = {
+// 	*gid  = c_getgid();
+// 	*egid = c_getegid();
+// 	*sgid = *egid;
+// };
+// @symbol("getgid") fn c_getgid() gid_t;
+// @symbol("getegid") fn c_getegid() gid_t;
+export @symbol("getgid") fn getgid() gid_t;
+export @symbol("getegid") fn getegid() gid_t;
+
+export fn clock_gettime(clock_id: int, tp: *timespec) (void | errno) = {
+	wrap_errno_return(c_clock_gettime(clock_id: clockid_t, tp))?;
+};
+@symbol("clock_gettime") fn c_clock_gettime(clock_id: clockid_t, tp: *timespec) int;
+
+export fn nanosleep(req: *const timespec, rem: nullable *timespec) (void | errno) = {
+	wrap_errno_return(c_nanosleep(req, rem))?;
+};
+@symbol("nanosleep") fn c_nanosleep(rqtp: *const timespec, rmtp: nullable *timespec) int;
+
+export fn getrandom(buf: *void, buflen: size, flags: uint) (size | errno) = {
+	// const r = c_getentropy(buf, buflen);
+	// return if (r == -1) get_c_errno() else buflen;
+	// wrap_errno_return(c_getentropy(buf, buflen))?;
+	c_arc4random_buf(buf, buflen);
+	return buflen;
+};
+// @symbol("getentropy") fn c_getentropy(buf: *void, buflen: size) int;
+@symbol("arc4random_buf") fn c_arc4random_buf(buf: *void, nbytes: size) void;
+
+export type fcntl_arg = (void | int | *st_flock | *u64 | *[*]u8);
+
+export fn fcntl(fd: int, cmd: int, arg: fcntl_arg) (int | errno) = {
+	return wrap_errno_return(match (arg) {
+	case void =>
+		yield c_fcntl_void(fd, cmd);
+	case let i: int =>
+		yield c_fcntl_int(fd, cmd, i);
+	case let l: *st_flock =>
+		yield c_fcntl_ptr(fd, cmd, l: uintptr);
+	case let u: *u64 =>
+		yield c_fcntl_ptr(fd, cmd, u: uintptr);
+	case let buf: *[*]u8 =>
+		yield c_fcntl_ptr(fd, cmd, buf: uintptr);
+	})?: int;
+};
+@symbol("fcntl") fn c_fcntl_void(fildes: int, cmd: int) int;
+@symbol("fcntl") fn c_fcntl_int(fildes: int, cmd: int, arg: int) int;
+@symbol("fcntl") fn c_fcntl_ptr(fildes: int, cmd: int, arg: uintptr) int;
+
+export fn poll(fds: *[*]pollfd, nfds: nfds_t, timeout: int) (int | errno) = {
+	return wrap_errno_return(c_poll(fds, nfds, timeout))?: int;
+};
+@symbol("poll") fn c_poll(fds: *[*]pollfd, nfds: nfds_t, timeout: int) int;
+
+export fn socket(domain: int, type_: int, protocol: int) (int | errno) = {
+	return wrap_errno_return(c_socket(domain, type_, protocol))?: int;
+};
+@symbol("socket") fn c_socket(domain: int, type_: int, protocol: int) int;
+
+export fn socketpair(
+	domain: int,
+	type_: int,
+	protocol: int,
+	sv: *[*]int,
+) (void | errno) = {
+	wrap_errno_return(c_socketpair(domain, type_, protocol, sv: *[2]int))?;
+};
+@symbol("socketpair") fn c_socketpair(domain: int, type_: int, protocol: int,
+	socket_vector: *[2]int) int;
+
+export fn connect(sockfd: int, addr: *const sockaddr, addrlen: u32) (void | errno) = {
+	wrap_errno_return(c_connect(sockfd, addr, addrlen: socklen_t))?;
+};
+@symbol("connect") fn c_connect(socket:int ,
+	address: *const sockaddr, address_len: socklen_t) int;
+
+export fn bind(sockfd: int, addr: *const sockaddr, addrlen: u32) (void | errno) = {
+	wrap_errno_return(c_bind(sockfd, addr, addrlen: socklen_t))?;
+};
+@symbol("bind") fn c_bind(socket:int ,
+	address: *const sockaddr, address_len: socklen_t) int;
+
+export fn listen(sockfd: int, backlog: u32) (void | errno) = {
+	wrap_errno_return(c_listen(sockfd, backlog: int))?;
+};
+@symbol("listen") fn c_listen(socket: int, backlog: int) int;
+
+export fn accept(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) (int | errno) = {
+	return wrap_errno_return(c_accept(sockfd, addr, addrlen: *socklen_t))?: int;
+};
+
+export fn accept4(sockfd: int, addr: nullable *sockaddr, addrlen: *u32, flags: int) (int | errno) = {
+	return wrap_errno_return(c_accept(sockfd, addr, addrlen: *socklen_t))?: int;
+};
+@symbol("accept") fn c_accept(socket: int,
+	address: nullable *sockaddr, address_len: *socklen_t) int;
+
+export fn recvfrom(sockfd: int, buf: *void, len_: size, flags: int,
+	src_addr: nullable *sockaddr, addrlen: nullable *u32
+) (size | errno) = {
+	return wrap_errno_return(c_recvfrom(sockfd, buf, len_, flags, src_addr, addrlen: *socklen_t))?: size;
+};
+@symbol("recvfrom") fn c_recvfrom(socket: int, buffer: *void, length: size, flags: int, address: nullable *sockaddr, address_len: nullable *socklen_t) i64;
+
+export fn sendto(sockfd: int, buf: *const void, len_: size, flags: int,
+	dest_addr: nullable *sockaddr, addrlen: u32
+) (size | errno) = {
+	return wrap_errno_return(c_sendto(sockfd, buf, len_, flags, dest_addr, addrlen))?: size;
+};
+@symbol("sendto") fn c_sendto(socket: int, buffer: *const void, length: size, flags: int, dest_addr: nullable *const sockaddr, dest_len: socklen_t) i64;
+
+export fn recv(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) = {
+	return recvfrom(sockfd, buf, len_, flags, null, null);
+};
+// @symbol("recv") fn c_recv(socket: int, buffer: *void, length: size, flags: int) i64;
+
+export fn send(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) = {
+	return sendto(sockfd, buf, len_, flags, null, 0);
+};
+// @symbol("send") fn c_send(socket: int, buffer: *const void, length: size, flags: int) i64;
+
+export fn sendmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
+	return wrap_errno_return(c_sendmsg(fd, msg, flags))?: int;
+};
+@symbol("sendmsg") fn c_sendmsg(socket: int,  message: *const msghdr, flags: int) i64;
+
+export fn recvmsg(fd: int, msg: *msghdr, flags: int) (int | errno) = {
+	return wrap_errno_return(c_recvmsg(fd, msg, flags))?: int;
+};
+@symbol("recvmsg") fn c_recvmsg(socket: int, message: *msghdr, flags: int) i64;
+
+export fn getsockopt(sockfd: int, level: int, optname: int, optval: nullable *void, optlen: nullable *u32) (void | errno) = {
+	wrap_errno_return(c_getsockopt(sockfd, level, optname, optval, optlen: *socklen_t))?;
+};
+@symbol("getsockopt") fn c_getsockopt(socket: int, level: int, option_name: int,
+	option_value: nullable *void, option_len: *socklen_t) int;
+
+export fn setsockopt(sockfd: int, level: int, optname: int, optval: *void, optlen: u32) (void | errno) = {
+	wrap_errno_return(c_setsockopt(sockfd, level, optname, optval, optlen: socklen_t))?;
+};
+@symbol("setsockopt") fn c_setsockopt(socket: int, level: int, option_name: int,
+	option_value: *const void, option_len: socklen_t) int;
+
+export fn getsockname(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) (void | errno) = {
+	wrap_errno_return(c_getsockname(sockfd, addr, addrlen: *socklen_t))?;
+};
+@symbol("getsockname") fn c_getsockname(socket: int,
+	address: nullable *sockaddr, address_len: nullable *socklen_t) int;
+
+export fn getpeername(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) (void | errno) = {
+	wrap_errno_return(c_getpeername(sockfd, addr, addrlen: *socklen_t))?;
+};
+@symbol("getpeername") fn c_getpeername(socket: int,
+	address: nullable *sockaddr, address_len: nullable *socklen_t) int;
+
+export fn sysctlbyname(name: str, oldp: nullable *void, oldlenp: nullable *size,
+		newp: nullable *const void, newlen: size) (void | errno) = {
+	let kname = kpath(name)?;
+	wrap_errno_return(c_sysctlbyname(kname, oldp, oldlenp, newp, newlen))?;
+};
+@symbol("sysctlbyname") fn c_sysctlbyname(name: *const char,
+	oldp: nullable *void, oldlenp: nullable *size,
+	newp: nullable *const void, newlen: size) int;
+
+export fn dup2(oldfd: int, newfd: int) (int | errno) = {
+	return wrap_errno_return(c_dup2(oldfd, newfd))?: int;
+};
+@symbol("dup2") fn c_dup2(fildes: int, fildes2: int) int;
+
+export fn posix_openpt(flags: int) (int | errno) = {
+	return wrap_errno_return(c_posix_openpt(flags))?: int;
+};
+@symbol("posix_openpt") fn c_posix_openpt(oflag: int) int;
+
+export fn grantpt(fd: int) (void | errno) = {
+	wrap_errno_return(c_grantpt(fd))?;
+};
+@symbol("grantpt") fn c_grantpt(fildes: int) int;
+
+export fn unlockpt(fd: int) (void | errno) = {
+	wrap_errno_return(c_unlockpt(fd))?;
+};
+@symbol("unlockpt") fn c_unlockpt(fildes: int) int;
+
+export fn ptsname_r(fd: int, pathbuf: []u8) (void | errno) = {
+	wrap_errno_return(c_ptsname_r(fd, pathbuf: *[*]u8: *char, len(pathbuf)))?;
+};
+@symbol("ptsname_r") fn c_ptsname_r(fildes: int, buffer: *char, buflen: size) int;

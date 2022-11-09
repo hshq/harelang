@@ -56,6 +56,32 @@ stdlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/abort.ha \
 	$(STDLIB)/rt/start.ha
 
+# rt (+darwin)
+stdlib_rt_darwin_srcs = \
+	$(STDLIB)/rt/+darwin/abort.ha \
+	$(STDLIB)/rt/+darwin/env.ha \
+	$(STDLIB)/rt/+darwin/errno.ha \
+	$(STDLIB)/rt/+darwin/platformstart.ha \
+	$(STDLIB)/rt/+darwin/segmalloc.ha \
+	$(STDLIB)/rt/+darwin/signal.ha \
+	$(STDLIB)/rt/+darwin/socket.ha \
+	$(STDLIB)/rt/+darwin/syscallno.ha \
+	$(STDLIB)/rt/+darwin/syscalls.ha \
+	$(STDLIB)/rt/+darwin/types.ha \
+	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
+	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
+	$(STDLIB)/rt/fenv_defs.ha \
+	$(STDLIB)/rt/+$(ARCH)/cpuid.ha \
+	$(STDLIB)/rt/ensure.ha \
+	$(STDLIB)/rt/jmp.ha \
+	$(STDLIB)/rt/malloc.ha \
+	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memmove.ha \
+	$(STDLIB)/rt/memset.ha \
+	$(STDLIB)/rt/strcmp.ha \
+	$(STDLIB)/rt/abort.ha \
+	$(STDLIB)/rt/start.ha
+
 $(HARECACHE)/rt/rt-linux.ssa: $(stdlib_rt_linux_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
@@ -67,6 +93,12 @@ $(HARECACHE)/rt/rt-freebsd.ssa: $(stdlib_rt_freebsd_srcs) $(stdlib_rt)
 	@mkdir -p $(HARECACHE)/rt
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nrt \
 		-t$(HARECACHE)/rt/rt.td $(stdlib_rt_freebsd_srcs)
+
+$(HARECACHE)/rt/rt-darwin.ssa: $(stdlib_rt_darwin_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/rt
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nrt \
+		-t$(HARECACHE)/rt/rt.td $(stdlib_rt_darwin_srcs)
 
 $(HARECACHE)/rt/start.o: $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH)-libc.s
 	@printf 'AS \t%s\n' "$@"
@@ -118,16 +150,21 @@ $(HARECACHE)/rt/cpuid_native.o: $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 
 $(HARECACHE)/rt/rt-linux.a: $(HARECACHE)/rt/rt-linux.o $(stdlib_asm)
-	@printf 'AS \t%s\n' "$@"
+	@printf 'AR \t%s\n' "$@"
 	@$(AR) -csr $@ $(HARECACHE)/rt/rt-linux.o $(stdlib_asm)
 
 $(HARECACHE)/rt/rt-freebsd.a: $(HARECACHE)/rt/rt-freebsd.o $(stdlib_asm)
-	@printf 'AS \t%s\n' "$@"
+	@printf 'AR \t%s\n' "$@"
 	@$(AR) -csr $@ $(HARECACHE)/rt/rt-freebsd.o $(stdlib_asm)
+
+$(HARECACHE)/rt/rt-darwin.a: $(HARECACHE)/rt/rt-darwin.o $(stdlib_asm)
+	@printf 'AR \t%s\n' "$@"
+	@$(AR) -csr $@ $(HARECACHE)/rt/rt-darwin.o $(stdlib_asm)
 
 stdlib_rt = $(HARECACHE)/rt/rt-$(PLATFORM).a
 stdlib_deps_linux += $(stdlib_rt)
 stdlib_deps_freebsd += $(stdlib_rt)
+stdlib_deps_darwin += $(stdlib_rt)
 stdlib_deps_any += $(stdlib_rt)
 
 # gen_lib ascii (any)
@@ -135,102 +172,119 @@ stdlib_ascii_any = $(HARECACHE)/ascii/ascii-any.o
 stdlib_deps_any += $(stdlib_ascii_any)
 stdlib_ascii_linux = $(stdlib_ascii_any)
 stdlib_ascii_freebsd = $(stdlib_ascii_any)
+stdlib_ascii_darwin = $(stdlib_ascii_any)
 
 # gen_lib bufio (any)
 stdlib_bufio_any = $(HARECACHE)/bufio/bufio-any.o
 stdlib_deps_any += $(stdlib_bufio_any)
 stdlib_bufio_linux = $(stdlib_bufio_any)
 stdlib_bufio_freebsd = $(stdlib_bufio_any)
+stdlib_bufio_darwin = $(stdlib_bufio_any)
 
 # gen_lib bytes (any)
 stdlib_bytes_any = $(HARECACHE)/bytes/bytes-any.o
 stdlib_deps_any += $(stdlib_bytes_any)
 stdlib_bytes_linux = $(stdlib_bytes_any)
 stdlib_bytes_freebsd = $(stdlib_bytes_any)
+stdlib_bytes_darwin = $(stdlib_bytes_any)
 
 # gen_lib crypto (any)
 stdlib_crypto_any = $(HARECACHE)/crypto/crypto-any.o
 stdlib_deps_any += $(stdlib_crypto_any)
 stdlib_crypto_linux = $(stdlib_crypto_any)
 stdlib_crypto_freebsd = $(stdlib_crypto_any)
+stdlib_crypto_darwin = $(stdlib_crypto_any)
 
 # gen_lib crypto::aes (any)
 stdlib_crypto_aes_any = $(HARECACHE)/crypto/aes/crypto_aes-any.o
 stdlib_deps_any += $(stdlib_crypto_aes_any)
 stdlib_crypto_aes_linux = $(stdlib_crypto_aes_any)
 stdlib_crypto_aes_freebsd = $(stdlib_crypto_aes_any)
+stdlib_crypto_aes_darwin = $(stdlib_crypto_aes_any)
 
 # gen_lib crypto::aes::xts (any)
 stdlib_crypto_aes_xts_any = $(HARECACHE)/crypto/aes/xts/crypto_aes_xts-any.o
 stdlib_deps_any += $(stdlib_crypto_aes_xts_any)
 stdlib_crypto_aes_xts_linux = $(stdlib_crypto_aes_xts_any)
 stdlib_crypto_aes_xts_freebsd = $(stdlib_crypto_aes_xts_any)
+stdlib_crypto_aes_xts_darwin = $(stdlib_crypto_aes_xts_any)
 
 # gen_lib crypto::argon2 (any)
 stdlib_crypto_argon2_any = $(HARECACHE)/crypto/argon2/crypto_argon2-any.o
 stdlib_deps_any += $(stdlib_crypto_argon2_any)
 stdlib_crypto_argon2_linux = $(stdlib_crypto_argon2_any)
 stdlib_crypto_argon2_freebsd = $(stdlib_crypto_argon2_any)
+stdlib_crypto_argon2_darwin = $(stdlib_crypto_argon2_any)
 
 # gen_lib crypto::bcrypt (any)
 stdlib_crypto_bcrypt_any = $(HARECACHE)/crypto/bcrypt/crypto_bcrypt-any.o
 stdlib_deps_any += $(stdlib_crypto_bcrypt_any)
 stdlib_crypto_bcrypt_linux = $(stdlib_crypto_bcrypt_any)
 stdlib_crypto_bcrypt_freebsd = $(stdlib_crypto_bcrypt_any)
+stdlib_crypto_bcrypt_darwin = $(stdlib_crypto_bcrypt_any)
 
 # gen_lib crypto::blake2b (any)
 stdlib_crypto_blake2b_any = $(HARECACHE)/crypto/blake2b/crypto_blake2b-any.o
 stdlib_deps_any += $(stdlib_crypto_blake2b_any)
 stdlib_crypto_blake2b_linux = $(stdlib_crypto_blake2b_any)
 stdlib_crypto_blake2b_freebsd = $(stdlib_crypto_blake2b_any)
+stdlib_crypto_blake2b_darwin = $(stdlib_crypto_blake2b_any)
 
 # gen_lib crypto::blowfish (any)
 stdlib_crypto_blowfish_any = $(HARECACHE)/crypto/blowfish/crypto_blowfish-any.o
 stdlib_deps_any += $(stdlib_crypto_blowfish_any)
 stdlib_crypto_blowfish_linux = $(stdlib_crypto_blowfish_any)
 stdlib_crypto_blowfish_freebsd = $(stdlib_crypto_blowfish_any)
+stdlib_crypto_blowfish_darwin = $(stdlib_crypto_blowfish_any)
 
 # gen_lib crypto::bigint (any)
 stdlib_crypto_bigint_any = $(HARECACHE)/crypto/bigint/crypto_bigint-any.o
 stdlib_deps_any += $(stdlib_crypto_bigint_any)
 stdlib_crypto_bigint_linux = $(stdlib_crypto_bigint_any)
 stdlib_crypto_bigint_freebsd = $(stdlib_crypto_bigint_any)
+stdlib_crypto_bigint_darwin = $(stdlib_crypto_bigint_any)
 
 # gen_lib crypto::chacha (any)
 stdlib_crypto_chacha_any = $(HARECACHE)/crypto/chacha/crypto_chacha-any.o
 stdlib_deps_any += $(stdlib_crypto_chacha_any)
 stdlib_crypto_chacha_linux = $(stdlib_crypto_chacha_any)
 stdlib_crypto_chacha_freebsd = $(stdlib_crypto_chacha_any)
+stdlib_crypto_chacha_darwin = $(stdlib_crypto_chacha_any)
 
 # gen_lib crypto::cipher (any)
 stdlib_crypto_cipher_any = $(HARECACHE)/crypto/cipher/crypto_cipher-any.o
 stdlib_deps_any += $(stdlib_crypto_cipher_any)
 stdlib_crypto_cipher_linux = $(stdlib_crypto_cipher_any)
 stdlib_crypto_cipher_freebsd = $(stdlib_crypto_cipher_any)
+stdlib_crypto_cipher_darwin = $(stdlib_crypto_cipher_any)
 
 # gen_lib crypto::hkdf (any)
 stdlib_crypto_hkdf_any = $(HARECACHE)/crypto/hkdf/crypto_hkdf-any.o
 stdlib_deps_any += $(stdlib_crypto_hkdf_any)
 stdlib_crypto_hkdf_linux = $(stdlib_crypto_hkdf_any)
 stdlib_crypto_hkdf_freebsd = $(stdlib_crypto_hkdf_any)
+stdlib_crypto_hkdf_darwin = $(stdlib_crypto_hkdf_any)
 
 # gen_lib crypto::hmac (any)
 stdlib_crypto_hmac_any = $(HARECACHE)/crypto/hmac/crypto_hmac-any.o
 stdlib_deps_any += $(stdlib_crypto_hmac_any)
 stdlib_crypto_hmac_linux = $(stdlib_crypto_hmac_any)
 stdlib_crypto_hmac_freebsd = $(stdlib_crypto_hmac_any)
+stdlib_crypto_hmac_darwin = $(stdlib_crypto_hmac_any)
 
 # gen_lib crypto::mac (any)
 stdlib_crypto_mac_any = $(HARECACHE)/crypto/mac/crypto_mac-any.o
 stdlib_deps_any += $(stdlib_crypto_mac_any)
 stdlib_crypto_mac_linux = $(stdlib_crypto_mac_any)
 stdlib_crypto_mac_freebsd = $(stdlib_crypto_mac_any)
+stdlib_crypto_mac_darwin = $(stdlib_crypto_mac_any)
 
 # gen_lib crypto::math (any)
 stdlib_crypto_math_any = $(HARECACHE)/crypto/math/crypto_math-any.o
 stdlib_deps_any += $(stdlib_crypto_math_any)
 stdlib_crypto_math_linux = $(stdlib_crypto_math_any)
 stdlib_crypto_math_freebsd = $(stdlib_crypto_math_any)
+stdlib_crypto_math_darwin = $(stdlib_crypto_math_any)
 
 # gen_lib crypto::random (linux)
 stdlib_crypto_random_linux = $(HARECACHE)/crypto/random/crypto_random-linux.o
@@ -240,53 +294,65 @@ stdlib_deps_linux += $(stdlib_crypto_random_linux)
 stdlib_crypto_random_freebsd = $(HARECACHE)/crypto/random/crypto_random-freebsd.o
 stdlib_deps_freebsd += $(stdlib_crypto_random_freebsd)
 
+# gen_lib crypto::random (darwin)
+stdlib_crypto_random_darwin = $(HARECACHE)/crypto/random/crypto_random-darwin.o
+stdlib_deps_darwin += $(stdlib_crypto_random_darwin)
+
 # gen_lib crypto::poly1305 (any)
 stdlib_crypto_poly1305_any = $(HARECACHE)/crypto/poly1305/crypto_poly1305-any.o
 stdlib_deps_any += $(stdlib_crypto_poly1305_any)
 stdlib_crypto_poly1305_linux = $(stdlib_crypto_poly1305_any)
 stdlib_crypto_poly1305_freebsd = $(stdlib_crypto_poly1305_any)
+stdlib_crypto_poly1305_darwin = $(stdlib_crypto_poly1305_any)
 
 # gen_lib crypto::salsa (any)
 stdlib_crypto_salsa_any = $(HARECACHE)/crypto/salsa/crypto_salsa-any.o
 stdlib_deps_any += $(stdlib_crypto_salsa_any)
 stdlib_crypto_salsa_linux = $(stdlib_crypto_salsa_any)
 stdlib_crypto_salsa_freebsd = $(stdlib_crypto_salsa_any)
+stdlib_crypto_salsa_darwin = $(stdlib_crypto_salsa_any)
 
 # gen_lib crypto::sha1 (any)
 stdlib_crypto_sha1_any = $(HARECACHE)/crypto/sha1/crypto_sha1-any.o
 stdlib_deps_any += $(stdlib_crypto_sha1_any)
 stdlib_crypto_sha1_linux = $(stdlib_crypto_sha1_any)
 stdlib_crypto_sha1_freebsd = $(stdlib_crypto_sha1_any)
+stdlib_crypto_sha1_darwin = $(stdlib_crypto_sha1_any)
 
 # gen_lib crypto::sha256 (any)
 stdlib_crypto_sha256_any = $(HARECACHE)/crypto/sha256/crypto_sha256-any.o
 stdlib_deps_any += $(stdlib_crypto_sha256_any)
 stdlib_crypto_sha256_linux = $(stdlib_crypto_sha256_any)
 stdlib_crypto_sha256_freebsd = $(stdlib_crypto_sha256_any)
+stdlib_crypto_sha256_darwin = $(stdlib_crypto_sha256_any)
 
 # gen_lib crypto::sha512 (any)
 stdlib_crypto_sha512_any = $(HARECACHE)/crypto/sha512/crypto_sha512-any.o
 stdlib_deps_any += $(stdlib_crypto_sha512_any)
 stdlib_crypto_sha512_linux = $(stdlib_crypto_sha512_any)
 stdlib_crypto_sha512_freebsd = $(stdlib_crypto_sha512_any)
+stdlib_crypto_sha512_darwin = $(stdlib_crypto_sha512_any)
 
 # gen_lib crypto::curve25519 (any)
 stdlib_crypto_curve25519_any = $(HARECACHE)/crypto/curve25519/crypto_curve25519-any.o
 stdlib_deps_any += $(stdlib_crypto_curve25519_any)
 stdlib_crypto_curve25519_linux = $(stdlib_crypto_curve25519_any)
 stdlib_crypto_curve25519_freebsd = $(stdlib_crypto_curve25519_any)
+stdlib_crypto_curve25519_darwin = $(stdlib_crypto_curve25519_any)
 
 # gen_lib crypto::ed25519 (any)
 stdlib_crypto_ed25519_any = $(HARECACHE)/crypto/ed25519/crypto_ed25519-any.o
 stdlib_deps_any += $(stdlib_crypto_ed25519_any)
 stdlib_crypto_ed25519_linux = $(stdlib_crypto_ed25519_any)
 stdlib_crypto_ed25519_freebsd = $(stdlib_crypto_ed25519_any)
+stdlib_crypto_ed25519_darwin = $(stdlib_crypto_ed25519_any)
 
 # gen_lib crypto::x25519 (any)
 stdlib_crypto_x25519_any = $(HARECACHE)/crypto/x25519/crypto_x25519-any.o
 stdlib_deps_any += $(stdlib_crypto_x25519_any)
 stdlib_crypto_x25519_linux = $(stdlib_crypto_x25519_any)
 stdlib_crypto_x25519_freebsd = $(stdlib_crypto_x25519_any)
+stdlib_crypto_x25519_darwin = $(stdlib_crypto_x25519_any)
 
 # gen_lib datetime (linux)
 stdlib_datetime_linux = $(HARECACHE)/datetime/datetime-linux.o
@@ -296,185 +362,219 @@ stdlib_deps_linux += $(stdlib_datetime_linux)
 stdlib_datetime_freebsd = $(HARECACHE)/datetime/datetime-freebsd.o
 stdlib_deps_freebsd += $(stdlib_datetime_freebsd)
 
+# gen_lib datetime (darwin)
+stdlib_datetime_darwin = $(HARECACHE)/datetime/datetime-darwin.o
+stdlib_deps_darwin += $(stdlib_datetime_darwin)
+
 # gen_lib dirs (any)
 stdlib_dirs_any = $(HARECACHE)/dirs/dirs-any.o
 stdlib_deps_any += $(stdlib_dirs_any)
 stdlib_dirs_linux = $(stdlib_dirs_any)
 stdlib_dirs_freebsd = $(stdlib_dirs_any)
+stdlib_dirs_darwin = $(stdlib_dirs_any)
 
 # gen_lib encoding::base64 (any)
 stdlib_encoding_base64_any = $(HARECACHE)/encoding/base64/encoding_base64-any.o
 stdlib_deps_any += $(stdlib_encoding_base64_any)
 stdlib_encoding_base64_linux = $(stdlib_encoding_base64_any)
 stdlib_encoding_base64_freebsd = $(stdlib_encoding_base64_any)
+stdlib_encoding_base64_darwin = $(stdlib_encoding_base64_any)
 
 # gen_lib encoding::base32 (any)
 stdlib_encoding_base32_any = $(HARECACHE)/encoding/base32/encoding_base32-any.o
 stdlib_deps_any += $(stdlib_encoding_base32_any)
 stdlib_encoding_base32_linux = $(stdlib_encoding_base32_any)
 stdlib_encoding_base32_freebsd = $(stdlib_encoding_base32_any)
+stdlib_encoding_base32_darwin = $(stdlib_encoding_base32_any)
 
 # gen_lib encoding::hex (any)
 stdlib_encoding_hex_any = $(HARECACHE)/encoding/hex/encoding_hex-any.o
 stdlib_deps_any += $(stdlib_encoding_hex_any)
 stdlib_encoding_hex_linux = $(stdlib_encoding_hex_any)
 stdlib_encoding_hex_freebsd = $(stdlib_encoding_hex_any)
+stdlib_encoding_hex_darwin = $(stdlib_encoding_hex_any)
 
 # gen_lib encoding::pem (any)
 stdlib_encoding_pem_any = $(HARECACHE)/encoding/pem/encoding_pem-any.o
 stdlib_deps_any += $(stdlib_encoding_pem_any)
 stdlib_encoding_pem_linux = $(stdlib_encoding_pem_any)
 stdlib_encoding_pem_freebsd = $(stdlib_encoding_pem_any)
+stdlib_encoding_pem_darwin = $(stdlib_encoding_pem_any)
 
 # gen_lib encoding::utf8 (any)
 stdlib_encoding_utf8_any = $(HARECACHE)/encoding/utf8/encoding_utf8-any.o
 stdlib_deps_any += $(stdlib_encoding_utf8_any)
 stdlib_encoding_utf8_linux = $(stdlib_encoding_utf8_any)
 stdlib_encoding_utf8_freebsd = $(stdlib_encoding_utf8_any)
+stdlib_encoding_utf8_darwin = $(stdlib_encoding_utf8_any)
 
 # gen_lib endian (any)
 stdlib_endian_any = $(HARECACHE)/endian/endian-any.o
 stdlib_deps_any += $(stdlib_endian_any)
 stdlib_endian_linux = $(stdlib_endian_any)
 stdlib_endian_freebsd = $(stdlib_endian_any)
+stdlib_endian_darwin = $(stdlib_endian_any)
 
 # gen_lib errors (any)
 stdlib_errors_any = $(HARECACHE)/errors/errors-any.o
 stdlib_deps_any += $(stdlib_errors_any)
 stdlib_errors_linux = $(stdlib_errors_any)
 stdlib_errors_freebsd = $(stdlib_errors_any)
+stdlib_errors_darwin = $(stdlib_errors_any)
 
 # gen_lib fmt (any)
 stdlib_fmt_any = $(HARECACHE)/fmt/fmt-any.o
 stdlib_deps_any += $(stdlib_fmt_any)
 stdlib_fmt_linux = $(stdlib_fmt_any)
 stdlib_fmt_freebsd = $(stdlib_fmt_any)
+stdlib_fmt_darwin = $(stdlib_fmt_any)
 
 # gen_lib fnmatch (any)
 stdlib_fnmatch_any = $(HARECACHE)/fnmatch/fnmatch-any.o
 stdlib_deps_any += $(stdlib_fnmatch_any)
 stdlib_fnmatch_linux = $(stdlib_fnmatch_any)
 stdlib_fnmatch_freebsd = $(stdlib_fnmatch_any)
+stdlib_fnmatch_darwin = $(stdlib_fnmatch_any)
 
 # gen_lib format::elf (any)
 stdlib_format_elf_any = $(HARECACHE)/format/elf/format_elf-any.o
 stdlib_deps_any += $(stdlib_format_elf_any)
 stdlib_format_elf_linux = $(stdlib_format_elf_any)
 stdlib_format_elf_freebsd = $(stdlib_format_elf_any)
+stdlib_format_elf_darwin = $(stdlib_format_elf_any)
 
 # gen_lib format::ini (any)
 stdlib_format_ini_any = $(HARECACHE)/format/ini/format_ini-any.o
 stdlib_deps_any += $(stdlib_format_ini_any)
 stdlib_format_ini_linux = $(stdlib_format_ini_any)
 stdlib_format_ini_freebsd = $(stdlib_format_ini_any)
+stdlib_format_ini_darwin = $(stdlib_format_ini_any)
 
 # gen_lib format::tar (any)
 stdlib_format_tar_any = $(HARECACHE)/format/tar/format_tar-any.o
 stdlib_deps_any += $(stdlib_format_tar_any)
 stdlib_format_tar_linux = $(stdlib_format_tar_any)
 stdlib_format_tar_freebsd = $(stdlib_format_tar_any)
+stdlib_format_tar_darwin = $(stdlib_format_tar_any)
 
 # gen_lib fs (any)
 stdlib_fs_any = $(HARECACHE)/fs/fs-any.o
 stdlib_deps_any += $(stdlib_fs_any)
 stdlib_fs_linux = $(stdlib_fs_any)
 stdlib_fs_freebsd = $(stdlib_fs_any)
+stdlib_fs_darwin = $(stdlib_fs_any)
 
 # gen_lib getopt (any)
 stdlib_getopt_any = $(HARECACHE)/getopt/getopt-any.o
 stdlib_deps_any += $(stdlib_getopt_any)
 stdlib_getopt_linux = $(stdlib_getopt_any)
 stdlib_getopt_freebsd = $(stdlib_getopt_any)
+stdlib_getopt_darwin = $(stdlib_getopt_any)
 
 # gen_lib glob (any)
 stdlib_glob_any = $(HARECACHE)/glob/glob-any.o
 stdlib_deps_any += $(stdlib_glob_any)
 stdlib_glob_linux = $(stdlib_glob_any)
 stdlib_glob_freebsd = $(stdlib_glob_any)
+stdlib_glob_darwin = $(stdlib_glob_any)
 
 # gen_lib hare::ast (any)
 stdlib_hare_ast_any = $(HARECACHE)/hare/ast/hare_ast-any.o
 stdlib_deps_any += $(stdlib_hare_ast_any)
 stdlib_hare_ast_linux = $(stdlib_hare_ast_any)
 stdlib_hare_ast_freebsd = $(stdlib_hare_ast_any)
+stdlib_hare_ast_darwin = $(stdlib_hare_ast_any)
 
 # gen_lib hare::lex (any)
 stdlib_hare_lex_any = $(HARECACHE)/hare/lex/hare_lex-any.o
 stdlib_deps_any += $(stdlib_hare_lex_any)
 stdlib_hare_lex_linux = $(stdlib_hare_lex_any)
 stdlib_hare_lex_freebsd = $(stdlib_hare_lex_any)
+stdlib_hare_lex_darwin = $(stdlib_hare_lex_any)
 
 # gen_lib hare::module (any)
 stdlib_hare_module_any = $(HARECACHE)/hare/module/hare_module-any.o
 stdlib_deps_any += $(stdlib_hare_module_any)
 stdlib_hare_module_linux = $(stdlib_hare_module_any)
 stdlib_hare_module_freebsd = $(stdlib_hare_module_any)
+stdlib_hare_module_darwin = $(stdlib_hare_module_any)
 
 # gen_lib hare::parse (any)
 stdlib_hare_parse_any = $(HARECACHE)/hare/parse/hare_parse-any.o
 stdlib_deps_any += $(stdlib_hare_parse_any)
 stdlib_hare_parse_linux = $(stdlib_hare_parse_any)
 stdlib_hare_parse_freebsd = $(stdlib_hare_parse_any)
+stdlib_hare_parse_darwin = $(stdlib_hare_parse_any)
 
 # gen_lib hare::types (any)
 stdlib_hare_types_any = $(HARECACHE)/hare/types/hare_types-any.o
 stdlib_deps_any += $(stdlib_hare_types_any)
 stdlib_hare_types_linux = $(stdlib_hare_types_any)
 stdlib_hare_types_freebsd = $(stdlib_hare_types_any)
+stdlib_hare_types_darwin = $(stdlib_hare_types_any)
 
 # gen_lib hare::unit (any)
 stdlib_hare_unit_any = $(HARECACHE)/hare/unit/hare_unit-any.o
 stdlib_deps_any += $(stdlib_hare_unit_any)
 stdlib_hare_unit_linux = $(stdlib_hare_unit_any)
 stdlib_hare_unit_freebsd = $(stdlib_hare_unit_any)
+stdlib_hare_unit_darwin = $(stdlib_hare_unit_any)
 
 # gen_lib hare::unparse (any)
 stdlib_hare_unparse_any = $(HARECACHE)/hare/unparse/hare_unparse-any.o
 stdlib_deps_any += $(stdlib_hare_unparse_any)
 stdlib_hare_unparse_linux = $(stdlib_hare_unparse_any)
 stdlib_hare_unparse_freebsd = $(stdlib_hare_unparse_any)
+stdlib_hare_unparse_darwin = $(stdlib_hare_unparse_any)
 
 # gen_lib hash (any)
 stdlib_hash_any = $(HARECACHE)/hash/hash-any.o
 stdlib_deps_any += $(stdlib_hash_any)
 stdlib_hash_linux = $(stdlib_hash_any)
 stdlib_hash_freebsd = $(stdlib_hash_any)
+stdlib_hash_darwin = $(stdlib_hash_any)
 
 # gen_lib hash::adler32 (any)
 stdlib_hash_adler32_any = $(HARECACHE)/hash/adler32/hash_adler32-any.o
 stdlib_deps_any += $(stdlib_hash_adler32_any)
 stdlib_hash_adler32_linux = $(stdlib_hash_adler32_any)
 stdlib_hash_adler32_freebsd = $(stdlib_hash_adler32_any)
+stdlib_hash_adler32_darwin = $(stdlib_hash_adler32_any)
 
 # gen_lib hash::crc16 (any)
 stdlib_hash_crc16_any = $(HARECACHE)/hash/crc16/hash_crc16-any.o
 stdlib_deps_any += $(stdlib_hash_crc16_any)
 stdlib_hash_crc16_linux = $(stdlib_hash_crc16_any)
 stdlib_hash_crc16_freebsd = $(stdlib_hash_crc16_any)
+stdlib_hash_crc16_darwin = $(stdlib_hash_crc16_any)
 
 # gen_lib hash::crc32 (any)
 stdlib_hash_crc32_any = $(HARECACHE)/hash/crc32/hash_crc32-any.o
 stdlib_deps_any += $(stdlib_hash_crc32_any)
 stdlib_hash_crc32_linux = $(stdlib_hash_crc32_any)
 stdlib_hash_crc32_freebsd = $(stdlib_hash_crc32_any)
+stdlib_hash_crc32_darwin = $(stdlib_hash_crc32_any)
 
 # gen_lib hash::crc64 (any)
 stdlib_hash_crc64_any = $(HARECACHE)/hash/crc64/hash_crc64-any.o
 stdlib_deps_any += $(stdlib_hash_crc64_any)
 stdlib_hash_crc64_linux = $(stdlib_hash_crc64_any)
 stdlib_hash_crc64_freebsd = $(stdlib_hash_crc64_any)
+stdlib_hash_crc64_darwin = $(stdlib_hash_crc64_any)
 
 # gen_lib hash::fnv (any)
 stdlib_hash_fnv_any = $(HARECACHE)/hash/fnv/hash_fnv-any.o
 stdlib_deps_any += $(stdlib_hash_fnv_any)
 stdlib_hash_fnv_linux = $(stdlib_hash_fnv_any)
 stdlib_hash_fnv_freebsd = $(stdlib_hash_fnv_any)
+stdlib_hash_fnv_darwin = $(stdlib_hash_fnv_any)
 
 # gen_lib hash::siphash (any)
 stdlib_hash_siphash_any = $(HARECACHE)/hash/siphash/hash_siphash-any.o
 stdlib_deps_any += $(stdlib_hash_siphash_any)
 stdlib_hash_siphash_linux = $(stdlib_hash_siphash_any)
 stdlib_hash_siphash_freebsd = $(stdlib_hash_siphash_any)
+stdlib_hash_siphash_darwin = $(stdlib_hash_siphash_any)
 
 # gen_lib io (linux)
 stdlib_io_linux = $(HARECACHE)/io/io-linux.o
@@ -483,6 +583,10 @@ stdlib_deps_linux += $(stdlib_io_linux)
 # gen_lib io (freebsd)
 stdlib_io_freebsd = $(HARECACHE)/io/io-freebsd.o
 stdlib_deps_freebsd += $(stdlib_io_freebsd)
+
+# gen_lib io (darwin)
+stdlib_io_darwin = $(HARECACHE)/io/io-darwin.o
+stdlib_deps_darwin += $(stdlib_io_darwin)
 
 # gen_lib linux (linux)
 stdlib_linux_linux = $(HARECACHE)/linux/linux-linux.o
@@ -508,23 +612,30 @@ stdlib_deps_linux += $(stdlib_log_linux)
 stdlib_log_freebsd = $(HARECACHE)/log/log-freebsd.o
 stdlib_deps_freebsd += $(stdlib_log_freebsd)
 
+# gen_lib log (darwin)
+stdlib_log_darwin = $(HARECACHE)/log/log-darwin.o
+stdlib_deps_darwin += $(stdlib_log_darwin)
+
 # gen_lib math (any)
 stdlib_math_any = $(HARECACHE)/math/math-any.o
 stdlib_deps_any += $(stdlib_math_any)
 stdlib_math_linux = $(stdlib_math_any)
 stdlib_math_freebsd = $(stdlib_math_any)
+stdlib_math_darwin = $(stdlib_math_any)
 
 # gen_lib math::complex (any)
 stdlib_math_complex_any = $(HARECACHE)/math/complex/math_complex-any.o
 stdlib_deps_any += $(stdlib_math_complex_any)
 stdlib_math_complex_linux = $(stdlib_math_complex_any)
 stdlib_math_complex_freebsd = $(stdlib_math_complex_any)
+stdlib_math_complex_darwin = $(stdlib_math_complex_any)
 
 # gen_lib math::random (any)
 stdlib_math_random_any = $(HARECACHE)/math/random/math_random-any.o
 stdlib_deps_any += $(stdlib_math_random_any)
 stdlib_math_random_linux = $(stdlib_math_random_any)
 stdlib_math_random_freebsd = $(stdlib_math_random_any)
+stdlib_math_random_darwin = $(stdlib_math_random_any)
 
 # gen_lib net (linux)
 stdlib_net_linux = $(HARECACHE)/net/net-linux.o
@@ -534,17 +645,23 @@ stdlib_deps_linux += $(stdlib_net_linux)
 stdlib_net_freebsd = $(HARECACHE)/net/net-freebsd.o
 stdlib_deps_freebsd += $(stdlib_net_freebsd)
 
+# gen_lib net (darwin)
+stdlib_net_darwin = $(HARECACHE)/net/net-darwin.o
+stdlib_deps_darwin += $(stdlib_net_darwin)
+
 # gen_lib net::dial (any)
 stdlib_net_dial_any = $(HARECACHE)/net/dial/net_dial-any.o
 stdlib_deps_any += $(stdlib_net_dial_any)
 stdlib_net_dial_linux = $(stdlib_net_dial_any)
 stdlib_net_dial_freebsd = $(stdlib_net_dial_any)
+stdlib_net_dial_darwin = $(stdlib_net_dial_any)
 
 # gen_lib net::dns (any)
 stdlib_net_dns_any = $(HARECACHE)/net/dns/net_dns-any.o
 stdlib_deps_any += $(stdlib_net_dns_any)
 stdlib_net_dns_linux = $(stdlib_net_dns_any)
 stdlib_net_dns_freebsd = $(stdlib_net_dns_any)
+stdlib_net_dns_darwin = $(stdlib_net_dns_any)
 
 # gen_lib net::ip (linux)
 stdlib_net_ip_linux = $(HARECACHE)/net/ip/net_ip-linux.o
@@ -554,6 +671,10 @@ stdlib_deps_linux += $(stdlib_net_ip_linux)
 stdlib_net_ip_freebsd = $(HARECACHE)/net/ip/net_ip-freebsd.o
 stdlib_deps_freebsd += $(stdlib_net_ip_freebsd)
 
+# gen_lib net::ip (darwin)
+stdlib_net_ip_darwin = $(HARECACHE)/net/ip/net_ip-darwin.o
+stdlib_deps_darwin += $(stdlib_net_ip_darwin)
+
 # gen_lib net::tcp (linux)
 stdlib_net_tcp_linux = $(HARECACHE)/net/tcp/net_tcp-linux.o
 stdlib_deps_linux += $(stdlib_net_tcp_linux)
@@ -561,6 +682,10 @@ stdlib_deps_linux += $(stdlib_net_tcp_linux)
 # gen_lib net::tcp (freebsd)
 stdlib_net_tcp_freebsd = $(HARECACHE)/net/tcp/net_tcp-freebsd.o
 stdlib_deps_freebsd += $(stdlib_net_tcp_freebsd)
+
+# gen_lib net::tcp (darwin)
+stdlib_net_tcp_darwin = $(HARECACHE)/net/tcp/net_tcp-darwin.o
+stdlib_deps_darwin += $(stdlib_net_tcp_darwin)
 
 # gen_lib net::udp (linux)
 stdlib_net_udp_linux = $(HARECACHE)/net/udp/net_udp-linux.o
@@ -570,6 +695,10 @@ stdlib_deps_linux += $(stdlib_net_udp_linux)
 stdlib_net_udp_freebsd = $(HARECACHE)/net/udp/net_udp-freebsd.o
 stdlib_deps_freebsd += $(stdlib_net_udp_freebsd)
 
+# gen_lib net::udp (darwin)
+stdlib_net_udp_darwin = $(HARECACHE)/net/udp/net_udp-darwin.o
+stdlib_deps_darwin += $(stdlib_net_udp_darwin)
+
 # gen_lib net::unix (linux)
 stdlib_net_unix_linux = $(HARECACHE)/net/unix/net_unix-linux.o
 stdlib_deps_linux += $(stdlib_net_unix_linux)
@@ -578,11 +707,16 @@ stdlib_deps_linux += $(stdlib_net_unix_linux)
 stdlib_net_unix_freebsd = $(HARECACHE)/net/unix/net_unix-freebsd.o
 stdlib_deps_freebsd += $(stdlib_net_unix_freebsd)
 
+# gen_lib net::unix (darwin)
+stdlib_net_unix_darwin = $(HARECACHE)/net/unix/net_unix-darwin.o
+stdlib_deps_darwin += $(stdlib_net_unix_darwin)
+
 # gen_lib net::uri (any)
 stdlib_net_uri_any = $(HARECACHE)/net/uri/net_uri-any.o
 stdlib_deps_any += $(stdlib_net_uri_any)
 stdlib_net_uri_linux = $(stdlib_net_uri_any)
 stdlib_net_uri_freebsd = $(stdlib_net_uri_any)
+stdlib_net_uri_darwin = $(stdlib_net_uri_any)
 
 # gen_lib os (linux)
 stdlib_os_linux = $(HARECACHE)/os/os-linux.o
@@ -592,6 +726,10 @@ stdlib_deps_linux += $(stdlib_os_linux)
 stdlib_os_freebsd = $(HARECACHE)/os/os-freebsd.o
 stdlib_deps_freebsd += $(stdlib_os_freebsd)
 
+# gen_lib os (darwin)
+stdlib_os_darwin = $(HARECACHE)/os/os-darwin.o
+stdlib_deps_darwin += $(stdlib_os_darwin)
+
 # gen_lib os::exec (linux)
 stdlib_os_exec_linux = $(HARECACHE)/os/exec/os_exec-linux.o
 stdlib_deps_linux += $(stdlib_os_exec_linux)
@@ -600,59 +738,72 @@ stdlib_deps_linux += $(stdlib_os_exec_linux)
 stdlib_os_exec_freebsd = $(HARECACHE)/os/exec/os_exec-freebsd.o
 stdlib_deps_freebsd += $(stdlib_os_exec_freebsd)
 
+# gen_lib os::exec (darwin)
+stdlib_os_exec_darwin = $(HARECACHE)/os/exec/os_exec-darwin.o
+stdlib_deps_darwin += $(stdlib_os_exec_darwin)
+
 # gen_lib path (any)
 stdlib_path_any = $(HARECACHE)/path/path-any.o
 stdlib_deps_any += $(stdlib_path_any)
 stdlib_path_linux = $(stdlib_path_any)
 stdlib_path_freebsd = $(stdlib_path_any)
+stdlib_path_darwin = $(stdlib_path_any)
 
 # gen_lib regex (any)
 stdlib_regex_any = $(HARECACHE)/regex/regex-any.o
 stdlib_deps_any += $(stdlib_regex_any)
 stdlib_regex_linux = $(stdlib_regex_any)
 stdlib_regex_freebsd = $(stdlib_regex_any)
+stdlib_regex_darwin = $(stdlib_regex_any)
 
 # gen_lib shlex (any)
 stdlib_shlex_any = $(HARECACHE)/shlex/shlex-any.o
 stdlib_deps_any += $(stdlib_shlex_any)
 stdlib_shlex_linux = $(stdlib_shlex_any)
 stdlib_shlex_freebsd = $(stdlib_shlex_any)
+stdlib_shlex_darwin = $(stdlib_shlex_any)
 
 # gen_lib slices (any)
 stdlib_slices_any = $(HARECACHE)/slices/slices-any.o
 stdlib_deps_any += $(stdlib_slices_any)
 stdlib_slices_linux = $(stdlib_slices_any)
 stdlib_slices_freebsd = $(stdlib_slices_any)
+stdlib_slices_darwin = $(stdlib_slices_any)
 
 # gen_lib sort (any)
 stdlib_sort_any = $(HARECACHE)/sort/sort-any.o
 stdlib_deps_any += $(stdlib_sort_any)
 stdlib_sort_linux = $(stdlib_sort_any)
 stdlib_sort_freebsd = $(stdlib_sort_any)
+stdlib_sort_darwin = $(stdlib_sort_any)
 
 # gen_lib strconv (any)
 stdlib_strconv_any = $(HARECACHE)/strconv/strconv-any.o
 stdlib_deps_any += $(stdlib_strconv_any)
 stdlib_strconv_linux = $(stdlib_strconv_any)
 stdlib_strconv_freebsd = $(stdlib_strconv_any)
+stdlib_strconv_darwin = $(stdlib_strconv_any)
 
 # gen_lib strings (any)
 stdlib_strings_any = $(HARECACHE)/strings/strings-any.o
 stdlib_deps_any += $(stdlib_strings_any)
 stdlib_strings_linux = $(stdlib_strings_any)
 stdlib_strings_freebsd = $(stdlib_strings_any)
+stdlib_strings_darwin = $(stdlib_strings_any)
 
 # gen_lib strings::template (any)
 stdlib_strings_template_any = $(HARECACHE)/strings/template/strings_template-any.o
 stdlib_deps_any += $(stdlib_strings_template_any)
 stdlib_strings_template_linux = $(stdlib_strings_template_any)
 stdlib_strings_template_freebsd = $(stdlib_strings_template_any)
+stdlib_strings_template_darwin = $(stdlib_strings_template_any)
 
 # gen_lib strio (any)
 stdlib_strio_any = $(HARECACHE)/strio/strio-any.o
 stdlib_deps_any += $(stdlib_strio_any)
 stdlib_strio_linux = $(stdlib_strio_any)
 stdlib_strio_freebsd = $(stdlib_strio_any)
+stdlib_strio_darwin = $(stdlib_strio_any)
 
 # gen_lib temp (linux)
 stdlib_temp_linux = $(HARECACHE)/temp/temp-linux.o
@@ -662,6 +813,10 @@ stdlib_deps_linux += $(stdlib_temp_linux)
 stdlib_temp_freebsd = $(HARECACHE)/temp/temp-freebsd.o
 stdlib_deps_freebsd += $(stdlib_temp_freebsd)
 
+# gen_lib temp (darwin)
+stdlib_temp_darwin = $(HARECACHE)/temp/temp-darwin.o
+stdlib_deps_darwin += $(stdlib_temp_darwin)
+
 # gen_lib time (linux)
 stdlib_time_linux = $(HARECACHE)/time/time-linux.o
 stdlib_deps_linux += $(stdlib_time_linux)
@@ -669,6 +824,10 @@ stdlib_deps_linux += $(stdlib_time_linux)
 # gen_lib time (freebsd)
 stdlib_time_freebsd = $(HARECACHE)/time/time-freebsd.o
 stdlib_deps_freebsd += $(stdlib_time_freebsd)
+
+# gen_lib time (darwin)
+stdlib_time_darwin = $(HARECACHE)/time/time-darwin.o
+stdlib_deps_darwin += $(stdlib_time_darwin)
 
 # gen_lib time::chrono (linux)
 stdlib_time_chrono_linux = $(HARECACHE)/time/chrono/time_chrono-linux.o
@@ -678,11 +837,16 @@ stdlib_deps_linux += $(stdlib_time_chrono_linux)
 stdlib_time_chrono_freebsd = $(HARECACHE)/time/chrono/time_chrono-freebsd.o
 stdlib_deps_freebsd += $(stdlib_time_chrono_freebsd)
 
+# gen_lib time::chrono (darwin)
+stdlib_time_chrono_darwin = $(HARECACHE)/time/chrono/time_chrono-darwin.o
+stdlib_deps_darwin += $(stdlib_time_chrono_darwin)
+
 # gen_lib types (any)
 stdlib_types_any = $(HARECACHE)/types/types-any.o
 stdlib_deps_any += $(stdlib_types_any)
 stdlib_types_linux = $(stdlib_types_any)
 stdlib_types_freebsd = $(stdlib_types_any)
+stdlib_types_darwin = $(stdlib_types_any)
 
 # gen_lib unix (linux)
 stdlib_unix_linux = $(HARECACHE)/unix/unix-linux.o
@@ -692,6 +856,10 @@ stdlib_deps_linux += $(stdlib_unix_linux)
 stdlib_unix_freebsd = $(HARECACHE)/unix/unix-freebsd.o
 stdlib_deps_freebsd += $(stdlib_unix_freebsd)
 
+# gen_lib unix (darwin)
+stdlib_unix_darwin = $(HARECACHE)/unix/unix-darwin.o
+stdlib_deps_darwin += $(stdlib_unix_darwin)
+
 # gen_lib unix::hosts (linux)
 stdlib_unix_hosts_linux = $(HARECACHE)/unix/hosts/unix_hosts-linux.o
 stdlib_deps_linux += $(stdlib_unix_hosts_linux)
@@ -700,11 +868,16 @@ stdlib_deps_linux += $(stdlib_unix_hosts_linux)
 stdlib_unix_hosts_freebsd = $(HARECACHE)/unix/hosts/unix_hosts-freebsd.o
 stdlib_deps_freebsd += $(stdlib_unix_hosts_freebsd)
 
+# gen_lib unix::hosts (darwin)
+stdlib_unix_hosts_darwin = $(HARECACHE)/unix/hosts/unix_hosts-darwin.o
+stdlib_deps_darwin += $(stdlib_unix_hosts_darwin)
+
 # gen_lib unix::passwd (any)
 stdlib_unix_passwd_any = $(HARECACHE)/unix/passwd/unix_passwd-any.o
 stdlib_deps_any += $(stdlib_unix_passwd_any)
 stdlib_unix_passwd_linux = $(stdlib_unix_passwd_any)
 stdlib_unix_passwd_freebsd = $(stdlib_unix_passwd_any)
+stdlib_unix_passwd_darwin = $(stdlib_unix_passwd_any)
 
 # gen_lib unix::poll (linux)
 stdlib_unix_poll_linux = $(HARECACHE)/unix/poll/unix_poll-linux.o
@@ -714,6 +887,10 @@ stdlib_deps_linux += $(stdlib_unix_poll_linux)
 stdlib_unix_poll_freebsd = $(HARECACHE)/unix/poll/unix_poll-freebsd.o
 stdlib_deps_freebsd += $(stdlib_unix_poll_freebsd)
 
+# gen_lib unix::poll (darwin)
+stdlib_unix_poll_darwin = $(HARECACHE)/unix/poll/unix_poll-darwin.o
+stdlib_deps_darwin += $(stdlib_unix_poll_darwin)
+
 # gen_lib unix::resolvconf (linux)
 stdlib_unix_resolvconf_linux = $(HARECACHE)/unix/resolvconf/unix_resolvconf-linux.o
 stdlib_deps_linux += $(stdlib_unix_resolvconf_linux)
@@ -721,6 +898,10 @@ stdlib_deps_linux += $(stdlib_unix_resolvconf_linux)
 # gen_lib unix::resolvconf (freebsd)
 stdlib_unix_resolvconf_freebsd = $(HARECACHE)/unix/resolvconf/unix_resolvconf-freebsd.o
 stdlib_deps_freebsd += $(stdlib_unix_resolvconf_freebsd)
+
+# gen_lib unix::resolvconf (darwin)
+stdlib_unix_resolvconf_darwin = $(HARECACHE)/unix/resolvconf/unix_resolvconf-darwin.o
+stdlib_deps_darwin += $(stdlib_unix_resolvconf_darwin)
 
 # gen_lib unix::signal (linux)
 stdlib_unix_signal_linux = $(HARECACHE)/unix/signal/unix_signal-linux.o
@@ -734,11 +915,16 @@ stdlib_deps_linux += $(stdlib_unix_tty_linux)
 stdlib_unix_tty_freebsd = $(HARECACHE)/unix/tty/unix_tty-freebsd.o
 stdlib_deps_freebsd += $(stdlib_unix_tty_freebsd)
 
+# gen_lib unix::tty (darwin)
+stdlib_unix_tty_darwin = $(HARECACHE)/unix/tty/unix_tty-darwin.o
+stdlib_deps_darwin += $(stdlib_unix_tty_darwin)
+
 # gen_lib uuid (any)
 stdlib_uuid_any = $(HARECACHE)/uuid/uuid-any.o
 stdlib_deps_any += $(stdlib_uuid_any)
 stdlib_uuid_linux = $(stdlib_uuid_any)
 stdlib_uuid_freebsd = $(stdlib_uuid_any)
+stdlib_uuid_darwin = $(stdlib_uuid_any)
 
 # ascii (+any)
 stdlib_ascii_any_srcs = \
@@ -959,6 +1145,17 @@ $(HARECACHE)/crypto/random/crypto_random-freebsd.ssa: $(stdlib_crypto_random_fre
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(HARECACHE)/crypto/random/crypto_random.td $(stdlib_crypto_random_freebsd_srcs)
 
+# crypto::random (+darwin)
+stdlib_crypto_random_darwin_srcs = \
+	$(STDLIB)/crypto/random/+darwin.ha \
+	$(STDLIB)/crypto/random/random.ha
+
+$(HARECACHE)/crypto/random/crypto_random-darwin.ssa: $(stdlib_crypto_random_darwin_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/random
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
+		-t$(HARECACHE)/crypto/random/crypto_random.td $(stdlib_crypto_random_darwin_srcs)
+
 # crypto::poly1305 (+any)
 stdlib_crypto_poly1305_any_srcs = \
 	$(STDLIB)/crypto/poly1305/poly1305.ha
@@ -1073,6 +1270,23 @@ $(HARECACHE)/datetime/datetime-freebsd.ssa: $(stdlib_datetime_freebsd_srcs) $(st
 	@mkdir -p $(HARECACHE)/datetime
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ndatetime \
 		-t$(HARECACHE)/datetime/datetime.td $(stdlib_datetime_freebsd_srcs)
+
+# datetime (+darwin)
+stdlib_datetime_darwin_srcs = \
+	$(STDLIB)/datetime/arithmetic.ha \
+	$(STDLIB)/datetime/chronology.ha \
+	$(STDLIB)/datetime/date.ha \
+	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/format.ha \
+	$(STDLIB)/datetime/parse.ha \
+	$(STDLIB)/datetime/time.ha \
+	$(STDLIB)/datetime/timezone.ha
+
+$(HARECACHE)/datetime/datetime-darwin.ssa: $(stdlib_datetime_darwin_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/datetime
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ndatetime \
+		-t$(HARECACHE)/datetime/datetime.td $(stdlib_datetime_darwin_srcs)
 
 # dirs (+any)
 stdlib_dirs_any_srcs = \
@@ -1459,6 +1673,23 @@ stdlib_io_freebsd_srcs = \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha
 
+# io (+darwin)
+stdlib_io_darwin_srcs = \
+	$(STDLIB)/io/arch+$(ARCH).ha \
+	$(STDLIB)/io/+darwin/file.ha \
+	$(STDLIB)/io/+darwin/mmap.ha \
+	$(STDLIB)/io/+darwin/vector.ha \
+	$(STDLIB)/io/copy.ha \
+	$(STDLIB)/io/drain.ha \
+	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/handle.ha \
+	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/stream.ha \
+	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/util.ha \
+	$(STDLIB)/io/zero.ha
+
 $(HARECACHE)/io/io-linux.ssa: $(stdlib_io_linux_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/io
@@ -1470,6 +1701,12 @@ $(HARECACHE)/io/io-freebsd.ssa: $(stdlib_io_freebsd_srcs) $(stdlib_rt) $(stdlib_
 	@mkdir -p $(HARECACHE)/io
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
 		-t$(HARECACHE)/io/io.td $(stdlib_io_freebsd_srcs)
+
+$(HARECACHE)/io/io-darwin.ssa: $(stdlib_io_darwin_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/io
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
+		-t$(HARECACHE)/io/io.td $(stdlib_io_darwin_srcs)
 
 # linux (+linux)
 stdlib_linux_linux_srcs = \
@@ -1539,6 +1776,19 @@ $(HARECACHE)/log/log-freebsd.ssa: $(stdlib_log_freebsd_srcs) $(stdlib_rt) $(stdl
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlog \
 		-t$(HARECACHE)/log/log.td $(stdlib_log_freebsd_srcs)
 
+# log (+darwin)
+stdlib_log_darwin_srcs = \
+	$(STDLIB)/log/logger.ha \
+	$(STDLIB)/log/global.ha \
+	$(STDLIB)/log/funcs.ha \
+	$(STDLIB)/log/silent.ha
+
+$(HARECACHE)/log/log-darwin.ssa: $(stdlib_log_darwin_srcs) $(stdlib_rt) $(stdlib_datetime_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/log
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlog \
+		-t$(HARECACHE)/log/log.td $(stdlib_log_darwin_srcs)
+
 # math (+any)
 stdlib_math_any_srcs = \
 	$(STDLIB)/math/math.ha \
@@ -1599,6 +1849,18 @@ $(HARECACHE)/net/net-freebsd.ssa: $(stdlib_net_freebsd_srcs) $(stdlib_rt) $(stdl
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
 		-t$(HARECACHE)/net/net.td $(stdlib_net_freebsd_srcs)
 
+# net (+darwin)
+stdlib_net_darwin_srcs = \
+	$(STDLIB)/net/+darwin.ha \
+	$(STDLIB)/net/errors.ha \
+	$(STDLIB)/net/msg.ha
+
+$(HARECACHE)/net/net-darwin.ssa: $(stdlib_net_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/net
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
+		-t$(HARECACHE)/net/net.td $(stdlib_net_darwin_srcs)
+
 # net::dial (+any)
 stdlib_net_dial_any_srcs = \
 	$(STDLIB)/net/dial/registry.ha \
@@ -1636,6 +1898,11 @@ stdlib_net_ip_freebsd_srcs = \
 	$(STDLIB)/net/ip/+freebsd.ha \
 	$(STDLIB)/net/ip/ip.ha
 
+# net::ip (+darwin)
+stdlib_net_ip_darwin_srcs = \
+	$(STDLIB)/net/ip/+darwin.ha \
+	$(STDLIB)/net/ip/ip.ha
+
 $(HARECACHE)/net/ip/net_ip-linux.ssa: $(stdlib_net_ip_linux_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/ip
@@ -1647,6 +1914,12 @@ $(HARECACHE)/net/ip/net_ip-freebsd.ssa: $(stdlib_net_ip_freebsd_srcs) $(stdlib_r
 	@mkdir -p $(HARECACHE)/net/ip
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::ip \
 		-t$(HARECACHE)/net/ip/net_ip.td $(stdlib_net_ip_freebsd_srcs)
+
+$(HARECACHE)/net/ip/net_ip-darwin.ssa: $(stdlib_net_ip_darwin_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/net/ip
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::ip \
+		-t$(HARECACHE)/net/ip/net_ip.td $(stdlib_net_ip_darwin_srcs)
 
 # net::tcp (+linux)
 stdlib_net_tcp_linux_srcs = \
@@ -1672,6 +1945,18 @@ $(HARECACHE)/net/tcp/net_tcp-freebsd.ssa: $(stdlib_net_tcp_freebsd_srcs) $(stdli
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::tcp \
 		-t$(HARECACHE)/net/tcp/net_tcp.td $(stdlib_net_tcp_freebsd_srcs)
 
+# net::tcp (+darwin)
+stdlib_net_tcp_darwin_srcs = \
+	$(STDLIB)/net/tcp/+darwin.ha \
+	$(STDLIB)/net/tcp/listener.ha \
+	$(STDLIB)/net/tcp/options.ha
+
+$(HARECACHE)/net/tcp/net_tcp-darwin.ssa: $(stdlib_net_tcp_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_net_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/net/tcp
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::tcp \
+		-t$(HARECACHE)/net/tcp/net_tcp.td $(stdlib_net_tcp_darwin_srcs)
+
 # net::udp (+linux)
 stdlib_net_udp_linux_srcs = \
 	$(STDLIB)/net/udp/+linux.ha \
@@ -1693,6 +1978,17 @@ $(HARECACHE)/net/udp/net_udp-freebsd.ssa: $(stdlib_net_udp_freebsd_srcs) $(stdli
 	@mkdir -p $(HARECACHE)/net/udp
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::udp \
 		-t$(HARECACHE)/net/udp/net_udp.td $(stdlib_net_udp_freebsd_srcs)
+
+# net::udp (+darwin)
+stdlib_net_udp_darwin_srcs = \
+	$(STDLIB)/net/udp/+darwin.ha \
+	$(STDLIB)/net/udp/options.ha
+
+$(HARECACHE)/net/udp/net_udp-darwin.ssa: $(stdlib_net_udp_darwin_srcs) $(stdlib_rt) $(stdlib_net_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/net/udp
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::udp \
+		-t$(HARECACHE)/net/udp/net_udp.td $(stdlib_net_udp_darwin_srcs)
 
 # net::unix (+linux)
 stdlib_net_unix_linux_srcs = \
@@ -1725,6 +2021,22 @@ $(HARECACHE)/net/unix/net_unix-freebsd.ssa: $(stdlib_net_unix_freebsd_srcs) $(st
 	@mkdir -p $(HARECACHE)/net/unix
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::unix \
 		-t$(HARECACHE)/net/unix/net_unix.td $(stdlib_net_unix_freebsd_srcs)
+
+# net::unix (+darwin)
+stdlib_net_unix_darwin_srcs = \
+	$(STDLIB)/net/unix/+darwin.ha \
+	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/cmsg.ha \
+	$(STDLIB)/net/unix/dial.ha \
+	$(STDLIB)/net/unix/listener.ha \
+	$(STDLIB)/net/unix/options.ha \
+	$(STDLIB)/net/unix/socketpair.ha
+
+$(HARECACHE)/net/unix/net_unix-darwin.ssa: $(stdlib_net_unix_darwin_srcs) $(stdlib_rt) $(stdlib_net_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_net_dial_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/net/unix
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::unix \
+		-t$(HARECACHE)/net/unix/net_unix.td $(stdlib_net_unix_darwin_srcs)
 
 # net::uri (+any)
 stdlib_net_uri_any_srcs = \
@@ -1770,6 +2082,21 @@ $(HARECACHE)/os/os-freebsd.ssa: $(stdlib_os_freebsd_srcs) $(stdlib_rt) $(stdlib_
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
 		-t$(HARECACHE)/os/os.td $(stdlib_os_freebsd_srcs)
 
+# os (+darwin)
+stdlib_os_darwin_srcs = \
+	$(STDLIB)/os/+darwin/environ.ha \
+	$(STDLIB)/os/+darwin/exit.ha \
+	$(STDLIB)/os/+darwin/dirfdfs.ha \
+	$(STDLIB)/os/+darwin/stdfd.ha \
+	$(STDLIB)/os/+darwin/fs.ha \
+	$(STDLIB)/os/fs.ha
+
+$(HARECACHE)/os/os-darwin.ssa: $(stdlib_os_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/os
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
+		-t$(HARECACHE)/os/os.td $(stdlib_os_darwin_srcs)
+
 # os::exec (+linux)
 stdlib_os_exec_linux_srcs = \
 	$(STDLIB)/os/exec/exec+linux.ha \
@@ -1795,6 +2122,19 @@ $(HARECACHE)/os/exec/os_exec-freebsd.ssa: $(stdlib_os_exec_freebsd_srcs) $(stdli
 	@mkdir -p $(HARECACHE)/os/exec
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
 		-t$(HARECACHE)/os/exec/os_exec.td $(stdlib_os_exec_freebsd_srcs)
+
+# os::exec (+darwin)
+stdlib_os_exec_darwin_srcs = \
+	$(STDLIB)/os/exec/exec+darwin.ha \
+	$(STDLIB)/os/exec/process+darwin.ha \
+	$(STDLIB)/os/exec/types.ha \
+	$(STDLIB)/os/exec/cmd.ha
+
+$(HARECACHE)/os/exec/os_exec-darwin.ssa: $(stdlib_os_exec_darwin_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_unix_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/os/exec
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
+		-t$(HARECACHE)/os/exec/os_exec.td $(stdlib_os_exec_darwin_srcs)
 
 # path (+any)
 stdlib_path_any_srcs = \
@@ -1942,6 +2282,16 @@ $(HARECACHE)/temp/temp-freebsd.ssa: $(stdlib_temp_freebsd_srcs) $(stdlib_rt) $(s
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntemp \
 		-t$(HARECACHE)/temp/temp.td $(stdlib_temp_freebsd_srcs)
 
+# temp (+darwin)
+stdlib_temp_darwin_srcs = \
+	$(STDLIB)/temp/+darwin.ha
+
+$(HARECACHE)/temp/temp-darwin.ssa: $(stdlib_temp_darwin_srcs) $(stdlib_rt) $(stdlib_crypto_random_$(PLATFORM)) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/temp
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntemp \
+		-t$(HARECACHE)/temp/temp.td $(stdlib_temp_darwin_srcs)
+
 # time (+linux)
 stdlib_time_linux_srcs = \
 	$(STDLIB)/time/+linux/functions.ha \
@@ -1968,6 +2318,19 @@ $(HARECACHE)/time/time-freebsd.ssa: $(stdlib_time_freebsd_srcs) $(stdlib_rt) $(s
 	@mkdir -p $(HARECACHE)/time
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime \
 		-t$(HARECACHE)/time/time.td $(stdlib_time_freebsd_srcs)
+
+# time (+darwin)
+stdlib_time_darwin_srcs = \
+	$(STDLIB)/time/+darwin/functions.ha \
+	$(STDLIB)/time/arithm.ha \
+	$(STDLIB)/time/conv.ha \
+	$(STDLIB)/time/types.ha
+
+$(HARECACHE)/time/time-darwin.ssa: $(stdlib_time_darwin_srcs) $(stdlib_rt) $(stdlib_math_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/time
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime \
+		-t$(HARECACHE)/time/time.td $(stdlib_time_darwin_srcs)
 
 # time::chrono (+linux)
 stdlib_time_chrono_linux_srcs = \
@@ -2000,6 +2363,22 @@ $(HARECACHE)/time/chrono/time_chrono-freebsd.ssa: $(stdlib_time_chrono_freebsd_s
 	@mkdir -p $(HARECACHE)/time/chrono
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::chrono \
 		-t$(HARECACHE)/time/chrono/time_chrono.td $(stdlib_time_chrono_freebsd_srcs)
+
+# time::chrono (+darwin)
+stdlib_time_chrono_darwin_srcs = \
+	$(STDLIB)/time/chrono/+darwin.ha \
+	$(STDLIB)/time/chrono/chronology.ha \
+	$(STDLIB)/time/chrono/error.ha \
+	$(STDLIB)/time/chrono/leapsec.ha \
+	$(STDLIB)/time/chrono/timescale.ha \
+	$(STDLIB)/time/chrono/timezone.ha \
+	$(STDLIB)/time/chrono/tzdb.ha
+
+$(HARECACHE)/time/chrono/time_chrono-darwin.ssa: $(stdlib_time_chrono_darwin_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_path_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/time/chrono
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::chrono \
+		-t$(HARECACHE)/time/chrono/time_chrono.td $(stdlib_time_chrono_darwin_srcs)
 
 # types (+any)
 stdlib_types_any_srcs = \
@@ -2043,6 +2422,21 @@ $(HARECACHE)/unix/unix-freebsd.ssa: $(stdlib_unix_freebsd_srcs) $(stdlib_rt) $(s
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix \
 		-t$(HARECACHE)/unix/unix.td $(stdlib_unix_freebsd_srcs)
 
+# unix (+darwin)
+stdlib_unix_darwin_srcs = \
+	$(STDLIB)/unix/+darwin/nice.ha \
+	$(STDLIB)/unix/+darwin/pipe.ha \
+	$(STDLIB)/unix/+darwin/umask.ha \
+	$(STDLIB)/unix/+darwin/getuid.ha \
+	$(STDLIB)/unix/+darwin/setuid.ha \
+	$(STDLIB)/unix/+darwin/groups.ha
+
+$(HARECACHE)/unix/unix-darwin.ssa: $(stdlib_unix_darwin_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix \
+		-t$(HARECACHE)/unix/unix.td $(stdlib_unix_darwin_srcs)
+
 # unix::hosts (+linux)
 stdlib_unix_hosts_linux_srcs = \
 	$(STDLIB)/unix/hosts/+linux.ha \
@@ -2064,6 +2458,17 @@ $(HARECACHE)/unix/hosts/unix_hosts-freebsd.ssa: $(stdlib_unix_hosts_freebsd_srcs
 	@mkdir -p $(HARECACHE)/unix/hosts
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::hosts \
 		-t$(HARECACHE)/unix/hosts/unix_hosts.td $(stdlib_unix_hosts_freebsd_srcs)
+
+# unix::hosts (+darwin)
+stdlib_unix_hosts_darwin_srcs = \
+	$(STDLIB)/unix/hosts/+darwin.ha \
+	$(STDLIB)/unix/hosts/lookup.ha
+
+$(HARECACHE)/unix/hosts/unix_hosts-darwin.ssa: $(stdlib_unix_hosts_darwin_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/hosts
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::hosts \
+		-t$(HARECACHE)/unix/hosts/unix_hosts.td $(stdlib_unix_hosts_darwin_srcs)
 
 # unix::passwd (+any)
 stdlib_unix_passwd_any_srcs = \
@@ -2097,6 +2502,16 @@ $(HARECACHE)/unix/poll/unix_poll-freebsd.ssa: $(stdlib_unix_poll_freebsd_srcs) $
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::poll \
 		-t$(HARECACHE)/unix/poll/unix_poll.td $(stdlib_unix_poll_freebsd_srcs)
 
+# unix::poll (+darwin)
+stdlib_unix_poll_darwin_srcs = \
+	$(STDLIB)/unix/poll/+darwin.ha
+
+$(HARECACHE)/unix/poll/unix_poll-darwin.ssa: $(stdlib_unix_poll_darwin_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/poll
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::poll \
+		-t$(HARECACHE)/unix/poll/unix_poll.td $(stdlib_unix_poll_darwin_srcs)
+
 # unix::resolvconf (+linux)
 stdlib_unix_resolvconf_linux_srcs = \
 	$(STDLIB)/unix/resolvconf/+linux.ha \
@@ -2118,6 +2533,17 @@ $(HARECACHE)/unix/resolvconf/unix_resolvconf-freebsd.ssa: $(stdlib_unix_resolvco
 	@mkdir -p $(HARECACHE)/unix/resolvconf
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::resolvconf \
 		-t$(HARECACHE)/unix/resolvconf/unix_resolvconf.td $(stdlib_unix_resolvconf_freebsd_srcs)
+
+# unix::resolvconf (+darwin)
+stdlib_unix_resolvconf_darwin_srcs = \
+	$(STDLIB)/unix/resolvconf/+darwin.ha \
+	$(STDLIB)/unix/resolvconf/load.ha
+
+$(HARECACHE)/unix/resolvconf/unix_resolvconf-darwin.ssa: $(stdlib_unix_resolvconf_darwin_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/resolvconf
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::resolvconf \
+		-t$(HARECACHE)/unix/resolvconf/unix_resolvconf.td $(stdlib_unix_resolvconf_darwin_srcs)
 
 # unix::signal (+linux)
 stdlib_unix_signal_linux_srcs = \
@@ -2160,6 +2586,21 @@ $(HARECACHE)/unix/tty/unix_tty-freebsd.ssa: $(stdlib_unix_tty_freebsd_srcs) $(st
 	@mkdir -p $(HARECACHE)/unix/tty
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::tty \
 		-t$(HARECACHE)/unix/tty/unix_tty.td $(stdlib_unix_tty_freebsd_srcs)
+
+# unix::tty (+darwin)
+stdlib_unix_tty_darwin_srcs = \
+	$(STDLIB)/unix/tty/types.ha \
+	$(STDLIB)/unix/tty/pty.ha \
+	$(STDLIB)/unix/tty/+darwin/isatty.ha \
+	$(STDLIB)/unix/tty/+darwin/open.ha \
+	$(STDLIB)/unix/tty/+darwin/pty.ha \
+	$(STDLIB)/unix/tty/+darwin/winsize.ha
+
+$(HARECACHE)/unix/tty/unix_tty-darwin.ssa: $(stdlib_unix_tty_darwin_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/tty
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::tty \
+		-t$(HARECACHE)/unix/tty/unix_tty.td $(stdlib_unix_tty_darwin_srcs)
 
 # uuid (+any)
 stdlib_uuid_any_srcs = \
@@ -2236,6 +2677,37 @@ testlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/+test/signal.ha \
 	$(STDLIB)/rt/+test/ztos.ha
 
+# rt (+darwin)
+testlib_rt_darwin_srcs = \
+	$(STDLIB)/rt/+darwin/abort.ha \
+	$(STDLIB)/rt/+darwin/env.ha \
+	$(STDLIB)/rt/+darwin/errno.ha \
+	$(STDLIB)/rt/+darwin/platformstart.ha \
+	$(STDLIB)/rt/+darwin/segmalloc.ha \
+	$(STDLIB)/rt/+darwin/signal.ha \
+	$(STDLIB)/rt/+darwin/socket.ha \
+	$(STDLIB)/rt/+darwin/syscallno.ha \
+	$(STDLIB)/rt/+darwin/syscalls.ha \
+	$(STDLIB)/rt/+darwin/types.ha \
+	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
+	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
+	$(STDLIB)/rt/fenv_defs.ha \
+	$(STDLIB)/rt/+$(ARCH)/cpuid.ha \
+	$(STDLIB)/rt/ensure.ha \
+	$(STDLIB)/rt/jmp.ha \
+	$(STDLIB)/rt/malloc.ha \
+	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memmove.ha \
+	$(STDLIB)/rt/memset.ha \
+	$(STDLIB)/rt/strcmp.ha \
+	$(STDLIB)/rt/start+test.ha \
+	$(STDLIB)/rt/abort+test.ha \
+	$(STDLIB)/rt/+test/+$(PLATFORM).ha \
+	$(STDLIB)/rt/+test/cstring.ha \
+	$(STDLIB)/rt/+test/run.ha \
+	$(STDLIB)/rt/+test/signal.ha \
+	$(STDLIB)/rt/+test/ztos.ha
+
 $(TESTCACHE)/rt/rt-linux.ssa: $(testlib_rt_linux_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
@@ -2247,6 +2719,12 @@ $(TESTCACHE)/rt/rt-freebsd.ssa: $(testlib_rt_freebsd_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/rt
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nrt \
 		-t$(TESTCACHE)/rt/rt.td $(testlib_rt_freebsd_srcs)
+
+$(TESTCACHE)/rt/rt-darwin.ssa: $(testlib_rt_darwin_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/rt
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nrt \
+		-t$(TESTCACHE)/rt/rt.td $(testlib_rt_darwin_srcs)
 
 $(TESTCACHE)/rt/start.o: $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH)-libc.s
 	@printf 'AS \t%s\n' "$@"
@@ -2298,16 +2776,21 @@ $(TESTCACHE)/rt/cpuid_native.o: $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 
 $(TESTCACHE)/rt/rt-linux.a: $(TESTCACHE)/rt/rt-linux.o $(testlib_asm)
-	@printf 'AS \t%s\n' "$@"
+	@printf 'AR \t%s\n' "$@"
 	@$(AR) -csr $@ $(TESTCACHE)/rt/rt-linux.o $(testlib_asm)
 
 $(TESTCACHE)/rt/rt-freebsd.a: $(TESTCACHE)/rt/rt-freebsd.o $(testlib_asm)
-	@printf 'AS \t%s\n' "$@"
+	@printf 'AR \t%s\n' "$@"
 	@$(AR) -csr $@ $(TESTCACHE)/rt/rt-freebsd.o $(testlib_asm)
+
+$(TESTCACHE)/rt/rt-darwin.a: $(TESTCACHE)/rt/rt-darwin.o $(testlib_asm)
+	@printf 'AR \t%s\n' "$@"
+	@$(AR) -csr $@ $(TESTCACHE)/rt/rt-darwin.o $(testlib_asm)
 
 testlib_rt = $(TESTCACHE)/rt/rt-$(PLATFORM).a
 testlib_deps_linux += $(testlib_rt)
 testlib_deps_freebsd += $(testlib_rt)
+testlib_deps_darwin += $(testlib_rt)
 testlib_deps_any += $(testlib_rt)
 
 # gen_lib ascii (any)
@@ -2315,102 +2798,119 @@ testlib_ascii_any = $(TESTCACHE)/ascii/ascii-any.o
 testlib_deps_any += $(testlib_ascii_any)
 testlib_ascii_linux = $(testlib_ascii_any)
 testlib_ascii_freebsd = $(testlib_ascii_any)
+testlib_ascii_darwin = $(testlib_ascii_any)
 
 # gen_lib bufio (any)
 testlib_bufio_any = $(TESTCACHE)/bufio/bufio-any.o
 testlib_deps_any += $(testlib_bufio_any)
 testlib_bufio_linux = $(testlib_bufio_any)
 testlib_bufio_freebsd = $(testlib_bufio_any)
+testlib_bufio_darwin = $(testlib_bufio_any)
 
 # gen_lib bytes (any)
 testlib_bytes_any = $(TESTCACHE)/bytes/bytes-any.o
 testlib_deps_any += $(testlib_bytes_any)
 testlib_bytes_linux = $(testlib_bytes_any)
 testlib_bytes_freebsd = $(testlib_bytes_any)
+testlib_bytes_darwin = $(testlib_bytes_any)
 
 # gen_lib crypto (any)
 testlib_crypto_any = $(TESTCACHE)/crypto/crypto-any.o
 testlib_deps_any += $(testlib_crypto_any)
 testlib_crypto_linux = $(testlib_crypto_any)
 testlib_crypto_freebsd = $(testlib_crypto_any)
+testlib_crypto_darwin = $(testlib_crypto_any)
 
 # gen_lib crypto::aes (any)
 testlib_crypto_aes_any = $(TESTCACHE)/crypto/aes/crypto_aes-any.o
 testlib_deps_any += $(testlib_crypto_aes_any)
 testlib_crypto_aes_linux = $(testlib_crypto_aes_any)
 testlib_crypto_aes_freebsd = $(testlib_crypto_aes_any)
+testlib_crypto_aes_darwin = $(testlib_crypto_aes_any)
 
 # gen_lib crypto::aes::xts (any)
 testlib_crypto_aes_xts_any = $(TESTCACHE)/crypto/aes/xts/crypto_aes_xts-any.o
 testlib_deps_any += $(testlib_crypto_aes_xts_any)
 testlib_crypto_aes_xts_linux = $(testlib_crypto_aes_xts_any)
 testlib_crypto_aes_xts_freebsd = $(testlib_crypto_aes_xts_any)
+testlib_crypto_aes_xts_darwin = $(testlib_crypto_aes_xts_any)
 
 # gen_lib crypto::argon2 (any)
 testlib_crypto_argon2_any = $(TESTCACHE)/crypto/argon2/crypto_argon2-any.o
 testlib_deps_any += $(testlib_crypto_argon2_any)
 testlib_crypto_argon2_linux = $(testlib_crypto_argon2_any)
 testlib_crypto_argon2_freebsd = $(testlib_crypto_argon2_any)
+testlib_crypto_argon2_darwin = $(testlib_crypto_argon2_any)
 
 # gen_lib crypto::bcrypt (any)
 testlib_crypto_bcrypt_any = $(TESTCACHE)/crypto/bcrypt/crypto_bcrypt-any.o
 testlib_deps_any += $(testlib_crypto_bcrypt_any)
 testlib_crypto_bcrypt_linux = $(testlib_crypto_bcrypt_any)
 testlib_crypto_bcrypt_freebsd = $(testlib_crypto_bcrypt_any)
+testlib_crypto_bcrypt_darwin = $(testlib_crypto_bcrypt_any)
 
 # gen_lib crypto::blake2b (any)
 testlib_crypto_blake2b_any = $(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.o
 testlib_deps_any += $(testlib_crypto_blake2b_any)
 testlib_crypto_blake2b_linux = $(testlib_crypto_blake2b_any)
 testlib_crypto_blake2b_freebsd = $(testlib_crypto_blake2b_any)
+testlib_crypto_blake2b_darwin = $(testlib_crypto_blake2b_any)
 
 # gen_lib crypto::blowfish (any)
 testlib_crypto_blowfish_any = $(TESTCACHE)/crypto/blowfish/crypto_blowfish-any.o
 testlib_deps_any += $(testlib_crypto_blowfish_any)
 testlib_crypto_blowfish_linux = $(testlib_crypto_blowfish_any)
 testlib_crypto_blowfish_freebsd = $(testlib_crypto_blowfish_any)
+testlib_crypto_blowfish_darwin = $(testlib_crypto_blowfish_any)
 
 # gen_lib crypto::bigint (any)
 testlib_crypto_bigint_any = $(TESTCACHE)/crypto/bigint/crypto_bigint-any.o
 testlib_deps_any += $(testlib_crypto_bigint_any)
 testlib_crypto_bigint_linux = $(testlib_crypto_bigint_any)
 testlib_crypto_bigint_freebsd = $(testlib_crypto_bigint_any)
+testlib_crypto_bigint_darwin = $(testlib_crypto_bigint_any)
 
 # gen_lib crypto::chacha (any)
 testlib_crypto_chacha_any = $(TESTCACHE)/crypto/chacha/crypto_chacha-any.o
 testlib_deps_any += $(testlib_crypto_chacha_any)
 testlib_crypto_chacha_linux = $(testlib_crypto_chacha_any)
 testlib_crypto_chacha_freebsd = $(testlib_crypto_chacha_any)
+testlib_crypto_chacha_darwin = $(testlib_crypto_chacha_any)
 
 # gen_lib crypto::cipher (any)
 testlib_crypto_cipher_any = $(TESTCACHE)/crypto/cipher/crypto_cipher-any.o
 testlib_deps_any += $(testlib_crypto_cipher_any)
 testlib_crypto_cipher_linux = $(testlib_crypto_cipher_any)
 testlib_crypto_cipher_freebsd = $(testlib_crypto_cipher_any)
+testlib_crypto_cipher_darwin = $(testlib_crypto_cipher_any)
 
 # gen_lib crypto::hkdf (any)
 testlib_crypto_hkdf_any = $(TESTCACHE)/crypto/hkdf/crypto_hkdf-any.o
 testlib_deps_any += $(testlib_crypto_hkdf_any)
 testlib_crypto_hkdf_linux = $(testlib_crypto_hkdf_any)
 testlib_crypto_hkdf_freebsd = $(testlib_crypto_hkdf_any)
+testlib_crypto_hkdf_darwin = $(testlib_crypto_hkdf_any)
 
 # gen_lib crypto::hmac (any)
 testlib_crypto_hmac_any = $(TESTCACHE)/crypto/hmac/crypto_hmac-any.o
 testlib_deps_any += $(testlib_crypto_hmac_any)
 testlib_crypto_hmac_linux = $(testlib_crypto_hmac_any)
 testlib_crypto_hmac_freebsd = $(testlib_crypto_hmac_any)
+testlib_crypto_hmac_darwin = $(testlib_crypto_hmac_any)
 
 # gen_lib crypto::mac (any)
 testlib_crypto_mac_any = $(TESTCACHE)/crypto/mac/crypto_mac-any.o
 testlib_deps_any += $(testlib_crypto_mac_any)
 testlib_crypto_mac_linux = $(testlib_crypto_mac_any)
 testlib_crypto_mac_freebsd = $(testlib_crypto_mac_any)
+testlib_crypto_mac_darwin = $(testlib_crypto_mac_any)
 
 # gen_lib crypto::math (any)
 testlib_crypto_math_any = $(TESTCACHE)/crypto/math/crypto_math-any.o
 testlib_deps_any += $(testlib_crypto_math_any)
 testlib_crypto_math_linux = $(testlib_crypto_math_any)
 testlib_crypto_math_freebsd = $(testlib_crypto_math_any)
+testlib_crypto_math_darwin = $(testlib_crypto_math_any)
 
 # gen_lib crypto::random (linux)
 testlib_crypto_random_linux = $(TESTCACHE)/crypto/random/crypto_random-linux.o
@@ -2420,53 +2920,65 @@ testlib_deps_linux += $(testlib_crypto_random_linux)
 testlib_crypto_random_freebsd = $(TESTCACHE)/crypto/random/crypto_random-freebsd.o
 testlib_deps_freebsd += $(testlib_crypto_random_freebsd)
 
+# gen_lib crypto::random (darwin)
+testlib_crypto_random_darwin = $(TESTCACHE)/crypto/random/crypto_random-darwin.o
+testlib_deps_darwin += $(testlib_crypto_random_darwin)
+
 # gen_lib crypto::poly1305 (any)
 testlib_crypto_poly1305_any = $(TESTCACHE)/crypto/poly1305/crypto_poly1305-any.o
 testlib_deps_any += $(testlib_crypto_poly1305_any)
 testlib_crypto_poly1305_linux = $(testlib_crypto_poly1305_any)
 testlib_crypto_poly1305_freebsd = $(testlib_crypto_poly1305_any)
+testlib_crypto_poly1305_darwin = $(testlib_crypto_poly1305_any)
 
 # gen_lib crypto::salsa (any)
 testlib_crypto_salsa_any = $(TESTCACHE)/crypto/salsa/crypto_salsa-any.o
 testlib_deps_any += $(testlib_crypto_salsa_any)
 testlib_crypto_salsa_linux = $(testlib_crypto_salsa_any)
 testlib_crypto_salsa_freebsd = $(testlib_crypto_salsa_any)
+testlib_crypto_salsa_darwin = $(testlib_crypto_salsa_any)
 
 # gen_lib crypto::sha1 (any)
 testlib_crypto_sha1_any = $(TESTCACHE)/crypto/sha1/crypto_sha1-any.o
 testlib_deps_any += $(testlib_crypto_sha1_any)
 testlib_crypto_sha1_linux = $(testlib_crypto_sha1_any)
 testlib_crypto_sha1_freebsd = $(testlib_crypto_sha1_any)
+testlib_crypto_sha1_darwin = $(testlib_crypto_sha1_any)
 
 # gen_lib crypto::sha256 (any)
 testlib_crypto_sha256_any = $(TESTCACHE)/crypto/sha256/crypto_sha256-any.o
 testlib_deps_any += $(testlib_crypto_sha256_any)
 testlib_crypto_sha256_linux = $(testlib_crypto_sha256_any)
 testlib_crypto_sha256_freebsd = $(testlib_crypto_sha256_any)
+testlib_crypto_sha256_darwin = $(testlib_crypto_sha256_any)
 
 # gen_lib crypto::sha512 (any)
 testlib_crypto_sha512_any = $(TESTCACHE)/crypto/sha512/crypto_sha512-any.o
 testlib_deps_any += $(testlib_crypto_sha512_any)
 testlib_crypto_sha512_linux = $(testlib_crypto_sha512_any)
 testlib_crypto_sha512_freebsd = $(testlib_crypto_sha512_any)
+testlib_crypto_sha512_darwin = $(testlib_crypto_sha512_any)
 
 # gen_lib crypto::curve25519 (any)
 testlib_crypto_curve25519_any = $(TESTCACHE)/crypto/curve25519/crypto_curve25519-any.o
 testlib_deps_any += $(testlib_crypto_curve25519_any)
 testlib_crypto_curve25519_linux = $(testlib_crypto_curve25519_any)
 testlib_crypto_curve25519_freebsd = $(testlib_crypto_curve25519_any)
+testlib_crypto_curve25519_darwin = $(testlib_crypto_curve25519_any)
 
 # gen_lib crypto::ed25519 (any)
 testlib_crypto_ed25519_any = $(TESTCACHE)/crypto/ed25519/crypto_ed25519-any.o
 testlib_deps_any += $(testlib_crypto_ed25519_any)
 testlib_crypto_ed25519_linux = $(testlib_crypto_ed25519_any)
 testlib_crypto_ed25519_freebsd = $(testlib_crypto_ed25519_any)
+testlib_crypto_ed25519_darwin = $(testlib_crypto_ed25519_any)
 
 # gen_lib crypto::x25519 (any)
 testlib_crypto_x25519_any = $(TESTCACHE)/crypto/x25519/crypto_x25519-any.o
 testlib_deps_any += $(testlib_crypto_x25519_any)
 testlib_crypto_x25519_linux = $(testlib_crypto_x25519_any)
 testlib_crypto_x25519_freebsd = $(testlib_crypto_x25519_any)
+testlib_crypto_x25519_darwin = $(testlib_crypto_x25519_any)
 
 # gen_lib datetime (linux)
 testlib_datetime_linux = $(TESTCACHE)/datetime/datetime-linux.o
@@ -2476,185 +2988,219 @@ testlib_deps_linux += $(testlib_datetime_linux)
 testlib_datetime_freebsd = $(TESTCACHE)/datetime/datetime-freebsd.o
 testlib_deps_freebsd += $(testlib_datetime_freebsd)
 
+# gen_lib datetime (darwin)
+testlib_datetime_darwin = $(TESTCACHE)/datetime/datetime-darwin.o
+testlib_deps_darwin += $(testlib_datetime_darwin)
+
 # gen_lib dirs (any)
 testlib_dirs_any = $(TESTCACHE)/dirs/dirs-any.o
 testlib_deps_any += $(testlib_dirs_any)
 testlib_dirs_linux = $(testlib_dirs_any)
 testlib_dirs_freebsd = $(testlib_dirs_any)
+testlib_dirs_darwin = $(testlib_dirs_any)
 
 # gen_lib encoding::base64 (any)
 testlib_encoding_base64_any = $(TESTCACHE)/encoding/base64/encoding_base64-any.o
 testlib_deps_any += $(testlib_encoding_base64_any)
 testlib_encoding_base64_linux = $(testlib_encoding_base64_any)
 testlib_encoding_base64_freebsd = $(testlib_encoding_base64_any)
+testlib_encoding_base64_darwin = $(testlib_encoding_base64_any)
 
 # gen_lib encoding::base32 (any)
 testlib_encoding_base32_any = $(TESTCACHE)/encoding/base32/encoding_base32-any.o
 testlib_deps_any += $(testlib_encoding_base32_any)
 testlib_encoding_base32_linux = $(testlib_encoding_base32_any)
 testlib_encoding_base32_freebsd = $(testlib_encoding_base32_any)
+testlib_encoding_base32_darwin = $(testlib_encoding_base32_any)
 
 # gen_lib encoding::hex (any)
 testlib_encoding_hex_any = $(TESTCACHE)/encoding/hex/encoding_hex-any.o
 testlib_deps_any += $(testlib_encoding_hex_any)
 testlib_encoding_hex_linux = $(testlib_encoding_hex_any)
 testlib_encoding_hex_freebsd = $(testlib_encoding_hex_any)
+testlib_encoding_hex_darwin = $(testlib_encoding_hex_any)
 
 # gen_lib encoding::pem (any)
 testlib_encoding_pem_any = $(TESTCACHE)/encoding/pem/encoding_pem-any.o
 testlib_deps_any += $(testlib_encoding_pem_any)
 testlib_encoding_pem_linux = $(testlib_encoding_pem_any)
 testlib_encoding_pem_freebsd = $(testlib_encoding_pem_any)
+testlib_encoding_pem_darwin = $(testlib_encoding_pem_any)
 
 # gen_lib encoding::utf8 (any)
 testlib_encoding_utf8_any = $(TESTCACHE)/encoding/utf8/encoding_utf8-any.o
 testlib_deps_any += $(testlib_encoding_utf8_any)
 testlib_encoding_utf8_linux = $(testlib_encoding_utf8_any)
 testlib_encoding_utf8_freebsd = $(testlib_encoding_utf8_any)
+testlib_encoding_utf8_darwin = $(testlib_encoding_utf8_any)
 
 # gen_lib endian (any)
 testlib_endian_any = $(TESTCACHE)/endian/endian-any.o
 testlib_deps_any += $(testlib_endian_any)
 testlib_endian_linux = $(testlib_endian_any)
 testlib_endian_freebsd = $(testlib_endian_any)
+testlib_endian_darwin = $(testlib_endian_any)
 
 # gen_lib errors (any)
 testlib_errors_any = $(TESTCACHE)/errors/errors-any.o
 testlib_deps_any += $(testlib_errors_any)
 testlib_errors_linux = $(testlib_errors_any)
 testlib_errors_freebsd = $(testlib_errors_any)
+testlib_errors_darwin = $(testlib_errors_any)
 
 # gen_lib fmt (any)
 testlib_fmt_any = $(TESTCACHE)/fmt/fmt-any.o
 testlib_deps_any += $(testlib_fmt_any)
 testlib_fmt_linux = $(testlib_fmt_any)
 testlib_fmt_freebsd = $(testlib_fmt_any)
+testlib_fmt_darwin = $(testlib_fmt_any)
 
 # gen_lib fnmatch (any)
 testlib_fnmatch_any = $(TESTCACHE)/fnmatch/fnmatch-any.o
 testlib_deps_any += $(testlib_fnmatch_any)
 testlib_fnmatch_linux = $(testlib_fnmatch_any)
 testlib_fnmatch_freebsd = $(testlib_fnmatch_any)
+testlib_fnmatch_darwin = $(testlib_fnmatch_any)
 
 # gen_lib format::elf (any)
 testlib_format_elf_any = $(TESTCACHE)/format/elf/format_elf-any.o
 testlib_deps_any += $(testlib_format_elf_any)
 testlib_format_elf_linux = $(testlib_format_elf_any)
 testlib_format_elf_freebsd = $(testlib_format_elf_any)
+testlib_format_elf_darwin = $(testlib_format_elf_any)
 
 # gen_lib format::ini (any)
 testlib_format_ini_any = $(TESTCACHE)/format/ini/format_ini-any.o
 testlib_deps_any += $(testlib_format_ini_any)
 testlib_format_ini_linux = $(testlib_format_ini_any)
 testlib_format_ini_freebsd = $(testlib_format_ini_any)
+testlib_format_ini_darwin = $(testlib_format_ini_any)
 
 # gen_lib format::tar (any)
 testlib_format_tar_any = $(TESTCACHE)/format/tar/format_tar-any.o
 testlib_deps_any += $(testlib_format_tar_any)
 testlib_format_tar_linux = $(testlib_format_tar_any)
 testlib_format_tar_freebsd = $(testlib_format_tar_any)
+testlib_format_tar_darwin = $(testlib_format_tar_any)
 
 # gen_lib fs (any)
 testlib_fs_any = $(TESTCACHE)/fs/fs-any.o
 testlib_deps_any += $(testlib_fs_any)
 testlib_fs_linux = $(testlib_fs_any)
 testlib_fs_freebsd = $(testlib_fs_any)
+testlib_fs_darwin = $(testlib_fs_any)
 
 # gen_lib getopt (any)
 testlib_getopt_any = $(TESTCACHE)/getopt/getopt-any.o
 testlib_deps_any += $(testlib_getopt_any)
 testlib_getopt_linux = $(testlib_getopt_any)
 testlib_getopt_freebsd = $(testlib_getopt_any)
+testlib_getopt_darwin = $(testlib_getopt_any)
 
 # gen_lib glob (any)
 testlib_glob_any = $(TESTCACHE)/glob/glob-any.o
 testlib_deps_any += $(testlib_glob_any)
 testlib_glob_linux = $(testlib_glob_any)
 testlib_glob_freebsd = $(testlib_glob_any)
+testlib_glob_darwin = $(testlib_glob_any)
 
 # gen_lib hare::ast (any)
 testlib_hare_ast_any = $(TESTCACHE)/hare/ast/hare_ast-any.o
 testlib_deps_any += $(testlib_hare_ast_any)
 testlib_hare_ast_linux = $(testlib_hare_ast_any)
 testlib_hare_ast_freebsd = $(testlib_hare_ast_any)
+testlib_hare_ast_darwin = $(testlib_hare_ast_any)
 
 # gen_lib hare::lex (any)
 testlib_hare_lex_any = $(TESTCACHE)/hare/lex/hare_lex-any.o
 testlib_deps_any += $(testlib_hare_lex_any)
 testlib_hare_lex_linux = $(testlib_hare_lex_any)
 testlib_hare_lex_freebsd = $(testlib_hare_lex_any)
+testlib_hare_lex_darwin = $(testlib_hare_lex_any)
 
 # gen_lib hare::module (any)
 testlib_hare_module_any = $(TESTCACHE)/hare/module/hare_module-any.o
 testlib_deps_any += $(testlib_hare_module_any)
 testlib_hare_module_linux = $(testlib_hare_module_any)
 testlib_hare_module_freebsd = $(testlib_hare_module_any)
+testlib_hare_module_darwin = $(testlib_hare_module_any)
 
 # gen_lib hare::parse (any)
 testlib_hare_parse_any = $(TESTCACHE)/hare/parse/hare_parse-any.o
 testlib_deps_any += $(testlib_hare_parse_any)
 testlib_hare_parse_linux = $(testlib_hare_parse_any)
 testlib_hare_parse_freebsd = $(testlib_hare_parse_any)
+testlib_hare_parse_darwin = $(testlib_hare_parse_any)
 
 # gen_lib hare::types (any)
 testlib_hare_types_any = $(TESTCACHE)/hare/types/hare_types-any.o
 testlib_deps_any += $(testlib_hare_types_any)
 testlib_hare_types_linux = $(testlib_hare_types_any)
 testlib_hare_types_freebsd = $(testlib_hare_types_any)
+testlib_hare_types_darwin = $(testlib_hare_types_any)
 
 # gen_lib hare::unit (any)
 testlib_hare_unit_any = $(TESTCACHE)/hare/unit/hare_unit-any.o
 testlib_deps_any += $(testlib_hare_unit_any)
 testlib_hare_unit_linux = $(testlib_hare_unit_any)
 testlib_hare_unit_freebsd = $(testlib_hare_unit_any)
+testlib_hare_unit_darwin = $(testlib_hare_unit_any)
 
 # gen_lib hare::unparse (any)
 testlib_hare_unparse_any = $(TESTCACHE)/hare/unparse/hare_unparse-any.o
 testlib_deps_any += $(testlib_hare_unparse_any)
 testlib_hare_unparse_linux = $(testlib_hare_unparse_any)
 testlib_hare_unparse_freebsd = $(testlib_hare_unparse_any)
+testlib_hare_unparse_darwin = $(testlib_hare_unparse_any)
 
 # gen_lib hash (any)
 testlib_hash_any = $(TESTCACHE)/hash/hash-any.o
 testlib_deps_any += $(testlib_hash_any)
 testlib_hash_linux = $(testlib_hash_any)
 testlib_hash_freebsd = $(testlib_hash_any)
+testlib_hash_darwin = $(testlib_hash_any)
 
 # gen_lib hash::adler32 (any)
 testlib_hash_adler32_any = $(TESTCACHE)/hash/adler32/hash_adler32-any.o
 testlib_deps_any += $(testlib_hash_adler32_any)
 testlib_hash_adler32_linux = $(testlib_hash_adler32_any)
 testlib_hash_adler32_freebsd = $(testlib_hash_adler32_any)
+testlib_hash_adler32_darwin = $(testlib_hash_adler32_any)
 
 # gen_lib hash::crc16 (any)
 testlib_hash_crc16_any = $(TESTCACHE)/hash/crc16/hash_crc16-any.o
 testlib_deps_any += $(testlib_hash_crc16_any)
 testlib_hash_crc16_linux = $(testlib_hash_crc16_any)
 testlib_hash_crc16_freebsd = $(testlib_hash_crc16_any)
+testlib_hash_crc16_darwin = $(testlib_hash_crc16_any)
 
 # gen_lib hash::crc32 (any)
 testlib_hash_crc32_any = $(TESTCACHE)/hash/crc32/hash_crc32-any.o
 testlib_deps_any += $(testlib_hash_crc32_any)
 testlib_hash_crc32_linux = $(testlib_hash_crc32_any)
 testlib_hash_crc32_freebsd = $(testlib_hash_crc32_any)
+testlib_hash_crc32_darwin = $(testlib_hash_crc32_any)
 
 # gen_lib hash::crc64 (any)
 testlib_hash_crc64_any = $(TESTCACHE)/hash/crc64/hash_crc64-any.o
 testlib_deps_any += $(testlib_hash_crc64_any)
 testlib_hash_crc64_linux = $(testlib_hash_crc64_any)
 testlib_hash_crc64_freebsd = $(testlib_hash_crc64_any)
+testlib_hash_crc64_darwin = $(testlib_hash_crc64_any)
 
 # gen_lib hash::fnv (any)
 testlib_hash_fnv_any = $(TESTCACHE)/hash/fnv/hash_fnv-any.o
 testlib_deps_any += $(testlib_hash_fnv_any)
 testlib_hash_fnv_linux = $(testlib_hash_fnv_any)
 testlib_hash_fnv_freebsd = $(testlib_hash_fnv_any)
+testlib_hash_fnv_darwin = $(testlib_hash_fnv_any)
 
 # gen_lib hash::siphash (any)
 testlib_hash_siphash_any = $(TESTCACHE)/hash/siphash/hash_siphash-any.o
 testlib_deps_any += $(testlib_hash_siphash_any)
 testlib_hash_siphash_linux = $(testlib_hash_siphash_any)
 testlib_hash_siphash_freebsd = $(testlib_hash_siphash_any)
+testlib_hash_siphash_darwin = $(testlib_hash_siphash_any)
 
 # gen_lib io (linux)
 testlib_io_linux = $(TESTCACHE)/io/io-linux.o
@@ -2663,6 +3209,10 @@ testlib_deps_linux += $(testlib_io_linux)
 # gen_lib io (freebsd)
 testlib_io_freebsd = $(TESTCACHE)/io/io-freebsd.o
 testlib_deps_freebsd += $(testlib_io_freebsd)
+
+# gen_lib io (darwin)
+testlib_io_darwin = $(TESTCACHE)/io/io-darwin.o
+testlib_deps_darwin += $(testlib_io_darwin)
 
 # gen_lib linux (linux)
 testlib_linux_linux = $(TESTCACHE)/linux/linux-linux.o
@@ -2688,23 +3238,30 @@ testlib_deps_linux += $(testlib_log_linux)
 testlib_log_freebsd = $(TESTCACHE)/log/log-freebsd.o
 testlib_deps_freebsd += $(testlib_log_freebsd)
 
+# gen_lib log (darwin)
+testlib_log_darwin = $(TESTCACHE)/log/log-darwin.o
+testlib_deps_darwin += $(testlib_log_darwin)
+
 # gen_lib math (any)
 testlib_math_any = $(TESTCACHE)/math/math-any.o
 testlib_deps_any += $(testlib_math_any)
 testlib_math_linux = $(testlib_math_any)
 testlib_math_freebsd = $(testlib_math_any)
+testlib_math_darwin = $(testlib_math_any)
 
 # gen_lib math::complex (any)
 testlib_math_complex_any = $(TESTCACHE)/math/complex/math_complex-any.o
 testlib_deps_any += $(testlib_math_complex_any)
 testlib_math_complex_linux = $(testlib_math_complex_any)
 testlib_math_complex_freebsd = $(testlib_math_complex_any)
+testlib_math_complex_darwin = $(testlib_math_complex_any)
 
 # gen_lib math::random (any)
 testlib_math_random_any = $(TESTCACHE)/math/random/math_random-any.o
 testlib_deps_any += $(testlib_math_random_any)
 testlib_math_random_linux = $(testlib_math_random_any)
 testlib_math_random_freebsd = $(testlib_math_random_any)
+testlib_math_random_darwin = $(testlib_math_random_any)
 
 # gen_lib net (linux)
 testlib_net_linux = $(TESTCACHE)/net/net-linux.o
@@ -2714,17 +3271,23 @@ testlib_deps_linux += $(testlib_net_linux)
 testlib_net_freebsd = $(TESTCACHE)/net/net-freebsd.o
 testlib_deps_freebsd += $(testlib_net_freebsd)
 
+# gen_lib net (darwin)
+testlib_net_darwin = $(TESTCACHE)/net/net-darwin.o
+testlib_deps_darwin += $(testlib_net_darwin)
+
 # gen_lib net::dial (any)
 testlib_net_dial_any = $(TESTCACHE)/net/dial/net_dial-any.o
 testlib_deps_any += $(testlib_net_dial_any)
 testlib_net_dial_linux = $(testlib_net_dial_any)
 testlib_net_dial_freebsd = $(testlib_net_dial_any)
+testlib_net_dial_darwin = $(testlib_net_dial_any)
 
 # gen_lib net::dns (any)
 testlib_net_dns_any = $(TESTCACHE)/net/dns/net_dns-any.o
 testlib_deps_any += $(testlib_net_dns_any)
 testlib_net_dns_linux = $(testlib_net_dns_any)
 testlib_net_dns_freebsd = $(testlib_net_dns_any)
+testlib_net_dns_darwin = $(testlib_net_dns_any)
 
 # gen_lib net::ip (linux)
 testlib_net_ip_linux = $(TESTCACHE)/net/ip/net_ip-linux.o
@@ -2734,6 +3297,10 @@ testlib_deps_linux += $(testlib_net_ip_linux)
 testlib_net_ip_freebsd = $(TESTCACHE)/net/ip/net_ip-freebsd.o
 testlib_deps_freebsd += $(testlib_net_ip_freebsd)
 
+# gen_lib net::ip (darwin)
+testlib_net_ip_darwin = $(TESTCACHE)/net/ip/net_ip-darwin.o
+testlib_deps_darwin += $(testlib_net_ip_darwin)
+
 # gen_lib net::tcp (linux)
 testlib_net_tcp_linux = $(TESTCACHE)/net/tcp/net_tcp-linux.o
 testlib_deps_linux += $(testlib_net_tcp_linux)
@@ -2741,6 +3308,10 @@ testlib_deps_linux += $(testlib_net_tcp_linux)
 # gen_lib net::tcp (freebsd)
 testlib_net_tcp_freebsd = $(TESTCACHE)/net/tcp/net_tcp-freebsd.o
 testlib_deps_freebsd += $(testlib_net_tcp_freebsd)
+
+# gen_lib net::tcp (darwin)
+testlib_net_tcp_darwin = $(TESTCACHE)/net/tcp/net_tcp-darwin.o
+testlib_deps_darwin += $(testlib_net_tcp_darwin)
 
 # gen_lib net::udp (linux)
 testlib_net_udp_linux = $(TESTCACHE)/net/udp/net_udp-linux.o
@@ -2750,6 +3321,10 @@ testlib_deps_linux += $(testlib_net_udp_linux)
 testlib_net_udp_freebsd = $(TESTCACHE)/net/udp/net_udp-freebsd.o
 testlib_deps_freebsd += $(testlib_net_udp_freebsd)
 
+# gen_lib net::udp (darwin)
+testlib_net_udp_darwin = $(TESTCACHE)/net/udp/net_udp-darwin.o
+testlib_deps_darwin += $(testlib_net_udp_darwin)
+
 # gen_lib net::unix (linux)
 testlib_net_unix_linux = $(TESTCACHE)/net/unix/net_unix-linux.o
 testlib_deps_linux += $(testlib_net_unix_linux)
@@ -2758,11 +3333,16 @@ testlib_deps_linux += $(testlib_net_unix_linux)
 testlib_net_unix_freebsd = $(TESTCACHE)/net/unix/net_unix-freebsd.o
 testlib_deps_freebsd += $(testlib_net_unix_freebsd)
 
+# gen_lib net::unix (darwin)
+testlib_net_unix_darwin = $(TESTCACHE)/net/unix/net_unix-darwin.o
+testlib_deps_darwin += $(testlib_net_unix_darwin)
+
 # gen_lib net::uri (any)
 testlib_net_uri_any = $(TESTCACHE)/net/uri/net_uri-any.o
 testlib_deps_any += $(testlib_net_uri_any)
 testlib_net_uri_linux = $(testlib_net_uri_any)
 testlib_net_uri_freebsd = $(testlib_net_uri_any)
+testlib_net_uri_darwin = $(testlib_net_uri_any)
 
 # gen_lib os (linux)
 testlib_os_linux = $(TESTCACHE)/os/os-linux.o
@@ -2772,6 +3352,10 @@ testlib_deps_linux += $(testlib_os_linux)
 testlib_os_freebsd = $(TESTCACHE)/os/os-freebsd.o
 testlib_deps_freebsd += $(testlib_os_freebsd)
 
+# gen_lib os (darwin)
+testlib_os_darwin = $(TESTCACHE)/os/os-darwin.o
+testlib_deps_darwin += $(testlib_os_darwin)
+
 # gen_lib os::exec (linux)
 testlib_os_exec_linux = $(TESTCACHE)/os/exec/os_exec-linux.o
 testlib_deps_linux += $(testlib_os_exec_linux)
@@ -2780,59 +3364,72 @@ testlib_deps_linux += $(testlib_os_exec_linux)
 testlib_os_exec_freebsd = $(TESTCACHE)/os/exec/os_exec-freebsd.o
 testlib_deps_freebsd += $(testlib_os_exec_freebsd)
 
+# gen_lib os::exec (darwin)
+testlib_os_exec_darwin = $(TESTCACHE)/os/exec/os_exec-darwin.o
+testlib_deps_darwin += $(testlib_os_exec_darwin)
+
 # gen_lib path (any)
 testlib_path_any = $(TESTCACHE)/path/path-any.o
 testlib_deps_any += $(testlib_path_any)
 testlib_path_linux = $(testlib_path_any)
 testlib_path_freebsd = $(testlib_path_any)
+testlib_path_darwin = $(testlib_path_any)
 
 # gen_lib regex (any)
 testlib_regex_any = $(TESTCACHE)/regex/regex-any.o
 testlib_deps_any += $(testlib_regex_any)
 testlib_regex_linux = $(testlib_regex_any)
 testlib_regex_freebsd = $(testlib_regex_any)
+testlib_regex_darwin = $(testlib_regex_any)
 
 # gen_lib shlex (any)
 testlib_shlex_any = $(TESTCACHE)/shlex/shlex-any.o
 testlib_deps_any += $(testlib_shlex_any)
 testlib_shlex_linux = $(testlib_shlex_any)
 testlib_shlex_freebsd = $(testlib_shlex_any)
+testlib_shlex_darwin = $(testlib_shlex_any)
 
 # gen_lib slices (any)
 testlib_slices_any = $(TESTCACHE)/slices/slices-any.o
 testlib_deps_any += $(testlib_slices_any)
 testlib_slices_linux = $(testlib_slices_any)
 testlib_slices_freebsd = $(testlib_slices_any)
+testlib_slices_darwin = $(testlib_slices_any)
 
 # gen_lib sort (any)
 testlib_sort_any = $(TESTCACHE)/sort/sort-any.o
 testlib_deps_any += $(testlib_sort_any)
 testlib_sort_linux = $(testlib_sort_any)
 testlib_sort_freebsd = $(testlib_sort_any)
+testlib_sort_darwin = $(testlib_sort_any)
 
 # gen_lib strconv (any)
 testlib_strconv_any = $(TESTCACHE)/strconv/strconv-any.o
 testlib_deps_any += $(testlib_strconv_any)
 testlib_strconv_linux = $(testlib_strconv_any)
 testlib_strconv_freebsd = $(testlib_strconv_any)
+testlib_strconv_darwin = $(testlib_strconv_any)
 
 # gen_lib strings (any)
 testlib_strings_any = $(TESTCACHE)/strings/strings-any.o
 testlib_deps_any += $(testlib_strings_any)
 testlib_strings_linux = $(testlib_strings_any)
 testlib_strings_freebsd = $(testlib_strings_any)
+testlib_strings_darwin = $(testlib_strings_any)
 
 # gen_lib strings::template (any)
 testlib_strings_template_any = $(TESTCACHE)/strings/template/strings_template-any.o
 testlib_deps_any += $(testlib_strings_template_any)
 testlib_strings_template_linux = $(testlib_strings_template_any)
 testlib_strings_template_freebsd = $(testlib_strings_template_any)
+testlib_strings_template_darwin = $(testlib_strings_template_any)
 
 # gen_lib strio (any)
 testlib_strio_any = $(TESTCACHE)/strio/strio-any.o
 testlib_deps_any += $(testlib_strio_any)
 testlib_strio_linux = $(testlib_strio_any)
 testlib_strio_freebsd = $(testlib_strio_any)
+testlib_strio_darwin = $(testlib_strio_any)
 
 # gen_lib temp (linux)
 testlib_temp_linux = $(TESTCACHE)/temp/temp-linux.o
@@ -2842,6 +3439,10 @@ testlib_deps_linux += $(testlib_temp_linux)
 testlib_temp_freebsd = $(TESTCACHE)/temp/temp-freebsd.o
 testlib_deps_freebsd += $(testlib_temp_freebsd)
 
+# gen_lib temp (darwin)
+testlib_temp_darwin = $(TESTCACHE)/temp/temp-darwin.o
+testlib_deps_darwin += $(testlib_temp_darwin)
+
 # gen_lib time (linux)
 testlib_time_linux = $(TESTCACHE)/time/time-linux.o
 testlib_deps_linux += $(testlib_time_linux)
@@ -2849,6 +3450,10 @@ testlib_deps_linux += $(testlib_time_linux)
 # gen_lib time (freebsd)
 testlib_time_freebsd = $(TESTCACHE)/time/time-freebsd.o
 testlib_deps_freebsd += $(testlib_time_freebsd)
+
+# gen_lib time (darwin)
+testlib_time_darwin = $(TESTCACHE)/time/time-darwin.o
+testlib_deps_darwin += $(testlib_time_darwin)
 
 # gen_lib time::chrono (linux)
 testlib_time_chrono_linux = $(TESTCACHE)/time/chrono/time_chrono-linux.o
@@ -2858,11 +3463,16 @@ testlib_deps_linux += $(testlib_time_chrono_linux)
 testlib_time_chrono_freebsd = $(TESTCACHE)/time/chrono/time_chrono-freebsd.o
 testlib_deps_freebsd += $(testlib_time_chrono_freebsd)
 
+# gen_lib time::chrono (darwin)
+testlib_time_chrono_darwin = $(TESTCACHE)/time/chrono/time_chrono-darwin.o
+testlib_deps_darwin += $(testlib_time_chrono_darwin)
+
 # gen_lib types (any)
 testlib_types_any = $(TESTCACHE)/types/types-any.o
 testlib_deps_any += $(testlib_types_any)
 testlib_types_linux = $(testlib_types_any)
 testlib_types_freebsd = $(testlib_types_any)
+testlib_types_darwin = $(testlib_types_any)
 
 # gen_lib unix (linux)
 testlib_unix_linux = $(TESTCACHE)/unix/unix-linux.o
@@ -2872,6 +3482,10 @@ testlib_deps_linux += $(testlib_unix_linux)
 testlib_unix_freebsd = $(TESTCACHE)/unix/unix-freebsd.o
 testlib_deps_freebsd += $(testlib_unix_freebsd)
 
+# gen_lib unix (darwin)
+testlib_unix_darwin = $(TESTCACHE)/unix/unix-darwin.o
+testlib_deps_darwin += $(testlib_unix_darwin)
+
 # gen_lib unix::hosts (linux)
 testlib_unix_hosts_linux = $(TESTCACHE)/unix/hosts/unix_hosts-linux.o
 testlib_deps_linux += $(testlib_unix_hosts_linux)
@@ -2880,11 +3494,16 @@ testlib_deps_linux += $(testlib_unix_hosts_linux)
 testlib_unix_hosts_freebsd = $(TESTCACHE)/unix/hosts/unix_hosts-freebsd.o
 testlib_deps_freebsd += $(testlib_unix_hosts_freebsd)
 
+# gen_lib unix::hosts (darwin)
+testlib_unix_hosts_darwin = $(TESTCACHE)/unix/hosts/unix_hosts-darwin.o
+testlib_deps_darwin += $(testlib_unix_hosts_darwin)
+
 # gen_lib unix::passwd (any)
 testlib_unix_passwd_any = $(TESTCACHE)/unix/passwd/unix_passwd-any.o
 testlib_deps_any += $(testlib_unix_passwd_any)
 testlib_unix_passwd_linux = $(testlib_unix_passwd_any)
 testlib_unix_passwd_freebsd = $(testlib_unix_passwd_any)
+testlib_unix_passwd_darwin = $(testlib_unix_passwd_any)
 
 # gen_lib unix::poll (linux)
 testlib_unix_poll_linux = $(TESTCACHE)/unix/poll/unix_poll-linux.o
@@ -2894,6 +3513,10 @@ testlib_deps_linux += $(testlib_unix_poll_linux)
 testlib_unix_poll_freebsd = $(TESTCACHE)/unix/poll/unix_poll-freebsd.o
 testlib_deps_freebsd += $(testlib_unix_poll_freebsd)
 
+# gen_lib unix::poll (darwin)
+testlib_unix_poll_darwin = $(TESTCACHE)/unix/poll/unix_poll-darwin.o
+testlib_deps_darwin += $(testlib_unix_poll_darwin)
+
 # gen_lib unix::resolvconf (linux)
 testlib_unix_resolvconf_linux = $(TESTCACHE)/unix/resolvconf/unix_resolvconf-linux.o
 testlib_deps_linux += $(testlib_unix_resolvconf_linux)
@@ -2901,6 +3524,10 @@ testlib_deps_linux += $(testlib_unix_resolvconf_linux)
 # gen_lib unix::resolvconf (freebsd)
 testlib_unix_resolvconf_freebsd = $(TESTCACHE)/unix/resolvconf/unix_resolvconf-freebsd.o
 testlib_deps_freebsd += $(testlib_unix_resolvconf_freebsd)
+
+# gen_lib unix::resolvconf (darwin)
+testlib_unix_resolvconf_darwin = $(TESTCACHE)/unix/resolvconf/unix_resolvconf-darwin.o
+testlib_deps_darwin += $(testlib_unix_resolvconf_darwin)
 
 # gen_lib unix::signal (linux)
 testlib_unix_signal_linux = $(TESTCACHE)/unix/signal/unix_signal-linux.o
@@ -2914,11 +3541,16 @@ testlib_deps_linux += $(testlib_unix_tty_linux)
 testlib_unix_tty_freebsd = $(TESTCACHE)/unix/tty/unix_tty-freebsd.o
 testlib_deps_freebsd += $(testlib_unix_tty_freebsd)
 
+# gen_lib unix::tty (darwin)
+testlib_unix_tty_darwin = $(TESTCACHE)/unix/tty/unix_tty-darwin.o
+testlib_deps_darwin += $(testlib_unix_tty_darwin)
+
 # gen_lib uuid (any)
 testlib_uuid_any = $(TESTCACHE)/uuid/uuid-any.o
 testlib_deps_any += $(testlib_uuid_any)
 testlib_uuid_linux = $(testlib_uuid_any)
 testlib_uuid_freebsd = $(testlib_uuid_any)
+testlib_uuid_darwin = $(testlib_uuid_any)
 
 # ascii (+any)
 testlib_ascii_any_srcs = \
@@ -3157,6 +3789,17 @@ $(TESTCACHE)/crypto/random/crypto_random-freebsd.ssa: $(testlib_crypto_random_fr
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_freebsd_srcs)
 
+# crypto::random (+darwin)
+testlib_crypto_random_darwin_srcs = \
+	$(STDLIB)/crypto/random/+darwin.ha \
+	$(STDLIB)/crypto/random/random.ha
+
+$(TESTCACHE)/crypto/random/crypto_random-darwin.ssa: $(testlib_crypto_random_darwin_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/random
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
+		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_darwin_srcs)
+
 # crypto::poly1305 (+any)
 testlib_crypto_poly1305_any_srcs = \
 	$(STDLIB)/crypto/poly1305/poly1305.ha \
@@ -3279,6 +3922,23 @@ $(TESTCACHE)/datetime/datetime-freebsd.ssa: $(testlib_datetime_freebsd_srcs) $(t
 	@mkdir -p $(TESTCACHE)/datetime
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndatetime \
 		-t$(TESTCACHE)/datetime/datetime.td $(testlib_datetime_freebsd_srcs)
+
+# datetime (+darwin)
+testlib_datetime_darwin_srcs = \
+	$(STDLIB)/datetime/arithmetic.ha \
+	$(STDLIB)/datetime/chronology.ha \
+	$(STDLIB)/datetime/date.ha \
+	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/format.ha \
+	$(STDLIB)/datetime/parse.ha \
+	$(STDLIB)/datetime/time.ha \
+	$(STDLIB)/datetime/timezone.ha
+
+$(TESTCACHE)/datetime/datetime-darwin.ssa: $(testlib_datetime_darwin_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/datetime
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndatetime \
+		-t$(TESTCACHE)/datetime/datetime.td $(testlib_datetime_darwin_srcs)
 
 # dirs (+any)
 testlib_dirs_any_srcs = \
@@ -3683,6 +4343,25 @@ testlib_io_freebsd_srcs = \
 	$(STDLIB)/io/+test/limit.ha \
 	$(STDLIB)/io/+test/stream.ha
 
+# io (+darwin)
+testlib_io_darwin_srcs = \
+	$(STDLIB)/io/arch+$(ARCH).ha \
+	$(STDLIB)/io/+darwin/file.ha \
+	$(STDLIB)/io/+darwin/mmap.ha \
+	$(STDLIB)/io/+darwin/vector.ha \
+	$(STDLIB)/io/copy.ha \
+	$(STDLIB)/io/drain.ha \
+	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/handle.ha \
+	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/stream.ha \
+	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/util.ha \
+	$(STDLIB)/io/zero.ha \
+	$(STDLIB)/io/+test/limit.ha \
+	$(STDLIB)/io/+test/stream.ha
+
 $(TESTCACHE)/io/io-linux.ssa: $(testlib_io_linux_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/io
@@ -3694,6 +4373,12 @@ $(TESTCACHE)/io/io-freebsd.ssa: $(testlib_io_freebsd_srcs) $(testlib_rt) $(testl
 	@mkdir -p $(TESTCACHE)/io
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
 		-t$(TESTCACHE)/io/io.td $(testlib_io_freebsd_srcs)
+
+$(TESTCACHE)/io/io-darwin.ssa: $(testlib_io_darwin_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/io
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
+		-t$(TESTCACHE)/io/io.td $(testlib_io_darwin_srcs)
 
 # linux (+linux)
 testlib_linux_linux_srcs = \
@@ -3763,6 +4448,19 @@ $(TESTCACHE)/log/log-freebsd.ssa: $(testlib_log_freebsd_srcs) $(testlib_rt) $(te
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \
 		-t$(TESTCACHE)/log/log.td $(testlib_log_freebsd_srcs)
 
+# log (+darwin)
+testlib_log_darwin_srcs = \
+	$(STDLIB)/log/logger.ha \
+	$(STDLIB)/log/global.ha \
+	$(STDLIB)/log/funcs.ha \
+	$(STDLIB)/log/silent.ha
+
+$(TESTCACHE)/log/log-darwin.ssa: $(testlib_log_darwin_srcs) $(testlib_rt) $(testlib_datetime_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/log
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \
+		-t$(TESTCACHE)/log/log.td $(testlib_log_darwin_srcs)
+
 # math (+any)
 testlib_math_any_srcs = \
 	$(STDLIB)/math/math.ha \
@@ -3825,6 +4523,18 @@ $(TESTCACHE)/net/net-freebsd.ssa: $(testlib_net_freebsd_srcs) $(testlib_rt) $(te
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
 		-t$(TESTCACHE)/net/net.td $(testlib_net_freebsd_srcs)
 
+# net (+darwin)
+testlib_net_darwin_srcs = \
+	$(STDLIB)/net/+darwin.ha \
+	$(STDLIB)/net/errors.ha \
+	$(STDLIB)/net/msg.ha
+
+$(TESTCACHE)/net/net-darwin.ssa: $(testlib_net_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
+		-t$(TESTCACHE)/net/net.td $(testlib_net_darwin_srcs)
+
 # net::dial (+any)
 testlib_net_dial_any_srcs = \
 	$(STDLIB)/net/dial/registry.ha \
@@ -3864,6 +4574,12 @@ testlib_net_ip_freebsd_srcs = \
 	$(STDLIB)/net/ip/ip.ha \
 	$(STDLIB)/net/ip/+test.ha
 
+# net::ip (+darwin)
+testlib_net_ip_darwin_srcs = \
+	$(STDLIB)/net/ip/+darwin.ha \
+	$(STDLIB)/net/ip/ip.ha \
+	$(STDLIB)/net/ip/+test.ha
+
 $(TESTCACHE)/net/ip/net_ip-linux.ssa: $(testlib_net_ip_linux_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/ip
@@ -3875,6 +4591,12 @@ $(TESTCACHE)/net/ip/net_ip-freebsd.ssa: $(testlib_net_ip_freebsd_srcs) $(testlib
 	@mkdir -p $(TESTCACHE)/net/ip
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \
 		-t$(TESTCACHE)/net/ip/net_ip.td $(testlib_net_ip_freebsd_srcs)
+
+$(TESTCACHE)/net/ip/net_ip-darwin.ssa: $(testlib_net_ip_darwin_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/ip
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \
+		-t$(TESTCACHE)/net/ip/net_ip.td $(testlib_net_ip_darwin_srcs)
 
 # net::tcp (+linux)
 testlib_net_tcp_linux_srcs = \
@@ -3900,6 +4622,18 @@ $(TESTCACHE)/net/tcp/net_tcp-freebsd.ssa: $(testlib_net_tcp_freebsd_srcs) $(test
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::tcp \
 		-t$(TESTCACHE)/net/tcp/net_tcp.td $(testlib_net_tcp_freebsd_srcs)
 
+# net::tcp (+darwin)
+testlib_net_tcp_darwin_srcs = \
+	$(STDLIB)/net/tcp/+darwin.ha \
+	$(STDLIB)/net/tcp/listener.ha \
+	$(STDLIB)/net/tcp/options.ha
+
+$(TESTCACHE)/net/tcp/net_tcp-darwin.ssa: $(testlib_net_tcp_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/tcp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::tcp \
+		-t$(TESTCACHE)/net/tcp/net_tcp.td $(testlib_net_tcp_darwin_srcs)
+
 # net::udp (+linux)
 testlib_net_udp_linux_srcs = \
 	$(STDLIB)/net/udp/+linux.ha \
@@ -3921,6 +4655,17 @@ $(TESTCACHE)/net/udp/net_udp-freebsd.ssa: $(testlib_net_udp_freebsd_srcs) $(test
 	@mkdir -p $(TESTCACHE)/net/udp
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::udp \
 		-t$(TESTCACHE)/net/udp/net_udp.td $(testlib_net_udp_freebsd_srcs)
+
+# net::udp (+darwin)
+testlib_net_udp_darwin_srcs = \
+	$(STDLIB)/net/udp/+darwin.ha \
+	$(STDLIB)/net/udp/options.ha
+
+$(TESTCACHE)/net/udp/net_udp-darwin.ssa: $(testlib_net_udp_darwin_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/udp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::udp \
+		-t$(TESTCACHE)/net/udp/net_udp.td $(testlib_net_udp_darwin_srcs)
 
 # net::unix (+linux)
 testlib_net_unix_linux_srcs = \
@@ -3953,6 +4698,22 @@ $(TESTCACHE)/net/unix/net_unix-freebsd.ssa: $(testlib_net_unix_freebsd_srcs) $(t
 	@mkdir -p $(TESTCACHE)/net/unix
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \
 		-t$(TESTCACHE)/net/unix/net_unix.td $(testlib_net_unix_freebsd_srcs)
+
+# net::unix (+darwin)
+testlib_net_unix_darwin_srcs = \
+	$(STDLIB)/net/unix/+darwin.ha \
+	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/cmsg.ha \
+	$(STDLIB)/net/unix/dial.ha \
+	$(STDLIB)/net/unix/listener.ha \
+	$(STDLIB)/net/unix/options.ha \
+	$(STDLIB)/net/unix/socketpair.ha
+
+$(TESTCACHE)/net/unix/net_unix-darwin.ssa: $(testlib_net_unix_darwin_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_net_dial_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/unix
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \
+		-t$(TESTCACHE)/net/unix/net_unix.td $(testlib_net_unix_darwin_srcs)
 
 # net::uri (+any)
 testlib_net_uri_any_srcs = \
@@ -3999,6 +4760,21 @@ $(TESTCACHE)/os/os-freebsd.ssa: $(testlib_os_freebsd_srcs) $(testlib_rt) $(testl
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
 		-t$(TESTCACHE)/os/os.td $(testlib_os_freebsd_srcs)
 
+# os (+darwin)
+testlib_os_darwin_srcs = \
+	$(STDLIB)/os/+darwin/environ.ha \
+	$(STDLIB)/os/+darwin/exit.ha \
+	$(STDLIB)/os/+darwin/dirfdfs.ha \
+	$(STDLIB)/os/+darwin/stdfd.ha \
+	$(STDLIB)/os/+darwin/fs.ha \
+	$(STDLIB)/os/fs.ha
+
+$(TESTCACHE)/os/os-darwin.ssa: $(testlib_os_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/os
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
+		-t$(TESTCACHE)/os/os.td $(testlib_os_darwin_srcs)
+
 # os::exec (+linux)
 testlib_os_exec_linux_srcs = \
 	$(STDLIB)/os/exec/exec+linux.ha \
@@ -4024,6 +4800,19 @@ $(TESTCACHE)/os/exec/os_exec-freebsd.ssa: $(testlib_os_exec_freebsd_srcs) $(test
 	@mkdir -p $(TESTCACHE)/os/exec
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
 		-t$(TESTCACHE)/os/exec/os_exec.td $(testlib_os_exec_freebsd_srcs)
+
+# os::exec (+darwin)
+testlib_os_exec_darwin_srcs = \
+	$(STDLIB)/os/exec/exec+darwin.ha \
+	$(STDLIB)/os/exec/process+darwin.ha \
+	$(STDLIB)/os/exec/types.ha \
+	$(STDLIB)/os/exec/cmd.ha
+
+$(TESTCACHE)/os/exec/os_exec-darwin.ssa: $(testlib_os_exec_darwin_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/os/exec
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
+		-t$(TESTCACHE)/os/exec/os_exec.td $(testlib_os_exec_darwin_srcs)
 
 # path (+any)
 testlib_path_any_srcs = \
@@ -4176,6 +4965,16 @@ $(TESTCACHE)/temp/temp-freebsd.ssa: $(testlib_temp_freebsd_srcs) $(testlib_rt) $
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
 		-t$(TESTCACHE)/temp/temp.td $(testlib_temp_freebsd_srcs)
 
+# temp (+darwin)
+testlib_temp_darwin_srcs = \
+	$(STDLIB)/temp/+darwin.ha
+
+$(TESTCACHE)/temp/temp-darwin.ssa: $(testlib_temp_darwin_srcs) $(testlib_rt) $(testlib_crypto_random_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/temp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
+		-t$(TESTCACHE)/temp/temp.td $(testlib_temp_darwin_srcs)
+
 # time (+linux)
 testlib_time_linux_srcs = \
 	$(STDLIB)/time/+linux/functions.ha \
@@ -4202,6 +5001,19 @@ $(TESTCACHE)/time/time-freebsd.ssa: $(testlib_time_freebsd_srcs) $(testlib_rt) $
 	@mkdir -p $(TESTCACHE)/time
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
 		-t$(TESTCACHE)/time/time.td $(testlib_time_freebsd_srcs)
+
+# time (+darwin)
+testlib_time_darwin_srcs = \
+	$(STDLIB)/time/+darwin/functions.ha \
+	$(STDLIB)/time/arithm.ha \
+	$(STDLIB)/time/conv.ha \
+	$(STDLIB)/time/types.ha
+
+$(TESTCACHE)/time/time-darwin.ssa: $(testlib_time_darwin_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
+		-t$(TESTCACHE)/time/time.td $(testlib_time_darwin_srcs)
 
 # time::chrono (+linux)
 testlib_time_chrono_linux_srcs = \
@@ -4234,6 +5046,22 @@ $(TESTCACHE)/time/chrono/time_chrono-freebsd.ssa: $(testlib_time_chrono_freebsd_
 	@mkdir -p $(TESTCACHE)/time/chrono
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
 		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_freebsd_srcs)
+
+# time::chrono (+darwin)
+testlib_time_chrono_darwin_srcs = \
+	$(STDLIB)/time/chrono/+darwin.ha \
+	$(STDLIB)/time/chrono/chronology.ha \
+	$(STDLIB)/time/chrono/error.ha \
+	$(STDLIB)/time/chrono/leapsec.ha \
+	$(STDLIB)/time/chrono/timescale.ha \
+	$(STDLIB)/time/chrono/timezone.ha \
+	$(STDLIB)/time/chrono/tzdb.ha
+
+$(TESTCACHE)/time/chrono/time_chrono-darwin.ssa: $(testlib_time_chrono_darwin_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_path_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time/chrono
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
+		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_darwin_srcs)
 
 # types (+any)
 testlib_types_any_srcs = \
@@ -4277,6 +5105,21 @@ $(TESTCACHE)/unix/unix-freebsd.ssa: $(testlib_unix_freebsd_srcs) $(testlib_rt) $
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
 		-t$(TESTCACHE)/unix/unix.td $(testlib_unix_freebsd_srcs)
 
+# unix (+darwin)
+testlib_unix_darwin_srcs = \
+	$(STDLIB)/unix/+darwin/nice.ha \
+	$(STDLIB)/unix/+darwin/pipe.ha \
+	$(STDLIB)/unix/+darwin/umask.ha \
+	$(STDLIB)/unix/+darwin/getuid.ha \
+	$(STDLIB)/unix/+darwin/setuid.ha \
+	$(STDLIB)/unix/+darwin/groups.ha
+
+$(TESTCACHE)/unix/unix-darwin.ssa: $(testlib_unix_darwin_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
+		-t$(TESTCACHE)/unix/unix.td $(testlib_unix_darwin_srcs)
+
 # unix::hosts (+linux)
 testlib_unix_hosts_linux_srcs = \
 	$(STDLIB)/unix/hosts/+linux.ha \
@@ -4298,6 +5141,17 @@ $(TESTCACHE)/unix/hosts/unix_hosts-freebsd.ssa: $(testlib_unix_hosts_freebsd_src
 	@mkdir -p $(TESTCACHE)/unix/hosts
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
 		-t$(TESTCACHE)/unix/hosts/unix_hosts.td $(testlib_unix_hosts_freebsd_srcs)
+
+# unix::hosts (+darwin)
+testlib_unix_hosts_darwin_srcs = \
+	$(STDLIB)/unix/hosts/+darwin.ha \
+	$(STDLIB)/unix/hosts/lookup.ha
+
+$(TESTCACHE)/unix/hosts/unix_hosts-darwin.ssa: $(testlib_unix_hosts_darwin_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/hosts
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
+		-t$(TESTCACHE)/unix/hosts/unix_hosts.td $(testlib_unix_hosts_darwin_srcs)
 
 # unix::passwd (+any)
 testlib_unix_passwd_any_srcs = \
@@ -4331,6 +5185,16 @@ $(TESTCACHE)/unix/poll/unix_poll-freebsd.ssa: $(testlib_unix_poll_freebsd_srcs) 
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \
 		-t$(TESTCACHE)/unix/poll/unix_poll.td $(testlib_unix_poll_freebsd_srcs)
 
+# unix::poll (+darwin)
+testlib_unix_poll_darwin_srcs = \
+	$(STDLIB)/unix/poll/+darwin.ha
+
+$(TESTCACHE)/unix/poll/unix_poll-darwin.ssa: $(testlib_unix_poll_darwin_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/poll
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \
+		-t$(TESTCACHE)/unix/poll/unix_poll.td $(testlib_unix_poll_darwin_srcs)
+
 # unix::resolvconf (+linux)
 testlib_unix_resolvconf_linux_srcs = \
 	$(STDLIB)/unix/resolvconf/+linux.ha \
@@ -4352,6 +5216,17 @@ $(TESTCACHE)/unix/resolvconf/unix_resolvconf-freebsd.ssa: $(testlib_unix_resolvc
 	@mkdir -p $(TESTCACHE)/unix/resolvconf
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \
 		-t$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td $(testlib_unix_resolvconf_freebsd_srcs)
+
+# unix::resolvconf (+darwin)
+testlib_unix_resolvconf_darwin_srcs = \
+	$(STDLIB)/unix/resolvconf/+darwin.ha \
+	$(STDLIB)/unix/resolvconf/load.ha
+
+$(TESTCACHE)/unix/resolvconf/unix_resolvconf-darwin.ssa: $(testlib_unix_resolvconf_darwin_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/resolvconf
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \
+		-t$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td $(testlib_unix_resolvconf_darwin_srcs)
 
 # unix::signal (+linux)
 testlib_unix_signal_linux_srcs = \
@@ -4394,6 +5269,21 @@ $(TESTCACHE)/unix/tty/unix_tty-freebsd.ssa: $(testlib_unix_tty_freebsd_srcs) $(t
 	@mkdir -p $(TESTCACHE)/unix/tty
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \
 		-t$(TESTCACHE)/unix/tty/unix_tty.td $(testlib_unix_tty_freebsd_srcs)
+
+# unix::tty (+darwin)
+testlib_unix_tty_darwin_srcs = \
+	$(STDLIB)/unix/tty/types.ha \
+	$(STDLIB)/unix/tty/pty.ha \
+	$(STDLIB)/unix/tty/+darwin/isatty.ha \
+	$(STDLIB)/unix/tty/+darwin/open.ha \
+	$(STDLIB)/unix/tty/+darwin/pty.ha \
+	$(STDLIB)/unix/tty/+darwin/winsize.ha
+
+$(TESTCACHE)/unix/tty/unix_tty-darwin.ssa: $(testlib_unix_tty_darwin_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/tty
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \
+		-t$(TESTCACHE)/unix/tty/unix_tty.td $(testlib_unix_tty_darwin_srcs)
 
 # uuid (+any)
 testlib_uuid_any_srcs = \
