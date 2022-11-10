@@ -1218,7 +1218,7 @@ sort() {
 		gensrcs_sort \
 			+test.ha
 	fi
-	gen_ssa sort strings
+	gen_ssa sort strings types
 }
 
 strconv() {
