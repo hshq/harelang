@@ -2,9 +2,9 @@
 # install:
 cp config.darwin.mk config.mk
 
-export HARE_DEBUG_WORKDIR=/Volumes/hare-cache256/tmp
-export TMPDIR=/Volumes/hare-cache256/tmp
-export XDG_CACHE_HOME=/Volumes/hare-cache256/obj_cache
+# export HARE_DEBUG_WORKDIR=/Volumes/hare-cache256/tmp
+# export TMPDIR=/Volumes/hare-cache256/tmp
+# export XDG_CACHE_HOME=/Volumes/hare-cache256/obj_cache
 
 make
 make check
