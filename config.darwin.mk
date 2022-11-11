@@ -1,6 +1,6 @@
 ## Install configuration
 
-ROOT = ..
+HAREC_TOOLS = ../harec.git/rt/+darwin
 
 PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
@@ -22,9 +22,9 @@ ARCH = x86_64
 # External tools and flags
 HAREC = /usr/local/bin/harec
 HAREFLAGS =
-QBE = $(ROOT)/harec.git/rt/+darwin/qbe.sh
-AS = $(ROOT)/harec.git/rt/+darwin/as.sh
-LD = $(ROOT)/harec.git/rt/+darwin/ld.sh
+QBE = $(HAREC_TOOLS)/qbe.sh
+AS = $(HAREC_TOOLS)/as.sh
+LD = $(HAREC_TOOLS)/ld.sh
 AR = ar
 SCDOC = scdoc
 
