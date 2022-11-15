@@ -29,6 +29,7 @@ gensrcs_rt() {
 		+linux/'+$(ARCH)'.ha \
 		+linux/syscallno+'$(ARCH)'.ha \
 		+linux/syscalls.ha \
+		+linux/syscallsarch+'$(ARCH)'.ha \
 		+linux/signal.ha \
 		+linux/stat.ha \
 		+linux/socket.ha \
