@@ -56,6 +56,10 @@ let utc_isinitialized: bool = false;
 	};
 };
 
+@fini fn free_utc() void = {
+	free(utc_leapsecs);
+};
+
 fn init_utc_leapsecs() (void | utciniterror) = {
 	const file = os::open(UTC_LEAPSECS_FILE)?;
 	defer io::close(file)!;
@@ -82,6 +86,7 @@ fn parse_utc_leapsecs(
 			continue;
 		};
 		const pair = strings::splitn(line, "\t", 3);
+		defer free(pair);
 		if (len(pair) < 2) {
 			continue;
 		};
