@@ -431,6 +431,8 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 			if (linecomment != "") {
 				free(comment);
 				comment = strings::dup(linecomment);
+				free(lexer.comment);
+				lexer.comment = "";
 			};
 		case ltok::RBRACE => break;
 		case => abort();
