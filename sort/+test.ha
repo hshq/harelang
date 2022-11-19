@@ -1,6 +1,7 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
+use types;
 
 @test fn lbisect() void = {
 	const nums = [1, 3, 4, 4, 5, 7, 9, 11, 11, 11];
@@ -70,4 +71,12 @@
 	sort(nums, size(int), &icmp);
 	assert(sorted(nums, size(int), &icmp));
 	assert(sorted(nums[..0], size(int), &icmp));
+};
+
+@test fn icmp() void = {
+	assert(icmp(&5, &0) == 1);
+	assert(icmp(&0, &5) == -1);
+	assert(icmp(&0, &0) == 0);
+	assert(icmp(&0, &types::INT_MIN) == 1);
+	assert(icmp(&types::INT_MIN, &0) == -1);
 };

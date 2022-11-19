@@ -14,6 +14,8 @@ fn scmp(a: const *void, b: const *void) int = {
 };
 
 fn icmp(a: const *void, b: const *void) int = {
-	const a = a: const *int, b = b: const *int;
-	return *a - *b;
+	const a = *(a: const *int), b = *(b: const *int);
+	return if (a < b) -1
+		else if (a > b) 1
+		else 0;
 };

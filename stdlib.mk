@@ -13,6 +13,7 @@ stdlib_rt_linux_srcs = \
 	$(STDLIB)/rt/+linux/+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/syscallno+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/syscalls.ha \
+	$(STDLIB)/rt/+linux/syscallsarch+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/signal.ha \
 	$(STDLIB)/rt/+linux/stat.ha \
 	$(STDLIB)/rt/+linux/socket.ha \
@@ -2192,7 +2193,7 @@ stdlib_sort_any_srcs = \
 	$(STDLIB)/sort/sort.ha \
 	$(STDLIB)/sort/types.ha
 
-$(HARECACHE)/sort/sort-any.ssa: $(stdlib_sort_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM))
+$(HARECACHE)/sort/sort-any.ssa: $(stdlib_sort_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/sort
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nsort \
@@ -2624,6 +2625,7 @@ testlib_rt_linux_srcs = \
 	$(STDLIB)/rt/+linux/+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/syscallno+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/syscalls.ha \
+	$(STDLIB)/rt/+linux/syscallsarch+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/signal.ha \
 	$(STDLIB)/rt/+linux/stat.ha \
 	$(STDLIB)/rt/+linux/socket.ha \
@@ -4873,7 +4875,7 @@ testlib_sort_any_srcs = \
 	$(STDLIB)/sort/types.ha \
 	$(STDLIB)/sort/+test.ha
 
-$(TESTCACHE)/sort/sort-any.ssa: $(testlib_sort_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/sort/sort-any.ssa: $(testlib_sort_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/sort
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nsort \
