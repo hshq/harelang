@@ -7,7 +7,7 @@ hare - compiles, runs, and tests Hare programs
 # SYNOPSIS
 
 *hare* build [-cv]++
-	[-D _ident:type=value_]++
+	[-D _ident[:type]=value_]++
 	[-j _jobs_]++
 	[-l _name_]++
 	[-o _path_]++
@@ -18,14 +18,14 @@ hare - compiles, runs, and tests Hare programs
 *hare* deps [-Mm] [-T _tags_] [-X _tags_] _path_
 
 *hare* run [-v]++
-	[-D _ident:type=value_]++
+	[-D _ident[:type]=value_]++
 	[-l _name_]++
 	[-j _jobs_]++
 	[-T _tags_] [-X _tags_]++
 	[_path_] [_args_...]
 
 *hare* test [-v]++
-	[-D _ident:type=value_]++
+	[-D _ident[:type]=value_]++
 	[-l _name_]++
 	[-j _jobs_]++
 	[-T _tags_] [-X _tags_]++
@@ -72,7 +72,7 @@ value, and optional context, separated by tabs.
 	Enable verbose logging. Prints every command to stderr before executing
 	it.
 
-*-D* _ident:type=value_
+*-D* _ident[:type]=value_
 	Passed to *harec*(1) to define a constant in the type system. _ident_ is
 	parsed as a Hare identifier (e.g. "foo::bar::baz"), _type_ as a Hare
 	type (e.g. "str" or "struct { x: int, y: int }"), and _value_ as a Hare
@@ -121,7 +121,7 @@ value, and optional context, separated by tabs.
 	Enable verbose logging. Prints every command to stderr before executing
 	it.
 
-*-D* _ident:type=value_
+*-D* _ident[:type]=value_
 	Passed to *harec*(1) to define a constant in the type system. _ident_ is
 	parsed as a Hare identifier (e.g. "foo::bar::baz"), _type_ as a Hare
 	type (e.g. "str" or "struct { x: int, y: int }"), and _value_ as a Hare
@@ -149,7 +149,7 @@ value, and optional context, separated by tabs.
 	Enable verbose logging. Prints every command to stderr before executing
 	it.
 
-*-D* _ident:type=value_
+*-D* _ident[:type]=value_
 	Passed to *harec*(1) to define a constant in the type system. _ident_ is
 	parsed as a Hare identifier (e.g. "foo::bar::baz"), _type_ as a Hare
 	type (e.g. "str" or "struct { x: int, y: int }"), and _value_ as a Hare

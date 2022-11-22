@@ -65,7 +65,7 @@ fn build(args: []str) void = {
 		"compiles the Hare program at <path>",
 		('c', "build object instead of executable"),
 		('v', "print executed commands"),
-		('D', "ident:type=value", "define a constant"),
+		('D', "ident[:type]=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
 		('l', "name", "link with a system library"),
 		('o', "path", "set output file name"),
@@ -275,7 +275,7 @@ fn run(args: []str) void = {
 	const help: []getopt::help = [
 		"compiles and runs the Hare program at <path>",
 		('v', "print executed commands"),
-		('D', "ident:type=value", "define a constant"),
+		('D', "ident[:type]=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
 		('l', "name", "link with a system library"),
 		('T', "tags...", "set build tags"),
@@ -385,7 +385,7 @@ fn test(args: []str) void = {
 	const help: []getopt::help = [
 		"compiles and runs tests for Hare programs",
 		('v', "print executed commands"),
-		('D', "ident:type=value", "define a constant"),
+		('D', "ident[:type]=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
 		('l', "name", "link with a system library"),
 		('o', "path", "set output file name"),
