@@ -141,28 +141,29 @@ fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 	} else {
 		readitems4(h, &transition_times, timecnt)?;
 	};
-
+	defer free(transition_times);
 	const zone_indicies: []u8 = [];
 	readbytes(h, &zone_indicies, timecnt)?;
-
+	defer free(zone_indicies);
 	const zonedata: []u8 = [];
 	readbytes(h, &zonedata, typecnt * 6)?;
-
+	defer free(zonedata);
 	const abbrdata: []u8 = [];
 	readbytes(h, &abbrdata, charcnt)?;
-
+	defer free(abbrdata);
 	const leapdata: []u8 = [];
 	readbytes(h, &leapdata, leapcnt * (timesz: u32 + 4))?;
-
+	defer free(leapdata);
 	const stdwalldata: []u8 = [];
 	readbytes(h, &stdwalldata, isstdcnt)?;
-
+	defer free(stdwalldata);
 	const normlocaldata: []u8 = [];
 	readbytes(h, &normlocaldata, isutcnt)?;
-
+	defer free(normlocaldata);
 	// read footer
 
 	let footerdata: []u8 = [];
+	defer free(footerdata);
 	mustread(h, buf1)?;
 	if (buf1[0] != 0x0A) { // '\n' newline
 		return invalidtzif;

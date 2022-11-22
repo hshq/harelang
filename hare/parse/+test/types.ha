@@ -79,3 +79,12 @@ export type baz = (bat | foo::bar::baz | long_type_name | yet_another_very_long_
 	this_spans_multiple_lines | for_readability);
 ");
 };
+
+@test fn enum_comments() void = {
+	roundtrip("type foo = enum {
+	A, // comment
+	B,
+	C,
+};
+");
+};

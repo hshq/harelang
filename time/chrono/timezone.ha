@@ -215,6 +215,11 @@ let TZ_LOCAL: timezone = timezone {
 	posix_extend = "",
 };
 
+@fini fn free_tzdata() void = {
+	free(TZ_LOCAL.transitions);
+	free(TZ_LOCAL.zones);
+};
+
 @init fn set_local_timezone() void = {
 	match (os::getenv("TZ")) {
 	case let zone: str =>
