@@ -226,7 +226,7 @@ export fn getcwd() (*const char | errno) = {
 	if (c_getcwd(&pathbuf: *char, PATH_MAX + 1) == null) return get_c_errno();
 	return &pathbuf: *const char;
 };
-@symbol("getcwd") fn c_getcwd(buf: *char, bufsz: size) *char;
+@symbol("getcwd") fn c_getcwd(buf: nullable *char, bufsz: size) nullable *char;
 
 export fn fchdir(fd: int) (void | errno) = {
 	wrap_return(syscall1(SYS_fchdir, fd: u64))?;
