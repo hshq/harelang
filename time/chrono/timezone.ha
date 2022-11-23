@@ -199,14 +199,16 @@ export fn fixedzone(ts: *timescale, daylen: time::duration, z: zone) timezone = 
 // name of both the timezone and its single zero-offset zone.
 export const LOCAL: locality = &TZ_LOCAL;
 
+def LOCAL_NAME: str = "Local";
+
 let TZ_LOCAL: timezone = timezone {
-	name = "Local",
+	name = LOCAL_NAME,
 	timescale = &utc,
 	daylength = EARTH_DAY,
 	zones = [
 		zone {
 			zoffset = 0 * time::SECOND,
-			name = "Local",
+			name = LOCAL_NAME,
 			abbr = "",
 			dst = false,
 		},
@@ -217,7 +219,11 @@ let TZ_LOCAL: timezone = timezone {
 
 @fini fn free_tzdata() void = {
 	free(TZ_LOCAL.transitions);
-	free(TZ_LOCAL.zones);
+	switch(TZ_LOCAL.name) {
+	case LOCAL_NAME => void;
+	case =>
+		free(TZ_LOCAL.zones);
+	};
 };
 
 @init fn set_local_timezone() void = {
