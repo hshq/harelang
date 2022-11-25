@@ -1,6 +1,5 @@
 // License: MPL-2.0
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
-// TODO: Add ${whatever:x}-style formatting
 use ascii;
 use errors;
 use fmt;
@@ -112,6 +111,18 @@ fn parse_variable(
 	iter: *strings::iterator,
 	buf: *strio::stream,
 ) (void | errors::invalid) = {
+	let brace = false;
+	match (strings::next(iter)) {
+	case let rn: rune =>
+		if (rn == '{') {
+			brace = true;
+		} else {
+			strings::prev(iter);
+		};
+	case =>
+		return errors::invalid;
+	};
+
 	for (true) {
 		const rn = match (strings::next(iter)) {
 		case let rn: rune =>
@@ -120,11 +131,19 @@ fn parse_variable(
 			return errors::invalid;
 		};
 
-		if (ascii::isalnum(rn)) {
-			strio::appendrune(buf, rn)!;
+		if (brace) {
+			if (rn != '}') {
+				strio::appendrune(buf, rn)!;
+			} else {
+				break;
+			};
 		} else {
-			strings::prev(iter);
-			break;
+			if (ascii::isalnum(rn)) {
+				strio::appendrune(buf, rn)!;
+			} else {
+				strings::prev(iter);
+				break;
+			};
 		};
 	};
 
@@ -133,7 +152,7 @@ fn parse_variable(
 	strio::reset(buf);
 };
 
-def test_input: str = `Dear $recipient,
+def test_input: str = `Dear ${recipient},
 
 I am the crown prince of $country. Your brother, $brother, has recently passed
 away in my country. I am writing to you to facilitate the transfer of his
