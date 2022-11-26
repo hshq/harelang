@@ -1,8 +1,8 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
-export @noreturn @symbol("rt.abort") fn _abort(loc: str, msg: str) void = {
-	platform_abort(loc, msg);
+export @noreturn @symbol("rt.abort") fn _abort(msg: str) void = {
+	platform_abort(msg);
 };
 
 // See harec:include/gen.h
@@ -15,5 +15,15 @@ const reasons: [_]str = [
 ];
 
 export @noreturn fn abort_fixed(loc: str, i: int) void = {
-	platform_abort(loc, reasons[i]);
+	// TODO: This is also platform-specific
+	const prefix = "Abort: ";
+	const sep = ": ";
+	const linefeed = "\n";
+	write(STDERR_FILENO, *(&prefix: **void): *const char, len(prefix)): void;
+	write(STDERR_FILENO, *(&loc: **void): *const char, len(loc)): void;
+	write(STDERR_FILENO, *(&sep: **void): *const char, len(sep)): void;
+	write(STDERR_FILENO, *(&reasons[i]: **void): *const char, len(reasons[i])): void;
+	write(STDERR_FILENO, *(&linefeed: **void): *const char, 1): void;
+	kill(getpid(), SIGABRT): void;
+	for (true) void;
 };
