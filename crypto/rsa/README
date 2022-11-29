@@ -1,0 +1,18 @@
+This module provides RSA signature and encryption schemes defined in PKCS #1.
+The implementation only supports RSA keys with two prime factors. Most of the
+RSA operations in this module require buffers to perform. Buffer sizes are
+provided for keys of a default maximum size of 4096-bits. [[BITSIZE]]
+may be changed with compiler flags to support bigger keys. [[MINBITSIZE]]
+defines the minimum size accordingly.
+
+Public and private keys are stored in byte slices. [[pubkey_init]] is used
+to initialize a public key. [[privkey_init]] or [[privkey_initd]] is used
+to initialize a private key, depending on which parameters are available.
+
+This is a low-level module which implements cryptographic primitives. Direct
+use of cryptographic primitives is not recommended for non-experts, as
+incorrect use of these primitives can easily lead to the introduction of
+security vulnerabilities. Non-experts are advised to use the high-level
+operations available in the top-level [[crypto]] module.
+
+Be advised that Hare's cryptography implementations have not been audited.
