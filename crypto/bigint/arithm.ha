@@ -55,6 +55,12 @@ export fn sub(a: []word, b: const []word, do: u32) u32 = {
 	return carry;
 };
 
+// Decrements 1 from an odd integer 'x'.
+export fn decrodd(x: []word) void = {
+	assert(isodd(x));
+	x[1] ^= 1;
+};
+
 // Right-shift an integer 'x' by 'count'. The shift amount must be less than
 // [[WORD_BITSIZE]].
 export fn rshift(x: []word, count: word) void = {

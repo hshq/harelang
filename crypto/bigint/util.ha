@@ -64,4 +64,6 @@ fn iszero(x: []word) u32 = {
 	free(y);
 };
 
-
+fn isodd(x: []word) bool = {
+	return x[1] & 1 == 1;
+};
