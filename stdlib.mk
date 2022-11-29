@@ -241,6 +241,12 @@ stdlib_deps_linux += $(stdlib_crypto_random_linux)
 stdlib_crypto_random_freebsd = $(HARECACHE)/crypto/random/crypto_random-freebsd.o
 stdlib_deps_freebsd += $(stdlib_crypto_random_freebsd)
 
+# gen_lib crypto::rsa (any)
+stdlib_crypto_rsa_any = $(HARECACHE)/crypto/rsa/crypto_rsa-any.o
+stdlib_deps_any += $(stdlib_crypto_rsa_any)
+stdlib_crypto_rsa_linux = $(stdlib_crypto_rsa_any)
+stdlib_crypto_rsa_freebsd = $(stdlib_crypto_rsa_any)
+
 # gen_lib crypto::poly1305 (any)
 stdlib_crypto_poly1305_any = $(HARECACHE)/crypto/poly1305/crypto_poly1305-any.o
 stdlib_deps_any += $(stdlib_crypto_poly1305_any)
@@ -959,6 +965,19 @@ $(HARECACHE)/crypto/random/crypto_random-freebsd.ssa: $(stdlib_crypto_random_fre
 	@mkdir -p $(HARECACHE)/crypto/random
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(HARECACHE)/crypto/random/crypto_random.td $(stdlib_crypto_random_freebsd_srcs)
+
+# crypto::rsa (+any)
+stdlib_crypto_rsa_any_srcs = \
+	$(STDLIB)/crypto/rsa/core.ha \
+	$(STDLIB)/crypto/rsa/errors.ha \
+	$(STDLIB)/crypto/rsa/keys.ha \
+	$(STDLIB)/crypto/rsa/pkcs1.ha
+
+$(HARECACHE)/crypto/rsa/crypto_rsa-any.ssa: $(stdlib_crypto_rsa_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_bigint_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_crypto_sha1_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_crypto_sha512_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/rsa
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::rsa \
+		-t$(HARECACHE)/crypto/rsa/crypto_rsa.td $(stdlib_crypto_rsa_any_srcs)
 
 # crypto::poly1305 (+any)
 stdlib_crypto_poly1305_any_srcs = \
@@ -2422,6 +2441,12 @@ testlib_deps_linux += $(testlib_crypto_random_linux)
 testlib_crypto_random_freebsd = $(TESTCACHE)/crypto/random/crypto_random-freebsd.o
 testlib_deps_freebsd += $(testlib_crypto_random_freebsd)
 
+# gen_lib crypto::rsa (any)
+testlib_crypto_rsa_any = $(TESTCACHE)/crypto/rsa/crypto_rsa-any.o
+testlib_deps_any += $(testlib_crypto_rsa_any)
+testlib_crypto_rsa_linux = $(testlib_crypto_rsa_any)
+testlib_crypto_rsa_freebsd = $(testlib_crypto_rsa_any)
+
 # gen_lib crypto::poly1305 (any)
 testlib_crypto_poly1305_any = $(TESTCACHE)/crypto/poly1305/crypto_poly1305-any.o
 testlib_deps_any += $(testlib_crypto_poly1305_any)
@@ -3158,6 +3183,22 @@ $(TESTCACHE)/crypto/random/crypto_random-freebsd.ssa: $(testlib_crypto_random_fr
 	@mkdir -p $(TESTCACHE)/crypto/random
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_freebsd_srcs)
+
+# crypto::rsa (+any)
+testlib_crypto_rsa_any_srcs = \
+	$(STDLIB)/crypto/rsa/core.ha \
+	$(STDLIB)/crypto/rsa/errors.ha \
+	$(STDLIB)/crypto/rsa/keys.ha \
+	$(STDLIB)/crypto/rsa/pkcs1.ha \
+	$(STDLIB)/crypto/rsa/+test/core.ha \
+	$(STDLIB)/crypto/rsa/+test/keys.ha \
+	$(STDLIB)/crypto/rsa/+test/pkcs1.ha
+
+$(TESTCACHE)/crypto/rsa/crypto_rsa-any.ssa: $(testlib_crypto_rsa_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_bigint_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_crypto_sha1_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_crypto_sha512_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/rsa
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::rsa \
+		-t$(TESTCACHE)/crypto/rsa/crypto_rsa.td $(testlib_crypto_rsa_any_srcs)
 
 # crypto::poly1305 (+any)
 testlib_crypto_poly1305_any_srcs = \
