@@ -462,9 +462,9 @@ export fn epoll_ctl(
 	op: int,
 	fd: int,
 	event: nullable *epoll_event
-) (int | errno) = {
-	return wrap_return(syscall4(SYS_epoll_ctl,
-		epfd: u64, op: u64, fd: u64, event: uintptr: u64))?: int;
+) (void | errno) = {
+	wrap_return(syscall4(SYS_epoll_ctl,
+		epfd: u64, op: u64, fd: u64, event: uintptr: u64))?;
 };
 
 export fn epoll_pwait(
