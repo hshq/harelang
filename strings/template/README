@@ -7,7 +7,7 @@ names must be alphanumeric ASCII characters (i.e. for which [[ascii::isalnum]]
 returns true). A literal "$" may be printed by using it twice: "$$". Variables
 may also be used with braces, i.e. ${variable}, so that they can be placed
 immediately next to alphanumeric characters; such variables may include
-non-alphanumeric characters other than '}'.
+non-alphanumeric characters other than '{' and '}'.
 
 	const src = "Hello, $user! Your balance is $$$balance.\n";
 	const template = template::compile(src)!;
