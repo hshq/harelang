@@ -39,6 +39,8 @@ export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 			if (len(g[i].symbol) != 0) {
 				n += fmt::fprintf(out,
 					"@symbol(\"{}\") ", g[i].symbol)?;
+			} else if (g[i].is_threadlocal) {
+				n += fmt::fprintf(out, "@threadlocal ")?;
 			};
 			n += ident(out, g[i].ident)?;
 			n += fmt::fprint(out, ": ")?;
@@ -166,6 +168,7 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 		decl = [
 			ast::decl_global {
 				is_const = false,
+				is_threadlocal = false,
 				symbol = "",
 				ident = ["foo", "bar"],
 				_type = type_int,
@@ -173,6 +176,15 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 			},
 			ast::decl_global {
 				is_const = false,
+				is_threadlocal = true,
+				symbol = "",
+				ident = ["boo"],
+				_type = type_int,
+				init = alloc(expr_void),
+			},
+			ast::decl_global {
+				is_const = false,
+				is_threadlocal = false,
 				symbol = "foobar",
 				ident = ["baz"],
 				_type = type_int,
@@ -181,7 +193,7 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 		],
 		...
 	};
-	assert(decl_test(d, "let foo::bar: int = void, @symbol(\"foobar\") baz: int = void;"));
+	assert(decl_test(d, "let foo::bar: int = void, @threadlocal boo: int = void, @symbol(\"foobar\") baz: int = void;"));
 
 	d.exported = true;
 	d.decl = [
