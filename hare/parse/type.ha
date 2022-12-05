@@ -70,34 +70,30 @@ fn integer_type(
 	switch (want(lexer)?.0) {
 	case ltok::CHAR =>
 		return builtin_type::CHAR;
+	case ltok::INT =>
+		return builtin_type::INT;
+	case ltok::I8 =>
+		return builtin_type::I8;
 	case ltok::I16 =>
 		return builtin_type::I16;
 	case ltok::I32 =>
 		return builtin_type::I32;
 	case ltok::I64 =>
 		return builtin_type::I64;
-	case ltok::I64 =>
-		return builtin_type::I64;
-	case ltok::I8 =>
-		return builtin_type::I8;
-	case ltok::INT =>
-		return builtin_type::INT;
 	case ltok::SIZE =>
 		return builtin_type::SIZE;
+	case ltok::UINT =>
+		return builtin_type::UINT;
+	case ltok::UINTPTR =>
+		return builtin_type::UINTPTR;
+	case ltok::U8 =>
+		return builtin_type::U8;
 	case ltok::U16 =>
 		return builtin_type::U16;
 	case ltok::U32 =>
 		return builtin_type::U32;
 	case ltok::U64 =>
 		return builtin_type::U64;
-	case ltok::U64 =>
-		return builtin_type::U64;
-	case ltok::U8 =>
-		return builtin_type::U8;
-	case ltok::UINT =>
-		return builtin_type::UINT;
-	case ltok::UINTPTR =>
-		return builtin_type::UINTPTR;
 	case =>
 		return syntaxerr(lex::mkloc(lexer), "Expected integer type");
 	};
@@ -106,9 +102,9 @@ fn integer_type(
 fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 	let tok = want(lexer)?;
 	let builtin = switch (tok.0) {
-	case ltok::CHAR, ltok::I16, ltok::I32, ltok::I64, ltok::I64, ltok::I8,
-			ltok::INT, ltok::SIZE, ltok::U16, ltok::U32, ltok::U64,
-			ltok::U64, ltok::U8, ltok::UINT, ltok::UINTPTR =>
+	case ltok::CHAR, ltok::I8, ltok::I16, ltok::I32, ltok::I64,
+			ltok::INT, ltok::UINT, ltok::UINTPTR, ltok::SIZE,
+			ltok::U8, ltok::U16, ltok::U32, ltok::U64 =>
 		lex::unlex(lexer, tok);
 		yield integer_type(lexer)?;
 	case ltok::RUNE =>
@@ -463,11 +459,12 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 
 	let tok = peek(lexer)? as lex::token;
 	let typ: ast::_type = switch (tok.0) {
-	case ltok::CHAR, ltok::I16, ltok::I32, ltok::I64, ltok::I64, ltok::I8,
-			ltok::INT, ltok::SIZE, ltok::U16, ltok::U32, ltok::U64,
-			ltok::U8, ltok::UINT, ltok::UINTPTR, ltok::RUNE,
-			ltok::STR, ltok::F32, ltok::F64, ltok::BOOL,
-			ltok::VALIST, ltok::VOID, ltok::TYPE =>
+	case ltok::CHAR, ltok::RUNE, ltok::STR, ltok::BOOL,
+			ltok::I8, ltok::I16, ltok::I32, ltok::I64,
+			ltok::U8, ltok::U16, ltok::U32, ltok::U64,
+			ltok::INT, ltok::UINT, ltok::UINTPTR, ltok::SIZE,
+			ltok::F32, ltok::F64,
+			ltok::VALIST, ltok::VOID =>
 		yield primitive_type(lexer)?;
 	case ltok::ENUM =>
 		yield enum_type(lexer)?;
