@@ -97,7 +97,7 @@ const dynamic_vt_rw: io::vtable = io::vtable {
 //
 // Calling [[io::close]] on this stream will free the buffer. If a stream's data
 // is transferred via [[buffer]], the stream shouldn't be closed as long as the
-// data is freed.
+// data is used.
 export fn dynamic(mode: io::mode) memstream = dynamic_from([], mode);
 
 // Like [[dynamic]], but takes an existing slice as input. Writes are appended
