@@ -145,25 +145,29 @@ fn test_uri(in: str, expected_uri: uri, expected_str: str) (void | invalid) = {
 	const u = parse(in)?;
 	defer finish(&u);
 
-	assert(u.scheme == expected_uri.scheme);
+	assert_str(u.scheme, expected_uri.scheme);
 	match (u.host) {
 	case let s: str =>
-		assert(s == expected_uri.host as str);
+		assert_str(s, expected_uri.host as str);
 	case let i: ip::addr =>
 		assert(ip::equal(i, expected_uri.host as ip::addr));
 	};
 	assert(u.port == expected_uri.port);
-	assert(u.userinfo == expected_uri.userinfo);
-	assert(u.path == expected_uri.path);
-	assert(u.query == expected_uri.query);
-	assert(u.fragment == expected_uri.fragment);
+	assert_str(u.userinfo, expected_uri.userinfo);
+	assert_str(u.path, expected_uri.path);
+	assert_str(u.query, expected_uri.query);
+	assert_str(u.fragment, expected_uri.fragment);
 
 	const s = string(&u);
 	defer free(s);
 
-	if (s != expected_str) {
-		fmt::errorfln("=== wanted\n{}", expected_str)!;
-		fmt::errorfln("=== got\n{}", s)!;
+	assert_str(s, expected_str);
+};
+
+fn assert_str(got: str, expected: str) void = {
+	if (got != expected) {
+		fmt::errorfln("=== wanted\n{}", expected)!;
+		fmt::errorfln("=== got\n{}", got)!;
 		abort();
 	};
 };
