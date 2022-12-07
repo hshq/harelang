@@ -68,7 +68,17 @@ use net::ip;
 			...
 		},
 	)!;
-
+	test_uri_roundtrip(
+		"https://sr.ht/projects?search=%23risc-v&sort=longest-active#foo",
+		uri {
+			scheme = "https",
+			host = "sr.ht",
+			path = "/projects",
+			query = "search=%23risc-v&sort=longest-active",
+			fragment = "foo",
+			...
+		},
+	)!;
 };
 
 @test fn invalid() void = {
@@ -101,7 +111,7 @@ use net::ip;
 			query = "objectClass?one",
 			...
 		},
-		"ldap://[2001:db8::7]/c=GB?objectClass%3Fone",
+		"ldap://[2001:db8::7]/c=GB?objectClass?one",
 	)!;
 
 	// https://bugs.chromium.org/p/chromium/issues/detail?id=841105

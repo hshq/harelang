@@ -50,10 +50,10 @@ export fn encodequery(pairs: [](str, str)) str = {
 		if (i > 0) strio::appendrune(&buf, '&')!;
 
 		assert(len(pair.0) > 0);
-		percent_encode(&buf, pair.0)!;
+		percent_encode(&buf, pair.0, unres_query_frag)!;
 		if (len(pair.1) > 0) {
 			strio::appendrune(&buf, '=')!;
-			percent_encode(&buf, pair.1)!;
+			percent_encode(&buf, pair.1, unres_query_frag)!;
 		};
 	};
 
@@ -61,7 +61,7 @@ export fn encodequery(pairs: [](str, str)) str = {
 };
 
 @test fn decodequery() void = {
-	const u = parse("https://sr.ht/projects?search=%23risc-v&sort=longest-active")!;
+	const u = parse("https://sr.ht/projects?search=%23risc-v&sort=longest-active&quantity=100%25")!;
 	defer finish(&u);
 
 	const query = decodequery(u.query);
@@ -73,15 +73,20 @@ export fn encodequery(pairs: [](str, str)) str = {
 	const pair = query_next(&query)! as (str, str);
 	assert(pair.0 == "sort");
 	assert(pair.1 == "longest-active");
+
+	const pair = query_next(&query)! as (str, str);
+	assert(pair.0 == "quantity");
+	assert(pair.1 == "100%");
 };
 
 @test fn encodequery() void = {
 	const pairs = [
 		("search", "#risc-v"),
 		("sort", "longest-active"),
+		("quantity", "100%")
 	];
 	const encoded = encodequery(pairs);
 	defer free(encoded);
 
-	assert(encoded == "search=%23risc-v&sort=longest-active");
+	assert(encoded == "search=%23risc-v&sort=longest-active&quantity=100%25");
 };
