@@ -1100,7 +1100,7 @@ net_uri() {
 			+test.ha
 	fi
 	gen_ssa net::uri \
-		ascii ip net::ip strconv strings strio
+		ascii encoding::utf8 ip net::ip strconv strings strio
 }
 
 gensrcs_math_complex() {

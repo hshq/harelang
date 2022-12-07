@@ -79,6 +79,16 @@ use net::ip;
 			...
 		},
 	)!;
+	test_uri_roundtrip(
+		"https://en.wiktionary.org/wiki/%E3%81%8A%E3%81%AF%E3%82%88%E3%81%86#Japanese",
+		uri {
+			scheme = "https",
+			host = "en.wiktionary.org",
+			path = "/wiki/おはよう",
+			fragment = "Japanese",
+			...
+		}
+	)!;
 };
 
 @test fn invalid() void = {
