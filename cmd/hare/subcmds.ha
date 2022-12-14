@@ -11,6 +11,7 @@ use fs;
 use getopt;
 use hare::ast;
 use hare::module;
+use hare::parse;
 use io;
 use os::exec;
 use os;
@@ -68,6 +69,7 @@ fn build(args: []str) void = {
 		('D', "ident[:type]=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
 		('l', "name", "link with a system library"),
+		('N', "namespace", "override namespace for module"),
 		('o', "path", "set output file name"),
 		('t', "arch", "set target architecture"),
 		('T', "tags...", "set build tags"),
@@ -88,6 +90,7 @@ fn build(args: []str) void = {
 	defer free(defines);
 	let libs: []str = [];
 	defer free(libs);
+	let namespace: ast::ident = [];
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
 		switch (opt.0) {
@@ -101,6 +104,8 @@ fn build(args: []str) void = {
 			abort("-j option not implemented yet."); // TODO
 		case 'l' =>
 			append(libs, opt.1);
+		case 'N' =>
+			namespace = parse::identstr(opt.1)!;
 		case 'o' =>
 			output = opt.1;
 		case 't' =>
@@ -176,7 +181,8 @@ fn build(args: []str) void = {
 	case goal::EXE =>
 		sched_hare_exe(&plan, ver, output, depends...);
 	case goal::OBJ =>
-		let task = sched_hare_object(&plan, ver, [], output, depends...);
+		let task = sched_hare_object(&plan, ver,
+			namespace, output, depends...);
 		append(plan.scheduled, task);
 	};
 	match (plan_execute(&plan, verbose)) {

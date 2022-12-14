@@ -261,6 +261,10 @@ fn sched_hare_object(
 		};
 	};
 
+	if (len(namespace) != 0) {
+		append(harec.cmd, ["-N", ns]...);
+	};
+
 	let current = false;
 	let output = if (output is str) {
 		// TODO: Should we use the cache here?
@@ -270,7 +274,6 @@ fn sched_hare_object(
 		let env = module::identuscore(namespace);
 		defer free(env);
 
-		append(harec.cmd, ["-N", ns]...);
 		append(plan.environ, (
 			fmt::asprintf("HARE_VERSION_{}", env), version,
 		));
