@@ -7,10 +7,18 @@ def RKLEN_192: size = 208;
 def RKLEN_256: size = 240;
 
 export type x86ni_block = struct {
-	cipher::block,
+	block: cipher::block,
 	enc_rk: [RKLEN_256]u8,
 	dec_rk: [RKLEN_256]u8,
 	rklen: u8,
+};
+
+const x86ni_vtable: cipher::blockvtable = cipher::blockvtable {
+	blocksz = BLOCKSIZE,
+	nparallel = 1,
+	encrypt = &x86ni_encrypt,
+	decrypt = &x86ni_decrypt,
+	finish = &x86ni_finish,
 };
 
 // Checks if the native AES interface is available.
@@ -27,11 +35,7 @@ export fn x86ni_available() bool = {
 // state.
 export fn x86ni() x86ni_block = {
 	return x86ni_block {
-		blocksz = BLOCKSIZE,
-		nparallel = 1,
-		encrypt = &x86ni_encrypt,
-		decrypt = &x86ni_decrypt,
-		finish = &x86ni_finish,
+		block = &x86ni_vtable,
 		...
 	};
 };

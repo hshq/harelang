@@ -27,6 +27,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 use crypto::cipher;
+use crypto::cipher::{blocksz,nparallel};
 use crypto::math;
 use endian;
 
@@ -43,7 +44,7 @@ export def CTR_BUFSIZE: size = BLOCKSIZE * (CT64_NPARALLEL + 1);
 export def CBC_BUFSIZE: size = BLOCKSIZE * 2;
 
 export type ct64_block = struct {
-	cipher::block,
+	block: cipher::block,
 	rounds: uint,
 	sk_exp: [120]u64,
 };
@@ -56,12 +57,16 @@ export type ct64_block = struct {
 // using the cipher to securely erase any secret data stored in the cipher
 // state.
 export fn ct64() ct64_block = ct64_block {
+	block = &ct64_vtable,
+	...
+};
+
+const ct64_vtable: cipher::blockvtable = cipher::blockvtable {
 	blocksz = BLOCKSIZE,
 	nparallel = CT64_NPARALLEL,
 	encrypt = &aes_ct64_encrypt,
 	decrypt = &aes_ct64_decrypt,
 	finish = &aes_ct64_finish,
-	...
 };
 
 // Initializes the ct64 AES implementation with an encryption key.
@@ -75,10 +80,11 @@ export fn ct64_init(cipher: *ct64_block, key: []u8) void = {
 fn aes_ct64_encrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
 	let b = block: *ct64_block;
 
-	assert(len(src) % b.blocksz == 0 && (len(src) / b.blocksz) <= b.nparallel,
+	assert(len(src) % blocksz(b) == 0
+		&& (len(src) / blocksz(b)) <= nparallel(b),
 		"invalid block size");
 
-	let nblocks = len(src) / b.blocksz;
+	let nblocks = len(src) / blocksz(b);
 
 	let q: [8]u64 = [0...];
 	let w: [16]u32 = [0...];
@@ -103,10 +109,11 @@ fn aes_ct64_encrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
 fn aes_ct64_decrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
 	let b = block: *ct64_block;
 
-	assert(len(src) % b.blocksz == 0 && (len(src) / b.blocksz) <= b.nparallel,
+	assert(len(src) % blocksz(b) == 0
+		&& (len(src) / blocksz(b)) <= nparallel(b),
 		"invalid block size");
 
-	const nblocks = len(src) / b.blocksz;
+	const nblocks = len(src) / blocksz(b);
 	let q: [8]u64 = [0...];
 	let w: [16]u32 = [0...];
 

@@ -3,7 +3,7 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
 // An abstract interface for implementing block ciphers.
-export type block = struct {
+export type blockvtable = struct {
 	blocksz: size,
 
 	nparallel: size,
@@ -12,6 +12,8 @@ export type block = struct {
 	decrypt: *fn(b: *block, dest: []u8, src: []u8) void,
 	finish: *fn(b: *block) void,
 };
+
+export type block = *blockvtable;
 
 // Returns the block size in bytes for a [[block]] cipher.
 export fn blocksz(b: *block) size = b.blocksz;
