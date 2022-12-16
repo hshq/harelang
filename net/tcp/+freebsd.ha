@@ -48,7 +48,10 @@ export fn connect(
 	const sz = ip::native_addrlen(addr);
 	match (rt::connect(sockfd, &sockaddr, sz)) {
 	case let err: rt::errno =>
-		return errors::errno(err);
+		if (err: int != rt::EINPROGRESS) {
+			return errors::errno(err);
+		};
+		assert(f & rt::SOCK_NONBLOCK == rt::SOCK_NONBLOCK);
 	case int => void;
 	};
 	return io::fdopen(sockfd);
