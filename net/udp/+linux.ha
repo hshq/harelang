@@ -100,7 +100,7 @@ export fn listen(
 	return io::fdopen(sockfd);
 };
 
-// Sends a UDP packet to the destination previously specified by [[connect]].
+// Sends a UDP packet to a [[connect]]ed UDP socket.
 export fn send(sock: net::socket, buf: []u8) (size | net::error) = {
 	match (rt::send(sock, buf: *[*]u8, len(buf), 0)) {
 	case let sz: size =>
@@ -120,6 +120,19 @@ export fn sendto(
 	const sockaddr = ip::to_native(dest, port);
 	const sz = size(rt::sockaddr): u32;
 	match (rt::sendto(sock, buf: *[*]u8, len(buf), 0, &sockaddr, sz)) {
+	case let sz: size =>
+		return sz;
+	case let err: rt::errno =>
+		return errors::errno(err);
+	};
+};
+
+// Receives a UDP packet from a [[connect]]ed UDP socket.
+export fn recv(
+	sock: net::socket,
+	buf: []u8,
+) (size | net::error) = {
+	match (rt::recv(sock, buf: *[*]u8, len(buf), 0)) {
 	case let sz: size =>
 		return sz;
 	case let err: rt::errno =>
