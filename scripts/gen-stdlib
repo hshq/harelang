@@ -247,6 +247,7 @@ crypto_aes() {
 			ct64+test.ha \
 			cbc+test.ha \
 			ctr+test.ha \
+			rt+test.ha \
 			+test/gcm.ha
 		gen_ssa crypto::aes bufio bytes crypto::cipher crypto::math \
 			endian errors io rt 

@@ -3010,6 +3010,7 @@ testlib_crypto_aes_any_srcs = \
 	$(STDLIB)/crypto/aes/ct64+test.ha \
 	$(STDLIB)/crypto/aes/cbc+test.ha \
 	$(STDLIB)/crypto/aes/ctr+test.ha \
+	$(STDLIB)/crypto/aes/rt+test.ha \
 	$(STDLIB)/crypto/aes/+test/gcm.ha
 
 $(TESTCACHE)/crypto/aes/crypto_aes-any.ssa: $(testlib_crypto_aes_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_rt_$(PLATFORM))

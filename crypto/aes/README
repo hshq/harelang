@@ -1,7 +1,7 @@
 The crypto::aes module provides an implementation of the Advanced Encryption
 Standard per the [[crypto::cipher::block]] interface. Several implementations of
 AES are provided which are optimized for different scenarios. To choose the most
-appropriate one for your system, use [[new]].
+appropriate one for your system, use [[aes]].
 
 When combined with a block cipher mode from [[crypto::cipher]], suitable buffer
 lengths for static allocation are provided as constants such as [[BLOCKSIZE]],

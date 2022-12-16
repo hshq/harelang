@@ -33,15 +33,7 @@ use crypto::math;
 use endian;
 
 def CT64_EXPKEYSIZE: size = 960;
-
 def CT64_NPARALLEL: size = 4;
-
-// Size of the buffer used for [[crypto::cipher::ctr]].
-export def CTR_BUFSIZE: size = BLOCKSIZE * (CT64_NPARALLEL + 1);
-
-// Size of the buffer used for [[crypto::cipher::cbc_encryptor]] and
-// [[crypto::cipher::cbc_decryptor]].
-export def CBC_BUFSIZE: size = BLOCKSIZE * 2;
 
 // Returns an AES [[crypto::cipher::block]] cipher implementation optimized for
 // constant time operation on 64-bit systems.
