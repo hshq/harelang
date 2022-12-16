@@ -2,23 +2,18 @@ use bytes;
 use crypto::cipher;
 use rt;
 
-def RKLEN_128: size = 176;
-def RKLEN_192: size = 208;
-def RKLEN_256: size = 240;
+def EXPKEYLEN128: size = 176;
+def EXPKEYLEN192: size = 208;
+def EXPKEYLEN256: size = 240;
 
-export type x86ni_block = struct {
-	block: cipher::block,
-	enc_rk: [RKLEN_256]u8,
-	dec_rk: [RKLEN_256]u8,
-	rklen: u8,
-};
+def X86NI_EXPKEYSIZE: size = 480;
 
 const x86ni_vtable: cipher::blockvtable = cipher::blockvtable {
 	blocksz = BLOCKSIZE,
 	nparallel = 1,
 	encrypt = &x86ni_encrypt,
 	decrypt = &x86ni_decrypt,
-	finish = &x86ni_finish,
+	finish = &block_finish,
 };
 
 // Checks if the native AES interface is available.
@@ -33,34 +28,35 @@ export fn x86ni_available() bool = {
 // the cipher, and must call [[crypto::cipher::finish]] when they are finished
 // using the cipher to securely erase any secret data stored in the cipher
 // state.
-export fn x86ni() x86ni_block = {
-	return x86ni_block {
-		block = &x86ni_vtable,
+export fn x86ni() block = {
+	return block {
+		vtable = &x86ni_vtable,
 		...
 	};
 };
 
-export fn x86ni_init(b: *x86ni_block, key: []u8) void = {
+export fn x86ni_init(b: *block, key: []u8) void = {
 	assert(len(key) == 16 || len(key) == 24 || len(key) == 32,
 		"Invalid aes key length");
 
-	b.rklen = x86ni_keyexp(key[..], b.enc_rk[..], b.dec_rk[..]);
+	let enc = b.expkey[..EXPKEYLEN256];
+	let dec = b.expkey[EXPKEYLEN256..];
+	const expkeylen = x86ni_keyexp(key[..], enc, dec);
+	b.rounds = (expkeylen >> 4) - 1;
 };
 
-fn x86ni_encrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
-	let b = block: *x86ni_block;
-	x86ni_asencrypt(b.enc_rk[..b.rklen], dest, src);
+fn x86ni_encrypt(b: *cipher::block, dest: []u8, src: []u8) void = {
+	let b = b: *block;
+	const expkeylen = (b.rounds + 1) << 4;
+	let enc = b.expkey[..expkeylen];
+	x86ni_asencrypt(enc, dest, src);
 };
 
-fn x86ni_decrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
-	let b = block: *x86ni_block;
-	x86ni_asdecrypt(b.dec_rk[..b.rklen], dest, src);
-};
-
-fn x86ni_finish(block: *cipher::block) void = {
-	let b = block: *x86ni_block;
-	bytes::zero(b.enc_rk[..]);
-	bytes::zero(b.dec_rk[..]);
+fn x86ni_decrypt(b: *cipher::block, dest: []u8, src: []u8) void = {
+	let b = b: *block;
+	const expkeylen = (b.rounds + 1) << 4;
+	let dec = b.expkey[EXPKEYLEN256..];
+	x86ni_asdecrypt(dec[..expkeylen], dest, src);
 };
 
 // Expands encryption and decryption key and returns the size of the round keys.

@@ -230,7 +230,9 @@ crypto() {
 
 gensrcs_crypto_aes() {
 	gen_srcs crypto::aes \
+		aes.ha \
 		aes_ct64.ha \
+		block.ha \
 		$*
 }
 

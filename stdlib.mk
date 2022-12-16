@@ -801,7 +801,9 @@ $(HARECACHE)/crypto/crypto-any.ssa: $(stdlib_crypto_any_srcs) $(stdlib_rt) $(std
 
 # crypto::aes (+any)
 stdlib_crypto_aes_any_srcs = \
-	$(STDLIB)/crypto/aes/aes_ct64.ha
+	$(STDLIB)/crypto/aes/aes.ha \
+	$(STDLIB)/crypto/aes/aes_ct64.ha \
+	$(STDLIB)/crypto/aes/block.ha
 
 $(HARECACHE)/crypto/aes/crypto_aes-any.ssa: $(stdlib_crypto_aes_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -3002,7 +3004,9 @@ $(TESTCACHE)/crypto/crypto-any.ssa: $(testlib_crypto_any_srcs) $(testlib_rt) $(t
 
 # crypto::aes (+any)
 testlib_crypto_aes_any_srcs = \
+	$(STDLIB)/crypto/aes/aes.ha \
 	$(STDLIB)/crypto/aes/aes_ct64.ha \
+	$(STDLIB)/crypto/aes/block.ha \
 	$(STDLIB)/crypto/aes/ct64+test.ha \
 	$(STDLIB)/crypto/aes/cbc+test.ha \
 	$(STDLIB)/crypto/aes/ctr+test.ha \

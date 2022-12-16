@@ -5,8 +5,8 @@ use bytes;
 use crypto::cipher;
 
 export type block = struct {
-	b1: aes::ct64_block,
-	b2: aes::ct64_block,
+	b1: aes::block,
+	b2: aes::block,
 	x: [aes::BLOCKSIZE]u8,
 };
 
