@@ -17,7 +17,7 @@ const x86ni_vtable: cipher::blockvtable = cipher::blockvtable {
 };
 
 // Checks if the native AES interface is available.
-export fn x86ni_available() bool = {
+fn x86ni_available() bool = {
 	return rt::cpuid_hasflags(0, rt::cpuid_ecxflags::AES);
 };
 
@@ -28,14 +28,14 @@ export fn x86ni_available() bool = {
 // the cipher, and must call [[crypto::cipher::finish]] when they are finished
 // using the cipher to securely erase any secret data stored in the cipher
 // state.
-export fn x86ni() block = {
+fn x86ni() block = {
 	return block {
 		vtable = &x86ni_vtable,
 		...
 	};
 };
 
-export fn x86ni_init(b: *block, key: []u8) void = {
+fn x86ni_init(b: *block, key: []u8) void = {
 	assert(len(key) == 16 || len(key) == 24 || len(key) == 32,
 		"Invalid aes key length");
 

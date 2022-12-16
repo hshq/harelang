@@ -42,7 +42,7 @@ def CT64_NPARALLEL: size = 4;
 // the cipher, and must call [[crypto::cipher::finish]] when they are finished
 // using the cipher to securely erase any secret data stored in the cipher
 // state.
-export fn ct64() block = block {
+fn ct64() block = block {
 	vtable = &ct64_vtable,
 	...
 };
@@ -56,7 +56,7 @@ const ct64_vtable: cipher::blockvtable = cipher::blockvtable {
 };
 
 // Initializes the ct64 AES implementation with an encryption key.
-export fn ct64_init(cipher: *block, key: []u8) void = {
+fn ct64_init(cipher: *block, key: []u8) void = {
 	let comp_skey: [30]u64 = [0...];
 	cipher.rounds = br_aes_ct64_keysched(comp_skey[..], key, len(key));
 	br_aes_ct64_skey_expand(ct64_expkey(cipher), cipher.rounds, comp_skey[..]);
