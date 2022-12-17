@@ -16,7 +16,9 @@ type decoder = struct {
 // it in Hare's type system. The caller must use [[message_free]] to free the
 // return value. To decode without use of the heap, see [[decoder_init]].
 export fn decode(buf: []u8) (*message | format) = {
+	let success = false;
 	let msg = alloc(message { ... });
+	defer if (!success) message_free(msg);
 	let dec = decoder_init(buf);
 	decode_header(&dec, &msg.header)?;
 	for (let i = 0z; i < msg.header.qdcount; i += 1) {
@@ -25,6 +27,7 @@ export fn decode(buf: []u8) (*message | format) = {
 	decode_rrecords(&dec, msg.header.ancount, &msg.answers)?;
 	decode_rrecords(&dec, msg.header.nscount, &msg.authority)?;
 	decode_rrecords(&dec, msg.header.arcount, &msg.additional)?;
+	success = true;
 	return msg;
 };
 
@@ -92,7 +95,9 @@ fn decode_op(in: u16, out: *op) void = {
 };
 
 fn decode_name(dec: *decoder) ([]str | format) = {
+	let success = false;
 	let names: []str = [];
+	defer if (!success) strings::freeall(names);
 	let totalsize = 0z;
 	let sub = decoder {
 		buf = dec.buf,
@@ -118,6 +123,7 @@ fn decode_name(dec: *decoder) ([]str | format) = {
 			return format;
 		};
 		if (z == 0) {
+			success = true;
 			return names;
 		};
 
@@ -141,20 +147,29 @@ fn decode_name(dec: *decoder) ([]str | format) = {
 };
 
 fn decode_question(dec: *decoder) (question | format) = {
+	let success = false;
+	const qname = decode_name(dec)?;
+	defer if (!success) strings::freeall(qname);
+	const qtype = decode_u16(dec)?: qtype;
+	const qclass = decode_u16(dec)?: qclass;
+	success = true;
 	return question {
-		qname = decode_name(dec)?,
-		qtype = decode_u16(dec)?: qtype,
-		qclass = decode_u16(dec)?: qclass,
+		qname = qname,
+		qtype = qtype,
+		qclass = qclass,
 	};
 };
 
 fn decode_rrecord(dec: *decoder) (rrecord | format) = {
+	let success = false;
 	const name = decode_name(dec)?;
+	defer if (!success) strings::freeall(name);
 	const rtype = decode_u16(dec)?: rtype;
 	const class = decode_u16(dec)?: class;
 	const ttl = decode_u32(dec)?;
 	const rlen = decode_u16(dec)?;
 	const rdata = decode_rdata(dec, rtype, rlen)?;
+	success = true;
 	return rrecord {
 		name = name,
 		rtype = rtype,
@@ -215,7 +230,9 @@ fn decode_mx(dec: *decoder) (rdata | format) = {
 };
 
 fn decode_txt(dec: *decoder) (rdata | format) = {
+	let success = false;
 	let items: txt = [];
+	defer if (!success) bytes_free(items);
 	for (len(dec.cur) != 0) {
 		const ln = decode_u8(dec)?;
 		if (len(dec.cur) < ln) {
@@ -226,6 +243,7 @@ fn decode_txt(dec: *decoder) (rdata | format) = {
 		dec.cur = dec.cur[ln..];
 		append(items, item);
 	};
+	success = true;
 	return items;
 };
 
