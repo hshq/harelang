@@ -1640,6 +1640,7 @@ stdlib_net_dns_any_srcs = \
 	$(STDLIB)/net/dns/error.ha \
 	$(STDLIB)/net/dns/encode.ha \
 	$(STDLIB)/net/dns/query.ha \
+	$(STDLIB)/net/dns/strdomain.ha \
 	$(STDLIB)/net/dns/types.ha
 
 $(HARECACHE)/net/dns/net_dns-any.ssa: $(stdlib_net_dns_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_net_$(PLATFORM)) $(stdlib_net_udp_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_unix_resolvconf_$(PLATFORM)) $(stdlib_unix_poll_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
@@ -3892,6 +3893,7 @@ testlib_net_dns_any_srcs = \
 	$(STDLIB)/net/dns/error.ha \
 	$(STDLIB)/net/dns/encode.ha \
 	$(STDLIB)/net/dns/query.ha \
+	$(STDLIB)/net/dns/strdomain.ha \
 	$(STDLIB)/net/dns/types.ha
 
 $(TESTCACHE)/net/dns/net_dns-any.ssa: $(testlib_net_dns_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_udp_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_unix_resolvconf_$(PLATFORM)) $(testlib_unix_poll_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
