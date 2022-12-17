@@ -165,19 +165,25 @@ fn decode_rrecord(dec: *decoder) (rrecord | format) = {
 };
 
 fn decode_rdata(dec: *decoder, rtype: rtype, rlen: size) (rdata | format) = {
+	if (len(dec.cur) < rlen) {
+		return format;
+	};
+	let sub = decoder {
+		cur = dec.cur[..rlen],
+		buf = dec.buf,
+	};
+	dec.cur = dec.cur[rlen..];
 	switch (rtype) {
 	case rtype::A =>
-		return decode_a(dec);
+		return decode_a(&sub);
 	case rtype::AAAA =>
-		return decode_aaaa(dec);
+		return decode_aaaa(&sub);
 	case rtype::MX =>
-		return decode_mx(dec);
+		return decode_mx(&sub);
 	case rtype::TXT =>
-		return decode_txt(dec);
+		return decode_txt(&sub);
 	case =>
-		let buf = dec.cur[..rlen];
-		dec.cur = dec.cur[rlen..];
-		return buf: unknown_rdata;
+		return sub.cur: unknown_rdata;
 	};
 };
 
