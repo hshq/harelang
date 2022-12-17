@@ -1,5 +1,6 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2022 Lassi Pulkkinen <lassi@pulk.fi>
 use ascii;
 use endian;
 use fmt;
@@ -92,24 +93,43 @@ fn decode_op(in: u16, out: *op) void = {
 
 fn decode_name(dec: *decoder) ([]str | format) = {
 	let names: []str = [];
-	for (true) {
+	let totalsize = 0z;
+	let sub = decoder {
+		buf = dec.buf,
+		...
+	};
+	for (let i = 0z; i < len(dec.buf); i += 2) {
+		if (len(dec.cur) < 1) {
+			return format;
+		};
 		const z = dec.cur[0];
 		if (z & 0b11000000 == 0b11000000) {
 			const offs = decode_u16(dec)? & ~0b1100000000000000u16;
-			const sub = decoder {
-				buf = dec.buf,
-				cur = dec.buf[offs..],
-				...
+			if (len(dec.buf) < offs) {
+				return format;
 			};
-			append(names, decode_name(&sub)?...);
-			break;
+			sub.cur = dec.buf[offs..];
+			dec = &sub;
+			continue;
 		};
 		dec.cur = dec.cur[1..];
+		totalsize += z + 1;
+		if (totalsize > 255) {
+			return format;
+		};
 		if (z == 0) {
-			break;
+			return names;
 		};
 
-		const name = strings::fromutf8(dec.cur[..z])!;
+		if (len(dec.cur) < z) {
+			return format;
+		};
+		const name = match (strings::fromutf8(dec.cur[..z])) {
+		case let name: str =>
+			yield name;
+		case =>
+			return format;
+		};
 		dec.cur = dec.cur[z..];
 		if (!ascii::validstr(name)) {
 			return format;
@@ -117,7 +137,7 @@ fn decode_name(dec: *decoder) ([]str | format) = {
 
 		append(names, strings::dup(name));
 	};
-	return names;
+	return format;
 };
 
 fn decode_question(dec: *decoder) (question | format) = {
