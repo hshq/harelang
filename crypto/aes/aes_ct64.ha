@@ -26,27 +26,14 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+use bytes;
 use crypto::cipher;
+use crypto::cipher::{blocksz,nparallel};
 use crypto::math;
 use endian;
 
+def CT64_EXPKEYSIZE: size = 960;
 def CT64_NPARALLEL: size = 4;
-
-// The block size used by the AES algorithm.
-export def BLOCKSIZE: size = 16;
-
-// Size of the buffer used for [[crypto::cipher::ctr]].
-export def CTR_BUFSIZE: size = BLOCKSIZE * (CT64_NPARALLEL + 1);
-
-// Size of the buffer used for [[crypto::cipher::cbc_encryptor]] and
-// [[crypto::cipher::cbc_decryptor]].
-export def CBC_BUFSIZE: size = BLOCKSIZE * 2;
-
-export type ct64_block = struct {
-	cipher::block,
-	rounds: uint,
-	sk_exp: [120]u64,
-};
 
 // Returns an AES [[crypto::cipher::block]] cipher implementation optimized for
 // constant time operation on 64-bit systems.
@@ -55,30 +42,39 @@ export type ct64_block = struct {
 // the cipher, and must call [[crypto::cipher::finish]] when they are finished
 // using the cipher to securely erase any secret data stored in the cipher
 // state.
-export fn ct64() ct64_block = ct64_block {
+fn ct64() block = block {
+	vtable = &ct64_vtable,
+	...
+};
+
+const ct64_vtable: cipher::blockvtable = cipher::blockvtable {
 	blocksz = BLOCKSIZE,
 	nparallel = CT64_NPARALLEL,
 	encrypt = &aes_ct64_encrypt,
 	decrypt = &aes_ct64_decrypt,
-	finish = &aes_ct64_finish,
-	...
+	finish = &block_finish,
 };
 
 // Initializes the ct64 AES implementation with an encryption key.
-export fn ct64_init(cipher: *ct64_block, key: []u8) void = {
+fn ct64_init(cipher: *block, key: []u8) void = {
 	let comp_skey: [30]u64 = [0...];
 	cipher.rounds = br_aes_ct64_keysched(comp_skey[..], key, len(key));
-	br_aes_ct64_skey_expand(cipher.sk_exp, cipher.rounds, comp_skey[..]);
+	br_aes_ct64_skey_expand(ct64_expkey(cipher), cipher.rounds, comp_skey[..]);
+};
+
+fn ct64_expkey(b: *block) []u64 = {
+	return (b.expkey[..]: *[*]u64)[..len(b.expkey)/size(u64)];
 };
 
 // Combines up to 4 blocks and encrypts them in one run
-fn aes_ct64_encrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
-	let b = block: *ct64_block;
+fn aes_ct64_encrypt(b: *cipher::block, dest: []u8, src: []u8) void = {
+	let b = b: *block;
 
-	assert(len(src) % b.blocksz == 0 && (len(src) / b.blocksz) <= b.nparallel,
+	assert(len(src) % blocksz(b) == 0
+		&& (len(src) / blocksz(b)) <= nparallel(b),
 		"invalid block size");
 
-	let nblocks = len(src) / b.blocksz;
+	let nblocks = len(src) / blocksz(b);
 
 	let q: [8]u64 = [0...];
 	let w: [16]u32 = [0...];
@@ -89,7 +85,7 @@ fn aes_ct64_encrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
 	};
 
 	br_aes_ct64_ortho(q);
-	br_aes_ct64_bitslice_encrypt(b.rounds, b.sk_exp, q);
+	br_aes_ct64_bitslice_encrypt(b.rounds, ct64_expkey(b), q);
 	br_aes_ct64_ortho(q);
 
 	for (let i = 0z; i < nblocks; i += 1) {
@@ -100,13 +96,14 @@ fn aes_ct64_encrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
 };
 
 // Combines up to 4 blocks and decrypts them in one run
-fn aes_ct64_decrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
-	let b = block: *ct64_block;
+fn aes_ct64_decrypt(b: *cipher::block, dest: []u8, src: []u8) void = {
+	let b = b: *block;
 
-	assert(len(src) % b.blocksz == 0 && (len(src) / b.blocksz) <= b.nparallel,
+	assert(len(src) % blocksz(b) == 0
+		&& (len(src) / blocksz(b)) <= nparallel(b),
 		"invalid block size");
 
-	const nblocks = len(src) / b.blocksz;
+	const nblocks = len(src) / blocksz(b);
 	let q: [8]u64 = [0...];
 	let w: [16]u32 = [0...];
 
@@ -116,7 +113,7 @@ fn aes_ct64_decrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
 	};
 
 	br_aes_ct64_ortho(q);
-	br_aes_ct64_bitslice_decrypt(b.rounds, b.sk_exp, q);
+	br_aes_ct64_bitslice_decrypt(b.rounds, ct64_expkey(b), q);
 	br_aes_ct64_ortho(q);
 
 	for (let i = 0z; i < nblocks; i += 1) {
@@ -124,11 +121,6 @@ fn aes_ct64_decrypt(block: *cipher::block, dest: []u8, src: []u8) void = {
 	};
 
 	br_range_enc32le(dest, w);
-};
-
-fn aes_ct64_finish(block: *cipher::block) void = {
-	let b = block: *ct64_block;
-	b.sk_exp = [0...];
 };
 
 // see br_aes_ct64_ortho in src/inner.h of BearSSL

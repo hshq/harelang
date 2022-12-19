@@ -2,7 +2,9 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 // (c) 2021 Jonathan Halmen <slowjo@halmen.xyz>
+// (c) 2022 Lassi Pulkkinen <lassi@pulk.fi>
 use net::ip;
+use strings;
 
 // Record type.
 export type rtype = enum u16 {
@@ -159,33 +161,15 @@ export type message = struct {
 // Frees a [[message]] and the resources associated with it.
 export fn message_free(msg: *message) void = {
 	for (let i = 0z; i < len(msg.questions); i += 1) {
-		strings_free(msg.questions[i].qname);
+		strings::freeall(msg.questions[i].qname);
 	};
 	free(msg.questions);
 
-	for (let i = 0z; i < len(msg.answers); i += 1) {
-		rrecord_finish(&msg.answers[i]);
-	};
-	free(msg.answers);
-
-	for (let i = 0z; i < len(msg.authority); i += 1) {
-		rrecord_finish(&msg.authority[i]);
-	};
-	free(msg.authority);
-
-	for (let i = 0z; i < len(msg.additional); i += 1) {
-		rrecord_finish(&msg.additional[i]);
-	};
-	free(msg.additional);
+	rrecords_free(msg.answers);
+	rrecords_free(msg.authority);
+	rrecords_free(msg.additional);
 
 	free(msg);
-};
-
-fn strings_free(in: []str) void = {
-	for (let i = 0z; i < len(in); i += 1) {
-		free(in[i]);
-	};
-	free(in);
 };
 
 fn bytes_free(in: [][]u8) void = {
@@ -195,11 +179,18 @@ fn bytes_free(in: [][]u8) void = {
 	free(in);
 };
 
+fn rrecords_free(rrs: []rrecord) void = {
+	for (let i = 0z; i < len(rrs); i += 1) {
+		rrecord_finish(&rrs[i]);
+	};
+	free(rrs);
+};
+
 fn rrecord_finish(rr: *rrecord) void = {
-	strings_free(rr.name);
+	strings::freeall(rr.name);
 	match (rr.rdata) {
 	case let mx: mx =>
-		strings_free(mx.name);
+		strings::freeall(mx.name);
 	case let tx: txt =>
 		bytes_free(tx: [][]u8);
 	case => void;

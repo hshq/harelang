@@ -1,7 +1,7 @@
 use bytes;
 use crypto::cipher;
 
-const zero_rk: [RKLEN_256]u8 = [0...];
+const zero_rk: [EXPKEYLEN256]u8 = [0...];
 
 // taken from fips-197.pdf Section A.1
 @test fn ni_enc_key_expand_128() void = {
@@ -38,12 +38,11 @@ const zero_rk: [RKLEN_256]u8 = [0...];
 	let block = x86ni();
 	x86ni_init(&block, key[..]);
 
-	assert(block.rklen == 176);
-	assert(bytes::equal(expected_rounds[..], block.enc_rk[..RKLEN_128]));
+	assert(block.rounds == 10);
+	assert(bytes::equal(expected_rounds[..], block.expkey[..EXPKEYLEN128]));
 
 	cipher::finish(&block);
-	assert(bytes::equal(zero_rk[..], block.enc_rk[..]));
-	assert(bytes::equal(zero_rk[..], block.dec_rk[..]));
+	assert(bytes::equal(zero_rk[..], block.expkey[..EXPKEYLEN256]));
 };
 
 // taken from fips-197.pdf Section A.2
@@ -86,8 +85,8 @@ const zero_rk: [RKLEN_256]u8 = [0...];
 	let block = x86ni();
 	x86ni_init(&block, key[..]);
 
-	assert(block.rklen == 208);
-	assert(bytes::equal(expected_rounds[..], block.enc_rk[..RKLEN_192]));
+	assert(block.rounds == 12);
+	assert(bytes::equal(expected_rounds[..], block.expkey[..EXPKEYLEN192]));
 };
 
 
@@ -136,8 +135,8 @@ const zero_rk: [RKLEN_256]u8 = [0...];
 	let block = x86ni();
 	x86ni_init(&block, key[..]);
 
-	assert(block.rklen == 240);
-	assert(bytes::equal(expected_rounds[..], block.enc_rk[..RKLEN_256]));
+	assert(block.rounds == 14);
+	assert(bytes::equal(expected_rounds[..], block.expkey[..EXPKEYLEN256]));
 };
 
 @test fn ni_test_encrypt_128() void = {

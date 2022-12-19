@@ -299,6 +299,12 @@ stdlib_deps_freebsd += $(stdlib_crypto_random_freebsd)
 stdlib_crypto_random_darwin = $(HARECACHE)/crypto/random/crypto_random-darwin.o
 stdlib_deps_darwin += $(stdlib_crypto_random_darwin)
 
+# gen_lib crypto::rsa (any)
+stdlib_crypto_rsa_any = $(HARECACHE)/crypto/rsa/crypto_rsa-any.o
+stdlib_deps_any += $(stdlib_crypto_rsa_any)
+stdlib_crypto_rsa_linux = $(stdlib_crypto_rsa_any)
+stdlib_crypto_rsa_freebsd = $(stdlib_crypto_rsa_any)
+
 # gen_lib crypto::poly1305 (any)
 stdlib_crypto_poly1305_any = $(HARECACHE)/crypto/poly1305/crypto_poly1305-any.o
 stdlib_deps_any += $(stdlib_crypto_poly1305_any)
@@ -981,7 +987,9 @@ $(HARECACHE)/crypto/crypto-any.ssa: $(stdlib_crypto_any_srcs) $(stdlib_rt) $(std
 
 # crypto::aes (+any)
 stdlib_crypto_aes_any_srcs = \
-	$(STDLIB)/crypto/aes/aes_ct64.ha
+	$(STDLIB)/crypto/aes/aes.ha \
+	$(STDLIB)/crypto/aes/aes_ct64.ha \
+	$(STDLIB)/crypto/aes/block.ha
 
 $(HARECACHE)/crypto/aes/crypto_aes-any.ssa: $(stdlib_crypto_aes_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -1156,6 +1164,19 @@ $(HARECACHE)/crypto/random/crypto_random-darwin.ssa: $(stdlib_crypto_random_darw
 	@mkdir -p $(HARECACHE)/crypto/random
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(HARECACHE)/crypto/random/crypto_random.td $(stdlib_crypto_random_darwin_srcs)
+
+# crypto::rsa (+any)
+stdlib_crypto_rsa_any_srcs = \
+	$(STDLIB)/crypto/rsa/core.ha \
+	$(STDLIB)/crypto/rsa/errors.ha \
+	$(STDLIB)/crypto/rsa/keys.ha \
+	$(STDLIB)/crypto/rsa/pkcs1.ha
+
+$(HARECACHE)/crypto/rsa/crypto_rsa-any.ssa: $(stdlib_crypto_rsa_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_bigint_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_crypto_sha1_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_crypto_sha512_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/rsa
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::rsa \
+		-t$(HARECACHE)/crypto/rsa/crypto_rsa.td $(stdlib_crypto_rsa_any_srcs)
 
 # crypto::poly1305 (+any)
 stdlib_crypto_poly1305_any_srcs = \
@@ -1881,6 +1902,7 @@ stdlib_net_dns_any_srcs = \
 	$(STDLIB)/net/dns/error.ha \
 	$(STDLIB)/net/dns/encode.ha \
 	$(STDLIB)/net/dns/query.ha \
+	$(STDLIB)/net/dns/strdomain.ha \
 	$(STDLIB)/net/dns/types.ha
 
 $(HARECACHE)/net/dns/net_dns-any.ssa: $(stdlib_net_dns_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_net_$(PLATFORM)) $(stdlib_net_udp_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_unix_resolvconf_$(PLATFORM)) $(stdlib_unix_poll_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
@@ -2046,7 +2068,7 @@ stdlib_net_uri_any_srcs = \
 	$(STDLIB)/net/uri/query.ha \
 	$(STDLIB)/net/uri/uri.ha
 
-$(HARECACHE)/net/uri/net_uri-any.ssa: $(stdlib_net_uri_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_ip_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM))
+$(HARECACHE)/net/uri/net_uri-any.ssa: $(stdlib_net_uri_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_ip_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/uri
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::uri \
@@ -2926,6 +2948,12 @@ testlib_deps_freebsd += $(testlib_crypto_random_freebsd)
 testlib_crypto_random_darwin = $(TESTCACHE)/crypto/random/crypto_random-darwin.o
 testlib_deps_darwin += $(testlib_crypto_random_darwin)
 
+# gen_lib crypto::rsa (any)
+testlib_crypto_rsa_any = $(TESTCACHE)/crypto/rsa/crypto_rsa-any.o
+testlib_deps_any += $(testlib_crypto_rsa_any)
+testlib_crypto_rsa_linux = $(testlib_crypto_rsa_any)
+testlib_crypto_rsa_freebsd = $(testlib_crypto_rsa_any)
+
 # gen_lib crypto::poly1305 (any)
 testlib_crypto_poly1305_any = $(TESTCACHE)/crypto/poly1305/crypto_poly1305-any.o
 testlib_deps_any += $(testlib_crypto_poly1305_any)
@@ -3609,10 +3637,13 @@ $(TESTCACHE)/crypto/crypto-any.ssa: $(testlib_crypto_any_srcs) $(testlib_rt) $(t
 
 # crypto::aes (+any)
 testlib_crypto_aes_any_srcs = \
+	$(STDLIB)/crypto/aes/aes.ha \
 	$(STDLIB)/crypto/aes/aes_ct64.ha \
+	$(STDLIB)/crypto/aes/block.ha \
 	$(STDLIB)/crypto/aes/ct64+test.ha \
 	$(STDLIB)/crypto/aes/cbc+test.ha \
 	$(STDLIB)/crypto/aes/ctr+test.ha \
+	$(STDLIB)/crypto/aes/rt+test.ha \
 	$(STDLIB)/crypto/aes/+test/gcm.ha
 
 $(TESTCACHE)/crypto/aes/crypto_aes-any.ssa: $(testlib_crypto_aes_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
@@ -3801,6 +3832,22 @@ $(TESTCACHE)/crypto/random/crypto_random-darwin.ssa: $(testlib_crypto_random_dar
 	@mkdir -p $(TESTCACHE)/crypto/random
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_darwin_srcs)
+
+# crypto::rsa (+any)
+testlib_crypto_rsa_any_srcs = \
+	$(STDLIB)/crypto/rsa/core.ha \
+	$(STDLIB)/crypto/rsa/errors.ha \
+	$(STDLIB)/crypto/rsa/keys.ha \
+	$(STDLIB)/crypto/rsa/pkcs1.ha \
+	$(STDLIB)/crypto/rsa/+test/core.ha \
+	$(STDLIB)/crypto/rsa/+test/keys.ha \
+	$(STDLIB)/crypto/rsa/+test/pkcs1.ha
+
+$(TESTCACHE)/crypto/rsa/crypto_rsa-any.ssa: $(testlib_crypto_rsa_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_bigint_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_crypto_sha1_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_crypto_sha512_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/rsa
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::rsa \
+		-t$(TESTCACHE)/crypto/rsa/crypto_rsa.td $(testlib_crypto_rsa_any_srcs)
 
 # crypto::poly1305 (+any)
 testlib_crypto_poly1305_any_srcs = \
@@ -4556,6 +4603,7 @@ testlib_net_dns_any_srcs = \
 	$(STDLIB)/net/dns/error.ha \
 	$(STDLIB)/net/dns/encode.ha \
 	$(STDLIB)/net/dns/query.ha \
+	$(STDLIB)/net/dns/strdomain.ha \
 	$(STDLIB)/net/dns/types.ha
 
 $(TESTCACHE)/net/dns/net_dns-any.ssa: $(testlib_net_dns_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_udp_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_unix_resolvconf_$(PLATFORM)) $(testlib_unix_poll_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
@@ -4725,7 +4773,7 @@ testlib_net_uri_any_srcs = \
 	$(STDLIB)/net/uri/uri.ha \
 	$(STDLIB)/net/uri/+test.ha
 
-$(TESTCACHE)/net/uri/net_uri-any.ssa: $(testlib_net_uri_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_ip_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM))
+$(TESTCACHE)/net/uri/net_uri-any.ssa: $(testlib_net_uri_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_ip_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/uri
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::uri \

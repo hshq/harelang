@@ -132,7 +132,9 @@ fn parse_variable(
 		};
 
 		if (brace) {
-			if (rn != '}') {
+			if (rn == '{') {
+				return errors::invalid;
+			} else if (rn != '}') {
 				strio::appendrune(buf, rn)!;
 			} else {
 				break;

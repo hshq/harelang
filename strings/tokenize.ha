@@ -12,10 +12,10 @@ export type tokenizer = bytes::tokenizer;
 // Returns a tokenizer which yields sub-strings tokenized by a delimiter.
 //
 // 	let tok = strings::tokenize("hello, my name is drew", " ");
-// 	assert(strings::next_token(tok) as str == "hello,");
-// 	assert(strings::next_token(tok) as str == "my");
-// 	assert(strings::next_token(tok) as str == "name");
-// 	assert(strings::remaining_tokens(tok) == "is drew");
+// 	assert(strings::next_token(&tok) as str == "hello,");
+// 	assert(strings::next_token(&tok) as str == "my");
+// 	assert(strings::next_token(&tok) as str == "name");
+// 	assert(strings::remaining_tokens(&tok) == "is drew");
 //
 // The caller must ensure that 'delimiter' is not an empty string.
 export fn tokenize(s: str, delim: str) tokenizer =

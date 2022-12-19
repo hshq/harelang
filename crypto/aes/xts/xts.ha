@@ -5,16 +5,16 @@ use bytes;
 use crypto::cipher;
 
 export type block = struct {
-	b1: aes::ct64_block,
-	b2: aes::ct64_block,
+	b1: aes::block,
+	b2: aes::block,
 	x: [aes::BLOCKSIZE]u8,
 };
 
 // Creates a AES-XTS instance. Must be initialized with [[init]] and always be
 // finished using [[finish]] to erase sensitive state from memory.
 export fn xts() block = block {
-	b1 = aes::ct64(),
-	b2 = aes::ct64(),
+	b1 = aes::aes(),
+	b2 = aes::aes(),
 	...
 };
 
@@ -25,8 +25,8 @@ export fn init(b: *block, key: []u8) void = {
 		"invalid key size");
 	let sep: size = len(key) / 2;
 
-	aes::ct64_init(&b.b1, key[..sep]);
-	aes::ct64_init(&b.b2, key[sep..]);
+	aes::init(&b.b1, key[..sep]);
+	aes::init(&b.b2, key[sep..]);
 };
 
 def GF_128_FDBK: u8 = 0x87;

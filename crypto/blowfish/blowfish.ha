@@ -2,7 +2,6 @@
 // License: MIT
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2010 The Go Authors. All rights reserved.
-// TODO: https://todo.sr.ht/~sircmpwn/hare/226
 use bytes;
 use crypto::cipher;
 use endian;
@@ -11,12 +10,20 @@ use endian;
 export def BLOCKSIZE: size = 8;
 
 export type state = struct {
-	cipher::block,
+	block: cipher::block,
 	p: [18]u32,
 	s0: [256]u32,
 	s1: [256]u32,
 	s2: [256]u32,
 	s3: [256]u32,
+};
+
+const vtable: cipher::blockvtable = cipher::blockvtable {
+	blocksz = BLOCKSIZE,
+	nparallel = 1,
+	encrypt = &block_encrypt,
+	decrypt = &block_decrypt,
+	finish = &block_finish,
 };
 
 // Initializes a new Blowfish cipher. The user should must call [[init]] or
@@ -25,11 +32,7 @@ export type state = struct {
 // erase secret information stored in the stream state.
 export fn new() state = {
 	return state {
-		blocksz = BLOCKSIZE,
-		nparallel = 1,
-		encrypt = &block_encrypt,
-		decrypt = &block_decrypt,
-		finish = &block_finish,
+		block = &vtable,
 		p = p,
 		s0 = s0,
 		s1 = s1,
@@ -55,9 +58,9 @@ export fn init(c: *state, key: []u8) void = {
 
 fn init_vector(c: *state, l: *u32, r: *u32, vec: []u32) void = {
 	for (let i = 0z; i < len(vec); i += 2) {
-		const v = encrypt(c, *l, *r);
-		*l = v.0;
-		*r = v.1;
+		const (v0, v1) = encrypt(c, *l, *r);
+		*l = v0;
+		*r = v1;
 		vec[i] = *l;
 		vec[i+1] = *r;
 	};
@@ -96,9 +99,9 @@ fn init_vector_salt(
 	for (let i = 0z; i < len(vec); i += 2) {
 		*l ^= getword(salt, j);
 		*r ^= getword(salt, j);
-		const v = encrypt(c, *l, *r);
-		*l = v.0;
-		*r = v.1;
+		const (v0, v1) = encrypt(c, *l, *r);
+		*l = v0;
+		*r = v1;
 		vec[i] = *l;
 		vec[i+1] = *r;
 	};
@@ -106,13 +109,11 @@ fn init_vector_salt(
 
 fn block_encrypt(c: *cipher::block, dest: []u8, src: []u8) void = {
 	const c = c: *state;
-	assert(c.encrypt == &block_encrypt);
+	assert(c.block.encrypt == &block_encrypt);
 
 	let l = src[0]<<24u32 | src[1]<<16u32 | src[2]<<8u32 | src[3]: u32;
 	let r = src[4]<<24u32 | src[5]<<16u32 | src[6]<<8u32 | src[7]: u32;
-	const v = encrypt(c, l, r);
-	l = v.0;
-	r = v.1;
+	const (l, r) = encrypt(c, l, r);
 	dest[0] = (l>>24): u8;
 	dest[1] = (l>>16): u8;
 	dest[2] = (l>>8): u8;
@@ -125,7 +126,7 @@ fn block_encrypt(c: *cipher::block, dest: []u8, src: []u8) void = {
 
 fn block_decrypt(c: *cipher::block, dest: []u8, src: []u8) void = {
 	const c = c: *state;
-	assert(c.decrypt == &block_decrypt);
+	assert(c.block.decrypt == &block_decrypt);
 
 	let l = src[0]<<24u32 | src[1]<<16u32 | src[2]<<8u32 | src[3]: u32;
 	let r = src[4]<<24u32 | src[5]<<16u32 | src[6]<<8u32 | src[7]: u32;
@@ -144,7 +145,7 @@ fn block_decrypt(c: *cipher::block, dest: []u8, src: []u8) void = {
 
 fn block_finish(cipher: *cipher::block) void = {
 	const cipher = cipher: *state;
-	assert(cipher.finish == &block_finish);
+	assert(cipher.block.finish == &block_finish);
 	bytes::zero((&cipher.p: *[*]u8)[..len(cipher.p) * size(u32)]);
 	bytes::zero((&cipher.s0: *[*]u8)[..len(cipher.s0) * size(u32)]);
 	bytes::zero((&cipher.s1: *[*]u8)[..len(cipher.s1) * size(u32)]);

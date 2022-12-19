@@ -16,6 +16,7 @@ export type ltok = enum uint {
 	ATTR_OFFSET,
 	ATTR_SYMBOL,
 	ATTR_TEST,
+	ATTR_THREADLOCAL,
 	UNDERSCORE,
 	ABORT,
 	ALLOC,
@@ -164,6 +165,7 @@ const bmap: [_]str = [
 	"@offset",
 	"@symbol",
 	"@test",
+	"@threadlocal",
 	"_",
 	"abort",
 	"alloc",
@@ -276,9 +278,6 @@ const bmap: [_]str = [
 	"*",
 	"*=",
 ];
-
-// The value "null".
-export type _null = void;
 
 // A token value, used for tokens such as '1337' (an integer).
 export type value = (str | rune | u64 | f64 | void);

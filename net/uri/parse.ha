@@ -2,6 +2,7 @@
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2022 Umar Getagazov <umar@handlerug.me>
 use ascii;
+use encoding::utf8;
 use io;
 use net::ip;
 use strconv;
@@ -329,6 +330,7 @@ fn percent_decode_static(out: io::handle, s: str) (void | invalid) = {
 	let iter = strings::iter(s);
 	let tmp = strio::dynamic();
 	defer io::close(&tmp)!;
+	let percent_data: []u8 = [];
 	for (true) {
 		match (strings::next(&iter)) {
 		case let r: rune =>
@@ -342,14 +344,36 @@ fn percent_decode_static(out: io::handle, s: str) (void | invalid) = {
 				match (strconv::stou8b(strio::string(&tmp),
 					strconv::base::HEX)) {
 				case let ord: u8 =>
-					strio::appendrune(out, ord: u32: rune)!;
+					append(percent_data, ord);
 				case =>
 					return invalid;
 				};
 			} else {
+				if(len(percent_data) > 0) {
+					match(strings::fromutf8(percent_data)) {
+					case let stro: str =>
+						strio::concat(out, stro)!;
+					case utf8::invalid =>
+						return invalid;
+					};
+
+					percent_data = [];
+				};
+
 				strio::appendrune(out, r)!;
 			};
 		case void =>
+			if(len(percent_data) > 0) {
+				match(strings::fromutf8(percent_data)) {
+				case let stro: str =>
+					strio::concat(out, stro)!;
+				case utf8::invalid =>
+					return invalid;
+				};
+
+				percent_data = [];
+			};
+
 			break;
 		};
 	};

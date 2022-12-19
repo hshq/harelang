@@ -100,7 +100,7 @@ fn find_last_groupstart(insts: *[]inst) (size | error) = {
 			return i - 1;
 		};
 	};
-	return `Encountered ")" token without matching "("`: error;
+	return `Unmatched ')'`: error;
 };
 
 fn handle_bracket(
@@ -170,7 +170,7 @@ fn handle_bracket(
 			};
 		};
 		if (!*skip_charclass_rest) {
-			return `Found "[:" in bracket expression and expected a character class such as [:alpha:], but none was found. If you did not mean to use a charclass, try ":["`: error;
+			return `No character class after '[:'`: error;
 		};
 	} else if (is_range) {
 		const start_enc = utf8::encoderune(r);
@@ -182,7 +182,7 @@ fn handle_bracket(
 		const end_b = end_enc[0];
 
 		if (end_b < start_b) {
-			return `Found range in bracket expression where end character was before start character, e.g. "[b-a]"`: error;
+			return `Decending bracket expression range '[z-a]'`: error;
 		};
 
 		append(charsets[len(charsets) - 1],
@@ -222,7 +222,7 @@ export fn compile(expr: str) (regex | error) = {
 
 		if (in_bracket) {
 			if (next is void) {
-				return `Found unterminated bracket expression, are you missing a closing "]"?`: error;
+				return `Unmatched '['`: error;
 			};
 			const r = next: rune;
 			handle_bracket(&insts, r, &r_idx, &bracket_idx, &iter,
@@ -235,7 +235,7 @@ export fn compile(expr: str) (regex | error) = {
 		const r = match (next) {
 		case void =>
 			if (n_groupstarts > 0) {
-				return "Expression ended, but there were still unclosed groups": error;
+				return `Unmatched '('`: error;
 			};
 			break;
 		case let r: rune => yield r;
@@ -244,18 +244,18 @@ export fn compile(expr: str) (regex | error) = {
 		case '\\' =>
 			const peek1 = strings::next(&iter);
 			if (peek1 is void) {
-				return "Found an escaping backslash, but there was nothing to escape": error;
+				return `Trailing backslash '\'`: error;
 			} else {
 				append(insts, (peek1 as rune): inst_lit);
 				r_idx += 1;
 			};
 		case '^' =>
 			if (r_idx != 0) {
-				return `Anchor character "^" may only occur at the start of the expression`: error;
+				return `Anchor '^' not at start`: error;
 			};
 		case '$' =>
 			if (r_idx != len(expr) - 1) {
-				return `Anchor character "$" may only occur at the end of the expression`: error;
+				return `Anchor '$' not at end`: error;
 			};
 			anchored = true;
 		case '[' =>
@@ -268,13 +268,13 @@ export fn compile(expr: str) (regex | error) = {
 			};
 		case '(' =>
 			if (n_groupstarts > 0) {
-				return "Found nested capture groups in expression, which are not supported": error;
+				return `Nested capture groups are unsupported`: error;
 			};
 			append(insts, void: inst_groupstart);
 			n_groupstarts += 1;
 		case ')' =>
 			if (n_groupstarts == 0) {
-				return "Tried to close group but none was open": error;
+				return `Unmatched ')'`: error;
 			};
 			n_groupstarts -= 1;
 			append(insts, void: inst_groupend);
@@ -322,7 +322,7 @@ export fn compile(expr: str) (regex | error) = {
 			n_reps += 1;
 		case '?' =>
 			if (r_idx == 0 || len(insts) == 0) {
-				return `Found "?" but there was nothing before it`: error;
+				return `Unused '?'`: error;
 			};
 			let term_start_idx = len(insts) - 1;
 			match (insts[term_start_idx]) {
@@ -330,15 +330,15 @@ export fn compile(expr: str) (regex | error) = {
 			case inst_groupend =>
 				term_start_idx = find_last_groupstart(&insts)?;
 			case inst_groupstart =>
-				return `Found "?" but it was in an empty group`: error;
+				return `Unused '?'`: error;
 			case =>
-				return `Invalid use of "?"`: error;
+				return `Misused '?'`: error;
 			};
 			const after_idx = len(insts) + 1;
 			insert(insts[term_start_idx], after_idx: inst_split);
 		case '*' =>
 			if (r_idx == 0 || len(insts) == 0) {
-				return `Found "*" but there was nothing before it`: error;
+				return `Unused '*'`: error;
 			};
 			const new_inst_offset = 1z;
 			const jump_idx = len(insts) + new_inst_offset;
@@ -349,9 +349,9 @@ export fn compile(expr: str) (regex | error) = {
 			case inst_groupend =>
 				term_start_idx = find_last_groupstart(&insts)?;
 			case inst_groupstart =>
-				return `Found "*" but it was in an empty group`: error;
+				return `Unused '*'`: error;
 			case =>
-				return `Invalid use of "*"`: error;
+				return `Misused '*'`: error;
 			};
 			const split_idx = term_start_idx;
 			term_start_idx += new_inst_offset;
@@ -359,7 +359,7 @@ export fn compile(expr: str) (regex | error) = {
 			append(insts, split_idx: inst_jump);
 		case '+' =>
 			if (r_idx == 0 || len(insts) == 0) {
-				return `Found "+" but there was nothing before it`: error;
+				return `Unused '+'`: error;
 			};
 			let term_start_idx = len(insts) - 1;
 			match (insts[term_start_idx]) {
@@ -367,9 +367,9 @@ export fn compile(expr: str) (regex | error) = {
 			case inst_groupend =>
 				term_start_idx = find_last_groupstart(&insts)?;
 			case inst_groupstart =>
-				return `Found "+" but it was in an empty group`: error;
+				return `Unused '+'`: error;
 			case =>
-				return `Invalid use of "+"`: error;
+				return `Misused '+'`: error;
 			};
 			append(insts, term_start_idx: inst_split);
 		case '.' =>
@@ -395,7 +395,7 @@ fn parse_repetition(
 	const first_comma = strings::index(s, ",");
 	const first_endbrace = strings::index(s, "}");
 	if (first_endbrace is void) {
-		return "Invalid repetition value": error;
+		return `Repetition expression syntax error '{n}'`: error;
 	};
 	const first_endbrace = first_endbrace as size;
 
@@ -420,11 +420,11 @@ fn parse_repetition(
 		min = match (strconv::stoi(min_str)) {
 		case let res: int =>
 			yield if (res < 0) {
-				return `Only positive integers are allowed inside "{}"`: error;
+				return `Negative repitition count '{-n}'`: error;
 			} else {
 				yield res: size;
 			};
-		case => return "Invalid repetition minimum value": error;
+		case => return `Repetition expression syntax error '{n}'`: error;
 		};
 	} else {
 		min = 0;
@@ -434,11 +434,11 @@ fn parse_repetition(
 		max = match (strconv::stoi(max_str)) {
 		case let res: int =>
 			yield if (res < 0) {
-				return `Only positive integers are allowed inside "{}"`: error;
+				return `Negative repitition count '{-n}'`: error;
 			} else {
 				yield res: size;
 			};
-		case => return "Invalid repetition maximum value": error;
+		case => return `Repetition expression syntax error '{n}'`: error;
 		};
 	};
 

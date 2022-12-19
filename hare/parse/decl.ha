@@ -60,11 +60,16 @@ fn decl_global(
 ) ([]ast::decl_global | error) = {
 	let decl: []ast::decl_global = [];
 	for (true) {
-		const symbol = match (try(lexer, ltok::ATTR_SYMBOL)?) {
+		const (symbol, threadlocal) = match (try(lexer,
+			ltok::ATTR_SYMBOL, ltok::ATTR_THREADLOCAL)?) {
 		case void =>
-			yield "";
-		case lex::token =>
-			yield attr_symbol(lexer)?;
+			yield ("", false);
+		case let t: lex::token =>
+			yield if (t.0 == ltok::ATTR_SYMBOL) {
+				yield (attr_symbol(lexer)?, false);
+			} else {
+				yield ("", true);
+			};
 		};
 		const ident = ident(lexer)?;
 		want(lexer, ltok::COLON)?;
@@ -79,6 +84,7 @@ fn decl_global(
 		const btok = try(lexer, ltok::COMMA)?;
 		append(decl, ast::decl_global {
 			is_const = tok == ltok::CONST,
+			is_threadlocal = threadlocal,
 			symbol = symbol,
 			ident = ident,
 			_type = _type,

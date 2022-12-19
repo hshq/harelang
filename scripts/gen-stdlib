@@ -270,7 +270,9 @@ crypto() {
 
 gensrcs_crypto_aes() {
 	gen_srcs crypto::aes \
+		aes.ha \
 		aes_ct64.ha \
+		block.ha \
 		$*
 }
 
@@ -285,6 +287,7 @@ crypto_aes() {
 			ct64+test.ha \
 			cbc+test.ha \
 			ctr+test.ha \
+			rt+test.ha \
 			+test/gcm.ha
 		gen_ssa crypto::aes bufio bytes crypto::cipher crypto::math \
 			endian errors io rt
@@ -474,6 +477,27 @@ crypto_random() {
 		+darwin.ha \
 		random.ha
 	gen_ssa -pdarwin crypto::random rt io errors
+}
+
+gensrcs_crypto_rsa() {
+	gen_srcs crypto::rsa core.ha  errors.ha  keys.ha  pkcs1.ha $*
+}
+
+genssa_crypto_rsa() {
+	gen_ssa crypto::rsa bufio bytes crypto::bigint crypto::math \
+		crypto::sha1 crypto::sha256 crypto::sha512 endian errors hash \
+		io types $*
+}
+
+crypto_rsa() {
+	if [ $testing -eq 0 ]
+	then
+		gensrcs_crypto_rsa
+		genssa_crypto_rsa
+	else
+		gensrcs_crypto_rsa +test/core.ha +test/keys.ha +test/pkcs1.ha
+		genssa_crypto_rsa
+	fi
 }
 
 crypto_salsa() {
@@ -1052,6 +1076,7 @@ net_dns() {
 		error.ha \
 		encode.ha \
 		query.ha \
+		strdomain.ha \
 		types.ha
 	gen_ssa net::dns ascii endian net net::udp net::ip fmt strings \
 		unix::resolvconf unix::poll rt time errors
@@ -1172,7 +1197,7 @@ net_uri() {
 			+test.ha
 	fi
 	gen_ssa net::uri \
-		ascii ip net::ip strconv strings strio
+		ascii encoding::utf8 ip net::ip strconv strings strio
 }
 
 gensrcs_math_complex() {
@@ -1606,6 +1631,7 @@ crypto::hmac
 crypto::mac
 crypto::math
 crypto::random	linux freebsd darwin
+crypto::rsa
 crypto::poly1305
 crypto::salsa
 crypto::sha1

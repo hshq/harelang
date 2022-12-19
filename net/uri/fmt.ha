@@ -7,6 +7,21 @@ use strconv;
 use strings;
 use strio;
 
+
+// Extract from RFC3986 ABNF
+// URI        = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
+// unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
+// sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+// reg-name   = *( unreserved / pct-encoded / sub-delims )
+// host       = IP-literal / IPv4address / reg-name
+// pchar      = unreserved / pct-encoded / sub-delims / ":" / "@"
+// query      = *( pchar / "/" / "?" )
+// fragment   = *( pchar / "/" / "?" )
+
+def unres_host: str = "-._~!$&'()*+,;=";
+def unres_query_frag: str = "-._~!$&'()*+,;=:@/?";
+def unres_path: str = "-._~!$&'()*+,;=:@/";
+
 // Writes a formatted [[uri]] to an [[io::handle]]. Returns the number of bytes
 // written.
 export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
@@ -25,7 +40,12 @@ export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
 			if (!slashes_w) {
 				n += fmt::fprint(out, "//")?;
 			};
-			n += percent_encode(out, host)?;
+			let unres = if(u.scheme == "file") {
+				yield unres_path;
+			} else {
+				yield unres_host;
+			};
+			n += percent_encode(out, host, unres)?;
 		};
 	case let addr: ip::addr =>
 		if (!slashes_w) {
@@ -36,14 +56,14 @@ export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
 	if (u.port != 0) {
 		n += fmt::fprintf(out, ":{}", u.port)?;
 	};
-	n += fmt::fprint(out, u.path)?;
+	n += percent_encode(out, u.path, unres_path)?;
 	if (len(u.query) > 0) {
-		n += fmt::fprint(out, "?")?;
-		n += percent_encode(out, u.query)?;
+		// Always percent-encoded, see parse and encodequery/decodequery
+		n += fmt::fprintf(out, "?{}", u.query)?;
 	};
 	if (len(u.fragment) > 0) {
 		n += fmt::fprint(out, "#")?;
-		n += percent_encode(out, u.fragment)?;
+		n += percent_encode(out, u.fragment, unres_query_frag)?;
 	};
 
 	return n;
@@ -62,7 +82,7 @@ fn fmtaddr(out: io::handle, addr: ip::addr) (size | io::error) = {
 	return n;
 };
 
-fn percent_encode(out: io::handle, src: str) (size | io::error) = {
+fn percent_encode(out: io::handle, src: str, allowed: str) (size | io::error) = {
 	let iter = strings::iter(src);
 	let n = 0z;
 	for (true) {
@@ -72,8 +92,7 @@ fn percent_encode(out: io::handle, src: str) (size | io::error) = {
 		case =>
 			break;
 		};
-		// unreserved
-		if (ascii::isalnum(r) || strings::contains("-._~", r)) {
+		if (ascii::isalnum(r) || strings::contains(allowed, r)) {
 			n += fmt::fprint(out, r)?;
 		} else {
 			const en = utf8::encoderune(r);
