@@ -2,7 +2,6 @@
 // License: MIT
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2010 The Go Authors. All rights reserved.
-// TODO: https://todo.sr.ht/~sircmpwn/hare/226
 use bytes;
 use crypto::cipher;
 use endian;
@@ -59,9 +58,9 @@ export fn init(c: *state, key: []u8) void = {
 
 fn init_vector(c: *state, l: *u32, r: *u32, vec: []u32) void = {
 	for (let i = 0z; i < len(vec); i += 2) {
-		const v = encrypt(c, *l, *r);
-		*l = v.0;
-		*r = v.1;
+		const (v0, v1) = encrypt(c, *l, *r);
+		*l = v0;
+		*r = v1;
 		vec[i] = *l;
 		vec[i+1] = *r;
 	};
@@ -100,9 +99,9 @@ fn init_vector_salt(
 	for (let i = 0z; i < len(vec); i += 2) {
 		*l ^= getword(salt, j);
 		*r ^= getword(salt, j);
-		const v = encrypt(c, *l, *r);
-		*l = v.0;
-		*r = v.1;
+		const (v0, v1) = encrypt(c, *l, *r);
+		*l = v0;
+		*r = v1;
 		vec[i] = *l;
 		vec[i+1] = *r;
 	};
@@ -114,9 +113,7 @@ fn block_encrypt(c: *cipher::block, dest: []u8, src: []u8) void = {
 
 	let l = src[0]<<24u32 | src[1]<<16u32 | src[2]<<8u32 | src[3]: u32;
 	let r = src[4]<<24u32 | src[5]<<16u32 | src[6]<<8u32 | src[7]: u32;
-	const v = encrypt(c, l, r);
-	l = v.0;
-	r = v.1;
+	const (l, r) = encrypt(c, l, r);
 	dest[0] = (l>>24): u8;
 	dest[1] = (l>>16): u8;
 	dest[2] = (l>>8): u8;
