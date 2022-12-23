@@ -415,12 +415,18 @@ fn list_from_ast(
 
 fn _struct_from_ast(
 	store: *typestore,
-	membs: []ast::struct_member,
+	atype: ast::struct_union_type,
 	is_union: bool,
 	fields: *[]struct_field,
 	offs: *size,
 ) (void | deferred | error) = {
 	const nfields = len(fields);
+	const membs = match(atype) {
+	case let atype: ast::struct_type =>
+		yield atype.members;
+	case let atype: ast::union_type =>
+		yield atype: []ast::struct_member;
+	};
 	for (let i = 0z; i < len(membs); i += 1) {
 		*offs = match (membs[i]._offset) {
 		case let ex: *ast::expr =>
@@ -438,7 +444,7 @@ fn _struct_from_ast(
 		case let se: ast::struct_embedded =>
 			let membs: []ast::struct_member = match (se.repr) {
 			case let st: ast::struct_type =>
-				yield st;
+				yield st.members;
 			case let ut: ast::union_type =>
 				yield ut;
 			case =>
@@ -483,12 +489,12 @@ fn _struct_from_ast(
 
 fn struct_from_ast(
 	store: *typestore,
-	membs: []ast::struct_member,
+	atype: ast::struct_union_type,
 	is_union: bool,
 ) (_struct | deferred | error) = {
 	let fields: []struct_field = [];
 	let offs = 0z;
-	_struct_from_ast(store, membs, is_union, &fields, &offs)?;
+	_struct_from_ast(store, atype, is_union, &fields, &offs)?;
 	sort::sort(fields, size(struct_field), &field_cmp);
 	return _struct {
 		kind = if (is_union) struct_union::UNION else struct_union::STRUCT,

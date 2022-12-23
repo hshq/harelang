@@ -291,7 +291,7 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 		flags = ast::type_flags::NONE,
 		repr = switch (kind.0) {
 		case ltok::STRUCT =>
-			yield membs: ast::struct_type;
+			yield ast::struct_type { members = membs, ...};
 		case ltok::UNION =>
 			yield membs: ast::union_type;
 		case => abort();

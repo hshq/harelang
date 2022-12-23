@@ -361,7 +361,7 @@ fn struct_union_type_tty(
 		n += fmt::fprint(out, "struct")?;
 		n += render(out, syn::PUNCTUATION)?;
 		n += fmt::fprint(out, " {")?;
-		yield st: []ast::struct_member;
+		yield st.members: []ast::struct_member;
 	case let ut: ast::union_type =>
 		n += render(out, syn::TYPE)?;
 		n += fmt::fprint(out, "union")?;

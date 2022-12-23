@@ -107,10 +107,14 @@ export type struct_member = struct {
 };
 
 // struct { ... }
-export type struct_type = []struct_member;
+export type struct_type = struct {
+	members: []struct_member,
+};
 
 // union { ... }
 export type union_type = []struct_member;
+
+export type struct_union_type = (struct_type | union_type);
 
 // (int | bool)
 export type tagged_type = []*_type;
@@ -138,7 +142,7 @@ export type _type = struct {
 fn struct_type_finish(t: (struct_type | union_type)) void = {
 	let membs = match (t) {
 	case let s: struct_type =>
-		yield s: []struct_member;
+		yield s.members: []struct_member;
 	case let u: union_type =>
 		yield u: []struct_member;
 	};

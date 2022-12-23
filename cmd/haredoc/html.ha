@@ -559,7 +559,7 @@ fn struct_union_html(
 	let members = match (t.repr) {
 	case let t: ast::struct_type =>
 		z += fmt::fprint(out, "<span class='keyword'>struct</span> {")?;
-		yield t: []ast::struct_member;
+		yield t.members: []ast::struct_member;
 	case let t: ast::union_type =>
 		z += fmt::fprint(out, "<span class='keyword'>union</span> {")?;
 		yield t: []ast::struct_member;
