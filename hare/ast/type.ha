@@ -108,6 +108,7 @@ export type struct_member = struct {
 
 // struct { ... }
 export type struct_type = struct {
+	packed: bool,
 	members: []struct_member,
 };
 
