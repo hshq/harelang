@@ -814,7 +814,7 @@ hare_parse() {
 	fi
 }
 
-hash() {
+'hash'() {
 	gen_srcs hash \
 		hash.ha
 	gen_ssa hash io fmt
@@ -1302,7 +1302,7 @@ temp() {
 		crypto::random encoding::hex errors fs io os path strio fmt
 }
 
-time() {
+'time'() {
 	gen_srcs -plinux time \
 		+linux/functions.ha \
 		+linux/+'$(ARCH)'.ha \
