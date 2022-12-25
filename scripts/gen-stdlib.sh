@@ -10,6 +10,7 @@ mod_var() {
 
 gen_srcs() {
 	platform=any
+	OPTIND=1
 	while getopts p: name
 	do
 		case $name in
@@ -46,6 +47,7 @@ gen_srcs() {
 
 gen_ssa() {
 	platform=any
+	OPTIND=1
 	while getopts p: name
 	do
 		case $name in
@@ -53,7 +55,7 @@ gen_ssa() {
 			platform="$OPTARG"
 			;;
 		?)
-			printf 'Invalid use of gen_srcs' >&2
+			printf 'Invalid use of gen_ssa' >&2
 			exit 1
 			;;
 		esac
@@ -85,6 +87,7 @@ EOF
 
 gen_lib() {
 	platform=any
+	OPTIND=1
 	while getopts p: name
 	do
 		case $name in
@@ -92,7 +95,7 @@ gen_lib() {
 			platform="$OPTARG"
 			;;
 		?)
-			printf 'Invalid use of gen_srcs' >&2
+			printf 'Invalid use of gen_lib' >&2
 			exit 1
 			;;
 		esac
