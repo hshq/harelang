@@ -1,5 +1,6 @@
 // License: MPL-2.0
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
+// (c) 2022 Carlos Une <une@fastmail.fm>
 
 // The test data below is based on Go's implementation, and came with the
 // following note and copyright notice:
@@ -493,8 +494,8 @@ const TEST_ATANSC: [](c128, c128) = [
 		(0f64, 0f64)),
 	((0f64, math::NAN),
 		(math::NAN, math::NAN)),
-	((1f64, 0f64),
-		(math::PI / 4f64, 0f64)),
+	//((1f64, 0f64),// Enable once https://todo.sr.ht/~sircmpwn/hare/750 is ready
+	//	(math::PI / 4f64, 0f64)),
 	((1f64, math::INF),
 		(math::PI / 2f64, 0f64)),
 	((1f64, math::NAN),
@@ -1070,6 +1071,66 @@ fn isexact(x: f64) bool =
 	};
 };
 
+@test fn atan() void = {
+	for (let i = 0z; i < len(VC); i += 1) {
+		assert(cveryclose(TEST_ATAN[i], atanc128(VC[i])));
+	};
+	for (let i = 0z; i < len(TEST_ATANSC); i += 1) {
+		const v = TEST_ATANSC[i];
+		if (math::isnan(v.0.1) || math::isnan(v.1.1)) {
+			// Negating NaN is undefined with regard to the sign bit
+			// produced.
+			continue;
+		};
+		assert(calike(v.1, atanc128(v.0)));
+		// atan(conj(z)) == conj(atan(z))
+		assert(calike(conjc128(v.1), atanc128(conjc128(v.0)))
+			|| calike(v.0, conjc128(v.0)));
+		if (math::isnan(v.0.0) || math::isnan(v.1.0)) {
+			// Negating NaN is undefined with regard to the sign bit
+			// produced.
+			continue;
+		};
+		// atan(-z) == -atan(z)
+		assert(calike((-v.1.0, -v.1.1), atanc128((-v.0.0, -v.0.1)))
+			|| calike((v.0), conjc128(v.0)));
+	};
+	for (let i = 0z; i < len(BRANCHPOINTS); i += 1) {
+		const pt = BRANCHPOINTS[i];
+		assert(cveryclose(atanc128(pt.0), atanc128(pt.1)));
+	};
+};
+
+@test fn atanh() void = {
+	for (let i = 0z; i < len(VC); i += 1) {
+		assert(cveryclose(TEST_ATANH[i], atanhc128(VC[i])));
+	};
+	for (let i = 0z; i < len(TEST_ATANHSC); i += 1) {
+		const v = TEST_ATANHSC[i];
+		if (math::isnan(v.0.1) || math::isnan(v.1.1)) {
+			// Negating NaN is undefined with regard to the sign bit
+			// produced.
+			continue;
+		};
+		assert(calike(v.1, atanhc128(v.0)));
+		// atanh(conj(z)) == conj(atanh(z))
+		assert(calike(conjc128(v.1), atanhc128(conjc128(v.0)))
+			|| calike(v.0, conjc128(v.0)));
+		if (math::isnan(v.0.0) || math::isnan(v.1.0)) {
+			// Negating NaN is undefined with regard to the sign bit
+			// produced.
+			continue;
+		};
+		// atanh(-z) == -atanh(z)
+		assert(calike((-v.1.0, -v.1.1), atanhc128((-v.0.0, -v.0.1)))
+			|| calike(v.0, (-v.0.0, -v.0.1)));
+	};
+	for (let i = 0z; i < len(BRANCHPOINTS); i += 1) {
+		const pt = BRANCHPOINTS[i];
+		assert(cveryclose(atanhc128(pt.0), atanhc128(pt.1)));
+	};
+};
+
 @test fn conj() void = {
 	for (let i = 0z; i < len(VC); i += 1) {
 		assert(cveryclose(TEST_CONJ[i], conjc128(VC[i])));
@@ -1299,5 +1360,57 @@ fn isexact(x: f64) bool =
 	for (let i = 0z; i < len(BRANCHPOINTS); i += 1) {
 		const pt = BRANCHPOINTS[i];
 		assert(cveryclose(sqrtc128(pt.0), sqrtc128(pt.1)));
+	};
+};
+
+@test fn tan() void = {
+	for (let i = 0z; i < len(VC); i += 1) {
+		assert(csoclose(TEST_TAN[i], tanc128(VC[i]), 3e-15));
+	};
+	for (let i = 0z; i < len(TEST_TANSC); i += 1) {
+		const v = TEST_TANSC[i];
+		if (math::isnan(v.0.1) || math::isnan(v.1.1)) {
+			// Negating NaN is undefined with regard to the sign bit
+			// produced.
+			continue;
+		};
+		assert(calike(v.1, tanc128(v.0)));
+		// tan(conj(z)) == conj(tan(z))
+		assert (calike(conjc128(v.1), tanc128(conjc128(v.0)))
+			|| calike(v.0, conjc128(v.0)));
+		if (math::isnan(v.0.0) || math::isnan(v.1.0)) {
+			// Negating NaN is undefined with regard to the sign bit
+			// produced.
+			continue;
+		};
+		// tan(-z) == -tan(z)
+		assert(calike((-v.1.0, -v.1.1), tanc128((-v.0.0, -v.0.1)))
+			|| calike(v.0, (-v.0.0, -v.0.1)));
+	};
+};
+
+@test fn tanh() void = {
+	for (let i = 0z; i < len(VC); i += 1) {
+		assert(csoclose(TEST_TANH[i], tanhc128(VC[i]), 2e-15));
+	};
+	for (let i = 0z; i < len(TEST_TANHSC); i += 1) {
+		const v = TEST_TANHSC[i];
+		if (math::isnan(v.0.1) || math::isnan(v.1.1)) {
+			// Negating NaN is undefined with regard to the sign bit
+			// produced.
+			continue;
+		};
+		assert(calike(v.1, tanhc128(v.0)));
+		// tanh(conj(z)) == conj(tanh(z))
+		assert(calike(conjc128(v.1), tanhc128(conjc128(v.0)))
+			|| calike(v.0, conjc128(v.0)));
+		if (math::isnan(v.0.0) || math::isnan(v.1.0)) {
+			// Negating NaN is undefined with regard to the sign bit
+			// produced.
+			continue;
+		};
+		// tanh(-z) == -tanh(z)
+		assert(calike((-v.1.0, -v.1.1), tanhc128((-v.0.0, -v.0.1)))
+			|| calike(v.0, (-v.0.0, -v.0.1)));
 	};
 };
