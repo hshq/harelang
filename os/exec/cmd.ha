@@ -63,6 +63,7 @@ export fn setname(cmd: *command, name: str) void = {
 export fn finish(cmd: *command) void = {
 	platform_finish(cmd);
 	free(cmd.argv);
+	free(cmd.env);
 };
 
 // Executes a prepared command in the current address space, overwriting the
@@ -87,6 +88,7 @@ export fn start(cmd: *command) (error | process) = {
 // Empties the environment variables for the command. By default, the command
 // inherits the environment of the parent process.
 export fn clearenv(cmd: *command) void = {
+	free(cmd.env);
 	cmd.env = [];
 };
 
