@@ -96,7 +96,7 @@ fn encode_writer(
 		static let b: [3]u8 = [0...]; // 3 bytes get converted into 4 bytes
 		if (i < s.avail) {
 			for (let j = 0z; j < s.avail; j += 1) {
-				b[j] = s.buf[i];
+				b[j] = s.buf[j];
 			};
 			for (let j = s.avail; j < 3; j += 1) {
 				b[j] = in[j - s.avail];
@@ -158,6 +158,23 @@ fn encode_closer(s: *io::stream) (void | io::error) = {
 		encb[3 - i] = PADDING;
 	};
 	io::writeall(s.out, encb)?;
+};
+
+@test fn partialwrite() void = {
+	const raw: [_]u8 = [
+		0x00, 0x00, 0x00, 0x07, 0x73, 0x73, 0x68, 0x2d, 0x72, 0x73,
+		0x61, 0x00,
+	];
+	const expected: str = `AAAAB3NzaC1yc2EA`;
+
+	let buf = bufio::dynamic(io::mode::WRITE);
+	let e = newencoder(&std_encoding, &buf);
+	io::writeall(&e, raw[..4])!;
+	io::writeall(&e, raw[4..11])!;
+	io::writeall(&e, raw[11..])!;
+	io::close(&e)!;
+
+	assert(strings::fromutf8(bufio::buffer(&buf))! == expected);
 };
 
 // Encodes a byte slice in base 64, using the given encoding, returning a slice
