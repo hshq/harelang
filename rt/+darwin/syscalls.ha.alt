@@ -461,7 +461,7 @@ export fn accept(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) 
 	return wrap_errno_return(c_accept(sockfd, addr, addrlen: *socklen_t))?: int;
 };
 
-export fn accept4(sockfd: int, addr: nullable *sockaddr, addrlen: *u32, flags: int) (int | errno) = {
+export fn accept4(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32, flags: int) (int | errno) = {
 	return wrap_errno_return(c_accept(sockfd, addr, addrlen: *socklen_t))?: int;
 };
 @symbol("accept") fn c_accept(socket: int,
@@ -496,7 +496,7 @@ export fn sendmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
 };
 @symbol("sendmsg") fn c_sendmsg(socket: int,  message: *const msghdr, flags: int) i64;
 
-export fn recvmsg(fd: int, msg: *msghdr, flags: int) (int | errno) = {
+export fn recvmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
 	return wrap_errno_return(c_recvmsg(fd, msg, flags))?: int;
 };
 @symbol("recvmsg") fn c_recvmsg(socket: int, message: *msghdr, flags: int) i64;

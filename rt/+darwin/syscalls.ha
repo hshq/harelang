@@ -129,7 +129,7 @@ export fn unlinkat(dirfd: int, path: path, flags: int) (void | errno) = {
 export fn fstatat(fd: int, path: path, stat: *st, flag: int) (void | errno) = {
 	let path = kpath(path)?;
 	let fbstat = stat_t { ... };
-	wrap_return(syscall4(SYS_fstatat64, fd: u64,
+	wrap_return(syscall4(SYS_fstatat, fd: u64,
 		path: uintptr: u64, &fbstat: uintptr: u64, flag: u64))?;
 	stat.dev           = fbstat.st_dev;
 	stat.ino           = fbstat.st_ino;
@@ -499,7 +499,7 @@ export fn accept(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) 
 		sockfd: u64, addr: uintptr: u64, addrlen: uintptr: u64))?: int;
 };
 
-export fn accept4(sockfd: int, addr: nullable *sockaddr, addrlen: *u32, flags: int) (int | errno) = {
+export fn accept4(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32, flags: int) (int | errno) = {
 	// return wrap_return(syscall4(SYS_accept4,
 	// 	sockfd: u64, addr: uintptr: u64, addrlen: uintptr: u64, flags: u64))?: int;
 	return wrap_return(syscall3(SYS_accept,
@@ -535,7 +535,7 @@ export fn sendmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
 		fd: u64, msg: uintptr: u64, flags: u64))?: int;
 };
 
-export fn recvmsg(fd: int, msg: *msghdr, flags: int) (int | errno) = {
+export fn recvmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
 	return wrap_return(syscall3(SYS_recvmsg,
 		fd: u64, msg: uintptr: u64, flags: u64))?: int;
 };
