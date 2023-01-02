@@ -41,3 +41,9 @@ export type cmsghdr = struct {
 };
 
 export def EDEADLOCK: int = EDEADLK;
+
+export type epoll_event = struct @packed {
+	// Packed on x86_64
+	events: u32,
+	data: epoll_data,
+};
