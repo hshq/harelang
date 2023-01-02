@@ -818,7 +818,7 @@ export fn ptrace(
 	addr: uintptr,
 	data: uintptr,
 ) (u64 | errno) = {
-	// PTRACE_PEEK* requests write into *data instead of just returing
+	// PTRACE_PEEK* requests write into *data instead of just returning
 	// the word that they read
 	let result = 0u64;
 	const wrdata = request >= PTRACE_PEEKTEXT && request <= PTRACE_PEEKUSER;
