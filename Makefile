@@ -74,7 +74,11 @@ $(BINOUT)/harec2: $(BINOUT)/hare $(harec_srcs)
 	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build \
 		$(HARE_DEFINES) -o $(BINOUT)/harec2 cmd/harec
 
-$(BINOUT)/haredoc: $(BINOUT)/hare $(haredoc_srcs)
+# Prevent $(BINOUT)/hare from running builds in parallel, workaround for build
+# driver bugs
+PARALLEL_HACK=$(BINOUT)/harec2
+
+$(BINOUT)/haredoc: $(BINOUT)/hare $(haredoc_srcs) $(PARALLEL_HACK)
 	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
 	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build \
