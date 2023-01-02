@@ -236,6 +236,12 @@ fn fn_type(lexer: *lex::lexer) (ast::_type | error) = {
 fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 	let membs: []ast::struct_member = [];
 	let kind = want(lexer, ltok::STRUCT, ltok::UNION)?;
+	let packed = false;
+
+	if (kind.0 == ltok::STRUCT && try(lexer, ltok::ATTR_PACKED)? is lex::token) {
+		packed = true;
+	};
+
 	want(lexer, ltok::LBRACE)?;
 
 	for (true) {
@@ -291,7 +297,7 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 		flags = ast::type_flags::NONE,
 		repr = switch (kind.0) {
 		case ltok::STRUCT =>
-			yield membs: ast::struct_type;
+			yield ast::struct_type { members = membs, packed = packed, ...};
 		case ltok::UNION =>
 			yield membs: ast::union_type;
 		case => abort();

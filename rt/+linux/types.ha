@@ -393,11 +393,6 @@ export type epoll_data = union {
 	u64_: u64,
 };
 
-export type epoll_event = struct {
-	events: u32,
-	@offset(4) data: epoll_data,
-};
-
 export def EFD_CLOEXEC: int = O_CLOEXEC;
 export def EFD_NONBLOCK: int = O_NONBLOCK;
 export def EFD_SEMAPHORE: int = 1;

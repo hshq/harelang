@@ -161,8 +161,12 @@ fn struct_union_type(
 	let z = 0z;
 	let membs = match (t.repr) {
 	case let st: ast::struct_type =>
-		z += fmt::fprint(out, "struct {")?;
-		yield st: []ast::struct_member;
+		z += fmt::fprint(out, "struct ")?;
+		if (st.packed) {
+			z += fmt::fprint(out, "@packed ")?;
+		};
+		z += fmt::fprint(out, "{")?;
+		yield st.members: []ast::struct_member;
 	case let ut: ast::union_type =>
 		z += fmt::fprint(out, "union {")?;
 		yield ut: []ast::struct_member;
