@@ -3,8 +3,10 @@
 // (c) 2021 Eyal Sawady <ecs@d2evs.net>
 use errors;
 
-// Copies data from one handle into another. Note that this function will never
-// return if the source handle is infinite.
+// Copies data from one handle into another. If reading from the source file
+// returns zero (underread), the copy is terminated and the amount of data
+// copied is returned. Note that this function will never return if the source
+// handle is infinite.
 export fn copy(dest: handle, src: handle) (error | size) = {
 	match (dest) {
 	case let fd: file =>
@@ -22,18 +24,18 @@ export fn copy(dest: handle, src: handle) (error | size) = {
 
 fn copy_streams(dest: *stream, src: *stream) (error | size) = {
 	match (dest.copier) {
-		case null => void;
-		case let c: *copier =>
-			match (c(dest, src)) {
-			case let err: error =>
-				match (err) {
-				case errors::unsupported => void;
-				case =>
-					return err;
-				};
-			case let s: size =>
-				return s;
+	case null => void;
+	case let c: *copier =>
+		match (c(dest, src)) {
+		case let err: error =>
+			match (err) {
+			case errors::unsupported => void;
+			case =>
+				return err;
 			};
+		case let s: size =>
+			return s;
+		};
 	};
 	return copy_fallback(dest, src);
 };
@@ -44,6 +46,9 @@ fn copy_fallback(dest: handle, src: handle) (error | size) = {
 	for (true) {
 		match (read(src, buf[..])?) {
 		case let n: size =>
+			if (n == 0) {
+				break;
+			};
 			w += writeall(dest, buf[..n])?;
 		case EOF =>
 			break;
