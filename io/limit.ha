@@ -51,8 +51,13 @@ fn limit_read(s: *stream, buf: []u8) (size | EOF | error) = {
 	if (len(buf) > stream.limit) {
 		buf = buf[..stream.limit];
 	};
-	stream.limit -= len(buf);
-	return read(stream.source, buf);
+	match (read(stream.source, buf)) {
+	case EOF =>
+		return EOF;
+	case let z: size =>
+		stream.limit -= z;
+		return z;
+	};
 };
 
 fn limit_write(s: *stream, buf: const []u8) (size | error) = {
@@ -65,6 +70,7 @@ fn limit_write(s: *stream, buf: const []u8) (size | error) = {
 	} else {
 		yield buf[..];
 	};
-	stream.limit -= len(slice);
-	return write(stream.source, slice);
+	const z = write(stream.source, slice)?;
+	stream.limit -= z;
+	return z;
 };
