@@ -245,7 +245,7 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 	want(lexer, ltok::LBRACE)?;
 
 	for (true) {
-		if (try(lexer, ltok::RBRACE) is lex::token) {
+		if (try(lexer, ltok::RBRACE)? is lex::token) {
 			synassert(lex::mkloc(lexer), len(membs) != 0,
 				"Expected field list")?;
 			break;
@@ -406,7 +406,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 
 	let membs: []ast::enum_field = [];
 	for (true) {
-		if (try(lexer, ltok::RBRACE) is lex::token) {
+		if (try(lexer, ltok::RBRACE)? is lex::token) {
 			synassert(lex::mkloc(lexer), len(membs) != 0,
 				"Expected member list")?;
 			break;
@@ -416,7 +416,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 		let name = want(lexer, ltok::NAME)?;
 		let comment = strings::dup(lex::comment(lexer));
 		let value: nullable *ast::expr =
-			if (try(lexer, ltok::EQUAL) is lex::token)
+			if (try(lexer, ltok::EQUAL)? is lex::token)
 				alloc(expr(lexer)?)
 			else null;
 
