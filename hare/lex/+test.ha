@@ -310,7 +310,7 @@ fn loc(line: uint, col: uint) location = location {
 	let buf = bufio::fixed(in, mode::READ);
 	let lexer = init(&buf, "<test>");
 
-	const s = lex(&lexer) as syntax;
+	const s = lex(&lexer) as error as syntax;
 	assert(s.1 == "Source file is not valid UTF-8");
 };
 
