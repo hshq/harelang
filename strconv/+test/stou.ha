@@ -1,7 +1,7 @@
 // License: MPL-2.0
 // (c) 2021 Andri Yngvason <andri@yngvason.is>
 // (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
-// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Ember Sawady <ecs@d2evs.net>
 
 @test fn stou() void = {
 	assert(stou64("") as invalid == 0: invalid);

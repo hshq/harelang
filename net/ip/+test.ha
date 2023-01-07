@@ -1,7 +1,7 @@
 // License: MPL-2.0
 // (c) 2021 Byron Torres <b@torresjrjr.com>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2021 Miccah Castorina <contact@miccah.io>
 // (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
 use strings;

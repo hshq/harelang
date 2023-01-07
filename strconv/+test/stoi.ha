@@ -2,7 +2,7 @@
 // (c) 2021 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Andri Yngvason <andri@yngvason.is>
 // (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
-// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Ember Sawady <ecs@d2evs.net>
 use types;
 
 @test fn stoi() void = {

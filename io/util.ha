@@ -1,7 +1,7 @@
 // License: MPL-2.0
 // (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Ember Sawady <ecs@d2evs.net>
 
 // Reads an entire buffer, perhaps issuing several [[read]] calls to do so. If
 // EOF is immediately encountered, it is returned; if [[EOF]] is encountered

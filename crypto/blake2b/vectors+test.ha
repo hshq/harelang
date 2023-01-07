@@ -1,5 +1,5 @@
 // License: MPL-2.0
-// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Ember Sawady <ecs@d2evs.net>
 
 type vector = struct {
 	in: str,
