@@ -1,7 +1,7 @@
 // License: MPL-2.0
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2022 Jon Eskin <eskinjp@gmail.com>
 use crypto::random;
 use encoding::hex;

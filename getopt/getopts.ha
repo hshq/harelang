@@ -2,7 +2,7 @@
 // (c) 2021 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Byron Torres <b@torresjrjr.com>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2021 Jonathan Halmen <slowjo@halmen.xyz>
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
 use encoding::utf8;

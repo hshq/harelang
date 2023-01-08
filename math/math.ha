@@ -1,6 +1,6 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
 
 // Sections of the code below, in particular log() and exp(), are based on Go's

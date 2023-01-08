@@ -1,6 +1,6 @@
 // License: MPL-2.0
 // (c) 2021 Alexey Yerin <yyp@disroot.org>
-// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2021 Kiëd Llaentenn <kiedtl@tilde.team>
 use errors;
 

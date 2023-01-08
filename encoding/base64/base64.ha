@@ -1,7 +1,7 @@
 // License: MPL-2.0
 // (c) 2022 Ajay R <ar324@protonmail.com>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2021 Steven Guikal <void@fluix.one>
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
 use ascii;

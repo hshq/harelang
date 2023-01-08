@@ -1,6 +1,6 @@
 // License: MPL-2.0
 // (c) 2021-2022 Alexey Yerin <yyp@disroot.org>
-// (c) 2021 Eyal Sawady <ecs@d2evs.net>
+// (c) 2021 Ember Sawady <ecs@d2evs.net>
 use io;
 use strings;
 use strio;
