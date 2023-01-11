@@ -70,6 +70,13 @@ export fn resolve(path: str) str = fs::resolve(cwd, path);
 // statically allocated and will be overwritten on subsequent calls.
 export fn readlink(path: str) (str | fs::error) = fs::readlink(cwd, path);
 
+// Creates a new (hard) link at 'new' for the file at 'old'.
+export fn link(old: str, new: str) (void | fs::error) = fs::link(cwd, old, new);
+
+// Creates a new symbolic link at 'path' which points to 'target'.
+export fn symlink(target: str, path: str) (void | fs::error) =
+	fs::symlink(cwd, target, path);
+
 // Opens a file.
 //
 // If no flags are provided, [[fs::flags::RDONLY]] is used when opening the
