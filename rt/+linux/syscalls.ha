@@ -138,8 +138,8 @@ export fn mknodat(
 	dev: dev_t,
 ) (void | errno) = {
 	let path = kpath(path)?;
-	wrap_return(syscall3(SYS_mknodat,
-		path: uintptr: u64, mode: u64, dev: u64))?;
+	wrap_return(syscall4(SYS_mknodat,
+		dirfd: u64, path: uintptr: u64, mode: u64, dev: u64))?;
 };
 
 export fn chmod(path: path, mode: uint) (void | errno) = {
