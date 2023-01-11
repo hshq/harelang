@@ -22,7 +22,6 @@ use strings;
 //
 // By default, the new command will inherit the current process's environment.
 export fn cmd(name: str, args: str...) (command | error) = {
-	let env = os::getenvs();
 	let cmd = command {
 		platform: platform_cmd =
 			if (strings::contains(name, '/')) {
@@ -40,14 +39,13 @@ export fn cmd(name: str, args: str...) (command | error) = {
 					yield p;
 				};
 			},
-		argv = alloc([], len(args) + 1z),
-		env = alloc([], len(env)),
+		argv = alloc([], len(args) + 1),
+		env = strings::dupall(os::getenvs()),
 		files = [],
 		...
 	};
 	append(cmd.argv, name);
 	append(cmd.argv, args...);
-	append(cmd.env, env...);
 	return cmd;
 };
 
@@ -63,7 +61,7 @@ export fn setname(cmd: *command, name: str) void = {
 export fn finish(cmd: *command) void = {
 	platform_finish(cmd);
 	free(cmd.argv);
-	free(cmd.env);
+	strings::freeall(cmd.env);
 };
 
 // Executes a prepared command in the current address space, overwriting the
@@ -88,7 +86,7 @@ export fn start(cmd: *command) (error | process) = {
 // Empties the environment variables for the command. By default, the command
 // inherits the environment of the parent process.
 export fn clearenv(cmd: *command) void = {
-	free(cmd.env);
+	strings::freeall(cmd.env);
 	cmd.env = [];
 };
 
@@ -118,6 +116,7 @@ export fn unsetenv(cmd: *command, key: str) (void | errors::invalid) = {
 	defer free(fullkey);
 	for (let i = 0z; i < len(cmd.env); i += 1) {
 		if (strings::hasprefix(cmd.env[i], fullkey)) {
+			free(cmd.env[i]);
 			delete(cmd.env[i]);
 			break;
 		};
