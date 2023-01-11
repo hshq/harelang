@@ -106,9 +106,9 @@ export fn unlinkat(dirfd: int, path: path, flags: int) (void | errno) = {
 
 export fn linkat(
 	olddirfd: int,
-	oldpath: str,
+	oldpath: path,
 	newdirfd: int,
-	newpath: str,
+	newpath: path,
 	flags: int,
 ) (void | errno) = {
 	let oldpath = kpath(oldpath)?;
@@ -120,9 +120,9 @@ export fn linkat(
 };
 
 export fn symlinkat(
-	target: str,
+	target: path,
 	newdirfd: int,
-	linkpath: str,
+	linkpath: path,
 ) (void | errno) = {
 	let target = kpath(target)?;
 	static let linkpathbuf: [PATH_MAX + 1]u8 = [0...];
@@ -168,9 +168,9 @@ export fn fchownat(dirfd: int, path: path, uid: uint, gid: uint, flags: int) (vo
 
 export fn renameat(
 	olddirfd: int,
-	oldpath: str,
+	oldpath: path,
 	newdirfd: int,
-	newpath: str,
+	newpath: path,
 	flags: uint,
 ) (void | errno) = {
 	let oldpath = kpath(oldpath)?;
