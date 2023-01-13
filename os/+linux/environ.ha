@@ -33,6 +33,7 @@ let args_static: [32]str = [""...];
 	if (rt::argc >= len(args_static)) {
 		free(args);
 	};
+	free(envp);
 };
 
 // Looks up an environment variable and returns its value, or void if unset.
