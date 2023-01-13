@@ -54,6 +54,8 @@ export fn ctr(h: io::handle, b: *block, iv: []u8, buf: []u8) ctr_stream = {
 	};
 
 	let s = ctr_stream {
+		stream = &xorstream_vtable,
+		h = h,
 		keybuf = &ctr_keybuf,
 		advance = &ctr_advance,
 		finish = &ctr_finish,
@@ -65,7 +67,6 @@ export fn ctr(h: io::handle, b: *block, iv: []u8, buf: []u8) ctr_stream = {
 		xorused = xorbufsz,
 		...
 	};
-	xorstream_init(&s, h);
 	return s;
 };
 

@@ -36,7 +36,12 @@ export fn handle(
 		// Filled in by rt:
 		sa_restorer = null: *fn () void,
 	};
-	let old = rt::sigact { ... };
+	let old = rt::sigact {
+		// Filled in by rt:
+		sa_sigaction = null: *fn(_: int, _: *rt::siginfo, _: *void) void,
+		sa_restorer = null: *fn() void,
+		...
+	};
 	match (rt::sigaction(signum, &new, &old)) {
 	case int =>
 		yield;

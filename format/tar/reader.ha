@@ -58,23 +58,33 @@ export fn next(rd: *reader) (entry | error | io::EOF) = {
 		return io::EOF;
 	};
 
-	let ent = entry { ... };
 	const reader = bufio::fixed(buf, io::mode::READ);
 	const name = readstr(&reader, 100);
-	ent.mode = readoct(&reader, 8)?;
-	ent.uid = readoct(&reader, 8)?;
-	ent.gid = readoct(&reader, 8)?;
-	ent.fsize = readsize(&reader, 12)?;
-	ent.mtime = readoct(&reader, 12)?;
-	ent.checksum = readoct(&reader, 8)?;
-	ent.etype = readoct(&reader, 1)?: entry_type;
-	ent.link = readstr(&reader, 100);
+	const mode = readoct(&reader, 8)?;
+	const uid = readoct(&reader, 8)?;
+	const gid = readoct(&reader, 8)?;
+	const fsize = readsize(&reader, 12)?;
+	const mtime = readoct(&reader, 12)?;
+	const checksum = readoct(&reader, 8)?;
+	const etype = readoct(&reader, 1)?: entry_type;
+	const link = readstr(&reader, 100);
 
-	if (ent.etype == entry_type::FILE) {
-		ent.vtable = &file_vtable;
-		ent.src = rd.src;
-		ent.orig = ent.fsize;
-		ent.remain = ent.orig;
+	let ent = entry {
+		vtable = if (etype == entry_type::FILE) &file_vtable
+			else &nonfile_vtable,
+		src = rd.src,
+		orig = fsize,
+		remain = fsize,
+		name = name,
+		mode = mode,
+		uid = uid,
+		gid = gid,
+		fsize = fsize,
+		mtime = mtime,
+		checksum = checksum,
+		etype = etype,
+		link = link,
+		...
 	};
 
 	const ustar = readstr(&reader, 6);
@@ -116,6 +126,8 @@ const file_vtable: io::vtable = io::vtable {
 	seeker = &file_seek,
 	...
 };
+
+const nonfile_vtable: io::vtable = io::vtable { ... };
 
 fn file_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let ent = s: *ent_reader;

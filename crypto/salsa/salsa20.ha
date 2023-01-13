@@ -35,6 +35,8 @@ export type stream = struct {
 // after use to wipe sensitive data from memory.
 export fn salsa20() stream = {
 	return stream {
+		stream = &cipher::xorstream_vtable,
+		h = 0,
 		keybuf = &keybuf,
 		advance = &advance,
 		finish = &finish,
@@ -80,9 +82,7 @@ export fn salsa20_init(
 
 	let counter: [8]u8 = [0...];
 	init(&s.state, key, nonce, &counter);
-	s.xorused = BLOCKSIZE;
-
-	cipher::xorstream_init(s, h);
+	s.h = h;
 };
 
 // Initialize an XSalsa20 stream. XSalsa20 differs from Salsa20 via the use of a

@@ -36,6 +36,8 @@ export type stream = struct {
 // with [[io::close]] after use to wipe sensitive data from memory.
 export fn chacha20() stream = {
 	return stream {
+		stream = &cipher::xorstream_vtable,
+		h = 0,
 		keybuf = &keybuf,
 		advance = &advance,
 		finish = &finish,
@@ -52,7 +54,7 @@ export fn chacha20_init(
 	key: *[KEYSIZE]u8,
 	nonce: *[NONCESIZE]u8
 ) void = {
-	cipher::xorstream_init(s, h);
+	s.h = h;
 
 	s.state[0] = magic[0];
 	s.state[1] = magic[1];
@@ -69,8 +71,6 @@ export fn chacha20_init(
 	s.state[13] = endian::legetu32(nonce[0..4]);
 	s.state[14] = endian::legetu32(nonce[4..8]);
 	s.state[15] = endian::legetu32(nonce[8..12]);
-
-	s.xorused = BLOCKSIZE;
 };
 
 // Initialise a XChacha20 stream.

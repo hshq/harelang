@@ -21,15 +21,13 @@ export type sockflags = enum int {
 // available. Optionally accepts NOCLOEXEC and NONBLOCK flags. If flags are
 // supplied, the [[io::file]] returned will have the supplied flags set.
 export fn accept(sock: socket, flags: sockflags...) (socket | error) = {
-	let sn = rt::sockaddr {...};
-	const sz = size(rt::sockaddr): u32;
 	// Apply any supplied flags
 	let f = 0i;
 	for (let i = 0z; i < len(flags); i += 1) {
 		f |= flags[i];
 	};
 	f ^= rt::SOCK_CLOEXEC; // invert CLOEXEC
-	const fd = match (rt::accept4(sock, &sn, &sz, f)) {
+	const fd = match (rt::accept4(sock, null, null, f)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>

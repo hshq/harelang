@@ -13,7 +13,7 @@ export def GCMTAGSIZE: size = 16;
 
 export type gcmstream = struct {
 	stream: io::stream,
-	block: *block,
+	block: nullable *block,
 	handle: io::handle,
 	tagbuf: [GCMBLOCKSIZE]u8,
 	xorbuf: [GCMBLOCKSIZE]u8,
@@ -51,6 +51,7 @@ const gcm_vtable: io::vtable = io::vtable {
 export fn gcm() gcmstream = {
 	return gcmstream {
 		stream = &gcm_vtable,
+		handle = 0,
 		...
 	};
 };
@@ -144,7 +145,7 @@ fn fillxorbuf(s: *gcmstream) void = {
 	let y: [GCMBLOCKSIZE]u8 = [0...];
 	s.xorbuf[..] = s.y0[..];
 	beputu32(s.xorbuf[12..], s.y);
-	encrypt(s.block, s.xorbuf, s.xorbuf);
+	encrypt(s.block as *block, s.xorbuf, s.xorbuf);
 	s.y += 1;
 	s.xorbufpos = 0;
 };
@@ -205,7 +206,7 @@ export fn gcm_seal(s: *gcmstream, tag: []u8) void = {
 	ghash_ctmul64(s.tagbuf, s.h, tag);
 
 	// use tmp to store the resulting tag
-	encrypt(s.block, tag, s.y0);
+	encrypt(s.block as *block, tag, s.y0);
 	xor(tag, tag, s.tagbuf);
 };
 
@@ -225,7 +226,7 @@ export fn gcm_verify(s: *gcmstream, tag: []u8) (void | errors::invalid) = {
 
 	ghash_ctmul64(s.tagbuf, s.h, tmp);
 
-	encrypt(s.block, tmp, s.y0);
+	encrypt(s.block as *block, tmp, s.y0);
 	xor(tmp, tmp, s.tagbuf);
 
 	if (eqslice(tag, tmp) == 0) {
@@ -241,5 +242,7 @@ fn gcm_closer(s: *io::stream) (void | io::error) = {
 	bytes::zero(s.y0);
 	bytes::zero(s.h);
 
-	finish(s.block);
+	if (s.block is *block) {
+		finish(s.block as *block);
+	};
 };
