@@ -44,3 +44,8 @@ export type cmsghdr = struct {
 };
 
 export def EDEADLOCK: int = EDEADLK;
+
+export type epoll_event = struct {
+	events: u32,
+	data: epoll_data,
+};
