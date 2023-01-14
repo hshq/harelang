@@ -28,7 +28,7 @@ export fn strerror(err: error) const str = {
 	match (err) {
 	case nocmd =>
 		return "Command not found";
-	case let err: errors::opaque =>
+	case let err: errors::error =>
 		return errors::strerror(err);
 	case let err: io::error =>
 		return io::strerror(err);
