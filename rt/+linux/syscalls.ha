@@ -877,3 +877,30 @@ export fn flock(fd: int, op: int) (int | errno) = {
 	return wrap_return(syscall2(SYS_flock,
 		fd: u64, op: u64))?: int;
 };
+
+export fn inotify_init() (int | errno) = {
+	return wrap_return(syscall1(SYS_inotify_init1, 0))?: int;
+};
+
+export fn inotify_init1(flags: int) (int | errno) = {
+	return wrap_return(syscall1(SYS_inotify_init1, flags: u64))?: int;
+};
+
+export fn inotify_add_watch(fd: int, path: path, mask: u32) (int | errno) = {
+	let path = kpath(path)?;
+	return wrap_return(syscall3(SYS_inotify_add_watch,
+		fd: u64, path: uintptr: u64, mask))?: int;
+};
+
+export fn inotify_rm_watch(fd: int, wd: int) (int | errno) = {
+	return wrap_return(syscall2(SYS_inotify_rm_watch,
+		fd: u64, wd: u64))?: int;
+};
+
+export type inotify_event = struct {
+	wd: int,
+	mask: u32,
+	cookie: u32,
+	length: u32,
+	name: *const char
+};

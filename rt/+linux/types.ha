@@ -842,3 +842,33 @@ export def SEEK_END: int = 2;
 export def LOCK_SH: int = 1;
 export def LOCK_EX: int = 2;
 export def LOCK_UN: int = 4;
+
+// Inotify init1 flags
+export def IN_NONBLOCK: int = O_NONBLOCK;
+export def IN_CLOEXEC: int = O_CLOEXEC;
+
+// Inotify event masks
+export def INACCESS: u32 = 0x00000001;
+export def INMODIFY: u32 = 0x00000002;
+export def INATTRIB: u32 = 0x00000004;
+export def INCLOSEWRITE: u32 = 0x00000008;
+export def INCLOSENOWRITE: u32 = 0x00000010;
+export def INOPEN: u32 = 0x00000020;
+export def INMOVEDFROM: u32 = 0x00000040;
+export def INMOVEDTO: u32 = 0x00000080;
+export def INCREATE: u32 = 0x00000100;
+export def INDELETE: u32 = 0x00000200;
+export def INDELETESELF: u32 = 0x00000400;
+export def INMOVESELF: u32 = 0x00000800;
+export def INONLYDIR: u32 = 0x01000000;
+export def INDONTFOLLOW: u32 = 0x02000000;
+export def INEXCLUNLINK: u32 = 0x04000000;
+export def INMASKCREATE: u32 = 0x10000000;
+export def INMASKADD: u32 = 0x20000000;
+export def INISDIR: u32 = 0x40000000;
+export def INONESHOT: u32 = 0x80000000;
+export def INUNMOUNT: u32 = 0x00002000;
+export def INQOVERFLOW: u32 = 0x00004000;
+export def INIGNORED: u32 = 0x00008000;
+export def INMOVE: u32 = INMOVEDFROM | INMOVEDTO;
+export def INCLOSE: u32 = INCLOSEWRITE | INCLOSENOWRITE;
