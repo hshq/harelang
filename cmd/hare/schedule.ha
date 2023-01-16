@@ -281,7 +281,13 @@ fn sched_hare_object(
 	let current = false;
 	let output = if (output is str) {
 		// TODO: Should we use the cache here?
-		yield fmt::asprintf("{}.{}", output, if (mixed) "a" else "o");
+		const (_, ext) = path::extension(output as str);
+		const expected = if (mixed) ".a" else ".o";
+		if (ext != expected) {
+			fmt::errorfln("Warning: Expected output file extension {}, found {}",
+				expected, output)!;
+		};
+		yield strings::dup(output as str);
 	} else if (len(namespace) != 0) {
 		let version = hex::encodestr(ver.hash);
 		let env = module::identuscore(namespace);
