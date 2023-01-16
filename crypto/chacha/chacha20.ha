@@ -51,9 +51,12 @@ export fn chacha20() stream = {
 export fn chacha20_init(
 	s: *stream,
 	h: io::handle,
-	key: *[KEYSIZE]u8,
-	nonce: *[NONCESIZE]u8
+	key: []u8,
+	nonce: []u8
 ) void = {
+	assert(len(key) == KEYSIZE);
+	assert(len(nonce) == NONCESIZE);
+
 	s.h = h;
 
 	s.state[0] = magic[0];
@@ -77,29 +80,32 @@ export fn chacha20_init(
 export fn xchacha20_init(
 	s: *stream,
 	h: io::handle,
-	key: *[KEYSIZE]u8,
-	nonce: *[XNONCESIZE]u8
+	key: []u8,
+	nonce: []u8
 ) void = {
+	assert(len(key) == KEYSIZE);
+	assert(len(nonce) == XNONCESIZE);
+
 	let dkey: [32]u8 = [0...];
-	// XXX: https://todo.sr.ht/~sircmpwn/hare/719
-	let hnonce: [16]u8 = [0...];
-	hnonce[..] = nonce[..16];
-	hchacha20(&dkey, key, &hnonce);
+	hchacha20(&dkey, key, nonce[..16]);
 
 	let dnonce: [NONCESIZE]u8 = [0...];
 	dnonce[4..] = nonce[16..];
 
-	chacha20_init(s, h, &dkey, &dnonce);
+	chacha20_init(s, h, &dkey, dnonce);
 
 	bytes::zero(dkey);
 	bytes::zero(dnonce);
-	bytes::zero(hnonce);
 };
 
 // Derives a new key from 'key' and 'nonce' as used during XChaCha20
 // initialization. This function may only be used for specific purposes
 // such as X25519 key derivation. Do not use if in doubt.
-export fn hchacha20(out: *[32]u8, key: *[32]u8, nonce: *[16]u8) void = {
+export fn hchacha20(out: []u8, key: []u8, nonce: []u8) void = {
+	assert(len(out) == KEYSIZE);
+	assert(len(key) == KEYSIZE);
+	assert(len(nonce) == 16);
+
 	let state: [16]u32 = [0...];
 	defer bytes::zero((state: []u8: *[*]u8)[..BLOCKSIZE]);
 
