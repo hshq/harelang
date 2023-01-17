@@ -304,6 +304,7 @@ stdlib_crypto_rsa_any = $(HARECACHE)/crypto/rsa/crypto_rsa-any.o
 stdlib_deps_any += $(stdlib_crypto_rsa_any)
 stdlib_crypto_rsa_linux = $(stdlib_crypto_rsa_any)
 stdlib_crypto_rsa_freebsd = $(stdlib_crypto_rsa_any)
+stdlib_crypto_rsa_darwin = $(stdlib_crypto_rsa_any)
 
 # gen_lib crypto::poly1305 (any)
 stdlib_crypto_poly1305_any = $(HARECACHE)/crypto/poly1305/crypto_poly1305-any.o
@@ -2953,6 +2954,7 @@ testlib_crypto_rsa_any = $(TESTCACHE)/crypto/rsa/crypto_rsa-any.o
 testlib_deps_any += $(testlib_crypto_rsa_any)
 testlib_crypto_rsa_linux = $(testlib_crypto_rsa_any)
 testlib_crypto_rsa_freebsd = $(testlib_crypto_rsa_any)
+testlib_crypto_rsa_darwin = $(testlib_crypto_rsa_any)
 
 # gen_lib crypto::poly1305 (any)
 testlib_crypto_poly1305_any = $(TESTCACHE)/crypto/poly1305/crypto_poly1305-any.o
