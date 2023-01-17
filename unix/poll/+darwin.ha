@@ -18,8 +18,8 @@ export type event = enum i16 {
 // A single file descriptor to be polled.
 export type pollfd = struct {
 	fd: io::file,
-	events: event,
-	revents: event,
+	events: i16,
+	revents: i16,
 };
 
 // Pass this [[time::duration]] to [[poll]] to cause it wait indefinitely for
