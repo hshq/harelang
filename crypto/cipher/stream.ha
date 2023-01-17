@@ -4,9 +4,8 @@ use io;
 use crypto::math::{xor};
 
 // An abstract interface for implementing streams that encrypt or decrypt by
-// producing a key stream that is xored with the data. The implementing stream
-// must call [[xorstream_init]] after creation so that [[io::reader]], 
-// [[io::writer]] and [[io::closer]] functions will be registered.
+// producing a key stream that is xored with the data. The stream field should
+// be set to &[[xorstream_vtable]].
 //
 // After initializing the xorstream can be written to with [[io::write]] to
 // encrypt data and write it to the handle 'h'. For decrpytion 'h' will provide
@@ -27,14 +26,7 @@ export type xorstream = struct {
 	finish: *fn(s: *xorstream) void,
 };
 
-// Initialises a xorstream with the handle 'h' and sets [[io::reader]], 
-// [[io::writer]] and [[io::closer]] functions.
-export fn xorstream_init(xs: *xorstream, h: io::handle) void = {
-	xs.h = h;
-	xs.stream = &xorstream_vtable;
-};
-
-const xorstream_vtable: io::vtable = io::vtable {
+export const xorstream_vtable: io::vtable = io::vtable {
 	writer = &xor_writer,
 	reader = &xor_reader,
 	closer = &xor_closer,

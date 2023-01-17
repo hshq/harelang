@@ -1,5 +1,6 @@
 // License: MPL-2.0
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
+// (c) 2022 Carlos Une <une@fastmail.fm>
 
 // Sections of the code below are based on Go's implementation, which is, in
 // turn, based on Cephes Math Library. The original C code can be found at
@@ -430,4 +431,229 @@ fn sinhcosh(x: f64) (f64, f64) = {
 	const ei = 0.5 / e;
 	e *= 0.5;
 	return (e - ei, e + ei);
+};
+
+// reducePi reduces the input argument x to the range (-Pi/2, Pi/2].
+// x must be greater than or equal to 0. For small arguments it
+// uses Cody-Waite reduction in 3 f64 parts based on:
+// "Elementary Function Evaluation: Algorithms and Implementation"
+// Jean-Michel Muller, 1997.
+// For very large arguments it uses Payne-Hanek range reduction based on:
+// "ARGUMENT REDUCTION FOR HUGE ARGUMENTS: Good to the Last Bit"
+// K. C. Ng et al, March 24, 1992.
+fn reducePi(x: f64) f64 = {
+	// reduceThreshold is the maximum value of x where the reduction using
+	// Cody-Waite reduction still gives accurate results. This threshold
+	// is set by t*PIn being representable as a f64 without error
+	// where t is given by t = floor(x * (1 / Pi)) and PIn are the leading partial
+	// terms of Pi. Since the leading terms, PI1 and PI2 below, have 30 and 32
+	// trailing zero bits respectively, t should have less than 30 significant bits.
+	//	t < 1<<30  -> floor(x*(1/Pi)+0.5) < 1<<30 -> x < (1<<30-1) * Pi - 0.5
+	// So, conservatively we can take x < 1<<30.
+	const reduceThreshold = (1u64 << 30): f64;
+	if (math::absf64(x) < reduceThreshold) {
+		// Use Cody-Waite reduction in three parts.
+		// PI1, PI2 and PI3 comprise an extended precision value of PI
+		// such that PI ~= PI1 + PI2 + PI3. The parts are chosen so
+		// that PI1 and PI2 have an approximately equal number of trailing
+		// zero bits. This ensures that t*PI1 and t*PI2 are exact for
+		// large integer values of t. The full precision PI3 ensures the
+		// approximation of PI is accurate to 102 bits to handle cancellation
+		// during subtraction.
+		const PI1 = 3.141592502593994;      // 0x400921fb40000000
+		const PI2 = 1.5099578831723193e-07; // 0x3e84442d00000000
+		const PI3 = 1.0780605716316238e-14; // 0x3d08469898cc5170
+		let t = x / math::PI;
+		t += 0.5;
+		t = (t: i64): f64;
+		return ((x - t*PI1) - t*PI2) - t*PI3;
+	};
+	// Must apply Payne-Hanek range reduction
+	const mask: u64 = 0x7FF;
+	const shift: u64 = 64 - 11 - 1;
+	const bias: u64 = 1023;
+	const fracMask: u64 = 1u64 << shift - 1;
+
+	// Extract out the integer and exponent such that,
+	// x = ix * 2 ** exp.
+	let ix: u64 = math::f64bits(x);
+	let exp: u64 = (ix >> shift & mask) - bias - shift;
+	ix &= fracMask;
+	ix |= 1u64 << shift;
+
+	// mPi is the binary digits of 1/Pi as a u64 array,
+	// that is, 1/Pi = Sum mPi[i]*2^(-64*i).
+	// 19 64-bit digits give 1216 bits of precision
+	// to handle the largest possible float64 exponent.
+	let mPi: [_]u64 = [
+		0x0000000000000000,
+		0x517cc1b727220a94,
+		0xfe13abe8fa9a6ee0,
+		0x6db14acc9e21c820,
+		0xff28b1d5ef5de2b0,
+		0xdb92371d2126e970,
+		0x0324977504e8c90e,
+		0x7f0ef58e5894d39f,
+		0x74411afa975da242,
+		0x74ce38135a2fbf20,
+		0x9cc8eb1cc1a99cfa,
+		0x4e422fc5defc941d,
+		0x8ffc4bffef02cc07,
+		0xf79788c5ad05368f,
+		0xb69b3f6793e584db,
+		0xa7a31fb34f2ff516,
+		0xba93dd63f5f2f8bd,
+		0x9e839cfbc5294975,
+		0x35fdafd88fc6ae84,
+		0x2b0198237e3db5d5,
+	];
+	// Use the exponent to extract the 3 appropriate u64 digits from mPi,
+	// B ~ (z0, z1, z2), such that the product leading digit has the exponent -64.
+	// Note, exp >= 50 since x >= reduceThreshold and exp < 971 for maximum f64.
+	let digit: u64 = (exp + 64): u64 / 64;
+	let bitshift: u64 = (exp + 64): u64 % 64;
+	let z0: u64 = (mPi[digit] << bitshift) | (mPi[digit+1] >> (64 - bitshift));
+	let z1: u64 = (mPi[digit+1] << bitshift) | (mPi[digit+2] >> (64 - bitshift));
+	let z2: u64 = (mPi[digit+2] << bitshift) | (mPi[digit+3] >> (64 - bitshift));
+	// Multiply mantissa by the digits and extract the upper two digits (hi, lo).
+	let (z2hi, z2lo) = math::mulu64(z2, ix);
+	let (z1hi, z1lo) = math::mulu64(z1, ix);
+	let z0lo: u64 = z0 * ix;
+	let (lo, c) = math::addu64(z1lo, z2hi, 0);
+	let (hi, _) = math::addu64(z0lo, z1hi, c);
+	// Find the magnitude of the fraction.
+	let lz: u8 = math::leading_zeros_u64(hi);
+	let e: u64 = (bias - (lz + 1)): u64;
+	// Clear implicit mantissa bit and shift into place.
+	hi = (hi << (lz + 1)) | (lo >> (64 - (lz + 1)));
+	hi >>= 64 - shift;
+	// Include the exponent and convert to a float.
+	hi |= e << shift;
+	x = math::f64frombits(hi);
+	// map to (-Pi/2, Pi/2]
+	if (x > 0.5) {
+		x -= 1f64;
+	};
+	return math::PI * x;
+};
+
+// Taylor series expansion for cosh(2y) - cos(2x)
+fn tanSeries(z: c128) f64 = {
+	const MACHEP = 1f64/(1u64 << 53): f64;
+	let x = math::absf64(2f64 * z.0);
+	let y = math::absf64(2f64 * z.1);
+	x = reducePi(x);
+	x = x * x;
+	y = y * y;
+
+	let x2 = 1f64;
+	let y2 = 1f64;
+	let f = 1f64;
+	let rn = 0f64;
+	let d = 0f64;
+
+	for (true) {
+		rn += 1f64;
+		f *= rn;
+		rn += 1f64;
+		f *= rn;
+		x2 *= x;
+		y2 *= y;
+		let t = y2 + x2;
+		t /= f;
+		d += t;
+
+		rn += 1f64;
+		f *= rn;
+		rn += 1f64;
+		f *= rn;
+		x2 *= x;
+		y2 *= y;
+		t = y2 - x2;
+		t /= f;
+		d += t;
+		if (!(math::absf64(t/d) > MACHEP)) {
+			// Caution: Use ! and > instead of <= for correct behavior if t/d is NaN.
+			// See issue https://github.com/golang/go/issues/17577.
+			break;
+		};
+	};
+	return d;
+};
+
+// Returns the tangent of x.
+export fn tanc128(x: c128) c128 = {
+	if (math::isinf(x.1)) {
+		if (math::isinf(x.0) || math::isnan(x.0)) {
+			return (math::copysign(0f64, x.0), math::copysign(1f64, x.1));
+		};
+		return (math::copysign(0f64, math::sinf64(2f64*x.0)), math::copysign(1f64, x.1));
+	};
+	if (x.0 == 0f64 && math::isnan(x.1)) {
+		return x;
+	};
+	let d = math::cosf64(2f64*x.0) + math::coshf64(2f64*x.1);
+	if (math::absf64(d) < 0.25f64) {
+		d = tanSeries(x);
+	};
+	if (d == 0f64) {
+		return (math::INF, math::INF);
+	};
+	return (math::sinf64(2f64*x.0)/d, math::sinhf64(2f64*x.1)/d);
+};
+
+// Returns the hyperbolic tangent of x.
+export fn tanhc128(x: c128) c128 = {
+	if (math::isinf(x.0)) {
+		if (math::isinf(x.1) || math::isnan(x.1)) {
+			return (math::copysign(1f64, x.0), math::copysign(0f64, x.1));
+		};
+		return (math::copysign(1f64, x.0), math::copysign(0f64, math::sinf64(2f64*x.1)));
+	};
+	if (x.1 == 0f64 && math::isnan(x.0)) {
+		return x;
+	};
+	let d = math::coshf64(2f64*x.0) + math::cosf64(2f64*x.1);
+	if (d == 0f64) {
+		return (math::INF, math::INF);
+	};
+	return (math::sinhf64(2f64*x.0)/d, math::sinf64(2f64*x.1)/d);
+};
+
+// Returns the inverse tangent of x.
+export fn atanc128(x: c128) c128 = {
+	if (x.1 == 0f64) {
+		return (math::atanf64(x.0), x.1);
+	} else if (x.0 == 0f64 && math::absf64(x.1) <= 1f64) {
+		return (x.0, math::atanhf64(x.1));
+	} else if (math::isinf(x.1) || math::isinf(x.0)) {
+		if (math::isnan(x.0)) {
+			return (math::NAN, math::copysign(0f64, x.1));
+		};
+		return (math::copysign(math::PI/2f64, x.0), math::copysign(0f64, x.1));
+	} else if (math::isnan(x.0) || math::isnan(x.1)) {
+		return (math::NAN, math::NAN);
+	};
+	let x2 = x.0 * x.0;
+	let a = 1f64 - x2 - x.1 * x.1;
+	if (a == 0f64) {
+		return (math::NAN, math::NAN);
+	};
+	let t = 0.5f64 * math::atan2f64(2f64*x.0, a);
+	let w = reducePi(t);
+	t = x.1 - 1f64;
+	let b = x2 + t*t;
+	if (b == 0f64) {
+		return (math::NAN, math::NAN);
+	};
+	t = x.1 + 1f64;
+	let c = (x2 + t*t) / b;
+	return (w, 0.25f64*math::logf64(c));
+};
+
+// Returns the inverse hyperbolic tangent of x.
+export fn atanhc128(x: c128) c128 = {
+	let z = (-x.1, x.0); // z = i * x
+	z = atanc128(z);
+	return (z.1, -z.0); // z = -i * z
 };

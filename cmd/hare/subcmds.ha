@@ -68,6 +68,7 @@ fn build(args: []str) void = {
 		('v', "print executed commands"),
 		('D', "ident[:type]=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
+		('L', "libdir", "add directory to linker library search path"),
 		('l', "name", "link with a system library"),
 		('N', "namespace", "override namespace for module"),
 		('o', "path", "set output file name"),
@@ -88,6 +89,8 @@ fn build(args: []str) void = {
 	let goal = goal::EXE;
 	let defines: []str = [];
 	defer free(defines);
+	let libdir: []str = [];
+	defer free(libdir);
 	let libs: []str = [];
 	defer free(libs);
 	let namespace: ast::ident = [];
@@ -102,6 +105,8 @@ fn build(args: []str) void = {
 			append(defines, opt.1);
 		case 'j' =>
 			abort("-j option not implemented yet."); // TODO
+		case 'L' =>
+			append(libdir, opt.1);
 		case 'l' =>
 			append(libs, opt.1);
 		case 'N' =>
@@ -154,7 +159,7 @@ fn build(args: []str) void = {
 	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
-	const plan = mkplan(&ctx, libs, build_target);
+	const plan = mkplan(&ctx, libdir, libs, build_target);
 	defer plan_finish(&plan);
 
 	const ver = match (module::scan(&ctx, input)) {
@@ -283,6 +288,7 @@ fn run(args: []str) void = {
 		('v', "print executed commands"),
 		('D', "ident[:type]=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
+		('L', "libdir", "add directory to linker library search path"),
 		('l', "name", "link with a system library"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
@@ -298,6 +304,8 @@ fn run(args: []str) void = {
 	let verbose = false;
 	let defines: []str = [];
 	defer free(defines);
+	let libdir: []str = [];
+	defer free(libdir);
 	let libs: []str = [];
 	defer free(libs);
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
@@ -309,6 +317,8 @@ fn run(args: []str) void = {
 			append(defines, opt.1);
 		case 'j' =>
 			abort("-j option not implemented yet."); // TODO
+		case 'L' =>
+			append(libdir, opt.1);
 		case 'l' =>
 			append(libs, opt.1);
 		case 't' =>
@@ -351,7 +361,7 @@ fn run(args: []str) void = {
 	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
-	const plan = mkplan(&ctx, libs, build_target);
+	const plan = mkplan(&ctx, libdir, libs, build_target);
 	defer plan_finish(&plan);
 
 	const ver = match (module::scan(&ctx, input)) {
@@ -393,6 +403,7 @@ fn test(args: []str) void = {
 		('v', "print executed commands"),
 		('D', "ident[:type]=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
+		('L', "libdir", "add directory to linker library search path"),
 		('l', "name", "link with a system library"),
 		('o', "path", "set output file name"),
 		('T', "tags...", "set build tags"),
@@ -413,6 +424,8 @@ fn test(args: []str) void = {
 	let verbose = false;
 	let defines: []str = [];
 	defer free(defines);
+	let libdir: []str = [];
+	defer free(libdir);
 	let libs: []str = [];
 	defer free(libs);
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
@@ -424,6 +437,8 @@ fn test(args: []str) void = {
 			append(defines, opt.1);
 		case 'j' =>
 			abort("-j option not implemented yet."); // TODO
+		case 'L' =>
+			append(libdir, opt.1);
 		case 'l' =>
 			append(libs, opt.1);
 		case 't' =>
@@ -468,7 +483,7 @@ fn test(args: []str) void = {
 	const ctx = module::context_init(tags, defines, HAREPATH);
 	defer module::context_finish(&ctx);
 
-	const plan = mkplan(&ctx, libs, build_target);
+	const plan = mkplan(&ctx, libdir, libs, build_target);
 	defer plan_finish(&plan);
 
 	let depends: []*task = [];

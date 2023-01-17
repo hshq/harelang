@@ -188,7 +188,7 @@ export fn decodestr(s: str) ([]u8 | io::error) = {
 	defer free(s);
 	assert(bytes::equal(s, [0xCA, 0xFE, 0xBA, 0xBE, 0xDE, 0xAD, 0xF0, 0x0D]));
 
-	decodestr("this is not hex") as errors::invalid: void;
+	decodestr("this is not hex") as io::error as errors::invalid: void;
 };
 
 // Outputs a dump of hex data alongside the offset and an ASCII representation

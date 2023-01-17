@@ -106,9 +106,9 @@ export fn unlinkat(dirfd: int, path: path, flags: int) (void | errno) = {
 
 export fn linkat(
 	olddirfd: int,
-	oldpath: str,
+	oldpath: path,
 	newdirfd: int,
-	newpath: str,
+	newpath: path,
 	flags: int,
 ) (void | errno) = {
 	let oldpath = kpath(oldpath)?;
@@ -120,9 +120,9 @@ export fn linkat(
 };
 
 export fn symlinkat(
-	target: str,
+	target: path,
 	newdirfd: int,
-	linkpath: str,
+	linkpath: path,
 ) (void | errno) = {
 	let target = kpath(target)?;
 	static let linkpathbuf: [PATH_MAX + 1]u8 = [0...];
@@ -138,8 +138,8 @@ export fn mknodat(
 	dev: dev_t,
 ) (void | errno) = {
 	let path = kpath(path)?;
-	wrap_return(syscall3(SYS_mknodat,
-		path: uintptr: u64, mode: u64, dev: u64))?;
+	wrap_return(syscall4(SYS_mknodat,
+		dirfd: u64, path: uintptr: u64, mode: u64, dev: u64))?;
 };
 
 export fn chmod(path: path, mode: uint) (void | errno) = {
@@ -168,9 +168,9 @@ export fn fchownat(dirfd: int, path: path, uid: uint, gid: uint, flags: int) (vo
 
 export fn renameat(
 	olddirfd: int,
-	oldpath: str,
+	oldpath: path,
 	newdirfd: int,
-	newpath: str,
+	newpath: path,
 	flags: uint,
 ) (void | errno) = {
 	let oldpath = kpath(oldpath)?;
@@ -818,7 +818,7 @@ export fn ptrace(
 	addr: uintptr,
 	data: uintptr,
 ) (u64 | errno) = {
-	// PTRACE_PEEK* requests write into *data instead of just returing
+	// PTRACE_PEEK* requests write into *data instead of just returning
 	// the word that they read
 	let result = 0u64;
 	const wrdata = request >= PTRACE_PEEKTEXT && request <= PTRACE_PEEKUSER;
@@ -871,4 +871,36 @@ export fn fallocate(fd: int, mode: int, off: i64, ln: i64) (void | errno) = {
 
 export fn posix_fallocate(fd: int, off: i64, ln: i64) (void | errno) = {
 	fallocate(fd, 0, off, ln)?;
+};
+
+export fn flock(fd: int, op: int) (int | errno) = {
+	return wrap_return(syscall2(SYS_flock,
+		fd: u64, op: u64))?: int;
+};
+
+export fn inotify_init() (int | errno) = {
+	return wrap_return(syscall1(SYS_inotify_init1, 0))?: int;
+};
+
+export fn inotify_init1(flags: int) (int | errno) = {
+	return wrap_return(syscall1(SYS_inotify_init1, flags: u64))?: int;
+};
+
+export fn inotify_add_watch(fd: int, path: path, mask: u32) (int | errno) = {
+	let path = kpath(path)?;
+	return wrap_return(syscall3(SYS_inotify_add_watch,
+		fd: u64, path: uintptr: u64, mask))?: int;
+};
+
+export fn inotify_rm_watch(fd: int, wd: int) (int | errno) = {
+	return wrap_return(syscall2(SYS_inotify_rm_watch,
+		fd: u64, wd: u64))?: int;
+};
+
+export type inotify_event = struct {
+	wd: int,
+	mask: u32,
+	cookie: u32,
+	length: u32,
+	name: *const char
 };

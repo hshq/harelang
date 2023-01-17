@@ -62,7 +62,7 @@ use io;
 	let c = salsa20();
 	defer io::close(&c)!;
 
-	xsalsa20_init(&c, &cipherbuf, &key, &nonce);
+	xsalsa20_init(&c, &cipherbuf, key, nonce);
 
 	io::writeall(&c, msg)!;
 	assert(bytes::equal(cipher, result));
@@ -115,7 +115,7 @@ use io;
 	let c = salsa20();
 	defer io::close(&c)!;
 
-	xsalsa20_init(&c, &cipherbuf, &key, &nonce);
+	xsalsa20_init(&c, &cipherbuf, key, nonce);
 	setctr(&c, types::U32_MAX);
 
 	io::writeall(&c, msg)!;
@@ -170,7 +170,7 @@ use io;
 	let c = salsa20();
 	defer io::close(&c)!;
 
-	xsalsa20_init(&c, &cipherbuf, &key, &nonce);
+	xsalsa20_init(&c, &cipherbuf, key, nonce);
 	setctr(&c, types::U64_MAX);
 
 	io::writeall(&c, msg)!;

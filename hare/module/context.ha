@@ -5,6 +5,7 @@
 use dirs;
 use fmt;
 use fs;
+use glob;
 use hare::ast;
 use os;
 use path;
@@ -35,26 +36,34 @@ export fn context_init(tags: []tag, defs: []str, harepath: str) context = {
 		fs = os::cwd,
 		tags = tags,
 		defines = defs,
-		paths = match (os::getenv("HAREPATH")) {
-		case void =>
-			// TODO: Use strings::tokenize here
-			let sl = strings::split(harepath, ":");
-			defer free(sl);
-			let path: []str = alloc([], len(sl) + 1);
-			for (let i = 0z; i < len(sl); i += 1) {
-				append(path, strings::dup(sl[i]));
+		paths = {
+			let harepath = match (os::getenv("HAREPATH")) {
+			case void =>
+				yield harepath;
+			case let s: str =>
+				yield s;
 			};
-			append(path, strings::dup("vendor"));
-			append(path, strings::dup("."));
-			yield path;
-		case let s: str =>
-			let sl = strings::split(s, ":");
-			defer free(sl);
-			let path: []str = alloc([], len(sl) + 1);
-			for (let i = 0z; i < len(sl); i += 1) {
-				append(path, strings::dup(sl[i]));
+
+			let path: []str = [];
+			let tok = strings::tokenize(harepath, ":");
+			for (true) match (strings::next_token(&tok)) {
+			case void =>
+				break;
+			case let s: str =>
+				append(path, strings::dup(s));
 			};
-			append(path, strings::dup("vendor"));
+
+			let vendor = glob::glob("vendor/*");
+			defer glob::finish(&vendor);
+			for (true) match (glob::next(&vendor)) {
+			case void =>
+				break;
+			case glob::failure =>
+				void; // XXX: Anything else?
+			case let s: str =>
+				append(path, strings::dup(s));
+			};
+
 			append(path, strings::dup("."));
 			yield path;
 		},

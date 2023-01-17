@@ -130,6 +130,12 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 		module = void,
 	});
 
+	if (len(plan.libdir) != 0) {
+		for (let i = 0z; i < len(plan.libdir); i += 1) {
+			append(task.cmd, strings::concat("-L", plan.libdir[i]));
+		};
+	};
+
 	// Using --gc-sections will not work when using cc as the linker
 	if (len(plan.libs) == 0 && task.cmd[0] == plan.target.ld_cmd) {
 		append(task.cmd, "--gc-sections");

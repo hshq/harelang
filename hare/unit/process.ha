@@ -405,7 +405,7 @@ fn process_return(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	case let aexpr: *ast::expr =>
 		yield process_expr(ctx, aexpr)?;
 	};
-	// TODO: assert(types::assignable(ctx.fntype.result, rval.type));
+	// TODO: assert(types::assignable(ctx.fntype.result as *types::func, rval.type));
 	return alloc(expr {
 		start = aexpr.start,
 		end = aexpr.end,

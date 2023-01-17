@@ -374,6 +374,7 @@ fn fs_symlink(fs: *fs::fs, target: str, path: str) (void | fs::error) = {
 fn fs_close(fs: *fs::fs) void = {
 	let fs = fs: *os_filesystem;
 	rt::close(fs.dirfd)!;
+	free(fs);
 };
 
 // Based on musl's readdir

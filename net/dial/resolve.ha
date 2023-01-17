@@ -155,11 +155,10 @@ fn resolve_addr(addr: str) ([]ip::addr | error) = {
 fn collect_answers(addrs: *[]ip::addr, answers: *[]dns::rrecord) void = {
 	for (let i = 0z; i < len(answers); i += 1) {
 		match (answers[i].rdata) {
-		// XXX: harec bug prevents us from casting directly to ip::addr
 		case let addr: dns::aaaa =>
-			append(addrs, addr: ip::addr6: ip::addr);
+			append(addrs, addr: ip::addr);
 		case let addr: dns::a =>
-			append(addrs, addr: ip::addr4: ip::addr);
+			append(addrs, addr: ip::addr);
 		case => void;
 		};
 	};

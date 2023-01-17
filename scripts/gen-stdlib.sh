@@ -10,28 +10,20 @@ mod_var() {
 
 gen_srcs() {
 	platform=any
-	# while getopts p: name
-	# do
-	# 	case $name in
-	# 	p)
-	# 		platform="$OPTARG"
-	# 		;;
-	# 	?)
-	# 		printf 'Invalid use of gen_srcs' >&2
-	# 		exit 1
-	# 		;;
-	# 	esac
-	# done
-	# shift $(($OPTIND - 1))
-	if [ "$1" == "-p" ]
-	then
-		platform=$2
-		shift 2
-	elif [ "${1:0:2}" == "-p" ]
-	then
-		platform="${1:2}"
-		shift
-	fi
+	OPTIND=1
+	while getopts p: name
+	do
+		case $name in
+		p)
+			platform="$OPTARG"
+			;;
+		?)
+			printf 'Invalid use of gen_srcs' >&2
+			exit 1
+			;;
+		esac
+	done
+	shift $(($OPTIND - 1))
 
 	mod="$1"
 	shift
@@ -55,28 +47,20 @@ gen_srcs() {
 
 gen_ssa() {
 	platform=any
-	# while getopts p: name
-	# do
-	# 	case $name in
-	# 	p)
-	# 		platform="$OPTARG"
-	# 		;;
-	# 	?)
-	# 		printf 'Invalid use of gen_ssa' >&2
-	# 		exit 1
-	# 		;;
-	# 	esac
-	# done
-	# shift $(($OPTIND - 1))
-	if [ "$1" == "-p" ]
-	then
-		platform=$2
-		shift 2
-	elif [ "${1:0:2}" == "-p" ]
-	then
-		platform="${1:2}"
-		shift
-	fi
+	OPTIND=1
+	while getopts p: name
+	do
+		case $name in
+		p)
+			platform="$OPTARG"
+			;;
+		?)
+			printf 'Invalid use of gen_ssa' >&2
+			exit 1
+			;;
+		esac
+	done
+	shift $(($OPTIND - 1))
 
 	mod="$1"
 	shift
@@ -103,28 +87,20 @@ EOF
 
 gen_lib() {
 	platform=any
-	# while getopts p: name
-	# do
-	# 	case $name in
-	# 	p)
-	# 		platform="$OPTARG"
-	# 		;;
-	# 	?)
-	# 		printf 'Invalid use of gen_lib' >&2
-	# 		exit 1
-	# 		;;
-	# 	esac
-	# done
-	# shift $(($OPTIND - 1))
-	if [ "$1" == "-p" ]
-	then
-		platform=$2
-		shift 2
-	elif [ "${1:0:2}" == "-p" ]
-	then
-		platform="${1:2}"
-		shift
-	fi
+	OPTIND=1
+	while getopts p: name
+	do
+		case $name in
+		p)
+			platform="$OPTARG"
+			;;
+		?)
+			printf 'Invalid use of gen_lib' >&2
+			exit 1
+			;;
+		esac
+	done
+	shift $(($OPTIND - 1))
 
 	printf "# gen_lib $1 ($platform)\n"
 

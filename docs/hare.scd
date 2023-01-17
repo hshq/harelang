@@ -9,6 +9,7 @@ hare - compiles, runs, and tests Hare programs
 *hare* build [-cv]++
 	[-D _ident[:type]=value_]++
 	[-j _jobs_]++
+	[-L libdir]++
 	[-l _name_]++
 	[-o _path_]++
 	[-t _arch_]++
@@ -20,6 +21,7 @@ hare - compiles, runs, and tests Hare programs
 *hare* run [-v]++
 	[-D _ident[:type]=value_]++
 	[-l _name_]++
+	[-L libdir]++
 	[-j _jobs_]++
 	[-T _tags_] [-X _tags_]++
 	[_path_] [_args_...]
@@ -27,6 +29,7 @@ hare - compiles, runs, and tests Hare programs
 *hare* test [-v]++
 	[-D _ident[:type]=value_]++
 	[-l _name_]++
+	[-L libdir]++
 	[-j _jobs_]++
 	[-T _tags_] [-X _tags_]++
 	_tests_
@@ -88,6 +91,9 @@ value, and optional context, separated by tabs.
 	*pkg-config --libs* (see *pkg-config*(1)) to obtain the appropriate
 	linker flags.
 
+*-L libdir*
+	Add directory to the linker library search path.
+
 *-o* _path_
 	Set the output file to the given path.
 
@@ -137,6 +143,9 @@ value, and optional context, separated by tabs.
 	*pkg-config --libs* (see *pkg-config*(1)) to obtain the appropriate
 	linker flags.
 
+*-L libdir*
+	Add directory to the linker library search path.
+
 *-T* _tags_
 	Adds additional build tags. See *CUSTOMIZING BUILD TAGS*.
 
@@ -164,6 +173,9 @@ value, and optional context, separated by tabs.
 	Link with the named system library. The name is passed to
 	*pkg-config --libs* (see *pkg-config*(1)) to obtain the appropriate
 	linker flags.
+
+*-L libdir*
+	Add directory to the linker library search path.
 
 *-T* _tags_
 	Adds additional build tags. See *CUSTOMIZING BUILD TAGS*.

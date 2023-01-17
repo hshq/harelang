@@ -35,6 +35,8 @@ export type stream = struct {
 // after use to wipe sensitive data from memory.
 export fn salsa20() stream = {
 	return stream {
+		stream = &cipher::xorstream_vtable,
+		h = 0,
 		keybuf = &keybuf,
 		advance = &advance,
 		finish = &finish,
@@ -46,9 +48,9 @@ export fn salsa20() stream = {
 
 fn init(
 	state: *[16]u32,
-	key: *[KEYSIZE]u8,
-	nonce: *[8]u8,
-	ctr: *[8]u8
+	key: []u8,
+	nonce: []u8,
+	ctr: []u8
 ) void = {
 	state[0] = magic[0];
 	state[1] = endian::legetu32(key[0..4]);
@@ -72,14 +74,15 @@ fn init(
 export fn salsa20_init(
 	s: *stream,
 	h: io::handle,
-	key: *[KEYSIZE]u8,
-	nonce: *[NONCESIZE]u8,
+	key: []u8,
+	nonce: []u8,
 ) void = {
+	assert(len(key) == KEYSIZE);
+	assert(len(nonce) == NONCESIZE);
+
 	let counter: [8]u8 = [0...];
 	init(&s.state, key, nonce, &counter);
-	s.xorused = BLOCKSIZE;
-
-	cipher::xorstream_init(s, h);
+	s.h = h;
 };
 
 // Initialize an XSalsa20 stream. XSalsa20 differs from Salsa20 via the use of a
@@ -87,9 +90,12 @@ export fn salsa20_init(
 export fn xsalsa20_init(
 	s: *stream,
 	h: io::handle,
-	key: *[KEYSIZE]u8,
-	nonce: *[XNONCESIZE]u8
+	key: []u8,
+	nonce: []u8
 ) void = {
+	assert(len(key) == KEYSIZE);
+	assert(len(nonce) == XNONCESIZE);
+
 	let state: [16]u32 = [0...];
 	init(&state, key, nonce[0..8]: *[8]u8, nonce[8..16]: *[8]u8);
 	hblock(state[..], &state, 20);

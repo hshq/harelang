@@ -56,6 +56,7 @@ type plan = struct {
 	scheduled: []*task,
 	complete: []*task,
 	script: str,
+	libdir: []str,
 	libs: []str,
 	environ: [](str, str),
 	modmap: [64][]modcache,
@@ -72,6 +73,7 @@ type plan_progress = struct {
 
 fn mkplan(
 	ctx: *module::context,
+	libdir: []str,
 	libs: []str,
 	target: *target,
 ) plan = {
@@ -118,6 +120,7 @@ fn mkplan(
 		environ = alloc([
 			(strings::dup("HARECACHE"), strings::dup(ctx.cache)),
 		]),
+		libdir = libdir,
 		libs = libs,
 		progress = plan_progress {
 			tty = if (tty::isatty(os::stderr)) os::stderr else void,

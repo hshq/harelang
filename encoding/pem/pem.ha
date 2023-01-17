@@ -112,8 +112,13 @@ export fn next(dec: *decoder) ((str, pemdecoder) | io::EOF | io::error) = {
 		return (strio::string(&dec.label), pemdecoder {
 			stream = &pemdecoder_vt,
 			in = &dec.in,
+			b64_in = b64stream {
+				stream = &b64stream_r_vt,
+				in = &dec.in,
+			},
+			// forcefully zero field (it's actually set in pem_read)
+			b64 = *(&([0...]: [size(base64::decoder)]u8): *base64::decoder),
 			b64_ready = false,
-			...
 		});
 	};
 
@@ -128,10 +133,6 @@ fn pem_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	const st = st: *pemdecoder;
 	assert(st.stream.reader == &pem_read);
 	if (!st.b64_ready) {
-		st.b64_in = b64stream {
-			stream = &b64stream_r_vt,
-			in = st.in,
-		};
 		st.b64 = base64::newdecoder(&base64::std_encoding, &st.b64_in);
 		st.b64_ready = true;
 	};

@@ -690,7 +690,7 @@ fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		};
 	const cond = alloc(expr(lexer)?);
 	const afterthought: nullable *ast::expr =
-		match (peek(lexer, ltok::SEMICOLON)) {
+		match (peek(lexer, ltok::SEMICOLON)?) {
 		case void =>
 			yield null;
 		case lex::token =>
@@ -917,7 +917,7 @@ fn plain_struct(
 		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
 		case ltok::RBRACE => break;
 		case ltok::COMMA =>
-			if (try(lexer, ltok::RBRACE) is lex::token) {
+			if (try(lexer, ltok::RBRACE)? is lex::token) {
 				break;
 			};
 		};
@@ -1016,7 +1016,7 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 	};
 
 	let tok = match (try(lexer, ltok::LPAREN, ltok::DOT,
-		ltok::LBRACKET, ltok::QUESTION, ltok::LNOT)) {
+		ltok::LBRACKET, ltok::QUESTION, ltok::LNOT)?) {
 	case void =>
 		return lvalue;
 	case let tok: lex::token =>
@@ -1222,7 +1222,7 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (try(lexer,
 		ltok::PLUS, ltok::MINUS, ltok::BNOT,
 		ltok::LNOT, ltok::TIMES, ltok::BAND,
-		ltok::SWITCH, ltok::MATCH, ltok::COLON, ltok::LBRACE)) {
+		ltok::SWITCH, ltok::MATCH, ltok::COLON, ltok::LBRACE)?) {
 	case void =>
 		return builtin(lexer);
 	case let tok: lex::token =>

@@ -26,7 +26,7 @@ fn progress_update(plan: *plan) void = {
 	const counter_width = 1 + total_width + 1 + total_width + 3;
 	const progress_width = width - counter_width - 2 - plan.progress.maxwidth;
 
-	fmt::fprintf(tty, "\r\x1b[K[{%}/{}] [",
+	fmt::fprintf(tty, "\x1b[G\x1b[K[{%}/{}] [",
 		complete, &fmt::modifiers {
 			width = total_width: uint,
 			...
@@ -55,7 +55,7 @@ fn progress_clear(plan: *plan) void = {
 	case =>
 		return;
 	};
-	fmt::fprint(tty, "\r\x1b[K")!;
+	fmt::fprint(tty, "\x1b[G\x1b[K")!;
 };
 
 fn progress_increment(plan: *plan) void = {

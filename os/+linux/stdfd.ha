@@ -6,11 +6,15 @@ use io;
 use rt;
 
 let stdin_bufio: bufio::bufstream = bufio::bufstream {
+	// Will be overwritten, but must be initialized
+	stream = null: io::stream,
 	source = 0,
 	...
 };
 
 let stdout_bufio: bufio::bufstream = bufio::bufstream {
+	// Will be overwritten, but must be initialized
+	stream = null: io::stream,
 	source = 1,
 	...
 };

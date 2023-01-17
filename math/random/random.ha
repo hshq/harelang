@@ -46,6 +46,17 @@ export fn u64n(r: *random, n: u64) u64 = {
 	return out % n;
 };
 
+// Returns a pseudo-random 64-bit floating-point number in the interval
+// [0.0, 1.0)
+export fn f64rand(r: *random) f64 = {
+	// 1.0 x 2^-53
+	const d: f64 = 1.1102230246251565e-16;
+	// Take the upper 53 bits
+	let n = next(r) >> 11;
+
+	return d * n: f64;
+};
+
 @test fn rng() void = {
 	let r = init(0);
 	let expected: [_]u64 = [
@@ -68,5 +79,8 @@ export fn u64n(r: *random, n: u64) u64 = {
 	for (let i = 0z; i < 1000; i += 1) {
 		// Powers of 2 have a separate codepath
 		assert(u64n(&r, 2) < 2);
+	};
+	for (let i = 0z; i < 1000; i += 1) {
+		assert(f64rand(&r) < 1.0);
 	};
 };

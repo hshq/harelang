@@ -59,23 +59,28 @@ export fn buffered(
 	wbuf: []u8,
 ) bufstream = {
 	static let flush_default = ['\n': u8];
-	let s = bufstream {
+
+	let stream =
+		if (len(rbuf) != 0 && len(wbuf) != 0) {
+			assert(rbuf: *[*]u8 != wbuf: *[*]u8,
+				"Cannot use bufio::buffered with same buffer for reads and writes");
+			yield &buffered_vtable_rw;
+		} else if (len(rbuf) != 0) {
+			yield &buffered_vtable_r;
+		} else if (len(wbuf) != 0) {
+			yield &buffered_vtable_w;
+		} else {
+			abort("Must provide at least one buffer to bufio::buffered");
+		};
+
+	return bufstream {
+		stream = stream,
 		source = src,
 		rbuffer = rbuf,
 		wbuffer = wbuf,
 		flush = flush_default,
 		...
 	};
-	if (len(rbuf) != 0 && len(wbuf) != 0) {
-		assert(rbuf: *[*]u8 != wbuf: *[*]u8,
-			"Cannot use bufio::buffered with same buffer for reads and writes");
-		s.stream = &buffered_vtable_rw;
-	} else if (len(rbuf) != 0) {
-		s.stream = &buffered_vtable_r;
-	} else if (len(wbuf) != 0) {
-		s.stream = &buffered_vtable_w;
-	} else abort("Must provide at least one buffer to bufio::buffered");
-	return s;
 };
 
 // Flushes pending writes to the underlying stream.
