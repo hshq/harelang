@@ -123,7 +123,8 @@ fn mkplan(
 		libdir = libdir,
 		libs = libs,
 		progress = plan_progress {
-			tty = if (tty::isatty(os::stderr)) os::stderr else void,
+			tty = if (tty::isatty(os::stderr_file)) os::stderr_file
+				else void,
 			...
 		},
 		...
@@ -277,7 +278,7 @@ fn execute(
 
 	const pipe = if (plan.progress.tty is io::file) {
 		const pipe = exec::pipe();
-		exec::addfile(&cmd, os::stderr, pipe.1);
+		exec::addfile(&cmd, os::stderr_file, pipe.1);
 		yield pipe;
 	} else (0: io::file, 0: io::file);
 

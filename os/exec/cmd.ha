@@ -166,7 +166,7 @@ export fn addfile(
 export fn closestd(cmd: *command) void = {
 	addfile(cmd, os::stdin_file, closefd);
 	addfile(cmd, os::stdout_file, closefd);
-	addfile(cmd, os::stderr, closefd);
+	addfile(cmd, os::stderr_file, closefd);
 };
 
 // Redirects all standard files (stdin, stdout, and stderr) to /dev/null or the
@@ -174,7 +174,7 @@ export fn closestd(cmd: *command) void = {
 export fn nullstd(cmd: *command) void = {
 	addfile(cmd, os::stdin_file, nullfd);
 	addfile(cmd, os::stdout_file, nullfd);
-	addfile(cmd, os::stderr, nullfd);
+	addfile(cmd, os::stderr_file, nullfd);
 };
 
 // Configures the child process's working directory. This does not affect the
