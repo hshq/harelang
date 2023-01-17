@@ -45,12 +45,7 @@ fn init_colors() void = {
 	const expr = regex::compile(`([a-z][a-z]*)=(_|[0-9;]*)`)!;
 	defer regex::finish(&expr);
 
-	const matches = match (regex::findall(&expr, env_colors)) {
-	case void =>
-		return;
-	case let matches: [][]regex::capture =>
-		yield matches;
-	};
+	const matches = regex::findall(&expr, env_colors);
 	defer regex::free_matches(matches);
 
 	for (let i = 0z; i < len(matches); i += 1) :colors {

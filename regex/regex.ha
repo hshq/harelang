@@ -773,16 +773,21 @@ export fn test(re: *regex, string: str) bool = {
 
 // Attempts to match a regular expression against a string and returns the
 // longest leftmost match, or void if there is no match.
-export fn find(re: *regex, string: str) (void | []capture) = {
+export fn find(re: *regex, string: str) []capture = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
 	let str_bytesize = 0z;
-	return search(re, string, &str_iter, &str_idx, &str_bytesize, true);
+	match (search(re, string, &str_iter, &str_idx, &str_bytesize, true)) {
+	case let m: []capture =>
+		return m;
+	case void =>
+		return [];
+	};
 };
 
 // Attempts to match a regular expression against a string and returns all
 // non-overlapping matches, or void if there are no matches.
-export fn findall(re: *regex, string: str) (void | [][]capture) = {
+export fn findall(re: *regex, string: str) [][]capture = {
 	let res: [][]capture = alloc([]);
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
@@ -803,9 +808,6 @@ export fn findall(re: *regex, string: str) (void | [][]capture) = {
 			};
 		case void => break;
 		};
-	};
-	if (len(res) == 0) {
-		return void;
 	};
 	return res;
 };
