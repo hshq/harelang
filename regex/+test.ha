@@ -15,44 +15,51 @@ fn run_find_case(
 	case let re: regex => yield re;
 	case let e: error =>
 		if (expected == matchres::MATCH) {
-			fmt::println(e)!;
-			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it errored",
-				expr, string);
+			fmt::errorln(e)!;
+			fmt::errorfln("Expected expression /{}/ to match string \"{}\", but it errored",
+				expr, string)!;
+			abort();
 		};
 		if (expected == matchres::NOMATCH) {
-			fmt::println(e)!;
-			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it errored",
-				expr, string);
+			fmt::errorln(e)!;
+			fmt::errorfln("Expected expression /{}/ to not match string \"{}\", but it errored",
+				expr, string)!;
+			abort();
 		};
 		return;
 	};
 
 	if (expected == matchres::ERROR) {
-		fmt::fatalf("Expected expression /{}/ to have error caught during compilation, but it did not",
-			expr);
+		fmt::errorfln("Expected expression /{}/ to have error caught during compilation, but it did not",
+			expr)!;
+		abort();
 	};
 	defer finish(&re);
 
 	match (find(&re, string)) {
 	case void =>
 		if (expected == matchres::MATCH) {
-			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it did not",
-				expr, string);
+			fmt::errorfln("Expected expression /{}/ to match string \"{}\", but it did not",
+				expr, string)!;
+			abort();
 		};
 
 	case let captures: []capture =>
 		defer free_captures(captures);
 		if (expected == matchres::NOMATCH) {
-			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
-				expr, string);
+			fmt::errorfln("Expected expression /{}/ to not match string \"{}\", but it did",
+				expr, string)!;
+			abort();
 		};
 		if (start: size != captures[0].start) {
-			fmt::fatalf("Expected start of main capture to be {} but it was {}",
-				start, captures[0].start);
+			fmt::errorfln("Expected start of main capture to be {} but it was {}",
+				start, captures[0].start)!;
+			abort();
 		};
 		if (end: size != captures[0].end) {
-			fmt::fatalf("Expected end of main capture to be {} but it was {}",
-				end, captures[0].end);
+			fmt::errorfln("Expected end of main capture to be {} but it was {}",
+				end, captures[0].end)!;
+			abort();
 		};
 	};
 };
@@ -85,47 +92,47 @@ fn run_findall_case(
 	const re = match (compile(expr)) {
 	case let re: regex => yield re;
 	case let e: error =>
-		if (expected == matchres::MATCH) {
-			fmt::println(e)!;
-			fmt::fatalf("Expected expression /{}/ to match, but it errored",
-				expr, string);
-		};
-		if (expected == matchres::NOMATCH) {
-			fmt::println(e)!;
-			fmt::fatalf("Expected expression /{}/ to not match, but it errored",
-				expr, string);
+		if (expected != matchres::ERROR) {
+			fmt::errorln(e)!;
+			fmt::errorfln("Expected expression /{}/ to compile, but it errored",
+				expr)!;
+			abort();
 		};
 		return;
 	};
 	defer finish(&re);
 
 	if (expected == matchres::ERROR) {
-		fmt::fatalf("Expected expression /{}/ to have error caught during compilation, but it did not",
-			expr);
+		fmt::errorfln("Expected expression /{}/ to have error caught during compilation, but it did not",
+			expr)!;
+		abort();
 	};
 
 	match (findall(&re, string)) {
 	case void =>
 		if (expected == matchres::MATCH) {
-			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it did not",
-				expr, string);
+			fmt::errorfln("Expected expression /{}/ to match string \"{}\", but it did not",
+				expr, string)!;
+			abort();
 		};
 
 	case let matches: [][]capture =>
 		defer free_matches(matches);
 		if (expected == matchres::NOMATCH) {
-			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
-				expr, string);
+			fmt::errorfln("Expected expression /{}/ to not match string \"{}\", but it did",
+				expr, string)!;
+			abort();
 		};
 		if (count != len(matches)) {
-			fmt::fatalf("Expected to find {} matches but found {}",
-				count, len(matches));
+			fmt::errorfln("Expected to find {} matches but found {}",
+				count, len(matches))!;
+			abort();
 		};
 		for (let i = 0z; i < len(matches); i += 1) {
 			if (matches[i][0].content != targets[i]) {
-				fmt::printfln("Expected submatch to be {} but it was {}",
+				fmt::errorfln("Expected submatch to be {} but it was {}",
 					targets[i], matches[i][0].content)!;
-				assert(false);
+				abort();
 			};
 		};
 	};
