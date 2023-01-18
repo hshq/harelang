@@ -46,17 +46,31 @@ fn x86ni_init(b: *block, key: []u8) void = {
 };
 
 fn x86ni_encrypt(b: *cipher::block, dest: []u8, src: []u8) void = {
+	assert(len(dest) == len(src) && len(dest) % BLOCKSIZE == 0);
 	let b = b: *block;
 	const expkeylen = (b.rounds + 1) << 4;
 	let enc = b.expkey[..expkeylen];
-	x86ni_asencrypt(enc, dest, src);
+
+	// XXX loop could be done in assembly
+	for (len(src) > 0) {
+		x86ni_asencrypt(enc, dest, src);
+		src = src[BLOCKSIZE..];
+		dest = dest[BLOCKSIZE..];
+	};
 };
 
 fn x86ni_decrypt(b: *cipher::block, dest: []u8, src: []u8) void = {
+	assert(len(dest) == len(src) && len(dest) % BLOCKSIZE == 0);
 	let b = b: *block;
 	const expkeylen = (b.rounds + 1) << 4;
 	let dec = b.expkey[EXPKEYLEN256..];
-	x86ni_asdecrypt(dec[..expkeylen], dest, src);
+
+	// XXX loop could be done in assembly
+	for (len(src) > 0) {
+		x86ni_asdecrypt(dec[..expkeylen], dest, src);
+		src = src[BLOCKSIZE..];
+		dest = dest[BLOCKSIZE..];
+	};
 };
 
 // Expands encryption and decryption key and returns the size of the round keys.
