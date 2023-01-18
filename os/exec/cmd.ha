@@ -42,7 +42,7 @@ export fn cmd(name: str, args: str...) (command | error) = {
 		argv = alloc([], len(args) + 1),
 		env = strings::dupall(os::getenvs()),
 		files = [],
-		...
+		dir = "",
 	};
 	append(cmd.argv, name);
 	append(cmd.argv, args...);
@@ -175,6 +175,13 @@ export fn nullstd(cmd: *command) void = {
 	addfile(cmd, os::stdin_file, nullfd);
 	addfile(cmd, os::stdout_file, nullfd);
 	addfile(cmd, os::stderr, nullfd);
+};
+
+// Configures the child process's working directory. This does not affect the
+// process environment. The path is borrowed from the input, and must outlive
+// the command.
+export fn chdir(cmd: *command, dir: str) void = {
+	cmd.dir = dir;
 };
 
 fn lookup(name: str) (platform_cmd | void | error) = {

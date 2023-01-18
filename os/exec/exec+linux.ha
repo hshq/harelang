@@ -150,6 +150,10 @@ fn platform_exec(cmd: *command) error = {
 		};
 	};
 
+	if (cmd.dir != "") {
+		os::chdir(cmd.dir)?;
+	};
+
 	return errors::errno(rt::execveat(cmd.platform,
 		"\0", argv: *[*]nullable *const char,
 		envp: *[*]nullable *const char, rt::AT_EMPTY_PATH));
