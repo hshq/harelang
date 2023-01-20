@@ -825,7 +825,7 @@ $(HARECACHE)/crypto/aes/xts/crypto_aes_xts-any.ssa: $(stdlib_crypto_aes_xts_any_
 stdlib_crypto_argon2_any_srcs = \
 	$(STDLIB)/crypto/argon2/argon2.ha
 
-$(HARECACHE)/crypto/argon2/crypto_argon2-any.ssa: $(stdlib_crypto_argon2_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_blake2b_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
+$(HARECACHE)/crypto/argon2/crypto_argon2-any.ssa: $(stdlib_crypto_argon2_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_blake2b_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/argon2
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::argon2 \
@@ -3047,7 +3047,7 @@ testlib_crypto_argon2_any_srcs = \
 	$(STDLIB)/crypto/argon2/argon2.ha \
 	$(STDLIB)/crypto/argon2/+test.ha
 
-$(TESTCACHE)/crypto/argon2/crypto_argon2-any.ssa: $(testlib_crypto_argon2_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_blake2b_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+$(TESTCACHE)/crypto/argon2/crypto_argon2-any.ssa: $(testlib_crypto_argon2_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_blake2b_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/argon2
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::argon2 \

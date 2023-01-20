@@ -2,6 +2,8 @@
 // (c) 2021-2022 Armin Preiml <apreiml@strohwolke.at>
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 use bytes;
+use encoding::hex;
+use strings;
 
 @test fn mode_d_one_pass() void = {
 	let pass: [32]u8 = [1...];
@@ -127,5 +129,118 @@ use bytes;
 	argon2id(result[..], pass, salt, &cfg)!;
 
 	assert(bytes::equal(result, expected));
+};
+
+type tcase = struct {
+	c: config,
+	m: mode,
+	h: str,
+};
+
+@test fn samples() void = {
+	const pass = strings::toutf8("trustno1");
+	const salt = strings::toutf8("abcdefgh");
+
+	const tests: [_]tcase = [
+		// XXX disabled for now because it's slow
+		// tcase {
+		// 	c = low_mem_config,
+		// 	m = mode::ID,
+		// 	h = "8974537c53677aae532b319af700bb4232a0d74eee7d57296b2a3f8303a6bafe",
+		// },
+		// tcase {
+		// 	c = default_config,
+		// 	m = mode::ID,
+		// 	h = "3b282cbf435b0e022f7041549583ddc802e519109f1da8f12d2054910913d660",
+		// },
+		tcase {
+			c = config {
+				passes = 1,
+				parallel = 3,
+				version = 0x13,
+				mem = 64,
+				...
+			},
+			m = mode::ID,
+			h = "c7ada5ba3222fa45a3802249b509dcfb10e68a50e3faad2a6377eeca8395ab47",
+		},
+		tcase {
+			c = config {
+				passes = 1,
+				parallel = 4,
+				version = 0x13,
+				mem = 64,
+				...
+			},
+			m = mode::ID,
+			h = "21543b2017ede3f865ea5cb88295628ba25eb3be53a8c4aeb0ac1a264be0110a",
+		},
+		tcase {
+			c = config {
+				passes = 1,
+				parallel = 4,
+				version = 0x13,
+				mem = 64,
+				...
+			},
+			m = mode::I,
+			h = "5c3124ce5f3556e5e25f06b5108718f2cd72afee98a3249656eb85ecc0e5b314",
+		},
+		tcase {
+			c = config {
+				passes = 1,
+				parallel = 4,
+				version = 0x13,
+				mem = 64,
+				...
+			},
+			m = mode::D,
+			h = "d75524ad0b899363ce77f2d1e1040763dc01cfc725db635391bba163001f08cb",
+		},
+		tcase {
+			c = config {
+				passes = 3,
+				parallel = 3,
+				version = 0x13,
+				mem = 64,
+				...
+			},
+			m = mode::ID,
+			h = "226c3ca6caba42b102035d332a11b350f1e19675fccb6e24aa33ca8c31d588c1",
+		},
+		tcase {
+			c = config {
+				passes = 1,
+				parallel = 8,
+				version = 0x13,
+				mem = 64,
+				...
+			},
+			m = mode::ID,
+			h = "fadf598b70708f4d91b0e98f038fd25a73950f1f85d57fb250740d817f95e9a9",
+		},
+		tcase {
+			c = config {
+				passes = 1,
+				parallel = 4,
+				version = 0x13,
+				mem = 96,
+				...
+			},
+			m = mode::ID,
+			h = "c99aa41cb53cc4919d336c19d38b30d8633c71faa9475293f3fbe0aa6ccd65b2",
+		},
+	];
+
+	for (let i = 0z; i < len(tests); i += 1) {
+		const t = tests[i];
+		const expected = hex::decodestr(t.h)!;
+		defer free(expected);
+		let dest: []u8 = alloc([0...], len(expected));
+		defer free(dest);
+
+		argon2(dest, pass, salt, &t.c, t.m)!;
+		assert(bytes::equal(expected, dest));
+	};
 };
 

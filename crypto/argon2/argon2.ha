@@ -1,4 +1,3 @@
-// License: MPL-2.0
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021-2022 Armin Preiml <apreiml@strohwolke.at>
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
@@ -177,13 +176,15 @@ fn argon2(
 		let mem: []u64 = alloc([0...], membytes);
 		yield mem[..membytes / 8];
 	};
+
+	const rawmemsize = (len(mem) / BLOCKSIZE): u32;
+	let h0: [64]u8 = [0...];
+	inithash(&h0, len(dest): u32, password, salt, cfg, mode, rawmemsize);
+
 	// round down memory to nearest multiple of 4 times parallel
 	mem = mem[..len(mem) - len(mem) % (4 * cfg.parallel * BLOCKSIZE)];
+
 	const memsize = (len(mem) / BLOCKSIZE): u32;
-
-	let h0: [64]u8 = [0...];
-	inithash(&h0, len(dest): u32, password, salt, cfg, mode, memsize);
-
 	const cols = 4 * (memsize / (4 * cfg.parallel));
 	let ctx = context {
 		rows = cfg.parallel,
@@ -247,30 +248,35 @@ fn blocku8(ctx: *context, i: size, j: size) []u8 = {
 };
 
 fn refblock(cfg: *config, ctx: *context, seed: u64, i: size, j: size) []u64 = {
-	const j1: u64 = seed & 0xffffffff;
-	const segstart = j - (j % ctx.sliceblocks);
+	const segstart = (j - (j % ctx.sliceblocks)) / ctx.sliceblocks;
+	const index = j % ctx.sliceblocks;
 
-	const l: u64 = if (segstart == 0 && ctx.pass == 0) {
-		yield 0;
+	const l: size = if (segstart == 0 && ctx.pass == 0) {
+		yield i;
 	} else {
 		yield (seed >> 32) % cfg.parallel;
 	};
 
-	let poolstart: u64 = 0;
-	let poolsize: u64 = segstart;
-	if (ctx.pass > 0) {
-		poolstart = (segstart + ctx.sliceblocks) % ctx.cols;
-		poolsize = 3 * ctx.sliceblocks;
+	let poolstart: u64 = ((segstart + 1) % SLICES) * ctx.sliceblocks;
+	let poolsize: u64 = 3 * ctx.sliceblocks;
+
+	if (i == l) {
+		poolsize += index;
 	};
 
-	if (l == i: u64) {
-		poolsize += (j - segstart);
+	if (ctx.pass == 0) {
+		poolstart = 0;
+		poolsize = segstart * ctx.sliceblocks;
+		if (segstart == 0 || i == l) {
+			poolsize += index;
+		};
 	};
 
-	if ((j - segstart) == 0 || l == i: u64) {
+	if (index == 0 || i == l) {
 		poolsize -= 1;
 	};
 
+	const j1: u64 = seed & 0xffffffff;
 	const x: u64 = (j1 * j1) >> 32;
 	const y: u64 = (poolsize * x) >> 32;
 	const z: u64 = (poolstart + poolsize - (y+1)) % ctx.cols: u64;
@@ -381,7 +387,7 @@ fn segproc(cfg: *config, ctx: *context, i: size, slice: size) void = {
 	case mode::I =>
 		yield true;
 	case mode::ID =>
-		yield ctx.pass == 0 && slice <= 2;
+		yield ctx.pass == 0 && slice < 2;
 	case mode::D =>
 		yield false;
 	};
@@ -417,8 +423,12 @@ fn segproc(cfg: *config, ctx: *context, i: size, slice: size) void = {
 		case mode::I =>
 			yield false;
 		};
+
+		const pj = if (j == 0) ctx.cols - 1 else j - 1;
+		let prev = block(ctx, i, pj);
+
 		const seed: u64 = if (dmodeseed) {
-			yield block(ctx, i, (j - 1) % ctx.cols)[0];
+			yield prev[0];
 		} else {
 			if (b % BLOCKSIZE == 0) {
 				ctx.seedsinit[6] += 1;
@@ -429,8 +439,9 @@ fn segproc(cfg: *config, ctx: *context, i: size, slice: size) void = {
 			};
 			yield ctx.seedblock[b % BLOCKSIZE];
 		};
-		compress(block(ctx, i, j), block(ctx, i, (j - 1) % ctx.cols),
-				refblock(cfg, ctx, seed, i, j), ctx.pass > 0);
+
+		let ref = refblock(cfg, ctx, seed, i, j);
+		compress(block(ctx, i, j), prev, ref, ctx.pass > 0);
 	};
 };
 

@@ -278,12 +278,14 @@ crypto_argon2() {
 	if [ $testing -eq 0 ]
 	then
 		gen_srcs crypto::argon2 argon2.ha
+		gen_ssa crypto::argon2 bufio bytes crypto::blake2b \
+			crypto::math endian errors hash io rt types
 	else
 		gen_srcs crypto::argon2 argon2.ha +test.ha
+		gen_ssa crypto::argon2 bufio bytes crypto::blake2b \
+			crypto::math encoding::hex endian errors hash io rt \
+			strings types
 	fi
-
-	gen_ssa crypto::argon2 bufio bytes crypto::blake2b \
-		crypto::math endian errors hash io types
 }
 
 crypto_bcrypt() {
