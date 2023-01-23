@@ -162,27 +162,29 @@ fn argon2(
 	assert(len(cfg.secret) <= types::U32_MAX);
 	assert(len(cfg.data) <= types::U32_MAX);
 
+	let initmemsize = 0u32;
 	let mem: []u64 = match (cfg.mem) {
 	case let mem: []u64 =>
 		assert(len(mem) >= 8 * cfg.parallel * BLOCKSIZE
 			&& len(mem) % BLOCKSIZE == 0
 			&& len(mem) / BLOCKSIZE <= types::U32_MAX);
-		yield mem;
+		initmemsize = (len(mem) / BLOCKSIZE): u32;
+
+		// round down memory to nearest multiple of 4 times parallel
+		const memsize = len(mem) - len(mem)
+			% (4 * cfg.parallel * BLOCKSIZE);
+		yield mem[..memsize];
 	case let memsize: u32 =>
 		assert(memsize >= 8 * cfg.parallel
 			&& memsize <= types::U32_MAX);
 
-		let membytes = memsize * BLOCKSIZE * 8;
-		let mem: []u64 = alloc([0...], membytes);
-		yield mem[..membytes / 8];
+		initmemsize = memsize;
+		const memsize = memsize - memsize % (4 * cfg.parallel);
+		yield alloc([0...], memsize * BLOCKSIZE): []u64;
 	};
 
-	const rawmemsize = (len(mem) / BLOCKSIZE): u32;
 	let h0: [64]u8 = [0...];
-	inithash(&h0, len(dest): u32, password, salt, cfg, mode, rawmemsize);
-
-	// round down memory to nearest multiple of 4 times parallel
-	mem = mem[..len(mem) - len(mem) % (4 * cfg.parallel * BLOCKSIZE)];
+	inithash(&h0, len(dest): u32, password, salt, cfg, mode, initmemsize);
 
 	const memsize = (len(mem) / BLOCKSIZE): u32;
 	const cols = 4 * (memsize / (4 * cfg.parallel));
