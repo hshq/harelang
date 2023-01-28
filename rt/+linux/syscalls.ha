@@ -326,6 +326,10 @@ export fn lseek(fd: int, off: i64, whence: int) (i64 | errno) = {
 		fd: u64, off: u64, whence: u64))?: i64;
 };
 
+export fn ftruncate(fd: int, ln: off_t) (void | errno) = {
+	wrap_return(syscall2(SYS_ftruncate, fd: u64, ln: u32))?;
+};
+
 fn faccessat1(dirfd: int, path: *const char, mode: int) (bool | errno) = {
 	return match (wrap_return(syscall3(SYS_faccessat, dirfd: u64,
 		path: uintptr: u64, mode: u64))) {
