@@ -15,10 +15,10 @@ use strings;
 // If 'name' does not contain a '/', the $PATH will be consulted to find the
 // correct executable. If path resolution fails, nocmd is returned.
 //
-//	let cmd = exec::cmd("echo", "hello world");
-//	let proc = exec::start(&cmd);
-//	let status = exec::wait(&proc);
-//	assert(exec::status(status) == 0);
+//	let cmd = exec::cmd("echo", "hello world")!;
+//	let proc = exec::start(&cmd)!;
+//	let status = exec::wait(&proc)!;
+//	assert(exec::check(&status) is void);
 //
 // By default, the new command will inherit the current process's environment.
 export fn cmd(name: str, args: str...) (command | error) = {
