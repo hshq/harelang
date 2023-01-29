@@ -1786,7 +1786,7 @@ stdlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/os.ha
 
-$(HARECACHE)/os/os-linux.ssa: $(stdlib_os_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
+$(HARECACHE)/os/os-linux.ssa: $(stdlib_os_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
@@ -4063,7 +4063,7 @@ testlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/os.ha
 
-$(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+$(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
