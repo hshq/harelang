@@ -48,7 +48,12 @@ export fn main() void = {
 	};
 	let template = true;
 	let show_undocumented = false;
-	let tags = default_tags();
+	let tags = match (default_tags()) {
+	case let t: []module::tag =>
+		yield t;
+	case let err: exec::error =>
+		fmt::fatal(strerror(err));
+	};
 	defer module::tags_free(tags);
 
 	const help: [_]getopt::help = [

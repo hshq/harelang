@@ -553,7 +553,6 @@ fn version(args: []str) void = {
 	fmt::printfln("Hare {}", VERSION)!;
 
 	if (verbose) {
-		fmt::errorln()!;
 		fmt::printf("Build tags\t")!;
 		const build_target = default_target();
 		const tags = build_target.tags;

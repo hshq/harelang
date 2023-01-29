@@ -5,8 +5,10 @@ use hare::lex;
 use hare::module;
 use hare::parse;
 use io;
+use os::exec;
 
-type error = !(lex::error | parse::error | io::error | module::error);
+type error = !(lex::error | parse::error | io::error | module::error |
+	exec::error);
 
 fn strerror(err: error) str = {
 	match (err) {
@@ -18,5 +20,7 @@ fn strerror(err: error) str = {
 		return io::strerror(err);
 	case let err: module::error =>
 		return module::strerror(err);
+	case let err: exec::error =>
+		return exec::strerror(err);
 	};
 };
