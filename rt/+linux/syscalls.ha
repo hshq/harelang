@@ -932,3 +932,21 @@ export fn shmat(id: int, addr: *const void, flag: int) *void = {
 	return syscall3(SYS_shmat, id: u64, addr: uintptr: u64,
 		flag: u64): uintptr: *void;
 };
+
+export fn sched_getaffinity(
+	pid: int,
+	cpusetsize: size,
+	mask: *cpu_set,
+) (void | errno) = {
+	wrap_return(syscall3(SYS_sched_getaffinity,
+		pid: u64, cpusetsize: u64, mask: uintptr: u64))?;
+};
+
+export fn sched_setaffinity(
+	pid: int,
+	cpusetsize: size,
+	mask: *const cpu_set,
+) (void | errno) = {
+	wrap_return(syscall3(SYS_sched_setaffinity,
+		pid: u64, cpusetsize: u64, mask: uintptr: u64))?;
+};

@@ -49,3 +49,7 @@ export type epoll_event = struct {
 	events: u32,
 	data: epoll_data,
 };
+
+export type cpu_set = struct {
+	__bits: [16]u64,
+};
