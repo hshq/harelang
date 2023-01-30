@@ -1,6 +1,7 @@
 // License: MPL-2.0
 // (c) 2022 Vlad-Stefan Harbuz <vlad@vladh.net>
 use fmt;
+use strings;
 
 type matchres = enum { MATCH, NOMATCH, ERROR };
 
@@ -288,6 +289,30 @@ fn run_findall_case(
 		(`^test[[:upper:]]+$`, "testa", matchres::NOMATCH, 0, -1),
 		(`^test[[:upper:]]+$`, "testA", matchres::MATCH, 0, -1),
 		(`^test[[:xdigit:]]+$`, "testCAFE", matchres::MATCH, 0, -1),
+		// range expressions
+		(`[a-z]+`, "onlylatinletters", matchres::MATCH, 0, -1),
+		(`[x-z]+`, "xyz", matchres::MATCH, 0, -1),
+		(`[x-z]+`, "wxyz", matchres::MATCH, 1, 4),
+		(`[a-e]+`, "-abcdefg", matchres::MATCH, 1, 6),
+		(`[a-z]`, "-1234567890@#$%^&*(!)-+=", matchres::NOMATCH, 0, -1),
+		(`[0-9]+`, "9246", matchres::MATCH, 0, -1),
+		// # Cyrillic
+		(`[а-я]+`, "кирилица", matchres::MATCH, 0, -1),
+		(`[а-д]`, "е", matchres::NOMATCH, 0, -1),
+		(`[я-ф]`, "-", matchres::ERROR, 0, -1),
+		(`[А-Я]+`, "АБВГд", matchres::MATCH, 0, 4),
+		// because Macedonian uses cyrrilics, the broad range does
+		// not include special symbols
+		(`[а-ш]+`, "ѓљњќ", matchres::NOMATCH, 0, -1),
+		// # Polish Alphabet
+		(`[a-ż]+`, "polskialfabet", matchres::MATCH, 0, -1),
+		(`[a-ż]+`, "źśółęćą", matchres::MATCH, 0, -1),
+		// because Polish alphabet uses Latin with special characters,
+		// other characters can be accepted
+		(`[a-ż]+`, "englishspeak", matchres::MATCH, 0, -1),
+		(`[a-ż]+`, "{|}~", matchres::MATCH, 0, -1),
+		// # Thai Alphabet
+		(`[ก-ฮ]+`, "ศอผจข", matchres::MATCH, 0, -1),
 		// [:alpha:] etc. plus extra characters
 		(`^test[[:digit:]][[:alpha:]]$`, "test1a", matchres::MATCH, 0, -1),
 		(`^test[[:digit:]][[:alpha:]]$`, "testa1", matchres::NOMATCH, 0, -1),
@@ -538,7 +563,10 @@ fn run_findall_case(
 		const should_match = cases[i].2;
 		const start = cases[i].3;
 		const end = if (cases[i].4 == -1) {
-			yield len(string): int;
+			// workaround to get the length in codepoints
+			let runes = strings::runes(string);
+			defer free(runes);
+			yield len(runes): int;
 		} else {
 			yield cases[i].4;
 		};
