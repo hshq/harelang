@@ -50,9 +50,9 @@ Some examples of on-topic features include:
 ## Useful formats & protocols
 
 - Internet protocol suite
-- JSON, XML, INI, HTML
+- INI
 - tar, zip, cpio
-- MIME, RFC 2822
+- MIME
 
 # Conventions
 
