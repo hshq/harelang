@@ -1,6 +1,7 @@
 // License: MPL-2.0
 // (c) 2022 Vlad-Stefan Harbuz <vlad@vladh.net>
 use fmt;
+use strings;
 
 type matchres = enum { MATCH, NOMATCH, ERROR };
 
@@ -15,45 +16,51 @@ fn run_find_case(
 	case let re: regex => yield re;
 	case let e: error =>
 		if (expected == matchres::MATCH) {
-			fmt::println(e)!;
-			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it errored",
-				expr, string);
+			fmt::errorln(e)!;
+			fmt::errorfln("Expected expression /{}/ to match string \"{}\", but it errored",
+				expr, string)!;
+			abort();
 		};
 		if (expected == matchres::NOMATCH) {
-			fmt::println(e)!;
-			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it errored",
-				expr, string);
+			fmt::errorln(e)!;
+			fmt::errorfln("Expected expression /{}/ to not match string \"{}\", but it errored",
+				expr, string)!;
+			abort();
 		};
 		return;
 	};
 
 	if (expected == matchres::ERROR) {
-		fmt::fatalf("Expected expression /{}/ to have error caught during compilation, but it did not",
-			expr);
+		fmt::errorfln("Expected expression /{}/ to have error caught during compilation, but it did not",
+			expr)!;
+		abort();
 	};
 	defer finish(&re);
 
-	match (find(&re, string)) {
-	case void =>
+	const captures = find(&re, string);
+	defer free_captures(captures);
+	if (len(captures) == 0) {
 		if (expected == matchres::MATCH) {
-			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it did not",
-				expr, string);
+			fmt::errorfln("Expected expression /{}/ to match string \"{}\", but it did not",
+				expr, string)!;
+			abort();
 		};
+		return;
+	} else if (expected == matchres::NOMATCH) {
+		fmt::errorfln("Expected expression /{}/ to not match string \"{}\", but it did",
+			expr, string)!;
+		abort();
+	};
 
-	case let captures: []capture =>
-		defer free_captures(captures);
-		if (expected == matchres::NOMATCH) {
-			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
-				expr, string);
-		};
-		if (start: size != captures[0].start) {
-			fmt::fatalf("Expected start of main capture to be {} but it was {}",
-				start, captures[0].start);
-		};
-		if (end: size != captures[0].end) {
-			fmt::fatalf("Expected end of main capture to be {} but it was {}",
-				end, captures[0].end);
-		};
+	if (start: size != captures[0].start) {
+		fmt::errorfln("Expected start of main capture to be {} but it was {}",
+			start, captures[0].start)!;
+		abort();
+	};
+	if (end: size != captures[0].end) {
+		fmt::errorfln("Expected end of main capture to be {} but it was {}",
+			end, captures[0].end)!;
+		abort();
 	};
 };
 
@@ -61,15 +68,14 @@ fn run_submatch_case(
 	expr: str,
 	string: str,
 	expected: matchres,
-	count: size,
 	targets: []str
 ) void = {
 	const re = compile(expr)!;
 	defer finish(&re);
 
-	const captures = find(&re, string) as []capture;
+	const captures = find(&re, string);
 	defer free_captures(captures);
-	assert(len(captures) == count, "Invalid number of captures");
+	assert(len(captures) == len(targets), "Invalid number of captures");
 	for (let i = 0z; i < len(targets); i += 1) {
 		assert(targets[i] == captures[i].content, "Invalid capture");
 	};
@@ -79,54 +85,50 @@ fn run_findall_case(
 	expr: str,
 	string: str,
 	expected: matchres,
-	count: size,
 	targets: []str
 ) void = {
 	const re = match (compile(expr)) {
 	case let re: regex => yield re;
 	case let e: error =>
-		if (expected == matchres::MATCH) {
-			fmt::println(e)!;
-			fmt::fatalf("Expected expression /{}/ to match, but it errored",
-				expr, string);
-		};
-		if (expected == matchres::NOMATCH) {
-			fmt::println(e)!;
-			fmt::fatalf("Expected expression /{}/ to not match, but it errored",
-				expr, string);
+		if (expected != matchres::ERROR) {
+			fmt::errorln(e)!;
+			fmt::errorfln("Expected expression /{}/ to compile, but it errored",
+				expr)!;
+			abort();
 		};
 		return;
 	};
 	defer finish(&re);
 
 	if (expected == matchres::ERROR) {
-		fmt::fatalf("Expected expression /{}/ to have error caught during compilation, but it did not",
-			expr);
+		fmt::errorfln("Expected expression /{}/ to have error caught during compilation, but it did not",
+			expr)!;
+		abort();
 	};
 
-	match (findall(&re, string)) {
-	case void =>
-		if (expected == matchres::MATCH) {
-			fmt::fatalf("Expected expression /{}/ to match string \"{}\", but it did not",
-				expr, string);
-		};
+	const matches = findall(&re, string);
+	if (len(matches) == 0 && expected == matchres::MATCH) {
+		fmt::errorfln("Expected expression /{}/ to match string \"{}\", but it did not",
+			expr, string)!;
+		abort();
+	};
+	defer free_matches(matches);
 
-	case let matches: [][]capture =>
-		defer free_matches(matches);
-		if (expected == matchres::NOMATCH) {
-			fmt::fatalf("Expected expression /{}/ to not match string \"{}\", but it did",
-				expr, string);
-		};
-		if (count != len(matches)) {
-			fmt::fatalf("Expected to find {} matches but found {}",
-				count, len(matches));
-		};
-		for (let i = 0z; i < len(matches); i += 1) {
-			if (matches[i][0].content != targets[i]) {
-				fmt::printfln("Expected submatch to be {} but it was {}",
-					targets[i], matches[i][0].content)!;
-				assert(false);
-			};
+	if (expected == matchres::NOMATCH) {
+		fmt::errorfln("Expected expression /{}/ to not match string \"{}\", but it did",
+			expr, string)!;
+		abort();
+	};
+	if (len(targets) != len(matches)) {
+		fmt::errorfln("Expected expression /{}/ to find {} matches but found {}",
+			expr, len(targets), len(matches))!;
+		abort();
+	};
+	for (let i = 0z; i < len(matches); i += 1) {
+		if (matches[i][0].content != targets[i]) {
+			fmt::errorfln("Expected submatch of expression /{}/ to be {} but it was {}",
+				expr, targets[i], matches[i][0].content)!;
+			abort();
 		};
 	};
 };
@@ -287,6 +289,30 @@ fn run_findall_case(
 		(`^test[[:upper:]]+$`, "testa", matchres::NOMATCH, 0, -1),
 		(`^test[[:upper:]]+$`, "testA", matchres::MATCH, 0, -1),
 		(`^test[[:xdigit:]]+$`, "testCAFE", matchres::MATCH, 0, -1),
+		// range expressions
+		(`[a-z]+`, "onlylatinletters", matchres::MATCH, 0, -1),
+		(`[x-z]+`, "xyz", matchres::MATCH, 0, -1),
+		(`[x-z]+`, "wxyz", matchres::MATCH, 1, 4),
+		(`[a-e]+`, "-abcdefg", matchres::MATCH, 1, 6),
+		(`[a-z]`, "-1234567890@#$%^&*(!)-+=", matchres::NOMATCH, 0, -1),
+		(`[0-9]+`, "9246", matchres::MATCH, 0, -1),
+		// # Cyrillic
+		(`[а-я]+`, "кирилица", matchres::MATCH, 0, -1),
+		(`[а-д]`, "е", matchres::NOMATCH, 0, -1),
+		(`[я-ф]`, "-", matchres::ERROR, 0, -1),
+		(`[А-Я]+`, "АБВГд", matchres::MATCH, 0, 4),
+		// because Macedonian uses cyrrilics, the broad range does
+		// not include special symbols
+		(`[а-ш]+`, "ѓљњќ", matchres::NOMATCH, 0, -1),
+		// # Polish Alphabet
+		(`[a-ż]+`, "polskialfabet", matchres::MATCH, 0, -1),
+		(`[a-ż]+`, "źśółęćą", matchres::MATCH, 0, -1),
+		// because Polish alphabet uses Latin with special characters,
+		// other characters can be accepted
+		(`[a-ż]+`, "englishspeak", matchres::MATCH, 0, -1),
+		(`[a-ż]+`, "{|}~", matchres::MATCH, 0, -1),
+		// # Thai Alphabet
+		(`[ก-ฮ]+`, "ศอผจข", matchres::MATCH, 0, -1),
 		// [:alpha:] etc. plus extra characters
 		(`^test[[:digit:]][[:alpha:]]$`, "test1a", matchres::MATCH, 0, -1),
 		(`^test[[:digit:]][[:alpha:]]$`, "testa1", matchres::NOMATCH, 0, -1),
@@ -537,7 +563,10 @@ fn run_findall_case(
 		const should_match = cases[i].2;
 		const start = cases[i].3;
 		const end = if (cases[i].4 == -1) {
-			yield len(string): int;
+			// workaround to get the length in codepoints
+			let runes = strings::runes(string);
+			defer free(runes);
+			yield len(runes): int;
 		} else {
 			yield cases[i].4;
 		};
@@ -546,32 +575,30 @@ fn run_findall_case(
 
 	const submatch_cases = [
 		// literals
-		(`aaa ([^ ]*) (...)`, "aaa bbb ccc", matchres::MATCH, 3z,
-			["aaa bbb ccc", "bbb", "ccc"]),
+		(`aaa ([^ ]*) (...)`, "aaa bbb ccc", matchres::MATCH,
+			["aaa bbb ccc", "bbb", "ccc"]: []str),
 	];
 
 	for (let i = 0z; i < len(submatch_cases); i += 1) {
 		const expr = submatch_cases[i].0;
 		const string = submatch_cases[i].1;
 		const should_match = submatch_cases[i].2;
-		const count = submatch_cases[i].3;
-		const targets = submatch_cases[i].4;
-		run_submatch_case(expr, string, should_match, count, targets);
+		const targets = submatch_cases[i].3;
+		run_submatch_case(expr, string, should_match, targets);
 	};
 };
 
 @test fn findall() void = {
 	const cases = [
-		(`ab.`, "hello abc and abあ test abq thanks", matchres::MATCH, 3z,
-			["abc", "abあ", "abq"]),
+		(`ab.`, "hello abc and abあ test abq thanks", matchres::MATCH,
+			["abc", "abあ", "abq"]: []str),
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {
 		const expr = cases[i].0;
 		const string = cases[i].1;
 		const should_match = cases[i].2;
-		const count = cases[i].3;
-		const targets = cases[i].4;
-		run_findall_case(expr, string, should_match, count, targets);
+		const targets = cases[i].3;
+		run_findall_case(expr, string, should_match, targets);
 	};
 };

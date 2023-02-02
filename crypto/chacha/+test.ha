@@ -53,7 +53,7 @@ use io;
 	let c = chacha20();
 	defer io::close(&c)!;
 
-	chacha20_init(&c, &cipherbuf, &key, &nonce);
+	chacha20_init(&c, &cipherbuf, key, nonce);
 	setctr(&c, 1);
 
 	const n = io::writeall(&c, msg)!;
@@ -63,7 +63,7 @@ use io;
 	result = [0...];
 	cipherbuf = bufio::fixed(result, io::mode::WRITE);
 
-	chacha20_init(&c, &cipherbuf, &key, &nonce);
+	chacha20_init(&c, &cipherbuf, key, nonce);
 	setctr(&c, 1);
 	io::write(&c, msg[..10])!;
 	io::write(&c, msg[10..63])!;
@@ -160,7 +160,7 @@ const xcipher: [_]u8 = [
 	let c = chacha20();
 	defer io::close(&c)!;
 
-	xchacha20_init(&c, &cipherbuf, &xkey, &xnonce);
+	xchacha20_init(&c, &cipherbuf, xkey, xnonce);
 	setctr(&c, 1);
 
 	io::writeall(&c, xmsg)!;
@@ -174,7 +174,7 @@ const xcipher: [_]u8 = [
 	let c = chacha20();
 	defer io::close(&c)!;
 
-	xchacha20_init(&c, &cipherbuf, &xkey, &xnonce);
+	xchacha20_init(&c, &cipherbuf, xkey, xnonce);
 
 	// just encrypt a few bytes of each block, to check if setctr works
 	setctr(&c, 1);
@@ -211,6 +211,6 @@ const xcipher: [_]u8 = [
 	];
 
 	let out: [32]u8 = [0...];
-	hchacha20(&out, &key, &nonce);
+	hchacha20(&out, key, nonce);
 	assert(bytes::equal(out, expected));
 };

@@ -306,7 +306,7 @@ fn signtag(tmpdir: str, name: str, tag: str, key: str) (void | release_error) = 
 	// TODO: It might be better to capture this and print it to stderr
 	// ourselves if ssh-keygen exits nonzero, so that the error details are
 	// available to the user for diagnosis.
-	exec::addfile(&ssh, os::stderr, exec::nullfd);
+	exec::addfile(&ssh, os::stderr_file, exec::nullfd);
 
 	const pipe1 = exec::pipe();
 	const pipe2 = exec::pipe();
@@ -328,7 +328,7 @@ fn signtag(tmpdir: str, name: str, tag: str, key: str) (void | release_error) = 
 
 fn git_runcmd(args: str...) (void | release_error) = {
 	const cmd = exec::cmd("git", args...)?;
-	exec::addfile(&cmd, os::stderr, exec::nullfd);
+	exec::addfile(&cmd, os::stderr_file, exec::nullfd);
 	const proc = exec::start(&cmd)?;
 	const status = exec::wait(&proc)?;
 	return exec::check(&status)?;
@@ -339,7 +339,7 @@ fn git_readcmd(args: str...) (str | release_error) = {
 	defer io::close(pipe.0)!;
 	const cmd = exec::cmd("git", args...)?;
 	exec::addfile(&cmd, os::stdout_file, pipe.1);
-	exec::addfile(&cmd, os::stderr, exec::nullfd);
+	exec::addfile(&cmd, os::stderr_file, exec::nullfd);
 	const proc = exec::start(&cmd)?;
 	io::close(pipe.1)?;
 	const result = io::drain(pipe.0)?;

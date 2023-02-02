@@ -31,8 +31,11 @@ export let stdout: io::handle = rt::STDOUT_FILENO; // initialized by init_stdfd
 // The standard output, as an [[io::file]]. This handle is unbuffered.
 export let stdout_file: io::file = rt::STDOUT_FILENO;
 
-// The standard error.
-export let stderr: io::file = rt::STDERR_FILENO;
+// The standard error. This handle is unbuffered.
+export let stderr: io::handle = rt::STDERR_FILENO;
+
+// The standard error, as an [[io::file]]. This handle is unbuffered.
+export let stderr_file: io::file = rt::STDERR_FILENO;
 
 // The recommended buffer size for reading from disk.
 export def BUFSIZ: size = 4096; // 4 KiB

@@ -278,6 +278,42 @@ export fn trailing_zeros_u64(x: u64) u8 = {
 	assert(trailing_zeros_u(1) == 0);
 };
 
+// Returns the number of bits set (the population count) of x.
+export fn pop_count_u(x: uint) u8 = pop_count_u64(x: u64);
+
+// Returns the number of bits set (the population count) of x.
+export fn pop_count_u8(x: u8) u8 = pop_count_u64(x: u8);
+
+// Returns the number of bits set (the population count) of x.
+export fn pop_count_u16(x: u16) u16 = pop_count_u64(x: u64);
+
+// Returns the number of bits set (the population count) of x.
+export fn pop_count_u32(x: u32) u32 = pop_count_u64(x: u64);
+
+// Returns the number of bits set (the population count) of x.
+export fn pop_count_u64(x: u64) u8 = {
+	let i = 0u8;
+	for (x != 0; x >>= 1) {
+		if (x & 1 == 1) {
+			i += 1;
+		};
+	};
+	return i;
+};
+
+@test fn pop_count_u() void = {
+	assert(pop_count_u(0) == 0);
+	assert(pop_count_u(0b11010110) == 5);
+	assert(pop_count_u8(0) == 0);
+	assert(pop_count_u8(0b11010110) == 5);
+	assert(pop_count_u16(0) == 0);
+	assert(pop_count_u16(0b11010110) == 5);
+	assert(pop_count_u32(0) == 0);
+	assert(pop_count_u32(0b11010110) == 5);
+	assert(pop_count_u64(0) == 0);
+	assert(pop_count_u64(0b11010110) == 5);
+};
+
 // Returns the sum with carry of x, y and carry: sum = x + y + carry.
 // The carry input must be 0 or 1, otherwise the behavior is undefined.
 // The carry_out output is guaranteed to be 0 or 1.

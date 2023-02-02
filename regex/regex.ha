@@ -61,7 +61,7 @@ export type charclass = enum {
 export type charset = [](charset_lit_item | charset_range_item |
 	charset_class_item),
 	charset_lit_item = rune,
-	charset_range_item = (u8, u8),
+	charset_range_item = (u32, u32),
 	charset_class_item = *fn(c: rune) bool;
 
 const charclass_map: [](str, *fn(c: rune) bool) = [
@@ -173,13 +173,8 @@ fn handle_bracket(
 			return `No character class after '[:'`: error;
 		};
 	} else if (is_range) {
-		const start_enc = utf8::encoderune(r);
-		assert(len(start_enc) == 1, "Character ranges do not currently support characters larger than one byte");
-		const start_b = start_enc[0];
-
-		const end_enc = utf8::encoderune(range_end as rune);
-		assert(len(end_enc) == 1, "Character ranges do not currently support characters larger than one byte");
-		const end_b = end_enc[0];
+		const start_b = r: u32;
+		const end_b = range_end as rune: u32;
 
 		if (end_b < start_b) {
 			return `Decending bracket expression range '[z-a]'`: error;
@@ -600,9 +595,8 @@ fn run_thread(
 				break;
 			};
 		case let range: charset_range_item =>
-			const r_enc = utf8::encoderune(r);
-			assert(len(r_enc) == 1, "Character ranges do not currently support characters larger than one byte");
-			const r_b = r_enc[0];
+			const r_b = r: u32;
+
 			if (r_b >= range.0 && r_b <= range.1) {
 				// Succeeded if positive match
 				// Failed if negative match
@@ -773,16 +767,21 @@ export fn test(re: *regex, string: str) bool = {
 
 // Attempts to match a regular expression against a string and returns the
 // longest leftmost match, or void if there is no match.
-export fn find(re: *regex, string: str) (void | []capture) = {
+export fn find(re: *regex, string: str) []capture = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
 	let str_bytesize = 0z;
-	return search(re, string, &str_iter, &str_idx, &str_bytesize, true);
+	match (search(re, string, &str_iter, &str_idx, &str_bytesize, true)) {
+	case let m: []capture =>
+		return m;
+	case void =>
+		return [];
+	};
 };
 
 // Attempts to match a regular expression against a string and returns all
 // non-overlapping matches, or void if there are no matches.
-export fn findall(re: *regex, string: str) (void | [][]capture) = {
+export fn findall(re: *regex, string: str) [][]capture = {
 	let res: [][]capture = alloc([]);
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
@@ -803,9 +802,6 @@ export fn findall(re: *regex, string: str) (void | [][]capture) = {
 			};
 		case void => break;
 		};
-	};
-	if (len(res) == 0) {
-		return void;
 	};
 	return res;
 };

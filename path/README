@@ -8,10 +8,10 @@ Use of the [[buffer]] type is recommended for efficient and consistent
 manipulation of filesystem paths.
 
 	let buf = path::init();
-	path::add(&buf, "/", "foo", "bar", "baz.txt");
+	path::add(&buf, "/", "foo", "bar", "baz.txt")!;
 	fmt::println(path::string(&buf))!; // "/foo/bar/baz.txt"
 
-	path::add(&buf, "../.././hello.txt");
+	path::add(&buf, "../.././hello.txt")!;
 	fmt::println(path::string(&buf))!; // "/foo/hello.txt"
 
 The buffer object includes an array of length [[PATH_MAX]], which can be

@@ -210,8 +210,8 @@ fn fs_create_file(
 	flags: fs::flags...
 ) (io::file | fs::error) = {
 	let oflags = 0;
-	if (len(flags) == 0z) {
-		oflags |= fs::flags::WRONLY;
+	if (len(flags) == 0) {
+		oflags |= fs::flags::WRONLY | fs::flags::TRUNC;
 	};
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i]: int;

@@ -520,7 +520,7 @@ gensrcs_crypto_sha256() {
 }
 
 genssa_crypto_sha256() {
-	gen_ssa crypto::sha256 bytes hash io endian $*
+	gen_ssa crypto::sha256 crypto::math bytes hash io endian $*
 }
 
 crypto_sha256() {
@@ -539,10 +539,10 @@ crypto_sha1() {
 	if [ $testing -eq 0 ]
 	then
 		gen_srcs crypto::sha1 sha1.ha
-		gen_ssa crypto::sha1 bytes hash io endian
+		gen_ssa crypto::sha1 crypto::math bytes hash io endian
 	else
 		gen_srcs crypto::sha1 sha1.ha +test.ha
-		gen_ssa crypto::sha1 bytes hash endian fmt strings encoding::hex
+		gen_ssa crypto::sha1 crypto::math bytes hash endian fmt strings encoding::hex
 	fi
 }
 
@@ -550,10 +550,10 @@ crypto_sha512() {
 	if [ $testing -eq 0 ]
 	then
 		gen_srcs crypto::sha512 sha512.ha
-		gen_ssa crypto::sha512 bytes hash io endian
+		gen_ssa crypto::sha512 crypto::math bytes hash io endian
 	else
 		gen_srcs crypto::sha512 sha512.ha +test.ha
-		gen_ssa crypto::sha512 bytes hash endian fmt strings encoding::hex
+		gen_ssa crypto::sha512 crypto::math bytes hash endian fmt strings encoding::hex
 	fi
 }
 
@@ -862,7 +862,7 @@ hare_parse() {
 hash() {
 	gen_srcs hash \
 		hash.ha
-	gen_ssa hash io fmt
+	gen_ssa hash crypto::math io fmt
 }
 
 hash_adler32() {
@@ -1045,19 +1045,19 @@ net() {
 		+linux.ha \
 		errors.ha \
 		msg.ha
-	gen_ssa -plinux net io errors rt fmt
+	gen_ssa -plinux net io errors rt fmt slices
 
 	gen_srcs -pfreebsd net \
 		+freebsd.ha \
 		errors.ha \
 		msg.ha
-	gen_ssa -pfreebsd net io errors rt fmt
+	gen_ssa -pfreebsd net io errors rt fmt slices
 
 	gen_srcs -pdarwin net \
 		+darwin.ha \
 		errors.ha \
 		msg.ha
-	gen_ssa -pdarwin net io errors rt fmt
+	gen_ssa -pdarwin net io errors rt fmt slices
 }
 
 net_dial() {
@@ -1105,9 +1105,9 @@ net_ip() {
 		gensrcs_net_ip \
 			+test.ha
 	fi
-	gen_ssa -plinux net::ip bytes io strconv strings strio fmt
-	gen_ssa -pfreebsd net::ip bytes io strconv strings strio fmt
-	gen_ssa -pdarwin net::ip bytes io strconv strings strio fmt
+	gen_ssa -plinux net::ip bytes endian io strconv strings strio fmt
+	gen_ssa -pfreebsd net::ip bytes endian io strconv strings strio fmt
+	gen_ssa -pdarwin net::ip bytes endian io strconv strings strio fmt
 }
 
 net_tcp() {

@@ -11,7 +11,6 @@ use bytes;
 use endian;
 use fmt;
 use io;
-use rt; //TODO remove
 use strconv;
 use strings;
 use strio;
@@ -136,9 +135,7 @@ fn parsev6(st: str) (addr6 | invalid) = {
 		};
 		const n = i - ells;
 		ret[16 - n..16] = ret[ells..ells + n];
-		// TODO: after https://todo.sr.ht/~sircmpwn/hare/536
-		// ret[ells..ells + n] = [0...];
-		rt::memset(&ret[ells], 0, n: size);
+		ret[ells..ells + n] = [0...];
 	} else if (i != 16) {
 		return invalid;
 	};
@@ -213,9 +210,7 @@ fn fmtv6(s: io::handle, a: addr6) (io::error | size) = {
 // Fills a netmask according to the CIDR value
 // e.g. 23 -> [0xFF, 0xFF, 0xFD, 0x00]
 fn fillmask(mask: []u8, val: u8) void = {
-	// TODO: after https://todo.sr.ht/~sircmpwn/hare/536
-	// mask = [0xFF...];
-	rt::memset(&mask[0], 0xFF, len(mask));
+	mask[..] = [0xFF...];
 	let i: int = len(mask): int - 1;
 	val = len(mask): u8 * 8 - val;
 	for (val >= 8) {

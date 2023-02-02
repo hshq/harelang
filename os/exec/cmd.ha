@@ -15,10 +15,10 @@ use strings;
 // If 'name' does not contain a '/', the $PATH will be consulted to find the
 // correct executable. If path resolution fails, nocmd is returned.
 //
-//	let cmd = exec::cmd("echo", "hello world");
-//	let proc = exec::start(&cmd);
-//	let status = exec::wait(&proc);
-//	assert(exec::status(status) == 0);
+//	let cmd = exec::cmd("echo", "hello world")!;
+//	let proc = exec::start(&cmd)!;
+//	let status = exec::wait(&proc)!;
+//	assert(exec::check(&status) is void);
 //
 // By default, the new command will inherit the current process's environment.
 export fn cmd(name: str, args: str...) (command | error) = {
@@ -42,7 +42,7 @@ export fn cmd(name: str, args: str...) (command | error) = {
 		argv = alloc([], len(args) + 1),
 		env = strings::dupall(os::getenvs()),
 		files = [],
-		...
+		dir = "",
 	};
 	append(cmd.argv, name);
 	append(cmd.argv, args...);
@@ -166,7 +166,7 @@ export fn addfile(
 export fn closestd(cmd: *command) void = {
 	addfile(cmd, os::stdin_file, closefd);
 	addfile(cmd, os::stdout_file, closefd);
-	addfile(cmd, os::stderr, closefd);
+	addfile(cmd, os::stderr_file, closefd);
 };
 
 // Redirects all standard files (stdin, stdout, and stderr) to /dev/null or the
@@ -174,7 +174,14 @@ export fn closestd(cmd: *command) void = {
 export fn nullstd(cmd: *command) void = {
 	addfile(cmd, os::stdin_file, nullfd);
 	addfile(cmd, os::stdout_file, nullfd);
-	addfile(cmd, os::stderr, nullfd);
+	addfile(cmd, os::stderr_file, nullfd);
+};
+
+// Configures the child process's working directory. This does not affect the
+// process environment. The path is borrowed from the input, and must outlive
+// the command.
+export fn chdir(cmd: *command, dir: str) void = {
+	cmd.dir = dir;
 };
 
 fn lookup(name: str) (platform_cmd | void | error) = {

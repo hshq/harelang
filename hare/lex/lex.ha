@@ -640,35 +640,9 @@ fn lex2(lexr: *lexer) (token | error) = {
 	case '+' =>
 		yield (ltok::PLUS, [('=', ltok::PLUSEQ)]);
 	case '-' =>
-		match (next(lexr)?) {
-		case let r: (rune, location) =>
-			switch (r.0) {
-			case '=' =>
-				line_comment(lexr)?;
-				return (ltok::MINUSEQ, void, first.1);
-			case =>
-				unget(lexr, r);
-				line_comment(lexr)?;
-				return (ltok::MINUS, void, first.1);
-			};
-		case io::EOF =>
-			return (ltok::MINUS, void, first.1);
-		};
+		yield (ltok::MINUS, [('=', ltok::MINUSEQ)]);
 	case ':' =>
-		match (next(lexr)?) {
-		case let r: (rune, location) =>
-			switch (r.0) {
-			case ':' =>
-				line_comment(lexr)?;
-				return (ltok::DOUBLE_COLON, void, first.1);
-			case =>
-				unget(lexr, r);
-				line_comment(lexr)?;
-				return (ltok::COLON, void, first.1);
-			};
-		case io::EOF =>
-			return (ltok::COLON, void, first.1);
-		};
+		yield (ltok::COLON, [(':', ltok::DOUBLE_COLON)]);
 	case '!' =>
 		yield (ltok::LNOT, [('=', ltok::NEQUAL)]);
 	case '=' =>

@@ -138,6 +138,10 @@ fn platform_exec(cmd: *command) error = {
 		};
 	};
 
+	if (cmd.dir != "") {
+		os::chdir(cmd.dir)?;
+	};
+
 	return errors::errno(rt::fexecve(cmd.platform,
 		argv: *[*]nullable *const char, envp: *[*]nullable *const char));
 };

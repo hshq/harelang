@@ -1374,6 +1374,11 @@ fn isexact(x: f64) bool =
 			// produced.
 			continue;
 		};
+		if (math::isnan(v.0.0) && math::isinf(v.0.1)) {
+			const r = tanc128(v.0);
+			assert(r.0 == v.1.0 && r.1 == v.1.1);
+			continue;
+		};
 		assert(calike(v.1, tanc128(v.0)));
 		// tan(conj(z)) == conj(tan(z))
 		assert (calike(conjc128(v.1), tanc128(conjc128(v.0)))

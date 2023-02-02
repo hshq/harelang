@@ -1,5 +1,5 @@
 // License: MPL-2.0
-// (c) 2021-2022 Alexey Yerin <yyp@disroot.org>
+// (c) 2021-2023 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use bytes;
@@ -13,12 +13,8 @@ export fn scanbyte(file: io::handle) (u8 | io::EOF | io::error) = {
 	let buf: [1]u8 = [0...];
 
 	match (io::readall(file, buf)?) {
-	case let read: size =>
-		if (read > 0) {
-			return buf[0];
-		} else {
-			return io::EOF;
-		};
+	case size =>
+		return buf[0];
 	case io::EOF =>
 		return io::EOF;
 	};

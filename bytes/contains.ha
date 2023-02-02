@@ -4,11 +4,19 @@
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
 
 // Returns true if a byte slice contains a byte or a sequence of bytes.
-export fn contains(haystack: []u8, needle: (u8 | []u8)) bool = match (needle) {
-case let b: u8 =>
-	yield !(index_byte(haystack, b) is void);
-case let b: []u8 =>
-	yield !(index_slice(haystack, b) is void);
+export fn contains(haystack: []u8, needles: (u8 | []u8)...) bool = {
+	for (let i = 0z; i < len(needles); i += 1) {
+		const matched = match (needles[i]) {
+		case let b: u8 =>
+			yield index_byte(haystack, b) is size;
+		case let b: []u8 =>
+			yield index_slice(haystack, b) is size;
+		};
+		if (matched) {
+			return true;
+		};
+	};
+	return false;
 };
 
 // Returns true if "in" has the given prefix, false otherwise
