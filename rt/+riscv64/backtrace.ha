@@ -15,7 +15,7 @@ export fn backtrace() frame = {
 		addr = getfp()
 	};
 	// Skip the call to backtrace itself
-	return nextframe(f) as frame;
+	return nextframe(fp) as frame;
 };
 
 // Returns the frame above the current frame, if any.
