@@ -25,22 +25,10 @@ export type more = void;
 // Returned when an invalid UTF-8 sequence was found.
 export type invalid = !void;
 
-const leader_masks: [_]u8 = [0x7F, 0x3F, 0x1F, 0x0F];
-
 const masks: [2][8]u8 = [
 	[0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f],
 	[0x7f, 0x1f, 0x0f, 0x0f, 0x0f, 0x07, 0x07, 0x07],
 ];
-
-fn decode_leader(c: u8) ((size, u8) | invalid) = {
-	for (let i = 0z; i < len(sizes); i += 1) {
-		if (c & sizes[i].mask == sizes[i].result) {
-			return (sizes[i].octets, c & leader_masks[i]);
-		};
-	};
-	// Bad leading byte
-	return invalid;
-};
 
 // Returns the next rune from a decoder. void is returned when there are no
 // remaining codepoints.
@@ -73,45 +61,21 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	if (d.offs == 0) {
 		return;
 	};
-
-	let r = 0u32;
-	let n = 0z;
-	for (let i = 0z; i < d.offs; i += 1) {
-		let byte = d.src[d.offs - i - 1];
-		if ((byte & 0xC0) == 0x80) {
-			if (i == 3) {
-				// Too many continuation bytes in a row
-				return invalid;
-			};
-			byte &= 0x3F;
-			r |= byte << (i * 6): u32;
-		} else {
-			const nl = decode_leader(byte)?;
-			n = nl.0;
-			if (i + 1 != n) {
-				// Trailing continuation bytes
-				return invalid;
-			};
-			r |= nl.1 << (i * 6): u32;
-			break;
+	let n = d.offs;
+	d.offs -= 1;
+	for (d.offs < len(d.src); d.offs -= 1) {
+		if (table[0][d.src[d.offs]] != -1) {
+			let t = d.offs;
+			defer d.offs = t;
+			let r = next(d);
+			return if (n != d.offs || r is more) invalid else r;
 		};
-	};
-
-	if (n == 0) {
-		return more;
-	} else if (n > 1) {
-		if (r >= 0xD800 && r <= 0xDFFF) {
-			// UTF-16 surrogates
-			return invalid;
-		};
-		if (runesz(r: rune) != n) {
-			// Overlong encoding
+		if (n - d.offs == 4) {
+			// Too many continuation bytes in a row
 			return invalid;
 		};
 	};
-
-	d.offs -= n;
-	return r: rune;
+	return more;
 };
 
 @test fn decode() void = {
