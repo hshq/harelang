@@ -1149,6 +1149,7 @@ $(HARECACHE)/encoding/pem/encoding_pem-any.ssa: $(stdlib_encoding_pem_any_srcs) 
 # encoding::utf8 (+any)
 stdlib_encoding_utf8_any_srcs = \
 	$(STDLIB)/encoding/utf8/decode.ha \
+	$(STDLIB)/encoding/utf8/decodetable.ha \
 	$(STDLIB)/encoding/utf8/encode.ha \
 	$(STDLIB)/encoding/utf8/rune.ha
 
@@ -3383,6 +3384,7 @@ $(TESTCACHE)/encoding/pem/encoding_pem-any.ssa: $(testlib_encoding_pem_any_srcs)
 # encoding::utf8 (+any)
 testlib_encoding_utf8_any_srcs = \
 	$(STDLIB)/encoding/utf8/decode.ha \
+	$(STDLIB)/encoding/utf8/decodetable.ha \
 	$(STDLIB)/encoding/utf8/encode.ha \
 	$(STDLIB)/encoding/utf8/rune.ha
 

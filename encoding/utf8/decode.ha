@@ -27,6 +27,11 @@ export type invalid = !void;
 
 const leader_masks: [_]u8 = [0x7F, 0x3F, 0x1F, 0x0F];
 
+const masks: [2][8]u8 = [
+	[0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f],
+	[0x7f, 0x1f, 0x0f, 0x0f, 0x0f, 0x07, 0x07, 0x07],
+];
+
 fn decode_leader(c: u8) ((size, u8) | invalid) = {
 	for (let i = 0z; i < len(sizes); i += 1) {
 		if (c & sizes[i].mask == sizes[i].result) {
@@ -40,38 +45,26 @@ fn decode_leader(c: u8) ((size, u8) | invalid) = {
 // Returns the next rune from a decoder. void is returned when there are no
 // remaining codepoints.
 export fn next(d: *decoder) (rune | void | more | invalid) = {
-	assert(d.offs <= len(d.src));
 	if (d.offs == len(d.src)) {
 		return;
 	};
 
-	const (n, leader) = decode_leader(d.src[d.offs])?;
-	if (d.offs + n > len(d.src)) {
-		return more;
+	// from https://github.com/skeeto/scratch/blob/master/parsers/utf8_decode.c
+	// See https://bjoern.hoehrmann.de/utf-8/decoder/dfa/
+	// and https://nullprogram.com/blog/2020/12/31/ for an explanation of
+	// the algorithm.
+	let next = 0, state = 0;
+	let r = 0u32;
+	for (d.offs < len(d.src); d.offs += 1) {
+		next = table[state][d.src[d.offs]];
+		r = r << 6 | d.src[d.offs] & masks[(state - 1): uint >> 31][next & 7];
+		if (next <= 0) {
+			d.offs += 1;
+			return if (next == 0) r: rune else invalid;
+		};
+		state = next;
 	};
-
-	let r = leader: u32;
-	if (n > 1) {
-		for (let i = 1z; i < n; i += 1) {
-			let byte = d.src[d.offs + i];
-			if ((byte & 0xC0) != 0x80) {
-				// Bad continuation byte
-				return invalid;
-			};
-			r <<= 6;
-			r |= byte & 0x3F;
-		};
-		if (r >= 0xD800 && r <= 0xDFFF) {
-			// UTF-16 surrogates
-			return invalid;
-		};
-		if (runesz(r: rune) != n) {
-			// Overlong encoding
-			return invalid;
-		};
-	};
-	d.offs += n;
-	return r: rune;
+	return more;
 };
 
 // Returns the previous rune from a decoder. void is returned when there are no
@@ -180,6 +173,9 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	decoder = decode(extracont);
 	decoder.offs = 3;
 	assert(prev(&decoder) is invalid);
+
+	const regression: []u8 = [0xf5, 0x94, 0x80, 0x80];
+	assert(!valid(regression));
 };
 
 // Returns true if a given string or byte slice contains only valid UTF-8

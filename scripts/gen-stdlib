@@ -592,6 +592,7 @@ encoding_pem() {
 encoding_utf8() {
 	gen_srcs encoding::utf8 \
 		decode.ha \
+		decodetable.ha \
 		encode.ha \
 		rune.ha
 	gen_ssa encoding::utf8 types
