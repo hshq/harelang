@@ -41,7 +41,7 @@ fn getenv(var: str) []str = {
 // (executable name, executable variable, flags variable)
 type tool = (str, str, str);
 
-let ld_tool: tool = ("", "LD", "LDFLAGS");
+let ld_tool: tool = ("", "LD", "LDLINKFLAGS");
 let as_tool: tool = ("", "AS", "ASFLAGS");
 let ar_tool: tool = ("", "AR", "ARFLAGS");
 let qbe_tool: tool = ("qbe", "QBE", "QBEFLAGS");
