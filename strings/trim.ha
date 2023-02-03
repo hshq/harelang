@@ -101,7 +101,7 @@ export fn trimsuffix(input: str, trim: str) str = {
 	assert(ltrim("\t\r\n  hello") == "hello");
 	assert(ltrim("((()(())))())", '(', ')') == "");
 	assert(ltrim("abacadabra", 'a', 'b', 'c', 'd') == "ra");
-	assert(ltrim("𝚊𝚋𝚊𝚌𝚊𝚍𝚊𝚋𝚛𝚊", '𝚊', '𝚋', '𝚌', '𝚍') == "𝚛𝚊");
+	assert(ltrim("𝚊𝚋𝚊𝚌𝚊𝚍𝚊𝚋𝚛𝚊", '𝚊', '𝚋', '𝚌', '𝚍') == "𝚛𝚊"); // '𝚊' = U+1D68A
 
 	assert(rtrim("") == "");
 	assert(rtrim("hello   ") == "hello");
