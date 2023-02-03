@@ -166,19 +166,13 @@ fn sched_ar(plan: *plan, output: str, depend: *task...) *task = {
 		status = status::SCHEDULED,
 		output = output,
 		depend = alloc(depend...),
-		cmd = getcmd(&ar_tool),
+		cmd = getcmd(&ar_tool, "-c", output),
 		module = void,
 	});
 
-	// If you specify flags in `$ARFLAGS' or a different archiver in `$AR',
-	// this assumes that you will pass the correct flags for creating an
-	// archive, and will not pass the default `-csr', since `ar' is picky
-	// about the order flags are given.
-	if (len(task.cmd) == 1 && task.cmd[0] == plan.target.ar_cmd) {
-		append(task.cmd, "-csr");
-	};
-
-	append(task.cmd, output);
+	// POSIX specifies `ar -r [-cuv] <archive> <file>`
+	// Add -r here so it is always before any ARFLAGS
+	insert(task.cmd[1], "-r");
 
 	for (let i = 0z; i < len(depend); i += 1) {
 		assert(strings::hassuffix(depend[i].output, ".o"));
