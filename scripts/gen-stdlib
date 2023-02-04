@@ -195,7 +195,8 @@ datetime() {
 		parse.ha \
 		time.ha \
 		timezone.ha
-	gen_ssa -plinux datetime errors fmt strings strio time time::chrono
+	gen_ssa -plinux datetime ascii errors fmt io strconv strings strio \
+		time time::chrono
 	gen_srcs -pfreebsd datetime \
 		arithmetic.ha \
 		chronology.ha \
@@ -205,7 +206,8 @@ datetime() {
 		parse.ha \
 		time.ha \
 		timezone.ha
-	gen_ssa -pfreebsd datetime errors fmt strings strio time time::chrono
+	gen_ssa -pfreebsd datetime ascii errors fmt io strconv strings strio \
+		time time::chrono
 }
 
 crypto() {
@@ -273,7 +275,7 @@ crypto_argon2() {
 	fi
 
 	gen_ssa crypto::argon2 bufio bytes crypto::blake2b \
-		crypto::math endian errors hash io rt types
+		crypto::math endian errors hash io types
 }
 
 crypto_bcrypt() {
@@ -298,8 +300,7 @@ crypto_blake2b() {
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_crypto_blake2b
-		gen_ssa crypto::blake2b encoding::hex fmt hash io strings \
-			strio crypto::math endian bytes
+		gen_ssa crypto::blake2b bytes crypto::math endian hash io
 	else
 		gensrcs_crypto_blake2b +test.ha vectors+test.ha
 		gen_ssa crypto::blake2b encoding::hex fmt hash io strings \
@@ -350,7 +351,7 @@ crypto_chacha() {
 	else
 		gen_srcs crypto::chacha chacha20.ha +test.ha
 		gen_ssa crypto::chacha bytes crypto::cipher crypto::math \
-			endian io
+			endian io bufio
 	fi
 }
 
@@ -414,12 +415,13 @@ crypto_poly1305() {
 	then
 		gen_srcs crypto::poly1305 \
 			poly1305.ha
+		gen_ssa crypto::poly1305 bytes crypto::mac endian io
 	else
 		gen_srcs crypto::poly1305 \
 			poly1305.ha \
 			+test.ha
+		gen_ssa crypto::poly1305 bytes crypto::mac endian encoding::hex io
 	fi
-	gen_ssa crypto::poly1305 bytes crypto::mac endian encoding::hex io
 }
 
 crypto_random() {
@@ -549,7 +551,7 @@ crypto_x25519() {
 dirs() {
 	gen_srcs dirs \
 		xdg.ha
-	gen_ssa dirs fs io os path fmt unix
+	gen_ssa dirs errors fs io os path fmt unix
 }
 
 encoding_base64() {
@@ -567,7 +569,8 @@ encoding_base32() {
 encoding_hex() {
 	gen_srcs encoding::hex \
 		hex.ha
-	gen_ssa encoding::hex ascii bytes fmt io strconv strio strings
+	gen_ssa encoding::hex ascii bufio bytes errors fmt io strconv strio \
+		strings
 }
 
 encoding_pem() {
@@ -575,13 +578,15 @@ encoding_pem() {
 	then
 		gen_srcs encoding::pem \
 			pem.ha
+		gen_ssa encoding::pem strings bufio strio io errors \
+			encoding::base64 ascii os fmt
 	else
 		gen_srcs encoding::pem \
 			pem.ha \
 			+test.ha
+		gen_ssa encoding::pem strings bufio strio io errors \
+			encoding::base64 ascii os fmt bytes
 	fi
-	gen_ssa encoding::pem strings bufio strio io errors bytes \
-		encoding::base64 ascii os
 }
 
 encoding_utf8() {
@@ -614,7 +619,7 @@ errors() {
 fmt() {
 	gen_srcs fmt \
 		fmt.ha
-	gen_ssa fmt bufio io os strconv strings types
+	gen_ssa fmt ascii bufio encoding::utf8 io os strconv strings types
 }
 
 fnmatch() {
@@ -624,7 +629,7 @@ fnmatch() {
 	else
 		gen_srcs fnmatch fnmatch.ha +test.ha
 	fi
-	gen_ssa fnmatch strings bytes sort ascii io fmt
+	gen_ssa fnmatch ascii errors strings sort
 }
 
 format_elf() {
@@ -710,10 +715,13 @@ hare_types() {
 	if [ $testing -eq 1 ]
 	then
 		gensrcs_hare_types +test.ha
+		gen_ssa hare::types hare::ast hash hash::fnv endian strings \
+			errors sort fmt bufio hare::lex hare::parse io
 	else
 		gensrcs_hare_types
+		gen_ssa hare::types hare::ast hash hash::fnv endian strings \
+			errors sort fmt
 	fi
-	gen_ssa hare::types hare::ast hare::parse hash hash::fnv endian io strings
 }
 
 gensrcs_hare_unit() {
@@ -733,11 +741,13 @@ hare_unit() {
 	if [ $testing -eq 1 ]
 	then
 		gensrcs_hare_unit +test.ha
+		gen_ssa hare::unit hare::ast hare::types hash hash::fnv \
+			strings hare::lex bufio hare::parse
 	else
 		gensrcs_hare_unit
+		gen_ssa hare::unit hare::ast hare::types hash hash::fnv \
+			strings hare::lex
 	fi
-	gen_ssa hare::unit hare::ast hare::types hash hash::fnv strings hare::lex \
-		bufio hare::parse
 }
 
 hare_unparse() {
@@ -749,7 +759,7 @@ hare_unparse() {
 		type.ha \
 		unit.ha \
 		util.ha
-	gen_ssa hare::unparse fmt io strings strio hare::ast
+	gen_ssa hare::unparse fmt io strings strio hare::ast hare::lex
 }
 
 gensrcs_hare_lex() {
@@ -767,7 +777,8 @@ hare_lex() {
 		gensrcs_hare_lex \
 			+test.ha
 	fi
-	gen_ssa hare::lex io bufio strings fmt sort strio
+	gen_ssa hare::lex ascii io bufio encoding::utf8 strings fmt sort strio \
+		strconv
 }
 
 hare_module() {
@@ -779,8 +790,8 @@ hare_module() {
 		walk.ha
 	gen_ssa hare::module \
 		hare::ast hare::lex hare::parse hare::unparse strio fs io strings hash \
-		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time slices bufio \
-		strconv os encoding::hex sort errors temp
+		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time bufio \
+		strconv os encoding::hex sort errors temp path
 }
 
 gensrcs_hare_parse() {
@@ -810,7 +821,8 @@ hare_parse() {
 			+test/types.ha \
 			+test/unit.ha
 		gen_ssa hare::parse ascii bufio hare::ast hare::lex \
-			hare::unparse io strio fmt strings math
+			hare::unparse io strio fmt types strings math \
+			encoding::utf8
 	fi
 }
 
@@ -855,10 +867,11 @@ hash_siphash() {
 	if [ $testing -eq 0 ]
 	then
 		gen_srcs hash::siphash siphash.ha
-		gen_ssa hash::siphash hash io endian
+		gen_ssa hash::siphash hash io endian crypto::math
 	else
 		gen_srcs hash::siphash siphash.ha +test.ha
-		gen_ssa hash::siphash hash io endian fmt strio strings
+		gen_ssa hash::siphash hash io endian crypto::math \
+			fmt strio strings
 	fi
 }
 
@@ -906,15 +919,15 @@ io() {
 			+test/limit.ha \
 			+test/stream.ha
 	fi
-	gen_ssa -plinux io strings errors bytes
-	gen_ssa -pfreebsd io strings errors bytes
+	gen_ssa -plinux io strings errors bytes rt
+	gen_ssa -pfreebsd io strings errors bytes rt
 }
 
 linux() {
 	gen_srcs -plinux linux \
 		start.ha \
 		env.ha
-	gen_ssa -plinux linux format::elf
+	gen_ssa -plinux linux format::elf rt
 }
 
 linux_keyctl() {
@@ -961,7 +974,7 @@ math() {
 	else
 		gensrcs_math data+test.ha
 	fi
-	gen_ssa math types
+	gen_ssa math types rt
 }
 
 mime() {
@@ -972,8 +985,8 @@ mime() {
 		lookup.ha \
 		parse.ha \
 		system.ha
-	gen_ssa mime ascii errors string hash::fnv encoding::utf8 bufio \
-		errors fs io os fmt
+	gen_ssa mime ascii errors strings hash::fnv encoding::utf8 bufio \
+		fs io os fmt
 }
 
 net() {
@@ -1009,7 +1022,7 @@ net_dns() {
 		strdomain.ha \
 		types.ha
 	gen_ssa net::dns ascii endian net net::udp net::ip fmt strings \
-		unix::resolvconf unix::poll rt time errors
+		unix::resolvconf unix::poll time errors
 }
 
 gensrcs_net_ip() {
@@ -1040,25 +1053,25 @@ net_tcp() {
 		+linux.ha \
 		listener.ha \
 		options.ha
-	gen_ssa -plinux net::tcp io net net::ip os rt
+	gen_ssa -plinux net::tcp errors io net net::ip os rt
 
 	gen_srcs -pfreebsd net::tcp \
 		+freebsd.ha \
 		listener.ha \
 		options.ha
-	gen_ssa -pfreebsd net::tcp io net net::ip os rt
+	gen_ssa -pfreebsd net::tcp errors io net net::ip os rt
 }
 
 net_udp() {
 	gen_srcs -plinux net::udp \
 		+linux.ha \
 		options.ha
-	gen_ssa -plinux net::udp net net::ip errors rt os io
+	gen_ssa -plinux net::udp errors net net::ip errors rt os io
 
 	gen_srcs -pfreebsd net::udp \
 		+freebsd.ha \
 		options.ha
-	gen_ssa -pfreebsd net::udp net net::ip errors rt os io
+	gen_ssa -pfreebsd net::udp errors net net::ip errors rt os io
 }
 
 net_unix() {
@@ -1070,7 +1083,8 @@ net_unix() {
 		listener.ha \
 		options.ha \
 		socketpair.ha
-	gen_ssa -plinux net::unix net errors os io strings types fmt net::dial
+	gen_ssa -plinux net::unix net errors os io strings types fmt \
+		net::dial rt
 
 	gen_srcs -pfreebsd net::unix \
 		+freebsd.ha \
@@ -1080,7 +1094,8 @@ net_unix() {
 		listener.ha \
 		options.ha \
 		socketpair.ha
-	gen_ssa -pfreebsd net::unix net errors os io strings types fmt net::dial
+	gen_ssa -pfreebsd net::unix net errors os io strings types fmt \
+		net::dial rt
 }
 
 gensrcs_net_uri() {
@@ -1101,7 +1116,7 @@ net_uri() {
 			+test.ha
 	fi
 	gen_ssa net::uri \
-		ascii encoding::utf8 ip net::ip strconv strings strio
+		ascii encoding::utf8 fmt io net::ip strconv strings strio
 }
 
 gensrcs_math_complex() {
@@ -1154,14 +1169,14 @@ os_exec() {
 		process+linux.ha \
 		types.ha \
 		cmd.ha
-	gen_ssa -plinux os::exec os strings fmt bytes path errors unix
+	gen_ssa -plinux os::exec os strings fmt errors unix rt io ascii
 
 	gen_srcs -pfreebsd os::exec \
 		exec+freebsd.ha \
 		process+freebsd.ha \
 		types.ha \
 		cmd.ha
-	gen_ssa -pfreebsd os::exec os strings fmt bytes path errors unix
+	gen_ssa -pfreebsd os::exec os strings fmt errors unix rt io ascii
 }
 
 path() {
@@ -1172,7 +1187,7 @@ path() {
 		join.ha \
 		names.ha \
 		iter.ha
-	gen_ssa path strings bufio bytes io
+	gen_ssa path strings bytes errors
 }
 
 regex() {
@@ -1214,7 +1229,7 @@ shlex() {
 		gensrcs_shlex \
 			+test.ha
 	fi
-	gen_ssa shlex ascii bufio encoding::utf8 io strings strio
+	gen_ssa shlex ascii encoding::utf8 io strings strio
 }
 
 slices() {
@@ -1223,7 +1238,7 @@ slices() {
 		reverse.ha \
 		trunc.ha \
 		void.ha
-	gen_ssa slices types
+	gen_ssa slices types rt
 }
 
 gensrcs_sort() {
@@ -1255,7 +1270,7 @@ strconv() {
 			+test/stou.ha \
 			+test/stoi.ha
 	fi
-	gen_ssa strconv types strings ascii math
+	gen_ssa strconv types strings ascii math bytes encoding::utf8
 }
 
 strings() {
@@ -1289,7 +1304,7 @@ strio() {
 	gen_srcs strio \
 		stream.ha \
 		ops.ha
-	gen_ssa strio io strings slices encoding::utf8 errors
+	gen_ssa strio io strings slices encoding::utf8
 }
 
 temp() {
@@ -1352,7 +1367,6 @@ types() {
 }
 
 unix() {
-	# XXX: getuid and setuid are probably platform-specific too
 	gen_srcs -plinux unix \
 		+linux/nice.ha \
 		+linux/pipe.ha \
@@ -1416,7 +1430,7 @@ unix_signal() {
 	gen_srcs -plinux unix::signal \
 		types.ha \
 		+linux.ha
-	gen_ssa -plinux unix::signal io errors
+	gen_ssa -plinux unix::signal io errors rt
 }
 
 unix_tty() {
