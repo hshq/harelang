@@ -64,11 +64,14 @@ export fn open(path: path, flags: int, mode: uint) (int | errno) = {
 
 fn openat(
 	dirfd: int,
-	path: *const char,
+	path: path,
 	flags: int,
 	mode: uint,
-) (int | errno) = wrap_return(syscall4(SYS_openat, dirfd: u64,
-	path: uintptr: u64, flags: u64, mode: u64))?: int;
+) (int | errno) = {
+	let path = kpath(path)?;
+	return wrap_return(syscall4(SYS_openat, dirfd: u64,
+		path: uintptr: u64, flags: u64, mode: u64))?: int;
+};
 
 export fn openat2(
 	dirfd: int,
@@ -802,17 +805,20 @@ export fn setsid() (void | errno) = {
 };
 
 export fn mount(
-	source: *const char,
-	target: *const char,
+	source: path,
+	target: path,
 	filesystemtype: *const char,
 	mountflags: u64,
 	data: nullable *void
 ) (void | errno) = {
+	let source = kpath(source)?;
+	let target = kpath(target)?;
 	wrap_return(syscall5(SYS_mount, source: uintptr, target: uintptr,
 		filesystemtype: uintptr, mountflags: u64, data: uintptr))?;
 };
 
-export fn umount2(target: *const char, flags: int) (void | errno) = {
+export fn umount2(target: path, flags: int) (void | errno) = {
+	let target = kpath(target)?;
 	wrap_return(syscall2(SYS_umount2, target: uintptr, flags: u64))?;
 };
 
@@ -843,9 +849,10 @@ export fn sync() void = {
 	wrap_return(syscall0(SYS_sync))!;
 };
 
-export fn memfd_create(name: *const char, flags: uint) (int | errno) = {
+export fn memfd_create(name: path, flags: uint) (int | errno) = {
+	let path = kpath(name)?;
 	return wrap_return(syscall2(SYS_memfd_create,
-		name: uintptr: u64, flags: u64))?: int;
+		path: uintptr: u64, flags: u64))?: int;
 };
 
 export fn splice(
