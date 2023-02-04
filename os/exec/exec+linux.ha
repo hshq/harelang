@@ -195,7 +195,7 @@ fn platform_start(cmd: *command) (process | errors::error) = {
 		};
 		let err = err as errors::opaque;
 		let err = &err.data: *rt::errno;
-		rt::write(pipe[1], &err, size(int))!;
+		rt::write(pipe[1], err, size(int))!;
 		rt::exit(1);
 	};
 };
