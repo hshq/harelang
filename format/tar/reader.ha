@@ -207,7 +207,7 @@ fn readstr(rd: *bufio::memstream, ln: size) str = {
 	case io::EOF =>
 		abort();
 	};
-	return strings::fromc(buf: *[*]u8: *const char);
+	return strings::fromc(buf: *[*]u8: *const char)!;
 };
 
 fn readoct(rd: *bufio::memstream, ln: size) (uint | invalid) = {

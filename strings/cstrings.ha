@@ -28,10 +28,9 @@ export fn fromc_unsafe(cstr: *const char) const str = {
 
 // Converts a C string to a Hare string in O(n). If the string is not valid
 // UTF-8, abort.
-export fn fromc(cstr: *const char) const str = {
+export fn fromc(cstr: *const char) (const str | utf8::invalid) = {
 	let s = fromc_unsafe(cstr);
-	assert(utf8::valid(s));
-	return s;
+	return if (utf8::valid(s)) s else utf8::invalid;
 };
 
 // Converts a Hare string to a C string. The result is allocated; the caller

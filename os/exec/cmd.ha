@@ -140,8 +140,8 @@ export fn setenv(cmd: *command, key: str, value: str) (void | errors::invalid) =
 // This operation is performed atomically, such that the following code swaps
 // stdout and stderr:
 //
-// 	exec::addfile(&cmd, os::stderr, os::stdout_file);
-// 	exec::addfile(&cmd, os::stdout_file, os::stderr);
+// 	exec::addfile(&cmd, os::stderr_file, os::stdout_file);
+// 	exec::addfile(&cmd, os::stdout_file, os::stderr_file);
 //
 // Pass [[nullfd]] in the 'source' argument to map the child's file descriptor
 // to /dev/null or the appropriate platform-specific equivalent.
