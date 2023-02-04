@@ -167,7 +167,8 @@ export fn exitstr(status: exit_status) const str = {
 				i: int);
 		};
 	case let s: signaled =>
-		// TODO: Add signal name
+		// TODO: Add signal name (once unix::signal is ported to
+		// FreeBSD)
 		return fmt::bsprintf(buf, "exited with signal {}", s: int);
 	};
 };

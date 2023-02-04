@@ -1174,7 +1174,8 @@ os_exec() {
 		process+linux.ha \
 		types.ha \
 		cmd.ha
-	gen_ssa -plinux os::exec os strings fmt errors unix rt io ascii
+	gen_ssa -plinux os::exec os strings fmt errors unix rt io ascii \
+		unix::signal
 
 	gen_srcs -pfreebsd os::exec \
 		exec+freebsd.ha \
