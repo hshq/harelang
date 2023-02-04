@@ -252,7 +252,7 @@ export fn fprintf(
 				case let pmod: *modifiers =>
 					mod = pmod;
 				case =>
-					abort("Explicit parameter is not *fmt::modifier");
+					abort("Explicit parameter is not *fmt::modifiers");
 				};
 			case nextparam =>
 				i += 1;
@@ -260,7 +260,7 @@ export fn fprintf(
 				case let pmod: *modifiers =>
 					mod = pmod;
 				case =>
-					abort("Implicit parameter is not *fmt::modifier");
+					abort("Implicit parameter is not *fmt::modifiers");
 				};
 			case void => void;
 			};
