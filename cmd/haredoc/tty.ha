@@ -157,7 +157,7 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 				n += fmt::fprintf(out, ") ")?;
 				n += render(out, syn::NORMAL)?;
 			};
-			n += render(out, syn::PRIMARY)?;
+			n += render(out, syn::GLOBAL)?;
 			n += unparse::ident(out, g[i].ident)?;
 			n += render(out, syn::PUNCTUATION)?;
 			n += fmt::fprint(out, ": ")?;
@@ -172,7 +172,7 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 		n += render(out, syn::KEYWORD)?;
 		n += fmt::fprintf(out, "def ")?;
 		for (let i = 0z; i < len(c); i += 1) {
-			n += render(out, syn::PRIMARY)?;
+			n += render(out, syn::CONSTANT)?;
 			n += unparse::ident(out, c[i].ident)?;
 			n += render(out, syn::PUNCTUATION)?;
 			n += fmt::fprint(out, ": ")?;
@@ -186,7 +186,7 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 		n += render(out, syn::KEYWORD)?;
 		n += fmt::fprint(out, "type ")?;
 		for (let i = 0z; i < len(t); i += 1) {
-			n += render(out, syn::PRIMARY)?;
+			n += render(out, syn::TYPEDEF)?;
 			n += unparse::ident(out, t[i].ident)?;
 			n += render(out, syn::PUNCTUATION)?;
 			n += fmt::fprint(out, " = ")?;
@@ -227,8 +227,9 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 		};
 		n += render(out, syn::KEYWORD)?;
 		n += fmt::fprint(out, "fn ")?;
-		n += render(out, syn::PRIMARY)?;
+		n += render(out, syn::FUNCTION)?;
 		n += unparse::ident(out, f.ident)?;
+		n += fmt::fprint(out, "\x1b[0m")?;
 		n += prototype_tty(out, 0,
 			f.prototype.repr as ast::func_type)?;
 	};
