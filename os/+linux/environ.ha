@@ -18,12 +18,12 @@ let args_static: [32]str = [""...];
 	if (rt::argc < len(args_static)) {
 		args = args_static[..rt::argc];
 		for (let i = 0z; i < rt::argc; i += 1) {
-			args[i] = strings::fromc(rt::argv[i]);
+			args[i] = strings::fromc(rt::argv[i])!;
 		};
 	} else {
 		args = alloc([], rt::argc);
 		for (let i = 0z; i < rt::argc; i += 1) {
-			append(args, strings::fromc(rt::argv[i]));
+			append(args, strings::fromc(rt::argv[i])!);
 		};
 	};
 
@@ -72,7 +72,7 @@ export fn getenvs() []str = {
 		return envp;
 	};
 	for (let i = 0z; rt::envp[i] != null; i += 1) {
-		append(envp, strings::fromc(rt::envp[i]: *const char));
+		append(envp, strings::fromc(rt::envp[i]: *const char)!);
 	};
 	return envp;
 };
@@ -85,7 +85,7 @@ export fn sysname() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
 	};
-	return strings::fromc(&uts.sysname: *const char);
+	return strings::fromc(&uts.sysname: *const char)!;
 };
 
 // Returns the host system hostname
@@ -93,7 +93,7 @@ export fn hostname() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
 	};
-	return strings::fromc(&uts.nodename: *const char);
+	return strings::fromc(&uts.nodename: *const char)!;
 };
 
 // Returns the host kernel version
@@ -101,7 +101,7 @@ export fn release() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
 	};
-	return strings::fromc(&uts.release: *const char);
+	return strings::fromc(&uts.release: *const char)!;
 };
 
 // Returns the host operating system version
@@ -109,7 +109,7 @@ export fn version() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
 	};
-	return strings::fromc(&uts.version: *const char);
+	return strings::fromc(&uts.version: *const char)!;
 };
 
 // Returns the host CPU architecture
@@ -117,5 +117,5 @@ export fn machine() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
 	};
-	return strings::fromc(&uts.machine: *const char);
+	return strings::fromc(&uts.machine: *const char)!;
 };
