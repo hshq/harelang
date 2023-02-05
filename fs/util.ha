@@ -111,6 +111,13 @@ export fn dirents_free(d: []dirent) void = {
 
 // Removes a directory, and anything in it.
 export fn rmdirall(fs: *fs, path: str) (void | error) = {
+	let buf = path::init();
+	path::set(&buf, path)!;
+	return rmdirall_path(fs, &buf);
+};
+
+fn rmdirall_path(fs: *fs, buf: *path::buffer) (void | error) = {
+	let path = path::string(buf);
 	let it = iter(fs, path)?;
 	for (true) {
 		match (next(it)) {
@@ -118,18 +125,15 @@ export fn rmdirall(fs: *fs, path: str) (void | error) = {
 			if (ent.name == "." || ent.name == "..") {
 				continue;
 			};
-			// XXX: This could probably be more efficient if we
-			// re-used the buffer further down the call stack.
-			let buf = alloc(path::init());
-			defer free(buf);
-			const path = path::set(buf, path, ent.name)!;
+			path = path::add(buf, ent.name)!;
 
 			switch (ent.ftype & mode::DIR) {
 			case mode::DIR =>
-				rmdirall(fs, path)?;
+				rmdirall_path(fs, buf)?;
 			case =>
 				remove(fs, path)?;
 			};
+			path = path::add(buf, "..")!;
 		case void =>
 			break;
 		};
