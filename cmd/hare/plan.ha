@@ -268,6 +268,7 @@ fn execute(
 	case let cmd: exec::command =>
 		yield cmd;
 	case let err: exec::error =>
+		progress_clear(plan);
 		fmt::fatalf("Error resolving {}: {}", task.cmd[0],
 			exec::strerror(err));
 	};

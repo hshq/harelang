@@ -94,6 +94,7 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 	let ver = match (module::lookup(plan.context, ident)) {
 	case let err: module::error =>
 		let ident = unparse::identstr(ident);
+		progress_clear(plan);
 		fmt::fatalf("Error resolving {}: {}", ident,
 			module::strerror(err));
 	case let ver: module::version =>
@@ -296,6 +297,7 @@ fn sched_hare_object(
 		let manifest = match (module::manifest_load(
 				plan.context, namespace)) {
 		case let err: module::error =>
+			progress_clear(plan);
 			fmt::fatalf("Error reading cache entry for {}: {}",
 				displayed_ns, module::strerror(err));
 		case let m: module::manifest =>
@@ -318,6 +320,7 @@ fn sched_hare_object(
 		match (os::mkdirs(path, 0o755)) {
 		case void => void;
 		case let err: fs::error =>
+			progress_clear(plan);
 			fmt::fatalf("Error: mkdirs {}: {}", path,
 				fs::strerror(err));
 		};
@@ -343,6 +346,7 @@ fn sched_hare_object(
 		};
 	};
 	if (hare_inputs == 0) {
+		progress_clear(plan);
 		fmt::fatalf("Error: Module {} has no Hare input files",
 			displayed_ns);
 	};
