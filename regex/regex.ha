@@ -195,8 +195,8 @@ fn handle_bracket(
 
 // Compiles a string containing a regular expression into a regex struct.
 export fn compile(expr: str) (regex | error) = {
-	let insts: []inst = alloc([]);
-	let charsets: []charset = alloc([]);
+	let insts: []inst = [];
+	let charsets: []charset = [];
 	let iter = strings::iter(expr);
 	let r_idx = 0z;
 	let anchored = false;
@@ -630,7 +630,7 @@ fn search(
 	need_captures: bool
 ) (void | []capture) = {
 	let threads: []thread = alloc([
-		thread { captures = alloc([]), ... }
+		thread { captures = [], ... }
 	]);
 	if (re.n_reps > 0) {
 		threads[0].rep_counters = alloc([0...], re.n_reps);
@@ -782,7 +782,7 @@ export fn find(re: *regex, string: str) []capture = {
 // Attempts to match a regular expression against a string and returns all
 // non-overlapping matches, or void if there are no matches.
 export fn findall(re: *regex, string: str) [][]capture = {
-	let res: [][]capture = alloc([]);
+	let res: [][]capture = [];
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
 	let str_bytesize = 0z;
