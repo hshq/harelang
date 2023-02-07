@@ -614,7 +614,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 	case strconv::invalid =>
 		abort(); // Shouldn't be lexed in
 	case strconv::overflow =>
-		return syntaxerr(loc, "overflow in exponent");
+		return syntaxerr(loc, "literal overflow");
 	};
 
 	line_comment(lex)?;
