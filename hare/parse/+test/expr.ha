@@ -93,8 +93,11 @@
 	roundtrip("export fn main() void = void: int;\n\n"
 		"export fn main() void = void as int;\n\n"
 		"export fn main() void = void is int;\n\n"
+		"export fn main() void = void as null;\n\n"
+		"export fn main() void = void is null;\n\n"
 		"export fn main() void = void: int: uint: u16: u8;\n\n"
 		"export fn main() void = void: int as uint: u16 is u8;\n\n"
+		"export fn main() void = void: int as null: u16 is null;\n\n"
 		"export fn main() void = {\n\tyield void;\n}: int;\n");
 };
 

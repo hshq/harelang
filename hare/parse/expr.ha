@@ -527,7 +527,17 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 		yield ast::cast_kind::TEST;
 	case => abort();
 	};
-	let typ = alloc(_type(lexer)?);
+	let typ = match (try(lexer, ltok::NULL)?) {
+	case let t: lex::token =>
+		yield alloc(ast::_type {
+			start = t.2,
+			end = lex::prevloc(lexer),
+			flags = 0,
+			repr = ast::builtin_type::NULL,
+		});
+	case void =>
+		yield alloc(_type(lexer)?);
+	};
 	return cast(lexer, ast::expr {
 		start = lvalue.start,
 		end = lex::prevloc(lexer),
