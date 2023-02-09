@@ -23,7 +23,7 @@ export fn dup(u: *uri) uri = {
 		case let host: str =>
 			yield strings::dup(host);
 		case let ip: ip::addr =>
-			yield strings::dup(ip::string(ip));
+			yield ip;
 		},
 		port = u.port,
 		userinfo = strings::dup(u.userinfo),
