@@ -1,12 +1,237 @@
 // License: MPL-2.0
 // (c) 2021-2023 Alexey Yerin <yyp@disroot.org>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// (c) 2021-2023 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use bytes;
 use encoding::utf8;
+use errors;
 use io;
 use strings;
 use types;
+
+def BUFSIZ: size = 4096;
+
+export type scanner = struct {
+	src: io::handle,
+	buffer: []u8,
+	// Number of bytes available in buffer
+	pending: size,
+	// Number of bytes returned to the user
+	readout: size,
+	// User-confirmed maximum size of read buffer
+	maxread: size,
+};
+
+// Creates a new [[scanner]] which will allocate and maintain a read buffer for
+// efficient reading of files. The scanner will read ahead only up to maxread
+// bytes, which can be [[types::SIZE_MAX]] if no limit is required. The user
+// must free resources associated with the scanner using [[finish]] after use.
+//
+// Reads from the scanner will return [[errors::overflow]] if maxread is
+// reached.
+export fn newscanner(src: io::handle, maxread: size) scanner = {
+	return scanner {
+		src = src,
+		buffer = alloc([0...], BUFSIZ),
+		maxread = maxread,
+		pending = 0,
+		readout = 0,
+	};
+};
+
+// Creates a new [[scanner]] using a user-provided buffer. The scanner will
+// return [[errors::overflow]] if the buffer length is reached, but will not
+// perform any allocations. The user should not call [[finish]] after use unless
+// they wish to free the underlying buffer through bufio.
+export fn newscanner_static(src: io::handle, buffer: []u8) scanner = {
+	return scanner {
+		src = src,
+		buffer = buffer,
+		maxread = len(buffer),
+		pending = 0,
+		readout = 0,
+	};
+};
+
+// Frees resources associated associated with a [[scanner]]. Does not close the
+// underlying I/O handle.
+export fn finish(scan: *scanner) void = {
+	free(scan.buffer);
+};
+
+// Fills up the scanner buffer with data from the underlying I/O handle. If no
+// space remains in the read buffer, it is expanded by BUFSIZ (up to maxread).
+// Then, one read from the underlying I/O handle is performed and scan.pending
+// is updated accordingly. Returns the number of bytes which had been available
+// prior to the call.
+fn scan_readahead(scan: *scanner) (size | io::EOF | io::error) = {
+	if (scan.pending >= len(scan.buffer)) {
+		let readahead = scan.pending + BUFSIZ;
+		if (readahead > scan.maxread) {
+			readahead = scan.maxread;
+		};
+		if (scan.pending >= readahead) {
+			return errors::overflow;
+		};
+		append(scan.buffer, [0...], readahead);
+	};
+
+	const prev = scan.pending;
+	match (io::read(scan.src, scan.buffer[scan.pending..])?) {
+	case let z: size =>
+		scan.pending += z;
+		return prev;
+	case io::EOF =>
+		return io::EOF;
+	};
+};
+
+// Shifts the buffer towards the start, discarding bytes which were read out.
+fn scan_shift(scan: *scanner) void = {
+	const n = scan.readout;
+	if (n == 0) {
+		return;
+	};
+	scan.buffer[..len(scan.buffer) - n] = scan.buffer[n..];
+	scan.readout = 0;
+	scan.pending -= n;
+};
+
+// Consumes N bytes from the buffer, updating scan.readout. User must call
+// [[scan_shift]] before calling scan_consume again.
+fn scan_consume(scan: *scanner, n: size) []u8 = {
+	assert(len(scan.buffer) >= n && scan.readout == 0);
+	scan.readout = n;
+	return scan.buffer[..n];
+};
+
+// Reads one byte from a [[scanner]].
+export fn scan_byte(scan: *scanner) (u8 | io::EOF | io::error) = {
+	if (scan.pending == 0) {
+		match (scan_readahead(scan)?) {
+		case io::EOF =>
+			return io::EOF;
+		case size =>
+			yield;
+		};
+	};
+
+	// Consume previous read, if any
+	scan_shift(scan);
+	// Consume this read right away
+	defer scan_shift(scan);
+
+	return scan_consume(scan, 1)[0];
+};
+
+// Reads the next token from a [[scanner]], delimited by delim. The return value
+// is borrowed from the internal scanner buffer, which is invalidated during
+// subsequent operations which use this scanner.
+export fn scan_bytes(
+	scan: *scanner,
+	delim: (u8 | []u8),
+) ([]u8 | io::EOF | io::error) = {
+	scan_shift(scan);
+
+	let i = 0z, nread = 0z;
+	for (true) {
+		match (bytes::index(scan.buffer[nread..scan.pending], delim)) {
+		case let ix: size =>
+			i = ix;
+			break;
+		case void =>
+			yield;
+		};
+
+		match (scan_readahead(scan)?) {
+		case io::EOF =>
+			if (scan.pending == 0) {
+				return io::EOF;
+			};
+			return scan_consume(scan, scan.pending);
+		case let z: size =>
+			// No need to re-index the earlier part of the buffer
+			nread += z;
+		};
+	};
+
+	const ndelim = match (delim) {
+	case u8 =>
+		yield 1z;
+	case let u: []u8 =>
+		yield len(u);
+	};
+	const nuser = nread + i, nconsume = nuser + ndelim;
+	return scan_consume(scan, nconsume)[..nuser];
+};
+
+// Reads one rune from a [[scanner]].
+export fn scan_rune(
+	scan: *scanner,
+) (rune | io::EOF | io::error | utf8::invalid) = {
+	if (scan.pending < 4) {
+		match (scan_readahead(scan)?) {
+		case io::EOF =>
+			return io::EOF;
+		case size =>
+			yield;
+		};
+	};
+	const sz = match (utf8::utf8sz(scan.buffer[0])) {
+	case let z: size =>
+		yield z;
+	case void =>
+		return utf8::invalid;
+	};
+
+	// Consume previous read, if any
+	scan_shift(scan);
+	// Consume this read right away
+	defer scan_shift(scan);
+
+	const buf = scan_consume(scan, sz);
+	const dec = utf8::decode(buf[..sz]);
+	match (utf8::next(&dec)?) {
+	case let r: rune =>
+		return r;
+	case void =>
+		return io::EOF;
+	case utf8::more =>
+		return utf8::invalid;
+	};
+};
+
+// Scans a string of text from a [[scanner]] up to some delimiter. The return
+// value is borrowed from the internal scanner buffer, which is invalidated
+// during subsequent operations which use this scanner.
+export fn scan_string(
+	scan: *scanner,
+	delim: str,
+) (const str | io::EOF | io::error | utf8::invalid) = {
+	const token = match (scan_bytes(scan, strings::toutf8(delim))?) {
+	case let token: []u8 =>
+		yield token;
+	case io::EOF =>
+		return io::EOF;
+	};
+	return strings::fromutf8(token)?;
+};
+
+// Scans the next line of text from a [[scanner]]. The return value is borrowed
+// from the internal scanner buffer, which is invalidated during subsequent
+// operations which use this scanner.
+export fn scan_line(
+	scan: *scanner,
+) (const str | io::EOF | io::error | utf8::invalid) = {
+	return scan_string(scan, "\n");
+};
+
+// Returns the internal scanner buffer, which contains all bytes read ahead by
+// the scanner up to this point.
+export fn scan_buffer(scan: *scanner) []u8 = {
+	scan_shift(scan);
+	return scan.buffer[..scan.pending];
+};
 
 // Reads a single byte from an [[io::handle]].
 export fn scanbyte(file: io::handle) (u8 | io::EOF | io::error) = {
