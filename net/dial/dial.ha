@@ -1,6 +1,10 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
+use errors;
+use fmt;
 use net;
+use net::ip;
+use net::uri;
 
 // Dials a remote address, establishing a connection and returning the resulting
 // [[net::socket]]. The proto parameter should be the transport protocol (e.g.
@@ -48,4 +52,33 @@ export fn dial(
 		};
 	};
 	return net::unknownproto: net::error;
+};
+
+def HOST_MAX: size = 255;
+
+// Performs a [[dial]] operation for a given URI, taking the service name from
+// the URI scheme and forming an address from the URI host and port.
+export fn dial_uri(proto: str, uri: *uri::uri) (net::socket | error) = {
+	// XXX: Should the code to convert a URI to e.g. "[::1]:80" be
+	// generalized for end-user use?
+	if (uri.host is str && len(uri.host as str) > HOST_MAX) {
+		return invalid_address;
+	};
+	static let addr: [HOST_MAX + len("[]:65535")]u8 = [0...];
+
+	const colon = if (uri.port != 0) ":" else "";
+	const port: fmt::formattable = if (uri.port != 0) uri.port else "";
+
+	let addr = match (uri.host) {
+	case let host: str =>
+		yield fmt::bsprintf(addr, "{}{}{}", host, colon, port);
+	case let ip: ip::addr4 =>
+		const host = ip::string(ip);
+		yield fmt::bsprintf(addr, "{}{}{}", host, colon, port);
+	case let ip: ip::addr6 =>
+		const host = ip::string(ip);
+		yield fmt::bsprintf(addr, "[{}]{}{}", host, colon, port);
+	};
+
+	return dial(proto, addr, uri.scheme);
 };
