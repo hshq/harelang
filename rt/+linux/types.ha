@@ -841,7 +841,8 @@ export def SEEK_END: int = 2;
 // Flock operations
 export def LOCK_SH: int = 1;
 export def LOCK_EX: int = 2;
-export def LOCK_UN: int = 4;
+export def LOCK_NB: int = 4;
+export def LOCK_UN: int = 8;
 
 // Inotify init1 flags
 export def IN_NONBLOCK: int = O_NONBLOCK;
