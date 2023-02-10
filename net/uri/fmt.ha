@@ -27,7 +27,9 @@ def unres_path: str = "-._~!$&'()*+,;=:@/";
 export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
 	let n = 0z;
 	let slashes_w = false;
-	n += fmt::fprintf(out, "{}:", u.scheme)?;
+	if (u.scheme != "") {
+		n += fmt::fprintf(out, "{}:", u.scheme)?;
+	};
 	if (len(u.userinfo) > 0) {
 		assert(!(u.host is str) || len(u.host as str) > 0);
 		n += fmt::fprintf(out, "//{}@", u.userinfo)?;
