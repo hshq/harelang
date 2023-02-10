@@ -11,7 +11,15 @@ export fn copy(dest: handle, src: handle) (error | size) = {
 	match (dest) {
 	case let fd: file =>
 		if (src is file) {
-			return fd_copy(fd, src as file);
+			match (fd_copy(fd, src as file)) {
+			case let err: error =>
+				if (!(err is errors::unsupported)) {
+					return err;
+				};
+				// Use fallback
+			case let z: size =>
+				return z;
+			};
 		};
 		return copy_fallback(dest, src);
 	case let st: *stream =>
