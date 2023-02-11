@@ -43,6 +43,17 @@ export fn fork() (process | void | error) = {
 // 	let data = io::drain(pipe.0)!;
 // 	io::close(pipe.0)!;
 // 	exec::wait(&proc)!;
+//
+// To write to the standard input of a process:
+//
+// 	let pipe = exec::pipe();
+// 	exec::addfile(&cmd, os::stdin_file, pipe.0);
+// 	let proc = exec::start(&cmd)!;
+//
+// 	io::writeall(data)!;
+// 	io::close(pipe.1)!;
+// 	io::close(pipe.0)!;
+// 	exec::wait(&proc)!;
 export fn pipe() (io::file, io::file) = {
 	return unix::pipe()!;
 };
@@ -182,8 +193,8 @@ fn platform_start(cmd: *command) (process | errors::error) = {
 			rt::exit(1);
 		};
 		let err = err as errors::opaque;
-		let err = &err.data: *rt::errno: *int;
-		rt::write(pipe[1], &err, size(int))!;
+		let err = &err.data: *rt::errno;
+		rt::write(pipe[1], err, size(int))!;
 		rt::exit(1);
 	};
 };

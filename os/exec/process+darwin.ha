@@ -153,7 +153,8 @@ export type signaled = int;
 // The exit status of a process.
 export type exit_status = (exited | signaled);
 
-// Returns a human friendly string describing the exit status.
+// Returns a human friendly string describing the exit status. The string is
+// statically allocated; use [[strings::dup]] to extend its lifetime.
 export fn exitstr(status: exit_status) const str = {
 	static let buf: [1024]u8 = [0...];
 	match (status) {

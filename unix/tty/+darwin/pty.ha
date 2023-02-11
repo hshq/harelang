@@ -43,7 +43,7 @@ export fn ptsname(master: io::file) (str | error) = {
 			case rt::ERANGE => return errors::overflow;
 			case => abort("Unexpected error from ptsname_r");
 		};
-	case => return strings::fromc(&path_buf: *[*]u8: *const char);
+	case => return strings::fromc(&path_buf: *[*]u8: *const char)!;
 	};
 };
 
