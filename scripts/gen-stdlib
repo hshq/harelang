@@ -1080,7 +1080,7 @@ net_dial() {
 		dial.ha \
 		ip.ha \
 		resolve.ha
-	gen_ssa net::dial net net::ip net::tcp net::udp net::dns \
+	gen_ssa net::dial net net::ip net::tcp net::udp net::dns net::uri \
 		crypto::random strconv strings unix::hosts
 }
 

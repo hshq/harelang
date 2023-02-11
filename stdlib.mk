@@ -1891,7 +1891,7 @@ stdlib_net_dial_any_srcs = \
 	$(STDLIB)/net/dial/ip.ha \
 	$(STDLIB)/net/dial/resolve.ha
 
-$(HARECACHE)/net/dial/net_dial-any.ssa: $(stdlib_net_dial_any_srcs) $(stdlib_rt) $(stdlib_net_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_net_tcp_$(PLATFORM)) $(stdlib_net_udp_$(PLATFORM)) $(stdlib_net_dns_$(PLATFORM)) $(stdlib_crypto_random_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_unix_hosts_$(PLATFORM))
+$(HARECACHE)/net/dial/net_dial-any.ssa: $(stdlib_net_dial_any_srcs) $(stdlib_rt) $(stdlib_net_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_net_tcp_$(PLATFORM)) $(stdlib_net_udp_$(PLATFORM)) $(stdlib_net_dns_$(PLATFORM)) $(stdlib_net_uri_$(PLATFORM)) $(stdlib_crypto_random_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_unix_hosts_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/dial
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::dial \
@@ -4593,7 +4593,7 @@ testlib_net_dial_any_srcs = \
 	$(STDLIB)/net/dial/ip.ha \
 	$(STDLIB)/net/dial/resolve.ha
 
-$(TESTCACHE)/net/dial/net_dial-any.ssa: $(testlib_net_dial_any_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_net_tcp_$(PLATFORM)) $(testlib_net_udp_$(PLATFORM)) $(testlib_net_dns_$(PLATFORM)) $(testlib_crypto_random_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_unix_hosts_$(PLATFORM))
+$(TESTCACHE)/net/dial/net_dial-any.ssa: $(testlib_net_dial_any_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_net_tcp_$(PLATFORM)) $(testlib_net_udp_$(PLATFORM)) $(testlib_net_dns_$(PLATFORM)) $(testlib_net_uri_$(PLATFORM)) $(testlib_crypto_random_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_unix_hosts_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/dial
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::dial \
