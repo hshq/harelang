@@ -6,7 +6,7 @@ use errors;
 use strconv;
 use strings;
 
-// A string describing the error the occurred.
+// An error string describing a compilation error.
 export type error = !str;
 
 export type inst_lit = rune,
@@ -30,7 +30,16 @@ export type inst = (inst_lit | inst_any | inst_split | inst_jump |
 	inst_groupstart | inst_groupend |
 	inst_repeat);
 
-// A (sub)match found as a result of matching a certain string against a regex.
+// The resulting match of a [[regex]] applied to a string.
+//
+// The first [[capture]] corresponds to the implicit zeroth capture group,
+// i.e. the whole expression.
+//
+// The rest of the [[capture]]s correspond to the rest of the capture groups,
+// i.e. the sub-expressions.
+export type result = []capture;
+
+// A (sub)match corresponding to a regular expression's capture group.
 export type capture = struct {
 	content: str,
 	start: size,
@@ -85,7 +94,7 @@ export type regex = struct {
 	n_reps: size,
 };
 
-// Frees the memory used by a regex.
+// Frees resources associated with a [[regex]].
 export fn finish(re: *regex) void = {
 	free(re.insts);
 	for (let i = 0z; i < len(re.charsets); i += 1) {
@@ -203,7 +212,7 @@ fn handle_bracket(
 	*r_idx += 1;
 };
 
-// Compiles a string containing a regular expression into a regex struct.
+// Compiles a regular expression string into a [[regex]].
 export fn compile(expr: str) (regex | error) = {
 	let insts: []inst = [];
 	let charsets: []charset = [];
@@ -759,7 +768,7 @@ fn search(
 	return void;
 };
 
-// Returns whether or not a regex matches a string.
+// Returns whether or not a [[regex]] matches any part of a given string.
 export fn test(re: *regex, string: str) bool = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
@@ -771,9 +780,10 @@ export fn test(re: *regex, string: str) bool = {
 };
 
 
-// Attempts to match a regular expression against a string and returns the
-// longest leftmost match, or void if there is no match.
-export fn find(re: *regex, string: str) []capture = {
+// Attempts to match a [[regex]] against a string and returns the longest
+// leftmost match as a [[result]]. The caller must free the return value with
+// [[result_free]].
+export fn find(re: *regex, string: str) result = {
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
 	let str_bytesize = 0z;
@@ -785,9 +795,10 @@ export fn find(re: *regex, string: str) []capture = {
 	};
 };
 
-// Attempts to match a regular expression against a string and returns all
-// non-overlapping matches, or void if there are no matches.
-export fn findall(re: *regex, string: str) [][]capture = {
+// Attempts to match a [[regex]] against a string and returns all
+// non-overlapping matches as a slice of [[result]]s. The caller must free the
+// return value with [[result_freeall]].
+export fn findall(re: *regex, string: str) []result = {
 	let res: [][]capture = [];
 	let str_idx = -1;
 	let str_iter = strings::iter(string);
@@ -812,18 +823,18 @@ export fn findall(re: *regex, string: str) [][]capture = {
 	return res;
 };
 
-// Frees a slice of captures.
-export fn free_captures(s: []capture) void = {
+// Frees a [[result]].
+export fn result_free(s: result) void = {
 	free(s);
 };
 
-// Frees each match in a slice of matches, as well as the slice itself.
-export fn free_matches(s: [][]capture) void = {
+// Frees a slice of [[result]]s.
+export fn result_freeall(s: []result) void = {
 	for (let i = 0z; i < len(s); i += 1) {
-		free_captures(s[i]);
+		result_free(s[i]);
 	};
 	free(s);
 };
 
-// Converts regex [[error]] into a user-friendly string.
+// Converts an [[error]] into a user-friendly string.
 export fn strerror(err: error) str = err;
