@@ -79,7 +79,7 @@ fn emit_html(ctx: *context) (void | error) = {
 	if (len(ident) == 0) {
 		fmt::fprintf(ctx.out, "<h2>The Hare standard library <span class='heading-extra'>")?;
 	} else {
-		fmt::fprintf(ctx.out, "<h2>{} <span class='heading-extra'>", ident)?;
+		fmt::fprintf(ctx.out, "<h2><span class='heading-body'>{}</span><span class='heading-extra'>", ident)?;
 	};
 	for (let i = 0z; i < len(ctx.tags); i += 1) {
 		const mode = switch (ctx.tags[i].mode) {
@@ -290,7 +290,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 	fmt::fprintln(ctx.out, "<section class='member'>")?;
 	fmt::fprint(ctx.out, "<h4 id='")?;
 	unparse::ident(ctx.out, decl_ident(decl))?;
-	fmt::fprint(ctx.out, "'>")?;
+	fmt::fprint(ctx.out, "'><span class='heading-body'>")?;
 	fmt::fprintf(ctx.out, "{} ", match (decl.decl) {
 		case ast::decl_func =>
 			yield "fn";
@@ -303,7 +303,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 		})?;
 	unparse::ident(ctx.out, decl_ident(decl))?;
 	// TODO: Add source URL
-	fmt::fprint(ctx.out, "<span class='heading-extra'><a href='#")?;
+	fmt::fprint(ctx.out, "</span><span class='heading-extra'><a href='#")?;
 	unparse::ident(ctx.out, decl_ident(decl))?;
 	fmt::fprint(ctx.out, "'>[link]</a>
 	</span>")?;
@@ -964,9 +964,14 @@ h3 {
 	color: red;
 }
 
+.heading-body {
+	word-wrap: anywhere;
+}
+
 .heading-extra {
 	align-self: flex-end;
 	flex-grow: 1;
+	padding-left: 0.5rem;
 	text-align: right;
 	font-size: 0.8rem;
 	color: #444;
