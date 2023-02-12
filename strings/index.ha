@@ -17,9 +17,35 @@ export fn index(haystack: str, needle: (str | rune)) (size | void) = {
 	};
 };
 
+// Returns the index of the last occurance of 'needle' in the 'haystack', or
+// void if not present. The index returned is the rune-wise index, not the
+// byte-wise index.
+export fn rindex(haystack: str, needle: (str | rune)) (size | void) = {
+	match (needle) {
+	case let r: rune =>
+		return rindex_rune(haystack, r);
+	case let s: str =>
+		return rindex_string(haystack, s);
+	};
+};
+
 fn index_rune(s: str, r: rune) (size | void) = {
 	let iter = iter(s);
 	for (let i = 0z; true; i += 1) {
+		match (next(&iter)) {
+		case let n: rune =>
+			if (r == n) {
+				return i;
+			};
+		case void =>
+			break;
+		};
+	};
+};
+
+fn rindex_rune(s: str, r: rune) (size | void) = {
+	let iter = riter(s);
+	for (let i = len(s) - 1; true; i -= 1) {
 		match (next(&iter)) {
 		case let n: rune =>
 			if (r == n) {
@@ -55,6 +81,31 @@ fn index_string(s: str, needle: str) (size | void) = {
 	};
 };
 
+fn rindex_string(s: str, needle: str) (size | void) = {
+	let s_iter = riter(s);
+	for (let i = len(s); true; i -= 1) {
+		let rest_iter = s_iter;
+		let needle_iter = riter(needle);
+		for (true) {
+			const rest_rune = next(&rest_iter);
+			const needle_rune = next(&needle_iter);
+			if (rest_rune is void && !(needle_rune is void)) {
+				break;
+			};
+			if (needle_rune is void) {
+				return i - len(needle);
+			};
+			if ((rest_rune as rune) != (needle_rune as rune)) {
+				break;
+			};
+		};
+		if (next(&s_iter) is void) {
+			break;
+		};
+	};
+};
+
+
 @test fn index() void = {
 	assert(index("hello world", 'w') as size == 6);
 	assert(index("こんにちは", 'ち') as size == 3);
@@ -67,12 +118,26 @@ fn index_string(s: str, needle: str) (size | void) = {
 	assert(index("hello world!", "word") is void);
 	assert(index("こんにちは", "ちは") as size == 3);
 	assert(index("こんにちは", "きょうは") is void);
+
+	assert(index("hello world!", "o") as size == 4);
+	assert(rindex("hello world!", "o") as size == 7);
 };
 
 // Returns the byte-wise index of the first occurance of 'needle' in the
 // 'haystack', or void if not present.
 export fn byteindex(haystack: str, needle: (str | rune)) (size | void) = {
 	return bytes::index(toutf8(haystack), match (needle) {
+	case let s: str =>
+		yield toutf8(s);
+	case let r: rune =>
+		yield if (r: u32 <= 0x7f) r: u32: u8 else utf8::encoderune(r);
+	});
+};
+
+// Returns the byte-wise index of the last occurance of 'needle' in the
+// 'haystack', or void if not present.
+export fn rbyteindex(haystack: str, needle: (str | rune)) (size | void) = {
+	return bytes::rindex(toutf8(haystack), match (needle) {
 	case let s: str =>
 		yield toutf8(s);
 	case let r: rune =>
@@ -92,4 +157,7 @@ export fn byteindex(haystack: str, needle: (str | rune)) (size | void) = {
 	assert(byteindex("hello world!", "word") is void);
 	assert(byteindex("こんにちは", "ちは") as size == 9);
 	assert(byteindex("こんにちは", "きょうは") is void);
+
+	assert(byteindex("またあったね", "た") as size == 3);
+	assert(rbyteindex("またあったね", "た") as size == 12);
 };
