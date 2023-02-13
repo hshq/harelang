@@ -9,7 +9,8 @@ use types;
 // The state for a tokenizer.
 export type tokenizer = bytes::tokenizer;
 
-// Returns a tokenizer which yields sub-strings tokenized by a delimiter.
+// Returns a tokenizer which yields sub-strings tokenized by a delimiter,
+// starting at the beginning of the string.
 //
 // 	let tok = strings::tokenize("hello, my name is drew", " ");
 // 	assert(strings::next_token(&tok) as str == "hello,");
@@ -20,6 +21,20 @@ export type tokenizer = bytes::tokenizer;
 // The caller must ensure that 'delimiter' is not an empty string.
 export fn tokenize(s: str, delim: str) tokenizer =
 	bytes::tokenize(toutf8(s), toutf8(delim));
+
+// Returns a tokenizer which yields sub-strings tokenized by a delimiter,
+// starting at the end of the string and moving backwards with each call
+// to [[next_token]].
+//
+// 	let tok = strings::rtokenize("hello, my name is drew", " ");
+// 	assert(strings::next_token(&tok) as str == "drew");
+// 	assert(strings::next_token(&tok) as str == "is");
+// 	assert(strings::next_token(&tok) as str == "name");
+// 	assert(strings::remaining_tokens(&tok) == "hello, my");
+//
+// The caller must ensure that 'delimiter' is not an empty string.
+export fn rtokenize(s: str, delim: str) tokenizer =
+	bytes::rtokenize(toutf8(s), toutf8(delim));
 
 // Returns the next string from a tokenizer, and advances the cursor. Returns
 // void if there are no tokens left.
@@ -67,12 +82,20 @@ export fn remaining_tokens(s: *tokenizer) str = {
 	let tok = tokenize("", "foo");
 	assert(peek_token(&tok) is void);
 	assert(next_token(&tok) is void);
+
+	let tok = rtokenize("Hello, my name is drew", " ");
+	assert(next_token(&tok) as str == "drew");
+	assert(next_token(&tok) as str == "is");
+	assert(next_token(&tok) as str == "name");
+	assert(remaining_tokens(&tok) == "Hello, my");
+	assert(peek_token(&tok) as str == "my");
+	assert(remaining_tokens(&tok) == "Hello, my");
 };
 
-// Splits a string into tokens delimited by 'delim', returning a slice of up to
-// N tokens. The caller must free this slice. The strings within the slice are
-// borrowed from 'in', and needn't be freed - but should be [[dupall]]'d if they
-// should outlive 'in'.
+// Splits a string into tokens delimited by 'delim', starting at the beginning
+// of the string, and returning a slice of up to N tokens. The caller must free
+// this slice. The strings within the slice are borrowed from 'in', and needn't
+// be freed - but should be [[dupall]]'d if they should outlive 'in'.
 //
 // The caller must ensure that 'delimiter' is not an empty string.
 export fn splitn(in: str, delim: str, n: size) []str = {
@@ -90,6 +113,31 @@ export fn splitn(in: str, delim: str, n: size) []str = {
 	case void => void;
 	case let s: str =>
 		append(toks, remaining_tokens(&tok));
+	};
+	return toks;
+};
+
+// Splits a string into tokens delimited by 'delim', starting at the end
+// of the string, and returning a slice of up to N tokens. The caller must free
+// this slice. The strings within the slice are borrowed from 'in', and needn't
+// be freed - but should be [[dupall]]'d if they should outlive 'in'.
+//
+// The caller must ensure that 'delimiter' is not an empty string.
+export fn rsplitn(in: str, delim: str, n: size) []str = {
+	let toks: []str = [];
+	let tok = rtokenize(in, delim);
+	for (let i = 0z; i < n - 1z; i += 1) {
+		match (next_token(&tok)) {
+		case let s: str =>
+			insert(toks[0], s);
+		case void =>
+			return toks;
+		};
+	};
+	match(peek_token(&tok)) {
+	case void => void;
+	case let s: str =>
+		insert(toks[0], remaining_tokens(&tok));
 	};
 	return toks;
 };
@@ -122,6 +170,13 @@ export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 	for (let i = 0z; i < len(expected3); i += 1) {
 		assert(expected3[i] == actual3[i]);
 	};
+
+	const expected4 = ["Hello, my", "name", "is", "Drew"];
+	const actual4 = rsplitn("Hello, my name is Drew", " ", 4z);
+	assert(len(expected4) == len(actual4));
+	for (let i = 0z; i < len(expected4); i += 1) {
+		assert(expected4[i] == actual4[i]);
+	};
 };
 
 // Returns a string "cut" along the first instance of a delimiter, returning
@@ -138,6 +193,20 @@ export fn cut(in: str, delim: str) (str, str) = {
 	return (fromutf8_unsafe(c.0), fromutf8_unsafe(c.1));
 };
 
+// Returns a string "cut" along the last instance of a delimiter, returning
+// everything up to the delimiter, and everything after the delimiter, in a
+// tuple.
+//
+// 	strings::rcut("hello=world=foobar", "=")	// ("hello=world", "foobar")
+// 	strings::rcut("hello world", "=")	// ("hello world", "")
+//
+// The return value is borrowed from the 'in' parameter.  The caller must ensure
+// that 'delimiter' is not an empty string.
+export fn rcut(in: str, delim: str) (str, str) = {
+	let c = bytes::rcut(toutf8(in), toutf8(delim));
+	return (fromutf8_unsafe(c.0), fromutf8_unsafe(c.1));
+};
+
 @test fn cut() void = {
 	const sample = cut("hello=world", "=");
 	assert(sample.0 == "hello" && sample.1 == "world");
@@ -147,4 +216,7 @@ export fn cut(in: str, delim: str) (str, str) = {
 	assert(sample.0 == "hello world" && sample.1 == "");
 	const sample = cut("", "=");
 	assert(sample.0 == "" && sample.1 == "");
+
+	const sample = rcut("hello=world=foobar", "=");
+	assert(sample.0 == "hello=world" && sample.1 == "foobar");
 };
