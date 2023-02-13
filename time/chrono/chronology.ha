@@ -1,7 +1,6 @@
 // License: MPL-2.0
 // (c) 2021-2022 Byron Torres <b@torresjrjr.com>
 use time;
-use math;
 
 // Invalid [[moment]].
 export type invalid = !void;
@@ -145,7 +144,7 @@ fn calc_instant(
 		sec = d * daysec,
 		nsec = 0,
 	};
-	i = time::add(i, d: i64 * dayrem);
+	i = time::add(i, d * dayrem);
 	i = time::add(i, t);
 	i = time::add(i, -zo);
 	return i;
@@ -158,4 +157,4 @@ export def EARTH_DAY: time::duration = 86400 * time::SECOND;
 export def MARS_SOL_MARTIAN: time::duration = 86400 * time::SECOND;
 
 // The duration of a solar day on Mars, in terrestrial (SI) seconds.
-export def MARS_SOL_TERRESTRIAL: time::duration = (88775.244147 * time::SECOND: f64): time::duration;
+export def MARS_SOL_TERRESTRIAL: time::duration = 88775244147000 * time::NANOSECOND;
