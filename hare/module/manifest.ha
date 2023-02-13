@@ -59,7 +59,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	let mpath = path::join(cachedir, "manifest");
 	defer free(mpath);
 
-	let file = match (fs::open(ctx.fs, mpath, fs::flags::RDONLY)) {
+	let truefile = match (fs::open(ctx.fs, mpath, fs::flags::RDONLY)) {
 	case errors::noentry =>
 		return manifest;
 	case let err: fs::error =>
@@ -67,17 +67,17 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	case let file: io::handle =>
 		yield file;
 	};
+	defer io::close(truefile)!;
 
 	let inputs: []input = [], versions: []version = [];
 
 	let buf: [4096]u8 = [0...];
-	let file = bufio::buffered(file, buf, []);
+	let file = bufio::buffered(truefile, buf, []);
 	for (true) {
 		let line = match (bufio::scanline(&file)) {
 		case io::EOF =>
 			break;
 		case let err: io::error =>
-			io::close(&file): void;
 			return err;
 		case let line: []u8 =>
 			yield line;
@@ -269,7 +269,6 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 		};
 	};
 
-	io::close(&file)?;
 	manifest.inputs = inputs;
 	manifest.versions = versions;
 	return manifest;
@@ -323,10 +322,13 @@ export fn manifest_write(ctx: *context, man: *manifest) (void | error) = {
 	let mpath = path::join(cachedir, "manifest");
 	defer free(mpath);
 
-	let (file, name) = temp::named(ctx.fs, cachedir, io::mode::WRITE, 0o644)?;
+	let (truefile, name) = temp::named(ctx.fs, cachedir, io::mode::WRITE, 0o644)?;
+	let wbuf: [os::BUFSIZ]u8 = [0...];
+	let file = &bufio::buffered(truefile, [], wbuf);
 	defer {
+		bufio::flush(file)!;
 		fs::remove(ctx.fs, name): void;
-		io::close(file)!;
+		io::close(truefile)!;
 	};
 
 	let ident = unparse::identstr(man.ident);
