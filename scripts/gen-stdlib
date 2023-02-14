@@ -1588,6 +1588,11 @@ unix_signal() {
 		types.ha \
 		+linux.ha
 	gen_ssa -plinux unix::signal io errors rt
+
+	gen_srcs -pdarwin unix::signal \
+		types.ha \
+		+darwin.ha
+	gen_ssa -pdarwin unix::signal io errors rt
 }
 
 unix_tty() {
@@ -1724,7 +1729,7 @@ unix::hosts	linux freebsd darwin
 unix::passwd
 unix::poll		linux freebsd darwin
 unix::resolvconf	linux freebsd darwin
-unix::signal		linux
+unix::signal		linux darwin
 unix::tty		linux freebsd darwin
 uuid"
 stdlib() {

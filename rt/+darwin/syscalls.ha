@@ -464,6 +464,27 @@ export fn poll(fds: *[*]pollfd, nfds: nfds_t, timeout: int) (int | errno) = {
 		timeout: uintptr: u64))?: int;
 };
 
+export fn sigprocmask(
+	how: int,
+	set: nullable *const sigset,
+	old: nullable *sigset
+) (int | errno) = {
+	return wrap_return(syscall3(SYS_sigprocmask,
+		how: u64, set: uintptr: u64, old: uintptr: u64))?: int;
+};
+// int sigprocmask(int how, const sigset_t *restrict set, sigset_t *restrict oset);
+
+export fn sigaction(
+	signum: int,
+	act: *const sigact,
+	old: nullable *sigact
+) (int | errno) = {
+	let real_act = *act;
+	return wrap_return(syscall3(SYS_sigaction,
+		signum: u64, &real_act: uintptr: u64, old: uintptr: u64))?: int;
+};
+// int sigaction(int sig, const struct sigaction *restrict act, struct sigaction *restrict oact);
+
 export fn socket(domain: int, type_: int, protocol: int) (int | errno) = {
 	return wrap_return(syscall3(SYS_socket,
 		domain: u64, type_: u64, protocol: u64))?: int;

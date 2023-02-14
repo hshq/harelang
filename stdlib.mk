@@ -915,6 +915,10 @@ stdlib_deps_darwin += $(stdlib_unix_resolvconf_darwin)
 stdlib_unix_signal_linux = $(HARECACHE)/unix/signal/unix_signal-linux.o
 stdlib_deps_linux += $(stdlib_unix_signal_linux)
 
+# gen_lib unix::signal (darwin)
+stdlib_unix_signal_darwin = $(HARECACHE)/unix/signal/unix_signal-darwin.o
+stdlib_deps_darwin += $(stdlib_unix_signal_darwin)
+
 # gen_lib unix::tty (linux)
 stdlib_unix_tty_linux = $(HARECACHE)/unix/tty/unix_tty-linux.o
 stdlib_deps_linux += $(stdlib_unix_tty_linux)
@@ -2580,6 +2584,17 @@ $(HARECACHE)/unix/signal/unix_signal-linux.ssa: $(stdlib_unix_signal_linux_srcs)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::signal \
 		-t$(HARECACHE)/unix/signal/unix_signal.td $(stdlib_unix_signal_linux_srcs)
 
+# unix::signal (+darwin)
+stdlib_unix_signal_darwin_srcs = \
+	$(STDLIB)/unix/signal/types.ha \
+	$(STDLIB)/unix/signal/+darwin.ha
+
+$(HARECACHE)/unix/signal/unix_signal-darwin.ssa: $(stdlib_unix_signal_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/signal
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::signal \
+		-t$(HARECACHE)/unix/signal/unix_signal.td $(stdlib_unix_signal_darwin_srcs)
+
 # unix::tty (+linux)
 stdlib_unix_tty_linux_srcs = \
 	$(STDLIB)/unix/tty/types.ha \
@@ -3564,6 +3579,10 @@ testlib_deps_darwin += $(testlib_unix_resolvconf_darwin)
 # gen_lib unix::signal (linux)
 testlib_unix_signal_linux = $(TESTCACHE)/unix/signal/unix_signal-linux.o
 testlib_deps_linux += $(testlib_unix_signal_linux)
+
+# gen_lib unix::signal (darwin)
+testlib_unix_signal_darwin = $(TESTCACHE)/unix/signal/unix_signal-darwin.o
+testlib_deps_darwin += $(testlib_unix_signal_darwin)
 
 # gen_lib unix::tty (linux)
 testlib_unix_tty_linux = $(TESTCACHE)/unix/tty/unix_tty-linux.o
@@ -5290,6 +5309,17 @@ $(TESTCACHE)/unix/signal/unix_signal-linux.ssa: $(testlib_unix_signal_linux_srcs
 	@mkdir -p $(TESTCACHE)/unix/signal
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
 		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_linux_srcs)
+
+# unix::signal (+darwin)
+testlib_unix_signal_darwin_srcs = \
+	$(STDLIB)/unix/signal/types.ha \
+	$(STDLIB)/unix/signal/+darwin.ha
+
+$(TESTCACHE)/unix/signal/unix_signal-darwin.ssa: $(testlib_unix_signal_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/signal
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
+		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_darwin_srcs)
 
 # unix::tty (+linux)
 testlib_unix_tty_linux_srcs = \

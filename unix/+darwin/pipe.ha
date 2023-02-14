@@ -14,8 +14,7 @@ export type pipe_flag = enum {
 };
 
 // Create a pair of two linked [[io::file]]s, such that any data written to the
-// second [[io::file]] may be read from the first. If no [[pipe_flag]]s are
-// provided, [[pipe_flag::CLOEXEC]] is used. If you pass your own flags, it is
+// second [[io::file]] may be read from the first. If you pass your own flags, it is
 // recommended that you add it unless you know that you don't want it.
 export fn pipe(flags: pipe_flag...) ((io::file, io::file) | errors::error) = {
 	let fds: [2]int = [0...];
