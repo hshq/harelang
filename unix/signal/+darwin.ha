@@ -182,47 +182,6 @@ export type flag = enum int {
 
 export type signal = int;
 
-// Creates a signal file that handles the given set of signals.
-// export fn signalfd(signals: signal...) (io::file | errors::error) = {
-// 	let sa_mask = newsigset(signals...);
-// 	match (rt::signalfd(-1, &sa_mask, rt::SFD_CLOEXEC)) {
-// 	case let fd: int =>
-// 		return fd;
-// 	case let err: rt::errno =>
-// 		return errors::errno(err);
-// 	};
-// };
-
-// Updates a signalfd with a new set of signals. The signal set is overwritten,
-// rather than appended to, with the provided set of signals.
-// export fn update(fd: io::file, signals: signal...) (void | errors::error) = {
-// 	let sa_mask = newsigset(signals...);
-
-// 	match (rt::signalfd(fd, &sa_mask, rt::SFD_CLOEXEC)) {
-// 	case int =>
-// 		return;
-// 	case let err: rt::errno =>
-// 		return errors::errno(err);
-// 	};
-// };
-
-// Reads pending signal info from a signalfd.
-// export fn read(fd: io::file) (siginfo | errors::error) = {
-// 	let si = rt::signalfd_siginfo { ... };
-// 	match (rt::read(fd, &si, size(rt::signalfd_siginfo))) {
-// 	case let err: rt::errno =>
-// 		return errors::errno(err);
-// 	case let z: size =>
-// 		assert(z == size(rt::signalfd_siginfo));
-// 	};
-// 	return siginfo {
-// 		signo = si.ssi_signo: signal,
-// 		errno = si.ssi_errno: rt::errno,
-// 		code = si.ssi_code,
-// 		...
-// 	};
-// };
-
 // Hangup.
 export def SIGHUP: signal = rt::SIGHUP;
 // Terminal signalerrupt signal.
@@ -279,10 +238,6 @@ export def SIGPROF: signal = rt::SIGPROF;
 export def SIGWINCH: signal = rt::SIGWINCH;
 // I/O now possible.
 export def SIGIO: signal = rt::SIGIO;
-// Pollable event.
-// export def SIGPOLL: signal = rt::SIGPOLL;
-// Power failure.
-// export def SIGPWR: signal = rt::SIGPWR;
 // Bad system call.
 export def SIGSYS: signal = rt::SIGSYS;
 
@@ -345,10 +300,6 @@ export fn signame(sig: signal) const str = {
 		return "SIGWINCH";
 	case SIGIO =>
 		return "SIGIO";
-	// case SIGPOLL =>
-	// 	return "SIGPOLL";
-	// case SIGPWR =>
-	// 	return "SIGPWR";
 	case SIGSYS =>
 		return "SIGSYS";
 	};
