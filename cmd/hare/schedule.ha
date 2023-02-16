@@ -17,6 +17,7 @@ use path;
 use shlex;
 use strings;
 use strio;
+use unix::tty;
 
 fn getenv(var: str) []str = {
 	let vals: []str = [];
@@ -251,6 +252,13 @@ fn sched_hare_object(
 		]),
 		module = strings::dup(ns),
 	});
+
+	if (len(os::tryenv("NO_COLOR", "")) == 0
+			&& os::getenv("HAREC_COLOR") is void
+			&& tty::isatty(os::stderr_file)) {
+		append(plan.environ,
+			(strings::dup("HAREC_COLOR"), strings::dup("1")));
+	};
 
 	for (let i = 0z; i < len(plan.context.tags); i += 1) {
 		if (plan.context.tags[i].mode == module::tag_mode::INCLUSIVE
