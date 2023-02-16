@@ -915,3 +915,8 @@ export type inotify_event = struct {
 	length: u32,
 	name: *const char
 };
+
+export fn shmat(id: int, addr: *const void, flag: int) *void = {
+	return syscall3(SYS_shmat, id: u64, addr: uintptr: u64,
+		flag: u64): uintptr: *void;
+};
