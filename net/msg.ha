@@ -59,6 +59,12 @@ export fn getflags(msg: *msghdr) int = {
 	return msg.native.msg_flags;
 };
 
+// Sets name for this message.
+export fn setname(msg: *msghdr, name: *void, length: size) void = {
+	msg.native.msg_name = name;
+	msg.native.msg_namelen = length: u32;
+};
+
 // Adds a control message of the desired length to a [[msghdr]], returning a
 // buffer in which the ancillary data may be written in a domain-specific
 // format.
