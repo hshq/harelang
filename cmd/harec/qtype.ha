@@ -5,7 +5,7 @@ use fmt;
 use hare::types;
 use hare::types::{builtin};
 
-type stype = enum {
+type stype = enum rune {
 	BYTE = 'b',
 	HALF = 'h',
 	WORD = 'w',
