@@ -504,6 +504,11 @@ export def SA_NOMASK: u64 = SA_NODEFER;
 export def SA_ONESHOT: u64 = SA_RESETHAND;
 export def SA_RESTORER: u64 = 0x04000000;
 
+export def SIG_ERR: uintptr = -1;
+export def SIG_DFL: uintptr = 0;
+export def SIG_IGN: uintptr = 1;
+export def SIG_HOLD: uintptr = 2;
+
 export type sigact = struct {
 	union {
 		sa_handler: *fn (_: int) void,

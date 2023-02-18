@@ -27,6 +27,12 @@ export type sigset = struct {
 	__bits: [4]u32,
 };
 
+export def SIG_ERR: uintptr = -1;
+export def SIG_DFL: uintptr = 0;
+export def SIG_IGN: uintptr = 1;
+export def SIG_CATCH: uintptr = 2;
+export def SIG_HOLD: uintptr = 3;
+
 export type sigact = struct {
 	union {
 		sa_handler: *fn (_: int) void,
