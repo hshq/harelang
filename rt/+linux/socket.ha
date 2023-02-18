@@ -39,11 +39,19 @@ export type sockaddr_un = struct {
 	sun_path: [UNIX_PATH_MAX]char,
 };
 
+export type sockaddr_nl = struct {
+	nl_family: sa_family_t,
+	nl_pad: u16,
+	nl_pid: u32,
+	nl_groups: u32,
+};
+
 export type sockaddr = struct {
 	union {
 		in: sockaddr_in,
 		in6: sockaddr_in6,
 		un: sockaddr_un,
+		nl: sockaddr_nl,
 	},
 };
 
