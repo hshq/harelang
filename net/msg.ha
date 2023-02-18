@@ -54,6 +54,11 @@ export fn setflags(msg: *msghdr, flags: int) void = {
 	msg.native.msg_flags = flags;
 };
 
+// Get flags for this message.
+export fn getflags(msg: *msghdr) int = {
+	return msg.native.msg_flags;
+};
+
 // Adds a control message of the desired length to a [[msghdr]], returning a
 // buffer in which the ancillary data may be written in a domain-specific
 // format.
