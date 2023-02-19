@@ -549,7 +549,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 	case let exp: int =>
 		yield exp;
 	case strconv::invalid =>
-		abort(); // Shouldn't be lexed in
+		return syntaxerr(mkloc(lex), "expected exponent");
 	case strconv::overflow =>
 		return syntaxerr(loc, "overflow in exponent");
 	};

@@ -332,6 +332,15 @@ fn loc(line: uint, col: uint) location = location {
 
 	const s = lex(&lexer) as error as syntax;
 	assert(s.1 == "unknown escape sequence");
+
+	// Regression: <X>e followed by another token used to cause a crash
+	const in = ['0': u8, 'e': u8, ')': u8];
+
+	let buf = bufio::fixed(in, mode::READ);
+	let lexer = init(&buf, "<test>");
+
+	const s = lex(&lexer) as error as syntax;
+	assert(s.1 == "expected exponent");
 };
 
 
