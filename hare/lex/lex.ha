@@ -751,10 +751,10 @@ fn next(lex: *lexer) ((rune, location) | syntax | io::EOF | io::error) = {
 	};
 };
 
-fn nextw(lex: *lexer) ((rune, location) | io::EOF | io::error) = {
-	for (true) match (next(lex)) {
-	case let e: (io::error | io::EOF) =>
-		return e;
+fn nextw(lex: *lexer) ((rune, location) | io::EOF | error) = {
+	for (true) match (next(lex)?) {
+	case io::EOF =>
+		return io::EOF;
 	case let r: (rune, location) =>
 		if (ascii::isspace(r.0)) {
 			if (r.0 == '\n') {

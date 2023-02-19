@@ -312,6 +312,16 @@ fn loc(line: uint, col: uint) location = location {
 
 	const s = lex(&lexer) as error as syntax;
 	assert(s.1 == "Source file is not valid UTF-8");
+
+	// Regression: invalid UTF-8 at the beginning of a token used to cause
+	// a crash in nextw
+	const in = [0x80: u8];
+
+	let buf = bufio::fixed(in, mode::READ);
+	let lexer = init(&buf, "<test>");
+
+	const s = lex(&lexer) as error as syntax;
+	assert(s.1 == "Source file is not valid UTF-8");
 };
 
 
