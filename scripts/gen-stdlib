@@ -972,7 +972,11 @@ math() {
 	if [ $testing -eq 0 ]; then
 		gensrcs_math
 	else
-		gensrcs_math data+test.ha
+		gensrcs_math \
+			+test/data.ha \
+			+test/math.ha \
+			+test/floats.ha \
+			+test/trig.ha
 	fi
 	gen_ssa math types rt
 }
