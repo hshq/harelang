@@ -218,6 +218,8 @@ fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 		return lex_unicode(lex, loc, 4);
 	case 'U' =>
 		return lex_unicode(lex, loc, 8);
+	case =>
+		return syntaxerr(mkloc(lex), "unknown escape sequence");
 	};
 };
 
