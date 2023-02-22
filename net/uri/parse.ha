@@ -163,23 +163,23 @@ fn parse_authority(in: *strings::iterator) ((str, u16, str) | invalid) = {
 			if (len(userinfo) > 0 && is_userinfo(r)) {
 				return invalid;
 			};
-
-			if (r == '@') {
+			switch (r) {
+			case '@' =>
 				// This was userinfo+host[+port]
 				userinfo = percent_decode(strio::string(&buf))?;
 				strio::reset(&buf);
-			};
-			if (r == '/') {
+			case '/' =>
 				// This was just host
 				strings::prev(in);
 				host = percent_decode(strio::string(&buf))?;
 				break;
-			};
-			if (r == ':') {
+			case ':' =>
 				// This was host+port
 				host = percent_decode(strio::string(&buf))?;
 				port = parse_port(in)?;
 				break;
+			case =>
+				return invalid;
 			};
 		} else {
 			strio::appendrune(&buf, r)!;

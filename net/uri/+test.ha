@@ -96,6 +96,9 @@ use net::ip;
 	assert(parse(":") is invalid);
 	assert(parse("hello*:") is invalid);
 	assert(parse("hello") is invalid);
+
+	// Unexpected character
+	assert(parse("https://^harelang.org") is invalid);
 };
 
 @test fn percent_encoding() void = {
