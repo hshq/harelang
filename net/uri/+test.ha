@@ -103,6 +103,10 @@ use net::ip;
 	// Something other than IPv6 address inside [ ... ]
 	assert(parse("https://[1.2.3.4]") is invalid);
 	assert(parse("https://[example]") is invalid);
+
+	// '@' in userinfo
+	assert(parse("https://a@b@example") is invalid);
+	assert(parse("https://@@example") is invalid);
 };
 
 @test fn percent_encoding() void = {

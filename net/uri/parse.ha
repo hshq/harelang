@@ -137,6 +137,7 @@ fn parse_authority(
 	let host: (str | ip::addr6) = "";
 	let port = 0u16;
 	let userinfo = "";
+	let has_userinfo = false;
 
 	for (true) {
 		const r = match (strings::next(in)) {
@@ -173,14 +174,15 @@ fn parse_authority(
 				return invalid;
 			};
 		} else if (r == ':' || !is_userinfo(r) && !is_host(r)) {
-			if (len(userinfo) > 0 && is_userinfo(r)) {
-				return invalid;
-			};
 			switch (r) {
 			case '@' =>
+				if (has_userinfo) {
+					return invalid;
+				};
 				// This was userinfo+host[+port]
 				userinfo = percent_decode(strio::string(&buf))?;
 				strio::reset(&buf);
+				has_userinfo = true;
 			case '/' =>
 				// This was just host
 				strings::prev(in);
