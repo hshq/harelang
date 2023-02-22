@@ -99,6 +99,10 @@ use net::ip;
 
 	// Unexpected character
 	assert(parse("https://^harelang.org") is invalid);
+
+	// Something other than IPv6 address inside [ ... ]
+	assert(parse("https://[1.2.3.4]") is invalid);
+	assert(parse("https://[example]") is invalid);
 };
 
 @test fn percent_encoding() void = {

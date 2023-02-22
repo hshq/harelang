@@ -21,7 +21,7 @@ export fn parse(in: str) (uri | invalid) = {
 
 	// Determine hier-part variant
 	let path = "";
-	let authority = ("", 0u16, "");
+	let authority: ((str | ip::addr6), u16, str) = ("", 0u16, "");
 	match (strings::next(&in)) {
 	case let r: rune =>
 		switch (r) {
@@ -85,11 +85,16 @@ export fn parse(in: str) (uri | invalid) = {
 	return uri {
 		scheme = scheme,
 
-		host = match (ip::parse(authority.0)) {
-		case let a: ip::addr =>
-			yield a;
-		case ip::invalid =>
-			yield authority.0;
+		host = match (authority.0) {
+		case let ip: ip::addr6 =>
+			yield ip;
+		case let s: str =>
+			yield match (ip::parse(s)) {
+			case let a: ip::addr =>
+				yield a;
+			case ip::invalid =>
+				yield s;
+			};
 		},
 		port = authority.1,
 		userinfo = authority.2,
@@ -123,11 +128,13 @@ fn parse_scheme(in: *strings::iterator) (str | invalid) = {
 	return strio::string(&buf);
 };
 
-fn parse_authority(in: *strings::iterator) ((str, u16, str) | invalid) = {
+fn parse_authority(
+	in: *strings::iterator,
+) (((str | ip::addr6), u16, str) | invalid) = {
 	// Scan everything until '@' or ':' or '/', then decide what it is
 	let buf = strio::dynamic();
 	defer io::close(&buf)!;
-	let host = "";
+	let host: (str | ip::addr6) = "";
 	let port = 0u16;
 	let userinfo = "";
 
@@ -158,7 +165,13 @@ fn parse_authority(in: *strings::iterator) ((str, u16, str) | invalid) = {
 				strio::appendrune(&buf, r)!;
 			};
 
-			host = percent_decode(strio::string(&buf))?;
+			const addr = percent_decode(strio::string(&buf))?;
+			match (ip::parse(addr)) {
+			case let v6: ip::addr6 =>
+				host = v6;
+			case =>
+				return invalid;
+			};
 		} else if (r == ':' || !is_userinfo(r) && !is_host(r)) {
 			if (len(userinfo) > 0 && is_userinfo(r)) {
 				return invalid;
@@ -186,9 +199,13 @@ fn parse_authority(in: *strings::iterator) ((str, u16, str) | invalid) = {
 		};
 	};
 
-	// In end of string case
-	if (len(host) == 0) {
-		host = percent_decode(strio::string(&buf))?;
+	match (host) {
+	case let s: str =>
+		// In end of string case
+		if (len(s) == 0) {
+			host = percent_decode(strio::string(&buf))?;
+		};
+	case => yield;
 	};
 
 	return (host, port, userinfo);
