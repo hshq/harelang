@@ -50,7 +50,7 @@ fn copy_streams(dest: *stream, src: *stream) (error | size) = {
 
 fn copy_fallback(dest: handle, src: handle) (error | size) = {
 	let w = 0z;
-	static let buf: [4096]u8 = [0...];
+	let buf: [4096]u8 = [0...];
 	for (true) {
 		match (read(src, buf[..])?) {
 		case let n: size =>
