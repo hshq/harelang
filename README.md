@@ -20,8 +20,7 @@ For information about bootstrapping a working Hare toolchain from scratch, see
 
 All contributors are required to "sign-off" their commits (using `git commit
 -s`) to indicate that they have agreed to the [Developer Certificate of
-Origin][dco], reproduced below. Your commit authorship must reflect the name
-you use in meatspace; anonymous or pseudonymous contributions are not permitted.
+Origin][dco], reproduced below.
 
 [dco]: https://developercertificate.org/
 
