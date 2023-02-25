@@ -10,6 +10,7 @@ use bufio;
 use encoding::utf8;
 use fmt;
 use io;
+use os;
 use sort;
 use strconv;
 use strings;
@@ -17,7 +18,7 @@ use strio;
 use types;
 
 export type lexer = struct {
-	in: io::handle,
+	in: bufio::scanner,
 	path: str,
 	loc: (uint, uint),
 	un: (token | void),
@@ -61,9 +62,10 @@ export fn init(in: io::handle, path: str, flags: flags...) lexer = {
 	for (let i = 0z; i < len(flags); i += 1) {
 		f |= flags[i];
 	};
+	let scanner = bufio::newscanner(in, os::BUFSIZ);
 	const loc = location { path = path, line = 1, col = 1 };
 	return lexer {
-		in = in,
+		in = scanner,
 		path = path,
 		loc = (1, 1),
 		un = void,
@@ -738,7 +740,7 @@ fn next(lex: *lexer) ((rune, location) | syntax | io::EOF | io::error) = {
 		return r;
 	};
 
-	match (bufio::scanrune(lex.in)) {
+	match (bufio::scan_rune(&lex.in)) {
 	case let e: (io::EOF | io::error) =>
 		return e;
 	case let r: rune =>
