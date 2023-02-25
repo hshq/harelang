@@ -169,7 +169,7 @@ export fn scan_bytes(
 export fn scan_rune(
 	scan: *scanner,
 ) (rune | io::EOF | io::error | utf8::invalid) = {
-	if (scan.pending < 4) {
+	if (scan.pending == 0) {
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
 			return io::EOF;
@@ -182,6 +182,15 @@ export fn scan_rune(
 		yield z;
 	case void =>
 		return utf8::invalid;
+	};
+
+	for (scan.pending < sz) {
+		match (scan_readahead(scan)?) {
+		case io::EOF =>
+			return utf8::invalid;
+		case size =>
+			yield;
+		};
 	};
 
 	// Consume previous read, if any
@@ -370,6 +379,52 @@ export fn scanrune(
 			assert(want is rune && want as rune == r);
 		case io::EOF =>
 			assert(want is io::EOF);
+		case =>
+			abort();
+		};
+	};
+};
+
+@test fn scan_rune() void = {
+	let in = fixed(strings::toutf8("hello"), io::mode::READ);
+	let scanner = newscanner(&in, 32);
+
+	const expected: [_](rune | utf8::invalid | io::EOF | io::error) = [
+		'h', 'e', 'l', 'l', 'o', io::EOF,
+	];
+	for (let i = 0z; i < len(expected); i += 1) {
+		let want = expected[i];
+
+		match (scan_rune(&scanner)) {
+		case let r: rune =>
+			assert(want is rune && want as rune == r);
+		case io::EOF =>
+			assert(want is io::EOF);
+		case =>
+			abort();
+		};
+	};
+};
+
+@test fn scan_rune_cutoff() void = {
+	let in = fixed([
+		'a', 0xE3,
+	], io::mode::READ);
+	let scanner = newscanner(&in, 32);
+
+	const expected: [_](rune | utf8::invalid | io::EOF | io::error) = [
+		'a', utf8::invalid,
+	];
+	for (let i = 0z; i < len(expected); i += 1) {
+		let want = expected[i];
+
+		match (scan_rune(&scanner)) {
+		case let r: rune =>
+			assert(want is rune && want as rune == r);
+		case io::EOF =>
+			assert(want is io::EOF);
+		case utf8::invalid =>
+			assert(want is utf8::invalid);
 		case =>
 			abort();
 		};
