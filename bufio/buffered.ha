@@ -33,6 +33,7 @@ export type bufstream = struct {
 	source: io::handle,
 	rbuffer: []u8,
 	wbuffer: []u8,
+	rpos: size,
 	ravail: size,
 	wavail: size,
 	flush: []u8,
@@ -79,6 +80,7 @@ export fn buffered(
 		rbuffer = rbuf,
 		wbuffer = wbuf,
 		flush = flush_default,
+		rpos = len(rbuf), // necessary for unread() before read()
 		...
 	};
 };
@@ -135,10 +137,10 @@ export fn unread(s: io::handle, buf: []u8) void = {
 	case =>
 		abort("Attempted unread on unbuffered stream");
 	};
-	assert(len(s.rbuffer) - s.ravail >= len(buf),
+	assert(s.rpos >= len(buf),
 		"Attempted to unread more data than buffer has available");
-	let sl = s.rbuffer[..s.ravail];
-	static insert(sl[0], buf...);
+	s.rbuffer[s.rpos - len(buf)..s.rpos] = buf;
+	s.rpos -= len(buf);
 	s.ravail += len(buf);
 };
 
@@ -168,26 +170,25 @@ fn buffered_close_static(s: *io::stream) (void | io::error) = {
 fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	assert(s.reader == &buffered_read);
 	let s = s: *bufstream;
-	let n = if (len(buf) < len(s.rbuffer)) len(buf) else len(s.rbuffer);
-	if (n > s.ravail) {
-		let z = match (io::read(s.source, s.rbuffer[s.ravail..])) {
+
+	if (s.ravail < len(buf) && s.ravail < len(s.rbuffer)) {
+		s.rbuffer[..s.ravail] = s.rbuffer[s.rpos..s.rpos + s.ravail];
+		s.rpos = 0;
+		match (io::read(s.source, s.rbuffer[s.ravail..])) {
 		case let err: io::error =>
 			return err;
 		case io::EOF =>
 			if (s.ravail == 0) {
 				return io::EOF;
 			};
-			yield 0z;
 		case let z: size =>
-			yield z;
+			s.ravail += z;
 		};
-		s.ravail += z;
-		n = if (n > s.ravail) s.ravail else n;
-		assert(n != 0);
 	};
 
-	buf[..n] = s.rbuffer[..n];
-	s.rbuffer[..len(s.rbuffer) - n] = s.rbuffer[n..];
+	const n = if (len(buf) < s.ravail) len(buf) else s.ravail;
+	buf[..n] = s.rbuffer[s.rpos..s.rpos + n];
+	s.rpos += n;
 	s.ravail -= n;
 	return n;
 };
