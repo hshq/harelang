@@ -199,11 +199,13 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let buf = buf;
 
 	let doflush = false;
-	for (let i = 0z; i < len(buf); i += 1) {
-		for (let j = 0z; j < len(s.flush); j += 1) {
-			if (buf[i] == s.flush[j]) {
-				doflush = true;
-				break;
+	if (len(s.flush) != 0) {
+		for (let i = 0z; i < len(buf); i += 1) :search {
+			for (let j = 0z; j < len(s.flush); j += 1) {
+				if (buf[i] == s.flush[j]) {
+					doflush = true;
+					break :search;
+				};
 			};
 		};
 	};
