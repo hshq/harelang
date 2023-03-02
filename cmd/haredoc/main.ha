@@ -288,11 +288,11 @@ fn init_tty(ctx: *context) io::handle = {
 			return os::stdout;
 		};
 	case void =>
-		yield match (exec::cmd("less")) {
+		yield match (exec::cmd("less", "-R")) {
 		case let cmd: exec::command =>
 			yield cmd;
 		case exec::error =>
-			yield match (exec::cmd("more")) {
+			yield match (exec::cmd("more", "-R")) {
 			case let cmd: exec::command =>
 				yield cmd;
 			case exec::error =>
@@ -303,7 +303,9 @@ fn init_tty(ctx: *context) io::handle = {
 
 	const pipe = exec::pipe();
 	exec::addfile(&pager, os::stdin_file, pipe.0);
-	exec::setenv(&pager, "LESS", "FRX")!;
+	// Get raw flag in if possible
+	exec::setenv(&pager, "LESS", os::tryenv("LESS", "R"))!;
+	exec::setenv(&pager, "MORE", os::tryenv("MORE", "R"))!;
 	ctx.pager = exec::start(&pager)!;
 	return pipe.1;
 };
