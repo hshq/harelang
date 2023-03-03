@@ -23,6 +23,7 @@ all:
 include stdlib.mk
 
 hare_srcs = \
+	./cmd/hare/deps.ha \
 	./cmd/hare/main.ha \
 	./cmd/hare/plan.ha \
 	./cmd/hare/progress.ha \

@@ -16,6 +16,7 @@ use io;
 use os::exec;
 use os;
 use path;
+use sort;
 use strings;
 use unix::tty;
 
@@ -209,19 +210,123 @@ fn cache(args: []str) void = {
 	abort("cache subcommand not implemented yet."); // TODO
 };
 
+type deps_goal = enum {
+	DOT,
+	MAKE,
+	TERM,
+};
+
 fn deps(args: []str) void = {
 	const help: []getopt::help = [
 		"prints dependency information for a Hare program",
 		('d', "print dot syntax for use with graphviz"),
-		('M', "print rules for POSIX make"),
+		('M', "build-dir", "print rules for POSIX make"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
-		"<path>",
+		"<path|module>",
 	];
 	const cmd = getopt::parse(args, help...);
 	defer getopt::finish(&cmd);
 
-	abort("deps subcommand not implemented yet."); // TODO
+	let build_target = default_target();
+	let tags = module::tags_dup(build_target.tags);
+	defer module::tags_free(tags);
+
+	let build_dir: str = "";
+	let goal = deps_goal::TERM;
+	for (let i = 0z; i < len(cmd.opts); i += 1) {
+		let opt = cmd.opts[i];
+		switch (opt.0) {
+		case 'd' =>
+			goal = deps_goal::DOT;
+		case 'M' =>
+			goal = deps_goal::MAKE;
+			build_dir = opt.1;
+		case 'T' =>
+			tags = match (addtags(tags, opt.1)) {
+			case void =>
+				fmt::fatal("Error parsing tags");
+			case let t: []module::tag =>
+				yield t;
+			};
+		case 'X' =>
+			tags = match (deltags(tags, opt.1)) {
+			case void =>
+				fmt::fatal("Error parsing tags");
+			case let t: []module::tag =>
+				yield t;
+			};
+		case =>
+			abort();
+		};
+	};
+
+	const input =
+		if (len(cmd.args) == 0) os::getcwd()
+		else if (len(cmd.args) == 1) cmd.args[0]
+		else {
+			getopt::printusage(os::stderr, args[0], help...);
+			os::exit(1);
+		};
+
+	const ctx = module::context_init(tags, [], HAREPATH);
+	defer module::context_finish(&ctx);
+
+	const ver = match (parse::identstr(input)) {
+	case let ident: ast::ident =>
+		yield match (module::lookup(&ctx, ident)) {
+		case let ver: module::version =>
+			yield ver;
+		case let err: module::error =>
+			fmt::fatal("Error scanning input module:",
+				module::strerror(err));
+		};
+	case parse::error =>
+		yield match (module::scan(&ctx, input)) {
+		case let ver: module::version =>
+			yield ver;
+		case let err: module::error =>
+			fmt::fatal("Error scanning input path:",
+				module::strerror(err));
+		};
+	};
+
+	let visited: []depnode = [];
+	let stack: []str = [];
+	defer free(stack);
+	const ctx = module::context_init([], [], HAREPATH);
+
+	let toplevel = depnode{ident = strings::dup(path::basename(input)), depends = [], depth = 0};
+
+	for (let i = 0z; i < len(ver.depends); i += 1) {
+		const name = strings::join("::", ver.depends[i]...);
+		defer free(name);
+		const child = match (explore_deps(&ctx, &stack, &visited, name)) {
+		case let index: size => yield index;
+		case let start: dep_cycle =>
+			const chain = strings::join(" -> ", stack[start..]...);
+			defer free(chain);
+			fmt::errorln("Dependency cycle detected:", chain)!;
+			os::exit(1);
+		};
+		append(toplevel.depends, child);
+	};
+
+	sort::sort(toplevel.depends, size(size), &cmpsz);
+	append(visited, toplevel);
+	defer for (let i = 0z; i < len(visited); i += 1) {
+		free(visited[i].ident);
+		free(visited[i].depends);
+	};
+
+	switch (goal) {
+	case deps_goal::TERM =>
+		show_deps(&visited);
+	case deps_goal::DOT =>
+		abort("-d option not implemented yet");
+	case deps_goal::MAKE =>
+		abort("-M option not implemented yet");
+	};
 };
 
 fn release(args: []str) void = {
