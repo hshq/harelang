@@ -323,7 +323,14 @@ fn deps(args: []str) void = {
 	case deps_goal::TERM =>
 		show_deps(&visited);
 	case deps_goal::DOT =>
-		abort("-d option not implemented yet");
+		fmt::println("strict digraph deps {")!;
+		for (let i = 0z; i < len(visited); i += 1) {
+			for (let j = 0z; j < len(visited[i].depends); j += 1) {
+				const child = visited[visited[i].depends[j]];
+				fmt::printfln("\t\"{}\" -> \"{}\";", visited[i].ident, child.ident)!;
+			};
+		};
+		fmt::println("}")!;
 	case deps_goal::MAKE =>
 		abort("-M option not implemented yet");
 	};
