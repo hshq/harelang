@@ -314,6 +314,18 @@ export fn mmap(
 	};
 };
 
+export fn mremap(
+	old_addr: *void,
+	old_len: size,
+	new_len: size,
+	flags: uint,
+	new_addr: nullable *void,
+) (*void | errno) = {
+	let r = syscall5(SYS_mremap, old_addr: uintptr: u64, old_len: u64,
+		new_len: u64, flags: u64, new_addr: uintptr: u64);
+	return wrap_return(r)?: uintptr: *void;
+};
+
 export fn munmap(addr: *void, length: size) (void | errno) = {
 	wrap_return(syscall2(SYS_munmap,
 		addr: uintptr: u64, length: u64))?;
