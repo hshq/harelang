@@ -20,22 +20,17 @@ use strio;
 use unix::tty;
 
 fn getenv(var: str) []str = {
-	let vals: []str = [];
-	match(os::getenv(var)) {
+	match (os::getenv(var)) {
 	case let val: str =>
-		if(len(val) > 0) {
-			match(shlex::split(val)) {
-			case let val: []str =>
-				for(let i = 0z; i < len(val); i += 1) {
-					append(vals, val[i]);
-				};
-			case shlex::syntaxerr => void;
-			};
+		match (shlex::split(val)) {
+		case let fields: []str =>
+			return fields;
+		case => void;
 		};
-	case void => void;
+	case => void;
 	};
 
-	return vals;
+	return [];
 };
 
 // (executable name, executable variable, flags variable)
@@ -54,20 +49,14 @@ fn getcmd(tool: *tool, args: str...) []str = {
 	if (len(vals) == 0) {
 		append(execargs, tool.0);
 	} else {
-		for(let i = 0z; i < len(vals); i += 1) {
-			append(execargs, vals[i]);
-		};
+		append(execargs, vals...);
 	};
 
 	let vals = getenv(tool.2);
 	defer free(vals);
-	for (let i = 0z; i < len(vals); i += 1) {
-		append(execargs, vals[i]);
-	};
+	append(execargs, vals...);
 
-	for(let i = 0z; i < len(args); i += 1) {
-		append(execargs, args[i]);
-	};
+	append(execargs, args...);
 
 	return execargs;
 };
