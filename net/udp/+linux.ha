@@ -71,6 +71,16 @@ export fn listen(
 		yield fd;
 	};
 
+	for (let i = 0z; i < len(options); i += 1) {
+		match (options[i]) {
+		case reuseaddr =>
+			setsockopt(sockfd, rt::SO_REUSEADDR, true)?;
+		case reuseport =>
+			setsockopt(sockfd, rt::SO_REUSEPORT, true)?;
+		case => void;
+		};
+	};
+
 	const sockaddr = ip::to_native(addr, port);
 	const sz = size(rt::sockaddr): u32;
 	match (rt::bind(sockfd, &sockaddr, sz)) {
@@ -171,4 +181,18 @@ export fn recvfrom(
 	};
 
 	return sz;
+};
+
+fn setsockopt(
+	sockfd: int,
+	option: int,
+	value: bool,
+) (void | net::error) = {
+	let val: int = if (value) 1 else 0;
+	match (rt::setsockopt(sockfd, rt::SOL_SOCKET, option,
+			&val: *void, size(int): u32)) {
+	case let err: rt::errno =>
+		return errors::errno(err);
+	case int => void;
+	};
 };
