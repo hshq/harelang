@@ -146,7 +146,17 @@ fn handle_bracket(
 	const range_end = peek2;
 	const is_first_char = *bracket_idx == 0 || *bracket_idx == 1
 		&& !*is_charset_positive;
-	if (r == ']' && !is_first_char) {
+
+	if (r == '\\') {
+		if (peek1 is void) {
+			return `Trailing backslash '\'`: error;
+		} else {
+			append(charsets[len(charsets) - 1],
+				peek1: charset_lit_item);
+			strings::next(iter);
+			*r_idx += 1;
+		};
+	} else if (r == ']' && !is_first_char) {
 		const newinst = inst_charset {
 			idx = len(charsets) - 1,
 			is_positive = *is_charset_positive,
@@ -212,7 +222,7 @@ export fn compile(expr: str) (regex | error) = {
 		const next = strings::next(&iter);
 
 		if (r_idx == 0 && next is rune && next: rune != '^') {
-				append(insts, void: inst_skip);
+			append(insts, void: inst_skip);
 		};
 
 		if (in_bracket) {
@@ -256,11 +266,7 @@ export fn compile(expr: str) (regex | error) = {
 		case '[' =>
 			in_bracket = true;
 		case ']' =>
-			if (in_bracket) {
-				in_bracket = false;
-			} else {
-				append(insts, r: inst_lit);
-			};
+			append(insts, r: inst_lit);
 		case '(' =>
 			if (n_groupstarts > 0) {
 				return `Nested capture groups are unsupported`: error;

@@ -333,6 +333,9 @@ fn run_findall_case(
 		(`^a\\b$`, "a\\b", matchres::MATCH, 0, -1),
 		(`^x(abc)\{,2\}$`, "xabc{,2}", matchres::MATCH, 0, -1),
 		(`^x(abc)\{,2\}$`, "xabcabc{,2}", matchres::NOMATCH, 0, -1),
+		(`^[\\]+$`, "\\", matchres::MATCH, 0, -1),
+		(`^[\]]+$`, "]", matchres::MATCH, 0, -1),
+		(`^[A-Za-z\[\]]+$`, "foo[bar]baz", matchres::MATCH, 0, -1),
 		// {m,n}
 		(`^x(abc){2}$`, "xabcabc", matchres::MATCH, 0, -1),
 		(`^x(abc){3}$`, "xabcabc", matchres::NOMATCH, 0, -1),
