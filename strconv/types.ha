@@ -12,7 +12,7 @@ export type invalid = !size;
 export type overflow = !void;
 
 // Any error which may be returned from a strconv function.
-export type error = (invalid | overflow);
+export type error = !(invalid | overflow);
 
 // The valid numeric bases for numeric conversions.
 export type base = enum uint {
