@@ -56,9 +56,10 @@ export fn from_instant(i: time::instant, loc: locality) moment = {
 // Creates a new [[time::instant]] from a [[moment]].
 export fn to_instant(m: moment) time::instant = {
 	const daysec = (m.loc.daylength / time::SECOND);
+	const t = m.time + m.zone.zoffset;
 	const i = time::instant {
-		sec = (m.date: i64 * daysec) + (m.time / time::SECOND),
-		nsec = m.time % time::SECOND,
+		sec = (m.date: i64 * daysec) + (t / time::SECOND),
+		nsec = t % time::SECOND,
 	};
 	return i;
 };
