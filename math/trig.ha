@@ -201,18 +201,6 @@ fn trig_reduce(x: f64) (u64, f64) = {
 	return (j, z * PI4);
 };
 
-@test fn trig_reduce() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		const reduced = trig_reduce(TEST_INPUTS[idx]);
-		const j = reduced.0;
-		const z = reduced.1;
-		const xred = (j: i64: f64) * (PI / 4f64) + z;
-		assert(isclose(
-			sinf64(TEST_INPUTS[idx]),
-			sinf64(xred)));
-	};
-};
-
 //      cos.c
 //
 //      Circular cosine
@@ -303,16 +291,6 @@ export fn cosf64(x: f64) f64 = {
 		y = -y;
 	};
 	return y;
-};
-
-@test fn cos() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
-			cosf64(TEST_INPUTS[idx]), TEST_COS[idx]));
-	};
-	assert(isnan(cosf64(-INF)));
-	assert(isnan(cosf64(INF)));
-	assert(isnan(cosf64(NAN)));
 };
 
 //      sin.c
@@ -416,18 +394,6 @@ export fn sinf64(x: f64) f64 = {
 	return y;
 };
 
-@test fn sin() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
-			sinf64(TEST_INPUTS[idx]), TEST_SIN[idx]));
-	};
-	assert(isnan(sinf64(-INF)));
-	assert(sinf64(-0f64) == -0f64);
-	assert(sinf64(0f64) == 0f64);
-	assert(isnan(sinf64(INF)));
-	assert(isnan(sinf64(NAN)));
-};
-
 //      tan.c
 //
 //      Circular tangent
@@ -527,18 +493,6 @@ export fn tanf64(x: f64) f64 = {
 	return y;
 };
 
-@test fn tan() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
-			tanf64(TEST_INPUTS[idx]), TEST_TAN[idx]));
-	};
-	assert(isnan(sinf64(-INF)));
-	assert(sinf64(-0f64) == -0f64);
-	assert(sinf64(0f64) == 0f64);
-	assert(isnan(sinf64(INF)));
-	assert(isnan(sinf64(NAN)));
-};
-
 // Evaluates a series valid in the range [0, 0.66].
 fn xatan(x: f64) f64 = {
 	const P0 = -8.750608600031904122785e-01;
@@ -602,34 +556,9 @@ export fn asinf64(x: f64) f64 = {
 	return temp;
 };
 
-@test fn asin() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
-			asinf64(TEST_INPUTS[idx] / 10f64),
-			TEST_ASIN[idx]));
-	};
-	assert(isnan(asinf64(-PI)));
-	assert(asinf64(-0f64) == -0f64);
-	assert(asinf64(0f64) == 0f64);
-	assert(isnan(asinf64(PI)));
-	assert(isnan(asinf64(NAN)));
-};
-
 // Returns the arccosine, in radians, of x.
 export fn acosf64(x: f64) f64 = {
 	return PI / 2f64 - asinf64(x);
-};
-
-@test fn acos() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
-			acosf64(TEST_INPUTS[idx] / 10f64),
-			TEST_ACOS[idx]));
-	};
-	assert(isnan(acosf64(-PI)));
-	assert(acosf64(1f64) == 0f64);
-	assert(isnan(acosf64(PI)));
-	assert(isnan(acosf64(NAN)));
 };
 
 // atan.c
@@ -661,19 +590,6 @@ export fn atanf64(x: f64) f64 = {
 		return satan(x);
 	};
 	return -satan(-x);
-};
-
-@test fn atan() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
-			atanf64(TEST_INPUTS[idx]),
-			TEST_ATAN[idx]));
-	};
-	assert(atanf64(-INF) == -PI / 2f64);
-	assert(atanf64(-0f64) == -0f64);
-	assert(atanf64(0f64) == 0f64);
-	assert(atanf64(INF) == PI / 2f64);
-	assert(isnan(atanf64(NAN)));
 };
 
 // Floating-point hyperbolic sine and cosine.
@@ -717,20 +633,6 @@ export fn sinhf64(x: f64) f64 = {
 	return temp;
 };
 
-@test fn sinh() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(eqwithin(
-			sinhf64(TEST_INPUTS[idx]),
-			TEST_SINH[idx],
-			1e-6f64));
-	};
-	assert(sinhf64(-INF) == -INF);
-	assert(sinhf64(-0f64) == -0f64);
-	assert(sinhf64(0f64) == 0f64);
-	assert(sinhf64(INF) == INF);
-	assert(isnan(sinhf64(NAN)));
-};
-
 // Returns the hyperbolic cosine of x.
 export fn coshf64(x: f64) f64 = {
 	x = absf64(x);
@@ -739,19 +641,6 @@ export fn coshf64(x: f64) f64 = {
 	};
 	const ex = expf64(x);
 	return (ex + 1f64 / ex) * 0.5f64;
-};
-
-@test fn cosh() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
-			coshf64(TEST_INPUTS[idx]),
-			TEST_COSH[idx]));
-	};
-	assert(coshf64(-INF) == INF);
-	assert(coshf64(-0f64) == 1f64);
-	assert(coshf64(0f64) == 1f64);
-	assert(coshf64(INF) == INF);
-	assert(isnan(coshf64(NAN)));
 };
 
 //      tanh.c
@@ -819,19 +708,6 @@ export fn tanhf64(x: f64) f64 = {
 	return z;
 };
 
-@test fn tanh() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
-			tanhf64(TEST_INPUTS[idx]),
-			TEST_TANH[idx]));
-	};
-	assert(tanhf64(-INF) == -1f64);
-	assert(tanhf64(-0f64) == -0f64);
-	assert(tanhf64(0f64) == 0f64);
-	assert(tanhf64(INF) == 1f64);
-	assert(isnan(tanhf64(NAN)));
-};
-
 // asinh(x)
 // Method :
 //	Based on
@@ -881,19 +757,6 @@ export fn asinhf64(x: f64) f64 = {
 	return temp;
 };
 
-@test fn asinh() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
-			asinhf64(TEST_INPUTS[idx]),
-			TEST_ASINH[idx]));
-	};
-	assert(asinhf64(-INF) == -INF);
-	assert(asinhf64(-0f64) == -0f64);
-	assert(asinhf64(0f64) == 0f64);
-	assert(asinhf64(INF) == INF);
-	assert(isnan(asinhf64(NAN)));
-};
-
 // __ieee754_acosh(x)
 // Method :
 //	Based on
@@ -927,19 +790,6 @@ export fn acoshf64(x: f64) f64 = {
 	const t = x - 1f64;
 	// 2 >= x > 1
 	return log1pf64(t + sqrtf64(2f64 * t + t * t));
-};
-
-@test fn acosh() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
-			acoshf64(1f64 + absf64(TEST_INPUTS[idx])),
-			TEST_ACOSH[idx]));
-	};
-	assert(isnan(acoshf64(-INF)));
-	assert(isnan(acoshf64(0.5f64)));
-	assert(acoshf64(1f64) == 0f64);
-	assert(acoshf64(INF) == INF);
-	assert(isnan(acoshf64(NAN)));
 };
 
 // __ieee754_atanh(x)
@@ -996,23 +846,6 @@ export fn atanhf64(x: f64) f64 = {
 	return temp;
 };
 
-@test fn atanh() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
-			atanhf64(TEST_INPUTS[idx] / 10f64),
-			TEST_ATANH[idx]));
-	};
-	assert(isnan(atanhf64(-INF)));
-	assert(isnan(atanhf64(-PI)));
-	assert(atanhf64(-1f64) == -INF);
-	assert(atanhf64(-0f64) == -0f64);
-	assert(atanhf64(0f64) == 0f64);
-	assert(atanhf64(1f64) == INF);
-	assert(isnan(atanhf64(PI)));
-	assert(isnan(atanhf64(INF)));
-	assert(isnan(atanhf64(NAN)));
-};
-
 // Returns the arctangent, in radians, of y / x.
 export fn atan2f64(y: f64, x: f64) f64 = {
 	if (isnan(y) || isnan(x)) {
@@ -1041,31 +874,6 @@ export fn atan2f64(y: f64, x: f64) f64 = {
 	return q;
 };
 
-@test fn atan2() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
-			atan2f64(10f64, TEST_INPUTS[idx]),
-			TEST_ATAN2[idx]));
-	};
-	assert(isnan(atan2f64(-INF, NAN)));
-	assert(atan2f64(-PI, INF) == -0f64);
-	assert(isnan(atan2f64(-PI, NAN)));
-	assert(atan2f64(-0f64, 0f64) == -0f64);
-	assert(atan2f64(-0f64, PI) == -0f64);
-	assert(atan2f64(-0f64, INF) == -0f64);
-	assert(isnan(atan2f64(-0f64, NAN)));
-	assert(atan2f64(0f64, 0f64) == 0f64);
-	assert(atan2f64(0f64, PI) == 0f64);
-	assert(atan2f64(0f64, INF) == 0f64);
-	assert(isnan(atan2f64(0f64, NAN)));
-	assert(atan2f64(PI, INF) == 0f64);
-	assert(atan2f64(1f64, INF) == 0f64);
-	assert(atan2f64(-1f64, INF) == -0f64);
-	assert(isnan(atan2f64(PI, NAN)));
-	assert(isnan(atan2f64(INF, NAN)));
-	assert(isnan(atan2f64(NAN, NAN)));
-};
-
 // Returns the square root of a*a + b*b, taking care to avoid unnecessary
 // overflow and underflow.
 export fn hypotf64(a: f64, b: f64) f64 = {
@@ -1088,31 +896,3 @@ export fn hypotf64(a: f64, b: f64) f64 = {
 	return a * sqrtf64(1f64 + b * b);
 };
 
-@test fn hypot() void = {
-	for (let idx = 0z; idx < 10; idx += 1) {
-		const a = absf64(1e200f64 * TEST_TANH[idx] * SQRT_2);
-		assert(isclose(
-			hypotf64(1e200f64 * TEST_TANH[idx],
-				1e200f64 * TEST_TANH[idx]),
-			a));
-	};
-	assert(hypotf64(-INF, -INF) == INF);
-	assert(hypotf64(-INF, 0f64) == INF);
-	assert(hypotf64(-INF, INF) == INF);
-	assert(hypotf64(-INF, NAN) == INF);
-	assert(hypotf64(-0f64, -0f64) == 0f64);
-	assert(hypotf64(-0f64, 0f64) == 0f64);
-	assert(hypotf64(0f64, -0f64) == 0f64);
-	assert(hypotf64(0f64, 0f64) == 0f64);
-	assert(hypotf64(0f64, -INF) == INF);
-	assert(hypotf64(0f64, INF) == INF);
-	assert(isnan(hypotf64(0f64, NAN)));
-	assert(hypotf64(INF, -INF) == INF);
-	assert(hypotf64(INF, 0f64) == INF);
-	assert(hypotf64(INF, INF) == INF);
-	assert(hypotf64(INF, NAN) == INF);
-	assert(hypotf64(NAN, -INF) == INF);
-	assert(isnan(hypotf64(NAN, 0f64)));
-	assert(hypotf64(NAN, INF) == INF);
-	assert(isnan(hypotf64(NAN, NAN)));
-};

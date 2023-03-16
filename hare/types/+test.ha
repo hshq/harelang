@@ -27,7 +27,7 @@ fn parse_type(in: str) ast::_type = {
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.repr as builtin == builtin::INT);
-	assert(htype.sz == x86_64._int && htype.align == x86_64._int);
+	assert(htype.sz == x86_64._int && htype._align == x86_64._int);
 
 	let type2 = lookup(st, &atype)!;
 	assert(htype == type2, "types should be singletons");
@@ -35,7 +35,7 @@ fn parse_type(in: str) ast::_type = {
 	let atype = parse_type("*int");
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
-	assert(htype.sz == x86_64._pointer && htype.align == x86_64._pointer);
+	assert(htype.sz == x86_64._pointer && htype._align == x86_64._pointer);
 	let htype = htype.repr as pointer;
 	assert(htype.referent.repr as builtin == builtin::INT);
 };
@@ -61,7 +61,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 8);
-	assert(htype.align == 4);
+	assert(htype._align == 4);
 	let stype = htype.repr as _struct;
 	assert(stype.kind == struct_union::STRUCT);
 	assert(len(stype.fields) == 2);
@@ -81,7 +81,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 4);
-	assert(htype.align == 4);
+	assert(htype._align == 4);
 	let stype = htype.repr as _struct;
 	assert(stype.kind == struct_union::UNION);
 	assert(len(stype.fields) == 2);
@@ -101,7 +101,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 24);
-	assert(htype.align == 8);
+	assert(htype._align == 8);
 	let stype = htype.repr as _struct;
 	assert(stype.kind == struct_union::STRUCT);
 
@@ -142,7 +142,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 20);
-	assert(htype.align == 4);
+	assert(htype._align == 4);
 	let stype = htype.repr as _struct;
 	assert(stype.fields[0].name == "p");
 	assert(stype.fields[0].offs == 16);
@@ -168,7 +168,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 16);
-	assert(htype.align == 4);
+	assert(htype._align == 4);
 	let stype = htype.repr as _struct;
 	assert(stype.fields[0].name == "p");
 	assert(stype.fields[0].offs == 12);
@@ -196,7 +196,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 36);
-	assert(htype.align == 4);
+	assert(htype._align == 4);
 	let stype = htype.repr as _struct;
 	assert(stype.fields[0].name == "x");
 	assert(stype.fields[0].offs == 8);
@@ -215,7 +215,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 8);
-	assert(htype.align == 4);
+	assert(htype._align == 4);
 	let tup = htype.repr as tuple;
 	assert(len(tup) == 2);
 
@@ -229,7 +229,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 24);
-	assert(htype.align == 8);
+	assert(htype._align == 8);
 
 	let tup = htype.repr as tuple;
 	assert(tup[0].offs == 0);
@@ -247,7 +247,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 24);
-	assert(htype.align == 8);
+	assert(htype._align == 8);
 	let slice = htype.repr as slice;
 	assert(slice.repr as builtin == builtin::INT);
 
@@ -256,7 +256,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 4 * 5);
-	assert(htype.align == 4);
+	assert(htype._align == 4);
 	let arr = htype.repr as array;
 	assert(arr.member.repr as builtin == builtin::I32);
 	assert(arr.length == 5);
@@ -266,7 +266,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == SIZE_UNDEFINED);
-	assert(htype.align == 4);
+	assert(htype._align == 4);
 	let arr = htype.repr as array;
 	assert(arr.member.repr as builtin == builtin::I32);
 	assert(arr.length == SIZE_UNDEFINED);
@@ -276,7 +276,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == SIZE_UNDEFINED);
-	assert(htype.align == 4);
+	assert(htype._align == 4);
 	let arr = htype.repr as array;
 	assert(arr.member.repr as builtin == builtin::I32);
 	assert(arr.length == SIZE_UNDEFINED);
@@ -290,7 +290,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == SIZE_UNDEFINED);
-	assert(htype.align == SIZE_UNDEFINED);
+	assert(htype._align == SIZE_UNDEFINED);
 	let f = htype.repr as func;
 	assert(f.result.repr as builtin == builtin::VOID);
 	assert(f.variadism  == variadism::NONE);
@@ -301,7 +301,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == SIZE_UNDEFINED);
-	assert(htype.align == SIZE_UNDEFINED);
+	assert(htype._align == SIZE_UNDEFINED);
 	let f = htype.repr as func;
 	assert(f.result.repr as builtin == builtin::INT);
 	assert(f.variadism  == variadism::HARE);
@@ -319,7 +319,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == st.arch._int * 2);
-	assert(htype.align == st.arch._int);
+	assert(htype._align == st.arch._int);
 	let t = htype.repr as tagged;
 	assert(len(t) == 2);
 	assert(t[0].repr as builtin == builtin::INT);
@@ -329,7 +329,7 @@ fn resolve(
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 32);
-	assert(htype.align == 8);
+	assert(htype._align == 8);
 	let t = htype.repr as tagged;
 	assert(len(t) == 3);
 	assert(t[0].repr as builtin == builtin::INT);
@@ -344,7 +344,7 @@ fn resolve(
 	const of = lookup_builtin(st, ast::builtin_type::U64);
 	const al = newalias(st, ["myalias"], of);
 	assert(al.sz == 8);
-	assert(al.align == 8);
+	assert(al._align == 8);
 	assert(al.flags == 0);
 	assert((al.repr as alias).secondary == of);
 
@@ -366,7 +366,7 @@ fn resolve(
 	const of = lookup_builtin(st, ast::builtin_type::U64);
 	const al = newalias(st, ["myalias"], of);
 	assert(htype.sz == 8);
-	assert(htype.align == 8);
+	assert(htype._align == 8);
 	assert(htype.flags == 0);
 	assert((htype.repr as alias).secondary == of);
 };

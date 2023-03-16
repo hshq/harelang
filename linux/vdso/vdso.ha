@@ -144,7 +144,7 @@ fn vdso_checkver(ctx: *vdso_ctx, version: str, num: u32) bool = {
 			return version == strings::fromc(name: *char)!;
 		};
 		prev = cur;
-		cur += cur.vd_next: uintptr;
+		cur = (cur: uintptr + cur.vd_next: uintptr): *elf::verdef64;
 	};
 	return false;
 };

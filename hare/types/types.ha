@@ -125,5 +125,5 @@ export type _type = struct {
 		| pointer | slice | _struct | tagged | tuple),
 	id: u32,
 	sz: size,
-	align: size,
+	_align: size,
 };

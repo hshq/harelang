@@ -4540,7 +4540,10 @@ testlib_math_any_srcs = \
 	$(STDLIB)/math/ints.ha \
 	$(STDLIB)/math/uints.ha \
 	$(STDLIB)/math/trig.ha \
-	$(STDLIB)/math/data+test.ha
+	$(STDLIB)/math/+test/data.ha \
+	$(STDLIB)/math/+test/math.ha \
+	$(STDLIB)/math/+test/floats.ha \
+	$(STDLIB)/math/+test/trig.ha
 
 $(TESTCACHE)/math/math-any.ssa: $(testlib_math_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'

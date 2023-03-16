@@ -251,7 +251,7 @@ fn qval_emit(to: io::handle, qv: qval) void = {
 };
 
 fn qinstr_alloc(ty: *types::_type) qinstr = {
-	switch (ty.align) {
+	switch (ty._align) {
 	case 4 =>
 		return qinstr::ALLOC4;
 	case 8 =>

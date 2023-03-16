@@ -28,20 +28,6 @@ export fn zero(x: []word, ebitlen: word) void = {
 	bytes::zero((x: *[*]u8)[size(word)..(1 + ewordlen) * size(word)]);
 };
 
-@test fn zero() void = {
-	let w: [4]word = [0xffffffff...];
-
-	// set effective word len to 2 words.
-	const elen = countbits(w[1..3]);
-	w[0] = elen;
-
-	zero(w[..3], elen);
-
-	// check if zero does not overwrite more or less than elen
-	assert(w[0] == elen);
-	assert(w[3] == 0xffffffff);
-};
-
 // Checks whether the effective words of 'x' are zero. Returns 1 if so, or 0
 // otherwise.
 fn iszero(x: []word) u32 = {
@@ -51,17 +37,6 @@ fn iszero(x: []word) u32 = {
 		z |= x[i];
 	};
 	return ~(z | -(z: i32): u32) >> 31;
-};
-
-@test fn iszero() void = {
-	let x = fromhex("210032a0");
-	let y = fromhex("00000000");
-
-	assert(iszero(x) == 0);
-	assert(iszero(y) == 1);
-
-	free(x);
-	free(y);
 };
 
 fn isodd(x: []word) bool = {
