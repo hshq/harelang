@@ -66,6 +66,7 @@ export fn setname(cmd: *command, name: str) void = {
 export fn finish(cmd: *command) void = {
 	platform_finish(cmd);
 	free(cmd.argv);
+	free(cmd.files);
 	strings::freeall(cmd.env);
 };
 
