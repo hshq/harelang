@@ -172,7 +172,9 @@ export fn scan_rune(
 	if (scan.pending == 0) {
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
-			return io::EOF;
+			if (scan.pending == 0) {
+				return io::EOF;
+			};
 		case size =>
 			yield;
 		};
@@ -208,6 +210,16 @@ export fn scan_rune(
 	case utf8::more =>
 		return utf8::invalid;
 	};
+};
+
+@test fn scan_rune() void = {
+	let in = fixed(strings::toutf8("1234"), io::mode::READ);
+	let scan = newscanner(&in, 4);
+	assert(scan_rune(&scan) == '1', "expected '1'");
+	assert(scan_rune(&scan) == '2', "expected '2'");
+	assert(scan_rune(&scan) == '3', "expected '3'");
+	assert(scan_rune(&scan) == '4', "expected '4'");
+	finish(&scan);
 };
 
 // Scans a string of text from a [[scanner]] up to some delimiter. The return
