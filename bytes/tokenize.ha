@@ -11,8 +11,8 @@ export type tokenizer = struct {
 };
 
 // Returns a tokenizer which yields sub-slices tokenized by a delimiter, starting
-// at the beginning of the slice. The caller must ensure that 'delimiter' is not
-// an empty slice. Can tokenize a slice of length less than [[types::I64_MAX]].
+// at the beginning of the slice. The caller must ensure that 'delim' is not an
+// empty slice. Can tokenize a slice of length less than [[types::I64_MAX]].
 export fn tokenize(s: []u8, delim: []u8) tokenizer = {
 	assert(len(delim) > 0, "bytes::tokenize called with empty slice");
 	if (len(s) == 0) {

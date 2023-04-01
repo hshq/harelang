@@ -18,7 +18,7 @@ export type tokenizer = bytes::tokenizer;
 // 	assert(strings::next_token(&tok) as str == "name");
 // 	assert(strings::remaining_tokens(&tok) == "is drew");
 //
-// The caller must ensure that 'delimiter' is not an empty string.
+// The caller must ensure that 'delim' is not an empty string.
 export fn tokenize(s: str, delim: str) tokenizer =
 	bytes::tokenize(toutf8(s), toutf8(delim));
 
