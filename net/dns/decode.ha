@@ -193,6 +193,8 @@ fn decode_rdata(dec: *decoder, rtype: rtype, rlen: size) (rdata | format) = {
 		return decode_a(&sub);
 	case rtype::AAAA =>
 		return decode_aaaa(&sub);
+	case rtype::CNAME =>
+		return decode_cname(&sub);
 	case rtype::MX =>
 		return decode_mx(&sub);
 	case rtype::TXT =>
@@ -220,6 +222,12 @@ fn decode_aaaa(dec: *decoder) (rdata | format) = {
 	ip[..] = dec.cur[..16];
 	dec.cur = dec.cur[16..];
 	return ip: aaaa;
+};
+
+fn decode_cname(dec: *decoder) (rdata | format) = {
+	return cname {
+		name = decode_name(dec)?,
+	};
 };
 
 fn decode_mx(dec: *decoder) (rdata | format) = {

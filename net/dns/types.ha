@@ -133,6 +133,11 @@ export type a = ip::addr4;
 // An AAAA record.
 export type aaaa = ip::addr6;
 
+// A CNAME record.
+export type cname = struct {
+	name: []str,
+};
+
 // An MX record.
 export type mx = struct {
 	priority: u16,
@@ -146,7 +151,7 @@ export type txt = [][]u8;
 export type unknown_rdata = []u8;
 
 // Tagged union of supported rdata types.
-export type rdata = (a | aaaa | mx | txt | unknown_rdata);
+export type rdata = (a | aaaa | cname | mx | txt | unknown_rdata);
 
 // A DNS message, Hare representation. See [[encode]] and [[decode]] for the DNS
 // representation.
@@ -189,6 +194,8 @@ fn rrecords_free(rrs: []rrecord) void = {
 fn rrecord_finish(rr: *rrecord) void = {
 	strings::freeall(rr.name);
 	match (rr.rdata) {
+	case let cn: cname =>
+		strings::freeall(cn.name);
 	case let mx: mx =>
 		strings::freeall(mx.name);
 	case let tx: txt =>
