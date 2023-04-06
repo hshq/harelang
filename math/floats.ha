@@ -478,16 +478,16 @@ export fn ldexpf32(mantissa: f32, exp: i64) f32 = {
 };
 
 // Returns the integer and fractional parts of an f64.
-export fn modfracf64(n: f64) (i64, f64) = {
+export fn modfracf64(n: f64) (f64, f64) = {
 	if (n < 1f64) {
 		if (n < 0f64) {
 			let positive_parts = modfracf64(-n);
 			return (-positive_parts.0, -positive_parts.1);
 		};
 		if (n == 0f64) {
-			return ((n: i64), n);
+			return (n, n);
 		};
-		return (0i64, n);
+		return (0f64, n);
 	};
 	let bits = f64bits(n);
 	const exp = (((bits >> F64_MANTISSA_BITS) & F64_EXPONENT_MASK): i64) -
@@ -501,20 +501,20 @@ export fn modfracf64(n: f64) (i64, f64) = {
 	};
 	const int_part = f64frombits(bits);
 	const frac_part = n - int_part;
-	return ((int_part: i64), frac_part);
+	return (int_part, frac_part);
 };
 
 // Returns the integer and fractional parts of an f32.
-export fn modfracf32(n: f32) (i32, f32) = {
+export fn modfracf32(n: f32) (f32, f32) = {
 	if (n < 1.0f32) {
 		if (n < 0.0f32) {
 			let positive_parts = modfracf32(-n);
 			return (-positive_parts.0, -positive_parts.1);
 		};
 		if (n == 0.0f32) {
-			return ((n: i32), n);
+			return (n, n);
 		};
-		return (0i32, n);
+		return (0f32, n);
 	};
 	let bits = f32bits(n);
 	const exp = (((bits >> F32_MANTISSA_BITS) & F32_EXPONENT_MASK): i32) -
@@ -528,9 +528,8 @@ export fn modfracf32(n: f32) (i32, f32) = {
 	};
 	const int_part = f32frombits(bits);
 	const frac_part = n - int_part;
-	return ((int_part: i32), frac_part);
+	return (int_part, frac_part);
 };
-
 
 // Returns the f32 that is closest to 'x' in direction of 'y'. Returns NaN
 // if either parameter is NaN. Returns 'x' if both parameters are same.

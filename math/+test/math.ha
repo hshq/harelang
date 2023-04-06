@@ -209,8 +209,10 @@
 				TEST_CEIL[idx]));
 	};
 	assert(ceilf64(-INF) == -INF);
+	assert(ceilf64(-F64_MAX_NORMAL) == -F64_MAX_NORMAL);
 	assert(ceilf64(-0f64) == -0f64);
 	assert(ceilf64(0f64) == 0f64);
+	assert(ceilf64(F64_MAX_NORMAL) == F64_MAX_NORMAL);
 	assert(ceilf64(INF) == INF);
 	assert(isnan(ceilf64(NAN)));
 };
@@ -222,8 +224,10 @@
 			TEST_TRUNC[idx]));
 	};
 	assert(truncf64(-INF) == -INF);
+	assert(truncf64(-F64_MAX_NORMAL) == -F64_MAX_NORMAL);
 	assert(truncf64(-0f64) == -0f64);
 	assert(truncf64(0f64) == 0f64);
+	assert(truncf64(F64_MAX_NORMAL) == F64_MAX_NORMAL);
 	assert(truncf64(INF) == INF);
 	assert(isnan(truncf64(NAN)));
 };
@@ -235,8 +239,10 @@
 				TEST_ROUND[idx]));
 	};
 	assert(roundf64(-INF) == -INF);
+	assert(roundf64(-F64_MAX_NORMAL) == -F64_MAX_NORMAL);
 	assert(roundf64(-0f64) == -0f64);
 	assert(roundf64(0f64) == 0f64);
+	assert(roundf64(F64_MAX_NORMAL) == F64_MAX_NORMAL);
 	assert(roundf64(INF) == INF);
 	assert(isnan(roundf64(NAN)));
 };
