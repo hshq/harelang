@@ -110,12 +110,18 @@
 	// Very large positive integer
 	assert(!isinf(powf64(2f64, 1020f64)));
 	assert(isinf(powf64(2f64, 1050f64)));
+	// Very very large positive integer
+	assert(isinf(powf64(2f64, F64_MAX_NORMAL)));
+	assert(powf64(0.5f64, F64_MAX_NORMAL) == 0f64);
 	// Negative integer
 	assert(powf64(2f64, -1f64) == 0.5f64);
 	assert(powf64(2f64, -2f64) == 0.25f64);
 	// Very small negative integer
 	assert(powf64(2f64, -1020f64) > 0f64);
 	assert(powf64(2f64, -1080f64) == 0f64);
+	// Very very small negative integer
+	assert(powf64(2f64, -F64_MAX_NORMAL) == 0f64);
+	assert(isinf(powf64(0.5f64, -F64_MAX_NORMAL)));
 	// Positive fractional powers
 	assert(eqwithin(powf64(2f64, 1.5f64),
 		2.8284271247461900976033774f64,

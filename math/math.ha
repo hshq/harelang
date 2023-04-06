@@ -731,13 +731,19 @@ export fn powf64(x: f64, p: f64) f64 = {
 		return 1f64 / sqrtf64(x);
 	};
 
-	const x_parts = frexp(x);
-	let x_mantissa = x_parts.0;
-	let x_exp = x_parts.1;
-
-	const p_int_frac = modfracf64(absf64(p));
-	let p_int = p_int_frac.0;
-	let p_frac = p_int_frac.1;
+	let (p_int, p_frac) = modfracf64(absf64(p));
+	if (p_frac != 0f64 && x < 0f64) {
+		return NAN;
+	};
+	if (p_int > types::I64_MAX: f64) {
+		if (x == -1f64) {
+			return 1f64;
+		} else if ((absf64(x) < 1f64) == (p > 0f64)) {
+			return 0f64;
+		} else {
+			return INF;
+		};
+	};
 
 	let res_mantissa = 1f64;
 	let res_exp = 0i64;
@@ -756,6 +762,7 @@ export fn powf64(x: f64, p: f64) f64 = {
 	// Repeatedly square our number x, for each bit in our power p.
 	// If the current bit is 1 in p, add the respective power of x to our
 	// result.
+	let (x_mantissa, x_exp) = frexp(x);
 	for (let i = p_int: i64; i != 0; i >>= 1) {
 		// Check for over/underflow.
 		if (x_exp <= -1i64 << (F64_EXPONENT_BITS: i64)) {
