@@ -197,6 +197,12 @@ fn decode_rdata(dec: *decoder, rtype: rtype, rlen: size) (rdata | format) = {
 		return decode_cname(&sub);
 	case rtype::MX =>
 		return decode_mx(&sub);
+	case rtype::NS =>
+		return decode_ns(&sub);
+	case rtype::SOA =>
+		return decode_soa(&sub);
+	case rtype::SRV =>
+		return decode_srv(&sub);
 	case rtype::TXT =>
 		return decode_txt(&sub);
 	case =>
@@ -234,6 +240,32 @@ fn decode_mx(dec: *decoder) (rdata | format) = {
 	return mx {
 		priority = decode_u16(dec)?,
 		name = decode_name(dec)?,
+	};
+};
+
+fn decode_ns(dec: *decoder) (rdata | format) = {
+	return ns {
+		name = decode_name(dec)?,
+	};
+};
+
+fn decode_soa(dec: *decoder) (rdata | format) = {
+	return soa {
+		mname = decode_name(dec)?,
+		rname = decode_name(dec)?,
+		serial = decode_u32(dec)?,
+		refresh = decode_u32(dec)?,
+		retry = decode_u32(dec)?,
+		expire = decode_u32(dec)?,
+	};
+};
+
+fn decode_srv(dec: *decoder) (rdata | format) = {
+	return srv {
+		priority = decode_u16(dec)?,
+		weight = decode_u16(dec)?,
+		port = decode_u16(dec)?,
+		target = decode_name(dec)?,
 	};
 };
 

@@ -144,6 +144,29 @@ export type mx = struct {
 	name: []str,
 };
 
+// An NS record.
+export type ns = struct {
+	name: []str,
+};
+
+// An SOA record.
+export type soa = struct {
+	mname: []str,
+	rname: []str,
+	serial: u32,
+	refresh: u32,
+	retry: u32,
+	expire: u32,
+};
+
+// An SRV record.
+export type srv = struct {
+	priority: u16,
+	weight: u16,
+	port: u16,
+	target: []str,
+};
+
 // A TXT record.
 export type txt = [][]u8;
 
@@ -151,7 +174,7 @@ export type txt = [][]u8;
 export type unknown_rdata = []u8;
 
 // Tagged union of supported rdata types.
-export type rdata = (a | aaaa | cname | mx | txt | unknown_rdata);
+export type rdata = (a | aaaa | cname | mx | ns | soa | srv | txt | unknown_rdata);
 
 // A DNS message, Hare representation. See [[encode]] and [[decode]] for the DNS
 // representation.
@@ -198,6 +221,13 @@ fn rrecord_finish(rr: *rrecord) void = {
 		strings::freeall(cn.name);
 	case let mx: mx =>
 		strings::freeall(mx.name);
+	case let ns: ns =>
+		strings::freeall(ns.name);
+	case let so: soa =>
+		strings::freeall(so.mname);
+		strings::freeall(so.rname);
+	case let sr: srv =>
+		strings::freeall(sr.target);
 	case let tx: txt =>
 		bytes_free(tx: [][]u8);
 	case => void;
