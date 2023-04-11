@@ -193,6 +193,8 @@ fn decode_rdata(dec: *decoder, rtype: rtype, rlen: size) (rdata | format) = {
 		return decode_a(&sub);
 	case rtype::AAAA =>
 		return decode_aaaa(&sub);
+	case rtype::CAA =>
+		return decode_caa(&sub);
 	case rtype::CNAME =>
 		return decode_cname(&sub);
 	case rtype::MX =>
@@ -228,6 +230,33 @@ fn decode_aaaa(dec: *decoder) (rdata | format) = {
 	ip[..] = dec.cur[..16];
 	dec.cur = dec.cur[16..];
 	return ip: aaaa;
+};
+
+fn decode_caa(dec: *decoder) (rdata | format) = {
+	let flags = decode_u8(dec)?;
+	let tag_len = decode_u8(dec)?;
+
+	if (len(dec.cur) < tag_len) {
+		return format;
+	};
+	let tag = match(strings::fromutf8(dec.cur[..tag_len])) {
+	case let t: str =>
+		yield t;
+	case =>
+		return format;
+	};
+	let value = match (strings::fromutf8(dec.cur[tag_len..])) {
+	case let v: str =>
+		yield v;
+	case =>
+		return format;
+	};
+
+	return caa {
+		flags = flags,
+		tag = strings::dup(tag),
+		value = strings::dup(value),
+	};
 };
 
 fn decode_cname(dec: *decoder) (rdata | format) = {

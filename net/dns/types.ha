@@ -18,6 +18,7 @@ export type rtype = enum u16 {
 	AAAA = 28,
 	SRV = 33,
 	DNSKEY = 48,
+	CAA = 257,
 };
 
 // Question type (superset of [[rtype]]).
@@ -36,6 +37,7 @@ export type qtype = enum u16 {
 	AXFR = 252,
 	// *
 	ALL = 255,
+	CAA = 257,
 };
 
 // Class type (e.g. Internet).
@@ -133,6 +135,13 @@ export type a = ip::addr4;
 // An AAAA record.
 export type aaaa = ip::addr6;
 
+// A CAA record.
+export type caa = struct {
+	flags: u8,
+	tag: str,
+	value: str,
+};
+
 // A CNAME record.
 export type cname = struct {
 	name: []str,
@@ -174,7 +183,7 @@ export type txt = [][]u8;
 export type unknown_rdata = []u8;
 
 // Tagged union of supported rdata types.
-export type rdata = (a | aaaa | cname | mx | ns | soa | srv | txt | unknown_rdata);
+export type rdata = (a | aaaa | caa | cname | mx | ns | soa | srv | txt | unknown_rdata);
 
 // A DNS message, Hare representation. See [[encode]] and [[decode]] for the DNS
 // representation.
@@ -219,6 +228,9 @@ fn rrecord_finish(rr: *rrecord) void = {
 	match (rr.rdata) {
 	case let cn: cname =>
 		strings::freeall(cn.name);
+	case let ca: caa =>
+		free(ca.tag);
+		free(ca.value);
 	case let mx: mx =>
 		strings::freeall(mx.name);
 	case let ns: ns =>
