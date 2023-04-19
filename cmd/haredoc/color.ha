@@ -12,13 +12,16 @@ type syn = enum uint {
 	NORMAL,
 	COMMENT,
 	PRIMARY,
+	CONSTANT,
+	FUNCTION,
+	GLOBAL,
+	TYPEDEF,
 	SECONDARY,
 	KEYWORD,
 	TYPE,
 	ATTRIBUTE,
 	OPERATOR,
 	PUNCTUATION,
-	CONSTANT,
 	STRING,
 	NUMBER,
 };
@@ -28,13 +31,16 @@ let COLORS: [_](str, str) = [
 	("normal"      ,  "0"),
 	("comment"     ,  "1"),
 	("primary"     ,  "0"),
+	("constant"    ,  "0"),
+	("function"    ,  "0"),
+	("global"      ,  "0"),
+	("typedef"     ,  "0"),
 	("secondary"   ,  "0"),
 	("keyword"     , "94"),
 	("type"        , "96"),
 	("attribute"   , "33"),
 	("operator"    ,  "1"),
 	("punctuation" ,  "0"),
-	("constant"    , "91"),
 	("string"      , "91"),
 	("number"      , "95"),
 ];
@@ -46,7 +52,7 @@ fn init_colors() void = {
 	defer regex::finish(&expr);
 
 	const matches = regex::findall(&expr, env_colors);
-	defer regex::free_matches(matches);
+	defer regex::result_freeall(matches);
 
 	for (let i = 0z; i < len(matches); i += 1) :colors {
 		const (k, v)  = (matches[i][1].content, matches[i][2].content);
@@ -77,10 +83,14 @@ fn init_colors() void = {
 };
 
 fn render(h: io::handle, syntax: syn) (size | io::error) = {
-	switch (COLORS[syntax].1) {
-	case "_" =>
-		return fmt::fprintf(h, "\x1b[0;{}m", COLORS[syn::NORMAL].1)?;
-	case =>
-		return fmt::fprintf(h, "\x1b[0;{}m", COLORS[syntax].1)?;
+	if (COLORS[syntax].1 == "_") {
+		syntax = switch (syntax) {
+		case syn::CONSTANT, syn::FUNCTION, syn::GLOBAL, syn::TYPEDEF =>
+			yield if (COLORS[syn::PRIMARY].1 == "_") syn::NORMAL
+				else syn::PRIMARY;
+		case =>
+			yield syn::NORMAL;
+		};
 	};
+	return fmt::fprintf(h, "\x1b[0;{}m", COLORS[syntax].1)?;
 };

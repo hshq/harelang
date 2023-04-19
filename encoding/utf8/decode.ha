@@ -5,17 +5,22 @@
 
 fn toutf8(in: str) []u8 = *(&in: *[]u8);
 
+fn fromtagged(in: (str | []u8)) []u8 = match (in) {
+case let s: str =>
+	return toutf8(s);
+case let b: []u8 =>
+	return b;
+};
+
 export type decoder = struct {
 	offs: size,
 	src: []u8,
 };
 
 // Initializes a new UTF-8 decoder.
-export fn decode(src: (str | []u8)) decoder = match (src) {
-case let s: str =>
-	yield decoder { src = toutf8(s), ...  };
-case let b: []u8 =>
-	yield decoder { src = b, ...  };
+export fn decode(src: (str | []u8)) decoder = decoder {
+	src = fromtagged(src),
+	offs = 0,
 };
 
 // Returned when more data is needed, i.e. when an incomplete UTF-8 sequence is
@@ -25,53 +30,34 @@ export type more = void;
 // Returned when an invalid UTF-8 sequence was found.
 export type invalid = !void;
 
-const leader_masks: [_]u8 = [0x7F, 0x3F, 0x1F, 0x0F];
-
-fn decode_leader(c: u8) ((size, u8) | invalid) = {
-	for (let i = 0z; i < len(sizes); i += 1) {
-		if (c & sizes[i].mask == sizes[i].result) {
-			return (sizes[i].octets, c & leader_masks[i]);
-		};
-	};
-	// Bad leading byte
-	return invalid;
-};
+const masks: [2][8]u8 = [
+	[0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f],
+	[0x7f, 0x1f, 0x0f, 0x0f, 0x0f, 0x07, 0x07, 0x07],
+];
 
 // Returns the next rune from a decoder. void is returned when there are no
 // remaining codepoints.
 export fn next(d: *decoder) (rune | void | more | invalid) = {
-	assert(d.offs <= len(d.src));
 	if (d.offs == len(d.src)) {
 		return;
 	};
 
-	const (n, leader) = decode_leader(d.src[d.offs])?;
-	if (d.offs + n > len(d.src)) {
-		return more;
+	// from https://github.com/skeeto/scratch/blob/master/parsers/utf8_decode.c
+	// See https://bjoern.hoehrmann.de/utf-8/decoder/dfa/
+	// and https://nullprogram.com/blog/2020/12/31/ for an explanation of
+	// the algorithm.
+	let next = 0, state = 0;
+	let r = 0u32;
+	for (d.offs < len(d.src); d.offs += 1) {
+		next = table[state][d.src[d.offs]];
+		r = r << 6 | d.src[d.offs] & masks[(state - 1): uint >> 31][next & 7];
+		if (next <= 0) {
+			d.offs += 1;
+			return if (next == 0) r: rune else invalid;
+		};
+		state = next;
 	};
-
-	let r = leader: u32;
-	if (n > 1) {
-		for (let i = 1z; i < n; i += 1) {
-			let byte = d.src[d.offs + i];
-			if ((byte & 0xC0) != 0x80) {
-				// Bad continuation byte
-				return invalid;
-			};
-			r <<= 6;
-			r |= byte & 0x3F;
-		};
-		if (r >= 0xD800 && r <= 0xDFFF) {
-			// UTF-16 surrogates
-			return invalid;
-		};
-		if (runesz(r: rune) != n) {
-			// Overlong encoding
-			return invalid;
-		};
-	};
-	d.offs += n;
-	return r: rune;
+	return more;
 };
 
 // Returns the previous rune from a decoder. void is returned when there are no
@@ -80,45 +66,21 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	if (d.offs == 0) {
 		return;
 	};
-
-	let r = 0u32;
-	let n = 0z;
-	for (let i = 0z; i < d.offs; i += 1) {
-		let byte = d.src[d.offs - i - 1];
-		if ((byte & 0xC0) == 0x80) {
-			if (i == 3) {
-				// Too many continuation bytes in a row
-				return invalid;
-			};
-			byte &= 0x3F;
-			r |= byte << (i * 6): u32;
-		} else {
-			const nl = decode_leader(byte)?;
-			n = nl.0;
-			if (i + 1 != n) {
-				// Trailing continuation bytes
-				return invalid;
-			};
-			r |= nl.1 << (i * 6): u32;
-			break;
+	let n = d.offs;
+	d.offs -= 1;
+	for (d.offs < len(d.src); d.offs -= 1) {
+		if (table[0][d.src[d.offs]] != -1) {
+			let t = d.offs;
+			defer d.offs = t;
+			let r = next(d);
+			return if (n != d.offs || r is more) invalid else r;
 		};
-	};
-
-	if (n == 0) {
-		return more;
-	} else if (n > 1) {
-		if (r >= 0xD800 && r <= 0xDFFF) {
-			// UTF-16 surrogates
-			return invalid;
-		};
-		if (runesz(r: rune) != n) {
-			// Overlong encoding
+		if (n - d.offs == 4) {
+			// Too many continuation bytes in a row
 			return invalid;
 		};
 	};
-
-	d.offs -= n;
-	return r: rune;
+	return more;
 };
 
 @test fn decode() void = {
@@ -126,6 +88,7 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 		0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3, 0x81,
 		0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0x00,
 	];
+	assert(valid(input));
 	const expected = ['こ', 'ん', 'に', 'ち', 'は', '\0'];
 	let decoder = decode(input);
 	for (let i = 0z; i < len(expected); i += 1) {
@@ -153,50 +116,52 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	assert(next(&decoder) is invalid);
 	decoder.offs = 2;
 	assert(prev(&decoder) is more);
+	assert(!valid(inv));
 
 	const incomplete: [_]u8 = [0xE3, 0x81];
 	decoder = decode(incomplete);
 	assert(next(&decoder) is more);
 	decoder.offs = 2;
 	assert(prev(&decoder) is invalid);
+	assert(!valid(incomplete));
 
 	const surrogate: [_]u8 = [0xED, 0xA0, 0x80];
 	decoder = decode(surrogate);
 	assert(next(&decoder) is invalid);
 	decoder.offs = 3;
 	assert(prev(&decoder) is invalid);
+	assert(!valid(surrogate));
 
 	const overlong: [_]u8 = [0xF0, 0x82, 0x82, 0xAC];
 	decoder = decode(overlong);
 	assert(next(&decoder) is invalid);
 	decoder.offs = 4;
 	assert(prev(&decoder) is invalid);
+	assert(!valid(overlong));
 
 	const badcont: [_]u8 = [0xC2, 0xFF];
 	decoder = decode(badcont);
 	assert(next(&decoder) is invalid);
+	assert(!valid(badcont));
 
 	const extracont: [_]u8 = [0xC2, 0xA3, 0x95];
 	decoder = decode(extracont);
 	decoder.offs = 3;
 	assert(prev(&decoder) is invalid);
+	assert(!valid(extracont));
+
+	const regression: []u8 = [0xf5, 0x94, 0x80, 0x80];
+	assert(!valid(regression));
 };
 
 // Returns true if a given string or byte slice contains only valid UTF-8
 // sequences. Note that Hare strings (str) are always valid UTF-8 - if this
 // returns false for a str type, something funny is going on.
 export fn valid(src: (str | []u8)) bool = {
-	let decoder = decode(src);
-	for (true) {
-		match (next(&decoder)) {
-		case void =>
-			return true;
-		case invalid =>
-			return false;
-		case more =>
-			return false;
-		case rune => void;
-		};
+	let src = fromtagged(src);
+	let state = 0;
+	for (let i = 0z; i < len(src) && state >= 0; i += 1) {
+		state = table[state][src[i]];
 	};
-	abort();
+	return state == 0;
 };

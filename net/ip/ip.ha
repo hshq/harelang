@@ -65,7 +65,8 @@ export fn equal(l: addr, r: addr) bool = {
 	};
 };
 
-fn parsev4(st: str) (addr4 | invalid) = {
+// Parses an IPv4 address.
+export fn parsev4(st: str) (addr4 | invalid) = {
 	let ret: addr4 = [0...];
 	let tok = strings::tokenize(st, ".");
 	let i = 0z;
@@ -87,7 +88,8 @@ fn parsev4(st: str) (addr4 | invalid) = {
 	return ret;
 };
 
-fn parsev6(st: str) (addr6 | invalid) = {
+// Parses an IPv6 address.
+export fn parsev6(st: str) (addr6 | invalid) = {
 	let ret: addr6 = [0...];
 	if (st == "::") {
 		return ret;

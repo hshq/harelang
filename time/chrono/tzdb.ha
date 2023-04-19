@@ -231,7 +231,7 @@ fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 		case encoding::utf8::invalid =>
 			return invalidtzif;
 		};
-		zone.abbr = abbr;
+		zone.abbr = strings::dup(abbr);
 
 		append(zones, zone);
 	};

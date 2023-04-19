@@ -10,13 +10,15 @@ use bufio;
 use encoding::utf8;
 use fmt;
 use io;
+use os;
 use sort;
 use strconv;
 use strings;
 use strio;
+use types;
 
 export type lexer = struct {
-	in: io::handle,
+	in: bufio::scanner,
 	path: str,
 	loc: (uint, uint),
 	un: (token | void),
@@ -60,9 +62,10 @@ export fn init(in: io::handle, path: str, flags: flags...) lexer = {
 	for (let i = 0z; i < len(flags); i += 1) {
 		f |= flags[i];
 	};
+	let scanner = bufio::newscanner(in, os::BUFSIZ);
 	const loc = location { path = path, line = 1, col = 1 };
 	return lexer {
-		in = in,
+		in = scanner,
 		path = path,
 		loc = (1, 1),
 		un = void,
@@ -217,6 +220,8 @@ fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 		return lex_unicode(lex, loc, 4);
 	case 'U' =>
 		return lex_unicode(lex, loc, 8);
+	case =>
+		return syntaxerr(mkloc(lex), "unknown escape sequence");
 	};
 };
 
@@ -546,7 +551,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 	case let exp: int =>
 		yield exp;
 	case strconv::invalid =>
-		abort(); // Shouldn't be lexed in
+		return syntaxerr(mkloc(lex), "expected exponent");
 	case strconv::overflow =>
 		return syntaxerr(loc, "overflow in exponent");
 	};
@@ -563,21 +568,21 @@ fn lex_literal(lex: *lexer) (token | error) = {
 	case void =>
 		yield "";
 	};
-	let suff = if (suff == "u8") ltok::LIT_U8
-		else if (suff == "u16") ltok::LIT_U16
-		else if (suff == "u32") ltok::LIT_U32
-		else if (suff == "u64") ltok::LIT_U64
-		else if (suff == "u") ltok::LIT_UINT
-		else if (suff == "z") ltok::LIT_SIZE
-		else if (suff == "i8") ltok::LIT_I8
-		else if (suff == "i16") ltok::LIT_I16
-		else if (suff == "i32") ltok::LIT_I32
-		else if (suff == "i64") ltok::LIT_I64
-		else if (suff == "i") ltok::LIT_INT
-		else if (suff == "" && !float && exp >= 0) ltok::LIT_ICONST
-		else if (suff == "f32") ltok::LIT_F32
-		else if (suff == "f64") ltok::LIT_F64
-		else if (suff == "" && (float || exp < 0)) ltok::LIT_FCONST
+	let (suff, signed) = if (suff == "u8") (ltok::LIT_U8, false)
+		else if (suff == "u16") (ltok::LIT_U16, false)
+		else if (suff == "u32") (ltok::LIT_U32, false)
+		else if (suff == "u64") (ltok::LIT_U64, false)
+		else if (suff == "u") (ltok::LIT_UINT, false)
+		else if (suff == "z") (ltok::LIT_SIZE, false)
+		else if (suff == "i8") (ltok::LIT_I8, true)
+		else if (suff == "i16") (ltok::LIT_I16, true)
+		else if (suff == "i32") (ltok::LIT_I32, true)
+		else if (suff == "i64") (ltok::LIT_I64, true)
+		else if (suff == "i") (ltok::LIT_INT, true)
+		else if (suff == "" && !float && exp >= 0) (ltok::LIT_ICONST, false)
+		else if (suff == "f32") (ltok::LIT_F32, false)
+		else if (suff == "f64") (ltok::LIT_F64, false)
+		else if (suff == "" && (float || exp < 0)) (ltok::LIT_FCONST, false)
 		else return syntaxerr(loc, "invalid literal suffix");
 
 	let exp = if (exp < 0) switch (suff) {
@@ -598,7 +603,14 @@ fn lex_literal(lex: *lexer) (token | error) = {
 	let val = match (val) {
 	case let val: u64 =>
 		for (let i = 0z; i < exp; i += 1) {
+			let old = val;
 			val *= 10;
+			if (val / 10 != old) {
+				return syntaxerr(loc, "overflow in exponent");
+			};
+		};
+		if (signed && val > types::I64_MIN: u64) {
+			return syntaxerr(loc, "overflow in exponent");
 		};
 		yield val;
 	case let val: f64 =>
@@ -606,7 +618,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 	case strconv::invalid =>
 		abort(); // Shouldn't be lexed in
 	case strconv::overflow =>
-		return syntaxerr(loc, "overflow in exponent");
+		return syntaxerr(loc, "literal overflow");
 	};
 
 	line_comment(lex)?;
@@ -728,7 +740,7 @@ fn next(lex: *lexer) ((rune, location) | syntax | io::EOF | io::error) = {
 		return r;
 	};
 
-	match (bufio::scanrune(lex.in)) {
+	match (bufio::scan_rune(&lex.in)) {
 	case let e: (io::EOF | io::error) =>
 		return e;
 	case let r: rune =>
@@ -743,10 +755,10 @@ fn next(lex: *lexer) ((rune, location) | syntax | io::EOF | io::error) = {
 	};
 };
 
-fn nextw(lex: *lexer) ((rune, location) | io::EOF | io::error) = {
-	for (true) match (next(lex)) {
-	case let e: (io::error | io::EOF) =>
-		return e;
+fn nextw(lex: *lexer) ((rune, location) | io::EOF | error) = {
+	for (true) match (next(lex)?) {
+	case io::EOF =>
+		return io::EOF;
 	case let r: (rune, location) =>
 		if (ascii::isspace(r.0)) {
 			if (r.0 == '\n') {

@@ -52,7 +52,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	expr_testloc("(foo, bar)");
 	expr_testloc("null", "void", "true", `"שלום"`, "'a'");
 	expr_testloc("[foo, bar]");
-	expr_testloc("123", "-123.456", "123z", "123e+456");
+	expr_testloc("123", "-123.456", "123z", "123e+3");
 	expr_testloc("continue", "continue :foo");
 	expr_testloc("defer foo");
 	expr_testloc("delete(foo[bar])", "delete(foo[bar..baz])");

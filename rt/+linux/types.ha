@@ -504,6 +504,11 @@ export def SA_NOMASK: u64 = SA_NODEFER;
 export def SA_ONESHOT: u64 = SA_RESETHAND;
 export def SA_RESTORER: u64 = 0x04000000;
 
+export def SIG_ERR: uintptr = -1;
+export def SIG_DFL: uintptr = 0;
+export def SIG_IGN: uintptr = 1;
+export def SIG_HOLD: uintptr = 2;
+
 export type sigact = struct {
 	union {
 		sa_handler: *fn (_: int) void,
@@ -841,7 +846,8 @@ export def SEEK_END: int = 2;
 // Flock operations
 export def LOCK_SH: int = 1;
 export def LOCK_EX: int = 2;
-export def LOCK_UN: int = 4;
+export def LOCK_NB: int = 4;
+export def LOCK_UN: int = 8;
 
 // Inotify init1 flags
 export def IN_NONBLOCK: int = O_NONBLOCK;

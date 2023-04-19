@@ -638,6 +638,7 @@ encoding_pem() {
 encoding_utf8() {
 	gen_srcs encoding::utf8 \
 		decode.ha \
+		decodetable.ha \
 		encode.ha \
 		rune.ha
 	gen_ssa encoding::utf8 types
@@ -1280,7 +1281,8 @@ os_exec() {
 		process+linux.ha \
 		types.ha \
 		cmd.ha
-	gen_ssa -plinux os::exec os strings fmt errors unix rt io ascii
+	gen_ssa -plinux os::exec os strings fmt errors unix rt io ascii \
+		unix::signal
 
 	gen_srcs -pfreebsd os::exec \
 		exec+freebsd.ha \

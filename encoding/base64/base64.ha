@@ -4,6 +4,7 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2021 Steven Guikal <void@fluix.one>
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+// (c) 2023 Armin Preiml <apreiml@strohwolke.at>
 use ascii;
 use bufio;
 use bytes;
@@ -52,8 +53,10 @@ export type encoder = struct {
 	stream: io::stream,
 	out: io::handle,
 	enc: *encoding,
-	buf: [2]u8, // leftover input
-	avail: size, // bytes available in buf
+	ibuf: [3]u8,
+	iavail: size,
+	obuf: [4]u8,
+	oavail: size,
 	err: (void | io::error),
 };
 
@@ -64,8 +67,9 @@ const encoder_vtable: io::vtable = io::vtable {
 };
 
 // Creates a stream that encodes writes as base64 before writing them to a
-// secondary stream. The encoder stream must be closed to finalize any unwritten
-// bytes. Closing this stream will not close the underlying stream.
+// secondary stream. Afterwards [[io::close]] must be called to write any
+// unwritten bytes, in case of padding. Closing this stream will not close
+// the underlying stream.
 export fn newencoder(
 	enc: *encoding,
 	out: io::handle,
@@ -85,79 +89,120 @@ fn encode_writer(
 ) (size | io::error) = {
 	let s = s: *encoder;
 	match(s.err) {
+	case void => yield;
 	case let err: io::error =>
+		s.err = void;
 		return err;
-	case void =>
-		yield;
 	};
-	let l = len(in);
+
 	let i = 0z;
-	for (i + 2 < l + s.avail; i += 3) {
-		static let b: [3]u8 = [0...]; // 3 bytes get converted into 4 bytes
-		if (i < s.avail) {
-			for (let j = 0z; j < s.avail; j += 1) {
-				b[j] = s.buf[j];
-			};
-			for (let j = s.avail; j < 3; j += 1) {
-				b[j] = in[j - s.avail];
-			};
-		} else {
-			for (let j = 0z; j < 3; j += 1) {
-				b[j] = in[j - s.avail + i];
-			};
+	for (i < len(in)) {
+		let b = s.ibuf[..];
+		// fill ibuf
+		for (let j = s.iavail; j < 3 && i < len(in); j += 1) {
+			b[j] = in[i];
+			i += 1;
+			s.iavail += 1;
 		};
-		let encb: [4]u8 = [
-			s.enc.encmap[b[0] >> 2],
-			s.enc.encmap[(b[0] & 0x3) << 4 | b[1] >> 4],
-			s.enc.encmap[(b[1] & 0xf) << 2 | b[2] >> 6],
-			s.enc.encmap[b[2] & 0x3F],
-		];
-		match(io::write(s.out, encb)) {
-		case let err: io::error =>
-			s.err = err;
-			return err;
-		case size =>
-			yield;
+
+		if (s.iavail != 3) {
+			return i;
+		};
+
+		fillobuf(s);
+
+		match (writeavail(s)) {
+		case void => yield;
+		case let e: io::error =>
+			if (i == 0) {
+				return e;
+			};
+			s.err = e;
+			return i;
 		};
 	};
-	// storing leftover bytes
-	if (l + s.avail < 3) {
-		for (let j = s.avail; j < s.avail + l; j += 1) {
-			s.buf[j] = in[j - s.avail];
-		};
-	} else {
-		const begin = (l + s.avail) / 3 * 3;
-		for (let j = begin; j < l + s.avail; j += 1) {
-			s.buf[j - begin] = in[j - s.avail];
-		};
-	};
-	s.avail = (l + s.avail) % 3;
-	return l;
+
+	return i;
 };
 
-fn encode_closer(s: *io::stream) (void | io::error) = {
-	let s = s: *encoder;
-	if (s.avail == 0) {
-		return;
-	};
-	static let b: [3]u8 = [0...]; // the 3 bytes that will be encoded into 4 bytes
-	for (let i = 0z; i < 3; i += 1) {
-		b[i] = if (i < s.avail) s.buf[i] else 0;
-	};
-	let encb: [4]u8 = [
+fn fillobuf(s: *encoder) void = {
+	assert(s.iavail == 3);
+	let b = s.ibuf[..];
+	s.obuf[..] = [
 		s.enc.encmap[b[0] >> 2],
 		s.enc.encmap[(b[0] & 0x3) << 4 | b[1] >> 4],
 		s.enc.encmap[(b[1] & 0xf) << 2 | b[2] >> 6],
-		s.enc.encmap[b[2] & 0x3F],
-	];
-	// adding padding as input length was not a multiple of 3
+		s.enc.encmap[b[2] & 0x3f],
+	][..];
+	s.oavail = 4;
+};
+
+fn writeavail(s: *encoder) (void | io::error) = {
+	if (s.oavail == 0) {
+		return;
+	};
+
+	for (s.oavail > 0) {
+		let n = io::write(s.out, s.obuf[len(s.obuf) - s.oavail..])?;
+		s.oavail -= n;
+	};
+
+	if (s.oavail == 0) {
+		s.iavail = 0;
+	};
+};
+
+// Flushes pending writes to the underlying stream.
+fn encode_closer(s: *io::stream) (void | io::error) = {
+	let s = s: *encoder;
+	let done = false;
+	defer if (done) clear(s);
+
+	match (s.err) {
+	case let e: io::error =>
+		s.err = void;
+		return e;
+	case void =>
+		yield;
+	};
+
+	if (s.oavail > 0) {
+		for (s.oavail > 0) {
+			writeavail(s)?;
+		};
+		done = true;
+		return;
+	};
+
+	if (s.iavail == 0) {
+		done = true;
+		return;
+	};
+
+	// prepare padding as input length was not a multiple of 3
 	//                        0  1  2
 	static const npa: []u8 = [0, 2, 1];
-	const np = npa[s.avail];
-	for (let i = 0z; i < np; i += 1) {
-		encb[3 - i] = PADDING;
+	const np = npa[s.iavail];
+
+	for (let i = s.iavail; i < 3; i += 1) {
+		s.ibuf[i] = 0;
+		s.iavail += 1;
 	};
-	io::writeall(s.out, encb)?;
+
+	fillobuf(s);
+	for (let i = 0z; i < np; i += 1) {
+		s.obuf[3 - i] = PADDING;
+	};
+
+	for (s.oavail > 0) {
+		writeavail(s)?;
+	};
+	done = true;
+};
+
+fn clear(e: *encoder) void = {
+	bytes::zero(e.ibuf);
+	bytes::zero(e.obuf);
 };
 
 @test fn partialwrite() void = {
@@ -200,7 +245,7 @@ export fn encode(
 		io::close(&enc)?;
 		return z;
 	case let err: io::error =>
-		io::close(&enc): void;
+		clear(&enc);
 		return err;
 	};
 };

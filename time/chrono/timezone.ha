@@ -96,7 +96,7 @@ export fn in(loc: locality, m: moment) moment = {
 	};
 
 	assert(m.time < loc.daylength, "Internal error: time excedes daylength");
-	return new(loc, m.date, m.time)!; // resets .zone
+	return new(loc, m.date, m.time + m.zone.zoffset)!; // resets .zone
 };
 
 export fn transform(m: moment, zo: time::duration) moment = {

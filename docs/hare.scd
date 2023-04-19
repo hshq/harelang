@@ -297,7 +297,7 @@ The following environment variables affect *hare*'s execution:
 :  Additional flags to pass to *as*(1).
 |  *LD*
 :  Name of the *ld*(1) command to use.
-|  *LDFLAGS*
+|  *LDLINKFLAGS*
 :  Additional flags to pass to *ld*(1).
 
 # SEE ALSO

@@ -17,6 +17,8 @@ use path;
 use sort;
 use strings;
 use strio;
+use bufio;
+use os;
 
 def ABI_VERSION: u8 = 5;
 
@@ -343,7 +345,10 @@ fn scan_file(
 	ftype: filetype,
 	deps: *[]ast::ident,
 ) ([]u8 | error) = {
-	let f = fs::open(ctx.fs, path)?;
+	let truef = fs::open(ctx.fs, path)?;
+	defer io::close(truef)!;
+	let rbuf: [os::BUFSIZ]u8 = [0...];
+	let f = &bufio::buffered(truef, rbuf, []);
 	let sha = sha256::sha256();
 	hash::write(&sha, strings::toutf8(path));
 	hash::write(&sha, [ABI_VERSION]);
@@ -355,7 +360,6 @@ fn scan_file(
 		case let im: []ast::import =>
 			yield im;
 		case let err: parse::error =>
-			io::close(f): void;
 			return err;
 		};
 		for (let i = 0z; i < len(imports); i += 1) {
@@ -367,18 +371,15 @@ fn scan_file(
 		match (io::copy(io::empty, &tee)) {
 		case size => void;
 		case let err: io::error =>
-			io::close(f): void;
 			return err;
 		};
 	} else {
 		match (io::copy(&sha, f)) {
 		case size => void;
 		case let err: io::error =>
-			io::close(f): void;
 			return err;
 		};
 	};
-	io::close(f)?;
 
 	let tmp: [sha256::SIZE]u8 = [0...];
 	hash::sum(&sha, tmp);

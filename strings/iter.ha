@@ -47,38 +47,16 @@ export fn riter(src: str) iterator = {
 // reordering, editing, or omitting any of the runes without careful discretion
 // may cause linguistic errors to arise. To avoid this, you may need to use a
 // third-party Unicode module instead.
-export fn next(iter: *iterator) (rune | void) = {
-	if (iter.reverse) {
-		return next_backward(iter);
-	 } else {
-		return next_forward(iter);
-	 };
-};
-
-fn next_forward(iter: *iterator) (rune | void) = {
-	return match (utf8::next(&iter.dec)) {
-	case void => void;
-	case (utf8::more | utf8::invalid) =>
-		abort("Invalid UTF-8 string (this should not happen)");
-	case let r: rune =>
-		yield r;
-	};
-};
+export fn next(iter: *iterator) (rune | void) = move(!iter.reverse, iter);
 
 // Get the previous rune from an iterator, or void when at the start of the
 // string.
-export fn prev(iter: *iterator) (rune | void) = {
-	if (iter.reverse) {
-		return next_forward(iter);
-	 } else {
-		return next_backward(iter);
-	 };
-};
+export fn prev(iter: *iterator) (rune | void) = move(iter.reverse, iter);
 
-fn next_backward(iter: *iterator) (rune | void) = {
-	return match (utf8::prev(&iter.dec)) {
-	case void =>
-		yield void;
+fn move(forward: bool, iter: *iterator) (rune | void) = {
+	let fun = if (forward) &utf8::next else &utf8::prev;
+	return match (fun(&iter.dec)) {
+	case void => void;
 	case (utf8::more | utf8::invalid) =>
 		abort("Invalid UTF-8 string (this should not happen)");
 	case let r: rune =>

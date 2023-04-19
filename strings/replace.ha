@@ -10,28 +10,36 @@ export fn replace(s: str, needle: str, target: str) str = {
 	return multireplace(s, (needle, target));
 };
 
-// For each tuple given by 'repls', a replacement of 's' is done like in
-// [[replace]], in the order that they are passed as arguments. This function is
-// nearly equivalent to calling [[replace]] multiple times, except only one new
-// string is allocated. The caller must free the return value.
+// Performs a replacement in 's' of each tuple given by 'repls'. Replacement 
+// occurs in a single pass of 's', and works like in [[replace]], except that 
+// replacement pairs found earlier in 'repls' will take precedence over later 
+// ones. For example:
+// 	assert(multireplace("hello there", ("e", "a"), ("a", "x"), ("ell", "eww")) == "hallo thara");
+// 	assert(multireplace("hello there", ("ell", "eww"), ("e", "a")) == "hewwo thara");
+// The caller must free the return value.
 export fn multireplace(s: str, repls: (str, str)...) str = {
-	let res = toutf8(dup(s));
+	let replb: []([]u8, []u8) = alloc([], len(repls));
+	defer free(replb);
 	for (let i = 0z; i < len(repls); i += 1) {
-		let needle = toutf8(repls[i].0);
-		let target = toutf8(repls[i].1);
-		let idx = 0z;
-		for (true) {
-			idx = match(bytes::index(res[idx..], needle)) {
-			case let s: size =>
-				yield s + idx;
-			case void =>
-				break;
-			};
-			delete(res[idx..idx + len(needle)]);
-			insert(res[idx], target...);
-			idx += len(target);
-		};
+		static append(replb, (toutf8(repls[i].0), toutf8(repls[i].1)));
 	};
+	let b = toutf8(s);
+	let res: []u8 = [];
+	let i = 0z;
+	let prev = 0z; // end of previous match, so we can append in chunks
+	for (i < len(b)) :step {
+		for (let j = 0z; j < len(replb); j += 1) {
+			if (bytes::hasprefix(b[i..], replb[j].0)) {
+				append(res, b[prev..i]...);
+				append(res, replb[j].1...);
+				i += len(replb[j].0);
+				prev = i;
+				continue :step;
+			};
+		};
+		i += 1;
+	};
+	append(res, b[prev..i]...);
 	return fromutf8(res)!;
 };
 
@@ -48,5 +56,7 @@ export fn multireplace(s: str, repls: (str, str)...) str = {
 	assert(multireplace("Hello world", ("Hello", "Greetings"),
 		("world", "globe")) == "Greetings globe");
 	assert(multireplace("ababa", ("a", "ba"), ("b", "a"), ("a", "c")) ==
-		"cccccccc");
+		"baabaaba");
+	assert(multireplace("hello there", ("e", "a"), ("a", "x"), ("ell", "eww")) == "hallo thara");
+	assert(multireplace("hello there", ("ell", "eww"), ("e", "a")) == "hewwo thara");
 };

@@ -472,7 +472,7 @@ fn reducePi(x: f64) f64 = {
 	const mask: u64 = 0x7FF;
 	const shift: u64 = 64 - 11 - 1;
 	const bias: u64 = 1023;
-	const fracMask: u64 = 1u64 << shift - 1;
+	const fracMask: u64 = (1u64 << shift) - 1;
 
 	// Extract out the integer and exponent such that,
 	// x = ix * 2 ** exp.

@@ -37,9 +37,9 @@ fn run_find_case(
 	};
 	defer finish(&re);
 
-	const captures = find(&re, string);
-	defer free_captures(captures);
-	if (len(captures) == 0) {
+	const result = find(&re, string);
+	defer result_free(result);
+	if (len(result) == 0) {
 		if (expected == matchres::MATCH) {
 			fmt::errorfln("Expected expression /{}/ to match string \"{}\", but it did not",
 				expr, string)!;
@@ -52,14 +52,14 @@ fn run_find_case(
 		abort();
 	};
 
-	if (start: size != captures[0].start) {
+	if (start: size != result[0].start) {
 		fmt::errorfln("Expected start of main capture to be {} but it was {}",
-			start, captures[0].start)!;
+			start, result[0].start)!;
 		abort();
 	};
-	if (end: size != captures[0].end) {
+	if (end: size != result[0].end) {
 		fmt::errorfln("Expected end of main capture to be {} but it was {}",
-			end, captures[0].end)!;
+			end, result[0].end)!;
 		abort();
 	};
 };
@@ -73,11 +73,11 @@ fn run_submatch_case(
 	const re = compile(expr)!;
 	defer finish(&re);
 
-	const captures = find(&re, string);
-	defer free_captures(captures);
-	assert(len(captures) == len(targets), "Invalid number of captures");
+	const result = find(&re, string);
+	defer result_free(result);
+	assert(len(result) == len(targets), "Invalid number of captures");
 	for (let i = 0z; i < len(targets); i += 1) {
-		assert(targets[i] == captures[i].content, "Invalid capture");
+		assert(targets[i] == result[i].content, "Invalid capture");
 	};
 };
 
@@ -106,28 +106,28 @@ fn run_findall_case(
 		abort();
 	};
 
-	const matches = findall(&re, string);
-	if (len(matches) == 0 && expected == matchres::MATCH) {
+	const results = findall(&re, string);
+	if (len(results) == 0 && expected == matchres::MATCH) {
 		fmt::errorfln("Expected expression /{}/ to match string \"{}\", but it did not",
 			expr, string)!;
 		abort();
 	};
-	defer free_matches(matches);
+	defer result_freeall(results);
 
 	if (expected == matchres::NOMATCH) {
 		fmt::errorfln("Expected expression /{}/ to not match string \"{}\", but it did",
 			expr, string)!;
 		abort();
 	};
-	if (len(targets) != len(matches)) {
-		fmt::errorfln("Expected expression /{}/ to find {} matches but found {}",
-			expr, len(targets), len(matches))!;
+	if (len(targets) != len(results)) {
+		fmt::errorfln("Expected expression /{}/ to find {} results but found {}",
+			expr, len(targets), len(results))!;
 		abort();
 	};
-	for (let i = 0z; i < len(matches); i += 1) {
-		if (matches[i][0].content != targets[i]) {
+	for (let i = 0z; i < len(results); i += 1) {
+		if (results[i][0].content != targets[i]) {
 			fmt::errorfln("Expected submatch of expression /{}/ to be {} but it was {}",
-				expr, targets[i], matches[i][0].content)!;
+				expr, targets[i], results[i][0].content)!;
 			abort();
 		};
 	};
@@ -333,6 +333,9 @@ fn run_findall_case(
 		(`^a\\b$`, "a\\b", matchres::MATCH, 0, -1),
 		(`^x(abc)\{,2\}$`, "xabc{,2}", matchres::MATCH, 0, -1),
 		(`^x(abc)\{,2\}$`, "xabcabc{,2}", matchres::NOMATCH, 0, -1),
+		(`^[\\]+$`, "\\", matchres::MATCH, 0, -1),
+		(`^[\]]+$`, "]", matchres::MATCH, 0, -1),
+		(`^[A-Za-z\[\]]+$`, "foo[bar]baz", matchres::MATCH, 0, -1),
 		// {m,n}
 		(`^x(abc){2}$`, "xabcabc", matchres::MATCH, 0, -1),
 		(`^x(abc){3}$`, "xabcabc", matchres::NOMATCH, 0, -1),

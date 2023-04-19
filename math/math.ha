@@ -680,11 +680,9 @@ export fn sqrtf64(x: f64) f64 = {
 };
 
 fn is_f64_odd_int(x: f64) bool = {
-	const x_int_frac = modfracf64(x);
-	const x_int = x_int_frac.0;
-	const x_frac = x_int_frac.1;
+	const (x_int, x_frac) = modfracf64(x);
 	const has_no_frac = (x_frac == 0f64);
-	const is_odd = ((x_int & 1i64) == 1i64);
+	const is_odd = ((x_int: i64 & 1i64) == 1i64);
 	return has_no_frac && is_odd;
 };
 
@@ -733,13 +731,19 @@ export fn powf64(x: f64, p: f64) f64 = {
 		return 1f64 / sqrtf64(x);
 	};
 
-	const x_parts = frexp(x);
-	let x_mantissa = x_parts.0;
-	let x_exp = x_parts.1;
-
-	const p_int_frac = modfracf64(absf64(p));
-	let p_int = p_int_frac.0;
-	let p_frac = p_int_frac.1;
+	let (p_int, p_frac) = modfracf64(absf64(p));
+	if (p_frac != 0f64 && x < 0f64) {
+		return NAN;
+	};
+	if (p_int > types::I64_MAX: f64) {
+		if (x == -1f64) {
+			return 1f64;
+		} else if ((absf64(x) < 1f64) == (p > 0f64)) {
+			return 0f64;
+		} else {
+			return INF;
+		};
+	};
 
 	let res_mantissa = 1f64;
 	let res_exp = 0i64;
@@ -750,7 +754,7 @@ export fn powf64(x: f64, p: f64) f64 = {
 	if (p_frac != 0f64) {
 		if (p_frac > 0.5f64) {
 			p_frac -= 1f64;
-			p_int += 1i64;
+			p_int += 1f64;
 		};
 		res_mantissa = expf64(p_frac * logf64(x));
 	};
@@ -758,11 +762,12 @@ export fn powf64(x: f64, p: f64) f64 = {
 	// Repeatedly square our number x, for each bit in our power p.
 	// If the current bit is 1 in p, add the respective power of x to our
 	// result.
-	for (let i = p_int; i != 0; i >>= 1) {
+	let (x_mantissa, x_exp) = frexp(x);
+	for (let i = p_int: i64; i != 0; i >>= 1) {
 		// Check for over/underflow.
 		if (x_exp <= -1i64 << (F64_EXPONENT_BITS: i64)) {
 			return 0f64;
-	};
+		};
 		if (x_exp >= 1i64 << (F64_EXPONENT_BITS: i64)) {
 			return INF;
 		};
@@ -794,16 +799,13 @@ export fn floorf64(x: f64) f64 = {
 		return x;
 	};
 	if (x < 0f64) {
-		const modfrac_res = modfracf64(-x);
-		let int_part = modfrac_res.0;
-		const frac_part = modfrac_res.1;
+		let (int_part, frac_part) = modfracf64(-x);
 		if (frac_part != 0f64) {
-			int_part += 1;
+			int_part += 1f64;
 		};
-		return -(int_part: f64);
+		return -int_part;
 	};
-	const modfrac_res = modfracf64(x);
-	return (modfrac_res.0: f64);
+	return modfracf64(x).0;
 };
 
 // Returns the least integer value greater than or equal to x.
@@ -814,8 +816,7 @@ export fn truncf64(x: f64) f64 = {
 	if (x == 0f64 || isnan(x) || isinf(x)) {
 		return x;
 	};
-	const modfrac_res = modfracf64(x);
-	return (modfrac_res.0: f64);
+	return modfracf64(x).0;
 };
 
 // Returns the nearest integer, rounding half away from zero.

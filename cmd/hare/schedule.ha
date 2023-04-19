@@ -20,28 +20,23 @@ use strio;
 use unix::tty;
 
 fn getenv(var: str) []str = {
-	let vals: []str = [];
-	match(os::getenv(var)) {
+	match (os::getenv(var)) {
 	case let val: str =>
-		if(len(val) > 0) {
-			match(shlex::split(val)) {
-			case let val: []str =>
-				for(let i = 0z; i < len(val); i += 1) {
-					append(vals, val[i]);
-				};
-			case shlex::syntaxerr => void;
-			};
+		match (shlex::split(val)) {
+		case let fields: []str =>
+			return fields;
+		case => void;
 		};
-	case void => void;
+	case => void;
 	};
 
-	return vals;
+	return [];
 };
 
 // (executable name, executable variable, flags variable)
 type tool = (str, str, str);
 
-let ld_tool: tool = ("", "LD", "LDFLAGS");
+let ld_tool: tool = ("", "LD", "LDLINKFLAGS");
 let as_tool: tool = ("", "AS", "ASFLAGS");
 let ar_tool: tool = ("", "AR", "ARFLAGS");
 let qbe_tool: tool = ("qbe", "QBE", "QBEFLAGS");
@@ -54,20 +49,14 @@ fn getcmd(tool: *tool, args: str...) []str = {
 	if (len(vals) == 0) {
 		append(execargs, tool.0);
 	} else {
-		for(let i = 0z; i < len(vals); i += 1) {
-			append(execargs, vals[i]);
-		};
+		append(execargs, vals...);
 	};
 
 	let vals = getenv(tool.2);
 	defer free(vals);
-	for (let i = 0z; i < len(vals); i += 1) {
-		append(execargs, vals[i]);
-	};
+	append(execargs, vals...);
 
-	for(let i = 0z; i < len(args); i += 1) {
-		append(execargs, args[i]);
-	};
+	append(execargs, args...);
 
 	return execargs;
 };
@@ -94,6 +83,7 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 	let ver = match (module::lookup(plan.context, ident)) {
 	case let err: module::error =>
 		let ident = unparse::identstr(ident);
+		progress_clear(plan);
 		fmt::fatalf("Error resolving {}: {}", ident,
 			module::strerror(err));
 	case let ver: module::version =>
@@ -166,19 +156,13 @@ fn sched_ar(plan: *plan, output: str, depend: *task...) *task = {
 		status = status::SCHEDULED,
 		output = output,
 		depend = alloc(depend...),
-		cmd = getcmd(&ar_tool),
+		cmd = getcmd(&ar_tool, "-c", output),
 		module = void,
 	});
 
-	// If you specify flags in `$ARFLAGS' or a different archiver in `$AR',
-	// this assumes that you will pass the correct flags for creating an
-	// archive, and will not pass the default `-csr', since `ar' is picky
-	// about the order flags are given.
-	if (len(task.cmd) == 1 && task.cmd[0] == plan.target.ar_cmd) {
-		append(task.cmd, "-csr");
-	};
-
-	append(task.cmd, output);
+	// POSIX specifies `ar -r [-cuv] <archive> <file>`
+	// Add -r here so it is always before any ARFLAGS
+	insert(task.cmd[1], "-r");
 
 	for (let i = 0z; i < len(depend); i += 1) {
 		assert(strings::hassuffix(depend[i].output, ".o"));
@@ -282,7 +266,13 @@ fn sched_hare_object(
 	let current = false;
 	let output = if (output is str) {
 		// TODO: Should we use the cache here?
-		yield fmt::asprintf("{}.{}", output, if (mixed) "a" else "o");
+		const (_, ext) = path::extension(output as str);
+		const expected = if (mixed) ".a" else ".o";
+		if (ext != expected) {
+			fmt::errorfln("Warning: Expected output file extension {}, found {}",
+				expected, output)!;
+		};
+		yield strings::dup(output as str);
 	} else if (len(namespace) != 0) {
 		let version = hex::encodestr(ver.hash);
 		let env = module::identuscore(namespace);
@@ -297,6 +287,7 @@ fn sched_hare_object(
 		let manifest = match (module::manifest_load(
 				plan.context, namespace)) {
 		case let err: module::error =>
+			progress_clear(plan);
 			fmt::fatalf("Error reading cache entry for {}: {}",
 				displayed_ns, module::strerror(err));
 		case let m: module::manifest =>
@@ -319,6 +310,7 @@ fn sched_hare_object(
 		match (os::mkdirs(path, 0o755)) {
 		case void => void;
 		case let err: fs::error =>
+			progress_clear(plan);
 			fmt::fatalf("Error: mkdirs {}: {}", path,
 				fs::strerror(err));
 		};
@@ -344,6 +336,7 @@ fn sched_hare_object(
 		};
 	};
 	if (hare_inputs == 0) {
+		progress_clear(plan);
 		fmt::fatalf("Error: Module {} has no Hare input files",
 			displayed_ns);
 	};

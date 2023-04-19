@@ -110,12 +110,18 @@
 	// Very large positive integer
 	assert(!isinf(powf64(2f64, 1020f64)));
 	assert(isinf(powf64(2f64, 1050f64)));
+	// Very very large positive integer
+	assert(isinf(powf64(2f64, F64_MAX_NORMAL)));
+	assert(powf64(0.5f64, F64_MAX_NORMAL) == 0f64);
 	// Negative integer
 	assert(powf64(2f64, -1f64) == 0.5f64);
 	assert(powf64(2f64, -2f64) == 0.25f64);
 	// Very small negative integer
 	assert(powf64(2f64, -1020f64) > 0f64);
 	assert(powf64(2f64, -1080f64) == 0f64);
+	// Very very small negative integer
+	assert(powf64(2f64, -F64_MAX_NORMAL) == 0f64);
+	assert(isinf(powf64(0.5f64, -F64_MAX_NORMAL)));
 	// Positive fractional powers
 	assert(eqwithin(powf64(2f64, 1.5f64),
 		2.8284271247461900976033774f64,
@@ -209,8 +215,10 @@
 				TEST_CEIL[idx]));
 	};
 	assert(ceilf64(-INF) == -INF);
+	assert(ceilf64(-F64_MAX_NORMAL) == -F64_MAX_NORMAL);
 	assert(ceilf64(-0f64) == -0f64);
 	assert(ceilf64(0f64) == 0f64);
+	assert(ceilf64(F64_MAX_NORMAL) == F64_MAX_NORMAL);
 	assert(ceilf64(INF) == INF);
 	assert(isnan(ceilf64(NAN)));
 };
@@ -222,8 +230,10 @@
 			TEST_TRUNC[idx]));
 	};
 	assert(truncf64(-INF) == -INF);
+	assert(truncf64(-F64_MAX_NORMAL) == -F64_MAX_NORMAL);
 	assert(truncf64(-0f64) == -0f64);
 	assert(truncf64(0f64) == 0f64);
+	assert(truncf64(F64_MAX_NORMAL) == F64_MAX_NORMAL);
 	assert(truncf64(INF) == INF);
 	assert(isnan(truncf64(NAN)));
 };
@@ -235,8 +245,10 @@
 				TEST_ROUND[idx]));
 	};
 	assert(roundf64(-INF) == -INF);
+	assert(roundf64(-F64_MAX_NORMAL) == -F64_MAX_NORMAL);
 	assert(roundf64(-0f64) == -0f64);
 	assert(roundf64(0f64) == 0f64);
+	assert(roundf64(F64_MAX_NORMAL) == F64_MAX_NORMAL);
 	assert(roundf64(INF) == INF);
 	assert(isnan(roundf64(NAN)));
 };

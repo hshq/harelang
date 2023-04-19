@@ -239,6 +239,15 @@ export fn finish(f: *builder, m: strategy...) (datetime | insufficient | invalid
 		m = [strategy::ALL];
 	};
 
+	f.time = 0;
+	if (f.hour is int) f.time += f.hour as int;
+	f.time *= 60;
+	if (f.min is int) f.time += f.min as int;
+	f.time *= 60;
+	if (f.sec is int) f.time += f.sec as int;
+	f.time *= 1000000000;
+	if (f.nsec is int) f.time += f.nsec as int;
+
 	for (let i = 0z; i < len(m); i += 1) {
 		const M = m[i];
 		if (
