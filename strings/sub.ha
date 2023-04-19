@@ -22,21 +22,6 @@ fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {
 	return pos;
 };
 
-fn utf8_byte_len_unbounded(iter: *iterator) size = {
-	let pos = 0z;
-	for (true) {
-		let r = match (next(iter)) {
-		case let r: rune =>
-			yield r;
-		case void =>
-			break;
-		};
-
-		pos += utf8::runesz(r);
-	};
-	return pos;
-};
-
 // Returns a substring in the range [start, end - 1], where each argument is the
 // index of the Nth rune. If the end argument is given as [[strings::end]], the
 // end of the substring is the end of the original string. The lifetime of the
@@ -46,13 +31,16 @@ fn utf8_byte_len_unbounded(iter: *iterator) size = {
 // may cause unexpected linguistic errors to arise. You may want to use a
 // third-party Unicode module instead.
 export fn sub(s: str, start: size, end: (size | end)) str = {
+	if (end is size) {
+		assert(start <= end as size, "start is higher than end");
+	};
 	let iter = iter(s);
 	let starti = utf8_byte_len_bounded(&iter, start);
 	let endi = match (end) {
 	case let sz: size =>
 		yield starti + utf8_byte_len_bounded(&iter, sz - start);
 	case =>
-		yield starti + utf8_byte_len_unbounded(&iter);
+		yield len(s);
 	};
 	let bytes = toutf8(s);
 	return fromutf8_unsafe(bytes[starti..endi]);
@@ -63,4 +51,5 @@ export fn sub(s: str, start: size, end: (size | end)) str = {
 	assert(sub("a string", 0, 1) == "a");
 	assert(sub("a string", 0, 3) == "a s");
 	assert(sub("a string", 2, 8) == "string");
+	assert(sub("a string", 4, 4) == "");
 };
