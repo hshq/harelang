@@ -112,14 +112,24 @@ fn mkplan(
 		yield target.ld_cmd;
 	};
 
+	let environ: [](str, str) = alloc([
+		(strings::dup("HARECACHE"), strings::dup(ctx.cache)),
+	]);
+
+	if (len(os::tryenv("NO_COLOR", "")) == 0
+			&& os::getenv("HAREC_COLOR") is void
+			&& tty::isatty(os::stderr_file)) {
+		append(environ,
+			(strings::dup("HAREC_COLOR"), strings::dup("1"))
+		);
+	};
+
 	return plan {
 		context = ctx,
 		target = target,
 		workdir = os::tryenv("HARE_DEBUG_WORKDIR", temp::dir()),
 		script = strings::dup(path::string(&buf)),
-		environ = alloc([
-			(strings::dup("HARECACHE"), strings::dup(ctx.cache)),
-		]),
+		environ = environ,
 		libdir = libdir,
 		libs = libs,
 		progress = plan_progress {
