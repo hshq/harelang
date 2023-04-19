@@ -615,3 +615,8 @@ export fn ptsname_r(fd: int, pathbuf: []u8) (void | errno) = {
 	wrap_errno_return(c_ptsname_r(fd, pathbuf: *[*]u8: *char, len(pathbuf)))?;
 };
 @symbol("ptsname_r") fn c_ptsname_r(fildes: int, buffer: *char, buflen: size) int;
+
+export fn shmat(id: int, addr: *const void, flag: int) *void = {
+	return syscall3(SYS_shmat, id: u64, addr: uintptr: u64,
+		flag: u64): uintptr: *void;
+};

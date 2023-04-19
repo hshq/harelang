@@ -5,6 +5,7 @@
 use errors;
 use rt;
 use fmt;
+use unix::signal;
 
 // Stores information about a child process.
 export type process = int;
@@ -167,8 +168,8 @@ export fn exitstr(status: exit_status) const str = {
 				i: int);
 		};
 	case let s: signaled =>
-		// TODO: Add signal name
-		return fmt::bsprintf(buf, "exited with signal {}", s: int);
+		return fmt::bsprintf(buf, "exited with signal {}",
+			signal::signame(s));
 	};
 };
 
