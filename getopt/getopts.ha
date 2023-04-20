@@ -10,19 +10,11 @@ use io;
 use os;
 use strings;
 
-// A flag which does not take a parameter, e.g. "-a".
-export type flag = rune;
-
-// An option with an included parameter, e.g. "-a foo".
-export type parameter = str;
-
-// A command line option.
-export type option = (flag, parameter);
-
 // The result of parsing the set of command line arguments, including any
-// options specified and the list of non-option arguments.
+// options specified and the list of non-option arguments. If a subcommand
+// is present in the help passed to [[parse]], then there will be no args.
 export type command = struct {
-	opts: []option,
+	opts: [](rune, str),
 	subcmd: (void | (str, *command)),
 	args: []str,
 	help: []help,
@@ -33,11 +25,11 @@ export type command = struct {
 export type cmd_help = str;
 
 // Help text for a flag, formatted as "-a: help text".
-export type flag_help = (flag, str);
+export type flag_help = (rune, str);
 
 // Help text for a parameter, formatted as "-a param: help text" where "param"
 // is the first string and "help text" is the second string.
-export type parameter_help = (flag, str, str);
+export type parameter_help = (rune, str, str);
 
 // Definition of a named subcommand.
 export type subcmd_help = (str, []help);
@@ -84,6 +76,7 @@ export fn parse(args: []str, help: help...) command = {
 	case let s: unknown_subcmd =>
 		fmt::errorfln("{}: unrecognized subcommand: {}", cmd, s: str)!;
 		printsubcmds(os::stderr, help)!;
+		fmt::errorln()!;
 	};
 	printusage(os::stderr, args[0], help)!;
 	os::exit(1);
@@ -93,7 +86,7 @@ export fn parse(args: []str, help: help...) command = {
 // if an error occurs. The argument list must include the command name as
 // the first item; [[os::args]] fulfills this criteria.
 export fn tryparse(args: []str, help: help...) (command | ...error) = {
-	let opts: []option = [];
+	let opts: [](rune, str) = [];
 	let i = 1z;
 	for (i < len(args); i += 1) :arg {
 		const arg = args[i];
@@ -186,22 +179,39 @@ export fn finish(cmd: *command) void = {
 	};
 };
 
+// Prints command usage to the provided stream.
+export fn printusage(
+	out: io::handle,
+	name: str,
+	help: []help
+) (void | io::error) = {
+	let h = contains_h(help);
+	let z = _printusage(io::empty, name, false, h, help)?;
+	_printusage(out, name, if (z > 72) true else false, h, help)?;
+};
+
 fn _printusage(
 	out: io::handle,
 	name: str,
 	indent: bool,
+	contains_h: bool,
 	help: []help,
 ) (size | io::error) = {
 	let z = fmt::fprint(out, "Usage:", name)?;
 
 	let started_flags = false;
-	for (let i = 0z; i < len(help); i += 1) if (help[i] is flag_help) {
+	if (!contains_h) {
+		z += fmt::fprint(out, " [-h")?;
+		started_flags = true;
+	};
+	for (let i = 0z; i < len(help); i += 1) match (help [i]) {
+	case let h: flag_help =>
 		if (!started_flags) {
 			z += fmt::fprint(out, " [-")?;
 			started_flags = true;
 		};
-		const help = help[i] as flag_help;
-		z += fmt::fprint(out, help.0: rune)?;
+		z += fmt::fprint(out, h.0)?;
+	case => void;
 	};
 	if (started_flags) {
 		z += fmt::fprint(out, "]")?;
@@ -212,7 +222,7 @@ fn _printusage(
 		if (indent) {
 			z += fmt::fprintf(out, "\n\t")?;
 		};
-		z += fmt::fprintf(out, " [-{} <{}>]", help.0: rune, help.1)?;
+		z += fmt::fprintf(out, " [-{} <{}>]", help.0, help.1)?;
 	};
 	let first_arg = true;
 	for (let i = 1z; i < len(help); i += 1) if (help[i] is cmd_help) {
@@ -228,14 +238,18 @@ fn _printusage(
 	return z + fmt::fprint(out, "\n")?;
 };
 
-// Prints command usage to the provided stream.
-export fn printusage(
-	out: io::handle,
-	name: str,
-	help: []help
-) (void | io::error) = {
-	let z = _printusage(io::empty, name, false, help)?;
-	_printusage(out, name, if (z > 72) true else false, help)?;
+fn contains_h(help: []help) bool = {
+	for (let i = 0z; i < len(help); i += 1) {
+		const r = match (help[i]) {
+		case let h: flag_help => yield h.0;
+		case let h: parameter_help => yield h.0;
+		case => continue;
+		};
+		if (r == 'h') {
+			return true;
+		};
+	};
+	return false;
 };
 
 // Prints command help to the provided stream.
@@ -252,21 +266,19 @@ export fn printhelp(
 		fmt::fprintfln(out, "{}: {}\n", name, help[0] as cmd_help: str)?;
 	};
 
-	printusage(out, name, help)?;
+	let contains_h = contains_h(help);
+	let z = _printusage(io::empty, name, false, contains_h, help)?;
+	_printusage(out, name, if (z > 72) true else false, contains_h, help)?;
 
-	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
-	case (flag_help | parameter_help) =>
-		// Only print this if there are flags to show
-		fmt::fprint(out, "\n")?;
-		break;
-	case => void;
+	fmt::fprint(out, "\n")?;
+	if (!contains_h) {
+		fmt::fprintln(out, "-h: print this help text")?;
 	};
-
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
 	case let f: flag_help =>
-		fmt::fprintfln(out, "-{}: {}", f.0: rune, f.1)?;
+		fmt::fprintfln(out, "-{}: {}", f.0, f.1)?;
 	case let p: parameter_help =>
-		fmt::fprintfln(out, "-{} <{}>: {}", p.0: rune, p.1, p.2)?;
+		fmt::fprintfln(out, "-{} <{}>: {}", p.0, p.1, p.2)?;
 	case => void;
 	};
 
@@ -274,13 +286,13 @@ export fn printhelp(
 };
 
 fn printsubcmds(out: io::handle, help: []help) (void | io::error) = {
-	let first_subcmd = true;
+	let first = true;
 	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
 	case let s: subcmd_help =>
 		// Only print this if there are subcommands to show
-		if (first_subcmd) {
+		if (first) {
 			fmt::fprintln(out, "\nSubcommands:")?;
-			first_subcmd = false;
+			first = false;
 		};
 		if (len(s.1) == 0 || !(s.1[0] is cmd_help)) {
 			fmt::fprintfln(out, "  {}", s.0)?;
