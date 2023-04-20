@@ -47,7 +47,7 @@ export fn main() void = {
 	};
 
 	if (len(cmd.args) == 0) {
-		getopt::printusage(os::stderr, os::args[0], usage);
+		getopt::printusage(os::stderr, os::args[0], usage)!;
 		os::exit(1);
 	};
 
