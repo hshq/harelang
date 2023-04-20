@@ -33,15 +33,6 @@ Descriptions of section entries and preferred order
 	   F:	net/
 	   X:	net/ipv6/
 	   matches all files in and below net excluding net/ipv6/
-	N: Files and directories *Regex* patterns.
-	   N:	[^a-z]tegra	all files whose path contains tegra
-	                        (not including files like integrator)
-	   One pattern per line.  Multiple N: lines acceptable.
-	   scripts/get_maintainer.pl has different behavior for files that
-	   match F: pattern and matches of N: patterns.  By default,
-	   get_maintainer will not look at git log history when an F: pattern
-	   match occurs.  When an N: match occurs, git log history is used
-	   to also notify the people that have git commit signatures.
 
 Maintainers List
 ----------------
@@ -52,7 +43,7 @@ Maintainers List
 
 AARCH64 SUPPORT
 M:	Willow Barraco <contact@willowbarraco.fr>
-N:	.*aarch64.*
+F:	*aarch64*
 
 CRYPTOGRAPHIC LIBRARY
 M:	Armin Preiml <apreiml@strohwolke.at>
@@ -73,5 +64,6 @@ M:	Drew DeVault <sir@cmpwn.com>
 M:	Ember Sawady <ecs@d2evs.net>
 L:	~sircmpwn/hare-dev@lists.sr.ht
 T:	git https://git.sr.ht/~sircmpwn/hare
+C:	irc://irc.libera.chat/#hare-dev
 F:	*
 F:	*/
