@@ -50,6 +50,10 @@ Maintainers List
           first. When adding to this list, please keep the entries in
           alphabetical order.
 
+AARCH64 SUPPORT
+M:	Willow Barraco <contact@willowbarraco.fr>
+N:	.*aarch64.*
+
 CRYPTOGRAPHIC LIBRARY
 M:	Armin Preiml <apreiml@strohwolke.at>
 F:	crypto/
