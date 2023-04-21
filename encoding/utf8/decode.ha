@@ -149,9 +149,25 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	decoder.offs = 3;
 	assert(prev(&decoder) is invalid);
 	assert(!valid(extracont));
+	const maxinrange: [_]u8 = [0xF4, 0x8F, 0xBF, 0xBF];
+	decoder = decode(maxinrange);
+	match (next(&decoder)) {
+	case let r: rune =>
+		assert(r == 0x10FFFFu32: rune);
+	case => abort();
+	};
+	decoder.offs = 4;
+	match (prev(&decoder)) {
+	case let r: rune =>
+		assert(r == 0x10FFFFu32: rune);
+	case => abort();
+	};
 
-	const regression: []u8 = [0xf5, 0x94, 0x80, 0x80];
-	assert(!valid(regression));
+	const minoutofrange: [_]u8 = [0xF5, 0x94, 0x80, 0x80];
+	decoder = decode(minoutofrange);
+	assert(next(&decoder) is invalid);
+	decoder.offs = 4;
+	assert(prev(&decoder) is invalid);
 };
 
 // Returns true if a given string or byte slice contains only valid UTF-8
