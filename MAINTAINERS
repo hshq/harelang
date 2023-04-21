@@ -55,6 +55,10 @@ M:	Byron Torres <b@torresjrjr.com>
 F:	time/
 F:	datetime/
 
+MATHEMATICAL LIBRARY
+M:	Bor Grošelj Simić <bgs@turminal.net>
+F:	math/
+
 REGULAR EXPRESSIONS
 M:	Vlad-Stefan Harbuz <vlad@vladh.net>
 F:	regex/
@@ -62,6 +66,7 @@ F:	regex/
 THE REST
 M:	Drew DeVault <sir@cmpwn.com>
 M:	Ember Sawady <ecs@d2evs.net>
+M:	Sebastian <sebastian@sebsite.pw>
 L:	~sircmpwn/hare-dev@lists.sr.ht
 T:	git https://git.sr.ht/~sircmpwn/hare
 C:	irc://irc.libera.chat/#hare-dev
