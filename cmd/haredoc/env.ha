@@ -42,10 +42,13 @@ fn default_tags() ([]module::tag | error) = {
 	for (true) match (bufio::scanline(pipe.0)?) {
 	case let b: []u8 =>
 		defer free(b);
-		const (k, v) = strings::cut(strings::fromutf8(b)!, "\t");
-		if (k == "Build tags") {
-			tags = module::parsetags(v) as []module::tag;
-			break;
+		match (strings::cut(strings::fromutf8(b)!, "\t")) {
+		case void => void;
+		case let s: (str, str) =>
+			if (s.0 == "Build tags") {
+				tags = module::parsetags(s.1) as []module::tag;
+				break;
+			};
 		};
 	case io::EOF =>
 		// process exited with failure; handled below

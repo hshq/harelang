@@ -184,61 +184,45 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 };
 
 // Returns the input slice "cut" along the first instance of a delimiter,
-// returning everything up to the delimiter, and everything after the delimiter,
-// in a tuple. The contents are borrowed from the input slice.
-//
-// The caller must ensure that 'delimiter' is not an empty slice.
-export fn cut(in: []u8, delim: ([]u8 | u8)) ([]u8, []u8) = {
-	let ln = if (delim is u8) {
-		yield 1z;
-	} else {
-		let ln = len(delim: []u8);
-		assert(ln > 0, "bytes::cut called with empty delimiter");
-		yield ln;
-	};
+// returning everything up to the delimiter, and everything after the
+// delimiter, in a tuple. If the delimiter is not found, returns void.
+// The contents are borrowed from the input slice.
+export fn cut(in: []u8, delim: ([]u8 | u8)) (([]u8, []u8) | void) = {
+	let ln = if (delim is u8) 1z else len(delim: []u8);
 	match (index(in, delim)) {
 	case let i: size =>
 		return (in[..i], in[i + ln..]);
 	case void =>
-		return (in, []);
+		return void;
 	};
 };
 
 // Returns the input slice "cut" along the last instance of a delimiter,
-// returning everything up to the delimiter, and everything after the delimiter,
-// in a tuple. The contents are borrowed from the input slice.
-//
-// The caller must ensure that 'delimiter' is not an empty slice.
-export fn rcut(in: []u8, delim: ([]u8 | u8)) ([]u8, []u8) = {
-	let ln = if (delim is u8) {
-		yield 1z;
-	} else {
-		let ln = len(delim: []u8);
-		assert(ln > 0, "bytes::rcut called with empty delimiter");
-		yield ln;
-	};
+// returning everything up to the delimiter, and everything after the
+// delimiter, in a tuple. If the delimiter is not found, returns void.
+// The contents are borrowed from the input slice.
+export fn rcut(in: []u8, delim: ([]u8 | u8)) (([]u8, []u8) | void) = {
+	let ln = if (delim is u8) 1z else len(delim: []u8);
 	match (rindex(in, delim)) {
 	case let i: size =>
 		return (in[..i], in[i + ln..]);
 	case void =>
-		return (in, []);
+		return void;
 	};
 };
 
 @test fn cut() void = {
-	const c = cut(['a', 'b', 'c'], ['b']);
+	const c = cut(['a', 'b', 'c'], ['b']) as ([]u8, []u8);
 	assert(equal(c.0, ['a']) && equal(c.1, ['c']));
-	const c = cut(['a', 'b', 'c'], 'b');
+	const c = cut(['a', 'b', 'c'], 'b') as ([]u8, []u8);
 	assert(equal(c.0, ['a']) && equal(c.1, ['c']));
-	const c = cut(['a', 'b', 'c', 'b', 'a'], 'b');
+	const c = cut(['a', 'b', 'c', 'b', 'a'], 'b') as ([]u8, []u8);
 	assert(equal(c.0, ['a']) && equal(c.1, ['c', 'b', 'a']));
-	const c = cut(['a', 'b', 'c'], 'x');
-	assert(equal(c.0, ['a', 'b', 'c']) && equal(c.1, []));
-	const c = cut([], 'x');
-	assert(equal(c.0, []) && equal(c.1, []));
+	assert(cut(['a', 'b', 'c'], 'x') is void);
+	assert(cut([], 'x') is void);
 
-	const c = rcut(['a', 'b', 'c'], ['b']);
+	const c = rcut(['a', 'b', 'c'], ['b']) as ([]u8, []u8);
 	assert(equal(c.0, ['a']) && equal(c.1, ['c']));
-	const c = rcut(['a', 'b', 'c', 'b', 'a'], 'b');
+	const c = rcut(['a', 'b', 'c', 'b', 'a'], 'b') as ([]u8, []u8);
 	assert(equal(c.0, ['a', 'b', 'c']) && equal(c.1, ['a']));
 };
