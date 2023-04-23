@@ -122,8 +122,7 @@ export fn hash(t: *_type) u32 = {
 		};
 	case let a: array =>
 		write32(&id, hash(a.member));
-		static assert(size(u64) == size(size)); // TODO
-		write64(&id, a.length);
+		writesize(&id, a.length);
 	case builtin => void;
 	case let e: _enum =>
 		write8(&id, builtin_storage(e.storage));
@@ -148,8 +147,7 @@ export fn hash(t: *_type) u32 = {
 			const field = st.fields[i];
 			hash::write(&id, strings::toutf8(field.name));
 			write32(&id, hash(field._type));
-			static assert(size(u64) == size(size)); // TODO
-			write64(&id, field.offs);
+			writesize(&id, field.offs);
 		};
 	case let tu: tuple =>
 		for (let i = 0z; i < len(tu); i += 1) {
