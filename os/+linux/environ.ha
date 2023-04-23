@@ -84,6 +84,7 @@ let uts_valid: bool = false;
 export fn sysname() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
+		uts_valid = true;
 	};
 	return strings::fromc(&uts.sysname: *const char)!;
 };
@@ -92,6 +93,7 @@ export fn sysname() const str = {
 export fn hostname() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
+		uts_valid = true;
 	};
 	return strings::fromc(&uts.nodename: *const char)!;
 };
@@ -100,6 +102,7 @@ export fn hostname() const str = {
 export fn release() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
+		uts_valid = true;
 	};
 	return strings::fromc(&uts.release: *const char)!;
 };
@@ -108,6 +111,7 @@ export fn release() const str = {
 export fn version() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
+		uts_valid = true;
 	};
 	return strings::fromc(&uts.version: *const char)!;
 };
@@ -116,6 +120,7 @@ export fn version() const str = {
 export fn machine() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
+		uts_valid = true;
 	};
 	return strings::fromc(&uts.machine: *const char)!;
 };
