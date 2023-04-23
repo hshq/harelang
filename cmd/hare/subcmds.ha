@@ -111,7 +111,13 @@ fn build(args: []str) void = {
 		case 'l' =>
 			append(libs, opt.1);
 		case 'N' =>
-			namespace = parse::identstr(opt.1)!;
+			namespace = match (parse::identstr(opt.1)) {
+			case let id: ast::ident =>
+				yield id;
+			case let err: parse::error =>
+				fmt::fatalf("Error parsing namespace {}: {}",
+					opt.1, parse::strerror(err));
+			};
 		case 'o' =>
 			output = opt.1;
 		case 't' =>
