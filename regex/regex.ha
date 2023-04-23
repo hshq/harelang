@@ -1,8 +1,10 @@
 // License: MPL-2.0
 // (c) 2022 Vlad-Stefan Harbuz <vlad@vladh.net>
 use ascii;
+use bufio;
 use encoding::utf8;
 use errors;
+use io;
 use strconv;
 use strings;
 
@@ -501,8 +503,8 @@ fn run_thread(
 	re: *regex,
 	string: str,
 	threads: *[]thread,
-	r_or_end: (rune | void),
-	str_idx: int,
+	r_or_end: (rune | io::EOF),
+	str_idx: size,
 	str_bytesize: size
 ) (void | newmatch) = {
 	const str_bytes = strings::toutf8(string);
@@ -521,14 +523,14 @@ fn run_thread(
 			threads[i].pc = re.insts[threads[i].pc]: inst_jump: size;
 		case inst_skip =>
 			const new_pc = threads[i].pc + 1;
-			threads[i].start_idx = str_idx: size;
+			threads[i].start_idx = str_idx;
 			threads[i].start_bytesize = str_bytesize;
 			add_thread(threads, i, new_pc);
 			break;
 		case let anchored: inst_match =>
 			// Do not match if we need an end-anchored match, but we
 			// have not exhausted our string
-			if (anchored && !(r_or_end is void)) {
+			if (anchored && !(r_or_end is io::EOF)) {
 				threads[i].failed = true;
 				return;
 			};
@@ -537,7 +539,7 @@ fn run_thread(
 			threads[i].root_capture = capture {
 				start = threads[i].start_idx,
 				start_bytesize = threads[i].start_bytesize,
-				end = str_idx: size,
+				end = str_idx,
 				end_bytesize = str_bytesize,
 				content = content,
 			};
@@ -545,13 +547,13 @@ fn run_thread(
 			return newmatch;
 		case inst_groupstart =>
 			assert(!threads[i].curr_capture_inited, "Found nested capture groups in expression, which are not supported");
-			threads[i].curr_capture.start = str_idx: size;
+			threads[i].curr_capture.start = str_idx;
 			threads[i].curr_capture.start_bytesize = str_bytesize;
 			threads[i].curr_capture_inited = true;
 			threads[i].pc += 1;
 		case inst_groupend =>
 			assert(threads[i].curr_capture_inited, `Found a groupend token ")" without having previously seen a groupstart token "(". Please report this as a bug`);
-			threads[i].curr_capture.end = str_idx: size;
+			threads[i].curr_capture.end = str_idx;
 			threads[i].curr_capture.end_bytesize = str_bytesize;
 			threads[i].curr_capture.content =
 				strings::fromutf8_unsafe(str_bytes[
@@ -582,7 +584,7 @@ fn run_thread(
 
 	// From now on, we're only matching consuming instructions, and these
 	// can't do anything without another rune.
-	if (r_or_end is void) {
+	if (r_or_end is io::EOF) {
 		threads[i].failed = true;
 		return;
 	};
@@ -639,9 +641,7 @@ fn run_thread(
 fn search(
 	re: *regex,
 	string: str,
-	str_iter: *strings::iterator,
-	str_idx: *int,
-	str_bytesize: *size,
+	handle: io::handle,
 	need_captures: bool
 ) (void | []capture) = {
 	let threads: []thread = alloc([
@@ -658,11 +658,13 @@ fn search(
 		free(threads);
 	};
 
+	let str_idx = 0z;
 	let first_match_idx: (void | size) = void;
+	let str_bytesize = 0z;
 	let last_bytesize = 0z;
 
 	for (true) {
-		*str_bytesize += last_bytesize;
+		str_bytesize += last_bytesize;
 
 		if (len(threads) == 0) {
 			return void;
@@ -700,15 +702,14 @@ fn search(
 			return res;
 		};
 
-		const r_or_end = strings::next(str_iter);
-		*str_idx += 1;
+		const r_or_end = bufio::scanrune(handle)!;
 		if (r_or_end is rune) {
 			last_bytesize = utf8::runesz(r_or_end as rune);
 		};
 
 		for (let i = 0z; i < len(threads); i += 1) {
 			const res = run_thread(i, re, string, &threads,
-				r_or_end, *str_idx, *str_bytesize);
+				r_or_end, str_idx, str_bytesize);
 			const matchlen = threads[i].root_capture.end
 				- threads[i].root_capture.start;
 			if (res is newmatch && matchlen > 0 && !need_captures) {
@@ -722,6 +723,7 @@ fn search(
 				first_match_idx = threads[i].start_idx;
 			};
 		};
+		str_idx += 1;
 
 		// When we only want the leftmost match, delete all threads that
 		// start after the earliest non-zero-length matched thread
@@ -770,13 +772,8 @@ fn search(
 
 // Returns whether or not a [[regex]] matches any part of a given string.
 export fn test(re: *regex, string: str) bool = {
-	let str_idx = -1;
-	let str_iter = strings::iter(string);
-	let str_bytesize = 0z;
-	match (search(re, string, &str_iter, &str_idx, &str_bytesize, false)) {
-	case void => return false;
-	case []capture => return true;
-	};
+	let strm = bufio::fixed(strings::toutf8(string), io::mode::READ);
+	return search(re, string, &strm, false) is []capture;
 };
 
 
@@ -784,10 +781,8 @@ export fn test(re: *regex, string: str) bool = {
 // leftmost match as a [[result]]. The caller must free the return value with
 // [[result_free]].
 export fn find(re: *regex, string: str) result = {
-	let str_idx = -1;
-	let str_iter = strings::iter(string);
-	let str_bytesize = 0z;
-	match (search(re, string, &str_iter, &str_idx, &str_bytesize, true)) {
+	let strm = bufio::fixed(strings::toutf8(string), io::mode::READ);
+	match (search(re, string, &strm, true)) {
 	case let m: []capture =>
 		return m;
 	case void =>
@@ -800,23 +795,23 @@ export fn find(re: *regex, string: str) result = {
 // return value with [[result_freeall]].
 export fn findall(re: *regex, string: str) []result = {
 	let res: [][]capture = [];
-	let str_idx = -1;
-	let str_iter = strings::iter(string);
-	let str_bytesize = 0z;
+	let str_idx = 0z, str_bytesize = 0z;
+	let substring = string;
+	let strm = bufio::fixed(strings::toutf8(string), io::mode::READ);
+	const str_bytes = strings::toutf8(string);
 	for (true) {
-		const findres = search(re, string, &str_iter, &str_idx,
-			&str_bytesize, true);
-		match (findres) {
+		match (search(re, substring, &strm, true)) {
 		case let m: []capture =>
 			append(res, m);
-			assert(str_idx: size >= m[0].end);
-			for (str_idx: size > m[0].end) {
-				strings::prev(&str_iter);
-				str_idx -= 1;
-			};
-			if (str_idx: size >= len(string)) {
-				break;
-			};
+			m[0].start += str_idx;
+			m[0].end += str_idx;
+			m[0].start_bytesize += str_bytesize;
+			m[0].end_bytesize += str_bytesize;
+			str_idx = m[0].end;
+			str_bytesize = m[0].end_bytesize;
+			substring = strings::fromutf8(str_bytes[str_bytesize..])!;
+			io::seek(&strm, str_bytesize: io::off,
+				io::whence::SET)!;
 		case void => break;
 		};
 	};

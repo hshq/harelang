@@ -660,6 +660,10 @@ fn run_rawreplace_case(
 	const cases = [
 		(`ab.`, "hello abc and abあ test abq thanks", matchres::MATCH,
 			["abc", "abあ", "abq"]: []str),
+		(`a`, "aa", matchres::MATCH,
+			["a", "a"]: []str),
+		(`fo{2,}`, "fo foo fooofoof oofoo", matchres::MATCH,
+			["foo", "fooo", "foo", "foo"]: []str),
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {
