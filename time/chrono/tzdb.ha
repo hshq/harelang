@@ -18,10 +18,14 @@ export type tzdberror = !(invalidtzif | fs::error | io::error);
 // Invalid TZif data.
 export type invalidtzif = !void;
 
-// Finds and loads a [[timezone]] from the system's Timezone database, normally
-// located at /usr/share/zoneinfo. All timezones provided default to the [[utc]]
-// [[timescale]] and [[EARTH_DAY]] day-length.
-export fn tz(name: str) (timezone | tzdberror) = {
+// Finds, loads, and allocates a [[timezone]] from the system's Timezone
+// database, normally located at /usr/share/zoneinfo, and returns it as a
+// [[locality]]. Each call returns a new instance. The caller must free the
+// return value.
+//
+// All localities provided default to the [[utc]] [[timescale]] and
+// [[EARTH_DAY]] day-length.
+export fn tz(name: str) (locality | tzdberror) = {
 	const filepath = path::init();
 	path::add(&filepath, ZONEINFO_PREFIX, name)!;
 	const fpath = path::string(&filepath);
@@ -30,17 +34,17 @@ export fn tz(name: str) (timezone | tzdberror) = {
 	static let buf: [os::BUFSIZ]u8 = [0...];
 	const bufstrm = bufio::buffered(file, buf, []);
 
-	let tz = timezone {
-		name = name,
+	let loc = alloc(timezone {
+		name = strings::dup(name),
 		timescale = &utc,
 		daylength = EARTH_DAY,
 		...
-	};
-	match (parse_tzif(&bufstrm, &tz)) {
+	});
+	match (load_tzif(&bufstrm, loc)) {
 	case void =>
 		io::close(&bufstrm)?;
 		io::close(file)?;
-		return tz;
+		return loc;
 	case invalidtzif =>
 		io::close(&bufstrm): void;
 		io::close(file): void;
@@ -52,11 +56,11 @@ export fn tz(name: str) (timezone | tzdberror) = {
 	};
 };
 
-// Parses data in the TZif "Time Zone Information Format", and initialises the
+// Loads data of the TZif "Time Zone Information Format", and initialises the
 // fields "zones", "transitions", and "posix_extend" of the given [[timezone]].
 //
 // See: https://datatracker.ietf.org/doc/html/rfc8536
-fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
+fn load_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 	const buf1: [1]u8 = [0...];
 	const buf4: [4]u8 = [0...];
 	const buf8: [8]u8 = [0...];
@@ -178,12 +182,12 @@ fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 		};
 		append(footerdata, buf1...);
 	};
-	const posix_extend = match (strings::fromutf8(footerdata)) {
+	const posix_extend = strings::dup(match (strings::fromutf8(footerdata)) {
 	case let s: str =>
 		yield s;
 	case encoding::utf8::invalid =>
 		return invalidtzif;
-	};
+	});
 
 	// assemble structured data
 
@@ -194,11 +198,11 @@ fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 		const zone = zone { ... };
 
 		// offset
-		const zoffset = endian::begetu32(zonedata[idx..idx + 4]): i32;
-		if (zoffset == -2147483648) { // -2^31
+		const zoff = endian::begetu32(zonedata[idx..idx + 4]): i32;
+		if (zoff == -2147483648) { // -2^31
 			return invalidtzif;
 		};
-		zone.zoffset = zoffset * time::SECOND;
+		zone.zoff = zoff * time::SECOND;
 
 		// daylight saving time indicator
 		zone.dst = switch (zonedata[idx + 4]) {
@@ -225,12 +229,12 @@ fn parse_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 		if (len(bytes) == 0) { // no NUL encountered
 			return invalidtzif;
 		};
-		const abbr = match (strings::fromutf8(bytes)) {
+		const abbr = strings::dup(match (strings::fromutf8(bytes)) {
 		case let s: str =>
 			yield s;
 		case encoding::utf8::invalid =>
 			return invalidtzif;
-		};
+		});
 		zone.abbr = strings::dup(abbr);
 
 		append(zones, zone);

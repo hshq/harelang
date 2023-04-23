@@ -2,174 +2,403 @@
 // (c) 2021-2022 Byron Torres <b@torresjrjr.com>
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021-2022 Vlad-Stefan Harbuz <vlad@vladh.net>
+use ascii;
 use errors;
+use io;
+use strconv;
 use strings;
+use strio;
 use time;
+use time::chrono;
 
-// Parses a date/time string into a [[builder]], according to a layout format
+type failure = !void;
+
+// A parsing error occurred. If appropriate, the offending format specifier is
+// stored. A null rune represents all other error cases.
+export type parsefail = !rune;
+
+// Parses a date/time string into a [[virtual]], according to a layout format
 // string with specifiers as documented under [[format]]. Partial, sequential,
 // aggregative parsing is possible.
 //
-// 	datetime::parse(&builder, "%Y-%m-%d", "2038-01-19");
-// 	datetime::parse(&builder, "%H:%M:%S", "03:14:07");
+// 	datetime::parse(&v, "%Y-%m-%d",    "2019-12-27");
+// 	datetime::parse(&v, "%H:%M:%S.%N", "22:07:08.000000000");
+// 	datetime::parse(&v, "%z %Z %L",    "+0100 CET Europe/Amsterdam");
 //
-export fn parse(build: *builder, layout: str, s: str) (void | invalid) = {
-	const format_iter = strings::iter(layout);
-	const s_iter = strings::iter(s);
+export fn parse(v: *virtual, layout: str, s: str) (void | parsefail) = {
+	const liter = strings::iter(layout);
+	const siter = strings::iter(s);
 	let escaped = false;
+
 	for (true) {
-		let format_r: rune = match (strings::next(&format_iter)) {
+		const lr: rune = match (strings::next(&liter)) {
 		case void =>
 			break;
-		case let r: rune =>
-			yield r;
+		case let lr: rune =>
+			yield lr;
 		};
 
-		if (!escaped && format_r == '%') {
+		if (!escaped && lr == '%') {
 			escaped = true;
 			continue;
 		};
 
 		if (!escaped) {
-			let s_r = match (strings::next(&s_iter)) {
+			const sr = match (strings::next(&siter)) {
 			case void =>
-				return invalid;
-			case let r: rune =>
-				yield r;
+				return '\x00';
+			case let sr: rune =>
+				yield sr;
 			};
-			if (s_r != format_r) {
-				return invalid;
+			if (sr != lr) {
+				return '\x00';
 			};
 			continue;
 		};
 
 		escaped = false;
-		switch (format_r) {
-		// Basic specifiers
-		case 'a' =>
-			build.weekday = get_default_locale_string_index(
-				&s_iter, WEEKDAYS_SHORT[..])?;
-		case 'A' =>
-			build.weekday = get_default_locale_string_index(
-				&s_iter, WEEKDAYS[..])?;
-		case 'b' =>
-			build.month = get_default_locale_string_index(
-				&s_iter, MONTHS_SHORT[..])?;
-		case 'B' =>
-			build.month = get_default_locale_string_index(
-				&s_iter, MONTHS[..])?;
-		case 'd' =>
-			let max_n_digits = 2u;
-			build.day = clamp_int(
-				get_max_n_digits(&s_iter, max_n_digits)?, 1, 31);
-		case 'H' =>
-			let max_n_digits = 2u;
-			build.hour = clamp_int(
-				get_max_n_digits(&s_iter, max_n_digits)?, 0, 23);
-		case 'I' =>
-			let max_n_digits = 2u;
-			const hour = get_max_n_digits(&s_iter, max_n_digits);
-			build.hour = match (hour) {
-			case let hour: int =>
-				yield if (hour > 12) {
-					yield clamp_int(hour - 12, 1, 12);
-				} else {
-					yield clamp_int(hour, 1, 12);
-				};
-			case =>
-				return invalid;
-			};
-		case 'j' =>
-			build.yearday = clamp_int(
-				get_max_n_digits(&s_iter, 3)?, 1, 366);
-		case 'L' =>
-			// TODO: Parse %L (locality/timezone name/ID).
-			continue;
-		case 'm' =>
-			build.month = clamp_int(
-				get_max_n_digits(&s_iter, 2)?, 1, 12);
-		case 'M' =>
-			build.min = clamp_int(
-				get_max_n_digits(&s_iter, 2)?, 0, 59);
-		case 'N' =>
-			build.nsec = clamp_int(
-				get_max_n_digits(&s_iter, 9)?, 0, 999999999);
-		case 'p' =>
-			if (build.hour is void) {
-				// We can't change the hour's am/pm because we
-				// have no hour.
-				return invalid;
-			};
-			const rest = strings::iterstr(&s_iter);
-			if (strings::hasprefix(rest, "AM")) {
-				if (build.hour as int > 12) {
-					// 13 AM?
-					return invalid;
-				} else if (build.hour as int == 12) {
-					build.hour = 0;
-				};
-			} else if (strings::hasprefix(rest, "PM")) {
-				if (build.hour as int > 12) {
-					// 13 PM?
-					return invalid;
-				} else if (build.hour as int < 12) {
-					build.hour =
-						(build.hour as int) + 12;
-				};
-			} else {
-				return invalid;
-			};
-			strings::next(&s_iter);
-			strings::next(&s_iter);
-		case 'S' =>
-			build.sec = clamp_int(
-				get_max_n_digits(&s_iter, 2)?, 0, 61);
-		case 'u', 'w' =>
-			build.weekday = match (get_max_n_digits(&s_iter, 1)) {
-			case let i: int =>
-				yield if (format_r == 'w') {
-					yield if (i == 0) {
-						yield 7;
-					} else {
-						yield clamp_int(i, 1, 7);
-					};
-				} else {
-					yield clamp_int(i, 1, 7);
-				};
-			case =>
-				return invalid;
-			};
-		case 'U', 'W' =>
-			build.week = clamp_int(
-				get_max_n_digits(&s_iter, 2)?, 0, 53);
-		case 'Y' =>
-			build.year = get_max_n_digits(&s_iter, 4)?;
-		case 'z' =>
-			const rest = strings::iterstr(&s_iter);
-			if(strings::hasprefix(rest, 'Z') || strings::hasprefix(rest, 'z')) {
-				build.zone.zoffset = 0;
-			} else {
-				const prefix = strings::next(&s_iter);
-				build.zone.zoffset = get_max_n_digits(&s_iter, 2)? * time::HOUR;
 
-				const rest = strings::iterstr(&s_iter);
-				if(strings::hasprefix(rest, ":")) {
-					strings::next(&s_iter);
-				};
-
-				build.zone.zoffset += get_max_n_digits(&s_iter, 2)? * time::MINUTE;
-
-				if(prefix == '-') {
-					build.zone.zoffset *= -1;
-				};
-			};
-		case '%' =>
-			eat_one_rune(&s_iter, '%')?;
-
-		case =>
-			// Ignore invalid specifier
-			continue;
+		match (parse_specifier(v, &siter, lr)) {
+		case void => void;
+		case failure =>
+			return lr;
 		};
 	};
+
 	return void;
+};
+
+fn parse_specifier(
+	v: *virtual,
+	iter: *strings::iterator,
+	lr: rune,
+) (void | failure) = {
+	switch (lr) {
+	case 'a' => v.weekday =
+		scan_for(iter, WEEKDAYS_SHORT...)?;
+	case 'A' => v.weekday =
+		scan_for(iter, WEEKDAYS...)?;
+	case 'b' => v.month =
+		scan_for(iter, MONTHS_SHORT...)? + 1;
+	case 'B' => v.month =
+		scan_for(iter, MONTHS...)? + 1;
+	case 'd' => v.day =
+		scan_int(iter, 2, false)?;
+	case 'H' => v.hour =
+		scan_int(iter, 2, false)?;
+	case 'I' => v.halfhour =
+		scan_int(iter, 2, false)?;
+	case 'j' => v.yearday =
+		scan_int(iter, 3, false)?;
+	case 'L' => v.locname =
+		scan_str(iter)?;
+	case 'm' => v.month =
+		scan_int(iter, 2, false)?;
+	case 'M' => v.minute =
+		scan_int(iter, 2, false)?;
+	case 'N' => v.nanosecond =
+		scan_int(iter, 9, true)?;
+	case 'p' => v.ampm = // AM=false PM=true
+		scan_for(iter, "AM", "PM", "am", "pm")? % 2 == 1;
+	case 'S' => v.second =
+		scan_int(iter, 2, false)?;
+	case 'u' => v.weekday =
+		scan_int(iter, 1, false)? - 1;
+	case 'U' => v.week =
+		scan_int(iter, 2, false)?;
+	case 'w' => v.weekday =
+		scan_int(iter, 1, false)? - 1;
+	case 'W' => v.week =
+		scan_int(iter, 2, false)?;
+	case 'Y' => v.year =
+		scan_int(iter, 4, false)?;
+	case 'z' => v.zoff =
+		scan_zo(iter)?;
+	case 'Z' => v.zabbr =
+		scan_str(iter)?;
+	case '%' =>
+		eat_rune(iter, '%')?;
+	case =>
+		void; // Ignore invalid specifier
+	};
+};
+
+fn eat_rune(iter: *strings::iterator, needle: rune) (uint | failure) = {
+	const rn = match (strings::next(iter)) {
+	case void =>
+		return failure;
+	case let rn: rune =>
+		yield rn;
+	};
+	if (rn == needle) {
+		return 1;
+	} else {
+		strings::prev(iter);
+		return 0;
+	};
+};
+
+// Scans the iterator for a given list of strings.
+// Returns the list index of the matched string.
+fn scan_for(iter: *strings::iterator, list: str...) (int | failure) = {
+	const name = strings::iterstr(iter);
+	if (len(name) == 0) {
+		return failure;
+	};
+	for(let i = 0z; i < len(list); i += 1) {
+		if (strings::hasprefix(name, list[i])) {
+			// Consume name
+			for (let j = 0z; j < len(list[i]); j += 1) {
+				strings::next(iter);
+			};
+			return i: int;
+		};
+	};
+	return failure;
+};
+
+// Scans the iterator upto n consecutive numeric digits.
+// Returns the resulting int.
+// If pad is true, the number is right-padded with zeroes upto n digits.
+fn scan_int(iter: *strings::iterator, n: size, pad: bool) (int | failure) = {
+	let buf: [64]u8 = [0...];
+	let bufstr = strio::fixed(buf);
+	for (let i = 0z; i < n; i += 1) {
+		let rn: rune = match (strings::next(iter)) {
+		case void =>
+			break;
+		case let rn: rune =>
+			yield rn;
+		};
+		if (!ascii::isdigit(rn)) {
+			strings::prev(iter);
+			break;
+		};
+		match (strio::appendrune(&bufstr, rn)) {
+		case io::error =>
+			return failure;
+		case =>
+			void;
+		};
+	};
+	const s = strings::padend(strio::string(&bufstr), '0', if (pad) n else 0);
+	defer free(s);
+
+	match (strconv::stoi(s)) {
+	case let n: int =>
+		return n;
+	case =>
+		return failure;
+	};
+};
+
+// Scans and parses zone offsets of the form:
+//
+// 	Z
+// 	z
+// 	+nn:nn
+// 	-nn:nn
+//
+fn scan_zo(iter: *strings::iterator) (time::duration | failure) = {
+	const rest = strings::iterstr(iter);
+	if (strings::hasprefix(rest, 'Z') || strings::hasprefix(rest, 'z')) {
+		return 0;
+	} else {
+		const prefix = strings::next(iter);
+		let zo = scan_int(iter, 2, false)? * time::HOUR;
+		const rest = strings::iterstr(iter);
+		if (strings::hasprefix(rest, ":")) {
+			strings::next(iter);
+		};
+		zo += scan_int(iter, 2, false)? * time::MINUTE;
+		if (prefix == '-') {
+			zo *= -1;
+		};
+		return zo;
+	};
+};
+
+// Scans and parses locality names, made of printable characters.
+fn scan_str(iter: *strings::iterator) (str | failure) = {
+	static let buf: [64]u8 = [0...];
+	let bufstr = strio::fixed(buf);
+	for (true) {
+		let rn: rune = match (strings::next(iter)) {
+		case void =>
+			break;
+		case let rn: rune =>
+			yield rn;
+		};
+		if (!ascii::isgraph(rn)) {
+			strings::prev(iter);
+			break;
+		};
+		strio::appendrune(&bufstr, rn)!;
+	};
+	return strio::string(&bufstr);
+};
+
+@test fn parse() void = {
+	let v = newvirtual();
+	assert(parse(&v, "foo", "foo") is void, "none: parsefail");
+	assert(v.zone        == null, "none: non-null zone");
+	assert(v.date        is void, "none: non-void date");
+	assert(v.time        is void, "none: non-void time");
+	assert(v.era         is void, "none: non-void era");
+	assert(v.year        is void, "none: non-void year");
+	assert(v.month       is void, "none: non-void month");
+	assert(v.day         is void, "none: non-void day");
+	assert(v.yearday     is void, "none: non-void yearday");
+	assert(v.isoweekyear is void, "none: non-void isoweekyear");
+	assert(v.isoweek     is void, "none: non-void isoweek");
+	assert(v.week        is void, "none: non-void week");
+	assert(v.sundayweek  is void, "none: non-void sundayweek");
+	assert(v.weekday     is void, "none: non-void weekday");
+	assert(v.hour        is void, "none: non-void hour");
+	assert(v.minute      is void, "none: non-void minute");
+	assert(v.second      is void, "none: non-void second");
+	assert(v.nanosecond  is void, "none: non-void nanosecond");
+	assert(v.vloc        is void, "none: non-void vloc");
+	assert(v.locname     is void, "none: non-void locname");
+	assert(v.zoff        is void, "none: non-void zoff");
+	assert(v.zabbr       is void, "none: non-void zabbr");
+	assert(v.halfhour    is void, "none: non-void halfhour");
+	assert(v.ampm        is void, "none: non-void ampm");
+
+	let v = newvirtual();
+	assert(parse(&v, "%a", "Fri") is void                , "%a: parsefail");
+	assert(v.weekday is int                              , "%a: void");
+	assert(v.weekday as int == 4                         , "%a: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%A", "Friday") is void             , "%A: parsefail");
+	assert(v.weekday is int                              , "%A: void");
+	assert(v.weekday as int == 4                         , "%A: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%b", "Jan") is void                , "%b: parsefail");
+	assert(v.month is int                                , "%b: void");
+	assert(v.month as int == 1                           , "%b: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%B", "January") is void   ,         "%B: parsefail");
+	assert(v.month is int                                , "%B: void");
+	assert(v.month as int == 1                           , "%B: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%d", "27") is void                 , "%d: parsefail");
+	assert(v.day is int                                  , "%d: void");
+	assert(v.day as int == 27                            , "%d: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%H", "22") is void                 , "%H: parsefail");
+	assert(v.hour is int                                 , "%H: void");
+	assert(v.hour as int == 22                           , "%H: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%I", "10") is void                 , "%I: parsefail");
+	assert(v.halfhour is int                             , "%I: void");
+	assert(v.halfhour as int == 10                       , "%I: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%j", "361") is void                , "%j: parsefail");
+	assert(v.yearday is int                              , "%j: void");
+	assert(v.yearday as int == 361                       , "%j: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%L", "Europe/Amsterdam") is void   , "%L: parsefail");
+	assert(v.locname is str                              , "%L: void");
+	assert(v.locname as str == "Europe/Amsterdam"        , "%L: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%m", "12") is void                 , "%m: parsefail");
+	assert(v.month is int                                , "%m: void");
+	assert(v.month as int == 12                          , "%m: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%M", "07") is void                 , "%M: parsefail");
+	assert(v.minute is int                               , "%M: void");
+	assert(v.minute as int == 7                          , "%M: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%N", "123456789") is void          , "%N: parsefail");
+	assert(v.nanosecond is int                           , "%N: void");
+	assert(v.nanosecond as int == 123456789              , "%N: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%p", "PM") is void                 , "%p: parsefail");
+	assert(v.ampm is bool                                , "%p: void");
+	assert(v.ampm as bool == true                        , "%p: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%S", "08") is void                 , "%S: parsefail");
+	assert(v.second is int                               , "%S: void");
+	assert(v.second as int == 8                          , "%S: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%u", "5") is void                  , "%u: parsefail");
+	assert(v.weekday is int                              , "%u: void");
+	assert(v.weekday as int == 4                         , "%u: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%U", "51") is void                 , "%U: parsefail");
+	assert(v.week is int                                 , "%U: void");
+	assert(v.week as int == 51                           , "%U: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%w", "5") is void                  , "%w: parsefail");
+	assert(v.weekday is int                              , "%w: void");
+	assert(v.weekday as int == 4                         , "%w: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%W", "51") is void                 , "%W: parsefail");
+	assert(v.week is int                                 , "%W: void");
+	assert(v.week as int == 51                           , "%W: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%Y", "2019") is void               , "%Y: parsefail");
+	assert(v.year is int                                 , "%Y: void");
+	assert(v.year as int == 2019                         , "%Y: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%z", "+0100") is void              , "%z: parsefail");
+	assert(v.zoff is i64                                 , "%z: void");
+	assert(v.zoff as i64 == 1 * time::HOUR               , "%z: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%Z", "CET") is void                , "%Z: parsefail");
+	assert(v.zabbr is str                                , "%Z: void");
+	assert(v.zabbr as str == "CET"                       , "%Z: incorrect");
+
+	let v = newvirtual();
+	assert((
+		parse(&v,
+			"%Y-%m-%d %H:%M:%S.%N %z %Z %L",
+			"2038-01-19 03:14:07.000000000 +0000 UTC UTC",
+		)
+		is void
+	),
+		"test 1: parsefail"
+	);
+	assert(v.year       is int         , "test 1: year void");
+	assert(v.year       as int ==  2038, "test 1: year incorrect");
+	assert(v.month      is int         , "test 1: month void");
+	assert(v.month      as int ==     1, "test 1: month incorrect");
+	assert(v.day        is int         , "test 1: day void");
+	assert(v.day        as int ==    19, "test 1: day incorrect");
+	assert(v.hour       is int         , "test 1: hour void");
+	assert(v.hour       as int ==     3, "test 1: hour incorrect");
+	assert(v.minute     is int         , "test 1: minute void");
+	assert(v.minute     as int ==    14, "test 1: minute incorrect");
+	assert(v.second     is int         , "test 1: second void");
+	assert(v.second     as int ==     7, "test 1: second incorrect");
+	assert(v.nanosecond is int         , "test 1: nanosecond void");
+	assert(v.nanosecond as int ==     0, "test 1: nanosecond incorrect");
+	assert(v.zoff       is i64         , "test 1: zoff void");
+	assert(v.zoff       as i64 ==     0, "test 1: zoff incorrect");
+	assert(v.zabbr      is str         , "test 1: zabbr void");
+	assert(v.zabbr      as str == "UTC", "test 1: zabbr incorrect");
+	assert(v.locname    is str         , "test 1: locname void");
+	assert(v.locname    as str == "UTC", "test 1: locname incorrect");
+
 };

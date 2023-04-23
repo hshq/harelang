@@ -6,7 +6,13 @@ use fs;
 use io;
 
 // All possible errors returned from [[time::chrono]].
-export type error = !(invalid | tzdberror | invalidtzif);
+export type error = !(
+	invalid
+	| invalidtzif
+	| tzdberror
+	| discontinuity
+	| analytical
+);
 
 // Converts an [[error]] into a human-friendly string.
 export fn strerror(err: error) const str = {
@@ -30,5 +36,9 @@ export fn strerror(err: error) const str = {
 		case invalidtzif =>
 			return "Timezone database error: Invalid TZif data";
 		};
+	case discontinuity =>
+		return "A timescale discontinuity caused a misconversion";
+	case analytical =>
+		return "The analyical result of a conversion at a timescale discontinuity";
 	};
 };

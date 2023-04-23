@@ -221,10 +221,14 @@ datetime() {
 		chronology.ha \
 		date.ha \
 		datetime.ha \
+		duration.ha \
 		format.ha \
 		parse.ha \
+		period.ha \
+		reckon.ha \
 		time.ha \
-		timezone.ha
+		timezone.ha \
+		virtual.ha
 	gen_ssa -plinux datetime ascii errors fmt io strconv strings strio \
 		time time::chrono
 	gen_srcs -pfreebsd datetime \
@@ -232,10 +236,14 @@ datetime() {
 		chronology.ha \
 		date.ha \
 		datetime.ha \
+		duration.ha \
 		format.ha \
 		parse.ha \
+		period.ha \
+		reckon.ha \
 		time.ha \
-		timezone.ha
+		timezone.ha \
+		virtual.ha
 	gen_ssa -pfreebsd datetime ascii errors fmt io strconv strings strio \
 		time time::chrono
 	gen_srcs -pdarwin datetime \
@@ -1469,6 +1477,7 @@ function time() {
 
 time_chrono() {
 	gen_srcs -plinux time::chrono \
+		arithmetic.ha \
 		+linux.ha \
 		chronology.ha \
 		error.ha \
@@ -1479,6 +1488,7 @@ time_chrono() {
 	gen_ssa -plinux time::chrono \
 		bufio bytes encoding::utf8 endian errors fmt fs io os strconv strings time path
 	gen_srcs -pfreebsd time::chrono \
+		arithmetic.ha \
 		+freebsd.ha \
 		chronology.ha \
 		error.ha \

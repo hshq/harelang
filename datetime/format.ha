@@ -6,9 +6,9 @@ use ascii;
 use errors;
 use fmt;
 use io;
-use strconv;
 use strings;
 use strio;
+use time;
 use time::chrono;
 
 // [[datetime::format]] layout for the email date format.
@@ -31,6 +31,10 @@ export def STAMP: str = "%Y-%m-%d %H:%M:%S";
 
 // [[datetime::format]] layout for a simple timestamp with nanoseconds.
 export def STAMP_NANO: str = "%Y-%m-%d %H:%M:%S.%N";
+
+// [[datetime::format]] layout for a simple timestamp with nanoseconds and zone
+// offset.
+export def STAMP_ZOFF: str = "%Y-%m-%d %H:%M:%S.%N %z";
 
 // [[datetime::format]] layout for a simple timestamp with nanoseconds,
 // zone offset, zone abbreviation, and locality.
@@ -83,7 +87,7 @@ export fn bsformat(
 	buf: []u8,
 	layout: str,
 	dt: *datetime,
-) (str | invalid | io::error) = {
+) (str | io::error) = {
 	let sink = strio::fixed(buf);
 	format(&sink, layout, dt)?;
 	return strio::string(&sink);
@@ -91,7 +95,7 @@ export fn bsformat(
 
 // Formats a [[datetime]] and writes it into a heap-allocated string.
 // The caller must free the return value.
-export fn asformat(layout: str, dt: *datetime) (str | invalid | io::error) = {
+export fn asformat(layout: str, dt: *datetime) (str | io::error) = {
 	let sink = strio::dynamic();
 	format(&sink, layout, dt)?;
 	return strio::string(&sink);
@@ -100,70 +104,61 @@ export fn asformat(layout: str, dt: *datetime) (str | invalid | io::error) = {
 fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 	switch (r) {
 	case 'a' =>
-		return fmt::fprint(out, WEEKDAYS_SHORT[weekday(dt) - 1]);
+		return fmt::fprint(out, WEEKDAYS_SHORT[_weekday(dt)]);
 	case 'A' =>
-		return fmt::fprint(out, WEEKDAYS[weekday(dt) - 1]);
+		return fmt::fprint(out, WEEKDAYS[_weekday(dt)]);
 	case 'b' =>
-		return fmt::fprint(out, MONTHS_SHORT[month(dt) - 1]);
+		return fmt::fprint(out, MONTHS_SHORT[_month(dt) - 1]);
 	case 'B' =>
-		return fmt::fprint(out, MONTHS[month(dt) - 1]);
+		return fmt::fprint(out, MONTHS[_month(dt) - 1]);
 	case 'd' =>
-		return fmt::fprintf(out, "{:02}", day(dt));
+		return fmt::fprintf(out, "{:02}", _day(dt));
 	case 'F' =>
-		return fmt::fprintf(out, "{:04}-{:02}-{:02}", year(dt), month(dt), day(dt));
+		return fmt::fprintf(out, "{:04}-{:02}-{:02}", _year(dt), _month(dt), _day(dt));
 	case 'H' =>
-		return fmt::fprintf(out, "{:02}", hour(dt));
+		return fmt::fprintf(out, "{:02}", _hour(dt));
 	case 'I' =>
-		return fmt::fprintf(out, "{:02}", hour12(dt));
+		return fmt::fprintf(out, "{:02}", (_hour(dt) + 11) % 12 + 1);
 	case 'j' =>
-		return fmt::fprint(out, strconv::itos(yearday(dt)));
+		return fmt::fprintf(out, "{:03}", _yearday(dt));
 	case 'L' =>
 		return fmt::fprint(out, dt.loc.name);
 	case 'm' =>
-		return fmt::fprintf(out, "{:02}", month(dt));
+		return fmt::fprintf(out, "{:02}", _month(dt));
 	case 'M' =>
-		return fmt::fprintf(out, "{:02}", min(dt));
+		return fmt::fprintf(out, "{:02}", _minute(dt));
 	case 'N' =>
-		return fmt::fprintf(out, "{:09}", strconv::itos(nsec(dt)));
+		return fmt::fprintf(out, "{:09}", _nanosecond(dt));
 	case 'p' =>
-		const s = if (hour(dt) < 12) {
-			yield "AM";
-		} else {
-			yield "PM";
-		};
-		return fmt::fprint(out, s);
+		return fmt::fprint(out, if (_hour(dt) < 12) "AM" else "PM");
 	case 's' =>
-		return fmt::fprintf(out, "{:02}", epochunix(dt));
+		return fmt::fprintf(out, "{:02}", time::unix(*(dt: *time::instant)));
 	case 'S' =>
-		return fmt::fprintf(out, "{:02}", sec(dt));
+		return fmt::fprintf(out, "{:02}", _second(dt));
 	case 'T' =>
-		return fmt::fprintf(out, "{:02}:{:02}:{:02}", hour(dt), min(dt), sec(dt));
+		return fmt::fprintf(out, "{:02}:{:02}:{:02}", _hour(dt), _minute(dt), _second(dt));
 	case 'u' =>
-		return fmt::fprint(out, strconv::itos(weekday(dt)));
+		return fmt::fprintf(out, "{}", _weekday(dt) + 1);
 	case 'U' =>
 		return fmt::fprintf(out, "{:02}", _sundayweek(dt));
 	case 'w' =>
-		return fmt::fprint(out, strconv::itos(weekday(dt) % 7));
+		return fmt::fprintf(out, "{}", (_weekday(dt) + 1) % 7);
 	case 'W' =>
-		return fmt::fprintf(out, "{:02}", week(dt));
+		return fmt::fprintf(out, "{:02}", _week(dt));
 	case 'y' =>
-		let year_str = strconv::itos(year(dt));
-		year_str = strings::sub(year_str, len(year_str) - 2, strings::end);
-		return fmt::fprint(out, year_str);
+		return fmt::fprintf(out, "{:02}", _year(dt) % 100);
 	case 'Y' =>
-		return fmt::fprint(out, strconv::itos(year(dt)));
+		return fmt::fprintf(out, "{:04}", _year(dt));
 	case 'z' =>
-		// TODO: test me
-		let pm = '+';
-		const z = if (dt.zone.zoffset >= 0) {
-			yield calc_hmsn(dt.zone.zoffset);
+		const (sign, zo) = if (chrono::mzone(dt).zoff >= 0) {
+			yield ('+', calc_hmsn(chrono::mzone(dt).zoff));
 		} else {
-			pm = '-';
-			yield calc_hmsn(-dt.zone.zoffset);
+			yield ('-', calc_hmsn(-chrono::mzone(dt).zoff));
 		};
-		return fmt::fprintf(out, "{}{:02}{:02}", pm, z.0, z.1);
+		const (hr, mi) = (zo.0, zo.1);
+		return fmt::fprintf(out, "{}{:02}{:02}", sign, hr, mi);
 	case 'Z' =>
-		return fmt::fprint(out, dt.zone.abbr);
+		return fmt::fprint(out, chrono::mzone(dt).abbr);
 	case '%' =>
 		return fmt::fprint(out, "%");
 	case =>
@@ -212,7 +207,7 @@ export fn format(
 	h: io::handle,
 	layout: str,
 	dt: *datetime
-) (size | invalid | io::error) = {
+) (size | io::error) = {
 	const iter = strings::iter(layout);
 	let escaped = false;
 	let n = 0z;
@@ -236,85 +231,6 @@ export fn format(
 		};
 	};
 	return n;
-};
-
-fn get_default_locale_string_index(iter: *strings::iterator, list: []str) (int | invalid) = {
-	const name = strings::iterstr(iter);
-	if (len(name) == 0) {
-		return invalid;
-	};
-	for(let i = 0z; i < len(list); i += 1) {
-		if (strings::hasprefix(name, list[i])) {
-			// Consume name
-			for (let j = 0z; j < len(list[i]); j += 1) {
-				strings::next(iter);
-			};
-			return (i: int) + 1;
-		};
-	};
-	return invalid;
-};
-
-fn get_max_n_digits(iter: *strings::iterator, n: uint) (int | invalid) = {
-	let buf: [64]u8 = [0...];
-	let bufstr = strio::fixed(buf);
-	for (let i = 0z; i < n; i += 1) {
-		let r: rune = match (strings::next(iter)) {
-			case void =>
-				break;
-			case let r: rune =>
-				yield r;
-		};
-		if (!ascii::isdigit(r)) {
-			strings::prev(iter);
-			break;
-		};
-		match (strio::appendrune(&bufstr, r)) {
-		case io::error =>
-			return invalid;
-		case =>
-			void;
-		};
-	};
-	return match (strconv::stoi(strio::string(&bufstr))) {
-	case let res: int =>
-		yield res;
-	case =>
-		yield invalid;
-	};
-};
-
-fn eat_one_rune(iter: *strings::iterator, needle: rune) (uint | invalid) = {
-	let s_r = match (strings::next(iter)) {
-	case void =>
-		return invalid;
-	case let r: rune =>
-		yield r;
-	};
-	if (s_r == needle) {
-		return 1;
-	} else {
-		strings::prev(iter);
-		return 0;
-	};
-};
-
-fn clamp_int(i: int, min: int, max: int) int = {
-	return if (i < min) {
-		yield min;
-	} else if (i > max) {
-		yield max;
-	} else {
-		yield i;
-	};
-};
-
-fn hour12(dt: *datetime) int = {
-	let mod_hour = hour(dt) % 12;
-	if (mod_hour == 0) {
-		mod_hour = 12;
-	};
-	return mod_hour;
 };
 
 @test fn format() void = {
@@ -350,7 +266,7 @@ fn hour12(dt: *datetime) int = {
 		("%a", "Sat"),
 		("%A", "Saturday"),
 		// yearday
-		("%j", "1"),
+		("%j", "001"),
 		// week
 		("%W", "00"),
 		// full date
@@ -375,80 +291,3 @@ fn hour12(dt: *datetime) int = {
 		};
 	};
 };
-
-// TODO: Refactor this once the rest of the parse() refactoring is done
-// Ticket: https://todo.sr.ht/~sircmpwn/hare/648
-
-// @test fn parse() void = {
-// 	let dt = datetime {...};
-
-// 	// General tests
-// 	parse("%Y-%m-%d %H:%M:%S.%N", "1994-08-27 11:01:02.123", &dt)!;
-// 	assert(dt.year as int == 1994 &&
-// 		dt.month as int == 8 &&
-// 		dt.day as int == 27 &&
-// 		dt.hour as int == 11 &&
-// 		dt.min as int == 1 &&
-// 		dt.sec as int == 2 &&
-// 		dt.nsec as int == 123, "invalid parsing results");
-
-// 	// General errors
-// 	assert(parse("%Y-%m-%d", "1a94-08-27", &dt) is invalid,
-// 		"invalid datetime string did not throw error");
-
-// 	assert(parse("%Y-%m-%d", "1994-123-27", &dt) is invalid,
-// 		"invalid datetime string did not throw error");
-
-// 	assert(parse("%Y-%m-%d", "a994-08-27", &dt) is invalid,
-// 		"invalid datetime string did not throw error");
-
-// 	// Basic specifiers
-// 	parse("%a", "Tue", &dt)!;
-// 	assert(dt.weekday as int == 2, "invalid parsing results");
-
-// 	parse("%a %d", "Tue 27", &dt)!;
-// 	assert(dt.weekday as int == 2 &&
-// 		dt.day as int == 27, "invalid parsing results");
-
-// 	parse("%A", "Tuesday", &dt)!;
-// 	assert(dt.weekday as int == 2, "invalid parsing results");
-
-// 	parse("%b", "Feb", &dt)!;
-// 	assert(dt.month as int == 2, "invalid parsing results");
-
-// 	parse("%B", "February", &dt)!;
-// 	assert(dt.month as int == 2, "invalid parsing results");
-
-// 	parse("%I", "14", &dt)!;
-// 	assert(dt.hour as int == 2, "invalid parsing results");
-
-// 	parse("%j", "123", &dt)!;
-// 	assert(dt.yearday as int == 123, "invalid parsing results");
-
-// 	parse("%H %p", "6 AM", &dt)!;
-// 	assert(dt.hour as int == 6, "invalid parsing results");
-
-// 	parse("%H %p", "6 PM", &dt)!;
-// 	assert(dt.hour as int == 18, "invalid parsing results");
-
-// 	assert(parse("%H %p", "13 PM", &dt) is invalid,
-// 		"invalid parsing results");
-
-// 	assert(parse("%H %p", "PM 6", &dt) is invalid,
-// 		"invalid parsing results");
-
-// 	parse("%u", "7", &dt)!;
-// 	assert(dt.weekday as int == 7, "invalid parsing results");
-
-// 	parse("%U", "2", &dt)!;
-// 	assert(dt.week as int == 2, "invalid parsing results");
-
-// 	parse("%U", "99", &dt)!;
-// 	assert(dt.week as int == 53, "invalid parsing results");
-
-// 	parse("%w", "0", &dt)!;
-// 	assert(dt.weekday as int == 7, "invalid parsing results");
-
-// 	parse("%W", "2", &dt)!;
-// 	assert(dt.week as int == 2, "invalid parsing results");
-// };

@@ -30,8 +30,9 @@ use strings;
 // Error initializing the [[utc]] [[timescale]].
 type utciniterror = !(fs::error | io::error | encoding::utf8::invalid);
 
-// The number of seconds between the years 1900 and 1970. This number is
-// deliberately hypothetical since timekeeping before atomic clocks was not
+// The number of seconds between the years 1900 and 1970.
+//
+// This number is hypothetical since timekeeping before atomic clocks was not
 // accurate enough to account for small changes in time.
 export def SECS_1900_1970: i64 = 2208988800;
 

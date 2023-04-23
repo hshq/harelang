@@ -1,11 +1,22 @@
-The time::chrono submodule provides the basis for chronology in Hare,
-namely [[timescale]]s (leap second handling), [[timezone]]s, and the
-[[moment]] type, an abstracted datetime for external modules to
-interface with.
+The time::chrono submodule provides the basis for chronology in Hare, namely
+[[timescale]]s (leap second handling), [[timezone]]s, and the [[moment]] type,
+an abstracted date/time object for external modules to interface with.
 
-For working with the ISO 8601 Gregorian calendar, see the [[datetime]]
-submodule.
+For working with the ISO 8601 Gregorian calendar, see the [[datetime]] module.
 
-Hare defines a chronology as a system used to name and order moments in
-time. In practice, a chronology is the combination of a calendar (for
-handling days) and a wall clock (for handling times throughout a day).
+Hare defines a chronology as a system used to name and order moments in time. In
+practice, a chronology is the combination of a calendar (for handling days) and
+a wall clock (for handling times throughout a day).
+
+This module implements a small chronology of dates & times. A moment observes
+certain chronological values according to its [[locality]]. The "observe"
+functions [[date]], [[time]], and [[zone]] obtain these values.
+
+Higher level modules like [[datetime]] expand upon this with more complex
+chronological values (years, hours, etc.). The [[datetime::datetime]] type
+embeds [[moment]], and other modules implementing other chronologies may
+interoperate with their own extension types.
+
+[[time::instant]]s can be [[convert]]ed via the [[timescale]] interface. The
+[[tai]] timescale acts as the central intermediary timescale. Other timescales
+are expected to be able to convert their instants to TAI and back.
