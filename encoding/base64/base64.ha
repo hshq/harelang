@@ -17,8 +17,7 @@ def PADDING: u8 = '=';
 
 export type encoding = struct {
 	encmap: [64]u8,
-	decmap: [256]u8,
-	valid: [256]bool,
+	decmap: [128]u8,
 };
 
 // Represents the standard base-64 encoding alphabet as defined in RFC 4648.
@@ -32,13 +31,13 @@ export const url_encoding: encoding = encoding { ... };
 // 64-byte ASCII string.
 export fn encoding_init(enc: *encoding, alphabet: str) void = {
 	const alphabet = strings::toutf8(alphabet);
+	enc.decmap[..] = [-1...];
 	assert(len(alphabet) == 64);
 	for (let i: u8 = 0; i < 64; i += 1) {
 		const ch = alphabet[i];
-		assert(ascii::valid(ch: u32: rune));
+		assert(ascii::valid(ch: u32: rune) && enc.decmap[ch] == -1);
 		enc.encmap[i] = ch;
 		enc.decmap[ch] = i;
-		enc.valid[ch] = true;
 	};
 };
 
@@ -371,7 +370,7 @@ fn decode_reader(
 			};
 			np += 1;
 		} else {
-			if (!s.enc.valid[ch]) {
+			if (s.enc.decmap[ch] == -1) {
 				valid = false;
 				break;
 			};
