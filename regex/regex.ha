@@ -823,6 +823,118 @@ export fn findall(re: *regex, string: str) []result = {
 	return res;
 };
 
+// Replaces all non-overlapping matches of a regular expression against a string
+// with 'targetstr'.
+//
+// A backslash followed by a single decimal number within 'targetstr' is
+// replaced by the capture at that index (starting at 1), or an empty string if
+// no such capture exists. For example, `\1` is replaced with the first capture,
+// `\2` with the second, etc. `\0` is substituted with the entire substring that
+// was matched. `\\` is replaced with a literal backslash.
+//
+// An error is only returned if 'targetstr' isn't formatted correctly.
+export fn replace(re: *regex, string: str, targetstr: str) (str | error) = {
+	const matches = findall(re, string);
+	if (len(matches) == 0) {
+		return strings::dup(string);
+	};
+	defer result_freeall(matches);
+
+	const target = parse_replace_target(targetstr)?;
+	defer free(target);
+
+	const bytes = strings::toutf8(string);
+	let buf = alloc(bytes[..matches[0][0].start_bytesize]...);
+
+	for (let i = 0z; i < len(matches); i += 1) {
+		for (let j = 0z; j < len(target); j += 1) {
+			match (target[j]) {
+			case let b: []u8 =>
+				append(buf, b...);
+			case let z: size =>
+				if (z >= len(matches[i])) yield;
+				const b = strings::toutf8(matches[i][z].content);
+				append(buf, b...);
+			};
+		};
+		const start = matches[i][0].end_bytesize;
+		const end = if (i == len(matches) - 1) len(bytes)
+			else matches[i + 1][0].start_bytesize;
+		append(buf, bytes[start..end]...);
+	};
+
+	return strings::fromutf8(buf)!;
+};
+
+fn parse_replace_target(targetstr: str) ([]([]u8 | size) | error) = {
+	const bytes = strings::toutf8(targetstr);
+	let target: []([]u8 | size) = alloc([], 1);
+	let iter = strings::iter(targetstr);
+	let start = 0z, end = 0z;
+	for (true) match (strings::next(&iter)) {
+	case void =>
+		if (start != end) {
+			append(target, bytes[start..]);
+		};
+		break;
+	case let r: rune =>
+		if (r == '\\') {
+			if (start != end) {
+				append(target, bytes[start..end]);
+			};
+
+			const r = match (strings::next(&iter)) {
+			case void =>
+				return "Trailing backslash": error;
+			case let r: rune =>
+				yield r;
+			};
+
+			if (r == '\\') {
+				append(target, '\\');
+			} else if (ascii::isdigit(r)) {
+				append(target, r: u32: size - 0x30);
+			} else {
+				return "Backslash must be followed by positive decimal number or a backslash": error;
+			};
+
+			end += 2;
+			start = end;
+		} else {
+			end += utf8::runesz(r);
+		};
+	};
+
+	return target;
+};
+
+// Replaces all non-overlapping matches of a regular expression against a string
+// with 'targetstr'. 'targetstr' is isn't interpreted in any special way; all
+// backslashes are treated literally.
+export fn rawreplace(re: *regex, string: str, targetstr: str) str = {
+	const matches = findall(re, string);
+	if (len(matches) == 0) {
+		return strings::dup(string);
+	};
+	defer result_freeall(matches);
+
+	const target = strings::toutf8(targetstr);
+	const bytes = strings::toutf8(string);
+	let buf: []u8 = [];
+
+	append(buf, bytes[..matches[0][0].start_bytesize]...);
+	for (let i = 1z; i < len(matches); i += 1) {
+		append(buf, target...);
+		const start = matches[i - 1][0].end_bytesize;
+		const end = matches[i][0].start_bytesize;
+		append(buf, bytes[start..end]...);
+	};
+	append(buf, target...);
+	append(buf, bytes[matches[len(matches) - 1][0].end_bytesize..]...);
+
+	return strings::fromutf8(buf)!;
+};
+
 // Frees a [[result]].
 export fn result_free(s: result) void = {
 	free(s);
