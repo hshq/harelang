@@ -251,10 +251,14 @@ datetime() {
 		chronology.ha \
 		date.ha \
 		datetime.ha \
+		duration.ha \
 		format.ha \
 		parse.ha \
+		period.ha \
+		reckon.ha \
 		time.ha \
-		timezone.ha
+		timezone.ha \
+		virtual.ha
 	gen_ssa -pdarwin datetime ascii errors fmt io strconv strings strio \
 		time time::chrono
 }
@@ -1499,6 +1503,7 @@ time_chrono() {
 	gen_ssa -pfreebsd time::chrono \
 		bufio bytes encoding::utf8 endian errors fmt fs io os strconv strings time path
 	gen_srcs -pdarwin time::chrono \
+		arithmetic.ha \
 		+darwin.ha \
 		chronology.ha \
 		error.ha \
