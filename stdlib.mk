@@ -119,11 +119,11 @@ $(HARECACHE)/rt/cpuid_native.o: $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 
 $(HARECACHE)/rt/rt-linux.a: $(HARECACHE)/rt/rt-linux.o $(stdlib_asm)
-	@printf 'AS \t%s\n' "$@"
+	@printf 'AR \t%s\n' "$@"
 	@$(AR) -csr $@ $(HARECACHE)/rt/rt-linux.o $(stdlib_asm)
 
 $(HARECACHE)/rt/rt-freebsd.a: $(HARECACHE)/rt/rt-freebsd.o $(stdlib_asm)
-	@printf 'AS \t%s\n' "$@"
+	@printf 'AR \t%s\n' "$@"
 	@$(AR) -csr $@ $(HARECACHE)/rt/rt-freebsd.o $(stdlib_asm)
 
 stdlib_rt = $(HARECACHE)/rt/rt-$(PLATFORM).a
