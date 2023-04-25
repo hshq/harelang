@@ -60,13 +60,13 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFOR
 $(BINOUT)/hare: $(HARECACHE)/hare.o
 	@mkdir -p $(BINOUT)
 	@printf 'LD\t%s\n' "$@"
-	@$(LD) --gc-sections -T $(rtscript) -o $@ \
+	@$(LD) $(LDLINKFLAGS) --gc-sections -T $(rtscript) -o $@ \
 		$(HARECACHE)/hare.o $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM))
 
 $(BINOUT)/hare-tests: $(TESTCACHE)/hare.o
 	@mkdir -p $(BINOUT)
 	@printf 'LD\t%s\n' "$@"
-	@$(LD) -T $(rtscript) -o $@ \
+	@$(LD) $(LDLINKFLAGS) -T $(rtscript) -o $@ \
 		$(TESTCACHE)/hare.o $(testlib_deps_any) $(testlib_deps_$(PLATFORM))
 
 $(BINOUT)/harec2: $(BINOUT)/hare $(harec_srcs)
