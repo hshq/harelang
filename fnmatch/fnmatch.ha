@@ -8,7 +8,6 @@
 use ascii;
 use errors;
 use strings;
-use sort;
 
 // A set of flags that alter the matching behavior of [[fnmatch]]
 export type flags = enum uint {
@@ -53,21 +52,12 @@ export fn fnmatch(pattern: str, string: str, flag: flags...) bool = {
 	for (let i = 0z; i < len(flag); i += 1) {
 		fl |= flag[i];
 	};
-	if (fl & flags::PATHNAME != 0) {
-		match (fnmatch_pathname(pattern, string, fl)) {
-		case let b: bool =>
-			return b;
-		case =>
-			return false;
-		};
+	let b = if (fl & flags::PATHNAME != 0) {
+		yield fnmatch_pathname(pattern, string, fl);
 	} else {
-		match (fnmatch_internal(pattern, string, fl)) {
-		case let b: bool =>
-			return b;
-		case =>
-			return false;
-		};
+		yield fnmatch_internal(pattern, string, fl);
 	};
+	return b is bool && b: bool;
 };
 
 // Split the pattern and the string on every '/' and process each part
@@ -262,6 +252,7 @@ fn match_bracket(
 	if (first == ']') {
 		first = advance_or_err(it)?;
 	};
+
 	for (let r = first; true; r = advance_or_err(it)?) {
 		switch (r) {
 		case ']' =>
@@ -275,12 +266,13 @@ fn match_bracket(
 				found ||= (c == '-');
 				continue;
 			};
-			if (last is void) {
+			match (last) {
+			case void =>
 				return errors::invalid;
+			case let l: rune =>
+				found ||= (l: u32 <= c: u32 && c: u32 <= end: u32);
+				last = void; // forbid 'a-f-n'
 			};
-			let l = last: rune;
-			found ||= (l: u32 <= c: u32 && c: u32 <= end: u32);
-			last = void; // forbid 'a-f-n'
 		case '[' =>
 			let next_rune = advance_or_err(it)?;
 			switch (next_rune) { // TODO localization
@@ -301,12 +293,9 @@ fn match_bracket(
 	};
 
 	let cnt = len(strings::iterstr(&old)) - len(strings::iterstr(it));
-	if (last is rune && first == last: rune && cnt >= 4) {
-		switch (first) {
-		case '=', '.', ':' =>
-			return errors::invalid;
-		case => void;
-		};
+	if (last is rune && first == last: rune && cnt >= 4
+			&& (first == '=' || first == '.' || first == ':')) {
+		return errors::invalid;
 	};
 	return found ^^ inv;
 };
@@ -324,21 +313,7 @@ fn match_ctype(it: *strings::iterator, c: rune) (bool | errors::invalid) = {
 		return errors::invalid;
 	};
 	let name = strings::sub(s, 0, i - 1);
-	match (ctype_name_to_func(name)) {
-	case null =>
-		return errors::invalid;
-	case let f: *fn(c: rune) bool =>
-		return f(c);
-	};
-};
-
-type funcmap = (str, *fn(c: rune) bool);
-
-fn cmp(a: const *void, b: const *void) int =
-	strings::compare((a: *funcmap).0, *(b: const *str));
-
-fn ctype_name_to_func(name: str) nullable *fn(c: rune) bool = {
-	const map: [_]funcmap = [
+	const map: [_](str, *fn(_: rune) bool) = [
 		("alnum", &ascii::isalnum), ("alpha", &ascii::isalpha),
 		("blank", &ascii::isblank), ("cntrl", &ascii::iscntrl),
 		("digit", &ascii::isdigit), ("graph", &ascii::isgraph),
@@ -346,12 +321,12 @@ fn ctype_name_to_func(name: str) nullable *fn(c: rune) bool = {
 		("punct", &ascii::ispunct), ("space", &ascii::isspace),
 		("upper", &ascii::isupper), ("xdigit",&ascii::isxdigit),
 	];
-	match (sort::search(map, size(funcmap), &name, &cmp)) {
-	case void =>
-		return null: nullable *fn(c: rune) bool;
-	case let ind: size =>
-		return map[ind].1;
+	for (let i = 0z; i < len(map); i += 1) {
+		if (map[i].0 == name) {
+			return map[i].1(c);
+		};
 	};
+	return errors::invalid;
 };
 
 fn pat_next(pat: *strings::iterator, fl: flags) (token | errors::invalid) = {
