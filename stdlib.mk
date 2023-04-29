@@ -3,7 +3,7 @@
 rtscript = $(STDLIB)/rt/hare.sc
 # rt (+linux)
 stdlib_rt_linux_srcs = \
-	$(STDLIB)/rt/+linux/abort.ha \
+	$(STDLIB)/rt/+linux/platform_abort.ha \
 	$(STDLIB)/rt/+linux/env.ha \
 	$(STDLIB)/rt/+linux/errno.ha \
 	$(STDLIB)/rt/+linux/types.ha \
@@ -33,7 +33,7 @@ stdlib_rt_linux_srcs = \
 
 # rt (+freebsd)
 stdlib_rt_freebsd_srcs = \
-	$(STDLIB)/rt/+freebsd/abort.ha \
+	$(STDLIB)/rt/+freebsd/platform_abort.ha \
 	$(STDLIB)/rt/+freebsd/env.ha \
 	$(STDLIB)/rt/+freebsd/errno.ha \
 	$(STDLIB)/rt/+freebsd/platformstart.ha \
@@ -2213,7 +2213,7 @@ $(HARECACHE)/uuid/uuid-any.ssa: $(stdlib_uuid_any_srcs) $(stdlib_rt) $(stdlib_cr
 
 # rt (+linux)
 testlib_rt_linux_srcs = \
-	$(STDLIB)/rt/+linux/abort.ha \
+	$(STDLIB)/rt/+linux/platform_abort.ha \
 	$(STDLIB)/rt/+linux/env.ha \
 	$(STDLIB)/rt/+linux/errno.ha \
 	$(STDLIB)/rt/+linux/types.ha \
@@ -2248,7 +2248,7 @@ testlib_rt_linux_srcs = \
 
 # rt (+freebsd)
 testlib_rt_freebsd_srcs = \
-	$(STDLIB)/rt/+freebsd/abort.ha \
+	$(STDLIB)/rt/+freebsd/platform_abort.ha \
 	$(STDLIB)/rt/+freebsd/env.ha \
 	$(STDLIB)/rt/+freebsd/errno.ha \
 	$(STDLIB)/rt/+freebsd/platformstart.ha \

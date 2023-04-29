@@ -19,7 +19,7 @@ freebsd"
 
 gensrcs_rt() {
 	gen_srcs -plinux rt \
-		+linux/abort.ha \
+		+linux/platform_abort.ha \
 		+linux/env.ha \
 		+linux/errno.ha \
 		+linux/types.ha \
@@ -46,7 +46,7 @@ gensrcs_rt() {
 		strcmp.ha \
 		$*
 	gen_srcs -pfreebsd rt \
-		+freebsd/abort.ha \
+		+freebsd/platform_abort.ha \
 		+freebsd/env.ha \
 		+freebsd/errno.ha \
 		+freebsd/platformstart.ha \
