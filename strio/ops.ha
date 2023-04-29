@@ -68,6 +68,32 @@ export fn join(out: io::handle, delim: str, strs: str...) (size | io::error) = {
 	};
 };
 
+// Appends zero or more strings to an [[io::handle]], in reverse order. The
+// output needn't be a strio stream, but it's generally more efficient if it is.
+// Returns the number of bytes written, or an error.
+export fn rconcat(out: io::handle, strs: str...) (size | io::error) =
+	rjoin(out, "", strs...);
+
+@test fn rconcat() void = {
+	let st = dynamic();
+	defer io::close(&st)!;
+	let tests: [_]([]str, str) = [
+		([], ""),
+		([""], ""),
+		(["", ""], ""),
+		(["hello"], "hello"),
+		(["hello", " ", "world"], "world hello"),
+		(["", "hello", " ", "world"], "world hello"),
+		(["hello", " ", "world", ""], "world hello"),
+		(["hello", "", " ", "world"], "world hello")
+	];
+	for (let i = 0z; i < len(tests); i += 1) {
+		let ln = rconcat(&st, tests[i].0...) as size;
+		assert(ln == len(tests[i].1) && string(&st) == tests[i].1);
+		truncate(&st);
+	};
+};
+
 // Joins several strings together by a delimiter and writes them to a handle, in
 // reverse order. The output needn't be a strio stream, but it's generally more
 // efficient if it is. Returns the number of bytes written, or an error.
@@ -76,7 +102,7 @@ export fn rjoin(out: io::handle, delim: str, strs: str...) (size | io::error) = 
 	let delim = strings::toutf8(delim);
 	for (let i = len(strs); i > 0; i -= 1) {
 		n += io::writeall(out, strings::toutf8(strs[i - 1]))?;
-		if (i - 1 > 0) {
+		if (len(delim) != 0 && i - 1 > 0) {
 			n += io::writeall(out, delim)?;
 		};
 	};
