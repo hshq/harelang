@@ -197,25 +197,33 @@ fn scan_int(iter: *strings::iterator, n: size, pad: bool) (int | failure) = {
 // 	Z
 // 	z
 // 	+nn:nn
+// 	+nnnn
 // 	-nn:nn
+// 	-nnnn
 //
 fn scan_zo(iter: *strings::iterator) (time::duration | failure) = {
-	const rest = strings::iterstr(iter);
-	if (strings::hasprefix(rest, 'Z') || strings::hasprefix(rest, 'z')) {
+	const r = match (strings::next(iter)) {
+	case void =>
+		return failure;
+	case let r: rune =>
+		yield r;
+	};
+	if (r == 'Z' || r == 'z') {
 		return 0;
-	} else {
-		const prefix = strings::next(iter);
-		let zo = scan_int(iter, 2, false)? * time::HOUR;
-		const rest = strings::iterstr(iter);
-		if (strings::hasprefix(rest, ":")) {
+	};
+	let zo = scan_int(iter, 2, false)? * time::HOUR;
+	match (strings::next(iter)) {
+	case void => void;
+	case let r: rune =>
+		if (r == ':') {
 			strings::next(iter);
 		};
-		zo += scan_int(iter, 2, false)? * time::MINUTE;
-		if (prefix == '-') {
-			zo *= -1;
-		};
-		return zo;
 	};
+	zo += scan_int(iter, 2, false)? * time::MINUTE;
+	if (r == '-') {
+		zo *= -1;
+	};
+	return zo;
 };
 
 // Scans and parses locality names, made of printable characters.
@@ -362,6 +370,10 @@ fn scan_str(iter: *strings::iterator) (str | failure) = {
 
 	let v = newvirtual();
 	assert(parse(&v, "%z", "+0100") is void              , "%z: parsefail");
+	assert(v.zoff is i64                                 , "%z: void");
+	assert(v.zoff as i64 == 1 * time::HOUR               , "%z: incorrect");
+	let v = newvirtual();
+	assert(parse(&v, "%z", "+01:00") is void             , "%z: parsefail");
 	assert(v.zoff is i64                                 , "%z: void");
 	assert(v.zoff as i64 == 1 * time::HOUR               , "%z: incorrect");
 
