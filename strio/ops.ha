@@ -20,9 +20,21 @@ export fn concat(out: io::handle, strs: str...) (size | io::error) = {
 @test fn concat() void = {
 	let st = dynamic();
 	defer io::close(&st)!;
-	concat(&st, "hello") as size;
-	concat(&st, " ", "world") as size;
-	assert(string(&st) == "hello world");
+	let tests: [_]([]str, str) = [
+		([], ""),
+		([""], ""),
+		(["", ""], ""),
+		(["hello"], "hello"),
+		(["hello", " ", "world"], "hello world"),
+		(["", "hello", " ", "world"], "hello world"),
+		(["hello", " ", "world", ""], "hello world"),
+		(["hello", "", " ", "world"], "hello world")
+	];
+	for (let i = 0z; i < len(tests); i += 1) {
+		let ln = concat(&st, tests[i].0...) as size;
+		assert(ln == len(tests[i].1) && string(&st) == tests[i].1);
+		truncate(&st);
+	};
 };
 
 // Joins several strings together by a delimiter and writes them to a handle.
@@ -43,14 +55,22 @@ export fn join(out: io::handle, delim: str, strs: str...) (size | io::error) = {
 @test fn join() void = {
 	let st = dynamic();
 	defer io::close(&st)!;
-	join(&st, "::", "hello", "world") as size;
-	assert(string(&st) == "hello::world");
-	truncate(&st);
-	join(&st, "::") as size;
-	assert(string(&st) == "");
-	truncate(&st);
-	join(&st, "::", "foo") as size;
-	assert(string(&st) == "foo");
+	let tests: [_](str, []str, str) = [
+		("::", [], ""),
+		("::", [""], ""),
+		("::", ["", ""], "::"),
+		("::", ["", "", ""], "::::"),
+		("::", ["hello"], "hello"),
+		("::", ["hello", "world"], "hello::world"),
+		("::", ["", "hello", "world"], "::hello::world"),
+		("::", ["hello", "world", ""], "hello::world::"),
+		("::", ["hello", "", "world"], "hello::::world"),
+	];
+	for (let i = 0z; i < len(tests); i += 1) {
+		let ln = join(&st, tests[i].0, tests[i].1...) as size;
+		assert(ln == len(tests[i].2) && string(&st) == tests[i].2);
+		truncate(&st);
+	};
 };
 
 // Joins several strings together by a delimiter and writes them to a handle, in
@@ -71,14 +91,22 @@ export fn rjoin(out: io::handle, delim: str, strs: str...) (size | io::error) = 
 @test fn rjoin() void = {
 	let st = dynamic();
 	defer io::close(&st)!;
-	rjoin(&st, "::", "hello", "world") as size;
-	assert(string(&st) == "world::hello");
-	truncate(&st);
-	rjoin(&st, "::") as size;
-	assert(string(&st) == "");
-	truncate(&st);
-	rjoin(&st, "::", "foo") as size;
-	assert(string(&st) == "foo");
+	let tests: [_](str, []str, str) = [
+		("::", [], ""),
+		("::", [""], ""),
+		("::", ["", ""], "::"),
+		("::", ["", "", ""], "::::"),
+		("::", ["hello"], "hello"),
+		("::", ["hello", "world"], "world::hello"),
+		("::", ["", "hello", "world"], "world::hello::"),
+		("::", ["hello", "world", ""], "::world::hello"),
+		("::", ["hello", "", "world"], "world::::hello"),
+	];
+	for (let i = 0z; i < len(tests); i += 1) {
+		let ln = rjoin(&st, tests[i].0, tests[i].1...) as size;
+		assert(ln == len(tests[i].2) && string(&st) == tests[i].2);
+		truncate(&st);
+	};
 };
 
 // Appends a rune to a stream.
