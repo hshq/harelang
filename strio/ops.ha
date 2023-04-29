@@ -9,13 +9,8 @@ use strings;
 // Appends zero or more strings to an [[io::handle]]. The output needn't be a
 // strio stream, but it's generally more efficient if it is. Returns the number
 // of bytes written, or an error.
-export fn concat(out: io::handle, strs: str...) (size | io::error) = {
-	let n = 0z;
-	for (let i = 0z; i < len(strs); i += 1) {
-		n += io::writeall(out, strings::toutf8(strs[i]))?;
-	};
-	return n;
-};
+export fn concat(out: io::handle, strs: str...) (size | io::error) =
+	join(out, "", strs...);
 
 @test fn concat() void = {
 	let st = dynamic();
@@ -45,7 +40,7 @@ export fn join(out: io::handle, delim: str, strs: str...) (size | io::error) = {
 	let delim = strings::toutf8(delim);
 	for (let i = 0z; i < len(strs); i += 1) {
 		n += io::writeall(out, strings::toutf8(strs[i]))?;
-		if (i + 1 < len(strs)) {
+		if (len(delim) != 0 && i + 1 < len(strs)) {
 			n += io::writeall(out, delim)?;
 		};
 	};
