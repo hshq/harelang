@@ -1265,7 +1265,7 @@ os() {
 		+linux/fs.ha \
 		+linux/memory.ha \
 		+linux/stdfd.ha \
-		fs.ha
+		os.ha
 	gen_ssa -plinux os io strings types fs encoding::utf8 bytes bufio errors
 
 	gen_srcs -pfreebsd os \
@@ -1274,7 +1274,7 @@ os() {
 		+freebsd/dirfdfs.ha \
 		+freebsd/stdfd.ha \
 		+freebsd/fs.ha \
-		fs.ha
+		os.ha
 	gen_ssa -pfreebsd os io strings types fs encoding::utf8 bytes bufio errors
 
 	gen_srcs -pdarwin os \
