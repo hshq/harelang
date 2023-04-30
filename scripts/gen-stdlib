@@ -1283,7 +1283,7 @@ os() {
 		+darwin/dirfdfs.ha \
 		+darwin/stdfd.ha \
 		+darwin/fs.ha \
-		fs.ha
+		os.ha
 	gen_ssa -pdarwin os io strings types fs encoding::utf8 bytes bufio errors
 }
 

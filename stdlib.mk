@@ -2130,7 +2130,7 @@ stdlib_os_darwin_srcs = \
 	$(STDLIB)/os/+darwin/dirfdfs.ha \
 	$(STDLIB)/os/+darwin/stdfd.ha \
 	$(STDLIB)/os/+darwin/fs.ha \
-	$(STDLIB)/os/fs.ha
+	$(STDLIB)/os/os.ha
 
 $(HARECACHE)/os/os-darwin.ssa: $(stdlib_os_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -4870,7 +4870,7 @@ testlib_os_darwin_srcs = \
 	$(STDLIB)/os/+darwin/dirfdfs.ha \
 	$(STDLIB)/os/+darwin/stdfd.ha \
 	$(STDLIB)/os/+darwin/fs.ha \
-	$(STDLIB)/os/fs.ha
+	$(STDLIB)/os/os.ha
 
 $(TESTCACHE)/os/os-darwin.ssa: $(testlib_os_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
