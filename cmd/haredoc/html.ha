@@ -271,12 +271,22 @@ fn tocentry(out: io::handle, decl: ast::decl) (void | error) = {
 	case let t: []ast::decl_type => void;
 	case let g: []ast::decl_global =>
 		let g = g[0];
-		fmt::fprint(out, ": ")?;
-		type_html(out, 0, g._type, true)?;
+		match (g._type) {
+		case null =>
+			yield;
+		case let ty: *ast::_type =>
+			fmt::fprint(out, ": ")?;
+			type_html(out, 0, *ty, true)?;
+		};
 	case let c: []ast::decl_const =>
 		let c = c[0];
-		fmt::fprint(out, ": ")?;
-		type_html(out, 0, c._type, true)?;
+		match (c._type) {
+		case null =>
+			yield;
+		case let ty: *ast::_type =>
+			fmt::fprint(out, ": ")?;
+			type_html(out, 0, *ty, true)?;
+		};
 	case let f: ast::decl_func =>
 		prototype_html(out, 0,
 			f.prototype.repr as ast::func_type,
@@ -444,8 +454,13 @@ fn unparse_html(out: io::handle, d: ast::decl) (size | io::error) = {
 		n += fmt::fprintf(out, "<span class='keyword'>def</span> ")?;
 		for (let i = 0z; i < len(c); i += 1) {
 			n += unparse::ident(out, c[i].ident)?;
-			n += fmt::fprint(out, ": ")?;
-			n += type_html(out, 0, c[i]._type, false)?;
+			match (c[i]._type) {
+			case null =>
+				yield;
+			case let ty: *ast::_type =>
+				n += fmt::fprint(out, ": ")?;
+				n += type_html(out, 0, *ty, false)?;
+			};
 			if (i + 1 < len(c)) {
 				n += fmt::fprint(out, ", ")?;
 			};
@@ -455,8 +470,13 @@ fn unparse_html(out: io::handle, d: ast::decl) (size | io::error) = {
 			if (g[0].is_const) "const " else "let ")?;
 		for (let i = 0z; i < len(g); i += 1) {
 			n += unparse::ident(out, g[i].ident)?;
-			n += fmt::fprint(out, ": ")?;
-			n += type_html(out, 0, g[i]._type, false)?;
+			match (g[i]._type) {
+			case null =>
+				yield;
+			case let ty: *ast::_type =>
+				n += fmt::fprint(out, ": ")?;
+				n += type_html(out, 0, *ty, false)?;
+			};
 			if (i + 1 < len(g)) {
 				n += fmt::fprint(out, ", ")?;
 			};

@@ -159,9 +159,14 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 			};
 			n += render(out, syn::GLOBAL)?;
 			n += unparse::ident(out, g[i].ident)?;
-			n += render(out, syn::PUNCTUATION)?;
-			n += fmt::fprint(out, ": ")?;
-			n += type_tty(out, 0, g[i]._type)?;
+			match (g[i]._type) {
+			case null =>
+				yield;
+			case let ty: *ast::_type =>
+				n += render(out, syn::PUNCTUATION)?;
+				n += fmt::fprint(out, ": ")?;
+				n += type_html(out, 0, *ty, false)?;
+			};
 			if (i + 1 < len(g)) {
 				n += render(out, syn::PUNCTUATION)?;
 				n += fmt::fprint(out, ", ")?;
@@ -175,8 +180,14 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 			n += render(out, syn::CONSTANT)?;
 			n += unparse::ident(out, c[i].ident)?;
 			n += render(out, syn::PUNCTUATION)?;
-			n += fmt::fprint(out, ": ")?;
-			n += type_tty(out, 0, c[i]._type)?;
+			match (c[i]._type) {
+			case null =>
+				yield;
+			case let ty: *ast::_type =>
+				n += render(out, syn::PUNCTUATION)?;
+				n += fmt::fprint(out, ": ")?;
+				n += type_html(out, 0, *ty, false)?;
+			};
 			if (i + 1 < len(c)) {
 				n += render(out, syn::PUNCTUATION)?;
 				n += fmt::fprint(out, ", ")?;

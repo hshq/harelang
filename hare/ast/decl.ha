@@ -8,7 +8,7 @@ use hare::lex;
 // 	def foo: int = 0;
 export type decl_const = struct {
 	ident: ident,
-	_type: _type,
+	_type: nullable *_type,
 	init: *expr,
 };
 
@@ -21,7 +21,7 @@ export type decl_global = struct {
 	is_threadlocal: bool,
 	symbol: str,
 	ident: ident,
-	_type: _type,
+	_type: nullable *_type,
 	init: nullable *expr,
 };
 

@@ -24,8 +24,13 @@ export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 		n += fmt::fprint(out, "def ")?;
 		for (let i = 0z; i < len(c); i += 1) {
 			n += ident(out, c[i].ident)?;
-			n += fmt::fprint(out, ": ")?;
-			n += _type(out, 0, c[i]._type)?;
+			match (c[i]._type) {
+			case null =>
+				yield;
+			case let ty: *ast::_type =>
+				n += fmt::fprint(out, ": ")?;
+				n += _type(out, 0, *ty)?;
+			};
 			n += fmt::fprint(out, " = ")?;
 			n += expr(out, 0, *c[i].init)?;
 			if (i + 1 < len(c)) {
@@ -43,8 +48,13 @@ export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 				n += fmt::fprintf(out, "@threadlocal ")?;
 			};
 			n += ident(out, g[i].ident)?;
-			n += fmt::fprint(out, ": ")?;
-			n += _type(out, 0, g[i]._type)?;
+			match (g[i]._type) {
+			case null =>
+				yield;
+			case let ty: *ast::_type =>
+				n += fmt::fprint(out, ": ")?;
+				n += _type(out, 0, *ty)?;
+			};
 			match (g[i].init) {
 			case null => void;
 			case let ex: *ast::expr =>
@@ -171,7 +181,7 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 				is_threadlocal = false,
 				symbol = "",
 				ident = ["foo", "bar"],
-				_type = type_int,
+				_type = &type_int,
 				init = alloc(expr_void),
 			},
 			ast::decl_global {
@@ -179,7 +189,7 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 				is_threadlocal = true,
 				symbol = "",
 				ident = ["boo"],
-				_type = type_int,
+				_type = &type_int,
 				init = alloc(expr_void),
 			},
 			ast::decl_global {
@@ -187,7 +197,7 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 				is_threadlocal = false,
 				symbol = "foobar",
 				ident = ["baz"],
-				_type = type_int,
+				_type = &type_int,
 				init = alloc(expr_void),
 			},
 		],
@@ -199,7 +209,7 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 	d.decl = [
 		ast::decl_const {
 			ident = ["foo"],
-			_type = type_int,
+			_type = &type_int,
 			init = alloc(expr_void),
 		},
 	];
