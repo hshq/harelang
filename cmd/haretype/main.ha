@@ -36,8 +36,8 @@ fn typeinfo(
 		if (hatype.sz == types::SIZE_UNDEFINED) "undefined"
 		else hatype.sz)?;
 	fmt::println("\talign:",
-		if (hatype.align == types::SIZE_UNDEFINED) "undefined"
-		else hatype.align)?;
+		if (hatype._align == types::SIZE_UNDEFINED) "undefined"
+		else hatype._align)?;
 };
 
 export fn main() void = {

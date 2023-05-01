@@ -135,8 +135,13 @@ fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 					"@symbol(\"{}\") ", g[i].symbol)?;
 			};
 			n += unparse::ident(out, g[i].ident)?;
-			n += fmt::fprint(out, ": ")?;
-			n += unparse::_type(out, 0, g[i]._type)?;
+			match (g[i]._type) {
+			case null =>
+				yield;
+			case let ty: *ast::_type =>
+				n += fmt::fprint(out, ": ")?;
+				n += unparse::_type(out, 0, *ty)?;
+			};
 			if (i + 1 < len(g)) {
 				n += fmt::fprint(out, ", ")?;
 			};
@@ -156,7 +161,13 @@ fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 		for (let i = 0z; i < len(c); i += 1) {
 			n += unparse::ident(out, c[i].ident)?;
 			n += fmt::fprint(out, ": ")?;
-			n += unparse::_type(out, 0, c[i]._type)?;
+			match (c[i]._type) {
+			case null =>
+				yield;
+			case let ty: *ast::_type =>
+				n += fmt::fprint(out, ": ")?;
+				n += unparse::_type(out, 0, *ty)?;
+			};
 			if (i + 1 < len(c)) {
 				n += fmt::fprint(out, ", ")?;
 			};

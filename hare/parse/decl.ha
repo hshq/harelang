@@ -36,8 +36,13 @@ fn decl_const(
 	let decl: []ast::decl_const = [];
 	for (true) {
 		const ident = ident(lexer)?;
-		want(lexer, ltok::COLON)?;
-		const _type = _type(lexer)?;
+		const _type: nullable *ast::_type =
+			match (try(lexer, ltok::COLON)?) {
+			case lex::token =>
+				yield alloc(_type(lexer)?);
+			case void =>
+				yield null;
+			};
 		want(lexer, ltok::EQUAL)?;
 		const init: *ast::expr = alloc(expr(lexer)?);
 		append(decl, ast::decl_const {
@@ -72,8 +77,13 @@ fn decl_global(
 			};
 		};
 		const ident = ident(lexer)?;
-		want(lexer, ltok::COLON)?;
-		const _type = _type(lexer)?;
+		const _type: nullable *ast::_type =
+			match (try(lexer, ltok::COLON)?) {
+			case lex::token =>
+				yield alloc(_type(lexer)?);
+			case void =>
+				yield null;
+			};
 		const init: nullable *ast::expr =
 			match (try(lexer, ltok::EQUAL)?) {
 			case lex::token =>
