@@ -17,8 +17,7 @@ def PADDING: u8 = '=';
 
 export type encoding = struct {
 	encmap: [64]u8,
-	decmap: [256]u8,
-	valid: [256]bool,
+	decmap: [128]u8,
 };
 
 // Represents the standard base-64 encoding alphabet as defined in RFC 4648.
@@ -32,13 +31,13 @@ export const url_encoding: encoding = encoding { ... };
 // 64-byte ASCII string.
 export fn encoding_init(enc: *encoding, alphabet: str) void = {
 	const alphabet = strings::toutf8(alphabet);
+	enc.decmap[..] = [-1...];
 	assert(len(alphabet) == 64);
 	for (let i: u8 = 0; i < 64; i += 1) {
 		const ch = alphabet[i];
-		assert(ascii::valid(ch: u32: rune));
+		assert(ascii::valid(ch: u32: rune) && enc.decmap[ch] == -1);
 		enc.encmap[i] = ch;
 		enc.decmap[ch] = i;
-		enc.valid[ch] = true;
 	};
 };
 
@@ -371,7 +370,7 @@ fn decode_reader(
 			};
 			np += 1;
 		} else {
-			if (!s.enc.valid[ch]) {
+			if (s.enc.decmap[ch] == -1) {
 				valid = false;
 				break;
 			};
@@ -533,5 +532,28 @@ export fn decode(
 
 		// Testing decodestr should cover decodeslice too
 		assert(decodestr(invalid[i].1, invalid[i].0) is errors::invalid);
+	};
+};
+
+// Given the length of the message, returns the size of its base64 encoding
+export fn encodedsize(sz: size) size = if (sz == 0) 0 else ((sz - 1)/ 3 + 1) * 4;
+
+// Given the size of base64 encoded data, returns maximal length of decoded message.
+// The message may be at most 2 bytes shorter than the returned value. Input
+// size must be a multiple of 4.
+export fn decodedsize(sz: size) size = {
+	assert(sz % 4 == 0);
+	return sz / 4 * 3;
+};
+
+@test fn sizecalc() void = {
+	let enc: [_](size, size) = [(1, 4), (2, 4), (3, 4), (4, 8), (10, 16),
+		(119, 160), (120, 160), (121, 164), (122, 164), (123, 164)
+	];
+	assert(encodedsize(0) == 0 && decodedsize(0) == 0);
+	for (let i = 0z; i < len(enc); i += 1) {
+		let (decoded, encoded) = enc[i];
+		assert(encodedsize(decoded) == encoded);
+		assert(decodedsize(encoded) == ((decoded - 1) / 3 + 1) * 3);
 	};
 };

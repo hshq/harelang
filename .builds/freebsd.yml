@@ -5,10 +5,11 @@ sources:
 - git://c9x.me/qbe.git
 packages:
 - binutils
+- scdoc
 tasks:
 - qbe: |
     cd qbe
-    make PREFIX=/usr
+    make -j2 PREFIX=/usr
     sudo make install PREFIX=/usr
 - harec: |
     mkdir harec/build
@@ -20,9 +21,10 @@ tasks:
     cd hare
     sed -e 's/linux/freebsd/g' < config.example.mk > config.mk
     make
+    sudo make install
 - tests: |
     cd hare
-    make .bin/hare-tests
+    make -j2 .bin/hare-tests
 - check: |
     cd hare
     make check

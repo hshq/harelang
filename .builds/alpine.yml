@@ -19,7 +19,7 @@ tasks:
     fi
 - qbe: |
     cd qbe
-    make PREFIX=/usr
+    make -j2 PREFIX=/usr
     sudo make install PREFIX=/usr
 - harec: |
     mkdir harec/build
@@ -34,7 +34,7 @@ tasks:
     sudo make install
 - tests: |
     cd hare
-    make .bin/hare-tests
+    make -j2 .bin/hare-tests
 - check: |
     cd hare
     make check
