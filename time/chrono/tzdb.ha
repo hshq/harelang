@@ -188,7 +188,6 @@ fn load_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 	case encoding::utf8::invalid =>
 		return invalidtzif;
 	});
-	defer free(posix_extend);
 
 	// assemble structured data
 
@@ -237,8 +236,6 @@ fn load_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 			return invalidtzif;
 		});
 		zone.abbr = strings::dup(abbr);
-		defer free(abbr);
-		defer free(zone.abbr);
 
 		append(zones, zone);
 	};
