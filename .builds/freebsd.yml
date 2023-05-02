@@ -5,6 +5,7 @@ sources:
 - git://c9x.me/qbe.git
 packages:
 - binutils
+- scdoc
 tasks:
 - qbe: |
     cd qbe
@@ -20,6 +21,7 @@ tasks:
     cd hare
     sed -e 's/linux/freebsd/g' < config.example.mk > config.mk
     make
+    sudo make install
 - tests: |
     cd hare
     make .bin/hare-tests
