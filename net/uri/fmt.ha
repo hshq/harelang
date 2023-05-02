@@ -99,9 +99,7 @@ fn percent_encode(out: io::handle, src: str, allowed: str) (size | io::error) = 
 		} else {
 			const en = utf8::encoderune(r);
 			for (let i = 0z; i < len(en); i += 1) {
-				n += fmt::fprintf(out, "%{}",
-					strconv::u8tosb(en[i],
-						strconv::base::HEX))?;
+				n += fmt::fprintf(out, "%{:X}", en[i])?;
 			};
 		};
 	};

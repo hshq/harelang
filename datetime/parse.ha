@@ -161,8 +161,7 @@ fn scan_for(iter: *strings::iterator, list: str...) (int | failure) = {
 // Returns the resulting int.
 // If pad is true, the number is right-padded with zeroes upto n digits.
 fn scan_int(iter: *strings::iterator, n: size, pad: bool) (int | failure) = {
-	let buf: [64]u8 = [0...];
-	let bufstr = strio::fixed(buf);
+	let copy = *iter;
 	for (let i = 0z; i < n; i += 1) {
 		let rn: rune = match (strings::next(iter)) {
 		case void =>
@@ -174,19 +173,14 @@ fn scan_int(iter: *strings::iterator, n: size, pad: bool) (int | failure) = {
 			strings::prev(iter);
 			break;
 		};
-		match (strio::appendrune(&bufstr, rn)) {
-		case io::error =>
-			return failure;
-		case =>
-			void;
-		};
 	};
-	const s = strings::padend(strio::string(&bufstr), '0', if (pad) n else 0);
-	defer free(s);
-
+	const s = strings::slice(&copy, iter);
 	match (strconv::stoi(s)) {
-	case let n: int =>
-		return n;
+	case let num: int =>
+		for (let i = 0z; i < n - len(s); i += 1) {
+			num *= 10;
+		};
+		return num;
 	case =>
 		return failure;
 	};
@@ -228,22 +222,19 @@ fn scan_zo(iter: *strings::iterator) (time::duration | failure) = {
 
 // Scans and parses locality names, made of printable characters.
 fn scan_str(iter: *strings::iterator) (str | failure) = {
-	static let buf: [64]u8 = [0...];
-	let bufstr = strio::fixed(buf);
+	let copy = *iter;
 	for (true) {
-		let rn: rune = match (strings::next(iter)) {
+		match (strings::next(iter)) {
 		case void =>
 			break;
 		case let rn: rune =>
-			yield rn;
+			if (!ascii::isgraph(rn)) {
+				strings::prev(iter);
+				break;
+			};
 		};
-		if (!ascii::isgraph(rn)) {
-			strings::prev(iter);
-			break;
-		};
-		strio::appendrune(&bufstr, rn)!;
 	};
-	return strio::string(&bufstr);
+	return strings::slice(&copy, iter);
 };
 
 @test fn parse() void = {

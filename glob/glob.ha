@@ -38,6 +38,7 @@ export type strstack = struct {
 };
 
 export type pattern = struct {
+	// TODO: look into working with a couple of string iterators instead
 	dir: strio::stream,
 	pat: strio::stream,
 	rem: strio::stream,
