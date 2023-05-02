@@ -38,6 +38,12 @@ tasks:
 - check: |
     cd hare
     make check
+- tests_with_libc: |
+    cd hare
+    hare test -T+libc -lc -o .bin/hare-tests-libc
+- check_with_libc: |
+    cd hare
+    .bin/hare-tests-libc
 - docs: |
     if [ $BUILD_SUBMITTER != "git.sr.ht" ]
     then

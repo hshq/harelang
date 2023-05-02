@@ -406,8 +406,7 @@ fn is_negative(n: types::numeric) bool = {
 };
 
 fn scan_uint(iter: *strings::iterator) uint = {
-	let num: []u8 = [];
-	defer free(num);
+	let copy = *iter;
 	for (true) {
 		let r = match (strings::next(iter)) {
 		case void =>
@@ -416,11 +415,9 @@ fn scan_uint(iter: *strings::iterator) uint = {
 			yield r;
 		};
 
-		if (ascii::isdigit(r)) {
-			append(num, r: u32: u8);
-		} else {
+		if (!ascii::isdigit(r)) {
 			strings::prev(iter);
-			match (strconv::stou(strings::fromutf8(num)!)) {
+			match (strconv::stou(strings::slice(&copy, iter))) {
 			case (strconv::invalid | strconv::overflow) =>
 				abort("Invalid format string (invalid index)");
 			case let u: uint =>

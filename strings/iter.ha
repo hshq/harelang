@@ -69,6 +69,16 @@ export fn iterstr(iter: *iterator) str = {
 	return fromutf8(iter.dec.src[iter.dec.offs..])!;
 };
 
+// Return a substring from the position of the first operator to the position of
+// the second iterator. The iterators must originate from the same string and
+// the position of the second iterator must not be before the position of the
+// first one.
+export fn slice(begin: *iterator, end: *iterator) str = {
+	assert(begin.dec.src: *[*]u8 == end.dec.src: *[*]u8
+		&& begin.dec.offs <= end.dec.offs);
+	return fromutf8_unsafe(begin.dec.src[begin.dec.offs..end.dec.offs]);
+};
+
 @test fn iter() void = {
 	let s = iter("こんにちは");
 	assert(prev(&s) is void);
@@ -108,4 +118,23 @@ export fn iterstr(iter: *iterator) str = {
 	};
 	assert(next(&s) is void);
 	assert(prev(&s) as rune == 'に');
+};
+
+@test fn slice() void = {
+	let s = iter("こんにちは");
+	let t = s;
+	assert(len(slice(&s, &t)) == 0 && len(slice(&t, &s)) == 0);
+	for (let i = 0; i < 2; i += 1) {
+		next(&s);
+		next(&t);
+	};
+	assert(len(slice(&s, &t)) == 0 && len(slice(&t, &s)) == 0);
+	for (let i = 0; i < 3; i += 1) {
+		next(&t);
+	};
+	assert(slice(&s, &t) == "にちは");
+	for (let i = 0; i < 3; i += 1) {
+		next(&s);
+	};
+	assert(len(slice(&s, &t)) == 0 && len(slice(&t, &s)) == 0);
 };

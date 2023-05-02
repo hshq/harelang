@@ -162,9 +162,10 @@ fn bcrypt(password: []u8, salt: []u8, cost: uint) ([]u8 | errors::invalid) = {
 	defer free(state);
 
 	let bf = expensive_blowfish(password, salt, cost)?;
+	defer free(bf);
 	for (let i = 0; i < 24; i += 8) {
 		for (let j = 0; j < 64; j += 1) {
-			cipher::encrypt(&bf, state[i..i+8], state[i..i+8]);
+			cipher::encrypt(bf, state[i..i+8], state[i..i+8]);
 		};
 	};
 
@@ -177,7 +178,7 @@ fn expensive_blowfish(
 	key: []u8,
 	salt: []u8,
 	cost: uint,
-) (blowfish::state | errors::invalid) = {
+) (*blowfish::state | errors::invalid) = {
 	let csalt = b64_decode(salt)?;
 	defer free(csalt);
 
@@ -187,13 +188,13 @@ fn expensive_blowfish(
 	append(ckey, 0);
 	defer free(ckey);
 
-	const bf = blowfish::new();
-	blowfish::init_salt(&bf, ckey, csalt);
+	const bf = alloc(blowfish::new());
+	blowfish::init_salt(bf, ckey, csalt);
 
 	let rounds: u64 = 1u64 << cost;
 	for (let i = 0u64; i < rounds; i += 1) {
-		blowfish::init(&bf, ckey);
-		blowfish::init(&bf, csalt);
+		blowfish::init(bf, ckey);
+		blowfish::init(bf, csalt);
 	};
 
 	return bf;

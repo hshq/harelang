@@ -141,13 +141,9 @@ export fn new(
 		0, 0, 0, 0, // hour min sec nsec
 	];
 
-	if (len(fields) > len(_fields)) {
-		abort("datetime::new(): Too many field arguments");
-	};
-
-	for (let i = 0z; i < len(fields); i += 1) {
-		_fields[i] = fields[i];
-	};
+	assert(len(fields) <= len(_fields),
+			"datetime::new(): Too many field arguments");
+	_fields[..len(fields)] = fields;
 
 	const year  = _fields[0];
 	const month = _fields[1];

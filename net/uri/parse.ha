@@ -106,11 +106,11 @@ export fn parse(in: str) (uri | invalid) = {
 };
 
 fn parse_scheme(in: *strings::iterator) (str | invalid) = {
-	let buf = strio::dynamic();
-
+	let copy = *in;
 	for (let i = 0z; true; i += 1) {
 		const r = wantrune(in)?;
 		if (i > 0 && r == ':') {
+			strings::prev(in);
 			break;
 		};
 		if (i == 0) {
@@ -122,10 +122,10 @@ fn parse_scheme(in: *strings::iterator) (str | invalid) = {
 				return invalid;
 			};
 		};
-		strio::appendrune(&buf, r)!;
 	};
-
-	return strio::string(&buf);
+	let s = strings::dup(strings::slice(&copy, in));
+	strings::next(in);
+	return s;
 };
 
 fn parse_authority(
@@ -219,9 +219,7 @@ type path_mode = enum {
 };
 
 fn parse_path(in: *strings::iterator, mode: path_mode) (str | invalid) = {
-	let buf = strio::dynamic();
-	defer io::close(&buf)!;
-
+	let copy = *in;
 	// With rootless path, we need at least one segment
 	if (mode == path_mode::ROOTLESS) {
 		for (let i = 0z; true; i += 1) {
@@ -235,14 +233,12 @@ fn parse_path(in: *strings::iterator, mode: path_mode) (str | invalid) = {
 					if (i == 0) {
 						return invalid;
 					} else {
-						strio::appendrune(&buf, '/')!;
 						break;
 					};
 				};
 				if (!is_pchar(r)) {
 					return invalid;
 				};
-				strio::appendrune(&buf, r)!;
 			case void =>
 				break;
 			};
@@ -259,18 +255,16 @@ fn parse_path(in: *strings::iterator, mode: path_mode) (str | invalid) = {
 			if (!is_pchar(r) && r != '/') {
 				return invalid;
 			};
-			strio::appendrune(&buf, r)!;
 		case void =>
 			break;
 		};
 	};
 
-	return percent_decode(strio::string(&buf));
+	return percent_decode(strings::slice(&copy, in));
 };
 
 fn parse_query(in: *strings::iterator) (str | invalid) = {
-	let buf = strio::dynamic();
-
+	let copy = *in;
 	for (true) {
 		match (strings::next(in)) {
 		case let r: rune =>
@@ -281,37 +275,31 @@ fn parse_query(in: *strings::iterator) (str | invalid) = {
 			if (!is_pchar(r) && r != '/' && r != '?') {
 				return invalid;
 			};
-			strio::appendrune(&buf, r)!;
 		case void =>
 			break;
 		};
 	};
-
-	return strio::string(&buf);
+	return strings::dup(strings::slice(&copy, in));
 };
 
 fn parse_fragment(in: *strings::iterator) (str | invalid) = {
-	let buf = strio::dynamic();
-	defer io::close(&buf)!;
-
+	let copy = *in;
 	for (true) {
 		match (strings::next(in)) {
 		case let r: rune =>
 			if (!is_pchar(r) && r != '/' && r != '?') {
 				return invalid;
 			};
-			strio::appendrune(&buf, r)!;
 		case void =>
 			break;
 		};
 	};
 
-	return percent_decode(strio::string(&buf))?;
+	return percent_decode(strings::slice(&copy, in))?;
 };
 
 fn parse_port(in: *strings::iterator) (u16 | invalid) = {
-	let buf = strio::dynamic();
-	defer io::close(&buf)!;
+	let copy = *in;
 	for (true) {
 		const r = match (strings::next(in)) {
 		case let r: rune =>
@@ -324,10 +312,9 @@ fn parse_port(in: *strings::iterator) (u16 | invalid) = {
 			strings::prev(in);
 			break;
 		};
-		strio::appendrune(&buf, r)!;
 	};
 
-	match (strconv::stou16(strio::string(&buf))) {
+	match (strconv::stou16(strings::slice(&copy, in))) {
 	case let port: u16 =>
 		if (port == 0) {
 			// There's no port 0
