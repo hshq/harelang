@@ -41,7 +41,7 @@ export fn derivekey(
 	mem: (u32 | []u64),
 	passes: u32,
 ) (void | errors::nomem) = {
-	const config = argon2::config {
+	const config = argon2::conf {
 		mem = mem,
 		parallel = 1,
 		passes = passes + 3,

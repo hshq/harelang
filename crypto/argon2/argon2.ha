@@ -54,7 +54,7 @@ type mode = enum {
 // blocks, and must be a multiple of [[BLOCKSIZE]]. To have the implementation
 // allocate 64 KiB, set 'mem' to 64. To use the same amount of caller-provided
 // memory, provide a slice of length 64 * [[BLOCKSIZE]].
-export type config = struct {
+export type conf = struct {
 	mem: (u32 | []u64),
 	parallel: u32,
 	passes: u32,
@@ -66,7 +66,7 @@ export type config = struct {
 // The default recommended configuration for most use cases. This configuration
 // uses 2 GiB of working memory. A 16-byte 'salt' and 32-byte 'dest' parameter
 // is recommended in combination with this configuration.
-export const default_config: config = config {
+export const default_conf: conf = conf {
 	mem = 2 * 1024 * 1024,
 	passes = 1,
 	parallel = 4,
@@ -77,7 +77,7 @@ export const default_config: config = config {
 // The default recommended configuration for memory-constrained use cases. This
 // configuration uses 64 MiB of working memory. A 16-byte 'salt' and 32-byte
 // 'dest' parameter is recommended in combination with this configuration.
-export const low_mem_config: config = config {
+export const low_mem_conf: conf = conf {
 	mem = 64 * 1024,
 	passes = 3,
 	parallel = 4,
@@ -106,7 +106,7 @@ export fn argon2d(
 	dest: []u8,
 	password: []u8,
 	salt: []u8,
-	cfg: *config,
+	cfg: *conf,
 ) (void | nomem) = {
 	return argon2(dest, password, salt, cfg, mode::D);
 };
@@ -122,7 +122,7 @@ export fn argon2i(
 	dest: []u8,
 	password: []u8,
 	salt: []u8,
-	cfg: *config,
+	cfg: *conf,
 ) (void | nomem) = {
 	return argon2(dest, password, salt, cfg, mode::I);
 };
@@ -140,7 +140,7 @@ export fn argon2id(
 	dest: []u8,
 	password: []u8,
 	salt: []u8,
-	cfg: *config,
+	cfg: *conf,
 ) (void | nomem) = {
 	return argon2(dest, password, salt, cfg, mode::ID);
 };
@@ -149,7 +149,7 @@ fn argon2(
 	dest: []u8,
 	password: []u8,
 	salt: []u8,
-	cfg: *config,
+	cfg: *conf,
 	mode: mode,
 ) (void | nomem) = {
 	assert(endian::host == &endian::little, "TODO big endian support");
@@ -249,7 +249,7 @@ fn blocku8(ctx: *context, i: size, j: size) []u8 = {
 	return (block(ctx, i, j): *[*]u8)[..BLOCKSIZE * size(u64)];
 };
 
-fn refblock(cfg: *config, ctx: *context, seed: u64, i: size, j: size) []u64 = {
+fn refblock(cfg: *conf, ctx: *context, seed: u64, i: size, j: size) []u64 = {
 	const segstart = (j - (j % ctx.sliceblocks)) / ctx.sliceblocks;
 	const index = j % ctx.sliceblocks;
 
@@ -291,7 +291,7 @@ fn inithash(
 	taglen: u32,
 	password: []u8,
 	salt: []u8,
-	cfg: *config,
+	cfg: *conf,
 	mode: mode,
 	memsize: u32,
 ) void = {
@@ -384,7 +384,7 @@ fn xorblock(dest: []u64, x: []u64, y: []u64) void = {
 		(y: *[*]u8)[..len(dest) * size(u64)]);
 };
 
-fn segproc(cfg: *config, ctx: *context, i: size, slice: size) void = {
+fn segproc(cfg: *conf, ctx: *context, i: size, slice: size) void = {
 	const init = switch (ctx.mode) {
 	case mode::I =>
 		yield true;
