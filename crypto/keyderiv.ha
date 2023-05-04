@@ -31,7 +31,7 @@ use crypto::argon2;
 // If you have reached the maximum amount of memory you are able to use,
 // increase passes.
 //
-// The current implementation of this function uses argon2i version 1.3 with the
+// The current implementation of this function uses argon2id version 1.3 with the
 // provided number of memory blocks, passes equal to passes + 3, and parallelism
 // set to one.
 export fn derivekey(
