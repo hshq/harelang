@@ -12,10 +12,10 @@ returned. This implementation computes matches in linear time.
 
 	assert(regex::test(&re, "Let's all love Harriet and Hare"));
 
-	// {"Harriet", "riet"}
 	const result = regex::find(&re, "Let's all love Harriet and Hare");
+	// -> {"Harriet", "riet"}
 	defer regex::result_free(result);
 
-	// {{"Harriet", "riet"}, {"Hare", "e"}}
 	const results = regex::findall(&re, "Let's all love Harriet and Hare");
+	// -> {{"Harriet", "riet"}, {"Hare", "e"}}
 	defer regex::result_freeall(results);
