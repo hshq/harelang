@@ -51,7 +51,7 @@ export def U64_MIN: u64 = 0;
 // Maximum value which can be stored in a u64 type.
 export def U64_MAX: u64 = 18446744073709551615;
 
-// Maximum value which can be stored in a rune.
+// Minimum value which can be stored in a rune.
 export def RUNE_MIN: rune = U32_MIN: rune;
 
 // Maximum value which can be stored in a rune.

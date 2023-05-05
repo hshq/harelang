@@ -1,4 +1,3 @@
-// License: MPL-2.0
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021-2022 Armin Preiml <apreiml@strohwolke.at>
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
@@ -55,7 +54,7 @@ type mode = enum {
 // blocks, and must be a multiple of [[BLOCKSIZE]]. To have the implementation
 // allocate 64 KiB, set 'mem' to 64. To use the same amount of caller-provided
 // memory, provide a slice of length 64 * [[BLOCKSIZE]].
-export type config = struct {
+export type conf = struct {
 	mem: (u32 | []u64),
 	parallel: u32,
 	passes: u32,
@@ -67,7 +66,7 @@ export type config = struct {
 // The default recommended configuration for most use cases. This configuration
 // uses 2 GiB of working memory. A 16-byte 'salt' and 32-byte 'dest' parameter
 // is recommended in combination with this configuration.
-export const default_config: config = config {
+export const default_conf: conf = conf {
 	mem = 2 * 1024 * 1024,
 	passes = 1,
 	parallel = 4,
@@ -78,7 +77,7 @@ export const default_config: config = config {
 // The default recommended configuration for memory-constrained use cases. This
 // configuration uses 64 MiB of working memory. A 16-byte 'salt' and 32-byte
 // 'dest' parameter is recommended in combination with this configuration.
-export const low_mem_config: config = config {
+export const low_mem_conf: conf = conf {
 	mem = 64 * 1024,
 	passes = 3,
 	parallel = 4,
@@ -107,7 +106,7 @@ export fn argon2d(
 	dest: []u8,
 	password: []u8,
 	salt: []u8,
-	cfg: *config,
+	cfg: *conf,
 ) (void | nomem) = {
 	return argon2(dest, password, salt, cfg, mode::D);
 };
@@ -123,7 +122,7 @@ export fn argon2i(
 	dest: []u8,
 	password: []u8,
 	salt: []u8,
-	cfg: *config,
+	cfg: *conf,
 ) (void | nomem) = {
 	return argon2(dest, password, salt, cfg, mode::I);
 };
@@ -141,7 +140,7 @@ export fn argon2id(
 	dest: []u8,
 	password: []u8,
 	salt: []u8,
-	cfg: *config,
+	cfg: *conf,
 ) (void | nomem) = {
 	return argon2(dest, password, salt, cfg, mode::ID);
 };
@@ -150,7 +149,7 @@ fn argon2(
 	dest: []u8,
 	password: []u8,
 	salt: []u8,
-	cfg: *config,
+	cfg: *conf,
 	mode: mode,
 ) (void | nomem) = {
 	assert(endian::host == &endian::little, "TODO big endian support");
@@ -163,27 +162,31 @@ fn argon2(
 	assert(len(cfg.secret) <= types::U32_MAX);
 	assert(len(cfg.data) <= types::U32_MAX);
 
+	let initmemsize = 0u32;
 	let mem: []u64 = match (cfg.mem) {
 	case let mem: []u64 =>
 		assert(len(mem) >= 8 * cfg.parallel * BLOCKSIZE
 			&& len(mem) % BLOCKSIZE == 0
 			&& len(mem) / BLOCKSIZE <= types::U32_MAX);
-		yield mem;
+		initmemsize = (len(mem) / BLOCKSIZE): u32;
+
+		// round down memory to nearest multiple of 4 times parallel
+		const memsize = len(mem) - len(mem)
+			% (4 * cfg.parallel * BLOCKSIZE);
+		yield mem[..memsize];
 	case let memsize: u32 =>
 		assert(memsize >= 8 * cfg.parallel
 			&& memsize <= types::U32_MAX);
 
-		let membytes = memsize * BLOCKSIZE * 8;
-		let mem: []u64 = alloc([0...], membytes);
-		yield mem[..membytes / 8];
+		initmemsize = memsize;
+		const memsize = memsize - memsize % (4 * cfg.parallel);
+		yield alloc([0...], memsize * BLOCKSIZE): []u64;
 	};
-	// round down memory to nearest multiple of 4 times parallel
-	mem = mem[..len(mem) - len(mem) % (4 * cfg.parallel * BLOCKSIZE)];
-	const memsize = (len(mem) / BLOCKSIZE): u32;
 
 	let h0: [64]u8 = [0...];
-	inithash(&h0, len(dest): u32, password, salt, cfg, mode, memsize);
+	inithash(&h0, len(dest): u32, password, salt, cfg, mode, initmemsize);
 
+	const memsize = (len(mem) / BLOCKSIZE): u32;
 	const cols = 4 * (memsize / (4 * cfg.parallel));
 	let ctx = context {
 		rows = cfg.parallel,
@@ -246,31 +249,36 @@ fn blocku8(ctx: *context, i: size, j: size) []u8 = {
 	return (block(ctx, i, j): *[*]u8)[..BLOCKSIZE * size(u64)];
 };
 
-fn refblock(cfg: *config, ctx: *context, seed: u64, i: size, j: size) []u64 = {
-	const j1: u64 = seed & 0xffffffff;
-	const segstart = j - (j % ctx.sliceblocks);
+fn refblock(cfg: *conf, ctx: *context, seed: u64, i: size, j: size) []u64 = {
+	const segstart = (j - (j % ctx.sliceblocks)) / ctx.sliceblocks;
+	const index = j % ctx.sliceblocks;
 
-	const l: u64 = if (segstart == 0 && ctx.pass == 0) {
-		yield 0;
+	const l: size = if (segstart == 0 && ctx.pass == 0) {
+		yield i;
 	} else {
 		yield (seed >> 32) % cfg.parallel;
 	};
 
-	let poolstart: u64 = 0;
-	let poolsize: u64 = segstart;
-	if (ctx.pass > 0) {
-		poolstart = (segstart + ctx.sliceblocks) % ctx.cols;
-		poolsize = 3 * ctx.sliceblocks;
+	let poolstart: u64 = ((segstart + 1) % SLICES) * ctx.sliceblocks;
+	let poolsize: u64 = 3 * ctx.sliceblocks;
+
+	if (i == l) {
+		poolsize += index;
 	};
 
-	if (l == i: u64) {
-		poolsize += (j - segstart);
+	if (ctx.pass == 0) {
+		poolstart = 0;
+		poolsize = segstart * ctx.sliceblocks;
+		if (segstart == 0 || i == l) {
+			poolsize += index;
+		};
 	};
 
-	if ((j - segstart) == 0 || l == i: u64) {
+	if (index == 0 || i == l) {
 		poolsize -= 1;
 	};
 
+	const j1: u64 = seed & 0xffffffff;
 	const x: u64 = (j1 * j1) >> 32;
 	const y: u64 = (poolsize * x) >> 32;
 	const z: u64 = (poolstart + poolsize - (y+1)) % ctx.cols: u64;
@@ -283,7 +291,7 @@ fn inithash(
 	taglen: u32,
 	password: []u8,
 	salt: []u8,
-	cfg: *config,
+	cfg: *conf,
 	mode: mode,
 	memsize: u32,
 ) void = {
@@ -376,12 +384,12 @@ fn xorblock(dest: []u64, x: []u64, y: []u64) void = {
 		(y: *[*]u8)[..len(dest) * size(u64)]);
 };
 
-fn segproc(cfg: *config, ctx: *context, i: size, slice: size) void = {
+fn segproc(cfg: *conf, ctx: *context, i: size, slice: size) void = {
 	const init = switch (ctx.mode) {
 	case mode::I =>
 		yield true;
 	case mode::ID =>
-		yield ctx.pass == 0 && slice <= 2;
+		yield ctx.pass == 0 && slice < 2;
 	case mode::D =>
 		yield false;
 	};
@@ -417,8 +425,12 @@ fn segproc(cfg: *config, ctx: *context, i: size, slice: size) void = {
 		case mode::I =>
 			yield false;
 		};
+
+		const pj = if (j == 0) ctx.cols - 1 else j - 1;
+		let prev = block(ctx, i, pj);
+
 		const seed: u64 = if (dmodeseed) {
-			yield block(ctx, i, (j - 1) % ctx.cols)[0];
+			yield prev[0];
 		} else {
 			if (b % BLOCKSIZE == 0) {
 				ctx.seedsinit[6] += 1;
@@ -429,8 +441,9 @@ fn segproc(cfg: *config, ctx: *context, i: size, slice: size) void = {
 			};
 			yield ctx.seedblock[b % BLOCKSIZE];
 		};
-		compress(block(ctx, i, j), block(ctx, i, (j - 1) % ctx.cols),
-				refblock(cfg, ctx, seed, i, j), ctx.pass > 0);
+
+		let ref = refblock(cfg, ctx, seed, i, j);
+		compress(block(ctx, i, j), prev, ref, ctx.pass > 0);
 	};
 };
 
