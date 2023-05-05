@@ -10,12 +10,12 @@ returned. This implementation computes matches in linear time.
 	const re = regex::compile(`[H|h]ar(e|riet)`)!;
 	defer regex::finish(&re);
 
-	assert(regex::test(&re, "Let's all love Harriet and hare"));
+	assert(regex::test(&re, "Let's all love Harriet and Hare"));
 
 	// {"Harriet", "riet"}
-	const result = regex::find(&re, "Let's all love Harriet and hare");
+	const result = regex::find(&re, "Let's all love Harriet and Hare");
 	defer regex::result_free(result);
 
-	// {{"Harriet", "riet"}, {"hare", "e"}}
-	const results = regex::findall(&re, "Let's all love Harriet and hare");
+	// {{"Harriet", "riet"}, {"Hare", "e"}}
+	const results = regex::findall(&re, "Let's all love Harriet and Hare");
 	defer regex::result_freeall(results);
