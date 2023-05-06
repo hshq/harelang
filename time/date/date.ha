@@ -139,52 +139,33 @@ export fn new(
 	];
 
 	assert(len(fields) <= len(_fields),
-			"time::date::new(): Too many field arguments");
+		"time::date::new(): Too many field arguments");
 	_fields[..len(fields)] = fields;
 
-	const year  = _fields[0];
-	const month = _fields[1];
-	const day   = _fields[2];
-	const hour  = _fields[3];
-	const min   = _fields[4];
-	const sec   = _fields[5];
-	const nsec  = _fields[6];
+	let v = newvirtual();
 
-	const mdate = calc_daydate__ymd(year, month, day)?;
-	const mtime = calc_daytime__hmsn(hour, min, sec, nsec)?;
+	v.vloc       = loc;
+	v.zoff       = zo;
+	v.year       = _fields[0];
+	v.month      = _fields[1];
+	v.day        = _fields[2];
+	v.hour       = _fields[3];
+	v.minute     = _fields[4];
+	v.second     = _fields[5];
+	v.nanosecond = _fields[6];
 
-	// create the moment
-	const m = match (zo) {
-	case let zo: time::duration =>
-		yield chrono::from_datetime(loc, zo, mdate, mtime);
-	case void =>
-		// TODO: Deduce the zone offset
-		//
-		// perform a zone lookup, then try that zone and the zones that
-		// are observed before and after. This requires knowlegde of the
-		// transition index.
-		abort("TODO: time::date::new(zo=void)");
-	};
-
-	const d = from_moment(m);
-
-	const zo = match (zo) {
-	case void =>
-		yield chrono::mzone(&m).zoff;
-	case let zo: time::duration =>
-		yield zo;
-	};
+	let d = (realize(v, loc) as (date | invalid))?;
 
 	// check if input values are actually observed
 	if (
-		zo       != chrono::mzone(&d).zoff
-		|| year  != _year(&d)
-		|| month != _month(&d)
-		|| day   != _day(&d)
-		|| hour  != _hour(&d)
-		|| min   != _minute(&d)
-		|| sec   != _second(&d)
-		|| nsec  != _nanosecond(&d)
+		zo as time::duration != chrono::mzone(&d).zoff
+		|| _fields[0] != _year(&d)
+		|| _fields[1] != _month(&d)
+		|| _fields[2] != _day(&d)
+		|| _fields[3] != _hour(&d)
+		|| _fields[4] != _minute(&d)
+		|| _fields[5] != _second(&d)
+		|| _fields[6] != _nanosecond(&d)
 	) {
 		return invalid;
 	};
