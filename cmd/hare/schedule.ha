@@ -302,8 +302,7 @@ fn sched_hare_object(
 		let td = fmt::asprintf("{}.td", version);
 		defer free(td);
 
-		let buf = path::init();
-		path::set(&buf, plan.context.cache)!;
+		let buf = path::init(plan.context.cache)!;
 		path::add(&buf, namespace...)!;
 		const path = path::string(&buf);
 		match (os::mkdirs(path, 0o755)) {

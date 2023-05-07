@@ -137,7 +137,7 @@ fn scan_directory(
 		strings::freeall(dirs);
 	};
 
-	let pathbuf = path::init();
+	let pathbuf = path::init()!;
 	for (true) {
 		const ent = match (fs::next(iter)) {
 		case void =>

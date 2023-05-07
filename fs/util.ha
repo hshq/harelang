@@ -111,8 +111,7 @@ export fn dirents_free(d: []dirent) void = {
 
 // Removes a directory, and anything in it.
 export fn rmdirall(fs: *fs, path: str) (void | error) = {
-	let buf = path::init();
-	path::set(&buf, path)!;
+	let buf = path::init(path)!;
 	return rmdirall_path(fs, &buf);
 };
 
@@ -148,8 +147,7 @@ fn rmdirall_path(fs: *fs, buf: *path::buffer) (void | error) = {
 // allocated and will be overwritten on subsequent calls.
 export fn realpath(fs: *fs, path: str) (str | error) = {
 	static let buf = path::buffer { ... };
-	path::reset(&buf);
-
+	path::set(&buf)!;
 	const iter = path::iter(path);
 	for (true) {
 		const item = match (path::next(&iter)) {

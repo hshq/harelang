@@ -11,47 +11,22 @@ export type buffer = struct {
 };
 
 // Initializes a new path buffer.
-export fn init() buffer = {
+export fn init(items: str...) (buffer | errors::overflow) = {
 	let buf = buffer { ... };
-	reset(&buf);
+	add(&buf, items...)?;
 	return buf;
-};
-
-// Resets a path buffer to its initial state.
-export fn reset(buf: *buffer) void = {
-	buf.end = 0;
 };
 
 // Sets the value of a path buffer to a list of components, overwriting any
 // previous value. Returns the new string value of the path.
 export fn set(buf: *buffer, items: str...) (str | errors::overflow) = {
-	reset(buf);
+	buf.end = 0;
 	return add(buf, items...);
 };
 
-// Returns the current path stored in this buffer. The path will always be
-// normalized, which is to say that it will not include any of the following:
-//
-// - Redundant ".." components
-// - Redundant path separators
-// - Any "." components, except in the case of "."
-//
-// Assuming that PATHSEP is '/', "/usr//bin/../bin/./hare" becomes
-// "/usr/bin/hare" and "../../foo/bar" is unchanged. The path will only end in a
-// slash if the last item which was added ended in PATHSEP, like so:
-//
-// 	let buf = path::init();
-// 	path::set(&buf, "foo", "bar")!;
-// 	assert(path::string(&buf) == "foo/bar");
-//
-// 	path::set(&buf, "foo", "bar/")!;
-// 	assert(path::string(&buf) == "foo/bar/");
-//
-// 	path::set(&buf, "foo", "bar", "/")!;
-// 	assert(path::string(&buf) == "foo/bar/");
-//
-// The return value is borrowed from the buffer. Use [[allocate]] to extend the
-// lifetime of the string.
+// Returns the current path stored in this buffer. 
+// The return value is borrowed from the buffer. Use [[allocate]] to extend
+// the lifetime of the string.
 export fn string(buf: *buffer) str = {
 	const value = strings::fromutf8_unsafe(buf.buf[..buf.end]);
 	if (value == "") {
@@ -60,8 +35,8 @@ export fn string(buf: *buffer) str = {
 	return value;
 };
 
-// Like [[string]] but the return value is copied to the heap and must be freed
-// by the caller.
+// Like [[string]] but the return value is copied to the heap and must be
+// freed by the caller.
 export fn allocate(buf: *buffer) str = {
 	return strings::dup(string(buf));
 };
@@ -119,7 +94,7 @@ fn parent(buf: *buffer) (void | errors::overflow) = {
 	};
 	// XXX: This is not super efficient
 	const name = dirname(string(buf));
-	reset(buf);
+	buf.end = 0;
 	add(buf, name)?;
 };
 
@@ -136,7 +111,7 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 };
 
 @test fn appendnorm() void = {
-	let buf = init();
+	let buf = init()!;
 	assert(string(&buf) == ".");
 	appendnorm(&buf, "foo")!;
 	appendnorm(&buf, "bar")!;
@@ -151,7 +126,7 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	assert(string(&buf) == s);
 	free(s);
 
-	reset(&buf);
+	buf.end = 0;
 	appendnorm(&buf, pathsepstr)!;
 	appendnorm(&buf, "foo")!;
 	appendnorm(&buf, "bar")!;
@@ -163,13 +138,13 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	assert(string(&buf) == s);
 	free(s);
 
-	reset(&buf);
+	buf.end = 0;
 	appendnorm(&buf, pathsepstr)!;
 	appendnorm(&buf, pathsepstr)!;
 	appendnorm(&buf, pathsepstr)!;
 	assert(string(&buf) == pathsepstr);
 
-	reset(&buf);
+	buf.end = 0;
 	appendnorm(&buf, ".")!;
 	appendnorm(&buf, "foo")!;
 	assert(string(&buf) == "foo");
@@ -178,7 +153,7 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	appendnorm(&buf, "..")!;
 	assert(string(&buf) == "..");
 
-	reset(&buf);
+	buf.end = 0;
 	appendnorm(&buf, "..")!;
 	assert(string(&buf) == "..");
 	appendnorm(&buf, "..")!;
@@ -190,7 +165,7 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	assert(string(&buf) == s);
 	free(s);
 
-	reset(&buf);
+	buf.end = 0;
 	appendnorm(&buf, "foo")!;
 	appendnorm(&buf, "bar")!;
 	s = strings::join(pathsepstr, "foo", "bar");
@@ -226,7 +201,7 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	assert(string(&buf) == s);
 	free(s);
 
-	reset(&buf);
+	buf.end = 0;
 	appendnorm(&buf, "a")!;
 	appendnorm(&buf, "b")!;
 	s = strings::join(pathsepstr, "a", "b");

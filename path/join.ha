@@ -29,13 +29,13 @@ export fn add(buf: *buffer, items: str...) (str | errors::overflow) = {
 };
 
 @test fn add() void = {
-	let buf = init();
+	let buf = init()!;
 	add(&buf, "foo", "bar", "baz")!;
 	let s = strings::join(pathsepstr, "foo", "bar", "baz");
 	assert(string(&buf) == s);
 	free(s);
 
-	reset(&buf);
+	buf.end = 0;
 	s = strings::join(pathsepstr, "", "foo", "bar");
 	add(&buf, s, "baz")!;
 	free(s);
@@ -43,7 +43,7 @@ export fn add(buf: *buffer, items: str...) (str | errors::overflow) = {
 	assert(string(&buf) == s);
 	free(s);
 
-	reset(&buf);
+	buf.end = 0;
 	s = strings::join(pathsepstr, "foo", "bar");
 	add(&buf, pathsepstr, s, "baz")!;
 	free(s);
@@ -51,7 +51,7 @@ export fn add(buf: *buffer, items: str...) (str | errors::overflow) = {
 	assert(string(&buf) == s);
 	free(s);
 
-	reset(&buf);
+	buf.end = 0;
 	s = strings::join(pathsepstr, ".", "foo", "bar");
 	add(&buf, s)!;
 	free(s);

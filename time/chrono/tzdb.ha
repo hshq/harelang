@@ -26,8 +26,7 @@ export type invalidtzif = !void;
 // All localities provided default to the [[utc]] [[timescale]] and
 // [[EARTH_DAY]] day-length.
 export fn tz(name: str) (locality | tzdberror) = {
-	const filepath = path::init();
-	path::add(&filepath, ZONEINFO_PREFIX, name)!;
+	const filepath = path::init(ZONEINFO_PREFIX, name)!;
 	const fpath = path::string(&filepath);
 	const file = os::open(fpath)?;
 

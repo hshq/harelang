@@ -86,7 +86,7 @@ fn mkplan(
 
 	// Look up the most appropriate hare.sc file
 	let ntag = 0z;
-	const buf = path::init();
+	const buf = path::init()!;
 	const iter = os::iter(rtdir)!;
 	defer os::finish(iter);
 	for (true) match (fs::next(iter)) {
