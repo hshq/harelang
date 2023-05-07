@@ -1203,6 +1203,7 @@ path() {
 	gen_srcs path \
 		'+$(PLATFORM).ha' \
 		buffer.ha \
+		error.ha \
 		util.ha \
 		stack.ha \
 		names.ha \

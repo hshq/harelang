@@ -2,7 +2,6 @@
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2022 Humm <hummsmith42@gmail.com>
 use bytes;
-use errors;
 use strings;
 
 export type buffer = struct {
@@ -11,7 +10,7 @@ export type buffer = struct {
 };
 
 // Initializes a new path buffer.
-export fn init(items: str...) (buffer | errors::overflow) = {
+export fn init(items: str...) (buffer | error) = {
 	let buf = buffer { ... };
 	push(&buf, items...)?;
 	return buf;
@@ -19,7 +18,7 @@ export fn init(items: str...) (buffer | errors::overflow) = {
 
 // Sets the value of a path buffer to a list of components, overwriting any
 // previous value. Returns the new string value of the path.
-export fn set(buf: *buffer, items: str...) (str | errors::overflow) = {
+export fn set(buf: *buffer, items: str...) (str | error) = {
 	buf.end = 0;
 	return push(buf, items...);
 };

@@ -1836,6 +1836,7 @@ $(HARECACHE)/os/exec/os_exec-freebsd.ssa: $(stdlib_os_exec_freebsd_srcs) $(stdli
 stdlib_path_any_srcs = \
 	$(STDLIB)/path/+$(PLATFORM).ha \
 	$(STDLIB)/path/buffer.ha \
+	$(STDLIB)/path/error.ha \
 	$(STDLIB)/path/util.ha \
 	$(STDLIB)/path/stack.ha \
 	$(STDLIB)/path/names.ha \
@@ -4110,6 +4111,7 @@ $(TESTCACHE)/os/exec/os_exec-freebsd.ssa: $(testlib_os_exec_freebsd_srcs) $(test
 testlib_path_any_srcs = \
 	$(STDLIB)/path/+$(PLATFORM).ha \
 	$(STDLIB)/path/buffer.ha \
+	$(STDLIB)/path/error.ha \
 	$(STDLIB)/path/util.ha \
 	$(STDLIB)/path/stack.ha \
 	$(STDLIB)/path/names.ha \

@@ -1,12 +1,11 @@
 // License: MPL-2.0
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 use bytes;
-use errors;
 use strings;
 
 // Appends path elements onto the end of a path buffer.
 // Returns the new string value of the path.
-export fn push(buf: *buffer, items: str...) (str | errors::overflow) = {
+export fn push(buf: *buffer, items: str...) (str | error) = {
 	for (let i = 0z; i < len(items); i += 1) {
 		let elem = strings::toutf8(items[i]);
 		for (true) match (bytes::index(elem, PATHSEP)) {
@@ -39,7 +38,7 @@ const dotdot: []u8 = ['.', '.'];
 // x/.. + .. => x/../..
 // x/y  + .. => x
 // x    + y  => x/y
-fn appendnorm(buf: *buffer, seg: []u8) (size | errors::overflow) = {
+fn appendnorm(buf: *buffer, seg: []u8) (size | error) = {
 	if (len(seg) == 0 || bytes::equal(dot, seg)) return buf.end;
 	if (bytes::equal(dotdot, seg)) {
 		if (isroot(buf)) return buf.end;
@@ -59,12 +58,12 @@ fn appendnorm(buf: *buffer, seg: []u8) (size | errors::overflow) = {
 
 // append a segment to a buffer, *without* preserving normalization.
 // returns the new end of the buffer
-fn appendlit(buf: *buffer, bs: []u8) (size | errors::overflow) = {
+fn appendlit(buf: *buffer, bs: []u8) (size | error) = {
 	let newend = buf.end;
 	if (buf.end == 0 || isroot(buf)) {
-		if (PATH_MAX < buf.end + len(bs)) return errors::overflow;
+		if (PATH_MAX < buf.end + len(bs)) return too_long;
 	} else {
-		if (PATH_MAX < buf.end + len(bs) + 1) return errors::overflow;
+		if (PATH_MAX < buf.end + len(bs) + 1) return too_long;
 		buf.buf[buf.end] = PATHSEP;
 		newend += 1;
 	};
@@ -187,7 +186,7 @@ export fn join(items: str...) str = {
 // If the path is the root directory, the root directory is returned. The value
 // is either borrowed from the input or statically allocated; use
 // [[strings::dup]] to extend its lifetime or modify it.
-export fn parent(buf: *const buffer) (str | errors::overflow) = {
+export fn parent(buf: *const buffer) (str | error) = {
 	const newend = appendnorm(buf, dotdot)?;
 	if (newend == 0) return ".";
 	return strings::fromutf8_unsafe(buf.buf[..newend]);
