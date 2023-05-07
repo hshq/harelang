@@ -12,18 +12,8 @@ normalized, which is to say that it will not include any of the following:
 - Redundant path separators
 - Any "." components, except in the case of "."
 
-Assuming that PATHSEP is '/', "/usr//bin/../bin/./hare" becomes
-"/usr/bin/hare" and "../../foo/bar" is unchanged. The path will only end in
-a slash if the last item which was pushed ended in a slash, like so:
-
-	let buf = path::init("foo", "bar")!;
-	assert(path::string(&buf) == "foo/bar");
-
-	path::set(&buf, "foo", "bar/")!;
-	assert(path::string(&buf) == "foo/bar/");
-
-	path::set(&buf, "foo", "bar", "/")!;
-	assert(path::string(&buf) == "foo/bar/");
+Assuming that [[PATHSEP]] is '/', "/usr//bin/../bin/./hare/" becomes
+"/usr/bin/hare" and "../../foo/bar" is unchanged.
 
 The buffer object includes an array of length [[PATH_MAX]], which can be
 somewhat large; on Linux it's 4096 bytes. You can allocate this on the stack in

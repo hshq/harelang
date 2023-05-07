@@ -25,3 +25,5 @@ export fn abs(path: (*buffer | str)) bool = {
 	let path = getbytes(path);
 	return 0 < len(path) && path[0] == PATHSEP;
 };
+
+export fn isroot(buf: *buffer) bool = buf.end == 1 && buf.buf[0] == PATHSEP;
