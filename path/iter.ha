@@ -51,15 +51,15 @@ export fn next(iter: *iterator) (str | void) = {
 };
 
 @test fn iter() void = {
-	const buf = init(pathsepstr, "foo", "bar", "baz")!;
+	const buf = init(local("/foo/bar/baz"))!;
 	let i = iter(&buf);
-	assert(next(&i) as str == pathsepstr);
+	assert(next(&i) as str == local("/"));
 	assert(next(&i) as str == "foo");
 	assert(next(&i) as str == "bar");
 	assert(next(&i) as str == "baz");
 	assert(next(&i) is void);
 
-	set(&buf, "foo", "bar", "baz")!;
+	set(&buf, local("foo/bar/baz"))!;
 	let i = iter(&buf);
 	assert(next(&i) as str == "foo");
 	assert(next(&i) as str == "bar");
@@ -71,8 +71,8 @@ export fn next(iter: *iterator) (str | void) = {
 	assert(next(&i) as str == "foo");
 	assert(next(&i) is void);
 
-	set(&buf, pathsepstr)!;
+	set(&buf, local("/"))!;
 	let i = iter(&buf);
-	assert(next(&i) as str == pathsepstr);
+	assert(next(&i) as str == local("/"));
 	assert(next(&i) is void);
 };

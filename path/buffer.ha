@@ -42,3 +42,13 @@ export fn isroot(path: (*buffer | str)) bool = match (path) {
 case let path: str => return path == pathsepstr;
 case let buf: *buffer => return buf.end == 1 && buf.buf[0] == PATHSEP;
 };
+
+// Replace '/' with system-dependent path separator in a string. Modifies the
+// original string, but is idempotent. The result is borrowed from the input.
+export fn local(path: str) str = {
+	let bs = strings::toutf8(path);
+	for (let k = 0z; k < len(bs); k += 1) {
+		if (bs[k] == '/') bs[k] = PATHSEP;
+	};
+	return path;
+};

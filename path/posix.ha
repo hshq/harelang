@@ -65,14 +65,7 @@ export fn basename(path: const str) const str = {
 		["/home//dwc//test", "/home//dwc", "test"],
 	];
 	for (let i = 0z; i < len(table); i += 1) {
-		// replace '/' with system-dependent path separator
-		for (let j = 0z; j < len(table[i]); j += 1) {
-			const bs = strings::toutf8(table[i][j]);
-			for (let k = 0z; k < len(bs); k += 1) {
-				if (bs[k] == '/') bs[k] = PATHSEP;
-			};
-		};
-		assert(dirname(table[i][0]) == table[i][1]);
-		assert(basename(table[i][0]) == table[i][2]);
+		assert(dirname(local(table[i][0])) == local(table[i][1]));
+		assert(basename(local(table[i][0])) == local(table[i][2]));
 	};
 };
