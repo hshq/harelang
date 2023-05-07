@@ -317,8 +317,8 @@ fn sched_hare_object(
 			fmt::fatalf("Error: mkdirs {}: {}", path,
 				fs::strerror(err));
 		};
-		append(harec.cmd, ["-t", path::join(path, td)]...);
-		yield path::join(path, name);
+		append(harec.cmd, ["-t", strings::dup(path::push(&buf, td)!)]...);
+		yield strings::dup(path::push(&buf, "..", name)!);
 	} else {
 		// XXX: This is probably kind of dumb
 		// It would be better to apply any defines which affect this

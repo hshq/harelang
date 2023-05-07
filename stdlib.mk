@@ -1840,6 +1840,7 @@ stdlib_path_any_srcs = \
 	$(STDLIB)/path/stack.ha \
 	$(STDLIB)/path/ext_stack.ha \
 	$(STDLIB)/path/posix.ha \
+	$(STDLIB)/path/prefix.ha \
 	$(STDLIB)/path/iter.ha
 
 $(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
@@ -4115,6 +4116,7 @@ testlib_path_any_srcs = \
 	$(STDLIB)/path/stack.ha \
 	$(STDLIB)/path/ext_stack.ha \
 	$(STDLIB)/path/posix.ha \
+	$(STDLIB)/path/prefix.ha \
 	$(STDLIB)/path/iter.ha
 
 $(TESTCACHE)/path/path-any.ssa: $(testlib_path_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_errors_$(PLATFORM))

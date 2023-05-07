@@ -83,9 +83,8 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 	};
 	scan_directory(ctx, &ver, &sha, path, iter)?;
 
-	let readme = path::join(path, "README");
-	defer free(readme);
-	if (len(ver.inputs) == 0 && !fs::exists(ctx.fs, readme)) {
+	let buf = path::init(path, "README")!;
+	if (len(ver.inputs) == 0 && !fs::exists(ctx.fs, path::string(&buf))) {
 		// TODO: HACK: README is a workaround for haredoc issues
 		return notfound;
 	};
@@ -222,7 +221,8 @@ fn scan_directory(
 			continue;
 		};
 
-		let path = path::join(path, name);
+		const buf = path::init(path, name)!;
+		let path = strings::dup(path::string(&buf));
 		let tuple = (true, strings::dup(base), tags, path);
 		let superceded = false;
 		for (let j = 0z; j < len(inputs); j += 1) {
@@ -268,7 +268,8 @@ fn scan_directory(
 			continue;
 		};
 
-		let path = path::join(path, name);
+		const buf = path::init(path, name)!;
+		let path = strings::dup(path::string(&buf));
 		let tuple = (false, strings::dup(base), tags, path);
 		let superceded = false;
 		for (let j = 0z; j < len(inputs); j += 1) {
@@ -328,9 +329,8 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 	let ipath = identpath(name);
 	defer free(ipath);
 	for (let i = len(ctx.paths); i > 0; i -= 1) {
-		let cand = path::join(ctx.paths[i - 1], ipath);
-		defer free(cand);
-		match (scan(ctx, cand)) {
+		let cand = path::init(ctx.paths[i - 1], ipath)!;
+		match (scan(ctx, path::string(&cand))) {
 		case let v: version =>
 			return v;
 		case error => void;

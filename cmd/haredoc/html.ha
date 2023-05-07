@@ -134,11 +134,10 @@ fn emit_html(ctx: *context) (void | error) = {
 		fmt::fprintln(ctx.out, "<ul class='submodules'>")?;
 		for (let i = 0z; i < len(submodules); i += 1) {
 			let submodule = submodules[i];
-			let path = path::join("/", identpath, submodule);
-			defer free(path);
+			let path = path::init("/", identpath, submodule)!;
 
 			fmt::fprintf(ctx.out, "<li><a href='")?;
-			html_escape(ctx.out, path)?;
+			html_escape(ctx.out, path::string(&path))?;
 			fmt::fprintf(ctx.out, "'>")?;
 			html_escape(ctx.out, submodule)?;
 			fmt::fprintfln(ctx.out, "</a></li>")?;

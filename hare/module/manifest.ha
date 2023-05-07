@@ -53,11 +53,11 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	};
 	let ipath = identpath(manifest.ident);
 	defer free(ipath);
-	let cachedir = path::join(ctx.cache, ipath);
-	defer free(cachedir);
+	let cachedir = path::init(ctx.cache, ipath)!;
+	let cachedir = path::string(&cachedir);
 
-	let mpath = path::join(cachedir, "manifest");
-	defer free(mpath);
+	let mpath = path::init(cachedir, "manifest")!;
+	let mpath = path::string(&mpath);
 
 	let truefile = match (fs::open(ctx.fs, mpath, fs::flags::RDONLY)) {
 	case errors::noentry =>
@@ -316,11 +316,11 @@ export fn current(man: *manifest, ver: *version) bool = {
 export fn manifest_write(ctx: *context, man: *manifest) (void | error) = {
 	let ipath = identpath(man.ident);
 	defer free(ipath);
-	let cachedir = path::join(ctx.cache, ipath);
-	defer free(cachedir);
+	let cachedir = path::init(ctx.cache, ipath)!;
+	let cachedir = path::string(&cachedir);
 
-	let mpath = path::join(cachedir, "manifest");
-	defer free(mpath);
+	let mpath = path::init(cachedir, "manifest")!;
+	let mpath = path::string(&mpath);
 
 	let (truefile, name) = temp::named(ctx.fs, cachedir, io::mode::WRITE, 0o644)?;
 	let wbuf: [os::BUFSIZ]u8 = [0...];

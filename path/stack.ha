@@ -174,14 +174,6 @@ fn split(buf: *buffer) (size, (str | void)) = {
 	assert(string(&buf) == pathsepstr);
 };
 
-// Joins a list of path components together, normalizes it, and returns the
-// resulting string. The caller must free the return value. If the resulting
-// path would exceed [[PATH_MAX]], the program aborts.
-export fn join(items: str...) str = {
-	static let buf = buffer { ... };
-	return strings::dup(set(&buf, items...)!);
-};
-
 // Returns the parent directory for a given path, without modifying the buffer.
 // If the path is the root directory, the root directory is returned. The value
 // is either borrowed from the input or statically allocated; use

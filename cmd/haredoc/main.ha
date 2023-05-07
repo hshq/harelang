@@ -161,10 +161,9 @@ export fn main() void = {
 		};
 	};
 
-	const rpath = path::join(version.basedir, "README");
-	defer free(rpath);
+	const rpath = path::init(version.basedir, "README")!;
 	const readme: (io::file | void) = if (decl == "") {
-		yield match (os::open(rpath)) {
+		yield match (os::open(path::string(&rpath))) {
 		case let err: fs::error =>
 			yield void;
 		case let f: io::file =>

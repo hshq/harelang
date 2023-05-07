@@ -1207,6 +1207,7 @@ path() {
 		stack.ha \
 		ext_stack.ha \
 		posix.ha \
+		prefix.ha \
 		iter.ha
 	gen_ssa path strings bytes errors
 }
