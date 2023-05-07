@@ -1461,12 +1461,14 @@ stdlib_io_linux_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
 	$(STDLIB)/io/+linux/file.ha \
 	$(STDLIB)/io/+linux/mmap.ha \
+	$(STDLIB)/io/+linux/platform_lock.ha \
 	$(STDLIB)/io/+linux/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
@@ -1478,12 +1480,14 @@ stdlib_io_freebsd_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
 	$(STDLIB)/io/+freebsd/file.ha \
 	$(STDLIB)/io/+freebsd/mmap.ha \
+	$(STDLIB)/io/+freebsd/platform_lock.ha \
 	$(STDLIB)/io/+freebsd/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
@@ -3719,12 +3723,14 @@ testlib_io_linux_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
 	$(STDLIB)/io/+linux/file.ha \
 	$(STDLIB)/io/+linux/mmap.ha \
+	$(STDLIB)/io/+linux/platform_lock.ha \
 	$(STDLIB)/io/+linux/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
@@ -3738,12 +3744,14 @@ testlib_io_freebsd_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
 	$(STDLIB)/io/+freebsd/file.ha \
 	$(STDLIB)/io/+freebsd/mmap.ha \
+	$(STDLIB)/io/+freebsd/platform_lock.ha \
 	$(STDLIB)/io/+freebsd/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \

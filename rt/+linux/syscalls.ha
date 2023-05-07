@@ -896,9 +896,9 @@ export fn posix_fallocate(fd: int, off: i64, ln: i64) (void | errno) = {
 	fallocate(fd, 0, off, ln)?;
 };
 
-export fn flock(fd: int, op: int) (int | errno) = {
-	return wrap_return(syscall2(SYS_flock,
-		fd: u64, op: u64))?: int;
+export fn flock(fd: int, op: int) (void | errno) = {
+	wrap_return(syscall2(SYS_flock,
+		fd: u64, op: u64))?;
 };
 
 export fn inotify_init() (int | errno) = {
