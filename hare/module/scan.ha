@@ -100,8 +100,16 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 // Given a file or directory name, parses it into the basename, extension, and
 // tag set.
 export fn parsename(name: str) (str, str, []tag) = {
-	let ext = path::extension(name);
-	let base = ext.0, ext = ext.1;
+	static let buf = path::buffer {...};
+	path::set(&buf, name)!;
+	let ext = match (path::pop_ext(&buf)) {
+	case void => yield "";
+	case let s: str => yield strings::dup(s);
+	};
+	let base = match (path::peek(&buf)) {
+	case void => yield "";
+	case let s: str => yield strings::dup(s);
+	};
 
 	let p = strings::index(base, '+');
 	let m = strings::index(base, '-');
@@ -248,7 +256,7 @@ fn scan_directory(
 		let base = parsed.0, ext = parsed.1, tags = parsed.2;
 
 		let eligible = false;
-		static const exts = [".ha", ".s"];
+		static const exts = ["ha", "s"];
 		for (let i = 0z; i < len(exts); i += 1) {
 			if (exts[i] == ext) {
 				eligible = true;
@@ -332,10 +340,12 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 };
 
 fn type_for_ext(name: str) (filetype | void) = {
-	const ext = path::extension(name).1;
+	static let buf = path::buffer {...};
+	path::set(&buf, name)!;
+	const ext = path::peek_ext(&buf) as str;
 	return
-		if (ext == ".ha") filetype::HARE
-		else if (ext == ".s") filetype::ASSEMBLY
+		if (ext == "ha") filetype::HARE
+		else if (ext == "s") filetype::ASSEMBLY
 		else void;
 };
 

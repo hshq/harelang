@@ -1838,7 +1838,7 @@ stdlib_path_any_srcs = \
 	$(STDLIB)/path/buffer.ha \
 	$(STDLIB)/path/error.ha \
 	$(STDLIB)/path/stack.ha \
-	$(STDLIB)/path/names.ha \
+	$(STDLIB)/path/ext_stack.ha \
 	$(STDLIB)/path/posix.ha \
 	$(STDLIB)/path/iter.ha
 
@@ -4113,7 +4113,7 @@ testlib_path_any_srcs = \
 	$(STDLIB)/path/buffer.ha \
 	$(STDLIB)/path/error.ha \
 	$(STDLIB)/path/stack.ha \
-	$(STDLIB)/path/names.ha \
+	$(STDLIB)/path/ext_stack.ha \
 	$(STDLIB)/path/posix.ha \
 	$(STDLIB)/path/iter.ha
 

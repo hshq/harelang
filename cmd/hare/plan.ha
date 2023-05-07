@@ -95,7 +95,7 @@ fn mkplan(
 		const name = p.0, ext = p.1, tags = p.2;
 		defer module::tags_free(tags);
 
-		if (len(tags) >= ntag && name == "hare" && ext == ".sc"
+		if (len(tags) >= ntag && name == "hare" && ext == "sc"
 				&& module::tagcompat(ctx.tags, tags)) {
 			ntag = len(tags);
 			path::set(&buf, rtdir, d.name)!;

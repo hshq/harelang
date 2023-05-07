@@ -1205,7 +1205,7 @@ path() {
 		buffer.ha \
 		error.ha \
 		stack.ha \
-		names.ha \
+		ext_stack.ha \
 		posix.ha \
 		iter.ha
 	gen_ssa path strings bytes errors

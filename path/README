@@ -26,7 +26,7 @@ would be exceeded.
 
 	// Statically allocated
 	static let buf = path::buffer { ... };
-	path::set(&buf);
+	path::set(&buf)!;
 
 	// Heap allocated
 	let buf = alloc(path::init()!);

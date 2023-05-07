@@ -264,9 +264,14 @@ fn sched_hare_object(
 
 	let current = false;
 	let output = if (output is str) {
+		static let buf = path::buffer{...};
+		path::set(&buf, output as str)!;
 		// TODO: Should we use the cache here?
-		const (_, ext) = path::extension(output as str);
-		const expected = if (mixed) ".a" else ".o";
+		const ext = match (path::peek_ext(&buf)) {
+		case let s: str => yield s;
+		case void => yield "";
+		};
+		const expected = if (mixed) "a" else "o";
 		if (ext != expected) {
 			fmt::errorfln("Warning: Expected output file extension {}, found {}",
 				expected, output)!;
