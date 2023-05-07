@@ -25,20 +25,14 @@ export fn set(buf: *buffer, items: str...) (str | errors::overflow) = {
 };
 
 // Returns the current path stored in this buffer. 
-// The return value is borrowed from the buffer. Use [[allocate]] to extend
-// the lifetime of the string.
+// The return value is borrowed from the buffer. Use [[strings::dup]] to
+// extend the lifetime of the string.
 export fn string(buf: *buffer) str = {
 	const value = strings::fromutf8_unsafe(buf.buf[..buf.end]);
 	if (value == "") {
 		return ".";
 	};
 	return value;
-};
-
-// Like [[string]] but the return value is copied to the heap and must be
-// freed by the caller.
-export fn allocate(buf: *buffer) str = {
-	return strings::dup(string(buf));
 };
 
 const dot: []u8 = ['.'];

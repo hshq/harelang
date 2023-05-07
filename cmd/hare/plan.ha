@@ -116,7 +116,7 @@ fn mkplan(
 		context = ctx,
 		target = target,
 		workdir = os::tryenv("HARE_DEBUG_WORKDIR", temp::dir()),
-		script = path::allocate(&buf),
+		script = strings::dup(path::string(&buf)),
 		environ = alloc([
 			(strings::dup("HARECACHE"), strings::dup(ctx.cache)),
 		]),
