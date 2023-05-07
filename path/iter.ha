@@ -5,74 +5,117 @@
 use bytes;
 use strings;
 
-export type iflags = enum uint {
-	NONE = 0,
-	ABSOLUTE = 1 << 0,
-};
-
 export type iterator = struct {
-	tok: bytes::tokenizer,
-	flags: iflags,
+	cur: []u8,
+	reverse: bool,
 };
 
 let pathsep: []u8 = [PATHSEP];
 
-// Returns an iterator which yields each component of a path. If the path is
-// absolute, the first component will be the root path (e.g. "/").
-export fn iter(buf: *buffer) iterator = {
-	let path = buf.buf[..buf.end];
-	let flags = iflags::NONE;
-	if (len(path) > 0 && path[0] == PATHSEP) {
-		flags |= iflags::ABSOLUTE;
-		path = path[1..];
-	};
-	if (len(path) > 1 && path[len(path) - 1] == PATHSEP) {
-		path = path[..len(path) - 1];
-	};
+// Returns an [[iterator]] which yields each component of a path, moving down
+// through child dirs. If the path is absolute, the first component will be
+// the root. The iterator can be copied to save its state.
+export fn iter(buf: *buffer) iterator = iterator {
+	cur = buf.buf[..buf.end],
+	reverse = false,
+};
 
-	return iterator {
-		tok = bytes::tokenize(path, pathsep),
-		flags = flags,
+// Returns an [[iterator]] which yields each component of a path, moving up
+// through parent dirs. If the path is absolute, the last component will be
+// the root. The iterator can be copied to save its state.
+export fn riter(buf: *buffer) iterator = iterator {
+	cur = buf.buf[..buf.end],
+	reverse = true,
+};
+
+
+// Returns the next path component from an [[iterator]], or void if none
+// remain. Does not advance the iterator.
+export fn peekiter(it: *iterator) (str | void) = {
+	if (len(it.cur) == 0) return void;
+	const (result, remaining) = split_iter(it);
+	return strings::fromutf8_unsafe(result);
+};
+
+// Returns the next path component from an [[iterator]], or void if none
+// remain. Advances the iterator.
+export fn nextiter(it: *iterator) (str | void) = {
+	if (len(it.cur) == 0) return void;
+	const (result, remaining) = split_iter(it);
+	it.cur = remaining;
+	return strings::fromutf8_unsafe(result);
+};
+
+// helper function for nextiter and peekiter, returns (result, remaining)
+fn split_iter(it: *iterator) ([]u8, []u8) = {
+	if (it.reverse) {
+		match (bytes::rindex(it.cur, PATHSEP)) {
+		case let sep: size =>
+			let res = it.cur[sep+1..];
+			if (sep == 0) {
+				if (len(it.cur) == 1) {
+					res = it.cur; // return the root dir
+				} else {
+					sep = 1; // leave the root for next
+				};
+			};
+			return (res, it.cur[..sep]);
+		case void =>
+			return (it.cur, it.cur[..0]);
+		};
+	} else {
+		match (bytes::index(it.cur, PATHSEP)) {
+		case let i: size =>
+			return (it.cur[..if (i == 0) 1 else i], it.cur[i+1..]);
+		case void =>
+			return (it.cur, it.cur[..0]);
+		};
 	};
 };
 
-// Returns the next path component from an iterator, or void if none remain.
-export fn next(iter: *iterator) (str | void) = {
-	if (iter.flags & iflags::ABSOLUTE == iflags::ABSOLUTE) {
-		iter.flags &= ~iflags::ABSOLUTE;
-		static assert(PATHSEP <= 0x7F);
-		return strings::fromutf8_unsafe(pathsep);
-	};
-	match (bytes::next_token(&iter.tok)) {
-	case let b: []u8 =>
-		return strings::fromutf8_unsafe(b);
-	case void => void;
-	};
-};
+// get the remaining path from an iterator, without advancing the iterator.
+export fn iterrem(it: *iterator) str = strings::fromutf8_unsafe(it.cur);
 
 @test fn iter() void = {
 	const buf = init(local("/foo/bar/baz"))!;
 	let i = iter(&buf);
-	assert(next(&i) as str == local("/"));
-	assert(next(&i) as str == "foo");
-	assert(next(&i) as str == "bar");
-	assert(next(&i) as str == "baz");
-	assert(next(&i) is void);
+	assert(nextiter(&i) as str == local("/"));
+	assert(nextiter(&i) as str == "foo");
+	assert(nextiter(&i) as str == "bar");
+	assert(nextiter(&i) as str == "baz");
+	assert(nextiter(&i) is void);
+	i = riter(&buf);
+	assert(nextiter(&i) as str == "baz");
+	assert(nextiter(&i) as str == "bar");
+	assert(nextiter(&i) as str == "foo");
+	assert(nextiter(&i) as str == local("/"));
+	assert(nextiter(&i) is void);
 
 	set(&buf, local("foo/bar/baz"))!;
-	let i = iter(&buf);
-	assert(next(&i) as str == "foo");
-	assert(next(&i) as str == "bar");
-	assert(next(&i) as str == "baz");
-	assert(next(&i) is void);
+	i = iter(&buf);
+	assert(nextiter(&i) as str == "foo");
+	assert(nextiter(&i) as str == "bar");
+	assert(nextiter(&i) as str == "baz");
+	assert(nextiter(&i) is void);
+	i = riter(&buf);
+	assert(nextiter(&i) as str == "baz");
+	assert(nextiter(&i) as str == "bar");
+	assert(nextiter(&i) as str == "foo");
+	assert(nextiter(&i) is void);
 
 	set(&buf, "foo")!;
-	let i = iter(&buf);
-	assert(next(&i) as str == "foo");
-	assert(next(&i) is void);
+	i = iter(&buf);
+	assert(nextiter(&i) as str == "foo");
+	assert(nextiter(&i) is void);
+	i = riter(&buf);
+	assert(nextiter(&i) as str == "foo");
+	assert(nextiter(&i) is void);
 
 	set(&buf, local("/"))!;
-	let i = iter(&buf);
-	assert(next(&i) as str == local("/"));
-	assert(next(&i) is void);
+	i = iter(&buf);
+	assert(nextiter(&i) as str == local("/"));
+	assert(nextiter(&i) is void);
+	i = riter(&buf);
+	assert(nextiter(&i) as str == local("/"));
+	assert(nextiter(&i) is void);
 };

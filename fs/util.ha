@@ -149,7 +149,7 @@ export fn realpath(fs: *fs, path: str) (str | error) = {
 	path::set(&pathbuf, path)!;
 	const iter = path::iter(&pathbuf);
 	for (true) {
-		const item = match (path::next(&iter)) {
+		const item = match (path::nextiter(&iter)) {
 		case let item: str =>
 			yield item;
 		case void =>
