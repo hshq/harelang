@@ -95,7 +95,7 @@ export fn identpath(name: ast::ident) str = {
 	};
 	let buf = path::init()!;
 	for (let i = 0z; i < len(name); i += 1) {
-		path::add(&buf, name[i])!;
+		path::push(&buf, name[i])!;
 	};
 	return strings::dup(path::string(&buf));
 };

@@ -4,9 +4,9 @@ use bytes;
 use errors;
 use strings;
 
-// Joins several path elements together and copies them into a path buffer.
+// Joins path elements onto the end of a path buffer.
 // Returns the new string value of the path.
-export fn add(buf: *buffer, items: str...) (str | errors::overflow) = {
+export fn push(buf: *buffer, items: str...) (str | errors::overflow) = {
 	for (let i = 0z; i < len(items); i += 1) {
 		const elem = strings::toutf8(items[i]);
 		const tok = bytes::tokenize(elem, pathsep);
@@ -18,8 +18,8 @@ export fn add(buf: *buffer, items: str...) (str | errors::overflow) = {
 				break;
 			};
 			if (len(next) == 0 && j == 0) {
-				// Handles the add("/foo") case as
-				// add("/", "foo");
+				// Handles the push("/foo") case as
+				// push("/", "foo");
 				appendnorm(buf, pathsepstr)?;
 			};
 			appendnorm(buf, next)?;
@@ -28,16 +28,16 @@ export fn add(buf: *buffer, items: str...) (str | errors::overflow) = {
 	return string(buf);
 };
 
-@test fn add() void = {
+@test fn push() void = {
 	let buf = init()!;
-	add(&buf, "foo", "bar", "baz")!;
+	push(&buf, "foo", "bar", "baz")!;
 	let s = strings::join(pathsepstr, "foo", "bar", "baz");
 	assert(string(&buf) == s);
 	free(s);
 
 	buf.end = 0;
 	s = strings::join(pathsepstr, "", "foo", "bar");
-	add(&buf, s, "baz")!;
+	push(&buf, s, "baz")!;
 	free(s);
 	s = strings::join(pathsepstr, "", "foo", "bar", "baz");
 	assert(string(&buf) == s);
@@ -45,7 +45,7 @@ export fn add(buf: *buffer, items: str...) (str | errors::overflow) = {
 
 	buf.end = 0;
 	s = strings::join(pathsepstr, "foo", "bar");
-	add(&buf, pathsepstr, s, "baz")!;
+	push(&buf, pathsepstr, s, "baz")!;
 	free(s);
 	s = strings::join(pathsepstr, "", "foo", "bar", "baz");
 	assert(string(&buf) == s);
@@ -53,7 +53,7 @@ export fn add(buf: *buffer, items: str...) (str | errors::overflow) = {
 
 	buf.end = 0;
 	s = strings::join(pathsepstr, ".", "foo", "bar");
-	add(&buf, s)!;
+	push(&buf, s)!;
 	free(s);
 	s = strings::join(pathsepstr, "foo", "bar");
 	assert(string(&buf) == s);

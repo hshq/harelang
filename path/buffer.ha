@@ -13,7 +13,7 @@ export type buffer = struct {
 // Initializes a new path buffer.
 export fn init(items: str...) (buffer | errors::overflow) = {
 	let buf = buffer { ... };
-	add(&buf, items...)?;
+	push(&buf, items...)?;
 	return buf;
 };
 
@@ -21,7 +21,7 @@ export fn init(items: str...) (buffer | errors::overflow) = {
 // previous value. Returns the new string value of the path.
 export fn set(buf: *buffer, items: str...) (str | errors::overflow) = {
 	buf.end = 0;
-	return add(buf, items...);
+	return push(buf, items...);
 };
 
 // Returns the current path stored in this buffer. 
@@ -89,7 +89,7 @@ fn parent(buf: *buffer) (void | errors::overflow) = {
 	// XXX: This is not super efficient
 	const name = dirname(string(buf));
 	buf.end = 0;
-	add(buf, name)?;
+	push(buf, name)?;
 };
 
 fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
@@ -189,7 +189,7 @@ fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
 	assert(string(&buf) == s);
 	free(s);
 	s = strings::concat(pathsepstr, "baz");
-	add(&buf, s)!;
+	push(&buf, s)!;
 	free(s);
 	s = strings::join(pathsepstr, "foo", "bar", "baz");
 	assert(string(&buf) == s);

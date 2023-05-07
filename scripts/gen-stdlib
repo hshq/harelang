@@ -1204,7 +1204,7 @@ path() {
 		'+$(PLATFORM).ha' \
 		buffer.ha \
 		util.ha \
-		join.ha \
+		stack.ha \
 		names.ha \
 		iter.ha
 	gen_ssa path strings bytes errors

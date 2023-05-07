@@ -124,7 +124,7 @@ fn rmdirall_path(fs: *fs, buf: *path::buffer) (void | error) = {
 			if (ent.name == "." || ent.name == "..") {
 				continue;
 			};
-			path = path::add(buf, ent.name)!;
+			path = path::push(buf, ent.name)!;
 
 			switch (ent.ftype & mode::DIR) {
 			case mode::DIR =>
@@ -132,7 +132,7 @@ fn rmdirall_path(fs: *fs, buf: *path::buffer) (void | error) = {
 			case =>
 				remove(fs, path)?;
 			};
-			path = path::add(buf, "..")!;
+			path = path::push(buf, "..")!;
 		case void =>
 			break;
 		};
@@ -157,7 +157,7 @@ export fn realpath(fs: *fs, path: str) (str | error) = {
 			break;
 		};
 
-		const item = path::add(&buf, item)!;
+		const item = path::push(&buf, item)!;
 		const link = match (readlink(fs, item)) {
 		case let link: str =>
 			yield link;
@@ -168,7 +168,7 @@ export fn realpath(fs: *fs, path: str) (str | error) = {
 		};
 
 		if (!path::abs(link)) {
-			path::add(&buf, "..", link)!;
+			path::push(&buf, "..", link)!;
 		} else {
 			path::set(&buf, link)!;
 		};

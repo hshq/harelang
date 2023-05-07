@@ -14,7 +14,7 @@ normalized, which is to say that it will not include any of the following:
 
 Assuming that PATHSEP is '/', "/usr//bin/../bin/./hare" becomes
 "/usr/bin/hare" and "../../foo/bar" is unchanged. The path will only end in
-a slash if the last item which was added ended in a slash, like so:
+a slash if the last item which was pushed ended in a slash, like so:
 
 	let buf = path::init("foo", "bar")!;
 	assert(path::string(&buf) == "foo/bar");

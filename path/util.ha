@@ -21,10 +21,7 @@ fn getstring(in: (str | *buffer)) str = {
 };
 
 // Returns true if a path is an absolute path.
-export fn abs(path: str) bool = {
+export fn abs(path: (*buffer | str)) bool = {
 	let path = getbytes(path);
-	if (len(path) == 0) {
-		return false;
-	};
-	return path[0] == PATHSEP;
+	return 0 < len(path) && path[0] == PATHSEP;
 };
