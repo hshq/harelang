@@ -182,3 +182,13 @@ export fn join(items: str...) str = {
 	static let buf = buffer { ... };
 	return strings::dup(set(&buf, items...)!);
 };
+
+// Returns the parent directory for a given path, without modifying the buffer.
+// If the path is the root directory, the root directory is returned. The value
+// is either borrowed from the input or statically allocated; use
+// [[strings::dup]] to extend its lifetime or modify it.
+export fn parent(buf: *const buffer) (str | errors::overflow) = {
+	const newend = appendnorm(buf, dotdot)?;
+	if (newend == 0) return ".";
+	return strings::fromutf8_unsafe(buf.buf[..newend]);
+};
