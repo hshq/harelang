@@ -839,7 +839,7 @@ hare_lex() {
 			+test.ha
 	fi
 	gen_ssa hare::lex ascii io bufio encoding::utf8 strings fmt sort strio \
-		strconv
+		strconv path
 }
 
 hare_module() {

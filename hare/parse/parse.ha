@@ -21,7 +21,7 @@ fn syntaxerr(
 	args: fmt::field...
 ) lex::error = {
 	let why = fmt::asprintf(fmt, args...);
-	return (loc, why): lex::syntax: lex::error;
+	return lex::syntaxerr(loc, why);
 };
 
 // Requires the next token to have a matching ltok. Returns that token, or an

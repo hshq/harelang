@@ -11,6 +11,7 @@ use encoding::utf8;
 use fmt;
 use io;
 use os;
+use path;
 use sort;
 use strconv;
 use strings;
@@ -844,4 +845,9 @@ export fn prevloc(lex: *lexer) location = {
 	};
 };
 
-fn syntaxerr(loc: location, why: str) error = (loc, why);
+export fn syntaxerr(loc: location, why: str) error = {
+	static let buf = path::buffer{...};
+	path::set(&buf, loc.path)!;
+	loc.path = path::string(&buf);
+	return (loc, why);
+};
