@@ -13,8 +13,8 @@ use strings;
 // 	extension("foo/example") => ("example", "")
 // 	extension("foo/example.txt") => ("example", ".txt")
 // 	extension("foo/example.tar.gz") => ("example.tar", ".gz")
-export fn extension(p: (str | *buffer)) (str, str) = {
-	let p = getstring(p);
+// this change is only here until the next commit, rebase is annoying
+export fn extension(p: str) (str, str) = {
 	if (p == "") {
 		return ("", "");
 	};
@@ -48,7 +48,7 @@ export fn extension(p: (str | *buffer)) (str, str) = {
 };
 
 fn assertpatheql(
-	func: *fn(path: (str | *buffer)) const str,
+	func: *fn(path: str) const str,
 	expected: str,
 	path: str...
 ) void = {
@@ -57,5 +57,5 @@ fn assertpatheql(
 	free(s);
 };
 
-fn ext0(p: (str | *buffer)) const str = extension(p).0;
-fn ext1(p: (str | *buffer)) const str = extension(p).1;
+fn ext0(p: str) const str = extension(p).0;
+fn ext1(p: str) const str = extension(p).1;

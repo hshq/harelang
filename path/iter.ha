@@ -19,8 +19,8 @@ let pathsep: []u8 = [PATHSEP];
 
 // Returns an iterator which yields each component of a path. If the path is
 // absolute, the first component will be the root path (e.g. "/").
-export fn iter(path: (str | *buffer)) iterator = {
-	let path = getbytes(path);
+export fn iter(buf: *buffer) iterator = {
+	let path = buf.buf[..buf.end];
 	let flags = iflags::NONE;
 	if (len(path) > 0 && path[0] == PATHSEP) {
 		flags |= iflags::ABSOLUTE;
@@ -51,27 +51,28 @@ export fn next(iter: *iterator) (str | void) = {
 };
 
 @test fn iter() void = {
-	const s = strings::join(pathsepstr, "", "foo", "bar", "baz");
-	let i = iter(s);
+	const buf = init(pathsepstr, "foo", "bar", "baz")!;
+	let i = iter(&buf);
 	assert(next(&i) as str == pathsepstr);
 	assert(next(&i) as str == "foo");
 	assert(next(&i) as str == "bar");
 	assert(next(&i) as str == "baz");
 	assert(next(&i) is void);
-	free(s);
 
-	const s = strings::join(pathsepstr, "foo", "bar", "baz", "");
-	let i = iter(s);
+	set(&buf, "foo", "bar", "baz")!;
+	let i = iter(&buf);
 	assert(next(&i) as str == "foo");
 	assert(next(&i) as str == "bar");
 	assert(next(&i) as str == "baz");
 	assert(next(&i) is void);
-	let i = iter("foo");
+
+	set(&buf, "foo")!;
+	let i = iter(&buf);
 	assert(next(&i) as str == "foo");
 	assert(next(&i) is void);
-	free(s);
 
-	let i = iter(pathsepstr);
+	set(&buf, pathsepstr)!;
+	let i = iter(&buf);
 	assert(next(&i) as str == pathsepstr);
 	assert(next(&i) is void);
 };

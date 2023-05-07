@@ -30,3 +30,15 @@ export fn string(buf: *buffer) str = {
 	if (buf.end == 0) return ".";
 	return strings::fromutf8_unsafe(buf.buf[..buf.end]);
 };
+
+// Check if a path is an absolute path.
+export fn abs(path: (*buffer | str)) bool = match (path) {
+case let path: str => return strings::hasprefix(path, pathsepstr);
+case let buf: *buffer => return 0 < buf.end && buf.buf[0] == PATHSEP;
+};
+
+// Check if a path is the root directory.
+export fn isroot(path: (*buffer | str)) bool = match (path) {
+case let path: str => return path == pathsepstr;
+case let buf: *buffer => return buf.end == 1 && buf.buf[0] == PATHSEP;
+};

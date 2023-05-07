@@ -1204,7 +1204,6 @@ path() {
 		'+$(PLATFORM).ha' \
 		buffer.ha \
 		error.ha \
-		util.ha \
 		stack.ha \
 		names.ha \
 		posix.ha \

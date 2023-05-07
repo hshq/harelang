@@ -143,9 +143,11 @@ fn rmdirall_path(fs: *fs, buf: *path::buffer) (void | error) = {
 // collapsing any "." or ".." path components. The return value is statically
 // allocated and will be overwritten on subsequent calls.
 export fn realpath(fs: *fs, path: str) (str | error) = {
-	static let buf = path::buffer { ... };
-	path::set(&buf)!;
-	const iter = path::iter(path);
+	static let res = path::buffer { ... };
+	path::set(&res)!;
+	static let pathbuf = path::buffer { ... };
+	path::set(&pathbuf, path)!;
+	const iter = path::iter(&pathbuf);
 	for (true) {
 		const item = match (path::next(&iter)) {
 		case let item: str =>
@@ -154,7 +156,7 @@ export fn realpath(fs: *fs, path: str) (str | error) = {
 			break;
 		};
 
-		const item = path::push(&buf, item)!;
+		const item = path::push(&res, item)!;
 		const link = match (readlink(fs, item)) {
 		case let link: str =>
 			yield link;
@@ -165,11 +167,11 @@ export fn realpath(fs: *fs, path: str) (str | error) = {
 		};
 
 		if (!path::abs(link)) {
-			path::push(&buf, "..", link)!;
+			path::push(&res, "..", link)!;
 		} else {
-			path::set(&buf, link)!;
+			path::set(&res, link)!;
 		};
 	};
 
-	return path::string(&buf);
+	return path::string(&res);
 };
