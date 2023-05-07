@@ -645,8 +645,8 @@ fnmatch() {
 
 format_elf() {
 	gen_srcs format::elf \
-		'+$(ARCH).ha' \
-		'+$(PLATFORM).ha' \
+		'arch+$(ARCH).ha' \
+		'platform+$(PLATFORM).ha' \
 		types.ha
 	gen_ssa format::elf
 }

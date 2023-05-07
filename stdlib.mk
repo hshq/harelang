@@ -1216,8 +1216,8 @@ $(HARECACHE)/fnmatch/fnmatch-any.ssa: $(stdlib_fnmatch_any_srcs) $(stdlib_rt) $(
 
 # format::elf (+any)
 stdlib_format_elf_any_srcs = \
-	$(STDLIB)/format/elf/+$(ARCH).ha \
-	$(STDLIB)/format/elf/+$(PLATFORM).ha \
+	$(STDLIB)/format/elf/arch+$(ARCH).ha \
+	$(STDLIB)/format/elf/platform+$(PLATFORM).ha \
 	$(STDLIB)/format/elf/types.ha
 
 $(HARECACHE)/format/elf/format_elf-any.ssa: $(stdlib_format_elf_any_srcs) $(stdlib_rt)
@@ -3466,8 +3466,8 @@ $(TESTCACHE)/fnmatch/fnmatch-any.ssa: $(testlib_fnmatch_any_srcs) $(testlib_rt) 
 
 # format::elf (+any)
 testlib_format_elf_any_srcs = \
-	$(STDLIB)/format/elf/+$(ARCH).ha \
-	$(STDLIB)/format/elf/+$(PLATFORM).ha \
+	$(STDLIB)/format/elf/arch+$(ARCH).ha \
+	$(STDLIB)/format/elf/platform+$(PLATFORM).ha \
 	$(STDLIB)/format/elf/types.ha
 
 $(TESTCACHE)/format/elf/format_elf-any.ssa: $(testlib_format_elf_any_srcs) $(testlib_rt)
