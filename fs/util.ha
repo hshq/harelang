@@ -116,30 +116,27 @@ export fn rmdirall(fs: *fs, path: str) (void | error) = {
 };
 
 fn rmdirall_path(fs: *fs, buf: *path::buffer) (void | error) = {
-	let path = path::string(buf);
-	let it = iter(fs, path)?;
+	let it = iter(fs, path::string(buf))?;
 	for (true) {
 		match (next(it)) {
 		case let ent: dirent =>
 			if (ent.name == "." || ent.name == "..") {
 				continue;
 			};
-			path = path::push(buf, ent.name)!;
+			path::push(buf, ent.name)!;
 
 			switch (ent.ftype & mode::DIR) {
 			case mode::DIR =>
 				rmdirall_path(fs, buf)?;
 			case =>
-				remove(fs, path)?;
+				remove(fs, path::string(buf))?;
 			};
-			path = path::push(buf, "..")!;
+			path::pop(buf);
 		case void =>
 			break;
 		};
 	};
-	if (path != "") {
-		return rmdir(fs, path);
-	};
+	return rmdir(fs, path::string(buf));
 };
 
 // Canonicalizes a path in this filesystem by resolving all symlinks and

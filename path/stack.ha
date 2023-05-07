@@ -60,6 +60,58 @@ export fn push(buf: *buffer, items: str...) (str | errors::overflow) = {
 	free(s);
 };
 
+// Remove and return the final path segment in a buffer.
+// Returns void if the path is empty or is the root dir.
+export fn pop(buf: *buffer) (str | void) = {
+	let trimmed = bytes::rtrim(buf.buf[..buf.end], PATHSEP);
+	if (len(trimmed) == 0) return void;
+	match (bytes::rindex(trimmed, PATHSEP)) {
+	case void =>
+		defer buf.end = 0;
+		return strings::fromutf8_unsafe(buf.buf[..buf.end]);
+	case let i: size =>
+		defer buf.end = i+1;
+		return strings::fromutf8_unsafe(buf.buf[i+1..buf.end]);
+	};
+};
+
+@test fn pop() void = {
+	// empty
+	let buf = init()!;
+	assert(pop(&buf) is void);
+	assert(string(&buf) == ".");
+
+	// root dir
+	buf.end = 0;
+	push(&buf, pathsepstr)!;
+	assert(pop(&buf) is void);
+	assert(string(&buf) == pathsepstr);
+
+	// relative file
+	buf.end = 0;
+	push(&buf, "foo")!;
+	assert(pop(&buf) as str == "foo");
+	assert(string(&buf) == ".");
+
+	// abs file
+	buf.end = 0;
+	push(&buf, pathsepstr, "foo")!;
+	assert(pop(&buf) as str == "foo");
+	assert(string(&buf) == pathsepstr);
+
+	// relative dir
+	buf.end = 0;
+	push(&buf, "foo/")!;
+	assert(pop(&buf) as str == "foo/");
+	assert(string(&buf) == ".");
+
+	// abs dir
+	buf.end = 0;
+	push(&buf, pathsepstr, "foo/")!;
+	assert(pop(&buf) as str == "foo/");
+	assert(string(&buf) == pathsepstr);
+};
+
 // Joins a list of path components together, normalizes it, and returns the
 // resulting string. The caller must free the return value. If the resulting
 // path would exceed [[PATH_MAX]], the program aborts.
