@@ -60,6 +60,19 @@ export fn push(buf: *buffer, items: str...) (str | errors::overflow) = {
 	free(s);
 };
 
+// Examine the final path segment in a buffer.
+// Returns void if the path is empty or is the root dir.
+export fn peek(buf: *const buffer) (str | void) = {
+	let trimmed = bytes::rtrim(buf.buf[..buf.end], PATHSEP);
+	if (len(trimmed) == 0) return void;
+	match (bytes::rindex(trimmed, PATHSEP)) {
+	case void =>
+		return strings::fromutf8_unsafe(buf.buf[..buf.end]);
+	case let i: size =>
+		return strings::fromutf8_unsafe(buf.buf[i+1..buf.end]);
+	};
+};
+
 // Remove and return the final path segment in a buffer.
 // Returns void if the path is empty or is the root dir.
 export fn pop(buf: *buffer) (str | void) = {
