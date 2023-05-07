@@ -1,6 +1,7 @@
 // License: MPL-2.0
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
+use errors;
 use io;
 use slices;
 use strings;
@@ -30,8 +31,8 @@ export fn reset(in: *stream) void = {
 };
 
 // Creates a write-only string stream using the provided buffer for storage.
-// The program aborts if writes would exceed the buffer's capacity. The stream
-// doesn't need to be closed.
+// The writes will return an error if they would exceed the buffer's capacity.
+// The stream doesn't need to be closed.
 export fn fixed(in: []u8) stream = {
 	return stream {
 		stream = &fixed_vtable,
@@ -42,9 +43,7 @@ export fn fixed(in: []u8) stream = {
 fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *stream;
 	let cap = slices::cap(s.buf);
-	if (cap == len(s.buf)) {
-		abort("strio::fixed buffer exceeded");
-	};
+	if (cap == len(s.buf)) return errors::overflow;
 	let n = if (cap - len(s.buf) < len(buf)) cap - len(s.buf) else len(buf);
 	static append(s.buf, buf[..n]...);
 	return n;

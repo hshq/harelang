@@ -1948,7 +1948,7 @@ stdlib_strio_any_srcs = \
 	$(STDLIB)/strio/stream.ha \
 	$(STDLIB)/strio/ops.ha
 
-$(HARECACHE)/strio/strio-any.ssa: $(stdlib_strio_any_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_slices_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM))
+$(HARECACHE)/strio/strio-any.ssa: $(stdlib_strio_any_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_slices_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/strio
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nstrio \
@@ -4223,7 +4223,7 @@ testlib_strio_any_srcs = \
 	$(STDLIB)/strio/stream.ha \
 	$(STDLIB)/strio/ops.ha
 
-$(TESTCACHE)/strio/strio-any.ssa: $(testlib_strio_any_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_slices_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM))
+$(TESTCACHE)/strio/strio-any.ssa: $(testlib_strio_any_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_slices_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/strio
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrio \

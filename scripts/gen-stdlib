@@ -1320,7 +1320,7 @@ strio() {
 	gen_srcs strio \
 		stream.ha \
 		ops.ha
-	gen_ssa strio io strings slices encoding::utf8
+	gen_ssa strio errors io strings slices encoding::utf8
 }
 
 temp() {
