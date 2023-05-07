@@ -146,7 +146,7 @@ export fn realpath(fs: *fs, path: str) (str | error) = {
 	static let res = path::buffer { ... };
 	path::set(&res)!;
 	static let pathbuf = path::buffer { ... };
-	path::set(&pathbuf, path)!;
+	path::set(&pathbuf, resolve(fs, path))!;
 	const iter = path::iter(&pathbuf);
 	for (true) {
 		const item = match (path::nextiter(&iter)) {
