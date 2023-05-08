@@ -302,7 +302,7 @@ export fn read(fd: io::file) (siginfo | errors::error) = {
 
 // Hangup.
 export def SIGHUP: signal = rt::SIGHUP;
-// Terminal signalerrupt signal.
+// Terminal interrupt signal.
 export def SIGINT: signal = rt::SIGINT;
 // Terminal quit signal.
 export def SIGQUIT: signal = rt::SIGQUIT;
