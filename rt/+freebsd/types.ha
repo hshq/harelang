@@ -19,6 +19,7 @@ export type blksize_t = i32;
 export type fflags_t = u32;
 export type mode_t = u16;
 export type nfds_t = uint;
+export type rlim_t = u64;
 
 export def NGROUPS_MAX: size = 1023;
 export def NSIG: int = 32;
@@ -440,3 +441,25 @@ export def LOCK_SH: int = 1;
 export def LOCK_EX: int = 2;
 export def LOCK_NB: int = 4;
 export def LOCK_UN: int = 8;
+
+export type rlimit = struct {
+	rlim_cur: rlim_t,
+	rlim_max: rlim_t,
+};
+
+export def RLIMIT_CPU: int		= 0;
+export def RLIMIT_FSIZE: int		= 1;
+export def RLIMIT_DATA: int		= 2;
+export def RLIMIT_STACK: int		= 3;
+export def RLIMIT_CORE: int		= 4;
+export def RLIMIT_RSS: int		= 5;
+export def RLIMIT_MEMLOCK: int		= 6;
+export def RLIMIT_NPROC: int		= 7;
+export def RLIMIT_NOFILE: int		= 8;
+export def RLIMIT_SBSIZE: int		= 9;
+export def RLIMIT_VMEM: int		= 10;
+export def RLIMIT_AS: int		= RLIMIT_VMEM;
+export def RLIMIT_NPTS: int		= 11;
+export def RLIMIT_SWAP: int		= 12;
+export def RLIMIT_KQUEUES: int		= 13;
+export def RLIMIT_UMTXP: int		= 14;

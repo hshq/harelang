@@ -23,6 +23,7 @@ export type pid_t = int;
 export type timer_t = int;
 export type clock_t = i64;
 export type si_band_t = i64;
+export type rlim_t = u64;
 
 export def NGROUPS_MAX: size = 32;
 export def NSIG: int = 64;
@@ -878,3 +879,26 @@ export def INQOVERFLOW: u32 = 0x00004000;
 export def INIGNORED: u32 = 0x00008000;
 export def INMOVE: u32 = INMOVEDFROM | INMOVEDTO;
 export def INCLOSE: u32 = INCLOSEWRITE | INCLOSENOWRITE;
+
+export type rlimit = struct {
+	rlim_cur: rlim_t,
+	rlim_max: rlim_t,
+};
+
+export def RLIMIT_CPU: int		= 0;
+export def RLIMIT_FSIZE: int		= 1;
+export def RLIMIT_DATA: int		= 2;
+export def RLIMIT_STACK: int		= 3;
+export def RLIMIT_CORE: int		= 4;
+export def RLIMIT_RSS: int		= 5;
+export def RLIMIT_NPROC: int		= 6;
+export def RLIMIT_NOFILE: int		= 7;
+export def RLIMIT_MEMLOCK: int		= 8;
+export def RLIMIT_AS: int		= 9;
+export def RLIMIT_LOCKS: int		= 10;
+export def RLIMIT_SIGPENDING: int	= 11;
+export def RLIMIT_MSGQUEUE: int		= 12;
+export def RLIMIT_NICE: int		= 13;
+export def RLIMIT_RTPRIO: int		= 14;
+export def RLIMIT_RTTIME: int		= 15;
+export def RLIMIT_NLIMITS: int		= 16;
