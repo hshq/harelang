@@ -152,9 +152,7 @@ export fn main() void = {
 		};
 		match (scan(in.path)) {
 		case let u: ast::subunit =>
-			for (let i = 0z; i < len(u.imports); i += 1) {
-				ast::import_finish(u.imports[i]);
-			};
+			ast::imports_finish(u.imports);
 			append(decls, u.decls...);
 		case let err: error =>
 			fmt::fatal("Error:", strerror(err));

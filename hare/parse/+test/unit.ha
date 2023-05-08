@@ -79,9 +79,7 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 	let lexer = lex::init(&buf, "<test>");
 	defer lex::finish(&lexer);
 	let mods = imports(&lexer)!;
-	defer for (let i = 0z; i < len(mods); i += 1) {
-		ast::import_finish(mods[i]);
-	};
+	defer ast::imports_finish(mods);
 
 	let expected: [_]import_tuple = [
 		(ast::import_mode::IDENT, ["foo"], "", []),
