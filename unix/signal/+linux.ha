@@ -428,5 +428,6 @@ export fn signame(sig: signal) const str = {
 		return "SIGPWR";
 	case SIGSYS =>
 		return "SIGSYS";
+	case => abort(); // unreachable
 	};
 };
