@@ -616,6 +616,15 @@ export fn ptsname_r(fd: int, pathbuf: []u8) (void | errno) = {
 };
 @symbol("ptsname_r") fn c_ptsname_r(fildes: int, buffer: *char, buflen: size) int;
 
+export fn flock(fd: int, op: int) (void | errno) = {
+	wrap_return(syscall2(SYS_flock,
+		fd: u64, op: u64))?;
+};
+// export fn flock(fd: int, op: int) (void | errno) = {
+// 	wrap_errno_return(c_flock(fd, op))?;
+// };
+// @symbol("flock") fn c_flock(fd: int, operation: int) int;
+
 export fn shmat(id: int, addr: *const void, flag: int) *void = {
 	return syscall3(SYS_shmat, id: u64, addr: uintptr: u64,
 		flag: u64): uintptr: *void;

@@ -977,12 +977,14 @@ gensrcs_io() {
 		'arch+$(ARCH).ha' \
 		+darwin/file.ha \
 		+darwin/mmap.ha \
+		+darwin/platform_lock.ha \
 		+darwin/vector.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \
 		handle.ha \
 		limit.ha \
+		lock.ha \
 		stream.ha \
 		tee.ha \
 		types.ha \

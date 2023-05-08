@@ -1722,12 +1722,14 @@ stdlib_io_darwin_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
 	$(STDLIB)/io/+darwin/file.ha \
 	$(STDLIB)/io/+darwin/mmap.ha \
+	$(STDLIB)/io/+darwin/platform_lock.ha \
 	$(STDLIB)/io/+darwin/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
@@ -4455,12 +4457,14 @@ testlib_io_darwin_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
 	$(STDLIB)/io/+darwin/file.ha \
 	$(STDLIB)/io/+darwin/mmap.ha \
+	$(STDLIB)/io/+darwin/platform_lock.ha \
 	$(STDLIB)/io/+darwin/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \

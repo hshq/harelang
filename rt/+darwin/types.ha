@@ -577,3 +577,10 @@ export def STDERR_FILENO: int = 2;
 export def SEEK_SET: int = 0; // set file offset to offset
 export def SEEK_CUR: int = 1; // set file offset to current plus offset
 export def SEEK_END: int = 2; // set file offset to EOF plus offset
+
+// <sys/fcntl.h>
+// lock operations for flock(2)
+export def LOCK_SH: int = 0x01; // shared file lock
+export def LOCK_EX: int = 0x02; // exclusive file lock
+export def LOCK_NB: int = 0x04; // don't block when locking
+export def LOCK_UN: int = 0x08; // unlock file
