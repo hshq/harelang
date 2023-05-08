@@ -695,8 +695,8 @@ fnmatch() {
 
 format_elf() {
 	gen_srcs format::elf \
-		'+$(ARCH).ha' \
-		'+$(PLATFORM).ha' \
+		'arch+$(ARCH).ha' \
+		'platform+$(PLATFORM).ha' \
 		types.ha
 	gen_ssa format::elf
 }
@@ -941,12 +941,14 @@ gensrcs_io() {
 		'arch+$(ARCH).ha' \
 		+linux/file.ha \
 		+linux/mmap.ha \
+		+linux/platform_lock.ha \
 		+linux/vector.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \
 		handle.ha \
 		limit.ha \
+		lock.ha \
 		stream.ha \
 		tee.ha \
 		types.ha \
@@ -957,12 +959,14 @@ gensrcs_io() {
 		'arch+$(ARCH).ha' \
 		+freebsd/file.ha \
 		+freebsd/mmap.ha \
+		+freebsd/platform_lock.ha \
 		+freebsd/vector.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \
 		handle.ha \
 		limit.ha \
+		lock.ha \
 		stream.ha \
 		tee.ha \
 		types.ha \

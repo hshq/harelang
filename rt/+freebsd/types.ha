@@ -434,3 +434,9 @@ export def STDERR_FILENO: int = 2;
 export def SEEK_SET: int = 0;
 export def SEEK_CUR: int = 1;
 export def SEEK_END: int = 2;
+
+// Flock operations
+export def LOCK_SH: int = 1;
+export def LOCK_EX: int = 2;
+export def LOCK_NB: int = 4;
+export def LOCK_UN: int = 8;

@@ -1439,8 +1439,8 @@ $(HARECACHE)/fnmatch/fnmatch-any.ssa: $(stdlib_fnmatch_any_srcs) $(stdlib_rt) $(
 
 # format::elf (+any)
 stdlib_format_elf_any_srcs = \
-	$(STDLIB)/format/elf/+$(ARCH).ha \
-	$(STDLIB)/format/elf/+$(PLATFORM).ha \
+	$(STDLIB)/format/elf/arch+$(ARCH).ha \
+	$(STDLIB)/format/elf/platform+$(PLATFORM).ha \
 	$(STDLIB)/format/elf/types.ha
 
 $(HARECACHE)/format/elf/format_elf-any.ssa: $(stdlib_format_elf_any_srcs) $(stdlib_rt)
@@ -1684,12 +1684,14 @@ stdlib_io_linux_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
 	$(STDLIB)/io/+linux/file.ha \
 	$(STDLIB)/io/+linux/mmap.ha \
+	$(STDLIB)/io/+linux/platform_lock.ha \
 	$(STDLIB)/io/+linux/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
@@ -1701,12 +1703,14 @@ stdlib_io_freebsd_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
 	$(STDLIB)/io/+freebsd/file.ha \
 	$(STDLIB)/io/+freebsd/mmap.ha \
+	$(STDLIB)/io/+freebsd/platform_lock.ha \
 	$(STDLIB)/io/+freebsd/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
@@ -4152,8 +4156,8 @@ $(TESTCACHE)/fnmatch/fnmatch-any.ssa: $(testlib_fnmatch_any_srcs) $(testlib_rt) 
 
 # format::elf (+any)
 testlib_format_elf_any_srcs = \
-	$(STDLIB)/format/elf/+$(ARCH).ha \
-	$(STDLIB)/format/elf/+$(PLATFORM).ha \
+	$(STDLIB)/format/elf/arch+$(ARCH).ha \
+	$(STDLIB)/format/elf/platform+$(PLATFORM).ha \
 	$(STDLIB)/format/elf/types.ha
 
 $(TESTCACHE)/format/elf/format_elf-any.ssa: $(testlib_format_elf_any_srcs) $(testlib_rt)
@@ -4409,12 +4413,14 @@ testlib_io_linux_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
 	$(STDLIB)/io/+linux/file.ha \
 	$(STDLIB)/io/+linux/mmap.ha \
+	$(STDLIB)/io/+linux/platform_lock.ha \
 	$(STDLIB)/io/+linux/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \
@@ -4428,12 +4434,14 @@ testlib_io_freebsd_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
 	$(STDLIB)/io/+freebsd/file.ha \
 	$(STDLIB)/io/+freebsd/mmap.ha \
+	$(STDLIB)/io/+freebsd/platform_lock.ha \
 	$(STDLIB)/io/+freebsd/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
 	$(STDLIB)/io/types.ha \

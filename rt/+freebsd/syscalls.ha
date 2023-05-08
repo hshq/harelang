@@ -514,6 +514,11 @@ export fn posix_fallocate(fd: int, off: i64, ln: i64) (void | errno) = {
 		fd: u64, off: u64, ln: u64))?;
 };
 
+export fn flock(fd: int, op: int) (void | errno) = {
+	wrap_return(syscall2(SYS_flock,
+		fd: u64, op: u64))?;
+};
+
 export fn shmat(id: int, addr: *const void, flag: int) *void = {
 	return syscall3(SYS_shmat, id: u64, addr: uintptr: u64,
 		flag: u64): uintptr: *void;
