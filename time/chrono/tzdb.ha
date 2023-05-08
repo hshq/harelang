@@ -228,12 +228,12 @@ fn load_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 		if (len(bytes) == 0) { // no NUL encountered
 			return invalidtzif;
 		};
-		const abbr = strings::dup(match (strings::fromutf8(bytes)) {
+		const abbr = match (strings::fromutf8(bytes)) {
 		case let s: str =>
 			yield s;
 		case encoding::utf8::invalid =>
 			return invalidtzif;
-		});
+		};
 		zone.abbr = strings::dup(abbr);
 
 		append(zones, zone);
