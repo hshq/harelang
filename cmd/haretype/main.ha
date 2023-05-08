@@ -24,6 +24,7 @@ fn typeinfo(
 		const stream = bufio::fixed(strings::toutf8(s), io::mode::READ);
 		defer io::close(&stream)!;
 		const lexer = lex::init(&stream, "-");
+		defer lex::finish(&lexer);
 		const atype = parse::_type(&lexer)?;
 		defer ast::type_finish(atype);
 		const typ = types::lookup(store, &atype)?;

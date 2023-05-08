@@ -366,6 +366,7 @@ fn scan_file(
 	if (ftype == filetype::HARE) {
 		let tee = io::tee(f, &sha);
 		let lexer = lex::init(&tee, path);
+		defer lex::finish(&lexer);
 		let imports = match (parse::imports(&lexer)) {
 		case let im: []ast::import =>
 			yield im;

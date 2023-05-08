@@ -14,6 +14,7 @@ use strings;
 fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	let buf = bufio::fixed(strings::toutf8(srcs[i]), mode::READ);
 	let lexer = lex::init(&buf, "<test>");
+	defer lex::finish(&lexer);
 	let exp = match (expr(&lexer)) {
 	case let exp: ast::expr =>
 		yield exp;
@@ -78,6 +79,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	// use expr_testloc
 	let buf = bufio::fixed(strings::toutf8("foo: bar: baz"), mode::READ);
 	let lexer = lex::init(&buf, "<test>");
+	defer lex::finish(&lexer);
 	let exp = match (expr(&lexer)) {
 	case let exp: ast::expr =>
 		yield exp;
@@ -101,6 +103,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 fn type_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	let buf = bufio::fixed(strings::toutf8(srcs[i]), mode::READ);
 	let lexer = lex::init(&buf, "<test>");
+	defer lex::finish(&lexer);
 	let typ = match (_type(&lexer)) {
 	case let typ: ast::_type =>
 		yield typ;

@@ -239,6 +239,7 @@ export fn main() void = {
 fn parseident(in: str) (ast::ident | parse::error) = {
 	const buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
 	const lexer = lex::init(&buf, "<string>");
+	defer lex::finish(&lexer);
 	let ident: []str = []; // TODO: errdefer
 	let z = 0z;
 	for (true) {

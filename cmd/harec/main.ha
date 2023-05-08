@@ -74,6 +74,7 @@ export fn main() void = {
 		defer io::close(&bufin)!;
 
 		let lexer = lex::init(&bufin, cmd.args[i]);
+		defer lex::finish(&lexer);
 		let su = match (parse::subunit(&lexer)) {
 		case let err: parse::error =>
 			printerr(err);
