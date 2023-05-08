@@ -261,9 +261,9 @@ export fn getpid() int = syscall0(SYS_getpid): int;
 
 export fn wait4(
 	pid: int,
-	wstatus: *int,
+	wstatus: nullable *int,
 	options: int,
-	rusage: *rusage,
+	rusage: nullable *rusage,
 ) (int | errno) = {
 	return wrap_return(syscall4(SYS_wait4,
 		pid: u64, wstatus: uintptr: u64,

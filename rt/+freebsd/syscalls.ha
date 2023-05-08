@@ -284,9 +284,9 @@ export fn fexecve(fd: int, argv: *[*]nullable *const char,
 
 export fn wait4(
 	pid: int,
-	wstatus: *int,
+	wstatus: nullable *int,
 	options: int,
-	rusage: *rusage,
+	rusage: nullable *rusage,
 ) (int | errno) = {
 	return wrap_return(syscall4(SYS_wait4,
 		pid: u64, wstatus: uintptr: u64,
