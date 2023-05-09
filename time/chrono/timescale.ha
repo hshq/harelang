@@ -135,7 +135,12 @@ fn utc_convto(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 		return [i];
 	case &tai =>
 		if (!utc_isinitialized) {
-			abort("utc timescale uninitialized");
+			match (init_utc_leapsecs()) {
+			case void =>
+				utc_isinitialized = true;
+			case =>
+				abort("utc timescale uninitialized");
+			};
 		};
 
 		const idx = lookup_leaps(&utc_leapsecs, time::unix(i));
@@ -162,7 +167,12 @@ fn utc_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 		return [i];
 	case &tai =>
 		if (!utc_isinitialized) {
-			abort("utc timescale uninitialized");
+			match (init_utc_leapsecs()) {
+			case void =>
+				utc_isinitialized = true;
+			case =>
+				abort("utc timescale uninitialized");
+			};
 		};
 
 		const idx = lookup_leaps(&utc_leapsecs, time::unix(i));

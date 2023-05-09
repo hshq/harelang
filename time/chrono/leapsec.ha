@@ -46,17 +46,6 @@ let utc_leapsecs: [](i64, i64) = [];
 
 let utc_isinitialized: bool = false;
 
-// Initializes the [[utc]] [[timescale]].
-@init fn init_utc() void = {
-	os::init_cwd();
-	match (init_utc_leapsecs()) {
-	case void =>
-		utc_isinitialized = true;
-	case =>
-		return;
-	};
-};
-
 @fini fn free_utc() void = {
 	free(utc_leapsecs);
 };
