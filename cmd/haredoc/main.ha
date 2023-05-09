@@ -23,7 +23,6 @@ type format = enum {
 	HARE,
 	TTY,
 	HTML,
-	GEMTEXT,
 };
 
 type context = struct {
@@ -58,7 +57,7 @@ export fn main() void = {
 
 	const help: [_]getopt::help = [
 		"reads and formats Hare documentation",
-		('F', "format", "specify output format (hare, tty, html, or gemtext)"),
+		('F', "format", "specify output format (hare, tty, or html)"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
 		('a', "show undocumented members (only applies to -Fhare and -Ftty)"),
@@ -79,8 +78,6 @@ export fn main() void = {
 				fmt = format::TTY;
 			case "html" =>
 				fmt = format::HTML;
-			case "gemtext" =>
-				fmt = format::GEMTEXT;
 			case =>
 				fmt::fatal("Invalid format", opt.1);
 			};
@@ -363,7 +360,6 @@ fn emit(ctx: *context) (void | error) = {
 		emit_tty(ctx)?;
 	case format::HTML =>
 		emit_html(ctx)?;
-	case format::GEMTEXT => abort(); // TODO
 	};
 };
 
