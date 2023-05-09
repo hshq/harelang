@@ -141,11 +141,11 @@ ${stdlib}_asm = \$($cache)/rt/syscall.o \\
 	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(ARCH)/cpuid_native.s
 
 \$($cache)/rt/rt-linux.a: \$($cache)/rt/rt-linux.o \$(${stdlib}_asm)
-	@printf 'AS \t%s\n' "\$@"
+	@printf 'AR \t%s\n' "\$@"
 	@\$(AR) -csr \$@ \$($cache)/rt/rt-linux.o \$(${stdlib}_asm)
 
 \$($cache)/rt/rt-freebsd.a: \$($cache)/rt/rt-freebsd.o \$(${stdlib}_asm)
-	@printf 'AS \t%s\n' "\$@"
+	@printf 'AR \t%s\n' "\$@"
 	@\$(AR) -csr \$@ \$($cache)/rt/rt-freebsd.o \$(${stdlib}_asm)
 
 ${stdlib}_rt = \$($cache)/rt/rt-\$(PLATFORM).a

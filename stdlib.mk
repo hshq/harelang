@@ -2342,11 +2342,11 @@ $(TESTCACHE)/rt/cpuid_native.o: $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
 
 $(TESTCACHE)/rt/rt-linux.a: $(TESTCACHE)/rt/rt-linux.o $(testlib_asm)
-	@printf 'AS \t%s\n' "$@"
+	@printf 'AR \t%s\n' "$@"
 	@$(AR) -csr $@ $(TESTCACHE)/rt/rt-linux.o $(testlib_asm)
 
 $(TESTCACHE)/rt/rt-freebsd.a: $(TESTCACHE)/rt/rt-freebsd.o $(testlib_asm)
-	@printf 'AS \t%s\n' "$@"
+	@printf 'AR \t%s\n' "$@"
 	@$(AR) -csr $@ $(TESTCACHE)/rt/rt-freebsd.o $(testlib_asm)
 
 testlib_rt = $(TESTCACHE)/rt/rt-$(PLATFORM).a
