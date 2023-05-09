@@ -38,6 +38,11 @@ export fn expr(
 			z += expr(out, indent, *tp.value)?;
 			return z;
 		};
+	case let e: ast::align_expr =>
+		let z = fmt::fprint(out, "align(")?;
+		z += _type(out, indent, *e)?;
+		z += fmt::fprint(out, ")")?;
+		return z;
 	case let e: ast::alloc_expr =>
 		let z = fmt::fprint(out, "alloc(")?;
 		z += expr(out, indent, *e.init)?;

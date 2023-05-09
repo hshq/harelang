@@ -254,11 +254,13 @@ fn append_insert_expr(
 };
 
 fn measurement(lexer: *lex::lexer) (ast::expr | error) = {
-	const tok = want(lexer, ltok::LEN, ltok::SIZE, ltok::OFFSET)?;
-		want(lexer, ltok::LPAREN)?;
+	const tok = want(lexer, ltok::LEN, ltok::ALIGN, ltok::SIZE, ltok::OFFSET)?;
+	want(lexer, ltok::LPAREN)?;
 	const expr = switch (tok.0) {
 	case ltok::LEN =>
 		yield alloc(expr(lexer)?): ast::len_expr;
+	case ltok::ALIGN =>
+		yield alloc(_type(lexer)?): ast::align_expr;
 	case ltok::SIZE =>
 		yield alloc(_type(lexer)?): ast::size_expr;
 	case ltok::OFFSET =>
@@ -382,9 +384,9 @@ fn binding(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
 };
 
 fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
-	const tok = match (peek(lexer, ltok::ALLOC, ltok::APPEND, ltok::FREE,
-		ltok::DELETE, ltok::ABORT, ltok::ASSERT, ltok::INSERT,
-		ltok::STATIC, ltok::SIZE, ltok::LEN, ltok::OFFSET,
+	const tok = match (peek(lexer, ltok::ALIGN, ltok::ALLOC, ltok::APPEND,
+		ltok::FREE, ltok::DELETE, ltok::ABORT, ltok::ASSERT,
+		ltok::INSERT, ltok::STATIC, ltok::SIZE, ltok::LEN, ltok::OFFSET,
 		ltok::DEFER, ltok::VASTART, ltok::VAARG, ltok::VAEND)?) {
 	case let tok: lex::token =>
 		yield tok;
@@ -424,7 +426,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 			return delete_expr(lexer, true);
 		case => abort();
 		};
-	case ltok::SIZE, ltok::LEN, ltok::OFFSET =>
+	case ltok::ALIGN, ltok::SIZE, ltok::LEN, ltok::OFFSET =>
 		return measurement(lexer);
 	case ltok::DEFER =>
 		want(lexer, ltok::DEFER)?;
