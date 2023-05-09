@@ -66,6 +66,40 @@ export fn reset(signum: signal) void = {
 	handle(signum, rt::SIG_DFL);
 };
 
+// Unregisters all signal handlers.
+export fn resetall() void = {
+	// SIGKILL and SIGSTOP deliberately omitted; see sigaction(2)
+	reset(SIGHUP);
+	reset(SIGINT);
+	reset(SIGQUIT);
+	reset(SIGILL);
+	reset(SIGTRAP);
+	reset(SIGABRT);
+	reset(SIGBUS);
+	reset(SIGFPE);
+	reset(SIGUSR1);
+	reset(SIGSEGV);
+	reset(SIGUSR2);
+	reset(SIGPIPE);
+	reset(SIGALRM);
+	reset(SIGTERM);
+	reset(SIGCHLD);
+	reset(SIGCONT);
+	reset(SIGTSTP);
+	reset(SIGTTIN);
+	reset(SIGTTOU);
+	reset(SIGURG);
+	reset(SIGXCPU);
+	reset(SIGXFSZ);
+	reset(SIGVTALRM);
+	reset(SIGPROF);
+	reset(SIGWINCH);
+	reset(SIGIO);
+	reset(SIGPOLL);
+	reset(SIGPWR);
+	reset(SIGSYS);
+};
+
 // Prevents given signal from arriving to the current process.
 // One common use case is to ignore SIGCHLD to avoid zombie child processes.
 export fn ignore(signum: signal) void = {
