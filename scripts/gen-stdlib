@@ -1434,10 +1434,10 @@ unix_passwd() {
 }
 
 unix_poll() {
-	gen_srcs -plinux unix::poll +linux.ha
+	gen_srcs -plinux unix::poll +linux.ha types.ha
 	gen_ssa -plinux unix::poll rt errors time io
 
-	gen_srcs -pfreebsd unix::poll +freebsd.ha
+	gen_srcs -pfreebsd unix::poll +freebsd.ha types.ha
 	gen_ssa -pfreebsd unix::poll rt errors time io
 }
 

@@ -2120,7 +2120,8 @@ $(HARECACHE)/unix/passwd/unix_passwd-any.ssa: $(stdlib_unix_passwd_any_srcs) $(s
 
 # unix::poll (+linux)
 stdlib_unix_poll_linux_srcs = \
-	$(STDLIB)/unix/poll/+linux.ha
+	$(STDLIB)/unix/poll/+linux.ha \
+	$(STDLIB)/unix/poll/types.ha
 
 $(HARECACHE)/unix/poll/unix_poll-linux.ssa: $(stdlib_unix_poll_linux_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2130,7 +2131,8 @@ $(HARECACHE)/unix/poll/unix_poll-linux.ssa: $(stdlib_unix_poll_linux_srcs) $(std
 
 # unix::poll (+freebsd)
 stdlib_unix_poll_freebsd_srcs = \
-	$(STDLIB)/unix/poll/+freebsd.ha
+	$(STDLIB)/unix/poll/+freebsd.ha \
+	$(STDLIB)/unix/poll/types.ha
 
 $(HARECACHE)/unix/poll/unix_poll-freebsd.ssa: $(stdlib_unix_poll_freebsd_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -4402,7 +4404,8 @@ $(TESTCACHE)/unix/passwd/unix_passwd-any.ssa: $(testlib_unix_passwd_any_srcs) $(
 
 # unix::poll (+linux)
 testlib_unix_poll_linux_srcs = \
-	$(STDLIB)/unix/poll/+linux.ha
+	$(STDLIB)/unix/poll/+linux.ha \
+	$(STDLIB)/unix/poll/types.ha
 
 $(TESTCACHE)/unix/poll/unix_poll-linux.ssa: $(testlib_unix_poll_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -4412,7 +4415,8 @@ $(TESTCACHE)/unix/poll/unix_poll-linux.ssa: $(testlib_unix_poll_linux_srcs) $(te
 
 # unix::poll (+freebsd)
 testlib_unix_poll_freebsd_srcs = \
-	$(STDLIB)/unix/poll/+freebsd.ha
+	$(STDLIB)/unix/poll/+freebsd.ha \
+	$(STDLIB)/unix/poll/types.ha
 
 $(TESTCACHE)/unix/poll/unix_poll-freebsd.ssa: $(testlib_unix_poll_freebsd_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
