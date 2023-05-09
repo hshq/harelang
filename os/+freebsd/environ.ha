@@ -2,6 +2,7 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use bytes;
+use errors;
 use rt;
 use strings;
 use types;
@@ -122,4 +123,16 @@ export fn machine() const str = {
 	case =>
 		return mach;
 	};
+};
+
+// Returns the number of usable CPUs.
+export fn cpucount() (int | errors::error) = {
+	let count = 0;
+	let length = size(int);
+	match (rt::sysctlbyname("hw.ncpu", &count, &length, null, 0)) {
+	case void => void;
+	case let err: rt::errno =>
+		return errors::errno(err);
+	};
+	return count;
 };

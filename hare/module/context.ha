@@ -93,11 +93,11 @@ export fn identpath(name: ast::ident) str = {
 	if (len(name) == 0) {
 		return strings::dup(".");
 	};
-	let buf = path::init();
+	let buf = path::init()!;
 	for (let i = 0z; i < len(name); i += 1) {
-		path::add(&buf, name[i])!;
+		path::push(&buf, name[i])!;
 	};
-	return path::allocate(&buf);
+	return strings::dup(path::string(&buf));
 };
 
 @test fn identpath() void = {

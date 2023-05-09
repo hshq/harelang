@@ -41,3 +41,12 @@ export fn import_finish(import: import) void = {
 	};
 	free(import.objects);
 };
+
+// Frees resources associated with each [[import]] in a slice, and then
+// frees the slice itself.
+export fn imports_finish(imports: []import) void = {
+	for (let i = 0z; i < len(imports); i += 1) {
+		import_finish(imports[i]);
+	};
+	free(imports);
+};

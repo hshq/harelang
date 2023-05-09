@@ -141,8 +141,8 @@ fn lookup_remote_enum(ctx: *context, what: ast::ident) (ast::ident | void) = {
 	};
 	for (let i = 0z; i < len(version.inputs); i += 1) {
 		const in = version.inputs[i];
-		const ext = path::extension(in.path);
-		if (ext.1 != ".ha") {
+		const ext = path::peek_ext(&path::init(in.path)!);
+		if (ext is void || ext as str != "ha") {
 			continue;
 		};
 		match (scan(in.path)) {

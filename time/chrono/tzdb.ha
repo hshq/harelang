@@ -26,8 +26,7 @@ export type invalidtzif = !void;
 // All localities provided default to the [[utc]] [[timescale]] and
 // [[EARTH_DAY]] day-length.
 export fn tz(name: str) (locality | tzdberror) = {
-	const filepath = path::init();
-	path::add(&filepath, ZONEINFO_PREFIX, name)!;
+	const filepath = path::init(ZONEINFO_PREFIX, name)!;
 	const fpath = path::string(&filepath);
 	const file = os::open(fpath)?;
 
@@ -229,12 +228,12 @@ fn load_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 		if (len(bytes) == 0) { // no NUL encountered
 			return invalidtzif;
 		};
-		const abbr = strings::dup(match (strings::fromutf8(bytes)) {
+		const abbr = match (strings::fromutf8(bytes)) {
 		case let s: str =>
 			yield s;
 		case encoding::utf8::invalid =>
 			return invalidtzif;
-		});
+		};
 		zone.abbr = strings::dup(abbr);
 
 		append(zones, zone);

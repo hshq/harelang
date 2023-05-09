@@ -13,5 +13,4 @@ when it is no longer required. A few items to note about Hare:
 - Return-by-value will leave garbage on the stack which is copied into the
   caller's stack frame and abandoned. You cannot return-by-value any objects
   which contain secret information.
-- Assignments are never optimized away. You can securely erase an array's
-  contents with array = [0...];
+- To securely erase an array's contents, use bytes::zero.

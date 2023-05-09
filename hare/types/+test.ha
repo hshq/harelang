@@ -16,6 +16,7 @@ use fmt;
 fn parse_type(in: str) ast::_type = {
 	let buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
 	let lex = lex::init(&buf, "<test>");
+	defer lex::finish(&lex);
 	return parse::_type(&lex)!;
 };
 

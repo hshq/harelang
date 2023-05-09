@@ -111,55 +111,52 @@ export fn dirents_free(d: []dirent) void = {
 
 // Removes a directory, and anything in it.
 export fn rmdirall(fs: *fs, path: str) (void | error) = {
-	let buf = path::init();
-	path::set(&buf, path)!;
+	let buf = path::init(path)!;
 	return rmdirall_path(fs, &buf);
 };
 
 fn rmdirall_path(fs: *fs, buf: *path::buffer) (void | error) = {
-	let path = path::string(buf);
-	let it = iter(fs, path)?;
+	let it = iter(fs, path::string(buf))?;
 	for (true) {
 		match (next(it)) {
 		case let ent: dirent =>
 			if (ent.name == "." || ent.name == "..") {
 				continue;
 			};
-			path = path::add(buf, ent.name)!;
+			path::push(buf, ent.name)!;
 
 			switch (ent.ftype & mode::DIR) {
 			case mode::DIR =>
 				rmdirall_path(fs, buf)?;
 			case =>
-				remove(fs, path)?;
+				remove(fs, path::string(buf))?;
 			};
-			path = path::add(buf, "..")!;
+			path::pop(buf);
 		case void =>
 			break;
 		};
 	};
-	if (path != "") {
-		return rmdir(fs, path);
-	};
+	return rmdir(fs, path::string(buf));
 };
 
 // Canonicalizes a path in this filesystem by resolving all symlinks and
 // collapsing any "." or ".." path components. The return value is statically
 // allocated and will be overwritten on subsequent calls.
 export fn realpath(fs: *fs, path: str) (str | error) = {
-	static let buf = path::buffer { ... };
-	path::reset(&buf);
-
-	const iter = path::iter(path);
+	static let res = path::buffer { ... };
+	path::set(&res)!;
+	static let pathbuf = path::buffer { ... };
+	path::set(&pathbuf, resolve(fs, path))!;
+	const iter = path::iter(&pathbuf);
 	for (true) {
-		const item = match (path::next(&iter)) {
+		const item = match (path::nextiter(&iter)) {
 		case let item: str =>
 			yield item;
 		case void =>
 			break;
 		};
 
-		const item = path::add(&buf, item)!;
+		const item = path::push(&res, item)!;
 		const link = match (readlink(fs, item)) {
 		case let link: str =>
 			yield link;
@@ -170,11 +167,11 @@ export fn realpath(fs: *fs, path: str) (str | error) = {
 		};
 
 		if (!path::abs(link)) {
-			path::add(&buf, "..", link)!;
+			path::push(&res, "..", link)!;
 		} else {
-			path::set(&buf, link)!;
+			path::set(&res, link)!;
 		};
 	};
 
-	return path::string(&buf);
+	return path::string(&res);
 };

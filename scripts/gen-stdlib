@@ -20,7 +20,7 @@ darwin"
 
 gensrcs_rt() {
 	gen_srcs -plinux rt \
-		+linux/abort.ha \
+		+linux/platform_abort.ha \
 		+linux/env.ha \
 		+linux/errno.ha \
 		+linux/types.ha \
@@ -47,7 +47,7 @@ gensrcs_rt() {
 		strcmp.ha \
 		$*
 	gen_srcs -pfreebsd rt \
-		+freebsd/abort.ha \
+		+freebsd/platform_abort.ha \
 		+freebsd/env.ha \
 		+freebsd/errno.ha \
 		+freebsd/platformstart.ha \
@@ -762,6 +762,7 @@ hare_ast() {
 
 gensrcs_hare_types() {
 	gen_srcs hare::types \
+		'+$(ARCH)/hash.ha' \
 		arch.ha \
 		builtins.ha \
 		class.ha \
@@ -1274,7 +1275,8 @@ os() {
 		+linux/memory.ha \
 		+linux/stdfd.ha \
 		os.ha
-	gen_ssa -plinux os io strings types fs encoding::utf8 bytes bufio errors
+	gen_ssa -plinux os io strings types fs encoding::utf8 bytes bufio \
+		errors math
 
 	gen_srcs -pfreebsd os \
 		+freebsd/environ.ha \
@@ -1324,9 +1326,11 @@ path() {
 	gen_srcs path \
 		'+$(PLATFORM).ha' \
 		buffer.ha \
-		util.ha \
-		join.ha \
-		names.ha \
+		error.ha \
+		stack.ha \
+		ext_stack.ha \
+		posix.ha \
+		prefix.ha \
 		iter.ha
 	gen_ssa path strings bytes errors
 }
@@ -1334,10 +1338,11 @@ path() {
 regex() {
 	if [ $testing -eq 0 ]; then
 		gen_srcs regex regex.ha
-		gen_ssa regex encoding::utf8 errors strconv strings
+		gen_ssa regex ascii bufio encoding::utf8 errors io strconv \
+			strings bufio
 	else
 		gen_srcs regex regex.ha +test.ha
-		gen_ssa regex encoding::utf8 errors strconv strings fmt io os
+		gen_ssa regex encoding::utf8 errors strconv strings fmt io os bufio
 	fi
 }
 
@@ -1586,10 +1591,10 @@ unix_passwd() {
 }
 
 unix_poll() {
-	gen_srcs -plinux unix::poll +linux.ha
+	gen_srcs -plinux unix::poll +linux.ha types.ha
 	gen_ssa -plinux unix::poll rt errors time io
 
-	gen_srcs -pfreebsd unix::poll +freebsd.ha
+	gen_srcs -pfreebsd unix::poll +freebsd.ha types.ha
 	gen_ssa -pfreebsd unix::poll rt errors time io
 
 	gen_srcs -pdarwin unix::poll +darwin.ha

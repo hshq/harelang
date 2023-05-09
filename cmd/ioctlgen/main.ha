@@ -85,6 +85,7 @@ export fn main() void = {
 fn loadtype(store: *types::typestore) void = {
 	const tee = io::tee(os::stdin, os::stdout);
 	const lex = lex::init(&tee, "<ioctl>");
+	defer lex::finish(&lex);
 	const decl = match (parse::decl(&lex)) {
 	case let err: parse::error =>
 		fmt::fatal("Error parsing type declaration:",

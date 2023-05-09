@@ -265,9 +265,14 @@ fn sched_hare_object(
 
 	let current = false;
 	let output = if (output is str) {
+		static let buf = path::buffer{...};
+		path::set(&buf, output as str)!;
 		// TODO: Should we use the cache here?
-		const (_, ext) = path::extension(output as str);
-		const expected = if (mixed) ".a" else ".o";
+		const ext = match (path::peek_ext(&buf)) {
+		case let s: str => yield s;
+		case void => yield "";
+		};
+		const expected = if (mixed) "a" else "o";
 		if (ext != expected) {
 			fmt::errorfln("Warning: Expected output file extension {}, found {}",
 				expected, output)!;
@@ -303,9 +308,8 @@ fn sched_hare_object(
 		let td = fmt::asprintf("{}.td", version);
 		defer free(td);
 
-		let buf = path::init();
-		path::set(&buf, plan.context.cache)!;
-		path::add(&buf, namespace...)!;
+		let buf = path::init(plan.context.cache)!;
+		path::push(&buf, namespace...)!;
 		const path = path::string(&buf);
 		match (os::mkdirs(path, 0o755)) {
 		case void => void;
@@ -314,8 +318,8 @@ fn sched_hare_object(
 			fmt::fatalf("Error: mkdirs {}: {}", path,
 				fs::strerror(err));
 		};
-		append(harec.cmd, ["-t", path::join(path, td)]...);
-		yield path::join(path, name);
+		append(harec.cmd, ["-t", strings::dup(path::push(&buf, td)!)]...);
+		yield strings::dup(path::push(&buf, "..", name)!);
 	} else {
 		// XXX: This is probably kind of dumb
 		// It would be better to apply any defines which affect this

@@ -5,12 +5,16 @@ use bufio;
 use io;
 use rt;
 
-export let stdin_bufio: bufio::bufstream = bufio::bufstream {
+let stdin_bufio: bufio::bufstream = bufio::bufstream {
+	// Will be overwritten, but must be initialized
+	stream = null: io::stream,
 	source = 0,
 	...
 };
 
-export let stdout_bufio: bufio::bufstream = bufio::bufstream {
+let stdout_bufio: bufio::bufstream = bufio::bufstream {
+	// Will be overwritten, but must be initialized
+	stream = null: io::stream,
 	source = 1,
 	...
 };

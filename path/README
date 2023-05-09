@@ -5,26 +5,29 @@ of non-UTF-8 paths (ideally for only as long as it takes to delete or rename
 those files), see the low-level functions available from [[rt]].
 
 Use of the [[buffer]] type is recommended for efficient and consistent
-manipulation of filesystem paths.
+manipulation of filesystem paths. The path will always be
+normalized, which is to say that it will not include any of the following:
 
-	let buf = path::init();
-	path::add(&buf, "/", "foo", "bar", "baz.txt")!;
-	fmt::println(path::string(&buf))!; // "/foo/bar/baz.txt"
+- Redundant ".." components
+- Redundant path separators
+- Any "." components, except in the case of "."
 
-	path::add(&buf, "../.././hello.txt")!;
-	fmt::println(path::string(&buf))!; // "/foo/hello.txt"
+Assuming that [[PATHSEP]] is '/', "/usr//bin/../bin/./hare/" becomes
+"/usr/bin/hare" and "../../foo/bar" is unchanged.
 
 The buffer object includes an array of length [[PATH_MAX]], which can be
 somewhat large; on Linux it's 4096 bytes. You can allocate this on the stack in
-most cases, but you may prefer to allocate it elsewhere depending on your needs.
+most cases, but you may prefer to allocate it elsewhere depending on your
+needs. Functions in this module return [[too_long]] if the buffer's capacity
+would be exceeded.
 
 	// Stack allocated
-	let buf = path::init();
+	let buf = path::init()!;
 
 	// Statically allocated
 	static let buf = path::buffer { ... };
-	path::reset(&buf);
+	path::set(&buf)!;
 
 	// Heap allocated
-	let buf = alloc(path::init());
+	let buf = alloc(path::init()!);
 	defer free(buf);

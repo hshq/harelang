@@ -86,7 +86,7 @@ fn mkplan(
 
 	// Look up the most appropriate hare.sc file
 	let ntag = 0z;
-	const buf = path::init();
+	const buf = path::init()!;
 	const iter = os::iter(rtdir)!;
 	defer os::finish(iter);
 	for (true) match (fs::next(iter)) {
@@ -95,7 +95,7 @@ fn mkplan(
 		const name = p.0, ext = p.1, tags = p.2;
 		defer module::tags_free(tags);
 
-		if (len(tags) >= ntag && name == "hare" && ext == ".sc"
+		if (len(tags) >= ntag && name == "hare" && ext == "sc"
 				&& module::tagcompat(ctx.tags, tags)) {
 			ntag = len(tags);
 			path::set(&buf, rtdir, d.name)!;
@@ -116,7 +116,7 @@ fn mkplan(
 		context = ctx,
 		target = target,
 		workdir = os::tryenv("HARE_DEBUG_WORKDIR", temp::dir()),
-		script = path::allocate(&buf),
+		script = strings::dup(path::string(&buf)),
 		environ = alloc([
 			(strings::dup("HARECACHE"), strings::dup(ctx.cache)),
 		]),
@@ -313,5 +313,6 @@ fn mkfile(plan: *plan, input: str, ext: str) str = {
 	const name = fmt::bsprintf(namebuf, "temp.{}.{}.{}",
 		input, plan.counter, ext);
 	plan.counter += 1;
-	return path::join(plan.workdir, name);
+	const buf = path::init(plan.workdir, name)!;
+	return strings::dup(path::string(&buf));
 };

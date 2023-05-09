@@ -235,7 +235,7 @@ fn choosekey() (str | release_error) = {
 		"id_rsa",
 		"id_dsa",
 	];
-	let buf = path::init();
+	let buf = path::init()!;
 	const home = os::getenv("HOME") as str;
 	for (let i = 0z; i < len(paths); i += 1) {
 		const cand = path::set(&buf, home, ".ssh", paths[i])!;
@@ -279,7 +279,7 @@ fn signtag(tmpdir: str, name: str, tag: str, key: str) (void | release_error) = 
 	// This could work without the agent if it were not for the fact that
 	// ssh-keygen is bloody stupid when it comes to prompting you for your
 	// password.
-	let buf = path::init();
+	let buf = path::init()!;
 	const socket = path::set(&buf, tmpdir, "agent")!;
 	const agent = exec::cmd("ssh-agent", "-Da", socket)?;
 	exec::nullstd(&agent);

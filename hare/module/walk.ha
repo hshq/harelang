@@ -57,26 +57,23 @@ fn _walk(
 		switch (ent.ftype) {
 		case fs::mode::DIR =>
 			// TODO: Test that this is a valid name (grammar)
-			let subpath = path::join(path, ent.name);
-			defer free(subpath);
+			let subpath = path::init(path, ent.name)!;
 			let newns = ast::ident_dup(ns);
 			append(newns, strings::dup(ent.name));
-			_walk(ctx, subpath, items, newns)?;
+			_walk(ctx, path::string(&subpath), items, newns)?;
 		case fs::mode::LINK =>
-			let linkpath = path::join(path, ent.name);
-			defer free(linkpath);
-			let linkpath = fs::readlink(ctx.fs, linkpath)?;
-			if (!path::abs(linkpath)) {
-				linkpath = path::join(path, linkpath);
+			let linkbuf = path::init(path, ent.name)!;
+			path::set(&linkbuf, fs::readlink(ctx.fs, path::string(&linkbuf))?)!;
+			if (!path::abs(&linkbuf)) {
+				path::prepend(&linkbuf, path)!;
 			};
 
-			const st = fs::stat(ctx.fs, linkpath)?;
+			const st = fs::stat(ctx.fs, path::string(&linkbuf))?;
 			if (fs::isdir(st.mode)) {
-				let subpath = path::join(path, ent.name);
-				defer free(subpath);
+				let subpath = path::init(path, ent.name)!;
 				let newns = ast::ident_dup(ns);
 				append(newns, strings::dup(ent.name));
-				_walk(ctx, subpath, items, newns)?;
+				_walk(ctx, path::string(&subpath), items, newns)?;
 			};
 		case fs::mode::REG =>
 			void; // no-op

@@ -14,10 +14,10 @@ use unix;
 
 fn lookup(prog: str, var: str, default: str) str = {
 	static let buf = path::buffer { ... };
-	path::reset(&buf);
+	path::set(&buf)!;
 	match (os::getenv(var)) {
 	case let s: str =>
-		const path = path::add(&buf, s, prog)!;
+		const path = path::push(&buf, s, prog)!;
 		if (!path::abs(path)) {
 			yield;
 		};

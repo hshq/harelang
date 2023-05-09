@@ -2,7 +2,6 @@
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2022 Humm <hummsmith42@gmail.com>
 use bytes;
-use errors;
 use strings;
 
 export type buffer = struct {
@@ -11,225 +10,45 @@ export type buffer = struct {
 };
 
 // Initializes a new path buffer.
-export fn init() buffer = {
+export fn init(items: str...) (buffer | error) = {
 	let buf = buffer { ... };
-	reset(&buf);
+	push(&buf, items...)?;
 	return buf;
-};
-
-// Resets a path buffer to its initial state.
-export fn reset(buf: *buffer) void = {
-	buf.end = 0;
 };
 
 // Sets the value of a path buffer to a list of components, overwriting any
 // previous value. Returns the new string value of the path.
-export fn set(buf: *buffer, items: str...) (str | errors::overflow) = {
-	reset(buf);
-	return add(buf, items...);
+export fn set(buf: *buffer, items: str...) (str | error) = {
+	buf.end = 0;
+	return push(buf, items...);
 };
 
-// Returns the current path stored in this buffer. The path will always be
-// normalized, which is to say that it will not include any of the following:
-//
-// - Redundant ".." components
-// - Redundant path separators
-// - Any "." components, except in the case of "."
-//
-// Assuming that PATHSEP is '/', "/usr//bin/../bin/./hare" becomes
-// "/usr/bin/hare" and "../../foo/bar" is unchanged. The path will only end in a
-// slash if the last item which was added ended in PATHSEP, like so:
-//
-// 	let buf = path::init();
-// 	path::set(&buf, "foo", "bar")!;
-// 	assert(path::string(&buf) == "foo/bar");
-//
-// 	path::set(&buf, "foo", "bar/")!;
-// 	assert(path::string(&buf) == "foo/bar/");
-//
-// 	path::set(&buf, "foo", "bar", "/")!;
-// 	assert(path::string(&buf) == "foo/bar/");
-//
-// The return value is borrowed from the buffer. Use [[allocate]] to extend the
-// lifetime of the string.
+// Returns the current path stored in this buffer. 
+// The return value is borrowed from the buffer. Use [[strings::dup]] to
+// extend the lifetime of the string.
 export fn string(buf: *buffer) str = {
-	const value = strings::fromutf8_unsafe(buf.buf[..buf.end]);
-	if (value == "") {
-		return ".";
-	};
-	return value;
+	if (buf.end == 0) return ".";
+	return strings::fromutf8_unsafe(buf.buf[..buf.end]);
 };
 
-// Like [[string]] but the return value is copied to the heap and must be freed
-// by the caller.
-export fn allocate(buf: *buffer) str = {
-	return strings::dup(string(buf));
+// Check if a path is an absolute path.
+export fn abs(path: (*buffer | str)) bool = match (path) {
+case let path: str => return strings::hasprefix(path, pathsepstr);
+case let buf: *buffer => return 0 < buf.end && buf.buf[0] == PATHSEP;
 };
 
-const dot: []u8 = ['.'];
-const dotdot: []u8 = ['.', '.'];
-const dotdotslash: []u8 = ['.', '.', PATHSEP];
-
-// Normalizes and appends a path component to a buffer.
-//
-// Invariant: elem must either be equal to [PATHSEP], or contain no path
-// separators.
-fn appendnorm(buf: *buffer, elem: (str | []u8)) (void | errors::overflow) = {
-	const elem = match (elem) {
-	case let elem: []u8 =>
-		yield elem;
-	case let string: str =>
-		yield strings::toutf8(string);
-	};
-	if (len(elem) == 1 && elem[0] == PATHSEP) {
-		if (buf.end == 0) {
-			buf.buf[0] = PATHSEP;
-			buf.end += 1;
-			return;
-		};
-		return;
-	} else if (bytes::equal(elem, dot)) {
-		return;
-	} else if (bytes::equal(elem, dotdot)) {
-		return parent(buf);
-	};
-	return doappend(buf, elem);
+// Check if a path is the root directory.
+export fn isroot(path: (*buffer | str)) bool = match (path) {
+case let path: str => return path == pathsepstr;
+case let buf: *buffer => return buf.end == 1 && buf.buf[0] == PATHSEP;
 };
 
-// Moves the buffer to the parent of the current directory.
-fn parent(buf: *buffer) (void | errors::overflow) = {
-	let ascending = true;
-	const iter = iter(buf);
-	for (true) {
-		match (next(&iter)) {
-		case let elem: str =>
-			if (elem != "..") {
-				ascending = false;
-				break;
-			};
-		case void =>
-			break;
-		};
+// Replace '/' with system-dependent path separator in a string. Modifies the
+// original string, but is idempotent. The result is borrowed from the input.
+export fn local(path: str) str = {
+	let bs = strings::toutf8(path);
+	for (let k = 0z; k < len(bs); k += 1) {
+		if (bs[k] == '/') bs[k] = PATHSEP;
 	};
-	if (ascending) {
-		// If we are appending ".." to a path which is entirely composed
-		// of ".." elements, then we want to append it normally, so that
-		// "../.." becomes "../../.." instead of "..".
-		return doappend(buf, dotdot);
-	};
-	// XXX: This is not super efficient
-	const name = dirname(string(buf));
-	reset(buf);
-	add(buf, name)?;
-};
-
-fn doappend(buf: *buffer, elem: []u8) (void | errors::overflow) = {
-	if (buf.end + len(elem) + 1 >= PATH_MAX) {
-		return errors::overflow;
-	};
-	if (buf.end > 0 && buf.buf[buf.end - 1] != PATHSEP) {
-		buf.buf[buf.end] = PATHSEP;
-		buf.end += 1;
-	};
-	buf.buf[buf.end..buf.end + len(elem)] = elem;
-	buf.end += len(elem);
-};
-
-@test fn appendnorm() void = {
-	let buf = init();
-	assert(string(&buf) == ".");
-	appendnorm(&buf, "foo")!;
-	appendnorm(&buf, "bar")!;
-	appendnorm(&buf, "baz")!;
-	let s = strings::join(pathsepstr, "foo", "bar", "baz");
-	assert(string(&buf) == s);
-	appendnorm(&buf, ".")!;
-	appendnorm(&buf, "bad")!;
-	appendnorm(&buf, ".")!;
-	free(s);
-	s = strings::join(pathsepstr, "foo", "bar", "baz", "bad");
-	assert(string(&buf) == s);
-	free(s);
-
-	reset(&buf);
-	appendnorm(&buf, pathsepstr)!;
-	appendnorm(&buf, "foo")!;
-	appendnorm(&buf, "bar")!;
-	appendnorm(&buf, "baz")!;
-	s = strings::join(pathsepstr, "", "foo", "bar", "baz");
-	assert(string(&buf) == s);
-	appendnorm(&buf, pathsepstr)!;
-	appendnorm(&buf, pathsepstr)!;
-	assert(string(&buf) == s);
-	free(s);
-
-	reset(&buf);
-	appendnorm(&buf, pathsepstr)!;
-	appendnorm(&buf, pathsepstr)!;
-	appendnorm(&buf, pathsepstr)!;
-	assert(string(&buf) == pathsepstr);
-
-	reset(&buf);
-	appendnorm(&buf, ".")!;
-	appendnorm(&buf, "foo")!;
-	assert(string(&buf) == "foo");
-	appendnorm(&buf, "..")!;
-	assert(string(&buf) == ".");
-	appendnorm(&buf, "..")!;
-	assert(string(&buf) == "..");
-
-	reset(&buf);
-	appendnorm(&buf, "..")!;
-	assert(string(&buf) == "..");
-	appendnorm(&buf, "..")!;
-	s = strings::join(pathsepstr, "..", "..");
-	assert(string(&buf) == s);
-	free(s);
-	appendnorm(&buf, "..")!;
-	s = strings::join(pathsepstr, "..", "..", "..");
-	assert(string(&buf) == s);
-	free(s);
-
-	reset(&buf);
-	appendnorm(&buf, "foo")!;
-	appendnorm(&buf, "bar")!;
-	s = strings::join(pathsepstr, "foo", "bar");
-	assert(string(&buf) == s);
-	free(s);
-	appendnorm(&buf, "..")!;
-	assert(string(&buf) == "foo");
-	appendnorm(&buf, "..")!;
-	assert(string(&buf) == ".");
-	appendnorm(&buf, "..")!;
-	assert(string(&buf) == "..");
-	appendnorm(&buf, "..")!;
-	s = strings::join(pathsepstr, "..", "..");
-	assert(string(&buf) == s);
-	free(s);
-
-	set(&buf, "foo", "bar")!;
-	s = strings::join(pathsepstr, "foo", "bar");
-	assert(string(&buf) == s);
-	free(s);
-	s = strings::concat("bar", pathsepstr);
-	set(&buf, "foo", s)!;
-	free(s);
-	s = strings::join(pathsepstr, "foo", "bar", "");
-	assert(string(&buf) == s);
-	set(&buf, "foo", "bar", pathsepstr)!;
-	assert(string(&buf) == s);
-	free(s);
-	s = strings::concat(pathsepstr, "baz");
-	add(&buf, s)!;
-	free(s);
-	s = strings::join(pathsepstr, "foo", "bar", "baz");
-	assert(string(&buf) == s);
-	free(s);
-
-	reset(&buf);
-	appendnorm(&buf, "a")!;
-	appendnorm(&buf, "b")!;
-	s = strings::join(pathsepstr, "a", "b");
-	assert(string(&buf) == s);
-	free(s);
+	return path;
 };

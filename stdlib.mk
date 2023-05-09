@@ -3,7 +3,7 @@
 rtscript = $(STDLIB)/rt/hare.sc
 # rt (+linux)
 stdlib_rt_linux_srcs = \
-	$(STDLIB)/rt/+linux/abort.ha \
+	$(STDLIB)/rt/+linux/platform_abort.ha \
 	$(STDLIB)/rt/+linux/env.ha \
 	$(STDLIB)/rt/+linux/errno.ha \
 	$(STDLIB)/rt/+linux/types.ha \
@@ -33,7 +33,7 @@ stdlib_rt_linux_srcs = \
 
 # rt (+freebsd)
 stdlib_rt_freebsd_srcs = \
-	$(STDLIB)/rt/+freebsd/abort.ha \
+	$(STDLIB)/rt/+freebsd/platform_abort.ha \
 	$(STDLIB)/rt/+freebsd/env.ha \
 	$(STDLIB)/rt/+freebsd/errno.ha \
 	$(STDLIB)/rt/+freebsd/platformstart.ha \
@@ -1561,6 +1561,7 @@ $(HARECACHE)/hare/parse/hare_parse-any.ssa: $(stdlib_hare_parse_any_srcs) $(stdl
 
 # hare::types (+any)
 stdlib_hare_types_any_srcs = \
+	$(STDLIB)/hare/types/+$(ARCH)/hash.ha \
 	$(STDLIB)/hare/types/arch.ha \
 	$(STDLIB)/hare/types/builtins.ha \
 	$(STDLIB)/hare/types/class.ha \
@@ -2108,7 +2109,7 @@ stdlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/os.ha
 
-$(HARECACHE)/os/os-linux.ssa: $(stdlib_os_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
+$(HARECACHE)/os/os-linux.ssa: $(stdlib_os_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
@@ -2187,9 +2188,11 @@ $(HARECACHE)/os/exec/os_exec-darwin.ssa: $(stdlib_os_exec_darwin_srcs) $(stdlib_
 stdlib_path_any_srcs = \
 	$(STDLIB)/path/+$(PLATFORM).ha \
 	$(STDLIB)/path/buffer.ha \
-	$(STDLIB)/path/util.ha \
-	$(STDLIB)/path/join.ha \
-	$(STDLIB)/path/names.ha \
+	$(STDLIB)/path/error.ha \
+	$(STDLIB)/path/stack.ha \
+	$(STDLIB)/path/ext_stack.ha \
+	$(STDLIB)/path/posix.ha \
+	$(STDLIB)/path/prefix.ha \
 	$(STDLIB)/path/iter.ha
 
 $(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
@@ -2202,7 +2205,7 @@ $(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_st
 stdlib_regex_any_srcs = \
 	$(STDLIB)/regex/regex.ha
 
-$(HARECACHE)/regex/regex-any.ssa: $(stdlib_regex_any_srcs) $(stdlib_rt) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+$(HARECACHE)/regex/regex-any.ssa: $(stdlib_regex_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/regex
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nregex \
@@ -2534,7 +2537,8 @@ $(HARECACHE)/unix/passwd/unix_passwd-any.ssa: $(stdlib_unix_passwd_any_srcs) $(s
 
 # unix::poll (+linux)
 stdlib_unix_poll_linux_srcs = \
-	$(STDLIB)/unix/poll/+linux.ha
+	$(STDLIB)/unix/poll/+linux.ha \
+	$(STDLIB)/unix/poll/types.ha
 
 $(HARECACHE)/unix/poll/unix_poll-linux.ssa: $(stdlib_unix_poll_linux_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2544,7 +2548,8 @@ $(HARECACHE)/unix/poll/unix_poll-linux.ssa: $(stdlib_unix_poll_linux_srcs) $(std
 
 # unix::poll (+freebsd)
 stdlib_unix_poll_freebsd_srcs = \
-	$(STDLIB)/unix/poll/+freebsd.ha
+	$(STDLIB)/unix/poll/+freebsd.ha \
+	$(STDLIB)/unix/poll/types.ha
 
 $(HARECACHE)/unix/poll/unix_poll-freebsd.ssa: $(stdlib_unix_poll_freebsd_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2675,7 +2680,7 @@ $(HARECACHE)/uuid/uuid-any.ssa: $(stdlib_uuid_any_srcs) $(stdlib_rt) $(stdlib_cr
 
 # rt (+linux)
 testlib_rt_linux_srcs = \
-	$(STDLIB)/rt/+linux/abort.ha \
+	$(STDLIB)/rt/+linux/platform_abort.ha \
 	$(STDLIB)/rt/+linux/env.ha \
 	$(STDLIB)/rt/+linux/errno.ha \
 	$(STDLIB)/rt/+linux/types.ha \
@@ -2710,7 +2715,7 @@ testlib_rt_linux_srcs = \
 
 # rt (+freebsd)
 testlib_rt_freebsd_srcs = \
-	$(STDLIB)/rt/+freebsd/abort.ha \
+	$(STDLIB)/rt/+freebsd/platform_abort.ha \
 	$(STDLIB)/rt/+freebsd/env.ha \
 	$(STDLIB)/rt/+freebsd/errno.ha \
 	$(STDLIB)/rt/+freebsd/platformstart.ha \
@@ -4289,6 +4294,7 @@ $(TESTCACHE)/hare/parse/hare_parse-any.ssa: $(testlib_hare_parse_any_srcs) $(tes
 
 # hare::types (+any)
 testlib_hare_types_any_srcs = \
+	$(STDLIB)/hare/types/+$(ARCH)/hash.ha \
 	$(STDLIB)/hare/types/arch.ha \
 	$(STDLIB)/hare/types/builtins.ha \
 	$(STDLIB)/hare/types/class.ha \
@@ -4854,7 +4860,7 @@ testlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/os.ha
 
-$(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+$(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
@@ -4933,9 +4939,11 @@ $(TESTCACHE)/os/exec/os_exec-darwin.ssa: $(testlib_os_exec_darwin_srcs) $(testli
 testlib_path_any_srcs = \
 	$(STDLIB)/path/+$(PLATFORM).ha \
 	$(STDLIB)/path/buffer.ha \
-	$(STDLIB)/path/util.ha \
-	$(STDLIB)/path/join.ha \
-	$(STDLIB)/path/names.ha \
+	$(STDLIB)/path/error.ha \
+	$(STDLIB)/path/stack.ha \
+	$(STDLIB)/path/ext_stack.ha \
+	$(STDLIB)/path/posix.ha \
+	$(STDLIB)/path/prefix.ha \
 	$(STDLIB)/path/iter.ha
 
 $(TESTCACHE)/path/path-any.ssa: $(testlib_path_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
@@ -4949,7 +4957,7 @@ testlib_regex_any_srcs = \
 	$(STDLIB)/regex/regex.ha \
 	$(STDLIB)/regex/+test.ha
 
-$(TESTCACHE)/regex/regex-any.ssa: $(testlib_regex_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+$(TESTCACHE)/regex/regex-any.ssa: $(testlib_regex_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_bufio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/regex
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nregex \
@@ -5285,7 +5293,8 @@ $(TESTCACHE)/unix/passwd/unix_passwd-any.ssa: $(testlib_unix_passwd_any_srcs) $(
 
 # unix::poll (+linux)
 testlib_unix_poll_linux_srcs = \
-	$(STDLIB)/unix/poll/+linux.ha
+	$(STDLIB)/unix/poll/+linux.ha \
+	$(STDLIB)/unix/poll/types.ha
 
 $(TESTCACHE)/unix/poll/unix_poll-linux.ssa: $(testlib_unix_poll_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -5295,7 +5304,8 @@ $(TESTCACHE)/unix/poll/unix_poll-linux.ssa: $(testlib_unix_poll_linux_srcs) $(te
 
 # unix::poll (+freebsd)
 testlib_unix_poll_freebsd_srcs = \
-	$(STDLIB)/unix/poll/+freebsd.ha
+	$(STDLIB)/unix/poll/+freebsd.ha \
+	$(STDLIB)/unix/poll/types.ha
 
 $(TESTCACHE)/unix/poll/unix_poll-freebsd.ssa: $(testlib_unix_poll_freebsd_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'

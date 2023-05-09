@@ -46,6 +46,7 @@
 
 @test fn builtin() void = {
 	roundtrip(`export fn main() void = {
+	align(u32);
 	alloc(1234);
 	alloc(1234...);
 	alloc(4321, 1234);

@@ -78,6 +78,10 @@ export fn init(in: io::handle, path: str, flags: flags...) lexer = {
 	};
 };
 
+export fn finish(lex: *lexer) void = {
+	bufio::finish(&lex.in);
+};
+
 // Returns the current value of the comment buffer, or empty string if unset (or
 // if [[flags::COMMENTS]] was not enabled for this lexer).
 export fn comment(lex: *lexer) str = lex.comment;

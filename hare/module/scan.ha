@@ -83,9 +83,8 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 	};
 	scan_directory(ctx, &ver, &sha, path, iter)?;
 
-	let readme = path::join(path, "README");
-	defer free(readme);
-	if (len(ver.inputs) == 0 && !fs::exists(ctx.fs, readme)) {
+	let buf = path::init(path, "README")!;
+	if (len(ver.inputs) == 0 && !fs::exists(ctx.fs, path::string(&buf))) {
 		// TODO: HACK: README is a workaround for haredoc issues
 		return notfound;
 	};
@@ -100,8 +99,16 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 // Given a file or directory name, parses it into the basename, extension, and
 // tag set.
 export fn parsename(name: str) (str, str, []tag) = {
-	let ext = path::extension(name);
-	let base = ext.0, ext = ext.1;
+	static let buf = path::buffer {...};
+	path::set(&buf, name)!;
+	let ext = match (path::pop_ext(&buf)) {
+	case void => yield "";
+	case let s: str => yield strings::dup(s);
+	};
+	let base = match (path::peek(&buf)) {
+	case void => yield "";
+	case let s: str => yield strings::dup(s);
+	};
 
 	let p = strings::index(base, '+');
 	let m = strings::index(base, '-');
@@ -137,7 +144,7 @@ fn scan_directory(
 		strings::freeall(dirs);
 	};
 
-	let pathbuf = path::init();
+	let pathbuf = path::init()!;
 	for (true) {
 		const ent = match (fs::next(iter)) {
 		case void =>
@@ -214,7 +221,8 @@ fn scan_directory(
 			continue;
 		};
 
-		let path = path::join(path, name);
+		const buf = path::init(path, name)!;
+		let path = strings::dup(path::string(&buf));
 		let tuple = (true, strings::dup(base), tags, path);
 		let superceded = false;
 		for (let j = 0z; j < len(inputs); j += 1) {
@@ -248,7 +256,7 @@ fn scan_directory(
 		let base = parsed.0, ext = parsed.1, tags = parsed.2;
 
 		let eligible = false;
-		static const exts = [".ha", ".s"];
+		static const exts = ["ha", "s"];
 		for (let i = 0z; i < len(exts); i += 1) {
 			if (exts[i] == ext) {
 				eligible = true;
@@ -260,7 +268,8 @@ fn scan_directory(
 			continue;
 		};
 
-		let path = path::join(path, name);
+		const buf = path::init(path, name)!;
+		let path = strings::dup(path::string(&buf));
 		let tuple = (false, strings::dup(base), tags, path);
 		let superceded = false;
 		for (let j = 0z; j < len(inputs); j += 1) {
@@ -320,9 +329,8 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 	let ipath = identpath(name);
 	defer free(ipath);
 	for (let i = len(ctx.paths); i > 0; i -= 1) {
-		let cand = path::join(ctx.paths[i - 1], ipath);
-		defer free(cand);
-		match (scan(ctx, cand)) {
+		let cand = path::init(ctx.paths[i - 1], ipath)!;
+		match (scan(ctx, path::string(&cand))) {
 		case let v: version =>
 			return v;
 		case error => void;
@@ -332,10 +340,12 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 };
 
 fn type_for_ext(name: str) (filetype | void) = {
-	const ext = path::extension(name).1;
+	static let buf = path::buffer {...};
+	path::set(&buf, name)!;
+	const ext = path::peek_ext(&buf) as str;
 	return
-		if (ext == ".ha") filetype::HARE
-		else if (ext == ".s") filetype::ASSEMBLY
+		if (ext == "ha") filetype::HARE
+		else if (ext == "s") filetype::ASSEMBLY
 		else void;
 };
 
@@ -356,6 +366,7 @@ fn scan_file(
 	if (ftype == filetype::HARE) {
 		let tee = io::tee(f, &sha);
 		let lexer = lex::init(&tee, path);
+		defer lex::finish(&lexer);
 		let imports = match (parse::imports(&lexer)) {
 		case let im: []ast::import =>
 			yield im;

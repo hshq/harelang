@@ -37,6 +37,11 @@ export type access_tuple = struct {
 export type access_expr = (access_identifier | access_index | access_field
 	| access_tuple);
 
+// An align expression.
+//
+// 	align(int)
+export type align_expr = *_type;
+
 // The form of an allocation expression.
 //
 // 	alloc(foo)    // OBJECT
@@ -419,14 +424,14 @@ export type yield_expr = struct {
 export type expr = struct {
 	start: lex::location,
 	end: lex::location,
-	expr: (access_expr | alloc_expr | append_expr | assert_expr |
-		assign_expr | binarithm_expr | binding_expr | break_expr |
-		call_expr | cast_expr | constant_expr | continue_expr |
-		defer_expr | delete_expr | for_expr | free_expr | if_expr |
-		insert_expr | compound_expr | match_expr | len_expr |
-		size_expr | offset_expr | propagate_expr | return_expr |
-		slice_expr | switch_expr | unarithm_expr | variadic_expr |
-		yield_expr),
+	expr: (access_expr | align_expr | alloc_expr | append_expr |
+		assert_expr | assign_expr | binarithm_expr | binding_expr |
+		break_expr | call_expr | cast_expr | constant_expr |
+		continue_expr | defer_expr | delete_expr | for_expr |
+		free_expr | if_expr | insert_expr | compound_expr | match_expr |
+		len_expr | size_expr | offset_expr | propagate_expr |
+		return_expr | slice_expr | switch_expr | unarithm_expr |
+		variadic_expr | yield_expr),
 };
 
 // Frees resources associated with a Hare [[expr]]ession.
@@ -454,6 +459,8 @@ case let e: expr =>
 			expr_finish(t.object);
 			expr_finish(t.value);
 		};
+	case let a: align_expr =>
+		type_finish(a: *_type);
 	case let a: alloc_expr =>
 		expr_finish(a.init);
 		expr_finish(a.capacity);

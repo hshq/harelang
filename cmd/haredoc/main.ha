@@ -23,7 +23,6 @@ type format = enum {
 	HARE,
 	TTY,
 	HTML,
-	GEMTEXT,
 };
 
 type context = struct {
@@ -58,7 +57,7 @@ export fn main() void = {
 
 	const help: [_]getopt::help = [
 		"reads and formats Hare documentation",
-		('F', "format", "specify output format (hare, tty, html, or gemtext)"),
+		('F', "format", "specify output format (hare, tty, or html)"),
 		('T', "tags...", "set build tags"),
 		('X', "tags...", "unset build tags"),
 		('a', "show undocumented members (only applies to -Fhare and -Ftty)"),
@@ -79,8 +78,6 @@ export fn main() void = {
 				fmt = format::TTY;
 			case "html" =>
 				fmt = format::HTML;
-			case "gemtext" =>
-				fmt = format::GEMTEXT;
 			case =>
 				fmt::fatal("Invalid format", opt.1);
 			};
@@ -146,25 +143,22 @@ export fn main() void = {
 
 	for (let i = 0z; i < len(version.inputs); i += 1) {
 		const in = version.inputs[i];
-		const ext = path::extension(in.path);
-		if (ext.1 != ".ha") {
+		const ext = path::peek_ext(&path::init(in.path)!);
+		if (ext is void || ext as str != "ha") {
 			continue;
 		};
 		match (scan(in.path)) {
 		case let u: ast::subunit =>
-			for (let i = 0z; i < len(u.imports); i += 1) {
-				ast::import_finish(u.imports[i]);
-			};
+			ast::imports_finish(u.imports);
 			append(decls, u.decls...);
 		case let err: error =>
 			fmt::fatal("Error:", strerror(err));
 		};
 	};
 
-	const rpath = path::join(version.basedir, "README");
-	defer free(rpath);
+	const rpath = path::init(version.basedir, "README")!;
 	const readme: (io::file | void) = if (decl == "") {
-		yield match (os::open(rpath)) {
+		yield match (os::open(path::string(&rpath))) {
 		case let err: fs::error =>
 			yield void;
 		case let f: io::file =>
@@ -240,6 +234,7 @@ export fn main() void = {
 fn parseident(in: str) (ast::ident | parse::error) = {
 	const buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
 	const lexer = lex::init(&buf, "<string>");
+	defer lex::finish(&lexer);
 	let ident: []str = []; // TODO: errdefer
 	let z = 0z;
 	for (true) {
@@ -365,7 +360,6 @@ fn emit(ctx: *context) (void | error) = {
 		emit_tty(ctx)?;
 	case format::HTML =>
 		emit_html(ctx)?;
-	case format::GEMTEXT => abort(); // TODO
 	};
 };
 

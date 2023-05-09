@@ -2,6 +2,8 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use bytes;
+use errors;
+use math;
 use rt;
 use strings;
 use types;
@@ -84,6 +86,7 @@ let uts_valid: bool = false;
 export fn sysname() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
+		uts_valid = true;
 	};
 	return strings::fromc(&uts.sysname: *const char)!;
 };
@@ -92,6 +95,7 @@ export fn sysname() const str = {
 export fn hostname() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
+		uts_valid = true;
 	};
 	return strings::fromc(&uts.nodename: *const char)!;
 };
@@ -100,6 +104,7 @@ export fn hostname() const str = {
 export fn release() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
+		uts_valid = true;
 	};
 	return strings::fromc(&uts.release: *const char)!;
 };
@@ -108,6 +113,7 @@ export fn release() const str = {
 export fn version() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
+		uts_valid = true;
 	};
 	return strings::fromc(&uts.version: *const char)!;
 };
@@ -116,6 +122,23 @@ export fn version() const str = {
 export fn machine() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
+		uts_valid = true;
 	};
 	return strings::fromc(&uts.machine: *const char)!;
+};
+
+// Returns the number of usable CPUs.
+export fn cpucount() (int | errors::error) = {
+	let set = rt::cpu_set { ... };
+	match (rt::sched_getaffinity(rt::getpid(), size(rt::cpu_set), &set)) {
+	case void => void;
+	case let err: rt::errno =>
+		return errors::errno(err);
+	};
+
+	let ret = 0;
+	for (let i = 0z; i < len(set.__bits); i += 1) {
+		ret += math::pop_count_u64(set.__bits[i]): int;
+	};
+	return ret;
 };

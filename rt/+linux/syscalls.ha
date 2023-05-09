@@ -261,9 +261,9 @@ export fn getpid() int = syscall0(SYS_getpid): int;
 
 export fn wait4(
 	pid: int,
-	wstatus: *int,
+	wstatus: nullable *int,
 	options: int,
-	rusage: *rusage,
+	rusage: nullable *rusage,
 ) (int | errno) = {
 	return wrap_return(syscall4(SYS_wait4,
 		pid: u64, wstatus: uintptr: u64,
@@ -931,4 +931,22 @@ export type inotify_event = struct {
 export fn shmat(id: int, addr: *const void, flag: int) *void = {
 	return syscall3(SYS_shmat, id: u64, addr: uintptr: u64,
 		flag: u64): uintptr: *void;
+};
+
+export fn sched_getaffinity(
+	pid: int,
+	cpusetsize: size,
+	mask: *cpu_set,
+) (void | errno) = {
+	wrap_return(syscall3(SYS_sched_getaffinity,
+		pid: u64, cpusetsize: u64, mask: uintptr: u64))?;
+};
+
+export fn sched_setaffinity(
+	pid: int,
+	cpusetsize: size,
+	mask: *const cpu_set,
+) (void | errno) = {
+	wrap_return(syscall3(SYS_sched_setaffinity,
+		pid: u64, cpusetsize: u64, mask: uintptr: u64))?;
 };

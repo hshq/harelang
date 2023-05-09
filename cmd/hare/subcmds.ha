@@ -62,25 +62,7 @@ type goal = enum {
 	EXE,
 };
 
-fn build(args: []str) void = {
-	const help: []getopt::help = [
-		"compiles the Hare program at <path>",
-		('c', "build object instead of executable"),
-		('v', "print executed commands"),
-		('D', "ident[:type]=value", "define a constant"),
-		('j', "jobs", "set parallelism for build"),
-		('L', "libdir", "add directory to linker library search path"),
-		('l', "name", "link with a system library"),
-		('N', "namespace", "override namespace for module"),
-		('o', "path", "set output file name"),
-		('t', "arch", "set target architecture"),
-		('T', "tags...", "set build tags"),
-		('X', "tags...", "unset build tags"),
-		"<path>"
-	];
-	const cmd = getopt::parse(args, help...);
-	defer getopt::finish(&cmd);
-
+fn build(cmd: *getopt::command) void = {
 	let build_target = default_target();
 	let tags = module::tags_dup(build_target.tags);
 	defer module::tags_free(tags);
@@ -111,7 +93,13 @@ fn build(args: []str) void = {
 		case 'l' =>
 			append(libs, opt.1);
 		case 'N' =>
-			namespace = parse::identstr(opt.1)!;
+			namespace = match (parse::identstr(opt.1)) {
+			case let id: ast::ident =>
+				yield id;
+			case let err: parse::error =>
+				fmt::fatalf("Error parsing namespace {}: {}",
+					opt.1, parse::strerror(err));
+			};
 		case 'o' =>
 			output = opt.1;
 		case 't' =>
@@ -146,7 +134,7 @@ fn build(args: []str) void = {
 		if (len(cmd.args) == 0) os::getcwd()
 		else if (len(cmd.args) == 1) cmd.args[0]
 		else {
-			getopt::printusage(os::stderr, args[0], help...);
+			getopt::printusage(os::stderr, "build", cmd.help...)!;
 			os::exit(1);
 		};
 
@@ -194,19 +182,11 @@ fn build(args: []str) void = {
 	match (plan_execute(&plan, verbose)) {
 	case void => void;
 	case !exec::exit_status =>
-		fmt::fatalf("{} {}: build failed", os::args[0], os::args[1]);
+		fmt::fatalf("{} build: build failed", os::args[0]);
 	};
 };
 
-fn cache(args: []str) void = {
-	const help: []getopt::help = [
-		"manages the build cache",
-		('c', "cleans the specified modules"),
-		"modules...",
-	];
-	const cmd = getopt::parse(args, help...);
-	defer getopt::finish(&cmd);
-
+fn cache(cmd: *getopt::command) void = {
 	abort("cache subcommand not implemented yet."); // TODO
 };
 
@@ -216,18 +196,7 @@ type deps_goal = enum {
 	TERM,
 };
 
-fn deps(args: []str) void = {
-	const help: []getopt::help = [
-		"prints dependency information for a Hare program",
-		('d', "print dot syntax for use with graphviz"),
-		('M', "build-dir", "print rules for POSIX make"),
-		('T', "tags...", "set build tags"),
-		('X', "tags...", "unset build tags"),
-		"<path|module>",
-	];
-	const cmd = getopt::parse(args, help...);
-	defer getopt::finish(&cmd);
-
+fn deps(cmd: *getopt::command) void = {
 	let build_target = default_target();
 	let tags = module::tags_dup(build_target.tags);
 	defer module::tags_free(tags);
@@ -265,7 +234,7 @@ fn deps(args: []str) void = {
 		if (len(cmd.args) == 0) os::getcwd()
 		else if (len(cmd.args) == 1) cmd.args[0]
 		else {
-			getopt::printusage(os::stderr, args[0], help...);
+			getopt::printusage(os::stderr, "deps", cmd.help...)!;
 			os::exit(1);
 		};
 
@@ -336,15 +305,7 @@ fn deps(args: []str) void = {
 	};
 };
 
-fn release(args: []str) void = {
-	const help: []getopt::help = [
-		"prepares a new release for a program or library",
-		('d', "enable dry-run mode; do not perform any changes"),
-		"<major|minor|patch|x.y.z>",
-	];
-	const cmd = getopt::parse(args, help...);
-	defer getopt::finish(&cmd);
-
+fn release(cmd: *getopt::command) void = {
 	let dryrun = false;
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
@@ -356,7 +317,7 @@ fn release(args: []str) void = {
 	};
 
 	if (len(cmd.args) == 0) {
-		getopt::printusage(os::stderr, "release", help);
+		getopt::printusage(os::stderr, "release", cmd.help)!;
 		os::exit(1);
 	};
 
@@ -370,7 +331,7 @@ fn release(args: []str) void = {
 	case =>
 		yield match (parseversion(cmd.args[0])) {
 		case badversion =>
-			getopt::printusage(os::stderr, "release", help);
+			getopt::printusage(os::stderr, "release", cmd.help)!;
 			os::exit(1);
 		case let ver: modversion =>
 			yield ver;
@@ -394,21 +355,7 @@ fn release(args: []str) void = {
 	};
 };
 
-fn run(args: []str) void = {
-	const help: []getopt::help = [
-		"compiles and runs the Hare program at <path>",
-		('v', "print executed commands"),
-		('D', "ident[:type]=value", "define a constant"),
-		('j', "jobs", "set parallelism for build"),
-		('L', "libdir", "add directory to linker library search path"),
-		('l', "name", "link with a system library"),
-		('T', "tags...", "set build tags"),
-		('X', "tags...", "unset build tags"),
-		"<path>", "<args...>",
-	];
-	const cmd = getopt::parse(args, help...);
-	defer getopt::finish(&cmd);
-
+fn run(cmd: *getopt::command) void = {
 	const build_target = default_target();
 	let tags = module::tags_dup(build_target.tags);
 	defer module::tags_free(tags);
@@ -497,7 +444,7 @@ fn run(args: []str) void = {
 	match (plan_execute(&plan, verbose)) {
 	case void => void;
 	case !exec::exit_status =>
-		fmt::fatalf("{} {}: build failed", os::args[0], os::args[1]);
+		fmt::fatalf("{} run: build failed", os::args[0]);
 	};
 	const cmd = match (exec::cmd(output, runargs...)) {
 	case let err: exec::error =>
@@ -509,22 +456,7 @@ fn run(args: []str) void = {
 	exec::exec(&cmd);
 };
 
-fn test(args: []str) void = {
-	const help: []getopt::help = [
-		"compiles and runs tests for Hare programs",
-		('v', "print executed commands"),
-		('D', "ident[:type]=value", "define a constant"),
-		('j', "jobs", "set parallelism for build"),
-		('L', "libdir", "add directory to linker library search path"),
-		('l', "name", "link with a system library"),
-		('o', "path", "set output file name"),
-		('T', "tags...", "set build tags"),
-		('X', "tags...", "unset build tags"),
-		"[tests...]"
-	];
-	const cmd = getopt::parse(args, help...);
-	defer getopt::finish(&cmd);
-
+fn test(cmd: *getopt::command) void = {
 	const build_target = default_target();
 	let tags = module::tags_dup(build_target.tags);
 	append(tags, module::tag {
@@ -631,7 +563,7 @@ fn test(args: []str) void = {
 	match (plan_execute(&plan, verbose)) {
 	case void => void;
 	case !exec::exit_status =>
-		fmt::fatalf("{} {}: build failed", os::args[0], os::args[1]);
+		fmt::fatalf("{} test: build failed", os::args[0]);
 	};
 
 	if (have_output) {
@@ -648,14 +580,7 @@ fn test(args: []str) void = {
 	exec::exec(&cmd);
 };
 
-fn version(args: []str) void = {
-	const help: []getopt::help = [
-		"provides version information for the Hare environment",
-		('v', "print build parameters"),
-	];
-	const cmd = getopt::parse(args, help...);
-	defer getopt::finish(&cmd);
-
+fn version(cmd: *getopt::command) void = {
 	let verbose = false;
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		// The only option is verbose

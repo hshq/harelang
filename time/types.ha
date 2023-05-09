@@ -1,6 +1,7 @@
 // License: MPL-2.0
 // (c) 2021 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
+use types;
 
 // The elapsed time between two instants, in nanoseconds. The largest
 // representable duration is about 290 years.
@@ -24,9 +25,24 @@ export def MINUTE: duration = 60 * SECOND;
 // [[duration]] representing an hour.
 export def HOUR: duration = 60 * MINUTE;
 
+// TODO: change the following to defs when compileable.
+// https://git.sr.ht/~sircmpwn/harec/tree/211b99a/item/src/typedef.c#L169
+
+// The earliest representable [[instant]].
+export const INSTANT_MIN = instant {
+	sec = types::I64_MIN,
+	nsec = 0,
+};
+
+// The latest representable [[instant]].
+export const INSTANT_MAX = instant {
+	sec = types::I64_MAX,
+	nsec = SECOND - 1,
+};
+
 // Represents a specific instant in time as seconds (+nanoseconds) since an
 // arbitrary epoch. Instants may only be meaningfully compared with other
-// instants sourced from the same clock, or handled by the same
+// instants sourced from the same [[clock]], or handled by the same
 // [[time::chrono::timescale]]
 export type instant = struct {
 	sec: i64,
