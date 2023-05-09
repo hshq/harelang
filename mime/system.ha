@@ -49,7 +49,10 @@ fn load_systemdb() (void | fs::error | io::error) = {
 			continue;
 		};
 
-		const items = strings::cut(line, "\t");
+		const items = match (strings::cut(line, "\t")) {
+		case void => continue;
+		case let items: (str, str) => yield items;
+		};
 		const mime = strings::trim(items.0),
 			exts = strings::trim(items.1);
 		if (len(exts) == 0) {
