@@ -10,6 +10,16 @@ use strings;
 
 @test fn ident() void = {
 	{
+		const in = ";";
+		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		let lexer = lex::init(&buf, "<test>");
+		defer lex::finish(&lexer);
+		ident(&lexer) as error: void;
+		let tok = lex::lex(&lexer) as lex::token;
+		assert(tok.0 == lex::ltok::SEMICOLON);
+	};
+
+	{
 		const in = "foo";
 		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
 		let lexer = lex::init(&buf, "<test>");
