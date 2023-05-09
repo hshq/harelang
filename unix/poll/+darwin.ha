@@ -38,7 +38,7 @@ export def NONBLOCK: time::duration = 0;
 export fn poll(
 	fds: []pollfd,
 	timeout: time::duration,
-) (uint | errors::error) = {
+) (uint | error) = {
 	let ts = (if (timeout == INDEF) timeout else timeout / time::MILLISECOND): int;
 	match (rt::poll(fds: *[*]pollfd: *[*]rt::pollfd, len(fds): rt::nfds_t, ts)) {
 	case let err: rt::errno =>

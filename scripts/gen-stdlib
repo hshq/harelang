@@ -70,7 +70,7 @@ gensrcs_rt() {
 		strcmp.ha \
 		$*
 	gen_srcs -pdarwin rt \
-		+darwin/abort.ha \
+		+darwin/platform_abort.ha \
 		+darwin/env.ha \
 		+darwin/errno.ha \
 		+darwin/platformstart.ha \
@@ -1597,7 +1597,7 @@ unix_poll() {
 	gen_srcs -pfreebsd unix::poll +freebsd.ha types.ha
 	gen_ssa -pfreebsd unix::poll rt errors time io
 
-	gen_srcs -pdarwin unix::poll +darwin.ha
+	gen_srcs -pdarwin unix::poll +darwin.ha types.ha
 	gen_ssa -pdarwin unix::poll rt errors time io
 }
 

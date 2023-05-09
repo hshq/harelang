@@ -59,7 +59,7 @@ stdlib_rt_freebsd_srcs = \
 
 # rt (+darwin)
 stdlib_rt_darwin_srcs = \
-	$(STDLIB)/rt/+darwin/abort.ha \
+	$(STDLIB)/rt/+darwin/platform_abort.ha \
 	$(STDLIB)/rt/+darwin/env.ha \
 	$(STDLIB)/rt/+darwin/errno.ha \
 	$(STDLIB)/rt/+darwin/platformstart.ha \
@@ -2559,7 +2559,8 @@ $(HARECACHE)/unix/poll/unix_poll-freebsd.ssa: $(stdlib_unix_poll_freebsd_srcs) $
 
 # unix::poll (+darwin)
 stdlib_unix_poll_darwin_srcs = \
-	$(STDLIB)/unix/poll/+darwin.ha
+	$(STDLIB)/unix/poll/+darwin.ha \
+	$(STDLIB)/unix/poll/types.ha
 
 $(HARECACHE)/unix/poll/unix_poll-darwin.ssa: $(stdlib_unix_poll_darwin_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2746,7 +2747,7 @@ testlib_rt_freebsd_srcs = \
 
 # rt (+darwin)
 testlib_rt_darwin_srcs = \
-	$(STDLIB)/rt/+darwin/abort.ha \
+	$(STDLIB)/rt/+darwin/platform_abort.ha \
 	$(STDLIB)/rt/+darwin/env.ha \
 	$(STDLIB)/rt/+darwin/errno.ha \
 	$(STDLIB)/rt/+darwin/platformstart.ha \
@@ -5315,7 +5316,8 @@ $(TESTCACHE)/unix/poll/unix_poll-freebsd.ssa: $(testlib_unix_poll_freebsd_srcs) 
 
 # unix::poll (+darwin)
 testlib_unix_poll_darwin_srcs = \
-	$(STDLIB)/unix/poll/+darwin.ha
+	$(STDLIB)/unix/poll/+darwin.ha \
+	$(STDLIB)/unix/poll/types.ha
 
 $(TESTCACHE)/unix/poll/unix_poll-darwin.ssa: $(testlib_unix_poll_darwin_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'

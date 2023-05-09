@@ -318,7 +318,7 @@ export fn execve(
 
 export fn wait4(
 	pid: int,
-	wstatus: *int,
+	wstatus: nullable *int,
 	options: int,
 	rusage: nullable *rusage,
 ) (int | errno) = {
