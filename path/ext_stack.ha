@@ -50,19 +50,31 @@ case let s: str =>
 };
 
 // Remove and return all the extensions in a path. The result will not
-// include the leading '.', but will include separating dots. Leading dots will
-// be ignored when looking for extensions, such that ".ssh" isn't considered to
-// have any extensions. The result is borrowed from the buffer.
-export fn pop_exts(buf: *buffer) (str | void) = match (peek(buf)) {
-case void => return void;
+// include the leading '.', but will include separating dots. Leading dots
+// will be ignored when looking for extensions, such that ".ssh" isn't
+// considered to have any extensions. The result is borrowed from the buffer.
+export fn pop_exts(buf: *buffer) (str | void) = {
+	const ext = split_exts(buf);
+	buf.end = ext.0;
+	return ext.1;
+};
+
+// Examine all the extensions in a path. The result will not include the
+// leading '.', but will include separating dots. Leading dots will
+// be ignored when looking for extensions, such that ".ssh" isn't considered
+// to have any extensions. The result is borrowed from the buffer.
+export fn peek_exts(buf: *buffer) (str | void) = split_exts(buf).1;
+
+// helper function, returns (end of non-extension, extension string)
+fn split_exts(buf: *buffer) (size, (str | void)) = match (peek(buf)) {
+case void => return (buf.end, void);
 case let s: str =>
 	const bs = strings::toutf8(s);
 	bs = bytes::ltrim(bs, '.');
 	match (bytes::index(bs, '.')) {
-	case void => return void;
+	case void => return (buf.end, void);
 	case let i: size =>
-		buf.end -= len(bs) - i;
-		return strings::fromutf8_unsafe(bs[i+1..]);
+		return (buf.end - len(bs) + i, strings::fromutf8_unsafe(bs[i+1..]));
 	};
 };
 
