@@ -72,6 +72,10 @@ export fn lseek(fd: int, off: i64, whence: int) (i64 | errno) = {
 		fd: u64, off: u64, whence: u64))?: i64;
 };
 
+export fn ftruncate(fd: int, ln: off_t) (void | errno) = {
+	wrap_return(syscall2(SYS_ftruncate, fd: u64, ln: u32))?;
+};
+
 export fn pipe2(pipefd: *[2]int, flags: int) (void | errno) = {
 	wrap_return(syscall2(SYS_pipe2, pipefd: uintptr: u64, flags: u64))?;
 };

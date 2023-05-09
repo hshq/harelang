@@ -1463,6 +1463,7 @@ stdlib_io_linux_srcs = \
 	$(STDLIB)/io/+linux/file.ha \
 	$(STDLIB)/io/+linux/mmap.ha \
 	$(STDLIB)/io/+linux/platform_lock.ha \
+	$(STDLIB)/io/+linux/platform_trunc.ha \
 	$(STDLIB)/io/+linux/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
@@ -1472,6 +1473,7 @@ stdlib_io_linux_srcs = \
 	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/trunc.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha
@@ -1482,6 +1484,7 @@ stdlib_io_freebsd_srcs = \
 	$(STDLIB)/io/+freebsd/file.ha \
 	$(STDLIB)/io/+freebsd/mmap.ha \
 	$(STDLIB)/io/+freebsd/platform_lock.ha \
+	$(STDLIB)/io/+freebsd/platform_trunc.ha \
 	$(STDLIB)/io/+freebsd/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
@@ -1491,6 +1494,7 @@ stdlib_io_freebsd_srcs = \
 	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/trunc.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha
@@ -3730,6 +3734,7 @@ testlib_io_linux_srcs = \
 	$(STDLIB)/io/+linux/file.ha \
 	$(STDLIB)/io/+linux/mmap.ha \
 	$(STDLIB)/io/+linux/platform_lock.ha \
+	$(STDLIB)/io/+linux/platform_trunc.ha \
 	$(STDLIB)/io/+linux/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
@@ -3739,6 +3744,7 @@ testlib_io_linux_srcs = \
 	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/trunc.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha \
@@ -3751,6 +3757,7 @@ testlib_io_freebsd_srcs = \
 	$(STDLIB)/io/+freebsd/file.ha \
 	$(STDLIB)/io/+freebsd/mmap.ha \
 	$(STDLIB)/io/+freebsd/platform_lock.ha \
+	$(STDLIB)/io/+freebsd/platform_trunc.ha \
 	$(STDLIB)/io/+freebsd/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
@@ -3760,6 +3767,7 @@ testlib_io_freebsd_srcs = \
 	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/trunc.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha \

@@ -893,6 +893,7 @@ gensrcs_io() {
 		+linux/file.ha \
 		+linux/mmap.ha \
 		+linux/platform_lock.ha \
+		+linux/platform_trunc.ha \
 		+linux/vector.ha \
 		copy.ha \
 		drain.ha \
@@ -902,6 +903,7 @@ gensrcs_io() {
 		lock.ha \
 		stream.ha \
 		tee.ha \
+		trunc.ha \
 		types.ha \
 		util.ha \
 		zero.ha \
@@ -911,6 +913,7 @@ gensrcs_io() {
 		+freebsd/file.ha \
 		+freebsd/mmap.ha \
 		+freebsd/platform_lock.ha \
+		+freebsd/platform_trunc.ha \
 		+freebsd/vector.ha \
 		copy.ha \
 		drain.ha \
@@ -920,6 +923,7 @@ gensrcs_io() {
 		lock.ha \
 		stream.ha \
 		tee.ha \
+		trunc.ha \
 		types.ha \
 		util.ha \
 		zero.ha \
