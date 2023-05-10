@@ -740,6 +740,10 @@ stdlib_deps_freebsd += $(stdlib_unix_resolvconf_freebsd)
 stdlib_unix_signal_linux = $(HARECACHE)/unix/signal/unix_signal-linux.o
 stdlib_deps_linux += $(stdlib_unix_signal_linux)
 
+# gen_lib unix::signal (freebsd)
+stdlib_unix_signal_freebsd = $(HARECACHE)/unix/signal/unix_signal-freebsd.o
+stdlib_deps_freebsd += $(stdlib_unix_signal_freebsd)
+
 # gen_lib unix::tty (linux)
 stdlib_unix_tty_linux = $(HARECACHE)/unix/tty/unix_tty-linux.o
 stdlib_deps_linux += $(stdlib_unix_tty_linux)
@@ -2195,6 +2199,17 @@ $(HARECACHE)/unix/signal/unix_signal-linux.ssa: $(stdlib_unix_signal_linux_srcs)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::signal \
 		-t$(HARECACHE)/unix/signal/unix_signal.td $(stdlib_unix_signal_linux_srcs)
 
+# unix::signal (+freebsd)
+stdlib_unix_signal_freebsd_srcs = \
+	$(STDLIB)/unix/signal/types.ha \
+	$(STDLIB)/unix/signal/+freebsd.ha
+
+$(HARECACHE)/unix/signal/unix_signal-freebsd.ssa: $(stdlib_unix_signal_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/signal
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::signal \
+		-t$(HARECACHE)/unix/signal/unix_signal.td $(stdlib_unix_signal_freebsd_srcs)
+
 # unix::tty (+linux)
 stdlib_unix_tty_linux_srcs = \
 	$(STDLIB)/unix/tty/types.ha \
@@ -2984,6 +2999,10 @@ testlib_deps_freebsd += $(testlib_unix_resolvconf_freebsd)
 # gen_lib unix::signal (linux)
 testlib_unix_signal_linux = $(TESTCACHE)/unix/signal/unix_signal-linux.o
 testlib_deps_linux += $(testlib_unix_signal_linux)
+
+# gen_lib unix::signal (freebsd)
+testlib_unix_signal_freebsd = $(TESTCACHE)/unix/signal/unix_signal-freebsd.o
+testlib_deps_freebsd += $(testlib_unix_signal_freebsd)
 
 # gen_lib unix::tty (linux)
 testlib_unix_tty_linux = $(TESTCACHE)/unix/tty/unix_tty-linux.o
@@ -4501,6 +4520,17 @@ $(TESTCACHE)/unix/signal/unix_signal-linux.ssa: $(testlib_unix_signal_linux_srcs
 	@mkdir -p $(TESTCACHE)/unix/signal
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
 		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_linux_srcs)
+
+# unix::signal (+freebsd)
+testlib_unix_signal_freebsd_srcs = \
+	$(STDLIB)/unix/signal/types.ha \
+	$(STDLIB)/unix/signal/+freebsd.ha
+
+$(TESTCACHE)/unix/signal/unix_signal-freebsd.ssa: $(testlib_unix_signal_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/signal
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
+		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_freebsd_srcs)
 
 # unix::tty (+linux)
 testlib_unix_tty_linux_srcs = \

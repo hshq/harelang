@@ -1474,6 +1474,11 @@ unix_signal() {
 		types.ha \
 		+linux.ha
 	gen_ssa -plinux unix::signal io errors rt
+
+	gen_srcs -pfreebsd unix::signal \
+		types.ha \
+		+freebsd.ha
+	gen_ssa -pfreebsd unix::signal io errors rt
 }
 
 unix_tty() {
@@ -1603,7 +1608,7 @@ unix::hosts	linux freebsd
 unix::passwd
 unix::poll		linux freebsd
 unix::resolvconf	linux freebsd
-unix::signal		linux
+unix::signal		linux freebsd
 unix::tty		linux freebsd
 uuid"
 stdlib() {
