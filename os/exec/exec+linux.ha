@@ -5,7 +5,7 @@ use errors;
 use io;
 use os;
 use rt;
-use strings;
+use types::c;
 use unix;
 
 export type platform_cmd = io::file;
@@ -80,11 +80,11 @@ fn open(path: str) (platform_cmd | error) = {
 fn platform_finish(cmd: *command) void = rt::close(cmd.platform)!;
 
 fn platform_exec(cmd: *command) error = {
-	// We don't worry about freeing the return values from strings::to_c
+	// We don't worry about freeing the return values from c::fromstr
 	// because once we exec(2) our heap is fried anyway
 	let argv: []nullable *const char = alloc([], len(cmd.argv) + 1z);
 	for (let i = 0z; i < len(cmd.argv); i += 1z) {
-		append(argv, strings::to_c(cmd.argv[i]));
+		append(argv, c::fromstr(cmd.argv[i]));
 	};
 	append(argv, null);
 
@@ -92,7 +92,7 @@ fn platform_exec(cmd: *command) error = {
 	if (len(cmd.env) != 0) {
 		let env: []nullable *const char = alloc([], len(cmd.env) + 1);
 		for (let i = 0z; i < len(cmd.env); i += 1) {
-			append(env, strings::to_c(cmd.env[i]));
+			append(env, c::fromstr(cmd.env[i]));
 		};
 		append(env, null);
 		envp = env: *[*]nullable *const char;

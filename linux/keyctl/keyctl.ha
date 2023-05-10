@@ -1,7 +1,7 @@
 use bytes;
 use errors;
 use rt;
-use strings;
+use types::c;
 
 fn errno(errno: rt::errno) error = {
 	switch (errno) {
@@ -19,9 +19,9 @@ export fn add_key(
 	payload: []u8,
 	keyring: serial,
 ) (serial | error) = {
-	const keytype = strings::to_c(keytype);
+	const keytype = c::fromstr(keytype);
 	defer free(keytype);
-	const name = strings::to_c(name);
+	const name = c::fromstr(name);
 	defer free(name);
 	match (rt::add_key(keytype, name, payload: *[*]u8: *void,
 			len(payload), keyring)) {
@@ -61,7 +61,7 @@ export fn join_session_keyring(name: str) (serial | error) = {
 	let name = if (name == "") {
 		yield null;
 	} else {
-		yield strings::to_c(name);
+		yield c::fromstr(name);
 	};
 	defer free(name);
 	return keyctl(command::JOIN_SESSION_KEYRING,

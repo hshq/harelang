@@ -2,9 +2,9 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
-use strings;
 use format::elf;
 use linux;
+use types::c;
 
 let ehdr: nullable *elf::header64 = null;
 
@@ -141,7 +141,7 @@ fn vdso_checkver(ctx: *vdso_ctx, version: str, num: u32) bool = {
 				cur.vd_aux: uintptr): *elf::verdaux64;
 			const name = ctx.stringtab: uintptr +
 				aux.vda_name: uintptr;
-			return version == strings::fromc(name: *char)!;
+			return version == c::tostr(name: *char)!;
 		};
 		prev = cur;
 		cur = (cur: uintptr + cur.vd_next: uintptr): *elf::verdef64;
@@ -174,7 +174,7 @@ export fn getsym(symname: str, symver: str) nullable *void = {
 			continue;
 		};
 		const name = ctx.stringtab: uintptr + sym.st_name: uintptr;
-		const s: str = strings::fromc(name: *const char)!;
+		const s: str = c::tostr(name: *const char)!;
 		if (s != symname)
 			continue;
 		if (!vdso_checkver(ctx, symver, i))

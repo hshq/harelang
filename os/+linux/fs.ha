@@ -5,7 +5,7 @@ use errors;
 use fs;
 use path;
 use rt;
-use strings;
+use types::c;
 
 export fn init_cwd() void = {
 	// XXX: Workaround for https://todo.sr.ht/~sircmpwn/hare/616
@@ -22,7 +22,7 @@ export fn init_cwd() void = {
 // Returns the current working directory. The return value is statically
 // allocated and must be duplicated (see [[strings::dup]]) before calling getcwd
 // again.
-export fn getcwd() str = strings::fromc(rt::getcwd() as *const char)!;
+export fn getcwd() str = c::tostr(rt::getcwd() as *const char)!;
 
 // Change the current working directory.
 export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {

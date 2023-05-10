@@ -13,6 +13,7 @@ use path;
 use rt;
 use strings;
 use time;
+use types::c;
 
 // Controls how symlinks are followed (or not) in a dirfd filesystem. Support
 // for this feature varies, you should gate usage of this enum behind a build
@@ -431,7 +432,7 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 	};
 	let de = &iter.buf[iter.buf_pos]: *rt::dirent64;
 	iter.buf_pos += de.d_reclen;
-	let name = strings::fromc(&de.d_name: *const char)!;
+	let name = c::tostr(&de.d_name: *const char)!;
 
 	let ftype: fs::mode = switch (de.d_type) {
 	case rt::DT_UNKNOWN =>

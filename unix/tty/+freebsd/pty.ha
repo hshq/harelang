@@ -6,7 +6,7 @@ use fs;
 use io;
 use os;
 use rt;
-use strings;
+use types::c;
 
 // Opens an available pseudoterminal master.
 fn open_master() (io::file | fs::error) = {
@@ -48,7 +48,7 @@ export fn ptsname(master: io::file) (str | error) = {
 	case =>
 		static let path_buf: [rt::PATH_MAX]u8 = [0...];
 		return fmt::bsprintf(path_buf,
-			"/dev/{}", strings::fromc(&name: *const char)!);
+			"/dev/{}", c::tostr(&name: *const char)!);
 	};
 };
 
