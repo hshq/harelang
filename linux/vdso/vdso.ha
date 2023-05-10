@@ -58,11 +58,12 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 		const ph = phui: *elf::phdr64;
 		switch (ph.p_type) {
 		case elf::pt::LOAD =>
-			baseseg = ehui +
+			baseseg = (ehui +
 				ph.p_offset: uintptr -
-				ph.p_vaddr: uintptr;
+				ph.p_vaddr: uintptr): nullable *void;
 		case elf::pt::DYNAMIC =>
-			dynvec = ehui + ph.p_offset: uintptr;
+			dynvec = (ehui +
+				ph.p_offset: uintptr): *[*]format::elf::dyn64;
 		case => void;
 		};
 		phui += eh.e_phentsize: uintptr;

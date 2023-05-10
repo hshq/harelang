@@ -63,7 +63,7 @@ export fn restore(signum: signal, action: *sigaction) void = {
 
 // Unregisters signal handlers for the specified signal.
 export fn reset(signum: signal) void = {
-	handle(signum, rt::SIG_DFL);
+	handle(signum, rt::SIG_DFL: *handler);
 };
 
 // Unregisters all signal handlers.
@@ -103,7 +103,7 @@ export fn resetall() void = {
 // Prevents given signal from arriving to the current process.
 // One common use case is to ignore SIGCHLD to avoid zombie child processes.
 export fn ignore(signum: signal) void = {
-	handle(signum, rt::SIG_IGN);
+	handle(signum, rt::SIG_IGN: *handler);
 };
 
 // Adds the given list of signals to the process's current signal mask,
