@@ -983,6 +983,7 @@ gensrcs_io() {
 		+darwin/file.ha \
 		+darwin/mmap.ha \
 		+darwin/platform_lock.ha \
+		+linux/platform_trunc.ha \
 		+darwin/vector.ha \
 		copy.ha \
 		drain.ha \
@@ -992,6 +993,7 @@ gensrcs_io() {
 		lock.ha \
 		stream.ha \
 		tee.ha \
+		trunc.ha \
 		types.ha \
 		util.ha \
 		zero.ha \
@@ -1656,7 +1658,7 @@ unix_tty() {
 
 	gen_srcs -pdarwin unix::tty \
 		types.ha \
-		pty.ha \
+		pty_common.ha \
 		+darwin/isatty.ha \
 		+darwin/open.ha \
 		+darwin/pty.ha \

@@ -19,6 +19,7 @@ export type blksize_t   = i32;
 export type fflags_t    = u32;
 export type mode_t      = u16;
 export type nfds_t      = uint;
+export type rlim_t      = u64;
 
 // <sys/syslimits.h>: ax supplemental group id's
 export def NGROUPS_MAX: size = 16;
@@ -51,7 +52,7 @@ export def SIG_UNBLOCK: int = 2; // unblock specified signal set
 export def SIG_SETMASK: int = 3; // set specified signal set
 
 export type sigset = struct {
-	__bits: [4]u32,
+    __bits: [4]u32,
 };
 
 // <sys/signal.h>
@@ -62,96 +63,96 @@ export def SIG_IGN : uintptr = 1;
 export def SIG_HOLD: uintptr = 5;
 
 export type sigact = struct {
-	union {
-		sa_handler: *fn (_: int) void,
-		sa_sigaction: *fn (_: int, _: *siginfo, _: *void) void,
-	},
-	sa_mask: sigset,
-	sa_flags: int,
+    union {
+        sa_handler: *fn (_: int) void,
+        sa_sigaction: *fn (_: int, _: *siginfo, _: *void) void,
+    },
+    sa_mask: sigset,
+    sa_flags: int,
 };
 
 export type siginfo = struct {
-	// TODO: Fill in more of this
-	si_signo : int,    // signal number
-	si_errno : int,    // errno association
-	si_code  : int,    // signal code
-	si_pid   : pid_t,  // sending process
-	si_uid   : uid_t,  // sender's ruid
-	si_status: int,    // exit value
-	si_addr  : *void,  // faulting instruction
-	// si_value : sigval, // signal value
-	// si_band  : i64,    // band event for SIGPOLL
-	// __pad    : [7]u64, // Reserved for Future Use
+    // TODO: Fill in more of this
+    si_signo : int,    // signal number
+    si_errno : int,    // errno association
+    si_code  : int,    // signal code
+    si_pid   : pid_t,  // sending process
+    si_uid   : uid_t,  // sender's ruid
+    si_status: int,    // exit value
+    si_addr  : *void,  // faulting instruction
+    // si_value : sigval, // signal value
+    // si_band  : i64,    // band event for SIGPOLL
+    // __pad    : [7]u64, // Reserved for Future Use
 };
 
 export type sigval = union {
-	sival_int: int,
-	sival_ptr: *void,
+    sival_int: int,
+    sival_ptr: *void,
 };
 
 // <sys/poll.h>
 export type pollfd = struct {
-	fd: int,
-	events: i16,
-	revents: i16,
+    fd: int,
+    events: i16,
+    revents: i16,
 };
 
 export type timespec = struct {
-	tv_sec: time_t,
-	tv_nsec: i64,
+    tv_sec: time_t,
+    tv_nsec: i64,
 };
 
 export type timeval = struct {
-	tv_sec: time_t,
-	tv_usec: suseconds_t,
+    tv_sec: time_t,
+    tv_usec: suseconds_t,
 };
 
 // <sys/fcntl.h>
 export type st_flock = struct {
-	l_start : off_t, // starting offset
-	l_len   : off_t, // len = 0 means until end of file
-	l_pid   : pid_t, // lock owner
-	l_type  : i16,   // lock type: read/write, etc.
-	l_whence: i16,   // type of l_start
+    l_start : off_t, // starting offset
+    l_len   : off_t, // len = 0 means until end of file
+    l_pid   : pid_t, // lock owner
+    l_type  : i16,   // lock type: read/write, etc.
+    l_whence: i16,   // type of l_start
 };
 
 export type st = struct {
-	dev   : dev_t,
-	ino   : ino_t,
-	nlink : nlink_t,
-	mode  : mode_t,
-	uid   : uid_t,
-	gid   : gid_t,
-	rdev  : dev_t,
-	atime : timespec,
-	mtime : timespec,
-	ctime : timespec,
-	btime : timespec,
-	sz    : off_t,
-	blocks: blkcnt_t,
-	blksz : blksize_t,
-	flags : fflags_t,
+    dev   : dev_t,
+    ino   : ino_t,
+    nlink : nlink_t,
+    mode  : mode_t,
+    uid   : uid_t,
+    gid   : gid_t,
+    rdev  : dev_t,
+    atime : timespec,
+    mtime : timespec,
+    ctime : timespec,
+    btime : timespec,
+    sz    : off_t,
+    blocks: blkcnt_t,
+    blksz : blksize_t,
+    flags : fflags_t,
 };
 
 // <sys/stat.h>
 export type stat_t = struct {
-	st_dev     : dev_t,     // [XSI] ID of device containing file
-	st_ino     : ino_t,     // [XSI] File serial number
-	st_mode    : mode_t,    // [XSI] Mode of file (see below)
-	st_nlink   : nlink_t,   // [XSI] Number of hard links
-	st_uid     : uid_t,     // [XSI] User ID of the file
-	st_gid     : gid_t,     // [XSI] Group ID of the file
-	st_rdev    : dev_t,     // [XSI] Device ID
-	st_atim    : timespec,  // time of last access
-	st_mtim    : timespec,  // time of last data modification
-	st_ctim    : timespec,  // time of last status change
-	st_size    : off_t,     // [XSI] file size, in bytes
-	st_blocks  : blkcnt_t,  // [XSI] blocks allocated for file
-	st_blksize : blksize_t, // [XSI] optimal blocksize for I/O
-	st_flags   : fflags_t,  // user defined flags for file
-	st_gen     : u32,       // file generation number
-	st_lspare  : i32,       // RESERVED: DO NOT USE!
-	st_birthtim: timespec,  // RESERVED: DO NOT USE!
+    st_dev     : dev_t,     // [XSI] ID of device containing file
+    st_ino     : ino_t,     // [XSI] File serial number
+    st_mode    : mode_t,    // [XSI] Mode of file (see below)
+    st_nlink   : nlink_t,   // [XSI] Number of hard links
+    st_uid     : uid_t,     // [XSI] User ID of the file
+    st_gid     : gid_t,     // [XSI] Group ID of the file
+    st_rdev    : dev_t,     // [XSI] Device ID
+    st_atim    : timespec,  // time of last access
+    st_mtim    : timespec,  // time of last data modification
+    st_ctim    : timespec,  // time of last status change
+    st_size    : off_t,     // [XSI] file size, in bytes
+    st_blocks  : blkcnt_t,  // [XSI] blocks allocated for file
+    st_blksize : blksize_t, // [XSI] optimal blocksize for I/O
+    st_flags   : fflags_t,  // user defined flags for file
+    st_gen     : u32,       // file generation number
+    st_lspare  : i32,       // RESERVED: DO NOT USE!
+    st_birthtim: timespec,  // RESERVED: DO NOT USE!
 };
 
 // <sys/dirent.h>
@@ -160,45 +161,45 @@ export def MAXNAMLEN:  u16 = 256;
 export def MAXPATHLEN: u16 = 1024;
 
 export type dirent = struct {
-	d_fileno: ino_t,   // file number of entry
-	d_reclen: u16,     // length of this record
-	d_type  : u8,      // file type, see below
-	d_namlen: u8,      // length of string in d_name
-	d_name  : [*]char, // name must be no longer than this
+    d_fileno: ino_t,   // file number of entry
+    d_reclen: u16,     // length of this record
+    d_type  : u8,      // file type, see below
+    d_namlen: u8,      // length of string in d_name
+    d_name  : [*]char, // name must be no longer than this
 };
 
 // SYS_getdirentries64
 // export type dirent = struct {
-// 	d_fileno: ino_t,   // file number of entry
-// 	d_off   : u64,     // seek offset (optional, used by servers)
-// 	d_reclen: u16,     // length of this record
-// 	d_namlen: u16,     // length of string in d_name
-// 	d_type  : u8,      // file type, see below
-// 	d_name  : [*]char, // entry name (up to MAXPATHLEN bytes)
+//  d_fileno: ino_t,   // file number of entry
+//  d_off   : u64,     // seek offset (optional, used by servers)
+//  d_reclen: u16,     // length of this record
+//  d_namlen: u16,     // length of string in d_name
+//  d_type  : u8,      // file type, see below
+//  d_name  : [*]char, // entry name (up to MAXPATHLEN bytes)
 // };
 
 // <sys/uio.h>
 export type iovec = struct {
-	iov_base: *void, // [XSI] Base address of I/O memory region
-	iov_len:   size, // [XSI] Size of region iov_base points to
+    iov_base: *void, // [XSI] Base address of I/O memory region
+    iov_len:   size, // [XSI] Size of region iov_base points to
 };
 
 // <sys/termios.h>
 export type winsize = struct {
-	ws_row   : u16, // rows, in characters
-	ws_col   : u16, // columns, in characters
-	ws_xpixel: u16, // horizontal size, pixels
-	ws_ypixel: u16, // vertical size, pixels
+    ws_row   : u16, // rows, in characters
+    ws_col   : u16, // columns, in characters
+    ws_xpixel: u16, // horizontal size, pixels
+    ws_ypixel: u16, // vertical size, pixels
 };
 
 export type termios = struct {
-	c_iflag : tcflag,   // input flags
-	c_oflag : tcflag,   // output flags
-	c_cflag : tcflag,   // control flags
-	c_lflag : tcflag,   // local flags
-	c_cc    : [NCCS]cc, // control chars
-	c_ispeed: speed_t,  // input speed
-	c_ospeed: speed_t,  // output speed
+    c_iflag : tcflag,   // input flags
+    c_oflag : tcflag,   // output flags
+    c_cflag : tcflag,   // control flags
+    c_lflag : tcflag,   // local flags
+    c_cc    : [NCCS]cc, // control chars
+    c_ispeed: speed_t,  // input speed
+    c_ospeed: speed_t,  // output speed
 };
 
 export type speed_t = u64;
@@ -206,122 +207,122 @@ export type speed_t = u64;
 export def NCCS: size = 20;
 
 export type tcflag = enum uint {
-	// c_iflag bits: Input flags - software input processing
-	IGNBRK     = 0x00000001, // ignore BREAK condition
-	BRKINT     = 0x00000002, // map BREAK to SIGINTR
-	IGNPAR     = 0x00000004, // ignore (discard) parity errors
-	PARMRK     = 0x00000008, // mark parity and framing errors
-	INPCK      = 0x00000010, // enable checking of parity errors
-	ISTRIP     = 0x00000020, // strip 8th bit off chars
-	INLCR      = 0x00000040, // map NL into CR
-	IGNCR      = 0x00000080, // ignore CR
-	ICRNL      = 0x00000100, // map CR to NL (ala CRMOD)
-	IXON       = 0x00000200, // enable output flow control
-	IXOFF      = 0x00000400, // enable input flow control
-	IXANY      = 0x00000800, // any char will restart after stop
-	IMAXBEL    = 0x00002000, // ring bell on input queue full
-	IUTF8      = 0x00004000, // maintain state for UTF-8 VERASE
+    // c_iflag bits: Input flags - software input processing
+    IGNBRK     = 0x00000001, // ignore BREAK condition
+    BRKINT     = 0x00000002, // map BREAK to SIGINTR
+    IGNPAR     = 0x00000004, // ignore (discard) parity errors
+    PARMRK     = 0x00000008, // mark parity and framing errors
+    INPCK      = 0x00000010, // enable checking of parity errors
+    ISTRIP     = 0x00000020, // strip 8th bit off chars
+    INLCR      = 0x00000040, // map NL into CR
+    IGNCR      = 0x00000080, // ignore CR
+    ICRNL      = 0x00000100, // map CR to NL (ala CRMOD)
+    IXON       = 0x00000200, // enable output flow control
+    IXOFF      = 0x00000400, // enable input flow control
+    IXANY      = 0x00000800, // any char will restart after stop
+    IMAXBEL    = 0x00002000, // ring bell on input queue full
+    IUTF8      = 0x00004000, // maintain state for UTF-8 VERASE
 
-	// c_oflag bits: Output flags - software output processing
-	OPOST      = 0x00000001, // enable following output processing
-	ONLCR      = 0x00000002, // map NL to CR-NL (ala CRMOD)
-	OXTABS     = 0x00000004, // expand tabs to spaces
-	ONOEOT     = 0x00000008, // discard EOT's (^D) on output)
-	// - Begin unimplemented features
-	// OCRNL      = 0x00000010, // map CR to NL on output
-	// ONOCR      = 0x00000020, // no CR output at column 0
-	// ONLRET     = 0x00000040, // NL performs CR function
-	// OFILL      = 0x00000080, // use fill characters for delay
-	// NLDLY      = 0x00000300, // \n delay
-	// TABDLY     = 0x00000c04, // horizontal tab delay
-	// CRDLY      = 0x00003000, // \r delay
-	// FFDLY      = 0x00004000, // form feed delay
-	// BSDLY      = 0x00008000, // \b delay
-	// VTDLY      = 0x00010000, // vertical tab delay
-	// OFDEL      = 0x00020000, // fill is DEL, else NUL
+    // c_oflag bits: Output flags - software output processing
+    OPOST      = 0x00000001, // enable following output processing
+    ONLCR      = 0x00000002, // map NL to CR-NL (ala CRMOD)
+    OXTABS     = 0x00000004, // expand tabs to spaces
+    ONOEOT     = 0x00000008, // discard EOT's (^D) on output)
+    // - Begin unimplemented features
+    // OCRNL      = 0x00000010, // map CR to NL on output
+    // ONOCR      = 0x00000020, // no CR output at column 0
+    // ONLRET     = 0x00000040, // NL performs CR function
+    // OFILL      = 0x00000080, // use fill characters for delay
+    // NLDLY      = 0x00000300, // \n delay
+    // TABDLY     = 0x00000c04, // horizontal tab delay
+    // CRDLY      = 0x00003000, // \r delay
+    // FFDLY      = 0x00004000, // form feed delay
+    // BSDLY      = 0x00008000, // \b delay
+    // VTDLY      = 0x00010000, // vertical tab delay
+    // OFDEL      = 0x00020000, // fill is DEL, else NUL
 
-	// NL0        = 0x00000000,
-	// NL1        = 0x00000100,
-	// NL2        = 0x00000200,
-	// NL3        = 0x00000300,
-	// TAB0       = 0x00000000,
-	// TAB1       = 0x00000400,
-	// TAB2       = 0x00000800,
-	// TAB3       = 0x00000004, // not in sys/ioctl_compat.h, use OXTABS value
-	// CR0        = 0x00000000,
-	// CR1        = 0x00001000,
-	// CR2        = 0x00002000,
-	// CR3        = 0x00003000,
-	// FF0        = 0x00000000,
-	// FF1        = 0x00004000,
-	// BS0        = 0x00000000,
-	// BS1        = 0x00008000,
-	// VT0        = 0x00000000,
-	// VT1        = 0x00010000,
-	// + End unimplemented features
+    // NL0        = 0x00000000,
+    // NL1        = 0x00000100,
+    // NL2        = 0x00000200,
+    // NL3        = 0x00000300,
+    // TAB0       = 0x00000000,
+    // TAB1       = 0x00000400,
+    // TAB2       = 0x00000800,
+    // TAB3       = 0x00000004, // not in sys/ioctl_compat.h, use OXTABS value
+    // CR0        = 0x00000000,
+    // CR1        = 0x00001000,
+    // CR2        = 0x00002000,
+    // CR3        = 0x00003000,
+    // FF0        = 0x00000000,
+    // FF1        = 0x00004000,
+    // BS0        = 0x00000000,
+    // BS1        = 0x00008000,
+    // VT0        = 0x00000000,
+    // VT1        = 0x00010000,
+    // + End unimplemented features
 
-	// c_cflag bits: Control flags - hardware control of terminal
-	CIGNORE    = 0x00000001, // ignore control flags
-	CSIZE      = 0x00000300, // character size mask
-	CS5        = 0x00000000, // 5 bits (pseudo)
-	CS6        = 0x00000100, // 6 bits
-	CS7        = 0x00000200, // 7 bits
-	CS8        = 0x00000300, // 8 bits
-	CSTOPB     = 0x00000400, // send 2 stop bits
-	CREAD      = 0x00000800, // enable receiver
-	PARENB     = 0x00001000, // parity enable
-	PARODD     = 0x00002000, // odd parity, else even
-	HUPCL      = 0x00004000, // hang up on last close
-	CLOCAL     = 0x00008000, // ignore modem status lines
-	CCTS_OFLOW = 0x00010000, // CTS flow control of output
-	CRTS_IFLOW = 0x00020000, // RTS flow control of input
-	CRTSCTS    = (CCTS_OFLOW | CRTS_IFLOW),
-	CDTR_IFLOW = 0x00040000, // DTR flow control of input
-	CDSR_OFLOW = 0x00080000, // DSR flow control of output
-	CCAR_OFLOW = 0x00100000, // DCD flow control of output
-	MDMBUF     = 0x00100000, // old name for CCAR_OFLOW
+    // c_cflag bits: Control flags - hardware control of terminal
+    CIGNORE    = 0x00000001, // ignore control flags
+    CSIZE      = 0x00000300, // character size mask
+    CS5        = 0x00000000, // 5 bits (pseudo)
+    CS6        = 0x00000100, // 6 bits
+    CS7        = 0x00000200, // 7 bits
+    CS8        = 0x00000300, // 8 bits
+    CSTOPB     = 0x00000400, // send 2 stop bits
+    CREAD      = 0x00000800, // enable receiver
+    PARENB     = 0x00001000, // parity enable
+    PARODD     = 0x00002000, // odd parity, else even
+    HUPCL      = 0x00004000, // hang up on last close
+    CLOCAL     = 0x00008000, // ignore modem status lines
+    CCTS_OFLOW = 0x00010000, // CTS flow control of output
+    CRTS_IFLOW = 0x00020000, // RTS flow control of input
+    CRTSCTS    = (CCTS_OFLOW | CRTS_IFLOW),
+    CDTR_IFLOW = 0x00040000, // DTR flow control of input
+    CDSR_OFLOW = 0x00080000, // DSR flow control of output
+    CCAR_OFLOW = 0x00100000, // DCD flow control of output
+    MDMBUF     = 0x00100000, // old name for CCAR_OFLOW
 
-	// c_lflag bits: "Local" flags - dumping ground for other state
-	ECHOKE     = 0x00000001, // visual erase for line kill
-	ECHOE      = 0x00000002, // visually erase chars
-	ECHOK      = 0x00000004, // echo NL after line kill
-	ECHO       = 0x00000008, // enable echoing
-	ECHONL     = 0x00000010, // echo NL even if ECHO is off
-	ECHOPRT    = 0x00000020, // visual erase mode for hardcopy
-	ECHOCTL    = 0x00000040, // echo control chars as ^(Char)
-	ISIG       = 0x00000080, // enable signals INTR, QUIT, [D]SUSP
-	ICANON     = 0x00000100, // canonicalize input lines
-	ALTWERASE  = 0x00000200, // use alternate WERASE algorithm
-	IEXTEN     = 0x00000400, // enable DISCARD and LNEXT
-	EXTPROC    = 0x00000800, // external processing
-	TOSTOP     = 0x00400000, // stop background jobs from output
-	FLUSHO     = 0x00800000, // output being flushed (state)
-	NOKERNINFO = 0x02000000, // no kernel output from VSTATUS
-	PENDIN     = 0x20000000, // XXX retype pending input (state)
-	NOFLSH     = 0x80000000, // don't flush after interrupt
+    // c_lflag bits: "Local" flags - dumping ground for other state
+    ECHOKE     = 0x00000001, // visual erase for line kill
+    ECHOE      = 0x00000002, // visually erase chars
+    ECHOK      = 0x00000004, // echo NL after line kill
+    ECHO       = 0x00000008, // enable echoing
+    ECHONL     = 0x00000010, // echo NL even if ECHO is off
+    ECHOPRT    = 0x00000020, // visual erase mode for hardcopy
+    ECHOCTL    = 0x00000040, // echo control chars as ^(Char)
+    ISIG       = 0x00000080, // enable signals INTR, QUIT, [D]SUSP
+    ICANON     = 0x00000100, // canonicalize input lines
+    ALTWERASE  = 0x00000200, // use alternate WERASE algorithm
+    IEXTEN     = 0x00000400, // enable DISCARD and LNEXT
+    EXTPROC    = 0x00000800, // external processing
+    TOSTOP     = 0x00400000, // stop background jobs from output
+    FLUSHO     = 0x00800000, // output being flushed (state)
+    NOKERNINFO = 0x02000000, // no kernel output from VSTATUS
+    PENDIN     = 0x20000000, // XXX retype pending input (state)
+    NOFLSH     = 0x80000000, // don't flush after interrupt
 };
 
 // <sys/termios.h>
 export type cc = enum char {
-	VEOF      = 0,
-	VEOL      = 1,
-	VEOL2     = 2,
-	VERASE    = 3,
-	VWERASE   = 4,
-	VKILL     = 5,
-	VREPRINT  = 6,
-	VERASE2   = 7,
-	VINTR     = 8,
-	VQUIT     = 9,
-	VSUSP     = 10,
-	VDSUSP    = 11,
-	VSTART    = 12,
-	VSTOP     = 13,
-	VLNEXT    = 14,
-	VDISCARD  = 15,
-	VMIN      = 16,
-	VTIME     = 17,
-	VSTATUS   = 18,
+    VEOF      = 0,
+    VEOL      = 1,
+    VEOL2     = 2,
+    VERASE    = 3,
+    VWERASE   = 4,
+    VKILL     = 5,
+    VREPRINT  = 6,
+    VERASE2   = 7,
+    VINTR     = 8,
+    VQUIT     = 9,
+    VSUSP     = 10,
+    VDSUSP    = 11,
+    VSTART    = 12,
+    VSTOP     = 13,
+    VLNEXT    = 14,
+    VDISCARD  = 15,
+    VMIN      = 16,
+    VTIME     = 17,
+    VSTATUS   = 18,
 };
 
 // <sys/ioctl.h>
@@ -332,22 +333,22 @@ export def TIOCSETA    : u64 = 0x80487414; // set termios struct
 
 // <sys/resource.h>
 export type rusage = struct {
-	ru_utime   : timeval, // user time used (PL)
-	ru_stime   : timeval, // system time used (PL)
-	ru_maxrss  : i64, // max resident set size (PL)
-	ru_ixrss   : i64, // integral shared memory size (NU)
-	ru_idrss   : i64, // integral unshared data (NU)
-	ru_isrss   : i64, // integral unshared stack (NU)
-	ru_minflt  : i64, // page reclaims (NU)
-	ru_majflt  : i64, // page faults (NU)
-	ru_nswap   : i64, // swaps (NU)
-	ru_inblock : i64, // block input operations (atomic)
-	ru_oublock : i64, // block output operations (atomic)
-	ru_msgsnd  : i64, // messages sent (atomic)
-	ru_msgrcv  : i64, // messages received (atomic)
-	ru_nsignals: i64, // signals received (atomic)
-	ru_nvcsw   : i64, // voluntary context switches (atomic)
-	ru_nivcsw  : i64, // involuntary "
+    ru_utime   : timeval, // user time used (PL)
+    ru_stime   : timeval, // system time used (PL)
+    ru_maxrss  : i64, // max resident set size (PL)
+    ru_ixrss   : i64, // integral shared memory size (NU)
+    ru_idrss   : i64, // integral unshared data (NU)
+    ru_isrss   : i64, // integral unshared stack (NU)
+    ru_minflt  : i64, // page reclaims (NU)
+    ru_majflt  : i64, // page faults (NU)
+    ru_nswap   : i64, // swaps (NU)
+    ru_inblock : i64, // block input operations (atomic)
+    ru_oublock : i64, // block output operations (atomic)
+    ru_msgsnd  : i64, // messages sent (atomic)
+    ru_msgrcv  : i64, // messages received (atomic)
+    ru_nsignals: i64, // signals received (atomic)
+    ru_nvcsw   : i64, // voluntary context switches (atomic)
+    ru_nivcsw  : i64, // involuntary "
 };
 
 // <sys/dirent.h>: File types
@@ -487,7 +488,7 @@ export def F_GLOBAL_NOCACHE: int = 55; // turn data caching off/on (globally) fo
 export def F_ADDSIGS       : int = 59; // add detached signatures
 export def F_ADDFILESIGS   : int = 61; // add signature from same file (used by dyld for shared libs)
 export def F_NODIRECT      : int = 62; // used in conjunction with F_NOCACHE to indicate that DIRECT, synchonous writes
-									// should not be used (i.e. its ok to temporaily create cached pages)
+                                    // should not be used (i.e. its ok to temporaily create cached pages)
 export def F_GETPROTECTIONCLASS: int = 63; // Get the protection class of a file from the EA, returns int
 export def F_SETPROTECTIONCLASS: int = 64; // Set the protection class of a file for the EA, requires int
 export def F_LOG2PHYS_EXT      : int = 65; // file offset to device offset, extended
@@ -551,14 +552,14 @@ export def R_OK: int = 0x04; // test for read permission
 // export def CLOCK_PROCESS_CPUTIME_ID  : int = 12;
 // export def CLOCK_THREAD_CPUTIME_ID   : int = 16;
 export type clockid_t = enum int {
-	CLOCK_REALTIME             = 0,
-	CLOCK_MONOTONIC            = 6,
-	CLOCK_MONOTONIC_RAW        = 4,
-	CLOCK_MONOTONIC_RAW_APPROX = 5,
-	CLOCK_UPTIME_RAW           = 8,
-	CLOCK_UPTIME_RAW_APPROX    = 9,
-	CLOCK_PROCESS_CPUTIME_ID   = 12,
-	CLOCK_THREAD_CPUTIME_ID    = 16,
+    CLOCK_REALTIME             = 0,
+    CLOCK_MONOTONIC            = 6,
+    CLOCK_MONOTONIC_RAW        = 4,
+    CLOCK_MONOTONIC_RAW_APPROX = 5,
+    CLOCK_UPTIME_RAW           = 8,
+    CLOCK_UPTIME_RAW_APPROX    = 9,
+    CLOCK_PROCESS_CPUTIME_ID   = 12,
+    CLOCK_THREAD_CPUTIME_ID    = 16,
 };
 
 // <sys/wait.h>
@@ -584,3 +585,28 @@ export def LOCK_SH: int = 0x01; // shared file lock
 export def LOCK_EX: int = 0x02; // exclusive file lock
 export def LOCK_NB: int = 0x04; // don't block when locking
 export def LOCK_UN: int = 0x08; // unlock file
+
+// <sys/resource.h>
+// A structure representing a resource limit.  The address of an instance
+// of this structure is the second parameter to getrlimit()/setrlimit().
+export type rlimit = struct {
+    rlim_cur: rlim_t,   // current (soft) limit
+    rlim_max: rlim_t,   // maximum value for rlim_cur
+};
+
+// Possible values of the first parameter to getrlimit()/setrlimit(), to
+// indicate for which resource the operation is being performed.
+export def RLIMIT_CPU:         int = 0;         // cpu time per process
+export def RLIMIT_FSIZE:       int = 1;         // file size
+export def RLIMIT_DATA:        int = 2;         // data segment size
+export def RLIMIT_STACK:       int = 3;         // stack size
+export def RLIMIT_CORE:        int = 4;         // core file size
+export def RLIMIT_AS:          int = 5;         // address space (resident set size)
+export def RLIMIT_RSS:         int = RLIMIT_AS; // source compatibility alias
+export def RLIMIT_MEMLOCK:     int = 6;         // locked-in-memory address space
+export def RLIMIT_NPROC:       int = 7;         // number of processes
+export def RLIMIT_NOFILE:      int = 8;         // number of open files
+export def RLIM_NLIMITS:       int = 9;         // total number of resource limits
+export def _RLIMIT_POSIX_FLAG: int = 0x1000;    // Set bit for strict POSIX
+
+// __DARWIN_C_LEVEL >= __DARWIN_C_FULL: true

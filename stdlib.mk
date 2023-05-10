@@ -1728,6 +1728,7 @@ stdlib_io_darwin_srcs = \
 	$(STDLIB)/io/+darwin/file.ha \
 	$(STDLIB)/io/+darwin/mmap.ha \
 	$(STDLIB)/io/+darwin/platform_lock.ha \
+	$(STDLIB)/io/+linux/platform_trunc.ha \
 	$(STDLIB)/io/+darwin/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
@@ -1737,6 +1738,7 @@ stdlib_io_darwin_srcs = \
 	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/trunc.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha
@@ -2661,7 +2663,7 @@ $(HARECACHE)/unix/tty/unix_tty-freebsd.ssa: $(stdlib_unix_tty_freebsd_srcs) $(st
 # unix::tty (+darwin)
 stdlib_unix_tty_darwin_srcs = \
 	$(STDLIB)/unix/tty/types.ha \
-	$(STDLIB)/unix/tty/pty.ha \
+	$(STDLIB)/unix/tty/pty_common.ha \
 	$(STDLIB)/unix/tty/+darwin/isatty.ha \
 	$(STDLIB)/unix/tty/+darwin/open.ha \
 	$(STDLIB)/unix/tty/+darwin/pty.ha \
@@ -4473,6 +4475,7 @@ testlib_io_darwin_srcs = \
 	$(STDLIB)/io/+darwin/file.ha \
 	$(STDLIB)/io/+darwin/mmap.ha \
 	$(STDLIB)/io/+darwin/platform_lock.ha \
+	$(STDLIB)/io/+linux/platform_trunc.ha \
 	$(STDLIB)/io/+darwin/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
@@ -4482,6 +4485,7 @@ testlib_io_darwin_srcs = \
 	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/trunc.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha \
@@ -5422,7 +5426,7 @@ $(TESTCACHE)/unix/tty/unix_tty-freebsd.ssa: $(testlib_unix_tty_freebsd_srcs) $(t
 # unix::tty (+darwin)
 testlib_unix_tty_darwin_srcs = \
 	$(STDLIB)/unix/tty/types.ha \
-	$(STDLIB)/unix/tty/pty.ha \
+	$(STDLIB)/unix/tty/pty_common.ha \
 	$(STDLIB)/unix/tty/+darwin/isatty.ha \
 	$(STDLIB)/unix/tty/+darwin/open.ha \
 	$(STDLIB)/unix/tty/+darwin/pty.ha \
