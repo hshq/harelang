@@ -97,25 +97,9 @@ export fn clearenv(cmd: *command) void = {
 };
 
 // Removes a variable in the command environment. This does not affect the
-// current process environment. The 'key' must be a valid environment variable
-// name per POSIX definition 3.235. This includes underscores and alphanumeric
-// ASCII characters, and cannot begin with a number.
+// current process environment. The key may not contain '=' or '\0'. 
 export fn unsetenv(cmd: *command, key: str) (void | errors::invalid) = {
-	let iter = strings::iter(key);
-	for (let i = 0z; true; i += 1) match (strings::next(&iter)) {
-	case void =>
-		break;
-	case let r: rune =>
-		if (i == 0) {
-			if(!(r == '_' || ascii::isalpha(r))) {
-				return errors::invalid;
-			};
-		} else {
-			if(!(r == '_' || ascii::isalnum(r))) {
-				return errors::invalid;
-			};
-		};
-	};
+	if (strings::contains(key, '=', '\0')) return errors::invalid;
 
 	// XXX: This can be a binary search
 	let fullkey = strings::concat(key, "=");
@@ -131,9 +115,7 @@ export fn unsetenv(cmd: *command, key: str) (void | errors::invalid) = {
 
 
 // Adds or sets a variable in the command environment. This does not affect the
-// current process environment. The 'key' must be a valid environment variable
-// name per POSIX definition 3.235. This includes underscores and alphanumeric
-// ASCII characters, and cannot begin with a number.
+// current process environment. The key may not contain '=' or '\0'.
 export fn setenv(cmd: *command, key: str, value: str) (void | errors::invalid) = {
 	unsetenv(cmd, key)?;
 	append(cmd.env, strings::join("=", key, value));
