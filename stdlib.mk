@@ -670,6 +670,12 @@ stdlib_deps_linux += $(stdlib_temp_linux)
 stdlib_temp_freebsd = $(HARECACHE)/temp/temp-freebsd.o
 stdlib_deps_freebsd += $(stdlib_temp_freebsd)
 
+# gen_lib test (any)
+stdlib_test_any = $(HARECACHE)/test/test-any.o
+stdlib_deps_any += $(stdlib_test_any)
+stdlib_test_linux = $(stdlib_test_any)
+stdlib_test_freebsd = $(stdlib_test_any)
+
 # gen_lib time (linux)
 stdlib_time_linux = $(HARECACHE)/time/time-linux.o
 stdlib_deps_linux += $(stdlib_time_linux)
@@ -1995,6 +2001,16 @@ $(HARECACHE)/temp/temp-freebsd.ssa: $(stdlib_temp_freebsd_srcs) $(stdlib_rt) $(s
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntemp \
 		-t$(HARECACHE)/temp/temp.td $(stdlib_temp_freebsd_srcs)
 
+# test (+any)
+stdlib_test_any_srcs = \
+	$(STDLIB)/test/common.ha
+
+$(HARECACHE)/test/test-any.ssa: $(stdlib_test_any_srcs) $(stdlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/test
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntest \
+		-t$(HARECACHE)/test/test.td $(stdlib_test_any_srcs)
+
 # time (+linux)
 stdlib_time_linux_srcs = \
 	$(STDLIB)/time/+linux/functions.ha \
@@ -2278,11 +2294,8 @@ testlib_rt_linux_srcs = \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
-	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/abort+test.ha \
-	$(STDLIB)/rt/+test/+$(PLATFORM).ha \
-	$(STDLIB)/rt/+test/cstring.ha \
-	$(STDLIB)/rt/+test/run.ha \
+	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/+test/signal.ha \
 	$(STDLIB)/rt/+test/ztos.ha
 
@@ -2310,11 +2323,8 @@ testlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
-	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/abort+test.ha \
-	$(STDLIB)/rt/+test/+$(PLATFORM).ha \
-	$(STDLIB)/rt/+test/cstring.ha \
-	$(STDLIB)/rt/+test/run.ha \
+	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/+test/signal.ha \
 	$(STDLIB)/rt/+test/ztos.ha
 
@@ -2929,6 +2939,12 @@ testlib_deps_linux += $(testlib_temp_linux)
 # gen_lib temp (freebsd)
 testlib_temp_freebsd = $(TESTCACHE)/temp/temp-freebsd.o
 testlib_deps_freebsd += $(testlib_temp_freebsd)
+
+# gen_lib test (any)
+testlib_test_any = $(TESTCACHE)/test/test-any.o
+testlib_deps_any += $(testlib_test_any)
+testlib_test_linux = $(testlib_test_any)
+testlib_test_freebsd = $(testlib_test_any)
 
 # gen_lib time (linux)
 testlib_time_linux = $(TESTCACHE)/time/time-linux.o
@@ -4111,7 +4127,7 @@ $(TESTCACHE)/net/uri/net_uri-any.ssa: $(testlib_net_uri_any_srcs) $(testlib_rt) 
 testlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/dirfdfs.ha \
 	$(STDLIB)/os/+linux/environ.ha \
-	$(STDLIB)/os/+linux/exit.ha \
+	$(STDLIB)/os/+linux/exit+test.ha \
 	$(STDLIB)/os/+linux/fs.ha \
 	$(STDLIB)/os/+linux/memory.ha \
 	$(STDLIB)/os/+linux/stdfd.ha \
@@ -4126,7 +4142,7 @@ $(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_i
 # os (+freebsd)
 testlib_os_freebsd_srcs = \
 	$(STDLIB)/os/+freebsd/environ.ha \
-	$(STDLIB)/os/+freebsd/exit.ha \
+	$(STDLIB)/os/+freebsd/exit+test.ha \
 	$(STDLIB)/os/+freebsd/dirfdfs.ha \
 	$(STDLIB)/os/+freebsd/stdfd.ha \
 	$(STDLIB)/os/+freebsd/fs.ha \
@@ -4315,6 +4331,18 @@ $(TESTCACHE)/temp/temp-freebsd.ssa: $(testlib_temp_freebsd_srcs) $(testlib_rt) $
 	@mkdir -p $(TESTCACHE)/temp
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
 		-t$(TESTCACHE)/temp/temp.td $(testlib_temp_freebsd_srcs)
+
+# test (+any)
+testlib_test_any_srcs = \
+	$(STDLIB)/test/common.ha \
+	$(STDLIB)/test/+test.ha \
+	$(STDLIB)/test/fail+test.ha
+
+$(TESTCACHE)/test/test-any.ssa: $(testlib_test_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fnmatch_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/test
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntest \
+		-t$(TESTCACHE)/test/test.td $(testlib_test_any_srcs)
 
 # time (+linux)
 testlib_time_linux_srcs = \

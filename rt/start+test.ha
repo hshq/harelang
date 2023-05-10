@@ -1,6 +1,8 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
+@symbol("__test_main") fn test_main() size;
+
 const @symbol("__init_array_start") init_start: [*]*fn() void;
 const @symbol("__init_array_end") init_end: [*]*fn() void;
 const @symbol("__fini_array_start") fini_start: [*]*fn() void;
@@ -26,7 +28,7 @@ export fn fini() void = {
 
 export @noreturn fn start_ha() void = {
 	init();
-	let nfail = tests_main();
+	const nfail = test_main();
 	fini();
 	exit(if (nfail > 0) 1 else 0);
 };

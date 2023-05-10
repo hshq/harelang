@@ -81,11 +81,8 @@ rt() {
 			start.ha
 	else
 		gensrcs_rt \
-			start+test.ha \
 			abort+test.ha \
-			'+test/+$(PLATFORM).ha' \
-			+test/cstring.ha \
-			+test/run.ha \
+			start+test.ha \
 			+test/signal.ha \
 			+test/ztos.ha
 	fi
@@ -155,6 +152,17 @@ ${stdlib}_deps_freebsd += \$(${stdlib}_rt)
 ${stdlib}_deps_any += \$(${stdlib}_rt)
 
 EOF
+}
+
+test() {
+	if [ $testing -eq 0 ]; then
+		gen_srcs test common.ha
+		gen_ssa test
+	else
+		gen_srcs test common.ha +test.ha fail+test.ha
+		gen_ssa test bufio encoding::hex encoding::utf8 fmt fnmatch io \
+			os rt strings strio time unix::signal
+	fi
 }
 
 ascii() {
@@ -1168,10 +1176,17 @@ math_random() {
 }
 
 os() {
+	if [ $testing -eq 0 ]
+	then
+		exit=exit.ha
+	else
+		exit=exit+test.ha
+	fi
+
 	gen_srcs -plinux os \
 		+linux/dirfdfs.ha \
 		+linux/environ.ha \
-		+linux/exit.ha \
+		+linux/$exit \
 		+linux/fs.ha \
 		+linux/memory.ha \
 		+linux/stdfd.ha \
@@ -1181,7 +1196,7 @@ os() {
 
 	gen_srcs -pfreebsd os \
 		+freebsd/environ.ha \
-		+freebsd/exit.ha \
+		+freebsd/$exit \
 		+freebsd/dirfdfs.ha \
 		+freebsd/stdfd.ha \
 		+freebsd/fs.ha \
@@ -1599,6 +1614,7 @@ strings
 strings::template
 strio
 temp			linux freebsd
+test
 time			linux freebsd
 time::chrono	linux freebsd
 types
