@@ -14,6 +14,7 @@ const reasons: [_]str = [
 	"out of memory",					// 2
 	"static insert/append exceeds slice capacity",		// 3
 	"execution reached unreachable code (compiler bug)",	// 4
+	"slice allocation capacity smaller than initializer"	// 5
 ];
 
 export @noreturn fn abort_fixed(loc: str, i: int) void = {

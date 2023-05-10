@@ -943,6 +943,7 @@ gensrcs_io() {
 		+linux/file.ha \
 		+linux/mmap.ha \
 		+linux/platform_lock.ha \
+		+linux/platform_trunc.ha \
 		+linux/vector.ha \
 		copy.ha \
 		drain.ha \
@@ -952,6 +953,7 @@ gensrcs_io() {
 		lock.ha \
 		stream.ha \
 		tee.ha \
+		trunc.ha \
 		types.ha \
 		util.ha \
 		zero.ha \
@@ -961,6 +963,7 @@ gensrcs_io() {
 		+freebsd/file.ha \
 		+freebsd/mmap.ha \
 		+freebsd/platform_lock.ha \
+		+freebsd/platform_trunc.ha \
 		+freebsd/vector.ha \
 		copy.ha \
 		drain.ha \
@@ -970,6 +973,7 @@ gensrcs_io() {
 		lock.ha \
 		stream.ha \
 		tee.ha \
+		trunc.ha \
 		types.ha \
 		util.ha \
 		zero.ha \
@@ -1633,7 +1637,7 @@ unix_signal() {
 unix_tty() {
 	gen_srcs -plinux unix::tty \
 		types.ha \
-		pty.ha \
+		pty_common.ha \
 		+linux/isatty.ha \
 		+linux/open.ha \
 		+linux/pty.ha \
@@ -1643,7 +1647,7 @@ unix_tty() {
 
 	gen_srcs -pfreebsd unix::tty \
 		types.ha \
-		pty.ha \
+		pty_common.ha \
 		+freebsd/isatty.ha \
 		+freebsd/open.ha \
 		+freebsd/pty.ha \

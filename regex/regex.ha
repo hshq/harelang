@@ -401,65 +401,35 @@ export fn compile(expr: str) (regex | error) = {
 	};
 };
 
+// returns min, max, and length of string matched
 fn parse_repetition(
 	s: str
-) (((void | size), (void | size), size) | error) = {
-	const first_comma = strings::index(s, ",");
-	const first_endbrace = strings::index(s, "}");
-	if (first_endbrace is void) {
-		return `Repetition expression syntax error '{n}'`: error;
+) ((size, size, size) | error) = {
+	const brace_cut = match (strings::cut(s, "}")) {
+	case void => return `Repetition expression syntax error '{n}'`: error;
+	case let s: (str, str) => yield s;
 	};
-	const first_endbrace = first_endbrace as size;
 
-	let min_str = "";
-	let max_str = "";
-	let is_single_arg = false;
-	if (first_comma is void || first_endbrace < first_comma as size) {
-		const cut = strings::cut(s, "}");
-		min_str = cut.0;
-		max_str = cut.0;
-		is_single_arg = true;
+	const (min_str, max_str) = match (strings::cut(brace_cut.0, ",")) {
+	case void =>
+		let n = parse_repnum(brace_cut.0)?;
+		return (n, n, len(brace_cut.0));
+	case let s: (str, str) => yield s;
+	};
+
+	const min = if (len(min_str) == 0) 0: size else parse_repnum(min_str)?;
+	const max = if (len(max_str) == 0) -1: size else parse_repnum(max_str)?;
+	return (min, max, len(brace_cut.0));
+};
+
+fn parse_repnum(s: str) (size | error) = match (strconv::stoi(s)) {
+case let res: int =>
+	if (res < 0) {
+		return `Negative repetition count '{-n}'`: error;
 	} else {
-		const cut = strings::cut(s, ",");
-		min_str = cut.0;
-		max_str = strings::cut(cut.1, "}").0;
+		return res: size;
 	};
-
-	let min: (void | size) = void;
-	let max: (void | size) = void;
-
-	if (len(min_str) > 0) {
-		min = match (strconv::stoi(min_str)) {
-		case let res: int =>
-			yield if (res < 0) {
-				return `Negative repitition count '{-n}'`: error;
-			} else {
-				yield res: size;
-			};
-		case => return `Repetition expression syntax error '{n}'`: error;
-		};
-	} else {
-		min = 0;
-	};
-
-	if (len(max_str) > 0) {
-		max = match (strconv::stoi(max_str)) {
-		case let res: int =>
-			yield if (res < 0) {
-				return `Negative repitition count '{-n}'`: error;
-			} else {
-				yield res: size;
-			};
-		case => return `Repetition expression syntax error '{n}'`: error;
-		};
-	};
-
-	const rep_len = if (is_single_arg) {
-		yield len(min_str);
-	} else {
-		yield len(min_str) + 1 + len(max_str);
-	};
-	return (min, max, rep_len);
+case => return `Repetition expression syntax error '{n}'`: error;
 };
 
 fn delete_thread(i: size, threads: *[]thread) void = {

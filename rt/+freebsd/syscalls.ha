@@ -72,6 +72,10 @@ export fn lseek(fd: int, off: i64, whence: int) (i64 | errno) = {
 		fd: u64, off: u64, whence: u64))?: i64;
 };
 
+export fn ftruncate(fd: int, ln: off_t) (void | errno) = {
+	wrap_return(syscall2(SYS_ftruncate, fd: u64, ln: u32))?;
+};
+
 export fn pipe2(pipefd: *[2]int, flags: int) (void | errno) = {
 	wrap_return(syscall2(SYS_pipe2, pipefd: uintptr: u64, flags: u64))?;
 };
@@ -522,4 +526,14 @@ export fn flock(fd: int, op: int) (void | errno) = {
 export fn shmat(id: int, addr: *const void, flag: int) *void = {
 	return syscall3(SYS_shmat, id: u64, addr: uintptr: u64,
 		flag: u64): uintptr: *void;
+};
+
+export fn getrlimit(resource: int, rlim: *rlimit) (void | errno) = {
+	wrap_return(syscall2(SYS_getrlimit,
+		resource: u64, rlim: uintptr: u64))?;
+};
+
+export fn setrlimit(resource: int, rlim: *const rlimit) (void | errno) = {
+	wrap_return(syscall2(SYS_setrlimit,
+		resource: u64, rlim: uintptr: u64))?;
 };

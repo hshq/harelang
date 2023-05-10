@@ -1,5 +1,3 @@
-// License: MPL-2.0
-// (c) 2022 Re Elbertson <citrons@mondecitronne.com>
 use bufio;
 use errors;
 use fmt;
