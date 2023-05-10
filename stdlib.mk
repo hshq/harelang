@@ -40,6 +40,7 @@ stdlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/+freebsd/segmalloc.ha \
 	$(STDLIB)/rt/+freebsd/signal.ha \
 	$(STDLIB)/rt/+freebsd/socket.ha \
+	$(STDLIB)/rt/+freebsd/+$(ARCH).ha \
 	$(STDLIB)/rt/+freebsd/syscallno.ha \
 	$(STDLIB)/rt/+freebsd/syscalls.ha \
 	$(STDLIB)/rt/+freebsd/types.ha \
@@ -2279,6 +2280,7 @@ testlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/+freebsd/segmalloc.ha \
 	$(STDLIB)/rt/+freebsd/signal.ha \
 	$(STDLIB)/rt/+freebsd/socket.ha \
+	$(STDLIB)/rt/+freebsd/+$(ARCH).ha \
 	$(STDLIB)/rt/+freebsd/syscallno.ha \
 	$(STDLIB)/rt/+freebsd/syscalls.ha \
 	$(STDLIB)/rt/+freebsd/types.ha \

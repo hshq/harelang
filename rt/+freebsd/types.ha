@@ -28,6 +28,14 @@ export type sigset = struct {
 	__bits: [4]u32,
 };
 
+export def SA_ONSTACK: u64 = 0x0001;
+export def SA_RESTART: u64 = 0x0002;
+export def SA_RESETHAND: u64 = 0x0004;
+export def SA_NOCLDSTOP: u64 = 0x0008;
+export def SA_NODEFER: u64 = 0x0010;
+export def SA_NOCLDWAIT: u64 = 0x0020;
+export def SA_SIGINFO: u64 = 0x0040;
+
 export def SIG_ERR: uintptr = -1;
 export def SIG_DFL: uintptr = 0;
 export def SIG_IGN: uintptr = 1;
@@ -43,16 +51,9 @@ export type sigact = struct {
 	sa_mask: sigset,
 };
 
-export type siginfo = struct {
-	// TODO: Fill in more of this
-	si_signo: int,
-	si_errno: int,
-	si_code: int,
-	si_pid: pid_t,
-	si_uid: u32,
-	si_status: int,
-	si_addr: *void,
-};
+export def SIG_BLOCK: int = 1;
+export def SIG_UNBLOCK: int = 2;
+export def SIG_SETMASK: int = 3;
 
 export type sigval = union {
 	sival_t: int,
@@ -333,6 +334,7 @@ export def SIGQUIT: int = 3;
 export def SIGILL: int = 4;
 export def SIGTRAP: int = 5;
 export def SIGABRT: int = 6;
+export def SIGEMT: int = 7;
 export def SIGFPE: int = 8;
 export def SIGKILL: int = 9;
 export def SIGBUS: int = 10;
@@ -341,6 +343,7 @@ export def SIGSYS: int = 12;
 export def SIGPIPE: int = 13;
 export def SIGALRM: int = 14;
 export def SIGTERM: int = 15;
+export def SIGURG: int = 16;
 export def SIGSTOP: int = 17;
 export def SIGTSTP: int = 18;
 export def SIGCONT: int = 19;

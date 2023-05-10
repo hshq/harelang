@@ -53,6 +53,7 @@ gensrcs_rt() {
 		+freebsd/segmalloc.ha \
 		+freebsd/signal.ha \
 		+freebsd/socket.ha \
+		+freebsd/'+$(ARCH)'.ha \
 		+freebsd/syscallno.ha \
 		+freebsd/syscalls.ha \
 		+freebsd/types.ha \
