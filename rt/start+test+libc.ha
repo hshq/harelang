@@ -1,6 +1,8 @@
 // License: MPL-2.0
 // (c) 2021 Alexey Yerin <yyp@disroot.org>
 
+@symbol("__test_main") fn test_main() size;
+
 export fn init() void = void;
 
 const @symbol("__fini_array_start") fini_start: [*]*fn() void;
@@ -16,6 +18,6 @@ export fn fini() void = {
 };
 
 export @symbol("main") fn main() int = {
-	const nfail = tests_main();
+	const nfail = test_main();
 	return if (nfail > 0) 1 else 0;
 };

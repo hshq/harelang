@@ -67,7 +67,7 @@ $(BINOUT)/hare-tests: $(TESTCACHE)/hare.o
 	@mkdir -p $(BINOUT)
 	@printf 'LD\t%s\n' "$@"
 	@$(LD) $(LDLINKFLAGS) -T $(rtscript) -o $@ \
-		$(TESTCACHE)/hare.o $(testlib_deps_any) $(testlib_deps_$(PLATFORM))
+		$(testlib_deps_any) $(testlib_deps_$(PLATFORM))
 
 $(BINOUT)/harec2: $(BINOUT)/hare $(harec_srcs)
 	@mkdir -p $(BINOUT)

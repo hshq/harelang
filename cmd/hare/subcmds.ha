@@ -508,15 +508,6 @@ fn test(cmd: *getopt::command) void = {
 		};
 	};
 
-	let input = "";
-	let runargs: []str = [];
-	if (len(cmd.args) == 0) {
-		input = os::getcwd();
-	} else {
-		input = cmd.args[0];
-		runargs = cmd.args[1..];
-	};
-
 	if (len(libs) > 0) {
 		append(tags, module::tag {
 			mode = module::tag_mode::INCLUSIVE,
@@ -531,9 +522,9 @@ fn test(cmd: *getopt::command) void = {
 	defer plan_finish(&plan);
 
 	let depends: []*task = [];
-	sched_module(&plan, ["rt"], &depends);
+	sched_module(&plan, ["test"], &depends);
 
-	let items = match (module::walk(&ctx, input)) {
+	let items = match (module::walk(&ctx, ".")) {
 	case let items: []ast::ident =>
 		yield items;
 	case let err: module::error =>
@@ -570,13 +561,13 @@ fn test(cmd: *getopt::command) void = {
 		return;
 	};
 
-	const cmd = match (exec::cmd(output, runargs...)) {
+	const cmd = match (exec::cmd(output, cmd.args...)) {
 	case let err: exec::error =>
 		fmt::fatal("exec:", exec::strerror(err));
 	case let cmd: exec::command =>
 		yield cmd;
 	};
-	exec::setname(&cmd, input);
+	exec::setname(&cmd, os::getcwd());
 	exec::exec(&cmd);
 };
 
