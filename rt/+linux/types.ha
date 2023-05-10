@@ -302,7 +302,7 @@ export type dirent64 = struct {
 	d_off: off_t,
 	d_reclen: u16,
 	d_type: u8,
-	d_name: [*]char,
+	d_name: [*]u8,
 };
 
 export def WNOHANG: int		= 1;
@@ -342,12 +342,12 @@ export type rusage = struct {
 };
 
 export type utsname = struct {
-	sysname:    [65]char,
-	nodename:   [65]char,
-	release:    [65]char,
-	version:    [65]char,
-	machine:    [65]char,
-	domainname: [65]char,
+	sysname:    [65]u8,
+	nodename:   [65]u8,
+	release:    [65]u8,
+	version:    [65]u8,
+	machine:    [65]u8,
+	domainname: [65]u8,
 };
 
 export def POLLIN: i16 = 0x001;
@@ -576,7 +576,7 @@ export type termios = struct {
 
 export def NCCS: size = 19;
 
-export type cc = enum char {
+export type cc = enum u8 {
 	VINTR    = 0,
 	VQUIT    = 1,
 	VERASE   = 2,

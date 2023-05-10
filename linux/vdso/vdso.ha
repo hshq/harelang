@@ -26,7 +26,7 @@ fn sys_infoehdr() nullable *elf::header64 = {
 
 type vdso_ctx = struct {
 	segbase: uintptr,
-	stringtab: *char,
+	stringtab: *c::char,
 	symtab: *[*]elf::sym64,
 	hashhdr: *elf::hashhdr,
 	versym: nullable *[*]u16,
@@ -74,7 +74,7 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 	const dynv = dynvec: *[*]elf::dyn64;
 
 	let segbase = baseseg: uintptr;
-	let stringtab: nullable *char = null;
+	let stringtab: nullable *c::char = null;
 	let symtab: nullable *[*]elf::sym64 = null;
 	let hashhdr: nullable *elf::hashhdr = null;
 	let versym: nullable *[*]u16 = null;
@@ -84,7 +84,7 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 		const tabptr = (segbase + dynv[i].d_val: uintptr): *void;
 		switch (dynv[i].d_tag) {
 		case elf::dt::STRTAB =>
-			stringtab = tabptr: *char;
+			stringtab = tabptr: *c::char;
 		case elf::dt::SYMTAB =>
 			symtab = tabptr: *[*]elf::sym64;
 		case elf::dt::HASH =>
@@ -109,7 +109,7 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 	// TODO: use a static variable here somehow(?)
 	const vctx = alloc(vdso_ctx {
 		segbase = segbase,
-		stringtab = stringtab: *char,
+		stringtab = stringtab: *c::char,
 		symtab = symtab: *[*]elf::sym64,
 		hashhdr = hashhdr: *elf::hashhdr,
 		verdef = verdef,
@@ -141,7 +141,7 @@ fn vdso_checkver(ctx: *vdso_ctx, version: str, num: u32) bool = {
 				cur.vd_aux: uintptr): *elf::verdaux64;
 			const name = ctx.stringtab: uintptr +
 				aux.vda_name: uintptr;
-			return version == c::tostr(name: *char)!;
+			return version == c::tostr(name: *c::char)!;
 		};
 		prev = cur;
 		cur = (cur: uintptr + cur.vd_next: uintptr): *elf::verdef64;
@@ -174,7 +174,7 @@ export fn getsym(symname: str, symver: str) nullable *void = {
 			continue;
 		};
 		const name = ctx.stringtab: uintptr + sym.st_name: uintptr;
-		const s: str = c::tostr(name: *const char)!;
+		const s: str = c::tostr(name: *const c::char)!;
 		if (s != symname)
 			continue;
 		if (!vdso_checkver(ctx, symver, i))

@@ -1,3 +1,6 @@
+// Integer type compatible with `char`, as specified by ISO/IEC 9899.
+export type char = schar;
+
 // Integer type compatible with `signed char`, as specified by ISO/IEC 9899.
 export type schar = i8;
 

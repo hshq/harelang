@@ -82,20 +82,20 @@ fn platform_finish(cmd: *command) void = rt::close(cmd.platform)!;
 fn platform_exec(cmd: *command) error = {
 	// We don't worry about freeing the return values from c::fromstr
 	// because once we exec(2) our heap is fried anyway
-	let argv: []nullable *const char = alloc([], len(cmd.argv) + 1z);
+	let argv: []nullable *const c::char = alloc([], len(cmd.argv) + 1z);
 	for (let i = 0z; i < len(cmd.argv); i += 1z) {
 		append(argv, c::fromstr(cmd.argv[i]));
 	};
 	append(argv, null);
 
-	let envp: nullable *[*]nullable *const char = null;
+	let envp: nullable *[*]nullable *const c::char = null;
 	if (len(cmd.env) != 0) {
-		let env: []nullable *const char = alloc([], len(cmd.env) + 1);
+		let env: []nullable *const c::char = alloc([], len(cmd.env) + 1);
 		for (let i = 0z; i < len(cmd.env); i += 1) {
 			append(env, c::fromstr(cmd.env[i]));
 		};
 		append(env, null);
-		envp = env: *[*]nullable *const char;
+		envp = env: *[*]nullable *const c::char;
 	};
 
 	let need_devnull = false;
@@ -155,8 +155,8 @@ fn platform_exec(cmd: *command) error = {
 	};
 
 	return errors::errno(rt::execveat(cmd.platform,
-		"\0", argv: *[*]nullable *const char,
-		envp: *[*]nullable *const char, rt::AT_EMPTY_PATH));
+		"\0", argv: *[*]nullable *const u8,
+		envp: *[*]nullable *const u8, rt::AT_EMPTY_PATH));
 };
 
 fn platform_start(cmd: *command) (process | errors::error) = {

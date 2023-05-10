@@ -18,12 +18,12 @@ let args_static: [32]str = [""...];
 	if (rt::argc < len(args_static)) {
 		args = args_static[..rt::argc];
 		for (let i = 0z; i < rt::argc; i += 1) {
-			args[i] = c::tostr(rt::argv[i])!;
+			args[i] = c::tostr(rt::argv[i]: *const c::char)!;
 		};
 	} else {
 		args = alloc([], rt::argc);
 		for (let i = 0z; i < rt::argc; i += 1) {
-			append(args, c::tostr(rt::argv[i])!);
+			append(args, c::tostr(rt::argv[i]: *const c::char)!);
 		};
 	};
 
@@ -41,7 +41,7 @@ export fn getenv(name: const str) (str | void) = {
 	const name_b = strings::toutf8(name);
 	for (let i = 0z; rt::envp[i] != null; i += 1) {
 		const item = rt::envp[i]: *[*]u8;
-		const ln = c::strlen(item: *char);
+		const ln = c::strlen(item: *c::char);
 		const eq: size = match (bytes::index(item[..ln], '=')) {
 		case void =>
 			abort("Environment violates System-V invariants");
@@ -49,7 +49,7 @@ export fn getenv(name: const str) (str | void) = {
 			yield i;
 		};
 		if (bytes::equal(name_b, item[..eq])) {
-			const ln = c::strlen(item: *const char);
+			const ln = c::strlen(item: *const c::char);
 			return strings::fromutf8(item[eq+1..ln])!;
 		};
 	};
@@ -72,7 +72,7 @@ export fn getenvs() []str = {
 		return envp;
 	};
 	for (let i = 0z; rt::envp[i] != null; i += 1) {
-		append(envp, c::tostr(rt::envp[i]: *const char)!);
+		append(envp, c::tostr(rt::envp[i]: *const c::char)!);
 	};
 	return envp;
 };
@@ -86,7 +86,7 @@ export fn sysname() const str = {
 		rt::uname(&uts) as void;
 		uts_valid = true;
 	};
-	return c::tostr(&uts.sysname: *const char)!;
+	return c::tostr(&uts.sysname: *const c::char)!;
 };
 
 // Returns the host system hostname
@@ -95,7 +95,7 @@ export fn hostname() const str = {
 		rt::uname(&uts) as void;
 		uts_valid = true;
 	};
-	return c::tostr(&uts.nodename: *const char)!;
+	return c::tostr(&uts.nodename: *const c::char)!;
 };
 
 // Returns the host kernel version
@@ -104,7 +104,7 @@ export fn release() const str = {
 		rt::uname(&uts) as void;
 		uts_valid = true;
 	};
-	return c::tostr(&uts.release: *const char)!;
+	return c::tostr(&uts.release: *const c::char)!;
 };
 
 // Returns the host operating system version
@@ -113,7 +113,7 @@ export fn version() const str = {
 		rt::uname(&uts) as void;
 		uts_valid = true;
 	};
-	return c::tostr(&uts.version: *const char)!;
+	return c::tostr(&uts.version: *const c::char)!;
 };
 
 // Returns the host CPU architecture
@@ -122,5 +122,5 @@ export fn machine() const str = {
 		rt::uname(&uts) as void;
 		uts_valid = true;
 	};
-	return c::tostr(&uts.machine: *const char)!;
+	return c::tostr(&uts.machine: *const c::char)!;
 };

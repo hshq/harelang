@@ -1,4 +1,5 @@
 use errors;
+use types::c;
 
 // A key ID.
 export type serial = i32;
@@ -92,8 +93,8 @@ export type dh_params = struct {
 
 // Output for [[command::DH_COMPUTE]]
 export type kdf_params = struct {
-	hashname: *char,
-	otherinfo: *char,
+	hashname: *c::char,
+	otherinfo: *c::char,
 	otherinfolen: u32,
 	__spare: [8]u32,
 };

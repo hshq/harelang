@@ -127,7 +127,7 @@ export type freebsd11_dirent = struct {
 	d_reclen: u16,
 	d_type: u8,
 	d_namlen: u8,
-	d_name: [*]char,
+	d_name: [*]u8,
 };
 
 export type iovec = struct {
@@ -220,7 +220,7 @@ export type tcflag = enum uint {
 	NOFLSH     = 0x80000000,
 };
 
-export type cc = enum char {
+export type cc = enum u8 {
 	VEOF      = 0,
 	VEOL      = 1,
 	VEOL2     = 2,

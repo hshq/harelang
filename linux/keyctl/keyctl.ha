@@ -23,8 +23,8 @@ export fn add_key(
 	defer free(keytype);
 	const name = c::fromstr(name);
 	defer free(name);
-	match (rt::add_key(keytype, name, payload: *[*]u8: *void,
-			len(payload), keyring)) {
+	match (rt::add_key(keytype: *const u8, name: *const u8,
+			payload: *[*]u8: *void, len(payload), keyring)) {
 	case let err: rt::errno =>
 		return errno(err);
 	case let n: int =>

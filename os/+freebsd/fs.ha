@@ -22,7 +22,7 @@ export fn init_cwd() void = {
 // Returns the current working directory. The return value is statically
 // allocated and must be duplicated (see [[strings::dup]]) before calling getcwd
 // again.
-export fn getcwd() str = c::tostr(rt::getcwd() as *const char)!;
+export fn getcwd() str = c::tostr(rt::getcwd() as *const u8: *const c::char)!;
 
 // Change the current working directory.
 export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {

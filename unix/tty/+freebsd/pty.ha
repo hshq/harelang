@@ -48,7 +48,7 @@ export fn ptsname(master: io::file) (str | error) = {
 	case =>
 		static let path_buf: [rt::PATH_MAX]u8 = [0...];
 		return fmt::bsprintf(path_buf,
-			"/dev/{}", c::tostr(&name: *const char)!);
+			"/dev/{}", c::tostr(&name: *const c::char)!);
 	};
 };
 

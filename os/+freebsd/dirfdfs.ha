@@ -384,7 +384,7 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 	};
 	let de = &iter.buf[iter.buf_pos]: *rt::freebsd11_dirent;
 	iter.buf_pos += de.d_reclen;
-	let name = c::tostr(&de.d_name: *const char)!;
+	let name = c::tostr(&de.d_name: *const c::char)!;
 
 	let ftype: fs::mode = switch (de.d_type) {
 	case rt::DT_UNKNOWN =>

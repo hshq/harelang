@@ -101,7 +101,7 @@ export fn tests_main() size = {
 };
 
 fn print(msg: str) void = {
-	write(STDOUT_FILENO, *(&msg: **void): *const char, len(msg))!;
+	write(STDOUT_FILENO, *(&msg: **void): *const u8, len(msg))!;
 };
 
 fn dots(n: size) void = {

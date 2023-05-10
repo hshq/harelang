@@ -15,12 +15,12 @@ fn syscall5(_: u64, _: u64, _: u64, _: u64, _: u64, _: u64) u64;
 fn syscall6(_: u64, _: u64, _: u64, _: u64, _: u64, _: u64, _: u64) u64;
 
 export def PATH_MAX: size = 4096z;
-export type path = (str | []u8 | *const char);
+export type path = (str | []u8 | *const u8);
 let pathbuf: [PATH_MAX + 1]u8 = [0...];
 
-fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
+fn copy_kpath(path: path, buf: []u8) (*const u8 | errno) = {
 	let path = match (path) {
-	case let c: *const char =>
+	case let c: *const u8 =>
 		return c;
 	case let s: str =>
 		let ptr = &s: *struct {
@@ -37,12 +37,12 @@ fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
 	};
 	memcpy(buf: *[*]u8, path: *[*]u8, len(path));
 	buf[len(path)] = 0;
-	return buf: *[*]u8: *const char;
+	return buf: *[*]u8: *const u8;
 };
 
 // NUL terminates a string and stores it in a static buffer of PATH_MAX+1 bytes
 // in length.
-fn kpath(path: path) (*const char | errno) = {
+fn kpath(path: path) (*const u8 | errno) = {
 	return copy_kpath(path, pathbuf);
 };
 
@@ -228,8 +228,8 @@ export fn mkdirat(dirfd: int, path: path, mode: uint) (void | errno) = {
 		dirfd: u64, path: uintptr: u64, mode: u64))?;
 };
 
-export fn execveat(dirfd: int, path: path, argv: *[*]nullable *const char,
-		envp: *[*]nullable *const char, flags: int) errno = {
+export fn execveat(dirfd: int, path: path, argv: *[*]nullable *const u8,
+		envp: *[*]nullable *const u8, flags: int) errno = {
 	let path = kpath(path)?;
 	return match (wrap_return(syscall5(SYS_execveat, dirfd: u64,
 		path: uintptr: u64, argv: uintptr: u64,
@@ -241,8 +241,8 @@ export fn execveat(dirfd: int, path: path, argv: *[*]nullable *const char,
 	};
 };
 
-export fn execve(path: path, argv: *[*]nullable *const char,
-		envp: *[*]nullable *const char) errno = {
+export fn execve(path: path, argv: *[*]nullable *const u8,
+		envp: *[*]nullable *const u8) errno = {
 	let path = kpath(path)?;
 	return match (wrap_return(syscall3(SYS_execve, path: uintptr: u64,
 		argv: uintptr, envp: uintptr))) {
@@ -345,7 +345,7 @@ export fn ftruncate(fd: int, ln: off_t) (void | errno) = {
 	wrap_return(syscall2(SYS_ftruncate, fd: u64, ln: u32))?;
 };
 
-fn faccessat1(dirfd: int, path: *const char, mode: int) (bool | errno) = {
+fn faccessat1(dirfd: int, path: *const u8, mode: int) (bool | errno) = {
 	return match (wrap_return(syscall3(SYS_faccessat, dirfd: u64,
 		path: uintptr: u64, mode: u64))) {
 	case let err: errno =>
@@ -442,12 +442,12 @@ export fn uname(uts: *utsname) (void | errno) = {
 
 // The return value is statically allocated and must be duplicated before
 // calling getcwd again.
-export fn getcwd() (*const char | errno) = {
+export fn getcwd() (*const u8 | errno) = {
 	static let pathbuf: [PATH_MAX + 1]u8 = [0...];
 	wrap_return(syscall2(SYS_getcwd,
 		&pathbuf: *[*]u8: uintptr: u64,
 		PATH_MAX + 1))?;
-	return &pathbuf: *const char;
+	return &pathbuf: *const u8;
 };
 
 export fn ppoll(
@@ -785,8 +785,8 @@ export fn prctl(
 };
 
 export fn add_key(
-	keytype: *const char,
-	name: *const char,
+	keytype: *const u8,
+	name: *const u8,
 	payload: *void,
 	plen: size,
 	keyring: int,
@@ -819,7 +819,7 @@ export fn setsid() (void | errno) = {
 export fn mount(
 	source: path,
 	target: path,
-	filesystemtype: *const char,
+	filesystemtype: *const u8,
 	mountflags: u64,
 	data: nullable *void
 ) (void | errno) = {
@@ -925,7 +925,7 @@ export type inotify_event = struct {
 	mask: u32,
 	cookie: u32,
 	length: u32,
-	name: *const char
+	name: *const u8
 };
 
 export fn shmat(id: int, addr: *const void, flag: int) *void = {

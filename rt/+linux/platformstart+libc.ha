@@ -7,17 +7,17 @@ export fn start_linux() void = {
 	// them, it's possible to traverse backwards calculating how many
 	// entries were processed and comparing that value to the one at
 	// current position.
-	let argv_ptr = c_environ: uintptr - size(*char): uintptr * 2;
+	let argv_ptr = c_environ: uintptr - size(*u8): uintptr * 2;
 	let i = 0z;
-	for (*(argv_ptr: **char): uintptr: size != i; i += 1) {
-		argv_ptr -= size(*char): uintptr;
+	for (*(argv_ptr: **u8): uintptr: size != i; i += 1) {
+		argv_ptr -= size(*u8): uintptr;
 	};
 
 	argc = i;
-	argv = (argv_ptr + size(*char): uintptr): *[*]*char;
+	argv = (argv_ptr + size(*u8): uintptr): *[*]*u8;
 	envp = c_environ;
 };
 
 @init fn start_linux() void = start_linux();
 
-let @symbol("environ") c_environ: *[*]nullable *char;
+let @symbol("environ") c_environ: *[*]nullable *u8;

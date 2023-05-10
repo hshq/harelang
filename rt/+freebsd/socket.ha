@@ -14,7 +14,7 @@ export type sockaddr_in = struct {
 	sin_family: sa_family_t,
 	sin_port: u16,
 	sin_addr: in_addr,
-	__pad: [8]char,
+	__pad: [8]u8,
 };
 
 export type in6_addr = struct {
@@ -39,7 +39,7 @@ export def UNIX_PATH_MAX: size = 104;
 export type sockaddr_un = struct {
 	sun_len: u8,
 	sun_family: sa_family_t,
-	sun_path: [UNIX_PATH_MAX]char,
+	sun_path: [UNIX_PATH_MAX]u8,
 };
 
 export type sockaddr = struct {

@@ -12,12 +12,12 @@ fn syscall5(_: u64, _: u64, _: u64, _: u64, _: u64, _: u64) u64;
 fn syscall6(_: u64, _: u64, _: u64, _: u64, _: u64, _: u64, _: u64) u64;
 
 export def PATH_MAX: size = 1024z;
-export type path = (str | []u8 | *const char);
+export type path = (str | []u8 | *const u8);
 let pathbuf: [PATH_MAX + 1]u8 = [0...];
 
-fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
+fn copy_kpath(path: path, buf: []u8) (*const u8 | errno) = {
 	let path = match (path) {
-	case let c: *const char =>
+	case let c: *const u8 =>
 		return c;
 	case let s: str =>
 		let ptr = &s: *struct {
@@ -34,12 +34,12 @@ fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
 	};
 	memcpy(buf: *[*]u8, path: *[*]u8, len(path));
 	buf[len(path)] = 0;
-	return buf: *[*]u8: *const char;
+	return buf: *[*]u8: *const u8;
 };
 
 // NUL terminates a string and stores it in a static buffer of PATH_MAX+1 bytes
 // in length.
-fn kpath(path: path) (*const char | errno) = {
+fn kpath(path: path) (*const u8 | errno) = {
 	return copy_kpath(path, pathbuf);
 };
 
@@ -218,12 +218,12 @@ export fn getdents(dirfd: int, buf: *void, nbytes: size) (size | errno) = {
 
 // The return value is statically allocated and must be duplicated before
 // calling getcwd again.
-export fn getcwd() (*const char | errno) = {
+export fn getcwd() (*const u8 | errno) = {
 	static let pathbuf: [PATH_MAX + 1]u8 = [0...];
 	wrap_return(syscall2(SYS___getcwd,
 		&pathbuf: *[*]u8: uintptr: u64,
 		PATH_MAX + 1))?;
-	return &pathbuf: *const char;
+	return &pathbuf: *const u8;
 };
 
 export fn fchdir(fd: int) (void | errno) = {
@@ -275,8 +275,8 @@ export fn fork() (int | void | errno) = {
 	};
 };
 
-export fn fexecve(fd: int, argv: *[*]nullable *const char,
-		envp: *[*]nullable *const char) errno = {
+export fn fexecve(fd: int, argv: *[*]nullable *const u8,
+		envp: *[*]nullable *const u8) errno = {
 	return match (wrap_return(syscall3(SYS_fexecve, fd: u64,
 		argv: uintptr: u64, envp: uintptr: u64))) {
 	case let err: errno =>
