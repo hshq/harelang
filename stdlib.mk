@@ -691,6 +691,12 @@ stdlib_deps_any += $(stdlib_types_any)
 stdlib_types_linux = $(stdlib_types_any)
 stdlib_types_freebsd = $(stdlib_types_any)
 
+# gen_lib types::c (any)
+stdlib_types_c_any = $(HARECACHE)/types/c/types_c-any.o
+stdlib_deps_any += $(stdlib_types_c_any)
+stdlib_types_c_linux = $(stdlib_types_c_any)
+stdlib_types_c_freebsd = $(stdlib_types_c_any)
+
 # gen_lib unix (linux)
 stdlib_unix_linux = $(HARECACHE)/unix/unix-linux.o
 stdlib_deps_linux += $(stdlib_unix_linux)
@@ -2058,6 +2064,17 @@ $(HARECACHE)/types/types-any.ssa: $(stdlib_types_any_srcs) $(stdlib_rt)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntypes \
 		-t$(HARECACHE)/types/types.td $(stdlib_types_any_srcs)
 
+# types::c (+any)
+stdlib_types_c_any_srcs = \
+	$(STDLIB)/types/c/types.ha \
+	$(STDLIB)/types/c/arch+$(ARCH).ha
+
+$(HARECACHE)/types/c/types_c-any.ssa: $(stdlib_types_c_any_srcs) $(stdlib_rt) $(stdlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/types/c
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntypes::c \
+		-t$(HARECACHE)/types/c/types_c.td $(stdlib_types_c_any_srcs)
+
 # unix (+linux)
 stdlib_unix_linux_srcs = \
 	$(STDLIB)/unix/+linux/nice.ha \
@@ -2917,6 +2934,12 @@ testlib_types_any = $(TESTCACHE)/types/types-any.o
 testlib_deps_any += $(testlib_types_any)
 testlib_types_linux = $(testlib_types_any)
 testlib_types_freebsd = $(testlib_types_any)
+
+# gen_lib types::c (any)
+testlib_types_c_any = $(TESTCACHE)/types/c/types_c-any.o
+testlib_deps_any += $(testlib_types_c_any)
+testlib_types_c_linux = $(testlib_types_c_any)
+testlib_types_c_freebsd = $(testlib_types_c_any)
 
 # gen_lib unix (linux)
 testlib_unix_linux = $(TESTCACHE)/unix/unix-linux.o
@@ -4345,6 +4368,18 @@ $(TESTCACHE)/types/types-any.ssa: $(testlib_types_any_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/types
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntypes \
 		-t$(TESTCACHE)/types/types.td $(testlib_types_any_srcs)
+
+# types::c (+any)
+testlib_types_c_any_srcs = \
+	$(STDLIB)/types/c/+test.ha \
+	$(STDLIB)/types/c/types.ha \
+	$(STDLIB)/types/c/arch+$(ARCH).ha
+
+$(TESTCACHE)/types/c/types_c-any.ssa: $(testlib_types_c_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/types/c
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntypes::c \
+		-t$(TESTCACHE)/types/c/types_c.td $(testlib_types_c_any_srcs)
 
 # unix (+linux)
 testlib_unix_linux_srcs = \

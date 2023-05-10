@@ -1397,6 +1397,16 @@ types() {
 	gen_ssa types
 }
 
+types_c() {
+	if [ $testing -eq 1 ]
+	then
+		gen_srcs types::c +test.ha types.ha 'arch+$(ARCH).ha'
+	else
+		gen_srcs types::c types.ha 'arch+$(ARCH).ha'
+	fi
+	gen_ssa types::c types
+}
+
 unix() {
 	gen_srcs -plinux unix \
 		+linux/nice.ha \
@@ -1584,6 +1594,7 @@ temp			linux freebsd
 time			linux freebsd
 time::chrono	linux freebsd
 types
+types::c
 unix			linux freebsd
 unix::hosts	linux freebsd
 unix::passwd
