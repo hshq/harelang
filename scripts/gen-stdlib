@@ -1467,7 +1467,7 @@ unix_signal() {
 unix_tty() {
 	gen_srcs -plinux unix::tty \
 		types.ha \
-		pty.ha \
+		pty_common.ha \
 		+linux/isatty.ha \
 		+linux/open.ha \
 		+linux/pty.ha \
@@ -1477,7 +1477,7 @@ unix_tty() {
 
 	gen_srcs -pfreebsd unix::tty \
 		types.ha \
-		pty.ha \
+		pty_common.ha \
 		+freebsd/isatty.ha \
 		+freebsd/open.ha \
 		+freebsd/pty.ha \
