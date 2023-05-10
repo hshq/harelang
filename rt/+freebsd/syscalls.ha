@@ -537,3 +537,21 @@ export fn setrlimit(resource: int, rlim: *const rlimit) (void | errno) = {
 	wrap_return(syscall2(SYS_setrlimit,
 		resource: u64, rlim: uintptr: u64))?;
 };
+
+export fn sigprocmask(
+	how: int,
+	set: nullable *const sigset,
+	old: nullable *sigset,
+) (int | errno) = {
+	return wrap_return(syscall3(SYS_sigprocmask,
+		how: u64, set: uintptr: u64, old: uintptr: u64))?: int;
+};
+
+export fn sigaction(
+	signum: int,
+	act: *const sigact,
+	old: nullable *sigact,
+) (int | errno) = {
+	return wrap_return(syscall3(SYS_sigaction,
+		signum: u64, act: uintptr: u64, old: uintptr: u64))?: int;
+};

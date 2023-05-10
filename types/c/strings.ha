@@ -23,7 +23,7 @@ export fn tostr_unsafe(cstr: *const char) const str = {
 };
 
 // Converts a C string to a Hare string in O(n). If the string is not valid
-// UTF-8, return [[encoding::utf8::invalid.]]
+// UTF-8, return [[encoding::utf8::invalid]].
 export fn tostr(cstr: *const char) (const str | utf8::invalid) = {
 	let s = tostr_unsafe(cstr);
 	return if (utf8::valid(s)) s else utf8::invalid;

@@ -54,6 +54,7 @@ gensrcs_rt() {
 		+freebsd/segmalloc.ha \
 		+freebsd/signal.ha \
 		+freebsd/socket.ha \
+		+freebsd/'+$(ARCH)'.ha \
 		+freebsd/syscallno.ha \
 		+freebsd/syscalls.ha \
 		+freebsd/types.ha \
@@ -1642,6 +1643,11 @@ unix_signal() {
 		+linux.ha
 	gen_ssa -plinux unix::signal io errors rt
 
+	gen_srcs -pfreebsd unix::signal \
+		types.ha \
+		+freebsd.ha
+	gen_ssa -pfreebsd unix::signal io errors rt
+
 	gen_srcs -pdarwin unix::signal \
 		types.ha \
 		+darwin.ha
@@ -1785,7 +1791,7 @@ unix::hosts	linux freebsd darwin
 unix::passwd
 unix::poll		linux freebsd darwin
 unix::resolvconf	linux freebsd darwin
-unix::signal		linux darwin
+unix::signal		linux freebsd darwin
 unix::tty		linux freebsd darwin
 uuid"
 stdlib() {

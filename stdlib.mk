@@ -40,6 +40,7 @@ stdlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/+freebsd/segmalloc.ha \
 	$(STDLIB)/rt/+freebsd/signal.ha \
 	$(STDLIB)/rt/+freebsd/socket.ha \
+	$(STDLIB)/rt/+freebsd/+$(ARCH).ha \
 	$(STDLIB)/rt/+freebsd/syscallno.ha \
 	$(STDLIB)/rt/+freebsd/syscalls.ha \
 	$(STDLIB)/rt/+freebsd/types.ha \
@@ -921,6 +922,10 @@ stdlib_deps_darwin += $(stdlib_unix_resolvconf_darwin)
 # gen_lib unix::signal (linux)
 stdlib_unix_signal_linux = $(HARECACHE)/unix/signal/unix_signal-linux.o
 stdlib_deps_linux += $(stdlib_unix_signal_linux)
+
+# gen_lib unix::signal (freebsd)
+stdlib_unix_signal_freebsd = $(HARECACHE)/unix/signal/unix_signal-freebsd.o
+stdlib_deps_freebsd += $(stdlib_unix_signal_freebsd)
 
 # gen_lib unix::signal (darwin)
 stdlib_unix_signal_darwin = $(HARECACHE)/unix/signal/unix_signal-darwin.o
@@ -2636,6 +2641,17 @@ $(HARECACHE)/unix/signal/unix_signal-linux.ssa: $(stdlib_unix_signal_linux_srcs)
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::signal \
 		-t$(HARECACHE)/unix/signal/unix_signal.td $(stdlib_unix_signal_linux_srcs)
 
+# unix::signal (+freebsd)
+stdlib_unix_signal_freebsd_srcs = \
+	$(STDLIB)/unix/signal/types.ha \
+	$(STDLIB)/unix/signal/+freebsd.ha
+
+$(HARECACHE)/unix/signal/unix_signal-freebsd.ssa: $(stdlib_unix_signal_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/unix/signal
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::signal \
+		-t$(HARECACHE)/unix/signal/unix_signal.td $(stdlib_unix_signal_freebsd_srcs)
+
 # unix::signal (+darwin)
 stdlib_unix_signal_darwin_srcs = \
 	$(STDLIB)/unix/signal/types.ha \
@@ -2747,6 +2763,7 @@ testlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/+freebsd/segmalloc.ha \
 	$(STDLIB)/rt/+freebsd/signal.ha \
 	$(STDLIB)/rt/+freebsd/socket.ha \
+	$(STDLIB)/rt/+freebsd/+$(ARCH).ha \
 	$(STDLIB)/rt/+freebsd/syscallno.ha \
 	$(STDLIB)/rt/+freebsd/syscalls.ha \
 	$(STDLIB)/rt/+freebsd/types.ha \
@@ -3638,6 +3655,10 @@ testlib_deps_darwin += $(testlib_unix_resolvconf_darwin)
 # gen_lib unix::signal (linux)
 testlib_unix_signal_linux = $(TESTCACHE)/unix/signal/unix_signal-linux.o
 testlib_deps_linux += $(testlib_unix_signal_linux)
+
+# gen_lib unix::signal (freebsd)
+testlib_unix_signal_freebsd = $(TESTCACHE)/unix/signal/unix_signal-freebsd.o
+testlib_deps_freebsd += $(testlib_unix_signal_freebsd)
 
 # gen_lib unix::signal (darwin)
 testlib_unix_signal_darwin = $(TESTCACHE)/unix/signal/unix_signal-darwin.o
@@ -5417,6 +5438,17 @@ $(TESTCACHE)/unix/signal/unix_signal-linux.ssa: $(testlib_unix_signal_linux_srcs
 	@mkdir -p $(TESTCACHE)/unix/signal
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
 		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_linux_srcs)
+
+# unix::signal (+freebsd)
+testlib_unix_signal_freebsd_srcs = \
+	$(STDLIB)/unix/signal/types.ha \
+	$(STDLIB)/unix/signal/+freebsd.ha
+
+$(TESTCACHE)/unix/signal/unix_signal-freebsd.ssa: $(testlib_unix_signal_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/signal
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
+		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_freebsd_srcs)
 
 # unix::signal (+darwin)
 testlib_unix_signal_darwin_srcs = \
