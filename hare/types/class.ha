@@ -54,7 +54,7 @@ export fn is_integer(ty: const *_type) bool = {
 		switch (bi) {
 			case builtin::INT, builtin::UINT, builtin::I16,
 			builtin::I32, builtin::I64, builtin::I8, builtin::U16,
-			builtin::U32, builtin::U64, builtin::U8, builtin::CHAR,
+			builtin::U32, builtin::U64, builtin::U8,
 			builtin::SIZE, builtin::UINTPTR =>
 				return true;
 			case =>

@@ -8,13 +8,6 @@ export const builtin_bool: _type = _type {
 	...
 };
 
-// [[_type]] representation of char.
-export const builtin_char: _type = _type {
-	repr = builtin::CHAR,
-	sz = 1, _align = 1,
-	...
-};
-
 // [[_type]] representation of f32.
 export const builtin_f32: _type = _type {
 	repr = builtin::F32,
@@ -109,7 +102,6 @@ export const builtin_void: _type = _type {
 @init fn init() void = {
 	const builtins = [
 		&builtin_bool,
-		&builtin_char,
 		&builtin_f32,
 		&builtin_f64,
 		&builtin_i8,

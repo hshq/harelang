@@ -43,8 +43,6 @@ fn qtype_lookup(
 	match (_type.repr) {
 	case let bi: builtin =>
 		switch (bi) {
-		case builtin::CHAR =>
-			return if (extype) &qbyte else &qword;
 		case builtin::I8, builtin::U8 =>
 			return if (extype) &qbyte else &qword;
 		case builtin::I16, builtin::U16 =>
