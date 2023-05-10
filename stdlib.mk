@@ -856,6 +856,12 @@ stdlib_types_linux = $(stdlib_types_any)
 stdlib_types_freebsd = $(stdlib_types_any)
 stdlib_types_darwin = $(stdlib_types_any)
 
+# gen_lib types::c (any)
+stdlib_types_c_any = $(HARECACHE)/types/c/types_c-any.o
+stdlib_deps_any += $(stdlib_types_c_any)
+stdlib_types_c_linux = $(stdlib_types_c_any)
+stdlib_types_c_freebsd = $(stdlib_types_c_any)
+
 # gen_lib unix (linux)
 stdlib_unix_linux = $(HARECACHE)/unix/unix-linux.o
 stdlib_deps_linux += $(stdlib_unix_linux)
@@ -1465,7 +1471,7 @@ stdlib_format_tar_any_srcs = \
 	$(STDLIB)/format/tar/types.ha \
 	$(STDLIB)/format/tar/reader.ha
 
-$(HARECACHE)/format/tar/format_tar-any.ssa: $(stdlib_format_tar_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM))
+$(HARECACHE)/format/tar/format_tar-any.ssa: $(stdlib_format_tar_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/format/tar
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::tar \
@@ -1777,7 +1783,7 @@ stdlib_linux_keyctl_linux_srcs = \
 	$(STDLIB)/linux/keyctl/keyctl.ha \
 	$(STDLIB)/linux/keyctl/types.ha
 
-$(HARECACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(stdlib_linux_keyctl_linux_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
+$(HARECACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(stdlib_linux_keyctl_linux_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/linux/keyctl
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::keyctl \
@@ -1797,7 +1803,7 @@ $(HARECACHE)/linux/timerfd/linux_timerfd-linux.ssa: $(stdlib_linux_timerfd_linux
 stdlib_linux_vdso_linux_srcs = \
 	$(STDLIB)/linux/vdso/vdso.ha
 
-$(HARECACHE)/linux/vdso/linux_vdso-linux.ssa: $(stdlib_linux_vdso_linux_srcs) $(stdlib_rt) $(stdlib_linux_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_format_elf_$(PLATFORM))
+$(HARECACHE)/linux/vdso/linux_vdso-linux.ssa: $(stdlib_linux_vdso_linux_srcs) $(stdlib_rt) $(stdlib_linux_$(PLATFORM)) $(stdlib_format_elf_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/linux/vdso
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::vdso \
@@ -2115,7 +2121,7 @@ stdlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/os.ha
 
-$(HARECACHE)/os/os-linux.ssa: $(stdlib_os_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_math_$(PLATFORM))
+$(HARECACHE)/os/os-linux.ssa: $(stdlib_os_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_math_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
@@ -2130,7 +2136,7 @@ stdlib_os_freebsd_srcs = \
 	$(STDLIB)/os/+freebsd/fs.ha \
 	$(STDLIB)/os/os.ha
 
-$(HARECACHE)/os/os-freebsd.ssa: $(stdlib_os_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
+$(HARECACHE)/os/os-freebsd.ssa: $(stdlib_os_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
@@ -2158,7 +2164,7 @@ stdlib_os_exec_linux_srcs = \
 	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(HARECACHE)/os/exec/os_exec-linux.ssa: $(stdlib_os_exec_linux_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_unix_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_unix_signal_$(PLATFORM))
+$(HARECACHE)/os/exec/os_exec-linux.ssa: $(stdlib_os_exec_linux_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_unix_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_unix_signal_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os/exec
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
@@ -2171,7 +2177,7 @@ stdlib_os_exec_freebsd_srcs = \
 	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(HARECACHE)/os/exec/os_exec-freebsd.ssa: $(stdlib_os_exec_freebsd_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_unix_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM))
+$(HARECACHE)/os/exec/os_exec-freebsd.ssa: $(stdlib_os_exec_freebsd_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_unix_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os/exec
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
@@ -2277,7 +2283,6 @@ stdlib_strings_any_srcs = \
 	$(STDLIB)/strings/cap.ha \
 	$(STDLIB)/strings/concat.ha \
 	$(STDLIB)/strings/contains.ha \
-	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/iter.ha \
 	$(STDLIB)/strings/runes.ha \
@@ -2450,6 +2455,18 @@ $(HARECACHE)/types/types-any.ssa: $(stdlib_types_any_srcs) $(stdlib_rt)
 	@mkdir -p $(HARECACHE)/types
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntypes \
 		-t$(HARECACHE)/types/types.td $(stdlib_types_any_srcs)
+
+# types::c (+any)
+stdlib_types_c_any_srcs = \
+	$(STDLIB)/types/c/strings.ha \
+	$(STDLIB)/types/c/types.ha \
+	$(STDLIB)/types/c/arch+$(ARCH).ha
+
+$(HARECACHE)/types/c/types_c-any.ssa: $(stdlib_types_c_any_srcs) $(stdlib_rt) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/types/c
+	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntypes::c \
+		-t$(HARECACHE)/types/c/types_c.td $(stdlib_types_c_any_srcs)
 
 # unix (+linux)
 stdlib_unix_linux_srcs = \
@@ -2654,7 +2671,7 @@ stdlib_unix_tty_freebsd_srcs = \
 	$(STDLIB)/unix/tty/+freebsd/pty.ha \
 	$(STDLIB)/unix/tty/+freebsd/winsize.ha
 
-$(HARECACHE)/unix/tty/unix_tty-freebsd.ssa: $(stdlib_unix_tty_freebsd_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+$(HARECACHE)/unix/tty/unix_tty-freebsd.ssa: $(stdlib_unix_tty_freebsd_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/tty
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::tty \
@@ -3555,6 +3572,12 @@ testlib_types_linux = $(testlib_types_any)
 testlib_types_freebsd = $(testlib_types_any)
 testlib_types_darwin = $(testlib_types_any)
 
+# gen_lib types::c (any)
+testlib_types_c_any = $(TESTCACHE)/types/c/types_c-any.o
+testlib_deps_any += $(testlib_types_c_any)
+testlib_types_c_linux = $(testlib_types_c_any)
+testlib_types_c_freebsd = $(testlib_types_c_any)
+
 # gen_lib unix (linux)
 testlib_unix_linux = $(TESTCACHE)/unix/unix-linux.o
 testlib_deps_linux += $(testlib_unix_linux)
@@ -4197,7 +4220,7 @@ testlib_format_tar_any_srcs = \
 	$(STDLIB)/format/tar/types.ha \
 	$(STDLIB)/format/tar/reader.ha
 
-$(TESTCACHE)/format/tar/format_tar-any.ssa: $(testlib_format_tar_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM))
+$(TESTCACHE)/format/tar/format_tar-any.ssa: $(testlib_format_tar_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/format/tar
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::tar \
@@ -4526,7 +4549,7 @@ testlib_linux_keyctl_linux_srcs = \
 	$(STDLIB)/linux/keyctl/keyctl.ha \
 	$(STDLIB)/linux/keyctl/types.ha
 
-$(TESTCACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(testlib_linux_keyctl_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
+$(TESTCACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(testlib_linux_keyctl_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/linux/keyctl
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::keyctl \
@@ -4546,7 +4569,7 @@ $(TESTCACHE)/linux/timerfd/linux_timerfd-linux.ssa: $(testlib_linux_timerfd_linu
 testlib_linux_vdso_linux_srcs = \
 	$(STDLIB)/linux/vdso/vdso.ha
 
-$(TESTCACHE)/linux/vdso/linux_vdso-linux.ssa: $(testlib_linux_vdso_linux_srcs) $(testlib_rt) $(testlib_linux_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_format_elf_$(PLATFORM))
+$(TESTCACHE)/linux/vdso/linux_vdso-linux.ssa: $(testlib_linux_vdso_linux_srcs) $(testlib_rt) $(testlib_linux_$(PLATFORM)) $(testlib_format_elf_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/linux/vdso
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::vdso \
@@ -4873,7 +4896,7 @@ testlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/os.ha
 
-$(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_math_$(PLATFORM))
+$(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_math_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
@@ -4888,7 +4911,7 @@ testlib_os_freebsd_srcs = \
 	$(STDLIB)/os/+freebsd/fs.ha \
 	$(STDLIB)/os/os.ha
 
-$(TESTCACHE)/os/os-freebsd.ssa: $(testlib_os_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+$(TESTCACHE)/os/os-freebsd.ssa: $(testlib_os_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
@@ -4916,7 +4939,7 @@ testlib_os_exec_linux_srcs = \
 	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(TESTCACHE)/os/exec/os_exec-linux.ssa: $(testlib_os_exec_linux_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM))
+$(TESTCACHE)/os/exec/os_exec-linux.ssa: $(testlib_os_exec_linux_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os/exec
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
@@ -4929,7 +4952,7 @@ testlib_os_exec_freebsd_srcs = \
 	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(TESTCACHE)/os/exec/os_exec-freebsd.ssa: $(testlib_os_exec_freebsd_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM))
+$(TESTCACHE)/os/exec/os_exec-freebsd.ssa: $(testlib_os_exec_freebsd_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os/exec
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
@@ -5040,7 +5063,6 @@ testlib_strings_any_srcs = \
 	$(STDLIB)/strings/cap.ha \
 	$(STDLIB)/strings/concat.ha \
 	$(STDLIB)/strings/contains.ha \
-	$(STDLIB)/strings/cstrings.ha \
 	$(STDLIB)/strings/dup.ha \
 	$(STDLIB)/strings/iter.ha \
 	$(STDLIB)/strings/runes.ha \
@@ -5213,6 +5235,19 @@ $(TESTCACHE)/types/types-any.ssa: $(testlib_types_any_srcs) $(testlib_rt)
 	@mkdir -p $(TESTCACHE)/types
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntypes \
 		-t$(TESTCACHE)/types/types.td $(testlib_types_any_srcs)
+
+# types::c (+any)
+testlib_types_c_any_srcs = \
+	$(STDLIB)/types/c/+test.ha \
+	$(STDLIB)/types/c/strings.ha \
+	$(STDLIB)/types/c/types.ha \
+	$(STDLIB)/types/c/arch+$(ARCH).ha
+
+$(TESTCACHE)/types/c/types_c-any.ssa: $(testlib_types_c_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/types/c
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntypes::c \
+		-t$(TESTCACHE)/types/c/types_c.td $(testlib_types_c_any_srcs)
 
 # unix (+linux)
 testlib_unix_linux_srcs = \
@@ -5417,7 +5452,7 @@ testlib_unix_tty_freebsd_srcs = \
 	$(STDLIB)/unix/tty/+freebsd/pty.ha \
 	$(STDLIB)/unix/tty/+freebsd/winsize.ha
 
-$(TESTCACHE)/unix/tty/unix_tty-freebsd.ssa: $(testlib_unix_tty_freebsd_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/unix/tty/unix_tty-freebsd.ssa: $(testlib_unix_tty_freebsd_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/tty
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \

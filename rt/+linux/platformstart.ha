@@ -4,7 +4,7 @@
 
 export @noreturn fn start_linux(iv: *[*]uintptr) void = {
 	argc = iv[0]: size;
-	argv = &iv[1]: *[*]*char;
-	envp = &argv[argc + 1]: *[*]nullable *char;
+	argv = &iv[1]: *[*]*u8;
+	envp = &argv[argc + 1]: *[*]nullable *u8;
 	start_ha();
 };

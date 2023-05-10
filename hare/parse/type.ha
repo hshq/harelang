@@ -68,8 +68,6 @@ fn integer_type(
 	lexer: *lex::lexer,
 ) (builtin_type | error) = {
 	switch (want(lexer)?.0) {
-	case ltok::CHAR =>
-		return builtin_type::CHAR;
 	case ltok::INT =>
 		return builtin_type::INT;
 	case ltok::I8 =>
@@ -102,7 +100,7 @@ fn integer_type(
 fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 	let tok = want(lexer)?;
 	let builtin = switch (tok.0) {
-	case ltok::CHAR, ltok::I8, ltok::I16, ltok::I32, ltok::I64,
+	case ltok::I8, ltok::I16, ltok::I32, ltok::I64,
 			ltok::INT, ltok::UINT, ltok::UINTPTR, ltok::SIZE,
 			ltok::U8, ltok::U16, ltok::U32, ltok::U64 =>
 		lex::unlex(lexer, tok);
@@ -465,7 +463,7 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 
 	let tok = peek(lexer)? as lex::token;
 	let typ: ast::_type = switch (tok.0) {
-	case ltok::CHAR, ltok::RUNE, ltok::STR, ltok::BOOL,
+	case ltok::RUNE, ltok::STR, ltok::BOOL,
 			ltok::I8, ltok::I16, ltok::I32, ltok::I64,
 			ltok::U8, ltok::U16, ltok::U32, ltok::U64,
 			ltok::INT, ltok::UINT, ltok::UINTPTR, ltok::SIZE,

@@ -722,7 +722,7 @@ format_tar() {
 	gen_srcs format::tar \
 		types.ha \
 		reader.ha
-	gen_ssa format::tar bufio bytes endian errors io strconv strings strio
+	gen_ssa format::tar bufio bytes endian errors io strconv strio types::c
 }
 
 fs() {
@@ -1025,7 +1025,7 @@ linux_keyctl() {
 	gen_srcs -plinux linux::keyctl \
 		keyctl.ha \
 		types.ha
-	gen_ssa -plinux linux::keyctl rt errors strings bytes
+	gen_ssa -plinux linux::keyctl rt errors bytes types::c
 }
 
 linux_timerfd() {
@@ -1037,7 +1037,7 @@ linux_timerfd() {
 linux_vdso() {
 	gen_srcs -plinux linux::vdso \
 		vdso.ha
-	gen_ssa -plinux linux::vdso linux strings format::elf
+	gen_ssa -plinux linux::vdso linux format::elf types::c
 }
 
 log() {
@@ -1281,8 +1281,8 @@ os() {
 		+linux/memory.ha \
 		+linux/stdfd.ha \
 		os.ha
-	gen_ssa -plinux os io strings types fs encoding::utf8 bytes bufio \
-		errors math
+	gen_ssa -plinux os io strings fs encoding::utf8 bytes bufio \
+		errors math types::c
 
 	gen_srcs -pfreebsd os \
 		+freebsd/environ.ha \
@@ -1291,7 +1291,8 @@ os() {
 		+freebsd/stdfd.ha \
 		+freebsd/fs.ha \
 		os.ha
-	gen_ssa -pfreebsd os io strings types fs encoding::utf8 bytes bufio errors
+	gen_ssa -pfreebsd os io strings fs encoding::utf8 bytes bufio \
+		errors types::c
 
 	gen_srcs -pdarwin os \
 		+darwin/environ.ha \
@@ -1310,14 +1311,15 @@ os_exec() {
 		types.ha \
 		cmd.ha
 	gen_ssa -plinux os::exec os strings fmt errors unix rt io ascii \
-		unix::signal
+		unix::signal types::c
 
 	gen_srcs -pfreebsd os::exec \
 		exec+freebsd.ha \
 		process+freebsd.ha \
 		types.ha \
 		cmd.ha
-	gen_ssa -pfreebsd os::exec os strings fmt errors unix rt io ascii
+	gen_ssa -pfreebsd os::exec os strings fmt errors unix rt io ascii \
+		types::c
 
 	gen_srcs -pdarwin os::exec \
 		exec+darwin.ha \
@@ -1430,7 +1432,6 @@ strings() {
 		cap.ha \
 		concat.ha \
 		contains.ha \
-		cstrings.ha \
 		dup.ha \
 		iter.ha \
 		runes.ha \
@@ -1540,6 +1541,16 @@ types() {
 		classes.ha \
 		'arch+$(ARCH).ha'
 	gen_ssa types
+}
+
+types_c() {
+	if [ $testing -eq 1 ]
+	then
+		gen_srcs types::c +test.ha strings.ha types.ha 'arch+$(ARCH).ha'
+	else
+		gen_srcs types::c strings.ha types.ha 'arch+$(ARCH).ha'
+	fi
+	gen_ssa types::c encoding::utf8 types
 }
 
 unix() {
@@ -1654,7 +1665,8 @@ unix_tty() {
 		+freebsd/open.ha \
 		+freebsd/pty.ha \
 		+freebsd/winsize.ha
-	gen_ssa -pfreebsd unix::tty bufio errors fmt fs io os rt strings
+	gen_ssa -pfreebsd unix::tty bufio errors fmt fs io os rt strings \
+		types::c
 
 	gen_srcs -pdarwin unix::tty \
 		types.ha \
@@ -1765,6 +1777,7 @@ temp			linux freebsd darwin
 time			linux freebsd darwin
 time::chrono	linux freebsd darwin
 types
+types::c
 unix			linux freebsd darwin
 unix::hosts	linux freebsd darwin
 unix::passwd

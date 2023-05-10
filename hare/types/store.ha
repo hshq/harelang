@@ -126,8 +126,6 @@ export fn lookup(
 	if (ty.flags == 0) match (ty.repr) {
 	case let b: builtin =>
 		switch (b) {
-		case builtin::CHAR =>
-			return &builtin_char;
 		case builtin::F32 =>
 			return &builtin_f32;
 		case builtin::F64 =>
@@ -187,9 +185,6 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			sz = store.arch._int;
 			_align = store.arch._int;
 			yield builtin::BOOL;
-		case ast::builtin_type::CHAR =>
-			sz = 1; _align = 1;
-			yield builtin::CHAR;
 		case ast::builtin_type::F32 =>
 			sz = 4; _align = 4;
 			yield builtin::F32;

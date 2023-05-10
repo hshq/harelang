@@ -11,6 +11,7 @@ use path;
 use rt;
 use strings;
 use time;
+use types::c;
 
 type os_filesystem = struct {
 	fs: fs::fs,
@@ -383,7 +384,7 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 	};
 	let de = &iter.buf[iter.buf_pos]: *rt::freebsd11_dirent;
 	iter.buf_pos += de.d_reclen;
-	let name = strings::fromc(&de.d_name: *const char)!;
+	let name = c::tostr(&de.d_name: *const c::char)!;
 
 	let ftype: fs::mode = switch (de.d_type) {
 	case rt::DT_UNKNOWN =>

@@ -16,8 +16,6 @@ case ast::builtin_type::FCONST, ast::builtin_type::ICONST =>
 	abort("ICONST and FCONST have no lexical representation");
 case ast::builtin_type::BOOL =>
 	yield "bool";
-case ast::builtin_type::CHAR =>
-	yield "char";
 case ast::builtin_type::F32 =>
 	yield "f32";
 case ast::builtin_type::F64 =>
