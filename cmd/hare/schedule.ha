@@ -273,12 +273,28 @@ fn sched_hare_object(
 		};
 		yield strings::dup(output as str);
 	} else if (len(namespace) != 0) {
+		let buf = path::init(plan.context.cache)!;
+		path::push(&buf, namespace...)!;
+		const path = path::string(&buf);
+		match (os::mkdirs(path, 0o755)) {
+		case void => void;
+		case let err: fs::error =>
+			progress_clear(plan);
+			fmt::fatalf("Error: mkdirs {}: {}", path,
+				fs::strerror(err));
+		};
+
 		let version = hex::encodestr(ver.hash);
-		let env = module::identuscore(namespace);
-		defer free(env);
+		let td = fmt::asprintf("{}.td", version);
+		defer free(td);
+		let name = fmt::asprintf("{}.{}", version,
+			if (mixed) "a" else "o");
+		defer free(name);
+		path::push(&buf, td)!;
 
 		append(plan.environ, (
-			fmt::asprintf("HARE_VERSION_{}", env), version,
+			fmt::asprintf("HARE_TD_{}", ns),
+			strings::dup(path::string(&buf)),
 		));
 
 		// TODO: Keep this around and append new versions, rather than
@@ -295,24 +311,7 @@ fn sched_hare_object(
 		defer module::manifest_finish(&manifest);
 		current = module::current(&manifest, &ver);
 
-		let name = fmt::asprintf("{}.{}", version,
-			if (mixed) "a" else "o");
-		defer free(name);
-
-		let td = fmt::asprintf("{}.td", version);
-		defer free(td);
-
-		let buf = path::init(plan.context.cache)!;
-		path::push(&buf, namespace...)!;
-		const path = path::string(&buf);
-		match (os::mkdirs(path, 0o755)) {
-		case void => void;
-		case let err: fs::error =>
-			progress_clear(plan);
-			fmt::fatalf("Error: mkdirs {}: {}", path,
-				fs::strerror(err));
-		};
-		append(harec.cmd, ["-t", strings::dup(path::push(&buf, td)!)]...);
+		append(harec.cmd, ["-t", strings::dup(path::string(&buf))]...);
 		yield strings::dup(path::push(&buf, "..", name)!);
 	} else {
 		// XXX: This is probably kind of dumb

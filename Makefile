@@ -4,6 +4,8 @@ include config.mk
 TESTCACHE = $(HARECACHE)/+test
 TESTHAREFLAGS = $(HAREFLAGS) -T
 STDLIB = .
+stdlib_env = env
+testlib_env = env
 
 all:
 
@@ -49,12 +51,12 @@ include targets.mk
 
 $(HARECACHE)/hare.ssa: $(hare_srcs) $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM)) scripts/version
 	@printf 'HAREC\t%s\n' "$@"
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) \
 		$(HARE_DEFINES) -o $@ $(hare_srcs)
 
 $(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFORM)) scripts/version
 	@printf 'HAREC\t%s\n' "$@"
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) \
 		$(HARE_DEFINES) -o $@ $(hare_srcs)
 
 $(BINOUT)/hare: $(HARECACHE)/hare.o

@@ -79,7 +79,7 @@ gen_ssa() {
 	cat <<EOF
 	@printf 'HAREC \t\$@\n'
 	@mkdir -p \$($cache)/$path
-	@HARECACHE=\$($cache) \$(HAREC) \$($flags) -o \$@ -N$mod \\
+	@\$(${stdlib}_env) \$(HAREC) \$($flags) -o \$@ -N$mod \\
 		-t\$($cache)/$path/$file.td \$(${var}_srcs)
 
 EOF
@@ -109,6 +109,7 @@ gen_lib() {
 	file=$(mod_file "$mod")
 	var=$(mod_var "$mod" "$platform")
 	printf "%s = \$(%s)/%s/%s-%s.o\n" "$var" "$cache" "$path" "$file" "$platform"
+	printf "%s_env += HARE_TD_%s=\$(%s)/%s/%s.td\n" "$stdlib" "$mod" "$cache" "$path" "$file"
 	printf '%s_deps_%s += $(%s)\n' "$stdlib" "$platform" "$var"
 	if [ "$platform" = "any" ]
 	then

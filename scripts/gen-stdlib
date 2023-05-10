@@ -147,6 +147,7 @@ ${stdlib}_asm = \$($cache)/rt/syscall.o \\
 	@\$(AR) -csr \$@ \$($cache)/rt/rt-freebsd.o \$(${stdlib}_asm)
 
 ${stdlib}_rt = \$($cache)/rt/rt-\$(PLATFORM).a
+${stdlib}_env += HARE_TD_rt=\$($cache)/rt/rt.td
 ${stdlib}_deps_linux += \$(${stdlib}_rt)
 ${stdlib}_deps_freebsd += \$(${stdlib}_rt)
 ${stdlib}_deps_any += \$(${stdlib}_rt)
