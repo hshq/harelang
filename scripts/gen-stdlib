@@ -1301,7 +1301,8 @@ os() {
 		+darwin/stdfd.ha \
 		+darwin/fs.ha \
 		os.ha
-	gen_ssa -pdarwin os io strings types fs encoding::utf8 bytes bufio errors
+	gen_ssa -pdarwin os io strings fs encoding::utf8 bytes bufio \
+		errors types::c
 }
 
 os_exec() {
@@ -1327,7 +1328,7 @@ os_exec() {
 		types.ha \
 		cmd.ha
 	gen_ssa -pdarwin os::exec os strings fmt errors unix rt io ascii \
-		unix::signal
+		unix::signal types::c
 }
 
 path() {
@@ -1675,7 +1676,8 @@ unix_tty() {
 		+darwin/open.ha \
 		+darwin/pty.ha \
 		+darwin/winsize.ha
-	gen_ssa -pdarwin unix::tty bufio errors fmt fs io os rt strings
+	gen_ssa -pdarwin unix::tty bufio errors fmt fs io os rt strings \
+		types::c
 }
 
 uuid() {

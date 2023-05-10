@@ -861,6 +861,7 @@ stdlib_types_c_any = $(HARECACHE)/types/c/types_c-any.o
 stdlib_deps_any += $(stdlib_types_c_any)
 stdlib_types_c_linux = $(stdlib_types_c_any)
 stdlib_types_c_freebsd = $(stdlib_types_c_any)
+stdlib_types_c_darwin = $(stdlib_types_c_any)
 
 # gen_lib unix (linux)
 stdlib_unix_linux = $(HARECACHE)/unix/unix-linux.o
@@ -2151,7 +2152,7 @@ stdlib_os_darwin_srcs = \
 	$(STDLIB)/os/+darwin/fs.ha \
 	$(STDLIB)/os/os.ha
 
-$(HARECACHE)/os/os-darwin.ssa: $(stdlib_os_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
+$(HARECACHE)/os/os-darwin.ssa: $(stdlib_os_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
@@ -2190,7 +2191,7 @@ stdlib_os_exec_darwin_srcs = \
 	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(HARECACHE)/os/exec/os_exec-darwin.ssa: $(stdlib_os_exec_darwin_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_unix_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_unix_signal_$(PLATFORM))
+$(HARECACHE)/os/exec/os_exec-darwin.ssa: $(stdlib_os_exec_darwin_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_unix_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_unix_signal_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os/exec
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
@@ -2686,7 +2687,7 @@ stdlib_unix_tty_darwin_srcs = \
 	$(STDLIB)/unix/tty/+darwin/pty.ha \
 	$(STDLIB)/unix/tty/+darwin/winsize.ha
 
-$(HARECACHE)/unix/tty/unix_tty-darwin.ssa: $(stdlib_unix_tty_darwin_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+$(HARECACHE)/unix/tty/unix_tty-darwin.ssa: $(stdlib_unix_tty_darwin_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/tty
 	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::tty \
@@ -3577,6 +3578,7 @@ testlib_types_c_any = $(TESTCACHE)/types/c/types_c-any.o
 testlib_deps_any += $(testlib_types_c_any)
 testlib_types_c_linux = $(testlib_types_c_any)
 testlib_types_c_freebsd = $(testlib_types_c_any)
+testlib_types_c_darwin = $(testlib_types_c_any)
 
 # gen_lib unix (linux)
 testlib_unix_linux = $(TESTCACHE)/unix/unix-linux.o
@@ -4926,7 +4928,7 @@ testlib_os_darwin_srcs = \
 	$(STDLIB)/os/+darwin/fs.ha \
 	$(STDLIB)/os/os.ha
 
-$(TESTCACHE)/os/os-darwin.ssa: $(testlib_os_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+$(TESTCACHE)/os/os-darwin.ssa: $(testlib_os_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
@@ -4965,7 +4967,7 @@ testlib_os_exec_darwin_srcs = \
 	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(TESTCACHE)/os/exec/os_exec-darwin.ssa: $(testlib_os_exec_darwin_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM))
+$(TESTCACHE)/os/exec/os_exec-darwin.ssa: $(testlib_os_exec_darwin_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os/exec
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
@@ -5467,7 +5469,7 @@ testlib_unix_tty_darwin_srcs = \
 	$(STDLIB)/unix/tty/+darwin/pty.ha \
 	$(STDLIB)/unix/tty/+darwin/winsize.ha
 
-$(TESTCACHE)/unix/tty/unix_tty-darwin.ssa: $(testlib_unix_tty_darwin_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/unix/tty/unix_tty-darwin.ssa: $(testlib_unix_tty_darwin_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/tty
 	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \

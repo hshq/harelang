@@ -165,7 +165,7 @@ export type dirent = struct {
     d_reclen: u16,     // length of this record
     d_type  : u8,      // file type, see below
     d_namlen: u8,      // length of string in d_name
-    d_name  : [*]char, // name must be no longer than this
+    d_name  : [*]u8,   // name must be no longer than this
 };
 
 // SYS_getdirentries64
@@ -175,7 +175,7 @@ export type dirent = struct {
 //  d_reclen: u16,     // length of this record
 //  d_namlen: u16,     // length of string in d_name
 //  d_type  : u8,      // file type, see below
-//  d_name  : [*]char, // entry name (up to MAXPATHLEN bytes)
+//  d_name  : [*]u8,   // entry name (up to MAXPATHLEN bytes)
 // };
 
 // <sys/uio.h>
@@ -303,7 +303,7 @@ export type tcflag = enum uint {
 };
 
 // <sys/termios.h>
-export type cc = enum char {
+export type cc = enum u8 {
     VEOF      = 0,
     VEOL      = 1,
     VEOL2     = 2,

@@ -4,8 +4,8 @@
 use errors;
 use io;
 use rt;
-use strings;
 use os;
+use types::c;
 use unix;
 
 export type platform_cmd = io::file;
@@ -79,22 +79,22 @@ fn open(path: str) (platform_cmd | error) = {
 fn platform_finish(cmd: *command) void = rt::close(cmd.platform)!;
 
 fn platform_exec(cmd: *command) error = {
-	// We don't worry about freeing the return values from strings::to_c
+	// We don't worry about freeing the return values from c::fromstr
 	// because once we exec(2) our heap is fried anyway
-	let argv: []nullable *const char = alloc([], len(cmd.argv) + 1z);
+	let argv: []nullable *const c::char = alloc([], len(cmd.argv) + 1z);
 	for (let i = 0z; i < len(cmd.argv); i += 1z) {
-		append(argv, strings::to_c(cmd.argv[i]));
+		append(argv, c::fromstr(cmd.argv[i]));
 	};
 	append(argv, null);
 
-	let envp: nullable *[*]nullable *const char = null;
+	let envp: nullable *[*]nullable *const c::char = null;
 	if (len(cmd.env) != 0) {
-		let env: []nullable *const char = alloc([], len(cmd.env) + 1);
+		let env: []nullable *const c::char = alloc([], len(cmd.env) + 1);
 		for (let i = 0z; i < len(cmd.env); i += 1) {
-			append(env, strings::to_c(cmd.env[i]));
+			append(env, c::fromstr(cmd.env[i]));
 		};
 		append(env, null);
-		envp = env: *[*]nullable *const char;
+		envp = env: *[*]nullable *const c::char;
 	};
 
 	let need_devnull = false;
@@ -155,7 +155,8 @@ fn platform_exec(cmd: *command) error = {
 
 	return errors::errno(rt::fexecve(cmd.platform,
 	// return errors::errno(rt::execve(argv[0]: *const char,
-		argv: *[*]nullable *const char, envp: *[*]nullable *const char));
+		argv: *[*]nullable *const u8,
+		envp: *[*]nullable *const u8));
 };
 
 fn platform_start(cmd: *command) (process | errors::error) = {

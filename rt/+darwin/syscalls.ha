@@ -15,12 +15,12 @@ fn sys_pipe(_: u64, _: u64) u64;
 fn sys_fork(_: u64) u64;
 
 export def PATH_MAX: size = 1024z;
-export type path = (str | []u8 | *const char);
+export type path = (str | []u8 | *const u8);
 let pathbuf: [PATH_MAX + 1]u8 = [0...];
 
-fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
+fn copy_kpath(path: path, buf: []u8) (*const u8 | errno) = {
 	let path = match (path) {
-	case let c: *const char =>
+	case let c: *const u8 =>
 		return c;
 	case let s: str =>
 		let ptr = &s: *struct {
@@ -37,12 +37,12 @@ fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
 	};
 	memcpy(buf: *[*]u8, path: *[*]u8, len(path));
 	buf[len(path)] = 0;
-	return buf: *[*]u8: *const char;
+	return buf: *[*]u8: *const u8;
 };
 
 // NUL terminates a string and stores it in a static buffer of PATH_MAX+1 bytes
 // in length.
-fn kpath(path: path) (*const char | errno) = {
+fn kpath(path: path) (*const u8 | errno) = {
 	return copy_kpath(path, pathbuf);
 };
 
@@ -222,15 +222,15 @@ export fn getdents(dirfd: int, buf: *void, nbytes: size) (size | errno) = {
 
 // The return value is statically allocated and must be duplicated before
 // calling getcwd again.
-export fn getcwd() (*const char | errno) = {
+export fn getcwd() (*const u8 | errno) = {
 	static let pathbuf: [PATH_MAX + 1]u8 = [0...];
 	// wrap_return(syscall2(SYS___getcwd,
 	// 	&pathbuf: *[*]u8: uintptr: u64,
 	// 	PATH_MAX + 1))?;
-	if (c_getcwd(&pathbuf: *char, PATH_MAX + 1) == null) return get_c_errno();
-	return &pathbuf: *const char;
+	if (c_getcwd(&pathbuf: *u8, PATH_MAX + 1) == null) return get_c_errno();
+	return &pathbuf: *const u8;
 };
-@symbol("getcwd") fn c_getcwd(buf: nullable *char, bufsz: size) nullable *char;
+@symbol("getcwd") fn c_getcwd(buf: nullable *u8, bufsz: size) nullable *u8;
 
 export fn fchdir(fd: int) (void | errno) = {
 	wrap_return(syscall1(SYS_fchdir, fd: u64))?;
@@ -282,8 +282,8 @@ export fn fork() (int | void | errno) = {
 	};
 };
 
-export fn fexecve(fd: int, argv: *[*]nullable *const char,
-		envp: *[*]nullable *const char) errno = {
+export fn fexecve(fd: int, argv: *[*]nullable *const u8,
+		envp: *[*]nullable *const u8) errno = {
 	// return match (wrap_return(syscall3(SYS_fexecve, fd: u64,
 	// 	argv: uintptr: u64, envp: uintptr: u64))) {
 	// case let err: errno =>
@@ -305,9 +305,9 @@ export fn fexecve(fd: int, argv: *[*]nullable *const char,
 };
 
 export fn execve(
-	path: *const char,
-	argv: *[*]nullable *const char,
-	envp: *[*]nullable *const char,
+	path: *const u8,
+	argv: *[*]nullable *const u8,
+	envp: *[*]nullable *const u8,
 ) errno = {
 	return match (wrap_return(syscall3(SYS_execve,
 		path: uintptr: u64,
@@ -616,9 +616,9 @@ export fn unlockpt(fd: int) (void | errno) = {
 @symbol("unlockpt") fn c_unlockpt(fildes: int) int;
 
 export fn ptsname_r(fd: int, pathbuf: []u8) (void | errno) = {
-	wrap_errno_return(c_ptsname_r(fd, pathbuf: *[*]u8: *char, len(pathbuf)))?;
+	wrap_errno_return(c_ptsname_r(fd, pathbuf: *[*]u8: *u8, len(pathbuf)))?;
 };
-@symbol("ptsname_r") fn c_ptsname_r(fildes: int, buffer: *char, buflen: size) int;
+@symbol("ptsname_r") fn c_ptsname_r(fildes: int, buffer: *u8, buflen: size) int;
 
 export fn flock(fd: int, op: int) (void | errno) = {
 	wrap_return(syscall2(SYS_flock,
