@@ -1312,7 +1312,7 @@ os() {
 
 	gen_srcs -pdarwin os \
 		+darwin/environ.ha \
-		+darwin/exit.ha \
+		+darwin/$exit \
 		+darwin/dirfdfs.ha \
 		+darwin/stdfd.ha \
 		+darwin/fs.ha \

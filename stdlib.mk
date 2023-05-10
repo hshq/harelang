@@ -3865,3 +3865,1682 @@ testlib_crypto_cipher_any_srcs = \
 	$(STDLIB)/crypto/cipher/gcm.ha \
 	$(STDLIB)/crypto/cipher/ghash.ha
 
+$(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/cipher
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::cipher \
+		-t$(TESTCACHE)/crypto/cipher/crypto_cipher.td $(testlib_crypto_cipher_any_srcs)
+
+# crypto::hkdf (+any)
+testlib_crypto_hkdf_any_srcs = \
+	$(STDLIB)/crypto/hkdf/hkdf.ha \
+	$(STDLIB)/crypto/hkdf/+test.ha
+
+$(TESTCACHE)/crypto/hkdf/crypto_hkdf-any.ssa: $(testlib_crypto_hkdf_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_hmac_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_crypto_sha1_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/hkdf
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::hkdf \
+		-t$(TESTCACHE)/crypto/hkdf/crypto_hkdf.td $(testlib_crypto_hkdf_any_srcs)
+
+# crypto::hmac (+any)
+testlib_crypto_hmac_any_srcs = \
+	$(STDLIB)/crypto/hmac/hmac.ha \
+	$(STDLIB)/crypto/hmac/sha1.ha \
+	$(STDLIB)/crypto/hmac/sha256.ha \
+	$(STDLIB)/crypto/hmac/+test.ha
+
+$(TESTCACHE)/crypto/hmac/crypto_hmac-any.ssa: $(testlib_crypto_hmac_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_crypto_sha1_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/hmac
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::hmac \
+		-t$(TESTCACHE)/crypto/hmac/crypto_hmac.td $(testlib_crypto_hmac_any_srcs)
+
+# crypto::mac (+any)
+testlib_crypto_mac_any_srcs = \
+	$(STDLIB)/crypto/mac/mac.ha
+
+$(TESTCACHE)/crypto/mac/crypto_mac-any.ssa: $(testlib_crypto_mac_any_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/mac
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::mac \
+		-t$(TESTCACHE)/crypto/mac/crypto_mac.td $(testlib_crypto_mac_any_srcs)
+
+# crypto::math (+any)
+testlib_crypto_math_any_srcs = \
+	$(STDLIB)/crypto/math/arithm.ha \
+	$(STDLIB)/crypto/math/bits.ha
+
+$(TESTCACHE)/crypto/math/crypto_math-any.ssa: $(testlib_crypto_math_any_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/math
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::math \
+		-t$(TESTCACHE)/crypto/math/crypto_math.td $(testlib_crypto_math_any_srcs)
+
+# crypto::random (+linux)
+testlib_crypto_random_linux_srcs = \
+	$(STDLIB)/crypto/random/+linux.ha \
+	$(STDLIB)/crypto/random/random.ha
+
+$(TESTCACHE)/crypto/random/crypto_random-linux.ssa: $(testlib_crypto_random_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/random
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
+		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_linux_srcs)
+
+# crypto::random (+freebsd)
+testlib_crypto_random_freebsd_srcs = \
+	$(STDLIB)/crypto/random/+freebsd.ha \
+	$(STDLIB)/crypto/random/random.ha
+
+$(TESTCACHE)/crypto/random/crypto_random-freebsd.ssa: $(testlib_crypto_random_freebsd_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/random
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
+		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_freebsd_srcs)
+
+# crypto::random (+darwin)
+testlib_crypto_random_darwin_srcs = \
+	$(STDLIB)/crypto/random/+darwin.ha \
+	$(STDLIB)/crypto/random/random.ha
+
+$(TESTCACHE)/crypto/random/crypto_random-darwin.ssa: $(testlib_crypto_random_darwin_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/random
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
+		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_darwin_srcs)
+
+# crypto::rsa (+any)
+testlib_crypto_rsa_any_srcs = \
+	$(STDLIB)/crypto/rsa/core.ha \
+	$(STDLIB)/crypto/rsa/errors.ha \
+	$(STDLIB)/crypto/rsa/keys.ha \
+	$(STDLIB)/crypto/rsa/pkcs1.ha \
+	$(STDLIB)/crypto/rsa/+test/core.ha \
+	$(STDLIB)/crypto/rsa/+test/keys.ha \
+	$(STDLIB)/crypto/rsa/+test/pkcs1.ha
+
+$(TESTCACHE)/crypto/rsa/crypto_rsa-any.ssa: $(testlib_crypto_rsa_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_bigint_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_crypto_sha1_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_crypto_sha512_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/rsa
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::rsa \
+		-t$(TESTCACHE)/crypto/rsa/crypto_rsa.td $(testlib_crypto_rsa_any_srcs)
+
+# crypto::poly1305 (+any)
+testlib_crypto_poly1305_any_srcs = \
+	$(STDLIB)/crypto/poly1305/poly1305.ha \
+	$(STDLIB)/crypto/poly1305/+test.ha
+
+$(TESTCACHE)/crypto/poly1305/crypto_poly1305-any.ssa: $(testlib_crypto_poly1305_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/poly1305
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::poly1305 \
+		-t$(TESTCACHE)/crypto/poly1305/crypto_poly1305.td $(testlib_crypto_poly1305_any_srcs)
+
+# crypto::salsa (+any)
+testlib_crypto_salsa_any_srcs = \
+	$(STDLIB)/crypto/salsa/salsa20.ha \
+	$(STDLIB)/crypto/salsa/+test.ha
+
+$(TESTCACHE)/crypto/salsa/crypto_salsa-any.ssa: $(testlib_crypto_salsa_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/salsa
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::salsa \
+		-t$(TESTCACHE)/crypto/salsa/crypto_salsa.td $(testlib_crypto_salsa_any_srcs)
+
+# crypto::sha1 (+any)
+testlib_crypto_sha1_any_srcs = \
+	$(STDLIB)/crypto/sha1/sha1.ha \
+	$(STDLIB)/crypto/sha1/+test.ha
+
+$(TESTCACHE)/crypto/sha1/crypto_sha1-any.ssa: $(testlib_crypto_sha1_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/sha1
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha1 \
+		-t$(TESTCACHE)/crypto/sha1/crypto_sha1.td $(testlib_crypto_sha1_any_srcs)
+
+# crypto::sha256 (+any)
+testlib_crypto_sha256_any_srcs = \
+	$(STDLIB)/crypto/sha256/sha256.ha \
+	$(STDLIB)/crypto/sha256/+test.ha
+
+$(TESTCACHE)/crypto/sha256/crypto_sha256-any.ssa: $(testlib_crypto_sha256_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/sha256
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha256 \
+		-t$(TESTCACHE)/crypto/sha256/crypto_sha256.td $(testlib_crypto_sha256_any_srcs)
+
+# crypto::sha512 (+any)
+testlib_crypto_sha512_any_srcs = \
+	$(STDLIB)/crypto/sha512/sha512.ha \
+	$(STDLIB)/crypto/sha512/+test.ha
+
+$(TESTCACHE)/crypto/sha512/crypto_sha512-any.ssa: $(testlib_crypto_sha512_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/sha512
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha512 \
+		-t$(TESTCACHE)/crypto/sha512/crypto_sha512.td $(testlib_crypto_sha512_any_srcs)
+
+# crypto::curve25519 (+any)
+testlib_crypto_curve25519_any_srcs = \
+	$(STDLIB)/crypto/curve25519/curve25519.ha \
+	$(STDLIB)/crypto/curve25519/+test.ha
+
+$(TESTCACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(testlib_crypto_curve25519_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_crypto_random_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/curve25519
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::curve25519 \
+		-t$(TESTCACHE)/crypto/curve25519/crypto_curve25519.td $(testlib_crypto_curve25519_any_srcs)
+
+# crypto::ed25519 (+any)
+testlib_crypto_ed25519_any_srcs = \
+	$(STDLIB)/crypto/ed25519/ed25519.ha \
+	$(STDLIB)/crypto/ed25519/edwards25519.ha \
+	$(STDLIB)/crypto/ed25519/+test.ha
+
+$(TESTCACHE)/crypto/ed25519/crypto_ed25519-any.ssa: $(testlib_crypto_ed25519_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_sha512_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/ed25519
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::ed25519 \
+		-t$(TESTCACHE)/crypto/ed25519/crypto_ed25519.td $(testlib_crypto_ed25519_any_srcs)
+
+# crypto::x25519 (+any)
+testlib_crypto_x25519_any_srcs = \
+	$(STDLIB)/crypto/x25519/x25519.ha \
+	$(STDLIB)/crypto/x25519/+test.ha
+
+$(TESTCACHE)/crypto/x25519/crypto_x25519-any.ssa: $(testlib_crypto_x25519_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_curve25519_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_crypto_random_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/x25519
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::x25519 \
+		-t$(TESTCACHE)/crypto/x25519/crypto_x25519.td $(testlib_crypto_x25519_any_srcs)
+
+# datetime (+linux)
+testlib_datetime_linux_srcs = \
+	$(STDLIB)/datetime/arithmetic.ha \
+	$(STDLIB)/datetime/chronology.ha \
+	$(STDLIB)/datetime/date.ha \
+	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/duration.ha \
+	$(STDLIB)/datetime/format.ha \
+	$(STDLIB)/datetime/parse.ha \
+	$(STDLIB)/datetime/period.ha \
+	$(STDLIB)/datetime/reckon.ha \
+	$(STDLIB)/datetime/time.ha \
+	$(STDLIB)/datetime/timezone.ha \
+	$(STDLIB)/datetime/virtual.ha
+
+$(TESTCACHE)/datetime/datetime-linux.ssa: $(testlib_datetime_linux_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/datetime
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndatetime \
+		-t$(TESTCACHE)/datetime/datetime.td $(testlib_datetime_linux_srcs)
+
+# datetime (+freebsd)
+testlib_datetime_freebsd_srcs = \
+	$(STDLIB)/datetime/arithmetic.ha \
+	$(STDLIB)/datetime/chronology.ha \
+	$(STDLIB)/datetime/date.ha \
+	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/duration.ha \
+	$(STDLIB)/datetime/format.ha \
+	$(STDLIB)/datetime/parse.ha \
+	$(STDLIB)/datetime/period.ha \
+	$(STDLIB)/datetime/reckon.ha \
+	$(STDLIB)/datetime/time.ha \
+	$(STDLIB)/datetime/timezone.ha \
+	$(STDLIB)/datetime/virtual.ha
+
+$(TESTCACHE)/datetime/datetime-freebsd.ssa: $(testlib_datetime_freebsd_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/datetime
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndatetime \
+		-t$(TESTCACHE)/datetime/datetime.td $(testlib_datetime_freebsd_srcs)
+
+# datetime (+darwin)
+testlib_datetime_darwin_srcs = \
+	$(STDLIB)/datetime/arithmetic.ha \
+	$(STDLIB)/datetime/chronology.ha \
+	$(STDLIB)/datetime/date.ha \
+	$(STDLIB)/datetime/datetime.ha \
+	$(STDLIB)/datetime/duration.ha \
+	$(STDLIB)/datetime/format.ha \
+	$(STDLIB)/datetime/parse.ha \
+	$(STDLIB)/datetime/period.ha \
+	$(STDLIB)/datetime/reckon.ha \
+	$(STDLIB)/datetime/time.ha \
+	$(STDLIB)/datetime/timezone.ha \
+	$(STDLIB)/datetime/virtual.ha
+
+$(TESTCACHE)/datetime/datetime-darwin.ssa: $(testlib_datetime_darwin_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/datetime
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndatetime \
+		-t$(TESTCACHE)/datetime/datetime.td $(testlib_datetime_darwin_srcs)
+
+# dirs (+any)
+testlib_dirs_any_srcs = \
+	$(STDLIB)/dirs/xdg.ha
+
+$(TESTCACHE)/dirs/dirs-any.ssa: $(testlib_dirs_any_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_unix_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/dirs
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndirs \
+		-t$(TESTCACHE)/dirs/dirs.td $(testlib_dirs_any_srcs)
+
+# encoding::base64 (+any)
+testlib_encoding_base64_any_srcs = \
+	$(STDLIB)/encoding/base64/base64.ha
+
+$(TESTCACHE)/encoding/base64/encoding_base64-any.ssa: $(testlib_encoding_base64_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/encoding/base64
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::base64 \
+		-t$(TESTCACHE)/encoding/base64/encoding_base64.td $(testlib_encoding_base64_any_srcs)
+
+# encoding::base32 (+any)
+testlib_encoding_base32_any_srcs = \
+	$(STDLIB)/encoding/base32/base32.ha
+
+$(TESTCACHE)/encoding/base32/encoding_base32-any.ssa: $(testlib_encoding_base32_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/encoding/base32
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::base32 \
+		-t$(TESTCACHE)/encoding/base32/encoding_base32.td $(testlib_encoding_base32_any_srcs)
+
+# encoding::hex (+any)
+testlib_encoding_hex_any_srcs = \
+	$(STDLIB)/encoding/hex/hex.ha
+
+$(TESTCACHE)/encoding/hex/encoding_hex-any.ssa: $(testlib_encoding_hex_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/encoding/hex
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::hex \
+		-t$(TESTCACHE)/encoding/hex/encoding_hex.td $(testlib_encoding_hex_any_srcs)
+
+# encoding::pem (+any)
+testlib_encoding_pem_any_srcs = \
+	$(STDLIB)/encoding/pem/pem.ha \
+	$(STDLIB)/encoding/pem/+test.ha
+
+$(TESTCACHE)/encoding/pem/encoding_pem-any.ssa: $(testlib_encoding_pem_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_encoding_base64_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/encoding/pem
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::pem \
+		-t$(TESTCACHE)/encoding/pem/encoding_pem.td $(testlib_encoding_pem_any_srcs)
+
+# encoding::utf8 (+any)
+testlib_encoding_utf8_any_srcs = \
+	$(STDLIB)/encoding/utf8/decode.ha \
+	$(STDLIB)/encoding/utf8/decodetable.ha \
+	$(STDLIB)/encoding/utf8/encode.ha \
+	$(STDLIB)/encoding/utf8/rune.ha
+
+$(TESTCACHE)/encoding/utf8/encoding_utf8-any.ssa: $(testlib_encoding_utf8_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/encoding/utf8
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::utf8 \
+		-t$(TESTCACHE)/encoding/utf8/encoding_utf8.td $(testlib_encoding_utf8_any_srcs)
+
+# endian (+any)
+testlib_endian_any_srcs = \
+	$(STDLIB)/endian/big.ha \
+	$(STDLIB)/endian/network.ha \
+	$(STDLIB)/endian/little.ha \
+	$(STDLIB)/endian/endian.ha \
+	$(STDLIB)/endian/host+$(ARCH).ha
+
+$(TESTCACHE)/endian/endian-any.ssa: $(testlib_endian_any_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/endian
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nendian \
+		-t$(TESTCACHE)/endian/endian.td $(testlib_endian_any_srcs)
+
+# errors (+any)
+testlib_errors_any_srcs = \
+	$(STDLIB)/errors/common.ha \
+	$(STDLIB)/errors/opaque.ha \
+	$(STDLIB)/errors/string.ha \
+	$(STDLIB)/errors/rt.ha
+
+$(TESTCACHE)/errors/errors-any.ssa: $(testlib_errors_any_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/errors
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nerrors \
+		-t$(TESTCACHE)/errors/errors.td $(testlib_errors_any_srcs)
+
+# fmt (+any)
+testlib_fmt_any_srcs = \
+	$(STDLIB)/fmt/fmt.ha
+
+$(TESTCACHE)/fmt/fmt-any.ssa: $(testlib_fmt_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/fmt
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfmt \
+		-t$(TESTCACHE)/fmt/fmt.td $(testlib_fmt_any_srcs)
+
+# fnmatch (+any)
+testlib_fnmatch_any_srcs = \
+	$(STDLIB)/fnmatch/fnmatch.ha \
+	$(STDLIB)/fnmatch/+test.ha
+
+$(TESTCACHE)/fnmatch/fnmatch-any.ssa: $(testlib_fnmatch_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_sort_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/fnmatch
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfnmatch \
+		-t$(TESTCACHE)/fnmatch/fnmatch.td $(testlib_fnmatch_any_srcs)
+
+# format::elf (+any)
+testlib_format_elf_any_srcs = \
+	$(STDLIB)/format/elf/arch+$(ARCH).ha \
+	$(STDLIB)/format/elf/platform+$(PLATFORM).ha \
+	$(STDLIB)/format/elf/types.ha
+
+$(TESTCACHE)/format/elf/format_elf-any.ssa: $(testlib_format_elf_any_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/format/elf
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::elf \
+		-t$(TESTCACHE)/format/elf/format_elf.td $(testlib_format_elf_any_srcs)
+
+# format::ini (+any)
+testlib_format_ini_any_srcs = \
+	$(STDLIB)/format/ini/scan.ha \
+	$(STDLIB)/format/ini/types.ha \
+	$(STDLIB)/format/ini/+test.ha
+
+$(TESTCACHE)/format/ini/format_ini-any.ssa: $(testlib_format_ini_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/format/ini
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::ini \
+		-t$(TESTCACHE)/format/ini/format_ini.td $(testlib_format_ini_any_srcs)
+
+# format::tar (+any)
+testlib_format_tar_any_srcs = \
+	$(STDLIB)/format/tar/types.ha \
+	$(STDLIB)/format/tar/reader.ha
+
+$(TESTCACHE)/format/tar/format_tar-any.ssa: $(testlib_format_tar_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/format/tar
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::tar \
+		-t$(TESTCACHE)/format/tar/format_tar.td $(testlib_format_tar_any_srcs)
+
+# fs (+any)
+testlib_fs_any_srcs = \
+	$(STDLIB)/fs/types.ha \
+	$(STDLIB)/fs/fs.ha \
+	$(STDLIB)/fs/util.ha
+
+$(TESTCACHE)/fs/fs-any.ssa: $(testlib_fs_any_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/fs
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs \
+		-t$(TESTCACHE)/fs/fs.td $(testlib_fs_any_srcs)
+
+# getopt (+any)
+testlib_getopt_any_srcs = \
+	$(STDLIB)/getopt/getopts.ha
+
+$(TESTCACHE)/getopt/getopt-any.ssa: $(testlib_getopt_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/getopt
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ngetopt \
+		-t$(TESTCACHE)/getopt/getopt.td $(testlib_getopt_any_srcs)
+
+# glob (+any)
+testlib_glob_any_srcs = \
+	$(STDLIB)/glob/glob.ha \
+	$(STDLIB)/glob/+test.ha
+
+$(TESTCACHE)/glob/glob-any.ssa: $(testlib_glob_any_srcs) $(testlib_rt) $(testlib_fnmatch_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/glob
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nglob \
+		-t$(TESTCACHE)/glob/glob.td $(testlib_glob_any_srcs)
+
+# hare::ast (+any)
+testlib_hare_ast_any_srcs = \
+	$(STDLIB)/hare/ast/decl.ha \
+	$(STDLIB)/hare/ast/expr.ha \
+	$(STDLIB)/hare/ast/ident.ha \
+	$(STDLIB)/hare/ast/import.ha \
+	$(STDLIB)/hare/ast/type.ha \
+	$(STDLIB)/hare/ast/unit.ha
+
+$(TESTCACHE)/hare/ast/hare_ast-any.ssa: $(testlib_hare_ast_any_srcs) $(testlib_rt) $(testlib_hare_lex_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/ast
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::ast \
+		-t$(TESTCACHE)/hare/ast/hare_ast.td $(testlib_hare_ast_any_srcs)
+
+# hare::lex (+any)
+testlib_hare_lex_any_srcs = \
+	$(STDLIB)/hare/lex/token.ha \
+	$(STDLIB)/hare/lex/lex.ha \
+	$(STDLIB)/hare/lex/+test.ha
+
+$(TESTCACHE)/hare/lex/hare_lex-any.ssa: $(testlib_hare_lex_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_path_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/lex
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::lex \
+		-t$(TESTCACHE)/hare/lex/hare_lex.td $(testlib_hare_lex_any_srcs)
+
+# hare::module (+any)
+testlib_hare_module_any_srcs = \
+	$(STDLIB)/hare/module/types.ha \
+	$(STDLIB)/hare/module/context.ha \
+	$(STDLIB)/hare/module/scan.ha \
+	$(STDLIB)/hare/module/manifest.ha \
+	$(STDLIB)/hare/module/walk.ha
+
+$(TESTCACHE)/hare/module/hare_module-any.ssa: $(testlib_hare_module_any_srcs) $(testlib_rt) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_dirs_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_temp_$(PLATFORM)) $(testlib_path_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/module
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module \
+		-t$(TESTCACHE)/hare/module/hare_module.td $(testlib_hare_module_any_srcs)
+
+# hare::parse (+any)
+testlib_hare_parse_any_srcs = \
+	$(STDLIB)/hare/parse/decl.ha \
+	$(STDLIB)/hare/parse/expr.ha \
+	$(STDLIB)/hare/parse/ident.ha \
+	$(STDLIB)/hare/parse/import.ha \
+	$(STDLIB)/hare/parse/parse.ha \
+	$(STDLIB)/hare/parse/type.ha \
+	$(STDLIB)/hare/parse/unit.ha \
+	$(STDLIB)/hare/parse/+test/expr.ha \
+	$(STDLIB)/hare/parse/+test/ident.ha \
+	$(STDLIB)/hare/parse/+test/loc.ha \
+	$(STDLIB)/hare/parse/+test/roundtrip.ha \
+	$(STDLIB)/hare/parse/+test/types.ha \
+	$(STDLIB)/hare/parse/+test/unit.ha
+
+$(TESTCACHE)/hare/parse/hare_parse-any.ssa: $(testlib_hare_parse_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_math_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/parse
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::parse \
+		-t$(TESTCACHE)/hare/parse/hare_parse.td $(testlib_hare_parse_any_srcs)
+
+# hare::types (+any)
+testlib_hare_types_any_srcs = \
+	$(STDLIB)/hare/types/+$(ARCH)/hash.ha \
+	$(STDLIB)/hare/types/arch.ha \
+	$(STDLIB)/hare/types/builtins.ha \
+	$(STDLIB)/hare/types/class.ha \
+	$(STDLIB)/hare/types/hash.ha \
+	$(STDLIB)/hare/types/lookup.ha \
+	$(STDLIB)/hare/types/store.ha \
+	$(STDLIB)/hare/types/types.ha \
+	$(STDLIB)/hare/types/+test.ha
+
+$(TESTCACHE)/hare/types/hare_types-any.ssa: $(testlib_hare_types_any_srcs) $(testlib_rt) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_hash_fnv_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/types
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::types \
+		-t$(TESTCACHE)/hare/types/hare_types.td $(testlib_hare_types_any_srcs)
+
+# hare::unit (+any)
+testlib_hare_unit_any_srcs = \
+	$(STDLIB)/hare/unit/check.ha \
+	$(STDLIB)/hare/unit/context.ha \
+	$(STDLIB)/hare/unit/errors.ha \
+	$(STDLIB)/hare/unit/expr.ha \
+	$(STDLIB)/hare/unit/process.ha \
+	$(STDLIB)/hare/unit/scan.ha \
+	$(STDLIB)/hare/unit/scope.ha \
+	$(STDLIB)/hare/unit/unit.ha \
+	$(STDLIB)/hare/unit/+test.ha
+
+$(TESTCACHE)/hare/unit/hare_unit-any.ssa: $(testlib_hare_unit_any_srcs) $(testlib_rt) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_types_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_hash_fnv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/unit
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::unit \
+		-t$(TESTCACHE)/hare/unit/hare_unit.td $(testlib_hare_unit_any_srcs)
+
+# hare::unparse (+any)
+testlib_hare_unparse_any_srcs = \
+	$(STDLIB)/hare/unparse/expr.ha \
+	$(STDLIB)/hare/unparse/decl.ha \
+	$(STDLIB)/hare/unparse/ident.ha \
+	$(STDLIB)/hare/unparse/import.ha \
+	$(STDLIB)/hare/unparse/type.ha \
+	$(STDLIB)/hare/unparse/unit.ha \
+	$(STDLIB)/hare/unparse/util.ha
+
+$(TESTCACHE)/hare/unparse/hare_unparse-any.ssa: $(testlib_hare_unparse_any_srcs) $(testlib_rt) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/unparse
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::unparse \
+		-t$(TESTCACHE)/hare/unparse/hare_unparse.td $(testlib_hare_unparse_any_srcs)
+
+# hash (+any)
+testlib_hash_any_srcs = \
+	$(STDLIB)/hash/hash.ha
+
+$(TESTCACHE)/hash/hash-any.ssa: $(testlib_hash_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash \
+		-t$(TESTCACHE)/hash/hash.td $(testlib_hash_any_srcs)
+
+# hash::adler32 (+any)
+testlib_hash_adler32_any_srcs = \
+	$(STDLIB)/hash/adler32/adler32.ha
+
+$(TESTCACHE)/hash/adler32/hash_adler32-any.ssa: $(testlib_hash_adler32_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash/adler32
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::adler32 \
+		-t$(TESTCACHE)/hash/adler32/hash_adler32.td $(testlib_hash_adler32_any_srcs)
+
+# hash::crc16 (+any)
+testlib_hash_crc16_any_srcs = \
+	$(STDLIB)/hash/crc16/crc16.ha
+
+$(TESTCACHE)/hash/crc16/hash_crc16-any.ssa: $(testlib_hash_crc16_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash/crc16
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::crc16 \
+		-t$(TESTCACHE)/hash/crc16/hash_crc16.td $(testlib_hash_crc16_any_srcs)
+
+# hash::crc32 (+any)
+testlib_hash_crc32_any_srcs = \
+	$(STDLIB)/hash/crc32/crc32.ha
+
+$(TESTCACHE)/hash/crc32/hash_crc32-any.ssa: $(testlib_hash_crc32_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash/crc32
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::crc32 \
+		-t$(TESTCACHE)/hash/crc32/hash_crc32.td $(testlib_hash_crc32_any_srcs)
+
+# hash::crc64 (+any)
+testlib_hash_crc64_any_srcs = \
+	$(STDLIB)/hash/crc64/crc64.ha
+
+$(TESTCACHE)/hash/crc64/hash_crc64-any.ssa: $(testlib_hash_crc64_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash/crc64
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::crc64 \
+		-t$(TESTCACHE)/hash/crc64/hash_crc64.td $(testlib_hash_crc64_any_srcs)
+
+# hash::fnv (+any)
+testlib_hash_fnv_any_srcs = \
+	$(STDLIB)/hash/fnv/+$(ARCH).ha \
+	$(STDLIB)/hash/fnv/fnv.ha
+
+$(TESTCACHE)/hash/fnv/hash_fnv-any.ssa: $(testlib_hash_fnv_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash/fnv
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::fnv \
+		-t$(TESTCACHE)/hash/fnv/hash_fnv.td $(testlib_hash_fnv_any_srcs)
+
+# hash::siphash (+any)
+testlib_hash_siphash_any_srcs = \
+	$(STDLIB)/hash/siphash/siphash.ha \
+	$(STDLIB)/hash/siphash/+test.ha
+
+$(TESTCACHE)/hash/siphash/hash_siphash-any.ssa: $(testlib_hash_siphash_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hash/siphash
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::siphash \
+		-t$(TESTCACHE)/hash/siphash/hash_siphash.td $(testlib_hash_siphash_any_srcs)
+
+# io (+linux)
+testlib_io_linux_srcs = \
+	$(STDLIB)/io/arch+$(ARCH).ha \
+	$(STDLIB)/io/+linux/file.ha \
+	$(STDLIB)/io/+linux/mmap.ha \
+	$(STDLIB)/io/+linux/platform_lock.ha \
+	$(STDLIB)/io/+linux/platform_trunc.ha \
+	$(STDLIB)/io/+linux/vector.ha \
+	$(STDLIB)/io/copy.ha \
+	$(STDLIB)/io/drain.ha \
+	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/handle.ha \
+	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
+	$(STDLIB)/io/stream.ha \
+	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/trunc.ha \
+	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/util.ha \
+	$(STDLIB)/io/zero.ha \
+	$(STDLIB)/io/+test/limit.ha \
+	$(STDLIB)/io/+test/stream.ha
+
+# io (+freebsd)
+testlib_io_freebsd_srcs = \
+	$(STDLIB)/io/arch+$(ARCH).ha \
+	$(STDLIB)/io/+freebsd/file.ha \
+	$(STDLIB)/io/+freebsd/mmap.ha \
+	$(STDLIB)/io/+freebsd/platform_lock.ha \
+	$(STDLIB)/io/+freebsd/platform_trunc.ha \
+	$(STDLIB)/io/+freebsd/vector.ha \
+	$(STDLIB)/io/copy.ha \
+	$(STDLIB)/io/drain.ha \
+	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/handle.ha \
+	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
+	$(STDLIB)/io/stream.ha \
+	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/trunc.ha \
+	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/util.ha \
+	$(STDLIB)/io/zero.ha \
+	$(STDLIB)/io/+test/limit.ha \
+	$(STDLIB)/io/+test/stream.ha
+
+# io (+darwin)
+testlib_io_darwin_srcs = \
+	$(STDLIB)/io/arch+$(ARCH).ha \
+	$(STDLIB)/io/+darwin/file.ha \
+	$(STDLIB)/io/+darwin/mmap.ha \
+	$(STDLIB)/io/+darwin/platform_lock.ha \
+	$(STDLIB)/io/+linux/platform_trunc.ha \
+	$(STDLIB)/io/+darwin/vector.ha \
+	$(STDLIB)/io/copy.ha \
+	$(STDLIB)/io/drain.ha \
+	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/handle.ha \
+	$(STDLIB)/io/limit.ha \
+	$(STDLIB)/io/lock.ha \
+	$(STDLIB)/io/stream.ha \
+	$(STDLIB)/io/tee.ha \
+	$(STDLIB)/io/trunc.ha \
+	$(STDLIB)/io/types.ha \
+	$(STDLIB)/io/util.ha \
+	$(STDLIB)/io/zero.ha \
+	$(STDLIB)/io/+test/limit.ha \
+	$(STDLIB)/io/+test/stream.ha
+
+$(TESTCACHE)/io/io-linux.ssa: $(testlib_io_linux_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/io
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
+		-t$(TESTCACHE)/io/io.td $(testlib_io_linux_srcs)
+
+$(TESTCACHE)/io/io-freebsd.ssa: $(testlib_io_freebsd_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/io
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
+		-t$(TESTCACHE)/io/io.td $(testlib_io_freebsd_srcs)
+
+$(TESTCACHE)/io/io-darwin.ssa: $(testlib_io_darwin_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/io
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
+		-t$(TESTCACHE)/io/io.td $(testlib_io_darwin_srcs)
+
+# linux (+linux)
+testlib_linux_linux_srcs = \
+	$(STDLIB)/linux/start.ha \
+	$(STDLIB)/linux/env.ha
+
+$(TESTCACHE)/linux/linux-linux.ssa: $(testlib_linux_linux_srcs) $(testlib_rt) $(testlib_format_elf_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/linux
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux \
+		-t$(TESTCACHE)/linux/linux.td $(testlib_linux_linux_srcs)
+
+# linux::keyctl (+linux)
+testlib_linux_keyctl_linux_srcs = \
+	$(STDLIB)/linux/keyctl/keyctl.ha \
+	$(STDLIB)/linux/keyctl/types.ha
+
+$(TESTCACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(testlib_linux_keyctl_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/linux/keyctl
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::keyctl \
+		-t$(TESTCACHE)/linux/keyctl/linux_keyctl.td $(testlib_linux_keyctl_linux_srcs)
+
+# linux::timerfd (+linux)
+testlib_linux_timerfd_linux_srcs = \
+	$(STDLIB)/linux/timerfd/timerfd.ha
+
+$(TESTCACHE)/linux/timerfd/linux_timerfd-linux.ssa: $(testlib_linux_timerfd_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/linux/timerfd
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::timerfd \
+		-t$(TESTCACHE)/linux/timerfd/linux_timerfd.td $(testlib_linux_timerfd_linux_srcs)
+
+# linux::vdso (+linux)
+testlib_linux_vdso_linux_srcs = \
+	$(STDLIB)/linux/vdso/vdso.ha
+
+$(TESTCACHE)/linux/vdso/linux_vdso-linux.ssa: $(testlib_linux_vdso_linux_srcs) $(testlib_rt) $(testlib_linux_$(PLATFORM)) $(testlib_format_elf_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/linux/vdso
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::vdso \
+		-t$(TESTCACHE)/linux/vdso/linux_vdso.td $(testlib_linux_vdso_linux_srcs)
+
+# log (+linux)
+testlib_log_linux_srcs = \
+	$(STDLIB)/log/logger.ha \
+	$(STDLIB)/log/global.ha \
+	$(STDLIB)/log/funcs.ha \
+	$(STDLIB)/log/silent.ha
+
+$(TESTCACHE)/log/log-linux.ssa: $(testlib_log_linux_srcs) $(testlib_rt) $(testlib_datetime_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/log
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \
+		-t$(TESTCACHE)/log/log.td $(testlib_log_linux_srcs)
+
+# log (+freebsd)
+testlib_log_freebsd_srcs = \
+	$(STDLIB)/log/logger.ha \
+	$(STDLIB)/log/global.ha \
+	$(STDLIB)/log/funcs.ha \
+	$(STDLIB)/log/silent.ha
+
+$(TESTCACHE)/log/log-freebsd.ssa: $(testlib_log_freebsd_srcs) $(testlib_rt) $(testlib_datetime_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/log
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \
+		-t$(TESTCACHE)/log/log.td $(testlib_log_freebsd_srcs)
+
+# log (+darwin)
+testlib_log_darwin_srcs = \
+	$(STDLIB)/log/logger.ha \
+	$(STDLIB)/log/global.ha \
+	$(STDLIB)/log/funcs.ha \
+	$(STDLIB)/log/silent.ha
+
+$(TESTCACHE)/log/log-darwin.ssa: $(testlib_log_darwin_srcs) $(testlib_rt) $(testlib_datetime_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/log
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \
+		-t$(TESTCACHE)/log/log.td $(testlib_log_darwin_srcs)
+
+# math (+any)
+testlib_math_any_srcs = \
+	$(STDLIB)/math/math.ha \
+	$(STDLIB)/math/fenv_func.ha \
+	$(STDLIB)/math/fenv+$(ARCH).ha \
+	$(STDLIB)/math/floats.ha \
+	$(STDLIB)/math/ints.ha \
+	$(STDLIB)/math/uints.ha \
+	$(STDLIB)/math/trig.ha \
+	$(STDLIB)/math/+test/data.ha \
+	$(STDLIB)/math/+test/math.ha \
+	$(STDLIB)/math/+test/floats.ha \
+	$(STDLIB)/math/+test/trig.ha
+
+$(TESTCACHE)/math/math-any.ssa: $(testlib_math_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/math
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath \
+		-t$(TESTCACHE)/math/math.td $(testlib_math_any_srcs)
+
+# math::complex (+any)
+testlib_math_complex_any_srcs = \
+	$(STDLIB)/math/complex/complex.ha \
+	$(STDLIB)/math/complex/+test.ha
+
+$(TESTCACHE)/math/complex/math_complex-any.ssa: $(testlib_math_complex_any_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/math/complex
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath::complex \
+		-t$(TESTCACHE)/math/complex/math_complex.td $(testlib_math_complex_any_srcs)
+
+# math::random (+any)
+testlib_math_random_any_srcs = \
+	$(STDLIB)/math/random/random.ha
+
+$(TESTCACHE)/math/random/math_random-any.ssa: $(testlib_math_random_any_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/math/random
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath::random \
+		-t$(TESTCACHE)/math/random/math_random.td $(testlib_math_random_any_srcs)
+
+# net (+linux)
+testlib_net_linux_srcs = \
+	$(STDLIB)/net/+linux.ha \
+	$(STDLIB)/net/errors.ha \
+	$(STDLIB)/net/msg.ha
+
+$(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
+		-t$(TESTCACHE)/net/net.td $(testlib_net_linux_srcs)
+
+# net (+freebsd)
+testlib_net_freebsd_srcs = \
+	$(STDLIB)/net/+freebsd.ha \
+	$(STDLIB)/net/errors.ha \
+	$(STDLIB)/net/msg.ha
+
+$(TESTCACHE)/net/net-freebsd.ssa: $(testlib_net_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
+		-t$(TESTCACHE)/net/net.td $(testlib_net_freebsd_srcs)
+
+# net (+darwin)
+testlib_net_darwin_srcs = \
+	$(STDLIB)/net/+darwin.ha \
+	$(STDLIB)/net/errors.ha \
+	$(STDLIB)/net/msg.ha
+
+$(TESTCACHE)/net/net-darwin.ssa: $(testlib_net_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
+		-t$(TESTCACHE)/net/net.td $(testlib_net_darwin_srcs)
+
+# net::dial (+any)
+testlib_net_dial_any_srcs = \
+	$(STDLIB)/net/dial/registry.ha \
+	$(STDLIB)/net/dial/dial.ha \
+	$(STDLIB)/net/dial/ip.ha \
+	$(STDLIB)/net/dial/resolve.ha
+
+$(TESTCACHE)/net/dial/net_dial-any.ssa: $(testlib_net_dial_any_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_net_tcp_$(PLATFORM)) $(testlib_net_udp_$(PLATFORM)) $(testlib_net_dns_$(PLATFORM)) $(testlib_net_uri_$(PLATFORM)) $(testlib_crypto_random_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_unix_hosts_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/dial
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::dial \
+		-t$(TESTCACHE)/net/dial/net_dial.td $(testlib_net_dial_any_srcs)
+
+# net::dns (+any)
+testlib_net_dns_any_srcs = \
+	$(STDLIB)/net/dns/decode.ha \
+	$(STDLIB)/net/dns/error.ha \
+	$(STDLIB)/net/dns/encode.ha \
+	$(STDLIB)/net/dns/query.ha \
+	$(STDLIB)/net/dns/strdomain.ha \
+	$(STDLIB)/net/dns/types.ha
+
+$(TESTCACHE)/net/dns/net_dns-any.ssa: $(testlib_net_dns_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_udp_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_unix_resolvconf_$(PLATFORM)) $(testlib_unix_poll_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/dns
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::dns \
+		-t$(TESTCACHE)/net/dns/net_dns.td $(testlib_net_dns_any_srcs)
+
+# net::ip (+linux)
+testlib_net_ip_linux_srcs = \
+	$(STDLIB)/net/ip/+linux.ha \
+	$(STDLIB)/net/ip/ip.ha \
+	$(STDLIB)/net/ip/+test.ha
+
+# net::ip (+freebsd)
+testlib_net_ip_freebsd_srcs = \
+	$(STDLIB)/net/ip/+freebsd.ha \
+	$(STDLIB)/net/ip/ip.ha \
+	$(STDLIB)/net/ip/+test.ha
+
+# net::ip (+darwin)
+testlib_net_ip_darwin_srcs = \
+	$(STDLIB)/net/ip/+darwin.ha \
+	$(STDLIB)/net/ip/ip.ha \
+	$(STDLIB)/net/ip/+test.ha
+
+$(TESTCACHE)/net/ip/net_ip-linux.ssa: $(testlib_net_ip_linux_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/ip
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \
+		-t$(TESTCACHE)/net/ip/net_ip.td $(testlib_net_ip_linux_srcs)
+
+$(TESTCACHE)/net/ip/net_ip-freebsd.ssa: $(testlib_net_ip_freebsd_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/ip
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \
+		-t$(TESTCACHE)/net/ip/net_ip.td $(testlib_net_ip_freebsd_srcs)
+
+$(TESTCACHE)/net/ip/net_ip-darwin.ssa: $(testlib_net_ip_darwin_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/ip
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \
+		-t$(TESTCACHE)/net/ip/net_ip.td $(testlib_net_ip_darwin_srcs)
+
+# net::tcp (+linux)
+testlib_net_tcp_linux_srcs = \
+	$(STDLIB)/net/tcp/+linux.ha \
+	$(STDLIB)/net/tcp/listener.ha \
+	$(STDLIB)/net/tcp/options.ha
+
+$(TESTCACHE)/net/tcp/net_tcp-linux.ssa: $(testlib_net_tcp_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/tcp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::tcp \
+		-t$(TESTCACHE)/net/tcp/net_tcp.td $(testlib_net_tcp_linux_srcs)
+
+# net::tcp (+freebsd)
+testlib_net_tcp_freebsd_srcs = \
+	$(STDLIB)/net/tcp/+freebsd.ha \
+	$(STDLIB)/net/tcp/listener.ha \
+	$(STDLIB)/net/tcp/options.ha
+
+$(TESTCACHE)/net/tcp/net_tcp-freebsd.ssa: $(testlib_net_tcp_freebsd_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/tcp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::tcp \
+		-t$(TESTCACHE)/net/tcp/net_tcp.td $(testlib_net_tcp_freebsd_srcs)
+
+# net::tcp (+darwin)
+testlib_net_tcp_darwin_srcs = \
+	$(STDLIB)/net/tcp/+darwin.ha \
+	$(STDLIB)/net/tcp/listener.ha \
+	$(STDLIB)/net/tcp/options.ha
+
+$(TESTCACHE)/net/tcp/net_tcp-darwin.ssa: $(testlib_net_tcp_darwin_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/tcp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::tcp \
+		-t$(TESTCACHE)/net/tcp/net_tcp.td $(testlib_net_tcp_darwin_srcs)
+
+# net::udp (+linux)
+testlib_net_udp_linux_srcs = \
+	$(STDLIB)/net/udp/+linux.ha \
+	$(STDLIB)/net/udp/options.ha
+
+$(TESTCACHE)/net/udp/net_udp-linux.ssa: $(testlib_net_udp_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/udp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::udp \
+		-t$(TESTCACHE)/net/udp/net_udp.td $(testlib_net_udp_linux_srcs)
+
+# net::udp (+freebsd)
+testlib_net_udp_freebsd_srcs = \
+	$(STDLIB)/net/udp/+freebsd.ha \
+	$(STDLIB)/net/udp/options.ha
+
+$(TESTCACHE)/net/udp/net_udp-freebsd.ssa: $(testlib_net_udp_freebsd_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/udp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::udp \
+		-t$(TESTCACHE)/net/udp/net_udp.td $(testlib_net_udp_freebsd_srcs)
+
+# net::udp (+darwin)
+testlib_net_udp_darwin_srcs = \
+	$(STDLIB)/net/udp/+darwin.ha \
+	$(STDLIB)/net/udp/options.ha
+
+$(TESTCACHE)/net/udp/net_udp-darwin.ssa: $(testlib_net_udp_darwin_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/udp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::udp \
+		-t$(TESTCACHE)/net/udp/net_udp.td $(testlib_net_udp_darwin_srcs)
+
+# net::unix (+linux)
+testlib_net_unix_linux_srcs = \
+	$(STDLIB)/net/unix/+linux.ha \
+	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/cmsg.ha \
+	$(STDLIB)/net/unix/dial.ha \
+	$(STDLIB)/net/unix/listener.ha \
+	$(STDLIB)/net/unix/options.ha \
+	$(STDLIB)/net/unix/socketpair.ha
+
+$(TESTCACHE)/net/unix/net_unix-linux.ssa: $(testlib_net_unix_linux_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_net_dial_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/unix
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \
+		-t$(TESTCACHE)/net/unix/net_unix.td $(testlib_net_unix_linux_srcs)
+
+# net::unix (+freebsd)
+testlib_net_unix_freebsd_srcs = \
+	$(STDLIB)/net/unix/+freebsd.ha \
+	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/cmsg.ha \
+	$(STDLIB)/net/unix/dial.ha \
+	$(STDLIB)/net/unix/listener.ha \
+	$(STDLIB)/net/unix/options.ha \
+	$(STDLIB)/net/unix/socketpair.ha
+
+$(TESTCACHE)/net/unix/net_unix-freebsd.ssa: $(testlib_net_unix_freebsd_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_net_dial_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/unix
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \
+		-t$(TESTCACHE)/net/unix/net_unix.td $(testlib_net_unix_freebsd_srcs)
+
+# net::unix (+darwin)
+testlib_net_unix_darwin_srcs = \
+	$(STDLIB)/net/unix/+darwin.ha \
+	$(STDLIB)/net/unix/addr.ha \
+	$(STDLIB)/net/unix/cmsg.ha \
+	$(STDLIB)/net/unix/dial.ha \
+	$(STDLIB)/net/unix/listener.ha \
+	$(STDLIB)/net/unix/options.ha \
+	$(STDLIB)/net/unix/socketpair.ha
+
+$(TESTCACHE)/net/unix/net_unix-darwin.ssa: $(testlib_net_unix_darwin_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_net_dial_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/unix
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \
+		-t$(TESTCACHE)/net/unix/net_unix.td $(testlib_net_unix_darwin_srcs)
+
+# net::uri (+any)
+testlib_net_uri_any_srcs = \
+	$(STDLIB)/net/uri/fmt.ha \
+	$(STDLIB)/net/uri/parse.ha \
+	$(STDLIB)/net/uri/query.ha \
+	$(STDLIB)/net/uri/uri.ha \
+	$(STDLIB)/net/uri/+test.ha
+
+$(TESTCACHE)/net/uri/net_uri-any.ssa: $(testlib_net_uri_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/net/uri
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::uri \
+		-t$(TESTCACHE)/net/uri/net_uri.td $(testlib_net_uri_any_srcs)
+
+# os (+linux)
+testlib_os_linux_srcs = \
+	$(STDLIB)/os/+linux/dirfdfs.ha \
+	$(STDLIB)/os/+linux/environ.ha \
+	$(STDLIB)/os/+linux/exit+test.ha \
+	$(STDLIB)/os/+linux/fs.ha \
+	$(STDLIB)/os/+linux/memory.ha \
+	$(STDLIB)/os/+linux/stdfd.ha \
+	$(STDLIB)/os/os.ha
+
+$(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_math_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/os
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
+		-t$(TESTCACHE)/os/os.td $(testlib_os_linux_srcs)
+
+# os (+freebsd)
+testlib_os_freebsd_srcs = \
+	$(STDLIB)/os/+freebsd/environ.ha \
+	$(STDLIB)/os/+freebsd/exit+test.ha \
+	$(STDLIB)/os/+freebsd/dirfdfs.ha \
+	$(STDLIB)/os/+freebsd/stdfd.ha \
+	$(STDLIB)/os/+freebsd/fs.ha \
+	$(STDLIB)/os/os.ha
+
+$(TESTCACHE)/os/os-freebsd.ssa: $(testlib_os_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/os
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
+		-t$(TESTCACHE)/os/os.td $(testlib_os_freebsd_srcs)
+
+# os (+darwin)
+testlib_os_darwin_srcs = \
+	$(STDLIB)/os/+darwin/environ.ha \
+	$(STDLIB)/os/+darwin/exit+test.ha \
+	$(STDLIB)/os/+darwin/dirfdfs.ha \
+	$(STDLIB)/os/+darwin/stdfd.ha \
+	$(STDLIB)/os/+darwin/fs.ha \
+	$(STDLIB)/os/os.ha
+
+$(TESTCACHE)/os/os-darwin.ssa: $(testlib_os_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/os
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
+		-t$(TESTCACHE)/os/os.td $(testlib_os_darwin_srcs)
+
+# os::exec (+linux)
+testlib_os_exec_linux_srcs = \
+	$(STDLIB)/os/exec/exec+linux.ha \
+	$(STDLIB)/os/exec/process+linux.ha \
+	$(STDLIB)/os/exec/types.ha \
+	$(STDLIB)/os/exec/cmd.ha
+
+$(TESTCACHE)/os/exec/os_exec-linux.ssa: $(testlib_os_exec_linux_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/os/exec
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
+		-t$(TESTCACHE)/os/exec/os_exec.td $(testlib_os_exec_linux_srcs)
+
+# os::exec (+freebsd)
+testlib_os_exec_freebsd_srcs = \
+	$(STDLIB)/os/exec/exec+freebsd.ha \
+	$(STDLIB)/os/exec/process+freebsd.ha \
+	$(STDLIB)/os/exec/types.ha \
+	$(STDLIB)/os/exec/cmd.ha
+
+$(TESTCACHE)/os/exec/os_exec-freebsd.ssa: $(testlib_os_exec_freebsd_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/os/exec
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
+		-t$(TESTCACHE)/os/exec/os_exec.td $(testlib_os_exec_freebsd_srcs)
+
+# os::exec (+darwin)
+testlib_os_exec_darwin_srcs = \
+	$(STDLIB)/os/exec/exec+darwin.ha \
+	$(STDLIB)/os/exec/process+darwin.ha \
+	$(STDLIB)/os/exec/types.ha \
+	$(STDLIB)/os/exec/cmd.ha
+
+$(TESTCACHE)/os/exec/os_exec-darwin.ssa: $(testlib_os_exec_darwin_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/os/exec
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
+		-t$(TESTCACHE)/os/exec/os_exec.td $(testlib_os_exec_darwin_srcs)
+
+# path (+any)
+testlib_path_any_srcs = \
+	$(STDLIB)/path/+$(PLATFORM).ha \
+	$(STDLIB)/path/buffer.ha \
+	$(STDLIB)/path/error.ha \
+	$(STDLIB)/path/stack.ha \
+	$(STDLIB)/path/ext_stack.ha \
+	$(STDLIB)/path/posix.ha \
+	$(STDLIB)/path/prefix.ha \
+	$(STDLIB)/path/iter.ha
+
+$(TESTCACHE)/path/path-any.ssa: $(testlib_path_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/path
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Npath \
+		-t$(TESTCACHE)/path/path.td $(testlib_path_any_srcs)
+
+# regex (+any)
+testlib_regex_any_srcs = \
+	$(STDLIB)/regex/regex.ha \
+	$(STDLIB)/regex/+test.ha
+
+$(TESTCACHE)/regex/regex-any.ssa: $(testlib_regex_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_bufio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/regex
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nregex \
+		-t$(TESTCACHE)/regex/regex.td $(testlib_regex_any_srcs)
+
+# shlex (+any)
+testlib_shlex_any_srcs = \
+	$(STDLIB)/shlex/escape.ha \
+	$(STDLIB)/shlex/split.ha \
+	$(STDLIB)/shlex/+test.ha
+
+$(TESTCACHE)/shlex/shlex-any.ssa: $(testlib_shlex_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/shlex
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nshlex \
+		-t$(TESTCACHE)/shlex/shlex.td $(testlib_shlex_any_srcs)
+
+# slices (+any)
+testlib_slices_any_srcs = \
+	$(STDLIB)/slices/cap.ha \
+	$(STDLIB)/slices/reverse.ha \
+	$(STDLIB)/slices/trunc.ha \
+	$(STDLIB)/slices/void.ha
+
+$(TESTCACHE)/slices/slices-any.ssa: $(testlib_slices_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/slices
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nslices \
+		-t$(TESTCACHE)/slices/slices.td $(testlib_slices_any_srcs)
+
+# sort (+any)
+testlib_sort_any_srcs = \
+	$(STDLIB)/sort/bisect.ha \
+	$(STDLIB)/sort/search.ha \
+	$(STDLIB)/sort/sort.ha \
+	$(STDLIB)/sort/types.ha \
+	$(STDLIB)/sort/+test.ha
+
+$(TESTCACHE)/sort/sort-any.ssa: $(testlib_sort_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/sort
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nsort \
+		-t$(TESTCACHE)/sort/sort.td $(testlib_sort_any_srcs)
+
+# strconv (+any)
+testlib_strconv_any_srcs = \
+	$(STDLIB)/strconv/types.ha \
+	$(STDLIB)/strconv/itos.ha \
+	$(STDLIB)/strconv/utos.ha \
+	$(STDLIB)/strconv/stou.ha \
+	$(STDLIB)/strconv/stoi.ha \
+	$(STDLIB)/strconv/numeric.ha \
+	$(STDLIB)/strconv/ftos.ha \
+	$(STDLIB)/strconv/stof.ha \
+	$(STDLIB)/strconv/stof_data.ha \
+	$(STDLIB)/strconv/+test/stou.ha \
+	$(STDLIB)/strconv/+test/stoi.ha
+
+$(TESTCACHE)/strconv/strconv-any.ssa: $(testlib_strconv_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_math_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/strconv
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrconv \
+		-t$(TESTCACHE)/strconv/strconv.td $(testlib_strconv_any_srcs)
+
+# strings (+any)
+testlib_strings_any_srcs = \
+	$(STDLIB)/strings/cap.ha \
+	$(STDLIB)/strings/concat.ha \
+	$(STDLIB)/strings/contains.ha \
+	$(STDLIB)/strings/dup.ha \
+	$(STDLIB)/strings/iter.ha \
+	$(STDLIB)/strings/runes.ha \
+	$(STDLIB)/strings/sub.ha \
+	$(STDLIB)/strings/suffix.ha \
+	$(STDLIB)/strings/tokenize.ha \
+	$(STDLIB)/strings/utf8.ha \
+	$(STDLIB)/strings/index.ha \
+	$(STDLIB)/strings/trim.ha \
+	$(STDLIB)/strings/compare.ha \
+	$(STDLIB)/strings/pad.ha \
+	$(STDLIB)/strings/replace.ha
+
+$(TESTCACHE)/strings/strings-any.ssa: $(testlib_strings_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/strings
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrings \
+		-t$(TESTCACHE)/strings/strings.td $(testlib_strings_any_srcs)
+
+# strings::template (+any)
+testlib_strings_template_any_srcs = \
+	$(STDLIB)/strings/template/template.ha
+
+$(TESTCACHE)/strings/template/strings_template-any.ssa: $(testlib_strings_template_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/strings/template
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrings::template \
+		-t$(TESTCACHE)/strings/template/strings_template.td $(testlib_strings_template_any_srcs)
+
+# strio (+any)
+testlib_strio_any_srcs = \
+	$(STDLIB)/strio/stream.ha \
+	$(STDLIB)/strio/ops.ha
+
+$(TESTCACHE)/strio/strio-any.ssa: $(testlib_strio_any_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_slices_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/strio
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrio \
+		-t$(TESTCACHE)/strio/strio.td $(testlib_strio_any_srcs)
+
+# temp (+linux)
+testlib_temp_linux_srcs = \
+	$(STDLIB)/temp/+linux.ha
+
+$(TESTCACHE)/temp/temp-linux.ssa: $(testlib_temp_linux_srcs) $(testlib_rt) $(testlib_crypto_random_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/temp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
+		-t$(TESTCACHE)/temp/temp.td $(testlib_temp_linux_srcs)
+
+# temp (+freebsd)
+testlib_temp_freebsd_srcs = \
+	$(STDLIB)/temp/+freebsd.ha
+
+$(TESTCACHE)/temp/temp-freebsd.ssa: $(testlib_temp_freebsd_srcs) $(testlib_rt) $(testlib_crypto_random_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/temp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
+		-t$(TESTCACHE)/temp/temp.td $(testlib_temp_freebsd_srcs)
+
+# temp (+darwin)
+testlib_temp_darwin_srcs = \
+	$(STDLIB)/temp/+darwin.ha
+
+$(TESTCACHE)/temp/temp-darwin.ssa: $(testlib_temp_darwin_srcs) $(testlib_rt) $(testlib_crypto_random_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/temp
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
+		-t$(TESTCACHE)/temp/temp.td $(testlib_temp_darwin_srcs)
+
+# test (+any)
+testlib_test_any_srcs = \
+	$(STDLIB)/test/common.ha \
+	$(STDLIB)/test/+test.ha \
+	$(STDLIB)/test/fail+test.ha
+
+$(TESTCACHE)/test/test-any.ssa: $(testlib_test_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fnmatch_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/test
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntest \
+		-t$(TESTCACHE)/test/test.td $(testlib_test_any_srcs)
+
+# time (+linux)
+testlib_time_linux_srcs = \
+	$(STDLIB)/time/+linux/functions.ha \
+	$(STDLIB)/time/+linux/+$(ARCH).ha \
+	$(STDLIB)/time/arithm.ha \
+	$(STDLIB)/time/conv.ha \
+	$(STDLIB)/time/types.ha
+
+$(TESTCACHE)/time/time-linux.ssa: $(testlib_time_linux_srcs) $(testlib_rt) $(testlib_linux_vdso_$(PLATFORM)) $(testlib_math_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
+		-t$(TESTCACHE)/time/time.td $(testlib_time_linux_srcs)
+
+# time (+freebsd)
+testlib_time_freebsd_srcs = \
+	$(STDLIB)/time/+freebsd/functions.ha \
+	$(STDLIB)/time/arithm.ha \
+	$(STDLIB)/time/conv.ha \
+	$(STDLIB)/time/types.ha
+
+$(TESTCACHE)/time/time-freebsd.ssa: $(testlib_time_freebsd_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
+		-t$(TESTCACHE)/time/time.td $(testlib_time_freebsd_srcs)
+
+# time (+darwin)
+testlib_time_darwin_srcs = \
+	$(STDLIB)/time/+darwin/functions.ha \
+	$(STDLIB)/time/arithm.ha \
+	$(STDLIB)/time/conv.ha \
+	$(STDLIB)/time/types.ha
+
+$(TESTCACHE)/time/time-darwin.ssa: $(testlib_time_darwin_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
+		-t$(TESTCACHE)/time/time.td $(testlib_time_darwin_srcs)
+
+# time::chrono (+linux)
+testlib_time_chrono_linux_srcs = \
+	$(STDLIB)/time/chrono/arithmetic.ha \
+	$(STDLIB)/time/chrono/+linux.ha \
+	$(STDLIB)/time/chrono/chronology.ha \
+	$(STDLIB)/time/chrono/error.ha \
+	$(STDLIB)/time/chrono/leapsec.ha \
+	$(STDLIB)/time/chrono/timescale.ha \
+	$(STDLIB)/time/chrono/timezone.ha \
+	$(STDLIB)/time/chrono/tzdb.ha
+
+$(TESTCACHE)/time/chrono/time_chrono-linux.ssa: $(testlib_time_chrono_linux_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_path_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time/chrono
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
+		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_linux_srcs)
+
+# time::chrono (+freebsd)
+testlib_time_chrono_freebsd_srcs = \
+	$(STDLIB)/time/chrono/arithmetic.ha \
+	$(STDLIB)/time/chrono/+freebsd.ha \
+	$(STDLIB)/time/chrono/chronology.ha \
+	$(STDLIB)/time/chrono/error.ha \
+	$(STDLIB)/time/chrono/leapsec.ha \
+	$(STDLIB)/time/chrono/timescale.ha \
+	$(STDLIB)/time/chrono/timezone.ha \
+	$(STDLIB)/time/chrono/tzdb.ha
+
+$(TESTCACHE)/time/chrono/time_chrono-freebsd.ssa: $(testlib_time_chrono_freebsd_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_path_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time/chrono
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
+		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_freebsd_srcs)
+
+# time::chrono (+darwin)
+testlib_time_chrono_darwin_srcs = \
+	$(STDLIB)/time/chrono/arithmetic.ha \
+	$(STDLIB)/time/chrono/+darwin.ha \
+	$(STDLIB)/time/chrono/chronology.ha \
+	$(STDLIB)/time/chrono/error.ha \
+	$(STDLIB)/time/chrono/leapsec.ha \
+	$(STDLIB)/time/chrono/timescale.ha \
+	$(STDLIB)/time/chrono/timezone.ha \
+	$(STDLIB)/time/chrono/tzdb.ha
+
+$(TESTCACHE)/time/chrono/time_chrono-darwin.ssa: $(testlib_time_chrono_darwin_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_path_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time/chrono
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
+		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_darwin_srcs)
+
+# types (+any)
+testlib_types_any_srcs = \
+	$(STDLIB)/types/limits.ha \
+	$(STDLIB)/types/classes.ha \
+	$(STDLIB)/types/arch+$(ARCH).ha
+
+$(TESTCACHE)/types/types-any.ssa: $(testlib_types_any_srcs) $(testlib_rt)
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/types
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntypes \
+		-t$(TESTCACHE)/types/types.td $(testlib_types_any_srcs)
+
+# types::c (+any)
+testlib_types_c_any_srcs = \
+	$(STDLIB)/types/c/+test.ha \
+	$(STDLIB)/types/c/strings.ha \
+	$(STDLIB)/types/c/types.ha \
+	$(STDLIB)/types/c/arch+$(ARCH).ha
+
+$(TESTCACHE)/types/c/types_c-any.ssa: $(testlib_types_c_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/types/c
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntypes::c \
+		-t$(TESTCACHE)/types/c/types_c.td $(testlib_types_c_any_srcs)
+
+# unix (+linux)
+testlib_unix_linux_srcs = \
+	$(STDLIB)/unix/+linux/nice.ha \
+	$(STDLIB)/unix/+linux/pipe.ha \
+	$(STDLIB)/unix/+linux/umask.ha \
+	$(STDLIB)/unix/+linux/getuid.ha \
+	$(STDLIB)/unix/+linux/setuid.ha \
+	$(STDLIB)/unix/+linux/groups.ha
+
+$(TESTCACHE)/unix/unix-linux.ssa: $(testlib_unix_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
+		-t$(TESTCACHE)/unix/unix.td $(testlib_unix_linux_srcs)
+
+# unix (+freebsd)
+testlib_unix_freebsd_srcs = \
+	$(STDLIB)/unix/+freebsd/nice.ha \
+	$(STDLIB)/unix/+freebsd/pipe.ha \
+	$(STDLIB)/unix/+freebsd/umask.ha \
+	$(STDLIB)/unix/+freebsd/getuid.ha \
+	$(STDLIB)/unix/+freebsd/setuid.ha \
+	$(STDLIB)/unix/+freebsd/groups.ha
+
+$(TESTCACHE)/unix/unix-freebsd.ssa: $(testlib_unix_freebsd_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
+		-t$(TESTCACHE)/unix/unix.td $(testlib_unix_freebsd_srcs)
+
+# unix (+darwin)
+testlib_unix_darwin_srcs = \
+	$(STDLIB)/unix/+darwin/nice.ha \
+	$(STDLIB)/unix/+darwin/pipe.ha \
+	$(STDLIB)/unix/+darwin/umask.ha \
+	$(STDLIB)/unix/+darwin/getuid.ha \
+	$(STDLIB)/unix/+darwin/setuid.ha \
+	$(STDLIB)/unix/+darwin/groups.ha
+
+$(TESTCACHE)/unix/unix-darwin.ssa: $(testlib_unix_darwin_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
+		-t$(TESTCACHE)/unix/unix.td $(testlib_unix_darwin_srcs)
+
+# unix::hosts (+linux)
+testlib_unix_hosts_linux_srcs = \
+	$(STDLIB)/unix/hosts/+linux.ha \
+	$(STDLIB)/unix/hosts/lookup.ha
+
+$(TESTCACHE)/unix/hosts/unix_hosts-linux.ssa: $(testlib_unix_hosts_linux_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/hosts
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
+		-t$(TESTCACHE)/unix/hosts/unix_hosts.td $(testlib_unix_hosts_linux_srcs)
+
+# unix::hosts (+freebsd)
+testlib_unix_hosts_freebsd_srcs = \
+	$(STDLIB)/unix/hosts/+freebsd.ha \
+	$(STDLIB)/unix/hosts/lookup.ha
+
+$(TESTCACHE)/unix/hosts/unix_hosts-freebsd.ssa: $(testlib_unix_hosts_freebsd_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/hosts
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
+		-t$(TESTCACHE)/unix/hosts/unix_hosts.td $(testlib_unix_hosts_freebsd_srcs)
+
+# unix::hosts (+darwin)
+testlib_unix_hosts_darwin_srcs = \
+	$(STDLIB)/unix/hosts/+darwin.ha \
+	$(STDLIB)/unix/hosts/lookup.ha
+
+$(TESTCACHE)/unix/hosts/unix_hosts-darwin.ssa: $(testlib_unix_hosts_darwin_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/hosts
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
+		-t$(TESTCACHE)/unix/hosts/unix_hosts.td $(testlib_unix_hosts_darwin_srcs)
+
+# unix::passwd (+any)
+testlib_unix_passwd_any_srcs = \
+	$(STDLIB)/unix/passwd/group.ha \
+	$(STDLIB)/unix/passwd/passwd.ha \
+	$(STDLIB)/unix/passwd/types.ha
+
+$(TESTCACHE)/unix/passwd/unix_passwd-any.ssa: $(testlib_unix_passwd_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/passwd
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::passwd \
+		-t$(TESTCACHE)/unix/passwd/unix_passwd.td $(testlib_unix_passwd_any_srcs)
+
+# unix::poll (+linux)
+testlib_unix_poll_linux_srcs = \
+	$(STDLIB)/unix/poll/+linux.ha \
+	$(STDLIB)/unix/poll/types.ha
+
+$(TESTCACHE)/unix/poll/unix_poll-linux.ssa: $(testlib_unix_poll_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/poll
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \
+		-t$(TESTCACHE)/unix/poll/unix_poll.td $(testlib_unix_poll_linux_srcs)
+
+# unix::poll (+freebsd)
+testlib_unix_poll_freebsd_srcs = \
+	$(STDLIB)/unix/poll/+freebsd.ha \
+	$(STDLIB)/unix/poll/types.ha
+
+$(TESTCACHE)/unix/poll/unix_poll-freebsd.ssa: $(testlib_unix_poll_freebsd_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/poll
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \
+		-t$(TESTCACHE)/unix/poll/unix_poll.td $(testlib_unix_poll_freebsd_srcs)
+
+# unix::poll (+darwin)
+testlib_unix_poll_darwin_srcs = \
+	$(STDLIB)/unix/poll/+darwin.ha \
+	$(STDLIB)/unix/poll/types.ha
+
+$(TESTCACHE)/unix/poll/unix_poll-darwin.ssa: $(testlib_unix_poll_darwin_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/poll
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \
+		-t$(TESTCACHE)/unix/poll/unix_poll.td $(testlib_unix_poll_darwin_srcs)
+
+# unix::resolvconf (+linux)
+testlib_unix_resolvconf_linux_srcs = \
+	$(STDLIB)/unix/resolvconf/+linux.ha \
+	$(STDLIB)/unix/resolvconf/load.ha
+
+$(TESTCACHE)/unix/resolvconf/unix_resolvconf-linux.ssa: $(testlib_unix_resolvconf_linux_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/resolvconf
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \
+		-t$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td $(testlib_unix_resolvconf_linux_srcs)
+
+# unix::resolvconf (+freebsd)
+testlib_unix_resolvconf_freebsd_srcs = \
+	$(STDLIB)/unix/resolvconf/+freebsd.ha \
+	$(STDLIB)/unix/resolvconf/load.ha
+
+$(TESTCACHE)/unix/resolvconf/unix_resolvconf-freebsd.ssa: $(testlib_unix_resolvconf_freebsd_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/resolvconf
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \
+		-t$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td $(testlib_unix_resolvconf_freebsd_srcs)
+
+# unix::resolvconf (+darwin)
+testlib_unix_resolvconf_darwin_srcs = \
+	$(STDLIB)/unix/resolvconf/+darwin.ha \
+	$(STDLIB)/unix/resolvconf/load.ha
+
+$(TESTCACHE)/unix/resolvconf/unix_resolvconf-darwin.ssa: $(testlib_unix_resolvconf_darwin_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/resolvconf
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \
+		-t$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td $(testlib_unix_resolvconf_darwin_srcs)
+
+# unix::signal (+linux)
+testlib_unix_signal_linux_srcs = \
+	$(STDLIB)/unix/signal/types.ha \
+	$(STDLIB)/unix/signal/+linux.ha
+
+$(TESTCACHE)/unix/signal/unix_signal-linux.ssa: $(testlib_unix_signal_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/signal
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
+		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_linux_srcs)
+
+# unix::signal (+freebsd)
+testlib_unix_signal_freebsd_srcs = \
+	$(STDLIB)/unix/signal/types.ha \
+	$(STDLIB)/unix/signal/+freebsd.ha
+
+$(TESTCACHE)/unix/signal/unix_signal-freebsd.ssa: $(testlib_unix_signal_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/signal
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
+		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_freebsd_srcs)
+
+# unix::signal (+darwin)
+testlib_unix_signal_darwin_srcs = \
+	$(STDLIB)/unix/signal/types.ha \
+	$(STDLIB)/unix/signal/+darwin.ha
+
+$(TESTCACHE)/unix/signal/unix_signal-darwin.ssa: $(testlib_unix_signal_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/signal
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
+		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_darwin_srcs)
+
+# unix::tty (+linux)
+testlib_unix_tty_linux_srcs = \
+	$(STDLIB)/unix/tty/types.ha \
+	$(STDLIB)/unix/tty/pty_common.ha \
+	$(STDLIB)/unix/tty/+linux/isatty.ha \
+	$(STDLIB)/unix/tty/+linux/open.ha \
+	$(STDLIB)/unix/tty/+linux/pty.ha \
+	$(STDLIB)/unix/tty/+linux/termios.ha \
+	$(STDLIB)/unix/tty/+linux/winsize.ha
+
+$(TESTCACHE)/unix/tty/unix_tty-linux.ssa: $(testlib_unix_tty_linux_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/tty
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \
+		-t$(TESTCACHE)/unix/tty/unix_tty.td $(testlib_unix_tty_linux_srcs)
+
+# unix::tty (+freebsd)
+testlib_unix_tty_freebsd_srcs = \
+	$(STDLIB)/unix/tty/types.ha \
+	$(STDLIB)/unix/tty/pty_common.ha \
+	$(STDLIB)/unix/tty/+freebsd/isatty.ha \
+	$(STDLIB)/unix/tty/+freebsd/open.ha \
+	$(STDLIB)/unix/tty/+freebsd/pty.ha \
+	$(STDLIB)/unix/tty/+freebsd/winsize.ha
+
+$(TESTCACHE)/unix/tty/unix_tty-freebsd.ssa: $(testlib_unix_tty_freebsd_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/tty
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \
+		-t$(TESTCACHE)/unix/tty/unix_tty.td $(testlib_unix_tty_freebsd_srcs)
+
+# unix::tty (+darwin)
+testlib_unix_tty_darwin_srcs = \
+	$(STDLIB)/unix/tty/types.ha \
+	$(STDLIB)/unix/tty/pty_common.ha \
+	$(STDLIB)/unix/tty/+darwin/isatty.ha \
+	$(STDLIB)/unix/tty/+darwin/open.ha \
+	$(STDLIB)/unix/tty/+darwin/pty.ha \
+	$(STDLIB)/unix/tty/+darwin/winsize.ha
+
+$(TESTCACHE)/unix/tty/unix_tty-darwin.ssa: $(testlib_unix_tty_darwin_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/unix/tty
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \
+		-t$(TESTCACHE)/unix/tty/unix_tty.td $(testlib_unix_tty_darwin_srcs)
+
+# uuid (+any)
+testlib_uuid_any_srcs = \
+	$(STDLIB)/uuid/uuid.ha
+
+$(TESTCACHE)/uuid/uuid-any.ssa: $(testlib_uuid_any_srcs) $(testlib_rt) $(testlib_crypto_random_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strconv_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/uuid
+	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nuuid \
+		-t$(TESTCACHE)/uuid/uuid.td $(testlib_uuid_any_srcs)
+

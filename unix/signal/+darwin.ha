@@ -7,21 +7,21 @@ use rt;
 // Configures a new signal handler, returning the old details (which can be
 // passed to [[restore]] to restore its behavior).
 //
-// The variadic parameters specify either [[flag]] to enable or a signal mask
+// The variadic parameters specify either [[flags]] to enable or a signal mask
 // to use via [[sigset]]; if the latter is provided no more than one may be
 // used.
 export fn handle(
 	signum: signal,
 	handler: *handler,
-	opt: (flag | sigset)...
+	opt: (flags | sigset)...
 ) sigaction = {
 	let sa_mask = newsigset();
 
-	let sa_flags = 0u64, nmask = 0;
+	let sa_flags = 0, nmask = 0;
 	for (let i = 0z; i < len(opt); i += 1) {
 		match (opt[i]) {
-		case let flag: flag =>
-			sa_flags |= flag: u64;
+		case let flag: flags =>
+			sa_flags |= flag;
 		case let mask: sigset =>
 			assert(nmask == 0, "Multiple signal masks provided to signal::handle");
 			nmask += 1;
@@ -32,7 +32,7 @@ export fn handle(
 	let new = rt::sigact {
 		sa_sigaction = handler: *fn(_: int, _: *rt::siginfo, _: *void) void,
 		sa_mask = sa_mask,
-		sa_flags = sa_flags: int,
+		sa_flags = sa_flags,
 	};
 	let old = rt::sigact {
 		// Filled in by rt:
@@ -60,13 +60,48 @@ export fn restore(signum: signal, action: *sigaction) void = {
 
 // Unregisters signal handlers for the specified signal.
 export fn reset(signum: signal) void = {
-	handle(signum, rt::SIG_DFL);
+	handle(signum, rt::SIG_DFL: *handler);
+};
+
+// Unregisters all signal handlers.
+export fn resetall() void = {
+	// SIGKILL and SIGSTOP deliberately omitted; see sigaction(2)
+	reset(SIGHUP);
+	reset(SIGINT);
+	reset(SIGQUIT);
+	reset(SIGILL);
+	reset(SIGTRAP);
+	reset(SIGABRT);
+	// reset(SIGIOT);
+	reset(SIGEMT);
+	reset(SIGFPE);
+	reset(SIGBUS);
+	reset(SIGSEGV);
+	reset(SIGSYS);
+	reset(SIGPIPE);
+	reset(SIGALRM);
+	reset(SIGTERM);
+	reset(SIGURG);
+	reset(SIGTSTP);
+	reset(SIGCONT);
+	reset(SIGCHLD);
+	reset(SIGTTIN);
+	reset(SIGTTOU);
+	reset(SIGIO);
+	reset(SIGXCPU);
+	reset(SIGXFSZ);
+	reset(SIGVTALRM);
+	reset(SIGPROF);
+	reset(SIGWINCH);
+	reset(SIGINFO);
+	reset(SIGUSR1);
+	reset(SIGUSR2);
 };
 
 // Prevents given signal from arriving to the current process.
 // One common use case is to ignore SIGCHLD to avoid zombie child processes.
 export fn ignore(signum: signal) void = {
-	handle(signum, rt::SIG_IGN);
+	handle(signum, rt::SIG_IGN: *handler);
 };
 
 // Adds the given list of signals to the process's current signal mask,
@@ -233,7 +268,7 @@ export type code = enum int {
 };
 
 // Flags used to configure the behavior of a signal handler.
-export type flag = enum int {
+export type flags = enum int {
 	// For use with [[SIGCHLD]]. Prevents notifications when child processes
 	// stop (e.g. via [[SIGSTOP]]) or resume (i.e. [[SIGCONT]]).
 	NOCLDSTOP = rt::SA_NOCLDSTOP: int,
@@ -245,9 +280,6 @@ export type flag = enum int {
 	// Uses an alternate stack when handling this signal. See
 	// [[setaltstack]] and [[getaltstack]] for details.
 	ONSTACK = rt::SA_ONSTACK: int,
-	// Makes certain system calls restartable across signals. See signal(7)
-	// or similar documentation for your local system for details.
-	RESTART = rt::SA_RESTART: int,
 	// Do not add the signal to the signal mask while executing the signal
 	// handler. This can cause the same signal to be delivered again during
 	// the execution of the signal handler.
@@ -255,13 +287,16 @@ export type flag = enum int {
 	// Restore the signal handler to the default behavior upon entering the
 	// signal handler.
 	RESETHAND = rt::SA_RESETHAND: int,
+	// Makes certain system calls restartable across signals. See signal(7)
+	// or similar documentation for your local system for details.
+	RESTART = rt::SA_RESTART: int,
 };
 
 export type signal = int;
 
 // Hangup.
 export def SIGHUP: signal = rt::SIGHUP;
-// Terminal signalerrupt signal.
+// Terminal interrupt signal.
 export def SIGINT: signal = rt::SIGINT;
 // Terminal quit signal.
 export def SIGQUIT: signal = rt::SIGQUIT;
@@ -271,6 +306,8 @@ export def SIGILL: signal = rt::SIGILL;
 export def SIGTRAP: signal = rt::SIGTRAP;
 // Process abort signal.
 export def SIGABRT: signal = rt::SIGABRT;
+// Emulate instruction executed.
+export def SIGEMT: signal = rt::SIGEMT;
 // Access to an undefined portion of a memory object.
 export def SIGBUS: signal = rt::SIGBUS;
 // Erroneous arithmetic operation.
@@ -313,6 +350,8 @@ export def SIGVTALRM: signal = rt::SIGVTALRM;
 export def SIGPROF: signal = rt::SIGPROF;
 // Window resize signal.
 export def SIGWINCH: signal = rt::SIGWINCH;
+// Status request from keyboard.
+export def SIGINFO: signal = rt::SIGINFO;
 // I/O now possible.
 export def SIGIO: signal = rt::SIGIO;
 // Bad system call.
@@ -333,6 +372,8 @@ export fn signame(sig: signal) const str = {
 		return "SIGTRAP";
 	case SIGABRT =>
 		return "SIGABRT";
+	case SIGEMT =>
+		return "SIGEMT";
 	case SIGBUS =>
 		return "SIGBUS";
 	case SIGFPE =>
@@ -375,9 +416,12 @@ export fn signame(sig: signal) const str = {
 		return "SIGPROF";
 	case SIGWINCH =>
 		return "SIGWINCH";
+	case SIGINFO =>
+		return "SIGINFO";
 	case SIGIO =>
 		return "SIGIO";
 	case SIGSYS =>
 		return "SIGSYS";
+	case => abort(); // unreachable
 	};
 };
