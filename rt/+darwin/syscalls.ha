@@ -3,16 +3,16 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
 
-fn syscall0(_: u64) u64;
-fn syscall1(_: u64, _: u64) u64;
-fn syscall2(_: u64, _: u64, _: u64) u64;
-fn syscall3(_: u64, _: u64, _: u64, _: u64) u64;
-fn syscall4(_: u64, _: u64, _: u64, _: u64, _: u64) u64;
-fn syscall5(_: u64, _: u64, _: u64, _: u64, _: u64, _: u64) u64;
-fn syscall6(_: u64, _: u64, _: u64, _: u64, _: u64, _: u64, _: u64) u64;
+fn syscall0(u64) u64;
+fn syscall1(u64, u64) u64;
+fn syscall2(u64, u64, u64) u64;
+fn syscall3(u64, u64, u64, u64) u64;
+fn syscall4(u64, u64, u64, u64, u64) u64;
+fn syscall5(u64, u64, u64, u64, u64, u64) u64;
+fn syscall6(u64, u64, u64, u64, u64, u64, u64) u64;
 
-fn sys_pipe(_: u64, _: u64) u64;
-fn sys_fork(_: u64) u64;
+fn sys_pipe(u64, u64) u64;
+fn sys_fork(u64) u64;
 
 export def PATH_MAX: size = 1024z;
 export type path = (str | []u8 | *const u8);
