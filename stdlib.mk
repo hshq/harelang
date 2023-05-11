@@ -1580,7 +1580,7 @@ $(HARECACHE)/hare/parse/hare_parse-any.ssa: $(stdlib_hare_parse_any_srcs) $(stdl
 
 # hare::types (+any)
 stdlib_hare_types_any_srcs = \
-	$(STDLIB)/hare/types/+$(ARCH)/hash.ha \
+	$(STDLIB)/hare/types/+$(ARCH)/writesize.ha \
 	$(STDLIB)/hare/types/arch.ha \
 	$(STDLIB)/hare/types/builtins.ha \
 	$(STDLIB)/hare/types/class.ha \
@@ -4362,7 +4362,7 @@ $(TESTCACHE)/hare/parse/hare_parse-any.ssa: $(testlib_hare_parse_any_srcs) $(tes
 
 # hare::types (+any)
 testlib_hare_types_any_srcs = \
-	$(STDLIB)/hare/types/+$(ARCH)/hash.ha \
+	$(STDLIB)/hare/types/+$(ARCH)/writesize.ha \
 	$(STDLIB)/hare/types/arch.ha \
 	$(STDLIB)/hare/types/builtins.ha \
 	$(STDLIB)/hare/types/class.ha \

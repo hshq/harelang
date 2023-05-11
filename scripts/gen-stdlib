@@ -771,7 +771,7 @@ hare_ast() {
 
 gensrcs_hare_types() {
 	gen_srcs hare::types \
-		'+$(ARCH)/hash.ha' \
+		'+$(ARCH)/writesize.ha' \
 		arch.ha \
 		builtins.ha \
 		class.ha \

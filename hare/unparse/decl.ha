@@ -256,5 +256,5 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 		body = expr_void,
 		attrs = 0,
 	};
-	assert(decl_test(d, "fn foo(_: int) int = void;"));
+	assert(decl_test(d, "fn foo(int) int = void;"));
 };

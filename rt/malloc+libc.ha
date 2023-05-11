@@ -22,6 +22,6 @@ export @symbol("rt.free") fn free_(p: nullable *void) void = {
 	c_free(p);
 };
 
-@symbol("malloc") fn c_malloc(_: size) nullable *void;
-@symbol("realloc") fn c_realloc(_: nullable *void, _: size) nullable *void;
-@symbol("free") fn c_free(_: nullable *void) void;
+@symbol("malloc") fn c_malloc(size) nullable *void;
+@symbol("realloc") fn c_realloc(nullable *void, size) nullable *void;
+@symbol("free") fn c_free(nullable *void) void;
