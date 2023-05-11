@@ -14,8 +14,10 @@ export fn replace(s: str, needle: str, target: str) str = {
 // occurs in a single pass of 's', and works like in [[replace]], except that 
 // replacement pairs found earlier in 'repls' will take precedence over later 
 // ones. For example:
+//
 // 	assert(multireplace("hello there", ("e", "a"), ("a", "x"), ("ell", "eww")) == "hallo thara");
 // 	assert(multireplace("hello there", ("ell", "eww"), ("e", "a")) == "hewwo thara");
+//
 // The caller must free the return value.
 export fn multireplace(s: str, repls: (str, str)...) str = {
 	let replb: []([]u8, []u8) = alloc([], len(repls));
