@@ -28,12 +28,12 @@ export fn handle(
 	};
 
 	let new = rt::sigact {
-		sa_sigaction = handler: *fn(_: int, _: *rt::siginfo, _: *void) void,
+		sa_sigaction = handler: *fn(int, *rt::siginfo, *void) void,
 		sa_mask = sa_mask,
 		sa_flags = sa_flags,
 	};
 	let old = rt::sigact {
-		sa_sigaction = null: *fn(_: int, _: *rt::siginfo, _: *void) void,
+		sa_sigaction = null: *fn(int, *rt::siginfo, *void) void,
 		...
 	};
 	match (rt::sigaction(signum, &new, &old)) {
