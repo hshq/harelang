@@ -79,15 +79,15 @@ export type clock = enum {
 	TAI = 11,
 };
 
-fn cgt_vdso() nullable *fn(_: int, _: *rt::timespec) int = {
+fn cgt_vdso() nullable *fn(int, *rt::timespec) int = {
 	static let vdso_checked: bool = false;
-	static let cgt_vdso: nullable *fn(_: int, _: *rt::timespec) int = null;
+	static let cgt_vdso: nullable *fn(int, *rt::timespec) int = null;
 	if (vdso_checked) {
 		return cgt_vdso;
 	};
 	vdso_checked = true;
 	cgt_vdso = vdso::getsym(VDSO_CGT_SYM, VDSO_CGT_VER):
-		nullable *fn(_: int, _: *rt::timespec) int;
+		nullable *fn(int, *rt::timespec) int;
 	return cgt_vdso;
 };
 
@@ -95,7 +95,7 @@ fn now_vdso(clock: clock, tp: *rt::timespec) (void | rt::errno) = {
 	const vfn = match (cgt_vdso()) {
 	case null =>
 		return rt::wrap_errno(rt::ENOSYS);
-	case let vfn: *fn(_: int, _: *rt::timespec) int =>
+	case let vfn: *fn(int, *rt::timespec) int =>
 		yield vfn;
 	};
 	const ret = vfn(clock, tp);

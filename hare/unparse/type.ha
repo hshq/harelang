@@ -91,7 +91,7 @@ export fn prototype(
 			const param = t.params[i];
 			linelen += _type(&strm, indent, *param._type)?;
 			typenames[i] = strings::dup(strio::string(&strm));
-			linelen += if (param.name == "") 1 else len(param.name);
+			linelen += if (param.name == "") -2 else len(param.name);
 			strio::reset(&strm);
 		};
 		switch (t.variadism) {
@@ -112,8 +112,9 @@ export fn prototype(
 		for (let i = 0z; i < len(t.params); i += 1) {
 			const param = t.params[i];
 			n += newline(out, indent)?;
-			n += fmt::fprintf(out, "{}: ",
-				if (param.name == "") "_" else param.name)?;
+			if (param.name != "") {
+				n += fmt::fprintf(out, "{}: ", param.name)?;
+			};
 			n += fmt::fprint(out, typenames[i])?;
 			if (i + 1 == len(t.params)
 					&& t.variadism == variadism::HARE) {
@@ -130,8 +131,9 @@ export fn prototype(
 		n += newline(out, indent)?;
 	} else for (let i = 0z; i < len(t.params); i += 1) {
 		const param = t.params[i];
-		n += fmt::fprintf(out, "{}: ",
-			if (param.name == "") "_" else param.name)?;
+		if (param.name != "") {
+			n += fmt::fprintf(out, "{}: ", param.name)?;
+		};
 		n += fmt::fprint(out, typenames[i])?;
 		if (i + 1 == len(t.params)) {
 			switch (t.variadism) {
@@ -448,7 +450,7 @@ fn type_test(t: ast::_type, expected: str) void = {
 			},
 		],
 	};
-	type_test(t, "@noreturn fn(_: int, ...) int");
+	type_test(t, "@noreturn fn(int, ...) int");
 	t.repr = ast::func_type {
 		result = &type_int,
 		attrs = 0,

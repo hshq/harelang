@@ -26,19 +26,26 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 			break;
 		};
 
-		let name = match (try(lexer, ltok::UNDERSCORE)?) {
+		let name_or_type = _type(lexer)?;
+		match (try(lexer, ltok::COLON)?) {
 		case void =>
-			yield want(lexer, ltok::NAME)?.1 as str;
+			append(params, ast::func_param {
+				loc = loc,
+				name = "",
+				_type = alloc(name_or_type),
+			});
 		case lex::token =>
-			yield "";
+			// Bit of a hack because we can't unlex twice.
+			synassert(loc, name_or_type.repr is ast::alias_type,
+				"Invalid parameter name")?;
+			let ns = (name_or_type.repr as ast::alias_type).ident;
+			synassert(loc, len(ns) == 1, "Invalid parameter name")?;
+			append(params, ast::func_param {
+				loc = loc,
+				name = ns[0],
+				_type = alloc(_type(lexer)?),
+			});
 		};
-
-		want(lexer, ltok::COLON)?;
-		append(params, ast::func_param {
-			loc = loc,
-			name = name,
-			_type = alloc(_type(lexer)?),
-		});
 		match (try(lexer, ltok::ELLIPSIS)?) {
 		case void =>
 			yield void;
