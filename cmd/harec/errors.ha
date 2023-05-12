@@ -35,7 +35,7 @@ fn printerr_syntax(err: lex::syntax) void = {
 	let line = bufio::scanline(file) as []u8;
 	defer free(line);
 	let line = strings::fromutf8_unsafe(line);
-	fmt::errorfln("{}:{},{}: Syntax error: {}",
+	fmt::errorfln("{}:{}:{}: syntax error: {}",
 		location.path, location.line, location.col, details)!;
 	fmt::errorln(line)!;
 	for (let i = 0u; i < location.col - 2; i += 1) {

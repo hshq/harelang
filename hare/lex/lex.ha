@@ -52,7 +52,7 @@ export fn strerror(err: error) const str = {
 	case let err: io::error =>
 		return io::strerror(err);
 	case let s: syntax =>
-		return fmt::bsprintf(buf, "{}:{},{}: Syntax error: {}",
+		return fmt::bsprintf(buf, "{}:{}:{}: syntax error: {}",
 			s.0.path, s.0.line, s.0.col, s.1);
 	};
 };
