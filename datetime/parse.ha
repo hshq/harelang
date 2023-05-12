@@ -25,6 +25,8 @@ export type parsefail = !rune;
 // 	datetime::parse(&v, "%H:%M:%S.%N", "22:07:08.000000000");
 // 	datetime::parse(&v, "%z %Z %L",    "+0100 CET Europe/Amsterdam");
 //
+// Parse will return parsefail, if an invalid format specifier is encountered
+// or if given string 's' does not match the layout.
 export fn parse(v: *virtual, layout: str, s: str) (void | parsefail) = {
 	const liter = strings::iter(layout);
 	const siter = strings::iter(s);
@@ -131,7 +133,7 @@ fn parse_specifier(
 	case '%' =>
 		eat_rune(iter, '%')?;
 	case =>
-		void; // Ignore invalid specifier
+		return failure;
 	};
 };
 
