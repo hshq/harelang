@@ -38,6 +38,7 @@ flags, then all parameters, alpha-sorted within each group by the flag rune.
 			script = opt.1;
 		case 'f' =>
 			file = opt.1;
+		case => abort(); // unreachable
 		};
 	};
 
