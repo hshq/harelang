@@ -1,7 +1,7 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
-@symbol("main") fn main() void;
+@symbol(".main") fn main() void;
 @symbol("exit") fn c_exit(status: int) void;
 
 const @symbol("__fini_array_start") fini_start: [*]*fn() void;
@@ -18,7 +18,7 @@ export fn fini() void = {
 	};
 };
 
-export @noreturn fn start_ha() void = {
+export @symbol("main" )@noreturn fn start_ha() void = {
 	// libc runs @init and @fini for us (unless rt::exit() is called)
 	main();
 	c_exit(0);

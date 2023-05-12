@@ -237,6 +237,7 @@ fn sched_hare_object(
 		module = strings::dup(ns),
 	});
 
+	let libc = false;
 	for (let i = 0z; i < len(plan.context.tags); i += 1) {
 		if (plan.context.tags[i].mode == module::tag_mode::INCLUSIVE
 				&& plan.context.tags[i].name == "test") {
@@ -247,11 +248,13 @@ fn sched_hare_object(
 				append(harec.cmd, "-T");
 			};
 			plan.context.paths = opaths;
-			break;
+		} else if (plan.context.tags[i].mode == module::tag_mode::INCLUSIVE
+				&& plan.context.tags[i].name == "libc") {
+			libc = true;
 		};
 	};
 
-	if (len(namespace) != 0) {
+	if (len(ns) != 0 || libc) {
 		append(harec.cmd, ["-N", ns]...);
 	};
 
