@@ -1083,6 +1083,7 @@ $(HARECACHE)/crypto/x25519/crypto_x25519-any.ssa: $(stdlib_crypto_x25519_any_src
 stdlib_datetime_linux_srcs = \
 	$(STDLIB)/datetime/arithmetic.ha \
 	$(STDLIB)/datetime/chronology.ha \
+	$(STDLIB)/datetime/errors.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
 	$(STDLIB)/datetime/duration.ha \
@@ -1104,6 +1105,7 @@ $(HARECACHE)/datetime/datetime-linux.ssa: $(stdlib_datetime_linux_srcs) $(stdlib
 stdlib_datetime_freebsd_srcs = \
 	$(STDLIB)/datetime/arithmetic.ha \
 	$(STDLIB)/datetime/chronology.ha \
+	$(STDLIB)/datetime/errors.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
 	$(STDLIB)/datetime/duration.ha \
@@ -3383,6 +3385,7 @@ $(TESTCACHE)/crypto/x25519/crypto_x25519-any.ssa: $(testlib_crypto_x25519_any_sr
 testlib_datetime_linux_srcs = \
 	$(STDLIB)/datetime/arithmetic.ha \
 	$(STDLIB)/datetime/chronology.ha \
+	$(STDLIB)/datetime/errors.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
 	$(STDLIB)/datetime/duration.ha \
@@ -3404,6 +3407,7 @@ $(TESTCACHE)/datetime/datetime-linux.ssa: $(testlib_datetime_linux_srcs) $(testl
 testlib_datetime_freebsd_srcs = \
 	$(STDLIB)/datetime/arithmetic.ha \
 	$(STDLIB)/datetime/chronology.ha \
+	$(STDLIB)/datetime/errors.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
 	$(STDLIB)/datetime/duration.ha \

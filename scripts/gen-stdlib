@@ -198,6 +198,7 @@ datetime() {
 	gen_srcs -plinux datetime \
 		arithmetic.ha \
 		chronology.ha \
+		errors.ha \
 		date.ha \
 		datetime.ha \
 		duration.ha \
@@ -213,6 +214,7 @@ datetime() {
 	gen_srcs -pfreebsd datetime \
 		arithmetic.ha \
 		chronology.ha \
+		errors.ha \
 		date.ha \
 		datetime.ha \
 		duration.ha \
