@@ -767,7 +767,7 @@ stdlib_uuid_freebsd = $(stdlib_uuid_any)
 # ascii (+any)
 stdlib_ascii_any_srcs = \
 	$(STDLIB)/ascii/ctype.ha \
-	$(STDLIB)/ascii/strcmp.ha \
+	$(STDLIB)/ascii/string.ha \
 	$(STDLIB)/ascii/valid.ha
 
 $(HARECACHE)/ascii/ascii-any.ssa: $(stdlib_ascii_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM))
@@ -3037,7 +3037,7 @@ testlib_uuid_freebsd = $(testlib_uuid_any)
 # ascii (+any)
 testlib_ascii_any_srcs = \
 	$(STDLIB)/ascii/ctype.ha \
-	$(STDLIB)/ascii/strcmp.ha \
+	$(STDLIB)/ascii/string.ha \
 	$(STDLIB)/ascii/valid.ha
 
 $(TESTCACHE)/ascii/ascii-any.ssa: $(testlib_ascii_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM))

@@ -168,7 +168,7 @@ test() {
 ascii() {
 	gen_srcs ascii \
 		ctype.ha \
-		strcmp.ha \
+		string.ha \
 		valid.ha
 	gen_ssa ascii strings
 }
