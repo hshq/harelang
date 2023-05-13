@@ -226,7 +226,9 @@ export fn from_instant(loc: chrono::locality, i: time::instant) datetime = {
 };
 
 // Creates a [[datetime]] from a string, parsed according to a layout format.
-// See [[parse]] and [[format]].
+// See [[parse]] and [[format]]. At least a complete calendar date has to be
+// provided. The if hour, minute, second, nanosecond, or zone offset are not
+// provided, they default to 0.
 //
 // 	let new = datetime::from_str(
 // 		datetime::STAMP_NOZL,
@@ -244,6 +246,63 @@ export fn from_str(
 	locs: time::chrono::locality...
 ) (datetime | parsefail | insufficient | invalid) = {
 	const v = newvirtual();
+	v.zoff = 0;
+	v.hour = 0;
+	v.minute = 0;
+	v.second = 0;
+	v.nanosecond = 0;
 	parse(&v, layout, s)?;
 	return realize(v, locs...)?;
+};
+
+@test fn from_str() void = {
+	const amst = chrono::tz("Europe/Amsterdam")!;
+	defer chrono::timezone_free(amst);
+
+	let testcases: [_](str, str, []chrono::locality, (datetime | error)) = [
+		(STAMP_NOZL, "2001-02-03 15:16:17.123456789 +0000 UTC UTC", [],
+			new(chrono::UTC, 0, 2001, 2, 3, 15, 16, 17, 123456789)!),
+		(STAMP, "2001-02-03 15:16:17", [],
+			new(chrono::UTC, 0, 2001, 2, 3, 15, 16, 17)!),
+		(RFC3339, "2001-02-03T15:16:17+0000", [],
+			new(chrono::UTC, 0, 2001, 2, 3, 15, 16, 17)!),
+		("%F", "2009-06-30", [],
+			new(chrono::UTC, 0, 2009, 6, 30)!),
+		("%F %L", "2009-06-30 GPS", [chrono::TAI, chrono::GPS],
+			new(chrono::GPS, 0, 2009, 6, 30)!),
+		("%F %T", "2009-06-30 01:02:03", [],
+			new(chrono::UTC, 0, 2009, 6, 30, 1, 2, 3)!),
+		("%FT%T%Z", "2009-06-30T18:30:00Z", [],
+			new(chrono::UTC, 0, 2009, 6, 30, 18, 30)!),
+		("%FT%T.%N%Z", "2009-06-30T18:30:00.987654321Z", [],
+			new(chrono::UTC, 0, 2009, 6, 30, 18, 30, 0, 987654321)!),
+		("%FT%T%z %L", "2009-06-30T18:30:00+0200 Europe/Amsterdam", [amst],
+			new(amst, 2 * time::HOUR, 2009, 6, 30, 18, 30)!),
+
+		("%Y", "a", [], 'a': parsefail),
+		("%X", "2008", [], '2': parsefail),
+	];
+
+	let buf: [64]u8 = [0...];
+	for (let i = 0z; i < len(testcases); i += 1) {
+		const t = testcases[i];
+		const expect = t.3;
+		const actual = from_str(t.0, t.1, t.2...);
+
+		match (expect) {
+		case let e: datetime =>
+			assert(actual is datetime, "wanted 'datetime', got 'error'");
+			assert(chrono::eq(&(actual as datetime), &e)!,
+				"incorrect 'datetime' value");
+		case let e: parsefail =>
+			assert(actual is parsefail,
+				"wanted 'parsefail', got other");
+		case insufficient =>
+			assert(actual is insufficient,
+				"wanted 'insufficient', got other");
+		case invalid =>
+			assert(actual is invalid,
+				"wanted 'invalid', got other");
+		};
+	};
 };
