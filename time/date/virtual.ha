@@ -28,7 +28,7 @@ export type insufficient = !void;
 // 	v.minute = 14;
 // 	v.second = 07;
 // 	v.nanosecond = 0;
-// 	let dt = date::realize(v)!;
+// 	let d = date::realize(v)!;
 //
 export type virtual = struct {
 	date,
@@ -208,7 +208,7 @@ export fn realize(
 	};
 
 	// determine .sec, .nsec
-	const dt = from_moment(chrono::from_datetime(
+	const d = from_moment(chrono::from_datetime(
 		v.loc,
 		v.zoff as time::duration,
 		v.date as i64,
@@ -216,10 +216,10 @@ export fn realize(
 	));
 
 	// verify zone offset
-	const z = chrono::mzone(&dt);
+	const z = chrono::mzone(&d);
 	if (z.zoff != v.zoff as time::duration) {
 		return invalid;
 	};
 
-	return dt;
+	return d;
 };

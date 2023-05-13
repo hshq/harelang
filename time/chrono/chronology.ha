@@ -39,10 +39,10 @@ export type moment = struct {
 
 // Creates a new [[moment]]. Uses a given [[time::instant]] with a [[timescale]]
 // associated with a given [[locality]].
-export fn new(loc: locality, inst: time::instant) moment = {
+export fn new(loc: locality, i: time::instant) moment = {
 	return moment {
-		sec = inst.sec,
-		nsec = inst.nsec,
+		sec = i.sec,
+		nsec = i.nsec,
 		loc = loc,
 		zone = null,
 		date = void,

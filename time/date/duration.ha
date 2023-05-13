@@ -6,6 +6,6 @@ use time;
 //
 // See [[reckon]] for a chronology-wise arithmetic operation which uses
 // [[period]].
-export fn add(a: date, d: time::duration) date = {
-	return from_instant(a.loc, time::add(*(&a: *time::instant), d));
+export fn add(d: date, x: time::duration) date = {
+	return from_instant(d.loc, time::add(*(&d: *time::instant), x));
 };

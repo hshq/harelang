@@ -69,17 +69,17 @@ export type calculus = enum uint {
 //
 // See [[add]] for a timescale-wise arithmetic operation which uses
 // [[time::duration]].
-export fn reckon(dt: date, calc: calculus, ps: period...) date = {
+export fn reckon(d: date, calc: calculus, ps: period...) date = {
 	let r = newvirtual(); // our reckoner
-	r.vloc       = dt.loc;
-	r.zoff       = chrono::mzone(&dt).zoff;
-	r.year       = _year(&dt);
-	r.month      = _month(&dt);
-	r.day        = _day(&dt);
-	r.hour       = _hour(&dt);
-	r.minute     = _minute(&dt);
-	r.second     = _second(&dt);
-	r.nanosecond = _nanosecond(&dt);
+	r.vloc       = d.loc;
+	r.zoff       = chrono::mzone(&d).zoff;
+	r.year       = _year(&d);
+	r.month      = _month(&d);
+	r.day        = _day(&d);
+	r.hour       = _hour(&d);
+	r.minute     = _minute(&d);
+	r.second     = _second(&d);
+	r.nanosecond = _nanosecond(&d);
 
 	if (calc == calculus::DEFAULT) {
 		calc |= calculus::CEIL;

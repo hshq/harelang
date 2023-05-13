@@ -8,6 +8,6 @@ use time::chrono;
 // [[time::chrono::locality]].
 //
 // The [[time::chrono::discontinuity]] rules from [[time::chrono::in]] apply here.
-export fn in(loc: chrono::locality, dt: date) (date | chrono::discontinuity) = {
-	return from_moment(chrono::in(loc, *(&dt: *chrono::moment))?);
+export fn in(loc: chrono::locality, d: date) (date | chrono::discontinuity) = {
+	return from_moment(chrono::in(loc, *(&d: *chrono::moment))?);
 };

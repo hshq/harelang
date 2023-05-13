@@ -86,79 +86,79 @@ def MONTHS_SHORT: [_]str = [
 export fn bsformat(
 	buf: []u8,
 	layout: str,
-	dt: *date,
+	d: *date,
 ) (str | io::error) = {
 	let sink = strio::fixed(buf);
-	format(&sink, layout, dt)?;
+	format(&sink, layout, d)?;
 	return strio::string(&sink);
 };
 
 // Formats a [[date]] and writes it into a heap-allocated string.
 // The caller must free the return value.
-export fn asformat(layout: str, dt: *date) (str | io::error) = {
+export fn asformat(layout: str, d: *date) (str | io::error) = {
 	let sink = strio::dynamic();
-	format(&sink, layout, dt)?;
+	format(&sink, layout, d)?;
 	return strio::string(&sink);
 };
 
-fn fmtout(out: io::handle, r: rune, dt: *date) (size | io::error) = {
+fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 	switch (r) {
 	case 'a' =>
-		return fmt::fprint(out, WEEKDAYS_SHORT[_weekday(dt)]);
+		return fmt::fprint(out, WEEKDAYS_SHORT[_weekday(d)]);
 	case 'A' =>
-		return fmt::fprint(out, WEEKDAYS[_weekday(dt)]);
+		return fmt::fprint(out, WEEKDAYS[_weekday(d)]);
 	case 'b' =>
-		return fmt::fprint(out, MONTHS_SHORT[_month(dt) - 1]);
+		return fmt::fprint(out, MONTHS_SHORT[_month(d) - 1]);
 	case 'B' =>
-		return fmt::fprint(out, MONTHS[_month(dt) - 1]);
+		return fmt::fprint(out, MONTHS[_month(d) - 1]);
 	case 'd' =>
-		return fmt::fprintf(out, "{:02}", _day(dt));
+		return fmt::fprintf(out, "{:02}", _day(d));
 	case 'F' =>
-		return fmt::fprintf(out, "{:04}-{:02}-{:02}", _year(dt), _month(dt), _day(dt));
+		return fmt::fprintf(out, "{:04}-{:02}-{:02}", _year(d), _month(d), _day(d));
 	case 'H' =>
-		return fmt::fprintf(out, "{:02}", _hour(dt));
+		return fmt::fprintf(out, "{:02}", _hour(d));
 	case 'I' =>
-		return fmt::fprintf(out, "{:02}", (_hour(dt) + 11) % 12 + 1);
+		return fmt::fprintf(out, "{:02}", (_hour(d) + 11) % 12 + 1);
 	case 'j' =>
-		return fmt::fprintf(out, "{:03}", _yearday(dt));
+		return fmt::fprintf(out, "{:03}", _yearday(d));
 	case 'L' =>
-		return fmt::fprint(out, dt.loc.name);
+		return fmt::fprint(out, d.loc.name);
 	case 'm' =>
-		return fmt::fprintf(out, "{:02}", _month(dt));
+		return fmt::fprintf(out, "{:02}", _month(d));
 	case 'M' =>
-		return fmt::fprintf(out, "{:02}", _minute(dt));
+		return fmt::fprintf(out, "{:02}", _minute(d));
 	case 'N' =>
-		return fmt::fprintf(out, "{:09}", _nanosecond(dt));
+		return fmt::fprintf(out, "{:09}", _nanosecond(d));
 	case 'p' =>
-		return fmt::fprint(out, if (_hour(dt) < 12) "AM" else "PM");
+		return fmt::fprint(out, if (_hour(d) < 12) "AM" else "PM");
 	case 's' =>
-		return fmt::fprintf(out, "{:02}", time::unix(*(dt: *time::instant)));
+		return fmt::fprintf(out, "{:02}", time::unix(*(d: *time::instant)));
 	case 'S' =>
-		return fmt::fprintf(out, "{:02}", _second(dt));
+		return fmt::fprintf(out, "{:02}", _second(d));
 	case 'T' =>
-		return fmt::fprintf(out, "{:02}:{:02}:{:02}", _hour(dt), _minute(dt), _second(dt));
+		return fmt::fprintf(out, "{:02}:{:02}:{:02}", _hour(d), _minute(d), _second(d));
 	case 'u' =>
-		return fmt::fprintf(out, "{}", _weekday(dt) + 1);
+		return fmt::fprintf(out, "{}", _weekday(d) + 1);
 	case 'U' =>
-		return fmt::fprintf(out, "{:02}", _sundayweek(dt));
+		return fmt::fprintf(out, "{:02}", _sundayweek(d));
 	case 'w' =>
-		return fmt::fprintf(out, "{}", (_weekday(dt) + 1) % 7);
+		return fmt::fprintf(out, "{}", (_weekday(d) + 1) % 7);
 	case 'W' =>
-		return fmt::fprintf(out, "{:02}", _week(dt));
+		return fmt::fprintf(out, "{:02}", _week(d));
 	case 'y' =>
-		return fmt::fprintf(out, "{:02}", _year(dt) % 100);
+		return fmt::fprintf(out, "{:02}", _year(d) % 100);
 	case 'Y' =>
-		return fmt::fprintf(out, "{:04}", _year(dt));
+		return fmt::fprintf(out, "{:04}", _year(d));
 	case 'z' =>
-		const (sign, zo) = if (chrono::mzone(dt).zoff >= 0) {
-			yield ('+', calc_hmsn(chrono::mzone(dt).zoff));
+		const (sign, zo) = if (chrono::mzone(d).zoff >= 0) {
+			yield ('+', calc_hmsn(chrono::mzone(d).zoff));
 		} else {
-			yield ('-', calc_hmsn(-chrono::mzone(dt).zoff));
+			yield ('-', calc_hmsn(-chrono::mzone(d).zoff));
 		};
 		const (hr, mi) = (zo.0, zo.1);
 		return fmt::fprintf(out, "{}{:02}{:02}", sign, hr, mi);
 	case 'Z' =>
-		return fmt::fprint(out, chrono::mzone(dt).abbr);
+		return fmt::fprint(out, chrono::mzone(d).abbr);
 	case '%' =>
 		return fmt::fprint(out, "%");
 	case =>
@@ -206,7 +206,7 @@ fn fmtout(out: io::handle, r: rune, dt: *date) (size | io::error) = {
 export fn format(
 	h: io::handle,
 	layout: str,
-	dt: *date
+	d: *date
 ) (size | io::error) = {
 	const iter = strings::iter(layout);
 	let escaped = false;
@@ -221,7 +221,7 @@ export fn format(
 
 		if (escaped) {
 			escaped = false;
-			n += fmtout(h, r, dt)?;
+			n += fmtout(h, r, d)?;
 		} else {
 			if (r == '%') {
 				escaped = true;
@@ -234,7 +234,7 @@ export fn format(
 };
 
 @test fn format() void = {
-	const dt = new(chrono::UTC, 0, 1994, 1, 1, 2, 17, 5, 24)!;
+	const d = new(chrono::UTC, 0, 1994, 1, 1, 2, 17, 5, 24)!;
 
 	const cases = [
 		// special characters
@@ -280,11 +280,11 @@ export fn format(
 	for (let i = 0z; i < len(cases); i += 1) {
 		const layout = cases[i].0;
 		const expected = cases[i].1;
-		const actual = asformat(layout, &dt)!;
+		const actual = asformat(layout, &d)!;
 		defer free(actual);
 		if (actual != expected) {
 			fmt::printfln(
-				"expected format({}, &dt) to be {} but was {}",
+				"expected format({}, &d) to be {} but was {}",
 				layout, expected, actual
 			)!;
 			abort();

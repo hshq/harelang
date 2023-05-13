@@ -72,24 +72,24 @@ fn init() date = date {
 };
 
 // Evaluates and populates all of a [[date]]'s fields.
-fn all(dt: *date) *date = {
-	_era(dt);
-	_year(dt);
-	_month(dt);
-	_day(dt);
-	_yearday(dt);
-	_isoweekyear(dt);
-	_isoweek(dt);
-	_week(dt);
-	_sundayweek(dt);
-	_weekday(dt);
+fn all(d: *date) *date = {
+	_era(d);
+	_year(d);
+	_month(d);
+	_day(d);
+	_yearday(d);
+	_isoweekyear(d);
+	_isoweek(d);
+	_week(d);
+	_sundayweek(d);
+	_weekday(d);
 
-	_hour(dt);
-	_minute(dt);
-	_second(dt);
-	_nanosecond(dt);
+	_hour(d);
+	_minute(d);
+	_second(d);
+	_nanosecond(d);
 
-	return dt;
+	return d;
 };
 
 // Creates a new [[date]]. A maximum of 7 optional field arguments can be given:
@@ -169,30 +169,30 @@ export fn new(
 		abort("TODO: time::date::new(zo=void)");
 	};
 
-	const dt = from_moment(m);
+	const d = from_moment(m);
 
 	const zo = match (zo) {
 	case void =>
 		yield chrono::mzone(&m).zoff;
-	case let d: time::duration =>
-		yield d;
+	case let zo: time::duration =>
+		yield zo;
 	};
 
 	// check if input values are actually observed
 	if (
-		zo       != chrono::mzone(&dt).zoff
-		|| year  != _year(&dt)
-		|| month != _month(&dt)
-		|| day   != _day(&dt)
-		|| hour  != _hour(&dt)
-		|| min   != _minute(&dt)
-		|| sec   != _second(&dt)
-		|| nsec  != _nanosecond(&dt)
+		zo       != chrono::mzone(&d).zoff
+		|| year  != _year(&d)
+		|| month != _month(&d)
+		|| day   != _day(&d)
+		|| hour  != _hour(&d)
+		|| min   != _minute(&d)
+		|| sec   != _second(&d)
+		|| nsec  != _nanosecond(&d)
 	) {
 		return invalid;
 	};
 
-	return dt;
+	return d;
 };
 
 // Returns a [[date]] of the current system time using
@@ -209,14 +209,14 @@ export fn nowutc() date = {
 
 // Creates a [[date]] from a [[time::chrono::moment]].
 export fn from_moment(m: chrono::moment) date = {
-	const dt = init();
-	dt.loc = m.loc;
-	dt.sec = m.sec;
-	dt.nsec = m.nsec;
-	dt.date = m.date;
-	dt.time = m.time;
-	dt.zone = m.zone;
-	return dt;
+	const d = init();
+	d.loc = m.loc;
+	d.sec = m.sec;
+	d.nsec = m.nsec;
+	d.date = m.date;
+	d.time = m.time;
+	d.zone = m.zone;
+	return d;
 };
 
 // Creates a [[date]] from a [[time::instant]]
