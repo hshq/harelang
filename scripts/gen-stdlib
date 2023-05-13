@@ -195,41 +195,6 @@ bytes() {
 	gen_ssa bytes types
 }
 
-datetime() {
-	gen_srcs -plinux datetime \
-		arithmetic.ha \
-		chronology.ha \
-		errors.ha \
-		date.ha \
-		datetime.ha \
-		duration.ha \
-		format.ha \
-		parse.ha \
-		period.ha \
-		reckon.ha \
-		time.ha \
-		timezone.ha \
-		virtual.ha
-	gen_ssa -plinux datetime ascii errors fmt io strconv strings strio \
-		time time::chrono
-	gen_srcs -pfreebsd datetime \
-		arithmetic.ha \
-		chronology.ha \
-		errors.ha \
-		date.ha \
-		datetime.ha \
-		duration.ha \
-		format.ha \
-		parse.ha \
-		period.ha \
-		reckon.ha \
-		time.ha \
-		timezone.ha \
-		virtual.ha
-	gen_ssa -pfreebsd datetime ascii errors fmt io strconv strings strio \
-		time time::chrono
-}
-
 crypto() {
 	if [ $testing -eq 0 ]
 	then
@@ -984,9 +949,9 @@ linux_vdso() {
 
 log() {
 	gen_srcs -plinux log logger.ha global.ha funcs.ha silent.ha
-	gen_ssa -plinux log datetime fmt io os
+	gen_ssa -plinux log fmt io os time::date
 	gen_srcs -pfreebsd log logger.ha global.ha funcs.ha silent.ha
-	gen_ssa -pfreebsd log datetime fmt io os
+	gen_ssa -pfreebsd log fmt io os time::date
 }
 
 gensrcs_math() {
@@ -1410,6 +1375,41 @@ time_chrono() {
 		bufio bytes encoding::utf8 endian errors fmt fs io os strconv strings time path
 }
 
+time_date() {
+	gen_srcs -plinux time::date \
+		arithmetic.ha \
+		chronology.ha \
+		errors.ha \
+		date.ha \
+		datetime.ha \
+		duration.ha \
+		format.ha \
+		parse.ha \
+		period.ha \
+		reckon.ha \
+		time.ha \
+		timezone.ha \
+		virtual.ha
+	gen_ssa -plinux time::date \
+		ascii errors fmt io strconv strings strio time time::chrono
+	gen_srcs -pfreebsd time::date \
+		arithmetic.ha \
+		chronology.ha \
+		errors.ha \
+		date.ha \
+		datetime.ha \
+		duration.ha \
+		format.ha \
+		parse.ha \
+		period.ha \
+		reckon.ha \
+		time.ha \
+		timezone.ha \
+		virtual.ha
+	gen_ssa -pfreebsd time::date \
+		ascii errors fmt io strconv strings strio time time::chrono
+}
+
 types() {
 	gen_srcs types \
 		limits.ha \
@@ -1558,7 +1558,6 @@ crypto::sha512
 crypto::curve25519
 crypto::ed25519
 crypto::x25519
-datetime	linux freebsd
 dirs
 encoding::base64
 encoding::base32
@@ -1621,6 +1620,7 @@ temp			linux freebsd
 test
 time			linux freebsd
 time::chrono	linux freebsd
+time::date	linux freebsd
 types
 types::c
 unix			linux freebsd

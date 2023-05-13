@@ -325,16 +325,6 @@ stdlib_deps_any += $(stdlib_crypto_x25519_any)
 stdlib_crypto_x25519_linux = $(stdlib_crypto_x25519_any)
 stdlib_crypto_x25519_freebsd = $(stdlib_crypto_x25519_any)
 
-# gen_lib datetime (linux)
-stdlib_datetime_linux = $(HARECACHE)/datetime/datetime-linux.o
-stdlib_env += HARE_TD_datetime=$(HARECACHE)/datetime/datetime.td
-stdlib_deps_linux += $(stdlib_datetime_linux)
-
-# gen_lib datetime (freebsd)
-stdlib_datetime_freebsd = $(HARECACHE)/datetime/datetime-freebsd.o
-stdlib_env += HARE_TD_datetime=$(HARECACHE)/datetime/datetime.td
-stdlib_deps_freebsd += $(stdlib_datetime_freebsd)
-
 # gen_lib dirs (any)
 stdlib_dirs_any = $(HARECACHE)/dirs/dirs-any.o
 stdlib_env += HARE_TD_dirs=$(HARECACHE)/dirs/dirs.td
@@ -797,6 +787,16 @@ stdlib_time_chrono_freebsd = $(HARECACHE)/time/chrono/time_chrono-freebsd.o
 stdlib_env += HARE_TD_time::chrono=$(HARECACHE)/time/chrono/time_chrono.td
 stdlib_deps_freebsd += $(stdlib_time_chrono_freebsd)
 
+# gen_lib time::date (linux)
+stdlib_time_date_linux = $(HARECACHE)/time/date/time_date-linux.o
+stdlib_env += HARE_TD_time::date=$(HARECACHE)/time/date/time_date.td
+stdlib_deps_linux += $(stdlib_time_date_linux)
+
+# gen_lib time::date (freebsd)
+stdlib_time_date_freebsd = $(HARECACHE)/time/date/time_date-freebsd.o
+stdlib_env += HARE_TD_time::date=$(HARECACHE)/time/date/time_date.td
+stdlib_deps_freebsd += $(stdlib_time_date_freebsd)
+
 # gen_lib types (any)
 stdlib_types_any = $(HARECACHE)/types/types-any.o
 stdlib_env += HARE_TD_types=$(HARECACHE)/types/types.td
@@ -1199,50 +1199,6 @@ $(HARECACHE)/crypto/x25519/crypto_x25519-any.ssa: $(stdlib_crypto_x25519_any_src
 	@mkdir -p $(HARECACHE)/crypto/x25519
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::x25519 \
 		-t$(HARECACHE)/crypto/x25519/crypto_x25519.td $(stdlib_crypto_x25519_any_srcs)
-
-# datetime (+linux)
-stdlib_datetime_linux_srcs = \
-	$(STDLIB)/datetime/arithmetic.ha \
-	$(STDLIB)/datetime/chronology.ha \
-	$(STDLIB)/datetime/errors.ha \
-	$(STDLIB)/datetime/date.ha \
-	$(STDLIB)/datetime/datetime.ha \
-	$(STDLIB)/datetime/duration.ha \
-	$(STDLIB)/datetime/format.ha \
-	$(STDLIB)/datetime/parse.ha \
-	$(STDLIB)/datetime/period.ha \
-	$(STDLIB)/datetime/reckon.ha \
-	$(STDLIB)/datetime/time.ha \
-	$(STDLIB)/datetime/timezone.ha \
-	$(STDLIB)/datetime/virtual.ha
-
-$(HARECACHE)/datetime/datetime-linux.ssa: $(stdlib_datetime_linux_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/datetime
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ndatetime \
-		-t$(HARECACHE)/datetime/datetime.td $(stdlib_datetime_linux_srcs)
-
-# datetime (+freebsd)
-stdlib_datetime_freebsd_srcs = \
-	$(STDLIB)/datetime/arithmetic.ha \
-	$(STDLIB)/datetime/chronology.ha \
-	$(STDLIB)/datetime/errors.ha \
-	$(STDLIB)/datetime/date.ha \
-	$(STDLIB)/datetime/datetime.ha \
-	$(STDLIB)/datetime/duration.ha \
-	$(STDLIB)/datetime/format.ha \
-	$(STDLIB)/datetime/parse.ha \
-	$(STDLIB)/datetime/period.ha \
-	$(STDLIB)/datetime/reckon.ha \
-	$(STDLIB)/datetime/time.ha \
-	$(STDLIB)/datetime/timezone.ha \
-	$(STDLIB)/datetime/virtual.ha
-
-$(HARECACHE)/datetime/datetime-freebsd.ssa: $(stdlib_datetime_freebsd_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/datetime
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ndatetime \
-		-t$(HARECACHE)/datetime/datetime.td $(stdlib_datetime_freebsd_srcs)
 
 # dirs (+any)
 stdlib_dirs_any_srcs = \
@@ -1700,7 +1656,7 @@ stdlib_log_linux_srcs = \
 	$(STDLIB)/log/funcs.ha \
 	$(STDLIB)/log/silent.ha
 
-$(HARECACHE)/log/log-linux.ssa: $(stdlib_log_linux_srcs) $(stdlib_rt) $(stdlib_datetime_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
+$(HARECACHE)/log/log-linux.ssa: $(stdlib_log_linux_srcs) $(stdlib_rt) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_time_date_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/log
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nlog \
@@ -1713,7 +1669,7 @@ stdlib_log_freebsd_srcs = \
 	$(STDLIB)/log/funcs.ha \
 	$(STDLIB)/log/silent.ha
 
-$(HARECACHE)/log/log-freebsd.ssa: $(stdlib_log_freebsd_srcs) $(stdlib_rt) $(stdlib_datetime_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
+$(HARECACHE)/log/log-freebsd.ssa: $(stdlib_log_freebsd_srcs) $(stdlib_rt) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_time_date_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/log
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nlog \
@@ -2194,6 +2150,50 @@ $(HARECACHE)/time/chrono/time_chrono-freebsd.ssa: $(stdlib_time_chrono_freebsd_s
 	@mkdir -p $(HARECACHE)/time/chrono
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::chrono \
 		-t$(HARECACHE)/time/chrono/time_chrono.td $(stdlib_time_chrono_freebsd_srcs)
+
+# time::date (+linux)
+stdlib_time_date_linux_srcs = \
+	$(STDLIB)/time/date/arithmetic.ha \
+	$(STDLIB)/time/date/chronology.ha \
+	$(STDLIB)/time/date/errors.ha \
+	$(STDLIB)/time/date/date.ha \
+	$(STDLIB)/time/date/datetime.ha \
+	$(STDLIB)/time/date/duration.ha \
+	$(STDLIB)/time/date/format.ha \
+	$(STDLIB)/time/date/parse.ha \
+	$(STDLIB)/time/date/period.ha \
+	$(STDLIB)/time/date/reckon.ha \
+	$(STDLIB)/time/date/time.ha \
+	$(STDLIB)/time/date/timezone.ha \
+	$(STDLIB)/time/date/virtual.ha
+
+$(HARECACHE)/time/date/time_date-linux.ssa: $(stdlib_time_date_linux_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/time/date
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::date \
+		-t$(HARECACHE)/time/date/time_date.td $(stdlib_time_date_linux_srcs)
+
+# time::date (+freebsd)
+stdlib_time_date_freebsd_srcs = \
+	$(STDLIB)/time/date/arithmetic.ha \
+	$(STDLIB)/time/date/chronology.ha \
+	$(STDLIB)/time/date/errors.ha \
+	$(STDLIB)/time/date/date.ha \
+	$(STDLIB)/time/date/datetime.ha \
+	$(STDLIB)/time/date/duration.ha \
+	$(STDLIB)/time/date/format.ha \
+	$(STDLIB)/time/date/parse.ha \
+	$(STDLIB)/time/date/period.ha \
+	$(STDLIB)/time/date/reckon.ha \
+	$(STDLIB)/time/date/time.ha \
+	$(STDLIB)/time/date/timezone.ha \
+	$(STDLIB)/time/date/virtual.ha
+
+$(HARECACHE)/time/date/time_date-freebsd.ssa: $(stdlib_time_date_freebsd_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/time/date
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::date \
+		-t$(HARECACHE)/time/date/time_date.td $(stdlib_time_date_freebsd_srcs)
 
 # types (+any)
 stdlib_types_any_srcs = \
@@ -2718,16 +2718,6 @@ testlib_deps_any += $(testlib_crypto_x25519_any)
 testlib_crypto_x25519_linux = $(testlib_crypto_x25519_any)
 testlib_crypto_x25519_freebsd = $(testlib_crypto_x25519_any)
 
-# gen_lib datetime (linux)
-testlib_datetime_linux = $(TESTCACHE)/datetime/datetime-linux.o
-testlib_env += HARE_TD_datetime=$(TESTCACHE)/datetime/datetime.td
-testlib_deps_linux += $(testlib_datetime_linux)
-
-# gen_lib datetime (freebsd)
-testlib_datetime_freebsd = $(TESTCACHE)/datetime/datetime-freebsd.o
-testlib_env += HARE_TD_datetime=$(TESTCACHE)/datetime/datetime.td
-testlib_deps_freebsd += $(testlib_datetime_freebsd)
-
 # gen_lib dirs (any)
 testlib_dirs_any = $(TESTCACHE)/dirs/dirs-any.o
 testlib_env += HARE_TD_dirs=$(TESTCACHE)/dirs/dirs.td
@@ -3190,6 +3180,16 @@ testlib_time_chrono_freebsd = $(TESTCACHE)/time/chrono/time_chrono-freebsd.o
 testlib_env += HARE_TD_time::chrono=$(TESTCACHE)/time/chrono/time_chrono.td
 testlib_deps_freebsd += $(testlib_time_chrono_freebsd)
 
+# gen_lib time::date (linux)
+testlib_time_date_linux = $(TESTCACHE)/time/date/time_date-linux.o
+testlib_env += HARE_TD_time::date=$(TESTCACHE)/time/date/time_date.td
+testlib_deps_linux += $(testlib_time_date_linux)
+
+# gen_lib time::date (freebsd)
+testlib_time_date_freebsd = $(TESTCACHE)/time/date/time_date-freebsd.o
+testlib_env += HARE_TD_time::date=$(TESTCACHE)/time/date/time_date.td
+testlib_deps_freebsd += $(testlib_time_date_freebsd)
+
 # gen_lib types (any)
 testlib_types_any = $(TESTCACHE)/types/types-any.o
 testlib_env += HARE_TD_types=$(TESTCACHE)/types/types.td
@@ -3622,50 +3622,6 @@ $(TESTCACHE)/crypto/x25519/crypto_x25519-any.ssa: $(testlib_crypto_x25519_any_sr
 	@mkdir -p $(TESTCACHE)/crypto/x25519
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::x25519 \
 		-t$(TESTCACHE)/crypto/x25519/crypto_x25519.td $(testlib_crypto_x25519_any_srcs)
-
-# datetime (+linux)
-testlib_datetime_linux_srcs = \
-	$(STDLIB)/datetime/arithmetic.ha \
-	$(STDLIB)/datetime/chronology.ha \
-	$(STDLIB)/datetime/errors.ha \
-	$(STDLIB)/datetime/date.ha \
-	$(STDLIB)/datetime/datetime.ha \
-	$(STDLIB)/datetime/duration.ha \
-	$(STDLIB)/datetime/format.ha \
-	$(STDLIB)/datetime/parse.ha \
-	$(STDLIB)/datetime/period.ha \
-	$(STDLIB)/datetime/reckon.ha \
-	$(STDLIB)/datetime/time.ha \
-	$(STDLIB)/datetime/timezone.ha \
-	$(STDLIB)/datetime/virtual.ha
-
-$(TESTCACHE)/datetime/datetime-linux.ssa: $(testlib_datetime_linux_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/datetime
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndatetime \
-		-t$(TESTCACHE)/datetime/datetime.td $(testlib_datetime_linux_srcs)
-
-# datetime (+freebsd)
-testlib_datetime_freebsd_srcs = \
-	$(STDLIB)/datetime/arithmetic.ha \
-	$(STDLIB)/datetime/chronology.ha \
-	$(STDLIB)/datetime/errors.ha \
-	$(STDLIB)/datetime/date.ha \
-	$(STDLIB)/datetime/datetime.ha \
-	$(STDLIB)/datetime/duration.ha \
-	$(STDLIB)/datetime/format.ha \
-	$(STDLIB)/datetime/parse.ha \
-	$(STDLIB)/datetime/period.ha \
-	$(STDLIB)/datetime/reckon.ha \
-	$(STDLIB)/datetime/time.ha \
-	$(STDLIB)/datetime/timezone.ha \
-	$(STDLIB)/datetime/virtual.ha
-
-$(TESTCACHE)/datetime/datetime-freebsd.ssa: $(testlib_datetime_freebsd_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/datetime
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndatetime \
-		-t$(TESTCACHE)/datetime/datetime.td $(testlib_datetime_freebsd_srcs)
 
 # dirs (+any)
 testlib_dirs_any_srcs = \
@@ -4141,7 +4097,7 @@ testlib_log_linux_srcs = \
 	$(STDLIB)/log/funcs.ha \
 	$(STDLIB)/log/silent.ha
 
-$(TESTCACHE)/log/log-linux.ssa: $(testlib_log_linux_srcs) $(testlib_rt) $(testlib_datetime_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+$(TESTCACHE)/log/log-linux.ssa: $(testlib_log_linux_srcs) $(testlib_rt) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_time_date_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/log
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \
@@ -4154,7 +4110,7 @@ testlib_log_freebsd_srcs = \
 	$(STDLIB)/log/funcs.ha \
 	$(STDLIB)/log/silent.ha
 
-$(TESTCACHE)/log/log-freebsd.ssa: $(testlib_log_freebsd_srcs) $(testlib_rt) $(testlib_datetime_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
+$(TESTCACHE)/log/log-freebsd.ssa: $(testlib_log_freebsd_srcs) $(testlib_rt) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_time_date_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/log
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \
@@ -4650,6 +4606,50 @@ $(TESTCACHE)/time/chrono/time_chrono-freebsd.ssa: $(testlib_time_chrono_freebsd_
 	@mkdir -p $(TESTCACHE)/time/chrono
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
 		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_freebsd_srcs)
+
+# time::date (+linux)
+testlib_time_date_linux_srcs = \
+	$(STDLIB)/time/date/arithmetic.ha \
+	$(STDLIB)/time/date/chronology.ha \
+	$(STDLIB)/time/date/errors.ha \
+	$(STDLIB)/time/date/date.ha \
+	$(STDLIB)/time/date/datetime.ha \
+	$(STDLIB)/time/date/duration.ha \
+	$(STDLIB)/time/date/format.ha \
+	$(STDLIB)/time/date/parse.ha \
+	$(STDLIB)/time/date/period.ha \
+	$(STDLIB)/time/date/reckon.ha \
+	$(STDLIB)/time/date/time.ha \
+	$(STDLIB)/time/date/timezone.ha \
+	$(STDLIB)/time/date/virtual.ha
+
+$(TESTCACHE)/time/date/time_date-linux.ssa: $(testlib_time_date_linux_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time/date
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::date \
+		-t$(TESTCACHE)/time/date/time_date.td $(testlib_time_date_linux_srcs)
+
+# time::date (+freebsd)
+testlib_time_date_freebsd_srcs = \
+	$(STDLIB)/time/date/arithmetic.ha \
+	$(STDLIB)/time/date/chronology.ha \
+	$(STDLIB)/time/date/errors.ha \
+	$(STDLIB)/time/date/date.ha \
+	$(STDLIB)/time/date/datetime.ha \
+	$(STDLIB)/time/date/duration.ha \
+	$(STDLIB)/time/date/format.ha \
+	$(STDLIB)/time/date/parse.ha \
+	$(STDLIB)/time/date/period.ha \
+	$(STDLIB)/time/date/reckon.ha \
+	$(STDLIB)/time/date/time.ha \
+	$(STDLIB)/time/date/timezone.ha \
+	$(STDLIB)/time/date/virtual.ha
+
+$(TESTCACHE)/time/date/time_date-freebsd.ssa: $(testlib_time_date_freebsd_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/time/date
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::date \
+		-t$(TESTCACHE)/time/date/time_date.td $(testlib_time_date_freebsd_srcs)
 
 # types (+any)
 testlib_types_any_srcs = \
