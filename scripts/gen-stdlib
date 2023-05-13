@@ -867,40 +867,34 @@ hash_siphash() {
 gensrcs_io() {
 	gen_srcs -plinux io \
 		'arch+$(ARCH).ha' \
-		+linux/file.ha \
 		+linux/mmap.ha \
-		+linux/platform_lock.ha \
-		+linux/platform_trunc.ha \
+		+linux/platform_file.ha \
 		+linux/vector.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \
+		file.ha \
 		handle.ha \
 		limit.ha \
-		lock.ha \
 		stream.ha \
 		tee.ha \
-		trunc.ha \
 		types.ha \
 		util.ha \
 		zero.ha \
 		$*
 	gen_srcs -pfreebsd io \
 		'arch+$(ARCH).ha' \
-		+freebsd/file.ha \
 		+freebsd/mmap.ha \
-		+freebsd/platform_lock.ha \
-		+freebsd/platform_trunc.ha \
+		+freebsd/platform_file.ha \
 		+freebsd/vector.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \
+		file.ha \
 		handle.ha \
 		limit.ha \
-		lock.ha \
 		stream.ha \
 		tee.ha \
-		trunc.ha \
 		types.ha \
 		util.ha \
 		zero.ha \
