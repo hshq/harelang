@@ -982,11 +982,20 @@ math() {
 mime() {
 	# This module is not built by default because gen-stdlib does not do a good
 	# job of resolving @init dependency ordering issues
-	gen_srcs mime \
-		database.ha \
-		lookup.ha \
-		parse.ha \
-		system.ha
+	if [ $testing -eq 0 ]; then
+		gen_srcs mime \
+			database.ha \
+			lookup.ha \
+			parse.ha \
+			system.ha
+	else
+		gen_srcs mime \
+			database.ha \
+			lookup.ha \
+			parse.ha \
+			system.ha \
+			entries+test.ha
+	fi
 	gen_ssa mime ascii errors strings hash::fnv encoding::utf8 bufio \
 		fs io os fmt
 }

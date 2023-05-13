@@ -17,20 +17,6 @@ export fn lookup_mime(mime: str) const nullable *mimetype = {
 	return null;
 };
 
-@test fn lookup_mime() void = {
-	assert(lookup_mime("foo/bar") == null);
-
-	const result = lookup_mime("text/plain") as *mimetype;
-	assert(result.mime == "text/plain");
-	assert(len(result.exts) == 1);
-	assert(result.exts[0] == "txt");
-
-	const result = lookup_mime("text/x-hare") as *mimetype;
-	assert(result.mime == "text/x-hare");
-	assert(len(result.exts) == 1);
-	assert(result.exts[0] == "ha");
-};
-
 // Looks up a Media Type based on a file extension, with or without the leading
 // '.' character, returning null if unknown.
 export fn lookup_ext(ext: str) const nullable *mimetype = {
@@ -46,22 +32,4 @@ export fn lookup_ext(ext: str) const nullable *mimetype = {
 		};
 	};
 	return null;
-};
-
-@test fn lookup_ext() void = {
-	assert(lookup_ext("foo") == null);
-	assert(lookup_ext(".foo") == null);
-
-	const result = lookup_ext("txt") as *mimetype;
-	assert(result.mime == "text/plain");
-	assert(len(result.exts) == 1);
-	assert(result.exts[0] == "txt");
-
-	const result = lookup_ext(".txt") as *mimetype;
-	assert(result.mime == "text/plain");
-
-	const result = lookup_ext("ha") as *mimetype;
-	assert(result.mime == "text/x-hare");
-	assert(len(result.exts) == 1);
-	assert(result.exts[0] == "ha");
 };
