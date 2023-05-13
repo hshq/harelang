@@ -13,11 +13,16 @@ export fn strlen(cstr: *const char) size = {
 // Converts a C string to a Hare string in O(n), and does not check if it's
 // valid UTF-8.
 export fn tostr_unsafe(cstr: *const char) const str = {
-	const l = strlen(cstr);
+	return tostrn_unsafe(cstr, strlen(cstr));
+};
+
+// Converts a C string with a given length to a Hare string, and does not check
+// if it's valid UTF-8.
+export fn tostrn_unsafe(cstr: *const char, length: size) const str = {
 	const s = types::string {
 		data = cstr: *[*]u8,
-		length = l,
-		capacity = l + 1,
+		length = length,
+		capacity = length + 1,
 	};
 	return *(&s: *const str);
 };
@@ -25,7 +30,13 @@ export fn tostr_unsafe(cstr: *const char) const str = {
 // Converts a C string to a Hare string in O(n). If the string is not valid
 // UTF-8, return [[encoding::utf8::invalid]].
 export fn tostr(cstr: *const char) (const str | utf8::invalid) = {
-	let s = tostr_unsafe(cstr);
+	return tostrn(cstr, strlen(cstr));
+};
+
+// Converts a C string with a given length to a Hare string. If the string is
+// not valid UTF-8, return [[encoding::utf8::invalid]].
+export fn tostrn(cstr: *const char, length: size) (const str | utf8::invalid) = {
+	let s = tostrn_unsafe(cstr, length);
 	return if (utf8::valid(s)) s else utf8::invalid;
 };
 
