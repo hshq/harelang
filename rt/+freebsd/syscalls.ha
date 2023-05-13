@@ -555,3 +555,8 @@ export fn sigaction(
 	return wrap_return(syscall3(SYS_sigaction,
 		signum: u64, act: uintptr: u64, old: uintptr: u64))?: int;
 };
+
+export fn shutdown(sockfd: int, how: int) (void | errno) = {
+	wrap_return(syscall2(SYS_shutdown,
+		sockfd: u64, how: u64))?;
+};
