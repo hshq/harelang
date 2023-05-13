@@ -1715,7 +1715,8 @@ $(HARECACHE)/math/random/math_random-any.ssa: $(stdlib_math_random_any_srcs) $(s
 stdlib_net_linux_srcs = \
 	$(STDLIB)/net/+linux.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/msg.ha
+	$(STDLIB)/net/msg.ha \
+	$(STDLIB)/net/types.ha
 
 $(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_slices_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -1727,7 +1728,8 @@ $(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_i
 stdlib_net_freebsd_srcs = \
 	$(STDLIB)/net/+freebsd.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/msg.ha
+	$(STDLIB)/net/msg.ha \
+	$(STDLIB)/net/types.ha
 
 $(HARECACHE)/net/net-freebsd.ssa: $(stdlib_net_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_slices_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -4163,7 +4165,8 @@ $(TESTCACHE)/math/random/math_random-any.ssa: $(testlib_math_random_any_srcs) $(
 testlib_net_linux_srcs = \
 	$(STDLIB)/net/+linux.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/msg.ha
+	$(STDLIB)/net/msg.ha \
+	$(STDLIB)/net/types.ha
 
 $(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -4175,7 +4178,8 @@ $(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testli
 testlib_net_freebsd_srcs = \
 	$(STDLIB)/net/+freebsd.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/msg.ha
+	$(STDLIB)/net/msg.ha \
+	$(STDLIB)/net/types.ha
 
 $(TESTCACHE)/net/net-freebsd.ssa: $(testlib_net_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
 	@printf 'HAREC \t$@\n'

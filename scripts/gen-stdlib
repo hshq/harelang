@@ -1004,13 +1004,15 @@ net() {
 	gen_srcs -plinux net \
 		+linux.ha \
 		errors.ha \
-		msg.ha
+		msg.ha \
+		types.ha
 	gen_ssa -plinux net io errors rt fmt slices
 
 	gen_srcs -pfreebsd net \
 		+freebsd.ha \
 		errors.ha \
-		msg.ha
+		msg.ha \
+		types.ha
 	gen_ssa -pfreebsd net io errors rt fmt slices
 }
 
