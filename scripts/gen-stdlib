@@ -1158,6 +1158,7 @@ os() {
 		+linux/$exit \
 		+linux/fs.ha \
 		+linux/memory.ha \
+		+linux/status.ha \
 		+linux/stdfd.ha \
 		os.ha
 	gen_ssa -plinux os io strings fs encoding::utf8 bytes bufio \
@@ -1167,6 +1168,7 @@ os() {
 		+freebsd/environ.ha \
 		+freebsd/$exit \
 		+freebsd/dirfdfs.ha \
+		+freebsd/status.ha \
 		+freebsd/stdfd.ha \
 		+freebsd/fs.ha \
 		os.ha

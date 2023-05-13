@@ -1883,6 +1883,7 @@ stdlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/exit.ha \
 	$(STDLIB)/os/+linux/fs.ha \
 	$(STDLIB)/os/+linux/memory.ha \
+	$(STDLIB)/os/+linux/status.ha \
 	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/os.ha
 
@@ -1897,6 +1898,7 @@ stdlib_os_freebsd_srcs = \
 	$(STDLIB)/os/+freebsd/environ.ha \
 	$(STDLIB)/os/+freebsd/exit.ha \
 	$(STDLIB)/os/+freebsd/dirfdfs.ha \
+	$(STDLIB)/os/+freebsd/status.ha \
 	$(STDLIB)/os/+freebsd/stdfd.ha \
 	$(STDLIB)/os/+freebsd/fs.ha \
 	$(STDLIB)/os/os.ha
@@ -4332,6 +4334,7 @@ testlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/exit+test.ha \
 	$(STDLIB)/os/+linux/fs.ha \
 	$(STDLIB)/os/+linux/memory.ha \
+	$(STDLIB)/os/+linux/status.ha \
 	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/os.ha
 
@@ -4346,6 +4349,7 @@ testlib_os_freebsd_srcs = \
 	$(STDLIB)/os/+freebsd/environ.ha \
 	$(STDLIB)/os/+freebsd/exit+test.ha \
 	$(STDLIB)/os/+freebsd/dirfdfs.ha \
+	$(STDLIB)/os/+freebsd/status.ha \
 	$(STDLIB)/os/+freebsd/stdfd.ha \
 	$(STDLIB)/os/+freebsd/fs.ha \
 	$(STDLIB)/os/os.ha
