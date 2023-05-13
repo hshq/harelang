@@ -21,9 +21,9 @@ export type parsefail = !rune;
 // string with specifiers as documented under [[format]]. Partial, sequential,
 // aggregative parsing is possible.
 //
-// 	datetime::parse(&v, "%Y-%m-%d",    "2019-12-27");
-// 	datetime::parse(&v, "%H:%M:%S.%N", "22:07:08.000000000");
-// 	datetime::parse(&v, "%z %Z %L",    "+0100 CET Europe/Amsterdam");
+// 	date::parse(&v, "%Y-%m-%d",    "2019-12-27");
+// 	date::parse(&v, "%H:%M:%S.%N", "22:07:08.000000000");
+// 	date::parse(&v, "%z %Z %L",    "+0100 CET Europe/Amsterdam");
 //
 // Parse will return parsefail, if an invalid format specifier is encountered
 // or if given string 's' does not match the layout.

@@ -1,4 +1,4 @@
-The datetime module implements the common international "Gregorian" chronology,
+The time::date module implements the common international Gregorian chronology,
 based on the astronomically numbered proleptic Gregorian calendar, as per ISO
 8601, and the common 24 hour clock. It provides [[datetime]], a representation
 of civil date/time and an extension of the [[time::chrono::moment]] type,

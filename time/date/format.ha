@@ -11,32 +11,32 @@ use strio;
 use time;
 use time::chrono;
 
-// [[datetime::format]] layout for the email date format.
+// [[format]] layout for the email date format.
 export def EMAIL: str = "%a, %d %b %Y %H:%M:%S %z";
 
-// [[datetime::format]] layout for the email date format, with zone offset and
+// [[format]] layout for the email date format, with zone offset and
 // zone abbreviation.
 export def EMAILZ: str = "%a, %d %b %Y %H:%M:%S %z %Z";
 
-// [[datetime::format]] layout partly compatible with the default layout format
+// [[format]] layout partly compatible with the default layout format
 // for the POSIX locale. %d is used in place of POSIX %e.
 export def POSIX: str = "%a %b %d %H:%M:%S %Z %Y";
 // TODO: Actually implement '%e' and thus the POSIX layout format?
 
-// [[datetime::format]] layout compatible with RFC 3339.
+// [[format]] layout compatible with RFC 3339.
 export def RFC3339: str = "%Y-%m-%dT%H:%M:%S%z";
 
-// [[datetime::format]] layout for a simple timestamp.
+// [[format]] layout for a simple timestamp.
 export def STAMP: str = "%Y-%m-%d %H:%M:%S";
 
-// [[datetime::format]] layout for a simple timestamp with nanoseconds.
+// [[format]] layout for a simple timestamp with nanoseconds.
 export def STAMP_NANO: str = "%Y-%m-%d %H:%M:%S.%N";
 
-// [[datetime::format]] layout for a simple timestamp with nanoseconds and zone
+// [[format]] layout for a simple timestamp with nanoseconds and zone
 // offset.
 export def STAMP_ZOFF: str = "%Y-%m-%d %H:%M:%S.%N %z";
 
-// [[datetime::format]] layout for a simple timestamp with nanoseconds,
+// [[format]] layout for a simple timestamp with nanoseconds,
 // zone offset, zone abbreviation, and locality.
 export def STAMP_NOZL: str = "%Y-%m-%d %H:%M:%S.%N %z %Z %L";
 
@@ -162,7 +162,7 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 	case '%' =>
 		return fmt::fprint(out, "%");
 	case =>
-		abort("Invalid format string provided to datetime::format");
+		abort("Invalid format string provided to time::date::format");
 	};
 };
 

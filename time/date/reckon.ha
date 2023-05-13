@@ -57,10 +57,10 @@ export type calculus = enum uint {
 // The [[calculus]] parameter determines arithmetic and resolution behaviour
 // when encountering deviations (e.g. overflows).
 //
-// 	let dest = datetime::reckon(
+// 	let dest = date::reckon(
 // 		start, // 2000-02-29 09:00:00
 // 		0,     // calculus::DEFAULT
-// 		datetime::period {
+// 		date::period {
 // 			years  =  1, // becomes: 2001-02-28 09:00:00
 // 			months = -2, // becomes: 2000-12-28 09:00:00
 // 			days   =  4, // becomes: 2001-01-01 09:00:00

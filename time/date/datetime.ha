@@ -97,13 +97,13 @@ fn all(dt: *datetime) *datetime = {
 // an abort.
 //
 // 	// 0000-01-01 00:00:00.000000000 +0000 UTC UTC
-// 	datetime::new(time::chrono::UTC, 0);
+// 	date::new(time::chrono::UTC, 0);
 //
 // 	// 2019-12-27 20:07:08.000031415 +0000 UTC UTC
-// 	datetime::new(time::chrono::UTC, 0,  2019, 12, 27,  20, 07, 08, 31415);
+// 	date::new(time::chrono::UTC, 0,  2019, 12, 27,  20, 07, 08, 31415);
 //
 // 	// 2019-12-27 21:00:00.000000000 +0100 CET Europe/Amsterdam
-// 	datetime::new(time::chrono::tz("Europe/Amsterdam")!, 1 * time::HOUR,
+// 	date::new(time::chrono::tz("Europe/Amsterdam")!, 1 * time::HOUR,
 // 		2019, 12, 27,  21);
 //
 // 'zo' is the zone offset from the normal timezone (in most cases, UTC). For
@@ -142,7 +142,7 @@ export fn new(
 	];
 
 	assert(len(fields) <= len(_fields),
-			"datetime::new(): Too many field arguments");
+			"time::date::new(): Too many field arguments");
 	_fields[..len(fields)] = fields;
 
 	const year  = _fields[0];
@@ -166,7 +166,7 @@ export fn new(
 		// perform a zone lookup, then try that zone and the zones that
 		// are observed before and after. This requires knowlegde of the
 		// transition index.
-		abort("TODO: datetime::new(zo=void)");
+		abort("TODO: time::date::new(zo=void)");
 	};
 
 	const dt = from_moment(m);
@@ -230,8 +230,8 @@ export fn from_instant(loc: chrono::locality, i: time::instant) datetime = {
 // provided. The if hour, minute, second, nanosecond, or zone offset are not
 // provided, they default to 0.
 //
-// 	let new = datetime::from_str(
-// 		datetime::STAMP_NOZL,
+// 	let new = date::from_str(
+// 		date::STAMP_NOZL,
 // 		"2019-12-27 22:07:08.000000000 +0100 CET Europe/Amsterdam",
 // 		locs...
 // 	)!;

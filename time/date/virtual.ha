@@ -20,15 +20,15 @@ export type insufficient = !void;
 // [[newvirtual]], then collect enough date/time information incrementally by
 // direct field assignments and/or with [[parse]]. Finish with [[realize]].
 //
-// 	let v = datetime::newvirtual();
+// 	let v = date::newvirtual();
 // 	v.vloc = time::chrono::UTC;
 // 	v.zoff = 0;
-// 	datetime::parse(&v, "Date: %Y-%m-%d", "Date: 2038-01-19")!;
+// 	date::parse(&v, "Date: %Y-%m-%d", "Date: 2038-01-19")!;
 // 	v.hour = 03;
 // 	v.minute = 14;
 // 	v.second = 07;
 // 	v.nanosecond = 0;
-// 	let dt = datetime::realize(v)!;
+// 	let dt = date::realize(v)!;
 //
 export type virtual = struct {
 	datetime,

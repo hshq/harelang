@@ -1,3 +1,3 @@
-The time module provides basic timekeeping primitives and access to the
-system's clocks. See [[time::chrono]] for incorporating human timescales and
-[[datetime]] for working with the ISO 8601 Gregorian calendar.
+The time module provides basic timekeeping primitives and system clock access.
+See [[time::chrono]] for timescales, timezones, and other chronology primitives.
+See [[time::date]] for the Gregorian chronology.
