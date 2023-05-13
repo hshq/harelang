@@ -18,7 +18,7 @@ export fn fini() void = {
 	};
 };
 
-export @symbol("main" )@noreturn fn start_ha() void = {
+export @symbol("main") @noreturn fn start_ha() void = {
 	// libc runs @init and @fini for us (unless rt::exit() is called)
 	main();
 	c_exit(0);

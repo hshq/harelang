@@ -113,8 +113,8 @@ export fn peek(proc: *process) (status | void | error) = {
 	return st;
 };
 
-// Waits for the first child process to complete, then returns its process info
-// and status
+// Checks if any child process has completed, returning its process info and
+// status if so.
 export fn peekany() ((process, status) | void | error) = {
 	let ru: rt::rusage = rt::rusage { ... };
 	let st: status = status { ... };

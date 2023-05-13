@@ -117,6 +117,7 @@ export fn rmdirall(fs: *fs, path: str) (void | error) = {
 
 fn rmdirall_path(fs: *fs, buf: *path::buffer) (void | error) = {
 	let it = iter(fs, path::string(buf))?;
+	defer finish(it);
 	for (true) {
 		match (next(it)) {
 		case let ent: dirent =>

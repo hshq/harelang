@@ -25,6 +25,8 @@ export type parsefail = !rune;
 // 	datetime::parse(&v, "%H:%M:%S.%N", "22:07:08.000000000");
 // 	datetime::parse(&v, "%z %Z %L",    "+0100 CET Europe/Amsterdam");
 //
+// Parse will return parsefail, if an invalid format specifier is encountered
+// or if given string 's' does not match the layout.
 export fn parse(v: *virtual, layout: str, s: str) (void | parsefail) = {
 	const liter = strings::iter(layout);
 	const siter = strings::iter(s);
@@ -84,6 +86,12 @@ fn parse_specifier(
 		scan_for(iter, MONTHS...)? + 1;
 	case 'd' => v.day =
 		scan_int(iter, 2, false)?;
+	case 'F' =>
+		v.year = scan_int(iter, 4, false)?;
+		eat_rune(iter, '-')?;
+		v.month = scan_int(iter, 2, false)?;
+		eat_rune(iter, '-')?;
+		v.day = scan_int(iter, 2, false)?;
 	case 'H' => v.hour =
 		scan_int(iter, 2, false)?;
 	case 'I' => v.halfhour =
@@ -102,6 +110,12 @@ fn parse_specifier(
 		scan_for(iter, "AM", "PM", "am", "pm")? % 2 == 1;
 	case 'S' => v.second =
 		scan_int(iter, 2, false)?;
+	case 'T' =>
+		v.hour = scan_int(iter, 2, false)?;
+		eat_rune(iter, ':')?;
+		v.minute = scan_int(iter, 2, false)?;
+		eat_rune(iter, ':')?;
+		v.second = scan_int(iter, 2, false)?;
 	case 'u' => v.weekday =
 		scan_int(iter, 1, false)? - 1;
 	case 'U' => v.week =
@@ -119,7 +133,7 @@ fn parse_specifier(
 	case '%' =>
 		eat_rune(iter, '%')?;
 	case =>
-		void; // Ignore invalid specifier
+		return failure;
 	};
 };
 
@@ -290,6 +304,15 @@ fn scan_str(iter: *strings::iterator) (str | failure) = {
 	assert(v.day as int == 27                            , "%d: incorrect");
 
 	let v = newvirtual();
+	assert(parse(&v, "%F", "2012-10-01") is void         , "%d: parsefail");
+	assert(v.year is int                                 , "%d: void");
+	assert(v.year as int == 2012                         , "%d: incorrect");
+	assert(v.month is int                                , "%d: void");
+	assert(v.month as int == 10                          , "%d: incorrect");
+	assert(v.day is int                                  , "%d: void");
+	assert(v.day as int == 1                             , "%d: incorrect");
+
+	let v = newvirtual();
 	assert(parse(&v, "%H", "22") is void                 , "%H: parsefail");
 	assert(v.hour is int                                 , "%H: void");
 	assert(v.hour as int == 22                           , "%H: incorrect");
@@ -333,6 +356,15 @@ fn scan_str(iter: *strings::iterator) (str | failure) = {
 	assert(parse(&v, "%S", "08") is void                 , "%S: parsefail");
 	assert(v.second is int                               , "%S: void");
 	assert(v.second as int == 8                          , "%S: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%T", "18:42:05") is void           , "%d: parsefail");
+	assert(v.hour is int                                 , "%d: void");
+	assert(v.hour as int == 18                           , "%d: incorrect");
+	assert(v.minute is int                               , "%d: void");
+	assert(v.minute as int == 42                         , "%d: incorrect");
+	assert(v.second is int                               , "%d: void");
+	assert(v.second as int == 5                          , "%d: incorrect");
 
 	let v = newvirtual();
 	assert(parse(&v, "%u", "5") is void                  , "%u: parsefail");

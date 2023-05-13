@@ -176,6 +176,7 @@ ${stdlib}_asm = \$($cache)/rt/syscall.o \\
 	@\$(AR) -csr \$@ \$($cache)/rt/rt-darwin.o \$(${stdlib}_asm)
 
 ${stdlib}_rt = \$($cache)/rt/rt-\$(PLATFORM).a
+${stdlib}_env += HARE_TD_rt=\$($cache)/rt/rt.td
 ${stdlib}_deps_linux += \$(${stdlib}_rt)
 ${stdlib}_deps_freebsd += \$(${stdlib}_rt)
 ${stdlib}_deps_darwin += \$(${stdlib}_rt)
@@ -228,6 +229,7 @@ datetime() {
 	gen_srcs -plinux datetime \
 		arithmetic.ha \
 		chronology.ha \
+		errors.ha \
 		date.ha \
 		datetime.ha \
 		duration.ha \
@@ -243,6 +245,7 @@ datetime() {
 	gen_srcs -pfreebsd datetime \
 		arithmetic.ha \
 		chronology.ha \
+		errors.ha \
 		date.ha \
 		datetime.ha \
 		duration.ha \
