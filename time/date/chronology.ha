@@ -7,49 +7,49 @@ use time::chrono;
 // These functions are renamed to avoid namespace conflicts, like in the
 // parameters of the [[new]] function.
 
-// Returns a [[datetime]]'s era.
-export fn era(dt: *datetime) int = _era(dt);
+// Returns a [[date]]'s era.
+export fn era(dt: *date) int = _era(dt);
 
-// Returns a [[datetime]]'s year.
-export fn year(dt: *datetime) int = _year(dt);
+// Returns a [[date]]'s year.
+export fn year(dt: *date) int = _year(dt);
 
-// Returns a [[datetime]]'s month of the year.
-export fn month(dt: *datetime) int = _month(dt);
+// Returns a [[date]]'s month of the year.
+export fn month(dt: *date) int = _month(dt);
 
-// Returns a [[datetime]]'s day of the month.
-export fn day(dt: *datetime) int = _day(dt);
+// Returns a [[date]]'s day of the month.
+export fn day(dt: *date) int = _day(dt);
 
-// Returns a [[datetime]]'s day of the week; Monday=0 to Sunday=6.
-export fn weekday(dt: *datetime) int = _weekday(dt);
+// Returns a [[date]]'s day of the week; Monday=0 to Sunday=6.
+export fn weekday(dt: *date) int = _weekday(dt);
 
-// Returns a [[datetime]]'s ordinal day of the year.
-export fn yearday(dt: *datetime) int = _yearday(dt);
+// Returns a [[date]]'s ordinal day of the year.
+export fn yearday(dt: *date) int = _yearday(dt);
 
-// Returns a [[datetime]]'s ISO week-numbering year.
-export fn isoweekyear(dt: *datetime) int = _isoweekyear(dt);
+// Returns a [[date]]'s ISO week-numbering year.
+export fn isoweekyear(dt: *date) int = _isoweekyear(dt);
 
-// Returns a [[datetime]]'s Gregorian week starting Monday.
-export fn week(dt: *datetime) int = _week(dt);
+// Returns a [[date]]'s Gregorian week starting Monday.
+export fn week(dt: *date) int = _week(dt);
 
-// Returns a [[datetime]]'s Gregorian week starting Sunday.
-export fn sundayweek(dt: *datetime) int = _sundayweek(dt);
+// Returns a [[date]]'s Gregorian week starting Sunday.
+export fn sundayweek(dt: *date) int = _sundayweek(dt);
 
-// Returns a [[datetime]]'s ISO week.
-export fn isoweek(dt: *datetime) int = _isoweek(dt);
+// Returns a [[date]]'s ISO week.
+export fn isoweek(dt: *date) int = _isoweek(dt);
 
-// Returns a [[datetime]]'s hour of the day.
-export fn hour(dt: *datetime) int = _hour(dt);
+// Returns a [[date]]'s hour of the day.
+export fn hour(dt: *date) int = _hour(dt);
 
-// Returns a [[datetime]]'s minute of the hour.
-export fn minute(dt: *datetime) int = _minute(dt);
+// Returns a [[date]]'s minute of the hour.
+export fn minute(dt: *date) int = _minute(dt);
 
-// Returns a [[datetime]]'s second of the minute.
-export fn second(dt: *datetime) int = _second(dt);
+// Returns a [[date]]'s second of the minute.
+export fn second(dt: *date) int = _second(dt);
 
-// Returns a [[datetime]]'s nanosecond of the second.
-export fn nanosecond(dt: *datetime) int = _nanosecond(dt);
+// Returns a [[date]]'s nanosecond of the second.
+export fn nanosecond(dt: *date) int = _nanosecond(dt);
 
-fn _era(dt: *datetime) int = {
+fn _era(dt: *date) int = {
 	match (dt.era) {
 	case void =>
 		if (dt.year is void) {
@@ -62,7 +62,7 @@ fn _era(dt: *datetime) int = {
 	};
 };
 
-fn _year(dt: *datetime) int = {
+fn _year(dt: *date) int = {
 	match (dt.year) {
 	case void =>
 		const ymd = calc_ymd(chrono::date(dt));
@@ -75,7 +75,7 @@ fn _year(dt: *datetime) int = {
 	};
 };
 
-fn _month(dt: *datetime) int = {
+fn _month(dt: *date) int = {
 	match (dt.month) {
 	case void =>
 		const ymd = calc_ymd(chrono::date(dt));
@@ -88,7 +88,7 @@ fn _month(dt: *datetime) int = {
 	};
 };
 
-fn _day(dt: *datetime) int = {
+fn _day(dt: *date) int = {
 	match (dt.day) {
 	case void =>
 		const ymd = calc_ymd(chrono::date(dt));
@@ -101,7 +101,7 @@ fn _day(dt: *datetime) int = {
 	};
 };
 
-fn _weekday(dt: *datetime) int = {
+fn _weekday(dt: *date) int = {
 	match (dt.weekday) {
 	case void =>
 		dt.weekday = calc_weekday(chrono::date(dt));
@@ -111,7 +111,7 @@ fn _weekday(dt: *datetime) int = {
 	};
 };
 
-fn _yearday(dt: *datetime) int = {
+fn _yearday(dt: *date) int = {
 	match (dt.yearday) {
 	case void =>
 		if (dt.year is void) {
@@ -134,7 +134,7 @@ fn _yearday(dt: *datetime) int = {
 	};
 };
 
-fn _isoweekyear(dt: *datetime) int = {
+fn _isoweekyear(dt: *date) int = {
 	match (dt.isoweekyear) {
 	case void =>
 		if (dt.year is void) {
@@ -161,7 +161,7 @@ fn _isoweekyear(dt: *datetime) int = {
 	};
 };
 
-fn _week(dt: *datetime) int = {
+fn _week(dt: *date) int = {
 	match (dt.week) {
 	case void =>
 		if (dt.yearday is void) {
@@ -180,7 +180,7 @@ fn _week(dt: *datetime) int = {
 	};
 };
 
-fn _sundayweek(dt: *datetime) int = {
+fn _sundayweek(dt: *date) int = {
 	match (dt.sundayweek) {
 	case void =>
 		if (dt.yearday is void) {
@@ -199,7 +199,7 @@ fn _sundayweek(dt: *datetime) int = {
 	};
 };
 
-fn _isoweek(dt: *datetime) int = {
+fn _isoweek(dt: *date) int = {
 	match (dt.isoweek) {
 	case void =>
 		if (dt.year is void) {
@@ -218,7 +218,7 @@ fn _isoweek(dt: *datetime) int = {
 	};
 };
 
-fn _hour(dt: *datetime) int = {
+fn _hour(dt: *date) int = {
 	match (dt.hour) {
 	case void =>
 		const hmsn = calc_hmsn(chrono::time(dt));
@@ -232,7 +232,7 @@ fn _hour(dt: *datetime) int = {
 	};
 };
 
-fn _minute(dt: *datetime) int = {
+fn _minute(dt: *date) int = {
 	match (dt.minute) {
 	case void =>
 		const hmsn = calc_hmsn(chrono::time(dt));
@@ -246,7 +246,7 @@ fn _minute(dt: *datetime) int = {
 	};
 };
 
-fn _second(dt: *datetime) int = {
+fn _second(dt: *date) int = {
 	match (dt.second) {
 	case void =>
 		const hmsn = calc_hmsn(chrono::time(dt));
@@ -260,7 +260,7 @@ fn _second(dt: *datetime) int = {
 	};
 };
 
-fn _nanosecond(dt: *datetime) int = {
+fn _nanosecond(dt: *date) int = {
 	match (dt.nanosecond) {
 	case void =>
 		const hmsn = calc_hmsn(chrono::time(dt));

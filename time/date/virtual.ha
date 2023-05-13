@@ -3,20 +3,20 @@
 use time;
 use time::chrono;
 
-// A [[virtual]] has insufficient information and cannot create a valid datetime.
+// A [[virtual]] does not have enough information to create a valid [[date]].
 export type insufficient = !void;
 
-// A virtual datetime; a [[datetime]] wrapper interface, which represents a
-// datetime of uncertain validity. Its fields need not be valid observed
-// chronological values. It is meant as an intermediary container for datetime
-// information to be resolved with the [[realize]] function.
+// A virtual date; a [[date]] wrapper interface, which represents a date of
+// uncertain validity. Its fields need not be valid observed chronological
+// values. It is meant as an intermediary container for date information to be
+// resolved with the [[realize]] function.
 //
-// Unlike [[datetime]], a virtual's fields are meant to be treated as public and
+// Unlike [[date]], a virtual's fields are meant to be treated as public and
 // mutable. The embedded [[time::instant]] and [[time::chrono::locality]] fields
 // (.sec .nsec .loc) are considered meaningless. Behaviour with the "observe"
 // functions is undefined.
 //
-// This can be used to construct a new [[datetime]] piece-by-piece. Start with
+// This can be used to construct a new [[date]] piece-by-piece. Start with
 // [[newvirtual]], then collect enough date/time information incrementally by
 // direct field assignments and/or with [[parse]]. Finish with [[realize]].
 //
@@ -31,7 +31,7 @@ export type insufficient = !void;
 // 	let dt = date::realize(v)!;
 //
 export type virtual = struct {
-	datetime,
+	date,
 	// virtual's locality
 	vloc:     (void | time::chrono::locality),
 	// locality name
@@ -79,7 +79,7 @@ export fn newvirtual() virtual = virtual {
 	ampm        = void,
 };
 
-// Realizes a valid [[datetime]] from a [[virtual]], or fails appropriately.
+// Realizes a valid [[date]] from a [[virtual]], or fails appropriately.
 // Four values require determination. Each has various determination strategies,
 // each of which use a certain set of non-void fields from the given virtual.
 // The following determination strategies will be attempted in order.
@@ -111,12 +111,12 @@ export fn newvirtual() virtual = virtual {
 //         Defaults to [[time::chrono::UTC]].
 //
 // If for any of these values no determination strategy could be attempted,
-// [[insufficient]] is returned. If the resultant datetime is invalid,
+// [[insufficient]] is returned. If the resultant date is invalid,
 // [[invalid]] is returned.
 export fn realize(
 	v: virtual,
 	locs: time::chrono::locality...
-) (datetime | insufficient | invalid) = {
+) (date | insufficient | invalid) = {
 	// determine .date
 	if (v.date is i64) {
 		void;

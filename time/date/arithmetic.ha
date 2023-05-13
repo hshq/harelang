@@ -21,11 +21,11 @@ export type unit = enum int {
 	NANOSECOND,
 };
 
-// Calculates the [[period]] between two [[datetime]]s, from A to B.
+// Calculates the [[period]] between two [[date]]s, from A to B.
 // The returned period, provided to [[reckon]] along with A, will produce B,
 // regardless of the [[calculus]] used. All the period's non-zero fields will
 // have the same sign.
-export fn pdiff(a: datetime, b: datetime) period = {
+export fn pdiff(a: date, b: date) period = {
 	let p = period { ... };
 
 	if (chrono::compare(&a, &b) == 0) {
@@ -94,8 +94,8 @@ export fn pdiff(a: datetime, b: datetime) period = {
 	return if (reverse) neg(p) else p;
 };
 
-// Calculates the nominal [[unit]] difference between two [[datetime]]s.
-export fn unitdiff(a: datetime, b: datetime, u: unit) i64 = {
+// Calculates the nominal [[unit]] difference between two [[date]]s.
+export fn unitdiff(a: date, b: date, u: unit) i64 = {
 	switch (u) {
 	case unit::ERA =>
 		return era(&b) - era(&a);
@@ -119,11 +119,11 @@ export fn unitdiff(a: datetime, b: datetime, u: unit) i64 = {
 	};
 };
 
-// Truncates the given [[datetime]] at the provided nominal [[unit]].
+// Truncates the given [[date]] at the provided nominal [[unit]].
 //
 // For example, truncating to the nearest unit::MONTH will set the 'day',
 // 'hour', 'minute', 'second', and 'nanosecond' fields to their minimum values.
-export fn truncate(dt: datetime, u: unit) datetime = {
+export fn truncate(dt: date, u: unit) date = {
 	// TODO: There exist timezones where midnight is invalid on certain
 	// days. The new()! calls will fail, but we probably don't want to '?'
 	// propagate [[invalid]] to keep this function's use simple. The minimum

@@ -49,7 +49,7 @@ export type calculus = enum uint {
 	FOLD = 1 << 4,
 };
 
-// Reckons from a given [[datetime]] to a new one, via a set of [[period]]s.
+// Reckons from a given [[date]] to a new one, via a set of [[period]]s.
 // This is a chronology-wise arithmetic operation. Each period is reckoned
 // independently in succession, applying (adding) their units from most to least
 // significant.
@@ -69,7 +69,7 @@ export type calculus = enum uint {
 //
 // See [[add]] for a timescale-wise arithmetic operation which uses
 // [[time::duration]].
-export fn reckon(dt: datetime, calc: calculus, ps: period...) datetime = {
+export fn reckon(dt: date, calc: calculus, ps: period...) date = {
 	let r = newvirtual(); // our reckoner
 	r.vloc       = dt.loc;
 	r.zoff       = chrono::mzone(&dt).zoff;

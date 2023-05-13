@@ -74,34 +74,34 @@ def MONTHS_SHORT: [_]str = [
 	"Oct", "Nov", "Dec",
 ];
 
-// TODO: Make format() accept parameters of type (datetime | period), using the
+// TODO: Make format() accept parameters of type (date | period), using the
 // "intervals" standard representation provided by ISO 8601?
 //
 // See https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
 //
 // Ticket: https://todo.sr.ht/~sircmpwn/hare/650
 
-// Formats a [[datetime]] and writes it into a caller supplied buffer.
+// Formats a [[date]] and writes it into a caller supplied buffer.
 // The returned string is borrowed from this buffer.
 export fn bsformat(
 	buf: []u8,
 	layout: str,
-	dt: *datetime,
+	dt: *date,
 ) (str | io::error) = {
 	let sink = strio::fixed(buf);
 	format(&sink, layout, dt)?;
 	return strio::string(&sink);
 };
 
-// Formats a [[datetime]] and writes it into a heap-allocated string.
+// Formats a [[date]] and writes it into a heap-allocated string.
 // The caller must free the return value.
-export fn asformat(layout: str, dt: *datetime) (str | io::error) = {
+export fn asformat(layout: str, dt: *date) (str | io::error) = {
 	let sink = strio::dynamic();
 	format(&sink, layout, dt)?;
 	return strio::string(&sink);
 };
 
-fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
+fn fmtout(out: io::handle, r: rune, dt: *date) (size | io::error) = {
 	switch (r) {
 	case 'a' =>
 		return fmt::fprint(out, WEEKDAYS_SHORT[_weekday(dt)]);
@@ -166,7 +166,7 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 	};
 };
 
-// Formats a [[datetime]] according to a layout and writes to an [[io::handle]].
+// Formats a [[date]] according to a layout and writes to an [[io::handle]].
 //
 // The layout may contain any of the following format specifiers listed below.
 // Implemented are a subset of the POSIX strftime(3) format specifiers, as well
@@ -206,7 +206,7 @@ fn fmtout(out: io::handle, r: rune, dt: *datetime) (size | io::error) = {
 export fn format(
 	h: io::handle,
 	layout: str,
-	dt: *datetime
+	dt: *date
 ) (size | io::error) = {
 	const iter = strings::iter(layout);
 	let escaped = false;

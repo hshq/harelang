@@ -13,7 +13,7 @@ certain chronological values according to its [[locality]]. The "observe"
 functions [[date]], [[time]], and [[zone]] obtain these values.
 
 Higher level modules like [[time::date]] expand upon this with more complex
-chronological values (years, hours, etc.). The [[time::date::datetime]] type
+chronological values (years, hours, etc.). The [[time::date::date]] type
 embeds [[moment]], and other modules implementing other chronologies may
 interoperate with their own extension types.
 

@@ -5,7 +5,7 @@ use errors;
 use time;
 use time::chrono;
 
-// Invalid [[datetime]].
+// Invalid [[date]].
 export type invalid = !chrono::invalid;
 
 // A date/time object; a [[time::chrono::moment]] wrapper optimized for the
@@ -19,14 +19,14 @@ export type invalid = !chrono::invalid;
 // interrogating the fields' type and value (e.g. using match statements) is
 // also improper.
 //
-// A datetime observes various chronological values, cached in its fields. To
+// A date observes various chronological values, cached in its fields. To
 // evaluate and obtain these values, use the various "observe" functions
 // ([[year]], [[day]], etc.). These values are derived from the embedded moment
 // information, and thus are guaranteed to be valid.
 //
 // See [[virtual]] for an public, mutable, intermediary representation of a
-// datetime, which waives guarantees of validity.
-export type datetime = struct {
+// date, which waives guarantees of validity.
+export type date = struct {
 	chrono::moment,
 
 	era:         (void | int),
@@ -46,7 +46,7 @@ export type datetime = struct {
 	nanosecond:  (void | int),
 };
 
-fn init() datetime = datetime {
+fn init() date = date {
 	sec         = 0,
 	nsec        = 0,
 	loc         = chrono::UTC,
@@ -71,8 +71,8 @@ fn init() datetime = datetime {
 	nanosecond  = void,
 };
 
-// Evaluates and populates all of a [[datetime]]'s fields.
-fn all(dt: *datetime) *datetime = {
+// Evaluates and populates all of a [[date]]'s fields.
+fn all(dt: *date) *date = {
 	_era(dt);
 	_year(dt);
 	_month(dt);
@@ -92,7 +92,7 @@ fn all(dt: *datetime) *datetime = {
 	return dt;
 };
 
-// Creates a new datetime. A maximum of 7 optional field arguments can be given:
+// Creates a new [[date]]. A maximum of 7 optional field arguments can be given:
 // year, month, day-of-month, hour, minute, second, nanosecond. 8 or more causes
 // an abort.
 //
@@ -117,7 +117,7 @@ fn all(dt: *datetime) *datetime = {
 // You may omit the zoff. If the givem timezone has a single zone, [[new]]
 // will use that zone's zoff. Otherwise [[new]] will try to infer the zoff
 // from the multiple zones. This will fail during certain timezone transitions,
-// where certain datetimes are ambiguous or nonexistent. For example:
+// where certain dates are ambiguous or nonexistent. For example:
 //
 // - In the Europe/Amsterdam timezone, at 1995 March 26th,
 //   the local time 02:30 was never observed,
@@ -130,7 +130,7 @@ export fn new(
 	loc: chrono::locality,
 	zo: (time::duration | void),
 	fields: int...
-) (datetime | invalid) = {
+) (date | invalid) = {
 	// TODO:
 	// - revise examples
 	// - Implement as described.
@@ -195,20 +195,20 @@ export fn new(
 	return dt;
 };
 
-// Returns a [[datetime]] of the current system time using
+// Returns a [[date]] of the current system time using
 // [[time::clock::REALTIME]], in the [[time::chrono::LOCAL]] locality.
-export fn now() datetime = {
+export fn now() date = {
 	return from_instant(chrono::LOCAL, time::now(time::clock::REALTIME));
 };
 
-// Returns a [[datetime]] of the current system time using
+// Returns a [[date]] of the current system time using
 // [[time::clock::REALTIME]], in the [[time::chrono::UTC]] locality.
-export fn nowutc() datetime = {
+export fn nowutc() date = {
 	return from_instant(chrono::UTC, time::now(time::clock::REALTIME));
 };
 
-// Creates a [[datetime]] from a [[time::chrono::moment]].
-export fn from_moment(m: chrono::moment) datetime = {
+// Creates a [[date]] from a [[time::chrono::moment]].
+export fn from_moment(m: chrono::moment) date = {
 	const dt = init();
 	dt.loc = m.loc;
 	dt.sec = m.sec;
@@ -219,13 +219,13 @@ export fn from_moment(m: chrono::moment) datetime = {
 	return dt;
 };
 
-// Creates a [[datetime]] from a [[time::instant]]
+// Creates a [[date]] from a [[time::instant]]
 // in a [[time::chrono::locality]].
-export fn from_instant(loc: chrono::locality, i: time::instant) datetime = {
+export fn from_instant(loc: chrono::locality, i: time::instant) date = {
 	return from_moment(chrono::new(loc, i));
 };
 
-// Creates a [[datetime]] from a string, parsed according to a layout format.
+// Creates a [[date]] from a string, parsed according to a layout format.
 // See [[parse]] and [[format]]. At least a complete calendar date has to be
 // provided. The if hour, minute, second, nanosecond, or zone offset are not
 // provided, they default to 0.
@@ -236,7 +236,7 @@ export fn from_instant(loc: chrono::locality, i: time::instant) datetime = {
 // 		locs...
 // 	)!;
 //
-// The datetime's [[time::chrono::locality]] will be selected from the provided
+// The date's [[time::chrono::locality]] will be selected from the provided
 // locality arguments. The 'name' field of these localities will be matched
 // against the parsed result for the %L specifier. If %L is not specified, or if
 // no locality is provided, [[time::chrono::UTC]] is used.
@@ -244,7 +244,7 @@ export fn from_str(
 	layout: str,
 	s: str,
 	locs: time::chrono::locality...
-) (datetime | parsefail | insufficient | invalid) = {
+) (date | parsefail | insufficient | invalid) = {
 	const v = newvirtual();
 	v.zoff = 0;
 	v.hour = 0;
@@ -259,7 +259,7 @@ export fn from_str(
 	const amst = chrono::tz("Europe/Amsterdam")!;
 	defer chrono::timezone_free(amst);
 
-	let testcases: [_](str, str, []chrono::locality, (datetime | error)) = [
+	let testcases: [_](str, str, []chrono::locality, (date | error)) = [
 		(STAMP_NOZL, "2001-02-03 15:16:17.123456789 +0000 UTC UTC", [],
 			new(chrono::UTC, 0, 2001, 2, 3, 15, 16, 17, 123456789)!),
 		(STAMP, "2001-02-03 15:16:17", [],
@@ -290,10 +290,10 @@ export fn from_str(
 		const actual = from_str(t.0, t.1, t.2...);
 
 		match (expect) {
-		case let e: datetime =>
-			assert(actual is datetime, "wanted 'datetime', got 'error'");
-			assert(chrono::eq(&(actual as datetime), &e)!,
-				"incorrect 'datetime' value");
+		case let e: date =>
+			assert(actual is date, "wanted 'date', got 'error'");
+			assert(chrono::eq(&(actual as date), &e)!,
+				"incorrect 'date' value");
 		case let e: parsefail =>
 			assert(actual is parsefail,
 				"wanted 'parsefail', got other");
