@@ -121,7 +121,7 @@ fn tai_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 // During a program's initialization, this timescale initializes by loading its
 // UTC/TAI leap second data from [[UTC_LEAPSECS_FILE]]; otherwise, fails
 // silently. If failed, any attempt to consult UTC leapsec data (e.g. calling
-// [[convert]] on UTC) causes an abort. This includes [[chrono::in]].
+// [[convert]] on UTC) causes an abort. This includes [[in]].
 export const utc: timescale = timescale {
 	name = "Coordinated Universal Time",
 	abbr = "UTC",

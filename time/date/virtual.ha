@@ -13,12 +13,12 @@ export type insufficient = !void;
 //
 // Unlike [[date]], a virtual's fields are meant to be treated as public and
 // mutable. The embedded [[time::instant]] and [[time::chrono::locality]] fields
-// (.sec .nsec .loc) are considered meaningless. Behaviour with the "observe"
+// (.sec .nsec .loc) are considered meaningless. Behaviour with the observer
 // functions is undefined.
 //
-// This can be used to construct a new [[date]] piece-by-piece. Start with
-// [[newvirtual]], then collect enough date/time information incrementally by
-// direct field assignments and/or with [[parse]]. Finish with [[realize]].
+// This can be used to safely construct a new [[date]] piece-by-piece. Start
+// with [[newvirtual]], then collect enough date/time information incrementally
+// by direct field assignments and/or with [[parse]]. Finish with [[realize]].
 //
 // 	let v = date::newvirtual();
 // 	v.vloc = time::chrono::UTC;
@@ -52,8 +52,8 @@ export fn newvirtual() virtual = virtual {
 	nsec        = 0,
 	loc         = chrono::UTC,
 	zone        = null,
-	date        = void,
-	time        = void,
+	daydate     = void,
+	daytime     = void,
 
 	era         = void,
 	year        = void,
@@ -84,17 +84,17 @@ export fn newvirtual() virtual = virtual {
 // each of which use a certain set of non-void fields from the given virtual.
 // The following determination strategies will be attempted in order.
 //
-// Field sets for determining the date:
+// Field sets for determining the daydate:
 //
-// 1. date
+// 1. daydate
 // 2. year, month, day
 // 3. year, yearday
 // 4. year, week, weekday
 // 5. isoweekyear, isoweek, weekday
 //
-// Field sets for determining the time:
+// Field sets for determining the time-of-day:
 //
-// 1. time
+// 1. daytime
 // 2. hour, minute, second, nanosecond
 //
 // Field sets for determining the zone offset:
@@ -117,15 +117,15 @@ export fn realize(
 	v: virtual,
 	locs: time::chrono::locality...
 ) (date | insufficient | invalid) = {
-	// determine .date
-	if (v.date is i64) {
+	// determine .daydate
+	if (v.daydate is i64) {
 		void;
 	} else if (
 		v.year is int &&
 		v.month is int &&
 		v.day is int
 	) {
-		v.date = calc_date__ymd(
+		v.daydate = calc_daydate__ymd(
 			v.year as int,
 			v.month as int,
 			v.day as int,
@@ -134,7 +134,7 @@ export fn realize(
 		v.year is int &&
 		v.yearday is int
 	) {
-		v.date = calc_date__yd(
+		v.daydate = calc_daydate__yd(
 			v.year as int,
 			v.yearday as int,
 		)?;
@@ -143,21 +143,21 @@ export fn realize(
 		v.week is int &&
 		v.weekday is int
 	) {
-		v.date = calc_date__ywd(
+		v.daydate = calc_daydate__ywd(
 			v.year as int,
 			v.week as int,
 			v.weekday as int,
 		)?;
 	} else if (false) {
-		// TODO: calendar.ha: calc_date__isoywd()
+		// TODO: calendar.ha: calc_daydate__isoywd()
 		void;
 	} else {
-		// cannot deduce date
+		// cannot deduce daydate
 		return insufficient;
 	};
 
-	// determine .time
-	if (v.time is time::duration) {
+	// determine .daytime
+	if (v.daytime is time::duration) {
 		void;
 	} else {
 		const hour = if (v.hour is int) {
@@ -175,7 +175,7 @@ export fn realize(
 			v.second is int &&
 			v.nanosecond is int
 		) {
-			v.time = calc_time__hmsn(
+			v.daytime = calc_daytime__hmsn(
 				hour,
 				v.minute as int,
 				v.second as int,
@@ -211,8 +211,8 @@ export fn realize(
 	const d = from_moment(chrono::from_datetime(
 		v.loc,
 		v.zoff as time::duration,
-		v.date as i64,
-		v.time as time::duration,
+		v.daydate as i64,
+		v.daytime as time::duration,
 	));
 
 	// verify zone offset

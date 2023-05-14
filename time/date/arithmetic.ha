@@ -107,7 +107,7 @@ export fn unitdiff(a: date, b: date, u: unit) i64 = {
 	case unit::WEEK =>
 		return unitdiff(a, b, unit::DAY) / 7;
 	case unit::DAY =>
-		return chrono::date(&b) - chrono::date(&a);
+		return chrono::daydate(&b) - chrono::daydate(&a);
 	case unit::HOUR =>
 		return unitdiff(a, b, unit::DAY) * 24 + pdiff(a, b).hours;
 	case unit::MINUTE =>
@@ -147,8 +147,8 @@ export fn truncate(d: date, u: unit) date = {
 			0, 0, 0, 0,
 		)!;
 	case unit::WEEK =>
-		const date = chrono::date(&d) - _weekday(&d);
-		const ymd = calc_ymd(date);
+		const dd = chrono::daydate(&d) - _weekday(&d);
+		const ymd = calc_ymd(dd);
 		yield new(d.loc, chrono::mzone(&d).zoff,
 			ymd.0, ymd.1, ymd.2,
 			0, 0, 0, 0,

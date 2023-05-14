@@ -7,46 +7,46 @@ use time::chrono;
 // These functions are renamed to avoid namespace conflicts, like in the
 // parameters of the [[new]] function.
 
-// Returns a [[date]]'s era.
+// Observes a [[date]]'s era.
 export fn era(d: *date) int = _era(d);
 
-// Returns a [[date]]'s year.
+// Observes a [[date]]'s year.
 export fn year(d: *date) int = _year(d);
 
-// Returns a [[date]]'s month of the year.
+// Observes a [[date]]'s month of the year.
 export fn month(d: *date) int = _month(d);
 
-// Returns a [[date]]'s day of the month.
+// Observes a [[date]]'s day of the month.
 export fn day(d: *date) int = _day(d);
 
-// Returns a [[date]]'s day of the week; Monday=0 to Sunday=6.
+// Observes a [[date]]'s day of the week; Monday=0 to Sunday=6.
 export fn weekday(d: *date) int = _weekday(d);
 
-// Returns a [[date]]'s ordinal day of the year.
+// Observes a [[date]]'s ordinal day of the year.
 export fn yearday(d: *date) int = _yearday(d);
 
-// Returns a [[date]]'s ISO week-numbering year.
+// Observes a [[date]]'s ISO week-numbering year.
 export fn isoweekyear(d: *date) int = _isoweekyear(d);
 
-// Returns a [[date]]'s Gregorian week starting Monday.
+// Observes a [[date]]'s Gregorian week starting Monday.
 export fn week(d: *date) int = _week(d);
 
-// Returns a [[date]]'s Gregorian week starting Sunday.
+// Observes a [[date]]'s Gregorian week starting Sunday.
 export fn sundayweek(d: *date) int = _sundayweek(d);
 
-// Returns a [[date]]'s ISO week.
+// Observes a [[date]]'s ISO week.
 export fn isoweek(d: *date) int = _isoweek(d);
 
-// Returns a [[date]]'s hour of the day.
+// Observes a [[date]]'s hour of the day.
 export fn hour(d: *date) int = _hour(d);
 
-// Returns a [[date]]'s minute of the hour.
+// Observes a [[date]]'s minute of the hour.
 export fn minute(d: *date) int = _minute(d);
 
-// Returns a [[date]]'s second of the minute.
+// Observes a [[date]]'s second of the minute.
 export fn second(d: *date) int = _second(d);
 
-// Returns a [[date]]'s nanosecond of the second.
+// Observes a [[date]]'s nanosecond of the second.
 export fn nanosecond(d: *date) int = _nanosecond(d);
 
 fn _era(d: *date) int = {
@@ -65,7 +65,7 @@ fn _era(d: *date) int = {
 fn _year(d: *date) int = {
 	match (d.year) {
 	case void =>
-		const ymd = calc_ymd(chrono::date(d));
+		const ymd = calc_ymd(chrono::daydate(d));
 		d.year = ymd.0;
 		d.month = ymd.1;
 		d.day = ymd.2;
@@ -78,7 +78,7 @@ fn _year(d: *date) int = {
 fn _month(d: *date) int = {
 	match (d.month) {
 	case void =>
-		const ymd = calc_ymd(chrono::date(d));
+		const ymd = calc_ymd(chrono::daydate(d));
 		d.year = ymd.0;
 		d.month = ymd.1;
 		d.day = ymd.2;
@@ -91,7 +91,7 @@ fn _month(d: *date) int = {
 fn _day(d: *date) int = {
 	match (d.day) {
 	case void =>
-		const ymd = calc_ymd(chrono::date(d));
+		const ymd = calc_ymd(chrono::daydate(d));
 		d.year = ymd.0;
 		d.month = ymd.1;
 		d.day = ymd.2;
@@ -104,7 +104,7 @@ fn _day(d: *date) int = {
 fn _weekday(d: *date) int = {
 	match (d.weekday) {
 	case void =>
-		d.weekday = calc_weekday(chrono::date(d));
+		d.weekday = calc_weekday(chrono::daydate(d));
 		return d.weekday: int;
 	case let y: int =>
 		return y;
@@ -221,7 +221,7 @@ fn _isoweek(d: *date) int = {
 fn _hour(d: *date) int = {
 	match (d.hour) {
 	case void =>
-		const hmsn = calc_hmsn(chrono::time(d));
+		const hmsn = calc_hmsn(chrono::daytime(d));
 		d.hour = hmsn.0;
 		d.minute = hmsn.1;
 		d.second = hmsn.2;
@@ -235,7 +235,7 @@ fn _hour(d: *date) int = {
 fn _minute(d: *date) int = {
 	match (d.minute) {
 	case void =>
-		const hmsn = calc_hmsn(chrono::time(d));
+		const hmsn = calc_hmsn(chrono::daytime(d));
 		d.hour = hmsn.0;
 		d.minute = hmsn.1;
 		d.second = hmsn.2;
@@ -249,7 +249,7 @@ fn _minute(d: *date) int = {
 fn _second(d: *date) int = {
 	match (d.second) {
 	case void =>
-		const hmsn = calc_hmsn(chrono::time(d));
+		const hmsn = calc_hmsn(chrono::daytime(d));
 		d.hour = hmsn.0;
 		d.minute = hmsn.1;
 		d.second = hmsn.2;
@@ -263,7 +263,7 @@ fn _second(d: *date) int = {
 fn _nanosecond(d: *date) int = {
 	match (d.nanosecond) {
 	case void =>
-		const hmsn = calc_hmsn(chrono::time(d));
+		const hmsn = calc_hmsn(chrono::daytime(d));
 		d.hour = hmsn.0;
 		d.minute = hmsn.1;
 		d.second = hmsn.2;

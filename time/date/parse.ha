@@ -255,8 +255,8 @@ fn scan_str(iter: *strings::iterator) (str | failure) = {
 	let v = newvirtual();
 	assert(parse(&v, "foo", "foo") is void, "none: parsefail");
 	assert(v.zone        == null, "none: non-null zone");
-	assert(v.date        is void, "none: non-void date");
-	assert(v.time        is void, "none: non-void time");
+	assert(v.daydate     is void, "none: non-void daydate");
+	assert(v.daytime     is void, "none: non-void daytime");
 	assert(v.era         is void, "none: non-void era");
 	assert(v.year        is void, "none: non-void year");
 	assert(v.month       is void, "none: non-void month");

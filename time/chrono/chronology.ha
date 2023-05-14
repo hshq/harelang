@@ -5,36 +5,35 @@ use time;
 // Invalid [[moment]].
 export type invalid = !void;
 
-// A moment in time within a [[locality]]. Create one with [[new]].
-//
-// Moments extend the [[time::instant]] type and couples it with a [[timescale]]
-// via its [[locality]] field.
+// A moment in time within a [[locality]]. Create one with [[new]]. This type
+// extends the [[time::instant]] type and couples it with a [[timescale]] via
+// its [[locality]] field.
 //
 // This object should be treated as private and immutable. Directly mutating its
 // fields causes undefined behavour when used with module functions. Likewise,
 // interrogating the fields' type and value (e.g. using match statements) is
 // also improper.
 //
-// Moments observe a date, time-of-day, and [[zone]], which are evaluated and
-// obtained with the [[date]], [[time]], and [[mzone]] "observe" functions.
-// These values are derived from the embedded instant and locality information,
-// and thus are guaranteed to be valid.
+// Moments observe a daydate, time-of-day, and [[zone]], which are evaluated,
+// cached and obtained with the observer functions [[daydate]], [[daytime]], and
+// [[mzone]]. These values are derived from the embedded instant and locality
+// information, and thus are guaranteed to be valid.
 export type moment = struct {
-	// The embedded [[time::instant]] of this moment
+	// The embedded [[time::instant]].
 	time::instant,
 
-	// The [[locality]] with which to interpret this moment
+	// The [[locality]] with which to interpret this moment.
 	loc: locality,
 
-	// The observed [[zone]]
+	// The observed [[zone]].
 	zone: nullable *zone,
 
-	// The observed ordinal day (on Earth or otherwise)
-	// since an abitrary epoch, like the Hare epoch 1970-01-01
-	date: (void | i64),
+	// The observed daydate (scalar day number)
+	// since an abitrary epoch (e.g. the Unix epoch 1970-01-01).
+	daydate: (void | i64),
 
-	// The observed time since the start of the day
-	time: (void | time::duration),
+	// The observed time-of-day (amount of daytime progressed in a day).
+	daytime: (void | time::duration),
 };
 
 // Creates a new [[moment]]. Uses a given [[time::instant]] with a [[timescale]]
@@ -45,12 +44,12 @@ export fn new(loc: locality, i: time::instant) moment = {
 		nsec = i.nsec,
 		loc = loc,
 		zone = null,
-		date = void,
-		time = void,
+		daydate = void,
+		daytime = void,
 	};
 };
 
-// Evalutes, caches, and returns a [[moment]]'s observed [[zone]].
+// Observes a [[moment]]'s observed [[zone]].
 export fn mzone(m: *moment) zone = {
 	match (m.zone) {
 	case let z: *zone =>
@@ -62,43 +61,43 @@ export fn mzone(m: *moment) zone = {
 	};
 };
 
-// Evaluates, caches, and returns a [[moment]]'s observed epochal date.
+// Observes a [[moment]]'s observed daydate (day number since epoch).
 //
 // For moments with [[locality]]s based on the [[utc]], [[tai]], [[gps]], and
 // similar timescales, their epoch date should be interpreted as the Unix epoch
 // (1970 Janurary 1st). Other timescales may suggest their own interpretations
 // applicable to other chronologies.
-export fn date(m: *moment) i64 = {
-	match (m.date) {
-	case let d: i64 =>
-		return d;
+export fn daydate(m: *moment) i64 = {
+	match (m.daydate) {
+	case let dd: i64 =>
+		return dd;
 	case void =>
-		const (d, t) = calc_datetime(
+		const (dd, dt) = calc_datetime(
 			m.loc, *(m: *time::instant), mzone(m).zoff,
 		);
-		m.time = t;
-		m.date = d;
-		return d;
+		m.daytime = dt;
+		m.daydate = dd;
+		return dd;
 	};
 };
 
-// Evaluates, caches, and returns a [[moment]]'s observed time-of-day as a
-// [[time::duration]] since the start of a day.
-export fn time(m: *moment) time::duration = {
-	match (m.time) {
-	case let t: time::duration =>
-		return t;
+// Observes a [[moment]]'s observed time-of-day (amount of daytime progressed in
+// a day) as a [[time::duration]].
+export fn daytime(m: *moment) time::duration = {
+	match (m.daytime) {
+	case let dt: time::duration =>
+		return dt;
 	case void =>
-		const (d, t) = calc_datetime(
+		const (dd, dt) = calc_datetime(
 			m.loc, *(m: *time::instant), mzone(m).zoff,
 		);
-		m.time = t;
-		m.date = d;
-		return t;
+		m.daytime = dt;
+		m.daydate = dd;
+		return dt;
 	};
 };
 
-// Calculates the observed date and time-of-day of a [[time::instant]] in a
+// Calculates the observed daydate and time-of-day of a [[time::instant]] in a
 // [[locality]] at a particular zone offset.
 fn calc_datetime(
 	loc: locality,
@@ -108,44 +107,44 @@ fn calc_datetime(
 	const i = time::add(inst, zoff);
 	const day = loc.daylength;
 	const daysec = day / time::SECOND;
-	const d = if (i.sec >= 0) i.sec / daysec else (i.sec + 1) / daysec - 1;
-	const t = ((i.sec % daysec + daysec) * time::SECOND + i.nsec) % day;
-	return (d, t);
+	const dd = if (i.sec >= 0) i.sec / daysec else (i.sec + 1) / daysec - 1;
+	const dt = ((i.sec % daysec + daysec) * time::SECOND + i.nsec) % day;
+	return (dd, dt);
 };
 
-// Creates a [[moment]] from a given [[locality]], zone offset, date, and
+// Creates a [[moment]] from a given [[locality]], zone offset, daydate, and
 // time-of-day.
 export fn from_datetime(
 	loc: locality,
 	zo: time::duration,
-	d: i64,
-	t: time::duration,
+	dd: i64,
+	dt: time::duration,
 ) moment = {
-	const inst = calc_instant(loc.daylength, zo, d, t);
+	const inst = calc_instant(loc.daylength, zo, dd, dt);
 	return moment {
 		sec = inst.sec,
 		nsec = inst.nsec,
 		loc = loc,
 		zone = null,
-		date = d,
-		time = t,
+		daydate = dd,
+		daytime = dt,
 	};
 };
 
 fn calc_instant(
 	day: time::duration, // length of a day
 	zo: time::duration,  // zone offset
-	d: i64,              // date since epoch
-	t: time::duration,   // time since start of day
+	dd: i64,             // date since epoch
+	dt: time::duration,  // time since start of day
 ) time::instant = {
 	const daysec = (day / time::SECOND): i64;
 	const dayrem = day % time::SECOND;
 	let i = time::instant {
-		sec = d * daysec,
+		sec = dd * daysec,
 		nsec = 0,
 	};
-	i = time::add(i, d * dayrem);
-	i = time::add(i, t);
+	i = time::add(i, dd * dayrem);
+	i = time::add(i, dt);
 	i = time::add(i, -zo);
 	return i;
 };

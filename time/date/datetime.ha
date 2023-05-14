@@ -9,10 +9,7 @@ use time::chrono;
 export type invalid = !chrono::invalid;
 
 // A date/time object; a [[time::chrono::moment]] wrapper optimized for the
-// Gregorian chronology
-//
-// It is by extension a [[time::instant]] wrapper, and carries information about
-// its [[time::chrono::timescale]] and [[time::chrono::locality]].
+// Gregorian chronology, and by extension a [[time::instant]] wrapper.
 //
 // This object should be treated as private and immutable. Directly mutating its
 // fields causes undefined behaviour when used with module functions. Likewise,
@@ -20,8 +17,8 @@ export type invalid = !chrono::invalid;
 // also improper.
 //
 // A date observes various chronological values, cached in its fields. To
-// evaluate and obtain these values, use the various "observe" functions
-// ([[year]], [[day]], etc.). These values are derived from the embedded moment
+// evaluate and obtain these values, use the various observer functions
+// ([[year]], [[hour]], etc.). These values are derived from the embedded moment
 // information, and thus are guaranteed to be valid.
 //
 // See [[virtual]] for an public, mutable, intermediary representation of a
@@ -51,8 +48,8 @@ fn init() date = date {
 	nsec        = 0,
 	loc         = chrono::UTC,
 	zone        = null,
-	date        = void,
-	time        = void,
+	daydate     = void,
+	daytime     = void,
 
 	era         = void,
 	year        = void,
@@ -153,8 +150,8 @@ export fn new(
 	const sec   = _fields[5];
 	const nsec  = _fields[6];
 
-	const mdate = calc_date__ymd(year, month, day)?;
-	const mtime = calc_time__hmsn(hour, min, sec, nsec)?;
+	const mdate = calc_daydate__ymd(year, month, day)?;
+	const mtime = calc_daytime__hmsn(hour, min, sec, nsec)?;
 
 	// create the moment
 	const m = match (zo) {
@@ -213,8 +210,8 @@ export fn from_moment(m: chrono::moment) date = {
 	d.loc = m.loc;
 	d.sec = m.sec;
 	d.nsec = m.nsec;
-	d.date = m.date;
-	d.time = m.time;
+	d.daydate = m.daydate;
+	d.daytime = m.daytime;
 	d.zone = m.zone;
 	return d;
 };

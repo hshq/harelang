@@ -2,10 +2,10 @@
 // (c) 2023 Byron Torres <b@torresjrjr.com>
 use time;
 
-// Adds a [[time::duration]] to a [[date]] with [[time::add]].
+// Adds a [[time::duration]] to a [[date]] with [[time::add]]. This is a
+// timescalar aritmetic operation.
 //
-// See [[reckon]] for a chronology-wise arithmetic operation which uses
-// [[period]].
+// See [[reckon]].
 export fn add(d: date, x: time::duration) date = {
 	return from_instant(d.loc, time::add(*(&d: *time::instant), x));
 };

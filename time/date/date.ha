@@ -191,9 +191,9 @@ fn calc_weekday(e: i64) int = {
 	return (wd + 7) % 7;
 };
 
-// Calculates the date,
+// Calculates the daydate,
 // given a year, month, and day-of-month.
-fn calc_date__ymd(y: int, m: int, d: int) (i64 | invalid) = {
+fn calc_daydate__ymd(y: int, m: int, d: int) (i64 | invalid) = {
 	if (!is_valid_ymd(y, m, d)) {
 		return invalid;
 	};
@@ -212,24 +212,24 @@ fn calc_date__ymd(y: int, m: int, d: int) (i64 | invalid) = {
 	return e;
 };
 
-// Calculates the date,
+// Calculates the daydate,
 // given a year, week, and day-of-week.
-fn calc_date__ywd(y: int, w: int, wd: int) (i64 | invalid) = {
+fn calc_daydate__ywd(y: int, w: int, wd: int) (i64 | invalid) = {
 	const jan1wd = calc_janfirstweekday(y);
 	const yd = wd - jan1wd + 7 * w;
-	return calc_date__yd(y, yd)?;
+	return calc_daydate__yd(y, yd)?;
 };
 
-// Calculates the date,
+// Calculates the daydate,
 // given a year and day-of-year.
-fn calc_date__yd(y: int, yd: int) (i64 | invalid) = {
+fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 	if (yd < 1 || yd > calc_year_daycnt(y)) {
 		return invalid;
 	};
-	return calc_date__ymd(y, 1, 1)? + yd - 1;
+	return calc_daydate__ymd(y, 1, 1)? + yd - 1;
 };
 
-@test fn calc_date__ymd() void = {
+@test fn calc_daydate__ymd() void = {
 	const cases = [
 		(( -768,  2,  5),  -999999, false),
 		((   -1, 12, 31),  -719529, false),
@@ -265,7 +265,7 @@ fn calc_date__yd(y: int, yd: int) (i64 | invalid) = {
 		const params = cases[i].0;
 		const expect = cases[i].1;
 		const should_error = cases[i].2;
-		const actual = calc_date__ymd(
+		const actual = calc_daydate__ymd(
 			params.0, params.1, params.2,
 		);
 
@@ -278,7 +278,7 @@ fn calc_date__yd(y: int, yd: int) (i64 | invalid) = {
 	};
 };
 
-@test fn calc_date__ywd() void = {
+@test fn calc_daydate__ywd() void = {
 	const cases = [
 		(( -768,  0, 4), -1000034),
 		(( -768,  5, 4), -999999),
@@ -316,13 +316,13 @@ fn calc_date__yd(y: int, yd: int) (i64 | invalid) = {
 	for (let i = 0z; i < len(cases); i += 1) {
 		const ywd = cases[i].0;
 		const expected = cases[i].1;
-		const actual = calc_date__ywd(ywd.0, ywd.1, ywd.2)!;
+		const actual = calc_daydate__ywd(ywd.0, ywd.1, ywd.2)!;
 		assert(actual == expected,
-			"incorrect calc_date__ywd() result");
+			"incorrect calc_daydate__ywd() result");
 	};
 };
 
-@test fn calc_date__yd() void = {
+@test fn calc_daydate__yd() void = {
 	const cases = [
 		( -768, 36,  -999999),
 		(   -1, 365, -719529),
@@ -351,14 +351,14 @@ fn calc_date__yd(y: int, yd: int) (i64 | invalid) = {
 		const y = cases[i].0;
 		const yd = cases[i].1;
 		const expected = cases[i].2;
-		const actual = calc_date__yd(y, yd)!;
+		const actual = calc_daydate__yd(y, yd)!;
 		assert(expected == actual,
 			"error in date calculation from yd");
 	};
-	assert(calc_date__yd(2020, 0) is invalid,
-		"calc_date__yd() did not reject invalid yearday");
-	assert(calc_date__yd(2020, 400) is invalid,
-		"calc_date__yd() did not reject invalid yearday");
+	assert(calc_daydate__yd(2020, 0) is invalid,
+		"calc_daydate__yd() did not reject invalid yearday");
+	assert(calc_daydate__yd(2020, 400) is invalid,
+		"calc_daydate__yd() did not reject invalid yearday");
 };
 
 @test fn calc_ymd() void = {

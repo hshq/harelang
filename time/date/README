@@ -1,33 +1,20 @@
 The time::date module implements the common international Gregorian chronology,
 based on the astronomically numbered proleptic Gregorian calendar, as per ISO
 8601, and the common 24 hour clock. It provides [[date]], a representation of
-civil date/time, and an extension of the [[time::chrono::moment]] type,
-optimized for dealing with the Gregorian chronology.
-
+civil date/time and a optimized extension of the [[time::chrono::moment]] type.
 The [[time::chrono]] module has many useful functions which interoperate with
 dates. Any [[time::chrono]] function which accepts *moment also accepts *date.
 
-Dates are created with [[new]], [[now]], or one of the "from_" functions.
-Alternatively, use the [[virtual]] interface to construct a date.
-
-The [[virtual]] interface, coupled with the [[realize]] function, provides a way
-to handle uncertain or invalid date/time information intermediately, transform
-date/time values with arithmetic, [[parse]] date/time strings, and construct new
-dates safely.
-
-The "observe" functions accept a *date and evaluates one of its observed
-chronological values. This includes [[year]], [[month]], [[day]], [[hour]] etc.
-
-Dates may be localized to different [[time::chrono::locality]]s via the [[in]]
-function. The "observe" functions will evaluate the correct values accordingly.
-You'll find a standard selection of world timezones in [[time::chrono]].
-
+Dates are created using [[new]], [[now]], [[nowutc]], or a "from_" function.
+Alternatively, the [[virtual]]/[[realize]] interface can handle uncertain or
+invalid date/time information, and construct new dates incrementally and safely.
+The observer functions ([[year]], [[hour]], etc.) evaluate a date's observed
+chronological values, adjusted for its associated [[time::chrono::locality]].
+Use [[in]] to localize a date to another locality; consult [[time::chrono::tz]].
 See [[parse]] and [[format]] for working with date/time strings.
 
-Timescale-wise date arithmetic using the [[time::duration]] type is possible,
-with [[add]] and [[time::chrono::diff]].
-
-Chronology-wise date arithmetic using the [[period]] type is possible, with
-[[reckon]] and the [[calculus]] type, [[pdiff]], [[unitdiff]], and [[truncate]].
-Note that chronological and calendrical arithmetic is highly irregular due to
+Date arithmetic operations are categorized into "timescalar" or "chronological".
+Timescalar uses [[time::duration]]; see [[add]], [[time::chrono::diff]].
+Chronological uses [[period]]; see [[reckon]], [[pdiff]], [[unitdiff]],
+[[truncate]]. Note that calendrical arithmetic is highly irregular due to field
 overflows and timezone discontinuities, so think carefully about what you want.

@@ -49,13 +49,11 @@ export type calculus = enum uint {
 	FOLD = 1 << 4,
 };
 
-// Reckons from a given [[date]] to a new one, via a set of [[period]]s.
-// This is a chronology-wise arithmetic operation. Each period is reckoned
+// Reckons from a given [[date]] to a new one, via a given set of [[period]]s.
+// This is a chronological arithmetic operation. Each period is reckoned
 // independently in succession, applying (adding) their units from most to least
-// significant.
-//
-// The [[calculus]] parameter determines arithmetic and resolution behaviour
-// when encountering deviations (e.g. overflows).
+// significant. The [[calculus]] parameter determines certain behaviours, like
+// for when encountering invalid date states (e.g. field overflows).
 //
 // 	let dest = date::reckon(
 // 		start, // 2000-02-29 09:00:00
@@ -67,8 +65,7 @@ export type calculus = enum uint {
 // 		},
 // 	);
 //
-// See [[add]] for a timescale-wise arithmetic operation which uses
-// [[time::duration]].
+// See [[add]].
 export fn reckon(d: date, calc: calculus, ps: period...) date = {
 	let r = newvirtual(); // our reckoner
 	r.vloc       = d.loc;

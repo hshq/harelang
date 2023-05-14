@@ -1,22 +1,13 @@
-The time::chrono submodule provides the basis for chronology in Hare, namely
-[[timescale]]s (leap second handling), [[timezone]]s, and the [[moment]] type,
-an abstracted date/time object for external modules to interface with.
+The time::chrono module provides timescale utilities, and the foundations for
+chronology with the [[moment]] type, an abstract, extendable date/time object.
+For the Gregorian chronology, see the [[time::date]] module.
 
-For working with the Gregorian chronology, see the [[time::date]] module.
+Hare defines a chronology as a system for naming and ordering moments in time.
+In practice, it is the combination of a calendar and wall clock. This module
+implements a simple date & time chronology with [[moment]], which observes
+certain chronological values according to its [[locality]]. The observer
+functions [[daydate]], [[daytime]], and [[mzone]] obtain these values.
+Use [[in]] to localize a moment to another [[locality]]; consult [[tz]].
 
-Hare defines a chronology as a system used to name and order moments in time. In
-practice, a chronology is the combination of a calendar (for handling days) and
-a wall clock (for handling times throughout a day).
-
-This module implements a small chronology of dates & times. A moment observes
-certain chronological values according to its [[locality]]. The "observe"
-functions [[date]], [[time]], and [[zone]] obtain these values.
-
-Higher level modules like [[time::date]] expand upon this with more complex
-chronological values (years, hours, etc.). The [[time::date::date]] type
-embeds [[moment]], and other modules implementing other chronologies may
-interoperate with their own extension types.
-
-[[time::instant]]s can be [[convert]]ed via the [[timescale]] interface. The
-[[tai]] timescale acts as the central intermediary timescale. Other timescales
-are expected to be able to convert their instants to TAI and back.
+The [[timescale]] interface facilitates leap-second aware [[convert]]ion of
+[[time::instant]]s. The [[tai]] timescale is the default intermediary timescale.

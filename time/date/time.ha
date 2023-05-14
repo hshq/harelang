@@ -4,7 +4,7 @@ use errors;
 use time;
 
 // Calculates the wall clock (hour, minute, second, nanosecond),
-// given a time since the start of a day.
+// given a time-of-day (amount of daytime progressed in a day).
 fn calc_hmsn(t: time::duration) (int, int, int, int) = {
 	// TODO: Special case for leap seconds, 61st second?
 	const hour = (t / time::HOUR): int;
@@ -14,9 +14,9 @@ fn calc_hmsn(t: time::duration) (int, int, int, int) = {
 	return (hour, min, sec, nsec);
 };
 
-// Calculates the time since the start of a day,
+// Calculates the time-of-day (amount of daytime progressed in a day),
 // given a wall clock (hour, minute, second, nanosecond).
-fn calc_time__hmsn(
+fn calc_daytime__hmsn(
 	hour: int,
 	min: int,
 	sec: int,
