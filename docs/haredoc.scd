@@ -22,7 +22,7 @@ See *DOCUMENTATION FORMAT* for details on the format.
 	Show undocumented members (only applies to -Fhare and -Ftty).
 
 *-F* _format_
-	Select output format (one of "html", "gemtext", "hare", or "tty").
+	Select output format (one of "html", "hare", or "tty").
 
 *-t*
 	Disable HTML template.
