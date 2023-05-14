@@ -33,11 +33,5 @@ const reasons: [_]str = [
 ];
 
 export @noreturn fn abort_fixed(loc: str, i: int) void = {
-	match (jmp) {
-	case let j: *jmpbuf =>
-		reason = abort_reason { loc = loc, msg = reasons[i] };
-		longjmp(j, 1);
-	case null =>
-		platform_abort(loc, reasons[i]);
-	};
+	_abort(loc, reasons[i]);
 };

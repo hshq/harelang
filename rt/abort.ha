@@ -18,15 +18,5 @@ const reasons: [_]str = [
 ];
 
 export @noreturn fn abort_fixed(loc: str, i: int) void = {
-	// TODO: This is also platform-specific
-	const prefix = "Abort: ";
-	const sep = ": ";
-	const linefeed = "\n";
-	write(STDERR_FILENO, *(&prefix: **void): *const u8, len(prefix)): void;
-	write(STDERR_FILENO, *(&loc: **void): *const u8, len(loc)): void;
-	write(STDERR_FILENO, *(&sep: **void): *const u8, len(sep)): void;
-	write(STDERR_FILENO, *(&reasons[i]: **void): *const u8, len(reasons[i])): void;
-	write(STDERR_FILENO, *(&linefeed: **void): *const u8, 1): void;
-	kill(getpid(), SIGABRT): void;
-	for (true) void;
+	platform_abort(loc, reasons[i]);
 };
