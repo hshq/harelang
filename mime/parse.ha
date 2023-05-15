@@ -17,13 +17,11 @@ export type type_params = strings::tokenizer;
 // cause [[errors::invalid]] to be returned unless [[next_param]] is used to
 // enumerate all of the parameters.
 export fn parse(in: str) ((str, type_params) | errors::invalid) = {
-	const (mtype, params) = match (strings::cut(in, ";")) {
-	case void => yield (in, "");
-	case let items: (str, str) => yield items;
-	};
-	const items = match (strings::cut(mtype, "/")) {
-	case void => return errors::invalid;
-	case let items: (str, str) => yield items;
+	const items = strings::cut(in, ";");
+	const mtype = items.0, params = items.1;
+	const items = strings::cut(mtype, "/");
+	if (len(items.0) < 1 || len(items.1) < 1) {
+		return errors::invalid;
 	};
 	typevalid(items.0)?;
 	typevalid(items.1)?;
@@ -45,10 +43,7 @@ export fn next_param(in: *type_params) ((str, str) | void | errors::invalid) = {
 		return;
 	};
 
-	const items = match (strings::cut(tok, "=")) {
-	case void => return errors::invalid;
-	case let items: (str, str) => yield items;
-	};
+	const items = strings::cut(tok, "=");
 	// The RFC does not permit whitespace here, but whitespace is very
 	// common in the wild. ¯\_(ツ)_/¯
 	items.0 = strings::trim(items.0);
