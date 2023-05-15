@@ -30,10 +30,7 @@ export fn query_next(dec: *query_decoder) ((str, str) | invalid | void) = {
 	case => return;
 	};
 
-	const raw: (str, str) = match (strings::cut(tok, "=")) {
-	case let s: (str, str) => yield s;
-	case void => yield (tok, "");
-	};
+	const raw = strings::cut(tok, "=");
 	strio::reset(&dec.bufs.0);
 	percent_decode_static(&dec.bufs.0, raw.0)?;
 	strio::reset(&dec.bufs.1);

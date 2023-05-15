@@ -179,47 +179,44 @@ export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 	};
 };
 
-// Returns a string "cut" along the first instance of a delimiter,
-// returning everything up to the delimiter, and everything after the
-// delimiter, in a tuple. If the delimiter is not found, returns void.
+// Returns a string "cut" along the first instance of a delimiter, returning
+// everything up to the delimiter, and everything after the delimiter, in a
+// tuple.
 //
 // 	strings::cut("hello=world=foobar", "=")	// ("hello", "world=foobar")
-// 	strings::cut("hello world", "=")	// void
+// 	strings::cut("hello world", "=")	// ("hello world", "")
 //
-// The return value is borrowed from the 'in' parameter.
-export fn cut(in: str, delim: str) ((str, str) | void) = {
-	match (bytes::cut(toutf8(in), toutf8(delim))) {
-	case void => return void;
-	case let bs: ([]u8, []u8) =>
-		return (fromutf8_unsafe(bs.0), fromutf8_unsafe(bs.1));
-	};
+// The return value is borrowed from the 'in' parameter.  The caller must ensure
+// that 'delimiter' is not an empty string.
+export fn cut(in: str, delim: str) (str, str) = {
+	let c = bytes::cut(toutf8(in), toutf8(delim));
+	return (fromutf8_unsafe(c.0), fromutf8_unsafe(c.1));
 };
 
-// Returns a string "cut" along the last instance of a delimiter,
-// returning everything up to the delimiter, and everything after the
-// delimiter, in a tuple. If the delimiter is not found, the first result
-// will be void.
+// Returns a string "cut" along the last instance of a delimiter, returning
+// everything up to the delimiter, and everything after the delimiter, in a
+// tuple.
 //
 // 	strings::rcut("hello=world=foobar", "=")	// ("hello=world", "foobar")
-// 	strings::rcut("hello world", "=")	// void
+// 	strings::rcut("hello world", "=")	// ("hello world", "")
 //
-// The return value is borrowed from the 'in' parameter.
-export fn rcut(in: str, delim: str) ((str, str) | void) = {
-	match (bytes::rcut(toutf8(in), toutf8(delim))) {
-	case void => return void;
-	case let bs: ([]u8, []u8) =>
-		return (fromutf8_unsafe(bs.0), fromutf8_unsafe(bs.1));
-	};
+// The return value is borrowed from the 'in' parameter.  The caller must ensure
+// that 'delimiter' is not an empty string.
+export fn rcut(in: str, delim: str) (str, str) = {
+	let c = bytes::rcut(toutf8(in), toutf8(delim));
+	return (fromutf8_unsafe(c.0), fromutf8_unsafe(c.1));
 };
 
 @test fn cut() void = {
-	const sample = cut("hello=world", "=") as (str, str);
+	const sample = cut("hello=world", "=");
 	assert(sample.0 == "hello" && sample.1 == "world");
-	const sample = cut("hello=world=foobar", "=") as (str, str);
+	const sample = cut("hello=world=foobar", "=");
 	assert(sample.0 == "hello" && sample.1 == "world=foobar");
-	assert(cut("hello world", "=") is void);
-	assert(cut("", "=") is void);
+	const sample = cut("hello world", "=");
+	assert(sample.0 == "hello world" && sample.1 == "");
+	const sample = cut("", "=");
+	assert(sample.0 == "" && sample.1 == "");
 
-	const sample = rcut("hello=world=foobar", "=") as (str, str);
+	const sample = rcut("hello=world=foobar", "=");
 	assert(sample.0 == "hello=world" && sample.1 == "foobar");
 };
