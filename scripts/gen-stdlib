@@ -1377,34 +1377,34 @@ time_chrono() {
 
 time_date() {
 	gen_srcs -plinux time::date \
-		arithmetic.ha \
-		chronology.ha \
-		errors.ha \
 		date.ha \
-		datetime.ha \
-		duration.ha \
+		daydate.ha \
+		daytime.ha \
+		error.ha \
 		format.ha \
+		locality.ha \
+		observe.ha \
+		parithm.ha \
 		parse.ha \
 		period.ha \
 		reckon.ha \
-		time.ha \
-		timezone.ha \
+		tarithm.ha \
 		virtual.ha
 	gen_ssa -plinux time::date \
 		ascii errors fmt io strconv strings strio time time::chrono
 	gen_srcs -pfreebsd time::date \
-		arithmetic.ha \
-		chronology.ha \
-		errors.ha \
 		date.ha \
-		datetime.ha \
-		duration.ha \
+		daydate.ha \
+		daytime.ha \
+		error.ha \
 		format.ha \
+		locality.ha \
+		observe.ha \
+		parithm.ha \
 		parse.ha \
 		period.ha \
 		reckon.ha \
-		time.ha \
-		timezone.ha \
+		tarithm.ha \
 		virtual.ha
 	gen_ssa -pfreebsd time::date \
 		ascii errors fmt io strconv strings strio time time::chrono

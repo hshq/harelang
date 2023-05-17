@@ -2153,18 +2153,18 @@ $(HARECACHE)/time/chrono/time_chrono-freebsd.ssa: $(stdlib_time_chrono_freebsd_s
 
 # time::date (+linux)
 stdlib_time_date_linux_srcs = \
-	$(STDLIB)/time/date/arithmetic.ha \
-	$(STDLIB)/time/date/chronology.ha \
-	$(STDLIB)/time/date/errors.ha \
 	$(STDLIB)/time/date/date.ha \
-	$(STDLIB)/time/date/datetime.ha \
-	$(STDLIB)/time/date/duration.ha \
+	$(STDLIB)/time/date/daydate.ha \
+	$(STDLIB)/time/date/daytime.ha \
+	$(STDLIB)/time/date/error.ha \
 	$(STDLIB)/time/date/format.ha \
+	$(STDLIB)/time/date/locality.ha \
+	$(STDLIB)/time/date/observe.ha \
+	$(STDLIB)/time/date/parithm.ha \
 	$(STDLIB)/time/date/parse.ha \
 	$(STDLIB)/time/date/period.ha \
 	$(STDLIB)/time/date/reckon.ha \
-	$(STDLIB)/time/date/time.ha \
-	$(STDLIB)/time/date/timezone.ha \
+	$(STDLIB)/time/date/tarithm.ha \
 	$(STDLIB)/time/date/virtual.ha
 
 $(HARECACHE)/time/date/time_date-linux.ssa: $(stdlib_time_date_linux_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
@@ -2175,18 +2175,18 @@ $(HARECACHE)/time/date/time_date-linux.ssa: $(stdlib_time_date_linux_srcs) $(std
 
 # time::date (+freebsd)
 stdlib_time_date_freebsd_srcs = \
-	$(STDLIB)/time/date/arithmetic.ha \
-	$(STDLIB)/time/date/chronology.ha \
-	$(STDLIB)/time/date/errors.ha \
 	$(STDLIB)/time/date/date.ha \
-	$(STDLIB)/time/date/datetime.ha \
-	$(STDLIB)/time/date/duration.ha \
+	$(STDLIB)/time/date/daydate.ha \
+	$(STDLIB)/time/date/daytime.ha \
+	$(STDLIB)/time/date/error.ha \
 	$(STDLIB)/time/date/format.ha \
+	$(STDLIB)/time/date/locality.ha \
+	$(STDLIB)/time/date/observe.ha \
+	$(STDLIB)/time/date/parithm.ha \
 	$(STDLIB)/time/date/parse.ha \
 	$(STDLIB)/time/date/period.ha \
 	$(STDLIB)/time/date/reckon.ha \
-	$(STDLIB)/time/date/time.ha \
-	$(STDLIB)/time/date/timezone.ha \
+	$(STDLIB)/time/date/tarithm.ha \
 	$(STDLIB)/time/date/virtual.ha
 
 $(HARECACHE)/time/date/time_date-freebsd.ssa: $(stdlib_time_date_freebsd_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
@@ -4609,18 +4609,18 @@ $(TESTCACHE)/time/chrono/time_chrono-freebsd.ssa: $(testlib_time_chrono_freebsd_
 
 # time::date (+linux)
 testlib_time_date_linux_srcs = \
-	$(STDLIB)/time/date/arithmetic.ha \
-	$(STDLIB)/time/date/chronology.ha \
-	$(STDLIB)/time/date/errors.ha \
 	$(STDLIB)/time/date/date.ha \
-	$(STDLIB)/time/date/datetime.ha \
-	$(STDLIB)/time/date/duration.ha \
+	$(STDLIB)/time/date/daydate.ha \
+	$(STDLIB)/time/date/daytime.ha \
+	$(STDLIB)/time/date/error.ha \
 	$(STDLIB)/time/date/format.ha \
+	$(STDLIB)/time/date/locality.ha \
+	$(STDLIB)/time/date/observe.ha \
+	$(STDLIB)/time/date/parithm.ha \
 	$(STDLIB)/time/date/parse.ha \
 	$(STDLIB)/time/date/period.ha \
 	$(STDLIB)/time/date/reckon.ha \
-	$(STDLIB)/time/date/time.ha \
-	$(STDLIB)/time/date/timezone.ha \
+	$(STDLIB)/time/date/tarithm.ha \
 	$(STDLIB)/time/date/virtual.ha
 
 $(TESTCACHE)/time/date/time_date-linux.ssa: $(testlib_time_date_linux_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
@@ -4631,18 +4631,18 @@ $(TESTCACHE)/time/date/time_date-linux.ssa: $(testlib_time_date_linux_srcs) $(te
 
 # time::date (+freebsd)
 testlib_time_date_freebsd_srcs = \
-	$(STDLIB)/time/date/arithmetic.ha \
-	$(STDLIB)/time/date/chronology.ha \
-	$(STDLIB)/time/date/errors.ha \
 	$(STDLIB)/time/date/date.ha \
-	$(STDLIB)/time/date/datetime.ha \
-	$(STDLIB)/time/date/duration.ha \
+	$(STDLIB)/time/date/daydate.ha \
+	$(STDLIB)/time/date/daytime.ha \
+	$(STDLIB)/time/date/error.ha \
 	$(STDLIB)/time/date/format.ha \
+	$(STDLIB)/time/date/locality.ha \
+	$(STDLIB)/time/date/observe.ha \
+	$(STDLIB)/time/date/parithm.ha \
 	$(STDLIB)/time/date/parse.ha \
 	$(STDLIB)/time/date/period.ha \
 	$(STDLIB)/time/date/reckon.ha \
-	$(STDLIB)/time/date/time.ha \
-	$(STDLIB)/time/date/timezone.ha \
+	$(STDLIB)/time/date/tarithm.ha \
 	$(STDLIB)/time/date/virtual.ha
 
 $(TESTCACHE)/time/date/time_date-freebsd.ssa: $(testlib_time_date_freebsd_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
