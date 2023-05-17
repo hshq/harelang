@@ -129,22 +129,19 @@ export fn prototype(
 		};
 		indent -= 1;
 		n += newline(out, indent)?;
-	} else for (let i = 0z; i < len(t.params); i += 1) {
-		const param = t.params[i];
-		if (param.name != "") {
-			n += fmt::fprintf(out, "{}: ", param.name)?;
-		};
-		n += fmt::fprint(out, typenames[i])?;
-		if (i + 1 == len(t.params)) {
-			switch (t.variadism) {
-			case variadism::NONE => void;
-			case variadism::HARE =>
-				n += fmt::fprint(out, "...")?;
-			case variadism::C =>
-				n += fmt::fprint(out, ", ...")?;
+	} else {
+		for (let i = 0z; i < len(t.params); i += 1) {
+			const param = t.params[i];
+			if (param.name != "") {
+				n += fmt::fprintf(out, "{}: ", param.name)?;
 			};
-		} else {
-			n += fmt::fprint(out, ", ")?;
+			n += fmt::fprint(out, typenames[i])?;
+			if (i + 1 < len(t.params) || t.variadism == variadism::C) {
+				n += fmt::fprint(out, ", ")?;
+			};
+		};
+		if (t.variadism != variadism::NONE) {
+			n += fmt::fprint(out, "...")?;
 		};
 	};
 

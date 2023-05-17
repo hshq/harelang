@@ -18,8 +18,6 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 		case void =>
 			yield void;
 		case lex::token =>
-			synassert(loc, len(params) > 0,
-				"Expected at least one non-variadic parameter for C-style variadism")?;
 			variadism = ast::variadism::C;
 			try(lexer, ltok::COMMA)?;
 			want(lexer, ltok::RPAREN)?;
