@@ -98,8 +98,16 @@ export @symbol("__test_main") fn main() size = {
 	if (len(ctx.failures) > 0) {
 		fmt::println("Failures:")!;
 		for (let i = 0z; i < len(ctx.failures); i += 1) {
-			fmt::printfln("{}: {}", ctx.failures[i].test,
-				ctx.failures[i].reason.msg)!;
+			if (ctx.failures[i].reason.loc != "") {
+				fmt::printfln("{}: {}: {}",
+					ctx.failures[i].test,
+					ctx.failures[i].reason.loc,
+					ctx.failures[i].reason.msg)!;
+			} else {
+				fmt::printfln("{}: {}",
+					ctx.failures[i].test,
+					ctx.failures[i].reason.msg)!;
+			};
 		};
 		fmt::println()!;
 	};
