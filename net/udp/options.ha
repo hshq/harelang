@@ -14,13 +14,13 @@ export type reuseaddr = void;
 export type portassignment = *u16;
 
 // Options for [[connect]].
-export type connect_option = net::sockflags;
+export type connect_option = net::sockflag;
 
 // Options available for [[listen]].
 export type listen_option = (
 	reuseport |
 	reuseaddr |
 	portassignment |
-	net::sockflags);
+	net::sockflag);
 
 // TODO: Add send/recv flags

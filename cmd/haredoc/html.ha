@@ -642,12 +642,12 @@ fn type_html(
 	// other types and highlight more keywords, like const
 	let z = 0z;
 
-	if (_type.flags & ast::type_flags::CONST != 0
+	if (_type.flags & ast::type_flag::CONST != 0
 			&& !(_type.repr is ast::func_type)) {
 		z += fmt::fprint(out, "<span class='keyword'>const</span> ")?;
 	};
 
-	if (_type.flags & ast::type_flags::ERROR != 0) {
+	if (_type.flags & ast::type_flag::ERROR != 0) {
 		if (_type.repr is ast::builtin_type) {
 			z += fmt::fprint(out, "<span class='type'>!</span>")?;
 		} else {
@@ -713,7 +713,7 @@ fn type_html(
 		z += linelen;
 		z += fmt::fprint(out, ")")?;
 	case let t: ast::pointer_type =>
-		if (t.flags & ast::pointer_flags::NULLABLE != 0) {
+		if (t.flags & ast::pointer_flag::NULLABLE != 0) {
 			z += fmt::fprint(out, "<span class='type'>nullable</span> ")?;
 		};
 		z += fmt::fprint(out, "*")?;

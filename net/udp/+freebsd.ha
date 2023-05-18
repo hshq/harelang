@@ -22,7 +22,7 @@ export fn connect(
 	};
 	let f = 0i;
 	for (let i = 0z; i < len(options); i += 1) {
-		// Only sockflags for now
+		// Only sockflag for now
 		f |= options[i];
 	};
 	f ^= rt::SOCK_CLOEXEC; // invert CLOEXEC
@@ -58,7 +58,7 @@ export fn listen(
 	let f = 0i;
 	for (let i = 0z; i < len(options); i += 1) {
 		match (options[i]) {
-		case let fl: net::sockflags =>
+		case let fl: net::sockflag =>
 			f |= fl;
 		case => void;
 		};

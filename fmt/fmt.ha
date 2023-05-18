@@ -166,7 +166,7 @@ export type modifiers = struct {
 	base:      strconv::base,
 };
 
-type modflags = enum uint {
+type modflag = enum uint {
 	NONE  = 0,
 	ZERO  = 1 << 0,
 	MINUS = 1 << 1,
@@ -425,7 +425,7 @@ fn scan_uint(iter: *strings::iterator) uint = {
 };
 
 fn scan_modifier_flags(iter: *strings::iterator, mod: *modifiers) void = {
-	let flags = modflags::NONE;
+	let flags = modflag::NONE;
 
 	for (true) {
 		let r = match (strings::next(iter)) {
@@ -437,29 +437,29 @@ fn scan_modifier_flags(iter: *strings::iterator, mod: *modifiers) void = {
 
 		switch (r) {
 		case '0' =>
-			flags |= modflags::ZERO;
+			flags |= modflag::ZERO;
 		case '-' =>
-			flags |= modflags::MINUS;
+			flags |= modflag::MINUS;
 		case ' ' =>
-			flags |= modflags::SPACE;
+			flags |= modflag::SPACE;
 		case '+' =>
-			flags |= modflags::PLUS;
+			flags |= modflag::PLUS;
 		case =>
 			strings::prev(iter);
 			break;
 		};
 	};
 
-	mod.padding = if (flags & modflags::MINUS != 0)
+	mod.padding = if (flags & modflag::MINUS != 0)
 		padding::ALIGN_LEFT
-	else if (flags & modflags::ZERO != 0)
+	else if (flags & modflag::ZERO != 0)
 		padding::ZEROES
 	else
 		padding::ALIGN_RIGHT;
 
-	mod.negation = if (flags & modflags::PLUS != 0)
+	mod.negation = if (flags & modflag::PLUS != 0)
 		negation::PLUS
-	else if (flags & modflags::SPACE != 0)
+	else if (flags & modflag::SPACE != 0)
 		negation::SPACE
 	else
 		negation::NONE;

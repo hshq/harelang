@@ -20,7 +20,7 @@ use types::c;
 //
 // Note that on Linux, specifying BENEATH or IN_ROOT will also disable magic
 // symlinks.
-export type resolve_flags = enum {
+export type resolve_flag = enum {
 	NORMAL,
 
 	// Does not allow symlink resolution to occur for any symlinks which
@@ -46,13 +46,13 @@ export type resolve_flags = enum {
 type os_filesystem = struct {
 	fs: fs::fs,
 	dirfd: int,
-	resolve: resolve_flags,
+	resolve: resolve_flag,
 	getdents_bufsz: size,
 };
 
 // Opens a file descriptor as an [[fs::fs]]. This file descriptor must be a
 // directory file. The file will be closed when the fs is closed.
-export fn dirfdopen(fd: io::file, resolve: resolve_flags...) *fs::fs = {
+export fn dirfdopen(fd: io::file, resolve: resolve_flag...) *fs::fs = {
 	let ofs = alloc(os_filesystem { ... });
 	let fs = static_dirfdopen(fd, ofs);
 	for (let i = 0z; i < len(resolve); i += 1) {
@@ -90,9 +90,9 @@ fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 	return &filesystem.fs;
 };
 
-// Clones a dirfd filesystem, optionally adding additional [[resolve_flags]]
+// Clones a dirfd filesystem, optionally adding additional [[resolve_flag]]
 // constraints.
-export fn dirfs_clone(fs: *fs::fs, resolve: resolve_flags...) *fs::fs = {
+export fn dirfs_clone(fs: *fs::fs, resolve: resolve_flag...) *fs::fs = {
 	assert(fs.open == &fs_open);
 	let fs = fs: *os_filesystem;
 	let new = alloc(*fs);
@@ -150,16 +150,16 @@ fn _fs_open(
 	let fs = fs: *os_filesystem;
 
 	oh.resolve = 0u64;
-	if (fs.resolve & resolve_flags::BENEATH == resolve_flags::BENEATH) {
+	if (fs.resolve & resolve_flag::BENEATH == resolve_flag::BENEATH) {
 		oh.resolve |= rt::RESOLVE_BENEATH | rt::RESOLVE_NO_MAGICLINKS;
 	};
-	if (fs.resolve & resolve_flags::IN_ROOT == resolve_flags::IN_ROOT) {
+	if (fs.resolve & resolve_flag::IN_ROOT == resolve_flag::IN_ROOT) {
 		oh.resolve |= rt::RESOLVE_IN_ROOT | rt::RESOLVE_NO_MAGICLINKS;
 	};
-	if (fs.resolve & resolve_flags::NO_SYMLINKS == resolve_flags::NO_SYMLINKS) {
+	if (fs.resolve & resolve_flag::NO_SYMLINKS == resolve_flag::NO_SYMLINKS) {
 		oh.resolve |= rt::RESOLVE_NO_SYMLINKS;
 	};
-	if (fs.resolve & resolve_flags::NO_XDEV == resolve_flags::NO_XDEV) {
+	if (fs.resolve & resolve_flag::NO_XDEV == resolve_flag::NO_XDEV) {
 		oh.resolve |= rt::RESOLVE_NO_XDEV;
 	};
 
@@ -176,17 +176,17 @@ fn _fs_open(
 fn fs_open_file(
 	fs: *fs::fs,
 	path: str,
-	flags: fs::flags...
+	flags: fs::flag...
 ) (io::file | fs::error) = {
-	let oflags = fs::flags::RDONLY: int;
+	let oflags = fs::flag::RDONLY: int;
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i]: int;
 	};
-	oflags ^= fs::flags::CTTY | fs::flags::NOCLOEXEC; // invert NOCTTY/CLOEXEC
+	oflags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
 
-	if ((oflags: fs::flags & fs::flags::DIRECTORY) == fs::flags::DIRECTORY) {
+	if ((oflags: fs::flag & fs::flag::DIRECTORY) == fs::flag::DIRECTORY) {
 		// This is arch-specific
-		oflags &= ~fs::flags::DIRECTORY: int;
+		oflags &= ~fs::flag::DIRECTORY: int;
 		oflags |= rt::O_DIRECTORY: int;
 	};
 
@@ -200,24 +200,24 @@ fn fs_open_file(
 fn fs_open(
 	fs: *fs::fs,
 	path: str,
-	flags: fs::flags...
+	flags: fs::flag...
 ) (io::handle | fs::error) = fs_open_file(fs, path, flags...)?;
 
 fn fs_create_file(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
-	flags: fs::flags...
+	flags: fs::flag...
 ) (io::file | fs::error) = {
 	let oflags = 0;
 	if (len(flags) == 0) {
-		oflags |= fs::flags::WRONLY | fs::flags::TRUNC;
+		oflags |= fs::flag::WRONLY | fs::flag::TRUNC;
 	};
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i]: int;
 	};
-	oflags ^= fs::flags::CTTY | fs::flags::NOCLOEXEC; // invert NOCTTY/CLOEXEC
-	oflags |= fs::flags::CREATE: int;
+	oflags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
+	oflags |= fs::flag::CREATE: int;
 
 	let oh = rt::open_how {
 		flags = oflags: u64,
@@ -231,7 +231,7 @@ fn fs_create(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
-	flags: fs::flags...
+	flags: fs::flag...
 ) (io::handle | fs::error) = {
 	return fs_create_file(fs, path, mode, flags...)?;
 };

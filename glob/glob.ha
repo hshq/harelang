@@ -9,7 +9,7 @@ use strings;
 use strio;
 
 // Flags used to control the behavior of [[next]].
-export type flags = enum uint {
+export type flag = enum uint {
 	NONE = 0,
 	// Slash appending is enabled. A slash character is appended to each
 	// pathname that is a directory that matches the pattern.
@@ -28,7 +28,7 @@ export type flags = enum uint {
 export type generator = struct {
 	pats: strstack,
 	matc: size,
-	flgs: flags,
+	flgs: flag,
 	tmpp: pattern,
 };
 
@@ -54,10 +54,10 @@ export type failure = !struct {
 
 // Returns a generator of pathnames matching a pattern. The result must be
 // freed using [[finish]].
-export fn glob(pattern: str, flags: flags...) generator = {
+export fn glob(pattern: str, flags: flag...) generator = {
 	let ss = strstack_init();
 	strio::concat(strstack_push(&ss), pattern)!;
-	let bs = flags::NONE;
+	let bs = flag::NONE;
 	for (let i = 0z; i < len(flags); i += 1) {
 		bs |= flags[i];
 	};
@@ -91,7 +91,7 @@ export fn next(gen: *generator) (str | void | failure) = {
 		return f;
 	case void => void;
 	};
-	if (init && gen.flgs & flags::NOCHECK != 0) {
+	if (init && gen.flgs & flag::NOCHECK != 0) {
 		return strio::string(&gen.pats.bufv[0]);
 	};
 };
@@ -105,7 +105,7 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 			gen.matc -= 1;
 			return s;
 		};
-		pattern_parse(&gen.tmpp, s, gen.flgs & flags::NOESCAPE != 0);
+		pattern_parse(&gen.tmpp, s, gen.flgs & flag::NOESCAPE != 0);
 	};
 	const l = strstack_size(&gen.pats);
 
@@ -117,9 +117,9 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 	};
 	const rem = pattern_rem(&gen.tmpp);
 
-	let flgs = fnmatch::flags::PERIOD;
-	if (gen.flgs & flags::NOESCAPE != 0) {
-		flgs |= fnmatch::flags::NOESCAPE;
+	let flgs = fnmatch::flag::PERIOD;
+	if (gen.flgs & flag::NOESCAPE != 0) {
+		flgs |= fnmatch::flag::NOESCAPE;
 	};
 	let it = match(fs::iter(fs, if (len(dir) > 0) dir else ".")) {
 	case let i: *fs::iterator =>
@@ -149,7 +149,7 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 			continue;
 		};
 		strio::concat(b, dir, de.name)!;
-		if (patm || gen.flgs & flags::MARK != 0) {
+		if (patm || gen.flgs & flag::MARK != 0) {
 			let m = fs::isdir(de.ftype);
 			// POSIX does not specify the behavior when a pathname
 			// that matches the pattern is a symlink to a
@@ -175,7 +175,7 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 		};
 		gen.matc += 1;
 	};
-	if (gen.flgs & flags::NOSORT == 0) {
+	if (gen.flgs & flag::NOSORT == 0) {
 		strstack_sort(&gen.pats, l);
 	};
 

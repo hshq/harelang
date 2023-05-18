@@ -5,20 +5,20 @@ use rt;
 // Configures a new signal handler, returning the old details (which can be
 // passed to [[restore]] to restore its behavior).
 //
-// The variadic parameters specify either [[flags]] to enable or a signal mask
+// The variadic parameters specify either [[flag]]s to enable or a signal mask
 // to use via [[sigset]]; if the latter is provided no more than one may be
 // used.
 export fn handle(
 	signum: signal,
 	handler: *handler,
-	opt: (flags | sigset)...
+	opt: (flag | sigset)...
 ) sigaction = {
 	let sa_mask = newsigset();
 
 	let sa_flags = 0, nmask = 0;
 	for (let i = 0z; i < len(opt); i += 1) {
 		match (opt[i]) {
-		case let flag: flags =>
+		case let flag: flag =>
 			sa_flags |= flag: int;
 		case let mask: sigset =>
 			assert(nmask == 0, "Multiple signal masks provided to signal::handle");
@@ -258,7 +258,7 @@ export type code = enum int {
 };
 
 // Flags used to configure the behavior of a signal handler.
-export type flags = enum int {
+export type flag = enum int {
 	// For use with [[SIGCHLD]]. Prevents notifications when child processes
 	// stop (e.g. via [[SIGSTOP]]) or resume (i.e. [[SIGCONT]]).
 	NOCLDSTOP = rt::SA_NOCLDSTOP: int,

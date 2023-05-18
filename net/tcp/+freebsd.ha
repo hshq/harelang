@@ -25,7 +25,7 @@ export fn connect(
 	let f = 0i;
 	for (let i = 0z; i < len(options); i += 1) {
 		match (options[i]) {
-		case let fl: net::sockflags =>
+		case let fl: net::sockflag =>
 			f |= fl;
 		case => void;
 		};
@@ -73,7 +73,7 @@ export fn listen(
 	let f = 0i;
 	for (let i = 0z; i < len(options); i += 1) {
 		match (options[i]) {
-		case let fl: net::sockflags =>
+		case let fl: net::sockflag =>
 			f |= fl;
 		case => void;
 		};

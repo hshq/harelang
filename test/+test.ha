@@ -142,7 +142,7 @@ export @symbol("__test_main") fn main() size = {
 };
 
 fn do_test(ctx: *context, test: test) void = {
-	signal::handle(signal::SIGSEGV, &handle_segv, signal::flags::NODEFER);
+	signal::handle(signal::SIGSEGV, &handle_segv, signal::flag::NODEFER);
 	bufio::reset(&ctx.stdout);
 	bufio::reset(&ctx.stderr);
 

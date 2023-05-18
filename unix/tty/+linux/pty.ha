@@ -9,7 +9,7 @@ use rt;
 
 // Opens an available pseudoterminal master.
 fn open_master() (io::file | fs::error) = {
-	return os::open("/dev/ptmx", fs::flags::RDWR);
+	return os::open("/dev/ptmx", fs::flag::RDWR);
 };
 
 // Returns a file descriptor referring to the pseudoterminal slave for a

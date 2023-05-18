@@ -32,7 +32,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 		case let t: []ast::decl_type =>
 			for (let j = 0z; j < len(t); j += 1) {
 				let bucket = &sorted.types;
-				if (t[j]._type.flags & ast::type_flags::ERROR == ast::type_flags::ERROR) {
+				if (t[j]._type.flags & ast::type_flag::ERROR == ast::type_flag::ERROR) {
 					bucket = &sorted.errors;
 				};
 				append(bucket, ast::decl {

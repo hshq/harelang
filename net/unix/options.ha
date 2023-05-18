@@ -7,7 +7,7 @@ use net;
 export type backlog = u32;
 
 // Options for [[connect]].
-export type connect_option = net::sockflags;
+export type connect_option = net::sockflag;
 
 // Options for [[listen]].
-export type listen_option = (backlog | net::sockflags);
+export type listen_option = (backlog | net::sockflag);

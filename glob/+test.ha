@@ -2,22 +2,22 @@ use fnmatch;
 use strings;
 
 @test fn glob() void = {
-	const cases: [_](str, flags) = [
-		("/u??/*in/a*", flags::NONE),
-		("/u*r/l?[bc]*/[bg]*", flags::NOSORT),
-		("/?sr/[sb]in/*[[:digit:]]*", flags::MARK),
-		("/h??\\e/*/.*", flags::NOSORT | flags::MARK),
-		("/\\h??e/*/.*", flags::NOSORT | flags::NOESCAPE),
-		("/r*/*", flags::NOSORT),
-		("/*.?a", flags::NOCHECK),
-		("./*.[[:alpha:]]a", flags::NONE),
-		("./\\a[bd]c", flags::NOESCAPE),
-		("./\\a[be]c", flags::NONE),
-		("[[:punct:]]*", flags::NONE),
-		("/", flags::NONE),
-		("//", flags::NONE),
-		(".", flags::NONE),
-		("..", flags::NONE),
+	const cases: [_](str, flag) = [
+		("/u??/*in/a*", flag::NONE),
+		("/u*r/l?[bc]*/[bg]*", flag::NOSORT),
+		("/?sr/[sb]in/*[[:digit:]]*", flag::MARK),
+		("/h??\\e/*/.*", flag::NOSORT | flag::MARK),
+		("/\\h??e/*/.*", flag::NOSORT | flag::NOESCAPE),
+		("/r*/*", flag::NOSORT),
+		("/*.?a", flag::NOCHECK),
+		("./*.[[:alpha:]]a", flag::NONE),
+		("./\\a[bd]c", flag::NOESCAPE),
+		("./\\a[be]c", flag::NONE),
+		("[[:punct:]]*", flag::NONE),
+		("/", flag::NONE),
+		("//", flag::NONE),
+		(".", flag::NONE),
+		("..", flag::NONE),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
 		let gen = glob(cases[i].0, cases[i].1);
@@ -28,12 +28,12 @@ use strings;
 		case failure =>
 			continue;
 		case let s: str =>
-			let bs = fnmatch::flags::PATHNAME;
-			if (cases[i].1 & flags::NOESCAPE != 0) {
-				bs |= fnmatch::flags::NOESCAPE;
+			let bs = fnmatch::flag::PATHNAME;
+			if (cases[i].1 & flag::NOESCAPE != 0) {
+				bs |= fnmatch::flag::NOESCAPE;
 			};
 			assert(fnmatch::fnmatch(cases[i].0, s, bs)
-				|| cases[i].1 & flags::MARK != 0
+				|| cases[i].1 & flag::MARK != 0
 				&& fnmatch::fnmatch(
 					cases[i].0,
 					strings::rtrim(s, '/'),

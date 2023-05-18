@@ -206,7 +206,7 @@ fn loc(line: uint, col: uint) location = location {
 
 	let in = "// foo\n// bar\nhello world// baz\n\n// bad\ntest";
 	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
-	let lexer = init(&buf, "<input>", flags::COMMENTS);
+	let lexer = init(&buf, "<input>", flag::COMMENTS);
 	assert(lex(&lexer) is token);
 	assert(comment(&lexer) == " foo\n bar\n");
 	assert(lex(&lexer) is token);
