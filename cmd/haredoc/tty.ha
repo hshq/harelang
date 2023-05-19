@@ -165,7 +165,7 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 			case let ty: *ast::_type =>
 				n += render(out, syn::PUNCTUATION)?;
 				n += fmt::fprint(out, ": ")?;
-				n += type_html(out, 0, *ty, false)?;
+				n += type_tty(out, 0, *ty)?;
 			};
 			if (i + 1 < len(g)) {
 				n += render(out, syn::PUNCTUATION)?;
@@ -186,7 +186,7 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 			case let ty: *ast::_type =>
 				n += render(out, syn::PUNCTUATION)?;
 				n += fmt::fprint(out, ": ")?;
-				n += type_html(out, 0, *ty, false)?;
+				n += type_tty(out, 0, *ty)?;
 			};
 			if (i + 1 < len(c)) {
 				n += render(out, syn::PUNCTUATION)?;
