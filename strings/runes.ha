@@ -21,7 +21,7 @@ export fn runes(s: str) []rune = {
 export fn fromrunes(rs: []rune) str = {
 	let bytes: []u8 = [];
 	for (let i = 0z; i < len(rs); i += 1) {
-		const bs = encoding::utf8::encoderune(rs[i]);
+		const bs = utf8::encoderune(rs[i]);
 		append(bytes, bs...);
 	};
 	return fromutf8(bytes)!;
