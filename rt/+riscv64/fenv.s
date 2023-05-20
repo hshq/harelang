@@ -1,6 +1,7 @@
 # License: MPL-2.0
 # (c) 2022 Alexey Yerin <yyp@disroot.org>
 
+.section ".text.rt.feclearexcept","ax"
 .global rt.feclearexcept
 .type rt.feclearexcept,@function
 rt.feclearexcept:
@@ -12,6 +13,7 @@ rt.feclearexcept:
 	fscsr t0
 	ret
 
+.section ".text.rt.feraiseexcept","ax"
 .global rt.feraiseexcept
 .type rt.feraiseexcept,@function
 rt.feraiseexcept:
@@ -22,18 +24,21 @@ rt.feraiseexcept:
 	fscsr t0
 	ret
 
+.section ".text.rt.fesetround","ax"
 .global rt.fesetround
 .type rt.fesetround,@function
 rt.fesetround:
 	fsrm a0
 	ret
 
+.section ".text.rt.fegetround","ax"
 .global rt.fegetround
 .type rt.fegetround,@function
 rt.fegetround:
 	frrm a0
 	ret
 
+.section ".text.rt.fetestexcept","ax"
 .global rt.fetestexcept
 .type rt.fetestexcept,@function
 rt.fetestexcept:
