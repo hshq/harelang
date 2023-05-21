@@ -73,7 +73,7 @@ export fn main() void = {
 	};
 	if (len(cmd.args) == 0) {
 		const name = path::basename(os::args[0]);
-		getopt::printusage(os::stderr, name, help);
+		getopt::printusage(os::stderr, name, help)!;
 		os::exit(1);
 	};
 
