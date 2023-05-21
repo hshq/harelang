@@ -20,8 +20,8 @@ export type base = enum uint {
 	BIN = 2,
 	// Base 8, octal
 	OCT = 8,
-	// Base 10, decimal
-	DEC = 10,
+	// Base 10, decimal (default)
+	DEC = 0,
 	// Base 16, UPPERCASE hexadecimal
 	HEX_UPPER = 16,
 	// Alias for HEX_UPPER
