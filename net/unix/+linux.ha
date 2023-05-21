@@ -111,7 +111,7 @@ fn to_native(addr: addr) (rt::sockaddr | invalid) = {
 	match ((&addr: *types::string).data) {
 	case null => void;
 	case let data: *[*]u8 =>
-		rt::memcpy(&ret.un.sun_path, data, len(addr));
+		ret.un.sun_path[..len(addr)] = data[..len(addr)];
 	};
 	ret.un.sun_path[len(addr)] = 0;
 	return ret;
