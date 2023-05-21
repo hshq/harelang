@@ -23,6 +23,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ----------------------------------------------------------------------
 
+.section ".text.rt.feclearexcept","ax"
 .global rt.feclearexcept
 .type rt.feclearexcept,@function
 rt.feclearexcept:
@@ -44,6 +45,7 @@ rt.feclearexcept:
 1:	xor %eax,%eax
 	ret
 
+.section ".text.rt.feraiseexcept","ax"
 .global rt.feraiseexcept
 .type rt.feraiseexcept,@function
 rt.feraiseexcept:
@@ -54,6 +56,7 @@ rt.feraiseexcept:
 	xor %eax,%eax
 	ret
 
+.section ".text.rt.fesetround","ax"
 .global rt.fesetround
 .type rt.fesetround,@function
 rt.fesetround:
@@ -72,6 +75,7 @@ rt.fesetround:
 	pop %rcx
 	ret
 
+.section ".text.rt.fegetround","ax"
 .global rt.fegetround
 .type rt.fegetround,@function
 rt.fegetround:
@@ -82,6 +86,7 @@ rt.fegetround:
 	and $0xc00,%eax
 	ret
 
+.section ".text.rt.fetestexcept","ax"
 .global rt.fetestexcept
 .type rt.fetestexcept,@function
 rt.fetestexcept:

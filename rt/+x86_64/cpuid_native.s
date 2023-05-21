@@ -1,3 +1,4 @@
+.section ".text.rt.cpuid_getvendorstr","ax"
 .global rt.cpuid_getvendorstr
 .type rt.cpuid_getvendorstr,@function
 rt.cpuid_getvendorstr:
@@ -15,6 +16,7 @@ rt.cpuid_getvendorstr:
 	popq %rdx
 	ret
 
+.section ".text.rt.cpuid_getfeatureflags","ax"
 .global rt.cpuid_getfeatureflags
 .type rt.cpuid_getfeatureflags,@function
 rt.cpuid_getfeatureflags:

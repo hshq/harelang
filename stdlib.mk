@@ -17,7 +17,7 @@ stdlib_rt_linux_srcs = \
 	$(STDLIB)/rt/+linux/signal.ha \
 	$(STDLIB)/rt/+linux/stat.ha \
 	$(STDLIB)/rt/+linux/socket.ha \
-	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
+	$(STDLIB)/rt/+$(ARCH)/arch_jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
 	$(STDLIB)/rt/+$(ARCH)/cpuid.ha \
@@ -44,7 +44,7 @@ stdlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/+freebsd/syscallno.ha \
 	$(STDLIB)/rt/+freebsd/syscalls.ha \
 	$(STDLIB)/rt/+freebsd/types.ha \
-	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
+	$(STDLIB)/rt/+$(ARCH)/arch_jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
 	$(STDLIB)/rt/+$(ARCH)/cpuid.ha \
@@ -2875,7 +2875,7 @@ testlib_rt_linux_srcs = \
 	$(STDLIB)/rt/+linux/signal.ha \
 	$(STDLIB)/rt/+linux/stat.ha \
 	$(STDLIB)/rt/+linux/socket.ha \
-	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
+	$(STDLIB)/rt/+$(ARCH)/arch_jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
 	$(STDLIB)/rt/+$(ARCH)/cpuid.ha \
@@ -2888,7 +2888,7 @@ testlib_rt_linux_srcs = \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/start+test.ha \
-	$(STDLIB)/rt/+test/signal.ha \
+	$(STDLIB)/rt/+test/signal_test.ha \
 	$(STDLIB)/rt/+test/ztos.ha
 
 # rt (+freebsd)
@@ -2904,7 +2904,7 @@ testlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/+freebsd/syscallno.ha \
 	$(STDLIB)/rt/+freebsd/syscalls.ha \
 	$(STDLIB)/rt/+freebsd/types.ha \
-	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
+	$(STDLIB)/rt/+$(ARCH)/arch_jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
 	$(STDLIB)/rt/+$(ARCH)/cpuid.ha \
@@ -2917,7 +2917,7 @@ testlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/start+test.ha \
-	$(STDLIB)/rt/+test/signal.ha \
+	$(STDLIB)/rt/+test/signal_test.ha \
 	$(STDLIB)/rt/+test/ztos.ha
 
 # rt (+darwin)
@@ -3987,7 +3987,7 @@ $(TESTCACHE)/bytes/bytes-any.ssa: $(testlib_bytes_any_srcs) $(testlib_rt) $(test
 testlib_crypto_any_srcs = \
 	$(STDLIB)/crypto/authenc.ha \
 	$(STDLIB)/crypto/keyderiv.ha \
-	$(STDLIB)/crypto/+test/authenc.ha
+	$(STDLIB)/crypto/+test/authenc_test.ha
 
 $(TESTCACHE)/crypto/crypto-any.ssa: $(testlib_crypto_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_crypto_argon2_$(PLATFORM)) $(testlib_crypto_chacha_$(PLATFORM)) $(testlib_crypto_cihper_$(PLATFORM)) $(testlib_crypto_poly1305_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -4593,12 +4593,12 @@ testlib_hare_parse_any_srcs = \
 	$(STDLIB)/hare/parse/parse.ha \
 	$(STDLIB)/hare/parse/type.ha \
 	$(STDLIB)/hare/parse/unit.ha \
-	$(STDLIB)/hare/parse/+test/expr.ha \
-	$(STDLIB)/hare/parse/+test/ident.ha \
+	$(STDLIB)/hare/parse/+test/expr_test.ha \
+	$(STDLIB)/hare/parse/+test/ident_test.ha \
 	$(STDLIB)/hare/parse/+test/loc.ha \
 	$(STDLIB)/hare/parse/+test/roundtrip.ha \
 	$(STDLIB)/hare/parse/+test/types.ha \
-	$(STDLIB)/hare/parse/+test/unit.ha
+	$(STDLIB)/hare/parse/+test/unit_test.ha
 
 $(TESTCACHE)/hare/parse/hare_parse-any.ssa: $(testlib_hare_parse_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_math_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -4750,8 +4750,8 @@ testlib_io_linux_srcs = \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha \
-	$(STDLIB)/io/+test/limit.ha \
-	$(STDLIB)/io/+test/stream.ha
+	$(STDLIB)/io/+test/limit_test.ha \
+	$(STDLIB)/io/+test/stream_test.ha
 
 # io (+freebsd)
 testlib_io_freebsd_srcs = \
@@ -4773,8 +4773,8 @@ testlib_io_freebsd_srcs = \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha \
-	$(STDLIB)/io/+test/limit.ha \
-	$(STDLIB)/io/+test/stream.ha
+	$(STDLIB)/io/+test/limit_test.ha \
+	$(STDLIB)/io/+test/stream_test.ha
 
 # io (+darwin)
 testlib_io_darwin_srcs = \
@@ -4908,9 +4908,9 @@ testlib_math_any_srcs = \
 	$(STDLIB)/math/uints.ha \
 	$(STDLIB)/math/trig.ha \
 	$(STDLIB)/math/+test/data.ha \
-	$(STDLIB)/math/+test/math.ha \
-	$(STDLIB)/math/+test/floats.ha \
-	$(STDLIB)/math/+test/trig.ha
+	$(STDLIB)/math/+test/math_test.ha \
+	$(STDLIB)/math/+test/floats_test.ha \
+	$(STDLIB)/math/+test/trig_test.ha
 
 $(TESTCACHE)/math/math-any.ssa: $(testlib_math_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -5333,8 +5333,8 @@ testlib_strconv_any_srcs = \
 	$(STDLIB)/strconv/ftos.ha \
 	$(STDLIB)/strconv/stof.ha \
 	$(STDLIB)/strconv/stof_data.ha \
-	$(STDLIB)/strconv/+test/stou.ha \
-	$(STDLIB)/strconv/+test/stoi.ha
+	$(STDLIB)/strconv/+test/stou_test.ha \
+	$(STDLIB)/strconv/+test/stoi_test.ha
 
 $(TESTCACHE)/strconv/strconv-any.ssa: $(testlib_strconv_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_math_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM))
 	@printf 'HAREC \t$@\n'

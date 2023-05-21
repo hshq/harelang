@@ -34,7 +34,7 @@ gensrcs_rt() {
 		+linux/signal.ha \
 		+linux/stat.ha \
 		+linux/socket.ha \
-		'+$(ARCH)'/jmp.ha \
+		'+$(ARCH)'/arch_jmp.ha \
 		'+$(ARCH)'/backtrace.ha \
 		fenv_defs.ha \
 		'+$(ARCH)'/cpuid.ha \
@@ -58,7 +58,7 @@ gensrcs_rt() {
 		+freebsd/syscallno.ha \
 		+freebsd/syscalls.ha \
 		+freebsd/types.ha \
-		+'$(ARCH)'/jmp.ha \
+		+'$(ARCH)'/arch_jmp.ha \
 		+'$(ARCH)'/backtrace.ha \
 		fenv_defs.ha \
 		+'$(ARCH)'/cpuid.ha \
@@ -107,7 +107,7 @@ rt() {
 		gensrcs_rt \
 			abort+test.ha \
 			start+test.ha \
-			+test/signal.ha \
+			+test/signal_test.ha \
 			+test/ztos.ha
 	fi
 	gen_ssa -plinux rt
@@ -288,7 +288,7 @@ crypto() {
 		gen_srcs crypto \
 			authenc.ha \
 			keyderiv.ha \
-			+test/authenc.ha
+			+test/authenc_test.ha
 		gen_ssa crypto bytes bufio crypto::argon2 crypto::chacha \
 			crypto::cihper crypto::poly1305 crypto::mac \
 			crypto::math endian errors io
@@ -888,12 +888,12 @@ hare_parse() {
 			strings math
 	else
 		gensrcs_hare_parse \
-			+test/expr.ha \
-			+test/ident.ha \
+			+test/expr_test.ha \
+			+test/ident_test.ha \
 			+test/loc.ha \
 			+test/roundtrip.ha \
 			+test/types.ha \
-			+test/unit.ha
+			+test/unit_test.ha
 		gen_ssa hare::parse ascii bufio hare::ast hare::lex \
 			hare::unparse io strio fmt types strings math \
 			encoding::utf8
@@ -1018,8 +1018,8 @@ io() {
 		gensrcs_io
 	else
 		gensrcs_io \
-			+test/limit.ha \
-			+test/stream.ha
+			+test/limit_test.ha \
+			+test/stream_test.ha
 	fi
 	gen_ssa -plinux io strings errors bytes rt
 	gen_ssa -pfreebsd io strings errors bytes rt
@@ -1079,9 +1079,9 @@ math() {
 	else
 		gensrcs_math \
 			+test/data.ha \
-			+test/math.ha \
-			+test/floats.ha \
-			+test/trig.ha
+			+test/math_test.ha \
+			+test/floats_test.ha \
+			+test/trig_test.ha
 	fi
 	gen_ssa math types rt
 }
@@ -1441,8 +1441,8 @@ strconv() {
 		gensrcs_strconv
 	else
 		gensrcs_strconv \
-			+test/stou.ha \
-			+test/stoi.ha
+			+test/stou_test.ha \
+			+test/stoi_test.ha
 	fi
 	gen_ssa strconv types strings ascii math bytes encoding::utf8
 }

@@ -23,6 +23,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ----------------------------------------------------------------------
 
+.section ".text.rt.fegetround","ax"
 .global rt.fegetround
 .type rt.fegetround,%function
 rt.fegetround:
@@ -30,6 +31,7 @@ rt.fegetround:
 	and w0, w0, #0xc00000
 	ret
 
+.section ".text.rt.fesetround","ax"
 .global rt.fesetround
 .type rt.fesetround,%function
 rt.fesetround:
@@ -40,6 +42,7 @@ rt.fesetround:
 	mov w0, #0
 	ret
 
+.section ".text.rt.fetestexcept","ax"
 .global rt.fetestexcept
 .type rt.fetestexcept,%function
 rt.fetestexcept:
@@ -48,6 +51,7 @@ rt.fetestexcept:
 	and w0, w0, w1
 	ret
 
+.section ".text.rt.feclearexcept","ax"
 .global rt.feclearexcept
 .type rt.feclearexcept,%function
 rt.feclearexcept:
@@ -58,6 +62,7 @@ rt.feclearexcept:
 	mov w0, #0
 	ret
 
+.section ".text.rt.feraiseexcept","ax"
 .global rt.feraiseexcept
 .type rt.feraiseexcept,%function
 rt.feraiseexcept:
@@ -68,6 +73,7 @@ rt.feraiseexcept:
 	mov w0, #0
 	ret
 
+.section ".text.rt.fegetenv","ax"
 .global rt.fegetenv
 .type rt.fegetenv,%function
 rt.fegetenv:
@@ -78,6 +84,7 @@ rt.fegetenv:
 	ret
 
 // TODO preserve some bits
+.section ".text.rt.fesetenv","ax"
 .global rt.fesetenv
 .type rt.fesetenv,%function
 rt.fesetenv:

@@ -10,7 +10,7 @@ export fn padstart(s: str, prefix: rune, target_len: size) str = {
 	};
 	let res: []u8 = alloc([], target_len);
 	for (let i = 0z; i < target_len - len(s); i += 1) {
-		append(res, encoding::utf8::encoderune(prefix)...);
+		append(res, utf8::encoderune(prefix)...);
 	};
 	append(res, toutf8(s)...);
 	return fromutf8_unsafe(res[..target_len]);
@@ -39,7 +39,7 @@ export fn padend(s: str, prefix: rune, target_len: size) str = {
 	let res: []u8 = alloc([], target_len);
 	append(res, toutf8(s)...);
 	for (let i = 0z; i < target_len - len(s); i += 1) {
-		append(res, encoding::utf8::encoderune(prefix)...);
+		append(res, utf8::encoderune(prefix)...);
 	};
 	return fromutf8_unsafe(res[..target_len]);
 };

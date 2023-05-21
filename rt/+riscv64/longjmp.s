@@ -1,3 +1,4 @@
+.section ".text.rt.longjmp","ax"
 .global rt.longjmp
 .type rt.longjmp, %function
 rt.longjmp:

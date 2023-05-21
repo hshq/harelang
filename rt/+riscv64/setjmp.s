@@ -1,3 +1,4 @@
+.section ".text.rt.setjmp","ax"
 .global rt.setjmp
 .type rt.setjmp, %function
 rt.setjmp:
