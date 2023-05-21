@@ -43,7 +43,7 @@ https://lists.sr.ht/~sircmpwn/hare-announce
 The following features are offered in this module:
 
 - [[encrypt]] and [[decrypt]] provide authenticated encryption.
-- [[sign]] and [[verify]] provide public key message signing and verification.
+- [[crypto::ed25519::sign]] and [[crypto::ed25519::verify]] provide public key message signing and verification.
 - [[exchange]] provides a secure key exchange function.
 - [[derivekey]] implements key derivation, which is also recommended for hashing passwords.
 - [[hash]] provides a [[hash::hash]] algorithm suitable for cryptographic use.

@@ -29,7 +29,7 @@ export type box = (mac, nonce, []u8);
 //
 // To use this function, you must first establish a session key which is shared
 // with both parties. This key must be random and secret. You may derive this
-// key with a key exchange (such as [[exchange]] or [[dh]]), or with a key
+// key with a key exchange (such as [[exchange]] or [[crypto::bigint::dh]]), or with a key
 // derivation function (such as [[derivekey]]), or by sharing it in person, or
 // some other, similar means which preserves the traits of randomness and
 // secrecy.

@@ -28,7 +28,7 @@ const vtable: cipher::blockvtable = cipher::blockvtable {
 
 // Initializes a new Blowfish cipher. The user should must call [[init]] or
 // [[init_salt]] prior to use, then may use [[crypto::cipher::encrypt]] et al.
-// The user must call [[finish]] when they are done using the stream to securely
+// The user must call [[crypto::cipher::finish]] when they are done using the stream to securely
 // erase secret information stored in the stream state.
 export fn new() state = {
 	return state {
