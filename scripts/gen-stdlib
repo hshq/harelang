@@ -358,8 +358,8 @@ crypto_bigint() {
 		gensrcs_crypto_bigint
         gen_ssa crypto::bigint bytes crypto::math
 	else
-		gensrcs_crypto_bigint +test/arithm.ha +test/encoding.ha \
-            +test/monty.ha +test/utils.ha
+		gensrcs_crypto_bigint +test/arithm_test.ha +test/encoding_test.ha \
+            +test/monty_test.ha +test/utils.ha
         gen_ssa crypto::bigint bytes crypto::math encoding::hex
 	fi
 }
@@ -474,7 +474,8 @@ crypto_rsa() {
 		gensrcs_crypto_rsa
 		genssa_crypto_rsa
 	else
-		gensrcs_crypto_rsa +test/core.ha +test/keys.ha +test/pkcs1.ha
+		gensrcs_crypto_rsa +test/core_test.ha +test/keys_test.ha \
+			+test/pkcs1_test.ha
 		genssa_crypto_rsa
 	fi
 }
@@ -1078,7 +1079,7 @@ net_ip() {
 		gensrcs_net_ip
 	else
 		gensrcs_net_ip \
-			+test.ha
+			test+test.ha
 	fi
 	gen_ssa -plinux net::ip bytes endian io strconv strings strio fmt
 	gen_ssa -pfreebsd net::ip bytes endian io strconv strings strio fmt
