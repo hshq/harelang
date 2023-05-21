@@ -1,3 +1,4 @@
+.section ".text.crypto.aes.x86ni_keyexp","ax"
 .global crypto.aes.x86ni_keyexp
 .type crypto.aes.x86ni_keyexp,@function
 crypto.aes.x86ni_keyexp:
@@ -328,6 +329,7 @@ key_exp_end:
 	leave
 	ret
 
+.section ".text.crypto.aes.x86ni_asencrypt","ax"
 .global crypto.aes.x86ni_asencrypt
 .type crypto.aes.x86ni_asencrypt,@function
 crypto.aes.x86ni_asencrypt:
@@ -411,6 +413,7 @@ encrypt_end:
 	leave
 	ret
 
+.section ".text.crypto.aes.x86ni_asdescrypt","ax"
 .global crypto.aes.x86ni_asdecrypt
 .type crypto.aes.x86ni_asdecrypt,@function
 crypto.aes.x86ni_asdecrypt:
