@@ -282,6 +282,10 @@ export fn expr(
 		z += expr(out, indent, *e.object)?;
 		z += fmt::fprint(out, ")")?;
 		return z;
+	case let e: ast::error_assert_expr =>
+		let z = expr(out, indent, *e)?;
+		z += fmt::fprint(out, "!")?;
+		return z;
 	case let e: ast::for_expr =>
 		return for_expr(out, indent, e)?;
 	case let e: ast::free_expr =>
@@ -354,8 +358,8 @@ export fn expr(
 		z += fmt::fprint(out, ")")?;
 		return z;
 	case let e: ast::propagate_expr =>
-		let z = expr(out, indent, *e.expr)?;
-		z += fmt::fprintf(out, if (e.is_abort) "!" else "?")?;
+		let z = expr(out, indent, *e)?;
+		z += fmt::fprint(out, "?")?;
 		return z;
 	case let e: ast::return_expr =>
 		let z = fmt::fprint(out, "return")?;
