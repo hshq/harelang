@@ -4077,9 +4077,9 @@ testlib_crypto_bigint_any_srcs = \
 	$(STDLIB)/crypto/bigint/monty.ha \
 	$(STDLIB)/crypto/bigint/types.ha \
 	$(STDLIB)/crypto/bigint/util.ha \
-	$(STDLIB)/crypto/bigint/+test/arithm.ha \
-	$(STDLIB)/crypto/bigint/+test/encoding.ha \
-	$(STDLIB)/crypto/bigint/+test/monty.ha \
+	$(STDLIB)/crypto/bigint/+test/arithm_test.ha \
+	$(STDLIB)/crypto/bigint/+test/encoding_test.ha \
+	$(STDLIB)/crypto/bigint/+test/monty_test.ha \
 	$(STDLIB)/crypto/bigint/+test/utils.ha
 
 $(TESTCACHE)/crypto/bigint/crypto_bigint-any.ssa: $(testlib_crypto_bigint_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
@@ -4199,9 +4199,9 @@ testlib_crypto_rsa_any_srcs = \
 	$(STDLIB)/crypto/rsa/errors.ha \
 	$(STDLIB)/crypto/rsa/keys.ha \
 	$(STDLIB)/crypto/rsa/pkcs1.ha \
-	$(STDLIB)/crypto/rsa/+test/core.ha \
-	$(STDLIB)/crypto/rsa/+test/keys.ha \
-	$(STDLIB)/crypto/rsa/+test/pkcs1.ha
+	$(STDLIB)/crypto/rsa/+test/core_test.ha \
+	$(STDLIB)/crypto/rsa/+test/keys_test.ha \
+	$(STDLIB)/crypto/rsa/+test/pkcs1_test.ha
 
 $(TESTCACHE)/crypto/rsa/crypto_rsa-any.ssa: $(testlib_crypto_rsa_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_bigint_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_crypto_sha1_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_crypto_sha512_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -5007,13 +5007,13 @@ $(TESTCACHE)/net/dns/net_dns-any.ssa: $(testlib_net_dns_any_srcs) $(testlib_rt) 
 testlib_net_ip_linux_srcs = \
 	$(STDLIB)/net/ip/+linux.ha \
 	$(STDLIB)/net/ip/ip.ha \
-	$(STDLIB)/net/ip/+test.ha
+	$(STDLIB)/net/ip/test+test.ha
 
 # net::ip (+freebsd)
 testlib_net_ip_freebsd_srcs = \
 	$(STDLIB)/net/ip/+freebsd.ha \
 	$(STDLIB)/net/ip/ip.ha \
-	$(STDLIB)/net/ip/+test.ha
+	$(STDLIB)/net/ip/test+test.ha
 
 # net::ip (+darwin)
 testlib_net_ip_darwin_srcs = \

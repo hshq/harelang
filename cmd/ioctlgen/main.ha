@@ -53,14 +53,12 @@ export fn main() void = {
 			continue;
 		};
 
-		let groups = match (regex::find(&ioctlre, line)) {
-		case void =>
+		let groups = regex::find(&ioctlre, line);
+		defer free(groups);
+		if (len(groups) == 0) {
 			fmt::println(line)!;
 			continue;
-		case let cap: []regex::capture =>
-			yield cap;
 		};
-		defer free(groups);
 
 		const dir = switch (groups[1].content) {
 		case "_IO" =>
@@ -109,7 +107,7 @@ fn parseioctl(store: *types::typestore, d: dir, params: str) ioctl = {
 
 	const rn = expect(&lex, ltok::LIT_RUNE).1 as rune;
 	expect(&lex, ltok::COMMA);
-	const num = expect(&lex, ltok::LIT_ICONST).1 as i64;
+	const num = expect(&lex, ltok::LIT_ICONST).1 as u64;
 
 	if (d == dir::IO) {
 		return (d, rn, num: u32, null);

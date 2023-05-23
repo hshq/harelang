@@ -24,6 +24,8 @@ export fn u64tosb(u: u64, b: base) const str = {
 		yield &lut_lower;
 	};
 
+	const b: uint = if (b == base::DEC) 10 else b;
+
 	let s = types::string { data = &buf, ... };
 	if (u == 0) {
 		buf[s.length] = '0';

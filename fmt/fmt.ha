@@ -265,10 +265,6 @@ export fn fprintf(
 			case void => void;
 			};
 
-			if (mod.base == 0) {
-				mod.base = strconv::base::DEC;
-			};
-
 			n += format(h, arg, mod)?;
 		} else if (r == '}') {
 			match (strings::next(&iter)) {
