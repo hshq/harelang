@@ -70,7 +70,7 @@ stdlib_rt_darwin_srcs = \
 	$(STDLIB)/rt/+darwin/syscallno.ha \
 	$(STDLIB)/rt/+darwin/syscalls.ha \
 	$(STDLIB)/rt/+darwin/types.ha \
-	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
+	$(STDLIB)/rt/+$(ARCH)/arch_jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
 	$(STDLIB)/rt/+$(ARCH)/cpuid.ha \
@@ -99,7 +99,7 @@ $(HARECACHE)/rt/rt-freebsd.ssa: $(stdlib_rt_freebsd_srcs) $(stdlib_rt)
 $(HARECACHE)/rt/rt-darwin.ssa: $(stdlib_rt_darwin_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nrt \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nrt \
 		-t$(HARECACHE)/rt/rt.td $(stdlib_rt_darwin_srcs)
 
 $(HARECACHE)/rt/start.o: $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH)-libc.s
@@ -318,6 +318,7 @@ stdlib_deps_freebsd += $(stdlib_crypto_random_freebsd)
 
 # gen_lib crypto::random (darwin)
 stdlib_crypto_random_darwin = $(HARECACHE)/crypto/random/crypto_random-darwin.o
+stdlib_env += HARE_TD_crypto::random=$(HARECACHE)/crypto/random/crypto_random.td
 stdlib_deps_darwin += $(stdlib_crypto_random_darwin)
 
 # gen_lib crypto::rsa (any)
@@ -404,6 +405,7 @@ stdlib_deps_freebsd += $(stdlib_datetime_freebsd)
 
 # gen_lib datetime (darwin)
 stdlib_datetime_darwin = $(HARECACHE)/datetime/datetime-darwin.o
+stdlib_env += HARE_TD_datetime=$(HARECACHE)/datetime/datetime.td
 stdlib_deps_darwin += $(stdlib_datetime_darwin)
 
 # gen_lib dirs (any)
@@ -658,6 +660,7 @@ stdlib_deps_freebsd += $(stdlib_io_freebsd)
 
 # gen_lib io (darwin)
 stdlib_io_darwin = $(HARECACHE)/io/io-darwin.o
+stdlib_env += HARE_TD_io=$(HARECACHE)/io/io.td
 stdlib_deps_darwin += $(stdlib_io_darwin)
 
 # gen_lib linux (linux)
@@ -692,6 +695,7 @@ stdlib_deps_freebsd += $(stdlib_log_freebsd)
 
 # gen_lib log (darwin)
 stdlib_log_darwin = $(HARECACHE)/log/log-darwin.o
+stdlib_env += HARE_TD_log=$(HARECACHE)/log/log.td
 stdlib_deps_darwin += $(stdlib_log_darwin)
 
 # gen_lib math (any)
@@ -730,6 +734,7 @@ stdlib_deps_freebsd += $(stdlib_net_freebsd)
 
 # gen_lib net (darwin)
 stdlib_net_darwin = $(HARECACHE)/net/net-darwin.o
+stdlib_env += HARE_TD_net=$(HARECACHE)/net/net.td
 stdlib_deps_darwin += $(stdlib_net_darwin)
 
 # gen_lib net::dial (any)
@@ -760,6 +765,7 @@ stdlib_deps_freebsd += $(stdlib_net_ip_freebsd)
 
 # gen_lib net::ip (darwin)
 stdlib_net_ip_darwin = $(HARECACHE)/net/ip/net_ip-darwin.o
+stdlib_env += HARE_TD_net::ip=$(HARECACHE)/net/ip/net_ip.td
 stdlib_deps_darwin += $(stdlib_net_ip_darwin)
 
 # gen_lib net::tcp (linux)
@@ -774,6 +780,7 @@ stdlib_deps_freebsd += $(stdlib_net_tcp_freebsd)
 
 # gen_lib net::tcp (darwin)
 stdlib_net_tcp_darwin = $(HARECACHE)/net/tcp/net_tcp-darwin.o
+stdlib_env += HARE_TD_net::tcp=$(HARECACHE)/net/tcp/net_tcp.td
 stdlib_deps_darwin += $(stdlib_net_tcp_darwin)
 
 # gen_lib net::udp (linux)
@@ -788,6 +795,7 @@ stdlib_deps_freebsd += $(stdlib_net_udp_freebsd)
 
 # gen_lib net::udp (darwin)
 stdlib_net_udp_darwin = $(HARECACHE)/net/udp/net_udp-darwin.o
+stdlib_env += HARE_TD_net::udp=$(HARECACHE)/net/udp/net_udp.td
 stdlib_deps_darwin += $(stdlib_net_udp_darwin)
 
 # gen_lib net::unix (linux)
@@ -802,6 +810,7 @@ stdlib_deps_freebsd += $(stdlib_net_unix_freebsd)
 
 # gen_lib net::unix (darwin)
 stdlib_net_unix_darwin = $(HARECACHE)/net/unix/net_unix-darwin.o
+stdlib_env += HARE_TD_net::unix=$(HARECACHE)/net/unix/net_unix.td
 stdlib_deps_darwin += $(stdlib_net_unix_darwin)
 
 # gen_lib net::uri (any)
@@ -824,6 +833,7 @@ stdlib_deps_freebsd += $(stdlib_os_freebsd)
 
 # gen_lib os (darwin)
 stdlib_os_darwin = $(HARECACHE)/os/os-darwin.o
+stdlib_env += HARE_TD_os=$(HARECACHE)/os/os.td
 stdlib_deps_darwin += $(stdlib_os_darwin)
 
 # gen_lib os::exec (linux)
@@ -838,6 +848,7 @@ stdlib_deps_freebsd += $(stdlib_os_exec_freebsd)
 
 # gen_lib os::exec (darwin)
 stdlib_os_exec_darwin = $(HARECACHE)/os/exec/os_exec-darwin.o
+stdlib_env += HARE_TD_os::exec=$(HARECACHE)/os/exec/os_exec.td
 stdlib_deps_darwin += $(stdlib_os_exec_darwin)
 
 # gen_lib path (any)
@@ -924,6 +935,7 @@ stdlib_deps_freebsd += $(stdlib_temp_freebsd)
 
 # gen_lib temp (darwin)
 stdlib_temp_darwin = $(HARECACHE)/temp/temp-darwin.o
+stdlib_env += HARE_TD_temp=$(HARECACHE)/temp/temp.td
 stdlib_deps_darwin += $(stdlib_temp_darwin)
 
 # gen_lib test (any)
@@ -946,6 +958,7 @@ stdlib_deps_freebsd += $(stdlib_time_freebsd)
 
 # gen_lib time (darwin)
 stdlib_time_darwin = $(HARECACHE)/time/time-darwin.o
+stdlib_env += HARE_TD_time=$(HARECACHE)/time/time.td
 stdlib_deps_darwin += $(stdlib_time_darwin)
 
 # gen_lib time::chrono (linux)
@@ -960,6 +973,7 @@ stdlib_deps_freebsd += $(stdlib_time_chrono_freebsd)
 
 # gen_lib time::chrono (darwin)
 stdlib_time_chrono_darwin = $(HARECACHE)/time/chrono/time_chrono-darwin.o
+stdlib_env += HARE_TD_time::chrono=$(HARECACHE)/time/chrono/time_chrono.td
 stdlib_deps_darwin += $(stdlib_time_chrono_darwin)
 
 # gen_lib types (any)
@@ -990,6 +1004,7 @@ stdlib_deps_freebsd += $(stdlib_unix_freebsd)
 
 # gen_lib unix (darwin)
 stdlib_unix_darwin = $(HARECACHE)/unix/unix-darwin.o
+stdlib_env += HARE_TD_unix=$(HARECACHE)/unix/unix.td
 stdlib_deps_darwin += $(stdlib_unix_darwin)
 
 # gen_lib unix::hosts (linux)
@@ -1004,6 +1019,7 @@ stdlib_deps_freebsd += $(stdlib_unix_hosts_freebsd)
 
 # gen_lib unix::hosts (darwin)
 stdlib_unix_hosts_darwin = $(HARECACHE)/unix/hosts/unix_hosts-darwin.o
+stdlib_env += HARE_TD_unix::hosts=$(HARECACHE)/unix/hosts/unix_hosts.td
 stdlib_deps_darwin += $(stdlib_unix_hosts_darwin)
 
 # gen_lib unix::passwd (any)
@@ -1026,6 +1042,7 @@ stdlib_deps_freebsd += $(stdlib_unix_poll_freebsd)
 
 # gen_lib unix::poll (darwin)
 stdlib_unix_poll_darwin = $(HARECACHE)/unix/poll/unix_poll-darwin.o
+stdlib_env += HARE_TD_unix::poll=$(HARECACHE)/unix/poll/unix_poll.td
 stdlib_deps_darwin += $(stdlib_unix_poll_darwin)
 
 # gen_lib unix::resolvconf (linux)
@@ -1040,6 +1057,7 @@ stdlib_deps_freebsd += $(stdlib_unix_resolvconf_freebsd)
 
 # gen_lib unix::resolvconf (darwin)
 stdlib_unix_resolvconf_darwin = $(HARECACHE)/unix/resolvconf/unix_resolvconf-darwin.o
+stdlib_env += HARE_TD_unix::resolvconf=$(HARECACHE)/unix/resolvconf/unix_resolvconf.td
 stdlib_deps_darwin += $(stdlib_unix_resolvconf_darwin)
 
 # gen_lib unix::signal (linux)
@@ -1054,6 +1072,7 @@ stdlib_deps_freebsd += $(stdlib_unix_signal_freebsd)
 
 # gen_lib unix::signal (darwin)
 stdlib_unix_signal_darwin = $(HARECACHE)/unix/signal/unix_signal-darwin.o
+stdlib_env += HARE_TD_unix::signal=$(HARECACHE)/unix/signal/unix_signal.td
 stdlib_deps_darwin += $(stdlib_unix_signal_darwin)
 
 # gen_lib unix::tty (linux)
@@ -1068,6 +1087,7 @@ stdlib_deps_freebsd += $(stdlib_unix_tty_freebsd)
 
 # gen_lib unix::tty (darwin)
 stdlib_unix_tty_darwin = $(HARECACHE)/unix/tty/unix_tty-darwin.o
+stdlib_env += HARE_TD_unix::tty=$(HARECACHE)/unix/tty/unix_tty.td
 stdlib_deps_darwin += $(stdlib_unix_tty_darwin)
 
 # gen_lib uuid (any)
@@ -1307,7 +1327,7 @@ stdlib_crypto_random_darwin_srcs = \
 $(HARECACHE)/crypto/random/crypto_random-darwin.ssa: $(stdlib_crypto_random_darwin_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/random
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(HARECACHE)/crypto/random/crypto_random.td $(stdlib_crypto_random_darwin_srcs)
 
 # crypto::rsa (+any)
@@ -1452,6 +1472,7 @@ $(HARECACHE)/datetime/datetime-freebsd.ssa: $(stdlib_datetime_freebsd_srcs) $(st
 stdlib_datetime_darwin_srcs = \
 	$(STDLIB)/datetime/arithmetic.ha \
 	$(STDLIB)/datetime/chronology.ha \
+	$(STDLIB)/datetime/errors.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
 	$(STDLIB)/datetime/duration.ha \
@@ -1466,7 +1487,7 @@ stdlib_datetime_darwin_srcs = \
 $(HARECACHE)/datetime/datetime-darwin.ssa: $(stdlib_datetime_darwin_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/datetime
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ndatetime \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ndatetime \
 		-t$(HARECACHE)/datetime/datetime.td $(stdlib_datetime_darwin_srcs)
 
 # dirs (+any)
@@ -1900,7 +1921,7 @@ $(HARECACHE)/io/io-freebsd.ssa: $(stdlib_io_freebsd_srcs) $(stdlib_rt) $(stdlib_
 $(HARECACHE)/io/io-darwin.ssa: $(stdlib_io_darwin_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/io
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
 		-t$(HARECACHE)/io/io.td $(stdlib_io_darwin_srcs)
 
 # linux (+linux)
@@ -1981,7 +2002,7 @@ stdlib_log_darwin_srcs = \
 $(HARECACHE)/log/log-darwin.ssa: $(stdlib_log_darwin_srcs) $(stdlib_rt) $(stdlib_datetime_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/log
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nlog \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nlog \
 		-t$(HARECACHE)/log/log.td $(stdlib_log_darwin_srcs)
 
 # math (+any)
@@ -2053,7 +2074,7 @@ stdlib_net_darwin_srcs = \
 $(HARECACHE)/net/net-darwin.ssa: $(stdlib_net_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_slices_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
 		-t$(HARECACHE)/net/net.td $(stdlib_net_darwin_srcs)
 
 # net::dial (+any)
@@ -2114,7 +2135,7 @@ $(HARECACHE)/net/ip/net_ip-freebsd.ssa: $(stdlib_net_ip_freebsd_srcs) $(stdlib_r
 $(HARECACHE)/net/ip/net_ip-darwin.ssa: $(stdlib_net_ip_darwin_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/ip
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::ip \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::ip \
 		-t$(HARECACHE)/net/ip/net_ip.td $(stdlib_net_ip_darwin_srcs)
 
 # net::tcp (+linux)
@@ -2150,7 +2171,7 @@ stdlib_net_tcp_darwin_srcs = \
 $(HARECACHE)/net/tcp/net_tcp-darwin.ssa: $(stdlib_net_tcp_darwin_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_net_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/tcp
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::tcp \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::tcp \
 		-t$(HARECACHE)/net/tcp/net_tcp.td $(stdlib_net_tcp_darwin_srcs)
 
 # net::udp (+linux)
@@ -2183,7 +2204,7 @@ stdlib_net_udp_darwin_srcs = \
 $(HARECACHE)/net/udp/net_udp-darwin.ssa: $(stdlib_net_udp_darwin_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_net_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/udp
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::udp \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::udp \
 		-t$(HARECACHE)/net/udp/net_udp.td $(stdlib_net_udp_darwin_srcs)
 
 # net::unix (+linux)
@@ -2231,7 +2252,7 @@ stdlib_net_unix_darwin_srcs = \
 $(HARECACHE)/net/unix/net_unix-darwin.ssa: $(stdlib_net_unix_darwin_srcs) $(stdlib_rt) $(stdlib_net_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_net_dial_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/unix
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::unix \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::unix \
 		-t$(HARECACHE)/net/unix/net_unix.td $(stdlib_net_unix_darwin_srcs)
 
 # net::uri (+any)
@@ -2290,7 +2311,7 @@ stdlib_os_darwin_srcs = \
 $(HARECACHE)/os/os-darwin.ssa: $(stdlib_os_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
 		-t$(HARECACHE)/os/os.td $(stdlib_os_darwin_srcs)
 
 # os::exec (+linux)
@@ -2329,7 +2350,7 @@ stdlib_os_exec_darwin_srcs = \
 $(HARECACHE)/os/exec/os_exec-darwin.ssa: $(stdlib_os_exec_darwin_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_unix_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_unix_signal_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os/exec
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
 		-t$(HARECACHE)/os/exec/os_exec.td $(stdlib_os_exec_darwin_srcs)
 
 # path (+any)
@@ -2486,7 +2507,7 @@ stdlib_temp_darwin_srcs = \
 $(HARECACHE)/temp/temp-darwin.ssa: $(stdlib_temp_darwin_srcs) $(stdlib_rt) $(stdlib_crypto_random_$(PLATFORM)) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_strio_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/temp
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntemp \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntemp \
 		-t$(HARECACHE)/temp/temp.td $(stdlib_temp_darwin_srcs)
 
 # test (+any)
@@ -2536,7 +2557,7 @@ stdlib_time_darwin_srcs = \
 $(HARECACHE)/time/time-darwin.ssa: $(stdlib_time_darwin_srcs) $(stdlib_rt) $(stdlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntime \
 		-t$(HARECACHE)/time/time.td $(stdlib_time_darwin_srcs)
 
 # time::chrono (+linux)
@@ -2587,7 +2608,7 @@ stdlib_time_chrono_darwin_srcs = \
 $(HARECACHE)/time/chrono/time_chrono-darwin.ssa: $(stdlib_time_chrono_darwin_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time/chrono
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::chrono \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::chrono \
 		-t$(HARECACHE)/time/chrono/time_chrono.td $(stdlib_time_chrono_darwin_srcs)
 
 # types (+any)
@@ -2656,7 +2677,7 @@ stdlib_unix_darwin_srcs = \
 $(HARECACHE)/unix/unix-darwin.ssa: $(stdlib_unix_darwin_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix \
 		-t$(HARECACHE)/unix/unix.td $(stdlib_unix_darwin_srcs)
 
 # unix::hosts (+linux)
@@ -2689,7 +2710,7 @@ stdlib_unix_hosts_darwin_srcs = \
 $(HARECACHE)/unix/hosts/unix_hosts-darwin.ssa: $(stdlib_unix_hosts_darwin_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/hosts
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::hosts \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::hosts \
 		-t$(HARECACHE)/unix/hosts/unix_hosts.td $(stdlib_unix_hosts_darwin_srcs)
 
 # unix::passwd (+any)
@@ -2734,7 +2755,7 @@ stdlib_unix_poll_darwin_srcs = \
 $(HARECACHE)/unix/poll/unix_poll-darwin.ssa: $(stdlib_unix_poll_darwin_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/poll
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::poll \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::poll \
 		-t$(HARECACHE)/unix/poll/unix_poll.td $(stdlib_unix_poll_darwin_srcs)
 
 # unix::resolvconf (+linux)
@@ -2767,7 +2788,7 @@ stdlib_unix_resolvconf_darwin_srcs = \
 $(HARECACHE)/unix/resolvconf/unix_resolvconf-darwin.ssa: $(stdlib_unix_resolvconf_darwin_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/resolvconf
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::resolvconf \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::resolvconf \
 		-t$(HARECACHE)/unix/resolvconf/unix_resolvconf.td $(stdlib_unix_resolvconf_darwin_srcs)
 
 # unix::signal (+linux)
@@ -2800,7 +2821,7 @@ stdlib_unix_signal_darwin_srcs = \
 $(HARECACHE)/unix/signal/unix_signal-darwin.ssa: $(stdlib_unix_signal_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/signal
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::signal \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::signal \
 		-t$(HARECACHE)/unix/signal/unix_signal.td $(stdlib_unix_signal_darwin_srcs)
 
 # unix::tty (+linux)
@@ -2846,7 +2867,7 @@ stdlib_unix_tty_darwin_srcs = \
 $(HARECACHE)/unix/tty/unix_tty-darwin.ssa: $(stdlib_unix_tty_darwin_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/tty
-	@HARECACHE=$(HARECACHE) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::tty \
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::tty \
 		-t$(HARECACHE)/unix/tty/unix_tty.td $(stdlib_unix_tty_darwin_srcs)
 
 # uuid (+any)
@@ -2932,7 +2953,7 @@ testlib_rt_darwin_srcs = \
 	$(STDLIB)/rt/+darwin/syscallno.ha \
 	$(STDLIB)/rt/+darwin/syscalls.ha \
 	$(STDLIB)/rt/+darwin/types.ha \
-	$(STDLIB)/rt/+$(ARCH)/jmp.ha \
+	$(STDLIB)/rt/+$(ARCH)/arch_jmp.ha \
 	$(STDLIB)/rt/+$(ARCH)/backtrace.ha \
 	$(STDLIB)/rt/fenv_defs.ha \
 	$(STDLIB)/rt/+$(ARCH)/cpuid.ha \
@@ -2945,7 +2966,7 @@ testlib_rt_darwin_srcs = \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/start+test.ha \
-	$(STDLIB)/rt/+test/signal.ha \
+	$(STDLIB)/rt/+test/signal_test.ha \
 	$(STDLIB)/rt/+test/ztos.ha
 
 $(TESTCACHE)/rt/rt-linux.ssa: $(testlib_rt_linux_srcs) $(testlib_rt)
@@ -2963,7 +2984,7 @@ $(TESTCACHE)/rt/rt-freebsd.ssa: $(testlib_rt_freebsd_srcs) $(testlib_rt)
 $(TESTCACHE)/rt/rt-darwin.ssa: $(testlib_rt_darwin_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nrt \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nrt \
 		-t$(TESTCACHE)/rt/rt.td $(testlib_rt_darwin_srcs)
 
 $(TESTCACHE)/rt/start.o: $(STDLIB)/rt/+$(PLATFORM)/start+$(ARCH)-libc.s
@@ -3182,6 +3203,7 @@ testlib_deps_freebsd += $(testlib_crypto_random_freebsd)
 
 # gen_lib crypto::random (darwin)
 testlib_crypto_random_darwin = $(TESTCACHE)/crypto/random/crypto_random-darwin.o
+testlib_env += HARE_TD_crypto::random=$(TESTCACHE)/crypto/random/crypto_random.td
 testlib_deps_darwin += $(testlib_crypto_random_darwin)
 
 # gen_lib crypto::rsa (any)
@@ -3268,6 +3290,7 @@ testlib_deps_freebsd += $(testlib_datetime_freebsd)
 
 # gen_lib datetime (darwin)
 testlib_datetime_darwin = $(TESTCACHE)/datetime/datetime-darwin.o
+testlib_env += HARE_TD_datetime=$(TESTCACHE)/datetime/datetime.td
 testlib_deps_darwin += $(testlib_datetime_darwin)
 
 # gen_lib dirs (any)
@@ -3522,6 +3545,7 @@ testlib_deps_freebsd += $(testlib_io_freebsd)
 
 # gen_lib io (darwin)
 testlib_io_darwin = $(TESTCACHE)/io/io-darwin.o
+testlib_env += HARE_TD_io=$(TESTCACHE)/io/io.td
 testlib_deps_darwin += $(testlib_io_darwin)
 
 # gen_lib linux (linux)
@@ -3556,6 +3580,7 @@ testlib_deps_freebsd += $(testlib_log_freebsd)
 
 # gen_lib log (darwin)
 testlib_log_darwin = $(TESTCACHE)/log/log-darwin.o
+testlib_env += HARE_TD_log=$(TESTCACHE)/log/log.td
 testlib_deps_darwin += $(testlib_log_darwin)
 
 # gen_lib math (any)
@@ -3594,6 +3619,7 @@ testlib_deps_freebsd += $(testlib_net_freebsd)
 
 # gen_lib net (darwin)
 testlib_net_darwin = $(TESTCACHE)/net/net-darwin.o
+testlib_env += HARE_TD_net=$(TESTCACHE)/net/net.td
 testlib_deps_darwin += $(testlib_net_darwin)
 
 # gen_lib net::dial (any)
@@ -3624,6 +3650,7 @@ testlib_deps_freebsd += $(testlib_net_ip_freebsd)
 
 # gen_lib net::ip (darwin)
 testlib_net_ip_darwin = $(TESTCACHE)/net/ip/net_ip-darwin.o
+testlib_env += HARE_TD_net::ip=$(TESTCACHE)/net/ip/net_ip.td
 testlib_deps_darwin += $(testlib_net_ip_darwin)
 
 # gen_lib net::tcp (linux)
@@ -3638,6 +3665,7 @@ testlib_deps_freebsd += $(testlib_net_tcp_freebsd)
 
 # gen_lib net::tcp (darwin)
 testlib_net_tcp_darwin = $(TESTCACHE)/net/tcp/net_tcp-darwin.o
+testlib_env += HARE_TD_net::tcp=$(TESTCACHE)/net/tcp/net_tcp.td
 testlib_deps_darwin += $(testlib_net_tcp_darwin)
 
 # gen_lib net::udp (linux)
@@ -3652,6 +3680,7 @@ testlib_deps_freebsd += $(testlib_net_udp_freebsd)
 
 # gen_lib net::udp (darwin)
 testlib_net_udp_darwin = $(TESTCACHE)/net/udp/net_udp-darwin.o
+testlib_env += HARE_TD_net::udp=$(TESTCACHE)/net/udp/net_udp.td
 testlib_deps_darwin += $(testlib_net_udp_darwin)
 
 # gen_lib net::unix (linux)
@@ -3666,6 +3695,7 @@ testlib_deps_freebsd += $(testlib_net_unix_freebsd)
 
 # gen_lib net::unix (darwin)
 testlib_net_unix_darwin = $(TESTCACHE)/net/unix/net_unix-darwin.o
+testlib_env += HARE_TD_net::unix=$(TESTCACHE)/net/unix/net_unix.td
 testlib_deps_darwin += $(testlib_net_unix_darwin)
 
 # gen_lib net::uri (any)
@@ -3688,6 +3718,7 @@ testlib_deps_freebsd += $(testlib_os_freebsd)
 
 # gen_lib os (darwin)
 testlib_os_darwin = $(TESTCACHE)/os/os-darwin.o
+testlib_env += HARE_TD_os=$(TESTCACHE)/os/os.td
 testlib_deps_darwin += $(testlib_os_darwin)
 
 # gen_lib os::exec (linux)
@@ -3702,6 +3733,7 @@ testlib_deps_freebsd += $(testlib_os_exec_freebsd)
 
 # gen_lib os::exec (darwin)
 testlib_os_exec_darwin = $(TESTCACHE)/os/exec/os_exec-darwin.o
+testlib_env += HARE_TD_os::exec=$(TESTCACHE)/os/exec/os_exec.td
 testlib_deps_darwin += $(testlib_os_exec_darwin)
 
 # gen_lib path (any)
@@ -3788,6 +3820,7 @@ testlib_deps_freebsd += $(testlib_temp_freebsd)
 
 # gen_lib temp (darwin)
 testlib_temp_darwin = $(TESTCACHE)/temp/temp-darwin.o
+testlib_env += HARE_TD_temp=$(TESTCACHE)/temp/temp.td
 testlib_deps_darwin += $(testlib_temp_darwin)
 
 # gen_lib test (any)
@@ -3810,6 +3843,7 @@ testlib_deps_freebsd += $(testlib_time_freebsd)
 
 # gen_lib time (darwin)
 testlib_time_darwin = $(TESTCACHE)/time/time-darwin.o
+testlib_env += HARE_TD_time=$(TESTCACHE)/time/time.td
 testlib_deps_darwin += $(testlib_time_darwin)
 
 # gen_lib time::chrono (linux)
@@ -3824,6 +3858,7 @@ testlib_deps_freebsd += $(testlib_time_chrono_freebsd)
 
 # gen_lib time::chrono (darwin)
 testlib_time_chrono_darwin = $(TESTCACHE)/time/chrono/time_chrono-darwin.o
+testlib_env += HARE_TD_time::chrono=$(TESTCACHE)/time/chrono/time_chrono.td
 testlib_deps_darwin += $(testlib_time_chrono_darwin)
 
 # gen_lib types (any)
@@ -3854,6 +3889,7 @@ testlib_deps_freebsd += $(testlib_unix_freebsd)
 
 # gen_lib unix (darwin)
 testlib_unix_darwin = $(TESTCACHE)/unix/unix-darwin.o
+testlib_env += HARE_TD_unix=$(TESTCACHE)/unix/unix.td
 testlib_deps_darwin += $(testlib_unix_darwin)
 
 # gen_lib unix::hosts (linux)
@@ -3868,6 +3904,7 @@ testlib_deps_freebsd += $(testlib_unix_hosts_freebsd)
 
 # gen_lib unix::hosts (darwin)
 testlib_unix_hosts_darwin = $(TESTCACHE)/unix/hosts/unix_hosts-darwin.o
+testlib_env += HARE_TD_unix::hosts=$(TESTCACHE)/unix/hosts/unix_hosts.td
 testlib_deps_darwin += $(testlib_unix_hosts_darwin)
 
 # gen_lib unix::passwd (any)
@@ -3890,6 +3927,7 @@ testlib_deps_freebsd += $(testlib_unix_poll_freebsd)
 
 # gen_lib unix::poll (darwin)
 testlib_unix_poll_darwin = $(TESTCACHE)/unix/poll/unix_poll-darwin.o
+testlib_env += HARE_TD_unix::poll=$(TESTCACHE)/unix/poll/unix_poll.td
 testlib_deps_darwin += $(testlib_unix_poll_darwin)
 
 # gen_lib unix::resolvconf (linux)
@@ -3904,6 +3942,7 @@ testlib_deps_freebsd += $(testlib_unix_resolvconf_freebsd)
 
 # gen_lib unix::resolvconf (darwin)
 testlib_unix_resolvconf_darwin = $(TESTCACHE)/unix/resolvconf/unix_resolvconf-darwin.o
+testlib_env += HARE_TD_unix::resolvconf=$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td
 testlib_deps_darwin += $(testlib_unix_resolvconf_darwin)
 
 # gen_lib unix::signal (linux)
@@ -3918,6 +3957,7 @@ testlib_deps_freebsd += $(testlib_unix_signal_freebsd)
 
 # gen_lib unix::signal (darwin)
 testlib_unix_signal_darwin = $(TESTCACHE)/unix/signal/unix_signal-darwin.o
+testlib_env += HARE_TD_unix::signal=$(TESTCACHE)/unix/signal/unix_signal.td
 testlib_deps_darwin += $(testlib_unix_signal_darwin)
 
 # gen_lib unix::tty (linux)
@@ -3932,6 +3972,7 @@ testlib_deps_freebsd += $(testlib_unix_tty_freebsd)
 
 # gen_lib unix::tty (darwin)
 testlib_unix_tty_darwin = $(TESTCACHE)/unix/tty/unix_tty-darwin.o
+testlib_env += HARE_TD_unix::tty=$(TESTCACHE)/unix/tty/unix_tty.td
 testlib_deps_darwin += $(testlib_unix_tty_darwin)
 
 # gen_lib uuid (any)
@@ -4190,7 +4231,7 @@ testlib_crypto_random_darwin_srcs = \
 $(TESTCACHE)/crypto/random/crypto_random-darwin.ssa: $(testlib_crypto_random_darwin_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/random
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
 		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_darwin_srcs)
 
 # crypto::rsa (+any)
@@ -4346,6 +4387,7 @@ $(TESTCACHE)/datetime/datetime-freebsd.ssa: $(testlib_datetime_freebsd_srcs) $(t
 testlib_datetime_darwin_srcs = \
 	$(STDLIB)/datetime/arithmetic.ha \
 	$(STDLIB)/datetime/chronology.ha \
+	$(STDLIB)/datetime/errors.ha \
 	$(STDLIB)/datetime/date.ha \
 	$(STDLIB)/datetime/datetime.ha \
 	$(STDLIB)/datetime/duration.ha \
@@ -4360,7 +4402,7 @@ testlib_datetime_darwin_srcs = \
 $(TESTCACHE)/datetime/datetime-darwin.ssa: $(testlib_datetime_darwin_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/datetime
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndatetime \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndatetime \
 		-t$(TESTCACHE)/datetime/datetime.td $(testlib_datetime_darwin_srcs)
 
 # dirs (+any)
@@ -4796,8 +4838,8 @@ testlib_io_darwin_srcs = \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha \
-	$(STDLIB)/io/+test/limit.ha \
-	$(STDLIB)/io/+test/stream.ha
+	$(STDLIB)/io/+test/limit_test.ha \
+	$(STDLIB)/io/+test/stream_test.ha
 
 $(TESTCACHE)/io/io-linux.ssa: $(testlib_io_linux_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -4814,7 +4856,7 @@ $(TESTCACHE)/io/io-freebsd.ssa: $(testlib_io_freebsd_srcs) $(testlib_rt) $(testl
 $(TESTCACHE)/io/io-darwin.ssa: $(testlib_io_darwin_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/io
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
 		-t$(TESTCACHE)/io/io.td $(testlib_io_darwin_srcs)
 
 # linux (+linux)
@@ -4895,7 +4937,7 @@ testlib_log_darwin_srcs = \
 $(TESTCACHE)/log/log-darwin.ssa: $(testlib_log_darwin_srcs) $(testlib_rt) $(testlib_datetime_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/log
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \
 		-t$(TESTCACHE)/log/log.td $(testlib_log_darwin_srcs)
 
 # math (+any)
@@ -4972,7 +5014,7 @@ testlib_net_darwin_srcs = \
 $(TESTCACHE)/net/net-darwin.ssa: $(testlib_net_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
 		-t$(TESTCACHE)/net/net.td $(testlib_net_darwin_srcs)
 
 # net::dial (+any)
@@ -5019,7 +5061,7 @@ testlib_net_ip_freebsd_srcs = \
 testlib_net_ip_darwin_srcs = \
 	$(STDLIB)/net/ip/+darwin.ha \
 	$(STDLIB)/net/ip/ip.ha \
-	$(STDLIB)/net/ip/+test.ha
+	$(STDLIB)/net/ip/test+test.ha
 
 $(TESTCACHE)/net/ip/net_ip-linux.ssa: $(testlib_net_ip_linux_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -5036,7 +5078,7 @@ $(TESTCACHE)/net/ip/net_ip-freebsd.ssa: $(testlib_net_ip_freebsd_srcs) $(testlib
 $(TESTCACHE)/net/ip/net_ip-darwin.ssa: $(testlib_net_ip_darwin_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/ip
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \
 		-t$(TESTCACHE)/net/ip/net_ip.td $(testlib_net_ip_darwin_srcs)
 
 # net::tcp (+linux)
@@ -5072,7 +5114,7 @@ testlib_net_tcp_darwin_srcs = \
 $(TESTCACHE)/net/tcp/net_tcp-darwin.ssa: $(testlib_net_tcp_darwin_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/tcp
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::tcp \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::tcp \
 		-t$(TESTCACHE)/net/tcp/net_tcp.td $(testlib_net_tcp_darwin_srcs)
 
 # net::udp (+linux)
@@ -5105,7 +5147,7 @@ testlib_net_udp_darwin_srcs = \
 $(TESTCACHE)/net/udp/net_udp-darwin.ssa: $(testlib_net_udp_darwin_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/udp
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::udp \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::udp \
 		-t$(TESTCACHE)/net/udp/net_udp.td $(testlib_net_udp_darwin_srcs)
 
 # net::unix (+linux)
@@ -5153,7 +5195,7 @@ testlib_net_unix_darwin_srcs = \
 $(TESTCACHE)/net/unix/net_unix-darwin.ssa: $(testlib_net_unix_darwin_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_net_dial_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/unix
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \
 		-t$(TESTCACHE)/net/unix/net_unix.td $(testlib_net_unix_darwin_srcs)
 
 # net::uri (+any)
@@ -5213,7 +5255,7 @@ testlib_os_darwin_srcs = \
 $(TESTCACHE)/os/os-darwin.ssa: $(testlib_os_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
 		-t$(TESTCACHE)/os/os.td $(testlib_os_darwin_srcs)
 
 # os::exec (+linux)
@@ -5252,7 +5294,7 @@ testlib_os_exec_darwin_srcs = \
 $(TESTCACHE)/os/exec/os_exec-darwin.ssa: $(testlib_os_exec_darwin_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os/exec
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
 		-t$(TESTCACHE)/os/exec/os_exec.td $(testlib_os_exec_darwin_srcs)
 
 # path (+any)
@@ -5414,7 +5456,7 @@ testlib_temp_darwin_srcs = \
 $(TESTCACHE)/temp/temp-darwin.ssa: $(testlib_temp_darwin_srcs) $(testlib_rt) $(testlib_crypto_random_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/temp
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
 		-t$(TESTCACHE)/temp/temp.td $(testlib_temp_darwin_srcs)
 
 # test (+any)
@@ -5466,7 +5508,7 @@ testlib_time_darwin_srcs = \
 $(TESTCACHE)/time/time-darwin.ssa: $(testlib_time_darwin_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
 		-t$(TESTCACHE)/time/time.td $(testlib_time_darwin_srcs)
 
 # time::chrono (+linux)
@@ -5517,7 +5559,7 @@ testlib_time_chrono_darwin_srcs = \
 $(TESTCACHE)/time/chrono/time_chrono-darwin.ssa: $(testlib_time_chrono_darwin_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time/chrono
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
 		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_darwin_srcs)
 
 # types (+any)
@@ -5587,7 +5629,7 @@ testlib_unix_darwin_srcs = \
 $(TESTCACHE)/unix/unix-darwin.ssa: $(testlib_unix_darwin_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
 		-t$(TESTCACHE)/unix/unix.td $(testlib_unix_darwin_srcs)
 
 # unix::hosts (+linux)
@@ -5620,7 +5662,7 @@ testlib_unix_hosts_darwin_srcs = \
 $(TESTCACHE)/unix/hosts/unix_hosts-darwin.ssa: $(testlib_unix_hosts_darwin_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/hosts
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
 		-t$(TESTCACHE)/unix/hosts/unix_hosts.td $(testlib_unix_hosts_darwin_srcs)
 
 # unix::passwd (+any)
@@ -5665,7 +5707,7 @@ testlib_unix_poll_darwin_srcs = \
 $(TESTCACHE)/unix/poll/unix_poll-darwin.ssa: $(testlib_unix_poll_darwin_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/poll
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \
 		-t$(TESTCACHE)/unix/poll/unix_poll.td $(testlib_unix_poll_darwin_srcs)
 
 # unix::resolvconf (+linux)
@@ -5698,7 +5740,7 @@ testlib_unix_resolvconf_darwin_srcs = \
 $(TESTCACHE)/unix/resolvconf/unix_resolvconf-darwin.ssa: $(testlib_unix_resolvconf_darwin_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/resolvconf
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \
 		-t$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td $(testlib_unix_resolvconf_darwin_srcs)
 
 # unix::signal (+linux)
@@ -5731,7 +5773,7 @@ testlib_unix_signal_darwin_srcs = \
 $(TESTCACHE)/unix/signal/unix_signal-darwin.ssa: $(testlib_unix_signal_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/signal
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
 		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_darwin_srcs)
 
 # unix::tty (+linux)
@@ -5777,7 +5819,7 @@ testlib_unix_tty_darwin_srcs = \
 $(TESTCACHE)/unix/tty/unix_tty-darwin.ssa: $(testlib_unix_tty_darwin_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/tty
-	@HARECACHE=$(TESTCACHE) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \
 		-t$(TESTCACHE)/unix/tty/unix_tty.td $(testlib_unix_tty_darwin_srcs)
 
 # uuid (+any)

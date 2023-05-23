@@ -81,7 +81,7 @@ gensrcs_rt() {
 		+darwin/syscallno.ha \
 		+darwin/syscalls.ha \
 		+darwin/types.ha \
-		+'$(ARCH)'/jmp.ha \
+		+'$(ARCH)'/arch_jmp.ha \
 		+'$(ARCH)'/backtrace.ha \
 		fenv_defs.ha \
 		+'$(ARCH)'/cpuid.ha \
@@ -261,6 +261,7 @@ datetime() {
 	gen_srcs -pdarwin datetime \
 		arithmetic.ha \
 		chronology.ha \
+		errors.ha \
 		date.ha \
 		datetime.ha \
 		duration.ha \
