@@ -200,16 +200,14 @@ crypto() {
 		gen_srcs crypto \
 			authenc.ha \
 			keyderiv.ha
-		gen_ssa crypto bufio bytes crypto::argon2 crypto::chacha \
-			crypto::cihper crypto::poly1305 crypto::mac \
+		gen_ssa crypto bufio bytes crypto::argon2 crypto::chachapoly \
 			crypto::math endian errors io
 	else
 		gen_srcs crypto \
 			authenc.ha \
 			keyderiv.ha \
 			+test/authenc_test.ha
-		gen_ssa crypto bytes bufio crypto::argon2 crypto::chacha \
-			crypto::cihper crypto::poly1305 crypto::mac \
+		gen_ssa crypto bufio bytes crypto::argon2 crypto::chachapoly \
 			crypto::math endian errors io
 	fi
 }

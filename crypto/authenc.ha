@@ -1,14 +1,10 @@
 // License: MPL-2.0
-// (c) 2022 Armin Preiml <apreiml@strohwolke.at>
-// (c) 2022 Drew DeVault <sir@cmpwn.com>
+// (c) 2023 Armin Preiml <apreiml@strohwolke.at>
+// (c) 2023 Drew DeVault <sir@cmpwn.com>
 use bytes;
 use bufio;
-use crypto::chacha;
-use crypto::cipher;
-use crypto::poly1305;
-use crypto::mac;
+use crypto::chachapoly;
 use crypto::math;
-use endian;
 use errors;
 use io;
 
@@ -80,68 +76,16 @@ export fn encrypt(
 	plaintext: []u8,
 	additional: []u8...,
 ) box = {
-	let s = chacha::chacha20();
+	let s = chachapoly::chachapoly();
 	defer io::close(&s)!;
 
-	let otk: poly1305::key = [0...];
-	defer bytes::zero(otk);
-
-	let otkbuf = bufio::fixed(otk, io::mode::WRITE);
-	chacha::xchacha20_init(&s, &otkbuf, key, nonce);
-	io::writeall(&s, otk[..])!;
-
-	let ciphertext = plaintext;
-	let cipherbuf = bufio::fixed(ciphertext, io::mode::WRITE);
-
-	chacha::xchacha20_init(&s, &cipherbuf, key, nonce);
-	chacha::setctr(&s, 1);
+	let h = bufio::fixed(plaintext, io::mode::WRITE);
+	chachapoly::xinit(&s, &h, key, nonce, additional...);
 	io::writeall(&s, plaintext)!;
-
 	let m: mac = [0...];
-	writemac(&m, &otk, ciphertext, additional...);
-	return (m, *nonce, ciphertext);
+	chachapoly::seal(&s, m);
+	return (m, *nonce, bufio::buffer(&h));
 };
-
-fn writemac(
-	m: *mac,
-	otk: *poly1305::key,
-	ciphertext: []u8,
-	additional: []u8...,
-) void = {
-	let poly = poly1305::poly1305();
-	poly1305::init(&poly, otk);
-	defer mac::finish(&poly);
-
-	let adlen: size = 0;
-	for (let i = 0z; i < len(additional); i += 1) {
-		adlen += len(additional[i]);
-		mac::write(&poly, additional[i]);
-	};
-	polypad(&poly, adlen);
-
-	mac::write(&poly, ciphertext);
-	polypad(&poly, len(ciphertext));
-
-	let nbuf: [8]u8 = [0...];
-	endian::leputu64(nbuf, adlen: u32);
-	mac::write(&poly, nbuf);
-
-	endian::leputu64(nbuf, len(ciphertext): u32);
-	mac::write(&poly, nbuf);
-
-	mac::sum(&poly, m[..]);
-};
-
-fn polypad(p: *poly1305::state, n: size) void = {
-	if (n % poly1305::BLOCKSIZE == 0) {
-		return;
-	};
-
-	const pad: [poly1305::BLOCKSIZE]u8 = [0...];
-	const padlen = poly1305::BLOCKSIZE - (n % poly1305::BLOCKSIZE);
-	mac::write(p, pad[..padlen]);
-};
-
 
 // Authenticates and decrypts a message encrypted with [[encrypt]]. If the
 // decryption is successful, the plaintext slice is returned, and if not,
@@ -163,34 +107,20 @@ export fn decrypt(
 	box: *box,
 	additional: []u8...
 ) ([]u8 | errors::invalid) = {
-	let s = chacha::chacha20();
+	let s = chachapoly::chachapoly();
 	defer io::close(&s)!;
 
-	let otk: poly1305::key = [0...];
-	defer bytes::zero(otk);
-
-	let otkbuf = bufio::fixed(otk, io::mode::WRITE);
-	chacha::xchacha20_init(&s, &otkbuf, key, &box.1);
-	io::writeall(&s, otk)!;
-
 	let ciphertext = box.2;
-
-	let m: mac = [0...];
-	writemac(&m, &otk, ciphertext, additional...);
-
-	if (!compare(m, box.0)) {
-		bytes::zero(ciphertext);
-		return errors::invalid;
-	};
+	let h = bufio::fixed(ciphertext, io::mode::READ);
+	chachapoly::xinit(&s, &h, key, box.1, additional...);
 
 	let plaintext = ciphertext;
-	let cipherbuf = bufio::fixed(ciphertext, io::mode::READ);
-
-	chacha::xchacha20_init(&s, &cipherbuf, key, &box.1);
-	chacha::setctr(&s, 1);
-
 	io::readall(&s, plaintext)!;
 
+	if (chachapoly::verify(&s, box.0) is errors::invalid) {
+		bytes::zero(plaintext);
+		return errors::invalid;
+	};
 	return plaintext;
 };
 
