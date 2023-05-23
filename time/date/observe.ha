@@ -1,0 +1,275 @@
+// License: MPL-2.0
+// (c) 2021-2022 Byron Torres <b@torresjrjr.com>
+use errors;
+use time;
+use time::chrono;
+
+// These functions are renamed to avoid namespace conflicts, like in the
+// parameters of the [[new]] function.
+
+// Observes a [[date]]'s era.
+export fn era(d: *date) int = _era(d);
+
+// Observes a [[date]]'s year.
+export fn year(d: *date) int = _year(d);
+
+// Observes a [[date]]'s month of the year.
+export fn month(d: *date) int = _month(d);
+
+// Observes a [[date]]'s day of the month.
+export fn day(d: *date) int = _day(d);
+
+// Observes a [[date]]'s day of the week; Monday=0 to Sunday=6.
+export fn weekday(d: *date) int = _weekday(d);
+
+// Observes a [[date]]'s ordinal day of the year.
+export fn yearday(d: *date) int = _yearday(d);
+
+// Observes a [[date]]'s ISO week-numbering year.
+export fn isoweekyear(d: *date) int = _isoweekyear(d);
+
+// Observes a [[date]]'s Gregorian week starting Monday.
+export fn week(d: *date) int = _week(d);
+
+// Observes a [[date]]'s Gregorian week starting Sunday.
+export fn sundayweek(d: *date) int = _sundayweek(d);
+
+// Observes a [[date]]'s ISO week.
+export fn isoweek(d: *date) int = _isoweek(d);
+
+// Observes a [[date]]'s hour of the day.
+export fn hour(d: *date) int = _hour(d);
+
+// Observes a [[date]]'s minute of the hour.
+export fn minute(d: *date) int = _minute(d);
+
+// Observes a [[date]]'s second of the minute.
+export fn second(d: *date) int = _second(d);
+
+// Observes a [[date]]'s nanosecond of the second.
+export fn nanosecond(d: *date) int = _nanosecond(d);
+
+fn _era(d: *date) int = {
+	match (d.era) {
+	case void =>
+		if (d.year is void) {
+			d.year = _year(d);
+		};
+		d.era = calc_era(d.year: int);
+		return d.era: int;
+	case let a: int =>
+		return a;
+	};
+};
+
+fn _year(d: *date) int = {
+	match (d.year) {
+	case void =>
+		const ymd = calc_ymd(chrono::daydate(d));
+		d.year = ymd.0;
+		d.month = ymd.1;
+		d.day = ymd.2;
+		return d.year: int;
+	case let y: int =>
+		return y;
+	};
+};
+
+fn _month(d: *date) int = {
+	match (d.month) {
+	case void =>
+		const ymd = calc_ymd(chrono::daydate(d));
+		d.year = ymd.0;
+		d.month = ymd.1;
+		d.day = ymd.2;
+		return d.month: int;
+	case let y: int =>
+		return y;
+	};
+};
+
+fn _day(d: *date) int = {
+	match (d.day) {
+	case void =>
+		const ymd = calc_ymd(chrono::daydate(d));
+		d.year = ymd.0;
+		d.month = ymd.1;
+		d.day = ymd.2;
+		return d.day: int;
+	case let y: int =>
+		return y;
+	};
+};
+
+fn _weekday(d: *date) int = {
+	match (d.weekday) {
+	case void =>
+		d.weekday = calc_weekday(chrono::daydate(d));
+		return d.weekday: int;
+	case let y: int =>
+		return y;
+	};
+};
+
+fn _yearday(d: *date) int = {
+	match (d.yearday) {
+	case void =>
+		if (d.year is void) {
+			_year(d);
+		};
+		if (d.month is void) {
+			_month(d);
+		};
+		if (d.day is void) {
+			_day(d);
+		};
+		d.yearday = calc_yearday(
+			d.year: int,
+			d.month: int,
+			d.day: int,
+		);
+		return d.yearday: int;
+	case let yd: int =>
+		return yd;
+	};
+};
+
+fn _isoweekyear(d: *date) int = {
+	match (d.isoweekyear) {
+	case void =>
+		if (d.year is void) {
+			_year(d);
+		};
+		if (d.month is void) {
+			_month(d);
+		};
+		if (d.day is void) {
+			_day(d);
+		};
+		if (d.weekday is void) {
+			_weekday(d);
+		};
+		d.isoweekyear = calc_isoweekyear(
+			d.year: int,
+			d.month: int,
+			d.day: int,
+			d.weekday: int,
+		);
+		return d.isoweekyear: int;
+	case let iwy: int =>
+		return iwy;
+	};
+};
+
+fn _week(d: *date) int = {
+	match (d.week) {
+	case void =>
+		if (d.yearday is void) {
+			_yearday(d);
+		};
+		if (d.weekday is void) {
+			_weekday(d);
+		};
+		d.week = calc_week(
+			d.yearday: int,
+			d.weekday: int,
+		);
+		return d.week: int;
+	case let w: int =>
+		return w;
+	};
+};
+
+fn _sundayweek(d: *date) int = {
+	match (d.sundayweek) {
+	case void =>
+		if (d.yearday is void) {
+			_yearday(d);
+		};
+		if (d.weekday is void) {
+			_weekday(d);
+		};
+		d.sundayweek = calc_sundayweek(
+			d.yearday: int,
+			d.weekday: int,
+		);
+		return d.sundayweek: int;
+	case let w: int =>
+		return w;
+	};
+};
+
+fn _isoweek(d: *date) int = {
+	match (d.isoweek) {
+	case void =>
+		if (d.year is void) {
+			_year(d);
+		};
+		if (d.week is void) {
+			_week(d);
+		};
+		d.isoweek = calc_isoweek(
+			d.year: int,
+			d.week: int,
+		);
+		return d.isoweek: int;
+	case let iw: int =>
+		return iw;
+	};
+};
+
+fn _hour(d: *date) int = {
+	match (d.hour) {
+	case void =>
+		const hmsn = calc_hmsn(chrono::daytime(d));
+		d.hour = hmsn.0;
+		d.minute = hmsn.1;
+		d.second = hmsn.2;
+		d.nanosecond = hmsn.3;
+		return d.hour: int;
+	case let h: int =>
+		return h;
+	};
+};
+
+fn _minute(d: *date) int = {
+	match (d.minute) {
+	case void =>
+		const hmsn = calc_hmsn(chrono::daytime(d));
+		d.hour = hmsn.0;
+		d.minute = hmsn.1;
+		d.second = hmsn.2;
+		d.nanosecond = hmsn.3;
+		return d.minute: int;
+	case let m: int =>
+		return m;
+	};
+};
+
+fn _second(d: *date) int = {
+	match (d.second) {
+	case void =>
+		const hmsn = calc_hmsn(chrono::daytime(d));
+		d.hour = hmsn.0;
+		d.minute = hmsn.1;
+		d.second = hmsn.2;
+		d.nanosecond = hmsn.3;
+		return d.second: int;
+	case let s: int =>
+		return s;
+	};
+};
+
+fn _nanosecond(d: *date) int = {
+	match (d.nanosecond) {
+	case void =>
+		const hmsn = calc_hmsn(chrono::daytime(d));
+		d.hour = hmsn.0;
+		d.minute = hmsn.1;
+		d.second = hmsn.2;
+		d.nanosecond = hmsn.3;
+		return d.nanosecond: int;
+	case let n: int =>
+		return n;
+	};
+};

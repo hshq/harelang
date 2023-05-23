@@ -21,11 +21,11 @@ export type unit = enum int {
 	NANOSECOND,
 };
 
-// Calculates the [[period]] between two [[datetime]]s, from A to B.
+// Calculates the [[period]] between two [[date]]s, from A to B.
 // The returned period, provided to [[reckon]] along with A, will produce B,
 // regardless of the [[calculus]] used. All the period's non-zero fields will
 // have the same sign.
-export fn pdiff(a: datetime, b: datetime) period = {
+export fn pdiff(a: date, b: date) period = {
 	let p = period { ... };
 
 	if (chrono::compare(&a, &b) == 0) {
@@ -94,8 +94,8 @@ export fn pdiff(a: datetime, b: datetime) period = {
 	return if (reverse) neg(p) else p;
 };
 
-// Calculates the nominal [[unit]] difference between two [[datetime]]s.
-export fn unitdiff(a: datetime, b: datetime, u: unit) i64 = {
+// Calculates the nominal [[unit]] difference between two [[date]]s.
+export fn unitdiff(a: date, b: date, u: unit) i64 = {
 	switch (u) {
 	case unit::ERA =>
 		return era(&b) - era(&a);
@@ -107,7 +107,7 @@ export fn unitdiff(a: datetime, b: datetime, u: unit) i64 = {
 	case unit::WEEK =>
 		return unitdiff(a, b, unit::DAY) / 7;
 	case unit::DAY =>
-		return chrono::date(&b) - chrono::date(&a);
+		return chrono::daydate(&b) - chrono::daydate(&a);
 	case unit::HOUR =>
 		return unitdiff(a, b, unit::DAY) * 24 + pdiff(a, b).hours;
 	case unit::MINUTE =>
@@ -119,11 +119,11 @@ export fn unitdiff(a: datetime, b: datetime, u: unit) i64 = {
 	};
 };
 
-// Truncates the given [[datetime]] at the provided nominal [[unit]].
+// Truncates the given [[date]] at the provided nominal [[unit]].
 //
 // For example, truncating to the nearest unit::MONTH will set the 'day',
 // 'hour', 'minute', 'second', and 'nanosecond' fields to their minimum values.
-export fn truncate(dt: datetime, u: unit) datetime = {
+export fn truncate(d: date, u: unit) date = {
 	// TODO: There exist timezones where midnight is invalid on certain
 	// days. The new()! calls will fail, but we probably don't want to '?'
 	// propagate [[invalid]] to keep this function's use simple. The minimum
@@ -132,49 +132,49 @@ export fn truncate(dt: datetime, u: unit) datetime = {
 	// realize(), and then use realize() here.
 	return switch (u) {
 	case unit::ERA =>
-		yield new(dt.loc, chrono::mzone(&dt).zoff,
+		yield new(d.loc, chrono::mzone(&d).zoff,
 			1, 1, 1,
 			0, 0, 0, 0,
 		)!;
 	case unit::YEAR =>
-		yield new(dt.loc, chrono::mzone(&dt).zoff,
-			_year(&dt), 1, 1,
+		yield new(d.loc, chrono::mzone(&d).zoff,
+			_year(&d), 1, 1,
 			0, 0, 0, 0,
 		)!;
 	case unit::MONTH =>
-		yield new(dt.loc, chrono::mzone(&dt).zoff,
-			_year(&dt), _month(&dt), 1,
+		yield new(d.loc, chrono::mzone(&d).zoff,
+			_year(&d), _month(&d), 1,
 			0, 0, 0, 0,
 		)!;
 	case unit::WEEK =>
-		const date = chrono::date(&dt) - _weekday(&dt);
-		const ymd = calc_ymd(date);
-		yield new(dt.loc, chrono::mzone(&dt).zoff,
+		const dd = chrono::daydate(&d) - _weekday(&d);
+		const ymd = calc_ymd(dd);
+		yield new(d.loc, chrono::mzone(&d).zoff,
 			ymd.0, ymd.1, ymd.2,
 			0, 0, 0, 0,
 		)!;
 	case unit::DAY =>
-		yield new(dt.loc, chrono::mzone(&dt).zoff,
-			_year(&dt), _month(&dt), _day(&dt),
+		yield new(d.loc, chrono::mzone(&d).zoff,
+			_year(&d), _month(&d), _day(&d),
 			0, 0, 0, 0,
 		)!;
 	case unit::HOUR =>
-		yield new(dt.loc, chrono::mzone(&dt).zoff,
-			_year(&dt), _month(&dt), _day(&dt),
-			_hour(&dt), 0, 0, 0,
+		yield new(d.loc, chrono::mzone(&d).zoff,
+			_year(&d), _month(&d), _day(&d),
+			_hour(&d), 0, 0, 0,
 		)!;
 	case unit::MINUTE =>
-		yield new(dt.loc, chrono::mzone(&dt).zoff,
-			_year(&dt), _month(&dt), _day(&dt),
-			_hour(&dt), _minute(&dt), 0, 0,
+		yield new(d.loc, chrono::mzone(&d).zoff,
+			_year(&d), _month(&d), _day(&d),
+			_hour(&d), _minute(&d), 0, 0,
 		)!;
 	case unit::SECOND =>
-		yield new(dt.loc, chrono::mzone(&dt).zoff,
-			_year(&dt), _month(&dt), _day(&dt),
-			_hour(&dt), _minute(&dt), _second(&dt), 0,
+		yield new(d.loc, chrono::mzone(&d).zoff,
+			_year(&d), _month(&d), _day(&d),
+			_hour(&d), _minute(&d), _second(&d), 0,
 		)!;
 	case unit::NANOSECOND =>
-		yield dt;
+		yield d;
 	};
 };
 
@@ -286,10 +286,10 @@ export fn truncate(dt: datetime, u: unit) datetime = {
 		),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
-		const dta = cases[i].0;
-		const dtb = cases[i].1;
+		const da = cases[i].0;
+		const db = cases[i].1;
 		const expected = cases[i].2;
-		const actual = pdiff(dta, dtb);
+		const actual = pdiff(da, db);
 		assert(peq(actual, expected), "pdiff miscalculation");
 	};
 };
@@ -324,73 +324,73 @@ export fn truncate(dt: datetime, u: unit) datetime = {
 		),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
-		const dta = cases[i].0;
-		const dtb = cases[i].1;
+		const da = cases[i].0;
+		const db = cases[i].1;
 		const expected = cases[i].2;
-		assert(unitdiff(dta, dtb, unit::YEAR) == expected.0,
+		assert(unitdiff(da, db, unit::YEAR) == expected.0,
 			"invalid diff_in_years() result");
-		assert(unitdiff(dta, dtb, unit::MONTH) == expected.1,
+		assert(unitdiff(da, db, unit::MONTH) == expected.1,
 			"invalid diff_in_months() result");
-		assert(unitdiff(dta, dtb, unit::WEEK) == expected.2,
+		assert(unitdiff(da, db, unit::WEEK) == expected.2,
 			"invalid diff_in_weeks() result");
-		assert(unitdiff(dta, dtb, unit::DAY) == expected.3,
+		assert(unitdiff(da, db, unit::DAY) == expected.3,
 			"invalid diff_in_days() result");
-		assert(unitdiff(dta, dtb, unit::HOUR) == expected.4,
+		assert(unitdiff(da, db, unit::HOUR) == expected.4,
 			"invalid diff_in_hours() result");
-		assert(unitdiff(dta, dtb, unit::MINUTE) == expected.5,
+		assert(unitdiff(da, db, unit::MINUTE) == expected.5,
 			"invalid diff_in_minutes() result");
-		assert(unitdiff(dta, dtb, unit::SECOND) == expected.6,
+		assert(unitdiff(da, db, unit::SECOND) == expected.6,
 			"invalid diff_in_seconds() result");
-		assert(unitdiff(dta, dtb, unit::NANOSECOND) == expected.7,
+		assert(unitdiff(da, db, unit::NANOSECOND) == expected.7,
 			"invalid diff_in_nanoseconds() result");
 	};
 };
 
 @test fn truncate() void = {
-	const dt = new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 2)!;
+	const d = new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 2)!;
 
 	assert(chrono::eq(
-			&truncate(dt, unit::ERA),
+			&truncate(d, unit::ERA),
 			&new(chrono::UTC, 0, 1, 1, 1, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 01");
 
 	assert(chrono::eq(
-			&truncate(dt, unit::YEAR),
+			&truncate(d, unit::YEAR),
 			&new(chrono::UTC, 0, 1994, 1, 1, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 02");
 
 	assert(chrono::eq(
-			&truncate(dt, unit::MONTH),
+			&truncate(d, unit::MONTH),
 			&new(chrono::UTC, 0, 1994, 8, 1, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 03");
 
 	assert(chrono::eq(
-			&truncate(dt, unit::WEEK),
+			&truncate(d, unit::WEEK),
 			&new(chrono::UTC, 0, 1994, 8, 22, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 04");
 
 	assert(chrono::eq(
-			&truncate(dt, unit::DAY),
+			&truncate(d, unit::DAY),
 			&new(chrono::UTC, 0, 1994, 8, 27, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 05");
 
 	assert(chrono::eq(
-			&truncate(dt, unit::HOUR),
+			&truncate(d, unit::HOUR),
 			&new(chrono::UTC, 0, 1994, 8, 27, 11, 0, 0, 0)!)!,
 		"invalid truncate() result 06");
 
 	assert(chrono::eq(
-			&truncate(dt, unit::MINUTE),
+			&truncate(d, unit::MINUTE),
 			&new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 0, 0)!)!,
 		"invalid truncate() result 07");
 
 	assert(chrono::eq(
-			&truncate(dt, unit::SECOND),
+			&truncate(d, unit::SECOND),
 			&new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 0)!)!,
 		"invalid truncate() result 08");
 
 	assert(chrono::eq(
-			&truncate(dt, unit::NANOSECOND),
-			&dt)!,
+			&truncate(d, unit::NANOSECOND),
+			&d)!,
 		"invalid truncate() result 09");
 };

@@ -1,0 +1,20 @@
+The time::date module implements the common international Gregorian chronology,
+based on the astronomically numbered proleptic Gregorian calendar, as per ISO
+8601, and the common 24 hour clock. It provides [[date]], a representation of
+civil date/time and a optimized extension of the [[time::chrono::moment]] type.
+The [[time::chrono]] module has many useful functions which interoperate with
+dates. Any [[time::chrono]] function which accepts *moment also accepts *date.
+
+Dates are created using [[new]], [[now]], [[nowutc]], or a "from_" function.
+Alternatively, the [[virtual]]/[[realize]] interface can handle uncertain or
+invalid date/time information, and construct new dates incrementally and safely.
+The observer functions ([[year]], [[hour]], etc.) evaluate a date's observed
+chronological values, adjusted for its associated [[time::chrono::locality]].
+Use [[in]] to localize a date to another locality; consult [[time::chrono::tz]].
+See [[parse]] and [[format]] for working with date/time strings.
+
+Date arithmetic operations are categorized into "timescalar" or "chronological".
+Timescalar uses [[time::duration]]; see [[add]], [[time::chrono::diff]].
+Chronological uses [[period]]; see [[reckon]], [[pdiff]], [[unitdiff]],
+[[truncate]]. Note that calendrical arithmetic is highly irregular due to field
+overflows and timezone discontinuities, so think carefully about what you want.

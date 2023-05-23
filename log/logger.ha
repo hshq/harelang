@@ -1,7 +1,7 @@
-use datetime;
 use fmt;
 use io;
 use os;
+use time::date;
 
 // Interface for implementing a logger.
 export type logger = struct {
@@ -26,9 +26,9 @@ export fn new(sink: io::handle) stdlogger = {
 fn log_println(sink: *logger, fields: fmt::formattable...) void = {
 	const sink = sink: *stdlogger;
 	assert(sink.println == &log_println);
-	const now = datetime::now();
+	const now = date::now();
 	fmt::fprint(sink.sink, "["): void;
-	datetime::format(sink.sink, datetime::STAMP, &now): void;
+	date::format(sink.sink, date::STAMP, &now): void;
 	fmt::fprint(sink.sink, "] "): void;
 	fmt::fprintln(sink.sink, fields...): void;
 };
@@ -36,9 +36,9 @@ fn log_println(sink: *logger, fields: fmt::formattable...) void = {
 fn log_printfln(sink: *logger, fmt: str, fields: fmt::field...) void = {
 	const sink = sink: *stdlogger;
 	assert(sink.printfln == &log_printfln);
-	const now = datetime::now();
+	const now = date::now();
 	fmt::fprint(sink.sink, "["): void;
-	datetime::format(sink.sink, datetime::STAMP, &now): void;
+	date::format(sink.sink, date::STAMP, &now): void;
 	fmt::fprint(sink.sink, "] "): void;
 	fmt::fprintfln(sink.sink, fmt, fields...): void;
 };

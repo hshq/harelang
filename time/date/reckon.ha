@@ -49,37 +49,34 @@ export type calculus = enum uint {
 	FOLD = 1 << 4,
 };
 
-// Reckons from a given [[datetime]] to a new one, via a set of [[period]]s.
-// This is a chronology-wise arithmetic operation. Each period is reckoned
+// Reckons from a given [[date]] to a new one, via a given set of [[period]]s.
+// This is a chronological arithmetic operation. Each period is reckoned
 // independently in succession, applying (adding) their units from most to least
-// significant.
+// significant. The [[calculus]] parameter determines certain behaviours, like
+// for when encountering invalid date states (e.g. field overflows).
 //
-// The [[calculus]] parameter determines arithmetic and resolution behaviour
-// when encountering deviations (e.g. overflows).
-//
-// 	let dest = datetime::reckon(
+// 	let dest = date::reckon(
 // 		start, // 2000-02-29 09:00:00
 // 		0,     // calculus::DEFAULT
-// 		datetime::period {
+// 		date::period {
 // 			years  =  1, // becomes: 2001-02-28 09:00:00
 // 			months = -2, // becomes: 2000-12-28 09:00:00
 // 			days   =  4, // becomes: 2001-01-01 09:00:00
 // 		},
 // 	);
 //
-// See [[add]] for a timescale-wise arithmetic operation which uses
-// [[time::duration]].
-export fn reckon(dt: datetime, calc: calculus, ps: period...) datetime = {
+// See [[add]].
+export fn reckon(d: date, calc: calculus, ps: period...) date = {
 	let r = newvirtual(); // our reckoner
-	r.vloc       = dt.loc;
-	r.zoff       = chrono::mzone(&dt).zoff;
-	r.year       = _year(&dt);
-	r.month      = _month(&dt);
-	r.day        = _day(&dt);
-	r.hour       = _hour(&dt);
-	r.minute     = _minute(&dt);
-	r.second     = _second(&dt);
-	r.nanosecond = _nanosecond(&dt);
+	r.vloc       = d.loc;
+	r.zoff       = chrono::mzone(&d).zoff;
+	r.year       = _year(&d);
+	r.month      = _month(&d);
+	r.day        = _day(&d);
+	r.hour       = _hour(&d);
+	r.minute     = _minute(&d);
+	r.second     = _second(&d);
+	r.nanosecond = _nanosecond(&d);
 
 	if (calc == calculus::DEFAULT) {
 		calc |= calculus::CEIL;

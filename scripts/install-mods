@@ -3,7 +3,6 @@ modules="ascii
 bufio
 bytes
 crypto
-datetime
 dirs
 encoding
 endian

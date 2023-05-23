@@ -6,18 +6,18 @@ use math;
 // Adds a [[duration]] to an [[instant]], returning an instant further in the
 // future (given a positive duration), or further in the past (given a negative
 // duration).
-export fn add(a: instant, d: duration) instant = {
-	if (d == 0) {
-		return a;
-	} else if (d > 0) {
+export fn add(i: instant, x: duration) instant = {
+	if (x == 0) {
+		return i;
+	} else if (x > 0) {
 		return instant {
-			sec = a.sec + (a.nsec + d) / SECOND,
-			nsec = (a.nsec + d) % SECOND,
+			sec = i.sec + (i.nsec + x) / SECOND,
+			nsec = (i.nsec + x) % SECOND,
 		};
 	} else {
 		return instant {
-			sec = a.sec + (a.nsec + d - SECOND + NANOSECOND) / SECOND,
-			nsec = (a.nsec + (d % SECOND) + SECOND) % SECOND,
+			sec = i.sec + (i.nsec + x - SECOND + NANOSECOND) / SECOND,
+			nsec = (i.nsec + (x % SECOND) + SECOND) % SECOND,
 		};
 	};
 };
@@ -39,12 +39,12 @@ export fn compare(a: instant, b: instant) i8 = {
 
 // Scales the given [[instant]]'s scalar value by a factor 'f'. Make sure to
 // know what epoch you're dealing with.
-export fn mult(a: instant, f: f64) instant = {
+export fn mult(i: instant, f: f64) instant = {
 	// use positive numbers for convenience
-	const positive = if (a.sec < 0 ^^ f < 0.0) false else true;
+	const positive = if (i.sec < 0 ^^ f < 0.0) false else true;
 	const f = if (f < 0.0) -f else f;
-	const asec: i64 = if (a.sec < 0) -a.sec - 1 else a.sec;
-	const ansec: i64 = if (a.sec < 0) SECOND - a.nsec else a.nsec;
+	const asec: i64 = if (i.sec < 0) -i.sec - 1 else i.sec;
+	const ansec: i64 = if (i.sec < 0) SECOND - i.nsec else i.nsec;
 
 	// initial multiply
 	const fsec = (asec: f64 * f);
@@ -79,7 +79,7 @@ export fn mult(a: instant, f: f64) instant = {
 
 @test fn add() void = {
 	const cases = [
-	//	instant a        duration d    instant b
+	//	instant a        duration x    instant b
 		( 0,         0,  -2000000001,  -3, 999999999),
 		( 0,         0,  -2000000000,  -2,         0),
 		( 0,         0,  -1999999999,  -2,         1),
@@ -148,9 +148,9 @@ export fn mult(a: instant, f: f64) instant = {
 	for (let i = 0z; i < len(cases); i += 1) {
 		const C = cases[i];
 		const a = instant { sec = C.0, nsec = C.1 };
-		const d = C.2;
+		const x = C.2;
 		const b = instant { sec = C.3, nsec = C.4 };
-		const B = add(a, d);
+		const B = add(a, x);
 		assert(B.sec == b.sec, "time::add() .sec error");
 		assert(B.nsec == b.nsec, "time::add() .nsec error");
 	};

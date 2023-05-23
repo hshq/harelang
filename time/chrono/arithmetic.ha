@@ -45,8 +45,8 @@ export fn diff(a: *moment, b: *moment) (time::duration | discontinuity) = {
 };
 
 // Adds a [[time::duration]] to a [[moment]] with [[time::add]].
-export fn add(m: *moment, d: time::duration) moment = {
-	return new(m.loc, time::add(*(m: *time::instant), d));
+export fn add(m: *moment, x: time::duration) moment = {
+	return new(m.loc, time::add(*(m: *time::instant), x));
 };
 
 fn convertpair(
