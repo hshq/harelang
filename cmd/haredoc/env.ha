@@ -34,6 +34,7 @@ fn default_tags() ([]module::tag | error) = {
 	};
 
 	let pipe = exec::pipe();
+	defer io::close(pipe.0)!;
 	exec::addfile(&cmd, os::stdout_file, pipe.1);
 	let proc = exec::start(&cmd)?;
 	io::close(pipe.1)?;
@@ -52,7 +53,6 @@ fn default_tags() ([]module::tag | error) = {
 		break;
 	};
 
-	io::close(pipe.0)?;
 	let status = exec::wait(&proc)?;
 	match (exec::check(&status)) {
 	case void =>
