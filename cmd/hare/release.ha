@@ -107,7 +107,8 @@ fn do_release(
 	const name = path::basename(os::getcwd());
 	const dir = temp::dir();
 	defer os::rmdirall(dir)!;
-	const (clfile, changelog) = temp::named(os::cwd, dir, io::mode::WRITE)?;
+	const (clfile, changelog) = temp::named(os::cwd,
+		dir, io::mode::WRITE, 0o644)?;
 	defer io::close(clfile)!;
 	fmt::fprintfln(clfile, changelog_template, lasttag, name, newtag)?;
 	shortlog(clfile, range)?;
@@ -137,7 +138,8 @@ fn do_initial_release(ver: (modversion | increment)) (void | release_error) = {
 	const name = path::basename(os::getcwd());
 	const dir = temp::dir();
 	defer os::rmdirall(dir)!;
-	const (clfile, changelog) = temp::named(os::cwd, dir, io::mode::WRITE)?;
+	const (clfile, changelog) = temp::named(os::cwd,
+		dir, io::mode::WRITE, 0o644)?;
 	defer io::close(clfile)!;
 	fmt::fprintfln(clfile, initial_template, name, newtag)?;
 
