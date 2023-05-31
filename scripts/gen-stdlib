@@ -1202,7 +1202,7 @@ os_exec() {
 		types.ha \
 		cmd.ha
 	gen_ssa -pfreebsd os::exec os strings fmt errors unix rt io ascii \
-		types::c
+		unix::signal types::c
 }
 
 path() {
