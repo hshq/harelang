@@ -16,3 +16,9 @@
 	static assert(align(intptr) == align(uintptr));
 	static assert(align(ssize) == align(size));
 };
+
+@test fn strings() void = {
+	let s = fromstr("hello!");
+	defer free(s);
+	assert(tostr(s)! == "hello!");
+};
