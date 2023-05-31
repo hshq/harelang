@@ -18,10 +18,11 @@ export fn next(r: *random) u64 = {
 };
 
 // Returns a pseudo-random 32-bit unsigned integer in the half-open interval
-// [0,n).
+// [0,n). n must be greater than zero.
 export fn u32n(r: *random, n: u32) u32 = {
 	// https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
 	// https://lemire.me/blog/2016/06/30/fast-random-shuffling/
+	assert(n != 0);
 	let prod = next(r): u32: u64 * n: u64;
 	let leftover = prod: u32;
 	if (leftover < n) {
@@ -35,8 +36,9 @@ export fn u32n(r: *random, n: u32) u32 = {
 };
 
 // Returns a pseudo-random 64-bit unsigned integer in the half-open interval
-// [0,n).
+// [0,n). n must be greater than zero.
 export fn u64n(r: *random, n: u64) u64 = {
+	assert(n != 0);
 	// Powers of 2 can be handled more efficiently
 	if (n & n - 1 == 0) return next(r) & n - 1;
 	// Equivalent to 2^64 - 1 - 2^64 % n
