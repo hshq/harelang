@@ -34,8 +34,8 @@ export fn strupper(s: str) str = {
 	return strings::fromutf8(new)!;
 };
 
-// Compares two strings by their sort order, treating all ascii capital letters
-// as their lowercase counterpart (i.e. an ascii-case-insensitive comparison is
+// Compares two strings by their sort order, treating all ASCII capital letters
+// as their lowercase counterpart (i.e. an ASCII-case-insensitive comparison is
 // performed). Zero is returned if the strings are equal, a negative value if a
 // is less than b, or a positive value if a is greater than b.
 export fn strcasecmp(a: str, b: str) int = {
