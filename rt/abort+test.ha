@@ -27,7 +27,7 @@ const reasons: [_]str = [
 	"out of memory",					// 2
 	"static insert/append exceeds slice capacity",		// 3
 	"execution reached unreachable code (compiler bug)",	// 4
-	"slice allocation capacity smaller than initializer"	// 5
+	"slice allocation capacity smaller than initializer",	// 5
 	"assertion failed",					// 6
 	"error occured",					// 7
 ];
