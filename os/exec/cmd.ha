@@ -79,7 +79,7 @@ export @noreturn fn exec(cmd: *command) void = {
 };
 
 // Starts a prepared command in a new process.
-export fn start(cmd: *command) (error | process) = {
+export fn start(cmd: *command) (process | error) = {
 	defer finish(cmd);
 	match (platform_start(cmd)) {
 	case let err: errors::error =>

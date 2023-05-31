@@ -86,7 +86,7 @@ export fn buffered(
 };
 
 // Flushes pending writes to the underlying stream.
-export fn flush(s: io::handle) (io::error | void) = {
+export fn flush(s: io::handle) (void | io::error) = {
 	let s = match (s) {
 	case let st: *io::stream =>
 		if (st.writer != &buffered_write) {
