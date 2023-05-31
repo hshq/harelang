@@ -6,8 +6,8 @@
 	const sep = ": ";
 	const linefeed = "\n";
 	write(STDERR_FILENO, *(&prefix: **void): *const u8, len(prefix)): void;
-	write(STDERR_FILENO, *(&loc: **void): *const u8, len(prefix)): void;
-	write(STDERR_FILENO, *(&sep: **void): *const u8, len(prefix)): void;
+	write(STDERR_FILENO, *(&loc: **void): *const u8, len(loc)): void;
+	write(STDERR_FILENO, *(&sep: **void): *const u8, len(sep)): void;
 	write(STDERR_FILENO, *(&msg: **void): *const u8, len(msg)): void;
 	write(STDERR_FILENO, *(&linefeed: **void): *const u8, 1): void;
 	kill(getpid(), SIGABRT): void;
