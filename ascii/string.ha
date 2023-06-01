@@ -1,34 +1,41 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
+use encoding::utf8;
 use strings;
 
-// Convert all ascii uppercase characters in a string to their lowercase
-// representation. Modifies the original string.
+// Convert all ASCII uppercase characters in a string to their lowercase
+// representation, returning a new string. The return value must be freed by the
+// caller.
 export fn strlower(s: str) str = {
-	let bs = strings::toutf8(s);
-	for (let i = 0z; i < len(bs); i += 1) {
-		if (bs[i] < 128 && cclass[bs[i]] & U != 0) {
-			bs[i] += 'a': u8 - 'A';
-		};
+	let new: []u8 = alloc([], len(s));
+	let it = strings::iter(s);
+	for (true) match (strings::next(&it)) {
+	case let r: rune =>
+		static append(new, utf8::encoderune(tolower(r))...);
+	case void =>
+		break;
 	};
-	return s;
+	return strings::fromutf8(new)!;
 };
 
-// Convert all ascii lowercase characters in a string to their uppercase
-// representation. Modifies the original string.
+// Convert all ASCII lowercase characters in a string to their uppercase
+// representation, returning a new string. The return value must be freed by the
+// caller.
 export fn strupper(s: str) str = {
-	let bs = strings::toutf8(s);
-	for (let i = 0z; i < len(bs); i += 1) {
-		if (bs[i] < 128 && cclass[bs[i]] & L != 0) {
-			bs[i] -= 'a': u8 - 'A';
-		};
+	let new: []u8 = alloc([], len(s));
+	let it = strings::iter(s);
+	for (true) match (strings::next(&it)) {
+	case let r: rune =>
+		static append(new, utf8::encoderune(toupper(r))...);
+	case void =>
+		break;
 	};
-	return s;
+	return strings::fromutf8(new)!;
 };
 
-// Compares two strings by their sort order, treating all ascii capital letters
-// as their lowercase counterpart (i.e. an ascii-case-insensitive comparison is
+// Compares two strings by their sort order, treating all ASCII capital letters
+// as their lowercase counterpart (i.e. an ASCII-case-insensitive comparison is
 // performed). Zero is returned if the strings are equal, a negative value if a
 // is less than b, or a positive value if a is greater than b.
 export fn strcasecmp(a: str, b: str) int = {
@@ -46,14 +53,30 @@ export fn strcasecmp(a: str, b: str) int = {
 };
 
 @test fn strcasecmp() void = {
-	assert(strupper("ABC") == "ABC");
-	assert(strlower("ABC") == "abc");
-	assert(strupper("abc") == "ABC");
-	assert(strlower("abc") == "abc");
-	assert(strupper("[[[") == "[[[");
-	assert(strlower("[[[") == "[[[");
-	assert(strupper("こ") == "こ");
-	assert(strlower("こ") == "こ");
+	let s = strupper("ABC");
+	assert(s == "ABC");
+	free(s);
+	s = strlower("ABC");
+	assert(s == "abc");
+	free(s);
+	s = strupper("abc");
+	assert(s == "ABC");
+	free(s);
+	s = strlower("abc");
+	assert(s == "abc");
+	free(s);
+	s = strupper("[[[");
+	assert(s == "[[[");
+	free(s);
+	s = strlower("[[[");
+	assert(s == "[[[");
+	free(s);
+	s = strupper("こ");
+	assert(s == "こ");
+	free(s);
+	s = strlower("こ");
+	assert(s == "こ");
+	free(s);
 
 	assert(strcasecmp("ABC", "ABC") == 0);
 	assert(strcasecmp("ABC", "abc") == 0);

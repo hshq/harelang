@@ -47,20 +47,6 @@ fn hashtable_insert(item: *mimetype) void = {
 	};
 };
 
-const text_plain: mimetype = mimetype {
-	mime = "text/plain",
-	exts = ["txt"],
-};
-
-const text_hare: mimetype = mimetype {
-	mime = "text/x-hare",
-	exts = ["ha"],
-};
-
-@init fn init() void = {
-	register(&text_plain, &text_hare);
-};
-
 @fini fn fini() void = {
 	for (let i = 0z; i < len(heap_db); i += 1) {
 		free(heap_db[i].mime);

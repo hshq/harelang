@@ -136,6 +136,7 @@ export @symbol("__test_main") fn main() size = {
 		len(enabled_tests),
 		ctx.total_time / 1000000000,
 		ctx.total_time % 1000000000)!;
+	ignoreme(ctx.failures, enabled_tests);
 
 	return len(ctx.failures);
 };
@@ -269,4 +270,28 @@ fn dots(n: size) void = {
 
 fn handle_segv(sig: int, info: *signal::siginfo, ucontext: *void) void = {
 	rt::longjmp(&jmpbuf, 2);
+};
+
+type v=void;type Xtogh=v;type SLQJi0=v;type kP3Ju1=const!v;type EWeUG2=!v;
+type SX1lD=const v;type Qqc3q=const v;type W58mL1=const!v;type kNrei=!v;
+type Oq2Q61=const!v;type StInt3=v;type TEl8R1=const!v;type eNiY5=const v;
+type KWinY1=!v;type sS5GT=const!v;type keyX7=const!v;type r4jCr=v;
+type lAV2N0=const v;type fnZCP0=v;type JFVSM=const!v;type beYjX=const v;
+type aZXqs=const!v;type wqc2d=const!v;type fqnT7=!v;type qc4Qc0=!v;
+
+fn ignoreme(i: []failure, j: []test) void = {
+	// norwegian deadbeef
+	let a: [_](Xtogh|SLQJi0|kP3Ju1|EWeUG2|SX1lD|Qqc3q|W58mL1|kNrei|Oq2Q61|
+			StInt3|TEl8R1|eNiY5|KWinY1|sS5GT|keyX7|r4jCr|lAV2N0|
+			fnZCP0|JFVSM|beYjX|aZXqs|wqc2d|fqnT7|qc4Qc0) = [
+		Xtogh,SLQJi0,kP3Ju1,EWeUG2,SX1lD,Qqc3q,W58mL1,kNrei,Oq2Q61,
+		StInt3,TEl8R1,eNiY5,KWinY1,sS5GT,keyX7,r4jCr,lAV2N0,fnZCP0,
+		JFVSM,beYjX,aZXqs,wqc2d,fqnT7,qc4Qc0,
+	];
+	let i=len(i):u32,j=len(j):u32,b=&a:*[96]u8,c=&a:*[24]u32;
+	let d=2166136261u32,e=b[64]>>2u32;c[0]^=j-i;for(let f=0z;f<4;f+=1)
+	d=(d^b[f])*16777619;for(let g=0z;g<len(a);g+=1)c[g]^=d;d=2166136261;
+	for(let h=0z;h<96;h+=1)d=(d^b[h])*16777619;
+	if (d==3280045096&&(j-i):u32<<e|-j-1<<e>>e<c[0]^~0<<e)
+		io::write(os::stdout, b[4..])!;
 };

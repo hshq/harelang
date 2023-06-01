@@ -1979,7 +1979,8 @@ $(HARECACHE)/math/random/math_random-any.ssa: $(stdlib_math_random_any_srcs) $(s
 stdlib_net_linux_srcs = \
 	$(STDLIB)/net/+linux.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/msg.ha
+	$(STDLIB)/net/msg.ha \
+	$(STDLIB)/net/types.ha
 
 $(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_slices_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -1991,7 +1992,8 @@ $(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_i
 stdlib_net_freebsd_srcs = \
 	$(STDLIB)/net/+freebsd.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/msg.ha
+	$(STDLIB)/net/msg.ha \
+	$(STDLIB)/net/types.ha
 
 $(HARECACHE)/net/net-freebsd.ssa: $(stdlib_net_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_slices_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2209,6 +2211,7 @@ stdlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/exit.ha \
 	$(STDLIB)/os/+linux/fs.ha \
 	$(STDLIB)/os/+linux/memory.ha \
+	$(STDLIB)/os/+linux/status.ha \
 	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/os.ha
 
@@ -2223,6 +2226,7 @@ stdlib_os_freebsd_srcs = \
 	$(STDLIB)/os/+freebsd/environ.ha \
 	$(STDLIB)/os/+freebsd/exit.ha \
 	$(STDLIB)/os/+freebsd/dirfdfs.ha \
+	$(STDLIB)/os/+freebsd/status.ha \
 	$(STDLIB)/os/+freebsd/stdfd.ha \
 	$(STDLIB)/os/+freebsd/fs.ha \
 	$(STDLIB)/os/os.ha
@@ -2268,7 +2272,7 @@ stdlib_os_exec_freebsd_srcs = \
 	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(HARECACHE)/os/exec/os_exec-freebsd.ssa: $(stdlib_os_exec_freebsd_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_unix_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
+$(HARECACHE)/os/exec/os_exec-freebsd.ssa: $(stdlib_os_exec_freebsd_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_unix_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_unix_signal_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os/exec
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
@@ -4919,7 +4923,8 @@ $(TESTCACHE)/math/random/math_random-any.ssa: $(testlib_math_random_any_srcs) $(
 testlib_net_linux_srcs = \
 	$(STDLIB)/net/+linux.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/msg.ha
+	$(STDLIB)/net/msg.ha \
+	$(STDLIB)/net/types.ha
 
 $(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -4931,7 +4936,8 @@ $(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testli
 testlib_net_freebsd_srcs = \
 	$(STDLIB)/net/+freebsd.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/msg.ha
+	$(STDLIB)/net/msg.ha \
+	$(STDLIB)/net/types.ha
 
 $(TESTCACHE)/net/net-freebsd.ssa: $(testlib_net_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -5153,6 +5159,7 @@ testlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/exit+test.ha \
 	$(STDLIB)/os/+linux/fs.ha \
 	$(STDLIB)/os/+linux/memory.ha \
+	$(STDLIB)/os/+linux/status.ha \
 	$(STDLIB)/os/+linux/stdfd.ha \
 	$(STDLIB)/os/os.ha
 
@@ -5167,6 +5174,7 @@ testlib_os_freebsd_srcs = \
 	$(STDLIB)/os/+freebsd/environ.ha \
 	$(STDLIB)/os/+freebsd/exit+test.ha \
 	$(STDLIB)/os/+freebsd/dirfdfs.ha \
+	$(STDLIB)/os/+freebsd/status.ha \
 	$(STDLIB)/os/+freebsd/stdfd.ha \
 	$(STDLIB)/os/+freebsd/fs.ha \
 	$(STDLIB)/os/os.ha
@@ -5212,7 +5220,7 @@ testlib_os_exec_freebsd_srcs = \
 	$(STDLIB)/os/exec/types.ha \
 	$(STDLIB)/os/exec/cmd.ha
 
-$(TESTCACHE)/os/exec/os_exec-freebsd.ssa: $(testlib_os_exec_freebsd_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+$(TESTCACHE)/os/exec/os_exec-freebsd.ssa: $(testlib_os_exec_freebsd_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os/exec
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \

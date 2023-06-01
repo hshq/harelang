@@ -203,7 +203,7 @@ fn seek(
 	return s.pos: io::off;
 };
 
-fn copy(dest: *io::stream, src: *io::stream) (io::error | size) = {
+fn copy(dest: *io::stream, src: *io::stream) (size | io::error) = {
 	if (src.reader != &read || src.writer == null) {
 		return errors::unsupported;
 	};

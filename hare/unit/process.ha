@@ -119,6 +119,8 @@ fn process_expr(
 		abort(); // TODO
 	case ast::delete_expr =>
 		abort(); // TODO
+	case ast::error_assert_expr =>
+		abort(); // TODO
 	case ast::for_expr =>
 		abort(); // TODO
 	case ast::free_expr =>

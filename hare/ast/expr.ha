@@ -334,10 +334,12 @@ export type offset_expr = *expr;
 // An error propagation expression.
 //
 // 	foo?
-export type propagate_expr = struct {
-	is_abort: bool,
-	expr: *expr,
-};
+export type propagate_expr = *expr;
+
+// An error assertion expression.
+//
+// 	foo!
+export type error_assert_expr = *expr;
 
 // A return statement.
 //
@@ -428,10 +430,10 @@ export type expr = struct {
 		assert_expr | assign_expr | binarithm_expr | binding_expr |
 		break_expr | call_expr | cast_expr | constant_expr |
 		continue_expr | defer_expr | delete_expr | for_expr |
-		free_expr | if_expr | insert_expr | compound_expr | match_expr |
-		len_expr | size_expr | offset_expr | propagate_expr |
-		return_expr | slice_expr | switch_expr | unarithm_expr |
-		variadic_expr | yield_expr),
+		free_expr | error_assert_expr | if_expr | insert_expr |
+		compound_expr | match_expr | len_expr | size_expr |
+		offset_expr | propagate_expr | return_expr | slice_expr |
+		switch_expr | unarithm_expr | variadic_expr | yield_expr),
 };
 
 // Frees resources associated with a Hare [[expr]]ession.
@@ -542,6 +544,8 @@ case let e: expr =>
 		expr_finish(d: *expr);
 	case let d: delete_expr =>
 		expr_finish(d.object);
+	case let e: error_assert_expr =>
+		expr_finish(e);
 	case let f: for_expr =>
 		expr_finish(f.bindings);
 		expr_finish(f.cond);
@@ -585,7 +589,7 @@ case let e: expr =>
 	case let o: offset_expr =>
 		expr_finish(o: *expr);
 	case let p: propagate_expr =>
-		expr_finish(p.expr);
+		expr_finish(p);
 	case let r: return_expr =>
 		expr_finish(r: *expr);
 	case let s: size_expr =>

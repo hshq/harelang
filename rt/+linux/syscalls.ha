@@ -960,3 +960,8 @@ export fn setrlimit(resource: int, rlim: *const rlimit) (void | errno) = {
 	wrap_return(syscall2(SYS_setrlimit,
 		resource: u64, rlim: uintptr: u64))?;
 };
+
+export fn shutdown(sockfd: int, how: int) (void | errno) = {
+	wrap_return(syscall2(SYS_shutdown,
+		sockfd: u64, how: u64))?;
+};

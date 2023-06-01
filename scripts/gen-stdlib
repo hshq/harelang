@@ -1040,11 +1040,20 @@ math() {
 mime() {
 	# This module is not built by default because gen-stdlib does not do a good
 	# job of resolving @init dependency ordering issues
-	gen_srcs mime \
-		database.ha \
-		lookup.ha \
-		parse.ha \
-		system.ha
+	if [ $testing -eq 0 ]; then
+		gen_srcs mime \
+			database.ha \
+			lookup.ha \
+			parse.ha \
+			system.ha
+	else
+		gen_srcs mime \
+			database.ha \
+			lookup.ha \
+			parse.ha \
+			system.ha \
+			entries+test.ha
+	fi
 	gen_ssa mime ascii errors strings hash::fnv encoding::utf8 bufio \
 		fs io os fmt
 }
@@ -1053,13 +1062,15 @@ net() {
 	gen_srcs -plinux net \
 		+linux.ha \
 		errors.ha \
-		msg.ha
+		msg.ha \
+		types.ha
 	gen_ssa -plinux net io errors rt fmt slices
 
 	gen_srcs -pfreebsd net \
 		+freebsd.ha \
 		errors.ha \
-		msg.ha
+		msg.ha \
+		types.ha
 	gen_ssa -pfreebsd net io errors rt fmt slices
 
 	gen_srcs -pdarwin net \
@@ -1249,6 +1260,7 @@ os() {
 		+linux/$exit \
 		+linux/fs.ha \
 		+linux/memory.ha \
+		+linux/status.ha \
 		+linux/stdfd.ha \
 		os.ha
 	gen_ssa -plinux os io strings fs encoding::utf8 bytes bufio \
@@ -1258,6 +1270,7 @@ os() {
 		+freebsd/environ.ha \
 		+freebsd/$exit \
 		+freebsd/dirfdfs.ha \
+		+freebsd/status.ha \
 		+freebsd/stdfd.ha \
 		+freebsd/fs.ha \
 		os.ha
@@ -1290,7 +1303,7 @@ os_exec() {
 		types.ha \
 		cmd.ha
 	gen_ssa -pfreebsd os::exec os strings fmt errors unix rt io ascii \
-		types::c
+		unix::signal types::c
 
 	gen_srcs -pdarwin os::exec \
 		exec+darwin.ha \
@@ -1298,7 +1311,6 @@ os_exec() {
 		types.ha \
 		cmd.ha
 	gen_ssa -pdarwin os::exec os strings fmt errors unix rt io ascii \
-		unix::signal types::c
 }
 
 path() {

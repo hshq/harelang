@@ -902,3 +902,7 @@ export def RLIMIT_NICE: int		= 13;
 export def RLIMIT_RTPRIO: int		= 14;
 export def RLIMIT_RTTIME: int		= 15;
 export def RLIMIT_NLIMITS: int		= 16;
+
+export def SHUT_RD: int = 0;
+export def SHUT_WR: int = 1;
+export def SHUT_RDWR: int = 2;

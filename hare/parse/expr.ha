@@ -1046,19 +1046,13 @@ fn postfix(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) =
 		yield ast::expr {
 			start = lvalue.start,
 			end = lex::prevloc(lexer),
-			expr = ast::propagate_expr {
-				is_abort = false,
-				expr = alloc(lvalue),
-			},
+			expr = alloc(lvalue): ast::propagate_expr,
 		};
 	case ltok::LNOT =>
 		yield ast::expr {
 			start = lvalue.start,
 			end = lex::prevloc(lexer),
-			expr = ast::propagate_expr {
-				is_abort = true,
-				expr = alloc(lvalue),
-			},
+			expr = alloc(lvalue): ast::error_assert_expr,
 		};
 	case => abort();
 	};

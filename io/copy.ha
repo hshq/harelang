@@ -7,7 +7,7 @@ use errors;
 // returns zero (underread), the copy is terminated and the amount of data
 // copied is returned. Note that this function will never return if the source
 // handle is infinite.
-export fn copy(dest: handle, src: handle) (error | size) = {
+export fn copy(dest: handle, src: handle) (size | error) = {
 	match (dest) {
 	case let fd: file =>
 		if (src is file) {
@@ -30,7 +30,7 @@ export fn copy(dest: handle, src: handle) (error | size) = {
 	};
 };
 
-fn copy_streams(dest: *stream, src: *stream) (error | size) = {
+fn copy_streams(dest: *stream, src: *stream) (size | error) = {
 	match (dest.copier) {
 	case null => void;
 	case let c: *copier =>
@@ -48,7 +48,7 @@ fn copy_streams(dest: *stream, src: *stream) (error | size) = {
 	return copy_fallback(dest, src);
 };
 
-fn copy_fallback(dest: handle, src: handle) (error | size) = {
+fn copy_fallback(dest: handle, src: handle) (size | error) = {
 	let w = 0z;
 	let buf: [4096]u8 = [0...];
 	for (true) {

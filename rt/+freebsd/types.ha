@@ -466,3 +466,7 @@ export def RLIMIT_NPTS: int		= 11;
 export def RLIMIT_SWAP: int		= 12;
 export def RLIMIT_KQUEUES: int		= 13;
 export def RLIMIT_UMTXP: int		= 14;
+
+export def SHUT_RD: int = 0;
+export def SHUT_WR: int = 1;
+export def SHUT_RDWR: int = 2;

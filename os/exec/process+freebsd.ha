@@ -5,6 +5,7 @@
 use errors;
 use rt;
 use fmt;
+use unix::signal;
 
 // Stores information about a child process.
 export type process = int;
@@ -167,9 +168,8 @@ export fn exitstr(status: exit_status) const str = {
 				i: int);
 		};
 	case let s: signaled =>
-		// TODO: Add signal name (once unix::signal is ported to
-		// FreeBSD)
-		return fmt::bsprintf(buf, "exited with signal {}", s: int);
+		return fmt::bsprintf(buf, "exited with signal {}",
+			signal::signame(s));
 	};
 };
 
@@ -198,57 +198,15 @@ export fn check(stat: *status) (void | !exit_status) = {
 	return exit(stat);
 };
 
-// An enumeration of all known signals. Only a subset of these are defined by
-// POSIX, consult the specification for details:
-//
-// https://pubs.opengroup.org/onlinepubs/009695399/basedefs/signal.h.html
-export type signal = enum int {
-	SIGHUP = rt::SIGHUP,
-	SIGINT = rt::SIGINT,
-	SIGQUIT = rt::SIGQUIT,
-	SIGILL = rt::SIGILL,
-	SIGTRAP = rt::SIGTRAP,
-	SIGABRT = rt::SIGABRT,
-	SIGFPE = rt::SIGFPE,
-	SIGKILL = rt::SIGKILL,
-	SIGBUS = rt::SIGBUS,
-	SIGSEGV = rt::SIGSEGV,
-	SIGSYS = rt::SIGSYS,
-	SIGPIPE = rt::SIGPIPE,
-	SIGALRM = rt::SIGALRM,
-	SIGTERM = rt::SIGTERM,
-	SIGSTOP = rt::SIGSTOP,
-	SIGTSTP = rt::SIGTSTP,
-	SIGCONT = rt::SIGCONT,
-	SIGCHLD = rt::SIGCHLD,
-	SIGTTIN = rt::SIGTTIN,
-	SIGTTOU = rt::SIGTTOU,
-	SIGIO = rt::SIGIO,
-	SIGXCPU = rt::SIGXCPU,
-	SIGXFSZ = rt::SIGXFSZ,
-	SIGVTALRM = rt::SIGVTALRM,
-	SIGPROF = rt::SIGPROF,
-	SIGWINCH = rt::SIGWINCH,
-	SIGINFO = rt::SIGINFO,
-	SIGUSR1 = rt::SIGUSR1,
-	SIGUSR2 = rt::SIGUSR2,
-	SIGTHR = rt::SIGTHR,
-	SIGLWP = rt::SIGLWP,
-	SIGLIBRT = rt::SIGLIBRT,
+// Terminates a process. On FreeBSD, this sends [[unix::signal::SIGTERM]] to the
+// process.
+export fn kill(proc: process) (void | errors::error) = {
+	return sig(proc, signal::SIGTERM);
 };
 
-// Sends a signal to a child process. If no variadic arguments are provided, the
-// program is terminated in a platform-specific manner. You may provide exactly
-// one variadic argument, the [[signal]] you wish to send, but this is only
-// supported on Unix-like systems.
-export fn kill(proc: process, sig: signal...) (void | errors::error) = {
-	const sig = if (len(sig) == 0) {
-		yield signal::SIGTERM;
-	} else if (len(sig) == 1) {
-		yield sig[0];
-	} else {
-		abort("os::exec::signal illegally called with more than one signal");
-	};
+// Sends a signal to a child process. This function is only supported on
+// Unix-like systems.
+export fn sig(proc: process, sig: signal::signal) (void | errors::error) = {
 	match (rt::kill(proc, sig)) {
 	case let errno: rt::errno =>
 		return errors::errno(errno);

@@ -71,7 +71,7 @@ export fn setname(msg: *msghdr, name: *void, length: size) void = {
 //
 // This is a low-level interface, and is not generally used by users. More
 // often, users will call functions like [[net::unix::addfiles]] or
-// [[net::unix::prepfiles]], which provide a high-level interface to this
+// [[net::unix::allocfiles]], which provide a high-level interface to this
 // function for domain-specific use-cases.
 export fn addcontrol(
 	msg: *msghdr,
@@ -95,7 +95,7 @@ export fn addcontrol(
 //
 // This is a low-level interface, and is not generally used by users. More
 // often, users will call functions like [[net::unix::addfiles]] or
-// [[net::unix::prepfiles]], which provide a high-level interface to this
+// [[net::unix::allocfiles]], which provide a high-level interface to this
 // function for domain-specific use-cases.
 export fn getcontrol(
 	msg: *msghdr,
