@@ -29,7 +29,7 @@ const reasons: [_]str = [
 	"execution reached unreachable code (compiler bug)",	// 4
 	"slice allocation capacity smaller than initializer",	// 5
 	"assertion failed",					// 6
-	"error occured",					// 7
+	"error occurred",					// 7
 	"return from @noreturn function",			// 8
 ];
 
