@@ -1076,7 +1076,8 @@ net() {
 	gen_srcs -pdarwin net \
 		+darwin.ha \
 		errors.ha \
-		msg.ha
+		msg.ha \
+		types.ha
 	gen_ssa -pdarwin net io errors rt fmt slices
 }
 
@@ -1281,6 +1282,7 @@ os() {
 		+darwin/environ.ha \
 		+darwin/$exit \
 		+darwin/dirfdfs.ha \
+		+darwin/status.ha \
 		+darwin/stdfd.ha \
 		+darwin/fs.ha \
 		os.ha
@@ -1311,6 +1313,7 @@ os_exec() {
 		types.ha \
 		cmd.ha
 	gen_ssa -pdarwin os::exec os strings fmt errors unix rt io ascii \
+		unix::signal types::c
 }
 
 path() {

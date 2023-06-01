@@ -85,3 +85,12 @@ case io::underread => abort();
 case let err: errors::error =>
 	yield err;
 };
+
+// Shuts down part of a full-duplex connection.
+export fn shutdown(sock: socket, how: shut) (void | error) = {
+	match (rt::shutdown(sock, how)) {
+	case void => void;
+	case let err: rt::errno =>
+		return errors::errno(err);
+	};
+};

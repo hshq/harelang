@@ -2005,7 +2005,8 @@ $(HARECACHE)/net/net-freebsd.ssa: $(stdlib_net_freebsd_srcs) $(stdlib_rt) $(stdl
 stdlib_net_darwin_srcs = \
 	$(STDLIB)/net/+darwin.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/msg.ha
+	$(STDLIB)/net/msg.ha \
+	$(STDLIB)/net/types.ha
 
 $(HARECACHE)/net/net-darwin.ssa: $(stdlib_net_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_slices_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -2242,6 +2243,7 @@ stdlib_os_darwin_srcs = \
 	$(STDLIB)/os/+darwin/environ.ha \
 	$(STDLIB)/os/+darwin/exit.ha \
 	$(STDLIB)/os/+darwin/dirfdfs.ha \
+	$(STDLIB)/os/+darwin/status.ha \
 	$(STDLIB)/os/+darwin/stdfd.ha \
 	$(STDLIB)/os/+darwin/fs.ha \
 	$(STDLIB)/os/os.ha
@@ -4949,7 +4951,8 @@ $(TESTCACHE)/net/net-freebsd.ssa: $(testlib_net_freebsd_srcs) $(testlib_rt) $(te
 testlib_net_darwin_srcs = \
 	$(STDLIB)/net/+darwin.ha \
 	$(STDLIB)/net/errors.ha \
-	$(STDLIB)/net/msg.ha
+	$(STDLIB)/net/msg.ha \
+	$(STDLIB)/net/types.ha
 
 $(TESTCACHE)/net/net-darwin.ssa: $(testlib_net_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
@@ -5190,6 +5193,7 @@ testlib_os_darwin_srcs = \
 	$(STDLIB)/os/+darwin/environ.ha \
 	$(STDLIB)/os/+darwin/exit+test.ha \
 	$(STDLIB)/os/+darwin/dirfdfs.ha \
+	$(STDLIB)/os/+darwin/status.ha \
 	$(STDLIB)/os/+darwin/stdfd.ha \
 	$(STDLIB)/os/+darwin/fs.ha \
 	$(STDLIB)/os/os.ha

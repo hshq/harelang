@@ -609,4 +609,9 @@ export def RLIMIT_NOFILE:      int = 8;         // number of open files
 export def RLIM_NLIMITS:       int = 9;         // total number of resource limits
 export def _RLIMIT_POSIX_FLAG: int = 0x1000;    // Set bit for strict POSIX
 
+// <sys/socket.h>
+export def SHUT_RD  : int = 0; // shut down the reading side
+export def SHUT_WR  : int = 1; // shut down the writing side
+export def SHUT_RDWR: int = 2; // shut down both sides
+
 // __DARWIN_C_LEVEL >= __DARWIN_C_FULL: true

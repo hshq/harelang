@@ -3,8 +3,8 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use errors;
 use io;
-use rt;
 use os;
+use rt;
 use types::c;
 use unix;
 
@@ -36,7 +36,7 @@ export fn fork() (process | void | error) = {
 // To capture the standard output of a process:
 //
 // 	let pipe = exec::pipe();
-// 	exec::addfile(&cmd, pipe.1, os::stdout_file);
+// 	exec::addfile(&cmd, os::stdout_file, pipe.1);
 // 	let proc = exec::start(&cmd)!;
 // 	io::close(pipe.1)!;
 //
@@ -59,7 +59,6 @@ export fn pipe() (io::file, io::file) = {
 };
 
 fn open(path: str) (platform_cmd | error) = {
-	// TODO: This is racy, rewrite with TOCTOU
 	match (rt::access(path, rt::X_OK)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
@@ -168,7 +167,7 @@ fn platform_start(cmd: *command) (process | errors::error) = {
 	case void => void;
 	};
 
-	match (rt::fork()) {
+	match (rt::clone(null, rt::SIGCHLD, null, null, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let pid: int =>
