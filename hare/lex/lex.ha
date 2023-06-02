@@ -410,7 +410,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 	};
 
 	let started = false;
-	let base = 10u;
+	let base = strconv::base::DEC;
 	if (r.0 == '0') {
 		append(chars, utf8::encoderune(r.0)...);
 		r = match (next(lex)?) {
@@ -421,11 +421,11 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		};
 		switch (r.0) {
 		case 'b' =>
-			base = 2;
+			base = strconv::base::BIN;
 		case 'o' =>
-			base = 8;
+			base = strconv::base::OCT;
 		case 'x' =>
-			base = 16;
+			base = strconv::base::HEX;
 		case =>
 			if (ascii::isdigit(r.0)) {
 				return syntaxerr(loc,
@@ -436,13 +436,13 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		};
 	} else unget(lex, r);
 	let basechrs = switch (base) {
-	case 2 =>
+	case strconv::base::BIN =>
 		yield "01";
-	case 8 =>
+	case strconv::base::OCT =>
 		yield "01234567";
-	case 10 =>
+	case strconv::base::DEC =>
 		yield "0123456789";
-	case 16 =>
+	case strconv::base::HEX =>
 		yield "0123456789ABCDEFabcdef";
 	};
 
@@ -464,7 +464,8 @@ fn lex_literal(lex: *lexer) (token | error) = {
 					"Expected integer literal");
 			};
 			if (float || exp is size || suff is size
-					|| base != 10 || lex.require_int) {
+					|| base != strconv::base::DEC
+					|| lex.require_int) {
 				unget(lex, r);
 				break;
 			} else {
@@ -492,7 +493,8 @@ fn lex_literal(lex: *lexer) (token | error) = {
 				return syntaxerr(loc,
 					"Expected integer literal");
 			};
-			if (exp is size || suff is size || base != 10) {
+			if (exp is size || suff is size
+					|| base != strconv::base::DEC) {
 				unget(lex, r);
 				break;
 			} else {
@@ -519,7 +521,8 @@ fn lex_literal(lex: *lexer) (token | error) = {
 					"Expected integer literal");
 			};
 			if (suff is size || r.0 != 'f' && float
-					|| r.0 == 'f' && base != 10) {
+					|| r.0 == 'f'
+					&& base != strconv::base::DEC) {
 				unget(lex, r);
 				break;
 			} else {
