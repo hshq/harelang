@@ -999,14 +999,14 @@ net() {
 		errors.ha \
 		msg.ha \
 		types.ha
-	gen_ssa -plinux net io errors rt fmt slices
+	gen_ssa -plinux net io errors rt fmt
 
 	gen_srcs -pfreebsd net \
 		+freebsd.ha \
 		errors.ha \
 		msg.ha \
 		types.ha
-	gen_ssa -pfreebsd net io errors rt fmt slices
+	gen_ssa -pfreebsd net io errors rt fmt
 }
 
 net_dial() {

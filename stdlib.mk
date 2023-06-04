@@ -1712,7 +1712,7 @@ stdlib_net_linux_srcs = \
 	$(STDLIB)/net/msg.ha \
 	$(STDLIB)/net/types.ha
 
-$(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_slices_$(PLATFORM))
+$(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
@@ -1725,7 +1725,7 @@ stdlib_net_freebsd_srcs = \
 	$(STDLIB)/net/msg.ha \
 	$(STDLIB)/net/types.ha
 
-$(HARECACHE)/net/net-freebsd.ssa: $(stdlib_net_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_slices_$(PLATFORM))
+$(HARECACHE)/net/net-freebsd.ssa: $(stdlib_net_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
@@ -4156,7 +4156,7 @@ testlib_net_linux_srcs = \
 	$(STDLIB)/net/msg.ha \
 	$(STDLIB)/net/types.ha
 
-$(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
+$(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
@@ -4169,7 +4169,7 @@ testlib_net_freebsd_srcs = \
 	$(STDLIB)/net/msg.ha \
 	$(STDLIB)/net/types.ha
 
-$(TESTCACHE)/net/net-freebsd.ssa: $(testlib_net_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
+$(TESTCACHE)/net/net-freebsd.ssa: $(testlib_net_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
