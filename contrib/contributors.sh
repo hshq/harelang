@@ -1,6 +1,7 @@
 #!/bin/sh -eu
 
 authors=
+commits=
 
 while true; do
   files=${1:-.}
@@ -13,6 +14,11 @@ while true; do
 
     # Format as: Author Name <test@example.com>
     while read -r line; do
+      if printf '%s' "$line" | grep -qE '^[0-9a-f]{40} \d+ \d+ \d+$'; then
+        commits=$(printf '%s\n%s' "$commits" \
+          "$(printf '%s' "$line" | cut -d' ' -f1)")
+        continue
+      fi
       case "$line" in
         "author "*) author=$(printf '%s' "$line" | sed 's/author //') ;;
         "author-mail "*) mail=$(printf '%s' "$line" | sed 's/author-mail //') ;;
@@ -28,6 +34,13 @@ EOF
     break
   fi
   shift 1
+done
+
+# Get co-authors of commits
+for commit in $(printf '%s' "$commits" | sort -u); do
+  coauthors=$(git show "$commit" | grep '^    Co-authored-by:' \
+    | sed 's/    Co-authored-by: *//g')
+  authors=$(printf '%s\n%s' "$authors" "$coauthors")
 done
 
 # Get only the unique author names
