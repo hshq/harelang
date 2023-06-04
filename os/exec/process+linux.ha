@@ -144,7 +144,7 @@ export fn peekany() ((process, status) | void | error) = {
 export type exited = int;
 
 // The signal number which caused a process to terminate.
-export type signaled = int;
+export type signaled = signal::sig;
 
 // The exit status of a process.
 export type exit_status = (exited | signaled);
@@ -193,15 +193,15 @@ export fn check(stat: *status) (void | !exit_status) = {
 	return exit(stat);
 };
 
-// Terminates a process. On Linux, this sends [[unix::signal::SIGTERM]] to the
+// Terminates a process. On Linux, this sends [[unix::signal::sig::TERM]] to the
 // process.
 export fn kill(proc: process) (void | errors::error) = {
-	return sig(proc, signal::SIGTERM);
+	return sig(proc, signal::sig::TERM);
 };
 
 // Sends a signal to a child process. This function is only supported on
 // Unix-like systems.
-export fn sig(proc: process, sig: signal::signal) (void | errors::error) = {
+export fn sig(proc: process, sig: signal::sig) (void | errors::error) = {
 	match (rt::kill(proc, sig)) {
 	case let errno: rt::errno =>
 		return errors::errno(errno);

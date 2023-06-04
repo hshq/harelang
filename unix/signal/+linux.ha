@@ -11,7 +11,7 @@ use rt;
 // to use via [[sigset]]; if the latter is provided no more than one may be
 // used.
 export fn handle(
-	signum: signal,
+	signum: sig,
 	handler: *handler,
 	opt: (flag | sigset)...
 ) sigaction = {
@@ -52,7 +52,7 @@ export fn handle(
 };
 
 // Restores previous signal behavior following [[handle]].
-export fn restore(signum: signal, action: *sigaction) void = {
+export fn restore(signum: sig, action: *sigaction) void = {
 	match (rt::sigaction(signum, action, null)) {
 	case int =>
 		yield;
@@ -62,54 +62,54 @@ export fn restore(signum: signal, action: *sigaction) void = {
 };
 
 // Unregisters signal handlers for the specified signal.
-export fn reset(signum: signal) void = {
+export fn reset(signum: sig) void = {
 	handle(signum, rt::SIG_DFL: *handler);
 };
 
 // Unregisters all signal handlers.
 export fn resetall() void = {
-	// SIGKILL and SIGSTOP deliberately omitted; see sigaction(2)
-	reset(SIGHUP);
-	reset(SIGINT);
-	reset(SIGQUIT);
-	reset(SIGILL);
-	reset(SIGTRAP);
-	reset(SIGABRT);
-	reset(SIGBUS);
-	reset(SIGFPE);
-	reset(SIGUSR1);
-	reset(SIGSEGV);
-	reset(SIGUSR2);
-	reset(SIGPIPE);
-	reset(SIGALRM);
-	reset(SIGTERM);
-	reset(SIGCHLD);
-	reset(SIGCONT);
-	reset(SIGTSTP);
-	reset(SIGTTIN);
-	reset(SIGTTOU);
-	reset(SIGURG);
-	reset(SIGXCPU);
-	reset(SIGXFSZ);
-	reset(SIGVTALRM);
-	reset(SIGPROF);
-	reset(SIGWINCH);
-	reset(SIGIO);
-	reset(SIGPOLL);
-	reset(SIGPWR);
-	reset(SIGSYS);
+	// sig::KILL and sig::STOP deliberately omitted; see sigaction(2)
+	reset(sig::HUP);
+	reset(sig::INT);
+	reset(sig::QUIT);
+	reset(sig::ILL);
+	reset(sig::TRAP);
+	reset(sig::ABRT);
+	reset(sig::BUS);
+	reset(sig::FPE);
+	reset(sig::USR1);
+	reset(sig::SEGV);
+	reset(sig::USR2);
+	reset(sig::PIPE);
+	reset(sig::ALRM);
+	reset(sig::TERM);
+	reset(sig::CHLD);
+	reset(sig::CONT);
+	reset(sig::TSTP);
+	reset(sig::TTIN);
+	reset(sig::TTOU);
+	reset(sig::URG);
+	reset(sig::XCPU);
+	reset(sig::XFSZ);
+	reset(sig::VTALRM);
+	reset(sig::PROF);
+	reset(sig::WINCH);
+	reset(sig::IO);
+	reset(sig::POLL);
+	reset(sig::PWR);
+	reset(sig::SYS);
 };
 
 // Prevents given signal from arriving to the current process.
 // One common use case is to ignore SIGCHLD to avoid zombie child processes.
-export fn ignore(signum: signal) void = {
+export fn ignore(signum: sig) void = {
 	handle(signum, rt::SIG_IGN: *handler);
 };
 
 // Adds the given list of signals to the process's current signal mask,
 // returning the old signal mask. This is a convenience function around
 // [[setprocmask]].
-export fn block(signals: signal...) sigset = {
+export fn block(signals: sig...) sigset = {
 	let new = newsigset(signals...);
 	return setprocmask(how::BLOCK, &new);
 };
@@ -117,7 +117,7 @@ export fn block(signals: signal...) sigset = {
 // Removes the given list of signals from the process's current signal mask,
 // returning the old signal mask. This is a convenience function around
 // [[setprocmask]].
-export fn unblock(signals: signal...) sigset = {
+export fn unblock(signals: sig...) sigset = {
 	let new = newsigset(signals...);
 	return setprocmask(how::UNBLOCK, &new);
 };
@@ -152,7 +152,7 @@ export type sigset = rt::sigset;
 
 // Creates a new signal set filled in with the provided signals (or empty if
 // none are provided).
-export fn newsigset(items: signal...) sigset = {
+export fn newsigset(items: sig...) sigset = {
 	let set = sigset { ... };
 	rt::sigemptyset(&set);
 	sigset_add(&set, items...);
@@ -165,21 +165,21 @@ export fn sigset_empty(set: *sigset) void = {
 };
 
 // Adds signals to a [[sigset]].
-export fn sigset_add(set: *sigset, items: signal...) void = {
+export fn sigset_add(set: *sigset, items: sig...) void = {
 	for (let i = 0z; i < len(items); i += 1) {
 		rt::sigaddset(set, items[i])!;
 	};
 };
 
 // Removes signals from a [[sigset]].
-export fn sigset_del(set: *sigset, items: signal...) void = {
+export fn sigset_del(set: *sigset, items: sig...) void = {
 	for (let i = 0z; i < len(items); i += 1) {
 		rt::sigdelset(set, items[i])!;
 	};
 };
 
 // Returns true if the given signal is a member of this [[sigset]].
-export fn sigset_member(set: *sigset, item: signal) bool = {
+export fn sigset_member(set: *sigset, item: sig) bool = {
 	return rt::sigismember(set, item)!;
 };
 
@@ -191,7 +191,7 @@ export fn sigset_member(set: *sigset, item: signal) bool = {
 export type siginfo = union {
 	struct {
 		// The signal number being delivered.
-		signo: signal,
+		signo: sig,
 		// The errno, if any, associated with this signal. See
 		// [[errors::errno]] to convert to a Hare-native error.
 		errno: rt::errno,
@@ -214,65 +214,65 @@ export type code = enum int {
 	TKILL = -6, // sent by userspace program (tkill, tgkill)
 	ASYNCNL = -60,
 
-	ILLOPC = 1, // SIGILL: illegal opcode
-	ILLOPN = 2, // SIGILL: illegal operand
-	ILLADR = 3, // SIGILL: illegal addressing mode
-	ILLTRP = 4, // SIGILL: illegal trap
-	PRVOPC = 5, // SIGILL: privileged opcode
-	PRVREG = 6, // SIGILL: privileged register
-	COPROC = 7, // SIGILL: coprocessor error
-	BADSTK = 8, // SIGILL: internal stack error
+	ILLOPC = 1, // sig::ILL: illegal opcode
+	ILLOPN = 2, // sig::ILL: illegal operand
+	ILLADR = 3, // sig::ILL: illegal addressing mode
+	ILLTRP = 4, // sig::ILL: illegal trap
+	PRVOPC = 5, // sig::ILL: privileged opcode
+	PRVREG = 6, // sig::ILL: privileged register
+	COPROC = 7, // sig::ILL: coprocessor error
+	BADSTK = 8, // sig::ILL: internal stack error
 
-	INTDIV = 1, // SIGFPE: integer divide by zero
-	INTOVF = 2, // SIGFPE: integer overflow
-	FLTDIV = 3, // SIGFPE: floating-point divide by zero
-	FLTOVF = 4, // SIGFPE: floating-point overflow
-	FLTUND = 5, // SIGFPE: floating-point underflow
-	FLTRES = 6, // SIGFPE: floating-point inexact result
-	FLTINV = 7, // SIGFPE: invalid floating-point operation
-	FLTSUB = 8, // SIGFPE: subscript out of range
+	INTDIV = 1, // sig::FPE: integer divide by zero
+	INTOVF = 2, // sig::FPE: integer overflow
+	FLTDIV = 3, // sig::FPE: floating-point divide by zero
+	FLTOVF = 4, // sig::FPE: floating-point overflow
+	FLTUND = 5, // sig::FPE: floating-point underflow
+	FLTRES = 6, // sig::FPE: floating-point inexact result
+	FLTINV = 7, // sig::FPE: invalid floating-point operation
+	FLTSUB = 8, // sig::FPE: subscript out of range
 
-	MAPERR = 1, // SIGSEGV: address not mapped to object
-	ACCERR = 2, // SIGSEGV: invalid permissions for mapped object
-	BNDERR = 3, // SIGSEGV: failed address bound checks
-	PKUERR = 4, // SIGSEGV: access was denied by memory protection keys
-	MTEAERR = 8, // SIGSEGV
-	MTESERR = 9, // SIGSEGV
+	MAPERR = 1, // sig::SEGV: address not mapped to object
+	ACCERR = 2, // sig::SEGV: invalid permissions for mapped object
+	BNDERR = 3, // sig::SEGV: failed address bound checks
+	PKUERR = 4, // sig::SEGV: access was denied by memory protection keys
+	MTEAERR = 8, // sig::SEGV
+	MTESERR = 9, // sig::SEGV
 
-	ADRALN = 1, // SIGBUS: invalid address alignment
-	ADRERR = 2, // SIGBUS: nonexistent physical address
-	OBJERR = 3, // SIGBUS: object-specific hardware error
-	MCEERR_AR = 4, // SIGBUS: hardware memory error consumed on a machine check; action required
-	MCEERR_AO = 5, // SIGBUS: hardware memory error detected in process but not consumed; action optional
+	ADRALN = 1, // sig::BUS: invalid address alignment
+	ADRERR = 2, // sig::BUS: nonexistent physical address
+	OBJERR = 3, // sig::BUS: object-specific hardware error
+	MCEERR_AR = 4, // sig::BUS: hardware memory error consumed on a machine check; action required
+	MCEERR_AO = 5, // sig::BUS: hardware memory error detected in process but not consumed; action optional
 
-	BRKPT = 1, // SIGTRAP: process breakpoint
-	TRACE = 2, // SIGTRAP: process trace trap
-	BRANCH = 3, // SIGTRAP: process taken branch trap
-	HWBKPT = 4, // SIGTRAP: hardware breakpoint/watchpoint
-	UNK = 5, // SIGTRAP
+	BRKPT = 1, // sig::TRAP: process breakpoint
+	TRACE = 2, // sig::TRAP: process trace trap
+	BRANCH = 3, // sig::TRAP: process taken branch trap
+	HWBKPT = 4, // sig::TRAP: hardware breakpoint/watchpoint
+	UNK = 5, // sig::TRAP
 
-	EXITED = 1, // SIGCHLD: child exited
-	KILLED = 2, // SIGCHLD: child terminated abnormally without a core file
-	DUMPED = 3, // SIGCHLD: child terminated abnormally with a core file
-	TRAPPED = 4, // SIGCHLD: traced child has trapped
-	STOPPED = 5, // SIGCHLD: child has stopped
-	CONTINUED = 6, // SIGCHLD: stopped child has continued
+	EXITED = 1, // sig::CHLD: child exited
+	KILLED = 2, // sig::CHLD: child terminated abnormally without a core file
+	DUMPED = 3, // sig::CHLD: child terminated abnormally with a core file
+	TRAPPED = 4, // sig::CHLD: traced child has trapped
+	STOPPED = 5, // sig::CHLD: child has stopped
+	CONTINUED = 6, // sig::CHLD: stopped child has continued
 
-	IN = 1, // SIGPOLL: data input available
-	OUT = 2, // SIGPOLL: output buffers available
-	MSG = 3, // SIGPOLL: input message available
-	ERR = 4, // SIGPOLL: I/O error
-	PRI = 5, // SIGPOLL: high priority input available
-	HUP = 6, // SIGPOLL: device disconnected
+	IN = 1, // sig::POLL: data input available
+	OUT = 2, // sig::POLL: output buffers available
+	MSG = 3, // sig::POLL: input message available
+	ERR = 4, // sig::POLL: I/O error
+	PRI = 5, // sig::POLL: high priority input available
+	HUP = 6, // sig::POLL: device disconnected
 };
 
 // Flags used to configure the behavior of a signal handler.
 export type flag = enum int {
-	// For use with [[SIGCHLD]]. Prevents notifications when child processes
-	// stop (e.g. via [[SIGSTOP]]) or resume (i.e. [[SIGCONT]]).
+	// For use with sig::CHLD. Prevents notifications when child processes
+	// stop (e.g. via sig::STOp) or resume (i.e. sig::CONT).
 	NOCLDSTOP = rt::SA_NOCLDSTOP: int,
-	// For use with [[SIGCHLD]]. Do not transform children into zombies when
-	// they terminate. Note that POSIX leaves the delivery of [[SIGCHLD]]
+	// For use with sig::CHLD. Do not transform children into zombies when
+	// they terminate. Note that POSIX leaves the delivery of sig::CHLD
 	// unspecified when this flag is present; some systems will still
 	// deliver a signal and others may not.
 	NOCLDWAIT = rt::SA_NOCLDWAIT: int,
@@ -291,10 +291,43 @@ export type flag = enum int {
 	RESETHAND = rt::SA_RESETHAND: int,
 };
 
-export type signal = int;
+// All possible signals.
+export type sig = enum int {
+	HUP = rt::SIGHUP, // Hangup.
+	INT = rt::SIGINT, // Terminal interrupt.
+	QUIT = rt::SIGQUIT, // Terminal quit.
+	ILL = rt::SIGILL, // Illegal instruction.
+	TRAP = rt::SIGTRAP, // Trace/breakpoint trap.
+	ABRT = rt::SIGABRT, // Process abort.
+	BUS = rt::SIGBUS, // Access to an undefined portion of a memory object.
+	FPE = rt::SIGFPE, // Erroneous arithmetic operation.
+	KILL = rt::SIGKILL, // Kill (cannot be caught or ignored).
+	USR1 = rt::SIGUSR1, // User-defined signal 1.
+	SEGV = rt::SIGSEGV, // Invalid memory reference.
+	USR2 = rt::SIGUSR2, // User-defined signal 2.
+	PIPE = rt::SIGPIPE, // Write on a pipe with no one to read it.
+	ALRM = rt::SIGALRM, // Alarm clock.
+	TERM = rt::SIGTERM, // Termination.
+	CHLD = rt::SIGCHLD, // Child process terminated, stopped, or continued.
+	CONT = rt::SIGCONT, // Continue executing if stopped.
+	STOP = rt::SIGSTOP, // Stop executing (cannot be caught or ignored).
+	TSTP = rt::SIGTSTP, // Terminal stop.
+	TTIN = rt::SIGTTIN, // Background process attempting read.
+	TTOU = rt::SIGTTOU, // Background process attempting write.
+	URG = rt::SIGURG, // High bandwidth data is available at a socket.
+	XCPU = rt::SIGXCPU, // CPU time limit exceeded.
+	XFSZ = rt::SIGXFSZ, // File size limit exceeded.
+	VTALRM = rt::SIGVTALRM, // Virtual timer expired.
+	PROF = rt::SIGPROF, // Profiling timer expired.
+	WINCH = rt::SIGWINCH, // Window resize signal.
+	IO = rt::SIGIO, // I/O now possible.
+	POLL = rt::SIGPOLL, // Pollable event.
+	PWR = rt::SIGPWR, // Power failure.
+	SYS = rt::SIGSYS, // Bad system call.
+};
 
 // Creates a signal file that handles the given set of signals.
-export fn signalfd(signals: signal...) (io::file | errors::error) = {
+export fn signalfd(signals: sig...) (io::file | errors::error) = {
 	let sa_mask = newsigset(signals...);
 	match (rt::signalfd(-1, &sa_mask, rt::SFD_CLOEXEC)) {
 	case let fd: int =>
@@ -306,7 +339,7 @@ export fn signalfd(signals: signal...) (io::file | errors::error) = {
 
 // Updates a signalfd with a new set of signals. The signal set is overwritten,
 // rather than appended to, with the provided set of signals.
-export fn update(fd: io::file, signals: signal...) (void | errors::error) = {
+export fn update(fd: io::file, signals: sig...) (void | errors::error) = {
 	let sa_mask = newsigset(signals...);
 
 	match (rt::signalfd(fd, &sa_mask, rt::SFD_CLOEXEC)) {
@@ -327,140 +360,77 @@ export fn read(fd: io::file) (siginfo | errors::error) = {
 		assert(z == size(rt::signalfd_siginfo));
 	};
 	return siginfo {
-		signo = si.ssi_signo: signal,
+		signo = si.ssi_signo: sig,
 		errno = si.ssi_errno: rt::errno,
 		code = si.ssi_code: code,
 		...
 	};
 };
 
-// Hangup.
-export def SIGHUP: signal = rt::SIGHUP;
-// Terminal interrupt signal.
-export def SIGINT: signal = rt::SIGINT;
-// Terminal quit signal.
-export def SIGQUIT: signal = rt::SIGQUIT;
-// Illegal instruction.
-export def SIGILL: signal = rt::SIGILL;
-// Trace/breakposignal trap.
-export def SIGTRAP: signal = rt::SIGTRAP;
-// Process abort signal.
-export def SIGABRT: signal = rt::SIGABRT;
-// Access to an undefined portion of a memory object.
-export def SIGBUS: signal = rt::SIGBUS;
-// Erroneous arithmetic operation.
-export def SIGFPE: signal = rt::SIGFPE;
-// Kill (cannot be caught or ignored).
-export def SIGKILL: signal = rt::SIGKILL;
-// User-defined signal 1.
-export def SIGUSR1: signal = rt::SIGUSR1;
-// Invalid memory reference.
-export def SIGSEGV: signal = rt::SIGSEGV;
-// User-defined signal 2.
-export def SIGUSR2: signal = rt::SIGUSR2;
-// Write on a pipe with no one to read it.
-export def SIGPIPE: signal = rt::SIGPIPE;
-// Alarm clock.
-export def SIGALRM: signal = rt::SIGALRM;
-// Termination signal.
-export def SIGTERM: signal = rt::SIGTERM;
-// Child process terminated, stopped, or continued.
-export def SIGCHLD: signal = rt::SIGCHLD;
-// Continue executing, if stopped.
-export def SIGCONT: signal = rt::SIGCONT;
-// Stop executing (cannot be caught or ignored).
-export def SIGSTOP: signal = rt::SIGSTOP;
-// Terminal stop signal.
-export def SIGTSTP: signal = rt::SIGTSTP;
-// Background process attempting read.
-export def SIGTTIN: signal = rt::SIGTTIN;
-// Background process attempting write.
-export def SIGTTOU: signal = rt::SIGTTOU;
-// High bandwidth data is available at a socket.
-export def SIGURG: signal = rt::SIGURG;
-// CPU time limit exceeded.
-export def SIGXCPU: signal = rt::SIGXCPU;
-// File size limit exceeded.
-export def SIGXFSZ: signal = rt::SIGXFSZ;
-// Virtual timer expired.
-export def SIGVTALRM: signal = rt::SIGVTALRM;
-// Profiling timer expired.
-export def SIGPROF: signal = rt::SIGPROF;
-// Window resize signal.
-export def SIGWINCH: signal = rt::SIGWINCH;
-// I/O now possible.
-export def SIGIO: signal = rt::SIGIO;
-// Pollable event.
-export def SIGPOLL: signal = rt::SIGPOLL;
-// Power failure.
-export def SIGPWR: signal = rt::SIGPWR;
-// Bad system call.
-export def SIGSYS: signal = rt::SIGSYS;
-
 // Returns the human friendly name of a given signal.
-export fn signame(sig: signal) const str = {
+export fn signame(sig: sig) const str = {
 	switch (sig) {
-	case SIGHUP =>
+	case sig::HUP =>
 		return "SIGHUP";
-	case SIGINT =>
+	case sig::INT =>
 		return "SIGINT";
-	case SIGQUIT =>
+	case sig::QUIT =>
 		return "SIGQUIT";
-	case SIGILL =>
+	case sig::ILL =>
 		return "SIGILL";
-	case SIGTRAP =>
+	case sig::TRAP =>
 		return "SIGTRAP";
-	case SIGABRT =>
+	case sig::ABRT =>
 		return "SIGABRT";
-	case SIGBUS =>
+	case sig::BUS =>
 		return "SIGBUS";
-	case SIGFPE =>
+	case sig::FPE =>
 		return "SIGFPE";
-	case SIGKILL =>
+	case sig::KILL =>
 		return "SIGKILL";
-	case SIGUSR1 =>
+	case sig::USR1 =>
 		return "SIGUSR1";
-	case SIGSEGV =>
+	case sig::SEGV =>
 		return "SIGSEGV";
-	case SIGUSR2 =>
+	case sig::USR2 =>
 		return "SIGUSR2";
-	case SIGPIPE =>
+	case sig::PIPE =>
 		return "SIGPIPE";
-	case SIGALRM =>
+	case sig::ALRM =>
 		return "SIGALRM";
-	case SIGTERM =>
+	case sig::TERM =>
 		return "SIGTERM";
-	case SIGCHLD =>
+	case sig::CHLD =>
 		return "SIGCHLD";
-	case SIGCONT =>
+	case sig::CONT =>
 		return "SIGCONT";
-	case SIGSTOP =>
+	case sig::STOP =>
 		return "SIGSTOP";
-	case SIGTSTP =>
+	case sig::TSTP =>
 		return "SIGTSTP";
-	case SIGTTIN =>
+	case sig::TTIN =>
 		return "SIGTTIN";
-	case SIGTTOU =>
+	case sig::TTOU =>
 		return "SIGTTOU";
-	case SIGURG =>
+	case sig::URG =>
 		return "SIGURG";
-	case SIGXCPU =>
+	case sig::XCPU =>
 		return "SIGXCPU";
-	case SIGXFSZ =>
+	case sig::XFSZ =>
 		return "SIGXFSZ";
-	case SIGVTALRM =>
+	case sig::VTALRM =>
 		return "SIGVTALRM";
-	case SIGPROF =>
+	case sig::PROF =>
 		return "SIGPROF";
-	case SIGWINCH =>
+	case sig::WINCH =>
 		return "SIGWINCH";
-	case SIGIO =>
+	case sig::IO =>
 		return "SIGIO";
-	case SIGPOLL =>
+	case sig::POLL =>
 		return "SIGPOLL";
-	case SIGPWR =>
+	case sig::PWR =>
 		return "SIGPWR";
-	case SIGSYS =>
+	case sig::SYS =>
 		return "SIGSYS";
 	case => abort(); // unreachable
 	};

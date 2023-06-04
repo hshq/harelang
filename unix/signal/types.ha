@@ -5,4 +5,4 @@
 // which was caught, the second provides information about the signal, and the
 // third argument is the ucontext, which is usually ignored by most signal
 // handlers.
-export type handler = fn(sig: int, info: *siginfo, ucontext: *void) void;
+export type handler = fn(sig: sig, info: *siginfo, ucontext: *void) void;
