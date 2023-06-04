@@ -6,7 +6,8 @@ commits=
 while true; do
   files=${1:-.}
   if [ -d "$files" ]; then
-    files=$(find "${1:-.}" -name '*.ha' -o -name '*.s' -o -name README)
+    files=$(git ls-tree -r --name-only HEAD "$files")
+    files=$(printf '%s' "$files" | grep -E '(\.(ha|s)|(^|/)README)$')
   fi
 
   for file in $files; do
