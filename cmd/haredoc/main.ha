@@ -299,7 +299,7 @@ fn init_tty(ctx: *context) io::handle = {
 	const pipe = exec::pipe();
 	exec::addfile(&pager, os::stdin_file, pipe.0);
 	// Get raw flag in if possible
-	exec::setenv(&pager, "LESS", os::tryenv("LESS", "R"))!;
+	exec::setenv(&pager, "LESS", os::tryenv("LESS", "FRX"))!;
 	exec::setenv(&pager, "MORE", os::tryenv("MORE", "R"))!;
 	ctx.pager = exec::start(&pager)!;
 	return pipe.1;
