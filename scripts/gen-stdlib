@@ -236,7 +236,7 @@ crypto_aes() {
 			rt+test.ha \
 			+test/gcm.ha
 		gen_ssa crypto::aes bufio bytes crypto::cipher crypto::math \
-			endian errors io rt 
+			endian errors io rt
 	fi
 }
 
@@ -1193,7 +1193,7 @@ os_exec() {
 		types.ha \
 		cmd.ha
 	gen_ssa -plinux os::exec os strings fmt errors unix rt io ascii \
-		unix::signal types::c
+		unix::signal types::c time
 
 	gen_srcs -pfreebsd os::exec \
 		exec+freebsd.ha \
@@ -1201,7 +1201,7 @@ os_exec() {
 		types.ha \
 		cmd.ha
 	gen_ssa -pfreebsd os::exec os strings fmt errors unix rt io ascii \
-		unix::signal types::c
+		unix::signal types::c time
 }
 
 path() {
