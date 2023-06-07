@@ -83,8 +83,7 @@ rt() {
 		gensrcs_rt \
 			abort+test.ha \
 			start+test.ha \
-			+test/signal_test.ha \
-			+test/ztos.ha
+			+test/signal_test.ha
 	fi
 	gen_ssa -plinux rt
 	gen_ssa -pfreebsd rt

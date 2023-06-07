@@ -2423,8 +2423,7 @@ testlib_rt_linux_srcs = \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/start+test.ha \
-	$(STDLIB)/rt/+test/signal_test.ha \
-	$(STDLIB)/rt/+test/ztos.ha
+	$(STDLIB)/rt/+test/signal_test.ha
 
 # rt (+freebsd)
 testlib_rt_freebsd_srcs = \
@@ -2452,8 +2451,7 @@ testlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/start+test.ha \
-	$(STDLIB)/rt/+test/signal_test.ha \
-	$(STDLIB)/rt/+test/ztos.ha
+	$(STDLIB)/rt/+test/signal_test.ha
 
 $(TESTCACHE)/rt/rt-linux.ssa: $(testlib_rt_linux_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
