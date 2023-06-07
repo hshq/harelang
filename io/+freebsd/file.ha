@@ -62,8 +62,4 @@ fn fd_seek(
 	};
 };
 
-def SENDFILE_MAX: size = 2147479552z;
-
-fn fd_copy(to: file, from: file) (size | error) = {
-	abort(); // TODO: FreeBSD
-};
+fn fd_copy(to: file, from: file) (size | error) = errors::unsupported;
