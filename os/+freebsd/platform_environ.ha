@@ -1,7 +1,6 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
-use bytes;
 use errors;
 use rt;
 use strings;
@@ -15,7 +14,7 @@ export let args: []str = [];
 // syscall if we don't need it.
 let args_static: [32]str = [""...];
 
-@init fn init_environ() void = {
+@init fn args() void = {
 	if (rt::argc < len(args_static)) {
 		args = args_static[..rt::argc];
 		for (let i = 0z; i < rt::argc; i += 1) {
@@ -30,42 +29,11 @@ let args_static: [32]str = [""...];
 
 };
 
-@fini fn fini_environ() void = {
+@fini fn args() void = {
 	if (rt::argc >= len(args_static)) {
 		free(args);
 	};
-	free(envp);
 };
-
-// Looks up an environment variable and returns its value, or void if unset.
-export fn getenv(name: const str) (str | void) = {
-	const name_b = strings::toutf8(name);
-	for (let i = 0z; rt::envp[i] != null; i += 1) {
-		const item = rt::envp[i]: *[*]u8;
-		const ln = c::strlen(item: *c::char);
-		const eq: size = match (bytes::index(item[..ln], '=')) {
-		case void =>
-			abort("Environment violates System-V invariants");
-		case let i: size =>
-			yield i;
-		};
-		if (bytes::equal(name_b, item[..eq])) {
-			const ln = c::strlen(item: *const c::char);
-			return strings::fromutf8(item[eq+1..ln])!;
-		};
-	};
-};
-
-// Looks up an environment variable and returns its value, or a default value if
-// unset.
-export fn tryenv(name: const str, default: str) str = match (getenv(name)) {
-case let s: str =>
-	yield s;
-case void =>
-	yield default;
-};
-
-let envp: []str = [];
 
 // Returns a slice of the environment strings in the form KEY=VALUE.
 export fn getenvs() []str = {
@@ -73,7 +41,8 @@ export fn getenvs() []str = {
 		return envp;
 	};
 	for (let i = 0z; rt::envp[i] != null; i += 1) {
-		append(envp, c::tostr(rt::envp[i]: *const c::char)!);
+		let s = c::tostr(rt::envp[i]: *const c::char)!;
+		append(envp, strings::dup(s));
 	};
 	return envp;
 };

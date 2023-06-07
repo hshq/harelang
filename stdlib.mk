@@ -1881,15 +1881,16 @@ $(HARECACHE)/net/uri/net_uri-any.ssa: $(stdlib_net_uri_any_srcs) $(stdlib_rt) $(
 # os (+linux)
 stdlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/dirfdfs.ha \
-	$(STDLIB)/os/+linux/environ.ha \
+	$(STDLIB)/os/+linux/platform_environ.ha \
 	$(STDLIB)/os/+linux/exit.ha \
 	$(STDLIB)/os/+linux/fs.ha \
 	$(STDLIB)/os/+linux/memory.ha \
 	$(STDLIB)/os/+linux/status.ha \
 	$(STDLIB)/os/+linux/stdfd.ha \
+	$(STDLIB)/os/environ.ha \
 	$(STDLIB)/os/os.ha
 
-$(HARECACHE)/os/os-linux.ssa: $(stdlib_os_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_math_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
+$(HARECACHE)/os/os-linux.ssa: $(stdlib_os_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_math_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
@@ -1897,15 +1898,16 @@ $(HARECACHE)/os/os-linux.ssa: $(stdlib_os_linux_srcs) $(stdlib_rt) $(stdlib_io_$
 
 # os (+freebsd)
 stdlib_os_freebsd_srcs = \
-	$(STDLIB)/os/+freebsd/environ.ha \
+	$(STDLIB)/os/+freebsd/platform_environ.ha \
 	$(STDLIB)/os/+freebsd/exit.ha \
 	$(STDLIB)/os/+freebsd/dirfdfs.ha \
 	$(STDLIB)/os/+freebsd/status.ha \
 	$(STDLIB)/os/+freebsd/stdfd.ha \
 	$(STDLIB)/os/+freebsd/fs.ha \
+	$(STDLIB)/os/environ.ha \
 	$(STDLIB)/os/os.ha
 
-$(HARECACHE)/os/os-freebsd.ssa: $(stdlib_os_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
+$(HARECACHE)/os/os-freebsd.ssa: $(stdlib_os_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
@@ -4332,15 +4334,16 @@ $(TESTCACHE)/net/uri/net_uri-any.ssa: $(testlib_net_uri_any_srcs) $(testlib_rt) 
 # os (+linux)
 testlib_os_linux_srcs = \
 	$(STDLIB)/os/+linux/dirfdfs.ha \
-	$(STDLIB)/os/+linux/environ.ha \
+	$(STDLIB)/os/+linux/platform_environ.ha \
 	$(STDLIB)/os/+linux/exit+test.ha \
 	$(STDLIB)/os/+linux/fs.ha \
 	$(STDLIB)/os/+linux/memory.ha \
 	$(STDLIB)/os/+linux/status.ha \
 	$(STDLIB)/os/+linux/stdfd.ha \
+	$(STDLIB)/os/environ.ha \
 	$(STDLIB)/os/os.ha
 
-$(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_math_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+$(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_math_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
@@ -4348,15 +4351,16 @@ $(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_i
 
 # os (+freebsd)
 testlib_os_freebsd_srcs = \
-	$(STDLIB)/os/+freebsd/environ.ha \
+	$(STDLIB)/os/+freebsd/platform_environ.ha \
 	$(STDLIB)/os/+freebsd/exit+test.ha \
 	$(STDLIB)/os/+freebsd/dirfdfs.ha \
 	$(STDLIB)/os/+freebsd/status.ha \
 	$(STDLIB)/os/+freebsd/stdfd.ha \
 	$(STDLIB)/os/+freebsd/fs.ha \
+	$(STDLIB)/os/environ.ha \
 	$(STDLIB)/os/os.ha
 
-$(TESTCACHE)/os/os-freebsd.ssa: $(testlib_os_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
+$(TESTCACHE)/os/os-freebsd.ssa: $(testlib_os_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \

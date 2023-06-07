@@ -1164,25 +1164,27 @@ os() {
 
 	gen_srcs -plinux os \
 		+linux/dirfdfs.ha \
-		+linux/environ.ha \
+		+linux/platform_environ.ha \
 		+linux/$exit \
 		+linux/fs.ha \
 		+linux/memory.ha \
 		+linux/status.ha \
 		+linux/stdfd.ha \
+		environ.ha \
 		os.ha
-	gen_ssa -plinux os io strings fs encoding::utf8 bytes bufio \
+	gen_ssa -plinux os io strings fs encoding::utf8 bufio \
 		errors math types::c
 
 	gen_srcs -pfreebsd os \
-		+freebsd/environ.ha \
+		+freebsd/platform_environ.ha \
 		+freebsd/$exit \
 		+freebsd/dirfdfs.ha \
 		+freebsd/status.ha \
 		+freebsd/stdfd.ha \
 		+freebsd/fs.ha \
+		environ.ha \
 		os.ha
-	gen_ssa -pfreebsd os io strings fs encoding::utf8 bytes bufio \
+	gen_ssa -pfreebsd os io strings fs encoding::utf8 bufio \
 		errors types::c
 }
 

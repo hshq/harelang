@@ -2,7 +2,6 @@
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2022 Jon Eskin <eskinjp@gmail.com>
-use bytes;
 use errors;
 use encoding::utf8;
 use fs;
