@@ -28,7 +28,7 @@ export fn ptsname(master: io::file) (str | error) = {
 	// Ensure that the file descriptor refers to a master
 	match (rt::ioctl(master, rt::TIOCPTMASTER, null)) {
 	case let e: rt::errno =>
-		if (e: int == rt::EBADF) return errors::invalid
+		if (e == rt::EBADF) return errors::invalid
 		else return errors::unsupported;
 	case => void;
 	};

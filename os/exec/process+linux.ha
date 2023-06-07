@@ -88,11 +88,10 @@ export fn waitall() (uint | error | !(process, exit_status)) = {
 	let ru: rt::rusage = rt::rusage { ... };
 	for (let i = 0u; true; i += 1) match (rt::wait4(-1, &st.status, 0, &ru)) {
 	case let err: rt::errno =>
-		if (err: int == rt::ECHILD) {
+		if (err == rt::ECHILD) {
 			return i;
-		} else {
-			return errors::errno(err);
 		};
+		return errors::errno(err);
 	case let pid: int =>
 		match (check(&st)) {
 		case void => void;
