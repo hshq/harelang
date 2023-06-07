@@ -11,28 +11,31 @@ use strings;
 
 fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	let ident: []str = [];
+	let trailing = false;
 	let z = 0z;
+	append(ident, want(lexer, ltok::NAME)?.1 as str);
 	for (true) {
-		let name = match (try(lexer, ltok::NAME)?) {
-		case let t: lex::token =>
-			yield t.1 as str;
-		case void =>
-			return (ident: ast::ident, true);
-		};
-		append(ident, name);
-		z += len(name);
 		match (try(lexer, ltok::DOUBLE_COLON)?) {
 		case void => break;
 		case => void; // Grab the next ident
 		};
 		z += 1;
+		let name = match (try(lexer, ltok::NAME)?) {
+		case let t: lex::token =>
+			yield t.1 as str;
+		case void =>
+			trailing = true;
+			break;
+		};
+		append(ident, name);
+		z += len(name);
 	};
 	if (z > ast::IDENT_MAX) {
 		ast::ident_free(ident: ast::ident);
 		return syntaxerr(lex::mkloc(lexer),
 			"Identifier exceeds maximum length");
 	};
-	return (ident: ast::ident, false);
+	return (ident: ast::ident, trailing);
 };
 
 // Parses a single identifier, i.e. 'foo::bar::baz'.

@@ -67,26 +67,14 @@ def SENDFILE_MAX: size = 2147479552z;
 
 fn fd_copy(to: file, from: file) (size | error) = {
 	let sum = 0z;
-	for (true) {
-		let n = match (rt::sendfile(to, from, null, SENDFILE_MAX)) {
-		case let err: rt::errno =>
-			switch (err) {
-			case rt::EINVAL =>
-				if (sum == 0) {
-					return errors::unsupported;
-				};
-				return errors::errno(err);
-			case =>
-				return errors::errno(err);
-			};
-		case let n: size =>
-			yield switch (n) {
-			case 0 =>
-				break;
-			case =>
-				yield n;
-			};
+	for (true) match (rt::sendfile(to, from, null, SENDFILE_MAX)) {
+	case let err: rt::errno =>
+		if (err == rt::EINVAL && sum == 0) {
+			return errors::unsupported;
 		};
+		return errors::errno(err);
+	case let n: size =>
+		if (n == 0) break;
 		sum += n;
 	};
 	return sum;

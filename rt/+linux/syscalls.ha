@@ -300,17 +300,16 @@ export fn mmap(
 ) (*void | errno) = {
 	let r = syscall6(SYS_mmap, addr: uintptr: u64,
 		length: u64, prot: u64, flags: u64, fd: u64, offs: u64);
-	return match (wrap_return(r)) {
+	match (wrap_return(r)) {
 	case let err: errno =>
-		return if (r: int == -EPERM
-				&& addr == null
-				&& (flags & MAP_ANON) > 0
+		if (err == -EPERM && addr == null && (flags & MAP_ANON) > 0
 				&& (flags & MAP_FIXED) == 0) {
 			// Fix up incorrect EPERM from kernel:
-			yield wrap_errno(ENOMEM);
-		} else err;
+			return wrap_errno(ENOMEM);
+		};
+		return err;
 	case let n: u64 =>
-		yield n: uintptr: *void;
+		return n: uintptr: *void;
 	};
 };
 

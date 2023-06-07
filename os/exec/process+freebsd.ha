@@ -3,8 +3,9 @@
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use errors;
-use rt;
 use fmt;
+use rt;
+use time;
 use unix::signal;
 
 // Stores information about a child process.
@@ -21,7 +22,8 @@ export type status = struct {
 	// Not all of these members are supported on all operating systems.
 	// Only utime and stime are guaranteed to be available.
 	rusage: struct {
-		// TODO: utime, stime
+		utime: time::instant,
+		stime: time::instant,
 		maxrss: i64,
 		ixrss: i64,
 		idrss: i64,
@@ -40,6 +42,14 @@ export type status = struct {
 };
 
 fn rusage(st: *status, ru: *rt::rusage) void = {
+	st.rusage.utime = time::instant {
+		sec = ru.ru_utime.tv_sec,
+		nsec = ru.ru_utime.tv_usec * time::MICROSECOND: i64,
+	};
+	st.rusage.stime = time::instant {
+		sec = ru.ru_stime.tv_sec,
+		nsec = ru.ru_stime.tv_usec * time::MICROSECOND: i64,
+	};
 	st.rusage.maxrss = ru.ru_maxrss;
 	st.rusage.ixrss = ru.ru_ixrss;
 	st.rusage.idrss = ru.ru_idrss;
@@ -92,7 +102,7 @@ export fn waitall() (uint | error | !(process, exit_status)) = {
 	let ru: rt::rusage = rt::rusage { ... };
 	for (let i = 0u; true; i += 1) match (rt::wait4(-1, &st.status, 0, &ru)) {
 	case let err: rt::errno =>
-		if (err: int == rt::ECHILD) {
+		if (err == rt::ECHILD) {
 			return i;
 		} else {
 			return errors::errno(err);

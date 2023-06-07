@@ -25,7 +25,7 @@ gensrcs_rt() {
 		+linux/errno.ha \
 		+linux/types.ha \
 		+linux/segmalloc.ha \
-		+linux/platformstart.ha \
+		+linux/platformstart-libc.ha \
 		+linux/prctl.ha \
 		+linux/'+$(ARCH)'.ha \
 		+linux/syscallno+'$(ARCH)'.ha \
@@ -107,8 +107,7 @@ rt() {
 		gensrcs_rt \
 			abort+test.ha \
 			start+test.ha \
-			+test/signal_test.ha \
-			+test/ztos.ha
+			+test/signal_test.ha
 	fi
 	gen_ssa -plinux rt
 	gen_ssa -pfreebsd rt
@@ -1257,25 +1256,27 @@ os() {
 
 	gen_srcs -plinux os \
 		+linux/dirfdfs.ha \
-		+linux/environ.ha \
+		+linux/platform_environ.ha \
 		+linux/$exit \
 		+linux/fs.ha \
 		+linux/memory.ha \
 		+linux/status.ha \
 		+linux/stdfd.ha \
+		environ.ha \
 		os.ha
-	gen_ssa -plinux os io strings fs encoding::utf8 bytes bufio \
+	gen_ssa -plinux os io strings fs encoding::utf8 bufio \
 		errors math types::c
 
 	gen_srcs -pfreebsd os \
-		+freebsd/environ.ha \
+		+freebsd/platform_environ.ha \
 		+freebsd/$exit \
 		+freebsd/dirfdfs.ha \
 		+freebsd/status.ha \
 		+freebsd/stdfd.ha \
 		+freebsd/fs.ha \
+		environ.ha \
 		os.ha
-	gen_ssa -pfreebsd os io strings fs encoding::utf8 bytes bufio \
+	gen_ssa -pfreebsd os io strings fs encoding::utf8 bufio \
 		errors types::c
 
 	gen_srcs -pdarwin os \
@@ -1297,7 +1298,7 @@ os_exec() {
 		types.ha \
 		cmd.ha
 	gen_ssa -plinux os::exec os strings fmt errors unix rt io ascii \
-		unix::signal types::c
+		unix::signal types::c time
 
 	gen_srcs -pfreebsd os::exec \
 		exec+freebsd.ha \
@@ -1305,7 +1306,7 @@ os_exec() {
 		types.ha \
 		cmd.ha
 	gen_ssa -pfreebsd os::exec os strings fmt errors unix rt io ascii \
-		unix::signal types::c
+		unix::signal types::c time
 
 	gen_srcs -pdarwin os::exec \
 		exec+darwin.ha \

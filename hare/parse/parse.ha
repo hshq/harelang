@@ -47,6 +47,7 @@ fn want(lexer: *lex::lexer, want: lex::ltok...) (lex::token | error) = {
 			fmt::fprint(&buf, ", ")!;
 		};
 	};
+	lex::unlex(lexer, tok);
 	return syntaxerr(lex::mkloc(lexer), "Unexpected '{}', was expecting {}",
 		lex::tokstr(tok), strio::string(&buf));
 };

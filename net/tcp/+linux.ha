@@ -48,7 +48,7 @@ export fn connect(
 	const sz = size(rt::sockaddr): u32;
 	match (rt::connect(sockfd, &sockaddr, sz)) {
 	case let err: rt::errno =>
-		if (err: int != rt::EINPROGRESS) {
+		if (err != rt::EINPROGRESS) {
 			return errors::errno(err);
 		};
 		assert(f & rt::SOCK_NONBLOCK == rt::SOCK_NONBLOCK);

@@ -1,135 +1,122 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
+// This is a simple memory allocator, based on
+// Appel, Andrew W., and David A. Naumann. "Verified sequential malloc/free"
+// but with logarithmic bin sizing and additional safety checks. Not thread-safe
 
-// This is a simple memory allocator, based on Appel, Andrew W., and David A.
-// Naumann. "Verified sequential malloc/free." It is not thread-safe.
-//
-// Large allocations are handled with mmap.
-//
-// For small allocations, we set up 50 bins, where each bin is responsible for
-// 16 different allocation sizes (e.g. bin 1 handles allocations from 10 thru 26
-// bytes); except for the first and last bin, which are responsible for fewer
-// than 16 allocation sizes.
-//
-// Each bin is 1MiB (BIGBLOCK) in size. We ceil the allocation size to the
-// largest size supported for this bin, then break the bin up into smaller
-// blocks. Each block is structured as [{sz: size, data..., link: *void}...];
-// where sz is the size of this (small) block, data is is set aside for the
-// user's actual allocation, and link is a pointer to the next bin's data field.
-//
-// In short, a bin for a particular size is pre-filled with all allocations of
-// that size, and the first word of each allocation is set to a pointer to the
-// next allocation. As such, malloc becomes:
-//
-// 1. Look up bin; pre-fill if not already allocated
-// 2. Let p = bin; bin = *bin; return p
-//
-// Then, free is simply:
-// 1. Look up bin
-// 2. *p = bin;
-// 3. bin = p;
-//
-// Note that over time this can cause the ordering of the allocations in each
-// bin to become non-continuous. This has no consequences for performance or
-// correctness.
-
-def ALIGN: size = 2;
-def WORD: size = size(size);
-def WASTE: size = WORD * ALIGN - WORD;
-def BIGBLOCK: size = (2 << 16) * WORD;
-
-let bins: [50]nullable *void = [null...];
-
-fn bin2size(b: size) size = ((b + 1) * ALIGN - 1) * WORD;
-
-fn size2bin(s: size) size = {
-	assert(s <= bin2size(len(bins) - 1), "Size exceeds maximum for bin");
-	return (s + (WORD * (ALIGN - 1) - 1)) / (WORD * ALIGN);
+// A group of blocks that were allocated together.
+type chunk = union {
+	padding: size, // TODO: track number of active allocations here
+	data: [*]u8,
 };
+
+// Metadata for a block.
+export type meta = struct {
+	union {
+		sz: size,
+		next: uintptr,
+	},
+	user: [*]u8,
+};
+
+// Size of the header/footer for allocations.
+def META: size = size(size);
+
+// Alignment for pointers returned by malloc.
+// XXX: arch
+def ALIGN: size = 16;
+
+// Allocation granularity for large allocs. Only used to allow sanity-checking
+// large heap pointers, doesn't necessarily need to match system page size.
+def PAGESZ: size = 4096;
+
+// Amount of memory to allocate at a time for chunks (2MiB).
+def CHUNKSZ: size = 1 << 21;
+
+// Byte to fill allocations with while they're not in use.
+def POISON: u8 = 0x69;
+
+// Number of allocations currently in flight.
+let cur_allocs: size = 0;
+
+// Freelists for blocks up to 2048 bytes.
+let bins: [9]nullable *meta = [null...];
+
+// The chunk to allocate from if there are no blocks available in the right
+// freelist.
+let cur_chunk: (*chunk, size) = (null: *chunk, CHUNKSZ);
 
 // Allocates n bytes of memory and returns a pointer to them, or null if there
 // is insufficient memory.
 export fn malloc(n: size) nullable *void = {
-	return if (n == 0) null
-		else if (n > bin2size(len(bins) - 1)) malloc_large(n)
-		else malloc_small(n);
-};
-
-fn malloc_large(n: size) nullable *void = {
-	let p = segmalloc(n + WASTE + WORD);
-	if (p == null) {
-		return null;
-	};
-	let bsize = (p: uintptr + WASTE: uintptr): *[1]size;
-	bsize[0] = n;
-	return (p: uintptr + WASTE: uintptr + WORD: uintptr): nullable *void;
-};
-
-fn malloc_small(n: size) nullable *void = {
-	const b = size2bin(n);
-	let p = bins[b];
-	if (p == null) {
-		p = fill_bin(b);
-		if (p != null) {
-			bins[b] = p;
+	if (n == 0) return null;
+	if (size_islarge(n)) {
+		// Round up to PAGESZ and just use mmap directly
+		n = realsz(n);
+		let m = match (segmalloc(n + ALIGN + META)) {
+		case null =>
+			return null;
+		case let p: *void =>
+			yield (p: uintptr + ALIGN - META): *meta;
 		};
-	};
-	return if (p != null) {
-		let q = *(p: **void);
-		bins[b] = q;
-		yield p;
-	} else null;
-};
 
-fn fill_bin(b: size) nullable *void = {
-	const s = bin2size(b);
-	let p = segmalloc(BIGBLOCK);
-	return if (p == null) null else list_from_block(s, p: uintptr);
-};
-
-fn list_from_block(s: size, p: uintptr) nullable *void = {
-	const nblocks = (BIGBLOCK - WASTE) / (s + WORD);
-
-	let q = p + WASTE: uintptr; // align q+WORD
-	for (let j = 0z; j != nblocks - 1; j += 1) {
-		let sz = q: *size;
-		let useralloc = q + WORD: uintptr; // aligned
-		let next = (useralloc + s: uintptr + WORD: uintptr): *void;
-		*sz = s;
-		*(useralloc: **void) = next;
-		q += s: uintptr + WORD: uintptr;
+		m.sz = n;
+		*(&m.user[n]: *size) = n; // For out-of-bounds write detection
+		cur_allocs += 1;
+		return &m.user;
 	};
 
-	// Terminate last block:
-	(q: *[1]size)[0] = s;
-	*((q + 1: uintptr): *nullable *void) = null;
+	let bin = size_getbin(n), sz = bin_getsize(bin);
+	let m = match (bins[bin]) {
+	case null =>
+		if (cur_chunk.1 + META + sz + META > CHUNKSZ) {
+			// No space left in this chunk, allocate a new one
+			match (segmalloc(CHUNKSZ)) {
+			case null =>
+				return null;
+			case let p: *void =>
+				cur_chunk = (p: *chunk, size(size));
+			};
+		};
 
-	// Return first block:
-	return (p + WASTE: uintptr + WORD: uintptr): *void;
-};
-
-// Frees a pointer previously allocated with [[malloc]].
-export @symbol("rt.free") fn free_(_p: nullable *void) void = {
-	if (_p != null) {
-		let p = _p: *void;
-		let bsize = (p: uintptr - size(size): uintptr): *[1]size;
-		let s = bsize[0];
-		if (s <= bin2size(len(bins) - 1)) free_small(p, s)
-		else free_large(p, s);
+		// Allocate a new block from the currently-active chunk
+		let m = &cur_chunk.0.data[cur_chunk.1]: *meta;
+		cur_chunk.1 += META + sz;
+		m.sz = sz;
+		*(&m.user[sz]: *size) = sz;
+		yield m;
+	case let m: *meta =>
+		// Pop a block off the freelist
+		bins[bin] = meta_next(m);
+		checkpoison(m, sz);
+		m.sz = sz;
+		yield m;
 	};
+
+	cur_allocs += 1;
+	return &m.user;
 };
 
-fn free_large(_p: *void, s: size) void = {
-	let p = (_p: uintptr - (WASTE: uintptr + WORD: uintptr)): *void;
-	segfree(p, s + WASTE + WORD);
-};
+// Frees an allocation returned by [[malloc]]. Freeing any other pointer, or
+// freeing a pointer that's already been freed, will cause an abort.
+export @symbol("rt.free") fn free_(p: nullable *void) void = {
+	let m = match (p) {
+	case null =>
+		return;
+	case let p: *void =>
+		yield getmeta(p);
+	};
+	cur_allocs -= 1;
 
-fn free_small(p: *void, s: size) void = {
-	let b = size2bin(s);
-	let q = bins[b];
-	*(p: *nullable *void) = q;
-	bins[b] = p;
+	if (size_islarge(m.sz)) {
+		// Pass through to munmap
+		segfree((p: uintptr - ALIGN): *void, m.sz + ALIGN + META);
+		return;
+	};
+
+	// Push onto freelist
+	let bin = size_getbin(m.sz);
+	m.user[..m.sz] = [POISON...];
+	m.next = bins[bin]: uintptr | 0b1;
+	bins[bin] = m;
 };
 
 // Changes the allocation size of a pointer to n bytes. If n is smaller than
@@ -138,30 +125,161 @@ fn free_small(p: *void, s: size) void = {
 // than the one given if there is insufficient space to expand the pointer
 // in-place. Returns null if there is insufficient memory to support the
 // request.
-export fn realloc(_p: nullable *void, n: size) nullable *void = {
+export fn realloc(p: nullable *void, n: size) nullable *void = {
 	if (n == 0) {
-		free_(_p);
-		return null;
-	} else if (_p == null) {
-		return malloc(n);
-	};
-
-	let p = _p: *void;
-	let bsize = (p: uintptr - size(size): uintptr): *size;
-	let s = *bsize;
-	if (s >= n) {
-		return p;
-	};
-
-	if (n < bin2size(len(bins) - 1) && size2bin(n) == size2bin(s)) {
-		return p;
-	};
-
-	let new = malloc(n);
-	if (new != null) {
-		memcpy(new: *void, p, s);
 		free(p);
+		return null;
+	};
+	let m = match (p) {
+	case null =>
+		return malloc(n);
+	case let p: *void =>
+		yield getmeta(p);
+	};
+	if (realsz(n) == m.sz) return p;
+
+	let new = match (malloc(n)) {
+	case null =>
+		return null;
+	case let new: *void =>
+		yield new;
+	};
+	memcpy(new, &m.user, if (n < m.sz) n else m.sz);
+	free(p);
+	return new;
+};
+
+// Gets the metadata for a given allocation. The provided pointer must have been
+// returned by [[malloc]] and must not have been freed.
+export fn getmeta(p: *void) *meta = {
+	let m = (p: uintptr - META): *meta;
+	validatemeta(m, false);
+	assert(m.sz & 0b1 == 0,
+		"tried to get metadata for already-freed pointer (double free?)");
+	return m;
+};
+
+
+// Find the maximum allocation size for a given bin.
+fn bin_getsize(bin: size) size = {
+	// Would need to have bin 0 be ALIGN rather than 0 in this case
+	static assert(ALIGN != META);
+
+	// Space bins logarithmically
+	let sz = if (bin == 0) 0z else 1 << (bin - 1);
+
+	// And make sure that (bin_getsize(n) + META) % ALIGN == 0, while erring on
+	// the side of bin sizes slightly larger than powers of two
+	return sz * ALIGN + ALIGN - META;
+};
+
+// Find the bin for a given allocation size.
+fn size_getbin(sz: size) size = {
+	// Undo alignment fudging. Equivalent to
+	// ceil((sz - ALIGN + META) / ALIGN)
+	sz = (sz + META - 1) / ALIGN;
+
+	// Then undo exponentiation
+	if (sz == 0) return 0;
+	let ret = 0z;
+	for (1 << ret < sz; ret += 1) void;
+	return ret + 1;
+};
+
+// Returns true if a given allocation size should use mmap directly.
+fn size_islarge(sz: size) bool = sz > bin_getsize(len(bins) - 1);
+
+// Gets the next block on the freelist.
+fn meta_next(m: *meta) nullable *meta = {
+	assert(m.next & 0b1 == 0b1,
+		"expected metadata on freelist to be marked as free (heap corruption?)");
+	return (m.next & ~0b1): nullable *meta;
+};
+
+// Round a user-requested allocation size up to the next-smallest size we can
+// allocate.
+fn realsz(sz: size) size = {
+	if (size_islarge(sz)) {
+		sz += ALIGN + META;
+		if (sz % PAGESZ != 0) sz += PAGESZ - sz % PAGESZ;
+		return sz - ALIGN - META;
 	};
 
-	return new;
+	return bin_getsize(size_getbin(sz));
+};
+
+
+// Check for memory errors related to a given block of memory.
+fn validatemeta(m: *meta, shallow: bool) void = {
+	assert(&m.user: uintptr % ALIGN == 0,
+		"invalid alignment for metadata pointer (heap corruption?)");
+	// If we were recursively called to check a next pointer, the block
+	// needs to be marked as free, abort in meta_next() if it's not
+	if (m.sz & 0b1 == 0b1 || shallow == true) {
+		// Block is currently free, verify that it points to a valid
+		// next block
+		match (meta_next(m)) {
+		case null => void;
+		case let next: *meta =>
+			assert(next: uintptr % ALIGN == META,
+				"invalid metadata for small allocation on freelist (heap corruption?)");
+			if (!shallow) validatemeta(next, true);
+		};
+		return;
+	};
+
+	// Block is currently allocated, verify that its size is valid
+	let second = &m.user[m.sz]: *meta;
+	if (size_islarge(m.sz)) {
+		assert((&m.user: uintptr - ALIGN) % PAGESZ == 0,
+			"invalid large allocation address (non-heap pointer?)");
+		assert((m.sz + ALIGN + META) % PAGESZ == 0,
+			"invalid metadata for large allocation (non-heap pointer?)");
+		assert(second.sz == m.sz,
+			"invalid secondary metadata for large allocation (out-of-bounds write?)");
+		return;
+	};
+
+	assert(bin_getsize(size_getbin(m.sz)) == m.sz,
+		"invalid metadata for small allocation (non-heap pointer?)");
+	if (second.sz & 0b1 == 0b1) {
+		// Next block after it in the chunk is free, recursively verify
+		// that it's valid
+		validatemeta(second, false);
+		return;
+	};
+
+	// Note that we can't recurse here because the "next block" might
+	// actually be the extra metadata at the end of the chunk (which is
+	// never marked as being on the freelist
+	assert(!size_islarge(second.sz),
+		"invalid secondary metadata for small allocation (out-of-bounds write?)");
+	assert(bin_getsize(size_getbin(second.sz)) == second.sz,
+		"invalid secondary metadata for small allocation (out-of-bounds write?)");
+};
+
+// Verify that a pointer on a free list hasn't been touched since it was added.
+fn checkpoison(m: *meta, sz: size) void = {
+	match (meta_next(m)) {
+	case null => void;
+	case let next: *meta =>
+		validatemeta(next, false);
+	};
+	for (let i = 0z; i < sz; i += 1) {
+		assert(m.user[i] == POISON, "invalid poison data on freelist (use after free?)");
+	};
+};
+
+@fini fn checkleaks() void = {
+	for (let i = 0z; i < len(bins); i += 1) {
+		for (let m = bins[i]; m != null; m = meta_next(m as *meta)) {
+			checkpoison(m as *meta, bin_getsize(i));
+		};
+	};
+	// TODO: Need a debugging malloc that tracks backtraces for
+	// currently-active allocations in order to help with finding leaks
+	// before we enable this by default. Also need to make sure that this is
+	// run after the rest of @fini in order to guarantee that we see all
+	// frees
+	//assert(cur_allocs == 0, "memory leak");
 };
