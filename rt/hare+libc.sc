@@ -14,10 +14,10 @@ SECTIONS {
 		*(.rela.plt)
 	}
 
-	.init_array : {
-		PROVIDE_HIDDEN (__init_array_start = .);
+	.libc_init_array : {
+		PROVIDE_HIDDEN (__libc_init_array_start = .);
 		KEEP (*(.init_array))
-		PROVIDE_HIDDEN (__init_array_end = .);
+		PROVIDE_HIDDEN (__libc_init_array_end = .);
 	}
 
 	.fini_array : {

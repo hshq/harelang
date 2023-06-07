@@ -8,7 +8,7 @@ stdlib_rt_linux_srcs = \
 	$(STDLIB)/rt/+linux/errno.ha \
 	$(STDLIB)/rt/+linux/types.ha \
 	$(STDLIB)/rt/+linux/segmalloc.ha \
-	$(STDLIB)/rt/+linux/platformstart.ha \
+	$(STDLIB)/rt/+linux/platformstart-libc.ha \
 	$(STDLIB)/rt/+linux/prctl.ha \
 	$(STDLIB)/rt/+linux/+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/syscallno+$(ARCH).ha \
@@ -2401,7 +2401,7 @@ testlib_rt_linux_srcs = \
 	$(STDLIB)/rt/+linux/errno.ha \
 	$(STDLIB)/rt/+linux/types.ha \
 	$(STDLIB)/rt/+linux/segmalloc.ha \
-	$(STDLIB)/rt/+linux/platformstart.ha \
+	$(STDLIB)/rt/+linux/platformstart-libc.ha \
 	$(STDLIB)/rt/+linux/prctl.ha \
 	$(STDLIB)/rt/+linux/+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/syscallno+$(ARCH).ha \

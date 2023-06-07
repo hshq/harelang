@@ -24,7 +24,7 @@ gensrcs_rt() {
 		+linux/errno.ha \
 		+linux/types.ha \
 		+linux/segmalloc.ha \
-		+linux/platformstart.ha \
+		+linux/platformstart-libc.ha \
 		+linux/prctl.ha \
 		+linux/'+$(ARCH)'.ha \
 		+linux/syscallno+'$(ARCH)'.ha \
