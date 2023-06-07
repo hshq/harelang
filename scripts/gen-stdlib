@@ -1226,10 +1226,11 @@ regex() {
 	if [ $testing -eq 0 ]; then
 		gen_srcs regex regex.ha
 		gen_ssa regex ascii bufio encoding::utf8 errors io strconv \
-			strings bufio
+			strings bufio types
 	else
 		gen_srcs regex regex.ha +test.ha
-		gen_ssa regex encoding::utf8 errors strconv strings fmt io os bufio
+		gen_ssa regex encoding::utf8 errors strconv strings fmt io os \
+			bufio types
 	fi
 }
 

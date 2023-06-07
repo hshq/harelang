@@ -1971,7 +1971,7 @@ $(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_st
 stdlib_regex_any_srcs = \
 	$(STDLIB)/regex/regex.ha
 
-$(HARECACHE)/regex/regex-any.ssa: $(stdlib_regex_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM))
+$(HARECACHE)/regex/regex-any.ssa: $(stdlib_regex_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/regex
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nregex \
@@ -4437,7 +4437,7 @@ testlib_regex_any_srcs = \
 	$(STDLIB)/regex/regex.ha \
 	$(STDLIB)/regex/+test.ha
 
-$(TESTCACHE)/regex/regex-any.ssa: $(testlib_regex_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_bufio_$(PLATFORM))
+$(TESTCACHE)/regex/regex-any.ssa: $(testlib_regex_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/regex
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nregex \

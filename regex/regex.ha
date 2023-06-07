@@ -7,6 +7,7 @@ use errors;
 use io;
 use strconv;
 use strings;
+use types;
 
 // An error string describing a compilation error.
 export type error = !str;
@@ -829,19 +830,35 @@ export fn findall(re: *regex, string: str) []result = {
 //
 // An error is only returned if 'targetstr' isn't formatted correctly.
 export fn replace(re: *regex, string: str, targetstr: str) (str | error) = {
+	return replacen(re, string, targetstr, types::SIZE_MAX);
+};
+
+// Replaces up to 'n' non-overlapping matches of a regular expression against a
+// string with 'targetstr', in the same manner as [[replace]].
+export fn replacen(
+	re: *regex,
+	string: str,
+	targetstr: str,
+	n: size,
+) (str | error) = {
+	const target = parse_replace_target(targetstr)?;
+	defer free(target);
+	// Check if n == 0 after parse_replace_target so errors are propagated
+	if (n == 0) {
+		return strings::dup(string);
+	};
+
 	const matches = findall(re, string);
 	if (len(matches) == 0) {
 		return strings::dup(string);
 	};
 	defer result_freeall(matches);
 
-	const target = parse_replace_target(targetstr)?;
-	defer free(target);
-
 	const bytes = strings::toutf8(string);
 	let buf = alloc(bytes[..matches[0][0].start_bytesize]...);
 
-	for (let i = 0z; i < len(matches); i += 1) {
+	const n = if (len(matches) > n) n else len(matches);
+	for (let i = 0z; i < n; i += 1) {
 		for (let j = 0z; j < len(target); j += 1) {
 			match (target[j]) {
 			case let b: []u8 =>
@@ -853,7 +870,7 @@ export fn replace(re: *regex, string: str, targetstr: str) (str | error) = {
 			};
 		};
 		const start = matches[i][0].end_bytesize;
-		const end = if (i == len(matches) - 1) len(bytes)
+		const end = if (i == n - 1) len(bytes)
 			else matches[i + 1][0].start_bytesize;
 		append(buf, bytes[start..end]...);
 	};
@@ -907,6 +924,16 @@ fn parse_replace_target(targetstr: str) ([]([]u8 | size) | error) = {
 // with 'targetstr'. 'targetstr' is isn't interpreted in any special way; all
 // backslashes are treated literally.
 export fn rawreplace(re: *regex, string: str, targetstr: str) str = {
+	return rawreplacen(re, string, targetstr, types::SIZE_MAX);
+};
+
+// Replaces up to 'n' non-overlapping matches of a regular expression against a
+// string with 'targetstr', in the same manner as [[rawreplace]].
+export fn rawreplacen(re: *regex, string: str, targetstr: str, n: size) str = {
+	if (n == 0) {
+		return strings::dup(string);
+	};
+
 	const matches = findall(re, string);
 	if (len(matches) == 0) {
 		return strings::dup(string);
@@ -918,14 +945,15 @@ export fn rawreplace(re: *regex, string: str, targetstr: str) str = {
 	let buf: []u8 = [];
 
 	append(buf, bytes[..matches[0][0].start_bytesize]...);
-	for (let i = 1z; i < len(matches); i += 1) {
+	const n = if (len(matches) > n) n else len(matches);
+	for (let i = 1z; i < n; i += 1) {
 		append(buf, target...);
 		const start = matches[i - 1][0].end_bytesize;
 		const end = matches[i][0].start_bytesize;
 		append(buf, bytes[start..end]...);
 	};
 	append(buf, target...);
-	append(buf, bytes[matches[len(matches) - 1][0].end_bytesize..]...);
+	append(buf, bytes[matches[n - 1][0].end_bytesize..]...);
 
 	return strings::fromutf8(buf)!;
 };
