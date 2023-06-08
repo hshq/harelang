@@ -1280,14 +1280,14 @@ os() {
 		errors types::c
 
 	gen_srcs -pdarwin os \
-		+darwin/environ.ha \
+		+darwin/platform_environ.ha \
 		+darwin/$exit \
 		+darwin/dirfdfs.ha \
 		+darwin/status.ha \
 		+darwin/stdfd.ha \
 		+darwin/fs.ha \
 		os.ha
-	gen_ssa -pdarwin os io strings fs encoding::utf8 bytes bufio \
+	gen_ssa -pdarwin os io strings fs encoding::utf8 bufio \
 		errors types::c
 }
 
@@ -1314,7 +1314,7 @@ os_exec() {
 		types.ha \
 		cmd.ha
 	gen_ssa -pdarwin os::exec os strings fmt errors unix rt io ascii \
-		unix::signal types::c
+		unix::signal types::c time
 }
 
 path() {

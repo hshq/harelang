@@ -38,7 +38,7 @@ export fn ptsname(master: io::file) (str | error) = {
 	static let path_buf: [rt::PATH_MAX]u8 = [0...];
 	match (rt::ptsname_r(master, path_buf)) {
 	case let e: rt::errno =>
-		switch (e: int) {
+		switch (e) {
 			case rt::EINVAL, rt::EBADF => return errors::invalid;
 			case rt::ERANGE => return errors::overflow;
 			case => abort("Unexpected error from ptsname_r");

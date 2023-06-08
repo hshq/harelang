@@ -2,7 +2,6 @@
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2022 Jon Eskin <eskinjp@gmail.com>
-use bytes;
 use errors;
 use encoding::utf8;
 use fs;
@@ -271,7 +270,12 @@ fn fs_readlink(fs: *fs::fs, path: str) (str | fs::error) = {
 	static let buf: [rt::PATH_MAX]u8 = [0...];
 	let z = match (rt::readlinkat(fs.dirfd, path, buf[..])) {
 	case let err: rt::errno =>
-		return errno_to_fs(err);
+		switch (err) {
+		case rt::EINVAL =>
+			return fs::wrongtype;
+		case =>
+			return errno_to_fs(err);
+		};
 	case let z: size =>
 		yield z;
 	};
