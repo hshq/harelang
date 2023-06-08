@@ -231,7 +231,7 @@ fn argon2(
 
 	varhash(dest, b);
 
-	bytes::zero((h0: []u64: *[*]u8)[..len(h0) * size(u64)]);
+	bytes::zero(h0);
 	bytes::zero((ctx.mem: *[*]u8)[..len(ctx.mem) * size(u64)]);
 
 	if (cfg.mem is u32) {
