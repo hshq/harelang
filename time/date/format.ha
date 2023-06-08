@@ -18,10 +18,8 @@ export def EMAIL: str = "%a, %d %b %Y %H:%M:%S %z";
 // zone abbreviation.
 export def EMAILZ: str = "%a, %d %b %Y %H:%M:%S %z %Z";
 
-// [[format]] layout partly compatible with the default layout format
-// for the POSIX locale. %d is used in place of POSIX %e.
-export def POSIX: str = "%a %b %d %H:%M:%S %Z %Y";
-// TODO: Actually implement '%e' and thus the POSIX layout format?
+// [[format]] layout for the POSIX locale's default date & time representation.
+export def POSIX: str = "%a %b %e %H:%M:%S %Y";
 
 // [[format]] layout compatible with RFC 3339.
 export def RFC3339: str = "%Y-%m-%dT%H:%M:%S%z";
@@ -113,6 +111,8 @@ fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 		return fmt::fprint(out, MONTHS[_month(d) - 1]);
 	case 'd' =>
 		return fmt::fprintf(out, "{:02}", _day(d));
+	case 'e' =>
+		return fmt::fprintf(out, "{: 2}", _day(d));
 	case 'F' =>
 		return fmt::fprintf(out, "{:04}-{:02}-{:02}", _year(d), _month(d), _day(d));
 	case 'H' =>
@@ -179,6 +179,7 @@ fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 // 	%b -- The abbreviated name of the month.
 // 	%B -- The full name of the month.
 // 	%d -- The day of the month (decimal, range 01 to 31).
+// 	%e -- The day of the month (decimal, range  1 to 31), left-padded space.
 // 	%F -- The full date, equivalent to %Y-%m-%d
 // 	%H -- The hour of the day as from a 24-hour clock (range 00 to 23).
 // 	%I -- The hour of the day as from a 12-hour clock (range 01 to 12).
@@ -252,6 +253,8 @@ export fn format(
 		("%p", "AM"),
 		// day
 		("%d", "01"),
+		// day
+		("%e", " 1"),
 		// month
 		("%m", "01"),
 		// year

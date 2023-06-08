@@ -84,7 +84,7 @@ fn parse_specifier(
 		v.month = scan_for(iter, MONTHS_SHORT...)? + 1;
 	case 'B' =>
 		v.month = scan_for(iter, MONTHS...)? + 1;
-	case 'd' =>
+	case 'd', 'e' =>
 		v.day = scan_int(iter, 2)?;
 	case 'F' =>
 		v.year = scan_int(iter, 4)?;
@@ -348,6 +348,11 @@ fn scan_str(iter: *strings::iterator) (str | failure) = {
 
 	let v = newvirtual();
 	assert(parse(&v, "%d", "x1") is parsefail            , "%d: not parsefail");
+
+	let v = newvirtual();
+	assert(parse(&v, "%e", " 7") is void                 , "%d: parsefail");
+	assert(v.day is int                                  , "%d: void");
+	assert(v.day as int == 7                             , "%d: incorrect");
 
 	let v = newvirtual();
 	assert(parse(&v, "%F", "2012-10-01") is void         , "%d: parsefail");
