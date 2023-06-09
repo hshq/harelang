@@ -40,6 +40,7 @@ export fn chachapoly() stream = {
 		stream = &vtable,
 		c = chacha::chacha20(),
 		p = poly1305::poly1305(),
+		h = io::tee(io::empty, io::empty),
 		...
 	};
 };
