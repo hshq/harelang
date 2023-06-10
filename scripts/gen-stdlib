@@ -945,20 +945,17 @@ gensrcs_io() {
 		$*
 	gen_srcs -pdarwin io \
 		'arch+$(ARCH).ha' \
-		+darwin/file.ha \
 		+darwin/mmap.ha \
-		+darwin/platform_lock.ha \
-		+linux/platform_trunc.ha \
+		+darwin/platform_file.ha \
 		+darwin/vector.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \
+		file.ha \
 		handle.ha \
 		limit.ha \
-		lock.ha \
 		stream.ha \
 		tee.ha \
-		trunc.ha \
 		types.ha \
 		util.ha \
 		zero.ha \

@@ -21,15 +21,9 @@ fn get_tmpdir() str = os::tryenv("TMPDIR", "/tmp");
 // when the stream is closed.
 //
 // The I/O mode must be either [[io::mode::WRITE]] or [[io::mode::RDWR]].
-//
-// Only one variadic argument may be provided, if at all, to specify the mode of
-// the new file. The default is 0o644.
-export fn file(
-	iomode: io::mode,
-	mode: fs::mode...
-) (io::file | fs::error) = {
+export fn file(iomode: io::mode, mode: fs::mode) (io::file | fs::error) = {
 	// TODO: Add a custom "close" function which removes the named file
-	let file = named(os::cwd, get_tmpdir(), iomode, mode...)?;
+	let file = named(os::cwd, get_tmpdir(), iomode, mode)?;
 	free(file.1);
 	return file.0;
 };
@@ -40,24 +34,19 @@ export fn file(
 // overwritten on subsequent calls.
 //
 // The I/O mode must be either [[io::mode::WRITE]] or [[io::mode::RDWR]].
-//
-// Only one variadic argument may be provided, if at all, to specify the mode of
-// the new file. The default is 0o644.
 export fn named(
 	fs: *fs::fs,
 	path: str,
 	iomode: io::mode,
-	mode: fs::mode...
+	mode: fs::mode,
 ) ((io::file, str) | fs::error) = {
 	assert(iomode == io::mode::WRITE || iomode == io::mode::RDWR);
-	assert(len(mode) == 0 || len(mode) == 1);
 
-	let fmode = if (len(mode) != 0) mode[0] else 0o644: fs::mode;
-	let oflags = fs::flags::EXCL;
+	let oflags = fs::flag::EXCL;
 	if (iomode == io::mode::RDWR) {
-		oflags |= fs::flags::RDWR;
+		oflags |= fs::flag::RDWR;
 	} else {
-		oflags |= fs::flags::WRONLY;
+		oflags |= fs::flag::WRONLY;
 	};
 
 	static let pathbuf = path::buffer { ... };
@@ -70,7 +59,7 @@ export fn named(
 		const name = fmt::bsprintf(namebuf, "temp.{}", id);
 		const path = path::set(&pathbuf, path, name)!;
 
-		match (fs::create_file(fs, path, fmode, oflags)) {
+		match (fs::create_file(fs, path, mode, oflags)) {
 		case errors::exists =>
 			continue;
 		case let err: fs::error =>

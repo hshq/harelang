@@ -109,58 +109,58 @@ fn _fs_open(
 	return io::fdopen(fd);
 };
 
-fn fsflags_to_bsd(flags: fs::flags) int = {
+fn fsflags_to_bsd(flags: fs::flag) int = {
 	let out = rt::O_NOCTTY | rt::O_CLOEXEC;
-	if (flags & fs::flags::WRONLY > 0) {
+	if (flags & fs::flag::WRONLY > 0) {
 		out |= rt::O_WRONLY;
 	};
-	if (flags & fs::flags::RDWR > 0) {
+	if (flags & fs::flag::RDWR > 0) {
 		out |= rt::O_RDWR;
 	};
-	if (flags & fs::flags::CREATE > 0) {
+	if (flags & fs::flag::CREATE > 0) {
 		out |= rt::O_CREAT;
 	};
-	if (flags & fs::flags::EXCL > 0) {
+	if (flags & fs::flag::EXCL > 0) {
 		out |= rt::O_EXCL;
 	};
-	if (flags & fs::flags::CTTY > 0) {
+	if (flags & fs::flag::CTTY > 0) {
 		out &= ~rt::O_NOCTTY;
 	};
-	if (flags & fs::flags::TRUNC > 0) {
+	if (flags & fs::flag::TRUNC > 0) {
 		out |= rt::O_TRUNC;
 	};
-	if (flags & fs::flags::APPEND > 0) {
+	if (flags & fs::flag::APPEND > 0) {
 		out |= rt::O_APPEND;
 	};
-	if (flags & fs::flags::NONBLOCK > 0) {
+	if (flags & fs::flag::NONBLOCK > 0) {
 		out |= rt::O_NONBLOCK;
 	};
-	if (flags & fs::flags::DSYNC > 0) {
+	if (flags & fs::flag::DSYNC > 0) {
 		out |= rt::O_DSYNC;
 	};
-	if (flags & fs::flags::SYNC > 0) {
+	if (flags & fs::flag::SYNC > 0) {
 		out |= rt::O_SYNC;
 	};
-	if (flags & fs::flags::RSYNC > 0) {
+	if (flags & fs::flag::RSYNC > 0) {
 		out |= rt::O_SYNC;
 	};
-	if (flags & fs::flags::DIRECTORY > 0) {
+	if (flags & fs::flag::DIRECTORY > 0) {
 		out |= rt::O_DIRECTORY;
 	};
-	if (flags & fs::flags::NOFOLLOW > 0) {
+	if (flags & fs::flag::NOFOLLOW > 0) {
 		out |= rt::O_NOFOLLOW;
 	};
-	if (flags & fs::flags::NOCLOEXEC > 0) {
+	if (flags & fs::flag::NOCLOEXEC > 0) {
 		out &= ~rt::O_CLOEXEC;
 	};
-	if (flags & fs::flags::PATH > 0) {
-		abort("fs::flags::PATH is not supported on FreeBSD/Darwin");
+	if (flags & fs::flag::PATH > 0) {
+		abort("fs::flag::PATH is not supported on FreeBSD/Darwin");
 	};
-	if (flags & fs::flags::NOATIME > 0) {
-		abort("fs::flags::NOATIME is not supported on FreeBSD/Darwin");
+	if (flags & fs::flag::NOATIME > 0) {
+		abort("fs::flag::NOATIME is not supported on FreeBSD/Darwin");
 	};
-	if (flags & fs::flags::TMPFILE > 0) {
-		abort("fs::flags::TMPFILE is not supported on FreeBSD/Darwin");
+	if (flags & fs::flag::TMPFILE > 0) {
+		abort("fs::flag::TMPFILE is not supported on FreeBSD/Darwin");
 	};
 	return out;
 };
@@ -168,37 +168,37 @@ fn fsflags_to_bsd(flags: fs::flags) int = {
 fn fs_open_file(
 	fs: *fs::fs,
 	path: str,
-	flags: fs::flags...
+	flags: fs::flag...
 ) (io::file | fs::error) = {
-	let oflags = fs::flags::RDONLY;
+	let oflags = fs::flag::RDONLY;
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i];
 	};
-	oflags ^= fs::flags::CTTY | fs::flags::NOCLOEXEC; // invert NOCTTY/CLOEXEC
+	oflags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
 	return _fs_open(fs, path, fsflags_to_bsd(oflags), 0);
 };
 
 fn fs_open(
 	fs: *fs::fs,
 	path: str,
-	flags: fs::flags...
+	flags: fs::flag...
 ) (io::handle | fs::error) = fs_open_file(fs, path, flags...)?;
 
 fn fs_create_file(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
-	flags: fs::flags...
+	flags: fs::flag...
 ) (io::file | fs::error) = {
-	let oflags: fs::flags = 0;
+	let oflags: fs::flag = 0;
 	if (len(flags) == 0z) {
-		oflags |= fs::flags::WRONLY;
+		oflags |= fs::flag::WRONLY;
 	};
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i];
 	};
-	oflags ^= fs::flags::CTTY | fs::flags::NOCLOEXEC; // invert NOCTTY/CLOEXEC
-	oflags |= fs::flags::CREATE;
+	oflags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
+	oflags |= fs::flag::CREATE;
 	return _fs_open(fs, path, fsflags_to_bsd(oflags), mode)?;
 };
 
@@ -206,7 +206,7 @@ fn fs_create(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
-	flags: fs::flags...
+	flags: fs::flag...
 ) (io::handle | fs::error) = {
 	return fs_create_file(fs, path, mode, flags...)?;
 };

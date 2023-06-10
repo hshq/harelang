@@ -30,7 +30,7 @@ fn get_slave(master: io::file) (io::file | fs::error) = {
 	case let e: rt::errno => return errors::errno(e);
 	case => void;
 	};
-	return os::open(path, fs::flags::RDWR);
+	return os::open(path, fs::flag::RDWR);
 };
 
 // Returns the filename of the pseudoterminal slave.

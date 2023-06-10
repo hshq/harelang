@@ -272,6 +272,7 @@ stdlib_env += HARE_TD_crypto::chachapoly=$(HARECACHE)/crypto/chachapoly/crypto_c
 stdlib_deps_any += $(stdlib_crypto_chachapoly_any)
 stdlib_crypto_chachapoly_linux = $(stdlib_crypto_chachapoly_any)
 stdlib_crypto_chachapoly_freebsd = $(stdlib_crypto_chachapoly_any)
+stdlib_crypto_chachapoly_darwin = $(stdlib_crypto_chachapoly_any)
 
 # gen_lib crypto::cipher (any)
 stdlib_crypto_cipher_any = $(HARECACHE)/crypto/cipher/crypto_cipher-any.o
@@ -1833,20 +1834,17 @@ stdlib_io_freebsd_srcs = \
 # io (+darwin)
 stdlib_io_darwin_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
-	$(STDLIB)/io/+darwin/file.ha \
 	$(STDLIB)/io/+darwin/mmap.ha \
-	$(STDLIB)/io/+darwin/platform_lock.ha \
-	$(STDLIB)/io/+linux/platform_trunc.ha \
+	$(STDLIB)/io/+darwin/platform_file.ha \
 	$(STDLIB)/io/+darwin/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/file.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
-	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
-	$(STDLIB)/io/trunc.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha
@@ -2019,7 +2017,7 @@ stdlib_net_darwin_srcs = \
 	$(STDLIB)/net/msg.ha \
 	$(STDLIB)/net/types.ha
 
-$(HARECACHE)/net/net-darwin.ssa: $(stdlib_net_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_slices_$(PLATFORM))
+$(HARECACHE)/net/net-darwin.ssa: $(stdlib_net_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
@@ -3173,6 +3171,7 @@ testlib_env += HARE_TD_crypto::chachapoly=$(TESTCACHE)/crypto/chachapoly/crypto_
 testlib_deps_any += $(testlib_crypto_chachapoly_any)
 testlib_crypto_chachapoly_linux = $(testlib_crypto_chachapoly_any)
 testlib_crypto_chachapoly_freebsd = $(testlib_crypto_chachapoly_any)
+testlib_crypto_chachapoly_darwin = $(testlib_crypto_chachapoly_any)
 
 # gen_lib crypto::cipher (any)
 testlib_crypto_cipher_any = $(TESTCACHE)/crypto/cipher/crypto_cipher-any.o
@@ -4783,20 +4782,17 @@ testlib_io_freebsd_srcs = \
 # io (+darwin)
 testlib_io_darwin_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
-	$(STDLIB)/io/+darwin/file.ha \
 	$(STDLIB)/io/+darwin/mmap.ha \
-	$(STDLIB)/io/+darwin/platform_lock.ha \
-	$(STDLIB)/io/+linux/platform_trunc.ha \
+	$(STDLIB)/io/+darwin/platform_file.ha \
 	$(STDLIB)/io/+darwin/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/file.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
-	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
-	$(STDLIB)/io/trunc.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha \
@@ -4976,7 +4972,7 @@ testlib_net_darwin_srcs = \
 	$(STDLIB)/net/msg.ha \
 	$(STDLIB)/net/types.ha
 
-$(TESTCACHE)/net/net-darwin.ssa: $(testlib_net_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
+$(TESTCACHE)/net/net-darwin.ssa: $(testlib_net_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \

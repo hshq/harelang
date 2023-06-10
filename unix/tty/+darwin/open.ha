@@ -9,7 +9,7 @@ use os;
 // Returns a stream connected to the TTY of the current process. The caller must
 // close it using [[io::close]].
 export fn open() (io::file | error) = {
-	match (os::open("/dev/tty", fs::flags::RDWR)) {
+	match (os::open("/dev/tty", fs::flag::RDWR)) {
 	case let f: io::file =>
 		return f;
 	case fs::error =>
