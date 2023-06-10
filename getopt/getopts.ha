@@ -58,34 +58,39 @@ export type subcmd_help = (str, []help);
 // 	-d <dflag>: d help text
 export type help = (cmd_help | flag_help | parameter_help | subcmd_help);
 
-export type requires_arg = !rune;
-export type unknown_option = !rune;
-export type unknown_subcmd = !str;
-export type error = !(requires_arg | unknown_option | unknown_subcmd);
+export type requires_arg = rune;
+export type unknown_option = rune;
+export type unknown_subcmd = str;
+export type error = !(
+	str, []help,
+	(requires_arg | unknown_option | unknown_subcmd),
+);
 
 // A wrapper for [[tryparse]] in which if an error occurs, details are printed
 // to [[os::stderr]] and [[os::exit]] is called with a nonzero exit status.
 export fn parse(args: []str, help: help...) command = {
-	const cmd = args[0];
 	match (tryparse(args, help...)) {
 	case let c: command => return c;
-	case let r: requires_arg =>
-		fmt::errorfln("{}: option -{} requires an argument", cmd, r: rune)!;
-	case let r: unknown_option =>
-		fmt::errorfln("{}: unrecognized option: -{}", cmd, r: rune)!;
-	case let s: unknown_subcmd =>
-		fmt::errorfln("{}: unrecognized subcommand: {}", cmd, s: str)!;
-		printsubcmds(os::stderr, help)!;
-		fmt::errorln()!;
+	case let e: error =>
+		match (e.2) {
+		case let r: requires_arg =>
+			fmt::errorfln("{}: option -{} requires an argument", e.0, r: rune)!;
+		case let r: unknown_option =>
+			fmt::errorfln("{}: unrecognized option: -{}", e.0, r: rune)!;
+		case let s: unknown_subcmd =>
+			fmt::errorfln("{}: unrecognized subcommand: {}", e.0, s: str)!;
+			printsubcmds(os::stderr, e.1)!;
+			fmt::errorln()!;
+		};
+		printusage(os::stderr, e.0, e.1)!;
+		os::exit(1);
 	};
-	printusage(os::stderr, args[0], help)!;
-	os::exit(1);
 };
 
 // Parses command line arguments and returns a [[command]], or an [[error]]
 // if an error occurs. The argument list must include the command name as
 // the first item; [[os::args]] fulfills this criteria.
-export fn tryparse(args: []str, help: help...) (command | ...error) = {
+export fn tryparse(args: []str, help: help...) (command | error) = {
 	let opts: [](rune, str) = [];
 	let i = 1z;
 	for (i < len(args); i += 1) :arg {
@@ -118,7 +123,7 @@ export fn tryparse(args: []str, help: help...) (command | ...error) = {
 					if (len(value) == 0) {
 						if (i == len(args) - 1) {
 							free(opts);
-							return r: requires_arg;
+							return (args[0], help, r: requires_arg): error;
 						};
 						i += 1;
 						append(opts, (r, args[i]));
@@ -136,7 +141,7 @@ export fn tryparse(args: []str, help: help...) (command | ...error) = {
 				os::exit(0);
 			};
 			free(opts);
-			return r: unknown_option;
+			return (args[0], help, r: unknown_option): error;
 		};
 	};
 	let subcmd: (void | (str, *command)) = void;
@@ -156,7 +161,7 @@ export fn tryparse(args: []str, help: help...) (command | ...error) = {
 		};
 		if (expects_subcmd && subcmd is void) {
 			free(opts);
-			return args[i]: unknown_subcmd;
+			return (args[0], help, args[i]: unknown_subcmd): error;
 		};
 	};
 	return command {
