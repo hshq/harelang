@@ -15,7 +15,7 @@ export type prot = enum uint {
 
 // Values for the [[mmap]] flags parameter. Only the SHARED, PRIVATE, and FIXED
 // values are portable.
-export type mflags = enum uint {
+export type mflag = enum uint {
 	SHARED = rt::MAP_SHARED,
 	PRIVATE = rt::MAP_PRIVATE,
 	FIXED = rt::MAP_FIXED,
@@ -37,7 +37,7 @@ export fn mmap(
 	addr: nullable *void,
 	length: size,
 	prot: prot,
-	flags: mflags,
+	flags: mflag,
 	fd: file,
 	offs: size
 ) (*void | errors::error) = {

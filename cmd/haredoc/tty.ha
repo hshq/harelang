@@ -436,12 +436,12 @@ fn type_tty(
 	t: ast::_type,
 ) (size | io::error) = {
 	let n = 0z;
-	if (t.flags & ast::type_flags::CONST != 0
+	if (t.flags & ast::type_flag::CONST != 0
 			&& !(t.repr is ast::func_type)) {
 		n += render(out, syn::TYPE)?;
 		n += fmt::fprint(out, "const ")?;
 	};
-	if (t.flags & ast::type_flags::ERROR != 0) {
+	if (t.flags & ast::type_flag::ERROR != 0) {
 		n += render(out, syn::OPERATOR)?;
 		n += fmt::fprint(out, "!")?;
 	};
@@ -530,7 +530,7 @@ fn type_tty(
 		n += fmt::fprint(out, "]")?;
 		n += type_tty(out, indent, *l.members)?;
 	case let p: ast::pointer_type =>
-		if (p.flags & ast::pointer_flags::NULLABLE != 0) {
+		if (p.flags & ast::pointer_flag::NULLABLE != 0) {
 			n += render(out, syn::TYPE)?;
 			n += fmt::fprint(out, "nullable ")?;
 		};

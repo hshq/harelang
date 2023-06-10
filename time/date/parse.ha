@@ -76,60 +76,60 @@ fn parse_specifier(
 	lr: rune,
 ) (void | failure) = {
 	switch (lr) {
-	case 'a' => v.weekday =
-		scan_for(iter, WEEKDAYS_SHORT...)?;
-	case 'A' => v.weekday =
-		scan_for(iter, WEEKDAYS...)?;
-	case 'b' => v.month =
-		scan_for(iter, MONTHS_SHORT...)? + 1;
-	case 'B' => v.month =
-		scan_for(iter, MONTHS...)? + 1;
-	case 'd' => v.day =
-		scan_int(iter, 2, false)?;
+	case 'a' =>
+		v.weekday = scan_for(iter, WEEKDAYS_SHORT...)?;
+	case 'A' =>
+		v.weekday = scan_for(iter, WEEKDAYS...)?;
+	case 'b' =>
+		v.month = scan_for(iter, MONTHS_SHORT...)? + 1;
+	case 'B' =>
+		v.month = scan_for(iter, MONTHS...)? + 1;
+	case 'd', 'e' =>
+		v.day = scan_int(iter, 2)?;
 	case 'F' =>
-		v.year = scan_int(iter, 4, false)?;
+		v.year = scan_int(iter, 4)?;
 		eat_rune(iter, '-')?;
-		v.month = scan_int(iter, 2, false)?;
+		v.month = scan_int(iter, 2)?;
 		eat_rune(iter, '-')?;
-		v.day = scan_int(iter, 2, false)?;
-	case 'H' => v.hour =
-		scan_int(iter, 2, false)?;
-	case 'I' => v.halfhour =
-		scan_int(iter, 2, false)?;
-	case 'j' => v.yearday =
-		scan_int(iter, 3, false)?;
-	case 'L' => v.locname =
-		scan_str(iter)?;
-	case 'm' => v.month =
-		scan_int(iter, 2, false)?;
-	case 'M' => v.minute =
-		scan_int(iter, 2, false)?;
-	case 'N' => v.nanosecond =
-		scan_int(iter, 9, true)?;
-	case 'p' => v.ampm = // AM=false PM=true
-		scan_for(iter, "AM", "PM", "am", "pm")? % 2 == 1;
-	case 'S' => v.second =
-		scan_int(iter, 2, false)?;
+		v.day = scan_int(iter, 2)?;
+	case 'H' =>
+		v.hour = scan_int(iter, 2)?;
+	case 'I' =>
+		v.halfhour = scan_int(iter, 2)?;
+	case 'j' =>
+		v.yearday = scan_int(iter, 3)?;
+	case 'L' =>
+		v.locname = scan_str(iter)?;
+	case 'm' =>
+		v.month = scan_int(iter, 2)?;
+	case 'M' =>
+		v.minute = scan_int(iter, 2)?;
+	case 'N' =>
+		v.nanosecond = scan_decimal(iter, 9)?;
+	case 'p' => // AM=false PM=true
+		v.ampm = scan_for(iter, "AM", "PM", "am", "pm")? % 2 == 1;
+	case 'S' =>
+		v.second = scan_int(iter, 2)?;
 	case 'T' =>
-		v.hour = scan_int(iter, 2, false)?;
+		v.hour = scan_int(iter, 2)?;
 		eat_rune(iter, ':')?;
-		v.minute = scan_int(iter, 2, false)?;
+		v.minute = scan_int(iter, 2)?;
 		eat_rune(iter, ':')?;
-		v.second = scan_int(iter, 2, false)?;
-	case 'u' => v.weekday =
-		scan_int(iter, 1, false)? - 1;
-	case 'U' => v.week =
-		scan_int(iter, 2, false)?;
-	case 'w' => v.weekday =
-		scan_int(iter, 1, false)? - 1;
-	case 'W' => v.week =
-		scan_int(iter, 2, false)?;
-	case 'Y' => v.year =
-		scan_int(iter, 4, false)?;
-	case 'z' => v.zoff =
-		scan_zo(iter)?;
-	case 'Z' => v.zabbr =
-		scan_str(iter)?;
+		v.second = scan_int(iter, 2)?;
+	case 'u' =>
+		v.weekday = scan_int(iter, 1)? - 1;
+	case 'U' =>
+		v.week = scan_int(iter, 2)?;
+	case 'w' =>
+		v.weekday = scan_int(iter, 1)? - 1;
+	case 'W' =>
+		v.week = scan_int(iter, 2)?;
+	case 'Y' =>
+		v.year = scan_int(iter, 4)?;
+	case 'z' =>
+		v.zoff = scan_zo(iter)?;
+	case 'Z' =>
+		v.zabbr = scan_str(iter)?;
 	case '%' =>
 		eat_rune(iter, '%')?;
 	case =>
@@ -171,12 +171,44 @@ fn scan_for(iter: *strings::iterator, list: str...) (int | failure) = {
 	return failure;
 };
 
-// Scans the iterator upto n consecutive numeric digits.
+// Scans the iterator for consecutive numeric digits.
+// Left-padded whitespace and zeros are permitted.
 // Returns the resulting int.
-// If pad is true, the number is right-padded with zeroes upto n digits.
-fn scan_int(iter: *strings::iterator, n: size, pad: bool) (int | failure) = {
-	let copy = *iter;
-	for (let i = 0z; i < n; i += 1) {
+fn scan_int(iter: *strings::iterator, maxrunes: size) (int | failure) = {
+	let start = *iter;
+	let startfixed = false;
+	for (let i = 0z; i < maxrunes; i += 1) {
+		let rn: rune = match (strings::next(iter)) {
+		case void =>
+			break;
+		case let rn: rune =>
+			yield rn;
+		};
+		if (!ascii::isdigit(rn) && rn != ' ') {
+			return failure;
+		};
+		if (!startfixed) {
+			if (ascii::isdigit(rn)) {
+				startfixed = true;
+			} else {
+				strings::next(&start);
+			};
+		};
+	};
+	match (strconv::stoi(strings::slice(&start, iter))) {
+	case let num: int =>
+		return num;
+	case =>
+		return failure;
+	};
+};
+
+// Scans the iterator for consecutive numeric digits.
+// Left-padded whitespace and zeros are NOT permitted.
+// The resulting decimal is right-padded with zeros.
+fn scan_decimal(iter: *strings::iterator, maxrunes: size) (int | failure) = {
+	let start = *iter;
+	for (let i = 0z; i < maxrunes; i += 1) {
 		let rn: rune = match (strings::next(iter)) {
 		case void =>
 			break;
@@ -188,10 +220,10 @@ fn scan_int(iter: *strings::iterator, n: size, pad: bool) (int | failure) = {
 			break;
 		};
 	};
-	const s = strings::slice(&copy, iter);
+	const s = strings::slice(&start, iter);
 	match (strconv::stoi(s)) {
 	case let num: int =>
-		for (let i = 0z; i < n - len(s); i += 1) {
+		for (let i = 0z; i < maxrunes - len(s); i += 1) {
 			num *= 10;
 		};
 		return num;
@@ -210,33 +242,39 @@ fn scan_int(iter: *strings::iterator, n: size, pad: bool) (int | failure) = {
 // 	-nnnn
 //
 fn scan_zo(iter: *strings::iterator) (time::duration | failure) = {
-	const r = match (strings::next(iter)) {
+	const first = match (strings::next(iter)) {
 	case void =>
 		return failure;
-	case let r: rune =>
-		yield r;
+	case let first: rune =>
+		yield first;
 	};
-	if (r == 'Z' || r == 'z') {
+	if (first == 'Z' || first == 'z') {
 		return 0;
 	};
-	let zo = scan_int(iter, 2, false)? * time::HOUR;
+
+	let zo = scan_int(iter, 2)? * time::HOUR;
+
 	match (strings::next(iter)) {
-	case void => void;
-	case let r: rune =>
-		if (r == ':') {
-			strings::next(iter);
+	case void =>
+		return failure;
+	case let sep: rune =>
+		if (sep != ':') {
+			strings::prev(iter);
 		};
 	};
-	zo += scan_int(iter, 2, false)? * time::MINUTE;
-	if (r == '-') {
+
+	zo += scan_int(iter, 2)? * time::MINUTE;
+
+	if (first == '-') {
 		zo *= -1;
 	};
+
 	return zo;
 };
 
 // Scans and parses locality names, made of printable characters.
 fn scan_str(iter: *strings::iterator) (str | failure) = {
-	let copy = *iter;
+	let start = *iter;
 	for (true) {
 		match (strings::next(iter)) {
 		case void =>
@@ -248,7 +286,7 @@ fn scan_str(iter: *strings::iterator) (str | failure) = {
 			};
 		};
 	};
-	return strings::slice(&copy, iter);
+	return strings::slice(&start, iter);
 };
 
 @test fn parse() void = {
@@ -304,6 +342,19 @@ fn scan_str(iter: *strings::iterator) (str | failure) = {
 	assert(v.day as int == 27                            , "%d: incorrect");
 
 	let v = newvirtual();
+	assert(parse(&v, "%d", " 1") is void                 , "%d: parsefail");
+	assert(v.day is int                                  , "%d: void");
+	assert(v.day as int == 1                             , "%d: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%d", "x1") is parsefail            , "%d: not parsefail");
+
+	let v = newvirtual();
+	assert(parse(&v, "%e", " 7") is void                 , "%d: parsefail");
+	assert(v.day is int                                  , "%d: void");
+	assert(v.day as int == 7                             , "%d: incorrect");
+
+	let v = newvirtual();
 	assert(parse(&v, "%F", "2012-10-01") is void         , "%d: parsefail");
 	assert(v.year is int                                 , "%d: void");
 	assert(v.year as int == 2012                         , "%d: incorrect");
@@ -328,6 +379,11 @@ fn scan_str(iter: *strings::iterator) (str | failure) = {
 	assert(v.yearday as int == 361                       , "%j: incorrect");
 
 	let v = newvirtual();
+	assert(parse(&v, "%j", "  9") is void                , "%j: parsefail");
+	assert(v.yearday is int                              , "%j: void");
+	assert(v.yearday as int == 9                         , "%j: incorrect");
+
+	let v = newvirtual();
 	assert(parse(&v, "%L", "Europe/Amsterdam") is void   , "%L: parsefail");
 	assert(v.locname is str                              , "%L: void");
 	assert(v.locname as str == "Europe/Amsterdam"        , "%L: incorrect");
@@ -346,6 +402,11 @@ fn scan_str(iter: *strings::iterator) (str | failure) = {
 	assert(parse(&v, "%N", "123456789") is void          , "%N: parsefail");
 	assert(v.nanosecond is int                           , "%N: void");
 	assert(v.nanosecond as int == 123456789              , "%N: incorrect");
+
+	let v = newvirtual();
+	assert(parse(&v, "%N", "123") is void                , "%N: parsefail");
+	assert(v.nanosecond is int                           , "%N: void");
+	assert(v.nanosecond as int == 123000000              , "%N: incorrect");
 
 	let v = newvirtual();
 	assert(parse(&v, "%p", "PM") is void                 , "%p: parsefail");

@@ -16,5 +16,8 @@ export type lockop = enum int {
 export fn lock(fd: file, block: bool, op: lockop) (bool | error) = {
 	let flags = op: int;
 	if (!block) flags |= rt::LOCK_NB;
-	return platform_lock(fd, flags);
+	return fd_lock(fd, flags);
 };
+
+// Truncate a file to a specified length. The file must be open for writing.
+export fn trunc(fd: file, ln: size) (void | error) = fd_trunc(fd, ln);

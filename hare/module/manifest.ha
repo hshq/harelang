@@ -59,7 +59,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	let mpath = path::init(cachedir, "manifest")!;
 	let mpath = path::string(&mpath);
 
-	let truefile = match (fs::open(ctx.fs, mpath, fs::flags::RDONLY)) {
+	let truefile = match (fs::open(ctx.fs, mpath, fs::flag::RDONLY)) {
 	case errors::noentry =>
 		return manifest;
 	case let err: fs::error =>

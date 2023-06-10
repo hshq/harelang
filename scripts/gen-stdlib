@@ -230,16 +230,14 @@ crypto() {
 		gen_srcs crypto \
 			authenc.ha \
 			keyderiv.ha
-		gen_ssa crypto bufio bytes crypto::argon2 crypto::chacha \
-			crypto::cihper crypto::poly1305 crypto::mac \
+		gen_ssa crypto bufio bytes crypto::argon2 crypto::chachapoly \
 			crypto::math endian errors io
 	else
 		gen_srcs crypto \
 			authenc.ha \
 			keyderiv.ha \
 			+test/authenc_test.ha
-		gen_ssa crypto bytes bufio crypto::argon2 crypto::chacha \
-			crypto::cihper crypto::poly1305 crypto::mac \
+		gen_ssa crypto bufio bytes crypto::argon2 crypto::chachapoly \
 			crypto::math endian errors io
 	fi
 }
@@ -369,6 +367,17 @@ crypto_chacha() {
 		gen_ssa crypto::chacha bytes crypto::cipher crypto::math \
 			endian io bufio
 	fi
+}
+
+crypto_chachapoly() {
+	if [ $testing -eq 0 ]
+	then
+		gen_srcs crypto::chachapoly chachapoly.ha
+	else
+		gen_srcs crypto::chachapoly chachapoly.ha encryption+test.ha
+	fi
+	gen_ssa crypto::chachapoly bufio bytes crypto::chacha crypto::mac \
+		crypto::math crypto::poly1305 endian errors io types
 }
 
 crypto_cipher() {
@@ -902,40 +911,34 @@ hash_siphash() {
 gensrcs_io() {
 	gen_srcs -plinux io \
 		'arch+$(ARCH).ha' \
-		+linux/file.ha \
 		+linux/mmap.ha \
-		+linux/platform_lock.ha \
-		+linux/platform_trunc.ha \
+		+linux/platform_file.ha \
 		+linux/vector.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \
+		file.ha \
 		handle.ha \
 		limit.ha \
-		lock.ha \
 		stream.ha \
 		tee.ha \
-		trunc.ha \
 		types.ha \
 		util.ha \
 		zero.ha \
 		$*
 	gen_srcs -pfreebsd io \
 		'arch+$(ARCH).ha' \
-		+freebsd/file.ha \
 		+freebsd/mmap.ha \
-		+freebsd/platform_lock.ha \
-		+freebsd/platform_trunc.ha \
+		+freebsd/platform_file.ha \
 		+freebsd/vector.ha \
 		copy.ha \
 		drain.ha \
 		empty.ha \
+		file.ha \
 		handle.ha \
 		limit.ha \
-		lock.ha \
 		stream.ha \
 		tee.ha \
-		trunc.ha \
 		types.ha \
 		util.ha \
 		zero.ha \
@@ -1063,21 +1066,21 @@ net() {
 		errors.ha \
 		msg.ha \
 		types.ha
-	gen_ssa -plinux net io errors rt fmt slices
+	gen_ssa -plinux net io errors rt fmt
 
 	gen_srcs -pfreebsd net \
 		+freebsd.ha \
 		errors.ha \
 		msg.ha \
 		types.ha
-	gen_ssa -pfreebsd net io errors rt fmt slices
+	gen_ssa -pfreebsd net io errors rt fmt
 
 	gen_srcs -pdarwin net \
 		+darwin.ha \
 		errors.ha \
 		msg.ha \
 		types.ha
-	gen_ssa -pdarwin net io errors rt fmt slices
+	gen_ssa -pdarwin net io errors rt fmt
 }
 
 net_dial() {
@@ -1743,6 +1746,7 @@ crypto::blake2b
 crypto::blowfish
 crypto::bigint
 crypto::chacha
+crypto::chachapoly
 crypto::cipher
 crypto::hkdf
 crypto::hmac

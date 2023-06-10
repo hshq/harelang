@@ -175,7 +175,7 @@ export fn dirent_finish(e: *dirent) void = free(e.name);
 // at a minimum, RDONLY, WRONLY, RDWR, and CREATE will be supported.
 // Note that NOCTTY and CLOEXEC are on by default, and the CTTY/NOCLOEXEC flags
 // respectively disable them.
-export type flags = enum int {
+export type flag = enum int {
 	RDONLY		= 0,
 	WRONLY		= 1,
 	RDWR		= 2,
@@ -213,27 +213,27 @@ export type symlinkfunc = fn(fs: *fs, target: str, path: str) (void | error);
 export type openfunc = fn(
 	fs: *fs,
 	path: str,
-	flags: flags...
+	flags: flag...
 ) (io::handle | error);
 
 export type openfilefunc = fn(
 	fs: *fs,
 	path: str,
-	flags: flags...
+	flags: flag...
 ) (io::file | error);
 
 export type createfunc = fn(
 	fs: *fs,
 	path: str,
 	mode: mode,
-	flags: flags...
+	flags: flag...
 ) (io::handle | error);
 
 export type createfilefunc = fn(
 	fs: *fs,
 	path: str,
 	mode: mode,
-	flags: flags...
+	flags: flag...
 ) (io::file | error);
 
 // An abstract implementation of a filesystem, which provides common filesystem

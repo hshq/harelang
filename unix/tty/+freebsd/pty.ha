@@ -21,7 +21,7 @@ fn open_master() (io::file | fs::error) = {
 // Returns a file descriptor referring to the pseudoterminal slave for a
 // pseudoterminal master.
 fn get_slave(master: io::file) (io::file | fs::error) =
-	os::open(ptsname(master)?, fs::flags::RDWR);
+	os::open(ptsname(master)?, fs::flag::RDWR);
 
 // Returns the filename of the pseudoterminal slave.
 export fn ptsname(master: io::file) (str | error) = {

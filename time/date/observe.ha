@@ -52,10 +52,9 @@ export fn nanosecond(d: *date) int = _nanosecond(d);
 fn _era(d: *date) int = {
 	match (d.era) {
 	case void =>
-		if (d.year is void) {
-			d.year = _year(d);
-		};
-		d.era = calc_era(d.year: int);
+		d.era = calc_era(
+			_year(d),
+		);
 		return d.era: int;
 	case let a: int =>
 		return a;
@@ -65,7 +64,9 @@ fn _era(d: *date) int = {
 fn _year(d: *date) int = {
 	match (d.year) {
 	case void =>
-		const ymd = calc_ymd(chrono::daydate(d));
+		const ymd = calc_ymd(
+			chrono::daydate(d),
+		);
 		d.year = ymd.0;
 		d.month = ymd.1;
 		d.day = ymd.2;
@@ -78,7 +79,9 @@ fn _year(d: *date) int = {
 fn _month(d: *date) int = {
 	match (d.month) {
 	case void =>
-		const ymd = calc_ymd(chrono::daydate(d));
+		const ymd = calc_ymd(
+			chrono::daydate(d),
+		);
 		d.year = ymd.0;
 		d.month = ymd.1;
 		d.day = ymd.2;
@@ -91,7 +94,9 @@ fn _month(d: *date) int = {
 fn _day(d: *date) int = {
 	match (d.day) {
 	case void =>
-		const ymd = calc_ymd(chrono::daydate(d));
+		const ymd = calc_ymd(
+			chrono::daydate(d),
+		);
 		d.year = ymd.0;
 		d.month = ymd.1;
 		d.day = ymd.2;
@@ -104,7 +109,9 @@ fn _day(d: *date) int = {
 fn _weekday(d: *date) int = {
 	match (d.weekday) {
 	case void =>
-		d.weekday = calc_weekday(chrono::daydate(d));
+		d.weekday = calc_weekday(
+			chrono::daydate(d),
+		);
 		return d.weekday: int;
 	case let y: int =>
 		return y;
@@ -114,19 +121,10 @@ fn _weekday(d: *date) int = {
 fn _yearday(d: *date) int = {
 	match (d.yearday) {
 	case void =>
-		if (d.year is void) {
-			_year(d);
-		};
-		if (d.month is void) {
-			_month(d);
-		};
-		if (d.day is void) {
-			_day(d);
-		};
 		d.yearday = calc_yearday(
-			d.year: int,
-			d.month: int,
-			d.day: int,
+			_year(d),
+			_month(d),
+			_day(d),
 		);
 		return d.yearday: int;
 	case let yd: int =>
@@ -137,23 +135,11 @@ fn _yearday(d: *date) int = {
 fn _isoweekyear(d: *date) int = {
 	match (d.isoweekyear) {
 	case void =>
-		if (d.year is void) {
-			_year(d);
-		};
-		if (d.month is void) {
-			_month(d);
-		};
-		if (d.day is void) {
-			_day(d);
-		};
-		if (d.weekday is void) {
-			_weekday(d);
-		};
 		d.isoweekyear = calc_isoweekyear(
-			d.year: int,
-			d.month: int,
-			d.day: int,
-			d.weekday: int,
+			_year(d),
+			_month(d),
+			_day(d),
+			_weekday(d),
 		);
 		return d.isoweekyear: int;
 	case let iwy: int =>
@@ -164,15 +150,9 @@ fn _isoweekyear(d: *date) int = {
 fn _week(d: *date) int = {
 	match (d.week) {
 	case void =>
-		if (d.yearday is void) {
-			_yearday(d);
-		};
-		if (d.weekday is void) {
-			_weekday(d);
-		};
 		d.week = calc_week(
-			d.yearday: int,
-			d.weekday: int,
+			_yearday(d),
+			_weekday(d),
 		);
 		return d.week: int;
 	case let w: int =>
@@ -183,15 +163,9 @@ fn _week(d: *date) int = {
 fn _sundayweek(d: *date) int = {
 	match (d.sundayweek) {
 	case void =>
-		if (d.yearday is void) {
-			_yearday(d);
-		};
-		if (d.weekday is void) {
-			_weekday(d);
-		};
 		d.sundayweek = calc_sundayweek(
-			d.yearday: int,
-			d.weekday: int,
+			_yearday(d),
+			_weekday(d),
 		);
 		return d.sundayweek: int;
 	case let w: int =>
@@ -202,15 +176,9 @@ fn _sundayweek(d: *date) int = {
 fn _isoweek(d: *date) int = {
 	match (d.isoweek) {
 	case void =>
-		if (d.year is void) {
-			_year(d);
-		};
-		if (d.week is void) {
-			_week(d);
-		};
 		d.isoweek = calc_isoweek(
-			d.year: int,
-			d.week: int,
+			_year(d),
+			_week(d),
 		);
 		return d.isoweek: int;
 	case let iw: int =>
@@ -221,7 +189,9 @@ fn _isoweek(d: *date) int = {
 fn _hour(d: *date) int = {
 	match (d.hour) {
 	case void =>
-		const hmsn = calc_hmsn(chrono::daytime(d));
+		const hmsn = calc_hmsn(
+			chrono::daytime(d),
+		);
 		d.hour = hmsn.0;
 		d.minute = hmsn.1;
 		d.second = hmsn.2;
@@ -235,7 +205,9 @@ fn _hour(d: *date) int = {
 fn _minute(d: *date) int = {
 	match (d.minute) {
 	case void =>
-		const hmsn = calc_hmsn(chrono::daytime(d));
+		const hmsn = calc_hmsn(
+			chrono::daytime(d),
+		);
 		d.hour = hmsn.0;
 		d.minute = hmsn.1;
 		d.second = hmsn.2;
@@ -249,7 +221,9 @@ fn _minute(d: *date) int = {
 fn _second(d: *date) int = {
 	match (d.second) {
 	case void =>
-		const hmsn = calc_hmsn(chrono::daytime(d));
+		const hmsn = calc_hmsn(
+			chrono::daytime(d),
+		);
 		d.hour = hmsn.0;
 		d.minute = hmsn.1;
 		d.second = hmsn.2;
@@ -263,7 +237,9 @@ fn _second(d: *date) int = {
 fn _nanosecond(d: *date) int = {
 	match (d.nanosecond) {
 	case void =>
-		const hmsn = calc_hmsn(chrono::daytime(d));
+		const hmsn = calc_hmsn(
+			chrono::daytime(d),
+		);
 		d.hour = hmsn.0;
 		d.minute = hmsn.1;
 		d.second = hmsn.2;

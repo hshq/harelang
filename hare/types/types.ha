@@ -40,7 +40,7 @@ export type variadism = enum {
 };
 
 // Indicats if a [[func]] has the @noreturn attribute
-export type func_flags = enum uint {
+export type func_flag = enum uint {
 	NONE = 0,
 	NORETURN = 1 << 0,
 };
@@ -49,13 +49,13 @@ export type func_flags = enum uint {
 export type func = struct {
 	result: const *_type,
 	variadism: variadism,
-	flags: func_flags,
+	flags: func_flag,
 	params: []const *_type,
 };
 
 // Flags which apply to a pointer type.
-export type pointer_flags = enum u8 {
-	// Keep me consistent with ast::pointer_flags
+export type pointer_flag = enum u8 {
+	// Keep me consistent with ast::pointer_flag
 
 	NONE = 0,
 	NULLABLE = 1 << 0,
@@ -64,7 +64,7 @@ export type pointer_flags = enum u8 {
 // *int
 export type pointer = struct {
 	referent: const *_type,
-	flags: pointer_flags,
+	flags: pointer_flag,
 };
 
 // []int
@@ -106,8 +106,8 @@ export type tuple_value = struct {
 };
 
 // Flags for a Hare type.
-export type flags = enum u8 {
-	// Keep me consistent with ast::type_flags
+export type flag = enum u8 {
+	// Keep me consistent with ast::type_flag
 
 	NONE = 0,
 	CONST = 1 << 0,
@@ -120,7 +120,7 @@ export def SIZE_UNDEFINED: size = -1: size;
 
 // A Hare type.
 export type _type = struct {
-	flags: flags,
+	flags: flag,
 	repr: (alias | array | builtin | _enum | func
 		| pointer | slice | _struct | tagged | tuple),
 	id: u32,

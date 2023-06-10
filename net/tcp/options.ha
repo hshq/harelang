@@ -21,7 +21,7 @@ export type reuseaddr = void;
 export type portassignment = *u16;
 
 // Options for [[connect]].
-export type connect_option = (keepalive | net::sockflags);
+export type connect_option = (keepalive | net::sockflag);
 
 // Options for [[listen]].
 export type listen_option = (
@@ -30,4 +30,4 @@ export type listen_option = (
 	reuseaddr |
 	backlog |
 	portassignment |
-	net::sockflags);
+	net::sockflag);

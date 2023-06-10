@@ -260,7 +260,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 		_align = store.arch._pointer;
 		yield pointer {
 			referent = lookup(store, p.referent)?,
-			flags = p.flags: pointer_flags,
+			flags = p.flags: pointer_flag,
 		};
 	case let st: ast::struct_type =>
 		let st = struct_from_ast(store, st, false)?;
@@ -330,7 +330,7 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 	};
 	return _type {
 		id = 0, // filled in later
-		flags = atype.flags: flags,
+		flags = atype.flags: flag,
 		repr = repr,
 		sz = sz,
 		_align = _align,
@@ -355,7 +355,7 @@ fn func_from_ast(
 		params = alloc([], len(ft.params)),
 	};
 	if (ft.attrs & ast::func_attrs::NORETURN != 0) {
-		f.flags |= func_flags::NORETURN;
+		f.flags |= func_flag::NORETURN;
 	};
 	for (let i = 0z; i < len(ft.params); i += 1) {
 		append(f.params, lookup(store, ft.params[i]._type)?);

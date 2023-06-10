@@ -27,13 +27,13 @@ export type lexer = struct {
 	// 1 more than the size of un and rb respectively
 	prevunlocs: [2](location, location),
 	prevrlocs: [3]location,
-	flags: flags,
+	flags: flag,
 	comment: str,
 	require_int: bool,
 };
 
 // Flags which apply to this lexer
-export type flags = enum uint {
+export type flag = enum uint {
 	NONE = 0,
 	// Enables lexing comments
 	COMMENTS = 1 << 0,
@@ -58,8 +58,8 @@ export fn strerror(err: error) const str = {
 };
 
 // Initializes a new lexer for the given input. The path is borrowed.
-export fn init(in: io::handle, path: str, flags: flags...) lexer = {
-	let f = flags::NONE;
+export fn init(in: io::handle, path: str, flags: flag...) lexer = {
+	let f = flag::NONE;
 	for (let i = 0z; i < len(flags); i += 1) {
 		f |= flags[i];
 	};
@@ -83,7 +83,7 @@ export fn finish(lex: *lexer) void = {
 };
 
 // Returns the current value of the comment buffer, or empty string if unset (or
-// if [[flags::COMMENTS]] was not enabled for this lexer).
+// if [[flag::COMMENTS]] was not enabled for this lexer).
 export fn comment(lex: *lexer) str = lex.comment;
 
 // Returns the next token from the lexer.
@@ -343,7 +343,7 @@ fn lex_name(lex: *lexer, loc: location) (token | error) = {
 };
 
 fn line_comment(lex: *lexer) (void | error) = {
-	if (lex.flags & flags::COMMENTS != flags::COMMENTS) {
+	if (lex.flags & flag::COMMENTS != flag::COMMENTS) {
 		return;
 	};
 
@@ -371,7 +371,7 @@ fn line_comment(lex: *lexer) (void | error) = {
 };
 
 fn lex_comment(lexr: *lexer) (void | error) = {
-	if (lexr.flags & flags::COMMENTS != flags::COMMENTS) {
+	if (lexr.flags & flag::COMMENTS != flag::COMMENTS) {
 		for (true) match (next(lexr)?) {
 		case io::EOF =>
 			break;

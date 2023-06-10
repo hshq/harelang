@@ -266,6 +266,13 @@ stdlib_crypto_chacha_linux = $(stdlib_crypto_chacha_any)
 stdlib_crypto_chacha_freebsd = $(stdlib_crypto_chacha_any)
 stdlib_crypto_chacha_darwin = $(stdlib_crypto_chacha_any)
 
+# gen_lib crypto::chachapoly (any)
+stdlib_crypto_chachapoly_any = $(HARECACHE)/crypto/chachapoly/crypto_chachapoly-any.o
+stdlib_env += HARE_TD_crypto::chachapoly=$(HARECACHE)/crypto/chachapoly/crypto_chachapoly.td
+stdlib_deps_any += $(stdlib_crypto_chachapoly_any)
+stdlib_crypto_chachapoly_linux = $(stdlib_crypto_chachapoly_any)
+stdlib_crypto_chachapoly_freebsd = $(stdlib_crypto_chachapoly_any)
+
 # gen_lib crypto::cipher (any)
 stdlib_crypto_cipher_any = $(HARECACHE)/crypto/cipher/crypto_cipher-any.o
 stdlib_env += HARE_TD_crypto::cipher=$(HARECACHE)/crypto/cipher/crypto_cipher.td
@@ -1144,7 +1151,7 @@ stdlib_crypto_any_srcs = \
 	$(STDLIB)/crypto/authenc.ha \
 	$(STDLIB)/crypto/keyderiv.ha
 
-$(HARECACHE)/crypto/crypto-any.ssa: $(stdlib_crypto_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_argon2_$(PLATFORM)) $(stdlib_crypto_chacha_$(PLATFORM)) $(stdlib_crypto_cihper_$(PLATFORM)) $(stdlib_crypto_poly1305_$(PLATFORM)) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
+$(HARECACHE)/crypto/crypto-any.ssa: $(stdlib_crypto_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_argon2_$(PLATFORM)) $(stdlib_crypto_chachapoly_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto \
@@ -1237,6 +1244,16 @@ $(HARECACHE)/crypto/chacha/crypto_chacha-any.ssa: $(stdlib_crypto_chacha_any_src
 	@mkdir -p $(HARECACHE)/crypto/chacha
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::chacha \
 		-t$(HARECACHE)/crypto/chacha/crypto_chacha.td $(stdlib_crypto_chacha_any_srcs)
+
+# crypto::chachapoly (+any)
+stdlib_crypto_chachapoly_any_srcs = \
+	$(STDLIB)/crypto/chachapoly/chachapoly.ha
+
+$(HARECACHE)/crypto/chachapoly/crypto_chachapoly-any.ssa: $(stdlib_crypto_chachapoly_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_chacha_$(PLATFORM)) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_crypto_poly1305_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/crypto/chachapoly
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::chachapoly \
+		-t$(HARECACHE)/crypto/chachapoly/crypto_chachapoly.td $(stdlib_crypto_chachapoly_any_srcs)
 
 # crypto::cipher (+any)
 stdlib_crypto_cipher_any_srcs = \
@@ -1780,20 +1797,17 @@ $(HARECACHE)/hash/siphash/hash_siphash-any.ssa: $(stdlib_hash_siphash_any_srcs) 
 # io (+linux)
 stdlib_io_linux_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
-	$(STDLIB)/io/+linux/file.ha \
 	$(STDLIB)/io/+linux/mmap.ha \
-	$(STDLIB)/io/+linux/platform_lock.ha \
-	$(STDLIB)/io/+linux/platform_trunc.ha \
+	$(STDLIB)/io/+linux/platform_file.ha \
 	$(STDLIB)/io/+linux/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/file.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
-	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
-	$(STDLIB)/io/trunc.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha
@@ -1801,20 +1815,17 @@ stdlib_io_linux_srcs = \
 # io (+freebsd)
 stdlib_io_freebsd_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
-	$(STDLIB)/io/+freebsd/file.ha \
 	$(STDLIB)/io/+freebsd/mmap.ha \
-	$(STDLIB)/io/+freebsd/platform_lock.ha \
-	$(STDLIB)/io/+freebsd/platform_trunc.ha \
+	$(STDLIB)/io/+freebsd/platform_file.ha \
 	$(STDLIB)/io/+freebsd/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/file.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
-	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
-	$(STDLIB)/io/trunc.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha
@@ -1982,7 +1993,7 @@ stdlib_net_linux_srcs = \
 	$(STDLIB)/net/msg.ha \
 	$(STDLIB)/net/types.ha
 
-$(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_slices_$(PLATFORM))
+$(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
@@ -1995,7 +2006,7 @@ stdlib_net_freebsd_srcs = \
 	$(STDLIB)/net/msg.ha \
 	$(STDLIB)/net/types.ha
 
-$(HARECACHE)/net/net-freebsd.ssa: $(stdlib_net_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_slices_$(PLATFORM))
+$(HARECACHE)/net/net-freebsd.ssa: $(stdlib_net_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
@@ -3156,6 +3167,13 @@ testlib_crypto_chacha_linux = $(testlib_crypto_chacha_any)
 testlib_crypto_chacha_freebsd = $(testlib_crypto_chacha_any)
 testlib_crypto_chacha_darwin = $(testlib_crypto_chacha_any)
 
+# gen_lib crypto::chachapoly (any)
+testlib_crypto_chachapoly_any = $(TESTCACHE)/crypto/chachapoly/crypto_chachapoly-any.o
+testlib_env += HARE_TD_crypto::chachapoly=$(TESTCACHE)/crypto/chachapoly/crypto_chachapoly.td
+testlib_deps_any += $(testlib_crypto_chachapoly_any)
+testlib_crypto_chachapoly_linux = $(testlib_crypto_chachapoly_any)
+testlib_crypto_chachapoly_freebsd = $(testlib_crypto_chachapoly_any)
+
 # gen_lib crypto::cipher (any)
 testlib_crypto_cipher_any = $(TESTCACHE)/crypto/cipher/crypto_cipher-any.o
 testlib_env += HARE_TD_crypto::cipher=$(TESTCACHE)/crypto/cipher/crypto_cipher.td
@@ -4035,7 +4053,7 @@ testlib_crypto_any_srcs = \
 	$(STDLIB)/crypto/keyderiv.ha \
 	$(STDLIB)/crypto/+test/authenc_test.ha
 
-$(TESTCACHE)/crypto/crypto-any.ssa: $(testlib_crypto_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_crypto_argon2_$(PLATFORM)) $(testlib_crypto_chacha_$(PLATFORM)) $(testlib_crypto_cihper_$(PLATFORM)) $(testlib_crypto_poly1305_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM))
+$(TESTCACHE)/crypto/crypto-any.ssa: $(testlib_crypto_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_argon2_$(PLATFORM)) $(testlib_crypto_chachapoly_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto \
@@ -4144,6 +4162,17 @@ $(TESTCACHE)/crypto/chacha/crypto_chacha-any.ssa: $(testlib_crypto_chacha_any_sr
 	@mkdir -p $(TESTCACHE)/crypto/chacha
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::chacha \
 		-t$(TESTCACHE)/crypto/chacha/crypto_chacha.td $(testlib_crypto_chacha_any_srcs)
+
+# crypto::chachapoly (+any)
+testlib_crypto_chachapoly_any_srcs = \
+	$(STDLIB)/crypto/chachapoly/chachapoly.ha \
+	$(STDLIB)/crypto/chachapoly/encryption+test.ha
+
+$(TESTCACHE)/crypto/chachapoly/crypto_chachapoly-any.ssa: $(testlib_crypto_chachapoly_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_chacha_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_crypto_poly1305_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/crypto/chachapoly
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::chachapoly \
+		-t$(TESTCACHE)/crypto/chachapoly/crypto_chachapoly.td $(testlib_crypto_chachapoly_any_srcs)
 
 # crypto::cipher (+any)
 testlib_crypto_cipher_any_srcs = \
@@ -4714,20 +4743,17 @@ $(TESTCACHE)/hash/siphash/hash_siphash-any.ssa: $(testlib_hash_siphash_any_srcs)
 # io (+linux)
 testlib_io_linux_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
-	$(STDLIB)/io/+linux/file.ha \
 	$(STDLIB)/io/+linux/mmap.ha \
-	$(STDLIB)/io/+linux/platform_lock.ha \
-	$(STDLIB)/io/+linux/platform_trunc.ha \
+	$(STDLIB)/io/+linux/platform_file.ha \
 	$(STDLIB)/io/+linux/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/file.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
-	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
-	$(STDLIB)/io/trunc.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha \
@@ -4737,20 +4763,17 @@ testlib_io_linux_srcs = \
 # io (+freebsd)
 testlib_io_freebsd_srcs = \
 	$(STDLIB)/io/arch+$(ARCH).ha \
-	$(STDLIB)/io/+freebsd/file.ha \
 	$(STDLIB)/io/+freebsd/mmap.ha \
-	$(STDLIB)/io/+freebsd/platform_lock.ha \
-	$(STDLIB)/io/+freebsd/platform_trunc.ha \
+	$(STDLIB)/io/+freebsd/platform_file.ha \
 	$(STDLIB)/io/+freebsd/vector.ha \
 	$(STDLIB)/io/copy.ha \
 	$(STDLIB)/io/drain.ha \
 	$(STDLIB)/io/empty.ha \
+	$(STDLIB)/io/file.ha \
 	$(STDLIB)/io/handle.ha \
 	$(STDLIB)/io/limit.ha \
-	$(STDLIB)/io/lock.ha \
 	$(STDLIB)/io/stream.ha \
 	$(STDLIB)/io/tee.ha \
-	$(STDLIB)/io/trunc.ha \
 	$(STDLIB)/io/types.ha \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha \
@@ -4927,7 +4950,7 @@ testlib_net_linux_srcs = \
 	$(STDLIB)/net/msg.ha \
 	$(STDLIB)/net/types.ha
 
-$(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
+$(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
@@ -4940,7 +4963,7 @@ testlib_net_freebsd_srcs = \
 	$(STDLIB)/net/msg.ha \
 	$(STDLIB)/net/types.ha
 
-$(TESTCACHE)/net/net-freebsd.ssa: $(testlib_net_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_slices_$(PLATFORM))
+$(TESTCACHE)/net/net-freebsd.ssa: $(testlib_net_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \

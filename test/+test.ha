@@ -142,7 +142,7 @@ export @symbol("__test_main") fn main() size = {
 };
 
 fn do_test(ctx: *context, test: test) void = {
-	signal::handle(signal::SIGSEGV, &handle_segv, signal::flags::NODEFER);
+	signal::handle(signal::sig::SEGV, &handle_segv, signal::flag::NODEFER);
 	bufio::reset(&ctx.stdout);
 	bufio::reset(&ctx.stderr);
 
@@ -268,7 +268,11 @@ fn dots(n: size) void = {
 	};
 };
 
-fn handle_segv(sig: int, info: *signal::siginfo, ucontext: *void) void = {
+fn handle_segv(
+	sig: signal::sig,
+	info: *signal::siginfo,
+	ucontext: *void,
+) void = {
 	rt::longjmp(&jmpbuf, 2);
 };
 

@@ -74,7 +74,7 @@ export type list_type = struct {
 };
 
 // Flags which apply to a pointer type.
-export type pointer_flags = enum uint {
+export type pointer_flag = enum uint {
 	NONE = 0,
 	NULLABLE = 1 << 0,
 };
@@ -82,7 +82,7 @@ export type pointer_flags = enum uint {
 // *int
 export type pointer_type = struct {
 	referent: *_type,
-	flags: pointer_flags,
+	flags: pointer_flag,
 };
 
 // A single field of a struct type.
@@ -124,7 +124,7 @@ export type tagged_type = []*_type;
 export type tuple_type = []*_type;
 
 // Flags which apply to types.
-export type type_flags = enum uint {
+export type type_flag = enum uint {
 	NONE = 0,
 	CONST = 1 << 0,
 	ERROR = 1 << 1,
@@ -134,7 +134,7 @@ export type type_flags = enum uint {
 export type _type = struct {
 	start: lex::location,
 	end: lex::location,
-	flags: type_flags,
+	flags: type_flag,
 	repr: (alias_type | builtin_type | enum_type | func_type |
 		list_type | pointer_type | struct_type | union_type |
 		tagged_type | tuple_type),

@@ -141,7 +141,7 @@ export fn truncate(in: *memstream) (void | errors::unsupported) = {
 // Reads data from a [[dynamic]] or [[fixed]] stream and returns a slice
 // borrowed from the internal buffer.
 export fn borrowedread(st: *memstream, amt: size) ([]u8 | io::EOF) = {
-	if (len(st.buf) - st.pos <= amt) {
+	if (len(st.buf) - st.pos < amt) {
 		return io::EOF;
 	};
 	let buf = st.buf[st.pos..st.pos + amt];
@@ -255,6 +255,16 @@ fn copy(dest: *io::stream, src: *io::stream) (size | io::error) = {
 	let sink = dynamic(io::mode::WRITE);
 	io::copy(&sink, &source)!;
 	assert(bytes::equal(in, buffer(&sink)));
+
+	let in: [6]u8 = [0, 1, 2, 3, 4, 5];
+	let source = dynamic_from(in, io::mode::READ);
+	const borrowed = borrowedread(&source, len(in)-1) as []u8;
+	assert(bytes::equal(borrowed, [0, 1, 2, 3, 4]));
+	let source = dynamic_from(in, io::mode::READ);
+	const borrowed = borrowedread(&source, len(in)) as []u8;
+	assert(bytes::equal(borrowed, [0, 1, 2, 3, 4, 5]));
+	let source = dynamic_from(in, io::mode::READ);
+	assert(borrowedread(&source, len(in)+1) is io::EOF);
 };
 
 @test fn fixed() void = {

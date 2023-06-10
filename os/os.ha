@@ -86,14 +86,14 @@ export fn symlink(target: str, path: str) (void | fs::error) =
 
 // Opens a file.
 //
-// If no flags are provided, [[fs::flags::RDONLY]] is used when opening the
+// If no flags are provided, [[fs::flag::RDONLY]] is used when opening the
 // file.
-export fn open(path: str, flags: fs::flags...) (io::file | fs::error) =
+export fn open(path: str, flags: fs::flag...) (io::file | fs::error) =
 	fs::open_file(cwd, path, flags...);
 
 // Creates a new file and opens it for writing.
 //
-// If no flags are provided, [[fs::flags::WRONLY]] is used when opening the
+// If no flags are provided, [[fs::flag::WRONLY]] is used when opening the
 // file.
 //
 // Only the permission bits of the mode are used. If other bits are set, they
@@ -101,7 +101,7 @@ export fn open(path: str, flags: fs::flags...) (io::file | fs::error) =
 export fn create(
 	path: str,
 	mode: fs::mode,
-	flags: fs::flags...
+	flags: fs::flag...
 ) (io::file | fs::error) = fs::create_file(cwd, path, mode, flags...);
 
 // Canonicalizes a path in this filesystem by resolving all symlinks and
@@ -114,6 +114,6 @@ export fn realpath(path: str) (str | fs::error) = fs::realpath(cwd, path);
 
 // Opens a directory as a filesystem.
 export fn diropen(path: str) (*fs::fs | fs::error) = {
-	const file = open(path, fs::flags::DIRECTORY | fs::flags::RDONLY)?;
+	const file = open(path, fs::flag::DIRECTORY | fs::flag::RDONLY)?;
 	return dirfdopen(file);
 };

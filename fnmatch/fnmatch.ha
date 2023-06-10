@@ -10,7 +10,7 @@ use errors;
 use strings;
 
 // A set of flags that alter the matching behavior of [[fnmatch]]
-export type flags = enum uint {
+export type flag = enum uint {
 	NONE = 0,
 
 	// If this flag is set, slashes in the string will only be matched by
@@ -20,7 +20,7 @@ export type flags = enum uint {
 	// character
 	NOESCAPE = 1u << 1,
 	// If this flag is set, a '.' at the beginning of the string can only
-	// be matched by a literal '.' in the pattern. If [[flags::PATHNAME]] is
+	// be matched by a literal '.' in the pattern. If [[flag::PATHNAME]] is
 	// set simultaneously, this behavior also apply to any periods
 	// immediately following a slash.
 	PERIOD = 1u << 2,
@@ -46,13 +46,13 @@ type token = (rune | bracket | star | question | end);
 // - all other characters only match themselves
 //
 // A set of flags that alter the matching behavior may be passed to
-// [[fnmatch]]. For an explanation of their meaning, see [[flags]].
-export fn fnmatch(pattern: str, string: str, flag: flags...) bool = {
-	let fl: flags = 0;
-	for (let i = 0z; i < len(flag); i += 1) {
-		fl |= flag[i];
+// [[fnmatch]]. For an explanation of their meaning, see [[flag]].
+export fn fnmatch(pattern: str, string: str, flags: flag...) bool = {
+	let fl: flag = 0;
+	for (let i = 0z; i < len(flags); i += 1) {
+		fl |= flags[i];
 	};
-	let b = if (fl & flags::PATHNAME != 0) {
+	let b = if (fl & flag::PATHNAME != 0) {
 		yield fnmatch_pathname(pattern, string, fl);
 	} else {
 		yield fnmatch_internal(pattern, string, fl);
@@ -65,7 +65,7 @@ export fn fnmatch(pattern: str, string: str, flag: flags...) bool = {
 fn fnmatch_pathname(
 	pattern: str,
 	string: str,
-	fl: flags,
+	fl: flag,
 ) (bool | errors::unsupported | errors::invalid) = {
 	let tok = strings::tokenize(string, "/");
 	let p_iter = strings::iter(pattern);
@@ -112,9 +112,9 @@ fn fnmatch_pathname(
 fn fnmatch_internal(
 	pattern: str,
 	string: str,
-	fl: flags,
+	fl: flag,
 ) (bool | errors::invalid | errors::unsupported) = {
-	if (fl & flags::PERIOD != 0) {
+	if (fl & flag::PERIOD != 0) {
 		if (strings::hasprefix(string, ".")
 				&& !strings::hasprefix(pattern, ".")) {
 			return false;
@@ -329,7 +329,7 @@ fn match_ctype(it: *strings::iterator, c: rune) (bool | errors::invalid) = {
 	return errors::invalid;
 };
 
-fn pat_next(pat: *strings::iterator, fl: flags) (token | errors::invalid) = {
+fn pat_next(pat: *strings::iterator, fl: flag) (token | errors::invalid) = {
 	let r = match (strings::next(pat)) {
 	case void =>
 		return end;
@@ -345,7 +345,7 @@ fn pat_next(pat: *strings::iterator, fl: flags) (token | errors::invalid) = {
 		return bracket;
 	case '\\' =>
 		// TODO: remove ? (harec bug workaround)
-		return if (fl & flags::NOESCAPE == 0) advance_or_err(pat)?
+		return if (fl & flag::NOESCAPE == 0) advance_or_err(pat)?
 			else '\\';
 	case =>
 		return r;

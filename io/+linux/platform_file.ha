@@ -79,3 +79,22 @@ fn fd_copy(to: file, from: file) (size | error) = {
 	};
 	return sum;
 };
+
+fn fd_lock(fd: file, flags: int) (bool | error) = {
+	match (rt::flock(fd: int, flags)) {
+	case void => return true;
+	case let e: rt::errno =>
+		if (e == rt::EWOULDBLOCK: rt::errno) {
+			return false;
+		} else {
+			return errors::errno(e);
+		};
+	};
+};
+
+fn fd_trunc(fd: file, ln: size) (void | error) = {
+	match (rt::ftruncate(fd: int, ln: rt::off_t)) {
+	case void => void;
+	case let e: rt::errno => return errors::errno(e);
+	};
+};

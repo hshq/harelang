@@ -295,7 +295,7 @@ fn resolve(
 	let f = htype.repr as func;
 	assert(f.result.repr as builtin == builtin::VOID);
 	assert(f.variadism  == variadism::NONE);
-	assert(f.flags == func_flags::NORETURN);
+	assert(f.flags == func_flag::NORETURN);
 	assert(len(f.params) == 0);
 
 	let atype = parse_type("fn(foo: int, bar: str...) int");

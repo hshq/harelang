@@ -348,7 +348,7 @@ fn scan(path: str) (ast::subunit | error) = {
 		fmt::fatalf("Error reading {}: {}", path, fs::strerror(err));
 	};
 	defer io::close(input)!;
-	const lexer = lex::init(input, path, lex::flags::COMMENTS);
+	const lexer = lex::init(input, path, lex::flag::COMMENTS);
 	return parse::subunit(&lexer)?;
 };
 

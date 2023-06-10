@@ -21,7 +21,7 @@ export fn close(fs: *fs) void = {
 
 // Opens a file. If no flags are provided, the default read/write mode is
 // RDONLY.
-export fn open(fs: *fs, path: str, flags: flags...) (io::handle | error) = {
+export fn open(fs: *fs, path: str, flags: flag...) (io::handle | error) = {
 	match (fs.open) {
 	case null =>
 		return errors::unsupported;
@@ -35,7 +35,7 @@ export fn open(fs: *fs, path: str, flags: flags...) (io::handle | error) = {
 // filesystem implementations (such cases will return [[io::unsupported]]).
 //
 // If no flags are provided, the default read/write mode is RDONLY.
-export fn open_file(fs: *fs, path: str, flags: flags...) (io::file | error) = {
+export fn open_file(fs: *fs, path: str, flags: flag...) (io::file | error) = {
 	match (fs.openfile) {
 	case null =>
 		return errors::unsupported;
@@ -50,7 +50,7 @@ export fn create(
 	fs: *fs,
 	path: str,
 	mode: mode,
-	flags: flags...
+	flags: flag...
 ) (io::handle | error) = {
 	match (fs.create) {
 	case null =>
@@ -70,7 +70,7 @@ export fn create_file(
 	fs: *fs,
 	path: str,
 	mode: mode,
-	flags: flags...
+	flags: flag...
 ) (io::file | error) = {
 	match (fs.createfile) {
 	case null =>

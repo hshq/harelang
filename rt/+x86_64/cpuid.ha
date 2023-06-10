@@ -54,12 +54,12 @@ const vendors: [_]str = [
 def VENDOR_OLDAMD: str = "AMDisbetter!";
 def VENDOR_OLDTRANSMETA: str = "TransmetaCPU";
 
-export type cpuid_edxflags = enum uint {
+export type cpuid_edxflag = enum uint {
 	SSE = 1 << 25,
 	SSE2 = 1 << 26,
 };
 
-export type cpuid_ecxflags = enum uint {
+export type cpuid_ecxflag = enum uint {
 	SSE3 = 1 << 0,
 	AES = 1 << 25,
 };
@@ -91,8 +91,8 @@ export fn cpuid_getvendor() (cpuid_vendor | cpuid_unknownvendor) = {
 	return cpuid_unknownvendor;
 };
 
-// Checks if cpu has given features. See [[cpuid_edxflags]] and
-// [[cpuid_ecxflags]] for available options.
+// Checks if cpu has given features. See [[cpuid_edxflag]] and
+// [[cpuid_ecxflag]] for available options.
 export fn cpuid_hasflags(edx: u32, ecx: u32) bool = {
 	let flags: [2]u32 = [0...];
 	cpuid_getfeatureflags(&flags);

@@ -1,0 +1,18 @@
+This module provides Chacha20-Poly1305 and XChacha20-Poly1305 stream 
+implementations as described in RFC 8439.
+
+A stream is created with [[chachapoly]]. [[init]] initializes a stream as a
+Chacha20-Poly1305 one where [[xinit]] will initialize it as a
+XChacha20-Poly1305 stream. After initializiation data can be encrypted by
+writing to or decrypted by reading from the stream. The user must call [[seal]]
+when encryption is done to create the authentication tag and [[verify]] in case
+of decryption to check if the dercypted data is valid. If the data is invalid
+it must not be processed further.
+
+This is a low-level module which implements cryptographic primitives. Direct use
+of cryptographic primitives is not recommended for non-experts, as incorrect use
+of these primitives can easily lead to the introduction of security
+vulnerabilities. Non-experts are advised to use the high-level operations
+available in the top-level [[crypto]] module.
+
+Be advised that Hare's cryptography implementations have not been audited.
