@@ -86,7 +86,7 @@ fn resolve_addr(addr: str) ([]ip::addr | error) = {
 	case ip::invalid => void;
 	};
 
-	const addrs = hosts::lookup(addr);
+	const addrs = hosts::lookup(addr)?;
 	if (len(addrs) != 0) {
 		return addrs;
 	};

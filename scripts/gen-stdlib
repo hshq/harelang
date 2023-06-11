@@ -1466,15 +1466,34 @@ unix() {
 }
 
 unix_hosts() {
-	gen_srcs -plinux unix::hosts \
-		+linux.ha \
-		lookup.ha
-	gen_ssa -plinux unix::hosts os io bufio net::ip strings
+	if [ $testing -eq 0 ]
+	then
+    		gen_srcs -plinux unix::hosts \
+    			+linux.ha \
+    			hosts.ha
+    		gen_ssa -plinux unix::hosts bufio encoding::utf8 fs io \
+    			net::ip os strings
 
-	gen_srcs -pfreebsd unix::hosts \
-		+freebsd.ha \
-		lookup.ha
-	gen_ssa -pfreebsd unix::hosts os io bufio net::ip strings
+    		gen_srcs -pfreebsd unix::hosts \
+    			+freebsd.ha \
+    			hosts.ha
+    		gen_ssa -pfreebsd unix::hosts bufio encoding::utf8 fs io \
+    			net::ip os strings
+	else
+    		gen_srcs -plinux unix::hosts \
+    			+linux.ha \
+    			test+test.ha \
+    			hosts.ha
+    		gen_ssa -plinux unix::hosts bufio encoding::utf8 fs io \
+    			net::ip os strings
+
+    		gen_srcs -pfreebsd unix::hosts \
+    			+freebsd.ha \
+    			test+test.ha \
+    			hosts.ha
+    		gen_ssa -pfreebsd unix::hosts bufio encoding::utf8 fs io \
+    			net::ip os strings
+	fi
 }
 
 unix_passwd() {
