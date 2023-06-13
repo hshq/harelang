@@ -17,6 +17,7 @@ export type rtype = enum u16 {
 	TXT = 16,
 	AAAA = 28,
 	SRV = 33,
+	SSHFP = 44,
 	DNSKEY = 48,
 	CAA = 257,
 };
@@ -32,6 +33,7 @@ export type qtype = enum u16 {
 	TXT = 16,
 	AAAA = 28,
 	SRV = 33,
+	SSHFP = 44,
 	DNSKEY = 48,
 	// ...
 	AXFR = 252,
@@ -181,6 +183,13 @@ export type srv = struct {
 	target: []str,
 };
 
+// An SSHFP record.
+export type sshfp = struct {
+	algorithm: u8,
+	fp_type: u8,
+	fingerprint: []u8,
+};
+
 // A TXT record.
 export type txt = [][]u8;
 
@@ -188,7 +197,7 @@ export type txt = [][]u8;
 export type unknown_rdata = []u8;
 
 // Tagged union of supported rdata types.
-export type rdata = (a | aaaa | caa | cname | mx | ns | ptr | soa | srv | txt | unknown_rdata);
+export type rdata = (a | aaaa | caa | cname | mx | ns | ptr | soa | srv | sshfp | txt | unknown_rdata);
 
 // A DNS message, Hare representation. See [[encode]] and [[decode]] for the DNS
 // representation.
@@ -247,6 +256,8 @@ fn rrecord_finish(rr: *rrecord) void = {
 		strings::freeall(so.rname);
 	case let sr: srv =>
 		strings::freeall(sr.target);
+	case let sf: sshfp =>
+		free(sf.fingerprint);
 	case let tx: txt =>
 		bytes_free(tx: [][]u8);
 	case => void;
