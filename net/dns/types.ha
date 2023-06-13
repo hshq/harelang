@@ -158,6 +158,11 @@ export type ns = struct {
 	name: []str,
 };
 
+// A PTR record.
+export type ptr = struct {
+	name: []str,
+};
+
 // An SOA record.
 export type soa = struct {
 	mname: []str,
@@ -183,7 +188,7 @@ export type txt = [][]u8;
 export type unknown_rdata = []u8;
 
 // Tagged union of supported rdata types.
-export type rdata = (a | aaaa | caa | cname | mx | ns | soa | srv | txt | unknown_rdata);
+export type rdata = (a | aaaa | caa | cname | mx | ns | ptr | soa | srv | txt | unknown_rdata);
 
 // A DNS message, Hare representation. See [[encode]] and [[decode]] for the DNS
 // representation.
@@ -235,6 +240,8 @@ fn rrecord_finish(rr: *rrecord) void = {
 		strings::freeall(mx.name);
 	case let ns: ns =>
 		strings::freeall(ns.name);
+	case let ptr: ptr =>
+		strings::freeall(ptr.name);
 	case let so: soa =>
 		strings::freeall(so.mname);
 		strings::freeall(so.rname);

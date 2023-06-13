@@ -201,6 +201,8 @@ fn decode_rdata(dec: *decoder, rtype: rtype, rlen: size) (rdata | format) = {
 		return decode_mx(&sub);
 	case rtype::NS =>
 		return decode_ns(&sub);
+	case rtype::PTR =>
+		return decode_ptr(&sub);
 	case rtype::SOA =>
 		return decode_soa(&sub);
 	case rtype::SRV =>
@@ -274,6 +276,12 @@ fn decode_mx(dec: *decoder) (rdata | format) = {
 
 fn decode_ns(dec: *decoder) (rdata | format) = {
 	return ns {
+		name = decode_name(dec)?,
+	};
+};
+
+fn decode_ptr(dec: *decoder) (rdata | format) = {
+	return ptr {
 		name = decode_name(dec)?,
 	};
 };
