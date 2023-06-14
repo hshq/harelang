@@ -7,25 +7,46 @@ This module refers to a regular expression "match" as a [[result]]. The POSIX
 match disambiguation rules are used; the longest of the leftmost matches is
 returned. This implementation computes matches in linear time.
 
-	const re = regex::compile(`[H|h]ar(e|riet)`)!;
+Compiling an expression:
+
+	const re = regex::compile(`[Hh]a(rriet|ppy)`)!;
 	defer regex::finish(&re);
 
-	assert(regex::test(&re, "Let's all love Harriet and Hare"));
+Testing an expression against a string:
 
-	const result = regex::find(&re, "Let's all love Harriet and Hare");
-	// -> {"Harriet", "riet"}
+	assert(regex::test(&re, "Harriet is happy"));
+
+Finding a match for an expression in a string:
+
+	const result = regex::find(&re, "Harriet is happy");
 	defer regex::result_free(result);
+	for (let i = 0z; i < len(result); i += 1) {
+		fmt::printf("{} ", result[i].content)!;
+	};
+	fmt::println()!;
+	// -> Harriet rriet
 
-	const results = regex::findall(&re, "Let's all love Harriet and Hare");
-	// -> {{"Harriet", "riet"}, {"Hare", "e"}}
+Finding all matches for an expression in a string:
+
+	const results = regex::findall(&re, "Harriet is happy");
 	defer regex::result_freeall(results);
+	for (let i = 0z; i < len(results); i += 1) {
+		for (let j = 0z; j < len(results[i]); j += 1) {
+			fmt::printf("{} ", results[i][j].content)!;
+		};
+		fmt::println()!;
+	};
+	// -> Harriet rriet; happy ppy
 
-	const re = regex::compile(`love`)!;
-	const result = regex::replace(&re, "Let's all love Harriet and Hare",
-		`celebrate`)!;
-	// -> "Let's all celebrate Harriet and Hare"
+Replacing matches for an expression:
+
+	const re = regex::compile(`happy`)!;
+	const result = regex::replace(&re, "Harriet is happy", `cute`)!;
+	// -> Harriet is cute
+
+Replacing with capture group references:
 
 	const re = regex::compile(`[a-z]+-([a-z]+)-[a-z]+`)!;
 	const result = regex::replace(&re, "cat-dog-mouse; apple-pear-plum",
 		`\1`)!;
-	// -> "dog; pear"
+	// -> dog; pear
