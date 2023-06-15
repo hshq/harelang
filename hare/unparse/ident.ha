@@ -5,7 +5,7 @@
 use fmt;
 use hare::ast;
 use io;
-use strio;
+use memio;
 
 // Unparses an identifier.
 export fn ident(out: io::handle, id: ast::ident) (size | io::error) = {
@@ -20,9 +20,9 @@ export fn ident(out: io::handle, id: ast::ident) (size | io::error) = {
 
 // Unparses an identifier into a string. The caller must free the return value.
 export fn identstr(id: ast::ident) str = {
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	ident(&buf, id)!;
-	return strio::string(&buf);
+	return memio::string(&buf)!;
 };
 
 @test fn ident() void = {

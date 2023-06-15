@@ -70,7 +70,7 @@ export fn main() void = {
 		};
 		defer io::close(input)!;
 		static let buf: [os::BUFSIZ]u8 = [0...];
-		let bufin = bufio::buffered(input, buf, []);
+		let bufin = bufio::init(input, buf, []);
 		defer io::close(&bufin)!;
 
 		let lexer = lex::init(&bufin, cmd.args[i]);

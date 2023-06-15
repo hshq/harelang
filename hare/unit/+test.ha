@@ -1,16 +1,16 @@
 // License: MPL-2.0
 // (c) 2021-2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
-use bufio;
 use hare::ast;
 use hare::lex;
 use hare::parse;
 use hare::types;
 use io;
+use memio;
 use strings;
 
 fn parse_expr(src: str) *ast::expr = {
-	const stream = bufio::fixed(strings::toutf8(src), io::mode::READ);
+	const stream = memio::fixed(strings::toutf8(src));
 	const lexer = lex::init(&stream, "<test>");
 	defer lex::finish(&lexer);
 	return alloc(parse::expr(&lexer)!);

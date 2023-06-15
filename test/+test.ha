@@ -4,10 +4,10 @@ use encoding::utf8;
 use fmt;
 use fnmatch;
 use io;
+use memio;
 use os;
 use rt;
 use strings;
-use strio;
 use time;
 use unix::signal;
 
@@ -33,8 +33,8 @@ fn finish_output(output: *output) void = {
 };
 
 type context = struct {
-	stdout: bufio::memstream,
-	stderr: bufio::memstream,
+	stdout: memio::stream,
+	stderr: memio::stream,
 	failures: []failure,
 	output: []output,
 	maxname: size,
@@ -81,8 +81,8 @@ export @symbol("__test_main") fn main() size = {
 	};
 
 	let ctx = context {
-		stdout = bufio::dynamic(io::mode::WRITE),
-		stderr = bufio::dynamic(io::mode::WRITE),
+		stdout = memio::dynamic(),
+		stderr = memio::dynamic(),
 		maxname = maxname,
 		default_round = rt::fegetround(),
 		...
@@ -143,8 +143,8 @@ export @symbol("__test_main") fn main() size = {
 
 fn do_test(ctx: *context, test: test) void = {
 	signal::handle(signal::sig::SEGV, &handle_segv, signal::flag::NODEFER);
-	bufio::reset(&ctx.stdout);
-	bufio::reset(&ctx.stderr);
+	memio::reset(&ctx.stdout);
+	memio::reset(&ctx.stderr);
 
 	const start_time = time::now(time::clock::MONOTONIC);
 
@@ -164,23 +164,23 @@ fn do_test(ctx: *context, test: test) void = {
 		time_diff / 1000000000,
 		time_diff % 1000000000)!;
 
-	const stdout = bufio::buffer(&ctx.stdout);
+	const stdout = memio::buffer(&ctx.stdout);
 	const stdout = match (strings::fromutf8(stdout)) {
 	case let s: str =>
 		yield strings::dup(s);
 	case utf8::invalid =>
-		let s = strio::dynamic();
+		let s = memio::dynamic();
 		hex::dump(&s, stdout)!;
-		yield strio::string(&s);
+		yield memio::string(&s)!;
 	};
-	const stderr = bufio::buffer(&ctx.stderr);
+	const stderr = memio::buffer(&ctx.stderr);
 	const stderr = match (strings::fromutf8(stderr)) {
 	case let s: str =>
 		yield strings::dup(s);
 	case utf8::invalid =>
-		let s = strio::dynamic();
+		let s = memio::dynamic();
 		hex::dump(&s, stderr)!;
-		yield strio::string(&s);
+		yield memio::string(&s)!;
 	};
 	if (failed && (stdout != "" || stderr != "")) {
 		append(ctx.output, output {

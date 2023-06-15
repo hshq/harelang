@@ -72,7 +72,7 @@ export fn manifest_load(ctx: *context, ident: ast::ident) (manifest | error) = {
 	let inputs: []input = [], versions: []version = [];
 
 	let buf: [4096]u8 = [0...];
-	let file = bufio::buffered(truefile, buf, []);
+	let file = bufio::init(truefile, buf, []);
 	for (true) {
 		let line = match (bufio::scanline(&file)) {
 		case io::EOF =>
@@ -324,7 +324,7 @@ export fn manifest_write(ctx: *context, man: *manifest) (void | error) = {
 
 	let (truefile, name) = temp::named(ctx.fs, cachedir, io::mode::WRITE, 0o644)?;
 	let wbuf: [os::BUFSIZ]u8 = [0...];
-	let file = &bufio::buffered(truefile, [], wbuf);
+	let file = &bufio::init(truefile, [], wbuf);
 	defer {
 		bufio::flush(file)!;
 		fs::remove(ctx.fs, name): void;

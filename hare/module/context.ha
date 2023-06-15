@@ -7,10 +7,10 @@ use fmt;
 use fs;
 use glob;
 use hare::ast;
+use memio;
 use os;
 use path;
 use strings;
-use strio;
 
 export type context = struct {
 	// Filesystem to use for the cache and source files.
@@ -112,13 +112,13 @@ export fn identpath(name: ast::ident) str = {
 //
 // This is used for module names in environment variables and some file names.
 export fn identuscore(ident: ast::ident) str = {
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	for (let i = 0z; i < len(ident); i += 1) {
 		fmt::fprintf(&buf, "{}{}", ident[i],
 			if (i + 1 < len(ident)) "_"
 			else "") as size;
 	};
-	return strio::string(&buf);
+	return memio::string(&buf)!;
 };
 
 @test fn identuscore() void = {

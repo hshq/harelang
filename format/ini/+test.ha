@@ -1,18 +1,18 @@
 // License: MPL-2.0
 // (c) 2021-2022 Alexey Yerin <yyp@disroot.org>
-use bufio;
 use io;
+use memio;
 use strings;
 
 @test fn simple() void = {
-	const buf = bufio::fixed(strings::toutf8(
+	const buf = memio::fixed(strings::toutf8(
 "# This is a comment
 [sourcehut.org]
 name=Sourcehut
 description=The hacker's forge
 [harelang.org]
 name=Hare
-description=The Hare programming language"), io::mode::READ);
+description=The Hare programming language"));
 	const sc = scan(&buf);
 	defer finish(&sc);
 
@@ -28,13 +28,13 @@ description=The Hare programming language"), io::mode::READ);
 
 @test fn extended() void = {
 	// TODO: expand?
-	const buf = bufio::fixed(strings::toutf8(
+	const buf = memio::fixed(strings::toutf8(
 "# Equal sign in the value
 exec=env VARIABLE=value binary
 
 # Unicode
 trademark=™
-"), io::mode::READ);
+"));
 	const sc = scan(&buf);
 	defer finish(&sc);
 
@@ -46,14 +46,14 @@ trademark=™
 
 @test fn invalid() void = {
 	// Missing equal sign
-	const buf = bufio::fixed(strings::toutf8("novalue\n"), io::mode::READ);
+	const buf = memio::fixed(strings::toutf8("novalue\n"));
 	const sc = scan(&buf);
 	defer finish(&sc);
 
 	assert(next(&sc) as error is syntaxerr); // TODO: test line numbering?
 
 	// Unterminated section header
-	const buf = bufio::fixed(strings::toutf8("[dangling\n"), io::mode::READ);
+	const buf = memio::fixed(strings::toutf8("[dangling\n"));
 	const sc = scan(&buf);
 	defer finish(&sc);
 

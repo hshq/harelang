@@ -1,8 +1,8 @@
-use bufio;
 use bytes;
 use crypto::cipher;
 use errors;
 use io;
+use memio;
 
 type gcmtestcase = struct {
 	key: []u8,
@@ -605,7 +605,7 @@ const gcmtestcases: []gcmtestcase = [
 		} else {
 			yield alloc([0...], len(t.cipher));
 		};
-		let resultbuf = bufio::fixed(result, io::mode::WRITE);
+		let resultbuf = memio::fixed(result);
 
 		let gstream = cipher::gcm();
 		cipher::gcm_init(&gstream, &resultbuf, &b, t.iv, t.additional);
@@ -632,7 +632,7 @@ const gcmtestcases: []gcmtestcase = [
 		} else {
 			yield alloc([0...], len(t.cipher));
 		};
-		let cipherbuf = bufio::fixed(t.cipher, io::mode::READ);
+		let cipherbuf = memio::fixed(t.cipher);
 
 		let gstream = cipher::gcm();
 		cipher::gcm_init(&gstream, &cipherbuf, &b, t.iv, t.additional);
@@ -668,7 +668,7 @@ const gcmtestcases: []gcmtestcase = [
 			r[..] = t.plain[..];
 			yield r;
 		};
-		let resultbuf = bufio::fixed(result, io::mode::WRITE);
+		let resultbuf = memio::fixed(result);
 
 		let gstream = cipher::gcm();
 		// beware: did not close the stream for sake of simplicity
@@ -681,7 +681,7 @@ const gcmtestcases: []gcmtestcase = [
 		assert(bytes::equal(t.cipher, result));
 		assert(bytes::equal(t.tag, tag));
 
-		let resultbuf = bufio::fixed(result, io::mode::READ);
+		let resultbuf = memio::fixed(result);
 		let gstream = cipher::gcm();
 		cipher::gcm_init(&gstream, &resultbuf, &b, t.iv, t.additional);
 		io::readall(&gstream, result)!;

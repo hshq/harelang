@@ -161,7 +161,7 @@ test() {
 	else
 		gen_srcs test common.ha +test.ha fail+test.ha
 		gen_ssa test bufio encoding::hex encoding::utf8 fmt fnmatch io \
-			os rt strings strio time unix::signal
+			os rt strings memio time unix::signal
 	fi
 }
 
@@ -174,11 +174,19 @@ ascii() {
 }
 
 bufio() {
-	gen_srcs bufio \
-		buffered.ha \
-		memstream.ha \
-		scanner.ha
-	gen_ssa bufio io bytes strings encoding::utf8 errors types
+	if [ $testing -eq 0 ]; then
+		gen_srcs bufio \
+			stream.ha \
+			scanner.ha
+		gen_ssa bufio bytes encoding::utf8 errors io strings types
+	else
+		gen_srcs bufio \
+			stream.ha \
+			scanner.ha \
+			stream_test+test.ha \
+			scanner_test+test.ha
+		gen_ssa bufio bytes encoding::utf8 errors io memio strings types
+	fi
 }
 
 bytes() {
@@ -200,15 +208,15 @@ crypto() {
 		gen_srcs crypto \
 			authenc.ha \
 			keyderiv.ha
-		gen_ssa crypto bufio bytes crypto::argon2 crypto::chachapoly \
-			crypto::math endian errors io
+		gen_ssa crypto bytes crypto::argon2 crypto::chachapoly \
+			crypto::math endian errors io memio
 	else
 		gen_srcs crypto \
 			authenc.ha \
 			keyderiv.ha \
 			+test/authenc_test.ha
-		gen_ssa crypto bufio bytes crypto::argon2 crypto::chachapoly \
-			crypto::math endian errors io
+		gen_ssa crypto bytes crypto::argon2 crypto::chachapoly \
+			crypto::math endian errors io memio
 	fi
 }
 
@@ -233,8 +241,8 @@ crypto_aes() {
 			ctr+test.ha \
 			rt+test.ha \
 			+test/gcm.ha
-		gen_ssa crypto::aes bufio bytes crypto::cipher crypto::math \
-			endian errors io rt
+		gen_ssa crypto::aes bytes crypto::cipher crypto::math \
+			endian errors io memio rt 
 	fi
 }
 
@@ -252,13 +260,13 @@ crypto_argon2() {
 	if [ $testing -eq 0 ]
 	then
 		gen_srcs crypto::argon2 argon2.ha
-		gen_ssa crypto::argon2 bufio bytes crypto::blake2b \
-			crypto::math endian errors hash io rt types
+		gen_ssa crypto::argon2 bytes crypto::blake2b \
+			crypto::math endian errors hash io memio rt types
 	else
 		gen_srcs crypto::argon2 argon2.ha +test.ha
-		gen_ssa crypto::argon2 bufio bytes crypto::blake2b \
-			crypto::math encoding::hex endian errors hash io rt \
-			strings types
+		gen_ssa crypto::argon2 bytes crypto::blake2b \
+			crypto::math encoding::hex endian errors hash io memio \
+			rt strings types
 	fi
 }
 
@@ -269,9 +277,9 @@ crypto_bcrypt() {
 	else
 		gen_srcs crypto::bcrypt bcrypt.ha base64.ha +test.ha
 	fi
-	gen_ssa crypto::bcrypt crypto::blowfish encoding::base64 bufio io \
-		crypto crypto::random errors crypto::cipher strings fmt bytes \
-		strconv
+	gen_ssa crypto::bcrypt bytes crypto crypto::blowfish \
+		crypto::cipher crypto::random encoding::base64 errors \
+		fmt io memio strconv strings
 }
 
 gensrcs_crypto_blake2b() {
@@ -288,7 +296,7 @@ crypto_blake2b() {
 	else
 		gensrcs_crypto_blake2b +test.ha vectors+test.ha
 		gen_ssa crypto::blake2b encoding::hex fmt hash io strings \
-			strio crypto::math endian bytes
+			memio crypto::math endian bytes
 	fi
 }
 
@@ -335,7 +343,7 @@ crypto_chacha() {
 	else
 		gen_srcs crypto::chacha chacha20.ha +test.ha
 		gen_ssa crypto::chacha bytes crypto::cipher crypto::math \
-			endian io bufio
+			endian io memio
 	fi
 }
 
@@ -438,7 +446,7 @@ gensrcs_crypto_rsa() {
 genssa_crypto_rsa() {
 	gen_ssa crypto::rsa bufio bytes crypto::bigint crypto::math \
 		crypto::sha1 crypto::sha256 crypto::sha512 endian errors hash \
-		io types $*
+		io memio types $*
 }
 
 crypto_rsa() {
@@ -461,8 +469,8 @@ crypto_salsa() {
 			io
 	else
 		gen_srcs crypto::salsa salsa20.ha +test.ha
-		gen_ssa crypto::salsa bytes bufio crypto::cipher crypto::math \
-			endian types io
+		gen_ssa crypto::salsa bytes crypto::cipher crypto::math \
+			endian io memio types
 	fi
 }
 
@@ -544,6 +552,41 @@ crypto_x25519() {
 	fi
 }
 
+datetime() {
+	gen_srcs -plinux datetime \
+		arithmetic.ha \
+		chronology.ha \
+		errors.ha \
+		date.ha \
+		datetime.ha \
+		duration.ha \
+		format.ha \
+		parse.ha \
+		period.ha \
+		reckon.ha \
+		time.ha \
+		timezone.ha \
+		virtual.ha
+	gen_ssa -plinux datetime ascii errors fmt io strconv strings memio \
+		time time::chrono
+	gen_srcs -pfreebsd datetime \
+		arithmetic.ha \
+		chronology.ha \
+		errors.ha \
+		date.ha \
+		datetime.ha \
+		duration.ha \
+		format.ha \
+		parse.ha \
+		period.ha \
+		reckon.ha \
+		time.ha \
+		timezone.ha \
+		virtual.ha
+	gen_ssa -pfreebsd datetime ascii errors fmt io strconv strings memio \
+		time time::chrono
+}
+
 dirs() {
 	gen_srcs dirs \
 		xdg.ha
@@ -553,19 +596,19 @@ dirs() {
 encoding_base64() {
 	gen_srcs encoding::base64 \
 		base64.ha
-	gen_ssa encoding::base64 ascii bufio bytes errors io os strings
+	gen_ssa encoding::base64 ascii bytes errors io os strings memio
 }
 
 encoding_base32() {
 	gen_srcs encoding::base32 \
 		base32.ha
-	gen_ssa encoding::base32 ascii bufio bytes errors io strings os
+	gen_ssa encoding::base32 ascii bytes errors io strings os memio
 }
 
 encoding_hex() {
 	gen_srcs encoding::hex \
 		hex.ha
-	gen_ssa encoding::hex ascii bufio bytes errors fmt io strconv strio \
+	gen_ssa encoding::hex ascii bytes errors fmt io strconv memio \
 		strings
 }
 
@@ -574,13 +617,13 @@ encoding_pem() {
 	then
 		gen_srcs encoding::pem \
 			pem.ha
-		gen_ssa encoding::pem strings bufio strio io errors \
+		gen_ssa encoding::pem strings memio io errors \
 			encoding::base64 ascii os fmt
 	else
 		gen_srcs encoding::pem \
 			pem.ha \
 			+test.ha
-		gen_ssa encoding::pem strings bufio strio io errors \
+		gen_ssa encoding::pem strings memio io errors \
 			encoding::base64 ascii os fmt bytes
 	fi
 }
@@ -616,7 +659,7 @@ errors() {
 fmt() {
 	gen_srcs fmt \
 		fmt.ha
-	gen_ssa fmt ascii bufio encoding::utf8 io os strconv strings types
+	gen_ssa fmt ascii encoding::utf8 io memio os strconv strings types
 }
 
 fnmatch() {
@@ -651,14 +694,14 @@ format_ini() {
 	else
 		gensrcs_format_ini +test.ha
 	fi
-	gen_ssa format::ini bufio encoding::utf8 fmt io strings
+	gen_ssa format::ini encoding::utf8 fmt io memio strings
 }
 
 format_tar() {
 	gen_srcs format::tar \
 		types.ha \
 		reader.ha
-	gen_ssa format::tar bufio bytes endian errors io strconv strio types::c
+	gen_ssa format::tar bytes endian errors io strconv memio types::c
 }
 
 fs() {
@@ -682,7 +725,7 @@ glob() {
 	else
 		gen_srcs glob glob.ha +test.ha
 	fi
-	gen_ssa glob fnmatch fs io os sort strings strio
+	gen_ssa glob fnmatch fs io os sort strings memio
 }
 
 hare_ast() {
@@ -694,70 +737,6 @@ hare_ast() {
 		type.ha \
 		unit.ha
 	gen_ssa hare::ast hare::lex strings
-}
-
-gensrcs_hare_types() {
-	gen_srcs hare::types \
-		'+$(ARCH)/writesize.ha' \
-		arch.ha \
-		builtins.ha \
-		class.ha \
-		hash.ha \
-		lookup.ha \
-		store.ha \
-		types.ha \
-		$*
-}
-
-hare_types() {
-	if [ $testing -eq 1 ]
-	then
-		gensrcs_hare_types +test.ha
-		gen_ssa hare::types hare::ast hash hash::fnv endian strings \
-			errors sort fmt bufio hare::lex hare::parse io
-	else
-		gensrcs_hare_types
-		gen_ssa hare::types hare::ast hash hash::fnv endian strings \
-			errors sort fmt
-	fi
-}
-
-gensrcs_hare_unit() {
-	gen_srcs hare::unit \
-		check.ha \
-		context.ha \
-		errors.ha \
-		expr.ha \
-		process.ha \
-		scan.ha \
-		scope.ha \
-		unit.ha \
-		$*
-}
-
-hare_unit() {
-	if [ $testing -eq 1 ]
-	then
-		gensrcs_hare_unit +test.ha
-		gen_ssa hare::unit hare::ast hare::types hash hash::fnv \
-			strings hare::lex bufio hare::parse
-	else
-		gensrcs_hare_unit
-		gen_ssa hare::unit hare::ast hare::types hash hash::fnv \
-			strings hare::lex
-	fi
-}
-
-hare_unparse() {
-	gen_srcs hare::unparse \
-		expr.ha \
-		decl.ha \
-		ident.ha \
-		import.ha \
-		type.ha \
-		unit.ha \
-		util.ha
-	gen_ssa hare::unparse fmt io strings strio hare::ast hare::lex
 }
 
 gensrcs_hare_lex() {
@@ -775,8 +754,8 @@ hare_lex() {
 		gensrcs_hare_lex \
 			+test.ha
 	fi
-	gen_ssa hare::lex ascii io bufio encoding::utf8 strings fmt sort strio \
-		strconv path
+	gen_ssa hare::lex ascii io encoding::utf8 fmt memio sort \
+		strconv strings path
 }
 
 hare_module() {
@@ -787,7 +766,7 @@ hare_module() {
 		manifest.ha \
 		walk.ha
 	gen_ssa hare::module \
-		hare::ast hare::lex hare::parse hare::unparse strio fs io strings hash \
+		hare::ast hare::lex hare::parse hare::unparse memio fs io strings hash \
 		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time bufio \
 		strconv os encoding::hex sort errors temp path
 }
@@ -818,10 +797,73 @@ hare_parse() {
 			+test/roundtrip.ha \
 			+test/types.ha \
 			+test/unit_test.ha
-		gen_ssa hare::parse ascii bufio hare::ast hare::lex \
-			hare::unparse io strio fmt types strings math \
-			encoding::utf8
+		gen_ssa hare::parse ascii memio hare::ast hare::lex \
+			hare::unparse io fmt types strings math encoding::utf8
 	fi
+}
+
+gensrcs_hare_types() {
+	gen_srcs hare::types \
+		'+$(ARCH)/writesize.ha' \
+		arch.ha \
+		builtins.ha \
+		class.ha \
+		hash.ha \
+		lookup.ha \
+		store.ha \
+		types.ha \
+		$*
+}
+
+hare_types() {
+	if [ $testing -eq 1 ]
+	then
+		gensrcs_hare_types +test.ha
+		gen_ssa hare::types hare::ast hash hash::fnv endian strings \
+			errors sort fmt hare::lex hare::parse io
+	else
+		gensrcs_hare_types
+		gen_ssa hare::types hare::ast hash hash::fnv endian strings \
+			errors memio sort fmt
+	fi
+}
+
+gensrcs_hare_unit() {
+	gen_srcs hare::unit \
+		check.ha \
+		context.ha \
+		errors.ha \
+		expr.ha \
+		process.ha \
+		scan.ha \
+		scope.ha \
+		unit.ha \
+		$*
+}
+
+hare_unit() {
+	if [ $testing -eq 1 ]
+	then
+		gensrcs_hare_unit +test.ha
+		gen_ssa hare::unit hare::ast hare::types hash hash::fnv \
+			strings hare::lex hare::parse memio
+	else
+		gensrcs_hare_unit
+		gen_ssa hare::unit hare::ast hare::types hash hash::fnv \
+			strings hare::lex memio
+	fi
+}
+
+hare_unparse() {
+	gen_srcs hare::unparse \
+		expr.ha \
+		decl.ha \
+		ident.ha \
+		import.ha \
+		type.ha \
+		unit.ha \
+		util.ha
+	gen_ssa hare::unparse fmt io strings memio hare::ast hare::lex
 }
 
 hash() {
@@ -869,7 +911,7 @@ hash_siphash() {
 	else
 		gen_srcs hash::siphash siphash.ha +test.ha
 		gen_ssa hash::siphash hash io endian crypto::math \
-			fmt strio strings
+			fmt memio strings
 	fi
 }
 
@@ -1064,8 +1106,8 @@ net_ip() {
 		gensrcs_net_ip \
 			test+test.ha
 	fi
-	gen_ssa -plinux net::ip bytes endian io strconv strings strio fmt
-	gen_ssa -pfreebsd net::ip bytes endian io strconv strings strio fmt
+	gen_ssa -plinux net::ip bytes endian io strconv strings memio fmt
+	gen_ssa -pfreebsd net::ip bytes endian io strconv strings memio fmt
 }
 
 net_tcp() {
@@ -1136,7 +1178,7 @@ net_uri() {
 			+test.ha
 	fi
 	gen_ssa net::uri \
-		ascii encoding::utf8 fmt io net::ip strconv strings strio
+		ascii encoding::utf8 fmt io net::ip strconv strings memio
 }
 
 gensrcs_math_complex() {
@@ -1231,11 +1273,11 @@ regex() {
 	if [ $testing -eq 0 ]; then
 		gen_srcs regex regex.ha
 		gen_ssa regex ascii bufio encoding::utf8 errors io strconv \
-			strings bufio types
+			strings bufio types memio
 	else
 		gen_srcs regex regex.ha +test.ha
 		gen_ssa regex encoding::utf8 errors strconv strings fmt io os \
-			bufio types
+			bufio types memio
 	fi
 }
 
@@ -1268,7 +1310,7 @@ shlex() {
 		gensrcs_shlex \
 			+test.ha
 	fi
-	gen_ssa shlex ascii encoding::utf8 io strings strio
+	gen_ssa shlex ascii encoding::utf8 io strings memio
 }
 
 gensrcs_sort() {
@@ -1325,24 +1367,24 @@ strings() {
 strings_template() {
 	gen_srcs strings::template \
 		template.ha
-	gen_ssa strings::template ascii errors fmt io strings strio
+	gen_ssa strings::template ascii errors fmt io strings memio
 }
 
-strio() {
-	gen_srcs strio \
+memio() {
+	gen_srcs memio \
 		stream.ha \
 		ops.ha
-	gen_ssa strio errors io strings encoding::utf8
+	gen_ssa memio errors io strings encoding::utf8
 }
 
 temp() {
 	gen_srcs -plinux temp +linux.ha
 	gen_ssa -plinux temp \
-		crypto::random encoding::hex errors fs io os path strio fmt
+		crypto::random encoding::hex errors fs io os path memio fmt
 
 	gen_srcs -pfreebsd temp +freebsd.ha
 	gen_ssa -pfreebsd temp \
-		crypto::random encoding::hex errors fs io os path strio fmt
+		crypto::random encoding::hex errors fs io os path memio fmt
 }
 
 time() {
@@ -1404,7 +1446,7 @@ time_date() {
 		tarithm.ha \
 		virtual.ha
 	gen_ssa -plinux time::date \
-		ascii errors fmt io strconv strings strio time time::chrono
+		ascii errors fmt io strconv strings memio time time::chrono
 	gen_srcs -pfreebsd time::date \
 		date.ha \
 		daydate.ha \
@@ -1420,7 +1462,7 @@ time_date() {
 		tarithm.ha \
 		virtual.ha
 	gen_ssa -pfreebsd time::date \
-		ascii errors fmt io strconv strings strio time time::chrono
+		ascii errors fmt io strconv strings memio time time::chrono
 }
 
 types() {
@@ -1468,27 +1510,27 @@ unix_hosts() {
     			+linux.ha \
     			hosts.ha
     		gen_ssa -plinux unix::hosts bufio encoding::utf8 fs io \
-    			net::ip os strings
+    			net::ip os strings memio
 
     		gen_srcs -pfreebsd unix::hosts \
     			+freebsd.ha \
     			hosts.ha
     		gen_ssa -pfreebsd unix::hosts bufio encoding::utf8 fs io \
-    			net::ip os strings
+    			net::ip os strings memio
 	else
     		gen_srcs -plinux unix::hosts \
     			+linux.ha \
     			test+test.ha \
     			hosts.ha
     		gen_ssa -plinux unix::hosts bufio encoding::utf8 fs io \
-    			net::ip os strings
+    			net::ip os strings memio
 
     		gen_srcs -pfreebsd unix::hosts \
     			+freebsd.ha \
     			test+test.ha \
     			hosts.ha
     		gen_ssa -pfreebsd unix::hosts bufio encoding::utf8 fs io \
-    			net::ip os strings
+    			net::ip os strings memio
 	fi
 }
 
@@ -1497,7 +1539,7 @@ unix_passwd() {
 		group.ha \
 		passwd.ha \
 		types.ha
-	gen_ssa unix::passwd bufio io os strconv strings
+	gen_ssa unix::passwd bufio io os strconv strings memio
 }
 
 unix_poll() {
@@ -1512,12 +1554,12 @@ unix_resolvconf() {
 	gen_srcs -plinux unix::resolvconf \
 		+linux.ha \
 		load.ha
-	gen_ssa -plinux unix::resolvconf os io bufio net::ip strings
+	gen_ssa -plinux unix::resolvconf os io bufio memio net::ip strings
 
 	gen_srcs -pfreebsd unix::resolvconf \
 		+freebsd.ha \
 		load.ha
-	gen_ssa -pfreebsd unix::resolvconf os io bufio net::ip strings
+	gen_ssa -pfreebsd unix::resolvconf os io bufio memio net::ip strings
 }
 
 unix_signal() {
@@ -1557,7 +1599,7 @@ unix_tty() {
 uuid() {
 	gen_srcs uuid \
 		uuid.ha
-	gen_ssa uuid crypto::random strio fmt endian io bytes bufio strings strconv
+	gen_ssa uuid crypto::random fmt endian io bytes memio strings strconv
 }
 
 # List of modules and their supported platforms. Place a tab between the module
@@ -1631,6 +1673,7 @@ math
 math::checked
 math::complex
 math::random
+memio
 net			linux freebsd
 net::dial
 net::dns
@@ -1648,7 +1691,6 @@ sort
 strconv
 strings
 strings::template
-strio
 temp			linux freebsd
 test
 time			linux freebsd

@@ -4,8 +4,8 @@
 use ascii;
 use encoding::utf8;
 use io;
+use memio;
 use strings;
-use strio;
 
 fn is_safe(s: str) bool = {
 	const iter = strings::iter(s);
@@ -64,7 +64,7 @@ export fn quote(sink: io::handle, s: str) (size | io::error) = {
 // Quotes a shell string and returns a new string. The caller must free the
 // return value.
 export fn quotestr(s: str) str = {
-	const sink = strio::dynamic();
+	const sink = memio::dynamic();
 	quote(&sink, s)!;
-	return strio::string(&sink);
+	return memio::string(&sink)!;
 };

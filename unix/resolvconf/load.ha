@@ -4,6 +4,7 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use bufio;
 use io;
+use memio;
 use net::ip;
 use os;
 use strings;
@@ -38,7 +39,7 @@ export fn load() []ip::addr = {
 			continue;
 		};
 
-		const scanner = bufio::fixed(line, io::mode::READ);
+		const scanner = memio::fixed(line);
 		const tok = match (bufio::scantok(&scanner, ' ', '\t')!) {
 		case io::EOF =>
 			break;

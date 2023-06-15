@@ -6,10 +6,10 @@
 // (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
 // (c) 2023 Armin Preiml <apreiml@strohwolke.at>
 use ascii;
-use bufio;
 use bytes;
 use errors;
 use io;
+use memio;
 use os;
 use strings;
 
@@ -211,24 +211,24 @@ fn clear(e: *encoder) void = {
 	];
 	const expected: str = `AAAAB3NzaC1yc2EA`;
 
-	let buf = bufio::dynamic(io::mode::WRITE);
+	let buf = memio::dynamic();
 	let e = newencoder(&std_encoding, &buf);
 	io::writeall(&e, raw[..4])!;
 	io::writeall(&e, raw[4..11])!;
 	io::writeall(&e, raw[11..])!;
 	io::close(&e)!;
 
-	assert(strings::fromutf8(bufio::buffer(&buf))! == expected);
+	assert(memio::string(&buf)! == expected);
 };
 
 // Encodes a byte slice in base 64, using the given encoding, returning a slice
 // of ASCII bytes. The caller must free the return value.
 export fn encodeslice(enc: *encoding, in: []u8) []u8 = {
-	let out = bufio::dynamic(io::mode::WRITE);
+	let out = memio::dynamic();
 	let encoder = newencoder(enc, &out);
 	io::writeall(&encoder, in)!;
 	io::close(&encoder)!;
-	return bufio::buffer(&out);
+	return memio::buffer(&out);
 };
 
 // Encodes base64 data using the given alphabet and writes it to a stream,
@@ -268,11 +268,11 @@ export fn encodestr(enc: *encoding, in: []u8) str = {
 		"Zm9vYmFy"
 	];
 	for (let i = 0z; i <= len(in); i += 1) {
-		let out = bufio::dynamic(io::mode::WRITE);
+		let out = memio::dynamic();
 		let encoder = newencoder(&std_encoding, &out);
 		io::writeall(&encoder, in[..i])!;
 		io::close(&encoder)!;
-		let encb = bufio::buffer(&out);
+		let encb = memio::buffer(&out);
 		defer free(encb);
 		assert(bytes::equal(encb, strings::toutf8(expect[i])));
 
@@ -418,15 +418,15 @@ export fn decodeslice(
 	enc: *encoding,
 	in: []u8,
 ) ([]u8 | errors::invalid) = {
-	let in = bufio::fixed(in, io::mode::READ);
+	let in = memio::fixed(in);
 	let decoder = newdecoder(enc, &in);
-	let out = bufio::dynamic(io::mode::WRITE);
+	let out = memio::dynamic();
 	match (io::copy(&out, &decoder)) {
 	case io::error =>
 		io::close(&out)!;
 		return errors::invalid;
 	case size =>
-		return bufio::buffer(&out);
+		return memio::buffer(&out);
 	};
 };
 
@@ -466,7 +466,7 @@ export fn decode(
 		("Zm9vYmFy", "foobar", &std_encoding),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
-		let in = bufio::fixed(strings::toutf8(cases[i].0), io::mode::READ);
+		let in = memio::fixed(strings::toutf8(cases[i].0));
 		let decoder = newdecoder(cases[i].2, &in);
 		let buf: [1]u8 = [0];
 		let decb: []u8 = [];
@@ -488,7 +488,7 @@ export fn decode(
 	};
 	// Repeat of the above, but with a larger buffer
 	for (let i = 0z; i < len(cases); i += 1) {
-		let in = bufio::fixed(strings::toutf8(cases[i].0), io::mode::READ);
+		let in = memio::fixed(strings::toutf8(cases[i].0));
 		let decoder = newdecoder(cases[i].2, &in);
 		let buf: [1024]u8 = [0...];
 		let decb: []u8 = [];
@@ -519,7 +519,7 @@ export fn decode(
 		("Zm8=Zm8=", &std_encoding),
 	];
 	for (let i = 0z; i < len(invalid); i += 1) {
-		let in = bufio::fixed(strings::toutf8(invalid[i].0), io::mode::READ);
+		let in = memio::fixed(strings::toutf8(invalid[i].0));
 		let decoder = newdecoder(invalid[i].1, &in);
 		let buf: [1]u8 = [0...];
 		let valid = false;

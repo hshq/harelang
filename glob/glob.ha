@@ -3,10 +3,10 @@
 use fnmatch;
 use fs;
 use io;
+use memio;
 use os;
 use sort;
 use strings;
-use strio;
 
 // Flags used to control the behavior of [[next]].
 export type flag = enum uint {
@@ -33,15 +33,15 @@ export type generator = struct {
 };
 
 export type strstack = struct {
-	bufv: []strio::stream,
+	bufv: []memio::stream,
 	bufc: size,
 };
 
 export type pattern = struct {
 	// TODO: look into working with a couple of string iterators instead
-	dir: strio::stream,
-	pat: strio::stream,
-	rem: strio::stream,
+	dir: memio::stream,
+	pat: memio::stream,
+	rem: memio::stream,
 };
 
 // Information about an unsuccessful search.
@@ -56,7 +56,7 @@ export type failure = !struct {
 // freed using [[finish]].
 export fn glob(pattern: str, flags: flag...) generator = {
 	let ss = strstack_init();
-	strio::concat(strstack_push(&ss), pattern)!;
+	memio::concat(strstack_push(&ss), pattern)!;
 	let bs = flag::NONE;
 	for (let i = 0z; i < len(flags); i += 1) {
 		bs |= flags[i];
@@ -81,9 +81,9 @@ export fn finish(gen: *generator) void = {
 // [[next]] can be repeatedly called until void is returned.
 export fn next(gen: *generator) (str | void | failure) = {
 	const init = strstack_size(&gen.pats) == 1
-		&& len(strio::string(&gen.tmpp.dir)) == 0
-		&& len(strio::string(&gen.tmpp.pat)) == 0
-		&& len(strio::string(&gen.tmpp.rem)) == 0;
+		&& len(memio::string(&gen.tmpp.dir)!) == 0
+		&& len(memio::string(&gen.tmpp.pat)!) == 0
+		&& len(memio::string(&gen.tmpp.rem)!) == 0;
 	match (next_match(os::cwd, gen)) {
 	case let s: str =>
 		return s;
@@ -92,7 +92,7 @@ export fn next(gen: *generator) (str | void | failure) = {
 	case void => void;
 	};
 	if (init && gen.flgs & flag::NOCHECK != 0) {
-		return strio::string(&gen.pats.bufv[0]);
+		return memio::string(&gen.pats.bufv[0])!;
 	};
 };
 
@@ -145,10 +145,10 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 
 		let b = strstack_push(&gen.pats);
 		if (len(rem) > 0) {
-			strio::concat(b, dir, de.name, "/", rem)!;
+			memio::concat(b, dir, de.name, "/", rem)!;
 			continue;
 		};
-		strio::concat(b, dir, de.name)!;
+		memio::concat(b, dir, de.name)!;
 		if (patm || gen.flgs & flag::MARK != 0) {
 			let m = fs::isdir(de.ftype);
 			// POSIX does not specify the behavior when a pathname
@@ -156,7 +156,7 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 			// directory. But in major implementation a slash
 			// character is appended in this case.
 			if (fs::islink(de.ftype)) {
-				match (fs::realpath(fs, strio::string(b))) {
+				match (fs::realpath(fs, memio::string(b)!)) {
 				case let r: str =>
 					match (fs::stat(fs, r)) {
 					case let s: fs::filestat =>
@@ -167,7 +167,7 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 				};
 			};
 			if (m) {
-				strio::concat(b, "/")!;
+				memio::concat(b, "/")!;
 			} else if (patm) {
 				strstack_pop(&gen.pats);
 				continue;
@@ -183,9 +183,9 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 };
 
 fn pattern_init() pattern = pattern {
-	dir = strio::dynamic(),
-	pat = strio::dynamic(),
-	rem = strio::dynamic(),
+	dir = memio::dynamic(),
+	pat = memio::dynamic(),
+	rem = memio::dynamic(),
 };
 
 fn pattern_free(p: *pattern) void = {
@@ -195,16 +195,16 @@ fn pattern_free(p: *pattern) void = {
 };
 
 fn pattern_reset(p: *pattern) void = {
-	strio::reset(&p.dir);
-	strio::reset(&p.pat);
-	strio::reset(&p.rem);
+	memio::reset(&p.dir);
+	memio::reset(&p.pat);
+	memio::reset(&p.rem);
 };
 
-fn pattern_dir(p: *pattern) str = strio::string(&p.dir);
+fn pattern_dir(p: *pattern) str = memio::string(&p.dir)!;
 
-fn pattern_pat(p: *pattern) str = strio::string(&p.pat);
+fn pattern_pat(p: *pattern) str = memio::string(&p.pat)!;
 
-fn pattern_rem(p: *pattern) str = strio::string(&p.rem);
+fn pattern_rem(p: *pattern) str = memio::string(&p.rem)!;
 
 fn pattern_parse(p: *pattern, pstr: str, noesc: bool) void = {
 	pattern_reset(p);
@@ -239,10 +239,10 @@ fn pattern_parse(p: *pattern, pstr: str, noesc: bool) void = {
 		case => void;
 		};
 
-		strio::appendrune(&p.pat, r)!;
+		memio::appendrune(&p.pat, r)!;
 		if (r == '/') {
-			strio::concat(&p.dir, strio::string(&p.pat))!;
-			strio::reset(&p.pat);
+			memio::concat(&p.dir, memio::string(&p.pat)!)!;
+			memio::reset(&p.pat);
 			itpat = itdir;
 		};
 		esc = false;
@@ -250,7 +250,7 @@ fn pattern_parse(p: *pattern, pstr: str, noesc: bool) void = {
 	
 	// p.pat is the first path component which contains special
 	// characters.
-	strio::reset(&p.pat);
+	memio::reset(&p.pat);
 	for (let esc = false; true) {
 		const r = match (strings::next(&itpat)) {
 		case void =>
@@ -265,16 +265,16 @@ fn pattern_parse(p: *pattern, pstr: str, noesc: bool) void = {
 		};
 
 		if (esc && r != '/') {
-			strio::appendrune(&p.pat, '\\')!;
+			memio::appendrune(&p.pat, '\\')!;
 		};
-		strio::appendrune(&p.pat, r)!;
+		memio::appendrune(&p.pat, r)!;
 		if (r == '/') {
 			break;
 		};
 		esc = false;
 	};
 
-	strio::concat(&p.rem, strings::iterstr(&itpat))!;
+	memio::concat(&p.rem, strings::iterstr(&itpat))!;
 };
 
 fn strstack_init() strstack = strstack {
@@ -291,12 +291,12 @@ fn strstack_free(ss: *strstack) void = {
 
 fn strstack_size(ss: *strstack) size = ss.bufc;
 
-fn strstack_push(ss: *strstack) *strio::stream = {
+fn strstack_push(ss: *strstack) *memio::stream = {
 	if (ss.bufc == len(ss.bufv)) {
-		append(ss.bufv, strio::dynamic());
+		append(ss.bufv, memio::dynamic());
 	};
 	let b = &ss.bufv[ss.bufc];
-	strio::reset(b);
+	memio::reset(b);
 	ss.bufc += 1;
 	return b;
 };
@@ -306,7 +306,7 @@ fn strstack_pop(ss: *strstack) (str | void) = {
 		return;
 	};
 	ss.bufc -= 1;
-	return strio::string(&ss.bufv[ss.bufc]);
+	return memio::string(&ss.bufv[ss.bufc])!;
 };
 
 fn strstack_sort(ss: *strstack, pos: size) void = {
@@ -314,11 +314,11 @@ fn strstack_sort(ss: *strstack, pos: size) void = {
 		return;
 	};
 	let s = ss.bufv[pos..ss.bufc];
-	sort::sort(s, size(strio::stream), &bufcmp);
+	sort::sort(s, size(memio::stream), &bufcmp);
 };
 
 fn bufcmp(a: const *void, b: const *void) int =
 	strings::compare(
-		strio::string(b: *strio::stream),
-		strio::string(a: *strio::stream),
+		memio::string(b: *memio::stream)!,
+		memio::string(a: *memio::stream)!,
 	);

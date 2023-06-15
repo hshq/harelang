@@ -7,8 +7,8 @@ use io;
 use fmt;
 use hare::ast;
 use hare::lex;
+use memio;
 use strings;
-use strio;
 
 // Unparses a [[hare::ast::decl]].
 export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
@@ -124,9 +124,9 @@ fn comment(out: io::handle, s: str, indent: size) (size | io::error) = {
 };
 
 fn decl_test(d: ast::decl, expected: str) bool = {
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	decl(&buf, d) as size;
-	let s = strio::string(&buf);
+	let s = memio::string(&buf)!;
 	defer free(s);
 	return s == expected;
 };

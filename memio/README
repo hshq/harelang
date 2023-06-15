@@ -1,0 +1,11 @@
+memio provides implementations of [[io::stream]] which can read from or write to
+byte slices. [[fixed]] uses a caller-supplied buffer for storage, while
+[[dynamic]] uses a dynamically allocated buffer which will grow instead of
+erroring when writing past the end of the buffer. All memio streams are
+seekable; the read-write head works the same way as an operating system file.
+You can access the contents of the buffer via [[buffer]] and [[string]].
+
+Additionally, memio provides string-related I/O operations. Each of the utility
+functions (e.g. [[appendrune]]) work correctly with any [[io::handle]], but
+for efficiency reasons it is recommended that they are either a memio or
+[[bufio]] stream.

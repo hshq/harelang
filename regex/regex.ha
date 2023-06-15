@@ -5,6 +5,7 @@ use bufio;
 use encoding::utf8;
 use errors;
 use io;
+use memio;
 use strconv;
 use strings;
 use types;
@@ -773,7 +774,7 @@ fn search(
 
 // Returns whether or not a [[regex]] matches any part of a given string.
 export fn test(re: *regex, string: str) bool = {
-	let strm = bufio::fixed(strings::toutf8(string), io::mode::READ);
+	let strm = memio::fixed(strings::toutf8(string));
 	return search(re, string, &strm, false) is []capture;
 };
 
@@ -782,7 +783,7 @@ export fn test(re: *regex, string: str) bool = {
 // leftmost match as a [[result]]. The caller must free the return value with
 // [[result_free]].
 export fn find(re: *regex, string: str) result = {
-	let strm = bufio::fixed(strings::toutf8(string), io::mode::READ);
+	let strm = memio::fixed(strings::toutf8(string));
 	match (search(re, string, &strm, true)) {
 	case let m: []capture =>
 		return m;
@@ -798,7 +799,7 @@ export fn findall(re: *regex, string: str) []result = {
 	let res: [][]capture = [];
 	let str_idx = 0z, str_bytesize = 0z;
 	let substring = string;
-	let strm = bufio::fixed(strings::toutf8(string), io::mode::READ);
+	let strm = memio::fixed(strings::toutf8(string));
 	const str_bytes = strings::toutf8(string);
 	for (true) {
 		match (search(re, substring, &strm, true)) {

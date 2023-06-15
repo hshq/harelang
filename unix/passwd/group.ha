@@ -4,6 +4,7 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use bufio;
 use io;
+use memio;
 use os;
 use strconv;
 use strings;
@@ -128,10 +129,10 @@ export fn getgid(gid: uint) (grent | void) = {
 };
 
 @test fn nextgr() void = {
-	let buf = bufio::fixed(strings::toutf8(
+	let buf = memio::fixed(strings::toutf8(
 		"root:x:0:root\n"
 		"mail:x:12:\n"
-		"video:x:986:alex,wmuser"), io::mode::READ);
+		"video:x:986:alex,wmuser"));
 
 	let ent = nextgr(&buf) as grent;
 	defer grent_finish(&ent);

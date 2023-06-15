@@ -7,6 +7,7 @@ use bufio;
 use encoding::utf8;
 use fs;
 use io;
+use memio;
 use net::ip;
 use os;
 use strings;
@@ -64,7 +65,7 @@ export fn next(it: *iterator) (host | void | error) = for (true) {
 		continue;
 	};
 
-	const scanner = bufio::fixed(line, io::mode::READ);
+	const scanner = memio::fixed(line);
 	const tok = match (bufio::scantok(&scanner, ' ', '\t')?) {
 	case io::EOF =>
 		return void;

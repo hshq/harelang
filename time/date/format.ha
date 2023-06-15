@@ -6,8 +6,8 @@ use ascii;
 use errors;
 use fmt;
 use io;
+use memio;
 use strings;
-use strio;
 use time;
 use time::chrono;
 
@@ -86,17 +86,17 @@ export fn bsformat(
 	layout: str,
 	d: *date,
 ) (str | io::error) = {
-	let sink = strio::fixed(buf);
+	let sink = memio::fixed(buf);
 	format(&sink, layout, d)?;
-	return strio::string(&sink);
+	return memio::string(&sink)!;
 };
 
 // Formats a [[date]] and writes it into a heap-allocated string.
 // The caller must free the return value.
 export fn asformat(layout: str, d: *date) (str | io::error) = {
-	let sink = strio::dynamic();
+	let sink = memio::dynamic();
 	format(&sink, layout, d)?;
-	return strio::string(&sink);
+	return memio::string(&sink)!;
 };
 
 fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
@@ -227,7 +227,7 @@ export fn format(
 			if (r == '%') {
 				escaped = true;
 			} else {
-				strio::appendrune(h, r)?;
+				memio::appendrune(h, r)?;
 			};
 		};
 	};

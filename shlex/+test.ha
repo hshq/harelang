@@ -2,8 +2,8 @@
 // (c) 2021 Alexey Yerin <yyp@disroot.org>
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 use io;
+use memio;
 use strings;
-use strio;
 
 @test fn split() void = {
 	const s = split(`hello\ world`)!;
@@ -64,14 +64,14 @@ use strio;
 	assert(split(`unterminated\ backslash \`) is syntaxerr);
 };
 
-fn testquote(sink: *strio::stream, s: str, expected: str) void = {
+fn testquote(sink: *memio::stream, s: str, expected: str) void = {
 	assert(quote(sink, s)! == len(expected));
-	assert(strio::string(sink) == expected);
-	strio::reset(sink);
+	assert(memio::string(sink)! == expected);
+	memio::reset(sink);
 };
 
 @test fn quote() void = {
-	const sink = strio::dynamic();
+	const sink = memio::dynamic();
 	defer io::close(&sink)!;
 	testquote(&sink, `hello`, `hello`);
 	testquote(&sink, `hello world`, `'hello world'`);

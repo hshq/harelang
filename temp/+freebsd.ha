@@ -9,9 +9,9 @@ use errors;
 use fmt;
 use fs;
 use io;
+use memio;
 use os;
 use path;
-use strio;
 
 fn get_tmpdir() str = os::tryenv("TMPDIR", "/tmp");
 
@@ -82,10 +82,10 @@ export fn dir() str = {
 	let buf: [8]u8 = [0...], name: [16]u8 = [0...];
 	random::buffer(buf[..]);
 
-	let sink = strio::fixed(name);
+	let sink = memio::fixed(name);
 	const enc = hex::newencoder(&sink);
 	io::write(&enc, buf)!;
-	let name = strio::string(&sink);
+	let name = memio::string(&sink)!;
 
 	static let buf = path::buffer { ... };
 	path::set(&buf, get_tmpdir(), name)!;

@@ -4,17 +4,17 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
-use bufio;
 use errors;
+use fmt;
 use hare::ast;
 use hare::lex;
 use hare::parse;
 use io;
+use memio;
 use strings;
-use fmt;
 
 fn parse_type(in: str) ast::_type = {
-	let buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
+	let buf = memio::fixed(strings::toutf8(in));
 	let lex = lex::init(&buf, "<test>");
 	defer lex::finish(&lex);
 	return parse::_type(&lex)!;

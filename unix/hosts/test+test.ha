@@ -1,7 +1,7 @@
 // License: MPL-2.0
 // (c) 2023 Dmitry Matveyev <public@greenfork.me>
-use bufio;
 use io;
+use memio;
 use net::ip;
 use strings;
 
@@ -16,7 +16,7 @@ def HOSTS_FILE = `
 `;
 
 @test fn next() void = {
-	let buf = bufio::fixed(strings::toutf8(HOSTS_FILE), io::mode::READ);
+	let buf = memio::fixed(strings::toutf8(HOSTS_FILE));
 	let it = iter(&buf);
 
 	const h = next(&it) as host;
@@ -52,15 +52,15 @@ def HOSTS_FILE = `
 
 @test fn errors() void = {
 	const s = "127";
-	assert(next(&iter(&bufio::fixed(strings::toutf8(s), io::mode::READ)))
+	assert(next(&iter(&memio::fixed(strings::toutf8(s))))
 		is ip::invalid);
 	const s = "127.0.0.1";
-	assert(next(&iter(&bufio::fixed(strings::toutf8(s), io::mode::READ)))
+	assert(next(&iter(&memio::fixed(strings::toutf8(s))))
 		is invalid);
 };
 
 @test fn lookup() void = {
-	let buf = bufio::fixed(strings::toutf8(HOSTS_FILE), io::mode::READ);
+	let buf = memio::fixed(strings::toutf8(HOSTS_FILE));
 	let it = iter(&buf);
 	const addrs = iter_lookup(&it, "other.localdomain") as []ip::addr;
 	assert(len(addrs) == 2);

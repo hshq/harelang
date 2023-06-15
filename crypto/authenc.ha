@@ -2,11 +2,11 @@
 // (c) 2023 Armin Preiml <apreiml@strohwolke.at>
 // (c) 2023 Drew DeVault <sir@cmpwn.com>
 use bytes;
-use bufio;
 use crypto::chachapoly;
 use crypto::math;
 use errors;
 use io;
+use memio;
 
 // A secret session key.
 export type sessionkey = [32]u8;
@@ -79,12 +79,12 @@ export fn encrypt(
 	let s = chachapoly::chachapoly();
 	defer io::close(&s)!;
 
-	let h = bufio::fixed(plaintext, io::mode::WRITE);
+	let h = memio::fixed(plaintext);
 	chachapoly::xinit(&s, &h, key, nonce, additional...);
 	io::writeall(&s, plaintext)!;
 	let m: mac = [0...];
 	chachapoly::seal(&s, m);
-	return (m, *nonce, bufio::buffer(&h));
+	return (m, *nonce, memio::buffer(&h));
 };
 
 // Authenticates and decrypts a message encrypted with [[encrypt]]. If the
@@ -111,7 +111,7 @@ export fn decrypt(
 	defer io::close(&s)!;
 
 	let ciphertext = box.2;
-	let h = bufio::fixed(ciphertext, io::mode::READ);
+	let h = memio::fixed(ciphertext);
 	chachapoly::xinit(&s, &h, key, box.1, additional...);
 
 	let plaintext = ciphertext;

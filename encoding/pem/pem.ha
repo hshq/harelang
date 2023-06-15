@@ -6,9 +6,9 @@ use encoding::base64;
 use errors;
 use fmt;
 use io;
+use memio;
 use os;
 use strings;
-use strio;
 
 
 const begin: str = "-----BEGIN ";
@@ -16,19 +16,19 @@ const end: str = "-----END ";
 const suffix: str = "-----";
 
 export type decoder = struct {
-	in: bufio::bufstream,
-	label: strio::stream,
+	in: bufio::stream,
+	label: memio::stream,
 	buf: []u8,
 };
 
 export type b64stream = struct {
 	stream: io::stream,
-	in: *bufio::bufstream,
+	in: *bufio::stream,
 };
 
 export type pemdecoder = struct {
 	stream: io::stream,
-	in: *bufio::bufstream,
+	in: *bufio::stream,
 	b64_in: b64stream,
 	b64: base64::decoder,
 	// XXX: kind of dumb but it saves us some memory management problems
@@ -50,9 +50,9 @@ const b64stream_r_vt: io::vtable = io::vtable {
 export fn newdecoder(in: io::handle) decoder = {
 	let buf: []u8 = alloc([0...], os::BUFSIZ);
 	return decoder {
-		in = bufio::buffered(in, buf, []),
+		in = bufio::init(in, buf, []),
 		buf = buf,
-		label = strio::dynamic(),
+		label = memio::dynamic(),
 	};
 };
 
@@ -104,12 +104,12 @@ export fn next(dec: *decoder) ((str, pemdecoder) | io::EOF | io::error) = {
 			continue;
 		};
 
-		strio::reset(&dec.label);
+		memio::reset(&dec.label);
 		const label = strings::sub(line,
 			len(begin), len(line) - len(suffix));
-		strio::concat(&dec.label, label)!;
+		memio::concat(&dec.label, label)!;
 
-		return (strio::string(&dec.label), pemdecoder {
+		return (memio::string(&dec.label)!, pemdecoder {
 			stream = &pemdecoder_vt,
 			in = &dec.in,
 			b64_in = b64stream {

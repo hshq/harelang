@@ -2,15 +2,14 @@
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
-use bufio;
 use bytes;
 use crypto::random;
 use endian;
 use fmt;
 use io;
+use memio;
 use strconv;
 use strings;
-use strio;
 
 // A UUID.
 export type uuid = [16]u8;
@@ -85,18 +84,18 @@ export fn uri(out: io::handle, in: uuid) (size | io::error) = {
 // caller must use [[strings::dup]] to extend its lifetime.
 export fn encodestr(in: uuid) str = {
 	static let buf: [UUID_STRLEN]u8 = [0...];
-	let sink = strio::fixed(buf);
+	let sink = memio::fixed(buf);
 	encode(&sink, in) as size;
-	return strio::string(&sink);
+	return memio::string(&sink)!;
 };
 
 // Encodes a UUID as a string. The return value is statically allocated, the
 // caller must use [[strings::dup]] to extend its lifetime.
 export fn encodeuri(in: uuid) str = {
 	static let buf: [UUID_URILEN]u8 = [0...];
-	let sink = strio::fixed(buf);
+	let sink = memio::fixed(buf);
 	uri(&sink, in) as size;
-	return strio::string(&sink);
+	return memio::string(&sink)!;
 };
 
 @test fn encode() void = {
@@ -146,7 +145,7 @@ export fn decode(in: io::handle) (uuid | invalid | io::error) = {
 
 // Decodes a UUID from a string.
 export fn decodestr(in: str) (uuid | invalid) = {
-	let buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
+	let buf = memio::fixed(strings::toutf8(in));
 	match (decode(&buf)) {
 	case let err: io::error =>
 		abort();

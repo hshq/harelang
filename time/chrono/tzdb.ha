@@ -31,7 +31,7 @@ export fn tz(name: str) (locality | tzdberror) = {
 	const file = os::open(fpath)?;
 
 	static let buf: [os::BUFSIZ]u8 = [0...];
-	const bufstrm = bufio::buffered(file, buf, []);
+	const bufstrm = bufio::init(file, buf, []);
 
 	let loc = alloc(timezone {
 		name = strings::dup(name),

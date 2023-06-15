@@ -6,7 +6,6 @@
 // ported from Go.
 //
 // TODO: Move me into the extlib (hare-x-crypto?)
-use bufio;
 use bytes;
 use crypto::blowfish;
 use crypto::cipher;
@@ -15,6 +14,7 @@ use crypto;
 use errors;
 use fmt;
 use io;
+use memio;
 use strconv;
 use strings;
 
@@ -78,7 +78,7 @@ export fn compare(hash: []u8, password: []u8) (bool | errors::invalid) = {
 };
 
 fn mkhash(h: *hash) []u8 = {
-	let buf = bufio::dynamic(io::mode::WRITE);
+	let buf = memio::dynamic();
 	fmt::fprintf(&buf, "${}$", h.major: u32: rune)!;
 	if (h.minor != 0) {
 		fmt::fprintf(&buf, "{}", h.minor: u32: rune)!;
@@ -86,7 +86,7 @@ fn mkhash(h: *hash) []u8 = {
 	fmt::fprintf(&buf, "${:02}$", h.cost)!;
 	io::write(&buf, h.salt)!;
 	io::write(&buf, h.hash)!;
-	return bufio::buffer(&buf);
+	return memio::buffer(&buf);
 };
 
 fn hash_password(

@@ -4,10 +4,10 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
-use bufio;
 use hare::ast;
 use hare::lex;
 use io::{mode};
+use memio;
 use strings;
 
 fn import_eq(i1: ast::import, i2: ast::import) bool = {
@@ -75,7 +75,7 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 		"use modalias = quux::{alias = grault, alias2 = garply};\n"
 
 		"export fn main() void = void;";
-	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+	let buf = memio::fixed(strings::toutf8(in));
 	let lexer = lex::init(&buf, "<test>");
 	defer lex::finish(&lexer);
 	let mods = imports(&lexer)!;
@@ -116,7 +116,7 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 	assert(tok.0 == lex::ltok::EXPORT);
 
 	const in = "use a::{b = c = d};\n";
-	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+	let buf = memio::fixed(strings::toutf8(in));
 	let lexer = lex::init(&buf, "<test>");
 	defer lex::finish(&lexer);
 	assert(imports(&lexer) is error);

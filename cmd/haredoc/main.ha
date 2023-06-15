@@ -3,7 +3,6 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
-use bufio;
 use fmt;
 use fs;
 use getopt;
@@ -13,6 +12,7 @@ use hare::module;
 use hare::parse;
 use hare::unparse;
 use io;
+use memio;
 use os;
 use os::exec;
 use path;
@@ -232,7 +232,7 @@ export fn main() void = {
 // to the ident in the string. For example, this function will parse `rt::abort`
 // as a valid identifier.
 fn parseident(in: str) (ast::ident | parse::error) = {
-	const buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
+	const buf = memio::fixed(strings::toutf8(in));
 	const lexer = lex::init(&buf, "<string>");
 	defer lex::finish(&lexer);
 	let ident: []str = []; // TODO: errdefer

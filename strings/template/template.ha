@@ -4,8 +4,8 @@ use ascii;
 use errors;
 use fmt;
 use io;
+use memio;
 use strings;
-use strio;
 
 export type literal = str;
 export type variable = str;
@@ -19,7 +19,7 @@ export type param = (str, fmt::formattable);
 // Compiles a template string. The return value must be freed with [[finish]]
 // after use.
 export fn compile(input: str) (template | errors::invalid) = {
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	defer io::close(&buf)!;
 
 	let instrs: []instruction = [];
@@ -36,12 +36,12 @@ export fn compile(input: str) (template | errors::invalid) = {
 			match (strings::next(&iter)) {
 			case let next_rn: rune =>
 				if (next_rn == '$') {
-					strio::appendrune(&buf, rn)!;
+					memio::appendrune(&buf, rn)!;
 				} else {
 					strings::prev(&iter);
-					const lit = strio::string(&buf);
+					const lit = memio::string(&buf)!;
 					append(instrs, strings::dup(lit): literal);
-					strio::reset(&buf);
+					memio::reset(&buf);
 
 					parse_variable(&instrs, &iter, &buf)?;
 				};
@@ -49,12 +49,12 @@ export fn compile(input: str) (template | errors::invalid) = {
 				return errors::invalid;
 			};
 		} else {
-			strio::appendrune(&buf, rn)!;
+			memio::appendrune(&buf, rn)!;
 		};
 	};
 
-	if (len(strio::string(&buf)) != 0) {
-		const lit = strio::string(&buf);
+	if (len(memio::string(&buf)!) != 0) {
+		const lit = memio::string(&buf)!;
 		append(instrs, strings::dup(lit): literal);
 	};
 
@@ -109,7 +109,7 @@ fn get_param(name: str, params: param...) fmt::formattable = {
 fn parse_variable(
 	instrs: *[]instruction,
 	iter: *strings::iterator,
-	buf: *strio::stream,
+	buf: *memio::stream,
 ) (void | errors::invalid) = {
 	let brace = false;
 	match (strings::next(iter)) {
@@ -135,13 +135,13 @@ fn parse_variable(
 			if (rn == '{') {
 				return errors::invalid;
 			} else if (rn != '}') {
-				strio::appendrune(buf, rn)!;
+				memio::appendrune(buf, rn)!;
 			} else {
 				break;
 			};
 		} else {
 			if (ascii::isalnum(rn)) {
-				strio::appendrune(buf, rn)!;
+				memio::appendrune(buf, rn)!;
 			} else {
 				strings::prev(iter);
 				break;
@@ -149,9 +149,9 @@ fn parse_variable(
 		};
 	};
 
-	const var = strio::string(buf);
+	const var = memio::string(buf)!;
 	append(instrs, strings::dup(var): variable);
-	strio::reset(buf);
+	memio::reset(buf);
 };
 
 def test_input: str = `Dear ${recipient},
@@ -170,7 +170,7 @@ foreign bank account balance of $1,000,000 to you.`;
 	const tmpl = compile(test_input)!;
 	defer finish(&tmpl);
 
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	defer io::close(&buf)!;
 
 	execute(&tmpl, &buf,
@@ -179,5 +179,5 @@ foreign bank account balance of $1,000,000 to you.`;
 		("brother", "Elon Musk"),
 	)!;
 
-	assert(strio::string(&buf) == test_output);
+	assert(memio::string(&buf)! == test_output);
 };

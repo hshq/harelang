@@ -16,7 +16,6 @@ use os;
 use path;
 use shlex;
 use strings;
-use strio;
 
 fn getenv(var: str) []str = {
 	match (os::getenv(var)) {

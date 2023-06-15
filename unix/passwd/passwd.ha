@@ -4,6 +4,7 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use bufio;
 use io;
+use memio;
 use os;
 use strconv;
 use strings;
@@ -150,9 +151,9 @@ export fn getuid(uid: uint) (pwent | void) = {
 };
 
 @test fn nextpw() void = {
-	let buf = bufio::fixed(strings::toutf8(
+	let buf = memio::fixed(strings::toutf8(
 		"sircmpwn:x:1000:1000:sircmpwn's comment:/home/sircmpwn:/bin/mrsh\n"
-		"alex:x:1001:1001::/home/alex:/bin/zsh"), io::mode::READ);
+		"alex:x:1001:1001::/home/alex:/bin/zsh"));
 
 	let ent = nextpw(&buf) as pwent;
 	defer pwent_finish(&ent);

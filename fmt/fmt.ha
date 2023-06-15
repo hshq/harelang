@@ -6,10 +6,10 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use ascii;
-use bufio;
 use encoding::utf8;
 use io;
 use math;
+use memio;
 use os;
 use strconv;
 use strings;
@@ -44,16 +44,16 @@ export fn errorfln(fmt: str, args: field...) (size | io::error) =
 // Formats text for printing and writes it into a heap-allocated string. The
 // caller must free the return value.
 export fn asprintf(fmt: str, args: field...) str = {
-	let buf = bufio::dynamic(io::mode::WRITE);
+	let buf = memio::dynamic();
 	assert(fprintf(&buf, fmt, args...) is size);
-	return strings::fromutf8_unsafe(bufio::buffer(&buf));
+	return strings::fromutf8_unsafe(memio::buffer(&buf));
 };
 
 // Formats text for printing and writes it into a caller supplied buffer. The
 // returned string is borrowed from this buffer. Aborts if the buffer isn't
 // large enough to hold the formatted text.
 export fn bsprintf(buf: []u8, fmt: str, args: field...) str = {
-	let sink = bufio::fixed(buf, io::mode::WRITE);
+	let sink = memio::fixed(buf);
 	let l = fprintf(&sink, fmt, args...)!;
 	return strings::fromutf8_unsafe(buf[..l]);
 };
@@ -107,9 +107,9 @@ export fn errorln(args: formattable...) (size | io::error) =
 // them into a heap-allocated string separated by spaces. The caller must free
 // the return value.
 export fn asprint(args: formattable...) str = {
-	let buf = bufio::dynamic(io::mode::WRITE);
+	let buf = memio::dynamic();
 	assert(fprint(&buf, args...) is size);
-	return strings::fromutf8_unsafe(bufio::buffer(&buf));
+	return strings::fromutf8_unsafe(memio::buffer(&buf));
 };
 
 // Formats values for printing using the default format modifiers and writes
@@ -117,7 +117,7 @@ export fn asprint(args: formattable...) str = {
 // is borrowed from this buffer. Aborts if the buffer isn't large enough to hold
 // the formatted text.
 export fn bsprint(buf: []u8, args: formattable...) str = {
-	let sink = bufio::fixed(buf, io::mode::WRITE);
+	let sink = memio::fixed(buf);
 	let l = fprint(&sink, args...)!;
 	return strings::fromutf8_unsafe(buf[..l]);
 };

@@ -4,10 +4,10 @@
 use ascii;
 use encoding::utf8;
 use io;
+use memio;
 use net::ip;
 use strconv;
 use strings;
-use strio;
 
 // The URI provided to [[parse]] is invalid.
 export type invalid = !void;
@@ -132,7 +132,7 @@ fn parse_authority(
 	in: *strings::iterator,
 ) (((str | ip::addr6), u16, str) | invalid) = {
 	// Scan everything until '@' or ':' or '/', then decide what it is
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	defer io::close(&buf)!;
 	let host: (str | ip::addr6) = "";
 	let port = 0u16;
@@ -148,25 +148,25 @@ fn parse_authority(
 		};
 
 		if (r == '[') {
-			if (len(strio::string(&buf)) > 0) {
+			if (len(memio::string(&buf)!) > 0) {
 				if (len(userinfo) > 0) {
 					return invalid;
 				} else {
 					userinfo = percent_decode(
-						strio::string(&buf))?;
+						memio::string(&buf)!)?;
 				};
 			};
-			strio::reset(&buf);
+			memio::reset(&buf);
 
 			for (true) {
 				const r = wantrune(in)?;
 				if (r == ']') {
 					break;
 				};
-				strio::appendrune(&buf, r)!;
+				memio::appendrune(&buf, r)!;
 			};
 
-			const addr = percent_decode(strio::string(&buf))?;
+			const addr = percent_decode(memio::string(&buf)!)?;
 			match (ip::parse(addr)) {
 			case let v6: ip::addr6 =>
 				host = v6;
@@ -180,24 +180,24 @@ fn parse_authority(
 					return invalid;
 				};
 				// This was userinfo+host[+port]
-				userinfo = percent_decode(strio::string(&buf))?;
-				strio::reset(&buf);
+				userinfo = percent_decode(memio::string(&buf)!)?;
+				memio::reset(&buf);
 				has_userinfo = true;
 			case '/' =>
 				// This was just host
 				strings::prev(in);
-				host = percent_decode(strio::string(&buf))?;
+				host = percent_decode(memio::string(&buf)!)?;
 				break;
 			case ':' =>
 				// This was host+port
-				host = percent_decode(strio::string(&buf))?;
+				host = percent_decode(memio::string(&buf)!)?;
 				port = parse_port(in)?;
 				break;
 			case =>
 				return invalid;
 			};
 		} else {
-			strio::appendrune(&buf, r)!;
+			memio::appendrune(&buf, r)!;
 		};
 	};
 
@@ -205,7 +205,7 @@ fn parse_authority(
 	case let s: str =>
 		// In end of string case
 		if (len(s) == 0) {
-			host = percent_decode(strio::string(&buf))?;
+			host = percent_decode(memio::string(&buf)!)?;
 		};
 	case => yield;
 	};
@@ -327,27 +327,27 @@ fn parse_port(in: *strings::iterator) (u16 | invalid) = {
 };
 
 fn percent_decode(s: str) (str | invalid) = {
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	percent_decode_static(&buf, s)?;
-	return strio::string(&buf);
+	return memio::string(&buf)!;
 };
 
 fn percent_decode_static(out: io::handle, s: str) (void | invalid) = {
 	let iter = strings::iter(s);
-	let tmp = strio::dynamic();
+	let tmp = memio::dynamic();
 	defer io::close(&tmp)!;
 	let percent_data: []u8 = [];
 	for (true) {
 		match (strings::next(&iter)) {
 		case let r: rune =>
 			if (r == '%') {
-				strio::reset(&tmp);
+				memio::reset(&tmp);
 				for (let i = 0z; i < 2; i += 1) {
 					const r = wantrune(&iter)?;
-					strio::appendrune(&tmp, r)!;
+					memio::appendrune(&tmp, r)!;
 				};
 
-				match (strconv::stou8b(strio::string(&tmp),
+				match (strconv::stou8b(memio::string(&tmp)!,
 					strconv::base::HEX)) {
 				case let ord: u8 =>
 					append(percent_data, ord);
@@ -358,7 +358,7 @@ fn percent_decode_static(out: io::handle, s: str) (void | invalid) = {
 				if(len(percent_data) > 0) {
 					match(strings::fromutf8(percent_data)) {
 					case let stro: str =>
-						strio::concat(out, stro)!;
+						memio::concat(out, stro)!;
 					case utf8::invalid =>
 						return invalid;
 					};
@@ -366,13 +366,13 @@ fn percent_decode_static(out: io::handle, s: str) (void | invalid) = {
 					percent_data = [];
 				};
 
-				strio::appendrune(out, r)!;
+				memio::appendrune(out, r)!;
 			};
 		case void =>
 			if(len(percent_data) > 0) {
 				match(strings::fromutf8(percent_data)) {
 				case let stro: str =>
-					strio::concat(out, stro)!;
+					memio::concat(out, stro)!;
 				case utf8::invalid =>
 					return invalid;
 				};

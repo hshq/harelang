@@ -11,7 +11,6 @@ use hare::unparse;
 use io;
 use os;
 use strings;
-use strio;
 
 // Formats output as Hare source code (prototypes)
 fn emit_hare(ctx: *context) (void | error) = {

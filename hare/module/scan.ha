@@ -13,10 +13,10 @@ use hare::lex;
 use hare::parse;
 use hash;
 use io;
+use memio;
 use path;
 use sort;
 use strings;
-use strio;
 use bufio;
 use os;
 
@@ -358,7 +358,7 @@ fn scan_file(
 	let truef = fs::open(ctx.fs, path)?;
 	defer io::close(truef)!;
 	let rbuf: [os::BUFSIZ]u8 = [0...];
-	let f = &bufio::buffered(truef, rbuf, []);
+	let f = &bufio::init(truef, rbuf, []);
 	let sha = sha256::sha256();
 	hash::write(&sha, strings::toutf8(path));
 	hash::write(&sha, [ABI_VERSION]);
@@ -431,19 +431,19 @@ export fn parsetags(in: str) ([]tag | void) = {
 		case '-' =>
 			yield tag_mode::EXCLUSIVE;
 		};
-		let buf = strio::dynamic();
+		let buf = memio::dynamic();
 		for (true) match (strings::next(&iter)) {
 		case void =>
 			break;
 		case let r: rune =>
 			if (ascii::isalnum(r) || r == '_') {
-				strio::appendrune(&buf, r)!;
+				memio::appendrune(&buf, r)!;
 			} else {
 				strings::prev(&iter);
 				break;
 			};
 		};
-		t.name = strio::string(&buf);
+		t.name = memio::string(&buf)!;
 		append(tags, t);
 	};
 	return tags;

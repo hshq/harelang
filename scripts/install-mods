@@ -19,6 +19,7 @@ io
 linux
 log
 math
+memio
 mime
 net
 os
@@ -29,7 +30,6 @@ shlex
 sort
 strconv
 strings
-strio
 temp
 test
 time

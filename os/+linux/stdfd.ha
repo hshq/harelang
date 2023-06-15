@@ -5,14 +5,14 @@ use bufio;
 use io;
 use rt;
 
-let stdin_bufio: bufio::bufstream = bufio::bufstream {
+let stdin_bufio: bufio::stream = bufio::stream {
 	// Will be overwritten, but must be initialized
 	stream = null: io::stream,
 	source = 0,
 	...
 };
 
-let stdout_bufio: bufio::bufstream = bufio::bufstream {
+let stdout_bufio: bufio::stream = bufio::stream {
 	// Will be overwritten, but must be initialized
 	stream = null: io::stream,
 	source = 1,
@@ -42,11 +42,11 @@ export def BUFSIZ: size = 4096; // 4 KiB
 
 @init fn init_stdfd() void = {
 	static let stdinbuf: [BUFSIZ]u8 = [0...];
-	stdin_bufio = bufio::buffered(stdin_file, stdinbuf, []);
+	stdin_bufio = bufio::init(stdin_file, stdinbuf, []);
 	stdin = &stdin_bufio;
 
 	static let stdoutbuf: [BUFSIZ]u8 = [0...];
-	stdout_bufio = bufio::buffered(stdout_file, [], stdoutbuf);
+	stdout_bufio = bufio::init(stdout_file, [], stdoutbuf);
 	stdout = &stdout_bufio;
 };
 
