@@ -266,9 +266,6 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, calc: calculus) void = {
 };
 
 @test fn reckon() void = {
-	const Amst = chrono::tz("Europe/Amsterdam")!;
-	defer chrono::timezone_free(Amst);
-
 	// no-op period, calculus::CEIL
 
 	let p = period { ... };
@@ -281,7 +278,7 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, calc: calculus) void = {
 	let r = reckon(a, 0, p);
 	assert(chrono::eq(&a, &r)!, "02. incorrect result");
 
-	let a = new(Amst, 1 * time::HOUR,  2019, 12, 27,  22,  7,  8,         0)!;
+	let a = new(chrono::UTC, 0,  1970,  1,  1,   0,  0,  0,         0)!;
 	let r = reckon(a, 0, p);
 	assert(chrono::eq(&a, &r)!, "03. incorrect result");
 

@@ -234,9 +234,6 @@ export fn from_str(
 };
 
 @test fn from_str() void = {
-	const amst = chrono::tz("Europe/Amsterdam")!;
-	defer chrono::timezone_free(amst);
-
 	let testcases: [_](str, str, []chrono::locality, (date | error)) = [
 		(STAMP_NOZL, "2001-02-03 15:16:17.123456789 +0000 UTC UTC", [],
 			new(chrono::UTC, 0, 2001, 2, 3, 15, 16, 17, 123456789)!),
@@ -254,8 +251,10 @@ export fn from_str(
 			new(chrono::UTC, 0, 2009, 6, 30, 18, 30)!),
 		("%FT%T.%N%Z", "2009-06-30T18:30:00.987654321Z", [],
 			new(chrono::UTC, 0, 2009, 6, 30, 18, 30, 0, 987654321)!),
-		("%FT%T%z %L", "2009-06-30T18:30:00+0200 Europe/Amsterdam", [amst],
-			new(amst, 2 * time::HOUR, 2009, 6, 30, 18, 30)!),
+		// TODO: for the tests overhaul, when internal test timezones
+		// are available, check for %L
+		//("%FT%T%z %L", "2009-06-30T18:30:00+0200 Europe/Amsterdam", [amst],
+		//	new(amst, 2 * time::HOUR, 2009, 6, 30, 18, 30)!),
 
 		("%Y", "a", [], 'a': parsefail),
 		("%X", "2008", [], '2': parsefail),
