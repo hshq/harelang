@@ -2,6 +2,7 @@
 // (c) 2022 Vlad-Stefan Harbuz <vlad@vladh.net>
 use fmt;
 use strings;
+use types;
 
 type matchres = enum { MATCH, NOMATCH, ERROR };
 
@@ -137,6 +138,7 @@ fn run_replace_case(
 	expr: str,
 	string: str,
 	target: str,
+	n: size,
 	expected: (str | void),
 ) void = {
 	const re = match (compile(expr)) {
@@ -149,25 +151,25 @@ fn run_replace_case(
 	};
 	defer finish(&re);
 
-	match (replace(&re, string, target)) {
+	match (replacen(&re, string, target, n)) {
 	case let e: error =>
 		if (expected is str) {
 			fmt::errorln(e)!;
-			fmt::errorfln("expr=/{}/ string=\"{}\" target=\"{}\" expected=\"{}\"",
-				expr, string, target, expected as str)!;
+			fmt::errorfln("expr=/{}/ string=\"{}\" target=\"{}\" n={} expected=\"{}\"",
+				expr, string, target, n, expected as str)!;
 			abort();
 		};
 	case let s: str =>
 		defer free(s);
 		if (expected is void) {
 			fmt::errorln("Expected replace to fail, but it did not")!;
-			fmt::errorfln("expr=/{}/ string=\"{}\" target=\"{}\" return=\"{}\"",
-				expr, string, target, s)!;
+			fmt::errorfln("expr=/{}/ string=\"{}\" target=\"{}\" n={} return=\"{}\"",
+				expr, string, target, n, s)!;
 			abort();
 		};
 		if (expected as str != s) {
-			fmt::errorfln("expr=/{}/ string=\"{}\" target=\"{}\" expected=\"{}\" return=\"{}\"",
-				expr, string, target, expected as str, s)!;
+			fmt::errorfln("expr=/{}/ string=\"{}\" target=\"{}\" n={} expected=\"{}\" return=\"{}\"",
+				expr, string, target, n, expected as str, s)!;
 			abort();
 		};
 	};
@@ -177,6 +179,7 @@ fn run_rawreplace_case(
 	expr: str,
 	string: str,
 	target: str,
+	n: size,
 	expected: str,
 ) void = {
 	const re = match (compile(expr)) {
@@ -189,11 +192,11 @@ fn run_rawreplace_case(
 	};
 	defer finish(&re);
 
-	const s = rawreplace(&re, string, target);
+	const s = rawreplacen(&re, string, target, n);
 	defer free(s);
 	if (expected != s) {
-		fmt::errorfln("expr=/{}/ string=\"{}\" target=\"{}\" expected=\"{}\" return=\"{}\"",
-			expr, string, target, expected, s)!;
+		fmt::errorfln("expr=/{}/ string=\"{}\" target=\"{}\" n={} expected=\"{}\" return=\"{}\"",
+			expr, string, target, n, expected, s)!;
 		abort();
 	};
 };
@@ -676,46 +679,55 @@ fn run_rawreplace_case(
 };
 
 @test fn replace() void = {
-	const cases: [_](str, str, str, (str | void)) = [
+	const cases: [_](str, str, str, size, (str | void)) = [
 		(`ab.`, "hello abc and abあ test abq thanks", `xyz`,
-			"hello xyz and xyz test xyz thanks"),
+			types::SIZE_MAX, "hello xyz and xyz test xyz thanks"),
 		(`([Hh])ello`, "Hello world and hello Hare.", `\1owdy`,
-			"Howdy world and howdy Hare."),
+			types::SIZE_MAX, "Howdy world and howdy Hare."),
 		(`fo{2,}`, "fo foo fooofoof oofoo", `\0bar`,
-			"fo foobar fooobarfoobarf oofoobar"),
+			types::SIZE_MAX, "fo foobar fooobarfoobarf oofoobar"),
 		(`(1)(2)(3)(4)(5)(6)(7)(8)(9)(10)`, "12345678910", `\10`,
-			"10"),
+			types::SIZE_MAX, "10"),
 		(`...?`, "abcdefgh", `\7\0\8`,
-			"abcdefgh"),
-		(`...?`, "abcdefgh", `\7\0\`, void),
+			types::SIZE_MAX, "abcdefgh"),
+		(`...?`, "abcdefgh", `\7\0\`, types::SIZE_MAX, void),
+		(`ab.`, "hello abc and abあ test abq thanks", `xyz`,
+			2, "hello xyz and xyz test abq thanks"),
+		(`.`, "blablabla", `x`, 0, "blablabla"),
+		(`([[:digit:]])([[:digit:]])`, "1234", `\2`, 1, "234"),
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {
 		const expr = cases[i].0;
 		const string = cases[i].1;
 		const target = cases[i].2;
-		const expected = cases[i].3;
-		run_replace_case(expr, string, target, expected);
+		const n = cases[i].3;
+		const expected = cases[i].4;
+		run_replace_case(expr, string, target, n, expected);
 	};
 };
 
 @test fn rawreplace() void = {
 	const cases = [
 		(`ab.`, "hello abc and abあ test abq thanks", "xyz",
-			"hello xyz and xyz test xyz thanks"),
+			types::SIZE_MAX, "hello xyz and xyz test xyz thanks"),
 		(`([Hh])ello`, "Hello world and hello Hare.", `\howdy\`,
-			`\howdy\ world and \howdy\ Hare.`),
+			types::SIZE_MAX, `\howdy\ world and \howdy\ Hare.`),
 		(`fo{2,}`, "fo foo fooofoof oofoo", `\0bar`,
-			`fo \0bar \0bar\0barf oo\0bar`),
+			types::SIZE_MAX, `fo \0bar \0bar\0barf oo\0bar`),
 		(`\\\\`, `\\\\\\\\`, `\00\1`,
-			`\00\1\00\1\00\1\00\1`),
+			types::SIZE_MAX, `\00\1\00\1\00\1\00\1`),
+		(`ab.`, "hello abc and abあ test abq thanks", `xyz`,
+			2, "hello xyz and xyz test abq thanks"),
+		(`.`, "blablabla", `x`, 0, "blablabla"),
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {
 		const expr = cases[i].0;
 		const string = cases[i].1;
 		const target = cases[i].2;
-		const expected = cases[i].3;
-		run_rawreplace_case(expr, string, target, expected);
+		const n = cases[i].3;
+		const expected = cases[i].4;
+		run_rawreplace_case(expr, string, target, n, expected);
 	};
 };

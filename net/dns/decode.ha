@@ -201,10 +201,14 @@ fn decode_rdata(dec: *decoder, rtype: rtype, rlen: size) (rdata | format) = {
 		return decode_mx(&sub);
 	case rtype::NS =>
 		return decode_ns(&sub);
+	case rtype::PTR =>
+		return decode_ptr(&sub);
 	case rtype::SOA =>
 		return decode_soa(&sub);
 	case rtype::SRV =>
 		return decode_srv(&sub);
+	case rtype::SSHFP =>
+		return decode_sshfp(&sub);
 	case rtype::TXT =>
 		return decode_txt(&sub);
 	case =>
@@ -278,6 +282,12 @@ fn decode_ns(dec: *decoder) (rdata | format) = {
 	};
 };
 
+fn decode_ptr(dec: *decoder) (rdata | format) = {
+	return ptr {
+		name = decode_name(dec)?,
+	};
+};
+
 fn decode_soa(dec: *decoder) (rdata | format) = {
 	return soa {
 		mname = decode_name(dec)?,
@@ -296,6 +306,16 @@ fn decode_srv(dec: *decoder) (rdata | format) = {
 		port = decode_u16(dec)?,
 		target = decode_name(dec)?,
 	};
+};
+
+fn decode_sshfp(dec: *decoder) (rdata | format) = {
+	let r = sshfp {
+		algorithm = decode_u8(dec)?,
+		fp_type = decode_u8(dec)?,
+		fingerprint = [],
+	};
+	append(r.fingerprint, dec.cur[..]...);
+	return r;
 };
 
 fn decode_txt(dec: *decoder) (rdata | format) = {

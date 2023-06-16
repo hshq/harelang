@@ -211,11 +211,9 @@ let TZ_LOCAL: timezone = timezone {
 @init fn init_tz_local() void = {
 	match (os::getenv("TZ")) {
 	case let timezone: str =>
-		TZ_LOCAL = match (tz(timezone)) {
+		match (tz(timezone)) {
 		case let loc: locality =>
-			const tz = *loc;
-			timezone_free(loc);
-			yield tz;
+			TZ_LOCAL = *loc;
 		case =>
 			return;
 		};

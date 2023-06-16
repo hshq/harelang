@@ -3,6 +3,7 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use net;
 use net::dns;
+use unix::hosts;
 
 // Returned if the address parameter was invalid, for example if it specifies an
 // invalid port number.
@@ -13,7 +14,8 @@ export type invalid_address = !void;
 export type unknown_service = !void;
 
 // Errors which can occur from dial.
-export type error = !(invalid_address | unknown_service | net::error | dns::error);
+export type error = !(invalid_address | unknown_service | net::error | dns::error
+	| hosts::error);
 
 // Converts an [[error]] to a human-readable string.
 export fn strerror(err: error) const str = {
@@ -27,6 +29,8 @@ export fn strerror(err: error) const str = {
 		return net::strerror(err);
 	case let err: dns::error =>
 		return dns::strerror(err);
+	case let err: hosts::error =>
+		return hosts::strerror(err);
 	};
 };
 

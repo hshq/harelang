@@ -2325,7 +2325,7 @@ $(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_st
 stdlib_regex_any_srcs = \
 	$(STDLIB)/regex/regex.ha
 
-$(HARECACHE)/regex/regex-any.ssa: $(stdlib_regex_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM))
+$(HARECACHE)/regex/regex-any.ssa: $(stdlib_regex_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/regex
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nregex \
@@ -2700,9 +2700,9 @@ $(HARECACHE)/unix/unix-darwin.ssa: $(stdlib_unix_darwin_srcs) $(stdlib_rt) $(std
 # unix::hosts (+linux)
 stdlib_unix_hosts_linux_srcs = \
 	$(STDLIB)/unix/hosts/+linux.ha \
-	$(STDLIB)/unix/hosts/lookup.ha
+	$(STDLIB)/unix/hosts/hosts.ha
 
-$(HARECACHE)/unix/hosts/unix_hosts-linux.ssa: $(stdlib_unix_hosts_linux_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+$(HARECACHE)/unix/hosts/unix_hosts-linux.ssa: $(stdlib_unix_hosts_linux_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/hosts
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::hosts \
@@ -2711,9 +2711,9 @@ $(HARECACHE)/unix/hosts/unix_hosts-linux.ssa: $(stdlib_unix_hosts_linux_srcs) $(
 # unix::hosts (+freebsd)
 stdlib_unix_hosts_freebsd_srcs = \
 	$(STDLIB)/unix/hosts/+freebsd.ha \
-	$(STDLIB)/unix/hosts/lookup.ha
+	$(STDLIB)/unix/hosts/hosts.ha
 
-$(HARECACHE)/unix/hosts/unix_hosts-freebsd.ssa: $(stdlib_unix_hosts_freebsd_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
+$(HARECACHE)/unix/hosts/unix_hosts-freebsd.ssa: $(stdlib_unix_hosts_freebsd_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/hosts
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::hosts \
@@ -5285,7 +5285,7 @@ testlib_regex_any_srcs = \
 	$(STDLIB)/regex/regex.ha \
 	$(STDLIB)/regex/+test.ha
 
-$(TESTCACHE)/regex/regex-any.ssa: $(testlib_regex_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_bufio_$(PLATFORM))
+$(TESTCACHE)/regex/regex-any.ssa: $(testlib_regex_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/regex
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nregex \
@@ -5667,9 +5667,10 @@ $(TESTCACHE)/unix/unix-darwin.ssa: $(testlib_unix_darwin_srcs) $(testlib_rt) $(t
 # unix::hosts (+linux)
 testlib_unix_hosts_linux_srcs = \
 	$(STDLIB)/unix/hosts/+linux.ha \
-	$(STDLIB)/unix/hosts/lookup.ha
+	$(STDLIB)/unix/hosts/test+test.ha \
+	$(STDLIB)/unix/hosts/hosts.ha
 
-$(TESTCACHE)/unix/hosts/unix_hosts-linux.ssa: $(testlib_unix_hosts_linux_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/unix/hosts/unix_hosts-linux.ssa: $(testlib_unix_hosts_linux_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/hosts
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
@@ -5678,9 +5679,10 @@ $(TESTCACHE)/unix/hosts/unix_hosts-linux.ssa: $(testlib_unix_hosts_linux_srcs) $
 # unix::hosts (+freebsd)
 testlib_unix_hosts_freebsd_srcs = \
 	$(STDLIB)/unix/hosts/+freebsd.ha \
-	$(STDLIB)/unix/hosts/lookup.ha
+	$(STDLIB)/unix/hosts/test+test.ha \
+	$(STDLIB)/unix/hosts/hosts.ha
 
-$(TESTCACHE)/unix/hosts/unix_hosts-freebsd.ssa: $(testlib_unix_hosts_freebsd_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
+$(TESTCACHE)/unix/hosts/unix_hosts-freebsd.ssa: $(testlib_unix_hosts_freebsd_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/hosts
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
