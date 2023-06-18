@@ -67,6 +67,7 @@ stdlib_rt_darwin_srcs = \
 	$(STDLIB)/rt/+darwin/segmalloc.ha \
 	$(STDLIB)/rt/+darwin/signal.ha \
 	$(STDLIB)/rt/+darwin/socket.ha \
+	$(STDLIB)/rt/+darwin/+$(ARCH).ha \
 	$(STDLIB)/rt/+darwin/syscallno.ha \
 	$(STDLIB)/rt/+darwin/syscalls.ha \
 	$(STDLIB)/rt/+darwin/types.ha \
@@ -2257,6 +2258,7 @@ stdlib_os_darwin_srcs = \
 	$(STDLIB)/os/+darwin/status.ha \
 	$(STDLIB)/os/+darwin/stdfd.ha \
 	$(STDLIB)/os/+darwin/fs.ha \
+	$(STDLIB)/os/environ.ha \
 	$(STDLIB)/os/os.ha
 
 $(HARECACHE)/os/os-darwin.ssa: $(stdlib_os_darwin_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
@@ -2965,6 +2967,7 @@ testlib_rt_darwin_srcs = \
 	$(STDLIB)/rt/+darwin/segmalloc.ha \
 	$(STDLIB)/rt/+darwin/signal.ha \
 	$(STDLIB)/rt/+darwin/socket.ha \
+	$(STDLIB)/rt/+darwin/+$(ARCH).ha \
 	$(STDLIB)/rt/+darwin/syscallno.ha \
 	$(STDLIB)/rt/+darwin/syscalls.ha \
 	$(STDLIB)/rt/+darwin/types.ha \
@@ -5216,6 +5219,7 @@ testlib_os_darwin_srcs = \
 	$(STDLIB)/os/+darwin/status.ha \
 	$(STDLIB)/os/+darwin/stdfd.ha \
 	$(STDLIB)/os/+darwin/fs.ha \
+	$(STDLIB)/os/environ.ha \
 	$(STDLIB)/os/os.ha
 
 $(TESTCACHE)/os/os-darwin.ssa: $(testlib_os_darwin_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))

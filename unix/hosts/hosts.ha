@@ -44,8 +44,8 @@ case let err: fs::error =>
 	return fs::strerror(err);
 };
 
-// Creates an [[hosts::iterator]] for a provided [[io::handle]] pointing to
-// the /etc/hosts file. The user should call [[hosts::next]] to iterate through
+// Creates an [[iterator]] for a provided [[io::handle]] pointing to
+// the /etc/hosts file. The user should call [[next]] to iterate through
 // host lines.
 export fn iter(in: io::handle) iterator = iterator {
 	handle = in,

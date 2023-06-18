@@ -167,7 +167,7 @@ fn platform_start(cmd: *command) (process | errors::error) = {
 	case void => void;
 	};
 
-	match (rt::clone(null, rt::SIGCHLD, null, null, 0)) {
+	match (rt::fork()) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let pid: int =>

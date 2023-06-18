@@ -78,6 +78,7 @@ gensrcs_rt() {
 		+darwin/segmalloc.ha \
 		+darwin/signal.ha \
 		+darwin/socket.ha \
+		+darwin/'+$(ARCH)'.ha \
 		+darwin/syscallno.ha \
 		+darwin/syscalls.ha \
 		+darwin/types.ha \
@@ -1286,6 +1287,7 @@ os() {
 		+darwin/status.ha \
 		+darwin/stdfd.ha \
 		+darwin/fs.ha \
+		environ.ha \
 		os.ha
 	gen_ssa -pdarwin os io strings fs encoding::utf8 bufio \
 		errors types::c
