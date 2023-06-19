@@ -96,24 +96,34 @@ export fn xsalsa20_init(
 	assert(len(key) == KEYSIZE);
 	assert(len(nonce) == XNONCESIZE);
 
+	let dkey: [32]u8 = [0...];
+	defer bytes::zero(dkey);
+	hsalsa20(&dkey, key, nonce[..16]);
+	salsa20_init(s, h, &dkey, nonce[16..]: *[NONCESIZE]u8);
+};
+
+// Derives a new key from 'key' and 'nonce' as used during XSalsa20
+// initialization. This function may only be used for specific purposes
+// such as X25519 key derivation. Do not use if in doubt.
+export fn hsalsa20(out: []u8, key: []u8, nonce: []u8) void = {
+	assert(len(out) == KEYSIZE);
+	assert(len(key) == KEYSIZE);
+	assert(len(nonce) == 16);
+
 	let state: [16]u32 = [0...];
+	defer bytes::zero((state: []u8: *[*]u8)[..BLOCKSIZE]);
+
 	init(&state, key, nonce[0..8]: *[8]u8, nonce[8..16]: *[8]u8);
 	hblock(state[..], &state, 20);
 
-	let dkey: [32]u8 = [0...];
-	endian::leputu32(dkey[0..4], state[0]);
-	endian::leputu32(dkey[4..8], state[5]);
-	endian::leputu32(dkey[8..12], state[10]);
-	endian::leputu32(dkey[12..16], state[15]);
-	endian::leputu32(dkey[16..20], state[6]);
-	endian::leputu32(dkey[20..24], state[7]);
-	endian::leputu32(dkey[24..28], state[8]);
-	endian::leputu32(dkey[28..], state[9]);
-
-	salsa20_init(s, h, &dkey, nonce[16..]: *[NONCESIZE]u8);
-
-	bytes::zero((state[..]: *[*]u8)[..64]);
-	bytes::zero(dkey);
+	endian::leputu32(out[0..4], state[0]);
+	endian::leputu32(out[4..8], state[5]);
+	endian::leputu32(out[8..12], state[10]);
+	endian::leputu32(out[12..16], state[15]);
+	endian::leputu32(out[16..20], state[6]);
+	endian::leputu32(out[20..24], state[7]);
+	endian::leputu32(out[24..28], state[8]);
+	endian::leputu32(out[28..32], state[9]);
 };
 
 // Advances the key stream to "seek" to a future state by 'counter' times
