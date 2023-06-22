@@ -341,6 +341,9 @@ fn decode_reader(
 	for (nr < nn) {
 		match (io::read(s.in, buf[nr..])) {
 		case let n: size =>
+			if (n == 0) {
+				break;
+			};
 			nr += n;
 		case io::EOF =>
 			s.state = io::EOF;
