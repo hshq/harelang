@@ -74,6 +74,17 @@ fn decode_u32(dec: *decoder) (u32 | format) = {
 	return val;
 };
 
+fn decode_u48(dec: *decoder) (u64 | format) = {
+	if (len(dec.cur) < 6) {
+		return format;
+	};
+	let buf: [8]u8 = [0...];
+	buf[2..] = dec.cur[..6];
+	const val = endian::begetu64(buf[..]);
+	dec.cur = dec.cur[6..];
+	return val;
+};
+
 fn decode_header(dec: *decoder, head: *header) (void | format) = {
 	head.id = decode_u16(dec)?;
 	const rawop = decode_u16(dec)?;
@@ -209,6 +220,8 @@ fn decode_rdata(dec: *decoder, rtype: rtype, rlen: size) (rdata | format) = {
 		return decode_srv(&sub);
 	case rtype::SSHFP =>
 		return decode_sshfp(&sub);
+	case rtype::TSIG =>
+		return decode_tsig(&sub);
 	case rtype::TXT =>
 		return decode_txt(&sub);
 	case =>
@@ -315,6 +328,40 @@ fn decode_sshfp(dec: *decoder) (rdata | format) = {
 		fingerprint = [],
 	};
 	append(r.fingerprint, dec.cur[..]...);
+	return r;
+};
+
+fn decode_tsig(dec: *decoder) (rdata | format) = {
+	let success = false;
+	let r = tsig {
+		algorithm = decode_name(dec)?,
+		...
+	};
+	defer if (!success) free(r.algorithm);
+
+	r.time_signed = decode_u48(dec)?;
+	r.fudge = decode_u16(dec)?;
+	r.mac_len = decode_u16(dec)?;
+
+	if (len(dec.cur) < r.mac_len) {
+		return format;
+	};
+	append(r.mac, dec.cur[..r.mac_len]...);
+	defer if (!success) free(r.mac);
+	dec.cur = dec.cur[r.mac_len..];
+
+	r.orig_id = decode_u16(dec)?;
+	r.error = decode_u16(dec)?;
+	r.other_len = decode_u16(dec)?;
+
+	if (len(dec.cur) != r.other_len) {
+		return format;
+	};
+	if (r.other_len > 0) {
+		append(r.other_data, dec.cur[..]...);
+	};
+
+	success = true;
 	return r;
 };
 

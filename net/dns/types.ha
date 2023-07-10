@@ -203,6 +203,19 @@ export type sshfp = struct {
 	fingerprint: []u8,
 };
 
+// A TSIG record.
+export type tsig = struct {
+	algorithm: []str,
+	time_signed: u64,
+	fudge: u16,
+	mac_len: u16,
+	mac: []u8,
+	orig_id: u16,
+	error: u16,
+	other_len: u16,
+	other_data: []u8,
+};
+
 // A TXT record.
 export type txt = [][]u8;
 
@@ -210,7 +223,8 @@ export type txt = [][]u8;
 export type unknown_rdata = []u8;
 
 // Tagged union of supported rdata types.
-export type rdata = (a | aaaa | caa | cname | mx | ns | ptr | soa | srv | sshfp | txt | unknown_rdata);
+export type rdata = (a | aaaa | caa | cname | mx | ns | ptr | soa | srv
+	| sshfp | tsig | txt | unknown_rdata);
 
 // A DNS message, Hare representation. See [[encode]] and [[decode]] for the DNS
 // representation.
@@ -271,6 +285,10 @@ fn rrecord_finish(rr: *rrecord) void = {
 		strings::freeall(sr.target);
 	case let sf: sshfp =>
 		free(sf.fingerprint);
+	case let ts: tsig =>
+		strings::freeall(ts.algorithm);
+		free(ts.mac);
+		free(ts.other_data);
 	case let tx: txt =>
 		bytes_free(tx: [][]u8);
 	case => void;
