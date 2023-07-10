@@ -59,7 +59,8 @@ export type error = !(format | server_failure | name_error
 	| not_implemented | refused | name_exists
 	| rrset_exists | rrset_error | not_auth | not_zone
 	| bad_sig | bad_key | bad_time | unknown_error
-	| errors::overflow | errors::timeout | net::error | io::error);
+	| errors::invalid | errors::overflow | errors::timeout
+	| net::error | io::error);
 
 export fn strerror(err: error) const str = {
 	static let buf: [64]u8 = [0...];
@@ -92,6 +93,8 @@ export fn strerror(err: error) const str = {
 		return "Signature out of time window";
 	case let ue: unknown_error =>
 		return fmt::bsprintf(buf, "Unknown DNS error {}", ue: u8);
+	case errors::invalid =>
+		return "The message contains one or more field with invalid values";
 	case errors::overflow =>
 		return "The encoded message would exceed the buffer size";
 	case errors::timeout =>
