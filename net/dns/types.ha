@@ -19,6 +19,7 @@ export type rtype = enum u16 {
 	SRV = 33,
 	SSHFP = 44,
 	DNSKEY = 48,
+	TSIG = 250,
 	CAA = 257,
 };
 
@@ -57,6 +58,7 @@ export type qclass = enum u16 {
 	CH = 3,
 	HS = 4,
 	// *
+	NONE = 254,
 	ANY = 255,
 };
 
@@ -85,16 +87,27 @@ export type opcode = enum u8 {
 	QUERY = 0,
 	IQUERY = 1,
 	STATUS = 2,
+	UPDATE = 5,
 };
 
 // Response code from resolver.
 export type rcode = enum u8 {
-	NO_ERROR = 0,
-	FMT_ERROR = 1,
-	SERVER_FAILURE = 2,
-	NAME_ERROR = 3,
-	NOT_IMPLEMENTED = 4,
+	NOERROR = 0,
+	FORMERR = 1,
+	SERVFAIL = 2,
+	NXDOMAIN = 3,
+	NOTIMP = 4,
 	REFUSED = 5,
+	// RFC 2136 UPDATE
+	YXDOMAIN = 6,
+	YXRRSET = 7,
+	NXRRSET = 8,
+	NOTAUTH = 9,
+	NOTZONE = 10,
+	// RFC 2845 TSIG
+	BADSIG = 16,
+	BADKEY = 17,
+	BADTIME = 18,
 };
 
 // Operational information for this message.

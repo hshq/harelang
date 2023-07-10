@@ -107,7 +107,7 @@ fn encode_op(op: *op) u16 =
 		tc = true,
 		rd = false,
 		ra = true,
-		rcode = rcode::SERVER_FAILURE,
+		rcode = rcode::SERVFAIL,
 	};
 	let enc = encode_op(&opcode);
 	let opcode2 = op { ... };
