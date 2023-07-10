@@ -3,6 +3,7 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use errors;
 use fmt;
+use io;
 use net;
 
 // The DNS message was poorly formatted.
@@ -29,7 +30,7 @@ export type unknown_error = !u8;
 // All error types which might be returned from [[net::dns]] functions.
 export type error = !(format | server_failure | name_error
 	| not_implemented | refused | unknown_error
-	| errors::overflow | errors::timeout | net::error);
+	| errors::overflow | errors::timeout | net::error | io::error);
 
 export fn strerror(err: error) const str = {
 	static let buf: [64]u8 = [0...];
@@ -52,6 +53,8 @@ export fn strerror(err: error) const str = {
 		return "The DNS request timed out";
 	case let err: net::error =>
 		return net::strerror(err);
+	case let err: io::error =>
+		return io::strerror(err);
 	};
 };
 
