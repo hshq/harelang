@@ -51,5 +51,7 @@ export fn identstr(in: str) (ast::ident | error) = {
 	const buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
 	const lexer = lex::init(&buf, "<string>");
 	defer lex::finish(&lexer);
-	return ident(&lexer);
+	let ret = ident(&lexer);
+	want(&lexer, ltok::EOF)?;
+	return ret;
 };
