@@ -86,7 +86,7 @@ fn decode_header(dec: *decoder, head: *header) (void | format) = {
 
 fn decode_op(in: u16, out: *op) void = {
 	out.qr = ((in & 0b1000000000000000) >> 15): qr;
-	out.opcode = ((in & 0b01111000000000u16) >> 11): opcode;
+	out.opcode = ((in & 0b0111100000000000u16) >> 11): opcode;
 	out.aa = in & 0b0000010000000000u16 != 0;
 	out.tc = in & 0b0000001000000000u16 != 0;
 	out.rd = in & 0b0000000100000000u16 != 0;
