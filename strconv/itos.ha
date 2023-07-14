@@ -11,6 +11,10 @@ use strings;
 // duplicate the result.
 export fn i64tosb(i: i64, b: base) const str = {
 	static assert(types::I64_MAX == 9223372036854775807);
+	if (b == base::DEC) {
+		b = 10;
+	};
+
 	if (i >= 0) return u64tosb(i: u64, b);
 
 	static let buf: [65]u8 = [0...]; // 64 binary digits plus -
