@@ -981,6 +981,11 @@ math() {
 	gen_ssa math types rt
 }
 
+math_checked() {
+	gen_srcs math::checked checked.ha
+	gen_ssa math::checked math
+}
+
 mime() {
 	# This module is not built by default because gen-stdlib does not do a good
 	# job of resolving @init dependency ordering issues
@@ -1633,6 +1638,7 @@ linux::timerfd	linux
 linux::vdso		linux
 log	linux freebsd
 math
+math::checked
 math::complex
 math::random
 net			linux freebsd
