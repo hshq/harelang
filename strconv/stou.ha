@@ -28,6 +28,11 @@ export fn stou64b(s: str, base: base) (u64 | invalid | overflow) = {
 	if (len(s) == 0) {
 		return 0: invalid;
 	};
+	if (strings::hasprefix(s, "-")) {
+		return overflow;
+	} else if (strings::hasprefix(s, "+")) {
+		s = strings::trimprefix(s, "+");
+	};
 
 	let n = 0u64;
 	let iter = strings::iter(s);
