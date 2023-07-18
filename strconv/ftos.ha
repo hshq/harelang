@@ -528,6 +528,8 @@ fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
 	if (exp > -4 && exp < digits) {
 		if (e >= 0) {
 			let k = exp;
+			buf[k + 1] = '.';
+			buf[k + 2] = '0';
 			for (let a = e; a > 0; a -= 1) {
 				buf[k] = '0';
 				k -= 1;
@@ -539,7 +541,7 @@ fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
 				buf[k] = '0' + mmod10: u8;
 				m = mby10;
 			};
-			return (e + olen: i32): size;
+			return (e + olen: i32 + 2): size;
 		} else if (exp < 0) {
 			buf[0] = '0';
 			buf[1] = '.';
@@ -633,7 +635,7 @@ export fn f64tos(n: f64) const str = {
 	const exponent = ((bits >> math::F64_MANTISSA_BITS) &
 			(1u64 << math::F64_EXPONENT_BITS) - 1): u32;
 	if (mantissa == 0 && exponent == 0) {
-		return "0";
+		return if (sign == 0) "0.0" else "-0.0";
 	} else if (exponent == ((1 << math::F64_EXPONENT_BITS) - 1)) {
 		if (mantissa != 0) {
 			return "NaN";
@@ -667,7 +669,7 @@ export fn f32tos(n: f32) const str = {
 	const exponent = (bits >> math::F32_MANTISSA_BITS): u32 &
 		((1u32 << math::F32_EXPONENT_BITS) - 1): u32;
 	if (mantissa == 0 && exponent == 0) {
-		return "0";
+		return if (sign == 0) "0.0" else "-0.0";
 	} else if (exponent == ((1 << math::F32_EXPONENT_BITS) - 1): u32) {
 		if (mantissa != 0) {
 			return "NaN";
@@ -685,11 +687,12 @@ export fn f32tos(n: f32) const str = {
 };
 
 @test fn f64tos() void = {
-	assert(f64tos(0.0) == "0");
+	assert(f64tos(0.0) == "0.0");
+	assert(f64tos(-0.0) == "-0.0");
 	assert(f64tos(1.0 / 0.0) == "Infinity");
 	assert(f64tos(-1.0 / 0.0) == "-Infinity");
 	assert(f64tos(0.0 / 0.0) == "NaN");
-	assert(f64tos(1.0) == "1");
+	assert(f64tos(1.0) == "1.0");
 	assert(f64tos(0.3) == "0.3");
 	assert(f64tos(0.0031415) == "0.0031415");
 	assert(f64tos(0.0000012345678) == "1.2345678e-6");
@@ -699,22 +702,23 @@ export fn f32tos(n: f32) const str = {
 	assert(f64tos(-6345.9721) == "-6345.9721");
 	assert(f64tos(1.23456789e67) == "1.23456789e67");
 	assert(f64tos(11.2233445566778899e20) == "1.122334455667789e21");
-	assert(f64tos(1000000.0e9) == "1000000000000000");
-	assert(f64tos(9007199254740991.0) == "9007199254740991");
-	assert(f64tos(90071992547409915.0) == "90071992547409920");
-	assert(f64tos(90071992547409925.0) == "90071992547409920");
+	assert(f64tos(1000000.0e9) == "1000000000000000.0");
+	assert(f64tos(9007199254740991.0) == "9007199254740991.0");
+	assert(f64tos(90071992547409915.0) == "90071992547409920.0");
+	assert(f64tos(90071992547409925.0) == "90071992547409920.0");
 	assert(f64tos(5.0e-324) == "5e-324");
 	assert(f64tos(2.2250738585072014e-308) == "2.2250738585072014e-308");
 	assert(f64tos(1.7976931348623157e308) == "1.7976931348623157e308");
 };
 
 @test fn f32tos() void = {
-	assert(f32tos(0.0) == "0");
+	assert(f32tos(0.0) == "0.0");
+	assert(f32tos(-0.0) == "-0.0");
 	assert(f32tos(1.0 / 0.0) == "Infinity");
 	assert(f32tos(-1.0 / 0.0) == "-Infinity");
 	assert(f32tos(0.0 / 0.0) == "NaN");
-	assert(f32tos(1.0) == "1");
-	assert(f32tos(-8.0) == "-8");
+	assert(f32tos(1.0) == "1.0");
+	assert(f32tos(-8.0) == "-8.0");
 	assert(f32tos(1.23) == "1.23");
 	assert(f32tos(-0.618) == "-0.618");
 	assert(f32tos(0.00456) == "0.00456");
@@ -724,9 +728,9 @@ export fn f32tos(n: f32) const str = {
 	assert(f32tos(12345.6789) == "12345.679");
 	assert(f32tos(1.23e30) == "1.23e30");
 	assert(f32tos(1.23e-30) == "1.23e-30");
-	assert(f32tos(16777215.0) == "16777215");
-	assert(f32tos(167772155.0) == "167772160");
-	assert(f32tos(167772145.0) == "167772140");
+	assert(f32tos(16777215.0) == "16777215.0");
+	assert(f32tos(167772155.0) == "167772160.0");
+	assert(f32tos(167772145.0) == "167772140.0");
 	assert(f32tos(1.0e-45) == "1e-45");
 	assert(f32tos(1.1754944e-38) == "1.1754944e-38");
 	assert(f32tos(3.4028235e+38) == "3.4028235e38");
