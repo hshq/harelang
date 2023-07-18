@@ -521,7 +521,6 @@ def F32_DECIMAL_DIGITS: i32 = 9;
 def F64_DECIMAL_DIGITS: i32 = 17;
 
 fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
-	const zch = '0': u8;
 	const n = mantissa, e = exponent, olen = declen(n);
 	const exp = e + olen: i32 - 1;
 	// use scientific notation for numbers whose exponent is beyond the
@@ -530,31 +529,31 @@ fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
 		if (e >= 0) {
 			let k = exp;
 			for (let a = e; a > 0; a -= 1) {
-				buf[k] = zch;
+				buf[k] = '0';
 				k -= 1;
 			};
 			let m = n;
 			for (k >= 0; k -= 1) {
 				const mby10 = m / 10;
 				const mmod10 = (m: u32) - 10 * (mby10: u32);
-				buf[k] = zch + mmod10: u8;
+				buf[k] = '0' + mmod10: u8;
 				m = mby10;
 			};
 			return (e + olen: i32): size;
 		} else if (exp < 0) {
-			buf[0] = zch;
+			buf[0] = '0';
 			buf[1] = '.';
 			let k = -e + 1;
 			let m = n;
 			for (let a = olen: i32; a > 0; a -= 1) {
 				const mby10 = m / 10;
 				const mmod10 = (m: u32) - 10 * (mby10: u32);
-				buf[k] = zch + mmod10: u8;
+				buf[k] = '0' + mmod10: u8;
 				k -= 1;
 				m = mby10;
 			};
 			for (k > 1; k -= 1) {
-				buf[k] = zch;
+				buf[k] = '0';
 			};
 			return (-e + 2): size;
 		} else {
@@ -563,7 +562,7 @@ fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
 			for (let a = -e; a > 0; a -= 1) {
 				const mby10 = m / 10;
 				const mmod10 = (m: u32) - 10 * (mby10: u32);
-				buf[k] = zch + mmod10: u8;
+				buf[k] = '0' + mmod10: u8;
 				k -= 1;
 				m = mby10;
 			};
@@ -572,7 +571,7 @@ fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
 			for (k >= 0; k -= 1) {
 				const mby10 = m / 10;
 				const mmod10 = (m: u32) - 10 * (mby10: u32);
-				buf[k] = zch + mmod10: u8;
+				buf[k] = '0' + mmod10: u8;
 				m = mby10;
 			};
 			return (olen + 1): size;
@@ -581,19 +580,19 @@ fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
 		let h: i32 = 0;
 		let m = n;
 		if (olen == 1) {
-			buf[0] = zch + m: u8;
+			buf[0] = '0' + m: u8;
 			h = 1;
 		} else {
 			let k = olen: i32;
 			for (let a = k; a > 1; a -= 1) {
 				const mby10 = m / 10;
 				const mmod10 = (m: u32) - 10 * (mby10: u32);
-				buf[k] = zch + mmod10: u8;
+				buf[k] = '0' + mmod10: u8;
 				k -= 1;
 				m = mby10;
 			};
 			buf[k] = '.';
-			buf[0] = zch + m: u8;
+			buf[0] = '0' + m: u8;
 			h = olen: i32 + 1;
 		};
 		buf[h] = 'e';
@@ -608,7 +607,7 @@ fn encode_base10(buf: []u8, mantissa: u64, exponent: i32, digits: i32) size = {
 		for (let a = elen: i32; a > 0; a -= 1) {
 			const eby10 = ex / 10;
 			const emod10 = (ex: u32) - 10 * (eby10: u32);
-			buf[k] = zch + emod10: u8;
+			buf[k] = '0' + emod10: u8;
 			k -= 1;
 			ex = eby10;
 		};
