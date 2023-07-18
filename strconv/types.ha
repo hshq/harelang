@@ -3,12 +3,12 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 
-// Indicates that the input string is not an integer. Contains the index of the
-// first nondigit rune.
+// Indicates that the input string doesn't have the requested number format
+// (integer or float). Contains the index of the first invalid rune.
 export type invalid = !size;
 
-// Indicates that the input number is too large to be represented by the
-// requested data type.
+// Indicates that the input member can't be represented by the requested data
+// type.
 export type overflow = !void;
 
 // Any error which may be returned from a strconv function.
@@ -34,8 +34,8 @@ export type base = enum uint {
 export fn strerror(err: error) str = {
 	match (err) {
 	case invalid =>
-		return "Input string is not an integer";
+		return "Input string doesn't have the requested number format";
 	case overflow =>
-		return "Input number overflows integer type";
+		return "Input number doesn't fit into requested type";
 	};
 };
