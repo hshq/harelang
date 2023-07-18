@@ -1,0 +1,2 @@
+hare::unparse provides an unparser for Hare. All functions take in some part of
+the AST and write formatted Hare source code to an [[io::stream]].
