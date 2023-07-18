@@ -60,3 +60,12 @@ export fn fromstr_buf(s: const str, sl: []char) *char = {
 
 	return (*(&sl: *types::slice)).data: *char;
 };
+
+// Converts a NUL-terminated Hare string to a C string. Aborts if the input
+// string isn't NUL-terminated. The result is borrowed from the input.
+export fn nulstr(s: const str) *const char = {
+	let s = &s: *types::string;
+	let data = s.data as *[*]u8;
+	assert(data[s.length - 1] == '\0', "types::c::nulstr input must be NUL-terminated");
+	return s.data: *const char;
+};
