@@ -21,4 +21,6 @@
 	let s = fromstr("hello!");
 	defer free(s);
 	assert(tostr(s)! == "hello!");
+	let s = nulstr("hello!\0");
+	assert(tostr(s)! == "hello!");
 };
