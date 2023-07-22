@@ -21,6 +21,9 @@ export type baz = struct {
 	},
 };
 ");
+	roundtrip_reparse("export type foo = struct { x: int, y: int };\n"
+		"export type bar = union { x: int, y: int };\n"
+		"export type baz = struct { embedded, struct { x: int, y: int } };\n");
 };
 
 @test fn array_slice() void = {
@@ -58,6 +61,7 @@ export type baz = enum rune {
 	Q,
 };
 ");
+	roundtrip_reparse("export type foo = enum { X, Y, Z };\n");
 };
 
 @test fn tuple() void = {
@@ -68,6 +72,7 @@ export type bar = (a, b::c, d);
 export type baz = (bat, foo::bar::baz, long_type_name, yet_another_very_long_type_name,
 	this_spans_multiple_lines, for_readability);
 ");
+	roundtrip_reparse("export type foo = (int, str,);\n");
 };
 
 @test fn tagged_union() void = {
