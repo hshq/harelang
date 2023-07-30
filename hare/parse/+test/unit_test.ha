@@ -114,6 +114,12 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 
 	let tok = lex::lex(&lexer) as lex::token;
 	assert(tok.0 == lex::ltok::EXPORT);
+
+	const in = "use a::{b = c = d};\n";
+	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+	let lexer = lex::init(&buf, "<test>");
+	defer lex::finish(&lexer);
+	assert(imports(&lexer) is error);
 };
 
 @test fn decls() void = {
