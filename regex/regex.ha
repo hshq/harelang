@@ -826,7 +826,8 @@ export fn findall(re: *regex, string: str) []result = {
 // replaced by the capture at that index (starting at 1), or an empty string if
 // no such capture exists. For example, `\1` is replaced with the first capture,
 // `\2` with the second, etc. `\0` is substituted with the entire substring that
-// was matched. `\\` is replaced with a literal backslash.
+// was matched. `\\` is replaced with a literal backslash. The caller must free
+// the return value.
 //
 // An error is only returned if 'targetstr' isn't formatted correctly.
 export fn replace(re: *regex, string: str, targetstr: str) (str | error) = {
@@ -834,7 +835,8 @@ export fn replace(re: *regex, string: str, targetstr: str) (str | error) = {
 };
 
 // Replaces up to 'n' non-overlapping matches of a regular expression against a
-// string with 'targetstr', in the same manner as [[replace]].
+// string with 'targetstr', in the same manner as [[replace]]. The caller must
+// free the return value.
 export fn replacen(
 	re: *regex,
 	string: str,
@@ -922,13 +924,14 @@ fn parse_replace_target(targetstr: str) ([]([]u8 | size) | error) = {
 
 // Replaces all non-overlapping matches of a regular expression against a string
 // with 'targetstr'. 'targetstr' is isn't interpreted in any special way; all
-// backslashes are treated literally.
+// backslashes are treated literally. The caller must free the return value.
 export fn rawreplace(re: *regex, string: str, targetstr: str) str = {
 	return rawreplacen(re, string, targetstr, types::SIZE_MAX);
 };
 
 // Replaces up to 'n' non-overlapping matches of a regular expression against a
-// string with 'targetstr', in the same manner as [[rawreplace]].
+// string with 'targetstr', in the same manner as [[rawreplace]]. The caller
+// must free the return value.
 export fn rawreplacen(re: *regex, string: str, targetstr: str, n: size) str = {
 	if (n == 0) {
 		return strings::dup(string);
