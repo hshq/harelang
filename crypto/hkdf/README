@@ -1,1 +1,6 @@
-This module provides a HKDF implementation according to RFC 5869.
+This module provides a HKDF implementation according to RFC 5869. A pesudorandom
+key is created using [[extract]], which in turn is used to derive keys using
+[[expand]]. [[hkdf]] combines both [[extract]] and [[expand]] for deriving
+a single key.
+
+See the RFC 5869 for detailed usage guidance on how to choose the parameters.
