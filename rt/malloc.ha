@@ -24,8 +24,8 @@ def META: size = size(size);
 // XXX: arch
 def ALIGN: size = 16;
 
-// Allocation granularity for large allocs. Only used to allow sanity-checking
-// large heap pointers, doesn't necessarily need to match system page size.
+// Allocation granularity for large allocs. Only used to allow verifying large
+// heap pointers, doesn't necessarily need to match system page size.
 def PAGESZ: size = 4096;
 
 // Amount of memory to allocate at a time for chunks (2MiB).
