@@ -312,7 +312,7 @@ export fn reduce(x: []word, a: const []word, m: const []word) void = {
 
 // Copies 'src' to 'dest' if ctl is 1. The length of 'src' must match the length
 // of 'dest'.
-fn ccopyu32(ctl: u32, dest: []u32, src: const []u32) void = {
+fn ccopyword(ctl: u32, dest: []word, src: const []word) void = {
 	for (let i = 0z; i < len(dest); i += 1) {
 		const x = src[i];
 		const y = dest[i];
@@ -443,7 +443,7 @@ export fn modpow(
 		// product only if the exponent bits are not all-zero.
 		montymul(t1, x, t2, m, m0i);
 
-		ccopyu32(nequ32(bits, 0), x[..mwlen], t1[..mwlen]);
+		ccopyword(nequ32(bits, 0), x[..mwlen], t1[..mwlen]);
 	};
 
 	// Convert back from Montgomery representation, and exit.

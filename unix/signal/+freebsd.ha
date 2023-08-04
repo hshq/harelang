@@ -47,7 +47,7 @@ export fn handle(
 
 // Restores previous signal behavior following [[handle]].
 export fn restore(signum: sig, action: *sigaction) void = {
-	match (rt::sigaction(signum, action, null)) {
+	match (rt::sigaction(signum, action: *rt::sigact, null)) {
 	case int =>
 		yield;
 	case rt::errno =>
@@ -121,7 +121,7 @@ export fn unblock(signals: sig...) sigset = {
 // Sets the process's signal mask, returning the previous mask.
 export fn setprocmask(how: how, mask: *sigset) sigset = {
 	let old = sigset { ... };
-	rt::sigprocmask(how, mask, &old)!;
+	rt::sigprocmask(how, mask: *rt::sigset, &old)!;
 	return old;
 };
 
@@ -157,26 +157,26 @@ export fn newsigset(items: sig...) sigset = {
 
 // Sets a [[sigset]] to empty.
 export fn sigset_empty(set: *sigset) void = {
-	rt::sigemptyset(set);
+	rt::sigemptyset(set: *rt::sigset);
 };
 
 // Adds signals to a [[sigset]].
 export fn sigset_add(set: *sigset, items: sig...) void = {
 	for (let i = 0z; i < len(items); i += 1) {
-		rt::sigaddset(set, items[i])!;
+		rt::sigaddset(set: *rt::sigset, items[i])!;
 	};
 };
 
 // Removes signals from a [[sigset]].
 export fn sigset_del(set: *sigset, items: sig...) void = {
 	for (let i = 0z; i < len(items); i += 1) {
-		rt::sigdelset(set, items[i])!;
+		rt::sigdelset(set: *rt::sigset, items[i])!;
 	};
 };
 
 // Returns true if the given signal is a member of this [[sigset]].
 export fn sigset_member(set: *sigset, item: sig) bool = {
-	return rt::sigismember(set, item)!;
+	return rt::sigismember(set: *rt::sigset, item)!;
 };
 
 // Provides additional information about signal deliveries. Only the members

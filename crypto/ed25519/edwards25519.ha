@@ -302,7 +302,7 @@ fn scalarmult_base(p: *point, s: const *scalar) *point = {
 	return scalarmult(p, &B, s);
 };
 
-fn point_encode(out: *[POINTSZ]u8, p: *point) void = {
+fn point_encode(out: *scalar, p: *point) void = {
 	let tx: elem = [0...];
 	let ty: elem = [0...];
 	let zi: elem = [0...];

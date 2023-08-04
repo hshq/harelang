@@ -796,7 +796,7 @@ export fn find(re: *regex, string: str) result = {
 // non-overlapping matches as a slice of [[result]]s. The caller must free the
 // return value with [[result_freeall]].
 export fn findall(re: *regex, string: str) []result = {
-	let res: [][]capture = [];
+	let res: []result = [];
 	let str_idx = 0z, str_bytesize = 0z;
 	let substring = string;
 	let strm = memio::fixed(strings::toutf8(string));
