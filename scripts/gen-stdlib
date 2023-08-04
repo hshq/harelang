@@ -1271,15 +1271,6 @@ shlex() {
 	gen_ssa shlex ascii encoding::utf8 io strings strio
 }
 
-slices() {
-	gen_srcs slices \
-		cap.ha \
-		reverse.ha \
-		trunc.ha \
-		void.ha
-	gen_ssa slices types rt
-}
-
 gensrcs_sort() {
 	gen_srcs sort \
 		bisect.ha \
@@ -1314,7 +1305,6 @@ strconv() {
 
 strings() {
 	gen_srcs strings \
-		cap.ha \
 		concat.ha \
 		contains.ha \
 		dup.ha \
@@ -1654,7 +1644,6 @@ os::exec		linux freebsd
 path
 regex
 shlex
-slices
 sort
 strconv
 strings

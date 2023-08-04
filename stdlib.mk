@@ -722,13 +722,6 @@ stdlib_deps_any += $(stdlib_shlex_any)
 stdlib_shlex_linux = $(stdlib_shlex_any)
 stdlib_shlex_freebsd = $(stdlib_shlex_any)
 
-# gen_lib slices (any)
-stdlib_slices_any = $(HARECACHE)/slices/slices-any.o
-stdlib_env += HARE_TD_slices=$(HARECACHE)/slices/slices.td
-stdlib_deps_any += $(stdlib_slices_any)
-stdlib_slices_linux = $(stdlib_slices_any)
-stdlib_slices_freebsd = $(stdlib_slices_any)
-
 # gen_lib sort (any)
 stdlib_sort_any = $(HARECACHE)/sort/sort-any.o
 stdlib_env += HARE_TD_sort=$(HARECACHE)/sort/sort.td
@@ -2005,19 +1998,6 @@ $(HARECACHE)/shlex/shlex-any.ssa: $(stdlib_shlex_any_srcs) $(stdlib_rt) $(stdlib
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nshlex \
 		-t$(HARECACHE)/shlex/shlex.td $(stdlib_shlex_any_srcs)
 
-# slices (+any)
-stdlib_slices_any_srcs = \
-	$(STDLIB)/slices/cap.ha \
-	$(STDLIB)/slices/reverse.ha \
-	$(STDLIB)/slices/trunc.ha \
-	$(STDLIB)/slices/void.ha
-
-$(HARECACHE)/slices/slices-any.ssa: $(stdlib_slices_any_srcs) $(stdlib_rt) $(stdlib_types_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(HARECACHE)/slices
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nslices \
-		-t$(HARECACHE)/slices/slices.td $(stdlib_slices_any_srcs)
-
 # sort (+any)
 stdlib_sort_any_srcs = \
 	$(STDLIB)/sort/bisect.ha \
@@ -2051,7 +2031,6 @@ $(HARECACHE)/strconv/strconv-any.ssa: $(stdlib_strconv_any_srcs) $(stdlib_rt) $(
 
 # strings (+any)
 stdlib_strings_any_srcs = \
-	$(STDLIB)/strings/cap.ha \
 	$(STDLIB)/strings/concat.ha \
 	$(STDLIB)/strings/contains.ha \
 	$(STDLIB)/strings/dup.ha \
@@ -3146,13 +3125,6 @@ testlib_env += HARE_TD_shlex=$(TESTCACHE)/shlex/shlex.td
 testlib_deps_any += $(testlib_shlex_any)
 testlib_shlex_linux = $(testlib_shlex_any)
 testlib_shlex_freebsd = $(testlib_shlex_any)
-
-# gen_lib slices (any)
-testlib_slices_any = $(TESTCACHE)/slices/slices-any.o
-testlib_env += HARE_TD_slices=$(TESTCACHE)/slices/slices.td
-testlib_deps_any += $(testlib_slices_any)
-testlib_slices_linux = $(testlib_slices_any)
-testlib_slices_freebsd = $(testlib_slices_any)
 
 # gen_lib sort (any)
 testlib_sort_any = $(TESTCACHE)/sort/sort-any.o
@@ -4489,19 +4461,6 @@ $(TESTCACHE)/shlex/shlex-any.ssa: $(testlib_shlex_any_srcs) $(testlib_rt) $(test
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nshlex \
 		-t$(TESTCACHE)/shlex/shlex.td $(testlib_shlex_any_srcs)
 
-# slices (+any)
-testlib_slices_any_srcs = \
-	$(STDLIB)/slices/cap.ha \
-	$(STDLIB)/slices/reverse.ha \
-	$(STDLIB)/slices/trunc.ha \
-	$(STDLIB)/slices/void.ha
-
-$(TESTCACHE)/slices/slices-any.ssa: $(testlib_slices_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
-	@printf 'HAREC \t$@\n'
-	@mkdir -p $(TESTCACHE)/slices
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nslices \
-		-t$(TESTCACHE)/slices/slices.td $(testlib_slices_any_srcs)
-
 # sort (+any)
 testlib_sort_any_srcs = \
 	$(STDLIB)/sort/bisect.ha \
@@ -4538,7 +4497,6 @@ $(TESTCACHE)/strconv/strconv-any.ssa: $(testlib_strconv_any_srcs) $(testlib_rt) 
 
 # strings (+any)
 testlib_strings_any_srcs = \
-	$(STDLIB)/strings/cap.ha \
 	$(STDLIB)/strings/concat.ha \
 	$(STDLIB)/strings/contains.ha \
 	$(STDLIB)/strings/dup.ha \
