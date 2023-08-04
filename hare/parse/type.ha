@@ -289,7 +289,14 @@ fn struct_union_type(lexer: *lex::lexer) (ast::_type | error) = {
 
 		switch (want(lexer, ltok::RBRACE, ltok::COMMA)?.0) {
 		case ltok::RBRACE => break;
-		case ltok::COMMA => void;
+		case ltok::COMMA =>
+			const linecomment = lex::comment(lexer);
+			const docs = &membs[len(membs) - 1].docs;
+			if (linecomment != "" && *docs == "") {
+				*docs = strings::dup(linecomment);
+				free(lexer.comment);
+				lexer.comment = "";
+			};
 		case => abort();
 		};
 	};
@@ -433,7 +440,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
 		case ltok::COMMA =>
 			const linecomment = lex::comment(lexer);
-			if (linecomment != "") {
+			if (linecomment != "" && comment == "") {
 				free(comment);
 				comment = strings::dup(linecomment);
 				free(lexer.comment);

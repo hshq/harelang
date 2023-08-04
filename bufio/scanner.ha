@@ -266,8 +266,8 @@ export fn scanbyte(file: io::handle) (u8 | io::EOF | io::error) = {
 	};
 };
 
-// Reads a slice of bytes until the delimiter. Delimiter is not included. The
-// return value must be freed by the caller.
+// Reads a slice of bytes until the delimiter. Delimiter is not included but
+// it is read from the file. The return value must be freed by the caller.
 export fn scantok(file: io::handle, delim: u8...) ([]u8 | io::EOF | io::error) = {
 	let buf: []u8 = [];
 
@@ -290,7 +290,8 @@ export fn scantok(file: io::handle, delim: u8...) ([]u8 | io::EOF | io::error) =
 };
 
 // Reads a slice of bytes until a newline character (\n, 0x0A). Newline itself
-// is not included. The return value must be freed by the caller.
+// is not included but it is read from the file. The return value must be
+// freed by the caller.
 export fn scanline(file: io::handle) ([]u8 | io::EOF | io::error) =
 	scantok(file, '\n');
 

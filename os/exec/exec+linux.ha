@@ -69,12 +69,28 @@ fn open(path: str) (platform_cmd | error) = {
 	};
 	// O_PATH is used because it allows us to use an executable for which we
 	// have execute permissions, but not read permissions.
-	match (rt::open(path, rt::O_PATH, 0u)) {
+	let fd = match (rt::open(path, rt::O_PATH, 0u)) {
 	case let fd: int =>
-		return fd;
+		yield fd;
 	case let err: rt::errno =>
 		return errors::errno(err);
 	};
+	let success = false;
+	defer if (!success) rt::close(fd)!;
+	// Make sure we are not trying to execute anything weird. fstat()
+	// already dereferences symlinks, so if this is anything other than a
+	// regular file it cannot be executed.
+	let s = rt::st { ... };
+	match (rt::fstat(fd, &s)) {
+	case let err: rt::errno =>
+		return errors::errno(err);
+	case void =>
+		if (s.mode & rt::S_IFREG == 0) {
+			return errors::noaccess;
+		};
+	};
+	success = true;
+	return fd;
 };
 
 fn platform_finish(cmd: *command) void = rt::close(cmd.platform)!;

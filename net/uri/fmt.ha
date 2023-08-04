@@ -27,6 +27,7 @@ def unres_path: str = "-._~!$&'()*+,;=:@/";
 export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
 	let n = 0z;
 	let slashes_w = false;
+	let has_host = false;
 	if (u.scheme != "") {
 		n += fmt::fprintf(out, "{}:", u.scheme)?;
 	};
@@ -39,6 +40,7 @@ export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
 	case let host: str =>
 		// file scheme is allowed an empty host
 		if (len(host) > 0 || u.scheme == "file") {
+			has_host = true;
 			if (!slashes_w) {
 				n += fmt::fprint(out, "//")?;
 			};
@@ -50,6 +52,7 @@ export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
 			n += percent_encode(out, host, unres)?;
 		};
 	case let addr: ip::addr =>
+		has_host = true;
 		if (!slashes_w) {
 			n += fmt::fprint(out, "//")?;
 		};
@@ -57,6 +60,9 @@ export fn fmt(out: io::handle, u: *const uri) (size | io::error) = {
 	};
 	if (u.port != 0) {
 		n += fmt::fprintf(out, ":{}", u.port)?;
+	};
+	if (has_host && len(u.path) > 0 && !strings::hasprefix(u.path, '/')) {
+		n += fmt::fprint(out, "/")?;
 	};
 	n += percent_encode(out, u.path, unres_path)?;
 	if (len(u.query) > 0) {

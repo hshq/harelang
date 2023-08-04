@@ -700,6 +700,13 @@ stdlib_math_linux = $(stdlib_math_any)
 stdlib_math_freebsd = $(stdlib_math_any)
 stdlib_math_darwin = $(stdlib_math_any)
 
+# gen_lib math::checked (any)
+stdlib_math_checked_any = $(HARECACHE)/math/checked/math_checked-any.o
+stdlib_env += HARE_TD_math::checked=$(HARECACHE)/math/checked/math_checked.td
+stdlib_deps_any += $(stdlib_math_checked_any)
+stdlib_math_checked_linux = $(stdlib_math_checked_any)
+stdlib_math_checked_freebsd = $(stdlib_math_checked_any)
+
 # gen_lib math::complex (any)
 stdlib_math_complex_any = $(HARECACHE)/math/complex/math_complex-any.o
 stdlib_env += HARE_TD_math::complex=$(HARECACHE)/math/complex/math_complex.td
@@ -1964,6 +1971,16 @@ $(HARECACHE)/math/math-any.ssa: $(stdlib_math_any_srcs) $(stdlib_rt) $(stdlib_ty
 	@mkdir -p $(HARECACHE)/math
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nmath \
 		-t$(HARECACHE)/math/math.td $(stdlib_math_any_srcs)
+
+# math::checked (+any)
+stdlib_math_checked_any_srcs = \
+	$(STDLIB)/math/checked/checked.ha
+
+$(HARECACHE)/math/checked/math_checked-any.ssa: $(stdlib_math_checked_any_srcs) $(stdlib_rt) $(stdlib_math_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/math/checked
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nmath::checked \
+		-t$(HARECACHE)/math/checked/math_checked.td $(stdlib_math_checked_any_srcs)
 
 # math::complex (+any)
 stdlib_math_complex_any_srcs = \
@@ -3601,6 +3618,13 @@ testlib_math_linux = $(testlib_math_any)
 testlib_math_freebsd = $(testlib_math_any)
 testlib_math_darwin = $(testlib_math_any)
 
+# gen_lib math::checked (any)
+testlib_math_checked_any = $(TESTCACHE)/math/checked/math_checked-any.o
+testlib_env += HARE_TD_math::checked=$(TESTCACHE)/math/checked/math_checked.td
+testlib_deps_any += $(testlib_math_checked_any)
+testlib_math_checked_linux = $(testlib_math_checked_any)
+testlib_math_checked_freebsd = $(testlib_math_checked_any)
+
 # gen_lib math::complex (any)
 testlib_math_complex_any = $(TESTCACHE)/math/complex/math_complex-any.o
 testlib_env += HARE_TD_math::complex=$(TESTCACHE)/math/complex/math_complex.td
@@ -4920,6 +4944,16 @@ $(TESTCACHE)/math/math-any.ssa: $(testlib_math_any_srcs) $(testlib_rt) $(testlib
 	@mkdir -p $(TESTCACHE)/math
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath \
 		-t$(TESTCACHE)/math/math.td $(testlib_math_any_srcs)
+
+# math::checked (+any)
+testlib_math_checked_any_srcs = \
+	$(STDLIB)/math/checked/checked.ha
+
+$(TESTCACHE)/math/checked/math_checked-any.ssa: $(testlib_math_checked_any_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/math/checked
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath::checked \
+		-t$(TESTCACHE)/math/checked/math_checked.td $(testlib_math_checked_any_srcs)
 
 # math::complex (+any)
 testlib_math_complex_any_srcs = \

@@ -19,7 +19,7 @@ fn name_list(lexer: *lex::lexer) ([]((str | void), str) | error) = {
 			name.1 = want(lexer, ltok::NAME)?.1 as str;
 		};
 
-		switch (want(lexer, ltok::EQUAL, ltok::COMMA, ltok::RBRACE)?.0) {
+		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
 		case ltok::COMMA =>
 			match (try(lexer, ltok::RBRACE)?) {
 			case void => void;

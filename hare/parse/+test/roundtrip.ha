@@ -14,6 +14,22 @@ use strings;
 use strio;
 
 fn roundtrip(src: str) void = {
+	let unsrc = _roundtrip(src);
+	defer free(unsrc);
+	if (unsrc != src) {
+		fmt::errorfln("=== wanted\n{}", src)!;
+		fmt::errorfln("=== got\n{}", unsrc)!;
+		abort();
+	};
+};
+
+fn roundtrip_reparse(src: str) void = {
+	let unsrc = _roundtrip(src);
+	defer free(unsrc);
+	roundtrip(unsrc);
+};
+
+fn _roundtrip(src: str) str = {
 	let buf = bufio::fixed(strings::toutf8(src), mode::READ);
 	let lexer = lex::init(&buf, "<test>", lex::flag::COMMENTS);
 	defer lex::finish(&lexer);
@@ -29,13 +45,8 @@ fn roundtrip(src: str) void = {
 	};
 	defer ast::subunit_finish(u);
 	let out = strio::dynamic();
-	defer io::close(&out)!;
 	let z = unparse::subunit(&out, u) as size;
 	let unsrc = strio::string(&out);
 	assert(z == len(unsrc));
-	if (unsrc != src) {
-		fmt::errorfln("=== wanted\n{}", src)!;
-		fmt::errorfln("=== got\n{}", unsrc)!;
-		abort();
-	};
+	return unsrc;
 };

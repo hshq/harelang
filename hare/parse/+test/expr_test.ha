@@ -88,6 +88,7 @@
 		"export fn main() void = test(void, void, void);\n\n"
 		"export fn main() void = test(void, void, void...);\n\n"
 		"export fn main() void = test()()(void);\n");
+	roundtrip_reparse("export fn main() void = test(void,);\n");
 };
 
 @test fn cast() void = {
@@ -160,6 +161,12 @@
 	"backslashes\\and \"double quotes\"";
 	'\'';
 	'\\';
+};
+`);
+	roundtrip_reparse(`export fn main() void = {
+	struct { x: int = 10, y: int = 20 };
+	coords { x: int = 10, y: int = 20 };
+	"string " "concatenation";
 };
 `);
 };
