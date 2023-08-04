@@ -170,12 +170,12 @@ fn alloc_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const expr =
 		switch (want(lexer, ltok::COMMA, ltok::ELLIPSIS, ltok::RPAREN)?.0) {
 		case ltok::COMMA =>
-			const cap = alloc(expr(lexer)?);
+			const capacity = alloc(expr(lexer)?);
 			want(lexer, ltok::RPAREN)?;
 			yield ast::alloc_expr {
 				init = init,
 				form = ast::alloc_form::COPY,
-				capacity = cap,
+				capacity = capacity,
 			};
 		case ltok::ELLIPSIS =>
 			want(lexer, ltok::RPAREN)?;

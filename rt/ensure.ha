@@ -9,31 +9,31 @@ export type slice = struct {
 };
 
 export fn ensure(s: *slice, membsz: size) void = {
-	let cap = s.capacity;
-	if (cap >= s.length) {
+	let capacity = s.capacity;
+	if (capacity >= s.length) {
 		return;
 	};
-	for (cap < s.length) {
-		assert(cap >= s.capacity, "slice out of memory (overflow)");
-		if (cap == 0) {
-			cap = s.length;
+	for (capacity < s.length) {
+		assert(capacity >= s.capacity, "slice out of memory (overflow)");
+		if (capacity == 0) {
+			capacity = s.length;
 		} else {
-			cap *= 2;
+			capacity *= 2;
 		};
 	};
-	s.capacity = cap;
+	s.capacity = capacity;
 	const data = realloc(s.data, s.capacity * membsz);
 	assert(data != null || s.capacity * membsz == 0);
 	s.data = data;
 };
 
 export fn unensure(s: *slice, membsz: size) void = {
-	let cap = s.capacity;
-	for (cap > s.length) {
-		cap /= 2;
+	let capacity = s.capacity;
+	for (capacity > s.length) {
+		capacity /= 2;
 	};
-	cap *= 2;
-	s.capacity = cap;
+	capacity *= 2;
+	s.capacity = capacity;
 	const data = realloc(s.data, s.capacity * membsz);
 	assert(data != null || s.capacity * membsz == 0);
 	s.data = data;

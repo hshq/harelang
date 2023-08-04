@@ -3,7 +3,6 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 use errors;
 use io;
-use slices;
 use strings;
 
 const fixed_vtable: io::vtable = io::vtable {
@@ -42,9 +41,10 @@ export fn fixed(in: []u8) stream = {
 
 fn fixed_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	let s = s: *stream;
-	let cap = slices::cap(s.buf);
-	if (cap == len(s.buf)) return errors::overflow;
-	let n = if (cap - len(s.buf) < len(buf)) cap - len(s.buf) else len(buf);
+	if (cap(s.buf) == len(s.buf)) return errors::overflow;
+	let n = if (cap(s.buf) - len(s.buf) < len(buf)) {
+		yield cap(s.buf) - len(s.buf);
+	} else len(buf);
 	static append(s.buf, buf[..n]...);
 	return n;
 };
