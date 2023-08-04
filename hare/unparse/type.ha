@@ -216,8 +216,7 @@ export fn _type(
 	t: ast::_type,
 ) (size | io::error) = {
 	let n = 0z;
-	if (t.flags & ast::type_flag::CONST != 0
-			&& !(t.repr is ast::func_type)) {
+	if (t.flags & ast::type_flag::CONST != 0) {
 		n += fmt::fprint(out, "const ")?;
 	};
 	if (t.flags & ast::type_flag::ERROR != 0) {
@@ -467,10 +466,6 @@ fn type_test(t: ast::_type, expected: str) void = {
 	};
 	type_test(t, "fn(foo: int, bar: int...) int");
 
-	t.flags = ast::type_flag::CONST;
-	type_test(t, "fn(foo: int, bar: int...) int");
-
-	t.flags = 0;
 	t.repr = ast::list_type {
 		length = ast::len_slice,
 		members = &type_int,
