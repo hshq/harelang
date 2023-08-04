@@ -618,8 +618,9 @@ fn control(lexer: *lex::lexer) (ast::expr | error) = {
 	case ltok::CONTINUE =>
 		yield label: ast::continue_expr;
 	case ltok::RETURN =>
-		yield match (peek(lexer, ltok::COMMA,
-			ltok::SEMICOLON, ltok::EOF)?) {
+		yield match (peek(lexer, ltok::COMMA, ltok::ELSE, ltok::RBRACE,
+			ltok::RBRACKET, ltok::RPAREN, ltok::SEMICOLON,
+			ltok::EOF)?) {
 		case void =>
 			yield alloc(expr(lexer)?): ast::return_expr;
 		case lex::token =>
@@ -1307,20 +1308,20 @@ fn yield_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const start = want(lexer, ltok::YIELD)?;
 	let label = "";
 	let value: nullable *ast::expr = null;
-	match (try(lexer, ltok::SEMICOLON, ltok::COLON, ltok::EOF)?) {
+	match (try(lexer, ltok::COLON, ltok::COMMA, ltok::ELSE, ltok::RBRACE,
+		ltok::RBRACKET, ltok::RPAREN, ltok::SEMICOLON, ltok::EOF)?) {
 	case void =>
 		value = alloc(expr(lexer)?);
 	case let t: lex::token =>
-		switch (t.0) {
-		case ltok::SEMICOLON, ltok::EOF =>
-			lex::unlex(lexer, t);
-		case ltok::COLON =>
+		if (t.0 == ltok::COLON) {
 			label = want(lexer, ltok::NAME)?.1 as str;
 			match (try(lexer, ltok::COMMA)?) {
 			case void => void;
 			case lex::token =>
 				value = alloc(expr(lexer)?);
 			};
+		} else {
+			lex::unlex(lexer, t);
 		};
 	};
 	return ast::expr {
