@@ -281,6 +281,9 @@ const bmap: [_]str = [
 	"*=",
 ];
 
+// XXX: get rid of @test fn once top-level static assertions are supported
+@test fn bmaplen() void = static assert(len(bmap) == ltok::LAST_BTOK: size + 1);
+
 // A token value, used for tokens such as '1337' (an integer).
 export type value = (str | rune | u64 | f64 | void);
 
