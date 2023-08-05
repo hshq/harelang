@@ -1,9 +1,9 @@
 // License: MPL-2.0
 // (c) 2022 Armin Preiml <apreiml@strohwolke.at>
-use bufio;
 use bytes;
 use crypto::cipher;
 use io;
+use memio;
 
 // test vector taken from rfc8439
 @test fn chacha20() void = {
@@ -48,7 +48,7 @@ use io;
 
 	let result: [114]u8 = [0...];
 
-	let cipherbuf = bufio::fixed(result, io::mode::WRITE);
+	let cipherbuf = memio::fixed(result);
 
 	let c = chacha20();
 	defer io::close(&c)!;
@@ -61,7 +61,7 @@ use io;
 	assert(bytes::equal(cipher, result));
 
 	result = [0...];
-	cipherbuf = bufio::fixed(result, io::mode::WRITE);
+	cipherbuf = memio::fixed(result);
 
 	chacha20_init(&c, &cipherbuf, key, nonce);
 	setctr(&c, 1);
@@ -155,7 +155,7 @@ const xcipher: [_]u8 = [
 
 @test fn xchacha20() void = {
 	let result: [304]u8 = [0...];
-	let cipherbuf = bufio::fixed(result, io::mode::WRITE);
+	let cipherbuf = memio::fixed(result);
 
 	let c = chacha20();
 	defer io::close(&c)!;
@@ -169,7 +169,7 @@ const xcipher: [_]u8 = [
 
 @test fn skipblocks() void = {
 	let result: [18]u8 = [0...];
-	let cipherbuf = bufio::fixed(result, io::mode::WRITE);
+	let cipherbuf = memio::fixed(result);
 
 	let c = chacha20();
 	defer io::close(&c)!;

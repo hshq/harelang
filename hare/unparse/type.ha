@@ -7,8 +7,8 @@ use io;
 use hare::ast;
 use hare::ast::{variadism};
 use hare::lex;
+use memio;
 use strings;
-use strio;
 
 // Returns a builtin type as a string.
 export fn builtin_type(b: ast::builtin_type) str = switch (b) {
@@ -77,22 +77,22 @@ export fn prototype(
 	// estimate length of prototype to determine if it should span multiple
 	// lines
 	const linelen = if (len(t.params) == 0) {
-		let strm = strio::dynamic();
+		let strm = memio::dynamic();
 		defer io::close(&strm)!;
 		_type(&strm, indent, *t.result)?;
-		retname = strings::dup(strio::string(&strm));
+		retname = strings::dup(memio::string(&strm)!);
 		yield 0z; // only use one line if there's no parameters
 	} else {
-		let strm = strio::dynamic();
+		let strm = memio::dynamic();
 		defer io::close(&strm)!;
 		let linelen = indent * 8 + 5;
 		linelen += if (len(t.params) != 0) len(t.params) * 3 - 1 else 0;
 		for (let i = 0z; i < len(t.params); i += 1) {
 			const param = t.params[i];
 			linelen += _type(&strm, indent, *param._type)?;
-			typenames[i] = strings::dup(strio::string(&strm));
+			typenames[i] = strings::dup(memio::string(&strm)!);
 			linelen += if (param.name == "") -2 else len(param.name);
-			strio::reset(&strm);
+			memio::reset(&strm);
 		};
 		switch (t.variadism) {
 		case variadism::NONE => void;
@@ -102,7 +102,7 @@ export fn prototype(
 			linelen += 5;
 		};
 		linelen += _type(&strm, indent, *t.result)?;
-		retname = strings::dup(strio::string(&strm));
+		retname = strings::dup(memio::string(&strm)!);
 		yield linelen;
 	};
 
@@ -216,8 +216,7 @@ export fn _type(
 	t: ast::_type,
 ) (size | io::error) = {
 	let n = 0z;
-	if (t.flags & ast::type_flag::CONST != 0
-			&& !(t.repr is ast::func_type)) {
+	if (t.flags & ast::type_flag::CONST != 0) {
 		n += fmt::fprint(out, "const ")?;
 	};
 	if (t.flags & ast::type_flag::ERROR != 0) {
@@ -356,9 +355,9 @@ export fn _type(
 };
 
 fn type_test(t: ast::_type, expected: str) void = {
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	_type(&buf, 0, t) as size;
-	let s = strio::string(&buf);
+	let s = memio::string(&buf)!;
 	defer free(s);
 	if (s != expected) {
 		fmt::errorfln("=== wanted\n{}", expected)!;
@@ -467,10 +466,6 @@ fn type_test(t: ast::_type, expected: str) void = {
 	};
 	type_test(t, "fn(foo: int, bar: int...) int");
 
-	t.flags = ast::type_flag::CONST;
-	type_test(t, "fn(foo: int, bar: int...) int");
-
-	t.flags = 0;
 	t.repr = ast::list_type {
 		length = ast::len_slice,
 		members = &type_int,

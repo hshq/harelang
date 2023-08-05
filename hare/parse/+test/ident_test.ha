@@ -1,17 +1,17 @@
 // License: MPL-2.0
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
-use bufio;
 use hare::ast;
 use hare::lex;
 use io;
 use io::{mode};
+use memio;
 use strings;
 
 @test fn ident() void = {
 	{
 		const in = ";";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		let buf = memio::fixed(strings::toutf8(in));
 		let lexer = lex::init(&buf, "<test>");
 		defer lex::finish(&lexer);
 		ident(&lexer) as error: void;
@@ -21,7 +21,7 @@ use strings;
 
 	{
 		const in = "foo";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		let buf = memio::fixed(strings::toutf8(in));
 		let lexer = lex::init(&buf, "<test>");
 		defer lex::finish(&lexer);
 		let ident = ident(&lexer) as ast::ident;
@@ -34,7 +34,7 @@ use strings;
 
 	{
 		const in = "foo::bar";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		let buf = memio::fixed(strings::toutf8(in));
 		let lexer = lex::init(&buf, "<test>");
 		defer lex::finish(&lexer);
 		let ident = ident(&lexer) as ast::ident;
@@ -47,7 +47,7 @@ use strings;
 
 	{
 		const in = "foo::bar::baz";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		let buf = memio::fixed(strings::toutf8(in));
 		let lexer = lex::init(&buf, "<test>");
 		defer lex::finish(&lexer);
 		let ident = ident(&lexer) as ast::ident;
@@ -61,7 +61,7 @@ use strings;
 
 	{
 		const in = "foo::bar;";
-		let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+		let buf = memio::fixed(strings::toutf8(in));
 		let lexer = lex::init(&buf, "<test>");
 		defer lex::finish(&lexer);
 		let ident = ident(&lexer) as ast::ident;

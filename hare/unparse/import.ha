@@ -5,7 +5,7 @@
 use fmt;
 use io;
 use hare::ast;
-use strio;
+use memio;
 
 // Unparses a [[hare::ast::import]].
 export fn import(out: io::handle, import: ast::import) (size | io::error) = {
@@ -81,9 +81,9 @@ export fn import(out: io::handle, import: ast::import) (size | io::error) = {
 		},  "use quux = foo::{alias1 = bar, alias2 = baz};"),
 	];
 	for (let i = 0z; i < len(tests); i += 1) {
-		let buf = strio::dynamic();
+		let buf = memio::dynamic();
 		import(&buf, tests[i].0) as size;
-		let s = strio::string(&buf);
+		let s = memio::string(&buf)!;
 		assert(s == tests[i].1);
 		free(s);
 	};

@@ -1,10 +1,10 @@
 // License: MPL-2.0
 // (c) 2022 Ajay R <ar324@protonmail.com>
 use ascii;
-use bufio;
 use bytes;
 use errors;
 use io;
+use memio;
 use os;
 use strings;
 
@@ -166,11 +166,11 @@ fn encode_closer(s: *io::stream) (void | io::error) = {
 // Encodes a byte slice in base-32, using the given encoding, returning a slice
 // of ASCII bytes. The caller must free the return value.
 export fn encodeslice(enc: *encoding, in: []u8) []u8 = {
-	let out = bufio::dynamic(io::mode::WRITE);
+	let out = memio::dynamic();
 	let encoder = newencoder(enc, &out);
 	io::writeall(&encoder, in)!;
 	io::close(&encoder)!;
-	return bufio::buffer(&out);
+	return memio::buffer(&out);
 };
 
 // Encodes a byte slice in base-32, using the given encoding, returning a
@@ -201,11 +201,11 @@ export fn encodestr(enc: *encoding, in: []u8) str = {
 		"CPNMUOJ1E8======",
 	];
 	for (let i = 0z; i <= len(in); i += 1) {
-		let out = bufio::dynamic(io::mode::RDWR);
+		let out = memio::dynamic();
 		let enc = newencoder(&std_encoding, &out);
 		io::writeall(&enc, in[..i]) as size;
 		io::close(&enc)!;
-		let outb = bufio::buffer(&out);
+		let outb = memio::buffer(&out);
 		assert(bytes::equal(outb, strings::toutf8(expect[i])));
 		free(outb);
 		// Testing encodestr should cover encodeslice too
@@ -213,11 +213,11 @@ export fn encodestr(enc: *encoding, in: []u8) str = {
 		defer free(s);
 		assert(s == expect[i]);
 
-		out = bufio::dynamic(io::mode::RDWR);
+		out = memio::dynamic();
 		enc = newencoder(&hex_encoding, &out);
 		io::writeall(&enc, in[..i]) as size;
 		io::close(&enc)!;
-		let outb = bufio::buffer(&out);
+		let outb = memio::buffer(&out);
 		assert(bytes::equal(outb, strings::toutf8(expect_hex[i])));
 		free(outb);
 		let s = encodestr(&hex_encoding, in[..i]);
@@ -361,15 +361,15 @@ export fn decodeslice(
 	enc: *encoding,
 	in: []u8,
 ) ([]u8 | errors::invalid) = {
-	let in = bufio::fixed(in, io::mode::READ);
+	let in = memio::fixed(in);
 	let decoder = newdecoder(enc, &in);
-	let out = bufio::dynamic(io::mode::WRITE);
+	let out = memio::dynamic();
 	match (io::copy(&out, &decoder)) {
 	case io::error =>
 		io::close(&out)!;
 		return errors::invalid;
 	case size =>
-		return bufio::buffer(&out);
+		return memio::buffer(&out);
 	};
 };
 
@@ -397,7 +397,7 @@ export fn decodestr(enc: *encoding, in: str) ([]u8 | errors::invalid) = {
 		("CPNMUOJ1E8======", "foobar", &hex_encoding),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
-		let in = bufio::fixed(strings::toutf8(cases[i].0), io::mode::READ);
+		let in = memio::fixed(strings::toutf8(cases[i].0));
 		let dec = newdecoder(cases[i].2, &in);
 		let buf: [1]u8 = [0];
 		let out: []u8 = [];
@@ -419,7 +419,7 @@ export fn decodestr(enc: *encoding, in: str) ([]u8 | errors::invalid) = {
 	};
 	// Repeat of the above, but with a larger buffer
 	for (let i = 0z; i < len(cases); i += 1) {
-		let in = bufio::fixed(strings::toutf8(cases[i].0), io::mode::READ);
+		let in = memio::fixed(strings::toutf8(cases[i].0));
 		let dec = newdecoder(cases[i].2, &in);
 		let buf: [1024]u8 = [0...];
 		let out: []u8 = [];
@@ -454,7 +454,7 @@ export fn decodestr(enc: *encoding, in: str) ([]u8 | errors::invalid) = {
 		("CPNG====CPNG====", &std_encoding),
 	];
 	for (let i = 0z; i < len(invalid); i += 1) {
-		let in = bufio::fixed(strings::toutf8(invalid[i].0), io::mode::READ);
+		let in = memio::fixed(strings::toutf8(invalid[i].0));
 		let dec = newdecoder(invalid[i].1, &in);
 		let buf: [1]u8 = [0...];
 		let valid = false;

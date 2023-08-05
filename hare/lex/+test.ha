@@ -5,14 +5,14 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2021 Sudipto Mallick <smlckz@disroot.org>
-use bufio;
 use fmt;
 use io;
 use io::{mode};
+use memio;
 use strings;
 
 @test fn unget() void = {
-	let buf = bufio::fixed(strings::toutf8("z"), mode::READ);
+	let buf = memio::fixed(strings::toutf8("z"));
 	let lexer = init(&buf, "<test>");
 	unget(&lexer, ('x', location { path = "<test>", line = 1, col = 2 }));
 	unget(&lexer, ('y', location { path = "<test>", line = 1, col = 3 }));
@@ -60,7 +60,7 @@ fn vassert(expected: value, actual: value) void = {
 };
 
 fn lextest(in: str, expected: []token) void = {
-	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+	let buf = memio::fixed(strings::toutf8(in));
 	let lexer = init(&buf, "<test>");
 	for (let i = 0z; i < len(expected); i += 1) {
 		let etok = expected[i];
@@ -188,7 +188,7 @@ fn loc(line: uint, col: uint) location = location {
 @test fn keywords() void = {
 	let keywords = bmap[..ltok::LAST_KEYWORD+1];
 	for (let i = 0z; i < len(keywords); i += 1) {
-		let buf = bufio::fixed(strings::toutf8(keywords[i]), mode::READ);
+		let buf = memio::fixed(strings::toutf8(keywords[i]));
 		let lexer = init(&buf, "<test>");
 		let tok = lex(&lexer) as token;
 		assert(tok.0 == i: ltok);
@@ -205,7 +205,7 @@ fn loc(line: uint, col: uint) location = location {
 	lextest(in, expected);
 
 	let in = "// foo\n// bar\nhello world// baz\n\n// bad\ntest";
-	let buf = bufio::fixed(strings::toutf8(in), mode::READ);
+	let buf = memio::fixed(strings::toutf8(in));
 	let lexer = init(&buf, "<input>", flag::COMMENTS);
 	assert(lex(&lexer) is token);
 	assert(comment(&lexer) == " foo\n bar\n");
@@ -307,7 +307,7 @@ fn loc(line: uint, col: uint) location = location {
 	// empty string
 	const in = ['1': u8, 0x80];
 
-	let buf = bufio::fixed(in, mode::READ);
+	let buf = memio::fixed(in);
 	let lexer = init(&buf, "<test>");
 
 	const s = lex(&lexer) as error as syntax;
@@ -317,7 +317,7 @@ fn loc(line: uint, col: uint) location = location {
 	// a crash in nextw
 	const in = [0x80: u8];
 
-	let buf = bufio::fixed(in, mode::READ);
+	let buf = memio::fixed(in);
 	let lexer = init(&buf, "<test>");
 
 	const s = lex(&lexer) as error as syntax;
@@ -327,7 +327,7 @@ fn loc(line: uint, col: uint) location = location {
 	// crash
 	const in = ['"': u8, '\\': u8, '^': u8, '"': u8];
 
-	let buf = bufio::fixed(in, mode::READ);
+	let buf = memio::fixed(in);
 	let lexer = init(&buf, "<test>");
 
 	const s = lex(&lexer) as error as syntax;
@@ -336,7 +336,7 @@ fn loc(line: uint, col: uint) location = location {
 	// Regression: <X>e followed by another token used to cause a crash
 	const in = ['0': u8, 'e': u8, ')': u8];
 
-	let buf = bufio::fixed(in, mode::READ);
+	let buf = memio::fixed(in);
 	let lexer = init(&buf, "<test>");
 
 	const s = lex(&lexer) as error as syntax;
@@ -358,7 +358,7 @@ type op = enum {
 
 @test fn loc() void = {
 	const src = "h 	ello: my	name is Inigo Montoya";
-	let buf = bufio::fixed(strings::toutf8(src), mode::READ);
+	let buf = memio::fixed(strings::toutf8(src));
 	let lexer = init(&buf, "<test>");
 	const ops: [_]op = [
 		op::NEXT,

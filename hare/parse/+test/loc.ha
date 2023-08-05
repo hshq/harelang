@@ -2,17 +2,17 @@
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
-use bufio;
 use encoding::utf8;
 use fmt;
 use hare::ast;
 use hare::lex;
 use io;
 use io::{mode};
+use memio;
 use strings;
 
 fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
-	let buf = bufio::fixed(strings::toutf8(srcs[i]), mode::READ);
+	let buf = memio::fixed(strings::toutf8(srcs[i]));
 	let lexer = lex::init(&buf, "<test>");
 	defer lex::finish(&lexer);
 	let exp = match (expr(&lexer)) {
@@ -77,7 +77,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 
 	// We want to check the location of nested expressions, so this can't
 	// use expr_testloc
-	let buf = bufio::fixed(strings::toutf8("foo: bar: baz"), mode::READ);
+	let buf = memio::fixed(strings::toutf8("foo: bar: baz"));
 	let lexer = lex::init(&buf, "<test>");
 	defer lex::finish(&lexer);
 	let exp = match (expr(&lexer)) {
@@ -101,7 +101,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 };
 
 fn type_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
-	let buf = bufio::fixed(strings::toutf8(srcs[i]), mode::READ);
+	let buf = memio::fixed(strings::toutf8(srcs[i]));
 	let lexer = lex::init(&buf, "<test>");
 	defer lex::finish(&lexer);
 	let typ = match (_type(&lexer)) {

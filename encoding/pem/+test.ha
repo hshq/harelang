@@ -1,18 +1,17 @@
 // License: MPL-2.0
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
-use bufio;
 use bytes;
 use io;
 use fmt;
+use memio;
 use strings;
-use strio;
 
 
 @test fn read() void = {
 	const testcert_str = fmt::asprintf(
 		"garbage\ngarbage\ngarbage\n{}garbage\n", cert_str);
 	defer free(testcert_str);
-	const in = bufio::fixed(strings::toutf8(testcert_str), io::mode::READ);
+	const in = memio::fixed(strings::toutf8(testcert_str));
 	const dec = newdecoder(&in);
 	defer finish(&dec);
 
@@ -30,7 +29,7 @@ use strio;
 @test fn read_many() void = {
 	const testmany = fmt::asprintf("{}{}", cert_str, privkey_str);
 	defer free(testmany);
-	const in = bufio::fixed(strings::toutf8(testmany), io::mode::READ);
+	const in = memio::fixed(strings::toutf8(testmany));
 	const dec = newdecoder(&in);
 	defer finish(&dec);
 
@@ -49,28 +48,28 @@ use strio;
 };
 
 @test fn write() void = {
-	let out = strio::dynamic();
+	let out = memio::dynamic();
 	const stream = newencoder("CERTIFICATE", &out)!;
 	io::writeall(&stream, testcert_bin)!;
 	io::close(&stream)!;
-	assert(strio::string(&out) == cert_str);
+	assert(memio::string(&out)! == cert_str);
 	io::close(&out)!;
 
-	let out = strio::dynamic();
+	let out = memio::dynamic();
 	const stream = newencoder("PRIVATE KEY", &out)!;
 	io::writeall(&stream, testprivkey_bin)!;
 	io::close(&stream)!;
-	assert(strio::string(&out) == privkey_str);
+	assert(memio::string(&out)! == privkey_str);
 	io::close(&out)!;
 
 	// test short writes
-	let out = strio::dynamic();
+	let out = memio::dynamic();
 	const stream = newencoder("CERTIFICATE", &out)!;
 	for (let i = 0z; i < len(testcert_bin); i += 1) {
 		io::write(&stream, [testcert_bin[i]])!;
 	};
 	io::close(&stream)!;
-	assert(strio::string(&out) == cert_str);
+	assert(memio::string(&out)! == cert_str);
 	io::close(&out)!;
 };
 
@@ -168,7 +167,7 @@ const testprivkey_bin: [_]u8 = [
 	const test_str = fmt::asprintf(
 		"garbage\r\ngarbage\r\ngarbage\r\n{}garbage\r\n", testcrlf_str);
 	defer free(test_str);
-	const in = bufio::fixed(strings::toutf8(test_str), io::mode::READ);
+	const in = memio::fixed(strings::toutf8(test_str));
 	const dec = newdecoder(&in);
 	defer finish(&dec);
 

@@ -2,8 +2,8 @@
 // (c) 2021-2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use io;
+use memio;
 use strings;
-use strio;
 
 // Invalid shell syntax.
 export type syntaxerr = !void;
@@ -13,7 +13,7 @@ export type syntaxerr = !void;
 export fn split(in: const str) ([]str | syntaxerr) = {
 	let iter = strings::iter(in);
 
-	let s = strio::dynamic();
+	let s = memio::dynamic();
 	let slice: []str = [];
 	let first = true;
 	let dirty = false;
@@ -39,8 +39,8 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 				break;
 			};
 			if (!first) {
-				append(slice, strio::string(&s));
-				s = strio::dynamic();
+				append(slice, memio::string(&s)!);
+				s = memio::dynamic();
 			};
 			dirty = false;
 		case '\\' =>
@@ -50,7 +50,7 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 		case '\'' =>
 			scan_single(&s, &iter)?;
 		case =>
-			strio::appendrune(&s, r)!;
+			memio::appendrune(&s, r)!;
 		};
 
 		if (first) {
@@ -59,7 +59,7 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 	};
 
 	if (dirty) {
-		append(slice, strio::string(&s));
+		append(slice, memio::string(&s)!);
 	};
 
 	return slice;
@@ -81,7 +81,7 @@ fn scan_backslash(out: io::handle, in: *strings::iterator) (void | syntaxerr) = 
 		return;
 	};
 
-	strio::appendrune(out, r)!;
+	memio::appendrune(out, r)!;
 };
 
 fn scan_double(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
@@ -99,7 +99,7 @@ fn scan_double(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
 		case '\\' =>
 			scan_backslash(out, in)?;
 		case =>
-			strio::appendrune(out, r)!;
+			memio::appendrune(out, r)!;
 		};
 	};
 };
@@ -116,6 +116,6 @@ fn scan_single(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
 		if (r == '\'') {
 			break;
 		};
-		strio::appendrune(out, r)!;
+		memio::appendrune(out, r)!;
 	};
 };

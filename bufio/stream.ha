@@ -9,26 +9,26 @@ use errors;
 use io;
 use strings;
 
-const buffered_vtable_r: io::vtable = io::vtable {
-	closer = &buffered_close_static,
-	reader = &buffered_read,
+const vtable_r: io::vtable = io::vtable {
+	closer = &close_static,
+	reader = &read,
 	...
 };
 
-const buffered_vtable_w: io::vtable = io::vtable {
-	closer = &buffered_close_static,
-	writer = &buffered_write,
+const vtable_w: io::vtable = io::vtable {
+	closer = &close_static,
+	writer = &write,
 	...
 };
 
-const buffered_vtable_rw: io::vtable = io::vtable {
-	closer = &buffered_close_static,
-	reader = &buffered_read,
-	writer = &buffered_write,
+const vtable_rw: io::vtable = io::vtable {
+	closer = &close_static,
+	reader = &read,
+	writer = &write,
 	...
 };
 
-export type bufstream = struct {
+export type stream = struct {
 	stream: io::stream,
 	source: io::handle,
 	rbuffer: []u8,
@@ -53,29 +53,29 @@ export type bufstream = struct {
 //
 // 	let rbuf: [os::BUFSIZ]u8 = [0...];
 // 	let wbuf: [os::BUFSIZ]u8 = [0...];
-// 	let buffered = bufio::buffered(source, rbuf, wbuf);
-export fn buffered(
+// 	let buffered = bufio::init(source, rbuf, wbuf);
+export fn init(
 	src: io::handle,
 	rbuf: []u8,
 	wbuf: []u8,
-) bufstream = {
+) stream = {
 	static let flush_default = ['\n': u8];
 
-	let stream =
+	let st =
 		if (len(rbuf) != 0 && len(wbuf) != 0) {
 			assert(rbuf: *[*]u8 != wbuf: *[*]u8,
-				"Cannot use bufio::buffered with same buffer for reads and writes");
-			yield &buffered_vtable_rw;
+				"Cannot use same buffer for reads and writes");
+			yield &vtable_rw;
 		} else if (len(rbuf) != 0) {
-			yield &buffered_vtable_r;
+			yield &vtable_r;
 		} else if (len(wbuf) != 0) {
-			yield &buffered_vtable_w;
+			yield &vtable_w;
 		} else {
-			abort("Must provide at least one buffer to bufio::buffered");
+			abort("Must provide at least one buffer");
 		};
 
-	return bufstream {
-		stream = stream,
+	return stream {
+		stream = st,
 		source = src,
 		rbuffer = rbuf,
 		wbuffer = wbuf,
@@ -89,10 +89,10 @@ export fn buffered(
 export fn flush(s: io::handle) (void | io::error) = {
 	let s = match (s) {
 	case let st: *io::stream =>
-		if (st.writer != &buffered_write) {
+		if (st.writer != &write) {
 			return errors::unsupported;
 		};
-		yield st: *bufstream;
+		yield st: *stream;
 	case =>
 		return errors::unsupported;
 	};
@@ -109,10 +109,10 @@ export fn flush(s: io::handle) (void | io::error) = {
 export fn setflush(s: io::handle, b: []u8) void = {
 	let s = match (s) {
 	case let st: *io::stream =>
-		if (st.writer != &buffered_write) {
+		if (st.writer != &write) {
 			abort("Attempted to set flush bytes on unbuffered stream");
 		};
-		yield st: *bufstream;
+		yield st: *stream;
 	case =>
 		abort("Attempted to set flush bytes on unbuffered stream");
 	};
@@ -130,10 +130,10 @@ export fn setflush(s: io::handle, b: []u8) void = {
 export fn unread(s: io::handle, buf: []u8) void = {
 	let s = match (s) {
 	case let st: *io::stream =>
-		if (st.reader != &buffered_read) {
+		if (st.reader != &read) {
 			abort("Attempted unread on unbuffered stream");
 		};
-		yield st: *bufstream;
+		yield st: *stream;
 	case =>
 		abort("Attempted unread on unbuffered stream");
 	};
@@ -150,26 +150,26 @@ export fn unreadrune(s: io::handle, rn: rune) void = {
 	unread(s, buf);
 };
 
-// Returns true if an [[io::handle]] is a [[buffered]] stream.
+// Returns true if an [[io::handle]] is a [[stream]].
 export fn isbuffered(in: io::handle) bool = {
 	match (in) {
 	case io::file =>
 		return false;
 	case let st: *io::stream =>
-		return st.reader == &buffered_read || st.writer == &buffered_write;
+		return st.reader == &read || st.writer == &write;
 	};
 };
 
-fn buffered_close_static(s: *io::stream) (void | io::error) = {
-	assert(s.closer == &buffered_close_static);
+fn close_static(s: *io::stream) (void | io::error) = {
+	assert(s.closer == &close_static);
 	if (s.writer != null) {
-		flush(s: *bufstream)?;
+		flush(s: *stream)?;
 	};
 };
 
-fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
-	assert(s.reader == &buffered_read);
-	let s = s: *bufstream;
+fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
+	assert(s.reader == &read);
+	let s = s: *stream;
 
 	if (s.ravail < len(buf) && s.ravail < len(s.rbuffer)) {
 		s.rbuffer[..s.ravail] = s.rbuffer[s.rpos..s.rpos + s.ravail];
@@ -193,9 +193,9 @@ fn buffered_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	return n;
 };
 
-fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
-	assert(s.writer == &buffered_write);
-	let s = s: *bufstream;
+fn write(s: *io::stream, buf: const []u8) (size | io::error) = {
+	assert(s.writer == &write);
+	let s = s: *stream;
 	let buf = buf;
 
 	let doflush = false;
@@ -230,117 +230,4 @@ fn buffered_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	};
 
 	return z;
-};
-
-@test fn buffered_read() void = {
-	let sourcebuf: []u8 = [1, 3, 3, 7];
-	let source = fixed(sourcebuf, io::mode::READ);
-	defer io::close(&source)!;
-
-	let rbuf: [1024]u8 = [0...];
-	let f = buffered(&source, rbuf, []);
-	defer io::close(&f)!;
-
-	let buf: [1024]u8 = [0...];
-	assert(io::read(&f, buf[..2]) as size == 2);
-	assert(source.pos == len(source.buf), "fixed stream was not fully consumed");
-	assert(bytes::equal(buf[..2], [1, 3]));
-
-	assert(io::read(&f, buf[2..]) as size == 2);
-	assert(bytes::equal(buf[..4], [1, 3, 3, 7]));
-	assert(io::read(&f, buf) is io::EOF);
-
-	let sourcebuf: [32]u8 = [1, 3, 3, 7, 0...];
-	let source = fixed(sourcebuf, io::mode::READ);
-
-	let rbuf: [16]u8 = [0...];
-	let f = buffered(&source, rbuf, []);
-	defer io::close(&f)!;
-
-	let buf: [32]u8 = [0...];
-	assert(io::read(&f, buf) as size == 16);
-	assert(source.pos == 16);
-
-	assert(io::read(&f, buf[16..]) as size == 16);
-	assert(bytes::equal(buf, sourcebuf));
-	assert(io::read(&f, buf) is io::EOF);
-	assert(source.pos == len(source.buf));
-};
-
-@test fn buffered_write() void = {
-	// Normal case
-	let sink = dynamic(io::mode::WRITE);
-	defer io::close(&sink)!;
-
-	let wbuf: [1024]u8 = [0...];
-	let f = buffered(&sink, [], wbuf);
-	defer io::close(&f)!;
-
-	assert(io::writeall(&f, [1, 3, 3, 7]) as size == 4);
-	assert(len(buffer(&sink)) == 0);
-	assert(io::writeall(&f, [1, 3, 3, 7]) as size == 4);
-	assert(flush(&f) is void);
-	assert(bytes::equal(buffer(&sink), [1, 3, 3, 7, 1, 3, 3, 7]));
-
-	// Test flushing via buffer exhaustion
-	let sink = dynamic(io::mode::WRITE);
-	defer io::close(&sink)!;
-
-	let wbuf: [4]u8 = [0...];
-	let f = buffered(&sink, [], wbuf);
-
-	assert(io::writeall(&f, [1, 3, 3, 7]) as size == 4);
-	assert(len(buffer(&sink)) == 0);
-	assert(io::writeall(&f, [1, 3, 3, 7]) as size == 4);
-	assert(bytes::equal(buffer(&sink), [1, 3, 3, 7]));
-	io::close(&f)!; // Should flush
-	assert(bytes::equal(buffer(&sink), [1, 3, 3, 7, 1, 3, 3, 7]));
-
-	// Test flushing via flush characters
-	let sink = dynamic(io::mode::WRITE);
-	defer io::close(&sink)!;
-
-	let wbuf: [1024]u8 = [0...];
-	let f = buffered(&sink, [], wbuf);
-
-	assert(io::writeall(&f, strings::toutf8("hello")) as size == 5);
-	assert(len(buffer(&sink)) == 0);
-	assert(io::writeall(&f, strings::toutf8(" world!\n")) as size == 8);
-	assert(bytes::equal(buffer(&sink), strings::toutf8("hello world!\n")));
-};
-
-@test fn unread() void = {
-	let rbuf: [8]u8 = [0...];
-	let f = buffered(io::zero, rbuf, []);
-
-	let buf: [16]u8 = [42...];
-	assert(io::read(&f, buf[..4]) as size == 4);
-	assert(buf[0] == 0);
-	assert(buf[1] == 0);
-	assert(buf[2] == 0);
-	assert(buf[3] == 0);
-	unread(&f, [1, 2, 3, 4]);
-
-	assert(io::read(&f, buf[..8]) as size == 8);
-	assert(buf[0] == 1);
-	assert(buf[1] == 2);
-	assert(buf[2] == 3);
-	assert(buf[3] == 4);
-	assert(buf[4] == 0);
-	assert(buf[5] == 0);
-	assert(buf[6] == 0);
-	assert(buf[7] == 0);
-
-	assert(io::read(&f, buf) as size == 8);
-	for (let i = 0z; i < 8; i += 1) {
-		assert(buf[i] == 0);
-	};
-
-	let input: []u8 = [1, 2, 3, 4];
-	let f = buffered(&fixed(input, io::mode::READ), rbuf, []);
-
-	assert(io::read(&f, buf) as size == 4);
-	unread(&f, [1, 2, 3, 4]);
-	assert(io::read(&f, buf) as size == 4);
-	assert(io::read(&f, buf) is io::EOF);
 };

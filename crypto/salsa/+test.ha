@@ -1,10 +1,10 @@
 // License: MPL-2.0
 // (c) 2021 Armin Preiml <apreiml@strohwolke.at>
-use bufio;
 use bytes;
 use crypto::cipher;
-use types;
 use io;
+use memio;
+use types;
 
 @test fn qr() void = {
 	let s: [4]u32 = [0xe7e8c006, 0xc4f9417d, 0x6479b4b2, 0x68c67137];
@@ -57,7 +57,7 @@ use io;
 	];
 
 	let result: [116]u8 = [0...];
-	let cipherbuf = bufio::fixed(result, io::mode::WRITE);
+	let cipherbuf = memio::fixed(result);
 
 	let c = salsa20();
 	defer io::close(&c)!;
@@ -110,7 +110,7 @@ use io;
 	];
 
 	let result: [116]u8 = [0...];
-	let cipherbuf = bufio::fixed(result, io::mode::WRITE);
+	let cipherbuf = memio::fixed(result);
 
 	let c = salsa20();
 	defer io::close(&c)!;
@@ -165,7 +165,7 @@ use io;
 
 
 	let result: [116]u8 = [0...];
-	let cipherbuf = bufio::fixed(result, io::mode::WRITE);
+	let cipherbuf = memio::fixed(result);
 
 	let c = salsa20();
 	defer io::close(&c)!;

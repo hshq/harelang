@@ -1,7 +1,6 @@
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021-2022 Armin Preiml <apreiml@strohwolke.at>
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
-use bufio;
 use bytes;
 use crypto::blake2b;
 use crypto::math;
@@ -9,6 +8,7 @@ use endian;
 use errors::{nomem};
 use hash;
 use io;
+use memio;
 use types;
 
 // Latest version of argon2 supported by this implementation (1.3).
@@ -344,7 +344,7 @@ fn varhash(dest: []u8, block: []u8) void = {
 	const r = divceil(len(dest): u32, 32) - 2;
 	let v: [64]u8 = [0...];
 
-	let destbuf = bufio::fixed(dest, io::mode::WRITE);
+	let destbuf = memio::fixed(dest);
 
 	let h = blake2b::blake2b([], 64);
 	hash_leputu32(&h, len(dest): u32);

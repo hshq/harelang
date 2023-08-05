@@ -2,7 +2,6 @@
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
-use bufio;
 use fmt;
 use hare::ast;
 use hare::lex;
@@ -12,6 +11,7 @@ use hare::types::{builtin};
 use hare::unit;
 use hare::unit::{object_kind};
 use io;
+use memio;
 use os;
 use strings;
 
@@ -19,7 +19,7 @@ fn gen(out: io::handle, store: *types::typestore, unit: *unit::unit) void = {
 	// TODO: context_init
 	let ctx = context {
 		out = out,
-		buf = bufio::dynamic(io::mode::WRITE),
+		buf = memio::dynamic(),
 		store = store,
 		unit = unit,
 		arch = struct {
@@ -77,7 +77,7 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	// on-demand at the start of the function, rather than spread out
 	// through the body. This is more reliable on qbe's ARM backend, and
 	// generates better IL besides.
-	bufio::reset(&ctx.buf);
+	memio::reset(&ctx.buf);
 
 	fmt::fprintln(&ctx.buf, mklabel(ctx, "body"))!;
 
@@ -90,7 +90,7 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 		};
 	};
 
-	io::writeall(ctx.out, bufio::buffer(&ctx.buf))!;
+	io::writeall(ctx.out, memio::buffer(&ctx.buf))!;
 	fmt::fprintln(ctx.out, "}\n")!;
 };
 

@@ -7,7 +7,7 @@ use fmt;
 use hare::lex::{ltok};
 use hare::lex;
 use io;
-use strio;
+use memio;
 
 // All possible error types.
 export type error = !lex::error;
@@ -37,7 +37,7 @@ fn want(lexer: *lex::lexer, want: lex::ltok...) (lex::token | error) = {
 		};
 	};
 
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	defer io::close(&buf)!;
 	for (let i = 0z; i < len(want); i += 1) {
 		const tstr = if (want[i] == ltok::NAME) "name"
@@ -49,7 +49,7 @@ fn want(lexer: *lex::lexer, want: lex::ltok...) (lex::token | error) = {
 	};
 	lex::unlex(lexer, tok);
 	return syntaxerr(lex::mkloc(lexer), "Unexpected '{}', was expecting {}",
-		lex::tokstr(tok), strio::string(&buf));
+		lex::tokstr(tok), memio::string(&buf)!);
 };
 
 // Looks for a matching ltok from the lexer, and if not present, unlexes the

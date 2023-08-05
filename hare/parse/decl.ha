@@ -183,7 +183,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 		prototype = ast::_type {
 			start = proto_start,
 			end = proto_end,
-			flags = ast::type_flag::CONST,
+			flags = 0,
 			repr = prototype,
 		},
 		body = body,

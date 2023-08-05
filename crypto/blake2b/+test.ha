@@ -8,8 +8,8 @@ use encoding::hex;
 use fmt;
 use hash;
 use io;
+use memio;
 use strings;
-use strio;
 
 @test fn blake2b() void = {
 	for (let i = 0z; i < len(vectors); i += 1) {
@@ -28,11 +28,11 @@ use strio;
 			append(sum, 0);
 		};
 		hash::sum(&blake, sum);
-		let out = strio::dynamic();
+		let out = memio::dynamic();
 		defer io::close(&out)!;
 		let enc = hex::newencoder(&out);
 		io::write(&enc, sum)!;
-		assert(strio::string(&out) == vectors[i].out);
+		assert(memio::string(&out)! == vectors[i].out);
 	};
 
 	const vectors = [
@@ -56,16 +56,16 @@ use strio;
 		assert(len(sum) >= hash::sz(&blake));
 		hash::sum(&blake, sum);
 
-		let hex = strio::dynamic();
+		let hex = memio::dynamic();
 		defer io::close(&hex)!;
 
 		for (let j = 0z; j < len(sum); j += 1) {
 			fmt::fprintf(&hex, "{:02x}", sum[j])!;
 		};
 
-		if (strio::string(&hex) != vector.1) {
+		if (memio::string(&hex)! != vector.1) {
 			fmt::errorfln("Vector {}: {} != {}",
-				i, strio::string(&hex), vector.1)!;
+				i, memio::string(&hex)!, vector.1)!;
 			abort();
 		};
 	};

@@ -10,9 +10,9 @@ use hare::ast::{variadism};
 use hare::lex;
 use hare::unparse;
 use io;
+use memio;
 use os;
 use strings;
-use strio;
 
 let firstline: bool = true;
 
@@ -270,22 +270,22 @@ fn prototype_tty(
 	// estimate length of prototype to determine if it should span multiple
 	// lines
 	const linelen = if (len(t.params) == 0) {
-		let strm = strio::dynamic();
+		let strm = memio::dynamic();
 		defer io::close(&strm)!;
 		type_tty(&strm, indent, *t.result)?;
-		retname = strings::dup(strio::string(&strm));
+		retname = strings::dup(memio::string(&strm)!);
 		yield 0z; // only use one line if there's no parameters
 	} else {
-		let strm = strio::dynamic();
+		let strm = memio::dynamic();
 		defer io::close(&strm)!;
 		let linelen = indent * 8 + 5;
 		linelen += if (len(t.params) != 0) len(t.params) * 3 - 1 else 0;
 		for (let i = 0z; i < len(t.params); i += 1) {
 			const param = t.params[i];
 			linelen += unparse::_type(&strm, indent, *param._type)?;
-			typenames[i] = strings::dup(strio::string(&strm));
+			typenames[i] = strings::dup(memio::string(&strm)!);
 			linelen += if (param.name == "") 1 else len(param.name);
-			strio::reset(&strm);
+			memio::reset(&strm);
 		};
 		switch (t.variadism) {
 		case variadism::NONE => void;
@@ -295,7 +295,7 @@ fn prototype_tty(
 			linelen += 5;
 		};
 		linelen += type_tty(&strm, indent, *t.result)?;
-		retname = strings::dup(strio::string(&strm));
+		retname = strings::dup(memio::string(&strm)!);
 		yield linelen;
 	};
 

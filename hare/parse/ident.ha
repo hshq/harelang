@@ -2,11 +2,10 @@
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
-use bufio;
 use hare::ast;
 use hare::lex::{ltok};
 use hare::lex;
-use io;
+use memio;
 use strings;
 
 fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
@@ -48,7 +47,7 @@ export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 // A convenience function which parses an identifier from a string, so the
 // caller needn't provide a lexer instance.
 export fn identstr(in: str) (ast::ident | error) = {
-	const buf = bufio::fixed(strings::toutf8(in), io::mode::READ);
+	const buf = memio::fixed(strings::toutf8(in));
 	const lexer = lex::init(&buf, "<string>");
 	defer lex::finish(&lexer);
 	let ret = ident(&lexer);

@@ -1,12 +1,11 @@
 // License: MPL-2.0
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
-use bufio;
 use bytes;
 use endian;
 use errors;
 use io;
+use memio;
 use strconv;
-use strio;
 use types::c;
 
 export type reader = struct {
@@ -58,7 +57,7 @@ export fn next(rd: *reader) (entry | error | io::EOF) = {
 		return io::EOF;
 	};
 
-	const reader = bufio::fixed(buf, io::mode::READ);
+	const reader = memio::fixed(buf);
 	const name = readstr(&reader, 100);
 	const mode = readoct(&reader, 8)?;
 	const uid = readoct(&reader, 8)?;
@@ -100,9 +99,9 @@ export fn next(rd: *reader) (entry | error | io::EOF) = {
 	ent.devmajor = readoct(&reader, 8)?;
 	ent.devminor = readoct(&reader, 8)?;
 	const prefix = readstr(&reader, 155);
-	let writer = strio::fixed(rd.name);
-	strio::join(&writer, prefix, name)!;
-	ent.name = strio::string(&writer);
+	let writer = memio::fixed(rd.name);
+	memio::join(&writer, prefix, name)!;
+	ent.name = memio::string(&writer)!;
 	return ent;
 };
 
@@ -199,8 +198,8 @@ fn file_seek(
 	return new;
 };
 
-fn readstr(rd: *bufio::memstream, ln: size) str = {
-	const buf = match (bufio::borrowedread(rd, ln)) {
+fn readstr(rd: *memio::stream, ln: size) str = {
+	const buf = match (memio::borrowedread(rd, ln)) {
 	case let buf: []u8 =>
 		assert(len(buf) == ln);
 		yield buf;
@@ -210,7 +209,7 @@ fn readstr(rd: *bufio::memstream, ln: size) str = {
 	return c::tostr(buf: *[*]u8: *const c::char)!;
 };
 
-fn readoct(rd: *bufio::memstream, ln: size) (uint | invalid) = {
+fn readoct(rd: *memio::stream, ln: size) (uint | invalid) = {
 	const string = readstr(rd, ln);
 	match (strconv::stoub(string, strconv::base::OCT)) {
 	case let u: uint =>
@@ -220,7 +219,7 @@ fn readoct(rd: *bufio::memstream, ln: size) (uint | invalid) = {
 	};
 };
 
-fn readsize(rd: *bufio::memstream, ln: size) (size | invalid) = {
+fn readsize(rd: *memio::stream, ln: size) (size | invalid) = {
 	const string = readstr(rd, ln);
 	match (strconv::stozb(string, strconv::base::OCT)) {
 	case let z: size =>

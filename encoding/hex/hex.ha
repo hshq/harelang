@@ -4,15 +4,14 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
 use ascii;
-use bufio;
 use bytes;
 use errors;
 use fmt;
 use io;
+use memio;
 use os;
 use strconv;
 use strings;
-use strio;
 
 export type encoder = struct {
 	stream: io::stream,
@@ -70,10 +69,10 @@ fn encode_writer(s: *io::stream, in: const []u8) (size | io::error) = {
 // Encodes a byte slice as a hexadecimal string and returns it. The caller must
 // free the return value.
 export fn encodestr(in: []u8) str = {
-	const out = strio::dynamic();
+	const out = memio::dynamic();
 	const enc = newencoder(&out);
 	io::writeall(&enc, in)!;
-	return strio::string(&out);
+	return memio::string(&out)!;
 };
 
 @test fn encodestr() void = {
@@ -93,11 +92,11 @@ export fn encode(out: io::handle, in: []u8) (size | io::error) = {
 @test fn encode() void = {
 	const in: [_]u8 = [0xCA, 0xFE, 0xBA, 0xBE, 0xDE, 0xAD, 0xF0, 0x0D];
 
-	let out = strio::dynamic();
+	let out = memio::dynamic();
 	defer io::close(&out)!;
 
 	encode(&out, in)!;
-	assert(strio::string(&out) == "cafebabedeadf00d");
+	assert(memio::string(&out)! == "cafebabedeadf00d");
 };
 
 export type decoder = struct {
@@ -172,12 +171,12 @@ fn decode_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) = {
 // the return value.
 export fn decodestr(s: str) ([]u8 | io::error) = {
 	let s = strings::toutf8(s);
-	const in = bufio::fixed(s, io::mode::READ);
+	const in = memio::fixed(s);
 	const decoder = newdecoder(&in);
-	const out = bufio::dynamic(io::mode::WRITE);
+	const out = memio::dynamic();
 	match(io::copy(&out, &decoder)) {
 	case size =>
-	     return bufio::buffer(&out);
+	     return memio::buffer(&out);
 	case let err: io::error =>
 	     return err;
 	};
@@ -234,11 +233,11 @@ export fn dump(out: io::handle, data: []u8) (void | io::error) = {
 		0xDE, 0xAD, 0xF0, 0x0D
 	];
 
-	let sink = strio::dynamic();
+	let sink = memio::dynamic();
 	defer io::close(&sink)!;
 	dump(&sink, in) as void;
 
-	let s = strio::string(&sink);
+	let s = memio::string(&sink)!;
 	assert(s ==
 		"00000000  7f 45 4c 46 02 01 01 00  ca fe ba be de ad f0 0d  |.ELF............|\n"
 		"00000010  ce fe ba be de ad f0 0d                           |........|\n");

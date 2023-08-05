@@ -10,12 +10,12 @@ use bufio;
 use encoding::utf8;
 use fmt;
 use io;
+use memio;
 use os;
 use path;
 use sort;
 use strconv;
 use strings;
-use strio;
 use types;
 
 export type lexer = struct {
@@ -232,7 +232,7 @@ fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
 
 fn lex_string(lex: *lexer, loc: location, delim: rune) (token | error) = {
 	let ret: token = (ltok::LIT_STR, "", loc);
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	for (true) match (next(lex)?) {
 	case io::EOF =>
 		return syntaxerr(loc, "unexpected EOF scanning string literal");
@@ -241,9 +241,9 @@ fn lex_string(lex: *lexer, loc: location, delim: rune) (token | error) = {
 		else if (delim == '"') {
 			unget(lex, r);
 			let r = lex_rune(lex, loc)?;
-			strio::appendrune(&buf, r)?;
+			memio::appendrune(&buf, r)?;
 		} else {
-			strio::appendrune(&buf, r.0)?;
+			memio::appendrune(&buf, r.0)?;
 		};
 	};
 	for (true) match (nextw(lex)?) {
@@ -254,7 +254,7 @@ fn lex_string(lex: *lexer, loc: location, delim: rune) (token | error) = {
 		case '"', '`' =>
 			const tok = lex_string(lex, loc, r.0)?;
 			const next = tok.1 as str;
-			strio::concat(&buf, next)!;
+			memio::concat(&buf, next)!;
 			free(next);
 			break;
 		case '/' =>
@@ -276,7 +276,7 @@ fn lex_string(lex: *lexer, loc: location, delim: rune) (token | error) = {
 			break;
 		};
 	};
-	return (ltok::LIT_STR, strio::string(&buf), loc);
+	return (ltok::LIT_STR, memio::string(&buf)!, loc);
 };
 
 fn lex_rn_str(lex: *lexer) (token | error) = {
@@ -310,11 +310,11 @@ fn lex_rn_str(lex: *lexer) (token | error) = {
 };
 
 fn lex_name(lex: *lexer, loc: location) (token | error) = {
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	match (next(lex)) {
 	case let r: (rune, location) =>
 		assert(is_name(r.0, false));
-		strio::appendrune(&buf, r.0)!;
+		memio::appendrune(&buf, r.0)!;
 	case (io::EOF | io::error) =>
 		abort();
 	};
@@ -326,12 +326,12 @@ fn lex_name(lex: *lexer, loc: location) (token | error) = {
 			unget(lex, r);
 			break;
 		};
-		strio::appendrune(&buf, r.0)?;
+		memio::appendrune(&buf, r.0)?;
 	};
 
 	line_comment(lex)?;
 
-	let n = strio::string(&buf);
+	let n = memio::string(&buf)!;
 
 	match (sort::searchstrings(bmap[..ltok::LAST_KEYWORD+1], n)) {
 	case void =>
@@ -383,19 +383,19 @@ fn lex_comment(lexr: *lexer) (void | error) = {
 		return;
 	};
 
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	defer io::close(&buf)!;
 	for (true) match (next(lexr)?) {
 	case io::EOF =>
 		break;
 	case let r: (rune, location) =>
-		strio::appendrune(&buf, r.0)!;
+		memio::appendrune(&buf, r.0)!;
 		if (r.0 == '\n') {
 			break;
 		};
 	};
 	let bytes = strings::toutf8(lexr.comment);
-	append(bytes, strings::toutf8(strio::string(&buf))...);
+	append(bytes, strings::toutf8(memio::string(&buf)!)...);
 	lexr.comment = strings::fromutf8(bytes)!;
 };
 

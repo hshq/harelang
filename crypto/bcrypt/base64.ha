@@ -4,10 +4,10 @@
 //
 // bcrypt uses a crappy variant of base64 with its own special alphabet and no
 // padding. This file glues encoding::base64 to the bcrypt semantics.
-use bufio;
 use encoding::base64;
 use errors;
 use io;
+use memio;
 
 const alpha: str = "./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 const b64encoding: base64::encoding = base64::encoding { ... };
@@ -19,9 +19,9 @@ const b64encoding: base64::encoding = base64::encoding { ... };
 // Encodes a slice in the bcrypt base64 style, returning a new slice. The caller
 // must free the return value.
 fn b64_encode(src: []u8) []u8 = {
-	let sink = bufio::dynamic(io::mode::WRITE);
+	let sink = memio::dynamic();
 	base64::encode(&sink, &b64encoding, src)!;
-	let buf = bufio::buffer(&sink);
+	let buf = memio::buffer(&sink);
 	let i = len(buf);
 	for (i > 0 && buf[i - 1] == '='; i -= 1) void;
 	return buf[..i];

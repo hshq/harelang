@@ -11,9 +11,9 @@ use bytes;
 use endian;
 use fmt;
 use io;
+use memio;
 use strconv;
 use strings;
-use strio;
 
 // An IPv4 address.
 export type addr4 = [4]u8;
@@ -341,9 +341,9 @@ export fn fmt(s: io::handle, item: (...addr | subnet)) (size | io::error) = {
 export fn string(item: (...addr | subnet)) str = {
 	// Maximum length of an IPv6 address plus its netmask in hexadecimal
 	static let buf: [64]u8 = [0...];
-	let stream = strio::fixed(buf);
+	let stream = memio::fixed(buf);
 	fmt(&stream, item) as size;
-	return strio::string(&stream);
+	return memio::string(&stream)!;
 };
 
 fn wanttoken(tok: *strings::tokenizer) (str | invalid) = {

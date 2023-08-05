@@ -39,6 +39,7 @@ export fn rtokenize(s: str, delim: str) tokenizer =
 // Returns the next string from a tokenizer, and advances the cursor. Returns
 // void if there are no tokens left.
 export fn next_token(s: *tokenizer) (str | void) = {
+	let s = s: *bytes::tokenizer;
 	return match (bytes::next_token(s)) {
 	case let b: []u8 =>
 		yield fromutf8_unsafe(b);
@@ -48,6 +49,7 @@ export fn next_token(s: *tokenizer) (str | void) = {
 
 // Same as next_token(), but does not advance the cursor
 export fn peek_token(s: *tokenizer) (str | void) = {
+	let s = s: *bytes::tokenizer;
 	return match (bytes::peek_token(s)) {
 	case let b: []u8 =>
 		yield fromutf8_unsafe(b);
@@ -58,6 +60,7 @@ export fn peek_token(s: *tokenizer) (str | void) = {
 // Returns the remainder of the string associated with a tokenizer, without doing
 // any further tokenization.
 export fn remaining_tokens(s: *tokenizer) str = {
+	let s = s: *bytes::tokenizer;
 	return fromutf8_unsafe(bytes::remaining_tokens(s));
 };
 

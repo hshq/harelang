@@ -1,12 +1,12 @@
 // License: MPL-2.0
 // (c) 2022 Armin Preiml <apreiml@strohwolke.at>
-use bufio;
 use bytes;
 use crypto::bigint;
 use crypto::math::*;
 use endian;
 use errors;
 use io;
+use memio;
 use types;
 
 // The default bit size of RSA keys is 4096-bit. Used as base for buffer sizes.
@@ -78,7 +78,7 @@ export fn pubkey_init(pubkey: []u8, x: pubparams) (size | error) = {
 		return errors::invalid;
 	};
 
-	let w = bufio::fixed(pubkey, io::mode::WRITE);
+	let w = memio::fixed(pubkey);
 
 	let s = 0z;
 	s += writeslice(&w, e)!;
@@ -180,7 +180,7 @@ export fn privkey_init(privkey: []u8, x: privparams, n: []u8...) (size | error) 
 	};
 
 	let s = privkey_writehead(privkey, &x, n...)?;
-	let w = bufio::fixed(privkey[s..], io::mode::WRITE);
+	let w = memio::fixed(privkey[s..]);
 
 	s += writeslice(&w, x.dp)!;
 	s += writeslice(&w, x.dq)!;
@@ -233,7 +233,7 @@ fn privkey_writehead(
 		return errors::invalid;
 	};
 
-	let w = bufio::fixed(privkey, io::mode::WRITE);
+	let w = memio::fixed(privkey);
 	let lenbuf: [2]u8 = [0...];
 	endian::beputu16(lenbuf, nbitlen: u16);
 	return io::write(&w, lenbuf)!;
@@ -262,7 +262,7 @@ export fn privkey_initd(
 	s += privkey_dmod(privkey[s..], d, x.p);
 	s += privkey_dmod(privkey[s..], d, x.q);
 
-	let w = bufio::fixed(privkey[s..], io::mode::WRITE);
+	let w = memio::fixed(privkey[s..]);
 	s += writeslice(&w, x.iq)!;
 	s += writeslice(&w, x.p)!;
 	s += writeslice(&w, x.q)!;

@@ -11,8 +11,8 @@ use fmt;
 use hare::ast;
 use hare::parse;
 use io;
+use memio;
 use strings;
-use strio;
 
 type paragraph = void;
 type text = str;
@@ -28,14 +28,14 @@ type docstate = enum {
 };
 
 type parser = struct {
-	src: bufio::bufstream,
+	src: bufio::stream,
 	state: docstate,
 };
 
 fn parsedoc(in: io::handle) parser = {
 	static let buf: [4096]u8 = [0...];
 	return parser {
-		src = bufio::buffered(in, buf[..], []),
+		src = bufio::init(in, buf[..], []),
 		state = docstate::PARAGRAPH,
 	};
 };
@@ -84,7 +84,7 @@ fn scantext(par: *parser) (token | void) = {
 		return paragraph;
 	};
 	// TODO: Collapse whitespace
-	const buf = strio::dynamic();
+	const buf = memio::dynamic();
 	for (true) {
 		const rn = match (bufio::scanrune(&par.src)!) {
 		case io::EOF => break;
@@ -96,7 +96,7 @@ fn scantext(par: *parser) (token | void) = {
 			bufio::unreadrune(&par.src, rn);
 			break;
 		case '\n' =>
-			strio::appendrune(&buf, rn)!;
+			memio::appendrune(&buf, rn)!;
 			const rn = match (bufio::scanrune(&par.src)!) {
 			case io::EOF => break;
 			case let rn: rune =>
@@ -111,10 +111,10 @@ fn scantext(par: *parser) (token | void) = {
 				break;
 			};
 		case =>
-			strio::appendrune(&buf, rn)!;
+			memio::appendrune(&buf, rn)!;
 		};
 	};
-	let result = strio::string(&buf);
+	let result = memio::string(&buf)!;
 	if (len(result) == 0) {
 		return;
 	};
@@ -140,7 +140,7 @@ fn scanref(par: *parser) (token | void) = {
 		};
 	};
 
-	const buf = strio::dynamic();
+	const buf = memio::dynamic();
 	defer io::close(&buf)!;
 	// TODO: Handle invalid syntax here
 	for (true) {
@@ -151,12 +151,12 @@ fn scanref(par: *parser) (token | void) = {
 				bufio::scanrune(&par.src) as rune; // ]
 				break;
 			case =>
-				strio::appendrune(&buf, rn)!;
+				memio::appendrune(&buf, rn)!;
 			};
 		case io::EOF => break;
 		};
 	};
-	let id = parse::identstr(strio::string(&buf)) as ast::ident;
+	let id = parse::identstr(memio::string(&buf)!) as ast::ident;
 	return id: reference;
 };
 
@@ -183,7 +183,7 @@ fn scansample(par: *parser) (token | void) = {
 	};
 
 	let cont = true;
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	for (cont) {
 		const rn = match (bufio::scanrune(&par.src)!) {
 		case io::EOF => break;
@@ -192,9 +192,9 @@ fn scansample(par: *parser) (token | void) = {
 		};
 		switch (rn) {
 		case '\n' =>
-			strio::appendrune(&buf, rn)!;
+			memio::appendrune(&buf, rn)!;
 		case =>
-			strio::appendrune(&buf, rn)!;
+			memio::appendrune(&buf, rn)!;
 			continue;
 		};
 
@@ -209,7 +209,7 @@ fn scansample(par: *parser) (token | void) = {
 				case '\t' =>
 					i += 8;
 				case '\n' =>
-					strio::appendrune(&buf, rn)!;
+					memio::appendrune(&buf, rn)!;
 					i = 0;
 				case =>
 					bufio::unreadrune(&par.src, rn);
@@ -220,7 +220,7 @@ fn scansample(par: *parser) (token | void) = {
 		};
 	};
 
-	let buf = strio::string(&buf);
+	let buf = memio::string(&buf)!;
 	// Trim trailing newlines
 	buf = strings::rtrim(buf, '\n');
 	return buf: sample;

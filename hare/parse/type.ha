@@ -231,7 +231,7 @@ fn fn_type(lexer: *lex::lexer) (ast::_type | error) = {
 	return ast::_type {
 		start = start,
 		end = lex::prevloc(lexer),
-		flags = ast::type_flag::CONST,
+		flags = 0,
 		repr = proto,
 	};
 };

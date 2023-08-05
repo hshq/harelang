@@ -7,7 +7,6 @@
 // (c) 2022 Umar Getagazov <umar@handlerug.me>
 
 // Note: ast::ident should never have to be escaped
-use bufio;
 use encoding::utf8;
 use fmt;
 use hare::ast;
@@ -16,12 +15,12 @@ use hare::lex;
 use hare::module;
 use hare::unparse;
 use io;
+use memio;
 use net::ip;
 use net::uri;
 use os;
 use path;
 use strings;
-use strio;
 
 // Prints a string to an output handle, escaping any of HTML's reserved
 // characters.
@@ -52,20 +51,20 @@ fn html_escape(out: io::handle, in: str) (size | io::error) = {
 };
 
 @test fn html_escape() void = {
-	let sink = strio::dynamic();
+	let sink = memio::dynamic();
 	defer io::close(&sink)!;
 	html_escape(&sink, "hello world!")!;
-	assert(strio::string(&sink) == "hello world!");
+	assert(memio::string(&sink)! == "hello world!");
 
-	let sink = strio::dynamic();
+	let sink = memio::dynamic();
 	defer io::close(&sink)!;
 	html_escape(&sink, "\"hello world!\"")!;
-	assert(strio::string(&sink) == "&quot;hello world!&quot;");
+	assert(memio::string(&sink)! == "&quot;hello world!&quot;");
 
-	let sink = strio::dynamic();
+	let sink = memio::dynamic();
 	defer io::close(&sink)!;
 	html_escape(&sink, "<hello & 'world'!>")!;
-	assert(strio::string(&sink) == "&lt;hello &amp; &apos;world&apos;!&gt;");
+	assert(memio::string(&sink)! == "&lt;hello &amp; &apos;world&apos;!&gt;");
 };
 
 // Formats output as HTML
@@ -331,7 +330,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 		const trimmed = trim_comment(decl.docs);
 		defer free(trimmed);
 		const buf = strings::toutf8(trimmed);
-		markup_html(ctx, &bufio::fixed(buf, io::mode::READ))?;
+		markup_html(ctx, &memio::fixed(buf))?;
 	} else {
 		fmt::fprintln(ctx.out, "</details>")?;
 	};
@@ -632,10 +631,10 @@ fn type_html(
 	brief: bool,
 ) (size | io::error) = {
 	if (brief) {
-		let buf = strio::dynamic();
+		let buf = memio::dynamic();
 		defer io::close(&buf)!;
 		unparse::_type(&buf, indent, _type)?;
-		return html_escape(out, strio::string(&buf))?;
+		return html_escape(out, memio::string(&buf)!)?;
 	};
 
 	// TODO: More detailed formatter which can find aliases nested deeper in
@@ -854,7 +853,7 @@ fn breadcrumb(ident: ast::ident) str = {
 	if (len(ident) == 0) {
 		return "";
 	};
-	let buf = strio::dynamic();
+	let buf = memio::dynamic();
 	fmt::fprintf(&buf, "<a href='/'>stdlib</a> » ")!;
 	for (let i = 0z; i < len(ident) - 1; i += 1) {
 		let ipath = module::identpath(ident[..i+1]);
@@ -862,7 +861,7 @@ fn breadcrumb(ident: ast::ident) str = {
 		fmt::fprintf(&buf, "<a href='/{}'>{}</a>::", ipath, ident[i])!;
 	};
 	fmt::fprint(&buf, ident[len(ident) - 1])!;
-	return strio::string(&buf);
+	return memio::string(&buf)!;
 };
 
 const harriet_b64 = "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";

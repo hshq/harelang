@@ -21,7 +21,7 @@ fn load_systemdb() (void | fs::error | io::error) = {
 	const file = os::open(SYSTEM_DB)?;
 
 	let buf: [os::BUFSIZ]u8 = [0...];
-	const strm = bufio::buffered(file, buf, []);
+	const strm = bufio::init(file, buf, []);
 
 	for (true) {
 		const line = match (bufio::scanline(&strm)) {

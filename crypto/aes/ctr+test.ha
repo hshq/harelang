@@ -2,10 +2,10 @@
 // (c) 2022 Armin Preiml <apreiml@strohwolke.at>
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 use bytes;
-use bufio;
 use crypto::cipher;
 use errors;
 use io;
+use memio;
 
 @test fn ctr_zero_iv() void = {
 	const key: [_]u8 = [
@@ -30,7 +30,7 @@ use io;
 
 	let result: [16]u8 = [0...];
 	let buf: [CTR_BUFSIZE]u8 = [0...];
-	let resultbuf = bufio::fixed(result, io::mode::WRITE);
+	let resultbuf = memio::fixed(result);
 
 	let b = ct64();
 	ct64_init(&b, key);
@@ -51,7 +51,7 @@ use io;
 
 	result = [0...];
 	buf = [0...];
-	let cipherbuf = bufio::fixed(cipher, io::mode::READ);
+	let cipherbuf = memio::fixed(cipher);
 	let ctr = cipher::ctr(&cipherbuf, &b, iv[..], buf[..]);
 	const s = io::readall(&ctr, result)!;
 	assert(s as size == len(plain));
@@ -82,7 +82,7 @@ use io;
 	];
 
 	let result: [18]u8 = [0...];
-	let resultbuf = bufio::fixed(result, io::mode::WRITE);
+	let resultbuf = memio::fixed(result);
 	let buf: [CTR_BUFSIZE]u8 = [0...];
 
 	let b = ct64();
@@ -133,7 +133,7 @@ use io;
 	];
 
 	let result: [80]u8 = [0...];
-	let resultbuf = bufio::fixed(result, io::mode::WRITE);
+	let resultbuf = memio::fixed(result);
 	let buf: [CTR_BUFSIZE]u8 = [0...];
 
 	let b = ct64();
@@ -148,7 +148,7 @@ use io;
 	let b = ct64();
 	ct64_init(&b, key);
 
-	let cipherbuf = bufio::fixed(cipher, io::mode::READ);
+	let cipherbuf = memio::fixed(cipher);
 	let ctr = cipher::ctr(&cipherbuf, &b, iv[..], buf[..]);
 	const n = io::readall(&ctr, result)!;
 	assert(n as size == len(plain));
@@ -194,7 +194,7 @@ use io;
 	];
 
 	let result: [80]u8 = [0...];
-	let resultbuf = bufio::fixed(result, io::mode::WRITE);
+	let resultbuf = memio::fixed(result);
 	let buf: [CTR_BUFSIZE]u8 = [0...];
 
 	let b = ct64();
@@ -210,7 +210,7 @@ use io;
 	assert(n == len(plain));
 	assert(bytes::equal(cipher, result));
 
-	let cipherbuf = bufio::fixed(cipher, io::mode::READ);
+	let cipherbuf = memio::fixed(cipher);
 	let ctr = cipher::ctr(&cipherbuf, &b, iv[..], buf[..]);
 	const n = io::readall(&ctr, result)!;
 	assert(n as size == len(plain));
@@ -245,7 +245,7 @@ use io;
 	defer cipher::finish(&b);
 
 	let buf: [CTR_BUFSIZE]u8 = [0...];
-	let resultbuf = bufio::fixed(result, io::mode::WRITE);
+	let resultbuf = memio::fixed(result);
 	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
 	defer io::close(&ctr)!;
 
@@ -281,7 +281,7 @@ use io;
 	defer cipher::finish(&b);
 
 	let buf: [64]u8 = [0...];
-	let resultbuf = bufio::fixed(result, io::mode::WRITE);
+	let resultbuf = memio::fixed(result);
 
 	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
 	defer io::close(&ctr)!;
@@ -307,7 +307,7 @@ use io;
 
 	let buf: [64]u8 = [0...];
 	let result: [1]u8 = [0];
-	let resultbuf = bufio::fixed(result, io::mode::WRITE);
+	let resultbuf = memio::fixed(result);
 
 	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
 	defer io::close(&ctr)!;
@@ -397,7 +397,7 @@ fn errwriter(out: io::handle, limit: size, err: io::error) err_stream = {
 	];
 
 	let result: [80]u8 = [0...];
-	let resultbuf = bufio::fixed(result, io::mode::WRITE);
+	let resultbuf = memio::fixed(result);
 	let errw = errwriter(&resultbuf, 20, errors::again);
 	let buf: [CTR_BUFSIZE]u8 = [0...];
 

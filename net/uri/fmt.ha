@@ -2,10 +2,10 @@ use ascii;
 use encoding::utf8;
 use fmt;
 use io;
+use memio;
 use net::ip;
 use strconv;
 use strings;
-use strio;
 
 
 // Extract from RFC3986 ABNF
@@ -114,7 +114,7 @@ fn percent_encode(out: io::handle, src: str, allowed: str) (size | io::error) = 
 
 // Formats a [[uri]] into a string. The result must be freed by the caller.
 export fn string(u: *const uri) str = {
-	const st = strio::dynamic();
+	const st = memio::dynamic();
 	fmt(&st, u)!;
-	return strio::string(&st);
+	return memio::string(&st)!;
 };

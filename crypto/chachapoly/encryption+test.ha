@@ -1,8 +1,8 @@
 // License: MPL-2.0
 // (c) 2023 Armin Preiml <apreiml@strohwolke.at>
-use bufio;
 use bytes;
 use io;
+use memio;
 
 @test fn encrypt() void = {
 	let plain: [_]u8 = [
@@ -57,7 +57,7 @@ use io;
 		0x2e, 0xcb, 0xd0, 0x60, 0x06, 0x91,
 	];
 
-	let out = bufio::dynamic(io::mode::RDWR);
+	let out = memio::dynamic();
 	defer io::close(&out)!;
 
 	let s = chachapoly();
@@ -67,13 +67,13 @@ use io;
 	let outtag: [TAGSZ]u8 = [0...];
 	seal(&s, outtag);
 
-	let outbuf = bufio::buffer(&out);
+	let outbuf = memio::buffer(&out);
 	assert(bytes::equal(outbuf, cipher));
 	assert(bytes::equal(outtag, tag));
 
-	let out = bufio::dynamic(io::mode::RDWR);
+	let out = memio::dynamic();
 	defer io::close(&out)!;
-	let in = bufio::fixed(cipher, io::mode::READ);
+	let in = memio::fixed(cipher);
 
 	let s = chachapoly();
 	init(&s, &in, key, nonce, ad);
@@ -81,7 +81,7 @@ use io;
 
 	verify(&s, tag)!;
 
-	let outbuf = bufio::buffer(&out);
+	let outbuf = memio::buffer(&out);
 	assert(bytes::equal(outbuf, plain));
 
 	io::close(&s)!;
@@ -150,7 +150,7 @@ const rfcsample: sample = sample {
 @test fn xencrypt() void = {
 	let tc = rfcsample;
 
-	let out = bufio::dynamic(io::mode::RDWR);
+	let out = memio::dynamic();
 	defer io::close(&out)!;
 
 	let s = chachapoly();
@@ -160,13 +160,13 @@ const rfcsample: sample = sample {
 	let outtag: [TAGSZ]u8 = [0...];
 	seal(&s, outtag);
 
-	let outbuf = bufio::buffer(&out);
+	let outbuf = memio::buffer(&out);
 	assert(bytes::equal(outbuf, tc.cipher));
 	assert(bytes::equal(outtag, tc.mac));
 
-	let out = bufio::dynamic(io::mode::RDWR);
+	let out = memio::dynamic();
 	defer io::close(&out)!;
-	let in = bufio::fixed(tc.cipher, io::mode::READ);
+	let in = memio::fixed(tc.cipher);
 
 	let s = chachapoly();
 	xinit(&s, &in, tc.key, tc.nonce, tc.additional);
@@ -174,7 +174,7 @@ const rfcsample: sample = sample {
 
 	verify(&s, tc.mac)!;
 
-	let outbuf = bufio::buffer(&out);
+	let outbuf = memio::buffer(&out);
 	assert(bytes::equal(outbuf, tc.msg));
 
 	io::close(&s)!;

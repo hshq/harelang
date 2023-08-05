@@ -2,7 +2,6 @@ use endian;
 use fmt;
 use hash;
 use io;
-use strio;
 use strings;
 
 @test fn siphash() void = {

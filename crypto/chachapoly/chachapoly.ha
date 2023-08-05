@@ -1,6 +1,5 @@
 // License: MPL-2.0
 // (c) 2023 Armin Preiml <apreiml@strohwolke.at>
-use bufio;
 use bytes;
 use crypto::chacha;
 use crypto::mac;
@@ -9,6 +8,7 @@ use crypto::poly1305;
 use endian;
 use errors;
 use io;
+use memio;
 use types;
 
 // Nonce size as required by [[init]].
@@ -89,7 +89,7 @@ fn geninit(
 	let otk: poly1305::key = [0...];
 	defer bytes::zero(otk);
 
-	let otkbuf = bufio::fixed(otk, io::mode::WRITE);
+	let otkbuf = memio::fixed(otk);
 	finit(&s.c, &otkbuf, key, nonce);
 	io::writeall(&s.c, otk[..])!;
 

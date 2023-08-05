@@ -7,7 +7,7 @@ use io;
 use strings;
 
 // Appends zero or more strings to an [[io::handle]]. The output needn't be a
-// strio stream, but it's generally more efficient if it is. Returns the number
+// memio stream, but it's generally more efficient if it is. Returns the number
 // of bytes written, or an error.
 export fn concat(out: io::handle, strs: str...) (size | io::error) =
 	join(out, "", strs...);
@@ -27,13 +27,13 @@ export fn concat(out: io::handle, strs: str...) (size | io::error) =
 	];
 	for (let i = 0z; i < len(tests); i += 1) {
 		let ln = concat(&st, tests[i].0...) as size;
-		assert(ln == len(tests[i].1) && string(&st) == tests[i].1);
-		truncate(&st);
+		assert(ln == len(tests[i].1) && string(&st)! == tests[i].1);
+		reset(&st);
 	};
 };
 
 // Joins several strings together by a delimiter and writes them to a handle.
-// The output needn't be a strio stream, but it's generally more efficient if it
+// The output needn't be a memio stream, but it's generally more efficient if it
 // is. Returns the number of bytes written, or an error.
 export fn join(out: io::handle, delim: str, strs: str...) (size | io::error) = {
 	let n = 0z;
@@ -63,13 +63,13 @@ export fn join(out: io::handle, delim: str, strs: str...) (size | io::error) = {
 	];
 	for (let i = 0z; i < len(tests); i += 1) {
 		let ln = join(&st, tests[i].0, tests[i].1...) as size;
-		assert(ln == len(tests[i].2) && string(&st) == tests[i].2);
-		truncate(&st);
+		assert(ln == len(tests[i].2) && string(&st)! == tests[i].2);
+		reset(&st);
 	};
 };
 
 // Appends zero or more strings to an [[io::handle]], in reverse order. The
-// output needn't be a strio stream, but it's generally more efficient if it is.
+// output needn't be a memio stream, but it's generally more efficient if it is.
 // Returns the number of bytes written, or an error.
 export fn rconcat(out: io::handle, strs: str...) (size | io::error) =
 	rjoin(out, "", strs...);
@@ -89,13 +89,13 @@ export fn rconcat(out: io::handle, strs: str...) (size | io::error) =
 	];
 	for (let i = 0z; i < len(tests); i += 1) {
 		let ln = rconcat(&st, tests[i].0...) as size;
-		assert(ln == len(tests[i].1) && string(&st) == tests[i].1);
-		truncate(&st);
+		assert(ln == len(tests[i].1) && string(&st)! == tests[i].1);
+		reset(&st);
 	};
 };
 
 // Joins several strings together by a delimiter and writes them to a handle, in
-// reverse order. The output needn't be a strio stream, but it's generally more
+// reverse order. The output needn't be a memio stream, but it's generally more
 // efficient if it is. Returns the number of bytes written, or an error.
 export fn rjoin(out: io::handle, delim: str, strs: str...) (size | io::error) = {
 	let n = 0z;
@@ -125,8 +125,8 @@ export fn rjoin(out: io::handle, delim: str, strs: str...) (size | io::error) = 
 	];
 	for (let i = 0z; i < len(tests); i += 1) {
 		let ln = rjoin(&st, tests[i].0, tests[i].1...) as size;
-		assert(ln == len(tests[i].2) && string(&st) == tests[i].2);
-		truncate(&st);
+		assert(ln == len(tests[i].2) && string(&st)! == tests[i].2);
+		reset(&st);
 	};
 };
 
