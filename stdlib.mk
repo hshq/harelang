@@ -706,6 +706,7 @@ stdlib_env += HARE_TD_math::checked=$(HARECACHE)/math/checked/math_checked.td
 stdlib_deps_any += $(stdlib_math_checked_any)
 stdlib_math_checked_linux = $(stdlib_math_checked_any)
 stdlib_math_checked_freebsd = $(stdlib_math_checked_any)
+stdlib_math_checked_darwin = $(stdlib_math_checked_any)
 
 # gen_lib math::complex (any)
 stdlib_math_complex_any = $(HARECACHE)/math/complex/math_complex-any.o
@@ -3624,6 +3625,7 @@ testlib_env += HARE_TD_math::checked=$(TESTCACHE)/math/checked/math_checked.td
 testlib_deps_any += $(testlib_math_checked_any)
 testlib_math_checked_linux = $(testlib_math_checked_any)
 testlib_math_checked_freebsd = $(testlib_math_checked_any)
+testlib_math_checked_darwin = $(testlib_math_checked_any)
 
 # gen_lib math::complex (any)
 testlib_math_complex_any = $(TESTCACHE)/math/complex/math_complex-any.o
