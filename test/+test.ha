@@ -90,6 +90,7 @@ export @symbol("__test_main") fn main() size = {
 	defer finish_context(&ctx);
 
 	fmt::printfln("Running {}/{} tests:\n", len(enabled_tests), ntest)!;
+	reset(&ctx);
 	for (let i = 0z; i < len(enabled_tests); i += 1) {
 		do_test(&ctx, enabled_tests[i]);
 	};
@@ -141,6 +142,12 @@ export @symbol("__test_main") fn main() size = {
 	return len(ctx.failures);
 };
 
+fn reset(ctx: *context) void = {
+	rt::fesetround(ctx.default_round);
+	rt::feclearexcept(~0u);
+	signal::resetall();
+};
+
 fn do_test(ctx: *context, test: test) void = {
 	signal::handle(signal::sig::SEGV, &handle_segv, signal::flag::NODEFER);
 	memio::reset(&ctx.stdout);
@@ -190,9 +197,7 @@ fn do_test(ctx: *context, test: test) void = {
 		});
 	};
 
-	rt::fesetround(ctx.default_round);
-	rt::feclearexcept(~0u);
-	signal::resetall();
+	reset(ctx);
 };
 
 fn run_test(ctx: *context, test: test) (void | failure) = {
