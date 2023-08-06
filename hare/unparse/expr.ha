@@ -400,8 +400,6 @@ export fn expr(
 			yield "!";
 		case ast::unarithm_op::MINUS =>
 			yield "-";
-		case ast::unarithm_op::PLUS =>
-			yield "+";
 		})?;
 		z += expr(out, indent, *e.operand)?;
 		return z;
