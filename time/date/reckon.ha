@@ -391,14 +391,14 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, calc: calculus) void = {
 
 	let a = new(chrono::UTC, 0,  2000, 12, 31)!;
 	let ps = [
-		period { years = +1, months = +1, days = +1, ... },
+		period { years =  1, months =  1, days =  1, ... },
 		period { years = -1, months = -1, days = -1, ... },
 		period { years = -1, months = -1, days = -1, ... },
-		period { years = +1, months = +1, days = +1, ... },
-		period { hours = +1, minutes = +1, seconds = +1, ... },
+		period { years =  1, months =  1, days =  1, ... },
+		period { hours =  1, minutes =  1, seconds =  1, ... },
 		period { hours = -1, minutes = -1, seconds = -1, ... },
 		period { hours = -1, minutes = -1, seconds = -1, ... },
-		period { hours = +1, minutes = +1, seconds = +1, ... },
+		period { hours =  1, minutes =  1, seconds =  1, ... },
 	];
 
 	let r = reckon(a, 0, ps[..1]...);
@@ -437,14 +437,14 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, calc: calculus) void = {
 
 	let a = new(chrono::UTC, 0,  2000, 12, 31)!;
 	let ps = [
-		period { years = +1, months = +1, days = +1, ... },
+		period { years =  1, months =  1, days =  1, ... },
 		period { years = -1, months = -1, days = -1, ... },
 		period { years = -1, months = -1, days = -1, ... },
-		period { years = +1, months = +1, days = +1, ... },
-		period { hours = +1, minutes = +1, seconds = +1, ... },
+		period { years =  1, months =  1, days =  1, ... },
+		period { hours =  1, minutes =  1, seconds =  1, ... },
 		period { hours = -1, minutes = -1, seconds = -1, ... },
 		period { hours = -1, minutes = -1, seconds = -1, ... },
-		period { hours = +1, minutes = +1, seconds = +1, ... },
+		period { hours =  1, minutes =  1, seconds =  1, ... },
 	];
 
 	let r = reckon(a, calculus::REVSIG, ps[..1]...);
