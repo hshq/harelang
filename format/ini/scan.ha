@@ -58,7 +58,7 @@ export fn next(sc: *scanner) (entry | io::EOF | error) = {
 		case io::EOF =>
 			return io::EOF;
 		};
-		sc.lineno += 1;
+		defer sc.lineno += 1;
 
 		free(sc.line);
 		sc.line = line;
