@@ -32,7 +32,7 @@ export fn parse(in: str) ((str, type_params) | errors::invalid) = {
 // object that was prepared via [[parse]], void if there are no remaining
 // parameters, and [[errors::invalid]] if a syntax error was encountered.
 export fn next_param(in: *type_params) ((str, str) | void | errors::invalid) = {
-	const tok = match (strings::next_token(in)) {
+	const tok = match (strings::next_token(in: *strings::tokenizer)) {
 	case let s: str =>
 		if (s == "") {
 			// empty parameter
