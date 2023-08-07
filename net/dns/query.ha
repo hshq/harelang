@@ -1,10 +1,14 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
+use endian;
 use errors;
+use io;
 use net;
 use net::ip;
 use net::udp;
+use net::tcp;
 use time;
+use types;
 use unix::poll;
 use unix::resolvconf;
 
@@ -55,13 +59,13 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 	};
 
 	let header = header { ... };
+	let src: ip::addr = ip::ANY_V4;
 	for (true) {
 		let nevent = poll::poll(pollfd, timeout)!;
 		if (nevent == 0) {
 			return errors::timeout;
 		};
 
-		let src: ip::addr = ip::ANY_V4;
 		if (pollfd[0].revents & poll::event::POLLIN != 0) {
 			z = udp::recvfrom(socket4, buf, &src, null)?;
 		};
@@ -87,8 +91,51 @@ export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 		};
 	};
 
-	assert(!header.op.tc, "TODO: Retry with TCP for truncated DNS response");
+	if (!header.op.tc) {
+		check_rcode(header.op.rcode)?;
+		return decode(buf[..z])?;
+	};
 
+	// Response was truncated, retry over TCP. In TCP mode, the
+	// query is preceded by two bytes indicating the query length
+	z = encode(buf, query)?;
+	if (z > types::U16_MAX) {
+		return errors::overflow;
+	};
+	let zbuf: [2]u8 = [0...];
+	endian::beputu16(zbuf, z: u16);
+	let socket = tcp::connect(src, 53)?;
+	defer net::close(socket)!;
+
+	io::writeall(socket, zbuf)!;
+	io::writeall(socket, buf[..z])!;
+
+	let rz: u16 = match (io::readall(socket, zbuf)?) {
+	case let s: size =>
+		if (s != 2) {
+			return format;
+		};
+		yield endian::begetu16(zbuf);
+	case =>
+		return format;
+	};
+	let tcpbuf: []u8 = alloc([0...], rz);
+	defer free(tcpbuf);
+
+	match (io::readall(socket, tcpbuf)?) {
+	case let s: size =>
+		if (s != rz) {
+			return format;
+		};
+	case =>
+		return format;
+	};
+
+	const dec = decoder_init(tcpbuf);
+	decode_header(&dec, &header)?;
+	if ((header.id != query.header.id) || header.op.tc) {
+		return format;
+	};
 	check_rcode(header.op.rcode)?;
-	return decode(buf[..z])?;
+	return decode(tcpbuf)?;
 };

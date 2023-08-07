@@ -50,14 +50,36 @@ trademark=™
 	const sc = scan(&buf);
 	defer finish(&sc);
 
-	assert(next(&sc) as error is syntaxerr); // TODO: test line numbering?
+	assert(next(&sc) as error as syntaxerr == 1);
 
 	// Unterminated section header
 	const buf = memio::fixed(strings::toutf8("[dangling\n"));
 	const sc = scan(&buf);
 	defer finish(&sc);
 
-	assert(next(&sc) as error is syntaxerr);
+	assert(next(&sc) as error as syntaxerr == 1);
+
+	// Line numbering and recovery
+	const buf = memio::fixed(strings::toutf8(
+"[a]
+b=c
+d=e
+[f]
+g=h
+
+i
+
+j=k
+"));
+	const sc = scan(&buf);
+	defer finish(&sc);
+
+	ini_test(&sc, "a", "b", "c");
+	ini_test(&sc, "a", "d", "e");
+	ini_test(&sc, "f", "g", "h");
+	assert(next(&sc) as error as syntaxerr == 7);
+	ini_test(&sc, "f", "j", "k");
+	assert(next(&sc) is io::EOF);
 };
 
 fn ini_test(

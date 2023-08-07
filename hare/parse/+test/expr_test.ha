@@ -292,8 +292,7 @@
 };
 
 @test fn unarithm() void = {
-	roundtrip("export fn main() void = +void;\n\n"
-		"export fn main() void = -void;\n\n"
+	roundtrip("export fn main() void = -void;\n\n"
 		"export fn main() void = *void;\n\n"
 		"export fn main() void = ~void;\n\n"
 		"export fn main() void = !void;\n\n"

@@ -54,8 +54,7 @@ fn calc_year_daycnt(y: int) int = {
 fn calc_janfirstweekday(y: int) int = {
 	const y = (y % 400) + 400; // keep year > 0 (using Gregorian cycle)
 	// Gauss' algorithm
-	const wd = (
-		+ 5 * ((y - 1) % 4)
+	const wd = (5 * ((y - 1) % 4)
 		+ 4 * ((y - 1) % 100)
 		+ 6 * ((y - 1) % 400)
 	) % 7;

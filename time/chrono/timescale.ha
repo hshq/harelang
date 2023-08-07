@@ -249,7 +249,7 @@ fn gps_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 	case &gps =>
 		return [i];
 	case &tai =>
-		return [time::add(i, +GPS_OFFSET)];
+		return [time::add(i, GPS_OFFSET)];
 	case =>
 		void;
 	};
@@ -289,7 +289,7 @@ fn tt_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 	case &tt =>
 		return [i];
 	case &tai =>
-		return [time::add(i, +TT_OFFSET)];
+		return [time::add(i, TT_OFFSET)];
 	case =>
 		void;
 	};
@@ -340,13 +340,13 @@ fn mtc_convto(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 
 		// Slightly adjust epoch for the actual Martian midnight.
 		// Earth's midnight occurred before Mars'.
-		i = time::add(i, +DELTA_JANSIX_ADJUSTMENT);
+		i = time::add(i, DELTA_JANSIX_ADJUSTMENT);
 
 		// Scale from Mars-time to Earth-time.
 		i = time::mult(i, FACTOR_TERRESTRIAL_MARTIAN);
 
 		// Change epoch to the Unix epoch 1970 Jan 1st (Terrestrial Time).
-		i = time::add(i, +DELTA_UNIXEPOCH_JANSIX);
+		i = time::add(i, DELTA_UNIXEPOCH_JANSIX);
 
 		// Get the TAI time.
 		// assertion since TT and TAI are continuous.
@@ -380,7 +380,7 @@ fn mtc_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 		i = time::add(i, -DELTA_JANSIX_ADJUSTMENT);
 
 		// Change epoch to that of the Mars Sol Date.
-		i = time::add(i, +DELTA_MARSEPOCH_JANSIX);
+		i = time::add(i, DELTA_MARSEPOCH_JANSIX);
 
 		return [i];
 	case =>

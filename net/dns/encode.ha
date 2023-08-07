@@ -59,6 +59,15 @@ fn encode_u32(enc: *encoder, val: u32) (void | error) = {
 	enc.offs += 4;
 };
 
+fn encode_raw(enc: *encoder, val: []u8) (void | error) = {
+	let end = enc.offs + len(val);
+	if (len(enc.buf) <= end) {
+		return errors::overflow;
+	};
+	enc.buf[enc.offs..end] = val;
+	enc.offs += len(val);
+};
+
 fn encode_labels(enc: *encoder, names: []str) (void | error) = {
 	// TODO: Assert that the labels are all valid ASCII?
 	for (let i = 0z; i < len(names); i += 1) {
@@ -86,8 +95,30 @@ fn rrecord_encode(enc: *encoder, r: *rrecord) (void | error) = {
 	encode_u16(enc, r.rtype)?;
 	encode_u16(enc, r.class)?;
 	encode_u32(enc, r.ttl)?;
+	let ln_enc = *enc; // save state for rdata len
+	encode_u16(enc, 0)?; // write dummy rdata len
+	encode_rdata(enc, r.rdata)?; // write rdata
+	let rdata_len = enc.offs - ln_enc.offs - 2;
+	encode_u16(&ln_enc, rdata_len: u16)?; // write rdata len to its place
+};
 
-	abort(); // TODO
+fn encode_rdata(enc: *encoder, rdata: rdata) (void | error) = {
+	match (rdata) {
+	case let d: unknown_rdata =>
+		return encode_raw(enc, d);
+	case let d: txt =>
+		return encode_txt(enc, d);
+	case =>
+		abort(); // TODO
+	};
+};
+
+fn encode_txt(enc: *encoder, txt: txt) (void | error) = {
+	for (let i = 0z; i < len(txt); i += 1) {
+		if (len(txt[i]) > 255) return errors::invalid;
+		encode_u8(enc, len(txt[i]): u8)?;
+		encode_raw(enc, txt[i])?;
+	};
 };
 
 fn encode_op(op: *op) u16 =
@@ -107,7 +138,7 @@ fn encode_op(op: *op) u16 =
 		tc = true,
 		rd = false,
 		ra = true,
-		rcode = rcode::SERVER_FAILURE,
+		rcode = rcode::SERVFAIL,
 	};
 	let enc = encode_op(&opcode);
 	let opcode2 = op { ... };

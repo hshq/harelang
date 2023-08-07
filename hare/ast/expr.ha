@@ -385,7 +385,6 @@ export type unarithm_op = enum {
 	DEREF,	// *
 	LNOT,	// !
 	MINUS,	// -
-	PLUS,	// +
 };
 
 // A unary arithmetic expression.

@@ -6,6 +6,7 @@ use hare::lex::{ltok};
 use hare::parse;
 use hare::types;
 use io;
+use memio;
 use os;
 use regex;
 use strings;
@@ -102,7 +103,7 @@ fn loadtype(store: *types::typestore) void = {
 };
 
 fn parseioctl(store: *types::typestore, d: dir, params: str) ioctl = {
-	const buf = bufio::fixed(strings::toutf8(params), io::mode::READ);
+	const buf = memio::fixed(strings::toutf8(params));
 	const lex = lex::init(&buf, "<ioctl>");
 
 	const rn = expect(&lex, ltok::LIT_RUNE).1 as rune;

@@ -1,6 +1,5 @@
 // License: GPL-3.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
-use bufio;
 use fmt;
 use getopt;
 use hare::ast;
@@ -9,6 +8,7 @@ use hare::parse;
 use hare::types;
 use hare::unparse;
 use io;
+use memio;
 use os;
 use path;
 use strings;
@@ -21,7 +21,7 @@ fn typeinfo(
 		fmt::println("null")?;
 		yield types::lookup_builtin(store, ast::builtin_type::NULL);
 	} else {
-		const stream = bufio::fixed(strings::toutf8(s), io::mode::READ);
+		const stream = memio::fixed(strings::toutf8(s));
 		defer io::close(&stream)!;
 		const lexer = lex::init(&stream, "-");
 		defer lex::finish(&lexer);

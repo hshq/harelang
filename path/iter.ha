@@ -73,7 +73,7 @@ fn split_iter(it: *iterator) ([]u8, []u8) = {
 	};
 };
 
-// get the remaining path from an iterator, without advancing the iterator.
+// Gets the remaining path from an iterator, without advancing the iterator.
 export fn iterrem(it: *iterator) str = strings::fromutf8_unsafe(it.cur);
 
 @test fn iter() void = {

@@ -1227,8 +1227,7 @@ fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 
 fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = match (try(lexer,
-		ltok::PLUS, ltok::MINUS, ltok::BNOT,
-		ltok::LNOT, ltok::TIMES, ltok::BAND,
+		ltok::MINUS, ltok::BNOT, ltok::LNOT, ltok::TIMES, ltok::BAND,
 		ltok::SWITCH, ltok::MATCH, ltok::COLON, ltok::LBRACE)?) {
 	case void =>
 		return builtin(lexer);
@@ -1249,8 +1248,6 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 	};
 
 	const op = switch (tok.0) {
-	case ltok::PLUS =>
-		yield ast::unarithm_op::PLUS;
 	case ltok::MINUS =>
 		yield ast::unarithm_op::MINUS;
 	case ltok::BNOT =>

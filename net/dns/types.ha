@@ -19,6 +19,7 @@ export type rtype = enum u16 {
 	SRV = 33,
 	SSHFP = 44,
 	DNSKEY = 48,
+	TSIG = 250,
 	CAA = 257,
 };
 
@@ -57,6 +58,7 @@ export type qclass = enum u16 {
 	CH = 3,
 	HS = 4,
 	// *
+	NONE = 254,
 	ANY = 255,
 };
 
@@ -85,16 +87,27 @@ export type opcode = enum u8 {
 	QUERY = 0,
 	IQUERY = 1,
 	STATUS = 2,
+	UPDATE = 5,
 };
 
 // Response code from resolver.
 export type rcode = enum u8 {
-	NO_ERROR = 0,
-	FMT_ERROR = 1,
-	SERVER_FAILURE = 2,
-	NAME_ERROR = 3,
-	NOT_IMPLEMENTED = 4,
+	NOERROR = 0,
+	FORMERR = 1,
+	SERVFAIL = 2,
+	NXDOMAIN = 3,
+	NOTIMP = 4,
 	REFUSED = 5,
+	// RFC 2136 UPDATE
+	YXDOMAIN = 6,
+	YXRRSET = 7,
+	NXRRSET = 8,
+	NOTAUTH = 9,
+	NOTZONE = 10,
+	// RFC 2845 TSIG
+	BADSIG = 16,
+	BADKEY = 17,
+	BADTIME = 18,
 };
 
 // Operational information for this message.
@@ -190,6 +203,19 @@ export type sshfp = struct {
 	fingerprint: []u8,
 };
 
+// A TSIG record.
+export type tsig = struct {
+	algorithm: []str,
+	time_signed: u64,
+	fudge: u16,
+	mac_len: u16,
+	mac: []u8,
+	orig_id: u16,
+	error: u16,
+	other_len: u16,
+	other_data: []u8,
+};
+
 // A TXT record.
 export type txt = [][]u8;
 
@@ -197,7 +223,8 @@ export type txt = [][]u8;
 export type unknown_rdata = []u8;
 
 // Tagged union of supported rdata types.
-export type rdata = (a | aaaa | caa | cname | mx | ns | ptr | soa | srv | sshfp | txt | unknown_rdata);
+export type rdata = (a | aaaa | caa | cname | mx | ns | ptr | soa | srv
+	| sshfp | tsig | txt | unknown_rdata);
 
 // A DNS message, Hare representation. See [[encode]] and [[decode]] for the DNS
 // representation.
@@ -258,6 +285,10 @@ fn rrecord_finish(rr: *rrecord) void = {
 		strings::freeall(sr.target);
 	case let sf: sshfp =>
 		free(sf.fingerprint);
+	case let ts: tsig =>
+		strings::freeall(ts.algorithm);
+		free(ts.mac);
+		free(ts.other_data);
 	case let tx: txt =>
 		bytes_free(tx: [][]u8);
 	case => void;
