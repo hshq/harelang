@@ -59,14 +59,6 @@ export fn pipe() (io::file, io::file) = {
 };
 
 fn open(path: str) (platform_cmd | error) = {
-	match (rt::access(path, rt::X_OK)) {
-	case let err: rt::errno =>
-		return errors::errno(err);
-	case let b: bool =>
-		if (!b) {
-			return errors::noaccess;
-		};
-	};
 	// O_PATH is used because it allows us to use an executable for which we
 	// have execute permissions, but not read permissions.
 	let fd = match (rt::open(path, rt::O_PATH, 0u)) {
@@ -77,6 +69,14 @@ fn open(path: str) (platform_cmd | error) = {
 	};
 	let success = false;
 	defer if (!success) rt::close(fd)!;
+	match (rt::faccessat(fd, "", rt::X_OK, rt::AT_EMPTY_PATH)) {
+	case let err: rt::errno =>
+		return errors::errno(err);
+	case let b: bool =>
+		if (!b) {
+			return errors::noaccess;
+		};
+	};
 	// Make sure we are not trying to execute anything weird. fstat()
 	// already dereferences symlinks, so if this is anything other than a
 	// regular file it cannot be executed.
