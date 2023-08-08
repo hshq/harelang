@@ -152,6 +152,9 @@ export fn fstatat(fd: int, path: path, stat: *st, flag: int) (void | errno) = {
 	stat.flags = fbstat.st_flags;
 };
 
+export fn fstat(fd: int, stat: *st) (errno | void) =
+	fstatat(fd, "", stat, AT_EMPTY_PATH);
+
 export fn readlinkat(
 	dirfd: int,
 	path: path,

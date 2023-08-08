@@ -308,6 +308,15 @@ export def AT_SYMLINK_NOFOLLOW: int = 0x0200;
 export def AT_SYMLINK_FOLLOW: int = 0x0400;
 export def AT_REMOVEDIR: int = 0x0800;
 export def AT_RESOLVE_BENEATH: int = 0x2000;
+export def AT_EMPTY_PATH: int = 0x4000;
+
+export def S_IFIFO: mode_t = 0o010000;
+export def S_IFCHR: mode_t = 0o020000;
+export def S_IFDIR: mode_t = 0o040000;
+export def S_IFBLK: mode_t = 0o060000;
+export def S_IFREG: mode_t = 0o100000;
+export def S_IFLNK: mode_t = 0o120000;
+export def S_IFSOCK: mode_t = 0o140000;
 
 export def MAP_SHARED: uint = 0x0001;
 export def MAP_PRIVATE: uint = 0x0002;
