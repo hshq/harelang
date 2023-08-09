@@ -76,6 +76,7 @@ export fn string(in: *stream) (str | utf8::invalid) = {
 // the buffer can be overwritten and reused.
 export fn reset(in: *stream) void = {
 	in.pos = 0;
+	in.buf = in.buf[..0];
 };
 
 // Reads data from a [[dynamic]] or [[fixed]] stream and returns a slice
