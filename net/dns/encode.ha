@@ -106,10 +106,23 @@ fn encode_rdata(enc: *encoder, rdata: rdata) (void | error) = {
 	match (rdata) {
 	case let d: unknown_rdata =>
 		return encode_raw(enc, d);
+	case let d: opt =>
+		return encode_opt(enc, d);
 	case let d: txt =>
 		return encode_txt(enc, d);
 	case =>
 		abort(); // TODO
+	};
+};
+
+fn encode_opt(enc: *encoder, opt: opt) (void | error) = {
+	for (let i = 0z; i < len(opt.options); i += 1) {
+		if (len(opt.options[i].data) > 65535) {
+			return errors::invalid;
+		};
+		encode_u16(enc, opt.options[i].code)?;
+		encode_u16(enc, len(opt.options[i].data): u16)?;
+		encode_raw(enc, opt.options[i].data)?;
 	};
 };
 

@@ -212,6 +212,8 @@ fn decode_rdata(dec: *decoder, rtype: rtype, rlen: size) (rdata | format) = {
 		return decode_mx(&sub);
 	case rtype::NS =>
 		return decode_ns(&sub);
+	case rtype::OPT =>
+		return decode_opt(&sub);
 	case rtype::PTR =>
 		return decode_ptr(&sub);
 	case rtype::SOA =>
@@ -293,6 +295,34 @@ fn decode_ns(dec: *decoder) (rdata | format) = {
 	return ns {
 		name = decode_name(dec)?,
 	};
+};
+
+fn decode_opt(dec: *decoder) (rdata | format) = {
+	let success = false;
+	let r = opt {
+		options = [],
+	};
+	defer if (!success) {
+		for (let i = 0z; i < len(r.options); i += 1) {
+			free(r.options[i].data);
+		};
+		free(r.options);
+	};
+	for (len(dec.cur) > 0) {
+		let o = edns_opt {
+			code = decode_u16(dec)?,
+			data = [],
+		};
+		let sz = decode_u16(dec)?;
+		if (len(dec.cur) < sz) {
+			return format;
+		};
+		append(o.data, dec.cur[..sz]...);
+		dec.cur = dec.cur[sz..];
+		append(r.options, o);
+	};
+	success = true;
+	return r;
 };
 
 fn decode_ptr(dec: *decoder) (rdata | format) = {

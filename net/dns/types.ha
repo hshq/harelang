@@ -17,6 +17,7 @@ export type rtype = enum u16 {
 	TXT = 16,
 	AAAA = 28,
 	SRV = 33,
+	OPT = 41,
 	SSHFP = 44,
 	DNSKEY = 48,
 	TSIG = 250,
@@ -34,6 +35,7 @@ export type qtype = enum u16 {
 	TXT = 16,
 	AAAA = 28,
 	SRV = 33,
+	OPT = 41,
 	SSHFP = 44,
 	DNSKEY = 48,
 	// ...
@@ -144,6 +146,12 @@ export type rrecord = struct {
 	rdata: rdata,
 };
 
+// An EDNS (RFC 6891) option, as contained in [[opt]] records.
+export type edns_opt = struct {
+	code: u16,
+	data: []u8,
+};
+
 // An A record.
 export type a = ip::addr4;
 
@@ -171,6 +179,11 @@ export type mx = struct {
 // An NS record.
 export type ns = struct {
 	name: []str,
+};
+
+// An OPT record (EDNS, RFC 6891).
+export type opt = struct {
+	options: []edns_opt,
 };
 
 // A PTR record.
@@ -223,7 +236,7 @@ export type txt = [][]u8;
 export type unknown_rdata = []u8;
 
 // Tagged union of supported rdata types.
-export type rdata = (a | aaaa | caa | cname | mx | ns | ptr | soa | srv
+export type rdata = (a | aaaa | caa | cname | mx | ns | opt | ptr | soa | srv
 	| sshfp | tsig | txt | unknown_rdata);
 
 // A DNS message, Hare representation. See [[encode]] and [[decode]] for the DNS
@@ -276,6 +289,11 @@ fn rrecord_finish(rr: *rrecord) void = {
 		strings::freeall(mx.name);
 	case let ns: ns =>
 		strings::freeall(ns.name);
+	case let opt: opt =>
+		for (let i = 0z; i < len(opt.options); i += 1) {
+			free(opt.options[i].data);
+		};
+		free(opt.options);
 	case let ptr: ptr =>
 		strings::freeall(ptr.name);
 	case let so: soa =>
