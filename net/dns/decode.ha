@@ -208,14 +208,20 @@ fn decode_rdata(dec: *decoder, rtype: rtype, rlen: size) (rdata | format) = {
 		return decode_caa(&sub);
 	case rtype::CNAME =>
 		return decode_cname(&sub);
+	case rtype::DNSKEY =>
+		return decode_dnskey(&sub);
 	case rtype::MX =>
 		return decode_mx(&sub);
 	case rtype::NS =>
 		return decode_ns(&sub);
 	case rtype::OPT =>
 		return decode_opt(&sub);
+	case rtype::NSEC =>
+		return decode_nsec(&sub);
 	case rtype::PTR =>
 		return decode_ptr(&sub);
+	case rtype::RRSIG =>
+		return decode_rrsig(&sub);
 	case rtype::SOA =>
 		return decode_soa(&sub);
 	case rtype::SRV =>
@@ -284,6 +290,17 @@ fn decode_cname(dec: *decoder) (rdata | format) = {
 	};
 };
 
+fn decode_dnskey(dec: *decoder) (rdata | format) = {
+	let r = dnskey {
+		flags = decode_u16(dec)?,
+		protocol = decode_u8(dec)?,
+		algorithm = decode_u8(dec)?,
+		key = [],
+	};
+	append(r.key, dec.cur[..]...);
+	return r;
+};
+
 fn decode_mx(dec: *decoder) (rdata | format) = {
 	return mx {
 		priority = decode_u16(dec)?,
@@ -325,10 +342,35 @@ fn decode_opt(dec: *decoder) (rdata | format) = {
 	return r;
 };
 
+fn decode_nsec(dec: *decoder) (rdata | format) = {
+	let r = nsec {
+		next_domain = decode_name(dec)?,
+		type_bitmaps = [],
+	};
+	append(r.type_bitmaps, dec.cur[..]...);
+	return r;
+};
+
 fn decode_ptr(dec: *decoder) (rdata | format) = {
 	return ptr {
 		name = decode_name(dec)?,
 	};
+};
+
+fn decode_rrsig(dec: *decoder) (rdata | format) = {
+	let r = rrsig {
+		type_covered = decode_u16(dec)?,
+		algorithm = decode_u8(dec)?,
+		labels = decode_u8(dec)?,
+		orig_ttl = decode_u32(dec)?,
+		sig_expiration = decode_u32(dec)?,
+		sig_inception = decode_u32(dec)?,
+		key_tag = decode_u16(dec)?,
+		signer_name = decode_name(dec)?,
+		signature = [],
+	};
+	append(r.signature, dec.cur[..]...);
+	return r;
 };
 
 fn decode_soa(dec: *decoder) (rdata | format) = {

@@ -19,6 +19,8 @@ export type rtype = enum u16 {
 	SRV = 33,
 	OPT = 41,
 	SSHFP = 44,
+	RRSIG = 46,
+	NSEC = 47,
 	DNSKEY = 48,
 	TSIG = 250,
 	CAA = 257,
@@ -37,6 +39,8 @@ export type qtype = enum u16 {
 	SRV = 33,
 	OPT = 41,
 	SSHFP = 44,
+	RRSIG = 46,
+	NSEC = 47,
 	DNSKEY = 48,
 	// ...
 	AXFR = 252,
@@ -170,6 +174,14 @@ export type cname = struct {
 	name: []str,
 };
 
+// A DNSKEY record.
+export type dnskey = struct {
+	flags: u16,
+	protocol: u8,
+	algorithm: u8,
+	key: []u8,
+};
+
 // An MX record.
 export type mx = struct {
 	priority: u16,
@@ -186,9 +198,28 @@ export type opt = struct {
 	options: []edns_opt,
 };
 
+// An NSEC record.
+export type nsec = struct {
+	next_domain: []str,
+	type_bitmaps: []u8,
+};
+
 // A PTR record.
 export type ptr = struct {
 	name: []str,
+};
+
+// An RRSIG record.
+export type rrsig = struct {
+	type_covered: u16,
+	algorithm: u8,
+	labels: u8,
+	orig_ttl: u32,
+	sig_expiration: u32,
+	sig_inception: u32,
+	key_tag: u16,
+	signer_name: []str,
+	signature: []u8,
 };
 
 // An SOA record.
@@ -236,8 +267,8 @@ export type txt = [][]u8;
 export type unknown_rdata = []u8;
 
 // Tagged union of supported rdata types.
-export type rdata = (a | aaaa | caa | cname | mx | ns | opt | ptr | soa | srv
-	| sshfp | tsig | txt | unknown_rdata);
+export type rdata = (a | aaaa | caa | cname | dnskey | mx | ns | nsec | opt
+	| ptr | rrsig | soa | srv | sshfp | tsig | txt | unknown_rdata);
 
 // A DNS message, Hare representation. See [[encode]] and [[decode]] for the DNS
 // representation.
@@ -285,6 +316,8 @@ fn rrecord_finish(rr: *rrecord) void = {
 	case let ca: caa =>
 		free(ca.tag);
 		free(ca.value);
+	case let dk: dnskey =>
+		free(dk.key);
 	case let mx: mx =>
 		strings::freeall(mx.name);
 	case let ns: ns =>
@@ -294,8 +327,14 @@ fn rrecord_finish(rr: *rrecord) void = {
 			free(opt.options[i].data);
 		};
 		free(opt.options);
+	case let nsec: nsec =>
+		strings::freeall(nsec.next_domain);
+		free(nsec.type_bitmaps);
 	case let ptr: ptr =>
 		strings::freeall(ptr.name);
+	case let rrsig: rrsig =>
+		strings::freeall(rrsig.signer_name);
+		free(rrsig.signature);
 	case let so: soa =>
 		strings::freeall(so.mname);
 		strings::freeall(so.rname);
