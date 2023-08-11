@@ -53,7 +53,10 @@ P:	crypto/conventions.txt
 DATE/TIME SUPPORT
 M:	Byron Torres <b@torresjrjr.com>
 F:	time/
-F:	datetime/
+
+DNS SUPPORT
+M:	Conrad Hoffmann <ch@bitfehler.net>
+F:	net/dns/
 
 MATHEMATICAL LIBRARY
 M:	Bor Grošelj Simić <bgs@turminal.net>
