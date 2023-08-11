@@ -25,7 +25,7 @@ export fn readall(in: handle, buf: []u8) (size | EOF | error) = {
 // Writes an entire buffer, perhaps issuing several [[write]] calls to do so.
 // Aborts on errors after partial writes. Hence it should only be used if it is
 // certain that the underlying writes will not fail after an initial write.
-export fn writeall(out: handle, buf: []u8) (size | error) = {
+export fn writeall(out: handle, buf: const []u8) (size | error) = {
 	let z: size = 0;
 	for (z < len(buf)) {
 		z += match (write(out, buf[z..])) {
