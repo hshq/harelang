@@ -218,6 +218,8 @@ export def IPPROTO_GRE: int = 47;
 export def IPPROTO_ESP: int = 50;
 // Authentication Header protocol
 export def IPPROTO_AH: int = 51;
+// ICMPv6
+export def IPPROTO_ICMPV6: int = 58;
 // Multicast Transport Protocol
 export def IPPROTO_MTP: int = 92;
 // IP option pseudo header for BEET
