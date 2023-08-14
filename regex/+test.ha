@@ -635,7 +635,7 @@ fn run_rawreplace_case(
 		const start = cases[i].3;
 		const end = if (cases[i].4 == -1) {
 			// workaround to get the length in codepoints
-			let runes = strings::runes(string);
+			let runes = strings::torunes(string);
 			defer free(runes);
 			yield len(runes): int;
 		} else {
