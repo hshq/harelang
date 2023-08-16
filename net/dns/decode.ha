@@ -14,7 +14,7 @@ type decoder = struct {
 
 // Decodes a DNS message, heap allocating the resources necessary to represent
 // it in Hare's type system. The caller must use [[message_free]] to free the
-// return value. To decode without use of the heap, see [[decoder_init]].
+// return value.
 export fn decode(buf: []u8) (*message | format) = {
 	let success = false;
 	let msg = alloc(message { ... });

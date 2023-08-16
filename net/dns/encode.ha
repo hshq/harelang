@@ -61,7 +61,7 @@ fn encode_u32(enc: *encoder, val: u32) (void | error) = {
 
 fn encode_raw(enc: *encoder, val: []u8) (void | error) = {
 	let end = enc.offs + len(val);
-	if (len(enc.buf) <= end) {
+	if (len(enc.buf) < end) {
 		return errors::overflow;
 	};
 	enc.buf[enc.offs..end] = val;
