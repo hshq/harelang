@@ -305,56 +305,6 @@ fn deps(cmd: *getopt::command) void = {
 	};
 };
 
-fn release(cmd: *getopt::command) void = {
-	let dryrun = false;
-	for (let i = 0z; i < len(cmd.opts); i += 1) {
-		let opt = cmd.opts[i];
-		switch (opt.0) {
-		case 'd' =>
-			dryrun = true;
-		case => abort();
-		};
-	};
-
-	if (len(cmd.args) == 0) {
-		getopt::printusage(os::stderr, "release", cmd.help)!;
-		os::exit(1);
-	};
-
-	const next = switch (cmd.args[0]) {
-	case "major" =>
-		yield increment::MAJOR;
-	case "minor" =>
-		yield increment::MINOR;
-	case "patch" =>
-		yield increment::PATCH;
-	case =>
-		yield match (parseversion(cmd.args[0])) {
-		case badversion =>
-			getopt::printusage(os::stderr, "release", cmd.help)!;
-			os::exit(1);
-		case let ver: modversion =>
-			yield ver;
-		};
-	};
-
-	match (do_release(next, dryrun)) {
-	case void => void;
-	case let err: exec::error =>
-		fmt::fatal(exec::strerror(err));
-	case let err: errors::error =>
-		fmt::fatal(errors::strerror(err));
-	case let err: io::error =>
-		fmt::fatal(io::strerror(err));
-	case let err: fs::error =>
-		fmt::fatal(fs::strerror(err));
-	case let err: git_error =>
-		fmt::fatal("git:", exec::exitstr(err));
-	case badversion =>
-		fmt::fatal("Error: invalid format string. Hare uses semantic versioning, in the form major.minor.patch.");
-	};
-};
-
 fn run(cmd: *getopt::command) void = {
 	const build_target = default_target();
 	let tags = module::tags_dup(build_target.tags);

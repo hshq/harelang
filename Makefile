@@ -29,7 +29,6 @@ hare_srcs = \
 	./cmd/hare/main.ha \
 	./cmd/hare/plan.ha \
 	./cmd/hare/progress.ha \
-	./cmd/hare/release.ha \
 	./cmd/hare/schedule.ha \
 	./cmd/hare/subcmds.ha \
 	./cmd/hare/target.ha
