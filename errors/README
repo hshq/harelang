@@ -1,4 +1,4 @@
-The error module provides a number of error types which describe error
+The errors module provides a number of error types which describe error
 conditions common to many types of code, as well as convenience functions for
 turning these errors into strings, and an error type which may be used to wrap
 some implementation-defined error data. If your program's error cases can be
