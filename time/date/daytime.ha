@@ -1,6 +1,5 @@
 // License: MPL-2.0
 // (c) 2021-2022 Byron Torres <b@torresjrjr.com>
-use errors;
 use time;
 
 // Calculates the wall clock (hour, minute, second, nanosecond),

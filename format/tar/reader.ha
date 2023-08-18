@@ -2,7 +2,6 @@
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 use bytes;
 use endian;
-use errors;
 use io;
 use memio;
 use strconv;

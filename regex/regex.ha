@@ -3,7 +3,6 @@
 use ascii;
 use bufio;
 use encoding::utf8;
-use errors;
 use io;
 use memio;
 use strconv;

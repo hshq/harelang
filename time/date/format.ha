@@ -3,7 +3,6 @@
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 // (c) 2021-2022 Vlad-Stefan Harbuz <vlad@vladh.net>
 use ascii;
-use errors;
 use fmt;
 use io;
 use memio;
