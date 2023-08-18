@@ -321,8 +321,8 @@ fn resolve(
 	assert(htype._align == st.arch._int);
 	let t = htype.repr as tagged;
 	assert(len(t) == 2);
-	assert(t[0].repr as builtin == builtin::INT);
-	assert(t[1].repr as builtin == builtin::VOID);
+	assert(t[0].repr as builtin == builtin::VOID);
+	assert(t[1].repr as builtin == builtin::INT);
 
 	let atype = parse_type("(int | (int | str | void))");
 	defer ast::type_finish(atype);
@@ -331,9 +331,9 @@ fn resolve(
 	assert(htype._align == 8);
 	let t = htype.repr as tagged;
 	assert(len(t) == 3);
-	assert(t[0].repr as builtin == builtin::STR);
+	assert(t[0].repr as builtin == builtin::VOID);
 	assert(t[1].repr as builtin == builtin::INT);
-	assert(t[2].repr as builtin == builtin::VOID);
+	assert(t[2].repr as builtin == builtin::STR);
 };
 
 @test fn alias() void = {

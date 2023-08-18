@@ -57,6 +57,13 @@ export const builtin_null: _type = _type {
 	...
 };
 
+// [[_type]] representation of opaque.
+export const builtin_opaque: _type = _type {
+	repr = builtin::OPAQUE,
+	sz = SIZE_UNDEFINED, _align = SIZE_UNDEFINED,
+	...
+};
+
 // [[_type]] representation of rune.
 export const builtin_rune: _type = _type {
 	repr = builtin::RUNE,
@@ -109,6 +116,7 @@ export const builtin_void: _type = _type {
 		&builtin_i32,
 		&builtin_i64,
 		&builtin_null,
+		&builtin_opaque,
 		&builtin_rune,
 		&builtin_u8,
 		&builtin_u16,

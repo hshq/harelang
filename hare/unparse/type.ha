@@ -32,6 +32,8 @@ case ast::builtin_type::INT =>
 	yield "int";
 case ast::builtin_type::NULL =>
 	yield "null";
+case ast::builtin_type::OPAQUE =>
+	yield "opaque";
 case ast::builtin_type::RUNE =>
 	yield "rune";
 case ast::builtin_type::SIZE =>

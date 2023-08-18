@@ -138,6 +138,8 @@ export fn lookup(
 			return &builtin_i32;
 		case builtin::I64 =>
 			return &builtin_i64;
+		case builtin::OPAQUE =>
+			return &builtin_opaque;
 		case builtin::RUNE =>
 			return &builtin_rune;
 		case builtin::U8 =>
@@ -252,6 +254,10 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			yield builtin::NULL;
 		case ast::builtin_type::ICONST, ast::builtin_type::FCONST =>
 			abort(); // TODO?
+		case ast::builtin_type::OPAQUE =>
+			sz = SIZE_UNDEFINED;
+			_align = SIZE_UNDEFINED;
+			yield builtin::OPAQUE;
 		};
 	case let f: ast::func_type =>
 		yield func_from_ast(store, &f)?;
