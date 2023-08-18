@@ -51,3 +51,7 @@ export type epoll_event = struct @packed {
 export type cpu_set = struct {
 	__bits: [16]u64,
 };
+
+export fn alarm(seconds: uint) uint = {
+	return syscall1(SYS_alarm, seconds: u64): uint;
+};
