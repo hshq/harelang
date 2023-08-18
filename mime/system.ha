@@ -2,7 +2,6 @@
 // (c) 2022 Drew DeVault <sir@cmpwn.com>
 use bufio;
 use encoding::utf8;
-use errors;
 use fmt;
 use fs;
 use io;

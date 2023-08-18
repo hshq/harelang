@@ -13,7 +13,6 @@ stdlib_rt_linux_srcs = \
 	$(STDLIB)/rt/+linux/+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/syscallno+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/syscalls.ha \
-	$(STDLIB)/rt/+linux/syscallsarch+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/signal.ha \
 	$(STDLIB)/rt/+linux/stat.ha \
 	$(STDLIB)/rt/+linux/socket.ha \
@@ -2906,7 +2905,6 @@ testlib_rt_linux_srcs = \
 	$(STDLIB)/rt/+linux/+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/syscallno+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/syscalls.ha \
-	$(STDLIB)/rt/+linux/syscallsarch+$(ARCH).ha \
 	$(STDLIB)/rt/+linux/signal.ha \
 	$(STDLIB)/rt/+linux/stat.ha \
 	$(STDLIB)/rt/+linux/socket.ha \

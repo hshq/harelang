@@ -1,7 +1,6 @@
 // License: MPL-2.0
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2021 Umar Getagazov <umar@handlerug.me>
-use errors;
 use fs;
 use rt;
 
