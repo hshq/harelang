@@ -9,7 +9,7 @@ use io;
 use strings;
 use types;
 
-def BUFSIZ: size = 4096;
+def BUFSZ: size = 4096;
 
 export type scanner = struct {
 	src: io::handle,
@@ -32,7 +32,7 @@ export type scanner = struct {
 export fn newscanner(src: io::handle, maxread: size) scanner = {
 	return scanner {
 		src = src,
-		buffer = alloc([0...], BUFSIZ),
+		buffer = alloc([0...], BUFSZ),
 		maxread = maxread,
 		pending = 0,
 		readout = 0,
@@ -60,13 +60,13 @@ export fn finish(scan: *scanner) void = {
 };
 
 // Fills up the scanner buffer with data from the underlying I/O handle. If no
-// space remains in the read buffer, it is expanded by BUFSIZ (up to maxread).
+// space remains in the read buffer, it is expanded by BUFSZ (up to maxread).
 // Then, one read from the underlying I/O handle is performed and scan.pending
 // is updated accordingly. Returns the number of bytes which had been available
 // prior to the call.
 fn scan_readahead(scan: *scanner) (size | io::EOF | io::error) = {
 	if (scan.pending >= len(scan.buffer)) {
-		let readahead = scan.pending + BUFSIZ;
+		let readahead = scan.pending + BUFSZ;
 		if (readahead > scan.maxread) {
 			readahead = scan.maxread;
 		};

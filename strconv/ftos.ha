@@ -210,9 +210,9 @@ const POW5_OFFSETS: [21]u32 = [
 	0x55559155, 0x51405555, 0x00000105
 ];
 
-def POW5_TABLE_SIZE: u8 = 26;
+def POW5_TABLE_SZ: u8 = 26;
 
-const POW5_TABLE: [POW5_TABLE_SIZE]u64 = [
+const POW5_TABLE: [POW5_TABLE_SZ]u64 = [
 	1u64, 5u64, 25u64, 125u64, 625u64, 3125u64, 15625u64, 78125u64,
 	390625u64, 1953125u64, 9765625u64, 48828125u64, 244140625u64,
 	1220703125u64, 6103515625u64, 30517578125u64, 152587890625u64,
@@ -222,8 +222,8 @@ const POW5_TABLE: [POW5_TABLE_SIZE]u64 = [
 ];
 
 fn f64computeinvpow5(i: u32) (u64, u64) = {
-	const base = ((i + POW5_TABLE_SIZE - 1) / POW5_TABLE_SIZE): u32;
-	const base2 = base * POW5_TABLE_SIZE;
+	const base = ((i + POW5_TABLE_SZ - 1) / POW5_TABLE_SZ): u32;
+	const base2 = base * POW5_TABLE_SZ;
 	const mul = F64_POW5_INV_SPLIT2[base];
 	const off = base2 - i;
 	if (off == 0) {
@@ -244,7 +244,7 @@ fn f64computeinvpow5(i: u32) (u64, u64) = {
 };
 
 fn f64computepow5(i: u32) (u64, u64) = {
-	const base = i / POW5_TABLE_SIZE, base2 = base * POW5_TABLE_SIZE;
+	const base = i / POW5_TABLE_SZ, base2 = base * POW5_TABLE_SZ;
 	const mul = F64_POW5_SPLIT2[base];
 	const off = i - base2;
 	if (off == 0) {

@@ -29,7 +29,7 @@ export fn tz(name: str) (locality | tzdberror) = {
 	const fpath = path::string(&filepath);
 	const file = os::open(fpath)?;
 
-	static let buf: [os::BUFSIZ]u8 = [0...];
+	static let buf: [os::BUFSZ]u8 = [0...];
 	const bufstrm = bufio::init(file, buf, []);
 
 	let loc = alloc(timezone {

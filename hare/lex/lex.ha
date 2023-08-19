@@ -63,7 +63,7 @@ export fn init(in: io::handle, path: str, flags: flag...) lexer = {
 	for (let i = 0z; i < len(flags); i += 1) {
 		f |= flags[i];
 	};
-	let scanner = bufio::newscanner(in, os::BUFSIZ);
+	let scanner = bufio::newscanner(in, os::BUFSZ);
 	const loc = location { path = path, line = 1, col = 1 };
 	return lexer {
 		in = scanner,

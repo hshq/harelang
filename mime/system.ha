@@ -19,7 +19,7 @@ export def SYSTEM_DB: str = "/etc/mime.types";
 fn load_systemdb() (void | fs::error | io::error) = {
 	const file = os::open(SYSTEM_DB)?;
 
-	let buf: [os::BUFSIZ]u8 = [0...];
+	let buf: [os::BUFSZ]u8 = [0...];
 	const strm = bufio::init(file, buf, []);
 
 	for (true) {

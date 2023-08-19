@@ -130,10 +130,10 @@ fn decode_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) = {
 	case void =>
 	     yield;
 	};
-	static let buf: [os::BUFSIZ]u8 = [0...];
+	static let buf: [os::BUFSZ]u8 = [0...];
 	let n = len(out) * 2;
-	if (n > os::BUFSIZ) {
-		n = os::BUFSIZ;
+	if (n > os::BUFSZ) {
+		n = os::BUFSZ;
 	};
 	let nr = 0z;
 	for (nr < n) {

@@ -31,7 +31,7 @@ export fn read(src: io::handle) reader = {
 //
 // Note that reading from the header will modify the file size.
 export fn next(rd: *reader) (entry | error | io::EOF) = {
-	static let buf: [BLOCKSIZE]u8 = [0...];
+	static let buf: [BLOCKSZ]u8 = [0...];
 	match (io::read(rd.src, buf)?) {
 	case let z: size =>
 		if (z != len(buf)) {
@@ -107,8 +107,8 @@ export fn next(rd: *reader) (entry | error | io::EOF) = {
 // Seeks the underlying tar file to the entry following this one.
 export fn skip(ent: *entry) (void | io::error) = {
 	let amt = ent.remain;
-	if (amt % BLOCKSIZE != 0) {
-		amt += BLOCKSIZE - (amt % BLOCKSIZE);
+	if (amt % BLOCKSZ != 0) {
+		amt += BLOCKSZ - (amt % BLOCKSZ);
 	};
 	match (io::seek(ent.src, amt: io::off, io::whence::CUR)) {
 	case io::off =>
@@ -148,9 +148,9 @@ fn file_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	ent.remain -= z;
 
 	// Read until we reach the block size
-	static let buf: [BLOCKSIZE]u8 = [0...];
-	if (ent.remain == 0 && ent.orig % BLOCKSIZE != 0) {
-		let remain = BLOCKSIZE - (ent.orig % BLOCKSIZE);
+	static let buf: [BLOCKSZ]u8 = [0...];
+	if (ent.remain == 0 && ent.orig % BLOCKSZ != 0) {
+		let remain = BLOCKSZ - (ent.orig % BLOCKSZ);
 		for (remain > 0) {
 			match (io::read(ent.src, buf[..remain])?) {
 			case let z: size =>

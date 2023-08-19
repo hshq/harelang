@@ -357,7 +357,7 @@ fn scan_file(
 ) ([]u8 | error) = {
 	let truef = fs::open(ctx.fs, path)?;
 	defer io::close(truef)!;
-	let rbuf: [os::BUFSIZ]u8 = [0...];
+	let rbuf: [os::BUFSZ]u8 = [0...];
 	let f = &bufio::init(truef, rbuf, []);
 	let sha = sha256::sha256();
 	hash::write(&sha, strings::toutf8(path));
