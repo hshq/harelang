@@ -125,9 +125,10 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 		};
 	};
 
-	// Using --gc-sections will not work when using cc as the linker
+	// Using --gc-sections and -z noexecstack will not work when using cc as
+	// the linker
 	if (len(plan.libs) == 0 && task.cmd[0] == plan.target.ld_cmd) {
-		append(task.cmd, "--gc-sections");
+		append(task.cmd, ["--gc-sections", "-z", "noexecstack"]...);
 	};
 
 	let archives: []str = [];

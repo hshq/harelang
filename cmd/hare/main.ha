@@ -41,11 +41,6 @@ const help: []getopt::help = [
 		('X', "tags...", "unset build tags"),
 		"<path|module>",
 	]: []getopt::help),
-	("release", [
-		"prepares a new release for a program or library",
-		('d', "enable dry-run mode; do not perform any changes"),
-		"<major|minor|patch|x.y.z>",
-	]: []getopt::help),
 	("run", [
 		"compiles and runs the Hare program at <path>",
 		('v', "print executed commands"),
@@ -90,8 +85,6 @@ export fn main() void = {
 			yield &cache;
 		case "deps" =>
 			yield &deps;
-		case "release" =>
-			yield &release;
 		case "run" =>
 			yield &run;
 		case "test" =>

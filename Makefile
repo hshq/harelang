@@ -29,7 +29,6 @@ hare_srcs = \
 	./cmd/hare/main.ha \
 	./cmd/hare/plan.ha \
 	./cmd/hare/progress.ha \
-	./cmd/hare/release.ha \
 	./cmd/hare/schedule.ha \
 	./cmd/hare/subcmds.ha \
 	./cmd/hare/target.ha
@@ -62,7 +61,7 @@ $(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFOR
 $(BINOUT)/hare: $(HARECACHE)/hare.o
 	@mkdir -p $(BINOUT)
 	@printf 'LD\t%s\n' "$@"
-	@$(LD) $(LDLINKFLAGS) --gc-sections -T $(rtscript) -o $@ \
+	@$(LD) $(LDLINKFLAGS) --gc-sections -z noexecstack -T $(rtscript) -o $@ \
 		$(HARECACHE)/hare.o $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM))
 
 $(BINOUT)/hare-tests: $(TESTCACHE)/hare.o
