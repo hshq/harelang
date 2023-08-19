@@ -23,17 +23,41 @@ export fn expr(
 		case let id: ast::access_identifier =>
 			return ident(out, id);
 		case let ix: ast::access_index =>
-			let z = expr(out, indent, *ix.object)?;
+			let z = 0z;
+			const needs_parens = !is_postfix(ix.object);
+			if (needs_parens) {
+				z += fmt::fprint(out, "(")?;
+			};
+			z += expr(out, indent, *ix.object)?;
+			if (needs_parens) {
+				z += fmt::fprint(out, ")")?;
+			};
 			z += fmt::fprintf(out, "[")?;
 			z += expr(out, indent, *ix.index)?;
 			z += fmt::fprintf(out, "]")?;
 			return z;
 		case let fi: ast::access_field =>
-			let z = expr(out, indent, *fi.object)?;
+			let z = 0z;
+			const needs_parens = !is_postfix(fi.object);
+			if (needs_parens) {
+				z += fmt::fprint(out, "(")?;
+			};
+			z += expr(out, indent, *fi.object)?;
+			if (needs_parens) {
+				z += fmt::fprint(out, ")")?;
+			};
 			z += fmt::fprintf(out, ".{}", fi.field)?;
 			return z;
 		case let tp: ast::access_tuple =>
-			let z = expr(out, indent, *tp.object)?;
+			let z = 0z;
+			const needs_parens = !is_postfix(tp.object);
+			if (needs_parens) {
+				z += fmt::fprint(out, "(")?;
+			};
+			z += expr(out, indent, *tp.object)?;
+			if (needs_parens) {
+				z += fmt::fprint(out, ")")?;
+			};
 			z += fmt::fprintf(out, ".")?;
 			z += expr(out, indent, *tp.value)?;
 			return z;
@@ -240,7 +264,15 @@ export fn expr(
 		};
 		return z;
 	case let e: ast::call_expr =>
-		let z = expr(out, indent, *e.lvalue)?;
+		let z = 0z;
+		const needs_parens = !is_postfix(e.lvalue);
+		if (needs_parens) {
+			z += fmt::fprint(out, "(")?;
+		};
+		z += expr(out, indent, *e.lvalue)?;
+		if (needs_parens) {
+			z += fmt::fprint(out, ")")?;
+		};
 		z += fmt::fprintf(out, "(")?;
 		for (let i = 0z; i < len(e.args); i += 1) {
 			z += expr(out, indent, *e.args[i])?;
@@ -254,7 +286,15 @@ export fn expr(
 		z += fmt::fprintf(out, ")")?;
 		return z;
 	case let e: ast::cast_expr =>
-		let z = expr(out, indent, *e.value)?;
+		let z = 0z;
+		const needs_parens = !is_cast(e.value);
+		if (needs_parens) {
+			z += fmt::fprint(out, "(")?;
+		};
+		z += expr(out, indent, *e.value)?;
+		if (needs_parens) {
+			z += fmt::fprint(out, ")")?;
+		};
 		const op = switch (e.kind) {
 		case ast::cast_kind::CAST =>
 			yield ": ";
@@ -283,7 +323,15 @@ export fn expr(
 		z += fmt::fprint(out, ")")?;
 		return z;
 	case let e: ast::error_assert_expr =>
-		let z = expr(out, indent, *e)?;
+		let z = 0z;
+		const needs_parens = !is_postfix(e);
+		if (needs_parens) {
+			z += fmt::fprint(out, "(")?;
+		};
+		z += expr(out, indent, *e)?;
+		if (needs_parens) {
+			z += fmt::fprint(out, ")")?;
+		};
 		z += fmt::fprint(out, "!")?;
 		return z;
 	case let e: ast::for_expr =>
@@ -358,7 +406,15 @@ export fn expr(
 		z += fmt::fprint(out, ")")?;
 		return z;
 	case let e: ast::propagate_expr =>
-		let z = expr(out, indent, *e)?;
+		let z = 0z;
+		const needs_parens = !is_postfix(e);
+		if (needs_parens) {
+			z += fmt::fprint(out, "(")?;
+		};
+		z += expr(out, indent, *e)?;
+		if (needs_parens) {
+			z += fmt::fprint(out, ")")?;
+		};
 		z += fmt::fprint(out, "?")?;
 		return z;
 	case let e: ast::return_expr =>
@@ -371,7 +427,15 @@ export fn expr(
 		};
 		return z;
 	case let e: ast::slice_expr =>
-		let z = expr(out, indent, *e.object)?;
+		let z = 0z;
+		const needs_parens = !is_postfix(e.object);
+		if (needs_parens) {
+			z += fmt::fprint(out, "(")?;
+		};
+		z += expr(out, indent, *e.object)?;
+		if (needs_parens) {
+			z += fmt::fprint(out, ")")?;
+		};
 		z += fmt::fprint(out, "[")?;
 		match (e.start) {
 		case null => void;
@@ -401,7 +465,20 @@ export fn expr(
 		case ast::unarithm_op::MINUS =>
 			yield "-";
 		})?;
+		const needs_parens = match (e.operand.expr) {
+		case let inner: ast::unarithm_expr =>
+			yield e.op == ast::unarithm_op::ADDR
+				&& inner.op == e.op;
+		case =>
+			yield !is_unary(e.operand);
+		};
+		if (needs_parens) {
+			z += fmt::fprint(out, "(")?;
+		};
 		z += expr(out, indent, *e.operand)?;
+		if (needs_parens) {
+			z += fmt::fprint(out, ")")?;
+		};
 		return z;
 	case let e: ast::variadic_expr =>
 		match (e) {
@@ -479,7 +556,14 @@ fn binexprval(
 		};
 	case => void;
 	};
+	const needs_parens = !is_cast(&e) && !(e.expr is ast::binarithm_expr);
+	if (needs_parens) {
+		z += fmt::fprint(out, "(")?;
+	};
 	z += expr(out, indent, e)?;
+	if (needs_parens) {
+		z += fmt::fprint(out, ")")?;
+	};
 	return z;
 };
 
@@ -744,4 +828,90 @@ fn case_exprs(
 	};
 
 	return z;
+};
+
+fn is_plain(e: *ast::expr) bool = {
+	match (e.expr) {
+	case ast::constant_expr =>
+		return true;
+	case ast::access_identifier =>
+		return true;
+	case =>
+		return false;
+	};
+};
+
+fn is_postfix(e: *ast::expr) bool = {
+	if (is_plain(e)) {
+		return true;
+	};
+
+	match (e.expr) {
+	case ast::call_expr =>
+		return true;
+	case ast::access_expr =>
+		return true;
+	case ast::slice_expr =>
+		return true;
+	case ast::error_assert_expr =>
+		return true;
+	case ast::propagate_expr =>
+		return true;
+	case =>
+		return false;
+	};
+};
+
+fn is_builtin(e: *ast::expr) bool = {
+	if (is_postfix(e)) {
+		return true;
+	};
+
+	match (e.expr) {
+	case ast::alloc_expr =>
+		return true;
+	case ast::assert_expr =>
+		return true;
+	case ast::variadic_expr =>
+		return true;
+	// measurement-expression
+	case ast::len_expr =>
+		return true;
+	case ast::align_expr =>
+		return true;
+	case ast::size_expr =>
+		return true;
+	case ast::offset_expr =>
+		return true;
+	// slice-mutation-expression
+	case ast::append_expr =>
+		return true;
+	case ast::insert_expr =>
+		return true;
+	case =>
+		return false;
+	};
+};
+
+fn is_unary(e: *ast::expr) bool = {
+	if (is_builtin(e)) {
+		return true;
+	};
+
+	match (e.expr) {
+	case ast::compound_expr =>
+		return true;
+	case ast::match_expr =>
+		return true;
+	case ast::switch_expr =>
+		return true;
+	case ast::unarithm_expr =>
+		return true;
+	case =>
+		return false;
+	};
+};
+
+fn is_cast(e: *ast::expr) bool = {
+	return is_unary(e) || (e.expr is ast::cast_expr);
 };
