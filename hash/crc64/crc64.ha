@@ -8,7 +8,7 @@ use io;
 use strings;
 
 // The size, in bytes, of a CRC-64 checksum.
-export def SIZE: size = 8;
+export def SZ: size = 8;
 
 // ECMA polynomial for CRC-64. Used in ECMA-182 and xz-utils.
 export def ECMA: u64 = 0xC96C5795D7870F42;
@@ -236,7 +236,7 @@ export fn crc64(table: *[256]u64) state = state {
 	stream = &crc64_vtable,
 	sum = &sum,
 	reset = &reset,
-	sz = SIZE,
+	sz = SZ,
 	table = table,
 	cval = ~0u64,
 	...
@@ -282,7 +282,7 @@ export fn sum64(h: *hash::hash) u64 = {
 	let crc_ecma = crc64(&ecma_table);
 	let crc_iso = crc64(&iso_table);
 
-	let buf: [SIZE]u8 = [0...];
+	let buf: [SZ]u8 = [0...];
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let vec = vectors[i];

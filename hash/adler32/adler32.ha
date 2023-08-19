@@ -8,7 +8,7 @@ use io;
 use strings;
 
 // The size, in bytes, of an Adler-32 checksum.
-export def SIZE: size = 4;
+export def SZ: size = 4;
 
 export type state = struct {
 	hash::hash,
