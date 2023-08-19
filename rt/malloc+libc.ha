@@ -14,6 +14,10 @@ export fn malloc(n: size) nullable *void = {
 // in-place. Returns null if there is insufficient memory to support the
 // request.
 export fn realloc(p: nullable *void, n: size) nullable *void = {
+	if (n == 0) {
+		free(p);
+		return null;
+	};
 	return c_realloc(p, n);
 };
 
