@@ -175,9 +175,8 @@ fn build(cmd: *getopt::command) void = {
 	case goal::EXE =>
 		sched_hare_exe(&plan, ver, output, depends...);
 	case goal::OBJ =>
-		let task = sched_hare_object(&plan, ver,
+		sched_hare_object(&plan, ver,
 			namespace, output, depends...);
-		append(plan.scheduled, task);
 	};
 	match (plan_execute(&plan, verbose)) {
 	case void => void;
