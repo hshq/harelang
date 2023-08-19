@@ -22,13 +22,14 @@ export def PRIVKEYSZ: size = 64;
 export def SIGNATURESZ: size = 64;
 
 export type privkey = [PRIVKEYSZ]u8;
-export type pubkey =[PUBKEYSZ]u8;
+export type pubkey = [PUBKEYSZ]u8;
 export type seed = [SEEDSZ]u8;
 
 // Derives a new Ed25519 private key from a given seed. The seed must be
 // initialized to cryptographically random data; [[crypto::random]] is
 // recommended for this purpose.
-export fn privkey_init(out: *privkey, seed: *seed) void = {
+export fn privkey_init(priv: []u8, seed: *seed) void = {
+	assert(len(priv) == PRIVKEYSZ);
 	let h: [64]u8 = [0...];
 	let sha = sha512::sha512();
 	hash::write(&sha, seed[..]);
@@ -44,19 +45,22 @@ export fn privkey_init(out: *privkey, seed: *seed) void = {
 	let A_bytes: [POINTSZ]u8 = [0...];
 	point_encode(&A_bytes, &A);
 
-	out[0..SEEDSZ] = seed[..];
-	out[SEEDSZ..PRIVKEYSZ] = A_bytes[..];
+	priv[0..SEEDSZ] = seed[..];
+	priv[SEEDSZ..PRIVKEYSZ] = A_bytes[..];
 };
 
-// Derive the public key for a given private key.
-export fn privkey_getpubkey(priv: *privkey) pubkey = {
+// Derive the public key for a given private key. '
+export fn privkey_getpubkey(priv: []u8) pubkey = {
+	assert(len(priv) == PRIVKEYSZ);
 	let pk: pubkey = [0...];
 	pk[0..] = priv[SEEDSZ..];
 	return pk;
 };
 
 // Signs a message with a private key, returning the signature.
-export fn sign(priv: *privkey, msg: []u8) [SIGNATURESZ]u8 = {
+export fn sign(priv: []u8, msg: []u8) [SIGNATURESZ]u8 = {
+	assert(len(priv) == PRIVKEYSZ);
+
 	let h: [64]u8 = [0...];
 	let sha = sha512::sha512();
 	hash::write(&sha, priv[0..SEEDSZ]);
@@ -100,7 +104,10 @@ export fn sign(priv: *privkey, msg: []u8) [SIGNATURESZ]u8 = {
 // Given a public key, verifies a signature produced with the
 // corresponding private key for a given message, returning true if the
 // signature is valid and false otherwise.
-export fn verify(pub: *pubkey, msg: []u8, sig: *[SIGNATURESZ]u8) bool = {
+export fn verify(pub: []u8, msg: []u8, sig: []u8) bool = {
+	assert(len(pub) == PUBKEYSZ);
+	assert(len(sig) == SIGNATURESZ);
+
 	let A = point { ... };
 	if (!point_decode(&A, pub)) {
 		return false;

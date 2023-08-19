@@ -148,7 +148,8 @@ fn fe_encode(out: *scalar, a: const *elem) void = {
 	};
 };
 
-fn fe_decode(fe: *elem, in: *[SCALARSZ]u8) *elem = {
+// len(in) must be SCALARSZ
+fn fe_decode(fe: *elem, in: []u8) *elem = {
 	for (let i = 0z; i < FIELDSZ; i += 1) {
 		fe[i] = in[2 * i] : i64 + ((in[2 * i + 1] : i64) << 8);
 	};
@@ -313,7 +314,8 @@ fn point_encode(out: *scalar, p: *point) void = {
 	out[31] ^= fe_parity(&tx) << 7;
 };
 
-fn point_decode(p: *point, in: *[POINTSZ]u8) bool = {
+// len(in) must be POINTSIZE
+fn point_decode(p: *point, in: []u8) bool = {
 	let t: elem = [0...];
 	let chk: elem = [0...];
 	let num: elem = [0...];
