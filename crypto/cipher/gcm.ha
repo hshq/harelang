@@ -7,19 +7,19 @@ use errors;
 use io;
 use types;
 
-def GCMBLOCKSIZE: size = 16;
+def GCMBLOCKSZ: size = 16;
 
-export def GCMTAGSIZE: size = 16;
+export def GCMTAGSZ: size = 16;
 
 export type gcmstream = struct {
 	stream: io::stream,
 	block: nullable *block,
 	handle: io::handle,
-	tagbuf: [GCMBLOCKSIZE]u8,
-	xorbuf: [GCMBLOCKSIZE]u8,
-	cipherbuf: [GCMBLOCKSIZE]u8,
-	y0: [GCMBLOCKSIZE]u8,
-	h: [GCMBLOCKSIZE]u8,
+	tagbuf: [GCMBLOCKSZ]u8,
+	xorbuf: [GCMBLOCKSZ]u8,
+	cipherbuf: [GCMBLOCKSZ]u8,
+	y0: [GCMBLOCKSZ]u8,
+	h: [GCMBLOCKSZ]u8,
 	y: u32,
 	xorbufpos: size,
 	adlen: u64,
@@ -70,13 +70,13 @@ export fn gcm_init(
 	iv: const []u8,
 	ad: const []u8
 ) void = {
-	assert(blocksz(b) == GCMBLOCKSIZE);
+	assert(blocksz(b) == GCMBLOCKSZ);
 	assert(len(iv): u64 <= (types::U64_MAX >> 3));
 
 	s.handle = handle;
 	s.block = b;
 	s.adlen = len(ad);
-	s.xorbufpos = GCMBLOCKSIZE; // to force fill xorbuf at start
+	s.xorbufpos = GCMBLOCKSZ; // to force fill xorbuf at start
 
 	encrypt(b, s.h, s.h);
 
@@ -95,8 +95,8 @@ export fn gcm_init(
 
 	let ad = ad[..];
 	for (len(ad) > 0) {
-		const max = if (len(ad) >= GCMBLOCKSIZE) {
-			yield GCMBLOCKSIZE;
+		const max = if (len(ad) >= GCMBLOCKSZ) {
+			yield GCMBLOCKSZ;
 		} else {
 			yield len(ad);
 		};
@@ -112,7 +112,7 @@ fn gcm_writer(s: *io::stream, buf: const []u8) (size | io::error) = {
 		return 0z;
 	};
 
-	if (s.xorbufpos == GCMBLOCKSIZE) {
+	if (s.xorbufpos == GCMBLOCKSZ) {
 		// current key block is depleted, prepare the next one
 		fillxorbuf(s);
 	};
@@ -134,7 +134,7 @@ fn gcm_writer(s: *io::stream, buf: const []u8) (size | io::error) = {
 	s.xorbufpos += n;
 	s.clen += n;
 
-	if (s.xorbufpos == GCMBLOCKSIZE) {
+	if (s.xorbufpos == GCMBLOCKSZ) {
 		ghash_ctmul64(s.tagbuf, s.h, s.cipherbuf);
 	};
 
@@ -142,7 +142,7 @@ fn gcm_writer(s: *io::stream, buf: const []u8) (size | io::error) = {
 };
 
 fn fillxorbuf(s: *gcmstream) void = {
-	let y: [GCMBLOCKSIZE]u8 = [0...];
+	let y: [GCMBLOCKSZ]u8 = [0...];
 	s.xorbuf[..] = s.y0[..];
 	beputu32(s.xorbuf[12..], s.y);
 	encrypt(s.block as *block, s.xorbuf, s.xorbuf);
@@ -161,11 +161,11 @@ fn gcm_reader(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	};
 
 	for (let i = n; i > 0) {
-		if (s.xorbufpos == GCMBLOCKSIZE) {
+		if (s.xorbufpos == GCMBLOCKSZ) {
 			fillxorbuf(s);
 		};
 
-		const max = if (s.xorbufpos + i > GCMBLOCKSIZE) {
+		const max = if (s.xorbufpos + i > GCMBLOCKSZ) {
 			yield len(s.cipherbuf) - s.xorbufpos;
 		} else {
 			yield i;
@@ -194,8 +194,8 @@ fn gcm_reader(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 // Finishes encryption and returns the authentication tag. After calling seal,
 // the user must not write any more data to the stream.
 export fn gcm_seal(s: *gcmstream, tag: []u8) void = {
-	assert(len(tag) == GCMTAGSIZE);
-	if (s.xorbufpos > 0 && s.xorbufpos < GCMBLOCKSIZE) {
+	assert(len(tag) == GCMTAGSZ);
+	if (s.xorbufpos > 0 && s.xorbufpos < GCMBLOCKSZ) {
 		// last block was is not full, therefore the content was not
 		// hashed yet.
 		ghash_ctmul64(s.tagbuf, s.h, s.cipherbuf[..s.xorbufpos]);
@@ -215,8 +215,8 @@ export fn gcm_seal(s: *gcmstream, tag: []u8) void = {
 // modified. If the data was modified, [[errors::invalid]] will be returned and
 // the data must not be trusted.
 export fn gcm_verify(s: *gcmstream, tag: []u8) (void | errors::invalid) = {
-	assert(len(tag) == GCMTAGSIZE);
-	if (s.xorbufpos > 0 && s.xorbufpos < GCMBLOCKSIZE) {
+	assert(len(tag) == GCMTAGSZ);
+	if (s.xorbufpos > 0 && s.xorbufpos < GCMBLOCKSZ) {
 		ghash_ctmul64(s.tagbuf, s.h, s.cipherbuf[..s.xorbufpos]);
 	};
 

@@ -29,7 +29,7 @@ use memio;
 	];
 
 	let result: [16]u8 = [0...];
-	let buf: [CTR_BUFSIZE]u8 = [0...];
+	let buf: [CTR_BUFSZ]u8 = [0...];
 	let resultbuf = memio::fixed(result);
 
 	let b = ct64();
@@ -42,7 +42,7 @@ use memio;
 	assert(bytes::equal(cipher, result));
 	io::close(&ctr)!;
 
-	const zero: [CTR_BUFSIZE]u8 = [0...];
+	const zero: [CTR_BUFSZ]u8 = [0...];
 	const bsz = cipher::blocksz(&b);
 	assert(bytes::equal(ctr.xorbuf, zero[bsz..]));
 
@@ -83,7 +83,7 @@ use memio;
 
 	let result: [18]u8 = [0...];
 	let resultbuf = memio::fixed(result);
-	let buf: [CTR_BUFSIZE]u8 = [0...];
+	let buf: [CTR_BUFSZ]u8 = [0...];
 
 	let b = ct64();
 	ct64_init(&b, key);
@@ -134,7 +134,7 @@ use memio;
 
 	let result: [80]u8 = [0...];
 	let resultbuf = memio::fixed(result);
-	let buf: [CTR_BUFSIZE]u8 = [0...];
+	let buf: [CTR_BUFSZ]u8 = [0...];
 
 	let b = ct64();
 	ct64_init(&b, key);
@@ -195,7 +195,7 @@ use memio;
 
 	let result: [80]u8 = [0...];
 	let resultbuf = memio::fixed(result);
-	let buf: [CTR_BUFSIZE]u8 = [0...];
+	let buf: [CTR_BUFSZ]u8 = [0...];
 
 	let b = ct64();
 	ct64_init(&b, key);
@@ -244,7 +244,7 @@ use memio;
 	ct64_init(&b, key);
 	defer cipher::finish(&b);
 
-	let buf: [CTR_BUFSIZE]u8 = [0...];
+	let buf: [CTR_BUFSZ]u8 = [0...];
 	let resultbuf = memio::fixed(result);
 	let ctr = cipher::ctr(&resultbuf, &b, iv[..], buf[..]);
 	defer io::close(&ctr)!;
@@ -399,7 +399,7 @@ fn errwriter(out: io::handle, limit: size, err: io::error) err_stream = {
 	let result: [80]u8 = [0...];
 	let resultbuf = memio::fixed(result);
 	let errw = errwriter(&resultbuf, 20, errors::again);
-	let buf: [CTR_BUFSIZE]u8 = [0...];
+	let buf: [CTR_BUFSZ]u8 = [0...];
 
 	let b = ct64();
 	ct64_init(&b, key);

@@ -27,22 +27,22 @@ use crypto::bigint::*;
 use errors;
 use types;
 
-// Maximum factor size of a key of [[BITSIZE]].
-def MAXFACTOR: size = ((BITSIZE + 64) >> 1);
+// Maximum factor size of a key of [[BITSZ]].
+def MAXFACTOR: size = ((BITSZ + 64) >> 1);
 
 // Required buf size for the [[pubexp]] operation.
-def PUBEXP_BUFSIZE: size = size(word) * (1 + (4 * (2
-		+ ((BITSIZE + WORD_BITSIZE - 1) / WORD_BITSIZE))));
+def PUBEXP_BUFSZ: size = size(word) * (1 + (4 * (2
+		+ ((BITSZ + WORD_BITSZ - 1) / WORD_BITSZ))));
 
 // Requried buf size for the [[privexp]] operation.
-def PRIVEXP_BUFSIZE: size = size(word) * (1 + (8 * (2
-		+ ((MAXFACTOR + WORD_BITSIZE - 1) / WORD_BITSIZE))));
+def PRIVEXP_BUFSZ: size = size(word) * (1 + (8 * (2
+		+ ((MAXFACTOR + WORD_BITSZ - 1) / WORD_BITSZ))));
 
 // Performs the modular exponentiation of 'x' with the public exponent of 'pub'.
 // 'x' is modified in place. 'x' must be the same length as the actual length
 // of 'pub.n'.
 //
-// For the size of 'buf' see [[PUBEXP_BUFSIZE]]. If the buffer is not large
+// For the size of 'buf' see [[PUBEXP_BUFSZ]]. If the buffer is not large
 // enough, [[errors::overflow]] will be returned. In case of 'x' being not of
 // required length or if 'x' is not modulo 'pub.n' [[errors::invalid]] is
 // returned and 'x' will be zeroed.
@@ -53,8 +53,8 @@ fn pubexp(pub: *pubparams, x: []u8, buf: []u8) (void | error) = {
 	let n = pub.n;
 
 	// get the maximal allowed key size for given buffer. Reverse of the
-	// [[PUBEXP_BUFSIZE]] equation.
-	const maxkeybits = (((wbuflen - 1) / 4) - 2) * WORD_BITSIZE;
+	// [[PUBEXP_BUFSZ]] equation.
+	const maxkeybits = (((wbuflen - 1) / 4) - 2) * WORD_BITSZ;
 
 	if (len(n) == 0 || len(n) > (maxkeybits >> 3)) {
 		return errors::overflow;
@@ -66,9 +66,9 @@ fn pubexp(pub: *pubparams, x: []u8, buf: []u8) (void | error) = {
 	};
 
 	// add word size - 1 to ceil required words in the division that follows
-	const maxnbitlen = (len(n) << 3) + WORD_BITSIZE: size - 1;
+	const maxnbitlen = (len(n) << 3) + WORD_BITSZ: size - 1;
 	assert(maxnbitlen <= types::U32_MAX);
-	let bwordlen = 1 + divu32(0, maxnbitlen: u32, WORD_BITSIZE).0;
+	let bwordlen = 1 + divu32(0, maxnbitlen: u32, WORD_BITSZ).0;
 
 	// make it even
 	bwordlen += bwordlen & 1;
@@ -102,7 +102,7 @@ fn pubexp(pub: *pubparams, x: []u8, buf: []u8) (void | error) = {
 // 'x' is modified in place. 'x' must be the same length as the actual length
 // of the modulus n (see [[privkey_nsize]]).
 //
-// For size of 'buf' see [[PRIVEXP_BUFSIZE]]. If the buffer is not large enough
+// For size of 'buf' see [[PRIVEXP_BUFSZ]]. If the buffer is not large enough
 // [[errors::overflow]] will be returned. In case of an invalid size of 'x' or
 // an invalid key, [[errors::invalid]] will be returned and 'x' will be zeroed.
 fn privexp(priv: *privparams, x: []u8, buf: []u8) (void | error) = {
@@ -116,9 +116,9 @@ fn privexp(priv: *privparams, x: []u8, buf: []u8) (void | error) = {
 	const maxflen = if (len(p) > len(q)) len(p) else len(q);
 
 	// add word size - 1 to ceil required words in the division that follows
-	const maxfbitlen = (maxflen << 3) + WORD_BITSIZE: size - 1;
+	const maxfbitlen = (maxflen << 3) + WORD_BITSZ: size - 1;
 	assert(maxfbitlen <= types::U32_MAX);
-	let bwordlen = 1 + divu32(0, maxfbitlen: u32, WORD_BITSIZE).0;
+	let bwordlen = 1 + divu32(0, maxfbitlen: u32, WORD_BITSZ).0;
 
 	// make it even
 	bwordlen += bwordlen & 1;

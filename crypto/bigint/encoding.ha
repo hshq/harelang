@@ -24,9 +24,9 @@ use crypto::math::*;
 // Minimal required words to encode 'x' into an []word. To statically allocate
 // resources, following expression may be used:
 //
-//     ((number_of_bits + WORD_BITSIZE - 1) / WORD_BITSIZE) + 1
+//     ((number_of_bits + WORD_BITSZ - 1) / WORD_BITSZ) + 1
 export fn encodelen(x: []u8) size = {
-	return (((len(x) * 8) + WORD_BITSIZE - 1) / WORD_BITSIZE) + 1;
+	return (((len(x) * 8) + WORD_BITSZ - 1) / WORD_BITSZ) + 1;
 };
 
 // Encode 'src' from its big-endian unsigned encoding into the internal
@@ -43,9 +43,9 @@ export fn encode(dest: []word, src: const []u8) void = {
 		acc |= (src[i] << accbits);
 		accbits += 8;
 
-		if (accbits >= WORD_BITSIZE) {
+		if (accbits >= WORD_BITSZ) {
 			dest[didx] = (acc & WORD_BITMASK): word;
-			accbits -= WORD_BITSIZE;
+			accbits -= WORD_BITSZ;
 			acc = src[i] >> (8 - accbits);
 			didx += 1;
 		};
@@ -106,7 +106,7 @@ fn ebitlen(x: const []word) u32 = {
 // words that are used to represent the actual value. Eg. the number 7 will have
 // an effective word length of 1, no matter of len(x).
 fn ewordlen(x: const []word) u32 = {
-	return (x[0] + WORD_BITSIZE) >> WORD_SHIFT;
+	return (x[0] + WORD_BITSZ) >> WORD_SHIFT;
 };
 
 // Decode 'src' into a big-endian unsigned byte array. The caller must ensure
@@ -122,7 +122,7 @@ export fn decode(dest: []u8, src: const []word) void = {
 				acc |= ((src[sidx]: u64) << accbits: u64): u64;
 				sidx += 1;
 			};
-			accbits += WORD_BITSIZE;
+			accbits += WORD_BITSZ;
 		};
 		dest[i] = acc: u8;
 		acc >>= 8;
@@ -134,9 +134,9 @@ export fn decode(dest: []u8, src: const []word) void = {
 //
 // For static allocation following expression may be used:
 //
-//     ((len(src) - 1) * WORD_BITSIZE + 7) / 8
+//     ((len(src) - 1) * WORD_BITSZ + 7) / 8
 export fn decodelen(src: const []word) size = {
-	return ((len(src) - 1) * WORD_BITSIZE + 7) / 8;
+	return ((len(src) - 1) * WORD_BITSZ + 7) / 8;
 };
 
 // Encodes an integer from its big-endian unsigned encoding. 'src' must be lower
@@ -192,9 +192,9 @@ export fn encodemod(dest: []word, src: const []u8, m: const []word) u32 = {
 			};
 			acc |= (b << acc_len);
 			acc_len += 8;
-			if (acc_len >= WORD_BITSIZE) {
+			if (acc_len >= WORD_BITSZ) {
 				const xw: u32 = acc & WORD_BITMASK;
-				acc_len -= WORD_BITSIZE;
+				acc_len -= WORD_BITSZ;
 				acc = b >> (8 - acc_len);
 				if (v <= mlen) {
 					if (pass == 1) {
@@ -249,7 +249,7 @@ export fn encodereduce(dest: []word, src: const []u8, m: const []word) void = {
 	// First decode directly as many bytes as possible. This requires
 	// computing the actual bit length.
 	let m_rbitlen = m_ebitlen >> WORD_SHIFT;
-	m_rbitlen = (m_ebitlen & WORD_BITSIZE)
+	m_rbitlen = (m_ebitlen & WORD_BITSZ)
 		+ (m_rbitlen << WORD_SHIFT) - m_rbitlen;
 	const mblen: size = (m_rbitlen + 7) >> 3;
 	let k: size = mblen - 1;
@@ -283,7 +283,7 @@ export fn encodereduce(dest: []word, src: const []u8, m: const []word) void = {
 	// be able to inject these bits as a full 31-bit word.
 	if (acc_len != 0) {
 		acc = (acc | (dest[1] << acc_len)) & WORD_BITMASK;
-		rshift(dest, WORD_BITSIZE - acc_len);
+		rshift(dest, WORD_BITSZ - acc_len);
 		muladd_small(dest, acc, m);
 	};
 };

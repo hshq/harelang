@@ -10,11 +10,11 @@ use memio;
 use types;
 
 // The default bit size of RSA keys is 4096-bit. Used as base for buffer sizes.
-export def BITSIZE: size = 4096;
+export def BITSZ: size = 4096;
 
 // The minimum bit size of RSA keys used only for validation during key init. 
 // The default value is 1024-bit.
-export def MINBITSIZE: size = 1024;
+export def MINBITSZ: size = 1024;
 
 // RSA key parameters for initializing public keys with [[pubkey_init]].
 export type pubparams = struct {
@@ -51,12 +51,12 @@ export type privparams = struct {
 	iq: []u8,
 };
 
-// Size required to store a public key of [[BITSIZE]] length.
-export def PUBKEYSIZE: size = 5 + 2 * (BITSIZE >> 3);
+// Size required to store a public key of [[BITSZ]] length.
+export def PUBKEYSZ: size = 5 + 2 * (BITSZ >> 3);
 
 // Initializes a public key from given [[pubparams]] 'x'. The data format
 // of 'pubkey' is subject to change and must not be used to serialize the key.
-// [[PUBKEYSIZE]] defines the required size to store a key of [[BITSIZE]].
+// [[PUBKEYSZ]] defines the required size to store a key of [[BITSZ]].
 // 
 // If given key does not fit into 'pubkey' or is too small, [[errors::overflow]]
 // is returned. Returns [[errors::invalid]], if given key parameters are
@@ -74,7 +74,7 @@ export fn pubkey_init(pubkey: []u8, x: pubparams) (size | error) = {
 	if ((len(e) == 1 && e[0] == 1) || len(e) > len(n)) {
 		return errors::invalid;
 	};
-	if (bitlen(n) < MINBITSIZE) {
+	if (bitlen(n) < MINBITSZ) {
 		return errors::invalid;
 	};
 
@@ -159,8 +159,8 @@ fn nextslice(key: *[]u8) []u8 = {
 	return s;
 };
 
-// Size required to store a private key of [[BITSIZE]] length.
-export def PRIVKEYSIZE: size = 13 + (MAXFACTOR >> 3) * 5;
+// Size required to store a private key of [[BITSZ]] length.
+export def PRIVKEYSZ: size = 13 + (MAXFACTOR >> 3) * 5;
 
 fn privkey_len(x: *privparams) size =
 	13z + len(x.p) + len(x.q) + len(x.dp) + len(x.dq) + len(x.iq);
@@ -229,7 +229,7 @@ fn privkey_writehead(
 	if (nbitlen > types::U16_MAX) {
 		return errors::overflow;
 	};
-	if (nbitlen < MINBITSIZE) {
+	if (nbitlen < MINBITSZ) {
 		return errors::invalid;
 	};
 

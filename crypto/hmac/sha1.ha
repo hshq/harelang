@@ -9,7 +9,7 @@ use io;
 export type sha1state = struct {
 	mac::mac,
 	h: sha1::state,
-	keypad: [sha1::BLOCKSIZE]u8,
+	keypad: [sha1::BLOCKSZ]u8,
 };
 
 const sha1_vtable: io::vtable = io::vtable {
@@ -28,8 +28,8 @@ export fn sha1(key: []u8) sha1state = {
 	let s = sha1state {
 		h = sha1::sha1(),
 		stream = &sha1_vtable,
-		sz = sha1::SIZE,
-		bsz = sha1::BLOCKSIZE,
+		sz = sha1::SZ,
+		bsz = sha1::BLOCKSZ,
 		sum = &sha1sum,
 		finish = &sha1finish,
 		...

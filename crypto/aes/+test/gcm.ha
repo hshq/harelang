@@ -612,7 +612,7 @@ const gcmtestcases: []gcmtestcase = [
 		defer io::close(&gstream)!;
 
 		io::writeall(&gstream, t.plain)!;
-		let tag: [cipher::GCMTAGSIZE]u8 = [0...];
+		let tag: [cipher::GCMTAGSZ]u8 = [0...];
 		cipher::gcm_seal(&gstream, tag);
 
 		assert(bytes::equal(t.cipher, result));
@@ -676,7 +676,7 @@ const gcmtestcases: []gcmtestcase = [
 
 		io::writeall(&gstream, result)!;
 
-		let tag: [cipher::GCMTAGSIZE]u8 = [0...];
+		let tag: [cipher::GCMTAGSZ]u8 = [0...];
 		cipher::gcm_seal(&gstream, tag);
 		assert(bytes::equal(t.cipher, result));
 		assert(bytes::equal(t.tag, tag));

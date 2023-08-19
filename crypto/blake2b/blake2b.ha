@@ -13,7 +13,7 @@ def R2: int = 24;
 def R3: int = 16;
 def R4: int = 63;
 def r: u64 = 12;
-def BSIZE: size = 128;
+def BSZ: size = 128;
 
 const iv: [8]u64 = [
        0x6A09E667F3BCC908, 0xBB67AE8584CAA73B,
@@ -42,7 +42,7 @@ export type digest = struct {
 	h: [8]u64,
 	tlow: u64,
 	thigh: u64,
-	block: [BSIZE]u8,
+	block: [BSZ]u8,
 	blocklen: size,
 };
 
@@ -64,7 +64,7 @@ export fn blake2b(key: []u8, sz: size) digest = {
 	assert(len(key) <= 64);
 	let h = iv;
 	h[0] ^= 0x01010000 ^ (len(key) << 8) ^ sz;
-	let keyblock: [BSIZE]u8 = [0...];
+	let keyblock: [BSZ]u8 = [0...];
 	keyblock[..len(key)] = key;
 	return digest {
 		stream = &blake2b_vtable,
@@ -74,7 +74,7 @@ export fn blake2b(key: []u8, sz: size) digest = {
 		tlow = 0,
 		thigh = 0,
 		block = keyblock,
-		blocklen = if (len(key) > 0) BSIZE else 0,
+		blocklen = if (len(key) > 0) BSZ else 0,
 		...
 	};
 };
@@ -85,12 +85,12 @@ fn write(st: *io::stream, buf: const []u8) (size | io::error) = {
 	let length = len(buf);
 	let buf = buf[..];
 
-	for (h.blocklen + len(buf) > BSIZE) {
-		const n = BSIZE - h.blocklen;
+	for (h.blocklen + len(buf) > BSZ) {
+		const n = BSZ - h.blocklen;
 		h.block[h.blocklen..h.blocklen + n] = buf[..n];
 		buf = buf[n..];
 
-		h.tlow += BSIZE;
+		h.tlow += BSZ;
 		if (h.tlow < n: u64) h.thigh += 1;
 
 		compress(&h.h, &h.block, h.tlow, h.thigh, false);
@@ -111,9 +111,9 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 	if (h.tlow < h.blocklen: u64) h.thigh += 1;
 
 	// Padding
-	let tmp: [BSIZE]u8 = [0...];
-	h.block[h.blocklen..BSIZE] = tmp[..BSIZE - h.blocklen];
-	h.blocklen = BSIZE;
+	let tmp: [BSZ]u8 = [0...];
+	h.block[h.blocklen..BSZ] = tmp[..BSZ - h.blocklen];
+	h.blocklen = BSZ;
 
 	compress(&h.h, &h.block, h.tlow, h.thigh, true);
 
@@ -123,7 +123,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 };
 
 // Compression function F
-fn compress(h: *[8]u64, b: *[BSIZE]u8, tlow: u64, thigh: u64, f: bool) void = {
+fn compress(h: *[8]u64, b: *[BSZ]u8, tlow: u64, thigh: u64, f: bool) void = {
 	let v: [16]u64 = [0...];
 	v[..8] = h[..];
 	v[8..] = iv;

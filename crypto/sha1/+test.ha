@@ -30,7 +30,7 @@ use encoding::hex;
 		hash::reset(&sha);
 		hash::write(&sha, strings::toutf8(vector.0));
 
-		let sum: [SIZE]u8 = [0...];
+		let sum: [SZ]u8 = [0...];
 		hash::sum(&sha, sum);
 
 		let shahex = hex::encodestr(sum);
@@ -52,7 +52,7 @@ use encoding::hex;
 //	for (let i = 0z; i < 16777216; i += 1)
 //		hash::write(&sha, strings::toutf8(input));
 //
-//	let sum: [SIZE]u8 = [0...];
+//	let sum: [SZ]u8 = [0...];
 //	hash::sum(&sha, sum);
 //
 //	let shahex = hex::encodestr(sum);

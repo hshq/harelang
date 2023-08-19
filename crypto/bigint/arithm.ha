@@ -32,7 +32,7 @@ export fn add(a: []word, b: const []word, ctl: u32) u32 = {
 	let carry: u32 = 0;
 	for (let i = 1z; i <= l; i += 1) {
 		const n: u32 = a[i] + b[i] + carry;
-		carry = n >> WORD_BITSIZE;
+		carry = n >> WORD_BITSZ;
 		a[i] = muxu32(ctl, n & WORD_BITMASK, a[i]): word;
 	};
 	return carry;
@@ -49,7 +49,7 @@ export fn sub(a: []word, b: const []word, do: u32) u32 = {
 	let carry: u32 = 0;
 	for (let i = 1z; i <= l; i += 1) {
 		let n: u32 = a[i] - b[i] - carry;
-		carry = n >> WORD_BITSIZE;
+		carry = n >> WORD_BITSZ;
 		a[i] = muxu32(do, n & WORD_BITMASK, a[i]): word;
 	};
 	return carry;
@@ -62,9 +62,9 @@ export fn decrodd(x: []word) void = {
 };
 
 // Right-shift an integer 'x' by 'count'. The shift amount must be less than
-// [[WORD_BITSIZE]].
+// [[WORD_BITSZ]].
 export fn rshift(x: []word, count: word) void = {
-	assert(ltu32(count, WORD_BITSIZE) == 1);
+	assert(ltu32(count, WORD_BITSZ) == 1);
 
 	const l = ewordlen(x);
 	if (l == 0) {
@@ -74,13 +74,13 @@ export fn rshift(x: []word, count: word) void = {
 	let r = x[1] >> count;
 	for (let i = 2z; i <= l; i += 1) {
 		const w = x[i];
-		x[i - 1] = (w << (WORD_BITSIZE - count) | r) & WORD_BITMASK;
+		x[i - 1] = (w << (WORD_BITSZ - count) | r) & WORD_BITMASK;
 		r = w >> count;
 	};
 	x[l] = r;
 };
 
-// Multiply 'x' by 2^WORD_BITSIZE and then add integer 'z', modulo 'm'. This
+// Multiply 'x' by 2^WORD_BITSZ and then add integer 'z', modulo 'm'. This
 // function assumes that 'x' and 'm' have the same announced bit length, and the
 // announced bit length of 'm' matches its true bit length.
 // 
@@ -100,15 +100,15 @@ fn muladd_small(x: []word, z: word, m: const []word) void = {
 		return;
 	};
 
-	if (m_bitlen <= WORD_BITSIZE) {
+	if (m_bitlen <= WORD_BITSZ) {
 		hi = x[1] >> 1;
-		const lo = (x[1] << WORD_BITSIZE) | z;
+		const lo = (x[1] << WORD_BITSZ) | z;
 		x[1] = divu32(hi, lo, m[1]).1: word;
 		return;
 	};
 
 	let mlen = ewordlen(m);
-	let mblr = m_bitlen & WORD_BITSIZE: word;
+	let mblr = m_bitlen & WORD_BITSZ: word;
 
 	// Principle: we estimate the quotient (x*2^31+z)/m by
 	// doing a 64/32 division with the high words.
@@ -144,13 +144,13 @@ fn muladd_small(x: []word, z: word, m: const []word) void = {
 		a1 = x[mlen];
 		b0 = m[mlen];
 	} else {
-		a0 = ((x[mlen] << (WORD_BITSIZE: word - mblr))
+		a0 = ((x[mlen] << (WORD_BITSZ: word - mblr))
 			| (x[mlen - 1] >> mblr)) & WORD_BITMASK;
 		x[2..mlen+1] = x[1..mlen];
 		x[1] = z;
-		a1 = ((x[mlen] << (WORD_BITSIZE: word - mblr))
+		a1 = ((x[mlen] << (WORD_BITSZ: word - mblr))
 			| (x[mlen - 1] >> mblr)) & WORD_BITMASK;
-		b0 = ((m[mlen] << (WORD_BITSIZE: word - mblr))
+		b0 = ((m[mlen] << (WORD_BITSZ: word - mblr))
 			| (m[mlen - 1] >> mblr)) & WORD_BITMASK;
 	};
 
@@ -182,11 +182,11 @@ fn muladd_small(x: []word, z: word, m: const []word) void = {
 	for (let u = 1z; u <= mlen; u += 1) {
 		const mw = m[u];
 		const zl = mul31(mw, q) + cc;
-		cc = (zl >> WORD_BITSIZE): word;
+		cc = (zl >> WORD_BITSZ): word;
 		const zw = zl: word & WORD_BITMASK;
 		const xw = x[u];
 		let nxw = xw - zw;
-		cc += nxw >> WORD_BITSIZE;
+		cc += nxw >> WORD_BITSZ;
 		nxw &= WORD_BITMASK;
 		x[u] = nxw;
 		tb = muxu32(equ32(nxw, mw), tb, gtu32(nxw, mw));
@@ -212,7 +212,7 @@ fn muladd_small(x: []word, z: word, m: const []word) void = {
 fn mul31(x: u32, y: u32) u64 = x: u64 * y: u64;
 fn mul31_lo(x: u32, y: u32) u32 = (x: u32 * y: u32) & 0x7FFFFFFF;
 
-// Calculate "m0i" which is equal to -(1/m0) mod 2^WORD_BITSIZE, where m0 is the
+// Calculate "m0i" which is equal to -(1/m0) mod 2^WORD_BITSZ, where m0 is the
 // least significant value word of m: []word. 
 fn ninv31(m0: u32) u32 = {
 	let y: u32 = 2 - m0;
@@ -223,7 +223,7 @@ fn ninv31(m0: u32) u32 = {
 	return muxu32(m0 & 1, -y, 0) & 0x7FFFFFFF;
 };
 
-// Calculates "m0i" which is equal to -(1/'m0') mod 2^WORD_BITSIZE. 'm0' is the
+// Calculates "m0i" which is equal to -(1/'m0') mod 2^WORD_BITSZ. 'm0' is the
 // the first significant word of a big integer, which is the word at index 1.
 export fn ninv(m0: word) word = ninv31(m0);
 
@@ -245,10 +245,10 @@ export fn mulacc(d: []word, a: const []word, b: const []word) void = {
 
 	// We want to add the two bit lengths, but these are encoded,
 	// which requires some extra care.
-	const dl: u32 = (a[0] & WORD_BITSIZE) + (b[0] & WORD_BITSIZE);
+	const dl: u32 = (a[0] & WORD_BITSZ) + (b[0] & WORD_BITSZ);
 	const dh: u32 = (a[0] >> WORD_SHIFT) + (b[0] >> WORD_SHIFT);
 	d[0] = (dh << WORD_SHIFT) + dl
-		+ (~(dl - WORD_BITSIZE): u32 >> 31);
+		+ (~(dl - WORD_BITSZ): u32 >> 31);
 
 	for (let u = 0z; u < blen; u += 1) {
 		// Carry always fits on 31 bits; we want to keep it in a
@@ -263,7 +263,7 @@ export fn mulacc(d: []word, a: const []word, b: const []word) void = {
 		for (let v = 0z; v < alen; v += 1) {
 
 			let z: u64 = d[1 + u + v]: u64 + mul31(f, a[1 + v]) + cc;
-			cc = z >> WORD_BITSIZE;
+			cc = z >> WORD_BITSZ;
 			d[1 + u + v] = z: word & WORD_BITMASK;
 		};
 		d[1 + u + alen] = cc: word;

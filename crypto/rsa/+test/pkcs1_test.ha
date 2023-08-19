@@ -230,10 +230,10 @@ const sig512_256: [_]u8 = [
 
 @test fn pkcs1() void = {
 	let pk = sign3072.priv;
-	let priv: [PRIVKEYSIZE]u8 = [0...];
+	let priv: [PRIVKEYSZ]u8 = [0...];
 	privkey_init(priv, sign3072.priv)!;
 
-	let pub: [PUBKEYSIZE]u8 = [0...];
+	let pub: [PUBKEYSZ]u8 = [0...];
 	pubkey_init(pub, sign3072.pub)!;
 
 	assertpkcs1(priv, pub, msg, sig1, pkcs1_hashalgo::SHA1);

@@ -2,7 +2,7 @@
 // (c) 2022 Armin Preiml <apreiml@strohwolke.at>
 use crypto::cipher;
 
-def MAXEXPKEYSIZE: size = CT64_EXPKEYSIZE;
+def MAXEXPKEYSZ: size = CT64_EXPKEYSZ;
 def MAXNPARALLEL: size = CT64_NPARALLEL;
 
 const rtvtable: *cipher::blockvtable = &ct64_vtable;

@@ -7,16 +7,16 @@ use endian;
 use io;
 
 // Size of a Chacha key, in bytes.
-export def KEYSIZE: size = 32;
+export def KEYSZ: size = 32;
 
 // Size of the XChacha20 nonce, in bytes.
-export def XNONCESIZE: size = 24;
+export def XNONCESZ: size = 24;
 
 // Size of the Chacha20 nonce, in bytes.
-export def NONCESIZE: size = 12;
+export def NONCESZ: size = 12;
 
 // The block size of the Chacha cipher in bytes.
-export def BLOCKSIZE: size = 64;
+export def BLOCKSZ: size = 64;
 
 def ROUNDS: size = 20;
 const magic: [4]u32 = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574];
@@ -26,7 +26,7 @@ const magic: [4]u32 = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574];
 export type stream = struct {
 	cipher::xorstream,
 	state: [16]u32,
-	xorbuf: [BLOCKSIZE]u8,
+	xorbuf: [BLOCKSZ]u8,
 	xorused: size,
 	rounds: size,
 };
@@ -41,7 +41,7 @@ export fn chacha20() stream = {
 		keybuf = &keybuf,
 		advance = &advance,
 		finish = &finish,
-		xorused = BLOCKSIZE,
+		xorused = BLOCKSZ,
 		rounds = ROUNDS,
 		...
 	};
@@ -54,8 +54,8 @@ export fn chacha20_init(
 	key: []u8,
 	nonce: []u8
 ) void = {
-	assert(len(key) == KEYSIZE);
-	assert(len(nonce) == NONCESIZE);
+	assert(len(key) == KEYSZ);
+	assert(len(nonce) == NONCESZ);
 
 	s.h = h;
 
@@ -83,13 +83,13 @@ export fn xchacha20_init(
 	key: []u8,
 	nonce: []u8
 ) void = {
-	assert(len(key) == KEYSIZE);
-	assert(len(nonce) == XNONCESIZE);
+	assert(len(key) == KEYSZ);
+	assert(len(nonce) == XNONCESZ);
 
 	let dkey: [32]u8 = [0...];
 	hchacha20(&dkey, key, nonce[..16]);
 
-	let dnonce: [NONCESIZE]u8 = [0...];
+	let dnonce: [NONCESZ]u8 = [0...];
 	dnonce[4..] = nonce[16..];
 
 	chacha20_init(s, h, &dkey, dnonce);
@@ -102,12 +102,12 @@ export fn xchacha20_init(
 // initialization. This function may only be used for specific purposes
 // such as X25519 key derivation. Do not use if in doubt.
 export fn hchacha20(out: []u8, key: []u8, nonce: []u8) void = {
-	assert(len(out) == KEYSIZE);
-	assert(len(key) == KEYSIZE);
+	assert(len(out) == KEYSZ);
+	assert(len(key) == KEYSZ);
 	assert(len(nonce) == 16);
 
 	let state: [16]u32 = [0...];
-	defer bytes::zero((state: []u8: *[*]u8)[..BLOCKSIZE]);
+	defer bytes::zero((state: []u8: *[*]u8)[..BLOCKSZ]);
 
 	state[0] = magic[0];
 	state[1] = magic[1];
@@ -139,18 +139,18 @@ export fn hchacha20(out: []u8, key: []u8, nonce: []u8) void = {
 };
 
 // Advances the key stream to "seek" to a future state by 'counter' times
-// [[BLOCKSIZE]].
+// [[BLOCKSZ]].
 export fn setctr(s: *stream, counter: u32) void = {
 	s.state[12] = counter;
 
 	// enforce block generation
-	s.xorused = BLOCKSIZE;
+	s.xorused = BLOCKSZ;
 };
 
 fn keybuf(s: *cipher::xorstream) []u8 = {
 	let s = s: *stream;
 
-	if (s.xorused >= BLOCKSIZE) {
+	if (s.xorused >= BLOCKSZ) {
 		block((s.xorbuf: []u8: *[*]u32)[..16], &s.state,
 			s.rounds);
 		// TODO on big endian systems s.xorbuf values need to
@@ -215,6 +215,6 @@ fn qr(a: *u32, b: *u32, c: *u32, d: *u32) void = {
 
 fn finish(c: *cipher::xorstream) void = {
 	let s = c: *stream;
-	bytes::zero((s.state[..]: *[*]u8)[..BLOCKSIZE]);
+	bytes::zero((s.state[..]: *[*]u8)[..BLOCKSZ]);
 	bytes::zero(s.xorbuf);
 };

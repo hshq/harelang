@@ -10,7 +10,7 @@ use bytes;
 		0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c,
 	];
 
-	const zero: [CT64_EXPKEYSIZE]u8 = [0...];
+	const zero: [CT64_EXPKEYSZ]u8 = [0...];
 
 	let block = aes();
 	init(&block, key);

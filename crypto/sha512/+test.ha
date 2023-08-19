@@ -26,7 +26,7 @@ use encoding::hex;
 		hash::reset(&sha);
 		hash::write(&sha, strings::toutf8(vector.0));
 
-		let sum: [SIZE]u8 = [0...];
+		let sum: [SZ]u8 = [0...];
 		hash::sum(&sha, sum);
 
 		let shahex = hex::encodestr(sum);
@@ -50,7 +50,7 @@ use encoding::hex;
 		hash::reset(&sha);
 		hash::write(&sha, strings::toutf8(vector.0));
 
-		let sum: [SIZE224]u8 = [0...];
+		let sum: [SZ224]u8 = [0...];
 		hash::sum(&sha, sum);
 
 		let shahex = hex::encodestr(sum);
@@ -74,7 +74,7 @@ use encoding::hex;
 		hash::reset(&sha);
 		hash::write(&sha, strings::toutf8(vector.0));
 
-		let sum: [SIZE256]u8 = [0...];
+		let sum: [SZ256]u8 = [0...];
 		hash::sum(&sha, sum);
 
 		let shahex = hex::encodestr(sum);
@@ -99,7 +99,7 @@ use encoding::hex;
 		hash::reset(&sha);
 		hash::write(&sha, strings::toutf8(vector.0));
 
-		let sum: [SIZE384]u8 = [0...];
+		let sum: [SZ384]u8 = [0...];
 		hash::sum(&sha, sum);
 
 		let shahex = hex::encodestr(sum);

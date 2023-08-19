@@ -4,19 +4,19 @@ use bytes;
 use crypto::cipher;
 
 // The block size used by the AES algorithm.
-export def BLOCKSIZE: size = 16;
+export def BLOCKSZ: size = 16;
 
 // Size of the buffer used for [[crypto::cipher::cbc_encryptor]] and
 // [[crypto::cipher::cbc_decryptor]].
-export def CBC_BUFSIZE: size = BLOCKSIZE * 2;
+export def CBC_BUFSZ: size = BLOCKSZ * 2;
 
 // Size of the buffer used for [[crypto::cipher::ctr]].
-export def CTR_BUFSIZE: size = BLOCKSIZE * (MAXNPARALLEL + 1);
+export def CTR_BUFSZ: size = BLOCKSZ * (MAXNPARALLEL + 1);
 
 export type block = struct {
 	vtable: cipher::block,
 	rounds: u32,
-	expkey: [MAXEXPKEYSIZE]u8,
+	expkey: [MAXEXPKEYSZ]u8,
 };
 
 // Returns an AES [[crypto::cipher::block]] cipher implementation that has

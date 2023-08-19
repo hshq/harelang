@@ -46,16 +46,16 @@ export def DEFAULT_COST: uint = 10;
 
 def MAJOR: u8 = '2';
 def MINOR: u8 = 'a';
-def MAX_SALT_SIZE: size = 16;
-def MAX_CRYPTED_HASH_SIZE: size = 23;
-def ENCODED_SALT_SIZE: size = 22;
-def ENCODED_HASH_SIZE: size = 31;
-def MIN_HASH_SIZE: size = 59;
+def MAX_SALT_SZ: size = 16;
+def MAX_CRYPTED_HASH_SZ: size = 23;
+def ENCODED_SALT_SZ: size = 22;
+def ENCODED_HASH_SZ: size = 31;
+def MIN_HASH_SZ: size = 59;
 
 // Hashes a password using the bcrypt algorithm. The caller must free the return
 // value.
 export fn generate(password: []u8, cost: uint) []u8 = {
-	let salt: [MAX_SALT_SIZE]u8 = [0...];
+	let salt: [MAX_SALT_SZ]u8 = [0...];
 	random::buffer(salt);
 	const hash = hash_password(password, salt, cost)!;
 	defer finish(&hash);
@@ -107,7 +107,7 @@ fn hash_password(
 };
 
 fn load(input: []u8) (hash | errors::invalid) = {
-	if (len(input) < MIN_HASH_SIZE || input[0] != '$') {
+	if (len(input) < MIN_HASH_SZ || input[0] != '$') {
 		return errors::invalid;
 	};
 	let hash = hash { ... };
@@ -138,8 +138,8 @@ fn load(input: []u8) (hash | errors::invalid) = {
 		return errors::invalid;
 	};
 
-	hash.salt = alloc(data[..ENCODED_SALT_SIZE]...);
-	hash.hash = alloc(data[ENCODED_SALT_SIZE..]...);
+	hash.salt = alloc(data[..ENCODED_SALT_SZ]...);
+	hash.hash = alloc(data[ENCODED_SALT_SZ..]...);
 	return hash;
 };
 
@@ -170,7 +170,7 @@ fn bcrypt(password: []u8, salt: []u8, cost: uint) ([]u8 | errors::invalid) = {
 	};
 
 	// Bug compat: only encode 32 bytes
-	const enc = b64_encode(state[..MAX_CRYPTED_HASH_SIZE]);
+	const enc = b64_encode(state[..MAX_CRYPTED_HASH_SZ]);
 	return enc;
 };
 

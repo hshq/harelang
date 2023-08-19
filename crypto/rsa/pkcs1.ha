@@ -56,13 +56,13 @@ const OID_SHA512_256: [_]u8 = [
 ];
 
 // Required buffer size for [[pkcs1_verify]].
-export def PKCS1_VERIFYBUFSIZE: size = PUBEXP_BUFSIZE + (BITSIZE / 8);
+export def PKCS1_VERIFYBUFSZ: size = PUBEXP_BUFSZ + (BITSZ / 8);
 
 // Verifies a PKCS#1 v1.5 signature given a public key 'pubkey', the message
 // hash 'msghash', the signature 'sig' and the hash algorithm 'algo'. 'algo'
 // must reflect the hash algorithm 'sig' was created with.
 //
-// A temporary buffer 'buf' of size [[PKCS1_VERIFYBUFSIZE]] must be provided.
+// A temporary buffer 'buf' of size [[PKCS1_VERIFYBUFSZ]] must be provided.
 export fn pkcs1_verify(
 	pubkey: []u8,
 	msghash: []u8,
@@ -92,14 +92,14 @@ export fn pkcs1_verify(
 };
 
 // Required buffer size for [[pkcs1_sign]].
-export def PKCS1_SIGNBUFSIZE: size = PRIVEXP_BUFSIZE;
+export def PKCS1_SIGNBUFSZ: size = PRIVEXP_BUFSZ;
 
 // Signs a message hash 'msghash' using the PKCS#1 V1.5 signature scheme. The
 // signature will be written to 'sig' which must be in the the size of the
 // modulus n (see [[privkey_nsize]]). 'algo' defines the hash algorithm
 // 'msghash' was created with.
 //
-// A temporary buffer 'buf' of size [[PKCS1_SIGNBUFSIZE]]  must be provided.
+// A temporary buffer 'buf' of size [[PKCS1_SIGNBUFSZ]]  must be provided.
 export fn pkcs1_sign(
 	priv: []u8,
 	msghash: []u8,
@@ -116,17 +116,17 @@ export fn pkcs1_sign(
 fn pkcs1_hashinfo(algo: pkcs1_hashalgo) (const []u8, size) = {
 	switch (algo) {
 	case pkcs1_hashalgo::SHA1 =>
-		return (OID_SHA1, sha1::SIZE);
+		return (OID_SHA1, sha1::SZ);
 	case pkcs1_hashalgo::SHA256 =>
-		return (OID_SHA256, sha256::SIZE);
+		return (OID_SHA256, sha256::SZ);
 	case pkcs1_hashalgo::SHA384 =>
-		return (OID_SHA384, sha512::SIZE384);
+		return (OID_SHA384, sha512::SZ384);
 	case pkcs1_hashalgo::SHA512 =>
-		return (OID_SHA512, sha512::SIZE);
+		return (OID_SHA512, sha512::SZ);
 	case pkcs1_hashalgo::SHA512_224 =>
-		return (OID_SHA512_224, sha512::SIZE224);
+		return (OID_SHA512_224, sha512::SZ224);
 	case pkcs1_hashalgo::SHA512_256 =>
-		return (OID_SHA512_256, sha512::SIZE256);
+		return (OID_SHA512_256, sha512::SZ256);
 	case =>
 		abort("unreachable");
 	};
