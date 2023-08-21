@@ -65,7 +65,7 @@ export def SIG_HOLD: uintptr = 5;
 export type sigact = struct {
     union {
         sa_handler: *fn (int) void,
-        sa_sigaction: *fn (int, *siginfo, *void) void,
+        sa_sigaction: *fn (int, *siginfo, *opaque) void,
     },
     sa_mask: sigset,
     sa_flags: int,
@@ -73,21 +73,21 @@ export type sigact = struct {
 
 export type siginfo = struct {
     // TODO: Fill in more of this
-    si_signo : int,    // signal number
-    si_errno : int,    // errno association
-    si_code  : int,    // signal code
-    si_pid   : pid_t,  // sending process
-    si_uid   : uid_t,  // sender's ruid
-    si_status: int,    // exit value
-    si_addr  : *void,  // faulting instruction
-    // si_value : sigval, // signal value
-    // si_band  : i64,    // band event for SIGPOLL
-    // __pad    : [7]u64, // Reserved for Future Use
+    si_signo : int,     // signal number
+    si_errno : int,     // errno association
+    si_code  : int,     // signal code
+    si_pid   : pid_t,   // sending process
+    si_uid   : uid_t,   // sender's ruid
+    si_status: int,     // exit value
+    si_addr  : *opaque, // faulting instruction
+    // si_value : sigval,  // signal value
+    // si_band  : i64,     // band event for SIGPOLL
+    // __pad    : [7]u64,  // Reserved for Future Use
 };
 
 export type sigval = union {
     sival_int: int,
-    sival_ptr: *void,
+    sival_ptr: *opaque,
 };
 
 // <sys/poll.h>
@@ -180,8 +180,8 @@ export type dirent = struct {
 
 // <sys/uio.h>
 export type iovec = struct {
-    iov_base: *void, // [XSI] Base address of I/O memory region
-    iov_len:   size, // [XSI] Size of region iov_base points to
+    iov_base: *opaque, // [XSI] Base address of I/O memory region
+    iov_len:   size,   // [XSI] Size of region iov_base points to
 };
 
 // <sys/termios.h>

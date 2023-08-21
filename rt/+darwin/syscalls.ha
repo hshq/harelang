@@ -46,12 +46,12 @@ fn kpath(path: path) (*const u8 | errno) = {
 	return copy_kpath(path, pathbuf);
 };
 
-export fn read(fd: int, buf: *void, count: size) (size | errno) = {
+export fn read(fd: int, buf: *opaque, count: size) (size | errno) = {
 	return wrap_return(syscall3(SYS_read,
 		fd: u64, buf: uintptr: u64, count: u64))?: size;
 };
 
-export fn write(fd: int, buf: *const void, count: size) (size | errno) = {
+export fn write(fd: int, buf: *const opaque, count: size) (size | errno) = {
 	return wrap_return(syscall3(SYS_write,
 		fd: u64, buf: uintptr: u64, count: u64))?: size;
 };
@@ -84,7 +84,7 @@ export fn pipe2(pipefd: *[2]int, flags: int) (void | errno) = {
 	wrap_return(sys_pipe(SYS_pipe, pipefd: uintptr: u64))?;
 };
 
-export fn ioctl(fd: int, req: u64, arg: nullable *void) (int | errno) = {
+export fn ioctl(fd: int, req: u64, arg: nullable *opaque) (int | errno) = {
 	return wrap_return(syscall3(SYS_ioctl, fd: u64,
 		req, arg: uintptr: u64))?: int;
 };
@@ -217,7 +217,7 @@ export fn faccessat(
 export fn access(path: path, mode: int) (bool | errno) =
 	faccessat(AT_FDCWD, path, mode, 0);
 
-export fn getdents(dirfd: int, buf: *void, nbytes: size) (size | errno) = {
+export fn getdents(dirfd: int, buf: *opaque, nbytes: size) (size | errno) = {
 	let basep: i64 = 0;
 	return wrap_return(syscall4(SYS_getdirentries, dirfd: u64,
 		buf: uintptr: u64, nbytes: u64, &basep: uintptr: u64))?: size;
@@ -250,19 +250,19 @@ export fn chroot(path: path) (void | errno) = {
 };
 
 export fn mmap(
-	addr: nullable *void,
+	addr: nullable *opaque,
 	length: size,
 	prot: uint,
 	flags: uint,
 	fd: int,
 	offs: size
-) (errno | *void) = {
+) (errno | *opaque) = {
 	return wrap_return(syscall6(SYS_mmap, addr: uintptr: u64,
 		length: u64, prot: u64, flags: u64,
-		fd: u64, offs: u64))?: uintptr: *void;
+		fd: u64, offs: u64))?: uintptr: *opaque;
 };
 
-export fn munmap(addr: *void, length: size) (void | errno) = {
+export fn munmap(addr: *opaque, length: size) (void | errno) = {
 	wrap_return(syscall2(SYS_munmap, addr: uintptr: u64, length: u64))?;
 };
 
@@ -425,13 +425,13 @@ export fn nanosleep(req: *const timespec, rem: nullable *timespec) (void | errno
 };
 @symbol("nanosleep") fn c_nanosleep(rqtp: *const timespec, rmtp: nullable *timespec) int;
 
-export fn getrandom(buf: *void, buflen: size, flags: uint) (size | errno) = {
+export fn getrandom(buf: *opaque, buflen: size, flags: uint) (size | errno) = {
 	// return wrap_return(syscall3(SYS_getrandom,
 	// 	buf: uintptr: u64, buflen: u64, flags: u64))?: size;
 	c_arc4random_buf(buf, buflen);
 	return buflen;
 };
-@symbol("arc4random_buf") fn c_arc4random_buf(buf: *void, nbytes: size) void;
+@symbol("arc4random_buf") fn c_arc4random_buf(buf: *opaque, nbytes: size) void;
 
 export type fcntl_arg = (void | int | *st_flock | *u64 | *[*]u8);
 
@@ -534,7 +534,7 @@ export fn accept4(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32,
 		sockfd: u64, addr: uintptr: u64, addrlen: uintptr: u64))?: int;
 };
 
-export fn recvfrom(sockfd: int, buf: *void, len_: size, flags: int,
+export fn recvfrom(sockfd: int, buf: *opaque, len_: size, flags: int,
 	src_addr: nullable *sockaddr, addrlen: nullable *u32
 ) (size | errno) = {
 	return wrap_return(syscall6(SYS_recvfrom,
@@ -542,7 +542,7 @@ export fn recvfrom(sockfd: int, buf: *void, len_: size, flags: int,
 		src_addr: uintptr: u64, addrlen: uintptr: u64))?: size;
 };
 
-export fn sendto(sockfd: int, buf: *const void, len_: size, flags: int,
+export fn sendto(sockfd: int, buf: *const opaque, len_: size, flags: int,
 	dest_addr: nullable *sockaddr, addrlen: u32
 ) (size | errno) = {
 	return wrap_return(syscall6(SYS_sendto,
@@ -550,11 +550,11 @@ export fn sendto(sockfd: int, buf: *const void, len_: size, flags: int,
 		dest_addr: uintptr: u64, addrlen: u64))?: size;
 };
 
-export fn recv(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) = {
+export fn recv(sockfd: int, buf: *opaque, len_: size, flags: int) (size | errno) = {
 	return recvfrom(sockfd, buf, len_, flags, null, null);
 };
 
-export fn send(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) = {
+export fn send(sockfd: int, buf: *opaque, len_: size, flags: int) (size | errno) = {
 	return sendto(sockfd, buf, len_, flags, null, 0);
 };
 
@@ -568,13 +568,13 @@ export fn recvmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
 		fd: u64, msg: uintptr: u64, flags: u64))?: int;
 };
 
-export fn getsockopt(sockfd: int, level: int, optname: int, optval: nullable *void, optlen: nullable *u32) (void | errno) = {
+export fn getsockopt(sockfd: int, level: int, optname: int, optval: nullable *opaque, optlen: nullable *u32) (void | errno) = {
 	return wrap_return(syscall5(SYS_getsockopt,
 		sockfd: u64, level: u64, optname: u64,
 		optval: uintptr: u64, optlen: uintptr: u64))?: int;
 };
 
-export fn setsockopt(sockfd: int, level: int, optname: int, optval: *void, optlen: u32) (void | errno) = {
+export fn setsockopt(sockfd: int, level: int, optname: int, optval: *opaque, optlen: u32) (void | errno) = {
 	return wrap_return(syscall5(SYS_setsockopt,
 		sockfd: u64, level: u64, optname: u64,
 		optval: uintptr: u64, optlen: u64))?: int;
@@ -590,8 +590,8 @@ export fn getpeername(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *
 		sockfd: u64, addr: uintptr: u64, addrlen: uintptr: u64))?: int;
 };
 
-export fn sysctlbyname(name: str, oldp: nullable *void, oldlenp: nullable *size,
-		newp: nullable *const void, newlen: size) (void | errno) = {
+export fn sysctlbyname(name: str, oldp: nullable *opaque, oldlenp: nullable *size,
+		newp: nullable *const opaque, newlen: size) (void | errno) = {
 	let kname = kpath(name)?;
 	wrap_return(syscall6(SYS_sysctlbyname,
 		kname: uintptr: u64, len(name): u64,
@@ -632,9 +632,9 @@ export fn flock(fd: int, op: int) (void | errno) = {
 // };
 // @symbol("flock") fn c_flock(fd: int, operation: int) int;
 
-export fn shmat(id: int, addr: *const void, flag: int) *void = {
+export fn shmat(id: int, addr: *const opaque, flag: int) *opaque = {
 	return syscall3(SYS_shmat, id: u64, addr: uintptr: u64,
-		flag: u64): uintptr: *void;
+		flag: u64): uintptr: *opaque;
 };
 
 export fn getrlimit(resource: int, rlim: *rlimit) (void | errno) = {

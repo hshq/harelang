@@ -35,15 +35,15 @@ fn kpath(path: path) (*const char | errno) = {
 	return copy_kpath(path, pathbuf);
 };
 
-export fn read(fd: int, buf: *void, count: size) (size | errno) = {
+export fn read(fd: int, buf: *opaque, count: size) (size | errno) = {
 	return wrap_errno_return(c_read(fd, buf, count))?: size;
 };
-@symbol("read") fn c_read(fildes: int, buf: *void, nbyte: size) i64;
+@symbol("read") fn c_read(fildes: int, buf: *opaque, nbyte: size) i64;
 
-export fn write(fd: int, buf: *const void, count: size) (size | errno) = {
+export fn write(fd: int, buf: *const opaque, count: size) (size | errno) = {
 	return wrap_errno_return(c_write(fd, buf, count))?: size;
 };
-@symbol("write") fn c_write(fildes: int, buf: *const void, nbyte: size) i64;
+@symbol("write") fn c_write(fildes: int, buf: *const opaque, nbyte: size) i64;
 
 export fn readv(fd: int, iov: const *[*]iovec, iovcnt: int) (size | errno) = {
 	return wrap_errno_return(c_readv(fd, iov, iovcnt))?: size;
@@ -70,10 +70,10 @@ export fn pipe2(pipefd: *[2]int, flags: int) (void | errno) = {
 };
 @symbol("pipe") fn c_pipe(fildes: *[2]int) int;
 
-export fn ioctl(fd: int, req: u64, arg: nullable *void) (int | errno) = {
+export fn ioctl(fd: int, req: u64, arg: nullable *opaque) (int | errno) = {
 	return wrap_errno_return(c_ioctl(fd, req, arg))?: int;
 };
-@symbol("ioctl") fn c_ioctl(fildes: int, request: u64, arg: nullable *void) int;
+@symbol("ioctl") fn c_ioctl(fildes: int, request: u64, arg: nullable *opaque) int;
 
 export fn openat(
 	dirfd: int,
@@ -204,7 +204,7 @@ export fn faccessat(
 export fn access(path: path, mode: int) (bool | errno) =
 	faccessat(AT_FDCWD, path, mode, 0);
 
-export fn getdents(dirfd: int, buf: *void, nbytes: size) (size | errno) = {
+export fn getdents(dirfd: int, buf: *opaque, nbytes: size) (size | errno) = {
 	let basep: i64 = 0;
 	return wrap_errno_return(c_getdirentries(dirfd, buf: *char, nbytes: int, &basep))?: size;
 };
@@ -237,25 +237,25 @@ export fn chroot(path: path) (void | errno) = {
 @symbol("chroot") fn c_chroot(dirname: *const char) int;
 
 export fn mmap(
-	addr: nullable *void,
+	addr: nullable *opaque,
 	length: size,
 	prot: uint,
 	flags: uint,
 	fd: int,
 	offs: size
-) (errno | *void) = {
+) (errno | *opaque) = {
 	// let r = c_mmap(addr, length, prot: int, flags: int, fd, offs: size);
 	// return if (r == MAP_FAILED) get_c_errno() else r;
-	return wrap_errno_return(c_mmap(addr, length, prot: int, flags: int, fd, offs: off_t): uintptr: i64)?: uintptr: *void;
+	return wrap_errno_return(c_mmap(addr, length, prot: int, flags: int, fd, offs: off_t): uintptr: i64)?: uintptr: *opaque;
 };
-@symbol("mmap") fn c_mmap(addr: nullable *void, length: size,
-	prot: int, flags: int, fd: int, off: off_t) *void;
+@symbol("mmap") fn c_mmap(addr: nullable *opaque, length: size,
+	prot: int, flags: int, fd: int, off: off_t) *opaque;
 // def MAP_FAILED: *void = -1: uintptr: *void;
 
-export fn munmap(addr: *void, length: size) (void | errno) = {
+export fn munmap(addr: *opaque, length: size) (void | errno) = {
 	wrap_errno_return(c_munmap(addr, length))?;
 };
-@symbol("munmap") fn c_munmap(addr: *void, length: size) int;
+@symbol("munmap") fn c_munmap(addr: *opaque, length: size) int;
 
 export @noreturn fn exit(status: int) void = c_exit(status);
 @symbol("exit") @noreturn fn c_exit(status: int) void;
@@ -392,15 +392,15 @@ export fn nanosleep(req: *const timespec, rem: nullable *timespec) (void | errno
 };
 @symbol("nanosleep") fn c_nanosleep(rqtp: *const timespec, rmtp: nullable *timespec) int;
 
-export fn getrandom(buf: *void, buflen: size, flags: uint) (size | errno) = {
+export fn getrandom(buf: *opaque, buflen: size, flags: uint) (size | errno) = {
 	// const r = c_getentropy(buf, buflen);
 	// return if (r == -1) get_c_errno() else buflen;
 	// wrap_errno_return(c_getentropy(buf, buflen))?;
 	c_arc4random_buf(buf, buflen);
 	return buflen;
 };
-// @symbol("getentropy") fn c_getentropy(buf: *void, buflen: size) int;
-@symbol("arc4random_buf") fn c_arc4random_buf(buf: *void, nbytes: size) void;
+// @symbol("getentropy") fn c_getentropy(buf: *opaque, buflen: size) int;
+@symbol("arc4random_buf") fn c_arc4random_buf(buf: *opaque, nbytes: size) void;
 
 export type fcntl_arg = (void | int | *st_flock | *u64 | *[*]u8);
 
@@ -470,29 +470,29 @@ export fn accept4(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32,
 @symbol("accept") fn c_accept(socket: int,
 	address: nullable *sockaddr, address_len: *socklen_t) int;
 
-export fn recvfrom(sockfd: int, buf: *void, len_: size, flags: int,
+export fn recvfrom(sockfd: int, buf: *opaque, len_: size, flags: int,
 	src_addr: nullable *sockaddr, addrlen: nullable *u32
 ) (size | errno) = {
 	return wrap_errno_return(c_recvfrom(sockfd, buf, len_, flags, src_addr, addrlen: *socklen_t))?: size;
 };
-@symbol("recvfrom") fn c_recvfrom(socket: int, buffer: *void, length: size, flags: int, address: nullable *sockaddr, address_len: nullable *socklen_t) i64;
+@symbol("recvfrom") fn c_recvfrom(socket: int, buffer: *opaque, length: size, flags: int, address: nullable *sockaddr, address_len: nullable *socklen_t) i64;
 
-export fn sendto(sockfd: int, buf: *const void, len_: size, flags: int,
+export fn sendto(sockfd: int, buf: *const opaque, len_: size, flags: int,
 	dest_addr: nullable *sockaddr, addrlen: u32
 ) (size | errno) = {
 	return wrap_errno_return(c_sendto(sockfd, buf, len_, flags, dest_addr, addrlen))?: size;
 };
-@symbol("sendto") fn c_sendto(socket: int, buffer: *const void, length: size, flags: int, dest_addr: nullable *const sockaddr, dest_len: socklen_t) i64;
+@symbol("sendto") fn c_sendto(socket: int, buffer: *const opaque, length: size, flags: int, dest_addr: nullable *const sockaddr, dest_len: socklen_t) i64;
 
-export fn recv(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) = {
+export fn recv(sockfd: int, buf: *opaque, len_: size, flags: int) (size | errno) = {
 	return recvfrom(sockfd, buf, len_, flags, null, null);
 };
-// @symbol("recv") fn c_recv(socket: int, buffer: *void, length: size, flags: int) i64;
+// @symbol("recv") fn c_recv(socket: int, buffer: *opaque, length: size, flags: int) i64;
 
-export fn send(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) = {
+export fn send(sockfd: int, buf: *opaque, len_: size, flags: int) (size | errno) = {
 	return sendto(sockfd, buf, len_, flags, null, 0);
 };
-// @symbol("send") fn c_send(socket: int, buffer: *const void, length: size, flags: int) i64;
+// @symbol("send") fn c_send(socket: int, buffer: *const opaque, length: size, flags: int) i64;
 
 export fn sendmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
 	return wrap_errno_return(c_sendmsg(fd, msg, flags))?: int;
@@ -504,17 +504,17 @@ export fn recvmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
 };
 @symbol("recvmsg") fn c_recvmsg(socket: int, message: *msghdr, flags: int) i64;
 
-export fn getsockopt(sockfd: int, level: int, optname: int, optval: nullable *void, optlen: nullable *u32) (void | errno) = {
+export fn getsockopt(sockfd: int, level: int, optname: int, optval: nullable *opaque, optlen: nullable *u32) (void | errno) = {
 	wrap_errno_return(c_getsockopt(sockfd, level, optname, optval, optlen: *socklen_t))?;
 };
 @symbol("getsockopt") fn c_getsockopt(socket: int, level: int, option_name: int,
-	option_value: nullable *void, option_len: *socklen_t) int;
+	option_value: nullable *opaque, option_len: *socklen_t) int;
 
-export fn setsockopt(sockfd: int, level: int, optname: int, optval: *void, optlen: u32) (void | errno) = {
+export fn setsockopt(sockfd: int, level: int, optname: int, optval: *opaque, optlen: u32) (void | errno) = {
 	wrap_errno_return(c_setsockopt(sockfd, level, optname, optval, optlen: socklen_t))?;
 };
 @symbol("setsockopt") fn c_setsockopt(socket: int, level: int, option_name: int,
-	option_value: *const void, option_len: socklen_t) int;
+	option_value: *const opaque, option_len: socklen_t) int;
 
 export fn getsockname(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) (void | errno) = {
 	wrap_errno_return(c_getsockname(sockfd, addr, addrlen: *socklen_t))?;
@@ -528,14 +528,14 @@ export fn getpeername(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *
 @symbol("getpeername") fn c_getpeername(socket: int,
 	address: nullable *sockaddr, address_len: nullable *socklen_t) int;
 
-export fn sysctlbyname(name: str, oldp: nullable *void, oldlenp: nullable *size,
-		newp: nullable *const void, newlen: size) (void | errno) = {
+export fn sysctlbyname(name: str, oldp: nullable *opaque, oldlenp: nullable *size,
+		newp: nullable *const opaque, newlen: size) (void | errno) = {
 	let kname = kpath(name)?;
 	wrap_errno_return(c_sysctlbyname(kname, oldp, oldlenp, newp, newlen))?;
 };
 @symbol("sysctlbyname") fn c_sysctlbyname(name: *const char,
-	oldp: nullable *void, oldlenp: nullable *size,
-	newp: nullable *const void, newlen: size) int;
+	oldp: nullable *opaque, oldlenp: nullable *size,
+	newp: nullable *const opaque, newlen: size) int;
 
 export fn dup2(oldfd: int, newfd: int) (int | errno) = {
 	return wrap_errno_return(c_dup2(oldfd, newfd))?: int;

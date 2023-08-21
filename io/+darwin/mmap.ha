@@ -38,15 +38,15 @@ export type mflag = enum uint {
 // Performs the mmap syscall. Consult your system for documentation on this
 // function.
 export fn mmap(
-	addr: nullable *void,
+	addr: nullable *opaque,
 	length: size,
 	prot: prot,
 	flags: mflag,
 	fd: file,
 	offs: size
-) (*void | errors::error) = {
+) (*opaque | errors::error) = {
 	match (rt::mmap(addr, length, prot, flags, fd, offs)) {
-	case let ptr: *void =>
+	case let ptr: *opaque =>
 		return ptr;
 	case let err: rt::errno =>
 		return errors::errno(err);
@@ -54,7 +54,7 @@ export fn mmap(
 };
 
 // Unmaps memory previously mapped with [[mmap]].
-export fn munmap(addr: *void, length: size) (void | errors::error) = {
+export fn munmap(addr: *opaque, length: size) (void | errors::error) = {
 	match (rt::munmap(addr, length)) {
 	case void =>
 		return;
