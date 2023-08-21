@@ -34,6 +34,7 @@ fn getenv(var: str) []str = {
 // (executable name, executable variable, flags variable)
 type tool = (str, str, str);
 
+let cc_tool: tool = ("", "CC", "LDFLAGS");
 let ld_tool: tool = ("", "LD", "LDLINKFLAGS");
 let as_tool: tool = ("", "AS", "ASFLAGS");
 let ar_tool: tool = ("", "AR", "ARFLAGS");
@@ -109,11 +110,16 @@ fn sched_module(plan: *plan, ident: ast::ident, link: *[]*task) *task = {
 
 // Schedules a task which compiles objects into an executable.
 fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
+	let linker = if (len(plan.libs) > 0) {
+		yield &cc_tool;
+	} else {
+		yield &ld_tool;
+	};
 	let task = alloc(task {
 		status = status::SCHEDULED,
 		output = output,
 		depend = alloc(depend...),
-		cmd = getcmd(&ld_tool,
+		cmd = getcmd(linker,
 			"-T", plan.script,
 			"-o", output),
 		module = void,
@@ -127,7 +133,7 @@ fn sched_ld(plan: *plan, output: str, depend: *task...) *task = {
 
 	// Using --gc-sections and -z noexecstack will not work when using cc as
 	// the linker
-	if (len(plan.libs) == 0 && task.cmd[0] == plan.target.ld_cmd) {
+	if (linker == &ld_tool) {
 		append(task.cmd, ["--gc-sections", "-z", "noexecstack"]...);
 	};
 
