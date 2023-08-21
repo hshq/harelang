@@ -143,6 +143,9 @@ export fn fstatat(fd: int, path: path, stat: *st, flag: int) (void | errno) = {
 };
 @symbol("fstatat") fn c_fstatat(fd: int, path: *const char, buf: *stat_t, flag: int) int;
 
+export fn fstat(fd: int, stat: *st) (errno | void) =
+	fstatat(fd, "", stat, AT_FDONLY);
+
 export fn readlinkat(
 	dirfd: int,
 	path: path,

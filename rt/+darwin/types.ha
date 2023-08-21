@@ -393,6 +393,25 @@ export def AT_EACCESS         : int = 0x0010; // Use effective ids in access che
 export def AT_SYMLINK_NOFOLLOW: int = 0x0020; // Act on the symlink itself not the target
 export def AT_SYMLINK_FOLLOW  : int = 0x0040; // Act on target of symlink
 export def AT_REMOVEDIR       : int = 0x0080; // Path refers to directory
+export def AT_REALDEV         : int = 0x0200; // Return real device inodes resides on for fstatat(2)
+export def AT_FDONLY          : int = 0x0400; // Use only the fd and Ignore the path for fstatat(2)
+
+// export def AT_EMPTY_PATH      : int = 0x0;
+
+// [XSI] The symbolic names for file modes for use as values of mode_t
+// shall be defined as described in <sys/stat.h>
+
+// File type
+export def S_IFMT  : mode_t = 0o170000; // [XSI] type of file mask
+export def S_IFIFO : mode_t = 0o010000; // [XSI] named pipe (fifo)
+export def S_IFCHR : mode_t = 0o020000; // [XSI] character special
+export def S_IFDIR : mode_t = 0o040000; // [XSI] directory
+export def S_IFBLK : mode_t = 0o060000; // [XSI] block special
+export def S_IFREG : mode_t = 0o100000; // [XSI] regular
+export def S_IFLNK : mode_t = 0o120000; // [XSI] symbolic link
+export def S_IFSOCK: mode_t = 0o140000; // [XSI] socket
+export def S_IFWHT : mode_t = 0o160000; // OBSOLETE: whiteout
+
 
 // <sys/mman.h>: Flags contain sharing type and options.
 export def MAP_SHARED                  : uint = 0x0001; // [MF|SHM] share changes
@@ -615,3 +634,5 @@ export def SHUT_WR  : int = 1; // shut down the writing side
 export def SHUT_RDWR: int = 2; // shut down both sides
 
 // __DARWIN_C_LEVEL >= __DARWIN_C_FULL: true
+// !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE): true
+//      默认都没定义

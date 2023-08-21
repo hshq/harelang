@@ -59,6 +59,15 @@ export fn pipe() (io::file, io::file) = {
 };
 
 fn open(path: str) (platform_cmd | error) = {
+	let fd = match (rt::open(path, rt::O_RDONLY, 0u)) {
+	case let fd: int =>
+		yield fd;
+	case let err: rt::errno =>
+		return errors::errno(err);
+	};
+	let success = false;
+	defer if (!success) rt::close(fd)!;
+	// match (rt::faccessat(fd, "", rt::X_OK, rt::AT_EMPTY_PATH)) {
 	match (rt::access(path, rt::X_OK)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
@@ -67,12 +76,21 @@ fn open(path: str) (platform_cmd | error) = {
 			return errors::noaccess;
 		};
 	};
-	match (rt::open(path, rt::O_RDONLY, 0u)) {
-	case let fd: int =>
-		return fd;
+	// Make sure we are not trying to execute anything weird. fstat()
+	// already dereferences symlinks, so if this is anything other than a
+	// regular file it cannot be executed.
+	let s = rt::st { ... };
+	match (rt::fstat(fd, &s)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
+	case void =>
+		if (s.mode & rt::S_IFREG == 0) {
+			return errors::noaccess;
+		};
 	};
+	success = true;
+	return fd;
+
 };
 
 fn platform_finish(cmd: *command) void = rt::close(cmd.platform)!;
