@@ -8,7 +8,7 @@ use io;
 use strings;
 
 // The size, in bytes, of a CRC-16 checksum.
-export def SIZE: size = 2;
+export def SZ: size = 2;
 
 // CRC-CCITT polynomial for CRC-16. The most commonly used polynomial, used in
 // Bluetooth, X.25, XMODEM, and many other places. Also known as CRC-X25.
@@ -197,7 +197,7 @@ export fn crc16(table: *[256]u16) state = state {
 	stream = &crc16_vtable,
 	sum = &sum,
 	reset = &reset,
-	sz = SIZE,
+	sz = SZ,
 	table = table,
 	cval = ~0u16,
 	...
@@ -248,7 +248,7 @@ export fn sum16(h: *hash::hash) u16 = {
 	let crc_dect = crc16(&dect_table);
 	let crc_ansi = crc16(&ansi_table);
 
-	let buf: [SIZE]u8 = [0...];
+	let buf: [SZ]u8 = [0...];
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let vec = vectors[i];

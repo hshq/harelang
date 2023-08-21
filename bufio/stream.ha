@@ -51,8 +51,8 @@ export type stream = struct {
 // The caller is responsible for closing the underlying stream, and freeing the
 // provided buffers if necessary, after the buffered stream is closed.
 //
-// 	let rbuf: [os::BUFSIZ]u8 = [0...];
-// 	let wbuf: [os::BUFSIZ]u8 = [0...];
+// 	let rbuf: [os::BUFSZ]u8 = [0...];
+// 	let wbuf: [os::BUFSZ]u8 = [0...];
 // 	let buffered = bufio::init(source, rbuf, wbuf);
 export fn init(
 	src: io::handle,

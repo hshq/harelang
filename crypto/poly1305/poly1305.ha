@@ -9,10 +9,10 @@ use endian;
 use io;
 
 // Internal block size in bytes.
-export def BLOCKSIZE: size = 16;
+export def BLOCKSZ: size = 16;
 
 // Length of the resulting MAC in bytes.
-export def SIZE: size = 16;
+export def SZ: size = 16;
 
 // Poly1305 key.
 export type key = [32]u8;
@@ -39,8 +39,8 @@ export fn poly1305() state = {
 		stream = &poly1305_vtable,
 		sum = &sum,
 		finish = &finish,
-		sz = SIZE,
-		bsz = BLOCKSIZE,
+		sz = SZ,
+		bsz = BLOCKSZ,
 		...
 	};
 };
@@ -70,17 +70,17 @@ fn write(st: *io::stream, bbuf: const []u8) (size | io::error) = {
 	const written = len(buf);
 
 	for (len(buf) > 0) {
-		const n = if (len(buf) <= BLOCKSIZE - p.cidx) {
+		const n = if (len(buf) <= BLOCKSZ - p.cidx) {
 			yield len(buf);
 		} else {
-			yield BLOCKSIZE - p.cidx;
+			yield BLOCKSZ - p.cidx;
 		};
 
 		p.c[p.cidx..p.cidx + n] = buf[..n];
 		p.cidx += n;
 		buf = buf[n..];
 
-		if (p.cidx >= BLOCKSIZE) {
+		if (p.cidx >= BLOCKSZ) {
 			block(p, p.c, 1);
 			p.cidx = 0;
 		};

@@ -18,16 +18,16 @@ export type variant = enum {
 };
 
 // The size, in bytes, of a SHA-512 checksum.
-export def SIZE: size = 64;
+export def SZ: size = 64;
 
 // The size, in bytes, of a SHA-512/224 checksum.
-export def SIZE224: size = 28;
+export def SZ224: size = 28;
 
 // The size, in bytes, of a SHA-512/256 checksum.
-export def SIZE256: size = 32;
+export def SZ256: size = 32;
 
 // The size, in bytes, of a SHA-384 checksum.
-export def SIZE384: size = 48;
+export def SZ384: size = 48;
 
 def chunk: size = 128;
 def init0: u64 = 0x6a09e667f3bcc908;
@@ -76,25 +76,25 @@ export type digest = struct {
 // used to hash sensitive information, the caller should call [[hash::close]] to
 // erase sensitive data from memory after use; if not, the use of
 // [[hash::close]] is optional.
-export fn sha512() digest = init(variant::SHA512, SIZE);
+export fn sha512() digest = init(variant::SHA512, SZ);
 
 // Creates a [[hash::hash]] which computes a SHA-512/224 hash. If this function
 // is used to hash sensitive information, the caller should call [[hash::close]]
 // to erase sensitive data from memory after use; if not, the use of
 // [[hash::close]] is optional.
-export fn sha512_224() digest = init(variant::SHA512_224, SIZE224);
+export fn sha512_224() digest = init(variant::SHA512_224, SZ224);
 
 // Creates a [[hash::hash]] which computes a SHA-512/256 hash. If this function
 // is used to hash sensitive information, the caller should call [[hash::close]]
 // to erase sensitive data from memory after use; if not, the use of
 // [[hash::close]] is optional.
-export fn sha512_256() digest = init(variant::SHA512_256, SIZE256);
+export fn sha512_256() digest = init(variant::SHA512_256, SZ256);
 
 // Creates a [[hash::hash]] which computes a SHA-384 hash. If this function is
 // used to hash sensitive information, the caller should call [[hash::close]] to
 // erase sensitive data from memory after use; if not, the use of
 // [[hash::close]] is optional.
-export fn sha384() digest = init(variant::SHA384, SIZE384);
+export fn sha384() digest = init(variant::SHA384, SZ384);
 
 const sha512_vtable: io::vtable = io::vtable {
 	writer = &write,
@@ -174,7 +174,7 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 
 	assert(d.nx == 0);
 
-	let dig: [SIZE]u8 = [0...];
+	let dig: [SZ]u8 = [0...];
 	endian::beputu64(dig[0..], d.h[0]);
 	endian::beputu64(dig[8..], d.h[1]);
 	endian::beputu64(dig[16..], d.h[2]);

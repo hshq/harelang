@@ -323,7 +323,7 @@ export fn manifest_write(ctx: *context, man: *manifest) (void | error) = {
 	let mpath = path::string(&mpath);
 
 	let (truefile, name) = temp::named(ctx.fs, cachedir, io::mode::WRITE, 0o644)?;
-	let wbuf: [os::BUFSIZ]u8 = [0...];
+	let wbuf: [os::BUFSZ]u8 = [0...];
 	let file = &bufio::init(truefile, [], wbuf);
 	defer {
 		bufio::flush(file)!;

@@ -10,9 +10,9 @@ use crypto::math;
 use endian;
 
 // The size, in bytes, of a SHA-1 digest.
-export def SIZE: size = 20;
+export def SZ: size = 20;
 
-export def BLOCKSIZE: size = 64;
+export def BLOCKSZ: size = 64;
 
 def chunk: size = 64;
 def init0: u32 = 0x67452301;
@@ -46,8 +46,8 @@ export fn sha1() state = {
 		stream = &sha1_vtable,
 		sum = &sum,
 		reset = &reset,
-		sz = SIZE,
-		bsz = BLOCKSIZE,
+		sz = SZ,
+		bsz = BLOCKSZ,
 		...
 	};
 	hash::reset(&sha);

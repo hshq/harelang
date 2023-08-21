@@ -472,7 +472,7 @@ let enc4096: keypair = keypair {
 		...
 	};
 
-	let priv: [PRIVKEYSIZE]u8 = [0...];
+	let priv: [PRIVKEYSZ]u8 = [0...];
 	privkey_initd(priv, params, enc4096.d, enc4096.pub.n)!;
 
 	const newparams = privkey_params(priv);

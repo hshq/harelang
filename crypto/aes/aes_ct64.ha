@@ -32,7 +32,7 @@ use crypto::cipher::{blocksz,nparallel};
 use crypto::math;
 use endian;
 
-def CT64_EXPKEYSIZE: size = 960;
+def CT64_EXPKEYSZ: size = 960;
 def CT64_NPARALLEL: size = 4;
 
 // Returns an AES [[crypto::cipher::block]] cipher implementation optimized for
@@ -48,7 +48,7 @@ fn ct64() block = block {
 };
 
 const ct64_vtable: cipher::blockvtable = cipher::blockvtable {
-	blocksz = BLOCKSIZE,
+	blocksz = BLOCKSZ,
 	nparallel = CT64_NPARALLEL,
 	encrypt = &aes_ct64_encrypt,
 	decrypt = &aes_ct64_decrypt,

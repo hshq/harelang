@@ -314,7 +314,7 @@ fn point_encode(out: *scalar, p: *point) void = {
 	out[31] ^= fe_parity(&tx) << 7;
 };
 
-// len(in) must be POINTSIZE
+// len(in) must be POINTSZ
 fn point_decode(p: *point, in: []u8) bool = {
 	let t: elem = [0...];
 	let chk: elem = [0...];

@@ -38,7 +38,7 @@ use bytes;
 	];
 
 	let result: [64]u8 = [0...];
-	let buf: [CBC_BUFSIZE]u8 = [0...];
+	let buf: [CBC_BUFSZ]u8 = [0...];
 
 	let b = ct64();
 	ct64_init(&b, key);
@@ -89,7 +89,7 @@ use bytes;
 	];
 
 	let result: [64]u8 = plain;
-	let buf: [CBC_BUFSIZE]u8 = [0...];
+	let buf: [CBC_BUFSZ]u8 = [0...];
 
 	let b = ct64();
 	ct64_init(&b, key);

@@ -334,8 +334,8 @@ fn decode_reader(
 			return n;
 		};
 	};
-	static let buf: [os::BUFSIZ]u8 = [0...];
-	static let obuf: [os::BUFSIZ / 4 * 3]u8 = [0...];
+	static let buf: [os::BUFSZ]u8 = [0...];
+	static let obuf: [os::BUFSZ / 4 * 3]u8 = [0...];
 	const nn = ((l - n) / 3 + 1) * 4; // 4 extra bytes may be read.
 	let nr = 0z;
 	for (nr < nn) {

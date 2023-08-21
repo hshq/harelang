@@ -301,7 +301,7 @@ fn execute(
 	let cleared = false;
 	if (pipe.0 != 0) {
 		for (true) {
-			let buf: [os::BUFSIZ]u8 = [0...];
+			let buf: [os::BUFSZ]u8 = [0...];
 			match (io::read(pipe.0, buf)?) {
 			case let n: size =>
 				if (!cleared) {

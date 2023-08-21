@@ -48,7 +48,7 @@ const b64stream_r_vt: io::vtable = io::vtable {
 // Creates a new PEM decoder. The caller must either read it until it returns
 // [[io::EOF]], or call [[finish]] to free state associated with the parser.
 export fn newdecoder(in: io::handle) decoder = {
-	let buf: []u8 = alloc([0...], os::BUFSIZ);
+	let buf: []u8 = alloc([0...], os::BUFSZ);
 	return decoder {
 		in = bufio::init(in, buf, []),
 		buf = buf,

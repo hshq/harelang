@@ -9,7 +9,7 @@ use io;
 export type sha256state = struct {
 	mac::mac,
 	h: sha256::state,
-	keypad: [sha256::BLOCKSIZE]u8,
+	keypad: [sha256::BLOCKSZ]u8,
 };
 
 const sha256_vtable: io::vtable = io::vtable {
@@ -28,8 +28,8 @@ export fn sha256(key: []u8) sha256state = {
 	let s = sha256state {
 		stream = &sha256_vtable,
 		h = sha256::sha256(),
-		sz = sha256::SIZE,
-		bsz = sha256::BLOCKSIZE,
+		sz = sha256::SZ,
+		bsz = sha256::BLOCKSZ,
 		sum = &sha256sum,
 		finish = &sha256finish,
 		...

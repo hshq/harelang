@@ -19,7 +19,7 @@ const hmac_vtable: io::vtable = io::vtable {
 
 // Creates a [[crypto::mac::mac]] that computes an HMAC using the provided hash
 // function 'h' with given 'key'. The caller must provide a 'buf' of
-// [[hash::bsz]] bytes. Use the BLOCKSIZE constant of the given hash function to
+// [[hash::bsz]] bytes. Use the BLOCKSZ constant of the given hash function to
 // allocate the memory statically.
 //
 // The caller must take extra care to call [[crypto::mac::finish]] when they are

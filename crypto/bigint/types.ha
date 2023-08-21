@@ -5,7 +5,7 @@
 export type word = u32;
 
 // Number of bits that are used for storing the value in a word.
-export def WORD_BITSIZE: u32 = 31;
+export def WORD_BITSZ: u32 = 31;
 
 // Bitmask for bits that are used for storing the value in a word.
 export def WORD_BITMASK: word = 0x7fffffff;

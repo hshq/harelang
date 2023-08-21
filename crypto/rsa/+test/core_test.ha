@@ -3,10 +3,10 @@
 use bytes;
 use crypto::bigint::*;
 
-let pubbuf: [PUBEXP_BUFSIZE]u8 = [0...];
-let privbuf: [PRIVEXP_BUFSIZE]u8 = [0...];
-let pkcs1_verifybuf: [PKCS1_VERIFYBUFSIZE]u8 = [0...];
-let pkcs1_signbuf: [PKCS1_SIGNBUFSIZE]u8 = [0...];
+let pubbuf: [PUBEXP_BUFSZ]u8 = [0...];
+let privbuf: [PRIVEXP_BUFSZ]u8 = [0...];
+let pkcs1_verifybuf: [PKCS1_VERIFYBUFSZ]u8 = [0...];
+let pkcs1_signbuf: [PKCS1_SIGNBUFSZ]u8 = [0...];
 
 @test fn tiny() void = {
 	let pub = pubparams {

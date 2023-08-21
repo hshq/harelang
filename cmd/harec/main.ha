@@ -69,7 +69,7 @@ export fn main() void = {
 				cmd.args[i], fs::strerror(err));
 		};
 		defer io::close(input)!;
-		static let buf: [os::BUFSIZ]u8 = [0...];
+		static let buf: [os::BUFSZ]u8 = [0...];
 		let bufin = bufio::init(input, buf, []);
 		defer io::close(&bufin)!;
 

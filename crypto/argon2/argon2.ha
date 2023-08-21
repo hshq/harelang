@@ -15,11 +15,11 @@ use types;
 export def VERSION: u8 = 0x13;
 
 // Number of u64 elements of one block.
-export def BLOCKSIZE: u32 = 128;
+export def BLOCKSZ: u32 = 128;
 
 def SLICES: size = 4;
 
-type block64 = [BLOCKSIZE]u64;
+type block64 = [BLOCKSZ]u64;
 
 const zeroblock: block64 = [0...];
 
@@ -51,9 +51,9 @@ type mode = enum {
 // number of 1024-byte blocks the implementation shall allocate for you. If the
 // caller wants to manage the allocation itself, provide a []u8 instead. The
 // length of this slice must be at least 8 times the value of 'parallel' in
-// blocks, and must be a multiple of [[BLOCKSIZE]]. To have the implementation
+// blocks, and must be a multiple of [[BLOCKSZ]]. To have the implementation
 // allocate 64 KiB, set 'mem' to 64. To use the same amount of caller-provided
-// memory, provide a slice of length 64 * [[BLOCKSIZE]].
+// memory, provide a slice of length 64 * [[BLOCKSZ]].
 export type conf = struct {
 	mem: (u32 | []u64),
 	parallel: u32,
@@ -165,14 +165,14 @@ fn argon2(
 	let initmemsize = 0u32;
 	let mem: []u64 = match (cfg.mem) {
 	case let mem: []u64 =>
-		assert(len(mem) >= 8 * cfg.parallel * BLOCKSIZE
-			&& len(mem) % BLOCKSIZE == 0
-			&& len(mem) / BLOCKSIZE <= types::U32_MAX);
-		initmemsize = (len(mem) / BLOCKSIZE): u32;
+		assert(len(mem) >= 8 * cfg.parallel * BLOCKSZ
+			&& len(mem) % BLOCKSZ == 0
+			&& len(mem) / BLOCKSZ <= types::U32_MAX);
+		initmemsize = (len(mem) / BLOCKSZ): u32;
 
 		// round down memory to nearest multiple of 4 times parallel
 		const memsize = len(mem) - len(mem)
-			% (4 * cfg.parallel * BLOCKSIZE);
+			% (4 * cfg.parallel * BLOCKSZ);
 		yield mem[..memsize];
 	case let memsize: u32 =>
 		assert(memsize >= 8 * cfg.parallel
@@ -180,13 +180,13 @@ fn argon2(
 
 		initmemsize = memsize;
 		const memsize = memsize - memsize % (4 * cfg.parallel);
-		yield alloc([0...], memsize * BLOCKSIZE): []u64;
+		yield alloc([0...], memsize * BLOCKSZ): []u64;
 	};
 
 	let h0: [64]u8 = [0...];
 	inithash(&h0, len(dest): u32, password, salt, cfg, mode, initmemsize);
 
-	const memsize = (len(mem) / BLOCKSIZE): u32;
+	const memsize = (len(mem) / BLOCKSZ): u32;
 	const cols = 4 * (memsize / (4 * cfg.parallel));
 	let ctx = context {
 		rows = cfg.parallel,
@@ -241,12 +241,12 @@ fn argon2(
 };
 
 fn block(ctx: *context, i: size, j: size) []u64 = {
-	let index = (ctx.cols * i + j) * BLOCKSIZE;
-	return ctx.mem[index..index + BLOCKSIZE];
+	let index = (ctx.cols * i + j) * BLOCKSZ;
+	return ctx.mem[index..index + BLOCKSZ];
 };
 
 fn blocku8(ctx: *context, i: size, j: size) []u8 = {
-	return (block(ctx, i, j): *[*]u8)[..BLOCKSIZE * size(u64)];
+	return (block(ctx, i, j): *[*]u8)[..BLOCKSZ * size(u64)];
 };
 
 fn refblock(cfg: *conf, ctx: *context, seed: u64, i: size, j: size) []u64 = {
@@ -397,7 +397,7 @@ fn segproc(cfg: *conf, ctx: *context, i: size, slice: size) void = {
 		ctx.seedsinit[0] = ctx.pass;
 		ctx.seedsinit[1] = i;
 		ctx.seedsinit[2] = slice;
-		ctx.seedsinit[3] = len(ctx.mem) / BLOCKSIZE;
+		ctx.seedsinit[3] = len(ctx.mem) / BLOCKSZ;
 		ctx.seedsinit[4] = cfg.passes;
 		ctx.seedsinit[5] = ctx.mode: u64;
 		ctx.seedsinit[6] = 0;
@@ -432,14 +432,14 @@ fn segproc(cfg: *conf, ctx: *context, i: size, slice: size) void = {
 		const seed: u64 = if (dmodeseed) {
 			yield prev[0];
 		} else {
-			if (b % BLOCKSIZE == 0) {
+			if (b % BLOCKSZ == 0) {
 				ctx.seedsinit[6] += 1;
 				compress(ctx.seedblock, ctx.seedsinit,
 					zeroblock, false);
 				compress(ctx.seedblock, ctx.seedblock,
 					zeroblock, false);
 			};
-			yield ctx.seedblock[b % BLOCKSIZE];
+			yield ctx.seedblock[b % BLOCKSZ];
 		};
 
 		let ref = refblock(cfg, ctx, seed, i, j);

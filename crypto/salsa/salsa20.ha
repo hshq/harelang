@@ -7,25 +7,25 @@ use endian;
 use io;
 
 // Size of a Salsa key, in bytes.
-export def KEYSIZE: size = 32;
+export def KEYSZ: size = 32;
 
 // Size of the XSalsa20 nonce, in bytes.
-export def XNONCESIZE: size = 24;
+export def XNONCESZ: size = 24;
 
 // Size of the Salsa20 nonce, in bytes.
-export def NONCESIZE: size = 8;
+export def NONCESZ: size = 8;
 
 def ROUNDS: size = 20;
 
 // The block size of the Salsa cipher.
-export def BLOCKSIZE: size = 64;
+export def BLOCKSZ: size = 64;
 
 const magic: [4]u32 = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574];
 
 export type stream = struct {
 	cipher::xorstream,
 	state: [16]u32,
-	xorbuf: [BLOCKSIZE]u8,
+	xorbuf: [BLOCKSZ]u8,
 	xorused: size,
 	rounds: size,
 };
@@ -40,7 +40,7 @@ export fn salsa20() stream = {
 		keybuf = &keybuf,
 		advance = &advance,
 		finish = &finish,
-		xorused = BLOCKSIZE,
+		xorused = BLOCKSZ,
 		rounds = ROUNDS,
 		...
 	};
@@ -77,8 +77,8 @@ export fn salsa20_init(
 	key: []u8,
 	nonce: []u8,
 ) void = {
-	assert(len(key) == KEYSIZE);
-	assert(len(nonce) == NONCESIZE);
+	assert(len(key) == KEYSZ);
+	assert(len(nonce) == NONCESZ);
 
 	let counter: [8]u8 = [0...];
 	init(&s.state, key, nonce, &counter);
@@ -93,25 +93,25 @@ export fn xsalsa20_init(
 	key: []u8,
 	nonce: []u8
 ) void = {
-	assert(len(key) == KEYSIZE);
-	assert(len(nonce) == XNONCESIZE);
+	assert(len(key) == KEYSZ);
+	assert(len(nonce) == XNONCESZ);
 
 	let dkey: [32]u8 = [0...];
 	defer bytes::zero(dkey);
 	hsalsa20(&dkey, key, nonce[..16]);
-	salsa20_init(s, h, &dkey, nonce[16..]: *[NONCESIZE]u8);
+	salsa20_init(s, h, &dkey, nonce[16..]: *[NONCESZ]u8);
 };
 
 // Derives a new key from 'key' and 'nonce' as used during XSalsa20
 // initialization. This function may only be used for specific purposes
 // such as X25519 key derivation. Do not use if in doubt.
 export fn hsalsa20(out: []u8, key: []u8, nonce: []u8) void = {
-	assert(len(out) == KEYSIZE);
-	assert(len(key) == KEYSIZE);
+	assert(len(out) == KEYSZ);
+	assert(len(key) == KEYSZ);
 	assert(len(nonce) == 16);
 
 	let state: [16]u32 = [0...];
-	defer bytes::zero((state: []u8: *[*]u8)[..BLOCKSIZE]);
+	defer bytes::zero((state: []u8: *[*]u8)[..BLOCKSZ]);
 
 	init(&state, key, nonce[0..8]: *[8]u8, nonce[8..16]: *[8]u8);
 	hblock(state[..], &state, 20);
@@ -127,16 +127,16 @@ export fn hsalsa20(out: []u8, key: []u8, nonce: []u8) void = {
 };
 
 // Advances the key stream to "seek" to a future state by 'counter' times
-// [[BLOCKSIZE]].
+// [[BLOCKSZ]].
 export fn setctr(s: *stream, counter: u64) void = {
 	s.state[8] = (counter & 0xFFFFFFFF): u32;
 	s.state[9] = (counter >> 32): u32;
-	s.xorused = BLOCKSIZE;
+	s.xorused = BLOCKSZ;
 };
 
 fn keybuf(s: *cipher::xorstream) []u8 = {
 	let s = s: *stream;
-	if (s.xorused >= BLOCKSIZE) {
+	if (s.xorused >= BLOCKSZ) {
 		block((s.xorbuf[..]: *[*]u32)[..16], &s.state, s.rounds);
 		s.state[8] += 1;
 		if (s.state[8] == 0) {

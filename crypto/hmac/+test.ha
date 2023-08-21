@@ -12,7 +12,7 @@ use strings;
 fn assert_hmac_sha1(keystr: str, vectors: [](str, [20]u8)) void = {
 	let key = strings::toutf8(keystr);
 	let h = sha1::sha1();
-	let buf: [sha1::BLOCKSIZE]u8 = [0...];
+	let buf: [sha1::BLOCKSZ]u8 = [0...];
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		hash::reset(&h);
@@ -23,7 +23,7 @@ fn assert_hmac_sha1(keystr: str, vectors: [](str, [20]u8)) void = {
 
 		mac::write(&hmac, strings::toutf8(vector.0));
 
-		let sum: [sha1::SIZE]u8 = [0...];
+		let sum: [sha1::SZ]u8 = [0...];
 		mac::sum(&hmac, sum);
 
 		assert(bytes::equal(vector.1, sum));
@@ -141,7 +141,7 @@ fn assert_hmac_sha1(keystr: str, vectors: [](str, [20]u8)) void = {
 	let hmac = sha256([]);
 	defer mac::finish(&hmac);
 
-	let sum: [sha256::SIZE]u8 = [0...];
+	let sum: [sha256::SZ]u8 = [0...];
 	mac::sum(&hmac, sum);
 
 	assert(bytes::equal(expected, sum));

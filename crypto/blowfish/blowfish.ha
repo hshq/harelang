@@ -7,7 +7,7 @@ use crypto::cipher;
 use endian;
 
 // The block size of the Blowfish cipher in bytes.
-export def BLOCKSIZE: size = 8;
+export def BLOCKSZ: size = 8;
 
 export type state = struct {
 	block: cipher::block,
@@ -19,7 +19,7 @@ export type state = struct {
 };
 
 const vtable: cipher::blockvtable = cipher::blockvtable {
-	blocksz = BLOCKSIZE,
+	blocksz = BLOCKSZ,
 	nparallel = 1,
 	encrypt = &block_encrypt,
 	decrypt = &block_decrypt,

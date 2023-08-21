@@ -12,16 +12,16 @@ use memio;
 use types;
 
 // Nonce size as required by [[init]].
-export def NONCESZ: size = chacha::NONCESIZE;
+export def NONCESZ: size = chacha::NONCESZ;
 
 // Nonce size as required by [[xinit]].
-export def XNONCESZ: size = chacha::XNONCESIZE;
+export def XNONCESZ: size = chacha::XNONCESZ;
 
 // Key size
-export def KEYSZ: size = chacha::KEYSIZE;
+export def KEYSZ: size = chacha::KEYSZ;
 
 // Tag size
-export def TAGSZ: size = poly1305::SIZE;
+export def TAGSZ: size = poly1305::SZ;
 
 export type stream = struct {
 	stream: io::stream,
@@ -110,12 +110,12 @@ fn geninit(
 };
 
 fn polypad(p: *poly1305::state, n: size) void = {
-	if (n % poly1305::BLOCKSIZE == 0) {
+	if (n % poly1305::BLOCKSZ == 0) {
 		return;
 	};
 
-	const pad: [poly1305::BLOCKSIZE]u8 = [0...];
-	const padlen = poly1305::BLOCKSIZE - (n % poly1305::BLOCKSIZE);
+	const pad: [poly1305::BLOCKSZ]u8 = [0...];
+	const padlen = poly1305::BLOCKSZ - (n % poly1305::BLOCKSZ);
 	mac::write(p, pad[..padlen]);
 };
 

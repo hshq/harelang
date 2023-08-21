@@ -3,7 +3,7 @@
 use io;
 
 // The size of each block in a tar file.
-export def BLOCKSIZE: size = 512;
+export def BLOCKSZ: size = 512;
 
 // A file or directory in a tar file.
 export type entry = struct {
@@ -43,7 +43,7 @@ export type entry_type = enum u8 {
 	FIFO,
 };
 
-// Returned if the source file size is not aligned on [[BLOCKSIZE]].
+// Returned if the source file size is not aligned on [[BLOCKSZ]].
 export type truncated = !void;
 
 // Returned if the source file does not contain a valid ustar archive.

@@ -58,7 +58,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 		};
 		append(inputs, in);
 
-		let sumbuf: [sha256::SIZE]u8 = [0...];
+		let sumbuf: [sha256::SZ]u8 = [0...];
 		hash::write(&sha, in.hash);
 		hash::sum(&sha, sumbuf);
 
@@ -89,7 +89,7 @@ export fn scan(ctx: *context, path: str) (version | error) = {
 		return notfound;
 	};
 
-	let tmp: [sha256::SIZE]u8 = [0...];
+	let tmp: [sha256::SZ]u8 = [0...];
 	hash::sum(&sha, tmp);
 	ver.hash = alloc([], sha.sz);
 	append(ver.hash, tmp...);
@@ -357,7 +357,7 @@ fn scan_file(
 ) ([]u8 | error) = {
 	let truef = fs::open(ctx.fs, path)?;
 	defer io::close(truef)!;
-	let rbuf: [os::BUFSIZ]u8 = [0...];
+	let rbuf: [os::BUFSZ]u8 = [0...];
 	let f = &bufio::init(truef, rbuf, []);
 	let sha = sha256::sha256();
 	hash::write(&sha, strings::toutf8(path));
@@ -392,7 +392,7 @@ fn scan_file(
 		};
 	};
 
-	let tmp: [sha256::SIZE]u8 = [0...];
+	let tmp: [sha256::SZ]u8 = [0...];
 	hash::sum(&sha, tmp);
 
 	let checksum: []u8 = alloc([], sha.sz);

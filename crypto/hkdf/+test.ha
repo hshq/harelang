@@ -26,7 +26,7 @@ use crypto::sha256;
 		0x58, 0x65,
 	];
 
-	let buf: [sha256::SIZE + sha256::BLOCKSIZE]u8 = [0...];
+	let buf: [sha256::SZ + sha256::BLOCKSZ]u8 = [0...];
 
 	hkdf(&h, dest[..], key, info, salt, buf);
 
@@ -81,7 +81,7 @@ use crypto::sha256;
 		0x1d, 0x87,
 	];
 
-	let buf: [sha256::SIZE + sha256::BLOCKSIZE]u8 = [0...];
+	let buf: [sha256::SZ + sha256::BLOCKSZ]u8 = [0...];
 
 	hkdf(&h, dest[..], key, info, salt, buf);
 
@@ -103,7 +103,7 @@ use crypto::sha256;
 		0x96, 0xc8,
 	];
 
-	let buf: [sha256::SIZE + sha256::BLOCKSIZE]u8 = [0...];
+	let buf: [sha256::SZ + sha256::BLOCKSZ]u8 = [0...];
 
 	hkdf(&h, dest[..], key, [], [], buf);
 
@@ -133,7 +133,7 @@ use crypto::sha256;
 		0xf8, 0x96,
 	];
 
-	let buf: [sha1::SIZE + sha1::BLOCKSIZE]u8 = [0...];
+	let buf: [sha1::SZ + sha1::BLOCKSZ]u8 = [0...];
 
 	hkdf(&h, dest[..], key, info, salt, buf);
 
@@ -188,7 +188,7 @@ use crypto::sha256;
 		0xd3, 0xb4,
 	];
 
-	let buf: [sha1::SIZE + sha1::BLOCKSIZE]u8 = [0...];
+	let buf: [sha1::SZ + sha1::BLOCKSZ]u8 = [0...];
 
 	hkdf(&h, dest[..], key, info, salt, buf);
 
@@ -210,7 +210,7 @@ use crypto::sha256;
 		0xfc, 0x48,
 	];
 
-	let buf: [sha1::SIZE + sha1::BLOCKSIZE]u8 = [0...];
+	let buf: [sha1::SZ + sha1::BLOCKSZ]u8 = [0...];
 
 	hkdf(&h, dest[..], key, [], void, buf);
 

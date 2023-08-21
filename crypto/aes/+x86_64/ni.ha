@@ -6,10 +6,10 @@ def EXPKEYLEN128: size = 176;
 def EXPKEYLEN192: size = 208;
 def EXPKEYLEN256: size = 240;
 
-def X86NI_EXPKEYSIZE: size = 480;
+def X86NI_EXPKEYSZ: size = 480;
 
 const x86ni_vtable: cipher::blockvtable = cipher::blockvtable {
-	blocksz = BLOCKSIZE,
+	blocksz = BLOCKSZ,
 	nparallel = 1,
 	encrypt = &x86ni_encrypt,
 	decrypt = &x86ni_decrypt,
@@ -46,7 +46,7 @@ fn x86ni_init(b: *block, key: []u8) void = {
 };
 
 fn x86ni_encrypt(b: *cipher::block, dest: []u8, src: []u8) void = {
-	assert(len(dest) == len(src) && len(dest) % BLOCKSIZE == 0);
+	assert(len(dest) == len(src) && len(dest) % BLOCKSZ == 0);
 	let b = b: *block;
 	const expkeylen = (b.rounds + 1) << 4;
 	let enc = b.expkey[..expkeylen];
@@ -54,13 +54,13 @@ fn x86ni_encrypt(b: *cipher::block, dest: []u8, src: []u8) void = {
 	// XXX loop could be done in assembly
 	for (len(src) > 0) {
 		x86ni_asencrypt(enc, dest, src);
-		src = src[BLOCKSIZE..];
-		dest = dest[BLOCKSIZE..];
+		src = src[BLOCKSZ..];
+		dest = dest[BLOCKSZ..];
 	};
 };
 
 fn x86ni_decrypt(b: *cipher::block, dest: []u8, src: []u8) void = {
-	assert(len(dest) == len(src) && len(dest) % BLOCKSIZE == 0);
+	assert(len(dest) == len(src) && len(dest) % BLOCKSZ == 0);
 	let b = b: *block;
 	const expkeylen = (b.rounds + 1) << 4;
 	let dec = b.expkey[EXPKEYLEN256..];
@@ -68,8 +68,8 @@ fn x86ni_decrypt(b: *cipher::block, dest: []u8, src: []u8) void = {
 	// XXX loop could be done in assembly
 	for (len(src) > 0) {
 		x86ni_asdecrypt(dec[..expkeylen], dest, src);
-		src = src[BLOCKSIZE..];
-		dest = dest[BLOCKSIZE..];
+		src = src[BLOCKSZ..];
+		dest = dest[BLOCKSZ..];
 	};
 };
 

@@ -38,14 +38,14 @@ export let stderr: io::handle = rt::STDERR_FILENO;
 export let stderr_file: io::file = rt::STDERR_FILENO;
 
 // The recommended buffer size for reading from disk.
-export def BUFSIZ: size = 4096; // 4 KiB
+export def BUFSZ: size = 4096; // 4 KiB
 
 @init fn init_stdfd() void = {
-	static let stdinbuf: [BUFSIZ]u8 = [0...];
+	static let stdinbuf: [BUFSZ]u8 = [0...];
 	stdin_bufio = bufio::init(stdin_file, stdinbuf, []);
 	stdin = &stdin_bufio;
 
-	static let stdoutbuf: [BUFSIZ]u8 = [0...];
+	static let stdoutbuf: [BUFSZ]u8 = [0...];
 	stdout_bufio = bufio::init(stdout_file, [], stdoutbuf);
 	stdout = &stdout_bufio;
 };

@@ -8,7 +8,7 @@ use io;
 use strings;
 
 // The size, in bytes, of a CRC-32 checksum.
-export def SIZE: size = 4;
+export def SZ: size = 4;
 
 // IEEE polynomial for CRC-32. Used in ethernet, SATA, MPEG-2, gzip, bzip2,
 // cksum, PNG, etc. It is by far the most common polynomial used.
@@ -204,7 +204,7 @@ export fn crc32(table: *[256]u32) state = state {
 	stream = &crc32_vtable,
 	sum = &sum,
 	reset = &reset,
-	sz = SIZE,
+	sz = SZ,
 	table = table,
 	cval = ~0u32,
 	...
@@ -252,7 +252,7 @@ export fn sum32(h: *hash::hash) u32 = {
 	let crc_castagnoli = crc32(&castagnoli_table);
 	let crc_koopman = crc32(&koopman_table);
 
-	let buf: [SIZE]u8 = [0...];
+	let buf: [SZ]u8 = [0...];
 
 	for (let i = 0z; i < len(vectors); i += 1) {
 		let vec = vectors[i];

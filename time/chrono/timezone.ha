@@ -239,7 +239,7 @@ let TZ_LOCAL: timezone = timezone {
 			);
 		};
 
-		static let buf: [os::BUFSIZ]u8 = [0...];
+		static let buf: [os::BUFSZ]u8 = [0...];
 		const file = bufio::init(file, buf, []);
 		load_tzif(&file, &TZ_LOCAL): void;
 	};
