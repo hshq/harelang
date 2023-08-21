@@ -3,12 +3,12 @@
 // (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
 // (c) 2021 Sudipto Mallick <smlckz@disroot.org>
 
-fn getfp() **void;
+fn getfp() **opaque;
 
 // Details for a stack frame. Contents are architecture-specific.
 export type frame = struct {
 	fp: nullable *frame,
-	lr: nullable *void,
+	lr: nullable *opaque,
 };
 
 // Returns the caller's stack frame. Call [[nextframe]] to walk the stack.

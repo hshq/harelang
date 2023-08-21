@@ -21,7 +21,7 @@ export type field = (...formattable | *modifiers);
 
 // Tagged union of all types which are formattable.
 export type formattable = (...types::numeric | uintptr | str | rune | bool |
-	nullable *void | void);
+	nullable *opaque | void);
 
 // Formats text for printing and writes it to [[os::stdout]].
 export fn printf(fmt: str, args: field...) (size | io::error) =
@@ -357,9 +357,9 @@ fn format_raw(
 	case let p: uintptr =>
 		const s = strconv::uptrtosb(p, mod.base);
 		return io::write(out, strings::toutf8(s));
-	case let v: nullable *void =>
+	case let v: nullable *opaque =>
 		match (v) {
-		case let v: *void =>
+		case let v: *opaque =>
 			let z = io::write(out, strings::toutf8("0x"))?;
 			const s = strconv::uptrtosb(v: uintptr,
 				strconv::base::HEX_LOWER);

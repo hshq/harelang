@@ -24,7 +24,7 @@ export fn add_key(
 	const name = c::fromstr(name);
 	defer free(name);
 	match (rt::add_key(keytype: *const u8, name: *const u8,
-			payload: *[*]u8: *void, len(payload), keyring)) {
+			payload: *[*]u8: *opaque, len(payload), keyring)) {
 	case let err: rt::errno =>
 		return errno(err);
 	case let n: int =>
@@ -87,7 +87,7 @@ export fn read(id: serial, buf: []u8) (size | error) = {
 	const buf = if (len(buf) == 0) {
 		yield null;
 	} else {
-		yield buf: *[*]u8: *void;
+		yield buf: *[*]u8: *opaque;
 	};
 	return keyctl(command::READ, id: u64,
 		buf: uintptr: u64, bufln: u64, 0)?: size;

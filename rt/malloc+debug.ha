@@ -15,7 +15,7 @@ type auxv64 = struct {
 	a_type: u64,
 	union {
 		a_val: u64,
-		a_ptr: *void,
+		a_ptr: *opaque,
 		a_fnc: *fn() void,
 	}
 };
@@ -34,34 +34,34 @@ type auxv64 = struct {
 	};
 };
 
-export fn malloc(n: size) nullable *void = {
+export fn malloc(n: size) nullable *opaque = {
 	if (n == 0) {
 		return null;
 	};
-	let z = n + size(*void) + size(size);
+	let z = n + size(*opaque) + size(size);
 	if (z % pagesz != 0) {
 		z += pagesz - z % pagesz;
 	};
 	let seg = match (segmalloc(z)) {
 	case null =>
 		return null;
-	case let ptr: *void =>
+	case let ptr: *opaque =>
 		yield ptr;
 	};
 	let user = &(seg: *[*]u8)[z - n];
-	let segptr = &(user: *[*]*void)[-1];
+	let segptr = &(user: *[*]*opaque)[-1];
 	let szptr = &(segptr: *[*]size)[-1];
 	*segptr = seg;
 	*szptr = n;
 	return user;
 };
 
-export @symbol("rt.free") fn free_(_p: nullable *void) void = {
+export @symbol("rt.free") fn free_(_p: nullable *opaque) void = {
 	if (_p != null) {
-		let user = _p: *void;
-		let segptr = &(user: *[*]*void)[-1];
+		let user = _p: *opaque;
+		let segptr = &(user: *[*]*opaque)[-1];
 		let szptr = &(segptr: *[*]size)[-1];
-		let z = *szptr + size(*void) + size(size);
+		let z = *szptr + size(*opaque) + size(size);
 		if (z % pagesz != 0) {
 			z += pagesz - z % pagesz;
 		};
@@ -69,7 +69,7 @@ export @symbol("rt.free") fn free_(_p: nullable *void) void = {
 	};
 };
 
-export fn realloc(user: nullable *void, n: size) nullable *void = {
+export fn realloc(user: nullable *opaque, n: size) nullable *opaque = {
 	if (n == 0) {
 		free(user);
 		return null;
@@ -77,14 +77,14 @@ export fn realloc(user: nullable *void, n: size) nullable *void = {
 		return malloc(n);
 	};
 
-	let user = user: *void;
-	let segptr = &(user: *[*]*void)[-1];
+	let user = user: *opaque;
+	let segptr = &(user: *[*]*opaque)[-1];
 	let szptr = &(segptr: *[*]size)[-1];
 	let z = *szptr;
 
 	let new = malloc(n);
 	if (new != null) {
-		memcpy(new: *void, user, if (z < n) z else n);
+		memcpy(new: *opaque, user, if (z < n) z else n);
 		free(user);
 	};
 

@@ -5,7 +5,7 @@ export type siginfo = struct {
 	si_pid: pid_t,
 	si_uid: uid_t,
 	si_status: int,
-	si_addr: *void,
+	si_addr: *opaque,
 	si_value: sigval,
 	_reason: union {
 		_fault: struct {

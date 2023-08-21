@@ -59,7 +59,7 @@ export fn getflags(msg: *msghdr) int = {
 };
 
 // Sets name for this message.
-export fn setname(msg: *msghdr, name: *void, length: size) void = {
+export fn setname(msg: *msghdr, name: *opaque, length: size) void = {
 	msg.native.msg_name = name;
 	msg.native.msg_namelen = length: u32;
 };

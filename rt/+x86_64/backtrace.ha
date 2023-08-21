@@ -3,11 +3,11 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
 
-fn getfp() **void;
+fn getfp() **opaque;
 
 // Details for a stack frame. Contents are architecture-specific.
 export type frame = struct {
-	addr: *void
+	addr: *opaque
 };
 
 // Returns the current stack frame. See [[nextframe]] to walk the stack.
@@ -21,9 +21,9 @@ export fn backtrace() frame = {
 
 // Returns the frame above the current frame, if any.
 export fn nextframe(sframe: frame) (frame | void) = {
-	let addr = sframe.addr: *nullable *void;
+	let addr = sframe.addr: *nullable *opaque;
 	match (*addr) {
-	case let a: *void =>
+	case let a: *opaque =>
 		return frame { addr = a };
 	case null =>
 		return;

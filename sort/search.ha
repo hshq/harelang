@@ -4,9 +4,9 @@
 // Performs a binary search over a sorted slice. If the key is found, index of
 // the matching item in the slice is returned. Otherwise, void is returned.
 export fn search(
-	in: []const void,
+	in: []const opaque,
 	sz: size,
-	key: const *void,
+	key: const *opaque,
 	cmp: *cmpfunc,
 ) (size | void) = {
 	let ba = in: *[*]u8;

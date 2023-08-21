@@ -190,7 +190,7 @@ fn setsockopt(
 ) (void | net::error) = {
 	let val: int = if (value) 1 else 0;
 	match (rt::setsockopt(sockfd, rt::SOL_SOCKET, option,
-			&val: *void, size(int): u32)) {
+			&val: *opaque, size(int): u32)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case int => void;

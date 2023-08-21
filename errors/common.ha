@@ -57,5 +57,5 @@ export type error = !(
 	nomem |
 	interrupted |
 	again |
-	opaque
+	opaque_
 );

@@ -388,7 +388,7 @@ export def EPOLLONESHOT: u32 = 1 << 30;
 export def EPOLLET: u32 = 1 << 31;
 
 export type epoll_data = union {
-	ptr: *void,
+	ptr: *opaque,
 	fd: int,
 	u32_: u32,
 	u64_: u64,
@@ -411,7 +411,7 @@ def SI_MAX_SIZE: size = 128;
 
 export type sigval = union {
 	sival_t: int,
-	sival_ptr: *void,
+	sival_ptr: *opaque,
 };
 
 export type siginfo = union {
@@ -442,7 +442,7 @@ export type siginfo = union {
 				union {
 					si_value: sigval,
 					si_int: int,
-					si_ptr: *void,
+					si_ptr: *opaque,
 				}
 			},
 
@@ -457,7 +457,7 @@ export type siginfo = union {
 
 			// SIGILL, SIGFPE, SIGSEGV, SIGBUS, SIGTRAP, SIGEMT
 			struct {
-				si_addr: *void,
+				si_addr: *opaque,
 
 				union {
 					// used when si_code=BUS_MCEERR_AR or
@@ -466,8 +466,8 @@ export type siginfo = union {
 
 					struct {
 						_dummy_bnd: [__ADDR_BND_PKEY_PAD]u8,
-						si_lower: *void,
-						si_upper: *void,
+						si_lower: *opaque,
+						si_upper: *opaque,
 					},
 
 					struct {
@@ -485,7 +485,7 @@ export type siginfo = union {
 
 			// SIGSYS
 			struct {
-				si_call_addr: *void,
+				si_call_addr: *opaque,
 				si_syscall: int,
 				si_arch: uint,
 			},
@@ -513,7 +513,7 @@ export def SIG_HOLD: uintptr = 2;
 export type sigact = struct {
 	union {
 		sa_handler: *fn (int) void,
-		sa_sigaction: *fn (int, *siginfo, *void) void,
+		sa_sigaction: *fn (int, *siginfo, *opaque) void,
 	},
 	sa_flags: u64,
 	sa_restorer: *fn () void,
@@ -550,7 +550,7 @@ export type signalfd_siginfo = struct {
 };
 
 export type iovec = struct {
-	iov_base: *void,
+	iov_base: *opaque,
 	iov_len: size
 };
 

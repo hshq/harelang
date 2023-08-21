@@ -74,7 +74,7 @@ fn sort_decls(decls: []ast::decl) summary = {
 	return sorted;
 };
 
-fn decl_cmp(a: const *void, b: const *void) int = {
+fn decl_cmp(a: const *opaque, b: const *opaque) int = {
 	const a = *(a: const *ast::decl);
 	const b = *(b: const *ast::decl);
 	if (a.docs == "" && b.docs != "") {

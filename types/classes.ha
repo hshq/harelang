@@ -33,7 +33,7 @@ export type string = struct {
 // slice manipulation.
 export type slice = struct {
 	// The slice contents.
-	data: nullable *void,
+	data: nullable *opaque,
 
 	// The number of members of the slice.
 	length: size,

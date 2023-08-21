@@ -46,12 +46,12 @@ fn kpath(path: path) (*const u8 | errno) = {
 	return copy_kpath(path, pathbuf);
 };
 
-export fn read(fd: int, buf: *void, count: size) (size | errno) = {
+export fn read(fd: int, buf: *opaque, count: size) (size | errno) = {
 	return wrap_return(syscall3(SYS_read,
 		fd: u64, buf: uintptr: u64, count: u64))?: size;
 };
 
-export fn write(fd: int, buf: *const void, count: size) (size | errno) = {
+export fn write(fd: int, buf: *const opaque, count: size) (size | errno) = {
 	return wrap_return(syscall3(SYS_write,
 		fd: u64, buf: uintptr: u64, count: u64))?: size;
 };
@@ -291,13 +291,13 @@ export fn pipe2(pipefd: *[2]int, flags: int) (void | errno) = {
 };
 
 export fn mmap(
-	addr: nullable *void,
+	addr: nullable *opaque,
 	length: size,
 	prot: uint,
 	flags: uint,
 	fd: int,
 	offs: size
-) (*void | errno) = {
+) (*opaque | errno) = {
 	let r = syscall6(SYS_mmap, addr: uintptr: u64,
 		length: u64, prot: u64, flags: u64, fd: u64, offs: u64);
 	match (wrap_return(r)) {
@@ -309,28 +309,28 @@ export fn mmap(
 		};
 		return err;
 	case let n: u64 =>
-		return n: uintptr: *void;
+		return n: uintptr: *opaque;
 	};
 };
 
 export fn mremap(
-	old_addr: *void,
+	old_addr: *opaque,
 	old_len: size,
 	new_len: size,
 	flags: uint,
-	new_addr: nullable *void,
-) (*void | errno) = {
+	new_addr: nullable *opaque,
+) (*opaque | errno) = {
 	let r = syscall5(SYS_mremap, old_addr: uintptr: u64, old_len: u64,
 		new_len: u64, flags: u64, new_addr: uintptr: u64);
-	return wrap_return(r)?: uintptr: *void;
+	return wrap_return(r)?: uintptr: *opaque;
 };
 
-export fn munmap(addr: *void, length: size) (void | errno) = {
+export fn munmap(addr: *opaque, length: size) (void | errno) = {
 	wrap_return(syscall2(SYS_munmap,
 		addr: uintptr: u64, length: u64))?;
 };
 
-export fn mprotect(addr: *void, length: size, prot: uint) (void | errno) = {
+export fn mprotect(addr: *opaque, length: size, prot: uint) (void | errno) = {
 	wrap_return(syscall3(SYS_mprotect,
 		addr: uintptr: u64, length: u64, prot: u64))?;
 };
@@ -391,7 +391,7 @@ export fn faccessat(
 	};
 };
 
-export fn getdents64(dirfd: int, dirp: *void, count: size) (size | errno) = {
+export fn getdents64(dirfd: int, dirp: *opaque, count: size) (size | errno) = {
 	return wrap_return(syscall3(SYS_getdents64, dirfd: u64,
 		dirp: uintptr: u64, count: u64))?: size;
 };
@@ -420,7 +420,7 @@ export fn fcntl(fd: int, cmd: int, arg: fcntl_arg) (int | errno) = {
 	})?: int;
 };
 
-export fn getrandom(buf: *void, bufln: size, flags: uint) (size | errno) = {
+export fn getrandom(buf: *opaque, bufln: size, flags: uint) (size | errno) = {
 	return wrap_return(syscall3(SYS_getrandom,
 		buf: uintptr: u64, bufln: u64, flags: u64))?: size;
 };
@@ -606,7 +606,7 @@ export fn accept4(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32,
 		sockfd: u64, addr: uintptr: u64, addrlen: uintptr: u64, flags: u64))?: int;
 };
 
-export fn recvfrom(sockfd: int, buf: *void, len_: size, flags: int,
+export fn recvfrom(sockfd: int, buf: *opaque, len_: size, flags: int,
 	src_addr: nullable *sockaddr, addrlen: nullable *u32
 ) (size | errno) = {
 	return wrap_return(syscall6(SYS_recvfrom,
@@ -614,7 +614,7 @@ export fn recvfrom(sockfd: int, buf: *void, len_: size, flags: int,
 		src_addr: uintptr: u64, addrlen: uintptr: u64))?: size;
 };
 
-export fn sendto(sockfd: int, buf: *void, len_: size, flags: int,
+export fn sendto(sockfd: int, buf: *opaque, len_: size, flags: int,
 	dest_addr: nullable *sockaddr, addrlen: u32
 ) (size | errno) = {
 	return wrap_return(syscall6(SYS_sendto,
@@ -622,34 +622,34 @@ export fn sendto(sockfd: int, buf: *void, len_: size, flags: int,
 		dest_addr: uintptr: u64, addrlen: u64))?: size;
 };
 
-export fn recv(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) = {
+export fn recv(sockfd: int, buf: *opaque, len_: size, flags: int) (size | errno) = {
 	return recvfrom(sockfd, buf, len_, flags, null, null);
 };
 
-export fn send(sockfd: int, buf: *void, len_: size, flags: int) (size | errno) = {
+export fn send(sockfd: int, buf: *opaque, len_: size, flags: int) (size | errno) = {
 	return sendto(sockfd, buf, len_, flags, null, 0);
 };
 
-export fn getsockopt(sockfd: int, level: int, optname: int, optval: nullable *void, optlen: nullable *u32) (int | errno) = {
+export fn getsockopt(sockfd: int, level: int, optname: int, optval: nullable *opaque, optlen: nullable *u32) (int | errno) = {
 	return wrap_return(syscall5(SYS_getsockopt,
 		sockfd: u64, level: u64, optname: u64,
 		optval: uintptr: u64, optlen: uintptr: u64))?: int;
 };
 
-export fn setsockopt(sockfd: int, level: int, optname: int, optval: *void, optlen: u32) (int | errno) = {
+export fn setsockopt(sockfd: int, level: int, optname: int, optval: *opaque, optlen: u32) (int | errno) = {
 	return wrap_return(syscall5(SYS_setsockopt,
 		sockfd: u64, level: u64, optname: u64,
 		optval: uintptr: u64, optlen: u64))?: int;
 };
 
-export type ioctl_arg = (nullable *void | u64);
+export type ioctl_arg = (nullable *opaque | u64);
 
 export fn ioctl(fd: int, req: u64, arg: ioctl_arg) (int | errno) = {
 	let fd = fd: u64, req = req: u64;
 	return wrap_return(match (arg) {
 	case let u: u64 =>
 		yield syscall3(SYS_ioctl, fd, req, u);
-	case let v: nullable *void =>
+	case let v: nullable *opaque =>
 		yield syscall3(SYS_ioctl, fd, req, v: uintptr: u64);
 	})?: int;
 };
@@ -729,7 +729,7 @@ export fn setpriority(which: int, who: id_t, prio: int) (void | errno) = {
 	wrap_return(syscall3(SYS_setpriority, which: u64, who: u64, prio: u64))?;
 };
 
-export fn io_uring_setup(entries: u32, params: *void) (int | errno) = {
+export fn io_uring_setup(entries: u32, params: *opaque) (int | errno) = {
 	return wrap_return(syscall2(SYS_io_uring_setup,
 		entries: u64, params: uintptr: u64))?: int;
 };
@@ -737,7 +737,7 @@ export fn io_uring_setup(entries: u32, params: *void) (int | errno) = {
 export fn io_uring_register(
 	fd: int,
 	opcode: uint,
-	arg: nullable *void,
+	arg: nullable *opaque,
 	nr_args: uint,
 ) (int | errno) = wrap_return(syscall4(SYS_io_uring_register,
 	fd: u64, opcode: u64, arg: uintptr: u64, nr_args: u64))?: int;
@@ -754,12 +754,12 @@ export fn io_uring_enter(
 		flags: u64, sig: uintptr: u64))?: uint;
 };
 
-export fn mlock2(addr: *void, length: size, flags: uint) (void | errno) = {
+export fn mlock2(addr: *opaque, length: size, flags: uint) (void | errno) = {
 	return wrap_return(syscall3(SYS_mlock2, addr: uintptr: u64,
 		length: u64, flags: u64))?: void;
 };
 
-export fn munlock(addr: *void, length: size) (void | errno) = {
+export fn munlock(addr: *opaque, length: size) (void | errno) = {
 	return wrap_return(syscall2(SYS_munlock, addr: uintptr: u64,
 		length: u64))?: void;
 };
@@ -786,7 +786,7 @@ export fn prctl(
 export fn add_key(
 	keytype: *const u8,
 	name: *const u8,
-	payload: *void,
+	payload: *opaque,
 	plen: size,
 	keyring: int,
 ) (int | errno) = {
@@ -820,7 +820,7 @@ export fn mount(
 	target: path,
 	filesystemtype: *const u8,
 	mountflags: u64,
-	data: nullable *void
+	data: nullable *opaque
 ) (void | errno) = {
 	let source = kpath(source)?;
 	let target = kpath(target)?;
@@ -927,9 +927,9 @@ export type inotify_event = struct {
 	name: *const u8
 };
 
-export fn shmat(id: int, addr: *const void, flag: int) *void = {
+export fn shmat(id: int, addr: *const opaque, flag: int) *opaque = {
 	return syscall3(SYS_shmat, id: u64, addr: uintptr: u64,
-		flag: u64): uintptr: *void;
+		flag: u64): uintptr: *opaque;
 };
 
 export fn sched_getaffinity(

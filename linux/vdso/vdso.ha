@@ -52,7 +52,7 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 	const ehui = eh: uintptr;
 	let phui = ehui + eh.e_phoff: uintptr;
 	let dynvec: nullable *[*]elf::dyn64 = null;
-	let baseseg: nullable *void = null;
+	let baseseg: nullable *opaque = null;
 
 	for (let i: u16 = 0; i < eh.e_phnum; i += 1) {
 		const ph = phui: *elf::phdr64;
@@ -60,7 +60,7 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 		case elf::pt::LOAD =>
 			baseseg = (ehui +
 				ph.p_offset: uintptr -
-				ph.p_vaddr: uintptr): nullable *void;
+				ph.p_vaddr: uintptr): nullable *opaque;
 		case elf::pt::DYNAMIC =>
 			dynvec = (ehui +
 				ph.p_offset: uintptr): *[*]elf::dyn64;
@@ -82,7 +82,7 @@ fn get_vdso_ctx() nullable *vdso_ctx = {
 	let verdef: nullable *elf::verdef64 = null;
 
 	for (let i = 0; dynv[i].d_tag != elf::dt::NULL; i += 1) {
-		const tabptr = (segbase + dynv[i].d_val: uintptr): *void;
+		const tabptr = (segbase + dynv[i].d_val: uintptr): *opaque;
 		switch (dynv[i].d_tag) {
 		case elf::dt::STRTAB =>
 			stringtab = tabptr: *c::char;
@@ -150,7 +150,7 @@ fn vdso_checkver(ctx: *vdso_ctx, version: str, num: u32) bool = {
 	return false;
 };
 
-export fn getsym(symname: str, symver: str) nullable *void = {
+export fn getsym(symname: str, symver: str) nullable *opaque = {
 	const ctx = match (get_vdso_ctx()) {
 	case null =>
 		return null;
@@ -180,7 +180,7 @@ export fn getsym(symname: str, symver: str) nullable *void = {
 			continue;
 		if (!vdso_checkver(ctx, symver, i))
 			continue;
-		return (ctx.segbase + sym.st_value: uintptr): *void;
+		return (ctx.segbase + sym.st_value: uintptr): *opaque;
 	};
 	return null;
 };

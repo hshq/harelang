@@ -40,7 +40,7 @@ fn parse_type(in: str) ast::_type = {
 };
 
 fn resolve(
-	rstate: nullable *void,
+	rstate: nullable *opaque,
 	store: *typestore,
 	expr: const *ast::expr,
 ) (size | deferred | error) = {

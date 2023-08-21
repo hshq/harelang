@@ -12,7 +12,7 @@ export fn to_native(a: addr, port: u16) rt::sockaddr = {
 			in = rt::sockaddr_in {
 				sin_family = rt::AF_INET,
 				sin_port = endian::htonu16(port),
-				sin_addr = rt::in_addr { s_addr = *(&v4[0]: *void: *u32) },
+				sin_addr = rt::in_addr { s_addr = *(&v4[0]: *opaque: *u32) },
 				...
 			},
 			...

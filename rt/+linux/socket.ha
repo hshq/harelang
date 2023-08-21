@@ -59,13 +59,13 @@ export def SCM_RIGHTS: int = 0x01;
 export def SCM_CREDENTIALS: int = 0x02;
 
 export type msghdr = struct {
-	msg_name: nullable *void,
+	msg_name: nullable *opaque,
 	msg_namelen: u32,
 
 	msg_iov: nullable *[*]iovec,
 	msg_iovlen: size,
 
-	msg_control: nullable *void,
+	msg_control: nullable *opaque,
 	msg_controllen: size,
 
 	msg_flags: int

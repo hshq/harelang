@@ -3,7 +3,7 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 
 export type slice = struct {
-	data: nullable *void,
+	data: nullable *opaque,
 	length: size,
 	capacity: size,
 };
