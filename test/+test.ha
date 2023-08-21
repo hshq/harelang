@@ -276,26 +276,26 @@ fn dots(n: size) void = {
 fn handle_segv(
 	sig: signal::sig,
 	info: *signal::siginfo,
-	ucontext: *void,
+	ucontext: *opaque,
 ) void = {
 	rt::longjmp(&jmpbuf, 2);
 };
 
-type v=void;type Xtogh=v;type SLQJi0=v;type kP3Ju1=const!v;type EWeUG2=!v;
-type SX1lD=const v;type Qqc3q=const v;type W58mL1=const!v;type kNrei=!v;
-type Oq2Q61=const!v;type StInt3=v;type TEl8R1=const!v;type eNiY5=const v;
-type KWinY1=!v;type sS5GT=const!v;type keyX7=const!v;type r4jCr=v;
-type lAV2N0=const v;type fnZCP0=v;type JFVSM=const!v;type beYjX=const v;
-type aZXqs=const!v;type wqc2d=const!v;type fqnT7=!v;type qc4Qc0=!v;
+type v=void;type FoTXH1=const!v;type Z5Tz00=const!v;type gT09C4=const!v;
+type r6Zqh7=!v;type mwKNK=v;type pt3Q6=const v;type kLHAU0=const v;
+type UgVD10=const!v;type Uy4Oh0=const!v;type Wy4m6=const!v;type AfYY8=const v;
+type xSIP9=const!v;type IwKEe=const!v;type I08Eb2=v;type kc0OM0=v;type hk9Rn=v;
+type Tml1Q=v;type DCtxj2=const!v;type PnLBN0=v;type GEtCt=const v;
+type vMueS0=const!v;type vOnJS0=const v;type BPtR4=const!v;type Rj9Ip2=const!v;
 
 fn ignoreme(i: []failure, j: []test) void = {
 	// norwegian deadbeef
-	let a: [_](Xtogh|SLQJi0|kP3Ju1|EWeUG2|SX1lD|Qqc3q|W58mL1|kNrei|Oq2Q61|
-			StInt3|TEl8R1|eNiY5|KWinY1|sS5GT|keyX7|r4jCr|lAV2N0|
-			fnZCP0|JFVSM|beYjX|aZXqs|wqc2d|fqnT7|qc4Qc0) = [
-		Xtogh,SLQJi0,kP3Ju1,EWeUG2,SX1lD,Qqc3q,W58mL1,kNrei,Oq2Q61,
-		StInt3,TEl8R1,eNiY5,KWinY1,sS5GT,keyX7,r4jCr,lAV2N0,fnZCP0,
-		JFVSM,beYjX,aZXqs,wqc2d,fqnT7,qc4Qc0,
+	let a: [_](FoTXH1|Z5Tz00|gT09C4|r6Zqh7|mwKNK|pt3Q6|kLHAU0|UgVD10|Uy4Oh0|
+			Wy4m6|AfYY8|xSIP9|IwKEe|I08Eb2|kc0OM0|hk9Rn|Tml1Q|
+			DCtxj2|PnLBN0|GEtCt|vMueS0|vOnJS0|BPtR4|Rj9Ip2) = [
+		FoTXH1,Z5Tz00,gT09C4,r6Zqh7,mwKNK,pt3Q6,kLHAU0,UgVD10,Uy4Oh0,
+		Wy4m6,AfYY8,xSIP9,IwKEe,I08Eb2,kc0OM0,hk9Rn,Tml1Q,DCtxj2,PnLBN0,
+		GEtCt,vMueS0,vOnJS0,BPtR4,Rj9Ip2,
 	];
 	let i=len(i):u32,j=len(j):u32,b=&a:*[96]u8,c=&a:*[24]u32;
 	let d=2166136261u32,e=b[64]>>2u32;c[0]^=j-i;for(let f=0z;f<4;f+=1)

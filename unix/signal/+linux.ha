@@ -30,7 +30,7 @@ export fn handle(
 	};
 
 	let new = rt::sigact {
-		sa_sigaction = handler: *fn(int, *rt::siginfo, *void) void,
+		sa_sigaction = handler: *fn(int, *rt::siginfo, *opaque) void,
 		sa_mask = sa_mask,
 		sa_flags = sa_flags,
 		// Filled in by rt:
@@ -38,7 +38,7 @@ export fn handle(
 	};
 	let old = rt::sigact {
 		// Filled in by rt:
-		sa_sigaction = null: *fn(int, *rt::siginfo, *void) void,
+		sa_sigaction = null: *fn(int, *rt::siginfo, *opaque) void,
 		sa_restorer = null: *fn() void,
 		...
 	};

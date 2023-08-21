@@ -50,10 +50,10 @@ export const builtin_i64: _type = _type {
 	...
 };
 
-// [[_type]] representation of null.
-export const builtin_null: _type = _type {
-	repr = builtin::NULL,
-	sz = 0, _align = 0,
+// [[_type]] representation of opaque.
+export const builtin_opaque: _type = _type {
+	repr = builtin::OPAQUE,
+	sz = SIZE_UNDEFINED, _align = SIZE_UNDEFINED,
 	...
 };
 
@@ -108,7 +108,7 @@ export const builtin_void: _type = _type {
 		&builtin_i16,
 		&builtin_i32,
 		&builtin_i64,
-		&builtin_null,
+		&builtin_opaque,
 		&builtin_rune,
 		&builtin_u8,
 		&builtin_u16,

@@ -317,7 +317,7 @@ fn strstack_sort(ss: *strstack, pos: size) void = {
 	sort::sort(s, size(memio::stream), &bufcmp);
 };
 
-fn bufcmp(a: const *void, b: const *void) int =
+fn bufcmp(a: const *opaque, b: const *opaque) int =
 	strings::compare(
 		memio::string(b: *memio::stream)!,
 		memio::string(a: *memio::stream)!,

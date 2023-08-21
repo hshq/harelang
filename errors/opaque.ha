@@ -9,9 +9,9 @@
 //
 // The following example shows the usage of this type for custom errors:
 //
-// 	fn wraperror(err: myerror) error::opaque = {
+// 	fn wraperror(err: myerror) error::opaque_ = {
 // 		static assert(size(myerror) <= size(errors::opaque_data));
-// 		let wrapped = errors::opaque { strerror = &opaque_strerror, ... };
+// 		let wrapped = errors::opaque_ { strerror = &opaque_strerror, ... };
 // 		let myptr = &wrapped.data: *myerror;
 // 		*myptr = err;
 // 		return wrapped;
@@ -21,7 +21,7 @@
 // 		let ptr = &err: *myerr;
 // 		return strerror(*ptr);
 // 	};
-export type opaque = !struct {
+export type opaque_ = !struct {
 	strerror: *fn(op: *opaque_data) const str,
 	data: opaque_data,
 };

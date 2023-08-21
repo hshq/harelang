@@ -46,7 +46,7 @@ let cur_chunk: (*chunk, size) = (null: *chunk, CHUNKSZ);
 
 // Allocates n bytes of memory and returns a pointer to them, or null if there
 // is insufficient memory.
-export fn malloc(n: size) nullable *void = {
+export fn malloc(n: size) nullable *opaque = {
 	if (n == 0) return null;
 	if (size_islarge(n)) {
 		// Round up to PAGESZ and just use mmap directly
@@ -54,7 +54,7 @@ export fn malloc(n: size) nullable *void = {
 		let m = match (segmalloc(n + ALIGN + META)) {
 		case null =>
 			return null;
-		case let p: *void =>
+		case let p: *opaque =>
 			yield (p: uintptr + ALIGN - META): *meta;
 		};
 
@@ -72,7 +72,7 @@ export fn malloc(n: size) nullable *void = {
 			match (segmalloc(CHUNKSZ)) {
 			case null =>
 				return null;
-			case let p: *void =>
+			case let p: *opaque =>
 				cur_chunk = (p: *chunk, size(size));
 			};
 		};
@@ -97,18 +97,18 @@ export fn malloc(n: size) nullable *void = {
 
 // Frees an allocation returned by [[malloc]]. Freeing any other pointer, or
 // freeing a pointer that's already been freed, will cause an abort.
-export @symbol("rt.free") fn free_(p: nullable *void) void = {
+export @symbol("rt.free") fn free_(p: nullable *opaque) void = {
 	let m = match (p) {
 	case null =>
 		return;
-	case let p: *void =>
+	case let p: *opaque =>
 		yield getmeta(p);
 	};
 	cur_allocs -= 1;
 
 	if (size_islarge(m.sz)) {
 		// Pass through to munmap
-		segfree((p: uintptr - ALIGN): *void, m.sz + ALIGN + META);
+		segfree((p: uintptr - ALIGN): *opaque, m.sz + ALIGN + META);
 		return;
 	};
 
@@ -125,7 +125,7 @@ export @symbol("rt.free") fn free_(p: nullable *void) void = {
 // than the one given if there is insufficient space to expand the pointer
 // in-place. Returns null if there is insufficient memory to support the
 // request.
-export fn realloc(p: nullable *void, n: size) nullable *void = {
+export fn realloc(p: nullable *opaque, n: size) nullable *opaque = {
 	if (n == 0) {
 		free(p);
 		return null;
@@ -133,7 +133,7 @@ export fn realloc(p: nullable *void, n: size) nullable *void = {
 	let m = match (p) {
 	case null =>
 		return malloc(n);
-	case let p: *void =>
+	case let p: *opaque =>
 		yield getmeta(p);
 	};
 	if (realsz(n) == m.sz) return p;
@@ -141,7 +141,7 @@ export fn realloc(p: nullable *void, n: size) nullable *void = {
 	let new = match (malloc(n)) {
 	case null =>
 		return null;
-	case let new: *void =>
+	case let new: *opaque =>
 		yield new;
 	};
 	memcpy(new, &m.user, if (n < m.sz) n else m.sz);
@@ -151,7 +151,7 @@ export fn realloc(p: nullable *void, n: size) nullable *void = {
 
 // Gets the metadata for a given allocation. The provided pointer must have been
 // returned by [[malloc]] and must not have been freed.
-export fn getmeta(p: *void) *meta = {
+export fn getmeta(p: *opaque) *meta = {
 	let m = (p: uintptr - META): *meta;
 	validatemeta(m, false);
 	assert(m.sz & 0b1 == 0,

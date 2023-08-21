@@ -6,7 +6,7 @@
 //
 // Note that this function may (temporarily) allocate, and will abort on
 // allocation failure.
-export fn sort(items: []void, itemsz: size, cmp: *cmpfunc) void = {
+export fn sort(items: []opaque, itemsz: size, cmp: *cmpfunc) void = {
 	if (len(items) < 256) {
 		insort(items, itemsz, cmp);
 		return;
@@ -21,7 +21,7 @@ export fn sort(items: []void, itemsz: size, cmp: *cmpfunc) void = {
 export fn strings(items: []str) void = sort(items, size(str), &scmp);
 
 // Checks if all of the items in a slice are sorted.
-export fn sorted(items: []void, itemsz: size, cmp: *cmpfunc) bool = {
+export fn sorted(items: []opaque, itemsz: size, cmp: *cmpfunc) bool = {
 	let ba = items: *[*]u8;
 	for (let i = 1z; i < len(items); i += 1) {
 		if (cmp(&ba[(i - 1) * itemsz], &ba[i * itemsz]) > 0) {
@@ -35,7 +35,7 @@ export fn sorted(items: []void, itemsz: size, cmp: *cmpfunc) bool = {
 // respect to Unicode codepoints; see [[strings::compare]].
 export fn strings_sorted(items: []str) bool = sorted(items, size(str), &scmp);
 
-fn swap(a: *void, b: *void, sz: size) void = {
+fn swap(a: *opaque, b: *opaque, sz: size) void = {
 	let a = a: *[*]u8, b = b: *[*]u8;
 	for (let i = 0z; i < sz; i += 1) {
 		let c = a[i];
@@ -47,9 +47,9 @@ fn swap(a: *void, b: *void, sz: size) void = {
 // Finds the index of the rightmost value that is equal to key or, if such value
 // does not exist, less than key.
 fn search_rightmost(
-	in: []void,
+	in: []opaque,
 	sz: size,
-	key: const *void,
+	key: const *opaque,
 	cmp: *cmpfunc,
 ) size = {
 	let l = 0z;
@@ -66,7 +66,7 @@ fn search_rightmost(
 	return r - 1;
 };
 
-fn insort(items: []void, itemsz: size, cmp: *cmpfunc) void = {
+fn insort(items: []opaque, itemsz: size, cmp: *cmpfunc) void = {
 	let ba = items: *[*]u8;
 	for (let i = 0z; i < len(items); i += 1) {
 		let bound = search_rightmost(items[0..i], itemsz,

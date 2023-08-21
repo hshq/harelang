@@ -124,6 +124,8 @@ fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 		yield builtin_type::VALIST;
 	case ltok::VOID =>
 		yield builtin_type::VOID;
+	case ltok::OPAQUE =>
+		yield builtin_type::OPAQUE;
 	case =>
 		return syntaxerr(lex::mkloc(lexer),
 			"Unexected {}, was expecting primitive type",
@@ -480,7 +482,7 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 			ltok::U8, ltok::U16, ltok::U32, ltok::U64,
 			ltok::INT, ltok::UINT, ltok::UINTPTR, ltok::SIZE,
 			ltok::F32, ltok::F64,
-			ltok::VALIST, ltok::VOID =>
+			ltok::VALIST, ltok::VOID, ltok::OPAQUE =>
 		yield primitive_type(lexer)?;
 	case ltok::ENUM =>
 		yield enum_type(lexer)?;

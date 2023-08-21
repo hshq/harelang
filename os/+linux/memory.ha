@@ -11,7 +11,7 @@ export type mcl = enum uint {
 
 // Locks a region of memory so that it will not be written to swap.
 export fn mlock(
-	addr: *void,
+	addr: *opaque,
 	length: size,
 	flags: mcl,
 ) (void | errors::error) = {
@@ -24,7 +24,7 @@ export fn mlock(
 };
 
 // Unlocks memory previously locked with [[mlock]].
-export fn munlock(addr: *void, length: size) (void | errors::error) = {
+export fn munlock(addr: *opaque, length: size) (void | errors::error) = {
 	match (rt::munlock(addr, length)) {
 	case let err: rt::errno =>
 		return errors::errno(err);

@@ -296,6 +296,10 @@ The following environment variables affect *hare*'s execution:
 :  Name of the *as*(1) command to use.
 |  *ASFLAGS*
 :  Additional flags to pass to *as*(1).
+|  *CC*
+:  Name of the *cc*(1) command to use when linking external libraries.
+|  *LDFLAGS*
+:  Additional linker flags to pass to *cc*(1).
 |  *LD*
 :  Name of the *ld*(1) command to use.
 |  *LDLINKFLAGS*
@@ -303,4 +307,4 @@ The following environment variables affect *hare*'s execution:
 
 # SEE ALSO
 
-*harec*(1), *haredoc*(1), *as*(1), *ld*(1), *ar*(1), *make*(1)
+*harec*(1), *haredoc*(1), *ar*(1), *as*(1), *cc*(1), *ld*(1), *make*(1)

@@ -207,10 +207,10 @@ fn platform_start(cmd: *command) (process | errors::error) = {
 	case void =>
 		rt::close(pipe[0])!;
 		let err = platform_exec(cmd);
-		if (!(err is errors::opaque)) {
+		if (!(err is errors::opaque_)) {
 			rt::exit(1);
 		};
-		let err = err as errors::opaque;
+		let err = err as errors::opaque_;
 		let err = &err.data: *rt::errno;
 		rt::write(pipe[1], err, size(int))!;
 		rt::exit(1);

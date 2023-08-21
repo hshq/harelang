@@ -54,7 +54,7 @@ fn explore_deps(ctx: *module::context, stack: *[]str, visited: *[]depnode, ident
 };
 
 // sorts in reverse
-fn cmpsz(a: const *void, b: const *void) int = (*(b: *size) - *(a: *size)): int;
+fn cmpsz(a: const *opaque, b: const *opaque) int = (*(b: *size) - *(a: *size)): int;
 
 type link = struct {
 	depth: uint,

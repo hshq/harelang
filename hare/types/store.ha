@@ -12,7 +12,7 @@ export def BUCKETS: size = 65535;
 // A function which evaluates a [[hare::ast::expr]], providing either a size
 // result or an error.
 export type resolver = fn(
-	rstate: nullable *void,
+	rstate: nullable *opaque,
 	store: *typestore,
 	expr: const *ast::expr,
 ) (size | deferred | error);
@@ -25,7 +25,7 @@ export type typestore = struct {
 
 	arch: arch,
 	resolve: nullable *resolver,
-	rstate: nullable *void,
+	rstate: nullable *opaque,
 };
 
 // Initializes a new type store. Optionally, provide a function which
@@ -35,7 +35,7 @@ export type typestore = struct {
 export fn store(
 	arch: arch,
 	resolver: nullable *resolver,
-	rstate: nullable *void,
+	rstate: nullable *opaque,
 ) *typestore = alloc(typestore {
 	arch = arch,
 	resolve = resolver,
@@ -107,13 +107,13 @@ export type deferred = !void;
 export type noresolver = !void;
 
 // All possible errors for [[lookup]].
-export type error = !(noresolver | errors::opaque);
+export type error = !(noresolver | errors::opaque_);
 
 // Convert an error into a human-friendly string.
 export fn strerror(err: error) const str = match (err) {
 case noresolver =>
 	return "Resolver function not provided, but required";
-case let err: errors::opaque =>
+case let err: errors::opaque_ =>
 	return errors::strerror(err);
 };
 
@@ -138,6 +138,8 @@ export fn lookup(
 			return &builtin_i32;
 		case builtin::I64 =>
 			return &builtin_i64;
+		case builtin::OPAQUE =>
+			return &builtin_opaque;
 		case builtin::RUNE =>
 			return &builtin_rune;
 		case builtin::U8 =>
@@ -252,6 +254,10 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			yield builtin::NULL;
 		case ast::builtin_type::ICONST, ast::builtin_type::FCONST =>
 			abort(); // TODO?
+		case ast::builtin_type::OPAQUE =>
+			sz = SIZE_UNDEFINED;
+			_align = SIZE_UNDEFINED;
+			yield builtin::OPAQUE;
 		};
 	case let f: ast::func_type =>
 		yield func_from_ast(store, &f)?;
@@ -510,7 +516,7 @@ fn tagged_collect(
 	};
 };
 
-fn tagged_cmp(a: const *void, b: const *void) int = {
+fn tagged_cmp(a: const *opaque, b: const *opaque) int = {
 	const a = a: const **_type, b = b: const **_type;
 	return if (a.id < b.id) -1 else if (a.id == b.id) 0 else 1;
 };
@@ -558,7 +564,7 @@ fn tuple_from_ast(
 	return values;
 };
 
-fn field_cmp(a: const *void, b: const *void) int = {
+fn field_cmp(a: const *opaque, b: const *opaque) int = {
 	const a = a: const *struct_field, b = b: *const struct_field;
 	return strings::compare(a.name, b.name);
 };

@@ -852,7 +852,7 @@ export type auxv64 = struct {
 	union {
 		// Integer value
 		a_val: u64,
-		a_ptr: *void,
+		a_ptr: *opaque,
 		a_fnc: *fn() void,
 	}
 };

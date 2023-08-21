@@ -401,7 +401,7 @@ fn fs_iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 	};
 
 	let buf = match (rt::malloc(fs.getdents_bufsz)) {
-	case let v: *void =>
+	case let v: *opaque =>
 		yield v: *[*]u8;
 	case null =>
 		return errors::nomem;

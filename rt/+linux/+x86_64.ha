@@ -8,7 +8,7 @@ def __ADDR_BND_PKEY_PAD: size = 8;
 // Returns the new PID to the parent, void to the child, or errno if something
 // goes wrong.
 export fn clone(
-	stack: nullable *void,
+	stack: nullable *opaque,
 	flags: int,
 	parent_tid: nullable *int,
 	child_tid: nullable *int,

@@ -106,11 +106,8 @@ fn mkplan(
 
 	ar_tool.0 = target.ar_cmd;
 	as_tool.0 = target.as_cmd;
-	ld_tool.0 = if (len(libs) > 0) {
-		yield target.cc_cmd;
-	} else {
-		yield target.ld_cmd;
-	};
+	cc_tool.0 = target.cc_cmd;
+	ld_tool.0 = target.ld_cmd;
 
 	let environ: [](str, str) = alloc([
 		(strings::dup("HARECACHE"), strings::dup(ctx.cache)),

@@ -5,9 +5,9 @@
 // If 'elem' already appears in the slice, inserting to the returned index will
 // insert immediately before the first occurance.
 export fn lbisect(
-	in: []const void,
+	in: []const opaque,
 	sz: size,
-	elem: const *void,
+	elem: const *opaque,
 	cmp: *cmpfunc,
 ) size = {
 	let min = 0z, max = len(in);
@@ -36,9 +36,9 @@ export fn lbisect(
 // If 'elem' already appears in the slice, inserting to the returned index will
 // insert immediately after the last occurance.
 export fn rbisect(
-	in: []const void,
+	in: []const opaque,
 	sz: size,
-	elem: const *void,
+	elem: const *opaque,
 	cmp: *cmpfunc,
 ) size = {
 	const nmemb = len(in);
