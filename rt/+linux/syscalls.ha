@@ -259,6 +259,10 @@ export fn fork() (int | void | errno) = clone(null, SIGCHLD, null, null, 0);
 
 export fn getpid() int = syscall0(SYS_getpid): int;
 
+export fn getpgid(pid: int) (int | errno) = {
+	return wrap_return(syscall1(SYS_getpgid, pid: u64))?: int;
+};
+
 export fn wait4(
 	pid: int,
 	wstatus: nullable *int,
