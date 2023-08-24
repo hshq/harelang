@@ -106,7 +106,7 @@ fn parseioctl(store: *types::typestore, d: dir, params: str) ioctl = {
 	const buf = memio::fixed(strings::toutf8(params));
 	const lex = lex::init(&buf, "<ioctl>");
 
-	const rn = expect(&lex, ltok::LIT_RUNE).1 as rune;
+	const rn = expect(&lex, ltok::LIT_RCONST).1 as rune;
 	expect(&lex, ltok::COMMA);
 	const num = expect(&lex, ltok::LIT_ICONST).1 as u64;
 

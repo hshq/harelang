@@ -219,21 +219,21 @@ fn loc(line: uint, col: uint) location = location {
 	const in = "'a' 'b' '\\a' '\\b' '\\f' '\\n' '\\r' '\\t' '\\v' '\\0' "
 		"'\\\\' '\\\'' '\\x0A' '\\u1234' '\\U12345678'";
 	const expected: [_]token = [
-		(ltok::LIT_RUNE, 'a', loc(1, 1)),
-		(ltok::LIT_RUNE, 'b', loc(1, 5)),
-		(ltok::LIT_RUNE, '\a', loc(1, 9)),
-		(ltok::LIT_RUNE, '\b', loc(1, 14)),
-		(ltok::LIT_RUNE, '\f', loc(1, 19)),
-		(ltok::LIT_RUNE, '\n', loc(1, 24)),
-		(ltok::LIT_RUNE, '\r', loc(1, 29)),
-		(ltok::LIT_RUNE, '\t', loc(1, 34)),
-		(ltok::LIT_RUNE, '\v', loc(1, 39)),
-		(ltok::LIT_RUNE, '\0', loc(1, 44)),
-		(ltok::LIT_RUNE, '\\', loc(1, 49)),
-		(ltok::LIT_RUNE, '\'', loc(1, 54)),
-		(ltok::LIT_RUNE, '\x0A', loc(1, 59)),
-		(ltok::LIT_RUNE, '\u1234', loc(1, 66)),
-		(ltok::LIT_RUNE, '\U12345678', loc(1, 75)),
+		(ltok::LIT_RCONST, 'a', loc(1, 1)),
+		(ltok::LIT_RCONST, 'b', loc(1, 5)),
+		(ltok::LIT_RCONST, '\a', loc(1, 9)),
+		(ltok::LIT_RCONST, '\b', loc(1, 14)),
+		(ltok::LIT_RCONST, '\f', loc(1, 19)),
+		(ltok::LIT_RCONST, '\n', loc(1, 24)),
+		(ltok::LIT_RCONST, '\r', loc(1, 29)),
+		(ltok::LIT_RCONST, '\t', loc(1, 34)),
+		(ltok::LIT_RCONST, '\v', loc(1, 39)),
+		(ltok::LIT_RCONST, '\0', loc(1, 44)),
+		(ltok::LIT_RCONST, '\\', loc(1, 49)),
+		(ltok::LIT_RCONST, '\'', loc(1, 54)),
+		(ltok::LIT_RCONST, '\x0A', loc(1, 59)),
+		(ltok::LIT_RCONST, '\u1234', loc(1, 66)),
+		(ltok::LIT_RCONST, '\U12345678', loc(1, 75)),
 	];
 	lextest(in, expected);
 };

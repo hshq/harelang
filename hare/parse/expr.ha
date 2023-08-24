@@ -554,7 +554,7 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 fn constant(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = want(lexer)?;
 	const expr: ast::constant_expr = switch (tok.0) {
-	case ltok::LIT_RUNE, ltok::LIT_STR =>
+	case ltok::LIT_RCONST, ltok::LIT_STR =>
 		yield tok.1 as (rune | str);
 	case ltok::LIT_U8, ltok::LIT_U16, ltok::LIT_U32, ltok::LIT_U64,
 		ltok::LIT_UINT, ltok::LIT_SIZE =>
