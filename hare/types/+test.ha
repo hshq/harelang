@@ -4,6 +4,7 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2022 Sebastian <sebastian@sebsite.pw>
+use fmt;
 use hare::ast;
 use hare::lex;
 use hare::parse;
@@ -368,4 +369,32 @@ fn resolve(
 	assert(htype._align == 8);
 	assert(htype.flags == 0);
 	assert((htype.repr as alias).secondary == of);
+};
+
+@test fn builtins() void = {
+	const builtins = [
+		(&builtin_bool, "bool"),
+		(&builtin_f32, "f32"),
+		(&builtin_f64, "f64"),
+		(&builtin_i8, "i8"),
+		(&builtin_i16, "i16"),
+		(&builtin_i32, "i32"),
+		(&builtin_i64, "i64"),
+		(&builtin_opaque, "opaque"),
+		(&builtin_rune, "rune"),
+		(&builtin_u8, "u8"),
+		(&builtin_u16, "u16"),
+		(&builtin_u32, "u32"),
+		(&builtin_u64, "u64"),
+		(&builtin_void, "void"),
+	];
+	for (let i = 0z; i < len(builtins); i += 1) {
+		const expected = hash(builtins[i].0);
+		const actual = builtins[i].0.id;
+		if (expected != actual) {
+			fmt::errorfln("expected type {} to have ID {}, but got {}",
+				builtins[i].1, expected, actual)!;
+			abort();
+		};
+	};
 };
