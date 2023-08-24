@@ -33,7 +33,7 @@ export fn u64tosb(u: u64, b: base) const str = {
 	};
 
 	for (u > 0u64) {
-		buf[s.length] = lut[u % b: u64]: u32: u8;
+		buf[s.length] = lut[u % b: u64]: u8;
 		s.length += 1;
 		u /= b;
 	};

@@ -46,7 +46,7 @@ export fn strcasecmp(a: str, b: str) int = {
 		// because i *really* love to cast...
 		// sometimes i sit and cast all day... ha ha, but
 		// sometimes i get carried away!
-		let cmp = tolower(abs[i]: u32: rune): u32: int - tolower(bbs[i]: u32: rune): u32: int;
+		let cmp = tolower(abs[i]: rune): u32: int - tolower(bbs[i]: rune): u32: int;
 		if (cmp != 0) return cmp;
 	};
 	return len(abs): int - len(bbs): int;

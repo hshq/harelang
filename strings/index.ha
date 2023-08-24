@@ -130,7 +130,7 @@ export fn byteindex(haystack: str, needle: (str | rune)) (size | void) = {
 	case let s: str =>
 		yield toutf8(s);
 	case let r: rune =>
-		yield if (r: u32 <= 0x7f) r: u32: u8 else utf8::encoderune(r);
+		yield if (r: u32 <= 0x7f) r: u8 else utf8::encoderune(r);
 	});
 };
 
@@ -141,7 +141,7 @@ export fn rbyteindex(haystack: str, needle: (str | rune)) (size | void) = {
 	case let s: str =>
 		yield toutf8(s);
 	case let r: rune =>
-		yield if (r: u32 <= 0x7f) r: u32: u8 else utf8::encoderune(r);
+		yield if (r: u32 <= 0x7f) r: u8 else utf8::encoderune(r);
 	});
 };
 

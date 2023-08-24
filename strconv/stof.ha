@@ -224,7 +224,7 @@ fn fast_parse(s: str) (fast_parsed_float | void | invalid) = {
 			if (sawdot) return i: invalid;
 			sawdot = true;
 			dp = nd;
-		} else if (ascii::isdigit(buf[i]: u32: rune)) {
+		} else if (ascii::isdigit(buf[i]: rune)) {
 			sawdigits = true;
 			if (buf[i] == '0' && nd == 0) {
 				dp -= 1;
@@ -253,10 +253,10 @@ fn fast_parse(s: str) (fast_parsed_float | void | invalid) = {
 			expsign = -1;
 			i += 1;
 		};
-		if (i >= len(s) || !ascii::isdigit(buf[i]: u32: rune))
+		if (i >= len(s) || !ascii::isdigit(buf[i]: rune))
 			return i: invalid;
 		let e: int = 0;
-		for (i < len(s) && ascii::isdigit(buf[i]: u32: rune); i += 1) {
+		for (i < len(s) && ascii::isdigit(buf[i]: rune); i += 1) {
 			if (e < 10000) {
 				e = e * 10 + (buf[i] - '0'): int;
 			};
@@ -294,7 +294,7 @@ fn decimal_parse(d: *decimal, s: str) (void | invalid) = {
 			if (sawdot) return i: invalid;
 			sawdot = true;
 			d.decimal_point = d.num_digits: int;
-		} else if (ascii::isdigit(buf[i]: u32: rune)) {
+		} else if (ascii::isdigit(buf[i]: rune)) {
 			sawdigits = true;
 			if (buf[i] == '0' && d.num_digits == 0) {
 				d.decimal_point -= 1;
@@ -322,10 +322,10 @@ fn decimal_parse(d: *decimal, s: str) (void | invalid) = {
 			expsign = -1;
 			i += 1;
 		};
-		if (i >= len(s) || !ascii::isdigit(buf[i]: u32: rune))
+		if (i >= len(s) || !ascii::isdigit(buf[i]: rune))
 			return i: invalid;
 		let e: int = 0;
-		for (i < len(s) && ascii::isdigit(buf[i]: u32: rune); i += 1) {
+		for (i < len(s) && ascii::isdigit(buf[i]: rune); i += 1) {
 			if (e < 10000) {
 				e = e * 10 + (buf[i] - '0'): int;
 			};

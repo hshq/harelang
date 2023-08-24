@@ -218,7 +218,7 @@ export fn dump(out: io::handle, data: []u8) (void | io::error) = {
 
 		fmt::fprint(out, "|")?;
 		for (let i = 0z; i < 16 && off + i < datalen; i += 1) {
-			let r = data[off + i]: u32: rune;
+			let r = data[off + i]: rune;
 
 			fmt::fprint(out, if (ascii::isprint(r)) r else '.')?;
 		};
