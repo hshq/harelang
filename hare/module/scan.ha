@@ -342,11 +342,15 @@ export fn lookup(ctx: *context, name: ast::ident) (version | error) = {
 fn type_for_ext(name: str) (filetype | void) = {
 	static let buf = path::buffer {...};
 	path::set(&buf, name)!;
-	const ext = path::peek_ext(&buf) as str;
-	return
-		if (ext == "ha") filetype::HARE
-		else if (ext == "s") filetype::ASSEMBLY
-		else void;
+	match (path::peek_ext(&buf)) {
+	case let ext: str =>
+		switch (ext) {
+		case "ha" => return filetype::HARE;
+		case "s" => return filetype::ASSEMBLY;
+		case => void;
+		};
+	case => void;
+	};
 };
 
 fn scan_file(
