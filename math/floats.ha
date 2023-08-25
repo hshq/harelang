@@ -340,10 +340,10 @@ export fn normalizef64(n: f64) (f64, i64) = {
 
 // Takes a potentially subnormal f32 n and returns a normal f32 normal_float
 // and an exponent exp such that n == normal_float * 2^{exp}.
-export fn normalizef32(n: f32) (f64, i64) = {
+export fn normalizef32(n: f32) (f32, i64) = {
 	if (issubnormalf32(n)) {
 		const factor = 1i32 << (F32_MANTISSA_BITS: i32);
-		const normal_float = ((n * (factor: f64)): f64);
+		const normal_float = n * factor: f32;
 		return (normal_float, -(F32_MANTISSA_BITS: i64));
 	};
 	return (n, 0);
@@ -369,7 +369,7 @@ export fn frexpf64(n: f64) (f64, i64) = {
 
 // Breaks a f32 down into its mantissa and exponent. The mantissa will be
 // between 0.5 and 1.
-export fn frexpf32(n: f32) (f64, i64) = {
+export fn frexpf32(n: f32) (f32, i64) = {
 	if (isnan(n) || isinf(n) || n == 0f32) {
 		return (n, 0);
 	};
@@ -393,7 +393,8 @@ export fn frexp(n: types::floating) (f64, i64) = {
 	case let n: f64 =>
 		return frexpf64(n);
 	case let n: f32 =>
-		return frexpf32(n);
+		let (mantissa, exp) = frexpf32(n);
+		return (mantissa, exp);
 	};
 };
 
@@ -452,7 +453,7 @@ export fn ldexpf32(mantissa: f32, exp: i64) f32 = {
 	let res_exp = exp + normalization_exp + mantissa_exp;
 	// Underflow
 	if (res_exp < -(F32_EXPONENT_BIAS: i32) - (F32_MANTISSA_BITS: i32)) {
-		return copysign(0.0f32, mantissa);
+		return copysignf32(0.0f32, mantissa);
 	};
 	// Overflow
 	if (res_exp > (F32_EXPONENT_BIAS: i32)) {

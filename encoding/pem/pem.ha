@@ -187,7 +187,7 @@ fn b64_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 			sub = sub[..i];
 			break;
 		};
-		if (ascii::isspace(sub[i]: u32: rune)) {
+		if (ascii::isspace(sub[i]: rune)) {
 			static delete(sub[i]);
 			i -= 1;
 			continue;

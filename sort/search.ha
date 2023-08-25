@@ -19,7 +19,7 @@ export fn search(
 			ba = (v: uintptr + sz: uintptr): *[*]u8;
 			nmemb -= nmemb / 2 + 1;
 		} else {
-			const offs = (v: uintptr - in: *[*]const void: uintptr);
+			const offs = (v: uintptr - in: *[*]u8: uintptr);
 			return (offs / sz: uintptr): size;
 		};
 	};

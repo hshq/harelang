@@ -79,9 +79,9 @@ export fn compare(hash: []u8, password: []u8) (bool | errors::invalid) = {
 
 fn mkhash(h: *hash) []u8 = {
 	let buf = memio::dynamic();
-	fmt::fprintf(&buf, "${}$", h.major: u32: rune)!;
+	fmt::fprintf(&buf, "${}$", h.major: rune)!;
 	if (h.minor != 0) {
-		fmt::fprintf(&buf, "{}", h.minor: u32: rune)!;
+		fmt::fprintf(&buf, "{}", h.minor: rune)!;
 	};
 	fmt::fprintf(&buf, "${:02}$", h.cost)!;
 	io::write(&buf, h.salt)!;

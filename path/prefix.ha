@@ -13,8 +13,8 @@ export fn prepend(buf: *buffer, prefix: str...) (str | error) = {
 
 // Returns a buffer without a prefix. The prefix is normalized before
 // processing, and this function will return [[too_long]] if the prefix is
-// longer than [[PATH_MAX]]. If the prefix is not present, returns
-// [[not_prefix]]. The resulting path will always be relative.
+// longer than [[MAX]]. If the prefix is not present, returns [[not_prefix]].
+// The resulting path will always be relative.
 //
 // This function does not modify the buffer. See [[popprefix]].
 export fn trimprefix(buf: *buffer, prefix: str) (str | error) = {
@@ -37,8 +37,8 @@ fn splitprefix(buf: *buffer, prefix: str) (size | error) = {
 	let pref = init(prefix)?;
 	if (pref.end == 0) {
 		if (abs(buf)) return not_prefix;
-	} else if (pref.end < buf.end && pref.buf[pref.end-1] != PATHSEP) {
-		pref.buf[pref.end] = PATHSEP;
+	} else if (pref.end < buf.end && pref.buf[pref.end-1] != SEP) {
+		pref.buf[pref.end] = SEP;
 		pref.end += 1;
 	};
 	if (bytes::hasprefix(buf.buf[..buf.end], pref.buf[..pref.end])) {

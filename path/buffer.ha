@@ -5,7 +5,7 @@ use bytes;
 use strings;
 
 export type buffer = struct {
-	buf: [PATH_MAX]u8,
+	buf: [MAX]u8,
 	end: size,
 };
 
@@ -33,14 +33,14 @@ export fn string(buf: *buffer) str = {
 
 // Check if a path is an absolute path.
 export fn abs(path: (*buffer | str)) bool = match (path) {
-case let path: str => return strings::hasprefix(path, pathsepstr);
-case let buf: *buffer => return 0 < buf.end && buf.buf[0] == PATHSEP;
+case let path: str => return strings::hasprefix(path, sepstr);
+case let buf: *buffer => return 0 < buf.end && buf.buf[0] == SEP;
 };
 
 // Check if a path is the root directory.
 export fn isroot(path: (*buffer | str)) bool = match (path) {
-case let path: str => return path == pathsepstr;
-case let buf: *buffer => return buf.end == 1 && buf.buf[0] == PATHSEP;
+case let path: str => return path == sepstr;
+case let buf: *buffer => return buf.end == 1 && buf.buf[0] == SEP;
 };
 
 // Replace '/' with system-dependent path separator in a string. Modifies the
@@ -48,7 +48,7 @@ case let buf: *buffer => return buf.end == 1 && buf.buf[0] == PATHSEP;
 export fn local(path: str) str = {
 	let bs = strings::toutf8(path);
 	for (let k = 0z; k < len(bs); k += 1) {
-		if (bs[k] == '/') bs[k] = PATHSEP;
+		if (bs[k] == '/') bs[k] = SEP;
 	};
 	return path;
 };

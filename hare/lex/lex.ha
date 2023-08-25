@@ -174,7 +174,7 @@ fn lex_unicode(lex: *lexer, loc: location, n: size) (rune | error) = {
 			return syntaxerr(loc,
 				"unexpected rune scanning for escape");
 		};
-		buf[i] = r: u32: u8;
+		buf[i] = r: u8;
 	};
 	let s = strings::fromutf8_unsafe(buf[..n]);
 	return strconv::stou32b(s, strconv::base::HEX) as u32: rune;

@@ -304,7 +304,7 @@ export fn scanrune(
 	};
 
 	if (sz == 1) {
-		return b[0]: u32: rune;
+		return b[0]: rune;
 	};
 
 	match (io::readall(file, b[1..sz])) {
