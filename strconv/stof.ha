@@ -524,7 +524,7 @@ fn stof32exact(mant: u32, exp: i32, neg: bool) (f32 | void) = {
 		if (exp >= 0) {
 			n *= f32pow10[exp];
 		} else {
-			n /= f64pow10[-exp];
+			n /= f64pow10[-exp]: f32;
 		};
 	} else return;
 	return n;

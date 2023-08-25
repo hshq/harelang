@@ -93,7 +93,7 @@ export fn isclosef64(x: f64, y: f64) bool = {
 
 // Returns whether x and y are within [[STANDARD_TOL]] of each other.
 export fn isclosef32(x: f32, y: f32) bool = {
-	return eqwithinf32(x, y, STANDARD_TOL);
+	return eqwithinf32(x, y, STANDARD_TOL: f32);
 };
 
 // Returns whether x and y are within [[STANDARD_TOL]] of each other.
