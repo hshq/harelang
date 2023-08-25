@@ -29,8 +29,8 @@ export type pwent = struct {
 
 // Reads a Unix-like password entry from an [[io::handle]]. The caller must free
 // the return value using [[pwent_finish]].
-export fn nextpw(file: io::handle) (pwent | io::EOF | io::error | invalid) = {
-	let line = match (bufio::scanline(file)?) {
+export fn nextpw(in: io::handle) (pwent | io::EOF | io::error | invalid) = {
+	let line = match (bufio::scanline(in)?) {
 	case io::EOF =>
 		return io::EOF;
 	case let ln: []u8 =>
@@ -98,8 +98,10 @@ export fn getuser(username: str) (pwent | void) = {
 	};
 	defer io::close(file)!;
 
+	let rbuf: [os::BUFSZ]u8 = [0...];
+	let strm = bufio::init(file, rbuf, []);
 	for (true) {
-		let ent = match (nextpw(file)) {
+		let ent = match (nextpw(&strm)) {
 		case let e: pwent =>
 			yield e;
 		case io::EOF =>
@@ -114,8 +116,6 @@ export fn getuser(username: str) (pwent | void) = {
 			pwent_finish(&ent);
 		};
 	};
-
-	return;
 };
 
 // Looks up a user by ID in a Unix-like password file. It expects a password
@@ -132,8 +132,10 @@ export fn getuid(uid: uint) (pwent | void) = {
 	};
 	defer io::close(file)!;
 
+	let rbuf: [os::BUFSZ]u8 = [0...];
+	let strm = bufio::init(file, rbuf, []);
 	for (true) {
-		let ent = match (nextpw(file)) {
+		let ent = match (nextpw(&strm)) {
 		case let e: pwent =>
 			yield e;
 		case io::EOF =>

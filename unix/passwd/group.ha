@@ -79,8 +79,10 @@ export fn getgroup(name: str) (grent | void) = {
 	};
 	defer io::close(file)!;
 
+	let rbuf: [os::BUFSZ]u8 = [0...];
+	let strm = bufio::init(file, rbuf, []);
 	for (true) {
-		let ent = match (nextgr(file)) {
+		let ent = match (nextgr(&strm)) {
 		case let e: grent =>
 			yield e;
 		case io::EOF =>
@@ -110,8 +112,10 @@ export fn getgid(gid: uint) (grent | void) = {
 	};
 	defer io::close(file)!;
 
+	let rbuf: [os::BUFSZ]u8 = [0...];
+	let strm = bufio::init(file, rbuf, []);
 	for (true) {
-		let ent = match (nextgr(file)) {
+		let ent = match (nextgr(&strm)) {
 		case let e: grent =>
 			yield e;
 		case io::EOF =>
