@@ -1,10 +1,14 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
+// IDs are precomputed, but a test verifies that they match what they would be
+// if computed at runtime
+
 // [[_type]] representation of bool.
 export const builtin_bool: _type = _type {
 	repr = builtin::BOOL,
 	sz = 1, _align = 1,
+	id = 292984781,
 	...
 };
 
@@ -12,6 +16,7 @@ export const builtin_bool: _type = _type {
 export const builtin_f32: _type = _type {
 	repr = builtin::F32,
 	sz = 4, _align = 4,
+	id = 3950255460,
 	...
 };
 
@@ -19,6 +24,7 @@ export const builtin_f32: _type = _type {
 export const builtin_f64: _type = _type {
 	repr = builtin::F64,
 	sz = 8, _align = 8,
+	id = 1568378015,
 	...
 };
 
@@ -26,6 +32,7 @@ export const builtin_f64: _type = _type {
 export const builtin_i8: _type = _type {
 	repr = builtin::I8,
 	sz = 1, _align = 1,
+	id = 3312558843,
 	...
 };
 
@@ -33,6 +40,7 @@ export const builtin_i8: _type = _type {
 export const builtin_i16: _type = _type {
 	repr = builtin::I16,
 	sz = 2, _align = 2,
+	id = 930681398,
 	...
 };
 
@@ -40,6 +48,7 @@ export const builtin_i16: _type = _type {
 export const builtin_i32: _type = _type {
 	repr = builtin::I32,
 	sz = 4, _align = 4,
+	id = 2037165609,
 	...
 };
 
@@ -47,6 +56,7 @@ export const builtin_i32: _type = _type {
 export const builtin_i64: _type = _type {
 	repr = builtin::I64,
 	sz = 8, _align = 8,
+	id = 1399468992,
 	...
 };
 
@@ -54,6 +64,7 @@ export const builtin_i64: _type = _type {
 export const builtin_opaque: _type = _type {
 	repr = builtin::OPAQUE,
 	sz = SIZE_UNDEFINED, _align = SIZE_UNDEFINED,
+	id = 461893804,
 	...
 };
 
@@ -61,6 +72,7 @@ export const builtin_opaque: _type = _type {
 export const builtin_rune: _type = _type {
 	repr = builtin::RUNE,
 	sz = 4, _align = 4,
+	id = 2374983655,
 	...
 };
 
@@ -68,6 +80,7 @@ export const builtin_rune: _type = _type {
 export const builtin_u8: _type = _type {
 	repr = builtin::U8,
 	sz = 1, _align = 1,
+	id = 1906196061,
 	...
 };
 
@@ -75,6 +88,7 @@ export const builtin_u8: _type = _type {
 export const builtin_u16: _type = _type {
 	repr = builtin::U16,
 	sz = 2, _align = 2,
+	id = 2206074632,
 	...
 };
 
@@ -82,6 +96,7 @@ export const builtin_u16: _type = _type {
 export const builtin_u32: _type = _type {
 	repr = builtin::U32,
 	sz = 4, _align = 4,
+	id = 4119164483,
 	...
 };
 
@@ -89,6 +104,7 @@ export const builtin_u32: _type = _type {
 export const builtin_u64: _type = _type {
 	repr = builtin::U64,
 	sz = 8, _align = 8,
+	id = 3481467866,
 	...
 };
 
@@ -96,27 +112,6 @@ export const builtin_u64: _type = _type {
 export const builtin_void: _type = _type {
 	repr = builtin::VOID,
 	sz = 0, _align = 0,
+	id = 2543892678,
 	...
-};
-
-@init fn init() void = {
-	const builtins = [
-		&builtin_bool,
-		&builtin_f32,
-		&builtin_f64,
-		&builtin_i8,
-		&builtin_i16,
-		&builtin_i32,
-		&builtin_i64,
-		&builtin_opaque,
-		&builtin_rune,
-		&builtin_u8,
-		&builtin_u16,
-		&builtin_u32,
-		&builtin_u64,
-		&builtin_void,
-	];
-	for (let i = 0z; i < len(builtins); i += 1) {
-		builtins[i].id = hash(builtins[i]);
-	};
 };

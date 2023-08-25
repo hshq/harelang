@@ -8,37 +8,21 @@ shouldn't be used for most Hare code.
 Some C types aren't provided by this module, since they are provided by the Hare
 language itself:
 
---------------------------------------------------
-| Hare type | C type       | C header            |
-|===========|==============|=====================|
-| bool      | _Bool, bool  | stdbool.h (C99-C17) |
-|-----------|--------------|---------------------|
-| int       | (signed) int | -                   |
-|-----------|--------------|---------------------|
-| size      | size_t       | stddef.h            |
-|-----------|--------------|---------------------|
-| uint      | unsigned int | -                   |
-|-----------|--------------|---------------------|
-| uintptr   | uintptr_t    | stdint.h            |
-|-----------|--------------|---------------------|
-| valist    | va_list      | stdarg.h            |
---------------------------------------------------
+- _Bool, bool  -> bool
+- (signed) int -> int
+- size_t       -> size
+- unsigned int -> uint
+- uintptr_t    -> uintptr
+- va_list      -> valist
 
 Some C types are mostly compatible with Hare types, with minor differences:
 
---------------------------------------------------------------------------------
-| Hare type | C type            | Differences                                  |
-|===========|===================|==============================================|
-| void      | void              | Hare's void is a zero-size type; C's void is |
-|           |                   | an incomplete opaque type. This distinction  |
-|           |                   | isn't relevant for C interop. In both        |
-|           |                   | languages, void pointers are used as generic |
-|           |                   | pointers.                                    |
-|-----------|-------------------|----------------------------------------------|
-| f32       | float _Imaginary  | The types are equivalent in representation,  |
-| f64       | double _Imaginary | but behavior differs when casting between    |
-| [2]f32    | float _Complex    | real, imaginary, and complex types.          |
-| [2]f64    | double _Complex   |                                              |
---------------------------------------------------------------------------------
+- C's void is an incomplete opaque type, which is also used to indicate the
+  absence of a value. Hare provides void as a zero-size type, and opaque as an
+  undefined-size opaque type.
+- Hare doesn't have builtin imaginary or complex types, though complex types
+  with equivalent represention to their C counterparts are declared in
+  [[math::complex]]. Hare doesn't allow casting between real and complex types
+  like C does.
 
 Additional low-level or implementation-specific types may be defined in [[rt]].

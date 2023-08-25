@@ -494,8 +494,8 @@ const TEST_ATANSC: [](c128, c128) = [
 		(0f64, 0f64)),
 	((0f64, math::NAN),
 		(math::NAN, math::NAN)),
-	//((1f64, 0f64),// Enable once https://todo.sr.ht/~sircmpwn/hare/750 is ready
-	//	(math::PI / 4f64, 0f64)),
+	((1f64, 0f64),
+		(math::PI / 4f64, 0f64)),
 	((1f64, math::INF),
 		(math::PI / 2f64, 0f64)),
 	((1f64, math::NAN),

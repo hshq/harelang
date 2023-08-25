@@ -296,7 +296,7 @@ fn lex_rn_str(lex: *lexer) (token | error) = {
 	};
 
 	// Rune literal
-	let ret: token = (ltok::LIT_RUNE, lex_rune(lex, loc)?, loc);
+	let ret: token = (ltok::LIT_RCONST, lex_rune(lex, loc)?, loc);
 	match (next(lex)?) {
 	case io::EOF =>
 		return syntaxerr(loc, "unexpected EOF");

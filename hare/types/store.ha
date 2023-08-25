@@ -252,7 +252,8 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			sz = store.arch._pointer;
 			_align = store.arch._pointer;
 			yield builtin::NULL;
-		case ast::builtin_type::ICONST, ast::builtin_type::FCONST =>
+		case ast::builtin_type::ICONST, ast::builtin_type::FCONST,
+			ast::builtin_type::RCONST =>
 			abort(); // TODO?
 		case ast::builtin_type::OPAQUE =>
 			sz = SIZE_UNDEFINED;

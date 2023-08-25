@@ -12,8 +12,9 @@ use strings;
 
 // Returns a builtin type as a string.
 export fn builtin_type(b: ast::builtin_type) str = switch (b) {
-case ast::builtin_type::FCONST, ast::builtin_type::ICONST =>
-	abort("ICONST and FCONST have no lexical representation");
+case ast::builtin_type::FCONST, ast::builtin_type::ICONST,
+	ast::builtin_type::RCONST =>
+	abort("ICONST, FCONST, and RCONST have no lexical representation");
 case ast::builtin_type::BOOL =>
 	yield "bool";
 case ast::builtin_type::F32 =>

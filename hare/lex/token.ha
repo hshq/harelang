@@ -151,7 +151,7 @@ export type ltok = enum uint {
 	LIT_F32,
 	LIT_F64,
 	LIT_FCONST,
-	LIT_RUNE,
+	LIT_RCONST,
 	LIT_STR,
 	LAST_LITERAL = LIT_STR,
 
@@ -336,8 +336,8 @@ export fn tokstr(tok: token) const str = {
 		return "f64";
 	case ltok::LIT_FCONST =>
 		return "fconst";
-	case ltok::LIT_RUNE =>
-		return "rune";
+	case ltok::LIT_RCONST =>
+		return "rconst";
 	case ltok::LIT_STR =>
 		return "str";
 	case ltok::NAME =>
