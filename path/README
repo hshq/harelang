@@ -16,7 +16,7 @@ Assuming that [[PATHSEP]] is '/', "/usr//bin/../bin/./hare/" becomes
 "/usr/bin/hare" and "../../foo/bar" is unchanged.
 
 The buffer object includes an array of length [[PATH_MAX]], which can be
-somewhat large; on Linux it's 4096 bytes. You can allocate this on the stack in
+somewhat large; on Linux it's 4095 bytes. You can allocate this on the stack in
 most cases, but you may prefer to allocate it elsewhere depending on your
 needs. Functions in this module return [[too_long]] if the buffer's capacity
 would be exceeded.

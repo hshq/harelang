@@ -7,4 +7,4 @@ export def PATHSEP: u8 = '/';
 const pathsepstr: str = "/";
 
 // Maximum length of a file path for this platform.
-export def PATH_MAX: size = 4096;
+export def PATH_MAX: size = 4095;
