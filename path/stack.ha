@@ -8,13 +8,13 @@ use strings;
 export fn push(buf: *buffer, items: str...) (str | error) = {
 	for (let i = 0z; i < len(items); i += 1) {
 		let elem = strings::toutf8(items[i]);
-		for (true) match (bytes::index(elem, PATHSEP)) {
+		for (true) match (bytes::index(elem, SEP)) {
 		case void =>
 			buf.end = appendnorm(buf, elem)?;
 			break;
 		case let j: size =>
 			if (j == 0 && buf.end == 0) {
-				buf.buf[0] = PATHSEP;
+				buf.buf[0] = SEP;
 				buf.end = 1;
 			} else {
 				buf.end = appendnorm(buf, elem[..j])?;
@@ -29,8 +29,8 @@ const dot: []u8 = ['.'];
 const dotdot: []u8 = ['.', '.'];
 
 // append a path segment to a buffer, preserving normalization.
-// seg must not contain any PATHSEPs. if you need to make the path
-// absolute, you should do that manually. returns the new end of the buffer.
+// seg must not contain any [[SEP]]s. if you need to make the path absolute, you
+// should do that manually. returns the new end of the buffer.
 // x    +    => x
 // x    + .  => x
 // /    + .. => /
@@ -42,7 +42,7 @@ fn appendnorm(buf: *buffer, seg: []u8) (size | error) = {
 	if (len(seg) == 0 || bytes::equal(dot, seg)) return buf.end;
 	if (bytes::equal(dotdot, seg)) {
 		if (isroot(buf)) return buf.end;
-		const isep = match (bytes::rindex(buf.buf[..buf.end], PATHSEP)) {
+		const isep = match (bytes::rindex(buf.buf[..buf.end], SEP)) {
 		case void => yield 0z;
 		case let i: size => yield i + 1;
 		};
@@ -61,10 +61,10 @@ fn appendnorm(buf: *buffer, seg: []u8) (size | error) = {
 fn appendlit(buf: *buffer, bs: []u8) (size | error) = {
 	let newend = buf.end;
 	if (buf.end == 0 || isroot(buf)) {
-		if (PATH_MAX < buf.end + len(bs)) return too_long;
+		if (MAX < buf.end + len(bs)) return too_long;
 	} else {
-		if (PATH_MAX < buf.end + len(bs) + 1) return too_long;
-		buf.buf[buf.end] = PATHSEP;
+		if (MAX < buf.end + len(bs) + 1) return too_long;
+		buf.buf[buf.end] = SEP;
 		newend += 1;
 	};
 	buf.buf[newend..newend+len(bs)] = bs;
@@ -131,7 +131,7 @@ export fn pop(buf: *buffer) (str | void) = {
 // helper function for pop/peek, returns (new end of buffer, result)
 fn split(buf: *buffer) (size, (str | void)) = {
 	if (buf.end == 0 || isroot(buf)) return (buf.end, void);
-	match (bytes::rindex(buf.buf[..buf.end], PATHSEP)) {
+	match (bytes::rindex(buf.buf[..buf.end], SEP)) {
 	case void =>
 		return (0z, strings::fromutf8_unsafe(buf.buf[..buf.end]));
 	case let i: size =>

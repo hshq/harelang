@@ -19,16 +19,16 @@ export fn dirname(path: const str) const str = {
 	let path = strings::toutf8(path);
 	if (len(path) == 0) return ".";
 
-	path = bytes::rtrim(path, PATHSEP);
-	if (len(path) == 0) return pathsepstr;
+	path = bytes::rtrim(path, SEP);
+	if (len(path) == 0) return sepstr;
 
-	match (bytes::rindex(path, PATHSEP)) {
+	match (bytes::rindex(path, SEP)) {
 	case void => return ".";
 	case let z: size => path = path[..z];
 	};
-	path = bytes::rtrim(path, PATHSEP);
+	path = bytes::rtrim(path, SEP);
 
-	if (len(path) == 0) return pathsepstr;
+	if (len(path) == 0) return sepstr;
 	return strings::fromutf8_unsafe(path);
 };
 
@@ -40,10 +40,10 @@ export fn basename(path: const str) const str = {
 	let path = strings::toutf8(path);
 	if (len(path) == 0) return ".";
 
-	path = bytes::rtrim(path, PATHSEP);
-	if (len(path) == 0) return pathsepstr;
+	path = bytes::rtrim(path, SEP);
+	if (len(path) == 0) return sepstr;
 
-	match (bytes::rindex(path, PATHSEP)) {
+	match (bytes::rindex(path, SEP)) {
 	case void => void;
 	case let z: size => path = path[z+1..];
 	};

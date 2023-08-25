@@ -2,9 +2,9 @@
 // (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
 
 // Platform-specific path separator byte.
-export def PATHSEP: u8 = '/';
+export def SEP: u8 = '/';
 
-const pathsepstr: str = "/";
+const sepstr: str = "/";
 
 // Maximum length of a file path for this platform.
-export def PATH_MAX: size = 4095;
+export def MAX: size = 4095;

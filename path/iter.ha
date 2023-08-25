@@ -10,8 +10,6 @@ export type iterator = struct {
 	reverse: bool,
 };
 
-let pathsep: []u8 = [PATHSEP];
-
 // Returns an [[iterator]] which yields each component of a path, moving down
 // through child dirs. If the path is absolute, the first component will be
 // the root. The iterator can be copied to save its state.
@@ -49,7 +47,7 @@ export fn nextiter(it: *iterator) (str | void) = {
 // helper function for nextiter and peekiter, returns (result, remaining)
 fn split_iter(it: *iterator) ([]u8, []u8) = {
 	if (it.reverse) {
-		match (bytes::rindex(it.cur, PATHSEP)) {
+		match (bytes::rindex(it.cur, SEP)) {
 		case let sep: size =>
 			let res = it.cur[sep+1..];
 			if (sep == 0) {
@@ -64,7 +62,7 @@ fn split_iter(it: *iterator) ([]u8, []u8) = {
 			return (it.cur, it.cur[..0]);
 		};
 	} else {
-		match (bytes::index(it.cur, PATHSEP)) {
+		match (bytes::index(it.cur, SEP)) {
 		case let i: size =>
 			return (it.cur[..if (i == 0) 1 else i], it.cur[i+1..]);
 		case void =>

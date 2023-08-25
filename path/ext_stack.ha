@@ -12,7 +12,7 @@ export fn push_ext(buf: *buffer, ext: str...) (str | error) = {
 	};
 	for (let i = 0z; i < len(ext); i += 1) {
 		const newend = buf.end + 1 + len(ext[i]);
-		if (PATH_MAX < newend) return too_long;
+		if (MAX < newend) return too_long;
 		buf.buf[buf.end] = '.';
 		buf.buf[buf.end+1..newend] = strings::toutf8(ext[i]);
 		buf.end = newend;
@@ -82,7 +82,7 @@ case let s: str =>
 	// push_ext
 	let buf = init()!;
 	assert(push_ext(&buf, "bash") is cant_extend);
-	set(&buf, pathsepstr)!;
+	set(&buf, sepstr)!;
 	assert(push_ext(&buf, "bash") is cant_extend);
 	set(&buf, "....")!;
 	assert(push_ext(&buf, "bash") is cant_extend);
@@ -96,7 +96,7 @@ case let s: str =>
 	assert(pop_ext(&buf) is void);
 	set(&buf, "..")!;
 	assert(pop_ext(&buf) is void);
-	set(&buf, pathsepstr)!;
+	set(&buf, sepstr)!;
 	assert(pop_ext(&buf) is void);
 
 	set(&buf, "index.html.tmpl")!;
