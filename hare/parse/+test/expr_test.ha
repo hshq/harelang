@@ -305,3 +305,36 @@
 		"export fn main() void = yield :foo;\n\n"
 		"export fn main() void = yield :foo, void;\n");
 };
+
+@test fn parenthesis() void = {
+	roundtrip(
+		"export fn main() void = -((2 + 2) * 2);\n\n"
+		"export fn main() void = &(1: uint);\n\n"
+		"export fn main() void = **x;\n\n"
+		"export fn main() void = *alloc(2);\n\n"
+		"export fn main() void = &(&x);\n\n"
+		"export fn main() void = &*&*&x;\n\n"
+		"export fn main() void = x: int: uint: u8;\n\n"
+		"export fn main() void = &array[idx];\n\n"
+		"export fn main() void = &array[idx..];\n\n"
+		"export fn main() void = (array: *[*]u8)[idx];\n\n"
+		"export fn main() void = (s: *object).field;\n\n"
+		"export fn main() void = (s: *object).0;\n\n"
+		"export fn main() void = &offset(header.x);\n\n"
+		"export fn main() void = *((a + b): uintptr);\n\n"
+		"export fn main() void = *value();\n\n"
+		"export fn main() void = (ptr: function)();\n\n"
+		"export fn main() void = func()?.field;\n\n"
+		"export fn main() void = (x: thing)?;\n\n"
+		"export fn main() void = (x: thing)!;\n\n"
+		"export fn main() void = (hey: *[*]u8)[1..2];\n\n"
+		"export fn main() void = (hey: *[*]u8)[0];\n\n"
+		"export fn main() void = &{\n"
+		"\t" "yield 12;\n"
+		"};\n\n"
+		"export fn main() void = ({\n"
+		"\t" "yield err;\n"
+		"})!;\n\n"
+		"export fn main() void = &(if (true) 1 else 2);\n\n"
+		"export fn main() void = (a + b): uintptr: size;\n");
+};

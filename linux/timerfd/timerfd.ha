@@ -25,12 +25,29 @@ const empty_timerspec: rt::itimerspec = rt::itimerspec {
 	it_value = rt::timespec { tv_sec = 0, tv_nsec = 0 },
 };
 
+// Flags to use in [[new]]. CLOEXEC is enabled by default, use NOCLOEXEC to
+// disable it.
+export type new_flag = enum int {
+	NONE = 0,
+	NONBLOCK = rt::O_NONBLOCK,
+	NOCLOEXEC = rt::O_CLOEXEC,
+};
+
+// Flags to use in [[set]].
+export type set_flag = enum int {
+	NONE = 0,
+	ABSTIME = 1,
+	CANCEL_ON_SET = 2,
+};
+
 // Creates a new timerfd. The timer is initially configured without an
 // expiration; see [[set]] to configure it.
 export fn new(
 	clockid: time::clock,
-	flags: int
+	flags: new_flag,
 ) (io::file | errors::error) = {
+	flags ^= new_flag::NOCLOEXEC;
+
 	match (rt::timerfd_create(clockid, flags)) {
 	case let fd: int =>
 		return fd;
@@ -44,7 +61,7 @@ export fn new(
 export fn set(
 	t: io::file,
 	exp: expiration,
-	flags: int
+	flags: set_flag,
 ) (void | errors::error) = {
 	let interval_timespec = rt::timespec { ... };
 	const timerspec = match (exp) {
@@ -107,12 +124,12 @@ export fn read(
 };
 
 @test fn timerfd() void = {
-	let blocking_fd = new(time::clock::MONOTONIC, 0)!;
+	let blocking_fd = new(time::clock::MONOTONIC, new_flag::NONE)!;
 
 	// one-shot blocking
 	// the first read should block and eventually return 1
 	// subsequent reads will block indefinitely
-	set(blocking_fd, 100: oneshot, 0)!;
+	set(blocking_fd, 100: oneshot, set_flag::NONE)!;
 	let one = read(blocking_fd)!;
 	assert(one == 1);
 
@@ -121,7 +138,7 @@ export fn read(
 	// the timer expired
 	// subsequent reads should return instantly with the number of time the
 	// timer expired since the last read
-	set(blocking_fd, 100: interval, 0)!;
+	set(blocking_fd, 100: interval, set_flag::NONE)!;
 	let first = read(blocking_fd)!;
 	let second = read(blocking_fd)!;
 
