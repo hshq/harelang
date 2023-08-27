@@ -30,36 +30,50 @@ const _121665: elem = [0xdb41, 1, 0...];
 // Compute the result of the scalar multiplication (scalar * point) and put the
 // result in out.
 export fn x25519(
-	out: *[SCALARSZ]u8,
-	scalar: const *[SCALARSZ]u8,
-	point: const *[POINTSZ]u8
+	out: []u8,
+	scalar: const []u8,
+	point: const []u8,
 ) void = {
+	assert(len(out) == SCALARSZ);
+	assert(len(scalar) == SCALARSZ);
+	assert(len(point) == POINTSZ);
+
 	scalarmult(out, scalar, point);
 };
 
 // Compute the result of the scalar multiplication (scalar * point) where point
 // is BASEPOINT.
 export fn scalarmult_base(
-	out: *[SCALARSZ]u8,
-	scalar: const *[SCALARSZ]u8
+	out: []u8,
+	scalar: const []u8
 ) void = {
+	assert(len(out) == SCALARSZ);
+	assert(len(scalar) == SCALARSZ);
+
 	scalarmult(out, scalar, &BASEPOINT);
 };
 
 // Prepares the scalar to avoid particular attacks. See the "clamping" section
 // in Kleppmann's paper.
-export fn clamp(scalar: *[SCALARSZ]u8) void = {
+export fn clamp(scalar: []u8) void = {
+	assert(len(scalar) == SCALARSZ);
 	scalar[0] &= 0xf8;
 	scalar[31] = (scalar[31] & 0x7f) | 0x40;
 };
 
 // Set out to the product (scalar * point)
 export fn scalarmult(
-	out: *[SCALARSZ]u8,
-	scalar: const *[SCALARSZ]u8,
-	point: const *[POINTSZ]u8
+	out: []u8,
+	scalar: const []u8,
+	point: const []u8
 ) void = {
-	let clamped: [SCALARSZ]u8 = *scalar;
+	assert(len(out) == SCALARSZ);
+	assert(len(scalar) == SCALARSZ);
+	assert(len(point) == POINTSZ);
+
+	let clamped: [SCALARSZ]u8 = [0...];
+	clamped[..] = scalar[..];
+
 	defer bytes::zero(clamped);
 	clamp(&clamped);
 
@@ -103,7 +117,7 @@ export fn scalarmult(
 	pack25519(out, &a);
 };
 
-fn unpack25519(in: *[SCALARSZ]u8) elem = {
+fn unpack25519(in: []u8) elem = {
 	let fe: elem = [0...];
 
 	for (let i = 0z; i < FIELDSZ; i += 1) {
@@ -188,7 +202,7 @@ fn swap25519(p: *elem, q: *elem, bit: i64) void = {
 	};
 };
 
-fn pack25519(out: *[SCALARSZ]u8, a: const *elem) void = {
+fn pack25519(out: []u8, a: const *elem) void = {
 	let m: elem = [0...];
 	let t: elem = *a;
 
