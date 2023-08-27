@@ -289,6 +289,7 @@ export type sig = enum int {
 	ILL = rt::SIGILL, // Illegal instruction.
 	TRAP = rt::SIGTRAP, // Trace/breakpoint trap.
 	ABRT = rt::SIGABRT, // Process abort.
+	IOT = rt::SIGIOT, // Synonym for ABRT, provided for compatibility.
 	EMT = rt::SIGEMT, // Emulate instruction executed.
 	FPE = rt::SIGFPE, // Erroneous arithmetic operation.
 	KILL = rt::SIGKILL, // Kill (cannot be caught or ignored).

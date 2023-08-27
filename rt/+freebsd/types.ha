@@ -343,6 +343,7 @@ export def SIGQUIT: int = 3;
 export def SIGILL: int = 4;
 export def SIGTRAP: int = 5;
 export def SIGABRT: int = 6;
+export def SIGIOT: int = SIGABRT;
 export def SIGEMT: int = 7;
 export def SIGFPE: int = 8;
 export def SIGKILL: int = 9;
