@@ -116,5 +116,5 @@ export fn getcontrol(
 };
 
 fn cmsg_align(z: size) size = (z + size(size) - 1) & ~(size(size) - 1);
-fn cmsg_len(z: size) size = cmsg_align(size(rt::cmsghdr) + z);
-fn cmsg_space(z: size) size = cmsg_align(z) + cmsg_align(size(rt::cmsghdr));
+fn cmsg_len(z: size) size = cmsg_align(size(rt::cmsghdr)) + z;
+fn cmsg_space(z: size) size = cmsg_align(size(rt::cmsghdr)) + cmsg_align(z);
