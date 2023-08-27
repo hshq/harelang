@@ -1,8 +1,8 @@
 This module provides RSA signature and encryption schemes defined in PKCS #1.
 The implementation only supports RSA keys with two prime factors. Most of the
 RSA operations in this module require buffers to perform. Buffer sizes are
-provided for keys of a default maximum size of 4096-bits. [[BITSIZE]]
-may be changed with compiler flags to support bigger keys. [[MINBITSIZE]]
+provided for keys of a default maximum size of 4096-bits. [[BITSZ]]
+may be changed with compiler flags to support bigger keys. [[MINBITSZ]]
 defines the minimum size accordingly.
 
 Public and private keys are stored in byte slices. [[pubkey_init]] is used
