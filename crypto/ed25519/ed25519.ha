@@ -28,8 +28,10 @@ export type seed = [SEEDSZ]u8;
 // Derives a new Ed25519 private key from a given seed. The seed must be
 // initialized to cryptographically random data; [[crypto::random]] is
 // recommended for this purpose.
-export fn privkey_init(priv: []u8, seed: *seed) void = {
+export fn privkey_init(priv: []u8, seed: []u8) void = {
 	assert(len(priv) == PRIVKEYSZ);
+	assert(len(seed) == SEEDSZ);
+
 	let h: [64]u8 = [0...];
 	let sha = sha512::sha512();
 	hash::write(&sha, seed[..]);
