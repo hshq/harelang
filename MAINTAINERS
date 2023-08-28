@@ -15,6 +15,8 @@ Descriptions of section entries and preferred order
 	   These reviewers should be CCed on patches.
 	L: *Mailing list* that is relevant to this area
 	W: *Web-page* with status/info
+	B: URI for where to file *bugs*. A web-page with detailed bug
+	   filing info, a direct bug tracker link, or a mailto: URI.
 	C: URI for *chat* protocol, server and channel where developers
 	   usually hang out, for example irc://server/channel.
 	P: Subsystem Profile document for more details submitting
@@ -33,6 +35,7 @@ Descriptions of section entries and preferred order
 	   F:	net/
 	   X:	net/ipv6/
 	   matches all files in and below net excluding net/ipv6/
+	N: Notes (free-form)
 
 Maintainers List
 ----------------
