@@ -1,0 +1,62 @@
+Incomplete list of Hare trees
+-----------------------------
+
+Hare development is semi-decentralized. Anyone can stand up the infrastructure
+required to pursue their goals in the project, and various trees are organized
+and developed independently of upstream before being submitted for broader
+consideration. Various trees are used by specific maintainers to prepare their
+changes, by interest groups to maintain some detail (e.g. a specific arch), or
+temporary trees used to collaborate on large proposals.
+
+This document lists notable trees that may be of interest to contributors.
+Maintainers (see ./MAINTAINERS) are welcome to update this document without
+review if they want to set up a new tree. Anyone in the Hare community,
+regardless if they possess committer permissions, is welcome to stand up a tree
+on their own initiative and send a patch to the hare-dev mailing list adding it
+here.
+
+The format of this document is based on ./MAINTAINERS, see that document for an
+explanation of the syntax.
+
+HARE UPSTREAM
+M:	See ./MAINTAINERS
+W:	https://harelang.org
+T:	git https://git.sr.ht/~sircmpwn/hare
+L:	~sircmpwn/hare-dev@lists.sr.ht
+L:	~sircmpwn/hare-discuss@lists.sr.ht
+L:	~sircmpwn/hare-users@lists.sr.ht
+C:	irc://irc.libera.chat/#hare-dev
+B:	https://todo.sr.ht/~sircmpwn/hare	(maintainers only)
+B:	~sircmpwn/hare-discuss@lists.sr.ht	(users)
+
+List of permanent trees
+-----------------------
+
+(none yet?)
+
+List of project trees
+---------------------
+
+(none yet?)
+
+List of personal trees
+----------------------
+
+BOR GROŠELJ SIMIĆ
+M:	Bor Grošelj Simić <bgs@turminal.net>
+T:	git https://git.sr.ht/~turminal/hare
+
+BYRON TORRES
+M:	Byron Torres <b@torresjrjr.com>
+T:	git https://git.sr.ht/~torresjrjr/hare
+
+EMBER SAWADY
+M:	Ember Sawady <ecs@d2evs.net>
+T:	git https://git.d2evs.net/~ecs/hare
+B:	ecs@d2evs.net
+N:	See TODO in the repository
+
+SEBASTIAN
+M:	Sebastian <sebastian@sebsite.pw>
+T:	git https://git.sr.ht/~sebsite/hare
+
