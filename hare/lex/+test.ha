@@ -243,7 +243,6 @@ fn loc(line: uint, col: uint) location = location {
 	const expected: [_]token = [
 		(ltok::LIT_STR, "ab\a\b\f\n\r\t\v\0\\\'", loc(1, 1)),
 	];
-	// TODO: test \x and \u and \U
 	lextest(in, expected);
 	const in = `"ab\a\b\f\n\r\t\v\0\\\'"`;
 	const expected: [_]token = [
@@ -266,6 +265,11 @@ fn loc(line: uint, col: uint) location = location {
 		"\"baz\"";
 	const expected: [_]token = [
 		(ltok::LIT_STR, "foobaz", loc(1, 1)),
+	];
+	lextest(in, expected);
+	const in = `"\x7f" "\x1b" "\uabcd" "\U0010abcd"`;
+	const expected: [_]token = [
+		(ltok::LIT_STR, "\x7f\x1b\uabcd\U0010abcd", loc(1, 1)),
 	];
 	lextest(in, expected);
 };
