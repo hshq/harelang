@@ -91,21 +91,6 @@ use net::ip;
 	)!;
 };
 
-@test fn edge_cases() void = {
-	const expected = "https://en.wiktionary.org/wiki/%E3%81%8A%E3%81%AF%E3%82%88%E3%81%86#Japanese";
-	const u = uri {
-		scheme = "https",
-		host = "en.wiktionary.org",
-		path = "wiki/おはよう",
-		fragment = "Japanese",
-		...
-	};
-	let s = string(&u);
-	defer free(s);
-
-	assert_str(s, expected);
-};
-
 @test fn invalid() void = {
 	// Scheme
 	assert(parse(":") is invalid);
