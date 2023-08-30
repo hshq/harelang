@@ -248,12 +248,12 @@ export type code = enum int {
 	STOPPED = 5, // sig::CHLD: child has stopped
 	CONTINUED = 6, // sig::CHLD: stopped child has continued
 
-	IN = 1, // sig::POLL: data input available
-	OUT = 2, // sig::POLL: output buffers available
-	MSG = 3, // sig::POLL: input message available
-	ERR = 4, // sig::POLL: I/O error
-	PRI = 5, // sig::POLL: high priority input available
-	HUP = 6, // sig::POLL: device disconnected
+	IN = 1, // sig::IO: data input available
+	OUT = 2, // sig::IO: output buffers available
+	MSG = 3, // sig::IO: input message available
+	ERR = 4, // sig::IO: I/O error
+	PRI = 5, // sig::IO: high priority input available
+	HUP = 6, // sig::IO: device disconnected
 };
 
 // Flags used to configure the behavior of a signal handler.
@@ -289,6 +289,7 @@ export type sig = enum int {
 	ILL = rt::SIGILL, // Illegal instruction.
 	TRAP = rt::SIGTRAP, // Trace/breakpoint trap.
 	ABRT = rt::SIGABRT, // Process abort.
+	IOT = rt::SIGIOT, // Synonym for ABRT, provided for compatibility.
 	EMT = rt::SIGEMT, // Emulate instruction executed.
 	FPE = rt::SIGFPE, // Erroneous arithmetic operation.
 	KILL = rt::SIGKILL, // Kill (cannot be caught or ignored).

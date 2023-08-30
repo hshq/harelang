@@ -150,7 +150,7 @@ export fn realloc(p: nullable *opaque, n: size) nullable *opaque = {
 };
 
 // Gets the metadata for a given allocation. The provided pointer must have been
-// returned by [[malloc]] and must not have been freed.
+// returned by [[malloc]] or [[realloc]] and must not have been freed.
 export fn getmeta(p: *opaque) *meta = {
 	let m = (p: uintptr - META): *meta;
 	validatemeta(m, false);
