@@ -69,7 +69,7 @@ export fn iterstr(iter: *iterator) str = {
 	return fromutf8(iter.dec.src[iter.dec.offs..])!;
 };
 
-// Return a substring from the position of the first operator to the position of
+// Return a substring from the position of the first iterator to the position of
 // the second iterator. The iterators must originate from the same string and
 // the position of the second iterator must not be before the position of the
 // first one.
