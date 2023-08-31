@@ -589,7 +589,7 @@ datetime() {
 dirs() {
 	gen_srcs dirs \
 		xdg.ha
-	gen_ssa dirs errors fs io os path fmt unix
+	gen_ssa dirs errors fs os path fmt unix
 }
 
 encoding_base64() {

@@ -1219,7 +1219,7 @@ $(HARECACHE)/crypto/x25519/crypto_x25519-any.ssa: $(stdlib_crypto_x25519_any_src
 stdlib_dirs_any_srcs = \
 	$(STDLIB)/dirs/xdg.ha
 
-$(HARECACHE)/dirs/dirs-any.ssa: $(stdlib_dirs_any_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_unix_$(PLATFORM))
+$(HARECACHE)/dirs/dirs-any.ssa: $(stdlib_dirs_any_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_unix_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/dirs
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ndirs \
@@ -3654,7 +3654,7 @@ $(TESTCACHE)/crypto/x25519/crypto_x25519-any.ssa: $(testlib_crypto_x25519_any_sr
 testlib_dirs_any_srcs = \
 	$(STDLIB)/dirs/xdg.ha
 
-$(TESTCACHE)/dirs/dirs-any.ssa: $(testlib_dirs_any_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_unix_$(PLATFORM))
+$(TESTCACHE)/dirs/dirs-any.ssa: $(testlib_dirs_any_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_unix_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/dirs
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndirs \
