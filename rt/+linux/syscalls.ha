@@ -282,8 +282,9 @@ export fn sendfile(
 ) (size | errno) = wrap_return(syscall4(SYS_sendfile,
 	out: u64, in: u64, offs: uintptr: u64, count: u64))?: size;
 
-export @noreturn fn exit(status: int) void = {
+export fn exit(status: int) never = {
 	syscall1(SYS_exit_group, status: u64);
+	abort();
 };
 
 export fn kill(pid: int, signal: int) (void | errno) = {

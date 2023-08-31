@@ -27,7 +27,7 @@ export fn fini() void = {
 	};
 };
 
-export @noreturn fn start_ha() void = {
+export fn start_ha() never = {
 	init();
 	main();
 	fini();

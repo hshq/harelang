@@ -1,7 +1,7 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
-@noreturn fn platform_abort(loc: str, msg: str) void = {
+fn platform_abort(loc: str, msg: str) void = {
 	const prefix = "Abort: ";
 	const sep = ": ";
 	const linefeed = "\n";
