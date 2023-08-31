@@ -110,10 +110,10 @@ export fn unsetenv(cmd: *command, key: str) (void | errors::invalid) = {
 	};
 };
 
-
 // Adds or sets a variable in the command environment. This does not affect the
 // current process environment. The key may not contain '=' or '\0'.
 export fn setenv(cmd: *command, key: str, value: str) (void | errors::invalid) = {
+	if (strings::contains(value, '\0')) return errors::invalid;
 	unsetenv(cmd, key)?;
 	append(cmd.env, strings::join("=", key, value));
 };
