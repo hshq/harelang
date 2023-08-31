@@ -22,8 +22,9 @@ export type array = struct {
 export type builtin = enum u8 {
 	// Keep me consistent with ast::builtin
 
-	BOOL, F32, F64, FCONST, I16, I32, I64, I8, ICONST, INT, NULL, OPAQUE,
-	RCONST, RUNE, SIZE, STR, U16, U32, U64, U8, UINT, UINTPTR, VALIST, VOID,
+	BOOL, F32, F64, FCONST, I16, I32, I64, I8, ICONST, INT, NEVER, NULL,
+	OPAQUE, RCONST, RUNE, SIZE, STR, U16, U32, U64, U8, UINT, UINTPTR,
+	VALIST, VOID,
 };
 
 // An enum type, e.g. enum { FOO = 0 }
@@ -39,17 +40,10 @@ export type variadism = enum {
 	HARE,
 };
 
-// Indicats if a [[func]] has the @noreturn attribute
-export type func_flag = enum uint {
-	NONE = 0,
-	NORETURN = 1 << 0,
-};
-
 // A function type, e.g. fn(x: int, y: int) int
 export type func = struct {
 	result: const *_type,
 	variadism: variadism,
-	flags: func_flag,
 	params: []const *_type,
 };
 

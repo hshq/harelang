@@ -222,11 +222,6 @@ fn unparse_tty(out: io::handle, d: ast::decl) (size | io::error) = {
 		n += render(out, syn::NORMAL)?;
 
 		let p = f.prototype.repr as ast::func_type;
-		if (p.attrs & ast::func_attrs::NORETURN != 0) {
-			n += render(out, syn::ATTRIBUTE)?;
-			n += fmt::fprint(out, "@noreturn ")?;
-			n += render(out, syn::NORMAL)?;
-		};
 		if (len(f.symbol) != 0) {
 			n += render(out, syn::ATTRIBUTE)?;
 			n += fmt::fprintf(out, "@symbol(")?;
@@ -507,10 +502,6 @@ fn type_tty(
 		n += render(out, syn::PUNCTUATION)?;
 		n += fmt::fprint(out, "}")?;
 	case let f: ast::func_type =>
-		if (f.attrs & ast::func_attrs::NORETURN != 0) {
-			n += render(out, syn::ATTRIBUTE)?;
-			n += fmt::fprint(out, "@noreturn ")?;
-		};
 		n += render(out, syn::TYPE)?;
 		n += fmt::fprint(out, "fn")?;
 		n += prototype_tty(out, indent, f)?;

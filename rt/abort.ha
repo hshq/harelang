@@ -1,7 +1,7 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
-export @noreturn @symbol("rt.abort") fn _abort(loc: str, msg: str) void = {
+export @symbol("rt.abort") fn _abort(loc: str, msg: str) void = {
 	platform_abort(loc, msg);
 };
 
@@ -15,9 +15,8 @@ const reasons: [_]str = [
 	"slice allocation capacity smaller than initializer",	// 5
 	"assertion failed",					// 6
 	"error occurred",					// 7
-	"return from @noreturn function",			// 8
 ];
 
-export @noreturn fn abort_fixed(loc: str, i: int) void = {
+export fn abort_fixed(loc: str, i: int) void = {
 	platform_abort(loc, reasons[i]);
 };

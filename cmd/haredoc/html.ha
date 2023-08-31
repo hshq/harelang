@@ -501,9 +501,6 @@ fn unparse_html(out: io::handle, d: ast::decl) (size | io::error) = {
 			yield "@test ";
 		})?;
 		let p = f.prototype.repr as ast::func_type;
-		if (p.attrs & ast::func_attrs::NORETURN != 0) {
-			n += fmt::fprint(out, "@noreturn ")?;
-		};
 		n += fmt::fprint(out, "<span class='keyword'>fn</span> ")?;
 		n += unparse::ident(out, f.ident)?;
 		n += prototype_html(out, 0,
@@ -718,10 +715,6 @@ fn type_html(
 		z += fmt::fprint(out, "*")?;
 		z += type_html(out, indent, *t.referent, brief)?;
 	case let t: ast::func_type =>
-		if (t.attrs & ast::func_attrs::NORETURN == ast::func_attrs::NORETURN) {
-			z += fmt::fprint(out, "@noreturn ")?;
-		};
-
 		z += fmt::fprint(out, "<span class='keyword'>fn</span>(")?;
 		for (let i = 0z; i < len(t.params); i += 1) {
 			const param = t.params[i];

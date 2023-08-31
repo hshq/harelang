@@ -9,4 +9,4 @@ export type jmpbuf = struct {
 
 export fn setjmp(buf: *jmpbuf) int;
 
-export @noreturn fn longjmp(buf: *jmpbuf, n: int) void;
+export fn longjmp(buf: *jmpbuf, n: int) never;

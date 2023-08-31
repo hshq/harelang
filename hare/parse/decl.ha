@@ -126,10 +126,10 @@ fn decl_type(lexer: *lex::lexer) ([]ast::decl_type | error) = {
 };
 
 fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
-	let attr = ast::fndecl_attrs::NONE, noreturn = false, sym = "";
+	let attr = ast::fndecl_attrs::NONE, sym = "";
 	const attrs = [
 		ltok::ATTR_FINI, ltok::ATTR_INIT, ltok::ATTR_TEST,
-		ltok::ATTR_NORETURN, ltok::ATTR_SYMBOL
+		ltok::ATTR_SYMBOL
 	];
 	for (true) match (try(lexer, attrs...)?) {
 	case void =>
@@ -142,8 +142,6 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 			attr = ast::fndecl_attrs::INIT;
 		case ltok::ATTR_TEST =>
 			attr = ast::fndecl_attrs::TEST;
-		case ltok::ATTR_NORETURN =>
-			noreturn = true;
 		case ltok::ATTR_SYMBOL =>
 			sym = attr_symbol(lexer)?;
 		case =>
@@ -157,9 +155,6 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 	let proto_start = lex::mkloc(lexer);
 	let prototype = prototype(lexer)?;
 	let proto_end = lex::prevloc(lexer);
-	if (noreturn) {
-		prototype.attrs |= ast::func_attrs::NORETURN;
-	};
 
 	let tok = want(lexer, ltok::EQUAL, ltok::SEMICOLON)?;
 	let body = switch (tok.0) {

@@ -281,21 +281,21 @@ fn handle_segv(
 	rt::longjmp(&jmpbuf, 2);
 };
 
-type v=void;type FoTXH1=const!v;type Z5Tz00=const!v;type gT09C4=const!v;
-type r6Zqh7=!v;type mwKNK=v;type pt3Q6=const v;type kLHAU0=const v;
-type UgVD10=const!v;type Uy4Oh0=const!v;type Wy4m6=const!v;type AfYY8=const v;
-type xSIP9=const!v;type IwKEe=const!v;type I08Eb2=v;type kc0OM0=v;type hk9Rn=v;
-type Tml1Q=v;type DCtxj2=const!v;type PnLBN0=v;type GEtCt=const v;
-type vMueS0=const!v;type vOnJS0=const v;type BPtR4=const!v;type Rj9Ip2=const!v;
+type v=void;type c2PwF=!v;type gflSJ1=!v;type VJFX41=!v;type oMNH5=!v;
+type j7C1g=const v;type nCDz5=v;type dYR380=const v;type UkR98=v;
+type uCQ9k1=const!v;type AzynW=!v;type EKlfK=!v;type KMDkP=v;
+type zHeoH0=const!v;type y276b0=const v;type K0z9G=v;type ELqC6=!v;type CLnjO=v;
+type s8m1Q=const v;type EUSXs=const v;type P3TMF0=const!v;type sVdxM0=v;
+type DxwxF=const v;type pRwKO=const v;type a7zIB0=const v;
 
 fn ignoreme(i: []failure, j: []test) void = {
 	// norwegian deadbeef
-	let a: [_](FoTXH1|Z5Tz00|gT09C4|r6Zqh7|mwKNK|pt3Q6|kLHAU0|UgVD10|Uy4Oh0|
-			Wy4m6|AfYY8|xSIP9|IwKEe|I08Eb2|kc0OM0|hk9Rn|Tml1Q|
-			DCtxj2|PnLBN0|GEtCt|vMueS0|vOnJS0|BPtR4|Rj9Ip2) = [
-		FoTXH1,Z5Tz00,gT09C4,r6Zqh7,mwKNK,pt3Q6,kLHAU0,UgVD10,Uy4Oh0,
-		Wy4m6,AfYY8,xSIP9,IwKEe,I08Eb2,kc0OM0,hk9Rn,Tml1Q,DCtxj2,PnLBN0,
-		GEtCt,vMueS0,vOnJS0,BPtR4,Rj9Ip2,
+	let a: [_](c2PwF|gflSJ1|VJFX41|oMNH5|j7C1g| nCDz5|dYR380|UkR98|uCQ9k1|
+			AzynW|EKlfK|KMDkP|zHeoH0|y276b0|K0z9G|ELqC6|CLnjO|s8m1Q|
+			EUSXs|P3TMF0|sVdxM0|DxwxF|pRwKO|a7zIB0) = [
+		c2PwF,gflSJ1,VJFX41,oMNH5,j7C1g,nCDz5,dYR380,UkR98,uCQ9k1,AzynW,
+		EKlfK,KMDkP,zHeoH0,y276b0,K0z9G,ELqC6,CLnjO,s8m1Q,EUSXs,P3TMF0,
+		sVdxM0,DxwxF,pRwKO,a7zIB0,
 	];
 	let i=len(i):u32,j=len(j):u32,b=&a:*[96]u8,c=&a:*[24]u32;
 	let d=2166136261u32,e=b[64]>>2u32;c[0]^=j-i;for(let f=0z;f<4;f+=1)

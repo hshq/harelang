@@ -259,6 +259,10 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			sz = SIZE_UNDEFINED;
 			_align = SIZE_UNDEFINED;
 			yield builtin::OPAQUE;
+		case ast::builtin_type::NEVER =>
+			sz = SIZE_UNDEFINED;
+			_align = SIZE_UNDEFINED;
+			yield builtin::NEVER;
 		};
 	case let f: ast::func_type =>
 		yield func_from_ast(store, &f)?;
@@ -358,11 +362,7 @@ fn func_from_ast(
 		case ast::variadism::HARE =>
 			yield variadism::HARE;
 		},
-		flags = 0,
 		params = alloc([], len(ft.params)),
-	};
-	if (ft.attrs & ast::func_attrs::NORETURN != 0) {
-		f.flags |= func_flag::NORETURN;
 	};
 	for (let i = 0z; i < len(ft.params); i += 1) {
 		append(f.params, lookup(store, ft.params[i]._type)?);

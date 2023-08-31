@@ -63,7 +63,6 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 	let t = _type(lexer)?;
 	return ast::func_type {
 		result = alloc(t),
-		attrs = ast::func_attrs::NONE,
 		variadism = variadism,
 		params = params,
 	};
@@ -126,6 +125,8 @@ fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 		yield builtin_type::VOID;
 	case ltok::OPAQUE =>
 		yield builtin_type::OPAQUE;
+	case ltok::NEVER =>
+		yield builtin_type::NEVER;
 	case =>
 		return syntaxerr(lex::mkloc(lexer),
 			"Unexected {}, was expecting primitive type",
@@ -221,15 +222,8 @@ fn tuple_type(
 
 fn fn_type(lexer: *lex::lexer) (ast::_type | error) = {
 	const start = lex::mkloc(lexer);
-	let attrs = match (try(lexer, ltok::ATTR_NORETURN)?) {
-	case void =>
-		yield ast::func_attrs::NONE;
-	case =>
-		yield ast::func_attrs::NORETURN;
-	};
 	want(lexer, ltok::FN)?;
 	let proto = prototype(lexer)?;
-	proto.attrs |= attrs;
 	return ast::_type {
 		start = start,
 		end = lex::prevloc(lexer),
@@ -482,7 +476,7 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 			ltok::U8, ltok::U16, ltok::U32, ltok::U64,
 			ltok::INT, ltok::UINT, ltok::UINTPTR, ltok::SIZE,
 			ltok::F32, ltok::F64,
-			ltok::VALIST, ltok::VOID, ltok::OPAQUE =>
+			ltok::VALIST, ltok::VOID, ltok::OPAQUE, ltok::NEVER =>
 		yield primitive_type(lexer)?;
 	case ltok::ENUM =>
 		yield enum_type(lexer)?;
@@ -502,7 +496,7 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 			yield tuple_type(lexer, t, tok.2)?;
 		case => abort("unreachable");
 		};
-	case ltok::ATTR_NORETURN, ltok::FN =>
+	case ltok::FN =>
 		yield fn_type(lexer)?;
 	case ltok::ELLIPSIS, ltok::NAME =>
 		yield alias_type(lexer)?;

@@ -2,7 +2,7 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
 @symbol(".main") fn main() void;
-@symbol("exit") fn c_exit(status: int) void;
+@symbol("exit") fn c_exit(status: int) never;
 
 const @symbol("__libc_init_array_start") init_start: [*]*fn() void;
 const @symbol("__libc_init_array_end") init_end: [*]*fn() void;
@@ -27,7 +27,7 @@ export fn fini() void = {
 	};
 };
 
-export @symbol("main") @noreturn fn start_ha(c_argc: int, c_argv: *[*]*u8) void = {
+export @symbol("main") fn start_ha(c_argc: int, c_argv: *[*]*u8) never = {
 	argc = c_argc: size;
 	argv = c_argv;
 	envp = c_envp;
