@@ -101,10 +101,8 @@ export fn unsetenv(cmd: *command, key: str) (void | errors::invalid) = {
 	if (strings::contains(key, '=', '\0')) return errors::invalid;
 
 	// XXX: This can be a binary search
-	let fullkey = strings::concat(key, "=");
-	defer free(fullkey);
 	for (let i = 0z; i < len(cmd.env); i += 1) {
-		if (strings::hasprefix(cmd.env[i], fullkey)) {
+		if (strings::cut(cmd.env[i], "=").0 == key) {
 			free(cmd.env[i]);
 			delete(cmd.env[i]);
 			break;
