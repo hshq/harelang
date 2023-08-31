@@ -714,7 +714,7 @@ fn search(
 			const matchlen = threads[i].root_capture.end
 				- threads[i].root_capture.start;
 			if (res is newmatch && matchlen > 0 && !need_captures) {
-				return []: []capture;
+				return [];
 			};
 			const is_better = res is newmatch && matchlen > 0
 				&& (first_match_idx is void

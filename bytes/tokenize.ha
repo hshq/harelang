@@ -155,7 +155,7 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	assert(equal(peek_token(&t) as []u8, [2, 3, 4]));
 	assert(equal(remaining_tokens(&t), [2, 3, 4]));
 
-	t = tokenize([]: []u8, [42]);
+	t = tokenize([], [42]);
 	assert(peek_token(&t) is void);
 	assert(next_token(&t) is void);
 

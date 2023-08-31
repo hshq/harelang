@@ -66,7 +66,7 @@ fn load_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 
 	// test for magic "TZif"
 	mustread(h, buf4)?;
-	if (!bytes::equal(buf4, ['T': u8, 'Z': u8, 'i': u8, 'f': u8])) {
+	if (!bytes::equal(buf4, ['T', 'Z', 'i', 'f'])) {
 		return invalidtzif;
 	};
 
