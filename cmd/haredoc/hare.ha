@@ -183,9 +183,6 @@ fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 			yield "@test ";
 		})?;
 		let p = f.prototype.repr as ast::func_type;
-		if (p.attrs & ast::func_attrs::NORETURN != 0) {
-			n += fmt::fprint(out, "@noreturn ")?;
-		};
 		if (len(f.symbol) != 0) {
 			n += fmt::fprintf(out, "@symbol(\"{}\") ",
 				f.symbol)?;

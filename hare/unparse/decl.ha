@@ -87,9 +87,6 @@ export fn decl(out: io::handle, d: ast::decl) (size | io::error) = {
 			yield "@test ";
 		})?;
 		let p = f.prototype.repr as ast::func_type;
-		if (p.attrs & ast::func_attrs::NORETURN != 0) {
-			n += fmt::fprint(out, "@noreturn ")?;
-		};
 		if (len(f.symbol) != 0) {
 			n += fmt::fprintf(out, "@symbol(\"{}\") ",
 				f.symbol)?;
@@ -149,7 +146,6 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 		flags = 0,
 		repr = ast::func_type {
 			result = &type_int,
-			attrs = ast::func_attrs::NORETURN,
 			variadism = ast::variadism::HARE,
 			params = [
 				ast::func_param {
@@ -235,11 +231,10 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 		body = void,
 		attrs = ast::fndecl_attrs::FINI,
 	};
-	assert(decl_test(d, "@fini @noreturn @symbol(\"foo\") fn foo(foo: int, bar: int...) int;"));
+	assert(decl_test(d, "@fini @symbol(\"foo\") fn foo(foo: int, bar: int...) int;"));
 
 	type_fn.repr = ast::func_type {
 		result = &type_int,
-		attrs = 0,
 		variadism = ast::variadism::NONE,
 		params = [
 			ast::func_param {

@@ -286,15 +286,14 @@ fn resolve(
 	let st = store(x86_64, &resolve, null);
 	defer store_free(st);
 
-	let atype = parse_type("@noreturn fn() void");
+	let atype = parse_type("fn() never");
 	defer ast::type_finish(atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == SIZE_UNDEFINED);
 	assert(htype._align == SIZE_UNDEFINED);
 	let f = htype.repr as func;
-	assert(f.result.repr as builtin == builtin::VOID);
+	assert(f.result.repr as builtin == builtin::NEVER);
 	assert(f.variadism  == variadism::NONE);
-	assert(f.flags == func_flag::NORETURN);
 	assert(len(f.params) == 0);
 
 	let atype = parse_type("fn(foo: int, bar: str...) int");
@@ -305,7 +304,6 @@ fn resolve(
 	let f = htype.repr as func;
 	assert(f.result.repr as builtin == builtin::INT);
 	assert(f.variadism  == variadism::HARE);
-	assert(f.flags == 0);
 	assert(len(f.params) == 2);
 	assert(f.params[0].repr as builtin == builtin::INT);
 	assert(f.params[1].repr as builtin == builtin::STR);
@@ -322,8 +320,8 @@ fn resolve(
 	assert(htype._align == st.arch._int);
 	let t = htype.repr as tagged;
 	assert(len(t) == 2);
-	assert(t[0].repr as builtin == builtin::VOID);
-	assert(t[1].repr as builtin == builtin::INT);
+	assert(t[0].repr as builtin == builtin::INT);
+	assert(t[1].repr as builtin == builtin::VOID);
 
 	let atype = parse_type("(int | (int | str | void))");
 	defer ast::type_finish(atype);
@@ -332,9 +330,9 @@ fn resolve(
 	assert(htype._align == 8);
 	let t = htype.repr as tagged;
 	assert(len(t) == 3);
-	assert(t[0].repr as builtin == builtin::VOID);
+	assert(t[0].repr as builtin == builtin::STR);
 	assert(t[1].repr as builtin == builtin::INT);
-	assert(t[2].repr as builtin == builtin::STR);
+	assert(t[2].repr as builtin == builtin::VOID);
 };
 
 @test fn alias() void = {

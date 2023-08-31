@@ -49,7 +49,6 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 		return; // Prototype
 	};
 	const fntype = fndecl.prototype.repr as types::func;
-	assert(fntype.flags == 0);
 	ctx.serial = 0;
 
 	const ident = module::identuscore(fndecl.ident);

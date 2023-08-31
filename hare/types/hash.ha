@@ -8,7 +8,7 @@ use strings;
 
 // Keep ordered with respect to bootstrap harec:include/types.h
 type storage = enum u8 {
-	BOOL, F32, F64, I16, I32, I64, I8, INT, NULL, OPAQUE,
+	BOOL, F32, F64, I16, I32, I64, I8, INT, NEVER, NULL, OPAQUE,
 	RUNE, SIZE, STRING, U16, U32, U64, U8, UINT, UINTPTR, VOID, ALIAS,
 	ARRAY, ENUM, FUNCTION, POINTER, SLICE, STRUCT, TAGGED, TUPLE, UNION,
 };
@@ -31,6 +31,8 @@ fn builtin_storage(b: builtin) u8 = {
 		return storage::I8;
 	case builtin::INT =>
 		return storage::INT;
+	case builtin::NEVER =>
+		return storage::NEVER;
 	case builtin::NULL =>
 		return storage::NULL;
 	case builtin::OPAQUE =>
@@ -132,7 +134,6 @@ export fn hash(t: *_type) u32 = {
 	case let f: func =>
 		write32(&id, hash(f.result));
 		write8(&id, f.variadism: u8);
-		write8(&id, f.flags: u8);
 		for (let i = 0z; i < len(f.params); i += 1) {
 			write32(&id, hash(f.params[i]));
 		};

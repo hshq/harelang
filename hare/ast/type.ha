@@ -12,8 +12,9 @@ export type alias_type = struct {
 
 // A built-in primitive type (int, bool, str, etc).
 export type builtin_type = enum {
-	BOOL, F32, F64, FCONST, I16, I32, I64, I8, ICONST, INT, NULL, OPAQUE,
-	RCONST, RUNE, SIZE, STR, U16, U32, U64, U8, UINT, UINTPTR, VALIST, VOID,
+	BOOL, F32, F64, FCONST, I16, I32, I64, I8, ICONST, INT, NEVER, NULL,
+	OPAQUE, RCONST, RUNE, SIZE, STR, U16, U32, U64, U8, UINT, UINTPTR,
+	VALIST, VOID,
 };
 
 // An enumeration field (and optional value).
@@ -37,12 +38,6 @@ export type variadism = enum {
 	HARE,
 };
 
-// The attributes associated with a function type.
-export type func_attrs = enum uint {
-	NONE = 0,
-	NORETURN = 1 << 0,
-};
-
 // A parameter to a function type.
 export type func_param = struct {
 	loc: lex::location,
@@ -53,7 +48,6 @@ export type func_param = struct {
 // fn(foo: int, baz: int...) int
 export type func_type = struct {
 	result: *_type,
-	attrs: func_attrs,
 	variadism: variadism,
 	params: []func_param,
 };

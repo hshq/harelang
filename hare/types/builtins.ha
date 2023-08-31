@@ -64,7 +64,15 @@ export const builtin_i64: _type = _type {
 export const builtin_opaque: _type = _type {
 	repr = builtin::OPAQUE,
 	sz = SIZE_UNDEFINED, _align = SIZE_UNDEFINED,
-	id = 461893804,
+	id = 2374983655,
+	...
+};
+
+// [[_type]] representation of never.
+export const builtin_never: _type = _type {
+	repr = builtin::NEVER,
+	sz = SIZE_UNDEFINED, _align = SIZE_UNDEFINED,
+	id = 2374983655,
 	...
 };
 
@@ -72,7 +80,7 @@ export const builtin_opaque: _type = _type {
 export const builtin_rune: _type = _type {
 	repr = builtin::RUNE,
 	sz = 4, _align = 4,
-	id = 2374983655,
+	id = 1737287038,
 	...
 };
 
@@ -80,7 +88,7 @@ export const builtin_rune: _type = _type {
 export const builtin_u8: _type = _type {
 	repr = builtin::U8,
 	sz = 1, _align = 1,
-	id = 1906196061,
+	id = 1268499444,
 	...
 };
 
@@ -88,7 +96,7 @@ export const builtin_u8: _type = _type {
 export const builtin_u16: _type = _type {
 	repr = builtin::U16,
 	sz = 2, _align = 2,
-	id = 2206074632,
+	id = 4119164483,
 	...
 };
 
@@ -96,7 +104,7 @@ export const builtin_u16: _type = _type {
 export const builtin_u32: _type = _type {
 	repr = builtin::U32,
 	sz = 4, _align = 4,
-	id = 4119164483,
+	id = 3481467866,
 	...
 };
 
@@ -104,7 +112,7 @@ export const builtin_u32: _type = _type {
 export const builtin_u64: _type = _type {
 	repr = builtin::U64,
 	sz = 8, _align = 8,
-	id = 3481467866,
+	id = 1906196061,
 	...
 };
 
@@ -112,6 +120,6 @@ export const builtin_u64: _type = _type {
 export const builtin_void: _type = _type {
 	repr = builtin::VOID,
 	sz = 0, _align = 0,
-	id = 2543892678,
+	id = 3650376889,
 	...
 };

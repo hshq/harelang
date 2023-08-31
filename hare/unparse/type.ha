@@ -31,6 +31,8 @@ case ast::builtin_type::I8 =>
 	yield "i8";
 case ast::builtin_type::INT =>
 	yield "int";
+case ast::builtin_type::NEVER =>
+	yield "never";
 case ast::builtin_type::NULL =>
 	yield "null";
 case ast::builtin_type::OPAQUE =>
@@ -277,9 +279,6 @@ export fn _type(
 		};
 		n += fmt::fprint(out, "}")?;
 	case let f: ast::func_type =>
-		if (f.attrs & ast::func_attrs::NORETURN != 0) {
-			n += fmt::fprint(out, "@noreturn ")?;
-		};
 		n += fmt::fprint(out, "fn")?;
 		n += prototype(out, indent, f)?;
 	case let l: ast::list_type =>
@@ -432,14 +431,12 @@ fn type_test(t: ast::_type, expected: str) void = {
 
 	t.repr = ast::func_type {
 		result = &type_int,
-		attrs = 0,
 		variadism = variadism::NONE,
 		params = [],
 	};
 	type_test(t, "fn() int");
 	t.repr = ast::func_type {
 		result = &type_int,
-		attrs = ast::func_attrs::NORETURN,
 		variadism = variadism::C,
 		params = [
 			ast::func_param {
@@ -449,10 +446,9 @@ fn type_test(t: ast::_type, expected: str) void = {
 			},
 		],
 	};
-	type_test(t, "@noreturn fn(int, ...) int");
+	type_test(t, "fn(int, ...) int");
 	t.repr = ast::func_type {
 		result = &type_int,
-		attrs = 0,
 		variadism = variadism::HARE,
 		params = [
 			ast::func_param {
