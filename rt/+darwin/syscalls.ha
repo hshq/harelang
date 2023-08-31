@@ -268,6 +268,7 @@ export fn munmap(addr: *opaque, length: size) (void | errno) = {
 
 export fn exit(status: int) never = {
 	syscall1(SYS_exit, status: u64);
+	abort();
 };
 
 export fn kill(pid: int, signal: int) (void | errno) = {
