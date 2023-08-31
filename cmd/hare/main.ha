@@ -91,6 +91,7 @@ export fn main() void = {
 			yield &test;
 		case "version" =>
 			yield &version;
+		case => abort(); // unreachable
 		};
 		task(subcmd.1);
 	};

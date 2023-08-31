@@ -69,6 +69,7 @@ export fn main() void = {
 			case =>
 				fmt::fatal("Unsupported architecture");
 			};
+		case => abort(); // unreachable
 		};
 	};
 	if (len(cmd.args) == 0) {

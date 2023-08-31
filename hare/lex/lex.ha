@@ -357,6 +357,7 @@ fn line_comment(lex: *lexer) (void | error) = {
 		case '/' =>
 			r = v;
 			break;
+		case => abort(); // unreachable
 		};
 	};
 
@@ -444,6 +445,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 		yield "0123456789";
 	case strconv::base::HEX =>
 		yield "0123456789ABCDEFabcdef";
+	case => abort(); // unreachable
 	};
 
 	let suff: (size | void) = void;

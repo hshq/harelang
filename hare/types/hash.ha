@@ -59,6 +59,8 @@ fn builtin_storage(b: builtin) u8 = {
 		return storage::VALIST;
 	case builtin::VOID =>
 		return storage::VOID;
+	case builtin::FCONST, builtin::ICONST, builtin::RCONST =>
+		abort(); // unreachable
 	};
 };
 

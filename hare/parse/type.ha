@@ -407,6 +407,7 @@ fn enum_type(lexer: *lex::lexer) (ast::_type | error) = {
 		case ltok::RUNE =>
 			want(lexer, ltok::LBRACE)?;
 			yield builtin_type::RUNE;
+		case => abort(); // unreachable
 		};
 	};
 

@@ -170,6 +170,7 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 		yield expr(lexer)?;
 	case ltok::SEMICOLON =>
 		yield lex::unlex(lexer, tok);
+	case => abort(); // unreachable
 	};
 
 	return ast::decl_func {
