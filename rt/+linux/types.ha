@@ -885,6 +885,8 @@ export type rlimit = struct {
 	rlim_max: rlim_t,
 };
 
+export def RLIM_INFINITY: rlim_t = -1;
+
 export def RLIMIT_CPU: int		= 0;
 export def RLIMIT_FSIZE: int		= 1;
 export def RLIMIT_DATA: int		= 2;
