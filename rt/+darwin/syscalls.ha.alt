@@ -257,9 +257,9 @@ export fn munmap(addr: *opaque, length: size) (void | errno) = {
 };
 @symbol("munmap") fn c_munmap(addr: *opaque, length: size) int;
 
-export @noreturn fn exit(status: int) void = c_exit(status);
-@symbol("exit") @noreturn fn c_exit(status: int) void;
-// export @symbol("exit") @noreturn fn exit(status: int) void;
+export fn exit(status: int) never = c_exit(status);
+@symbol("exit") fn c_exit(status: int) never;
+// export @symbol("exit") fn exit(status: int) never;
 
 export fn kill(pid: int, signal: int) (void | errno) = {
 	wrap_errno_return(c_kill(pid: pid_t, signal))?;

@@ -266,7 +266,7 @@ export fn munmap(addr: *opaque, length: size) (void | errno) = {
 	wrap_return(syscall2(SYS_munmap, addr: uintptr: u64, length: u64))?;
 };
 
-export @noreturn fn exit(status: int) void = {
+export fn exit(status: int) never = {
 	syscall1(SYS_exit, status: u64);
 };
 

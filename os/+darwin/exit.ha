@@ -3,7 +3,7 @@
 use rt;
 
 // Exit the program with the provided status code.
-export @noreturn fn exit(status: int) void = {
+export fn exit(status: int) never = {
 	rt::fini();
 	rt::exit(status);
 };
