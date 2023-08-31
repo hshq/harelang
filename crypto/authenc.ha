@@ -74,7 +74,7 @@ export fn encrypt(
 	key: *sessionkey,
 	nonce: *nonce,
 	plaintext: []u8,
-	additional: []u8...,
+	additional: []u8...
 ) box = {
 	let s = chachapoly::chachapoly();
 	defer io::close(&s)!;

@@ -62,7 +62,7 @@ export fn init(
 	h: io::handle,
 	key: const []u8,
 	nonce: const []u8,
-	ad: const []u8...,
+	ad: const []u8...
 ) void = geninit(s, &chacha::chacha20_init, h, key, nonce, ad...);
 
 // Initialise the stream as XChacha20-Poly1305. Encrypts to or decrypts form
@@ -73,7 +73,7 @@ export fn xinit(
 	h: io::handle,
 	key: const []u8,
 	nonce: const []u8,
-	ad: const []u8...,
+	ad: const []u8...
 ) void = geninit(s, &chacha::xchacha20_init, h, key, nonce, ad...);
 
 fn geninit(
@@ -82,7 +82,7 @@ fn geninit(
 	h: io::handle,
 	key: const []u8,
 	nonce: const []u8,
-	ad: const []u8...,
+	ad: const []u8...
 ) void = {
 	assert(len(ad) <= types::U32_MAX);
 
