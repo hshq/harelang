@@ -56,7 +56,6 @@ export fn cmdfile(file: io::file, name: str, args: str...) command = {
 
 // Sets the 0th value of argv for this command. It is uncommon to need this.
 export fn setname(cmd: *command, name: str) void = {
-	free(cmd.argv[0]);
 	cmd.argv[0] = name;
 };
 
