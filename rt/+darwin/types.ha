@@ -613,6 +613,12 @@ export type rlimit = struct {
     rlim_max: rlim_t,   // maximum value for rlim_cur
 };
 
+// Symbolic constants for resource limits; since all limits are representable
+// as a type rlim_t, we are permitted to define RLIM_SAVED_* in terms of
+// RLIM_INFINITY.
+// export def RLIM_INFINITY: rlim_t = -1;
+export def RLIM_INFINITY: rlim_t = ((1u64 << 63) - 1);  // no limit
+
 // Possible values of the first parameter to getrlimit()/setrlimit(), to
 // indicate for which resource the operation is being performed.
 export def RLIMIT_CPU:         int = 0;         // cpu time per process

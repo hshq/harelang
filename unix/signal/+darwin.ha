@@ -389,6 +389,5 @@ export fn signame(sig: sig) const str = {
 		return "SIGIO";
 	case sig::SYS =>
 		return "SIGSYS";
-	case => abort(); // unreachable
 	};
 };
