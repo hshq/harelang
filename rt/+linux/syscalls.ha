@@ -759,6 +759,19 @@ export fn io_uring_enter(
 		flags: u64, sig: uintptr: u64))?: uint;
 };
 
+export fn io_uring_enter2(
+	fd: int,
+	to_submit: uint,
+	min_complete: uint,
+	flags: uint,
+	arg: const nullable *opaque,
+	argsz: size,
+) (uint | errno) = {
+	return wrap_return(syscall6(SYS_io_uring_enter,
+		fd: u64, to_submit: u64, min_complete: u64,
+		flags: u64, arg: uintptr: u64, argsz: u64))?: uint;
+};
+
 export fn mlock2(addr: *opaque, length: size, flags: uint) (void | errno) = {
 	return wrap_return(syscall3(SYS_mlock2, addr: uintptr: u64,
 		length: u64, flags: u64))?: void;
