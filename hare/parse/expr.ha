@@ -101,6 +101,7 @@ export fn expr(lexer: *lex::lexer) (ast::expr | error) = {
 			yield ast::binarithm_op::RSHIFT;
 		case ltok::TIMESEQ =>
 			yield ast::binarithm_op::TIMES;
+		case => abort(); // unreachable
 		},
 		object = alloc(ex),
 		value = alloc(expr(lexer)?),
@@ -190,6 +191,7 @@ fn alloc_expr(lexer: *lex::lexer) (ast::expr | error) = {
 				form = ast::alloc_form::OBJECT,
 				capacity = null,
 			};
+		case => abort(); // unreachable
 		};
 
 	return ast::expr {
@@ -265,6 +267,7 @@ fn measurement(lexer: *lex::lexer) (ast::expr | error) = {
 		yield alloc(_type(lexer)?): ast::size_expr;
 	case ltok::OFFSET =>
 		yield alloc(expr(lexer)?): ast::offset_expr;
+	case => abort(); // unreachable
 	};
 	want(lexer, ltok::RPAREN)?;
 
@@ -626,6 +629,7 @@ fn control(lexer: *lex::lexer) (ast::expr | error) = {
 		case lex::token =>
 			yield null: ast::return_expr;
 		};
+	case => abort(); // unreachable
 	};
 	return ast::expr {
 		start = tok.2,
@@ -925,6 +929,7 @@ fn plain_struct(
 		case ltok::NAME, ltok::STRUCT =>
 			lex::unlex(lexer, tok);
 			append(fields, struct_field(lexer)?);
+		case => abort(); // unreachable
 		};
 
 		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
@@ -933,6 +938,7 @@ fn plain_struct(
 			if (try(lexer, ltok::RBRACE)? is lex::token) {
 				break;
 			};
+		case => abort(); // unreachable
 		};
 	};
 
@@ -1115,6 +1121,7 @@ fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 				if (try(lexer, ltok::ARROW)? is lex::token) {
 					break;
 				};
+			case => abort(); // unreachable
 			};
 		};
 

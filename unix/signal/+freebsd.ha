@@ -388,6 +388,5 @@ export fn signame(sig: sig) const str = {
 		return "SIGTHR";
 	case sig::LIBRT =>
 		return "SIGLIBRT";
-	case => abort(); // unreachable
 	};
 };

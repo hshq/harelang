@@ -167,6 +167,10 @@ export fn expr(
 				yield "^=";
 			case binarithm_op::LXOR =>
 				yield "^^=";
+			case binarithm_op::GT, binarithm_op::GTEQ,
+				binarithm_op::LESS, binarithm_op::LESSEQ,
+				binarithm_op::LEQUAL, binarithm_op::NEQUAL =>
+				abort(); // unreachable
 			};
 		};
 		z += fmt::fprintf(out, " {} ", op)?;

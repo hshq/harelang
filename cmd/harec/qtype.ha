@@ -69,6 +69,7 @@ fn qtype_lookup(
 		case builtin::STR =>
 			return qtype_aggregate(ctx, _type);
 		case builtin::VOID => abort();
+		case => abort(); // TODO
 		};
 	case => abort();
 	};

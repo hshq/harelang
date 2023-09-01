@@ -94,7 +94,6 @@ export fn resetall() void = {
 	reset(sig::VTALRM);
 	reset(sig::PROF);
 	reset(sig::WINCH);
-	reset(sig::IO);
 	reset(sig::POLL);
 	reset(sig::PWR);
 	reset(sig::SYS);
@@ -320,7 +319,7 @@ export type sig = enum int {
 	VTALRM = rt::SIGVTALRM, // Virtual timer expired.
 	PROF = rt::SIGPROF, // Profiling timer expired.
 	WINCH = rt::SIGWINCH, // Window resize signal.
-	IO = rt::SIGIO, // I/O now possible.
+	IO = rt::SIGIO, // I/O now possible (synonymous with sig::POLL).
 	POLL = rt::SIGPOLL, // Pollable event.
 	PWR = rt::SIGPWR, // Power failure.
 	SYS = rt::SIGSYS, // Bad system call.
@@ -424,14 +423,11 @@ export fn signame(sig: sig) const str = {
 		return "SIGPROF";
 	case sig::WINCH =>
 		return "SIGWINCH";
-	case sig::IO =>
-		return "SIGIO";
 	case sig::POLL =>
 		return "SIGPOLL";
 	case sig::PWR =>
 		return "SIGPWR";
 	case sig::SYS =>
 		return "SIGSYS";
-	case => abort(); // unreachable
 	};
 };

@@ -53,8 +53,9 @@ T:	git https://git.sr.ht/~torresjrjr/hare
 EMBER SAWADY
 M:	Ember Sawady <ecs@d2evs.net>
 T:	git https://git.d2evs.net/~ecs/hare
+T:	git https://git.d2evs.net/~ecs/harec
 B:	ecs@d2evs.net
-N:	See TODO in the repository
+N:	See TODO in ~ecs/hare
 
 SEBASTIAN
 M:	Sebastian <sebastian@sebsite.pw>

@@ -263,6 +263,10 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			sz = SIZE_UNDEFINED;
 			_align = SIZE_UNDEFINED;
 			yield builtin::NEVER;
+		case ast::builtin_type::VALIST =>
+			sz = store.arch.valist_size;
+			_align = store.arch.valist_align;
+			yield builtin::VALIST;
 		};
 	case let f: ast::func_type =>
 		yield func_from_ast(store, &f)?;

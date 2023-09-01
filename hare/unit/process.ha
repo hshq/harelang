@@ -283,6 +283,7 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 				yield ast::builtin_type::F32;
 			case lex::ltok::LIT_F64, lex::ltok::LIT_FCONST =>
 				yield ast::builtin_type::F64;
+			case => abort(); // unreachable
 			}),
 			v.value: constant,
 		);
