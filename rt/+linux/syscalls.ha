@@ -734,7 +734,7 @@ export fn setpriority(which: int, who: id_t, prio: int) (void | errno) = {
 	wrap_return(syscall3(SYS_setpriority, which: u64, who: u64, prio: u64))?;
 };
 
-export fn io_uring_setup(entries: u32, params: *opaque) (int | errno) = {
+export fn io_uring_setup(entries: u32, params: *io_uring_params) (int | errno) = {
 	return wrap_return(syscall2(SYS_io_uring_setup,
 		entries: u64, params: uintptr: u64))?: int;
 };
