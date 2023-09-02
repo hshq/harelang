@@ -530,13 +530,31 @@ fn stof32exact(mant: u32, exp: i32, neg: bool) (f32 | void) = {
 	return n;
 };
 
+fn special(s: str) (f32 | void) = {
+	if (ascii::strcasecmp(s, "nan") == 0) {
+		return math::NAN;
+	} else if (ascii::strcasecmp(s, "infinity") == 0) {
+		return math::INF;
+	} else if (ascii::strcasecmp(s, "+infinity") == 0) {
+		return math::INF;
+	} else if (ascii::strcasecmp(s, "-infinity") == 0) {
+		return -math::INF;
+	};
+};
+
 // Converts a string to a f64. If the string is not syntactically well-formed
 // floating-point number in base 10, [[invalid]] is returned. If the string
 // represents a floating-point number that is larger than the largest finite f64
 // number, [[overflow]] is returned. Zero is returned if the string represents a
 // floating-point number that is smaller than the f64 number nearest to zero
 // with respective sign.
+// Recognizes "Infinity", "+Infinity", "-Infinity", and "NaN", case insensitive.
 export fn stof64(s: str) (f64 | invalid | overflow) = {
+	match (special(s)) {
+	case let f: f32 =>
+		return f;
+	case void => void;
+	};
 	const p = fast_parse(s)?;
 	if (p is fast_parsed_float) {
 		const p = p: fast_parsed_float;
@@ -565,7 +583,13 @@ export fn stof64(s: str) (f64 | invalid | overflow) = {
 // number, [[overflow]] is returned. Zero is returned if the string represents a
 // floating-point number that is smaller than the f32 number nearest to zero
 // with respective sign.
+// Recognizes "Infinity", "+Infinity", "-Infinity", and "NaN", case insensitive.
 export fn stof32(s: str) (f32 | invalid | overflow) = {
+	match (special(s)) {
+	case let f: f32 =>
+		return f;
+	case void => void;
+	};
 	const p = fast_parse(s)?;
 	if (p is fast_parsed_float) {
 		const p = p: fast_parsed_float;
@@ -606,6 +630,16 @@ export fn stof32(s: str) (f32 | invalid | overflow) = {
 	assert(stof64(""): invalid: size == 0);
 	assert(stof64("0ZO"): invalid: size == 1);
 	assert(stof64("1.23ezz"): invalid: size == 5);
+	assert(stof64("Infinity"): f64 == math::INF);
+	assert(stof64("+Infinity"): f64 == math::INF);
+	assert(stof64("-Infinity"): f64 == -math::INF);
+	assert(stof64("infinity"): f64 == math::INF);
+	assert(stof64("inFinIty"): f64 == math::INF);
+	assert(stof64("-infinity"): f64 == -math::INF);
+	assert(stof64("-infiNity"): f64 == -math::INF);
+	assert(math::isnan(stof64("NaN"): f64));
+	assert(math::isnan(stof64("nan"): f64));
+	assert(math::isnan(stof64("naN"): f64));
 };
 
 @test fn stof32() void = {
@@ -624,5 +658,15 @@ export fn stof32(s: str) (f32 | invalid | overflow) = {
 	assert(stof32(""): invalid: size == 0);
 	assert(stof32("0ZO"): invalid: size == 1);
 	assert(stof32("1.23e-zz"): invalid: size == 6);
+	assert(stof32("Infinity"): f32 == math::INF);
+	assert(stof32("+Infinity"): f32 == math::INF);
+	assert(stof32("-Infinity"): f32 == -math::INF);
+	assert(stof32("infinity"): f32 == math::INF);
+	assert(stof32("inFinIty"): f32 == math::INF);
+	assert(stof32("-infinity"): f32 == -math::INF);
+	assert(stof32("-infiniTy"): f32 == -math::INF);
+	assert(math::isnan(stof32("NaN"): f32));
+	assert(math::isnan(stof32("nan"): f32));
+	assert(math::isnan(stof32("naN"): f32));
 };
 
