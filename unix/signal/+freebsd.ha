@@ -181,8 +181,6 @@ export fn sigset_member(set: *sigset, item: sig) bool = {
 // Provides additional information about signal deliveries. Only the members
 // defined by POSIX are available here; cast to [[rt::siginfo]] to access
 // non-portable members.
-//
-// TODO: Expand this with more portable options
 export type siginfo = union {
 	struct {
 		// The signal number being delivered.
@@ -192,6 +190,14 @@ export type siginfo = union {
 		errno: rt::errno,
 		// The signal code, if any.
 		code: code,
+		// Process ID of the sender.
+		pid: int,
+		// Real user ID of the sending process.
+		uid: uint,
+		// Exit value or signal.
+		status: int,
+		// Address of the faulting instruction.
+		addr: *opaque,
 	},
 	// Pads the structure out to the length used by the kernel; do not use.
 	_si_pad: [128 - 3 * size(int)]u8,
