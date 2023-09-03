@@ -14,7 +14,7 @@ export fn handle(
 ) sigaction = {
 	let sa_mask = newsigset();
 
-	let sa_flags = 0, nmask = 0;
+	let sa_flags = rt::SA_SIGINFO: int, nmask = 0;
 	for (let i = 0z; i < len(opt); i += 1) {
 		match (opt[i]) {
 		case let flag: flag =>
