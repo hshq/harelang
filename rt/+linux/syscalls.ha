@@ -734,7 +734,7 @@ export fn setpriority(which: int, who: id_t, prio: int) (void | errno) = {
 	wrap_return(syscall3(SYS_setpriority, which: u64, who: u64, prio: u64))?;
 };
 
-export fn io_uring_setup(entries: u32, params: *opaque) (int | errno) = {
+export fn io_uring_setup(entries: u32, params: *io_uring_params) (int | errno) = {
 	return wrap_return(syscall2(SYS_io_uring_setup,
 		entries: u64, params: uintptr: u64))?: int;
 };
@@ -757,6 +757,19 @@ export fn io_uring_enter(
 	return wrap_return(syscall5(SYS_io_uring_enter,
 		fd: u64, to_submit: u64, min_complete: u64,
 		flags: u64, sig: uintptr: u64))?: uint;
+};
+
+export fn io_uring_enter2(
+	fd: int,
+	to_submit: uint,
+	min_complete: uint,
+	flags: uint,
+	arg: const nullable *opaque,
+	argsz: size,
+) (uint | errno) = {
+	return wrap_return(syscall6(SYS_io_uring_enter,
+		fd: u64, to_submit: u64, min_complete: u64,
+		flags: u64, arg: uintptr: u64, argsz: u64))?: uint;
 };
 
 export fn mlock2(addr: *opaque, length: size, flags: uint) (void | errno) = {

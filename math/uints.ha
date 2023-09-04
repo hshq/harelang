@@ -691,3 +691,46 @@ export fn remu(hi: uint, lo: uint, y: uint) uint = {
 	// These should panic.
 	// remu(0u, 4u, 0u);
 };
+
+// Returns the greatest common divisor of a and b.
+export fn gcd(a: u64, b: u64) u64 = {
+	if (a == b) {
+		return a;
+	};
+	if (a == 0) {
+		return b;
+	};
+	if (b == 0) {
+		return a;
+	};
+
+	const i = trailing_zeros_u64(a);
+	const j = trailing_zeros_u64(b);
+	a >>= i;
+	b >>= j;
+	const k = if (i < j) i else j;
+
+	for (true) {
+		if (a > b) {
+			const t = a;
+			a = b;
+			b = t;
+		};
+
+		b -= a;
+		if (b == 0) {
+			return a << k;
+		};
+		b >>= trailing_zeros_u64(b);
+	};
+	abort();
+};
+
+@test fn gcd() void = {
+	assert(gcd(2 * 3 * 5, 3 * 7) == 3);
+	assert(gcd(2, 7) == 1);
+	assert(gcd(2, 0) == 2);
+	assert(gcd(0, 2) == 2);
+	// gcd(123 * 2^55 * 3, 123 * 7)
+	assert(gcd((123 << 55) * 3, 123 * 7) == 123);
+};

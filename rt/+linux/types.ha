@@ -908,3 +908,425 @@ export def RLIMIT_NLIMITS: int		= 16;
 export def SHUT_RD: int = 0;
 export def SHUT_WR: int = 1;
 export def SHUT_RDWR: int = 2;
+
+export type io_uring_sqe = struct {
+	opcode: u8,
+	flags: u8,
+	ioprio: u16,
+	fd: i32,
+	union {
+		off: u64,
+		addr2: u64,
+		struct {
+			cmd_op: u32,
+			__pad1: u32,
+		},
+	},
+	union {
+		addr: u64,
+		splice_off_in: u64,
+	},
+	length: u32,
+	union {
+		rw_flags: int,
+		fsync_flags: u32,
+		poll_events: u32,
+		poll32_events: u32,
+		sync_range_flags: u32,
+		msg_flags: u32,
+		timeout_flags: u32,
+		accept_flags: u32,
+		cancel_flags: u32,
+		open_flags: u32,
+		statx_flags: u32,
+		fadvise_advice: u32,
+		splice_flags: u32,
+		rename_flags: u32,
+		unlink_flags: u32,
+		hardlink_flags: u32,
+		xattr_flags: u32,
+		msg_ring_flags: u32,
+		uring_cmd_flags: u32,
+	},
+	user_data: u64,
+	// TODO: use @packed once size() stop returning different sizes
+	union {
+		buf_index: u16,
+		buf_group: u16,
+	},
+	personality: u16,
+	union {
+		splice_fd_in: i32,
+		file_index: u32,
+		struct {
+			addr_len: u16,
+			__pad3: [1]u16,
+		},
+	},
+	union {
+		struct {
+			addr3: u64,
+			__pad2: [1]u64,
+		},
+		cmd: [*]u8,
+	},
+};
+
+export def IORING_FILE_INDEX_ALLOC: u32 = ~0;
+
+export def IOSQE_FIXED_FILE: u8 = 1 << 0;
+export def IOSQE_IO_DRAIN: u8 = 1 << 1;
+export def IOSQE_IO_LINK: u8 = 1 << 2;
+export def IOSQE_IO_HARDLINK: u8 = 1 << 3;
+export def IOSQE_ASYNC: u8 = 1 << 4;
+export def IOSQE_BUFFER_SELECT: u8 = 1 << 5;
+export def IOSQE_CQE_SKIP_SUCCESS: u8 = 1 << 6;
+
+export def IORING_SETUP_IOPOLL: u32 = 1 << 0;
+export def IORING_SETUP_SQPOLL: u32 = 1 << 1;
+export def IORING_SETUP_SQ_AFF: u32 = 1 << 2;
+export def IORING_SETUP_CQSIZE: u32 = 1 << 3;
+export def IORING_SETUP_CLAMP: u32 = 1 << 4;
+export def IORING_SETUP_ATTACH_WQ: u32 = 1 << 5;
+export def IORING_SETUP_R_DISABLED: u32 = 1 << 6;
+export def IORING_SETUP_SUBMIT_ALL: u32 = 1 << 7;
+export def IORING_SETUP_COOP_TASKRUN: u32 = 1 << 8;
+export def IORING_SETUP_TASKRUN_FLAG: u32 = 1 << 9;
+export def IORING_SETUP_SQE128: u32 = 1 << 10;
+export def IORING_SETUP_CQE32: u32 = 1 << 11;
+export def IORING_SETUP_SINGLE_ISSUER: u32 = 1 << 12;
+export def IORING_SETUP_DEFER_TASKRUN: u32 = 1 << 13;
+export def IORING_SETUP_NO_MMAP: u32 = 1 << 14;
+export def IORING_SETUP_REGISTERED_FD_ONLY: u32 = 1 << 15;
+
+export def IORING_OP_NOP: u8 = 0;
+export def IORING_OP_READV: u8 = 1;
+export def IORING_OP_WRITEV: u8 = 2;
+export def IORING_OP_FSYNC: u8 = 3;
+export def IORING_OP_READ_FIXED: u8 = 4;
+export def IORING_OP_WRITE_FIXED: u8 = 5;
+export def IORING_OP_POLL_ADD: u8 = 6;
+export def IORING_OP_POLL_REMOVE: u8 = 7;
+export def IORING_OP_SYNC_FILE_RANGE: u8 = 8;
+export def IORING_OP_SENDMSG: u8 = 9;
+export def IORING_OP_RECVMSG: u8 = 10;
+export def IORING_OP_TIMEOUT: u8 = 11;
+export def IORING_OP_TIMEOUT_REMOVE: u8 = 12;
+export def IORING_OP_ACCEPT: u8 = 13;
+export def IORING_OP_ASYNC_CANCEL: u8 = 14;
+export def IORING_OP_LINK_TIMEOUT: u8 = 15;
+export def IORING_OP_CONNECT: u8 = 16;
+export def IORING_OP_FALLOCATE: u8 = 17;
+export def IORING_OP_OPENAT: u8 = 18;
+export def IORING_OP_CLOSE: u8 = 19;
+export def IORING_OP_FILES_UPDATE: u8 = 20;
+export def IORING_OP_STATX: u8 = 21;
+export def IORING_OP_READ: u8 = 22;
+export def IORING_OP_WRITE: u8 = 23;
+export def IORING_OP_FADVISE: u8 = 24;
+export def IORING_OP_MADVISE: u8 = 25;
+export def IORING_OP_SEND: u8 = 26;
+export def IORING_OP_RECV: u8 = 27;
+export def IORING_OP_OPENAT2: u8 = 28;
+export def IORING_OP_EPOLL_CTL: u8 = 29;
+export def IORING_OP_SPLICE: u8 = 30;
+export def IORING_OP_PROVIDE_BUFFERS: u8 = 31;
+export def IORING_OP_REMOVE_BUFFERS: u8 = 32;
+export def IORING_OP_TEE: u8 = 33;
+export def IORING_OP_SHUTDOWN: u8 = 34;
+export def IORING_OP_RENAMEAT: u8 = 35;
+export def IORING_OP_UNLINKAT: u8 = 36;
+export def IORING_OP_MKDIRAT: u8 = 37;
+export def IORING_OP_SYMLINKAT: u8 = 38;
+export def IORING_OP_LINKAT: u8 = 39;
+export def IORING_OP_MSG_RING: u8 = 40;
+export def IORING_OP_FSETXATTR: u8 = 41;
+export def IORING_OP_SETXATTR: u8 = 42;
+export def IORING_OP_FGETXATTR: u8 = 43;
+export def IORING_OP_GETXATTR: u8 = 44;
+export def IORING_OP_SOCKET: u8 = 45;
+export def IORING_OP_URING_CMD: u8 = 46;
+export def IORING_OP_SEND_ZC: u8 = 47;
+export def IORING_OP_SENDMSG_ZC: u8 = 48;
+
+export def IORING_URING_CMD_FIXED: u32 = 1 << 0;
+export def IORING_URING_CMD_POLLED: u32 = 1 << 31;
+
+export def IORING_FSYNC_DATASYNC: u32 = 1 << 0;
+
+export def IORING_TIMEOUT_ABS: u32 = 1 << 0;
+export def IORING_TIMEOUT_UPDATE: u32 = 1 << 1;
+export def IORING_TIMEOUT_BOOTTIME: u32 = 1 << 2;
+export def IORING_TIMEOUT_REALTIME: u32 = 1 << 3;
+export def IORING_LINK_TIMEOUT_UPDATE: u32 = 1 << 4;
+export def IORING_TIMEOUT_ETIME_SUCCESS: u32 = 1 << 5;
+export def IORING_TIMEOUT_MULTISHOT: u32 = 1 << 6;
+
+export def SPLICE_F_FD_IN_FIXED: u32 = 1 << 31;
+
+export def IORING_POLL_ADD_MULTI: u32 = 1 << 0;
+export def IORING_POLL_UPDATE_EVENTS: u32 = 1 << 1;
+export def IORING_POLL_UPDATE_USER_DATA: u32 = 1 << 2;
+export def IORING_POLL_ADD_LEVEL: u32 = 1 << 3;
+
+export def IORING_ASYNC_CANCEL_ALL: u32 = 1 << 0;
+export def IORING_ASYNC_CANCEL_FD: u32 = 1 << 1;
+export def IORING_ASYNC_CANCEL_ANY: u32 = 1 << 2;
+export def IORING_ASYNC_CANCEL_FD_FIXED: u32 = 1 << 3;
+
+export def IORING_RECVSEND_POLL_FIRST: u16 = 1 << 0;
+export def IORING_RECV_MULTISHOT: u16 = 1 << 1;
+export def IORING_RECVSEND_FIXED_BUF: u16 = 1 << 2;
+export def IORING_SEND_ZC_REPORT_USAGE: u16 = 1 << 3;
+
+// TODO: https://todo.sr.ht/~sircmpwn/hare/771
+// export def IORING_NOTIF_USAGE_ZC_COPIED: i32 = 1 << 31;
+
+export def IORING_ACCEPT_MULTISHOT: u16 = 1 << 0;
+
+export def IORING_MSG_DATA: u64 = 0;
+export def IORING_MSG_SEND_FD: u64 = 1;
+
+export def IORING_MSG_RING_CQE_SKIP: u32 = 1 << 0;
+export def IORING_MSG_RING_FLAGS_PASS: u32 = 1 << 1;
+
+export type _io_uring_cqe = struct {
+	user_data: u64,
+	res: i32,
+	flags: u32,
+};
+
+export type io_uring_cqe = struct {
+	_io_uring_cqe,
+	big_cqe: [*]u64,
+};
+
+export def IORING_CQE_F_BUFFER: u32 = 1 << 0;
+export def IORING_CQE_F_MORE: u32 = 1 << 1;
+export def IORING_CQE_F_SOCK_NONEMPTY: u32 = 1 << 2;
+export def IORING_CQE_F_NOTIF: u32 = 1 << 3;
+
+export def IORING_CQE_BUFFER_SHIFT: u32 = 16;
+
+export def IORING_OFF_SQ_RING: u64 = 0;
+export def IORING_OFF_CQ_RING: u64 = 0x8000000;
+export def IORING_OFF_SQES: u64 = 0x10000000;
+export def IORING_OFF_PBUF_RING: u64 = 0x80000000;
+export def IORING_OFF_PBUF_SHIFT: u64 = 16;
+export def IORING_OFF_MMAP_MASK: u64 = 0xf8000000;
+
+export type io_sqring_offsets = struct {
+	head: u32,
+	tail: u32,
+	ring_mask: u32,
+	ring_entries: u32,
+	flags: u32,
+	dropped: u32,
+	array: u32,
+	resv1: u32,
+	user_addr: u64,
+};
+
+export def IORING_SQ_NEED_WAKEUP: u32 = 1 << 0;
+export def IORING_SQ_CQ_OVERFLOW: u32 = 1 << 1;
+export def IORING_SQ_TASKRUN: u32 = 1 << 2;
+
+export type io_cqring_offsets = struct {
+	head: u32,
+	tail: u32,
+	ring_mask: u32,
+	ring_entries: u32,
+	overflow: u32,
+	cqes: u32,
+	flags: u32,
+	resv1: u32,
+	user_addr: u64,
+};
+
+export def IORING_CQ_EVENTFD_DISABLED: u32 = 1 << 0;
+
+export def IORING_ENTER_GETEVENTS: u32 = 1 << 0;
+export def IORING_ENTER_SQ_WAKEUP: u32 = 1 << 1;
+export def IORING_ENTER_SQ_WAIT: u32 = 1 << 2;
+export def IORING_ENTER_EXT_ARG: u32 = 1 << 3;
+export def IORING_ENTER_REGISTERED_RING: u32 = 1 << 4;
+
+export type io_uring_params = struct {
+	sq_entries: u32,
+	cq_entries: u32,
+	flags: u32,
+	sq_thread_cpu: u32,
+	sq_thread_idle: u32,
+	features: u32,
+	wq_fd: u32,
+	resv: [3]u32,
+	sq_off: io_sqring_offsets,
+	cq_off: io_cqring_offsets,
+};
+
+export def IORING_FEAT_SINGLE_MMAP: u32 = 1 << 0;
+export def IORING_FEAT_NODROP: u32 = 1 << 1;
+export def IORING_FEAT_SUBMIT_STABLE: u32 = 1 << 2;
+export def IORING_FEAT_RW_CUR_POS: u32 = 1 << 3;
+export def IORING_FEAT_CUR_PERSONALITY: u32 = 1 << 4;
+export def IORING_FEAT_FAST_POLL: u32 = 1 << 5;
+export def IORING_FEAT_POLL_32BITS: u32 = 1 << 6;
+export def IORING_FEAT_SQPOLL_NONFIXED: u32 = 1 << 7;
+export def IORING_FEAT_EXT_ARG: u32 = 1 << 8;
+export def IORING_FEAT_NATIVE_WORKERS: u32 = 1 << 9;
+export def IORING_FEAT_RSRC_TAGS: u32 = 1 << 10;
+export def IORING_FEAT_CQE_SKIP: u32 = 1 << 11;
+export def IORING_FEAT_LINKED_FILE: u32 = 1 << 12;
+export def IORING_FEAT_REG_REG_RING: u32 = 1 << 13;
+
+export def IORING_REGISTER_BUFFERS: uint = 0;
+export def IORING_UNREGISTER_BUFFERS: uint = 1;
+export def IORING_REGISTER_FILES: uint = 2;
+export def IORING_UNREGISTER_FILES: uint = 3;
+export def IORING_REGISTER_EVENTFD: uint = 4;
+export def IORING_UNREGISTER_EVENTFD: uint = 5;
+export def IORING_REGISTER_FILES_UPDATE: uint = 6;
+export def IORING_REGISTER_EVENTFD_ASYNC: uint = 7;
+export def IORING_REGISTER_PROBE: uint = 8;
+export def IORING_REGISTER_PERSONALITY: uint = 9;
+export def IORING_UNREGISTER_PERSONALITY: uint = 10;
+export def IORING_REGISTER_RESTRICTIONS: uint = 11;
+export def IORING_REGISTER_ENABLE_RINGS: uint = 12;
+export def IORING_REGISTER_FILES2: uint = 13;
+export def IORING_REGISTER_FILES_UPDATE2: uint = 14;
+export def IORING_REGISTER_BUFFERS2: uint = 15;
+export def IORING_REGISTER_BUFFERS_UPDATE: uint = 16;
+export def IORING_REGISTER_IOWQ_AFF: uint = 17;
+export def IORING_UNREGISTER_IOWQ_AFF: uint = 18;
+export def IORING_REGISTER_IOWQ_MAX_WORKERS: uint = 19;
+export def IORING_REGISTER_RING_FDS: uint = 20;
+export def IORING_UNREGISTER_RING_FDS: uint = 21;
+export def IORING_REGISTER_PBUF_RING: uint = 22;
+export def IORING_UNREGISTER_PBUF_RING: uint = 23;
+export def IORING_REGISTER_SYNC_CANCEL: uint = 24;
+export def IORING_REGISTER_FILE_ALLOC_RANGE: uint = 25;
+
+export def IORING_REGISTER_USE_REGISTERED_RING: uint = 1 << 31;
+
+export type io_uring_files_update = struct {
+	off: u32,
+	resv: u32,
+	fds: u64,
+};
+
+export def IORING_RSRC_REGISTER_SPARSE: u32 = 1 << 0;
+
+export type io_uring_rsrc_register = struct {
+	nr: u32,
+	flags: u32,
+	resv2: u64,
+	data: u64,
+	tags: u64,
+};
+
+export type io_uring_rsrc_update = struct {
+	off: u32,
+	resv: u32,
+	data: u64,
+};
+
+export type io_uring_rsrc_update2 = struct {
+	off: u32,
+	resv: u32,
+	data: u64,
+	tags: u64,
+	nr: u32,
+	resv2: u32,
+};
+
+export def IORING_REGISTER_FILES_SKIP: int = -2;
+
+export def IO_URING_OP_SUPPORTED: u16 = 1 << 0;
+
+export type io_uring_probe_op = struct {
+	op: u8,
+	resv: u8,
+	flags: u16,
+	resv2: u32,
+};
+
+export type io_uring_probe = struct {
+	last_op: u8,
+	ops_len: u8,
+	resv: u16,
+	resv2: [3]u32,
+	ops: [*]io_uring_probe_op,
+};
+
+export type io_uring_restriction = struct {
+	opcode: u16,
+	union {
+		register_op: u8,
+		sqe_op: u8,
+		sqe_flags: u8,
+	},
+	resv: u8,
+	resv2: [3]u32,
+};
+
+export type io_uring_buf = struct {
+	addr: u64,
+	length: u32,
+	bid: u16,
+	resv: u16,
+};
+
+export type io_uring_buf_ring = struct {
+	union {
+		struct {
+			resv1: u64,
+			resv2: u32,
+			resv3: u16,
+			tail: u16,
+		},
+		bufs: [*]io_uring_buf,
+	},
+};
+
+export def IOU_PBUF_RING_MMAP: u16 = 1;
+
+export type io_uring_buf_reg = struct {
+	ring_addr: u64,
+	ring_entries: u32,
+	bgid: u16,
+	flags: u16,
+	resv: [3]u64,
+};
+
+export def IORING_RESTRICTION_REGISTER_OP: u16 = 0;
+export def IORING_RESTRICTION_SQE_OP: u16 = 1;
+export def IORING_RESTRICTION_SQE_FLAGS_ALLOWED: u16 = 2;
+export def IORING_RESTRICTION_SQE_FLAGS_REQUIRED: u16 = 3;
+
+export type io_uring_getevents_arg = struct {
+	sigmask: u64,
+	sigmask_sz: u32,
+	pad: u32,
+	ts: u64,
+};
+
+export type io_uring_sync_cancel_reg = struct {
+	addr: u64,
+	fd: i32,
+	flags: u32,
+	timeout: timespec,
+	pad: [4]u64,
+};
+
+export type io_uring_file_index_range = struct {
+	off: u32,
+	length: u32,
+	resv: u64,
+};
+
+export type io_uring_recvmsg_out = struct {
+	namelen: u32,
+	controllen: u32,
+	payloadlen: u32,
+	flags: u32,
+};
