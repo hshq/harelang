@@ -44,7 +44,7 @@ gensrcs_rt() {
 		memset.ha \
 		strcmp.ha \
 		unknown_errno.ha \
-		ztos.ha \
+		u64tos.ha \
 		$*
 	gen_srcs -pfreebsd rt \
 		+freebsd/platform_abort.ha \
@@ -70,7 +70,7 @@ gensrcs_rt() {
 		memset.ha \
 		strcmp.ha \
 		unknown_errno.ha \
-		ztos.ha \
+		u64tos.ha \
 		$*
 }
 

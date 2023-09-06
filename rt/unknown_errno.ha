@@ -4,12 +4,12 @@ fn unknown_errno(err: errno) str = {
 	buf[..len(s)] = s;
 	if (err < 0) {
 		buf[len(s)] = '-';
-		const s2 = &ztos(-err: size): *string;
+		const s2 = &u64tos(-err: u64): *string;
 		buf[len(s) + 1..s2.length + len(s) + 1] = s2.data[..s2.length];
 		buf[s2.length + len(s) + 1] = ']';
 		return *(&buf[..s2.length + len(s) + 2]: *str);
 	} else {
-		const s2 = &ztos(err: size): *string;
+		const s2 = &u64tos(err: u64): *string;
 		buf[len(s)..s2.length + len(s)] = s2.data[..s2.length];
 		buf[s2.length + len(s)] = ']';
 		return *(&buf[..s2.length + len(s) + 1]: *str);
