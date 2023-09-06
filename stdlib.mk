@@ -27,6 +27,8 @@ stdlib_rt_linux_srcs = \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
+	$(STDLIB)/rt/unknown_errno.ha \
+	$(STDLIB)/rt/ztos.ha \
 	$(STDLIB)/rt/abort.ha \
 	$(STDLIB)/rt/start.ha
 
@@ -54,6 +56,8 @@ stdlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
+	$(STDLIB)/rt/unknown_errno.ha \
+	$(STDLIB)/rt/ztos.ha \
 	$(STDLIB)/rt/abort.ha \
 	$(STDLIB)/rt/start.ha
 
@@ -1848,19 +1852,19 @@ stdlib_io_darwin_srcs = \
 	$(STDLIB)/io/util.ha \
 	$(STDLIB)/io/zero.ha
 
-$(HARECACHE)/io/io-linux.ssa: $(stdlib_io_linux_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
+$(HARECACHE)/io/io-linux.ssa: $(stdlib_io_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/io
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
 		-t$(HARECACHE)/io/io.td $(stdlib_io_linux_srcs)
 
-$(HARECACHE)/io/io-freebsd.ssa: $(stdlib_io_freebsd_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
+$(HARECACHE)/io/io-freebsd.ssa: $(stdlib_io_freebsd_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/io
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
 		-t$(HARECACHE)/io/io.td $(stdlib_io_freebsd_srcs)
 
-$(HARECACHE)/io/io-darwin.ssa: $(stdlib_io_darwin_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
+$(HARECACHE)/io/io-darwin.ssa: $(stdlib_io_darwin_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/io
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
@@ -2919,6 +2923,8 @@ testlib_rt_linux_srcs = \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
+	$(STDLIB)/rt/unknown_errno.ha \
+	$(STDLIB)/rt/ztos.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/+test/signal_test.ha
@@ -2947,6 +2953,8 @@ testlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
+	$(STDLIB)/rt/unknown_errno.ha \
+	$(STDLIB)/rt/ztos.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/+test/signal_test.ha
@@ -4796,19 +4804,19 @@ testlib_io_darwin_srcs = \
 	$(STDLIB)/io/+test/limit_test.ha \
 	$(STDLIB)/io/+test/stream_test.ha
 
-$(TESTCACHE)/io/io-linux.ssa: $(testlib_io_linux_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+$(TESTCACHE)/io/io-linux.ssa: $(testlib_io_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/io
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
 		-t$(TESTCACHE)/io/io.td $(testlib_io_linux_srcs)
 
-$(TESTCACHE)/io/io-freebsd.ssa: $(testlib_io_freebsd_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+$(TESTCACHE)/io/io-freebsd.ssa: $(testlib_io_freebsd_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/io
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
 		-t$(TESTCACHE)/io/io.td $(testlib_io_freebsd_srcs)
 
-$(TESTCACHE)/io/io-darwin.ssa: $(testlib_io_darwin_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
+$(TESTCACHE)/io/io-darwin.ssa: $(testlib_io_darwin_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/io
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \

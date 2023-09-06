@@ -11,8 +11,8 @@ the effective word length, i.e. the number of words that are actually used to
 store the value. The value may be decoded back to its byte format by [[decode]].
 
 Repeated modular multiplication is supported via montgomery multiplication. See
-[[tomonty]] and [[frommonty]] on how to convert from and back to this format
-and [[montymul]] for the actual multiplication operation.
+[[tomonty]] and [[frommonty]] on how to convert from and back to this format and
+[[montymul]] for the actual multiplication operation.
 
 This is a low-level module which implements cryptographic primitives. Direct
 use of cryptographic primitives is not recommended for non-experts, as

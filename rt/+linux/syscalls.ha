@@ -16,7 +16,7 @@ fn syscall6(u64, u64, u64, u64, u64, u64, u64) u64;
 
 export def PATH_MAX: size = 4096z;
 export type path = (str | []u8 | *const u8);
-let pathbuf: [PATH_MAX + 1]u8 = [0...];
+let pathbuf: [PATH_MAX]u8 = [0...];
 
 fn copy_kpath(path: path, buf: []u8) (*const u8 | errno) = {
 	let path = match (path) {
@@ -40,8 +40,8 @@ fn copy_kpath(path: path, buf: []u8) (*const u8 | errno) = {
 	return buf: *[*]u8: *const u8;
 };
 
-// NUL terminates a string and stores it in a static buffer of PATH_MAX+1 bytes
-// in length.
+// NUL terminates a string and stores it in a static buffer of PATH_MAX bytes in
+// length.
 fn kpath(path: path) (*const u8 | errno) = {
 	return copy_kpath(path, pathbuf);
 };
@@ -115,7 +115,7 @@ export fn linkat(
 	flags: int,
 ) (void | errno) = {
 	let oldpath = kpath(oldpath)?;
-	static let newpathbuf: [PATH_MAX + 1]u8 = [0...];
+	static let newpathbuf: [PATH_MAX]u8 = [0...];
 	let newpath = copy_kpath(newpath, newpathbuf)?;
 	wrap_return(syscall5(SYS_linkat,
 		olddirfd: u64, oldpath: uintptr: u64,
@@ -128,7 +128,7 @@ export fn symlinkat(
 	linkpath: path,
 ) (void | errno) = {
 	let target = kpath(target)?;
-	static let linkpathbuf: [PATH_MAX + 1]u8 = [0...];
+	static let linkpathbuf: [PATH_MAX]u8 = [0...];
 	let linkpath = copy_kpath(linkpath, linkpathbuf)?;
 	wrap_return(syscall3(SYS_symlinkat, target: uintptr: u64,
 		newdirfd: u64, linkpath: uintptr: u64))?;
@@ -177,7 +177,7 @@ export fn renameat(
 	flags: uint,
 ) (void | errno) = {
 	let oldpath = kpath(oldpath)?;
-	static let newpathbuf: [PATH_MAX + 1]u8 = [0...];
+	static let newpathbuf: [PATH_MAX]u8 = [0...];
 	let newpath = copy_kpath(newpath, newpathbuf)?;
 	wrap_return(syscall5(SYS_renameat2,
 		olddirfd: u64, oldpath: uintptr: u64,
@@ -447,10 +447,10 @@ export fn uname(uts: *utsname) (void | errno) = {
 // The return value is statically allocated and must be duplicated before
 // calling getcwd again.
 export fn getcwd() (*const u8 | errno) = {
-	static let pathbuf: [PATH_MAX + 1]u8 = [0...];
+	static let pathbuf: [PATH_MAX]u8 = [0...];
 	wrap_return(syscall2(SYS_getcwd,
 		&pathbuf: *[*]u8: uintptr: u64,
-		PATH_MAX + 1))?;
+		PATH_MAX))?;
 	return &pathbuf: *const u8;
 };
 

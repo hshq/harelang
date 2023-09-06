@@ -43,12 +43,22 @@ case let path: str => return path == sepstr;
 case let buf: *buffer => return buf.end == 1 && buf.buf[0] == SEP;
 };
 
-// Replace '/' with system-dependent path separator in a string. Modifies the
-// original string, but is idempotent. The result is borrowed from the input.
+// Replaces all instances of '/' in a string with [[SEP]]. The result is
+// statically-allocated.
 export fn local(path: str) str = {
-	let bs = strings::toutf8(path);
-	for (let k = 0z; k < len(bs); k += 1) {
-		if (bs[k] == '/') bs[k] = SEP;
+	static let buf: [MAX]u8 = [0...];
+	return _local(path, &buf);
+};
+
+fn _local(path: str, buf: *[MAX]u8) str = {
+	let buf = buf[..0];
+	const path = strings::toutf8(path);
+	for (let i = 0z; i < len(path); i += 1) {
+		if (path[i] == '/') {
+			static append(buf, SEP);
+		} else {
+			static append(buf, path[i]);
+		};
 	};
-	return path;
+	return strings::fromutf8(buf)!;
 };

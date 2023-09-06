@@ -44,6 +44,8 @@ gensrcs_rt() {
 		memmove.ha \
 		memset.ha \
 		strcmp.ha \
+		unknown_errno.ha \
+		ztos.ha \
 		$*
 	gen_srcs -pfreebsd rt \
 		+freebsd/platform_abort.ha \
@@ -68,6 +70,8 @@ gensrcs_rt() {
 		memmove.ha \
 		memset.ha \
 		strcmp.ha \
+		unknown_errno.ha \
+		ztos.ha \
 		$*
 	gen_srcs -pdarwin rt \
 		+darwin/platform_abort.ha \
@@ -1013,9 +1017,9 @@ io() {
 			+test/limit_test.ha \
 			+test/stream_test.ha
 	fi
-	gen_ssa -plinux io strings errors bytes rt
-	gen_ssa -pfreebsd io strings errors bytes rt
-	gen_ssa -pdarwin io strings errors bytes rt
+	gen_ssa -plinux io errors bytes rt
+	gen_ssa -pfreebsd io errors bytes rt
+	gen_ssa -pdarwin io errors bytes rt
 }
 
 linux() {

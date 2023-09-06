@@ -18,7 +18,7 @@ fn wrap_return(r: u64) (errno | u64) = {
 };
 
 // Obtains a human-friendly reading of an [[errno]] (e.g. "Operation not
-// permitted").
+// permitted"). The return value may be statically allocated.
 export fn strerror(err: errno) str = {
 	switch (err: int) {
 	case EPERM =>
@@ -284,11 +284,12 @@ export fn strerror(err: errno) str = {
 	case EHWPOISON =>
 		return "Memory page has hardware error";
 	case =>
-		return "[unknown errno]"; // TODO: snprintf to add errno?
+		return unknown_errno(err);
 	};
 };
 
-// Gets the programmer-friendly name for an [[errno]] (e.g. EPERM).
+// Gets the programmer-friendly name for an [[errno]] (e.g. EPERM). The return
+// value may be statically allocated.
 export fn errname(err: errno) str = {
 	switch (err: int) {
 	case EPERM =>
@@ -554,7 +555,7 @@ export fn errname(err: errno) str = {
 	case EHWPOISON =>
 		return "EHWPOISON";
 	case =>
-		return "[unknown errno]"; // TODO: snprintf to add errno?
+		return unknown_errno(err);
 	};
 };
 
