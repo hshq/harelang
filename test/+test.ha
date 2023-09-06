@@ -40,6 +40,7 @@ type context = struct {
 	maxname: size,
 	total_time: time::duration,
 	default_round: uint,
+	cwd: str,
 };
 
 fn finish_context(ctx: *context) void = {
@@ -50,6 +51,7 @@ fn finish_context(ctx: *context) void = {
 		finish_output(&ctx.output[i]);
 	};
 	free(ctx.output);
+	free(ctx.cwd);
 };
 
 let jmpbuf = rt::jmpbuf { ... };
@@ -85,6 +87,7 @@ export @symbol("__test_main") fn main() size = {
 		stderr = memio::dynamic(),
 		maxname = maxname,
 		default_round = rt::fegetround(),
+		cwd = strings::dup(os::getcwd()),
 		...
 	};
 	defer finish_context(&ctx);
@@ -146,6 +149,7 @@ fn reset(ctx: *context) void = {
 	rt::fesetround(ctx.default_round);
 	rt::feclearexcept(~0u);
 	signal::resetall();
+	os::chdir(ctx.cwd)!;
 };
 
 fn do_test(ctx: *context, test: test) void = {
