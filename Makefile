@@ -116,6 +116,7 @@ install: docs scripts/install-mods
 		$(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man5 \
 		$(DESTDIR)$(SRCDIR)/hare/stdlib
 	install -m755 $(BINOUT)/hare $(DESTDIR)$(BINDIR)/hare
+	install -m755 $(BINOUT)/haredoc $(DESTDIR)$(BINDIR)/haredoc
 	install -m644 docs/hare.1 $(DESTDIR)$(MANDIR)/man1/hare.1
 	install -m644 docs/haredoc.1 $(DESTDIR)$(MANDIR)/man1/haredoc.1
 	install -m644 docs/hare-doc.5 $(DESTDIR)$(MANDIR)/man5/hare-doc.5
@@ -123,6 +124,7 @@ install: docs scripts/install-mods
 
 uninstall:
 	$(RM) $(DESTDIR)$(BINDIR)/hare
+	$(RM) $(DESTDIR)$(BINDIR)/haredoc
 	$(RM) $(DESTDIR)$(MANDIR)/man1/hare.1
 	$(RM) $(DESTDIR)$(MANDIR)/man1/haredoc.1
 	$(RM) $(DESTDIR)$(MANDIR)/man5/hare-doc.5
