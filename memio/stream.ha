@@ -51,7 +51,8 @@ export fn dynamic() stream = dynamic_from([]);
 
 // Like [[dynamic]], but takes an existing slice as input. Writes will
 // overwrite the buffer and reads consume bytes from the initial buffer.
-// Like [[dynamic]], calling [[io::close]] will free the buffer.
+// Ownership of the provided slice is transferred to the returned [[stream]].
+// Calling [[io::close]] will free the buffer.
 export fn dynamic_from(in: []u8) stream = stream {
 	stream = &dynamic_vt,
 	buf = in,
