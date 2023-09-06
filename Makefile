@@ -108,7 +108,7 @@ check: $(BINOUT)/hare-tests
 scripts/gen-docs.sh: scripts/gen-stdlib
 scripts/gen-stdlib: scripts/gen-stdlib.sh
 
-all: $(BINOUT)/hare $(BINOUT)/harec2 docs
+all: $(BINOUT)/hare $(BINOUT)/harec2 $(BINOUT)/haredoc docs
 
 install: docs scripts/install-mods
 	mkdir -p \
