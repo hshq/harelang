@@ -960,8 +960,8 @@ io() {
 			+test/limit_test.ha \
 			+test/stream_test.ha
 	fi
-	gen_ssa -plinux io strings errors bytes rt
-	gen_ssa -pfreebsd io strings errors bytes rt
+	gen_ssa -plinux io errors bytes rt
+	gen_ssa -pfreebsd io errors bytes rt
 }
 
 linux() {
