@@ -13,7 +13,7 @@ use os;
 use strings;
 
 // Formats output as Hare source code (prototypes)
-fn emit_hare(ctx: *context) (void | error) = {
+export fn emit_hare(ctx: *context) (void | error) = {
 	const summary = ctx.summary;
 
 	let first = true;
@@ -22,7 +22,8 @@ fn emit_hare(ctx: *context) (void | error) = {
 		first = false;
 		for (true) {
 			match (bufio::scanline(readme)?) {
-			case io::EOF => break;
+			case io::EOF =>
+				break;
 			case let b: []u8 =>
 				fmt::fprintfln(ctx.out,
 					"// {}", strings::fromutf8(b)!)?;
@@ -73,23 +74,20 @@ fn emit_hare(ctx: *context) (void | error) = {
 };
 
 fn emit_submodules_hare(ctx: *context) (void | error) = {
-	const submodules = submodules(ctx)?;
-	defer strings::freeall(submodules);
-
-	if (len(submodules) != 0) {
+	if (len(ctx.submods) != 0) {
 		fmt::fprintln(ctx.out)?;
 		if (len(ctx.ident) == 0) {
 			fmt::fprintln(ctx.out, "// Modules")?;
 		} else {
 			fmt::fprintln(ctx.out, "// Submodules")?;
 		};
-		for (let i = 0z; i < len(submodules); i += 1) {
+		for (let i = 0z; i < len(ctx.submods); i += 1) {
 			let submodule = if (len(ctx.ident) != 0) {
 				const s = unparse::identstr(ctx.ident);
 				defer free(s);
-				yield strings::concat(s, "::", submodules[i]);
+				yield strings::concat(s, "::", ctx.submods[i]);
 			} else {
-				yield strings::dup(submodules[i]);
+				yield strings::dup(ctx.submods[i]);
 			};
 			defer free(submodule);
 
@@ -108,7 +106,8 @@ fn details_hare(ctx: *context, decl: ast::decl) (void | error) = {
 	const iter = strings::tokenize(decl.docs, "\n");
 	for (true) {
 		match (strings::next_token(&iter)) {
-		case void => break;
+		case void =>
+			break;
 		case let s: str =>
 			if (len(s) != 0) {
 				fmt::fprintfln(ctx.out, "//{}", s)?;

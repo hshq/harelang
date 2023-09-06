@@ -51,7 +51,7 @@ fn gen_func(ctx: *context, decl: *unit::decl) void = {
 	const fntype = fndecl.prototype.repr as types::func;
 	ctx.serial = 0;
 
-	const ident = module::identuscore(fndecl.ident);
+	const ident = strings::join("_", fndecl.ident...);
 	defer free(ident);
 	fmt::fprintf(ctx.out, "{}section \".text.{}\" \"ax\" function",
 		if (decl.exported) "export " else "", ident)!;

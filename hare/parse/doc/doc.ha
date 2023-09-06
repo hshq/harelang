@@ -14,25 +14,25 @@ use io;
 use memio;
 use strings;
 
-type paragraph = void;
-type text = str;
-type reference = ast::ident;
-type sample = str;
-type listitem = void;
-type token = (paragraph | text | reference | sample | listitem);
+export type paragraph = void;
+export type text = str;
+export type reference = ast::ident;
+export type sample = str;
+export type listitem = void;
+export type token = (paragraph | text | reference | sample | listitem);
 
-type docstate = enum {
+export type docstate = enum {
 	PARAGRAPH,
 	TEXT,
 	LIST,
 };
 
-type parser = struct {
+export type parser = struct {
 	src: bufio::stream,
 	state: docstate,
 };
 
-fn parsedoc(in: io::handle) parser = {
+export fn parse(in: io::handle) parser = {
 	static let buf: [4096]u8 = [0...];
 	return parser {
 		src = bufio::init(in, buf[..], []),
@@ -40,7 +40,7 @@ fn parsedoc(in: io::handle) parser = {
 	};
 };
 
-fn scandoc(par: *parser) (token | void) = {
+export fn scan(par: *parser) (token | void) = {
 	const rn = match (bufio::scanrune(&par.src)!) {
 	case let rn: rune =>
 		yield rn;
@@ -87,7 +87,8 @@ fn scantext(par: *parser) (token | void) = {
 	const buf = memio::dynamic();
 	for (true) {
 		const rn = match (bufio::scanrune(&par.src)!) {
-		case io::EOF => break;
+		case io::EOF =>
+			break;
 		case let rn: rune =>
 			yield rn;
 		};
@@ -98,7 +99,8 @@ fn scantext(par: *parser) (token | void) = {
 		case '\n' =>
 			memio::appendrune(&buf, rn)!;
 			const rn = match (bufio::scanrune(&par.src)!) {
-			case io::EOF => break;
+			case io::EOF =>
+				break;
 			case let rn: rune =>
 				yield rn;
 			};
@@ -153,7 +155,8 @@ fn scanref(par: *parser) (token | void) = {
 			case =>
 				memio::appendrune(&buf, rn)!;
 			};
-		case io::EOF => break;
+		case io::EOF =>
+			break;
 		};
 	};
 	let id = parse::identstr(memio::string(&buf)!) as ast::ident;
@@ -186,7 +189,8 @@ fn scansample(par: *parser) (token | void) = {
 	let buf = memio::dynamic();
 	for (cont) {
 		const rn = match (bufio::scanrune(&par.src)!) {
-		case io::EOF => break;
+		case io::EOF =>
+			break;
 		case let rn: rune =>
 			yield rn;
 		};
@@ -201,7 +205,8 @@ fn scansample(par: *parser) (token | void) = {
 		// Consume whitespace
 		for (let i = 0z; i < nws) {
 			match (bufio::scanrune(&par.src)!) {
-			case io::EOF => break;
+			case io::EOF =>
+				break;
 			case let rn: rune =>
 				switch (rn) {
 				case ' ' =>
@@ -228,14 +233,16 @@ fn scansample(par: *parser) (token | void) = {
 
 fn scanlist(par: *parser) (token | void) = {
 	match (bufio::scanrune(&par.src)!) {
-	case io::EOF => return void;
+	case io::EOF =>
+		return void;
 	case let rn: rune =>
 		if (rn != '-') {
 			abort();
 		};
 	};
 	const rn = match (bufio::scanrune(&par.src)!) {
-	case io::EOF => return void;
+	case io::EOF =>
+		return void;
 	case let rn: rune =>
 		yield rn;
 	};

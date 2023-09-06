@@ -17,14 +17,15 @@ use strings;
 let firstline: bool = true;
 
 // Formats output as Hare source code (prototypes) with syntax highlighting
-fn emit_tty(ctx: *context) (void | error) = {
+export fn emit_tty(ctx: *context) (void | error) = {
 	init_colors();
 	const summary = ctx.summary;
 
 	match (ctx.readme) {
 	case let readme: io::file =>
 		for (true) match (bufio::scanline(readme)?) {
-		case io::EOF => break;
+		case io::EOF =>
+			break;
 		case let b: []u8 =>
 			defer free(b);
 			firstline = false;
@@ -55,10 +56,7 @@ fn emit_tty(ctx: *context) (void | error) = {
 };
 
 fn emit_submodules_tty(ctx: *context) (void | error) = {
-	const submodules = submodules(ctx)?;
-	defer strings::freeall(submodules);
-
-	if (len(submodules) != 0) {
+	if (len(ctx.submods) != 0) {
 		fmt::fprintln(ctx.out)?;
 		if (len(ctx.ident) == 0) {
 			render(ctx.out, syn::COMMENT)?;
@@ -69,13 +67,13 @@ fn emit_submodules_tty(ctx: *context) (void | error) = {
 			fmt::fprintln(ctx.out, "// Submodules")?;
 			render(ctx.out, syn::NORMAL)?;
 		};
-		for (let i = 0z; i < len(submodules); i += 1) {
+		for (let i = 0z; i < len(ctx.submods); i += 1) {
 			let submodule = if (len(ctx.ident) != 0) {
 				const s = unparse::identstr(ctx.ident);
 				defer free(s);
-				yield strings::concat(s, "::", submodules[i]);
+				yield strings::concat(s, "::", ctx.submods[i]);
 			} else {
-				yield strings::dup(submodules[i]);
+				yield strings::dup(ctx.submods[i]);
 			};
 			defer free(submodule);
 
@@ -105,7 +103,8 @@ fn docs_tty(out: io::handle, s: str, indent: size) (size | io::error) = {
 				z += fmt::fprint(out, "\t")?;
 			};
 		};
-	case void => break;
+	case void =>
+		break;
 	};
 
 	return z;
@@ -119,7 +118,8 @@ fn isws(s: str) bool = {
 			if (!ascii::isspace(r)) {
 				return false;
 			};
-		case void => break;
+		case void =>
+			break;
 		};
 	};
 	return true;
@@ -540,7 +540,9 @@ fn type_tty(
 		linelen += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
 			linelen += type_tty(out, indent, *t[i])?;
-			if (i + 1 == len(t)) break;
+			if (i + 1 == len(t)) {
+				break;
+			};
 			n += render(out, syn::PUNCTUATION)?;
 			linelen += fmt::fprint(out, " |")?;
 			// use 72 instead of 80 to give a bit of leeway for long
@@ -567,7 +569,9 @@ fn type_tty(
 		linelen += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
 			linelen += type_tty(out, indent, *t[i])?;
-			if (i + 1 == len(t)) break;
+			if (i + 1 == len(t)) {
+				break;
+			};
 			n += render(out, syn::PUNCTUATION)?;
 			linelen += fmt::fprint(out, ",")?;
 			// use 72 instead of 80 to give a bit of leeway for long

@@ -6,35 +6,42 @@ hare - compiles, runs, and tests Hare programs
 
 # SYNOPSIS
 
-*hare* build [-cv]++
+*hare* build [-hqv]++
+	[-a _arch_]++
 	[-D _ident[:type]=value_]++
 	[-j _jobs_]++
-	[-L libdir]++
-	[-l _name_]++
+	[-L _libdir_]++
+	[-l _libname_]++
+	[-N _namespace_]++
 	[-o _path_]++
-	[-t _arch_]++
-	[-T _tags_] [-X _tags_]++
+	[-T _tagset_]++
+	[-t _type_]++
 	[_path_]
 
-*hare* deps [-Mm] [-T _tags_] [-X _tags_] _path_
+*hare* cache [-hc]
 
-*hare* run [-v]++
+*hare* deps [-hd] [-T _tagset_] [_path_|_module_]
+
+*hare* run [-hqv]++
+	[-a _arch_]++
 	[-D _ident[:type]=value_]++
-	[-l _name_]++
-	[-L libdir]++
 	[-j _jobs_]++
-	[-T _tags_] [-X _tags_]++
-	[_path_] [_args_...]
+	[-L _libdir_]++
+	[-l _libname_]++
+	[-T _tagset_]++
+	[_path_ [_args_...]]
 
-*hare* test [-v]++
+*hare* test [-hqv]++
+	[-a _arch_]++
 	[-D _ident[:type]=value_]++
-	[-l _name_]++
-	[-L libdir]++
 	[-j _jobs_]++
-	[-T _tags_] [-X _tags_]++
-	_tests_
+	[-L _libdir_]++
+	[-l _libname_]++
+	[-o _path_]++
+	[-T _tagset_]++
+	[_path_]
 
-*hare* version [-v]
+*hare* version [-hv]
 
 # DESCRIPTION
 
@@ -44,7 +51,9 @@ a path to a Hare source file or a directory which contains a Hare module (see
 *MODULES* below). If no path is given, the Hare module contained in the current
 working directory is built.
 
-*hare deps* queries the dependencies graph of a Hare program. The _path_ argument
+*hare cache* displays information about the build cache.
+
+*hare deps* displays the dependency graph of a Hare program. The _path_ argument
 is equivalent in usage to *hare build*.
 
 *hare run* compiles and runs a Hare program. The _path_ argument is equivalent
@@ -60,21 +69,26 @@ default build tags.
 
 *hare version* prints version information for the *hare* program. If *-v* is
 supplied, it also prints information about the build parameters. The output
-format is consistent for machine reading: the first line is always "Hare version
-$version". Subsequent lines give configuration values in the form of a name,
-value, and optional context, separated by tabs.
+format is consistent for machine reading: the first line is always
+"hare $version". Subsequent lines give configuration values in the form of a
+name, value, and optional context, separated by tabs.
 
 # OPTIONS
 
 ## hare build
 
-*-c*
-	Compile only, do not link. The output is an object file (for Hare-only
-	modules) or archive (for mixed source modules).
+*-h*
+	Prints the help text.
+
+*-q*
+	Outside of errors, don't write anything to stdout while building.
 
 *-v*
-	Enable verbose logging. Prints every command to stderr before executing
-	it.
+	Enable verbose logging. Specify twice to increase verbosity.
+
+*-a* _arch_
+	Set the desired architecture for cross-compiling. See *ARCHITECTURES*
+	for supported architecture names.
 
 *-D* _ident[:type]=value_
 	Passed to *harec*(1) to define a constant in the type system. _ident_ is
@@ -87,46 +101,60 @@ value, and optional context, separated by tabs.
 	Defines the maximum number of jobs which *hare* will execute in
 	parallel. The default is the number of processors available on the host.
 
-*-l* _name_
+*-L libdir*
+	Add directory to the linker library search path.
+
+*-l* _libname_
 	Link with the named system library. The name is passed to
 	*pkg-config --libs* (see *pkg-config*(1)) to obtain the appropriate
 	linker flags.
 
-*-L libdir*
-	Add directory to the linker library search path.
+*-N* _namespace_
+	Override the namespace for the module. 
 
 *-o* _path_
 	Set the output file to the given path.
 
-*-t* _arch_
-	Set the desired architecture for cross-compiling. See *ARCHITECTURES*
-	for supported architecture names.
+*-T* _tagset_
+	Sets or unsets build tags. See *CUSTOMIZING BUILD TAGS*.
 
-*-T* _tags_
-	Adds additional build tags. See *CUSTOMIZING BUILD TAGS*.
+*-t* _type_
+	Set the build type. Should be one of s/o/bin, for assembly, compiled
+	object, or compiled binary, respectively.
 
-*-X* _tags_
-	Unsets build tags. See *CUSTOMIZING BUILD TAGS*.
+## hare cache
+
+*-h*
+	Prints the help text.
+
+*-c*
+	Clears the cache.
 
 ## hare deps
+
+*-h*
+	Prints the help text.
 
 *-d*
 	Print dependency graph as a dot file for use with *graphviz*(1).
 
-*-M*
-	Print rules compatible with POSIX *make*(1).
-
 *-T* _tags_
-	Adds additional build tags. See *CUSTOMIZING BUILD TAGS*.
-
-*-X* _tags_
-	Unsets build tags. See *CUSTOMIZING BUILD TAGS*.
+	Sets or unsets build tags. See *CUSTOMIZING BUILD TAGS*.
 
 ## hare run
 
+*-h*
+	Prints the help text.
+
+*-q*
+	Outside of errors, don't write anything to stdout while building.
+
 *-v*
-	Enable verbose logging. Prints every command to stderr before executing
-	it.
+	Enable verbose logging. Specify twice to increase verbosity.
+
+*-a* _arch_
+	Set the desired architecture for cross-compiling. See *ARCHITECTURES*
+	for supported architecture names.
 
 *-D* _ident[:type]=value_
 	Passed to *harec*(1) to define a constant in the type system. _ident_ is
@@ -148,16 +176,22 @@ value, and optional context, separated by tabs.
 	Add directory to the linker library search path.
 
 *-T* _tags_
-	Adds additional build tags. See *CUSTOMIZING BUILD TAGS*.
-
-*-X* _tags_
-	Unsets build tags. See *CUSTOMIZING BUILD TAGS*.
+	Sets or unsets build tags. See *CUSTOMIZING BUILD TAGS*.
 
 ## hare test
 
+*-h*
+	Prints the help text.
+
+*-q*
+	Outside of errors, don't write anything to stdout while building.
+
 *-v*
-	Enable verbose logging. Prints every command to stderr before executing
-	it.
+	Enable verbose logging. Specify twice to increase verbosity.
+
+*-a* _arch_
+	Set the desired architecture for cross-compiling. See *ARCHITECTURES*
+	for supported architecture names.
 
 *-D* _ident[:type]=value_
 	Passed to *harec*(1) to define a constant in the type system. _ident_ is
@@ -186,6 +220,9 @@ value, and optional context, separated by tabs.
 
 ## hare version
 
+*-h*
+	Prints the help text.
+
 *-v*
 	Show build parameters.
 
@@ -196,19 +233,22 @@ inputs for the build. If this path is a file, it is treated as a single Hare
 source file. If it is a directory, the directory is treated as a module, and is
 placed in the global namespace for the build.
 
-All files which end in *.ha* and *.s* are treated as inputs to the module, and
-are respectively treated as Hare sources and assembly sources. A module with a
-mix of assembly and Hare sources are considered *mixed* modules, and have some
-special semantics.
+All files which end in *.ha*, *.s*, and *.o* are treated as inputs to the
+module, and are respectively treated as Hare sources, assembly sources, and
+objects to be linked into the final binary. There must either be at least one
+Hare source or a file named 'README' in the module's root directory.
 
 The list of files considered eligible may be filtered by build tags. The format
 for the filename is _name_[+_tags_]._ext_, where the _name_ is user-defined, the
 _ext_ is either 'ha' or 's', and a list of tags are provided after the name. A
 plus symbol ('+') will cause a file to be included only if that tag is present,
 and a minus symbol ('-') will cause a file to be excluded if that tag is
-present. Only one file for a given _name_ will be selected for the build, and
-among files with eligible tags, the one with the most tag specifiers is
-selected.
+present.
+
+Only one file for a given combination of _name_ and _ext_ will be selected for
+the build, and among files with eligible tags, the one with the most tag
+specifiers is selected. If there are two or more such files, the build driver
+will error out.
 
 For example, if the following files are present in a directory:
 
@@ -246,7 +286,7 @@ system package manager.
 
 # ARCHITECTURES
 
-The *-t* flag for *hare build* is used for cross-compilation, and selects a
+The *-a* flag for *hare build* is used for cross-compilation, and selects a
 architecture different from the host to target. The list of supported
 architectures is:
 
@@ -262,25 +302,24 @@ yourself to control the cross toolchain in use.
 # CUSTOMIZING BUILD TAGS
 
 Build tags allow you to add constraints on what features or platforms are
-enabled for your build. A tag is a name, consisting of alphanumeric characters
-and underscores, and a + or - prefix to signal inclusivity or exclusivity. See
-*MODULES* for details on how build tags affect module input selection.
+enabled for your build. A tag is a name, consisting of characters which aren't
+any of '+', '-', or '.', and a + or - prefix to signal inclusivity or
+exclusivity. See *MODULES* for details on how build tags affect module input
+selection.
 
-To add new tag constraints, inclusive or exclusive, use the *-T* flag. "-T
-+foo-bar" will include the 'foo' tag and exclude the 'bar' tag. To remove
-constraints, use the *-X* in a similar fashion; "-X +foo-bar" will reverse the
-previous *-T* example.
+To add or remove build tags, use the *-T* flag. For example, "-T +foo-bar" will
+add the 'foo' tag and remove the 'bar' tag.
 
 Some tags are enabled by default, enabling features for the host platform. You
 can view the default tagset by running *hare version -v*. To remove all default
-tags, use "-X^".
+tags, use "-T^".
 
 # ENVIRONMENT
 
 The following environment variables affect *hare*'s execution:
 
 |[ *HARECACHE*
-:< The path to the object cache. Defaults to _$XDG_CACHE_HOME/hare_, or
+:< The path to the build cache. Defaults to _$XDG_CACHE_HOME/hare_, or
    _~/.cache/hare_ if that doesn't exist.
 |  *HAREPATH*
 :  See *DEPENDENCY RESOLUTION*.
@@ -288,6 +327,10 @@ The following environment variables affect *hare*'s execution:
 :  Applies additional flags to the command line arguments.
 |  *HAREC*
 :  Name of the *harec*(1) command to use.
+|  *QBE*
+:  Name of the *qbe*(1) command to use.
+|  *QBEFLAGS*
+:  Additional flags to pass to *QBE*(1).
 |  *AR*
 :  Name of the *ar*(1) command to use.
 |  *ARFLAGS*
@@ -304,7 +347,11 @@ The following environment variables affect *hare*'s execution:
 :  Name of the *ld*(1) command to use.
 |  *LDLINKFLAGS*
 :  Additional flags to pass to *ld*(1).
+|  *CC*
+:  Name of the *cc*(1) command to use.
+|  *LDFLAGS*
+:  Additional flags to pass to *cc*(1).
 
 # SEE ALSO
 
-*harec*(1), *haredoc*(1), *ar*(1), *as*(1), *cc*(1), *ld*(1), *make*(1)
+*harec*(1), *as*(1), *ld*(1), *cc*(1), *hare-doc*(5), *as*(1)

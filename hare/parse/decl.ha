@@ -29,27 +29,29 @@ fn attr_symbol(lexer: *lex::lexer) (str | error) = {
 	return s;
 };
 
+// Parses a command-line definition
+export fn define(lexer: *lex::lexer) (ast::decl_const | error) = {
+	const ident = ident(lexer)?;
+	const _type: nullable *ast::_type = match (try(lexer, ltok::COLON)?) {
+	case lex::token => yield alloc(_type(lexer)?);
+	case void => yield null;
+	};
+	want(lexer, ltok::EQUAL)?;
+	const init: *ast::expr = alloc(expr(lexer)?);
+	return ast::decl_const {
+		ident = ident,
+		_type = _type,
+		init = init,
+	};
+};
+
 fn decl_const(
 	lexer: *lex::lexer,
 	tok: ltok,
 ) ([]ast::decl_const | error) = {
 	let decl: []ast::decl_const = [];
 	for (true) {
-		const ident = ident(lexer)?;
-		const _type: nullable *ast::_type =
-			match (try(lexer, ltok::COLON)?) {
-			case lex::token =>
-				yield alloc(_type(lexer)?);
-			case void =>
-				yield null;
-			};
-		want(lexer, ltok::EQUAL)?;
-		const init: *ast::expr = alloc(expr(lexer)?);
-		append(decl, ast::decl_const {
-			ident = ident,
-			_type = _type,
-			init = init,
-		});
+		append(decl, define(lexer)?);
 
 		if (try(lexer, ltok::COMMA)? is void) {
 			break;
