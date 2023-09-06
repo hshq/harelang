@@ -2,7 +2,8 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Steven Guikal <void@fluix.one>
 
-// Sorts a slice of items in place.
+// Sorts a slice of items in place. This function provides a stable sort -
+// relative order of equal elements is preserved.
 //
 // Note that this function may (temporarily) allocate, and will abort on
 // allocation failure.
