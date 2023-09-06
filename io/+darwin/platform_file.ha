@@ -3,7 +3,6 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 use errors;
 use rt;
-use strings;
 
 // This is an opaque type which encloses an OS-level file handle resource. It
 // can be used as a [[handle]] in most situations, but there are some APIs which

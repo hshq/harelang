@@ -5,7 +5,7 @@
 
 export def PATH_MAX: size = 1024z;
 export type path = (str | []u8 | *const char);
-let pathbuf: [PATH_MAX + 1]u8 = [0...];
+let pathbuf: [PATH_MAX]u8 = [0...];
 
 fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
 	let path = match (path) {
@@ -29,8 +29,8 @@ fn copy_kpath(path: path, buf: []u8) (*const char | errno) = {
 	return buf: *[*]u8: *const char;
 };
 
-// NUL terminates a string and stores it in a static buffer of PATH_MAX+1 bytes
-// in length.
+// NUL terminates a string and stores it in a static buffer of PATH_MAX bytes in
+// length.
 fn kpath(path: path) (*const char | errno) = {
 	return copy_kpath(path, pathbuf);
 };
@@ -104,7 +104,7 @@ export fn renameat(
 	newpath: str,
 ) (void | errno) = {
 	let oldpath = kpath(oldpath)?;
-	static let newpathbuf: [PATH_MAX + 1]u8 = [0...];
+	static let newpathbuf: [PATH_MAX]u8 = [0...];
 	let newpath = copy_kpath(newpath, newpathbuf)?;
 	wrap_errno_return(c_renameat(olddirfd, oldpath, newdirfd, newpath))?;
 };
@@ -213,8 +213,8 @@ export fn getdents(dirfd: int, buf: *opaque, nbytes: size) (size | errno) = {
 // The return value is statically allocated and must be duplicated before
 // calling getcwd again.
 export fn getcwd() (*const char | errno) = {
-	static let pathbuf: [PATH_MAX + 1]u8 = [0...];
-	if (c_getcwd(&pathbuf: *char, PATH_MAX + 1) == null) return get_c_errno();
+	static let pathbuf: [PATH_MAX]u8 = [0...];
+	if (c_getcwd(&pathbuf: *char, PATH_MAX) == null) return get_c_errno();
 	return &pathbuf: *const char;
 };
 @symbol("getcwd") fn c_getcwd(buf: *char, bufsz: size) *char;

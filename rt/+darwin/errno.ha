@@ -24,11 +24,9 @@ fn wrap_errno_return(r: i64) (errno | i64) = {
 };
 
 // Obtains a human-friendly reading of an [[errno]] (e.g. "Operation not
-// permitted").
+// permitted"). The return value may be statically allocated.
 export fn strerror(err: errno) str = {
 	switch (err: int) {
-	case EPERM =>
-		return "Operation not permitted";
 	case EPERM =>
 		return "Operation not permitted";
 	case ENOENT =>
@@ -99,8 +97,8 @@ export fn strerror(err: errno) str = {
 		return "Result too large";
 	case EAGAIN =>
 		return "Resource temporarily unavailable";
-	case EWOULDBLOCK =>
-		return "Operation would block";
+	// case EWOULDBLOCK =>
+	// 	return "Operation would block";
 	case EINPROGRESS =>
 		return "Operation now in progress";
 	case EALREADY =>
@@ -245,14 +243,15 @@ export fn strerror(err: errno) str = {
 		return "Previous owner died";
 	case EQFULL =>
 		return "Interface output queue is full";
-	case ELAST =>
-		return "Must be equal largest errno";
+	// case ELAST =>
+	// 	return "Must be equal largest errno";
 	case =>
-		return "[unknown errno]"; // TODO: snprintf to add errno?
+		return unknown_errno(err);
 	};
 };
 
-// Gets the programmer-friendly name for an [[errno]] (e.g. EPERM).
+// Gets the programmer-friendly name for an [[errno]] (e.g. EPERM). The return
+// value may be statically allocated.
 export fn errname(err: errno) str = {
 	switch (err: int) {
 	case EPERM =>
@@ -325,8 +324,8 @@ export fn errname(err: errno) str = {
 		return "ERANGE";
 	case EAGAIN =>
 		return "EAGAIN";
-	case EWOULDBLOCK =>
-		return "EWOULDBLOCK";
+	// case EWOULDBLOCK =>
+	// 	return "EWOULDBLOCK";
 	case EINPROGRESS =>
 		return "EINPROGRESS";
 	case EALREADY =>
@@ -471,10 +470,10 @@ export fn errname(err: errno) str = {
 		return "EOWNERDEAD";
 	case EQFULL =>
 		return "EQFULL";
-	case ELAST =>
-		return "ELAST";
+	// case ELAST =>
+	// 	return "ELAST";
 	case =>
-		return "[unknown errno]"; // TODO: snprintf to add errno?
+		return unknown_errno(err);
 	};
 };
 

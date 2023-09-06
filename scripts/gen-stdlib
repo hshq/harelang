@@ -96,6 +96,8 @@ gensrcs_rt() {
 		memmove.ha \
 		memset.ha \
 		strcmp.ha \
+		unknown_errno.ha \
+		ztos.ha \
 		$*
 }
 
