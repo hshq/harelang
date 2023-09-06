@@ -107,7 +107,7 @@ export fn cpucount() (int | errors::error) = {
 
 	let ret = 0;
 	for (let i = 0z; i < len(set.__bits); i += 1) {
-		ret += math::pop_count_u64(set.__bits[i]): int;
+		ret += math::popcount(set.__bits[i]): int;
 	};
 	return ret;
 };
