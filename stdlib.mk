@@ -2058,7 +2058,7 @@ stdlib_sort_any_srcs = \
 	$(STDLIB)/sort/sort.ha \
 	$(STDLIB)/sort/types.ha
 
-$(HARECACHE)/sort/sort-any.ssa: $(stdlib_sort_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
+$(HARECACHE)/sort/sort-any.ssa: $(stdlib_sort_any_srcs) $(stdlib_rt) $(stdlib_math_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/sort
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nsort \
@@ -4566,7 +4566,7 @@ testlib_sort_any_srcs = \
 	$(STDLIB)/sort/types.ha \
 	$(STDLIB)/sort/+test.ha
 
-$(TESTCACHE)/sort/sort-any.ssa: $(testlib_sort_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+$(TESTCACHE)/sort/sort-any.ssa: $(testlib_sort_any_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/sort
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nsort \
