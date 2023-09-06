@@ -110,7 +110,7 @@ fn all(d: *date) *date = {
 // If specified (non-void), 'zo' must match one of the timezone's observed
 // zoffs, or will fail. See [[time::chrono::fixedzone]] for custom timezones.
 //
-// You may omit the zoff. If the givem timezone has a single zone, [[new]]
+// You may omit the zoff. If the given timezone has a single zone, [[new]]
 // will use that zone's zoff. Otherwise [[new]] will try to infer the zoff
 // from the multiple zones. This will fail during certain timezone transitions,
 // where certain dates are ambiguous or nonexistent. For example:
