@@ -1,6 +1,8 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
+
+use math::random;
 use types;
 
 @test fn lbisect() void = {
@@ -60,7 +62,30 @@ use types;
 	for (let i = 1z; i < len(nums); i += 1) {
 		assert(nums[i] >= nums[i - 1]);
 	};
+};
 
+@test fn big_equal() void = {
+	let nums = alloc([42...], 1000000);
+	defer free(nums);
+	sort(nums, size(int), &icmp);
+	for (let i = 0z; i < len(nums); i += 1) {
+		assert(nums[i] == 42);
+	};
+};
+
+@test fn big_random() void = {
+	let nums = alloc([0...], 100000);
+	defer free(nums);
+
+	let rand = random::init(0x424242);
+	for (let i = 0z; i < len(nums); i += 1) {
+		nums[i] = random::next(&rand): int;
+	};
+
+	sort(nums, size(int), &icmp);
+	for (let i = 1z; i < len(nums); i += 1) {
+		assert(nums[i] >= nums[i - 1]);
+	};
 };
 
 @test fn sorted() void = {

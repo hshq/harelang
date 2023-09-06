@@ -1349,11 +1349,12 @@ sort() {
 	if [ $testing -eq 0 ]
 	then
 		gensrcs_sort
+		gen_ssa sort math strings types
 	else
 		gensrcs_sort \
 			+test.ha
+		gen_ssa sort math math::random strings types
 	fi
-	gen_ssa sort math strings types
 }
 
 strconv() {
