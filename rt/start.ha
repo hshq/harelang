@@ -22,8 +22,8 @@ export fn init() void = {
 export fn fini() void = {
 	const nfini = (&fini_end: uintptr - &fini_start: uintptr): size
 		/ size(*fn() void);
-	for (let i = 0z; i < nfini; i += 1) {
-		fini_start[i]();
+	for (let i = nfini; i > 0; i -= 1) {
+		fini_start[i - 1]();
 	};
 };
 
