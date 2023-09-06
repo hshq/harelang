@@ -4,7 +4,7 @@ AES are provided which are optimized for different scenarios. To choose the most
 appropriate one for your system, use [[aes]].
 
 When combined with a block cipher mode from [[crypto::cipher]], suitable buffer
-lengths for static allocation are provided as constants such as [[BLOOCKSZ]],
+lengths for static allocation are provided as constants such as [[BLOCKSZ]],
 [[CTR_BUFSZ]], and [[CBC_BUFSZ]].
 
 This is a low-level module which implements cryptographic primitives. Direct use

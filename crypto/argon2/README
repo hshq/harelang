@@ -4,10 +4,10 @@ Hare programs, and for deriving keys for use with other cryptographic
 algorithms. Some thought must be given to the appropriate configuration for your
 use case. Some general advice is provided here; if in doubt, consult the RFC.
 
-The argon2 parameters are configured via the [[config]] structure. To determine
+The argon2 parameters are configured via the [[conf]] structure. To determine
 the appropriate configuration parameters for a particular use-case, consult
 section 4 of the RFC. Otherwise, sane defaults for common scenarios are provided
-via [[default_config]] and [[low_mem_config]]; consult the docs of each
+via [[default_conf]] and [[low_mem_conf]]; consult the docs of each
 configuration for details.
 
 Once a suitable configuration has been selected, the user must provide a salt.
