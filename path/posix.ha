@@ -65,7 +65,9 @@ export fn basename(path: const str) const str = {
 		["/home//dwc//test", "/home//dwc", "test"],
 	];
 	for (let i = 0z; i < len(table); i += 1) {
-		assert(dirname(local(table[i][0])) == local(table[i][1]));
-		assert(basename(local(table[i][0])) == local(table[i][2]));
+		let input: [MAX]u8 = [0...];
+		const input = _local(table[i][0], &input);
+		assert(dirname(input) == local(table[i][1]));
+		assert(basename(input) == local(table[i][2]));
 	};
 };
