@@ -102,14 +102,17 @@ export @symbol("__test_main") fn main() size = {
 	if (len(ctx.failures) > 0) {
 		fmt::println("Failures:")!;
 		for (let i = 0z; i < len(ctx.failures); i += 1) {
-			if (ctx.failures[i].reason.loc != "") {
-				fmt::printfln("{}: {}: {}",
-					ctx.failures[i].test,
-					ctx.failures[i].reason.loc,
-					ctx.failures[i].reason.msg)!;
-			} else {
+			match (ctx.failures[i].reason.path) {
+			case null =>
 				fmt::printfln("{}: {}",
 					ctx.failures[i].test,
+					ctx.failures[i].reason.msg)!;
+			case let path: *str =>
+				fmt::printfln("{}: {}:{}:{}: {}",
+					ctx.failures[i].test,
+					*path,
+					ctx.failures[i].reason.line,
+					ctx.failures[i].reason.col,
 					ctx.failures[i].reason.msg)!;
 			};
 		};
@@ -255,8 +258,8 @@ fn fail(test: test, n: int) failure = {
 		return failure {
 			test = test.name,
 			reason = rt::abort_reason {
-				loc = "",
 				msg = "Segmentation fault",
+				...
 			},
 		};
 	case =>
@@ -264,8 +267,8 @@ fn fail(test: test, n: int) failure = {
 		return failure {
 			test = test.name,
 			reason = rt::abort_reason {
-				loc = "",
 				msg = "Reason unknown",
+				...
 			},
 		};
 	};

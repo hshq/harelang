@@ -1,8 +1,13 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
-export @symbol("rt.abort") fn _abort(loc: str, msg: str) void = {
-	platform_abort(loc, msg);
+export @symbol("rt.abort") fn _abort(
+	path: *str,
+	line: u64,
+	col: u64,
+	msg: str,
+) void = {
+	platform_abort(path, line, col, msg);
 };
 
 // See harec:include/gen.h
@@ -17,6 +22,6 @@ const reasons: [_]str = [
 	"error occurred",					// 7
 ];
 
-export fn abort_fixed(loc: str, i: int) void = {
-	platform_abort(loc, reasons[i]);
+export fn abort_fixed(path: *str, line: u64, col: u64, i: u64) void = {
+	platform_abort(path, line, col, reasons[i]);
 };

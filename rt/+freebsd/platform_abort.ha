@@ -1,13 +1,21 @@
 // License: MPL-2.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 
-fn platform_abort(loc: str, msg: str) void = {
+fn platform_abort(path: *str, line: u64, col: u64, msg: str) void = {
 	const prefix = "Abort: ";
-	const sep = ": ";
+	const sep = ":";
+	const sepspace = ": ";
 	const linefeed = "\n";
 	write(STDERR_FILENO, *(&prefix: **opaque): *const u8, len(prefix)): void;
-	write(STDERR_FILENO, *(&loc: **opaque): *const u8, len(loc)): void;
+	write(STDERR_FILENO, *(path: **opaque): *const u8, len(path)): void;
 	write(STDERR_FILENO, *(&sep: **opaque): *const u8, len(sep)): void;
+	let (line, z) = u64tos(line);
+	write(STDERR_FILENO, line, z): void;
+	write(STDERR_FILENO, *(&sep: **opaque): *const u8, len(sep)): void;
+	let (col, z) = u64tos(col);
+	write(STDERR_FILENO, col, z): void;
+	write(STDERR_FILENO, *(&sepspace: **opaque): *const u8,
+		len(sepspace)): void;
 	write(STDERR_FILENO, *(&msg: **opaque): *const u8, len(msg)): void;
 	write(STDERR_FILENO, *(&linefeed: **opaque): *const u8, 1): void;
 	kill(getpid(), SIGABRT): void;
