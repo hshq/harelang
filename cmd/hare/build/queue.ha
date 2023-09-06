@@ -175,12 +175,9 @@ fn run_task(ctx: *context, jobs: *[]job, t: *task) (bool | error) = {
 
 fn await_task(ctx: *context, jobs: *[]job) (size | void | error) = {
 	if (ctx.mode == output::DEFAULT && ctx.total != 0) {
-		let percent = 100z;
-		if (ctx.total != 0) {
-			percent = ctx.completed * 100 / ctx.total;
-		};
 		fmt::errorf("\x1b[G\x1b[2K{}/{} tasks completed ({}%)",
-			ctx.completed, ctx.total, percent)?;
+			ctx.completed, ctx.total,
+			ctx.completed * 100 / ctx.total)?;
 	};
 	if (len(jobs) == 0) {
 		return;
