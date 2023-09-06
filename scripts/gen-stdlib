@@ -103,7 +103,7 @@ ${stdlib}_asm = \$($cache)/rt/syscall.o \\
 	\$($cache)/rt/getfp.o \\
 	\$($cache)/rt/fenv.o \\
 	\$($cache)/rt/start.o \\
-	\$($cache)/rt/cpuid_native.o
+	\$($cache)/rt/cpuid.o
 
 \$($cache)/rt/syscall.o: \$(STDLIB)/rt/+\$(PLATFORM)/syscall+\$(ARCH).s
 	@printf 'AS \t%s\n' "\$@"
@@ -135,10 +135,10 @@ ${stdlib}_asm = \$($cache)/rt/syscall.o \\
 	@mkdir -p \$($cache)/rt
 	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(ARCH)/getfp.s
 
-\$($cache)/rt/cpuid_native.o: \$(STDLIB)/rt/+\$(ARCH)/cpuid_native.s
+\$($cache)/rt/cpuid.o: \$(STDLIB)/rt/+\$(ARCH)/cpuid.s
 	@printf 'AS \t%s\n' "\$@"
 	@mkdir -p \$($cache)/rt
-	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(ARCH)/cpuid_native.s
+	@\$(AS) -o \$@ \$(STDLIB)/rt/+\$(ARCH)/cpuid.s
 
 \$($cache)/rt/rt-linux.a: \$($cache)/rt/rt-linux.o \$(${stdlib}_asm)
 	@printf 'AR \t%s\n' "\$@"
@@ -203,6 +203,17 @@ bytes() {
 		two_way.ha \
 		zero.ha
 	gen_ssa bytes types
+}
+
+cmd_hare_build() {
+	gen_srcs cmd::hare::build \
+		gather.ha \
+		queue.ha \
+		types.ha \
+		util.ha
+	gen_ssa cmd::hare::build encoding::hex crypto::sha256 errors fmt fs \
+		hare::ast hare::module hare::unparse hash io memio os os::exec path \
+		sort strings shlex unix::tty
 }
 
 crypto() {
@@ -763,15 +774,16 @@ hare_lex() {
 
 hare_module() {
 	gen_srcs hare::module \
+		cache.ha \
+		deps.ha \
 		types.ha \
-		context.ha \
-		scan.ha \
-		manifest.ha \
-		walk.ha
+		format.ha \
+		srcs.ha \
+		util.ha
 	gen_ssa hare::module \
-		hare::ast hare::lex hare::parse hare::unparse memio fs io strings hash \
-		crypto::sha256 dirs bytes encoding::utf8 ascii fmt time bufio \
-		strconv os encoding::hex sort errors temp path
+		ascii memio bytes datetime encoding::utf8 fmt fs hare::ast hare::lex \
+		hare::parse hare::unparse io os path strings time time::chrono \
+		time::date types encoding::hex
 }
 
 gensrcs_hare_parse() {
@@ -867,6 +879,12 @@ hare_unparse() {
 		unit.ha \
 		util.ha
 	gen_ssa hare::unparse fmt io strings memio hare::ast hare::lex
+}
+
+hare_parse_doc() {
+	gen_srcs hare::parse::doc \
+		doc.ha
+	gen_ssa hare::parse::doc ascii encoding::utf8 fmt hare::ast hare::parse io strings memio
 }
 
 hash() {
@@ -1611,6 +1629,7 @@ uuid() {
 modules="ascii
 bufio
 bytes
+cmd::hare::build
 crypto
 crypto::aes
 crypto::aes::xts
@@ -1656,6 +1675,7 @@ hare::ast
 hare::lex
 hare::module
 hare::parse
+hare::parse::doc
 hare::types
 hare::unit
 hare::unparse

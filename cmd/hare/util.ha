@@ -5,8 +5,6 @@ use hare::module;
 use os;
 use strings;
 
-def HAREPATH: str = ".";
-
 fn merge_tags(current: *[]str, new: str) (void | module::error) = {
 	let trimmed = strings::ltrim(new, '^');
 	if (trimmed != new) {
@@ -43,8 +41,8 @@ fn harecache() str = {
 
 // result must be freed with strings::freeall
 fn default_tags() ([]str | error) = {
-	let arch = os::machine();
+	let arch = get_arch(os::machine())?;
 	let platform = ascii::strlower(os::sysname());
-	let tags: []str = alloc([strings::dup(arch), platform]);
+	let tags: []str = alloc([strings::dup(arch.name), platform]);
 	return tags;
 };

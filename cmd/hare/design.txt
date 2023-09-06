@@ -1,0 +1,67 @@
+# caching
+
+the cached Stuff for a module is stored under $HARECACHE/path/to/module. under
+this path, the outputs of various commands (harec, qbe, as, and ld) are stored,
+in <hash>.<ext>, where <ext> is td/ssa for harec, s for qbe, o for as, and bin
+for ld
+
+the way the hash is computed varies slightly between extension: for everything
+but .td, the hash contains the full argument list for the command used to
+generate the file. for .ssa, the version of harec (the output of harec -v) and
+the various HARE_TD_* environment variables are hashed as well
+
+.td is hashed solely based on its contents, in order to get better caching
+behavior. this causes some trickiness which we'll get to later, so it's not
+worth doing for everything, but doing this for .tds allows us to only recompile
+a dependency of a module when its api changes, since the way that dependency
+rebuilds are triggered is via $HARE_TD_depended::on::module changing. this is
+particularly important for working on eg. rt::, since you don't actually need to
+recompile most things most of the time despite the fact that rt:: is in the
+dependency tree for most of the stdlib
+
+in order to check if the cache is already up to date, we do the following:
+- find the sources for the module, including the latest time at which it was
+  modified. this gives us enough information to...
+- figure out what command we would run to compile it, and generate the hash at
+  the same time
+- find the mtime of $XDG_CACHE_HOME/path/to/module/<hash>.<ext>. if it isn't
+  earlier than the mtime from step 1, exit early
+- run the command
+
+however, there's a bit of a problem here: how do we figure out the hash for the
+.td if we don't end up rebuilding the module? we need it in order to set
+$HARE_TD_module::ident, but since it's hashed based on its contents, there's no
+way to figure it out without running harec. in order to get around this, we
+store the td hash in <ssa_hash>.ssa.td, and read it from that file whenever we
+skip running harec
+
+in order to avoid problems when running multiple hare builds in parallel, we
+take an exclusive flock on <hash>.<ext>.tmp and have the command output to
+there, then rename that to <hash>.<ext> once the command is done. if taking the
+lock fails, we defer running that command as though it had unfinished
+dependencies
+
+# queuing and running jobs
+
+the first step when running hare build is to gather all of the dependencies of a
+given module and queue up all of the commands that will need to be run in order
+to compile them. we keep track of each command in a task struct, which contains
+a module::module, the compilation stage it's running, and the command's
+prerequisites. the prerequisites for a harec are all of the harecs of the
+modules it depends on[0], for qbe/as it's the harec/qbe for that module, and for
+ld it's the ases for all of the modules that have been queued. we insert these
+into an array of tasks, sorted with all of the harecs first, then qbes, then
+ases, then ld, with a topological sort within each of these (such that each
+command comes before all of the commands that depend on it). in order to run a
+command, we scan from the start of this array until we find a job which doesn't
+have any unfinished prerequisites and run that
+
+the reason for this sort order is to try to improve parallelism: in order to
+make better use of available job slots, we want to prioritize jobs that will
+unblock as many other jobs as possible. running a harec will always unblock more
+jobs than a qbe or as, so we want to try to run them as early as possible. in my
+tests, this roughly halved most compilation times at -j4
+
+[0]: note that we only need the typedef file, one future improvement which would
+improve parallelism would be to somehow have harec signal to hare build that
+it's done with the typedefs so that we can unblock other harecs

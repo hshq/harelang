@@ -1,90 +1,129 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
+use encoding::utf8;
 use fs;
 use hare::ast;
 use hare::parse;
+use hare::unparse;
 use io;
-use fmt;
+use memio;
+use path;
+use strings;
 
-// The inclusive/exclusive state for a build tag.
-export type tag_mode = enum {
-	INCLUSIVE,
-	EXCLUSIVE,
-};
+// A module was not found.
+export type not_found = !void;
 
-// A build tag, e.g. +x86_64.
-export type tag = struct {
-	name: str,
-	mode: tag_mode,
-};
+// A tag contains a dot.
+export type tag_has_dot = !void;
 
-// The manifest for a particular module, with some number of inputs, and
-// versions.
-export type manifest = struct {
-	ident: ast::ident,
-	inputs: []input,
-	versions: []version,
-};
+// Generic badly formatted tag error.
+export type tag_bad_format = !void;
 
-// A module version: a set of possible input files for that module.
-export type version = struct {
-	hash: []u8,
-	basedir: str,
-	depends: []ast::ident,
-	inputs: []input,
-	subdirs: []str,
-	tags: []tag,
-};
+// A dependency cycle error.
+export type dep_cycle = ![]str;
 
-// The filetype of a file within a module.
-export type filetype = enum {
-	HARE,
-	ASSEMBLY,
-};
+// Two files in a module have the same basename and extension, and the
+// same number of compatible tags with the input tagset, so it is unknown
+// which should be used.
+export type file_conflict = ![]str;
 
-// An input to a module, generally a source file.
-export type input = struct {
-	hash: []u8,
-	path: str,
-	ft: filetype,
-	stat: fs::filestat,
+// Context for another error.
+export type errcontext = !(str, *error);
 
-	// Name without any tags
-	basename: str,
-	// Tags applicable to input
-	tags: []tag,
-};
-
-// The requested module could not be found.
-export type notfound = !void;
-
-// We are unable to select from two ambiguous options for an input file.
-export type ambiguous = !(str, str);
-
-// All possible error types.
+// Tagged union of all possible error types. Must be freed with [[finish_error]]
+// unless it's passed to [[strerror]].
 export type error = !(
 	fs::error |
 	io::error |
+	path::error |
 	parse::error |
-	notfound |
-	ambiguous);
+	utf8::invalid |
+	file_conflict |
+	not_found |
+	dep_cycle |
+	tag_has_dot |
+	tag_bad_format |
+	errcontext |
+);
 
-// Returns a human-friendly representation of an error.
-export fn strerror(err: error) const str = {
-	// Should be more than enough for PATH_MAX * 2
-	static let buf: [4096]u8 = [0...];
-	match (err) {
-	case let err: fs::error =>
-		return fs::strerror(err);
-	case let err: io::error =>
-		return io::strerror(err);
-	case let err: parse::error =>
-		return parse::strerror(err);
-	case notfound =>
-		return "Module not found";
-	case let amb: ambiguous =>
-		return fmt::bsprintf(buf, "Cannot choose between {} and {}",
-			amb.0, amb.1);
+// A container struct for context, used by [[gather]].
+export type context = struct {
+	harepath: str,
+	harecache: str,
+	tags: []str,
+};
+
+// The location of a module
+export type location = (*path::buffer | ast::ident);
+
+// Returns a string representation of a [[location]]. The result must be freed
+// by the caller.
+export fn locstr(loc: location) str = {
+	match (loc) {
+	case let buf: *path::buffer =>
+		return strings::dup(path::string(buf));
+	case let id: ast::ident =>
+		return unparse::identstr(id);
 	};
+};
+
+// XXX: this shouldn't be necessary, the language should have some built-in way
+// to carry context with errors 
+fn attach(ctx: str, e: error) errcontext = (ctx, alloc(e)): errcontext;
+
+// Free the resources associated with an [[error]].
+export fn finish_error(e: error) void = {
+	match (e) {
+	case let e: dep_cycle =>
+		strings::freeall(e);
+	case let e: file_conflict =>
+		strings::freeall(e);
+	case let ctx: errcontext =>
+		finish_error(*ctx.1);
+		free(ctx.0);
+		free(ctx.1);
+	case => void;
+	};
+};
+
+// Turns an [[error]] into a human-readable string. The result is
+// statically allocated. Consumes the error.
+export fn strerror(e: error) str = {
+	defer finish_error(e);
+	static let buf: [2*path::MAX]u8 = [0...];
+	let buf = memio::fixed(buf[..]);
+	_strerror(e, &buf);
+	return memio::string(&buf)!;
+};
+
+fn _strerror(e: error, buf: *memio::stream) void = {
+	let s = match (e) {
+	case let e: fs::error =>
+		yield fs::strerror(e);
+	case let e: io::error =>
+		yield io::strerror(e);
+	case let e: parse::error =>
+		yield parse::strerror(e);
+	case let e: path::error =>
+		yield path::strerror(e);
+	case utf8::invalid =>
+		yield "Invalid UTF-8";
+	case not_found =>
+		yield "Module not found";
+	case tag_has_dot =>
+		yield "Tag contains a '.'";
+	case tag_bad_format =>
+		yield "Bad tag format";
+	case let e: dep_cycle =>
+		memio::concat(buf, "Dependency cycle: ")!;
+		memio::join(buf, " -> ", e...)!;
+		return;
+	case let e: file_conflict =>
+		memio::concat(buf, "File conflict: ")!;
+		memio::join(buf, ", ", e...)!;
+		return;
+	case let ctx: errcontext =>
+		memio::concat(buf, ctx.0, ": ")!;
+		_strerror(*ctx.1, buf);
+		return;
+	};
+	memio::concat(buf, s)!;
 };

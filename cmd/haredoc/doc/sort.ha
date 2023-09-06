@@ -5,19 +5,11 @@ use hare::ast;
 use sort;
 use strings;
 
-type summary = struct {
-	constants: []ast::decl,
-	errors: []ast::decl,
-	types: []ast::decl,
-	globals: []ast::decl,
-	funcs: []ast::decl,
-};
-
 // Sorts declarations by removing unexported declarations, moving undocumented
 // declarations to the end, sorting by identifier, and ensuring that only one
 // member is present in each declaration (so that "let x: int = 10, y: int = 20"
 // becomes two declarations: "let x: int = 10; let y: int = 20;").
-fn sort_decls(decls: []ast::decl) summary = {
+export fn sort_decls(decls: []ast::decl) summary = {
 	let sorted = summary { ... };
 
 	for (let i = 0z; i < len(decls); i += 1) {

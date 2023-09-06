@@ -85,7 +85,7 @@ stdlib_asm = $(HARECACHE)/rt/syscall.o \
 	$(HARECACHE)/rt/getfp.o \
 	$(HARECACHE)/rt/fenv.o \
 	$(HARECACHE)/rt/start.o \
-	$(HARECACHE)/rt/cpuid_native.o
+	$(HARECACHE)/rt/cpuid.o
 
 $(HARECACHE)/rt/syscall.o: $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
 	@printf 'AS \t%s\n' "$@"
@@ -117,10 +117,10 @@ $(HARECACHE)/rt/getfp.o: $(STDLIB)/rt/+$(ARCH)/getfp.s
 	@mkdir -p $(HARECACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/getfp.s
 
-$(HARECACHE)/rt/cpuid_native.o: $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
+$(HARECACHE)/rt/cpuid.o: $(STDLIB)/rt/+$(ARCH)/cpuid.s
 	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(HARECACHE)/rt
-	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/cpuid.s
 
 $(HARECACHE)/rt/rt-linux.a: $(HARECACHE)/rt/rt-linux.o $(stdlib_asm)
 	@printf 'AR \t%s\n' "$@"
@@ -156,6 +156,13 @@ stdlib_env += HARE_TD_bytes=$(HARECACHE)/bytes/bytes.td
 stdlib_deps_any += $(stdlib_bytes_any)
 stdlib_bytes_linux = $(stdlib_bytes_any)
 stdlib_bytes_freebsd = $(stdlib_bytes_any)
+
+# gen_lib cmd::hare::build (any)
+stdlib_cmd_hare_build_any = $(HARECACHE)/cmd/hare/build/cmd_hare_build-any.o
+stdlib_env += HARE_TD_cmd::hare::build=$(HARECACHE)/cmd/hare/build/cmd_hare_build.td
+stdlib_deps_any += $(stdlib_cmd_hare_build_any)
+stdlib_cmd_hare_build_linux = $(stdlib_cmd_hare_build_any)
+stdlib_cmd_hare_build_freebsd = $(stdlib_cmd_hare_build_any)
 
 # gen_lib crypto (any)
 stdlib_crypto_any = $(HARECACHE)/crypto/crypto-any.o
@@ -474,6 +481,13 @@ stdlib_env += HARE_TD_hare::parse=$(HARECACHE)/hare/parse/hare_parse.td
 stdlib_deps_any += $(stdlib_hare_parse_any)
 stdlib_hare_parse_linux = $(stdlib_hare_parse_any)
 stdlib_hare_parse_freebsd = $(stdlib_hare_parse_any)
+
+# gen_lib hare::parse::doc (any)
+stdlib_hare_parse_doc_any = $(HARECACHE)/hare/parse/doc/hare_parse_doc-any.o
+stdlib_env += HARE_TD_hare::parse::doc=$(HARECACHE)/hare/parse/doc/hare_parse_doc.td
+stdlib_deps_any += $(stdlib_hare_parse_doc_any)
+stdlib_hare_parse_doc_linux = $(stdlib_hare_parse_doc_any)
+stdlib_hare_parse_doc_freebsd = $(stdlib_hare_parse_doc_any)
 
 # gen_lib hare::types (any)
 stdlib_hare_types_any = $(HARECACHE)/hare/types/hare_types-any.o
@@ -934,6 +948,19 @@ $(HARECACHE)/bytes/bytes-any.ssa: $(stdlib_bytes_any_srcs) $(stdlib_rt) $(stdlib
 	@mkdir -p $(HARECACHE)/bytes
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nbytes \
 		-t$(HARECACHE)/bytes/bytes.td $(stdlib_bytes_any_srcs)
+
+# cmd::hare::build (+any)
+stdlib_cmd_hare_build_any_srcs = \
+	$(STDLIB)/cmd/hare/build/gather.ha \
+	$(STDLIB)/cmd/hare/build/queue.ha \
+	$(STDLIB)/cmd/hare/build/types.ha \
+	$(STDLIB)/cmd/hare/build/util.ha
+
+$(HARECACHE)/cmd/hare/build/cmd_hare_build-any.ssa: $(stdlib_cmd_hare_build_any_srcs) $(stdlib_rt) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_module_$(PLATFORM)) $(stdlib_hare_unparse_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_os_exec_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_shlex_$(PLATFORM)) $(stdlib_unix_tty_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/cmd/hare/build
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncmd::hare::build \
+		-t$(HARECACHE)/cmd/hare/build/cmd_hare_build.td $(stdlib_cmd_hare_build_any_srcs)
 
 # crypto (+any)
 stdlib_crypto_any_srcs = \
@@ -1423,13 +1450,14 @@ $(HARECACHE)/hare/lex/hare_lex-any.ssa: $(stdlib_hare_lex_any_srcs) $(stdlib_rt)
 
 # hare::module (+any)
 stdlib_hare_module_any_srcs = \
+	$(STDLIB)/hare/module/cache.ha \
+	$(STDLIB)/hare/module/deps.ha \
 	$(STDLIB)/hare/module/types.ha \
-	$(STDLIB)/hare/module/context.ha \
-	$(STDLIB)/hare/module/scan.ha \
-	$(STDLIB)/hare/module/manifest.ha \
-	$(STDLIB)/hare/module/walk.ha
+	$(STDLIB)/hare/module/format.ha \
+	$(STDLIB)/hare/module/srcs.ha \
+	$(STDLIB)/hare/module/util.ha
 
-$(HARECACHE)/hare/module/hare_module-any.ssa: $(stdlib_hare_module_any_srcs) $(stdlib_rt) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_lex_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_hare_unparse_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_dirs_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_temp_$(PLATFORM)) $(stdlib_path_$(PLATFORM))
+$(HARECACHE)/hare/module/hare_module-any.ssa: $(stdlib_hare_module_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_datetime_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_lex_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_hare_unparse_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM)) $(stdlib_time_date_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/module
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::module \
@@ -1450,6 +1478,16 @@ $(HARECACHE)/hare/parse/hare_parse-any.ssa: $(stdlib_hare_parse_any_srcs) $(stdl
 	@mkdir -p $(HARECACHE)/hare/parse
 	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::parse \
 		-t$(HARECACHE)/hare/parse/hare_parse.td $(stdlib_hare_parse_any_srcs)
+
+# hare::parse::doc (+any)
+stdlib_hare_parse_doc_any_srcs = \
+	$(STDLIB)/hare/parse/doc/doc.ha
+
+$(HARECACHE)/hare/parse/doc/hare_parse_doc-any.ssa: $(stdlib_hare_parse_doc_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/hare/parse/doc
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::parse::doc \
+		-t$(HARECACHE)/hare/parse/doc/hare_parse_doc.td $(stdlib_hare_parse_doc_any_srcs)
 
 # hare::types (+any)
 stdlib_hare_types_any_srcs = \
@@ -2491,7 +2529,7 @@ testlib_asm = $(TESTCACHE)/rt/syscall.o \
 	$(TESTCACHE)/rt/getfp.o \
 	$(TESTCACHE)/rt/fenv.o \
 	$(TESTCACHE)/rt/start.o \
-	$(TESTCACHE)/rt/cpuid_native.o
+	$(TESTCACHE)/rt/cpuid.o
 
 $(TESTCACHE)/rt/syscall.o: $(STDLIB)/rt/+$(PLATFORM)/syscall+$(ARCH).s
 	@printf 'AS \t%s\n' "$@"
@@ -2523,10 +2561,10 @@ $(TESTCACHE)/rt/getfp.o: $(STDLIB)/rt/+$(ARCH)/getfp.s
 	@mkdir -p $(TESTCACHE)/rt
 	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/getfp.s
 
-$(TESTCACHE)/rt/cpuid_native.o: $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
+$(TESTCACHE)/rt/cpuid.o: $(STDLIB)/rt/+$(ARCH)/cpuid.s
 	@printf 'AS \t%s\n' "$@"
 	@mkdir -p $(TESTCACHE)/rt
-	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/cpuid_native.s
+	@$(AS) -o $@ $(STDLIB)/rt/+$(ARCH)/cpuid.s
 
 $(TESTCACHE)/rt/rt-linux.a: $(TESTCACHE)/rt/rt-linux.o $(testlib_asm)
 	@printf 'AR \t%s\n' "$@"
@@ -2562,6 +2600,13 @@ testlib_env += HARE_TD_bytes=$(TESTCACHE)/bytes/bytes.td
 testlib_deps_any += $(testlib_bytes_any)
 testlib_bytes_linux = $(testlib_bytes_any)
 testlib_bytes_freebsd = $(testlib_bytes_any)
+
+# gen_lib cmd::hare::build (any)
+testlib_cmd_hare_build_any = $(TESTCACHE)/cmd/hare/build/cmd_hare_build-any.o
+testlib_env += HARE_TD_cmd::hare::build=$(TESTCACHE)/cmd/hare/build/cmd_hare_build.td
+testlib_deps_any += $(testlib_cmd_hare_build_any)
+testlib_cmd_hare_build_linux = $(testlib_cmd_hare_build_any)
+testlib_cmd_hare_build_freebsd = $(testlib_cmd_hare_build_any)
 
 # gen_lib crypto (any)
 testlib_crypto_any = $(TESTCACHE)/crypto/crypto-any.o
@@ -2880,6 +2925,13 @@ testlib_env += HARE_TD_hare::parse=$(TESTCACHE)/hare/parse/hare_parse.td
 testlib_deps_any += $(testlib_hare_parse_any)
 testlib_hare_parse_linux = $(testlib_hare_parse_any)
 testlib_hare_parse_freebsd = $(testlib_hare_parse_any)
+
+# gen_lib hare::parse::doc (any)
+testlib_hare_parse_doc_any = $(TESTCACHE)/hare/parse/doc/hare_parse_doc-any.o
+testlib_env += HARE_TD_hare::parse::doc=$(TESTCACHE)/hare/parse/doc/hare_parse_doc.td
+testlib_deps_any += $(testlib_hare_parse_doc_any)
+testlib_hare_parse_doc_linux = $(testlib_hare_parse_doc_any)
+testlib_hare_parse_doc_freebsd = $(testlib_hare_parse_doc_any)
 
 # gen_lib hare::types (any)
 testlib_hare_types_any = $(TESTCACHE)/hare/types/hare_types-any.o
@@ -3342,6 +3394,19 @@ $(TESTCACHE)/bytes/bytes-any.ssa: $(testlib_bytes_any_srcs) $(testlib_rt) $(test
 	@mkdir -p $(TESTCACHE)/bytes
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbytes \
 		-t$(TESTCACHE)/bytes/bytes.td $(testlib_bytes_any_srcs)
+
+# cmd::hare::build (+any)
+testlib_cmd_hare_build_any_srcs = \
+	$(STDLIB)/cmd/hare/build/gather.ha \
+	$(STDLIB)/cmd/hare/build/queue.ha \
+	$(STDLIB)/cmd/hare/build/types.ha \
+	$(STDLIB)/cmd/hare/build/util.ha
+
+$(TESTCACHE)/cmd/hare/build/cmd_hare_build-any.ssa: $(testlib_cmd_hare_build_any_srcs) $(testlib_rt) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_module_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_os_exec_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_shlex_$(PLATFORM)) $(testlib_unix_tty_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/cmd/hare/build
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncmd::hare::build \
+		-t$(TESTCACHE)/cmd/hare/build/cmd_hare_build.td $(testlib_cmd_hare_build_any_srcs)
 
 # crypto (+any)
 testlib_crypto_any_srcs = \
@@ -3867,13 +3932,14 @@ $(TESTCACHE)/hare/lex/hare_lex-any.ssa: $(testlib_hare_lex_any_srcs) $(testlib_r
 
 # hare::module (+any)
 testlib_hare_module_any_srcs = \
+	$(STDLIB)/hare/module/cache.ha \
+	$(STDLIB)/hare/module/deps.ha \
 	$(STDLIB)/hare/module/types.ha \
-	$(STDLIB)/hare/module/context.ha \
-	$(STDLIB)/hare/module/scan.ha \
-	$(STDLIB)/hare/module/manifest.ha \
-	$(STDLIB)/hare/module/walk.ha
+	$(STDLIB)/hare/module/format.ha \
+	$(STDLIB)/hare/module/srcs.ha \
+	$(STDLIB)/hare/module/util.ha
 
-$(TESTCACHE)/hare/module/hare_module-any.ssa: $(testlib_hare_module_any_srcs) $(testlib_rt) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_dirs_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_temp_$(PLATFORM)) $(testlib_path_$(PLATFORM))
+$(TESTCACHE)/hare/module/hare_module-any.ssa: $(testlib_hare_module_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_datetime_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM)) $(testlib_time_date_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/module
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module \
@@ -3900,6 +3966,16 @@ $(TESTCACHE)/hare/parse/hare_parse-any.ssa: $(testlib_hare_parse_any_srcs) $(tes
 	@mkdir -p $(TESTCACHE)/hare/parse
 	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::parse \
 		-t$(TESTCACHE)/hare/parse/hare_parse.td $(testlib_hare_parse_any_srcs)
+
+# hare::parse::doc (+any)
+testlib_hare_parse_doc_any_srcs = \
+	$(STDLIB)/hare/parse/doc/doc.ha
+
+$(TESTCACHE)/hare/parse/doc/hare_parse_doc-any.ssa: $(testlib_hare_parse_doc_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/hare/parse/doc
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::parse::doc \
+		-t$(TESTCACHE)/hare/parse/doc/hare_parse_doc.td $(testlib_hare_parse_doc_any_srcs)
 
 # hare::types (+any)
 testlib_hare_types_any_srcs = \

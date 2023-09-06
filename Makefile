@@ -9,7 +9,7 @@ testlib_env = env
 
 all:
 
-.SUFFIXES: .ha .ssa .s .o .scd .1
+.SUFFIXES: .ha .ssa .s .o .scd
 .ssa.s:
 	@printf 'QBE\t%s\n' "$@"
 	@$(QBE) -o $@ $<
@@ -18,20 +18,22 @@ all:
 	@printf 'AS\t%s\n' "$@"
 	@$(AS) -g -o $@ $<
 
-.scd.1:
+.scd:
 	@printf 'SCDOC\t%s\n' "$@"
 	@$(SCDOC) < $< > $@
+
 
 include stdlib.mk
 
 hare_srcs = \
+	./cmd/hare/arch.ha \
+	./cmd/hare/build.ha \
+	./cmd/hare/cache.ha \
 	./cmd/hare/deps.ha \
+	./cmd/hare/error.ha \
 	./cmd/hare/main.ha \
-	./cmd/hare/plan.ha \
-	./cmd/hare/progress.ha \
-	./cmd/hare/schedule.ha \
-	./cmd/hare/subcmds.ha \
-	./cmd/hare/target.ha
+	./cmd/hare/util.ha \
+	./cmd/hare/version.ha
 
 harec_srcs = \
 	./cmd/harec/main.ha \
@@ -39,12 +41,17 @@ harec_srcs = \
 
 haredoc_srcs = \
 	./cmd/haredoc/main.ha \
-	./cmd/haredoc/errors.ha \
-	./cmd/haredoc/env.ha \
-	./cmd/haredoc/hare.ha \
-	./cmd/haredoc/html.ha \
-	./cmd/haredoc/sort.ha \
-	./cmd/haredoc/resolver.ha
+	./cmd/haredoc/arch.ha \
+	./cmd/haredoc/error.ha \
+	./cmd/haredoc/util.ha \
+	./cmd/haredoc/doc/color.ha \
+	./cmd/haredoc/doc/hare.ha \
+	./cmd/haredoc/doc/html.ha \
+	./cmd/haredoc/doc/resolve.ha \
+	./cmd/haredoc/doc/sort.ha \
+	./cmd/haredoc/doc/tty.ha \
+	./cmd/haredoc/doc/types.ha \
+	./cmd/haredoc/doc/util.ha
 
 include targets.mk
 
@@ -76,11 +83,7 @@ $(BINOUT)/harec2: $(BINOUT)/hare $(harec_srcs)
 	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build \
 		$(HARE_DEFINES) -o $(BINOUT)/harec2 cmd/harec
 
-# Prevent $(BINOUT)/hare from running builds in parallel, workaround for build
-# driver bugs
-PARALLEL_HACK=$(BINOUT)/harec2
-
-$(BINOUT)/haredoc: $(BINOUT)/hare $(haredoc_srcs) $(PARALLEL_HACK)
+$(BINOUT)/haredoc: $(BINOUT)/hare $(haredoc_srcs)
 	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
 	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build \
@@ -89,13 +92,15 @@ $(BINOUT)/haredoc: $(BINOUT)/hare $(haredoc_srcs) $(PARALLEL_HACK)
 docs/html: $(BINOUT)/haredoc scripts/gen-docs.sh
 	BINOUT=$(BINOUT) $(SHELL) ./scripts/gen-docs.sh
 
-docs/hare.1: docs/hare.scd
-docs/haredoc.1: docs/haredoc.scd
+docs/hare.1: docs/hare.1.scd
+docs/haredoc.1: docs/haredoc.1.scd
+docs/hare-doc.5: docs/hare-doc.5.scd
 
-docs: docs/hare.1 docs/haredoc.1
+docs: docs/hare.1 docs/haredoc.1 docs/hare-doc.5
 
 clean:
-	rm -rf $(HARECACHE) $(BINOUT) docs/hare.1 docs/haredoc.1 docs/html
+	rm -rf $(HARECACHE) $(BINOUT) docs/hare.1 docs/haredoc.1 docs/hare-doc.5 \
+		docs/html
 
 check: $(BINOUT)/hare-tests
 	@$(BINOUT)/hare-tests
@@ -103,22 +108,24 @@ check: $(BINOUT)/hare-tests
 scripts/gen-docs.sh: scripts/gen-stdlib
 scripts/gen-stdlib: scripts/gen-stdlib.sh
 
-all: $(BINOUT)/hare $(BINOUT)/harec2 $(BINOUT)/haredoc
+all: $(BINOUT)/hare $(BINOUT)/harec2 docs
 
 install: docs scripts/install-mods
-	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1 \
+	mkdir -p \
+		$(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1 \
+		$(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man5 \
 		$(DESTDIR)$(SRCDIR)/hare/stdlib
 	install -m755 $(BINOUT)/hare $(DESTDIR)$(BINDIR)/hare
-	install -m755 $(BINOUT)/haredoc $(DESTDIR)$(BINDIR)/haredoc
 	install -m644 docs/hare.1 $(DESTDIR)$(MANDIR)/man1/hare.1
 	install -m644 docs/haredoc.1 $(DESTDIR)$(MANDIR)/man1/haredoc.1
+	install -m644 docs/hare-doc.5 $(DESTDIR)$(MANDIR)/man5/hare-doc.5
 	./scripts/install-mods "$(DESTDIR)$(SRCDIR)/hare/stdlib"
 
 uninstall:
 	$(RM) $(DESTDIR)$(BINDIR)/hare
-	$(RM) $(DESTDIR)$(BINDIR)/haredoc
 	$(RM) $(DESTDIR)$(MANDIR)/man1/hare.1
 	$(RM) $(DESTDIR)$(MANDIR)/man1/haredoc.1
+	$(RM) $(DESTDIR)$(MANDIR)/man5/hare-doc.5
 	$(RM) -r $(DESTDIR)$(SRCDIR)/hare/stdlib
 
-.PHONY: all clean check docs install uninstall $(BINOUT)/harec2 $(BINOUT)/haredoc
+.PHONY: all clean check docs install uninstall

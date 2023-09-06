@@ -1,60 +1,18 @@
 use fmt;
+use getopt;
+use hare::ast;
 use hare::module;
 use hare::parse;
 use io;
 use os;
+use path;
 use sort;
 use strings;
 
-type depnode = struct {
-	ident: str,
-	depends: []size,
-	depth: uint,
+type deps_fmt = enum {
+	DOT,
+	TERM,
 };
-
-// the start of the cycle in the stack
-type dep_cycle = !size;
-
-// depth-first initial exploration, cycle-detection, reverse topological sort
-fn explore_deps(ctx: *module::context, stack: *[]str, visited: *[]depnode, ident: str) (size | dep_cycle) = {
-	// check for cycles
-	for (let i = 0z; i < len(stack); i += 1) {
-		if (ident == stack[i]) {
-			append(stack, ident);
-			return i: dep_cycle;
-		};
-	};
-
-	// return existing depnode if visited already
-	for (let i = 0z; i < len(visited); i += 1) {
-		if (ident == visited[i].ident) return i;
-	};
-	append(stack, ident);
-
-	let this = depnode{ident = strings::dup(ident), depends = [], depth = 0};
-	let ver = match (module::lookup(ctx, parse::identstr(ident)!)) {
-	case let e: module::error =>
-		fmt::fatal(module::strerror(e));
-	case let ver: module::version =>
-		yield ver;
-	};
-	for (let i = 0z; i < len(ver.depends); i += 1) {
-		const name = strings::join("::", ver.depends[i]...);
-		defer free(name);
-		const child = explore_deps(ctx, stack, visited, name)?;
-		append(this.depends, child);
-	};
-	// reverse-sort depends so that we know the last in the list is the
-	// "final" child during show_deps
-	sort::sort(this.depends, size(size), &cmpsz);
-
-	static delete(stack[len(stack)-1]);
-	append(visited, this);
-	return len(visited) - 1;
-};
-
-// sorts in reverse
-fn cmpsz(a: const *opaque, b: const *opaque) int = (*(b: *size) - *(a: *size)): int;
 
 type link = struct {
 	depth: uint,
@@ -62,43 +20,119 @@ type link = struct {
 	final: bool,
 };
 
-fn show_deps(depnodes: *[]depnode) void = {
+fn deps(name: str, cmd: *getopt::command) (void | error) = {
+	let tags = default_tags()?;
+	defer free(tags);
+
+	let build_dir: str = "";
+	let goal = deps_fmt::TERM;
+	for (let i = 0z; i < len(cmd.opts); i += 1) {
+		let opt = cmd.opts[i];
+		switch (opt.0) {
+		case 'd' =>
+			goal = deps_fmt::DOT;
+		case 'T' =>
+			merge_tags(&tags, opt.1)?;
+		case =>
+			abort();
+		};
+	};
+
+	if (len(cmd.args) > 1) {
+		getopt::printusage(os::stderr, name, cmd.help...)!;
+		os::exit(1);
+	};
+
+	const input = if (len(cmd.args) == 0) os::getcwd() else cmd.args[0];
+
+	let ctx = module::context {
+		harepath = harepath(),
+		harecache = harecache(),
+		tags = tags,
+	};
+	let mods: []module::module = [];
+
+	let mod = match (parse::identstr(input)) {
+	case let id: ast::ident =>
+		yield id;
+	case parse::error =>
+		static let buf = path::buffer { ... };
+		path::set(&buf, os::realpath(input)?)?;
+		yield &buf;
+	};
+	module::gather(&ctx, &mods, mod)?;
+	defer module::free_slice(mods);
+
+	switch (goal) {
+	case deps_fmt::TERM =>
+		deps_graph(&mods);
+	case deps_fmt::DOT =>
+		fmt::println("strict digraph deps {")!;
+		for (let i = 0z; i < len(mods); i += 1) {
+			for (let j = 0z; j < len(mods[i].deps); j += 1) {
+				const child = mods[mods[i].deps[j].0];
+				fmt::printfln("\t\"{}\" -> \"{}\";",
+					mods[i].name, child.name)!;
+			};
+		};
+		fmt::println("}")!;
+	};
+};
+
+fn deps_graph(mods: *[]module::module) void = {
 	let links: []link = [];
 	defer free(links);
+	let depth: []uint = alloc([0...], len(mods));
 	// traverse in reverse because reverse-topo-sort
-	for (let i = len(depnodes) - 1; 0 <= i && i < len(depnodes); i -= 1) {
+	for (let i = len(mods) - 1; 0 <= i && i < len(mods); i -= 1) {
+		// reverse-sort deps so that we know the last in the list is the
+		// "final" child during show_deps
+		sort::sort(mods[i].deps, size((size, ast::ident)), &revsort);
+
 		for (let j = 0z; j < len(links); j += 1) {
-			if (i < links[j].child) continue;
-			if (depnodes[i].depth < links[j].depth + 1) depnodes[i].depth = links[j].depth + 1;
+			if (i < links[j].child) {
+				continue;
+			};
+			if (depth[i] <= links[j].depth) {
+				depth[i] = links[j].depth + 1;
+			};
 		};
 
 		// print in-between row
-		for (let d = 0u; d < depnodes[i].depth; d += 1) {
+		for (let d = 0u; d < depth[i]; d += 1) {
 			let passing = false;
 			for (let j = 0z; j < len(links); j += 1) {
-				if (i < links[j].child) continue;
+				if (i < links[j].child) {
+					continue;
+				};
 				if (d == links[j].depth) {
 					passing = true;
 				};
 			};
 			fmt::print(if (passing) "│  " else "   ")!;
 		};
-		if (i < len(depnodes) - 1) fmt::println()!;
+		if (i < len(mods) - 1) {
+			fmt::println()!;
+		};
 
 		// print row itself
 		let on_path = false;
-		for (let d = 0u; d < depnodes[i].depth; d += 1) {
+		for (let d = 0u; d < depth[i]; d += 1) {
 			let connected = false;
 			let passing = false;
 			let final = false;
 			for (let j = 0z; j < len(links); j += 1) {
-				if (i < links[j].child) continue;
+				if (i < links[j].child) {
+					continue;
+				};
 				if (d == links[j].depth) {
 					passing = true;
 					if (i == links[j].child) {
 						connected = true;
 						on_path = true;
-						if (links[j].final) final = true;
+						if (links[j].final) {
+							final = true;
+						};
 					};
 				};
 			};
@@ -110,13 +144,20 @@ fn show_deps(depnodes: *[]depnode) void = {
 				else "   "
 			)!;
 		};
-		fmt::println(depnodes[i].ident)!;
-		for (let j = 0z; j < len(depnodes[i].depends); j += 1) {
+		fmt::println(mods[i].name)!;
+		for (let j = 0z; j < len(mods[i].deps); j += 1) {
 			append(links, link{
-				depth = depnodes[i].depth,
-				child = depnodes[i].depends[j],
-				final = len(depnodes[i].depends) == j + 1,
+				depth = depth[i],
+				child = mods[i].deps[j].0,
+				final = len(mods[i].deps) == j + 1,
 			});
 		};
 	};
+};
+
+// sorts in reverse
+fn revsort(a: const *opaque, b: const *opaque) int = {
+	let a = *(a: *(size, str));
+	let b = *(b: *(size, str));
+	return (b.0 - a.0): int;
 };

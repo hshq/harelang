@@ -1,12 +1,18 @@
 // License: GPL-3.0
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
-use getopt;
-use os;
 use fmt;
+use fs;
+use getopt;
+use hare::module;
+use hare::parse;
+use io;
+use os;
+use os::exec;
+use path;
+use strconv;
 
 def VERSION: str = "unknown";
-def PLATFORM: str = "unknown";
 def HAREPATH: str = ".";
 
 const help: []getopt::help = [
@@ -15,54 +21,53 @@ const help: []getopt::help = [
 	"args...",
 	("build", [
 		"compiles the Hare program at <path>",
-		('c', "build object instead of executable"),
-		('v', "print executed commands"),
+		('q', "build silently"),
+		('v', "print executed commands (specify twice to print arguments)"),
+		('a', "arch", "set target architecture"),
 		('D', "ident[:type]=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
 		('L', "libdir", "add directory to linker library search path"),
-		('l', "name", "link with a system library"),
+		('l', "libname", "link with a system library"),
 		('N', "namespace", "override namespace for module"),
 		('o', "path", "set output file name"),
-		('t', "arch", "set target architecture"),
-		('T', "tags...", "set build tags"),
-		('X', "tags...", "unset build tags"),
-		"<path>"
+		('T', "tagset", "set/unset build tags"),
+		('t', "type", "build type (s/o/bin)"),
+		"[path]"
 	]: []getopt::help),
 	("cache", [
 		"manages the build cache",
-		('c', "cleans the specified modules"),
-		"modules...",
+		('c', "clears the cache"),
 	]: []getopt::help),
 	("deps", [
 		"prints dependency information for a Hare program",
 		('d', "print dot syntax for use with graphviz"),
-		('M', "build-dir", "print rules for POSIX make"),
-		('T', "tags...", "set build tags"),
-		('X', "tags...", "unset build tags"),
-		"<path|module>",
+		('T', "tagset", "set/unset build tags"),
+		"[path|module]",
 	]: []getopt::help),
 	("run", [
 		"compiles and runs the Hare program at <path>",
-		('v', "print executed commands"),
+		('q', "build silently"),
+		('v', "print executed commands (specify twice to print arguments)"),
+		('a', "arch", "set target architecture"),
 		('D', "ident[:type]=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
 		('L', "libdir", "add directory to linker library search path"),
-		('l', "name", "link with a system library"),
-		('T', "tags...", "set build tags"),
-		('X', "tags...", "unset build tags"),
-		"<path>", "<args...>",
+		('l', "libname", "link with a system library"),
+		('T', "tagset", "set/unset build tags"),
+		"[path [args...]]",
 	]: []getopt::help),
 	("test", [
 		"compiles and runs tests for Hare programs",
-		('v', "print executed commands"),
+		('q', "build silently"),
+		('v', "print executed commands (specify twice to print arguments)"),
+		('a', "arch", "set target architecture"),
 		('D', "ident[:type]=value", "define a constant"),
 		('j', "jobs", "set parallelism for build"),
 		('L', "libdir", "add directory to linker library search path"),
-		('l', "name", "link with a system library"),
+		('l', "libname", "link with a system library"),
 		('o', "path", "set output file name"),
-		('T', "tags...", "set build tags"),
-		('X', "tags...", "unset build tags"),
-		"[tests...]"
+		('T', "tagset", "set/unset build tags"),
+		"[path]"
 	]: []getopt::help),
 	("version", [
 		"provides version information for the Hare environment",
@@ -79,20 +84,43 @@ export fn main() void = {
 		os::exit(1);
 	case let subcmd: (str, *getopt::command) =>
 		const task = switch (subcmd.0) {
-		case "build" =>
+		case "build", "run", "test" =>
 			yield &build;
 		case "cache" =>
 			yield &cache;
 		case "deps" =>
 			yield &deps;
-		case "run" =>
-			yield &run;
-		case "test" =>
-			yield &test;
 		case "version" =>
 			yield &version;
-		case => abort(); // unreachable
+		case => abort();
 		};
-		task(subcmd.1);
+		match (task(subcmd.0, subcmd.1)) {
+		case void => void;
+		case let e: exec::error =>
+			fmt::fatal("Error:", exec::strerror(e));
+		case let e: fs::error =>
+			fmt::fatal("Error:", fs::strerror(e));
+		case let e: io::error =>
+			fmt::fatal("Error:", io::strerror(e));
+		case let e: module::error =>
+			fmt::fatal("Error:", module::strerror(e));
+		case let e: path::error =>
+			fmt::fatal("Error:", path::strerror(e));
+		case let e: parse::error =>
+			fmt::fatal("Error:", parse::strerror(e));
+		case let e: strconv::error =>
+			fmt::fatal("Error:", strconv::strerror(e));
+		case let e: unknown_arch =>
+			fmt::fatalf("Error: Unknown arch: {}", e);
+		case unknown_output =>
+			fmt::fatal("Error: Can't guess output in root directory");
+		case let e: unknown_type =>
+			fmt::fatalf("Error: Unknown build type: {}", e);
+		case let e: output_failed =>
+			fmt::fatalf("Error: Could not open output '{}': {}",
+				e.0, fs::strerror(e.1));
+		case let e: invalid_namespace =>
+			fmt::fatalf("Error: Invalid namespace: {}", e);
+		};
 	};
 };

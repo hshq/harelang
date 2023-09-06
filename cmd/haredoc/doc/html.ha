@@ -13,6 +13,7 @@ use hare::ast;
 use hare::ast::{variadism};
 use hare::lex;
 use hare::module;
+use hare::parse::doc;
 use hare::unparse;
 use io;
 use memio;
@@ -29,7 +30,8 @@ fn html_escape(out: io::handle, in: str) (size | io::error) = {
 	let iter = strings::iter(in);
 	for (true) {
 		match (strings::next(&iter)) {
-		case void => break;
+		case void =>
+			break;
 		case let rn: rune =>
 			z += fmt::fprint(out, switch (rn) {
 			case '&' =>
@@ -68,12 +70,14 @@ fn html_escape(out: io::handle, in: str) (size | io::error) = {
 };
 
 // Formats output as HTML
-fn emit_html(ctx: *context) (void | error) = {
+export fn emit_html(ctx: *context) (void | error) = {
 	const decls = ctx.summary;
 	const ident = unparse::identstr(ctx.ident);
 	defer free(ident);
 
-	if (ctx.template) head(ctx.ident)?;
+	if (ctx.template) {
+		head(ctx.ident)?;
+	};
 
 	if (len(ident) == 0) {
 		fmt::fprintf(ctx.out, "<h2>The Hare standard library <span class='heading-extra'>")?;
@@ -81,13 +85,7 @@ fn emit_html(ctx: *context) (void | error) = {
 		fmt::fprintf(ctx.out, "<h2><span class='heading-body'>{}</span><span class='heading-extra'>", ident)?;
 	};
 	for (let i = 0z; i < len(ctx.tags); i += 1) {
-		const mode = switch (ctx.tags[i].mode) {
-		case module::tag_mode::INCLUSIVE =>
-			yield '+';
-		case module::tag_mode::EXCLUSIVE =>
-			yield '-';
-		};
-		fmt::fprintf(ctx.out, "{}{} ", mode, ctx.tags[i].name)?;
+		fmt::fprintf(ctx.out, "+{} ", ctx.tags[i])?;
 	};
 	fmt::fprintln(ctx.out, "</span></h2>")?;
 
@@ -99,40 +97,18 @@ fn emit_html(ctx: *context) (void | error) = {
 		fmt::fprintln(ctx.out, "</div>")?;
 	};
 
-	let identpath = module::identpath(ctx.ident);
+	let identpath = strings::join("/", ctx.ident...);
 	defer free(identpath);
 
-	let submodules: []str = [];
-	defer free(submodules);
-
-	for (let i = 0z; i < len(ctx.version.subdirs); i += 1) {
-		let dir = ctx.version.subdirs[i];
-		// XXX: the list of reserved directory names is not yet
-		// finalized. See https://todo.sr.ht/~sircmpwn/hare/516
-		if (dir == "contrib") continue;
-		if (dir == "cmd") continue;
-		if (dir == "docs") continue;
-		if (dir == "ext") continue;
-		if (dir == "vendor") continue;
-		if (dir == "scripts") continue;
-
-		let submod = [identpath, dir]: ast::ident;
-		if (module::lookup(ctx.mctx, submod) is module::error) {
-			continue;
-		};
-
-		append(submodules, dir);
-	};
-
-	if (len(submodules) != 0) {
+	if (len(ctx.submods) != 0) {
 		if (len(ctx.ident) == 0) {
 			fmt::fprintln(ctx.out, "<h3>Modules</h3>")?;
 		} else {
 			fmt::fprintln(ctx.out, "<h3>Submodules</h3>")?;
 		};
 		fmt::fprintln(ctx.out, "<ul class='submodules'>")?;
-		for (let i = 0z; i < len(submodules); i += 1) {
-			let submodule = submodules[i];
+		for (let i = 0z; i < len(ctx.submods); i += 1) {
+			let submodule = ctx.submods[i];
 			let path = path::init("/", identpath, submodule)!;
 
 			fmt::fprintf(ctx.out, "<li><a href='")?;
@@ -214,7 +190,8 @@ fn docs_html(out: io::handle, s: str, indent: size) (size | io::error) = {
 				z += fmt::fprint(out, "\t")?;
 			};
 		};
-	case void => break;
+	case void =>
+		break;
 	};
 
 	return z;
@@ -339,9 +316,9 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 	return;
 };
 
-fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
+fn htmlref(ctx: *context, ref: ast::ident) (void | error) = {
 	const ik =
-		match (resolve(ctx, ref)) {
+		match (resolve(ctx, ref)?) {
 		case let ik: (ast::ident, symkind) =>
 			yield ik;
 		case void =>
@@ -362,12 +339,12 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 	case symkind::LOCAL =>
 		fmt::fprintf(ctx.out, "<a href='#{0}' class='ref'>{0}</a>", ident)?;
 	case symkind::MODULE =>
-		let ipath = module::identpath(id);
+		let ipath = strings::join("/", id...);
 		defer free(ipath);
 		fmt::fprintf(ctx.out, "<a href='/{}' class='ref'>{}</a>",
 			ipath, ident)?;
 	case symkind::SYMBOL =>
-		let ipath = module::identpath(id[..len(id) - 1]);
+		let ipath = strings::join("/", id[..len(id) - 1]...);
 		defer free(ipath);
 		fmt::fprintf(ctx.out, "<a href='/{}#{}' class='ref'>{}</a>",
 			ipath, id[len(id) - 1], ident)?;
@@ -375,7 +352,7 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 		fmt::fprintf(ctx.out, "<a href='#{}' class='ref'>{}</a>",
 			id[len(id) - 2], ident)?;
 	case symkind::ENUM_REMOTE =>
-		let ipath = module::identpath(id[..len(id) - 2]);
+		let ipath = strings::join("/", id[..len(id) - 2]...);
 		defer free(ipath);
 		fmt::fprintf(ctx.out, "<a href='/{}#{}' class='ref'>{}</a>",
 			ipath, id[len(id) - 2], ident)?;
@@ -383,28 +360,28 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | io::error) = {
 	free(ident);
 };
 
-fn markup_html(ctx: *context, in: io::handle) (void | io::error) = {
-	let parser = parsedoc(in);
+fn markup_html(ctx: *context, in: io::handle) (void | error) = {
+	let parser = doc::parse(in);
 	let waslist = false;
 	for (true) {
-		const tok = match (scandoc(&parser)) {
+		const tok = match (doc::scan(&parser)) {
 			case void =>
 				if (waslist) {
 					fmt::fprintln(ctx.out, "</ul>")?;
 				};
 				break;
-			case let tok: token =>
+			case let tok: doc::token =>
 				yield tok;
 			};
 		match (tok) {
-		case paragraph =>
+		case doc::paragraph =>
 			if (waslist) {
 				fmt::fprintln(ctx.out, "</ul>")?;
 				waslist = false;
 			};
 			fmt::fprintln(ctx.out)?;
 			fmt::fprint(ctx.out, "<p>")?;
-		case let tx: text =>
+		case let tx: doc::text =>
 			defer free(tx);
 			match (uri::parse(strings::trim(tx))) {
 			case let uri: uri::uri =>
@@ -421,9 +398,9 @@ fn markup_html(ctx: *context, in: io::handle) (void | io::error) = {
 			case uri::invalid =>
 				html_escape(ctx.out, tx)?;
 			};
-		case let re: reference =>
+		case let re: doc::reference =>
 			htmlref(ctx, re)?;
-		case let sa: sample =>
+		case let sa: doc::sample =>
 			if (waslist) {
 				fmt::fprintln(ctx.out, "</ul>")?;
 				waslist = false;
@@ -432,7 +409,7 @@ fn markup_html(ctx: *context, in: io::handle) (void | io::error) = {
 			html_escape(ctx.out, sa)?;
 			fmt::fprint(ctx.out, "</pre>")?;
 			free(sa);
-		case listitem =>
+		case doc::listitem =>
 			if (!waslist) {
 				fmt::fprintln(ctx.out, "<ul>")?;
 				waslist = true;
@@ -667,7 +644,9 @@ fn type_html(
 		linelen += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
 			linelen += type_html(out, indent, *t[i], brief)?;
-			if (i + 1 == len(t)) break;
+			if (i + 1 == len(t)) {
+				break;
+			};
 			linelen += fmt::fprint(out, " |")?;
 			// use 72 instead of 80 to give a bit of leeway for long
 			// type names
@@ -691,7 +670,9 @@ fn type_html(
 		linelen += fmt::fprint(out, "(")?;
 		for (let i = 0z; i < len(t); i += 1) {
 			linelen += type_html(out, indent, *t[i], brief)?;
-			if (i + 1 == len(t)) break;
+			if (i + 1 == len(t)) {
+				break;
+			};
 			linelen += fmt::fprint(out, ",")?;
 			// use 72 instead of 80 to give a bit of leeway for long
 			// type names
@@ -849,7 +830,7 @@ fn breadcrumb(ident: ast::ident) str = {
 	let buf = memio::dynamic();
 	fmt::fprintf(&buf, "<a href='/'>stdlib</a> » ")!;
 	for (let i = 0z; i < len(ident) - 1; i += 1) {
-		let ipath = module::identpath(ident[..i+1]);
+		let ipath = strings::join("/", ident[..i+1]...);
 		defer free(ipath);
 		fmt::fprintf(&buf, "<a href='/{}'>{}</a>::", ipath, ident[i])!;
 	};

@@ -3,8 +3,13 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 // (c) 2022 Alexey Yerin <yyp@disroot.org>
 use fmt;
+use fs;
 use hare::ast;
+use hare::lex;
 use hare::module;
+use hare::parse;
+use io;
+use os;
 use path;
 
 type symkind = enum {
@@ -18,7 +23,7 @@ type symkind = enum {
 // Resolves a reference. Given an identifier, determines if it refers to a local
 // symbol, a module, or a symbol in a remote module, then returns this
 // information combined with a corrected ident if necessary.
-fn resolve(ctx: *context, what: ast::ident) ((ast::ident, symkind) | void) = {
+fn resolve(ctx: *context, what: ast::ident) ((ast::ident, symkind) | void | error) = {
 	if (is_local(ctx, what)) {
 		return (what, symkind::LOCAL);
 	};
@@ -27,8 +32,9 @@ fn resolve(ctx: *context, what: ast::ident) ((ast::ident, symkind) | void) = {
 		// Look for symbol in remote module
 		let partial = what[..len(what) - 1];
 
-		match (module::lookup(ctx.mctx, partial)) {
-		case let ver: module::version =>
+		match (module::find(ctx.mctx, partial)) {
+		case let r: (str, module::srcset) =>
+			module::finish_srcset(&r.1);
 			return (what, symkind::SYMBOL);
 		case module::error => void;
 		};
@@ -41,15 +47,16 @@ fn resolve(ctx: *context, what: ast::ident) ((ast::ident, symkind) | void) = {
 		};
 	};
 	if (len(what) > 2) {
-		match (lookup_remote_enum(ctx, what)) {
+		match (lookup_remote_enum(ctx, what)?) {
 		case let id: ast::ident =>
 			return (id, symkind::ENUM_REMOTE);
 		case => void;
 		};
 	};
 
-	match (module::lookup(ctx.mctx, what)) {
-	case let ver: module::version =>
+	match (module::find(ctx.mctx, what)) {
+	case let r: (str, module::srcset) =>
+		module::finish_srcset(&r.1);
 		return (what, symkind::MODULE);
 	case module::error => void;
 	};
@@ -118,17 +125,18 @@ fn lookup_local_enum(ctx: *context, what: ast::ident) (ast::ident | void) = {
 	};
 };
 
-fn lookup_remote_enum(ctx: *context, what: ast::ident) (ast::ident | void) = {
+fn lookup_remote_enum(ctx: *context, what: ast::ident) (ast::ident | void | error) = {
 	// mod::decl_name::member
 	const mod = what[..len(what) - 2];
 	const decl_name = what[len(what) - 2];
 	const member = what[len(what) - 1];
 
-	const version = match (module::lookup(ctx.mctx, mod)) {
-	case let ver: module::version =>
-		yield ver;
-	case module::error =>
-		abort();
+	const srcs = match (module::find(ctx.mctx, mod)) {
+	case let s: (str, module::srcset) =>
+		yield s.1;
+	case let e: module::error =>
+		module::finish_error(e);
+		return void;
 	};
 
 	// This would take a lot of memory to load
@@ -139,25 +147,18 @@ fn lookup_remote_enum(ctx: *context, what: ast::ident) (ast::ident | void) = {
 		};
 		free(decls);
 	};
-	for (let i = 0z; i < len(version.inputs); i += 1) {
-		const in = version.inputs[i];
-		const ext = path::peek_ext(&path::init(in.path)!);
-		if (ext is void || ext as str != "ha") {
-			continue;
-		};
-		match (scan(in.path)) {
-		case let u: ast::subunit =>
-			append(decls, u.decls...);
-		case let err: error =>
-			fmt::fatal("Error:", strerror(err));
-		};
+	for (let i = 0z; i < len(srcs.ha); i += 1) {
+		const in = srcs.ha[i];
+		let u = scan(in)?;
+		append(decls, u.decls...);
 	};
 
 	for (let i = 0z; i < len(decls); i += 1) {
 		const decl = match (decls[i].decl) {
 		case let t: []ast::decl_type =>
 			yield t;
-		case => continue;
+		case =>
+			continue;
 		};
 		for (let i = 0z; i < len(decl); i += 1) {
 			if (decl[i].ident[0] == decl_name) {
@@ -175,4 +176,16 @@ fn lookup_remote_enum(ctx: *context, what: ast::ident) (ast::ident | void) = {
 			};
 		};
 	};
+};
+
+export fn scan(path: str) (ast::subunit | error) = {
+	const input = match (os::open(path)) {
+	case let f: io::file =>
+		yield f;
+	case let err: fs::error =>
+		fmt::fatalf("Error reading {}: {}", path, fs::strerror(err));
+	};
+	defer io::close(input)!;
+	const lexer = lex::init(input, path, lex::flag::COMMENTS);
+	return parse::subunit(&lexer)?;
 };
