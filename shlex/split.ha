@@ -14,6 +14,8 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 	let iter = strings::iter(in);
 
 	let s = memio::dynamic();
+	defer io::close(&s)!;
+
 	let slice: []str = [];
 	let first = true;
 	let dirty = false;
@@ -39,8 +41,9 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 				break;
 			};
 			if (!first) {
-				append(slice, memio::string(&s)!);
-				s = memio::dynamic();
+				const item = memio::string(&s)!;
+				append(slice, strings::dup(item));
+				memio::reset(&s);
 			};
 			dirty = false;
 		case '\\' =>
@@ -59,7 +62,8 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 	};
 
 	if (dirty) {
-		append(slice, memio::string(&s)!);
+		const item = memio::string(&s)!;
+		append(slice, strings::dup(item));
 	};
 
 	return slice;
