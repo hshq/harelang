@@ -40,6 +40,7 @@ gensrcs_rt() {
 		jmp.ha \
 		malloc.ha \
 		memcpy.ha \
+		memfunc_ptr.ha \
 		memmove.ha \
 		memset.ha \
 		strcmp.ha \
@@ -66,6 +67,7 @@ gensrcs_rt() {
 		jmp.ha \
 		malloc.ha \
 		memcpy.ha \
+		memfunc_ptr.ha \
 		memmove.ha \
 		memset.ha \
 		strcmp.ha \

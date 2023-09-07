@@ -24,6 +24,7 @@ stdlib_rt_linux_srcs = \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memfunc_ptr.ha \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
@@ -53,6 +54,7 @@ stdlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memfunc_ptr.ha \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
@@ -2466,6 +2468,7 @@ testlib_rt_linux_srcs = \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memfunc_ptr.ha \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
@@ -2496,6 +2499,7 @@ testlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memfunc_ptr.ha \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
