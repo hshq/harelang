@@ -174,7 +174,6 @@ export fn tryparse(args: []str, help: help...) (command | error) = {
 
 // Frees resources associated with the return value of [[parse]].
 export fn finish(cmd: *command) void = {
-	if (cmd == null) return;
 	free(cmd.opts);
 	match (cmd.subcmd) {
 	case void => void;
