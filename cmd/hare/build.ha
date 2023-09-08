@@ -29,8 +29,8 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		jobs = match (os::cpucount()) {
 		case errors::error =>
 			yield 1z;
-		case let ncpu: int =>
-			yield ncpu: size;
+		case let ncpu: size =>
+			yield ncpu;
 		},
 		version = build::get_version(os::tryenv("HAREC", "harec"))?,
 		...

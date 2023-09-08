@@ -97,7 +97,7 @@ export fn machine() const str = {
 };
 
 // Returns the number of usable CPUs.
-export fn cpucount() (int | errors::error) = {
+export fn cpucount() (size | errors::error) = {
 	let set = rt::cpu_set { ... };
 	match (rt::sched_getaffinity(rt::getpid(), size(rt::cpu_set), &set)) {
 	case void => void;
@@ -105,9 +105,9 @@ export fn cpucount() (int | errors::error) = {
 		return errors::errno(err);
 	};
 
-	let ret = 0;
+	let ret = 0z;
 	for (let i = 0z; i < len(set.__bits); i += 1) {
-		ret += math::popcount(set.__bits[i]): int;
+		ret += math::popcount(set.__bits[i]);
 	};
 	return ret;
 };
