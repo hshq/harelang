@@ -24,7 +24,7 @@ export fn printfln(fmt: str, fields: fmt::field...) void = {
 // Prints data to the log with a newline, then terminates the process.
 export fn lfatal(log: *logger, fields: fmt::formattable...) never = {
 	lprintln(log, fields...);
-	os::exit(1);
+	os::exit(255);
 };
 
 // Formats and prints data to the log with new line, then terminates the
@@ -35,18 +35,18 @@ export fn lfatalf(
 	fields: fmt::field...
 ) never = {
 	lprintfln(log, fmt, fields...);
-	os::exit(1);
+	os::exit(255);
 };
 
 // Prints data to the global log with new line, then terminates the process.
 export fn fatal(fields: fmt::formattable...) never = {
 	lprintln(global, fields...);
-	os::exit(1);
+	os::exit(255);
 };
 
 // Formats and prints data to the global log with new line, then terminates the
 // process.
 export fn fatalf(fmt: str, fields: fmt::field...) never = {
 	lprintfln(global, fmt, fields...);
-	os::exit(1);
+	os::exit(255);
 };

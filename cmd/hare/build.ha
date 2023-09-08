@@ -123,7 +123,7 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 	};
 	if (len(cmd.args) > 1 && name == "build") {
 		getopt::printusage(os::stderr, name, cmd.help...)!;
-		os::exit(1);
+		os::exit(os::status::FAILURE);
 	};
 
 	ctx.arch = arch.qbe_name;

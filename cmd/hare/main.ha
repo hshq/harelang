@@ -81,7 +81,7 @@ export fn main() void = {
 	match (cmd.subcmd) {
 	case void =>
 		getopt::printusage(os::stderr, os::args[0], help...)!;
-		os::exit(1);
+		os::exit(os::status::FAILURE);
 	case let subcmd: (str, *getopt::command) =>
 		const task = switch (subcmd.0) {
 		case "build", "run", "test" =>

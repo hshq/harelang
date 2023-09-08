@@ -40,7 +40,7 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 
 	if (len(cmd.args) > 1) {
 		getopt::printusage(os::stderr, name, cmd.help...)!;
-		os::exit(1);
+		os::exit(os::status::FAILURE);
 	};
 
 	const input = if (len(cmd.args) == 0) os::getcwd() else cmd.args[0];
