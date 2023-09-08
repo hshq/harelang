@@ -54,7 +54,7 @@ export fn iter(in: io::handle) iterator = iterator {
 
 // Returns the next host line as a [[host]] type.
 export fn next(it: *iterator) (host | void | error) = for (true) {
-	const line = match (bufio::scanline(it.handle)) {
+	const line = match (bufio::read_line(it.handle)) {
 	case io::EOF =>
 		return void;
 	case let line: []u8 =>
@@ -66,7 +66,7 @@ export fn next(it: *iterator) (host | void | error) = for (true) {
 	};
 
 	const scanner = memio::fixed(line);
-	const tok = match (bufio::scantok(&scanner, ' ', '\t')?) {
+	const tok = match (bufio::read_tok(&scanner, ' ', '\t')?) {
 	case io::EOF =>
 		return void;
 	case let tok: []u8 =>
@@ -77,7 +77,7 @@ export fn next(it: *iterator) (host | void | error) = for (true) {
 
 	let names: []str = [];
 	for (true) {
-		const tok = match (bufio::scantok(&scanner, ' ', '\t')?) {
+		const tok = match (bufio::read_tok(&scanner, ' ', '\t')?) {
 		case io::EOF =>
 			break;
 		case let tok: []u8 =>

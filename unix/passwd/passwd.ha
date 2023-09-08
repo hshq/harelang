@@ -30,7 +30,7 @@ export type pwent = struct {
 // Reads a Unix-like password entry from an [[io::handle]]. The caller must free
 // the return value using [[pwent_finish]].
 export fn nextpw(in: io::handle) (pwent | io::EOF | io::error | invalid) = {
-	let line = match (bufio::scanline(in)?) {
+	let line = match (bufio::read_line(in)?) {
 	case io::EOF =>
 		return io::EOF;
 	case let ln: []u8 =>
@@ -65,7 +65,7 @@ export fn nextpw(in: io::handle) (pwent | io::EOF | io::error | invalid) = {
 	};
 
 	return pwent {
-		// Borrows the return value of bufio::scanline
+		// Borrows the return value of bufio::read_line
 		username = fields[0],
 		password = fields[1],
 		uid      = uid,
@@ -79,7 +79,7 @@ export fn nextpw(in: io::handle) (pwent | io::EOF | io::error | invalid) = {
 // Frees resources associated with a [[pwent]].
 export fn pwent_finish(ent: *pwent) void = {
 	// pwent fields are sliced from one allocated string returned by
-	// bufio::scanline. Freeing the first field frees the entire string in
+	// bufio::read_line. Freeing the first field frees the entire string in
 	// one go.
 	free(ent.username);
 };

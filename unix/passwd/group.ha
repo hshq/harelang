@@ -24,7 +24,7 @@ export type grent = struct {
 // Reads a Unix-like group entry from an [[io::handle]]. The caller must free
 // the return value using [[grent_finish]].
 export fn nextgr(in: io::handle) (grent | io::EOF | io::error | invalid) = {
-	let line = match (bufio::scanline(in)?) {
+	let line = match (bufio::read_line(in)?) {
 	case let ln: []u8 =>
 		yield ln;
 	case io::EOF =>
@@ -52,7 +52,7 @@ export fn nextgr(in: io::handle) (grent | io::EOF | io::error | invalid) = {
 	};
 
 	return grent {
-		// Borrows the return value of bufio::scanline
+		// Borrows the return value of bufio::read_line
 		name      = fields[0],
 		password  = fields[1],
 		gid       = gid,

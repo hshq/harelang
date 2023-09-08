@@ -21,7 +21,7 @@ export fn emit_hare(ctx: *context) (void | error) = {
 	case let readme: io::file =>
 		first = false;
 		for (true) {
-			match (bufio::scanline(readme)?) {
+			match (bufio::read_line(readme)?) {
 			case io::EOF =>
 				break;
 			case let b: []u8 =>

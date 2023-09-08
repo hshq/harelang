@@ -23,7 +23,7 @@ export fn emit_tty(ctx: *context) (void | error) = {
 
 	match (ctx.readme) {
 	case let readme: io::file =>
-		for (true) match (bufio::scanline(readme)?) {
+		for (true) match (bufio::read_line(readme)?) {
 		case io::EOF =>
 			break;
 		case let b: []u8 =>

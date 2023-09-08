@@ -13,5 +13,5 @@ streams also support an "[[unread]]" operation, which allows you to "look-ahead"
 at future data without consuming it from the stream.
 
 Additionally, bufio provides several utilities for "scanning" streams, namely
-[[scantok]] et al, which require small, frequent reads, or take advantage of
+[[read_tok]] et al, which require small, frequent reads, or take advantage of
 look-ahead, and thus are most efficient when paired with a bufio [[stream]].

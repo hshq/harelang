@@ -85,7 +85,7 @@ export fn next(dec: *decoder) ((str, pemdecoder) | io::EOF | io::error) = {
 	for (true) {
 		// XXX: This can be improved following
 		// https://todo.sr.ht/~sircmpwn/hare/562
-		const line = match (bufio::scanline(&dec.in)?) {
+		const line = match (bufio::read_line(&dec.in)?) {
 		case io::EOF =>
 			return io::EOF;
 		case let line: []u8 =>
@@ -144,7 +144,7 @@ fn pem_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 		yield;
 	};
 
-	const line = match (bufio::scanline(st.in)?) {
+	const line = match (bufio::read_line(st.in)?) {
 	case io::EOF =>
 		return io::EOF;
 	case let line: []u8 =>

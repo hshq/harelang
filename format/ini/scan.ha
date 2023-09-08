@@ -52,7 +52,7 @@ export fn entry_finish(ent: entry) void = {
 // lifetime of the entry or its fields respectively.
 export fn next(sc: *scanner) (entry | io::EOF | error) = {
 	for (true) {
-		const line = match (bufio::scanline(sc.in)?) {
+		const line = match (bufio::read_line(sc.in)?) {
 		case let b: []u8 =>
 			yield strings::fromutf8(b)?;
 		case io::EOF =>

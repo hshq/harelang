@@ -23,7 +23,7 @@ fn load_systemdb() (void | fs::error | io::error) = {
 	const strm = bufio::init(file, buf, []);
 
 	for (true) {
-		const line = match (bufio::scanline(&strm)) {
+		const line = match (bufio::read_line(&strm)) {
 		case let bytes: []u8 =>
 			yield match (strings::fromutf8(bytes)) {
 			case utf8::invalid =>

@@ -26,13 +26,13 @@ fn printerr_syntax(err: lex::syntax) void = {
 
 	let line = 1u;
 	for (line < location.line) {
-		let r = bufio::scanrune(file) as rune;
+		let r = bufio::read_rune(file) as rune;
 		if (r == '\n') {
 			line += 1u;
 		};
 	};
 
-	let line = bufio::scanline(file) as []u8;
+	let line = bufio::read_line(file) as []u8;
 	defer free(line);
 	let line = strings::fromutf8_unsafe(line);
 	fmt::errorfln("{}:{}:{}: syntax error: {}",
