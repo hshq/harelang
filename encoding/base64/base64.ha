@@ -405,9 +405,7 @@ fn decode_reader(
 	static const npr: [3]u8 = [0, 1, 2]; // bytes to discard
 	const navl = nr / 4 * 3 - npr[np];
 	const rem = if(l - n < navl) l - n else navl;
-	for (let i = n; i < n + rem; i += 1) {
-		out[i] = obuf[i - n];
-	};
+	out[n..n + rem] = obuf[..rem];
 	s.avail = obuf[rem..navl];
 	return n + rem;
 };
