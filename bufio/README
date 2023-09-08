@@ -1,17 +1,14 @@
 bufio provides an [[io::stream]] implementation which provides buffered I/O
-support, as well as scanner utility functions which pair well with buffered
-streams for optimal efficiency.
+support, utility functions which pair well with buffered streams, and a
+[[scanner]] type which allocates and maintains its own read buffer.
 
-A [[stream]] is used to batch read and write operations against an underlying
-stream. The caller may use small, frequent read and write operations, which
-bufio will batch into larger, less frequent reads and writes. The caller must
-supply either one or two temporary buffers for reading and/or writing, which
-bufio will use to store future reads, or pending writes, as necessary. This
-improves performance when many small reads or writes would be inefficient, such
-as when I/O operations require syscalls or network transmissions.  Buffered
-streams also support an "[[unread]]" operation, which allows you to "look-ahead"
-at future data without consuming it from the stream.
+A buffered [[stream]] is used to batch read and write operations against an
+underlying [[io::handle]]. bufio provides several utilities for reading from
+handles, namely [[read_tok]] et al. These functions require small, frequent
+reads, or take advantage of look-ahead, and thus are most efficient when paired
+with a buffered [[stream]].
 
-Additionally, bufio provides several utilities for "scanning" streams, namely
-[[read_tok]] et al, which require small, frequent reads, or take advantage of
-look-ahead, and thus are most efficient when paired with a bufio [[stream]].
+bufio also provides a "scanning" interface, with functions like [[scan_string]]
+which take in a [[scanner]]. Strings returned from scanning functions are
+borrowed from the scanner's read buffer, so allocated memory can be reused for
+future scans.
