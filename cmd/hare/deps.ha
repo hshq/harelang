@@ -84,7 +84,7 @@ fn deps_graph(mods: *[]module::module) void = {
 	defer free(links);
 	let depth: []uint = alloc([0...], len(mods));
 	// traverse in reverse because reverse-topo-sort
-	for (let i = len(mods) - 1; 0 <= i && i < len(mods); i -= 1) {
+	for (let i = len(mods) - 1; i < len(mods); i -= 1) {
 		// reverse-sort deps so that we know the last in the list is the
 		// "final" child during show_deps
 		sort::sort(mods[i].deps, size((size, ast::ident)), &revsort);
