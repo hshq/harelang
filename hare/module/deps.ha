@@ -129,7 +129,6 @@ fn _gather(
 	case let r: (str, srcset) =>
 		yield r;
 	case let e: error =>
-		let e = attach(locstr(mod), e);
 		if (len(stack) == 0) {
 			return e;
 		};
