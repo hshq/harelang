@@ -39,4 +39,16 @@ fn ident_test(in: str, expected: ast::ident, extra: ltok...) void = {
 	ident_test("foo::bar", ["foo", "bar"]);
 	ident_test("foo::bar::baz", ["foo", "bar", "baz"]);
 	ident_test("foo::bar;", ["foo", "bar"], ltok::SEMICOLON);
+
+	// identifier exceeds maximum length
+	let buf: [ast::IDENT_MAX / 2 + ast::IDENT_MAX + 3]u8 = [0...];
+	let buf = buf[..0];
+	static append(buf, 'a');
+	for (let i = 0z; i < ast::IDENT_MAX / 2; i += 1) {
+		static append(buf, [':', ':', 'a']...);
+	};
+	ident_test(strings::fromutf8(buf)!,
+		["a"...]: [ast::IDENT_MAX / 2 + 1]str);
+	static append(buf, [':', ':', 'a']...);
+	ident_test(strings::fromutf8(buf)!, []);
 };

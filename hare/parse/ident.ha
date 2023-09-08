@@ -11,8 +11,8 @@ use strings;
 fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	let ident: []str = [];
 	let trailing = false;
-	let z = 0z;
 	append(ident, want(lexer, ltok::NAME)?.1 as str);
+	let z = len(ident[0]);
 	for (true) {
 		match (try(lexer, ltok::DOUBLE_COLON)?) {
 		case void => break;
