@@ -3,72 +3,40 @@
 // (c) 2021 Drew DeVault <sir@cmpwn.com>
 use hare::ast;
 use hare::lex;
+use hare::lex::{ltok};
 use io;
 use io::{mode};
 use memio;
 use strings;
 
+fn ident_test(in: str, expected: ast::ident, extra: ltok...) void = {
+	let buf = memio::fixed(strings::toutf8(in));
+	let lexer = lex::init(&buf, "<test>");
+	defer lex::finish(&lexer);
+
+	match (ident(&lexer)) {
+	case let id: ast::ident =>
+		defer ast::ident_free(id);
+		assert(ast::ident_eq(id, expected));
+	case lex::syntax =>
+		assert(len(expected) == 0);
+	case error => abort();
+	};
+
+	for (let i = 0z; i < len(extra); i += 1) {
+		let tok = lex::lex(&lexer)!;
+		defer if (tok.1 is str) free(tok.1 as str);
+		assert(tok.0 == extra[i]);
+	};
+	let tok = lex::lex(&lexer)!;
+	defer if (tok.1 is str) free(tok.1 as str);
+	assert(tok.0 == ltok::EOF);
+};
+
 @test fn ident() void = {
-	{
-		const in = ";";
-		let buf = memio::fixed(strings::toutf8(in));
-		let lexer = lex::init(&buf, "<test>");
-		defer lex::finish(&lexer);
-		ident(&lexer) as error: void;
-		let tok = lex::lex(&lexer) as lex::token;
-		assert(tok.0 == lex::ltok::SEMICOLON);
-	};
-
-	{
-		const in = "foo";
-		let buf = memio::fixed(strings::toutf8(in));
-		let lexer = lex::init(&buf, "<test>");
-		defer lex::finish(&lexer);
-		let ident = ident(&lexer) as ast::ident;
-		defer ast::ident_free(ident);
-		assert(len(ident) == 1);
-		assert(ident[0] == "foo");
-		let tok = lex::lex(&lexer) as lex::token;
-		assert(tok.0 == lex::ltok::EOF);
-	};
-
-	{
-		const in = "foo::bar";
-		let buf = memio::fixed(strings::toutf8(in));
-		let lexer = lex::init(&buf, "<test>");
-		defer lex::finish(&lexer);
-		let ident = ident(&lexer) as ast::ident;
-		defer ast::ident_free(ident);
-		assert(len(ident) == 2);
-		assert(ident[0] == "foo" && ident[1] == "bar");
-		let tok = lex::lex(&lexer) as lex::token;
-		assert(tok.0 == lex::ltok::EOF);
-	};
-
-	{
-		const in = "foo::bar::baz";
-		let buf = memio::fixed(strings::toutf8(in));
-		let lexer = lex::init(&buf, "<test>");
-		defer lex::finish(&lexer);
-		let ident = ident(&lexer) as ast::ident;
-		defer ast::ident_free(ident);
-		assert(len(ident) == 3);
-		assert(ident[0] == "foo" && ident[1] == "bar"
-			&& ident[2] == "baz");
-		let tok = lex::lex(&lexer) as lex::token;
-		assert(tok.0 == lex::ltok::EOF);
-	};
-
-	{
-		const in = "foo::bar;";
-		let buf = memio::fixed(strings::toutf8(in));
-		let lexer = lex::init(&buf, "<test>");
-		defer lex::finish(&lexer);
-		let ident = ident(&lexer) as ast::ident;
-		defer ast::ident_free(ident);
-		assert(len(ident) == 2);
-		assert(ident[0] == "foo" && ident[1] == "bar");
-		let tok = lex::lex(&lexer) as lex::token;
-		assert(tok.0 == lex::ltok::SEMICOLON);
-	};
+	ident_test(";", [], ltok::SEMICOLON);
+	ident_test("foo", ["foo"]);
+	ident_test("foo::bar", ["foo", "bar"]);
+	ident_test("foo::bar::baz", ["foo", "bar", "baz"]);
+	ident_test("foo::bar;", ["foo", "bar"], ltok::SEMICOLON);
 };
