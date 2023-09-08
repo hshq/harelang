@@ -26,24 +26,19 @@ use strings;
 };
 
 @test fn golden() void = {
-	// TODO https://todo.sr.ht/~sircmpwn/hare/596
-	let priv_key: privkey = [0...];
-	let priv_key_u8 = hex::decodestr("8ed7a797b9cea8a8370d419136bcdf683b759d2e3c6947f17e13e2485aa9d420b49f3a78b1c6a7fca8f3466f33bc0e929f01fba04306c2a7465f46c3759316d9") as []u8;
-	priv_key[..] = priv_key_u8[..];
-	free(priv_key_u8);
-	const pub_key = privkey_getpubkey(&priv_key);
+	let priv_key = hex::decodestr("8ed7a797b9cea8a8370d419136bcdf683b759d2e3c6947f17e13e2485aa9d420b49f3a78b1c6a7fca8f3466f33bc0e929f01fba04306c2a7465f46c3759316d9")!;
+	defer free(priv_key);
+	const pub_key = privkey_getpubkey(priv_key);
 
-	let msg = hex::decodestr("a750c232933dc14b1184d86d8b4ce72e16d69744ba69818b6ac33b1d823bb2c3") as []u8;
+	let msg = hex::decodestr("a750c232933dc14b1184d86d8b4ce72e16d69744ba69818b6ac33b1d823bb2c3")!;
 	defer free(msg);
 
-	let good_sig: privkey = [0...];
-	let sig_u8 = hex::decodestr("04266c033b91c1322ceb3446c901ffcf3cc40c4034e887c9597ca1893ba7330becbbd8b48142ef35c012c6ba51a66df9308cb6268ad6b1e4b03e70102495790b") as []u8;
-	good_sig[..] = sig_u8[..];
-	free(sig_u8);
+	let good_sig = hex::decodestr("04266c033b91c1322ceb3446c901ffcf3cc40c4034e887c9597ca1893ba7330becbbd8b48142ef35c012c6ba51a66df9308cb6268ad6b1e4b03e70102495790b")!;
+	defer free(good_sig);
 
-	const sig = sign(&priv_key, msg);
+	const sig = sign(priv_key, msg);
 	assert(bytes::equal(sig, good_sig));
-	assert(verify(&pub_key, msg, &sig));
+	assert(verify(pub_key, msg, sig));
 };
 
 @test fn issue716() void = {
