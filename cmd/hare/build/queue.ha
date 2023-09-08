@@ -222,13 +222,17 @@ fn await_task(ctx: *context, jobs: *[]job) (size | void | error) = {
 fn cleanup_task(ctx: *context, t: *task) (void | error) = {
 	let out = get_cache(ctx, t.idx, t.kind)?;
 	defer free(out);
+
+	if (t.kind == stage::SSA) {
+		cleanup_ssa_task(ctx, t, out)?;
+	};
+
 	let tmp = strings::concat(out, ".tmp");
 	defer free(tmp);
 	os::move(tmp, out)?;
-	if (t.kind != stage::SSA) {
-		return;
-	};
+};
 
+fn cleanup_ssa_task(ctx: *context, t: *task, out: str) (void | error) = {
 	// td file is hashed solely based on its contents. not worth doing this
 	// for other types of outputs, but it gets us better caching behavior
 	// for tds since we need to include the dependency tds in the ssa hash
