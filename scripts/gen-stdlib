@@ -41,11 +41,12 @@ gensrcs_rt() {
 		jmp.ha \
 		malloc.ha \
 		memcpy.ha \
+		memfunc_ptr.ha \
 		memmove.ha \
 		memset.ha \
 		strcmp.ha \
 		unknown_errno.ha \
-		ztos.ha \
+		u64tos.ha \
 		$*
 	gen_srcs -pfreebsd rt \
 		+freebsd/platform_abort.ha \
@@ -67,11 +68,12 @@ gensrcs_rt() {
 		jmp.ha \
 		malloc.ha \
 		memcpy.ha \
+		memfunc_ptr.ha \
 		memmove.ha \
 		memset.ha \
 		strcmp.ha \
 		unknown_errno.ha \
-		ztos.ha \
+		u64tos.ha \
 		$*
 	gen_srcs -pdarwin rt \
 		+darwin/platform_abort.ha \

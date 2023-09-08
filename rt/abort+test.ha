@@ -3,20 +3,32 @@
 // (c) 2021 Ember Sawady <ecs@d2evs.net>
 
 export type abort_reason = struct {
-	loc: str,
+	path: nullable *str,
+	line: u64,
+	col: u64,
 	msg: str,
 };
 
 export let jmp: nullable *jmpbuf = null;
 export let reason: abort_reason = abort_reason { ... };
 
-export @symbol("rt.abort") fn _abort(loc: str, msg: str) void = {
+export @symbol("rt.abort") fn _abort(
+	path: *str,
+	line: u64,
+	col: u64,
+	msg: str,
+) void = {
 	match (jmp) {
 	case let j: *jmpbuf =>
-		reason = abort_reason { loc = loc, msg = msg };
+		reason = abort_reason {
+			path = path,
+			line = line,
+			col = col,
+			msg = msg,
+		};
 		longjmp(j, 1);
 	case null =>
-		platform_abort(loc, msg);
+		platform_abort(path, line, col, msg);
 	};
 };
 
@@ -32,6 +44,6 @@ const reasons: [_]str = [
 	"error occurred",					// 7
 ];
 
-export fn abort_fixed(loc: str, i: int) void = {
-	_abort(loc, reasons[i]);
+export fn abort_fixed(path: *str, line: u64, col: u64, i: u64) void = {
+	_abort(path, line, col, reasons[i]);
 };

@@ -24,11 +24,12 @@ stdlib_rt_linux_srcs = \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memfunc_ptr.ha \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/unknown_errno.ha \
-	$(STDLIB)/rt/ztos.ha \
+	$(STDLIB)/rt/u64tos.ha \
 	$(STDLIB)/rt/abort.ha \
 	$(STDLIB)/rt/start.ha
 
@@ -53,11 +54,12 @@ stdlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memfunc_ptr.ha \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/unknown_errno.ha \
-	$(STDLIB)/rt/ztos.ha \
+	$(STDLIB)/rt/u64tos.ha \
 	$(STDLIB)/rt/abort.ha \
 	$(STDLIB)/rt/start.ha
 
@@ -2960,11 +2962,12 @@ testlib_rt_linux_srcs = \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memfunc_ptr.ha \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/unknown_errno.ha \
-	$(STDLIB)/rt/ztos.ha \
+	$(STDLIB)/rt/u64tos.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/+test/signal_test.ha
@@ -2990,11 +2993,12 @@ testlib_rt_freebsd_srcs = \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memfunc_ptr.ha \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/unknown_errno.ha \
-	$(STDLIB)/rt/ztos.ha \
+	$(STDLIB)/rt/u64tos.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/+test/signal_test.ha
