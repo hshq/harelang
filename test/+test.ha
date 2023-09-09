@@ -141,8 +141,8 @@ export @symbol("__test_main") fn main() size = {
 		if (len(ctx.failures) > 0) "91" else "37",
 		len(ctx.failures),
 		len(enabled_tests),
-		ctx.total_time / 1000000000,
-		ctx.total_time % 1000000000)!;
+		ctx.total_time / time::SECOND,
+		ctx.total_time % time::SECOND)!;
 	ignoreme(ctx.failures, enabled_tests);
 
 	return len(ctx.failures);
