@@ -11,8 +11,10 @@ use strings;
 fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	let ident: []str = [];
 	let trailing = false;
-	let z = 0z;
-	append(ident, want(lexer, ltok::NAME)?.1 as str);
+	const tok = want(lexer, ltok::NAME)?;
+	append(ident, tok.1 as str);
+	const loc = tok.2;
+	let z = len(ident[0]);
 	for (true) {
 		match (try(lexer, ltok::DOUBLE_COLON)?) {
 		case void => break;
@@ -31,8 +33,7 @@ fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	};
 	if (z > ast::IDENT_MAX) {
 		ast::ident_free(ident: ast::ident);
-		return syntaxerr(lex::mkloc(lexer),
-			"Identifier exceeds maximum length");
+		return syntaxerr(loc, "Identifier exceeds maximum length");
 	};
 	return (ident: ast::ident, trailing);
 };

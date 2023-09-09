@@ -7,5 +7,5 @@ use os;
 
 @test fn exit() void = {
 	expectabort();
-	os::exit(1);
+	os::exit(os::status::FAILURE);
 };

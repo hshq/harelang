@@ -4,46 +4,46 @@ use io;
 use memio;
 use strings;
 
-@test fn scanbyte() void = {
+@test fn read_byte() void = {
 	let buf = memio::fixed([1, 3, 3, 7]);
 
-	assert(scanbyte(&buf) as u8 == 1);
-	assert(scanbyte(&buf) as u8 == 3);
-	assert(scanbyte(&buf) as u8 == 3);
-	assert(scanbyte(&buf) as u8 == 7);
-	assert(scanbyte(&buf) is io::EOF);
+	assert(read_byte(&buf) as u8 == 1);
+	assert(read_byte(&buf) as u8 == 3);
+	assert(read_byte(&buf) as u8 == 3);
+	assert(read_byte(&buf) as u8 == 7);
+	assert(read_byte(&buf) is io::EOF);
 };
 
-@test fn scantok() void = {
+@test fn read_tok() void = {
 	let buf = memio::fixed([1, 3, 4, 5, 3, 7]);
 
-	let tok = scantok(&buf, 4) as []u8;
+	let tok = read_tok(&buf, 4) as []u8;
 	defer free(tok);
 	assert(bytes::equal(tok, [1, 3]));
 
-	let tok = scantok(&buf, 7) as []u8;
+	let tok = read_tok(&buf, 7) as []u8;
 	defer free(tok);
 	assert(bytes::equal(tok, [5, 3]));
 
-	assert(scantok(&buf, 1) is io::EOF);
+	assert(read_tok(&buf, 1) is io::EOF);
 };
 
-@test fn scanline() void = {
+@test fn read_line() void = {
 	let helloworld = strings::toutf8("hello\nworld");
 	let buf = memio::fixed(helloworld);
 
-	let line = scanline(&buf) as []u8;
+	let line = read_line(&buf) as []u8;
 	defer free(line);
 	assert(bytes::equal(line, strings::toutf8("hello")));
 
-	let line = scanline(&buf) as []u8;
+	let line = read_line(&buf) as []u8;
 	defer free(line);
 	assert(bytes::equal(line, strings::toutf8("world")));
 
-	assert(scanline(&buf) is io::EOF);
+	assert(read_line(&buf) is io::EOF);
 };
 
-@test fn scanrune() void = {
+@test fn read_rune() void = {
 	let in = memio::fixed([
 		0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3, 0x81,
 		0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0x00,
@@ -55,7 +55,7 @@ use strings;
 	for (let i = 0z; i < len(expected); i += 1) {
 		let want = expected[i];
 
-		match (scanrune(&in)) {
+		match (read_rune(&in)) {
 		case let r: rune =>
 			assert(want is rune && want as rune == r);
 		case io::EOF =>

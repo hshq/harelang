@@ -67,7 +67,7 @@ export type error = !(
 );
 
 // A wrapper for [[tryparse]] in which if an error occurs, details are printed
-// to [[os::stderr]] and [[os::exit]] is called with a nonzero exit status.
+// to [[os::stderr]] and [[os::exit]] is called with [[os::status::FAILURE]].
 export fn parse(args: []str, help: help...) command = {
 	match (tryparse(args, help...)) {
 	case let c: command => return c;
@@ -83,7 +83,7 @@ export fn parse(args: []str, help: help...) command = {
 			fmt::errorln()!;
 		};
 		printusage(os::stderr, e.0, e.1)!;
-		os::exit(1);
+		os::exit(os::status::FAILURE);
 	};
 };
 
@@ -138,7 +138,7 @@ export fn tryparse(args: []str, help: help...) (command | error) = {
 			if (found) continue;
 			if (r =='h') {
 				printhelp(os::stderr, args[0], help)!;
-				os::exit(0);
+				os::exit(os::status::SUCCESS);
 			};
 			free(opts);
 			return (args[0], help, r: unknown_option): error;
@@ -174,7 +174,6 @@ export fn tryparse(args: []str, help: help...) (command | error) = {
 
 // Frees resources associated with the return value of [[parse]].
 export fn finish(cmd: *command) void = {
-	if (cmd == null) return;
 	free(cmd.opts);
 	match (cmd.subcmd) {
 	case void => void;

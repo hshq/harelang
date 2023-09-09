@@ -39,7 +39,7 @@ export fn main() void = {
 	defer types::store_free(store);
 
 	for (true) {
-		const line = match (bufio::scanline(os::stdin)!) {
+		const line = match (bufio::read_line(os::stdin)!) {
 		case io::EOF =>
 			break;
 		case let line: []u8 =>

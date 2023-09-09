@@ -40,7 +40,7 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 
 	if (len(cmd.args) > 1) {
 		getopt::printusage(os::stderr, name, cmd.help...)!;
-		os::exit(1);
+		os::exit(os::status::FAILURE);
 	};
 
 	const input = if (len(cmd.args) == 0) os::getcwd() else cmd.args[0];
@@ -84,7 +84,7 @@ fn deps_graph(mods: *[]module::module) void = {
 	defer free(links);
 	let depth: []uint = alloc([0...], len(mods));
 	// traverse in reverse because reverse-topo-sort
-	for (let i = len(mods) - 1; 0 <= i && i < len(mods); i -= 1) {
+	for (let i = len(mods) - 1; i < len(mods); i -= 1) {
 		// reverse-sort deps so that we know the last in the list is the
 		// "final" child during show_deps
 		sort::sort(mods[i].deps, size((size, ast::ident)), &revsort);

@@ -245,7 +245,7 @@ export fn scan_buffer(scan: *scanner) []u8 = {
 };
 
 // Reads a single byte from an [[io::handle]].
-export fn scanbyte(file: io::handle) (u8 | io::EOF | io::error) = {
+export fn read_byte(file: io::handle) (u8 | io::EOF | io::error) = {
 	let buf: [1]u8 = [0...];
 
 	match (io::readall(file, buf)?) {
@@ -258,11 +258,11 @@ export fn scanbyte(file: io::handle) (u8 | io::EOF | io::error) = {
 
 // Reads a slice of bytes until the delimiter. Delimiter is not included but
 // it is read from the file. The return value must be freed by the caller.
-export fn scantok(file: io::handle, delim: u8...) ([]u8 | io::EOF | io::error) = {
+export fn read_tok(file: io::handle, delim: u8...) ([]u8 | io::EOF | io::error) = {
 	let buf: []u8 = [];
 
 	for (true) {
-		match (scanbyte(file)?) {
+		match (read_byte(file)?) {
 		case let res: u8 =>
 			if (bytes::contains(delim, res)) {
 				break;
@@ -282,11 +282,11 @@ export fn scantok(file: io::handle, delim: u8...) ([]u8 | io::EOF | io::error) =
 // Reads a slice of bytes until a newline character (\n, 0x0A). Newline itself
 // is not included but it is read from the file. The return value must be
 // freed by the caller.
-export fn scanline(file: io::handle) ([]u8 | io::EOF | io::error) =
-	scantok(file, '\n');
+export fn read_line(file: io::handle) ([]u8 | io::EOF | io::error) =
+	read_tok(file, '\n');
 
 // Reads a rune from a UTF-8 stream.
-export fn scanrune(
+export fn read_rune(
 	file: io::handle,
 ) (rune | utf8::invalid | io::EOF | io::error) = {
 	let b: [4]u8 = [0...];

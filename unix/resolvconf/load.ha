@@ -28,7 +28,7 @@ export fn load() []ip::addr = {
 	defer io::close(file)!;
 
 	for (true) {
-		const line = match (bufio::scanline(file)) {
+		const line = match (bufio::read_line(file)) {
 		case io::EOF =>
 			break;
 		case let line: []u8 =>
@@ -40,7 +40,7 @@ export fn load() []ip::addr = {
 		};
 
 		const scanner = memio::fixed(line);
-		const tok = match (bufio::scantok(&scanner, ' ', '\t')!) {
+		const tok = match (bufio::read_tok(&scanner, ' ', '\t')!) {
 		case io::EOF =>
 			break;
 		case let tok: []u8 =>
@@ -51,7 +51,7 @@ export fn load() []ip::addr = {
 			continue;
 		};
 
-		const tok = match (bufio::scantok(&scanner, ' ')!) {
+		const tok = match (bufio::read_tok(&scanner, ' ')!) {
 		case io::EOF =>
 			break;
 		case let tok: []u8 =>

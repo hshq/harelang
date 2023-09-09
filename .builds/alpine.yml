@@ -30,14 +30,14 @@ tasks:
 - hare: |
     cd hare
     cp config.example.mk config.mk
-    make
+    make -j2
     sudo make install
 - tests: |
     cd hare
     make -j2 .bin/hare-tests
 - check: |
     cd hare
-    make check
+    make -j2 check
 - tests_with_libc: |
     cd hare
     hare test -T+libc -lc -o .bin/hare-tests-libc

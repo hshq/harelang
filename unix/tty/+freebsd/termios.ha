@@ -61,3 +61,10 @@ export fn makeraw(termios: *termios) (void | errors::error) = {
 
 	termios_set(termios)?;
 };
+
+// Disables "echo" on this terminal. Users should call [[termios_restore]] to
+// restore settings.
+export fn noecho(termios: *termios) (void | errors::error) = {
+	termios.current.c_lflag &= ~rt::tcflag::ECHO;
+	termios_set(termios)?;
+};

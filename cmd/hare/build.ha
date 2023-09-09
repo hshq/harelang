@@ -29,8 +29,8 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		jobs = match (os::cpucount()) {
 		case errors::error =>
 			yield 1z;
-		case let ncpu: int =>
-			yield ncpu: size;
+		case let ncpu: size =>
+			yield ncpu;
 		},
 		version = build::get_version(os::tryenv("HAREC", "harec"))?,
 		...
@@ -123,7 +123,7 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 	};
 	if (len(cmd.args) > 1 && name == "build") {
 		getopt::printusage(os::stderr, name, cmd.help...)!;
-		os::exit(1);
+		os::exit(os::status::FAILURE);
 	};
 
 	ctx.arch = arch.qbe_name;

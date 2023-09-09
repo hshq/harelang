@@ -63,7 +63,7 @@ fn parse_utc_leapsecs(
 	leapsecs: *[](i64, i64),
 ) (void | encoding::utf8::invalid | io::error) = {
 	for (true) {
-		const line = match (bufio::scanline(h)) {
+		const line = match (bufio::read_line(h)) {
 		case let err: io::error =>
 			return err;
 		case io::EOF =>

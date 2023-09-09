@@ -703,7 +703,7 @@ fn search(
 			return res;
 		};
 
-		const r_or_end = bufio::scanrune(handle)!;
+		const r_or_end = bufio::read_rune(handle)!;
 		if (r_or_end is rune) {
 			last_bytesize = utf8::runesz(r_or_end as rune);
 		};

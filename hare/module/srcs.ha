@@ -51,7 +51,14 @@ export fn finish_srcset(srcs: *srcset) void = {
 export fn find(ctx: *context, loc: location) ((str, srcset) | error) = {
 	match (loc) {
 	case let buf: *path::buffer =>
-		return (path::string(buf), path_find(ctx, buf)?);
+		match (path_find(ctx, buf)) {
+		case let s: srcset =>
+			return (path::string(buf), s);
+		case not_found =>
+			return attach(locstr(loc), not_found);
+		case let e: error =>
+			return e;
+		};
 	case let mod: ast::ident =>
 		let tok = strings::tokenize(ctx.harepath, ":");
 		let next: (str | void) = ".";
@@ -74,7 +81,7 @@ export fn find(ctx: *context, loc: location) ((str, srcset) | error) = {
 				return e;
 			};
 		};
-		return not_found;
+		return attach(locstr(mod), not_found);
 	};
 };
 
