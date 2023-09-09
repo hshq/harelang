@@ -84,11 +84,12 @@ stdlib_rt_darwin_srcs = \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memfunc_ptr.ha \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/unknown_errno.ha \
-	$(STDLIB)/rt/ztos.ha \
+	$(STDLIB)/rt/u64tos.ha \
 	$(STDLIB)/rt/abort.ha \
 	$(STDLIB)/rt/start.ha
 
@@ -208,6 +209,7 @@ stdlib_env += HARE_TD_cmd::hare::build=$(HARECACHE)/cmd/hare/build/cmd_hare_buil
 stdlib_deps_any += $(stdlib_cmd_hare_build_any)
 stdlib_cmd_hare_build_linux = $(stdlib_cmd_hare_build_any)
 stdlib_cmd_hare_build_freebsd = $(stdlib_cmd_hare_build_any)
+stdlib_cmd_hare_build_darwin = $(stdlib_cmd_hare_build_any)
 
 # gen_lib crypto (any)
 stdlib_crypto_any = $(HARECACHE)/crypto/crypto-any.o
@@ -582,6 +584,7 @@ stdlib_env += HARE_TD_hare::parse::doc=$(HARECACHE)/hare/parse/doc/hare_parse_do
 stdlib_deps_any += $(stdlib_hare_parse_doc_any)
 stdlib_hare_parse_doc_linux = $(stdlib_hare_parse_doc_any)
 stdlib_hare_parse_doc_freebsd = $(stdlib_hare_parse_doc_any)
+stdlib_hare_parse_doc_darwin = $(stdlib_hare_parse_doc_any)
 
 # gen_lib hare::types (any)
 stdlib_hare_types_any = $(HARECACHE)/hare/types/hare_types-any.o
@@ -3024,11 +3027,12 @@ testlib_rt_darwin_srcs = \
 	$(STDLIB)/rt/jmp.ha \
 	$(STDLIB)/rt/malloc.ha \
 	$(STDLIB)/rt/memcpy.ha \
+	$(STDLIB)/rt/memfunc_ptr.ha \
 	$(STDLIB)/rt/memmove.ha \
 	$(STDLIB)/rt/memset.ha \
 	$(STDLIB)/rt/strcmp.ha \
 	$(STDLIB)/rt/unknown_errno.ha \
-	$(STDLIB)/rt/ztos.ha \
+	$(STDLIB)/rt/u64tos.ha \
 	$(STDLIB)/rt/abort+test.ha \
 	$(STDLIB)/rt/start+test.ha \
 	$(STDLIB)/rt/+test/signal_test.ha
@@ -3149,6 +3153,7 @@ testlib_env += HARE_TD_cmd::hare::build=$(TESTCACHE)/cmd/hare/build/cmd_hare_bui
 testlib_deps_any += $(testlib_cmd_hare_build_any)
 testlib_cmd_hare_build_linux = $(testlib_cmd_hare_build_any)
 testlib_cmd_hare_build_freebsd = $(testlib_cmd_hare_build_any)
+testlib_cmd_hare_build_darwin = $(testlib_cmd_hare_build_any)
 
 # gen_lib crypto (any)
 testlib_crypto_any = $(TESTCACHE)/crypto/crypto-any.o
@@ -3523,6 +3528,7 @@ testlib_env += HARE_TD_hare::parse::doc=$(TESTCACHE)/hare/parse/doc/hare_parse_d
 testlib_deps_any += $(testlib_hare_parse_doc_any)
 testlib_hare_parse_doc_linux = $(testlib_hare_parse_doc_any)
 testlib_hare_parse_doc_freebsd = $(testlib_hare_parse_doc_any)
+testlib_hare_parse_doc_darwin = $(testlib_hare_parse_doc_any)
 
 # gen_lib hare::types (any)
 testlib_hare_types_any = $(TESTCACHE)/hare/types/hare_types-any.o
