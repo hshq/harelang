@@ -200,7 +200,9 @@ fn await_task(ctx: *context, jobs: *[]job) (size | void | error) = {
 	let output = io::drain(output)?;
 	defer free(output);
 	if (len(output) > 0) {
-		fmt::errorln()?;
+		if (ctx.mode == output::DEFAULT) {
+			fmt::errorln()?;
+		};
 		io::writeall(os::stderr, output)?;
 	};
 
