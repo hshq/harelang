@@ -96,13 +96,13 @@ stdlib_rt_darwin_srcs = \
 $(HARECACHE)/rt/rt-linux.ssa: $(stdlib_rt_linux_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nrt \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nrt \
 		-t$(HARECACHE)/rt/rt.td $(stdlib_rt_linux_srcs)
 
 $(HARECACHE)/rt/rt-freebsd.ssa: $(stdlib_rt_freebsd_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/rt
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nrt \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nrt \
 		-t$(HARECACHE)/rt/rt.td $(stdlib_rt_freebsd_srcs)
 
 $(HARECACHE)/rt/rt-darwin.ssa: $(stdlib_rt_darwin_srcs) $(stdlib_rt)
@@ -1140,7 +1140,7 @@ stdlib_ascii_any_srcs = \
 $(HARECACHE)/ascii/ascii-any.ssa: $(stdlib_ascii_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/ascii
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nascii \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nascii \
 		-t$(HARECACHE)/ascii/ascii.td $(stdlib_ascii_any_srcs)
 
 # bufio (+any)
@@ -1151,7 +1151,7 @@ stdlib_bufio_any_srcs = \
 $(HARECACHE)/bufio/bufio-any.ssa: $(stdlib_bufio_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/bufio
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nbufio \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nbufio \
 		-t$(HARECACHE)/bufio/bufio.td $(stdlib_bufio_any_srcs)
 
 # bytes (+any)
@@ -1168,7 +1168,7 @@ stdlib_bytes_any_srcs = \
 $(HARECACHE)/bytes/bytes-any.ssa: $(stdlib_bytes_any_srcs) $(stdlib_rt) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/bytes
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nbytes \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nbytes \
 		-t$(HARECACHE)/bytes/bytes.td $(stdlib_bytes_any_srcs)
 
 # cmd::hare::build (+any)
@@ -1181,7 +1181,7 @@ stdlib_cmd_hare_build_any_srcs = \
 $(HARECACHE)/cmd/hare/build/cmd_hare_build-any.ssa: $(stdlib_cmd_hare_build_any_srcs) $(stdlib_rt) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_module_$(PLATFORM)) $(stdlib_hare_unparse_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_os_exec_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_shlex_$(PLATFORM)) $(stdlib_unix_tty_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/cmd/hare/build
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncmd::hare::build \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncmd::hare::build \
 		-t$(HARECACHE)/cmd/hare/build/cmd_hare_build.td $(stdlib_cmd_hare_build_any_srcs)
 
 # crypto (+any)
@@ -1192,7 +1192,7 @@ stdlib_crypto_any_srcs = \
 $(HARECACHE)/crypto/crypto-any.ssa: $(stdlib_crypto_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_argon2_$(PLATFORM)) $(stdlib_crypto_chachapoly_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto \
 		-t$(HARECACHE)/crypto/crypto.td $(stdlib_crypto_any_srcs)
 
 # crypto::aes (+any)
@@ -1204,7 +1204,7 @@ stdlib_crypto_aes_any_srcs = \
 $(HARECACHE)/crypto/aes/crypto_aes-any.ssa: $(stdlib_crypto_aes_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/aes
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::aes \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::aes \
 		-t$(HARECACHE)/crypto/aes/crypto_aes.td $(stdlib_crypto_aes_any_srcs)
 
 # crypto::aes::xts (+any)
@@ -1214,7 +1214,7 @@ stdlib_crypto_aes_xts_any_srcs = \
 $(HARECACHE)/crypto/aes/xts/crypto_aes_xts-any.ssa: $(stdlib_crypto_aes_xts_any_srcs) $(stdlib_rt) $(stdlib_crypto_aes_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/aes/xts
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::aes::xts \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::aes::xts \
 		-t$(HARECACHE)/crypto/aes/xts/crypto_aes_xts.td $(stdlib_crypto_aes_xts_any_srcs)
 
 # crypto::argon2 (+any)
@@ -1224,7 +1224,7 @@ stdlib_crypto_argon2_any_srcs = \
 $(HARECACHE)/crypto/argon2/crypto_argon2-any.ssa: $(stdlib_crypto_argon2_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_blake2b_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/argon2
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::argon2 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::argon2 \
 		-t$(HARECACHE)/crypto/argon2/crypto_argon2.td $(stdlib_crypto_argon2_any_srcs)
 
 # crypto::bcrypt (+any)
@@ -1235,7 +1235,7 @@ stdlib_crypto_bcrypt_any_srcs = \
 $(HARECACHE)/crypto/bcrypt/crypto_bcrypt-any.ssa: $(stdlib_crypto_bcrypt_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_$(PLATFORM)) $(stdlib_crypto_blowfish_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_crypto_random_$(PLATFORM)) $(stdlib_encoding_base64_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/bcrypt
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::bcrypt \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::bcrypt \
 		-t$(HARECACHE)/crypto/bcrypt/crypto_bcrypt.td $(stdlib_crypto_bcrypt_any_srcs)
 
 # crypto::blake2b (+any)
@@ -1245,7 +1245,7 @@ stdlib_crypto_blake2b_any_srcs = \
 $(HARECACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(stdlib_crypto_blake2b_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/blake2b
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::blake2b \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::blake2b \
 		-t$(HARECACHE)/crypto/blake2b/crypto_blake2b.td $(stdlib_crypto_blake2b_any_srcs)
 
 # crypto::blowfish (+any)
@@ -1256,7 +1256,7 @@ stdlib_crypto_blowfish_any_srcs = \
 $(HARECACHE)/crypto/blowfish/crypto_blowfish-any.ssa: $(stdlib_crypto_blowfish_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/blowfish
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::blowfish \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::blowfish \
 		-t$(HARECACHE)/crypto/blowfish/crypto_blowfish.td $(stdlib_crypto_blowfish_any_srcs)
 
 # crypto::bigint (+any)
@@ -1270,7 +1270,7 @@ stdlib_crypto_bigint_any_srcs = \
 $(HARECACHE)/crypto/bigint/crypto_bigint-any.ssa: $(stdlib_crypto_bigint_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/bigint
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::bigint \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::bigint \
 		-t$(HARECACHE)/crypto/bigint/crypto_bigint.td $(stdlib_crypto_bigint_any_srcs)
 
 # crypto::chacha (+any)
@@ -1280,7 +1280,7 @@ stdlib_crypto_chacha_any_srcs = \
 $(HARECACHE)/crypto/chacha/crypto_chacha-any.ssa: $(stdlib_crypto_chacha_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/chacha
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::chacha \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::chacha \
 		-t$(HARECACHE)/crypto/chacha/crypto_chacha.td $(stdlib_crypto_chacha_any_srcs)
 
 # crypto::chachapoly (+any)
@@ -1290,7 +1290,7 @@ stdlib_crypto_chachapoly_any_srcs = \
 $(HARECACHE)/crypto/chachapoly/crypto_chachapoly-any.ssa: $(stdlib_crypto_chachapoly_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_chacha_$(PLATFORM)) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_crypto_poly1305_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/chachapoly
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::chachapoly \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::chachapoly \
 		-t$(HARECACHE)/crypto/chachapoly/crypto_chachapoly.td $(stdlib_crypto_chachapoly_any_srcs)
 
 # crypto::cipher (+any)
@@ -1306,7 +1306,7 @@ stdlib_crypto_cipher_any_srcs = \
 $(HARECACHE)/crypto/cipher/crypto_cipher-any.ssa: $(stdlib_crypto_cipher_any_srcs) $(stdlib_rt) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/cipher
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::cipher \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::cipher \
 		-t$(HARECACHE)/crypto/cipher/crypto_cipher.td $(stdlib_crypto_cipher_any_srcs)
 
 # crypto::hkdf (+any)
@@ -1316,7 +1316,7 @@ stdlib_crypto_hkdf_any_srcs = \
 $(HARECACHE)/crypto/hkdf/crypto_hkdf-any.ssa: $(stdlib_crypto_hkdf_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_hmac_$(PLATFORM)) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_hash_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/hkdf
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::hkdf \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::hkdf \
 		-t$(HARECACHE)/crypto/hkdf/crypto_hkdf.td $(stdlib_crypto_hkdf_any_srcs)
 
 # crypto::hmac (+any)
@@ -1328,7 +1328,7 @@ stdlib_crypto_hmac_any_srcs = \
 $(HARECACHE)/crypto/hmac/crypto_hmac-any.ssa: $(stdlib_crypto_hmac_any_srcs) $(stdlib_rt) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_crypto_sha1_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/hmac
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::hmac \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::hmac \
 		-t$(HARECACHE)/crypto/hmac/crypto_hmac.td $(stdlib_crypto_hmac_any_srcs)
 
 # crypto::mac (+any)
@@ -1338,7 +1338,7 @@ stdlib_crypto_mac_any_srcs = \
 $(HARECACHE)/crypto/mac/crypto_mac-any.ssa: $(stdlib_crypto_mac_any_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/mac
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::mac \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::mac \
 		-t$(HARECACHE)/crypto/mac/crypto_mac.td $(stdlib_crypto_mac_any_srcs)
 
 # crypto::math (+any)
@@ -1349,7 +1349,7 @@ stdlib_crypto_math_any_srcs = \
 $(HARECACHE)/crypto/math/crypto_math-any.ssa: $(stdlib_crypto_math_any_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/math
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::math \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::math \
 		-t$(HARECACHE)/crypto/math/crypto_math.td $(stdlib_crypto_math_any_srcs)
 
 # crypto::random (+linux)
@@ -1360,7 +1360,7 @@ stdlib_crypto_random_linux_srcs = \
 $(HARECACHE)/crypto/random/crypto_random-linux.ssa: $(stdlib_crypto_random_linux_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/random
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::random \
 		-t$(HARECACHE)/crypto/random/crypto_random.td $(stdlib_crypto_random_linux_srcs)
 
 # crypto::random (+freebsd)
@@ -1371,7 +1371,7 @@ stdlib_crypto_random_freebsd_srcs = \
 $(HARECACHE)/crypto/random/crypto_random-freebsd.ssa: $(stdlib_crypto_random_freebsd_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/random
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::random \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::random \
 		-t$(HARECACHE)/crypto/random/crypto_random.td $(stdlib_crypto_random_freebsd_srcs)
 
 # crypto::random (+darwin)
@@ -1395,7 +1395,7 @@ stdlib_crypto_rsa_any_srcs = \
 $(HARECACHE)/crypto/rsa/crypto_rsa-any.ssa: $(stdlib_crypto_rsa_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_bigint_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_crypto_sha1_$(PLATFORM)) $(stdlib_crypto_sha256_$(PLATFORM)) $(stdlib_crypto_sha512_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/rsa
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::rsa \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::rsa \
 		-t$(HARECACHE)/crypto/rsa/crypto_rsa.td $(stdlib_crypto_rsa_any_srcs)
 
 # crypto::poly1305 (+any)
@@ -1405,7 +1405,7 @@ stdlib_crypto_poly1305_any_srcs = \
 $(HARECACHE)/crypto/poly1305/crypto_poly1305-any.ssa: $(stdlib_crypto_poly1305_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_mac_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/poly1305
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::poly1305 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::poly1305 \
 		-t$(HARECACHE)/crypto/poly1305/crypto_poly1305.td $(stdlib_crypto_poly1305_any_srcs)
 
 # crypto::salsa (+any)
@@ -1415,7 +1415,7 @@ stdlib_crypto_salsa_any_srcs = \
 $(HARECACHE)/crypto/salsa/crypto_salsa-any.ssa: $(stdlib_crypto_salsa_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_cipher_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/salsa
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::salsa \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::salsa \
 		-t$(HARECACHE)/crypto/salsa/crypto_salsa.td $(stdlib_crypto_salsa_any_srcs)
 
 # crypto::sha1 (+any)
@@ -1425,7 +1425,7 @@ stdlib_crypto_sha1_any_srcs = \
 $(HARECACHE)/crypto/sha1/crypto_sha1-any.ssa: $(stdlib_crypto_sha1_any_srcs) $(stdlib_rt) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/sha1
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::sha1 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::sha1 \
 		-t$(HARECACHE)/crypto/sha1/crypto_sha1.td $(stdlib_crypto_sha1_any_srcs)
 
 # crypto::sha256 (+any)
@@ -1435,7 +1435,7 @@ stdlib_crypto_sha256_any_srcs = \
 $(HARECACHE)/crypto/sha256/crypto_sha256-any.ssa: $(stdlib_crypto_sha256_any_srcs) $(stdlib_rt) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/sha256
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::sha256 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::sha256 \
 		-t$(HARECACHE)/crypto/sha256/crypto_sha256.td $(stdlib_crypto_sha256_any_srcs)
 
 # crypto::sha512 (+any)
@@ -1445,7 +1445,7 @@ stdlib_crypto_sha512_any_srcs = \
 $(HARECACHE)/crypto/sha512/crypto_sha512-any.ssa: $(stdlib_crypto_sha512_any_srcs) $(stdlib_rt) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/sha512
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::sha512 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::sha512 \
 		-t$(HARECACHE)/crypto/sha512/crypto_sha512.td $(stdlib_crypto_sha512_any_srcs)
 
 # crypto::curve25519 (+any)
@@ -1455,7 +1455,7 @@ stdlib_crypto_curve25519_any_srcs = \
 $(HARECACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(stdlib_crypto_curve25519_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/curve25519
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::curve25519 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::curve25519 \
 		-t$(HARECACHE)/crypto/curve25519/crypto_curve25519.td $(stdlib_crypto_curve25519_any_srcs)
 
 # crypto::ed25519 (+any)
@@ -1466,7 +1466,7 @@ stdlib_crypto_ed25519_any_srcs = \
 $(HARECACHE)/crypto/ed25519/crypto_ed25519-any.ssa: $(stdlib_crypto_ed25519_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_crypto_sha512_$(PLATFORM)) $(stdlib_hash_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/ed25519
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::ed25519 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::ed25519 \
 		-t$(HARECACHE)/crypto/ed25519/crypto_ed25519.td $(stdlib_crypto_ed25519_any_srcs)
 
 # crypto::x25519 (+any)
@@ -1476,7 +1476,7 @@ stdlib_crypto_x25519_any_srcs = \
 $(HARECACHE)/crypto/x25519/crypto_x25519-any.ssa: $(stdlib_crypto_x25519_any_srcs) $(stdlib_rt) $(stdlib_crypto_curve25519_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/crypto/x25519
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ncrypto::x25519 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ncrypto::x25519 \
 		-t$(HARECACHE)/crypto/x25519/crypto_x25519.td $(stdlib_crypto_x25519_any_srcs)
 
 # dirs (+any)
@@ -1486,7 +1486,7 @@ stdlib_dirs_any_srcs = \
 $(HARECACHE)/dirs/dirs-any.ssa: $(stdlib_dirs_any_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_unix_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/dirs
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ndirs \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ndirs \
 		-t$(HARECACHE)/dirs/dirs.td $(stdlib_dirs_any_srcs)
 
 # encoding::base64 (+any)
@@ -1496,7 +1496,7 @@ stdlib_encoding_base64_any_srcs = \
 $(HARECACHE)/encoding/base64/encoding_base64-any.ssa: $(stdlib_encoding_base64_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/base64
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::base64 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nencoding::base64 \
 		-t$(HARECACHE)/encoding/base64/encoding_base64.td $(stdlib_encoding_base64_any_srcs)
 
 # encoding::base32 (+any)
@@ -1506,7 +1506,7 @@ stdlib_encoding_base32_any_srcs = \
 $(HARECACHE)/encoding/base32/encoding_base32-any.ssa: $(stdlib_encoding_base32_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/base32
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::base32 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nencoding::base32 \
 		-t$(HARECACHE)/encoding/base32/encoding_base32.td $(stdlib_encoding_base32_any_srcs)
 
 # encoding::hex (+any)
@@ -1516,7 +1516,7 @@ stdlib_encoding_hex_any_srcs = \
 $(HARECACHE)/encoding/hex/encoding_hex-any.ssa: $(stdlib_encoding_hex_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/hex
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::hex \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nencoding::hex \
 		-t$(HARECACHE)/encoding/hex/encoding_hex.td $(stdlib_encoding_hex_any_srcs)
 
 # encoding::pem (+any)
@@ -1526,7 +1526,7 @@ stdlib_encoding_pem_any_srcs = \
 $(HARECACHE)/encoding/pem/encoding_pem-any.ssa: $(stdlib_encoding_pem_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_encoding_base64_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/pem
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::pem \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nencoding::pem \
 		-t$(HARECACHE)/encoding/pem/encoding_pem.td $(stdlib_encoding_pem_any_srcs)
 
 # encoding::utf8 (+any)
@@ -1539,7 +1539,7 @@ stdlib_encoding_utf8_any_srcs = \
 $(HARECACHE)/encoding/utf8/encoding_utf8-any.ssa: $(stdlib_encoding_utf8_any_srcs) $(stdlib_rt) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/encoding/utf8
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nencoding::utf8 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nencoding::utf8 \
 		-t$(HARECACHE)/encoding/utf8/encoding_utf8.td $(stdlib_encoding_utf8_any_srcs)
 
 # endian (+any)
@@ -1553,7 +1553,7 @@ stdlib_endian_any_srcs = \
 $(HARECACHE)/endian/endian-any.ssa: $(stdlib_endian_any_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/endian
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nendian \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nendian \
 		-t$(HARECACHE)/endian/endian.td $(stdlib_endian_any_srcs)
 
 # errors (+any)
@@ -1566,7 +1566,7 @@ stdlib_errors_any_srcs = \
 $(HARECACHE)/errors/errors-any.ssa: $(stdlib_errors_any_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/errors
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nerrors \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nerrors \
 		-t$(HARECACHE)/errors/errors.td $(stdlib_errors_any_srcs)
 
 # fmt (+any)
@@ -1576,7 +1576,7 @@ stdlib_fmt_any_srcs = \
 $(HARECACHE)/fmt/fmt-any.ssa: $(stdlib_fmt_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/fmt
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nfmt \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nfmt \
 		-t$(HARECACHE)/fmt/fmt.td $(stdlib_fmt_any_srcs)
 
 # fnmatch (+any)
@@ -1586,7 +1586,7 @@ stdlib_fnmatch_any_srcs = \
 $(HARECACHE)/fnmatch/fnmatch-any.ssa: $(stdlib_fnmatch_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_sort_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/fnmatch
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nfnmatch \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nfnmatch \
 		-t$(HARECACHE)/fnmatch/fnmatch.td $(stdlib_fnmatch_any_srcs)
 
 # format::elf (+any)
@@ -1598,7 +1598,7 @@ stdlib_format_elf_any_srcs = \
 $(HARECACHE)/format/elf/format_elf-any.ssa: $(stdlib_format_elf_any_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/format/elf
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::elf \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nformat::elf \
 		-t$(HARECACHE)/format/elf/format_elf.td $(stdlib_format_elf_any_srcs)
 
 # format::ini (+any)
@@ -1609,7 +1609,7 @@ stdlib_format_ini_any_srcs = \
 $(HARECACHE)/format/ini/format_ini-any.ssa: $(stdlib_format_ini_any_srcs) $(stdlib_rt) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/format/ini
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::ini \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nformat::ini \
 		-t$(HARECACHE)/format/ini/format_ini.td $(stdlib_format_ini_any_srcs)
 
 # format::tar (+any)
@@ -1620,7 +1620,7 @@ stdlib_format_tar_any_srcs = \
 $(HARECACHE)/format/tar/format_tar-any.ssa: $(stdlib_format_tar_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/format/tar
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nformat::tar \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nformat::tar \
 		-t$(HARECACHE)/format/tar/format_tar.td $(stdlib_format_tar_any_srcs)
 
 # fs (+any)
@@ -1632,7 +1632,7 @@ stdlib_fs_any_srcs = \
 $(HARECACHE)/fs/fs-any.ssa: $(stdlib_fs_any_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/fs
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nfs \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nfs \
 		-t$(HARECACHE)/fs/fs.td $(stdlib_fs_any_srcs)
 
 # getopt (+any)
@@ -1642,7 +1642,7 @@ stdlib_getopt_any_srcs = \
 $(HARECACHE)/getopt/getopt-any.ssa: $(stdlib_getopt_any_srcs) $(stdlib_rt) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/getopt
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ngetopt \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ngetopt \
 		-t$(HARECACHE)/getopt/getopt.td $(stdlib_getopt_any_srcs)
 
 # glob (+any)
@@ -1652,7 +1652,7 @@ stdlib_glob_any_srcs = \
 $(HARECACHE)/glob/glob-any.ssa: $(stdlib_glob_any_srcs) $(stdlib_rt) $(stdlib_fnmatch_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/glob
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nglob \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nglob \
 		-t$(HARECACHE)/glob/glob.td $(stdlib_glob_any_srcs)
 
 # hare::ast (+any)
@@ -1667,7 +1667,7 @@ stdlib_hare_ast_any_srcs = \
 $(HARECACHE)/hare/ast/hare_ast-any.ssa: $(stdlib_hare_ast_any_srcs) $(stdlib_rt) $(stdlib_hare_lex_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/ast
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::ast \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhare::ast \
 		-t$(HARECACHE)/hare/ast/hare_ast.td $(stdlib_hare_ast_any_srcs)
 
 # hare::lex (+any)
@@ -1678,7 +1678,7 @@ stdlib_hare_lex_any_srcs = \
 $(HARECACHE)/hare/lex/hare_lex-any.ssa: $(stdlib_hare_lex_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/lex
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::lex \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhare::lex \
 		-t$(HARECACHE)/hare/lex/hare_lex.td $(stdlib_hare_lex_any_srcs)
 
 # hare::module (+any)
@@ -1693,7 +1693,7 @@ stdlib_hare_module_any_srcs = \
 $(HARECACHE)/hare/module/hare_module-any.ssa: $(stdlib_hare_module_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_datetime_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_lex_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_hare_unparse_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM)) $(stdlib_time_date_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/module
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::module \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhare::module \
 		-t$(HARECACHE)/hare/module/hare_module.td $(stdlib_hare_module_any_srcs)
 
 # hare::parse (+any)
@@ -1709,7 +1709,7 @@ stdlib_hare_parse_any_srcs = \
 $(HARECACHE)/hare/parse/hare_parse-any.ssa: $(stdlib_hare_parse_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_lex_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/parse
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::parse \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhare::parse \
 		-t$(HARECACHE)/hare/parse/hare_parse.td $(stdlib_hare_parse_any_srcs)
 
 # hare::parse::doc (+any)
@@ -1719,7 +1719,7 @@ stdlib_hare_parse_doc_any_srcs = \
 $(HARECACHE)/hare/parse/doc/hare_parse_doc-any.ssa: $(stdlib_hare_parse_doc_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/parse/doc
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::parse::doc \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhare::parse::doc \
 		-t$(HARECACHE)/hare/parse/doc/hare_parse_doc.td $(stdlib_hare_parse_doc_any_srcs)
 
 # hare::types (+any)
@@ -1736,7 +1736,7 @@ stdlib_hare_types_any_srcs = \
 $(HARECACHE)/hare/types/hare_types-any.ssa: $(stdlib_hare_types_any_srcs) $(stdlib_rt) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_hash_fnv_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/types
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::types \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhare::types \
 		-t$(HARECACHE)/hare/types/hare_types.td $(stdlib_hare_types_any_srcs)
 
 # hare::unit (+any)
@@ -1753,7 +1753,7 @@ stdlib_hare_unit_any_srcs = \
 $(HARECACHE)/hare/unit/hare_unit-any.ssa: $(stdlib_hare_unit_any_srcs) $(stdlib_rt) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_types_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_hash_fnv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_hare_lex_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/unit
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::unit \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhare::unit \
 		-t$(HARECACHE)/hare/unit/hare_unit.td $(stdlib_hare_unit_any_srcs)
 
 # hare::unparse (+any)
@@ -1769,7 +1769,7 @@ stdlib_hare_unparse_any_srcs = \
 $(HARECACHE)/hare/unparse/hare_unparse-any.ssa: $(stdlib_hare_unparse_any_srcs) $(stdlib_rt) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_lex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/unparse
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhare::unparse \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhare::unparse \
 		-t$(HARECACHE)/hare/unparse/hare_unparse.td $(stdlib_hare_unparse_any_srcs)
 
 # hash (+any)
@@ -1779,7 +1779,7 @@ stdlib_hash_any_srcs = \
 $(HARECACHE)/hash/hash-any.ssa: $(stdlib_hash_any_srcs) $(stdlib_rt) $(stdlib_crypto_math_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hash
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhash \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhash \
 		-t$(HARECACHE)/hash/hash.td $(stdlib_hash_any_srcs)
 
 # hash::adler32 (+any)
@@ -1789,7 +1789,7 @@ stdlib_hash_adler32_any_srcs = \
 $(HARECACHE)/hash/adler32/hash_adler32-any.ssa: $(stdlib_hash_adler32_any_srcs) $(stdlib_rt) $(stdlib_endian_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hash/adler32
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::adler32 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhash::adler32 \
 		-t$(HARECACHE)/hash/adler32/hash_adler32.td $(stdlib_hash_adler32_any_srcs)
 
 # hash::crc16 (+any)
@@ -1799,7 +1799,7 @@ stdlib_hash_crc16_any_srcs = \
 $(HARECACHE)/hash/crc16/hash_crc16-any.ssa: $(stdlib_hash_crc16_any_srcs) $(stdlib_rt) $(stdlib_endian_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hash/crc16
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::crc16 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhash::crc16 \
 		-t$(HARECACHE)/hash/crc16/hash_crc16.td $(stdlib_hash_crc16_any_srcs)
 
 # hash::crc32 (+any)
@@ -1809,7 +1809,7 @@ stdlib_hash_crc32_any_srcs = \
 $(HARECACHE)/hash/crc32/hash_crc32-any.ssa: $(stdlib_hash_crc32_any_srcs) $(stdlib_rt) $(stdlib_endian_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hash/crc32
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::crc32 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhash::crc32 \
 		-t$(HARECACHE)/hash/crc32/hash_crc32.td $(stdlib_hash_crc32_any_srcs)
 
 # hash::crc64 (+any)
@@ -1819,7 +1819,7 @@ stdlib_hash_crc64_any_srcs = \
 $(HARECACHE)/hash/crc64/hash_crc64-any.ssa: $(stdlib_hash_crc64_any_srcs) $(stdlib_rt) $(stdlib_endian_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hash/crc64
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::crc64 \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhash::crc64 \
 		-t$(HARECACHE)/hash/crc64/hash_crc64.td $(stdlib_hash_crc64_any_srcs)
 
 # hash::fnv (+any)
@@ -1830,7 +1830,7 @@ stdlib_hash_fnv_any_srcs = \
 $(HARECACHE)/hash/fnv/hash_fnv-any.ssa: $(stdlib_hash_fnv_any_srcs) $(stdlib_rt) $(stdlib_endian_$(PLATFORM)) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hash/fnv
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::fnv \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhash::fnv \
 		-t$(HARECACHE)/hash/fnv/hash_fnv.td $(stdlib_hash_fnv_any_srcs)
 
 # hash::siphash (+any)
@@ -1840,7 +1840,7 @@ stdlib_hash_siphash_any_srcs = \
 $(HARECACHE)/hash/siphash/hash_siphash-any.ssa: $(stdlib_hash_siphash_any_srcs) $(stdlib_rt) $(stdlib_hash_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_crypto_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hash/siphash
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nhash::siphash \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhash::siphash \
 		-t$(HARECACHE)/hash/siphash/hash_siphash.td $(stdlib_hash_siphash_any_srcs)
 
 # io (+linux)
@@ -1900,13 +1900,13 @@ stdlib_io_darwin_srcs = \
 $(HARECACHE)/io/io-linux.ssa: $(stdlib_io_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/io
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nio \
 		-t$(HARECACHE)/io/io.td $(stdlib_io_linux_srcs)
 
 $(HARECACHE)/io/io-freebsd.ssa: $(stdlib_io_freebsd_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/io
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nio \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nio \
 		-t$(HARECACHE)/io/io.td $(stdlib_io_freebsd_srcs)
 
 $(HARECACHE)/io/io-darwin.ssa: $(stdlib_io_darwin_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
@@ -1923,7 +1923,7 @@ stdlib_linux_linux_srcs = \
 $(HARECACHE)/linux/linux-linux.ssa: $(stdlib_linux_linux_srcs) $(stdlib_rt) $(stdlib_format_elf_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/linux
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nlinux \
 		-t$(HARECACHE)/linux/linux.td $(stdlib_linux_linux_srcs)
 
 # linux::keyctl (+linux)
@@ -1934,7 +1934,7 @@ stdlib_linux_keyctl_linux_srcs = \
 $(HARECACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(stdlib_linux_keyctl_linux_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/linux/keyctl
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::keyctl \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nlinux::keyctl \
 		-t$(HARECACHE)/linux/keyctl/linux_keyctl.td $(stdlib_linux_keyctl_linux_srcs)
 
 # linux::timerfd (+linux)
@@ -1944,7 +1944,7 @@ stdlib_linux_timerfd_linux_srcs = \
 $(HARECACHE)/linux/timerfd/linux_timerfd-linux.ssa: $(stdlib_linux_timerfd_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/linux/timerfd
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::timerfd \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nlinux::timerfd \
 		-t$(HARECACHE)/linux/timerfd/linux_timerfd.td $(stdlib_linux_timerfd_linux_srcs)
 
 # linux::vdso (+linux)
@@ -1954,7 +1954,7 @@ stdlib_linux_vdso_linux_srcs = \
 $(HARECACHE)/linux/vdso/linux_vdso-linux.ssa: $(stdlib_linux_vdso_linux_srcs) $(stdlib_rt) $(stdlib_linux_$(PLATFORM)) $(stdlib_format_elf_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/linux/vdso
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nlinux::vdso \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nlinux::vdso \
 		-t$(HARECACHE)/linux/vdso/linux_vdso.td $(stdlib_linux_vdso_linux_srcs)
 
 # log (+linux)
@@ -1967,7 +1967,7 @@ stdlib_log_linux_srcs = \
 $(HARECACHE)/log/log-linux.ssa: $(stdlib_log_linux_srcs) $(stdlib_rt) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_time_date_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/log
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nlog \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nlog \
 		-t$(HARECACHE)/log/log.td $(stdlib_log_linux_srcs)
 
 # log (+freebsd)
@@ -1980,7 +1980,7 @@ stdlib_log_freebsd_srcs = \
 $(HARECACHE)/log/log-freebsd.ssa: $(stdlib_log_freebsd_srcs) $(stdlib_rt) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_time_date_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/log
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nlog \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nlog \
 		-t$(HARECACHE)/log/log.td $(stdlib_log_freebsd_srcs)
 
 # log (+darwin)
@@ -2009,7 +2009,7 @@ stdlib_math_any_srcs = \
 $(HARECACHE)/math/math-any.ssa: $(stdlib_math_any_srcs) $(stdlib_rt) $(stdlib_types_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/math
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nmath \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nmath \
 		-t$(HARECACHE)/math/math.td $(stdlib_math_any_srcs)
 
 # math::checked (+any)
@@ -2019,7 +2019,7 @@ stdlib_math_checked_any_srcs = \
 $(HARECACHE)/math/checked/math_checked-any.ssa: $(stdlib_math_checked_any_srcs) $(stdlib_rt) $(stdlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/math/checked
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nmath::checked \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nmath::checked \
 		-t$(HARECACHE)/math/checked/math_checked.td $(stdlib_math_checked_any_srcs)
 
 # math::complex (+any)
@@ -2029,7 +2029,7 @@ stdlib_math_complex_any_srcs = \
 $(HARECACHE)/math/complex/math_complex-any.ssa: $(stdlib_math_complex_any_srcs) $(stdlib_rt) $(stdlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/math/complex
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nmath::complex \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nmath::complex \
 		-t$(HARECACHE)/math/complex/math_complex.td $(stdlib_math_complex_any_srcs)
 
 # math::random (+any)
@@ -2039,7 +2039,7 @@ stdlib_math_random_any_srcs = \
 $(HARECACHE)/math/random/math_random-any.ssa: $(stdlib_math_random_any_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/math/random
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nmath::random \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nmath::random \
 		-t$(HARECACHE)/math/random/math_random.td $(stdlib_math_random_any_srcs)
 
 # memio (+any)
@@ -2050,7 +2050,7 @@ stdlib_memio_any_srcs = \
 $(HARECACHE)/memio/memio-any.ssa: $(stdlib_memio_any_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/memio
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nmemio \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nmemio \
 		-t$(HARECACHE)/memio/memio.td $(stdlib_memio_any_srcs)
 
 # net (+linux)
@@ -2063,7 +2063,7 @@ stdlib_net_linux_srcs = \
 $(HARECACHE)/net/net-linux.ssa: $(stdlib_net_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet \
 		-t$(HARECACHE)/net/net.td $(stdlib_net_linux_srcs)
 
 # net (+freebsd)
@@ -2076,7 +2076,7 @@ stdlib_net_freebsd_srcs = \
 $(HARECACHE)/net/net-freebsd.ssa: $(stdlib_net_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet \
 		-t$(HARECACHE)/net/net.td $(stdlib_net_freebsd_srcs)
 
 # net (+darwin)
@@ -2102,7 +2102,7 @@ stdlib_net_dial_any_srcs = \
 $(HARECACHE)/net/dial/net_dial-any.ssa: $(stdlib_net_dial_any_srcs) $(stdlib_rt) $(stdlib_net_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_net_tcp_$(PLATFORM)) $(stdlib_net_udp_$(PLATFORM)) $(stdlib_net_dns_$(PLATFORM)) $(stdlib_net_uri_$(PLATFORM)) $(stdlib_crypto_random_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_unix_hosts_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/dial
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::dial \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet::dial \
 		-t$(HARECACHE)/net/dial/net_dial.td $(stdlib_net_dial_any_srcs)
 
 # net::dns (+any)
@@ -2117,7 +2117,7 @@ stdlib_net_dns_any_srcs = \
 $(HARECACHE)/net/dns/net_dns-any.ssa: $(stdlib_net_dns_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_net_$(PLATFORM)) $(stdlib_net_udp_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_unix_resolvconf_$(PLATFORM)) $(stdlib_unix_poll_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/dns
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::dns \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet::dns \
 		-t$(HARECACHE)/net/dns/net_dns.td $(stdlib_net_dns_any_srcs)
 
 # net::ip (+linux)
@@ -2138,13 +2138,13 @@ stdlib_net_ip_darwin_srcs = \
 $(HARECACHE)/net/ip/net_ip-linux.ssa: $(stdlib_net_ip_linux_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/ip
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::ip \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet::ip \
 		-t$(HARECACHE)/net/ip/net_ip.td $(stdlib_net_ip_linux_srcs)
 
 $(HARECACHE)/net/ip/net_ip-freebsd.ssa: $(stdlib_net_ip_freebsd_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/ip
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::ip \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet::ip \
 		-t$(HARECACHE)/net/ip/net_ip.td $(stdlib_net_ip_freebsd_srcs)
 
 $(HARECACHE)/net/ip/net_ip-darwin.ssa: $(stdlib_net_ip_darwin_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
@@ -2162,7 +2162,7 @@ stdlib_net_tcp_linux_srcs = \
 $(HARECACHE)/net/tcp/net_tcp-linux.ssa: $(stdlib_net_tcp_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_net_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/tcp
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::tcp \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet::tcp \
 		-t$(HARECACHE)/net/tcp/net_tcp.td $(stdlib_net_tcp_linux_srcs)
 
 # net::tcp (+freebsd)
@@ -2174,7 +2174,7 @@ stdlib_net_tcp_freebsd_srcs = \
 $(HARECACHE)/net/tcp/net_tcp-freebsd.ssa: $(stdlib_net_tcp_freebsd_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_net_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/tcp
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::tcp \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet::tcp \
 		-t$(HARECACHE)/net/tcp/net_tcp.td $(stdlib_net_tcp_freebsd_srcs)
 
 # net::tcp (+darwin)
@@ -2197,7 +2197,7 @@ stdlib_net_udp_linux_srcs = \
 $(HARECACHE)/net/udp/net_udp-linux.ssa: $(stdlib_net_udp_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_net_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/udp
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::udp \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet::udp \
 		-t$(HARECACHE)/net/udp/net_udp.td $(stdlib_net_udp_linux_srcs)
 
 # net::udp (+freebsd)
@@ -2208,7 +2208,7 @@ stdlib_net_udp_freebsd_srcs = \
 $(HARECACHE)/net/udp/net_udp-freebsd.ssa: $(stdlib_net_udp_freebsd_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_net_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/udp
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::udp \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet::udp \
 		-t$(HARECACHE)/net/udp/net_udp.td $(stdlib_net_udp_freebsd_srcs)
 
 # net::udp (+darwin)
@@ -2235,7 +2235,7 @@ stdlib_net_unix_linux_srcs = \
 $(HARECACHE)/net/unix/net_unix-linux.ssa: $(stdlib_net_unix_linux_srcs) $(stdlib_rt) $(stdlib_net_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_net_dial_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/unix
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::unix \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet::unix \
 		-t$(HARECACHE)/net/unix/net_unix.td $(stdlib_net_unix_linux_srcs)
 
 # net::unix (+freebsd)
@@ -2251,7 +2251,7 @@ stdlib_net_unix_freebsd_srcs = \
 $(HARECACHE)/net/unix/net_unix-freebsd.ssa: $(stdlib_net_unix_freebsd_srcs) $(stdlib_rt) $(stdlib_net_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_net_dial_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/unix
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::unix \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet::unix \
 		-t$(HARECACHE)/net/unix/net_unix.td $(stdlib_net_unix_freebsd_srcs)
 
 # net::unix (+darwin)
@@ -2280,7 +2280,7 @@ stdlib_net_uri_any_srcs = \
 $(HARECACHE)/net/uri/net_uri-any.ssa: $(stdlib_net_uri_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/net/uri
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nnet::uri \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nnet::uri \
 		-t$(HARECACHE)/net/uri/net_uri.td $(stdlib_net_uri_any_srcs)
 
 # os (+linux)
@@ -2298,7 +2298,7 @@ stdlib_os_linux_srcs = \
 $(HARECACHE)/os/os-linux.ssa: $(stdlib_os_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_math_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nos \
 		-t$(HARECACHE)/os/os.td $(stdlib_os_linux_srcs)
 
 # os (+freebsd)
@@ -2315,7 +2315,7 @@ stdlib_os_freebsd_srcs = \
 $(HARECACHE)/os/os-freebsd.ssa: $(stdlib_os_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nos \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nos \
 		-t$(HARECACHE)/os/os.td $(stdlib_os_freebsd_srcs)
 
 # os (+darwin)
@@ -2345,7 +2345,7 @@ stdlib_os_exec_linux_srcs = \
 $(HARECACHE)/os/exec/os_exec-linux.ssa: $(stdlib_os_exec_linux_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_unix_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_unix_signal_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM)) $(stdlib_time_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os/exec
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nos::exec \
 		-t$(HARECACHE)/os/exec/os_exec.td $(stdlib_os_exec_linux_srcs)
 
 # os::exec (+freebsd)
@@ -2358,7 +2358,7 @@ stdlib_os_exec_freebsd_srcs = \
 $(HARECACHE)/os/exec/os_exec-freebsd.ssa: $(stdlib_os_exec_freebsd_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_unix_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_unix_signal_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM)) $(stdlib_time_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/os/exec
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nos::exec \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nos::exec \
 		-t$(HARECACHE)/os/exec/os_exec.td $(stdlib_os_exec_freebsd_srcs)
 
 # os::exec (+darwin)
@@ -2388,7 +2388,7 @@ stdlib_path_any_srcs = \
 $(HARECACHE)/path/path-any.ssa: $(stdlib_path_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/path
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Npath \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Npath \
 		-t$(HARECACHE)/path/path.td $(stdlib_path_any_srcs)
 
 # regex (+any)
@@ -2398,7 +2398,7 @@ stdlib_regex_any_srcs = \
 $(HARECACHE)/regex/regex-any.ssa: $(stdlib_regex_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/regex
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nregex \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nregex \
 		-t$(HARECACHE)/regex/regex.td $(stdlib_regex_any_srcs)
 
 # shlex (+any)
@@ -2409,7 +2409,7 @@ stdlib_shlex_any_srcs = \
 $(HARECACHE)/shlex/shlex-any.ssa: $(stdlib_shlex_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/shlex
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nshlex \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nshlex \
 		-t$(HARECACHE)/shlex/shlex.td $(stdlib_shlex_any_srcs)
 
 # sort (+any)
@@ -2422,7 +2422,7 @@ stdlib_sort_any_srcs = \
 $(HARECACHE)/sort/sort-any.ssa: $(stdlib_sort_any_srcs) $(stdlib_rt) $(stdlib_math_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/sort
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nsort \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nsort \
 		-t$(HARECACHE)/sort/sort.td $(stdlib_sort_any_srcs)
 
 # strconv (+any)
@@ -2440,7 +2440,7 @@ stdlib_strconv_any_srcs = \
 $(HARECACHE)/strconv/strconv-any.ssa: $(stdlib_strconv_any_srcs) $(stdlib_rt) $(stdlib_types_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_ascii_$(PLATFORM)) $(stdlib_math_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/strconv
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nstrconv \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nstrconv \
 		-t$(HARECACHE)/strconv/strconv.td $(stdlib_strconv_any_srcs)
 
 # strings (+any)
@@ -2463,7 +2463,7 @@ stdlib_strings_any_srcs = \
 $(HARECACHE)/strings/strings-any.ssa: $(stdlib_strings_any_srcs) $(stdlib_rt) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/strings
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nstrings \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nstrings \
 		-t$(HARECACHE)/strings/strings.td $(stdlib_strings_any_srcs)
 
 # strings::template (+any)
@@ -2473,7 +2473,7 @@ stdlib_strings_template_any_srcs = \
 $(HARECACHE)/strings/template/strings_template-any.ssa: $(stdlib_strings_template_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/strings/template
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nstrings::template \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nstrings::template \
 		-t$(HARECACHE)/strings/template/strings_template.td $(stdlib_strings_template_any_srcs)
 
 # temp (+linux)
@@ -2483,7 +2483,7 @@ stdlib_temp_linux_srcs = \
 $(HARECACHE)/temp/temp-linux.ssa: $(stdlib_temp_linux_srcs) $(stdlib_rt) $(stdlib_crypto_random_$(PLATFORM)) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/temp
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntemp \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ntemp \
 		-t$(HARECACHE)/temp/temp.td $(stdlib_temp_linux_srcs)
 
 # temp (+freebsd)
@@ -2493,7 +2493,7 @@ stdlib_temp_freebsd_srcs = \
 $(HARECACHE)/temp/temp-freebsd.ssa: $(stdlib_temp_freebsd_srcs) $(stdlib_rt) $(stdlib_crypto_random_$(PLATFORM)) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/temp
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntemp \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ntemp \
 		-t$(HARECACHE)/temp/temp.td $(stdlib_temp_freebsd_srcs)
 
 # temp (+darwin)
@@ -2513,7 +2513,7 @@ stdlib_test_any_srcs = \
 $(HARECACHE)/test/test-any.ssa: $(stdlib_test_any_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/test
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntest \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ntest \
 		-t$(HARECACHE)/test/test.td $(stdlib_test_any_srcs)
 
 # time (+linux)
@@ -2527,7 +2527,7 @@ stdlib_time_linux_srcs = \
 $(HARECACHE)/time/time-linux.ssa: $(stdlib_time_linux_srcs) $(stdlib_rt) $(stdlib_linux_vdso_$(PLATFORM)) $(stdlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntime \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ntime \
 		-t$(HARECACHE)/time/time.td $(stdlib_time_linux_srcs)
 
 # time (+freebsd)
@@ -2540,7 +2540,7 @@ stdlib_time_freebsd_srcs = \
 $(HARECACHE)/time/time-freebsd.ssa: $(stdlib_time_freebsd_srcs) $(stdlib_rt) $(stdlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntime \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ntime \
 		-t$(HARECACHE)/time/time.td $(stdlib_time_freebsd_srcs)
 
 # time (+darwin)
@@ -2570,7 +2570,7 @@ stdlib_time_chrono_linux_srcs = \
 $(HARECACHE)/time/chrono/time_chrono-linux.ssa: $(stdlib_time_chrono_linux_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time/chrono
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::chrono \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ntime::chrono \
 		-t$(HARECACHE)/time/chrono/time_chrono.td $(stdlib_time_chrono_linux_srcs)
 
 # time::chrono (+freebsd)
@@ -2587,7 +2587,7 @@ stdlib_time_chrono_freebsd_srcs = \
 $(HARECACHE)/time/chrono/time_chrono-freebsd.ssa: $(stdlib_time_chrono_freebsd_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time/chrono
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::chrono \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ntime::chrono \
 		-t$(HARECACHE)/time/chrono/time_chrono.td $(stdlib_time_chrono_freebsd_srcs)
 
 # time::chrono (+darwin)
@@ -2626,7 +2626,7 @@ stdlib_time_date_linux_srcs = \
 $(HARECACHE)/time/date/time_date-linux.ssa: $(stdlib_time_date_linux_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time/date
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::date \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ntime::date \
 		-t$(HARECACHE)/time/date/time_date.td $(stdlib_time_date_linux_srcs)
 
 # time::date (+freebsd)
@@ -2648,7 +2648,7 @@ stdlib_time_date_freebsd_srcs = \
 $(HARECACHE)/time/date/time_date-freebsd.ssa: $(stdlib_time_date_freebsd_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/time/date
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntime::date \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ntime::date \
 		-t$(HARECACHE)/time/date/time_date.td $(stdlib_time_date_freebsd_srcs)
 
 # time::date (+darwin)
@@ -2682,7 +2682,7 @@ stdlib_types_any_srcs = \
 $(HARECACHE)/types/types-any.ssa: $(stdlib_types_any_srcs) $(stdlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/types
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntypes \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ntypes \
 		-t$(HARECACHE)/types/types.td $(stdlib_types_any_srcs)
 
 # types::c (+any)
@@ -2694,7 +2694,7 @@ stdlib_types_c_any_srcs = \
 $(HARECACHE)/types/c/types_c-any.ssa: $(stdlib_types_c_any_srcs) $(stdlib_rt) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/types/c
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Ntypes::c \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Ntypes::c \
 		-t$(HARECACHE)/types/c/types_c.td $(stdlib_types_c_any_srcs)
 
 # unix (+linux)
@@ -2709,7 +2709,7 @@ stdlib_unix_linux_srcs = \
 $(HARECACHE)/unix/unix-linux.ssa: $(stdlib_unix_linux_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix \
 		-t$(HARECACHE)/unix/unix.td $(stdlib_unix_linux_srcs)
 
 # unix (+freebsd)
@@ -2724,7 +2724,7 @@ stdlib_unix_freebsd_srcs = \
 $(HARECACHE)/unix/unix-freebsd.ssa: $(stdlib_unix_freebsd_srcs) $(stdlib_rt) $(stdlib_errors_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix \
 		-t$(HARECACHE)/unix/unix.td $(stdlib_unix_freebsd_srcs)
 
 # unix (+darwin)
@@ -2750,7 +2750,7 @@ stdlib_unix_hosts_linux_srcs = \
 $(HARECACHE)/unix/hosts/unix_hosts-linux.ssa: $(stdlib_unix_hosts_linux_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/hosts
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::hosts \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix::hosts \
 		-t$(HARECACHE)/unix/hosts/unix_hosts.td $(stdlib_unix_hosts_linux_srcs)
 
 # unix::hosts (+freebsd)
@@ -2761,7 +2761,7 @@ stdlib_unix_hosts_freebsd_srcs = \
 $(HARECACHE)/unix/hosts/unix_hosts-freebsd.ssa: $(stdlib_unix_hosts_freebsd_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/hosts
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::hosts \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix::hosts \
 		-t$(HARECACHE)/unix/hosts/unix_hosts.td $(stdlib_unix_hosts_freebsd_srcs)
 
 # unix::hosts (+darwin)
@@ -2784,7 +2784,7 @@ stdlib_unix_passwd_any_srcs = \
 $(HARECACHE)/unix/passwd/unix_passwd-any.ssa: $(stdlib_unix_passwd_any_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/passwd
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::passwd \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix::passwd \
 		-t$(HARECACHE)/unix/passwd/unix_passwd.td $(stdlib_unix_passwd_any_srcs)
 
 # unix::poll (+linux)
@@ -2795,7 +2795,7 @@ stdlib_unix_poll_linux_srcs = \
 $(HARECACHE)/unix/poll/unix_poll-linux.ssa: $(stdlib_unix_poll_linux_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/poll
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::poll \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix::poll \
 		-t$(HARECACHE)/unix/poll/unix_poll.td $(stdlib_unix_poll_linux_srcs)
 
 # unix::poll (+freebsd)
@@ -2806,7 +2806,7 @@ stdlib_unix_poll_freebsd_srcs = \
 $(HARECACHE)/unix/poll/unix_poll-freebsd.ssa: $(stdlib_unix_poll_freebsd_srcs) $(stdlib_rt) $(stdlib_rt_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/poll
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::poll \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix::poll \
 		-t$(HARECACHE)/unix/poll/unix_poll.td $(stdlib_unix_poll_freebsd_srcs)
 
 # unix::poll (+darwin)
@@ -2828,7 +2828,7 @@ stdlib_unix_resolvconf_linux_srcs = \
 $(HARECACHE)/unix/resolvconf/unix_resolvconf-linux.ssa: $(stdlib_unix_resolvconf_linux_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/resolvconf
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::resolvconf \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix::resolvconf \
 		-t$(HARECACHE)/unix/resolvconf/unix_resolvconf.td $(stdlib_unix_resolvconf_linux_srcs)
 
 # unix::resolvconf (+freebsd)
@@ -2839,7 +2839,7 @@ stdlib_unix_resolvconf_freebsd_srcs = \
 $(HARECACHE)/unix/resolvconf/unix_resolvconf-freebsd.ssa: $(stdlib_unix_resolvconf_freebsd_srcs) $(stdlib_rt) $(stdlib_os_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bufio_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_net_ip_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/resolvconf
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::resolvconf \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix::resolvconf \
 		-t$(HARECACHE)/unix/resolvconf/unix_resolvconf.td $(stdlib_unix_resolvconf_freebsd_srcs)
 
 # unix::resolvconf (+darwin)
@@ -2861,7 +2861,7 @@ stdlib_unix_signal_linux_srcs = \
 $(HARECACHE)/unix/signal/unix_signal-linux.ssa: $(stdlib_unix_signal_linux_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/signal
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::signal \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix::signal \
 		-t$(HARECACHE)/unix/signal/unix_signal.td $(stdlib_unix_signal_linux_srcs)
 
 # unix::signal (+freebsd)
@@ -2872,7 +2872,7 @@ stdlib_unix_signal_freebsd_srcs = \
 $(HARECACHE)/unix/signal/unix_signal-freebsd.ssa: $(stdlib_unix_signal_freebsd_srcs) $(stdlib_rt) $(stdlib_io_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/signal
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::signal \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix::signal \
 		-t$(HARECACHE)/unix/signal/unix_signal.td $(stdlib_unix_signal_freebsd_srcs)
 
 # unix::signal (+darwin)
@@ -2899,7 +2899,7 @@ stdlib_unix_tty_linux_srcs = \
 $(HARECACHE)/unix/tty/unix_tty-linux.ssa: $(stdlib_unix_tty_linux_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/tty
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::tty \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix::tty \
 		-t$(HARECACHE)/unix/tty/unix_tty.td $(stdlib_unix_tty_linux_srcs)
 
 # unix::tty (+freebsd)
@@ -2914,7 +2914,7 @@ stdlib_unix_tty_freebsd_srcs = \
 $(HARECACHE)/unix/tty/unix_tty-freebsd.ssa: $(stdlib_unix_tty_freebsd_srcs) $(stdlib_rt) $(stdlib_bufio_$(PLATFORM)) $(stdlib_errors_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_rt_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/unix/tty
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nunix::tty \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nunix::tty \
 		-t$(HARECACHE)/unix/tty/unix_tty.td $(stdlib_unix_tty_freebsd_srcs)
 
 # unix::tty (+darwin)
@@ -2939,7 +2939,7 @@ stdlib_uuid_any_srcs = \
 $(HARECACHE)/uuid/uuid-any.ssa: $(stdlib_uuid_any_srcs) $(stdlib_rt) $(stdlib_crypto_random_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_endian_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/uuid
-	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nuuid \
+	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nuuid \
 		-t$(HARECACHE)/uuid/uuid.td $(stdlib_uuid_any_srcs)
 
 # rt (+linux)
@@ -3040,13 +3040,13 @@ testlib_rt_darwin_srcs = \
 $(TESTCACHE)/rt/rt-linux.ssa: $(testlib_rt_linux_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nrt \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nrt \
 		-t$(TESTCACHE)/rt/rt.td $(testlib_rt_linux_srcs)
 
 $(TESTCACHE)/rt/rt-freebsd.ssa: $(testlib_rt_freebsd_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/rt
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nrt \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nrt \
 		-t$(TESTCACHE)/rt/rt.td $(testlib_rt_freebsd_srcs)
 
 $(TESTCACHE)/rt/rt-darwin.ssa: $(testlib_rt_darwin_srcs) $(testlib_rt)
@@ -4084,7 +4084,7 @@ testlib_ascii_any_srcs = \
 $(TESTCACHE)/ascii/ascii-any.ssa: $(testlib_ascii_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/ascii
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nascii \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nascii \
 		-t$(TESTCACHE)/ascii/ascii.td $(testlib_ascii_any_srcs)
 
 # bufio (+any)
@@ -4097,7 +4097,7 @@ testlib_bufio_any_srcs = \
 $(TESTCACHE)/bufio/bufio-any.ssa: $(testlib_bufio_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/bufio
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbufio \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nbufio \
 		-t$(TESTCACHE)/bufio/bufio.td $(testlib_bufio_any_srcs)
 
 # bytes (+any)
@@ -4114,7 +4114,7 @@ testlib_bytes_any_srcs = \
 $(TESTCACHE)/bytes/bytes-any.ssa: $(testlib_bytes_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/bytes
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nbytes \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nbytes \
 		-t$(TESTCACHE)/bytes/bytes.td $(testlib_bytes_any_srcs)
 
 # cmd::hare::build (+any)
@@ -4127,7 +4127,7 @@ testlib_cmd_hare_build_any_srcs = \
 $(TESTCACHE)/cmd/hare/build/cmd_hare_build-any.ssa: $(testlib_cmd_hare_build_any_srcs) $(testlib_rt) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_module_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_os_exec_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_shlex_$(PLATFORM)) $(testlib_unix_tty_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/cmd/hare/build
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncmd::hare::build \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncmd::hare::build \
 		-t$(TESTCACHE)/cmd/hare/build/cmd_hare_build.td $(testlib_cmd_hare_build_any_srcs)
 
 # crypto (+any)
@@ -4139,7 +4139,7 @@ testlib_crypto_any_srcs = \
 $(TESTCACHE)/crypto/crypto-any.ssa: $(testlib_crypto_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_argon2_$(PLATFORM)) $(testlib_crypto_chachapoly_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto \
 		-t$(TESTCACHE)/crypto/crypto.td $(testlib_crypto_any_srcs)
 
 # crypto::aes (+any)
@@ -4156,7 +4156,7 @@ testlib_crypto_aes_any_srcs = \
 $(TESTCACHE)/crypto/aes/crypto_aes-any.ssa: $(testlib_crypto_aes_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/aes
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::aes \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::aes \
 		-t$(TESTCACHE)/crypto/aes/crypto_aes.td $(testlib_crypto_aes_any_srcs)
 
 # crypto::aes::xts (+any)
@@ -4167,7 +4167,7 @@ testlib_crypto_aes_xts_any_srcs = \
 $(TESTCACHE)/crypto/aes/xts/crypto_aes_xts-any.ssa: $(testlib_crypto_aes_xts_any_srcs) $(testlib_rt) $(testlib_crypto_aes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/aes/xts
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::aes::xts \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::aes::xts \
 		-t$(TESTCACHE)/crypto/aes/xts/crypto_aes_xts.td $(testlib_crypto_aes_xts_any_srcs)
 
 # crypto::argon2 (+any)
@@ -4178,7 +4178,7 @@ testlib_crypto_argon2_any_srcs = \
 $(TESTCACHE)/crypto/argon2/crypto_argon2-any.ssa: $(testlib_crypto_argon2_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_blake2b_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/argon2
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::argon2 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::argon2 \
 		-t$(TESTCACHE)/crypto/argon2/crypto_argon2.td $(testlib_crypto_argon2_any_srcs)
 
 # crypto::bcrypt (+any)
@@ -4190,7 +4190,7 @@ testlib_crypto_bcrypt_any_srcs = \
 $(TESTCACHE)/crypto/bcrypt/crypto_bcrypt-any.ssa: $(testlib_crypto_bcrypt_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_$(PLATFORM)) $(testlib_crypto_blowfish_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_random_$(PLATFORM)) $(testlib_encoding_base64_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/bcrypt
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::bcrypt \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::bcrypt \
 		-t$(TESTCACHE)/crypto/bcrypt/crypto_bcrypt.td $(testlib_crypto_bcrypt_any_srcs)
 
 # crypto::blake2b (+any)
@@ -4202,7 +4202,7 @@ testlib_crypto_blake2b_any_srcs = \
 $(TESTCACHE)/crypto/blake2b/crypto_blake2b-any.ssa: $(testlib_crypto_blake2b_any_srcs) $(testlib_rt) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/blake2b
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::blake2b \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::blake2b \
 		-t$(TESTCACHE)/crypto/blake2b/crypto_blake2b.td $(testlib_crypto_blake2b_any_srcs)
 
 # crypto::blowfish (+any)
@@ -4214,7 +4214,7 @@ testlib_crypto_blowfish_any_srcs = \
 $(TESTCACHE)/crypto/blowfish/crypto_blowfish-any.ssa: $(testlib_crypto_blowfish_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/blowfish
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::blowfish \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::blowfish \
 		-t$(TESTCACHE)/crypto/blowfish/crypto_blowfish.td $(testlib_crypto_blowfish_any_srcs)
 
 # crypto::bigint (+any)
@@ -4232,7 +4232,7 @@ testlib_crypto_bigint_any_srcs = \
 $(TESTCACHE)/crypto/bigint/crypto_bigint-any.ssa: $(testlib_crypto_bigint_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/bigint
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::bigint \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::bigint \
 		-t$(TESTCACHE)/crypto/bigint/crypto_bigint.td $(testlib_crypto_bigint_any_srcs)
 
 # crypto::chacha (+any)
@@ -4243,7 +4243,7 @@ testlib_crypto_chacha_any_srcs = \
 $(TESTCACHE)/crypto/chacha/crypto_chacha-any.ssa: $(testlib_crypto_chacha_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/chacha
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::chacha \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::chacha \
 		-t$(TESTCACHE)/crypto/chacha/crypto_chacha.td $(testlib_crypto_chacha_any_srcs)
 
 # crypto::chachapoly (+any)
@@ -4254,7 +4254,7 @@ testlib_crypto_chachapoly_any_srcs = \
 $(TESTCACHE)/crypto/chachapoly/crypto_chachapoly-any.ssa: $(testlib_crypto_chachapoly_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_chacha_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_crypto_poly1305_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/chachapoly
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::chachapoly \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::chachapoly \
 		-t$(TESTCACHE)/crypto/chachapoly/crypto_chachapoly.td $(testlib_crypto_chachapoly_any_srcs)
 
 # crypto::cipher (+any)
@@ -4270,7 +4270,7 @@ testlib_crypto_cipher_any_srcs = \
 $(TESTCACHE)/crypto/cipher/crypto_cipher-any.ssa: $(testlib_crypto_cipher_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/cipher
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::cipher \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::cipher \
 		-t$(TESTCACHE)/crypto/cipher/crypto_cipher.td $(testlib_crypto_cipher_any_srcs)
 
 # crypto::hkdf (+any)
@@ -4281,7 +4281,7 @@ testlib_crypto_hkdf_any_srcs = \
 $(TESTCACHE)/crypto/hkdf/crypto_hkdf-any.ssa: $(testlib_crypto_hkdf_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_hmac_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_crypto_sha1_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/hkdf
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::hkdf \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::hkdf \
 		-t$(TESTCACHE)/crypto/hkdf/crypto_hkdf.td $(testlib_crypto_hkdf_any_srcs)
 
 # crypto::hmac (+any)
@@ -4294,7 +4294,7 @@ testlib_crypto_hmac_any_srcs = \
 $(TESTCACHE)/crypto/hmac/crypto_hmac-any.ssa: $(testlib_crypto_hmac_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_crypto_sha1_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/hmac
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::hmac \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::hmac \
 		-t$(TESTCACHE)/crypto/hmac/crypto_hmac.td $(testlib_crypto_hmac_any_srcs)
 
 # crypto::mac (+any)
@@ -4304,7 +4304,7 @@ testlib_crypto_mac_any_srcs = \
 $(TESTCACHE)/crypto/mac/crypto_mac-any.ssa: $(testlib_crypto_mac_any_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/mac
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::mac \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::mac \
 		-t$(TESTCACHE)/crypto/mac/crypto_mac.td $(testlib_crypto_mac_any_srcs)
 
 # crypto::math (+any)
@@ -4315,7 +4315,7 @@ testlib_crypto_math_any_srcs = \
 $(TESTCACHE)/crypto/math/crypto_math-any.ssa: $(testlib_crypto_math_any_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/math
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::math \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::math \
 		-t$(TESTCACHE)/crypto/math/crypto_math.td $(testlib_crypto_math_any_srcs)
 
 # crypto::random (+linux)
@@ -4326,7 +4326,7 @@ testlib_crypto_random_linux_srcs = \
 $(TESTCACHE)/crypto/random/crypto_random-linux.ssa: $(testlib_crypto_random_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/random
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::random \
 		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_linux_srcs)
 
 # crypto::random (+freebsd)
@@ -4337,7 +4337,7 @@ testlib_crypto_random_freebsd_srcs = \
 $(TESTCACHE)/crypto/random/crypto_random-freebsd.ssa: $(testlib_crypto_random_freebsd_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/random
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::random \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::random \
 		-t$(TESTCACHE)/crypto/random/crypto_random.td $(testlib_crypto_random_freebsd_srcs)
 
 # crypto::random (+darwin)
@@ -4364,7 +4364,7 @@ testlib_crypto_rsa_any_srcs = \
 $(TESTCACHE)/crypto/rsa/crypto_rsa-any.ssa: $(testlib_crypto_rsa_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_bigint_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_crypto_sha1_$(PLATFORM)) $(testlib_crypto_sha256_$(PLATFORM)) $(testlib_crypto_sha512_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/rsa
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::rsa \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::rsa \
 		-t$(TESTCACHE)/crypto/rsa/crypto_rsa.td $(testlib_crypto_rsa_any_srcs)
 
 # crypto::poly1305 (+any)
@@ -4375,7 +4375,7 @@ testlib_crypto_poly1305_any_srcs = \
 $(TESTCACHE)/crypto/poly1305/crypto_poly1305-any.ssa: $(testlib_crypto_poly1305_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_mac_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/poly1305
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::poly1305 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::poly1305 \
 		-t$(TESTCACHE)/crypto/poly1305/crypto_poly1305.td $(testlib_crypto_poly1305_any_srcs)
 
 # crypto::salsa (+any)
@@ -4386,7 +4386,7 @@ testlib_crypto_salsa_any_srcs = \
 $(TESTCACHE)/crypto/salsa/crypto_salsa-any.ssa: $(testlib_crypto_salsa_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_cipher_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/salsa
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::salsa \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::salsa \
 		-t$(TESTCACHE)/crypto/salsa/crypto_salsa.td $(testlib_crypto_salsa_any_srcs)
 
 # crypto::sha1 (+any)
@@ -4397,7 +4397,7 @@ testlib_crypto_sha1_any_srcs = \
 $(TESTCACHE)/crypto/sha1/crypto_sha1-any.ssa: $(testlib_crypto_sha1_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/sha1
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha1 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::sha1 \
 		-t$(TESTCACHE)/crypto/sha1/crypto_sha1.td $(testlib_crypto_sha1_any_srcs)
 
 # crypto::sha256 (+any)
@@ -4408,7 +4408,7 @@ testlib_crypto_sha256_any_srcs = \
 $(TESTCACHE)/crypto/sha256/crypto_sha256-any.ssa: $(testlib_crypto_sha256_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/sha256
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha256 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::sha256 \
 		-t$(TESTCACHE)/crypto/sha256/crypto_sha256.td $(testlib_crypto_sha256_any_srcs)
 
 # crypto::sha512 (+any)
@@ -4419,7 +4419,7 @@ testlib_crypto_sha512_any_srcs = \
 $(TESTCACHE)/crypto/sha512/crypto_sha512-any.ssa: $(testlib_crypto_sha512_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/sha512
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::sha512 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::sha512 \
 		-t$(TESTCACHE)/crypto/sha512/crypto_sha512.td $(testlib_crypto_sha512_any_srcs)
 
 # crypto::curve25519 (+any)
@@ -4430,7 +4430,7 @@ testlib_crypto_curve25519_any_srcs = \
 $(TESTCACHE)/crypto/curve25519/crypto_curve25519-any.ssa: $(testlib_crypto_curve25519_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_crypto_random_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/curve25519
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::curve25519 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::curve25519 \
 		-t$(TESTCACHE)/crypto/curve25519/crypto_curve25519.td $(testlib_crypto_curve25519_any_srcs)
 
 # crypto::ed25519 (+any)
@@ -4442,7 +4442,7 @@ testlib_crypto_ed25519_any_srcs = \
 $(TESTCACHE)/crypto/ed25519/crypto_ed25519-any.ssa: $(testlib_crypto_ed25519_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_sha512_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/ed25519
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::ed25519 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::ed25519 \
 		-t$(TESTCACHE)/crypto/ed25519/crypto_ed25519.td $(testlib_crypto_ed25519_any_srcs)
 
 # crypto::x25519 (+any)
@@ -4453,7 +4453,7 @@ testlib_crypto_x25519_any_srcs = \
 $(TESTCACHE)/crypto/x25519/crypto_x25519-any.ssa: $(testlib_crypto_x25519_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_crypto_curve25519_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_crypto_random_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/crypto/x25519
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ncrypto::x25519 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ncrypto::x25519 \
 		-t$(TESTCACHE)/crypto/x25519/crypto_x25519.td $(testlib_crypto_x25519_any_srcs)
 
 # dirs (+any)
@@ -4463,7 +4463,7 @@ testlib_dirs_any_srcs = \
 $(TESTCACHE)/dirs/dirs-any.ssa: $(testlib_dirs_any_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_unix_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/dirs
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ndirs \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ndirs \
 		-t$(TESTCACHE)/dirs/dirs.td $(testlib_dirs_any_srcs)
 
 # encoding::base64 (+any)
@@ -4473,7 +4473,7 @@ testlib_encoding_base64_any_srcs = \
 $(TESTCACHE)/encoding/base64/encoding_base64-any.ssa: $(testlib_encoding_base64_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/encoding/base64
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::base64 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nencoding::base64 \
 		-t$(TESTCACHE)/encoding/base64/encoding_base64.td $(testlib_encoding_base64_any_srcs)
 
 # encoding::base32 (+any)
@@ -4483,7 +4483,7 @@ testlib_encoding_base32_any_srcs = \
 $(TESTCACHE)/encoding/base32/encoding_base32-any.ssa: $(testlib_encoding_base32_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/encoding/base32
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::base32 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nencoding::base32 \
 		-t$(TESTCACHE)/encoding/base32/encoding_base32.td $(testlib_encoding_base32_any_srcs)
 
 # encoding::hex (+any)
@@ -4493,7 +4493,7 @@ testlib_encoding_hex_any_srcs = \
 $(TESTCACHE)/encoding/hex/encoding_hex-any.ssa: $(testlib_encoding_hex_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/encoding/hex
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::hex \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nencoding::hex \
 		-t$(TESTCACHE)/encoding/hex/encoding_hex.td $(testlib_encoding_hex_any_srcs)
 
 # encoding::pem (+any)
@@ -4504,7 +4504,7 @@ testlib_encoding_pem_any_srcs = \
 $(TESTCACHE)/encoding/pem/encoding_pem-any.ssa: $(testlib_encoding_pem_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_encoding_base64_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_bytes_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/encoding/pem
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::pem \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nencoding::pem \
 		-t$(TESTCACHE)/encoding/pem/encoding_pem.td $(testlib_encoding_pem_any_srcs)
 
 # encoding::utf8 (+any)
@@ -4517,7 +4517,7 @@ testlib_encoding_utf8_any_srcs = \
 $(TESTCACHE)/encoding/utf8/encoding_utf8-any.ssa: $(testlib_encoding_utf8_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/encoding/utf8
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nencoding::utf8 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nencoding::utf8 \
 		-t$(TESTCACHE)/encoding/utf8/encoding_utf8.td $(testlib_encoding_utf8_any_srcs)
 
 # endian (+any)
@@ -4531,7 +4531,7 @@ testlib_endian_any_srcs = \
 $(TESTCACHE)/endian/endian-any.ssa: $(testlib_endian_any_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/endian
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nendian \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nendian \
 		-t$(TESTCACHE)/endian/endian.td $(testlib_endian_any_srcs)
 
 # errors (+any)
@@ -4544,7 +4544,7 @@ testlib_errors_any_srcs = \
 $(TESTCACHE)/errors/errors-any.ssa: $(testlib_errors_any_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/errors
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nerrors \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nerrors \
 		-t$(TESTCACHE)/errors/errors.td $(testlib_errors_any_srcs)
 
 # fmt (+any)
@@ -4554,7 +4554,7 @@ testlib_fmt_any_srcs = \
 $(TESTCACHE)/fmt/fmt-any.ssa: $(testlib_fmt_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/fmt
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfmt \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nfmt \
 		-t$(TESTCACHE)/fmt/fmt.td $(testlib_fmt_any_srcs)
 
 # fnmatch (+any)
@@ -4565,7 +4565,7 @@ testlib_fnmatch_any_srcs = \
 $(TESTCACHE)/fnmatch/fnmatch-any.ssa: $(testlib_fnmatch_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_sort_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/fnmatch
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfnmatch \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nfnmatch \
 		-t$(TESTCACHE)/fnmatch/fnmatch.td $(testlib_fnmatch_any_srcs)
 
 # format::elf (+any)
@@ -4577,7 +4577,7 @@ testlib_format_elf_any_srcs = \
 $(TESTCACHE)/format/elf/format_elf-any.ssa: $(testlib_format_elf_any_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/format/elf
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::elf \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nformat::elf \
 		-t$(TESTCACHE)/format/elf/format_elf.td $(testlib_format_elf_any_srcs)
 
 # format::ini (+any)
@@ -4589,7 +4589,7 @@ testlib_format_ini_any_srcs = \
 $(TESTCACHE)/format/ini/format_ini-any.ssa: $(testlib_format_ini_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/format/ini
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::ini \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nformat::ini \
 		-t$(TESTCACHE)/format/ini/format_ini.td $(testlib_format_ini_any_srcs)
 
 # format::tar (+any)
@@ -4600,7 +4600,7 @@ testlib_format_tar_any_srcs = \
 $(TESTCACHE)/format/tar/format_tar-any.ssa: $(testlib_format_tar_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/format/tar
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nformat::tar \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nformat::tar \
 		-t$(TESTCACHE)/format/tar/format_tar.td $(testlib_format_tar_any_srcs)
 
 # fs (+any)
@@ -4612,7 +4612,7 @@ testlib_fs_any_srcs = \
 $(TESTCACHE)/fs/fs-any.ssa: $(testlib_fs_any_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/fs
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nfs \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nfs \
 		-t$(TESTCACHE)/fs/fs.td $(testlib_fs_any_srcs)
 
 # getopt (+any)
@@ -4622,7 +4622,7 @@ testlib_getopt_any_srcs = \
 $(TESTCACHE)/getopt/getopt-any.ssa: $(testlib_getopt_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/getopt
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ngetopt \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ngetopt \
 		-t$(TESTCACHE)/getopt/getopt.td $(testlib_getopt_any_srcs)
 
 # glob (+any)
@@ -4633,7 +4633,7 @@ testlib_glob_any_srcs = \
 $(TESTCACHE)/glob/glob-any.ssa: $(testlib_glob_any_srcs) $(testlib_rt) $(testlib_fnmatch_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/glob
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nglob \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nglob \
 		-t$(TESTCACHE)/glob/glob.td $(testlib_glob_any_srcs)
 
 # hare::ast (+any)
@@ -4648,7 +4648,7 @@ testlib_hare_ast_any_srcs = \
 $(TESTCACHE)/hare/ast/hare_ast-any.ssa: $(testlib_hare_ast_any_srcs) $(testlib_rt) $(testlib_hare_lex_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/ast
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::ast \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhare::ast \
 		-t$(TESTCACHE)/hare/ast/hare_ast.td $(testlib_hare_ast_any_srcs)
 
 # hare::lex (+any)
@@ -4660,7 +4660,7 @@ testlib_hare_lex_any_srcs = \
 $(TESTCACHE)/hare/lex/hare_lex-any.ssa: $(testlib_hare_lex_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/lex
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::lex \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhare::lex \
 		-t$(TESTCACHE)/hare/lex/hare_lex.td $(testlib_hare_lex_any_srcs)
 
 # hare::module (+any)
@@ -4675,7 +4675,7 @@ testlib_hare_module_any_srcs = \
 $(TESTCACHE)/hare/module/hare_module-any.ssa: $(testlib_hare_module_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_datetime_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM)) $(testlib_time_date_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/module
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::module \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhare::module \
 		-t$(TESTCACHE)/hare/module/hare_module.td $(testlib_hare_module_any_srcs)
 
 # hare::parse (+any)
@@ -4697,7 +4697,7 @@ testlib_hare_parse_any_srcs = \
 $(TESTCACHE)/hare/parse/hare_parse-any.ssa: $(testlib_hare_parse_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_math_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/parse
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::parse \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhare::parse \
 		-t$(TESTCACHE)/hare/parse/hare_parse.td $(testlib_hare_parse_any_srcs)
 
 # hare::parse::doc (+any)
@@ -4707,7 +4707,7 @@ testlib_hare_parse_doc_any_srcs = \
 $(TESTCACHE)/hare/parse/doc/hare_parse_doc-any.ssa: $(testlib_hare_parse_doc_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/parse/doc
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::parse::doc \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhare::parse::doc \
 		-t$(TESTCACHE)/hare/parse/doc/hare_parse_doc.td $(testlib_hare_parse_doc_any_srcs)
 
 # hare::types (+any)
@@ -4725,7 +4725,7 @@ testlib_hare_types_any_srcs = \
 $(TESTCACHE)/hare/types/hare_types-any.ssa: $(testlib_hare_types_any_srcs) $(testlib_rt) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_hash_fnv_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/types
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::types \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhare::types \
 		-t$(TESTCACHE)/hare/types/hare_types.td $(testlib_hare_types_any_srcs)
 
 # hare::unit (+any)
@@ -4743,7 +4743,7 @@ testlib_hare_unit_any_srcs = \
 $(TESTCACHE)/hare/unit/hare_unit-any.ssa: $(testlib_hare_unit_any_srcs) $(testlib_rt) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_types_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_hash_fnv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/unit
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::unit \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhare::unit \
 		-t$(TESTCACHE)/hare/unit/hare_unit.td $(testlib_hare_unit_any_srcs)
 
 # hare::unparse (+any)
@@ -4759,7 +4759,7 @@ testlib_hare_unparse_any_srcs = \
 $(TESTCACHE)/hare/unparse/hare_unparse-any.ssa: $(testlib_hare_unparse_any_srcs) $(testlib_rt) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/unparse
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhare::unparse \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhare::unparse \
 		-t$(TESTCACHE)/hare/unparse/hare_unparse.td $(testlib_hare_unparse_any_srcs)
 
 # hash (+any)
@@ -4769,7 +4769,7 @@ testlib_hash_any_srcs = \
 $(TESTCACHE)/hash/hash-any.ssa: $(testlib_hash_any_srcs) $(testlib_rt) $(testlib_crypto_math_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hash
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhash \
 		-t$(TESTCACHE)/hash/hash.td $(testlib_hash_any_srcs)
 
 # hash::adler32 (+any)
@@ -4779,7 +4779,7 @@ testlib_hash_adler32_any_srcs = \
 $(TESTCACHE)/hash/adler32/hash_adler32-any.ssa: $(testlib_hash_adler32_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hash/adler32
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::adler32 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhash::adler32 \
 		-t$(TESTCACHE)/hash/adler32/hash_adler32.td $(testlib_hash_adler32_any_srcs)
 
 # hash::crc16 (+any)
@@ -4789,7 +4789,7 @@ testlib_hash_crc16_any_srcs = \
 $(TESTCACHE)/hash/crc16/hash_crc16-any.ssa: $(testlib_hash_crc16_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hash/crc16
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::crc16 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhash::crc16 \
 		-t$(TESTCACHE)/hash/crc16/hash_crc16.td $(testlib_hash_crc16_any_srcs)
 
 # hash::crc32 (+any)
@@ -4799,7 +4799,7 @@ testlib_hash_crc32_any_srcs = \
 $(TESTCACHE)/hash/crc32/hash_crc32-any.ssa: $(testlib_hash_crc32_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hash/crc32
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::crc32 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhash::crc32 \
 		-t$(TESTCACHE)/hash/crc32/hash_crc32.td $(testlib_hash_crc32_any_srcs)
 
 # hash::crc64 (+any)
@@ -4809,7 +4809,7 @@ testlib_hash_crc64_any_srcs = \
 $(TESTCACHE)/hash/crc64/hash_crc64-any.ssa: $(testlib_hash_crc64_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hash/crc64
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::crc64 \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhash::crc64 \
 		-t$(TESTCACHE)/hash/crc64/hash_crc64.td $(testlib_hash_crc64_any_srcs)
 
 # hash::fnv (+any)
@@ -4820,7 +4820,7 @@ testlib_hash_fnv_any_srcs = \
 $(TESTCACHE)/hash/fnv/hash_fnv-any.ssa: $(testlib_hash_fnv_any_srcs) $(testlib_rt) $(testlib_endian_$(PLATFORM)) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hash/fnv
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::fnv \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhash::fnv \
 		-t$(TESTCACHE)/hash/fnv/hash_fnv.td $(testlib_hash_fnv_any_srcs)
 
 # hash::siphash (+any)
@@ -4831,7 +4831,7 @@ testlib_hash_siphash_any_srcs = \
 $(TESTCACHE)/hash/siphash/hash_siphash-any.ssa: $(testlib_hash_siphash_any_srcs) $(testlib_rt) $(testlib_hash_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_crypto_math_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hash/siphash
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nhash::siphash \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhash::siphash \
 		-t$(TESTCACHE)/hash/siphash/hash_siphash.td $(testlib_hash_siphash_any_srcs)
 
 # io (+linux)
@@ -4897,13 +4897,13 @@ testlib_io_darwin_srcs = \
 $(TESTCACHE)/io/io-linux.ssa: $(testlib_io_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/io
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nio \
 		-t$(TESTCACHE)/io/io.td $(testlib_io_linux_srcs)
 
 $(TESTCACHE)/io/io-freebsd.ssa: $(testlib_io_freebsd_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/io
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nio \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nio \
 		-t$(TESTCACHE)/io/io.td $(testlib_io_freebsd_srcs)
 
 $(TESTCACHE)/io/io-darwin.ssa: $(testlib_io_darwin_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
@@ -4920,7 +4920,7 @@ testlib_linux_linux_srcs = \
 $(TESTCACHE)/linux/linux-linux.ssa: $(testlib_linux_linux_srcs) $(testlib_rt) $(testlib_format_elf_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/linux
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nlinux \
 		-t$(TESTCACHE)/linux/linux.td $(testlib_linux_linux_srcs)
 
 # linux::keyctl (+linux)
@@ -4931,7 +4931,7 @@ testlib_linux_keyctl_linux_srcs = \
 $(TESTCACHE)/linux/keyctl/linux_keyctl-linux.ssa: $(testlib_linux_keyctl_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/linux/keyctl
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::keyctl \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nlinux::keyctl \
 		-t$(TESTCACHE)/linux/keyctl/linux_keyctl.td $(testlib_linux_keyctl_linux_srcs)
 
 # linux::timerfd (+linux)
@@ -4941,7 +4941,7 @@ testlib_linux_timerfd_linux_srcs = \
 $(TESTCACHE)/linux/timerfd/linux_timerfd-linux.ssa: $(testlib_linux_timerfd_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_endian_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/linux/timerfd
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::timerfd \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nlinux::timerfd \
 		-t$(TESTCACHE)/linux/timerfd/linux_timerfd.td $(testlib_linux_timerfd_linux_srcs)
 
 # linux::vdso (+linux)
@@ -4951,7 +4951,7 @@ testlib_linux_vdso_linux_srcs = \
 $(TESTCACHE)/linux/vdso/linux_vdso-linux.ssa: $(testlib_linux_vdso_linux_srcs) $(testlib_rt) $(testlib_linux_$(PLATFORM)) $(testlib_format_elf_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/linux/vdso
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlinux::vdso \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nlinux::vdso \
 		-t$(TESTCACHE)/linux/vdso/linux_vdso.td $(testlib_linux_vdso_linux_srcs)
 
 # log (+linux)
@@ -4964,7 +4964,7 @@ testlib_log_linux_srcs = \
 $(TESTCACHE)/log/log-linux.ssa: $(testlib_log_linux_srcs) $(testlib_rt) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_time_date_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/log
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nlog \
 		-t$(TESTCACHE)/log/log.td $(testlib_log_linux_srcs)
 
 # log (+freebsd)
@@ -4977,7 +4977,7 @@ testlib_log_freebsd_srcs = \
 $(TESTCACHE)/log/log-freebsd.ssa: $(testlib_log_freebsd_srcs) $(testlib_rt) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_time_date_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/log
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nlog \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nlog \
 		-t$(TESTCACHE)/log/log.td $(testlib_log_freebsd_srcs)
 
 # log (+darwin)
@@ -5010,7 +5010,7 @@ testlib_math_any_srcs = \
 $(TESTCACHE)/math/math-any.ssa: $(testlib_math_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/math
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nmath \
 		-t$(TESTCACHE)/math/math.td $(testlib_math_any_srcs)
 
 # math::checked (+any)
@@ -5020,7 +5020,7 @@ testlib_math_checked_any_srcs = \
 $(TESTCACHE)/math/checked/math_checked-any.ssa: $(testlib_math_checked_any_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/math/checked
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath::checked \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nmath::checked \
 		-t$(TESTCACHE)/math/checked/math_checked.td $(testlib_math_checked_any_srcs)
 
 # math::complex (+any)
@@ -5031,7 +5031,7 @@ testlib_math_complex_any_srcs = \
 $(TESTCACHE)/math/complex/math_complex-any.ssa: $(testlib_math_complex_any_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/math/complex
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath::complex \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nmath::complex \
 		-t$(TESTCACHE)/math/complex/math_complex.td $(testlib_math_complex_any_srcs)
 
 # math::random (+any)
@@ -5041,7 +5041,7 @@ testlib_math_random_any_srcs = \
 $(TESTCACHE)/math/random/math_random-any.ssa: $(testlib_math_random_any_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/math/random
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmath::random \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nmath::random \
 		-t$(TESTCACHE)/math/random/math_random.td $(testlib_math_random_any_srcs)
 
 # memio (+any)
@@ -5052,7 +5052,7 @@ testlib_memio_any_srcs = \
 $(TESTCACHE)/memio/memio-any.ssa: $(testlib_memio_any_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/memio
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nmemio \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nmemio \
 		-t$(TESTCACHE)/memio/memio.td $(testlib_memio_any_srcs)
 
 # net (+linux)
@@ -5065,7 +5065,7 @@ testlib_net_linux_srcs = \
 $(TESTCACHE)/net/net-linux.ssa: $(testlib_net_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet \
 		-t$(TESTCACHE)/net/net.td $(testlib_net_linux_srcs)
 
 # net (+freebsd)
@@ -5078,7 +5078,7 @@ testlib_net_freebsd_srcs = \
 $(TESTCACHE)/net/net-freebsd.ssa: $(testlib_net_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet \
 		-t$(TESTCACHE)/net/net.td $(testlib_net_freebsd_srcs)
 
 # net (+darwin)
@@ -5104,7 +5104,7 @@ testlib_net_dial_any_srcs = \
 $(TESTCACHE)/net/dial/net_dial-any.ssa: $(testlib_net_dial_any_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_net_tcp_$(PLATFORM)) $(testlib_net_udp_$(PLATFORM)) $(testlib_net_dns_$(PLATFORM)) $(testlib_net_uri_$(PLATFORM)) $(testlib_crypto_random_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_unix_hosts_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/dial
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::dial \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet::dial \
 		-t$(TESTCACHE)/net/dial/net_dial.td $(testlib_net_dial_any_srcs)
 
 # net::dns (+any)
@@ -5119,7 +5119,7 @@ testlib_net_dns_any_srcs = \
 $(TESTCACHE)/net/dns/net_dns-any.ssa: $(testlib_net_dns_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_udp_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_unix_resolvconf_$(PLATFORM)) $(testlib_unix_poll_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/dns
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::dns \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet::dns \
 		-t$(TESTCACHE)/net/dns/net_dns.td $(testlib_net_dns_any_srcs)
 
 # net::ip (+linux)
@@ -5143,13 +5143,13 @@ testlib_net_ip_darwin_srcs = \
 $(TESTCACHE)/net/ip/net_ip-linux.ssa: $(testlib_net_ip_linux_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/ip
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet::ip \
 		-t$(TESTCACHE)/net/ip/net_ip.td $(testlib_net_ip_linux_srcs)
 
 $(TESTCACHE)/net/ip/net_ip-freebsd.ssa: $(testlib_net_ip_freebsd_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/ip
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::ip \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet::ip \
 		-t$(TESTCACHE)/net/ip/net_ip.td $(testlib_net_ip_freebsd_srcs)
 
 $(TESTCACHE)/net/ip/net_ip-darwin.ssa: $(testlib_net_ip_darwin_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
@@ -5167,7 +5167,7 @@ testlib_net_tcp_linux_srcs = \
 $(TESTCACHE)/net/tcp/net_tcp-linux.ssa: $(testlib_net_tcp_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/tcp
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::tcp \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet::tcp \
 		-t$(TESTCACHE)/net/tcp/net_tcp.td $(testlib_net_tcp_linux_srcs)
 
 # net::tcp (+freebsd)
@@ -5179,7 +5179,7 @@ testlib_net_tcp_freebsd_srcs = \
 $(TESTCACHE)/net/tcp/net_tcp-freebsd.ssa: $(testlib_net_tcp_freebsd_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/tcp
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::tcp \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet::tcp \
 		-t$(TESTCACHE)/net/tcp/net_tcp.td $(testlib_net_tcp_freebsd_srcs)
 
 # net::tcp (+darwin)
@@ -5202,7 +5202,7 @@ testlib_net_udp_linux_srcs = \
 $(TESTCACHE)/net/udp/net_udp-linux.ssa: $(testlib_net_udp_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/udp
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::udp \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet::udp \
 		-t$(TESTCACHE)/net/udp/net_udp.td $(testlib_net_udp_linux_srcs)
 
 # net::udp (+freebsd)
@@ -5213,7 +5213,7 @@ testlib_net_udp_freebsd_srcs = \
 $(TESTCACHE)/net/udp/net_udp-freebsd.ssa: $(testlib_net_udp_freebsd_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_net_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/udp
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::udp \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet::udp \
 		-t$(TESTCACHE)/net/udp/net_udp.td $(testlib_net_udp_freebsd_srcs)
 
 # net::udp (+darwin)
@@ -5240,7 +5240,7 @@ testlib_net_unix_linux_srcs = \
 $(TESTCACHE)/net/unix/net_unix-linux.ssa: $(testlib_net_unix_linux_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_net_dial_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/unix
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet::unix \
 		-t$(TESTCACHE)/net/unix/net_unix.td $(testlib_net_unix_linux_srcs)
 
 # net::unix (+freebsd)
@@ -5256,7 +5256,7 @@ testlib_net_unix_freebsd_srcs = \
 $(TESTCACHE)/net/unix/net_unix-freebsd.ssa: $(testlib_net_unix_freebsd_srcs) $(testlib_rt) $(testlib_net_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_net_dial_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/unix
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::unix \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet::unix \
 		-t$(TESTCACHE)/net/unix/net_unix.td $(testlib_net_unix_freebsd_srcs)
 
 # net::unix (+darwin)
@@ -5286,7 +5286,7 @@ testlib_net_uri_any_srcs = \
 $(TESTCACHE)/net/uri/net_uri-any.ssa: $(testlib_net_uri_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/net/uri
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nnet::uri \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nnet::uri \
 		-t$(TESTCACHE)/net/uri/net_uri.td $(testlib_net_uri_any_srcs)
 
 # os (+linux)
@@ -5304,7 +5304,7 @@ testlib_os_linux_srcs = \
 $(TESTCACHE)/os/os-linux.ssa: $(testlib_os_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_math_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nos \
 		-t$(TESTCACHE)/os/os.td $(testlib_os_linux_srcs)
 
 # os (+freebsd)
@@ -5321,7 +5321,7 @@ testlib_os_freebsd_srcs = \
 $(TESTCACHE)/os/os-freebsd.ssa: $(testlib_os_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nos \
 		-t$(TESTCACHE)/os/os.td $(testlib_os_freebsd_srcs)
 
 # os (+darwin)
@@ -5351,7 +5351,7 @@ testlib_os_exec_linux_srcs = \
 $(TESTCACHE)/os/exec/os_exec-linux.ssa: $(testlib_os_exec_linux_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM)) $(testlib_types_c_$(PLATFORM)) $(testlib_time_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os/exec
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nos::exec \
 		-t$(TESTCACHE)/os/exec/os_exec.td $(testlib_os_exec_linux_srcs)
 
 # os::exec (+freebsd)
@@ -5364,7 +5364,7 @@ testlib_os_exec_freebsd_srcs = \
 $(TESTCACHE)/os/exec/os_exec-freebsd.ssa: $(testlib_os_exec_freebsd_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_unix_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM)) $(testlib_types_c_$(PLATFORM)) $(testlib_time_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/os/exec
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nos::exec \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nos::exec \
 		-t$(TESTCACHE)/os/exec/os_exec.td $(testlib_os_exec_freebsd_srcs)
 
 # os::exec (+darwin)
@@ -5394,7 +5394,7 @@ testlib_path_any_srcs = \
 $(TESTCACHE)/path/path-any.ssa: $(testlib_path_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_errors_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/path
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Npath \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Npath \
 		-t$(TESTCACHE)/path/path.td $(testlib_path_any_srcs)
 
 # regex (+any)
@@ -5405,7 +5405,7 @@ testlib_regex_any_srcs = \
 $(TESTCACHE)/regex/regex-any.ssa: $(testlib_regex_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/regex
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nregex \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nregex \
 		-t$(TESTCACHE)/regex/regex.td $(testlib_regex_any_srcs)
 
 # shlex (+any)
@@ -5417,7 +5417,7 @@ testlib_shlex_any_srcs = \
 $(TESTCACHE)/shlex/shlex-any.ssa: $(testlib_shlex_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/shlex
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nshlex \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nshlex \
 		-t$(TESTCACHE)/shlex/shlex.td $(testlib_shlex_any_srcs)
 
 # sort (+any)
@@ -5431,7 +5431,7 @@ testlib_sort_any_srcs = \
 $(TESTCACHE)/sort/sort-any.ssa: $(testlib_sort_any_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM)) $(testlib_math_random_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/sort
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nsort \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nsort \
 		-t$(TESTCACHE)/sort/sort.td $(testlib_sort_any_srcs)
 
 # strconv (+any)
@@ -5451,7 +5451,7 @@ testlib_strconv_any_srcs = \
 $(TESTCACHE)/strconv/strconv-any.ssa: $(testlib_strconv_any_srcs) $(testlib_rt) $(testlib_types_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_ascii_$(PLATFORM)) $(testlib_math_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/strconv
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrconv \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nstrconv \
 		-t$(TESTCACHE)/strconv/strconv.td $(testlib_strconv_any_srcs)
 
 # strings (+any)
@@ -5474,7 +5474,7 @@ testlib_strings_any_srcs = \
 $(TESTCACHE)/strings/strings-any.ssa: $(testlib_strings_any_srcs) $(testlib_rt) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/strings
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrings \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nstrings \
 		-t$(TESTCACHE)/strings/strings.td $(testlib_strings_any_srcs)
 
 # strings::template (+any)
@@ -5484,7 +5484,7 @@ testlib_strings_template_any_srcs = \
 $(TESTCACHE)/strings/template/strings_template-any.ssa: $(testlib_strings_template_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/strings/template
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nstrings::template \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nstrings::template \
 		-t$(TESTCACHE)/strings/template/strings_template.td $(testlib_strings_template_any_srcs)
 
 # temp (+linux)
@@ -5494,7 +5494,7 @@ testlib_temp_linux_srcs = \
 $(TESTCACHE)/temp/temp-linux.ssa: $(testlib_temp_linux_srcs) $(testlib_rt) $(testlib_crypto_random_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/temp
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ntemp \
 		-t$(TESTCACHE)/temp/temp.td $(testlib_temp_linux_srcs)
 
 # temp (+freebsd)
@@ -5504,7 +5504,7 @@ testlib_temp_freebsd_srcs = \
 $(TESTCACHE)/temp/temp-freebsd.ssa: $(testlib_temp_freebsd_srcs) $(testlib_rt) $(testlib_crypto_random_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_fmt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/temp
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntemp \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ntemp \
 		-t$(TESTCACHE)/temp/temp.td $(testlib_temp_freebsd_srcs)
 
 # temp (+darwin)
@@ -5526,7 +5526,7 @@ testlib_test_any_srcs = \
 $(TESTCACHE)/test/test-any.ssa: $(testlib_test_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fnmatch_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_unix_signal_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/test
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntest \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ntest \
 		-t$(TESTCACHE)/test/test.td $(testlib_test_any_srcs)
 
 # time (+linux)
@@ -5540,7 +5540,7 @@ testlib_time_linux_srcs = \
 $(TESTCACHE)/time/time-linux.ssa: $(testlib_time_linux_srcs) $(testlib_rt) $(testlib_linux_vdso_$(PLATFORM)) $(testlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ntime \
 		-t$(TESTCACHE)/time/time.td $(testlib_time_linux_srcs)
 
 # time (+freebsd)
@@ -5553,7 +5553,7 @@ testlib_time_freebsd_srcs = \
 $(TESTCACHE)/time/time-freebsd.ssa: $(testlib_time_freebsd_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ntime \
 		-t$(TESTCACHE)/time/time.td $(testlib_time_freebsd_srcs)
 
 # time (+darwin)
@@ -5583,7 +5583,7 @@ testlib_time_chrono_linux_srcs = \
 $(TESTCACHE)/time/chrono/time_chrono-linux.ssa: $(testlib_time_chrono_linux_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time/chrono
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ntime::chrono \
 		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_linux_srcs)
 
 # time::chrono (+freebsd)
@@ -5600,7 +5600,7 @@ testlib_time_chrono_freebsd_srcs = \
 $(TESTCACHE)/time/chrono/time_chrono-freebsd.ssa: $(testlib_time_chrono_freebsd_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time/chrono
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::chrono \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ntime::chrono \
 		-t$(TESTCACHE)/time/chrono/time_chrono.td $(testlib_time_chrono_freebsd_srcs)
 
 # time::chrono (+darwin)
@@ -5639,7 +5639,7 @@ testlib_time_date_linux_srcs = \
 $(TESTCACHE)/time/date/time_date-linux.ssa: $(testlib_time_date_linux_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time/date
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::date \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ntime::date \
 		-t$(TESTCACHE)/time/date/time_date.td $(testlib_time_date_linux_srcs)
 
 # time::date (+freebsd)
@@ -5661,7 +5661,7 @@ testlib_time_date_freebsd_srcs = \
 $(TESTCACHE)/time/date/time_date-freebsd.ssa: $(testlib_time_date_freebsd_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/time/date
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntime::date \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ntime::date \
 		-t$(TESTCACHE)/time/date/time_date.td $(testlib_time_date_freebsd_srcs)
 
 # time::date (+darwin)
@@ -5695,7 +5695,7 @@ testlib_types_any_srcs = \
 $(TESTCACHE)/types/types-any.ssa: $(testlib_types_any_srcs) $(testlib_rt)
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/types
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntypes \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ntypes \
 		-t$(TESTCACHE)/types/types.td $(testlib_types_any_srcs)
 
 # types::c (+any)
@@ -5708,7 +5708,7 @@ testlib_types_c_any_srcs = \
 $(TESTCACHE)/types/c/types_c-any.ssa: $(testlib_types_c_any_srcs) $(testlib_rt) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/types/c
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Ntypes::c \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Ntypes::c \
 		-t$(TESTCACHE)/types/c/types_c.td $(testlib_types_c_any_srcs)
 
 # unix (+linux)
@@ -5723,7 +5723,7 @@ testlib_unix_linux_srcs = \
 $(TESTCACHE)/unix/unix-linux.ssa: $(testlib_unix_linux_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix \
 		-t$(TESTCACHE)/unix/unix.td $(testlib_unix_linux_srcs)
 
 # unix (+freebsd)
@@ -5738,7 +5738,7 @@ testlib_unix_freebsd_srcs = \
 $(TESTCACHE)/unix/unix-freebsd.ssa: $(testlib_unix_freebsd_srcs) $(testlib_rt) $(testlib_errors_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix \
 		-t$(TESTCACHE)/unix/unix.td $(testlib_unix_freebsd_srcs)
 
 # unix (+darwin)
@@ -5765,7 +5765,7 @@ testlib_unix_hosts_linux_srcs = \
 $(TESTCACHE)/unix/hosts/unix_hosts-linux.ssa: $(testlib_unix_hosts_linux_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/hosts
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix::hosts \
 		-t$(TESTCACHE)/unix/hosts/unix_hosts.td $(testlib_unix_hosts_linux_srcs)
 
 # unix::hosts (+freebsd)
@@ -5777,7 +5777,7 @@ testlib_unix_hosts_freebsd_srcs = \
 $(TESTCACHE)/unix/hosts/unix_hosts-freebsd.ssa: $(testlib_unix_hosts_freebsd_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/hosts
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::hosts \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix::hosts \
 		-t$(TESTCACHE)/unix/hosts/unix_hosts.td $(testlib_unix_hosts_freebsd_srcs)
 
 # unix::hosts (+darwin)
@@ -5801,7 +5801,7 @@ testlib_unix_passwd_any_srcs = \
 $(TESTCACHE)/unix/passwd/unix_passwd-any.ssa: $(testlib_unix_passwd_any_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_memio_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/passwd
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::passwd \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix::passwd \
 		-t$(TESTCACHE)/unix/passwd/unix_passwd.td $(testlib_unix_passwd_any_srcs)
 
 # unix::poll (+linux)
@@ -5812,7 +5812,7 @@ testlib_unix_poll_linux_srcs = \
 $(TESTCACHE)/unix/poll/unix_poll-linux.ssa: $(testlib_unix_poll_linux_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/poll
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix::poll \
 		-t$(TESTCACHE)/unix/poll/unix_poll.td $(testlib_unix_poll_linux_srcs)
 
 # unix::poll (+freebsd)
@@ -5823,7 +5823,7 @@ testlib_unix_poll_freebsd_srcs = \
 $(TESTCACHE)/unix/poll/unix_poll-freebsd.ssa: $(testlib_unix_poll_freebsd_srcs) $(testlib_rt) $(testlib_rt_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_io_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/poll
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::poll \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix::poll \
 		-t$(TESTCACHE)/unix/poll/unix_poll.td $(testlib_unix_poll_freebsd_srcs)
 
 # unix::poll (+darwin)
@@ -5845,7 +5845,7 @@ testlib_unix_resolvconf_linux_srcs = \
 $(TESTCACHE)/unix/resolvconf/unix_resolvconf-linux.ssa: $(testlib_unix_resolvconf_linux_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/resolvconf
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix::resolvconf \
 		-t$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td $(testlib_unix_resolvconf_linux_srcs)
 
 # unix::resolvconf (+freebsd)
@@ -5856,7 +5856,7 @@ testlib_unix_resolvconf_freebsd_srcs = \
 $(TESTCACHE)/unix/resolvconf/unix_resolvconf-freebsd.ssa: $(testlib_unix_resolvconf_freebsd_srcs) $(testlib_rt) $(testlib_os_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bufio_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_net_ip_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/resolvconf
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::resolvconf \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix::resolvconf \
 		-t$(TESTCACHE)/unix/resolvconf/unix_resolvconf.td $(testlib_unix_resolvconf_freebsd_srcs)
 
 # unix::resolvconf (+darwin)
@@ -5878,7 +5878,7 @@ testlib_unix_signal_linux_srcs = \
 $(TESTCACHE)/unix/signal/unix_signal-linux.ssa: $(testlib_unix_signal_linux_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/signal
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix::signal \
 		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_linux_srcs)
 
 # unix::signal (+freebsd)
@@ -5889,7 +5889,7 @@ testlib_unix_signal_freebsd_srcs = \
 $(TESTCACHE)/unix/signal/unix_signal-freebsd.ssa: $(testlib_unix_signal_freebsd_srcs) $(testlib_rt) $(testlib_io_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_rt_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/signal
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::signal \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix::signal \
 		-t$(TESTCACHE)/unix/signal/unix_signal.td $(testlib_unix_signal_freebsd_srcs)
 
 # unix::signal (+darwin)
@@ -5916,7 +5916,7 @@ testlib_unix_tty_linux_srcs = \
 $(TESTCACHE)/unix/tty/unix_tty-linux.ssa: $(testlib_unix_tty_linux_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/tty
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix::tty \
 		-t$(TESTCACHE)/unix/tty/unix_tty.td $(testlib_unix_tty_linux_srcs)
 
 # unix::tty (+freebsd)
@@ -5931,7 +5931,7 @@ testlib_unix_tty_freebsd_srcs = \
 $(TESTCACHE)/unix/tty/unix_tty-freebsd.ssa: $(testlib_unix_tty_freebsd_srcs) $(testlib_rt) $(testlib_bufio_$(PLATFORM)) $(testlib_errors_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_rt_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_c_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/unix/tty
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nunix::tty \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nunix::tty \
 		-t$(TESTCACHE)/unix/tty/unix_tty.td $(testlib_unix_tty_freebsd_srcs)
 
 # unix::tty (+darwin)
@@ -5956,6 +5956,6 @@ testlib_uuid_any_srcs = \
 $(TESTCACHE)/uuid/uuid-any.ssa: $(testlib_uuid_any_srcs) $(testlib_rt) $(testlib_crypto_random_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_endian_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_strconv_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/uuid
-	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nuuid \
+	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nuuid \
 		-t$(TESTCACHE)/uuid/uuid.td $(testlib_uuid_any_srcs)
 

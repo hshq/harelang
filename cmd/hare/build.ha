@@ -176,7 +176,14 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 
 fn run(name: str, path: str, args: []str) error = {
 	const args: []str = if (len(args) != 0) args[1..] else [];
-	let cmd = exec::cmd(path, args...)?;
+	let cmd = match(exec::cmd(path, args...)) {
+	case exec::nocmd =>
+		fmt::fatalf("Error: Command not found: {}", path);
+	case let e: exec::error =>
+		return e;
+	case let c: exec::command =>
+		yield c;
+	};
 	exec::setname(&cmd, name);
 	exec::exec(&cmd);
 };

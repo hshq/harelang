@@ -159,7 +159,14 @@ fn run_task(ctx: *context, jobs: *[]job, t: *task) (bool | error) = {
 		fmt::errorln()?;
 	};
 
-	let cmd = exec::cmd(ctx.cmds[t.kind], args...)?;
+	let cmd = match(exec::cmd(ctx.cmds[t.kind], args...)) {
+	case exec::nocmd =>
+		fmt::fatalf("Error: Command not found: {}", ctx.cmds[t.kind]);
+	case let e: exec::error =>
+		return e;
+	case let c: exec::command =>
+		yield c;
+	};
 	path::set(&buf, out)?;
 	let output = os::create(path::push_ext(&buf, "log")?, 0o644)?;
 	defer io::close(output)!;

@@ -125,12 +125,12 @@ genrules() {
 	if [ $# -gt 0 ] && [ "$1" = "test" ]
 	then
 		cache=TESTCACHE
-		flags=TESTHAREFLAGS
+		flags=TESTHARECFLAGS
 		testing=1
 		stdlib=testlib
 	else
 		cache=HARECACHE
-		flags=HAREFLAGS
+		flags=HARECFLAGS
 		testing=0
 		stdlib=stdlib
 	fi

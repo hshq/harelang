@@ -327,6 +327,8 @@ The following environment variables affect *hare*'s execution:
 :  Applies additional flags to the command line arguments.
 |  *HAREC*
 :  Name of the *harec*(1) command to use.
+|  *HARECFLAGS*
+:  Additional flags to pass to *harec*(1).
 |  *QBE*
 :  Name of the *qbe*(1) command to use.
 |  *QBEFLAGS*

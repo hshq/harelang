@@ -110,7 +110,10 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 	};
 
 	let mod = ctx.mods[t.idx];
-	if (len(mod.ns) != 0 || len(ctx.libs) != 0) {
+	if (len(ctx.ns) != 0 && t.idx == ctx.top) {
+		append(flags, strings::dup("-N"));
+		append(flags, unparse::identstr(ctx.ns));
+	} else if (len(mod.ns) != 0 || len(ctx.libs) != 0) {
 		append(flags, strings::dup("-N"));
 		append(flags, unparse::identstr(mod.ns));
 	};
