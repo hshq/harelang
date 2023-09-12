@@ -95,7 +95,7 @@ export fn machine() const str = {
 };
 
 // Returns the number of usable CPUs.
-export fn cpucount() (int | errors::error) = {
+export fn cpucount() (size | errors::error) = {
 	let count = 0;
 	let length = size(int);
 	match (rt::sysctlbyname("hw.ncpu", &count, &length, null, 0)) {
@@ -103,5 +103,5 @@ export fn cpucount() (int | errors::error) = {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	};
-	return count;
+	return count: size;
 };
