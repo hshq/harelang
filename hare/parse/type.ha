@@ -19,7 +19,6 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 			yield void;
 		case lex::token =>
 			variadism = ast::variadism::C;
-			try(lexer, ltok::COMMA)?;
 			want(lexer, ltok::RPAREN)?;
 			break;
 		};
@@ -49,7 +48,6 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 			yield void;
 		case lex::token =>
 			variadism = ast::variadism::HARE;
-			try(lexer, ltok::COMMA)?;
 			want(lexer, ltok::RPAREN)?;
 			break;
 		};
