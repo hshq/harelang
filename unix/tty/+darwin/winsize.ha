@@ -11,7 +11,7 @@ export fn winsize(fd: io::file) (ttysize | error) = {
 	let wsz = rt::winsize { ... };
 	match (rt::ioctl(fd, rt::TIOCGWINSZ, &wsz: *opaque)) {
 	case let e: rt::errno =>
-		switch (e: int) {
+		switch (e) {
 		case rt::EBADF =>
 			return errors::invalid;
 		case rt::ENOTTY =>

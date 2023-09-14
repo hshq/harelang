@@ -19,7 +19,7 @@ ARCH = x86_64
 
 # External tools and flags
 HAREC = harec
-HAREFLAGS =
+HARECFLAGS =
 QBE = qbe
 AS = as
 LD = ld

@@ -21,7 +21,7 @@ ARCH = x86_64
 
 # External tools and flags
 HAREC = /usr/local/bin/harec
-HAREFLAGS =
+HARECFLAGS =
 QBE = $(HAREC_TOOLS)/qbe.sh
 AS = $(HAREC_TOOLS)/as.sh
 LD = $(HAREC_TOOLS)/ld.sh
