@@ -922,7 +922,6 @@ fn plain_struct(
 			synassert(lex::mkloc(lexer), len(alias) != 0,
 				"Cannot use auto-fill with anonymous struct")?;
 			autofill = true;
-			try(lexer, ltok::COMMA)?;
 			want(lexer, ltok::RBRACE)?;
 			break;
 		case ltok::NAME, ltok::STRUCT =>
