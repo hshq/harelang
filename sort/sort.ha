@@ -19,10 +19,6 @@ export fn sort(items: []opaque, itemsz: size, cmp: *cmpfunc) void = {
 	powersort(items, itemsz, cmp);
 };
 
-// Sorts a slice of strings in place. Sorting is done with respect to Unicode
-// codepoints; see [[strings::compare]].
-export fn strings(items: []str) void = sort(items, size(str), &scmp);
-
 // Checks if all of the items in a slice are sorted.
 export fn sorted(items: []opaque, itemsz: size, cmp: *cmpfunc) bool = {
 	let ba = items: *[*]u8;
@@ -33,10 +29,6 @@ export fn sorted(items: []opaque, itemsz: size, cmp: *cmpfunc) bool = {
 	};
 	return true;
 };
-
-// Checks if all of the strings in a slice are sorted. Order is checked with
-// respect to Unicode codepoints; see [[strings::compare]].
-export fn strings_sorted(items: []str) bool = sorted(items, size(str), &scmp);
 
 fn swap(a: *opaque, b: *opaque, sz: size) void = {
 	let a = a: *[*]u8, b = b: *[*]u8;

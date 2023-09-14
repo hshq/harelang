@@ -7,6 +7,7 @@ use io;
 use os;
 use path;
 use sort;
+use sort::cmp;
 use strings;
 
 type deps_fmt = enum {
@@ -156,8 +157,4 @@ fn deps_graph(mods: *[]module::module) void = {
 };
 
 // sorts in reverse
-fn revsort(a: const *opaque, b: const *opaque) int = {
-	let a = *(a: *(size, str));
-	let b = *(b: *(size, str));
-	return (b.0 - a.0): int;
-};
+fn revsort(a: const *opaque, b: const *opaque) int = -cmp::sizes(a, b);

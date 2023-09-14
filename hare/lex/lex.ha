@@ -14,6 +14,7 @@ use memio;
 use os;
 use path;
 use sort;
+use sort::cmp;
 use strconv;
 use strings;
 use types;
@@ -333,7 +334,8 @@ fn lex_name(lex: *lexer, loc: location) (token | error) = {
 
 	let n = memio::string(&buf)!;
 
-	match (sort::searchstrings(bmap[..ltok::LAST_KEYWORD+1], n)) {
+	match (sort::search(bmap[..ltok::LAST_KEYWORD+1],
+		size(str), &n, &cmp::strs)) {
 	case void =>
 		return (ltok::NAME, n, loc);
 	case let i: size =>

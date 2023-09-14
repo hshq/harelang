@@ -4,6 +4,7 @@ use hare::ast;
 use os;
 use path;
 use sort;
+use sort::cmp;
 use strings;
 use time;
 
@@ -133,11 +134,11 @@ fn path_find(ctx: *context, buf: *path::buffer) (srcset | error) = {
 		};
 	};
 
-	sort::strings(res.dirs);
-	sort::strings(res.ha);
-	sort::strings(res.s);
-	sort::strings(res.o);
-	sort::strings(res.sc);
+	sort::sort(res.dirs, size(str), &cmp::strs);
+	sort::sort(res.ha, size(str), &cmp::strs);
+	sort::sort(res.s, size(str), &cmp::strs);
+	sort::sort(res.o, size(str), &cmp::strs);
+	sort::sort(res.sc, size(str), &cmp::strs);
 	return res;
 };
 
