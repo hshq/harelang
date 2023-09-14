@@ -487,7 +487,6 @@ fn call(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
 		match (try(lexer, ltok::ELLIPSIS)?) {
 		case lex::token =>
 			variadic = true;
-			try(lexer, ltok::COMMA)?;
 			want(lexer, ltok::RPAREN)?;
 			break;
 		case void => void;
