@@ -886,7 +886,6 @@ fn plain_array(lexer: *lex::lexer) (ast::expr | error) = {
 			switch (tok.0) {
 			case ltok::ELLIPSIS =>
 				expand = true;
-				try(lexer, ltok::COMMA)?;
 				want(lexer, ltok::RBRACKET)?;
 				break;
 			case ltok::COMMA => void;
