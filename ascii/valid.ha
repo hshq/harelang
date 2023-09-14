@@ -19,7 +19,7 @@ export fn validstr(s: str) bool = {
 
 @test fn valid() void = {
 	assert(valid('a') && valid('\0') && valid('\x7F'));
-	assert(!valid('\x80') && !valid('こ'));
+	assert(!valid('\u0080') && !valid('こ'));
 	assert(validstr("abc\0"));
 	assert(!validstr("š"));
 	assert(!validstr("こんにちは"));
