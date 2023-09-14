@@ -9,7 +9,7 @@ export fn sigemptyset(set: *sigset) void = {
 
 export fn sigaddset(set: *sigset, signum: int) (void | errno) = {
 	if (signum < 1 || signum > NSIG) {
-		return wrap_errno(EINVAL);
+		return EINVAL;
 	};
 	signum -= 1;
 	set.__val[0] |= (1 << signum): u64;
@@ -17,7 +17,7 @@ export fn sigaddset(set: *sigset, signum: int) (void | errno) = {
 
 export fn sigdelset(set: *sigset, signum: int) (void | errno) = {
 	if (signum < 1 || signum > NSIG) {
-		return wrap_errno(EINVAL);
+		return EINVAL;
 	};
 	signum -= 1;
 	set.__val[0] &= ~(1 << signum: u64);
@@ -25,7 +25,7 @@ export fn sigdelset(set: *sigset, signum: int) (void | errno) = {
 
 export fn sigismember(set: *sigset, signum: int) (bool | errno) = {
 	if (signum < 1 || signum > NSIG) {
-		return wrap_errno(EINVAL);
+		return EINVAL;
 	};
 	signum -= 1;
 	return (set.__val[0] & (1 << signum: u64)) != 0;

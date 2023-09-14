@@ -172,7 +172,7 @@ export fn dirent_dup(e: *dirent) dirent = {
 export fn dirent_finish(e: *dirent) void = free(e.name);
 
 // Flags to use for opening a file. Not all operating systems support all flags;
-// at a minimum, RDONLY, WRONLY, RDWR, and CREATE will be supported.
+// at a minimum, RDONLY, WRONLY, RDWR, CREATE, and TRUNC will be supported.
 // Note that NOCTTY and CLOEXEC are on by default, and the CTTY/NOCLOEXEC flags
 // respectively disable them.
 export type flag = enum int {

@@ -79,99 +79,99 @@ export type cmsg = struct {
 // domain for socket(2)
 
 // Unspecified
-export def AF_UNSPEC: u16 = 0;
+export def AF_UNSPEC: sa_family_t = 0;
 // Unix domain sockets
-export def AF_UNIX: u16 = 1;
+export def AF_UNIX: sa_family_t = 1;
 // POSIX name for AF_UNIX
-export def AF_LOCAL: u16 = 1;
+export def AF_LOCAL: sa_family_t = 1;
 // Internet IP Protocol
-export def AF_INET: u16 = 2;
+export def AF_INET: sa_family_t = 2;
 // Amateur Radio AX.25
-export def AF_AX25: u16 = 3;
+export def AF_AX25: sa_family_t = 3;
 // Novell IPX
-export def AF_IPX: u16 = 4;
+export def AF_IPX: sa_family_t = 4;
 // AppleTalk DDP
-export def AF_APPLETALK: u16 = 5;
+export def AF_APPLETALK: sa_family_t = 5;
 // Amateur Radio NET/ROM
-export def AF_NETROM: u16 = 6;
+export def AF_NETROM: sa_family_t = 6;
 // Multiprotocol bridge
-export def AF_BRIDGE: u16 = 7;
+export def AF_BRIDGE: sa_family_t = 7;
 // ATM PVCs
-export def AF_ATMPVC: u16 = 8;
+export def AF_ATMPVC: sa_family_t = 8;
 // Reserved for X.25 project
-export def AF_X25: u16 = 9;
+export def AF_X25: sa_family_t = 9;
 // IP version 6
-export def AF_INET6: u16 = 10;
+export def AF_INET6: sa_family_t = 10;
 // Amateur Radio X.25 PLP
-export def AF_ROSE: u16 = 11;
+export def AF_ROSE: sa_family_t = 11;
 // Reserved for DECnet project
-export def AF_DECnet: u16 = 12;
+export def AF_DECnet: sa_family_t = 12;
 // Reserved for 802.2LLC project
-export def AF_NETBEUI: u16 = 13;
+export def AF_NETBEUI: sa_family_t = 13;
 // Security callback pseudo AF
-export def AF_SECURITY: u16 = 14;
+export def AF_SECURITY: sa_family_t = 14;
 // PF_KEY key management API
-export def AF_KEY: u16 = 15;
+export def AF_KEY: sa_family_t = 15;
 // Linux netlink API
-export def AF_NETLINK: u16 = 16;
+export def AF_NETLINK: sa_family_t = 16;
 // Alias to emulate 4.4BSD
-export def AF_ROUTE: u16 = AF_NETLINK;
+export def AF_ROUTE: sa_family_t = AF_NETLINK;
 // Packet family
-export def AF_PACKET: u16 = 17;
+export def AF_PACKET: sa_family_t = 17;
 // Ash
-export def AF_ASH: u16 = 18;
+export def AF_ASH: sa_family_t = 18;
 // Acorn Econet
-export def AF_ECONET: u16 = 19;
+export def AF_ECONET: sa_family_t = 19;
 // ATM SVCs
-export def AF_ATMSVC: u16 = 20;
+export def AF_ATMSVC: sa_family_t = 20;
 // RDS sockets
-export def AF_RDS: u16 = 21;
+export def AF_RDS: sa_family_t = 21;
 // Linux SNA Project (nutters!)
-export def AF_SNA: u16 = 22;
+export def AF_SNA: sa_family_t = 22;
 // IRDA sockets
-export def AF_IRDA: u16 = 23;
+export def AF_IRDA: sa_family_t = 23;
 // PPPoX sockets
-export def AF_PPPOX: u16 = 24;
+export def AF_PPPOX: sa_family_t = 24;
 // Wanpipe API Sockets
-export def AF_WANPIPE: u16 = 25;
+export def AF_WANPIPE: sa_family_t = 25;
 // Linux LLC
-export def AF_LLC: u16 = 26;
+export def AF_LLC: sa_family_t = 26;
 // Native InfiniBand address
-export def AF_IB: u16 = 27;
+export def AF_IB: sa_family_t = 27;
 // MPLS
-export def AF_MPLS: u16 = 28;
+export def AF_MPLS: sa_family_t = 28;
 // Controller Area Network
-export def AF_CAN: u16 = 29;
+export def AF_CAN: sa_family_t = 29;
 // TIPC sockets
-export def AF_TIPC: u16 = 30;
+export def AF_TIPC: sa_family_t = 30;
 // Bluetooth sockets
-export def AF_BLUETOOTH: u16 = 31;
+export def AF_BLUETOOTH: sa_family_t = 31;
 // IUCV sockets
-export def AF_IUCV: u16 = 32;
+export def AF_IUCV: sa_family_t = 32;
 // RxRPC sockets
-export def AF_RXRPC: u16 = 33;
+export def AF_RXRPC: sa_family_t = 33;
 // mISDN sockets
-export def AF_ISDN: u16 = 34;
+export def AF_ISDN: sa_family_t = 34;
 // Phonet sockets
-export def AF_PHONET: u16 = 35;
+export def AF_PHONET: sa_family_t = 35;
 // IEEE802154 sockets
-export def AF_IEEE802154: u16 = 36;
+export def AF_IEEE802154: sa_family_t = 36;
 // CAIF sockets
-export def AF_CAIF: u16 = 37;
+export def AF_CAIF: sa_family_t = 37;
 // Algorithm sockets
-export def AF_ALG: u16 = 38;
+export def AF_ALG: sa_family_t = 38;
 // NFC sockets
-export def AF_NFC: u16 = 39;
+export def AF_NFC: sa_family_t = 39;
 // vSockets
-export def AF_VSOCK: u16 = 40;
+export def AF_VSOCK: sa_family_t = 40;
 // Kernel Connection Multiplexor
-export def AF_KCM: u16 = 41;
+export def AF_KCM: sa_family_t = 41;
 // Qualcomm IPC Router
-export def AF_QIPCRTR: u16 = 42;
+export def AF_QIPCRTR: sa_family_t = 42;
 // smc sockets
-export def AF_SMC: u16 = 43;
+export def AF_SMC: sa_family_t = 43;
 // XDP sockets
-export def AF_XDP: u16 = 44;
+export def AF_XDP: sa_family_t = 44;
 
 // type for socket(2)
 export def SOCK_STREAM: int = 1;

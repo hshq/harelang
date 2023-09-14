@@ -917,6 +917,13 @@ stdlib_sort_linux = $(stdlib_sort_any)
 stdlib_sort_freebsd = $(stdlib_sort_any)
 stdlib_sort_darwin = $(stdlib_sort_any)
 
+# gen_lib sort::cmp (any)
+stdlib_sort_cmp_any = $(HARECACHE)/sort/cmp/sort_cmp-any.o
+stdlib_env += HARE_TD_sort::cmp=$(HARECACHE)/sort/cmp/sort_cmp.td
+stdlib_deps_any += $(stdlib_sort_cmp_any)
+stdlib_sort_cmp_linux = $(stdlib_sort_cmp_any)
+stdlib_sort_cmp_freebsd = $(stdlib_sort_cmp_any)
+
 # gen_lib strconv (any)
 stdlib_strconv_any = $(HARECACHE)/strconv/strconv-any.o
 stdlib_env += HARE_TD_strconv=$(HARECACHE)/strconv/strconv.td
@@ -1675,7 +1682,7 @@ stdlib_hare_lex_any_srcs = \
 	$(STDLIB)/hare/lex/token.ha \
 	$(STDLIB)/hare/lex/lex.ha
 
-$(HARECACHE)/hare/lex/hare_lex-any.ssa: $(stdlib_hare_lex_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_path_$(PLATFORM))
+$(HARECACHE)/hare/lex/hare_lex-any.ssa: $(stdlib_hare_lex_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_sort_cmp_$(PLATFORM)) $(stdlib_strconv_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/lex
 	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhare::lex \
@@ -1690,7 +1697,7 @@ stdlib_hare_module_any_srcs = \
 	$(STDLIB)/hare/module/srcs.ha \
 	$(STDLIB)/hare/module/util.ha
 
-$(HARECACHE)/hare/module/hare_module-any.ssa: $(stdlib_hare_module_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_datetime_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_lex_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_hare_unparse_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM)) $(stdlib_time_date_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_encoding_hex_$(PLATFORM))
+$(HARECACHE)/hare/module/hare_module-any.ssa: $(stdlib_hare_module_any_srcs) $(stdlib_rt) $(stdlib_ascii_$(PLATFORM)) $(stdlib_memio_$(PLATFORM)) $(stdlib_bytes_$(PLATFORM)) $(stdlib_datetime_$(PLATFORM)) $(stdlib_encoding_utf8_$(PLATFORM)) $(stdlib_fmt_$(PLATFORM)) $(stdlib_fs_$(PLATFORM)) $(stdlib_hare_ast_$(PLATFORM)) $(stdlib_hare_lex_$(PLATFORM)) $(stdlib_hare_parse_$(PLATFORM)) $(stdlib_hare_unparse_$(PLATFORM)) $(stdlib_io_$(PLATFORM)) $(stdlib_os_$(PLATFORM)) $(stdlib_path_$(PLATFORM)) $(stdlib_strings_$(PLATFORM)) $(stdlib_time_$(PLATFORM)) $(stdlib_time_chrono_$(PLATFORM)) $(stdlib_time_date_$(PLATFORM)) $(stdlib_types_$(PLATFORM)) $(stdlib_encoding_hex_$(PLATFORM)) $(stdlib_sort_$(PLATFORM)) $(stdlib_sort_cmp_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(HARECACHE)/hare/module
 	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nhare::module \
@@ -2424,6 +2431,16 @@ $(HARECACHE)/sort/sort-any.ssa: $(stdlib_sort_any_srcs) $(stdlib_rt) $(stdlib_ma
 	@mkdir -p $(HARECACHE)/sort
 	@$(stdlib_env) $(HAREC) $(HARECFLAGS) -o $@ -Nsort \
 		-t$(HARECACHE)/sort/sort.td $(stdlib_sort_any_srcs)
+
+# sort::cmp (+any)
+stdlib_sort_cmp_any_srcs = \
+	$(STDLIB)/sort/cmp/cmp.ha
+
+$(HARECACHE)/sort/cmp/sort_cmp-any.ssa: $(stdlib_sort_cmp_any_srcs) $(stdlib_rt) $(stdlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(HARECACHE)/sort/cmp
+	@$(stdlib_env) $(HAREC) $(HAREFLAGS) -o $@ -Nsort::cmp \
+		-t$(HARECACHE)/sort/cmp/sort_cmp.td $(stdlib_sort_cmp_any_srcs)
 
 # strconv (+any)
 stdlib_strconv_any_srcs = \
@@ -3861,6 +3878,13 @@ testlib_sort_linux = $(testlib_sort_any)
 testlib_sort_freebsd = $(testlib_sort_any)
 testlib_sort_darwin = $(testlib_sort_any)
 
+# gen_lib sort::cmp (any)
+testlib_sort_cmp_any = $(TESTCACHE)/sort/cmp/sort_cmp-any.o
+testlib_env += HARE_TD_sort::cmp=$(TESTCACHE)/sort/cmp/sort_cmp.td
+testlib_deps_any += $(testlib_sort_cmp_any)
+testlib_sort_cmp_linux = $(testlib_sort_cmp_any)
+testlib_sort_cmp_freebsd = $(testlib_sort_cmp_any)
+
 # gen_lib strconv (any)
 testlib_strconv_any = $(TESTCACHE)/strconv/strconv-any.o
 testlib_env += HARE_TD_strconv=$(TESTCACHE)/strconv/strconv.td
@@ -4657,7 +4681,7 @@ testlib_hare_lex_any_srcs = \
 	$(STDLIB)/hare/lex/lex.ha \
 	$(STDLIB)/hare/lex/+test.ha
 
-$(TESTCACHE)/hare/lex/hare_lex-any.ssa: $(testlib_hare_lex_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_path_$(PLATFORM))
+$(TESTCACHE)/hare/lex/hare_lex-any.ssa: $(testlib_hare_lex_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_sort_cmp_$(PLATFORM)) $(testlib_strconv_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_path_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/lex
 	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhare::lex \
@@ -4672,7 +4696,7 @@ testlib_hare_module_any_srcs = \
 	$(STDLIB)/hare/module/srcs.ha \
 	$(STDLIB)/hare/module/util.ha
 
-$(TESTCACHE)/hare/module/hare_module-any.ssa: $(testlib_hare_module_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_datetime_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM)) $(testlib_time_date_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM))
+$(TESTCACHE)/hare/module/hare_module-any.ssa: $(testlib_hare_module_any_srcs) $(testlib_rt) $(testlib_ascii_$(PLATFORM)) $(testlib_memio_$(PLATFORM)) $(testlib_bytes_$(PLATFORM)) $(testlib_datetime_$(PLATFORM)) $(testlib_encoding_utf8_$(PLATFORM)) $(testlib_fmt_$(PLATFORM)) $(testlib_fs_$(PLATFORM)) $(testlib_hare_ast_$(PLATFORM)) $(testlib_hare_lex_$(PLATFORM)) $(testlib_hare_parse_$(PLATFORM)) $(testlib_hare_unparse_$(PLATFORM)) $(testlib_io_$(PLATFORM)) $(testlib_os_$(PLATFORM)) $(testlib_path_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_time_$(PLATFORM)) $(testlib_time_chrono_$(PLATFORM)) $(testlib_time_date_$(PLATFORM)) $(testlib_types_$(PLATFORM)) $(testlib_encoding_hex_$(PLATFORM)) $(testlib_sort_$(PLATFORM)) $(testlib_sort_cmp_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/hare/module
 	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nhare::module \
@@ -5428,11 +5452,21 @@ testlib_sort_any_srcs = \
 	$(STDLIB)/sort/types.ha \
 	$(STDLIB)/sort/+test.ha
 
-$(TESTCACHE)/sort/sort-any.ssa: $(testlib_sort_any_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM)) $(testlib_math_random_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
+$(TESTCACHE)/sort/sort-any.ssa: $(testlib_sort_any_srcs) $(testlib_rt) $(testlib_math_$(PLATFORM)) $(testlib_math_random_$(PLATFORM)) $(testlib_sort_cmp_$(PLATFORM)) $(testlib_strings_$(PLATFORM)) $(testlib_types_$(PLATFORM))
 	@printf 'HAREC \t$@\n'
 	@mkdir -p $(TESTCACHE)/sort
 	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) -o $@ -Nsort \
 		-t$(TESTCACHE)/sort/sort.td $(testlib_sort_any_srcs)
+
+# sort::cmp (+any)
+testlib_sort_cmp_any_srcs = \
+	$(STDLIB)/sort/cmp/cmp.ha
+
+$(TESTCACHE)/sort/cmp/sort_cmp-any.ssa: $(testlib_sort_cmp_any_srcs) $(testlib_rt) $(testlib_strings_$(PLATFORM))
+	@printf 'HAREC \t$@\n'
+	@mkdir -p $(TESTCACHE)/sort/cmp
+	@$(testlib_env) $(HAREC) $(TESTHAREFLAGS) -o $@ -Nsort::cmp \
+		-t$(TESTCACHE)/sort/cmp/sort_cmp.td $(testlib_sort_cmp_any_srcs)
 
 # strconv (+any)
 testlib_strconv_any_srcs = \

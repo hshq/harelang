@@ -8,6 +8,7 @@ use io;
 use memio;
 use os;
 use sort;
+use sort::cmp;
 use strings;
 
 // Forked from [[hare::unparse]].
@@ -48,6 +49,6 @@ export fn submodules(path: str) ([]str | error) = {
 	case let d: fs::dirent =>
 		append(submodules, strings::dup(d.name));
 	};
-	sort::strings(submodules);
+	sort::sort(submodules, size(str), &cmp::strs);
 	return submodules;
 };

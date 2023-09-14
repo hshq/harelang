@@ -51,8 +51,8 @@ export def U64_MIN: u64 = 0;
 // Maximum value which can be stored in a u64 type.
 export def U64_MAX: u64 = 18446744073709551615;
 
-// Minimum value which can be stored in a rune.
-export def RUNE_MIN: rune = U32_MIN: rune;
+// Minimum Unicode codepoint which can be stored in a rune.
+export def RUNE_MIN: rune = '\0';
 
-// Maximum value which can be stored in a rune.
-export def RUNE_MAX: rune = U32_MAX: rune;
+// Maximum Unicode codepoint which can be stored in a rune.
+export def RUNE_MAX: rune = '\U0010ffff';

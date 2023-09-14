@@ -25,10 +25,3 @@ export fn search(
 	};
 	return void;
 };
-
-// Performs a binary search over a sorted slice of strings. Sorting is done with
-// respect to Unicode codepoints; see [[strings::compare]]. The index of the
-// matching item in the slice is returned if found, otherwise void is returned.
-export fn searchstrings(in: []const str, key: str) (size | void) = {
-	return search(in, size(str), &key, &scmp);
-};

@@ -310,7 +310,7 @@ export fn mmap(
 		if (err == -EPERM && addr == null && (flags & MAP_ANON) > 0
 				&& (flags & MAP_FIXED) == 0) {
 			// Fix up incorrect EPERM from kernel:
-			return wrap_errno(ENOMEM);
+			return ENOMEM;
 		};
 		return err;
 	case let n: u64 =>

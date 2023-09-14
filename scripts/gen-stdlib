@@ -809,7 +809,7 @@ hare_lex() {
 		gensrcs_hare_lex \
 			+test.ha
 	fi
-	gen_ssa hare::lex ascii io encoding::utf8 fmt memio sort \
+	gen_ssa hare::lex ascii io encoding::utf8 fmt memio sort sort::cmp \
 		strconv strings path
 }
 
@@ -824,7 +824,7 @@ hare_module() {
 	gen_ssa hare::module \
 		ascii memio bytes datetime encoding::utf8 fmt fs hare::ast hare::lex \
 		hare::parse hare::unparse io os path strings time time::chrono \
-		time::date types encoding::hex
+		time::date types encoding::hex sort sort::cmp
 }
 
 gensrcs_hare_parse() {
@@ -1466,8 +1466,13 @@ sort() {
 	else
 		gensrcs_sort \
 			+test.ha
-		gen_ssa sort math math::random strings types
+		gen_ssa sort math math::random sort::cmp strings types
 	fi
+}
+
+sort_cmp() {
+	gen_srcs sort::cmp cmp.ha
+	gen_ssa sort::cmp strings
 }
 
 strconv() {
@@ -1910,6 +1915,7 @@ path
 regex
 shlex
 sort
+sort::cmp
 strconv
 strings
 strings::template

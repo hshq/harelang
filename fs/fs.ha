@@ -19,8 +19,12 @@ export fn close(fs: *fs) void = {
 	};
 };
 
-// Opens a file. If no flags are provided, the default read/write mode is
-// RDONLY.
+// Opens a file.
+//
+// If no flags are provided, [[flag::RDONLY]] is used when opening the file.
+//
+// [[flag::CREATE]] isn't very useful with this function, since the new file's
+// mode is set to zero. For this use-case, use [[create]] instead.
 export fn open(fs: *fs, path: str, flags: flag...) (io::handle | error) = {
 	match (fs.open) {
 	case null =>
@@ -34,7 +38,10 @@ export fn open(fs: *fs, path: str, flags: flag...) (io::handle | error) = {
 // handle on the host operating system, which may not be possible with all
 // filesystem implementations (such cases will return [[io::unsupported]]).
 //
-// If no flags are provided, the default read/write mode is RDONLY.
+// If no flags are provided, [[flag::RDONLY]] is used when opening the file.
+//
+// [[flag::CREATE]] isn't very useful with this function, since the new file's
+// mode is set to zero. For this use-case, use [[create_file]] instead.
 export fn open_file(fs: *fs, path: str, flags: flag...) (io::file | error) = {
 	match (fs.openfile) {
 	case null =>
@@ -44,8 +51,11 @@ export fn open_file(fs: *fs, path: str, flags: flag...) (io::file | error) = {
 	};
 };
 
-// Creates a new file and opens it for writing. If no flags are provided, the
-// default read/write mode is WRONLY.
+// Creates a new file with the given mode if it doesn't already exist, and opens
+// it for writing.
+//
+// If no flags are provided, [[flag::WRONLY]] and [[flag::TRUNC]] are used when
+// opening the file.
 export fn create(
 	fs: *fs,
 	path: str,
@@ -60,12 +70,13 @@ export fn create(
 	};
 };
 
-// Creates a new file, as an [[io::file]], and opens it for writing. This file
-// will be backed by an open file handle on the host operating system, which may
-// not be possible with all filesystem implementations (such cases will return
-// [[io::unsupported]]).
+// Creates a new file with the given mode if it doesn't already exist, and opens
+// it as an [[io::file]] for writing. This file will be backed by an open file
+// handle on the host operating system, which may not be possible with all
+// filesystem implementations (such cases will return [[io::unsupported]]).
 //
-// If no flags are provided, the default read/write mode is WRONLY.
+// If no flags are provided, [[flag::WRONLY]] and [[flag::TRUNC]] are used when
+// opening the file.
 export fn create_file(
 	fs: *fs,
 	path: str,

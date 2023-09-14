@@ -217,7 +217,7 @@ fn loc(line: uint, col: uint) location = location {
 
 @test fn runes() void = {
 	const in = "'a' 'b' '\\a' '\\b' '\\f' '\\n' '\\r' '\\t' '\\v' '\\0' "
-		"'\\\\' '\\\'' '\\x0A' '\\u1234' '\\U12345678'";
+		"'\\\\' '\\\'' '\\x0A' '\\u1234' '\\U0010abcd'";
 	const expected: [_]token = [
 		(ltok::LIT_RCONST, 'a', loc(1, 1)),
 		(ltok::LIT_RCONST, 'b', loc(1, 5)),
@@ -233,7 +233,7 @@ fn loc(line: uint, col: uint) location = location {
 		(ltok::LIT_RCONST, '\'', loc(1, 54)),
 		(ltok::LIT_RCONST, '\x0A', loc(1, 59)),
 		(ltok::LIT_RCONST, '\u1234', loc(1, 66)),
-		(ltok::LIT_RCONST, '\U12345678', loc(1, 75)),
+		(ltok::LIT_RCONST, '\U0010abcd', loc(1, 75)),
 	];
 	lextest(in, expected);
 };

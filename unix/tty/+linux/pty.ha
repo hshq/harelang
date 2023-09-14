@@ -38,7 +38,7 @@ export fn ptsname(master: io::file) (str | error) = {
 	let pty = 0;
 	match (rt::ioctl(master, rt::TIOCGPTN, &pty)) {
 	case let e: rt::errno =>
-		switch (e: int) {
+		switch (e) {
 		case rt::EBADF =>
 			return errors::invalid;
 		case rt::ENOTTY =>
@@ -57,7 +57,7 @@ export fn set_winsize(pty: io::file, sz: ttysize) (void | error) = {
 	let wsz = rt::winsize { ws_row = sz.rows, ws_col = sz.columns, ... };
 	match (rt::ioctl(pty, rt::TIOCSWINSZ, &wsz)) {
 	case let e: rt::errno =>
-		switch (e: int) {
+		switch (e) {
 		case rt::EBADF =>
 			return errors::invalid;
 		case rt::ENOTTY =>
