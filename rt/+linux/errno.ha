@@ -5,14 +5,11 @@
 // Represents an error returned from the Linux kernel.
 export type errno = !int;
 
-// Given an integer error number, wraps it in an error type.
-export fn wrap_errno(err: int) errno = err: errno;
-
 // Checks the return value from a Linux syscall and, if found to be in error,
 // returns the appropriate error. Otherwise, returns the original value.
 fn wrap_return(r: u64) (errno | u64) = {
 	if (r > -4096: u64) {
-		return (-(r: i64)): int: errno;
+		return (-(r: i64)): errno;
 	};
 	return r;
 };

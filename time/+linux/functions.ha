@@ -94,7 +94,7 @@ fn cgt_vdso() nullable *fn(int, *rt::timespec) int = {
 fn now_vdso(clock: clock, tp: *rt::timespec) (void | rt::errno) = {
 	const vfn = match (cgt_vdso()) {
 	case null =>
-		return rt::wrap_errno(rt::ENOSYS);
+		return rt::ENOSYS;
 	case let vfn: *fn(int, *rt::timespec) int =>
 		yield vfn;
 	};
@@ -102,7 +102,7 @@ fn now_vdso(clock: clock, tp: *rt::timespec) (void | rt::errno) = {
 	if (ret == 0) {
 		return;
 	};
-	return rt::wrap_errno(ret);
+	return ret;
 };
 
 // Returns the current time for a given clock.
@@ -114,7 +114,7 @@ export fn now(clock: clock) instant = {
 	case let err: rt::errno =>
 		yield err;
 	};
-	if (err != rt::wrap_errno(rt::ENOSYS)) {
+	if (err != rt::ENOSYS) {
 		abort("Unexpected error from clock_gettime");
 	};
 	match (rt::clock_gettime(clock, &tp)) {
