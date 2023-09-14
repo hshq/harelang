@@ -13,6 +13,5 @@ cp config.darwin.mk config.mk
 
 make
 make check
-make docs
 make docs/html
 make install
