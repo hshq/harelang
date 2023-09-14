@@ -16,7 +16,7 @@ fn wrap_return(r: u64) (errno | u64) = {
 // Obtains a human-friendly reading of an [[errno]] (e.g. "Operation not
 // permitted"). The return value may be statically allocated.
 export fn strerror(err: errno) str = {
-	switch (err: int) {
+	switch (err) {
 	case EPERM =>
 		return "Operation not permitted";
 	case ENOENT =>
@@ -217,7 +217,7 @@ export fn strerror(err: errno) str = {
 // Gets the programmer-friendly name for an [[errno]] (e.g. EPERM). The return
 // value may be statically allocated.
 export fn errname(err: errno) str = {
-	switch (err: int) {
+	switch (err) {
 	case EPERM =>
 		return "EPERM";
 	case ENOENT =>
