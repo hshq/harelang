@@ -88,13 +88,17 @@ export fn symlink(target: str, path: str) (void | fs::error) =
 //
 // If no flags are provided, [[fs::flag::RDONLY]] is used when opening the
 // file.
+//
+// [[fs::flag::CREATE]] isn't very useful with this function, since the new
+// file's mode is set to zero. For this use-case, use [[create]] instead.
 export fn open(path: str, flags: fs::flag...) (io::file | fs::error) =
 	fs::open_file(cwd, path, flags...);
 
-// Creates a new file and opens it for writing.
+// Creates a new file with the given mode if it doesn't already exist and opens
+// it for writing.
 //
-// If no flags are provided, [[fs::flag::WRONLY]] is used when opening the
-// file.
+// If no flags are provided, [[fs::flag::WRONLY]] and [[fs::flag::TRUNC]] are
+// used when opening the file.
 //
 // Only the permission bits of the mode are used. If other bits are set, they
 // are discarded.
