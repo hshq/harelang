@@ -18,34 +18,26 @@ export fn uints(a: const *opaque, b: const *opaque) int = {
 
 // [[sort::cmpfunc]] for use with i8.
 export fn i8s(a: const *opaque, b: const *opaque) int = {
-	const a = *(a: const *i8), b = *(b: const *i8);
-	return if (a < b) -1
-		else if (a > b) 1
-		else 0;
+	const a = *(a: const *i8): int, b = *(b: const *i8): int;
+	return a - b;
 };
 
 // [[sort::cmpfunc]] for use with u8.
 export fn u8s(a: const *opaque, b: const *opaque) int = {
-	const a = *(a: const *u8), b = *(b: const *u8);
-	return if (a < b) -1
-		else if (a > b) 1
-		else 0;
+	const a = *(a: const *u8): int, b = *(b: const *u8): int;
+	return a - b;
 };
 
 // [[sort::cmpfunc]] for use with i16.
 export fn i16s(a: const *opaque, b: const *opaque) int = {
-	const a = *(a: const *i16), b = *(b: const *i16);
-	return if (a < b) -1
-		else if (a > b) 1
-		else 0;
+	const a = *(a: const *i16): int, b = *(b: const *i16): int;
+	return a - b;
 };
 
 // [[sort::cmpfunc]] for use with u16.
 export fn u16s(a: const *opaque, b: const *opaque) int = {
-	const a = *(a: const *u16), b = *(b: const *u16);
-	return if (a < b) -1
-		else if (a > b) 1
-		else 0;
+	const a = *(a: const *u16): int, b = *(b: const *u16): int;
+	return a - b;
 };
 
 // [[sort::cmpfunc]] for use with i32.

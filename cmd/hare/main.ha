@@ -20,7 +20,7 @@ const help: []getopt::help = [
 	"<subcommand>",
 	"args...",
 	("build", [
-		"compiles the Hare program at <path>",
+		"compiles a Hare program or module",
 		('q', "build silently"),
 		('v', "print executed commands (specify twice to print arguments)"),
 		('a', "arch", "set target architecture"),
@@ -45,7 +45,7 @@ const help: []getopt::help = [
 		"[path|module]",
 	]: []getopt::help),
 	("run", [
-		"compiles and runs the Hare program at <path>",
+		"compiles and runs a Hare program or module",
 		('q', "build silently"),
 		('v', "print executed commands (specify twice to print arguments)"),
 		('a', "arch", "set target architecture"),
@@ -57,7 +57,7 @@ const help: []getopt::help = [
 		"[path [args...]]",
 	]: []getopt::help),
 	("test", [
-		"compiles and runs tests for Hare programs",
+		"compiles and runs tests for Hare code",
 		('q', "build silently"),
 		('v', "print executed commands (specify twice to print arguments)"),
 		('a', "arch", "set target architecture"),
