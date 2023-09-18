@@ -11,8 +11,8 @@ use strings;
 // duplicate the result.
 export fn i64tosb(i: i64, b: base) const str = {
 	static assert(types::I64_MAX == 9223372036854775807);
-	if (b == base::DEC) {
-		b = 10;
+	if (b == base::DEFAULT) {
+		b = base::DEC;
 	};
 
 	if (i >= 0) return u64tosb(i: u64, b);
