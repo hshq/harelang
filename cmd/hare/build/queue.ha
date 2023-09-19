@@ -114,7 +114,7 @@ fn run_task(ctx: *context, jobs: *[]job, t: *task) (bool | error) = {
 
 	path::set(&buf, out)?;
 	let tmp = path::push_ext(&buf, "tmp")?;
-	let lock = os::create(tmp, 0o644, fs::flag::WRONLY | fs::flag::CREATE)?;
+	let lock = os::create(tmp, 0o644, fs::flag::WRONLY)?;
 	if (!io::lock(lock, false, io::lockop::EXCLUSIVE)?) {
 		io::close(lock)?;
 		return false;
