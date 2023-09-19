@@ -366,6 +366,9 @@ fn decode_reader(
 	let p = true; // Pad allowed in buf
 	for (let i = nr; i > 0; i -= 1) {
 		const ch = buf[i - 1];
+		if (ch >= 128) {
+			return errors::invalid;
+		};
 		if (ch == PADDING) {
 			if(s.pad || !p) {
 				valid = false;
@@ -390,6 +393,9 @@ fn decode_reader(
 		return errors::invalid;
 	};
 	for (let i = 0z; i < nr; i += 1) {
+		if (buf[i] >= 128) {
+			return errors::invalid;
+		};
 		buf[i] = s.enc.decmap[buf[i]];
 	};
 	for (let i = 0z, j = 0z; i < nr) {
@@ -511,6 +517,7 @@ export fn decode(
 		("======", &std_encoding),
 		// invalid characters
 		("@Zg=", &std_encoding),
+		("êg=", &std_encoding),
 		("êg==", &std_encoding),
 		// data after padding is encountered
 		("Zg==Zg==", &std_encoding),
