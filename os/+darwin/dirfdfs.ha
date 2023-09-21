@@ -174,7 +174,6 @@ fn fs_open_file(
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i];
 	};
-	oflags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
 	return _fs_open(fs, path, fsflags_to_bsd(oflags), 0);
 };
 
@@ -197,7 +196,6 @@ fn fs_create_file(
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i];
 	};
-	oflags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
 	oflags |= fs::flag::CREATE;
 	return _fs_open(fs, path, fsflags_to_bsd(oflags), mode)?;
 };
