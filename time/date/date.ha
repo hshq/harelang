@@ -88,48 +88,59 @@ fn all(d: *date) *date = {
 	return d;
 };
 
-// Creates a new [[date]]. A maximum of 7 optional field arguments can be given:
-// year, month, day-of-month, hour, minute, second, nanosecond. 8 or more causes
-// an abort.
+// Creates a new [[date]]. Upto seven field arguments can be given: year, month,
+// day, hour, minute, second, nanosecond. 8 or more causes an abort. If omitted,
+// the month and day default to 1, and the rest default to 0.
+//
+// Accepts a [[time::chrono::locality]], and a 'zoff' zone offset parameter
+// which is used to discern the desired observed [[time::chrono::zone]] in the
+// given locality. See [[time::chrono::fixedzone]] for custom timezones.
+//
+// An invalid zoff or field argument combination returns [[invalid]].
+//
+// Example:
 //
 // 	// 0000-01-01 00:00:00.000000000 +0000 UTC UTC
 // 	date::new(time::chrono::UTC, 0);
 //
 // 	// 2019-12-27 20:07:08.000031415 +0000 UTC UTC
-// 	date::new(time::chrono::UTC, 0,  2019, 12, 27,  20, 07, 08, 31415);
+// 	date::new(time::chrono::UTC, 0,
+// 		2019, 12, 27,  20,  7,  8, 31415);
 //
 // 	// 2019-12-27 21:00:00.000000000 +0100 CET Europe/Amsterdam
 // 	date::new(time::chrono::tz("Europe/Amsterdam")!, 1 * time::HOUR,
 // 		2019, 12, 27,  21);
 //
-// 'zo' is the zone offset from the normal timezone (in most cases, UTC). For
-// example, the "Asia/Tokyo" timezone has a single zoff of +9 hours, but the
-// "Australia/Sydney" timezone has zoffs +10 hours and +11 hours, as they
-// observe Daylight Saving Time.
+// 	// 2019-12-27 10:00:00.000000000 -1000 HST Pacific/Honolulu
+// 	date::new(time::chrono::tz("Pacific/Honolulu")!, -10 * time::HOUR,
+// 		2019, 12, 27,  10);
 //
-// If specified (non-void), 'zo' must match one of the timezone's observed
-// zoffs, or will fail. See [[time::chrono::fixedzone]] for custom timezones.
+// 	// Invalid month, day, hour, and minute
+// 	date::new(time::chrono::UTC, 0,
+// 		2019,  0,  0,  99, -30);
 //
-// You may omit the zoff. If the given timezone has a single zone, [[new]]
-// will use that zone's zoff. Otherwise [[new]] will try to infer the zoff
-// from the multiple zones. This will fail during certain timezone transitions,
-// where certain dates are ambiguous or nonexistent. For example:
+// 	// Invalid zoff
+// 	date::new(time::chrono::UTC,       -7 * time::HOUR,  2019);
+// 	date::new(time::chrono::tz("Europe/Amsterdam")!, 0,  2019);
 //
-// - In the Europe/Amsterdam timezone, at 1995 March 26th,
-//   the local time 02:30 was never observed,
-//   as the clock jumped forward 1 hour from 02:00 CET to 03:00 CEST.
+// Example: Two dates, 30 physical minutes before and after a DST timezone
+// transition, observing the same date/time, but different zone offsets:
 //
-// - In the Europe/Amsterdam timezone, at 1995 September 24th,
-//   the local time 02:30 was observed twice (00:30 UTC & 01:30 UTC),
-//   as the clock jumped back 1 hour from 03:00 CEST to 02:00 CET.
+// 	// 2019-04-07 02:30:00.000000000 +1100 AUDT Australia/Sydney
+// 	date::new(time::chrono::tz("Australia/Sydney")!, 11 * time::HOUR,
+// 		2019,  4,  7,   2, 30);
+//
+// 	// 2019-04-07 02:30:00.000000000 +1000 AUST Australia/Sydney
+// 	date::new(time::chrono::tz("Australia/Sydney")!, 10 * time::HOUR,
+// 		2019,  4,  7,   2, 30);
+//
 export fn new(
 	loc: chrono::locality,
-	zo: (time::duration | void),
+	zoff: time::duration,
 	fields: int...
 ) (date | invalid) = {
 	// TODO:
 	// - revise examples
-	// - Implement as described.
 	// - fix calls with `years <= -4715`.
 	//   https://todo.sr.ht/~sircmpwn/hare/565
 	let _fields: [_]int = [
@@ -144,7 +155,7 @@ export fn new(
 	let v = newvirtual();
 
 	v.vloc       = loc;
-	v.zoff       = zo;
+	v.zoff       = zoff;
 	v.year       = _fields[0];
 	v.month      = _fields[1];
 	v.day        = _fields[2];
@@ -157,7 +168,7 @@ export fn new(
 
 	// check if input values are actually observed
 	if (
-		zo as time::duration != chrono::mzone(&d).zoff
+		zoff != chrono::mzone(&d).zoff
 		|| _fields[0] != _year(&d)
 		|| _fields[1] != _month(&d)
 		|| _fields[2] != _day(&d)
