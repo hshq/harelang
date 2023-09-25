@@ -20,8 +20,8 @@ fn rune_to_integer(r: rune) (u64 | void) = {
 // non-numeric characters, or if it's empty, [[invalid]] is returned. If the
 // number is too large to be represented by a u64, [[overflow]] is returned.
 export fn stou64b(s: str, base: base) (u64 | invalid | overflow) = {
-	if (base == base::DEC) {
-		base = 10;
+	if (base == base::DEFAULT) {
+		base = base::DEC;
 	};
 	assert(base == 2 || base == 8 || base == 10 || base == 16);
 

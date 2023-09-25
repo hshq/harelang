@@ -23,8 +23,8 @@ export fn stoi64b(s: str, base: base) (i64 | invalid | overflow) = {
 	} else if (b[0] == '+') {
 		start = 1;
 	};
-	if (base == base::DEC) {
-		base = 10;
+	if (base == base::DEFAULT) {
+		base = base::DEC;
 	};
 	let u = stou64b(strings::fromutf8_unsafe(b[start..]), base);
 	let n = u?;

@@ -16,12 +16,15 @@ export type error = !(invalid | overflow);
 
 // The valid numeric bases for numeric conversions.
 export type base = enum uint {
+	// Default base - decimal
+	DEFAULT = 0,
+
 	// Base 2, binary
 	BIN = 2,
 	// Base 8, octal
 	OCT = 8,
-	// Base 10, decimal (default)
-	DEC = 0,
+	// Base 10, decimal
+	DEC = 10,
 	// Base 16, UPPERCASE hexadecimal
 	HEX_UPPER = 16,
 	// Alias for HEX_UPPER

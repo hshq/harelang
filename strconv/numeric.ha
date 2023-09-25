@@ -72,6 +72,9 @@ export fn integertos(n: types::integer) const str = integertosb(n, base::DEC);
 // is statically allocated and will be overwritten on subsequent calls; see
 // [[strings::dup]] to duplicate the result.
 export fn floatingtosb(n: types::floating, b: base) const str = {
+	if (b == base::DEFAULT) {
+		b = base::DEC;
+	};
 	assert(b == base::DEC);
 	match (n) {
 	case let f: f32 =>
