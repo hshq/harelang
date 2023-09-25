@@ -356,4 +356,4 @@ The following environment variables affect *hare*'s execution:
 
 # SEE ALSO
 
-*harec*(1), *as*(1), *ld*(1), *cc*(1), *hare-doc*(5), *as*(1)
+*harec*(1), *as*(1), *ld*(1), *cc*(1), *hare-doc*(5)
