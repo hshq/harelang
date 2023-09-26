@@ -397,17 +397,8 @@ export fn decodestr(enc: *encoding, in: str) ([]u8 | errors::invalid) = {
 	for (let i = 0z; i < len(cases); i += 1) {
 		let in = memio::fixed(strings::toutf8(cases[i].0));
 		let dec = newdecoder(cases[i].2, &in);
-		let buf: [1]u8 = [0];
-		let out: []u8 = [];
+		let out: []u8 = io::drain(&dec)!;
 		defer free(out);
-		for (true) match (io::read(&dec, buf)!) {
-		case let z: size =>
-			if (z > 0) {
-				append(out, buf[0]);
-			};
-		case io::EOF =>
-			break;
-		};
 		assert(bytes::equal(out, strings::toutf8(cases[i].1)));
 
 		// Testing decodestr should cover decodeslice too
@@ -419,17 +410,8 @@ export fn decodestr(enc: *encoding, in: str) ([]u8 | errors::invalid) = {
 	for (let i = 0z; i < len(cases); i += 1) {
 		let in = memio::fixed(strings::toutf8(cases[i].0));
 		let dec = newdecoder(cases[i].2, &in);
-		let buf: [1024]u8 = [0...];
-		let out: []u8 = [];
+		let out: []u8 = io::drain(&dec)!;
 		defer free(out);
-		for (true) match (io::read(&dec, buf)!) {
-		case let z: size =>
-			if (z > 0) {
-				append(out, buf[..z]...);
-			};
-		case io::EOF =>
-			break;
-		};
 		assert(bytes::equal(out, strings::toutf8(cases[i].1)));
 	};
 
