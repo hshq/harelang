@@ -43,20 +43,15 @@ export type entry_type = enum u8 {
 	FIFO,
 };
 
-// Returned if the source file size is not aligned on [[BLOCKSZ]].
-export type truncated = !void;
-
 // Returned if the source file does not contain a valid ustar archive.
 export type invalid = !void;
 
 // Tagged union of all possible error types.
-export type error = !(truncated | invalid | io::error);
+export type error = !(invalid | io::error);
 
 // Converts an [[error]] to a human-friendly representation.
 export fn strerror(err: error) const str = {
 	match (err) {
-	case truncated =>
-		return "Tar file is truncated";
 	case invalid =>
 		return "Tar file is invalid";
 	case let err: io::error =>

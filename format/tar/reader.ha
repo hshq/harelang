@@ -32,26 +32,12 @@ export fn read(src: io::handle) reader = {
 // Note that reading from the header will modify the file size.
 export fn next(rd: *reader) (entry | error | io::EOF) = {
 	static let buf: [BLOCKSZ]u8 = [0...];
-	match (io::read(rd.src, buf)?) {
-	case let z: size =>
-		if (z != len(buf)) {
-			return truncated;
-		};
-	case io::EOF =>
-		return truncated;
-	};
+	io::readall(rd.src, buf)?;
 
 	if (zeroed(buf)) {
-		match (io::read(rd.src, buf)?) {
-		case let z: size =>
-			if (z != len(buf)) {
-				return truncated;
-			};
-		case io::EOF =>
-			return truncated;
-		};
+		io::readall(rd.src, buf)?;
 		if (!zeroed(buf)) {
-			return truncated;
+			return invalid;
 		};
 		return io::EOF;
 	};
@@ -148,18 +134,9 @@ fn file_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	ent.remain -= z;
 
 	// Read until we reach the block size
-	static let buf: [BLOCKSZ]u8 = [0...];
 	if (ent.remain == 0 && ent.orig % BLOCKSZ != 0) {
-		let remain = BLOCKSZ - (ent.orig % BLOCKSZ);
-		for (remain > 0) {
-			match (io::read(ent.src, buf[..remain])?) {
-			case let z: size =>
-				remain -= z;
-			case io::EOF =>
-				// TODO: Set a truncated flag or something
-				break;
-			};
-		};
+		static let buf: [BLOCKSZ]u8 = [0...];
+		io::readall(ent.src, buf[..BLOCKSZ - (ent.orig % BLOCKSZ)])?;
 	};
 
 	return z;
