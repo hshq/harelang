@@ -15,9 +15,9 @@ use strconv;
 use strings;
 use types;
 
-// Tagged union of the [[formattable]] types and [[modifiers]]. Used for
+// Tagged union of the [[formattable]] types and [[mods]]. Used for
 // functions which accept format strings.
-export type field = (...formattable | *modifiers);
+export type field = (...formattable | *mods);
 
 // Tagged union of all types which are formattable.
 export type formattable = (...types::numeric | uintptr | str | rune | bool |
@@ -131,7 +131,7 @@ export fn fprintln(h: io::handle, args: formattable...) (size | io::error) = {
 // Formats values for printing using the default format modifiers and writes
 // them to an [[io::handle]] separated by spaces.
 export fn fprint(h: io::handle, args: formattable...) (size | io::error) = {
-	let mod = modifiers { base = strconv::base::DEC, ... };
+	let mod = mods { base = strconv::base::DEC, ... };
 	let n = 0z;
 	for (let i = 0z; i < len(args); i += 1) {
 		n += format(h, args[i], &mod)?;
@@ -158,7 +158,7 @@ export type padding = enum {
 };
 
 // Specifies how to format an argument.
-export type modifiers = struct {
+export type mods = struct {
 	padding:   padding,
 	negation:  negation,
 	width:     uint,
@@ -233,7 +233,7 @@ export fn fprintf(
 				yield r;
 			};
 
-			let mod = &modifiers { ... };
+			let mod = &mods { ... };
 			let pi: paramindex = void;
 			switch (r) {
 			case ':' =>
@@ -249,18 +249,18 @@ export fn fprintf(
 			case let pi: uint =>
 				checkunused = false;
 				match (args[pi]) {
-				case let pmod: *modifiers =>
+				case let pmod: *mods =>
 					mod = pmod;
 				case =>
-					abort("Explicit parameter is not *fmt::modifiers");
+					abort("Explicit parameter is not *fmt::mods");
 				};
 			case nextparam =>
 				i += 1;
 				match (args[i - 1]) {
-				case let pmod: *modifiers =>
+				case let pmod: *mods =>
 					mod = pmod;
 				case =>
-					abort("Implicit parameter is not *fmt::modifiers");
+					abort("Implicit parameter is not *fmt::mods");
 				};
 			case void => void;
 			};
@@ -287,7 +287,7 @@ export fn fprintf(
 fn format(
 	out: io::handle,
 	arg: formattable,
-	mod: *modifiers,
+	mod: *mods,
 ) (size | io::error) = {
 	let z = 0z;
 
@@ -332,7 +332,7 @@ fn format(
 fn format_raw(
 	out: io::handle,
 	arg: formattable,
-	mod: *modifiers,
+	mod: *mods,
 	padlen: size,
 	pad: []u8,
 ) (size | io::error) = {
@@ -373,7 +373,7 @@ fn format_raw(
 	};
 };
 
-fn get_split_number_repr(n: types::numeric, mod: *modifiers) (str, str) = {
+fn get_split_number_repr(n: types::numeric, mod: *mods) (str, str) = {
 	const s = strconv::numerictosb(n, mod.base);
 	if (is_negative(n)) {
 		return (
@@ -424,7 +424,7 @@ fn scan_uint(iter: *strings::iterator) uint = {
 	abort("unreachable");
 };
 
-fn scan_modifier_flags(iter: *strings::iterator, mod: *modifiers) void = {
+fn scan_modifier_flags(iter: *strings::iterator, mod: *mods) void = {
 	let flags = modflag::NONE;
 
 	for (true) {
@@ -465,7 +465,7 @@ fn scan_modifier_flags(iter: *strings::iterator, mod: *modifiers) void = {
 		negation::NONE;
 };
 
-fn scan_modifier_width(iter: *strings::iterator, mod: *modifiers) void = {
+fn scan_modifier_width(iter: *strings::iterator, mod: *mods) void = {
 	let r = match (strings::next(iter)) {
 	case void =>
 		abort("Invalid format string (unterminated '{')");
@@ -481,7 +481,7 @@ fn scan_modifier_width(iter: *strings::iterator, mod: *modifiers) void = {
 	};
 };
 
-fn scan_modifier_precision(iter: *strings::iterator, mod: *modifiers) void = {
+fn scan_modifier_precision(iter: *strings::iterator, mod: *mods) void = {
 	let r = match (strings::next(iter)) {
 	case void =>
 		abort("Invalid format string (unterminated '{')");
@@ -496,7 +496,7 @@ fn scan_modifier_precision(iter: *strings::iterator, mod: *modifiers) void = {
 	};
 };
 
-fn scan_modifier_base(iter: *strings::iterator, mod: *modifiers) void = {
+fn scan_modifier_base(iter: *strings::iterator, mod: *mods) void = {
 	let r = match (strings::next(iter)) {
 	case void =>
 		abort("Invalid format string (unterminated '{')");
@@ -518,7 +518,7 @@ fn scan_modifier_base(iter: *strings::iterator, mod: *modifiers) void = {
 	};
 };
 
-fn scan_inline_modifiers(iter: *strings::iterator, mod: *modifiers) void = {
+fn scan_inline_modifiers(iter: *strings::iterator, mod: *mods) void = {
 	scan_modifier_flags(iter, mod);
 	scan_modifier_width(iter, mod);
 	scan_modifier_precision(iter, mod);
@@ -574,7 +574,7 @@ fn scan_parametric_modifiers(iter: *strings::iterator, pi: *paramindex) void = {
 	assert(bsprintf(buf, "{0} {0}", "hello", "world") == "hello hello");
 	assert(bsprintf(buf, "{1} {0} {1}", "hello", "world") == "world hello world");
 
-	const mod = &modifiers { width = 7, ... };
+	const mod = &mods { width = 7, ... };
 	assert(bsprintf(buf, "{%}", "hello", mod) == "  hello");
 	assert(bsprintf(buf, "{%1}", "hello", mod) == "  hello");
 	assert(bsprintf(buf, "{0%1}", "hello", mod) == "  hello");
@@ -585,14 +585,14 @@ fn scan_parametric_modifiers(iter: *strings::iterator, pi: *paramindex) void = {
 	assert(bsprintf(buf, "|{1%}|{}|", mod, "hello") == "|  hello|hello|");
 	assert(bsprintf(buf, "|{}|{2%}|", "hello", mod, "world") == "|hello|  world|");
 	assert(bsprintf(buf, "|{%}|{%}|{%}|{%}|",
-		"hello", &modifiers { ... },
-		"world", &modifiers { width = 10, ... },
-		123,     &modifiers { width = 10, padding = padding::ZEROES, ... },
-		0xBEEF,  &modifiers { base = strconv::base::HEX, ... },
+		"hello", &mods { ... },
+		"world", &mods { width = 10, ... },
+		123,     &mods { width = 10, padding = padding::ZEROES, ... },
+		0xBEEF,  &mods { base = strconv::base::HEX, ... },
 	) == "|hello|     world|0000000123|BEEF|");
 	assert(bsprintf(buf, "|{%}|{%}|{0%1}|",
-		"hello", &modifiers { ... },
-		"world", &modifiers { ... },
+		"hello", &mods { ... },
+		"world", &mods { ... },
 	) == "|hello|world|hello|");
 
 	assert(bsprintf(buf, "x: {:8X}", 0xBEEF) == "x:     BEEF");
