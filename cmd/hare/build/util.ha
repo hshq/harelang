@@ -117,6 +117,12 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 		append(flags, strings::dup("-N"));
 		append(flags, unparse::identstr(mod.ns));
 	};
+	append(flags, strings::dup("-M"));
+	path::set(&buf, mod.path)?;
+	for (let i = 0z; i < len(mod.ns); i += 1) {
+		path::pop(&buf);
+	};
+	append(flags, strings::concat(path::string(&buf), "/"));
 
 	path::set(&buf, mod.path)?;
 	let test = ctx.test && t.idx == ctx.top;

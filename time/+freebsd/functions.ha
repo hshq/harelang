@@ -17,7 +17,7 @@ export fn instant_to_timespec(t: instant, ts: *rt::timespec) void = {
 	ts.tv_nsec = t.nsec;
 };
 
-// Converts a [[rt::timespec]] to an [[rt::instant]]. This function is
+// Converts a [[rt::timespec]] to an [[instant]]. This function is
 // non-portable.
 export fn timespec_to_instant(ts: rt::timespec) instant = instant {
 	sec = ts.tv_sec,
