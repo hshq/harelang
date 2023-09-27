@@ -222,7 +222,7 @@ fn parseident(in: str) (ast::ident | parse::error) = {
 		const name = if (tok.0 == lex::ltok::NAME) {
 			yield tok.1 as str;
 		} else if (tok.0 < lex::ltok::LAST_KEYWORD) {
-			yield lex::tokstr(tok);
+			yield strings::dup(lex::tokstr(tok));
 		} else {
 			lex::unlex(&lexer, tok);
 			const loc = lex::mkloc(&lexer);
