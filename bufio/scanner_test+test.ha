@@ -119,7 +119,37 @@ use strings;
 	let in = memio::fixed(expected);
 
 	let scanner = newscanner(&in, 2);
+	defer finish(&scanner);
 	let result = io::drain(&scanner)!;
 	defer free(result);
 	assert(bytes::equal(expected, result));
+};
+
+@test fn scan_unread() void = {
+	const expected: str = " I will not repeat  \nDone!\n";
+	let in = memio::fixed(strings::toutf8(expected));
+
+	let scanner = newscanner(&in, 32);
+	defer finish(&scanner);
+	let l = scan_line(&scanner)! as const str;
+	assert(l == " I will not repeat  ");
+
+	unread(&scanner, strings::toutf8("\n"));
+	unread(&scanner, strings::toutf8(l));
+	let l = scan_line(&scanner)! as const str;
+	assert(l == " I will not repeat  ");
+
+	unread(&scanner, strings::toutf8("\n"));
+	unread(&scanner, strings::toutf8(strings::trim(l)));
+	let l = scan_line(&scanner)! as const str;
+	assert(l == "I will not repeat");
+
+	unread(&scanner, strings::toutf8("See?\n"));
+	let l = scan_line(&scanner)! as const str;
+	assert(l == "See?");
+
+	let l = scan_line(&scanner)! as const str;
+	assert(l == "Done!");
+
+	assert(scan_line(&scanner) is io::EOF);
 };

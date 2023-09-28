@@ -271,6 +271,15 @@ export fn scan_buffer(scan: *scanner) []u8 = {
 	return scan.buffer[..scan.pending];
 };
 
+fn scan_unread(scan: *scanner, buf: []u8) void = {
+	if (len(buf) == 0) {
+		return;
+	};
+	assert(len(buf) <= scan.readout);
+	scan.buffer[scan.readout - len(buf)..scan.readout] = buf;
+	scan.readout -= len(buf);
+};
+
 // Reads a single byte from an [[io::handle]].
 export fn read_byte(file: io::handle) (u8 | io::EOF | io::error) = {
 	let buf: [1]u8 = [0...];
