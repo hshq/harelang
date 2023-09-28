@@ -111,3 +111,15 @@ use strings;
 		};
 	};
 };
+
+@test fn scan_read() void = {
+	const expected: [_]u8 = [
+		0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b,
+	];
+	let in = memio::fixed(expected);
+
+	let scanner = newscanner(&in, 2);
+	let result = io::drain(&scanner)!;
+	defer free(result);
+	assert(bytes::equal(expected, result));
+};

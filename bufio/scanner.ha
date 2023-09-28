@@ -11,7 +11,13 @@ use types;
 
 def BUFSZ: size = 4096;
 
+const scanner_vtable = io::vtable {
+	reader = &scan_read,
+	...
+};
+
 export type scanner = struct {
+	stream: io::stream,
 	src: io::handle,
 	buffer: []u8,
 	// Number of bytes available in buffer
@@ -31,6 +37,7 @@ export type scanner = struct {
 // reached.
 export fn newscanner(src: io::handle, maxread: size) scanner = {
 	return scanner {
+		stream = &scanner_vtable,
 		src = src,
 		buffer = alloc([0...], BUFSZ),
 		maxread = maxread,
@@ -45,6 +52,7 @@ export fn newscanner(src: io::handle, maxread: size) scanner = {
 // they wish to free the underlying buffer through bufio.
 export fn newscanner_static(src: io::handle, buffer: []u8) scanner = {
 	return scanner {
+		stream = &scanner_vtable,
 		src = src,
 		buffer = buffer,
 		maxread = len(buffer),
@@ -57,6 +65,25 @@ export fn newscanner_static(src: io::handle, buffer: []u8) scanner = {
 // underlying I/O handle.
 export fn finish(scan: *scanner) void = {
 	free(scan.buffer);
+};
+
+fn scan_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
+	let scan = s: *scanner;
+	if (scan.pending == 0) {
+		match (scan_readahead(scan)?) {
+		case io::EOF =>
+			return io::EOF;
+		case size =>
+			yield;
+		};
+	};
+
+	// Consume previous read, if any
+	scan_shift(scan);
+
+	const n = if (len(buf) > scan.pending) scan.pending else len(buf);
+	buf[..n] = scan_consume(scan, n)[..];
+	return n;
 };
 
 // Fills up the scanner buffer with data from the underlying I/O handle. If no
