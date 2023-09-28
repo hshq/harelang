@@ -131,6 +131,13 @@ use strings;
 
 	let scanner = newscanner(&in, 32);
 	defer finish(&scanner);
+
+	let b = scan_byte(&scanner) as u8;
+	unread(&scanner, [b]);
+
+	let b = scan_rune(&scanner) as rune;
+	unread(&scanner, utf8::encoderune(b));
+
 	let l = scan_line(&scanner)! as const str;
 	assert(l == " I will not repeat  ");
 

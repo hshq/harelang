@@ -145,9 +145,6 @@ export fn scan_byte(scan: *scanner) (u8 | io::EOF | io::error) = {
 
 	// Consume previous read, if any
 	scan_shift(scan);
-	// Consume this read right away
-	defer scan_shift(scan);
-
 	return scan_consume(scan, 1)[0];
 };
 
@@ -196,6 +193,9 @@ export fn scan_bytes(
 export fn scan_rune(
 	scan: *scanner,
 ) (rune | io::EOF | io::error | utf8::invalid) = {
+	// Consume previous read, if any
+	scan_shift(scan);
+
 	if (scan.pending == 0) {
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
@@ -221,11 +221,6 @@ export fn scan_rune(
 			yield;
 		};
 	};
-
-	// Consume previous read, if any
-	scan_shift(scan);
-	// Consume this read right away
-	defer scan_shift(scan);
 
 	const buf = scan_consume(scan, sz);
 	const dec = utf8::decode(buf[..sz]);
