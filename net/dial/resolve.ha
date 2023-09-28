@@ -8,6 +8,53 @@ use strconv;
 use strings;
 use unix::hosts;
 
+// Splits an address:port/service string into separate address and port
+// components. The return value is borrowed from the input.
+export fn splitaddr(addr: str, service: str) ((str, u16) | invalid_address) = {
+	let port = 0u16;
+	if (strings::hasprefix(addr, '[')) {
+		// [::1]:80 (IPv6)
+		match (strings::index(addr, "]:")) {
+		case let i: size =>
+			const sub = strings::sub(addr, i + 2, strings::end);
+			addr = strings::sub(addr, 1, i);
+			match (strconv::stou16(sub)) {
+			case let u: u16 =>
+				port = u;
+			case =>
+				return invalid_address;
+			};
+		case void =>
+			match (strconv::stou16(service)) {
+			case let u: u16 =>
+				port = u;
+			case => yield;
+			};
+		};
+		return (addr, port);
+	};
+
+	// 1.1.1.1:80 (IPv4)
+	match (strings::index(addr, ':')) {
+	case void =>
+		match (strconv::stou16(service)) {
+		case let u: u16 =>
+			port = u;
+		case => yield;
+		};
+	case let i: size =>
+		const sub = strings::sub(addr, i + 1, strings::end);
+		addr = strings::sub(addr, 0, i);
+		match (strconv::stou16(sub)) {
+		case let u: u16 =>
+			port = u;
+		case =>
+			return invalid_address;
+		};
+	};
+	return (addr, port);
+};
+
 // Performs DNS resolution on a given address string for a given service,
 // including /etc/hosts lookup and SRV resolution, and returns a list of
 // candidate IP addresses and the appropriate port, or an error.
@@ -18,42 +65,7 @@ export fn resolve(
 	addr: str,
 	service: str,
 ) (([]ip::addr, u16) | error) = {
-	let port = if (strings::hasprefix(addr, '[')) {
-		// [::1]:80
-		yield match (strings::index(addr, "]:")) {
-		case let i: size =>
-			const sub = strings::sub(addr, i + 2, strings::end);
-			addr = strings::sub(addr, 1, i);
-			yield match (strconv::stou16(sub)) {
-			case let u: u16 =>
-				yield u;
-			case =>
-				return invalid_address;
-			};
-		case void =>
-			return invalid_address;
-		};
-	} else {
-		yield match (strings::index(addr, ':')) {
-		case void =>
-			yield match (strconv::stou16(service)) {
-			case let u: u16 =>
-				yield u;
-			case =>
-				yield 0u16;
-			};
-		case let i: size =>
-			const sub = strings::sub(addr, i + 1, strings::end);
-			addr = strings::sub(addr, 0, i);
-			yield match (strconv::stou16(sub)) {
-			case let u: u16 =>
-				yield u;
-			case =>
-				return invalid_address;
-			};
-		};
-	};
-
+	const (addr, port) = splitaddr(addr, service)?;
 	if (service == "unknown" && port == 0) {
 		return unknown_service;
 	};

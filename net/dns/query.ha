@@ -20,7 +20,6 @@ def timeout: time::duration = 3 * time::SECOND;
 //
 // If no DNS servers are provided, the system default servers (if any) are used.
 export fn query(query: *message, servers: ip::addr...) (*message | error) = {
-	// TODO: Use TCP for messages >512 bytes
 	if (len(servers) == 0) {
 		servers = resolvconf::load();
 	};
