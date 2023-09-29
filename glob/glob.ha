@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Yasumasa Tada <ytada@spartan.dev>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use fnmatch;
 use fs;
 use io;

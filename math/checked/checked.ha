@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use math;
 
 // Adds 'a' and 'b', returning the result and whether overflow occurred.

@@ -1,6 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021-2022 Ember Sawady <ecs@d2evs.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use types;
 
 // Converts any [[types::signed]] to a string in a given base. The return value is

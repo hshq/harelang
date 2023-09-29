@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use net;
 
 // Accepts the next connection from a socket. Blocks until a new connection is

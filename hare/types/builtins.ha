@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // IDs are precomputed, but a test verifies that they match what they would be
 // if computed at runtime

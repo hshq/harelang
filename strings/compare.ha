@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 // Compares two strings by their Unicode codepoint sort order. Zero is returned
 // if the strings are equal, a negative value if a is less than b, or a positive
 // value if a is greater than b.

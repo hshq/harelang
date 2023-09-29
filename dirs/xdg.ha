@@ -1,9 +1,6 @@
-// License: MPL-2.0
-// (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
-// (c) 2022 Sebastian <sebastian@sebsite.pw>
-// (c) 2022 Jon Eskin <eskinjp@gmail.com>
-// (c) 2022 Simon Ser <contact@emersion.fr>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use errors;
 use fmt;
 use fs;

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 fn u64tos(u: u64) (*const u8, size) = {
 	static let buf: [20]u8 = [0...]; // len("18446744073709551615")
 	let sl = buf[..0];

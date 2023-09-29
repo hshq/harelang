@@ -1,6 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Drew DeVault <sir@cmpwn.com>
-// (c) 2022 Humm <hummsmith42@gmail.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use bytes;
 use strings;
 

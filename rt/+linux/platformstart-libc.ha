@@ -1,6 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Armin Weigl <tb46305@gmail.com>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 export fn start_linux(iv: *[*]uintptr) never = {
 	argc = iv[0]: size;

@@ -1,7 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
-// (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
-// (c) 2021 Sudipto Mallick <smlckz@disroot.org>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 fn getfp() **opaque;
 

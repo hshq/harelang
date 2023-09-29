@@ -1,7 +1,5 @@
-// License: MPL-2.0
-// (c) 2021-2022 Alexey Yerin <yyp@disroot.org>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // TODO:
 // - Flesh out ELF32 structures

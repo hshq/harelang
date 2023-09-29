@@ -1,7 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Andri Yngvason <andri@yngvason.is>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Indicates that the input string doesn't have the requested number format
 // (integer or float). Contains the index of the first invalid rune.

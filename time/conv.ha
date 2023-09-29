@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 // Converts a given [[instant]] to a Unix timestamp.
 // Note, nanosecond information is lost during conversion.
 export fn unix(i: instant) i64 = i.sec;

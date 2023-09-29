@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use bytes;
 
 // Implements the curve25519 elliptic curve

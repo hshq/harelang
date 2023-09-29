@@ -1,6 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Alexey Yerin <yyp@disroot.org>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 // TODO: Not in love with this interface
 use io;
 use rt;

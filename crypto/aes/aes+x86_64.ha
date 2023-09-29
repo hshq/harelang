@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Armin Preiml <apreiml@strohwolke.at>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use crypto::cipher;
 
 def MAXEXPKEYSZ: size = CT64_EXPKEYSZ;

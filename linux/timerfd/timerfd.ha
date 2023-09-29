@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Vincent Dagonneau <v@vda.io>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 use errors;
 use rt;

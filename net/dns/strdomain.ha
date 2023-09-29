@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use strings;
 
 // Converts a human-readable domain name (e.g. "example.org") into a DNS-ready

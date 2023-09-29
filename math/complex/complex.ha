@@ -1,6 +1,5 @@
-// License: MPL-2.0
-// (c) 2022 Sebastian <sebastian@sebsite.pw>
-// (c) 2022 Carlos Une <une@fastmail.fm>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Sections of the code below are based on Go's implementation, which is, in
 // turn, based on Cephes Math Library. The original C code can be found at

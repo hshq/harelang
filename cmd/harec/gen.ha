@@ -1,7 +1,6 @@
-// License: GPL-3.0
-// (c) 2022 Alexey Yerin <yyp@disroot.org>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
+// SPDX-License-Identifier: GPL-3.0-only
+// (c) Hare authors <https://harelang.org>
+
 use fmt;
 use hare::ast;
 use hare::lex;

@@ -1,6 +1,6 @@
-// License: MPL-2.0
-// (c) 2021-2022 Alexey Yerin <yyp@disroot.org>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use io;
 use memio;
 use strings;

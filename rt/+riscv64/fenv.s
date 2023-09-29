@@ -1,6 +1,3 @@
-# License: MPL-2.0
-# (c) 2022 Alexey Yerin <yyp@disroot.org>
-
 .section ".text.rt.feclearexcept","ax"
 .global rt.feclearexcept
 .type rt.feclearexcept,@function

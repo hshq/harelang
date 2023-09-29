@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Armin Preiml <apreiml@strohwolke.at>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use crypto::curve25519;
 
 // Type for private, public or shared keys.

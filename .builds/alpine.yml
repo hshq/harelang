@@ -44,6 +44,9 @@ tasks:
 - check_with_libc: |
     cd hare
     .bin/hare-tests-libc
+- copyright: |
+    cd hare
+    ./scripts/copyright.sh
 - docs: |
     if [ $BUILD_SUBMITTER != "git.sr.ht" ]
     then

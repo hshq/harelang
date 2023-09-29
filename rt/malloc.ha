@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 // This is a simple memory allocator, based on
 // Appel, Andrew W., and David A. Naumann. "Verified sequential malloc/free"
 // but with logarithmic bin sizing and additional safety checks. Not thread-safe

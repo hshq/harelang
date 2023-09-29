@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2022 Jose Lombera <jose@lombera.dev>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Test sigset operations do not fail for valid signal numbers.
 @test fn sigset_valid_signum() void = {

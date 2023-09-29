@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2023 Byron Torres <b@torresjrjr.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // All possible errors returned from [[date]].
 export type error = !(insufficient | invalid | parsefail);

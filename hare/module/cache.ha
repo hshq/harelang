@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use path;
 
 // Gets the cache directory for a given module, given the value of 'harecache'.

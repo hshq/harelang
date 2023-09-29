@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 // Returns a slice (borrowed from given input slice) after trimming off of
 // the start of the input slice the bytes in the given list.
 export fn ltrim(in: []u8, trim: u8...) []u8 = {

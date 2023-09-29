@@ -1,4 +1,4 @@
-// License: MPL-2.0
-// (c) 2022 Sebastian <sebastian@sebsite.pw>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 def PATH: str = "/etc/hosts";

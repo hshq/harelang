@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 @test fn eqwithin() void = {
 	assert(eqwithin(1f64, 2f64, 2f64));
 	assert(eqwithin(1.0f32, 2.0f32, 2.0f32));

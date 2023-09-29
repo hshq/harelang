@@ -1,7 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Armin Preiml <apreiml@strohwolke.at>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Kiëd Llaentenn <kiedtl@tilde.team>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use io;
 use fmt;
 // TODO: Use a vtable-based approach for this like io::stream

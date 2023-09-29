@@ -1,6 +1,6 @@
-// License: GPL-3.0
-// (c) 2022 Byron Torres <b@torresjrjr.com>
-// (c) 2022 Sebastian <sebastian@sebsite.pw>
+// SPDX-License-Identifier: GPL-3.0-only
+// (c) Hare authors <https://harelang.org>
+
 use fmt;
 use fs;
 use hare::module;

@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Steven Guikal <void@fluix.dev>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // State for a pseudorandom number generator.
 export type random = u64;

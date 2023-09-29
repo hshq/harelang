@@ -1,9 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Alexey Yerin <yyp@disroot.org>
-// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
-// (c) 2022 Sebastian <sebastian@sebsite.pw>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use fmt;
 use hare::ast;
 use hare::lex;

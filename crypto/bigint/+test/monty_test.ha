@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 @test fn montyencode() void = {
 	let m = fromhex("0010000061");

@@ -1,5 +1,6 @@
-// License: GPL-3.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: GPL-3.0-only
+// (c) Hare authors <https://harelang.org>
+
 use fmt;
 
 fn mklabel(ctx: *context, name: str) str = {

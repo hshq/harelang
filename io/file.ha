@@ -1,4 +1,6 @@
-// License: MPL-2.0
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use rt;
 
 // Lock operation to use with [[lock]].

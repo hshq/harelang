@@ -1,7 +1,6 @@
-// License: MPL-2.0
-// (c) 2011 The Go Authors
-// (c) 2022 Drew DeVault <sir@cmpwn.com>
-//
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 // This implementation is not great, but neither is this algorithm. Mostly
 // ported from Go.
 //

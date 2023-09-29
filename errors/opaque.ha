@@ -1,6 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // An "opaque" error is used as a portable error type for an underlying error
 // which is implementation-specific. It provides a function which can be used to

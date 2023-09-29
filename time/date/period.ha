@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2023 Byron Torres <b@torresjrjr.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Represents a span of time in the Gregorian chronology, using nominal units of
 // time. Used for chronological arithmetic.

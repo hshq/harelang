@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 @test fn floatbits() void = {
 	const a: [_]f64 = [INF, -INF, 0.0, 1.0, -1.0, 123456789.0,
 		F64_MIN, F64_MIN_NORMAL, F64_MAX_NORMAL];

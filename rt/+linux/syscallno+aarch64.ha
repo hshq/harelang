@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 export def SYS_io_setup: u64			= 0;
 export def SYS_io_destroy: u64			= 1;

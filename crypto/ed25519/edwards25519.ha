@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2022 Luke Champine <luke.champine@gmail.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 def FIELDSZ: size = 16;
 type elem = [FIELDSZ]i64;

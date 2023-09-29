@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Platform-specific path separator byte.
 export def SEP: u8 = '/';

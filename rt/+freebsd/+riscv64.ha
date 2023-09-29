@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 export type siginfo = struct {
 	si_signo: int,
 	si_errno: int,

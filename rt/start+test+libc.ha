@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Alexey Yerin <yyp@disroot.org>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 @symbol("__test_main") fn test_main() size;
 

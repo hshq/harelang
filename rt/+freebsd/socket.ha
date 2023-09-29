@@ -1,6 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2022 Sebastian <sebastian@sebsite.pw>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 export type sa_family_t = u8;
 export type socklen_t = u32;

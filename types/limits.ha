@@ -1,6 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Sudipto Mallick <smlckz@disroot.org>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Minimum value which can be stored in an i8 type.
 export def I8_MIN: i8 = -128;

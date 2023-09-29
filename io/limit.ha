@@ -1,7 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Alexey Yerin <yyp@disroot.org>
-// (c) 2021-2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
-// (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 export type limitstream = struct {
 	vtable: stream,

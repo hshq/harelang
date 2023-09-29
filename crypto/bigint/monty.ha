@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 // The following code was initially ported from BearSSL.
 //
 // Copyright (c) 2017 Thomas Pornin <pornin@bolet.org>
