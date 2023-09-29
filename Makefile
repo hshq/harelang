@@ -1,96 +1,75 @@
 .POSIX:
-.SUFFIXES:
-include config.mk
-TESTCACHE = $(HARECACHE)/+test
-TESTHARECFLAGS = $(HARECFLAGS) -T
-STDLIB = .
-stdlib_env = env
-testlib_env = env
 
 all:
 
-.SUFFIXES: .ha .ssa .s .o .scd
+include config.mk
+include makefiles/$(PLATFORM).$(ARCH).mk
+
+all: $(BINOUT)/hare $(BINOUT)/harec2 $(BINOUT)/haredoc docs
+
+HARE_DEFINES = \
+	-D PLATFORM:str='"$(PLATFORM)"' \
+	-D ARCH:str='"$(ARCH)"' \
+	-D VERSION:str='"$(VERSION)"' \
+	-D HAREPATH:str='"$(HAREPATH)"' \
+	-D AARCH64_AS:str='"$(AARCH64_AS)"' \
+	-D AARCH64_CC:str='"$(AARCH64_CC)"' \
+	-D AARCH64_LD:str='"$(AARCH64_LD)"' \
+	-D RISCV64_AS:str='"$(RISCV64_AS)"' \
+	-D RISCV64_CC:str='"$(RISCV64_CC)"' \
+	-D RISCV64_LD:str='"$(RISCV64_LD)"' \
+	-D X86_64_AS:str='"$(X86_64_AS)"' \
+	-D X86_64_CC:str='"$(X86_64_CC)"' \
+	-D X86_64_LD:str='"$(X86_64_LD)"'
+
+.SUFFIXES:
+.SUFFIXES: .ha .ssa .td .s .o .scd
+.ssa.td:
+	@cmp -s '$@' '$@.tmp' 2>/dev/null || cp '$@.tmp' '$@'
+
 .ssa.s:
-	@printf 'QBE\t%s\n' "$@"
-	@$(QBE) -o $@ $<
+	@printf 'QBE\t%s\n' '$@'
+	@$(QBE) $(QBEFLAGS) -o '$@' '$<'
 
 .s.o:
-	@printf 'AS\t%s\n' "$@"
-	@$(AS) -g -o $@ $<
+	@printf 'AS\t%s\n' '$@'
+	@$(AS) $(ASFLAGS) -o '$@' '$<'
 
 .scd:
-	@printf 'SCDOC\t%s\n' "$@"
-	@$(SCDOC) < $< > $@
+	@printf 'SCDOC\t%s\n' '$@'
+	@$(SCDOC) < '$<' > '$@'
 
-
-include stdlib.mk
-
-hare_srcs = \
-	./cmd/hare/arch.ha \
-	./cmd/hare/build.ha \
-	./cmd/hare/cache.ha \
-	./cmd/hare/deps.ha \
-	./cmd/hare/error.ha \
-	./cmd/hare/main.ha \
-	./cmd/hare/util.ha \
-	./cmd/hare/version.ha
-
-harec_srcs = \
-	./cmd/harec/main.ha \
-	./cmd/harec/errors.ha
-
-haredoc_srcs = \
-	./cmd/haredoc/main.ha \
-	./cmd/haredoc/arch.ha \
-	./cmd/haredoc/error.ha \
-	./cmd/haredoc/util.ha \
-	./cmd/haredoc/doc/color.ha \
-	./cmd/haredoc/doc/hare.ha \
-	./cmd/haredoc/doc/html.ha \
-	./cmd/haredoc/doc/resolve.ha \
-	./cmd/haredoc/doc/sort.ha \
-	./cmd/haredoc/doc/tty.ha \
-	./cmd/haredoc/doc/types.ha \
-	./cmd/haredoc/doc/util.ha
-
-include targets.mk
-
-$(HARECACHE)/hare.ssa: $(hare_srcs) $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM)) scripts/version
-	@printf 'HAREC\t%s\n' "$@"
-	@$(stdlib_env) $(HAREC) $(HARECFLAGS) \
-		$(HARE_DEFINES) -o $@ $(hare_srcs)
-
-$(TESTCACHE)/hare.ssa: $(hare_srcs) $(testlib_deps_any) $(testlib_deps_$(PLATFORM)) scripts/version
-	@printf 'HAREC\t%s\n' "$@"
-	@$(testlib_env) $(HAREC) $(TESTHARECFLAGS) \
-		$(HARE_DEFINES) -o $@ $(hare_srcs)
-
-$(BINOUT)/hare: $(HARECACHE)/hare.o
-	@mkdir -p $(BINOUT)
+$(BINOUT)/hare: $(OBJS)
+	@mkdir -p -- "$(BINOUT)"
 	@printf 'LD\t%s\n' "$@"
-	@$(LD) $(LDLINKFLAGS) --gc-sections -z noexecstack -T $(rtscript) -o $@ \
-		$(HARECACHE)/hare.o $(stdlib_deps_any) $(stdlib_deps_$(PLATFORM))
+	@$(LD) $(LDLINKFLAGS) --gc-sections -z noexecstack -T $(RTSCRIPT) -o $@ $(OBJS)
 
-$(BINOUT)/hare-tests: $(TESTCACHE)/hare.o
-	@mkdir -p $(BINOUT)
-	@printf 'LD\t%s\n' "$@"
-	@$(LD) $(LDLINKFLAGS) -T $(rtscript) -o $@ \
-		$(testlib_deps_any) $(testlib_deps_$(PLATFORM))
-
-$(BINOUT)/harec2: $(BINOUT)/hare $(harec_srcs)
-	@mkdir -p $(BINOUT)
+$(BINOUT)/harec2: $(BINOUT)/hare
 	@printf 'HARE\t%s\n' "$@"
-	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build \
-		$(HARE_DEFINES) -o $(BINOUT)/harec2 cmd/harec
+	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) AS=$(AS) LD=$(LD) \
+		HAREFLAGS=$(HAREFLAGS) HARECFLAGS=$(HARECFLAGS) \
+		QBEFLAGS=$(QBEFLAGS) ASFLAGS=$(ASFLAGS) \
+		LDLINKFLAGS=$(LDLINKFLAGS) \
+		$(BINOUT)/hare build $(HARE_DEFINES) -o $(BINOUT)/harec2 cmd/harec
 
-$(BINOUT)/haredoc: $(BINOUT)/hare $(haredoc_srcs)
+$(BINOUT)/haredoc: $(BINOUT)/hare
 	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
 	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build \
 		$(HARE_DEFINES) -o $(BINOUT)/haredoc ./cmd/haredoc
 
-docs/html: $(BINOUT)/haredoc scripts/gen-docs.sh
-	BINOUT=$(BINOUT) $(SHELL) ./scripts/gen-docs.sh
+docs/html: $(BINOUT)/haredoc
+	mkdir -p docs/html
+	$(BINOUT)/haredoc -Fhtml > docs/html/index.html
+	for d in $$(scripts/moddirs); do \
+		find $$d -type d | sed -E '/(\+|-)/d'; \
+	done \
+	| while read path; do \
+		mod=$$(echo $$path | sed -E 's@/@::@g'); \
+		echo $$mod; \
+		mkdir -p docs/html/$$path; \
+		$(BINOUT)/haredoc -Fhtml $$mod > docs/html/$$path/index.html; \
+	done
 
 docs/hare.1: docs/hare.1.scd
 docs/haredoc.1: docs/haredoc.1.scd
@@ -98,36 +77,43 @@ docs/hare-doc.5: docs/hare-doc.5.scd
 
 docs: docs/hare.1 docs/haredoc.1 docs/hare-doc.5
 
+bootstrap:
+	@BINOUT=$(BINOUT) ./scripts/genbootstrap
+
 clean:
-	rm -rf $(HARECACHE) $(BINOUT) docs/hare.1 docs/haredoc.1 docs/hare-doc.5 \
-		docs/html
+	$(RM) -rf '$(HARECACHE)' '$(BINOUT)' docs/hare.1 docs/haredoc.1 \
+		docs/hare-doc.5 docs/html
 
-check: $(BINOUT)/hare-tests
-	@$(BINOUT)/hare-tests
+check: $(BINOUT)/hare
+	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) AS=$(AS) LD=$(LD) \
+		HAREFLAGS=$(HAREFLAGS) HARECFLAGS=$(HARECFLAGS) \
+		QBEFLAGS=$(QBEFLAGS) ASFLAGS=$(ASFLAGS) \
+		LDLINKFLAGS=$(LDLINKFLAGS) $(BINOUT)/hare test
 
-scripts/gen-docs.sh: scripts/gen-stdlib
-scripts/gen-stdlib: scripts/gen-stdlib.sh
+install: install-cmd install-mods
 
-all: $(BINOUT)/hare $(BINOUT)/harec2 $(BINOUT)/haredoc docs
+install-cmd:
+	mkdir -p -- \
+		'$(DESTDIR)$(BINDIR)' '$(DESTDIR)$(MANDIR)/man1' \
+		'$(DESTDIR)$(BINDIR)' '$(DESTDIR)$(MANDIR)/man5'
+	install -m755 '$(BINOUT)/hare' '$(DESTDIR)$(BINDIR)/hare'
+	install -m755 '$(BINOUT)/haredoc' '$(DESTDIR)$(BINDIR)/haredoc'
+	install -m644 docs/hare.1 '$(DESTDIR)$(MANDIR)/man1/hare.1'
+	install -m644 docs/haredoc.1 '$(DESTDIR)$(MANDIR)/man1/haredoc.1'
+	install -m644 docs/hare-doc.5 '$(DESTDIR)$(MANDIR)/man5/hare-doc.5'
 
-install: docs scripts/install-mods
-	mkdir -p \
-		$(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1 \
-		$(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man5 \
-		$(DESTDIR)$(SRCDIR)/hare/stdlib
-	install -m755 $(BINOUT)/hare $(DESTDIR)$(BINDIR)/hare
-	install -m755 $(BINOUT)/haredoc $(DESTDIR)$(BINDIR)/haredoc
-	install -m644 docs/hare.1 $(DESTDIR)$(MANDIR)/man1/hare.1
-	install -m644 docs/haredoc.1 $(DESTDIR)$(MANDIR)/man1/haredoc.1
-	install -m644 docs/hare-doc.5 $(DESTDIR)$(MANDIR)/man5/hare-doc.5
-	./scripts/install-mods "$(DESTDIR)$(SRCDIR)/hare/stdlib"
+install-mods:
+	$(RM) -rf -- '$(DESTDIR)$(STDLIB)'
+	mkdir -p -- '$(DESTDIR)$(STDLIB)'
+	cp -R -- $$(scripts/moddirs) '$(DESTDIR)$(STDLIB)'
 
 uninstall:
-	$(RM) $(DESTDIR)$(BINDIR)/hare
-	$(RM) $(DESTDIR)$(BINDIR)/haredoc
-	$(RM) $(DESTDIR)$(MANDIR)/man1/hare.1
-	$(RM) $(DESTDIR)$(MANDIR)/man1/haredoc.1
-	$(RM) $(DESTDIR)$(MANDIR)/man5/hare-doc.5
-	$(RM) -r $(DESTDIR)$(SRCDIR)/hare/stdlib
+	$(RM) -- '$(DESTDIR)$(BINDIR)/hare'
+	$(RM) -- '$(DESTDIR)$(BINDIR)/haredoc'
+	$(RM) -- '$(DESTDIR)$(MANDIR)/man1/hare.1'
+	$(RM) -- '$(DESTDIR)$(MANDIR)/man1/haredoc.1'
+	$(RM) -- '$(DESTDIR)$(MANDIR)/man5/hare-doc.5'
+	$(RM) -r -- '$(DESTDIR)$(STDLIB)'
 
-.PHONY: all clean check docs install uninstall
+.PHONY: all $(BINOUT)/harec2 $(BINOUT)/haredoc bootstrap clean check docs \
+	docs/html install start uninstall

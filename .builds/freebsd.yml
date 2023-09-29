@@ -22,9 +22,6 @@ tasks:
     sed -e 's/linux/freebsd/g' < config.example.mk > config.mk
     make -j2
     sudo make install
-- tests: |
-    cd hare
-    make -j2 .bin/hare-tests
 - check: |
     cd hare
     make -j2 check
