@@ -262,6 +262,8 @@
 		return y;
 	case 1337 =>
 		let x = 0;
+	case => void;
+	case => abort();
 	case =>
 		defer x;
 	};
@@ -276,12 +278,12 @@
 		return y;
 	case foo =>
 		return bar;
-	case let foo: int =>
+	case *int =>
 		return bar;
 	case foo::bar =>
 		return baz;
 	case null => void;
-	case *int => void;
+	case => abort();
 	};
 	match (x) {
 	case let s: matchdata =>
