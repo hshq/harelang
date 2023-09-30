@@ -185,7 +185,10 @@
 };
 
 @test fn defer_expr() void = {
-	roundtrip("export fn main() void = defer foo();\n");
+	roundtrip("export fn main() void = {
+	defer foo();
+};
+");
 };
 
 @test fn for_expr() void = {
@@ -258,9 +261,9 @@
 	case 1234, 4321 =>
 		return y;
 	case 1337 =>
-		return z;
+		let x = 0;
 	case =>
-		return q;
+		defer x;
 	};
 };
 ");
@@ -284,9 +287,9 @@
 	case let s: matchdata =>
 		return y;
 	case str =>
-		return z;
+		let x = 0;
 	case =>
-		return q;
+		defer x;
 	};
 };
 ");
