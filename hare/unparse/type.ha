@@ -112,6 +112,7 @@ fn struct_union_type(
 		z += space(ctx)?;
 		z += syn(ctx, "{", synkind::PUNCTUATION)?;
 		yield ut: []ast::struct_member;
+	case => abort(); // unreachable
 	};
 
 	ctx.indent += 1z;
