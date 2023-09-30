@@ -4,7 +4,6 @@ use fmt;
 use getopt;
 use os;
 use strings;
-use unix::tty;
 
 fn version(name: str, cmd: *getopt::command) (void | error) = {
 	let verbose = false;
@@ -24,12 +23,6 @@ fn version(name: str, cmd: *getopt::command) (void | error) = {
 
 	let build_arch = get_arch(os::machine())?;
 	let build_platform = ascii::strlower(os::sysname());
-
-	if (!tty::isatty(os::stdout_file)) {
-		fmt::printfln("build tags\t+{}+{}\nHAREPATH\t{}",
-			build_arch.name, build_platform, harepath())?;
-		return;
-	};
 
 	fmt::printfln("build tags:\n\t+{}\n\t+{}\nHAREPATH{}:",
 		build_arch.name, build_platform,
