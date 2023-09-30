@@ -41,14 +41,14 @@ fn process_decl(
 	case let ty: []ast::decl_type =>
 		abort(); // TODO
 	case let fu: ast::decl_func =>
-		return process_func(ctx, decl, fu);
+		return process_func(ctx, decl, &fu);
 	};
 };
 
 fn process_func(
 	ctx: *context,
 	adecl: *ast::decl,
-	func: ast::decl_func,
+	func: *ast::decl_func,
 ) (decl | error) = {
 	assert(func.attrs & ast::fndecl_attrs::TEST == 0); // TODO
 	const afndecl = adecl.decl as ast::decl_func;

@@ -39,14 +39,14 @@ fn scan_decl(
 	case let ty: []ast::decl_type =>
 		abort(); // TODO
 	case let fu: ast::decl_func =>
-		return scan_func(ctx, decl, fu);
+		return scan_func(ctx, decl, &fu);
 	};
 };
 
 fn scan_func(
 	ctx: *context,
 	decl: *ast::decl,
-	func: ast::decl_func,
+	func: *ast::decl_func,
 ) (void | types::deferred | error) = {
 	assert(func.attrs & ast::fndecl_attrs::TEST == 0); // TODO
 	const fntype = match (types::lookup(ctx.store, &func.prototype)) {
