@@ -111,6 +111,10 @@ fn next_match(gen: *generator) (str | void | failure) = {
 
 	const dir = pattern_dir(&gen.tmpp);
 	let pat = pattern_pat(&gen.tmpp);
+	if (pat == "") {
+		assert(pattern_rem(&gen.tmpp) == "");
+		return if (os::exists(dir)) dir else void;
+	};
 	const patm = strings::hassuffix(pat, '/');
 	if (patm) {
 		pat = strings::sub(pat, 0, len(pat) - 1);
@@ -217,6 +221,8 @@ fn pattern_parse(p: *pattern, pstr: str, noesc: bool) void = {
 	for (let brk = false, esc = false; true) {
 		const r = match (strings::next(&itdir)) {
 		case void =>
+			memio::concat(&p.dir, memio::string(&p.pat)!)!;
+			memio::reset(&p.pat);
 			return;
 		case let r: rune =>
 			yield r;
