@@ -74,6 +74,8 @@ export type context = struct {
 	test: bool,
 	// whether submodules of the root module should have tests enabled
 	submods: bool,
+	// if true, the main function won't be checked by harec
+	freestanding: bool,
 
 	cmds: [NSTAGES]str,
 
