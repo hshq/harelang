@@ -128,15 +128,22 @@ export fn setflush(s: io::handle, b: []u8) void = {
 // buffered stream. Attempting to unread more data than can fit into the read
 // buffer will abort the program.
 export fn unread(s: io::handle, buf: []u8) void = {
-	let s = match (s) {
+	match (s) {
 	case let st: *io::stream =>
-		if (st.reader != &read) {
+		switch (st.reader) {
+		case &read =>
+			stream_unread(s: *stream, buf);
+		case &scan_read =>
+			scan_unread(s: *scanner, buf);
+		case =>
 			abort("Attempted unread on unbuffered stream");
 		};
-		yield st: *stream;
 	case =>
 		abort("Attempted unread on unbuffered stream");
 	};
+};
+
+fn stream_unread(s: *stream, buf: []u8) void = {
 	assert(s.rpos >= len(buf),
 		"Attempted to unread more data than buffer has available");
 	s.rbuffer[s.rpos - len(buf)..s.rpos] = buf;

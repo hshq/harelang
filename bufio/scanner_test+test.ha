@@ -111,3 +111,52 @@ use strings;
 		};
 	};
 };
+
+@test fn scan_read() void = {
+	const expected: [_]u8 = [
+		0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b,
+	];
+	let in = memio::fixed(expected);
+
+	let scanner = newscanner(&in, 2);
+	defer finish(&scanner);
+	let result = io::drain(&scanner)!;
+	defer free(result);
+	assert(bytes::equal(expected, result));
+};
+
+@test fn scan_unread() void = {
+	const expected: str = " I will not repeat  \nDone!\n";
+	let in = memio::fixed(strings::toutf8(expected));
+
+	let scanner = newscanner(&in, 32);
+	defer finish(&scanner);
+
+	let b = scan_byte(&scanner) as u8;
+	unread(&scanner, [b]);
+
+	let b = scan_rune(&scanner) as rune;
+	unread(&scanner, utf8::encoderune(b));
+
+	let l = scan_line(&scanner)! as const str;
+	assert(l == " I will not repeat  ");
+
+	unread(&scanner, strings::toutf8("\n"));
+	unread(&scanner, strings::toutf8(l));
+	let l = scan_line(&scanner)! as const str;
+	assert(l == " I will not repeat  ");
+
+	unread(&scanner, strings::toutf8("\n"));
+	unread(&scanner, strings::toutf8(strings::trim(l)));
+	let l = scan_line(&scanner)! as const str;
+	assert(l == "I will not repeat");
+
+	unread(&scanner, strings::toutf8("See?\n"));
+	let l = scan_line(&scanner)! as const str;
+	assert(l == "See?");
+
+	let l = scan_line(&scanner)! as const str;
+	assert(l == "Done!");
+
+	assert(scan_line(&scanner) is io::EOF);
+};

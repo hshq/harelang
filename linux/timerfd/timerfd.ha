@@ -107,9 +107,10 @@ export fn unset(
 	};
 };
 
-// Reading from the timerfd returns the number of time the timer expired. This
-// call can be blocking or not depending on the flags passed to [[new]]. Reading
-// from a blocking unset timerfd will block forever.
+// Reading from the timerfd returns the number of times the timer has expired
+// since the last call to [[set]] or [[read]]. This call can be blocking or not
+// depending on the flags passed to [[new]]. Reading from a blocking unset
+// timerfd will block forever.
 export fn read(
 	t: io::file
 ) (u64 | errors::error) = {
@@ -134,9 +135,9 @@ export fn read(
 	assert(one == 1);
 
 	// interval blocking
-	// the first read should block and eventually return the number of time
+	// the first read should block and eventually return the number of times
 	// the timer expired
-	// subsequent reads should return instantly with the number of time the
+	// subsequent reads should return instantly with the number of times the
 	// timer expired since the last read
 	set(blocking_fd, 100: interval, set_flag::NONE)!;
 	let first = read(blocking_fd)!;
