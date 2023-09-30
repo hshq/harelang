@@ -7,6 +7,12 @@
 	*x = *y + 10;
 	*x = *foo();
 	*y() = bar();
+	x[y] = z;
+	x[y][z] = foo();
+	x.y = z;
+	x.y.z = foo();
+	x[y].z = foo();
+	x.y[z] = foo();
 	x += 10;
 	x -= 10;
 	x *= 10;
