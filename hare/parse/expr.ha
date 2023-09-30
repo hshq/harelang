@@ -11,7 +11,6 @@ use strings;
 // Parses an expression.
 export fn expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const loc = lex::mkloc(lexer);
-	const indirect = try(lexer, ltok::TIMES)? is lex::token;
 
 	// All assignment-op tokens
 	const atoks: []ltok = [
@@ -21,25 +20,9 @@ export fn expr(lexer: *lex::lexer) (ast::expr | error) = {
 		ltok::RSHIFTEQ, ltok::TIMESEQ,
 	];
 
-	const ex: ast::expr = if (indirect) {
-		const ex = cast(lexer, void)?;
-		// Disambiguate between
-		// 	* unary-expression assignment-op expression
-		// and
-		// 	binary-expression
-		yield if (peek(lexer, atoks...)? is lex::token) {
-			yield ex;
-		} else return binarithm(lexer, ast::expr {
-			start = loc,
-			end = lex::prevloc(lexer),
-			expr = ast::unarithm_expr {
-				op = ast::unarithm_op::DEREF,
-				operand = alloc(ex),
-			},
-		}, 0);
-	} else match (peek(lexer, ltok::IF, ltok::FOR,
-			ltok::BREAK, ltok::CONTINUE, ltok::RETURN, ltok::LET,
-			ltok::CONST, ltok::YIELD)?) {
+	const ex = match (peek(lexer, ltok::IF, ltok::FOR, ltok::BREAK,
+		ltok::CONTINUE, ltok::RETURN, ltok::LET, ltok::CONST,
+		ltok::YIELD)?) {
 	case void =>
 		yield binarithm(lexer, void, 0)?;
 	case let tok: lex::token =>
@@ -65,8 +48,15 @@ export fn expr(lexer: *lex::lexer) (ast::expr | error) = {
 		return ex;
 	};
 
-	synassert(lex::mkloc(lexer),
-		ex.expr is ast::access_expr || ex.expr is ast::slice_expr || indirect,
+	const is_obj_selector = match (ex.expr) {
+	case (ast::access_expr | ast::slice_expr) =>
+		yield true;
+	case let ex: ast::unarithm_expr =>
+		yield ex.op == ast::unarithm_op::DEREF;
+	case =>
+		yield false;
+	};
+	synassert(lex::mkloc(lexer), is_obj_selector,
 		"Expected an object-selector or slice for assignment target")?;
 	const ex = ast::assign_expr {
 		op = switch (tok.0) {
@@ -102,7 +92,6 @@ export fn expr(lexer: *lex::lexer) (ast::expr | error) = {
 		},
 		object = alloc(ex),
 		value = alloc(expr(lexer)?),
-		indirect = indirect,
 	};
 
 	return ast::expr {

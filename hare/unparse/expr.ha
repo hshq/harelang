@@ -139,9 +139,6 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		return z;
 	case let e: ast::assign_expr =>
 		let z = 0z;
-		if (e.indirect) {
-			z += syn(ctx, "*", synkind::OPERATOR)?;
-		};
 		z += _expr(ctx, syn, *e.object)?;
 		const op = match (e.op) {
 		case void =>

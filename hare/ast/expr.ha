@@ -93,7 +93,6 @@ export type assign_expr = struct {
 	op: (binarithm_op | void),
 	object: *expr,
 	value: *expr,
-	indirect: bool,
 };
 
 // A binary arithmetic operator
