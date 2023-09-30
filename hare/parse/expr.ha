@@ -398,7 +398,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 	case ltok::VAARG =>
 		want(lexer, ltok::VAARG)?;
 		want(lexer, ltok::LPAREN)?;
-		const expr = alloc(expr(lexer)?);
+		const expr = alloc(objsel(lexer)?);
 		want(lexer, ltok::RPAREN)?;
 		return ast::expr {
 			start = tok.2,
@@ -408,7 +408,7 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 	case ltok::VAEND =>
 		want(lexer, ltok::VAEND)?;
 		want(lexer, ltok::LPAREN)?;
-		const expr = alloc(expr(lexer)?);
+		const expr = alloc(objsel(lexer)?);
 		want(lexer, ltok::RPAREN)?;
 		return ast::expr {
 			start = tok.2,
