@@ -312,7 +312,7 @@ export type len_expr = *expr;
 //	case let name: type => exprs
 export type match_case = struct {
 	name: str,
-	_type: nullable *_type,
+	_type: nullable *_type, // null for default case
 	exprs: []*expr,
 };
 
@@ -322,7 +322,6 @@ export type match_case = struct {
 export type match_expr = struct {
 	value: *expr,
 	cases: []match_case,
-	default: []*expr,
 };
 
 // An offset expression.
@@ -566,10 +565,6 @@ case let e: expr =>
 			free(exprs);
 		};
 		free(m.cases);
-		for (let i = 0z; i < len(m.default); i += 1) {
-			expr_finish(m.default[i]);
-		};
-		free(m.default);
 	case let o: offset_expr =>
 		expr_finish(o: *expr);
 	case let p: propagate_expr =>

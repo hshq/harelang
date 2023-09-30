@@ -869,14 +869,6 @@ fn match_expr(
 		z += case_exprs(ctx, syn, item.exprs)?;
 	};
 
-	if (len(e.default) != 0) {
-		z += newline(ctx)?;
-		z += syn(ctx, "case", synkind::KEYWORD)?;
-		z += space(ctx)?;
-		z += syn(ctx, "=>", synkind::OPERATOR)?;
-		z += case_exprs(ctx, syn, e.default)?;
-	};
-
 	z += newline(ctx)?;
 	z += syn(ctx, "}", synkind::PUNCTUATION)?;
 	return z;

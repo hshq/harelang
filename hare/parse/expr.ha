@@ -1139,6 +1139,7 @@ fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 };
 
 fn match_case(lexer: *lex::lexer) (ast::match_case | error) = {
+	want(lexer, ltok::CASE)?;
 	let tok = lex::lex(lexer)?;
 	let loc = tok.2;
 	let name: str = "", typ: nullable *ast::_type = null;
@@ -1154,7 +1155,8 @@ fn match_case(lexer: *lex::lexer) (ast::match_case | error) = {
 		name = want(lexer, ltok::NAME)?.1 as str;
 		want(lexer, ltok::COLON)?;
 		typ = alloc(_type(lexer)?);
-	case ltok::ARROW => void;
+	case ltok::ARROW =>
+		lex::unlex(lexer, tok);
 	case =>
 		lex::unlex(lexer, tok);
 		typ = alloc(_type(lexer)?);
@@ -1183,24 +1185,8 @@ fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	want(lexer, ltok::LBRACE)?;
 
 	let cases: []ast::match_case = [];
-	let default: []*ast::expr = [];
 	for (true) {
-		want(lexer, ltok::CASE)?;
-
-		match (try(lexer, ltok::ARROW)?) {
-		case let t: lex::token =>
-			if (len(default) != 0) {
-				return syntaxerr(t.2,
-					"More than one default match case");
-			};
-			for (peek(lexer, ltok::CASE, ltok::RBRACE)? is void) {
-				append(default, alloc(expr(lexer)?));
-				want(lexer, ltok::SEMICOLON)?;
-			};
-		case void =>
-			append(cases, match_case(lexer)?);
-		};
-
+		append(cases, match_case(lexer)?);
 		if (try(lexer, ltok::RBRACE)? is lex::token) {
 			break;
 		};
@@ -1212,7 +1198,6 @@ fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		expr = ast::match_expr {
 			value   = alloc(value),
 			cases   = cases,
-			default = default,
 		},
 	};
 };
