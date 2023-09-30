@@ -57,6 +57,8 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 			const lexer = lex::init(&buf, "<-D argument>");
 			defer lex::finish(&lexer);
 			append(ctx.defines, parse::define(&lexer)?);
+		case 'F' =>
+			ctx.freestanding = true;
 		case 'j' =>
 			match (strconv::stoz(opt.1)) {
 			case let z: size =>

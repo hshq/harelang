@@ -18,6 +18,7 @@ use strings;
 		("//", flag::NONE),
 		(".", flag::NONE),
 		("..", flag::NONE),
+		("\\*", flag::NONE),
 	];
 	for (let i = 0z; i < len(cases); i += 1) {
 		let gen = glob(cases[i].0, cases[i].1);
@@ -46,18 +47,18 @@ use strings;
 
 @test fn pattern_parse() void = {
 	const cases: [_](str, bool, str, str, str) = [
-		("foo/bar/baz", true, "foo/bar/", "baz", ""),
-		("foo/b\\ar/baz", true, "foo/b\\ar/", "baz", ""),
-		("foo/b\\ar/baz", false, "foo/bar/", "baz", ""),
-		("/foo/bar/baz", true, "/foo/bar/", "baz", ""),
-		("/foo\\/bar/baz", true, "/foo\\/bar/", "baz", ""),
-		("/foo\\/bar/baz", false, "/foo/bar/", "baz", ""),
-		("/foo/bar\\/baz", true, "/foo/bar\\/", "baz", ""),
-		("/foo/bar\\/baz", false, "/foo/bar/", "baz", ""),
-		("/foobarbaz", true, "/", "foobarbaz", ""),
+		("foo/bar/baz", true, "foo/bar/baz", "", ""),
+		("foo/b\\ar/baz", true, "foo/b\\ar/baz", "", ""),
+		("foo/b\\ar/baz", false, "foo/bar/baz", "", ""),
+		("/foo/bar/baz", true, "/foo/bar/baz", "", ""),
+		("/foo\\/bar/baz", true, "/foo\\/bar/baz", "", ""),
+		("/foo\\/bar/baz", false, "/foo/bar/baz", "", ""),
+		("/foo/bar\\/baz", true, "/foo/bar\\/baz", "", ""),
+		("/foo/bar\\/baz", false, "/foo/bar/baz", "", ""),
+		("/foobarbaz", true, "/foobarbaz", "", ""),
 		("foo/bar/baz/", true, "foo/bar/baz/", "", ""),
 		("foobarbaz/", true, "foobarbaz/", "", ""),
-		("foobarbaz", true, "", "foobarbaz", ""),
+		("foobarbaz", true, "foobarbaz", "", ""),
 		("foo/b?r/baz", true, "foo/", "b?r/", "baz"),
 		("foo/b?r\\/baz", true, "foo/", "b?r\\/", "baz"),
 		("foo/b?r\\/baz", false, "foo/", "b?r/", "baz"),
@@ -70,9 +71,9 @@ use strings;
 		("foo/b[ar]/baz\\/", false, "foo/", "b[ar]/", "baz\\/"),
 		("foo/b\\[ar]/baz\\/", true, "foo/", "b\\[ar]/", "baz\\/"),
 		("foo/b\\[ar]/baz\\/", false, "foo/b[ar]/baz/", "", ""),
-		("fo[o/ba[r/baz", true, "fo[o/ba[r/", "baz", ""),
-		("fo]o/bar/b[az", false, "fo]o/bar/", "b[az", ""),
-		("foo/ba]r/b]az", true, "foo/ba]r/", "b]az", ""),
+		("fo[o/ba[r/baz", true, "fo[o/ba[r/baz", "", ""),
+		("fo]o/bar/b[az", false, "fo]o/bar/b[az", "", ""),
+		("foo/ba]r/b]az", true, "foo/ba]r/b]az", "", ""),
 		("foo/ba[r/b]az", false, "foo/ba[r/", "b]az", ""),
 		("fo[o/bar/b]az", true, "fo[o/bar/", "b]az", ""),
 	];
