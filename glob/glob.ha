@@ -84,7 +84,7 @@ export fn next(gen: *generator) (str | void | failure) = {
 		&& len(memio::string(&gen.tmpp.dir)!) == 0
 		&& len(memio::string(&gen.tmpp.pat)!) == 0
 		&& len(memio::string(&gen.tmpp.rem)!) == 0;
-	match (next_match(os::cwd, gen)) {
+	match (next_match(gen)) {
 	case let s: str =>
 		return s;
 	case let f: failure =>
@@ -96,7 +96,7 @@ export fn next(gen: *generator) (str | void | failure) = {
 	};
 };
 
-fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
+fn next_match(gen: *generator) (str | void | failure) = {
 	match (strstack_pop(&gen.pats)) {
 	case void =>
 		return;
@@ -121,7 +121,7 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 	if (gen.flgs & flag::NOESCAPE != 0) {
 		flgs |= fnmatch::flag::NOESCAPE;
 	};
-	let it = match(fs::iter(fs, if (len(dir) > 0) dir else ".")) {
+	let it = match(os::iter(if (len(dir) > 0) dir else ".")) {
 	case let i: *fs::iterator =>
 		yield i;
 	case let e: fs::error =>
@@ -156,9 +156,9 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 			// directory. But in major implementation a slash
 			// character is appended in this case.
 			if (fs::islink(de.ftype)) {
-				match (fs::realpath(fs, memio::string(b)!)) {
+				match (os::realpath(memio::string(b)!)) {
 				case let r: str =>
-					match (fs::stat(fs, r)) {
+					match (os::stat(r)) {
 					case let s: fs::filestat =>
 						m = fs::isdir(s.mode);
 					case fs::error => void;
@@ -179,7 +179,7 @@ fn next_match(fs: *fs::fs, gen: *generator) (str | void | failure) = {
 		strstack_sort(&gen.pats, l);
 	};
 
-	return next_match(fs, gen);
+	return next_match(gen);
 };
 
 fn pattern_init() pattern = pattern {
