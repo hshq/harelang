@@ -160,16 +160,18 @@ export fn decl(
 
 fn comment(ctx: *context, syn: *synfunc, s: str) (size | io::error) = {
 	let n = 0z;
-	const lines = strings::split(s, "\n");
-	defer free(lines);
-	assert(len(lines) > 0);
-	for (let i = 0z; i < len(lines) - 1; i += 1) {
+	let s = strings::trimsuffix(s, "\n");
+	let s = strings::tokenize(s, "\n");
+	for (true) match (strings::next_token(&s)) {
+	case void =>
+		break;
+	case let line: str =>
 		for (let j = 0z; j < ctx.indent; j += 1) {
 			n += fmt::fprint(ctx.out, "\t")?;
 			ctx.linelen += 8;
 		};
 		n += syn(ctx, "//", synkind::COMMENT)?;
-		n += syn(ctx, lines[i], synkind::COMMENT)?;
+		n += syn(ctx, line, synkind::COMMENT)?;
 		n += fmt::fprintln(ctx.out)?;
 		ctx.linelen = 0;
 	};
