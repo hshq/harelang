@@ -654,17 +654,14 @@ fn compound_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		yield "";
 	};
 
-	for (let more = true; more) {
-		const item = match (peek(lexer, ltok::RBRACE)?) {
-		case lex::token => break;
-		case void =>
-			yield expr(lexer)?;
-		};
-		append(items, alloc(item));
+	for (true) {
+		append(items, alloc(expr(lexer)?));
 		want(lexer, ltok::SEMICOLON)?;
+		if (try(lexer, ltok::RBRACE)? is lex::token) {
+			break;
+		};
 	};
 
-	want(lexer, ltok::RBRACE)?;
 	return ast::expr {
 		start = start.2,
 		end = lex::prevloc(lexer),
@@ -1111,9 +1108,14 @@ fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		};
 
 		let exprs: []*ast::expr = [];
-		for (peek(lexer, ltok::CASE, ltok::RBRACE)? is void) {
+		for (true) {
 			append(exprs, alloc(expr(lexer)?));
 			want(lexer, ltok::SEMICOLON)?;
+			match (peek(lexer, ltok::CASE, ltok::RBRACE)?) {
+			case lex::token =>
+				break;
+			case void => void;
+			};
 		};
 
 		append(cases, ast::switch_case {
@@ -1125,8 +1127,6 @@ fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 			break;
 		};
 	};
-
-	synassert(start.2, len(cases) != 0, "Expected a list of switch cases")?;
 
 	return ast::expr {
 		start = start.2,
@@ -1163,12 +1163,13 @@ fn match_case(lexer: *lex::lexer) (ast::match_case | error) = {
 	};
 	want(lexer, ltok::ARROW)?;
 	let exprs: []*ast::expr = [];
-	for (peek(lexer, ltok::CASE, ltok::RBRACE)? is void) {
+	for (true) {
 		append(exprs, alloc(expr(lexer)?));
 		want(lexer, ltok::SEMICOLON)?;
+		if (peek(lexer, ltok::CASE, ltok::RBRACE)? is lex::token) {
+			break;
+		};
 	};
-
-	synassert(lex::mkloc(lexer), len(exprs) != 0, "Expected a match case")?;
 
 	return ast::match_case {
 		name = name,
