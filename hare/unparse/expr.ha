@@ -107,36 +107,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		return z;
 	case let e: ast::append_expr =>
-		let z = 0z;
-		if (e.is_static) {
-			z += syn(ctx, "static", synkind::KEYWORD)?;
-			z += space(ctx)?;
-		};
-		z += syn(ctx, "append", synkind::KEYWORD)?;
-		z += syn(ctx, "(", synkind::PUNCTUATION)?;
-		z += _expr(ctx, syn, *e.object)?;
-		z += syn(ctx, ",", synkind::PUNCTUATION)?;
-		z += space(ctx)?;
-		for (let i = 0z; i < len(e.values); i += 1) {
-			let val = e.values[i];
-			z += _expr(ctx, syn, *val)?;
-			if (i + 1 < len(e.values)) {
-				z += syn(ctx, ",", synkind::PUNCTUATION)?;
-				z += space(ctx)?;
-			};
-		};
-		match (e.variadic) {
-		case null => void;
-		case let v: *ast::expr =>
-			if (len(e.values) != 0) {
-				z += syn(ctx, ",", synkind::PUNCTUATION)?;
-				z += space(ctx)?;
-			};
-			z += _expr(ctx, syn, *v)?;
-			z += syn(ctx, "...", synkind::OPERATOR)?;
-		};
-		z += syn(ctx, ")", synkind::PUNCTUATION)?;
-		return z;
+		return append_insert_expr(ctx, syn, e, false);
 	case let e: ast::assert_expr =>
 		let z = 0z;
 		if (e.is_static) {
@@ -431,36 +402,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		};
 		return z;
 	case let e: ast::insert_expr =>
-		let z = 0z;
-		if (e.is_static) {
-			z += syn(ctx, "static", synkind::KEYWORD)?;
-			z += space(ctx)?;
-		};
-		z += syn(ctx, "insert", synkind::KEYWORD)?;
-		z += syn(ctx, "(", synkind::PUNCTUATION)?;
-		z += _expr(ctx, syn, *e.object)?;
-		z += syn(ctx, ",", synkind::PUNCTUATION)?;
-		z += space(ctx)?;
-		for (let i = 0z; i < len(e.values); i += 1) {
-			let val = e.values[i];
-			z += _expr(ctx, syn, *val)?;
-			if (i + 1 < len(e.values)) {
-				z += syn(ctx, ",", synkind::PUNCTUATION)?;
-				z += space(ctx)?;
-			};
-		};
-		match (e.variadic) {
-		case null => void;
-		case let v: *ast::expr =>
-			if (len(e.values) != 0) {
-				z += syn(ctx, ",", synkind::PUNCTUATION)?;
-				z += space(ctx)?;
-			};
-			z += _expr(ctx, syn, *v)?;
-			z += syn(ctx, "...", synkind::OPERATOR)?;
-		};
-		z += syn(ctx, ")", synkind::PUNCTUATION)?;
-		return z;
+		return append_insert_expr(ctx, syn, e, true);
 	case let e: ast::compound_expr =>
 		let z = 0z;
 		if (e.label != "") {
@@ -1066,4 +1008,35 @@ fn is_unary(e: *ast::expr) bool = {
 
 fn is_cast(e: *ast::expr) bool = {
 	return is_unary(e) || (e.expr is ast::cast_expr);
+};
+
+fn append_insert_expr(
+	ctx: *context,
+	syn: *synfunc,
+	e: ast::append_expr,
+	is_insert: bool,
+) (size | io::error) = {
+	let z = 0z;
+	if (e.is_static) {
+		z += syn(ctx, "static", synkind::KEYWORD)?;
+		z += space(ctx)?;
+	};
+	z += syn(ctx, if (is_insert) "insert" else "append", synkind::KEYWORD)?;
+	z += syn(ctx, "(", synkind::PUNCTUATION)?;
+	z += _expr(ctx, syn, *e.object)?;
+	z += syn(ctx, ",", synkind::PUNCTUATION)?;
+	z += space(ctx)?;
+	z += _expr(ctx, syn, *e.value)?;
+	if (e.variadic) {
+		z += syn(ctx, "...", synkind::OPERATOR)?;
+	};
+	match (e.length) {
+	case null => void;
+	case let l: *ast::expr =>
+		z += syn(ctx, ",", synkind::PUNCTUATION)?;
+		z += space(ctx)?;
+		z += _expr(ctx, syn, *l)?;
+	};
+	z += syn(ctx, ")", synkind::PUNCTUATION)?;
+	return z;
 };

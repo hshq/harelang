@@ -208,42 +208,33 @@ fn append_insert_expr(
 	const object = if (tok.0 == ltok::APPEND) objsel(lexer)?
 		else idxexpr(lexer)?;
 	want(lexer, ltok::COMMA)?;
+	const value = expr(lexer)?;
 
-	let variadic: nullable *ast::expr = null;
-	let values: []*ast::expr = [];
-	for (true) {
-		if (try(lexer, ltok::RPAREN)? is lex::token) break;
-
-		const expr = alloc(expr(lexer)?);
-		switch (want(lexer, ltok::COMMA, ltok::ELLIPSIS, ltok::RPAREN)?.0) {
+	let length: nullable *ast::expr = null;
+	let variadic = false;
+	match (try(lexer, ltok::COMMA, ltok::ELLIPSIS)?) {
+	case let tok: lex::token =>
+		switch (tok.0) {
 		case ltok::COMMA =>
-			append(values, expr);
+			length = alloc(expr(lexer)?);
 		case ltok::ELLIPSIS =>
-			variadic = expr;
-			try(lexer, ltok::COMMA)?;
-			want(lexer, ltok::RPAREN)?;
-			break;
-		case ltok::RPAREN =>
-			append(values, expr);
-			break;
+			variadic = true;
 		case => abort();
 		};
+	case void => void;
 	};
+	want(lexer, ltok::RPAREN)?;
 
-	synassert(lex::mkloc(lexer), variadic != null || len(values) != 0,
-		"Expected values to append")?;
-
-	const expr = if (tok.0 == ltok::APPEND) ast::append_expr {
+	let expr = ast::append_expr {
 		object = alloc(object),
+		value = alloc(value),
+		length = length,
 		variadic = variadic,
-		values = values,
-		is_static = is_static,
-	} else ast::insert_expr {
-		object = alloc(object),
-		variadic = variadic,
-		values = values,
 		is_static = is_static,
 	};
+	const expr = if (tok.0 == ltok::INSERT) {
+		yield expr: ast::insert_expr;
+	} else expr;
 
 	return ast::expr {
 		start = tok.2,

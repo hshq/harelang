@@ -63,11 +63,14 @@ export type alloc_expr = struct {
 
 // An append expression.
 //
-// 	append(foo, bar, (more), baz...)
+// 	append(foo, bar);
+// 	append(foo, bar...);
+// 	append(foo, [0...], bar);
 export type append_expr = struct {
 	object: *expr,
-	variadic: nullable *expr,
-	values: []*expr,
+	value: *expr,
+	length: nullable *expr,
+	variadic: bool,
 	is_static: bool,
 };
 
@@ -290,13 +293,10 @@ export type if_expr = struct {
 
 // An insert expression.
 //
-// 	insert(foo[0], bar, (more), baz...)
-export type insert_expr = struct {
-	object: *expr,
-	variadic: nullable *expr,
-	values: []*expr,
-	is_static: bool,
-};
+// 	insert(foo[0], bar);
+// 	insert(foo[0], bar...);
+// 	insert(foo[0], [0...], bar);
+export type insert_expr = append_expr;
 
 // :label. The ":" character is not included.
 export type label = str;
@@ -466,15 +466,8 @@ case let e: expr =>
 		expr_finish(a.capacity);
 	case let a: append_expr =>
 		expr_finish(a.object);
-		match (a.variadic) {
-		case null => void;
-		case let v: *expr =>
-			expr_finish(v);
-		};
-		for (let i = 0z; i < len(a.values); i += 1) {
-			expr_finish(a.values[i]);
-		};
-		free(a.values);
+		expr_finish(a.value);
+		expr_finish(a.length);
 	case let a: assert_expr =>
 		expr_finish(a.cond);
 		expr_finish(a.message);
@@ -557,15 +550,8 @@ case let e: expr =>
 		expr_finish(i.fbranch);
 	case let e: insert_expr =>
 		expr_finish(e.object);
-		match (e.variadic) {
-		case null => void;
-		case let v: *expr =>
-			expr_finish(v);
-		};
-		for (let i = 0z; i < len(e.values); i += 1) {
-			expr_finish(e.values[i]);
-		};
-		free(e.values);
+		expr_finish(e.value);
+		expr_finish(e.length);
 	case let l: len_expr =>
 		expr_finish(l: *expr);
 	case let m: match_expr =>
