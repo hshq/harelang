@@ -302,7 +302,13 @@
 		"export fn main() void = *void;\n\n"
 		"export fn main() void = ~void;\n\n"
 		"export fn main() void = !void;\n\n"
-		"export fn main() void = &void;\n");
+		"export fn main() void = &void;\n\n"
+		"export fn main() void = &switch (0) {\n"
+		"case => void;\n"
+		"};\n\n"
+		"export fn main() void = &match (0) {\n"
+		"case => void;\n"
+		"};\n");
 };
 
 @test fn yield_expr() void = {
