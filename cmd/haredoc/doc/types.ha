@@ -51,7 +51,7 @@ export type context = struct {
 	mctx: *module::context,
 	ident: ast::ident,
 	tags: []str,
-	modpath: str,
+	ambiguous: bool,
 	srcs: module::srcset,
 	submods: []str,
 	summary: summary,

@@ -24,6 +24,23 @@ export fn emit_tty(ctx: *context) (void | error) = {
 	};
 	const summary = ctx.summary;
 
+	if (ctx.ambiguous) {
+		const id = unparse::identstr(ctx.ident);
+		defer free(id);
+
+		if (!no_color) fmt::fprintf(ctx.out, "\x1b[{}m",
+			color(unparse::synkind::COMMENT))?;
+		fmt::fprint(ctx.out, "// ")?;
+		if (!no_color) fmt::fprint(ctx.out, "\x1b[93m")?;
+		fmt::fprint(ctx.out, "NOTE")?;
+		if (!no_color) fmt::fprintf(ctx.out, "\x1b[m" "\x1b[{}m",
+			color(unparse::synkind::COMMENT))?;
+		fmt::fprintf(ctx.out, ": {} also refers to module [[{}::]]",
+			id, id)?;
+		if (!no_color) fmt::fprint(ctx.out, "\x1b[m")?;
+		fmt::fprintln(ctx.out, "\n")?;
+	};
+
 	match (ctx.readme) {
 	case let readme: io::file =>
 		let rbuf: [os::BUFSZ]u8 = [0...];
