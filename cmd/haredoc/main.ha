@@ -207,7 +207,12 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 	};
 
 	const submods: []str = if (!ambiguous && modpath != "") {
-		yield doc::submodules(modpath)?;
+		yield match (doc::submodules(modpath)) {
+		case let s: []str =>
+			yield s;
+		case doc::error =>
+			yield [];
+		};
 	} else [];
 	const srcs = if (!ambiguous && modpath != "") modsrcs else declsrcs;
 	const ctx = doc::context {
