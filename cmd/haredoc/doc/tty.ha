@@ -13,10 +13,15 @@ use strings;
 use types;
 
 let firstline: bool = true;
+let no_color: bool = false;
 
 // Formats output as Hare source code (prototypes) with syntax highlighting
 export fn emit_tty(ctx: *context) (void | error) = {
-	init_colors()?;
+	if (os::tryenv("NO_COLOR", "") == "") {
+		init_colors()?;
+	} else {
+		no_color = true;
+	};
 	const summary = ctx.summary;
 
 	match (ctx.readme) {
@@ -29,8 +34,11 @@ export fn emit_tty(ctx: *context) (void | error) = {
 		case io::EOF => break;
 		case let s: const str =>
 			firstline = false;
-			fmt::fprintfln(ctx.out, "\x1b[{}m" "// {}" "\x1b[m",
-				color(unparse::synkind::COMMENT), s)?;
+			if (!no_color) fmt::fprintf(ctx.out, "\x1b[{}m",
+				color(unparse::synkind::COMMENT))?;
+			fmt::fprint(ctx.out, "//", s)?;
+			if (!no_color) fmt::fprint(ctx.out, "\x1b[m")?;
+			fmt::fprintln(ctx.out)?;
 		};
 	case void => void;
 	};
@@ -58,7 +66,7 @@ export fn emit_tty(ctx: *context) (void | error) = {
 fn emit_submodules_tty(ctx: *context) (void | error) = {
 	if (len(ctx.submods) != 0) {
 		fmt::fprintln(ctx.out)?;
-		fmt::fprintf(ctx.out, "\x1b[{}m",
+		if (!no_color) fmt::fprintf(ctx.out, "\x1b[{}m",
 			color(unparse::synkind::COMMENT))?;
 		if (len(ctx.ident) == 0) {
 			fmt::fprintln(ctx.out, "// Modules")?;
@@ -85,7 +93,7 @@ fn details_tty(ctx: *context, decl: ast::decl) (void | error) = {
 		return;
 	};
 
-	fmt::fprint(ctx.out, "\x1b[m")?; // reset styling
+	if (!no_color) fmt::fprint(ctx.out, "\x1b[m")?; // reset styling
 	if (!firstline) {
 		fmt::fprintln(ctx.out)?;
 	};
@@ -100,8 +108,9 @@ fn syn_tty(
 	s: str,
 	kind: unparse::synkind,
 ) (size | io::error) = {
-	let z = fmt::fprintf(ctx.out, "\x1b[{}m", color(kind))?;
+	let z = 0z;
+	if (!no_color) z += fmt::fprintf(ctx.out, "\x1b[{}m", color(kind))?;
 	z += unparse::syn_wrap(ctx, s, kind)?;
-	z += fmt::fprint(ctx.out, "\x1b[m")?;
+	if (!no_color) z += fmt::fprint(ctx.out, "\x1b[m")?;
 	return z;
 };
