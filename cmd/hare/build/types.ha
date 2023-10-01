@@ -95,7 +95,9 @@ export fn ctx_finish(ctx: *context) void = {
 	for (let i = 0z; i < len(ctx.defines); i += 1) {
 		ast::ident_free(ctx.defines[i].ident);
 		ast::type_finish(ctx.defines[i]._type);
+		free(ctx.defines[i]._type);
 		ast::expr_finish(ctx.defines[i].init);
+		free(ctx.defines[i].init);
 	};
 	free(ctx.defines);
 	free(ctx.libdirs);

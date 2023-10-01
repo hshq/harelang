@@ -21,7 +21,7 @@ fn parse_type(in: str) ast::_type = {
 	defer store_free(st);
 
 	let atype = parse_type("int");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.repr as builtin == builtin::INT);
 	assert(htype.sz == x86_64._int && htype._align == x86_64._int);
@@ -30,7 +30,7 @@ fn parse_type(in: str) ast::_type = {
 	assert(htype == type2, "types should be singletons");
 
 	let atype = parse_type("*int");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == x86_64._pointer && htype._align == x86_64._pointer);
 	let htype = htype.repr as pointer;
@@ -55,7 +55,7 @@ fn resolve(
 
 	// Basic struct
 	let atype = parse_type("struct { x: int, y: int }");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 8);
 	assert(htype._align == 4);
@@ -75,7 +75,7 @@ fn resolve(
 
 	// Basic union
 	let atype = parse_type("union { x: int, y: int }");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 4);
 	assert(htype._align == 4);
@@ -95,7 +95,7 @@ fn resolve(
 
 	// Padding
 	let atype = parse_type("struct { w: u8, x: u32, y: u8, z: u64 }");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 24);
 	assert(htype._align == 8);
@@ -112,13 +112,13 @@ fn resolve(
 	assert(z.offs == 16);
 
 	let atype = parse_type("struct { x: u8, y: size, z: u8 }");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 24);
 
 	// Sort order
 	let atype = parse_type("struct { z: u8, y: u8, x: u8, q: u8 }");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	let stype = htype.repr as _struct;
 	assert(stype.fields[0].name == "q");
@@ -136,7 +136,7 @@ fn resolve(
 		},
 		p: int,
 	}");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 20);
 	assert(htype._align == 4);
@@ -162,7 +162,7 @@ fn resolve(
 		},
 		p: int,
 	}");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 16);
 	assert(htype._align == 4);
@@ -190,7 +190,7 @@ fn resolve(
 		@offset(16) y: int,
 		@offset(32) z: int,
 	}");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 36);
 	assert(htype._align == 4);
@@ -209,7 +209,7 @@ fn resolve(
 
 	// Basic case
 	let atype = parse_type("(int, int)");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 8);
 	assert(htype._align == 4);
@@ -223,7 +223,7 @@ fn resolve(
 
 	// Padding
 	let atype = parse_type("(i8, i32, i8, i64)");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 24);
 	assert(htype._align == 8);
@@ -241,7 +241,7 @@ fn resolve(
 
 	// Slice
 	let atype = parse_type("[]int");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 24);
 	assert(htype._align == 8);
@@ -250,7 +250,7 @@ fn resolve(
 
 	// Normal array
 	let atype = parse_type("[5]i32");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 4 * 5);
 	assert(htype._align == 4);
@@ -260,7 +260,7 @@ fn resolve(
 
 	// Unbounded array
 	let atype = parse_type("[*]i32");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == SIZE_UNDEFINED);
 	assert(htype._align == 4);
@@ -270,7 +270,7 @@ fn resolve(
 
 	// Contextual array (equivalent to unbounded at this compilation stage)
 	let atype = parse_type("[_]i32");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == SIZE_UNDEFINED);
 	assert(htype._align == 4);
@@ -284,7 +284,7 @@ fn resolve(
 	defer store_free(st);
 
 	let atype = parse_type("fn() never");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == SIZE_UNDEFINED);
 	assert(htype._align == SIZE_UNDEFINED);
@@ -294,7 +294,7 @@ fn resolve(
 	assert(len(f.params) == 0);
 
 	let atype = parse_type("fn(foo: int, bar: str...) int");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == SIZE_UNDEFINED);
 	assert(htype._align == SIZE_UNDEFINED);
@@ -311,7 +311,7 @@ fn resolve(
 	defer store_free(st);
 
 	let atype = parse_type("(int | int | void)");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == st.arch._int * 2);
 	assert(htype._align == st.arch._int);
@@ -321,7 +321,7 @@ fn resolve(
 	assert(t[1].repr as builtin == builtin::VOID);
 
 	let atype = parse_type("(int | (int | str | void))");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	let htype = lookup(st, &atype)!;
 	assert(htype.sz == 32);
 	assert(htype._align == 8);
@@ -344,7 +344,7 @@ fn resolve(
 	assert((al.repr as alias).secondary == of);
 
 	const atype = parse_type("myalias");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	const htype = lookup(st, &atype)!;
 	assert(htype == al);
 };
@@ -354,7 +354,7 @@ fn resolve(
 	defer store_free(st);
 
 	const atype = parse_type("myalias");
-	defer ast::type_finish(atype);
+	defer ast::type_finish(&atype);
 	const htype = lookup(st, &atype)!;
 	assert((htype.repr as alias).secondary == null);
 

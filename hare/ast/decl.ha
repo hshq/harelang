@@ -72,25 +72,33 @@ export fn decl_finish(d: decl) void = {
 			free(g[i].symbol);
 			ident_free(g[i].ident);
 			type_finish(g[i]._type);
+			free(g[i]._type);
 			expr_finish(g[i].init);
+			free(g[i].init);
 		};
 		free(g);
 	case let t: []decl_type =>
 		for (let i = 0z; i < len(t); i += 1) {
 			ident_free(t[i].ident);
-			type_finish(t[i]._type);
+			type_finish(&t[i]._type);
 		};
 		free(t);
 	case let f: decl_func =>
 		free(f.symbol);
 		ident_free(f.ident);
-		type_finish(f.prototype);
-		if (f.body is expr) expr_finish(f.body as expr);
+		type_finish(&f.prototype);
+		match (f.body) {
+		case let e: expr =>
+			expr_finish(&e);
+		case void => void;
+		};
 	case let c: []decl_const =>
 		for (let i = 0z; i < len(c); i += 1) {
 			ident_free(c[i].ident);
 			type_finish(c[i]._type);
+			free(c[i]._type);
 			expr_finish(c[i].init);
+			free(c[i].init);
 		};
 		free(c);
 	};

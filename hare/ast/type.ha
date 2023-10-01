@@ -133,26 +133,19 @@ export type _type = struct {
 		tagged_type | tuple_type),
 };
 
-fn struct_type_finish(t: (struct_type | union_type)) void = {
-	let membs = match (t) {
-	case let s: struct_type =>
-		yield s.members: []struct_member;
-	case let u: union_type =>
-		yield u: []struct_member;
-	};
+fn struct_members_free(membs: []struct_member) void = {
 	for (let i = 0z; i < len(membs); i += 1) {
 		free(membs[i].docs);
-		match (membs[i]._offset) {
-		case null => void;
-		case let e: *expr =>
-			expr_finish(e);
-		};
+		expr_finish(membs[i]._offset);
+		free(membs[i]._offset);
 		match (membs[i].member) {
 		case let f: struct_field =>
 			free(f.name);
 			type_finish(f._type);
+			free(f._type);
 		case let e: struct_embedded =>
-			type_finish(e: *_type);
+			type_finish(e);
+			free(e);
 		case let a: struct_alias =>
 			ident_free(a);
 		};
@@ -161,58 +154,56 @@ fn struct_type_finish(t: (struct_type | union_type)) void = {
 };
 
 // Frees resources associated with a [[_type]].
-export fn type_finish(t: (_type | nullable *_type)) void = {
-	match (t) {
-	case let t: nullable *_type =>
-		match (t) {
-		case null => void;
-		case let t: *_type =>
-			type_finish(*t);
-			free(t);
+export fn type_finish(t: nullable *_type) void = match (t) {
+case null => void;
+case let t: *_type =>
+	match (t.repr) {
+	case let a: alias_type =>
+		ident_free(a.ident);
+	case builtin_type => void;
+	case let e: enum_type =>
+		for (let i = 0z; i < len(e.values); i += 1) {
+			free(e.values[i].name);
+			expr_finish(e.values[i].value);
+			free(e.values[i].value);
 		};
-	case let t: _type =>
-		match (t.repr) {
-		case let a: alias_type =>
-			ident_free(a.ident);
-		case builtin_type => void;
-		case let e: enum_type =>
-			for (let i = 0z; i < len(e.values); i += 1) {
-				free(e.values[i].name);
-				match (e.values[i].value) {
-				case null => void;
-				case let v: *expr =>
-					expr_finish(v);
-				};
-			};
-			free(e.values);
-		case let f: func_type =>
-			type_finish(f.result);
-			for (let i = 0z; i < len(f.params); i += 1) {
-				free(f.params[i].name);
-				type_finish(f.params[i]._type);
-			};
-			free(f.params);
-		case let l: list_type =>
-			match (l.length) {
-			case let e: *expr =>
-				expr_finish(e);
-			case => void;
-			};
-			type_finish(l.members);
-		case let p: pointer_type =>
-			type_finish(p.referent);
-		case let s: (struct_type | union_type) =>
-			struct_type_finish(s);
-		case let t: tagged_type =>
-			for (let i = 0z; i < len(t); i += 1) {
-				type_finish(t[i]);
-			};
-			free(t);
-		case let t: tuple_type =>
-			for (let i = 0z; i < len(t); i += 1) {
-				type_finish(t[i]);
-			};
-			free(t);
+		free(e.values);
+	case let f: func_type =>
+		type_finish(f.result);
+		free(f.result);
+		for (let i = 0z; i < len(f.params); i += 1) {
+			free(f.params[i].name);
+			type_finish(f.params[i]._type);
+			free(f.params[i]._type);
 		};
+		free(f.params);
+	case let l: list_type =>
+		match (l.length) {
+		case let e: *expr =>
+			expr_finish(e);
+			free(e);
+		case => void;
+		};
+		type_finish(l.members);
+		free(l.members);
+	case let p: pointer_type =>
+		type_finish(p.referent);
+		free(p.referent);
+	case let s: struct_type =>
+		struct_members_free(s.members);
+	case let t: tagged_type =>
+		for (let i = 0z; i < len(t); i += 1) {
+			type_finish(t[i]);
+			free(t[i]);
+		};
+		free(t);
+	case let t: tuple_type =>
+		for (let i = 0z; i < len(t); i += 1) {
+			type_finish(t[i]);
+			free(t[i]);
+		};
+		free(t);
+	case let u: union_type =>
+		struct_members_free(u);
 	};
 };
