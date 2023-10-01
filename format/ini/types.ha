@@ -11,7 +11,8 @@ export type syntaxerr = !size;
 // Any error that may occur during parsing.
 export type error = !(io::error | utf8::invalid | syntaxerr);
 
-// Returns a user-friendly representation of [[error]].
+// Returns a user-friendly representation of [[error]]. The result may be
+// statically allocated.
 export fn strerror(err: error) const str = match (err) {
 case let err: io::error =>
 	return io::strerror(err);
