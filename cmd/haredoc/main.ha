@@ -344,6 +344,11 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
 				return true;
 			};
+			const sym = strings::split(d[i].symbol, ".");
+			defer free(sym);
+			if (len(sym) > 0 && sym[len(sym) - 1] == name) {
+				return true;
+			};
 		};
 	case let d: []ast::decl_type =>
 		for (let i = 0z; i < len(d); i += 1) {
