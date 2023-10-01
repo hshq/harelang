@@ -5,10 +5,15 @@ use hare::ast;
 use sort;
 use strings;
 
-// Sorts declarations by removing unexported declarations, moving undocumented
-// declarations to the end, sorting by identifier, and ensuring that only one
-// member is present in each declaration (so that "let x: int = 10, y: int = 20"
-// becomes two declarations: "let x: int = 10; let y: int = 20;").
+// Sorts declarations by:
+// - removing unexported declarations,
+// - setting the "exported" field of all remaining declarations to false, so the
+//   "export" keyword isn't unparsed,
+// - moving undocumented declarations to the end,
+// - sorting by identifier,
+// - removing the initializer from globals and the body from functions,
+// - ensuring that only one member is present in each declaration:
+//   "let x: int, y: int;" becomes two declarations: "let x: int; let y: int;".
 export fn sort_decls(decls: []ast::decl) summary = {
 	let sorted = summary { ... };
 
@@ -20,7 +25,19 @@ export fn sort_decls(decls: []ast::decl) summary = {
 
 		match (decl.decl) {
 		case let f: ast::decl_func =>
-			append(sorted.funcs, decl);
+			append(sorted.funcs, ast::decl {
+				exported = false,
+				start = decl.start,
+				end = decl.end,
+				decl = ast::decl_func {
+					symbol = f.symbol,
+					ident = f.ident,
+					prototype = f.prototype,
+					body = void,
+					attrs = f.attrs,
+				},
+				docs = decl.docs,
+			});
 		case let t: []ast::decl_type =>
 			for (let j = 0z; j < len(t); j += 1) {
 				let bucket = &sorted.types;
@@ -28,7 +45,7 @@ export fn sort_decls(decls: []ast::decl) summary = {
 					bucket = &sorted.errors;
 				};
 				append(bucket, ast::decl {
-					exported = true,
+					exported = false,
 					start = decl.start,
 					end = decl.end,
 					decl = alloc([t[j]]),
@@ -38,7 +55,7 @@ export fn sort_decls(decls: []ast::decl) summary = {
 		case let c: []ast::decl_const =>
 			for (let j = 0z; j < len(c); j += 1) {
 				append(sorted.constants, ast::decl {
-					exported = true,
+					exported = false,
 					start = decl.start,
 					end = decl.end,
 					decl = alloc([c[j]]),
@@ -48,10 +65,17 @@ export fn sort_decls(decls: []ast::decl) summary = {
 		case let g: []ast::decl_global =>
 			for (let j = 0z; j < len(g); j += 1) {
 				append(sorted.globals, ast::decl {
-					exported = true,
+					exported = false,
 					start = decl.start,
 					end = decl.end,
-					decl = alloc([g[j]]),
+					decl = alloc([ast::decl_global {
+						is_const = g[j].is_const,
+						is_threadlocal = g[j].is_threadlocal,
+						symbol = g[j].symbol,
+						ident = g[j].ident,
+						_type = g[j]._type,
+						init = null,
+					}]),
 					docs = decl.docs,
 				});
 			};

@@ -5,16 +5,12 @@
 use encoding::utf8;
 use fmt;
 use hare::ast;
-use hare::ast::{variadism};
-use hare::lex;
-use hare::module;
 use hare::parse::doc;
 use hare::unparse;
 use io;
 use memio;
 use net::ip;
 use net::uri;
-use os;
 use path;
 use strings;
 
@@ -166,32 +162,6 @@ export fn emit_html(ctx: *context) (void | error) = {
 	};
 };
 
-fn comment_html(out: io::handle, s: str) (size | io::error) = {
-	// TODO: handle [[references]]
-	let z = fmt::fprint(out, "<span class='comment'>//")?;
-	z += html_escape(out, s)?;
-	z += fmt::fprint(out, "</span><br>")?;
-	return z;
-};
-
-fn docs_html(out: io::handle, s: str, indent: size) (size | io::error) = {
-	const iter = strings::tokenize(s, "\n");
-	let z = 0z;
-	for (true) match (strings::next_token(&iter)) {
-	case let s: str =>
-		if (!(strings::peek_token(&iter) is void)) {
-			z += comment_html(out, s)?;
-			for (let i = 0z; i < indent; i += 1) {
-				z += fmt::fprint(out, "\t")?;
-			};
-		};
-	case void =>
-		break;
-	};
-
-	return z;
-};
-
 fn tocentries(
 	out: io::handle,
 	decls: []ast::decl,
@@ -213,56 +183,9 @@ fn tocentries(
 				lname)?;
 			undoc = true;
 		};
-		tocentry(out, decls[i])?;
+		unparse::decl(out, &syn_centry, decls[i])?;
 	};
 	fmt::fprint(out, "</pre>")?;
-	return;
-};
-
-fn tocentry(out: io::handle, decl: ast::decl) (void | error) = {
-	fmt::fprintf(out, "{} ",
-		match (decl.decl) {
-		case ast::decl_func =>
-			yield "fn";
-		case []ast::decl_type =>
-			yield "type";
-		case []ast::decl_const =>
-			yield "const";
-		case []ast::decl_global =>
-			yield "let";
-		})?;
-	fmt::fprintf(out, "<a href='#")?;
-	unparse::ident(out, decl_ident(decl))?;
-	fmt::fprintf(out, "'>")?;
-	unparse::ident(out, decl_ident(decl))?;
-	fmt::fprint(out, "</a>")?;
-
-	match (decl.decl) {
-	case let t: []ast::decl_type => void;
-	case let g: []ast::decl_global =>
-		let g = g[0];
-		match (g._type) {
-		case null =>
-			yield;
-		case let ty: *ast::_type =>
-			fmt::fprint(out, ": ")?;
-			type_html(out, 0, *ty, true)?;
-		};
-	case let c: []ast::decl_const =>
-		let c = c[0];
-		match (c._type) {
-		case null =>
-			yield;
-		case let ty: *ast::_type =>
-			fmt::fprint(out, ": ")?;
-			type_html(out, 0, *ty, true)?;
-		};
-	case let f: ast::decl_func =>
-		prototype_html(out, 0,
-			f.prototype.repr as ast::func_type,
-			true)?;
-	};
-	fmt::fprintln(out, ";")?;
 	return;
 };
 
@@ -295,7 +218,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 	};
 
 	fmt::fprintln(ctx.out, "<pre class='decl'>")?;
-	unparse_html(ctx.out, decl)?;
+	unparse::decl(ctx.out, &syn_html, decl)?;
 	fmt::fprintln(ctx.out, "</pre>")?;
 
 	if (len(decl.docs) != 0) {
@@ -416,407 +339,61 @@ fn markup_html(ctx: *context, in: io::handle) (void | error) = {
 	return;
 };
 
-// Forked from [[hare::unparse]]
-fn unparse_html(out: io::handle, d: ast::decl) (size | io::error) = {
-	let n = 0z;
-	match (d.decl) {
-	case let c: []ast::decl_const =>
-		n += fmt::fprintf(out, "<span class='keyword'>def</span> ")?;
-		for (let i = 0z; i < len(c); i += 1) {
-			n += unparse::ident(out, c[i].ident)?;
-			match (c[i]._type) {
-			case null =>
-				yield;
-			case let ty: *ast::_type =>
-				n += fmt::fprint(out, ": ")?;
-				n += type_html(out, 0, *ty, false)?;
-			};
-			if (i + 1 < len(c)) {
-				n += fmt::fprint(out, ", ")?;
-			};
-		};
-	case let g: []ast::decl_global =>
-		n += fmt::fprintf(out, "<span class='keyword'>{}</span>",
-			if (g[0].is_const) "const " else "let ")?;
-		for (let i = 0z; i < len(g); i += 1) {
-			n += unparse::ident(out, g[i].ident)?;
-			match (g[i]._type) {
-			case null =>
-				yield;
-			case let ty: *ast::_type =>
-				n += fmt::fprint(out, ": ")?;
-				n += type_html(out, 0, *ty, false)?;
-			};
-			if (i + 1 < len(g)) {
-				n += fmt::fprint(out, ", ")?;
-			};
-		};
-	case let t: []ast::decl_type =>
-		n += fmt::fprint(out, "<span class='keyword'>type</span> ")?;
-		for (let i = 0z; i < len(t); i += 1) {
-			n += unparse::ident(out, t[i].ident)?;
-			n += fmt::fprint(out, " = ")?;
-			n += type_html(out, 0, t[i]._type, false)?;
-			if (i + 1 < len(t)) {
-				n += fmt::fprint(out, ", ")?;
-			};
-		};
-	case let f: ast::decl_func =>
-		n += fmt::fprint(out, switch (f.attrs) {
-		case ast::fndecl_attrs::NONE =>
-			yield "";
-		case ast::fndecl_attrs::FINI =>
-			yield "@fini ";
-		case ast::fndecl_attrs::INIT =>
-			yield "@init ";
-		case ast::fndecl_attrs::TEST =>
-			yield "@test ";
-		})?;
-		let p = f.prototype.repr as ast::func_type;
-		n += fmt::fprint(out, "<span class='keyword'>fn</span> ")?;
-		n += unparse::ident(out, f.ident)?;
-		n += prototype_html(out, 0,
-			f.prototype.repr as ast::func_type,
-			false)?;
-	};
-	n += fmt::fprint(out, ";")?;
-	return n;
-};
-
-fn enum_html(
-	out: io::handle,
-	indent: size,
-	t: ast::enum_type
+fn syn_centry(
+	ctx: *unparse::context,
+	s: str,
+	kind: unparse::synkind,
 ) (size | io::error) = {
 	let z = 0z;
-
-	z += fmt::fprint(out, "<span class='type'>enum</span> ")?;
-	if (t.storage != ast::builtin_type::INT) {
-		z += fmt::fprintf(out, "<span class='type'>{}</span> ",
-			unparse::builtin_type(t.storage))?;
+	switch (kind) {
+	case unparse::synkind::CONSTANT,
+		unparse::synkind::FUNCTION,
+		unparse::synkind::GLOBAL,
+		unparse::synkind::TYPEDEF =>
+		z += fmt::fprint(ctx.out, "<a href='#")?;
+		z += html_escape(ctx.out, s)?;
+		z += fmt::fprint(ctx.out, "'>")?;
+		z += html_escape(ctx.out, s)?;
+		z += fmt::fprint(ctx.out, "</a>")?;
+		ctx.linelen += len(s);
+		return z;
+	case =>
+		return syn_html(ctx, s, kind);
 	};
-	z += fmt::fprintln(out, "{")?;
-	indent += 1;
-	for (let i = 0z; i < len(t.values); i += 1) {
-		for (let i = 0z; i < indent; i += 1) {
-			z += fmt::fprint(out, "\t")?;
-		};
-		const val = t.values[i];
-		let wrotedocs = false;
-		if (val.docs != "") {
-			// Check if comment should go above or next to field
-			if (multiline_comment(val.docs)) {
-				z += docs_html(out, val.docs, indent)?;
-				wrotedocs = true;
-			};
-		};
-
-		z += fmt::fprint(out, val.name)?;
-
-		match (val.value) {
-		case null => void;
-		case let expr: *ast::expr =>
-			z += fmt::fprint(out, " = ")?;
-			z += unparse::expr(out, &unparse::syn_nowrap, *expr)?;
-		};
-
-		z += fmt::fprint(out, ",")?;
-
-		if (val.docs != "" && !wrotedocs) {
-			z += fmt::fprint(out, " ")?;
-			z += docs_html(out, val.docs, 0)?;
-		} else {
-			z += fmt::fprintln(out)?;
-		};
-	};
-	indent -= 1;
-	for (let i = 0z; i < indent; i += 1) {
-		z += fmt::fprint(out, "\t")?;
-	};
-	z += newline(out, indent)?;
-	z += fmt::fprint(out, "}")?;
-	return z;
 };
 
-fn struct_union_html(
-	out: io::handle,
-	indent: size,
-	t: ast::_type,
-	brief: bool,
+fn syn_html(
+	ctx: *unparse::context,
+	s: str,
+	kind: unparse::synkind,
 ) (size | io::error) = {
 	let z = 0z;
-	let members = match (t.repr) {
-	case let t: ast::struct_type =>
-		z += fmt::fprint(out, "<span class='keyword'>struct</span>")?;
-		if (t.packed) {
-			z += fmt::fprint(out, " @packed")?;
+	const span = switch (kind) {
+	case unparse::synkind::COMMENT =>
+		const stack = ctx.stack as *unparse::stack;
+		if (stack.cur is *ast::decl) {
+			// doc comment is unparsed separately later
+			return 0z;
 		};
-		z += fmt::fprint(out, " {")?;
-		yield t.members: []ast::struct_member;
-	case let t: ast::union_type =>
-		z += fmt::fprint(out, "<span class='keyword'>union</span> {")?;
-		yield t: []ast::struct_member;
+		z += fmt::fprint(ctx.out, "<span class='comment'>")?;
+		yield true;
+	case unparse::synkind::KEYWORD =>
+		z += fmt::fprint(ctx.out, "<span class='keyword'>")?;
+		yield true;
+	case unparse::synkind::TYPE =>
+		z += fmt::fprint(ctx.out, "<span class='type'>")?;
+		yield true;
+	case =>
+		yield false;
 	};
 
-	indent += 1;
-	for (let i = 0z; i < len(members); i += 1) {
-		const member = members[i];
+	z += html_escape(ctx.out, s)?;
+	ctx.linelen += len(s);
 
-		z += newline(out, indent)?;
-		if (member.docs != "" && !brief) {
-			z += docs_html(out, member.docs, indent)?;
-		};
-		match (member._offset) {
-		case null => void;
-		case let expr: *ast::expr =>
-			z += fmt::fprint(out, "@offset(")?;
-			z += unparse::expr(out, &unparse::syn_nowrap, *expr)?;
-			z += fmt::fprint(out, ") ")?;
-		};
-
-		match (member.member) {
-		case let f: ast::struct_field =>
-			z += fmt::fprintf(out, "{}: ", f.name)?;
-			z += type_html(out, indent, *f._type, brief)?;
-		case let embed: ast::struct_embedded =>
-			z += type_html(out, indent, *embed, brief)?;
-		case let indent: ast::struct_alias =>
-			z += unparse::ident(out, indent)?;
-		};
-		z += fmt::fprint(out, ",")?;
+	if (span) {
+		z += fmt::fprint(ctx.out, "</span>")?;
 	};
-
-	indent -= 1;
-	z += newline(out, indent)?;
-	z += fmt::fprint(out, "}")?;
-
 	return z;
-};
-
-fn type_html(
-	out: io::handle,
-	indent: size,
-	_type: ast::_type,
-	brief: bool,
-) (size | io::error) = {
-	if (brief) {
-		let buf = memio::dynamic();
-		defer io::close(&buf)!;
-		unparse::_type(&buf, &unparse::syn_nowrap, _type)?;
-		return html_escape(out, memio::string(&buf)!)?;
-	};
-
-	// TODO: More detailed formatter which can find aliases nested deeper in
-	// other types and highlight more keywords, like const
-	let z = 0z;
-
-	if (_type.flags & ast::type_flag::CONST != 0
-			&& !(_type.repr is ast::func_type)) {
-		z += fmt::fprint(out, "<span class='keyword'>const</span> ")?;
-	};
-
-	if (_type.flags & ast::type_flag::ERROR != 0) {
-		if (_type.repr is ast::builtin_type) {
-			z += fmt::fprint(out, "<span class='type'>!</span>")?;
-		} else {
-			z += fmt::fprint(out, "!")?;
-		};
-	};
-
-	match (_type.repr) {
-	case let a: ast::alias_type =>
-		if (a.unwrap) {
-			z += fmt::fprint(out, "...")?;
-		};
-		z += unparse::ident(out, a.ident)?;
-	case let t: ast::builtin_type =>
-		z += fmt::fprintf(out, "<span class='type'>{}</span>",
-			unparse::builtin_type(t))?;
-	case let t: ast::tagged_type =>
-		// rough estimate of current line length
-		let linelen: size = z + (indent + 1) * 8;
-		z = 0;
-		linelen += fmt::fprint(out, "(")?;
-		for (let i = 0z; i < len(t); i += 1) {
-			linelen += type_html(out, indent, *t[i], brief)?;
-			if (i + 1 == len(t)) {
-				break;
-			};
-			linelen += fmt::fprint(out, " |")?;
-			// use 72 instead of 80 to give a bit of leeway for long
-			// type names
-			if (linelen > 72) {
-				z += linelen;
-				linelen = (indent + 1) * 8;
-				z += fmt::fprintln(out)?;
-				for (let i = 0z; i < indent; i += 1) {
-					z += fmt::fprint(out, "\t")?;
-				};
-			} else {
-				linelen += fmt::fprint(out, " ")?;
-			};
-		};
-		z += linelen;
-		z += fmt::fprint(out, ")")?;
-	case let t: ast::tuple_type =>
-		// rough estimate of current line length
-		let linelen: size = z + (indent + 1) * 8;
-		z = 0;
-		linelen += fmt::fprint(out, "(")?;
-		for (let i = 0z; i < len(t); i += 1) {
-			linelen += type_html(out, indent, *t[i], brief)?;
-			if (i + 1 == len(t)) {
-				break;
-			};
-			linelen += fmt::fprint(out, ",")?;
-			// use 72 instead of 80 to give a bit of leeway for long
-			// type names
-			if (linelen > 72) {
-				z += linelen;
-				linelen = (indent + 1) * 8;
-				z += fmt::fprintln(out)?;
-				for (let i = 0z; i < indent; i += 1) {
-					z += fmt::fprint(out, "\t")?;
-				};
-			} else {
-				linelen += fmt::fprint(out, " ")?;
-			};
-		};
-		z += linelen;
-		z += fmt::fprint(out, ")")?;
-	case let t: ast::pointer_type =>
-		if (t.flags & ast::pointer_flag::NULLABLE != 0) {
-			z += fmt::fprint(out, "<span class='type'>nullable</span> ")?;
-		};
-		z += fmt::fprint(out, "*")?;
-		z += type_html(out, indent, *t.referent, brief)?;
-	case let t: ast::func_type =>
-		z += fmt::fprint(out, "<span class='keyword'>fn</span>(")?;
-		for (let i = 0z; i < len(t.params); i += 1) {
-			const param = t.params[i];
-			z += fmt::fprintf(out, "{}: ",
-				if (len(param.name) == 0) "_" else param.name)?;
-			z += type_html(out, indent, *param._type, brief)?;
-
-			if (i + 1 == len(t.params)
-					&& t.variadism == ast::variadism::HARE) {
-				// TODO: Highlight that as well
-				z += fmt::fprint(out, "...")?;
-			};
-			if (i + 1 < len(t.params)) {
-				z += fmt::fprint(out, ", ")?;
-			};
-		};
-		if (t.variadism == ast::variadism::C) {
-			z += fmt::fprint(out, ", ...")?;
-		};
-		z += fmt::fprint(out, ") ")?;
-		z += type_html(out, indent, *t.result, brief)?;
-	case let t: ast::enum_type =>
-		z += enum_html(out, indent, t)?;
-	case let t: ast::list_type =>
-		z += fmt::fprint(out, "[")?;
-		match (t.length) {
-		case let expr: *ast::expr =>
-			z += unparse::expr(out, &unparse::syn_nowrap, *expr)?;
-		case ast::len_slice =>
-			z += 0;
-		case ast::len_unbounded =>
-			z += fmt::fprintf(out, "*")?;
-		case ast::len_contextual =>
-			z += fmt::fprintf(out, "_")?;
-		};
-		z += fmt::fprint(out, "]")?;
-
-		z += type_html(out, indent, *t.members, brief)?;
-	case let t: ast::struct_type =>
-		z += struct_union_html(out, indent, _type, brief)?;
-	case let t: ast::union_type =>
-		z += struct_union_html(out, indent, _type, brief)?;
-	};
-
-	return z;
-};
-
-fn prototype_html(
-	out: io::handle,
-	indent: size,
-	t: ast::func_type,
-	brief: bool,
-) (size | io::error) = {
-	let n = 0z;
-	n += fmt::fprint(out, "(")?;
-
-	// estimate length of prototype to determine if it should span multiple
-	// lines
-	const linelen = if (len(t.params) == 0 || brief) {
-		yield 0z; // If no parameters or brief, only use one line.
-	} else {
-		let linelen = indent * 8 + 5;
-		linelen += if (len(t.params) != 0) len(t.params) * 3 - 1 else 0;
-		for (let i = 0z; i < len(t.params); i += 1) {
-			const param = t.params[i];
-			linelen += unparse::_type(io::empty,
-				&unparse::syn_nowrap, *param._type)?;
-			linelen += if (param.name == "") 1 else len(param.name);
-		};
-		switch (t.variadism) {
-		case variadism::NONE => void;
-		case variadism::HARE =>
-			linelen += 3;
-		case variadism::C =>
-			linelen += 5;
-		};
-		linelen += unparse::_type(io::empty,
-			&unparse::syn_nowrap, *t.result)?;
-		yield linelen;
-	};
-
-	// use 72 instead of 80 to give a bit of leeway for preceding text
-	if (linelen > 72) {
-		indent += 1;
-		for (let i = 0z; i < len(t.params); i += 1) {
-			const param = t.params[i];
-			n += newline(out, indent)?;
-			n += fmt::fprintf(out, "{}: ",
-				if (param.name == "") "_" else param.name)?;
-			n += type_html(out, indent, *param._type, brief)?;
-			if (i + 1 == len(t.params)
-					&& t.variadism == variadism::HARE) {
-				n += fmt::fprint(out, "...")?;
-			} else {
-				n += fmt::fprint(out, ",")?;
-			};
-		};
-		if (t.variadism == variadism::C) {
-			n += newline(out, indent)?;
-			n += fmt::fprint(out, "...")?;
-		};
-		indent -= 1;
-		n += newline(out, indent)?;
-	} else for (let i = 0z; i < len(t.params); i += 1) {
-		const param = t.params[i];
-		if (!brief) {
-			n += fmt::fprintf(out, "{}: ",
-				if (param.name == "") "_" else param.name)?;
-		};
-		n += type_html(out, indent, *param._type, brief)?;
-		if (i + 1 == len(t.params)) {
-			switch (t.variadism) {
-			case variadism::NONE => void;
-			case variadism::HARE =>
-				n += fmt::fprint(out, "...")?;
-			case variadism::C =>
-				n += fmt::fprint(out, ", ...")?;
-			};
-		} else {
-			n += fmt::fprint(out, ", ")?;
-		};
-	};
-
-	n += fmt::fprint(out, ") ")?;
-	n += type_html(out, indent, *t.result, brief)?;
-	return n;
 };
 
 fn breadcrumb(ident: ast::ident) str = {
