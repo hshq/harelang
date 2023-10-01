@@ -81,7 +81,7 @@ bootstrap:
 	@BINOUT=$(BINOUT) ./scripts/genbootstrap
 
 clean:
-	$(RM) -rf '$(HARECACHE)' '$(BINOUT)' docs/hare.1 docs/haredoc.1 \
+	rm -rf -- '$(HARECACHE)' '$(BINOUT)' docs/hare.1 docs/haredoc.1 \
 		docs/hare-doc.5 docs/html
 
 check: $(BINOUT)/hare
@@ -103,17 +103,17 @@ install-cmd:
 	install -m644 docs/hare-doc.5 '$(DESTDIR)$(MANDIR)/man5/hare-doc.5'
 
 install-mods:
-	$(RM) -rf -- '$(DESTDIR)$(STDLIB)'
+	rm -rf -- '$(DESTDIR)$(STDLIB)'
 	mkdir -p -- '$(DESTDIR)$(STDLIB)'
 	cp -R -- $$(scripts/moddirs) '$(DESTDIR)$(STDLIB)'
 
 uninstall:
-	$(RM) -- '$(DESTDIR)$(BINDIR)/hare'
-	$(RM) -- '$(DESTDIR)$(BINDIR)/haredoc'
-	$(RM) -- '$(DESTDIR)$(MANDIR)/man1/hare.1'
-	$(RM) -- '$(DESTDIR)$(MANDIR)/man1/haredoc.1'
-	$(RM) -- '$(DESTDIR)$(MANDIR)/man5/hare-doc.5'
-	$(RM) -r -- '$(DESTDIR)$(STDLIB)'
+	rm -- '$(DESTDIR)$(BINDIR)/hare'
+	rm -- '$(DESTDIR)$(BINDIR)/haredoc'
+	rm -- '$(DESTDIR)$(MANDIR)/man1/hare.1'
+	rm -- '$(DESTDIR)$(MANDIR)/man1/haredoc.1'
+	rm -- '$(DESTDIR)$(MANDIR)/man5/hare-doc.5'
+	rm -r -- '$(DESTDIR)$(STDLIB)'
 
 .PHONY: all $(BINOUT)/harec2 $(BINOUT)/haredoc bootstrap clean check docs \
 	docs/html install start uninstall
