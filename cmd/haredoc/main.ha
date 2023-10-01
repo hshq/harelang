@@ -192,14 +192,16 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		ctx.out = init_tty(&ctx);
 	};
 
-	emit(&ctx)?;
+	const ret = emit(&ctx);
 
-	io::close(ctx.out)?;
+	io::close(ctx.out)!;
 	match (ctx.pager) {
 	case void => void;
 	case let proc: exec::process =>
 		exec::wait(&proc)!;
 	};
+
+	return ret;
 };
 
 // Nearly identical to parse::identstr, except alphanumeric lexical tokens are
