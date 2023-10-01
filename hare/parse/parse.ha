@@ -10,7 +10,8 @@ use memio;
 // All possible error types.
 export type error = !lex::error;
 
-// Convert an error into a human-friendly string.
+// Convert an error into a human-friendly string. The result may be statically
+// allocated.
 export fn strerror(err: error) const str = lex::strerror(err: lex::error);
 
 fn syntaxerr(

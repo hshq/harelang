@@ -8,11 +8,25 @@ use memio;
 
 // Unparses an identifier.
 export fn ident(out: io::handle, id: ast::ident) (size | io::error) = {
+	let ctx = context {
+		out = out,
+		...
+	};
+	return _ident(&ctx, &syn_nowrap, id, synkind::IDENT);
+};
+
+fn _ident(
+	ctx: *context,
+	syn: *synfunc,
+	id: ast::ident,
+	kind: synkind,
+) (size | io::error) = {
 	let n = 0z;
 	for (let i = 0z; i < len(id); i += 1) {
-		n += fmt::fprintf(out, "{}{}", id[i],
-			if (i + 1 < len(id)) "::"
-			else "")?;
+		n += syn(ctx, id[i], kind)?;
+		if (i + 1 < len(id)) {
+			n += syn(ctx, "::", kind)?;
+		};
 	};
 	return n;
 };

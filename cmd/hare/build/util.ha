@@ -152,10 +152,11 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 		case null => void;
 		case let t: *ast::_type =>
 			memio::concat(&buf, ":")!;
-			unparse::_type(&buf, 0, *t)!;
+			unparse::_type(&buf, &unparse::syn_nowrap, *t)!;
 		};
 		memio::concat(&buf, "=")!;
-		unparse::expr(&buf, 0, *ctx.defines[i].init)!;
+		unparse::expr(&buf, &unparse::syn_nowrap,
+			*ctx.defines[i].init)!;
 		append(flags, memio::string(&buf)!);
 	};
 

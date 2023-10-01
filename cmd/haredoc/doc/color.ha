@@ -2,96 +2,107 @@
 // (c) Hare authors <https://harelang.org>
 
 use ascii;
-use fmt;
+use hare::unparse;
 use io;
 use os;
 use regex;
 use strings;
 
-// Syntax type
-type syn = enum uint {
-	NORMAL,
-	COMMENT,
-	PRIMARY,
-	CONSTANT,
-	FUNCTION,
-	GLOBAL,
-	TYPEDEF,
-	SECONDARY,
-	KEYWORD,
-	TYPE,
-	ATTRIBUTE,
-	OPERATOR,
-	PUNCTUATION,
-	STRING,
-	NUMBER,
-};
-
 // Colors/Renditions with defaults; SGR parameters for ANSI escape sequences.
-let COLORS: [_](str, str) = [
-	("normal"      ,  "0"),
-	("comment"     ,  "1"),
-	("primary"     ,  "0"),
-	("constant"    ,  "0"),
-	("function"    ,  "0"),
-	("global"      ,  "0"),
-	("typedef"     ,  "0"),
-	("secondary"   ,  "0"),
-	("keyword"     , "94"),
-	("type"        , "96"),
-	("attribute"   , "33"),
-	("operator"    ,  "1"),
-	("punctuation" ,  "0"),
-	("string"      , "91"),
-	("number"      , "95"),
+let colors: [_]str = [
+	"0",  // ident
+	"1",  // comment
+	"0",  // constant
+	"0",  // function
+	"0",  // global
+	"0",  // typedef
+	"0",  // import_alias
+	"0",  // secondary
+	"94", // keyword
+	"96", // type
+	"33", // attribute
+	"1",  // operator
+	"0",  // punctuation
+	"91", // rune_string
+	"95", // number
+	"0",  // label
 ];
 
-fn init_colors() void = {
+let normal_color = "0";
+let primary_color = "0";
+
+fn init_colors() (void | error) = {
 	const env_colors = os::tryenv("HAREDOC_COLORS", "");
 
-	const expr = regex::compile(`([a-z][a-z]*)=(_|[0-9;]*)`)!;
+	const expr = regex::compile(`([a-z_]+)=(_|[0-9;]*)`)!;
 	defer regex::finish(&expr);
 
 	const matches = regex::findall(&expr, env_colors);
 	defer regex::result_freeall(matches);
 
 	for (let i = 0z; i < len(matches); i += 1) :colors {
-		const (k, v)  = (matches[i][1].content, matches[i][2].content);
-
-		let idx = 0z;
-		for (let j = 0z; j < len(COLORS); j += 1) {
-			if (k == COLORS[j].0) {
-				idx = j;
-				break;
-			} else if (j == len(COLORS) - 1) {
-				fmt::fatalf(
-					"Error parsing HAREDOC_COLORS, "
-					"invalid key '{}'", k,
-				);
-			};
-		};
-
-		if (v == "_") {
-			COLORS[idx] = if (k == "normal") (k, "0") else (k, v);
-			continue;
-		};
+		let (k, v)  = (matches[i][1].content, matches[i][2].content);
 		if (v == "") {
 			continue;
 		};
 
-		COLORS[idx] = (k, v);
+		let idx = 0z;
+		let out: *str = switch (k) {
+		case "ident" =>
+			yield &colors[unparse::synkind::IDENT];
+		case "comment" =>
+			yield &colors[unparse::synkind::COMMENT];
+		case "constant" =>
+			yield &colors[unparse::synkind::CONSTANT];
+		case "function" =>
+			yield &colors[unparse::synkind::FUNCTION];
+		case "global" =>
+			yield &colors[unparse::synkind::GLOBAL];
+		case "typedef" =>
+			yield &colors[unparse::synkind::TYPEDEF];
+		case "import_alias" =>
+			yield &colors[unparse::synkind::IMPORT_ALIAS];
+		case "secondary" =>
+			yield &colors[unparse::synkind::SECONDARY];
+		case "keyword" =>
+			yield &colors[unparse::synkind::KEYWORD];
+		case "type" =>
+			yield &colors[unparse::synkind::TYPE];
+		case "attribute" =>
+			yield &colors[unparse::synkind::ATTRIBUTE];
+		case "operator" =>
+			yield &colors[unparse::synkind::OPERATOR];
+		case "punctuation" =>
+			yield &colors[unparse::synkind::PUNCTUATION];
+		case "rune_string" =>
+			yield &colors[unparse::synkind::RUNE_STRING];
+		case "number" =>
+			yield &colors[unparse::synkind::NUMBER];
+		case "label" =>
+			yield &colors[unparse::synkind::LABEL];
+		case "normal" =>
+			yield &normal_color;
+		case "primary" =>
+			yield &primary_color;
+		case =>
+			return k: haredoc_colors_error;
+		};
+
+		*out = if (v == "_" && k != "normal") "0" else v;
 	};
 };
 
-fn render(h: io::handle, syntax: syn) (size | io::error) = {
-	if (COLORS[syntax].1 == "_") {
-		syntax = switch (syntax) {
-		case syn::CONSTANT, syn::FUNCTION, syn::GLOBAL, syn::TYPEDEF =>
-			yield if (COLORS[syn::PRIMARY].1 == "_") syn::NORMAL
-				else syn::PRIMARY;
-		case =>
-			yield syn::NORMAL;
-		};
+fn color(kind: unparse::synkind) str = {
+	if (colors[kind] != "_") {
+		return colors[kind];
 	};
-	return fmt::fprintf(h, "\x1b[0;{}m", COLORS[syntax].1)?;
+	switch (kind) {
+	case unparse::synkind::CONSTANT,
+		unparse::synkind::FUNCTION,
+		unparse::synkind::GLOBAL,
+		unparse::synkind::TYPEDEF =>
+		return primary_color;
+	case =>
+		return normal_color;
+	};
 };

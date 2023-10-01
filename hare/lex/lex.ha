@@ -42,7 +42,8 @@ export type syntax = !(location, str);
 // All possible lexer errors
 export type error = !(io::error | syntax);
 
-// Returns a human-friendly string for a given error
+// Returns a human-friendly string for a given error. The result may be
+// statically allocated.
 export fn strerror(err: error) const str = {
 	static let buf: [2048]u8 = [0...];
 	match (err) {

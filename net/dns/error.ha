@@ -62,6 +62,8 @@ export type error = !(format | server_failure | name_error
 	| errors::invalid | errors::overflow | errors::timeout
 	| net::error | io::error);
 
+// Converts an error into a human-friendly string. The result may be statically
+// allocated.
 export fn strerror(err: error) const str = {
 	static let buf: [64]u8 = [0...];
 	match (err) {

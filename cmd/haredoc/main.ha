@@ -93,92 +93,135 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		fmt::fatal("Option -a must be used only with -Fhare or -Ftty");
 	};
 
-	let decls: []ast::decl = [];
-	defer free(decls);
-
 	let ctx = module::context {
 		harepath = harepath(),
 		harecache = harecache(),
 		tags = tags,
 	};
 
-	let decl = "";
-	let (modpath, srcs, id) = if (len(cmd.args) == 0) {
-		let (modpath, srcs) = module::find(&ctx, []: ast::ident)?;
-		yield (modpath, srcs, []: ast::ident);
+	let declpath = "";
+	defer free(declpath);
+	let declsrcs = module::srcset { ... };
+	defer module::finish_srcset(&declsrcs);
+	let modpath = "";
+	defer free(modpath);
+	let modsrcs = module::srcset { ... };
+	defer module::finish_srcset(&modsrcs);
+	let id: ast::ident = [];
+	defer free(id);
+
+	if (len(cmd.args) == 0) {
+		let (p, s) = module::find(&ctx, []: ast::ident)?;
+		modpath = strings::dup(p);
+		modsrcs = s;
 	} else match (parseident(cmd.args[0])) {
-	case let id: ast::ident =>
-		// first assume it's a module
-		yield match (module::find(&ctx, id)) {
-		case let r: (str, module::srcset) =>
-			yield (r.0, r.1, id);
+	case let ident: (ast::ident, bool) =>
+		id = ident.0;
+		const trailing = ident.1;
+		if (!trailing) {
+			// check if it's an ident inside a module
+			match (module::find(&ctx, id[..len(id)-1])) {
+			case let s: (str, module::srcset) =>
+				declpath = strings::dup(s.0);
+				declsrcs = s.1;
+			case let e: module::error =>
+				module::finish_error(e);
+			};
+		};
+		// check if it's a module
+		match (module::find(&ctx, id)) {
+		case let s: (str, module::srcset) =>
+			modpath = strings::dup(s.0);
+			modsrcs = s.1;
 		case let e: module::error =>
 			module::finish_error(e);
-			// then assume it's an ident inside a module
-			decl = id[len(id)-1];
-			id = id[..len(id)-1];
-			let (modpath, srcs) = module::find(&ctx, id)?;
-			yield (modpath, srcs, id);
+			if (declpath == "") {
+				const id = unparse::identstr(id);
+				fmt::fatalf("Could not find {}{}", id,
+					if (trailing) "::" else "");
+			};
 		};
-	case =>
-		let buf = path::buffer { ... };
-		path::set(&buf, cmd.args[0])?;
-		let (modpath, srcs) = module::find(&ctx, &buf)?;
-		yield (modpath, srcs, []: ast::ident);
+	case void =>
+		let buf = path::init(cmd.args[0])?;
+		let (p, s) = module::find(&ctx, &buf)?;
+		modpath = strings::dup(p);
+		modsrcs = s;
 	};
 
-	for (let i = 0z; i < len(srcs.ha); i += 1) {
-		let u = doc::scan(srcs.ha[i])?;
-		ast::imports_finish(u.imports);
-		append(decls, u.decls...);
+	let decls: []ast::decl = [];
+	defer {
+		for (let i = 0z; i < len(decls); i += 1) {
+			ast::decl_finish(decls[i]);
+		};
+		free(decls);
 	};
 
-	const rpath = path::init(modpath, "README")!;
-	const readme: (io::file | void) = if (decl == "") {
-		yield match (os::open(path::string(&rpath))) {
-		case let err: fs::error =>
-			yield void;
-		case let f: io::file =>
-			yield f;
+	if (declpath != "") {
+		for (let i = 0z; i < len(declsrcs.ha); i += 1) {
+			let u = doc::scan(declsrcs.ha[i])?;
+			ast::imports_finish(u.imports);
+			append(decls, u.decls...);
 		};
-	} else void;
+		let new: []ast::decl = [];
+		for (let i = 0z; i < len(decls); i += 1) {
+			if (has_decl(decls[i], id[len(id) - 1])) {
+				append(new, decls[i]);
+			} else {
+				ast::decl_finish(decls[i]);
+			};
+		};
+		free(decls);
+		decls = new;
+		if (len(new) == 0) {
+			if (modpath == "") {
+				const id = unparse::identstr(id);
+				fmt::fatalf("Could not find {}", id);
+			};
+		} else {
+			show_undocumented = true;
+		};
+	};
 
+	let readme: (io::file | void) = void;
 	defer match (readme) {
 	case void => void;
 	case let f: io::file =>
 		io::close(f)!;
 	};
 
-	if (decl != "") {
-		let new: []ast::decl = [];
-		for (let i = 0z; i < len(decls); i += 1) {
-			if (has_decl(decls[i], decl)) {
-				append(new, decls[i]);
-			} else {
-				ast::decl_finish(decls[i]);
-			};
-		};
-		if (len(new) == 0) {
-			fmt::fatalf("Could not find {}::{}",
-				unparse::identstr(id), decl);
-		};
-		free(decls);
-		decls = new;
+	const ambiguous = modpath != "" && len(decls) > 0;
 
-		show_undocumented = true;
+	if (len(decls) == 0) {
+		for (let i = 0z; i < len(modsrcs.ha); i += 1) {
+			let u = doc::scan(modsrcs.ha[i])?;
+			ast::imports_finish(u.imports);
+			append(decls, u.decls...);
+		};
+
+		const rpath = path::init(modpath, "README")!;
+		match (os::open(path::string(&rpath))) {
+		case let f: io::file =>
+			readme = f;
+		case fs::error => void;
+		};
 	};
 
-	defer for (let i = 0z; i < len(decls); i += 1) {
-		ast::decl_finish(decls[i]);
-	};
-
+	const submods: []str = if (!ambiguous && modpath != "") {
+		yield match (doc::submodules(modpath)) {
+		case let s: []str =>
+			yield s;
+		case doc::error =>
+			yield [];
+		};
+	} else [];
+	const srcs = if (!ambiguous && modpath != "") modsrcs else declsrcs;
 	const ctx = doc::context {
 		mctx = &ctx,
 		ident = id,
 		tags = tags,
-		modpath = modpath,
+		ambiguous = ambiguous,
 		srcs = srcs,
-		submods = if (decl == "") doc::submodules(modpath)? else [],
+		submods = submods,
 		summary = doc::sort_decls(decls),
 		format = fmt,
 		template = template,
@@ -192,44 +235,47 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		ctx.out = init_tty(&ctx);
 	};
 
-	emit(&ctx)?;
+	const ret = emit(&ctx);
 
-	io::close(ctx.out)?;
+	io::close(ctx.out)!;
 	match (ctx.pager) {
 	case void => void;
 	case let proc: exec::process =>
 		exec::wait(&proc)!;
 	};
+
+	return ret;
 };
 
 // Nearly identical to parse::identstr, except alphanumeric lexical tokens are
 // converted to strings and there must be no trailing tokens that don't belong
 // to the ident in the string. For example, this function will parse `rt::abort`
 // as a valid identifier.
-fn parseident(in: str) (ast::ident | parse::error) = {
+fn parseident(in: str) ((ast::ident, bool) | void) = {
 	const buf = memio::fixed(strings::toutf8(in));
 	const lexer = lex::init(&buf, "<string>");
 	defer lex::finish(&lexer);
-	// XXX: errdefer
 	let success = false;
 	let ident: ast::ident = [];
 	defer if (!success) ast::ident_free(ident);
+	let trailing = false;
 	let z = 0z;
 	for (true) {
-		const tok = lex::lex(&lexer)?;
+		const tok = lex::lex(&lexer)!;
 		const name = if (tok.0 == lex::ltok::NAME) {
 			yield tok.1 as str;
 		} else if (tok.0 < lex::ltok::LAST_KEYWORD) {
 			yield strings::dup(lex::tokstr(tok));
+		} else if (tok.0 == lex::ltok::EOF && len(ident) > 0) {
+			trailing = true;
+			break;
 		} else {
 			lex::unlex(&lexer, tok);
-			const loc = lex::mkloc(&lexer);
-			const why = "Unexpected trailing :: in ident";
-			return (loc, why): lex::syntax: parse::error;
+			return;
 		};
 		append(ident, name);
 		z += len(name);
-		const tok = lex::lex(&lexer)?;
+		const tok = lex::lex(&lexer)!;
 		switch (tok.0) {
 		case lex::ltok::EOF =>
 			break;
@@ -237,19 +283,14 @@ fn parseident(in: str) (ast::ident | parse::error) = {
 			z += 1;
 		case =>
 			lex::unlex(&lexer, tok);
-			const loc = lex::mkloc(&lexer);
-			const why = fmt::asprintf("Unexpected '{}' in ident",
-				lex::tokstr(tok));
-			return (loc, why): lex::syntax: parse::error;
+			return;
 		};
 	};
 	if (z > ast::IDENT_MAX) {
-		const loc = lex::mkloc(&lexer);
-		const why = "Identifier exceeds maximum length";
-		return (loc, why): lex::syntax: parse::error;
+		return;
 	};
 	success = true;
-	return ident;
+	return (ident, trailing);
 };
 
 fn init_tty(ctx: *doc::context) io::handle = {
@@ -308,6 +349,11 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
 				return true;
 			};
+			const sym = strings::split(d[i].symbol, ".");
+			defer free(sym);
+			if (len(sym) > 0 && sym[len(sym) - 1] == name) {
+				return true;
+			};
 		};
 	case let d: []ast::decl_type =>
 		for (let i = 0z; i < len(d); i += 1) {
@@ -331,10 +377,16 @@ fn emit(ctx: *doc::context) (void | error) = {
 };
 
 @test fn parseident() void = {
-	assert(ast::ident_eq(parseident("hare::lex") as ast::ident,
-		["hare", "lex"]));
-	assert(ast::ident_eq(parseident("rt::abort") as ast::ident,
-		["rt", "abort"]));
-	assert(parseident("strings::dup*{}&@") is parse::error);
-	assert(parseident("foo::bar::") is parse::error);
+	let (ident, trailing) = parseident("hare::lex") as (ast::ident, bool);
+	assert(ast::ident_eq(ident, ["hare", "lex"]));
+	assert(!trailing);
+	let (ident, trailing) = parseident("rt::abort") as (ast::ident, bool);
+	assert(ast::ident_eq(ident, ["rt", "abort"]));
+	assert(!trailing);
+	let (ident, trailing) = parseident("foo::bar::") as (ast::ident, bool);
+	assert(ast::ident_eq(ident, ["foo", "bar"]));
+	assert(trailing);
+	assert(parseident("strings::dup*{}&@") is void);
+	assert(parseident("") is void);
+	assert(parseident("::") is void);
 };

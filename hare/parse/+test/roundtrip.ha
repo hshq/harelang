@@ -42,7 +42,7 @@ fn _roundtrip(src: str) str = {
 	};
 	defer ast::subunit_finish(u);
 	let out = memio::dynamic();
-	let z = unparse::subunit(&out, u) as size;
+	let z = unparse::subunit(&out, &unparse::syn_wrap, u)!;
 	let unsrc = memio::string(&out)!;
 	assert(z == len(unsrc));
 	return unsrc;

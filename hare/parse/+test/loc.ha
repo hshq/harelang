@@ -18,9 +18,10 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	case let exp: ast::expr =>
 		yield exp;
 	case let err: error =>
-		fmt::fatalf("{}: {}", srcs[i], strerror(err));
+		fmt::errorfln("{}: {}", srcs[i], strerror(err))!;
+		abort();
 	};
-	defer ast::expr_finish(exp);
+	defer ast::expr_finish(&exp);
 	let runes = 0z;
 	let d = utf8::decode(srcs[i]);
 	for (true) match (utf8::next(&d)!) {
@@ -42,8 +43,6 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	expr_testloc("foo is bar", "foo as bar");
 	expr_testloc("foo = bar");
 	expr_testloc("foo * bar", "foo && bar");
-	expr_testloc("let foo: bar = baz", "let foo: bar = baz, quux = quuux",
-		"const foo: bar = baz", "const foo: bar = baz, quux = quuux");
 	expr_testloc("break", "break :foo");
 	expr_testloc("foo(bar)");
 	expr_testloc("foo: bar");
@@ -54,7 +53,6 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	expr_testloc("[foo, bar]");
 	expr_testloc("123", "-123.456", "123z", "123e+3");
 	expr_testloc("continue", "continue :foo");
-	expr_testloc("defer foo");
 	expr_testloc("delete(foo[bar])", "delete(foo[bar..baz])");
 	expr_testloc("for (let foo = 0; bar; baz) quux",
 		"for (let bar = 0; baz; quux) quuux");
@@ -62,7 +60,9 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	expr_testloc("if (foo) bar", "if (foo) bar else baz");
 	expr_testloc("insert(foo[0], bar)", "insert(foo[0], bar, baz)");
 	expr_testloc("len(foo)");
-	expr_testloc("{ foo; bar; }");
+	expr_testloc("{ foo; bar; }", "{ defer foo; }",
+		"{ let foo: bar = baz; }", "{ let foo: bar = baz, quux = quuux; }",
+		"{ const foo: bar = baz; }", "{ const foo: bar = baz, quux = quuux; }");
 	expr_testloc("match (foo) { case => bar; }");
 	expr_testloc("offset(foo)");
 	expr_testloc("foo?", "foo!");
@@ -86,7 +86,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 		fmt::errorln(strerror(err))!;
 		abort();
 	};
-	defer ast::expr_finish(exp);
+	defer ast::expr_finish(&exp);
 	assert(exp.start.line == 1 && exp.start.col == 1);
 	assert(exp.end.line == 1 && exp.end.col == 13);
 	let c = exp.expr as ast::cast_expr;
@@ -110,7 +110,7 @@ fn type_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 		fmt::errorln(strerror(err))!;
 		abort();
 	};
-	defer ast::type_finish(typ);
+	defer ast::type_finish(&typ);
 	let runes = 0z;
 	let d = utf8::decode(srcs[i]);
 	for (true) match (utf8::next(&d)!) {

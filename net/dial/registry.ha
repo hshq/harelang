@@ -17,7 +17,8 @@ export type unknown_service = !void;
 export type error = !(invalid_address | unknown_service | net::error | dns::error
 	| hosts::error);
 
-// Converts an [[error]] to a human-readable string.
+// Converts an [[error]] to a human-readable string. The result may be
+// statically allocated.
 export fn strerror(err: error) const str = {
 	// TODO: These could be better
 	match (err) {

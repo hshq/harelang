@@ -9,7 +9,7 @@ use os;
 use strings;
 
 fn merge_tags(current: *[]str, new: str) (void | module::error) = {
-	let trimmed = strings::ltrim(new, '^');
+	let trimmed = strings::trimprefix(new, "^");
 	if (trimmed != new) {
 		strings::freeall(*current);
 		*current = [];

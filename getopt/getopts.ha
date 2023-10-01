@@ -62,19 +62,31 @@ export type error = !(
 	(requires_arg | unknown_option | unknown_subcmd),
 );
 
+// Converts a parsing error into a human-friendly string. The result may be
+// statically allocated.
+export fn strerror(err: error) str = {
+	static let buf: [1024]u8 = [0...];
+	match (err.2) {
+	case let r: requires_arg =>
+		return fmt::bsprintf(buf, "{}: option -{} requires an argument",
+			err.0, r: rune);
+	case let r: unknown_option =>
+		return fmt::bsprintf(buf, "{}: unrecognized option: -{}",
+			err.0, r: rune);
+	case let s: unknown_subcmd =>
+		return fmt::bsprintf(buf, "{}: unrecognized subcommand: {}",
+			err.0, s: str);
+	};
+};
+
 // A wrapper for [[tryparse]] in which if an error occurs, details are printed
 // to [[os::stderr]] and [[os::exit]] is called with [[os::status::FAILURE]].
 export fn parse(args: []str, help: help...) command = {
 	match (tryparse(args, help...)) {
 	case let c: command => return c;
 	case let e: error =>
-		match (e.2) {
-		case let r: requires_arg =>
-			fmt::errorfln("{}: option -{} requires an argument", e.0, r: rune)!;
-		case let r: unknown_option =>
-			fmt::errorfln("{}: unrecognized option: -{}", e.0, r: rune)!;
-		case let s: unknown_subcmd =>
-			fmt::errorfln("{}: unrecognized subcommand: {}", e.0, s: str)!;
+		fmt::errorln(strerror(e))!;
+		if (e.2 is unknown_subcmd) {
 			printsubcmds(os::stderr, e.1)!;
 			fmt::errorln()!;
 		};

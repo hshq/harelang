@@ -15,7 +15,8 @@ export type error = !(
 	| analytical
 );
 
-// Converts an [[error]] into a human-friendly string.
+// Converts an [[error]] into a human-friendly string. The result may be
+// statically allocated.
 export fn strerror(err: error) const str = {
 	match (err) {
 	case invalid =>
@@ -23,14 +24,15 @@ export fn strerror(err: error) const str = {
 	case invalidtzif =>
 		return "Invalid TZif data";
 	case let err: tzdberror =>
+		static let buf: [1024]u8 = [0...];
 		match (err) {
 		case let err: fs::error =>
-			return fmt::asprintf(
+			return fmt::bsprintf(buf,
 				"Timezone database error: {}",
 				fs::strerror(err),
 			);
 		case let err: io::error =>
-			return fmt::asprintf(
+			return fmt::bsprintf(buf,
 				"Timezone database error: {}",
 				io::strerror(err),
 			);

@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use fmt;
 use fnmatch;
 use fs;
 use io;
 use memio;
 use os;
+use path;
 use sort;
 use strings;
 
@@ -51,6 +53,13 @@ export type failure = !struct {
 	path: str,
 	// The actual filesystem error.
 	error: fs::error,
+};
+
+// Converts an error info a human-friendly string. The result is statically
+// allocated.
+export fn strerror(err: failure) str = {
+	let buf: [path::MAX + 1024]u8 = [0...];
+	return fmt::bsprintf(buf, "{}: {}", err.path, fs::strerror(err.error));
 };
 
 // Returns a generator of pathnames matching a pattern. The result must be

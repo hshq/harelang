@@ -71,18 +71,25 @@ docs/html: $(BINOUT)/haredoc
 		$(BINOUT)/haredoc -Fhtml $$mod > docs/html/$$path/index.html; \
 	done
 
-docs/hare.1: docs/hare.1.scd
-docs/haredoc.1: docs/haredoc.1.scd
-docs/hare-doc.5: docs/hare-doc.5.scd
+docs: \
+	docs/hare.1 \
+	docs/hare-build.1 \
+	docs/hare-cache.1 \
+	docs/hare-deps.1 \
+	docs/haredoc.1 \
+	docs/hare-run.1 \
+	docs/hare-test.1 \
+	docs/hare-doc.5 \
+	docs/hare-module.5
 
-docs: docs/hare.1 docs/haredoc.1 docs/hare-doc.5
+MAN1 = hare hare-build hare-cache hare-deps haredoc hare-run hare-test
+MAN5 = hare-doc hare-module
 
 bootstrap:
 	@BINOUT=$(BINOUT) ./scripts/genbootstrap
 
 clean:
-	rm -rf -- '$(HARECACHE)' '$(BINOUT)' docs/hare.1 docs/haredoc.1 \
-		docs/hare-doc.5 docs/html
+	rm -rf -- '$(HARECACHE)' '$(BINOUT)' docs/*.1 docs/*.5 docs/html
 
 check: $(BINOUT)/hare
 	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) AS=$(AS) LD=$(LD) \
@@ -98,9 +105,8 @@ install-cmd:
 		'$(DESTDIR)$(BINDIR)' '$(DESTDIR)$(MANDIR)/man5'
 	install -m755 '$(BINOUT)/hare' '$(DESTDIR)$(BINDIR)/hare'
 	install -m755 '$(BINOUT)/haredoc' '$(DESTDIR)$(BINDIR)/haredoc'
-	install -m644 docs/hare.1 '$(DESTDIR)$(MANDIR)/man1/hare.1'
-	install -m644 docs/haredoc.1 '$(DESTDIR)$(MANDIR)/man1/haredoc.1'
-	install -m644 docs/hare-doc.5 '$(DESTDIR)$(MANDIR)/man5/hare-doc.5'
+	for i in $(MAN1); do install -m644 docs/$$i.1 $(DESTDIR)$(MANDIR)/man1/$$i.1; done
+	for i in $(MAN5); do install -m644 docs/$$i.5 $(DESTDIR)$(MANDIR)/man5/$$i.5; done
 
 install-mods:
 	rm -rf -- '$(DESTDIR)$(STDLIB)'
@@ -110,9 +116,8 @@ install-mods:
 uninstall:
 	rm -- '$(DESTDIR)$(BINDIR)/hare'
 	rm -- '$(DESTDIR)$(BINDIR)/haredoc'
-	rm -- '$(DESTDIR)$(MANDIR)/man1/hare.1'
-	rm -- '$(DESTDIR)$(MANDIR)/man1/haredoc.1'
-	rm -- '$(DESTDIR)$(MANDIR)/man5/hare-doc.5'
+	for i in $(MAN1); do rm -- $(DESTDIR)$(MANDIR)/man1/$$i.1; done
+	for i in $(MAN5); do rm -- $(DESTDIR)$(MANDIR)/man5/$$i.5; done
 	rm -r -- '$(DESTDIR)$(STDLIB)'
 
 .PHONY: all $(BINOUT)/harec2 $(BINOUT)/haredoc bootstrap clean check docs \

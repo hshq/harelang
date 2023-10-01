@@ -195,7 +195,7 @@ $(HARECACHE)/hare_parse.ssa: $(hare_parse_ha) $(HARECACHE)/ascii.td $(HARECACHE)
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/hare_parse.ssa -t $(HARECACHE)/hare_parse.td.tmp -N hare::parse $(hare_parse_ha)
 
-hare_unparse_ha = hare/unparse/decl.ha hare/unparse/expr.ha hare/unparse/ident.ha hare/unparse/import.ha hare/unparse/type.ha hare/unparse/unit.ha hare/unparse/util.ha
+hare_unparse_ha = hare/unparse/decl.ha hare/unparse/expr.ha hare/unparse/ident.ha hare/unparse/import.ha hare/unparse/syn.ha hare/unparse/type.ha hare/unparse/unit.ha hare/unparse/util.ha
 $(HARECACHE)/hare_unparse.ssa: $(hare_unparse_ha) $(HARECACHE)/fmt.td $(HARECACHE)/hare_ast.td $(HARECACHE)/hare_lex.td $(HARECACHE)/io.td $(HARECACHE)/memio.td $(HARECACHE)/strings.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"

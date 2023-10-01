@@ -4,11 +4,21 @@
 use io;
 use fmt;
 
-fn newline(out: io::handle, indent: size) (size | io::error) = {
+fn newline(ctx: *context) (size | io::error) = {
 	let n = 0z;
-	n += fmt::fprint(out, "\n")?;
-	for (let i = 0z; i < indent; i += 1) {
-		n += fmt::fprint(out, "\t")?;
+	n += fmt::fprint(ctx.out, "\n")?;
+	ctx.linelen = 0;
+	for (let i = 0z; i < ctx.indent; i += 1) {
+		n += fmt::fprint(ctx.out, "\t")?;
+		ctx.linelen += 8;
 	};
 	return n;
+};
+
+fn space(ctx: *context) (size | io::error) = {
+	if (ctx.linelen <= ctx.indent * 8) {
+		return 0z;
+	};
+	ctx.linelen += 1;
+	return fmt::fprint(ctx.out, " ");
 };

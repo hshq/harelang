@@ -70,7 +70,8 @@ export type baz = enum rune {
 export type bar = (a, b::c, d);
 
 export type baz = (bat, foo::bar::baz, long_type_name, yet_another_very_long_type_name,
-	this_spans_multiple_lines, for_readability);
+	this_spans_multiple_lines, for_readability, never_gonna_give_you_up,
+	never_gonna_let_you_down);
 ");
 	roundtrip_reparse("export type foo = (int, str,);\n");
 };
@@ -81,7 +82,8 @@ export type baz = (bat, foo::bar::baz, long_type_name, yet_another_very_long_typ
 export type bar = (a | b::c | ...d);
 
 export type baz = (bat | foo::bar::baz | long_type_name | yet_another_very_long_type_name |
-	this_spans_multiple_lines | for_readability);
+	this_spans_multiple_lines | for_readability | never_gonna_give_you_up |
+	never_gonna_let_you_down);
 ");
 };
 
@@ -92,4 +94,59 @@ export type baz = (bat | foo::bar::baz | long_type_name | yet_another_very_long_
 	C,
 };
 ");
+};
+
+@test fn func() void = {
+	roundtrip("export type foo = fn(int) void;
+
+export type foo = fn(int...) void;
+
+export type foo = fn(int, ...) void;
+
+export type foo = fn(
+	long_param_name: long_type_name,
+	another_one: blablablabla,
+	this_spans: multiple_lines,
+	for_readability: and_stuff,
+) void;
+
+export type foo = fn(
+	long_param_name: long_type_name,
+	another_one: blablablabla,
+	this_spans: multiple_lines,
+	for_readability: and_stuff...
+) void;
+
+export type foo = fn(
+	long_param_name: long_type_name,
+	another_one: blablablabla,
+	this_spans: multiple_lines,
+	for_readability: and_stuff,
+	...
+) void;
+
+export type foo = fn(
+	long_type_name,
+	blablablabla,
+	multiple_lines,
+	and_stuff,
+) void;
+
+export type foo = fn(
+	long_type_name,
+	blablablabla,
+	multiple_lines,
+	and_stuff...
+) void;
+
+export type foo = fn(
+	long_type_name,
+	blablablabla,
+	multiple_lines,
+	and_stuff,
+	...
+) void;
+");
+
+	roundtrip_reparse("type foo = fn(int,) void;");
 };

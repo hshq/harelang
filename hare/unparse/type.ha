@@ -60,153 +60,100 @@ case ast::builtin_type::VOID =>
 	yield "void";
 };
 
-// Unparses a prototype.
-export fn prototype(
-	out: io::handle,
-	indent: size,
+fn prototype(
+	ctx: *context,
+	syn: *synfunc,
 	t: ast::func_type,
 ) (size | io::error) = {
 	let n = 0z;
-	n += fmt::fprint(out, "(")?;
+	n += syn(ctx, "(", synkind::PUNCTUATION)?;
 
-	let typenames: []str = [];
-	// TODO: https://todo.sr.ht/~sircmpwn/hare/581
-	if (len(t.params) > 0) {
-		typenames = alloc([""...], len(t.params));
-	};
-	defer strings::freeall(typenames);
-	let retname = "";
-	defer free(retname);
-
-	// estimate length of prototype to determine if it should span multiple
-	// lines
-	const linelen = if (len(t.params) == 0) {
-		let strm = memio::dynamic();
-		defer io::close(&strm)!;
-		_type(&strm, indent, *t.result)?;
-		retname = strings::dup(memio::string(&strm)!);
-		yield 0z; // only use one line if there's no parameters
-	} else {
-		let strm = memio::dynamic();
-		defer io::close(&strm)!;
-		let linelen = indent * 8 + 5;
-		linelen += if (len(t.params) != 0) len(t.params) * 3 - 1 else 0;
-		for (let i = 0z; i < len(t.params); i += 1) {
-			const param = t.params[i];
-			linelen += _type(&strm, indent, *param._type)?;
-			typenames[i] = strings::dup(memio::string(&strm)!);
-			linelen += if (param.name == "") -2 else len(param.name);
-			memio::reset(&strm);
+	for (let i = 0z; i < len(t.params); i += 1) {
+		const param = t.params[i];
+		if (param.name != "") {
+			n += syn(ctx, param.name, synkind::SECONDARY)?;
+			n += syn(ctx, ":", synkind::PUNCTUATION)?;
+			n += space(ctx)?;
 		};
-		switch (t.variadism) {
-		case variadism::NONE => void;
-		case variadism::HARE =>
-			linelen += 3;
-		case variadism::C =>
-			linelen += 5;
-		};
-		linelen += _type(&strm, indent, *t.result)?;
-		retname = strings::dup(memio::string(&strm)!);
-		yield linelen;
-	};
-
-	// use 72 instead of 80 to give a bit of leeway for preceding text
-	if (linelen > 72) {
-		indent += 1;
-		for (let i = 0z; i < len(t.params); i += 1) {
-			const param = t.params[i];
-			n += newline(out, indent)?;
-			if (param.name != "") {
-				n += fmt::fprintf(out, "{}: ", param.name)?;
-			};
-			n += fmt::fprint(out, typenames[i])?;
-			if (i + 1 == len(t.params)
-					&& t.variadism == variadism::HARE) {
-				n += fmt::fprint(out, "...")?;
-			} else {
-				n += fmt::fprint(out, ",")?;
-			};
-		};
-		if (t.variadism == variadism::C) {
-			n += newline(out, indent)?;
-			n += fmt::fprint(out, "...")?;
-		};
-		indent -= 1;
-		n += newline(out, indent)?;
-	} else {
-		for (let i = 0z; i < len(t.params); i += 1) {
-			const param = t.params[i];
-			if (param.name != "") {
-				n += fmt::fprintf(out, "{}: ", param.name)?;
-			};
-			n += fmt::fprint(out, typenames[i])?;
-			if (i + 1 < len(t.params) || t.variadism == variadism::C) {
-				n += fmt::fprint(out, ", ")?;
-			};
-		};
-		if (t.variadism != variadism::NONE) {
-			n += fmt::fprint(out, "...")?;
+		n += __type(ctx, syn, *param._type)?;
+		if (i + 1 < len(t.params) || t.variadism == variadism::C) {
+			n += syn(ctx, ",", synkind::PUNCTUATION)?;
+			n += space(ctx)?;
 		};
 	};
+	if (t.variadism != variadism::NONE) {
+		n += syn(ctx, "...", synkind::OPERATOR)?;
+	};
 
-	n += fmt::fprint(out, ")", retname)?;
+	n += syn(ctx, ")", synkind::PUNCTUATION)?;
+	n += space(ctx)?;
+	n += __type(ctx, syn, *t.result)?;
 	return n;
 };
 
-// Unparses a struct or union type.
 fn struct_union_type(
-	out: io::handle,
-	indent: size,
+	ctx: *context,
+	syn: *synfunc,
 	t: ast::_type,
 ) (size | io::error) = {
 	let z = 0z;
 	let membs = match (t.repr) {
 	case let st: ast::struct_type =>
-		z += fmt::fprint(out, "struct ")?;
+		z += syn(ctx, "struct", synkind::TYPE)?;
+		z += space(ctx)?;
 		if (st.packed) {
-			z += fmt::fprint(out, "@packed ")?;
+			z += syn(ctx, "@packed", synkind::ATTRIBUTE)?;
+			z += space(ctx)?;
 		};
-		z += fmt::fprint(out, "{")?;
+		z += syn(ctx, "{", synkind::PUNCTUATION)?;
 		yield st.members: []ast::struct_member;
 	case let ut: ast::union_type =>
-		z += fmt::fprint(out, "union {")?;
+		z += syn(ctx, "union", synkind::TYPE)?;
+		z += space(ctx)?;
+		z += syn(ctx, "{", synkind::PUNCTUATION)?;
 		yield ut: []ast::struct_member;
+	case => abort(); // unreachable
 	};
 
-	indent += 1z;
+	ctx.indent += 1z;
 	for (let i = 0z; i < len(membs); i += 1) {
-		z += fmt::fprintln(out)?;
+		z += fmt::fprintln(ctx.out)?;
+		ctx.linelen = 0;
 		if (membs[i].docs != "") {
-			z += comment(out, membs[i].docs, indent)?;
+			z += comment(ctx, syn, membs[i].docs)?;
 		};
-		for (let i = 0z; i < indent; i += 1) {
-			z += fmt::fprint(out, "\t")?;
+		for (let i = 0z; i < ctx.indent; i += 1) {
+			z += fmt::fprint(ctx.out, "\t")?;
+			ctx.linelen += 8;
 		};
 
 		match (membs[i]._offset) {
 		case null => void;
 		case let ex: *ast::expr =>
-			z += fmt::fprint(out, "@offset(")?;
-			z += expr(out, indent, *ex)?;
-			z += fmt::fprint(out, ") ")?;
+			z += syn(ctx, "@offset(", synkind::ATTRIBUTE)?;
+			z += _expr(ctx, syn, *ex)?;
+			z += syn(ctx, ")", synkind::ATTRIBUTE)?;
+			z += space(ctx)?;
 		};
 
 		match (membs[i].member) {
 		case let se: ast::struct_embedded =>
-			z += _type(out, indent, *se)?;
+			z += __type(ctx, syn, *se)?;
 		case let sa: ast::struct_alias =>
-			z += ident(out, sa)?;
+			z += _ident(ctx, syn, sa, synkind::IDENT)?;
 		case let sf: ast::struct_field =>
-			z += fmt::fprintf(out, "{}: ", sf.name)?;
-			z += _type(out, indent, *sf._type)?;
+			z += syn(ctx, sf.name, synkind::SECONDARY)?;
+			z += syn(ctx, ":", synkind::PUNCTUATION)?;
+			z += space(ctx)?;
+			z += __type(ctx, syn, *sf._type)?;
 		};
 
-		z += fmt::fprint(out, ",")?;
+		z += syn(ctx, ",", synkind::PUNCTUATION)?;
 	};
 
-	indent -= 1;
-	z += newline(out, indent)?;
-	z += fmt::fprint(out, "}")?;
+	ctx.indent -= 1;
+	z += newline(ctx)?;
+	z += syn(ctx, "}", synkind::PUNCTUATION)?;
 	return z;
 };
 
@@ -216,33 +163,59 @@ fn multiline_comment(s: str) bool =
 // Unparses a [[hare::ast::_type]].
 export fn _type(
 	out: io::handle,
-	indent: size,
+	syn: *synfunc,
 	t: ast::_type,
 ) (size | io::error) = {
+	let ctx = context {
+		out = out,
+		...
+	};
+	return __type(&ctx, syn, t);
+};
+
+fn __type(ctx: *context, syn: *synfunc, t: ast::_type) (size | io::error) = {
+	ctx.stack = &stack {
+		cur = &t,
+		up = ctx.stack,
+		...
+	};
+	defer {
+		let stack = &(ctx.stack as *stack);
+		match (stack.extra) {
+		case let p: *opaque =>
+			free(p);
+		case null => void;
+		};
+		ctx.stack = stack.up;
+	};
+
 	let n = 0z;
 	if (t.flags & ast::type_flag::CONST != 0) {
-		n += fmt::fprint(out, "const ")?;
+		n += syn(ctx, "const", synkind::TYPE)?;
+		n += space(ctx)?;
 	};
 	if (t.flags & ast::type_flag::ERROR != 0) {
-		n += fmt::fprint(out, "!")?;
+		n += syn(ctx, "!", synkind::TYPE)?;
 	};
 	match (t.repr) {
 	case let a: ast::alias_type =>
 		if (a.unwrap) {
-			n += fmt::fprint(out, "...")?;
+			n += syn(ctx, "...", synkind::TYPE)?;
 		};
-		n += ident(out, a.ident)?;
+		n += _ident(ctx, syn, a.ident, synkind::TYPE)?;
 	case let b: ast::builtin_type =>
-		n += fmt::fprint(out, builtin_type(b))?;
+		n += syn(ctx, builtin_type(b), synkind::TYPE)?;
 	case let e: ast::enum_type =>
+		n += syn(ctx, "enum", synkind::TYPE)?;
+		n += space(ctx)?;
 		if (e.storage != ast::builtin_type::INT) {
-			n += fmt::fprint(out, "enum",
-				builtin_type(e.storage), "{")?;
-		} else {
-			n += fmt::fprint(out, "enum {")?;
+			n += syn(ctx, builtin_type(e.storage), synkind::TYPE)?;
+			n += space(ctx)?;
 		};
-		indent += 1;
-		n += fmt::fprintln(out)?;
+		n += syn(ctx, "{", synkind::PUNCTUATION)?;
+		ctx.indent += 1;
+		n += fmt::fprintln(ctx.out)?;
+		ctx.linelen = 0;
 		for (let i = 0z; i < len(e.values); i += 1) {
 			let value = e.values[i];
 			let wrotedocs = false;
@@ -250,114 +223,94 @@ export fn _type(
 				// Check if comment should go above or next to
 				// field
 				if (multiline_comment(value.docs)) {
-					n += comment(out, value.docs, indent)?;
+					n += comment(ctx, syn, value.docs)?;
 					wrotedocs = true;
 				};
 			};
-			for (let i = 0z; i < indent; i += 1) {
-				n += fmt::fprint(out, "\t")?;
+			for (let i = 0z; i < ctx.indent; i += 1) {
+				n += fmt::fprint(ctx.out, "\t")?;
+				ctx.linelen += 8;
 			};
-			n += fmt::fprint(out, value.name)?;
+			n += syn(ctx, value.name, synkind::SECONDARY)?;
 			match (value.value) {
 			case null => void;
 			case let e: *ast::expr =>
-				n += fmt::fprint(out, " = ")?;
-				n += expr(out, indent, *e)?;
+				n += space(ctx)?;
+				n += syn(ctx, "=", synkind::OPERATOR)?;
+				n += space(ctx)?;
+				n += _expr(ctx, syn, *e)?;
 			};
-			n += fmt::fprint(out, ",")?;
+			n += syn(ctx, ",", synkind::PUNCTUATION)?;
 			if (value.docs != "" && !wrotedocs) {
-				n += fmt::fprint(out, " ")?;
-				n += comment(out, value.docs, 0)?;
+				n += space(ctx)?;
+				const oldindent = ctx.indent;
+				ctx.indent = 0;
+				n += comment(ctx, syn, value.docs)?;
+				ctx.indent = oldindent;
 			} else {
-				n += fmt::fprintln(out)?;
+				n += fmt::fprintln(ctx.out)?;
+				ctx.linelen = 0;
 			};
 		};
-		indent -= 1;
-		for (let i = 0z; i < indent; i += 1) {
-			n += fmt::fprint(out, "\t")?;
+		ctx.indent -= 1;
+		for (let i = 0z; i < ctx.indent; i += 1) {
+			n += fmt::fprint(ctx.out, "\t")?;
+			ctx.linelen += 8;
 		};
-		n += fmt::fprint(out, "}")?;
+		n += syn(ctx, "}", synkind::PUNCTUATION)?;
 	case let f: ast::func_type =>
-		n += fmt::fprint(out, "fn")?;
-		n += prototype(out, indent, f)?;
+		n += syn(ctx, "fn", synkind::TYPE)?;
+		n += prototype(ctx, syn, f)?;
 	case let l: ast::list_type =>
-		n += fmt::fprint(out, "[")?;
+		n += syn(ctx, "[", synkind::TYPE)?;
 		match (l.length) {
 		case ast::len_slice => void;
 		case ast::len_unbounded =>
-			n += fmt::fprint(out, "*")?;
+			n += syn(ctx, "*", synkind::TYPE)?;
 		case ast::len_contextual =>
-			n += fmt::fprint(out, "_")?;
+			n += syn(ctx, "_", synkind::TYPE)?;
 		case let e: *ast::expr =>
-			n += expr(out, indent, *e)?;
+			n += _expr(ctx, syn, *e)?;
 		};
-		n += fmt::fprint(out, "]")?;
-		n += _type(out, indent, *l.members)?;
+		n += syn(ctx, "]", synkind::TYPE)?;
+		n += __type(ctx, syn, *l.members)?;
 	case let p: ast::pointer_type =>
 		if (p.flags & ast::pointer_flag::NULLABLE != 0) {
-			n += fmt::fprint(out, "nullable ")?;
+			n += syn(ctx, "nullable", synkind::TYPE)?;
+			n += space(ctx)?;
 		};
-		n += fmt::fprint(out, "*")?;
-		n += _type(out, indent, *p.referent)?;
+		n += syn(ctx, "*", synkind::TYPE)?;
+		n += __type(ctx, syn, *p.referent)?;
 	case ast::struct_type =>
-		n += struct_union_type(out, indent, t)?;
+		n += struct_union_type(ctx, syn, t)?;
 	case ast::union_type =>
-		n += struct_union_type(out, indent, t)?;
+		n += struct_union_type(ctx, syn, t)?;
 	case let t: ast::tagged_type =>
-		// rough estimate of current line length
-		let linelen = n;
-		n = 0;
-		linelen += fmt::fprint(out, "(")?;
+		n += syn(ctx, "(", synkind::TYPE)?;
 		for (let i = 0z; i < len(t); i += 1) {
-			linelen += _type(out, indent, *t[i])?;
+			n += __type(ctx, syn, *t[i])?;
 			if (i + 1 == len(t)) break;
-			linelen += fmt::fprint(out, " |")?;
-			// use 72 instead of 80 to give a bit of leeway for long
-			// type names
-			if (linelen + (indent + 1) * 8 > 72) {
-				n += linelen;
-				linelen = 0;
-				n += fmt::fprintln(out)?;
-				for (let i = 0z; i <= indent; i += 1) {
-					n += fmt::fprint(out, "\t")?;
-				};
-			} else {
-				linelen += fmt::fprint(out, " ")?;
-			};
+			n += space(ctx)?;
+			n += syn(ctx, "|", synkind::TYPE)?;
+			n += space(ctx)?;
 		};
-		n += linelen;
-		n += fmt::fprint(out, ")")?;
+		n += syn(ctx, ")", synkind::TYPE)?;
 	case let t: ast::tuple_type =>
-		// rough estimate of current line length
-		let linelen = n;
-		n = 0;
-		linelen += fmt::fprint(out, "(")?;
+		n += syn(ctx, "(", synkind::TYPE)?;
 		for (let i = 0z; i < len(t); i += 1) {
-			linelen += _type(out, indent, *t[i])?;
+			n += __type(ctx, syn, *t[i])?;
 			if (i + 1 == len(t)) break;
-			linelen += fmt::fprint(out, ",")?;
-			// use 72 instead of 80 to give a bit of leeway for long
-			// type names
-			if (linelen + (indent + 1) * 8 > 72) {
-				n += linelen;
-				linelen = 0;
-				n += fmt::fprintln(out)?;
-				for (let i = 0z; i <= indent; i += 1) {
-					n += fmt::fprint(out, "\t")?;
-				};
-			} else {
-				linelen += fmt::fprint(out, " ")?;
-			};
+			n += syn(ctx, ",", synkind::TYPE)?;
+			n += space(ctx)?;
 		};
-		n += linelen;
-		n += fmt::fprint(out, ")")?;
+		n += syn(ctx, ")", synkind::TYPE)?;
 	};
 	return n;
 };
 
 fn type_test(t: ast::_type, expected: str) void = {
 	let buf = memio::dynamic();
-	_type(&buf, 0, t) as size;
+	_type(&buf, &syn_nowrap, t)!;
 	let s = memio::string(&buf)!;
 	defer free(s);
 	if (s != expected) {

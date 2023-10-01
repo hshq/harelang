@@ -7,6 +7,12 @@
 	*x = *y + 10;
 	*x = *foo();
 	*y() = bar();
+	x[y] = z;
+	x[y][z] = foo();
+	x.y = z;
+	x.y.z = foo();
+	x[y].z = foo();
+	x.y[z] = foo();
 	x += 10;
 	x -= 10;
 	x *= 10;
@@ -47,9 +53,8 @@
 	alloc(1234...);
 	alloc(4321, 1234);
 	append(x, 10);
-	append(x, 10...);
-	append(x, 10, 20, 30);
-	append(x, y, z, q...);
+	append(x, [10]...);
+	append(x, [10...], 20);
 	static append(x, 10);
 	abort();
 	abort("surprize");
@@ -67,7 +72,7 @@
 	free(x);
 	insert(x[0], foo);
 	insert(x[0], foo...);
-	insert(x[0], foo, bar...);
+	insert(x[0], foo, bar);
 	static insert(x[0], foo);
 	len([1, 2, 3, 4]);
 	offset(foo.bar);
@@ -180,7 +185,10 @@
 };
 
 @test fn defer_expr() void = {
-	roundtrip("export fn main() void = defer foo();\n");
+	roundtrip("export fn main() void = {
+	defer foo();
+};
+");
 };
 
 @test fn for_expr() void = {
@@ -253,9 +261,11 @@
 	case 1234, 4321 =>
 		return y;
 	case 1337 =>
-		return z;
+		let x = 0;
+	case => void;
+	case => abort();
 	case =>
-		return q;
+		defer x;
 	};
 };
 ");
@@ -268,20 +278,20 @@
 		return y;
 	case foo =>
 		return bar;
-	case let foo: int =>
+	case *int =>
 		return bar;
 	case foo::bar =>
 		return baz;
 	case null => void;
-	case *int => void;
+	case => abort();
 	};
 	match (x) {
 	case let s: matchdata =>
 		return y;
 	case str =>
-		return z;
+		let x = 0;
 	case =>
-		return q;
+		defer x;
 	};
 };
 ");
@@ -292,7 +302,13 @@
 		"export fn main() void = *void;\n\n"
 		"export fn main() void = ~void;\n\n"
 		"export fn main() void = !void;\n\n"
-		"export fn main() void = &void;\n");
+		"export fn main() void = &void;\n\n"
+		"export fn main() void = &switch (0) {\n"
+		"case => void;\n"
+		"};\n\n"
+		"export fn main() void = &match (0) {\n"
+		"case => void;\n"
+		"};\n");
 };
 
 @test fn yield_expr() void = {
