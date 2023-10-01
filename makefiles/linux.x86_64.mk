@@ -99,7 +99,7 @@ $(HARECACHE)/format_elf.ssa: $(format_elf_ha)
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/format_elf.ssa -t $(HARECACHE)/format_elf.td.tmp -N format::elf $(format_elf_ha)
 
-linux_ha = linux/env.ha linux/start.ha
+linux_ha = linux/+linux/env.ha linux/+linux/start.ha
 $(HARECACHE)/linux.ssa: $(linux_ha) $(HARECACHE)/format_elf.td $(HARECACHE)/rt.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
@@ -111,7 +111,7 @@ $(HARECACHE)/types_c.ssa: $(types_c_ha) $(HARECACHE)/encoding_utf8.td $(HARECACH
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/types_c.ssa -t $(HARECACHE)/types_c.td.tmp -N types::c $(types_c_ha)
 
-linux_vdso_ha = linux/vdso/vdso.ha
+linux_vdso_ha = linux/vdso/+linux/vdso.ha
 $(HARECACHE)/linux_vdso.ssa: $(linux_vdso_ha) $(HARECACHE)/format_elf.td $(HARECACHE)/linux.td $(HARECACHE)/types_c.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
