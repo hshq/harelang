@@ -1,7 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
-// (c) 2022 Noah Pederson <noah@packetlost.dev>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use errors;
 use io;
 use rt;

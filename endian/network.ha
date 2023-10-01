@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Converts a u16 from host order to network order.
 export fn htonu16(in: u16) u16 = {

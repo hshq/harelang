@@ -1,6 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Alexey Yerin <yyp@disroot.org>
-// (c) 2022 Umar Getagazov <umar@handlerug.me>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use ascii;
 use encoding::utf8;
 use io;

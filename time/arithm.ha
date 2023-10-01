@@ -1,6 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Byron Torres <b@torresjrjr.com>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use math;
 
 // Adds a [[duration]] to an [[instant]], returning an instant further in the

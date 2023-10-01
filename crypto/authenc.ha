@@ -1,6 +1,6 @@
-// License: MPL-2.0
-// (c) 2023 Armin Preiml <apreiml@strohwolke.at>
-// (c) 2023 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use bytes;
 use crypto::chachapoly;
 use crypto::math;

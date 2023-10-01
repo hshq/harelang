@@ -1,5 +1,6 @@
-// License: GPL-3.0
-// (c) 2022 Byron Torres <b@torresjrjr.com>
+// SPDX-License-Identifier: GPL-3.0-only
+// (c) Hare authors <https://harelang.org>
+
 use ascii;
 use fmt;
 use io;

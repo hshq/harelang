@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2023 Byron Torres <b@torresjrjr.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use time;
 
 // Compares two [[moment]]s. Returns -1 if a precedes b, 0 if a and b are

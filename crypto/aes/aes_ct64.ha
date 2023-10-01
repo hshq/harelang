@@ -1,6 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Armin Preiml <apreiml@strohwolke.at>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Constant time aes implementation optimized for 64bit CPUs.
 // The code was ported from BearSSL, which contained the following notice:

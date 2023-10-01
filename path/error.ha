@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 // Returned when adding an extension if the path is root, or the final path
 // segment consists entirely of dots.
 export type cant_extend = !void;

@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Sudipto Mallick <smlckz@disroot.org>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 const left_shift_table: [65]u16 = [
 	0x0000, 0x0800, 0x0801, 0x0803, 0x1006, 0x1009, 0x100D, 0x1812, 0x1817,

@@ -1,7 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
-// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Returns true if a byte slice contains a byte or a sequence of bytes.
 export fn contains(haystack: []u8, needles: (u8 | []u8)...) bool = {

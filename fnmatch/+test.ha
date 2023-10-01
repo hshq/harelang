@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 type testcase = (str, str, bool, []flag);
 

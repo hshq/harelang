@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2022 Sebastian <sebastian@sebsite.pw>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // This function type is used when sorting and searching. Given two pointers to
 // values, a function of this type should return an integer less than, equal to,

@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use rt;
 use format::elf;
 

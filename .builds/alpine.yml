@@ -32,18 +32,23 @@ tasks:
     cp config.example.mk config.mk
     make -j2
     sudo make install
-- tests: |
-    cd hare
-    make -j2 .bin/hare-tests
 - check: |
     cd hare
     make -j2 check
-- tests_with_libc: |
-    cd hare
-    hare test -T+libc -lc -o .bin/hare-tests-libc
 - check_with_libc: |
     cd hare
-    .bin/hare-tests-libc
+    hare test -lc
+- copyright: |
+    cd hare
+    ./scripts/copyright.sh
+- bootstrap: |
+    cd hare
+    make -j2 bootstrap
+    if [ -n "$(git status --porcelain)" ]
+    then
+        echo "bootstrap makefiles out of date, run make bootstrap to regenerate"
+        exit 1
+    fi
 - docs: |
     if [ $BUILD_SUBMITTER != "git.sr.ht" ]
     then

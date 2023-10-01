@@ -1,7 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
-// (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Sections of the code below, in particular log() and exp(), are based on Go's
 // implementation, which is, in turn, based on FreeBSD's. The original C code,

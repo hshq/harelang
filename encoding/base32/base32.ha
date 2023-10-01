@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Ajay R <ar324@protonmail.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use ascii;
 use bytes;
 use errors;

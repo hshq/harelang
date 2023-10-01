@@ -1,7 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Alexey Yerin <yyp@disroot.org>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use bytes;
 use crypto::random;
 use endian;

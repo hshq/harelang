@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use types;
 
 // Integer type compatible with `char`, as specified by ISO/IEC 9899.

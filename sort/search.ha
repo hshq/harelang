@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Performs a binary search over a sorted slice. If the key is found, index of
 // the matching item in the slice is returned. Otherwise, void is returned.

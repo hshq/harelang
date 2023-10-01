@@ -1,6 +1,5 @@
-// License: MPL-2.0
-// (c) 2022 Sebastian <sebastian@sebsite.pw>
-// (c) 2022 Carlos Une <une@fastmail.fm>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // The test data below is based on Go's implementation, and came with the
 // following note and copyright notice:

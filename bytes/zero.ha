@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use rt;
 
 // Sets all bytes in a slice to zero. This is suitable for erasing private data

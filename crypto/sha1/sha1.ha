@@ -1,8 +1,6 @@
-// License: MPL-2.0
-// (c) 2021-2022 Armin Preiml <apreiml@strohwolke.at>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Kiëd Llaentenn <kiedtl@tilde.team>
-// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use hash;
 use io;
 use bytes;

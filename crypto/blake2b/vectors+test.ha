@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 type vector = struct {
 	in: str,

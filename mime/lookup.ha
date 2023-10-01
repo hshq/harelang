@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use hash::fnv;
 use strings;
 

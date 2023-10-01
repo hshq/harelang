@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2022 Sebastian <sebastian@sebsite.pw>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Determines the index that 'elem' should be inserted into sorted slice 'in'.
 // If 'elem' already appears in the slice, inserting to the returned index will

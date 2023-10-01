@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use crypto::math::{rotl64};
 use endian::{leputu64, legetu64};
 use hash;

@@ -1,10 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Alexey Yerin <yyp@disroot.org>
-// (c) 2021 Andri Yngvason <andri@yngvason.is>
-// (c) 2021-2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
-// (c) 2021 Byron Torres <b@torresjrjr.com>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use ascii;
 use encoding::utf8;
 use io;

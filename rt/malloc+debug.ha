@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // This is a very simple "debug" allocator which works by allocating only via
 // mmap and returning pointers to the end of the segment such that any writes

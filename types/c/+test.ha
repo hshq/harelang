@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 @test fn sizes() void = {
 	static assert(size(char) == size(schar));
 	static assert(size(char) == size(uchar));

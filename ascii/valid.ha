@@ -1,6 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Sebastian <sebastian@sebsite.pw>
-// (c) 2021 Drew Devault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use strings;
 
 // Returns true if a rune is a valid ASCII character.

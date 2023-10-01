@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2021-2022 Byron Torres <b@torresjrjr.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use time;
 
 // Calculates the wall clock (hour, minute, second, nanosecond),

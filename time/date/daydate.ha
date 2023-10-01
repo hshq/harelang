@@ -1,6 +1,5 @@
-// License: MPL-2.0
-// (c) 2021-2022 Byron Torres <b@torresjrjr.com>
-// (c) 2021-2022 Vlad-Stefan Harbuz <vlad@vladh.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Hare internally uses the Unix epoch (1970-01-01) for calendrical logic. Here
 // we provide useful constant for working with the astronomically numbered

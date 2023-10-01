@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Byron Torres <b@torresjrjr.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use encoding::utf8;
 
 // Returns a slice of runes for a string in O(n). The caller must free the

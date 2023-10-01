@@ -1,7 +1,6 @@
-// License: MPL-2.0
-// (c) 2011 The Go Authors
-// (c) 2022 Drew DeVault <sir@cmpwn.com>
-//
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 // bcrypt uses a crappy variant of base64 with its own special alphabet and no
 // padding. This file glues encoding::base64 to the bcrypt semantics.
 use encoding::base64;

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 // TODO: Implement FreeBSD version
 use errors;
 use rt;

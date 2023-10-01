@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Vlad-Stefan Harbuz <vlad@vladh.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use ascii;
 use bufio;
 use encoding::utf8;

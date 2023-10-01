@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Mykyta Holubakha <hilobakho@gmail.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // TODO: work when _NSIG != 64
 

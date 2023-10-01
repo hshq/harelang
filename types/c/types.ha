@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use types;
 
 // Integer type compatible with `char8_t`, as defined in <uchar.h> and specified

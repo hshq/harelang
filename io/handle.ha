@@ -1,6 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // TODO: Examine the ABI constraints of [[handle]]. Would it be better to make
 // stream an integer representing an internal handle into a stream table? This

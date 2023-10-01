@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 @test fn trig_reduce() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
 		const reduced = trig_reduce(TEST_INPUTS[idx]);

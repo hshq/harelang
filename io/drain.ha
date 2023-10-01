@@ -1,7 +1,5 @@
-// License: MPL-2.0
-// (c) 2022 Bor Grošelj Simić <bor.groseljsimic@telemach.net>
-// (c) 2021-2022 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Reads an entire stream into a []u8. The caller must free the return value.
 // Note that this function will never return if the handle is infinite.

@@ -1,8 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
-// (c) 2022 Haelwenn (lanodan) Monnier <contact@hacktivis.me>
-// (c) 2021-2022 Vlad-Stefan Harbuz <vlad@vladh.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use types;
 
 // Returns the absolute value of signed integer n.

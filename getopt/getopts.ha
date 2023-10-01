@@ -1,10 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Alexey Yerin <yyp@disroot.org>
-// (c) 2021 Byron Torres <b@torresjrjr.com>
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
-// (c) 2021 Jonathan Halmen <slowjo@halmen.xyz>
-// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use fmt;
 use io;
 use os;

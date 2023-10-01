@@ -1,4 +1,5 @@
-// License: MPL-2.0
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 const text_plain: mimetype = mimetype {
 	mime = "text/plain",

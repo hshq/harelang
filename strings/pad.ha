@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Vlad-Stefan Harbuz <vlad@vladh.net>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use encoding::utf8;
 
 // Pads a string's start with 'prefix' until it reaches length 'target_len'.

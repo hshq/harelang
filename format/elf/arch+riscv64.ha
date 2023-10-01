@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // The machine (architecture) of the target.
 export def TARGET_MACHINE: elf_machine = elf_machine::RISCV;

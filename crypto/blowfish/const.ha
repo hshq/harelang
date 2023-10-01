@@ -1,6 +1,5 @@
-// License: MPL-2.0
-// License: MIT
-// (c) 2022 Drew DeVault <sir@cmpwn.com>
+// SPDX-License-Identifier: MIT
+// (c) Hare authors <https://harelang.org>
 // (c) 2010 The Go Authors. All rights reserved.
 
 const s0: [256]u32 = [

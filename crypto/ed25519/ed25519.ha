@@ -1,5 +1,5 @@
-// License: MPL-2.0
-// (c) 2022 Luke Champine <luke.champine@gmail.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 // Implements the Ed25519 signature scheme.
 //

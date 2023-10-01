@@ -1,6 +1,6 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2022 Lassi Pulkkinen <lassi@pulk.fi>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use ascii;
 use endian;
 use fmt;

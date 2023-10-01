@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 fn unknown_errno(err: errno) str = {
 	static let buf: [27]u8 = [0...];
 	const s = *(&"[unknown errno ": *[]u8);

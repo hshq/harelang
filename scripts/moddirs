@@ -1,0 +1,7 @@
+#!/bin/sh
+for i in *; do
+	case "$i" in
+	.* | cmd | contrib | docs | makefiles | scripts) ;;
+	*) find -- "$i" -prune -type d ;;
+	esac
+done
