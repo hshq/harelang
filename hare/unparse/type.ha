@@ -60,8 +60,7 @@ case ast::builtin_type::VOID =>
 	yield "void";
 };
 
-// Unparses a prototype.
-export fn prototype(
+fn prototype(
 	ctx: *context,
 	syn: *synfunc,
 	t: ast::func_type,
