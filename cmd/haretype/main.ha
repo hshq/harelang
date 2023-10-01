@@ -29,7 +29,7 @@ fn typeinfo(
 		const atype = parse::_type(&lexer)?;
 		defer ast::type_finish(atype);
 		const typ = types::lookup(store, &atype)?;
-		unparse::_type(os::stdout, 0, atype)?;
+		unparse::_type(os::stdout, &unparse::syn_nowrap, atype)?;
 		fmt::println()?;
 		yield typ;
 	};

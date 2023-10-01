@@ -137,7 +137,8 @@ fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 				yield;
 			case let ty: *ast::_type =>
 				n += fmt::fprint(out, ": ")?;
-				n += unparse::_type(out, 0, *ty)?;
+				n += unparse::_type(out,
+					&unparse::syn_nowrap, *ty)?;
 			};
 			if (i + 1 < len(g)) {
 				n += fmt::fprint(out, ", ")?;
@@ -148,7 +149,8 @@ fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 		for (let i = 0z; i < len(t); i += 1) {
 			n += unparse::ident(out, t[i].ident)?;
 			n += fmt::fprint(out, " = ")?;
-			n += unparse::_type(out, 0, t[i]._type)?;
+			n += unparse::_type(out,
+				&unparse::syn_nowrap, t[i]._type)?;
 			if (i + 1 < len(t)) {
 				n += fmt::fprint(out, ", ")?;
 			};
@@ -163,7 +165,8 @@ fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 				yield;
 			case let ty: *ast::_type =>
 				n += fmt::fprint(out, ": ")?;
-				n += unparse::_type(out, 0, *ty)?;
+				n += unparse::_type(out,
+					&unparse::syn_nowrap, *ty)?;
 			};
 			if (i + 1 < len(c)) {
 				n += fmt::fprint(out, ", ")?;
@@ -187,8 +190,10 @@ fn unparse_hare(out: io::handle, d: ast::decl) (size | io::error) = {
 		};
 		n += fmt::fprint(out, "fn ")?;
 		n += unparse::ident(out, f.ident)?;
-		n += unparse::prototype(out, 0,
-			f.prototype.repr as ast::func_type)?;
+		n += unparse::prototype(&unparse::context {
+			out = out,
+			...
+		}, &unparse::syn_nowrap, f.prototype.repr as ast::func_type)?;
 	};
 	n += fmt::fprint(out, ";")?;
 	return n;

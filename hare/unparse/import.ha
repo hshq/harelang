@@ -7,31 +7,54 @@ use hare::ast;
 use memio;
 
 // Unparses a [[hare::ast::import]].
-export fn import(out: io::handle, import: ast::import) (size | io::error) = {
+export fn import(
+	out: io::handle,
+	syn: *synfunc,
+	import: ast::import,
+) (size | io::error) = {
 	let n = 0z;
-	n += fmt::fprint(out, "use ")?;
+	let ctx = context {
+		out = out,
+		stack = &stack {
+			cur = &import,
+			...
+		},
+		...
+	};
+	n += syn(&ctx, "use", synkind::KEYWORD)?;
+	n += space(&ctx)?;
 	if (import.mode & ast::import_mode::ALIAS != 0) {
-		n += fmt::fprint(out, import.alias, "= ")?;
+		n += syn(&ctx, import.alias, synkind::IMPORT_ALIAS)?;
+		n += space(&ctx)?;
+		n += syn(&ctx, "=", synkind::OPERATOR)?;
+		n += space(&ctx)?;
 	};
-	n += ident(out, import.ident)?;
+	n += _ident(&ctx, syn, import.ident, synkind::IDENT)?;
 	if (import.mode & ast::import_mode::MEMBERS != 0) {
-		n += fmt::fprint(out, "::{")?;
+		n += syn(&ctx, "::", synkind::IDENT)?;
+		n += syn(&ctx, "{", synkind::PUNCTUATION)?;
 		for (let i = 0z; i < len(import.objects); i += 1) {
-			let tup = match (import.objects[i].0) {
-			case void =>
-				yield ("", "");
+			match (import.objects[i].0) {
 			case let s: str =>
-				yield (s, " = ");
+				n += syn(&ctx, s, synkind::IMPORT_ALIAS)?;
+				n += space(&ctx)?;
+				n += syn(&ctx, "=", synkind::OPERATOR)?;
+				n += space(&ctx)?;
+			case void => void;
 			};
-			n += fmt::fprintf(out, "{}{}{}{}", tup.0, tup.1,
-				import.objects[i].1,
-				if (i + 1 < len(import.objects)) ", " else "")?;
+			n += syn(&ctx, import.objects[i].1,
+				synkind::SECONDARY)?;
+			if (i + 1 < len(import.objects)) {
+				n += syn(&ctx, ",", synkind::PUNCTUATION)?;
+				n += space(&ctx)?;
+			};
 		};
-		n += fmt::fprint(out, "}")?;
+		n += syn(&ctx, "}", synkind::PUNCTUATION)?;
 	} else if (import.mode & ast::import_mode::WILDCARD != 0) {
-		n += fmt::fprint(out, "::*")?;
+		n += syn(&ctx, "::", synkind::IDENT)?;
+		n += syn(&ctx, "*", synkind::IDENT)?;
 	};
-	n += fmt::fprint(out, ";")?;
+	n += syn(&ctx, ";", synkind::PUNCTUATION)?;
 	return n;
 };
 
@@ -81,7 +104,7 @@ export fn import(out: io::handle, import: ast::import) (size | io::error) = {
 	];
 	for (let i = 0z; i < len(tests); i += 1) {
 		let buf = memio::dynamic();
-		import(&buf, tests[i].0) as size;
+		import(&buf, &syn_nowrap, tests[i].0)!;
 		let s = memio::string(&buf)!;
 		assert(s == tests[i].1);
 		free(s);

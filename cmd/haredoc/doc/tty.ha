@@ -276,7 +276,8 @@ fn prototype_tty(
 		linelen += if (len(t.params) != 0) len(t.params) * 3 - 1 else 0;
 		for (let i = 0z; i < len(t.params); i += 1) {
 			const param = t.params[i];
-			linelen += unparse::_type(&strm, indent, *param._type)?;
+			linelen += unparse::_type(&strm,
+				&unparse::syn_nowrap, *param._type)?;
 			typenames[i] = strings::dup(memio::string(&strm)!);
 			linelen += if (param.name == "") 1 else len(param.name);
 			memio::reset(&strm);
@@ -393,7 +394,7 @@ fn struct_union_type_tty(
 			n += render(out, syn::ATTRIBUTE)?;
 			n += fmt::fprint(out, "@offset(")?;
 			n += render(out, syn::NUMBER)?;
-			n += unparse::expr(out, indent, *ex)?;
+			n += unparse::expr(out, &unparse::syn_nowrap, *ex)?;
 			n += render(out, syn::ATTRIBUTE)?;
 			n += fmt::fprint(out, ")")?;
 			n += render(out, syn::NORMAL)?;
@@ -483,7 +484,8 @@ fn type_tty(
 				n += render(out, syn::OPERATOR)?;
 				n += fmt::fprint(out, " = ")?;
 				n += render(out, syn::NORMAL)?;
-				n += unparse::expr(out, indent, *e)?;
+				n += unparse::expr(out,
+					&unparse::syn_nowrap, *e)?;
 			};
 			n += render(out, syn::PUNCTUATION)?;
 			n += fmt::fprint(out, ",")?;
@@ -514,7 +516,7 @@ fn type_tty(
 		case ast::len_contextual =>
 			n += fmt::fprint(out, "_")?;
 		case let e: *ast::expr =>
-			n += unparse::expr(out, indent, *e)?;
+			n += unparse::expr(out, &unparse::syn_nowrap, *e)?;
 		};
 		n += render(out, syn::OPERATOR)?;
 		n += fmt::fprint(out, "]")?;

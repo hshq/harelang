@@ -517,7 +517,7 @@ fn enum_html(
 		case null => void;
 		case let expr: *ast::expr =>
 			z += fmt::fprint(out, " = ")?;
-			z += unparse::expr(out, indent, *expr)?;
+			z += unparse::expr(out, &unparse::syn_nowrap, *expr)?;
 		};
 
 		z += fmt::fprint(out, ",")?;
@@ -570,7 +570,7 @@ fn struct_union_html(
 		case null => void;
 		case let expr: *ast::expr =>
 			z += fmt::fprint(out, "@offset(")?;
-			z += unparse::expr(out, indent, *expr)?;
+			z += unparse::expr(out, &unparse::syn_nowrap, *expr)?;
 			z += fmt::fprint(out, ") ")?;
 		};
 
@@ -602,7 +602,7 @@ fn type_html(
 	if (brief) {
 		let buf = memio::dynamic();
 		defer io::close(&buf)!;
-		unparse::_type(&buf, indent, _type)?;
+		unparse::_type(&buf, &unparse::syn_nowrap, _type)?;
 		return html_escape(out, memio::string(&buf)!)?;
 	};
 
@@ -718,7 +718,7 @@ fn type_html(
 		z += fmt::fprint(out, "[")?;
 		match (t.length) {
 		case let expr: *ast::expr =>
-			z += unparse::expr(out, indent, *expr)?;
+			z += unparse::expr(out, &unparse::syn_nowrap, *expr)?;
 		case ast::len_slice =>
 			z += 0;
 		case ast::len_unbounded =>
@@ -756,8 +756,8 @@ fn prototype_html(
 		linelen += if (len(t.params) != 0) len(t.params) * 3 - 1 else 0;
 		for (let i = 0z; i < len(t.params); i += 1) {
 			const param = t.params[i];
-			linelen += unparse::_type(io::empty, indent,
-				*param._type)?;
+			linelen += unparse::_type(io::empty,
+				&unparse::syn_nowrap, *param._type)?;
 			linelen += if (param.name == "") 1 else len(param.name);
 		};
 		switch (t.variadism) {
@@ -767,7 +767,8 @@ fn prototype_html(
 		case variadism::C =>
 			linelen += 5;
 		};
-		linelen += unparse::_type(io::empty, indent, *t.result)?;
+		linelen += unparse::_type(io::empty,
+			&unparse::syn_nowrap, *t.result)?;
 		yield linelen;
 	};
 
