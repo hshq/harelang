@@ -19,12 +19,9 @@ tasks:
     sudo make install
 - hare: |
     cd hare
-    sed -e 's/freebsd/darwin/g' < config.example.mk > config.mk
+    cp config.darwin.mk config.mk
     make -j2
     sudo make install
-- tests: |
-    cd hare
-    make -j2 .bin/hare-tests
 - check: |
     cd hare
     make -j2 check

@@ -1,5 +1,6 @@
-// License: MPL-2.0
-// (c) 2022 Re Elbertson <citrons@mondecitronne.com>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use errors;
 use fmt;
 use fs;

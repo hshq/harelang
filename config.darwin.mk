@@ -1,49 +1,43 @@
-## Install configuration
-
-HAREC_TOOLS = ../harec.git/rt/+darwin
-
+# install locations
 PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)/share/man
 SRCDIR = $(PREFIX)/src
-
-# Where to install the stdlib tree
 STDLIB = $(SRCDIR)/hare/stdlib
 
-# Default HAREPATH
-HAREPATH = $(SRCDIR)/hare/stdlib:$(SRCDIR)/hare/third-party
-
-## Build configuration
-
-# Platform to build for
+# variables used during build
 PLATFORM = darwin
 ARCH = x86_64
-
-# External tools and flags
-HAREC = /usr/local/bin/harec
+HAREFLAGS =
 HARECFLAGS =
+QBEFLAGS =
+ASFLAGS =
+LDLINKFLAGS =
+
+# commands used by the build script
+HAREC = /usr/local/bin/harec
 QBE = qbe
-AS = $(HAREC_TOOLS)/as.sh
-LD = $(HAREC_TOOLS)/ld.sh
-AR = ar
+AS = ../harec.git/rt/+darwin/as.sh
+CC = /usr/bin/cc
+LD = ../harec.git/rt/+darwin/ld.sh
 SCDOC = scdoc
 
-# Where to store build artifacts
+# build locations
 HARECACHE = .cache
 BINOUT = .bin
 
-# Cross-compiler toolchains
+# variables that will be embedded in the binary with -D definitions
+HAREPATH = $(SRCDIR)/hare/stdlib:$(SRCDIR)/hare/third-party
+VERSION=$$(./scripts/version)
+
 AARCH64_AS=aarch64-as
-AARCH64_AR=aarch64-ar
 AARCH64_CC=aarch64-cc
 AARCH64_LD=aarch64-ld
 
 RISCV64_AS=riscv64-as
-RISCV64_AR=riscv64-ar
 RISCV64_CC=riscv64-cc
 RISCV64_LD=riscv64-ld
 
 X86_64_AS=$(AS)
-X86_64_AR=/usr/bin/ar
-X86_64_CC=/usr/bin/cc
+X86_64_CC=$(CC)
 X86_64_LD=$(LD)

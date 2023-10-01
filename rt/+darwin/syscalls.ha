@@ -1,7 +1,5 @@
-// License: MPL-2.0
-// (c) 2021 Drew DeVault <sir@cmpwn.com>
-// (c) 2021 Ember Sawady <ecs@d2evs.net>
-// (c) 2021 Thomas Bracht Laumann Jespersen <t@laumann.xyz>
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
 
 fn syscall0(u64) u64;
 fn syscall1(u64, u64) u64;

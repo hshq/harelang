@@ -1,6 +1,7 @@
 
 # install:
 cp config.darwin.mk config.mk
+./scripts/genbootstrap
 
 # mkdir -p /Volumes/hare-cache256/tmp
 # mkdir -p /Volumes/hare-cache256/hare
