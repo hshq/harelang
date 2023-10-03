@@ -50,12 +50,12 @@ tasks:
         exit 1
     fi
 - docs: |
-    if [ $BUILD_SUBMITTER != "git.sr.ht" ]
-    then
-        echo "Skipping docs for non-git.sr.ht build"
-        exit
-    fi
     cd hare
     make docs/html
     tar -C docs/html -cvz . > docs.tar.gz
+    if [ $BUILD_SUBMITTER != "git.sr.ht" ]
+    then
+        echo "Not uploading docs for non-git.sr.ht build"
+        exit
+    fi
     acurl -f https://pages.sr.ht/publish/docs.harelang.org -Fcontent=@docs.tar.gz
