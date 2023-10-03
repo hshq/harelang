@@ -638,7 +638,8 @@ fn constant(
 			defer free(s);
 			return syn(ctx, s, synkind::RUNE_STRING)?;
 		case let r: rune =>
-			let buf: [4]u8 = [0...];
+			// 4 for unicode codepoint + 2 's
+			let buf: [6]u8 = [0...];
 			if (r == '\'' || r == '\\') {
 				return syn(ctx, fmt::bsprintf(buf, `'\{}'`, r),
 					synkind::RUNE_STRING)?;
