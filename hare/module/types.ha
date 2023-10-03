@@ -69,7 +69,7 @@ export fn locstr(loc: location) str = {
 };
 
 // XXX: this shouldn't be necessary, the language should have some built-in way
-// to carry context with errors 
+// to carry context with errors
 fn attach(ctx: str, e: error) errcontext = (ctx, alloc(e)): errcontext;
 
 // Free the resources associated with an [[error]].

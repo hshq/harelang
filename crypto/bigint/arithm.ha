@@ -4,17 +4,17 @@
 // The following code was initially ported from BearSSL.
 //
 // Copyright (c) 2017 Thomas Pornin <pornin@bolet.org>
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -86,7 +86,7 @@ export fn rshift(x: []word, count: word) void = {
 // Multiply 'x' by 2^WORD_BITSZ and then add integer 'z', modulo 'm'. This
 // function assumes that 'x' and 'm' have the same announced bit length, and the
 // announced bit length of 'm' matches its true bit length.
-// 
+//
 // 'x' and 'm' may not refer to the same array.
 //
 // This function runs in constant time for a given announced bit length of 'x'
@@ -115,7 +115,7 @@ fn muladd_small(x: []word, z: word, m: const []word) void = {
 
 	// Principle: we estimate the quotient (x*2^31+z)/m by
 	// doing a 64/32 division with the high words.
-	// 
+	//
 	// Let:
 	//   w = 2^31
 	//   a = (w*a0 + a1) * w^N + a2
@@ -130,7 +130,7 @@ fn muladd_small(x: []word, z: word, m: const []word) void = {
 	// I.e. the two top words of a are a0:a1, the top word of b is
 	// b0, we ensured that b0 is "full" (high bit set), and a is
 	// such that the quotient q = a/b fits on one word (0 <= q < w).
-	// 
+	//
 	// If a = b*q + r (with 0 <= r < q), we can estimate q by
 	// doing an Euclidean division on the top words:
 	//   a0*w+a1 = b0*u + v  (with 0 <= v < b0)
@@ -165,10 +165,10 @@ fn muladd_small(x: []word, z: word, m: const []word) void = {
 	//    -- otherwise, we set q = g - 1.
 	// The properties described above then ensure that the true
 	// quotient is q-1, q or q+1.
-	// 
+	//
 	// Take care that a0, a1 and b0 are 31-bit words, not 32-bit. We
 	// must adjust the parameters to br_div() accordingly.
-	// 
+	//
 	const (g, _) = divu32(a0 >> 1, a1 | (a0 << 31), b0);
 	const q = muxu32(equ32(a0, b0), WORD_BITMASK,
 		muxu32(equ32(g, 0), 0, g - 1));
@@ -176,7 +176,7 @@ fn muladd_small(x: []word, z: word, m: const []word) void = {
 	// We subtract q*m from x (with the extra high word of value 'hi').
 	// Since q may be off by 1 (in either direction), we may have to
 	// add or subtract m afterwards.
-	// 
+	//
 	// The 'tb' flag will be true (1) at the end of the loop if the
 	// result is greater than or equal to the modulus (not counting
 	// 'hi' or the carry).
@@ -199,7 +199,7 @@ fn muladd_small(x: []word, z: word, m: const []word) void = {
 	// beyond the top array word), or cc == hi and tb is true (no
 	// extra bit, but the result is not lower than the modulus). In
 	// these cases we must subtract m once.
-	// 
+	//
 	// Otherwise, we may have overestimated, which will show as
 	// cc > hi (thus a negative result). Correction is adding m once.
 	const over = gtu32(cc, hi);
@@ -216,7 +216,7 @@ fn mul31(x: u32, y: u32) u64 = x: u64 * y: u64;
 fn mul31_lo(x: u32, y: u32) u32 = (x: u32 * y: u32) & 0x7FFFFFFF;
 
 // Calculate "m0i" which is equal to -(1/m0) mod 2^WORD_BITSZ, where m0 is the
-// least significant value word of m: []word. 
+// least significant value word of m: []word.
 fn ninv31(m0: u32) u32 = {
 	let y: u32 = 2 - m0;
 	y *= 2 - y * m0;

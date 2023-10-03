@@ -1,4 +1,4 @@
-This module provides Chacha20-Poly1305 and XChacha20-Poly1305 stream 
+This module provides Chacha20-Poly1305 and XChacha20-Poly1305 stream
 implementations as described in RFC 8439.
 
 A stream is created with [[chachapoly]]. [[init]] initializes a stream as a

@@ -20,7 +20,7 @@ export type flag = enum uint {
 	// If the pattern does not match any pathname, the pattern string is
 	// returned.
 	NOCHECK = 1 << 1,
-	// Backslash escaping is disabled. A backslash character is treated as 
+	// Backslash escaping is disabled. A backslash character is treated as
 	// an ordinary character.
 	NOESCAPE = 1 << 2,
 	// Pathname sorting is disabled. The order of pathnames returned is
@@ -263,7 +263,7 @@ fn pattern_parse(p: *pattern, pstr: str, noesc: bool) void = {
 		};
 		esc = false;
 	};
-	
+
 	// p.pat is the first path component which contains special
 	// characters.
 	memio::reset(&p.pat);

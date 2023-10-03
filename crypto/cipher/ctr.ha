@@ -100,7 +100,7 @@ fn ctr_keybuf(s: *xorstream) []u8 = {
 fn ctr_advance(s: *xorstream, n: size) void = {
 	let ctr = s: *ctr_stream;
 
-	// fill_xorbuf could be smarter, to skip multiple blocks at once. 
+	// fill_xorbuf could be smarter, to skip multiple blocks at once.
 	// It's of no use, since xorstream doesn't support skipping an arbritary
 	// number of blocks.
 	assert(n <= len(ctr.xorbuf));

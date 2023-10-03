@@ -9,7 +9,7 @@ use hash;
 // Calls [[extract]] and [[expand]] to derive a single key from specified 'key'
 // material using HMAC with 'h' as underlying hash function and writes it to
 // 'dest'. The resulting key size is of the size of 'dest'.
-// 
+//
 // 'info' binds the resulting key to the context in where it is being used and
 // therefore prevents the derivation of the same key for different contexts. It
 // should be independent of the input key. 'salt' does not need to be secret and

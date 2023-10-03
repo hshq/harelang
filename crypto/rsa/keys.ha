@@ -13,7 +13,7 @@ use types;
 // The default bit size of RSA keys is 4096-bit. Used as base for buffer sizes.
 export def BITSZ: size = 4096;
 
-// The minimum bit size of RSA keys used only for validation during key init. 
+// The minimum bit size of RSA keys used only for validation during key init.
 // The default value is 1024-bit.
 export def MINBITSZ: size = 1024;
 
@@ -27,7 +27,7 @@ export type pubparams = struct {
 };
 
 // RSA key parameters for initializing private keys with [[privkey_init]]. If
-// the private exponent d is available, [[privkey_initd]] may be used, which 
+// the private exponent d is available, [[privkey_initd]] may be used, which
 // derives 'dp' and 'dq'. All big integer values are in big-endian order.
 export type privparams = struct {
 	// Bit length of the modulus n. If unknown, the modulus can be provided
@@ -58,7 +58,7 @@ export def PUBKEYSZ: size = 5 + 2 * (BITSZ >> 3);
 // Initializes a public key from given [[pubparams]] 'x'. The data format
 // of 'pubkey' is subject to change and must not be used to serialize the key.
 // [[PUBKEYSZ]] defines the required size to store a key of [[BITSZ]].
-// 
+//
 // If given key does not fit into 'pubkey' or is too small, [[errors::overflow]]
 // is returned. Returns [[errors::invalid]], if given key parameters are
 // invalid. Returns the number of bytes written to 'pubkey' on success.
@@ -258,7 +258,7 @@ export fn privkey_initd(
 
 	let s = privkey_writehead(privkey, &x, n...)?;
 
-	// the order is important. The dmod operation uses the space for the 
+	// the order is important. The dmod operation uses the space for the
 	// remaining factors as buffer.
 	s += privkey_dmod(privkey[s..], d, x.p);
 	s += privkey_dmod(privkey[s..], d, x.q);

@@ -212,7 +212,7 @@ export fn gcm_seal(s: *gcmstream, tag: []u8) void = {
 };
 
 // Verifies the authentication tag against the decrypted data. Must be called
-// after reading all data from the stream to ensure that the data was not 
+// after reading all data from the stream to ensure that the data was not
 // modified. If the data was modified, [[errors::invalid]] will be returned and
 // the data must not be trusted.
 export fn gcm_verify(s: *gcmstream, tag: []u8) (void | errors::invalid) = {

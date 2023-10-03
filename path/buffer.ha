@@ -23,7 +23,7 @@ export fn set(buf: *buffer, items: str...) (str | error) = {
 	return push(buf, items...);
 };
 
-// Returns the current path stored in this buffer. 
+// Returns the current path stored in this buffer.
 // The return value is borrowed from the buffer. Use [[strings::dup]] to
 // extend the lifetime of the string.
 export fn string(buf: *buffer) str = {

@@ -38,9 +38,9 @@ tasks:
 - check_with_libc: |
     cd hare
     hare test -lc
-- copyright: |
+- lint: |
     cd hare
-    ./scripts/copyright.sh
+    ./scripts/lint.sh
 - bootstrap: |
     cd hare
     make -j2 bootstrap
