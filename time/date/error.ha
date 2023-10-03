@@ -6,6 +6,8 @@ use fmt;
 // All possible errors returned from [[date]].
 export type error = !(insufficient | invalid | parsefail);
 
+def FMTMSG = "Invalid date format for specifier '{}'";
+
 // Converts an [[error]] into a human-friendly string. The result may be
 // statically allocated.
 export fn strerror(err: error) const str = {
@@ -18,7 +20,6 @@ export fn strerror(err: error) const str = {
 		if (rn == '\0') {
 			return "Date parsing error";
 		};
-		def FMTMSG = "Invalid date format for specifier '{}'";
 		static let buf: [len(FMTMSG) + 2]u8 = [0...];
 		return fmt::bsprintf(buf, FMTMSG, rn);
 	};
