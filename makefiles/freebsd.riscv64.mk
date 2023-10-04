@@ -117,8 +117,8 @@ $(HARECACHE)/os.ssa: $(os_ha) $(HARECACHE)/bufio.td $(HARECACHE)/encoding_utf8.t
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/os.ssa -t $(HARECACHE)/os.td.tmp -N os $(os_ha)
 
-strconv_ha = strconv/ftos.ha strconv/itos.ha strconv/numeric.ha strconv/stof.ha strconv/stof_data.ha strconv/stoi.ha strconv/stou.ha strconv/types.ha strconv/utos.ha
-$(HARECACHE)/strconv.ssa: $(strconv_ha) $(HARECACHE)/ascii.td $(HARECACHE)/bytes.td $(HARECACHE)/encoding_utf8.td $(HARECACHE)/math.td $(HARECACHE)/strings.td $(HARECACHE)/types.td
+strconv_ha = strconv/ftos.ha strconv/ftos_multiprecision.ha strconv/ftos_ryu.ha strconv/itos.ha strconv/numeric.ha strconv/stof.ha strconv/stof_data.ha strconv/stoi.ha strconv/stou.ha strconv/types.ha strconv/utos.ha
+$(HARECACHE)/strconv.ssa: $(strconv_ha) $(HARECACHE)/ascii.td $(HARECACHE)/bytes.td $(HARECACHE)/encoding_utf8.td $(HARECACHE)/io.td $(HARECACHE)/math.td $(HARECACHE)/memio.td $(HARECACHE)/strings.td $(HARECACHE)/types.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/strconv.ssa -t $(HARECACHE)/strconv.td.tmp -N strconv $(strconv_ha)
