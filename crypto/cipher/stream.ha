@@ -10,7 +10,7 @@ use crypto::math::{xor};
 //
 // After initializing the xorstream can be written to with [[io::write]] to
 // encrypt data and write it to the handle 'h'. For decrpytion 'h' will provide
-// the ciphertext and the plaintext can be read from the xorstream with 
+// the ciphertext and the plaintext can be read from the xorstream with
 // [[io::read]].
 export type xorstream = struct {
 	stream: io::stream,

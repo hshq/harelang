@@ -10,7 +10,7 @@ all: $(BINOUT)/hare $(BINOUT)/harec2 $(BINOUT)/haredoc docs
 HARE_DEFINES = \
 	-D PLATFORM:str='"$(PLATFORM)"' \
 	-D ARCH:str='"$(ARCH)"' \
-	-D VERSION:str='"$(VERSION)"' \
+	-D VERSION:str="\"$(VERSION)\"" \
 	-D HAREPATH:str='"$(HAREPATH)"' \
 	-D AARCH64_AS:str='"$(AARCH64_AS)"' \
 	-D AARCH64_CC:str='"$(AARCH64_CC)"' \

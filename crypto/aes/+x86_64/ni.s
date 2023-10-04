@@ -24,40 +24,40 @@ enc_key_128:
 	movdqu %xmm1, (%rcx)
 	aeskeygenassist $0x1, %xmm1, %xmm2
 	call key_expand_128
-	movdqu %xmm1, 0x10(%rcx) 
+	movdqu %xmm1, 0x10(%rcx)
 	aeskeygenassist $0x2, %xmm1, %xmm2
 	call key_expand_128
-	movdqu %xmm1, 0x20(%rcx) 
+	movdqu %xmm1, 0x20(%rcx)
 	aeskeygenassist $0x4, %xmm1, %xmm2
 	call key_expand_128
-	movdqu %xmm1, 0x30(%rcx) 
+	movdqu %xmm1, 0x30(%rcx)
 	aeskeygenassist $0x8, %xmm1, %xmm2
 	call key_expand_128
-	movdqu %xmm1, 0x40(%rcx) 
+	movdqu %xmm1, 0x40(%rcx)
 	aeskeygenassist $0x10, %xmm1, %xmm2
 	call key_expand_128
-	movdqu %xmm1, 0x50(%rcx) 
+	movdqu %xmm1, 0x50(%rcx)
 	aeskeygenassist $0x20, %xmm1, %xmm2
 	call key_expand_128
-	movdqu %xmm1, 0x60(%rcx) 
+	movdqu %xmm1, 0x60(%rcx)
 	aeskeygenassist $0x40, %xmm1, %xmm2
 	call key_expand_128
-	movdqu %xmm1, 0x70(%rcx) 
+	movdqu %xmm1, 0x70(%rcx)
 	aeskeygenassist $0x80, %xmm1, %xmm2
 	call key_expand_128
-	movdqu %xmm1, 0x80(%rcx) 
+	movdqu %xmm1, 0x80(%rcx)
 	aeskeygenassist $0x1b, %xmm1, %xmm2
 	call key_expand_128
-	movdqu %xmm1, 0x90(%rcx) 
+	movdqu %xmm1, 0x90(%rcx)
 	aeskeygenassist $0x36, %xmm1, %xmm2
 	call key_expand_128
-	movdqu %xmm1, 0xa0(%rcx) 
+	movdqu %xmm1, 0xa0(%rcx)
 
 	# return rklen
 	mov $176, %rax
 
 	jmp dec_key
-key_expand_128: 
+key_expand_128:
 	vpslldq $0x4, %xmm1, %xmm3
 	pxor %xmm3, %xmm1
 	vpslldq $0x4, %xmm1, %xmm3
@@ -205,30 +205,30 @@ enc_key_256:
 	jmp dec_key
 
 key_expand_256_a:
-	movdqa %xmm1, %xmm4 
-	pslldq $4, %xmm4 
-	pxor   %xmm4, %xmm1 
-	pslldq $4, %xmm4 
-	pxor   %xmm4, %xmm1 
-	pslldq $4, %xmm4 
-	pxor   %xmm4, %xmm1 
+	movdqa %xmm1, %xmm4
+	pslldq $4, %xmm4
+	pxor   %xmm4, %xmm1
+	pslldq $4, %xmm4
+	pxor   %xmm4, %xmm1
+	pslldq $4, %xmm4
+	pxor   %xmm4, %xmm1
 
-	pshufd $0xff, %xmm2, %xmm2 
-	pxor   %xmm2, %xmm1 
+	pshufd $0xff, %xmm2, %xmm2
+	pxor   %xmm2, %xmm1
 
-	ret 
+	ret
 
 key_expand_256_b:
-	movdqa %xmm3, %xmm4 
-	pslldq $4, %xmm4 
-	pxor   %xmm4, %xmm3 
-	pslldq $4, %xmm4 
-	pxor   %xmm4, %xmm3 
-	pslldq $4, %xmm4 
-	pxor   %xmm4, %xmm3 
+	movdqa %xmm3, %xmm4
+	pslldq $4, %xmm4
+	pxor   %xmm4, %xmm3
+	pslldq $4, %xmm4
+	pxor   %xmm4, %xmm3
+	pslldq $4, %xmm4
+	pxor   %xmm4, %xmm3
 
-	pshufd $0xaa, %xmm2, %xmm2 
-	pxor   %xmm2, %xmm3 
+	pshufd $0xaa, %xmm2, %xmm2
+	pxor   %xmm2, %xmm3
 
 	ret
 
@@ -349,7 +349,7 @@ crypto.aes.x86ni_asencrypt:
 	movdqu (%rbx), %xmm1
 	pxor %xmm1, %xmm0
 
-	movdqu 0x10(%rbx), %xmm1 
+	movdqu 0x10(%rbx), %xmm1
 	aesenc %xmm1, %xmm0
 	movdqu 0x20(%rbx), %xmm1
 	aesenc %xmm1, %xmm0
@@ -368,7 +368,7 @@ crypto.aes.x86ni_asencrypt:
 	movdqu 0x90(%rbx), %xmm1
 	aesenc %xmm1, %xmm0
 
-	mov $208, %rdx 
+	mov $208, %rdx
 	cmp %rax, %rdx
 	jl encrypt_256
 	je encrypt_192
@@ -434,7 +434,7 @@ crypto.aes.x86ni_asdecrypt:
 	movdqu (%rbx), %xmm1
 	pxor %xmm1, %xmm0
 
-	movdqu 0x10(%rbx), %xmm1 
+	movdqu 0x10(%rbx), %xmm1
 	aesdec %xmm1, %xmm0
 	movdqu 0x20(%rbx), %xmm1
 	aesdec %xmm1, %xmm0
@@ -453,7 +453,7 @@ crypto.aes.x86ni_asdecrypt:
 	movdqu 0x90(%rbx), %xmm1
 	aesdec %xmm1, %xmm0
 
-	mov $208, %rdx 
+	mov $208, %rdx
 	cmp %rax, %rdx
 	je decrypt_192
 	jl decrypt_256

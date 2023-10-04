@@ -120,7 +120,7 @@ fn polypad(p: *poly1305::state, n: size) void = {
 	mac::write(p, pad[..padlen]);
 };
 
-// Finishes encryption and writes the authentication code to 'tag'. After 
+// Finishes encryption and writes the authentication code to 'tag'. After
 // calling seal, the user must not write any more data to the stream.
 export fn seal(s: *stream, tag: []u8) void = writemac(s, tag);
 

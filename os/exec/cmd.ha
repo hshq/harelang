@@ -95,7 +95,7 @@ export fn clearenv(cmd: *command) void = {
 };
 
 // Removes a variable in the command environment. This does not affect the
-// current process environment. The key may not contain '=' or '\0'. 
+// current process environment. The key may not contain '=' or '\0'.
 export fn unsetenv(cmd: *command, key: str) (void | errors::invalid) = {
 	if (strings::contains(key, '=', '\0')) return errors::invalid;
 

@@ -16,7 +16,7 @@ resources, such as:
 
 - Overseeing the fiduciary responsibilities of the project
 - Setting (and clarifying) the broader vision and direction for the project
-- Organizing participants and empowering them to roles for which they are suited 
+- Organizing participants and empowering them to roles for which they are suited
 - Planning long-term priorities and design goals
 - Mediating conflicts in the community
 - Providing the last word when consensus cannot be reached

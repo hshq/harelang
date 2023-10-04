@@ -9,9 +9,9 @@ export fn replace(s: str, needle: str, target: str) str = {
 	return multireplace(s, (needle, target));
 };
 
-// Performs a replacement in 's' of each tuple given by 'repls'. Replacement 
-// occurs in a single pass of 's', and works like in [[replace]], except that 
-// replacement pairs found earlier in 'repls' will take precedence over later 
+// Performs a replacement in 's' of each tuple given by 'repls'. Replacement
+// occurs in a single pass of 's', and works like in [[replace]], except that
+// replacement pairs found earlier in 'repls' will take precedence over later
 // ones. For example:
 //
 // 	assert(multireplace("hello there", ("e", "a"), ("a", "x"), ("ell", "eww")) == "hallo thara");

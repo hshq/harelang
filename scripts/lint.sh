@@ -4,6 +4,10 @@
 # find -exec doesn't propagate the exit status
 find . -name '*.ha' | while read -r f; do
 	awk 'BEGIN { state = "start" }
+		/[ \t]$/ {
+			print "trailing whitespace in " FILENAME
+			exit 1
+		}
 		state == "start" {
 			if ($0 !~ /^\/\/ SPDX-License-Identifier: /) {
 				print "missing copyright header in " FILENAME
@@ -33,6 +37,6 @@ find . -name '*.ha' | while read -r f; do
 				print "extra empty line after copyright header in " FILENAME
 				exit 1
 			}
-			exit 0
+			state = "body"
 		}' "$f"
 done

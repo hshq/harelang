@@ -13,6 +13,7 @@ use rt;
 use strings;
 use time;
 use unix::signal;
+use unix::tty;
 
 type test = struct {
 	name: str,
@@ -57,10 +58,16 @@ fn finish_context(ctx: *context) void = {
 	free(ctx.cwd);
 };
 
+fn colored() bool = {
+	return len(os::tryenv("NO_COLOR", "")) == 0
+		&& unix::tty::isatty(os::stdout_file);
+};
+
 let jmpbuf = rt::jmpbuf { ... };
 
 const @symbol("__test_array_start") test_start: [*]test;
 const @symbol("__test_array_end") test_end: [*]test;
+
 
 export @symbol("__test_main") fn main() size = {
 	const ntest = (&test_end: uintptr - &test_start: uintptr): size / size(test);
@@ -137,15 +144,24 @@ export @symbol("__test_main") fn main() size = {
 	};
 
 	// XXX: revisit once time::format_duration is implemented
-	fmt::printfln("\x1b[{}m" "{}" "\x1b[m" " passed; "
-		"\x1b[{}m" "{}" "\x1b[m" " failed; {} completed in {}.{:09}s",
-		if (len(enabled_tests) != len(ctx.failures)) "92" else "37",
-		len(enabled_tests) - len(ctx.failures),
-		if (len(ctx.failures) > 0) "91" else "37",
-		len(ctx.failures),
-		len(enabled_tests),
-		ctx.total_time / time::SECOND,
-		ctx.total_time % time::SECOND)!;
+	const passed_cnt = len(enabled_tests) - len(ctx.failures);
+	const failed_cnt = len(ctx.failures);
+	const total_cnt = len(enabled_tests);
+	const elapsed_whole = ctx.total_time / time::SECOND;
+	const elapsed_fraction = ctx.total_time % time::SECOND;
+	if (colored()) {
+		fmt::printfln("\x1b[{}m" "{}" "\x1b[m" " passed; "
+			"\x1b[{}m" "{}" "\x1b[m"
+			" failed; {} completed in {}.{:09}s",
+			if (len(enabled_tests) != len(ctx.failures)) "92" else "37",
+			passed_cnt,
+			if (len(ctx.failures) > 0) "91" else "37",
+			failed_cnt, total_cnt, elapsed_whole, elapsed_fraction)!;
+	} else {
+		fmt::printfln("{} passed; {} failed; {} completed in {}.{:09}s",
+			passed_cnt, failed_cnt, total_cnt, elapsed_whole,
+			elapsed_fraction)!;
+	};
 	ignoreme(ctx.failures, enabled_tests);
 
 	return len(ctx.failures);
@@ -244,11 +260,19 @@ fn run_test(ctx: *context, test: test) (void | failure) = {
 };
 
 fn pass() void = {
-	fmt::print("\x1b[92m" "PASS" "\x1b[m")!;
+	if (colored()) {
+		fmt::print("\x1b[92m" "PASS" "\x1b[m")!;
+	} else {
+		fmt::print("PASS")!;
+	};
 };
 
 fn fail(test: test, n: int) failure = {
-	fmt::print("\x1b[91m" "FAIL" "\x1b[m")!;
+	if (colored()) {
+		fmt::print("\x1b[91m" "FAIL" "\x1b[m")!;
+	} else {
+		fmt::print("FAIL")!;
+	};
 	switch (n) {
 	case 1 =>
 		// assertion failed
