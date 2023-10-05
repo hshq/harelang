@@ -10,6 +10,7 @@ use memio;
 use strings;
 use types;
 
+// Format styles for the [[ftosf]] functions.
 export type ffmt = enum {
 	// Scientific notation. Consists of a number in [1, 10), an 'e' (or 'E',
 	// if UPPER_EXP flag is present), then an exponent.
@@ -21,6 +22,7 @@ export type ffmt = enum {
 	G,
 };
 
+// Flags for the [[ftosf]] functions.
 export type fflags = enum uint {
 	// Use a sign for both positive and negative numbers.
 	SHOW_POS = 1 << 0,
