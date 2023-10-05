@@ -292,8 +292,7 @@ export fn fftosf(
 	};
 
 	if (f == ffmt::G && prec is uint) {
-		if (prec as uint == 0)
-			prec = 1u;
+		if (prec as uint == 0) prec = 1;
 	};
 
 	if (m.nd == 0) {

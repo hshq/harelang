@@ -168,8 +168,7 @@ use math;
 			// to the original number.
 			const back = stof64(res64)!;
 			assert(math::isnan(back) == math::isnan(tcs[i].0));
-			if (!math::isnan(back))
-				assert(back == tcs[i].0);
+			if (!math::isnan(back)) assert(back == tcs[i].0);
 		};
 
 		const res32 = ftosf(tcs[i].0: f32, tcs[i].1,
@@ -179,8 +178,7 @@ use math;
 		if (tcs[i].2 is void) {
 			const back = stof32(res32)!;
 			assert(math::isnan(back) == math::isnan(tcs[i].0));
-			if (!math::isnan(back))
-				assert(back == tcs[i].0: f32);
+			if (!math::isnan(back)) assert(back == tcs[i].0: f32);
 		};
 	};
 	// These tests will only pass for f64

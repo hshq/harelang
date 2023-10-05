@@ -96,10 +96,12 @@ const leftcheats: [](size, str) = [
 fn prefix_less_than_mp(m: *mp, s: str) bool = {
 	const u = strings::toutf8(s);
 	for (let i = 0z; i < len(s); i += 1) {
-		if (i >= m.nd)
+		if (i >= m.nd) {
 			return true;
-		if (m.buf[i] + '0': u8 != u[i])
+		};
+		if (m.buf[i] + '0': u8 != u[i]) {
 			return m.buf[i] + '0': u8 < u[i];
+		};
 	};
 	return false;
 };
