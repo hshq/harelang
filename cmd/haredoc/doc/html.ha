@@ -184,6 +184,7 @@ fn tocentries(
 			undoc = true;
 		};
 		unparse::decl(out, &syn_centry, decls[i])?;
+		fmt::fprintln(out)?;
 	};
 	fmt::fprint(out, "</pre>")?;
 	return;
