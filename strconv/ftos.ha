@@ -68,8 +68,8 @@ fn declen(n: u64) uint = {
 	else 1;
 };
 
-fn writestr(h: io::handle, s: str) (void | io::error) = {
-	io::writeall(h, strings::toutf8(s))?;
+fn writestr(h: io::handle, s: str) (size | io::error) = {
+	return io::writeall(h, strings::toutf8(s))?;
 };
 
 // XXX: this can likely be dedup'd with the other encode functions.
@@ -78,30 +78,32 @@ fn encode_zero(
 	f: ffmt,
 	prec: (void | uint),
 	flag: fflags,
-) (void | io::error) = {
-	memio::appendrune(h, '0')?;
+) (size | io::error) = {
+	let z = 0z;
+	z += memio::appendrune(h, '0')?;
 	let hasdec = false;
 	match (prec) {
 	case void => void;
 	case let u: uint =>
 		if (u > 0 && f != ffmt::G) {
-			memio::appendrune(h, '.')?;
+			z += memio::appendrune(h, '.')?;
 			for (let i = 0u; i < u; i += 1) {
-				memio::appendrune(h, '0')?;
+				z += memio::appendrune(h, '0')?;
 			};
 			hasdec = true;
 		};
 	};
 	if (!hasdec && ffpoint(flag)) {
-		memio::appendrune(h, '.')?;
-		memio::appendrune(h, '0')?;
+		z += memio::appendrune(h, '.')?;
+		z += memio::appendrune(h, '0')?;
 	};
 	if (f == ffmt::E) {
-		memio::appendrune(h, if (ffcaps_exp(flag)) 'E' else 'e')?;
-		if (ffpos_exp(flag)) memio::appendrune(h, '+')?;
-		memio::appendrune(h, '0')?;
-		if (fftwodigs(flag)) memio::appendrune(h, '0')?;
+		z += memio::appendrune(h, if (ffcaps_exp(flag)) 'E' else 'e')?;
+		if (ffpos_exp(flag)) z += memio::appendrune(h, '+')?;
+		z += memio::appendrune(h, '0')?;
+		if (fftwodigs(flag)) z += memio::appendrune(h, '0')?;
 	};
+	return z;
 };
 
 fn encode_f_mp(
@@ -110,7 +112,7 @@ fn encode_f_mp(
 	f: ffmt,
 	prec: (void | uint),
 	flag: fflags,
-) (void | io::error) = {
+) (size | io::error) = {
 	// we will loop from lo <= i < hi, printing either zeros or a digit.
 	// lo is simple, but hi depends intricately on f, prec, and the
 	// SHOW_POINT flag.
@@ -141,16 +143,18 @@ fn encode_f_mp(
 	if (ffpoint(flag) && hi <= m.dp) {
 		hi = m.dp + 1;
 	};
+	let z = 0z;
 	for (let i = lo; i < hi; i += 1) {
 		if (i == m.dp) {
-			memio::appendrune(h, '.')?;
+			z += memio::appendrune(h, '.')?;
 		};
 		if (0 <= i && i < m.nd: int) {
-			memio::appendrune(h, (m.buf[i] + '0'): rune)?;
+			z += memio::appendrune(h, (m.buf[i] + '0'): rune)?;
 		} else {
-			memio::appendrune(h, '0')?;
+			z += memio::appendrune(h, '0')?;
 		};
 	};
+	return z;
 };
 
 fn encode_e_mp(
@@ -159,9 +163,10 @@ fn encode_e_mp(
 	f: ffmt,
 	prec: (void | uint),
 	flag: fflags,
-) (void | io::error) = {
+) (size | io::error) = {
+	let z = 0z;
 	assert(m.nd > 0);
-	memio::appendrune(h, (m.buf[0] + '0'): rune)?;
+	z += memio::appendrune(h, (m.buf[0] + '0'): rune)?;
 	const zeros: uint = match (prec) {
 	case void =>
 		yield 0;
@@ -178,21 +183,21 @@ fn encode_e_mp(
 		zeros = 1;
 	};
 	if (m.nd > 1 || zeros > 0) {
-		memio::appendrune(h, '.')?;
+		z += memio::appendrune(h, '.')?;
 	};
 	for (let i = 1z; i < m.nd; i += 1) {
-		memio::appendrune(h, (m.buf[i] + '0'): rune)?;
+		z += memio::appendrune(h, (m.buf[i] + '0'): rune)?;
 	};
 	for (let i = 0u; i < zeros; i += 1) {
-		memio::appendrune(h, '0')?;
+		z += memio::appendrune(h, '0')?;
 	};
-	memio::appendrune(h, if (ffcaps_exp(flag)) 'E' else 'e')?;
+	z += memio::appendrune(h, if (ffcaps_exp(flag)) 'E' else 'e')?;
 	let e = m.dp - 1;
 	if (e < 0) {
 		e = -e;
-		memio::appendrune(h, '-')?;
+		z += memio::appendrune(h, '-')?;
 	} else if (ffpos_exp(flag)) {
-		memio::appendrune(h, '+')?;
+		z += memio::appendrune(h, '+')?;
 	};
 	let ebuf: [3]u8 = [0...]; // max and min exponents are 3 digits
 	let l = declen(e: u64);
@@ -204,8 +209,9 @@ fn encode_e_mp(
 		l = 2;
 	};
 	for (let i = 3 - l; i < 3; i += 1) {
-		memio::appendrune(h, (ebuf[i] + '0'): rune)?;
+		z += memio::appendrune(h, (ebuf[i] + '0'): rune)?;
 	};
+	return z;
 };
 
 // Converts a [[types::floating]] to a string in base 10 and writes the result
@@ -216,7 +222,7 @@ export fn fftosf(
 	f: ffmt,
 	prec: (void | uint),
 	flag: fflags,
-) (void | io::error) = {
+) (size | io::error) = {
 	const (mantissa, exponent, sign, special) = match (n) {
 	case let n: f64 =>
 		const bits = math::f64bits(n);
@@ -242,17 +248,18 @@ export fn fftosf(
 		return writestr(h, if (ffcaps(flag)) "NAN" else "nan");
 	};
 
+	let z = 0z;
 	if (sign) {
-		memio::appendrune(h, '-')?;
+		z += memio::appendrune(h, '-')?;
 	} else if (ffpos(flag)) {
-		memio::appendrune(h, '+')?;
+		z += memio::appendrune(h, '+')?;
 	};
 
 	if (special) {
-		return writestr(h,
-			if (ffcaps(flag)) "INFINITY" else "infinity");
+		return z + writestr(h,
+			if (ffcaps(flag)) "INFINITY" else "infinity")?;
 	} else if (exponent == 0 && mantissa == 0) {
-		return encode_zero(h, f, prec, flag);
+		return z + encode_zero(h, f, prec, flag)?;
 	};
 
 	let m = mp { ... };
@@ -299,12 +306,12 @@ export fn fftosf(
 
 	if (m.nd == 0) {
 		// rounded to zero
-		encode_zero(h, f, prec, flag)?;
+		return z + encode_zero(h, f, prec, flag)?;
 	} else if (f == ffmt::E || (f == ffmt::G &&
 			(m.dp < -1 || m.dp - m.nd: int > 2))) {
-		encode_e_mp(&m, h, f, prec, flag)?;
+		return z + encode_e_mp(&m, h, f, prec, flag)?;
 	} else {
-		encode_f_mp(&m, h, f, prec, flag)?;
+		return z + encode_f_mp(&m, h, f, prec, flag)?;
 	};
 };
 
