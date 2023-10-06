@@ -167,12 +167,12 @@ fn comment(ctx: *context, syn: *synfunc, s: str) (size | io::error) = {
 		break;
 	case let line: str =>
 		for (let j = 0z; j < ctx.indent; j += 1) {
-			n += fmt::fprint(ctx.out, "\t")?;
+			n += syn(ctx, "\t", synkind::COMMENT)?;
 			ctx.linelen += 8;
 		};
 		n += syn(ctx, "//", synkind::COMMENT)?;
 		n += syn(ctx, line, synkind::COMMENT)?;
-		n += fmt::fprintln(ctx.out)?;
+		n += syn(ctx, "\n", synkind::COMMENT)?;
 		ctx.linelen = 0;
 	};
 	return n;
