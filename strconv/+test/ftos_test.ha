@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use io;
 use math;
+use memio;
 
 @test fn ftosf() void = {
 	// These tests should pass for both f32 and f64.
@@ -159,9 +161,13 @@ use math;
 		(0.0123, ffmt::G, 2, fflags::SHOW_POINT, "0.012"),
 		(0.0123, ffmt::G, 5, fflags::SHOW_POINT, "0.0123"),
 	];
+	const stream = memio::dynamic();
+	defer io::close(&stream)!;
 	for (let i = 0z; i < len(tcs); i += 1) {
-		const res64 = ftosf(tcs[i].0, tcs[i].1, tcs[i].2, tcs[i].3);
-		//defer free(res64);
+		const z64 = fftosf(&stream, tcs[i].0, tcs[i].1,
+			tcs[i].2, tcs[i].3)!;
+		const res64 = memio::string(&stream)!;
+		assert(len(res64) == z64);
 		assert(res64 == tcs[i].4, res64);
 		if (tcs[i].2 is void) {
 			// void precision should guarantee that it parses back
@@ -171,15 +177,18 @@ use math;
 			if (!math::isnan(back)) assert(back == tcs[i].0);
 		};
 
-		const res32 = ftosf(tcs[i].0: f32, tcs[i].1,
-			tcs[i].2, tcs[i].3);
-		defer free(res32);
+		memio::reset(&stream);
+		const z32 = fftosf(&stream, tcs[i].0: f32, tcs[i].1,
+			tcs[i].2, tcs[i].3)!;
+		const res32 = memio::string(&stream)!;
+		assert(len(res32) == z32);
 		assert(res32 == tcs[i].4);
 		if (tcs[i].2 is void) {
 			const back = stof32(res32)!;
 			assert(math::isnan(back) == math::isnan(tcs[i].0));
 			if (!math::isnan(back)) assert(back == tcs[i].0: f32);
 		};
+		memio::reset(&stream);
 	};
 	// These tests will only pass for f64
 	const tcsf64: [](f64, ffmt, (void | uint), fflags, str) = [
@@ -196,10 +205,12 @@ use math;
 		(math::F64_MAX_NORMAL, ffmt::E, 3, 0, "1.798e308"),
 	];
 	for (let i = 0z; i < len(tcsf64); i += 1) {
-		const res64 = ftosf(tcsf64[i].0, tcsf64[i].1,
-			tcsf64[i].2, tcsf64[i].3);
-		defer free(res64);
+		const z64 = fftosf(&stream, tcsf64[i].0, tcsf64[i].1,
+			tcsf64[i].2, tcsf64[i].3)!;
+		const res64 = memio::string(&stream)!;
+		assert(len(res64) == z64);
 		assert(res64 == tcsf64[i].4);
+		memio::reset(&stream);
 	};
 	// These tests will only pass for f32
 	const tcsf32: [](f32, ffmt, (void | uint), fflags, str) = [
@@ -208,10 +219,12 @@ use math;
 		(math::F32_MAX_NORMAL, ffmt::G, void, 0, "3.4028235e38"),
 	];
 	for (let i = 0z; i < len(tcsf32); i += 1) {
-		const res32 = ftosf(tcsf32[i].0, tcsf32[i].1,
-			tcsf32[i].2, tcsf32[i].3);
-		defer free(res32);
+		const z32 = fftosf(&stream, tcsf32[i].0, tcsf32[i].1,
+			tcsf32[i].2, tcsf32[i].3)!;
+		const res32 = memio::string(&stream)!;
+		assert(len(res32) == z32);
 		assert(res32 == tcsf32[i].4);
+		memio::reset(&stream);
 	};
 	// Just make sure we can generate big numbers without breaking anything.
 	const tcslen: [](f64, ffmt, (void | uint), fflags, size) = [
@@ -221,10 +234,12 @@ use math;
 		(2.22507385850720088902458687609E-308, ffmt::F, 1000, 0, 1002),
 	];
 	for (let i = 0z; i < len(tcslen); i += 1) {
-		const res64 = ftosf(tcslen[i].0, tcslen[i].1,
-			tcslen[i].2, tcslen[i].3);
-		defer free(res64);
+		const z64 = fftosf(&stream, tcslen[i].0, tcslen[i].1,
+			tcslen[i].2, tcslen[i].3)!;
+		const res64 = memio::string(&stream)!;
+		assert(len(res64) == z64);
 		assert(len(res64) == tcslen[i].4);
+		memio::reset(&stream);
 	};
 	assert(f64tos(13.37) == "13.37");
 };
