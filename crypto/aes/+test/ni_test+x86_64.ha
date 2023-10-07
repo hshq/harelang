@@ -6,8 +6,17 @@ use crypto::cipher;
 
 const zero_rk: [EXPKEYLEN256]u8 = [0...];
 
+@test fn ni_enabled() void = {
+	assert((hwsup && rtvtable == &x86ni_vtable && initfuncptr == &x86ni_init)
+		|| !x86ni_available());
+};
+
 // taken from fips-197.pdf Section A.1
 @test fn ni_enc_key_expand_128() void = {
+	if (!x86ni_available()) {
+		return;
+	};
+
 	const key: [16]u8 = [
 		0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
 		0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c
@@ -50,6 +59,10 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 
 // taken from fips-197.pdf Section A.2
 @test fn ni_enc_key_expand_192() void = {
+	if (!x86ni_available()) {
+		return;
+	};
+
 	const key: [24]u8 = [
 		0x8e, 0x73, 0xb0, 0xf7, 0xda, 0x0e, 0x64, 0x52,
 		0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5,
@@ -95,6 +108,10 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 
 // taken from fips-197.pdf Section A.3
 @test fn ni_enc_key_expand_256() void = {
+	if (!x86ni_available()) {
+		return;
+	};
+
 	const key: [32]u8 = [
 		0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
 		0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81,
@@ -143,6 +160,10 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 };
 
 @test fn ni_test_encrypt_128() void = {
+	if (!x86ni_available()) {
+		return;
+	};
+
 	let key: [_]u8 = [
 		0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
 		0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c,
@@ -168,6 +189,10 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 };
 
 @test fn ni_test_decrypt_128() void = {
+	if (!x86ni_available()) {
+		return;
+	};
+
 	const key: [_]u8 = [
 		0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
 		0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c,
@@ -193,6 +218,10 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 
 // fips-197.pdf Appendix C.1
 @test fn ni_test_example_vector1() void = {
+	if (!x86ni_available()) {
+		return;
+	};
+
 	const key: []u8 = [
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
@@ -222,6 +251,10 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 
 // fips-197.pdf Appendix C.2
 @test fn ni_test_example_vector2() void = {
+	if (!x86ni_available()) {
+		return;
+	};
+
 	const key: []u8 = [
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
@@ -252,6 +285,10 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 
 // fips-197.pdf Appendix C.3
 @test fn ni_test_example_vector3() void = {
+	if (!x86ni_available()) {
+		return;
+	};
+
 	const key: []u8 = [
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
