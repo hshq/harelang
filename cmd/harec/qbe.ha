@@ -2,9 +2,9 @@
 // (c) Hare authors <https://harelang.org>
 
 use fmt;
-use io;
 use hare::types;
 use hare::types::{builtin};
+use io;
 
 type global = str;
 type temporary = str;

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use crypto::cipher;
 use bytes;
+use crypto::cipher;
 
 @test fn test_encrypt_128() void = {
 	const key: [16]u8 = [

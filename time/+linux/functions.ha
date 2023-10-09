@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use rt;
 use linux::vdso;
+use rt;
 
 // Converts a [[duration]] to an [[rt::timespec]]. This function is
 // non-portable.

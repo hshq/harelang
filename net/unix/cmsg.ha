@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use net;
 use io;
+use net;
 use rt;
 
 // Adds a list of file descriptors to the ancillary data for a sendmsg

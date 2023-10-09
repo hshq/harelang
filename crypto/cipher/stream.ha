@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use io;
 use crypto::math::{xor};
+use io;
 
 // An abstract interface for implementing streams that encrypt or decrypt by
 // producing a key stream that is xored with the data. The stream field should

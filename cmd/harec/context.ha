@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // (c) Hare authors <https://harelang.org>
 
-use io;
 use hare::types;
 use hare::unit;
+use io;
 use memio;
 
 type context = struct {

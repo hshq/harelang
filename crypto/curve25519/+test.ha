@@ -2,10 +2,10 @@
 // (c) Hare authors <https://harelang.org>
 
 use bytes;
+use crypto::random;
+use encoding::hex;
 use fmt;
 use io;
-use encoding::hex;
-use crypto::random;
 
 @test fn unpack25519() void = {
 	let in: [SCALARSZ]u8 = [1u8...];

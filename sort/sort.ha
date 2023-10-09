@@ -2,8 +2,8 @@
 // (c) Hare authors <https://harelang.org>
 
 use math;
-use types;
 use rt;
+use types;
 
 // Sorts a slice of items in place. This function provides a stable sort -
 // relative order of equal elements is preserved.

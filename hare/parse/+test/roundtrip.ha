@@ -5,8 +5,8 @@ use fmt;
 use hare::ast;
 use hare::lex;
 use hare::unparse;
-use io::{mode};
 use io;
+use io::{mode};
 use memio;
 use strings;
 

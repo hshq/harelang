@@ -6,10 +6,10 @@
 //
 // TODO: Move me into the extlib (hare-x-crypto?)
 use bytes;
+use crypto;
 use crypto::blowfish;
 use crypto::cipher;
 use crypto::random;
-use crypto;
 use errors;
 use fmt;
 use io;

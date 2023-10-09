@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use io;
 use fmt;
+use io;
 
 fn newline(ctx: *context) (size | io::error) = {
 	let n = 0z;

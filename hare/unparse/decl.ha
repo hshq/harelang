@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use io;
 use fmt;
 use hare::ast;
 use hare::lex;
+use io;
 use memio;
 use strings;
 

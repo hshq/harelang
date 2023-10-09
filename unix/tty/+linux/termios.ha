@@ -2,9 +2,9 @@
 // (c) Hare authors <https://harelang.org>
 
 // TODO: Not in love with this interface
+use errors;
 use io;
 use rt;
-use errors;
 
 export type termios = struct {
 	file: io::file,

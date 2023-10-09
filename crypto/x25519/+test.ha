@@ -2,8 +2,8 @@
 // (c) Hare authors <https://harelang.org>
 
 use bytes;
-use encoding::hex;
 use crypto::random;
+use encoding::hex;
 
 @test fn sample() void = {
 	let seed: [32]u8 = [0xff...];

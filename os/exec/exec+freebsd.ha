@@ -3,8 +3,8 @@
 
 use errors;
 use io;
-use rt;
 use os;
+use rt;
 use types::c;
 use unix;
 

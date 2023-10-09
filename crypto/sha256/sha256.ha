@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use crypto::math;
 use bytes;
+use crypto::math;
 use endian;
 use hash;
 use io;

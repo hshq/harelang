@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use io;
 use fmt;
 use hare::ast;
+use io;
 
 // Unparses a [[hare::ast::subunit]].
 export fn subunit(
