@@ -86,22 +86,15 @@ export const tai: timescale = timescale {
 };
 
 fn tai_conv(ts: *timescale, i: time::instant) ([]time::instant | void) = {
-	static let buf = [time::instant { ... }];
+	let ret: []time::instant = [];
 	switch (ts) {
 	case &tai =>
-		buf[0] = i;
-		return buf;
+		append(ret, i);
+		return ret;
 	case =>
 		return void;
 	};
 };
-
-// TODO: Write proper conversion functions for all timescales.
-//
-// Ticket: https://todo.sr.ht/~sircmpwn/hare/642
-//
-// For UTC, conversion functions are to return two or no instants, depending on
-// any leap second events, and use a proper leap second table. See leapsec.ha.
 
 
 // Coordinated Universal Time
@@ -122,10 +115,11 @@ export const utc: timescale = timescale {
 };
 
 fn utc_convto(ts: *timescale, i: time::instant) ([]time::instant | void) = {
-	static let buf = [time::instant { ... }];
+	let ret: []time::instant = [];
 	switch (ts) {
 	case &utc =>
-		buf[0] = i;
+		append(ret, i);
+		return ret;
 	case &tai =>
 		if (!utc_isinitialized) {
 			match (init_utc_leapsecs()) {
@@ -136,28 +130,81 @@ fn utc_convto(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 			};
 		};
 
-		const idx = lookup_leaps(&utc_leapsecs, time::unix(i));
-		const ofst = utc_leapsecs[idx].1;
-
-		if (time::unix(i) == utc_leapsecs[idx].0) {
-			void;
+		const firstleap = utc_leapsecs[0]; // TODO: no leapsecs loaded
+		if (time::compare(i, time::from_unix(firstleap.0)) < 0) {
+			append(ret, time::instant {
+				sec = i.sec + firstleap.1,
+				nsec = i.nsec,
+			});
+			return ret;
 		};
 
-		buf[0] = time::instant {
-			sec = i.sec + 37,
-			nsec = i.nsec,
+		for (let idx = len(utc_leapsecs) - 1; idx >= 0 ; idx -= 1) {
+			const leap = utc_leapsecs[idx];
+			const leapsecond = time::from_unix(leap.0);
+			const leapoffset = leap.1;
+			const diff = time::diff(leapsecond, i);
+
+			const prevleapoffset =
+				if (idx == 0) 0i64 else utc_leapsecs[idx - 1].1;
+			const offsetdiff =
+				(leapoffset - prevleapoffset) * time::SECOND;
+
+			// case of positive leap second (UTC repeats a second)
+			if (offsetdiff >= 0) {
+				if (diff >= 0) {
+					append(ret, time::instant {
+						sec = i.sec + leapoffset,
+						nsec = i.nsec,
+					});
+					return ret;
+				};
+
+				if (diff >= -offsetdiff && diff < 0) {
+					append(ret, [
+						time::instant {
+							sec = i.sec + prevleapoffset,
+							nsec = i.nsec,
+						},
+						time::instant {
+							sec = i.sec + leapoffset,
+							nsec = i.nsec,
+						},
+					]...);
+					return ret;
+				};
+
+				continue;
+			};
+
+			// case of negative leap second (UTC skips a second)
+			if (offsetdiff < 0) {
+				if (diff >= 0) {
+					append(ret, time::instant {
+						sec = i.sec + leapoffset,
+						nsec = i.nsec,
+					});
+					return ret;
+				};
+
+				if (diff >= offsetdiff && diff < 0) {
+					return ret;
+				};
+
+				continue;
+			};
 		};
 	case =>
 		return void;
 	};
-	return buf;
 };
 
 fn utc_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
-	static let buf = [time::instant { ... }];
+	let ret: []time::instant = [];
 	switch (ts) {
 	case &utc =>
-		buf[0] = i;
+		append(ret, i);
+		return ret;
 	case &tai =>
 		if (!utc_isinitialized) {
 			match (init_utc_leapsecs()) {
@@ -168,44 +215,55 @@ fn utc_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 			};
 		};
 
-		const idx = lookup_leaps(&utc_leapsecs, time::unix(i));
-		const ofst = utc_leapsecs[idx].1;
-
-		if (time::unix(i) == utc_leapsecs[idx].0) {
-			void;
+		const firstleap = utc_leapsecs[0]; // TODO: no leapsecs loaded
+		if (time::compare(i, time::from_unix(firstleap.0 + firstleap.1)) < 0) {
+			append(ret, time::instant {
+				sec = i.sec - firstleap.1,
+				nsec = i.nsec,
+			});
+			return ret;
 		};
 
-		buf[0] = time::instant {
-			sec = i.sec - 37,
-			nsec = i.nsec,
+		for (let idx = len(utc_leapsecs) - 1; idx >= 0 ; idx -= 1) {
+			const leap = utc_leapsecs[idx];
+			const leapsecond = time::from_unix(leap.0 + leap.1);
+			const leapoffset = leap.1;
+			const diff = time::diff(leapsecond, i);
+
+			const prevleapoffset =
+				if (idx == 0) 10i64 else utc_leapsecs[idx - 1].1;
+			const offsetdiff
+				= (leapoffset - prevleapoffset) * time::SECOND;
+
+			// case of positive leap second (UTC repeats a second)
+			if (offsetdiff >= 0) {
+				if (diff >= -offsetdiff) {
+					append(ret, time::instant {
+						sec = i.sec - leapoffset,
+						nsec = i.nsec,
+					});
+					return ret;
+				};
+
+				continue;
+			};
+
+			// case of negative leap second (UTC skips a second)
+			if (offsetdiff < 0) {
+				if (diff >= 0) {
+					append(ret, time::instant {
+						sec = i.sec - leapoffset,
+						nsec = i.nsec,
+					});
+					return ret;
+				};
+
+				continue;
+			};
 		};
 	case =>
 		return void;
 	};
-	return buf;
-};
-
-fn lookup_leaps(list: *[](i64, i64), t: i64) size = {
-	let lo = 0z, hi = len(list);
-	for (hi - lo > 1) {
-		const mid = lo + (hi - lo) / 2;
-		const middle = list[mid].0;
-		const cmp = time::compare(
-			time::from_unix(t),
-			time::from_unix(middle),
-		);
-		switch (cmp) {
-		case -1 =>
-			hi = mid;
-		case 0 =>
-			lo = mid; break;
-		case 1 =>
-			lo = mid;
-		case =>
-			abort("Unreachable");
-		};
-	};
-	return lo;
 };
 
 
@@ -226,29 +284,31 @@ export const gps: timescale = timescale {
 def GPS_OFFSET: time::duration = -19 * time::SECOND;
 
 fn gps_convto(ts: *timescale, i: time::instant) ([]time::instant | void) = {
-	static let buf = [time::instant { ... }];
+	let ret: []time::instant = [];
 	switch (ts) {
 	case &gps =>
-		buf[0] = i;
+		append(ret, i);
+		return ret;
 	case &tai =>
-		buf[0] = time::add(i, -GPS_OFFSET);
+		append(ret, time::add(i, -GPS_OFFSET));
+		return ret;
 	case =>
 		return void;
 	};
-	return buf;
 };
 
 fn gps_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
-	static let buf = [time::instant { ... }];
+	let ret: []time::instant = [];
 	switch (ts) {
 	case &gps =>
-		buf[0] = i;
+		append(ret, i);
+		return ret;
 	case &tai =>
-		buf[0] = time::add(i, GPS_OFFSET);
+		append(ret, time::add(i, GPS_OFFSET));
+		return ret;
 	case =>
 		return void;
 	};
-	return buf;
 };
 
 
@@ -269,30 +329,32 @@ export const tt: timescale = timescale {
 def TT_OFFSET: time::duration = 32184 * time::MILLISECOND; // 32.184 seconds
 
 fn tt_convto(ts: *timescale, i: time::instant) ([]time::instant | void) = {
-	static let buf = [time::instant { ... }];
+	let ret: []time::instant = [];
 	switch (ts) {
 	case &tt =>
-		buf[0] = i;
+		append(ret, i);
+		return ret;
 	case &tai =>
-		buf[0] = time::add(i, -TT_OFFSET);
+		append(ret, time::add(i, -TT_OFFSET));
+		return ret;
 	case =>
 		return void;
 	};
-	return buf;
 };
 
 
 fn tt_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
-	static let buf = [time::instant { ... }];
+	let ret: []time::instant = [];
 	switch (ts) {
 	case &tt =>
-		buf[0] = i;
+		append(ret, i);
+		return ret;
 	case &tai =>
-		buf[0] = time::add(i, TT_OFFSET);
+		append(ret, time::add(i, TT_OFFSET));
+		return ret;
 	case =>
 		return void;
 	};
-	return buf;
 };
 
 // Arthur David Olson had expressed support for Martian time in his timezone
@@ -330,11 +392,11 @@ def DELTA_MARSEPOCH_JANSIX: time::duration = 44796 * 24 * time::HOUR;
 def DELTA_JANSIX_ADJUSTMENT: time::duration = 82944 * time::MILLISECOND;
 
 fn mtc_convto(ts: *timescale, i: time::instant) ([]time::instant | void) = {
-	static let buf = [time::instant { ... }];
+	let ret: []time::instant = [];
 	switch (ts) {
 	case &mtc =>
-		buf[0] = i;
-		return buf;
+		append(ret, i);
+		return ret;
 	case &tai =>
 		// Change epoch from that of the Mars Sol Date
 		// to the Earth-Mars convergence date 2000 Jan 6th.
@@ -352,20 +414,19 @@ fn mtc_convto(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 
 		// Get the TAI time.
 		// assertion since TT and TAI are continuous.
-		const ts = tt.convto(&tai, i) as []time::instant;
-
-		return ts;
+		append(ret, (tt.convto(&tai, i) as []time::instant)[0]);
+		return ret;
 	case =>
-		void;
+		return void;
 	};
-
 };
 
 fn mtc_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
-	static let buf = [time::instant { ... }];
+	let ret: []time::instant = [];
 	switch (ts) {
 	case &mtc =>
-		buf[0] = i;
+		append(ret, i);
+		return ret;
 	case &tai =>
 		// Get the "Terrestrial Time".
 		// assertion since TT and TAI are continuous.
@@ -383,9 +444,9 @@ fn mtc_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 		i = time::add(i, -DELTA_JANSIX_ADJUSTMENT);
 
 		// Change epoch to that of the Mars Sol Date.
-		buf[0] = time::add(i, DELTA_MARSEPOCH_JANSIX);
+		append(ret, time::add(i, DELTA_MARSEPOCH_JANSIX));
+		return ret;
 	case =>
 		return void;
 	};
-	return buf;
 };
