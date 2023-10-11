@@ -704,7 +704,6 @@ export fn gcd(a: u64, b: u64) u64 = {
 		};
 		b >>= trailing_zeros_u64(b);
 	};
-	abort();
 };
 
 @test fn gcd() void = {

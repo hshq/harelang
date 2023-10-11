@@ -22,7 +22,6 @@ fn name_list(lexer: *lex::lexer) (ast::import_members | error) = {
 		case => abort(); // Unreachable
 		};
 	};
-	abort();
 };
 
 // Parses the import list for a sub-unit

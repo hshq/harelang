@@ -91,5 +91,4 @@ export fn next(sc: *scanner) (entry | io::EOF | error) = {
 			strings::sub(line, eq + 1, strings::end),
 		);
 	};
-	abort(); // Unreachable
 };

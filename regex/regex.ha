@@ -768,8 +768,6 @@ fn search(
 			};
 		};
 	};
-
-	return void;
 };
 
 // Returns whether or not a [[regex]] matches any part of a given string.

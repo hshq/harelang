@@ -226,7 +226,6 @@ fn fnmatch_internal(
 		case rune => void;
 		};
 	};
-	abort();
 };
 
 fn match_bracket(
