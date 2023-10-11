@@ -30,9 +30,7 @@ export fn file(iomode: io::mode, mode: fs::mode) (io::file | fs::error) = {
 	// TODO: Add a custom "close" function which removes the named file
 	match (os::create(get_tmpdir(), mode, oflags)) {
 	case let err: fs::error =>
-		let file = named(os::cwd, get_tmpdir(), iomode, mode...)?;
-		free(file.1);
-		return file.0;
+		return named(os::cwd, get_tmpdir(), iomode, mode...)?.0;
 	case let f: io::file =>
 		return f;
 	};
