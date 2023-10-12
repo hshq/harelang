@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use rt;
 use endian;
+use rt;
 
 export fn to_native(a: addr, port: u16) rt::sockaddr = {
 	match (a) {
