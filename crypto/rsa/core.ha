@@ -25,8 +25,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 use bytes;
-use crypto::math::{divu32};
 use crypto::bigint::*;
+use crypto::math::{divu32};
 use errors;
 use types;
 

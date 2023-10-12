@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use endian;
 use errors;
+use io;
 use rt;
 use time;
-use io;
-use endian;
 
 // The timer will trigger only once, after the set duration and never after.
 export type oneshot = time::duration;

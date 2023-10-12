@@ -2,10 +2,10 @@
 // (c) Hare authors <https://harelang.org>
 
 use fmt;
-use io;
 use hare::ast;
 use hare::ast::{variadism};
 use hare::lex;
+use io;
 use memio;
 use strings;
 

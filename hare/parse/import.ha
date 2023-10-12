@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use fmt;
 use hare::ast;
 use hare::lex;
-use hare::lex::{ltok};
 
-use fmt;
+use hare::lex::{ltok};
 
 fn name_list(lexer: *lex::lexer) ([]((str | void), str) | error) = {
 	let names: []((str | void), str) = [];

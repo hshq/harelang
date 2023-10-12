@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use errors;
 use crypto::argon2;
+use errors;
 
 // Given a password, derive a key. Given the same password, salt, memory, and
 // passes, this function will always produce the same key. This function is

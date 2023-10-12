@@ -2,8 +2,8 @@
 // (c) Hare authors <https://harelang.org>
 
 use errors;
-use rt;
 use io;
+use rt;
 
 // Fills the given buffer with cryptographically random data. If the system is
 // unable to provide random data, abort. If you need to handle errors or want to

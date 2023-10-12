@@ -3,8 +3,8 @@
 
 use hare::ast;
 use hare::types;
-use hash::fnv;
 use hash;
+use hash::fnv;
 use strings;
 
 // What sort of [[object]] is represented.

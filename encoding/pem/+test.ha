@@ -2,8 +2,8 @@
 // (c) Hare authors <https://harelang.org>
 
 use bytes;
-use io;
 use fmt;
+use io;
 use memio;
 use strings;
 

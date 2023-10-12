@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use rt;
 use format::elf;
+use rt;
 
 @init fn init_linux() void = {
 	let i = 0;

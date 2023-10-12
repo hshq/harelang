@@ -4,8 +4,8 @@
 // TODO:
 // - Set name field
 // - Figure out the portability mess that is this interface
-use rt;
 use fmt;
+use rt;
 
 export type msghdr = struct {
 	native: rt::msghdr,

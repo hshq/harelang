@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use io;
 use fmt;
 use hare::ast;
 use hare::ast::{binarithm_op};
-use hare::lex::{ltok};
 use hare::lex;
+use hare::lex::{ltok};
+use io;
 use strings;
 
 // Unparses a [[hare::ast::expr]].

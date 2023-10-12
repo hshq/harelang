@@ -2,11 +2,11 @@
 // (c) Hare authors <https://harelang.org>
 
 use hare::ast;
-use hare::lex::{ltok};
 use hare::lex;
+use hare::lex::{ltok};
 use math;
-use types;
 use strings;
+use types;
 
 // Parses an expression.
 export fn expr(lexer: *lex::lexer) (ast::expr | error) = {

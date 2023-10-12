@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use strings;
 use fmt;
+use strings;
 
 @test fn bcrypt() void = {
 	const pass = strings::toutf8("hare is cool");

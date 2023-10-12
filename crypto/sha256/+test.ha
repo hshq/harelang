@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use encoding::hex;
 use fmt;
 use hash;
 use strings;
-use encoding::hex;
 
 @test fn sha256() void = {
 	let sha = sha256();

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use crypto::aes;
 use bytes;
+use crypto::aes;
 use crypto::cipher;
 
 export type block = struct {

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use rt;
 use io;
 use os;
+use rt;
 
 // Returns whether the given stream is connected to a terminal.
 export fn isatty(fd: io::file) bool = {

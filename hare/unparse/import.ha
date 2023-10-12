@@ -2,8 +2,8 @@
 // (c) Hare authors <https://harelang.org>
 
 use fmt;
-use io;
 use hare::ast;
+use io;
 use memio;
 
 // Unparses a [[hare::ast::import]].

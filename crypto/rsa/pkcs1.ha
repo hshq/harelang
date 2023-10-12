@@ -2,10 +2,10 @@
 // (c) Hare authors <https://harelang.org>
 
 use bufio;
+use crypto::math;
 use crypto::sha1;
 use crypto::sha256;
 use crypto::sha512;
-use crypto::math;
 use errors;
 use hash;
 use io;

@@ -2,8 +2,8 @@
 // (c) Hare authors <https://harelang.org>
 
 use hare::ast;
-use hare::lex::{ltok};
 use hare::lex;
+use hare::lex::{ltok};
 use memio;
 use strings;
 

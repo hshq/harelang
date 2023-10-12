@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use hash;
-use io;
 use bytes;
 use crypto::math;
 use endian;
+use hash;
+use io;
 
 // The size, in bytes, of a SHA-1 digest.
 export def SZ: size = 20;

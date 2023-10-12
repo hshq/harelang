@@ -2,8 +2,8 @@
 // (c) Hare authors <https://harelang.org>
 
 use bytes;
-use types;
 use strings;
+use types;
 
 // Converts an i64 to a string in the given base. The return value is statically
 // allocated and will be overwritten on subsequent calls; see [[strings::dup]] to

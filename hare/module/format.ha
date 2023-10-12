@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use time::date;
 use fmt;
 use hare::unparse;
 use io;
 use time::chrono;
+use time::date;
 
 // Formats a set of tags to an [[io::handle]] in "+tag1-tag2" format.
 export fn format_tags(

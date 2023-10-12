@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use io;
 use fmt;
+use io;
 // TODO: Use a vtable-based approach for this like io::stream
 
 // The general purpose interface for a hashing function.

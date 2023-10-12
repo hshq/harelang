@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use types;
 use strings;
+use types;
 
 // Converts a string to an i64 in the given base. If the string contains any
 // non-numeric characters, except '-' or '+' at the start, or if it's empty,

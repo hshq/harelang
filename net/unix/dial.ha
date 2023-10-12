@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use net::dial;
 use net;
+use net::dial;
 
 fn dial_unix(addr: str, service: str) (net::socket | dial::error) = {
 	match (connect(addr)) {

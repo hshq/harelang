@@ -2,8 +2,8 @@
 // (c) Hare authors <https://harelang.org>
 
 use endian;
-use hash::fnv;
 use hash;
+use hash::fnv;
 use strings;
 
 // Keep ordered with respect to bootstrap harec:include/types.h

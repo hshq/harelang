@@ -2,8 +2,8 @@
 // (c) Hare authors <https://harelang.org>
 
 use fmt;
-use hare::lex::{ltok};
 use hare::lex;
+use hare::lex::{ltok};
 use io;
 use memio;
 

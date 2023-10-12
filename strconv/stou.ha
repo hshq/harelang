@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use strings;
-use types;
 use ascii;
 use encoding::utf8;
+use strings;
+use types;
 
 fn rune_to_integer(r: rune) (u64 | void) = {
 	if (ascii::isdigit(r))

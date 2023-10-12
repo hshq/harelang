@@ -3,8 +3,8 @@
 
 use errors;
 use io;
-use net::ip;
 use net;
+use net::ip;
 use os;
 use rt;
 
