@@ -450,3 +450,204 @@ fn mtc_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 		return void;
 	};
 };
+
+
+@test fn utc_convto_tai() void = {
+	// TODO: skip test if no leapsec data available (!utc_isinitialized)
+	// TODO: test negative leapsecs somehow
+	let testcases: [](
+		(i64, i64), // give
+		(void | [0](i64, i64) | [1](i64, i64) | [2](i64, i64)) // expect
+	) = [
+		((-      1000i64,         0i64), [(-       990i64,         0i64)]),
+		((          0i64,         0i64), [(         10i64,         0i64)]),
+		((       1000i64,         0i64), [(       1010i64,         0i64)]),
+		// 1970 Jan 01
+		((   63071998i64,         0i64), [(   63072008i64,         0i64)]),
+		((   63071998i64, 500000000i64), [(   63072008i64, 500000000i64)]),
+		((   63071999i64,         0i64), [(   63072009i64,         0i64)]),
+		((   63071999i64, 500000000i64), [(   63072009i64, 500000000i64)]),
+		((   63072000i64,         0i64), [(   63072010i64,         0i64)]),
+		((   63072000i64, 500000000i64), [(   63072010i64, 500000000i64)]),
+		((   63072001i64,         0i64), [(   63072011i64,         0i64)]),
+		((   63072001i64, 500000000i64), [(   63072011i64, 500000000i64)]),
+		((   63072002i64,         0i64), [(   63072012i64,         0i64)]),
+		// 1981 Jul 01
+		((  362793598i64,         0i64), [(  362793617i64,         0i64)]),
+		((  362793598i64, 500000000i64), [(  362793617i64, 500000000i64)]),
+		((  362793599i64,         0i64), [
+			(  362793618i64,         0i64),
+			(  362793619i64,         0i64),
+		]),
+		((  362793599i64, 500000000i64), [
+			(  362793618i64, 500000000i64),
+			(  362793619i64, 500000000i64),
+		]),
+		((  362793600i64,         0i64), [(  362793620i64,         0i64)]),
+		((  362793600i64, 500000000i64), [(  362793620i64, 500000000i64)]),
+		((  362793601i64,         0i64), [(  362793621i64,         0i64)]),
+		((  362793601i64, 500000000i64), [(  362793621i64, 500000000i64)]),
+		((  362793602i64,         0i64), [(  362793622i64,         0i64)]),
+		// 2017 Jan 01
+		(( 1483228798i64,         0i64), [( 1483228834i64,         0i64)]),
+		(( 1483228798i64, 500000000i64), [( 1483228834i64, 500000000i64)]),
+		(( 1483228799i64,         0i64), [
+			( 1483228835i64,         0i64),
+			( 1483228836i64,         0i64),
+		]),
+		(( 1483228799i64, 500000000i64), [
+			( 1483228835i64, 500000000i64),
+			( 1483228836i64, 500000000i64),
+		]),
+		(( 1483228800i64,         0i64), [( 1483228837i64,         0i64)]),
+		(( 1483228800i64, 500000000i64), [( 1483228837i64, 500000000i64)]),
+		(( 1483228801i64,         0i64), [( 1483228838i64,         0i64)]),
+		(( 1483228801i64, 500000000i64), [( 1483228838i64, 500000000i64)]),
+		(( 1483228802i64,         0i64), [( 1483228839i64,         0i64)]),
+	];
+
+	for (let idx = 0z; idx < len(testcases); idx += 1) {
+		let testcase = testcases[idx];
+		let params = testcase.0;
+		let param = time::instant{ sec = params.0, nsec = params.1 };
+		let expect = testcase.1;
+		let actual = utc_convto(&tai, param);
+
+		match (expect) {
+		case void =>
+			assert(actual is void);
+
+		case [0](i64, i64) =>
+			assert(actual is []time::instant);
+			const actual = actual as []time::instant;
+			assert(len(actual) == 0);
+
+		case let insts: [1](i64, i64) =>
+			assert(actual is []time::instant);
+			const actual = actual as []time::instant;
+			assert(len(actual) == 1);
+			assert(0 == time::compare(
+				actual[0],
+				time::instant{
+					sec = insts[0].0,
+					nsec = insts[0].1,
+				},
+			));
+
+		case let insts: [2](i64, i64) =>
+			assert(actual is []time::instant);
+			const actual = actual as []time::instant;
+			assert(len(actual) == 2);
+			assert(0 == time::compare(
+				actual[0],
+				time::instant{
+					sec = insts[0].0,
+					nsec = insts[0].1,
+				},
+			));
+			assert(0 == time::compare(
+				actual[1],
+				time::instant{
+					sec = insts[1].0,
+					nsec = insts[1].1,
+				},
+			));
+		};
+	};
+};
+
+@test fn utc_convfrom_tai() void = {
+	// TODO: skip test if no leapsec data available (!utc_isinitialized)
+	// TODO: test negative leapsecs somehow
+	let testcases: [](
+		(i64, i64), // give
+		(void | [0](i64, i64) | [1](i64, i64) | [2](i64, i64)) // expect
+	) = [
+		((-       990i64,         0i64), [(-      1000i64,         0i64)]),
+		((         10i64,         0i64), [(          0i64,         0i64)]),
+		((       1010i64,         0i64), [(       1000i64,         0i64)]),
+		// 1970 Jan 01
+		((   63072008i64,         0i64), [(   63071998i64,         0i64)]),
+		((   63072008i64, 500000000i64), [(   63071998i64, 500000000i64)]),
+		((   63072009i64,         0i64), [(   63071999i64,         0i64)]),
+		((   63072009i64, 500000000i64), [(   63071999i64, 500000000i64)]),
+		((   63072010i64,         0i64), [(   63072000i64,         0i64)]),
+		((   63072010i64, 500000000i64), [(   63072000i64, 500000000i64)]),
+		((   63072011i64,         0i64), [(   63072001i64,         0i64)]),
+		((   63072011i64, 500000000i64), [(   63072001i64, 500000000i64)]),
+		((   63072012i64,         0i64), [(   63072002i64,         0i64)]),
+		// 1981 Jul 01
+		((  362793617i64,         0i64), [(  362793598i64,         0i64)]),
+		((  362793617i64, 500000000i64), [(  362793598i64, 500000000i64)]),
+		((  362793618i64,         0i64), [(  362793599i64,         0i64)]),
+		((  362793618i64, 500000000i64), [(  362793599i64, 500000000i64)]),
+		((  362793619i64,         0i64), [(  362793599i64,         0i64)]),
+		((  362793619i64, 500000000i64), [(  362793599i64, 500000000i64)]),
+		((  362793620i64,         0i64), [(  362793600i64,         0i64)]),
+		((  362793620i64, 500000000i64), [(  362793600i64, 500000000i64)]),
+		((  362793621i64,         0i64), [(  362793601i64,         0i64)]),
+		((  362793621i64, 500000000i64), [(  362793601i64, 500000000i64)]),
+		((  362793622i64,         0i64), [(  362793602i64,         0i64)]),
+		// 2017 Jan 01
+		(( 1483228834i64,         0i64), [( 1483228798i64,         0i64)]),
+		(( 1483228834i64, 500000000i64), [( 1483228798i64, 500000000i64)]),
+		(( 1483228835i64,         0i64), [( 1483228799i64,         0i64)]),
+		(( 1483228835i64, 500000000i64), [( 1483228799i64, 500000000i64)]),
+		(( 1483228836i64,         0i64), [( 1483228799i64,         0i64)]),
+		(( 1483228836i64, 500000000i64), [( 1483228799i64, 500000000i64)]),
+		(( 1483228837i64,         0i64), [( 1483228800i64,         0i64)]),
+		(( 1483228837i64, 500000000i64), [( 1483228800i64, 500000000i64)]),
+		(( 1483228838i64,         0i64), [( 1483228801i64,         0i64)]),
+		(( 1483228838i64, 500000000i64), [( 1483228801i64, 500000000i64)]),
+		(( 1483228839i64,         0i64), [( 1483228802i64,         0i64)]),
+	];
+
+	for (let idx = 0z; idx < len(testcases); idx += 1) {
+		let testcase = testcases[idx];
+		let params = testcase.0;
+		let param = time::instant{ sec = params.0, nsec = params.1 };
+		let expect = testcase.1;
+		let actual = utc_convfrom(&tai, param);
+
+		match (expect) {
+		case void =>
+			assert(actual is void);
+
+		case [0](i64, i64) =>
+			assert(actual is []time::instant);
+			const actual = actual as []time::instant;
+			assert(len(actual) == 0);
+
+		case let insts: [1](i64, i64) =>
+			assert(actual is []time::instant);
+			const actual = actual as []time::instant;
+			assert(len(actual) == 1);
+			assert(0 == time::compare(
+				actual[0],
+				time::instant{
+					sec = insts[0].0,
+					nsec = insts[0].1,
+				},
+			));
+
+		case let insts: [2](i64, i64) =>
+			assert(actual is []time::instant);
+			const actual = actual as []time::instant;
+			assert(len(actual) == 2);
+			assert(0 == time::compare(
+				actual[0],
+				time::instant{
+					sec = insts[0].0,
+					nsec = insts[0].1,
+				},
+			));
+			assert(0 == time::compare(
+				actual[1],
+				time::instant{
+					sec = insts[1].0,
+					nsec = insts[1].1,
+				},
+			));
+		};
+	};
+};
