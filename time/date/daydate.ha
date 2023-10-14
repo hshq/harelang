@@ -11,6 +11,9 @@ export def EPOCHAL_JULIAN: i64 = -2440588;
 // The Hare epoch of the Gregorian Common Era.
 export def EPOCHAL_GREGORIAN: i64 = -719164;
 
+// Number of days in the Gregorian 400 year cycle
+def GREGORIAN_CYCLE_DAYS: i64 = 146097;
+
 // Calculates whether a year is a leap year.
 export fn isleapyear(y: int) bool = {
 	return if (y % 4 != 0) false
@@ -72,10 +75,18 @@ fn calc_ymd(e: i64) (int, int, int) = {
 	// Algorithm adapted from:
 	// https://en.wikipedia.org/wiki/Julian_day#Julian_or_Gregorian_calendar_from_Julian_day_number
 	//
-	// Alternate methods of date calculation should be explored.
-	const J = e - EPOCHAL_JULIAN;
+	// TODO: Review, cite, verify, annotate.
 
-	// TODO: substitute numbers where possible
+	// workaround for dates before -4716 March 1st
+	let E = e;
+	let cycles = 0;
+	for (E < -2441951) {
+		E += GREGORIAN_CYCLE_DAYS;
+		cycles += 1;
+	};
+
+	const J = E - EPOCHAL_JULIAN;
+
 	const b = 274277;
 	const c = -38;
 	const j = 1401;
@@ -89,7 +100,7 @@ fn calc_ymd(e: i64) (int, int, int) = {
 	const w = 2;
 	const y = 4716;
 
-	const f = J + j + (((4 * J + b) / 146097) * 3) / 4 + c;
+	const f = J + j + (((4 * J + b) / GREGORIAN_CYCLE_DAYS) * 3) / 4 + c;
 	const a = r * f + v;
 	const g = (a % p) / r;
 	const h = u * g + w;
@@ -97,6 +108,8 @@ fn calc_ymd(e: i64) (int, int, int) = {
 	const D = (h % s) / u + 1;
 	const M = ((h / s + m) % n) + 1;
 	const Y = (a / p) - y + (n + m - M) / n;
+
+	const Y = Y - (400 * cycles);
 
 	return (Y: int, M: int, D: int);
 };
@@ -193,18 +206,30 @@ fn calc_daydate__ymd(y: int, m: int, d: int) (i64 | invalid) = {
 	if (!is_valid_ymd(y, m, d)) {
 		return invalid;
 	};
+
 	// Algorithm adapted from:
 	// https://en.wikipedia.org/wiki/Julian_day
 	//
 	// TODO: Review, cite, verify, annotate.
-	const jdn = (
-		(1461 * (y + 4800 + (m - 14) / 12)) / 4
+
+	// workaround for dates before -4800 March 1st
+	let Y = y;
+	let cycles = 0;
+	for (Y <= -4800) {
+		Y += 400; // Gregorian 400 year cycle
+		cycles += 1;
+	};
+
+	const jdn = ( // Julian Date Number
+		(1461 * (Y + 4800 + (m - 14) / 12)) / 4
 		+ (367 * (m - 2 - 12 * ((m - 14) / 12))) / 12
-		- (3 * ((y + 4900 + (m - 14) / 12) / 100)) / 4
+		- (3 * ((Y + 4900 + (m - 14) / 12) / 100)) / 4
 		+ d
 		- 32075
 	);
-	const e = jdn + EPOCHAL_JULIAN;
+
+	const e = jdn + EPOCHAL_JULIAN - (GREGORIAN_CYCLE_DAYS * cycles);
+
 	return e;
 };
 
