@@ -154,17 +154,26 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 			ast::imports_finish(u.imports);
 			append(decls, u.decls...);
 		};
-		let new: []ast::decl = [];
+
+		let matching: []ast::decl = [];
+		let notmatching: []ast::decl = [];
 		for (let i = 0z; i < len(decls); i += 1) {
 			if (has_decl(decls[i], id[len(id) - 1])) {
-				append(new, decls[i]);
+				append(matching, decls[i]);
 			} else {
-				ast::decl_finish(decls[i]);
+				append(notmatching, decls[i]);
 			};
 		};
+		get_init_funcs(&matching, &notmatching);
+
+		for (let i = 0z; i < len(notmatching); i += 1) {
+			ast::decl_finish(notmatching[i]);
+		};
+		free(notmatching);
 		free(decls);
-		decls = new;
-		if (len(new) == 0) {
+		decls = matching;
+
+		if (len(matching) == 0) {
 			if (modpath == "") {
 				const id = unparse::identstr(id);
 				fmt::fatalf("Could not find {}", id);
@@ -371,4 +380,94 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 	assert(parseident("strings::dup*{}&@") is void);
 	assert(parseident("") is void);
 	assert(parseident("::") is void);
+};
+
+fn get_init_funcs(matching: *[]ast::decl, notmatching: *[]ast::decl) void = {
+	if (len(matching) != 1) {
+		return;
+	};
+	let ident = match (matching[0].decl) {
+	case let d: []ast::decl_type =>
+		if (len(d) != 1 || len(d[0].ident) != 1) {
+			return;
+		};
+		if (d[0]._type.flags & ast::type_flag::ERROR != 0) {
+			return;
+		};
+		match (d[0]._type.repr) {
+		case let repr: ast::builtin_type =>
+			if (repr == ast::builtin_type::VOID) {
+				return;
+			};
+		case => void;
+		};
+		yield d[0].ident;
+	case =>
+		return;
+	};
+
+	for (let i = 0z; i < len(notmatching); i += 1) {
+		let _type = match (notmatching[i].decl) {
+		case let d: []ast::decl_const =>
+			yield match (d[0]._type) {
+			case let t: *ast::_type =>
+				yield t;
+			case null =>
+				continue;
+			};
+		case let d: []ast::decl_global =>
+			yield match (d[0]._type) {
+			case let t: *ast::_type =>
+				yield t;
+			case null =>
+				continue;
+			};
+		case let d: ast::decl_func =>
+			let _type = d.prototype.repr as ast::func_type;
+			yield _type.result;
+		case =>
+			continue;
+		};
+
+		if (is_init_type(ident, _type)) {
+			append(matching, notmatching[i]);
+			delete(notmatching[i]);
+			i -= 1;
+		};
+	};
+};
+
+fn is_init_type(ident: ast::ident, _type: *ast::_type) bool = {
+	let type_ident = match (_type.repr) {
+	case let repr: ast::alias_type =>
+		yield repr.ident;
+	case let repr: ast::list_type =>
+		if (!(repr.length is ast::len_slice)) {
+			return false;
+		};
+		yield match (repr.members.repr) {
+		case let repr: ast::alias_type =>
+			yield repr.ident;
+		case =>
+			return false;
+		};
+	case let repr: ast::pointer_type =>
+		yield match (repr.referent.repr) {
+		case let repr: ast::alias_type =>
+			yield repr.ident;
+		case =>
+			return false;
+		};
+	case let repr: ast::tagged_type =>
+		for (let i = 0z; i < len(repr); i += 1) {
+			if (is_init_type(ident, repr[i])) {
+				return true;
+			};
+		};
+		return false;
+	case =>
+		return false;
+	};
+
+	return ast::ident_eq(ident, type_ident);
 };
