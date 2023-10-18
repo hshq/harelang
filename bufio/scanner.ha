@@ -147,9 +147,10 @@ export fn scan_byte(scan: *scanner) (u8 | io::EOF | io::error) = {
 	return scan_consume(scan, 1)[0];
 };
 
-// Reads the next token from a [[scanner]], delimited by delim. The return value
-// is borrowed from the internal scanner buffer, which is invalidated during
-// subsequent operations which use this scanner.
+// Reads the next token from a [[scanner]], delimited by delim. The delimiter is
+// read from the source handle but not included in the returned slice. The
+// return value is borrowed from the internal scanner buffer, which is
+// invalidated during subsequent operations which use this scanner.
 export fn scan_bytes(
 	scan: *scanner,
 	delim: (u8 | []u8),
@@ -233,9 +234,10 @@ export fn scan_rune(
 	};
 };
 
-// Scans a string of text from a [[scanner]] up to some delimiter. The return
-// value is borrowed from the internal scanner buffer, which is invalidated
-// during subsequent operations which use this scanner.
+// Scans a string of text from a [[scanner]] up to some delimiter. The delimiter
+// is read from the source handle but not included in the returned string. The
+// return value is borrowed from the internal scanner buffer, which is
+// invalidated during subsequent operations which use this scanner.
 export fn scan_string(
 	scan: *scanner,
 	delim: str,
