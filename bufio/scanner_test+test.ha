@@ -158,8 +158,12 @@ use strings;
 	let l = scan_line(&scanner)! as const str;
 	assert(l == "See?");
 
+	let b = scan_rune(&scanner) as rune;
+	unreadrune(&scanner, b);
+	unreadrune(&scanner, ' ');
+	unread(&scanner, strings::toutf8("I'm"));
 	let l = scan_line(&scanner)! as const str;
-	assert(l == "Done!");
+	assert(l == "I'm Done!");
 
 	assert(scan_line(&scanner) is io::EOF);
 };

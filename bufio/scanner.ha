@@ -271,9 +271,18 @@ fn scan_unread(scan: *scanner, buf: []u8) void = {
 	if (len(buf) == 0) {
 		return;
 	};
-	assert(len(buf) <= scan.readout);
-	scan.buffer[scan.readout - len(buf)..scan.readout] = buf;
-	scan.readout -= len(buf);
+	if (len(buf) <= scan.readout) {
+		scan.buffer[scan.readout - len(buf)..scan.readout] = buf;
+		scan.readout -= len(buf);
+	} else {
+		const n = len(buf) - scan.readout;
+		assert(n < scan.maxread - scan.pending,
+			"Attempted to unread more data than buffer has available");
+		scan.buffer[n..] = scan.buffer[..len(scan.buffer) - n];
+		scan.pending += n;
+		scan.buffer[..len(buf)] = buf;
+		scan.readout = 0;
+	};
 };
 
 // Reads a single byte from an [[io::handle]].
