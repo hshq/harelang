@@ -103,7 +103,7 @@ fn loadtype(store: *types::typestore) void = {
 		fmt::fatal("Multiple type declarations are unsupported");
 	};
 	const tdecl = tdecl[0];
-	const of = types::lookup(store, &tdecl._type)!;
+	const of = types::lookup(store, tdecl._type)!;
 	types::newalias(store, tdecl.ident, of);
 };
 

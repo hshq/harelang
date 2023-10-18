@@ -99,7 +99,7 @@ export fn decl(
 			n += space(&ctx)?;
 			n += syn(&ctx, "=", synkind::OPERATOR)?;
 			n += space(&ctx)?;
-			n += __type(&ctx, syn, &t[i]._type)?;
+			n += __type(&ctx, syn, t[i]._type)?;
 			if (i + 1 < len(t)) {
 				n += syn(&ctx, ",", synkind::PUNCTUATION)?;
 				n += space(&ctx)?;
@@ -107,7 +107,7 @@ export fn decl(
 		};
 	case let f: ast::decl_func =>
 		ctx.stack = &stack {
-			cur = &f.prototype,
+			cur = f.prototype,
 			up = ctx.stack,
 			...
 		};
@@ -146,12 +146,12 @@ export fn decl(
 		const fntype = f.prototype.repr as ast::func_type;
 		n += prototype(&ctx, syn, &fntype)?;
 		match (f.body) {
-		case void => void;
-		case let e: ast::expr =>
+		case null => void;
+		case let e: *ast::expr =>
 			n += space(&ctx)?;
 			n += syn(&ctx, "=", synkind::OPERATOR)?;
 			n += space(&ctx)?;
-			n += _expr(&ctx, syn, &e)?;
+			n += _expr(&ctx, syn, e)?;
 		};
 	case let e: ast::assert_expr =>
 		n += assert_expr(&ctx, syn, &e)?;
@@ -275,11 +275,11 @@ fn decl_test(d: *ast::decl, expected: str) bool = {
 	d.decl = [
 		ast::decl_type {
 			ident = ["foo"],
-			_type = type_int,
+			_type = &type_int,
 		},
 		ast::decl_type {
 			ident = ["bar"],
-			_type = type_int,
+			_type = &type_int,
 		},
 	];
 	assert(decl_test(&d, "type foo = int, bar = int;"));
@@ -287,8 +287,8 @@ fn decl_test(d: *ast::decl, expected: str) bool = {
 	d.decl = ast::decl_func {
 		symbol = "foo",
 		ident = ["foo"],
-		prototype = type_fn,
-		body = void,
+		prototype = &type_fn,
+		body = null,
 		attrs = ast::fndecl_attrs::FINI,
 	};
 	assert(decl_test(&d, "@fini @symbol(\"foo\") fn foo(foo: int, bar: int...) int;"));
@@ -307,8 +307,8 @@ fn decl_test(d: *ast::decl, expected: str) bool = {
 	d.decl = ast::decl_func {
 		symbol = "",
 		ident = ["foo"],
-		prototype = type_fn,
-		body = expr_void,
+		prototype = &type_fn,
+		body = &expr_void,
 		attrs = 0,
 	};
 	assert(decl_test(&d, "fn foo(int) int = void;"));

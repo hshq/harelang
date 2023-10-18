@@ -118,7 +118,7 @@ fn decl_type(lexer: *lex::lexer) ([]ast::decl_type | error) = {
 		let btok = try(lexer, ltok::COMMA)?;
 		append(decl, ast::decl_type {
 			ident = ident,
-			_type = _type,
+			_type = alloc(_type),
 		});
 		if (btok is void) {
 			break;
@@ -167,21 +167,22 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 				len(params[i].name) > 0,
 				"Expected parameter name in function declaration")?;
 		};
-		yield expr(lexer)?;
+		yield alloc(expr(lexer)?);
 	case ltok::SEMICOLON =>
-		yield lex::unlex(lexer, tok);
+		lex::unlex(lexer, tok);
+		yield null;
 	case => abort(); // unreachable
 	};
 
 	return ast::decl_func {
 		symbol = sym,
 		ident = ident,
-		prototype = ast::_type {
+		prototype = alloc(ast::_type {
 			start = proto_start,
 			end = proto_end,
 			flags = 0,
 			repr = prototype,
-		},
+		}),
 		body = body,
 		attrs = attr,
 	};

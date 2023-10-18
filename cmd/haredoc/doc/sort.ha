@@ -33,7 +33,7 @@ export fn sort_decls(decls: []ast::decl) summary = {
 					symbol = f.symbol,
 					ident = f.ident,
 					prototype = f.prototype,
-					body = void,
+					body = null,
 					attrs = f.attrs,
 				},
 				docs = decl.docs,

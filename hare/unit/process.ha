@@ -54,16 +54,16 @@ fn process_func(
 ) (decl | error) = {
 	assert(func.attrs & ast::fndecl_attrs::TEST == 0); // TODO
 	const afndecl = adecl.decl as ast::decl_func;
-	const prototype = types::lookup(ctx.store, &func.prototype)!;
+	const prototype = types::lookup(ctx.store, func.prototype)!;
 	const fntype = prototype.repr as types::func;
 	assert(fntype.variadism == types::variadism::NONE); // TODO
 	assert(len(fntype.params) == 0); // TODO
 
 	ctx.fntype = &fntype;
 	const body: nullable *expr = match (afndecl.body) {
-	case let abody: ast::expr =>
-		yield process_expr(ctx, &abody)?;
-	case void =>
+	case let abody: *ast::expr =>
+		yield process_expr(ctx, abody)?;
+	case null =>
 		yield null;
 	};
 

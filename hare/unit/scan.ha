@@ -51,7 +51,7 @@ fn scan_func(
 	func: *ast::decl_func,
 ) (void | types::deferred | error) = {
 	assert(func.attrs & ast::fndecl_attrs::TEST == 0); // TODO
-	const fntype = match (types::lookup(ctx.store, &func.prototype)) {
+	const fntype = match (types::lookup(ctx.store, func.prototype)) {
 	case let err: types::error =>
 		return err;
 	case types::deferred =>
