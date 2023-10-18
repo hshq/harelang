@@ -12,24 +12,6 @@ export def CHAR_MIN: char = SCHAR_MIN;
 // Maximum value which can be stored in a [[char]] type.
 export def CHAR_MAX: char = SCHAR_MAX;
 
-// Integer type compatible with `signed char`, as specified by ISO/IEC 9899.
-export type schar = i8;
-
-// Minimum value which can be stored in an [[schar]] type.
-export def SCHAR_MIN: schar = types::I8_MIN;
-
-// Maximum value which can be stored in an [[schar]] type.
-export def SCHAR_MAX: schar = types::I8_MAX;
-
-// Integer type compatible with `unsigned char`, as specified by ISO/IEC 9899.
-export type uchar = u8;
-
-// Minimum value which can be stored in a [[uchar]] type.
-export def UCHAR_MIN: uchar = types::U8_MIN;
-
-// Maximum value which can be stored in a [[uchar]] type.
-export def UCHAR_MAX: uchar = types::U8_MAX;
-
 // Integer type compatible with `signed short`, as specified by ISO/IEC 9899.
 export type short = i16;
 
