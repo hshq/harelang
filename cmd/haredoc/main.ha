@@ -216,6 +216,8 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		};
 	} else [];
 	const srcs = if (!ambiguous && modpath != "") modsrcs else declsrcs;
+	const summary = doc::sort_decls(decls);
+	defer doc::finish_summary(summary);
 	const ctx = doc::context {
 		mctx = &ctx,
 		ident = id,
@@ -223,7 +225,7 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		ambiguous = ambiguous,
 		srcs = srcs,
 		submods = submods,
-		summary = doc::sort_decls(decls),
+		summary = summary,
 		template = template,
 		readme = readme,
 		show_undocumented = show_undocumented,

@@ -63,3 +63,27 @@ export type summary = struct {
 	globals: []ast::decl,
 	funcs: []ast::decl,
 };
+
+export fn finish_summary(s: summary) void = {
+	for (let i = 0z; i < len(s.constants); i += 1) {
+		free(s.constants[i].decl as []ast::decl_const);
+	};
+	free(s.constants);
+
+	for (let i = 0z; i < len(s.errors); i += 1) {
+		free(s.errors[i].decl as []ast::decl_type);
+	};
+	free(s.errors);
+
+	for (let i = 0z; i < len(s.types); i += 1) {
+		free(s.types[i].decl as []ast::decl_type);
+	};
+	free(s.types);
+
+	for (let i = 0z; i < len(s.globals); i += 1) {
+		free(s.globals[i].decl as []ast::decl_global);
+	};
+	free(s.globals);
+
+	free(s.funcs);
+};
