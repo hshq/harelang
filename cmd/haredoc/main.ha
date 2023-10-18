@@ -21,9 +21,9 @@ use unix::tty;
 
 const help: []getopt::help = [
 	"reads and formats Hare documentation",
-	('a', "show undocumented members (only applies to -Fhare and -Ftty)"),
+	('a', "show undocumented members (only applies to -Ftty)"),
 	('t', "disable HTML template (requires postprocessing)"),
-	('F', "format", "specify output format (hare, tty, or html)"),
+	('F', "format", "specify output format (tty or html)"),
 	('T', "tagset", "set/unset build tags"),
 	"[identifier|path]",
 ];
@@ -53,11 +53,7 @@ export fn main() void = {
 };
 
 fn doc(name: str, cmd: *getopt::command) (void | error) = {
-	let fmt = if (tty::isatty(os::stdout_file)) {
-		yield doc::format::TTY;
-	} else {
-		yield doc::format::HARE;
-	};
+	let html = false;
 	let template = true;
 	let show_undocumented = false;
 	let tags: []str = default_tags()?;
@@ -68,12 +64,10 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		switch (opt.0) {
 		case 'F' =>
 			switch (opt.1) {
-			case "hare" =>
-				fmt = doc::format::HARE;
 			case "tty" =>
-				fmt = doc::format::TTY;
+				html = false;
 			case "html" =>
-				fmt = doc::format::HTML;
+				html = true;
 			case =>
 				fmt::fatal("Invalid format", opt.1);
 			};
@@ -87,10 +81,8 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		};
 	};
 
-	if (show_undocumented) switch (fmt) {
-	case doc::format::HARE, doc::format::TTY => void;
-	case =>
-		fmt::fatal("Option -a must be used only with -Fhare or -Ftty");
+	if (show_undocumented && html) {
+		fmt::fatal("Option -a must be used only with -Ftty");
 	};
 
 	let ctx = module::context {
@@ -223,7 +215,6 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		srcs = srcs,
 		submods = submods,
 		summary = doc::sort_decls(decls),
-		format = fmt,
 		template = template,
 		readme = readme,
 		show_undocumented = show_undocumented,
@@ -231,11 +222,12 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		pager = void,
 	};
 
-	if (fmt == doc::format::TTY) {
+	const ret = if (html) {
+		yield doc::emit_html(&ctx);
+	} else {
 		ctx.out = init_tty(&ctx);
+		yield doc::emit_tty(&ctx);
 	};
-
-	const ret = emit(&ctx);
 
 	io::close(ctx.out)!;
 	match (ctx.pager) {
@@ -244,7 +236,8 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		exec::wait(&proc)!;
 	};
 
-	return ret;
+	// TODO: remove ? (harec bug workaround)
+	return ret?;
 };
 
 // Nearly identical to parse::identstr, except alphanumeric lexical tokens are
@@ -363,17 +356,6 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 		};
 	};
 	return false;
-};
-
-fn emit(ctx: *doc::context) (void | error) = {
-	switch (ctx.format) {
-	case doc::format::HARE =>
-		doc::emit_hare(ctx)?;
-	case doc::format::TTY =>
-		doc::emit_tty(ctx)?;
-	case doc::format::HTML =>
-		doc::emit_html(ctx)?;
-	};
 };
 
 @test fn parseident() void = {

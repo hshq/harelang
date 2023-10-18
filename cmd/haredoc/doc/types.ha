@@ -41,12 +41,6 @@ export fn strerror(err: error) str = {
 	};
 };
 
-export type format = enum {
-	HARE,
-	TTY,
-	HTML,
-};
-
 export type context = struct {
 	mctx: *module::context,
 	ident: ast::ident,
@@ -55,7 +49,6 @@ export type context = struct {
 	srcs: module::srcset,
 	submods: []str,
 	summary: summary,
-	format: format,
 	template: bool,
 	show_undocumented: bool,
 	readme: (io::file | void),
