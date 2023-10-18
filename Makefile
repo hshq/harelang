@@ -92,10 +92,10 @@ clean:
 	rm -rf -- '$(HARECACHE)' '$(BINOUT)' docs/*.1 docs/*.5 docs/html
 
 check: $(BINOUT)/hare
-	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) AS=$(AS) LD=$(LD) \
-		HAREFLAGS=$(HAREFLAGS) HARECFLAGS=$(HARECFLAGS) \
-		QBEFLAGS=$(QBEFLAGS) ASFLAGS=$(ASFLAGS) \
-		LDLINKFLAGS=$(LDLINKFLAGS) $(BINOUT)/hare test
+	@env HAREPATH=. HAREC='$(HAREC)' QBE='$(QBE)' AS='$(AS)' LD='$(LD)' \
+		HAREFLAGS='$(HAREFLAGS)' HARECFLAGS='$(HARECFLAGS)' \
+		QBEFLAGS='$(QBEFLAGS)' ASFLAGS='$(ASFLAGS)' \
+		LDLINKFLAGS='$(LDLINKFLAGS)' '$(BINOUT)/hare' test
 
 install: install-cmd install-mods
 
@@ -105,8 +105,8 @@ install-cmd:
 		'$(DESTDIR)$(BINDIR)' '$(DESTDIR)$(MANDIR)/man5'
 	install -m755 '$(BINOUT)/hare' '$(DESTDIR)$(BINDIR)/hare'
 	install -m755 '$(BINOUT)/haredoc' '$(DESTDIR)$(BINDIR)/haredoc'
-	for i in $(MAN1); do install -m644 docs/$$i.1 $(DESTDIR)$(MANDIR)/man1/$$i.1; done
-	for i in $(MAN5); do install -m644 docs/$$i.5 $(DESTDIR)$(MANDIR)/man5/$$i.5; done
+	for i in $(MAN1); do install -m644 docs/$$i.1 '$(DESTDIR)$(MANDIR)'/man1/$$i.1; done
+	for i in $(MAN5); do install -m644 docs/$$i.5 '$(DESTDIR)$(MANDIR)'/man5/$$i.5; done
 
 install-mods:
 	rm -rf -- '$(DESTDIR)$(STDLIB)'
@@ -116,8 +116,8 @@ install-mods:
 uninstall:
 	rm -- '$(DESTDIR)$(BINDIR)/hare'
 	rm -- '$(DESTDIR)$(BINDIR)/haredoc'
-	for i in $(MAN1); do rm -- $(DESTDIR)$(MANDIR)/man1/$$i.1; done
-	for i in $(MAN5); do rm -- $(DESTDIR)$(MANDIR)/man5/$$i.5; done
+	for i in $(MAN1); do rm -- '$(DESTDIR)$(MANDIR)'/man1/$$i.1; done
+	for i in $(MAN5); do rm -- '$(DESTDIR)$(MANDIR)'/man5/$$i.5; done
 	rm -r -- '$(DESTDIR)$(STDLIB)'
 
 .PHONY: all $(BINOUT)/harec2 $(BINOUT)/haredoc bootstrap clean check docs \
