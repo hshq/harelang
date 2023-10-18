@@ -7,6 +7,7 @@ use hare::module;
 use io;
 use memio;
 use os;
+use path;
 use sort;
 use sort::cmp;
 use strings;
@@ -26,15 +27,19 @@ fn trim_comment(s: str) str = {
 	return strings::dup(memio::string(&trimmed)!);
 };
 
-export fn submodules(path: str) ([]str | error) = {
+export fn submodules(path: str, show_undocumented: bool) ([]str | error) = {
 	let submodules: []str = [];
 	let it = os::iter(path)?;
 	defer fs::finish(it);
+	let pathbuf = path::init(path)!;
 	for (true) match (module::next(it)) {
+	case let d: fs::dirent =>
+		path::set(&pathbuf, path, d.name, "README")!;
+		if (show_undocumented || os::exists(path::string(&pathbuf))) {
+			append(submodules, strings::dup(d.name));
+		};
 	case void =>
 		break;
-	case let d: fs::dirent =>
-		append(submodules, strings::dup(d.name));
 	};
 	sort::sort(submodules, size(str), &cmp::strs);
 	return submodules;

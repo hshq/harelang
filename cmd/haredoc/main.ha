@@ -208,7 +208,7 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 	};
 
 	const submods: []str = if (!ambiguous && modpath != "") {
-		yield match (doc::submodules(modpath)) {
+		yield match (doc::submodules(modpath, show_undocumented)) {
 		case let s: []str =>
 			yield s;
 		case doc::error =>
