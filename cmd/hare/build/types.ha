@@ -44,15 +44,6 @@ export fn free_task(t: *task) void = {
 	free(t);
 };
 
-// a command which is currently running
-export type job = struct {
-	pid: exec::process,
-	task: *task,
-	// fd to be closed once the job has finished, in order to release the
-	// [[io::lock]] on it
-	lock: io::file,
-};
-
 export type output = enum {
 	DEFAULT,
 	SILENT,

@@ -19,6 +19,15 @@ use sort;
 use strings;
 use unix::tty;
 
+// a command which is currently running
+type job = struct {
+	pid: exec::process,
+	task: *task,
+	// fd to be closed once the job has finished, in order to release the
+	// [[io::lock]] on it
+	lock: io::file,
+};
+
 export fn execute(ctx: *context) (str | error) = {
 	let q: []*task = [];
 	defer free(q);
