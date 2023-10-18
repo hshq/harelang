@@ -118,9 +118,6 @@ fn rmdirall_path(fs: *fs, buf: *path::buffer) (void | error) = {
 	for (true) {
 		match (next(it)) {
 		case let ent: dirent =>
-			if (ent.name == "." || ent.name == "..") {
-				continue;
-			};
 			path::push(buf, ent.name)!;
 
 			switch (ent.ftype & mode::DIR) {

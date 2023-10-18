@@ -54,9 +54,6 @@ fn dirsize(buf: *path::buffer) (size | error) = {
 	case void =>
 		break;
 	case let d: fs::dirent =>
-		if (d.name == "." || d.name == "..") {
-			continue;
-		};
 		path::push(buf, d.name)?;
 		let stat = os::stat(path::string(buf))?;
 		s += stat.sz;
