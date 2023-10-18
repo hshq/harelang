@@ -19,7 +19,8 @@ fn syntaxerr(
 	fmt: str,
 	args: fmt::field...
 ) lex::error = {
-	let why = fmt::asprintf(fmt, args...);
+	static let buf: [4096]u8 = [0...];
+	let why = fmt::bsprintf(buf, fmt, args...);
 	return lex::syntaxerr(loc, why);
 };
 
