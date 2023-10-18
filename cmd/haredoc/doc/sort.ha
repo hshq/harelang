@@ -79,6 +79,7 @@ export fn sort_decls(decls: []ast::decl) summary = {
 					docs = decl.docs,
 				});
 			};
+		case ast::assert_expr => void;
 		};
 	};
 
@@ -115,5 +116,6 @@ fn decl_ident(decl: ast::decl) ast::ident = {
 	case let g: []ast::decl_global =>
 		assert(len(g) == 1);
 		return g[0].ident;
+	case ast::assert_expr => abort();
 	};
 };

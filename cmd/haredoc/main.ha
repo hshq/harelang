@@ -363,6 +363,7 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 				return true;
 			};
 		};
+	case ast::assert_expr => void;
 	};
 	return false;
 };

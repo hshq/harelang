@@ -191,6 +191,18 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 export fn decl(lexer: *lex::lexer) (ast::decl | error) = {
 	const start = lex::mkloc(lexer);
 	let comment = "";
+	if (try(lexer, ltok::STATIC)? is lex::token) {
+		comment = strings::dup(lex::comment(lexer));
+		let expr = assert_expr(lexer, true)?;
+		want(lexer, ltok::SEMICOLON)?;
+		return ast::decl {
+			exported = false,
+			start = start,
+			end = expr.end,
+			decl = expr.expr as ast::assert_expr,
+			docs = comment,
+		};
+	};
 	let exported = match (try(lexer, ltok::EXPORT)?) {
 	case void =>
 		yield false;
