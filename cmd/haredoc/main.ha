@@ -25,7 +25,7 @@ const help: []getopt::help = [
 	('t', "disable HTML template (requires postprocessing)"),
 	('F', "format", "specify output format (hare, tty, or html)"),
 	('T', "tagset", "set/unset build tags"),
-	"[identifiers...]",
+	"[identifier|path]",
 ];
 
 export fn main() void = {
