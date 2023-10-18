@@ -63,19 +63,19 @@ case ast::builtin_type::VOID =>
 fn prototype(
 	ctx: *context,
 	syn: *synfunc,
-	t: ast::func_type,
+	t: *ast::func_type,
 ) (size | io::error) = {
 	let n = 0z;
 	n += syn(ctx, "(", synkind::PUNCTUATION)?;
 
 	for (let i = 0z; i < len(t.params); i += 1) {
-		const param = t.params[i];
+		const param = &t.params[i];
 		if (param.name != "") {
 			n += syn(ctx, param.name, synkind::SECONDARY)?;
 			n += syn(ctx, ":", synkind::PUNCTUATION)?;
 			n += space(ctx)?;
 		};
-		n += __type(ctx, syn, *param._type)?;
+		n += __type(ctx, syn, param._type)?;
 		if (i + 1 < len(t.params) || t.variadism == variadism::C) {
 			n += syn(ctx, ",", synkind::PUNCTUATION)?;
 			n += space(ctx)?;
@@ -87,14 +87,14 @@ fn prototype(
 
 	n += syn(ctx, ")", synkind::PUNCTUATION)?;
 	n += space(ctx)?;
-	n += __type(ctx, syn, *t.result)?;
+	n += __type(ctx, syn, t.result)?;
 	return n;
 };
 
 fn struct_union_type(
 	ctx: *context,
 	syn: *synfunc,
-	t: ast::_type,
+	t: *ast::_type,
 ) (size | io::error) = {
 	let z = 0z;
 	let membs = match (t.repr) {
@@ -131,21 +131,21 @@ fn struct_union_type(
 		case null => void;
 		case let ex: *ast::expr =>
 			z += syn(ctx, "@offset(", synkind::ATTRIBUTE)?;
-			z += _expr(ctx, syn, *ex)?;
+			z += _expr(ctx, syn, ex)?;
 			z += syn(ctx, ")", synkind::ATTRIBUTE)?;
 			z += space(ctx)?;
 		};
 
 		match (membs[i].member) {
 		case let se: ast::struct_embedded =>
-			z += __type(ctx, syn, *se)?;
+			z += __type(ctx, syn, se)?;
 		case let sa: ast::struct_alias =>
 			z += _ident(ctx, syn, sa, synkind::IDENT)?;
 		case let sf: ast::struct_field =>
 			z += syn(ctx, sf.name, synkind::SECONDARY)?;
 			z += syn(ctx, ":", synkind::PUNCTUATION)?;
 			z += space(ctx)?;
-			z += __type(ctx, syn, *sf._type)?;
+			z += __type(ctx, syn, sf._type)?;
 		};
 
 		z += syn(ctx, ",", synkind::PUNCTUATION)?;
@@ -164,7 +164,7 @@ fn multiline_comment(s: str) bool =
 export fn _type(
 	out: io::handle,
 	syn: *synfunc,
-	t: ast::_type,
+	t: *ast::_type,
 ) (size | io::error) = {
 	let ctx = context {
 		out = out,
@@ -173,9 +173,9 @@ export fn _type(
 	return __type(&ctx, syn, t);
 };
 
-fn __type(ctx: *context, syn: *synfunc, t: ast::_type) (size | io::error) = {
+fn __type(ctx: *context, syn: *synfunc, t: *ast::_type) (size | io::error) = {
 	ctx.stack = &stack {
-		cur = &t,
+		cur = t,
 		up = ctx.stack,
 		...
 	};
@@ -238,7 +238,7 @@ fn __type(ctx: *context, syn: *synfunc, t: ast::_type) (size | io::error) = {
 				n += space(ctx)?;
 				n += syn(ctx, "=", synkind::OPERATOR)?;
 				n += space(ctx)?;
-				n += _expr(ctx, syn, *e)?;
+				n += _expr(ctx, syn, e)?;
 			};
 			n += syn(ctx, ",", synkind::PUNCTUATION)?;
 			if (value.docs != "" && !wrotedocs) {
@@ -260,7 +260,7 @@ fn __type(ctx: *context, syn: *synfunc, t: ast::_type) (size | io::error) = {
 		n += syn(ctx, "}", synkind::PUNCTUATION)?;
 	case let f: ast::func_type =>
 		n += syn(ctx, "fn", synkind::TYPE)?;
-		n += prototype(ctx, syn, f)?;
+		n += prototype(ctx, syn, &f)?;
 	case let l: ast::list_type =>
 		n += syn(ctx, "[", synkind::TYPE)?;
 		match (l.length) {
@@ -270,17 +270,17 @@ fn __type(ctx: *context, syn: *synfunc, t: ast::_type) (size | io::error) = {
 		case ast::len_contextual =>
 			n += syn(ctx, "_", synkind::TYPE)?;
 		case let e: *ast::expr =>
-			n += _expr(ctx, syn, *e)?;
+			n += _expr(ctx, syn, e)?;
 		};
 		n += syn(ctx, "]", synkind::TYPE)?;
-		n += __type(ctx, syn, *l.members)?;
+		n += __type(ctx, syn, l.members)?;
 	case let p: ast::pointer_type =>
 		if (p.flags & ast::pointer_flag::NULLABLE != 0) {
 			n += syn(ctx, "nullable", synkind::TYPE)?;
 			n += space(ctx)?;
 		};
 		n += syn(ctx, "*", synkind::TYPE)?;
-		n += __type(ctx, syn, *p.referent)?;
+		n += __type(ctx, syn, p.referent)?;
 	case ast::struct_type =>
 		n += struct_union_type(ctx, syn, t)?;
 	case ast::union_type =>
@@ -288,7 +288,7 @@ fn __type(ctx: *context, syn: *synfunc, t: ast::_type) (size | io::error) = {
 	case let t: ast::tagged_type =>
 		n += syn(ctx, "(", synkind::TYPE)?;
 		for (let i = 0z; i < len(t); i += 1) {
-			n += __type(ctx, syn, *t[i])?;
+			n += __type(ctx, syn, t[i])?;
 			if (i + 1 == len(t)) break;
 			n += space(ctx)?;
 			n += syn(ctx, "|", synkind::TYPE)?;
@@ -298,7 +298,7 @@ fn __type(ctx: *context, syn: *synfunc, t: ast::_type) (size | io::error) = {
 	case let t: ast::tuple_type =>
 		n += syn(ctx, "(", synkind::TYPE)?;
 		for (let i = 0z; i < len(t); i += 1) {
-			n += __type(ctx, syn, *t[i])?;
+			n += __type(ctx, syn, t[i])?;
 			if (i + 1 == len(t)) break;
 			n += syn(ctx, ",", synkind::TYPE)?;
 			n += space(ctx)?;
@@ -308,7 +308,7 @@ fn __type(ctx: *context, syn: *synfunc, t: ast::_type) (size | io::error) = {
 	return n;
 };
 
-fn type_test(t: ast::_type, expected: str) void = {
+fn type_test(t: *ast::_type, expected: str) void = {
 	let buf = memio::dynamic();
 	_type(&buf, &syn_nowrap, t)!;
 	let s = memio::string(&buf)!;
@@ -347,17 +347,17 @@ fn type_test(t: ast::_type, expected: str) void = {
 		expr = void,
 	};
 
-	type_test(t, "const foo::bar");
+	type_test(&t, "const foo::bar");
 	t.flags = 0;
 	t.repr = ast::alias_type {
 		unwrap = true,
 		ident = ["baz"],
 	};
-	type_test(t, "...baz");
+	type_test(&t, "...baz");
 
 	t.flags = ast::type_flag::ERROR;
 	t.repr = ast::builtin_type::INT;
-	type_test(t, "!int");
+	type_test(&t, "!int");
 
 	t.flags = ast::type_flag::CONST | ast::type_flag::ERROR;
 	t.repr = ast::enum_type {
@@ -377,7 +377,7 @@ fn type_test(t: ast::_type, expected: str) void = {
 			},
 		],
 	};
-	type_test(t, "const !enum u32 {\n\tFOO,\n\tBAR = void,\n}");
+	type_test(&t, "const !enum u32 {\n\tFOO,\n\tBAR = void,\n}");
 
 	t.flags = 0;
 
@@ -386,7 +386,7 @@ fn type_test(t: ast::_type, expected: str) void = {
 		variadism = variadism::NONE,
 		params = [],
 	};
-	type_test(t, "fn() int");
+	type_test(&t, "fn() int");
 	t.repr = ast::func_type {
 		result = &type_int,
 		variadism = variadism::C,
@@ -398,7 +398,7 @@ fn type_test(t: ast::_type, expected: str) void = {
 			},
 		],
 	};
-	type_test(t, "fn(int, ...) int");
+	type_test(&t, "fn(int, ...) int");
 	t.repr = ast::func_type {
 		result = &type_int,
 		variadism = variadism::HARE,
@@ -415,43 +415,43 @@ fn type_test(t: ast::_type, expected: str) void = {
 			},
 		],
 	};
-	type_test(t, "fn(foo: int, bar: int...) int");
+	type_test(&t, "fn(foo: int, bar: int...) int");
 
 	t.repr = ast::list_type {
 		length = ast::len_slice,
 		members = &type_int,
 	};
-	type_test(t, "[]int");
+	type_test(&t, "[]int");
 	t.repr = ast::list_type {
 		length = ast::len_unbounded,
 		members = &type_int,
 	};
-	type_test(t, "[*]int");
+	type_test(&t, "[*]int");
 	t.repr = ast::list_type {
 		length = ast::len_contextual,
 		members = &type_int,
 	};
-	type_test(t, "[_]int");
+	type_test(&t, "[_]int");
 	t.repr = ast::list_type {
 		length = &expr_void,
 		members = &type_int,
 	};
-	type_test(t, "[void]int");
+	type_test(&t, "[void]int");
 
 	t.repr = ast::pointer_type {
 		referent = &type_int,
 		flags = 0,
 	};
-	type_test(t, "*int");
+	type_test(&t, "*int");
 	t.repr = ast::pointer_type {
 		referent = &type_int,
 		flags = ast::pointer_flag::NULLABLE,
 	};
-	type_test(t, "nullable *int");
+	type_test(&t, "nullable *int");
 
 	t.repr = [&type_int, &type_int]: ast::tagged_type;
-	type_test(t, "(int | int)");
+	type_test(&t, "(int | int)");
 
 	t.repr = [&type_int, &type_int]: ast::tuple_type;
-	type_test(t, "(int, int)");
+	type_test(&t, "(int, int)");
 };

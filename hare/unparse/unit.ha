@@ -13,14 +13,14 @@ export fn subunit(
 ) (size | io::error) = {
 	let n = 0z;
 	for (let i = 0z; i < len(s.imports); i += 1) {
-		n += import(out, syn, s.imports[i])?;
+		n += import(out, syn, &s.imports[i])?;
 		n += fmt::fprintln(out)?;
 	};
 	if (len(s.imports) > 0) {
 		n += fmt::fprintln(out)?;
 	};
 	for (let i = 0z; i < len(s.decls); i += 1) {
-		n += decl(out, syn, s.decls[i])?;
+		n += decl(out, syn, &s.decls[i])?;
 		if (i < len(s.decls) - 1) n += fmt::fprintln(out)?;
 		n += fmt::fprintln(out)?;
 	};

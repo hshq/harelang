@@ -111,7 +111,7 @@ export fn syn_wrap(ctx: *context, s: str, kind: synkind) (size | io::error) = {
 				yield :extra, &syn_wrap_extra::NONE;
 			};
 
-			let z = _type(io::empty, &syn_nowrap, *t)!;
+			let z = _type(io::empty, &syn_nowrap, t)!;
 			if (ctx.linelen + z < 80) yield;
 			st.extra = alloc(syn_wrap_extra::MULTILINE_FN_PARAM);
 			z = fmt::fprintln(ctx.out, s)?;

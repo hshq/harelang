@@ -92,8 +92,8 @@ export fn sort_decls(decls: []ast::decl) summary = {
 };
 
 fn decl_cmp(a: const *opaque, b: const *opaque) int = {
-	const a = *(a: const *ast::decl);
-	const b = *(b: const *ast::decl);
+	const a = a: const *ast::decl;
+	const b = b: const *ast::decl;
 	if (a.docs == "" && b.docs != "") {
 		return 1;
 	} else if (a.docs != "" && b.docs == "") {
@@ -103,7 +103,7 @@ fn decl_cmp(a: const *opaque, b: const *opaque) int = {
 	return strings::compare(id_a[len(id_a) - 1], id_b[len(id_b) - 1]);
 };
 
-fn decl_ident(decl: ast::decl) ast::ident = {
+fn decl_ident(decl: *ast::decl) ast::ident = {
 	match (decl.decl) {
 	case let f: ast::decl_func =>
 		return f.ident;

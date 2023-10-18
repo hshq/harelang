@@ -12,13 +12,13 @@ use strings;
 export fn decl(
 	out: io::handle,
 	syn: *synfunc,
-	d: ast::decl,
+	d: *ast::decl,
 ) (size | io::error) = {
 	let n = 0z;
 	let ctx = context {
 		out = out,
 		stack = &stack {
-			cur = &d,
+			cur = d,
 			...
 		},
 		...
@@ -42,12 +42,12 @@ export fn decl(
 			case let ty: *ast::_type =>
 				n += syn(&ctx, ":", synkind::PUNCTUATION)?;
 				n += space(&ctx)?;
-				n += __type(&ctx, syn, *ty)?;
+				n += __type(&ctx, syn, ty)?;
 			};
 			n += space(&ctx)?;
 			n += syn(&ctx, "=", synkind::OPERATOR)?;
 			n += space(&ctx)?;
-			n += _expr(&ctx, syn, *c[i].init)?;
+			n += _expr(&ctx, syn, c[i].init)?;
 			if (i + 1 < len(c)) {
 				n += syn(&ctx, ",", synkind::PUNCTUATION)?;
 				n += space(&ctx)?;
@@ -76,7 +76,7 @@ export fn decl(
 			case let ty: *ast::_type =>
 				n += syn(&ctx, ":", synkind::PUNCTUATION)?;
 				n += space(&ctx)?;
-				n += __type(&ctx, syn, *ty)?;
+				n += __type(&ctx, syn, ty)?;
 			};
 			match (g[i].init) {
 			case null => void;
@@ -84,7 +84,7 @@ export fn decl(
 				n += space(&ctx)?;
 				n += syn(&ctx, "=", synkind::OPERATOR)?;
 				n += space(&ctx)?;
-				n += _expr(&ctx, syn, *ex)?;
+				n += _expr(&ctx, syn, ex)?;
 			};
 			if (i + 1 < len(g)) {
 				n += syn(&ctx, ",", synkind::OPERATOR)?;
@@ -99,7 +99,7 @@ export fn decl(
 			n += space(&ctx)?;
 			n += syn(&ctx, "=", synkind::OPERATOR)?;
 			n += space(&ctx)?;
-			n += __type(&ctx, syn, t[i]._type)?;
+			n += __type(&ctx, syn, &t[i]._type)?;
 			if (i + 1 < len(t)) {
 				n += syn(&ctx, ",", synkind::PUNCTUATION)?;
 				n += space(&ctx)?;
@@ -144,17 +144,17 @@ export fn decl(
 		n += space(&ctx)?;
 		n += _ident(&ctx, syn, f.ident, synkind::FUNCTION)?;
 		const fntype = f.prototype.repr as ast::func_type;
-		n += prototype(&ctx, syn, fntype)?;
+		n += prototype(&ctx, syn, &fntype)?;
 		match (f.body) {
 		case void => void;
 		case let e: ast::expr =>
 			n += space(&ctx)?;
 			n += syn(&ctx, "=", synkind::OPERATOR)?;
 			n += space(&ctx)?;
-			n += _expr(&ctx, syn, e)?;
+			n += _expr(&ctx, syn, &e)?;
 		};
 	case let e: ast::assert_expr =>
-		n += assert_expr(&ctx, syn, e)?;
+		n += assert_expr(&ctx, syn, &e)?;
 	};
 	n += syn(&ctx, ";", synkind::PUNCTUATION)?;
 	return n;
@@ -180,7 +180,7 @@ fn comment(ctx: *context, syn: *synfunc, s: str) (size | io::error) = {
 	return n;
 };
 
-fn decl_test(d: ast::decl, expected: str) bool = {
+fn decl_test(d: *ast::decl, expected: str) bool = {
 	let buf = memio::dynamic();
 	decl(&buf, &syn_nowrap, d)!;
 	let s = memio::string(&buf)!;
@@ -259,7 +259,7 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 		],
 		...
 	};
-	assert(decl_test(d, "let foo::bar: int = void, @threadlocal boo: int = void, @symbol(\"foobar\") baz: int = void;"));
+	assert(decl_test(&d, "let foo::bar: int = void, @threadlocal boo: int = void, @symbol(\"foobar\") baz: int = void;"));
 
 	d.exported = true;
 	d.decl = [
@@ -269,7 +269,7 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 			init = alloc(expr_void),
 		},
 	];
-	assert(decl_test(d, "export def foo: int = void;"));
+	assert(decl_test(&d, "export def foo: int = void;"));
 
 	d.exported = false;
 	d.decl = [
@@ -282,7 +282,7 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 			_type = type_int,
 		},
 	];
-	assert(decl_test(d, "type foo = int, bar = int;"));
+	assert(decl_test(&d, "type foo = int, bar = int;"));
 
 	d.decl = ast::decl_func {
 		symbol = "foo",
@@ -291,7 +291,7 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 		body = void,
 		attrs = ast::fndecl_attrs::FINI,
 	};
-	assert(decl_test(d, "@fini @symbol(\"foo\") fn foo(foo: int, bar: int...) int;"));
+	assert(decl_test(&d, "@fini @symbol(\"foo\") fn foo(foo: int, bar: int...) int;"));
 
 	type_fn.repr = ast::func_type {
 		result = &type_int,
@@ -311,5 +311,5 @@ fn decl_test(d: ast::decl, expected: str) bool = {
 		body = expr_void,
 		attrs = 0,
 	};
-	assert(decl_test(d, "fn foo(int) int = void;"));
+	assert(decl_test(&d, "fn foo(int) int = void;"));
 };

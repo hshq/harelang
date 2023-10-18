@@ -134,35 +134,35 @@ export fn emit_html(ctx: *context) (void | error) = {
 	if (len(decls.types) != 0) {
 		fmt::fprintln(ctx.out, "<h3>Types</h3>")?;
 		for (let i = 0z; i < len(decls.types); i += 1) {
-			details(ctx, decls.types[i])?;
+			details(ctx, &decls.types[i])?;
 		};
 	};
 
 	if (len(decls.errors) != 0) {
 		fmt::fprintln(ctx.out, "<h3>Errors</h3>")?;
 		for (let i = 0z; i < len(decls.errors); i += 1) {
-			details(ctx, decls.errors[i])?;
+			details(ctx, &decls.errors[i])?;
 		};
 	};
 
 	if (len(decls.constants) != 0) {
 		fmt::fprintln(ctx.out, "<h3>Constants</h3>")?;
 		for (let i = 0z; i < len(decls.constants); i += 1) {
-			details(ctx, decls.constants[i])?;
+			details(ctx, &decls.constants[i])?;
 		};
 	};
 
 	if (len(decls.globals) != 0) {
 		fmt::fprintln(ctx.out, "<h3>Globals</h3>")?;
 		for (let i = 0z; i < len(decls.globals); i += 1) {
-			details(ctx, decls.globals[i])?;
+			details(ctx, &decls.globals[i])?;
 		};
 	};
 
 	if (len(decls.funcs) != 0) {
 		fmt::fprintln(ctx.out, "<h3>Functions</h3>")?;
 		for (let i = 0z; i < len(decls.funcs); i += 1) {
-			details(ctx, decls.funcs[i])?;
+			details(ctx, &decls.funcs[i])?;
 		};
 	};
 };
@@ -188,14 +188,14 @@ fn tocentries(
 				lname)?;
 			undoc = true;
 		};
-		unparse::decl(out, &syn_centry, decls[i])?;
+		unparse::decl(out, &syn_centry, &decls[i])?;
 		fmt::fprintln(out)?;
 	};
 	fmt::fprint(out, "</pre>")?;
 	return;
 };
 
-fn details(ctx: *context, decl: ast::decl) (void | error) = {
+fn details(ctx: *context, decl: *ast::decl) (void | error) = {
 	fmt::fprintln(ctx.out, "<section class='member'>")?;
 	fmt::fprint(ctx.out, "<h4 id='")?;
 	unparse::ident(ctx.out, decl_ident(decl))?;

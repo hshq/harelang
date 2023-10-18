@@ -13,7 +13,7 @@ use strings;
 export fn expr(
 	out: io::handle,
 	syn: *synfunc,
-	e: ast::expr,
+	e: *ast::expr,
 ) (size | io::error) = {
 	let ctx = context {
 		out = out,
@@ -22,9 +22,9 @@ export fn expr(
 	return _expr(&ctx, syn, e);
 };
 
-fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
+fn _expr(ctx: *context, syn: *synfunc, e: *ast::expr) (size | io::error) = {
 	ctx.stack = &stack {
-		cur = &e,
+		cur = e,
 		up = ctx.stack,
 		...
 	};
@@ -49,12 +49,12 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 			if (needs_parens) {
 				z += syn(ctx, "(", synkind::PUNCTUATION)?;
 			};
-			z += _expr(ctx, syn, *ix.object)?;
+			z += _expr(ctx, syn, ix.object)?;
 			if (needs_parens) {
 				z += syn(ctx, ")", synkind::PUNCTUATION)?;
 			};
 			z += syn(ctx, "[", synkind::PUNCTUATION)?;
-			z += _expr(ctx, syn, *ix.index)?;
+			z += _expr(ctx, syn, ix.index)?;
 			z += syn(ctx, "]", synkind::PUNCTUATION)?;
 			return z;
 		case let fi: ast::access_field =>
@@ -63,7 +63,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 			if (needs_parens) {
 				z += syn(ctx, "(", synkind::PUNCTUATION)?;
 			};
-			z += _expr(ctx, syn, *fi.object)?;
+			z += _expr(ctx, syn, fi.object)?;
 			if (needs_parens) {
 				z += syn(ctx, ")", synkind::PUNCTUATION)?;
 			};
@@ -76,24 +76,24 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 			if (needs_parens) {
 				z += syn(ctx, "(", synkind::PUNCTUATION)?;
 			};
-			z += _expr(ctx, syn, *tp.object)?;
+			z += _expr(ctx, syn, tp.object)?;
 			if (needs_parens) {
 				z += syn(ctx, ")", synkind::PUNCTUATION)?;
 			};
 			z += syn(ctx, ".", synkind::OPERATOR)?;
-			z += _expr(ctx, syn, *tp.value)?;
+			z += _expr(ctx, syn, tp.value)?;
 			return z;
 		};
 	case let e: ast::align_expr =>
 		let z = syn(ctx, "align", synkind::KEYWORD)?;
 		z += syn(ctx, "(", synkind::PUNCTUATION)?;
-		z += __type(ctx, syn, *e)?;
+		z += __type(ctx, syn, e)?;
 		z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		return z;
 	case let e: ast::alloc_expr =>
 		let z = syn(ctx, "alloc", synkind::KEYWORD)?;
 		z += syn(ctx, "(", synkind::PUNCTUATION)?;
-		z += _expr(ctx, syn, *e.init)?;
+		z += _expr(ctx, syn, e.init)?;
 		match (e.capacity) {
 		case null =>
 			if (e.form == ast::alloc_form::COPY) {
@@ -102,17 +102,17 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		case let e: *ast::expr =>
 			z += syn(ctx, ",", synkind::PUNCTUATION)?;
 			z += space(ctx)?;
-			z += _expr(ctx, syn, *e)?;
+			z += _expr(ctx, syn, e)?;
 		};
 		z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		return z;
-	case let e: ast::append_expr =>
-		return append_insert_expr(ctx, syn, e, false);
+	case ast::append_expr =>
+		return append_insert_expr(ctx, syn, e);
 	case let e: ast::assert_expr =>
-		return assert_expr(ctx, syn, e);
+		return assert_expr(ctx, syn, &e);
 	case let e: ast::assign_expr =>
 		let z = 0z;
-		z += _expr(ctx, syn, *e.object)?;
+		z += _expr(ctx, syn, e.object)?;
 		const op = match (e.op) {
 		case void =>
 			yield "=";
@@ -153,11 +153,11 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		z += space(ctx)?;
 		z += syn(ctx, op, synkind::OPERATOR)?;
 		z += space(ctx)?;
-		z += _expr(ctx, syn, *e.value)?;
+		z += _expr(ctx, syn, e.value)?;
 		return z;
 	case let e: ast::binarithm_expr =>
 		const prec = binprecedence(e.op);
-		let z = binexprval(ctx, syn, *e.lvalue, prec)?;
+		let z = binexprval(ctx, syn, e.lvalue, prec)?;
 		z += space(ctx)?;
 		z += syn(ctx, switch (e.op) {
 		case binarithm_op::BAND =>
@@ -200,7 +200,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 			yield "^";
 		}, synkind::OPERATOR)?;
 		z += space(ctx)?;
-		z += binexprval(ctx, syn, *e.rvalue, prec)?;
+		z += binexprval(ctx, syn, e.rvalue, prec)?;
 		return z;
 	case let e: ast::binding_expr =>
 		let z = 0z;
@@ -245,13 +245,13 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 			case let t: *ast::_type =>
 				z += syn(ctx, ":", synkind::PUNCTUATION)?;
 				z += space(ctx)?;
-				z += __type(ctx, syn, *t)?;
+				z += __type(ctx, syn, t)?;
 			case null => void;
 			};
 			z += space(ctx)?;
 			z += syn(ctx, "=", synkind::OPERATOR)?;
 			z += space(ctx)?;
-			z += _expr(ctx, syn, *binding.init)?;
+			z += _expr(ctx, syn, binding.init)?;
 			if (i + 1 < len(e.bindings)) {
 				z += syn(ctx, ",", synkind::PUNCTUATION)?;
 				z += space(ctx)?;
@@ -272,13 +272,13 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		if (needs_parens) {
 			z += syn(ctx, "(", synkind::PUNCTUATION)?;
 		};
-		z += _expr(ctx, syn, *e.lvalue)?;
+		z += _expr(ctx, syn, e.lvalue)?;
 		if (needs_parens) {
 			z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		};
 		z += syn(ctx, "(", synkind::PUNCTUATION)?;
 		for (let i = 0z; i < len(e.args); i += 1) {
-			z += _expr(ctx, syn, *e.args[i])?;
+			z += _expr(ctx, syn, e.args[i])?;
 			if (i + 1 < len(e.args)) {
 				z += syn(ctx, ",", synkind::PUNCTUATION)?;
 				z += space(ctx)?;
@@ -295,7 +295,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		if (needs_parens) {
 			z += syn(ctx, "(", synkind::PUNCTUATION)?;
 		};
-		z += _expr(ctx, syn, *e.value)?;
+		z += _expr(ctx, syn, e.value)?;
 		if (needs_parens) {
 			z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		};
@@ -312,7 +312,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 			z += syn(ctx, "is", synkind::OPERATOR)?;
 			z += space(ctx)?;
 		};
-		z += __type(ctx, syn, *e._type)?;
+		z += __type(ctx, syn, e._type)?;
 		return z;
 	case let e: ast::constant_expr =>
 		return constant(ctx, syn, e)?;
@@ -327,7 +327,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 	case let e: ast::defer_expr =>
 		let z = syn(ctx, "defer", synkind::KEYWORD)?;
 		z += space(ctx)?;
-		z += _expr(ctx, syn, *e)?;
+		z += _expr(ctx, syn, e)?;
 		return z;
 	case let e: ast::delete_expr =>
 		let z = 0z;
@@ -337,7 +337,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		};
 		z += syn(ctx, "delete", synkind::KEYWORD)?;
 		z += syn(ctx, "(", synkind::PUNCTUATION)?;
-		z += _expr(ctx, syn, *e.object)?;
+		z += _expr(ctx, syn, e.object)?;
 		z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		return z;
 	case let e: ast::error_assert_expr =>
@@ -346,39 +346,39 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		if (needs_parens) {
 			z += syn(ctx, "(", synkind::PUNCTUATION)?;
 		};
-		z += _expr(ctx, syn, *e)?;
+		z += _expr(ctx, syn, e)?;
 		if (needs_parens) {
 			z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		};
 		z += syn(ctx, "!", synkind::OPERATOR)?;
 		return z;
 	case let e: ast::for_expr =>
-		return for_expr(ctx, syn, e)?;
+		return for_expr(ctx, syn, &e)?;
 	case let e: ast::free_expr =>
 		let z = syn(ctx, "free", synkind::KEYWORD)?;
 		z += syn(ctx, "(", synkind::PUNCTUATION)?;
-		z += _expr(ctx, syn, *e)?;
+		z += _expr(ctx, syn, e)?;
 		z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		return z;
 	case let e: ast::if_expr =>
 		let z = syn(ctx, "if", synkind::KEYWORD)?;
 		z += space(ctx)?;
 		z += syn(ctx, "(", synkind::PUNCTUATION)?;
-		z += _expr(ctx, syn, *e.cond)?;
+		z += _expr(ctx, syn, e.cond)?;
 		z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		z += space(ctx)?;
-		z += _expr(ctx, syn, *e.tbranch)?;
+		z += _expr(ctx, syn, e.tbranch)?;
 		match (e.fbranch) {
 		case null => void;
 		case let e: *ast::expr =>
 			z += space(ctx)?;
 			z += syn(ctx, "else", synkind::KEYWORD)?;
 			z += space(ctx)?;
-			z += _expr(ctx, syn, *e)?;
+			z += _expr(ctx, syn, e)?;
 		};
 		return z;
-	case let e: ast::insert_expr =>
-		return append_insert_expr(ctx, syn, e, true);
+	case ast::insert_expr =>
+		return append_insert_expr(ctx, syn, e);
 	case let e: ast::compound_expr =>
 		let z = 0z;
 		if (e.label != "") {
@@ -390,30 +390,30 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		ctx.indent += 1;
 		for (let i = 0z; i < len(e.exprs); i += 1) {
 			z += newline(ctx)?;
-			z += stmt(ctx, syn, *e.exprs[i])?;
+			z += stmt(ctx, syn, e.exprs[i])?;
 		};
 		ctx.indent -= 1;
 		z += newline(ctx)?;
 		z += syn(ctx, "}", synkind::PUNCTUATION)?;
 		return z;
 	case let e: ast::match_expr =>
-		return match_expr(ctx, syn, e)?;
+		return match_expr(ctx, syn, &e)?;
 	case let e: ast::len_expr =>
 		let z = syn(ctx, "len", synkind::KEYWORD)?;
 		z += syn(ctx, "(", synkind::PUNCTUATION)?;
-		z += _expr(ctx, syn, *e)?;
+		z += _expr(ctx, syn, e)?;
 		z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		return z;
 	case let e: ast::size_expr =>
 		let z = syn(ctx, "size", synkind::KEYWORD)?;
 		z += syn(ctx, "(", synkind::PUNCTUATION)?;
-		z += __type(ctx, syn, *e)?;
+		z += __type(ctx, syn, e)?;
 		z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		return z;
 	case let e: ast::offset_expr =>
 		let z = syn(ctx, "offset", synkind::KEYWORD)?;
 		z += syn(ctx, "(", synkind::PUNCTUATION)?;
-		z += _expr(ctx, syn, *e)?;
+		z += _expr(ctx, syn, e)?;
 		z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		return z;
 	case let e: ast::propagate_expr =>
@@ -422,7 +422,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		if (needs_parens) {
 			z += syn(ctx, "(", synkind::PUNCTUATION)?;
 		};
-		z += _expr(ctx, syn, *e)?;
+		z += _expr(ctx, syn, e)?;
 		if (needs_parens) {
 			z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		};
@@ -434,7 +434,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		case null => void;
 		case let e: *ast::expr =>
 			z += space(ctx)?;
-			z += _expr(ctx, syn, *e)?;
+			z += _expr(ctx, syn, e)?;
 		};
 		return z;
 	case let e: ast::slice_expr =>
@@ -443,7 +443,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		if (needs_parens) {
 			z += syn(ctx, "(", synkind::PUNCTUATION)?;
 		};
-		z += _expr(ctx, syn, *e.object)?;
+		z += _expr(ctx, syn, e.object)?;
 		if (needs_parens) {
 			z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		};
@@ -451,18 +451,18 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		match (e.start) {
 		case null => void;
 		case let e: *ast::expr =>
-			z += _expr(ctx, syn, *e)?;
+			z += _expr(ctx, syn, e)?;
 		};
 		z += syn(ctx, "..", synkind::OPERATOR)?;
 		match (e.end) {
 		case null => void;
 		case let e: *ast::expr =>
-			z += _expr(ctx, syn, *e)?;
+			z += _expr(ctx, syn, e)?;
 		};
 		z += syn(ctx, "]", synkind::PUNCTUATION)?;
 		return z;
 	case let e: ast::switch_expr =>
-		return switch_expr(ctx, syn, e)?;
+		return switch_expr(ctx, syn, &e)?;
 	case let e: ast::unarithm_expr =>
 		let z = syn(ctx, switch (e.op) {
 		case ast::unarithm_op::ADDR =>
@@ -486,7 +486,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		if (needs_parens) {
 			z += syn(ctx, "(", synkind::PUNCTUATION)?;
 		};
-		z += _expr(ctx, syn, *e.operand)?;
+		z += _expr(ctx, syn, e.operand)?;
 		if (needs_parens) {
 			z += syn(ctx, ")", synkind::PUNCTUATION)?;
 		};
@@ -501,13 +501,13 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 		case let e: ast::vaarg_expr =>
 			let z = syn(ctx, "vaarg", synkind::KEYWORD)?;
 			z += syn(ctx, "(", synkind::PUNCTUATION)?;
-			z += _expr(ctx, syn, *e)?;
+			z += _expr(ctx, syn, e)?;
 			z += syn(ctx, ")", synkind::PUNCTUATION)?;
 			return z;
 		case let e: ast::vaend_expr =>
 			let z = syn(ctx, "vaend", synkind::KEYWORD)?;
 			z += syn(ctx, "(", synkind::PUNCTUATION)?;
-			z += _expr(ctx, syn, *e)?;
+			z += _expr(ctx, syn, e)?;
 			z += syn(ctx, ")", synkind::PUNCTUATION)?;
 			return z;
 		};
@@ -525,7 +525,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 				z += syn(ctx, ",", synkind::PUNCTUATION)?;
 			};
 			z += space(ctx)?;
-			z += _expr(ctx, syn, *v)?;
+			z += _expr(ctx, syn, v)?;
 		};
 		return z;
 	};
@@ -562,7 +562,7 @@ fn binprecedence(op: binarithm_op) uint = {
 fn binexprval(
 	ctx: *context,
 	syn: *synfunc,
-	e: ast::expr,
+	e: *ast::expr,
 	prec: uint,
 ) (size | io::error) = {
 	let z = 0z;
@@ -576,7 +576,7 @@ fn binexprval(
 		};
 	case => void;
 	};
-	const needs_parens = !is_cast(&e) && !(e.expr is ast::binarithm_expr);
+	const needs_parens = !is_cast(e) && !(e.expr is ast::binarithm_expr);
 	if (needs_parens) {
 		z += syn(ctx, "(", synkind::PUNCTUATION)?;
 	};
@@ -587,7 +587,7 @@ fn binexprval(
 	return z;
 };
 
-fn stmt(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
+fn stmt(ctx: *context, syn: *synfunc, e: *ast::expr) (size | io::error) = {
 	let n = _expr(ctx, syn, e)?;
 	n += syn(ctx, ";", synkind::PUNCTUATION)?;
 	return n;
@@ -630,7 +630,7 @@ fn constant(
 	case let ac: ast::array_constant =>
 		let z = syn(ctx, "[", synkind::PUNCTUATION)?;
 		for (let i = 0z; i < len(ac.values); i += 1) {
-			z += _expr(ctx, syn, *ac.values[i])?;
+			z += _expr(ctx, syn, ac.values[i])?;
 			if (i + 1 < len(ac.values)) {
 				z += syn(ctx, ",", synkind::PUNCTUATION)?;
 				z += space(ctx)?;
@@ -680,7 +680,7 @@ fn constant(
 	case let tu: ast::tuple_constant =>
 		let z = syn(ctx, "(", synkind::PUNCTUATION)?;
 		for (let i = 0z; i < len(tu); i += 1) {
-			z += _expr(ctx, syn, *tu[i])?;
+			z += _expr(ctx, syn, tu[i])?;
 			if (i + 1 < len(tu)) {
 				z += syn(ctx, ",", synkind::PUNCTUATION)?;
 				z += space(ctx)?;
@@ -715,12 +715,12 @@ fn struct_constant(
 			case let t: *ast::_type =>
 				z += syn(ctx, ":", synkind::PUNCTUATION)?;
 				z += space(ctx)?;
-				z += __type(ctx, syn, *t)?;
+				z += __type(ctx, syn, t)?;
 			};
 			z += space(ctx)?;
 			z += syn(ctx, "=", synkind::OPERATOR)?;
 			z += space(ctx)?;
-			z += _expr(ctx, syn, *sv.init)?;
+			z += _expr(ctx, syn, sv.init)?;
 		case let sc: *ast::struct_constant =>
 			z += constant(ctx, syn, *sc)?;
 		};
@@ -739,7 +739,7 @@ fn struct_constant(
 fn for_expr(
 	ctx: *context,
 	syn: *synfunc,
-	e: ast::for_expr,
+	e: *ast::for_expr,
 ) (size | io::error) = {
 	let z = syn(ctx, "for", synkind::KEYWORD)?;
 	z += space(ctx)?;
@@ -747,36 +747,36 @@ fn for_expr(
 	match (e.bindings) {
 	case null => void;
 	case let e: *ast::expr =>
-		z += _expr(ctx, syn, *e)?;
+		z += _expr(ctx, syn, e)?;
 		z += syn(ctx, ";", synkind::PUNCTUATION)?;
 		z += space(ctx)?;
 	};
 
-	z += _expr(ctx, syn, *e.cond)?;
+	z += _expr(ctx, syn, e.cond)?;
 
 	match (e.afterthought) {
 	case null => void;
 	case let e: *ast::expr =>
 		z += syn(ctx, ";", synkind::PUNCTUATION)?;
 		z += space(ctx)?;
-		z += _expr(ctx, syn, *e)?;
+		z += _expr(ctx, syn, e)?;
 	};
 
 	z += syn(ctx, ")", synkind::PUNCTUATION)?;
 	z += space(ctx)?;
-	z += _expr(ctx, syn, *e.body)?;
+	z += _expr(ctx, syn, e.body)?;
 	return z;
 };
 
 fn switch_expr(
 	ctx: *context,
 	syn: *synfunc,
-	e: ast::switch_expr,
+	e: *ast::switch_expr,
 ) (size | io::error) = {
 	let z = syn(ctx, "switch", synkind::KEYWORD)?;
 	z += space(ctx)?;
 	z += syn(ctx, "(", synkind::PUNCTUATION)?;
-	z += _expr(ctx, syn, *e.value)?;
+	z += _expr(ctx, syn, e.value)?;
 	z += syn(ctx, ")", synkind::PUNCTUATION)?;
 	z += space(ctx)?;
 	z += syn(ctx, "{", synkind::PUNCTUATION)?;
@@ -791,7 +791,7 @@ fn switch_expr(
 		} else {
 			for (let j = 0z; j < len(item.options); j += 1) {
 				const opt = item.options[j];
-				z += _expr(ctx, syn, *opt)?;
+				z += _expr(ctx, syn, opt)?;
 				if (j + 1 < len(item.options)) {
 					z += syn(ctx, ",",
 						synkind::PUNCTUATION)?;
@@ -812,12 +812,12 @@ fn switch_expr(
 fn match_expr(
 	ctx: *context,
 	syn: *synfunc,
-	e: ast::match_expr,
+	e: *ast::match_expr,
 ) (size | io::error) = {
 	let z = syn(ctx, "match", synkind::KEYWORD)?;
 	z += space(ctx)?;
 	z += syn(ctx, "(", synkind::PUNCTUATION)?;
-	z += _expr(ctx, syn, *e.value)?;
+	z += _expr(ctx, syn, e.value)?;
 	z += syn(ctx, ")", synkind::PUNCTUATION)?;
 	z += space(ctx)?;
 	z += syn(ctx, "{", synkind::PUNCTUATION)?;
@@ -838,7 +838,7 @@ fn match_expr(
 				z += syn(ctx, ":", synkind::PUNCTUATION)?;
 			};
 			z += space(ctx)?;
-			z += __type(ctx, syn, *typ)?;
+			z += __type(ctx, syn, typ)?;
 		case null => void;
 		};
 		z += space(ctx)?;
@@ -863,7 +863,7 @@ fn case_exprs(
 		if (e.cond == null) {
 			// abort() expression
 			z += space(ctx)?;
-			z += assert_expr(ctx, syn, e)?;
+			z += assert_expr(ctx, syn, &e)?;
 			z += syn(ctx, ";", synkind::PUNCTUATION)?;
 			return z;
 		};
@@ -887,7 +887,7 @@ fn case_exprs(
 	ctx.indent += 1;
 	for (let j = 0z; j < len(exprs); j += 1) {
 		z += newline(ctx)?;
-		z += stmt(ctx, syn, *exprs[j])?;
+		z += stmt(ctx, syn, exprs[j])?;
 	};
 	ctx.indent -= 1;
 
@@ -983,7 +983,7 @@ fn is_cast(e: *ast::expr) bool = {
 fn assert_expr(
 	ctx: *context,
 	syn: *synfunc,
-	e: ast::assert_expr,
+	e: *ast::assert_expr,
 ) (size | io::error) = {
 	let z = 0z;
 	if (e.is_static) {
@@ -995,7 +995,7 @@ fn assert_expr(
 	case let e: *ast::expr =>
 		z += syn(ctx, "assert", synkind::KEYWORD)?;
 		z += syn(ctx, "(", synkind::PUNCTUATION)?;
-		z += _expr(ctx, syn, *e)?;
+		z += _expr(ctx, syn, e)?;
 	case null =>
 		z += syn(ctx, "abort", synkind::KEYWORD)?;
 		z += syn(ctx, "(", synkind::PUNCTUATION)?;
@@ -1008,7 +1008,7 @@ fn assert_expr(
 			z += syn(ctx, ",", synkind::PUNCTUATION)?;
 			z += space(ctx)?;
 		};
-		z += _expr(ctx, syn, *m)?;
+		z += _expr(ctx, syn, m)?;
 	case null => void;
 	};
 	z += syn(ctx, ")", synkind::PUNCTUATION)?;
@@ -1018,20 +1018,31 @@ fn assert_expr(
 fn append_insert_expr(
 	ctx: *context,
 	syn: *synfunc,
-	e: ast::append_expr,
-	is_insert: bool,
+	e: *ast::expr,
 ) (size | io::error) = {
 	let z = 0z;
-	if (e.is_static) {
-		z += syn(ctx, "static", synkind::KEYWORD)?;
-		z += space(ctx)?;
+	const e: *ast::append_expr = match (e.expr) {
+	case let e: ast::append_expr =>
+		if (e.is_static) {
+			z += syn(ctx, "static", synkind::KEYWORD)?;
+			z += space(ctx)?;
+		};
+		z += syn(ctx, "append", synkind::KEYWORD)?;
+		yield &e;
+	case let e: ast::insert_expr =>
+		if (e.is_static) {
+			z += syn(ctx, "static", synkind::KEYWORD)?;
+			z += space(ctx)?;
+		};
+		z += syn(ctx, "insert", synkind::KEYWORD)?;
+		yield &e;
+	case => abort(); // unreachable
 	};
-	z += syn(ctx, if (is_insert) "insert" else "append", synkind::KEYWORD)?;
 	z += syn(ctx, "(", synkind::PUNCTUATION)?;
-	z += _expr(ctx, syn, *e.object)?;
+	z += _expr(ctx, syn, e.object)?;
 	z += syn(ctx, ",", synkind::PUNCTUATION)?;
 	z += space(ctx)?;
-	z += _expr(ctx, syn, *e.value)?;
+	z += _expr(ctx, syn, e.value)?;
 	if (e.variadic) {
 		z += syn(ctx, "...", synkind::OPERATOR)?;
 	};
@@ -1040,7 +1051,7 @@ fn append_insert_expr(
 	case let l: *ast::expr =>
 		z += syn(ctx, ",", synkind::PUNCTUATION)?;
 		z += space(ctx)?;
-		z += _expr(ctx, syn, *l)?;
+		z += _expr(ctx, syn, l)?;
 	};
 	z += syn(ctx, ")", synkind::PUNCTUATION)?;
 	return z;
