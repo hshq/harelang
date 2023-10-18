@@ -12,6 +12,8 @@ use sort;
 use sort::cmp;
 use strings;
 
+let firstline: bool = true;
+
 fn trim_comment(s: str) str = {
 	let trimmed = memio::dynamic();
 	let tok = strings::tokenize(s, "\n");
