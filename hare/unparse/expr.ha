@@ -235,8 +235,14 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 			z += syn(ctx, "static", synkind::KEYWORD)?;
 			z += space(ctx)?;
 		};
-		z += syn(ctx, if (e.is_const) "const" else "let",
-			synkind::KEYWORD)?;
+		switch (e.kind) {
+		case ast::binding_kind::DEF =>
+			z += syn(ctx, "def", synkind::KEYWORD)?;
+		case ast::binding_kind::CONST =>
+			z += syn(ctx, "const", synkind::KEYWORD)?;
+		case ast::binding_kind::LET =>
+			z += syn(ctx, "let", synkind::KEYWORD)?;
+		};
 		z += space(ctx)?;
 		for (let i = 0z; i < len(e.bindings); i += 1) {
 			let binding = e.bindings[i];

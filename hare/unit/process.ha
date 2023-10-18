@@ -174,7 +174,7 @@ fn process_access(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 
 fn process_binding(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const bind = aexpr.expr as ast::binding_expr;
-	assert(!bind.is_static && !bind.is_const); // TODO
+	assert(!bind.is_static && bind.kind == ast::binding_kind::LET);
 
 	let bindings: bindings = [];
 	for (let i = 0z; i < len(bind.bindings); i += 1) {
