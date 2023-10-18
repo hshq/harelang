@@ -46,8 +46,8 @@ Some inline modifier examples:
 	fmt::printf("{:05}", 42);			// "00042"
 
 A parametric format modifier is a secondary argument from the parameter list,
-which is a pointer to an instance of [[modifiers]]. This modifier parameter
-shall describe how the primary formattable argument is formatted.
+which is a pointer to an instance of [[mods]]. This modifier parameter shall
+describe how the primary formattable argument is formatted.
 
 A parametric format sequence of this sort takes the form of "{i%j}", where i is
 the formattable parameter index, j is the modifiers parameter index, and i & j
