@@ -33,7 +33,7 @@ type mode = enum {
 };
 
 // This type provides configuration options for the argon2 algorithm. Most users
-// will find [[default_config]] or [[low_mem_config]] suitable for their needs
+// will find [[default_conf]] or [[low_mem_conf]] suitable for their needs
 // without providing a custom configuration. If writing a custom configuration,
 // consult the RFC for advice on selecting suitable values for your use-case.
 //
