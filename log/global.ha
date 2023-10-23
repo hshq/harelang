@@ -5,7 +5,7 @@ use io;
 use os;
 
 // The global logger instance.
-let global: *logger = &_default;
+export let global: *logger = &_default;
 
 // Default logger that writes to [[os::stderr]].
 export const default: *logger = &_default;
