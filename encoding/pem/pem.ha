@@ -17,23 +17,19 @@ const end: str = "-----END ";
 const suffix: str = "-----";
 
 export type decoder = struct {
-	in: bufio::stream,
+	in: b64stream,
 	label: memio::stream,
 	buf: []u8,
 };
 
 export type b64stream = struct {
 	stream: io::stream,
-	in: *bufio::stream,
+	in: bufio::stream,
 };
 
 export type pemdecoder = struct {
 	stream: io::stream,
-	in: *bufio::stream,
-	b64_in: b64stream,
 	b64: base64::decoder,
-	// XXX: kind of dumb but it saves us some memory management problems
-	b64_ready: bool,
 };
 
 const pemdecoder_vt: io::vtable = io::vtable {
@@ -51,7 +47,10 @@ const b64stream_r_vt: io::vtable = io::vtable {
 export fn newdecoder(in: io::handle) decoder = {
 	let buf: []u8 = alloc([0...], os::BUFSZ);
 	return decoder {
-		in = bufio::init(in, buf, []),
+		in = b64stream {
+			stream = &b64stream_r_vt,
+			in = bufio::init(in, buf, []),
+		},
 		buf = buf,
 		label = memio::dynamic(),
 	};
@@ -86,7 +85,7 @@ export fn next(dec: *decoder) ((str, pemdecoder) | io::EOF | io::error) = {
 	for (true) {
 		// XXX: This can be improved following
 		// https://todo.sr.ht/~sircmpwn/hare/562
-		const line = match (bufio::read_line(&dec.in)?) {
+		const line = match (bufio::read_line(&dec.in.in)?) {
 		case io::EOF =>
 			return io::EOF;
 		case let line: []u8 =>
@@ -112,14 +111,7 @@ export fn next(dec: *decoder) ((str, pemdecoder) | io::EOF | io::error) = {
 
 		return (memio::string(&dec.label)!, pemdecoder {
 			stream = &pemdecoder_vt,
-			in = &dec.in,
-			b64_in = b64stream {
-				stream = &b64stream_r_vt,
-				in = &dec.in,
-			},
-			// forcefully zero field (it's actually set in pem_read)
-			b64 = *(&([0...]: [size(base64::decoder)]u8): *base64::decoder),
-			b64_ready = false,
+			b64 = base64::newdecoder(&base64::std_encoding, &dec.in),
 		});
 	};
 
@@ -133,10 +125,6 @@ fn pem_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	// -----END.
 	const st = st: *pemdecoder;
 	assert(st.stream.reader == &pem_read);
-	if (!st.b64_ready) {
-		st.b64 = base64::newdecoder(&base64::std_encoding, &st.b64_in);
-		st.b64_ready = true;
-	};
 
 	match (io::read(&st.b64, buf)?) {
 	case let z: size =>
@@ -145,7 +133,7 @@ fn pem_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 		yield;
 	};
 
-	const line = match (bufio::read_line(st.in)?) {
+	const line = match (bufio::read_line(st.b64.in)?) {
 	case io::EOF =>
 		return io::EOF;
 	case let line: []u8 =>
@@ -173,7 +161,7 @@ fn b64_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	const st = st: *b64stream;
 	assert(st.stream.reader == &b64_read);
 
-	const z = match (io::read(st.in, buf)?) {
+	const z = match (io::read(&st.in, buf)?) {
 	case let z: size =>
 		yield z;
 	case io::EOF =>
@@ -184,7 +172,7 @@ fn b64_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let sub = buf[..z];
 	for (let i = 0z; i < len(sub); i += 1) {
 		if (sub[i] == '-') {
-			bufio::unread(st.in, sub[i..]);
+			bufio::unread(&st.in, sub[i..]);
 			sub = sub[..i];
 			break;
 		};

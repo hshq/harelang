@@ -109,34 +109,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 	case let e: ast::append_expr =>
 		return append_insert_expr(ctx, syn, e, false);
 	case let e: ast::assert_expr =>
-		let z = 0z;
-		if (e.is_static) {
-			z += syn(ctx, "static", synkind::KEYWORD)?;
-			z += space(ctx)?;
-		};
-		// assert without a condition = abort
-		match (e.cond) {
-		case let e: *ast::expr =>
-			z += syn(ctx, "assert", synkind::KEYWORD)?;
-			z += syn(ctx, "(", synkind::PUNCTUATION)?;
-			z += _expr(ctx, syn, *e)?;
-		case null =>
-			z += syn(ctx, "abort", synkind::KEYWORD)?;
-			z += syn(ctx, "(", synkind::PUNCTUATION)?;
-		};
-		match (e.message) {
-		case let m: *ast::expr =>
-			match (e.cond) {
-			case null => void;
-			case *ast::expr =>
-				z += syn(ctx, ",", synkind::PUNCTUATION)?;
-				z += space(ctx)?;
-			};
-			z += _expr(ctx, syn, *m)?;
-		case null => void;
-		};
-		z += syn(ctx, ")", synkind::PUNCTUATION)?;
-		return z;
+		return assert_expr(ctx, syn, e);
 	case let e: ast::assign_expr =>
 		let z = 0z;
 		z += _expr(ctx, syn, *e.object)?;
@@ -235,8 +208,14 @@ fn _expr(ctx: *context, syn: *synfunc, e: ast::expr) (size | io::error) = {
 			z += syn(ctx, "static", synkind::KEYWORD)?;
 			z += space(ctx)?;
 		};
-		z += syn(ctx, if (e.is_const) "const" else "let",
-			synkind::KEYWORD)?;
+		switch (e.kind) {
+		case ast::binding_kind::DEF =>
+			z += syn(ctx, "def", synkind::KEYWORD)?;
+		case ast::binding_kind::CONST =>
+			z += syn(ctx, "const", synkind::KEYWORD)?;
+		case ast::binding_kind::LET =>
+			z += syn(ctx, "let", synkind::KEYWORD)?;
+		};
 		z += space(ctx)?;
 		for (let i = 0z; i < len(e.bindings); i += 1) {
 			let binding = e.bindings[i];
@@ -884,7 +863,8 @@ fn case_exprs(
 		if (e.cond == null) {
 			// abort() expression
 			z += space(ctx)?;
-			z += stmt(ctx, syn, *exprs[0])?;
+			z += assert_expr(ctx, syn, e)?;
+			z += syn(ctx, ";", synkind::PUNCTUATION)?;
 			return z;
 		};
 	case let e: ast::value =>
@@ -998,6 +978,41 @@ fn is_unary(e: *ast::expr) bool = {
 
 fn is_cast(e: *ast::expr) bool = {
 	return is_unary(e) || (e.expr is ast::cast_expr);
+};
+
+fn assert_expr(
+	ctx: *context,
+	syn: *synfunc,
+	e: ast::assert_expr,
+) (size | io::error) = {
+	let z = 0z;
+	if (e.is_static) {
+		z += syn(ctx, "static", synkind::KEYWORD)?;
+		z += space(ctx)?;
+	};
+	// assert without a condition = abort
+	match (e.cond) {
+	case let e: *ast::expr =>
+		z += syn(ctx, "assert", synkind::KEYWORD)?;
+		z += syn(ctx, "(", synkind::PUNCTUATION)?;
+		z += _expr(ctx, syn, *e)?;
+	case null =>
+		z += syn(ctx, "abort", synkind::KEYWORD)?;
+		z += syn(ctx, "(", synkind::PUNCTUATION)?;
+	};
+	match (e.message) {
+	case let m: *ast::expr =>
+		match (e.cond) {
+		case null => void;
+		case *ast::expr =>
+			z += syn(ctx, ",", synkind::PUNCTUATION)?;
+			z += space(ctx)?;
+		};
+		z += _expr(ctx, syn, *m)?;
+	case null => void;
+	};
+	z += syn(ctx, ")", synkind::PUNCTUATION)?;
+	return z;
 };
 
 fn append_insert_expr(

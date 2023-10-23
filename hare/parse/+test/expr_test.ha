@@ -40,6 +40,7 @@
 	const z: int = 42, q: int = 24;
 	const (foo, bar): (int, bool) = (42, true);
 	const (foo, _, bar): (int, uint, bool) = (42, 12u, true);
+	def X: int = 1337, y = 7331;
 	static let p: int = 62893, o = 39826;
 	static const w: int = 62893, t = 39826;
 };

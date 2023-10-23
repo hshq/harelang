@@ -42,6 +42,8 @@ fn process_decl(
 		abort(); // TODO
 	case let fu: ast::decl_func =>
 		return process_func(ctx, decl, &fu);
+	case let ex: ast::assert_expr =>
+		abort(); // TODO
 	};
 };
 
@@ -174,7 +176,7 @@ fn process_access(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 
 fn process_binding(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 	const bind = aexpr.expr as ast::binding_expr;
-	assert(!bind.is_static && !bind.is_const); // TODO
+	assert(!bind.is_static && bind.kind == ast::binding_kind::LET);
 
 	let bindings: bindings = [];
 	for (let i = 0z; i < len(bind.bindings); i += 1) {

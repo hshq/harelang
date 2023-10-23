@@ -136,7 +136,9 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 			"\tfirst: *const void,\n"
 			"\tsecond: (void | rune | str),\n"
 			"\tthird: size...\n"
-		") nullable *const void;\n");
+		") nullable *const void;\n\n"
+		"static abort();\n\n"
+		"static assert(true);\n");
 };
 
 @test fn docs() void = {

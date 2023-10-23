@@ -21,11 +21,11 @@ use unix::tty;
 
 const help: []getopt::help = [
 	"reads and formats Hare documentation",
-	('a', "show undocumented members (only applies to -Fhare and -Ftty)"),
+	('a', "show undocumented members (only applies to -Ftty)"),
 	('t', "disable HTML template (requires postprocessing)"),
-	('F', "format", "specify output format (hare, tty, or html)"),
+	('F', "format", "specify output format (tty or html)"),
 	('T', "tagset", "set/unset build tags"),
-	"[identifiers...]",
+	"[identifier|path]",
 ];
 
 export fn main() void = {
@@ -53,11 +53,7 @@ export fn main() void = {
 };
 
 fn doc(name: str, cmd: *getopt::command) (void | error) = {
-	let fmt = if (tty::isatty(os::stdout_file)) {
-		yield doc::format::TTY;
-	} else {
-		yield doc::format::HARE;
-	};
+	let html = false;
 	let template = true;
 	let show_undocumented = false;
 	let tags: []str = default_tags()?;
@@ -68,12 +64,10 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		switch (opt.0) {
 		case 'F' =>
 			switch (opt.1) {
-			case "hare" =>
-				fmt = doc::format::HARE;
 			case "tty" =>
-				fmt = doc::format::TTY;
+				html = false;
 			case "html" =>
-				fmt = doc::format::HTML;
+				html = true;
 			case =>
 				fmt::fatal("Invalid format", opt.1);
 			};
@@ -87,10 +81,8 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		};
 	};
 
-	if (show_undocumented) switch (fmt) {
-	case doc::format::HARE, doc::format::TTY => void;
-	case =>
-		fmt::fatal("Option -a must be used only with -Fhare or -Ftty");
+	if (show_undocumented && html) {
+		fmt::fatal("Option -a must be used only with -Ftty");
 	};
 
 	let ctx = module::context {
@@ -162,17 +154,26 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 			ast::imports_finish(u.imports);
 			append(decls, u.decls...);
 		};
-		let new: []ast::decl = [];
+
+		let matching: []ast::decl = [];
+		let notmatching: []ast::decl = [];
 		for (let i = 0z; i < len(decls); i += 1) {
 			if (has_decl(decls[i], id[len(id) - 1])) {
-				append(new, decls[i]);
+				append(matching, decls[i]);
 			} else {
-				ast::decl_finish(decls[i]);
+				append(notmatching, decls[i]);
 			};
 		};
+		get_init_funcs(&matching, &notmatching);
+
+		for (let i = 0z; i < len(notmatching); i += 1) {
+			ast::decl_finish(notmatching[i]);
+		};
+		free(notmatching);
 		free(decls);
-		decls = new;
-		if (len(new) == 0) {
+		decls = matching;
+
+		if (len(matching) == 0) {
 			if (modpath == "") {
 				const id = unparse::identstr(id);
 				fmt::fatalf("Could not find {}", id);
@@ -207,7 +208,7 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 	};
 
 	const submods: []str = if (!ambiguous && modpath != "") {
-		yield match (doc::submodules(modpath)) {
+		yield match (doc::submodules(modpath, show_undocumented)) {
 		case let s: []str =>
 			yield s;
 		case doc::error =>
@@ -215,6 +216,8 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		};
 	} else [];
 	const srcs = if (!ambiguous && modpath != "") modsrcs else declsrcs;
+	const summary = doc::sort_decls(decls);
+	defer doc::finish_summary(summary);
 	const ctx = doc::context {
 		mctx = &ctx,
 		ident = id,
@@ -222,8 +225,7 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		ambiguous = ambiguous,
 		srcs = srcs,
 		submods = submods,
-		summary = doc::sort_decls(decls),
-		format = fmt,
+		summary = summary,
 		template = template,
 		readme = readme,
 		show_undocumented = show_undocumented,
@@ -231,11 +233,12 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		pager = void,
 	};
 
-	if (fmt == doc::format::TTY) {
+	const ret = if (html) {
+		yield doc::emit_html(&ctx);
+	} else {
 		ctx.out = init_tty(&ctx);
+		yield doc::emit_tty(&ctx);
 	};
-
-	const ret = emit(&ctx);
 
 	io::close(ctx.out)!;
 	match (ctx.pager) {
@@ -244,7 +247,8 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		exec::wait(&proc)!;
 	};
 
-	return ret;
+	// TODO: remove ? (harec bug workaround)
+	return ret?;
 };
 
 // Nearly identical to parse::identstr, except alphanumeric lexical tokens are
@@ -361,19 +365,9 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 				return true;
 			};
 		};
+	case ast::assert_expr => void;
 	};
 	return false;
-};
-
-fn emit(ctx: *doc::context) (void | error) = {
-	switch (ctx.format) {
-	case doc::format::HARE =>
-		doc::emit_hare(ctx)?;
-	case doc::format::TTY =>
-		doc::emit_tty(ctx)?;
-	case doc::format::HTML =>
-		doc::emit_html(ctx)?;
-	};
 };
 
 @test fn parseident() void = {
@@ -389,4 +383,94 @@ fn emit(ctx: *doc::context) (void | error) = {
 	assert(parseident("strings::dup*{}&@") is void);
 	assert(parseident("") is void);
 	assert(parseident("::") is void);
+};
+
+fn get_init_funcs(matching: *[]ast::decl, notmatching: *[]ast::decl) void = {
+	if (len(matching) != 1) {
+		return;
+	};
+	let ident = match (matching[0].decl) {
+	case let d: []ast::decl_type =>
+		if (len(d) != 1 || len(d[0].ident) != 1) {
+			return;
+		};
+		if (d[0]._type.flags & ast::type_flag::ERROR != 0) {
+			return;
+		};
+		match (d[0]._type.repr) {
+		case let repr: ast::builtin_type =>
+			if (repr == ast::builtin_type::VOID) {
+				return;
+			};
+		case => void;
+		};
+		yield d[0].ident;
+	case =>
+		return;
+	};
+
+	for (let i = 0z; i < len(notmatching); i += 1) {
+		let _type = match (notmatching[i].decl) {
+		case let d: []ast::decl_const =>
+			yield match (d[0]._type) {
+			case let t: *ast::_type =>
+				yield t;
+			case null =>
+				continue;
+			};
+		case let d: []ast::decl_global =>
+			yield match (d[0]._type) {
+			case let t: *ast::_type =>
+				yield t;
+			case null =>
+				continue;
+			};
+		case let d: ast::decl_func =>
+			let _type = d.prototype.repr as ast::func_type;
+			yield _type.result;
+		case =>
+			continue;
+		};
+
+		if (is_init_type(ident, _type)) {
+			append(matching, notmatching[i]);
+			delete(notmatching[i]);
+			i -= 1;
+		};
+	};
+};
+
+fn is_init_type(ident: ast::ident, _type: *ast::_type) bool = {
+	let type_ident = match (_type.repr) {
+	case let repr: ast::alias_type =>
+		yield repr.ident;
+	case let repr: ast::list_type =>
+		if (!(repr.length is ast::len_slice)) {
+			return false;
+		};
+		yield match (repr.members.repr) {
+		case let repr: ast::alias_type =>
+			yield repr.ident;
+		case =>
+			return false;
+		};
+	case let repr: ast::pointer_type =>
+		yield match (repr.referent.repr) {
+		case let repr: ast::alias_type =>
+			yield repr.ident;
+		case =>
+			return false;
+		};
+	case let repr: ast::tagged_type =>
+		for (let i = 0z; i < len(repr); i += 1) {
+			if (is_init_type(ident, repr[i])) {
+				return true;
+			};
+		};
+		return false;
+	case =>
+		return false;
+	};
+
+	return ast::ident_eq(ident, type_ident);
 };

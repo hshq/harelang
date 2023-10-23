@@ -204,6 +204,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 			yield "def";
 		case []ast::decl_global =>
 			yield "let";
+		case ast::assert_expr => abort();
 		})?;
 	unparse::ident(ctx.out, decl_ident(decl))?;
 	// TODO: Add source URL

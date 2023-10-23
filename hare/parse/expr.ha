@@ -320,7 +320,17 @@ fn binding_unpack(lexer: *lex::lexer) (ast::binding_unpack | error) = {
 
 fn binding(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
 	const loc = lex::mkloc(lexer);
-	const is_const = want(lexer, ltok::LET, ltok::CONST)?.0 == ltok::CONST;
+	const tok = want(lexer, ltok::DEF, ltok::CONST, ltok::LET)?.0;
+	const kind = switch (tok) {
+	case ltok::DEF =>
+		assert(!is_static);
+		yield ast::binding_kind::DEF;
+	case ltok::CONST =>
+		yield ast::binding_kind::CONST;
+	case ltok::LET =>
+		yield ast::binding_kind::LET;
+	case => abort(); // unreachable
+	};
 
 	let bindings: []ast::binding = [];
 	for (true) {
@@ -329,6 +339,10 @@ fn binding(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
 		case ltok::NAME =>
 			yield value as str;
 		case ltok::LPAREN =>
+			if (kind == ast::binding_kind::DEF) {
+				return syntaxerr(lex::mkloc(lexer),
+					"Can't use tuple unpacking with def");
+			};
 			yield binding_unpack(lexer)?;
 		case => abort();
 		};
@@ -354,7 +368,7 @@ fn binding(lexer: *lex::lexer, is_static: bool) (ast::expr | error) = {
 		end = lex::prevloc(lexer),
 		expr = ast::binding_expr {
 			is_static = is_static,
-			is_const = is_const,
+			kind = kind,
 			bindings = bindings,
 		},
 	};
@@ -631,7 +645,7 @@ fn compound_expr(lexer: *lex::lexer) (ast::expr | error) = {
 };
 
 fn stmt(lexer: *lex::lexer) (ast::expr | error) = {
-	const expr = match (try(lexer, ltok::DEFER,
+	const expr = match (try(lexer, ltok::DEFER, ltok::DEF,
 		ltok::LET, ltok::CONST, ltok::STATIC)?) {
 	case let tok: lex::token =>
 		yield switch (tok.0) {
@@ -642,7 +656,7 @@ fn stmt(lexer: *lex::lexer) (ast::expr | error) = {
 				end = lex::prevloc(lexer),
 				expr = expr: ast::defer_expr,
 			};
-		case ltok::LET, ltok::CONST =>
+		case ltok::DEF, ltok::CONST, ltok::LET =>
 			lex::unlex(lexer, tok);
 			yield binding(lexer, false)?;
 		case ltok::STATIC =>
@@ -667,12 +681,19 @@ fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	want(lexer, ltok::LPAREN)?;
 
 	const bindings: nullable *ast::expr =
-		match (peek(lexer, ltok::LET, ltok::CONST, ltok::STATIC)?) {
+		match (peek(lexer, ltok::DEF, ltok::LET, ltok::CONST,
+			ltok::STATIC)?) {
 		case void =>
 			yield null;
 		case let tok: lex::token =>
 			let is_static = if (tok.0 == ltok::STATIC) {
 				want(lexer, ltok::STATIC)?;
+				match (peek(lexer, ltok::LET, ltok::CONST)?) {
+				case lex::token => void;
+				case void =>
+					want(lexer, ltok::LET, ltok::CONST)?;
+					abort(); // unreachable
+				};
 				yield true;
 			} else false;
 			const bindings = alloc(binding(lexer, is_static)?);

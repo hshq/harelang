@@ -57,7 +57,8 @@ export type decl = struct {
 	exported: bool,
 	start: lex::location,
 	end: lex::location,
-	decl: ([]decl_const | []decl_global | []decl_type | decl_func),
+	decl: ([]decl_const | []decl_global | []decl_type | decl_func |
+		assert_expr),
 
 	// Only valid if the lexer has comments enabled
 	docs: str,
@@ -101,5 +102,18 @@ export fn decl_finish(d: decl) void = {
 			free(c[i].init);
 		};
 		free(c);
+	case let e: assert_expr =>
+		match (e.cond) {
+		case let e: *expr =>
+			expr_finish(e);
+			free(e);
+		case null => void;
+		};
+		match (e.message) {
+		case let e: *expr =>
+			expr_finish(e);
+			free(e);
+		case null => void;
+		};
 	};
 };

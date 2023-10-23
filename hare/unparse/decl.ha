@@ -153,6 +153,8 @@ export fn decl(
 			n += space(&ctx)?;
 			n += _expr(&ctx, syn, e)?;
 		};
+	case let e: ast::assert_expr =>
+		n += assert_expr(&ctx, syn, e)?;
 	};
 	n += syn(&ctx, ";", synkind::PUNCTUATION)?;
 	return n;

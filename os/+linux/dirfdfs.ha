@@ -429,6 +429,9 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 	let de = &iter.buf[iter.buf_pos]: *rt::dirent64;
 	iter.buf_pos += de.d_reclen;
 	let name = c::tostr(&de.d_name: *const c::char)!;
+	if (name == "." || name == "..") {
+		return iter_next(iter);
+	};
 
 	let ftype: fs::mode = switch (de.d_type) {
 	case rt::DT_UNKNOWN =>

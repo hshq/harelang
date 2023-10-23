@@ -12,7 +12,6 @@ use os;
 use strings;
 use types;
 
-let firstline: bool = true;
 let no_color: bool = false;
 
 // Formats output as Hare source code (prototypes) with syntax highlighting
@@ -63,20 +62,42 @@ export fn emit_tty(ctx: *context) (void | error) = {
 	emit_submodules_tty(ctx)?;
 
 	// XXX: Should we emit the dependencies, too?
+	let printed = false;
 	for (let i = 0z; i < len(summary.types); i += 1) {
-		details_tty(ctx, summary.types[i])?;
+		if (details_tty(ctx, summary.types[i])?) {
+			printed = true;
+		};
 	};
 	for (let i = 0z; i < len(summary.constants); i += 1) {
-		details_tty(ctx, summary.constants[i])?;
+		if (details_tty(ctx, summary.constants[i])?) {
+			printed = true;
+		};
 	};
 	for (let i = 0z; i < len(summary.errors); i += 1) {
-		details_tty(ctx, summary.errors[i])?;
+		if (details_tty(ctx, summary.errors[i])?) {
+			printed = true;
+		};
 	};
 	for (let i = 0z; i < len(summary.globals); i += 1) {
-		details_tty(ctx, summary.globals[i])?;
+		if (details_tty(ctx, summary.globals[i])?) {
+			printed = true;
+		};
 	};
 	for (let i = 0z; i < len(summary.funcs); i += 1) {
-		details_tty(ctx, summary.funcs[i])?;
+		if (details_tty(ctx, summary.funcs[i])?) {
+			printed = true;
+		};
+	};
+
+	if (!printed) {
+		if (!firstline) {
+			fmt::fprintln(ctx.out)?;
+		};
+		if (!no_color) fmt::fprintf(ctx.out, "\x1b[{}m",
+			color(unparse::synkind::COMMENT))?;
+		fmt::fprint(ctx.out, "// No exported declarations")?;
+		if (!no_color) fmt::fprint(ctx.out, "\x1b[m")?;
+		fmt::fprintln(ctx.out)?;
 	};
 };
 
@@ -105,9 +126,9 @@ fn emit_submodules_tty(ctx: *context) (void | error) = {
 	};
 };
 
-fn details_tty(ctx: *context, decl: ast::decl) (void | error) = {
+fn details_tty(ctx: *context, decl: ast::decl) (bool | error) = {
 	if (len(decl.docs) == 0 && !ctx.show_undocumented) {
-		return;
+		return false;
 	};
 
 	if (!no_color) fmt::fprint(ctx.out, "\x1b[m")?; // reset styling
@@ -118,6 +139,7 @@ fn details_tty(ctx: *context, decl: ast::decl) (void | error) = {
 
 	unparse::decl(ctx.out, &syn_tty, decl)?;
 	fmt::fprintln(ctx.out)?;
+	return true;
 };
 
 fn syn_tty(

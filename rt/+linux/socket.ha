@@ -45,12 +45,23 @@ export type sockaddr_nl = struct {
 	nl_groups: u32,
 };
 
+export type sockaddr_ll = struct {
+	sll_family: sa_family_t,
+	sll_protocol: u16,
+	sll_ifindex: int,
+	sll_hatype: u16,
+	sll_pkttype: u8,
+	sll_halen: u8,
+	sll_addr: [8]u8,
+};
+
 export type sockaddr = struct {
 	union {
 		in: sockaddr_in,
 		in6: sockaddr_in6,
 		un: sockaddr_un,
 		nl: sockaddr_nl,
+		ll: sockaddr_ll,
 	},
 };
 
@@ -184,6 +195,107 @@ export def SOCK_NONBLOCK: int = 0o4000;
 export def SOCK_CLOEXEC: int = 0o2000000;
 
 // protocol for socket(2)
+export def ETH_P_15: int = 0x88f7;
+export def ETH_P_8021AD: int = 0x88a8;
+export def ETH_P_8021AH: int = 0x88e7;
+export def ETH_P_8021Q: int = 0x8100;
+export def ETH_P_80221: int = 0x8917;
+export def ETH_P_802_2: int = 0x4;
+export def ETH_P_802_3: int = 0x1;
+export def ETH_P_802_3_MIN: int = 0x600;
+export def ETH_P_802_EX1: int = 0x88b5;
+export def ETH_P_AARP: int = 0x80f3;
+export def ETH_P_AF_IUCV: int = 0xfbfb;
+export def ETH_P_ALL: int = 0x3;
+export def ETH_P_AOE: int = 0x88a2;
+export def ETH_P_ARCNET: int = 0x1a;
+export def ETH_P_ARP: int = 0x806;
+export def ETH_P_ATALK: int = 0x809b;
+export def ETH_P_ATMFATE: int = 0x8884;
+export def ETH_P_ATMMPOA: int = 0x884c;
+export def ETH_P_AX25: int = 0x2;
+export def ETH_P_BATMAN: int = 0x4305;
+export def ETH_P_BPQ: int = 0x8ff;
+export def ETH_P_CAIF: int = 0xf7;
+export def ETH_P_CAN: int = 0xc;
+export def ETH_P_CANFD: int = 0xd;
+export def ETH_P_CANXL: int = 0xe;
+export def ETH_P_CFM: int = 0x8902;
+export def ETH_P_CONTROL: int = 0x16;
+export def ETH_P_CUST: int = 0x6006;
+export def ETH_P_DDCMP: int = 0x6;
+export def ETH_P_DEC: int = 0x6000;
+export def ETH_P_DIAG: int = 0x6005;
+export def ETH_P_DNA_DL: int = 0x6001;
+export def ETH_P_DNA_RC: int = 0x6002;
+export def ETH_P_DNA_RT: int = 0x6003;
+export def ETH_P_DSA: int = 0x1b;
+export def ETH_P_DSA_8021Q: int = 0xdadb;
+export def ETH_P_DSA_A5PSW: int = 0xe001;
+export def ETH_P_ECONET: int = 0x18;
+export def ETH_P_EDSA: int = 0xdada;
+export def ETH_P_ERSPAN: int = 0x88be;
+export def ETH_P_ERSPAN2: int = 0x22eb;
+export def ETH_P_ETHERCAT: int = 0x88a4;
+export def ETH_P_FCOE: int = 0x8906;
+export def ETH_P_FIP: int = 0x8914;
+export def ETH_P_HDLC: int = 0x19;
+export def ETH_P_HSR: int = 0x892f;
+export def ETH_P_IBOE: int = 0x8915;
+export def ETH_P_IEEE802154: int = 0xf6;
+export def ETH_P_IEEEPUP: int = 0xa00;
+export def ETH_P_IEEEPUPAT: int = 0xa01;
+export def ETH_P_IFE: int = 0xed3e;
+export def ETH_P_IP: int = 0x800;
+export def ETH_P_IPV6: int = 0x86dd;
+export def ETH_P_IPX: int = 0x8137;
+export def ETH_P_IRDA: int = 0x17;
+export def ETH_P_LAT: int = 0x6004;
+export def ETH_P_LINK_CTL: int = 0x886c;
+export def ETH_P_LLDP: int = 0x88cc;
+export def ETH_P_LOCALTALK: int = 0x9;
+export def ETH_P_LOOP: int = 0x60;
+export def ETH_P_LOOPBACK: int = 0x9000;
+export def ETH_P_MACSEC: int = 0x88e5;
+export def ETH_P_MAP: int = 0xf9;
+export def ETH_P_MCTP: int = 0xfa;
+export def ETH_P_MOBITEX: int = 0x15;
+export def ETH_P_MPLS_MC: int = 0x8848;
+export def ETH_P_MPLS_UC: int = 0x8847;
+export def ETH_P_MRP: int = 0x88e3;
+export def ETH_P_MVRP: int = 0x88f5;
+export def ETH_P_NCSI: int = 0x88f8;
+export def ETH_P_NSH: int = 0x894f;
+export def ETH_P_PAE: int = 0x888e;
+export def ETH_P_PAUSE: int = 0x8808;
+export def ETH_P_PHONET: int = 0xf5;
+export def ETH_P_PPPTALK: int = 0x10;
+export def ETH_P_PPP_DISC: int = 0x8863;
+export def ETH_P_PPP_MP: int = 0x8;
+export def ETH_P_PPP_SES: int = 0x8864;
+export def ETH_P_PREAUTH: int = 0x88c7;
+export def ETH_P_PROFINET: int = 0x8892;
+export def ETH_P_PRP: int = 0x88fb;
+export def ETH_P_PUP: int = 0x200;
+export def ETH_P_PUPAT: int = 0x201;
+export def ETH_P_QINQ1: int = 0x9100;
+export def ETH_P_QINQ2: int = 0x9200;
+export def ETH_P_QINQ3: int = 0x9300;
+export def ETH_P_RARP: int = 0x8035;
+export def ETH_P_REALTEK: int = 0x8899;
+export def ETH_P_SCA: int = 0x6007;
+export def ETH_P_SLOW: int = 0x8809;
+export def ETH_P_SNAP: int = 0x5;
+export def ETH_P_TDLS: int = 0x890d;
+export def ETH_P_TEB: int = 0x6558;
+export def ETH_P_TIPC: int = 0x88ca;
+export def ETH_P_TRAILER: int = 0x1c;
+export def ETH_P_TR_802_2: int = 0x11;
+export def ETH_P_TSN: int = 0x22f0;
+export def ETH_P_WAN_PPP: int = 0x7;
+export def ETH_P_WCCP: int = 0x883e;
+export def ETH_P_X25: int = 0x805;
+export def ETH_P_XDSA: int = 0xf8;
 
 // Dummy protocol for TCP
 export def IPPROTO_IP: int = 0;

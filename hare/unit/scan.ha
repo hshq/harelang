@@ -40,6 +40,8 @@ fn scan_decl(
 		abort(); // TODO
 	case let fu: ast::decl_func =>
 		return scan_func(ctx, decl, &fu);
+	case let ex: ast::assert_expr =>
+		abort(); // TODO
 	};
 };
 

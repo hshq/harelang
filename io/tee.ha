@@ -33,17 +33,13 @@ fn tee_read(s: *stream, buf: []u8) (size | EOF | error) = {
 	case let z: size =>
 		yield z;
 	};
-	for (let n = 0z; n < z) {
-		n += write(s.sink, buf[n..z])?;
-	};
+	writeall(s.sink, buf[..z])?;
 	return z;
 };
 
 fn tee_write(s: *stream, buf: const []u8) (size | error) = {
 	let s = s: *teestream;
 	const z = write(s.h, buf)?;
-	for (let n = 0z; n < z) {
-		n += write(s.sink, buf[n..z])?;
-	};
+	writeall(s.sink, buf[..z])?;
 	return z;
 };

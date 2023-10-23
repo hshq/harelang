@@ -144,12 +144,19 @@ export type binding = struct {
 // 	(foo, _, bar)
 export type binding_unpack = [](str | void);
 
+// The kind of binding expression being used.
+export type binding_kind = enum {
+	CONST,
+	DEF,
+	LET,
+};
+
 // A variable binding expression.
 //
 // 	let foo: int = bar, ...
 export type binding_expr = struct {
 	is_static: bool,
-	is_const: bool,
+	kind: binding_kind,
 	bindings: []binding,
 };
 

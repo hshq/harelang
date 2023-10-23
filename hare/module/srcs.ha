@@ -281,9 +281,6 @@ fn _findsrcs(
 	case void =>
 		break;
 	case let d: fs::dirent =>
-		if (d.name == "." || d.name == "..") {
-			continue;
-		};
 		path::push(buf, d.name)?;
 		defer path::pop(buf);
 

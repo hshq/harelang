@@ -161,8 +161,6 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 	let tok = want(lexer, ltok::EQUAL, ltok::SEMICOLON)?;
 	let body = switch (tok.0) {
 	case ltok::EQUAL =>
-		synassert(ident_loc, len(ident) == 1,
-			"Unexpected identifier, was expecting name")?;
 		const params = prototype.params;
 		for (let i = 0z; i < len(params); i += 1) {
 			synassert(params[i].loc,
@@ -193,6 +191,18 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 export fn decl(lexer: *lex::lexer) (ast::decl | error) = {
 	const start = lex::mkloc(lexer);
 	let comment = "";
+	if (try(lexer, ltok::STATIC)? is lex::token) {
+		comment = strings::dup(lex::comment(lexer));
+		let expr = assert_expr(lexer, true)?;
+		want(lexer, ltok::SEMICOLON)?;
+		return ast::decl {
+			exported = false,
+			start = start,
+			end = expr.end,
+			decl = expr.expr as ast::assert_expr,
+			docs = comment,
+		};
+	};
 	let exported = match (try(lexer, ltok::EXPORT)?) {
 	case void =>
 		yield false;
