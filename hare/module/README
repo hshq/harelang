@@ -1,3 +1,6 @@
 hare::module provides an interface to the module system used by this Hare
 implementation, as well as to the Hare cache. Note that these interfaces may not
 be portable to other Hare implementations.
+
+Note that much of this module's design is an implementation detail of the Hare
+toolchain, and is not subject to any future compatibility guarantees.

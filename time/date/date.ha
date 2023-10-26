@@ -139,10 +139,6 @@ export fn new(
 	zoff: time::duration,
 	fields: int...
 ) (date | invalid) = {
-	// TODO:
-	// - revise examples
-	// - fix calls with `years <= -4715`.
-	//   https://todo.sr.ht/~sircmpwn/hare/565
 	let _fields: [_]int = [
 		0, 1, 1,    // year month day
 		0, 0, 0, 0, // hour min sec nsec
