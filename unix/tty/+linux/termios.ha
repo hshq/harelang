@@ -69,3 +69,10 @@ export fn noecho(termios: *termios) (void | errors::error) = {
 	termios.current.c_lflag &= ~rt::tcflag::ECHO;
 	termios_set(termios)?;
 };
+
+// Enables "noncanonical" mode for this terminal, disabling line buffering and
+// line editing. Users should call [[termios_restore]] to restore settings.
+export fn noncanonical(termios: *termios) (void | errors::error) = {
+	termios.current.c_lflag &= ~rt::tcflag::ICANON;
+	termios_set(termios)?;
+};

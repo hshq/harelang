@@ -15,7 +15,6 @@ export fn compare(a: str, b: str) int = {
 	return if (len(a) == len(b)) 0 else ln.1;
 };
 
-
 @test fn compare() void = {
 	assert(compare("ABC", "ABC") == 0);
 	assert(compare("ABC", "AB") > 0);

@@ -142,12 +142,12 @@ fn run_task(ctx: *context, jobs: *[]job, t: *task) (bool | error) = {
 	let outdated = module::outdated(out, deps, mod.srcs.mtime);
 	let exec = t.kind != stage::SSA || len(mod.srcs.ha) != 0;
 	if (!exec || !outdated) {
-		io::close(lock)?;
 		if (outdated) {
 			cleanup_task(ctx, t)?;
 		} else if (t.kind == stage::SSA) {
 			get_td(ctx, t.idx)?;
 		};
+		io::close(lock)?;
 		free_task(t);
 		ctx.total -= 1;
 		return true;
