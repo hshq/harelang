@@ -91,7 +91,7 @@ export fn borrowedread(st: *stream, amt: size) ([]u8 | io::EOF) = {
 
 fn read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let s = s: *stream;
-	if (len(s.buf) == s.pos && len(buf) != 0) {
+	if (len(s.buf) == s.pos) {
 		return io::EOF;
 	};
 	const n = if (len(s.buf) - s.pos < len(buf)) {
