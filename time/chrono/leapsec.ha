@@ -37,10 +37,6 @@ type utciniterror = !(fs::error | io::error | encoding::utf8::invalid);
 // accurate enough to account for small changes in time.
 export def SECS_1900_1970: i64 = 2208988800;
 
-// The filepath of the system's "leap-seconds.list" file, which contains UTC/TAI
-// leap second data.
-export def UTC_LEAPSECS_FILE: str = "/usr/share/zoneinfo/leap-seconds.list";
-
 // UTC/TAI leap second data; UTC timestamps and their offsets from TAI.
 // Sourced from [[UTC_LEAPSECS_FILE]].
 let utc_leapsecs: [](i64, i64) = [];
