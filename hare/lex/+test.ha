@@ -1,33 +1,36 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use bufio;
 use fmt;
 use io;
-use io::{mode};
 use memio;
 use strings;
 
-@test fn unget() void = {
-	let buf = memio::fixed(strings::toutf8("z"));
-	let lexer = init(&buf, "<test>");
-	unget(&lexer, ('x', location { path = "<test>", line = 1, col = 2 }));
-	unget(&lexer, ('y', location { path = "<test>", line = 1, col = 3 }));
-	let r = next(&lexer) as (rune, location);
-	assert(r.0 == 'y');
-	assert(r.1.path == "<test>" && r.1.line == 1 && r.1.col == 3);
-	r = next(&lexer) as (rune, location);
-	assert(r.0 == 'x');
-	assert(r.1.path == "<test>" && r.1.line == 1 && r.1.col == 2);
-	r = next(&lexer) as (rune, location);
-	assert(r.0 == 'z');
-	assert(r.1.path == "<test>" && r.1.line == 1 && r.1.col == 1);
-	assert(next(&lexer) is io::EOF);
-	unget(&lexer, io::EOF);
-	assert(next(&lexer) is io::EOF);
+fn initbuf(in: []u8, flags: flag...) lexer = {
+	static let buf: [256]u8 = [0...];
+	static let s = memio::stream {
+		stream = null: io::stream,
+		...
+	};
+	static let sc = bufio::scanner {
+		stream = null: io::stream,
+		src = 0,
+		...
+	};
+
+	s = memio::fixed(in);
+	sc = bufio::newscanner_static(&s, buf);
+	return init(&sc, "<test>", flags...);
+};
+
+fn initstr(in: str, flags: flag...) lexer = {
+	return initbuf(strings::toutf8(in), flags...);
 };
 
 @test fn unlex() void = {
-	let lexer = init(io::empty, "<test>");
+	let sc = bufio::newscanner_static(io::empty, []);
+	let lexer = init(&sc, "<test>");
 	unlex(&lexer, (ltok::IF, void, location {
 		path = "<test>",
 		line = 1234,
@@ -56,8 +59,7 @@ fn vassert(expected: value, actual: value) void = {
 };
 
 fn lextest(in: str, expected: []token) void = {
-	let buf = memio::fixed(strings::toutf8(in));
-	let lexer = init(&buf, "<test>");
+	let lexer = initstr(in);
 	for (let i = 0z; i < len(expected); i += 1) {
 		let etok = expected[i];
 		let tl = match (lex(&lexer)) {
@@ -184,8 +186,7 @@ fn loc(line: uint, col: uint) location = location {
 @test fn keywords() void = {
 	let keywords = bmap[..ltok::LAST_KEYWORD+1];
 	for (let i = 0z; i < len(keywords); i += 1) {
-		let buf = memio::fixed(strings::toutf8(keywords[i]));
-		let lexer = init(&buf, "<test>");
+		let lexer = initstr(keywords[i]);
 		let tok = lex(&lexer) as token;
 		assert(tok.0 == i: ltok);
 	};
@@ -200,9 +201,8 @@ fn loc(line: uint, col: uint) location = location {
 	];
 	lextest(in, expected);
 
-	let in = "// foo\n// bar\nhello world// baz\n\n// bad\ntest";
-	let buf = memio::fixed(strings::toutf8(in));
-	let lexer = init(&buf, "<input>", flag::COMMENTS);
+	let lexer = initstr("// foo\n// bar\nhello world// baz\n\n// bad\ntest",
+		flag::COMMENTS);
 	assert(lex(&lexer) is token);
 	assert(comment(&lexer) == " foo\n bar\n");
 	assert(lex(&lexer) is token);
@@ -305,40 +305,24 @@ fn loc(line: uint, col: uint) location = location {
 @test fn invalid() void = {
 	// Using \x80 within a string literal will cause this to output an
 	// empty string
-	const in = ['1': u8, 0x80];
-
-	let buf = memio::fixed(in);
-	let lexer = init(&buf, "<test>");
-
+	let lexer = initbuf(['1', 0x80]);
 	const s = lex(&lexer) as error as syntax;
 	assert(s.1 == "Source file is not valid UTF-8");
 
 	// Regression: invalid UTF-8 at the beginning of a token used to cause
 	// a crash in nextw
-	const in = [0x80: u8];
-
-	let buf = memio::fixed(in);
-	let lexer = init(&buf, "<test>");
-
+	let lexer = initbuf([0x80]);
 	const s = lex(&lexer) as error as syntax;
 	assert(s.1 == "Source file is not valid UTF-8");
 
 	// Regression: invalid escape sequences such as "\^" used to casue a
 	// crash
-	const in = ['"': u8, '\\': u8, '^': u8, '"': u8];
-
-	let buf = memio::fixed(in);
-	let lexer = init(&buf, "<test>");
-
+	let lexer = initstr(`"\^"`);
 	const s = lex(&lexer) as error as syntax;
 	assert(s.1 == "unknown escape sequence");
 
 	// Regression: <X>e followed by another token used to cause a crash
-	const in = ['0': u8, 'e': u8, ')': u8];
-
-	let buf = memio::fixed(in);
-	let lexer = init(&buf, "<test>");
-
+	let lexer = initstr("0e)");
 	const s = lex(&lexer) as error as syntax;
 	assert(s.1 == "expected exponent");
 };
@@ -357,9 +341,7 @@ type op = enum {
 };
 
 @test fn loc() void = {
-	const src = "h 	ello: my	name is Inigo Montoya";
-	let buf = memio::fixed(strings::toutf8(src));
-	let lexer = init(&buf, "<test>");
+	let lexer = initstr("h 	ello: my	name is\nInigo Montoya.");
 	const ops: [_]op = [
 		op::NEXT,
 		op::NEXT,
@@ -396,7 +378,8 @@ type op = enum {
 		(loc(1, 17), loc(1, 16)),
 		(loc(1, 29), loc(1, 28)),
 		(loc(1, 32), loc(1, 31)),
-		(loc(1, 38), loc(1, 37)),
+		(loc(2, 6), loc(2, 5)),
+		(loc(2, 14), loc(2, 13)),
 	];
 
 	// We could statically allocate r and t, but what's the point
@@ -411,7 +394,7 @@ type op = enum {
 		case op::NEXT =>
 			append(r, next(&lexer) as (rune, location));
 		case op::UNGET =>
-			unget(&lexer, r[len(r) - 1]);
+			unget(&lexer, r[len(r) - 1].0);
 			delete(r[len(r) - 1]);
 		case op::UNLEX =>
 			unlex(&lexer, t[len(t) - 1]);
@@ -419,7 +402,6 @@ type op = enum {
 		};
 		let loc = mkloc(&lexer);
 		let ploc = prevloc(&lexer);
-		// TODO: Aggregate equality
 		assert(loc.path == vector[i].0.path
 			&& loc.line == vector[i].0.line
 			&& loc.col == vector[i].0.col);

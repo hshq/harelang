@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use bufio;
 use hare::ast;
 use hare::lex;
 use hare::lex::{ltok};
@@ -8,11 +9,13 @@ use io;
 use io::{mode};
 use memio;
 use strings;
+use types;
 
 fn ident_test(in: str, expected: ast::ident, extra: ltok...) void = {
 	let buf = memio::fixed(strings::toutf8(in));
-	let lexer = lex::init(&buf, "<test>");
-	defer lex::finish(&lexer);
+	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	defer bufio::finish(&sc);
+	let lexer = lex::init(&sc, "<test>");
 
 	match (ident(&lexer)) {
 	case let id: ast::ident =>

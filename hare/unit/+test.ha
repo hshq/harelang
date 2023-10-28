@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use bufio;
 use hare::ast;
 use hare::lex;
 use hare::parse;
@@ -8,11 +9,13 @@ use hare::types;
 use io;
 use memio;
 use strings;
+use types::{SIZE_MAX};
 
 fn parse_expr(src: str) *ast::expr = {
-	const stream = memio::fixed(strings::toutf8(src));
-	const lexer = lex::init(&stream, "<test>");
-	defer lex::finish(&lexer);
+	let stream = memio::fixed(strings::toutf8(src));
+	let sc = bufio::newscanner(&stream, SIZE_MAX);
+	defer bufio::finish(&sc);
+	let lexer = lex::init(&sc, "<test>");
 	return alloc(parse::expr(&lexer)!);
 };
 

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // (c) Hare authors <https://harelang.org>
 
+use bufio;
 use fmt;
 use fs;
 use hare::ast;
@@ -10,6 +11,7 @@ use hare::parse;
 use io;
 use os;
 use path;
+use types;
 
 type symkind = enum {
 	LOCAL,
@@ -185,6 +187,8 @@ export fn scan(path: str) (ast::subunit | error) = {
 		fmt::fatalf("Error reading {}: {}", path, fs::strerror(err));
 	};
 	defer io::close(input)!;
-	const lexer = lex::init(input, path, lex::flag::COMMENTS);
+	let sc = bufio::newscanner(input, types::SIZE_MAX);
+	defer bufio::finish(&sc);
+	let lexer = lex::init(&sc, path, lex::flag::COMMENTS);
 	return parse::subunit(&lexer)?;
 };

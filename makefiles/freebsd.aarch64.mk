@@ -172,7 +172,7 @@ $(HARECACHE)/hare_ast.ssa: $(hare_ast_ha) $(HARECACHE)/hare_lex.td $(HARECACHE)/
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/hare_ast.ssa -t $(HARECACHE)/hare_ast.td.tmp -N hare::ast $(hare_ast_ha)
 
 hare_parse_ha = hare/parse/decl.ha hare/parse/expr.ha hare/parse/ident.ha hare/parse/import.ha hare/parse/parse.ha hare/parse/type.ha hare/parse/unit.ha
-$(HARECACHE)/hare_parse.ssa: $(hare_parse_ha) $(HARECACHE)/ascii.td $(HARECACHE)/fmt.td $(HARECACHE)/hare_ast.td $(HARECACHE)/hare_lex.td $(HARECACHE)/io.td $(HARECACHE)/math.td $(HARECACHE)/memio.td $(HARECACHE)/strings.td $(HARECACHE)/types.td
+$(HARECACHE)/hare_parse.ssa: $(hare_parse_ha) $(HARECACHE)/ascii.td $(HARECACHE)/bufio.td $(HARECACHE)/fmt.td $(HARECACHE)/hare_ast.td $(HARECACHE)/hare_lex.td $(HARECACHE)/io.td $(HARECACHE)/math.td $(HARECACHE)/memio.td $(HARECACHE)/strings.td $(HARECACHE)/types.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/hare_parse.ssa -t $(HARECACHE)/hare_parse.td.tmp -N hare::parse $(hare_parse_ha)
@@ -196,7 +196,7 @@ $(HARECACHE)/time_date.ssa: $(time_date_ha) $(HARECACHE)/ascii.td $(HARECACHE)/f
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/time_date.ssa -t $(HARECACHE)/time_date.td.tmp -N time::date $(time_date_ha)
 
 hare_module_ha = hare/module/cache.ha hare/module/deps.ha hare/module/format.ha hare/module/srcs.ha hare/module/types.ha hare/module/util.ha
-$(HARECACHE)/hare_module.ssa: $(hare_module_ha) $(HARECACHE)/ascii.td $(HARECACHE)/bufio.td $(HARECACHE)/bytes.td $(HARECACHE)/encoding_utf8.td $(HARECACHE)/fmt.td $(HARECACHE)/fs.td $(HARECACHE)/hare_ast.td $(HARECACHE)/hare_lex.td $(HARECACHE)/hare_parse.td $(HARECACHE)/hare_unparse.td $(HARECACHE)/io.td $(HARECACHE)/memio.td $(HARECACHE)/os.td $(HARECACHE)/path.td $(HARECACHE)/sort.td $(HARECACHE)/sort_cmp.td $(HARECACHE)/strings.td $(HARECACHE)/time.td $(HARECACHE)/time_chrono.td $(HARECACHE)/time_date.td
+$(HARECACHE)/hare_module.ssa: $(hare_module_ha) $(HARECACHE)/ascii.td $(HARECACHE)/bufio.td $(HARECACHE)/bytes.td $(HARECACHE)/encoding_utf8.td $(HARECACHE)/fmt.td $(HARECACHE)/fs.td $(HARECACHE)/hare_ast.td $(HARECACHE)/hare_lex.td $(HARECACHE)/hare_parse.td $(HARECACHE)/hare_unparse.td $(HARECACHE)/io.td $(HARECACHE)/memio.td $(HARECACHE)/os.td $(HARECACHE)/path.td $(HARECACHE)/sort.td $(HARECACHE)/sort_cmp.td $(HARECACHE)/strings.td $(HARECACHE)/time.td $(HARECACHE)/time_chrono.td $(HARECACHE)/time_date.td $(HARECACHE)/types.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/hare_module.ssa -t $(HARECACHE)/hare_module.td.tmp -N hare::module $(hare_module_ha)
