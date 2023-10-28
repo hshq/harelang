@@ -7,13 +7,14 @@ use hare::ast;
 use hare::lex;
 use hare::module;
 use hare::parse;
+use hare::parse::doc;
 use io;
 use os::exec;
 
 export type haredoc_colors_error = !str;
 
-export type error = !(lex::error | parse::error | io::error | module::error |
-	exec::error | fs::error | haredoc_colors_error);
+export type error = !(lex::error | parse::error | doc::error | io::error |
+	module::error | exec::error | fs::error | haredoc_colors_error);
 
 export fn strerror(err: error) str = {
 	match (err) {
@@ -21,6 +22,8 @@ export fn strerror(err: error) str = {
 		return lex::strerror(err);
 	case let err: parse::error =>
 		return parse::strerror(err);
+	case let err: doc::error =>
+		return doc::strerror(err);
 	case let err: io::error =>
 		return io::strerror(err);
 	case let err: module::error =>

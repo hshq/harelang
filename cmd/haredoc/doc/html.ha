@@ -5,6 +5,7 @@
 use encoding::utf8;
 use fmt;
 use hare::ast;
+use hare::lex;
 use hare::parse::doc;
 use hare::unparse;
 use io;
@@ -84,7 +85,11 @@ export fn emit_html(ctx: *context) (void | error) = {
 	case void => void;
 	case let f: io::file =>
 		fmt::fprintln(ctx.out, "<div class='readme'>")?;
-		markup_html(ctx, f)?;
+		markup_html(ctx, f, lex::location {
+			path = "README", // XXX: this is meh
+			line = 1,
+			col = 1,
+		})?;
 		fmt::fprintln(ctx.out, "</div>")?;
 	};
 
@@ -227,7 +232,7 @@ fn details(ctx: *context, decl: ast::decl) (void | error) = {
 		const trimmed = trim_comment(decl.docs);
 		defer free(trimmed);
 		const buf = strings::toutf8(trimmed);
-		markup_html(ctx, &memio::fixed(buf))?;
+		markup_html(ctx, &memio::fixed(buf), decl.start)?;
 	} else {
 		fmt::fprintln(ctx.out, "</details>")?;
 	};
@@ -261,7 +266,7 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | error) = {
 	case symkind::MODULE =>
 		let ipath = strings::join("/", id...);
 		defer free(ipath);
-		fmt::fprintf(ctx.out, "<a href='/{}' class='ref'>{}</a>",
+		fmt::fprintf(ctx.out, "<a href='/{}' class='ref'>{}::</a>",
 			ipath, ident)?;
 	case symkind::SYMBOL =>
 		let ipath = strings::join("/", id[..len(id) - 1]...);
@@ -280,65 +285,71 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | error) = {
 	free(ident);
 };
 
-fn markup_html(ctx: *context, in: io::handle) (void | error) = {
-	let parser = doc::parse(in);
-	let waslist = false;
-	for (true) {
-		const tok = match (doc::scan(&parser)) {
-			case void =>
-				if (waslist) {
-					fmt::fprintln(ctx.out, "</ul>")?;
-				};
-				break;
-			case let tok: doc::token =>
-				yield tok;
-			};
-		match (tok) {
-		case doc::paragraph =>
-			if (waslist) {
-				fmt::fprintln(ctx.out, "</ul>")?;
-				waslist = false;
-			};
-			fmt::fprintln(ctx.out)?;
-			fmt::fprint(ctx.out, "<p>")?;
-		case let tx: doc::text =>
-			defer free(tx);
-			match (uri::parse(strings::trim(tx))) {
+fn html_paragraph(ctx: *context, p: doc::paragraph) (void | error) = {
+	for (let i = 0z; i < len(p); i += 1) {
+		match (p[i]) {
+		case let s: str =>
+			match (uri::parse(s)) {
 			case let uri: uri::uri =>
 				defer uri::finish(&uri);
-				if (uri.host is net::ip::addr || len(uri.host as str) > 0) {
+				if (uri.host is ip::addr || len(uri.host as str) > 0) {
 					fmt::fprint(ctx.out, "<a rel='nofollow noopener' href='")?;
 					uri::fmt(ctx.out, &uri)?;
 					fmt::fprint(ctx.out, "'>")?;
-					html_escape(ctx.out, tx)?;
+					html_escape(ctx.out, s)?;
 					fmt::fprint(ctx.out, "</a>")?;
 				} else {
-					html_escape(ctx.out, tx)?;
+					html_escape(ctx.out, s)?;
 				};
 			case uri::invalid =>
-				html_escape(ctx.out, tx)?;
+				html_escape(ctx.out, s)?;
 			};
-		case let re: doc::reference =>
-			htmlref(ctx, re)?;
-		case let sa: doc::sample =>
-			if (waslist) {
-				fmt::fprintln(ctx.out, "</ul>")?;
-				waslist = false;
-			};
-			fmt::fprint(ctx.out, "<pre class='sample'>")?;
-			html_escape(ctx.out, sa)?;
-			fmt::fprint(ctx.out, "</pre>")?;
-			free(sa);
-		case doc::listitem =>
-			if (!waslist) {
-				fmt::fprintln(ctx.out, "<ul>")?;
-				waslist = true;
-			};
-			fmt::fprint(ctx.out, "<li>")?;
+		case let d: doc::decl_ref =>
+			htmlref(ctx, d)?;
+		case let m: doc::mod_ref =>
+			htmlref(ctx, m)?;
 		};
 	};
-	fmt::fprintln(ctx.out)?;
-	return;
+};
+
+fn markup_html(
+	ctx: *context,
+	in: io::handle,
+	loc: lex::location,
+) (void | error) = {
+	const doc = match (doc::parse(in, loc)) {
+	case let doc: doc::doc =>
+		yield doc;
+	case let err: lex::syntax =>
+		const err = lex::strerror(err);
+		fmt::errorfln("Warning:", err)?;
+		fmt::fprint(ctx.out, "<p class='ref invalid'>Can't parse docs: ")?;
+		html_escape(ctx.out, err)?;
+		fmt::fprintln(ctx.out)?;
+		return;
+	};
+	defer doc::freeall(doc);
+
+	for (let i = 0z; i < len(doc); i += 1) {
+		match (doc[i]) {
+		case let p: doc::paragraph =>
+			fmt::fprint(ctx.out, "<p>")?;
+			html_paragraph(ctx, p)?;
+			fmt::fprintln(ctx.out)?;
+		case let l: doc::list =>
+			fmt::fprintln(ctx.out, "<ul>")?;
+			for (let i = 0z; i < len(l); i += 1) {
+				fmt::fprint(ctx.out, "<li>")?;
+				html_paragraph(ctx, l[i])?;
+				fmt::fprintln(ctx.out)?;
+			};
+			fmt::fprintln(ctx.out, "</ul>")?;
+		case let c: doc::code_sample =>
+			fmt::fprint(ctx.out, "<pre class='sample'>")?;
+			html_escape(ctx.out, c)?;
+			fmt::fprintln(ctx.out, "</pre>")?;
+		};
+	};
 };
 
 fn syn_centry(
