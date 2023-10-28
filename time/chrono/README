@@ -1,6 +1,6 @@
 The time::chrono module provides timescale utilities, and the foundations for
 chronology with the [[moment]] type, an abstract, extendable date/time object.
-For the Gregorian chronology, see the [[time::date]] module.
+For the Gregorian chronology, see the [[time::date::]] module.
 
 Hare defines a chronology as a system for naming and ordering moments in time.
 In practice, it is the combination of a calendar and wall clock. This module

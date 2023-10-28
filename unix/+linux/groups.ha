@@ -16,6 +16,6 @@ export fn getgroups() []uint = {
 // If the system returns an error, this function will abort the program. Failing
 // to handle errors from setgroups is a grave security issue in your program,
 // and therefore we require this function to succeed. If you need to handle the
-// error case gracefully, call the appropriate syscall wrapper in [[rt]]
+// error case gracefully, call the appropriate syscall wrapper in [[rt::]]
 // yourself, and take extreme care to handle errors correctly.
 export fn setgroups(gids: []uint) void = rt::setgroups(gids)!;

@@ -1,5 +1,5 @@
 This module provides support for formatting of large or complex strings beyond
-the scope of [[fmt]]. A template is compiled using [[compile]], then executed
+the scope of [[fmt::]]. A template is compiled using [[compile]], then executed
 with [[execute]] to print formatted text to an [[io::handle]].
 
 The template format is a string with variables substituted using "$". Variable

@@ -26,7 +26,7 @@ export type pubkey = [PUBKEYSZ]u8;
 export type seed = [SEEDSZ]u8;
 
 // Derives a new Ed25519 private key from a given seed. The seed must be
-// initialized to cryptographically random data; [[crypto::random]] is
+// initialized to cryptographically random data; [[crypto::random::]] is
 // recommended for this purpose.
 export fn privkey_init(priv: []u8, seed: []u8) void = {
 	assert(len(priv) == PRIVKEYSZ);

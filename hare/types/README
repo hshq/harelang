@@ -1,3 +1,3 @@
 hare::types provides an implementation of the Hare type system. See [[store]] to
 initialize a type store and [[lookup]] for looking up Hare types from their
-[[hare::ast]] representation.
+[[hare::ast::]] representation.

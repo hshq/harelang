@@ -13,7 +13,7 @@ export def KEYSZ: size = 32;
 export def SEEDSZ: size = 32;
 
 // Initializes a new x25519 private key from the provided 32-byte seed,
-// which should be generated with [[crypto::random]].
+// which should be generated with [[crypto::random::]].
 export fn newkey(priv: []u8, seed: []u8) void = {
 	assert(len(priv) == KEYSZ);
 	assert(len(seed) == SEEDSZ);

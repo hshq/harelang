@@ -1,5 +1,5 @@
 The types module provides access to some information about the Hare type system.
 It provides constants like [[INT_MAX]], which defines the useful range for
-integer types (see [[math]] for f32 and f64 limits), as well as types like
+integer types (see [[math::]] for f32 and f64 limits), as well as types like
 [[slice]], which describe the internal structure of data types like slices and
 str.

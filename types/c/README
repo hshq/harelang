@@ -22,7 +22,8 @@ Some C types are mostly compatible with Hare types, with minor differences:
   undefined-size opaque type.
 - Hare doesn't have builtin imaginary or complex types, though complex types
   with equivalent represention to their C counterparts are declared in
-  [[math::complex]]. Hare doesn't allow casting between real and complex types
+  [[math::complex::]]. Hare doesn't allow casting between real and complex types
   like C does.
 
-Additional low-level or implementation-specific types may be defined in [[rt]].
+Additional low-level or implementation-specific types may be defined in
+[[rt::]].

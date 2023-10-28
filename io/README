@@ -1,7 +1,7 @@
 The io module provides input and output (I/O) functionality for Hare programs,
 such as reading from or writing to files. The I/O module is not generally
-responsible for provisioning the I/O objects themselves; see modules like [[os]]
-and [[net]] for this purpose.
+responsible for provisioning the I/O objects themselves; see modules like
+[[os::]] and [[net::]] for this purpose.
 
 I/O operations such as [[read]] or [[write]] accept an I/O handle, [[handle]],
 to specify the object of the I/O operation. This type is a tagged union of
@@ -11,11 +11,11 @@ unless they specifically require the special semantics of one of its subtypes.
 The [[file]] type provides access to an object, usually a file descriptor, which
 is provided by the host operating system. It represents objects such as a file
 on disk, an open network connection, and so on. The use of [[file]] is generally
-required when working with host I/O, such as with [[unix::poll]].
+required when working with host I/O, such as with [[unix::poll::]].
 
 The [[stream]] type is an abstraction that allows Hare programs to implement
 their own I/O objects by providing implementations of [[read]], [[write]], and
 other functions, for an [[handle]]. Several standard library modules offer
-implementations of [[stream]] for one reason or another, such as [[bufio]].
+implementations of [[stream]] for one reason or another, such as [[bufio::]].
 Additionally, the io module provides some useful general-purpose I/O streams,
 such as [[tee]].

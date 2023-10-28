@@ -32,7 +32,7 @@ export type box = (mac, nonce, []u8);
 //
 // You must also establish a unique nonce for each message, which you must not
 // reuse for any future messages using the same session key. It is recommended
-// to generate this randomly with [[crypto::random]].
+// to generate this randomly with [[crypto::random::]].
 //
 // The plaintext parameter provides the message to encrypt. It will be
 // overwritten with the ciphertext. The buffer provided in the return value is
@@ -46,7 +46,7 @@ export type box = (mac, nonce, []u8);
 // The return value contains all of the information which should be transmitted
 // to the other party, including the computed MAC, a copy of the nonce, and the
 // ciphertext. It is safe to transmit these values over an unsecured connection,
-// or to encode them with something like [[encoding::base64]].
+// or to encode them with something like [[encoding::base64::]].
 //
 // Any 'additional' data, if provided, is not included in the [[box]] type. The
 // user must provide for this data to be transmitted to the other party

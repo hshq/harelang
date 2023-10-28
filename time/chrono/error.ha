@@ -6,7 +6,7 @@ use fmt;
 use fs;
 use io;
 
-// All possible errors returned from [[time::chrono]].
+// All possible errors returned from this module.
 export type error = !(
 	invalid
 	| invalidtzif
