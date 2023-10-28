@@ -9,7 +9,9 @@ use memio;
 use strings;
 use types;
 
-fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
+// Parses a single identifier, possibly with a trailing ::, i.e. 'foo::bar::'.
+// Returns the identifier and whether there's a trailing ::.
+export fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	let ident: []str = [];
 	let trailing = false;
 	const tok = want(lexer, ltok::NAME)?;
