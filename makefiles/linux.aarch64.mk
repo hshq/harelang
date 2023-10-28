@@ -15,7 +15,7 @@ $(HARECACHE)/rt.o: $(rt_s)
 	@printf 'AS\t%s\n' "$@"
 	@$(AS) $(ASFLAGS) -o $@ $(rt_s)
 
-encoding_utf8_ha = encoding/utf8/decode.ha encoding/utf8/decodetable.ha encoding/utf8/encode.ha encoding/utf8/rune.ha
+encoding_utf8_ha = encoding/utf8/decode.ha encoding/utf8/decodetable.ha encoding/utf8/encode.ha encoding/utf8/rune.ha encoding/utf8/types.ha
 $(HARECACHE)/encoding_utf8.ssa: $(encoding_utf8_ha)
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"

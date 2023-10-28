@@ -21,13 +21,6 @@ export fn decode(src: (str | []u8)) decoder = decoder {
 	offs = 0,
 };
 
-// Returned when more data is needed, i.e. when an incomplete UTF-8 sequence is
-// encountered.
-export type more = void;
-
-// Returned when an invalid UTF-8 sequence was found.
-export type invalid = !void;
-
 const masks: [2][8]u8 = [
 	[0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f],
 	[0x7f, 0x1f, 0x0f, 0x0f, 0x0f, 0x07, 0x07, 0x07],
