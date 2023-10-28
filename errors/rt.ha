@@ -3,8 +3,9 @@
 
 use rt;
 
-// Wraps an [[rt::errno]] to produce an [[errors::opaque_]]. This is a non-portable
-// interface which is mainly provided to support internal stdlib requirements.
+// Wraps an [[rt::errno]] to produce an [[error]], which may be [[opaque_]].
+// This is a non-portable interface which is mainly provided to support internal
+// stdlib requirements.
 export fn errno(errno: rt::errno) error = {
 	switch (errno) {
 	case rt::ECONNREFUSED =>

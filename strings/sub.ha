@@ -21,8 +21,8 @@ fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {
 };
 
 // Returns a substring in the range [start, end - 1], where each argument is the
-// index of the Nth rune. If the end argument is given as [[strings::end]], the
-// end of the substring is the end of the original string. The lifetime of the
+// index of the Nth rune. If the end argument is given as [[end]], the end of
+// the substring is the end of the original string. The lifetime of the
 // substring is the same as that of the original string.
 //
 // Note that substringing runewise is not always the correct thing to do, and it
