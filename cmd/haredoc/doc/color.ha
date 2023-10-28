@@ -2,6 +2,7 @@
 // (c) Hare authors <https://harelang.org>
 
 use ascii;
+use fmt;
 use hare::unparse;
 use io;
 use os;
@@ -9,27 +10,28 @@ use regex;
 use strings;
 
 // Colors/Renditions with defaults; SGR parameters for ANSI escape sequences.
-let colors: [_]str = [
-	"0",  // ident
+const default_colors = [
+	"_",  // ident
 	"1",  // comment
-	"0",  // constant
-	"0",  // function
-	"0",  // global
-	"0",  // typedef
-	"0",  // import_alias
-	"0",  // secondary
+	"_",  // constant
+	"_",  // function
+	"_",  // global
+	"_",  // typedef
+	"_",  // import_alias
+	"_",  // secondary
 	"94", // keyword
 	"96", // type
 	"33", // attribute
 	"1",  // operator
-	"0",  // punctuation
+	"_",  // punctuation
 	"91", // rune_string
 	"95", // number
-	"0",  // label
+	"_",  // label
 ];
 
-let normal_color = "0";
-let primary_color = "0";
+let colors: [len(default_colors)]str = [""...];
+let normal_color = "";
+let primary_color = "";
 
 fn init_colors() (void | error) = {
 	const env_colors = os::tryenv("HAREDOC_COLORS", "");
@@ -41,10 +43,7 @@ fn init_colors() (void | error) = {
 	defer regex::result_freeall(matches);
 
 	for (let i = 0z; i < len(matches); i += 1) :colors {
-		let (k, v)  = (matches[i][1].content, matches[i][2].content);
-		if (v == "") {
-			continue;
-		};
+		let (k, v) = (matches[i][1].content, matches[i][2].content);
 
 		let idx = 0z;
 		let out: *str = switch (k) {
@@ -85,24 +84,34 @@ fn init_colors() (void | error) = {
 		case "primary" =>
 			yield &primary_color;
 		case =>
-			return k: haredoc_colors_error;
+			static let err: [64]u8 = [0...];
+			if (len(k) > len(err)) {
+				return "": haredoc_colors_error;
+			};
+			return fmt::bsprint(err, k): haredoc_colors_error;
 		};
 
-		*out = if (v == "_" && k != "normal") "0" else v;
+		*out = if (v == "_" && k == "normal") "0" else v;
 	};
 };
 
 fn color(kind: unparse::synkind) str = {
-	if (colors[kind] != "_") {
-		return colors[kind];
+	const color = if (colors[kind] != "") colors[kind]
+		else default_colors[kind];
+	if (color != "_") {
+		return color;
 	};
-	switch (kind) {
-	case unparse::synkind::CONSTANT,
-		unparse::synkind::FUNCTION,
-		unparse::synkind::GLOBAL,
-		unparse::synkind::TYPEDEF =>
-		return primary_color;
-	case =>
-		return normal_color;
+
+	if (primary_color != "" && primary_color != "_") {
+		switch (kind) {
+		case unparse::synkind::CONSTANT,
+			unparse::synkind::FUNCTION,
+			unparse::synkind::GLOBAL,
+			unparse::synkind::TYPEDEF =>
+			return primary_color;
+		case => void;
+		};
 	};
+
+	return if (normal_color == "") "0" else normal_color;
 };
