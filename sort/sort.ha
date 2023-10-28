@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use math;
-use rt;
 use types;
 
 // Sorts a slice of items in place. This function provides a stable sort -
@@ -203,21 +202,21 @@ fn merge(
 	let i = 0z, j = m, out = l;
 	for (i < m - l && j < r; out += itemsz) {
 		if (cmp(&aux[i], &items[j]) < 0) {
-			rt::memmove(&items[out], &aux[i], itemsz);
+			items[out..out + itemsz] = aux[i..i + itemsz];
 			i += itemsz;
 		} else {
-			rt::memmove(&items[out], &items[j], itemsz);
+			items[out..out + itemsz] = items[j..j + itemsz];
 			j += itemsz;
 		};
 	};
 	if (i < m - l) {
 		const sz = (m - l) - i;
-		rt::memmove(&items[out], &aux[i], sz);
+		items[out..out + sz] = aux[i..i + sz];
 		out += sz;
 	};
 	if (j < r) {
 		const sz = r - j;
-		rt::memmove(&items[out], &items[j], sz);
+		items[out..out + sz] = items[j..j + sz];
 		out += sz;
 	};
 };
