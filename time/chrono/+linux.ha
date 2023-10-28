@@ -3,3 +3,7 @@
 
 def LOCALTIME_PATH: str = "/etc/localtime";
 def ZONEINFO_PREFIX: str = "/usr/share/zoneinfo/";
+
+// The filepath of the system's "leap-seconds.list" file, which contains UTC/TAI
+// leap second data.
+export def UTC_LEAPSECS_FILE: str = "/usr/share/zoneinfo/leap-seconds.list";

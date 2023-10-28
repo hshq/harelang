@@ -126,7 +126,7 @@ fn utc_convto(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 			case void =>
 				utc_isinitialized = true;
 			case =>
-				abort("utc timescale uninitialized");
+				abort("Failed to initialize UTC timescale");
 			};
 		};
 
@@ -211,7 +211,7 @@ fn utc_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 			case void =>
 				utc_isinitialized = true;
 			case =>
-				abort("utc timescale uninitialized");
+				abort("Failed to initialize UTC timescale");
 			};
 		};
 
