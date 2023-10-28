@@ -128,7 +128,7 @@ fn decl_type(lexer: *lex::lexer) ([]ast::decl_type | error) = {
 };
 
 fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
-	let attr = ast::fndecl_attrs::NONE, sym = "";
+	let attr = ast::fndecl_attr::NONE, sym = "";
 	const attrs = [
 		ltok::ATTR_FINI, ltok::ATTR_INIT, ltok::ATTR_TEST,
 		ltok::ATTR_SYMBOL
@@ -139,11 +139,11 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 	case let t: lex::token =>
 		switch (t.0) {
 		case ltok::ATTR_FINI =>
-			attr = ast::fndecl_attrs::FINI;
+			attr = ast::fndecl_attr::FINI;
 		case ltok::ATTR_INIT =>
-			attr = ast::fndecl_attrs::INIT;
+			attr = ast::fndecl_attr::INIT;
 		case ltok::ATTR_TEST =>
-			attr = ast::fndecl_attrs::TEST;
+			attr = ast::fndecl_attr::TEST;
 		case ltok::ATTR_SYMBOL =>
 			sym = attr_symbol(lexer)?;
 		case =>

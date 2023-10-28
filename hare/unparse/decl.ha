@@ -122,14 +122,14 @@ export fn decl(
 		};
 
 		switch (f.attrs) {
-		case ast::fndecl_attrs::NONE => void;
-		case ast::fndecl_attrs::FINI =>
+		case ast::fndecl_attr::NONE => void;
+		case ast::fndecl_attr::FINI =>
 			n += syn(&ctx, "@fini", synkind::ATTRIBUTE)?;
 			n += space(&ctx)?;
-		case ast::fndecl_attrs::INIT =>
+		case ast::fndecl_attr::INIT =>
 			n += syn(&ctx, "@init", synkind::ATTRIBUTE)?;
 			n += space(&ctx)?;
-		case ast::fndecl_attrs::TEST =>
+		case ast::fndecl_attr::TEST =>
 			n += syn(&ctx, "@test", synkind::ATTRIBUTE)?;
 			n += space(&ctx)?;
 		};
@@ -289,7 +289,7 @@ fn decl_test(d: *ast::decl, expected: str) bool = {
 		ident = ["foo"],
 		prototype = &type_fn,
 		body = null,
-		attrs = ast::fndecl_attrs::FINI,
+		attrs = ast::fndecl_attr::FINI,
 	};
 	assert(decl_test(&d, "@fini @symbol(\"foo\") fn foo(foo: int, bar: int...) int;"));
 

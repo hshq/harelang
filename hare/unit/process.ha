@@ -52,7 +52,7 @@ fn process_func(
 	adecl: *ast::decl,
 	func: *ast::decl_func,
 ) (decl | error) = {
-	assert(func.attrs & ast::fndecl_attrs::TEST == 0); // TODO
+	assert(func.attrs & ast::fndecl_attr::TEST == 0); // TODO
 	const afndecl = adecl.decl as ast::decl_func;
 	const prototype = types::lookup(ctx.store, func.prototype)!;
 	const fntype = prototype.repr as types::func;
@@ -78,7 +78,7 @@ fn process_func(
 			prototype = prototype,
 			body = body,
 			// TODO: We should make these enums inherited
-			attrs = afndecl.attrs: ast::fndecl_attrs,
+			attrs = afndecl.attrs: ast::fndecl_attr,
 		},
 	};
 };

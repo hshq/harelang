@@ -50,7 +50,7 @@ fn scan_func(
 	decl: *ast::decl,
 	func: *ast::decl_func,
 ) (void | types::deferred | error) = {
-	assert(func.attrs & ast::fndecl_attrs::TEST == 0); // TODO
+	assert(func.attrs & ast::fndecl_attr::TEST == 0); // TODO
 	const fntype = match (types::lookup(ctx.store, func.prototype)) {
 	case let err: types::error =>
 		return err;

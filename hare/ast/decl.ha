@@ -34,7 +34,7 @@ export type decl_type = struct {
 };
 
 // Attributes applicable to a function declaration.
-export type fndecl_attrs = enum {
+export type fndecl_attr = enum {
 	NONE,
 	FINI,
 	INIT,
@@ -49,7 +49,7 @@ export type decl_func = struct {
 	ident: ident,
 	prototype: *_type,
 	body: nullable *expr,
-	attrs: fndecl_attrs,
+	attrs: fndecl_attr,
 };
 
 // A Hare declaration.
