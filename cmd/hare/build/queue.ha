@@ -231,8 +231,14 @@ fn await_task(ctx: *context, jobs: *[]job) (size | void | error) = {
 		if (ctx.mode == output::DEFAULT) {
 			fmt::errorln()?;
 		};
-		fmt::fatal(ctx.mods[t.idx].name, ctx.cmds[t.kind],
-			exec::exitstr(e));
+		if (len(ctx.mods[t.idx].ns) > 0) {
+			fmt::fatalf("{} for {} ({}) {}",
+				ctx.cmds[t.kind], ctx.mods[t.idx].name,
+				ctx.mods[t.idx].path, exec::exitstr(e));
+		} else {
+			fmt::fatal(ctx.cmds[t.kind], "for",
+				ctx.mods[t.idx].name, exec::exitstr(e));
+		};
 	};
 
 	cleanup_task(ctx, t)?;
