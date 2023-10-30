@@ -194,7 +194,6 @@ fn merge(
 	r *= itemsz;
 
 	const items = items: *[*]u8;
-	const aux = aux: *[*]u8;
 	// Placing items at the beginning results in better cache performance
 	// (probably)
 	aux[..m - l] = items[l..m];
