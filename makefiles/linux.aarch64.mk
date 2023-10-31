@@ -52,7 +52,7 @@ $(HARECACHE)/errors.ssa: $(errors_ha) $(HARECACHE)/rt.td
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/errors.ssa -t $(HARECACHE)/errors.td.tmp -N errors $(errors_ha)
 
 io_ha = io/+linux/mmap.ha io/+linux/platform_file.ha io/+linux/vector.ha io/arch+aarch64.ha io/copy.ha io/drain.ha io/empty.ha io/file.ha io/handle.ha io/limit.ha io/stream.ha io/tee.ha io/types.ha io/util.ha io/zero.ha
-$(HARECACHE)/io.ssa: $(io_ha) $(HARECACHE)/bytes.td $(HARECACHE)/errors.td $(HARECACHE)/rt.td
+$(HARECACHE)/io.ssa: $(io_ha) $(HARECACHE)/bytes.td $(HARECACHE)/errors.td $(HARECACHE)/rt.td $(HARECACHE)/types.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/io.ssa -t $(HARECACHE)/io.td.tmp -N io $(io_ha)
