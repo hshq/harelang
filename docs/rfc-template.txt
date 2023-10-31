@@ -1,0 +1,41 @@
+				  RFC SUMMARY
+
+Free-form brief summary of the RFC's goals, 1-2 paragraphs in length.
+
+			     LANGUAGE IMPLICATIONS
+
+Enumerate proposed language changes in this section, if any.
+
+Put "None" here if there are no language implications.
+
+			 STANDARD LIBRARY IMPLICATIONS
+
+Enumerate proposed standard library changes in this section, if any. Focus on
+breaking changes to the standard library's API over implementation details,
+unless implementation details are particularly important.
+
+Put "None" here if there are no standard library implications.
+
+			     ECOSYSTEM IMPLICATIONS
+
+Include considerations for the broader Hare ecosystem here, such as a survey
+estimating how many third-party codebases will be affected and how difficult it
+will be to implement the changes. If necessary, make a plan for alleviating the
+impact, such as automated migration tools (e.g. a sed script, or a dedicated
+tool for more complex migrations).
+
+Put "None" here if there are no ecosystem implications (though in this case, why
+is there an RFC for it?).
+
+				  EXAMPLE CODE
+
+Include in this section samples of example code as it will appear under this
+RFC's proposed changes. This section is mandatory.
+
+				  RELATED RFCS
+
+Include a link to relevant RFCs (such as the prior version) on the hare-rfc
+web archives, as well as a brief summary of changes from that version or the
+reason why this RFC is relevant.
+
+Put "None" here if there are no relevant RFCs.
