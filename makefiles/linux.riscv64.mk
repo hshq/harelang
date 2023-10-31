@@ -52,7 +52,7 @@ $(HARECACHE)/errors.ssa: $(errors_ha) $(HARECACHE)/rt.td
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/errors.ssa -t $(HARECACHE)/errors.td.tmp -N errors $(errors_ha)
 
 io_ha = io/+linux/mmap.ha io/+linux/platform_file.ha io/+linux/vector.ha io/arch+riscv64.ha io/copy.ha io/drain.ha io/empty.ha io/file.ha io/handle.ha io/limit.ha io/stream.ha io/tee.ha io/types.ha io/util.ha io/zero.ha
-$(HARECACHE)/io.ssa: $(io_ha) $(HARECACHE)/bytes.td $(HARECACHE)/errors.td $(HARECACHE)/rt.td
+$(HARECACHE)/io.ssa: $(io_ha) $(HARECACHE)/bytes.td $(HARECACHE)/errors.td $(HARECACHE)/rt.td $(HARECACHE)/types.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/io.ssa -t $(HARECACHE)/io.td.tmp -N io $(io_ha)
@@ -166,7 +166,7 @@ $(HARECACHE)/encoding_hex.ssa: $(encoding_hex_ha) $(HARECACHE)/ascii.td $(HARECA
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/encoding_hex.ssa -t $(HARECACHE)/encoding_hex.td.tmp -N encoding::hex $(encoding_hex_ha)
 
 sort_ha = sort/bisect.ha sort/search.ha sort/sort.ha sort/types.ha
-$(HARECACHE)/sort.ssa: $(sort_ha) $(HARECACHE)/math.td $(HARECACHE)/rt.td $(HARECACHE)/types.td
+$(HARECACHE)/sort.ssa: $(sort_ha) $(HARECACHE)/math.td $(HARECACHE)/types.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/sort.ssa -t $(HARECACHE)/sort.td.tmp -N sort $(sort_ha)
