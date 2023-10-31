@@ -997,15 +997,14 @@ fn plain_tuple(
 	append(values, alloc(ex));
 
 	for (true) {
-		match (try(lexer, ltok::RPAREN)?) {
-		case lex::token => break;
-		case void => void;
-		};
-
 		append(values, alloc(expr(lexer)?));
 
 		match (try(lexer, ltok::COMMA)?) {
-		case lex::token => void;
+		case lex::token =>
+			match (try(lexer, ltok::RPAREN)) {
+			case lex::token => break;
+			case => void;
+			};
 		case void =>
 			want(lexer, ltok::RPAREN)?;
 			break;
