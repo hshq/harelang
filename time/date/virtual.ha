@@ -34,7 +34,7 @@ export type insufficient = !void;
 export type virtual = struct {
 	date,
 	// virtual's locality
-	vloc:     (void | time::chrono::locality),
+	vloc:     (void | chrono::locality),
 	// locality name
 	locname:  (void | str),
 	// zone offset
@@ -116,7 +116,7 @@ export fn newvirtual() virtual = virtual {
 // [[invalid]] is returned.
 export fn realize(
 	v: virtual,
-	locs: time::chrono::locality...
+	locs: chrono::locality...
 ) (date | insufficient | invalid) = {
 	// determine .daydate
 	if (v.daydate is i64) {

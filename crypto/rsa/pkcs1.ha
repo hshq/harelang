@@ -87,7 +87,7 @@ export fn pkcs1_verify(
 	let expectedsig = pubbuf[..len(sig)];
 	pkcs1_sig_encode(expectedsig, msghash, algo)?;
 
-	if (crypto::math::eqslice(expectedsig, actualsig) == 0) {
+	if (math::eqslice(expectedsig, actualsig) == 0) {
 		return badsig;
 	};
 };

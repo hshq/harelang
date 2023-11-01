@@ -29,7 +29,7 @@ use strings;
 // timescales. Therefore, we have decided to take an alternative approach.
 
 // Error initializing the [[utc]] [[timescale]].
-type utciniterror = !(fs::error | io::error | encoding::utf8::invalid);
+type utciniterror = !(fs::error | io::error | utf8::invalid);
 
 // The number of seconds between the years 1900 and 1970.
 //
@@ -58,7 +58,7 @@ fn init_utc_leapsecs() (void | utciniterror) = {
 fn parse_utc_leapsecs(
 	h: io::handle,
 	leapsecs: *[](i64, i64),
-) (void | encoding::utf8::invalid | io::error) = {
+) (void | utf8::invalid | io::error) = {
 	for (true) {
 		const line = match (bufio::read_line(h)) {
 		case let err: io::error =>

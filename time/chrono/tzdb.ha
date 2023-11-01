@@ -184,7 +184,7 @@ fn load_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 	const posix_extend = strings::dup(match (strings::fromutf8(footerdata)) {
 	case let s: str =>
 		yield s;
-	case encoding::utf8::invalid =>
+	case utf8::invalid =>
 		return invalidtzif;
 	});
 
@@ -231,7 +231,7 @@ fn load_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 		const abbr = match (strings::fromutf8(bytes)) {
 		case let s: str =>
 			yield s;
-		case encoding::utf8::invalid =>
+		case utf8::invalid =>
 			return invalidtzif;
 		};
 		zone.abbr = strings::dup(abbr);

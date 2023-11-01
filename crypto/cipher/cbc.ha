@@ -71,7 +71,7 @@ export fn cbc_encrypt(c: *cbc_mode, dest: []u8, src: []u8) void = {
 
 	for (let i = 0z; i < len(dest); i += sz) {
 		let eb = i + sz;
-		crypto::math::xor(dest[i..eb], src[i..eb], c.carry);
+		math::xor(dest[i..eb], src[i..eb], c.carry);
 		encrypt(c.b, dest[i..eb], dest[i..eb]);
 		c.carry[..] = dest[i..eb];
 	};
@@ -91,6 +91,6 @@ export fn cbc_decrypt(c: *cbc_mode, dest: []u8, src: []u8) void = {
 		c.carrybuf[..] = c.carry[..];
 		c.carry[..] = src[i..eb];
 		decrypt(c.b, dest[i..eb], src[i..eb]);
-		crypto::math::xor(dest[i..eb], dest[i..eb], c.carrybuf);
+		math::xor(dest[i..eb], dest[i..eb], c.carrybuf);
 	};
 };

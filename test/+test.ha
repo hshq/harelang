@@ -60,7 +60,7 @@ fn finish_context(ctx: *context) void = {
 
 fn colored() bool = {
 	return len(os::tryenv("NO_COLOR", "")) == 0
-		&& unix::tty::isatty(os::stdout_file);
+		&& tty::isatty(os::stdout_file);
 };
 
 let jmpbuf = rt::jmpbuf { ... };
