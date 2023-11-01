@@ -17,7 +17,9 @@ export fn mkvector(buf: []u8) vector = vector {
 // the vectors, prepared with [[mkvector]], in order, and the total number of
 // bytes read is returned.
 export fn readv(fd: file, vectors: vector...) (size | EOF | error) = {
-	assert(len(vectors) <= types::INT_MAX: size);
+	if (len(vectors) > types::INT_MAX: size) {
+		return errors::invalid;
+	};
 	match (rt::readv(fd, vectors: *[*]rt::iovec, len(vectors): int)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
@@ -35,7 +37,9 @@ export fn readv(fd: file, vectors: vector...) (size | EOF | error) = {
 // with [[mkvector]], are written to the file in order, and the total number of
 // bytes written is returned.
 export fn writev(fd: file, vectors: vector...) (size | error) = {
-	assert(len(vectors) <= types::INT_MAX: size);
+	if (len(vectors) > types::INT_MAX: size) {
+		return errors::invalid;
+	};
 	match (rt::writev(fd, vectors: *[*]rt::iovec, len(vectors): int)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
