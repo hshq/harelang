@@ -64,7 +64,7 @@ $(HARECACHE)/bufio.ssa: $(bufio_ha) $(HARECACHE)/bytes.td $(HARECACHE)/encoding_
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/bufio.ssa -t $(HARECACHE)/bufio.td.tmp -N bufio $(bufio_ha)
 
 crypto_math_ha = crypto/math/arithm.ha crypto/math/bits.ha
-$(HARECACHE)/crypto_math.ssa: $(crypto_math_ha)
+$(HARECACHE)/crypto_math.ssa: $(crypto_math_ha) $(HARECACHE)/types.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/crypto_math.ssa -t $(HARECACHE)/crypto_math.td.tmp -N crypto::math $(crypto_math_ha)

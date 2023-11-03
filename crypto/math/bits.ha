@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use types;
+
+
 // Rotates a 32-bit unsigned integer left by k bits. k may be negative to rotate
 // right instead, or see [[rotr32]].
 export fn rotl32(x: u32, k: int) u32 = {
@@ -110,17 +113,16 @@ export fn equ32(x: u32, y: u32) u32 = {
 };
 
 // Returns 1 if 'x' is zero or 0 if not.
-export fn eq0u32(x: i32) u32 = {
-	const q: u32 = x: u32;
-	return ~(q | -q) >> 31;
+export fn eq0u32(x: u32) u32 = {
+	return ~(x | -x) >> 31;
 };
 
 @test fn eq0u32() void = {
 	assert(eq0u32(0) == 1);
 	assert(eq0u32(1) == 0);
 	assert(eq0u32(0x1234) == 0);
+	assert(eq0u32(types::U32_MAX) == 0);
 };
-
 
 // Returns 1 if x != y and 0 otherwise.
 export fn nequ32(x: u32, y: u32) u32 = {
@@ -146,10 +148,10 @@ export fn gtu32(x: u32, y: u32) u32 = {
 
 // Returns 1 if x >= y and 0 otherwise.
 export fn geu32(x: u32, y: u32) u32 = notu32(gtu32(y, x));
-//
+
 // Returns 1 if x < y and 0 otherwise.
 export fn ltu32(x: u32, y: u32) u32 = gtu32(y, x);
-//
+
 // Returns 1 if x <= y and 0 otherwise.
 export fn leu32(x: u32, y: u32) u32 = notu32(gtu32(x, y));
 
