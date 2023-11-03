@@ -119,9 +119,10 @@ export fn decode(dest: []u8, src: const []word) void = {
 	let acc: u64 = 0;
 	let accbits: u64 = 0;
 	let sidx: size = 1;
+	let sz = ewordlen(src);
 	for (let i = len(dest) - 1; i < len(dest); i -= 1) {
 		if (accbits < 8) {
-			if (sidx < len(src)) {
+			if (sidx <= sz) {
 				acc |= ((src[sidx]: u64) << accbits: u64): u64;
 				sidx += 1;
 			};

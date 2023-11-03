@@ -3,6 +3,7 @@
 
 use bytes;
 
+
 @test fn encode() void = {
 	const decoded: [12]u8 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 	let result: [12]u8 = [0...];
@@ -30,6 +31,19 @@ use bytes;
 	decode(result, buf);
 
 	assert(bytes::equal(result, decoded));
+};
+
+@test fn decodebigger() void = {
+	const encoded: [_]word = [
+		0x32, // only 50 effective bits
+		0x7fffffff, 0x0007ffff, 0x7fffffff,
+	];
+
+	let result: [8]u8 = [0xaa...];
+
+	decode(result, encoded);
+	assert(bytes::equal(result,
+		[0x00, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]));
 };
 
 
