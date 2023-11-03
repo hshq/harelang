@@ -33,7 +33,7 @@ export fn zero(x: []word, ebitlen: word) void = {
 
 // Checks whether the effective words of 'x' are zero. Returns 1 if so, or 0
 // otherwise.
-fn iszero(x: []word) u32 = {
+export fn iszero(x: []word) u32 = {
 	let z: u32 = 0;
 
 	for (let i = ewordlen(x); i > 0; i -= 1) {
@@ -45,3 +45,4 @@ fn iszero(x: []word) u32 = {
 fn isodd(x: []word) bool = {
 	return x[1] & 1 == 1;
 };
+
