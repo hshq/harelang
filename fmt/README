@@ -3,38 +3,42 @@ verbatim, and format sequences, which describe how to format arguments from a
 set of variadic parameters for printing.
 
 A format sequence is enclosed in curly braces "{}". An empty sequence takes the
-next argument from the parameter list, in order. A specific parameter may be
+next argument from the parameter list, in order. A specific parameter can be
 selected by indexing it from zero: "{0}", "{1}", and so on. To print "{", use
 "{{", and for "}", use "}}".
 
-There are two ways to specify how an argument shall be formatted: inline format
+There are two ways to specify how an argument will be formatted: inline format
 modifiers, and parametric format modifiers.
 
 Inline format modifiers are a series of characters within a format sequence.
-You may use a colon to add format modifiers; for example, "{:x}" will format an
+You can use a colon to add format modifiers; for example, "{:x}" will format an
 argument in hexadecimal, and "{3:-10}" will left-align the 4th argument (zero
 indexed) to at least 10 characters.
 
-The format modifiers take the form of optional flag characters:
+Format modifiers can be written in any order, and can also be repeated. If a
+modifier is repeated (or two conflicting modifiers are given, such as both "x"
+and "X") the one furthest to the right will be used.
 
-- "0": Numeric values are zero-padded up to the required width.
-- "-": The value shall be left-aligned, and spaces inserted on the right to meet the required width. "-" takes precedence over "0" if both are used.
-- " ": (a space) insert a space before positive numbers, where "-" would be if it were negative.
-- "+": insert a "+" before positive numbers, where "-" would be if it were negative. "+" takes precedence over " " if both are used.
-
-Following the flags, an optional decimal number shall specify the minimum width
-of this field. If "0" or "-" were not given, the default behavior shall be to
-pad with spaces to achieve the necessary width.
-
-Following the width, an optional precision may be given as a decimal number
-following a "." character. For integer types, this gives the minimum number of
-digits to include. For floating types, this gives the number of digits following
-the radix to include.
-
-Following the precision, an optional character controls the output format:
-
-- x, X: print in lowercase or uppercase hexadecimal
-- o, b: print in octal or binary
+A format modifier can be any of the following:
+- A number N: Sets the width to N. If the value would otherwise be shorter than
+  N runes, insert padding characters in order to make it N runes long. By
+  default, the value is right-aligned, with padding inserted on the left side,
+  and the padding character is " " (a space).
+- "-": Left-align the value, inserting padding characters inserted on the right
+  side of the value in order to meet the width requirement.
+- "_" followed by a rune: Use the given rune as the padding character rather
+  than the default of " " (a space).
+- " " (a space): Insert a space before positive integers, where "-" would be if
+  it were negative.
+- "+": Insert a "+" before positive integers.
+- "x": Format numbers in lowercase hexadecimal.
+- "X": Format numbers in uppercase hexadecimal.
+- "o": Format numbers in octal.
+- "b": Format numbers in binary.
+- "." followed by a number N: Sets the precision to N. Integers will be
+  left-padded with "0"s between the sign and the number itself. Strings
+  will be truncated to N runes. Floats will only include up to N digits after
+  the decimal point.
 
 Some inline modifier examples:
 
@@ -43,11 +47,11 @@ Some inline modifier examples:
 	fmt::printf("{:x} {:X}", 51966, 61453);		// "cafe F00D"
 	fmt::printf("{:-5}", 42);			// "42   "
 	fmt::printf("{:5}", 42);			// "   42"
-	fmt::printf("{:05}", 42);			// "00042"
+	fmt::printf("{:.5}", 42);			// "00042"
 
 A parametric format modifier is a secondary argument from the parameter list,
-which is a pointer to an instance of [[mods]]. This modifier parameter shall
-describe how the primary formattable argument is formatted.
+which is a pointer to an instance of [[mods]]. This modifier parameter
+describes how the primary formattable argument is formatted.
 
 A parametric format sequence of this sort takes the form of "{i%j}", where i is
 the formattable parameter index, j is the modifiers parameter index, and i & j
@@ -58,13 +62,13 @@ Some parametric modifier examples:
 
 	// "hello world hello"
 	fmt::printf("{%} {%} {0%1}", // evaluates to "{0%1} {2%3} {0%1}"
-		"hello", &fmt::modifiers { ... },
-		"world", &fmt::modifiers { ... });
+		"hello", &fmt::mods { ... },
+		"world", &fmt::mods { ... });
 
 	// "|hello|     world|0000000123|BEEF|"
 	fmt::printf("|{%}|{%}|{%}|{%}|",
-		"hello", &fmt::modifiers { ... },
-		"world", &fmt::modifiers { width = 10, ... },
-		123,     &fmt::modifiers { width = 10, padding = fmt::padding::ZEROES, ... },
-		0xBEEF,  &fmt::modifiers { base = strconv::base::HEX, ... });
+		"hello", &fmt::mods { ... },
+		"world", &fmt::mods { width = 10, ... },
+		123,     &fmt::mods { prec = 10, ... },
+		0xBEEF,  &fmt::mods { base = strconv::base::HEX, ... });
 

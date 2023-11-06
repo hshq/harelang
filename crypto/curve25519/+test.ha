@@ -233,7 +233,7 @@ use io;
 fn printvector(name: str, vec: const *[SCALARSZ]u8) void = {
 	fmt::errorf("{:6} = [", name)!;
 	for (let i = 0z; i < 31; i += 1) {
-		fmt::errorf("{:02x}, ", vec[i])!;
+		fmt::errorf("{:.2x}, ", vec[i])!;
 	};
-	fmt::errorfln("{:02x}]", vec[31])!;
+	fmt::errorfln("{:.2x}]", vec[31])!;
 };

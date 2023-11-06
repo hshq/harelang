@@ -56,20 +56,20 @@ export fn compare(a: uuid, b: uuid) bool = bytes::equal(a, b);
 export fn encode(out: io::handle, in: uuid) (size | io::error) = {
 	let z = 0z;
 	for (let i = TIME_LOW; i < TIME_LOW + 4; i += 1) {
-		z += fmt::fprintf(out, "{:02x}", in[i])?;
+		z += fmt::fprintf(out, "{:.2x}", in[i])?;
 	};
 	z += fmt::fprintf(out, "-")?;
 	for (let i = TIME_MID; i < TIME_MID + 2; i += 1) {
-		z += fmt::fprintf(out, "{:02x}", in[i])?;
+		z += fmt::fprintf(out, "{:.2x}", in[i])?;
 	};
 	z += fmt::fprintf(out, "-")?;
 	for (let i = TIME_HI_AND_VERSION; i < TIME_HI_AND_VERSION + 2; i += 1) {
-		z += fmt::fprintf(out, "{:02x}", in[i])?;
+		z += fmt::fprintf(out, "{:.2x}", in[i])?;
 	};
-	z += fmt::fprintf(out, "-{:02x}{:02x}-",
+	z += fmt::fprintf(out, "-{:.2x}{:.2x}-",
 		in[CLOCK_SEQ_HI_AND_RESERVED], in[CLOCK_SEQ_LOW])?;
 	for (let i = NODE; i < NODE + 6; i += 1) {
-		z += fmt::fprintf(out, "{:02x}", in[i])?;
+		z += fmt::fprintf(out, "{:.2x}", in[i])?;
 	};
 	return z;
 };

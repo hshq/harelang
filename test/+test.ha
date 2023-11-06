@@ -179,7 +179,7 @@ export @symbol("__test_main") fn main() size = {
 	if (len(ctx.skipped) > 0) {
 		fmt::print(len(ctx.skipped), "skipped; ")!;
 	};
-	fmt::printfln("{} completed in {}.{:09}s", total_cnt,
+	fmt::printfln("{} completed in {}.{:.9}s", total_cnt,
 		elapsed_whole, elapsed_fraction)!;
 
 	easter_egg(ctx.failures, enabled_tests);
@@ -209,7 +209,7 @@ fn do_test(ctx: *context, test: test) void = {
 	const time_diff = time::diff(start_time, end_time);
 	assert(time_diff >= 0);
 	ctx.total_time += time_diff;
-	fmt::printfln(" in {}.{:09}s",
+	fmt::printfln(" in {}.{:.9}s",
 		time_diff / 1000000000,
 		time_diff % 1000000000)!;
 

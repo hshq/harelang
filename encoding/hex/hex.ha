@@ -199,12 +199,12 @@ export fn dump(out: io::handle, data: []u8) (void | io::error) = {
 	let datalen = len(data): u32;
 
 	for (let off = 0u32; off < datalen; off += 16) {
-		fmt::fprintf(out, "{:08x}  ", off)?;
+		fmt::fprintf(out, "{:.8x}  ", off)?;
 
 		let toff = 0z;
 		for (let i = 0z; i < 16 && off + i < datalen; i += 1) {
 			let val = data[off + i];
-			toff += fmt::fprintf(out, "{}{:02x} ",
+			toff += fmt::fprintf(out, "{}{:.2x} ",
 				if (i == 8) " " else "", val)?;
 		};
 
