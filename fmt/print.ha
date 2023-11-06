@@ -56,6 +56,7 @@ fn format(
 
 		switch (mod.alignment) {
 		case alignment::LEFT => abort();
+		case alignment::CENTER => start = (pad + 1) / 2;
 		case alignment::RIGHT => start = pad;
 		};
 	};

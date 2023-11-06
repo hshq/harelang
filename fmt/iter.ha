@@ -25,6 +25,7 @@ export type neg = enum {
 // Specifies how to align an argument within a given width.
 export type alignment = enum {
 	RIGHT,
+	CENTER,
 	LEFT,
 };
 
@@ -130,6 +131,7 @@ fn scan_modifiers(it: *iterator, mod: *mods) void = {
 	for (true) switch (getrune(it)) {
 	// alignment
 	case '-' => mod.alignment = alignment::LEFT;
+	case '=' => mod.alignment = alignment::CENTER;
 	// padding
 	case '_' => mod.pad = getrune(it);
 	// negation

@@ -26,6 +26,9 @@ A format modifier can be any of the following:
   and the padding character is " " (a space).
 - "-": Left-align the value, inserting padding characters inserted on the right
   side of the value in order to meet the width requirement.
+- "=": Center-align the value, inserting the same amount of padding on the left
+  as on the right. If an odd number of padding characters need to be placed, the
+  extra one will be on the left of the value.
 - "_" followed by a rune: Use the given rune as the padding character rather
   than the default of " " (a space).
 - " " (a space): Insert a space before positive integers, where "-" would be if

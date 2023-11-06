@@ -66,6 +66,9 @@ use strconv;
 	assert(bsprintf(buf, "{:.1}", 123.0) == "100");
 	assert(bsprintf(buf, "{:.5}", 123.0) == "123");
 
+	assert(bsprintf(buf, "{:=5}", "hi") == "  hi ");
+	assert(bsprintf(buf, "{:=6}", "hi") == "  hi  ");
+
 	assert(bsprintf(buf, "{} {} {} {} {}", true, false, null, 'x', void)
 		== "true false (null) x void");
 };
