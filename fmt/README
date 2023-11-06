@@ -38,6 +38,17 @@ A format modifier can be any of the following:
 - "X": Format numbers in uppercase hexadecimal.
 - "o": Format numbers in octal.
 - "b": Format numbers in binary.
+- "e": Format floats in scientific notation.
+- "f": Format floats in fixed-point notation.
+- "g": Format floats in whichever of scientific and fixed-point notation is
+  shortest. This is the default.
+- "F" followed by "s": Use a sign for both positive and negative numbers.
+- "F" followed by ".": Always include at least one digit after the decimal
+  point.
+- "F" followed by "U": Uppercase INFINITY and NAN.
+- "F" followed by "E": Uppercase exponent symbols (E and P rather than e and p).
+- "F" followed by "S": Use a sign for both positive and negative exponents.
+- "F" followed by "2": Show at least two digits of the exponent.
 - "." followed by a number N: Sets the precision to N. Integers will be
   left-padded with "0"s between the sign and the number itself. Strings
   will be truncated to N runes. Floats will only include up to N digits after

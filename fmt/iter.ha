@@ -37,6 +37,8 @@ export type mods = struct {
 	width: size,
 	prec: size,
 	base: strconv::base,
+	ffmt: strconv::ffmt,
+	fflags: strconv::fflags,
 };
 
 type iterator = struct {
@@ -142,6 +144,21 @@ fn scan_modifiers(it: *iterator, mod: *mods) void = {
 	case 'X' => mod.base = strconv::base::HEX_UPPER;
 	case 'o' => mod.base = strconv::base::OCT;
 	case 'b' => mod.base = strconv::base::BIN;
+	// ffmt
+	case 'e' => mod.ffmt = strconv::ffmt::E;
+	case 'f' => mod.ffmt = strconv::ffmt::F;
+	case 'g' => mod.ffmt = strconv::ffmt::G;
+	// fflags
+	case 'F' =>
+		switch (getrune(it)) {
+		case 's' => mod.fflags |= strconv::fflags::SHOW_POS;
+		case '.' => mod.fflags |= strconv::fflags::SHOW_POINT;
+		case 'U' => mod.fflags |= strconv::fflags::UPPERCASE;
+		case 'E' => mod.fflags |= strconv::fflags::UPPER_EXP;
+		case 'S' => mod.fflags |= strconv::fflags::SHOW_POS_EXP;
+		case '2' => mod.fflags |= strconv::fflags::SHOW_TWO_EXP_DIGITS;
+		case => abort("Invalid float flag");
+		};
 	// precision
 	case '.' => mod.prec = scan_sz(it);
 	// width

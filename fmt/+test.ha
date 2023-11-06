@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use math;
 use strconv;
 
 @test fn print() void = {
@@ -65,6 +66,15 @@ use strconv;
 
 	assert(bsprintf(buf, "{:.1}", 123.0) == "100");
 	assert(bsprintf(buf, "{:.5}", 123.0) == "123");
+
+	assert(bsprintf(buf, "{:f}", 1.0e4) == "10000");
+	assert(bsprintf(buf, "{:e}", 123.45) == "1.2345e2");
+	assert(bsprintf(buf, "{:Fs}", 1.0) == "+1");
+	assert(bsprintf(buf, "{:F.}", 1.0) == "1.0");
+	assert(bsprintf(buf, "{:FU}", math::INF) == "INFINITY");
+	assert(bsprintf(buf, "{:FE}", 1.0e4) == "1E4");
+	assert(bsprintf(buf, "{:FS}", 1.0e4) == "1e+4");
+	assert(bsprintf(buf, "{:F2}", 1.0e4) == "1e04");
 
 	assert(bsprintf(buf, "{:=5}", "hi") == "  hi ");
 	assert(bsprintf(buf, "{:=6}", "hi") == "  hi  ");

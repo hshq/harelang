@@ -106,8 +106,8 @@ case let f: types::floating =>
 		|| mod.base == strconv::base::DEC); // TODO
 	assert(mod.prec <= types::UINT_MAX);
 	// TODO: mod.prec should be (size | void) but that needs @default
-	return strconv::fftosf(out, f, strconv::ffmt::G,
-		if (mod.prec != 0) mod.prec: uint else void, 0)?;
+	return strconv::fftosf(out, f, mod.ffmt,
+		if (mod.prec != 0) mod.prec: uint else void, mod.fflags)?;
 case let i: types::integer =>
 	let neg = match (i) {
 	case types::unsigned =>
