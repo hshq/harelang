@@ -10,13 +10,13 @@ use memio;
 export fn import(
 	out: io::handle,
 	syn: *synfunc,
-	import: ast::import,
+	import: *ast::import,
 ) (size | io::error) = {
 	let n = 0z;
 	let ctx = context {
 		out = out,
 		stack = &stack {
-			cur = &import,
+			cur = import,
 			...
 		},
 		...
@@ -104,7 +104,7 @@ export fn import(
 	];
 	for (let i = 0z; i < len(tests); i += 1) {
 		let buf = memio::dynamic();
-		import(&buf, &syn_nowrap, tests[i].0)!;
+		import(&buf, &syn_nowrap, &tests[i].0)!;
 		let s = memio::string(&buf)!;
 		assert(s == tests[i].1);
 		free(s);

@@ -7,5 +7,5 @@ You can access the contents of the buffer via [[buffer]] and [[string]].
 
 Additionally, memio provides string-related I/O operations. Each of the utility
 functions (e.g. [[appendrune]]) work correctly with any [[io::handle]], but
-for efficiency reasons it is recommended that they are either a memio or
-[[bufio]] stream.
+for efficiency reasons it is recommended that they are either a memio:: or
+[[bufio::]] stream.

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use bufio;
 use fmt;
 use hare::ast;
 use hare::lex;
@@ -9,6 +10,7 @@ use io;
 use io::{mode};
 use memio;
 use strings;
+use types;
 
 fn roundtrip(src: str) void = {
 	let unsrc = _roundtrip(src);
@@ -28,8 +30,9 @@ fn roundtrip_reparse(src: str) void = {
 
 fn _roundtrip(src: str) str = {
 	let buf = memio::fixed(strings::toutf8(src));
-	let lexer = lex::init(&buf, "<test>", lex::flag::COMMENTS);
-	defer lex::finish(&lexer);
+	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	defer bufio::finish(&sc);
+	let lexer = lex::init(&sc, "<test>", lex::flag::COMMENTS);
 	let u = ast::subunit {
 		imports = [],
 		decls: []ast::decl = match (decls(&lexer)) {

@@ -152,11 +152,11 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 		case null => void;
 		case let t: *ast::_type =>
 			memio::concat(&buf, ":")!;
-			unparse::_type(&buf, &unparse::syn_nowrap, *t)!;
+			unparse::_type(&buf, &unparse::syn_nowrap, t)!;
 		};
 		memio::concat(&buf, "=")!;
 		unparse::expr(&buf, &unparse::syn_nowrap,
-			*ctx.defines[i].init)!;
+			ctx.defines[i].init)!;
 		append(flags, memio::string(&buf)!);
 	};
 
@@ -234,8 +234,7 @@ fn get_args(ctx: *context, tmp: str, flags: []str, t: *task) []str = {
 		yield ctx.mods[t.idx].srcs.ha;
 	case stage::S =>
 		append(args, get_cache(ctx, t.idx, stage::SSA)!);
-		// TODO: https://todo.sr.ht/~sircmpwn/hare/875
-		yield []: []str;
+		yield [];
 	case stage::O =>
 		append(args, get_cache(ctx, t.idx, stage::S)!);
 		yield ctx.mods[t.idx].srcs.s;
@@ -258,7 +257,7 @@ fn get_args(ctx: *context, tmp: str, flags: []str, t: *task) []str = {
 			append(args, strings::dup("-l"));
 			append(args, strings::dup(ctx.libs[i]));
 		};
-		yield []: []str;
+		yield [];
 	};
 	for (let i = 0z; i < len(srcs); i += 1) {
 		append(args, strings::dup(srcs[i]));

@@ -1,252 +1,335 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use ascii;
 use bufio;
 use encoding::utf8;
-use fmt;
 use hare::ast;
+use hare::lex;
 use hare::parse;
 use io;
 use memio;
 use strings;
+use types;
 
-export type paragraph = void;
-export type text = str;
-export type reference = ast::ident;
-export type sample = str;
-export type listitem = void;
-export type token = (paragraph | text | reference | sample | listitem);
+export type doc = [](paragraph | list | code_sample);
 
-export type docstate = enum {
-	PARAGRAPH,
-	TEXT,
-	LIST,
-};
+export type paragraph = [](str | decl_ref | mod_ref);
 
-export type parser = struct {
-	src: bufio::stream,
-	state: docstate,
-};
+export type list = []paragraph;
 
-export fn parse(in: io::handle) parser = {
-	static let buf: [4096]u8 = [0...];
-	return parser {
-		src = bufio::init(in, buf[..], []),
-		state = docstate::PARAGRAPH,
+export type code_sample = str;
+
+export type decl_ref = ast::ident;
+
+export type mod_ref = ast::ident;
+
+export type error = !lex::error;
+
+// Converts an error into a human-friendly string. The result may be statically
+// allocated.
+export fn strerror(err: error) const str = lex::strerror(err);
+
+export fn parse(in: io::handle, start: lex::location) (doc | error) = {
+	let sc = bufio::newscanner(in, types::SIZE_MAX);
+	defer bufio::finish(&sc);
+
+	match (_parse(&sc)) {
+	case let doc: doc =>
+		return doc;
+	case let err: lex::syntax =>
+		err.0.path = start.path;
+		err.0.line += start.line;
+		err.0.col += start.col;
+		return err;
+	case let err: io::error =>
+		return err;
+	case utf8::invalid =>
+		// XXX: the location for this error is inaccurate
+		return lex::syntaxerr(start, "Invalid UTF-8");
 	};
 };
 
-export fn scan(par: *parser) (token | void) = {
-	const rn = match (bufio::read_rune(&par.src)!) {
-	case let rn: rune =>
-		yield rn;
+fn _parse(sc: *bufio::scanner) (doc | ...error | utf8::invalid) = {
+	let loc = lex::location { ... };
+	let doc: doc = [];
+
+	for (true) match (bufio::scan_rune(sc)?) {
 	case io::EOF =>
-		return;
-	};
-
-	bufio::unreadrune(&par.src, rn);
-	switch (par.state) {
-	case docstate::TEXT =>
-		switch (rn) {
-		case '[' =>
-			return scanref(par);
-		case =>
-			return scantext(par);
-		};
-	case docstate::LIST =>
-		switch (rn) {
-		case '[' =>
-			return scanref(par);
-		case '-' =>
-			return scanlist(par);
-		case =>
-			return scantext(par);
-		};
-	case docstate::PARAGRAPH =>
-		switch (rn) {
-		case ' ', '\t' =>
-			return scansample(par);
-		case '-' =>
-			return scanlist(par);
-		case =>
-			return scantext(par);
-		};
-	};
-};
-
-fn scantext(par: *parser) (token | void) = {
-	if (par.state == docstate::PARAGRAPH) {
-		par.state = docstate::TEXT;
-		return paragraph;
-	};
-	// TODO: Collapse whitespace
-	const buf = memio::dynamic();
-	for (true) {
-		const rn = match (bufio::read_rune(&par.src)!) {
-		case io::EOF =>
-			break;
-		case let rn: rune =>
-			yield rn;
-		};
-		switch (rn) {
-		case '[' =>
-			bufio::unreadrune(&par.src, rn);
-			break;
-		case '\n' =>
-			memio::appendrune(&buf, rn)!;
-			const rn = match (bufio::read_rune(&par.src)!) {
+		break;
+	case let r: rune =>
+		if (r == ' ') {
+			r = match (bufio::scan_rune(sc)?) {
 			case io::EOF =>
 				break;
-			case let rn: rune =>
-				yield rn;
+			case let r: rune =>
+				loc.col = 1;
+				yield r;
 			};
-			if (rn == '\n') {
-				par.state = docstate::PARAGRAPH;
-				break;
-			};
-			bufio::unreadrune(&par.src, rn);
-			if (rn == '-' && par.state == docstate::LIST) {
-				break;
-			};
-		case =>
-			memio::appendrune(&buf, rn)!;
 		};
-	};
-	let result = memio::string(&buf)!;
-	if (len(result) == 0) {
-		return;
-	};
-	return result: text;
-};
 
-fn scanref(par: *parser) (token | void) = {
-	match (bufio::read_rune(&par.src)!) {
-	case io::EOF =>
-		return;
-	case let rn: rune =>
-		if (rn != '[') {
-			abort();
-		};
-	};
-	match (bufio::read_rune(&par.src)!) {
-	case io::EOF =>
-		return;
-	case let rn: rune =>
-		if (rn != '[') {
-			bufio::unreadrune(&par.src, rn);
-			return strings::dup("["): text;
-		};
-	};
-
-	const buf = memio::dynamic();
-	defer io::close(&buf)!;
-	// TODO: Handle invalid syntax here
-	for (true) {
-		match (bufio::read_rune(&par.src)!) {
-		case let rn: rune =>
-			switch (rn) {
-			case ']' =>
-				bufio::read_rune(&par.src) as rune; // ]
-				break;
-			case =>
-				memio::appendrune(&buf, rn)!;
-			};
-		case io::EOF =>
-			break;
-		};
-	};
-	let id = parse::identstr(memio::string(&buf)!) as ast::ident;
-	return id: reference;
-};
-
-fn scansample(par: *parser) (token | void) = {
-	let nws = 0z;
-	for (true) {
-		match (bufio::read_rune(&par.src)!) {
-		case io::EOF =>
-			return;
-		case let rn: rune =>
-			switch (rn) {
-			case ' ' =>
-				nws += 1;
-			case '\t' =>
-				nws += 8;
-			case =>
-				bufio::unreadrune(&par.src, rn);
-				break;
-			};
-		};
-	};
-	if (nws <= 1) {
-		return scantext(par);
-	};
-
-	let cont = true;
-	let buf = memio::dynamic();
-	for (cont) {
-		const rn = match (bufio::read_rune(&par.src)!) {
-		case io::EOF =>
-			break;
-		case let rn: rune =>
-			yield rn;
-		};
-		switch (rn) {
+		switch (r) {
+		case '\t' =>
+			loc.col = 8;
+			append(doc, scan_code_sample(sc, &loc)?);
 		case '\n' =>
-			memio::appendrune(&buf, rn)!;
+			loc.line += 1;
+			loc.col = 0;
+		case '-' =>
+			loc.col += 1;
+			append(doc, scan_list(sc, &loc)?);
 		case =>
-			memio::appendrune(&buf, rn)!;
+			bufio::unreadrune(sc, r);
+			append(doc, scan_paragraph(sc, &loc)?);
+		};
+	};
+
+	return doc;
+};
+
+fn scan_code_sample(
+	sc: *bufio::scanner,
+	loc: *lex::location,
+) (code_sample | ...error | utf8::invalid) = {
+	let s = memio::dynamic();
+	for (true) match (bufio::scan_rune(sc)?) {
+	case io::EOF =>
+		break;
+	case let r: rune =>
+		switch (r) {
+		case '\t' =>
+			loc.col += 8 - loc.col % 8;
+			memio::appendrune(&s, r)!;
+		case '\n' =>
+			loc.line += 1;
+			loc.col = 0;
+
+			let (r, space) = match (bufio::scan_rune(sc)?) {
+			case io::EOF =>
+				break;
+			case let r: rune =>
+				if (r != ' ') yield (r, false);
+				yield match (bufio::scan_rune(sc)?) {
+				case io::EOF =>
+					break;
+				case let r: rune =>
+					yield (r, true);
+				};
+			};
+
+			switch (r) {
+			case '\t' =>
+				loc.col = 8;
+				memio::appendrune(&s, '\n')!;
+			case '\n' =>
+				memio::appendrune(&s, '\n')!;
+				bufio::unreadrune(sc, '\n');
+			case =>
+				bufio::unreadrune(sc, r);
+				if (space) {
+					bufio::unreadrune(sc, ' ');
+				};
+				break;
+			};
+		case =>
+			loc.col += 1;
+			memio::appendrune(&s, r)!;
+		};
+	};
+
+	return memio::string(&s)!;
+};
+
+fn scan_list(
+	sc: *bufio::scanner,
+	loc: *lex::location,
+) (list | ...error | utf8::invalid) = {
+	let li: list = [];
+	for (true) {
+		match (bufio::scan_rune(sc)?) {
+		case io::EOF =>
+			append(li, []);
+			break;
+		case let r: rune =>
+			if (r != ' ') {
+				bufio::unreadrune(sc, r);
+			};
+		};
+
+		append(li, scan_paragraph(sc, loc)?);
+
+		match (bufio::scan_rune(sc)?) {
+		case io::EOF =>
+			break;
+		case let r: rune =>
+			if (r != '-') {
+				bufio::unreadrune(sc, r);
+				break;
+			};
+		};
+	};
+
+	return li;
+};
+
+// XXX: should be local to scan_paragraph, once that's possible
+type state = enum {
+	NORMAL,
+	SPACE,
+	NEWLINE,
+};
+
+fn scan_paragraph(
+	sc: *bufio::scanner,
+	loc: *lex::location,
+) (paragraph | ...error | utf8::invalid) = {
+	let p: paragraph = [];
+	let s = memio::dynamic();
+	defer io::close(&s)!;
+	let state = state::NORMAL;
+
+	for (true) match (bufio::scan_rune(sc)?) {
+	case io::EOF =>
+		break;
+	case let r: rune =>
+		switch (r) {
+		case '\t' =>
+			if (state == state::NEWLINE && loc.col <= 1) {
+				bufio::unreadrune(sc, r);
+				break;
+			};
+			loc.col += 8 - loc.col % 8;
+			if (state == state::NORMAL) {
+				state = state::SPACE;
+			};
+			continue;
+		case '\n' =>
+			loc.line += 1;
+			loc.col = 0;
+			if (state == state::NEWLINE) {
+				break;
+			};
+			state = state::NEWLINE;
+			continue;
+		case ' ' =>
+			loc.col += 1;
+			if (state == state::NORMAL) {
+				state = state::SPACE;
+			};
+			continue;
+		case '-' =>
+			if (state != state::NEWLINE || loc.col > 1) yield;
+			// XXX: we may want to reconsider if recognizing '-'
+			// here is too lenient (what if a line begins with a
+			// negative number?)
+			bufio::unreadrune(sc, r);
+			break;
+		case => void;
+		};
+
+		if (state != state::NORMAL) {
+			memio::appendrune(&s, ' ')!;
+		};
+		state = state::NORMAL;
+		loc.col += 1;
+
+		if (r != '[') {
+			memio::appendrune(&s, r)!;
 			continue;
 		};
 
-		// Consume whitespace
-		for (let i = 0z; i < nws) {
-			match (bufio::read_rune(&par.src)!) {
-			case io::EOF =>
-				break;
-			case let rn: rune =>
-				switch (rn) {
-				case ' ' =>
-					i += 1;
-				case '\t' =>
-					i += 8;
-				case '\n' =>
-					memio::appendrune(&buf, rn)!;
-					i = 0;
-				case =>
-					bufio::unreadrune(&par.src, rn);
-					cont = false;
-					break;
+		r = match (bufio::scan_rune(sc)?) {
+		case io::EOF =>
+			memio::appendrune(&s, '[')!;
+			break;
+		case let r: rune =>
+			yield r;
+		};
+		if (r != '[') {
+			memio::appendrune(&s, '[')!;
+			bufio::unreadrune(sc, r);
+			continue;
+		};
+
+		loc.col += 1;
+		const part = memio::string(&s)!;
+		if (part != "") {
+			append(p, strings::dup(part));
+			memio::reset(&s);
+		};
+
+		let lexer = lex::init(sc, loc.path);
+		const (ident, mod) = match (parse::ident_trailing(&lexer)) {
+		case let id: (ast::ident, bool) =>
+			yield id;
+		case let err: lex::syntax =>
+			if (err.0.line == 1) {
+				err.0.col += loc.col - 1;
+			};
+			err.0.line += loc.line - 1;
+			return err;
+		case let err: io::error =>
+			return err;
+		};
+
+		// intentionally not using lex::mkloc, so whitespace is
+		// accounted for
+		if (lexer.loc.0 == 1) {
+			loc.col += lexer.loc.1 - 1;
+		} else {
+			loc.col = 0;
+		};
+		loc.line += lexer.loc.0 - 1;
+
+		append(p, if (mod) ident: mod_ref else ident: decl_ref);
+
+		if (lexer.un.0 == lex::ltok::RBRACKET) {
+			match (bufio::scan_rune(sc)?) {
+			case io::EOF => void;
+			case let r: rune =>
+				if (r == ']') {
+					loc.col += 1;
+					continue;
 				};
 			};
 		};
+		return lex::syntaxerr(*loc, "Unterminated reference");
 	};
 
-	let buf = memio::string(&buf)!;
-	// Trim trailing newlines
-	buf = strings::rtrim(buf, '\n');
-	return buf: sample;
+	const part = memio::string(&s)!;
+	if (part != "") {
+		append(p, strings::dup(part));
+	};
+	return p;
 };
 
-fn scanlist(par: *parser) (token | void) = {
-	match (bufio::read_rune(&par.src)!) {
-	case io::EOF =>
-		return void;
-	case let rn: rune =>
-		if (rn != '-') {
-			abort();
+// Frees resources associated with a [[doc]].
+export fn freeall(doc: doc) void = {
+	for (let i = 0z; i < len(doc); i += 1) {
+		match (doc[i]) {
+		case let p: paragraph =>
+			free_paragraph(p);
+		case let l: list =>
+			for (let i = 0z; i < len(l); i += 1) {
+				free_paragraph(l[i]);
+			};
+			free(l);
+		case let c: code_sample =>
+			free(c);
 		};
 	};
-	const rn = match (bufio::read_rune(&par.src)!) {
-	case io::EOF =>
-		return void;
-	case let rn: rune =>
-		yield rn;
+	free(doc);
+};
+
+fn free_paragraph(p: paragraph) void = {
+	for (let i = 0z; i < len(p); i += 1) {
+		match (p[i]) {
+		case let s: str =>
+			free(s);
+		case let d: decl_ref =>
+			ast::ident_free(d);
+		case let m: mod_ref =>
+			ast::ident_free(m);
+		};
 	};
-	if (rn != ' ') {
-		bufio::unreadrune(&par.src, rn);
-		return strings::dup("-"): text;
-	};
-	par.state = docstate::LIST;
-	return listitem;
+	free(p);
 };

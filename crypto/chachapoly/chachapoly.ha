@@ -147,7 +147,7 @@ fn writemac(s: *stream, tag: []u8) void = {
 export fn verify(s: *stream, tag: []u8) (void | errors::invalid) = {
 	let ntag: [TAGSZ]u8 = [0...];
 	writemac(s, ntag);
-	if (crypto::math::eqslice(ntag, tag) == 0) {
+	if (math::eqslice(ntag, tag) == 0) {
 		return errors::invalid;
 	};
 };

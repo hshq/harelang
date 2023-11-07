@@ -7,15 +7,14 @@ use hare::ast;
 use hare::lex;
 use hare::module;
 use hare::parse;
+use hare::parse::doc;
 use io;
 use os::exec;
 
 export type haredoc_colors_error = !str;
 
-export type error = !(lex::error | parse::error | io::error | module::error |
-	exec::error | fs::error | haredoc_colors_error);
-
-def HAREDOC_COLORS_ERROR_MSG = "Error parsing HAREDOC_COLORS: invalid key";
+export type error = !(lex::error | parse::error | doc::error | io::error |
+	module::error | exec::error | fs::error | haredoc_colors_error);
 
 export fn strerror(err: error) str = {
 	match (err) {
@@ -23,6 +22,8 @@ export fn strerror(err: error) str = {
 		return lex::strerror(err);
 	case let err: parse::error =>
 		return parse::strerror(err);
+	case let err: doc::error =>
+		return doc::strerror(err);
 	case let err: io::error =>
 		return io::strerror(err);
 	case let err: module::error =>
@@ -32,12 +33,12 @@ export fn strerror(err: error) str = {
 	case let err: fs::error =>
 		return fs::strerror(err);
 	case let err: haredoc_colors_error =>
-		let buf: [128]u8 = [0...];
-		if (len(HAREDOC_COLORS_ERROR_MSG) + len(err) + 3 > len(buf)) {
-			return HAREDOC_COLORS_ERROR_MSG;
+		def ERRMSG = "Error parsing HAREDOC_COLORS: invalid key";
+		if (len(err) == 0) {
+			return ERRMSG;
 		};
-		return fmt::bsprintf(buf, "{} '{}'",
-			HAREDOC_COLORS_ERROR_MSG, err);
+		static let buf: [len(ERRMSG) + 64 + 3]u8 = [0...];
+		return fmt::bsprintf(buf, "{} '{}'", ERRMSG, err);
 	};
 };
 

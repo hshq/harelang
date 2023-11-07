@@ -22,7 +22,7 @@ https://www.crypto101.io
 
 There are a few additional modules and functions which are of interest to users
 of the crypto module. Access to secure random data is provided by the
-[[crypto::random]] module. The ability to securely erase sensitive data in RAM
+[[crypto::random::]] module. The ability to securely erase sensitive data in RAM
 is provided by [[bytes::zero]]. Note also that [[bytes::equal]] is not suitable
 for constant-time comparisons; equality comparisons in a cryptographic context
 should utilize [[compare]] instead.
@@ -46,4 +46,4 @@ The following features are offered in this module:
 - [[crypto::ed25519::sign]] and [[crypto::ed25519::verify]] provide public key message signing and verification.
 - [[exchange]] provides a secure key exchange function.
 - [[derivekey]] implements key derivation, which is also recommended for hashing passwords.
-- [[hash]] provides a [[hash::hash]] algorithm suitable for cryptographic use.
+- [[hash::]] provides a [[hash::hash]] algorithm suitable for cryptographic use.

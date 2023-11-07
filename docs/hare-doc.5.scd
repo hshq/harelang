@@ -14,7 +14,8 @@ Text may be written normally, broken into several lines to conform to the
 80-column limit. To begin a new paragraph, insert an empty line.
 
 References to other declarations and modules may be written in brackets, like
-this: [[os::stdout]].
+this: [[os::stdout]]. References to modules should include a trailing :: in the
+identifier: [[os::exec::]].
 
 A bulleted list can be started by opening a line with "-", optionally preceded
 by a space. Each line opened like this begins a new list item. To complete the
@@ -33,7 +34,7 @@ present.
 // Foos the bars. See also [[foobar]].
 //
 // If you instead want to bar the foos, use one of the functions in
-// [[bar::foo]].
+// [[bar::foo::]].
 //
 // - First, the bars are obtained.
 // - They are then fooed.
@@ -55,7 +56,7 @@ content from its original textual representation:
 - Multiple code samples separated by empty lines should be collapsed into one
   code sample, so the empty lines are moved into the code sample itself.
 
-*hare::parse::doc* in the standard library handles all of this processing for
+*hare::parse::doc::* in the standard library handles all of this processing for
 you.
 
 Parsers are permitted (and encouraged) to error out on invalid input, such as a

@@ -52,23 +52,23 @@ category. A valid _seq_ must consist only of digits and semicolons, or must be a
 single underscore "\_". Here are the initial default entries:
 
 . normal        "0"
-. primary       "0"
-. ident         "0"
+. primary       "\_" (-> normal)
+. ident         "\_" (-> normal)
 . comment       "1"
-. constant      "0"
-. function      "0"
-. global        "0"
-. typedef       "0"
-. import_alias  "0"
-. secondary     "0"
+. constant      "\_" (-> primary)
+. function      "\_" (-> primary)
+. global        "\_" (-> primary)
+. typedef       "\_" (-> primary)
+. import_alias  "\_" (-> normal)
+. secondary     "\_" (-> normal)
 . keyword       "94"
 . type          "96"
 . attribute     "33"
 . operator      "1"
-. punctuation   "0"
+. punctuation   "\_" (-> normal)
 . rune_string   "91"
 . number        "95"
-. label         "0"
+. label         "\_" (-> normal)
 
 Any number of entries can be specified. If a _seq_ is an underscore "\_", then
 the sequence specified for "normal" is used, unless _key_ is "constant",

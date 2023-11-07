@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use ascii;
-use errors;
 use fmt;
 use io;
 use memio;
@@ -17,9 +16,15 @@ export type template = []instruction;
 // formattable object.
 export type param = (str, fmt::formattable);
 
+// The template string has an invalid format.
+export type invalid = !void;
+
+// Converts an error into a human-friendly string.
+export fn strerror(err: invalid) str = "Template string has invalid format";
+
 // Compiles a template string. The return value must be freed with [[finish]]
 // after use.
-export fn compile(input: str) (template | errors::invalid) = {
+export fn compile(input: str) (template | invalid) = {
 	let buf = memio::dynamic();
 	defer io::close(&buf)!;
 
@@ -47,7 +52,7 @@ export fn compile(input: str) (template | errors::invalid) = {
 					parse_variable(&instrs, &iter, &buf)?;
 				};
 			case =>
-				return errors::invalid;
+				return invalid;
 			};
 		} else {
 			memio::appendrune(&buf, rn)!;
@@ -111,7 +116,7 @@ fn parse_variable(
 	instrs: *[]instruction,
 	iter: *strings::iterator,
 	buf: *memio::stream,
-) (void | errors::invalid) = {
+) (void | invalid) = {
 	let brace = false;
 	match (strings::next(iter)) {
 	case let rn: rune =>
@@ -121,7 +126,7 @@ fn parse_variable(
 			strings::prev(iter);
 		};
 	case =>
-		return errors::invalid;
+		return invalid;
 	};
 
 	for (true) {
@@ -129,12 +134,12 @@ fn parse_variable(
 		case let rn: rune =>
 			yield rn;
 		case =>
-			return errors::invalid;
+			return invalid;
 		};
 
 		if (brace) {
 			if (rn == '{') {
-				return errors::invalid;
+				return invalid;
 			} else if (rn != '}') {
 				memio::appendrune(buf, rn)!;
 			} else {

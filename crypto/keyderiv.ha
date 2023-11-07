@@ -15,7 +15,7 @@ use errors;
 //
 // The salt parameter should be randomly generated, stored alongside the key,
 // and used in subsequent calls to produce the same key. It must be at least 8
-// bytes, but 16 bytes is recommended. Use [[crypto::random]] to generate a
+// bytes, but 16 bytes is recommended. Use [[crypto::random::]] to generate a
 // different salt for each key.
 //
 // The 'mem' and 'passes' functions are provided to tune the behavior of this

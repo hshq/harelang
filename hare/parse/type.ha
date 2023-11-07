@@ -180,9 +180,16 @@ fn tagged_type(
 ) (ast::_type | error) = {
 	let tagged: ast::tagged_type = [];
 	append(tagged, alloc(first));
-	for (try(lexer, ltok::RPAREN)? is void) {
+	for (true) {
 		append(tagged, alloc(_type(lexer)?));
-		if (try(lexer, ltok::BOR)? is void) {
+
+		match (try(lexer, ltok::BOR)?) {
+		case lex::token =>
+			match (try(lexer, ltok::RPAREN)) {
+			case lex::token => break;
+			case => void;
+			};
+		case void =>
 			want(lexer, ltok::RPAREN)?;
 			break;
 		};
@@ -202,9 +209,15 @@ fn tuple_type(
 ) (ast::_type | error) = {
 	let tuple: ast::tuple_type = [];
 	append(tuple, alloc(first));
-	for (try(lexer, ltok::RPAREN)? is void) {
+	for (true) {
 		append(tuple, alloc(_type(lexer)?));
-		if (try(lexer, ltok::COMMA)? is void) {
+		match (try(lexer, ltok::COMMA)?) {
+		case lex::token =>
+			match (try(lexer, ltok::RPAREN)) {
+			case lex::token => break;
+			case => void;
+			};
+		case void =>
 			want(lexer, ltok::RPAREN)?;
 			break;
 		};

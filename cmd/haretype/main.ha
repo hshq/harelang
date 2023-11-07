@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // (c) Hare authors <https://harelang.org>
 
+use bufio;
 use fmt;
 use getopt;
 use hare::ast;
@@ -13,6 +14,7 @@ use memio;
 use os;
 use path;
 use strings;
+use types::{SIZE_MAX};
 
 fn typeinfo(
 	store: *types::typestore,
@@ -22,14 +24,15 @@ fn typeinfo(
 		fmt::println("null")?;
 		yield types::lookup_builtin(store, ast::builtin_type::NULL);
 	} else {
-		const stream = memio::fixed(strings::toutf8(s));
+		let stream = memio::fixed(strings::toutf8(s));
 		defer io::close(&stream)!;
-		const lexer = lex::init(&stream, "-");
-		defer lex::finish(&lexer);
+		let sc = bufio::newscanner(&stream, SIZE_MAX);
+		defer bufio::finish(&sc);
+		let lexer = lex::init(&sc, "-");
 		const atype = parse::_type(&lexer)?;
 		defer ast::type_finish(&atype);
 		const typ = types::lookup(store, &atype)?;
-		unparse::_type(os::stdout, &unparse::syn_nowrap, atype)?;
+		unparse::_type(os::stdout, &unparse::syn_nowrap, &atype)?;
 		fmt::println()?;
 		yield typ;
 	};

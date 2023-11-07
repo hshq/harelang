@@ -64,27 +64,27 @@ export fn emit_tty(ctx: *context) (void | error) = {
 	// XXX: Should we emit the dependencies, too?
 	let printed = false;
 	for (let i = 0z; i < len(summary.types); i += 1) {
-		if (details_tty(ctx, summary.types[i])?) {
+		if (details_tty(ctx, &summary.types[i])?) {
 			printed = true;
 		};
 	};
 	for (let i = 0z; i < len(summary.constants); i += 1) {
-		if (details_tty(ctx, summary.constants[i])?) {
+		if (details_tty(ctx, &summary.constants[i])?) {
 			printed = true;
 		};
 	};
 	for (let i = 0z; i < len(summary.errors); i += 1) {
-		if (details_tty(ctx, summary.errors[i])?) {
+		if (details_tty(ctx, &summary.errors[i])?) {
 			printed = true;
 		};
 	};
 	for (let i = 0z; i < len(summary.globals); i += 1) {
-		if (details_tty(ctx, summary.globals[i])?) {
+		if (details_tty(ctx, &summary.globals[i])?) {
 			printed = true;
 		};
 	};
 	for (let i = 0z; i < len(summary.funcs); i += 1) {
-		if (details_tty(ctx, summary.funcs[i])?) {
+		if (details_tty(ctx, &summary.funcs[i])?) {
 			printed = true;
 		};
 	};
@@ -126,7 +126,7 @@ fn emit_submodules_tty(ctx: *context) (void | error) = {
 	};
 };
 
-fn details_tty(ctx: *context, decl: ast::decl) (bool | error) = {
+fn details_tty(ctx: *context, decl: *ast::decl) (bool | error) = {
 	if (len(decl.docs) == 0 && !ctx.show_undocumented) {
 		return false;
 	};

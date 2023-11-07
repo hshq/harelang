@@ -227,7 +227,7 @@ export fn from_instant(loc: chrono::locality, i: time::instant) date = {
 export fn from_str(
 	layout: str,
 	s: str,
-	locs: time::chrono::locality...
+	locs: chrono::locality...
 ) (date | parsefail | insufficient | invalid) = {
 	const v = newvirtual();
 	v.zoff = 0;

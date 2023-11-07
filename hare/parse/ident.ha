@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use bufio;
 use hare::ast;
 use hare::lex;
 use hare::lex::{ltok};
 use memio;
 use strings;
+use types;
 
-fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
+// Parses a single identifier, possibly with a trailing ::, i.e. 'foo::bar::'.
+// Returns the identifier and whether there's a trailing ::.
+export fn ident_trailing(lexer: *lex::lexer) ((ast::ident, bool) | error) = {
 	let ident: []str = [];
 	let trailing = false;
 	const tok = want(lexer, ltok::NAME)?;
@@ -47,9 +51,10 @@ export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 // A convenience function which parses an identifier from a string, so the
 // caller needn't provide a lexer instance.
 export fn identstr(in: str) (ast::ident | error) = {
-	const buf = memio::fixed(strings::toutf8(in));
-	const lexer = lex::init(&buf, "<string>");
-	defer lex::finish(&lexer);
+	let in = memio::fixed(strings::toutf8(in));
+	let sc = bufio::newscanner(&in, types::SIZE_MAX);
+	defer bufio::finish(&sc);
+	let lexer = lex::init(&sc, "<string>");
 	let ret = ident(&lexer);
 	want(&lexer, ltok::EOF)?;
 	return ret;

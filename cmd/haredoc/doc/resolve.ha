@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // (c) Hare authors <https://harelang.org>
 
+use bufio;
 use fmt;
 use fs;
 use hare::ast;
@@ -10,6 +11,7 @@ use hare::parse;
 use io;
 use os;
 use path;
+use types;
 
 type symkind = enum {
 	LOCAL,
@@ -70,31 +72,31 @@ fn is_local(ctx: *context, what: ast::ident) bool = {
 
 	const summary = ctx.summary;
 	for (let i = 0z; i < len(summary.constants); i += 1) {
-		const name = decl_ident(summary.constants[i])[0];
+		const name = decl_ident(&summary.constants[i])[0];
 		if (name == what[0]) {
 			return true;
 		};
 	};
 	for (let i = 0z; i < len(summary.errors); i += 1) {
-		const name = decl_ident(summary.errors[i])[0];
+		const name = decl_ident(&summary.errors[i])[0];
 		if (name == what[0]) {
 			return true;
 		};
 	};
 	for (let i = 0z; i < len(summary.types); i += 1) {
-		const name = decl_ident(summary.types[i])[0];
+		const name = decl_ident(&summary.types[i])[0];
 		if (name == what[0]) {
 			return true;
 		};
 	};
 	for (let i = 0z; i < len(summary.globals); i += 1) {
-		const name = decl_ident(summary.globals[i])[0];
+		const name = decl_ident(&summary.globals[i])[0];
 		if (name == what[0]) {
 			return true;
 		};
 	};
 	for (let i = 0z; i < len(summary.funcs); i += 1) {
-		const name = decl_ident(summary.funcs[i])[0];
+		const name = decl_ident(&summary.funcs[i])[0];
 		if (name == what[0]) {
 			return true;
 		};
@@ -105,7 +107,7 @@ fn is_local(ctx: *context, what: ast::ident) bool = {
 
 fn lookup_local_enum(ctx: *context, what: ast::ident) (ast::ident | void) = {
 	for (let i = 0z; i < len(ctx.summary.types); i += 1) {
-		const decl = ctx.summary.types[i];
+		const decl = &ctx.summary.types[i];
 		const name = decl_ident(decl)[0];
 		if (name == what[0]) {
 			const t = (decl.decl as []ast::decl_type)[0];
@@ -185,6 +187,8 @@ export fn scan(path: str) (ast::subunit | error) = {
 		fmt::fatalf("Error reading {}: {}", path, fs::strerror(err));
 	};
 	defer io::close(input)!;
-	const lexer = lex::init(input, path, lex::flag::COMMENTS);
+	let sc = bufio::newscanner(input, types::SIZE_MAX);
+	defer bufio::finish(&sc);
+	let lexer = lex::init(&sc, path, lex::flag::COMMENTS);
 	return parse::subunit(&lexer)?;
 };

@@ -8,6 +8,7 @@ use fs;
 use io;
 use os;
 use strings;
+use types;
 
 // Path to the system MIME database.
 export def SYSTEM_DB: str = "/etc/mime.types";
@@ -17,34 +18,22 @@ export def SYSTEM_DB: str = "/etc/mime.types";
 	load_systemdb(): void;
 };
 
-fn load_systemdb() (void | fs::error | io::error) = {
+fn load_systemdb() (void | fs::error | io::error | utf8::invalid) = {
 	const file = os::open(SYSTEM_DB)?;
+	defer io::close(file)!;
 
-	let buf: [os::BUFSZ]u8 = [0...];
-	const strm = bufio::init(file, buf, []);
+	let sc = bufio::newscanner(file, types::SIZE_MAX);
+	defer bufio::finish(&sc);
 
 	for (true) {
-		const line = match (bufio::read_line(&strm)) {
-		case let bytes: []u8 =>
-			yield match (strings::fromutf8(bytes)) {
-			case utf8::invalid =>
-				fmt::errorln("Warning: /etc/mime.types contains invalid UTF-8")!;
-				io::close(&strm)?;
-				io::close(file)?;
-				return;
-			case let s: str =>
-				yield s;
-			};
-		case let err: io::error =>
-			io::close(&strm): void;
-			io::close(file): void;
-			return err;
+		let line = match (bufio::scan_line(&sc)?) {
 		case io::EOF =>
 			break;
+		case let s: const str =>
+			yield s;
 		};
-		defer free(line);
 
-		const line = strings::trim(line);
+		line = strings::trim(line);
 		if (strings::hasprefix(line, "#") || len(line) == 0) {
 			continue;
 		};
@@ -72,14 +61,11 @@ fn load_systemdb() (void | fs::error | io::error) = {
 		};
 		register_heap(entry);
 	};
-
-	io::close(&strm)?;
-	io::close(file)?;
 };
 
-fn register_heap(mime: *mimetype...) void = {
+fn register_heap(mime: *mimetype) void = {
 	let i = len(heap_db);
-	append(heap_db, mime...);
+	append(heap_db, mime);
 	for (i < len(heap_db); i += 1) {
 		hashtable_insert(heap_db[i]);
 	};

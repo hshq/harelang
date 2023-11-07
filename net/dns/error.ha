@@ -54,7 +54,7 @@ export type bad_time = !void;
 // Any other server-provided error condition not known to Hare.
 export type unknown_error = !u8;
 
-// All error types which might be returned from [[net::dns]] functions.
+// All error types which might be returned from functions in this module.
 export type error = !(format | server_failure | name_error
 	| not_implemented | refused | name_exists
 	| rrset_exists | rrset_error | not_auth | not_zone

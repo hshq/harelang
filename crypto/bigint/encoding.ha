@@ -107,8 +107,9 @@ fn ebitlen(x: const []word) u32 = {
 
 // Get the effective word lenght of 'x'. The effective wordlen is the number of
 // words that are used to represent the actual value. Eg. the number 7 will have
-// an effective word length of 1, no matter of len(x).
-fn ewordlen(x: const []word) u32 = {
+// an effective word length of 1, no matter of len(x). The first element
+// containing the encoded word len is not added to the result.
+export fn ewordlen(x: const []word) u32 = {
 	return (x[0] + WORD_BITSZ) >> WORD_SHIFT;
 };
 
@@ -119,9 +120,10 @@ export fn decode(dest: []u8, src: const []word) void = {
 	let acc: u64 = 0;
 	let accbits: u64 = 0;
 	let sidx: size = 1;
+	let sz = ewordlen(src);
 	for (let i = len(dest) - 1; i < len(dest); i -= 1) {
 		if (accbits < 8) {
-			if (sidx < len(src)) {
+			if (sidx <= sz) {
 				acc |= ((src[sidx]: u64) << accbits: u64): u64;
 				sidx += 1;
 			};

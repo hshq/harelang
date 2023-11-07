@@ -35,8 +35,8 @@ const sha1_vtable: io::vtable = io::vtable {
 
 // Creates a [[hash::hash]] which computes a SHA-1 hash. Note that this
 // algorithm is no longer considered secure. Where possible, applications are
-// encouraged to use [[crypto::sha256]] or [[crypto::sha512]] instead. If this
-// function is used to hash sensitive information, the caller should call
+// encouraged to use [[crypto::sha256::]] or [[crypto::sha512::]] instead. If
+// this function is used to hash sensitive information, the caller should call
 // [[hash::close]] to erase sensitive data from memory after use; if not, the
 // use of [[hash::close]] is optional.
 export fn sha1() state = {

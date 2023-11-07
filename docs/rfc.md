@@ -41,7 +41,8 @@ The body of the RFC is free-form text, which should be formatted in accordance
 with typical [mailing list etiquette][0], and should include at a minimum the
 details of the proposed change, the rationale for the change, and the predicted
 impact of the change to end-users. Illustrative code samples and other
-supporting materials are encouraged to be included.
+supporting materials are encouraged to be included. See doc/rfc-template.txt for
+a sample RFC to get started.
 
 [hare-rfc]: https://lists.sr.ht/~sircmpwn/hare-rfc
 [0]: https://man.sr.ht/lists.sr.ht/etiquette.md

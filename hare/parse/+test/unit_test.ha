@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use bufio;
 use hare::ast;
 use hare::lex;
 use io::{mode};
 use memio;
 use strings;
+use types;
 
 fn import_eq(i1: ast::import, i2: ast::import) bool = {
 	if (i1.mode != i2.mode) {
@@ -73,8 +75,9 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 
 		"export fn main() void = void;";
 	let buf = memio::fixed(strings::toutf8(in));
-	let lexer = lex::init(&buf, "<test>");
-	defer lex::finish(&lexer);
+	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	defer bufio::finish(&sc);
+	let lexer = lex::init(&sc, "<test>");
 	let mods = imports(&lexer)!;
 	defer ast::imports_finish(mods);
 
@@ -114,8 +117,9 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 
 	const in = "use a::{b = c = d};\n";
 	let buf = memio::fixed(strings::toutf8(in));
-	let lexer = lex::init(&buf, "<test>");
-	defer lex::finish(&lexer);
+	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	defer bufio::finish(&sc);
+	let lexer = lex::init(&sc, "<test>");
 	assert(imports(&lexer) is error);
 };
 

@@ -30,11 +30,11 @@ export type decl_global = struct {
 // 	type foo = int;
 export type decl_type = struct {
 	ident: ident,
-	_type: _type,
+	_type: *_type,
 };
 
 // Attributes applicable to a function declaration.
-export type fndecl_attrs = enum {
+export type fndecl_attr = enum {
 	NONE,
 	FINI,
 	INIT,
@@ -47,9 +47,9 @@ export type fndecl_attrs = enum {
 export type decl_func = struct {
 	symbol: str,
 	ident: ident,
-	prototype: _type,
-	body: (expr | void),
-	attrs: fndecl_attrs,
+	prototype: *_type,
+	body: nullable *expr,
+	attrs: fndecl_attr,
 };
 
 // A Hare declaration.
@@ -81,18 +81,17 @@ export fn decl_finish(d: decl) void = {
 	case let t: []decl_type =>
 		for (let i = 0z; i < len(t); i += 1) {
 			ident_free(t[i].ident);
-			type_finish(&t[i]._type);
+			type_finish(t[i]._type);
+			free(t[i]._type);
 		};
 		free(t);
 	case let f: decl_func =>
 		free(f.symbol);
 		ident_free(f.ident);
-		type_finish(&f.prototype);
-		match (f.body) {
-		case let e: expr =>
-			expr_finish(&e);
-		case void => void;
-		};
+		type_finish(f.prototype);
+		free(f.prototype);
+		expr_finish(f.body);
+		free(f.body);
 	case let c: []decl_const =>
 		for (let i = 0z; i < len(c); i += 1) {
 			ident_free(c[i].ident);
@@ -103,17 +102,9 @@ export fn decl_finish(d: decl) void = {
 		};
 		free(c);
 	case let e: assert_expr =>
-		match (e.cond) {
-		case let e: *expr =>
-			expr_finish(e);
-			free(e);
-		case null => void;
-		};
-		match (e.message) {
-		case let e: *expr =>
-			expr_finish(e);
-			free(e);
-		case null => void;
-		};
+		expr_finish(e.cond);
+		free(e.cond);
+		expr_finish(e.message);
+		free(e.message);
 	};
 };

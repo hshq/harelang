@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // (c) Hare authors <https://harelang.org>
 
+use bufio;
 use cmd::hare::build;
 use errors;
 use fmt;
@@ -56,9 +57,10 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		case 'a' =>
 			arch = get_arch(opt.1)?;
 		case 'D' =>
-			const buf = memio::fixed(strings::toutf8(opt.1));
-			const lexer = lex::init(&buf, "<-D argument>");
-			defer lex::finish(&lexer);
+			let buf = memio::fixed(strings::toutf8(opt.1));
+			let sc = bufio::newscanner(&buf, len(opt.1));
+			defer bufio::finish(&sc);
+			let lexer = lex::init(&sc, "<-D argument>");
 			append(ctx.defines, parse::define(&lexer)?);
 		case 'F' =>
 			ctx.freestanding = true;

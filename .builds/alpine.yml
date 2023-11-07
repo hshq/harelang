@@ -38,6 +38,9 @@ tasks:
 - check_with_libc: |
     cd hare
     hare test -lc
+- parsechk: |
+    cd hare
+    hare run cmd/parsechk
 - lint: |
     cd hare
     ./scripts/lint.sh

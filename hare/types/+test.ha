@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use bufio;
 use fmt;
 use hare::ast;
 use hare::lex;
@@ -8,11 +9,13 @@ use hare::parse;
 use io;
 use memio;
 use strings;
+use types;
 
 fn parse_type(in: str) ast::_type = {
 	let buf = memio::fixed(strings::toutf8(in));
-	let lex = lex::init(&buf, "<test>");
-	defer lex::finish(&lex);
+	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	defer bufio::finish(&sc);
+	let lex = lex::init(&sc, "<test>");
 	return parse::_type(&lex)!;
 };
 

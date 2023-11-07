@@ -12,7 +12,7 @@ export type decl_func = struct {
 	ident: ast::ident,
 	prototype: const *types::_type,
 	body: nullable *expr,
-	attrs: ast::fndecl_attrs,
+	attrs: ast::fndecl_attr,
 };
 
 // A declaration within a unit.

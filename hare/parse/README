@@ -6,4 +6,4 @@ functions provide parsers for various important Hare sub-terminals, such as
 https://harelang.org/specification
 
 Most of these functions require the caller to provide a Hare lexer, see
-[[hare::lex]] for details.
+[[hare::lex::]] for details.

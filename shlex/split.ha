@@ -8,6 +8,9 @@ use strings;
 // Invalid shell syntax.
 export type syntaxerr = !void;
 
+// Converts an error into a human-friendly string.
+export fn strerror(err: syntaxerr) str = "Invalid shell syntax";
+
 // Splits a string of arguments according to shell quoting. The result must be
 // freed using [[strings::freeall]] when the caller is done processing it.
 export fn split(in: const str) ([]str | syntaxerr) = {

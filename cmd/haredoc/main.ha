@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // (c) Hare authors <https://harelang.org>
 
+use bufio;
 use cmd::haredoc::doc;
 use fmt;
 use fs;
@@ -17,6 +18,7 @@ use os::exec;
 use path;
 use strconv;
 use strings;
+use types;
 use unix::tty;
 
 const help: []getopt::help = [
@@ -256,9 +258,10 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 // to the ident in the string. For example, this function will parse `rt::abort`
 // as a valid identifier.
 fn parseident(in: str) ((ast::ident, bool) | void) = {
-	const buf = memio::fixed(strings::toutf8(in));
-	const lexer = lex::init(&buf, "<string>");
-	defer lex::finish(&lexer);
+	let buf = memio::fixed(strings::toutf8(in));
+	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	defer bufio::finish(&sc);
+	let lexer = lex::init(&sc, "<string>");
 	let success = false;
 	let ident: ast::ident = [];
 	defer if (!success) ast::ident_free(ident);

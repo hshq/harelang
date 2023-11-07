@@ -16,14 +16,12 @@ use strings;
 use types;
 
 export type lexer = struct {
-	in: bufio::scanner,
+	in: *bufio::scanner,
 	path: str,
 	loc: (uint, uint),
-	un: (token | void),
-	rb: [2]((rune, location) | io::EOF | void),
-	// 1 more than the size of un and rb respectively
-	prevunlocs: [2](location, location),
-	prevrlocs: [3]location,
+	prevrloc: (uint, uint),
+	un: token, // ltok::EOF when no token was unlexed
+	prevunlocs: [2]((uint, uint), (uint, uint)),
 	flags: flag,
 	comment: str,
 	require_int: bool,
@@ -55,29 +53,24 @@ export fn strerror(err: error) const str = {
 	};
 };
 
-// Initializes a new lexer for the given input. The path is borrowed.
-export fn init(in: io::handle, path: str, flags: flag...) lexer = {
+// Initializes a new lexer for the given [[bufio::scanner]]. The path is
+// borrowed.
+export fn init(in: *bufio::scanner, path: str, flags: flag...) lexer = {
 	let f = flag::NONE;
 	for (let i = 0z; i < len(flags); i += 1) {
 		f |= flags[i];
 	};
-	let scanner = bufio::newscanner(in, os::BUFSZ);
 	const loc = location { path = path, line = 1, col = 1 };
 	return lexer {
-		in = scanner,
+		in = in,
 		path = path,
 		loc = (1, 1),
-		un = void,
-		rb = [void...],
-		prevunlocs = [(loc, loc)...],
-		prevrlocs = [loc...],
+		prevrloc = (1, 1),
+		un = (ltok::EOF, void, loc),
+		prevunlocs = [((1, 1), (1, 1))...],
 		flags = f,
 		...
 	};
-};
-
-export fn finish(lex: *lexer) void = {
-	bufio::finish(&lex.in);
 };
 
 // Returns the current value of the comment buffer, or empty string if unset (or
@@ -86,16 +79,19 @@ export fn comment(lex: *lexer) str = lex.comment;
 
 // Returns the next token from the lexer.
 export fn lex(lex: *lexer) (token | error) = {
-	match (lex.un) {
-	case let tok: token =>
-		lex.un = void;
-		return tok;
-	case void => void;
+	if (lex.un.0 != ltok::EOF) {
+		defer lex.un.0 = ltok::EOF;
+		return lex.un;
 	};
 
 	defer {
 		lex.prevunlocs[1] = lex.prevunlocs[0];
-		lex.prevunlocs[0] = (prevloc(lex), mkloc(lex));
+		const prev = prevloc(lex);
+		const loc = mkloc(lex);
+		lex.prevunlocs[0] = (
+			(prev.line, prev.col),
+			(loc.line, loc.col),
+		);
 	};
 
 	let r = match (nextw(lex)?) {
@@ -106,25 +102,25 @@ export fn lex(lex: *lexer) (token | error) = {
 	};
 
 	if (ascii::isdigit(r.0)) {
-		unget(lex, r);
+		unget(lex, r.0);
 		return lex_literal(lex);
 	};
 
 	lex.require_int = false;
 	if (is_name(r.0, false)) {
-		unget(lex, r);
+		unget(lex, r.0);
 		return lex_name(lex, r.1);
 	};
 
 	let tok = switch (r.0) {
 	case '"', '\'', '`' =>
-		unget(lex, r);
+		unget(lex, r.0);
 		return lex_rn_str(lex);
 	case '.', '<', '>', '&', '|', '^' =>
-		unget(lex, r);
+		unget(lex, r.0);
 		return lex3(lex);
 	case '*', '%', '/', '+', '-', ':', '!', '=' =>
-		unget(lex, r);
+		unget(lex, r.0);
 		return lex2(lex);
 	case '~' =>
 		yield ltok::BNOT;
@@ -236,8 +232,8 @@ fn lex_string(lex: *lexer, loc: location, delim: rune) (token | error) = {
 		return syntaxerr(loc, "unexpected EOF scanning string literal");
 	case let r: (rune, location) =>
 		if (r.0 == delim) break
-		else if (delim == '"') {
-			unget(lex, r);
+		else if (delim == '"' && r.0 == '\\') {
+			unget(lex, r.0);
 			let r = lex_rune(lex, loc)?;
 			memio::appendrune(&buf, r)?;
 		} else {
@@ -258,19 +254,19 @@ fn lex_string(lex: *lexer, loc: location, delim: rune) (token | error) = {
 		case '/' =>
 			match (nextw(lex)?) {
 			case io::EOF =>
-				unget(lex, r);
+				unget(lex, r.0);
 			case let s: (rune, location) =>
 				if (s.0 == '/') {
 					lex_comment(lex)?;
 					continue;
 				} else {
-					unget(lex, s);
-					unget(lex, r);
+					unget(lex, s.0);
+					unget(lex, r.0);
 				};
 			};
 			break;
 		case =>
-			unget(lex, r);
+			unget(lex, r.0);
 			break;
 		};
 	};
@@ -321,7 +317,7 @@ fn lex_name(lex: *lexer, loc: location) (token | error) = {
 	case io::EOF => break;
 	case let r: (rune, location) =>
 		if (!is_name(r.0, true)) {
-			unget(lex, r);
+			unget(lex, r.0);
 			break;
 		};
 		memio::appendrune(&buf, r.0)?;
@@ -361,7 +357,7 @@ fn line_comment(lex: *lexer) (void | error) = {
 	};
 
 	if (try(lex, '/')? is void) {
-		unget(lex, r);
+		unget(lex, r.0);
 		return;
 	};
 
@@ -432,9 +428,9 @@ fn lex_literal(lex: *lexer) (token | error) = {
 					"Leading zeros in number literals aren't permitted (for octal, use the 0o prefix instead)");
 			};
 			started = true;
-			unget(lex, r);
+			unget(lex, r.0);
 		};
-	} else unget(lex, r);
+	} else unget(lex, r.0);
 	let basechrs = switch (base) {
 	case strconv::base::BIN =>
 		yield "01";
@@ -467,7 +463,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 			if (float || exp is size || suff is size
 					|| base != strconv::base::DEC
 					|| lex.require_int) {
-				unget(lex, r);
+				unget(lex, r.0);
 				break;
 			} else {
 				r = match (next(lex)?) {
@@ -477,15 +473,11 @@ fn lex_literal(lex: *lexer) (token | error) = {
 					yield r;
 				};
 				if (!strings::contains(basechrs, r.0)) {
-					unget(lex, r);
-					unget(lex, ('.', location {
-						path = r.1.path,
-						line = r.1.line,
-						col = r.1.col - 1,
-					}));
+					unget(lex, r.0);
+					unget(lex, '.');
 					break;
 				};
-				unget(lex, r);
+				unget(lex, r.0);
 				float = true;
 				append(chars, utf8::encoderune('.')...);
 			};
@@ -496,7 +488,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 			};
 			if (exp is size || suff is size
 					|| base != strconv::base::DEC) {
-				unget(lex, r);
+				unget(lex, r.0);
 				break;
 			} else {
 				if (end == 0) end = len(chars);
@@ -512,7 +504,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 				case '+', '-' =>
 					append(chars, utf8::encoderune(r.0)...);
 				case =>
-					unget(lex, r);
+					unget(lex, r.0);
 				};
 				basechrs = "0123456789";
 			};
@@ -524,7 +516,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 			if (suff is size || r.0 != 'f' && float
 					|| r.0 == 'f'
 					&& base != strconv::base::DEC) {
-				unget(lex, r);
+				unget(lex, r.0);
 				break;
 			} else {
 				suff = len(chars);
@@ -533,7 +525,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 				basechrs = "0123456789";
 			};
 		case =>
-			unget(lex, r);
+			unget(lex, r.0);
 			break;
 		} else append(chars, utf8::encoderune(r.0)...);
 		started = true;
@@ -652,7 +644,7 @@ fn lex2(lexr: *lexer) (token | error) = {
 				lex_comment(lexr)?;
 				return lex(lexr);
 			case =>
-				unget(lexr, r);
+				unget(lexr, r.0);
 				return (ltok::DIV, void, first.1);
 			};
 		case io::EOF =>
@@ -679,7 +671,7 @@ fn lex2(lexr: *lexer) (token | error) = {
 				return (tok.1[i].1, void, first.1);
 			};
 		};
-		unget(lexr, r);
+		unget(lexr, r.0);
 		line_comment(lexr)?;
 	case io::EOF => void;
 	};
@@ -736,27 +728,16 @@ fn lex3(lex: *lexer) (token | error) = {
 // unlex is supported at a time; you must call [[lex]] before calling [[unlex]]
 // again.
 export fn unlex(lex: *lexer, tok: token) void = {
-	assert(lex.un is void, "attempted to unlex more than one token");
+	assert(lex.un.0 == ltok::EOF, "attempted to unlex more than one token");
 	lex.un = tok;
 };
 
 fn next(lex: *lexer) ((rune, location) | syntax | io::EOF | io::error) = {
-	match (lex.rb[0]) {
-	case void => void;
-	case let r: ((rune, location) | io::EOF) =>
-		lex.rb[0] = lex.rb[1];
-		lex.rb[1] = void;
-		return r;
-	};
-
-	match (bufio::scan_rune(&lex.in)) {
+	match (bufio::scan_rune(lex.in)) {
 	case let e: (io::EOF | io::error) =>
 		return e;
 	case let r: rune =>
 		const loc = mkloc(lex);
-		let tmp = lex.prevrlocs;
-		lex.prevrlocs[1..] = tmp[..len(tmp) - 1];
-		lex.prevrlocs[0] = loc;
 		lexloc(lex, r);
 		return (r, loc);
 	case utf8::invalid =>
@@ -801,10 +782,26 @@ fn try(
 			return r;
 		};
 	};
-	unget(lex, r);
+	unget(lex, r.0);
+};
+
+fn unget(lex: *lexer, r: rune) void = {
+	bufio::unreadrune(lex.in, r);
+
+	// here, we set the current location to the previous location, then
+	// subtract one from the previous location's column. this is always
+	// correct, even for tabs and newlines, since a tab or newline will
+	// never be ungot after a previous unget call. besides tabs and
+	// newlines, the rune will always be a printable ASCII character
+	assert(ascii::isprint(r) || r == '\t' || r == '\n');
+	assert(r != '\n' || lex.prevrloc.0 == lex.loc.0 - 1);
+
+	lex.loc = lex.prevrloc;
+	lex.prevrloc.1 -= 1;
 };
 
 fn lexloc(lex: *lexer, r: rune) void = {
+	lex.prevrloc = lex.loc;
 	switch (r) {
 	case '\n' =>
 		lex.loc.0 += 1;
@@ -816,40 +813,23 @@ fn lexloc(lex: *lexer, r: rune) void = {
 	};
 };
 
-fn unget(lex: *lexer, r: ((rune, location) | io::EOF)) void = {
-	if (!(lex.rb[0] is void)) {
-		assert(lex.rb[1] is void, "ungot too many runes");
-		lex.rb[1] = lex.rb[0];
-	};
-	lex.rb[0] = r;
-};
-
 export fn mkloc(lex: *lexer) location = {
-	match (lex.un) {
-	case let t: token =>
-		return lex.prevunlocs[1].1;
-	case void =>
-		match (lex.rb[0]) {
-		case let r: (rune, location) =>
-			return r.1;
-		case void =>
-			return location {
-				path = lex.path,
-				line = lex.loc.0,
-				col = lex.loc.1,
-			};
-		};
+	const loc = if (lex.un.0 == ltok::EOF) lex.loc
+		else lex.prevunlocs[1].1;
+	return location {
+		path = lex.path,
+		line = loc.0,
+		col = loc.1,
 	};
 };
 
 export fn prevloc(lex: *lexer) location = {
-	match (lex.un) {
-	case let t: token =>
-		return lex.prevunlocs[1].0;
-	case void =>
-		let i = 0z;
-		for (i < len(lex.rb); i += 1) if (lex.rb[i] is void) break;
-		return lex.prevrlocs[i];
+	const loc = if (lex.un.0 == ltok::EOF) lex.prevrloc
+		else lex.prevunlocs[1].0;
+	return location {
+		path = lex.path,
+		line = loc.0,
+		col = loc.1,
 	};
 };
 

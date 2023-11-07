@@ -13,6 +13,7 @@ use memio;
 use os;
 use regex;
 use strings;
+use types::{SIZE_MAX};
 
 let ioctlre: regex::regex = regex::regex { ... };
 let typedefre: regex::regex = regex::regex { ... };
@@ -85,9 +86,10 @@ export fn main() void = {
 };
 
 fn loadtype(store: *types::typestore) void = {
-	const tee = io::tee(os::stdin, os::stdout);
-	const lex = lex::init(&tee, "<ioctl>");
-	defer lex::finish(&lex);
+	let tee = io::tee(os::stdin, os::stdout);
+	let sc = bufio::newscanner(&tee, SIZE_MAX);
+	defer bufio::finish(&sc);
+	let lex = lex::init(&sc, "<ioctl>");
 	const decl = match (parse::decl(&lex)) {
 	case let err: parse::error =>
 		fmt::fatal("Error parsing type declaration:",
@@ -101,13 +103,15 @@ fn loadtype(store: *types::typestore) void = {
 		fmt::fatal("Multiple type declarations are unsupported");
 	};
 	const tdecl = tdecl[0];
-	const of = types::lookup(store, &tdecl._type)!;
+	const of = types::lookup(store, tdecl._type)!;
 	types::newalias(store, tdecl.ident, of);
 };
 
 fn parseioctl(store: *types::typestore, d: dir, params: str) ioctl = {
-	const buf = memio::fixed(strings::toutf8(params));
-	const lex = lex::init(&buf, "<ioctl>");
+	let buf = memio::fixed(strings::toutf8(params));
+	let sc = bufio::newscanner(&buf, SIZE_MAX);
+	defer bufio::finish(&sc);
+	let lex = lex::init(&sc, "<ioctl>");
 
 	const rn = expect(&lex, ltok::LIT_RCONST).1 as rune;
 	expect(&lex, ltok::COMMA);
