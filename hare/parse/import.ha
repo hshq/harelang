@@ -4,21 +4,12 @@
 use fmt;
 use hare::ast;
 use hare::lex;
-
 use hare::lex::{ltok};
 
-fn name_list(lexer: *lex::lexer) ([]((str | void), str) | error) = {
-	let names: []((str | void), str) = [];
+fn name_list(lexer: *lex::lexer) (ast::import_members | error) = {
+	let names: []str = [];
 	for (true) {
-		append(names, (void, want(lexer, ltok::NAME)?.1 as str));
-		match (try(lexer, ltok::EQUAL)?) {
-		case void => void;
-		case =>
-			let name = &names[len(names) - 1];
-			name.0 = name.1;
-			name.1 = want(lexer, ltok::NAME)?.1 as str;
-		};
-
+		append(names, want(lexer, ltok::NAME)?.1 as str);
 		switch (want(lexer, ltok::COMMA, ltok::RBRACE)?.0) {
 		case ltok::COMMA =>
 			match (try(lexer, ltok::RBRACE)?) {
@@ -43,42 +34,38 @@ export fn imports(lexer: *lex::lexer) ([]ast::import | error) = {
 		case => void;
 		};
 
-		append(imports, ast::import { ... });
+		append(imports, ast::import {
+			bindings = void,
+			...
+		});
 		let import = &imports[len(imports) - 1];
 		import.start = lex::mkloc(lexer);
-		for (true) {
-			let name = ident_trailing(lexer)?;
-			import.ident = name.0;
-			switch (want(lexer, ltok::SEMICOLON, ltok::LBRACE,
-				ltok::EQUAL, ltok::TIMES)?.0) {
-			case ltok::SEMICOLON =>
-				synassert(lex::mkloc(lexer), !name.1,
-					"Unexpected trailing :: in ident")?;
-				break;
-			case ltok::LBRACE =>
-				synassert(lex::mkloc(lexer), name.1,
-					"Expected trailing :: in ident")?;
-				import.mode |= ast::import_mode::MEMBERS;
-				import.objects = name_list(lexer)?;
-				want(lexer, ltok::SEMICOLON)?;
-				break;
-			case ltok::EQUAL =>
-				synassert(lex::mkloc(lexer),
-					len(name.0) == 1 && !name.1,
-					"Expected name, not ident")?;
-				import.alias = name.0[0];
-				import.mode |= ast::import_mode::ALIAS;
-			case ltok::TIMES =>
-				synassert(lex::mkloc(lexer), name.1,
-					"Expected trailing :: in ident")?;
-				synassert(lex::mkloc(lexer),
-					import.mode & ast::import_mode::ALIAS == 0,
-					"Unexpected * after aliased import")?;
-				import.mode |= ast::import_mode::WILDCARD;
-				want(lexer, ltok::SEMICOLON)?;
-				break;
-			case => abort(); // Unreachable
-			};
+		let (name, trailing) = ident_trailing(lexer)?;
+		import.ident = name;
+		switch (want(lexer, ltok::SEMICOLON, ltok::LBRACE,
+			ltok::EQUAL, ltok::TIMES)?.0) {
+		case ltok::SEMICOLON =>
+			synassert(lex::mkloc(lexer), !trailing,
+				"Unexpected trailing :: in ident")?;
+		case ltok::LBRACE =>
+			synassert(lex::mkloc(lexer), trailing,
+				"Expected trailing :: in ident")?;
+			import.bindings = name_list(lexer)?;
+			want(lexer, ltok::SEMICOLON)?;
+		case ltok::EQUAL =>
+			synassert(lex::mkloc(lexer),
+				len(name) == 1 && !trailing,
+				"Expected name, not ident")?;
+			import.bindings = name[0];
+			free(name);
+			import.ident = ident(lexer)?;
+			want(lexer, ltok::SEMICOLON)?;
+		case ltok::TIMES =>
+			synassert(lex::mkloc(lexer), trailing,
+				"Expected trailing :: in ident")?;
+			import.bindings = ast::import_wildcard;
+			want(lexer, ltok::SEMICOLON)?;
+		case => abort(); // Unreachable
 		};
 		import.end = lex::mkloc(lexer);
 	};

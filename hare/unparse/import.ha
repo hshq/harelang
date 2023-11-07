@@ -23,36 +23,31 @@ export fn import(
 	};
 	n += syn(&ctx, "use", synkind::KEYWORD)?;
 	n += space(&ctx)?;
-	if (import.mode & ast::import_mode::ALIAS != 0) {
-		n += syn(&ctx, import.alias, synkind::IMPORT_ALIAS)?;
+	match (import.bindings) {
+	case void =>
+		n += _ident(&ctx, syn, import.ident, synkind::IDENT)?;
+	case let alias: ast::import_alias =>
+		n += syn(&ctx, alias, synkind::IMPORT_ALIAS)?;
 		n += space(&ctx)?;
 		n += syn(&ctx, "=", synkind::OPERATOR)?;
 		n += space(&ctx)?;
-	};
-	n += _ident(&ctx, syn, import.ident, synkind::IDENT)?;
-	if (import.mode & ast::import_mode::MEMBERS != 0) {
+		n += _ident(&ctx, syn, import.ident, synkind::IDENT)?;
+	case let objects: ast::import_members =>
+		n += _ident(&ctx, syn, import.ident, synkind::IDENT)?;
 		n += syn(&ctx, "::", synkind::IDENT)?;
 		n += syn(&ctx, "{", synkind::PUNCTUATION)?;
-		for (let i = 0z; i < len(import.objects); i += 1) {
-			match (import.objects[i].0) {
-			case let s: str =>
-				n += syn(&ctx, s, synkind::IMPORT_ALIAS)?;
-				n += space(&ctx)?;
-				n += syn(&ctx, "=", synkind::OPERATOR)?;
-				n += space(&ctx)?;
-			case void => void;
-			};
-			n += syn(&ctx, import.objects[i].1,
-				synkind::SECONDARY)?;
-			if (i + 1 < len(import.objects)) {
+		for (let i = 0z; i < len(objects); i += 1) {
+			n += syn(&ctx, objects[i], synkind::SECONDARY)?;
+			if (i + 1 < len(objects)) {
 				n += syn(&ctx, ",", synkind::PUNCTUATION)?;
 				n += space(&ctx)?;
 			};
 		};
 		n += syn(&ctx, "}", synkind::PUNCTUATION)?;
-	} else if (import.mode & ast::import_mode::WILDCARD != 0) {
+	case ast::import_wildcard =>
+		n += _ident(&ctx, syn, import.ident, synkind::IDENT)?;
 		n += syn(&ctx, "::", synkind::IDENT)?;
-		n += syn(&ctx, "*", synkind::IDENT)?;
+		n += syn(&ctx, "*", synkind::PUNCTUATION)?;
 	};
 	n += syn(&ctx, ";", synkind::PUNCTUATION)?;
 	return n;
@@ -62,45 +57,24 @@ export fn import(
 	let tests: [_](ast::import, str) = [
 		(ast::import {
 			ident = ["foo", "bar", "baz"],
+			bindings = void,
 			...
 		}, "use foo::bar::baz;"),
 		(ast::import {
-			mode = ast::import_mode::ALIAS,
 			ident = ["foo"],
-			alias = "bar",
+			bindings = "bar",
 			...
 		}, "use bar = foo;"),
 		(ast::import {
-			mode = ast::import_mode::MEMBERS,
 			ident = ["foo"],
-			objects = [(void, "bar"), (void, "baz")],
+			bindings = ["bar", "baz"],
 			...
 		},  "use foo::{bar, baz};"),
 		(ast::import {
-			mode = ast::import_mode::WILDCARD,
 			ident = ["foo", "bar"],
+			bindings = ast::import_wildcard,
 			...
 		},  "use foo::bar::*;"),
-		(ast::import {
-			mode = ast::import_mode::MEMBERS | ast::import_mode::ALIAS,
-			ident = ["foo"],
-			alias = "quux",
-			objects = [(void, "bar"), (void, "baz")],
-			...
-		},  "use quux = foo::{bar, baz};"),
-		(ast::import {
-			mode = ast::import_mode::MEMBERS,
-			ident = ["foo"],
-			objects = [("alias", "bar"), (void, "baz")],
-			...
-		},  "use foo::{alias = bar, baz};"),
-		(ast::import {
-			mode = ast::import_mode::MEMBERS | ast::import_mode::ALIAS,
-			ident = ["foo"],
-			alias = "quux",
-			objects = [("alias1", "bar"), ("alias2", "baz")],
-			...
-		},  "use quux = foo::{alias1 = bar, alias2 = baz};"),
 	];
 	for (let i = 0z; i < len(tests); i += 1) {
 		let buf = memio::dynamic();
