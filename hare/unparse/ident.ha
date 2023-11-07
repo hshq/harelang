@@ -40,9 +40,10 @@ export fn identstr(id: ast::ident) str = {
 
 @test fn ident() void = {
 	let s = identstr(["foo", "bar", "baz"]);
+	defer free(s);
 	assert(s == "foo::bar::baz");
-	free(s);
-	s = identstr(["foo"]);
+
+	let s = identstr(["foo"]);
+	defer free(s);
 	assert(s == "foo");
-	free(s);
 };

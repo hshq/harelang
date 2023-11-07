@@ -41,23 +41,47 @@ export fn multireplace(s: str, repls: (str, str)...) str = {
 		i += 1;
 	};
 	append(res, b[prev..i]...);
-	return fromutf8(res)!;
+	return fromutf8_unsafe(res);
 };
 
 @test fn replace() void = {
-	assert(replace("Hello world!", "world", "there") == "Hello there!");
-	assert(replace("I like dogs, dogs, birds, dogs", "dogs", "cats") ==
-		"I like cats, cats, birds, cats");
-	assert(replace("aaaaaa", "aa", "a") == "aaa");
-	assert(replace("aaa", "a", "aa") == "aaaaaa");
-	assert(replace("こんにちは", "にち", "ばん") == "こんばんは");
+	const s = replace("Hello world!", "world", "there");
+	defer free(s);
+	assert(s == "Hello there!");
+
+	const s = replace("I like dogs, dogs, birds, dogs", "dogs", "cats");
+	defer free(s);
+	assert(s == "I like cats, cats, birds, cats");
+
+	const s = replace("aaaaaa", "aa", "a");
+	defer free(s);
+	assert(s == "aaa");
+
+	const s = replace("aaa", "a", "aa");
+	defer free(s);
+	assert(s == "aaaaaa");
+
+	const s = replace("こんにちは", "にち", "ばん");
+	defer free(s);
+	assert(s == "こんばんは");
 };
 
 @test fn multireplace() void = {
-	assert(multireplace("Hello world", ("Hello", "Greetings"),
-		("world", "globe")) == "Greetings globe");
-	assert(multireplace("ababa", ("a", "ba"), ("b", "a"), ("a", "c")) ==
-		"baabaaba");
-	assert(multireplace("hello there", ("e", "a"), ("a", "x"), ("ell", "eww")) == "hallo thara");
-	assert(multireplace("hello there", ("ell", "eww"), ("e", "a")) == "hewwo thara");
+	const s = multireplace("Hello world",
+		("Hello", "Greetings"), ("world", "globe"));
+	defer free(s);
+	assert(s == "Greetings globe");
+
+	const s = multireplace("ababa", ("a", "ba"), ("b", "a"), ("a", "c"));
+	defer free(s);
+	assert(s == "baabaaba");
+
+	const s = multireplace("hello there", ("e", "a"),
+		("a", "x"), ("ell", "eww"));
+	defer free(s);
+	assert(s == "hallo thara");
+
+	const s = multireplace("hello there", ("ell", "eww"), ("e", "a"));
+	defer free(s);
+	assert(s == "hewwo thara");
 };

@@ -41,30 +41,30 @@ export fn freeall(s: []str) void = {
 
 @test fn dup() void = {
 	let s = dup("");
+	defer free(s);
 	assert(s == "");
-	free(s);
 
-	s = dup("hello");
+	let s = dup("hello");
+	defer free(s);
 	assert(s == "hello");
-	free(s);
 };
 
 @test fn dupall() void = {
 	const payload: []str = [];
 
 	let s = dupall(payload);
+	defer freeall(s);
 	assert(len(s) == len(payload));
 	for (let i = 0z; i < len(s); i += 1) {
 		assert(s[i] == payload[i]);
 	};
-	freeall(s);
 
 	const payload: []str = ["a", "aaa"];
 
 	let s = dupall(payload);
+	defer freeall(s);
 	assert(len(s) == len(payload));
 	for (let i = 0z; i < len(s); i += 1) {
 		assert(s[i] == payload[i]);
 	};
-	freeall(s);
 };

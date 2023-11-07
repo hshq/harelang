@@ -45,13 +45,12 @@ export fn equalshex(x: []word, h: str) bool = {
 
 @test fn iszero() void = {
 	let x = fromhex("210032a0");
+	defer free(x);
 	let y = fromhex("00000000");
+	defer free(y);
 
 	assert(iszero(x) == 0);
 	assert(iszero(y) == 1);
-
-	free(x);
-	free(y);
 };
 
 @test fn zero() void = {

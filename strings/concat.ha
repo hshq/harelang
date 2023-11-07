@@ -16,24 +16,24 @@ export fn concat(strs: str...) str = {
 
 @test fn concat() void = {
 	let s = concat("hello ", "world");
+	defer free(s);
 	assert(s == "hello world");
-	free(s);
 
-	s = concat("hello", " ", "world");
+	let s = concat("hello", " ", "world");
+	defer free(s);
 	assert(s == "hello world");
-	free(s);
 
-	s = concat("hello", "", "world");
+	let s = concat("hello", "", "world");
+	defer free(s);
 	assert(s == "helloworld");
-	free(s);
 
-	s = concat("", "");
+	let s = concat("", "");
+	defer free(s);
 	assert(s == "");
-	free(s);
 
-	s = concat();
+	let s = concat();
+	defer free(s);
 	assert(s == "");
-	free(s);
 };
 
 // Joins several strings together by placing a delimiter between them. The
@@ -58,15 +58,15 @@ export fn join(delim: str, strs: str...) str = {
 
 @test fn join() void = {
 	let s = join(".", "a", "b", "c");
+	defer free(s);
 	assert(s == "a.b.c");
-	free(s);
 
 	let s = join("", "a", "b", "c");
+	defer free(s);
 	assert(s == "abc");
-	free(s);
 
 	let s = join(".");
+	defer free(s);
 	assert(s == "");
-	free(s);
 
 };
