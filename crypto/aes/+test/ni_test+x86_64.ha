@@ -3,6 +3,7 @@
 
 use bytes;
 use crypto::cipher;
+use test;
 
 const zero_rk: [EXPKEYLEN256]u8 = [0...];
 
@@ -14,7 +15,7 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 // taken from fips-197.pdf Section A.1
 @test fn ni_enc_key_expand_128() void = {
 	if (!x86ni_available()) {
-		return;
+		test::skip("Native x86 AES interface isn't available");
 	};
 
 	const key: [16]u8 = [
@@ -60,7 +61,7 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 // taken from fips-197.pdf Section A.2
 @test fn ni_enc_key_expand_192() void = {
 	if (!x86ni_available()) {
-		return;
+		test::skip("Native x86 AES interface isn't available");
 	};
 
 	const key: [24]u8 = [
@@ -109,7 +110,7 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 // taken from fips-197.pdf Section A.3
 @test fn ni_enc_key_expand_256() void = {
 	if (!x86ni_available()) {
-		return;
+		test::skip("Native x86 AES interface isn't available");
 	};
 
 	const key: [32]u8 = [
@@ -161,7 +162,7 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 
 @test fn ni_test_encrypt_128() void = {
 	if (!x86ni_available()) {
-		return;
+		test::skip("Native x86 AES interface isn't available");
 	};
 
 	let key: [_]u8 = [
@@ -190,7 +191,7 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 
 @test fn ni_test_decrypt_128() void = {
 	if (!x86ni_available()) {
-		return;
+		test::skip("Native x86 AES interface isn't available");
 	};
 
 	const key: [_]u8 = [
@@ -219,7 +220,7 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 // fips-197.pdf Appendix C.1
 @test fn ni_test_example_vector1() void = {
 	if (!x86ni_available()) {
-		return;
+		test::skip("Native x86 AES interface isn't available");
 	};
 
 	const key: []u8 = [
@@ -252,7 +253,7 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 // fips-197.pdf Appendix C.2
 @test fn ni_test_example_vector2() void = {
 	if (!x86ni_available()) {
-		return;
+		test::skip("Native x86 AES interface isn't available");
 	};
 
 	const key: []u8 = [
@@ -286,7 +287,7 @@ const zero_rk: [EXPKEYLEN256]u8 = [0...];
 // fips-197.pdf Appendix C.3
 @test fn ni_test_example_vector3() void = {
 	if (!x86ni_available()) {
-		return;
+		test::skip("Native x86 AES interface isn't available");
 	};
 
 	const key: []u8 = [

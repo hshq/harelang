@@ -3,7 +3,9 @@
 
 use bytes;
 use encoding::hex;
+use os;
 use strings;
+use test;
 
 @test fn mode_d_one_pass() void = {
 	let pass: [32]u8 = [1...];
@@ -142,17 +144,6 @@ type tcase = struct {
 	const salt = strings::toutf8("abcdefgh");
 
 	const tests: [_]tcase = [
-		// XXX disabled for now because it's slow
-		// tcase {
-		// 	c = low_mem_conf,
-		// 	m = mode::ID,
-		// 	h = "8974537c53677aae532b319af700bb4232a0d74eee7d57296b2a3f8303a6bafe",
-		// },
-		// tcase {
-		// 	c = default_conf,
-		// 	m = mode::ID,
-		// 	h = "3b282cbf435b0e022f7041549583ddc802e519109f1da8f12d2054910913d660",
-		// },
 		tcase {
 			c = conf {
 				passes = 1,
@@ -244,3 +235,35 @@ type tcase = struct {
 	};
 };
 
+@test fn samples_slow() void = {
+	if (os::tryenv("STDLIB_SLOW_TESTS", "") == "") {
+		test::skip("Enable with STDLIB_SLOW_TESTS=1");
+	};
+
+	const pass = strings::toutf8("trustno1");
+	const salt = strings::toutf8("abcdefgh");
+
+	const tests: [_]tcase = [
+		tcase {
+			c = low_mem_conf,
+			m = mode::ID,
+			h = "8974537c53677aae532b319af700bb4232a0d74eee7d57296b2a3f8303a6bafe",
+		},
+		tcase {
+			c = default_conf,
+			m = mode::ID,
+			h = "3b282cbf435b0e022f7041549583ddc802e519109f1da8f12d2054910913d660",
+		},
+	];
+
+	for (let i = 0z; i < len(tests); i += 1) {
+		const t = tests[i];
+		const expected = hex::decodestr(t.h)!;
+		defer free(expected);
+		let dest: []u8 = alloc([0...], len(expected));
+		defer free(dest);
+
+		argon2(dest, pass, salt, &t.c, t.m)!;
+		assert(bytes::equal(expected, dest));
+	};
+};
