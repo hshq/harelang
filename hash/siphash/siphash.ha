@@ -101,7 +101,7 @@ export fn sum(h: *state) u64 = {
 	h.v[0] ^= b;
 
 	h.v[2] ^= 0xff;
-	for (let i = 0u8; i < h.d; i+= 1) {
+	for (let i = 0u8; i < h.d; i += 1) {
 		round(&h);
 	};
 	return h.v[0] ^ h.v[1] ^ h.v[2] ^ h.v[3];
