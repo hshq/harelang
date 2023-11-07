@@ -50,15 +50,12 @@ let utc_isinitialized: bool = false;
 fn init_utc_leapsecs() (void | utciniterror) = {
 	const file = os::open(UTC_LEAPSECS_FILE)?;
 	defer io::close(file)!;
-	parse_utc_leapsecs(file, &utc_leapsecs)?;
+	parse_utc_leapsecs(file)?;
 };
 
 // Parse UTC/TAI leap second data from [[UTC_LEAPSECS_FILE]].
 // See file for format details.
-fn parse_utc_leapsecs(
-	h: io::handle,
-	leapsecs: *[](i64, i64),
-) (void | utf8::invalid | io::error) = {
+fn parse_utc_leapsecs(h: io::handle) (void | utf8::invalid | io::error) = {
 	for (true) {
 		const line = match (bufio::read_line(h)) {
 		case let err: io::error =>
