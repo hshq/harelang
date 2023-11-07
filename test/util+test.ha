@@ -13,3 +13,15 @@ export fn expectabort() void = {
 	};
 	want_abort = true;
 };
+
+// Skip the currently running test.
+export fn skip(reason: str) never = {
+	if (rt::jmp == null) {
+		abort("Attempted to call test::skip outside of @test function");
+	};
+	rt::reason = rt::abort_reason {
+		msg = reason,
+		...
+	};
+	rt::longjmp(&jmpbuf, status::SKIP);
+};

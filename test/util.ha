@@ -6,3 +6,8 @@
 export fn expectabort() void = {
 	abort("Attempted to call test::expectabort outside of @test function");
 };
+
+// Skip the currently running test.
+export fn skip(reason: str) never = {
+	abort("Attempted to call test::skip outside of @test function");
+};
