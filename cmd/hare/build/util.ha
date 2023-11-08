@@ -19,7 +19,14 @@ use strings;
 let buf = path::buffer { ... };
 
 export fn get_version(harec: str) ([]u8 | error) = {
-	let cmd = exec::cmd(harec, "-v")?;
+	let cmd = match (exec::cmd(harec, "-v")) {
+	case let c: exec::command =>
+		yield c;
+	case exec::nocmd =>
+		fmt::fatalf("Error: Command not found: {}", harec);
+	case let e: exec::error =>
+		return e;
+	};
 	let pipe = exec::pipe();
 	exec::addfile(&cmd, os::stdout_file, pipe.1);
 	let proc = exec::start(&cmd)?;
