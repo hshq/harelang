@@ -382,9 +382,9 @@ fn divceil(dividend: u32, divisor: u32) u32 = {
 };
 
 fn xorblock(dest: []u64, x: []u64, y: []u64) void = {
-	math::xor((dest: *[*]u8)[..len(dest) * size(u64)],
-		(x: *[*]u8)[..len(dest) * size(u64)],
-		(y: *[*]u8)[..len(dest) * size(u64)]);
+	for (let i = 0z; i < len(dest); i += 1) {
+		dest[i] = x[i] ^ y[i];
+	};
 };
 
 fn segproc(cfg: *conf, ctx: *context, i: size, slice: size) void = {
@@ -508,17 +508,13 @@ fn perm(
 };
 
 fn mix(a: *u64, b: *u64, c: *u64, d: *u64) void = {
-	*a = *a + *b + 2 * trunc(*a) * trunc(*b);
+	*a = *a + *b + 2 * (*a & 0xffffffff) * (*b & 0xffffffff);
 	*d = math::rotr64(*d ^ *a, 32);
-	*c = *c + *d + 2 * trunc(*c) * trunc(*d);
+	*c = *c + *d + 2 * (*c & 0xffffffff) * (*d & 0xffffffff);
 	*b = math::rotr64(*b ^ *c, 24);
 
-	*a = *a + *b + 2 * trunc(*a) * trunc(*b);
+	*a = *a + *b + 2 * (*a & 0xffffffff) * (*b & 0xffffffff);
 	*d = math::rotr64(*d ^ *a, 16);
-	*c = *c + *d + 2 * trunc(*c) * trunc(*d);
+	*c = *c + *d + 2 * (*c & 0xffffffff) * (*d & 0xffffffff);
 	*b = math::rotr64(*b ^ *c, 63);
-};
-
-fn trunc(a: u64) u64 = {
-	return a & 0xffffffff;
 };
