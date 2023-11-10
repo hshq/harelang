@@ -25,7 +25,7 @@ export @symbol("rt.abort") fn _abort(
 			col = col,
 			msg = msg,
 		};
-		longjmp(j, 1);
+		longjmp(j, 1); // test::status::ABORT
 	case null =>
 		platform_abort(path, line, col, msg);
 	};

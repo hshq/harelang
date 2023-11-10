@@ -54,29 +54,36 @@ export fn strcasecmp(a: str, b: str) int = {
 
 @test fn strcasecmp() void = {
 	let s = strupper("ABC");
+	defer free(s);
 	assert(s == "ABC");
-	free(s);
-	s = strlower("ABC");
+
+	let s = strlower("ABC");
+	defer free(s);
 	assert(s == "abc");
-	free(s);
-	s = strupper("abc");
+
+	let s = strupper("abc");
+	defer free(s);
 	assert(s == "ABC");
-	free(s);
-	s = strlower("abc");
+
+	let s = strlower("abc");
+	defer free(s);
 	assert(s == "abc");
-	free(s);
-	s = strupper("[[[");
+
+	let s = strupper("[[[");
+	defer free(s);
 	assert(s == "[[[");
-	free(s);
-	s = strlower("[[[");
+
+	let s = strlower("[[[");
+	defer free(s);
 	assert(s == "[[[");
-	free(s);
-	s = strupper("こ");
+
+	let s = strupper("こ");
+	defer free(s);
 	assert(s == "こ");
-	free(s);
-	s = strlower("こ");
+
+	let s = strlower("こ");
+	defer free(s);
 	assert(s == "こ");
-	free(s);
 
 	assert(strcasecmp("ABC", "ABC") == 0);
 	assert(strcasecmp("ABC", "abc") == 0);

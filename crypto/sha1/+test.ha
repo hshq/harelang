@@ -4,7 +4,9 @@
 use encoding::hex;
 use fmt;
 use hash;
+use os;
 use strings;
+use test;
 
 @test fn sha1() void = {
 	let sha = sha1();
@@ -40,24 +42,26 @@ use strings;
 	};
 };
 
-// Uncomment this test to run the 1GB vector - takes a while to run, so it's
-// left disabled.
-//@test fn sha1_1gb() void = {
-//	const input = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno";
-//	const expected = "7789f0c9ef7bfc40d93311143dfbe69e2017f592";
-//
-//	let sha = sha1();
-//
-//	for (let i = 0z; i < 16777216; i += 1)
-//		hash::write(&sha, strings::toutf8(input));
-//
-//	let sum: [SZ]u8 = [0...];
-//	hash::sum(&sha, sum);
-//
-//	let shahex = hex::encodestr(sum);
-//
-//	if (shahex != expected) {
-//		fmt::errorfln("1GB vector: {} != {}", shahex, expected)!;
-//		abort();
-//	};
-//};
+@test fn sha1_1gb() void = {
+	if (os::tryenv("STDLIB_SLOW_TESTS", "") == "") {
+		test::skip("Enable with STDLIB_SLOW_TESTS=1");
+	};
+
+	const input = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno";
+	const expected = "7789f0c9ef7bfc40d93311143dfbe69e2017f592";
+
+	let sha = sha1();
+
+	for (let i = 0z; i < 16777216; i += 1)
+		hash::write(&sha, strings::toutf8(input));
+
+	let sum: [SZ]u8 = [0...];
+	hash::sum(&sha, sum);
+
+	let shahex = hex::encodestr(sum);
+
+	if (shahex != expected) {
+		fmt::errorfln("1GB vector: {} != {}", shahex, expected)!;
+		abort();
+	};
+};

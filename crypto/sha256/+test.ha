@@ -4,7 +4,9 @@
 use encoding::hex;
 use fmt;
 use hash;
+use os;
 use strings;
+use test;
 
 @test fn sha256() void = {
 	let sha = sha256();
@@ -35,21 +37,26 @@ use strings;
 			abort();
 		};
 	};
+};
 
-	// Uncomment this to run the 1G test vector (I promise it works):
+@test fn sha256_1gb() void = {
+	if (os::tryenv("STDLIB_SLOW_TESTS", "") == "") {
+		test::skip("Enable with STDLIB_SLOW_TESTS=1");
+	};
 
-	//const input = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno";
-	//const expected = "50e72a0e26442fe2552dc3938ac58658228c0cbfb1d2ca872ae435266fcd055e";
-	//hash::reset(&sha);
-	//for (let i = 0z; i < 16777216; i += 1) {
-	//	hash::write(&sha, strings::toutf8(input));
-	//};
-	//let sum: [SZ]u8 = [0...];
-	//hash::sum(&sha, sum);
+	let sha = sha256();
+	const input = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno";
+	const expected = "50e72a0e26442fe2552dc3938ac58658228c0cbfb1d2ca872ae435266fcd055e";
+	hash::reset(&sha);
+	for (let i = 0z; i < 16777216; i += 1) {
+		hash::write(&sha, strings::toutf8(input));
+	};
+	let sum: [SZ]u8 = [0...];
+	hash::sum(&sha, sum);
 
-	//let shahex = hex::encodestr(sum);
-	//if (shahex != expected) {
-	//	fmt::errorfln("Biggo vector: {} != {}", shahex, expected)!;
-	//	abort();
-	//};
+	let shahex = hex::encodestr(sum);
+	if (shahex != expected) {
+		fmt::errorfln("Biggo vector: {} != {}", shahex, expected)!;
+		abort();
+	};
 };

@@ -13,7 +13,7 @@ export fn ltrim(in: []u8, trim: u8...) []u8 = {
 // the end of the input slice the bytes in the given list.
 export fn rtrim(in: []u8, trim: u8...) []u8 = {
 	let i = len(in) - 1;
-	for (i < len(in) && contains(trim, in[i]); i-= 1) void;
+	for (i < len(in) && contains(trim, in[i]); i -= 1) void;
 	return in[..i + 1];
 };
 

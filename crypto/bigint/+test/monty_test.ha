@@ -18,9 +18,13 @@
 
 @test fn montymul() void = {
 	let m = fromhex("10000061");
+	defer free(m);
 	let x = fromhexmod("00000123", m);
+	defer free(x);
 	let y = fromhexmod("000003cf", m);
+	defer free(y);
 	let d = fromhexmod("00000000", m);
+	defer free(d);
 
 	const m0i = ninv31(m[1]);
 
@@ -31,13 +35,12 @@
 
 	assert(equalshex(d, "04544d"));
 
-	free(d);
-	free(x);
-	free(y);
-
-	d = fromhexmod("00000000", m);
-	x = fromhexmod("0f98b7cf", m);
-	y = fromhexmod("04216b9c", m);
+	let d = fromhexmod("00000000", m);
+	defer free(d);
+	let x = fromhexmod("0f98b7cf", m);
+	defer free(x);
+	let y = fromhexmod("04216b9c", m);
+	defer free(y);
 
 	tomonty(x, m);
 	tomonty(y, m);
@@ -45,9 +48,4 @@
 	frommonty(d, m, m0i);
 
 	assert(equalshex(d, "0d031f49"));
-
-	free(x);
-	free(y);
-	free(m);
-	free(d);
 };

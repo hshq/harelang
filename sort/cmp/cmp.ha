@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use strings;
-
 // [[sort::cmpfunc]] for use with int.
 export fn ints(a: const *opaque, b: const *opaque) int = {
 	const a = *(a: const *int), b = *(b: const *int);
@@ -86,6 +84,14 @@ export fn sizes(a: const *opaque, b: const *opaque) int = {
 // [[sort::cmpfunc]] for use with str. Sorting is done with respect to Unicode
 // codepoints; see [[strings::compare]].
 export fn strs(a: const *opaque, b: const *opaque) int = {
-	const a = a: const *str, b = b: const *str;
-	return strings::compare(*a, *b);
+	// Manual strings::toutf8() to avoid dependency on strings
+	const a = *(a: *[]u8), b = *(b: *[]u8);
+
+	let ln = if (len(a) < len(b)) (len(a), -1) else (len(b), 1);
+	for (let i = 0z; i < ln.0; i += 1) {
+	        if (a[i] != b[i]) {
+	                return a[i]: int - b[i]: int;
+	        };
+	};
+	return if (len(a) == len(b)) 0 else ln.1;
 };
