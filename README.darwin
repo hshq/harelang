@@ -1,18 +1,59 @@
 
 # install:
+
+export XDG_CACHE_HOME=/Volumes/hare-cache/.cache
+export TMPDIR=/Volumes/hare-cache/tmp
+
 cp config.darwin.mk config.mk
+
 ./scripts/genbootstrap
-
-# mkdir -p /Volumes/hare-cache256/tmp
-# mkdir -p /Volumes/hare-cache256/hare
-# mkdir -p /Volumes/hare-cache256/hare-obj/hare
-
-# ln -s /Volumes/hare-cache256/hare .cache
-
-# export TMPDIR=/Volumes/hare-cache256/tmp
-# export XDG_CACHE_HOME=/Volumes/hare-cache256/hare-obj
 
 make
 make check
 make docs/html
 make install
+
+
+###############################################################################
+make:       HARECACHE XDG_CACHE_HOME
+make check: XDG_CACHE_HOME
+make clean: HARECACHE
+
+                default     config.mk   Makefile    makefiles/* docs(run,test --> build)
+HAREPATH        "."         √           √                       build,deps,doc
+HARECACHE       ".cache"    √           √           √           build,cache
+
+NO_COLOR        ""                                              build,deps,doc
+HAREC_COLOR     "1"                                             build
+HAREDOC_COLORS  ""                                              doc
+LESS            "FRX"
+MORE            "R"
+PAGER
+
+HAREC           "harec"     √ ∆         √           √           build
+QBE             "qbe"       √           √                       build
+AS              "as"        √ ∆         √           √           build
+LD              "ld"        √ ∆         √                       build
+CC              "cc"        √ ∆                                 build
+* AR
+
+HARECFLAGS                  √           √           √           build
+QBEFLAGS                    √           √                       build
+ASFLAGS                     √           √           √           build
+LDLINKFLAGS                 √           √                       build
+LDFLAGS                                                         build
+* ARFLAGS
+
+HARE_TD_<mod?>                                      √           design.txt
+
+XDG_CONFIG_HOME ".config"
+XDG_CACHE_HOME  ".cache"                                        build,cache,design.txt
+XDG_DATA_HOME   ".local/share"
+XDG_STATE_HOME  ".local/state"
+XDG_RUNTIME_DIR
+
+TMPDIR          "/tmp"
+HOME
+PATH
+TZ
+###############################################################################

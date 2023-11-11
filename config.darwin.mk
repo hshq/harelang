@@ -23,7 +23,8 @@ LD = ../harec.git/rt/+darwin/ld.sh
 SCDOC = scdoc
 
 # build locations
-HARECACHE = .cache
+# HARECACHE = .cache
+HARECACHE = /Volumes/hare-cache/.cache
 BINOUT = .bin
 
 # variables that will be embedded in the binary with -D definitions
