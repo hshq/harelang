@@ -31,7 +31,7 @@ MORE            "R"
 PAGER
 
 HAREC           "harec"     √ ∆         √           √           build
-QBE             "qbe"       √           √                       build
+QBE             "qbe"       √ ∆         √                       build
 AS              "as"        √ ∆         √           √           build
 LD              "ld"        √ ∆         √                       build
 CC              "cc"        √ ∆                                 build

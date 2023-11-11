@@ -42,8 +42,7 @@ const arches: [_]arch = [
 	},
 	arch {
 		name = "x86_64",
-		// qbe_name = "amd64_sysv",
-		qbe_name = "amd64_apple",
+		qbe_name = "amd64_sysv",
 		as_cmd = X86_64_AS,
 		cc_cmd = X86_64_CC,
 		ld_cmd = X86_64_LD,

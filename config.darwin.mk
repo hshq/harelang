@@ -16,7 +16,7 @@ LDLINKFLAGS =
 
 # commands used by the build script
 HAREC = /usr/local/bin/harec
-QBE = qbe
+QBE = ../harec.git/rt/+darwin/qbe.sh
 AS = ../harec.git/rt/+darwin/as.sh
 CC = /usr/bin/cc
 LD = ../harec.git/rt/+darwin/ld.sh
