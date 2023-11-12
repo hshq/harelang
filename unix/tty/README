@@ -1,0 +1,4 @@
+unix::tty provides an interface for interacting with and manipulating a
+terminal environment, based on the termios interface defined by POSIX.
+
+https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/termios.h.html
