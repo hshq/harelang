@@ -4,6 +4,11 @@
 use encoding::utf8;
 use types;
 
+let empty: [_]u8 = [0];
+
+// An empty NUL-terminated C string.
+export let empty_string: *const char = &empty[0]: *const char;
+
 // Computes the length of a NUL-terminated C string, in octets, in O(n). The
 // computed length does not include the NUL terminator.
 export fn strlen(cstr: *const char) size = {
@@ -71,4 +76,18 @@ export fn nulstr(s: const str) *const char = {
 	let data = s.data as *[*]u8;
 	assert(data[s.length - 1] == '\0', "types::c::nulstr input must be NUL-terminated");
 	return s.data: *const char;
+};
+
+// Converts a non-NUL-terminated Hare string to a C string. The return value is
+// borrowed from the input, except in the case of an empty string, in which case
+// it is statically allocated.
+//
+// Use with caution!
+export fn unterminatedstr(s: const str) *const char = {
+	let s = &s: *types::string;
+	if (s.data == null) {
+		return empty_string;
+	};
+	let data = s.data as *[*]u8;
+	return data: *const char;
 };

@@ -2,44 +2,46 @@
 // (c) Hare authors <https://harelang.org>
 
 use hare::lex;
-
-// Variants of the import statement
-export type import_mode = enum uint {
-	// use module;
-	IDENT = 0,
-	// use alias = module;
-	ALIAS = 1 << 0,
-	// use module::{foo, bar, baz};
-	MEMBERS = 1 << 1,
-	// use module::*;
-	WILDCARD = 1 << 2,
-};
+use strings;
 
 // An imported module.
+//
+// 	use foo;
+// 	use foo = bar;
+// 	use foo::{bar, baz};
+// 	use foo::*;
 export type import = struct {
 	start: lex::location,
 	end: lex::location,
-	mode: import_mode,
 	ident: ident,
-	alias: str,
-	objects: []((str | void), str),
+	bindings: (void | import_alias | import_members | import_wildcard),
 };
+
+// An import alias.
+//
+// 	use foo = bar;
+export type import_alias = str;
+
+// An import members list.
+//
+// 	use foo::{bar, baz};
+export type import_members = []str;
+
+// An import wildcard.
+//
+// 	use foo::*;
+export type import_wildcard = void;
 
 // Frees resources associated with an [[import]].
 export fn import_finish(import: import) void = {
 	ident_free(import.ident);
-	if (import.mode == import_mode::ALIAS) {
-		free(import.alias);
+	match (import.bindings) {
+	case let alias: import_alias =>
+		free(alias);
+	case let objects: import_members =>
+		strings::freeall(objects);
+	case => void;
 	};
-	for (let i = 0z; i < len(import.objects); i += 1) {
-		free(import.objects[i].1);
-		match (import.objects[i].0) {
-		case void => void;
-		case let s: str =>
-			free(s);
-		};
-	};
-	free(import.objects);
 };
 
 // Frees resources associated with each [[import]] in a slice, and then
