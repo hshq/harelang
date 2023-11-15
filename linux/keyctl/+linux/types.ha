@@ -143,6 +143,40 @@ export type caps = enum u8 {
 	CAPS1_NOTIFICATIONS = 0x04,
 };
 
+export type perm = enum u32 {
+	KEY_OTH_VIEW = 0x01,
+	KEY_OTH_READ = 0x02,
+	KEY_OTH_WRITE = 0x04,
+	KEY_OTH_SEARCH = 0x08,
+	KEY_OTH_LINK = 0x10,
+	KEY_OTH_SETATTR = 0x20,
+	KEY_OTH_ALL = 0x3f,
+
+	KEY_GRP_VIEW = 0x0100,
+	KEY_GRP_READ = 0x0200,
+	KEY_GRP_WRITE = 0x0400,
+	KEY_GRP_SEARCH = 0x0800,
+	KEY_GRP_LINK = 0x1000,
+	KEY_GRP_SETATTR = 0x2000,
+	KEY_GRP_ALL = 0x3f00,
+
+	KEY_USR_VIEW = 0x010000,
+	KEY_USR_READ = 0x020000,
+	KEY_USR_WRITE = 0x040000,
+	KEY_USR_SEARCH = 0x080000,
+	KEY_USR_LINK = 0x100000,
+	KEY_USR_SETATTR = 0x200000,
+	KEY_USR_ALL = 0x3f0000,
+
+	KEY_POS_VIEW = 0x01000000,
+	KEY_POS_READ = 0x02000000,
+	KEY_POS_WRITE = 0x04000000,
+	KEY_POS_SEARCH = 0x08000000,
+	KEY_POS_LINK = 0x10000000,
+	KEY_POS_SETATTR = 0x20000000,
+	KEY_POS_ALL = 0x3f000000,
+};
+
 // Converts an [[error]] into a human-friendly string.
 export fn strerror(err: error) const str = match (err) {
 case nokey =>

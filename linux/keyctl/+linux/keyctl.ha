@@ -95,3 +95,13 @@ export fn read(id: serial, buf: []u8) (size | error) = {
 	return keyctl(command::READ, id: u64,
 		buf: uintptr: u64, bufln: u64, 0)?: size;
 };
+
+// Changes the user and group ownership of the key.
+export fn chown(id: serial, uid: uint, gid: uint) (void | error) = {
+	keyctl(command::CHOWN, id: u64, uid: u64, gid: u64, 0)?;
+};
+
+// Changes the permissions mask of the key.
+export fn setperm(id: serial, perm: perm) (void | error) = {
+	keyctl(command::SETPERM, id: u64, perm, 0, 0)?;
+};

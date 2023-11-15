@@ -10,40 +10,47 @@ use strings;
 use types;
 
 fn import_eq(i1: ast::import, i2: ast::import) bool = {
-	if (i1.mode != i2.mode) {
-		return false;
-	};
 	if (!ast::ident_eq(i1.ident, i2.ident)) {
 		return false;
 	};
-	let mode = i1.mode;
-	if (mode & ast::import_mode::ALIAS != 0 && i1.alias != i2.alias) {
-		return false;
+
+	let (o1, o2) = match (i1.bindings) {
+	case void =>
+		return i2.bindings is void;
+	case let s1: ast::import_alias =>
+		match (i2.bindings) {
+		case let s2: ast::import_alias =>
+			return s1 == s2;
+		case =>
+			return false;
+		};
+	case let o1: ast::import_members =>
+		yield match (i2.bindings) {
+		case let o2: ast::import_members =>
+			if (len(o1) != len(o2)) {
+				return false;
+			};
+			yield (o1, o2);
+		case =>
+			return false;
+		};
+	case ast::import_wildcard =>
+		return i2.bindings is ast::import_wildcard;
 	};
-	if (mode & ast::import_mode::MEMBERS != 0) {
-		for (let i = 0z; i < len(i1.objects); i += 1) {
-			let o1 = i1.objects[i], o2 = i2.objects[i];
-			if (o1.0 is void ^^ o2.0 is void) {
-				return false;
-			};
-			if (o1.0 is str && o1.0: str != o2.0: str) {
-				return false;
-			};
-			if (o1.1 != o2.1) {
-				return false;
-			};
+	for (let i = 0z; i < len(o1); i += 1) {
+		if (o1[i] != o2[i]) {
+			return false;
 		};
 	};
 	return true;
 };
 
-type import_tuple = (ast::import_mode, ast::ident, str, []((str | void), str));
+type import_tuple = (ast::ident, (void | ast::import_alias |
+	ast::import_members | ast::import_wildcard));
 
 fn tup_to_import(tup: import_tuple) ast::import = ast::import {
-	mode = tup.0,
-	ident = tup.1,
-	alias = tup.2,
-	objects = tup.3,
+	ident = tup.0,
+	bindings = tup.1,
 	...
 };
 
@@ -65,14 +72,6 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 		"use baz::{bat, qux};\n"
 		"use quux::corge::{grault, garply,};\n"
 
-		"use quux::{alias = grault};\n"
-		"use quux::{alias = grault,};\n"
-		"use quux::{alias = grault, garply};\n"
-		"use quux::{alias = grault, alias2 = garply};\n"
-
-		"use alias = quux::corge::{grault, garply,};\n"
-		"use modalias = quux::{alias = grault, alias2 = garply};\n"
-
 		"export fn main() void = void;";
 	let buf = memio::fixed(strings::toutf8(in));
 	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
@@ -82,29 +81,18 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 	defer ast::imports_finish(mods);
 
 	let expected: [_]import_tuple = [
-		(ast::import_mode::IDENT, ["foo"], "", []),
-		(ast::import_mode::IDENT, ["bar"], "", []),
-		(ast::import_mode::IDENT, ["baz", "bat"], "", []),
-		(ast::import_mode::ALIAS, ["bar"], "foo", []),
-		(ast::import_mode::ALIAS, ["bat"], "baz", []),
-		(ast::import_mode::ALIAS, ["quux", "corge"], "qux", []),
-		(ast::import_mode::WILDCARD, ["foo"], "", []),
-		(ast::import_mode::WILDCARD, ["foo", "bar", "quux"], "", []),
-		(ast::import_mode::MEMBERS, ["foo"], "", [(void, "bar")]),
-		(ast::import_mode::MEMBERS, ["foo"], "", [(void, "bar")]),
-		(ast::import_mode::MEMBERS, ["baz"], "", [(void, "bat"), (void, "qux")]),
-		(ast::import_mode::MEMBERS,
-			["quux", "corge"], "", [(void, "grault"), (void, "garply")]),
-		(ast::import_mode::MEMBERS, ["quux"], "", [("alias", "grault")]),
-		(ast::import_mode::MEMBERS, ["quux"], "", [("alias", "grault")]),
-		(ast::import_mode::MEMBERS,
-			["quux"], "", [("alias", "grault"), (void, "garply")]),
-		(ast::import_mode::MEMBERS,
-			["quux"], "", [("alias", "grault"), ("alias2", "garply")]),
-		(ast::import_mode::MEMBERS | ast::import_mode::ALIAS,
-			["quux", "corge"], "alias", [(void, "grault"), (void, "garply")]),
-		(ast::import_mode::MEMBERS | ast::import_mode::ALIAS,
-			["quux"], "modalias", [("alias", "grault"), ("alias2", "garply")]),
+		(["foo"], void),
+		(["bar"], void),
+		(["baz", "bat"], void),
+		(["bar"], "foo"),
+		(["bat"], "baz"),
+		(["quux", "corge"], "qux"),
+		(["foo"], ast::import_wildcard),
+		(["foo", "bar", "quux"], ast::import_wildcard),
+		(["foo"], ["bar"]),
+		(["foo"], ["bar"]),
+		(["baz"], ["bat", "qux"]),
+		(["quux", "corge"], ["grault", "garply"]),
 	];
 
 	assert(len(mods) == len(expected));
@@ -114,13 +102,6 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 
 	let tok = lex::lex(&lexer) as lex::token;
 	assert(tok.0 == lex::ltok::EXPORT);
-
-	const in = "use a::{b = c = d};\n";
-	let buf = memio::fixed(strings::toutf8(in));
-	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
-	defer bufio::finish(&sc);
-	let lexer = lex::init(&sc, "<test>");
-	assert(imports(&lexer) is error);
 };
 
 @test fn decls() void = {
