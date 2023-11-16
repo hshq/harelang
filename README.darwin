@@ -1,8 +1,10 @@
 
 # install:
 
+export HARECACHE=/Volumes/hare-cache/.cache
 export XDG_CACHE_HOME=/Volumes/hare-cache/.cache
 export TMPDIR=/Volumes/hare-cache/tmp
+export QBE=../harec.git/rt/+darwin/qbe.sh
 
 cp config.darwin.mk config.mk
 
@@ -18,6 +20,7 @@ make install
 make:       HARECACHE XDG_CACHE_HOME
 make check: XDG_CACHE_HOME
 make clean: HARECACHE
+./scripts/genbootstrap: HARECACHE QBE
 
                 default     config.mk   Makefile    makefiles/* docs(run,test --> build)
 HAREPATH        "."         √           √                       build,deps,doc
