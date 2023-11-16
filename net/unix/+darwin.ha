@@ -41,7 +41,6 @@ export fn connect(
 		return errors::errno(err);
 	case void => void;
 	};
-	static let buf: [rt::UNIX_PATH_MAX + 32]u8 = [0...];
 	return io::fdopen(sockfd);
 };
 
