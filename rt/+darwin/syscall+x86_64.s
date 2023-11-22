@@ -131,11 +131,11 @@ _rt.set_c_errno:
 	pushq	%rbp
 	movq	%rsp, %rbp
 	pushq	%rbx
-	pushq	%rax
+	; pushq	%rax
 	movl	%edi, %ebx
 	callq	___error
 	movl	%ebx, (%rax)
-	addq	$8, %rsp
+	; addq	$8, %rsp
 	popq	%rbx
 	popq	%rbp
 	retq

@@ -1,4 +1,4 @@
-image: darwin/20.6.0
+image: darwin/latest
 sources:
 - https://git.sr.ht/~sircmpwn/hare
 - https://git.sr.ht/~sircmpwn/harec
@@ -9,17 +9,17 @@ packages:
 tasks:
 - qbe: |
     cd qbe
-    make -j2 PREFIX=/usr
+    make -j2 PREFIX=/usr check
     sudo make install PREFIX=/usr
 - harec: |
-    mkdir harec/build
+    mkdir -p harec/build
     cd harec/build
     ../configure --prefix=/usr
     make -j2
     sudo make install
 - hare: |
     cd hare
-    cp config.darwin.mk config.mk
+    ln -sf config.darwin.mk config.mk
     make -j2
     sudo make install
 - check: |

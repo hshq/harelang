@@ -1,23 +1,27 @@
 
 # install:
 
+# Download the file from ftp://ftp.boulder.nist.gov/pub/time/leap-seconds.list,
+# and move it to /var/db/ntpd.leap-seconds.list
+
 export HARECACHE=/Volumes/hare-cache/.cache
 export XDG_CACHE_HOME=/Volumes/hare-cache/.cache
 export TMPDIR=/Volumes/hare-cache/tmp
-export QBE=../harec.git/rt/+darwin/qbe.sh
+export HAREC_SRC=../harec.git
+export QBE=$HAREC_SRC/rt/+darwin/qbe.sh
 
-cp config.darwin.mk config.mk
+ln -sf config.darwin.mk config.mk
 
 ./scripts/genbootstrap
 
 make
 make check
 make docs/html
-make install
+sudo HAREC_SRC=../harec.git make install
 
 
 ###############################################################################
-make:       HARECACHE XDG_CACHE_HOME
+make:       HARECACHE XDG_CACHE_HOME HAREC_SRC
 make check: XDG_CACHE_HOME
 make clean: HARECACHE
 ./scripts/genbootstrap: HARECACHE QBE

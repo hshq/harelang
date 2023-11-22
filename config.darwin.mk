@@ -7,7 +7,7 @@ STDLIB = $(SRCDIR)/hare/stdlib
 
 # variables used during build
 PLATFORM = darwin
-ARCH = x86_64
+ARCH = $(shell source "$(HAREC_SRC)/rt/+darwin/arch.sh" --arch)
 HAREFLAGS =
 HARECFLAGS =
 QBEFLAGS =
@@ -31,9 +31,9 @@ BINOUT = .bin
 HAREPATH = $(SRCDIR)/hare/stdlib:$(SRCDIR)/hare/third-party
 VERSION=$$(./scripts/version)
 
-AARCH64_AS=aarch64-as
-AARCH64_CC=aarch64-cc
-AARCH64_LD=aarch64-ld
+AARCH64_AS=$(AS)
+AARCH64_CC=$(CC)
+AARCH64_LD=$(LD)
 
 RISCV64_AS=riscv64-as
 RISCV64_CC=riscv64-cc
