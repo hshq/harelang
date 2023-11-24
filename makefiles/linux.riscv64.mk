@@ -207,7 +207,7 @@ $(HARECACHE)/time_chrono.ssa: $(time_chrono_ha) $(HARECACHE)/bufio.td $(HARECACH
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/time_chrono.ssa -t $(HARECACHE)/time_chrono.td.tmp -N time::chrono $(time_chrono_ha)
 
-time_date_ha = time/date/date.ha time/date/daydate.ha time/date/daytime.ha time/date/error.ha time/date/format.ha time/date/locality.ha time/date/observe.ha time/date/parithm.ha time/date/parse.ha time/date/period.ha time/date/reckon.ha time/date/tarithm.ha time/date/virtual.ha
+time_date_ha = time/date/constants.ha time/date/date.ha time/date/daydate.ha time/date/daytime.ha time/date/error.ha time/date/format.ha time/date/locality.ha time/date/observe.ha time/date/parithm.ha time/date/parse.ha time/date/period.ha time/date/reckon.ha time/date/tarithm.ha time/date/virtual.ha
 $(HARECACHE)/time_date.ssa: $(time_date_ha) $(HARECACHE)/ascii.td $(HARECACHE)/fmt.td $(HARECACHE)/io.td $(HARECACHE)/math.td $(HARECACHE)/memio.td $(HARECACHE)/strconv.td $(HARECACHE)/strings.td $(HARECACHE)/time.td $(HARECACHE)/time_chrono.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
