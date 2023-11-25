@@ -1,11 +1,16 @@
 #!/bin/sh -eu
 
+platformtags=
 cd "$(dirname "$0")/.."
 mkdir -p "${BINOUT:-.bin}" makefiles/
 hare build -o "${BINOUT:-.bin}"/genbootstrap cmd/genbootstrap
-for platform in linux freebsd; do
+for platform in linux freebsd openbsd; do
+	if [ $platform = "openbsd" ]; then
+		platformtags=libc
+	fi
 	for arch in x86_64 aarch64 riscv64; do
 		echo makefiles/$platform.$arch.mk
-		"${BINOUT:-.bin}"/genbootstrap $platform $arch >makefiles/$platform.$arch.mk
+		"${BINOUT:-.bin}"/genbootstrap $platform $arch $platformtags \
+			>makefiles/$platform.$arch.mk
 	done
 done
