@@ -18,6 +18,22 @@ const platforms: [_]platform = [
 		name = "FreeBSD",
 		...
 	},
+	platform {
+		name = "OpenBSD",
+		need_libc = true,
+		default_flags = [
+			[],
+			[],
+			[],
+			[],
+			// IBT/BTI is a CPU feature that prevents ROP-attacks.
+			// Since this is enforced by default on OpenBSD but not
+			// implemented by QBE, we need to disable the
+			// enforcement.  ld.lld(1) can do this for us by
+			// creating a custom segment.
+			["-z", "nobtcfi"],
+		],
+	},
 ];
 
 export fn get_platform(name: str) (*platform | unknown_platform) = {
