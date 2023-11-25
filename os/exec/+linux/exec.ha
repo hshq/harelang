@@ -8,8 +8,6 @@ use rt;
 use types::c;
 use unix;
 
-export type platform_cmd = io::file;
-
 // Forks the current process, returning the [[process]] of the child (to the
 // parent) and void (to the child), or an error.
 export fn fork() (process | void | error) = {

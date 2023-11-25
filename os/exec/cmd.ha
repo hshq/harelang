@@ -21,7 +21,7 @@ use strings;
 //
 // By default, the new command will inherit the current process's environment.
 export fn cmd(name: str, args: str...) (command | error) = {
-	let file = if (strings::contains(name, '/')) {
+	let platcmd = if (strings::contains(name, '/')) {
 		yield match (open(name)) {
 		case let p: platform_cmd =>
 			yield p;
@@ -36,13 +36,8 @@ export fn cmd(name: str, args: str...) (command | error) = {
 			yield p;
 		};
 	};
-	return cmdfile(file, name, args...);
-};
-
-// Same as [[cmd]] except that executable file is determined by [[io::file]].
-export fn cmdfile(file: io::file, name: str, args: str...) command = {
 	let cmd = command {
-		platform = file,
+		platform = platcmd,
 		argv = alloc([], len(args) + 1),
 		env = strings::dupall(os::getenvs()),
 		files = [],
