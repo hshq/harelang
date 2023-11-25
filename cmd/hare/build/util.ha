@@ -75,7 +75,9 @@ fn get_deps(ctx: *context, t: *task) []str = {
 };
 
 fn get_flags(ctx: *context, t: *task) ([]str | error) = {
-	let flags = switch (t.kind) {
+	let flags: []str = strings::dupall(ctx.platform.default_flags[t.kind]);
+
+	let flags_env = switch (t.kind) {
 	case stage::TD => abort();
 	case stage::SSA =>
 		yield "HARECFLAGS";
@@ -86,13 +88,12 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 	case stage::BIN =>
 		yield if (len(ctx.libs) > 0) "LDFLAGS" else "LDLINKFLAGS";
 	};
-	let flags: []str = match (shlex::split(os::tryenv(flags, ""))) {
+	match (shlex::split(os::tryenv(flags_env, ""))) {
 	case let s: []str =>
-		yield s;
+		append(flags, s...);
 	case shlex::syntaxerr =>
 		fmt::errorfln("warning: invalid shell syntax in ${}; ignoring",
-			flags)?;
-		yield [];
+			flags_env)?;
 	};
 
 	switch (t.kind) {

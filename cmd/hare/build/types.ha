@@ -12,7 +12,8 @@ use strings;
 
 export type error = !(exec::error | fs::error | io::error | module::error | path::error);
 
-// a kind of cache file
+export type unknown_platform = !str;
+
 export type stage = enum {
 	TD = 0,
 	SSA,
@@ -54,6 +55,7 @@ export type output = enum {
 export type context = struct {
 	ctx: module::context,
 	arch: str,
+	platform: *platform,
 	goal: stage,
 	defines: []ast::decl_const,
 	libdirs: []str,
