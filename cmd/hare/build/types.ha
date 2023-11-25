@@ -72,6 +72,8 @@ export type context = struct {
 	submods: bool,
 	// if true, the main function won't be checked by harec
 	freestanding: bool,
+	// if true, we are linking with libc (using cc instead of ld)
+	libc: bool,
 
 	cmds: [NSTAGES]str,
 

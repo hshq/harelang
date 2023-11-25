@@ -86,7 +86,7 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 	case stage::O =>
 		yield "ASFLAGS";
 	case stage::BIN =>
-		yield if (len(ctx.libs) > 0) "LDFLAGS" else "LDLINKFLAGS";
+		yield if (ctx.libc) "LDFLAGS" else "LDLINKFLAGS";
 	};
 	match (shlex::split(os::tryenv(flags_env, ""))) {
 	case let s: []str =>
@@ -110,12 +110,12 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 			append(flags, strings::dup("-L"));
 			append(flags, strings::dup(ctx.libdirs[i]));
 		};
-		if (len(ctx.libs) == 0) {
+		if (ctx.libc) {
+			append(flags, strings::dup("-Wl,--gc-sections"));
+		} else {
 			append(flags, strings::dup("--gc-sections"));
 			append(flags, strings::dup("-z"));
 			append(flags, strings::dup("noexecstack"));
-		} else {
-			append(flags, strings::dup("-Wl,--gc-sections"));
 		};
 		return flags;
 	};
@@ -124,14 +124,14 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 	if (len(ctx.ns) != 0 && t.idx == ctx.top) {
 		append(flags, strings::dup("-N"));
 		append(flags, unparse::identstr(ctx.ns));
-	} else if (len(mod.ns) != 0 || len(ctx.libs) != 0) {
+	} else if (len(mod.ns) != 0 || ctx.libc) {
 		append(flags, strings::dup("-N"));
 		append(flags, unparse::identstr(mod.ns));
 	};
 	if (ctx.freestanding) {
 		append(flags, strings::dup("-m"));
 		append(flags, "");
-	} else if (len(ctx.libs) != 0) {
+	} else if (ctx.libc) {
 		append(flags, strings::dup("-m.main"));
 	};
 	append(flags, strings::dup("-M"));
@@ -258,7 +258,7 @@ fn get_args(ctx: *context, tmp: str, flags: []str, t: *task) []str = {
 				append(args, strings::dup(srcs.o[i]));
 			};
 		};
-		if (len(ctx.libs) > 0) {
+		if (ctx.libc) {
 			append(args, strings::dup("-Wl,--no-gc-sections"));
 		};
 		for (let i = 0z; i < len(ctx.libs); i += 1) {
