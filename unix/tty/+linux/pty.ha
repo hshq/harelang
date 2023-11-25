@@ -8,6 +8,20 @@ use io;
 use os;
 use rt;
 
+// Opens an available pseudoterminal and returns the file descriptors of the
+// master and slave.
+export fn openpty() ((io::file, io::file) | fs::error) = {
+	let master = open_master()?;
+	let slave = match (get_slave(master)) {
+	case let e: fs::error =>
+		io::close(master)!;
+		return e;
+	case let s: io::file =>
+		yield s;
+	};
+	return (master, slave);
+};
+
 // Opens an available pseudoterminal master.
 fn open_master() (io::file | fs::error) = {
 	return os::open("/dev/ptmx", fs::flag::RDWR);

@@ -8,21 +8,6 @@ use io;
 use os;
 use strings;
 
-// Opens an available pseudoterminal and returns the file descriptors of the
-// master and slave.
-export fn openpty() ((io::file, io::file) | fs::error) = {
-	let master = open_master()?;
-	let slave = match (get_slave(master)) {
-	case let e: fs::error =>
-		io::close(master)!;
-		return e;
-	case let s: io::file =>
-		yield s;
-	};
-
-	return (master, slave);
-};
-
 @test fn pty() void = {
 	let pty = openpty()!;
 	defer io::close(pty.1)!;
