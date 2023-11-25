@@ -13,8 +13,8 @@ export type lockop = enum int {
 	UNLOCK    = rt::LOCK_UN,
 };
 
-// Apply or remove an advisory lock on an open file. If block is true, the request will block while waiting
-// for the lock.
+// Apply or remove an advisory lock on an open file. If block is true, the
+// request will block while waiting for the lock.
 export fn lock(fd: file, block: bool, op: lockop) (bool | error) = {
 	let flags = op: int;
 	if (!block) flags |= rt::LOCK_NB;
