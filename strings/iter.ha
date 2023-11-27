@@ -22,7 +22,7 @@ export type iterator = struct {
 //	strings::next(&dup);	// '!'
 //	strings::next(&dup);	// void
 export fn iter(src: str) iterator = iterator {
-	dec = utf8::decode(src),
+	dec = utf8::decode(toutf8(src)),
 	reverse = false,
 };
 
@@ -30,7 +30,7 @@ export fn iter(src: str) iterator = iterator {
 // backwards with each call to [[next]].
 export fn riter(src: str) iterator = {
 	let ret = iterator {
-		dec = utf8::decode(src),
+		dec = utf8::decode(toutf8(src)),
 		reverse = true,
 	};
 	ret.dec.offs = len(src);

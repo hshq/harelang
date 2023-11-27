@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use bufio;
-use encoding::utf8;
 use fmt;
 use hare::ast;
 use hare::lex;
@@ -26,11 +25,8 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	};
 	defer ast::expr_finish(&exp);
 	let runes = 0z;
-	let d = utf8::decode(srcs[i]);
-	for (true) match (utf8::next(&d)!) {
-	case void =>
-		break;
-	case rune =>
+	let it = strings::iter(srcs[i]);
+	for (strings::next(&it) is rune) {
 		runes += 1;
 	};
 	assert(exp.start.line == 1 && exp.start.col == 1);
@@ -117,11 +113,8 @@ fn type_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	};
 	defer ast::type_finish(&typ);
 	let runes = 0z;
-	let d = utf8::decode(srcs[i]);
-	for (true) match (utf8::next(&d)!) {
-	case void =>
-		break;
-	case rune =>
+	let it = strings::iter(srcs[i]);
+	for (strings::next(&it) is rune) {
 		runes += 1;
 	};
 	assert(typ.start.line == 1 && typ.start.col == 1);

@@ -44,8 +44,10 @@ export fn tostr(cstr: *const char) (const str | utf8::invalid) = {
 // Converts a C string with a given length to a Hare string. If the string is
 // not valid UTF-8, return [[encoding::utf8::invalid]].
 export fn tostrn(cstr: *const char, length: size) (const str | utf8::invalid) = {
-	let s = tostrn_unsafe(cstr, length);
-	return if (utf8::valid(s)) s else utf8::invalid;
+	if (!utf8::valid((cstr: *[*]u8)[..length])) {
+		return utf8::invalid;
+	};
+	return tostrn_unsafe(cstr, length);
 };
 
 // Converts a Hare string to a C string. The result is allocated; the caller

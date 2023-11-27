@@ -1,23 +1,14 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-fn toutf8(in: str) []u8 = *(&in: *[]u8);
-
-fn fromtagged(in: (str | []u8)) []u8 = match (in) {
-case let s: str =>
-	return toutf8(s);
-case let b: []u8 =>
-	return b;
-};
-
 export type decoder = struct {
 	offs: size,
 	src: []u8,
 };
 
 // Initializes a new UTF-8 decoder.
-export fn decode(src: (str | []u8)) decoder = decoder {
-	src = fromtagged(src),
+export fn decode(src: []u8) decoder = decoder {
+	src = src,
 	offs = 0,
 };
 
@@ -161,11 +152,8 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	assert(prev(&decoder) is invalid);
 };
 
-// Returns true if a given string or byte slice contains only valid UTF-8
-// sequences. Note that Hare strings (str) are always valid UTF-8 - if this
-// returns false for a str type, something funny is going on.
-export fn valid(src: (str | []u8)) bool = {
-	let src = fromtagged(src);
+// Returns true if a given byte slice contains only valid UTF-8 sequences.
+export fn valid(src: []u8) bool = {
 	let state = 0;
 	for (let i = 0z; i < len(src) && state >= 0; i += 1) {
 		state = table[state][src[i]];
