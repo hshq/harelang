@@ -26,6 +26,7 @@ fn cache(name: str, cmd: *getopt::command) (void | error) = {
 	};
 	if (len(cmd.args) != 0) {
 		getopt::printusage(os::stderr, name, cmd.help)?;
+		os::exit(os::status::FAILURE);
 	};
 	let cachedir = harecache();
 
