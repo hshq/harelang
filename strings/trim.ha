@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use bytes;
-use encoding::utf8;
 
 const whitespace: [_]u8 = [' ', '\n', '\t', '\r'];
 
@@ -15,24 +14,20 @@ export fn ltrim(input: str, trim: rune...) str = {
 		return fromutf8_unsafe(bytes::ltrim(input, whitespace...));
 	};
 	let it = iter(input);
-	for (true) {
+	for (true) :outer {
 		const r = match (next(&it)) {
 		case let r: rune =>
 			yield r;
 		case void =>
 			break;
 		};
-		let found = false;
 		for (let i = 0z; i < len(trim); i += 1) {
 			if (r == trim[i]) {
-				found = true;
-				break;
+				continue :outer;
 			};
 		};
-		if (!found) {
-			prev(&it);
-			break;
-		};
+		prev(&it);
+		break;
 	};
 	return fromutf8_unsafe(it.dec.src[it.dec.offs..]);
 };
@@ -46,24 +41,20 @@ export fn rtrim(input: str, trim: rune...) str = {
 		return fromutf8_unsafe(bytes::rtrim(input, whitespace...));
 	};
 	let it = riter(input);
-	for (true) {
+	for (true) :outer {
 		const r = match (next(&it)) {
 		case let r: rune =>
 			yield r;
 		case void =>
 			break;
 		};
-		let found = false;
 		for (let i = 0z; i < len(trim); i += 1) {
 			if (r == trim[i]) {
-				found = true;
-				break;
+				continue :outer;
 			};
 		};
-		if (!found) {
-			prev(&it);
-			break;
-		};
+		prev(&it);
+		break;
 	};
 	return fromutf8_unsafe(it.dec.src[..it.dec.offs]);
 };
