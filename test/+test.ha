@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use ascii;
 use bufio;
 use encoding::hex;
 use encoding::utf8;
@@ -213,24 +214,8 @@ fn do_test(ctx: *context, test: test) void = {
 		time_diff / 1000000000,
 		time_diff % 1000000000)!;
 
-	const stdout = memio::buffer(&ctx.stdout);
-	const stdout = match (strings::fromutf8(stdout)) {
-	case let s: str =>
-		yield strings::dup(s);
-	case utf8::invalid =>
-		let s = memio::dynamic();
-		hex::dump(&s, stdout)!;
-		yield memio::string(&s)!;
-	};
-	const stderr = memio::buffer(&ctx.stderr);
-	const stderr = match (strings::fromutf8(stderr)) {
-	case let s: str =>
-		yield strings::dup(s);
-	case utf8::invalid =>
-		let s = memio::dynamic();
-		hex::dump(&s, stderr)!;
-		yield memio::string(&s)!;
-	};
+	const stdout = printable(memio::buffer(&ctx.stdout));
+	const stderr = printable(memio::buffer(&ctx.stderr));
 	if (failed && (stdout != "" || stderr != "")) {
 		append(ctx.output, output {
 			test = test.name,
@@ -261,6 +246,27 @@ fn run_test(ctx: *context, test: test) status = {
 	os::stdout = orig_stdout;
 	os::stderr = orig_stderr;
 	return n;
+};
+
+fn printable(buf: []u8) str = {
+	match (strings::fromutf8(buf)) {
+	case let s: str =>
+		let it = strings::iter(s);
+		for (true) match (strings::next(&it)) {
+		case void =>
+			return strings::dup(s);
+		case let r: rune =>
+			if (ascii::valid(r) && !ascii::isprint(r)
+					&& r != '\t' && r != '\n') {
+				break;
+			};
+		};
+	case utf8::invalid => void;
+	};
+
+	let s = memio::dynamic();
+	hex::dump(&s, buf)!;
+	return memio::string(&s)!;
 };
 
 fn dots(n: size) void = {
