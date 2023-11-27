@@ -19,21 +19,17 @@ export fn replace(s: str, needle: str, target: str) str = {
 //
 // The caller must free the return value.
 export fn multireplace(s: str, repls: (str, str)...) str = {
-	let replb: []([]u8, []u8) = alloc([], len(repls));
-	defer free(replb);
-	for (let i = 0z; i < len(repls); i += 1) {
-		static append(replb, (toutf8(repls[i].0), toutf8(repls[i].1)));
-	};
 	let b = toutf8(s);
 	let res: []u8 = [];
 	let i = 0z;
 	let prev = 0z; // end of previous match, so we can append in chunks
 	for (i < len(b)) :step {
-		for (let j = 0z; j < len(replb); j += 1) {
-			if (bytes::hasprefix(b[i..], replb[j].0)) {
+		for (let j = 0z; j < len(repls); j += 1) {
+			const replb = (toutf8(repls[j].0), toutf8(repls[j].1));
+			if (bytes::hasprefix(b[i..], replb.0)) {
 				append(res, b[prev..i]...);
-				append(res, replb[j].1...);
-				i += len(replb[j].0);
+				append(res, replb.1...);
+				i += len(replb.0);
 				prev = i;
 				continue :step;
 			};
