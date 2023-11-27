@@ -61,9 +61,14 @@ fn move(forward: bool, iter: *iterator) (rune | void) = {
 	};
 };
 
-// Return a substring from the next rune to the end of the string.
+// Return a substring from the next rune to the end of the string if initialized
+// with [[iter]], or the beginning of the string if initialized with [[riter]].
 export fn iterstr(iter: *iterator) str = {
-	return fromutf8_unsafe(iter.dec.src[iter.dec.offs..])!;
+	if (iter.reverse) {
+		return fromutf8_unsafe(iter.dec.src[..iter.dec.offs]);
+	} else {
+		return fromutf8_unsafe(iter.dec.src[iter.dec.offs..]);
+	};
 };
 
 // Return a substring from the position of the first iterator to the position of
