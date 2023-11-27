@@ -28,16 +28,12 @@ export type flag = enum uint {
 // Pass the return value to [[strings::freeall]] to free resources associated
 // with the return value.
 export fn wordexp(s: str, flags: flag) ([]str | error) = {
-	if (s == "") {
-		// Special case
-		return [];
-	};
-
 	const (rd, wr) = exec::pipe();
 
+	// "x" is added to handle the list of expanded words being empty
 	const cmd = exec::cmd("/bin/sh",
 		if (flags & flag::UNDEF != 0) "-uc" else "-c",
-		`eval "printf %s\\\\0 $1"`, "sh", s)!;
+		`eval "printf %s\\\\0 x $1"`, "sh", s)!;
 	exec::unsetenv(&cmd, "IFS")!;
 	exec::addfile(&cmd, os::stdout_file, wr);
 	if (flags & flag::SHOWERR == 0) {
@@ -48,6 +44,12 @@ export fn wordexp(s: str, flags: flag) ([]str | error) = {
 
 	const scan = bufio::newscanner(rd, types::SIZE_MAX);
 	defer bufio::finish(&scan);
+
+	match (bufio::scan_string(&scan, "\0")?) {
+	case io::EOF =>
+		return sh_error;
+	case => void; // Discard the first "x" argument
+	};
 
 	let words: []str = [];
 	for (true) {

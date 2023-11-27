@@ -21,6 +21,7 @@ fn streq(a: []str, b: []str) bool = {
 	os::unsetenv("UNSET")!;
 	static const cases: [_](str, []str) = [
 		(``, []),
+		(" \t\n", []),
 		(`hello world`, ["hello", "world"]),
 		(`hello $TESTVAR`, ["hello", "test", "value"]),
 		(`hello "$TESTVAR"`, ["hello", "test value"]),
