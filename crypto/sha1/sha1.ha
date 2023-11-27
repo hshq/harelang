@@ -10,6 +10,7 @@ use io;
 // The size, in bytes, of a SHA-1 digest.
 export def SZ: size = 20;
 
+// The internal block size.
 export def BLOCKSZ: size = 64;
 
 def chunk: size = 64;

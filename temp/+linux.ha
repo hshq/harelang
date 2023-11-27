@@ -76,7 +76,6 @@ export fn named(
 			return (f, path);
 		};
 	};
-	abort(); // Unreachable
 };
 
 // Creates a temporary directory. This function only guarantees that the

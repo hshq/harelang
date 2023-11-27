@@ -114,8 +114,6 @@ export fn next(dec: *decoder) ((str, pemdecoder) | io::EOF | io::error) = {
 			b64 = base64::newdecoder(&base64::std_encoding, &dec.in),
 		});
 	};
-
-	abort(); // Unreachable
 };
 
 fn pem_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {

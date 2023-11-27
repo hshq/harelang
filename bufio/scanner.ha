@@ -173,9 +173,9 @@ export fn scan_bytes(
 				return io::EOF;
 			};
 			return scan_consume(scan, scan.pending);
-		case let z: size =>
+		case let prevpending: size =>
 			// No need to re-index the earlier part of the buffer
-			nread += z;
+			nread = prevpending;
 		};
 	};
 

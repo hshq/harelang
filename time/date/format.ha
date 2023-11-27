@@ -108,45 +108,45 @@ fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 	case 'B' =>
 		return fmt::fprint(out, MONTHS[_month(d) - 1]);
 	case 'd' =>
-		return fmt::fprintf(out, "{:02}", _day(d));
+		return fmt::fprintf(out, "{:.2}", _day(d));
 	case 'e' =>
 		return fmt::fprintf(out, "{: 2}", _day(d));
 	case 'F' =>
-		return fmt::fprintf(out, "{:04}-{:02}-{:02}", _year(d), _month(d), _day(d));
+		return fmt::fprintf(out, "{:.4}-{:.2}-{:.2}", _year(d), _month(d), _day(d));
 	case 'H' =>
-		return fmt::fprintf(out, "{:02}", _hour(d));
+		return fmt::fprintf(out, "{:.2}", _hour(d));
 	case 'I' =>
-		return fmt::fprintf(out, "{:02}", (_hour(d) + 11) % 12 + 1);
+		return fmt::fprintf(out, "{:.2}", (_hour(d) + 11) % 12 + 1);
 	case 'j' =>
-		return fmt::fprintf(out, "{:03}", _yearday(d));
+		return fmt::fprintf(out, "{:.3}", _yearday(d));
 	case 'L' =>
 		return fmt::fprint(out, d.loc.name);
 	case 'm' =>
-		return fmt::fprintf(out, "{:02}", _month(d));
+		return fmt::fprintf(out, "{:.2}", _month(d));
 	case 'M' =>
-		return fmt::fprintf(out, "{:02}", _minute(d));
+		return fmt::fprintf(out, "{:.2}", _minute(d));
 	case 'N' =>
-		return fmt::fprintf(out, "{:09}", _nanosecond(d));
+		return fmt::fprintf(out, "{:.9}", _nanosecond(d));
 	case 'p' =>
 		return fmt::fprint(out, if (_hour(d) < 12) "AM" else "PM");
 	case 's' =>
-		return fmt::fprintf(out, "{:02}", time::unix(*(d: *time::instant)));
+		return fmt::fprintf(out, "{:.2}", time::unix(*(d: *time::instant)));
 	case 'S' =>
-		return fmt::fprintf(out, "{:02}", _second(d));
+		return fmt::fprintf(out, "{:.2}", _second(d));
 	case 'T' =>
-		return fmt::fprintf(out, "{:02}:{:02}:{:02}", _hour(d), _minute(d), _second(d));
+		return fmt::fprintf(out, "{:.2}:{:.2}:{:.2}", _hour(d), _minute(d), _second(d));
 	case 'u' =>
 		return fmt::fprintf(out, "{}", _weekday(d) + 1);
 	case 'U' =>
-		return fmt::fprintf(out, "{:02}", _sundayweek(d));
+		return fmt::fprintf(out, "{:.2}", _sundayweek(d));
 	case 'w' =>
 		return fmt::fprintf(out, "{}", (_weekday(d) + 1) % 7);
 	case 'W' =>
-		return fmt::fprintf(out, "{:02}", _week(d));
+		return fmt::fprintf(out, "{:.2}", _week(d));
 	case 'y' =>
-		return fmt::fprintf(out, "{:02}", _year(d) % 100);
+		return fmt::fprintf(out, "{:.2}", _year(d) % 100);
 	case 'Y' =>
-		return fmt::fprintf(out, "{:04}", _year(d));
+		return fmt::fprintf(out, "{:.4}", _year(d));
 	case 'z' =>
 		const (sign, zo) = if (chrono::mzone(d).zoff >= 0) {
 			yield ('+', calc_hmsn(chrono::mzone(d).zoff));
@@ -154,7 +154,7 @@ fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 			yield ('-', calc_hmsn(-chrono::mzone(d).zoff));
 		};
 		const (hr, mi) = (zo.0, zo.1);
-		return fmt::fprintf(out, "{}{:02}{:02}", sign, hr, mi);
+		return fmt::fprintf(out, "{}{:.2}{:.2}", sign, hr, mi);
 	case 'Z' =>
 		return fmt::fprint(out, chrono::mzone(d).abbr);
 	case '%' =>

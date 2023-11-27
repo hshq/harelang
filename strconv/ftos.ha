@@ -12,18 +12,19 @@ use types;
 
 // Format styles for the [[ftosf]] functions.
 export type ffmt = enum {
+	// General format. Uses whichever of E and F is shortest, not accounting
+	// for flags.
+	G,
 	// Scientific notation. Consists of a number in [1, 10), an 'e' (or 'E',
 	// if UPPER_EXP flag is present), then an exponent.
 	E,
 	// Fixed-point notation.
 	F,
-	// General format. Uses whichever of E and F is shortest, not accounting
-	// for flags.
-	G,
 };
 
 // Flags for the [[ftosf]] functions.
 export type fflags = enum uint {
+	NONE = 0,
 	// Use a sign for both positive and negative numbers.
 	SHOW_POS = 1 << 0,
 	// Include at least one decimal digit.

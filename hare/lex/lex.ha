@@ -763,7 +763,6 @@ fn nextw(lex: *lexer) ((rune, location) | io::EOF | error) = {
 		};
 		return r;
 	};
-	abort();
 };
 
 fn try(

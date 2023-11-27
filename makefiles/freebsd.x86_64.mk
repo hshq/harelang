@@ -141,7 +141,7 @@ $(HARECACHE)/strconv.ssa: $(strconv_ha) $(HARECACHE)/ascii.td $(HARECACHE)/bytes
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/strconv.ssa -t $(HARECACHE)/strconv.td.tmp -N strconv $(strconv_ha)
 
-fmt_ha = fmt/fmt.ha
+fmt_ha = fmt/iter.ha fmt/print.ha fmt/wrappers.ha
 $(HARECACHE)/fmt.ssa: $(fmt_ha) $(HARECACHE)/ascii.td $(HARECACHE)/encoding_utf8.td $(HARECACHE)/io.td $(HARECACHE)/math.td $(HARECACHE)/memio.td $(HARECACHE)/os.td $(HARECACHE)/strconv.td $(HARECACHE)/strings.td $(HARECACHE)/types.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"

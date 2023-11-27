@@ -309,7 +309,7 @@ export fn wifsignaled(status: int) bool =
 export fn getpid() int = syscall0(SYS_getpid): int;
 
 export fn getpriority(which: int, who: id_t) (int | errno) = {
-	return wrap_return(syscall2(SYS_setpriority,
+	return wrap_return(syscall2(SYS_getpriority,
 		which: u64, who: u64))?: int;
 };
 

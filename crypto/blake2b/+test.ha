@@ -58,7 +58,7 @@ use strings;
 		defer io::close(&hex)!;
 
 		for (let j = 0z; j < len(sum); j += 1) {
-			fmt::fprintf(&hex, "{:02x}", sum[j])!;
+			fmt::fprintf(&hex, "{:.2x}", sum[j])!;
 		};
 
 		if (memio::string(&hex)! != vector.1) {

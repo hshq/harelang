@@ -82,7 +82,7 @@ fn mkhash(h: *hash) []u8 = {
 	if (h.minor != 0) {
 		fmt::fprintf(&buf, "{}", h.minor: rune)!;
 	};
-	fmt::fprintf(&buf, "${:02}$", h.cost)!;
+	fmt::fprintf(&buf, "${:.2}$", h.cost)!;
 	io::write(&buf, h.salt)!;
 	io::write(&buf, h.hash)!;
 	return memio::buffer(&buf);
