@@ -125,13 +125,16 @@ fn run_task(ctx: *context, jobs: *[]job, t: *task) (bool | error) = {
 	defer free(out);
 
 	path::set(&buf, out)?;
-	let tmp = path::push_ext(&buf, "tmp")?;
-	let lock = os::create(tmp, 0o644, fs::flag::WRONLY)?;
+	let lock = path::push_ext(&buf, "lock")?;
+	let lock = os::create(lock, 0o644, fs::flag::WRONLY)?;
 	if (!io::lock(lock, false, io::lockop::EXCLUSIVE)?) {
 		io::close(lock)?;
 		return false;
 	};
-	io::trunc(lock, 0)?;
+
+	path::set(&buf, out)?;
+	let tmp = path::push_ext(&buf, "tmp")?;
+	io::close(os::create(tmp, 0o644, fs::flag::TRUNC)?)?;
 
 	let args = get_args(ctx, tmp, flags, t);
 	defer strings::freeall(args);
@@ -152,6 +155,7 @@ fn run_task(ctx: *context, jobs: *[]job, t: *task) (bool | error) = {
 		ctx.total -= 1;
 		return true;
 	};
+
 
 	switch (ctx.mode) {
 	case output::DEFAULT, output::SILENT => void;
