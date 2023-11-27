@@ -19,8 +19,7 @@ export fn contains(haystack: []u8, needles: (u8 | []u8)...) bool = {
 
 // Returns true if "in" has the given prefix, false otherwise
 export fn hasprefix(in: []u8, prefix: []u8) bool = {
-	return if (len(in) < len(prefix)) false
-		else equal(in[..len(prefix)], prefix);
+	return len(in) >= len(prefix) && equal(in[..len(prefix)], prefix);
 };
 
 @test fn hasprefix() void = {
@@ -44,8 +43,8 @@ export fn hasprefix(in: []u8, prefix: []u8) bool = {
 
 // Returns true if "in" has the given suffix, false otherwise
 export fn hassuffix(in: []u8, suffix: []u8) bool = {
-	return if (len(in) < len(suffix)) false
-		else equal(in[len(in) - len(suffix)..], suffix);
+	return len(in) >= len(suffix)
+		&& equal(in[len(in) - len(suffix)..], suffix);
 };
 
 @test fn hassuffix() void = {
