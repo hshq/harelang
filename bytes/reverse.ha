@@ -1,17 +1,12 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-// Reverses a slice of bytes.
+// Reverses a slice of bytes in place.
 export fn reverse(b: []u8) void = {
-	if (len(b) == 0) {
-		return;
-	};
-	for (let s = 0z, e = len(b) - 1; s < e) {
-		let x = b[s];
-		b[s] = b[e];
-		b[e] = x;
-		s += 1;
-		e -= 1;
+	for (let i = 0z; i < len(b) / 2; i += 1) {
+		let x = b[i];
+		b[i] = b[len(b) - i - 1];
+		b[len(b) - i - 1] = x;
 	};
 };
 
