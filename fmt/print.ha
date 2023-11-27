@@ -83,7 +83,9 @@ case void =>
 case let r: rune =>
 	return io::write(out, utf8::encoderune(r));
 case let s: str =>
-	if (mod.prec != 0) s = strings::sub(s, 0, mod.prec);
+	if (mod.prec > 0 && mod.prec < len(s)) {
+		s = strings::sub(s, 0, mod.prec);
+	};
 	return io::write(out, strings::toutf8(s));
 case let b: bool =>
 	return io::write(out, strings::toutf8(if (b) "true" else "false"));
