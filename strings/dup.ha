@@ -26,7 +26,7 @@ export fn dup(s: const str) str = {
 export fn dupall(s: []str) []str = {
 	let newsl: []str = alloc([], len(s));
 	for (let i = 0z; i < len(s); i += 1) {
-		append(newsl, dup(s[i]));
+		static append(newsl, dup(s[i]));
 	};
 	return newsl;
 };
