@@ -26,5 +26,5 @@ export fn trim(in: []u8, trim: u8...) []u8 = ltrim(rtrim(in, trim...), trim...);
 	assert(equal(trim([1, 2, 3, 5], 0), [1, 2, 3, 5]));
 	assert(equal(trim([0, 0, 0], 0), []));
 	assert(equal(trim([0, 5, 0], 5), [0, 5, 0]));
+	assert(equal(trim([], 0), []));
 };
-

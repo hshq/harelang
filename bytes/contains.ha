@@ -23,22 +23,12 @@ export fn hasprefix(in: []u8, prefix: []u8) bool = {
 };
 
 @test fn hasprefix() void = {
-	const cases: []([]u8, []u8, bool) = [
-		([], [], true),
-		([0], [], true),
-		([], [0], false),
-		([1, 2, 3], [1, 2], true),
-		([1, 2, 3], [1, 1], false),
-		([1, 2, 3], [1, 2, 3, 4], false),
-	];
-
-	for (let i = 0z; i < len(cases); i += 1) {
-		let s = cases[i].0;
-		let prefix = cases[i].1;
-		let expected = cases[i].2;
-		let actual = hasprefix(s, prefix);
-		assert(actual == expected);
-	};
+	assert(hasprefix([], []));
+	assert(hasprefix([0], []));
+	assert(!hasprefix([], [0]));
+	assert(hasprefix([1, 2, 3], [1, 2]));
+	assert(!hasprefix([1, 2, 3], [1, 1]));
+	assert(!hasprefix([1, 2, 3], [1, 2, 3, 4]));
 };
 
 // Returns true if "in" has the given suffix, false otherwise
@@ -48,20 +38,10 @@ export fn hassuffix(in: []u8, suffix: []u8) bool = {
 };
 
 @test fn hassuffix() void = {
-	const cases: []([]u8, []u8, bool) = [
-		([], [], true),
-		([0], [], true),
-		([], [0], false),
-		([1, 2, 3], [2, 3], true),
-		([1, 2, 3], [2, 2], false),
-		([1, 2, 3, 4], [2, 3, 4], true),
-	];
-
-	for (let i = 0z; i < len(cases); i += 1) {
-		let s = cases[i].0;
-		let prefix = cases[i].1;
-		let expected = cases[i].2;
-		let actual = hassuffix(s, prefix);
-		assert(actual == expected);
-	};
+	assert(hassuffix([], []));
+	assert(hassuffix([0], []));
+	assert(!hassuffix([], [0]));
+	assert(hassuffix([1, 2, 3], [2, 3]));
+	assert(!hassuffix([1, 2, 3], [2, 2]));
+	assert(hassuffix([1, 2, 3, 4], [2, 3, 4]));
 };
