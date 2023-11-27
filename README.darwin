@@ -17,7 +17,7 @@ ln -sf config.darwin.mk config.mk
 make
 make check
 make docs/html
-sudo HAREC_SRC=../harec.git make install
+sudo -E make install
 
 
 ###############################################################################
