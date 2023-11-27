@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-// Concatenates two or more strings. The caller must free the return value.
+// Concatenates multiple strings. The caller must free the return value.
 export fn concat(strs: str...) str = {
 	let z = 0z;
 	for (let i = 0z; i < len(strs); i += 1) {
