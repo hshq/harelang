@@ -63,7 +63,7 @@ fn move(forward: bool, iter: *iterator) (rune | void) = {
 
 // Return a substring from the next rune to the end of the string.
 export fn iterstr(iter: *iterator) str = {
-	return fromutf8(iter.dec.src[iter.dec.offs..])!;
+	return fromutf8_unsafe(iter.dec.src[iter.dec.offs..])!;
 };
 
 // Return a substring from the position of the first iterator to the position of
