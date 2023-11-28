@@ -39,7 +39,7 @@ $(HARECACHE)/sort_cmp.ssa: $(sort_cmp_ha)
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/sort_cmp.ssa -t $(HARECACHE)/sort_cmp.td.tmp -N sort::cmp $(sort_cmp_ha)
 
-strings_ha = strings/compare.ha strings/concat.ha strings/contains.ha strings/dup.ha strings/index.ha strings/iter.ha strings/pad.ha strings/replace.ha strings/runes.ha strings/sub.ha strings/suffix.ha strings/tokenize.ha strings/trim.ha strings/utf8.ha
+strings_ha = strings/compare.ha strings/concat.ha strings/contains.ha strings/dup.ha strings/index.ha strings/iter.ha strings/replace.ha strings/runes.ha strings/sub.ha strings/suffix.ha strings/tokenize.ha strings/trim.ha strings/utf8.ha
 $(HARECACHE)/strings.ssa: $(strings_ha) $(HARECACHE)/bytes.td $(HARECACHE)/encoding_utf8.td $(HARECACHE)/sort_cmp.td $(HARECACHE)/types.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
