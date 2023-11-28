@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-// Concatenates two or more strings. The caller must free the return value.
+// Concatenates multiple strings. The caller must free the return value.
 export fn concat(strs: str...) str = {
 	let z = 0z;
 	for (let i = 0z; i < len(strs); i += 1) {
@@ -9,9 +9,9 @@ export fn concat(strs: str...) str = {
 	};
 	let new: []u8 = alloc([], z);
 	for (let i = 0z; i < len(strs); i += 1) {
-		append(new, toutf8(strs[i])...);
+		static append(new, toutf8(strs[i])...);
 	};
-	return fromutf8_unsafe(new[..z]);
+	return fromutf8_unsafe(new);
 };
 
 @test fn concat() void = {
@@ -48,12 +48,12 @@ export fn join(delim: str, strs: str...) str = {
 	};
 	let new: []u8 = alloc([], z);
 	for (let i = 0z; i < len(strs); i += 1) {
-		append(new, toutf8(strs[i])...);
+		static append(new, toutf8(strs[i])...);
 		if (i + 1 < len(strs)) {
-			append(new, toutf8(delim)...);
+			static append(new, toutf8(delim)...);
 		};
 	};
-	return fromutf8_unsafe(new[..z]);
+	return fromutf8_unsafe(new);
 };
 
 @test fn join() void = {

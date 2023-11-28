@@ -6,7 +6,7 @@ use encoding::utf8;
 // Returns a slice of runes for a string in O(n). The caller must free the
 // return value.
 export fn torunes(s: str) []rune = {
-	let sl: []rune = alloc([], len(s));
+	let sl: []rune = [];
 	let iter = iter(s);
 	for (true) {
 		match (next(&iter)) {
@@ -25,7 +25,7 @@ export fn fromrunes(rs: []rune) str = {
 		const bs = utf8::encoderune(rs[i]);
 		append(bytes, bs...);
 	};
-	return fromutf8(bytes)!;
+	return fromutf8_unsafe(bytes);
 };
 
 @test fn fromrunes() void = {

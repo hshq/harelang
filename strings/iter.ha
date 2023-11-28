@@ -22,7 +22,7 @@ export type iterator = struct {
 //	strings::next(&dup);	// '!'
 //	strings::next(&dup);	// void
 export fn iter(src: str) iterator = iterator {
-	dec = utf8::decode(src),
+	dec = utf8::decode(toutf8(src)),
 	reverse = false,
 };
 
@@ -30,7 +30,7 @@ export fn iter(src: str) iterator = iterator {
 // backwards with each call to [[next]].
 export fn riter(src: str) iterator = {
 	let ret = iterator {
-		dec = utf8::decode(src),
+		dec = utf8::decode(toutf8(src)),
 		reverse = true,
 	};
 	ret.dec.offs = len(src);
@@ -61,9 +61,14 @@ fn move(forward: bool, iter: *iterator) (rune | void) = {
 	};
 };
 
-// Return a substring from the next rune to the end of the string.
+// Return a substring from the next rune to the end of the string if initialized
+// with [[iter]], or the beginning of the string if initialized with [[riter]].
 export fn iterstr(iter: *iterator) str = {
-	return fromutf8(iter.dec.src[iter.dec.offs..])!;
+	if (iter.reverse) {
+		return fromutf8_unsafe(iter.dec.src[..iter.dec.offs]);
+	} else {
+		return fromutf8_unsafe(iter.dec.src[iter.dec.offs..]);
+	};
 };
 
 // Return a substring from the position of the first iterator to the position of

@@ -26,7 +26,7 @@ type link = struct {
 
 fn deps(name: str, cmd: *getopt::command) (void | error) = {
 	let tags = default_tags()?;
-	defer free(tags);
+	defer strings::freeall(tags);
 
 	let build_dir: str = "";
 	let goal = deps_fmt::TERM;

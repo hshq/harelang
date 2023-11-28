@@ -164,7 +164,8 @@ export fn expc128(z: c128) c128 = {
 // Returns true if the given complex number is infinite.
 export fn isinf(z: c128) bool = math::isinf(z.0) || math::isinf(z.1);
 
-// Returns true if the given complex number is NaN.
+// Returns true if the given complex number is NaN -- that is -- either
+// component is NaN and neither component is an infinity.
 export fn isnan(z: c128) bool =
 	!isinf(z) && (math::isnan(z.0) || math::isnan(z.1));
 

@@ -30,7 +30,7 @@ export fn tokenize(s: str, delim: str) tokenizer =
 // 	assert(strings::next_token(&tok) as str == "name");
 // 	assert(strings::remaining_tokens(&tok) == "hello, my");
 //
-// The caller must ensure that 'delimiter' is not an empty string.
+// The caller must ensure that 'delim' is not an empty string.
 export fn rtokenize(s: str, delim: str) tokenizer =
 	bytes::rtokenize(toutf8(s), toutf8(delim));
 
@@ -95,10 +95,9 @@ export fn remaining_tokens(s: *tokenizer) str = {
 
 // Splits a string into tokens delimited by 'delim', starting at the beginning
 // of the string, and returning a slice of up to N tokens. The caller must free
-// this slice. The strings within the slice are borrowed from 'in', and needn't
-// be freed - but should be [[dupall]]'d if they should outlive 'in'.
+// this slice. The strings within the slice are borrowed from 'in'.
 //
-// The caller must ensure that 'delimiter' is not an empty string.
+// The caller must ensure that 'delim' is not an empty string.
 export fn splitn(in: str, delim: str, n: size) []str = {
 	let toks: []str = [];
 	let tok = tokenize(in, delim);
@@ -120,10 +119,9 @@ export fn splitn(in: str, delim: str, n: size) []str = {
 
 // Splits a string into tokens delimited by 'delim', starting at the end
 // of the string, and returning a slice of up to N tokens. The caller must free
-// this slice. The strings within the slice are borrowed from 'in', and needn't
-// be freed - but should be [[dupall]]'d if they should outlive 'in'.
+// this slice. The strings within the slice are borrowed from 'in'.
 //
-// The caller must ensure that 'delimiter' is not an empty string.
+// The caller must ensure that 'delim' is not an empty string.
 export fn rsplitn(in: str, delim: str, n: size) []str = {
 	let toks: []str = [];
 	let tok = rtokenize(in, delim);
@@ -143,11 +141,10 @@ export fn rsplitn(in: str, delim: str, n: size) []str = {
 	return toks;
 };
 
-// Splits a string into tokens delimited by 'delim'.  The caller must free the
-// returned slice. The strings within the slice are borrowed from 'in', and
-// needn't be freed - but must be [[dupall]]'d if they should outlive 'in'.
+// Splits a string into tokens delimited by 'delim'. The caller must free the
+// returned slice. The strings within the slice are borrowed from 'in'.
 //
-// The caller must ensure that 'delimiter' is not an empty string.
+// The caller must ensure that 'delim' is not an empty string.
 export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 
 @test fn split() void = {
@@ -187,8 +184,8 @@ export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 // 	strings::cut("hello=world=foobar", "=")	// ("hello", "world=foobar")
 // 	strings::cut("hello world", "=")	// ("hello world", "")
 //
-// The return value is borrowed from the 'in' parameter.  The caller must ensure
-// that 'delimiter' is not an empty string.
+// The return value is borrowed from the 'in' parameter. The caller must ensure
+// that 'delim' is not an empty string.
 export fn cut(in: str, delim: str) (str, str) = {
 	let c = bytes::cut(toutf8(in), toutf8(delim));
 	return (fromutf8_unsafe(c.0), fromutf8_unsafe(c.1));
@@ -201,8 +198,8 @@ export fn cut(in: str, delim: str) (str, str) = {
 // 	strings::rcut("hello=world=foobar", "=")	// ("hello=world", "foobar")
 // 	strings::rcut("hello world", "=")	// ("hello world", "")
 //
-// The return value is borrowed from the 'in' parameter.  The caller must ensure
-// that 'delimiter' is not an empty string.
+// The return value is borrowed from the 'in' parameter. The caller must ensure
+// that 'delim' is not an empty string.
 export fn rcut(in: str, delim: str) (str, str) = {
 	let c = bytes::rcut(toutf8(in), toutf8(delim));
 	return (fromutf8_unsafe(c.0), fromutf8_unsafe(c.1));

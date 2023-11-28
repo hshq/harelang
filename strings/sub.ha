@@ -6,18 +6,15 @@ use encoding::utf8;
 export type end = void;
 
 fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {
-	let pos = 0z;
 	for (let i = 0z; i < end; i += 1) {
 		let r = match (next(iter)) {
 		case let r: rune =>
 			yield r;
 		case void =>
-			break;
+			abort("index exceeds string length");
 		};
-
-		pos += utf8::runesz(r);
 	};
-	return pos;
+	return iter.dec.offs;
 };
 
 // Returns a substring in the range [start, end - 1], where each argument is the
@@ -29,14 +26,12 @@ fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {
 // may cause unexpected linguistic errors to arise. You may want to use a
 // third-party Unicode module instead.
 export fn sub(s: str, start: size, end: (size | end)) str = {
-	if (end is size) {
-		assert(start <= end as size, "start is higher than end");
-	};
 	let iter = iter(s);
 	let starti = utf8_byte_len_bounded(&iter, start);
 	let endi = match (end) {
 	case let sz: size =>
-		yield starti + utf8_byte_len_bounded(&iter, sz - start);
+		assert(start <= sz, "start is higher than end");
+		yield utf8_byte_len_bounded(&iter, sz - start);
 	case =>
 		yield len(s);
 	};
