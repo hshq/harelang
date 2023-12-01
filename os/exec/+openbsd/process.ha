@@ -116,7 +116,6 @@ export fn waitall() (uint | error | !(process, exit_status)) = {
 			};
 		};
 	};
-	abort("unreachable");
 };
 
 // Checks for process completion, returning its status information on
