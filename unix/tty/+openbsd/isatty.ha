@@ -7,11 +7,5 @@ use os;
 
 // Returns whether the given stream is connected to a terminal.
 export fn isatty(fd: io::file) bool = {
-	let wsz = rt::winsize { ... };
-	match (rt::ioctl(fd, rt::TIOCGWINSZ, &wsz: *opaque)) {
-	case let e: rt::errno =>
-		return false;
-	case let r: int =>
-		return r == 0;
-	};
+	return rt::fcntl(fd, rt::F_ISATTY, 0) is int;
 };
