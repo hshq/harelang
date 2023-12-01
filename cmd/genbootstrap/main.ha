@@ -33,6 +33,13 @@ export fn main() void = {
 		free(ids[i].1);
 	};
 
+	let with_libc = false;
+	for (let i = 0z; i < len(ctx.tags); i += 1) {
+		if (ctx.tags[i] == "libc") {
+			with_libc = true;
+		};
+	};
+
 	let tds = memio::dynamic();
 	defer io::close(&tds)!;
 	let objs = memio::dynamic();
@@ -75,7 +82,8 @@ export fn main() void = {
 			ids[i].0, ids[i].0, memio::string(&deps)!)!;
 		fmt::println("\t" `@mkdir -p -- "$(HARECACHE)"`)!;
 		fmt::println("\t" `@printf 'HAREC\t%s\n' "$@"`)!;
-		fmt::printfln("\t" `@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/{}.ssa -t $(HARECACHE)/{}.td.tmp {} {} $({}_ha)`,
+		fmt::printfln("\t" `@$(TDENV) $(HAREC) $(HARECFLAGS) {}-o $(HARECACHE)/{}.ssa -t $(HARECACHE)/{}.td.tmp {} {} $({}_ha)`,
+			if (i == len(mods) - 1 && with_libc) `-N "" ` else ``,
 			ids[i].0, ids[i].0,
 			if (i == len(mods) - 1) `$(HARE_DEFINES)` else `-N`,
 			if (i == len(mods) - 1) `` else ids[i].1, ids[i].0)!;

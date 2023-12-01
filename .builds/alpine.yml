@@ -29,7 +29,7 @@ tasks:
     sudo make install
 - hare: |
     cd hare
-    cp config.example.mk config.mk
+    cp configs/linux.mk config.mk
     make -j2
     sudo make install
 - check: |

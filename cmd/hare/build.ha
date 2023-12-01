@@ -37,6 +37,8 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 			yield ncpu;
 		},
 		version = build::get_version(os::tryenv("HAREC", "harec"))?,
+		arch = arch.qbe_name,
+		platform = build::get_platform(os::sysname())?,
 		...
 	};
 	defer build::ctx_finish(&ctx);
@@ -133,7 +135,6 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		os::exit(os::status::FAILURE);
 	};
 
-	ctx.arch = arch.qbe_name;
 	ctx.cmds = ["",
 		os::tryenv("HAREC", "harec"),
 		os::tryenv("QBE", "qbe"),
@@ -141,7 +142,8 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		os::tryenv("LD", arch.ld_cmd),
 	];
 	set_arch_tags(&ctx.ctx.tags, arch);
-	if (len(ctx.libs) > 0) {
+	if (len(ctx.libs) > 0 || ctx.platform.need_libc) {
+		ctx.libc = true;
 		merge_tags(&ctx.ctx.tags, "+libc")?;
 		ctx.cmds[build::stage::BIN] = os::tryenv("CC", arch.cc_cmd);
 	};

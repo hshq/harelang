@@ -42,14 +42,14 @@ HARE_DEFINES = \
 $(BINOUT)/hare: $(OBJS)
 	@mkdir -p -- "$(BINOUT)"
 	@printf 'LD\t%s\n' "$@"
-	@$(LD) $(LDLINKFLAGS) --gc-sections -z noexecstack -T $(RTSCRIPT) -o $@ $(OBJS)
+	@$(LD) $(LDLINKFLAGS) -T $(RTSCRIPT) -o $@ $(OBJS)
 
 $(BINOUT)/harec2: $(BINOUT)/hare
 	@printf 'HARE\t%s\n' "$@"
 	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) AS=$(AS) LD=$(LD) \
 		HAREFLAGS=$(HAREFLAGS) HARECFLAGS=$(HARECFLAGS) \
 		QBEFLAGS=$(QBEFLAGS) ASFLAGS=$(ASFLAGS) \
-		LDLINKFLAGS=$(LDLINKFLAGS) \
+		LDLINKFLAGS="$(LDLINKFLAGS)" \
 		$(BINOUT)/hare build $(HARE_DEFINES) -o $(BINOUT)/harec2 cmd/harec
 
 $(BINOUT)/haredoc: $(BINOUT)/hare

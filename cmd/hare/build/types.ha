@@ -12,7 +12,8 @@ use strings;
 
 export type error = !(exec::error | fs::error | io::error | module::error | path::error);
 
-// a kind of cache file
+export type unknown_platform = !str;
+
 export type stage = enum {
 	TD = 0,
 	SSA,
@@ -54,6 +55,7 @@ export type output = enum {
 export type context = struct {
 	ctx: module::context,
 	arch: str,
+	platform: *platform,
 	goal: stage,
 	defines: []ast::decl_const,
 	libdirs: []str,
@@ -70,6 +72,8 @@ export type context = struct {
 	submods: bool,
 	// if true, the main function won't be checked by harec
 	freestanding: bool,
+	// if true, we are linking with libc (using cc instead of ld)
+	libc: bool,
 
 	cmds: [NSTAGES]str,
 

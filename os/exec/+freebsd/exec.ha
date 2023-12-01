@@ -8,8 +8,6 @@ use rt;
 use types::c;
 use unix;
 
-export type platform_cmd = io::file;
-
 // Forks the current process, returning the [[process]] of the child (to the
 // parent) and void (to the child), or an error.
 export fn fork() (process | void | error) = {
@@ -59,9 +57,7 @@ export fn pipe() (io::file, io::file) = {
 };
 
 fn open(path: str) (platform_cmd | error) = {
-	// O_PATH is used because it allows us to use an executable for which we
-	// have execute permissions, but not read permissions.
-	let fd = match (rt::open(path, rt::O_PATH, 0u)) {
+	let fd = match (rt::open(path, rt::O_RDONLY, 0u)) {
 	case let fd: int =>
 		yield fd;
 	case let err: rt::errno =>
@@ -91,6 +87,7 @@ fn open(path: str) (platform_cmd | error) = {
 	};
 	success = true;
 	return fd;
+
 };
 
 fn platform_finish(cmd: *command) void = rt::close(cmd.platform)!;
@@ -170,9 +167,9 @@ fn platform_exec(cmd: *command) error = {
 		os::chdir(cmd.dir)?;
 	};
 
-	return errors::errno(rt::execveat(cmd.platform,
-		"\0", argv: *[*]nullable *const u8,
-		envp: *[*]nullable *const u8, rt::AT_EMPTY_PATH));
+	return errors::errno(rt::fexecve(cmd.platform,
+		argv: *[*]nullable *const u8,
+		envp: *[*]nullable *const u8));
 };
 
 fn platform_start(cmd: *command) (process | errors::error) = {
@@ -184,7 +181,7 @@ fn platform_start(cmd: *command) (process | errors::error) = {
 	case void => void;
 	};
 
-	match (rt::clone(null, rt::SIGCHLD, null, null, 0)) {
+	match (rt::fork()) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let pid: int =>

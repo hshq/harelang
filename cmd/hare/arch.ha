@@ -5,6 +5,8 @@ use hare::module;
 use os;
 use strings;
 
+// When building the bootstrap toolchain, these values will get overwritten to
+// equal the values in config.mk
 def AARCH64_AS = "as";
 def AARCH64_CC = "cc";
 def AARCH64_LD = "ld";

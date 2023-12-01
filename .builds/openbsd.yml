@@ -1,0 +1,32 @@
+image: openbsd/latest
+sources:
+- https://git.sr.ht/~sircmpwn/hare
+- https://git.sr.ht/~sircmpwn/harec
+- git://c9x.me/qbe.git
+packages:
+- binutils
+- scdoc
+- git
+tasks:
+- qbe: |
+    cd qbe
+    make -j2 PREFIX=/usr
+    doas make install PREFIX=/usr
+- harec: |
+    mkdir harec/build
+    cd harec/build
+    ../configure --prefix=/usr
+    make -j2
+    doas make install
+- hare: |
+    cd hare
+    cp configs/openbsd.mk config.mk
+    make -j2
+    doas make install
+# remove once openbsd-7.5 is out. leap-seconds.list was after 7.4
+- leapseconds: |
+    cd /usr/share/zoneinfo
+    doas ftp ftp://ftp.boulder.nist.gov/pub/time/leap-seconds.list
+- check: |
+    cd hare
+    make -j2 check

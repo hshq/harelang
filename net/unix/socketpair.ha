@@ -16,7 +16,7 @@ export fn socketpair(flags: net::sockflag...) ((net::socket, net::socket) | net:
 		f |= flags[i];
 	};
 	f ^= rt::SOCK_CLOEXEC; // invert CLOEXEC
-	match (rt::socketpair(rt::AF_UNIX : int, (rt::SOCK_STREAM | f) : int, 0, &sv)) {
+	match (rt::socketpair(rt::AF_UNIX: int, (rt::SOCK_STREAM | f): int, 0, &sv)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case =>

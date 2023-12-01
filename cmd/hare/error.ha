@@ -8,6 +8,7 @@ use io;
 use os::exec;
 use path;
 use strconv;
+use cmd::hare::build;
 
 type error = !(
 	exec::error |
@@ -22,6 +23,7 @@ type error = !(
 	unknown_type |
 	output_failed |
 	invalid_namespace |
+	build::unknown_platform |
 );
 
 type unknown_arch = !str;

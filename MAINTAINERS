@@ -65,6 +65,10 @@ MATHEMATICAL LIBRARY
 M:	Bor Grošelj Simić <bgs@turminal.net>
 F:	math/
 
+OPENBSD SUPPORT
+M:	Lorenz (xha) <me@xha.li>
+F:	*openbsd*
+
 REGULAR EXPRESSIONS
 M:	Vlad-Stefan Harbuz <vlad@vladh.net>
 F:	regex/

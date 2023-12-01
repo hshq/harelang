@@ -1,9 +1,38 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+export fn sigemptyset(set: *sigset) void = {
+	*set = 0;
+};
+
+export fn sigaddset(set: *sigset, signum: int) (void | errno) = {
+	if (signum < 1 || signum > NSIG) {
+		return *__errno(): errno;
+	};
+	*set |= 1u << (signum: uint - 1);
+};
+
+export fn sigdelset(set: *sigset, signum: int) (void | errno) = {
+	if (signum < 1 || signum > NSIG) {
+		return *__errno(): errno;
+	};
+	*set &= ~(1u << (signum: uint - 1));
+};
+
+export fn sigismember(set: *sigset, signum: int) (bool | errno) = {
+	if (signum < 1 || signum > NSIG) {
+		return *__errno(): errno;
+	};
+	return (*set & (1u << (signum: uint - 1))) != 0;
+};
+
+export fn sigfillset(set: *sigset) (void | errno) = {
+	*set = ~0u;
+};
+
 // Test sigset operations do not fail for valid signal numbers.
 @test fn sigset_valid_signum() void = {
-	let set = sigset { ... };
+	let set: sigset = 0;
 	sigemptyset(&set);
 
 	assert(!(sigismember(&set, 1) is errno), "Unexpected error");
@@ -27,7 +56,7 @@
 
 // Test sigset operations fail for invalid signal numbers.
 @test fn sigset_invalid_signum() void = {
-	let set = sigset { ... };
+	let set: sigset = 0;
 	sigemptyset(&set);
 
 	assert(sigismember(&set, -1) is errno, "Expected error");
