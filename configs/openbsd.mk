@@ -1,5 +1,5 @@
 # install locations
-PREFIX = /home/lorenz/bin
+PREFIX = /usr/local/
 BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)/share/man
 SRCDIR = $(PREFIX)/src
