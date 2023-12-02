@@ -51,9 +51,9 @@ export fn unsignedtosb(n: types::unsigned, b: base) const str = {
 // [[strings::dup]] to duplicate the result.
 export fn unsignedtos(n: types::unsigned) const str = unsignedtosb(n, base::DEC);
 
-// Converts any [[types::integer]] to a string in a given base, which must be 2,
-// 8, 10, or 16. The return value is statically allocated and will be
-// overwritten on subsequent calls; see [[strings::dup]] to duplicate the result.
+// Converts any [[types::integer]] to a string in a given base. The return value
+// is statically allocated and will be overwritten on subsequent calls; see
+// [[strings::dup]] to duplicate the result.
 export fn integertosb(n: types::integer, b: base) const str = {
 	match (n) {
 	case let s: types::signed =>
