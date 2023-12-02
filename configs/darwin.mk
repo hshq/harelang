@@ -12,6 +12,7 @@ HAREFLAGS =
 HARECFLAGS =
 QBEFLAGS =
 ASFLAGS =
+# LDLINKFLAGS = --gc-sections -z noexecstack
 LDLINKFLAGS =
 
 # commands used by the build script

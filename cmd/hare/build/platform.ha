@@ -34,6 +34,10 @@ const platforms: [_]platform = [
 			["-z", "nobtcfi"],
 		],
 	},
+	platform {
+		name = "Darwin",
+		...
+	},
 ];
 
 export fn get_platform(name: str) (*platform | unknown_platform) = {

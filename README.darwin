@@ -10,7 +10,7 @@ export TMPDIR=/Volumes/hare-cache/tmp
 export HAREC_SRC=../harec.git
 export QBE=$HAREC_SRC/rt/+darwin/qbe.sh
 
-ln -sf config.darwin.mk config.mk
+ln -sf configs/darwin.mk config.mk
 
 ./scripts/genbootstrap
 

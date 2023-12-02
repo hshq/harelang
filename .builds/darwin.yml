@@ -19,7 +19,7 @@ tasks:
     sudo make install
 - hare: |
     cd hare
-    ln -sf config.darwin.mk config.mk
+    ln -sf configs/darwin.mk config.mk
     make -j2
     sudo make install
 - check: |
