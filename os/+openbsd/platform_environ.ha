@@ -90,7 +90,7 @@ export fn machine() const str = {
 
 // Returns the number of usable CPUs.
 export fn cpucount() (size | errors::error) = {
-	let name: [2]int = [rt::CTL_HW, rt::HW_NCPU];
+	let name: [2]int = [rt::CTL_HW, rt::HW_NCPUONLINE];
 
 	let ncpu: int = 0;
 	let ncpu_sz = size(int);

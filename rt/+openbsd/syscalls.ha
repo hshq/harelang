@@ -1201,7 +1201,7 @@ export fn readlinkat(
 	path: path,
 	buf: []u8,
 ) (size | errno) = {
-	let res = libc_readlinkat(dirfd, cpath(path)?, &buf: *u8, len(buf));
+	let res = libc_readlinkat(dirfd, cpath(path)?, buf: *[*]u8: *u8, len(buf));
 	if (res == -1) {
 		return *__errno(): errno;
 	};
@@ -1227,7 +1227,7 @@ export fn renameat(
 	let newpath = copy_cpath(newpath, newpathbuf)?;
 
 	let res = libc_renameat(olddirfd, cpath(oldpath)?, newdirfd,
-			&newpathbuf: *u8);
+			newpath);
 	if (res == -1) {
 		return *__errno(): errno;
 	};
