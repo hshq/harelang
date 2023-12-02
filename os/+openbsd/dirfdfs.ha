@@ -134,7 +134,7 @@ fn fs_create_file(
 ) (io::file | fs::error) = {
 	let oflags: fs::flag = 0;
 	if (len(flags) == 0z) {
-		oflags |= fs::flag::WRONLY;
+		oflags |= fs::flag::WRONLY | fs::flag::TRUNC;
 	};
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i];
