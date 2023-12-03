@@ -754,6 +754,39 @@ export fn listen(sockfd: int, backlog: u32) (void | errno) = {
 
 // chflagsat
 // pledge
+
+@symbol("pledge") fn libc_pledge(
+	promises: nullable *const u8,
+	execpromises: nullable *const u8
+) int;
+
+// The "stdio" pledge is always needed. Passing [[nullpromise]] to promises or
+// execpromises specifies to not change the current value. Check the pledge(2)
+// manual page for more information about the differrent promises.
+export fn pledge(
+	promises: (const str | nullpromise),
+	execpromises: (const str | nullpromise),
+) (void | errno) = {
+	let promises: nullable *u8 = match(promises) {
+	case let p: const str =>
+		yield cpath(p)!;
+	case nullpromise =>
+		yield null;
+	};
+
+	let execpromises: nullable *u8 = match(execpromises) {
+	case let ep: const str =>
+		yield copy_cpath(ep, pathbuf1)!;
+	case nullpromise =>
+		yield null;
+	};
+
+	let res = libc_pledge(promises, execpromises);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // ppoll
 
 @symbol("ppoll") fn libc_ppoll(
