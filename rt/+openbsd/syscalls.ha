@@ -2,6 +2,10 @@
 // (c) Hare authors <https://harelang.org>
 
 let pathbuf: [PATH_MAX]u8 = [0...];
+
+// For functions that need more than one path, i.e. unveil, linkat, renameat, etc.
+let pathbuf1: [PATH_MAX]u8 = [0...];
+
 export type path = (str | []u8 | *const u8);
 
 fn copy_cpath(path: path, buf: []u8) (*const u8 | errno) = {
@@ -766,7 +770,6 @@ export fn ppoll(
 	sigmask: const nullable *sigset,
 ) (int | errno) = {
 	let ret = libc_ppoll(fds, nfds, timeout, sigmask);
-
 	if (ret == -1) {
 		return *__errno(): errno;
 	};
@@ -1066,6 +1069,8 @@ export fn sysctl(
 
 @symbol("getcwd") fn libc_getcwd(buf: *u8, bufsz: size) *u8;
 
+// The return value is statically allocated and must be duplicated before
+// calling getcwd again.
 export fn getcwd() (*const u8 | errno) = {
 	static let pathbuf: [PATH_MAX]u8 = [0...];
 
@@ -1143,8 +1148,7 @@ export fn linkat(
 	flags: int,
 ) (void | errno) = {
 	let oldpath = cpath(oldpath)?;
-	static let newpathbuf: [PATH_MAX]u8 = [0...];
-	let newpath = copy_cpath(newpath, newpathbuf)?;
+	let newpath = copy_cpath(newpath, pathbuf1)?;
 
 	let res = libc_linkat(olddirfd, oldpath, newdirfd, newpath, flags);
 	if (res == -1) {
@@ -1223,8 +1227,7 @@ export fn renameat(
 	newdirfd: int,
 	newpath: str,
 ) (void | errno) = {
-	static let newpathbuf: [PATH_MAX]u8 = [0...];
-	let newpath = copy_cpath(newpath, newpathbuf)?;
+	let newpath = copy_cpath(newpath, pathbuf1)?;
 
 	let res = libc_renameat(olddirfd, cpath(oldpath)?, newdirfd,
 			newpath);
@@ -1247,8 +1250,7 @@ export fn symlinkat(
 	linkpath: path,
 ) (void | errno) = {
 	let target = cpath(target)?;
-	static let linkpathbuf: [PATH_MAX]u8 = [0...];
-	let linkpath = copy_cpath(linkpath, linkpathbuf)?;
+	let linkpath = copy_cpath(linkpath, pathbuf1)?;
 
 	let res = libc_symlinkat(target, newdirfd, linkpath);
 	if (res == -1) {
