@@ -2,6 +2,10 @@
 // (c) Hare authors <https://harelang.org>
 
 let pathbuf: [PATH_MAX]u8 = [0...];
+
+// For functions that need more than one path, i.e. unveil, linkat, renameat, etc.
+let pathbuf1: [PATH_MAX]u8 = [0...];
+
 export type path = (str | []u8 | *const u8);
 
 fn copy_cpath(path: path, buf: []u8) (*const u8 | errno) = {
@@ -750,6 +754,39 @@ export fn listen(sockfd: int, backlog: u32) (void | errno) = {
 
 // chflagsat
 // pledge
+
+@symbol("pledge") fn libc_pledge(
+	promises: nullable *const u8,
+	execpromises: nullable *const u8
+) int;
+
+// The "stdio" pledge is always needed. Passing [[nullpromise]] to promises or
+// execpromises specifies to not change the current value. Check the pledge(2)
+// manual page for more information about the differrent promises.
+export fn pledge(
+	promises: (const str | nullpromise),
+	execpromises: (const str | nullpromise),
+) (void | errno) = {
+	let promises: nullable *u8 = match(promises) {
+	case let p: const str =>
+		yield cpath(p)!;
+	case nullpromise =>
+		yield null;
+	};
+
+	let execpromises: nullable *u8 = match(execpromises) {
+	case let ep: const str =>
+		yield copy_cpath(ep, pathbuf1)!;
+	case nullpromise =>
+		yield null;
+	};
+
+	let res = libc_pledge(promises, execpromises);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // ppoll
 
 @symbol("ppoll") fn libc_ppoll(
@@ -766,7 +803,6 @@ export fn ppoll(
 	sigmask: const nullable *sigset,
 ) (int | errno) = {
 	let ret = libc_ppoll(fds, nfds, timeout, sigmask);
-
 	if (ret == -1) {
 		return *__errno(): errno;
 	};
@@ -777,6 +813,33 @@ export fn ppoll(
 // sigsuspend
 // sendsyslog
 // unveil
+
+@symbol("unveil") fn libc_unveil(
+	path: nullable *const u8,
+	permissions: nullable *const u8
+) int;
+
+// After establishing a collection of path and permissions rules, future
+// calls to [[unveil]] can be disabled by calling [[unveil_lock]].
+// Alternatively, [[pledge]] may be used to remove the "unveil" promise.
+export fn unveil(
+	path: path,
+	permissions: const str,
+) (void | errno) = {
+	let res = libc_unveil(cpath(path)?, copy_cpath(permissions, pathbuf1)?);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
+// Disable future calls to [[unveil]].
+export fn unveil_lock() (void | errno) = {
+	let res = libc_unveil(null, null);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // __realpath
 // recvmmsg
 // sendmmsg
@@ -1066,6 +1129,8 @@ export fn sysctl(
 
 @symbol("getcwd") fn libc_getcwd(buf: *u8, bufsz: size) *u8;
 
+// The return value is statically allocated and must be duplicated before
+// calling getcwd again.
 export fn getcwd() (*const u8 | errno) = {
 	static let pathbuf: [PATH_MAX]u8 = [0...];
 
@@ -1143,8 +1208,7 @@ export fn linkat(
 	flags: int,
 ) (void | errno) = {
 	let oldpath = cpath(oldpath)?;
-	static let newpathbuf: [PATH_MAX]u8 = [0...];
-	let newpath = copy_cpath(newpath, newpathbuf)?;
+	let newpath = copy_cpath(newpath, pathbuf1)?;
 
 	let res = libc_linkat(olddirfd, oldpath, newdirfd, newpath, flags);
 	if (res == -1) {
@@ -1223,8 +1287,7 @@ export fn renameat(
 	newdirfd: int,
 	newpath: str,
 ) (void | errno) = {
-	static let newpathbuf: [PATH_MAX]u8 = [0...];
-	let newpath = copy_cpath(newpath, newpathbuf)?;
+	let newpath = copy_cpath(newpath, pathbuf1)?;
 
 	let res = libc_renameat(olddirfd, cpath(oldpath)?, newdirfd,
 			newpath);
@@ -1247,8 +1310,7 @@ export fn symlinkat(
 	linkpath: path,
 ) (void | errno) = {
 	let target = cpath(target)?;
-	static let linkpathbuf: [PATH_MAX]u8 = [0...];
-	let linkpath = copy_cpath(linkpath, linkpathbuf)?;
+	let linkpath = copy_cpath(linkpath, pathbuf1)?;
 
 	let res = libc_symlinkat(target, newdirfd, linkpath);
 	if (res == -1) {

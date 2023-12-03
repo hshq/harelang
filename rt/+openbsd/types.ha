@@ -19,6 +19,9 @@ export type nfds_t = uint;
 export type mode_t = u32;
 export type sigset = uint;
 
+// Passing this to a pledge() promise specifies to not change the current value.
+export type nullpromise = void;
+
 // Maximum length of a file path including the NUL terminator.
 export def PATH_MAX: size = 1024;
 
