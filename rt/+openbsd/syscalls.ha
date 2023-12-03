@@ -813,6 +813,33 @@ export fn ppoll(
 // sigsuspend
 // sendsyslog
 // unveil
+
+@symbol("unveil") fn libc_unveil(
+	path: nullable *const u8,
+	permissions: nullable *const u8
+) int;
+
+// After establishing a collection of path and permissions rules, future
+// calls to [[unveil]] can be disabled by calling [[unveil_lock]].
+// Alternatively, [[pledge]] may be used to remove the "unveil" promise.
+export fn unveil(
+	path: path,
+	permissions: const str,
+) (void | errno) = {
+	let res = libc_unveil(cpath(path)?, copy_cpath(permissions, pathbuf1)?);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
+// Disable future calls to [[unveil]].
+export fn unveil_lock() (void | errno) = {
+	let res = libc_unveil(null, null);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // __realpath
 // recvmmsg
 // sendmmsg
