@@ -134,7 +134,7 @@ fn run_task(ctx: *context, jobs: *[]job, t: *task) (bool | error) = {
 
 	path::set(&buf, out)?;
 	let tmp = path::push_ext(&buf, "tmp")?;
-	io::close(os::create(tmp, 0o644, fs::flag::TRUNC)?)?;
+	io::close(os::create(tmp, 0o644)?)?;
 
 	let args = get_args(ctx, tmp, flags, t);
 	defer strings::freeall(args);
