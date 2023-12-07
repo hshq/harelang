@@ -36,10 +36,14 @@ store the td hash in <ssa_hash>.ssa.td, and read it from that file whenever we
 skip running harec
 
 in order to avoid problems when running multiple hare builds in parallel, we
-take an exclusive flock on <hash>.<ext>.tmp and have the command output to
-there, then rename that to <hash>.<ext> once the command is done. if taking the
-lock fails, we defer running that command as though it had unfinished
-dependencies
+take an exclusive flock on <hash>.<ext>.lock. if taking the lock fails, we defer
+running that command as though it had unfinished dependencies. for reasons
+described below, we also direct the tool's output to <hash>.<ext>.tmp then
+rename that to <hash>.<ext> when it's done
+
+there's also <hash>.<ext>.log (the stdout/stderr of the process, for displaying
+if it errors out) and <hash>.<ext>.txt (the command that was run, for debugging
+purposes. we might add more information here in the future)
 
 # queuing and running jobs
 
@@ -48,7 +52,7 @@ given module and queue up all of the commands that will need to be run in order
 to compile them. we keep track of each command in a task struct, which contains
 a module::module, the compilation stage it's running, and the command's
 prerequisites. the prerequisites for a harec are all of the harecs of the
-modules it depends on[0], for qbe/as it's the harec/qbe for that module, and for
+modules it depends on, for qbe/as it's the harec/qbe for that module, and for
 ld it's the ases for all of the modules that have been queued. we insert these
 into an array of tasks, sorted with all of the harecs first, then qbes, then
 ases, then ld, with a topological sort within each of these (such that each
@@ -62,6 +66,42 @@ unblock as many other jobs as possible. running a harec will always unblock more
 jobs than a qbe or as, so we want to try to run them as early as possible. in my
 tests, this roughly halved most compilation times at -j4
 
-[0]: note that we only need the typedef file, one future improvement which would
-improve parallelism would be to somehow have harec signal to hare build that
-it's done with the typedefs so that we can unblock other harecs
+# potential future improvements
+
+we only need the typedef file to be generated in order to unblock dependent
+harecs, not all of codegen. having harec signal to hare build that it's done
+with the typedefs could improve parallelism, though empirical tests that i did
+on 2023-08-02 didn't show a meaningful improvement. this may be worth
+re-investigating if we speed up the earlier parts of harec
+
+it may be possible to merge the lockfile with the output file. it clutters up
+$HARECACHE, so it'd be nice to do so if possible. currently, we unconditionally
+do an os::create in order to make sure that the lock exists before locking it.
+if we instead lock the output, we would need to avoid this, since it affects the
+mtime and would cause us to think that it's always up-to-date. note that we can't
+check for outdatedness separately from run_task, since the way that we avoid
+duplicating work between builds running in parallel is by dynamically seeing
+that a task is up to date after the other build driver has unlocked it
+
+# things which look like they could be good ideas but aren't actually
+
+we don't want to combine the lockfile with the tmpfile. the interactions between
+the renaming of the tmpfile and everything else lead to some extremely subtle
+race conditions
+
+we don't want to combine the output file with the tmpfile, for two reasons:
+- for harec, we need to ensure that if there's an up-to-date .ssa, there's
+  always a corresponding .ssa.td. if we were to have harec output directly to
+  the .ssa, this would mean that failing to run cleanup_task() for it would lead
+  to cache corruption. as the code is written today this would always happen if
+  another task errors out while the harec is in progress (though that's
+  solvable), but it would also happen if there was a crash
+- if a tool were to write part of the output before erroring out, we would need
+  to actively clear the output file in order to avoid the next build driver
+  assuming that the partial output is complete and up-to-date
+all of these problems are, in theory, possible to solve in the happy case, but
+using a tmpfile is much more robust
+
+we don't want to use open(O_EXCL) for lockfiles. flock gives us a free unlock on
+program exit, so there's no way for us to eg. crash without closing the lock
+then have to force the user to delete the lockfile manually
