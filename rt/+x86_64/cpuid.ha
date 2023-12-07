@@ -65,6 +65,7 @@ export type cpuid_edxflag = enum uint {
 export type cpuid_ecxflag = enum uint {
 	SSE3 = 1 << 0,
 	AES = 1 << 25,
+	AVX = 1 << 28,
 };
 
 fn cpuid_getvendorstr(v: *[12]u8) void;

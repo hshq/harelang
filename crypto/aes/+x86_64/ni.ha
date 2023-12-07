@@ -21,7 +21,7 @@ const x86ni_vtable: cipher::blockvtable = cipher::blockvtable {
 
 // Checks if the native AES interface is available.
 fn x86ni_available() bool = {
-	return rt::cpuid_hasflags(0, rt::cpuid_ecxflag::AES);
+	return rt::cpuid_hasflags(0, rt::cpuid_ecxflag::AES | rt::cpuid_ecxflag::AVX);
 };
 
 // Returns a native AES [[crypto::cipher::block]] implementation for x86_64
