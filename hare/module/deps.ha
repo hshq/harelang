@@ -22,6 +22,7 @@ export type module = struct {
 	ns: ast::ident,
 	path: str,
 	srcs: srcset,
+	// [](Index to the module, Identifier of of the module)
 	deps: [](size, ast::ident),
 };
 

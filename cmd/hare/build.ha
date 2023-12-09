@@ -123,17 +123,22 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		case 'v' =>
 			if (ctx.mode == build::output::VERBOSE) {
 				ctx.mode = build::output::VVERBOSE;
-			} else {
+			} else if (ctx.mode != build::output::VVERBOSE) {
 				ctx.mode = build::output::VERBOSE;
+			} else {
+				fmt::fatal("Number of verbose levels must be <= 2");
 			};
 		case =>
 			abort();
 		};
 	};
-	if (len(cmd.args) > 1 && name == "build") {
+
+	if (name == "build" && len(cmd.args) > 1) {
 		getopt::printusage(os::stderr, name, cmd.help...)!;
 		os::exit(os::status::FAILURE);
 	};
+
+	set_arch_tags(&ctx.ctx.tags, arch);
 
 	ctx.cmds = ["",
 		os::tryenv("HAREC", "harec"),
@@ -141,7 +146,6 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		os::tryenv("AS", arch.as_cmd),
 		os::tryenv("LD", arch.ld_cmd),
 	];
-	set_arch_tags(&ctx.ctx.tags, arch);
 	if (len(ctx.libs) > 0 || ctx.platform.need_libc) {
 		ctx.libc = true;
 		merge_tags(&ctx.ctx.tags, "+libc")?;
@@ -169,6 +173,9 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		if (ctx.goal == build::stage::BIN) {
 			mode |= 0o111;
 		};
+		// in the case that we are outputting to a binary that is
+		// currently beeing executed, we need to remove it first or
+		// otherwise os::create() will fail
 		os::remove(output): void;
 		dest = match (os::create(output, mode)) {
 		case let f: io::file =>
@@ -178,6 +185,7 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		};
 	};
 	defer io::close(dest)!;
+
 	let src = os::open(built)?;
 	defer io::close(src)!;
 	io::copy(dest, src)?;
@@ -204,6 +212,7 @@ fn get_output(goal: build::stage, input: str) (str | error) = {
 	if (!fs::isdir(stat.mode)) {
 		path::pop(&buf);
 	};
+	// don't add the .bin extension if the goal is to create a binary
 	if (goal != build::stage::BIN) {
 		path::push_ext(&buf, build::stage_ext[goal])?;
 	};
