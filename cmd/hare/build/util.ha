@@ -74,6 +74,9 @@ fn get_deps(ctx: *context, t: *task) []str = {
 	};
 };
 
+// returns the arguments that don't depend on the result of the hash. these will
+// be used to create the hash. see [[get_args]] for the arguments that depend
+// on the result of the hash
 fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 	let flags: []str = strings::dupall(ctx.platform.default_flags[t.kind]);
 
@@ -226,6 +229,8 @@ fn get_hash(
 	return prefix;
 };
 
+// returns the value of flags plus the arguments that depend on the result of
+// the hash. see [[get_flags]] for the arguments that don't depend on the hash
 fn get_args(ctx: *context, tmp: str, flags: []str, t: *task) []str = {
 	let args = strings::dupall(flags);
 	append(args, strings::dup("-o"));
@@ -258,6 +263,10 @@ fn get_args(ctx: *context, tmp: str, flags: []str, t: *task) []str = {
 				append(args, strings::dup(srcs.o[i]));
 			};
 		};
+		// XXX: when dynamically linking on Linux, we have to disable
+		// gc-sections again after enabling it in get_flags(); it looks
+		// like leaving this enabled gets us SIGILL in libc (musl). this
+		// is not broken on other platforms such as OpenBSD
 		if (ctx.libc) {
 			append(args, strings::dup("-Wl,--no-gc-sections"));
 		};
