@@ -137,6 +137,8 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 	case void =>
 		break;
 	case let t: lex::token =>
+		synassert(t.2, t.0 == ltok::ATTR_SYMBOL || attr == 0,
+			"Only one of @init, @fini, or @test may be provided")?;
 		switch (t.0) {
 		case ltok::ATTR_FINI =>
 			attr = ast::fndecl_attr::FINI;
