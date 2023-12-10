@@ -87,6 +87,11 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		fmt::fatal("Option -a must be used only with -Ftty");
 	};
 
+	if (len(cmd.args) > 1) {
+		getopt::printusage(os::stderr, os::args[0], help)!;
+		os::exit(os::status::FAILURE);
+	};
+
 	let ctx = module::context {
 		harepath = harepath(),
 		harecache = harecache(),
