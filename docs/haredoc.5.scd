@@ -1,8 +1,8 @@
-hare-doc(5)
+haredoc(5)
 
 # NAME
 
-hare-doc - Hare documentation format
+haredoc - Hare documentation format
 
 # DESCRIPTION
 

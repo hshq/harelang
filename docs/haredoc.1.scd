@@ -93,4 +93,4 @@ The following environment variables affect *haredoc*'s execution:
 
 # SEE ALSO
 
-*hare-doc*(5)
+*haredoc*(5)
