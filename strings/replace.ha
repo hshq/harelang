@@ -23,7 +23,7 @@ export fn multireplace(s: str, repls: (str, str)...) str = {
 	let res: []u8 = [];
 	let i = 0z;
 	let prev = 0z; // end of previous match, so we can append in chunks
-	for (i < len(b)) :step {
+	for :step (i < len(b)) {
 		for (let j = 0z; j < len(repls); j += 1) {
 			const replb = (toutf8(repls[j].0), toutf8(repls[j].1));
 			if (bytes::hasprefix(b[i..], replb.0)) {

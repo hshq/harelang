@@ -205,7 +205,7 @@ fn write(s: *io::stream, buf: const []u8) (size | io::error) = {
 
 	let doflush = false;
 	if (len(s.flush) != 0) {
-		for (let i = 0z; i < len(buf); i += 1) :search {
+		for :search (let i = 0z; i < len(buf); i += 1) {
 			for (let j = 0z; j < len(s.flush); j += 1) {
 				if (buf[i] == s.flush[j]) {
 					doflush = true;

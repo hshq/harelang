@@ -66,7 +66,7 @@ fn fnmatch_pathname(
 	let tok = strings::tokenize(string, "/");
 	let p_iter = strings::iter(pattern);
 	let start = p_iter;
-	for (true) :outer {
+	for :outer (true) {
 		start = p_iter;
 		for (true) match (pat_next(&p_iter, fl)?) {
 		case end =>
@@ -192,13 +192,13 @@ fn fnmatch_internal(
 	// match the "sea of stars" in the middle
 	s_copy = strings::iter(strings::slice(&s_copy, &s_last));
 	p_copy = strings::iter(strings::slice(&p_copy, &p_last.0));
-	for (true) :outer {
+	for :outer (true) {
 		p = p_copy;
 		if (len(strings::iterstr(&p)) == 0) {
 			return true;
 		};
 		s = s_copy;
-		for (true) :inner {
+		for (true) {
 			let copy = s;
 			let rn = strings::next(&copy);
 			let matched = match (pat_next(&p, fl)?) {
@@ -216,7 +216,7 @@ fn fnmatch_internal(
 				continue :outer;
 			};
 			if (!matched) {
-				break :inner;
+				break;
 			};
 			s = copy;
 		};
