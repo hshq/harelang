@@ -197,7 +197,7 @@
 	for (true) {
 		x;
 	};
-	for (true) :label {
+	for :label (true) {
 		x;
 	};
 	for (let x = 0; x < 10) {
@@ -268,6 +268,9 @@
 	case =>
 		defer x;
 	};
+	switch :label (x) {
+	case => void;
+	};
 };
 ");
 };
@@ -286,7 +289,7 @@
 	case null => void;
 	case => abort();
 	};
-	match (x) {
+	match :label (x) {
 	case let s: matchdata =>
 		return y;
 	case str =>

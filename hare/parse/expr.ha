@@ -678,6 +678,10 @@ fn stmt(lexer: *lex::lexer) (ast::expr | error) = {
 
 fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = want(lexer, ltok::FOR)?;
+	const label = if (try(lexer, ltok::COLON)? is lex::token) {
+		const tok = want(lexer, ltok::NAME)?;
+		yield tok.1 as str;
+	} else "";
 	want(lexer, ltok::LPAREN)?;
 
 	const bindings: nullable *ast::expr =
@@ -721,6 +725,7 @@ fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 			cond = cond,
 			afterthought = afterthought,
 			body = body,
+			label = label,
 		},
 	};
 };
@@ -1109,6 +1114,11 @@ fn static_expr(lexer: *lex::lexer) (ast::expr | error) = {
 fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const start = want(lexer, ltok::SWITCH)?;
 
+	const label = if (try(lexer, ltok::COLON)? is lex::token) {
+		const tok = want(lexer, ltok::NAME)?;
+		yield tok.1 as str;
+	} else "";
+
 	want(lexer, ltok::LPAREN)?;
 	const value = expr(lexer)?;
 	want(lexer, ltok::RPAREN)?;
@@ -1159,6 +1169,7 @@ fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		expr = ast::switch_expr {
 			value = alloc(value),
 			cases = cases,
+			label = label,
 		},
 	};
 };
@@ -1204,6 +1215,10 @@ fn match_case(lexer: *lex::lexer) (ast::match_case | error) = {
 
 fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const start = want(lexer, ltok::MATCH)?;
+	const label = if (try(lexer, ltok::COLON)? is lex::token) {
+		const tok = want(lexer, ltok::NAME)?;
+		yield tok.1 as str;
+	} else "";
 	want(lexer, ltok::LPAREN)?;
 	const value = expr(lexer)?;
 	want(lexer, ltok::RPAREN)?;
@@ -1221,8 +1236,9 @@ fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		start = start.2,
 		end = lex::prevloc(lexer),
 		expr = ast::match_expr {
-			value   = alloc(value),
-			cases   = cases,
+			value = alloc(value),
+			cases = cases,
+			label = label,
 		},
 	};
 };

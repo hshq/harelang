@@ -281,6 +281,7 @@ export type for_expr = struct {
 	cond: *expr,
 	afterthought: nullable *expr,
 	body: *expr,
+	label: label,
 };
 
 // A free expression.
@@ -328,6 +329,7 @@ export type match_case = struct {
 export type match_expr = struct {
 	value: *expr,
 	cases: []match_case,
+	label: label,
 };
 
 // An offset expression.
@@ -378,6 +380,7 @@ export type switch_case = struct {
 export type switch_expr = struct {
 	value: *expr,
 	cases: []switch_case,
+	label: label,
 };
 
 // A unary operator
@@ -595,6 +598,7 @@ case let e: *expr =>
 		expr_finish(l);
 		free(l);
 	case let m: match_expr =>
+		free(m.label);
 		expr_finish(m.value);
 		free(m.value);
 		for (let i = 0z; i < len(m.cases); i += 1) {
@@ -629,6 +633,7 @@ case let e: *expr =>
 		expr_finish(s.end);
 		free(s.end);
 	case let s: switch_expr =>
+		free(s.label);
 		expr_finish(s.value);
 		free(s.value);
 		for (let i = 0z; i < len(s.cases); i += 1) {

@@ -743,6 +743,11 @@ fn for_expr(
 ) (size | io::error) = {
 	let z = syn(ctx, "for", synkind::KEYWORD)?;
 	z += space(ctx)?;
+	if (e.label != "") {
+		z += syn(ctx, ":", synkind::LABEL)?;
+		z += syn(ctx, e.label, synkind::LABEL)?;
+		z += space(ctx)?;
+	};
 	z += syn(ctx, "(", synkind::PUNCTUATION)?;
 	match (e.bindings) {
 	case null => void;
@@ -775,6 +780,11 @@ fn switch_expr(
 ) (size | io::error) = {
 	let z = syn(ctx, "switch", synkind::KEYWORD)?;
 	z += space(ctx)?;
+	if (e.label != "") {
+		z += syn(ctx, ":", synkind::LABEL)?;
+		z += syn(ctx, e.label, synkind::LABEL)?;
+		z += space(ctx)?;
+	};
 	z += syn(ctx, "(", synkind::PUNCTUATION)?;
 	z += _expr(ctx, syn, e.value)?;
 	z += syn(ctx, ")", synkind::PUNCTUATION)?;
@@ -816,6 +826,11 @@ fn match_expr(
 ) (size | io::error) = {
 	let z = syn(ctx, "match", synkind::KEYWORD)?;
 	z += space(ctx)?;
+	if (e.label != "") {
+		z += syn(ctx, ":", synkind::LABEL)?;
+		z += syn(ctx, e.label, synkind::LABEL)?;
+		z += space(ctx)?;
+	};
 	z += syn(ctx, "(", synkind::PUNCTUATION)?;
 	z += _expr(ctx, syn, e.value)?;
 	z += syn(ctx, ")", synkind::PUNCTUATION)?;
