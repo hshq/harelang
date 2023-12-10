@@ -79,20 +79,25 @@ export fn version() const str = {
 	return strings::fromutf8(buf[..(sz - 1)])!;
 };
 
-// Returns the host CPU architecture
+// Returns the host CPU architecture, in a platform-specific format. See
+// [[architecture]] for a more portable wrapper.
 export fn machine() const str = {
-	static let buf: [512]u8 = [0...];
+	static let buf: [32]u8 = [0...];
 	let sz: size = len(buf);
 	rt::sysctlbyname("hw.machine", &buf, &sz, null, 0)!;
-	const mach = strings::fromutf8(buf[..(sz - 1)])!;
-	// Translate to Hare names
-	switch (mach) {
+	return strings::fromutf8(buf[..sz - 1])!;
+};
+
+// Returns the host CPU architecture.
+export fn architecture() arch = {
+	switch (machine()) {
+	case "aarch64", "arm64" =>
+		return arch::AARCH64;
+	case "riscv64" =>
+		return arch::RISCV64;
 	case "amd64" =>
-		return "x86_64";
-	case "arm64" =>
-		return "aarch64";
-	case =>
-		return mach;
+		return arch::X86_64;
+	case => abort(); // unreachable
 	};
 };
 
