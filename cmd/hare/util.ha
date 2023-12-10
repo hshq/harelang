@@ -11,7 +11,7 @@ use strings;
 fn merge_tags(current: *[]str, new: str) (void | module::error) = {
 	let trimmed = strings::trimprefix(new, "^");
 	if (trimmed != new) {
-		strings::freeall(*current);
+		free(*current);
 		*current = [];
 	};
 	let newtags = module::parse_tags(trimmed)?;
@@ -20,14 +20,13 @@ fn merge_tags(current: *[]str, new: str) (void | module::error) = {
 		for (let j = 0z; j < len(current); j += 1) {
 			if (newtags[i].name == current[j]) {
 				if (!newtags[i].include) {
-					free(current[j]);
 					static delete(current[j]);
 				};
 				continue :new;
 			};
 		};
 		if (newtags[i].include) {
-			append(current, strings::dup(newtags[i].name));
+			append(current, newtags[i].name);
 		};
 	};
 };
@@ -43,10 +42,11 @@ fn harecache() str = {
 	};
 };
 
-// result must be freed with strings::freeall
+// contents of slice shouldn't be freed
 fn default_tags() []str = {
 	let arch = os::arch_name(os::architecture());
-	let platform = ascii::strlower(os::sysname());
-	let tags: []str = alloc([strings::dup(arch), platform]);
+	static let platform: [7]u8 = [0...];
+	let platform = ascii::strlower_buf(os::sysname(), platform[..0]);
+	let tags: []str = alloc([arch, platform]);
 	return tags;
 };

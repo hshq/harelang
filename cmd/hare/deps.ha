@@ -11,7 +11,6 @@ use os;
 use path;
 use sort;
 use sort::cmp;
-use strings;
 
 type deps_fmt = enum {
 	DOT,
@@ -26,7 +25,7 @@ type link = struct {
 
 fn deps(name: str, cmd: *getopt::command) (void | error) = {
 	let tags = default_tags();
-	defer strings::freeall(tags);
+	defer free(tags);
 
 	let build_dir: str = "";
 	let goal = deps_fmt::TERM;

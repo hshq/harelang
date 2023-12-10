@@ -3,7 +3,6 @@
 
 use hare::module;
 use os;
-use strings;
 
 // When building the bootstrap toolchain, these values will get overwritten to
 // equal the values in config.mk
@@ -53,7 +52,7 @@ const arches: [_]arch = [
 
 fn set_arch_tags(tags: *[]str, a: *arch) void = {
 	merge_tags(tags, "-aarch64-riscv64-x86_64")!;
-	append(tags, strings::dup(a.name));
+	append(tags, a.name);
 };
 
 fn get_arch(name: str) (*arch | unknown_arch) = {
