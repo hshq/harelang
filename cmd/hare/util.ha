@@ -15,6 +15,7 @@ fn merge_tags(current: *[]str, new: str) (void | module::error) = {
 		*current = [];
 	};
 	let newtags = module::parse_tags(trimmed)?;
+	defer free(newtags);
 	for :new (let i = 0z; i < len(newtags); i += 1) {
 		for (let j = 0z; j < len(current); j += 1) {
 			if (newtags[i].name == current[j]) {
