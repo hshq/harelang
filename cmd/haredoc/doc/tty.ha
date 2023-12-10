@@ -103,7 +103,10 @@ export fn emit_tty(ctx: *context) (void | error) = {
 
 fn emit_submodules_tty(ctx: *context) (void | error) = {
 	if (len(ctx.submods) != 0) {
-		fmt::fprintln(ctx.out)?;
+		if (!firstline) {
+			fmt::fprintln(ctx.out)?;
+		};
+		firstline = false;
 		if (!no_color) fmt::fprintf(ctx.out, "\x1b[{}m",
 			color(unparse::synkind::COMMENT))?;
 		if (len(ctx.ident) == 0) {
