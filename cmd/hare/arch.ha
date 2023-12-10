@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // (c) Hare authors <https://harelang.org>
 
-use hare::module;
-use os;
-
 // When building the bootstrap toolchain, these values will get overwritten to
 // equal the values in config.mk
 def AARCH64_AS = "as";

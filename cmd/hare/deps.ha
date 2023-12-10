@@ -6,7 +6,6 @@ use getopt;
 use hare::ast;
 use hare::module;
 use hare::parse;
-use io;
 use os;
 use path;
 use sort;

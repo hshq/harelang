@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // (c) Hare authors <https://harelang.org>
 
-use ascii;
 use bufio;
 use fmt;
 use hare::ast;

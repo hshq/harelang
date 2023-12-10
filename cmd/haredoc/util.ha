@@ -3,7 +3,6 @@
 
 use ascii;
 use dirs;
-use errors;
 use hare::module;
 use os;
 use strings;

@@ -19,7 +19,6 @@ use path;
 use strconv;
 use strings;
 use types;
-use unix::tty;
 
 const help: []getopt::help = [
 	"reads and formats Hare documentation",
