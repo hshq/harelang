@@ -73,4 +73,7 @@ export fn join(delim: str, strs: str...) str = {
 	defer free(s);
 	assert(s == "");
 
+	let s = join(".", "a");
+	defer free(s);
+	assert(s == "a");
 };
