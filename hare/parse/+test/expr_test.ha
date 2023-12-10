@@ -105,6 +105,12 @@
 		"export fn main() void = {\n\tyield void;\n}: int;\n");
 };
 
+@test fn compound() void = {
+	roundtrip("export fn main() void = :label {\n"
+		"\tvoid;\n"
+		"};\n");
+};
+
 @test fn constant() void = {
 	roundtrip(`export fn main() void = {
 	2 + (-4 + void) * true / ("hello" << '?');
