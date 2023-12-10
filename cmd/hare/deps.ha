@@ -84,6 +84,11 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 };
 
 fn deps_graph(mods: *[]module::module) void = {
+	if (len(mods) == 1 && len(mods[0].deps) == 0) {
+		fmt::println(mods[0].name, "has no dependencies")!;
+		return;
+	};
+
 	let links: []link = [];
 	defer free(links);
 	let depth: []uint = alloc([0...], len(mods));
