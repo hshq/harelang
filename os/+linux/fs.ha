@@ -94,6 +94,18 @@ export fn mkchr(
 	};
 };
 
+// Makes a regular file. This function is only available on Unix-like systems.
+// This function should only be used if you have a special reason; most of the
+// time you should use [[create]] instead.
+export fn mkfile(path: str, mode: fs::mode) (void | fs::error) = {
+	match (rt::mknodat(rt::AT_FDCWD, path,
+			mode: rt::mode_t | rt::S_IFREG, 0)) {
+	case let err: rt::errno =>
+		return errors::errno(err);
+	case void => void;
+	};
+};
+
 // Access modes for [[access]].
 export type amode = enum int {
 	F_OK = rt::F_OK,

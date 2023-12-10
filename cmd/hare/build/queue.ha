@@ -139,6 +139,7 @@ fn run_task(ctx: *context, jobs: *[]job, t: *task) (bool | error) = {
 
 	path::set(&buf, out)?;
 	let tmp = path::push_ext(&buf, "tmp")?;
+	// TODO: use os::mkfile once that's supported on freebsd and openbsd
 	io::close(os::create(tmp, 0o644)?)?;
 
 	let args = get_args(ctx, tmp, flags, t);
