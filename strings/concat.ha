@@ -34,6 +34,10 @@ export fn concat(strs: str...) str = {
 	let s = concat();
 	defer free(s);
 	assert(s == "");
+
+	let s = concat("hello");
+	defer free(s);
+	assert(s == "hello");
 };
 
 // Joins several strings together by placing a delimiter between them. The
