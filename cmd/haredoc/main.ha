@@ -58,7 +58,7 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 	let html = false;
 	let template = true;
 	let show_undocumented = false;
-	let tags: []str = default_tags()?;
+	let tags: []str = default_tags();
 	defer strings::freeall(tags);
 
 	for (let i = 0z; i < len(cmd.opts); i += 1) {

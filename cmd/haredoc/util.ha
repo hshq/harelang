@@ -46,8 +46,8 @@ fn harecache() str = {
 };
 
 // result must be freed with strings::freeall
-fn default_tags() ([]str | error) = {
-	let arch = os::machine();
+fn default_tags() []str = {
+	let arch = os::arch_name(os::architecture());
 	let platform = ascii::strlower(os::sysname());
 	let tags: []str = alloc([strings::dup(arch), platform]);
 	return tags;

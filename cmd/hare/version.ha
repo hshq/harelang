@@ -24,7 +24,8 @@ fn version(name: str, cmd: *getopt::command) (void | error) = {
 		return;
 	};
 
-	let build_arch = get_arch(os::machine())?;
+	let build_arch = os::arch_name(os::architecture());
+	let build_arch = get_arch(build_arch)!;
 	let build_platform = ascii::strlower(os::sysname());
 
 	fmt::printfln("build tags:\n\t+{}\n\t+{}\nHAREPATH{}:",

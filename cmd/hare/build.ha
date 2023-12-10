@@ -21,13 +21,14 @@ use strings;
 use unix::tty;
 
 fn build(name: str, cmd: *getopt::command) (void | error) = {
-	let arch = get_arch(os::machine())?;
+	let arch = os::arch_name(os::architecture());
+	let arch = get_arch(arch)!;
 	let output = "";
 	let ctx = build::context {
 		ctx = module::context {
 			harepath = harepath(),
 			harecache = harecache(),
-			tags = default_tags()?,
+			tags = default_tags(),
 		},
 		goal = build::stage::BIN,
 		jobs = match (os::cpucount()) {
