@@ -22,13 +22,13 @@ const help: []getopt::help = [
 	"args...",
 	("build", [
 		"compiles a Hare program or module",
+		// XXX: once cross-compiling to different targets (linux,
+		// freebsd, etc) is supported, we can probably merge -F with it
+		('F', "build for freestanding environment"),
 		('q', "build silently"),
 		('v', "print executed commands (specify twice to print arguments)"),
 		('a', "arch", "set target architecture"),
 		('D', "ident[:type]=value", "define a constant"),
-		// XXX: once cross-compiling to different targets (linux,
-		// freebsd, etc) is supported, we can probably merge -F with it
-		('F', "build for freestanding environment"),
 		('j', "jobs", "set parallelism for build"),
 		('L', "libdir", "add directory to linker library search path"),
 		('l', "libname", "link with a system library"),

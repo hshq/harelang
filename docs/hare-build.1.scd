@@ -6,10 +6,9 @@ hare build - compile a Hare program or module
 
 # SYNOPSIS
 
-*hare build* [-hqv]++
+*hare build* [-hFqv]++
 	[-a _arch_]++
 	[-D _ident[:type]=value_]++
-	[-F]++
 	[-j _jobs_]++
 	[-L _libdir_]++
 	[-l _libname_]++
@@ -32,6 +31,10 @@ working directory is built.
 *-h*
 	Print the help text.
 
+*-F*
+	Build for freestanding (non-hosted) environment. This allows a
+	declaration whose symbol is main to take on any form.
+
 *-q*
 	Outside of errors, don't write anything to stdout while building.
 
@@ -48,10 +51,6 @@ working directory is built.
 	"struct { x: int, y: int }"), and _value_ as a Hare expression (e.g.
 	"42"). Take care to address any necessary escaping to avoid conflicts
 	between your shell syntax and Hare syntax.
-
-*-F*
-	Build for freestanding (non-hosted) environment. This allows a
-	declaration whose symbol is main to take on any form.
 
 *-j* _jobs_
 	Set the maximum number of jobs to execute in parallel. The default is
