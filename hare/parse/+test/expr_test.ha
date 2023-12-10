@@ -105,6 +105,12 @@
 		"export fn main() void = {\n\tyield void;\n}: int;\n");
 };
 
+@test fn compound() void = {
+	roundtrip("export fn main() void = :label {\n"
+		"\tvoid;\n"
+		"};\n");
+};
+
 @test fn constant() void = {
 	roundtrip(`export fn main() void = {
 	2 + (-4 + void) * true / ("hello" << '?');
@@ -197,7 +203,7 @@
 	for (true) {
 		x;
 	};
-	for (true) :label {
+	for :label (true) {
 		x;
 	};
 	for (let x = 0; x < 10) {
@@ -268,6 +274,9 @@
 	case =>
 		defer x;
 	};
+	switch :label (x) {
+	case => void;
+	};
 };
 ");
 };
@@ -286,7 +295,7 @@
 	case null => void;
 	case => abort();
 	};
-	match (x) {
+	match :label (x) {
 	case let s: matchdata =>
 		return y;
 	case str =>

@@ -21,6 +21,7 @@ type error = !(
 	unknown_arch |
 	unknown_output |
 	unknown_type |
+	output_exists |
 	output_failed |
 	invalid_namespace |
 	build::unknown_platform |
@@ -31,6 +32,8 @@ type unknown_arch = !str;
 type unknown_output = !void;
 
 type unknown_type = !str;
+
+type output_exists = !str;
 
 type output_failed = !(str, fs::error);
 

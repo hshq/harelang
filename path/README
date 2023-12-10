@@ -15,6 +15,10 @@ normalized, which is to say that it will not include any of the following:
 Assuming that [[SEP]] is '/', "/usr//bin/../bin/./hare/" becomes "/usr/bin/hare"
 and "../../foo/bar" is unchanged.
 
+Different [[fs::fs]] implementations may have different rules for normalizing
+paths. For use-cases in which this is relevant, [[fs::resolve]] should be used
+instead.
+
 The buffer object includes an array of length [[MAX]], which can be somewhat
 large; on Linux it's 4095 bytes. You can allocate this on the stack in most
 cases, but you may prefer to allocate it elsewhere depending on your needs.

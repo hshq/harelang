@@ -97,6 +97,8 @@ export fn open(path: str, flags: fs::flag...) (io::file | fs::error) =
 //
 // Only the permission bits of the mode are used. If other bits are set, they
 // are discarded.
+//
+// To create a file without opening it, see [[mkfile]].
 export fn create(
 	path: str,
 	mode: fs::mode,

@@ -6,12 +6,10 @@ use getopt;
 use hare::ast;
 use hare::module;
 use hare::parse;
-use io;
 use os;
 use path;
 use sort;
 use sort::cmp;
-use strings;
 
 type deps_fmt = enum {
 	DOT,
@@ -25,8 +23,8 @@ type link = struct {
 };
 
 fn deps(name: str, cmd: *getopt::command) (void | error) = {
-	let tags = default_tags()?;
-	defer strings::freeall(tags);
+	let tags = default_tags();
+	defer free(tags);
 
 	let build_dir: str = "";
 	let goal = deps_fmt::TERM;
@@ -84,6 +82,11 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 };
 
 fn deps_graph(mods: *[]module::module) void = {
+	if (len(mods) == 1 && len(mods[0].deps) == 0) {
+		fmt::println(mods[0].name, "has no dependencies")!;
+		return;
+	};
+
 	let links: []link = [];
 	defer free(links);
 	let depth: []uint = alloc([0...], len(mods));

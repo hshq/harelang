@@ -34,6 +34,10 @@ export fn concat(strs: str...) str = {
 	let s = concat();
 	defer free(s);
 	assert(s == "");
+
+	let s = concat("hello");
+	defer free(s);
+	assert(s == "hello");
 };
 
 // Joins several strings together by placing a delimiter between them. The
@@ -69,4 +73,7 @@ export fn join(delim: str, strs: str...) str = {
 	defer free(s);
 	assert(s == "");
 
+	let s = join(".", "a");
+	defer free(s);
+	assert(s == "a");
 };

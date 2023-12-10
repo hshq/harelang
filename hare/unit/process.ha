@@ -110,7 +110,7 @@ fn process_expr(
 		abort(); // TODO
 	case ast::compound_expr =>
 		return process_compound(ctx, expr);
-	case ast::constant_expr =>
+	case ast::literal_expr =>
 		return process_constant(ctx, expr);
 	case ast::continue_expr =>
 		abort(); // TODO
@@ -232,7 +232,7 @@ fn process_compound(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 };
 
 fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
-	const constexpr = aexpr.expr as ast::constant_expr;
+	const constexpr = aexpr.expr as ast::literal_expr;
 	const (result, ex) = match (constexpr) {
 	case let v: ast::value =>
 		yield (
@@ -251,9 +251,9 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 			}),
 			v: constant,
 		);
-	case ast::array_constant =>
+	case ast::array_literal =>
 		abort(); // TODO
-	case let v: ast::number_constant =>
+	case let v: ast::number_literal =>
 		yield (
 			types::lookup_builtin(ctx.store, switch (v.suff) {
 			case lex::ltok::LIT_U8 =>
@@ -286,9 +286,9 @@ fn process_constant(ctx: *context, aexpr: *ast::expr) (*expr | error) = {
 			}),
 			v.value: constant,
 		);
-	case ast::struct_constant =>
+	case ast::struct_literal =>
 		abort(); // TODO
-	case ast::tuple_constant =>
+	case ast::tuple_literal =>
 		abort(); // TODO
 	};
 	return alloc(expr {

@@ -4,6 +4,26 @@
 use errors;
 use strings;
 
+// All currently supported target architectures. This enum will be extended
+// whenever support for a new architecture is added.
+export type arch = enum {
+	AARCH64,
+	RISCV64,
+	X86_64,
+};
+
+// Returns a portable string for an [[arch]].
+export fn arch_name(arch: arch) const str = {
+	switch (arch) {
+	case arch::AARCH64 =>
+		return "aarch64";
+	case arch::RISCV64 =>
+		return "riscv64";
+	case arch::X86_64 =>
+		return "x86_64";
+	};
+};
+
 let envp: []str = [];
 
 @fini fn envp() void = strings::freeall(envp);

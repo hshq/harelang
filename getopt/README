@@ -1,6 +1,6 @@
 getopt provides an interface for parsing command line arguments and
 automatically generates a brief help message explaining the command usage. See
-[[parse]] for the main entry point.
+[[parse]] or [[tryparse]] for the main entry point.
 
 The caller provides [[help]] arguments to specify which command line flags and
 parameters are supported, and to provide some brief help text which describes
@@ -17,8 +17,8 @@ flags, then all parameters, alpha-sorted within each group by the flag rune.
 	const cmd = getopt::parse(os::args,
 		"stream editor",
 		('E', "use extended regular expressions"),
-		('s', "treat files as separate, rather than one continuous stream"),
 		('i', "edit files in place"),
+		('s', "treat files as separate, rather than one continuous stream"),
 		('z', "separate lines by NUL characters"),
 		('e', "script", "execute commands from script"),
 		('f', "file", "execute commands from a file"),
@@ -31,9 +31,12 @@ flags, then all parameters, alpha-sorted within each group by the flag rune.
 		switch (opt.0) {
 		case 'E' =>
 			extended = true;
+		case 'i' =>
+			in_place = true;
 		case 's' =>
 			continuous = false;
-		// ...
+		case 'z' =>
+			sep = '\0';
 		case 'e' =>
 			script = opt.1;
 		case 'f' =>
@@ -47,9 +50,16 @@ flags, then all parameters, alpha-sorted within each group by the flag rune.
 		// ...
 	};
 
+If any non-option arguments are provided on the command line, the options list
+is terminated by the first non-option argument, or by a "--" argument if one is
+present. The arguments list is NOT reordered to accomodate for options which
+appear after other arguments. Overriding the behavior of "--" is not supported;
+providing '-' as a flag or parameter rune will have no effect.
+
 If "-h" is not among the options defined by the caller, the "-h" option will
 cause a summary of the command usage to be printed to [[os::stderr]] (see also
-[[printhelp]]), and [[os::exit]] will be called with a successful exit status.
+[[printhelp]]), and [[os::exit]] will be called with [[os::status::SUCCESS]].
 The help text is brief and should serve only as a reminder. It is recommended
 that your command line program be accompanied by a man page to provide detailed
-usage information.
+usage information. 'h' may be provided as a flag or parameter rune to override
+the default behavior.

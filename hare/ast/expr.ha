@@ -206,10 +206,10 @@ export type compound_expr = struct {
 	label: label,
 };
 
-// An array constant.
+// An array literal.
 //
 // 	[foo, bar, ...]
-export type array_constant = struct {
+export type array_literal = struct {
 	expand: bool,
 	values: []*expr,
 };
@@ -223,19 +223,19 @@ export type struct_value = struct {
 	init: *expr,
 };
 
-// A struct constant.
+// A struct literal.
 //
 // 	struct { foo: int = bar, struct { baz = quux }, ... }
-export type struct_constant = struct {
+export type struct_literal = struct {
 	autofill: bool,
 	alias: ident, // [] for anonymous
-	fields: [](struct_value | *struct_constant),
+	fields: [](struct_value | *struct_literal),
 };
 
-// A tuple constant.
+// A tuple literal.
 //
 // 	(foo, bar, ...)
-export type tuple_constant = []*expr;
+export type tuple_literal = []*expr;
 
 // The value "null".
 export type _null = void;
@@ -243,16 +243,16 @@ export type _null = void;
 // A scalar value.
 export type value = (bool | _null | str | rune | void);
 
-// An integer or float constant.
-export type number_constant = struct {
+// An integer or float literal.
+export type number_literal = struct {
 	suff: lex::ltok,
 	value: (i64 | u64 | f64),
 	sign: bool, // true if negative, false otherwise
 };
 
-// A constant expression.
-export type constant_expr = (value | array_constant | number_constant |
-	struct_constant | tuple_constant);
+// A literal expression.
+export type literal_expr = (value | array_literal | number_literal |
+	struct_literal | tuple_literal);
 
 // A continue expression. The label is set to empty string if absent.
 //
@@ -281,6 +281,7 @@ export type for_expr = struct {
 	cond: *expr,
 	afterthought: nullable *expr,
 	body: *expr,
+	label: label,
 };
 
 // A free expression.
@@ -328,6 +329,7 @@ export type match_case = struct {
 export type match_expr = struct {
 	value: *expr,
 	cases: []match_case,
+	label: label,
 };
 
 // An offset expression.
@@ -378,6 +380,7 @@ export type switch_case = struct {
 export type switch_expr = struct {
 	value: *expr,
 	cases: []switch_case,
+	label: label,
 };
 
 // A unary operator
@@ -431,7 +434,7 @@ export type expr = struct {
 	end: lex::location,
 	expr: (access_expr | align_expr | alloc_expr | append_expr |
 		assert_expr | assign_expr | binarithm_expr | binding_expr |
-		break_expr | call_expr | cast_expr | constant_expr |
+		break_expr | call_expr | cast_expr | literal_expr |
 		continue_expr | defer_expr | delete_expr | for_expr |
 		free_expr | error_assert_expr | if_expr | insert_expr |
 		compound_expr | match_expr | len_expr | size_expr |
@@ -536,23 +539,23 @@ case let e: *expr =>
 		};
 		free(c.exprs);
 		free(c.label);
-	case let c: constant_expr =>
+	case let c: literal_expr =>
 		match (c) {
-		case let a: array_constant =>
+		case let a: array_literal =>
 			for (let i = 0z; i < len(a.values); i += 1) {
 				expr_finish(a.values[i]);
 				free(a.values[i]);
 			};
 			free(a.values);
-		case let s: struct_constant =>
-			struct_constant_finish(&s);
-		case let t: tuple_constant =>
+		case let s: struct_literal =>
+			struct_literal_finish(&s);
+		case let t: tuple_literal =>
 			for (let i = 0z; i < len(t); i += 1) {
 				expr_finish(t[i]);
 				free(t[i]);
 			};
 			free(t);
-		case (value | number_constant) => void;
+		case (value | number_literal) => void;
 		};
 	case let c: continue_expr =>
 		free(c);
@@ -595,6 +598,7 @@ case let e: *expr =>
 		expr_finish(l);
 		free(l);
 	case let m: match_expr =>
+		free(m.label);
 		expr_finish(m.value);
 		free(m.value);
 		for (let i = 0z; i < len(m.cases); i += 1) {
@@ -629,6 +633,7 @@ case let e: *expr =>
 		expr_finish(s.end);
 		free(s.end);
 	case let s: switch_expr =>
+		free(s.label);
 		expr_finish(s.value);
 		free(s.value);
 		for (let i = 0z; i < len(s.cases); i += 1) {
@@ -667,7 +672,7 @@ case let e: *expr =>
 	};
 };
 
-fn struct_constant_finish(s: *struct_constant) void = {
+fn struct_literal_finish(s: *struct_literal) void = {
 	ident_free(s.alias);
 	for (let i = 0z; i < len(s.fields); i += 1) {
 		match (s.fields[i]) {
@@ -677,8 +682,8 @@ fn struct_constant_finish(s: *struct_constant) void = {
 			free(v._type);
 			expr_finish(v.init);
 			free(v.init);
-		case let c: *struct_constant =>
-			struct_constant_finish(c);
+		case let c: *struct_literal =>
+			struct_literal_finish(c);
 			free(c);
 		};
 	};

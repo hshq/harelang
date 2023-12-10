@@ -61,7 +61,7 @@ export fn decl(
 		for (let i = 0z; i < len(g); i += 1) {
 			if (len(g[i].symbol) != 0) {
 				n += syn(&ctx, "@symbol(", synkind::ATTRIBUTE)?;
-				n += constant(&ctx, syn, g[i].symbol)?;
+				n += literal(&ctx, syn, g[i].symbol)?;
 				n += syn(&ctx, ")", synkind::ATTRIBUTE)?;
 				n += space(&ctx)?;
 			} else if (g[i].is_threadlocal) {
@@ -136,7 +136,7 @@ export fn decl(
 		let p = f.prototype.repr as ast::func_type;
 		if (len(f.symbol) != 0) {
 			n += syn(&ctx, "@symbol(", synkind::ATTRIBUTE)?;
-			n += constant(&ctx, syn, f.symbol)?;
+			n += literal(&ctx, syn, f.symbol)?;
 			n += syn(&ctx, ")", synkind::ATTRIBUTE)?;
 			n += space(&ctx)?;
 		};

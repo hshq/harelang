@@ -22,13 +22,13 @@ const help: []getopt::help = [
 	"args...",
 	("build", [
 		"compiles a Hare program or module",
+		// XXX: once cross-compiling to different targets (linux,
+		// freebsd, etc) is supported, we can probably merge -F with it
+		('F', "build for freestanding environment"),
 		('q', "build silently"),
 		('v', "print executed commands (specify twice to print arguments)"),
 		('a', "arch", "set target architecture"),
 		('D', "ident[:type]=value", "define a constant"),
-		// XXX: once cross-compiling to different targets (linux,
-		// freebsd, etc) is supported, we can probably merge -F with it
-		('F', "build for freestanding environment"),
 		('j', "jobs", "set parallelism for build"),
 		('L', "libdir", "add directory to linker library search path"),
 		('l', "libname", "link with a system library"),
@@ -122,6 +122,9 @@ export fn main() void = {
 			fmt::fatal("Error: Can't guess output in root directory");
 		case let e: unknown_type =>
 			fmt::fatalf("Error: Unknown build type: {}", e);
+		case let e: output_exists =>
+			fmt::fatalf("Error: Output path '{}' already exists, but isn't an executable file",
+				e);
 		case let e: output_failed =>
 			fmt::fatalf("Error: Could not open output '{}': {}",
 				e.0, fs::strerror(e.1));

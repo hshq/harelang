@@ -15,9 +15,8 @@ use strings;
 		("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu", "8e959b75dae313da8cf4f72814fc143f8f7779c6eb9f7fa17299aeadb6889018501d289e4900f7e4331b99dec4b5433ac7d329eeb6dd26545e96e55b874be909"),
 		("'UNIX was not designed to stop its users from doing stupid things, as that would also stop them from doing clever things' - Doug Gwyn",
 			"f3d99b807bd734bcec25d64109ff5d78405d5b76a34332270c7062a4c9e6d1711ee6ed230e688fef257cf19e94e0163671c99f4c785d50e8adddef9f37060023"),
-                ("'Life is too short to run proprietary software' - Bdale Garbee", "b1eeae774232d4ba74410e7d951fc3e7de165dbc9498babb243e4a87983595a79f5970ed67ebf2e275059928b4f0309926f85dad45126875530e8d2350a93a2b"),
-                ("'The central enemy of reliability is complexity.' - Geer et al", "7eee0bc24a069679eb272aeb698136f8e3bca79b4220c70bf091607b78358fe4b3621a9e28295d73157806a20470a17cc21b9a3eefa7408c6cf1f288d1403a0d"),
-
+		("'Life is too short to run proprietary software' - Bdale Garbee", "b1eeae774232d4ba74410e7d951fc3e7de165dbc9498babb243e4a87983595a79f5970ed67ebf2e275059928b4f0309926f85dad45126875530e8d2350a93a2b"),
+		("'The central enemy of reliability is complexity.' - Geer et al", "7eee0bc24a069679eb272aeb698136f8e3bca79b4220c70bf091607b78358fe4b3621a9e28295d73157806a20470a17cc21b9a3eefa7408c6cf1f288d1403a0d"),
 	];
 
 	for (let i = 0z; i < len(vectors); i += 1) {

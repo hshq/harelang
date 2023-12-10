@@ -73,3 +73,9 @@ export fn access(path: str, mode: amode) (bool | fs::error) = {
 		return errno_to_fs(err);
 	};
 };
+
+// TODO: OpenBSD
+// export fn mkfifo(path: str, mode: fs::mode) (void | fs::error) = {
+// export fn mkblk(
+// export fn mkchr(
+// export fn mkfile(

@@ -79,11 +79,11 @@ docs: \
 	docs/haredoc.1 \
 	docs/hare-run.1 \
 	docs/hare-test.1 \
-	docs/hare-doc.5 \
+	docs/haredoc.5 \
 	docs/hare-module.5
 
 MAN1 = hare hare-build hare-cache hare-deps haredoc hare-run hare-test
-MAN5 = hare-doc hare-module
+MAN5 = haredoc hare-module
 
 bootstrap:
 	@BINOUT=$(BINOUT) ./scripts/genbootstrap

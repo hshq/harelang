@@ -61,7 +61,8 @@ export fn mkfifo(path: str, mode: fs::mode) (void | fs::error) = {
 	};
 };
 
-// Makes a block device node. This function is only available on Unix systems.
+// Makes a block device node. This function is only available on Unix-like
+// systems.
 export fn mkblk(
 	path: str,
 	mode: fs::mode,
@@ -77,7 +78,8 @@ export fn mkblk(
 	};
 };
 
-// Makes a character device node. This function is only available on Unix systems.
+// Makes a character device node. This function is only available on Unix-like
+// systems.
 export fn mkchr(
 	path: str,
 	mode: fs::mode,
@@ -86,6 +88,18 @@ export fn mkchr(
 ) (void | fs::error) = {
 	match (rt::mknodat(rt::AT_FDCWD, path, mode: rt::mode_t | rt::S_IFCHR,
 			rt::mkdev(major: u32, minor: u32))) {
+	case let err: rt::errno =>
+		return errors::errno(err);
+	case void => void;
+	};
+};
+
+// Makes a regular file. This function is only available on Unix-like systems.
+// This function should only be used if you have a special reason; most of the
+// time you should use [[create]] instead.
+export fn mkfile(path: str, mode: fs::mode) (void | fs::error) = {
+	match (rt::mknodat(rt::AT_FDCWD, path,
+			mode: rt::mode_t | rt::S_IFREG, 0)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case void => void;

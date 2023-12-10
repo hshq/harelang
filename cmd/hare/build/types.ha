@@ -8,7 +8,6 @@ use hare::module;
 use io;
 use os::exec;
 use path;
-use strings;
 
 export type error = !(exec::error | fs::error | io::error | module::error | path::error);
 
@@ -86,7 +85,7 @@ export type context = struct {
 };
 
 export fn ctx_finish(ctx: *context) void = {
-	strings::freeall(ctx.ctx.tags);
+	free(ctx.ctx.tags);
 	for (let i = 0z; i < len(ctx.defines); i += 1) {
 		ast::ident_free(ctx.defines[i].ident);
 		ast::type_finish(ctx.defines[i]._type);

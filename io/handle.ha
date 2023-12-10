@@ -50,7 +50,8 @@ export fn close(h: handle) (void | error) = {
 	};
 };
 
-// Sets the offset within a [[handle]].
+// Sets the offset within a [[handle]], returning the new offset. The new offset
+// is obtained by adding [[off]] to the position specified by [[whence]].
 export fn seek(h: handle, off: off, w: whence) (off | error) = {
 	match (h) {
 	case let fd: file =>

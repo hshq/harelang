@@ -19,7 +19,6 @@ use path;
 use strconv;
 use strings;
 use types;
-use unix::tty;
 
 const help: []getopt::help = [
 	"reads and formats Hare documentation",
@@ -58,8 +57,8 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 	let html = false;
 	let template = true;
 	let show_undocumented = false;
-	let tags: []str = default_tags()?;
-	defer strings::freeall(tags);
+	let tags: []str = default_tags();
+	defer free(tags);
 
 	for (let i = 0z; i < len(cmd.opts); i += 1) {
 		let opt = cmd.opts[i];
@@ -85,6 +84,11 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 
 	if (show_undocumented && html) {
 		fmt::fatal("Option -a must be used only with -Ftty");
+	};
+
+	if (len(cmd.args) > 1) {
+		getopt::printusage(os::stderr, os::args[0], help)!;
+		os::exit(os::status::FAILURE);
 	};
 
 	let ctx = module::context {
@@ -348,18 +352,22 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 		if (len(d.ident) == 1 && d.ident[0] == name) {
 			return true;
 		};
-		const sym = strings::split(d.symbol, ".");
-		defer free(sym);
-		return len(sym) > 0 && sym[len(sym) - 1] == name;
+		let tok = strings::rtokenize(d.symbol, ".");
+		match (strings::next_token(&tok)) {
+		case void => void;
+		case let s: str =>
+			return s == name;
+		};
 	case let d: []ast::decl_global =>
 		for (let i = 0z; i < len(d); i += 1) {
 			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
 				return true;
 			};
-			const sym = strings::split(d[i].symbol, ".");
-			defer free(sym);
-			if (len(sym) > 0 && sym[len(sym) - 1] == name) {
-				return true;
+			let tok = strings::rtokenize(d[i].symbol, ".");
+			match (strings::next_token(&tok)) {
+			case void => void;
+			case let s: str =>
+				return s == name;
 			};
 		};
 	case let d: []ast::decl_type =>

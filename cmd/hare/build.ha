@@ -21,13 +21,14 @@ use strings;
 use unix::tty;
 
 fn build(name: str, cmd: *getopt::command) (void | error) = {
-	let arch = get_arch(os::machine())?;
+	let arch = os::arch_name(os::architecture());
+	let arch = get_arch(arch)!;
 	let output = "";
 	let ctx = build::context {
 		ctx = module::context {
 			harepath = harepath(),
 			harecache = harecache(),
-			tags = default_tags()?,
+			tags = default_tags(),
 		},
 		goal = build::stage::BIN,
 		jobs = match (os::cpucount()) {
@@ -216,10 +217,25 @@ fn get_output(goal: build::stage, input: str) (str | error) = {
 	if (goal != build::stage::BIN) {
 		path::push_ext(&buf, build::stage_ext[goal])?;
 	};
-	match (path::peek(&buf)) {
+
+	const output = match (path::peek(&buf)) {
 	case let s: str =>
-		return s;
+		yield s;
 	case void =>
 		return unknown_output;
 	};
+	stat = match (os::stat(output)) {
+	case let s: fs::filestat =>
+		yield s;
+	case errors::noentry =>
+		return output;
+	case fs::error =>
+		// XXX: double cast here (and below) shouldn't be necessary
+		return output: output_exists: error;
+	};
+	if (!fs::isfile(stat.mode)
+			|| fs::mode_perm(stat.mode) & fs::mode::USER_X == 0) {
+		return output: output_exists: error;
+	};
+	return output;
 };

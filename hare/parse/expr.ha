@@ -54,7 +54,7 @@ export fn expr(lexer: *lex::lexer) (ast::expr | error) = {
 		yield false;
 	};
 	synassert(lex::mkloc(lexer), is_obj_selector,
-		"Expected an object-selector or slice for assignment target")?;
+		"Expected an object-selector, pointer dereference, or slice for assignment target")?;
 	const ex = ast::assign_expr {
 		op = switch (tok.0) {
 		case ltok::EQUAL =>
@@ -514,14 +514,14 @@ fn cast(lexer: *lex::lexer, lvalue: (ast::expr | void)) (ast::expr | error) = {
 	})?;
 };
 
-fn constant(lexer: *lex::lexer) (ast::expr | error) = {
+fn literal(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = want(lexer)?;
-	const expr: ast::constant_expr = switch (tok.0) {
+	const expr: ast::literal_expr = switch (tok.0) {
 	case ltok::LIT_RCONST, ltok::LIT_STR =>
 		yield tok.1 as (rune | str);
 	case ltok::LIT_U8, ltok::LIT_U16, ltok::LIT_U32, ltok::LIT_U64,
 		ltok::LIT_UINT, ltok::LIT_SIZE =>
-		yield ast::number_constant {
+		yield ast::number_literal {
 			suff = tok.0,
 			value = tok.1 as u64,
 			sign = false,
@@ -529,20 +529,20 @@ fn constant(lexer: *lex::lexer) (ast::expr | error) = {
 	case ltok::LIT_I8, ltok::LIT_I16, ltok::LIT_I32, ltok::LIT_I64,
 		ltok::LIT_INT =>
 		const n = tok.1 as u64;
-		yield ast::number_constant {
+		yield ast::number_literal {
 			suff = tok.0,
 			value = n: i64,
 			sign = false,
 		};
 	case ltok::LIT_ICONST =>
 		const n = tok.1 as u64;
-		yield ast::number_constant {
+		yield ast::number_literal {
 			suff = tok.0,
 			value = if (n <= types::I64_MAX: u64) n: i64 else n,
 			sign = false,
 		};
 	case ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST =>
-		yield ast::number_constant {
+		yield ast::number_literal {
 			suff = tok.0,
 			value = tok.1 as f64,
 			sign = false,
@@ -556,7 +556,7 @@ fn constant(lexer: *lex::lexer) (ast::expr | error) = {
 	case ltok::NULL =>
 		yield ast::_null;
 	case =>
-		return syntaxerr(lex::mkloc(lexer), "Expected constant expression");
+		return syntaxerr(lex::mkloc(lexer), "Expected literal expression");
 	};
 	return ast::expr {
 		start = tok.2,
@@ -678,6 +678,10 @@ fn stmt(lexer: *lex::lexer) (ast::expr | error) = {
 
 fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const tok = want(lexer, ltok::FOR)?;
+	const label = if (try(lexer, ltok::COLON)? is lex::token) {
+		const tok = want(lexer, ltok::NAME)?;
+		yield tok.1 as str;
+	} else "";
 	want(lexer, ltok::LPAREN)?;
 
 	const bindings: nullable *ast::expr =
@@ -721,6 +725,7 @@ fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 			cond = cond,
 			afterthought = afterthought,
 			body = body,
+			label = label,
 		},
 	};
 };
@@ -812,11 +817,11 @@ fn idxexpr(lexer: *lex::lexer) (ast::expr | error) = {
 fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 	let tok = peek(lexer)? as lex::token;
 	if (tok.0 >= ltok::LIT_U8 && tok.0 <= ltok::LAST_LITERAL) {
-		return constant(lexer);
+		return literal(lexer);
 	};
 	switch (tok.0) {
 	case ltok::TRUE, ltok::FALSE, ltok::NULL, ltok::VOID =>
-		return constant(lexer);
+		return literal(lexer);
 	case ltok::LBRACKET =>
 		return plain_array(lexer)?;
 	case ltok::STRUCT =>
@@ -891,7 +896,7 @@ fn plain_array(lexer: *lex::lexer) (ast::expr | error) = {
 	return ast::expr {
 		start = start.2,
 		end = lex::prevloc(lexer),
-		expr = ast::array_constant {
+		expr = ast::array_literal {
 			expand = expand,
 			values = values,
 		},
@@ -901,14 +906,14 @@ fn plain_array(lexer: *lex::lexer) (ast::expr | error) = {
 fn plain_struct(
 	lexer: *lex::lexer,
 	alias: ast::ident,
-) (ast::struct_constant | error) = {
+) (ast::struct_literal | error) = {
 	if (len(alias) == 0) {
 		want(lexer, ltok::STRUCT)?;
 	};
 	want(lexer, ltok::LBRACE)?;
 
 	let autofill = false;
-	let fields: [](ast::struct_value | *ast::struct_constant) = [];
+	let fields: [](ast::struct_value | *ast::struct_literal) = [];
 	for (true) {
 		const tok = want(lexer, ltok::ELLIPSIS,
 			ltok::NAME, ltok::STRUCT)?;
@@ -935,7 +940,7 @@ fn plain_struct(
 		};
 	};
 
-	return ast::struct_constant {
+	return ast::struct_literal {
 		autofill = autofill,
 		alias = alias,
 		fields = fields,
@@ -944,7 +949,7 @@ fn plain_struct(
 
 fn struct_field(
 	lexer: *lex::lexer,
-) (ast::struct_value | *ast::struct_constant | error) = {
+) (ast::struct_value | *ast::struct_literal | error) = {
 	const tok = want(lexer, ltok::NAME, ltok::STRUCT)?;
 	switch (tok.0) {
 	case ltok::NAME =>
@@ -1014,7 +1019,7 @@ fn plain_tuple(
 	return ast::expr {
 		start = start,
 		end = lex::prevloc(lexer),
-		expr = values: ast::tuple_constant,
+		expr = values: ast::tuple_literal,
 	};
 };
 
@@ -1074,17 +1079,17 @@ fn postfix_dot(
 			},
 		};
 	case void =>
-		let con = constant(lexer)?;
-		let val = con.expr as ast::constant_expr;
-		synassert(lex::mkloc(lexer), val is ast::number_constant,
-			"Expected integer constant")?;
-		let val = val as ast::number_constant;
+		let lit = literal(lexer)?;
+		let val = lit.expr as ast::literal_expr;
+		synassert(lex::mkloc(lexer), val is ast::number_literal,
+			"Expected integer literal")?;
+		let val = val as ast::number_literal;
 		return ast::expr {
 			start = lvalue.start,
 			end = lex::prevloc(lexer),
 			expr = ast::access_tuple {
 				object = alloc(lvalue),
-				value = alloc(con),
+				value = alloc(lit),
 			},
 		};
 	};
@@ -1108,6 +1113,11 @@ fn static_expr(lexer: *lex::lexer) (ast::expr | error) = {
 
 fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const start = want(lexer, ltok::SWITCH)?;
+
+	const label = if (try(lexer, ltok::COLON)? is lex::token) {
+		const tok = want(lexer, ltok::NAME)?;
+		yield tok.1 as str;
+	} else "";
 
 	want(lexer, ltok::LPAREN)?;
 	const value = expr(lexer)?;
@@ -1159,6 +1169,7 @@ fn switch_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		expr = ast::switch_expr {
 			value = alloc(value),
 			cases = cases,
+			label = label,
 		},
 	};
 };
@@ -1204,6 +1215,10 @@ fn match_case(lexer: *lex::lexer) (ast::match_case | error) = {
 
 fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	const start = want(lexer, ltok::MATCH)?;
+	const label = if (try(lexer, ltok::COLON)? is lex::token) {
+		const tok = want(lexer, ltok::NAME)?;
+		yield tok.1 as str;
+	} else "";
 	want(lexer, ltok::LPAREN)?;
 	const value = expr(lexer)?;
 	want(lexer, ltok::RPAREN)?;
@@ -1221,8 +1236,9 @@ fn match_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		start = start.2,
 		end = lex::prevloc(lexer),
 		expr = ast::match_expr {
-			value   = alloc(value),
-			cases   = cases,
+			value = alloc(value),
+			cases = cases,
+			label = label,
 		},
 	};
 };
@@ -1266,9 +1282,9 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 	const operand = unarithm(lexer)?;
 	const expr = :blk {
 		if (op == ast::unarithm_op::MINUS) match (operand.expr) {
-		case let c: ast::constant_expr =>
+		case let c: ast::literal_expr =>
 			match (c) {
-			case let n: ast::number_constant =>
+			case let n: ast::number_literal =>
 				let sign = false;
 				const val = match (n.value) {
 				case let i: i64 =>
@@ -1281,11 +1297,11 @@ fn unarithm(lexer: *lex::lexer) (ast::expr | error) = {
 				};
 
 				if (val is void) yield;
-				yield :blk, ast::number_constant {
+				yield :blk, ast::number_literal {
 					suff = n.suff,
 					value = val as (i64 | f64),
 					sign = sign,
-				}: ast::constant_expr;
+				}: ast::literal_expr;
 			case => void;
 			};
 		case => void;

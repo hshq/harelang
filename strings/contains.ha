@@ -34,4 +34,5 @@ export fn contains(haystack: str, needles: (str | rune)...) bool = {
 	assert(!contains("hello world", "foobar", "foo", "bar"));
 	assert(contains("hello world", 'h', "foo", "bar"));
 	assert(!contains("hello world", 'x', "foo", "bar"));
+	assert(!contains("hello world"));
 };

@@ -99,6 +99,10 @@ export @symbol("__test_main") fn main() size = {
 			};
 		};
 	};
+	if (len(enabled_tests) == 0) {
+		fmt::println("No tests run")!;
+		return 0;
+	};
 
 	let maxname = 0z;
 	for (let i = 0z; i < len(enabled_tests); i += 1) {

@@ -33,9 +33,9 @@ export type mode = enum u8 {
 
 // From "whence" a seek operation should occur.
 export type whence = enum {
-	SET = 0,
-	CUR = 1,
-	END = 2,
+	SET = 0, // Relative to beginning (i.e. set absolute position).
+	CUR = 1, // Relative to current position.
+	END = 2, // Relative to end of handle.
 };
 
 // The interface for a stream which can be read from. Reads up to len(buf)

@@ -45,8 +45,8 @@ fn resolve(
 	store: *typestore,
 	expr: const *ast::expr,
 ) (size | deferred | error) = {
-	let expr = expr.expr as ast::constant_expr;
-	let n = expr as ast::number_constant;
+	let expr = expr.expr as ast::literal_expr;
+	let n = expr as ast::number_literal;
 	let ival = n.value as i64;
 	assert(ival >= 0);
 	return ival: size;

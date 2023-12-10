@@ -314,8 +314,8 @@ fn _expr(ctx: *context, syn: *synfunc, e: *ast::expr) (size | io::error) = {
 		};
 		z += __type(ctx, syn, e._type)?;
 		return z;
-	case let e: ast::constant_expr =>
-		return constant(ctx, syn, e)?;
+	case let e: ast::literal_expr =>
+		return literal(ctx, syn, e)?;
 	case let e: ast::continue_expr =>
 		let z = syn(ctx, "continue", synkind::KEYWORD)?;
 		if (e != "") {
@@ -593,10 +593,10 @@ fn stmt(ctx: *context, syn: *synfunc, e: *ast::expr) (size | io::error) = {
 	return n;
 };
 
-fn constant(
+fn literal(
 	ctx: *context,
 	syn: *synfunc,
-	e: ast::constant_expr,
+	e: ast::literal_expr,
 ) (size | io::error) = {
 	match (e) {
 	case void =>
@@ -627,7 +627,7 @@ fn constant(
 					synkind::RUNE_STRING)?;
 			};
 		};
-	case let ac: ast::array_constant =>
+	case let ac: ast::array_literal =>
 		let z = syn(ctx, "[", synkind::PUNCTUATION)?;
 		for (let i = 0z; i < len(ac.values); i += 1) {
 			z += _expr(ctx, syn, ac.values[i])?;
@@ -641,7 +641,7 @@ fn constant(
 		};
 		z += syn(ctx, "]", synkind::PUNCTUATION)?;
 		return z;
-	case let v: ast::number_constant =>
+	case let v: ast::number_literal =>
 		const s = fmt::asprintf("{}{}", v.value, switch (v.suff) {
 		case ltok::LIT_U8 =>
 			yield "u8";
@@ -675,9 +675,9 @@ fn constant(
 		});
 		defer free(s);
 		return syn(ctx, s, synkind::NUMBER)?;
-	case let sc: ast::struct_constant =>
-		return struct_constant(ctx, syn, sc)?;
-	case let tu: ast::tuple_constant =>
+	case let sc: ast::struct_literal =>
+		return struct_literal(ctx, syn, sc)?;
+	case let tu: ast::tuple_literal =>
 		let z = syn(ctx, "(", synkind::PUNCTUATION)?;
 		for (let i = 0z; i < len(tu); i += 1) {
 			z += _expr(ctx, syn, tu[i])?;
@@ -691,10 +691,10 @@ fn constant(
 	};
 };
 
-fn struct_constant(
+fn struct_literal(
 	ctx: *context,
 	syn: *synfunc,
-	sc: ast::struct_constant,
+	sc: ast::struct_literal,
 ) (size | io::error) = {
 	let z = 0z;
 	z += if (len(sc.alias) != 0) {
@@ -721,8 +721,8 @@ fn struct_constant(
 			z += syn(ctx, "=", synkind::OPERATOR)?;
 			z += space(ctx)?;
 			z += _expr(ctx, syn, sv.init)?;
-		case let sc: *ast::struct_constant =>
-			z += constant(ctx, syn, *sc)?;
+		case let sc: *ast::struct_literal =>
+			z += literal(ctx, syn, *sc)?;
 		};
 		z += syn(ctx, ",", synkind::PUNCTUATION)?;
 	};
@@ -743,6 +743,11 @@ fn for_expr(
 ) (size | io::error) = {
 	let z = syn(ctx, "for", synkind::KEYWORD)?;
 	z += space(ctx)?;
+	if (e.label != "") {
+		z += syn(ctx, ":", synkind::LABEL)?;
+		z += syn(ctx, e.label, synkind::LABEL)?;
+		z += space(ctx)?;
+	};
 	z += syn(ctx, "(", synkind::PUNCTUATION)?;
 	match (e.bindings) {
 	case null => void;
@@ -775,6 +780,11 @@ fn switch_expr(
 ) (size | io::error) = {
 	let z = syn(ctx, "switch", synkind::KEYWORD)?;
 	z += space(ctx)?;
+	if (e.label != "") {
+		z += syn(ctx, ":", synkind::LABEL)?;
+		z += syn(ctx, e.label, synkind::LABEL)?;
+		z += space(ctx)?;
+	};
 	z += syn(ctx, "(", synkind::PUNCTUATION)?;
 	z += _expr(ctx, syn, e.value)?;
 	z += syn(ctx, ")", synkind::PUNCTUATION)?;
@@ -816,6 +826,11 @@ fn match_expr(
 ) (size | io::error) = {
 	let z = syn(ctx, "match", synkind::KEYWORD)?;
 	z += space(ctx)?;
+	if (e.label != "") {
+		z += syn(ctx, ":", synkind::LABEL)?;
+		z += syn(ctx, e.label, synkind::LABEL)?;
+		z += space(ctx)?;
+	};
 	z += syn(ctx, "(", synkind::PUNCTUATION)?;
 	z += _expr(ctx, syn, e.value)?;
 	z += syn(ctx, ")", synkind::PUNCTUATION)?;
@@ -896,7 +911,7 @@ fn case_exprs(
 
 fn is_plain(e: *ast::expr) bool = {
 	match (e.expr) {
-	case ast::constant_expr =>
+	case ast::literal_expr =>
 		return true;
 	case ast::access_identifier =>
 		return true;

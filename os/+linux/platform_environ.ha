@@ -87,13 +87,27 @@ export fn version() const str = {
 	return c::tostr(&uts.version: *const c::char)!;
 };
 
-// Returns the host CPU architecture
+// Returns the host CPU architecture, in a platform-specific format. See
+// [[architecture]] for a more portable wrapper.
 export fn machine() const str = {
 	if (!uts_valid) {
 		rt::uname(&uts) as void;
 		uts_valid = true;
 	};
 	return c::tostr(&uts.machine: *const c::char)!;
+};
+
+// Returns the host CPU architecture.
+export fn architecture() arch = {
+	switch (machine()) {
+	case "aarch64" =>
+		return arch::AARCH64;
+	case "riscv64" =>
+		return arch::RISCV64;
+	case "x86_64" =>
+		return arch::X86_64;
+	case => abort(); // unreachable
+	};
 };
 
 // Returns the number of usable CPUs.

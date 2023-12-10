@@ -11,24 +11,34 @@ use memio;
 use strings;
 use types;
 
+// A representation of a complete haredoc document.
 export type doc = [](paragraph | list | code_sample);
 
+// A paragraph of text.
 export type paragraph = [](str | decl_ref | mod_ref);
 
+// A bulleted list.
 export type list = []paragraph;
 
+// A code sample.
 export type code_sample = str;
 
+// A reference to a declaration.
 export type decl_ref = ast::ident;
 
+// A reference to a module.
 export type mod_ref = ast::ident;
 
+// All possible error types.
 export type error = !lex::error;
 
 // Converts an error into a human-friendly string. The result may be statically
 // allocated.
 export fn strerror(err: error) const str = lex::strerror(err);
 
+// Parses a haredoc document from an [[io::handle]]. 'start' is the location of
+// the top-left corner of the document, for accurate locations in error messages
+// (e.g. declaration documentation starts at col=3; READMEs start at col=1).
 export fn parse(in: io::handle, start: lex::location) (doc | error) = {
 	let sc = bufio::newscanner(in, types::SIZE_MAX);
 	defer bufio::finish(&sc);

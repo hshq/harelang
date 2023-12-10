@@ -14,7 +14,7 @@ export fn ltrim(input: str, trim: rune...) str = {
 		return fromutf8_unsafe(bytes::ltrim(input, whitespace...));
 	};
 	let it = iter(input);
-	for (true) :outer {
+	for :outer (true) {
 		const r = match (next(&it)) {
 		case let r: rune =>
 			yield r;
@@ -41,7 +41,7 @@ export fn rtrim(input: str, trim: rune...) str = {
 		return fromutf8_unsafe(bytes::rtrim(input, whitespace...));
 	};
 	let it = riter(input);
-	for (true) :outer {
+	for :outer (true) {
 		const r = match (next(&it)) {
 		case let r: rune =>
 			yield r;
