@@ -26,7 +26,7 @@ export type enum_field = struct {
 
 // enum { FOO = 0, BAR, ... }
 export type enum_type = struct {
-	storage: builtin_type, // Must be an integer type
+	storage: builtin_type,
 	values: []enum_field,
 };
 
