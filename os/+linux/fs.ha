@@ -61,7 +61,8 @@ export fn mkfifo(path: str, mode: fs::mode) (void | fs::error) = {
 	};
 };
 
-// Makes a block device node. This function is only available on Unix systems.
+// Makes a block device node. This function is only available on Unix-like
+// systems.
 export fn mkblk(
 	path: str,
 	mode: fs::mode,
@@ -77,7 +78,8 @@ export fn mkblk(
 	};
 };
 
-// Makes a character device node. This function is only available on Unix systems.
+// Makes a character device node. This function is only available on Unix-like
+// systems.
 export fn mkchr(
 	path: str,
 	mode: fs::mode,
