@@ -1,0 +1,2 @@
+hare::parse::doc parses haredoc markup into an abstract representation. The
+haredoc markup format is documented in haredoc(5).
