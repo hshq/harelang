@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-export type off_t = u64;
+export type off_t = i64;
 export type dev_t = u64;
 export type ino_t = u64;
 export type nlink_t = u64;
@@ -13,7 +13,7 @@ export type time_t = i64;
 export type suseconds_t = i64;
 export type nfds_t = u64;
 export type pid_t = int;
-export type timer_t = int;
+export type timer_t = *opaque;
 export type clock_t = i64;
 export type si_band_t = i64;
 export type rlim_t = u64;
