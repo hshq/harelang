@@ -80,7 +80,8 @@ export fn strerror(err: error) str = {
 };
 
 // A wrapper for [[tryparse]] in which if an error occurs, details are printed
-// to [[os::stderr]] and [[os::exit]] is called with [[os::status::FAILURE]].
+// to [[os::stderr]] (as in [[printusage]]), and [[os::exit]] is called with
+// [[os::status::FAILURE]].
 export fn parse(args: []str, help: help...) command = {
 	match (tryparse(args, help...)) {
 	case let c: command => return c;
