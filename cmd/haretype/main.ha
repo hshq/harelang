@@ -45,11 +45,22 @@ fn typeinfo(
 		else hatype._align)?;
 };
 
+fn str_to_arch(name: str) types::arch = {
+	switch (name) {
+	case "aarch64" =>
+		return types::aarch64;
+	case "riscv64" =>
+		return types::riscv64;
+	case "x86_64" =>
+		return types::x86_64;
+	case =>
+		fmt::fatal("Unsupported architecture", name);
+	};
+};
+
 export fn main() void = {
-	// TODO: use system architecture
-	// Currently this isn't necessary, since all supported CPU targets have
-	// the same int and pointer sizes, but this may be needed in the future.
-	let arch = types::x86_64;
+	let arch = os::arch_name(os::architecture());
+	let arch = str_to_arch(arch);
 
 	const help: []getopt::help = [
 		"prints information about Hare types",
@@ -63,16 +74,7 @@ export fn main() void = {
 		switch (opt.0) {
 		// TODO: tags
 		case 'm' =>
-			arch = switch (opt.1) {
-			case "x86_64" =>
-				yield types::x86_64;
-			case "aarch64" =>
-				yield types::aarch64;
-			case "riscv64" =>
-				yield types::riscv64;
-			case =>
-				fmt::fatal("Unsupported architecture");
-			};
+			arch = str_to_arch(opt.1);
 		case => abort(); // unreachable
 		};
 	};
