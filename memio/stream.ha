@@ -212,6 +212,7 @@ fn dynamic_close(s: *io::stream) (void | io::error) = {
 
 @test fn dynamic() void = {
 	let s = dynamic();
+	defer io::close(&s)!;
 	assert(io::writeall(&s, [1, 2, 3]) as size == 3);
 	assert(bytes::equal(buffer(&s), [1, 2, 3]));
 	assert(io::writeall(&s, [4, 5]) as size == 2);
@@ -227,30 +228,30 @@ fn dynamic_close(s: *io::stream) (void | io::error) = {
 	reset(&s);
 	assert(len(buffer(&s)) == 0);
 	assert(io::writeall(&s, [1, 2, 3]) as size == 3);
-	assert(io::close(&s) is void);
 
 	let sl: []u8 = alloc([1, 2, 3]);
 	let s = dynamic_from(sl);
+	defer io::close(&s)!;
 	assert(io::writeall(&s, [0, 0]) as size == 2);
 	assert(io::seek(&s, 0, io::whence::END) as io::off == 3: io::off);
 	assert(io::writeall(&s, [4, 5, 6]) as size == 3);
 	assert(bytes::equal(buffer(&s), [0, 0, 3, 4, 5, 6]));
 	assert(io::read(&s, buf[..]) is io::EOF);
-	io::close(&s)!;
 
 	sl = alloc([1, 2]);
 	let s = dynamic_from(sl);
+	defer io::close(&s)!;
 	assert(io::read(&s, buf[..1]) as size == 1 && buf[0] == 1);
 	assert(io::seek(&s, 1, io::whence::CUR) as io::off == 2: io::off);
 	assert(io::read(&s, buf[..]) is io::EOF);
 	assert(io::writeall(&s, [3, 4]) as size == 2 && bytes::equal(buffer(&s), [1, 2, 3, 4]));
 	io::close(&s)!;
 	assert(io::writeall(&s, [5, 6]) as size == 2 && bytes::equal(buffer(&s), [5, 6]));
-	io::close(&s)!;
 
 	let in: [6]u8 = [0, 1, 2, 3, 4, 5];
 	let source = dynamic_from(in);
 	let sink = dynamic();
+	defer io::close(&sink)!;
 	io::copy(&sink, &source)!;
 	assert(bytes::equal(in, buffer(&sink)));
 
