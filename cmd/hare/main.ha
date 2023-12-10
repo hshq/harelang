@@ -122,6 +122,9 @@ export fn main() void = {
 			fmt::fatal("Error: Can't guess output in root directory");
 		case let e: unknown_type =>
 			fmt::fatalf("Error: Unknown build type: {}", e);
+		case let e: output_exists =>
+			fmt::fatalf("Error: Output path '{}' already exists, but isn't an executable file",
+				e);
 		case let e: output_failed =>
 			fmt::fatalf("Error: Could not open output '{}': {}",
 				e.0, fs::strerror(e.1));

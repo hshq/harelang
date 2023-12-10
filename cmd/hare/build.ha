@@ -216,10 +216,25 @@ fn get_output(goal: build::stage, input: str) (str | error) = {
 	if (goal != build::stage::BIN) {
 		path::push_ext(&buf, build::stage_ext[goal])?;
 	};
-	match (path::peek(&buf)) {
+
+	const output = match (path::peek(&buf)) {
 	case let s: str =>
-		return s;
+		yield s;
 	case void =>
 		return unknown_output;
 	};
+	stat = match (os::stat(output)) {
+	case let s: fs::filestat =>
+		yield s;
+	case errors::noentry =>
+		return output;
+	case fs::error =>
+		// XXX: double cast here (and below) shouldn't be necessary
+		return output: output_exists: error;
+	};
+	if (!fs::isfile(stat.mode)
+			|| fs::mode_perm(stat.mode) & fs::mode::USER_X == 0) {
+		return output: output_exists: error;
+	};
+	return output;
 };
