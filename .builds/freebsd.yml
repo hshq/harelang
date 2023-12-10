@@ -9,7 +9,7 @@ packages:
 tasks:
 - qbe: |
     cd qbe
-    make -j2 PREFIX=/usr
+    make -j2 CC=cc PREFIX=/usr
     sudo make install PREFIX=/usr
 - harec: |
     mkdir harec/build
