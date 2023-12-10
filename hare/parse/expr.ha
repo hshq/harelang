@@ -54,7 +54,7 @@ export fn expr(lexer: *lex::lexer) (ast::expr | error) = {
 		yield false;
 	};
 	synassert(lex::mkloc(lexer), is_obj_selector,
-		"Expected an object-selector or slice for assignment target")?;
+		"Expected an object-selector, pointer dereference, or slice for assignment target")?;
 	const ex = ast::assign_expr {
 		op = switch (tok.0) {
 		case ltok::EQUAL =>
