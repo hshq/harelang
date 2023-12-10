@@ -95,7 +95,7 @@ export fn architecture() arch = {
 		return arch::AARCH64;
 	case "riscv64" =>
 		return arch::RISCV64;
-	case "amd64" =>
+	case "amd64", "x86_64" =>
 		return arch::X86_64;
 	case => abort(); // unreachable
 	};
