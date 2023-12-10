@@ -40,7 +40,7 @@ export fn absi64(n: i64) u64 = {
 };
 
 // Returns the absolute value of signed integer n.
-export fn absi(n: types::integer) u64 = {
+export fn absi(n: types::signed) u64 = {
 	match (n) {
 	case let n: i8 =>
 		return absi8(n): u64;
