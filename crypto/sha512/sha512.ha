@@ -183,8 +183,8 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 		endian::beputu64(dig[56..], d.h[7]);
 	};
 
-        // We only copy the necessary bytes from fixed-size array into the
-        // returned slice. The size is already found in the inner hash struct.
+	// We only copy the necessary bytes from fixed-size array into the
+	// returned slice. The size is already found in the inner hash struct.
 	buf[..d.sz] = dig[..d.sz];
 };
 
