@@ -25,3 +25,6 @@ tasks:
 - check: |
     cd hare
     make -j2 check
+- check_with_libc: |
+    cd hare
+    hare test -lc
