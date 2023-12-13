@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use encoding::utf8;
 use errors;
 use io;
 use path;
@@ -25,6 +26,7 @@ export type error = !(
 	errors::busy |
 	errors::invalid |
 	errors::unsupported |
+	utf8::invalid |
 	wrongtype |
 	cannotrename |
 	io::error);
@@ -47,6 +49,8 @@ case errors::busy =>
 	yield "Device is busy";
 case errors::unsupported =>
 	yield "Operation not supported";
+case let err: utf8::invalid =>
+	yield utf8::strerror(err);
 case let err: io::error =>
 	yield io::strerror(err);
 };
@@ -304,7 +308,7 @@ export type fs = struct {
 };
 
 // A function which returns the next directory from an [[iterator]].
-export type nextfunc = fn(iter: *iterator) (dirent | void);
+export type nextfunc = fn(iter: *iterator) (dirent | void | error);
 
 // A function which frees state associated with an [[iterator]].
 export type finishfunc = fn(iter: *iterator) void;

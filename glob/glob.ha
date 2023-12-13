@@ -94,11 +94,9 @@ export fn next(gen: *generator) (str | void | failure) = {
 		&& len(memio::string(&gen.tmpp.dir)!) == 0
 		&& len(memio::string(&gen.tmpp.pat)!) == 0
 		&& len(memio::string(&gen.tmpp.rem)!) == 0;
-	match (next_match(gen)) {
+	match (next_match(gen)?) {
 	case let s: str =>
 		return s;
-	case let f: failure =>
-		return f;
 	case void => void;
 	};
 	if (init && gen.flgs & flag::NOCHECK != 0) {
@@ -188,6 +186,11 @@ fn next_match(gen: *generator) (str | void | failure) = {
 			};
 		};
 		gen.matc += 1;
+	case let e: fs::error =>
+		return failure {
+			path = dir,
+			error = e,
+		};
 	};
 	if (gen.flgs & flag::NOSORT == 0) {
 		strstack_sort(&gen.pats, l);

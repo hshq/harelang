@@ -277,7 +277,7 @@ fn _findsrcs(
 		return attach(strings::dup(pathstr), e);
 	};
 	defer fs::finish(iter);
-	for (true) match (fs::next(iter)) {
+	for (true) match (fs::next(iter)?) {
 	case void =>
 		break;
 	case let d: fs::dirent =>

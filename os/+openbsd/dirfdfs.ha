@@ -175,13 +175,18 @@ type os_iterator = struct {
 	buf: []u8,
 };
 
-fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
+fn iter_next(iter: *fs::iterator) (fs::dirent | void | fs::error) = {
 	let iter = iter: *os_iterator;
 
 	for (true) {
 		if (iter.buf_pos >= iter.buf_end) {
-			let n = rt::getdents(iter.fd,
-				iter.buf: *[*]u8, len(iter.buf)) as int;
+			let n = match (rt::getdents(iter.fd,
+				iter.buf: *[*]u8, len(iter.buf))) {
+			case let err: rt::errno =>
+				return errno_to_fs(err);
+			case let n: int =>
+				yield n;
+			};
 			if (n == 0) {
 				return;
 			};
@@ -197,7 +202,7 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 			continue;
 		};
 
-		let name = c::tostr(&de.d_name: *const c::char)!;
+		let name = c::tostr(&de.d_name: *const c::char)?;
 		if (name == "." || name == "..") {
 			continue;
 		};

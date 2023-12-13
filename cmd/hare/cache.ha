@@ -51,7 +51,7 @@ fn dirsize(buf: *path::buffer) (size | error) = {
 	let s = 0z;
 	let it = os::iter(path::string(buf))?;
 	defer fs::finish(it);
-	for (true) match (fs::next(it)) {
+	for (true) match (fs::next(it)?) {
 	case void =>
 		break;
 	case let d: fs::dirent =>

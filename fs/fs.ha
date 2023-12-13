@@ -302,7 +302,8 @@ export fn symlink(fs: *fs, target: str, path: str) (void | error) = {
 
 // Returns the next directory entry from an iterator, or void if none remain.
 // '.' and '..' are skipped. It is a programming error to call this again after
-// it has returned void. The file stat returned may only have the type bits set
-// on the file mode; callers should call [[stat]] to obtain the detailed file
-// mode.
-export fn next(iter: *iterator) (dirent | void) = iter.next(iter);
+// it has returned void. Calling this again after an error is safe. The list is
+// not guaranteed to be complete when an error has been returned. The file stat
+// returned may only have the type bits set on the file mode; callers should
+// call [[stat]] to obtain the detailed file mode.
+export fn next(iter: *iterator) (dirent | void | error) = iter.next(iter);

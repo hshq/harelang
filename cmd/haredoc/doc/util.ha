@@ -34,7 +34,7 @@ export fn submodules(path: str, show_undocumented: bool) ([]str | error) = {
 	let it = os::iter(path)?;
 	defer fs::finish(it);
 	let pathbuf = path::init(path)!;
-	for (true) match (module::next(it)) {
+	for (true) match (module::next(it)?) {
 	case let d: fs::dirent =>
 		path::set(&pathbuf, path, d.name, "README")!;
 		if (show_undocumented || os::exists(path::string(&pathbuf))) {

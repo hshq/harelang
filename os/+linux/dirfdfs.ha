@@ -415,11 +415,16 @@ fn fs_iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 	return &iter.iter;
 };
 
-fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
+fn iter_next(iter: *fs::iterator) (fs::dirent | void | fs::error) = {
 	let iter = iter: *os_iterator;
 	if (iter.buf_pos >= iter.buf_end) {
-		let n = rt::getdents64(iter.fd,
-			iter.buf: *[*]u8, len(iter.buf)) as size;
+		let n = match (rt::getdents64(iter.fd,
+			iter.buf: *[*]u8, len(iter.buf))) {
+		case let err: rt::errno =>
+			return errno_to_fs(err);
+		case let n: size =>
+			yield n;
+		};
 		if (n == 0) {
 			return;
 		};
@@ -428,7 +433,7 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void) = {
 	};
 	let de = &iter.buf[iter.buf_pos]: *rt::dirent64;
 	iter.buf_pos += de.d_reclen;
-	let name = c::tostr(&de.d_name: *const c::char)!;
+	let name = c::tostr(&de.d_name: *const c::char)?;
 	if (name == "." || name == "..") {
 		return iter_next(iter);
 	};
