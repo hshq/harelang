@@ -25,7 +25,7 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 		let fs = fs: *os_filesystem;
 		match (rt::fchdir(fs.dirfd)) {
 		case let err: rt::errno =>
-			return errors::errno(err);
+			return errno_to_fs(err);
 		case void =>
 			return;
 		};
@@ -34,7 +34,7 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 	};
 	match (rt::chdir(path)) {
 	case let err: rt::errno =>
-		return errors::errno(err);
+		return errno_to_fs(err);
 	case void => void;
 	};
 };
@@ -46,7 +46,7 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 export fn chroot(target: str) (void | fs::error) = {
 	match (rt::chroot(target)) {
 	case let err: rt::errno =>
-		return errors::errno(err);
+		return errno_to_fs(err);
 	case void => void;
 	};
 };

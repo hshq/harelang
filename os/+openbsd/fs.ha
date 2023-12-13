@@ -3,6 +3,7 @@
 
 use errors;
 use fs;
+use io;
 use path;
 use rt;
 use types::c;
@@ -25,7 +26,7 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 		let fs = fs: *os_filesystem;
 		match (rt::fchdir(fs.dirfd)) {
 		case let err: rt::errno =>
-			return errors::errno(err);
+			return errno_to_fs(err);
 		case void =>
 			return;
 		};
@@ -34,7 +35,7 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 	};
 	match (rt::chdir(path)) {
 	case let err: rt::errno =>
-		return errors::errno(err);
+		return errno_to_fs(err);
 	case void => void;
 	};
 };
@@ -46,7 +47,7 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 export fn chroot(target: str) (void | fs::error) = {
 	match (rt::chroot(target)) {
 	case let err: rt::errno =>
-		return errors::errno(err);
+		return errno_to_fs(err);
 	case void => void;
 	};
 };
@@ -74,8 +75,26 @@ export fn access(path: str, mode: amode) (bool | fs::error) = {
 	};
 };
 
-// TODO: OpenBSD
-// export fn mkfifo(path: str, mode: fs::mode) (void | fs::error) = {
-// export fn mkblk(
-// export fn mkchr(
-// export fn mkfile(
+// Makes a FIFO node. This function is only available on Unix-like systems.
+export fn mkfifo(path: str, mode: fs::mode) (void | fs::error) = {
+	match (rt::mknodat(rt::AT_FDCWD, path,
+			mode: rt::mode_t | rt::S_IFIFO, 0)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
+	};
+};
+
+// Makes a regular file. This function is only available on Unix-like systems.
+// This function should only be used if you have a special reason; most of the
+// time you should use [[create]] instead.
+export fn mkfile(path: str, mode: fs::mode) (void | fs::error) = {
+	let file = match(rt::openat(rt::AT_FDCWD, path, rt::O_RDONLY | rt::O_CREAT,
+		mode: rt::mode_t)) {
+	case let f: int =>
+		yield f: io::file;
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	};
+	io::close(file)?;
+};

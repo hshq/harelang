@@ -1229,6 +1229,28 @@ export fn mkdirat(dirfd: int, path: path, mode: mode_t) (void | errno) = {
 
 // mkfifoat
 // mknodat
+
+@symbol("mknodat") fn libc_mknodat(
+	fd: int,
+	path: *const u8,
+	mode: mode_t,
+	dev: dev_t
+) int;
+
+// The OpenBSD implementation of mknodat *only* supports FIFO and
+// device special files.
+export fn mknodat(
+	dirfd: int,
+	path: path,
+	mode: mode_t,
+	dev: dev_t,
+) (void | errno) = {
+	let res = libc_mknodat(dirfd, cpath(path)?, mode, dev);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // openat
 
 @symbol("openat") fn libc_openat(

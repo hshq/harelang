@@ -25,7 +25,7 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 		let fs = fs: *os_filesystem;
 		match (rt::fchdir(fs.dirfd)) {
 		case let err: rt::errno =>
-			return errors::errno(err);
+			return errno_to_fs(err);
 		case void =>
 			return;
 		};
@@ -34,7 +34,7 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 	};
 	match (rt::chdir(path)) {
 	case let err: rt::errno =>
-		return errors::errno(err);
+		return errno_to_fs(err);
 	case void => void;
 	};
 };
@@ -46,7 +46,7 @@ export fn chdir(target: (*fs::fs | str)) (void | fs::error) = {
 export fn chroot(target: str) (void | fs::error) = {
 	match (rt::chroot(target)) {
 	case let err: rt::errno =>
-		return errors::errno(err);
+		return errno_to_fs(err);
 	case void => void;
 	};
 };
@@ -56,7 +56,7 @@ export fn mkfifo(path: str, mode: fs::mode) (void | fs::error) = {
 	match (rt::mknodat(rt::AT_FDCWD, path,
 			mode: rt::mode_t | rt::S_IFIFO, 0)) {
 	case let err: rt::errno =>
-		return errors::errno(err);
+		return errno_to_fs(err);
 	case void => void;
 	};
 };
@@ -73,7 +73,7 @@ export fn mkblk(
 			mode: rt::mode_t | rt::S_IFBLK,
 			rt::mkdev(major: u32, minor: u32))) {
 	case let err: rt::errno =>
-		return errors::errno(err);
+		return errno_to_fs(err);
 	case void => void;
 	};
 };
@@ -89,7 +89,7 @@ export fn mkchr(
 	match (rt::mknodat(rt::AT_FDCWD, path, mode: rt::mode_t | rt::S_IFCHR,
 			rt::mkdev(major: u32, minor: u32))) {
 	case let err: rt::errno =>
-		return errors::errno(err);
+		return errno_to_fs(err);
 	case void => void;
 	};
 };
