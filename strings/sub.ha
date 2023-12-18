@@ -7,9 +7,9 @@ export type end = void;
 
 fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {
 	for (let i = 0z; i < end; i += 1) {
-		let r = match (next(iter)) {
+		match (next(iter)) {
 		case let r: rune =>
-			yield r;
+			continue;
 		case void =>
 			abort("index exceeds string length");
 		};
