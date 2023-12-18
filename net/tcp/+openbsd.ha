@@ -51,7 +51,7 @@ export fn connect(
 		if (err != rt::EINPROGRESS) {
 			return errors::errno(err);
 		};
-	case int => void;
+	case void => void;
 	};
 	return io::fdopen(sockfd);
 };
@@ -104,12 +104,12 @@ export fn listen(
 	match (rt::bind(sockfd, &sockaddr, sz)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
-	case int => void;
+	case void => void;
 	};
 	match (rt::listen(sockfd, bk)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
-	case int => void;
+	case void => void;
 	};
 
 	for (let i = 0z; i < len(options); i += 1) {
@@ -124,7 +124,7 @@ export fn listen(
 		match (rt::getsockname(sockfd, &sn, &al)) {
 		case let err: rt::errno =>
 			return errors::errno(err);
-		case int => void;
+		case void => void;
 		};
 		const addr = ip::from_native(sn);
 		*portout = addr.1;
@@ -154,6 +154,6 @@ fn setsockopt(
 			&val: *opaque, size(int): u32)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
-	case int => void;
+	case void => void;
 	};
 };

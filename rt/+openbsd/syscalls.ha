@@ -744,7 +744,6 @@ export fn setsockopt(
 
 @symbol("listen") fn libc_listen(s: int, backlog: int) int;
 
-// TODO: backlog should be int.
 export fn listen(sockfd: int, backlog: u32) (void | errno) = {
 	let res = libc_listen(sockfd, backlog: int);
 	if (res == -1) {
