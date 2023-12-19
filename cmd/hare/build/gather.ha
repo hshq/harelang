@@ -51,7 +51,7 @@ fn gather_submodules(
 	let n = 0z;
 	let it = os::iter(path::string(buf))?;
 	defer fs::finish(it);
-	for (true) match (module::next(it)) {
+	for (true) match (module::next(it)?) {
 	case void =>
 		break;
 	case let dir: fs::dirent =>

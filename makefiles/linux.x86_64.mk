@@ -142,7 +142,7 @@ $(HARECACHE)/time.ssa: $(time_ha) $(HARECACHE)/linux_vdso.td $(HARECACHE)/math.t
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/time.ssa -t $(HARECACHE)/time.td.tmp -N time $(time_ha)
 
 fs_ha = fs/fs.ha fs/types.ha fs/util.ha
-$(HARECACHE)/fs.ssa: $(fs_ha) $(HARECACHE)/errors.td $(HARECACHE)/io.td $(HARECACHE)/path.td $(HARECACHE)/strings.td $(HARECACHE)/time.td
+$(HARECACHE)/fs.ssa: $(fs_ha) $(HARECACHE)/encoding_utf8.td $(HARECACHE)/errors.td $(HARECACHE)/io.td $(HARECACHE)/path.td $(HARECACHE)/strings.td $(HARECACHE)/time.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/fs.ssa -t $(HARECACHE)/fs.td.tmp -N fs $(fs_ha)
