@@ -10,7 +10,7 @@ $(HARECACHE)/rt.ssa: $(rt_ha)
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/rt.ssa -t $(HARECACHE)/rt.td.tmp -N rt $(rt_ha)
 
-rt_s = $(HARECACHE)/rt.s rt/+openbsd/start.s rt/+riscv64/cpuid.s rt/+riscv64/fenv.s rt/+riscv64/getfp.s rt/+riscv64/longjmp.s rt/+riscv64/restore.s rt/+riscv64/setjmp.s
+rt_s = $(HARECACHE)/rt.s rt/+openbsd/start.s rt/+riscv64/cpuid.s rt/+riscv64/fenv.s rt/+riscv64/getfp.s rt/+riscv64/longjmp.s rt/+riscv64/setjmp.s
 $(HARECACHE)/rt.o: $(rt_s)
 	@printf 'AS\t%s\n' "$@"
 	@$(AS) $(ASFLAGS) -o $@ $(rt_s)
