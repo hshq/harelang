@@ -28,6 +28,7 @@
 .type rt.feclearexcept,@function
 rt.feclearexcept:
 		# maintain exceptions in the sse mxcsr, clear x87 exceptions
+	endbr64
 	mov %edi,%ecx
 	and $0x3f,%ecx
 	fnstsw %ax
@@ -49,6 +50,7 @@ rt.feclearexcept:
 .global rt.feraiseexcept
 .type rt.feraiseexcept,@function
 rt.feraiseexcept:
+	endbr64
 	and $0x3f,%edi
 	stmxcsr -8(%rsp)
 	or %edi,-8(%rsp)
@@ -60,6 +62,7 @@ rt.feraiseexcept:
 .global rt.fesetround
 .type rt.fesetround,@function
 rt.fesetround:
+	endbr64
 	push %rax
 	xor %eax,%eax
 	mov %edi,%ecx
@@ -79,6 +82,7 @@ rt.fesetround:
 .global rt.fegetround
 .type rt.fegetround,@function
 rt.fegetround:
+	endbr64
 	push %rax
 	stmxcsr (%rsp)
 	pop %rax
@@ -90,6 +94,7 @@ rt.fegetround:
 .global rt.fetestexcept
 .type rt.fetestexcept,@function
 rt.fetestexcept:
+	endbr64
 	and $0x3f,%edi
 	push %rax
 	stmxcsr (%rsp)
