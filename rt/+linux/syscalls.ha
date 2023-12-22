@@ -937,7 +937,7 @@ export type inotify_event = struct {
 	mask: u32,
 	cookie: u32,
 	length: u32,
-	name: *const u8
+	name: [*]u8,
 };
 
 export fn shmat(id: int, addr: *const opaque, flag: int) *opaque = {
