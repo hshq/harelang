@@ -3,18 +3,18 @@
 
 use encoding::utf8;
 
-// Pads a string's start with 'prefix' until it reaches length 'target_len'.
-// The caller must free the return value.
-export fn padstart(s: str, prefix: rune, target_len: size) str = {
-	if (len(s) >= target_len) {
+// Pads the start of a string 's' with rune 'p' until the string reaches length
+// 'maxlen'. The caller must free the return value.
+export fn padstart(s: str, p: rune, maxlen: size) str = {
+	if (len(s) >= maxlen) {
 		return dup(s);
 	};
-	let res: []u8 = alloc([], target_len);
-	for (let i = 0z; i < target_len - len(s); i += 1) {
-		append(res, utf8::encoderune(prefix)...);
+	let res: []u8 = alloc([], maxlen);
+	for (let i = 0z; i < maxlen - len(s); i += 1) {
+		append(res, utf8::encoderune(p)...);
 	};
 	append(res, toutf8(s)...);
-	return fromutf8_unsafe(res[..target_len]);
+	return fromutf8_unsafe(res[..maxlen]);
 };
 
 @test fn padstart() void = {
@@ -31,18 +31,18 @@ export fn padstart(s: str, prefix: rune, target_len: size) str = {
 	free(s);
 };
 
-// Pads a string's end with 'prefix' until it reaches length 'target_len'.
-// The caller must free the return value.
-export fn padend(s: str, prefix: rune, target_len: size) str = {
-	if (len(s) >= target_len) {
+// Pads the end of a string 's' with rune 'p' until the string reaches length
+// 'maxlen'. The caller must free the return value.
+export fn padend(s: str, p: rune, maxlen: size) str = {
+	if (len(s) >= maxlen) {
 		return dup(s);
 	};
-	let res: []u8 = alloc([], target_len);
+	let res: []u8 = alloc([], maxlen);
 	append(res, toutf8(s)...);
-	for (let i = 0z; i < target_len - len(s); i += 1) {
-		append(res, utf8::encoderune(prefix)...);
+	for (let i = 0z; i < maxlen - len(s); i += 1) {
+		append(res, utf8::encoderune(p)...);
 	};
-	return fromutf8_unsafe(res[..target_len]);
+	return fromutf8_unsafe(res[..maxlen]);
 };
 
 @test fn padend() void = {
