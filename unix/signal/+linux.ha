@@ -282,7 +282,7 @@ export type code = enum int {
 // Flags used to configure the behavior of a signal handler.
 export type flag = enum int {
 	// For use with sig::CHLD. Prevents notifications when child processes
-	// stop (e.g. via sig::STOp) or resume (i.e. sig::CONT).
+	// stop (e.g. via sig::STOP) or resume (i.e. sig::CONT).
 	NOCLDSTOP = rt::SA_NOCLDSTOP: int,
 	// For use with sig::CHLD. Do not transform children into zombies when
 	// they terminate. Note that POSIX leaves the delivery of sig::CHLD
