@@ -5,7 +5,7 @@ use encoding::utf8;
 
 // Pads the start of a string 's' with rune 'p' until the string reaches length
 // 'maxlen'. The caller must free the return value.
-export fn padstart(s: str, p: rune, maxlen: size) str = {
+export fn lpad(s: str, p: rune, maxlen: size) str = {
 	if (len(s) >= maxlen) {
 		return dup(s);
 	};
@@ -17,23 +17,23 @@ export fn padstart(s: str, p: rune, maxlen: size) str = {
 	return fromutf8_unsafe(res[..maxlen]);
 };
 
-@test fn padstart() void = {
-	let s = padstart("2", '0', 5);
+@test fn lpad() void = {
+	let s = lpad("2", '0', 5);
 	assert(s == "00002");
 	free(s);
 
-	let s = padstart("12345", '0', 5);
+	let s = lpad("12345", '0', 5);
 	assert(s == "12345");
 	free(s);
 
-	let s = padstart("", '0', 5);
+	let s = lpad("", '0', 5);
 	assert(s == "00000");
 	free(s);
 };
 
 // Pads the end of a string 's' with rune 'p' until the string reaches length
 // 'maxlen'. The caller must free the return value.
-export fn padend(s: str, p: rune, maxlen: size) str = {
+export fn rpad(s: str, p: rune, maxlen: size) str = {
 	if (len(s) >= maxlen) {
 		return dup(s);
 	};
@@ -45,16 +45,16 @@ export fn padend(s: str, p: rune, maxlen: size) str = {
 	return fromutf8_unsafe(res[..maxlen]);
 };
 
-@test fn padend() void = {
-	let s = padend("2", '0', 5);
+@test fn rpad() void = {
+	let s = rpad("2", '0', 5);
 	assert(s == "20000");
 	free(s);
 
-	let s = padend("12345", '0', 5);
+	let s = rpad("12345", '0', 5);
 	assert(s == "12345");
 	free(s);
 
-	let s = padend("", '0', 5);
+	let s = rpad("", '0', 5);
 	assert(s == "00000");
 	free(s);
 };
