@@ -17,7 +17,8 @@ LDLINKFLAGS = -z nobtcfi
 # commands used by the build script
 HAREC = harec
 QBE = qbe
-# OpenBSD: gas is in the binutils package. as from the base system is too old.
+# gas is in the "binutils" package; as from the base system is too old. the "gas"
+# package also works on all arches except riscv64.
 AS = gas
 LD = cc
 SCDOC = scdoc
@@ -30,13 +31,14 @@ BINOUT = .bin
 HAREPATH = $(SRCDIR)/hare/stdlib:$(SRCDIR)/hare/third-party
 VERSION=$$(./scripts/version)
 
-AARCH64_AS=aarch64-gas
-AARCH64_CC=aarch64-cc
-AARCH64_LD=aarch64-cc
+# for cross-compilation, modify the variables below
+AARCH64_AS=gas
+AARCH64_CC=cc
+AARCH64_LD=cc
 
-RISCV64_AS=riscv64-gas
-RISCV64_CC=riscv64-cc
-RISCV64_LD=riscv64-cc
+RISCV64_AS=gas
+RISCV64_CC=cc
+RISCV64_LD=cc
 
 X86_64_AS=gas
 X86_64_CC=cc

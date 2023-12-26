@@ -29,13 +29,14 @@ BINOUT = .bin
 HAREPATH = $(SRCDIR)/hare/stdlib:$(SRCDIR)/hare/third-party
 VERSION=$$(./scripts/version)
 
-AARCH64_AS=aarch64-as
-AARCH64_CC=aarch64-cc
-AARCH64_LD=aarch64-ld
+# For cross-compilation, modify the variables below
+AARCH64_AS=as
+AARCH64_CC=cc
+AARCH64_LD=ld
 
-RISCV64_AS=riscv64-as
-RISCV64_CC=riscv64-cc
-RISCV64_LD=riscv64-ld
+RISCV64_AS=as
+RISCV64_CC=cc
+RISCV64_LD=ld
 
 X86_64_AS=as
 X86_64_CC=cc
