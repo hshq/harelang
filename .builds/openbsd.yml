@@ -26,7 +26,7 @@ tasks:
 # remove once openbsd-7.5 is out. leap-seconds.list was after 7.4
 - leapseconds: |
     cd /usr/share/zoneinfo
-    doas ftp ftp://ftp.boulder.nist.gov/pub/time/leap-seconds.list
+    doas ftp https://data.iana.org/time-zones/tzdb/leap-seconds.list
 - check: |
     cd hare
     make -j2 check
