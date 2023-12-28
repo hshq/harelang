@@ -483,7 +483,7 @@ export fn chroot(path: path) (void | errno) = {
 @symbol("munmap") fn libc_munmap(addr: *opaque, len_: size) int;
 
 export fn munmap(addr: *opaque, len_: size) (void | errno) = {
-	let res = munmap(addr, len_);
+	let res = libc_munmap(addr, len_);
 	if (res == -1) {
 		return *__errno(): errno;
 	};
