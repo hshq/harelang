@@ -21,9 +21,7 @@ export fn fromutf8_unsafe(in: []u8) str = {
 // [[encoding::utf8::invalid]] is returned instead.
 export fn fromutf8(in: []u8) (str | utf8::invalid) = {
 	let s = fromutf8_unsafe(in);
-	if (!utf8::valid(in)) {
-		return utf8::invalid;
-	};
+	utf8::validate(in)?;
 	return s;
 };
 
