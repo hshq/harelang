@@ -11,6 +11,11 @@ triggers:
   condition: failure
   to: "<~sircmpwn/hare-dev@lists.sr.ht>"
 tasks:
+- environment: |
+    if [ "$BUILD_SUBMITTER" = "git.sr.ht" ] && [ "$GIT_REF" != "refs/heads/master" ]
+    then
+        complete-build
+    fi
 - qbe: |
     cd qbe
     make -j2 CC=cc PREFIX=/usr

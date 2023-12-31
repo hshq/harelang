@@ -11,7 +11,11 @@ triggers:
   condition: failure
   to: "<~sircmpwn/hare-dev@lists.sr.ht>"
 tasks:
-- signoff: |
+- environment: |
+    if [ "$BUILD_SUBMITTER" = "git.sr.ht" ] && [ "$GIT_REF" != "refs/heads/master" ]
+    then
+        complete-build
+    fi
     cd hare
     if [ "$BUILD_REASON" = "patchset" ]
     then
