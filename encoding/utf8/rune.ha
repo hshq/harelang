@@ -24,11 +24,12 @@ export fn runesz(r: rune) size = {
 };
 
 // Returns the expected length of a UTF-8 codepoint in bytes given its first
-// byte, or void if the given byte doesn't begin a valid UTF-8 sequence.
-export fn utf8sz(c: u8) (size | void) = {
+// byte, or [[invalid]] if the given byte doesn't begin a valid UTF-8 sequence.
+export fn utf8sz(c: u8) (size | invalid) = {
 	for (let i = 0z; i < len(sizes); i += 1) {
 		if (c & sizes[i].mask == sizes[i].result) {
 			return sizes[i].octets;
 		};
 	};
+	return invalid;
 };

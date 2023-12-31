@@ -86,6 +86,18 @@ export type cmsg = struct {
 	cmsg_data: [*]u8,
 };
 
+export type sock_filter = struct {
+	__code: u16,
+	__jt: u8,
+	__jf: u8,
+	__k: u32,
+};
+
+export type sock_fprog = struct {
+	__len: u16,
+	__filter: *[*]sock_filter,
+};
+
 // domain for socket(2)
 
 // Unspecified
@@ -404,6 +416,9 @@ export def SO_PRIORITY: int = 12;
 export def SO_LINGER: int = 13;
 export def SO_BSDCOMPAT: int = 14;
 export def SO_REUSEPORT: int = 15;
+export def SO_ATTACH_FILTER: int = 26;
+export def SO_DETATCH_FILTER: int = 27;
+export def SO_LOCK_FILTER: int = 44;
 
 // the following differ on ppc
 export def SO_PASSCRED: int = 16;

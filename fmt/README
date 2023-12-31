@@ -82,7 +82,7 @@ Some parametric modifier examples:
 	// "|hello|     world|0000000123|BEEF|"
 	fmt::printf("|{%}|{%}|{%}|{%}|",
 		"hello", &fmt::mods { ... },
-		"world", &fmt::mods { width = 10, ... },
+		"world", &fmt::mods { pad = ' ', width = 10, ... },
 		123,     &fmt::mods { prec = 10, ... },
 		0xBEEF,  &fmt::mods { base = strconv::base::HEX, ... });
 

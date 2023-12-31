@@ -206,12 +206,7 @@ export fn scan_rune(
 			yield;
 		};
 	};
-	const sz = match (utf8::utf8sz(scan.buffer[0])) {
-	case let z: size =>
-		yield z;
-	case void =>
-		return utf8::invalid;
-	};
+	const sz = utf8::utf8sz(scan.buffer[0])?;
 
 	for (scan.pending < sz) {
 		match (scan_readahead(scan)?) {
@@ -337,12 +332,7 @@ export fn read_rune(
 		return io::EOF;
 	};
 
-	const sz = match (utf8::utf8sz(b[0])) {
-	case let z: size =>
-		yield z;
-	case void =>
-		return utf8::invalid;
-	};
+	const sz = utf8::utf8sz(b[0])?;
 
 	if (sz == 1) {
 		return b[0]: rune;

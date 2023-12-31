@@ -70,7 +70,7 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 		0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3, 0x81,
 		0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0x00,
 	];
-	assert(valid(input));
+	assert(validate(input) is void);
 	const expected = ['こ', 'ん', 'に', 'ち', 'は', '\0'];
 	let decoder = decode(input);
 	for (let i = 0z; i < len(expected); i += 1) {
@@ -98,39 +98,39 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	assert(next(&decoder) is invalid);
 	decoder.offs = 2;
 	assert(prev(&decoder) is more);
-	assert(!valid(inv));
+	assert(validate(inv) is invalid);
 
 	const incomplete: [_]u8 = [0xE3, 0x81];
 	decoder = decode(incomplete);
 	assert(next(&decoder) is more);
 	decoder.offs = 2;
 	assert(prev(&decoder) is invalid);
-	assert(!valid(incomplete));
+	assert(validate(incomplete) is invalid);
 
 	const surrogate: [_]u8 = [0xED, 0xA0, 0x80];
 	decoder = decode(surrogate);
 	assert(next(&decoder) is invalid);
 	decoder.offs = 3;
 	assert(prev(&decoder) is invalid);
-	assert(!valid(surrogate));
+	assert(validate(surrogate) is invalid);
 
 	const overlong: [_]u8 = [0xF0, 0x82, 0x82, 0xAC];
 	decoder = decode(overlong);
 	assert(next(&decoder) is invalid);
 	decoder.offs = 4;
 	assert(prev(&decoder) is invalid);
-	assert(!valid(overlong));
+	assert(validate(overlong) is invalid);
 
 	const badcont: [_]u8 = [0xC2, 0xFF];
 	decoder = decode(badcont);
 	assert(next(&decoder) is invalid);
-	assert(!valid(badcont));
+	assert(validate(badcont) is invalid);
 
 	const extracont: [_]u8 = [0xC2, 0xA3, 0x95];
 	decoder = decode(extracont);
 	decoder.offs = 3;
 	assert(prev(&decoder) is invalid);
-	assert(!valid(extracont));
+	assert(validate(extracont) is invalid);
 	const maxinrange: [_]u8 = [0xF4, 0x8F, 0xBF, 0xBF];
 	decoder = decode(maxinrange);
 	match (next(&decoder)) {
@@ -152,11 +152,12 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	assert(prev(&decoder) is invalid);
 };
 
-// Returns true if a given byte slice contains only valid UTF-8 sequences.
-export fn valid(src: []u8) bool = {
+// Returns void if a given byte slice contains only valid UTF-8 sequences,
+// otherwise returns invalid.
+export fn validate(src: []u8) (void | invalid) = {
 	let state = 0;
 	for (let i = 0z; i < len(src) && state >= 0; i += 1) {
 		state = table[state][src[i]];
 	};
-	return state == 0;
+	return if (state == 0) void else invalid;
 };
