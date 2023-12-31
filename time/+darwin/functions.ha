@@ -5,16 +5,16 @@ use rt;
 
 // Converts a [[duration]] to an [[rt::timespec]]. This function is
 // non-portable.
-export fn duration_to_timespec(n: duration, ts: *rt::timespec) void = {
-	ts.tv_sec = n / SECOND;
-	ts.tv_nsec = n % SECOND;
+export fn duration_to_timespec(n: duration) rt::timespec = rt::timespec {
+	tv_sec = n / SECOND,
+	tv_nsec = n % SECOND,
 };
 
 // Converts an [[instant]] to an [[rt::timespec]]. This function is
 // non-portable.
-export fn instant_to_timespec(t: instant, ts: *rt::timespec) void = {
-	ts.tv_sec = t.sec;
-	ts.tv_nsec = t.nsec;
+export fn instant_to_timespec(t: instant) rt::timespec = rt::timespec {
+	tv_sec = t.sec,
+	tv_nsec = t.nsec,
 };
 
 // Converts a [[rt::timespec]] to an [[instant]]. This function is non-portable.
@@ -24,20 +24,18 @@ export fn timespec_to_instant(ts: rt::timespec) instant = instant {
 };
 
 // Yields the process to the kernel and returns after the requested duration.
-export fn sleep(n: duration) void = {
-	let in = rt::timespec { ... };
-	duration_to_timespec(n, &in);
-	let req = &in;
+export fn sleep(d: duration) void = {
+	let req = duration_to_timespec(d);
 
 	for (true) {
 		let res = rt::timespec { ... };
-		match (rt::nanosleep(req, &res)) {
+		match (rt::nanosleep(&req, &res)) {
 		case void =>
 			return;
 		case let err: rt::errno =>
 			switch (err) {
 			case rt::EINTR =>
-				req = &res;
+				req = res;
 			case =>
 				abort("Unexpected error from nanosleep");
 			};
