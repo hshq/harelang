@@ -13,9 +13,8 @@ tasks:
     make -j2 PREFIX=/usr
     doas make install PREFIX=/usr
 - harec: |
-    mkdir harec/build
-    cd harec/build
-    ../configure --prefix=/usr
+    cd harec
+    cp configs/openbsd.mk config.mk
     make -j2
     doas make install
 - hare: |

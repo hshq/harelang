@@ -12,9 +12,8 @@ tasks:
     make -j2 CC=cc PREFIX=/usr
     sudo make install PREFIX=/usr
 - harec: |
-    mkdir harec/build
-    cd harec/build
-    ../configure --prefix=/usr
+    cd harec
+    cp configs/freebsd.mk config.mk
     make -j2
     sudo make install
 - hare: |
