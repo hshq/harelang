@@ -12,11 +12,11 @@ tasks:
     make -j2 PREFIX=/usr check
     sudo make install PREFIX=/usr
 - harec: |
-    mkdir -p harec/build
-    cd harec/build
-    ../configure --prefix=/usr
+    cd harec
+    ln -sf configs/darwin.mk config.mk
     make -j2
-    sudo make install
+    make check
+    sudo -E make install
 - hare: |
     cd hare
     ln -sf configs/darwin.mk config.mk
