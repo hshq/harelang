@@ -63,27 +63,22 @@ export fn set(
 	exp: expiration,
 	flags: set_flag,
 ) (void | errors::error) = {
-	let interval_timespec = rt::timespec { ... };
 	const timerspec = match (exp) {
 	case let o: oneshot =>
-		time::duration_to_timespec(o, &interval_timespec);
 		yield rt::itimerspec {
 			it_interval = rt::timespec { tv_sec = 0, tv_nsec = 0 },
-			it_value = interval_timespec,
+			it_value = time::duration_to_timespec(o),
 		};
 	case let i: interval =>
-		time::duration_to_timespec(i, &interval_timespec);
+		const interval_timespec = time::duration_to_timespec(i);
 		yield rt::itimerspec {
 			it_interval = interval_timespec,
 			it_value = interval_timespec,
 		};
 	case let id: interval_delayed =>
-		let delay_timespec = rt::timespec { ... };
-		time::duration_to_timespec(id.0, &interval_timespec);
-		time::duration_to_timespec(id.1, &delay_timespec);
 		yield rt::itimerspec {
-			it_interval = interval_timespec,
-			it_value = delay_timespec,
+			it_interval = time::duration_to_timespec(id.0),
+			it_value = time::duration_to_timespec(id.1),
 		};
 	};
 

@@ -6,6 +6,10 @@ sources:
 packages:
 - binutils
 - scdoc
+triggers:
+- action: email
+  condition: failure
+  to: "<~sircmpwn/hare-dev@lists.sr.ht>"
 tasks:
 - qbe: |
     cd qbe
