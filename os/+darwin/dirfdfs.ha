@@ -108,7 +108,7 @@ fn _fs_open(
 	return io::fdopen(fd);
 };
 
-fn fsflags_to_bsd(flags: fs::flag) int = {
+fn fsflags_to_bsd(flags: fs::flag) (int | errors::unsupported) = {
 	let out = rt::O_NOCTTY | rt::O_CLOEXEC;
 	if (flags & fs::flag::WRONLY > 0) {
 		out |= rt::O_WRONLY;
@@ -152,14 +152,10 @@ fn fsflags_to_bsd(flags: fs::flag) int = {
 	if (flags & fs::flag::NOCLOEXEC > 0) {
 		out &= ~rt::O_CLOEXEC;
 	};
-	if (flags & fs::flag::PATH > 0) {
-		abort("fs::flag::PATH is not supported on FreeBSD/Darwin");
-	};
-	if (flags & fs::flag::NOATIME > 0) {
-		abort("fs::flag::NOATIME is not supported on FreeBSD/Darwin");
-	};
-	if (flags & fs::flag::TMPFILE > 0) {
-		abort("fs::flag::TMPFILE is not supported on FreeBSD/Darwin");
+	if (flags & fs::flag::PATH > 0
+			|| flags & fs::flag::NOATIME > 0
+			|| flags & fs::flag::TMPFILE > 0) {
+		return errors::unsupported;
 	};
 	return out;
 };
@@ -173,7 +169,7 @@ fn fs_open_file(
 	for (let i = 0z; i < len(flags); i += 1z) {
 		oflags |= flags[i];
 	};
-	return _fs_open(fs, path, fsflags_to_bsd(oflags), 0);
+	return _fs_open(fs, path, fsflags_to_bsd(oflags)?, 0);
 };
 
 fn fs_open(
@@ -196,7 +192,7 @@ fn fs_create_file(
 		oflags |= flags[i];
 	};
 	oflags |= fs::flag::CREATE;
-	return _fs_open(fs, path, fsflags_to_bsd(oflags), mode)?;
+	return _fs_open(fs, path, fsflags_to_bsd(oflags)?, mode)?;
 };
 
 fn fs_create(

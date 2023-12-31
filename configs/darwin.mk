@@ -18,9 +18,9 @@ LDLINKFLAGS =
 # commands used by the build script
 HAREC = /usr/local/bin/harec
 QBE = ../harec.git/rt/+darwin/qbe.sh
-AS = ../harec.git/rt/+darwin/as.sh
+AS =  ../harec.git/rt/+darwin/as.sh
 CC = /usr/bin/cc
-LD = ../harec.git/rt/+darwin/ld.sh
+LD =  ../harec.git/rt/+darwin/ld.sh
 SCDOC = scdoc
 
 # build locations
@@ -32,13 +32,14 @@ BINOUT = .bin
 HAREPATH = $(SRCDIR)/hare/stdlib:$(SRCDIR)/hare/third-party
 VERSION=$$(./scripts/version)
 
+# For cross-compilation, modify the variables below
 AARCH64_AS=$(AS)
 AARCH64_CC=$(CC)
 AARCH64_LD=$(LD)
 
-RISCV64_AS=riscv64-as
-RISCV64_CC=riscv64-cc
-RISCV64_LD=riscv64-ld
+RISCV64_AS=as
+RISCV64_CC=cc
+RISCV64_LD=ld
 
 X86_64_AS=$(AS)
 X86_64_CC=$(CC)

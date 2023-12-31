@@ -13,15 +13,17 @@ tasks:
     sudo make install PREFIX=/usr
 - harec: |
     cd harec
+    export HAREC_SRC=.
     ln -sf configs/darwin.mk config.mk
     make -j2
     make check
     sudo -E make install
 - hare: |
     cd hare
+    export HAREC_SRC=<...>
     ln -sf configs/darwin.mk config.mk
     make -j2
-    sudo make install
+    sudo -E make install
 - check: |
     cd hare
     make -j2 check
