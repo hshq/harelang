@@ -59,6 +59,7 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		switch (opt.0) {
 		case 'a' =>
 			arch = get_arch(opt.1)?;
+			ctx.arch = arch.qbe_name;
 		case 'D' =>
 			let buf = memio::fixed(strings::toutf8(opt.1));
 			let sc = bufio::newscanner(&buf, len(opt.1));
