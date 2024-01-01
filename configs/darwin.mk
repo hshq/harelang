@@ -25,7 +25,7 @@ SCDOC = scdoc
 
 # build locations
 # HARECACHE = .cache
-HARECACHE = /Volumes/hare-cache/.cache
+HARECACHE = /Volumes/hare-cache/hare.cache
 BINOUT = .bin
 
 # variables that will be embedded in the binary with -D definitions

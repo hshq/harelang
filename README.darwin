@@ -4,9 +4,9 @@
 # Download the file from ftp://ftp.boulder.nist.gov/pub/time/leap-seconds.list,
 # and move it to /var/db/ntpd.leap-seconds.list
 
-export HARECACHE=/Volumes/hare-cache/.cache
-export XDG_CACHE_HOME=/Volumes/hare-cache/.cache
-export TMPDIR=/Volumes/hare-cache/tmp
+export HARECACHE=/Volumes/hare-cache/hare.cache
+export XDG_CACHE_HOME=/Volumes/hare-cache/hare.cache
+export TMPDIR=/Volumes/hare-cache/hare.tmp
 export HAREC_SRC=../harec.git
 export QBE=$HAREC_SRC/rt/+darwin/qbe.sh
 
