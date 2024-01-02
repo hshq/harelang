@@ -1,6 +1,19 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+// Signature for abort handler function.
+export type abort_handler = fn(
+	path: *str,
+	line: u64,
+	col: u64,
+	msg: str,
+) never;
+
+// Sets a new global runtime abort handler.
+export fn onabort(handler: *abort_handler) void = {
+	return; // no-op on +test (XXX: Do something here?)
+};
+
 export type abort_reason = struct {
 	path: nullable *str,
 	line: u64,
