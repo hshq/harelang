@@ -796,10 +796,11 @@ export fn find(re: *regex, string: str) result = {
 export fn findall(re: *regex, string: str) []result = {
 	let res: []result = [];
 	let str_idx = 0z, str_bytesize = 0z;
-	let substring = string;
 	let strm = memio::fixed(strings::toutf8(string));
 	const str_bytes = strings::toutf8(string);
 	for (true) {
+		let substring = strings::fromutf8_unsafe(
+			str_bytes[str_bytesize..]);
 		match (search(re, substring, &strm, true)) {
 		case let m: []capture =>
 			append(res, m);
@@ -809,7 +810,17 @@ export fn findall(re: *regex, string: str) []result = {
 			m[0].end_bytesize += str_bytesize;
 			str_idx = m[0].end;
 			str_bytesize = m[0].end_bytesize;
-			substring = strings::fromutf8(str_bytes[str_bytesize..])!;
+			if (m[0].start_bytesize == len(str_bytes)) {
+				// end-of-string reached
+				break;
+			};
+			if (m[0].start_bytesize == m[0].end_bytesize) {
+				// zero-length match
+				// forward rune and byte indices
+				str_idx += 1;
+				str_bytesize += encoding::utf8::utf8sz(
+					str_bytes[str_bytesize])!;
+			};
 			io::seek(&strm, str_bytesize: io::off,
 				io::whence::SET)!;
 		case void => break;

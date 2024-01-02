@@ -668,6 +668,10 @@ fn run_rawreplace_case(
 			["a", "a"]: []str),
 		(`fo{2,}`, "fo foo fooofoof oofoo", matchres::MATCH,
 			["foo", "fooo", "foo", "foo"]: []str),
+		(``, "abc", matchres::MATCH,
+			["", "", "", ""]: []str),
+		(`a*`, "aaa", matchres::MATCH,
+			["aaa", ""]: []str),
 	];
 
 	for (let i = 0z; i < len(cases); i += 1) {
