@@ -15,6 +15,9 @@ export fn gather(ctx: *context, input: str) ([]module::module | error) = {
 	if (ctx.test) {
 		module::gather(&ctx.ctx, &mods, ["test"])?;
 	};
+	if (!ctx.release) {
+		module::gather(&ctx.ctx, &mods, ["debug"])?;
+	};
 	const nsubmods = if (ctx.submods) {
 		let id: ast::ident = [];
 		defer ast::ident_free(id);

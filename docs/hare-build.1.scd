@@ -14,6 +14,7 @@ hare build - compile a Hare program or module
 	[-l _libname_]++
 	[-N _namespace_]++
 	[-o _path_]++
+	[-R]++
 	[-T _tagset_]++
 	[-t _type_]++
 	[_path_]
@@ -71,6 +72,12 @@ working directory is built.
 *-o* _path_
 	Set the output file to the given path. Setting the path to *-* causes
 	output to be written to stdout.
+
+*-R*
+	Build in release mode. In debug mode (the default), the debug:: module
+	is imported as a dependency, which automatically installs a number of
+	runtime debugging features in your executable. See this module's
+	documentation for details on these features.
 
 *-T* _tagset_
 	Set or unset build tags. See *BUILD TAGS* in *hare-module*(5).

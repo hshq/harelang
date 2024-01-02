@@ -67,6 +67,8 @@ export type context = struct {
 	version: []u8,
 	// true if invoked as `hare test`
 	test: bool,
+	// true if building in release mode
+	release: bool,
 	// whether submodules of the root module should have tests enabled
 	submods: bool,
 	// if true, the main function won't be checked by harec

@@ -103,6 +103,8 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 			output = opt.1;
 		case 'q' =>
 			ctx.mode = build::output::SILENT;
+		case 'R' =>
+			ctx.release = true;
 		case 'T' =>
 			merge_tags(&ctx.ctx.tags, opt.1)?;
 		case 't' =>

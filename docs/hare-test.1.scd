@@ -13,6 +13,7 @@ hare test - compile and run tests for Hare code
 	[-L _libdir_]++
 	[-l _libname_]++
 	[-o _path_]++
+	[-R]++
 	[-T _tagset_]++
 	[_path_ [_tests_...]]
 
