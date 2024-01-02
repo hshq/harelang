@@ -192,11 +192,17 @@ export type siginfo = struct {
 	// [[errors::errno]] to convert to a Hare-native error.
 	errno: rt::errno,
 	union {
-		struct {
-			// Process ID of the sender.
-			pid: int,
-			// Real user ID of the sending process.
-			uid: uint,
+		union {
+			struct {
+				// Process ID of the sender.
+				pid: int,
+				// Real user ID of the sending process.
+				uid: uint,
+			},
+			struct {
+				// Address of the faulting instruction.
+				addr: *opaque,
+			},
 		},
 		// Pads the structure out to the length used by the kernel; do not use.
 		_si_pad: [29]int,
