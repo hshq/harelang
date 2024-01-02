@@ -54,3 +54,42 @@ export type cpu_set = struct {
 export fn alarm(seconds: uint) uint = {
 	return syscall1(SYS_alarm, seconds: u64): uint;
 };
+
+export type ucontext = struct {
+	uc_flags: u64,
+	uc_link: *ucontext,
+	uc_stack: stack_t,
+	uc_mcontext: sigcontext,
+	uc_sigmask: sigset,
+};
+
+export type sigcontext = struct {
+	r8: u64,
+	r9: u64,
+	r10: u64,
+	r11: u64,
+	r12: u64,
+	r13: u64,
+	r14: u64,
+	r15: u64,
+	di: u64,
+	si: u64,
+	bp: u64,
+	bx: u64,
+	dx: u64,
+	ax: u64,
+	cx: u64,
+	sp: u64,
+	ip: u64,
+	flags: u64,
+	cs: u16,
+	gs: u16,
+	fs: u16,
+	ss: u16,
+	err: u64,
+	trapno: u64,
+	oldmask: u64,
+	cr2: u64,
+	fpstate: u64,
+	reserved1: [8]u64,
+};
