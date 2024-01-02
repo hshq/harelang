@@ -342,6 +342,7 @@ export @symbol("getegid") fn getegid() gid_t;
 // profil
 // ktrace
 // sigaction
+// sigaltstack
 
 export @symbol("sigaction") fn libc_sigaction(
 	sig: int,
@@ -355,6 +356,20 @@ export fn sigaction(
 	old: nullable *sigact,
 ) (void | errno) = {
 	let res = libc_sigaction(signum, act, old);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
+export @symbol("sigaltstack") fn libc_sigaltstack(
+	ss: const nullable *stack_t, oss: nullable *stack_t,
+) int;
+
+export fn sigaltstack(
+	ss: const nullable *stack_t,
+	oss: nullable *stack_t,
+) (void | errno) = {
+	let res = libc_sigaltstack(ss, oss);
 	if (res == -1) {
 		return *__errno(): errno;
 	};

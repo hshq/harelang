@@ -579,6 +579,14 @@ export fn sigaction(
 		size(sigset): u64))?: int;
 };
 
+export fn sigaltstack(
+	ss: nullable *stack_t,
+	old_ss: nullable *stack_t,
+) (void | errno) = {
+	wrap_return(syscall2(SYS_sigaltstack,
+		ss: uintptr: u64, old_ss: uintptr: u64))?;
+};
+
 export fn socket(domain: int, type_: int, protocol: int) (int | errno) = {
 	return wrap_return(syscall3(SYS_socket,
 		domain: u64, type_: u64, protocol: u64))?: int;

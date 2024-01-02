@@ -513,6 +513,12 @@ export type sigact = struct {
 	sa_mask: sigset,
 };
 
+export type stack_t = struct {
+	ss_sp: *opaque,
+	ss_flags: int,
+	ss_size: size,
+};
+
 export def SFD_NONBLOCK: int = O_NONBLOCK;
 export def SFD_CLOEXEC: int = O_CLOEXEC;
 
