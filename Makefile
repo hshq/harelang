@@ -5,7 +5,7 @@ all:
 include config.mk
 include makefiles/$(PLATFORM).$(ARCH).mk
 
-all: $(BINOUT)/hare $(BINOUT)/harec2 $(BINOUT)/haredoc docs
+all: $(BINOUT)/hare $(BINOUT)/haredoc docs
 
 HARE_DEFINES = \
 	-D PLATFORM:str='"$(PLATFORM)"' \
