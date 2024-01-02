@@ -35,6 +35,9 @@ export fn readdir(path: str) ([]fs::dirent | fs::error) = fs::readdir(cwd, path)
 // information is returned about the link, not its target.
 export fn stat(path: str) (fs::filestat | fs::error) = fs::stat(cwd, path);
 
+// Returns file information for an [[io::file]].
+export fn fstat(fd: io::file) (fs::filestat | fs::error) = fs::fstat(cwd, fd);
+
 // Returns true if a node exists at the given path, or false if not.
 //
 // Note that testing for file existence before using the file can often lead to

@@ -176,6 +176,16 @@ export fn stat(fs: *fs, path: str) (filestat | error) = {
 	};
 };
 
+// Obtains information about an [[io::file]].
+export fn fstat(fs: *fs, fd: io::file) (filestat | error) = {
+	match (fs.fstat) {
+	case null =>
+		return errors::unsupported;
+	case let f: *fstatfunc =>
+		return f(fs, fd);
+	};
+};
+
 // Returns true if a node exists at the given path, or false if not.
 //
 // Note that testing for file existence before using the file can often lead to
