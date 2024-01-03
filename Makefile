@@ -5,7 +5,7 @@ all:
 include config.mk
 include makefiles/$(PLATFORM).$(ARCH).mk
 
-all: $(BINOUT)/hare $(BINOUT)/harec2 $(BINOUT)/haredoc docs
+all: $(BINOUT)/hare $(BINOUT)/haredoc docs
 
 HARE_DEFINES = \
 	-D PLATFORM:str='"$(PLATFORM)"' \
@@ -46,16 +46,16 @@ $(BINOUT)/hare: $(OBJS)
 
 $(BINOUT)/harec2: $(BINOUT)/hare
 	@printf 'HARE\t%s\n' "$@"
-	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) AS=$(AS) LD=$(LD) \
-		HAREFLAGS=$(HAREFLAGS) HARECFLAGS=$(HARECFLAGS) \
-		QBEFLAGS=$(QBEFLAGS) ASFLAGS=$(ASFLAGS) \
+	@env HAREPATH=. HAREC="$(HAREC)" QBE="$(QBE)" AS="$(AS)" LD="$(LD)" \
+		HAREFLAGS="$(HAREFLAGS)" HARECFLAGS="$(HARECFLAGS)" \
+		QBEFLAGS="$(QBEFLAGS)" ASFLAGS="$(ASFLAGS)" \
 		LDLINKFLAGS="$(LDLINKFLAGS)" \
 		$(BINOUT)/hare build $(HARE_DEFINES) -o $(BINOUT)/harec2 cmd/harec
 
 $(BINOUT)/haredoc: $(BINOUT)/hare
 	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
-	@env HAREPATH=. HAREC=$(HAREC) QBE=$(QBE) $(BINOUT)/hare build \
+	@env HAREPATH=. HAREC="$(HAREC)" QBE="$(QBE)" $(BINOUT)/hare build \
 		$(HARE_DEFINES) -o $(BINOUT)/haredoc ./cmd/haredoc
 
 docs/html: $(BINOUT)/haredoc

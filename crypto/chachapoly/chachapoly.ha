@@ -55,7 +55,7 @@ const vtable: io::vtable = io::vtable {
 
 type initfunc = fn (s: *chacha::stream, h: io::handle, k: []u8, n: []u8) void;
 
-// Initialises the stream as Chacha20-Poly1305. Encrypts to or decrypts form
+// Initialises the stream as Chacha20-Poly1305. Encrypts to or decrypts from
 // 'h'. 'nonce' must be a random value that will only be used once. Additional
 // data can be passed as 'ad'.
 export fn init(
@@ -66,7 +66,7 @@ export fn init(
 	ad: const []u8...
 ) void = geninit(s, &chacha::chacha20_init, h, key, nonce, ad...);
 
-// Initialise the stream as XChacha20-Poly1305. Encrypts to or decrypts form
+// Initialise the stream as XChacha20-Poly1305. Encrypts to or decrypts from
 // 'h'. 'nonce' must be a random value that will only be used once. Additional
 // data can be passed as 'ad'.
 export fn xinit(

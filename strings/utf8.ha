@@ -20,9 +20,8 @@ export fn fromutf8_unsafe(in: []u8) str = {
 // input. If the slice contains invalid UTF-8 sequences,
 // [[encoding::utf8::invalid]] is returned instead.
 export fn fromutf8(in: []u8) (str | utf8::invalid) = {
-	let s = fromutf8_unsafe(in);
 	utf8::validate(in)?;
-	return s;
+	return fromutf8_unsafe(in);
 };
 
 // Converts a string to a UTF-8 byte slice. The return value is borrowed from
