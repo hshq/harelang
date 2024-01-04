@@ -18,7 +18,7 @@ tasks:
     fi
 - qbe: |
     cd qbe
-    make -j2 CC=cc PREFIX=/usr
+    make -j2 PREFIX=/usr
     sudo make install PREFIX=/usr
 - harec: |
     cd harec
