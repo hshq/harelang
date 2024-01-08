@@ -509,7 +509,7 @@ const f32pow10: [_]f32 = [
 	1.0e0, 1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5, 1.0e6, 1.0e7, 1.0e8, 1.0e9, 1.0e10
 ];
 
-fn stof32exact(mant: u32, exp: i32, neg: bool) (f32 | void) = {
+fn stof32exact(mant: u64, exp: i32, neg: bool) (f32 | void) = {
 	if (mant >> math::F32_MANTISSA_BITS != 0) return;
 	let n = mant: i32: f32; // XXX: ARCH
 	if (neg) {
@@ -592,7 +592,7 @@ export fn stof32(s: str) (f32 | invalid | overflow) = {
 	if (p is fast_parsed_float) {
 		const p = p: fast_parsed_float;
 		if (!p.truncated) {
-			let n = stof32exact(p.mantissa: u32, p.exponent,
+			let n = stof32exact(p.mantissa, p.exponent,
 				p.negative);
 			if (n is f32) {
 				return n: f32;
@@ -666,5 +666,7 @@ export fn stof32(s: str) (f32 | invalid | overflow) = {
 	assert(math::isnan(stof32("NaN"): f32));
 	assert(math::isnan(stof32("nan"): f32));
 	assert(math::isnan(stof32("naN"): f32));
+	assert(stof32("9.19100241453305036800e+20")
+		== 9.19100241453305036800e+20);
 };
 
