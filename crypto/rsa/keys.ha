@@ -87,6 +87,12 @@ export fn pubkey_init(pubkey: []u8, x: pubparams) (size | error) = {
 	return s;
 };
 
+// Returns the length of the modulus 'n' of given public key.
+export fn pubkey_nbitlen(pubkey: []u8) size = {
+	let p = pubkey_params(pubkey);
+	return bitlen(p.n);
+};
+
 // Returns the length the public key would require in its encoded form.
 fn pubkey_len(n: []u8, e: []u8) size = 1z + 2 + len(n) + 2 + len(e);
 
