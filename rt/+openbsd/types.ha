@@ -742,3 +742,70 @@ export def CLD_DUMPED: int = 3;
 export def CLD_TRAPPED: int = 4;
 export def CLD_STOPPED: int = 5;
 export def CLD_CONTINUED: int = 6;
+
+export def EVFILT_READ: i16 = -1;
+export def EVFILT_WRITE: i16 = -2;
+export def EVFILT_AIO: i16 = -3;
+export def EVFILT_VNODE: i16 = -4;
+export def EVFILT_PROC: i16 = -5;
+export def EVFILT_SIGNAL: i16 = -6;
+export def EVFILT_TIMER: i16 = -7;
+export def EVFILT_DEVICE: i16 = -8;
+export def EVFILT_EXCEPT: i16 = -9;
+
+export def EV_ADD: u16 = 0x0001;
+export def EV_DELETE: u16 = 0x0002;
+export def EV_ENABLE: u16 = 0x0004;
+export def EV_DISABLE: u16 = 0x0008;
+
+export def EV_ONESHOT: u16 = 0x0010;
+export def EV_CLEAR: u16 = 0x0020;
+export def EV_RECEIPT: u16 = 0x0040;
+export def EV_DISPATCH: u16 = 0x0080;
+
+export def EV_SYSFLAGS: u16 = 0xf800;
+export def EV_FLAG1: u16 = 0x2000;
+
+export def EV_EOF: u16 = 0x8000;
+export def EV_ERROR: u16 = 0x4000;
+
+export def NOTE_LOWAT: uint = 0x0001;
+export def NOTE_EOF: uint = 0x0002;
+
+export def NOTE_OOB: uint = 0x0004;
+
+export def NOTE_DELETE: uint = 0x0001;
+export def NOTE_WRITE: uint = 0x0002;
+export def NOTE_EXTEND: uint = 0x0004;
+export def NOTE_ATTRIB: uint = 0x0008;
+export def NOTE_LINK: uint = 0x0010;
+export def NOTE_RENAME: uint = 0x0020;
+export def NOTE_REVOKE: uint = 0x0040;
+export def NOTE_TRUNCATE: uint =   0x0080;
+
+export def NOTE_EXIT: uint = 0x80000000;
+export def NOTE_FORK: uint = 0x40000000;
+export def NOTE_EXEC: uint = 0x20000000;
+export def NOTE_PCTRLMASK: uint = 0xf0000000;
+export def NOTE_PDATAMASK: uint = 0x000fffff;
+
+export def NOTE_TRACK: uint = 0x00000001;
+export def NOTE_TRACKERR: uint = 0x00000002;
+export def NOTE_CHILD: uint = 0x00000004;
+
+export def NOTE_CHANGE: uint = 0x00000001;
+
+export def NOTE_MSECONDS: uint = 0x00000000;
+export def NOTE_SECONDS: uint = 0x00000001;
+export def NOTE_USECONDS: uint = 0x00000002;
+export def NOTE_NSECONDS: uint = 0x00000003;
+export def NOTE_ABSTIME: uint = 0x00000010;
+
+export type kevent = struct {
+	ident: uintptr,
+	filter: i16,
+	flags: u16,
+	fflags: uint,
+	data: i64,
+	udata: nullable *opaque,
+};
