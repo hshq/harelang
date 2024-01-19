@@ -478,6 +478,33 @@ export fn chroot(path: path) (void | errno) = {
 // getitimer
 // select
 // kevent
+
+@symbol("kevent") fn libc_kevent(
+	kq: int,
+	changelist: nullable *const [*]kevent,
+	nchanges: int,
+	eventlist: nullable *[*]kevent,
+	nevents: int,
+	timeout: nullable *const timespec
+) int;
+
+// kevent() wrapper. Renamed to not conflict with the struct "kevent"
+export fn kevent_poll( 
+	kq: int,
+	changelist: nullable *const [*]kevent,
+	nchanges: int,
+	eventlist: nullable *[*]kevent,
+	nevents: int,
+	timeout: nullable *const timespec
+) (int | errno) = {
+	let res = libc_kevent(kq, changelist, nchanges, eventlist, nevents,
+		timeout);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+	return res;
+};
+
 // munmap
 
 @symbol("munmap") fn libc_munmap(addr: *opaque, len_: size) int;
@@ -1104,7 +1131,31 @@ export fn sysctl(
 // pipe
 // fhopen
 // kqueue
+
+@symbol("kqueue") fn libc_kqueue() int;
+
+export fn kqueue() (int | errno) = {
+	let res = libc_kqueue();
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+
+	return res;
+};
+
 // kqueue1
+
+@symbol("kqueue1") fn libc_kqueue1(flags: int) int;
+
+export fn kqueue1(flags: int) (int | errno) = {
+	let res = libc_kqueue1(flags);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+
+	return res;
+};
+
 // mlockall
 // munlockall
 // getresuid

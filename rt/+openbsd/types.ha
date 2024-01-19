@@ -60,21 +60,21 @@ export def S_IFLNK: mode_t = 0o120000;
 export def S_IFSOCK: mode_t = 0o140000;
 export def S_ISVTX: mode_t = 0o001000;
 
-export def O_RDONLY: int = 0x0000;
-export def O_WRONLY: int = 0x0001;
-export def O_RDWR: int = 0x0002;
-export def O_ACCMODE: int = 0x0003;
-export def O_NONBLOCK: int = 0x0004;
-export def O_APPEND: int = 0x0008;
-export def O_SHLOCK: int = 0x0010;
-export def O_EXLOCK: int = 0x0020;
-export def O_ASYNC: int = 0x0040;
-export def O_FSYNC: int = 0x0080;
-export def O_SYNC: int = 0x0080;
-export def O_NOFOLLOW: int = 0x0100;
-export def O_CREAT: int = 0x0200;
-export def O_TRUNC: int = 0x0400;
-export def O_EXCL: int = 0x0800;
+export def O_RDONLY: int = 0x0;
+export def O_WRONLY: int = 0x1;
+export def O_RDWR: int = 0x2;
+export def O_ACCMODE: int = 0x3;
+export def O_NONBLOCK: int = 0x4;
+export def O_APPEND: int = 0x8;
+export def O_SHLOCK: int = 0x10;
+export def O_EXLOCK: int = 0x20;
+export def O_ASYNC: int = 0x40;
+export def O_FSYNC: int = 0x80;
+export def O_SYNC: int = 0x80;
+export def O_NOFOLLOW: int = 0x100;
+export def O_CREAT: int = 0x200;
+export def O_TRUNC: int = 0x400;
+export def O_EXCL: int = 0x800;
 export def O_DSYNC: int = O_SYNC;
 export def O_RSYNC: int = O_SYNC;
 export def O_NOCTTY: int = 0x8000;
@@ -84,11 +84,11 @@ export def O_DIRECTORY: int = 0x20000;
 export def WAIT_ANY: pid_t = -1;
 export def WAIT_MYPGRP: pid_t = 0;
 
-export def WNOHANG: int = 0x01;
-export def WUNTRACED: int = 0x02;
+export def WNOHANG: int = 0x1;
+export def WUNTRACED: int = 0x2;
 export def WSTOPPED: int = WUNTRACED;
-export def WEXITED: int = 0x04;
-export def WCONTINUED: int = 0x08;
+export def WEXITED: int = 0x4;
+export def WCONTINUED: int = 0x8;
 export def WNOWAIT: int = 0x10;
 export def WTRAPPED: int = 0x20;
 
@@ -124,25 +124,25 @@ export def RUSAGE_CHILDREN: int = -1;
 export def RUSAGE_THREAD: int = 1;
 
 export def F_OK: int = 0;
-export def X_OK: int = 0x01;
-export def W_OK: int = 0x02;
-export def R_OK: int = 0x04;
+export def X_OK: int = 0x1;
+export def W_OK: int = 0x2;
+export def R_OK: int = 0x4;
 
 export def AT_FDCWD: int = -100;
-export def AT_EACCESS: int = 0x01;
-export def AT_SYMLINK_NOFOLLOW: int = 0x02;
-export def AT_SYMLINK_FOLLOW: int = 0x04;
-export def AT_REMOVEDIR: int = 0x08;
+export def AT_EACCESS: int = 0x1;
+export def AT_SYMLINK_NOFOLLOW: int = 0x2;
+export def AT_SYMLINK_FOLLOW: int = 0x4;
+export def AT_REMOVEDIR: int = 0x8;
 
-export def PROT_NONE: int = 0x00;
-export def PROT_READ: int = 0x01;
-export def PROT_WRITE: int = 0x02;
-export def PROT_EXEC: int = 0x04;
+export def PROT_NONE: int = 0x0;
+export def PROT_READ: int = 0x1;
+export def PROT_WRITE: int = 0x2;
+export def PROT_EXEC: int = 0x4;
 
-export def MAP_SHARED: int = 0x0001;
-export def MAP_PRIVATE: int = 0x0002;
-export def MAP_FIXED: int = 0x0010;
-export def __MAP_NOREPLACE: int = 0x0800;
+export def MAP_SHARED: int = 0x1;
+export def MAP_PRIVATE: int = 0x2;
+export def MAP_FIXED: int = 0x10;
+export def __MAP_NOREPLACE: int = 0x800;
 export def MAP_ANON: int = 0x1000;
 export def __MAP_NOFAULT: int = 0x2000;
 export def MAP_STACK: int = 0x4000;
@@ -150,23 +150,23 @@ export def MAP_CONCEAL: int = 0x8000;
 
 export def MAP_FLAGMASK: int = 0xfff7;
 
-export def RB_AUTOBOOT: int = 0x00000;
-export def RB_ASKNAME: int = 0x00001;
-export def RB_SINGLE: int = 0x00002;
-export def RB_NOSYNC: int = 0x00004;
-export def RB_HALT: int = 0x00008;
-export def RB_INITNAME: int = 0x00010;
-export def RB_DFLTROOT: int = 0x00020;
-export def RB_KDB: int = 0x00040;
-export def RB_RDONLY: int = 0x00080;
-export def RB_DUMP: int = 0x00100;
-export def RB_MINIROOT: int = 0x00200;
-export def RB_CONFIG: int = 0x00400;
-export def RB_TIMEBAD: int = 0x00800;
-export def RB_POWERDOWN: int = 0x01000;
-export def RB_SERCONS: int = 0x02000;
-export def RB_USERREQ: int = 0x04000;
-export def RB_RESET: int = 0x08000;
+export def RB_AUTOBOOT: int = 0x0;
+export def RB_ASKNAME: int = 0x1;
+export def RB_SINGLE: int = 0x2;
+export def RB_NOSYNC: int = 0x4;
+export def RB_HALT: int = 0x8;
+export def RB_INITNAME: int = 0x10;
+export def RB_DFLTROOT: int = 0x20;
+export def RB_KDB: int = 0x40;
+export def RB_RDONLY: int = 0x80;
+export def RB_DUMP: int = 0x100;
+export def RB_MINIROOT: int = 0x200;
+export def RB_CONFIG: int = 0x400;
+export def RB_TIMEBAD: int = 0x800;
+export def RB_POWERDOWN: int = 0x1000;
+export def RB_SERCONS: int = 0x2000;
+export def RB_USERREQ: int = 0x4000;
+export def RB_RESET: int = 0x8000;
 export def RB_GOODRANDOM: int = 0x10000;
 export def RB_UNHIBERNATE: int = 0x20000;
 
@@ -238,17 +238,17 @@ export type pollfd = struct {
 	revents: i16,
 };
 
-export def POLLIN: i16 = 0x0001;
-export def POLLPRI: i16 = 0x0002;
-export def POLLOUT: i16 = 0x0004;
-export def POLLERR: i16 = 0x0008;
-export def POLLHUP: i16 = 0x0010;
-export def POLLNVAL: i16 = 0x0020;
-export def POLLRDNORM: i16 = 0x0040;
+export def POLLIN: i16 = 0x1;
+export def POLLPRI: i16 = 0x2;
+export def POLLOUT: i16 = 0x4;
+export def POLLERR: i16 = 0x8;
+export def POLLHUP: i16 = 0x10;
+export def POLLNVAL: i16 = 0x20;
+export def POLLRDNORM: i16 = 0x40;
 export def POLLNORM: i16 = POLLRDNORM;
 export def POLLWRNORM: i16 = POLLOUT;
-export def POLLRDBAND: i16 = 0x0080;
-export def POLLWRBAND: i16 = 0x0100;
+export def POLLRDBAND: i16 = 0x80;
+export def POLLWRBAND: i16 = 0x100;
 
 export type iovec = struct {
 	iov_base: *opaque,
@@ -335,76 +335,80 @@ export type termios = struct {
 	c_cflag: tcflag,
 	c_lflag: tcflag,
 	c_cc: [NCCS]cc,
+	c_ispeed: int,
+	c_ospeed: int,
 };
 
 export def NCCS: size = 20;
 
 export type tcflag = enum uint {
 	// c_iflag bits
-	IGNBRK  = 0x00000001,
-	BRKINT  = 0x00000002,
-	IGNPAR  = 0x00000004,
-	PARMRK  = 0x00000008,
-	INPCK   = 0x00000010,
-	ISTRIP  = 0x00000020,
-	INLCR   = 0x00000040,
-	IGNCR   = 0x00000080,
-	ICRNL   = 0x00000100,
-	IXON    = 0x00000200,
-	IXOFF   = 0x00000400,
-	IXANY   = 0x00000800,
-	IMAXBEL = 0x00002000,
+	IGNBRK = 0x1,
+	BRKINT = 0x2,
+	IGNPAR = 0x4,
+	PARMRK = 0x8,
+	INPCK = 0x10,
+	ISTRIP = 0x20,
+	INLCR = 0x40,
+	IGNCR = 0x80,
+	ICRNL = 0x100,
+	IXON = 0x200,
+	IXOFF = 0x400,
+	IXANY = 0x800,
+	IUCLC = 0x1000,
+	IMAXBEL = 0x2000,
 
 	// c_oflag bits
-	OPOST  = 0x00000001,
-	ONLCR  = 0x00000002,
-	TABDLY = 0x00000004,
-	TAB0   = 0x00000000,
-	TAB3   = 0x00000004,
-	ONOEOT = 0x00000008,
-	OCRNL  = 0x00000010,
-	ONOCR  = 0x00000020,
-	ONLRET = 0x00000040,
+	OPOST = 0x1,
+	ONLCR = 0x2,
+	TABDLY = 0x4,
+	TAB0 = 0x0,
+	TAB3 = 0x4,
+	OXTABS = TAB3,
+	ONOEOT = 0x8,
+	OCRNL = 0x10,
+	OLCUC = 0x20,
+	ONOCR = 0x40,
+	ONLRET = 0x80,
 
 	// c_cflag bits
-	CIGNORE    = 0x00000001,
-	CSIZE      = 0x00000300,
-	CS5        = 0x00000000,
-	CS6        = 0x00000100,
-	CS7        = 0x00000200,
-	CS8        = 0x00000300,
-	CSTOPB     = 0x00000400,
-	CREAD      = 0x00000800,
-	PARENB     = 0x00001000,
-	PARODD     = 0x00002000,
-	HUPCL      = 0x00004000,
-	CLOCAL     = 0x00008000,
-	CCTS_OFLOW = 0x00010000,
-	CRTS_IFLOW = 0x00020000,
-	CRTSCTS    = (CCTS_OFLOW | CRTS_IFLOW),
-	CDTR_IFLOW = 0x00040000,
-	CDSR_OFLOW = 0x00080000,
-	CCAR_OFLOW = 0x00100000,
-	CNO_RTSDTR = 0x00200000,
+	CIGNORE = 0x1,
+	CSIZE = 0x300,
+	CS5 = 0x0,
+	CS6 = 0x100,
+	CS7 = 0x200,
+	CS8 = 0x300,
+	CSTOPB = 0x400,
+	CREAD = 0x800,
+	PARENB = 0x1000,
+	PARODD = 0x2000,
+	HUPCL = 0x4000,
+	CLOCAL = 0x8000,
+	CRTSCTS = 0x10000,
+	CRTS_IFLOW = CRTSCTS,
+	CCTS_OFLOW = CRTSCTS,
+	MDMBUF = 0x100000,
+	CHWFLOW = (MDMBUF | CRTSCTS),
 
 	// c_lflag bits
-	ECHOKE     = 0x00000001,
-	ECHOE      = 0x00000002,
-	ECHOK      = 0x00000004,
-	ECHO       = 0x00000008,
-	ECHONL     = 0x00000010,
-	ECHOPRT    = 0x00000020,
-	ECHOCTL    = 0x00000040,
-	ISIG       = 0x00000080,
-	ICANON     = 0x00000100,
-	ALTWERASE  = 0x00000200,
-	IEXTEN     = 0x00000400,
-	EXTPROC    = 0x00000800,
-	TOSTOP     = 0x00400000,
-	FLUSHO     = 0x00800000,
-	NOKERNINFO = 0x02000000,
-	PENDIN     = 0x20000000,
-	NOFLSH     = 0x80000000,
+	ECHOKE = 0x1,
+	ECHOE = 0x2,
+	ECHOK = 0x4,
+	ECHO = 0x8,
+	ECHONL = 0x10,
+	ECHOPRT = 0x20,
+	ECHOCTL = 0x40,
+	ISIG = 0x80,
+	ICANON = 0x100,
+	ALTWERASE = 0x200,
+	IEXTEN = 0x400,
+	EXTPROC = 0x800,
+	TOSTOP = 0x400000,
+	FLUSHO = 0x800000,
+	XCASE = 0x1000000,
+	NOKERNINFO = 0x2000000,
+	PENDIN = 0x20000000,
+	NOFLSH = 0x80000000,
 };
 
 export type cc = enum u8 {
@@ -441,13 +445,13 @@ export def SIG_BLOCK: int = 1;
 export def SIG_UNBLOCK: int = 2;
 export def SIG_SETMASK: int = 3;
 
-export def SA_ONSTACK: int = 0x0001;
-export def SA_RESTART: int = 0x0002;
-export def SA_RESETHAND: int = 0x0004;
-export def SA_NOCLDSTOP: int = 0x0008;
-export def SA_NODEFER: int = 0x0010;
-export def SA_NOCLDWAIT: int = 0x0020;
-export def SA_SIGINFO: u64 = 0x0040;
+export def SA_ONSTACK: int = 0x1;
+export def SA_RESTART: int = 0x2;
+export def SA_RESETHAND: int = 0x4;
+export def SA_NOCLDSTOP: int = 0x8;
+export def SA_NODEFER: int = 0x10;
+export def SA_NOCLDWAIT: int = 0x20;
+export def SA_SIGINFO: u64 = 0x40;
 
 export def SIGHUP: int = 1;
 export def SIGINT: int = 2;
@@ -738,3 +742,70 @@ export def CLD_DUMPED: int = 3;
 export def CLD_TRAPPED: int = 4;
 export def CLD_STOPPED: int = 5;
 export def CLD_CONTINUED: int = 6;
+
+export def EVFILT_READ: i16 = -1;
+export def EVFILT_WRITE: i16 = -2;
+export def EVFILT_AIO: i16 = -3;
+export def EVFILT_VNODE: i16 = -4;
+export def EVFILT_PROC: i16 = -5;
+export def EVFILT_SIGNAL: i16 = -6;
+export def EVFILT_TIMER: i16 = -7;
+export def EVFILT_DEVICE: i16 = -8;
+export def EVFILT_EXCEPT: i16 = -9;
+
+export def EV_ADD: u16 = 0x0001;
+export def EV_DELETE: u16 = 0x0002;
+export def EV_ENABLE: u16 = 0x0004;
+export def EV_DISABLE: u16 = 0x0008;
+
+export def EV_ONESHOT: u16 = 0x0010;
+export def EV_CLEAR: u16 = 0x0020;
+export def EV_RECEIPT: u16 = 0x0040;
+export def EV_DISPATCH: u16 = 0x0080;
+
+export def EV_SYSFLAGS: u16 = 0xf800;
+export def EV_FLAG1: u16 = 0x2000;
+
+export def EV_EOF: u16 = 0x8000;
+export def EV_ERROR: u16 = 0x4000;
+
+export def NOTE_LOWAT: uint = 0x0001;
+export def NOTE_EOF: uint = 0x0002;
+
+export def NOTE_OOB: uint = 0x0004;
+
+export def NOTE_DELETE: uint = 0x0001;
+export def NOTE_WRITE: uint = 0x0002;
+export def NOTE_EXTEND: uint = 0x0004;
+export def NOTE_ATTRIB: uint = 0x0008;
+export def NOTE_LINK: uint = 0x0010;
+export def NOTE_RENAME: uint = 0x0020;
+export def NOTE_REVOKE: uint = 0x0040;
+export def NOTE_TRUNCATE: uint =   0x0080;
+
+export def NOTE_EXIT: uint = 0x80000000;
+export def NOTE_FORK: uint = 0x40000000;
+export def NOTE_EXEC: uint = 0x20000000;
+export def NOTE_PCTRLMASK: uint = 0xf0000000;
+export def NOTE_PDATAMASK: uint = 0x000fffff;
+
+export def NOTE_TRACK: uint = 0x00000001;
+export def NOTE_TRACKERR: uint = 0x00000002;
+export def NOTE_CHILD: uint = 0x00000004;
+
+export def NOTE_CHANGE: uint = 0x00000001;
+
+export def NOTE_MSECONDS: uint = 0x00000000;
+export def NOTE_SECONDS: uint = 0x00000001;
+export def NOTE_USECONDS: uint = 0x00000002;
+export def NOTE_NSECONDS: uint = 0x00000003;
+export def NOTE_ABSTIME: uint = 0x00000010;
+
+export type kevent = struct {
+	ident: uintptr,
+	filter: i16,
+	flags: u16,
+	fflags: uint,
+	data: i64,
+	udata: nullable *opaque,
+};
