@@ -489,7 +489,7 @@ export fn chroot(path: path) (void | errno) = {
 ) int;
 
 // kevent() wrapper. Renamed to not conflict with the struct "kevent"
-export fn kevent_poll( 
+export fn kevent_poll(
 	kq: int,
 	changelist: nullable *const [*]kevent,
 	nchanges: int,
