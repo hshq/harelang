@@ -299,7 +299,7 @@ export fn compile(expr: str) (regex | error) = {
 				curr_alt_jump_idx = -1;
 			};
 		case '|' =>
-			append(insts, 9999999: inst_jump);
+			append(insts, types::SIZE_MAX: inst_jump);
 			const origin = find_last_groupstart(&insts)? + 1;
 			const newinst = (len(insts) + 1): inst_split;
 			insert(insts[origin], newinst);
