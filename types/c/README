@@ -26,5 +26,10 @@ Some C types are mostly compatible with Hare types, with minor differences:
   [[math::complex::]]. Hare doesn't allow casting between real and complex types
   like C does.
 
+Hare doesn't support bit-precise integer types (_BitInt) or decimal floating
+point types (_Decimal32, _Decimal64, _Decimal128). Hare also doesn't provide any
+floating point type larger than 8 bytes, implicating `long double` on some
+platforms.
+
 Additional low-level or implementation-specific types may be defined in
 [[rt::]].
