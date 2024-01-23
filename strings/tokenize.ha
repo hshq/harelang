@@ -128,7 +128,7 @@ export fn rsplitn(in: str, delim: str, n: size) []str = {
 	for (let i = 0z; i < n - 1z; i += 1) {
 		match (next_token(&tok)) {
 		case let s: str =>
-			insert(toks[0], s);
+			append(toks, s);
 		case void =>
 			return toks;
 		};
@@ -136,8 +136,15 @@ export fn rsplitn(in: str, delim: str, n: size) []str = {
 	match(peek_token(&tok)) {
 	case void => void;
 	case let s: str =>
-		insert(toks[0], remaining_tokens(&tok));
+		append(toks, remaining_tokens(&tok));
 	};
+
+	for (let i = 0z; i < len(toks) / 2; i += 1) {
+		const tmp = toks[i];
+		toks[i] = toks[len(toks) - i - 1];
+		toks[len(toks) - i - 1] = tmp;
+	};
+
 	return toks;
 };
 
