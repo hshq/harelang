@@ -9,6 +9,7 @@ Some C types aren't provided by this module, since they are provided by the Hare
 language itself:
 
 - _Bool, bool  -> bool
+- nullptr_t    -> null
 - (signed) int -> int
 - size_t       -> size
 - unsigned int -> uint
