@@ -12,7 +12,7 @@ use strings;
 // argument list is borrowed from the strings you pass into this command.
 //
 // If 'name' does not contain a '/', the $PATH will be consulted to find the
-// correct executable. If path resolution fails, nocmd is returned.
+// correct executable. If path resolution fails, [[nocmd]] is returned.
 //
 //	let cmd = exec::cmd("echo", "hello world")!;
 //	let proc = exec::start(&cmd)!;
