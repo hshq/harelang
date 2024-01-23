@@ -10,7 +10,8 @@ use time;
 // insert a string into a sorted list of strings, deduplicated.
 fn insert_uniq(into: *[]str, s: str) void = {
 	let i = 0z;
-	// XXX: could use binary search
+	// the `into` slice is generally small enough that a linear search is
+	// fine
 	for (i < len(into) && strings::compare(into[i], s) < 0) {
 		i += 1;
 	};
