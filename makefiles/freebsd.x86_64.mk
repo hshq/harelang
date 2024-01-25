@@ -4,13 +4,13 @@ TDENV = env HARE_TD_rt=$(HARECACHE)/rt.td HARE_TD_encoding::utf8=$(HARECACHE)/en
 RTSCRIPT = rt/+freebsd/hare.sc
 OBJS = $(HARECACHE)/rt.o $(HARECACHE)/encoding_utf8.o $(HARECACHE)/types.o $(HARECACHE)/bytes.o $(HARECACHE)/sort_cmp.o $(HARECACHE)/strings.o $(HARECACHE)/ascii.o $(HARECACHE)/errors.o $(HARECACHE)/io.o $(HARECACHE)/bufio.o $(HARECACHE)/crypto_math.o $(HARECACHE)/endian.o $(HARECACHE)/hash.o $(HARECACHE)/crypto_sha256.o $(HARECACHE)/math.o $(HARECACHE)/memio.o $(HARECACHE)/path.o $(HARECACHE)/time.o $(HARECACHE)/fs.o $(HARECACHE)/types_c.o $(HARECACHE)/os.o $(HARECACHE)/strconv.o $(HARECACHE)/fmt.o $(HARECACHE)/encoding_hex.o $(HARECACHE)/sort.o $(HARECACHE)/hare_lex.o $(HARECACHE)/hare_ast.o $(HARECACHE)/hare_parse.o $(HARECACHE)/hare_unparse.o $(HARECACHE)/time_chrono.o $(HARECACHE)/time_date.o $(HARECACHE)/hare_module.o $(HARECACHE)/unix.o $(HARECACHE)/unix_signal.o $(HARECACHE)/os_exec.o $(HARECACHE)/shlex.o $(HARECACHE)/unix_tty.o $(HARECACHE)/cmd_hare_build.o $(HARECACHE)/dirs.o $(HARECACHE)/getopt.o $(HARECACHE)/cmd_hare.o
 
-rt_ha = rt/+freebsd/+x86_64.ha rt/+freebsd/env.ha rt/+freebsd/errno.ha rt/+freebsd/initfini.ha rt/+freebsd/platform_abort.ha rt/+freebsd/platformstart-libc.ha rt/+freebsd/segmalloc.ha rt/+freebsd/signal.ha rt/+freebsd/socket.ha rt/+freebsd/start.ha rt/+freebsd/syscallno.ha rt/+freebsd/syscalls.ha rt/+freebsd/types.ha rt/+x86_64/arch_jmp.ha rt/+x86_64/backtrace.ha rt/+x86_64/cpuid.ha rt/abort.ha rt/ensure.ha rt/fenv_defs.ha rt/jmp.ha rt/malloc.ha rt/memcpy.ha rt/memfunc_ptr.ha rt/memmove.ha rt/memset.ha rt/strcmp.ha rt/u64tos.ha rt/unknown_errno.ha
+rt_ha = rt/+freebsd/+x86_64.ha rt/+freebsd/env.ha rt/+freebsd/errno.ha rt/+freebsd/initfini.ha rt/+freebsd/platform_abort.ha rt/+freebsd/platformstart-libc.ha rt/+freebsd/segmalloc.ha rt/+freebsd/signal.ha rt/+freebsd/socket.ha rt/+freebsd/start.ha rt/+freebsd/syscallno.ha rt/+freebsd/syscalls.ha rt/+freebsd/types.ha rt/+x86_64/arch_jmp.ha rt/+x86_64/cpuid.ha rt/abort.ha rt/ensure.ha rt/fenv_defs.ha rt/jmp.ha rt/malloc.ha rt/memcpy.ha rt/memfunc_ptr.ha rt/memmove.ha rt/memset.ha rt/strcmp.ha rt/u64tos.ha rt/unknown_errno.ha
 $(HARECACHE)/rt.ssa: $(rt_ha)
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/rt.ssa -t $(HARECACHE)/rt.td.tmp -N rt $(rt_ha)
 
-rt_s = $(HARECACHE)/rt.s rt/+freebsd/start+x86_64-libc.s rt/+freebsd/syscall+x86_64.s rt/+x86_64/cpuid.s rt/+x86_64/fenv.s rt/+x86_64/getfp.s rt/+x86_64/longjmp.s rt/+x86_64/setjmp.s
+rt_s = $(HARECACHE)/rt.s rt/+freebsd/start+x86_64-libc.s rt/+freebsd/syscall+x86_64.s rt/+x86_64/cpuid.s rt/+x86_64/fenv.s rt/+x86_64/longjmp.s rt/+x86_64/setjmp.s
 $(HARECACHE)/rt.o: $(rt_s)
 	@printf 'AS\t%s\n' "$@"
 	@$(AS) $(ASFLAGS) -o $@ $(rt_s)
@@ -214,7 +214,7 @@ $(HARECACHE)/unix_signal.ssa: $(unix_signal_ha) $(HARECACHE)/io.td $(HARECACHE)/
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/unix_signal.ssa -t $(HARECACHE)/unix_signal.td.tmp -N unix::signal $(unix_signal_ha)
 
 os_exec_ha = os/exec/+freebsd/exec.ha os/exec/+freebsd/platform_cmd.ha os/exec/+freebsd/process.ha os/exec/cmd.ha os/exec/types.ha
-$(HARECACHE)/os_exec.ssa: $(os_exec_ha) $(HARECACHE)/ascii.td $(HARECACHE)/errors.td $(HARECACHE)/fmt.td $(HARECACHE)/fs.td $(HARECACHE)/io.td $(HARECACHE)/os.td $(HARECACHE)/rt.td $(HARECACHE)/strings.td $(HARECACHE)/time.td $(HARECACHE)/types_c.td $(HARECACHE)/unix.td $(HARECACHE)/unix_signal.td
+$(HARECACHE)/os_exec.ssa: $(os_exec_ha) $(HARECACHE)/ascii.td $(HARECACHE)/errors.td $(HARECACHE)/fmt.td $(HARECACHE)/fs.td $(HARECACHE)/io.td $(HARECACHE)/os.td $(HARECACHE)/path.td $(HARECACHE)/rt.td $(HARECACHE)/strings.td $(HARECACHE)/time.td $(HARECACHE)/types_c.td $(HARECACHE)/unix.td $(HARECACHE)/unix_signal.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/os_exec.ssa -t $(HARECACHE)/os_exec.td.tmp -N os::exec $(os_exec_ha)

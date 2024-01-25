@@ -15,7 +15,7 @@ def ALTSTACK_SIZE: size = 16384;
 
 @init fn init_overflow() void = {
 	rt::sigaltstack(&rt::stack_t {
-		ss_sp = &altstack,
+		ss_sp = rt::malloc(ALTSTACK_SIZE): *opaque,
 		ss_flags = 0,
 		ss_size = ALTSTACK_SIZE,
 	}, null)!;

@@ -64,6 +64,14 @@ fn printframe(
 ) void = {
 	const pc = frame_pc(frame);
 
+	// Try to translate the address
+	match (translate(pc: uintptr)) {
+	case let ptr: uintptr =>
+		pc = ptr;
+	case =>
+		void;
+	};
+
 	const sym = match (symbol_byaddr(self, pc)) {
 	case let sym: elf::sym64 =>
 		yield sym;
