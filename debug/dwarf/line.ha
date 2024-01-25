@@ -7,7 +7,8 @@ use format::elf;
 use io;
 use memio;
 
-def LINE_VERSION: u16 = 3;
+def MIN_LINE_VERSION: u16 = 2;
+def MAX_LINE_VERSION: u16 = 3;
 
 // Boolean flags for the line number state machine
 export type line_flag = enum uint {
@@ -83,7 +84,8 @@ export fn exec_line_program(
 
 	// Read program header
 	const ver = read_uhalf(rd)!;
-	assert(ver == 3, "debug::dwarf: unsupported .debug_line version");
+	assert(ver >= MIN_LINE_VERSION && ver <= MAX_LINE_VERSION,
+		"debug::dwarf: unsupported .debug_line version");
 
 	let head = line_header { ... };
 	const head_len = read_secword(rd)?;
