@@ -68,6 +68,10 @@ export fn finish(scan: *scanner) void = {
 
 fn scan_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let scan = s: *scanner;
+
+	// Consume previous read, if any
+	scan_shift(scan);
+
 	if (scan.pending == 0) {
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
@@ -76,9 +80,6 @@ fn scan_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 			yield;
 		};
 	};
-
-	// Consume previous read, if any
-	scan_shift(scan);
 
 	const n = if (len(buf) > scan.pending) scan.pending else len(buf);
 	buf[..n] = scan_consume(scan, n)[..];
@@ -133,6 +134,9 @@ fn scan_consume(scan: *scanner, n: size) []u8 = {
 
 // Reads one byte from a [[scanner]].
 export fn scan_byte(scan: *scanner) (u8 | io::EOF | io::error) = {
+	// Consume previous read, if any
+	scan_shift(scan);
+
 	if (scan.pending == 0) {
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
@@ -142,8 +146,6 @@ export fn scan_byte(scan: *scanner) (u8 | io::EOF | io::error) = {
 		};
 	};
 
-	// Consume previous read, if any
-	scan_shift(scan);
 	return scan_consume(scan, 1)[0];
 };
 
