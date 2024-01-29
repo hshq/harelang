@@ -486,38 +486,34 @@ export fn decode(
 		assert(bytes::equal(decb, strings::toutf8(cases[i].1)));
 	};
 
-	const invalid: [_](str, *encoding) = [
+	const invalid: [_]str = [
 		// invalid padding
-		("=", &std_encoding),
-		("==", &std_encoding),
-		("===", &std_encoding),
-		("=====", &std_encoding),
-		("======", &std_encoding),
+		"=", "==", "===", "=====", "======",
 		// invalid characters
-		("@Zg=", &std_encoding),
-		("êg=", &std_encoding),
-		("êg==", &std_encoding),
+		"@Zg=", "êg=", "êg==", "$3d==", "%3d==", "[==", "!",
 		// data after padding is encountered
-		("Zg==Zg==", &std_encoding),
-		("Zm8=Zm8=", &std_encoding),
+		"Zg==Zg==", "Zm8=Zm8=",
 	];
+	const encodings: [_]*encoding = [&std_encoding, &url_encoding];
 	for (let i = 0z; i < len(invalid); i += 1) {
-		let in = memio::fixed(strings::toutf8(invalid[i].0));
-		let decoder = newdecoder(invalid[i].1, &in);
-		let buf: [1]u8 = [0...];
-		let valid = false;
-		for (true) match(io::read(&decoder, buf)) {
-		case errors::invalid =>
-			break;
-		case size =>
-			valid = true;
-		case io::EOF =>
-			break;
-		};
-		assert(valid == false, "valid is not false");
+		for (let enc = 0z; enc < 2; enc += 1) {
+			let in = memio::fixed(strings::toutf8(invalid[i]));
+			let decoder = newdecoder(encodings[enc], &in);
+			let buf: [1]u8 = [0...];
+			let valid = false;
+			for (true) match(io::read(&decoder, buf)) {
+			case errors::invalid =>
+				break;
+			case size =>
+				valid = true;
+			case io::EOF =>
+				break;
+			};
+			assert(valid == false, "valid is not false");
 
-		// Testing decodestr should cover decodeslice too
-		assert(decodestr(invalid[i].1, invalid[i].0) is errors::invalid);
+			// Testing decodestr should cover decodeslice too
+			assert(decodestr(encodings[enc], invalid[i]) is errors::invalid);
+		};
 	};
 };
 
