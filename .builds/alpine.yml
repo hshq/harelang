@@ -12,10 +12,19 @@ triggers:
   to: "<~sircmpwn/hare-dev@lists.sr.ht>"
 tasks:
 - environment: |
-    if [ "$BUILD_SUBMITTER" = "git.sr.ht" ] && [ "$GIT_REF" != "refs/heads/master" ]
+    cd hare
+    if [ "$BUILD_SUBMITTER" = "git.sr.ht" ]
     then
+      if [ "$GIT_REF" != "refs/heads/master" ]
+      then
+          complete-build
+      fi
+      if [ "$(git remote get-url origin)" != "https://git.sr.ht/~sircmpwn/hare" ]
+      then
         complete-build
+      fi
     fi
+- signoff: |
     cd hare
     if [ "$BUILD_REASON" = "patchset" ]
     then
@@ -68,4 +77,4 @@ tasks:
         echo "Not uploading docs for non-git.sr.ht build"
         exit
     fi
-    acurl -f https://pages.sr.ht/publish/docs.harelang.org -Fcontent=@docs.tar.gz
+    acurl -f https://pages.sr.ht/publish/docs.harelang.org -Fcontent=@docs.tar.gz || true

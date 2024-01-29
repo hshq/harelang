@@ -115,6 +115,16 @@ use strings;
 	};
 };
 
+@test fn scan_byte() void = {
+	let in = memio::fixed([1, 2, 3]);
+	let scanner = newscanner(&in, 3);
+
+	assert(scan_byte(&scanner) as u8 == 1);
+	assert(scan_byte(&scanner) as u8 == 2);
+	assert(scan_byte(&scanner) as u8 == 3);
+	assert(scan_byte(&scanner) is io::EOF);
+};
+
 @test fn scan_read() void = {
 	const expected: [_]u8 = [
 		0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b,

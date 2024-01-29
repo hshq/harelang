@@ -9,6 +9,7 @@ Some C types aren't provided by this module, since they are provided by the Hare
 language itself:
 
 - _Bool, bool  -> bool
+- nullptr_t    -> null
 - (signed) int -> int
 - size_t       -> size
 - unsigned int -> uint
@@ -24,6 +25,11 @@ Some C types are mostly compatible with Hare types, with minor differences:
   with equivalent represention to their C counterparts are declared in
   [[math::complex::]]. Hare doesn't allow casting between real and complex types
   like C does.
+
+Hare doesn't support bit-precise integer types (_BitInt) or decimal floating
+point types (_Decimal32, _Decimal64, _Decimal128). Hare also doesn't provide any
+floating point type larger than 8 bytes, implicating `long double` on some
+platforms.
 
 Additional low-level or implementation-specific types may be defined in
 [[rt::]].

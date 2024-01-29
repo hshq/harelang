@@ -203,8 +203,7 @@ export fn from_moment(m: chrono::moment) date = {
 	return d;
 };
 
-// Creates a [[date]] from a [[time::instant]]
-// in a [[time::chrono::locality]].
+// Creates a [[date]] from a [[time::instant]] in a [[time::chrono::locality]].
 export fn from_instant(loc: chrono::locality, i: time::instant) date = {
 	return from_moment(chrono::new(loc, i));
 };

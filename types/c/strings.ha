@@ -78,9 +78,9 @@ export fn nulstr(s: const str) *const char = {
 	return s.data: *const char;
 };
 
-// Converts a non-NUL-terminated Hare string to a C string. The return value is
-// borrowed from the input, except in the case of an empty string, in which case
-// it is statically allocated.
+// Converts a non-NUL-terminated Hare string to a *const [[char]]. The return
+// value is borrowed from the input, except in the case of an empty string, in
+// which case it is statically allocated.
 //
 // Use with caution!
 export fn unterminatedstr(s: const str) *const char = {
