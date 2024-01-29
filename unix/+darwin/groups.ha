@@ -3,7 +3,8 @@
 
 use rt;
 
-// Returns a list of supplementary group IDs for the current process.
+// Returns a list of supplementary group IDs for the current process. The
+// returned slice is statically allocated.
 export fn getgroups() []uint = {
 	static let gids: [rt::NGROUPS_MAX]uint = [0...];
 	const n = rt::getgroups(gids)!;

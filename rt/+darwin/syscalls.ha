@@ -1,6 +1,19 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+export fn syscall(num: u64, args: u64...) u64 = {
+	switch (len(args)) {
+	case 0 => return syscall0(num);
+	case 1 => return syscall1(num, args[0]);
+	case 2 => return syscall2(num, args[0], args[1]);
+	case 3 => return syscall3(num, args[0], args[1], args[2]);
+	case 4 => return syscall4(num, args[0], args[1], args[2], args[3]);
+	case 5 => return syscall5(num, args[0], args[1], args[2], args[3], args[4]);
+	case 6 => return syscall6(num, args[0], args[1], args[2], args[3], args[4], args[5]);
+	case => abort("syscalls can't have more than 6 arguments");
+	};
+};
+
 fn syscall0(u64) u64;
 fn syscall1(u64, u64) u64;
 fn syscall2(u64, u64, u64) u64;

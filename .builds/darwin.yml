@@ -20,7 +20,11 @@ tasks:
     sudo -E make install
 - hare: |
     cd hare
+    export HARECACHE=<...>
+    export XDG_CACHE_HOME=$HARECACHE
+    export TMPDIR=<...>
     export HAREC_SRC=<...>
+    export QBE=$HAREC_SRC/rt/+darwin/qbe.sh
     ln -sf configs/darwin.mk config.mk
     make -j2
     sudo -E make install
