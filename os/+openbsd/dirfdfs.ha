@@ -19,48 +19,48 @@ type os_filesystem = struct {
 
 fn fsflags_to_bsd(flags: fs::flag) (int | errors::unsupported) = {
 	let out = rt::O_CLOEXEC;
-	if (flags & fs::flag::RDONLY > 0) {
+	if (flags & fs::flag::RDONLY == fs::flag::RDONLY) {
 		out |= rt::O_RDONLY;
 	};
-	if (flags & fs::flag::WRONLY > 0) {
+	if (flags & fs::flag::WRONLY == fs::flag::WRONLY) {
 		out |= rt::O_WRONLY;
 	};
-	if (flags & fs::flag::RDWR > 0) {
+	if (flags & fs::flag::RDWR == fs::flag::RDWR) {
 		out |= rt::O_RDWR;
 	};
-	if (flags & fs::flag::CREATE > 0) {
+	if (flags & fs::flag::CREATE == fs::flag::CREATE) {
 		out |= rt::O_CREAT;
 	};
-	if (flags & fs::flag::EXCL > 0) {
+	if (flags & fs::flag::EXCL == fs::flag::EXCL) {
 		out |= rt::O_EXCL;
 	};
-	if (flags & fs::flag::TRUNC > 0) {
+	if (flags & fs::flag::TRUNC == fs::flag::TRUNC) {
 		out |= rt::O_TRUNC;
 	};
-	if (flags & fs::flag::APPEND > 0) {
+	if (flags & fs::flag::APPEND == fs::flag::APPEND) {
 		out |= rt::O_APPEND;
 	};
-	if (flags & fs::flag::NONBLOCK > 0) {
+	if (flags & fs::flag::NONBLOCK == fs::flag::NONBLOCK) {
 		out |= rt::O_NONBLOCK;
 	};
-	if (flags & fs::flag::SYNC > 0
-			|| flags & fs::flag::DSYNC > 0
-			|| flags & fs::flag::RSYNC > 0) {
+	if (flags & fs::flag::SYNC == fs::flag::SYNC
+			|| flags & fs::flag::DSYNC == fs::flag::DSYNC
+			|| flags & fs::flag::RSYNC == fs::flag::RSYNC) {
 		out |= rt::O_SYNC;
 	};
-	if (flags & fs::flag::DIRECTORY > 0) {
+	if (flags & fs::flag::DIRECTORY == fs::flag::DIRECTORY) {
 		out |= rt::O_DIRECTORY;
 	};
-	if (flags & fs::flag::NOFOLLOW > 0) {
+	if (flags & fs::flag::NOFOLLOW == fs::flag::NOFOLLOW) {
 		out |= rt::O_NOFOLLOW;
 	};
-	if (flags & fs::flag::NOCLOEXEC > 0) {
+	if (flags & fs::flag::NOCLOEXEC == fs::flag::NOCLOEXEC) {
 		out &= ~rt::O_CLOEXEC;
 	};
-	if (flags & fs::flag::PATH > 0
-			|| flags & fs::flag::NOATIME > 0
-			|| flags & fs::flag::TMPFILE > 0
-			|| flags & fs::flag::CTTY > 0) {
+	if (flags & fs::flag::PATH == fs::flag::PATH
+			|| flags & fs::flag::NOATIME == fs::flag::NOATIME
+			|| flags & fs::flag::TMPFILE == fs::flag::TMPFILE
+			|| flags & fs::flag::CTTY == fs::flag::CTTY) {
 		return errors::unsupported;
 	};
 	return out;
