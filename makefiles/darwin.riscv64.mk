@@ -201,7 +201,7 @@ $(HARECACHE)/hare_module.ssa: $(hare_module_ha) $(HARECACHE)/ascii.td $(HARECACH
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/hare_module.ssa -t $(HARECACHE)/hare_module.td.tmp -N hare::module $(hare_module_ha)
 
-unix_ha = unix/+darwin/getuid.ha unix/+darwin/groups.ha unix/+darwin/nice.ha unix/+darwin/pipe.ha unix/+darwin/setuid.ha unix/+darwin/umask.ha
+unix_ha = unix/+darwin/getpid.ha unix/+darwin/getuid.ha unix/+darwin/groups.ha unix/+darwin/nice.ha unix/+darwin/pipe.ha unix/+darwin/setuid.ha unix/+darwin/umask.ha
 $(HARECACHE)/unix.ssa: $(unix_ha) $(HARECACHE)/errors.td $(HARECACHE)/fs.td $(HARECACHE)/io.td $(HARECACHE)/rt.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
