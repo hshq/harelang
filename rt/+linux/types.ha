@@ -718,6 +718,7 @@ export type tcflag = enum uint {
 };
 
 
+export def TIOCSPGRP: u64 = 0x5410;
 export def TIOCGWINSZ: u64 = 0x5413;
 export def TIOCSWINSZ: u64 = 0x5414;
 export def TIOCSCTTY: u64 = 0x540e;
