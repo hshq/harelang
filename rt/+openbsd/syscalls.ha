@@ -1130,6 +1130,18 @@ export fn sysctl(
 // mlock
 // munlock
 // getpgid
+
+@symbol("getpgid") fn libc_getpgid(pid: pid_t) pid_t;
+
+export fn getpgid(pid: pid_t) (pid_t | errno) = {
+	let res = libc_getpgid(pid);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+
+	return res;
+};
+
 // utrace
 // semget
 // msgget
