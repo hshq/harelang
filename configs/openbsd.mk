@@ -1,7 +1,7 @@
 # install locations
-PREFIX = /usr/local/
+PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
-MANDIR = $(PREFIX)/share/man
+MANDIR = $(PREFIX)/man
 SRCDIR = $(PREFIX)/src
 STDLIB = $(SRCDIR)/hare/stdlib
 
