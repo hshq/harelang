@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 export type sigcontext = struct {
 	sc_rdi: u64,
 	sc_rsi: u64,
