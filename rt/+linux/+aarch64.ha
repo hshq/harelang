@@ -51,3 +51,21 @@ export type epoll_event = struct {
 export type cpu_set = struct {
 	__bits: [16]u64,
 };
+
+export type ucontext = struct {
+	uc_flags: u64,
+	uc_link: *ucontext,
+	uc_stack: stack_t,
+	uc_sigmask: sigset,
+	_u8: [1024 / 8 - size(sigset)]u8,
+	uc_mcontext: sigcontext,
+};
+
+export type sigcontext = struct {
+	fault_address: u64,
+	sp: u64,
+	regs: [31]u64,
+	pc: u64,
+	pstate: u64,
+	reserved: [4096]u8,
+};

@@ -12,6 +12,7 @@ hare run - compile and run a Hare program or module
 	[-j _jobs_]++
 	[-L _libdir_]++
 	[-l _libname_]++
+	[-R]++
 	[-T _tagset_]++
 	[_path_ [_args_...]]
 

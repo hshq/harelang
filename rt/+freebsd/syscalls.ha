@@ -571,6 +571,14 @@ export fn sigaction(
 		signum: u64, act: uintptr: u64, old: uintptr: u64))?: int;
 };
 
+export fn sigaltstack(
+	ss: nullable *stack_t,
+	old_ss: nullable *stack_t,
+) (void | errno) = {
+	wrap_return(syscall2(SYS_sigaltstack,
+		ss: uintptr: u64, old_ss: uintptr: u64))?;
+};
+
 export fn shutdown(sockfd: int, how: int) (void | errno) = {
 	wrap_return(syscall2(SYS_shutdown,
 		sockfd: u64, how: u64))?;

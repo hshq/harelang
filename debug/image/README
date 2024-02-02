@@ -1,0 +1,6 @@
+This module implements functionality for examining executable files. It provides
+some support code for working with memory-mapped ELF executables.
+
+That this module does not make compatibility guarantees and is subject to change
+in the future should Hare be ported to a target with a different executable
+format.

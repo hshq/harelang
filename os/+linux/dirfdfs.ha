@@ -70,6 +70,7 @@ fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 			rename = &fs_rename,
 			iter = &fs_iter,
 			stat = &fs_stat,
+			fstat = &fs_fstat,
 			readlink = &fs_readlink,
 			mkdir = &fs_mkdir,
 			rmdir = &fs_rmdir,
@@ -259,6 +260,21 @@ fn fs_stat(fs: *fs::fs, path: str) (fs::filestat | fs::error) = {
 		return errno_to_fs(err);
 	case void => void;
 	};
+	return st_to_filestat(&st);
+};
+
+fn fs_fstat(fs: *fs::fs, fd: io::file) (fs::filestat | fs::error) = {
+	let fs = fs: *os_filesystem;
+	let st = rt::st { ... };
+	match (rt::fstatat(fd, "", &st, rt::AT_EMPTY_PATH)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
+	};
+	return st_to_filestat(&st);
+};
+
+fn st_to_filestat(st: *rt::st) fs::filestat = {
 	return fs::filestat {
 		mask = fs::stat_mask::UID
 			| fs::stat_mask::GID

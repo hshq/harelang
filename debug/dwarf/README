@@ -1,0 +1,6 @@
+debug::dwarf includes an implementation of the DWARF Debugging Information
+Format. The implementation is incomplete and, while it may be useful to
+third-parties, is mainly designed to support the needs of [[debug::]]'s runtime
+debugging features.
+
+This module implements DWARF version 4.

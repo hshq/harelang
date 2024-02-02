@@ -34,6 +34,7 @@ const help: []getopt::help = [
 		('l', "libname", "link with a system library"),
 		('N', "namespace", "override namespace for module"),
 		('o', "path", "set output file name"),
+		('R', "build in release mode"),
 		('T', "tagset", "set/unset build tags"),
 		('t', "type", "build type (s/o/bin)"),
 		"[path]"
@@ -57,6 +58,7 @@ const help: []getopt::help = [
 		('j', "jobs", "set parallelism for build"),
 		('L', "libdir", "add directory to linker library search path"),
 		('l', "libname", "link with a system library"),
+		('R', "build in release mode"),
 		('T', "tagset", "set/unset build tags"),
 		"[path [args...]]",
 	]: []getopt::help),
@@ -70,6 +72,7 @@ const help: []getopt::help = [
 		('L', "libdir", "add directory to linker library search path"),
 		('l', "libname", "link with a system library"),
 		('o', "path", "set output file name"),
+		('R', "build in release mode"),
 		('T', "tagset", "set/unset build tags"),
 		"[path]"
 	]: []getopt::help),

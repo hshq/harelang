@@ -1,0 +1,19 @@
+The debug module implements various runtime debugging services. It is enabled by
+default when you build programs in debug mode (you can disable this by building
+in release mode with the -R flag to hare(1)). It provides detailed backtraces in
+various error conditions, including:
+
+- Assertion failures
+- Built-in assertions (e.g. for the "as" operator)
+- Segmentation faults
+- Arithmetic exceptions (e.g. divide by zero)
+- Bus errors
+- Stack overflows
+
+In order to accomplish this, the debug module does some logic on @init which
+rigs up [[rt]] with debugging hooks and installs the relevant signal handlers
+globally. If you set your own signal handlers for terminating signals (e.g.
+SIGFPE) that the debug module handles, they will override the debug hooks.
+
+This module may also be used explicitly to inspect details of the running
+program -- for instance, you can trace the call stack with [[walk]].

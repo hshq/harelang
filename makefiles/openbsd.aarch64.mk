@@ -4,13 +4,13 @@ TDENV = env HARE_TD_rt=$(HARECACHE)/rt.td HARE_TD_encoding::utf8=$(HARECACHE)/en
 RTSCRIPT = rt/+openbsd/hare.sc
 OBJS = $(HARECACHE)/rt.o $(HARECACHE)/encoding_utf8.o $(HARECACHE)/types.o $(HARECACHE)/bytes.o $(HARECACHE)/sort_cmp.o $(HARECACHE)/strings.o $(HARECACHE)/ascii.o $(HARECACHE)/errors.o $(HARECACHE)/io.o $(HARECACHE)/bufio.o $(HARECACHE)/crypto_math.o $(HARECACHE)/endian.o $(HARECACHE)/hash.o $(HARECACHE)/crypto_sha256.o $(HARECACHE)/math.o $(HARECACHE)/memio.o $(HARECACHE)/path.o $(HARECACHE)/time.o $(HARECACHE)/fs.o $(HARECACHE)/types_c.o $(HARECACHE)/os.o $(HARECACHE)/strconv.o $(HARECACHE)/fmt.o $(HARECACHE)/encoding_hex.o $(HARECACHE)/sort.o $(HARECACHE)/hare_lex.o $(HARECACHE)/hare_ast.o $(HARECACHE)/hare_parse.o $(HARECACHE)/hare_unparse.o $(HARECACHE)/time_chrono.o $(HARECACHE)/time_date.o $(HARECACHE)/hare_module.o $(HARECACHE)/unix.o $(HARECACHE)/unix_signal.o $(HARECACHE)/os_exec.o $(HARECACHE)/shlex.o $(HARECACHE)/unix_tty.o $(HARECACHE)/cmd_hare_build.o $(HARECACHE)/dirs.o $(HARECACHE)/getopt.o $(HARECACHE)/cmd_hare.o
 
-rt_ha = rt/+aarch64/arch_jmp.ha rt/+aarch64/backtrace.ha rt/+aarch64/cpuid.ha rt/+openbsd/env.ha rt/+openbsd/errno.ha rt/+openbsd/libc.ha rt/+openbsd/platform_abort.ha rt/+openbsd/signal.ha rt/+openbsd/socket.ha rt/+openbsd/start.ha rt/+openbsd/syscalls.ha rt/+openbsd/types.ha rt/abort.ha rt/ensure.ha rt/fenv_defs.ha rt/jmp.ha rt/malloc+libc.ha rt/memcpy.ha rt/memfunc_ptr.ha rt/memmove.ha rt/memset.ha rt/strcmp.ha rt/u64tos.ha rt/unknown_errno.ha
+rt_ha = rt/+aarch64/arch_jmp.ha rt/+aarch64/cpuid.ha rt/+openbsd/+aarch64.ha rt/+openbsd/dynamic_linker.ha rt/+openbsd/env.ha rt/+openbsd/errno.ha rt/+openbsd/libc.ha rt/+openbsd/platform_abort.ha rt/+openbsd/signal.ha rt/+openbsd/socket.ha rt/+openbsd/start.ha rt/+openbsd/syscalls.ha rt/+openbsd/types.ha rt/abort.ha rt/ensure.ha rt/fenv_defs.ha rt/jmp.ha rt/malloc+libc.ha rt/memcpy.ha rt/memfunc_ptr.ha rt/memmove.ha rt/memset.ha rt/strcmp.ha rt/u64tos.ha rt/unknown_errno.ha
 $(HARECACHE)/rt.ssa: $(rt_ha)
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/rt.ssa -t $(HARECACHE)/rt.td.tmp -N rt $(rt_ha)
 
-rt_s = $(HARECACHE)/rt.s rt/+aarch64/cpuid.s rt/+aarch64/fenv.s rt/+aarch64/getfp.s rt/+aarch64/longjmp.s rt/+aarch64/setjmp.s rt/+openbsd/start.s
+rt_s = $(HARECACHE)/rt.s rt/+aarch64/cpuid.s rt/+aarch64/fenv.s rt/+aarch64/longjmp.s rt/+aarch64/setjmp.s rt/+openbsd/start.s
 $(HARECACHE)/rt.o: $(rt_s)
 	@printf 'AS\t%s\n' "$@"
 	@$(AS) $(ASFLAGS) -o $@ $(rt_s)

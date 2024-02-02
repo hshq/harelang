@@ -6,7 +6,7 @@
 // but with logarithmic bin sizing and additional safety checks. Not thread-safe
 
 // A group of blocks that were allocated together.
-type chunk = union {
+export type chunk = union {
 	padding: size, // TODO: track number of active allocations here
 	data: [*]u8,
 };
@@ -37,15 +37,40 @@ def CHUNKSZ: size = 1 << 21;
 // Byte to fill allocations with while they're not in use.
 def POISON: u8 = 0x69;
 
-// Number of allocations currently in flight.
-let cur_allocs: size = 0;
+export type memory_heap = struct {
+	// Number of allocations currently in flight.
+	cur_allocs: size,
+	// Freelists for blocks up to 2048 bytes.
+	bins: [9]nullable *meta,
+	// The chunk to allocate from if there are no blocks available in the
+	// right freelist.
+	cur_chunk: (*chunk, size),
+};
 
-// Freelists for blocks up to 2048 bytes.
-let bins: [9]nullable *meta = [null...];
+let static_heap = memory_heap {
+	cur_allocs = 0,
+	bins = [null...],
+	cur_chunk = (null: *chunk, CHUNKSZ),
+};
 
-// The chunk to allocate from if there are no blocks available in the right
-// freelist.
-let cur_chunk: (*chunk, size) = (null: *chunk, CHUNKSZ);
+let heap = &static_heap;
+
+export fn newheap() memory_heap = {
+	// Re-initializes the heap from scratch, abandoning all prior memory
+	// allocations and returning the previous heap.
+	//
+	// This function is designed to be called by debug:: in a scenario where
+	// the heap has been corrupted. It abandons the corrupt heap and
+	// prepares a fresh heap which debug:: can use to allocate memory for
+	// any operations it needs to perform during clean-up.
+	const old = *heap;
+	*heap = memory_heap {
+		cur_allocs = 0,
+		bins = [null...],
+		cur_chunk = (null: *chunk, CHUNKSZ),
+	};
+	return old;
+};
 
 // Allocates n bytes of memory and returns a pointer to them, or null if there
 // is insufficient memory.
@@ -63,38 +88,38 @@ export fn malloc(n: size) nullable *opaque = {
 
 		m.sz = n;
 		*(&m.user[n]: *size) = n; // For out-of-bounds write detection
-		cur_allocs += 1;
+		heap.cur_allocs += 1;
 		return &m.user;
 	};
 
 	let bin = size_getbin(n), sz = bin_getsize(bin);
-	let m = match (bins[bin]) {
+	let m = match (heap.bins[bin]) {
 	case null =>
-		if (cur_chunk.1 + META + sz + META > CHUNKSZ) {
+		if (heap.cur_chunk.1 + META + sz + META > CHUNKSZ) {
 			// No space left in this chunk, allocate a new one
 			match (segmalloc(CHUNKSZ)) {
 			case null =>
 				return null;
 			case let p: *opaque =>
-				cur_chunk = (p: *chunk, size(size));
+				heap.cur_chunk = (p: *chunk, size(size));
 			};
 		};
 
 		// Allocate a new block from the currently-active chunk
-		let m = &cur_chunk.0.data[cur_chunk.1]: *meta;
-		cur_chunk.1 += META + sz;
+		let m = &heap.cur_chunk.0.data[heap.cur_chunk.1]: *meta;
+		heap.cur_chunk.1 += META + sz;
 		m.sz = sz;
 		*(&m.user[sz]: *size) = sz;
 		yield m;
 	case let m: *meta =>
 		// Pop a block off the freelist
-		bins[bin] = meta_next(m);
+		heap.bins[bin] = meta_next(m);
 		checkpoison(m, sz);
 		m.sz = sz;
 		yield m;
 	};
 
-	cur_allocs += 1;
+	heap.cur_allocs += 1;
 	return &m.user;
 };
 
@@ -107,7 +132,7 @@ export @symbol("rt.free") fn free_(p: nullable *opaque) void = {
 	case let p: *opaque =>
 		yield getmeta(p);
 	};
-	cur_allocs -= 1;
+	heap.cur_allocs -= 1;
 
 	if (size_islarge(m.sz)) {
 		// Pass through to munmap
@@ -118,8 +143,8 @@ export @symbol("rt.free") fn free_(p: nullable *opaque) void = {
 	// Push onto freelist
 	let bin = size_getbin(m.sz);
 	m.user[..m.sz] = [POISON...];
-	m.next = bins[bin]: uintptr | 0b1;
-	bins[bin] = m;
+	m.next = heap.bins[bin]: uintptr | 0b1;
+	heap.bins[bin] = m;
 };
 
 // Changes the allocation size of a pointer to n bytes. If n is smaller than
@@ -190,7 +215,7 @@ fn size_getbin(sz: size) size = {
 };
 
 // Returns true if a given allocation size should use mmap directly.
-fn size_islarge(sz: size) bool = sz > bin_getsize(len(bins) - 1);
+fn size_islarge(sz: size) bool = sz > bin_getsize(len(heap.bins) - 1);
 
 // Gets the next block on the freelist.
 fn meta_next(m: *meta) nullable *meta = {
@@ -274,8 +299,8 @@ fn checkpoison(m: *meta, sz: size) void = {
 };
 
 @fini fn checkleaks() void = {
-	for (let i = 0z; i < len(bins); i += 1) {
-		for (let m = bins[i]; m != null; m = meta_next(m as *meta)) {
+	for (let i = 0z; i < len(heap.bins); i += 1) {
+		for (let m = heap.bins[i]; m != null; m = meta_next(m as *meta)) {
 			checkpoison(m as *meta, bin_getsize(i));
 		};
 	};
@@ -284,5 +309,5 @@ fn checkpoison(m: *meta, sz: size) void = {
 	// before we enable this by default. Also need to make sure that this is
 	// run after the rest of @fini in order to guarantee that we see all
 	// frees
-	//assert(cur_allocs == 0, "memory leak");
+	//assert(heap.cur_allocs == 0, "memory leak");
 };

@@ -5,6 +5,7 @@ use ascii;
 use errors;
 use io;
 use os;
+use path;
 use strings;
 
 // Prepares a [[command]] based on its name and a list of arguments. The argument
@@ -29,7 +30,7 @@ export fn cmd(name: str, args: str...) (command | error) = {
 			return nocmd;
 		};
 	} else {
-		yield match (lookup(name)?) {
+		yield match (lookup_open(name)?) {
 		case void =>
 			return nocmd;
 		case let p: platform_cmd =>
@@ -163,13 +164,30 @@ export fn chdir(cmd: *command, dir: str) void = {
 	cmd.dir = dir;
 };
 
-fn lookup(name: str) (platform_cmd | void | error) = {
+// Similar to [[lookup]] but TOCTOU-proof
+fn lookup_open(name: str) (platform_cmd | void | error) = {
+	static let buf = path::buffer { ... };
+	path::set(&buf)!;
+
+	// Try to open file directly
+	if (strings::contains(name, "/")) {
+		match (open(name)) {
+		case (errors::noaccess | errors::noentry) =>
+			yield;
+		case let err: error =>
+			return err;
+		case let p: platform_cmd =>
+			return p;
+		};
+	};
+
 	const path = match (os::getenv("PATH")) {
 	case void =>
 		return;
 	case let s: str =>
 		yield s;
 	};
+
 	let tok = strings::tokenize(path, ":");
 	for (true) {
 		const item = match (strings::next_token(&tok)) {
@@ -178,15 +196,60 @@ fn lookup(name: str) (platform_cmd | void | error) = {
 		case let s: str =>
 			yield s;
 		};
-		let path = strings::concat(item, "/", name);
-		defer free(path);
-		match (open(path)) {
+		path::set(&buf, item, name)!;
+		match (open(path::string(&buf))) {
 		case (errors::noaccess | errors::noentry) =>
 			continue;
 		case let err: error =>
 			return err;
 		case let p: platform_cmd =>
 			return p;
+		};
+	};
+};
+
+// Looks up an executable by name in the system PATH. The return value is
+// statically allocated.
+//
+// The use of this function is lightly discouraged if [[cmd]] is suitable;
+// otherwise you may have a TOCTOU issue.
+export fn lookup(name: str) (str | void) = {
+	static let buf = path::buffer { ... };
+	path::set(&buf)!;
+
+	// Try to open file directly
+	if (strings::contains(name, "/")) {
+		match (os::access(name, os::amode::X_OK)) {
+		case let exec: bool =>
+			if (exec) {
+				return name;
+			};
+		case => void; // Keep looking
+		};
+	};
+
+	const path = match (os::getenv("PATH")) {
+	case void =>
+		return;
+	case let s: str =>
+		yield s;
+	};
+
+	let tok = strings::tokenize(path, ":");
+	for (true) {
+		const item = match (strings::next_token(&tok)) {
+		case void =>
+			break;
+		case let s: str =>
+			yield s;
+		};
+		path::set(&buf, item, name)!;
+		match (os::access(path::string(&buf), os::amode::X_OK)) {
+		case let exec: bool =>
+			if (exec) {
+				return path::string(&buf);
+			};
+		case => void; // Keep looking
 		};
 	};
 };

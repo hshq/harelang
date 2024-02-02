@@ -203,6 +203,7 @@ export type removefunc = fn(fs: *fs, path: str) (void | error);
 export type renamefunc = fn(fs: *fs, oldpath: str, newpath: str) (void | error);
 export type iterfunc = fn(fs: *fs, path: str) (*iterator | error);
 export type statfunc = fn(fs: *fs, path: str) (filestat | error);
+export type fstatfunc = fn(fs: *fs, file: io::file) (filestat | error);
 export type mkdirfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
 export type rmdirfunc = fn(fs: *fs, path: str) (void | error);
 export type chmodfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
@@ -278,6 +279,9 @@ export type fs = struct {
 	// symbolic link, information is returned about the link, not its
 	// target.
 	stat: nullable *statfunc,
+
+	// Obtains information about an [[io::file]].
+	fstat: nullable *fstatfunc,
 
 	// Returns the path referred to by a symbolic link. The caller will free
 	// the return value.
