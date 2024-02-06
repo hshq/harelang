@@ -439,6 +439,7 @@ export type cc = enum u8 {
 	VSTATUS   = 18,
 };
 
+export def TIOCSPGRP: u64 = 0x80047476;
 export def TIOCGWINSZ: u64 = 0x40087468;
 export def TIOCSWINSZ: u64 = 0x80087467;
 export def TIOCGETA: u64 = 0x402c7413;

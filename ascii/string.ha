@@ -2,6 +2,7 @@
 // (c) Hare authors <https://harelang.org>
 
 use encoding::utf8;
+use sort::cmp;
 use strings;
 
 // Converts all ASCII uppercase characters in a string to their lowercase
@@ -63,7 +64,7 @@ export fn strcasecmp(a: str, b: str) int = {
 		let cmp = tolower(abs[i]: rune): u32: int - tolower(bbs[i]: rune): u32: int;
 		if (cmp != 0) return cmp;
 	};
-	return len(abs): int - len(bbs): int;
+	return cmp::sizes(&len(abs), &len(bbs));
 };
 
 @test fn strcasecmp() void = {
