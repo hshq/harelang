@@ -1,0 +1,6 @@
+This module provides functions to decode and encode the distinguished encoding
+rules (DER) format as defined in the X.690 ITU-T standard.
+
+See [[newencoder]] and [[newdecoder]] for how to encode or decode values.
+
+This module also provides tools to work with oids. See [[oiddb]] for more info.
