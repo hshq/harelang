@@ -66,18 +66,60 @@ fn parse_utc_leapsecs(h: io::handle) (void | utf8::invalid | io::error) = {
 			yield strings::fromutf8(line)?;
 		};
 		defer free(line);
+
 		if (strings::hasprefix(line, '#')) {
 			continue;
 		};
-		const pair = strings::splitn(line, "\t", 3);
-		defer free(pair);
-		if (len(pair) < 2) {
+
+		const iter = strings::iter(line);
+		const secs = scan_number(&iter); scan_whitespace(&iter);
+		const diff = scan_number(&iter);
+		if (secs is void || diff is void) {
 			continue;
 		};
-		const a = strconv::stoi64(pair[0])!;
-		const b = strconv::stoi64(pair[1])!;
-		const a = a - SECS_1900_1970;
-		const pair = (a: i64, b: i64);
-		append(utc_leapsecs, pair);
+
+		let secs = secs as i64 - SECS_1900_1970;
+		let diff = diff as i64;
+		append(utc_leapsecs, (secs, diff));
+	};
+};
+
+fn scan_number(iter: *strings::iterator) (i64 | void) = {
+	let begin = *iter;
+
+	for (true) {
+		const rn = match (strings::next(iter)) {
+		case void =>
+			break;
+		case let rn: rune =>
+			yield rn;
+		};
+		switch (rn) {
+		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' =>
+			continue;
+		case =>
+			strings::prev(iter);
+			break;
+		};
+	};
+
+	return strconv::stoi64(strings::slice(&begin, iter))!;
+};
+
+fn scan_whitespace(iter: *strings::iterator) void = {
+	for (true) {
+		const rn = match (strings::next(iter)) {
+		case void =>
+			return;
+		case let rn: rune =>
+			yield rn;
+		};
+		switch (rn) {
+		case ' ', '\t' =>
+			continue;
+		case =>
+			strings::prev(iter);
+			return;
+		};
 	};
 };
