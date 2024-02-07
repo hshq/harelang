@@ -243,13 +243,6 @@ fn d(i: []u8) decoder = {
 	assert(read_bitstr(&d([0x03, 0x03, 0x07, 0xab, 0x40]), buf) is invalid);
 };
 
-@test fn read_oid() void = {
-	assert(read_oid(&d([0x06, 0x03, 0x55, 0x04, 0x03]))! == oid::ID_AT_COMMON_NAME);
-
-	assert(bytes::equal([0x55, 0x04, 0x03],
-			read_rawoid(&d([0x06, 0x03, 0x55, 0x04, 0x03]))!));
-};
-
 let datbuf: [64]u8 = [0...];
 
 fn newdatetime(s: str, tag: utag) []u8 = {
@@ -328,4 +321,18 @@ fn newdatetime(s: str, tag: utag) []u8 = {
 	assert(read_gtime(&d(derdatetime)) is error);
 
 	// TODO midnight is YYYYMMDD000000Z
+};
+
+@test fn read_oid() void = {
+	let db = oiddb {
+		lut = [0x03, 0x2b, 0x65, 0x70, 0x03, 0x55, 0x04, 0x03],
+		index = [0, 4],
+		names = ["ed25519", "id-at-commonName"],
+	};
+
+	assert(read_oid(&d([0x06, 0x03, 0x55, 0x04, 0x03]), &db)! == 1);
+	assert(stroid(&db, 1) == "id-at-commonName");
+
+	assert(bytes::equal([0x55, 0x04, 0x03],
+			read_rawoid(&d([0x06, 0x03, 0x55, 0x04, 0x03]))!));
 };
