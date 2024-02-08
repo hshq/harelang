@@ -206,11 +206,10 @@ fn do_test(ctx: *context, test: test) void = {
 	memio::reset(&ctx.stderr);
 
 	const start_time = time::now(time::clock::MONOTONIC);
-
 	const status = run_test(ctx, test);
-	const failed = interpret_status(ctx, test.name, status);
-
 	const end_time = time::now(time::clock::MONOTONIC);
+
+	const failed = interpret_status(ctx, test.name, status);
 	const time_diff = time::diff(start_time, end_time);
 	assert(time_diff >= 0);
 	ctx.total_time += time_diff;
