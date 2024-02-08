@@ -4,13 +4,13 @@
 use errors;
 use io;
 
-// Invalid DER encoding.
+// Encountered invalid DER encoded data.
 export type invalid = !void;
 
 // Unexpected data format.
 export type badformat = !void;
 
-// Premature EOF
+// Premature EOF.
 export type truncated = !void;
 
 // Data does not fit into the encoder buffer.
@@ -26,7 +26,7 @@ export type error = !(...io::error | ...asn1error);
 export fn strerror(e: error) str = {
 	match (e) {
 	case invalid =>
-		return "Data encoding does not follow the DER format";
+		return "Encountered invalid DER encoded data";
 	case badformat =>
 		return "Unexpected data format";
 	case truncated =>
@@ -56,7 +56,7 @@ fn wrap_strerror(err: *errors::opaque_data) const str = {
 	return strerror(*e);
 };
 
-// Unwrap [[io::error]] returned by readers into [[error]].
+// Unwraps an [[io::error]] returned by ASN.1 readers as an [[error]].
 export fn unwrap_err(e: io::error) error = {
 	match (e) {
 	case let e: errors::opaque_ =>

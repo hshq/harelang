@@ -60,11 +60,13 @@ export type decoder = struct {
 	implicit: bool,
 };
 
-// Creates a new DER decoder that reads from 'src'. The decoder will do a lot of
-// short reads, hence a buffered stream is recommended.
+// Creates a new DER decoder that reads from 'src'. A buffered stream (see
+// [[bufio]]) is recommended for efficiency, as the decoder performs mostly
+// short reads.
 //
-// Each entry must be read to the end, before the next one is attended to.
-// [[finish]] must be called at the end to make sure everything is read.
+// Each entry must be read in its entirety before the next one is attended to.
+// The user must call [[finish]] when finished with the decoder to ensure that
+// the entire input was read correctly.
 export fn derdecoder(src: io::handle) decoder = {
 	return decoder {
 		src = src,
@@ -77,6 +79,7 @@ export fn derdecoder(src: io::handle) decoder = {
 	};
 };
 
+// Verifies that the entire input to the decoder was read.
 export fn finish(d: *decoder) (void | error) = {
 	if (d.cstackp != 0 || d.next is head) return invalid;
 	match (d.cur) {
@@ -106,7 +109,8 @@ export fn peek(d: *decoder) (head | error) = {
 	};
 };
 
-// Tries to peek the header of the next data and returns EOF, if none exists.
+// Tries to peek the header of the next data field, or returns EOF if none
+// exists.
 export fn trypeek(d: *decoder) (head | error | io::EOF) = {
 	if (!(d.next is void)) {
 		return d.next: head;
@@ -137,7 +141,7 @@ fn is_endofcons(d: *decoder) bool = {
 	};
 };
 
-// Returns the next data element or [[badformat]] on EOF.
+// Returns the next data element, or [[badformat]] on EOF.
 fn next(d: *decoder) (head | error) = {
 	match (trynext(d)?) {
 	case io::EOF =>
@@ -236,7 +240,7 @@ fn scan_byte(d: *decoder) (u8 | error) = {
 };
 
 // Reads data of current entry and advances pointer. Data must have been opened
-// using [[next]] or [[trynext]]. EOF is returned on end of data.
+// using [[next]] or [[trynext]]. [[io::EOF]] is returned on end of data.
 fn dataread(d: *decoder, buf: []u8) (size | io::EOF | io::error) = {
 	let cur = match (d.cur) {
 	case void =>
@@ -361,8 +365,8 @@ fn parse_len(p: *decoder, max: size) (size | error) = {
 };
 
 // Expects an IMPLICIT defined data field having class 'c' and tag 'tag'.
-// If the requirements meet, a read function (read_{*} or {*}reader) must
-// follow, that defines and reads the actual data as its stored.
+// If the requirements are met, a read call (i.e. one of the "read_" or "reader"
+// functions) must follow to read the actual data as stored.
 export fn expect_implicit(d: *decoder, c: class, tag: u32) (void | error) = {
 	let h = peek(d)?;
 	expect_tag(h, c, tag)?;
@@ -379,7 +383,7 @@ export fn close_explicit(d: *decoder) (void | badformat) = close_cons(d);
 
 
 // Opens a constructed value of given 'class' and 'tagid'. Fails if not a
-// constructed value or it has an unexpected tag.
+// constructed value or the encoded value has an unexpected tag.
 fn open_cons(d: *decoder, class: class, tagid: u32) (void | error) = {
 	let dh = next(d)?;
 	if (!dh.cons) {
@@ -417,20 +421,21 @@ fn close_cons(d: *decoder) (void | badformat) = {
 	d.cstackp -= 1;
 };
 
-// Opens a sequence
+// Opens a sequence. Call [[close_seq]] after reading.
 export fn open_seq(d: *decoder) (void | error) =
 	open_cons(d, class::UNIVERSAL, utag::SEQUENCE: u32)?;
 
-// Closes current sequence. [[badformat]] is returned, if not all data has
-// been read.
+// Closes the current sequence. If the caller has not read all of the data
+// present in the encoded seqeunce, [[badformat]] is returned.
 export fn close_seq(d: *decoder) (void | badformat) = close_cons(d);
 
-// Opens a set. Though a set must be sorted according to DER, the order will not
-// be validated.
+// Opens a set. Note that sets must be ordered according to DER, but this module
+// does not validate this constraint. Call [[close_set]] after reading.
 export fn open_set(d: *decoder) (void | error) =
 	open_cons(d, class::UNIVERSAL, utag::SET: u32)?;
 
-// Closes current set. [[badformat]] is returend, if not all data has been read.
+// Closes the current set. If the caller has not read all of the data present in
+// the encoded seqeunce, [[badformat]] is returned.
 export fn close_set(d: *decoder) (void | badformat) = close_cons(d);
 
 fn expect_tag(h: head, class: class, tagid: u32) (void | invalid | badformat) = {
@@ -471,7 +476,7 @@ fn read_nbytes(d: *decoder, buf: []u8) (size | error) = {
 	return n;
 };
 
-// Read a boolean.
+// Reads a boolean value.
 export fn read_bool(d: *decoder) (bool | error) = {
 	let dh = next(d)?;
 	expect_utag(dh, utag::BOOLEAN)?;
@@ -504,9 +509,10 @@ fn validate_intprefix(i: []u8) (void | error) = {
 	};
 };
 
-// Read an integer into 'buf'. Fails if size exceeds the buffer size. The
-// integer is stored in big endian format. Negative values are stored as a
-// twos complement. The minimum integer size is one byte.
+// Reads an arbitrary-length integer into 'buf' and returns its length in bytes.
+// Fails if the encoded integer size exceeds the buffer size. The integer is
+// stored in big endian, and negative values are stored with two's compliment.
+// The minimum integer size is one byte.
 export fn read_int(d: *decoder, buf: []u8) (size | error) = {
 	assert(len(buf) > 0);
 
@@ -517,8 +523,8 @@ export fn read_int(d: *decoder, buf: []u8) (size | error) = {
 	return n;
 };
 
-// Similar to [[read_int]], but fails if it's not an unsigned integer. Will
-// left trim 0 bytes.
+// Similar to [[read_int]], but returns [[badformat]] if the encoded value is
+// signed. Discards the most significant zero bytes.
 export fn read_uint(d: *decoder, buf: []u8) (size | error) = {
 	let s = read_int(d, buf)?;
 	if (buf[0] & 0x80 == 0x80) {
@@ -614,14 +620,15 @@ export fn bitstr_isset(bitstr: ([]u8, u8), pos: size) (bool | invalid) = {
 };
 
 // Returns an [[io::reader]] for octet string data.
-// TODO add limit?
 export fn octetstrreader(d: *decoder) (bytestream | error) = {
+	// TODO add limit?
 	let dh = next(d)?;
 	expect_utag(dh, utag::OCTET_STRING)?;
 	return newbytereader(d);
 };
 
-// Read an octet string into 'buf'. Fails if 'buf' is to small.
+// Read an octet string into 'buf', returning its length. Returns [[badformat]]
+// if 'buf' is too small.
 export fn read_octetstr(d: *decoder, buf: []u8) (size | error) = {
 	assert(len(buf) > 0);
 
@@ -660,8 +667,9 @@ const bytestream_vtable: io::vtable = io::vtable {
 fn bytestream_reader(s: *io::stream, buf: []u8) (size | io::EOF | io::error) =
 	dataread((s: *bytestream).d, buf);
 
-// Returns an [[io::reader]] that allows to read the raw data in its encoded
-// form. Note that this reader won't do any kind of validation.
+// Returns an [[io::reader]] that reads raw data (in its ASN.1 encoded form)
+// from a [[decoder]]. Note that this reader will not perform any kind of
+// validation.
 export fn bytereader(d: *decoder, c: class, tagid: u32) (bytestream | error) = {
 	let dh = next(d)?;
 	expect_tag(dh, c, tagid)?;
@@ -669,9 +677,9 @@ export fn bytereader(d: *decoder, c: class, tagid: u32) (bytestream | error) = {
 };
 
 // Reads an UTC time. Since the stored date only has a two digit year, 'maxyear'
-// is required to define the epoch switch. For example 'maxyear' = 2046 causes
-// all encoded years <= 46 to be after 2000 and all values > 46 will have 1900
-// as the century.
+// is required to define the epoch. For example 'maxyear' = 2046 causes all
+// encoded years <= 46 to be after 2000 and all values > 46 will have 1900 as
+// the century.
 export fn read_utctime(d: *decoder, maxyear: u16) (date::date | error) = {
 	assert(maxyear > 100);
 
@@ -711,7 +719,7 @@ export fn read_utctime(d: *decoder, maxyear: u16) (date::date | error) = {
 	return dt;
 };
 
-// Reads a generalized datetime.
+// Reads a generalized datetime value.
 export fn read_gtime(d: *decoder) (date::date | error) = {
 	let dh = next(d)?;
 	expect_utag(dh, utag::GENERALIZED_TIME)?;
@@ -755,7 +763,10 @@ export fn read_gtime(d: *decoder) (date::date | error) = {
 };
 
 // Skips an element and returns the size of the data that has been skipped.
-// Returns an error, if the skipped data is invalid.
+// Returns an error if the skipped data is invalid.
+//
+// Presently only supports BOOLEAN, INTEGER, NULL, OCTET_STRING, and BITSTRING
+// utags, and will abort when attempting to skip anything else.
 export fn skip(d: *decoder, tag: utag, max: size) (size | error) = {
 	static let buf: [os::BUFSZ]u8 = [0...];
 	let s = 0z;

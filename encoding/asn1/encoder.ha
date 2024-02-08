@@ -38,27 +38,33 @@ export type encoder = struct {
 	parent: nullable *bytewstream,
 };
 
-// Creates a DER encoder. create_* methods are used to create constructed
-// values. Functions to write primitive values start with write_ or end with
-// writer. After the entries have been written, the result is encoded using
-// [[encode]] or [[encodeto]].
+// Creates a new DER encoder. The user must provide a [[memio::stream]] for
+// buffering data before it's encoded. The user may provide a dynamic or fixed
+// stream at their discretion; fixed may be preferred if the user knows the
+// required buffer size in advance.
 //
-// 'mem' is required to buffer the written data before encoding it.Each entry
-// will have an maximum overhead of [[MAXUTAGHEADSZ]], if entries are written
-// using only methods provided here; or [[MAXHEADSZ]], if custom tag ids are in
-// use. The encoder doesn't close after use 'mem', hence it's the caller's
-// responsibility manage its lifetime.
+// To encode DER data, the user must call one of the "create_" functions (e.g.
+// [[create_explicit]]), followed by the appropriate "write_" functions (e.g.
+// [[write_int]]). These operations will be buffered into the provided memio
+// buffer, and the encoded form may be finalized and retrieved via [[encode]] or
+// [[encodeto]].
 //
-// 'mem' as memio::stream allows the caller to decide whether to use a static or
-// a dynamic allocated buffer.
+// To determine the required buffer size for a fixed buffer, consider the
+// maximum length of the input data (e.g. integer, string, etc length) plus the
+// necessary overhead, which is given by [[MAXUTAGHEADSZ]] if only using the
+// provided encoder functions (e.g. "write_" functions), or [[MAXHEADSZ]] if
+// using custom tag IDs.
+//
+// The encoder does not close the provided [[memio::stream]] after use; the
+// caller should manage its lifetime accordingly.
 export fn derencoder(mem: *memio::stream) encoder = encoder {
 	mem = mem,
 	start = io::tell(mem)!,
 	...
 };
 
-// Creates a DER encoder that is nested within another DER entry and hence can
-// use the buffer of the parent.
+// Creates a DER encoder nested within another DER entry, using the buffer of
+// the parent.
 export fn derencoder_nested(b: *bytewstream) encoder = encoder {
 	mem = b.e.mem,
 	start = io::tell(b.e.mem)!,
@@ -208,8 +214,8 @@ fn encode_dsz(sz: size) []u8 = {
 	return buf[..n];
 };
 
-// Creates an explicit constructed entry. [[finish_explicit]] must be called
-// to close the entry.
+// Creates an explicit constructed entry. The user must call [[finish_explicit]]
+// to close the associated DER entry.
 export fn create_explicit(e: *encoder, c: class, tag: u32) (void | overflow) =
 	create_cons(e, c, tag);
 
@@ -248,7 +254,8 @@ fn finish_cons(e: *encoder) void = {
 	bt_add_dsz(e, sz);
 };
 
-// Creates a sequence. [[finish_seq]] must be called to close it.
+// Creates a sequence. The user must call [[finish_seq]] to close the associated
+// DER entry.
 export fn create_seq(e: *encoder) (void | overflow) =
 	return create_cons(e, class::UNIVERSAL, utag::SEQUENCE);
 
@@ -293,7 +300,7 @@ fn bytewriter_write(s: *io::stream, buf: const []u8) (size | io::error) = {
 	return len(buf);
 };
 
-// Creates a io::writer that adds written bytes as OctetString.
+// Creates an [[io::writer]] that encodes data written to it as an OctetString.
 export fn octetstrwriter(e: *encoder) (bytewstream | overflow) = {
 	return bytewriter(e, class::UNIVERSAL, utag::OCTET_STRING);
 };
@@ -336,8 +343,8 @@ export fn write_utf8str(e: *encoder, s: str) (void | overflow) =
 	write_fixedprim(e, class::UNIVERSAL, utag::UTF8_STRING,
 		strings::toutf8(s))?;
 
-// Encodes currently written data in given memio stream and returns the buffer
-// containing the result borrowed from 'mem' provided for [[derencoder]].
+// Encodes all buffered data in the [[encoder]] and returns a slice representing
+// the encoded entry, borrowed from the encoder's buffer.
 export fn encode(e: *encoder) ([]u8 | io::error) = {
 	assert(e.btn == 0);
 	assert(e.start >= 0);
@@ -415,7 +422,8 @@ export fn encode(e: *encoder) ([]u8 | io::error) = {
 	return buf[..t];
 };
 
-// Encodes written data and writes it to 'dest'.
+// Encodes all buffered data in the [[encoder]] and writes it to the provided
+// [[io::handle]].
 export fn encodeto(e: *encoder, dest: io::handle) (size | io::error) = {
 	const buf = encode(e)?;
 	return io::writeall(dest, buf)?;
