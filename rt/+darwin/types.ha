@@ -87,6 +87,12 @@ export type sigval = union {
     sival_ptr: *opaque,
 };
 
+export type stack_t = struct {
+	ss_sp: *opaque,
+	ss_size: size,
+	ss_flags: int,
+};
+
 // <sys/poll.h>
 export type pollfd = struct {
     fd: int,
