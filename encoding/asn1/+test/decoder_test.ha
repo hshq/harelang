@@ -127,6 +127,7 @@ fn d(i: []u8) decoder = {
 	open_seq(dc)!;
 	let r = strreader(dc, utag::UTF8_STRING)!;
 	let s = io::drain(&r)!;
+	defer free(s);
 	assert(finish(dc) is invalid);
 };
 

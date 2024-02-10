@@ -97,6 +97,7 @@ use io;
 	};
 
 	let hex = hex::encodestr(out[..]);
+	defer free(hex);
 	const expectedhex = "89161fde887b2b53de549af483940106ecc114d6982daa98256de23bdf77661a";
 	if (hex != expectedhex) {
 		fmt::errorfln("\ngot {}, want {}", hex, expectedhex)!;

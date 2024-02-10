@@ -14,6 +14,7 @@ use types;
 
 @test fn write_id() void = {
 	let buf = memio::dynamic();
+	defer io::close(&buf)!;
 	let e = derencoder(&buf);
 
 	write_fixedprim(&e, class::UNIVERSAL, 0x2aa, [0x00])!;
@@ -27,6 +28,7 @@ use types;
 	assert(h.tagid == 0x2aa);
 
 	let buf = memio::dynamic();
+	defer io::close(&buf)!;
 	let e = derencoder(&buf);
 
 	write_fixedprim(&e, class::UNIVERSAL, types::U32_MAX, [0x00])!;

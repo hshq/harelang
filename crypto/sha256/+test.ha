@@ -32,6 +32,7 @@ use test;
 		hash::sum(&sha, sum);
 
 		let shahex = hex::encodestr(sum);
+		defer free(shahex);
 		if (shahex != vector.1) {
 			fmt::errorfln("Vector {}: {} != {}", i, shahex, vector.1)!;
 			abort();

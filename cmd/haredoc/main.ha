@@ -384,12 +384,17 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 
 @test fn parseident() void = {
 	let (ident, trailing) = parseident("hare::lex") as (ast::ident, bool);
+	defer ast::ident_free(ident);
 	assert(ast::ident_eq(ident, ["hare", "lex"]));
 	assert(!trailing);
+
 	let (ident, trailing) = parseident("rt::abort") as (ast::ident, bool);
+	defer ast::ident_free(ident);
 	assert(ast::ident_eq(ident, ["rt", "abort"]));
 	assert(!trailing);
+
 	let (ident, trailing) = parseident("foo::bar::") as (ast::ident, bool);
+	defer ast::ident_free(ident);
 	assert(ast::ident_eq(ident, ["foo", "bar"]));
 	assert(trailing);
 	assert(parseident("strings::dup*{}&@") is void);

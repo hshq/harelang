@@ -22,6 +22,7 @@ use strings;
 	assert(len(buf) >= len(testcert_bin));
 
 	const data = io::drain(&stream.1)!;
+	defer free(data);
 	assert(bytes::equal(data, testcert_bin));
 
 	assert(next(&dec) is io::EOF);
@@ -38,11 +39,13 @@ use strings;
 	const stream = next(&dec)! as (str, pemdecoder);
 	assert(stream.0 == "CERTIFICATE");
 	const data = io::drain(&stream.1)!;
+	defer free(data);
 	assert(bytes::equal(data, testcert_bin));
 
 	const stream = next(&dec)! as (str, pemdecoder);
 	assert(stream.0 == "PRIVATE KEY");
 	const data = io::drain(&stream.1)!;
+	defer free(data);
 	assert(bytes::equal(data, testprivkey_bin));
 
 	assert(next(&dec) is io::EOF);
@@ -178,6 +181,7 @@ const testprivkey_bin: [_]u8 = [
 	assert(len(buf) >= len(testcert_bin));
 
 	const data = io::drain(&stream.1)!;
+	defer free(data);
 	assert(bytes::equal(data, testcrlf_bin));
 
 	assert(next(&dec) is io::EOF);
