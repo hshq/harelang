@@ -44,19 +44,20 @@ $(BINOUT)/hare: $(OBJS)
 	@printf 'LD\t%s\n' "$@"
 	@$(LD) $(LDLINKFLAGS) -T $(RTSCRIPT) -o $@ $(OBJS)
 
+HARE_BUILD_ENV = HAREPATH=. HAREC="$(HAREC)" QBE="$(QBE)" AS="$(AS)" \
+	LD="$(LD)" HAREFLAGS="$(HAREFLAGS)" HARECFLAGS="$(HARECFLAGS)" \
+	QBEFLAGS="$(QBEFLAGS)" ASFLAGS="$(ASFLAGS)" LDLINKFLAGS="$(LDLINKFLAGS)"
+
 $(BINOUT)/harec2: $(BINOUT)/hare
 	@printf 'HARE\t%s\n' "$@"
-	@env HAREPATH=. HAREC="$(HAREC)" QBE="$(QBE)" AS="$(AS)" LD="$(LD)" \
-		HAREFLAGS="$(HAREFLAGS)" HARECFLAGS="$(HARECFLAGS)" \
-		QBEFLAGS="$(QBEFLAGS)" ASFLAGS="$(ASFLAGS)" \
-		LDLINKFLAGS="$(LDLINKFLAGS)" \
+	@env $(HARE_BUILD_ENV) \
 		$(BINOUT)/hare build $(HARE_DEFINES) -o $(BINOUT)/harec2 cmd/harec
 
 $(BINOUT)/haredoc: $(BINOUT)/hare
 	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
-	@env HAREPATH=. HAREC="$(HAREC)" QBE="$(QBE)" $(BINOUT)/hare build \
-		$(HARE_DEFINES) -o $(BINOUT)/haredoc ./cmd/haredoc
+	@env $(HARE_BUILD_ENV) \
+		$(BINOUT)/hare build $(HARE_DEFINES) -o $(BINOUT)/haredoc ./cmd/haredoc
 
 docs/html: $(BINOUT)/haredoc
 	mkdir -p docs/html
