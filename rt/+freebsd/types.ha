@@ -251,6 +251,7 @@ export def TIOCSWINSZ: u64 = 0x80087467;
 export def TIOCGETA: u64 = 0x402c7413;
 export def TIOCSETA: u64 = 0x802c7414;
 export def TIOCPTMASTER: u64 = 0x2000741c;
+export def TIOCSPGRP: u64 = 0x80047476;
 export def FIODGNAME: u64 = 0x80106678;
 
 export type rusage = struct {
