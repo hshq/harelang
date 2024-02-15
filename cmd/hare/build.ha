@@ -213,7 +213,7 @@ fn get_output(goal: build::stage, input: str) (str | error) = {
 	let stat = os::stat(input)?;
 	path::set(&buf, os::realpath(input)?)?;
 	if (!fs::isdir(stat.mode)) {
-		path::pop(&buf);
+		path::pop_ext(&buf);
 	};
 	// don't add the .bin extension if the goal is to create a binary
 	if (goal != build::stage::BIN) {
