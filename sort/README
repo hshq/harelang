@@ -3,6 +3,6 @@ sorted slices, such as binary search.
 
 The functions [[sort]] and [[search]] are provided for working with generic
 slices. In order to work with a user-supplied slice of an arbitrary type, the
-slice must be cast to []void and the size of the member type passed alongside it
-(e.g. size(int)). The functions also take in a [[cmpfunc]] argument, which is
+slice must be cast to []opaque and the size of the member type passed alongside
+it (e.g. size(int)). The functions also take in a [[cmpfunc]] argument, which is
 called to determine how the slice items should be ordered.
