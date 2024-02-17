@@ -934,6 +934,9 @@ export fn flock(fd: int, op: int) (void | errno) = {
 		fd: u64, op: u64))?;
 };
 
+export def NAME_MAX: size = 255z;
+export def INOTIFY_EVENT_MAX_SIZE: size = size(int) + size(u32)*3 + NAME_MAX + 1z;
+
 export fn inotify_init() (int | errno) = {
 	return wrap_return(syscall1(SYS_inotify_init1, 0))?: int;
 };
