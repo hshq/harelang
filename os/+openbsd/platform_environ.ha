@@ -58,6 +58,17 @@ export fn sysname() const str = {
 	return strings::fromutf8(buf[..(buf_sz -1)])!;
 };
 
+// Returns the host system hostname
+export fn hostname() const str = {
+	let name: [2]int = [rt::CTL_KERN, rt::KERN_HOSTNAME];
+
+	static let buf: [rt::MAXHOSTNAMELEN]u8 = [0...];
+	let buf_sz = len(buf);
+
+	rt::sysctl(name, len(name): uint, &buf, &buf_sz, null, 0)!;
+	return strings::fromutf8(buf[..(buf_sz -1)])!;
+};
+
 // Returns the host operating system version
 export fn version() const str = {
 	let name: [2]int = [rt::CTL_KERN, rt::KERN_OSRELEASE];

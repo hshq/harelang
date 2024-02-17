@@ -222,7 +222,7 @@ export type dirent = struct {
 };
 
 export def MAXNAMLEN: size = 255;
-
+export def MAXHOSTNAMELEN: size = 255;
 export def DT_UNKNOWN: u8 = 0;
 export def DT_FIFO: u8 = 1;
 export def DT_CHR: u8 = 2;
