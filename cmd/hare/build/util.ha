@@ -104,7 +104,7 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 	case stage::SSA => void; // below
 	case stage::S =>
 		append(flags, strings::dup("-t"));
-		append(flags, strings::dup(ctx.arch));
+		append(flags, strings::dup(ctx.arch.qbe_name));
 		return flags;
 	case stage::O =>
 		return flags;
@@ -122,6 +122,9 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 		};
 		return flags;
 	};
+
+	append(flags, strings::dup("-a"));
+	append(flags, strings::dup(ctx.arch.name));
 
 	let mod = ctx.mods[t.idx];
 	if (len(ctx.ns) != 0 && t.idx == ctx.top) {
@@ -190,6 +193,8 @@ fn get_hash(
 	switch (t.kind) {
 	case stage::TD => abort();
 	case stage::SSA =>
+		hash::write(&h, strings::toutf8(ctx.arch.name));
+		hash::write(&h, [0]);
 		hash::write(&h, ctx.version);
 		hash::write(&h, [0]);
 		for (let i = 0z; i < len(ctx.mods[t.idx].deps); i += 1) {
@@ -209,7 +214,7 @@ fn get_hash(
 			hash::write(&h, [0]);
 		};
 	case stage::S =>
-		hash::write(&h, strings::toutf8(ctx.arch));
+		hash::write(&h, strings::toutf8(ctx.arch.qbe_name));
 		hash::write(&h, [0]);
 	case stage::O => void;
 	case stage::BIN =>

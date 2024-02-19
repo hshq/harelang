@@ -51,9 +51,17 @@ export type output = enum {
 	VVERBOSE,
 };
 
+export type arch = struct {
+	name: str,
+	qbe_name: str,
+	as_cmd: str,
+	cc_cmd: str,
+	ld_cmd: str,
+};
+
 export type context = struct {
 	ctx: module::context,
-	arch: str,
+	arch: *arch,
 	platform: *platform,
 	goal: stage,
 	defines: []ast::decl_const,
