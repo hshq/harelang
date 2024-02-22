@@ -181,77 +181,41 @@ export fn fixedzone(ts: *timescale, daylen: time::duration, z: zone) timezone = 
 	};
 };
 
-// The system's [[locality]]; the system's local [[timezone]].
+// The local [[locality]]; the system or environment configured [[timezone]].
 //
 // This is set during a program's initialisation, where the TZ environment
-// variable is tried, otherwise the /etc/localtime file is tried, otherwise a
-// default is used.
-//
-// The default timezone is equivalent to that of [[UTC]], with "Local" being the
-// name of both the timezone and its single zero-offset zone.
-export const LOCAL: locality = &TZ_LOCAL;
-
-def TZ_LOCAL_NAME: str = "Local";
-
-let TZ_LOCAL: timezone = timezone {
-	name = TZ_LOCAL_NAME,
-	timescale = &utc,
-	daylength = EARTH_DAY,
-	zones = [
-		zone {
-			zoff = 0 * time::SECOND,
-			name = TZ_LOCAL_NAME,
-			abbr = "",
-			dst = false,
-		},
-	],
-	transitions = [],
-	posix_extend = "",
-};
+// variable is tried, otherwise the /etc/localtime file is tried, otherwise it
+// defaults  to [[UTC]].
+export const LOCAL: locality = &TZ_UTC;
 
 @init fn init_tz_local() void = {
-	match (os::getenv("TZ")) {
-	case let timezone: str =>
-		match (tz(timezone)) {
-		case let loc: locality =>
-			TZ_LOCAL = *loc;
-		case =>
-			return;
+	let path = match (os::getenv("TZ")) {
+	case let path: str =>
+		// remove POSIX prefix ':'
+		yield if (strings::hasprefix(path, ':')) {
+			yield strings::sub(path, 1, strings::end);
+		} else {
+			yield path;
 		};
 	case void =>
-		const filepath = match (os::readlink(LOCALTIME_PATH)) {
-		case let fp: str =>
-			yield fp;
-		case =>
-			yield LOCALTIME_PATH;
-		};
-
-		const file = match (os::open(filepath)) {
-		case let f: io::file =>
-			yield f;
+		yield match (os::realpath(LOCALTIME_PATH)) {
+		case let path: str =>
+			yield path;
 		case =>
 			return;
 		};
-		defer io::close(file)!;
+	};
 
-		if (strings::hasprefix(filepath, ZONEINFO_PREFIX)) {
-			TZ_LOCAL.name = strings::trimprefix(
-				filepath, ZONEINFO_PREFIX,
-			);
-		};
-
-		static let buf: [os::BUFSZ]u8 = [0...];
-		const file = bufio::init(file, buf, []);
-		load_tzif(&file, &TZ_LOCAL): void;
+	match (tz(path)) {
+	case => void;
+	case let loc: locality =>
+		LOCAL = loc;
 	};
 };
 
 @fini fn free_tz_local() void = {
-	free(TZ_LOCAL.transitions);
-	switch(TZ_LOCAL.name) {
-	case TZ_LOCAL_NAME => void;
-	case =>
-		free(TZ_LOCAL.zones);
+	if (LOCAL != UTC) {
+		timezone_free(LOCAL);
 	};
 };
 

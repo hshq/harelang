@@ -35,7 +35,7 @@ export fn format_srcset(out: io::handle, srcs: *srcset) (size | io::error) = {
 	n += fmt::fprint(out, "relevant tags: ")?;
 	n += format_tags(out, srcs.seentags)?;
 	n += fmt::fprintln(out)?;
-	const dt = date::from_instant(time::chrono::LOCAL, srcs.mtime);
+	const dt = date::from_instant(chrono::LOCAL, srcs.mtime);
 	n += date::format(out, "last change to source list: %F %T\n", &dt)?;
 	n += fmt::fprintln(out, "hare sources:")?;
 	for (let i = 0z; i < len(srcs.ha); i += 1) {
