@@ -38,7 +38,7 @@ type utciniterror = !(fs::error | io::error | utf8::invalid);
 export def SECS_1900_1970: i64 = 2208988800;
 
 // UTC/TAI leap second data; UTC timestamps and their offsets from TAI.
-// Sourced from [[UTC_LEAPSECS_FILE]].
+// Sourced from [[UTC_LEAPSECS_PATH]].
 let utc_leapsecs: [](i64, i64) = [];
 
 let utc_isinitialized: bool = false;
@@ -48,12 +48,12 @@ let utc_isinitialized: bool = false;
 };
 
 fn init_utc_leapsecs() (void | utciniterror) = {
-	const file = os::open(UTC_LEAPSECS_FILE)?;
+	const file = os::open(UTC_LEAPSECS_PATH)?;
 	defer io::close(file)!;
 	parse_utc_leapsecs(file)?;
 };
 
-// Parse UTC/TAI leap second data from [[UTC_LEAPSECS_FILE]].
+// Parse UTC/TAI leap second data from [[UTC_LEAPSECS_PATH]].
 // See file for format details.
 fn parse_utc_leapsecs(h: io::handle) (void | utf8::invalid | io::error) = {
 	for (true) {

@@ -22,7 +22,7 @@ export type invalidtzif = !void;
 // database (TZDB), and returns it as a [[locality]]. Each call returns a new
 // instance. The caller must free the return value; see [[timezone_free]].
 //
-// The system TZDB is normally located at [[ZONEINFO_PREFIX]]. The timezone
+// The system TZDB is normally located at [[TZDB_PATH]]. The timezone
 // filepath is resolved by appending the name argument to this prefix path.
 // If [name] is a full filepath (begins with '/'), it is used directly instead.
 //
@@ -30,8 +30,8 @@ export type invalidtzif = !void;
 // [[EARTH_DAY]] day-length.
 export fn tz(name: str) (locality | tzdberror) = {
 	const filepath =
-		if (!strings::hasprefix(name, ZONEINFO_PREFIX))
-			path::init(ZONEINFO_PREFIX, name)!
+		if (!strings::hasprefix(name, TZDB_PATH))
+			path::init(TZDB_PATH, name)!
 		else
 			path::init(name)!;
 	const file = os::open(path::string(&filepath))?;
