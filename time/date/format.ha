@@ -14,7 +14,7 @@ export def EMAIL: str = "%a, %d %b %Y %H:%M:%S %z";
 
 // [[format]] layout for the email date format, with zone offset and
 // zone abbreviation.
-export def EMAILZ: str = "%a, %d %b %Y %H:%M:%S %z %Z";
+export def EMAILZONE: str = "%a, %d %b %Y %H:%M:%S %z %Z";
 
 // [[format]] layout for the POSIX locale's default date & time representation.
 export def POSIX: str = "%a %b %e %H:%M:%S %Y";
@@ -22,19 +22,40 @@ export def POSIX: str = "%a %b %e %H:%M:%S %Y";
 // [[format]] layout compatible with RFC 3339.
 export def RFC3339: str = "%Y-%m-%dT%H:%M:%S%z";
 
-// [[format]] layout for a simple timestamp.
+// [[format]] layout for a standard, collatable timestamp.
 export def STAMP: str = "%Y-%m-%d %H:%M:%S";
 
-// [[format]] layout for a simple timestamp with nanoseconds.
-export def STAMP_NANO: str = "%Y-%m-%d %H:%M:%S.%N";
+// [[format]] layout for a standard, collatable timestamp with nanoseconds.
+export def STAMPNANO: str = "%Y-%m-%d %H:%M:%S.%N";
 
-// [[format]] layout for a simple timestamp with nanoseconds and zone
-// offset.
-export def STAMP_ZOFF: str = "%Y-%m-%d %H:%M:%S.%N %z";
+// [[format]] layout for a standard, collatable timestamp with nanoseconds
+// and zone offset.
+export def STAMPZOFF: str = "%Y-%m-%d %H:%M:%S.%N %z";
 
-// [[format]] layout for a simple timestamp with nanoseconds,
+// [[format]] layout for a standard, collatable timestamp with nanoseconds,
+// zone offset, and zone abbreviation.
+export def STAMPZONE: str = "%Y-%m-%d %H:%M:%S.%N %z %Z";
+
+// [[format]] layout for a standard, collatable timestamp with nanoseconds,
 // zone offset, zone abbreviation, and locality.
-export def STAMP_NOZL: str = "%Y-%m-%d %H:%M:%S.%N %z %Z %L";
+export def STAMPLOC: str = "%Y-%m-%d %H:%M:%S.%N %z %Z %L";
+
+// [[format]] layout for a friendly, comprehensive, serializable datetime.
+export def JOURNAL: str = "%Y %b %d, %a %H:%M:%S %z %Z %L";
+
+// [[format]] layout for a friendly, terse, glanceable datetime.
+export def WRIST: str = "%b-%d %a %H:%M %Z";
+
+// [[format]] layout for a precise timescalar second and nanosecond.
+export def QUARTZ: str = "%s.%N";
+
+// [[format]] layout for a precise timescalar second, nanosecond,
+// and zone offset.
+export def QUARTZZOFF: str = "%s.%N%z";
+
+// [[format]] layout for a precise timescalar second, nanosecond,
+// and locality.
+export def QUARTZLOC: str = "%s.%N:%L";
 
 def WEEKDAYS: [_]str = [
 	"Monday",

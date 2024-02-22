@@ -214,7 +214,7 @@ export fn from_instant(loc: chrono::locality, i: time::instant) date = {
 // provided, they default to 0.
 //
 // 	let new = date::from_str(
-// 		date::STAMP_NOZL,
+// 		date::STAMPLOC,
 // 		"2019-12-27 22:07:08.000000000 +0100 CET Europe/Amsterdam",
 // 		locs...
 // 	)!;
@@ -240,7 +240,7 @@ export fn from_str(
 
 @test fn from_str() void = {
 	let testcases: [_](str, str, []chrono::locality, (date | error)) = [
-		(STAMP_NOZL, "2001-02-03 15:16:17.123456789 +0000 UTC UTC", [],
+		(STAMPLOC, "2001-02-03 15:16:17.123456789 +0000 UTC UTC", [],
 			new(chrono::UTC, 0, 2001, 2, 3, 15, 16, 17, 123456789)!),
 		(STAMP, "2001-02-03 15:16:17", [],
 			new(chrono::UTC, 0, 2001, 2, 3, 15, 16, 17)!),
