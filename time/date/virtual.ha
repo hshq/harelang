@@ -5,7 +5,13 @@ use time;
 use time::chrono;
 
 // A [[virtual]] does not have enough information to create a valid [[date]].
-export type insufficient = !void;
+export type insufficient = !lack; // TODO: drop alias workaround
+
+export type lack = enum u8 {
+	DAYDATE = 1 << 0, // could not infer daydate
+	DAYTIME = 1 << 1, // could not infer time-of-day
+	ZOFF = 1 << 2,    // could not infer zone offset
+};
 
 // A virtual date; a [[date]] wrapper interface, which represents a date of
 // uncertain validity. Its fields need not be valid observed chronological
@@ -118,6 +124,8 @@ export fn realize(
 	v: virtual,
 	locs: chrono::locality...
 ) (date | insufficient | invalid) = {
+	let lacking = 0u8;
+
 	// determine .daydate
 	if (v.daydate is i64) {
 		void;
@@ -154,13 +162,13 @@ export fn realize(
 		void;
 	} else {
 		// cannot deduce daydate
-		return insufficient;
+		lacking |= insufficient::DAYDATE;
 	};
 
 	// determine .daytime
 	if (v.daytime is i64) {
 		void;
-	} else {
+	} else :nodaytime {
 		const hour = if (v.hour is int) {
 			yield v.hour as int;
 		} else if (v.halfhour is int && v.ampm is bool) {
@@ -168,7 +176,8 @@ export fn realize(
 			const pm = v.ampm as bool;
 			yield if (pm) hr * 2 else hr;
 		} else {
-			return insufficient;
+			lacking |= insufficient::DAYTIME;
+			yield :nodaytime;
 		};
 
 		if (
@@ -182,8 +191,9 @@ export fn realize(
 				v.second as int,
 				v.nanosecond as int,
 			)?;
+			lacking |= 0u8;
 		} else {
-			return insufficient;
+			lacking |= insufficient::DAYTIME;
 		};
 	};
 
@@ -191,7 +201,7 @@ export fn realize(
 	if (v.zoff is i64) {
 		void;
 	} else {
-		return insufficient;
+		lacking |= insufficient::ZOFF;
 	};
 
 	// determine .loc (defaults to time::chrono::UTC)
@@ -206,6 +216,10 @@ export fn realize(
 				break;
 			};
 		};
+	};
+
+	if (lacking != 0u8) {
+		return lacking: insufficient;
 	};
 
 	// determine .sec, .nsec
