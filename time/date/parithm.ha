@@ -49,21 +49,21 @@ export fn pdiff(a: date, b: date) period = {
 	p.days = _day(&b) - _day(&a);
 	let year = _year(&b);
 	let month = _month(&b);
-	let daycnt = calc_month_daycnt(year, month);
-	for (_day(&a) > daycnt || p.days < 0) {
+	let monthdays = calc_days_in_month(year, month);
+	for (_day(&a) > monthdays || p.days < 0) {
 		month -= 1;
 		if (month == 0) {
 			year -= 1;
 			month = 12;
 		};
-		daycnt = calc_month_daycnt(year, month);
+		monthdays = calc_days_in_month(year, month);
 
 		p.months -= 1;
 		if (p.months < 0) {
 			p.years -= 1;
 			p.months += 12;
 		};
-		p.days += daycnt;
+		p.days += monthdays;
 	};
 
 	p.hours = _hour(&b) - _hour(&a);
