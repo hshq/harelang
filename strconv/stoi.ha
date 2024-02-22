@@ -9,27 +9,13 @@ use types;
 // [[invalid]] is returned. If the number is too large to be represented by an
 // i64, [[overflow]] is returned.
 export fn stoi64b(s: str, base: base) (i64 | invalid | overflow) = {
-	if (len(s) == 0) return 0: invalid;
-	let b = strings::toutf8(s);
-	let sign = 1i64;
-	let max = types::I64_MAX: u64;
-	let start = 0z;
-	if (b[0] == '-') {
-		sign = -1;
-		max += 1;
-		start = 1;
-	} else if (b[0] == '+') {
-		start = 1;
-	};
-	if (base == base::DEFAULT) {
-		base = base::DEC;
-	};
-	let u = stou64b(strings::fromutf8_unsafe(b[start..]), base);
-	let n = u?;
-	if (n > max) {
+	let (sign, u) = parseint(s, base)?;
+	// Two's complement: I64_MIN = -I64_MAX - 1
+	let max = if (sign) types::I64_MAX: u64 + 1 else types::I64_MAX: u64;
+	if (u > max) {
 		return overflow;
 	};
-	return n: i64 * sign;
+	return u: i64 * (if (sign) -1 else 1);
 };
 
 // Converts a string to an i32 in the given base. If the string contains any

@@ -4,9 +4,12 @@
 use types;
 
 @test fn stoi() void = {
-	assert(stoi64("") as invalid == 0: invalid);
-	assert(stoi64("abc") as invalid == 0: invalid);
-	assert(stoi64("1a") as invalid == 1: invalid);
+	assert(stoi64("") as invalid == 0);
+	assert(stoi64("abc") as invalid == 0);
+	assert(stoi64("1a") as invalid == 1);
+	assert(stoi64("+") as invalid == 1);
+	assert(stoi64("-+") as invalid == 1);
+	assert(stoi64("-z") as invalid == 1);
 
 	assert(stoi64("9223372036854775808") is overflow);
 	assert(stoi64("-9223372036854775809") is overflow);

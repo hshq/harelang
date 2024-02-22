@@ -15,10 +15,7 @@ fn rune_to_integer(r: rune) (u64 | void) = {
 		return (r: u32 - 'A'): u64 + 10;
 };
 
-// Converts a string to a u64 in the given base, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a u64, [[overflow]] is returned.
-export fn stou64b(s: str, base: base) (u64 | invalid | overflow) = {
+fn parseint(s: str, base: base) ((bool, u64) | invalid | overflow) = {
 	if (base == base::DEFAULT) {
 		base = base::DEC;
 	};
@@ -27,34 +24,34 @@ export fn stou64b(s: str, base: base) (u64 | invalid | overflow) = {
 	if (len(s) == 0) {
 		return 0: invalid;
 	};
-	if (strings::hasprefix(s, "-")) {
-		return overflow;
-	} else if (strings::hasprefix(s, "+")) {
-		s = strings::trimprefix(s, "+");
+
+	let buf = strings::toutf8(s);
+	let i = 0z;
+
+	let sign = buf[i] == '-';
+	if (sign || buf[i] == '+') {
+		i += 1;
+	};
+
+	// Require at least one digit.
+	if (i == len(buf)) {
+		return i: invalid;
 	};
 
 	let n = 0u64;
-	let iter = strings::iter(s);
-	for (true) {
-		let r: rune = match (strings::next(&iter)) {
-		case let r: rune =>
-			yield r;
+	for (i < len(buf); i += 1) {
+		const digit = match (rune_to_integer(buf[i]: rune)) {
 		case void =>
-			break;
-		};
-
-		let digit = match (rune_to_integer(r)) {
-		case void =>
-			return (iter.dec.offs - 1): invalid;
+			return i: invalid;
 		case let d: u64 =>
 			yield d;
 		};
 
-		if (digit >= base: u64) {
-			return (iter.dec.offs - 1): invalid;
+		if (digit >= base) {
+			return i: invalid;
 		};
 
-		let old = n;
+		const old = n;
 
 		n *= base;
 		n += digit;
@@ -63,7 +60,18 @@ export fn stou64b(s: str, base: base) (u64 | invalid | overflow) = {
 			return overflow;
 		};
 	};
-	return n;
+	return (sign, n);
+};
+
+// Converts a string to a u64 in the given base, If the string contains any
+// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
+// number is too large to be represented by a u64, [[overflow]] is returned.
+export fn stou64b(s: str, base: base) (u64 | invalid | overflow) = {
+	let (sign, u) = parseint(s, base)?;
+	if (sign) {
+		return overflow;
+	};
+	return u;
 };
 
 // Converts a string to a u32 in the given base, If the string contains any
