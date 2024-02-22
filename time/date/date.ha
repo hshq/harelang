@@ -261,8 +261,8 @@ export fn from_str(
 		//("%FT%T%z %L", "2009-06-30T18:30:00+0200 Europe/Amsterdam", [amst],
 		//	new(amst, 2 * time::HOUR, 2009, 6, 30, 18, 30)!),
 
-		("%Y", "a", [], 'a': parsefail),
-		("%X", "2008", [], '2': parsefail),
+		("%Y", "a", [], (0z, 'a'): parsefail),
+		("%X", "2008", [], (0z, '2'): parsefail),
 	];
 
 	let buf: [64]u8 = [0...];

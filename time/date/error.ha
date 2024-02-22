@@ -24,12 +24,10 @@ export fn strerror(err: error) const str = {
 		));
 	case invalid =>
 		return "Invalid date information";
-	case let rn: parsefail =>
-		if (rn == '\0') {
-			return "Date parsing error";
-		};
-		def FMTMSG = "Invalid date format for specifier '{}'";
-		static let buf: [len(FMTMSG) + 2]u8 = [0...];
-		return fmt::bsprintf(buf, FMTMSG, rn);
+	case let pf: parsefail =>
+		const (bi, rn) = pf;
+		def FMTMSG = "Date parsing failure for layout rune '{}' at byteindex {}";
+		static let buf: [len(FMTMSG) + 3]u8 = [0...];
+		return fmt::bsprintf(buf, FMTMSG, rn, bi);
 	};
 };

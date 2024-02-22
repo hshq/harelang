@@ -10,9 +10,9 @@ use time::chrono;
 
 type failure = !void;
 
-// A parsing error occurred. If appropriate, the offending format specifier is
-// stored. A null rune represents all other error cases.
-export type parsefail = !rune;
+// A parsing error occurred. This shall contain a byteindex of and rune from the
+// layout at the position where the parsing failure occured.
+export type parsefail = !(size, rune);
 
 // Parses a date/time string into a [[virtual]], according to a layout format
 // string with specifiers as documented under [[format]]. Partial, sequential,
@@ -45,12 +45,12 @@ export fn parse(v: *virtual, layout: str, s: str) (void | parsefail) = {
 		if (!escaped) {
 			const sr = match (strings::next(&siter)) {
 			case void =>
-				return '\x00';
+				return (liter.dec.offs, lr);
 			case let sr: rune =>
 				yield sr;
 			};
 			if (sr != lr) {
-				return '\x00';
+				return (liter.dec.offs, lr);
 			};
 			continue;
 		};
@@ -60,7 +60,7 @@ export fn parse(v: *virtual, layout: str, s: str) (void | parsefail) = {
 		match (parse_specifier(v, &siter, lr)) {
 		case void => void;
 		case failure =>
-			return lr;
+			return (liter.dec.offs, lr);
 		};
 	};
 
