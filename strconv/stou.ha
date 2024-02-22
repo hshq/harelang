@@ -63,9 +63,9 @@ fn parseint(s: str, base: base) ((bool, u64) | invalid | overflow) = {
 	return (sign, n);
 };
 
-// Converts a string to a u64 in the given base, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a u64, [[overflow]] is returned.
+// Converts a string to a u64 in the given base. Returns [[invalid]] if the
+// string is empty or contains invalid characters. Returns [[overflow]] if the
+// number is too large to be represented by a u64.
 export fn stou64b(s: str, base: base) (u64 | invalid | overflow) = {
 	let (sign, u) = parseint(s, base)?;
 	if (sign) {
@@ -74,97 +74,93 @@ export fn stou64b(s: str, base: base) (u64 | invalid | overflow) = {
 	return u;
 };
 
-// Converts a string to a u32 in the given base, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a u32, [[overflow]] is returned.
-export fn stou32b(s: str, base: base) (u32 | invalid | overflow) = {
-	let n = stou64b(s, base)?;
-	if (n <= types::U32_MAX: u64) {
-		return n: u32;
+fn stoumax(s: str, base: base, max: u64) (u64 | invalid | overflow) = {
+	const n = stou64b(s, base)?;
+	if (n > max) {
+		return overflow;
 	};
-	return overflow;
+	return n;
 };
 
-// Converts a string to a u16 in the given base, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a u16, [[overflow]] is returned.
-export fn stou16b(s: str, base: base) (u16 | invalid | overflow) = {
-	let n = stou64b(s, base)?;
-	if (n <= types::U16_MAX: u64) {
-		return n: u16;
-	};
-	return overflow;
-};
+// Converts a string to a u32 in the given base. Returns [[invalid]] if the
+// string is empty or contains invalid characters. Returns [[overflow]] if the
+// number is too large to be represented by a u32.
+export fn stou32b(s: str, base: base) (u32 | invalid | overflow) =
+	stoumax(s, base, types::U32_MAX)?: u32;
 
-// Converts a string to a u8 in the given base, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a u8, [[overflow]] is returned.
-export fn stou8b(s: str, base: base) (u8 | invalid | overflow) = {
-	let n = stou64b(s, base)?;
-	if (n <= types::U8_MAX: u64) {
-		return n: u8;
-	};
-	return overflow;
-};
+// Converts a string to a u16 in the given base. Returns [[invalid]] if the
+// string is empty or contains invalid characters. Returns [[overflow]] if the
+// number is too large to be represented by a u16.
+export fn stou16b(s: str, base: base) (u16 | invalid | overflow) =
+	stoumax(s, base, types::U16_MAX)?: u16;
 
-// Converts a string to a uint in the given base, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a uint, [[overflow]] is returned.
-export fn stoub(s: str, base: base) (uint | invalid | overflow) = {
-	static assert(size(uint) == size(u32) || size(uint) == size(u64));
-	return
-		if (size(uint) == size(u32)) stou32b(s, base)?: uint
-		else stou64b(s, base)?: uint;
-};
+// Converts a string to a u8 in the given base. Returns [[invalid]] if the
+// string is empty or contains invalid characters. Returns [[overflow]] if the
+// number is too large to be represented by a u8.
+export fn stou8b(s: str, base: base) (u8 | invalid | overflow) =
+	stoumax(s, base, types::U8_MAX)?: u8;
 
-// Converts a string to a size in the given base, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a size, [[overflow]] is returned.
-export fn stozb(s: str, base: base) (size | invalid | overflow) = {
-	static assert(size(size) == size(u32) || size(size) == size(u64));
-	if (size(size) == size(u32)) {
-		match (stou32b(s, base)) {
-		case let v: (invalid | overflow) =>
-			return v;
-		case let n: u32 =>
-			return n: size;
-		};
-	} else {
-		match (stou64b(s, base)) {
-		case let v: (invalid | overflow) =>
-			return v;
-		case let n: u64 =>
-			return n: size;
-		};
-	};
-};
+// Converts a string to a uint in the given base. Returns [[invalid]] if the
+// string is empty or contains invalid characters. Returns [[overflow]] if the
+// number is too large to be represented by a uint.
+export fn stoub(s: str, base: base) (uint | invalid | overflow) =
+	stoumax(s, base, types::UINT_MAX)?: uint;
 
-// Converts a string to a u64 in base 10, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a u64, [[overflow]] is returned.
+// Converts a string to a size in the given base. Returns [[invalid]] if the
+// string is empty or contains invalid characters. Returns [[overflow]] if the
+// number is too large to be represented by a size.
+export fn stozb(s: str, base: base) (size | invalid | overflow) =
+	stoumax(s, base, types::SIZE_MAX)?: size;
+
+// Converts a string to a u64 in base 10. Returns [[invalid]] if the string is
+// empty or contains invalid characters. Returns [[overflow]] if the number is
+// too large to be represented by a u64.
 export fn stou64(s: str) (u64 | invalid | overflow) = stou64b(s, base::DEC);
 
-// Converts a string to a u32 in base 10, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a u32, [[overflow]] is returned.
+// Converts a string to a u32 in base 10. Returns [[invalid]] if the string is
+// empty or contains invalid characters. Returns [[overflow]] if the number is
+// too large to be represented by a u32.
 export fn stou32(s: str) (u32 | invalid | overflow) = stou32b(s, base::DEC);
 
-// Converts a string to a u16 in base 10, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a u16, [[overflow]] is returned.
+// Converts a string to a u16 in base 10. Returns [[invalid]] if the string is
+// empty or contains invalid characters. Returns [[overflow]] if the number is
+// too large to be represented by a u16.
 export fn stou16(s: str) (u16 | invalid | overflow) = stou16b(s, base::DEC);
 
-// Converts a string to a u8 in base 10, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a u8, [[overflow]] is returned.
+// Converts a string to a u8 in base 10. Returns [[invalid]] if the string is
+// empty or contains invalid characters. Returns [[overflow]] if the number is
+// too large to be represented by a u8.
 export fn stou8(s: str) (u8 | invalid | overflow) = stou8b(s, base::DEC);
 
-// Converts a string to a uint in base 10, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a uint, [[overflow]] is returned.
+// Converts a string to a uint in base 10. Returns [[invalid]] if the string is
+// empty or contains invalid characters. Returns [[overflow]] if the number is
+// too large to be represented by a uint.
 export fn stou(s: str) (uint | invalid | overflow) = stoub(s, base::DEC);
 
-// Converts a string to a size in base 10, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by a size, [[overflow]] is returned.
+// Converts a string to a size in base 10. Returns [[invalid]] if the string is
+// empty or contains invalid characters. Returns [[overflow]] if the number is
+// too large to be represented by a size.
 export fn stoz(s: str) (size | invalid | overflow) = stozb(s, base::DEC);
+
+@test fn stou() void = {
+	assert(stou64("") as invalid == 0);
+	assert(stou64("+") as invalid == 1);
+	assert(stou64("+a") as invalid == 1);
+	assert(stou64("abc") as invalid == 0);
+	assert(stou64("1a") as invalid == 1);
+
+	assert(stou64("18446744073709551616") is overflow);
+	assert(stou64("184467440737095516150") is overflow);
+	assert(stou64("-1") is overflow);
+
+	assert(stou64("0") as u64 == 0);
+	assert(stou64("1") as u64 == 1);
+	assert(stou64("18446744073709551615") as u64 == 18446744073709551615);
+};
+
+@test fn stoub() void = {
+	assert(stou64b("7f", 16) as u64 == 0x7f);
+	assert(stou64b("7F", 16) as u64 == 0x7f);
+	assert(stou64b("37", 8) as u64 == 0o37);
+	assert(stou64b("110101", 2) as u64 == 0b110101);
+};

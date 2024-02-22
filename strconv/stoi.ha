@@ -4,10 +4,9 @@
 use strings;
 use types;
 
-// Converts a string to an i64 in the given base. If the string contains any
-// non-numeric characters, except '-' or '+' at the start, or if it's empty,
-// [[invalid]] is returned. If the number is too large to be represented by an
-// i64, [[overflow]] is returned.
+// Converts a string to an i64 in the given base. Returns [[invalid]] if the
+// string is empty or contains invalid characters. Returns [[overflow]] if the
+// number is too large to be represented by an i64.
 export fn stoi64b(s: str, base: base) (i64 | invalid | overflow) = {
 	let (sign, u) = parseint(s, base)?;
 	// Two's complement: I64_MIN = -I64_MAX - 1
@@ -18,79 +17,96 @@ export fn stoi64b(s: str, base: base) (i64 | invalid | overflow) = {
 	return u: i64 * (if (sign) -1 else 1);
 };
 
-// Converts a string to an i32 in the given base. If the string contains any
-// non-numeric characters, except '-' or '+' at the start, or if it's empty,
-// [[invalid]] is returned. If the number is too large to be represented by an
-// i32, [[overflow]] is returned.
-export fn stoi32b(s: str, base: base) (i32 | invalid | overflow) = {
-	let n = stoi64b(s, base)?;
-	if (n >= types::I32_MIN: i64 && n <= types::I32_MAX: i64) {
-		return n: i32;
+fn stoiminmax(
+	s: str,
+	base: base,
+	min: i64,
+	max: i64,
+) (i64 | invalid | overflow) = {
+	const n = stoi64b(s, base)?;
+	if (n < min || n > max) {
+		return overflow;
 	};
-	return overflow;
+	return n;
 };
 
-// Converts a string to an i16 in the given base. If the string contains any
-// non-numeric characters, except '-' or '+' at the start, or if it's empty,
-// [[invalid]] is returned. If the number is too large to be represented by an
-// i16, [[overflow]] is returned.
-export fn stoi16b(s: str, base: base) (i16 | invalid | overflow) = {
-	let n = stoi64b(s, base)?;
-	if (n >= types::I16_MIN: i64 && n <= types::I16_MAX: i64) {
-		return n: i16;
-	};
-	return overflow;
+// Converts a string to an i32 in the given base. Returns [[invalid]] if the
+// string is empty or contains invalid characters. Returns [[overflow]] if the
+// number is too large to be represented by an i32.
+export fn stoi32b(s: str, base: base) (i32 | invalid | overflow) =
+	stoiminmax(s, base, types::I32_MIN, types::I32_MAX)?: i32;
+
+// Converts a string to an i16 in the given base. Returns [[invalid]] if the
+// string is empty or contains invalid characters. Returns [[overflow]] if the
+// number is too large to be represented by an i16.
+export fn stoi16b(s: str, base: base) (i16 | invalid | overflow) =
+	stoiminmax(s, base, types::I16_MIN, types::I16_MAX)?: i16;
+
+// Converts a string to an i8 in the given base. Returns [[invalid]] if the
+// string is empty or contains invalid characters. Returns [[overflow]] if the
+// number is too large to be represented by an i8.
+export fn stoi8b(s: str, base: base) (i8 | invalid | overflow) =
+	stoiminmax(s, base, types::I8_MIN, types::I8_MAX)?: i8;
+
+// Converts a string to an int in the given base. Returns [[invalid]] if the
+// string is empty or contains invalid characters. Returns [[overflow]] if the
+// number is too large to be represented by an int.
+export fn stoib(s: str, base: base) (int | invalid | overflow) =
+	stoiminmax(s, base, types::INT_MIN, types::INT_MAX)?: int;
+
+// Converts a string to an i64 in base 10. Returns [[invalid]] if the string is
+// empty or contains invalid characters. Returns [[overflow]] if the number is
+// too large to be represented by an i64.
+export fn stoi64(s: str) (i64 | invalid | overflow) = stoi64b(s, base::DEC);
+
+// Converts a string to an i32 in base 10. Returns [[invalid]] if the string is
+// empty or contains invalid characters. Returns [[overflow]] if the number is
+// too large to be represented by an i32.
+export fn stoi32(s: str) (i32 | invalid | overflow) = stoi32b(s, base::DEC);
+
+// Converts a string to an i16 in base 10. Returns [[invalid]] if the string is
+// empty or contains invalid characters. Returns [[overflow]] if the number is
+// too large to be represented by an i16.
+export fn stoi16(s: str) (i16 | invalid | overflow) = stoi16b(s, base::DEC);
+
+// Converts a string to an i8 in base 10. Returns [[invalid]] if the string is
+// empty or contains invalid characters. Returns [[overflow]] if the number is
+// too large to be represented by an i8.
+export fn stoi8(s: str) (i8 | invalid | overflow) = stoi8b(s, base::DEC);
+
+// Converts a string to an int in base 10. Returns [[invalid]] if the string is
+// empty or contains invalid characters. Returns [[overflow]] if the number is
+// too large to be represented by an int.
+export fn stoi(s: str) (int | invalid | overflow) = stoib(s, base::DEC);
+
+@test fn stoi() void = {
+	assert(stoi64("") as invalid == 0);
+	assert(stoi64("abc") as invalid == 0);
+	assert(stoi64("1a") as invalid == 1);
+	assert(stoi64("+") as invalid == 1);
+	assert(stoi64("-+") as invalid == 1);
+	assert(stoi64("-z") as invalid == 1);
+
+	assert(stoi64("9223372036854775808") is overflow);
+	assert(stoi64("-9223372036854775809") is overflow);
+
+	assert(stoi64("0") as i64 == 0);
+	assert(stoi64("1") as i64 == 1);
+	assert(stoi64("+1") as i64 == 1);
+	assert(stoi64("-1") as i64 == -1);
+	assert(stoi64("9223372036854775807") as i64 == types::I64_MAX);
+	assert(stoi64("-9223372036854775808") as i64 == types::I64_MIN);
+
+	assert(stoi32("2147483648") is overflow);
+	assert(stoi32("-2147483649") is overflow);
+
+	assert(stoi32("2147483647") as i32 == 2147483647);
+	assert(stoi32("-2147483648") as i32 == -2147483648);
 };
 
-// Converts a string to an i8 in the given base. If the string contains any
-// non-numeric characters, except '-' or '+' at the start, or if it's empty,
-// [[invalid]] is returned. If the number is too large to be represented by an
-// i8, [[overflow]] is returned.
-export fn stoi8b(s: str, base: base) (i8 | invalid | overflow) = {
-	let n= stoi64b(s, base)?;
-	if (n >= types::I8_MIN: i64 && n <= types::I8_MAX: i64) {
-		return n: i8;
-	};
-	return overflow;
+@test fn stoib() void = {
+	assert(stoi64b("-7f", 16) as i64 == -0x7f);
+	assert(stoi64b("7F", 16) as i64 == 0x7f);
+	assert(stoi64b("37", 8) as i64 == 0o37);
+	assert(stoi64b("-110101", 2) as i64 == -0b110101);
 };
-
-// Converts a string to an int in the given base. If the string contains any
-// non-numeric characters, except '-' or '+' at the start, or if it's empty,
-// [[invalid]] is returned. If the number is too large to be represented by an
-// int, [[overflow]] is returned.
-export fn stoib(s: str, base: base) (int | invalid | overflow) = {
-	static assert(size(int) == size(i32) || size(int) == size(i64));
-	return
-		if (size(int) == size(i32)) stoi32b(s, base)?: int
-		else stoi64b(s, base)?: int;
-};
-
-// Converts a string to an i64 in base 10, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by an i64, [[overflow]] is
-// returned.
-export fn stoi64(s: str) (i64 | invalid | overflow) = stoi64b(s, 10);
-
-// Converts a string to an i32 in base 10, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by an i32, [[overflow]] is
-// returned.
-export fn stoi32(s: str) (i32 | invalid | overflow) = stoi32b(s, 10);
-
-// Converts a string to an i16 in base 10, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by an i16, [[overflow]] is
-// returned.
-export fn stoi16(s: str) (i16 | invalid | overflow) = stoi16b(s, 10);
-
-// Converts a string to an i8 in base 10, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by an i8, [[overflow]] is
-// returned.
-export fn stoi8(s: str) (i8 | invalid | overflow) = stoi8b(s, 10);
-
-// Converts a string to an int in base 10, If the string contains any
-// non-numeric characters, or if it's empty, [[invalid]] is returned. If the
-// number is too large to be represented by an int, [[overflow]] is
-// returned.
-export fn stoi(s: str) (int | invalid | overflow) = stoib(s, 10);
