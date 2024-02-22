@@ -110,7 +110,7 @@ export fn in(loc: locality, m: moment) (moment | discontinuity) = {
 };
 
 // Finds and returns a [[moment]]'s currently observed [[zone]].
-fn _lookupzone(loc: locality, inst: time::instant) *zone = {
+fn lookupzone(loc: locality, inst: time::instant) *zone = {
 	// TODO: https://todo.sr.ht/~sircmpwn/hare/643
 	if (len(loc.zones) == 0) {
 		abort("time::chrono: Timezone has no zones");

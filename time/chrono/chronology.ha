@@ -56,7 +56,7 @@ export fn mzone(m: *moment) zone = {
 	case let z: *zone =>
 		return *z;
 	case null =>
-		const z = _lookupzone(m.loc, *(m: *time::instant));
+		const z = lookupzone(m.loc, *(m: *time::instant));
 		m.zone = z;
 		return *z;
 	};
