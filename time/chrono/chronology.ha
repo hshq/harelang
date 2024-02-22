@@ -33,8 +33,9 @@ export type moment = struct {
 	// since an abitrary epoch (e.g. the Unix epoch 1970-01-01).
 	daydate: (void | i64),
 
-	// The observed time-of-day (amount of daytime progressed in a day).
-	daytime: (void | time::duration),
+	// The observed time-of-day (amount of daytime progressed in a day)
+	// as nanoseconds.
+	daytime: (void | i64),
 };
 
 // Creates a new [[moment]]. Uses a given [[time::instant]] with a [[timescale]]
@@ -83,10 +84,10 @@ export fn daydate(m: *moment) i64 = {
 };
 
 // Observes a [[moment]]'s observed time-of-day (amount of daytime progressed in
-// a day) as a [[time::duration]].
-export fn daytime(m: *moment) time::duration = {
+// a day) as nanoseconds.
+export fn daytime(m: *moment) i64 = {
 	match (m.daytime) {
-	case let dt: time::duration =>
+	case let dt: i64 =>
 		return dt;
 	case void =>
 		const (dd, dt) = calc_datetime(
@@ -119,7 +120,7 @@ export fn from_datetime(
 	loc: locality,
 	zo: time::duration,
 	dd: i64,
-	dt: time::duration,
+	dt: i64,
 ) moment = {
 	const inst = calc_instant(loc.daylength, zo, dd, dt);
 	return moment {
@@ -136,7 +137,7 @@ fn calc_instant(
 	day: time::duration, // length of a day
 	zo: time::duration,  // zone offset
 	dd: i64,             // date since epoch
-	dt: time::duration,  // time since start of day
+	dt: i64,             // time since start of day (ns)
 ) time::instant = {
 	const daysec = (day / time::SECOND): i64;
 	const dayrem = day % time::SECOND;

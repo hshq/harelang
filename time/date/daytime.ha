@@ -5,7 +5,7 @@ use time;
 
 // Calculates the wall clock (hour, minute, second, nanosecond),
 // given a time-of-day (amount of daytime progressed in a day).
-fn calc_hmsn(t: time::duration) (int, int, int, int) = {
+fn calc_hmsn(t: i64) (int, int, int, int) = {
 	// TODO: Special case for leap seconds, 61st second?
 	const hour = (t / time::HOUR): int;
 	const min = ((t / time::MINUTE) % 60): int;
@@ -21,7 +21,7 @@ fn calc_daytime__hmsn(
 	min: int,
 	sec: int,
 	nsec: int,
-) (time::duration | invalid) = {
+) (i64 | invalid) = {
 	const t = (
 		(hour * time::HOUR) +
 		(min * time::MINUTE) +

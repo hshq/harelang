@@ -158,7 +158,7 @@ export fn realize(
 	};
 
 	// determine .daytime
-	if (v.daytime is time::duration) {
+	if (v.daytime is i64) {
 		void;
 	} else {
 		const hour = if (v.hour is int) {
@@ -188,7 +188,7 @@ export fn realize(
 	};
 
 	// determine zone offset
-	if (v.zoff is time::duration) {
+	if (v.zoff is i64) {
 		void;
 	} else {
 		return insufficient;
@@ -213,7 +213,7 @@ export fn realize(
 		v.loc,
 		v.zoff as time::duration,
 		v.daydate as i64,
-		v.daytime as time::duration,
+		v.daytime as i64,
 	));
 
 	// verify zone offset
