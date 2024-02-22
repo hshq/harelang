@@ -148,15 +148,15 @@ fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 	case 'Y' =>
 		return fmt::fprintf(out, "{:.4}", _year(d));
 	case 'z' =>
-		const (sign, zo) = if (chrono::mzone(d).zoff >= 0) {
-			yield ('+', calc_hmsn(chrono::mzone(d).zoff));
+		const (sign, zo) = if (chrono::ozone(d).zoff >= 0) {
+			yield ('+', calc_hmsn(chrono::ozone(d).zoff));
 		} else {
-			yield ('-', calc_hmsn(-chrono::mzone(d).zoff));
+			yield ('-', calc_hmsn(-chrono::ozone(d).zoff));
 		};
 		const (hr, mi) = (zo.0, zo.1);
 		return fmt::fprintf(out, "{}{:.2}{:.2}", sign, hr, mi);
 	case 'Z' =>
-		return fmt::fprint(out, chrono::mzone(d).abbr);
+		return fmt::fprint(out, chrono::ozone(d).abbr);
 	case '%' =>
 		return fmt::fprint(out, "%");
 	case =>

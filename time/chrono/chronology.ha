@@ -17,7 +17,7 @@ export type invalid = !void;
 //
 // Moments observe a daydate, time-of-day, and [[zone]], which are evaluated,
 // cached and obtained with the observer functions [[daydate]], [[daytime]], and
-// [[mzone]]. These values are derived from the embedded instant and locality
+// [[ozone]]. These values are derived from the embedded instant and locality
 // information, and thus are guaranteed to be valid.
 export type moment = struct {
 	// The embedded [[time::instant]].
@@ -52,7 +52,7 @@ export fn new(loc: locality, i: time::instant) moment = {
 };
 
 // Observes a [[moment]]'s observed [[zone]].
-export fn mzone(m: *moment) zone = {
+export fn ozone(m: *moment) zone = {
 	match (m.zone) {
 	case let z: *zone =>
 		return *z;
@@ -75,7 +75,7 @@ export fn daydate(m: *moment) i64 = {
 		return dd;
 	case void =>
 		const (dd, dt) = calc_datetime(
-			m.loc, *(m: *time::instant), mzone(m).zoff,
+			m.loc, *(m: *time::instant), ozone(m).zoff,
 		);
 		m.daytime = dt;
 		m.daydate = dd;
@@ -91,7 +91,7 @@ export fn daytime(m: *moment) i64 = {
 		return dt;
 	case void =>
 		const (dd, dt) = calc_datetime(
-			m.loc, *(m: *time::instant), mzone(m).zoff,
+			m.loc, *(m: *time::instant), ozone(m).zoff,
 		);
 		m.daytime = dt;
 		m.daydate = dd;

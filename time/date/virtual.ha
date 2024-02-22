@@ -217,7 +217,7 @@ export fn realize(
 	));
 
 	// verify zone offset
-	const z = chrono::mzone(&d);
+	const z = chrono::ozone(&d);
 	if (z.zoff != v.zoff as time::duration) {
 		return invalid;
 	};

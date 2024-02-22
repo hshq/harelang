@@ -164,7 +164,7 @@ export fn new(
 
 	// check if input values are actually observed
 	if (
-		zoff != chrono::mzone(&d).zoff
+		zoff != chrono::ozone(&d).zoff
 		|| _fields[0] != _year(&d)
 		|| _fields[1] != _month(&d)
 		|| _fields[2] != _day(&d)

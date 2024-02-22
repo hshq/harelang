@@ -131,44 +131,44 @@ export fn truncate(d: date, u: unit) date = {
 	// realize(), and then use realize() here.
 	return switch (u) {
 	case unit::ERA =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			1, 1, 1,
 			0, 0, 0, 0,
 		)!;
 	case unit::YEAR =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			_year(&d), 1, 1,
 			0, 0, 0, 0,
 		)!;
 	case unit::MONTH =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			_year(&d), _month(&d), 1,
 			0, 0, 0, 0,
 		)!;
 	case unit::WEEK =>
 		const dd = chrono::daydate(&d) - _weekday(&d);
 		const ymd = calc_ymd(dd);
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			ymd.0, ymd.1, ymd.2,
 			0, 0, 0, 0,
 		)!;
 	case unit::DAY =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			_year(&d), _month(&d), _day(&d),
 			0, 0, 0, 0,
 		)!;
 	case unit::HOUR =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			_year(&d), _month(&d), _day(&d),
 			_hour(&d), 0, 0, 0,
 		)!;
 	case unit::MINUTE =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			_year(&d), _month(&d), _day(&d),
 			_hour(&d), _minute(&d), 0, 0,
 		)!;
 	case unit::SECOND =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			_year(&d), _month(&d), _day(&d),
 			_hour(&d), _minute(&d), _second(&d), 0,
 		)!;
