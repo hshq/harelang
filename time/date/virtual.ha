@@ -39,6 +39,10 @@ export type lack = enum u8 {
 //
 export type virtual = struct {
 	date,
+	// virtual's timescalar second
+	vsec:     (void | i64),
+	// virtual's nanosecond of timescalar second
+	vnsec:    (void | i64),
 	// virtual's locality
 	vloc:     (void | chrono::locality),
 	// locality name
@@ -78,6 +82,8 @@ export fn newvirtual() virtual = virtual {
 	second      = void,
 	nanosecond  = void,
 
+	vsec        = void,
+	vnsec       = void,
 	vloc        = void,
 	locname     = void,
 	zoff        = void,
@@ -87,44 +93,95 @@ export fn newvirtual() virtual = virtual {
 };
 
 // Realizes a valid [[date]] from a [[virtual]], or fails appropriately.
-// Four values require determination. Each has various determination strategies,
-// each of which use a certain set of non-void fields from the given virtual.
-// The following determination strategies will be attempted in order.
 //
-// Field sets for determining the daydate:
+// The virtual must hold enough valid date information to be able to calculate
+// values for the resulting date. A valid combination of its fields must be
+// "filled-in" (hold numerical, non-void values). For example:
 //
-// 1. daydate
-// 2. year, month, day
-// 3. year, yearday
-// 4. year, week, weekday
-// 5. isoweekyear, isoweek, weekday
+// 	let v = date::newvirtual();
+// 	v.locname = "Europe/Amsterdam";
+// 	v.zoff = 1 * time::HOUR;
+// 	date::parse(&v, // fills-in .year .month .day
+// 		"Date: %Y-%m-%d", "Date: 2038-01-19")!;
+// 	v.hour = 4;
+// 	v.minute = 14;
+// 	v.second = 7;
+// 	v.nanosecond = 0;
+// 	let d = date::realize(v, time::chrono::tz("Europe/Amsterdam")!)!;
 //
-// Field sets for determining the time-of-day:
+// This function consults the fields of the given virtual using a predictable
+// procedure. In calculating a date, it attempts to calculate values for empty
+// fields using sets of other filled-in fields (dependencies), in a order
+// described below.
 //
-// 1. daytime
-// 2. hour, minute, second, nanosecond
+// The resultant date depends on a locality and instant.
 //
-// Field sets for determining the zone offset:
+// The locality ([[time::chrono::locality]]) depends on:
 //
-// 1. zoff
+// - .vloc
+// - .locname : This is compared to the .name field of each locality
+//   provided via the locs parameter, or "UTC" if none are provided.
+//   The first matching locality is used.
+// - (nothing) : Defaults to [[time::chrono::UTC]].
 //
-// Field sets for determining the [[time::chrono::locality]]:
+// The instant ([[time::instant]]) depends on:
 //
-// 1. vloc
-// 2. locname
-//         This is compared to each provided locality's 'name' field,
-//         or "UTC" if none are provided. The first match is used.
-// 3. (none)
-//         Defaults to [[time::chrono::UTC]].
+// - .vsec, .vnsec
+// - .daydate, .daytime, .zoff
 //
-// If for any of these values no determination strategy could be attempted,
-// [[insufficient]] is returned. If the resultant date is invalid,
-// [[invalid]] is returned.
+// An empty .daydate depends on:
+//
+// - .year, .month, .day
+// - .year, .yearday
+// - .year, .week, .weekday
+// - .isoweekyear, .isoweek, .weekday
+//
+// An empty .daytime depends on:
+//
+// - .hour, .minute, .second, .nanosecond
+//
+// If none of the possible combinations of fields were filled-in,
+// [[insufficient]] is returned. If after calculation the resultant date is
+// invalid, [[invalid]] is returned.
 export fn realize(
 	v: virtual,
 	locs: chrono::locality...
 ) (date | insufficient | invalid) = {
 	let lacking = 0u8;
+
+	// determine .loc (defaults to time::chrono::UTC)
+	if (v.vloc is chrono::locality) {
+		v.loc = v.vloc as chrono::locality;
+	} else if (v.locname is str) {
+		v.loc = chrono::UTC;
+		for (let i = 0z; i < len(locs); i += 1) {
+			const loc = locs[i];
+			if (loc.name == v.locname as str) {
+				v.loc = loc;
+				break;
+			};
+		};
+	};
+
+	// try using .vsec .vnsec
+	if (v.vsec is i64 && v.vnsec is i64) {
+		return from_instant(
+			v.loc,
+			time::instant{
+				sec = v.vsec as i64,
+				nsec = v.vnsec as i64,
+			},
+		);
+	};
+
+	// try using .daydate, .daytime, .zoff
+
+	// determine zone offset
+	if (v.zoff is i64) {
+		void;
+	} else {
+		lacking |= insufficient::ZOFF;
+	};
 
 	// determine .daydate
 	if (v.daydate is i64) {
@@ -168,17 +225,18 @@ export fn realize(
 	// determine .daytime
 	if (v.daytime is i64) {
 		void;
-	} else :nodaytime {
-		const hour = if (v.hour is int) {
-			yield v.hour as int;
-		} else if (v.halfhour is int && v.ampm is bool) {
-			const hr = v.halfhour as int;
-			const pm = v.ampm as bool;
-			yield if (pm) hr * 2 else hr;
-		} else {
-			lacking |= insufficient::DAYTIME;
-			yield :nodaytime;
-		};
+	} else :daytime {
+		const hour =
+			if (v.hour is int) {
+				yield v.hour as int;
+			} else if (v.halfhour is int && v.ampm is bool) {
+				const hr = v.halfhour as int;
+				const pm = v.ampm as bool;
+				yield if (pm) hr * 2 else hr;
+			} else {
+				lacking |= insufficient::DAYTIME;
+				yield :daytime;
+			};
 
 		if (
 			v.minute is int &&
@@ -191,30 +249,8 @@ export fn realize(
 				v.second as int,
 				v.nanosecond as int,
 			)?;
-			lacking |= 0u8;
 		} else {
 			lacking |= insufficient::DAYTIME;
-		};
-	};
-
-	// determine zone offset
-	if (v.zoff is i64) {
-		void;
-	} else {
-		lacking |= insufficient::ZOFF;
-	};
-
-	// determine .loc (defaults to time::chrono::UTC)
-	if (v.vloc is chrono::locality) {
-		v.loc = v.vloc as chrono::locality;
-	} else if (v.locname is str) {
-		v.loc = chrono::UTC;
-		for (let i = 0z; i < len(locs); i += 1) {
-			const loc = locs[i];
-			if (loc.name == v.locname as str) {
-				v.loc = loc;
-				break;
-			};
 		};
 	};
 
