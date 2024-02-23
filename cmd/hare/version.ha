@@ -39,4 +39,12 @@ fn version(name: str, cmd: *getopt::command) (void | error) = {
 	case let s: str =>
 		fmt::printfln("\t{}", s)?;
 	};
+
+	fmt::println("toolchains:")?;
+	for (let i = 0z; i < len(arches); i += 1) {
+		fmt::printfln(" {}:", arches[i].name)?;
+		fmt::printfln("\tAS={}", arches[i].as_cmd)?;
+		fmt::printfln("\tCC={}", arches[i].cc_cmd)?;
+		fmt::printfln("\tLD={}", arches[i].ld_cmd)?;
+	};
 };
