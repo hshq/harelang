@@ -95,10 +95,18 @@ export fn pipe2(pipefd: *[2]int, flags: int) (void | errno) = {
 	wrap_return(sys_pipe(SYS_pipe, pipefd: uintptr: u64))?;
 };
 
-export fn ioctl(fd: int, req: u64, arg: nullable *opaque) (int | errno) = {
-	return wrap_return(syscall3(SYS_ioctl, fd: u64,
-		req, arg: uintptr: u64))?: int;
+export type ioctl_arg = (nullable *opaque | u64);
+
+export fn ioctl(fd: int, req: u64, arg: ioctl_arg) (int | errno) = {
+	let fd = fd: u64, req = req: u64;
+	return wrap_return(match (arg) {
+	case let u: u64 =>
+		yield syscall3(SYS_ioctl, fd, req, u);
+	case let v: nullable *opaque =>
+		yield syscall3(SYS_ioctl, fd, req, v: uintptr: u64);
+	})?: int;
 };
+
 
 export fn openat(
 	dirfd: int,

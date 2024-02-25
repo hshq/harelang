@@ -22,7 +22,7 @@ export type invalidtzif = !void;
 // database (TZDB), and returns it as a [[locality]]. Each call returns a new
 // instance. The caller must free the return value; see [[timezone_free]].
 //
-// The system TZDB is normally located at [[TZDB_PATH]]. The timezone
+// The system TZDB is normally located at [[time::chrono::TZDB_PATH]]. The timezone
 // filepath is resolved by appending the name argument to this prefix path.
 // If [name] is a full filepath (begins with '/'), it is used directly instead.
 //

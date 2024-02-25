@@ -6,7 +6,7 @@ Hare defines a chronology as a system for naming and ordering moments in time.
 In practice, it is the combination of a calendar and wall clock. This module
 implements a simple date & time chronology with [[moment]], which observes
 certain chronological values according to its [[locality]]. The observer
-functions [[daydate]], [[daytime]], and [[mzone]] obtain these values.
+functions [[daydate]], [[daytime]], and [[ozone]] obtain these values.
 Use [[in]] to localize a moment to another [[locality]]; consult [[tz]].
 
 The [[timescale]] interface facilitates leap-second aware [[convert]]ion of

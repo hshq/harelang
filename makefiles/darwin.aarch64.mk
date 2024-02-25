@@ -225,8 +225,8 @@ $(HARECACHE)/shlex.ssa: $(shlex_ha) $(HARECACHE)/ascii.td $(HARECACHE)/encoding_
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/shlex.ssa -t $(HARECACHE)/shlex.td.tmp -N shlex $(shlex_ha)
 
-unix_tty_ha = unix/tty/+darwin/isatty.ha unix/tty/+darwin/open.ha unix/tty/+darwin/pty.ha unix/tty/+darwin/termios.ha unix/tty/+darwin/winsize.ha unix/tty/pty_test.ha unix/tty/types.ha
-$(HARECACHE)/unix_tty.ssa: $(unix_tty_ha) $(HARECACHE)/bufio.td $(HARECACHE)/errors.td $(HARECACHE)/fmt.td $(HARECACHE)/fs.td $(HARECACHE)/io.td $(HARECACHE)/os.td $(HARECACHE)/rt.td $(HARECACHE)/strings.td $(HARECACHE)/types_c.td
+unix_tty_ha = unix/tty/+darwin/isatty.ha unix/tty/+darwin/open.ha unix/tty/+darwin/pgid.ha unix/tty/+darwin/pty.ha unix/tty/+darwin/termios.ha unix/tty/+darwin/winsize.ha unix/tty/pty_test.ha unix/tty/types.ha
+$(HARECACHE)/unix_tty.ssa: $(unix_tty_ha) $(HARECACHE)/bufio.td $(HARECACHE)/errors.td $(HARECACHE)/fmt.td $(HARECACHE)/fs.td $(HARECACHE)/io.td $(HARECACHE)/os.td $(HARECACHE)/os_exec.td $(HARECACHE)/rt.td $(HARECACHE)/strings.td $(HARECACHE)/types_c.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $(HARECACHE)/unix_tty.ssa -t $(HARECACHE)/unix_tty.td.tmp -N unix::tty $(unix_tty_ha)

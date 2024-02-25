@@ -72,7 +72,7 @@ export fn section_byname(
 	return r;
 };
 
-// Returns the name of this [[elf::section64]], returning "" if the section
+// Returns the name of this [[format::elf::section64]], returning "" if the section
 // names are not available in this image (i.e. it has been stripped).
 export fn section_name(
 	image: *image,
