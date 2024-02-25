@@ -25,16 +25,16 @@ export fn isleapyear(y: int) bool = {
 // Calculates whether a given year, month, and day-of-month, is a valid date.
 fn is_valid_ymd(y: int, m: int, d: int) bool = {
 	return m >= 1 && m <= 12 && d >= 1 &&
-		d <= calc_month_daycnt(y, m);
+		d <= calc_days_in_month(y, m);
 };
 
 // Calculates whether a given year, and day-of-year, is a valid date.
 fn is_valid_yd(y: int, yd: int) bool = {
-	return yd >= 1 && yd <= calc_year_daycnt(y);
+	return yd >= 1 && yd <= calc_days_in_year(y);
 };
 
 // Calculates the number of days in the given month of the given year.
-fn calc_month_daycnt(y: int, m: int) int = {
+fn calc_days_in_month(y: int, m: int) int = {
 	const days_per_month: [_]int = [
 		31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 	];
@@ -46,7 +46,7 @@ fn calc_month_daycnt(y: int, m: int) int = {
 };
 
 // Calculates the number of days in a given year.
-fn calc_year_daycnt(y: int) int = {
+fn calc_days_in_year(y: int) int = {
 	return if (isleapyear(y)) 366 else 365;
 };
 
@@ -244,7 +244,7 @@ fn calc_daydate__ywd(y: int, w: int, wd: int) (i64 | invalid) = {
 // Calculates the daydate,
 // given a year and day-of-year.
 fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
-	if (yd < 1 || yd > calc_year_daycnt(y)) {
+	if (yd < 1 || yd > calc_days_in_year(y)) {
 		return invalid;
 	};
 	return calc_daydate__ymd(y, 1, 1)? + yd - 1;

@@ -70,7 +70,7 @@ export type calculus = enum uint {
 export fn reckon(d: date, calc: calculus, ps: period...) date = {
 	let r = newvirtual(); // our reckoner
 	r.vloc       = d.loc;
-	r.zoff       = chrono::mzone(&d).zoff;
+	r.zoff       = chrono::ozone(&d).zoff;
 	r.year       = _year(&d);
 	r.month      = _month(&d);
 	r.day        = _day(&d);
@@ -151,12 +151,12 @@ fn reckon_days(r: *virtual, days: i64, calc: calculus) void = {
 	day += days: int;
 
 	// day overflow
-	let month_daycnt = calc_month_daycnt(year, month);
-	for (day > month_daycnt) {
+	let monthdays = calc_days_in_month(year, month);
+	for (day > monthdays) {
 		if (calc & calculus::FLOOR != 0) {
 			day = 1;
 		} else if (calc & calculus::CEIL != 0) {
-			day = month_daycnt;
+			day = monthdays;
 		} else if (calc & calculus::HOP != 0) {
 			r.year  = year;
 			r.month = month;
@@ -174,9 +174,9 @@ fn reckon_days(r: *virtual, days: i64, calc: calculus) void = {
 
 			year   = r.year  as int;
 			month  = r.month as int;
-			day   -= month_daycnt;
+			day   -= monthdays;
 		};
-		month_daycnt = calc_month_daycnt(year, month);
+		monthdays = calc_days_in_month(year, month);
 	};
 	for (day < 1) {
 		r.year  = year;
@@ -186,7 +186,7 @@ fn reckon_days(r: *virtual, days: i64, calc: calculus) void = {
 
 		year   = r.year  as int;
 		month  = r.month as int;
-		day   += calc_month_daycnt(year, month);
+		day   += calc_days_in_month(year, month);
 	};
 
 	r.year  = year;

@@ -461,7 +461,6 @@ fn lex_literal(lex: *lexer) (token | error) = {
 					"Expected integer literal");
 			};
 			if (float || exp is size || suff is size
-					|| base != strconv::base::DEC
 					|| lex.require_int) {
 				unget(lex, r.0);
 				break;
@@ -481,13 +480,17 @@ fn lex_literal(lex: *lexer) (token | error) = {
 				float = true;
 				append(chars, utf8::encoderune('.')...);
 			};
-		case 'e', 'E' =>
+		case 'e', 'E', 'p', 'P' =>
 			if (!started) {
 				return syntaxerr(loc,
 					"Expected integer literal");
 			};
-			if (exp is size || suff is size
-					|| base != strconv::base::DEC) {
+			if ((r.0 == 'e' || r.0 == 'E') !=
+					(base == strconv::base::DEC)) {
+				unget(lex, r.0);
+				break;
+			};
+			if (exp is size || suff is size) {
 				unget(lex, r.0);
 				break;
 			} else {
@@ -597,7 +600,7 @@ fn lex_literal(lex: *lexer) (token | error) = {
 	let val = switch (suff) {
 	case ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST =>
 		val = strings::fromutf8(chars[..floatend])!;
-		yield strconv::stof64(val);
+		yield strconv::stof64b(val, base);
 	case =>
 		yield strconv::stou64b(val, base);
 	};

@@ -49,21 +49,21 @@ export fn pdiff(a: date, b: date) period = {
 	p.days = _day(&b) - _day(&a);
 	let year = _year(&b);
 	let month = _month(&b);
-	let daycnt = calc_month_daycnt(year, month);
-	for (_day(&a) > daycnt || p.days < 0) {
+	let monthdays = calc_days_in_month(year, month);
+	for (_day(&a) > monthdays || p.days < 0) {
 		month -= 1;
 		if (month == 0) {
 			year -= 1;
 			month = 12;
 		};
-		daycnt = calc_month_daycnt(year, month);
+		monthdays = calc_days_in_month(year, month);
 
 		p.months -= 1;
 		if (p.months < 0) {
 			p.years -= 1;
 			p.months += 12;
 		};
-		p.days += daycnt;
+		p.days += monthdays;
 	};
 
 	p.hours = _hour(&b) - _hour(&a);
@@ -131,44 +131,44 @@ export fn truncate(d: date, u: unit) date = {
 	// realize(), and then use realize() here.
 	return switch (u) {
 	case unit::ERA =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			1, 1, 1,
 			0, 0, 0, 0,
 		)!;
 	case unit::YEAR =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			_year(&d), 1, 1,
 			0, 0, 0, 0,
 		)!;
 	case unit::MONTH =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			_year(&d), _month(&d), 1,
 			0, 0, 0, 0,
 		)!;
 	case unit::WEEK =>
 		const dd = chrono::daydate(&d) - _weekday(&d);
 		const ymd = calc_ymd(dd);
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			ymd.0, ymd.1, ymd.2,
 			0, 0, 0, 0,
 		)!;
 	case unit::DAY =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			_year(&d), _month(&d), _day(&d),
 			0, 0, 0, 0,
 		)!;
 	case unit::HOUR =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			_year(&d), _month(&d), _day(&d),
 			_hour(&d), 0, 0, 0,
 		)!;
 	case unit::MINUTE =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			_year(&d), _month(&d), _day(&d),
 			_hour(&d), _minute(&d), 0, 0,
 		)!;
 	case unit::SECOND =>
-		yield new(d.loc, chrono::mzone(&d).zoff,
+		yield new(d.loc, chrono::ozone(&d).zoff,
 			_year(&d), _month(&d), _day(&d),
 			_hour(&d), _minute(&d), _second(&d), 0,
 		)!;

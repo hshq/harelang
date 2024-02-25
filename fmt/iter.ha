@@ -14,15 +14,15 @@ export type field = (...formattable | *mods);
 export type formattable = (...types::numeric | uintptr | str | rune | bool |
 	nullable *opaque | void);
 
-// Specifies for numerical arguments when to prepend a plus or minus sign or a
-// blank space.
+// Negative modifier. Specifies for numerical arguments when to prepend a plus
+// or minus sign or a blank space.
 export type neg = enum {
 	NONE,
 	SPACE,
 	PLUS,
 };
 
-// Specifies how to align an argument within a given width.
+// Alignment modifier. Specifies how to align an argument within a given width.
 export type alignment = enum {
 	RIGHT,
 	CENTER,

@@ -164,7 +164,7 @@ export fn new(
 
 	// check if input values are actually observed
 	if (
-		zoff != chrono::mzone(&d).zoff
+		zoff != chrono::ozone(&d).zoff
 		|| _fields[0] != _year(&d)
 		|| _fields[1] != _month(&d)
 		|| _fields[2] != _day(&d)
@@ -214,7 +214,7 @@ export fn from_instant(loc: chrono::locality, i: time::instant) date = {
 // provided, they default to 0.
 //
 // 	let new = date::from_str(
-// 		date::STAMP_NOZL,
+// 		date::STAMPLOC,
 // 		"2019-12-27 22:07:08.000000000 +0100 CET Europe/Amsterdam",
 // 		locs...
 // 	)!;
@@ -240,7 +240,7 @@ export fn from_str(
 
 @test fn from_str() void = {
 	let testcases: [_](str, str, []chrono::locality, (date | error)) = [
-		(STAMP_NOZL, "2001-02-03 15:16:17.123456789 +0000 UTC UTC", [],
+		(STAMPLOC, "2001-02-03 15:16:17.123456789 +0000 UTC UTC", [],
 			new(chrono::UTC, 0, 2001, 2, 3, 15, 16, 17, 123456789)!),
 		(STAMP, "2001-02-03 15:16:17", [],
 			new(chrono::UTC, 0, 2001, 2, 3, 15, 16, 17)!),
@@ -261,8 +261,8 @@ export fn from_str(
 		//("%FT%T%z %L", "2009-06-30T18:30:00+0200 Europe/Amsterdam", [amst],
 		//	new(amst, 2 * time::HOUR, 2009, 6, 30, 18, 30)!),
 
-		("%Y", "a", [], 'a': parsefail),
-		("%X", "2008", [], '2': parsefail),
+		("%Y", "a", [], (0z, 'a'): parsefail),
+		("%X", "2008", [], (0z, '2'): parsefail),
 	];
 
 	let buf: [64]u8 = [0...];

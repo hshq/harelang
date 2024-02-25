@@ -10,9 +10,9 @@ use time::chrono;
 
 type failure = !void;
 
-// A parsing error occurred. If appropriate, the offending format specifier is
-// stored. A null rune represents all other error cases.
-export type parsefail = !rune;
+// A parsing error occurred. This shall contain a byteindex of and rune from the
+// layout at the position where the parsing failure occured.
+export type parsefail = !(size, rune);
 
 // Parses a date/time string into a [[virtual]], according to a layout format
 // string with specifiers as documented under [[format]]. Partial, sequential,
@@ -45,12 +45,12 @@ export fn parse(v: *virtual, layout: str, s: str) (void | parsefail) = {
 		if (!escaped) {
 			const sr = match (strings::next(&siter)) {
 			case void =>
-				return '\x00';
+				return (liter.dec.offs, lr);
 			case let sr: rune =>
 				yield sr;
 			};
 			if (sr != lr) {
-				return '\x00';
+				return (liter.dec.offs, lr);
 			};
 			continue;
 		};
@@ -60,7 +60,7 @@ export fn parse(v: *virtual, layout: str, s: str) (void | parsefail) = {
 		match (parse_specifier(v, &siter, lr)) {
 		case void => void;
 		case failure =>
-			return lr;
+			return (liter.dec.offs, lr);
 		};
 	};
 
@@ -102,9 +102,13 @@ fn parse_specifier(
 	case 'M' =>
 		v.minute = scan_int(iter, 2)?;
 	case 'N' =>
-		v.nanosecond = scan_decimal(iter, 9)?;
+		let nsec = scan_decimal(iter, 9)?;
+		v.nanosecond = nsec: int;
+		v.vnsec = nsec;
 	case 'p' => // AM=false PM=true
 		v.ampm = scan_for(iter, "AM", "PM", "am", "pm")? % 2 == 1;
+	case 's' =>
+		v.vsec = scan_num(iter, 20)?;
 	case 'S' =>
 		v.second = scan_int(iter, 2)?;
 	case 'T' =>
@@ -201,9 +205,34 @@ fn scan_int(iter: *strings::iterator, maxrunes: size) (int | failure) = {
 };
 
 // Scans the iterator for consecutive numeric digits.
+// Left-padded whitespace and zeros are permitted.
+// Returns the resulting i64.
+fn scan_num(iter: *strings::iterator, maxrunes: size) (i64 | failure) = {
+	let start = *iter;
+	for (let i = 0z; i < maxrunes; i += 1) {
+		match (strings::next(iter)) {
+		case void =>
+			return failure;
+		case let rn: rune =>
+			if (!ascii::isdigit(rn)) {
+				strings::prev(iter);
+				break;
+			};
+		};
+	};
+
+	match (strconv::stoi64(strings::slice(&start, iter))) {
+	case let num: i64 =>
+		return num;
+	case =>
+		return failure;
+	};
+};
+
+// Scans the iterator for consecutive numeric digits.
 // Left-padded whitespace and zeros are NOT permitted.
 // The resulting decimal is right-padded with zeros.
-fn scan_decimal(iter: *strings::iterator, maxrunes: size) (int | failure) = {
+fn scan_decimal(iter: *strings::iterator, maxrunes: size) (i64 | failure) = {
 	let start = *iter;
 	for (let i = 0z; i < maxrunes; i += 1) {
 		let rn: rune = match (strings::next(iter)) {
@@ -218,8 +247,8 @@ fn scan_decimal(iter: *strings::iterator, maxrunes: size) (int | failure) = {
 		};
 	};
 	const s = strings::slice(&start, iter);
-	match (strconv::stoi(s)) {
-	case let num: int =>
+	match (strconv::stoi64(s)) {
+	case let num: i64 =>
 		for (let i = 0z; i < maxrunes - len(s); i += 1) {
 			num *= 10;
 		};

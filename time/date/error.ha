@@ -2,6 +2,7 @@
 // (c) Hare authors <https://harelang.org>
 
 use fmt;
+use strings;
 
 // All possible errors returned from [[date]].
 export type error = !(insufficient | invalid | parsefail);
@@ -10,16 +11,23 @@ export type error = !(insufficient | invalid | parsefail);
 // statically allocated.
 export fn strerror(err: error) const str = {
 	match (err) {
-	case insufficient =>
-		return "Insufficient date information";
+	case let lack: insufficient =>
+		static let buf: [92]u8 = [0...];
+		return strings::rtrim(fmt::bsprint(buf,
+			"Insufficient date information, could not calculate:",
+			if (lack & insufficient::DAYDATE: u8 == 0) "" else
+				"daydate",
+			if (lack & insufficient::DAYTIME: u8 == 0) "" else
+				"time-of-day",
+			if (lack & insufficient::ZOFF: u8 == 0) "" else
+				"zone-offset",
+		));
 	case invalid =>
 		return "Invalid date information";
-	case let rn: parsefail =>
-		if (rn == '\0') {
-			return "Date parsing error";
-		};
-		def FMTMSG = "Invalid date format for specifier '{}'";
-		static let buf: [len(FMTMSG) + 2]u8 = [0...];
-		return fmt::bsprintf(buf, FMTMSG, rn);
+	case let pf: parsefail =>
+		const (bi, rn) = pf;
+		def FMTMSG = "Date parsing failure for layout rune '{}' at byteindex {}";
+		static let buf: [len(FMTMSG) + 3]u8 = [0...];
+		return fmt::bsprintf(buf, FMTMSG, rn, bi);
 	};
 };

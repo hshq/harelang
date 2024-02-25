@@ -7,7 +7,9 @@ use bytes;
 	let result: [4]u8 = [0...];
 
 	let bx = fromhex("002132a0");
+	defer free(bx);
 	let by = fromhex("00ff3201");
+	defer free(by);
 
 	let carry = add(bx, by, 0);
 

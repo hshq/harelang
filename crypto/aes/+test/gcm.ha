@@ -608,6 +608,7 @@ const gcmtestcases: []gcmtestcase = [
 		} else {
 			yield alloc([0...], len(t.cipher));
 		};
+		defer free(result);
 		let resultbuf = memio::fixed(result);
 
 		let gstream = cipher::gcm();
@@ -635,6 +636,7 @@ const gcmtestcases: []gcmtestcase = [
 		} else {
 			yield alloc([0...], len(t.cipher));
 		};
+		defer free(result);
 		let cipherbuf = memio::fixed(t.cipher);
 
 		let gstream = cipher::gcm();
@@ -671,6 +673,7 @@ const gcmtestcases: []gcmtestcase = [
 			r[..] = t.plain[..];
 			yield r;
 		};
+		defer free(result);
 		let resultbuf = memio::fixed(result);
 
 		let gstream = cipher::gcm();

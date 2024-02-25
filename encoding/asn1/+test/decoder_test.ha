@@ -127,6 +127,7 @@ fn d(i: []u8) decoder = {
 	open_seq(dc)!;
 	let r = strreader(dc, utag::UTF8_STRING)!;
 	let s = io::drain(&r)!;
+	defer free(s);
 	assert(finish(dc) is invalid);
 };
 
@@ -289,7 +290,7 @@ fn newdatetime(s: str, tag: utag) []u8 = {
 
 	let derdatetime = newdatetime("20231030133710.1Z", utag::GENERALIZED_TIME);
 	let dt = read_gtime(&d(derdatetime))!;
-	assert(date::bsformat(fbuf, date::STAMP_NANO, &dt)!
+	assert(date::bsformat(fbuf, date::STAMPNANO, &dt)!
 		== "2023-10-30 13:37:10.100000000");
 
 	// must end with Z

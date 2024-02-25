@@ -2,8 +2,8 @@
 // (c) Hare authors <https://harelang.org>
 
 def LOCALTIME_PATH: str = "/etc/localtime";
-def ZONEINFO_PREFIX: str = "/usr/share/zoneinfo/";
+def TZDB_PATH: str = "/usr/share/zoneinfo/";
 
 // The filepath of the system's "leap-seconds.list" file, which contains UTC/TAI
 // leap second data.
-export def UTC_LEAPSECS_FILE: str = "/var/db/ntpd.leap-seconds.list";
+export def UTC_LEAPSECS_PATH: str = "/var/db/ntpd.leap-seconds.list";

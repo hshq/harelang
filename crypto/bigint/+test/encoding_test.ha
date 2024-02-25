@@ -51,6 +51,7 @@ use bytes;
 	const input: [4]u8 = [0, 0, 0, 10];
 
 	let mod = fromhex("00190000");
+	defer free(mod);
 	let resultbuf: []word = alloc([0...], encodelen(input));
 	let result: [4]u8 = [0...];
 

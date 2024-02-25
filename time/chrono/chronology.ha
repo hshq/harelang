@@ -17,7 +17,7 @@ export type invalid = !void;
 //
 // Moments observe a daydate, time-of-day, and [[zone]], which are evaluated,
 // cached and obtained with the observer functions [[daydate]], [[daytime]], and
-// [[mzone]]. These values are derived from the embedded instant and locality
+// [[ozone]]. These values are derived from the embedded instant and locality
 // information, and thus are guaranteed to be valid.
 export type moment = struct {
 	// The embedded [[time::instant]].
@@ -33,8 +33,9 @@ export type moment = struct {
 	// since an abitrary epoch (e.g. the Unix epoch 1970-01-01).
 	daydate: (void | i64),
 
-	// The observed time-of-day (amount of daytime progressed in a day).
-	daytime: (void | time::duration),
+	// The observed time-of-day (amount of daytime progressed in a day)
+	// as nanoseconds.
+	daytime: (void | i64),
 };
 
 // Creates a new [[moment]]. Uses a given [[time::instant]] with a [[timescale]]
@@ -51,12 +52,12 @@ export fn new(loc: locality, i: time::instant) moment = {
 };
 
 // Observes a [[moment]]'s observed [[zone]].
-export fn mzone(m: *moment) zone = {
+export fn ozone(m: *moment) zone = {
 	match (m.zone) {
 	case let z: *zone =>
 		return *z;
 	case null =>
-		const z = _lookupzone(m.loc, *(m: *time::instant));
+		const z = lookupzone(m.loc, *(m: *time::instant));
 		m.zone = z;
 		return *z;
 	};
@@ -74,7 +75,7 @@ export fn daydate(m: *moment) i64 = {
 		return dd;
 	case void =>
 		const (dd, dt) = calc_datetime(
-			m.loc, *(m: *time::instant), mzone(m).zoff,
+			m.loc, *(m: *time::instant), ozone(m).zoff,
 		);
 		m.daytime = dt;
 		m.daydate = dd;
@@ -83,14 +84,14 @@ export fn daydate(m: *moment) i64 = {
 };
 
 // Observes a [[moment]]'s observed time-of-day (amount of daytime progressed in
-// a day) as a [[time::duration]].
-export fn daytime(m: *moment) time::duration = {
+// a day) as nanoseconds.
+export fn daytime(m: *moment) i64 = {
 	match (m.daytime) {
-	case let dt: time::duration =>
+	case let dt: i64 =>
 		return dt;
 	case void =>
 		const (dd, dt) = calc_datetime(
-			m.loc, *(m: *time::instant), mzone(m).zoff,
+			m.loc, *(m: *time::instant), ozone(m).zoff,
 		);
 		m.daytime = dt;
 		m.daydate = dd;
@@ -119,7 +120,7 @@ export fn from_datetime(
 	loc: locality,
 	zo: time::duration,
 	dd: i64,
-	dt: time::duration,
+	dt: i64,
 ) moment = {
 	const inst = calc_instant(loc.daylength, zo, dd, dt);
 	return moment {
@@ -136,7 +137,7 @@ fn calc_instant(
 	day: time::duration, // length of a day
 	zo: time::duration,  // zone offset
 	dd: i64,             // date since epoch
-	dt: time::duration,  // time since start of day
+	dt: i64,             // time since start of day (ns)
 ) time::instant = {
 	const daysec = (day / time::SECOND): i64;
 	const dayrem = day % time::SECOND;

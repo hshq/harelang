@@ -104,7 +104,7 @@ fn tai_conv(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 // Discontinuous (has leap seconds).
 //
 // During a program's initialization, this timescale initializes by loading its
-// UTC/TAI leap second data from [[UTC_LEAPSECS_FILE]]; otherwise, fails
+// UTC/TAI leap second data from [[UTC_LEAPSECS_PATH]]; otherwise, fails
 // silently. If failed, any attempt to consult UTC leapsec data (e.g. calling
 // [[convert]] on UTC) causes an abort. This includes [[in]].
 export const utc: timescale = timescale {

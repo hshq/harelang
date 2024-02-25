@@ -19,16 +19,22 @@ export type tzdberror = !(invalidtzif | fs::error | io::error);
 export type invalidtzif = !void;
 
 // Finds, loads, and allocates a [[timezone]] from the system's Timezone
-// database, normally located at /usr/share/zoneinfo, and returns it as a
-// [[locality]]. Each call returns a new instance. The caller must free the
-// return value.
+// database (TZDB), and returns it as a [[locality]]. Each call returns a new
+// instance. The caller must free the return value; see [[timezone_free]].
 //
-// All localities provided default to the [[utc]] [[timescale]] and
+// The system TZDB is normally located at [[TZDB_PATH]]. The timezone
+// filepath is resolved by appending the name argument to this prefix path.
+// If [name] is a full filepath (begins with '/'), it is used directly instead.
+//
+// All localities returned default to the [[utc]] [[timescale]] and
 // [[EARTH_DAY]] day-length.
 export fn tz(name: str) (locality | tzdberror) = {
-	const filepath = path::init(ZONEINFO_PREFIX, name)!;
-	const fpath = path::string(&filepath);
-	const file = os::open(fpath)?;
+	const filepath =
+		if (!strings::hasprefix(name, TZDB_PATH))
+			path::init(TZDB_PATH, name)!
+		else
+			path::init(name)!;
+	const file = os::open(path::string(&filepath))?;
 
 	static let buf: [os::BUFSZ]u8 = [0...];
 	const bufstrm = bufio::init(file, buf, []);

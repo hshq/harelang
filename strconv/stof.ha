@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
+// (c) 2010 The Go Authors. All rights reserved.
 
 // Using the Eisel-Lemire algorithm [1] for fast parsing of floating-point
 // numbers, with Simple Decimal Conversion algorithm [2] as fallback.
@@ -195,6 +196,17 @@ fn decimal_round(d: *decimal) u64 = {
 	return n;
 };
 
+fn todig(c: u8) u8 = {
+	if ('0' <= c && c <= '9') {
+		return c - '0';
+	} else if ('a' <= c && c <= 'f') {
+		return c - 'a' + 10;
+	} else if ('A' <= c && c <= 'F') {
+		return c - 'A' + 10;
+	};
+	abort("unreachable");
+};
+
 type fast_parsed_float = struct {
 	mantissa: u64,
 	exponent: i32,
@@ -202,10 +214,7 @@ type fast_parsed_float = struct {
 	truncated: bool,
 };
 
-fn fast_parse(s: str) (fast_parsed_float | void | invalid) = {
-	if (len(s) == 0 || len(s) > 256) {
-		return;
-	};
+fn fast_parse(s: str, b: base) (fast_parsed_float | invalid) = {
 	let buf = strings::toutf8(s);
 	let i = 0z, neg = false, trunc = false;
 	if (buf[i] == '-') {
@@ -214,6 +223,15 @@ fn fast_parse(s: str) (fast_parsed_float | void | invalid) = {
 	} else if (buf[i] == '+') {
 		i += 1;
 	};
+
+	let (expchr, max_ndmant, isdigit) = switch (b) {
+	case base::DEC =>
+		yield ('e', 19, &ascii::isdigit);
+	case base::HEX =>
+		yield ('p', 16, &ascii::isxdigit);
+	case => abort("unreachable");
+	};
+
 	let sawdot = false, sawdigits = false;
 	let nd = 0, ndmant = 0, dp = 0;
 	let mant = 0u64, exp = 0i32;
@@ -222,15 +240,15 @@ fn fast_parse(s: str) (fast_parsed_float | void | invalid) = {
 			if (sawdot) return i: invalid;
 			sawdot = true;
 			dp = nd;
-		} else if (ascii::isdigit(buf[i]: rune)) {
+		} else if (isdigit(buf[i]: rune)) {
 			sawdigits = true;
 			if (buf[i] == '0' && nd == 0) {
 				dp -= 1;
 				continue;
 			};
 			nd += 1;
-			if (ndmant < 19) {
-				mant = mant * 10 + buf[i] - '0';
+			if (ndmant < max_ndmant) {
+				mant = mant * b + todig(buf[i]);
 				ndmant += 1;
 			} else if (buf[i] != '0') {
 				trunc = true;
@@ -241,7 +259,11 @@ fn fast_parse(s: str) (fast_parsed_float | void | invalid) = {
 	if (!sawdot) {
 		dp = nd;
 	};
-	if (i < len(s) && (buf[i] == 'e' || buf[i] == 'E')) {
+	if (b == base::HEX) {
+		dp *= 4;
+		ndmant *= 4;
+	};
+	if (i < len(s) && ascii::tolower(buf[i]: rune) == expchr) {
 		i += 1;
 		if (i >= len(s)) return i: invalid;
 		let expsign: int = 1;
@@ -260,6 +282,8 @@ fn fast_parse(s: str) (fast_parsed_float | void | invalid) = {
 			};
 		};
 		dp += e * expsign;
+	} else if (b == base::HEX) {
+		return i: invalid; // hex floats must have exponent
 	};
 	if (i != len(s)) return i: invalid;
 	if (mant != 0) {
@@ -275,7 +299,6 @@ fn fast_parse(s: str) (fast_parsed_float | void | invalid) = {
 
 fn decimal_parse(d: *decimal, s: str) (void | invalid) = {
 	let i = 0z;
-	if (len(s) == 0) return 0: invalid;
 	const buf = strings::toutf8(s);
 	d.negative = false;
 	d.truncated = false;
@@ -286,7 +309,6 @@ fn decimal_parse(d: *decimal, s: str) (void | invalid) = {
 		i += 1;
 	};
 	let sawdot = false, sawdigits = false;
-	let nd: u32 = 0, dp: i32 = 0;
 	for (i < len(s); i += 1) {
 		if (buf[i] == '.') {
 			if (sawdot) return i: invalid;
@@ -528,6 +550,63 @@ fn stof32exact(mant: u64, exp: i32, neg: bool) (f32 | void) = {
 	return n;
 };
 
+// Adapted from golang's atofHex.
+fn hex_to_bits(
+	p: fast_parsed_float,
+	info: *math::floatinfo,
+) (u64 | overflow) = {
+	const max_exp = (1 << info.expbits): int - info.expbias - 2;
+	const min_exp = -info.expbias + 1;
+	p.exponent += info.mantbits: i32;
+
+	// Shift left until we have a leading 1 bit in the mantissa followed by
+	// mantbits, plus two more for rounding.
+	for (p.mantissa != 0 && p.mantissa >> (info.mantbits + 2) == 0) {
+		p.mantissa <<= 1;
+		p.exponent -= 1;
+	};
+	// The lowest of the two rounding bits is set if we truncated.
+	if (p.truncated) {
+		p.mantissa |= 1;
+	};
+	// If we have too many bits, shift right.
+	for (p.mantissa >> (3 + info.mantbits) != 0) {
+		p.mantissa = (p.mantissa >> 1) | (p.mantissa & 1);
+		p.exponent += 1;
+	};
+	// Denormalize if the exponent is small.
+	for (p.mantissa > 1 && p.exponent < min_exp: i32 - 2) {
+		p.mantissa = (p.mantissa >> 1) | (p.mantissa & 1);
+		p.exponent += 1;
+	};
+	// Round to even.
+	let round = p.mantissa & 3;
+	p.mantissa >>= 2;
+	round |= p.mantissa & 1;
+	p.exponent += 2;
+	if (round == 3) {
+		p.mantissa += 1;
+		if (p.mantissa == 1 << (1 + info.mantbits)) {
+			p.mantissa >>= 1;
+			p.exponent += 1;
+		};
+	};
+	// Denormal or zero.
+	if (p.mantissa >> info.mantbits == 0) {
+		p.exponent = -info.expbias;
+	};
+	if (p.exponent > max_exp: i32) {
+		return overflow;
+	};
+	let bits = p.mantissa & info.mantmask;
+	bits |= ((p.exponent + info.expbias: i32): u64 & info.expmask)
+		<< info.mantbits;
+	if (p.negative) {
+		bits |= 1 << (info.mantbits + info.expbits);
+	};
+	return bits;
+};
+
 fn special(s: str) (f32 | void) = {
 	if (ascii::strcasecmp(s, "nan") == 0) {
 		return math::NAN;
@@ -540,33 +619,39 @@ fn special(s: str) (f32 | void) = {
 	};
 };
 
-// Converts a string to a f64. If the string is not syntactically well-formed
-// floating-point number in base 10, [[invalid]] is returned. If the string
-// represents a floating-point number that is larger than the largest finite f64
-// number, [[overflow]] is returned. Zero is returned if the string represents a
-// floating-point number that is smaller than the f64 number nearest to zero
-// with respective sign.
+// Converts a string to a f64 in [[base::DEC]] or [[base::HEX]]. If the string
+// is not a syntactically well-formed floating-point number, [[invalid]] is
+// returned. If the string represents a floating-point number that is larger
+// than the largest finite f64 number, [[overflow]] is returned. Zero is
+// returned if the string represents a floating-point number that is smaller
+// than the f64 number nearest to zero with respective sign.
 // Recognizes "Infinity", "+Infinity", "-Infinity", and "NaN", case insensitive.
-export fn stof64(s: str) (f64 | invalid | overflow) = {
+export fn stof64b(s: str, b: base) (f64 | invalid | overflow) = {
+	if (b == base::DEFAULT) b = base::DEC;
+	assert(b == base::DEC || b == base::HEX);
+
+	if (len(s) == 0) {
+		return 0z: invalid;
+	};
+
 	match (special(s)) {
 	case let f: f32 =>
 		return f;
 	case void => void;
 	};
-	const p = fast_parse(s)?;
-	if (p is fast_parsed_float) {
-		const p = p: fast_parsed_float;
-		if (!p.truncated) {
-			let n = stof64exact(p.mantissa, p.exponent,
-				p.negative);
-			if (n is f64) {
-				return n: f64;
-			};
-			let n = eisel_lemire(p.mantissa, p.exponent,
-				p.negative, &math::f64info);
-			if (n is u64) {
-				return math::f64frombits(n: u64);
-			};
+
+	const p = fast_parse(s, b)?;
+	if (b == base::HEX) {
+		return math::f64frombits(hex_to_bits(p, &math::f64info)?);
+	} else if (!p.truncated) {
+		let n = stof64exact(p.mantissa, p.exponent, p.negative);
+		if (n is f64) {
+			return n: f64;
+		};
+		let n = eisel_lemire(p.mantissa, p.exponent, p.negative,
+			&math::f64info);
+		if (n is u64) {
+			return math::f64frombits(n: u64);
 		};
 	};
 	let d = decimal { ... };
@@ -575,33 +660,39 @@ export fn stof64(s: str) (f64 | invalid | overflow) = {
 	return math::f64frombits(n);
 };
 
-// Converts a string to a f32. If the string is not syntactically well-formed
-// floating-point number in base 10, [[invalid]] is returned. If the string
-// represents a floating-point number that is larger than the largest finite f32
-// number, [[overflow]] is returned. Zero is returned if the string represents a
-// floating-point number that is smaller than the f32 number nearest to zero
-// with respective sign.
+// Converts a string to a f32 in [[base::DEC]] or [[base::HEX]]. If the string
+// is not a syntactically well-formed floating-point number, [[invalid]] is
+// returned. If the string represents a floating-point number that is larger
+// than the largest finite f32 number, [[overflow]] is returned. Zero is
+// returned if the string represents a floating-point number that is smaller
+// than the f32 number nearest to zero with respective sign.
 // Recognizes "Infinity", "+Infinity", "-Infinity", and "NaN", case insensitive.
-export fn stof32(s: str) (f32 | invalid | overflow) = {
+export fn stof32b(s: str, b: base) (f32 | invalid | overflow) = {
+	if (b == base::DEFAULT) b = base::DEC;
+	assert(b == base::DEC || b == base::HEX);
+
+	if (len(s) == 0) {
+		return 0z: invalid;
+	};
+
 	match (special(s)) {
 	case let f: f32 =>
 		return f;
 	case void => void;
 	};
-	const p = fast_parse(s)?;
-	if (p is fast_parsed_float) {
-		const p = p: fast_parsed_float;
-		if (!p.truncated) {
-			let n = stof32exact(p.mantissa, p.exponent,
-				p.negative);
-			if (n is f32) {
-				return n: f32;
-			};
-			let n = eisel_lemire(p.mantissa, p.exponent,
-				p.negative, &math::f32info);
-			if (n is u64) {
-				return math::f32frombits(n: u64: u32);
-			};
+
+	const p = fast_parse(s, b)?;
+	if (b == base::HEX) {
+		return math::f32frombits(hex_to_bits(p, &math::f32info)?: u32);
+	} else if (!p.truncated) {
+		let n = stof32exact(p.mantissa, p.exponent, p.negative);
+		if (n is f32) {
+			return n: f32;
+		};
+		let n = eisel_lemire(p.mantissa, p.exponent, p.negative,
+			&math::f32info);
+		if (n is u64) {
+			return math::f32frombits(n: u64: u32);
 		};
 	};
 	let d = decimal { ... };
@@ -609,6 +700,25 @@ export fn stof32(s: str) (f32 | invalid | overflow) = {
 	const n = floatbits(&d, &math::f32info)?: u32;
 	return math::f32frombits(n);
 };
+
+
+// Converts a string to a f64. If the string is not a syntactically well-formed
+// floating-point number in base 10, [[invalid]] is returned. If the string
+// represents a floating-point number that is larger than the largest finite f64
+// number, [[overflow]] is returned. Zero is returned if the string represents a
+// floating-point number that is smaller than the f64 number nearest to zero
+// with respective sign.
+// Recognizes "Infinity", "+Infinity", "-Infinity", and "NaN", case insensitive.
+export fn stof64(s: str) (f64 | invalid | overflow) = stof64b(s, base::DEC);
+
+// Converts a string to a f32. If the string is not a syntactically well-formed
+// floating-point number in base 10, [[invalid]] is returned. If the string
+// represents a floating-point number that is larger than the largest finite f32
+// number, [[overflow]] is returned. Zero is returned if the string represents a
+// floating-point number that is smaller than the f32 number nearest to zero
+// with respective sign.
+// Recognizes "Infinity", "+Infinity", "-Infinity", and "NaN", case insensitive.
+export fn stof32(s: str) (f32 | invalid | overflow) = stof32b(s, base::DEC);
 
 @test fn stof64() void = {
 	assert(stof64("0"): f64 == 0.0);
@@ -670,3 +780,28 @@ export fn stof32(s: str) (f32 | invalid | overflow) = {
 		== 9.19100241453305036800e+20);
 };
 
+@test fn stofhex() void = {
+	assert(stof64b("0p0", base::HEX)! == 0x0.0p0);
+	assert(stof64b("1p0", base::HEX)! == 0x1.0p0);
+	assert(stof64b("-1p0", base::HEX)! == -0x1.0p0);
+	assert(stof64b("1.fp-2", base::HEX)! == 0x1.fp-2);
+	assert(stof64b("1.fffffffffffffp+1023", base::HEX)!
+		== math::F64_MAX_NORMAL);
+	assert(stof64b("1.0000000000000p-1022", base::HEX)!
+		== math::F64_MIN_NORMAL);
+	assert(stof64b("0.0000000000001p-1022", base::HEX)!
+		== math::F64_MIN);
+	assert(stof64b("1p+1024", base::HEX) is overflow);
+	assert(stof64b("0.00000000000001p-1022", base::HEX)! == 0.0);
+
+	assert(stof32b("0p0", base::HEX)! == 0x0.0p0);
+	assert(stof32b("1p0", base::HEX)! == 0x1.0p0);
+	assert(stof32b("-1p0", base::HEX)! == -0x1.0p0);
+	assert(stof32b("1.fp-2", base::HEX)! == 0x1.fp-2);
+	assert(stof32b("1.fffffd586b834p+127", base::HEX)!
+		== math::F32_MAX_NORMAL);
+	assert(stof32b("1.0p-126", base::HEX)! == math::F32_MIN_NORMAL);
+	assert(stof32b("1.6p-150", base::HEX)! == math::F32_MIN);
+	assert(stof32b("1.0p+128", base::HEX) is overflow);
+	assert(stof32b("1.0p-151", base::HEX)! == 0.0);
+};
