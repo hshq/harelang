@@ -895,4 +895,3 @@ export fn hypotf64(a: f64, b: f64) f64 = {
 	b = b / a;
 	return a * sqrtf64(1f64 + b * b);
 };
-

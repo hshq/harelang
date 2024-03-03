@@ -146,4 +146,3 @@ use types;
 
 	assert(bytes::equal(memio::buffer(&dest), [0x02, 0x03, 0x00, 0x8f, 0x01]));
 };
-

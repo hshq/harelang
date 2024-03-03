@@ -104,4 +104,3 @@ fn xor_closer(s: *io::stream) (void | io::error) = {
 	let s = s: *xorstream;
 	s.finish(s);
 };
-

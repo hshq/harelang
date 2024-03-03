@@ -38,4 +38,3 @@ export fn strerror(err: error) const str = {
 		return fs::strerror(err);
 	};
 };
-

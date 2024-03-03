@@ -16,4 +16,3 @@ let initfuncptr: *initfunc = &ct64_init;
 		initfuncptr = &x86ni_init;
 	};
 };
-

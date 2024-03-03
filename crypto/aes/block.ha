@@ -47,4 +47,3 @@ fn block_finish(b: *cipher::block) void = {
 	let b = b: *block;
 	bytes::zero(b.expkey);
 };
-

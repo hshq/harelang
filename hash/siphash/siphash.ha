@@ -133,4 +133,3 @@ fn close(h: *io::stream) (void | io::error) = {
 	h.ln = 0;
 	h.x_len = 0;
 };
-

@@ -23,4 +23,3 @@ export fn socketpair(flags: net::sockflag...) ((net::socket, net::socket) | net:
 		return (io::fdopen(sv[0]), io::fdopen(sv[1]));
 	};
 };
-

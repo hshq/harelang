@@ -327,4 +327,3 @@ export fn privkey_nbitlen(privkey: []u8) size = {
 export fn privkey_nsize(privkey: []u8) size = {
 	return (privkey_nbitlen(privkey) + 7) / 8;
 };
-

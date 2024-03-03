@@ -134,4 +134,3 @@ export fn strrawoid(der: []u8) (str | io::error) = {
 	defer free(s);
 	assert(s == "1.2.840.113549.1.1.1");
 };
-

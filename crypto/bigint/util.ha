@@ -45,4 +45,3 @@ export fn iszero(x: []word) u32 = {
 fn isodd(x: []word) bool = {
 	return x[1] & 1 == 1;
 };
-

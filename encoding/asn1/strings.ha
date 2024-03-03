@@ -359,4 +359,3 @@ export fn read_utf8str(d: *decoder, buf: []u8) (str | error) = {
 
 	return strings::fromutf8(buf[..n])!;
 };
-

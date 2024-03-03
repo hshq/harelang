@@ -65,4 +65,3 @@ export fn unsetenv(name: const str) (void | errors::invalid) = {
 		};
 	};
 };
-

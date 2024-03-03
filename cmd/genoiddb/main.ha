@@ -206,4 +206,3 @@ fn write_varname(h: io::handle, name: str) (void | io::error) = {
 		};
 	};
 };
-
