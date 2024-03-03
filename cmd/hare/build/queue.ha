@@ -279,11 +279,9 @@ fn cleanup_ssa_task(ctx: *context, t: *task, out: str) (void | error) = {
 	let tmp = strings::concat(out, ".td.tmp");
 	defer free(tmp);
 
-	let f = match (os::open(tmp)) {
+	let f = match (os::create(tmp, 0o644, fs::flag::RDWR)) {
 	case let f: io::file =>
 		yield f;
-	case errors::noentry =>
-		return;
 	case let err: fs::error =>
 		return err;
 	};

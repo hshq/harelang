@@ -21,8 +21,7 @@ use strings;
 use unix::tty;
 
 fn build(name: str, cmd: *getopt::command) (void | error) = {
-	let arch = os::arch_name(os::architecture());
-	let arch = get_arch(arch)!;
+	let arch = get_arch(os::arch_name(os::architecture()))!;
 	let output = "";
 	let ctx = build::context {
 		ctx = module::context {
@@ -38,7 +37,7 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 			yield ncpu;
 		},
 		version = build::get_version(os::tryenv("HAREC", "harec"))?,
-		arch = arch.qbe_name,
+		arch = arch,
 		platform = build::get_platform(os::sysname())?,
 		...
 	};
@@ -59,7 +58,7 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		switch (opt.0) {
 		case 'a' =>
 			arch = get_arch(opt.1)?;
-			ctx.arch = arch.qbe_name;
+			ctx.arch = arch;
 		case 'D' =>
 			let buf = memio::fixed(strings::toutf8(opt.1));
 			let sc = bufio::newscanner(&buf, len(opt.1));
@@ -214,7 +213,7 @@ fn get_output(goal: build::stage, input: str) (str | error) = {
 	let stat = os::stat(input)?;
 	path::set(&buf, os::realpath(input)?)?;
 	if (!fs::isdir(stat.mode)) {
-		path::pop(&buf);
+		path::pop_ext(&buf);
 	};
 	// don't add the .bin extension if the goal is to create a binary
 	if (goal != build::stage::BIN) {
