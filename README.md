@@ -7,7 +7,7 @@ Hare is a systems programming language.
 For information about bootstrapping a working Hare toolchain from scratch, see
 [Hare Installation][5] on the website.
 
-[5]: https://harelang.org/documentation/install/index.html
+[5]: https://harelang.org/documentation/install/
 
 ## Contributing
 

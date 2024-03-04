@@ -322,7 +322,7 @@ fn markup_html(
 		yield doc;
 	case let err: lex::syntax =>
 		const err = lex::strerror(err);
-		fmt::errorfln("Warning:", err)?;
+		fmt::errorln("Warning:", err)?;
 		fmt::fprint(ctx.out, "<p class='ref invalid'>Can't parse docs: ")?;
 		html_escape(ctx.out, err)?;
 		fmt::fprintln(ctx.out)?;
