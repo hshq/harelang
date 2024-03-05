@@ -44,9 +44,7 @@ use test;
 };
 
 @test fn sha1_1gb() void = {
-	if (os::tryenv("STDLIB_SLOW_TESTS", "") == "") {
-		test::skip("Enable with STDLIB_SLOW_TESTS=1");
-	};
+	test::require("slow");
 
 	const input = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno";
 	const expected = "7789f0c9ef7bfc40d93311143dfbe69e2017f592";

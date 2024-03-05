@@ -236,9 +236,7 @@ type tcase = struct {
 };
 
 @test fn samples_slow() void = {
-	if (os::tryenv("STDLIB_SLOW_TESTS", "") == "") {
-		test::skip("Enable with STDLIB_SLOW_TESTS=1");
-	};
+	test::require("slow");
 
 	const pass = strings::toutf8("trustno1");
 	const salt = strings::toutf8("abcdefgh");

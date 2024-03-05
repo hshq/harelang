@@ -41,9 +41,7 @@ use test;
 };
 
 @test fn sha256_1gb() void = {
-	if (os::tryenv("STDLIB_SLOW_TESTS", "") == "") {
-		test::skip("Enable with STDLIB_SLOW_TESTS=1");
-	};
+	test::require("slow");
 
 	let sha = sha256();
 	const input = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno";
