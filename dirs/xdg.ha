@@ -91,7 +91,7 @@ export fn runtime() (str | fs::error) = {
 	};
 
 	const st = os::stat(path)?;
-	const uid = unix::getuid();
+	const uid = unix::getuid(): uint;
 	if (st.uid != uid || fs::mode_perm(st.mode) != fs::mode::USER_RWX) {
 		return errors::noaccess;
 	};

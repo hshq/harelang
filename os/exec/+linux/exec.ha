@@ -14,7 +14,7 @@ export fn fork() (process | void | error) = {
 	match (rt::fork()) {
 	case let err: rt::errno  =>
 		return errors::errno(err);
-	case let i: int =>
+	case let i: rt::pid_t =>
 		return i: process;
 	case void =>
 		return void;

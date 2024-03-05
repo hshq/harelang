@@ -7,6 +7,7 @@ use memio;
 use os;
 use strconv;
 use strings;
+use unix;
 
 // A Unix-like group file entry.
 export type grent = struct {
@@ -15,7 +16,7 @@ export type grent = struct {
 	// Optional encrypted password
 	password: str,
 	// Numerical group ID
-	gid: uint,
+	gid: unix::gid,
 	// List of usernames that are members of this group
 	userlist: []str,
 };
@@ -43,9 +44,9 @@ export fn nextgr(in: io::handle) (grent | io::EOF | io::error | invalid) = {
 		return invalid;
 	};
 
-	let gid = match (strconv::stou(fields[2])) {
-	case let u: uint =>
-		yield u;
+	let gid = match (strconv::stou64(fields[2])) {
+	case let u: u64 =>
+		yield u: unix::gid;
 	case =>
 		return invalid;
 	};
@@ -102,7 +103,7 @@ export fn getgroup(name: str) (grent | void) = {
 // /etc/group. Aborts if that file doesn't exist or is not properly formatted.
 //
 // See [[nextgr]] for low-level parsing API.
-export fn getgid(gid: uint) (grent | void) = {
+export fn getgid(gid: unix::gid) (grent | void) = {
 	let file = match (os::open("/etc/group")) {
 	case let f: io::file =>
 		yield f;

@@ -3,6 +3,7 @@
 
 use io;
 use rt;
+use unix;
 
 // Configures a new signal handler, returning the old details (which can be
 // passed to [[restore]] to restore its behavior).
@@ -200,9 +201,9 @@ export type siginfo = struct {
 		union {
 			struct {
 				// Process ID of the sender.
-				pid: int,
+				pid: unix::pid,
 				// Real user ID of the sending process.
-				uid: uint,
+				uid: unix::uid,
 			},
 			struct {
 				// Address of the faulting instruction.

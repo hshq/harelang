@@ -201,14 +201,14 @@ $(HARECACHE)/hare_module.ssa: $(hare_module_ha) $(HARECACHE)/ascii.td $(HARECACH
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/hare_module.td.tmp -N hare::module $(hare_module_ha)
 
-unix_ha = unix/+openbsd/getpid.ha unix/+openbsd/getuid.ha unix/+openbsd/groups.ha unix/+openbsd/nice.ha unix/+openbsd/pipe.ha unix/+openbsd/setuid.ha unix/+openbsd/umask.ha
+unix_ha = unix/+openbsd/creds.ha unix/+openbsd/nice.ha unix/+openbsd/pipe.ha unix/+openbsd/umask.ha
 $(HARECACHE)/unix.ssa: $(unix_ha) $(HARECACHE)/errors.td $(HARECACHE)/fs.td $(HARECACHE)/io.td $(HARECACHE)/rt.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/unix.td.tmp -N unix $(unix_ha)
 
 unix_signal_ha = unix/signal/+openbsd.ha unix/signal/types.ha
-$(HARECACHE)/unix_signal.ssa: $(unix_signal_ha) $(HARECACHE)/io.td $(HARECACHE)/rt.td
+$(HARECACHE)/unix_signal.ssa: $(unix_signal_ha) $(HARECACHE)/io.td $(HARECACHE)/rt.td $(HARECACHE)/unix.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/unix_signal.td.tmp -N unix::signal $(unix_signal_ha)

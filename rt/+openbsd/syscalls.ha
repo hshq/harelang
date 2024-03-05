@@ -123,18 +123,18 @@ export fn close(fd: int) (void | errno) = {
 // wait4
 
 @symbol("wait4") fn libc_wait4(
-	wpid: int,
+	wpid: pid_t,
 	status: nullable *int,
 	options: int,
 	rusage: nullable *rusage
-) int;
+) pid_t;
 
 export fn wait4(
-	pid: int,
+	pid: pid_t,
 	wstatus: nullable *int,
 	options: int,
 	rusage: nullable *rusage,
-) (int | errno) = {
+) (pid_t | errno) = {
 	let res = libc_wait4(pid, wstatus, options, rusage);
 	if (res == -1) {
 		return *__errno(): errno;
@@ -174,7 +174,7 @@ export fn fchdir(fd: int) (void | errno) = {
 // getrusage
 // getpid
 
-export @symbol("getpid") fn getpid() int;
+export @symbol("getpid") fn getpid() pid_t;
 
 // mount
 // unmount
@@ -315,7 +315,11 @@ export fn access(path: path, amode: int) (bool | errno) = {
 // sync
 // msyscall
 // stat
+
 // getppid
+
+export @symbol("getppid") fn getppid() pid_t;
+
 // lstat
 // dup
 // fstatat
@@ -538,10 +542,10 @@ export fn munmap(addr: *opaque, len_: size) (void | errno) = {
 // mquery
 // getgroups
 
-@symbol("getgroups") fn libc_getgroups(gidsetlen: int, gidset: *[*]u32) int;
+@symbol("getgroups") fn libc_getgroups(gidsetlen: int, gidset: *[*]gid_t) int;
 
-export fn getgroups(gids: []uint) (uint | errno) = {
-	let res = libc_getgroups(len(gids): int, gids: *[*]u32);
+export fn getgroups(gids: []gid_t) (uint | errno) = {
+	let res = libc_getgroups(len(gids): int, gids: *[*]gid_t);
 	if (res == -1) {
 		return *__errno(): errno;
 	};
@@ -552,18 +556,31 @@ export fn getgroups(gids: []uint) (uint | errno) = {
 
 @symbol("setgroups") fn libc_setgroups(
 	ngroups: int,
-	gidset: *[*]u32
+	gidset: *[*]gid_t,
 ) int;
 
-export fn setgroups(gids: []uint) (void | errno) = {
-	let res = libc_setgroups(len(gids): int, gids: *[*]u32);
+export fn setgroups(gids: []gid_t) (void | errno) = {
+	let res = libc_setgroups(len(gids): int, gids: *[*]gid_t);
 	if (res == -1) {
 		return *__errno(): errno;
 	};
 };
 
 // getpgrp
+
+export @symbol("getpgrp") fn getpgrp() pid_t;
+
 // setpgid
+
+@symbol("setpgid") fn libc_setpgid(pid: pid_t, pgrp: pid_t) int;
+
+export fn setpgid(pid: pid_t, pgrp: pid_t) (void | errno) = {
+	let res = libc_setpgid(pid, pgrp);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // futex
 // utimensat
 // futimens
@@ -1027,7 +1044,18 @@ export fn socketpair(
 // getthrname
 // setthrname
 // pinsyscall
+
 // setsid
+
+@symbol("setsid") fn libc_setsid() pid_t;
+
+export fn setsid() (void | errno) = {
+	let res = libc_setsid();
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // quotactl
 // ypconnect
 // nfssvc
@@ -1153,7 +1181,19 @@ export fn getpgid(pid: pid_t) (pid_t | errno) = {
 // poll
 // issetugid
 // lchown
+
 // getsid
+
+@symbol("getsid") fn libc_getsid(pid: pid_t) pid_t;
+
+export fn getsid(pid: pid_t) (pid_t | errno) = {
+	let res = libc_getsid(pid);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+	return res;
+};
+
 // msync
 // pipe
 // fhopen

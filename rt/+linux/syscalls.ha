@@ -263,23 +263,38 @@ export fn execve(path: path, argv: *[*]nullable *const u8,
 
 // Returns the new PID to the parent, void to the child, or errno if something
 // goes wrong.
-export fn fork() (int | void | errno) = clone(null, SIGCHLD, null, null, 0);
+export fn fork() (pid_t | void | errno) = {
+	match (clone(null, SIGCHLD, null, null, 0)?) {
+	case let id: int =>
+		return id: pid_t;
+	case void =>
+		return void;
+	};
+};
 
-export fn getpid() int = syscall0(SYS_getpid): int;
+export fn getpid() pid_t = syscall0(SYS_getpid): pid_t;
 
-export fn getpgid(pid: int) (int | errno) = {
-	return wrap_return(syscall1(SYS_getpgid, pid: u64))?: int;
+export fn getppid() pid_t = syscall0(SYS_getppid): pid_t;
+
+export fn getpgrp() pid_t = syscall0(SYS_getpgrp): pid_t;
+
+export fn getpgid(pid: pid_t) (pid_t | errno) = {
+	return wrap_return(syscall1(SYS_getpgid, pid: u64))?: pid_t;
+};
+
+export fn setpgid(pid: pid_t, pgid: pid_t) (void | errno) = {
+	wrap_return(syscall2(SYS_setpgid, pid: u64, pgid: u64))?;
 };
 
 export fn wait4(
-	pid: int,
+	pid: pid_t,
 	wstatus: nullable *int,
 	options: int,
 	rusage: nullable *rusage,
-) (int | errno) = {
+) (pid_t | errno) = {
 	return wrap_return(syscall4(SYS_wait4,
 		pid: u64, wstatus: uintptr: u64,
-		options: u64, rusage: uintptr: u64))?: int;
+		options: u64, rusage: uintptr: u64))?: pid_t;
 };
 
 export fn sendfile(
@@ -295,7 +310,7 @@ export fn exit(status: int) never = {
 	abort();
 };
 
-export fn kill(pid: int, signal: int) (void | errno) = {
+export fn kill(pid: pid_t, signal: int) (void | errno) = {
 	wrap_return(syscall2(SYS_kill, pid: u64, signal: u64))?;
 };
 
@@ -731,14 +746,14 @@ export fn getresgid(gid: *gid_t, egid: *gid_t, sgid: *gid_t) (void | errno) = {
 		sgid: uintptr: u64))?;
 };
 
-export fn getgroups(gids: []uint) (uint | errno) = {
+export fn getgroups(gids: []gid_t) (uint | errno) = {
 	return wrap_return(syscall2(SYS_getgroups,
-		len(gids): u64, gids: *[*]uint: uintptr: u64))?: uint;
+		len(gids): u64, gids: *[*]gid_t: uintptr: u64))?: uint;
 };
 
-export fn setgroups(gids: []uint) (void | errno) = {
+export fn setgroups(gids: []gid_t) (void | errno) = {
 	wrap_return(syscall2(SYS_setgroups,
-		len(gids): u64, gids: *[*]uint: uintptr: u64))?;
+		len(gids): u64, gids: *[*]gid_t: uintptr: u64))?;
 };
 
 export fn getpriority(which: int, who: id_t) (int | errno) = {
@@ -841,8 +856,8 @@ export fn keyctl(
 		arg2, arg3, arg4, arg5))?: int;
 };
 
-export fn getsid(pid: int) (int | errno) = {
-	return wrap_return(syscall1(SYS_getsid, pid: u64))?: int;
+export fn getsid(pid: pid_t) (pid_t | errno) = {
+	return wrap_return(syscall1(SYS_getsid, pid: u64))?: pid_t;
 };
 
 export fn setsid() (void | errno) = {
@@ -869,7 +884,7 @@ export fn umount2(target: path, flags: int) (void | errno) = {
 
 export fn ptrace(
 	request: int,
-	pid: int,
+	pid: pid_t,
 	addr: uintptr,
 	data: uintptr,
 ) (u64 | errno) = {
@@ -970,7 +985,7 @@ export fn shmat(id: int, addr: *const opaque, flag: int) *opaque = {
 };
 
 export fn sched_getaffinity(
-	pid: int,
+	pid: pid_t,
 	cpusetsize: size,
 	mask: *cpu_set,
 ) (void | errno) = {
@@ -979,7 +994,7 @@ export fn sched_getaffinity(
 };
 
 export fn sched_setaffinity(
-	pid: int,
+	pid: pid_t,
 	cpusetsize: size,
 	mask: *const cpu_set,
 ) (void | errno) = {
