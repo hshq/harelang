@@ -52,7 +52,7 @@ export type virtual = struct {
 	// zone abbreviation
 	zabbr:    (void | str),
 	// hour of 12 hour clock
-	halfhour: (void | int),
+	hour12:   (void | int),
 	// AM/PM (false/true)
 	ampm:     (void | bool),
 };
@@ -88,7 +88,7 @@ export fn newvirtual() virtual = virtual {
 	locname     = void,
 	zoff        = void,
 	zabbr       = void,
-	halfhour    = void,
+	hour12      = void,
 	ampm        = void,
 };
 
@@ -143,7 +143,7 @@ export fn newvirtual() virtual = virtual {
 //
 // An empty .hour depends on:
 //
-// - .halfhour, .ampm
+// - .hour12, .ampm
 //
 // If not enough information was provided, [[insufficient]] is returned.
 // If invalid information was provided, [[invalid]] is returned.
@@ -233,8 +233,8 @@ export fn realize(
 		const hour =
 			if (v.hour is int) {
 				yield v.hour as int;
-			} else if (v.halfhour is int && v.ampm is bool) {
-				const hr = v.halfhour as int;
+			} else if (v.hour12 is int && v.ampm is bool) {
+				const hr = v.hour12 as int;
 				const pm = v.ampm as bool;
 				yield if (pm) hr * 2 else hr;
 			} else {
