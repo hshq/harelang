@@ -274,7 +274,7 @@ export fn from_str(
 		match (expect) {
 		case let e: date =>
 			assert(actual is date, "wanted 'date', got 'error'");
-			assert(chrono::eq(&(actual as date), &e)!,
+			assert(chrono::simultaneous(&(actual as date), &e)!,
 				"incorrect 'date' value");
 		case let e: parsefail =>
 			assert(actual is parsefail,

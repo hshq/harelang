@@ -348,47 +348,47 @@ export fn truncate(d: date, u: unit) date = {
 @test fn truncate() void = {
 	const d = new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 2)!;
 
-	assert(chrono::eq(
+	assert(chrono::simultaneous(
 			&truncate(d, unit::ERA),
 			&new(chrono::UTC, 0, 1, 1, 1, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 01");
 
-	assert(chrono::eq(
+	assert(chrono::simultaneous(
 			&truncate(d, unit::YEAR),
 			&new(chrono::UTC, 0, 1994, 1, 1, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 02");
 
-	assert(chrono::eq(
+	assert(chrono::simultaneous(
 			&truncate(d, unit::MONTH),
 			&new(chrono::UTC, 0, 1994, 8, 1, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 03");
 
-	assert(chrono::eq(
+	assert(chrono::simultaneous(
 			&truncate(d, unit::WEEK),
 			&new(chrono::UTC, 0, 1994, 8, 22, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 04");
 
-	assert(chrono::eq(
+	assert(chrono::simultaneous(
 			&truncate(d, unit::DAY),
 			&new(chrono::UTC, 0, 1994, 8, 27, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 05");
 
-	assert(chrono::eq(
+	assert(chrono::simultaneous(
 			&truncate(d, unit::HOUR),
 			&new(chrono::UTC, 0, 1994, 8, 27, 11, 0, 0, 0)!)!,
 		"invalid truncate() result 06");
 
-	assert(chrono::eq(
+	assert(chrono::simultaneous(
 			&truncate(d, unit::MINUTE),
 			&new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 0, 0)!)!,
 		"invalid truncate() result 07");
 
-	assert(chrono::eq(
+	assert(chrono::simultaneous(
 			&truncate(d, unit::SECOND),
 			&new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 0)!)!,
 		"invalid truncate() result 08");
 
-	assert(chrono::eq(
+	assert(chrono::simultaneous(
 			&truncate(d, unit::NANOSECOND),
 			&d)!,
 		"invalid truncate() result 09");
