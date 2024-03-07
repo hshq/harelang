@@ -110,13 +110,14 @@ export fn newvirtual() virtual = virtual {
 // 	let d = date::realize(v, time::chrono::tz("Europe/Amsterdam")!)!;
 //
 // This function consults the fields of the given virtual using a predictable
-// procedure. In calculating a date, it attempts to calculate values for empty
-// fields using sets of other filled-in fields (dependencies), in a order
-// described below.
+// procedure, attempting the simplest and most common field combinations first.
+// Fields marked below with an asterisk (*), when empty, depend on other
+// filled-in field-sets to calculate a new value for itself. The order in which
+// these "dependency" field-sets are tried is described below.
 //
-// The resultant date depends on a locality and instant.
+// The resultant date depends on a locality value and instant value.
 //
-// The locality ([[time::chrono::locality]]) depends on:
+// The locality ([[time::chrono::locality]]) value depends on:
 //
 // - .vloc
 // - .locname : This is compared to the .name field of each locality
@@ -124,10 +125,10 @@ export fn newvirtual() virtual = virtual {
 //   The first matching locality is used.
 // - (nothing) : Defaults to [[time::chrono::UTC]].
 //
-// The instant ([[time::instant]]) depends on:
+// The instant ([[time::instant]]) value depends on:
 //
 // - .vsec, .vnsec
-// - .daydate, .daytime, .zoff
+// - .daydate*, .daytime*, .zoff
 //
 // An empty .daydate depends on:
 //
@@ -138,11 +139,14 @@ export fn newvirtual() virtual = virtual {
 //
 // An empty .daytime depends on:
 //
-// - .hour, .minute, .second, .nanosecond
+// - .hour*, .minute, .second, .nanosecond
 //
-// If none of the possible combinations of fields were filled-in,
-// [[insufficient]] is returned. If after calculation the resultant date is
-// invalid, [[invalid]] is returned.
+// An empty .hour depends on:
+//
+// - .halfhour, .ampm
+//
+// If not enough information was provided, [[insufficient]] is returned.
+// If invalid information was provided, [[invalid]] is returned.
 export fn realize(
 	v: virtual,
 	locs: chrono::locality...
