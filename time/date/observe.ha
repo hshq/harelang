@@ -12,28 +12,30 @@ export fn era(d: *date) int = _era(d);
 // Observes a [[date]]'s year.
 export fn year(d: *date) int = _year(d);
 
-// Observes a [[date]]'s month of the year.
+// Observes a [[date]]'s month of the year. Range January=1 to December=12.
 export fn month(d: *date) int = _month(d);
 
-// Observes a [[date]]'s day of the month.
+// Observes a [[date]]'s day of the month. Range 1 to 31.
 export fn day(d: *date) int = _day(d);
 
-// Observes a [[date]]'s day of the week; Monday=0 to Sunday=6.
+// Observes a [[date]]'s day of the week. Range Monday=0 to Sunday=6.
 export fn weekday(d: *date) int = _weekday(d);
 
-// Observes a [[date]]'s ordinal day of the year.
+// Observes a [[date]]'s ordinal day of the year. Range 1 to 366.
 export fn yearday(d: *date) int = _yearday(d);
 
 // Observes a [[date]]'s ISO week-numbering year.
 export fn isoweekyear(d: *date) int = _isoweekyear(d);
 
-// Observes a [[date]]'s Gregorian week starting Monday.
+// Observes a [[date]]'s Gregorian week starting Monday. Range 0 to 53.
+// All days in a year before the year's first Monday belong to week 0.
 export fn week(d: *date) int = _week(d);
 
-// Observes a [[date]]'s Gregorian week starting Sunday.
+// Observes a [[date]]'s Gregorian week starting Sunday. Range 0 to 53.
+// All days in a year before the year's first Sunday belong to week 0.
 export fn sundayweek(d: *date) int = _sundayweek(d);
 
-// Observes a [[date]]'s ISO week.
+// Observes a [[date]]'s ISO week-numbering week. Range 0 to 53.
 export fn isoweek(d: *date) int = _isoweek(d);
 
 // Observes a [[date]]'s hour of the day.
