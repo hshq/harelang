@@ -183,9 +183,9 @@ export fn fixedzone(ts: *timescale, daylen: time::duration, z: zone) timezone = 
 
 // The local [[locality]]; the system or environment configured [[timezone]].
 //
-// This is set during a program's initialisation, where the TZ environment
-// variable is tried, otherwise the /etc/localtime file is tried, otherwise it
-// defaults  to [[UTC]].
+// This is set during the program's initialization. In order of preference, the
+// TZ environment variable is used, if set; the file at [[LOCALTIME_PATH]], if
+// present; or, as a last resort, [[UTC]] is used as a default.
 export const LOCAL: locality = &TZ_UTC;
 
 @init fn init_tz_local() void = {
