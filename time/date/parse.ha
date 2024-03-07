@@ -14,9 +14,9 @@ type failure = !void;
 // layout at the position where the parsing failure occured.
 export type parsefail = !(size, rune);
 
-// Parses a date/time string into a [[virtual]], according to a layout format
-// string with specifiers as documented under [[format]]. Partial, sequential,
-// aggregative parsing is possible.
+// Parses a datetime string into a [[virtual]] date, according to a layout
+// format string with specifiers as documented under [[format]]. Partial,
+// sequential, aggregative parsing is possible.
 //
 // 	date::parse(&v, "%Y-%m-%d",    "2019-12-27");
 // 	date::parse(&v, "%H:%M:%S.%N", "22:07:08.000000000");

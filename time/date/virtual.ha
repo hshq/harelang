@@ -4,7 +4,8 @@
 use time;
 use time::chrono;
 
-// A [[virtual]] does not have enough information to create a valid [[date]].
+// A [[virtual]] date does not have enough information from which to create a
+// valid [[date]].
 export type insufficient = !lack; // TODO: drop alias workaround
 
 export type lack = enum u8 {
@@ -18,10 +19,10 @@ export type lack = enum u8 {
 // values. It is meant as an intermediary container for date information to be
 // resolved with the [[realize]] function.
 //
-// Unlike [[date]], a virtual's fields are meant to be treated as public and
-// mutable. The embedded [[time::instant]] and [[time::chrono::locality]] fields
-// (.sec .nsec .loc) are considered meaningless. Behaviour with the observer
-// functions is undefined.
+// Unlike [[date]], a virtual date's fields are meant to be treated as public
+// and mutable. The embedded [[time::instant]] and [[time::chrono::locality]]
+// fields (.sec .nsec .loc) are considered meaningless. Behaviour with the
+// observer functions is undefined.
 //
 // This can be used to safely construct a new [[date]] piece-by-piece. Start
 // with [[newvirtual]], then collect enough date/time information incrementally
@@ -57,7 +58,7 @@ export type virtual = struct {
 	ampm:     (void | bool),
 };
 
-// Creates a new [[virtual]]. All its fields are voided or nulled appropriately.
+// Creates a new [[virtual]] date. All its fields are voided or nulled.
 export fn newvirtual() virtual = virtual {
 	sec         = 0,
 	nsec        = 0,
@@ -92,11 +93,11 @@ export fn newvirtual() virtual = virtual {
 	ampm        = void,
 };
 
-// Realizes a valid [[date]] from a [[virtual]], or fails appropriately.
+// Realizes a valid [[date]] from a [[virtual]] date, or fails appropriately.
 //
-// The virtual must hold enough valid date information to be able to calculate
-// values for the resulting date. A valid combination of its fields must be
-// "filled-in" (hold numerical, non-void values). For example:
+// The virtual date must hold enough valid date information to be able to
+// calculate values for the resulting date. A valid combination of its fields
+// must be "filled-in" (hold numerical, non-void values). For example:
 //
 // 	let v = date::newvirtual();
 // 	v.locname = "Europe/Amsterdam";
@@ -109,11 +110,11 @@ export fn newvirtual() virtual = virtual {
 // 	v.nanosecond = 0;
 // 	let d = date::realize(v, time::chrono::tz("Europe/Amsterdam")!)!;
 //
-// This function consults the fields of the given virtual using a predictable
-// procedure, attempting the simplest and most common field combinations first.
-// Fields marked below with an asterisk (*), when empty, depend on other
-// filled-in field-sets to calculate a new value for itself. The order in which
-// these "dependency" field-sets are tried is described below.
+// This function consults the fields of the given virtual date using a
+// predictable procedure, attempting the simplest and most common field
+// combinations first. Fields marked below with an asterisk (*), when empty,
+// depend on other filled-in field-sets to calculate a new value for itself. The
+// order in which these "dependency" field-sets are tried is described below.
 //
 // The resultant date depends on a locality value and instant value.
 //
