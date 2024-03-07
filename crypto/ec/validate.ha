@@ -16,7 +16,7 @@ export fn validate_pointformat(c: *curve, p: []u8) (void | invalid) = {
 export fn validate_point(c: *curve, p: []u8) (void | invalid) = {
 	validate_pointformat(c, p)?;
 
-	static let scalarbuf: [133]u8 = [0...];
+	static let scalarbuf: [MAX_POINTSZ]u8 = [0...];
 	let scalarbuf = scalarbuf[..len(c.order())];
 	scalarbuf[len(scalarbuf) - 1] = 1;
 

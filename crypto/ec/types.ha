@@ -3,6 +3,14 @@
 
 use io;
 
+// Maxium coordinate size of the modules curves in bits.
+export def MAX_COORDBITSZ = 528z;
+
+// Maximum size of a point of the modules curves in bytes.
+export def MAX_POINTSZ = P521_POINTSZ;
+
+// Maximum size of a scalar of the modules curves in bytes.
+export def MAX_SCALARSZ = P521_SCALARSZ;
 
 // Interface for common operations over a specific curve.
 //
