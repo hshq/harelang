@@ -88,17 +88,26 @@ fn all(d: *date) *date = {
 	return d;
 };
 
-// Creates a new [[date]]. Upto seven field arguments can be given: year, month,
-// day, hour, minute, second, nanosecond. 8 or more causes an abort. If omitted,
-// the month and day default to 1, and the rest default to 0.
+// Creates a new [[date]]. Accepts a [[time::chrono::locality]], a zone offset,
+// and up to seven nominal fields applied in the following order:
 //
-// Accepts a [[time::chrono::locality]], and a 'zoff' zone offset parameter
-// which is used to discern the desired observed [[time::chrono::zone]] in the
-// given locality. See [[time::chrono::fixedzone]] for custom timezones.
+// - year
+// - month
+// - day
+// - hour
+// - minute
+// - second
+// - nanosecond
 //
-// An invalid zoff or field argument combination returns [[invalid]].
+// 8 or more fields causes an abort. If omitted, the month and day default to 1,
+// and the rest default to 0.
 //
-// Example:
+// The locality and zone offset parameters discern the desired observed
+// [[time::chrono::zone]]. See [[time::chrono::fixedzone]] for custom timezones.
+//
+// An invalid combination of provided date/time/zoff values returns [[invalid]].
+//
+// Examples:
 //
 // 	// 0000-01-01 00:00:00.000000000 +0000 UTC UTC
 // 	date::new(time::chrono::UTC, 0);
@@ -119,12 +128,12 @@ fn all(d: *date) *date = {
 // 	date::new(time::chrono::UTC, 0,
 // 		2019,  0,  0,  99, -30);
 //
-// 	// Invalid zoff
+// 	// Invalid zone offset
 // 	date::new(time::chrono::UTC,       -7 * time::HOUR,  2019);
 // 	date::new(time::chrono::tz("Europe/Amsterdam")!, 0,  2019);
 //
 // Example: Two dates, 30 physical minutes before and after a DST timezone
-// transition, observing the same date/time, but different zone offsets:
+// transition, observing the same date & time, but different zone offsets:
 //
 // 	// 2019-04-07 02:30:00.000000000 +1100 AUDT Australia/Sydney
 // 	date::new(time::chrono::tz("Australia/Sydney")!, 11 * time::HOUR,
