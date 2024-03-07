@@ -5,11 +5,11 @@
 // we provide useful constant for working with the astronomically numbered
 // proleptic Gregorian calendar, as offsets from the Hare epoch.
 
-// The Hare epoch of the Julian Day Number.
-export def EPOCHAL_JULIAN: i64 = -2440588;
+// The Hare epochal day of the Julian Day Number.
+export def EPOCHDAY_JULIAN: i64 = -2440588;
 
-// The Hare epoch of the Gregorian Common Era.
-export def EPOCHAL_GREGORIAN: i64 = -719164;
+// The Hare epochal day of the Gregorian Common Era.
+export def EPOCHDAY_GREGORIAN: i64 = -719164;
 
 // Number of days in the Gregorian 400 year cycle
 def GREGORIAN_CYCLE_DAYS: i64 = 146097;
@@ -85,7 +85,7 @@ fn calc_ymd(e: i64) (int, int, int) = {
 		cycles += 1;
 	};
 
-	const J = E - EPOCHAL_JULIAN;
+	const J = E - EPOCHDAY_JULIAN;
 
 	const b = 274277;
 	const c = -38;
@@ -228,7 +228,7 @@ fn calc_daydate__ymd(y: int, m: int, d: int) (i64 | invalid) = {
 		- 32075
 	);
 
-	const e = jdn + EPOCHAL_JULIAN - (GREGORIAN_CYCLE_DAYS * cycles);
+	const e = jdn + EPOCHDAY_JULIAN - (GREGORIAN_CYCLE_DAYS * cycles);
 
 	return e;
 };
