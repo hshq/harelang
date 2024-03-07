@@ -82,7 +82,7 @@ export fn find(ctx: *context, loc: location) ((str, srcset) | error) = {
 				return (path::string(&buf), s);
 			case not_found => void;
 			case let e: error =>
-				return e;
+				return attach(strings::dup(path::string(&buf)), e);
 			};
 		};
 		return attach(locstr(mod), not_found);
