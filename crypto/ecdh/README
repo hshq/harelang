@@ -1,0 +1,10 @@
+The crypto::ecdh module implements eliptic-curve diffie hellman key generation
+for curves implemented in [[crypto::ec]].
+
+This is a low-level module which implements cryptographic primitives. Direct use
+of cryptographic primitives is not recommended for non-experts, as incorrect use
+of these primitives can easily lead to the introduction of security
+vulnerabilities. Non-experts are advised to use the high-level operations
+available in the top-level [[crypto::]] module.
+
+Be advised that Hare's cryptography implementations have not been audited.

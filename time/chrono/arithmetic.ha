@@ -3,6 +3,34 @@
 
 use time;
 
+// Returns true if two [[moment]]s represent the same time in the same locality,
+// which is to say that their [[locality]] and [[time::instant]] are both equal.
+// Their observed values and representations in a chronology should be the same
+// in all cases.
+//
+// See [[simultaneous]] to determine if two moments represent the same moment in
+// time regardless of locality.
+export fn coincident(a: *moment, b: *moment) bool = {
+	return a.loc == b.loc && a.sec == b.sec && a.nsec == b.nsec;
+};
+
+// Returns true if two [[moment]]s represent the same moment in time, regardless
+// of locality.
+//
+// The moments are compared as [[time::instant]]s; their observed chronological
+// values and representations are ignored.
+//
+// If the moments' associated [[timescale]]s are different, they will be
+// converted to [[tai]] instants first. Any [[discontinuity]] occurence will be
+// returned. If a discontinuity against TAI amongst the two timescales exist,
+// consider converting such instants manually.
+//
+// See [[coincident]] to determine if two [[moment]]s are equal with respect to
+// both time and locality.
+export fn simultaneous(a: *moment, b: *moment) (bool | discontinuity) = {
+	return 0 == compare(a, b)?;
+};
+
 // Compares two [[moment]]s. Returns -1 if a precedes b, 0 if a and b are
 // simultaneous, or +1 if b precedes a.
 //
@@ -16,19 +44,6 @@ use time;
 export fn compare(a: *moment, b: *moment) (i8 | discontinuity) = {
 	const (ia, ib) = convertpair(a, b)?;
 	return time::compare(ia, ib);
-};
-
-// Returns true if moments a & b are equivalent; otherwise, returns false.
-//
-// The moments are compared as [[time::instant]]s; their observed chronological
-// values are ignored.
-//
-// If the moments' associated [[timescale]]s are different, they will be
-// converted to [[tai]] instants first. Any [[discontinuity]] occurence will be
-// returned. If a discontinuity against TAI amongst the two timescales exist,
-// consider converting such instants manually.
-export fn eq(a: *moment, b: *moment) (bool | discontinuity) = {
-	return 0 == compare(a, b)?;
 };
 
 // Returns the [[time::duration]] between two [[moment]]s, from a to b.

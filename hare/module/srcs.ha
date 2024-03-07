@@ -201,7 +201,7 @@ fn _findsrcs(
 		if (time::compare(res.mtime, stat.mtime) < 0) {
 			res.mtime = stat.mtime;
 		};
-		tmp = os::readlink(tmp)?;
+		tmp = os::realpath(tmp)?;
 		stat = os::stat(tmp)?;
 	};
 

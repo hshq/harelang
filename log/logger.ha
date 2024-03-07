@@ -29,7 +29,7 @@ export fn new(sink: io::handle) stdlogger = {
 fn log_println(sink: *logger, fields: fmt::formattable...) void = {
 	const sink = sink: *stdlogger;
 	assert(sink.println == &log_println);
-	const now = date::now();
+	const now = date::localnow();
 	fmt::fprint(sink.sink, "["): void;
 	date::format(sink.sink, date::STAMP, &now): void;
 	fmt::fprint(sink.sink, "] "): void;
@@ -39,7 +39,7 @@ fn log_println(sink: *logger, fields: fmt::formattable...) void = {
 fn log_printfln(sink: *logger, fmt: str, fields: fmt::field...) void = {
 	const sink = sink: *stdlogger;
 	assert(sink.printfln == &log_printfln);
-	const now = date::now();
+	const now = date::localnow();
 	fmt::fprint(sink.sink, "["): void;
 	date::format(sink.sink, date::STAMP, &now): void;
 	fmt::fprint(sink.sink, "] "): void;

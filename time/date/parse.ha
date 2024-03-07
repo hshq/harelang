@@ -14,9 +14,9 @@ type failure = !void;
 // layout at the position where the parsing failure occured.
 export type parsefail = !(size, rune);
 
-// Parses a date/time string into a [[virtual]], according to a layout format
-// string with specifiers as documented under [[format]]. Partial, sequential,
-// aggregative parsing is possible.
+// Parses a datetime string into a [[virtual]] date, according to a layout
+// format string with specifiers as documented under [[format]]. Partial,
+// sequential, aggregative parsing is possible.
 //
 // 	date::parse(&v, "%Y-%m-%d",    "2019-12-27");
 // 	date::parse(&v, "%H:%M:%S.%N", "22:07:08.000000000");
@@ -92,7 +92,7 @@ fn parse_specifier(
 	case 'H' =>
 		v.hour = scan_int(iter, 2)?;
 	case 'I' =>
-		v.halfhour = scan_int(iter, 2)?;
+		v.hour12 = scan_int(iter, 2)?;
 	case 'j' =>
 		v.yearday = scan_int(iter, 3)?;
 	case 'L' =>
@@ -339,7 +339,7 @@ fn scan_str(iter: *strings::iterator) (str | failure) = {
 	assert(v.locname     is void, "none: non-void locname");
 	assert(v.zoff        is void, "none: non-void zoff");
 	assert(v.zabbr       is void, "none: non-void zabbr");
-	assert(v.halfhour    is void, "none: non-void halfhour");
+	assert(v.hour12      is void, "none: non-void hour12");
 	assert(v.ampm        is void, "none: non-void ampm");
 
 	let v = newvirtual();
@@ -396,8 +396,8 @@ fn scan_str(iter: *strings::iterator) (str | failure) = {
 
 	let v = newvirtual();
 	assert(parse(&v, "%I", "10") is void                 , "%I: parsefail");
-	assert(v.halfhour is int                             , "%I: void");
-	assert(v.halfhour as int == 10                       , "%I: incorrect");
+	assert(v.hour12 is int                               , "%I: void");
+	assert(v.hour12 as int == 10                         , "%I: incorrect");
 
 	let v = newvirtual();
 	assert(parse(&v, "%j", "361") is void                , "%j: parsefail");

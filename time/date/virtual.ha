@@ -4,7 +4,8 @@
 use time;
 use time::chrono;
 
-// A [[virtual]] does not have enough information to create a valid [[date]].
+// A [[virtual]] date does not have enough information from which to create a
+// valid [[date]].
 export type insufficient = !lack; // TODO: drop alias workaround
 
 export type lack = enum u8 {
@@ -18,10 +19,10 @@ export type lack = enum u8 {
 // values. It is meant as an intermediary container for date information to be
 // resolved with the [[realize]] function.
 //
-// Unlike [[date]], a virtual's fields are meant to be treated as public and
-// mutable. The embedded [[time::instant]] and [[time::chrono::locality]] fields
-// (.sec .nsec .loc) are considered meaningless. Behaviour with the observer
-// functions is undefined.
+// Unlike [[date]], a virtual date's fields are meant to be treated as public
+// and mutable. The embedded [[time::instant]] and [[time::chrono::locality]]
+// fields (.sec .nsec .loc) are considered meaningless. Behaviour with the
+// observer functions is undefined.
 //
 // This can be used to safely construct a new [[date]] piece-by-piece. Start
 // with [[newvirtual]], then collect enough date/time information incrementally
@@ -52,12 +53,12 @@ export type virtual = struct {
 	// zone abbreviation
 	zabbr:    (void | str),
 	// hour of 12 hour clock
-	halfhour: (void | int),
+	hour12:   (void | int),
 	// AM/PM (false/true)
 	ampm:     (void | bool),
 };
 
-// Creates a new [[virtual]]. All its fields are voided or nulled appropriately.
+// Creates a new [[virtual]] date. All its fields are voided or nulled.
 export fn newvirtual() virtual = virtual {
 	sec         = 0,
 	nsec        = 0,
@@ -88,15 +89,15 @@ export fn newvirtual() virtual = virtual {
 	locname     = void,
 	zoff        = void,
 	zabbr       = void,
-	halfhour    = void,
+	hour12      = void,
 	ampm        = void,
 };
 
-// Realizes a valid [[date]] from a [[virtual]], or fails appropriately.
+// Realizes a valid [[date]] from a [[virtual]] date, or fails appropriately.
 //
-// The virtual must hold enough valid date information to be able to calculate
-// values for the resulting date. A valid combination of its fields must be
-// "filled-in" (hold numerical, non-void values). For example:
+// The virtual date must hold enough valid date information to be able to
+// calculate values for the resulting date. A valid combination of its fields
+// must be "filled-in" (hold numerical, non-void values). For example:
 //
 // 	let v = date::newvirtual();
 // 	v.locname = "Europe/Amsterdam";
@@ -109,14 +110,15 @@ export fn newvirtual() virtual = virtual {
 // 	v.nanosecond = 0;
 // 	let d = date::realize(v, time::chrono::tz("Europe/Amsterdam")!)!;
 //
-// This function consults the fields of the given virtual using a predictable
-// procedure. In calculating a date, it attempts to calculate values for empty
-// fields using sets of other filled-in fields (dependencies), in a order
-// described below.
+// This function consults the fields of the given virtual date using a
+// predictable procedure, attempting the simplest and most common field
+// combinations first. Fields marked below with an asterisk (*), when empty,
+// depend on other filled-in field-sets to calculate a new value for itself. The
+// order in which these "dependency" field-sets are tried is described below.
 //
-// The resultant date depends on a locality and instant.
+// The resultant date depends on a locality value and instant value.
 //
-// The locality ([[time::chrono::locality]]) depends on:
+// The locality ([[time::chrono::locality]]) value depends on:
 //
 // - .vloc
 // - .locname : This is compared to the .name field of each locality
@@ -124,10 +126,10 @@ export fn newvirtual() virtual = virtual {
 //   The first matching locality is used.
 // - (nothing) : Defaults to [[time::chrono::UTC]].
 //
-// The instant ([[time::instant]]) depends on:
+// The instant ([[time::instant]]) value depends on:
 //
 // - .vsec, .vnsec
-// - .daydate, .daytime, .zoff
+// - .daydate*, .daytime*, .zoff
 //
 // An empty .daydate depends on:
 //
@@ -138,11 +140,14 @@ export fn newvirtual() virtual = virtual {
 //
 // An empty .daytime depends on:
 //
-// - .hour, .minute, .second, .nanosecond
+// - .hour*, .minute, .second, .nanosecond
 //
-// If none of the possible combinations of fields were filled-in,
-// [[insufficient]] is returned. If after calculation the resultant date is
-// invalid, [[invalid]] is returned.
+// An empty .hour depends on:
+//
+// - .hour12, .ampm
+//
+// If not enough information was provided, [[insufficient]] is returned.
+// If invalid information was provided, [[invalid]] is returned.
 export fn realize(
 	v: virtual,
 	locs: chrono::locality...
@@ -229,8 +234,8 @@ export fn realize(
 		const hour =
 			if (v.hour is int) {
 				yield v.hour as int;
-			} else if (v.halfhour is int && v.ampm is bool) {
-				const hr = v.halfhour as int;
+			} else if (v.hour12 is int && v.ampm is bool) {
+				const hr = v.hour12 as int;
 				const pm = v.ampm as bool;
 				yield if (pm) hr * 2 else hr;
 			} else {
