@@ -189,15 +189,15 @@ export fn new(
 };
 
 // Returns a [[date]] of the current system time using
-// [[time::clock::REALTIME]], in the [[time::chrono::LOCAL]] locality.
+// [[time::clock::REALTIME]], in the [[time::chrono::UTC]] locality.
 export fn now() date = {
-	return from_instant(chrono::LOCAL, time::now(time::clock::REALTIME));
+	return from_instant(chrono::UTC, time::now(time::clock::REALTIME));
 };
 
 // Returns a [[date]] of the current system time using
-// [[time::clock::REALTIME]], in the [[time::chrono::UTC]] locality.
-export fn nowutc() date = {
-	return from_instant(chrono::UTC, time::now(time::clock::REALTIME));
+// [[time::clock::REALTIME]], in the [[time::chrono::LOCAL]] locality.
+export fn localnow() date = {
+	return from_instant(chrono::LOCAL, time::now(time::clock::REALTIME));
 };
 
 // Creates a [[date]] from a [[time::chrono::moment]].

@@ -5,7 +5,7 @@ civil date/time and a optimized extension of the [[time::chrono::moment]] type.
 The [[time::chrono::]] module has many useful functions which interoperate with
 dates. Any [[time::chrono::]] function which accepts *moment also accepts *date.
 
-Dates are created using [[new]], [[now]], [[nowutc]], or a "from_" function.
+Dates are created using [[new]], [[now]], [[localnow]], or a "from_" function.
 Alternatively, the [[virtual]]/[[realize]] interface can handle uncertain or
 invalid date/time information, and construct new dates incrementally and safely.
 The observer functions ([[year]], [[hour]], etc.) evaluate a date's observed
