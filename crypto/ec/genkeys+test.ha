@@ -7,6 +7,8 @@ use memio;
 
 
 @test fn keygen_p256() void = edgecases(p256);
+@test fn keygen_p384() void = edgecases(p384);
+@test fn keygen_p521() void = edgecases(p521);
 
 fn edgecases(c: *curve) void = {
 	const scalarsz = len(c.order());
