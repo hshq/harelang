@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use fmt;
+use os;
 use rt;
+use strings;
 
 let want_abort = false;
 
@@ -24,4 +27,27 @@ export fn skip(reason: str) never = {
 		...
 	};
 	rt::longjmp(&jmpbuf, status::SKIP);
+};
+
+// Check the $HARETEST_INCLUDE space-delimited environment variable for
+// keywords. If all the keywords are present, return void. Otherwise, skip the
+// currently running test.
+export fn require(keywords: str...) void = {
+	for :keywords (let i = 0z; i < len(keywords); i += 1) {
+		let keyword = keywords[i];
+		let tokr = strings::tokenize(os::tryenv("HARETEST_INCLUDE", ""), " ");
+		for (true) {
+			match (strings::next_token(&tokr)) {
+			case let tok: str =>
+				if (tok == keyword) {
+					continue :keywords;
+				};
+			case void =>
+				skip(fmt::asprintf(
+					"Requires HARETEST_INCLUDE='{}'",
+					strings::join(" ", keywords...),
+				));
+			};
+		};
+	};
 };
