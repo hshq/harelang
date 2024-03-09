@@ -14,6 +14,15 @@ export def EPOCHDAY_GREGORIAN: i64 = -719164;
 // Number of days in the Gregorian 400 year cycle
 def GREGORIAN_CYCLE_DAYS: i64 = 146097;
 
+fn has(item: int, list: int...) bool = {
+	for (let member .. list) {
+		if (member == item) {
+			return true;
+		};
+	};
+	return false;
+};
+
 // Calculates whether a year is a leap year.
 export fn isleapyear(y: int) bool = {
 	return if (y % 4 != 0) false
@@ -123,7 +132,7 @@ fn calc_yearday(y: int, m: int, d: int) int = {
 		273, 304, 334,
 	];
 
-	if (m >= 3 && isleapyear(y)) {
+	if (m > FEBRUARY && isleapyear(y)) {
 		return months_firsts[m - 1] + d + 1;
 	} else {
 		return months_firsts[m - 1] + d;
@@ -136,20 +145,20 @@ fn calc_isoweekyear(y: int, m: int, d: int, wd: int) int = {
 	if (
 		// if the date is within a week whose Thursday
 		// belongs to the previous Gregorian year
-		m == 1 && (
-			(d == 1 && (wd == 4 || wd == 5 || wd == 6))
-			|| (d == 2 && (wd == 5 || wd == 6))
-			|| (d == 3 && wd == 6)
+		m == JANUARY && (
+			(d == 1 && has(wd, FRIDAY, SATURDAY, SUNDAY)) ||
+			(d == 2 && has(wd, SATURDAY, SUNDAY)) ||
+			(d == 3 && has(wd, SUNDAY))
 		)
 	) {
 		return y - 1;
 	} else if (
 		// if the date is within a week whose Thursday
 		// belongs to the next Gregorian year
-		m == 12 && (
-			(d == 29 && wd == 0)
-			|| (d == 30 && (wd == 0 || wd == 1))
-			|| (d == 31 && (wd == 0 || wd == 1 || wd == 2))
+		m == DECEMBER && (
+			(d == 29 && has(wd, MONDAY)) ||
+			(d == 30 && has(wd, MONDAY, TUESDAY)) ||
+			(d == 31 && has(wd, MONDAY, TUESDAY, WEDNESDAY))
 		)
 	) {
 		return y + 1;
@@ -162,20 +171,20 @@ fn calc_isoweekyear(y: int, m: int, d: int, wd: int) int = {
 // given a year, week, day-of-week, and day-of-year.
 fn calc_isoweek(y: int, w: int) int = {
 	switch (calc_janfirstweekday(y)) {
-	case 0 =>
+	case MONDAY =>
 		return w;
-	case 1, 2, 3 =>
+	case TUESDAY, WEDNESDAY, THURSDAY =>
 		return w + 1;
-	case 4 =>
+	case FRIDAY =>
 		return if (w != 0) w else 53;
-	case 5 =>
+	case SATURDAY =>
 		return if (w != 0) w else {
 			yield if (isleapyear(y - 1)) 53 else 52;
 		};
-	case 6 =>
+	case SUNDAY =>
 		return if (w != 0) w else 52;
 	case =>
-		abort("Unreachable");
+		abort();
 	};
 };
 
