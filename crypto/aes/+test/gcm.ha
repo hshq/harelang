@@ -651,8 +651,7 @@ const gcmtestcases: []gcmtestcase = [
 		let wrongtag: [16]u8 = t.tag;
 		wrongtag[0] += 1;
 		match (cipher::gcm_verify(&gstream, wrongtag)) {
-		case errors::invalid =>
-			yield;
+		case errors::invalid => void;
 		case =>
 			assert(false);
 		};

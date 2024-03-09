@@ -49,7 +49,7 @@ export fn addr_to_line(
 				found = true;
 			case DW_AT_comp_dir =>
 				comp_dir = field.string;
-			case => yield;
+			case => void;
 			};
 		};
 	};

@@ -414,8 +414,7 @@ export fn encode(e: *encoder) ([]u8 | io::error) = {
 
 	bytes::zero(buf[t..]);
 	match (e.parent) {
-	case null =>
-		yield;
+	case null => void;
 	case let s: *bytewstream =>
 		s.e.pos += t;
 	};

@@ -83,8 +83,7 @@ fn encode_writer(
 	match(s.err) {
 	case let err: io::error =>
 		return err;
-	case void =>
-		yield;
+	case void => void;
 	};
 	let l = len(in);
 	let i = 0z;
@@ -116,8 +115,7 @@ fn encode_writer(
 		case let err: io::error =>
 			s.err = err;
 			return err;
-		case size =>
-			yield;
+		case size => void;
 		};
 	};
 	// storing leftover bytes
@@ -267,8 +265,7 @@ fn decode_reader(
 	match(s.state) {
 	case let err: (io::EOF | io ::error) =>
 		return err;
-	case void =>
-		yield;
+	case void => void;
 	};
 	if (len(s.avail) > 0) {
 		n += if (l < len(s.avail)) l else len(s.avail);

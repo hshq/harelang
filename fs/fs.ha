@@ -158,8 +158,7 @@ export fn iter(fs: *fs, path: str) (*iterator | error) = {
 // Frees state associated with an [[iterator]].
 export fn finish(iter: *iterator) void = {
 	match (iter.finish) {
-	case null =>
-		yield;
+	case null => void;
 	case let f: *finishfunc =>
 		return f(iter);
 	};

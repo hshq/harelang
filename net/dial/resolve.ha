@@ -28,7 +28,7 @@ export fn splitaddr(addr: str, service: str) ((str, u16) | invalid_address) = {
 			match (strconv::stou16(service)) {
 			case let u: u16 =>
 				port = u;
-			case => yield;
+			case => void;
 			};
 		};
 		return (addr, port);
@@ -40,7 +40,7 @@ export fn splitaddr(addr: str, service: str) ((str, u16) | invalid_address) = {
 		match (strconv::stou16(service)) {
 		case let u: u16 =>
 			port = u;
-		case => yield;
+		case => void;
 		};
 	case let i: size =>
 		const sub = strings::sub(addr, i + 1, strings::end);

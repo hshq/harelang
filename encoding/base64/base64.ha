@@ -84,10 +84,10 @@ fn encode_writer(
 ) (size | io::error) = {
 	let s = s: *encoder;
 	match(s.err) {
-	case void => yield;
 	case let err: io::error =>
 		s.err = void;
 		return err;
+	case void => void;
 	};
 
 	let i = 0z;
@@ -107,13 +107,13 @@ fn encode_writer(
 		fillobuf(s);
 
 		match (writeavail(s)) {
-		case void => yield;
 		case let e: io::error =>
 			if (i == 0) {
 				return e;
 			};
 			s.err = e;
 			return i;
+		case void => void;
 		};
 	};
 
@@ -157,8 +157,7 @@ fn encode_closer(s: *io::stream) (void | io::error) = {
 	case let e: io::error =>
 		s.err = void;
 		return e;
-	case void =>
-		yield;
+	case void => void;
 	};
 
 	if (s.oavail > 0) {
@@ -319,8 +318,7 @@ fn decode_reader(
 	match(s.state) {
 	case let err: (io::EOF | io ::error) =>
 		return err;
-	case void =>
-		yield;
+	case void => void;
 	};
 	if (len(s.avail) > 0) {
 		n += if (l < len(s.avail)) l else len(s.avail);

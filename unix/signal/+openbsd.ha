@@ -48,10 +48,9 @@ export fn handle(
 		...
 	};
 	match (rt::sigaction(signum, &new, &old)) {
-	case void =>
-		yield;
 	case let err: rt::errno =>
 		abort("sigaction failed (invalid signal?)");
+	case void => void;
 	};
 	return old;
 
@@ -60,10 +59,9 @@ export fn handle(
 // Restores previous signal behavior following [[handle]].
 export fn restore(signum: sig, action: *sigaction) void = {
 	match (rt::sigaction(signum, action: *rt::sigact, null)) {
-	case void =>
-		yield;
 	case rt::errno =>
 		abort("sigaction failed (invalid signal?)");
+	case void => void;
 	};
 
 };

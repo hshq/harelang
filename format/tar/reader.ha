@@ -100,8 +100,7 @@ export fn skip(ent: *entry) (void | io::error) = {
 	match (io::seek(ent.src, amt: io::off, io::whence::CUR)) {
 	case io::off =>
 		return;
-	case io::error =>
-		yield;
+	case io::error => void;
 	};
 	io::copy(io::empty, ent)?;
 };

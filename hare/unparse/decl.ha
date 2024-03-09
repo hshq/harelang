@@ -37,8 +37,7 @@ export fn decl(
 		for (let i = 0z; i < len(c); i += 1) {
 			n += _ident(&ctx, syn, c[i].ident, synkind::CONSTANT)?;
 			match (c[i]._type) {
-			case null =>
-				yield;
+			case null => void;
 			case let ty: *ast::_type =>
 				n += syn(&ctx, ":", synkind::PUNCTUATION)?;
 				n += space(&ctx)?;
@@ -71,8 +70,7 @@ export fn decl(
 			};
 			n += _ident(&ctx, syn, g[i].ident, synkind::GLOBAL)?;
 			match (g[i]._type) {
-			case null =>
-				yield;
+			case null => void;
 			case let ty: *ast::_type =>
 				n += syn(&ctx, ":", synkind::PUNCTUATION)?;
 				n += space(&ctx)?;

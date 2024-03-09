@@ -207,7 +207,7 @@ fn parse_authority(
 		if (len(s) == 0) {
 			host = percent_decode(memio::string(&buf)!)?;
 		};
-	case => yield;
+	case => void;
 	};
 
 	return (host, port, userinfo);

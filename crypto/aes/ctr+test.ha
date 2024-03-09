@@ -409,8 +409,7 @@ fn errwriter(out: io::handle, limit: size, err: io::error) err_stream = {
 	defer io::close(&ctr)!;
 	let n = 0z;
 	match (io::write(&ctr, plain[..64])) {
-	case errors::again =>
-		yield;
+	case errors::again => void;
 	case size =>
 		assert(false);
 	};

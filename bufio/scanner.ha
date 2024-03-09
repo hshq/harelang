@@ -76,8 +76,7 @@ fn scan_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
 			return io::EOF;
-		case size =>
-			yield;
+		case size => void;
 		};
 	};
 
@@ -141,8 +140,7 @@ export fn scan_byte(scan: *scanner) (u8 | io::EOF | io::error) = {
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
 			return io::EOF;
-		case size =>
-			yield;
+		case size => void;
 		};
 	};
 
@@ -165,8 +163,7 @@ export fn scan_bytes(
 		case let ix: size =>
 			i = ix;
 			break;
-		case void =>
-			yield;
+		case void => void;
 		};
 
 		match (scan_readahead(scan)?) {
@@ -204,8 +201,7 @@ export fn scan_rune(
 			if (scan.pending == 0) {
 				return io::EOF;
 			};
-		case size =>
-			yield;
+		case size => void;
 		};
 	};
 	const sz = utf8::utf8sz(scan.buffer[0])?;
@@ -214,8 +210,7 @@ export fn scan_rune(
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
 			return utf8::invalid;
-		case size =>
-			yield;
+		case size => void;
 		};
 	};
 

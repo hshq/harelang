@@ -80,10 +80,8 @@ export fn newalias(
 		},
 		...
 	})) {
-	case error =>
-		yield;
-	case deferred =>
-		yield;
+	case error => void;
+	case deferred => void;
 	case let ty: const *_type =>
 		let ty = ty: *_type;
 		*ty = atype;

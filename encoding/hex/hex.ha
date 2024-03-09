@@ -38,8 +38,7 @@ fn encode_writer(s: *io::stream, in: const []u8) (size | io::error) = {
 	match(s.err) {
 	case let err: io::error =>
 	     return err;
-	case void =>
-	     yield;
+	case void => void;
 	};
 	let z = 0z;
 	for (let i = 0z; i < len(in); i += 1) {
@@ -125,8 +124,7 @@ fn decode_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) = {
 	match(s.state) {
 	case let err: (io::EOF | io::error) =>
 		return err;
-	case void =>
-	     yield;
+	case void => void;
 	};
 	static let buf: [os::BUFSZ]u8 = [0...];
 	let n = len(out) * 2;

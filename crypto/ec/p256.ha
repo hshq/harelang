@@ -616,8 +616,7 @@ fn p256_to_affine(p: *p256_jacobian) void = {
 			mul_f256(t2, t2, t1);
 		case 63, 253, 255 =>
 			mul_f256(t2, t2, p.z);
-		case =>
-			yield;
+		case => void;
 		};
 	};
 

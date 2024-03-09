@@ -80,8 +80,7 @@ export fn pkcs1_verify(
 	match (pubexp(&pub, actualsig, pubbuf)) {
 	case let e: error =>
 		return e;
-	case void =>
-		yield;
+	case void => void;
 	};
 
 	let expectedsig = pubbuf[..len(sig)];
