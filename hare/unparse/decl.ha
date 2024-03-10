@@ -181,6 +181,7 @@ fn decl_test(d: *ast::decl, expected: str) bool = {
 	decl(&buf, &syn_nowrap, d)!;
 	let s = memio::string(&buf)!;
 	defer free(s);
+	fmt::println(s)!;
 	return s == expected;
 };
 
@@ -208,11 +209,13 @@ fn decl_test(d: *ast::decl, expected: str) bool = {
 					loc = loc,
 					name = "foo",
 					_type = &type_int,
+					default_value = void,
 				},
 				ast::func_param {
 					loc = loc,
 					name = "bar",
 					_type = &type_int,
+					default_value = void,
 				},
 			],
 		},
@@ -297,6 +300,14 @@ fn decl_test(d: *ast::decl, expected: str) bool = {
 				loc = loc,
 				name = "",
 				_type = &type_int,
+				default_value = ast::expr {
+					expr = ast::number_literal {
+						value = 4u64,
+						sign = false,
+						suff = lex::ltok::LIT_ICONST,
+					},
+					...
+				},
 			},
 		],
 	};
@@ -307,5 +318,5 @@ fn decl_test(d: *ast::decl, expected: str) bool = {
 		body = &expr_void,
 		attrs = 0,
 	};
-	assert(decl_test(&d, "fn foo(int) int = void;"));
+	assert(decl_test(&d, "fn foo(int = 4) int = void;"));
 };

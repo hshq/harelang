@@ -42,6 +42,7 @@ export type func_param = struct {
 	loc: lex::location,
 	name: str,
 	_type: *_type,
+	default_value: (void | expr),
 };
 
 // fn(foo: int, baz: int...) int

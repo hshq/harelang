@@ -129,7 +129,7 @@ export type foo = fn(
 	long_type_name,
 	blablablabla,
 	multiple_lines,
-	and_stuff,
+	and_stuff = 4,
 ) void;
 
 export type foo = fn(
