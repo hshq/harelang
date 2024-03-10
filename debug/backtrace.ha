@@ -114,7 +114,7 @@ fn printframe(
 		match (bufio::scan_line(&scan)) {
 		case let s: const str =>
 			context = s;
-		case io::EOF =>
+		case =>
 			printframe_with_symbol(&sym, name, path, (line, col), pc);
 			return;
 		};
