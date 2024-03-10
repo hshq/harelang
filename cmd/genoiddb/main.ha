@@ -8,7 +8,6 @@ use io;
 use os;
 use strconv;
 use strings;
-use types;
 
 type entry = struct {
 	name: str,
@@ -49,7 +48,7 @@ export fn main() void = {
 };
 
 fn parse_oids() []entry = {
-	let s = bufio::newscanner(os::stdin, types::SIZE_MAX);
+	let s = bufio::newscanner(os::stdin);
 	defer bufio::finish(&s);
 	let oids: []entry = [];
 

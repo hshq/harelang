@@ -14,7 +14,6 @@ use memio;
 use os;
 use path;
 use strings;
-use types::{SIZE_MAX};
 
 fn typeinfo(
 	store: *types::typestore,
@@ -26,7 +25,7 @@ fn typeinfo(
 	} else {
 		let stream = memio::fixed(strings::toutf8(s));
 		defer io::close(&stream)!;
-		let sc = bufio::newscanner(&stream, SIZE_MAX);
+		let sc = bufio::newscanner(&stream);
 		defer bufio::finish(&sc);
 		let lexer = lex::init(&sc, "-");
 		const atype = parse::_type(&lexer)?;

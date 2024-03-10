@@ -9,7 +9,6 @@ use io;
 use memio;
 use os;
 use strings;
-use types;
 
 let no_color: bool = false;
 
@@ -43,7 +42,7 @@ export fn emit_tty(ctx: *context) (void | error) = {
 	case let readme: io::file =>
 		let rbuf: [os::BUFSZ]u8 = [0...];
 		let readme = bufio::init(readme, rbuf, []);
-		let sc = bufio::newscanner(&readme, types::SIZE_MAX);
+		let sc = bufio::newscanner(&readme);
 		defer bufio::finish(&sc);
 		for (let line => bufio::scan_line(&sc)?) {
 			firstline = false;

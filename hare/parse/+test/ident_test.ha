@@ -9,11 +9,10 @@ use io;
 use io::{mode};
 use memio;
 use strings;
-use types;
 
 fn ident_test(in: str, expected: ast::ident, extra: ltok...) void = {
 	let buf = memio::fixed(strings::toutf8(in));
-	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	let sc = bufio::newscanner(&buf);
 	defer bufio::finish(&sc);
 	let lexer = lex::init(&sc, "<test>");
 

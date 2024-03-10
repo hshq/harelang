@@ -12,7 +12,6 @@ use hare::types;
 use hare::unit;
 use io;
 use os;
-use types::{SIZE_MAX};
 
 export fn main() void = {
 	let usage: []getopt::help = [
@@ -72,7 +71,7 @@ export fn main() void = {
 		static let buf: [os::BUFSZ]u8 = [0...];
 		let bufin = bufio::init(input, buf, []);
 		defer io::close(&bufin)!;
-		let sc = bufio::newscanner(&bufin, SIZE_MAX);
+		let sc = bufio::newscanner(&bufin);
 		defer bufio::finish(&sc);
 
 		let lexer = lex::init(&sc, cmd.args[i]);

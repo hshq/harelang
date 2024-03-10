@@ -29,12 +29,16 @@ export type scanner = struct {
 
 // Creates a new [[scanner]] which will allocate and maintain a read buffer for
 // efficient reading of files. The scanner will read ahead only up to maxread
-// bytes, which can be [[types::SIZE_MAX]] if no limit is required. The user
-// must free resources associated with the scanner using [[finish]] after use.
+// bytes, which defaults to [[types::SIZE_MAX]] if no limit is required. The
+// user must free resources associated with the scanner using [[finish]] after
+// use.
 //
 // Reads from the scanner will return [[errors::overflow]] if maxread is
 // reached.
-export fn newscanner(src: io::handle, maxread: size) scanner = {
+export fn newscanner(
+	src: io::handle,
+	maxread: size = types::SIZE_MAX,
+) scanner = {
 	return scanner {
 		stream = &scanner_vtable,
 		src = src,

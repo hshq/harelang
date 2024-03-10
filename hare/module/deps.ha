@@ -14,7 +14,6 @@ use os;
 use path;
 use sort;
 use strings;
-use types;
 
 // A hare module.
 export type module = struct {
@@ -39,7 +38,7 @@ export fn parse_deps(files: str...) ([]ast::ident | error) = {
 		};
 		defer io::close(handle)!;
 
-		let sc = bufio::newscanner(handle, types::SIZE_MAX);
+		let sc = bufio::newscanner(handle);
 		defer bufio::finish(&sc);
 		let lexer = lex::init(&sc, file);
 		let imports = parse::imports(&lexer)?;

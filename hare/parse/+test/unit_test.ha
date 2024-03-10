@@ -74,7 +74,7 @@ fn tup_to_import(tup: import_tuple) ast::import = ast::import {
 
 		"export fn main() void = void;";
 	let buf = memio::fixed(strings::toutf8(in));
-	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	let sc = bufio::newscanner(&buf);
 	defer bufio::finish(&sc);
 	let lexer = lex::init(&sc, "<test>");
 	let mods = imports(&lexer)!;

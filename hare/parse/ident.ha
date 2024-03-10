@@ -7,7 +7,6 @@ use hare::lex;
 use hare::lex::{ltok};
 use memio;
 use strings;
-use types;
 
 // Parses a single identifier, possibly with a trailing ::, i.e. 'foo::bar::'.
 // Returns the identifier and whether there's a trailing ::.
@@ -52,7 +51,7 @@ export fn ident(lexer: *lex::lexer) (ast::ident | error) = {
 // caller needn't provide a lexer instance.
 export fn identstr(in: str) (ast::ident | error) = {
 	let in = memio::fixed(strings::toutf8(in));
-	let sc = bufio::newscanner(&in, types::SIZE_MAX);
+	let sc = bufio::newscanner(&in);
 	defer bufio::finish(&sc);
 	let lexer = lex::init(&sc, "<string>");
 	let ret = ident(&lexer);

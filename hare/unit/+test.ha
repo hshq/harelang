@@ -9,11 +9,10 @@ use hare::types;
 use io;
 use memio;
 use strings;
-use types::{SIZE_MAX};
 
 fn parse_expr(src: str) *ast::expr = {
 	let stream = memio::fixed(strings::toutf8(src));
-	let sc = bufio::newscanner(&stream, SIZE_MAX);
+	let sc = bufio::newscanner(&stream);
 	defer bufio::finish(&sc);
 	let lexer = lex::init(&sc, "<test>");
 	return alloc(parse::expr(&lexer)!);

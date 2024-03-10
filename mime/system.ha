@@ -8,7 +8,6 @@ use fs;
 use io;
 use os;
 use strings;
-use types;
 
 // Path to the system MIME database.
 export def SYSTEM_DB: str = "/etc/mime.types";
@@ -22,7 +21,7 @@ fn load_systemdb() (void | fs::error | io::error | utf8::invalid) = {
 	const file = os::open(SYSTEM_DB)?;
 	defer io::close(file)!;
 
-	let sc = bufio::newscanner(file, types::SIZE_MAX);
+	let sc = bufio::newscanner(file);
 	defer bufio::finish(&sc);
 
 	for (let line => bufio::scan_line(&sc)?) {
