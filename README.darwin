@@ -1,5 +1,5 @@
 
-# install:
+## install:
 
 # Download the file from ftp://ftp.boulder.nist.gov/pub/time/leap-seconds.list,
 # and move it to /var/db/ntpd.leap-seconds.list
@@ -18,6 +18,9 @@ make
 make check
 make docs/html
 sudo -E make install
+
+## Building external libraries
+# refer to https://github.com/hshq/hare-sdl2
 
 
 ###############################################################################
