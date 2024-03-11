@@ -7,13 +7,13 @@ export type signed = (i8 | i16 | i32 | i64 | int);
 // A tagged union of all unsigned integer types, excluding uintptr.
 export type unsigned = (u8 | u16 | u32 | u64 | uint | size);
 
-// A tagged union of all integer types.
+// A tagged union of all integer types, excluding uintptr.
 export type integer = (...signed | ...unsigned);
 
 // A tagged union of all floating point numeric types.
 export type floating = (f32 | f64);
 
-// A tagged union of all numeric types.
+// A tagged union of all numeric types, excluding uintptr.
 export type numeric = (...integer | ...floating);
 
 // A type representing the internal structure of strings, useful for low-level
