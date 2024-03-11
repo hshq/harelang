@@ -19,7 +19,8 @@ LDLINKFLAGS =
 HAREC = /usr/local/bin/harec
 QBE = ../harec.git/rt/+darwin/qbe.sh
 AS =  ../harec.git/rt/+darwin/as.sh
-CC = /usr/bin/cc
+# CC = /usr/bin/cc
+CC =  ../harec.git/rt/+darwin/cc.sh
 LD =  ../harec.git/rt/+darwin/ld.sh
 SCDOC = scdoc
 
