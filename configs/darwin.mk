@@ -1,5 +1,6 @@
 # install locations
-PREFIX = /usr/local
+HARE_PREFIX = /usr/local
+PREFIX = $(HARE_PREFIX)
 BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)/share/man
 SRCDIR = $(PREFIX)/src
@@ -13,21 +14,21 @@ HARECFLAGS =
 QBEFLAGS =
 ASFLAGS =
 # LDLINKFLAGS = --gc-sections -z noexecstack
+#LDLINKFLAGS = -dead_strip
 LDLINKFLAGS =
 
 # commands used by the build script
-HAREC = /usr/local/bin/harec
-QBE = ../harec.git/rt/+darwin/qbe.sh
-AS =  ../harec.git/rt/+darwin/as.sh
-# CC = /usr/bin/cc
-CC =  ../harec.git/rt/+darwin/cc.sh
-LD =  ../harec.git/rt/+darwin/ld.sh
+HAREC = harec
+QBE = $(HAREC_SRC)/rt/+darwin/qbe.sh
+AS =  $(HAREC_SRC)/rt/+darwin/as.sh
+CC = /usr/bin/cc
+LD =  $(HAREC_SRC)/rt/+darwin/ld.sh
+
 SCDOC = scdoc
 
 # build locations
-# HARECACHE = .cache
-HARECACHE = /Volumes/hare-cache/hare.cache
-BINOUT = .bin
+HARECACHE = cache
+BINOUT = bin
 
 # variables that will be embedded in the binary with -D definitions
 HAREPATH = $(SRCDIR)/hare/stdlib:$(SRCDIR)/hare/third-party

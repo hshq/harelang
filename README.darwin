@@ -4,15 +4,15 @@
 # Download the file from ftp://ftp.boulder.nist.gov/pub/time/leap-seconds.list,
 # and move it to /var/db/ntpd.leap-seconds.list
 
-export HARECACHE=/Volumes/hare-cache/hare.cache
-export XDG_CACHE_HOME=$HARECACHE
-export TMPDIR=/Volumes/hare-cache/hare.tmp
-export HAREC_SRC=../harec.git
+# TMPDIR # not need change
+export HARECACHE=~/.cache/hare
+export HAREC_SRC=~/Hares/harec
 export QBE=$HAREC_SRC/rt/+darwin/qbe.sh
 
 ln -sf configs/darwin.mk config.mk
 
 ./scripts/genbootstrap
+# make bootstrap
 
 make
 make check
@@ -62,7 +62,7 @@ XDG_DATA_HOME   ".local/share"
 XDG_STATE_HOME  ".local/state"
 XDG_RUNTIME_DIR
 
-TMPDIR          "/tmp"
+TMPDIR          system default
 HOME
 PATH
 TZ
