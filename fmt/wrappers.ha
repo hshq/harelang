@@ -44,7 +44,7 @@ export fn bsprintf(buf: []u8, fmt: str, args: field...) str = {
 // Formats text for printing and writes it to [[os::stderr]], followed by a line
 // feed, then exits the program with an error status.
 export fn fatalf(fmt: str, args: field...) never = {
-	fprintfln(os::stderr, fmt, args...)!;
+	fprintfln(os::stderr, fmt, args...): void;
 	os::exit(255);
 };
 
@@ -52,7 +52,7 @@ export fn fatalf(fmt: str, args: field...) never = {
 // them to [[os::stderr]] separated by spaces and followed by a line feed, then
 // exits the program with an error status.
 export fn fatal(args: formattable...) never = {
-	fprintln(os::stderr, args...)!;
+	fprintln(os::stderr, args...): void;
 	os::exit(255);
 };
 
