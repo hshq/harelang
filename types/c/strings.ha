@@ -18,6 +18,15 @@ export fn strlen(cstr: *const char) size = {
 	return ln;
 };
 
+// Computes the length of a NUL-terminated C string, only looking at the first
+// maxlen bytes. The computed length does not include the NUL terminator.
+export fn strnlen(cstr: *const char, maxlen: size) size = {
+	const ptr = cstr: *[*]u8;
+	let ln = 0z;
+	for (ln < maxlen && ptr[ln] != 0; ln += 1) void;
+	return ln;
+};
+
 // Converts a C string to a Hare string in O(n), and does not check if it's
 // valid UTF-8.
 export fn tostr_unsafe(cstr: *const char) const str = {
