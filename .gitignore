@@ -4,3 +4,4 @@ config.mk
 *.1
 *.5
 docs/html
+cache/

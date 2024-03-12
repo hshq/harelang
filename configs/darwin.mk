@@ -21,14 +21,14 @@ LDLINKFLAGS =
 HAREC = harec
 QBE = $(HAREC_SRC)/rt/+darwin/qbe.sh
 AS =  $(HAREC_SRC)/rt/+darwin/as.sh
-CC = /usr/bin/cc
+#CC = /usr/bin/cc
+CC = $(HAREC_SRC)/rt/+darwin/cc.sh
 LD =  $(HAREC_SRC)/rt/+darwin/ld.sh
-
 SCDOC = scdoc
 
 # build locations
 HARECACHE = cache
-BINOUT = bin
+BINOUT = .bin
 
 # variables that will be embedded in the binary with -D definitions
 HAREPATH = $(SRCDIR)/hare/stdlib:$(SRCDIR)/hare/third-party

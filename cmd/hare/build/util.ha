@@ -115,7 +115,6 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 		};
 		if (ctx.libc) {
 			append(flags, strings::dup("-Wl,--gc-sections"));
-			//append(flags, strings::dup("-Wl,-no_pie"));
 		} else {
 			append(flags, strings::dup("--gc-sections"));
 			append(flags, strings::dup("-z"));
@@ -263,7 +262,6 @@ fn get_args(ctx: *context, tmp: str, flags: []str, t: *task) []str = {
 			for (let i = 0z; i < len(srcs.sc); i += 1) {
 				append(args, strings::dup("-T"));
 				append(args, strings::dup(srcs.sc[i]));
-				//fmt::printf("-T {}\n", srcs.sc[i])!;
 			};
 			append(args, get_cache(ctx, i, stage::O)!);
 			for (let i = 0z; i < len(srcs.o); i += 1) {
@@ -276,7 +274,6 @@ fn get_args(ctx: *context, tmp: str, flags: []str, t: *task) []str = {
 		// is not broken on other platforms such as OpenBSD
 		if (ctx.libc) {
 			append(args, strings::dup("-Wl,--no-gc-sections"));
-			//append(args, strings::dup("-Wl,-no_pie"));
 		};
 		for (let i = 0z; i < len(ctx.libs); i += 1) {
 			append(args, strings::dup("-l"));

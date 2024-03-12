@@ -16,5 +16,4 @@ _start:
 
 	b 		_rt.start_darwin
 
-
 .include "start-libc.s"

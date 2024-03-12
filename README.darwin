@@ -22,7 +22,6 @@ sudo -E make install
 ## Building external libraries
 # refer to https://github.com/hshq/hare-sdl2
 
-
 ###############################################################################
 make:       HARECACHE XDG_CACHE_HOME HAREC_SRC
 make check: XDG_CACHE_HOME
