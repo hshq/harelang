@@ -35,3 +35,17 @@ static assert(align(ssize) == align(size));
 	let s = nulstr("hello!\0");
 	assert(tostr(s)! == "hello!");
 };
+
+@test fn strlen() void = {
+	assert(strlen(nulstr("hello!\0")) == 6);
+	assert(strlen(nulstr("\0")) == 0);
+};
+
+@test fn strnlen() void = {
+	assert(strnlen(nulstr("hello!\0"), 10) == 6);
+	assert(strnlen(nulstr("hello!\0"), 6) == 6);
+	assert(strnlen(nulstr("hello!\0"), 4) == 4);
+	assert(strnlen(nulstr("hello!\0"), 0) == 0);
+	assert(strnlen(nulstr("\0"), 1) == 0);
+	assert(strnlen(null: *const char, 0) == 0);
+};
