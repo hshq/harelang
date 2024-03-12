@@ -28,7 +28,7 @@ export fn fprintf(
 	fmt: str,
 	args: field...
 ) (size | io::error) = {
-	let n = 0z, i = 0z;
+	let n = 0z;
 	let it = iter(fmt, args);
 	for (true) match (next(&it)) {
 	case done => break;
