@@ -10,7 +10,7 @@ use types;
 
 // Formats values for printing using the default format modifiers and writes
 // them to an [[io::handle]] separated by spaces.
-export fn fprint(h: io::handle, args: formattable...) (io::error | size) = {
+export fn fprint(h: io::handle, args: formattable...) (size | io::error) = {
 	let mod = mods { ... };
 	let n = 0z;
 	for (let i = 0z; i < len(args); i += 1) {
@@ -27,7 +27,7 @@ export fn fprintf(
 	h: io::handle,
 	fmt: str,
 	args: field...
-) (io::error | size) = {
+) (size | io::error) = {
 	let n = 0z, i = 0z;
 	let it = iter(fmt, args);
 	for (true) match (next(&it)) {
