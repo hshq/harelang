@@ -290,13 +290,13 @@ export fn exit(status: int) never = {
 	abort();
 };
 
-export fn kill(pid: int, signal: int) (void | errno) = {
+export fn kill(pid: pid_t, signal: int) (void | errno) = {
 	wrap_return(syscall2(SYS_kill, pid: u64, signal: u64))?;
 };
 
-export fn fork() (int | void | errno) = {
-	// let n = wrap_return(syscall0(SYS_fork))?: int;
-	let n = wrap_return(sys_fork(SYS_fork))?: int;
+export fn fork() (pid_t | void | errno) = {
+	// let n = wrap_return(syscall0(SYS_fork))?: pid_t;
+	let n = wrap_return(sys_fork(SYS_fork))?: pid_t;
 	switch (n) {
 	case 0 =>
 		return;
@@ -344,7 +344,7 @@ export fn execve(
 };
 
 export fn wait4(
-	pid: int,
+	pid: pid_t,
 	wstatus: nullable *int,
 	options: int,
 	rusage: nullable *rusage,
@@ -361,7 +361,20 @@ export fn wtermsig(status: int) int = status & 0x7f;
 export fn wifsignaled(status: int) bool =
 	wtermsig(status) != 0o177 && wtermsig(status) != 0 && status != 0x13;
 
-export fn getpid() int = syscall0(SYS_getpid): int;
+export fn getpid() pid_t = syscall0(SYS_getpid): pid_t;
+
+export fn getppid() pid_t = syscall0(SYS_getppid): pid_t;
+
+export fn getpgrp() pid_t = syscall0(SYS_getpgrp): pid_t;
+
+export fn getpgid(pid: pid_t) (pid_t | errno) = {
+	return wrap_return(syscall1(SYS_getpgid, pid))?: pid_t;
+};
+
+export fn getsid(pid: pid_t) (pid_t | errno) = {
+	return wrap_return(syscall1(SYS_getsid, pid))?: pid_t;
+};
+
 
 export fn getpriority(which: int, who: id_t) (int | errno) = {
 	set_c_errno(0);
@@ -395,14 +408,14 @@ export fn setregid(gid: gid_t, egid: gid_t) (void | errno) = {
 	wrap_return(syscall2(SYS_setregid, gid: u64, egid: u64))?;
 };
 
-export fn getgroups(gids: []uint) (uint | errno) = {
+export fn getgroups(gids: []gid_t) (uint | errno) = {
 	return wrap_return(syscall2(SYS_getgroups,
-		len(gids): u64, gids: *[*]uint: uintptr: u64))?: uint;
+		len(gids): u64, gids: *[*]gid_t: uintptr: u64))?: uint;
 };
 
-export fn setgroups(gids: []uint) (void | errno) = {
+export fn setgroups(gids: []gid_t) (void | errno) = {
 	wrap_return(syscall2(SYS_setgroups,
-		len(gids): u64, gids: *[*]uint: uintptr: u64))?;
+		len(gids): u64, gids: *[*]gid_t: uintptr: u64))?;
 };
 
 // export fn getresuid(uid: *uid_t, euid: *uid_t, suid: *uid_t) (void | errno) = {

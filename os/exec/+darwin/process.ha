@@ -5,14 +5,15 @@ use errors;
 use fmt;
 use rt;
 use time;
+use unix;
 use unix::signal;
 
 // Stores information about a child process.
-export type process = int;
+export type process = unix::pid;
 
 // Returns the currently running [[process]].
 export fn self() process = {
-	return rt::getpid();
+	return unix::getpid();
 };
 
 // Stores information about an exited process.
@@ -73,7 +74,7 @@ export fn wait(proc: *process) (status | error) = {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let pid: int =>
-		assert(pid == *proc);
+		assert(pid == *proc: int);
 	};
 	rusage(&st, &ru);
 	return st;
@@ -89,7 +90,7 @@ export fn waitany() ((process, status) | error) = {
 		return errors::errno(err);
 	case let pid: int =>
 		rusage(&st, &ru);
-		return (pid, st);
+		return (pid: process, st);
 	};
 };
 
@@ -108,7 +109,7 @@ export fn waitall() (uint | error | !(process, exit_status)) = {
 		match (check(&st)) {
 		case void => void;
 		case let es: !exit_status =>
-			return (pid, es);
+			return (pid: process, es);
 		};
 	};
 };
@@ -126,7 +127,7 @@ export fn peek(proc: *process) (status | void | error) = {
 		case 0 =>
 			return;
 		case =>
-			assert(pid == *proc);
+			assert(pid == *proc: int);
 		};
 	};
 	rusage(&st, &ru);
@@ -146,7 +147,7 @@ export fn peekany() ((process, status) | void | error) = {
 		case 0 =>
 			return;
 		case =>
-			return (pid, st);
+			return (pid: process, st);
 		};
 	};
 };
