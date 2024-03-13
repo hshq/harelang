@@ -46,8 +46,13 @@ export fn rtokenize(s: []u8, delim: []u8) tokenizer = {
 // void if there are no tokens left and on all subsequent invocations. If a
 // string starts with, or ends with, a token, an empty slice is returned at the
 // beginning or end of the sequence, respectively.
-export fn next_token(s: *tokenizer) ([]u8 | void) = match (peek_token(s)) {
-case let b: []u8 =>
+export fn next_token(s: *tokenizer) ([]u8 | void) = {
+	const b = match (peek_token(s)) {
+	case let b: []u8 =>
+		yield b;
+	case => return;
+	};
+
 	if (s.p < 0) { // reverse
 		if (len(s.s): i64 + s.p + 1 == 0) {
 			s.d = s.d[..0];
@@ -66,8 +71,8 @@ case let b: []u8 =>
 		};
 		s.p = types::I64_MAX;
 	};
+
 	return b;
-case => void;
 };
 
 // Same as [[next_token]], but does not advance the cursor
@@ -75,25 +80,39 @@ export fn peek_token(s: *tokenizer) ([]u8 | void) = {
 	if (len(s.d) == 0) {
 		return;
 	};
-	if (s.p < 0) { // reverse
-		if (s.p == types::I64_MIN) {
-			s.p = match (rindex(s.s, s.d)) {
-			case let i: size =>
-				yield (i + len(s.d)): i64 - len(s.s): i64 - 1;
-			case void =>
-				yield -(len(s.s): i64 + 1);
-			};
+
+	const reverse = s.p < 0;
+	const ifunc = if (reverse) &rindex else &index;
+
+	const known = ((s.p < 0 && s.p != types::I64_MIN) ||
+		(s.p >= 0 && s.p != types::I64_MAX));
+	if (!known) {
+		let i = 0i64;
+		let dlen = 0i64;
+		let slen = len(s.s): i64;
+
+		match (ifunc(s.s, s.d)) {
+		case let ix: size =>
+			dlen = len(s.d): i64;
+			i = ix: i64;
+		case void =>
+			i = slen;
 		};
+
+		if (reverse) {
+			if (i == slen) {
+				s.p = -(slen + 1);
+			} else {
+				s.p = i + dlen - slen - 1;
+			};
+		} else {
+			s.p = i;
+		};
+	};
+
+	if (reverse) {
 		return s.s[len(s.s) + s.p: size + 1..];
 	} else {
-		if (s.p == types::I64_MAX) {
-			s.p = match (index(s.s, s.d)) {
-			case let i: size =>
-				yield i: i64;
-			case void =>
-				yield len(s.s): i64;
-			};
-		};
 		return s.s[..s.p: size];
 	};
 };
