@@ -51,10 +51,6 @@ export type cpu_set = struct {
 	__bits: [16]u64,
 };
 
-export fn alarm(seconds: uint) uint = {
-	return syscall1(SYS_alarm, seconds: u64): uint;
-};
-
 export type ucontext = struct {
 	uc_flags: u64,
 	uc_link: *ucontext,

@@ -5,6 +5,13 @@ use io;
 use rt;
 use unix;
 
+// Requests that [[sig::ALRM]] is delivered to the calling process in (about)
+// "sec" seconds. Returns the number of seconds until the previously scheduled
+// alarm, or zero if none was scheduled.
+export fn alarm(sec: uint) uint = {
+	return rt::alarm(sec);
+};
+
 // Configures a new signal handler, returning the old details (which can be
 // passed to [[restore]] to restore its behavior).
 //

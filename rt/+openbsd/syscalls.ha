@@ -493,8 +493,6 @@ export fn chroot(path: path) (void | errno) = {
 // vfork
 // gettimeofday
 // settimeofday
-// setitimer
-// getitimer
 // select
 // kevent
 

@@ -3,6 +3,44 @@
 
 // TODO: work when _NSIG != 32
 
+export fn alarm(sec: uint) uint = {
+	let nval = itimerval { ... };
+	let oval = itimerval { ... };
+	nval.it_value.tv_sec = sec: time_t;
+	setitimer(ITIMER_REAL, &nval, &oval)!;
+	if (oval.it_value.tv_usec != 0) {
+		oval.it_value.tv_sec += 1;
+	};
+	return oval.it_value.tv_sec: uint;
+};
+
+export def ITIMER_REAL: int = 0;
+export def ITIMER_VIRTUAL: int = 1;
+export def ITIMER_PROF: int = 2;
+
+export type itimerval = struct {
+	it_interval: timeval,
+	it_value: timeval,
+};
+
+export fn getitimer(
+	which: int,
+	cur: *itimerval,
+) (void | errno) = {
+	wrap_return(syscall2(SYS_getitimer, which: u64, cur: uintptr: u64))?;
+};
+
+export fn setitimer(
+	which: int,
+	newval: *itimerval,
+	oldval: nullable *itimerval,
+) (void | errno) = {
+	wrap_return(syscall3(SYS_setitimer,
+			which: u64,
+			newval: uintptr: u64,
+			oldval: uintptr: u64))?;
+};
+
 export fn sigemptyset(set: *sigset) void = {
 	for (let i = 0z; i < len(set.__bits); i += 1) {
 		set.__bits[i] = 0;
