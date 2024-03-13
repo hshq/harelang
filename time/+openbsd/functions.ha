@@ -10,6 +10,13 @@ export fn duration_to_timespec(n: duration) rt::timespec = rt::timespec {
 	tv_nsec = n % SECOND,
 };
 
+// Converts a [[duration]] to an [[rt::timeval]]. This function is
+// non-portable.
+export fn duration_to_timeval(d: duration) rt::timeval = rt::timeval {
+	tv_sec = d / SECOND,
+	tv_usec = d % SECOND / 1000,
+};
+
 // Converts an [[instant]] to an [[rt::timespec]]. This function is
 // non-portable.
 export fn instant_to_timespec(t: instant) rt::timespec = rt::timespec {

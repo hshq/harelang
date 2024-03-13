@@ -34,6 +34,29 @@ export fn setitimer(
 			oldval: uintptr: u64))?;
 };
 
+export fn sigwait(set: *sigset, sig: *int) (void | errno) = {
+	*sig = sigtimedwait(set, null, null)?;
+};
+
+export fn sigwaitinfo(
+	set: *sigset,
+	info: nullable *siginfo,
+) (int | errno) = {
+	return sigtimedwait(set, info, null);
+};
+
+export fn sigtimedwait(
+	set: *sigset,
+	info: nullable *siginfo,
+	timeout: nullable *timespec,
+) (int | errno) = {
+	return wrap_return(syscall3(SYS_rt_sigtimedwait,
+		set: uintptr: u64,
+		info: uintptr: u64,
+		timeout: uintptr: u64,
+	))?: int;
+};
+
 export fn sigemptyset(set: *sigset) void = {
 	set.__val[0] = 0;
 };

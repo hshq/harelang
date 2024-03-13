@@ -4,6 +4,7 @@
 use errors;
 use io;
 use rt;
+use time;
 use unix;
 
 // Requests that [[sig::ALRM]] is delivered to the calling process in (about)
@@ -194,6 +195,81 @@ export fn sigset_fill(set: *sigset) void = {
 // Returns true if the given signal is a member of this [[sigset]].
 export fn sigset_member(set: *sigset, item: sig) bool = {
 	return rt::sigismember(set: *rt::sigset, item)!;
+};
+
+// Waits for a signal among the given [[sigset]] to be delivered, then returns
+// the signal number.
+//
+// If a signal is received while waiting, [[errors::interrupted]] is returned.
+// Most consumers of this function will likely wish to block all signals and
+// handle them exclusively through [[wait]] et al, in which case this error
+// cannot occur.
+//
+// See also [[waitinfo]] and [[timedwait]].
+export fn wait(set: *sigset) (sig | errors::interrupted) = {
+	let signal = 0i;
+	match (rt::sigwait(set: *rt::sigset, &signal)) {
+	case let err: rt::errno =>
+		assert(err == rt::EINTR);
+		return errors::interrupted;
+	case void =>
+		return signal: sig;
+	};
+};
+
+// Waits for a signal among the given [[sigset]] to be delivered, then returns
+// the corresponding [[siginfo]] data.
+//
+// See notes on [[wait]] regarding the [[errors::interrupted]] case.
+//
+// This function is designed to provide the portable subset of the semantics of
+// sigwaitinfo(3) as defined by POSIX.1-2008. To access the complete siginfo_t
+// structure provided by the underlying platform, use [[rt::sigwaitinfo]] and
+// [[rt::siginfo_t]] directly.
+//
+// Note that this function is not supported on OpenBSD.
+export fn waitinfo(set: *sigset) (siginfo | errors::interrupted) = {
+	let info = rt::siginfo { ... };
+	match (rt::sigwaitinfo(set: *rt::sigset, &info)) {
+	case let err: rt::errno =>
+		assert(err == rt::EINTR);
+		return errors::interrupted;
+	case int =>
+		return *(&info: *siginfo);
+	};
+};
+
+// Waits for a signal among the given [[sigset]] to be delivered, then returns
+// the corresponding [[siginfo]] data.
+//
+// Returns a [[siginfo]] if a signal is successfully processed through this
+// function, or [[errors::again]] if the timeout expired. See notes on [[wait]]
+// regarding the [[errors::interrupted]] case.
+//
+// This function is designed to provide the portable subset of the semantics of
+// sigtimedwait(3) as defined by POSIX.1-2008. To access the complete siginfo_t
+// structure provided by the underlying platform, use [[rt::sigtimedwait]] and
+// [[rt::siginfo_t]] directly.
+//
+// Note that this function is not supported on OpenBSD.
+export fn timedwait(
+	set: *sigset,
+	timeout: time::duration,
+) (siginfo | errors::interrupted | errors::again) = {
+	let info = rt::siginfo { ... };
+	let to = time::duration_to_timeval(timeout);
+	match (rt::sigwaitinfo(set: *rt::sigset, &info)) {
+	case let err: rt::errno =>
+		switch (err) {
+		case rt::EINTR =>
+			return errors::interrupted;
+		case rt::EAGAIN =>
+			return errors::again;
+		case => abort();
+		};
+	case int =>
+		return *(&info: *siginfo);
+	};
 };
 
 // Provides additional information about signal deliveries. Only the members
