@@ -176,6 +176,11 @@ export fn sigset_del(set: *sigset, items: sig...) void = {
 	};
 };
 
+// Adds all platform-defined signals to a [[sigset]].
+export fn sigset_fill(set: *sigset) void = {
+	rt::sigfillset(set: *rt::sigset)!;
+};
+
 // Returns true if the given signal is a member of this [[sigset]].
 export fn sigset_member(set: *sigset, item: sig) bool = {
 	return rt::sigismember(set: *rt::sigset, item)!;
