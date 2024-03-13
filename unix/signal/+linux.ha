@@ -4,6 +4,7 @@
 use errors;
 use io;
 use rt;
+use unix;
 
 // Configures a new signal handler, returning the old details (which can be
 // passed to [[restore]] to restore its behavior).
@@ -178,6 +179,11 @@ export fn sigset_del(set: *sigset, items: sig...) void = {
 	};
 };
 
+// Adds all platform-defined signals to a [[sigset]].
+export fn sigset_fill(set: *sigset) void = {
+	rt::sigfillset(set: *rt::sigset);
+};
+
 // Returns true if the given signal is a member of this [[sigset]].
 export fn sigset_member(set: *sigset, item: sig) bool = {
 	return rt::sigismember(set: *rt::sigset, item)!;
@@ -199,9 +205,9 @@ export type siginfo = union {
 		union {
 			struct {
 				// Process ID of the sender.
-				pid: int,
+				pid: unix::pid,
 				// Real user ID of the sending process.
-				uid: uint,
+				uid: unix::uid,
 				// Exit value or signal.
 				status: int,
 			},

@@ -7,6 +7,7 @@ use memio;
 use os;
 use strconv;
 use strings;
+use unix;
 
 // A Unix-like password database entry.
 export type pwent = struct {
@@ -15,9 +16,9 @@ export type pwent = struct {
 	// Optional encrypted password
 	password: str,
 	// Numerical user ID
-	uid: uint,
+	uid: unix::uid,
 	// Numerical group ID
-	gid: uint,
+	gid: unix::gid,
 	// User name or comment field
 	comment: str,
 	// User home directory
@@ -49,16 +50,16 @@ export fn nextpw(in: io::handle) (pwent | io::EOF | io::error | invalid) = {
 		return invalid;
 	};
 
-	let uid = match (strconv::stou(fields[2])) {
-	case let u: uint =>
-		yield u;
+	let uid = match (strconv::stou64(fields[2])) {
+	case let u: u64 =>
+		yield u: unix::uid;
 	case =>
 		return invalid;
 	};
 
-	let gid = match (strconv::stou(fields[3])) {
-	case let u: uint =>
-		yield u;
+	let gid = match (strconv::stou64(fields[3])) {
+	case let u: u64 =>
+		yield u: unix::gid;
 	case =>
 		return invalid;
 	};
@@ -122,7 +123,7 @@ export fn getuser(username: str) (pwent | void) = {
 // properly formatted. The return value must be freed with [[pwent_finish]].
 //
 // See [[nextpw]] for low-level parsing API.
-export fn getuid(uid: uint) (pwent | void) = {
+export fn getuid(uid: unix::uid) (pwent | void) = {
 	let file = match (os::open("/etc/passwd")) {
 	case let f: io::file =>
 		yield f;

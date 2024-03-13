@@ -5,14 +5,15 @@ use errors;
 use fmt;
 use rt;
 use time;
+use unix;
 use unix::signal;
 
 // Stores information about a child process.
-export type process = int;
+export type process = unix::pid;
 
 // Returns the currently running [[process]].
 export fn self() process = {
-	return rt::getpid();
+	return unix::getpid();
 };
 
 // Stores information about an exited process.
@@ -72,9 +73,8 @@ export fn wait(proc: *process) (status | error) = {
 	match (rt::wait4(*proc, &st.status, 0, &ru)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
-	case let pid: int =>
-		// TODO: Handle invalid pid?
-		assert(pid == *proc);
+	case let pid: rt::pid_t =>
+		assert(pid == *proc: rt::pid_t);
 	};
 	rusage(&st, &ru);
 	return st;
@@ -88,9 +88,9 @@ export fn waitany() ((process, status) | error) = {
 	match (rt::wait4(rt::WAIT_ANY, &st.status, 0, &ru)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
-	case let pid: int =>
+	case let pid: rt::pid_t =>
 		rusage(&st, &ru);
-		return (pid, st);
+		return (pid: process, st);
 	};
 };
 
@@ -108,11 +108,11 @@ export fn waitall() (uint | error | !(process, exit_status)) = {
 			} else {
 				return errors::errno(err);
 			};
-		case let pid: int =>
+		case let pid: rt::pid_t =>
 			match (check(&st)) {
 			case void => void;
 			case let es: !exit_status =>
-				return (pid, es);
+				return (pid: process, es);
 			};
 		};
 	};
@@ -126,12 +126,12 @@ export fn peek(proc: *process) (status | void | error) = {
 	match (rt::wait4(*proc, &st.status, rt::WNOHANG, &ru)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
-	case let pid: int =>
+	case let pid: rt::pid_t =>
 		switch (pid) {
 		case 0 =>
 			return;
 		case =>
-			assert(pid == *proc);
+			assert(pid == *proc: rt::pid_t);
 		};
 	};
 	rusage(&st, &ru);
@@ -146,12 +146,12 @@ export fn peekany() ((process, status) | void | error) = {
 	match (rt::wait4(rt::WAIT_ANY, &st.status, rt::WNOHANG, &ru)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
-	case let pid: int =>
+	case let pid: rt::pid_t =>
 		switch (pid) {
 		case 0 =>
 			return;
 		case =>
-			return (pid, st);
+			return (pid: process, st);
 		};
 	};
 };

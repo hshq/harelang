@@ -14,7 +14,7 @@ export fn fork() (process | void | error) = {
 	match (rt::fork()) {
 	case let err: rt::errno  =>
 		return errors::errno(err);
-	case let i: int =>
+	case let i: rt::pid_t =>
 		return i: process;
 	case void =>
 		return void;
@@ -184,7 +184,7 @@ fn platform_start(cmd: *command) (process | errors::error) = {
 	match (rt::fork()) {
 	case let err: rt::errno =>
 		return errors::errno(err);
-	case let pid: int =>
+	case let pid: rt::pid_t =>
 		rt::close(pipe[1])!;
 		defer rt::close(pipe[0])!;
 		let errno: int = 0;
