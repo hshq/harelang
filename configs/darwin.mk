@@ -18,7 +18,8 @@ LDFLAGS = -dead_strip
 
 # commands used by the build script
 HAREC = harec
-export QBE = hare-qbe.sh
+QBE = qbe
+# export QBE = hare-qbe.sh
 AS = hare-as.sh
 CC =  hare-cc.sh
 LD =  hare-ld.sh
