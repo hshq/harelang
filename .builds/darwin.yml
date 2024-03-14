@@ -12,20 +12,19 @@ tasks:
     make -j2 PREFIX=/usr check
     sudo make install PREFIX=/usr
 - harec: |
-    cd harec
-    export HAREC_SRC=.
+    cd harec/rt/+darwin
+    for f in *.sh; do
+        echo "cp $f /usr/local/bin/hare-$f"
+    done
+    cd ../..
     ln -sf configs/darwin.mk config.mk
     make -j2
     make check
     sudo -E make install
 - hare: |
     cd hare
-    export HARECACHE=<...>
-    export XDG_CACHE_HOME=$HARECACHE
-    export TMPDIR=<...>
-    export HAREC_SRC=<...>
-    export QBE=$HAREC_SRC/rt/+darwin/qbe.sh
     ln -sf configs/darwin.mk config.mk
+    make bootstrap
     make -j2
     sudo -E make install
 - check: |

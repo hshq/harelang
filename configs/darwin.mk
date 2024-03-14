@@ -7,7 +7,7 @@ STDLIB = $(SRCDIR)/hare/stdlib
 
 # variables used during build
 PLATFORM = darwin
-ARCH = $(shell source "$(HAREC_SRC)/rt/+darwin/arch.sh" --arch)
+ARCH = $(shell hare-arch.sh --arch)
 HAREFLAGS =
 HARECFLAGS =
 QBEFLAGS =
@@ -17,12 +17,11 @@ LDLINKFLAGS = -dead_strip
 LDFLAGS = -dead_strip
 
 # commands used by the build script
-HAREC = /usr/local/bin/harec
-QBE = ../harec.git/rt/+darwin/qbe.sh
-AS =  ../harec.git/rt/+darwin/as.sh
-# CC = /usr/bin/cc
-CC =  ../harec.git/rt/+darwin/cc.sh
-LD =  ../harec.git/rt/+darwin/ld.sh
+HAREC = harec
+export QBE = hare-qbe.sh
+AS = hare-as.sh
+CC =  hare-cc.sh
+LD =  hare-ld.sh
 SCDOC = scdoc
 
 # build locations
