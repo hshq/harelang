@@ -57,7 +57,7 @@ export fn pipe() (io::file, io::file) = {
 };
 
 fn open(path: str) (platform_cmd | error) = {
-	let fd = match (rt::open(path, rt::O_RDONLY, 0u)) {
+	let fd = match (rt::open(path, rt::O_RDONLY|rt::O_SYMLINK, 0u)) {
 	case let fd: int =>
 		yield fd;
 	case let err: rt::errno =>

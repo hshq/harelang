@@ -12,11 +12,10 @@ tasks:
     make -j2 PREFIX=/usr check
     sudo make install PREFIX=/usr
 - harec: |
-    cd harec/rt/+darwin
-    for f in *.sh; do
-        echo "cp $f /usr/local/bin/hare-$f"
+    cd harec
+    for f in build arch qbe as ld cc; do
+        sudo ln -sf $(realpath rt/+darwin/build.sh) /usr/local/bin/hare-$f.sh
     done
-    cd ../..
     ln -sf configs/darwin.mk config.mk
     make -j2
     make check

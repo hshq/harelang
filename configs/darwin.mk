@@ -7,7 +7,7 @@ STDLIB = $(SRCDIR)/hare/stdlib
 
 # variables used during build
 PLATFORM = darwin
-ARCH = $(shell hare-arch.sh --arch)
+ARCH = $(shell hare-arch.sh)
 HAREFLAGS =
 HARECFLAGS =
 QBEFLAGS =
