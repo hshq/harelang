@@ -13,25 +13,23 @@ HARECFLAGS =
 QBEFLAGS =
 ASFLAGS =
 # LDLINKFLAGS = --gc-sections -z noexecstack
-LDLINKFLAGS = -dead_strip
-LDFLAGS = -dead_strip
+LDFLAGS =
 
 # commands used by the build script
 HAREC = harec
 QBE = qbe
 # export QBE = hare-qbe.sh
-AS = hare-as.sh
+AS =  hare-as.sh
 CC =  hare-cc.sh
 LD =  hare-ld.sh
 SCDOC = scdoc
 
 # build locations
-# HARECACHE = .cache
-HARECACHE = /Volumes/hare-cache/hare.cache
+HARECACHE ?= .cache
 BINOUT = .bin
 
 # variables that will be embedded in the binary with -D definitions
-HAREPATH = $(SRCDIR)/hare/stdlib:$(SRCDIR)/hare/third-party
+HAREPATH = $(STDLIB):$(SRCDIR)/hare/third-party
 VERSION=$$(./scripts/version)
 
 # For cross-compilation, modify the variables below
