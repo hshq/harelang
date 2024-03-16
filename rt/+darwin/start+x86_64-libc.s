@@ -6,4 +6,4 @@ _start:
 	leaq -8(%rsi), %rdi
 	call _rt.start_darwin
 
-.include "rt/+darwin/start-libc.s"
+; .include "rt/+darwin/@func-libc.s"

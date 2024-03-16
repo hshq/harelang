@@ -16,4 +16,4 @@ _start:
 
 	b 		_rt.start_darwin
 
-.include "rt/+darwin/start-libc.s"
+; .include "rt/+darwin/@func-libc.s"
