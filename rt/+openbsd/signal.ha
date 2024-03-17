@@ -1,6 +1,74 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+// XXX: sigwaitinfo and sigtimedwait are not yet available in OpenBSD. Quoting
+// from OpenBSD's lib/libc/gen/sigwait.c: "need kernel to fill in more siginfo_t
+// bits first"
+
+// sigwait
+
+@symbol("sigwait") fn libc_sigwait(set: *sigset, sig: *int) int;
+
+export fn sigwait(set: *sigset, sig: *int) (void | errno) = {
+	let res = libc_sigwait(set, sig);
+	if (res != -1) {
+		return *__errno(): errno;
+	};
+};
+
+export fn alarm(sec: uint) uint = {
+	let nval = itimerval { ... };
+	let oval = itimerval { ... };
+	nval.it_value.tv_sec = sec: time_t;
+	setitimer(ITIMER_REAL, &nval, &oval)!;
+	if (oval.it_value.tv_usec != 0) {
+		oval.it_value.tv_sec += 1;
+	};
+	return oval.it_value.tv_sec: uint;
+};
+
+export def ITIMER_REAL: int = 0;
+export def ITIMER_VIRTUAL: int = 1;
+export def ITIMER_PROF: int = 2;
+
+export type itimerval = struct {
+	it_interval: timeval,
+	it_value: timeval,
+};
+
+// setitimer
+
+@symbol("setitimer") fn libc_setitimer(
+	which: int,
+	newval: *itimerval,
+	oldval: nullable *itimerval,
+) int;
+
+export fn setitimer(
+	which: int,
+	newval: *itimerval,
+	oldval: nullable *itimerval,
+) (void | errno) = {
+	let res = libc_setitimer(which, newval, oldval);
+	if (res != -1) {
+		return *__errno(): errno;
+	};
+};
+
+// getitimer
+
+@symbol("getitimer") fn libc_getitimer(
+	which: int,
+	cur: *itimerval,
+) int;
+
+export fn getitimer(which: int, cur: *itimerval) (void | errno) = {
+	let res = libc_getitimer(which, cur);
+	if (res != -1) {
+		return *__errno(): errno;
+	};
+};
+
 export fn sigemptyset(set: *sigset) void = {
 	*set = 0;
 };

@@ -3,6 +3,60 @@
 
 // TODO: work when _NSIG != 64
 
+export fn alarm(sec: uint) uint = {
+	return syscall1(SYS_alarm, sec: u64): uint;
+};
+
+export def ITIMER_REAL: int = 0;
+export def ITIMER_VIRTUAL: int = 1;
+export def ITIMER_PROF: int = 2;
+
+export type itimerval = struct {
+	it_interval: timeval,
+	it_value: timeval,
+};
+
+export fn getitimer(
+	which: int,
+	cur: *itimerval,
+) (void | errno) = {
+	wrap_return(syscall2(SYS_getitimer, which: u64, cur: uintptr: u64))?;
+};
+
+export fn setitimer(
+	which: int,
+	newval: *itimerval,
+	oldval: nullable *itimerval,
+) (void | errno) = {
+	wrap_return(syscall3(SYS_setitimer,
+			which: u64,
+			newval: uintptr: u64,
+			oldval: uintptr: u64))?;
+};
+
+export fn sigwait(set: *sigset, sig: *int) (void | errno) = {
+	*sig = sigtimedwait(set, null, null)?;
+};
+
+export fn sigwaitinfo(
+	set: *sigset,
+	info: nullable *siginfo,
+) (int | errno) = {
+	return sigtimedwait(set, info, null);
+};
+
+export fn sigtimedwait(
+	set: *sigset,
+	info: nullable *siginfo,
+	timeout: nullable *timespec,
+) (int | errno) = {
+	return wrap_return(syscall3(SYS_rt_sigtimedwait,
+		set: uintptr: u64,
+		info: uintptr: u64,
+		timeout: uintptr: u64,
+	))?: int;
+};
+
 export fn sigemptyset(set: *sigset) void = {
 	set.__val[0] = 0;
 };
