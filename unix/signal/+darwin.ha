@@ -1,9 +1,18 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use errors;
 use io;
 use rt;
+use time;
 use unix;
+
+// Requests that [[sig::ALRM]] is delivered to the calling process in (about)
+// "sec" seconds. Returns the number of seconds until the previously scheduled
+// alarm, or zero if none was scheduled.
+export fn alarm(sec: uint) uint = {
+	return rt::alarm(sec);
+};
 
 // Configures a new signal handler, returning the old details (which can be
 // passed to [[restore]] to restore its behavior).
@@ -184,6 +193,26 @@ export fn sigset_fill(set: *sigset) void = {
 // Returns true if the given signal is a member of this [[sigset]].
 export fn sigset_member(set: *sigset, item: sig) bool = {
 	return rt::sigismember(set: *rt::sigset, item)!;
+};
+
+// Waits for a signal among the given [[sigset]] to be delivered, then returns
+// the signal number.
+//
+// If a signal is received while waiting, [[errors::interrupted]] is returned.
+// Most consumers of this function will likely wish to block all signals and
+// handle them exclusively through [[wait]] et al, in which case this error
+// cannot occur.
+//
+// See also [[waitinfo]] and [[timedwait]].
+export fn wait(set: *sigset) (sig | errors::interrupted) = {
+	let signal = 0i;
+	match (rt::sigwait(set: *rt::sigset, &signal)) {
+	case let err: rt::errno =>
+		assert(err == rt::EINTR);
+		return errors::interrupted;
+	case void =>
+		return signal: sig;
+	};
 };
 
 // Provides additional information about signal deliveries. Only the members

@@ -2,7 +2,9 @@
 // (c) Hare authors <https://harelang.org>
 
 export type time_t      = i64;
-export type suseconds_t = i64;
+// NOTE: On other platforms, it is i64, which can also pass testing on Mac.
+// export type suseconds_t = i64;
+export type suseconds_t = i32;
 export type dev_t       = i32;
 export type ino_t       = u32;
 export type nlink_t     = u16;
