@@ -208,7 +208,7 @@ $(HARECACHE)/unix.ssa: $(unix_ha) $(HARECACHE)/errors.td $(HARECACHE)/fs.td $(HA
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/unix.td.tmp -N unix $(unix_ha)
 
 unix_signal_ha = unix/signal/+openbsd.ha unix/signal/types.ha
-$(HARECACHE)/unix_signal.ssa: $(unix_signal_ha) $(HARECACHE)/io.td $(HARECACHE)/rt.td $(HARECACHE)/unix.td
+$(HARECACHE)/unix_signal.ssa: $(unix_signal_ha) $(HARECACHE)/errors.td $(HARECACHE)/io.td $(HARECACHE)/rt.td $(HARECACHE)/unix.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/unix_signal.td.tmp -N unix::signal $(unix_signal_ha)

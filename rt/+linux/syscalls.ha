@@ -276,7 +276,7 @@ export fn getpid() pid_t = syscall0(SYS_getpid): pid_t;
 
 export fn getppid() pid_t = syscall0(SYS_getppid): pid_t;
 
-export fn getpgrp() pid_t = syscall0(SYS_getpgrp): pid_t;
+export fn getpgrp() pid_t = getpgid(0)!;
 
 export fn getpgid(pid: pid_t) (pid_t | errno) = {
 	return wrap_return(syscall1(SYS_getpgid, pid: u64))?: pid_t;
