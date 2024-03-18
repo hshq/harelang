@@ -4,7 +4,14 @@
 // TODO: work when _NSIG != 64
 
 export fn alarm(sec: uint) uint = {
-	return syscall1(SYS_alarm, sec: u64): uint;
+	let nval = itimerval { ... };
+	let oval = itimerval { ... };
+	nval.it_value.tv_sec = sec: time_t;
+	setitimer(ITIMER_REAL, &nval, &oval)!;
+	if (oval.it_value.tv_usec != 0) {
+		oval.it_value.tv_sec += 1;
+	};
+	return oval.it_value.tv_sec: uint;
 };
 
 export def ITIMER_REAL: int = 0;
