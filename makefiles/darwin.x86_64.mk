@@ -10,7 +10,7 @@ $(HARECACHE)/rt.ssa: $(rt_ha)
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/rt.td.tmp -N rt $(rt_ha)
 
-rt_s = $(HARECACHE)/rt.s rt/+darwin/start+x86_64-libc.s rt/+darwin/@func-libc.s rt/+darwin/syscall+x86_64.s rt/+x86_64/cpuid.s rt/+x86_64/fenv.s rt/+x86_64/longjmp.s rt/+x86_64/setjmp.s
+rt_s = $(HARECACHE)/rt.s rt/+darwin/@func-libc.s rt/+darwin/start+x86_64-libc.s rt/+darwin/syscall+x86_64.s rt/+x86_64/cpuid.s rt/+x86_64/fenv.s rt/+x86_64/longjmp.s rt/+x86_64/setjmp.s
 $(HARECACHE)/rt.o: $(rt_s)
 	@printf 'AS\t%s\n' "$@"
 	@$(AS) $(ASFLAGS) -o $@ $(rt_s)
@@ -208,7 +208,7 @@ $(HARECACHE)/unix.ssa: $(unix_ha) $(HARECACHE)/errors.td $(HARECACHE)/fs.td $(HA
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/unix.td.tmp -N unix $(unix_ha)
 
 unix_signal_ha = unix/signal/+darwin.ha unix/signal/types.ha
-$(HARECACHE)/unix_signal.ssa: $(unix_signal_ha) $(HARECACHE)/io.td $(HARECACHE)/rt.td $(HARECACHE)/unix.td
+$(HARECACHE)/unix_signal.ssa: $(unix_signal_ha) $(HARECACHE)/errors.td $(HARECACHE)/io.td $(HARECACHE)/rt.td $(HARECACHE)/time.td $(HARECACHE)/unix.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/unix_signal.td.tmp -N unix::signal $(unix_signal_ha)
