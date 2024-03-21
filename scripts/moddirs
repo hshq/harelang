@@ -2,6 +2,7 @@
 for i in *; do
 	case "$i" in
 	.* | cmd | configs | contrib | docs | makefiles | scripts) ;;
+	linux) if [[ "$(uname -s)" = "Linux" ]]; then find -- "$i" -prune -type d; fi ;;
 	*) find -- "$i" -prune -type d ;;
 	esac
 done
