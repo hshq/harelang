@@ -47,9 +47,9 @@ export fn main() void = {
 	for (let i = 0z; i < len(mods); i += 1) {
 		append(ids, (strings::join("_", mods[i].ns...),
 			unparse::identstr(mods[i].ns)));
-		fmt::fprintf(&tds, ` HARE_TD_{}=$(HARECACHE)/{}.td`,
+		fmt::fprintf(&tds, ` HARE_TD_{}=$(HARECACHE)/std/{}.td`,
 			ids[i].1, ids[i].0)!;
-		fmt::fprintf(&objs, ` $(HARECACHE)/{}.o`, ids[i].0)!;
+		fmt::fprintf(&objs, ` $(HARECACHE)/std/{}.o`, ids[i].0)!;
 	};
 
 	let cwd = os::getcwd();
@@ -67,7 +67,7 @@ export fn main() void = {
 	for (let i = 0z; i < len(mods); i += 1) {
 		memio::reset(&deps);
 		for (let j = 0z; j < len(mods[i].deps); j += 1) {
-			fmt::fprintf(&deps, ` $(HARECACHE)/{}.td`,
+			fmt::fprintf(&deps, ` $(HARECACHE)/std/{}.td`,
 				ids[mods[i].deps[j].0].0)!;
 		};
 		memio::reset(&sources);
@@ -78,11 +78,11 @@ export fn main() void = {
 
 		fmt::println()!;
 		fmt::printfln(`{}_ha ={}`, ids[i].0, memio::string(&sources)!)!;
-		fmt::printfln(`$(HARECACHE)/{}.ssa: $({}_ha){}`,
+		fmt::printfln(`$(HARECACHE)/std/{}.ssa: $({}_ha){}`,
 			ids[i].0, ids[i].0, memio::string(&deps)!)!;
-		fmt::println("\t" `@mkdir -p -- "$(HARECACHE)"`)!;
+		fmt::println("\t" `@mkdir -p -- "$(HARECACHE)/std"`)!;
 		// fmt::println("\t" `@printf 'HAREC\t%s\n' "$@"`)!;
-		fmt::printfln("\t" `@$(TDENV) $(HAREC) $(HARECFLAGS) {}-o $@ -t $(HARECACHE)/{}.td.tmp {} {} $({}_ha)`,
+		fmt::printfln("\t" `@$(TDENV) $(HAREC) $(HARECFLAGS) {}-o $@ -t $(HARECACHE)/std/{}.td.tmp {} {} $({}_ha)`,
 			if (i == len(mods) - 1 && with_libc) `-N "" ` else ``,
 			ids[i].0,
 			if (i == len(mods) - 1) `$(HARE_DEFINES)` else `-N`,
@@ -98,9 +98,9 @@ export fn main() void = {
 		};
 
 		fmt::println()!;
-		fmt::printfln(`{}_s = $(HARECACHE)/{}.s{}`,
+		fmt::printfln(`{}_s = $(HARECACHE)/std/{}.s{}`,
 			ids[i].0, ids[i].0, memio::string(&sources)!)!;
-		fmt::printfln(`$(HARECACHE)/{}.o: $({}_s)`, ids[i].0, ids[i].0)!;
+		fmt::printfln(`$(HARECACHE)/std/{}.o: $({}_s)`, ids[i].0, ids[i].0)!;
 		// fmt::println("\t" `@printf 'AS\t%s\n' "$@"`)!;
 		fmt::printfln("\t" `@$(AS) $(ASFLAGS) -o $@ $({}_s)`, ids[i].0)!;
 	};

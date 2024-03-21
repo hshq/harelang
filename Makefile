@@ -30,7 +30,7 @@ HARE_DEFINES = \
 .SUFFIXES:
 .SUFFIXES: .ha .ssa .td .s .o .scd
 .ssa.td:
-	@cmp -s '$@' '$@.tmp' 2>/dev/null || cp '$@.tmp' '$@'
+	@cmp -s '$@' '$@.tmp' 2>/dev/null || mv '$@.tmp' '$@'
 
 .ssa.s:
 	@#printf 'QBE\t%s\n' '$@'
