@@ -1,6 +1,11 @@
 .POSIX:
 
-all:
+all: header
+
+.PRECIOUS: %.td %.ssa %.s %.o
+
+header:
+	@echo "MOD/ :[HAREC]> .ssa :[QBE]> .s :[AS]> MOD.o"
 
 include config.mk
 include makefiles/$(PLATFORM).$(ARCH).mk
@@ -28,11 +33,12 @@ HARE_DEFINES = \
 	@cmp -s '$@' '$@.tmp' 2>/dev/null || cp '$@.tmp' '$@'
 
 .ssa.s:
-	@printf 'QBE\t%s\n' '$@'
+	@#printf 'QBE\t%s\n' '$@'
+	@echo $(basename $(notdir $@))
 	@$(QBE) $(QBEFLAGS) -o '$@' '$<'
 
 .s.o:
-	@printf 'AS\t%s\n' '$@'
+	@#printf 'AS\t%s\n' '$@'
 	@$(AS) $(ASFLAGS) -o '$@' '$<'
 
 .scd:

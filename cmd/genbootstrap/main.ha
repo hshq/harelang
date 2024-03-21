@@ -81,7 +81,7 @@ export fn main() void = {
 		fmt::printfln(`$(HARECACHE)/{}.ssa: $({}_ha){}`,
 			ids[i].0, ids[i].0, memio::string(&deps)!)!;
 		fmt::println("\t" `@mkdir -p -- "$(HARECACHE)"`)!;
-		fmt::println("\t" `@printf 'HAREC\t%s\n' "$@"`)!;
+		// fmt::println("\t" `@printf 'HAREC\t%s\n' "$@"`)!;
 		fmt::printfln("\t" `@$(TDENV) $(HAREC) $(HARECFLAGS) {}-o $@ -t $(HARECACHE)/{}.td.tmp {} {} $({}_ha)`,
 			if (i == len(mods) - 1 && with_libc) `-N "" ` else ``,
 			ids[i].0,
@@ -101,7 +101,7 @@ export fn main() void = {
 		fmt::printfln(`{}_s = $(HARECACHE)/{}.s{}`,
 			ids[i].0, ids[i].0, memio::string(&sources)!)!;
 		fmt::printfln(`$(HARECACHE)/{}.o: $({}_s)`, ids[i].0, ids[i].0)!;
-		fmt::println("\t" `@printf 'AS\t%s\n' "$@"`)!;
+		// fmt::println("\t" `@printf 'AS\t%s\n' "$@"`)!;
 		fmt::printfln("\t" `@$(AS) $(ASFLAGS) -o $@ $({}_s)`, ids[i].0)!;
 	};
 };
