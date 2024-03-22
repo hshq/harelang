@@ -228,4 +228,3 @@ fn pack25519(out: []u8, a: const *elem) void = {
 		out[2 * i + 1] = (t[i] >> 8) : u8;
 	};
 };
-

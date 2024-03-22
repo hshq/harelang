@@ -24,8 +24,7 @@ fn print_t61_table(dest: io::handle) void = {
 		match (t61_chardecode([i: u8])) {
 		case insufficient =>
 			fmt::fprint(dest, "")!;
-		case invalid =>
-			yield;
+		case invalid => void;
 		case let r: rune =>
 			if (i > 0xa0 || (ascii::isprint(r) && !ascii::isspace(r))) {
 				fmt::fprint(dest, r)!;
@@ -54,8 +53,7 @@ fn print_t61_table(dest: io::handle) void = {
 			match (t61_chardecode([i: u8, j: u8])) {
 			case let r: rune =>
 				fmt::fprint(dest, r)!;
-			case =>
-				yield;
+			case => void;
 			};
 		};
 		fmt::fprintln(dest)!;
@@ -151,4 +149,3 @@ const t61_test_table: [_]u8 = [
 	0xc4, 0xbe, 0xc5, 0x88, 0xc5, 0x99, 0xc5, 0xa1, 0xc5, 0xa5, 0xc5, 0xbe,
 	0x0a,
 ];
-

@@ -32,8 +32,7 @@ fn d(i: []u8) decoder = {
 
 @fini fn freetdec() void = {
 	match (mem) {
-	case null =>
-		yield;
+	case null => void;
 	case let m: *memio::stream =>
 		free(m);
 		mem = null;

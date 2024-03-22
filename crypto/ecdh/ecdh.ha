@@ -92,10 +92,9 @@ export fn derive(
 	pub: []u8
 ) (size | invalidkey)  = {
 	match (ec::validate_pointformat(priv.curve, pub)) {
-	case void =>
-		yield;
 	case ec::invalid =>
 		return invalidkey;
+	case void => void;
 	};
 
 	let buf: [ec::MAX_POINTSZ]u8 = [0...];

@@ -98,6 +98,6 @@ fn scan_strtab(
 	match (bytes::index(data, name)) {
 	case let z: size =>
 		return z: u64;
-	case void => yield;
+	case void => void;
 	};
 };

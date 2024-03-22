@@ -766,4 +766,3 @@ export def P521_SCALARSZ = len(P521_N);
 
 // A [[curve]] implementation of P-521, also known as secp521r1;
 export const p521: *curve = &_p521;
-

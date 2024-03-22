@@ -57,4 +57,3 @@ export fn close(image: *image) void = {
 	io::munmap(&image.data[0], len(image.data))!;
 	io::close(image.fd)!;
 };
-

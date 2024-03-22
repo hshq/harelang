@@ -124,4 +124,3 @@ fn ghash_ctmul64(y: []u8, h: const []u8, data: const []u8) void = {
 	beputu64(y, y1);
 	beputu64(y[8..], y0);
 };
-

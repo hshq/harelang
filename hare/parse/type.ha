@@ -14,12 +14,11 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 	for (try(lexer, ltok::RPAREN)? is void) {
 		let loc = lex::mkloc(lexer);
 		match (try(lexer, ltok::ELLIPSIS)?) {
-		case void =>
-			yield void;
 		case lex::token =>
 			variadism = ast::variadism::C;
 			want(lexer, ltok::RPAREN)?;
 			break;
+		case void => void;
 		};
 
 		let name_or_type = _type(lexer)?;
@@ -43,12 +42,11 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 			});
 		};
 		match (try(lexer, ltok::ELLIPSIS)?) {
-		case void =>
-			yield void;
 		case lex::token =>
 			variadism = ast::variadism::HARE;
 			want(lexer, ltok::RPAREN)?;
 			break;
+		case void => void;
 		};
 		match (try(lexer, ltok::COMMA)?) {
 		case void =>

@@ -58,8 +58,7 @@ fn validutf8(buf: []u8) (size | invalid) = {
 	let lastsz = 0z;
 	for (let i = min; i < len(buf); i += 1) {
 		match (utf8::utf8sz(buf[i])) {
-		case utf8::invalid =>
-			yield;
+		case utf8::invalid => void;
 		case let s: size =>
 			lastsz = s;
 			lastvalid = i;
@@ -272,7 +271,7 @@ fn t61_decoder(s: *utf8stream, buf: []u8) (size | io::EOF | io::error) = {
 			};
 		case insufficient =>
 			// leave combining char in in
-			yield;
+			void;
 		case invalid =>
 			return wrap_err(invalid);
 		};
@@ -359,4 +358,3 @@ export fn read_utf8str(d: *decoder, buf: []u8) (str | error) = {
 
 	return strings::fromutf8(buf[..n])!;
 };
-

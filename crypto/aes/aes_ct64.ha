@@ -700,4 +700,3 @@ fn br_aes_ct64_bitslice_decrypt(
 	br_aes_ct64_bitslice_invSbox(q);
 	add_round_key(q, skey);
 };
-

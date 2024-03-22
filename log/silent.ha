@@ -13,4 +13,3 @@ let _silent: logger = logger {
 
 fn silent_println(l: *logger, fields: fmt::formattable...) void = return;
 fn silent_printfln(l: *logger, fmt: str, fields: fmt::field...) void = return;
-

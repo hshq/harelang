@@ -127,8 +127,7 @@ fn pem_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	match (io::read(&st.b64, buf)?) {
 	case let z: size =>
 		return z;
-	case io::EOF =>
-		yield;
+	case io::EOF => void;
 	};
 
 	const line = match (bufio::read_line(st.b64.in)?) {

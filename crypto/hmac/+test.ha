@@ -147,4 +147,3 @@ fn assert_hmac_sha1(keystr: str, vectors: [](str, [20]u8)) void = {
 
 	assert(bytes::equal(expected, sum));
 };
-
