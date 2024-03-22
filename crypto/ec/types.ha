@@ -69,4 +69,3 @@ export type curve = struct {
 
 // Invalid curve parameter.
 export type invalid = !void;
-

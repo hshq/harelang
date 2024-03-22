@@ -41,4 +41,3 @@ fn mask_keygen(
 		};
 	};
 };
-
