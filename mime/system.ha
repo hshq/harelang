@@ -9,9 +9,6 @@ use io;
 use os;
 use strings;
 
-// Path to the system MIME database.
-export def SYSTEM_DB: str = "/etc/mime.types";
-
 @init fn init() void = {
 	// Done in a separate function so we can discard errors here
 	load_systemdb(): void;
