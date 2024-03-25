@@ -89,9 +89,9 @@ export fn strs(a: const *opaque, b: const *opaque) int = {
 
 	let ln = if (len(a) < len(b)) (len(a), -1) else (len(b), 1);
 	for (let i = 0z; i < ln.0; i += 1) {
-	        if (a[i] != b[i]) {
-	                return a[i]: int - b[i]: int;
-	        };
+		if (a[i] != b[i]) {
+			return a[i]: int - b[i]: int;
+		};
 	};
 	return if (len(a) == len(b)) 0 else ln.1;
 };

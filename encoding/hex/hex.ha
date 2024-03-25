@@ -37,7 +37,7 @@ fn encode_writer(s: *io::stream, in: const []u8) (size | io::error) = {
 	const s = s: *encoder;
 	match(s.err) {
 	case let err: io::error =>
-	     return err;
+		return err;
 	case void => void;
 	};
 	let z = 0z;
@@ -172,9 +172,9 @@ export fn decodestr(s: str) ([]u8 | io::error) = {
 	const out = memio::dynamic();
 	match(io::copy(&out, &decoder)) {
 	case size =>
-	     return memio::buffer(&out);
+		return memio::buffer(&out);
 	case let err: io::error =>
-	     return err;
+		return err;
 	};
 };
 

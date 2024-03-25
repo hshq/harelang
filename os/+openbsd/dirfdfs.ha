@@ -394,31 +394,31 @@ export fn dirfdopen(fd: io::file) *fs::fs = {
 };
 
 fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
-        *filesystem = os_filesystem {
-                fs = fs::fs {
-                        open = &fs_open,
-                        openfile = &fs_open_file,
-                        create = &fs_create,
-                        createfile = &fs_create_file,
-                        remove = &fs_remove,
-                        rename = &fs_rename,
-                        iter = &fs_iter,
-                        stat = &fs_stat,
-                        readlink = &fs_readlink,
-                        mkdir = &fs_mkdir,
-                        rmdir = &fs_rmdir,
-                        chmod = &fs_chmod,
-                        chown = &fs_chown,
-                        resolve = &fs_resolve,
-                        link = &fs_link,
-                        symlink = &fs_symlink,
-                        ...
-                },
-                dirfd = fd,
-                getdents_bufsz = 32768, // 32 KiB
-                ...
-        };
-        return &filesystem.fs;
+	*filesystem = os_filesystem {
+		fs = fs::fs {
+			open = &fs_open,
+			openfile = &fs_open_file,
+			create = &fs_create,
+			createfile = &fs_create_file,
+			remove = &fs_remove,
+			rename = &fs_rename,
+			iter = &fs_iter,
+			stat = &fs_stat,
+			readlink = &fs_readlink,
+			mkdir = &fs_mkdir,
+			rmdir = &fs_rmdir,
+			chmod = &fs_chmod,
+			chown = &fs_chown,
+			resolve = &fs_resolve,
+			link = &fs_link,
+			symlink = &fs_symlink,
+			...
+		},
+		dirfd = fd,
+		getdents_bufsz = 32768, // 32 KiB
+		...
+	};
+	return &filesystem.fs;
 };
 
 // Sets the buffer size to use with the getdents(2) system call, for use with

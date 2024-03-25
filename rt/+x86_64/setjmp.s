@@ -6,7 +6,7 @@
 rt.setjmp:
 	/* no endbr64 here to avoid exploitation - this function cannot be the
 	 * result of an indirect branch.
- 	 */
+	 */
 	mov %rbx,(%rdi)         /* rdi is jmp_buf, move registers onto it */
 	mov %rbp,8(%rdi)
 	mov %r12,16(%rdi)
