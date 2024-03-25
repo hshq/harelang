@@ -244,6 +244,9 @@ export fn from_str(
 	v.second = 0;
 	v.nanosecond = 0;
 	parse(&v, layout, s)?;
+	if (v.locname is void || len(locs) == 0) {
+		v.vloc = chrono::UTC;
+	};
 	return realize(v, locs...)?;
 };
 

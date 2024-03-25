@@ -9,9 +9,10 @@ use time::chrono;
 export type insufficient = !lack; // TODO: drop alias workaround
 
 export type lack = enum u8 {
-	DAYDATE = 1 << 0, // could not infer daydate
-	DAYTIME = 1 << 1, // could not infer time-of-day
-	ZOFF = 1 << 2,    // could not infer zone offset
+	LOCALITY = 1 << 0, // could not deduce locality
+	DAYDATE = 1 << 1,  // could not deduce daydate
+	DAYTIME = 1 << 2,  // could not deduce time-of-day
+	ZOFF = 1 << 3,     // could not deduce zone offset
 };
 
 // A virtual date; a [[date]] wrapper interface, which represents a date of
@@ -130,7 +131,6 @@ export fn newvirtual() virtual = virtual {
 // - .locname : This is compared to the .name field of each locality
 //   provided via the locs parameter, or "UTC" if none are provided.
 //   The first matching locality is used.
-// - (nothing) : Defaults to [[time::chrono::UTC]].
 //
 // The instant ([[time::instant]]) value depends on:
 //
@@ -164,17 +164,18 @@ export fn realize(
 ) (date | insufficient | invalid) = {
 	let lacking = 0u8;
 
-	// determine .loc (defaults to time::chrono::UTC)
+	// determine .loc
 	if (v.vloc is chrono::locality) {
 		v.loc = v.vloc as chrono::locality;
 	} else if (v.locname is str) {
-		v.loc = chrono::UTC;
 		for (let loc .. locs) {
 			if (loc.name == v.locname as str) {
 				v.loc = loc;
 				break;
 			};
 		};
+	} else {
+		lacking |= insufficient::LOCALITY;
 	};
 
 	// try using .vsec .vnsec

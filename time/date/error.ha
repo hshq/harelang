@@ -15,6 +15,8 @@ export fn strerror(err: error) const str = {
 		static let buf: [92]u8 = [0...];
 		return strings::rtrim(fmt::bsprint(buf,
 			"Insufficient date information, could not calculate:",
+			if (lack & insufficient::LOCALITY: u8 == 0) "" else
+				"locality",
 			if (lack & insufficient::DAYDATE: u8 == 0) "" else
 				"daydate",
 			if (lack & insufficient::DAYTIME: u8 == 0) "" else
