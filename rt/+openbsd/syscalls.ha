@@ -938,7 +938,7 @@ export fn readv(fd: int, iov: const *[*]iovec, iovcnt: int) (size | errno) = {
 
 // writev
 
-@symbol("readv") fn libc_writev(d: int, iov: const *[*]iovec, iovcnt: int) size;
+@symbol("writev") fn libc_writev(d: int, iov: const *[*]iovec, iovcnt: int) size;
 
 export fn writev(fd: int, iov: const *[*]iovec, iovcnt: int) (size | errno) = {
 	let res: u64 = libc_writev(fd, iov, iovcnt);
