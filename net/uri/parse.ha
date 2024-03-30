@@ -139,14 +139,7 @@ fn parse_authority(
 	let userinfo = "";
 	let has_userinfo = false;
 
-	for (true) {
-		const r = match (strings::next(in)) {
-		case let r: rune =>
-			yield r;
-		case void =>
-			break;
-		};
-
+	for (let r => strings::next(in)) {
 		if (r == '[') {
 			if (len(memio::string(&buf)!) > 0) {
 				if (len(userinfo) > 0) {
@@ -239,24 +232,19 @@ fn parse_path(in: *strings::iterator, mode: path_mode) (str | invalid) = {
 				if (!is_pchar(r)) {
 					return invalid;
 				};
-			case void =>
+			case done =>
 				break;
 			};
 		};
 	};
 
-	for (true) {
-		match (strings::next(in)) {
-		case let r: rune =>
-			if (r == '?' || r == '#') {
-				strings::prev(in);
-				break;
-			};
-			if (!is_pchar(r) && r != '/') {
-				return invalid;
-			};
-		case void =>
+	for (let r => strings::next(in)) {
+		if (r == '?' || r == '#') {
+			strings::prev(in);
 			break;
+		};
+		if (!is_pchar(r) && r != '/') {
+			return invalid;
 		};
 	};
 
@@ -265,18 +253,13 @@ fn parse_path(in: *strings::iterator, mode: path_mode) (str | invalid) = {
 
 fn parse_query(in: *strings::iterator) (str | invalid) = {
 	let copy = *in;
-	for (true) {
-		match (strings::next(in)) {
-		case let r: rune =>
-			if (r == '#') {
-				strings::prev(in);
-				break;
-			};
-			if (!is_pchar(r) && r != '/' && r != '?') {
-				return invalid;
-			};
-		case void =>
+	for (let r => strings::next(in)) {
+		if (r == '#') {
+			strings::prev(in);
 			break;
+		};
+		if (!is_pchar(r) && r != '/' && r != '?') {
+			return invalid;
 		};
 	};
 	return strings::dup(strings::slice(&copy, in));
@@ -284,14 +267,9 @@ fn parse_query(in: *strings::iterator) (str | invalid) = {
 
 fn parse_fragment(in: *strings::iterator) (str | invalid) = {
 	let copy = *in;
-	for (true) {
-		match (strings::next(in)) {
-		case let r: rune =>
-			if (!is_pchar(r) && r != '/' && r != '?') {
-				return invalid;
-			};
-		case void =>
-			break;
+	for (let r => strings::next(in)) {
+		if (!is_pchar(r) && r != '/' && r != '?') {
+			return invalid;
 		};
 	};
 
@@ -300,14 +278,7 @@ fn parse_fragment(in: *strings::iterator) (str | invalid) = {
 
 fn parse_port(in: *strings::iterator) (u16 | invalid) = {
 	let copy = *in;
-	for (true) {
-		const r = match (strings::next(in)) {
-		case let r: rune =>
-			yield r;
-		case void =>
-			break;
-		};
-
+	for (let r => strings::next(in)) {
 		if (!ascii::isdigit(r)) {
 			strings::prev(in);
 			break;
@@ -368,7 +339,7 @@ fn percent_decode_static(out: io::handle, s: str) (void | invalid) = {
 
 				memio::appendrune(out, r)!;
 			};
-		case void =>
+		case done =>
 			if(len(percent_data) > 0) {
 				match(strings::fromutf8(percent_data)) {
 				case let stro: str =>

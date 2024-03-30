@@ -199,7 +199,9 @@
 };
 
 @test fn for_expr() void = {
-	roundtrip("export fn main() void = {
+	roundtrip("fn next() (int | done) = 4;
+
+export fn main() void = {
 	for (true) {
 		x;
 	};
@@ -215,7 +217,13 @@
 	for (let x = 10; x < 10; x) {
 		x;
 	};
-	for (static let x = 0; x < 10) {
+	for (let x => next()) {
+		x;
+	};
+	for (let x .. [1, 2, 3]) {
+		x;
+	};
+	for (let x &.. [1, 2, 3]) {
 		x;
 	};
 };

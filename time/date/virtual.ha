@@ -159,8 +159,7 @@ export fn realize(
 		v.loc = v.vloc as chrono::locality;
 	} else if (v.locname is str) {
 		v.loc = chrono::UTC;
-		for (let i = 0z; i < len(locs); i += 1) {
-			const loc = locs[i];
+		for (let loc .. locs) {
 			if (loc.name == v.locname as str) {
 				v.loc = loc;
 				break;

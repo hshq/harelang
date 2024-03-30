@@ -284,10 +284,7 @@ export fn truncate(d: date, u: unit) date = {
 			},
 		),
 	];
-	for (let i = 0z; i < len(cases); i += 1) {
-		const da = cases[i].0;
-		const db = cases[i].1;
-		const expected = cases[i].2;
+	for (let (da, db, expected) .. cases) {
 		const actual = pdiff(da, db);
 		assert(peq(actual, expected), "pdiff miscalculation");
 	};
@@ -322,10 +319,7 @@ export fn truncate(d: date, u: unit) date = {
 					time::SECOND)),
 		),
 	];
-	for (let i = 0z; i < len(cases); i += 1) {
-		const da = cases[i].0;
-		const db = cases[i].1;
-		const expected = cases[i].2;
+	for (let (da, db, expected) .. cases) {
 		assert(unitdiff(da, db, unit::YEAR) == expected.0,
 			"invalid diff_in_years() result");
 		assert(unitdiff(da, db, unit::MONTH) == expected.1,

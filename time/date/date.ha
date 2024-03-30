@@ -275,8 +275,7 @@ export fn from_str(
 	];
 
 	let buf: [64]u8 = [0...];
-	for (let i = 0z; i < len(testcases); i += 1) {
-		const t = testcases[i];
+	for (let t .. testcases) {
 		const expect = t.3;
 		const actual = from_str(t.0, t.1, t.2...);
 

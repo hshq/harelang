@@ -22,10 +22,7 @@ export fn main() void = {
 fn iter(buf: *path::buffer, status: *int) void = {
 	let it = os::iter(path::string(buf))!;
 	defer fs::finish(it);
-	for (true) match (fs::next(it)!) {
-	case void =>
-		break;
-	case let ent: fs::dirent =>
+	for (let ent => fs::next(it)!) {
 		path::push(buf, ent.name)!;
 		defer path::pop(buf);
 		const st = os::stat(path::string(buf))!;

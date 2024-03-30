@@ -37,23 +37,23 @@ export fn riter(src: str) iterator = {
 	return ret;
 };
 
-// Get the next rune from an iterator, or void if there are none left.
+// Get the next rune from an iterator, or done if there are none left.
 //
 // Be aware that a rune is not the minimum lexographical unit of language in
 // Unicode strings. If you use these runes to construct a new string,
 // reordering, editing, or omitting any of the runes without careful discretion
 // may cause linguistic errors to arise. To avoid this, you may need to use a
 // third-party Unicode module instead.
-export fn next(iter: *iterator) (rune | void) = move(!iter.reverse, iter);
+export fn next(iter: *iterator) (rune | done) = move(!iter.reverse, iter);
 
-// Get the previous rune from an iterator, or void when at the start of the
+// Get the previous rune from an iterator, or done when at the start of the
 // string.
-export fn prev(iter: *iterator) (rune | void) = move(iter.reverse, iter);
+export fn prev(iter: *iterator) (rune | done) = move(iter.reverse, iter);
 
-fn move(forward: bool, iter: *iterator) (rune | void) = {
+fn move(forward: bool, iter: *iterator) (rune | done) = {
 	let fun = if (forward) &utf8::next else &utf8::prev;
 	return match (fun(&iter.dec)) {
-	case void => void;
+	case void => yield done;
 	case (utf8::more | utf8::invalid) =>
 		abort("Invalid UTF-8 string (this should not happen)");
 	case let r: rune =>
@@ -83,7 +83,7 @@ export fn slice(begin: *iterator, end: *iterator) str = {
 
 @test fn iter() void = {
 	let s = iter("こんにちは");
-	assert(prev(&s) is void);
+	assert(prev(&s) is done);
 	const expected1 = ['こ', 'ん'];
 	for (let i = 0z; i < len(expected1); i += 1) {
 		assert(next(&s) as rune == expected1[i]);
@@ -94,8 +94,8 @@ export fn slice(begin: *iterator, end: *iterator) str = {
 	for (let i = 0z; i < len(expected2); i += 1) {
 		assert(next(&s) as rune == expected2[i]);
 	};
-	assert(next(&s) is void);
-	assert(next(&s) is void);
+	assert(next(&s) is done);
+	assert(next(&s) is done);
 	assert(prev(&s) as rune == 'は');
 
 	s = riter("にちは");
@@ -103,7 +103,7 @@ export fn slice(begin: *iterator, end: *iterator) str = {
 	for (let i = 0z; i < len(expected3); i += 1) {
 		assert(next(&s) as rune == expected3[i]);
 	};
-	assert(next(&s) is void);
+	assert(next(&s) is done);
 	assert(prev(&s) as rune == 'に');
 };
 

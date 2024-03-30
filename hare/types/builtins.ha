@@ -12,11 +12,19 @@ export const builtin_bool: _type = _type {
 	...
 };
 
+// [[_type]] representation of done.
+export const builtin_done: _type = _type {
+	repr = builtin::DONE,
+	sz = 0, _align = 0,
+	id = 3950255460,
+	...
+};
+
 // [[_type]] representation of f32.
 export const builtin_f32: _type = _type {
 	repr = builtin::F32,
 	sz = 4, _align = 4,
-	id = 3950255460,
+	id = 1568378015,
 	...
 };
 
@@ -24,7 +32,7 @@ export const builtin_f32: _type = _type {
 export const builtin_f64: _type = _type {
 	repr = builtin::F64,
 	sz = 8, _align = 8,
-	id = 1568378015,
+	id = 930681398,
 	...
 };
 
@@ -32,7 +40,7 @@ export const builtin_f64: _type = _type {
 export const builtin_i8: _type = _type {
 	repr = builtin::I8,
 	sz = 1, _align = 1,
-	id = 3312558843,
+	id = 2674862226,
 	...
 };
 
@@ -40,7 +48,7 @@ export const builtin_i8: _type = _type {
 export const builtin_i16: _type = _type {
 	repr = builtin::I16,
 	sz = 2, _align = 2,
-	id = 930681398,
+	id = 2037165609,
 	...
 };
 
@@ -48,7 +56,7 @@ export const builtin_i16: _type = _type {
 export const builtin_i32: _type = _type {
 	repr = builtin::I32,
 	sz = 4, _align = 4,
-	id = 2037165609,
+	id = 1399468992,
 	...
 };
 
@@ -56,7 +64,7 @@ export const builtin_i32: _type = _type {
 export const builtin_i64: _type = _type {
 	repr = builtin::I64,
 	sz = 8, _align = 8,
-	id = 1399468992,
+	id = 3312558843,
 	...
 };
 
@@ -64,7 +72,7 @@ export const builtin_i64: _type = _type {
 export const builtin_opaque: _type = _type {
 	repr = builtin::OPAQUE,
 	sz = SIZE_UNDEFINED, _align = SIZE_UNDEFINED,
-	id = 2374983655,
+	id = 1737287038,
 	...
 };
 
@@ -72,7 +80,7 @@ export const builtin_opaque: _type = _type {
 export const builtin_never: _type = _type {
 	repr = builtin::NEVER,
 	sz = SIZE_UNDEFINED, _align = SIZE_UNDEFINED,
-	id = 2374983655,
+	id = 1737287038,
 	...
 };
 
@@ -80,7 +88,7 @@ export const builtin_never: _type = _type {
 export const builtin_rune: _type = _type {
 	repr = builtin::RUNE,
 	sz = 4, _align = 4,
-	id = 1737287038,
+	id = 2843771249,
 	...
 };
 
@@ -88,7 +96,7 @@ export const builtin_rune: _type = _type {
 export const builtin_u8: _type = _type {
 	repr = builtin::U8,
 	sz = 1, _align = 1,
-	id = 1268499444,
+	id = 3181589295,
 	...
 };
 
@@ -96,7 +104,7 @@ export const builtin_u8: _type = _type {
 export const builtin_u16: _type = _type {
 	repr = builtin::U16,
 	sz = 2, _align = 2,
-	id = 4119164483,
+	id = 3481467866,
 	...
 };
 
@@ -104,7 +112,7 @@ export const builtin_u16: _type = _type {
 export const builtin_u32: _type = _type {
 	repr = builtin::U32,
 	sz = 4, _align = 4,
-	id = 3481467866,
+	id = 1906196061,
 	...
 };
 
@@ -112,7 +120,7 @@ export const builtin_u32: _type = _type {
 export const builtin_u64: _type = _type {
 	repr = builtin::U64,
 	sz = 8, _align = 8,
-	id = 1906196061,
+	id = 1268499444,
 	...
 };
 
@@ -120,6 +128,6 @@ export const builtin_u64: _type = _type {
 export const builtin_void: _type = _type {
 	repr = builtin::VOID,
 	sz = 0, _align = 0,
-	id = 3650376889,
+	id = 3012680272,
 	...
 };

@@ -150,8 +150,8 @@ fn writeavail(s: *encoder) (void | io::error) = {
 // Flushes pending writes to the underlying stream.
 fn encode_closer(s: *io::stream) (void | io::error) = {
 	let s = s: *encoder;
-	let done = false;
-	defer if (done) clear(s);
+	let finished = false;
+	defer if (finished) clear(s);
 
 	match (s.err) {
 	case let e: io::error =>
@@ -164,12 +164,12 @@ fn encode_closer(s: *io::stream) (void | io::error) = {
 		for (s.oavail > 0) {
 			writeavail(s)?;
 		};
-		done = true;
+		finished = true;
 		return;
 	};
 
 	if (s.iavail == 0) {
-		done = true;
+		finished = true;
 		return;
 	};
 
@@ -191,7 +191,7 @@ fn encode_closer(s: *io::stream) (void | io::error) = {
 	for (s.oavail > 0) {
 		writeavail(s)?;
 	};
-	done = true;
+	finished = true;
 };
 
 fn clear(e: *encoder) void = {

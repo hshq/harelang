@@ -20,26 +20,21 @@ use strings;
 fn html_escape(out: io::handle, in: str) (size | io::error) = {
 	let z = 0z;
 	let iter = strings::iter(in);
-	for (true) {
-		match (strings::next(&iter)) {
-		case void =>
-			break;
-		case let rn: rune =>
-			z += fmt::fprint(out, switch (rn) {
-			case '&' =>
-				yield "&amp;";
-			case '<' =>
-				yield "&lt;";
-			case '>' =>
-				yield "&gt;";
-			case '"' =>
-				yield "&quot;";
-			case '\'' =>
-				yield "&apos;";
-			case =>
-				yield strings::fromutf8(utf8::encoderune(rn))!;
-			})?;
-		};
+	for (let rn => strings::next(&iter)) {
+		z += fmt::fprint(out, switch (rn) {
+		case '&' =>
+			yield "&amp;";
+		case '<' =>
+			yield "&lt;";
+		case '>' =>
+			yield "&gt;";
+		case '"' =>
+			yield "&quot;";
+		case '\'' =>
+			yield "&apos;";
+		case =>
+			yield strings::fromutf8(utf8::encoderune(rn))!;
+		})?;
 	};
 	return z;
 };
@@ -76,8 +71,8 @@ export fn emit_html(ctx: *context) (void | error) = {
 	} else {
 		fmt::fprintf(ctx.out, "<h2><span class='heading-body'>{}</span><span class='heading-extra'>", ident)?;
 	};
-	for (let i = 0z; i < len(ctx.tags); i += 1) {
-		fmt::fprintf(ctx.out, "+{} ", ctx.tags[i])?;
+	for (let tag .. ctx.tags) {
+		fmt::fprintf(ctx.out, "+{} ", tag)?;
 	};
 	fmt::fprintln(ctx.out, "</span></h2>")?;
 
@@ -103,8 +98,7 @@ export fn emit_html(ctx: *context) (void | error) = {
 			fmt::fprintln(ctx.out, "<h3>Submodules</h3>")?;
 		};
 		fmt::fprintln(ctx.out, "<ul class='submodules'>")?;
-		for (let i = 0z; i < len(ctx.submods); i += 1) {
-			let submodule = ctx.submods[i];
+		for (let submodule .. ctx.submods) {
 			let path = path::init("/", identpath, submodule)!;
 
 			fmt::fprintf(ctx.out, "<li><a href='")?;
@@ -133,36 +127,36 @@ export fn emit_html(ctx: *context) (void | error) = {
 
 	if (len(decls.types) != 0) {
 		fmt::fprintln(ctx.out, "<h3>Types</h3>")?;
-		for (let i = 0z; i < len(decls.types); i += 1) {
-			details(ctx, &decls.types[i])?;
+		for (let t &.. decls.types) {
+			details(ctx, t)?;
 		};
 	};
 
 	if (len(decls.errors) != 0) {
 		fmt::fprintln(ctx.out, "<h3>Errors</h3>")?;
-		for (let i = 0z; i < len(decls.errors); i += 1) {
-			details(ctx, &decls.errors[i])?;
+		for (let e &.. decls.errors) {
+			details(ctx, e)?;
 		};
 	};
 
 	if (len(decls.constants) != 0) {
 		fmt::fprintln(ctx.out, "<h3>Constants</h3>")?;
-		for (let i = 0z; i < len(decls.constants); i += 1) {
-			details(ctx, &decls.constants[i])?;
+		for (let c &.. decls.constants) {
+			details(ctx, c)?;
 		};
 	};
 
 	if (len(decls.globals) != 0) {
 		fmt::fprintln(ctx.out, "<h3>Globals</h3>")?;
-		for (let i = 0z; i < len(decls.globals); i += 1) {
-			details(ctx, &decls.globals[i])?;
+		for (let g &.. decls.globals) {
+			details(ctx, g)?;
 		};
 	};
 
 	if (len(decls.funcs) != 0) {
 		fmt::fprintln(ctx.out, "<h3>Functions</h3>")?;
-		for (let i = 0z; i < len(decls.funcs); i += 1) {
-			details(ctx, &decls.funcs[i])?;
+		for (let f &.. decls.funcs) {
+			details(ctx, f)?;
 		};
 	};
 };
@@ -286,8 +280,8 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | error) = {
 };
 
 fn html_paragraph(ctx: *context, p: doc::paragraph) (void | error) = {
-	for (let i = 0z; i < len(p); i += 1) {
-		match (p[i]) {
+	for (let elem .. p) {
+		match (elem) {
 		case let s: str =>
 			match (uri::parse(s)) {
 			case let uri: uri::uri =>
@@ -330,17 +324,17 @@ fn markup_html(
 	};
 	defer doc::freeall(doc);
 
-	for (let i = 0z; i < len(doc); i += 1) {
-		match (doc[i]) {
+	for (let elem .. doc) {
+		match (elem) {
 		case let p: doc::paragraph =>
 			fmt::fprint(ctx.out, "<p>")?;
 			html_paragraph(ctx, p)?;
 			fmt::fprintln(ctx.out)?;
 		case let l: doc::list =>
 			fmt::fprintln(ctx.out, "<ul>")?;
-			for (let i = 0z; i < len(l); i += 1) {
+			for (let entry .. l) {
 				fmt::fprint(ctx.out, "<li>")?;
-				html_paragraph(ctx, l[i])?;
+				html_paragraph(ctx, entry)?;
 				fmt::fprintln(ctx.out)?;
 			};
 			fmt::fprintln(ctx.out, "</ul>")?;

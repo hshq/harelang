@@ -52,12 +52,13 @@ export fn local(path: str) str = {
 
 fn _local(path: str, buf: *[MAX]u8) str = {
 	let buf = buf[..0];
-	const path = strings::toutf8(path);
-	for (let i = 0z; i < len(path); i += 1) {
-		if (path[i] == '/') {
+	const bytes = strings::toutf8(path);
+
+	for (let byte .. bytes) {
+		if (byte == '/') {
 			static append(buf, SEP);
 		} else {
-			static append(buf, path[i]);
+			static append(buf, byte);
 		};
 	};
 	return strings::fromutf8(buf)!;

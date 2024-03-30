@@ -15,15 +15,15 @@ export fn format_tags(
 	let n = 0z;
 	match (tags) {
 	case let tags: []str =>
-		for (let i = 0z; i < len(tags); i += 1) {
-			n += fmt::fprintf(out, "+{}", tags[i])?;
+		for (let tag .. tags) {
+			n += fmt::fprintf(out, "+{}", tag)?;
 		};
 	case let tags: []tag =>
-		for (let i = 0z; i < len(tags); i += 1) {
+		for (let tag .. tags) {
 			n += fmt::fprintf(
 				out,
-				if (tags[i].include) "+{}" else "-{}",
-				tags[i].name)?;
+				if (tag.include) "+{}" else "-{}",
+				tag.name)?;
 		};
 	};
 	return n;
@@ -37,18 +37,22 @@ export fn format_srcset(out: io::handle, srcs: *srcset) (size | io::error) = {
 	n += fmt::fprintln(out)?;
 	const dt = date::from_instant(chrono::LOCAL, srcs.mtime);
 	n += date::format(out, "last change to source list: %F %T\n", &dt)?;
+
 	n += fmt::fprintln(out, "hare sources:")?;
-	for (let i = 0z; i < len(srcs.ha); i += 1) {
-		n += fmt::fprintln(out, "  ", srcs.ha[i])?;
+	for (let ha .. srcs.ha) {
+		n += fmt::fprintln(out, "  ", ha)?;
 	};
+
 	n += fmt::fprintln(out, "assembly sources:")?;
-	for (let i = 0z; i < len(srcs.s); i += 1) {
-		n += fmt::fprintln(out, "  ", srcs.s[i])?;
+	for (let s .. srcs.s) {
+		n += fmt::fprintln(out, "  ", s)?;
 	};
+
 	n += fmt::fprintln(out, "object sources:")?;
-	for (let i = 0z; i < len(srcs.o); i += 1) {
-		n += fmt::fprintln(out, "  ", srcs.o[i])?;
+	for (let o .. srcs.o) {
+		n += fmt::fprintln(out, "  ", o)?;
 	};
+
 	return n;
 };
 
@@ -59,9 +63,9 @@ export fn format(out: io::handle, mod: *module) (size | io::error) = {
 	n += fmt::fprintln(out, "path:", mod.path)?;
 	n += format_srcset(out, &mod.srcs)?;
 	n += fmt::fprintln(out, "dependencies:")?;
-	for (let i = 0z; i < len(mod.deps); i += 1) {
+	for (let (_, ident) .. mod.deps) {
 		n += fmt::fprint(out, "  ")?;
-		n += unparse::ident(out, mod.deps[i].1)?;
+		n += unparse::ident(out, ident)?;
 		n += fmt::fprintln(out)?;
 	};
 	return n;

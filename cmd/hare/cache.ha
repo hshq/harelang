@@ -16,8 +16,7 @@ use path;
 
 fn cache(name: str, cmd: *getopt::command) (void | error) = {
 	let clear = false;
-	for (let i = 0z; i < len(cmd.opts); i += 1) {
-		let opt = cmd.opts[i];
+	for (let opt .. cmd.opts) {
 		switch (opt.0) {
 		case 'c' =>
 			clear = true;
@@ -51,10 +50,8 @@ fn dirsize(buf: *path::buffer) (size | error) = {
 	let s = 0z;
 	let it = os::iter(path::string(buf))?;
 	defer fs::finish(it);
-	for (true) match (fs::next(it)?) {
-	case void =>
-		break;
-	case let d: fs::dirent =>
+
+	for (let d => fs::next(it)?) {
 		path::push(buf, d.name)?;
 		let stat = os::stat(path::string(buf))?;
 		s += stat.sz;

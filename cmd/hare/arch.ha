@@ -47,9 +47,9 @@ fn set_arch_tags(tags: *[]str, a: *build::arch) void = {
 };
 
 fn get_arch(name: str) (*build::arch | unknown_arch) = {
-	for (let i = 0z; i < len(arches); i += 1) {
-		if (arches[i].name == name) {
-			return &arches[i];
+	for (let arch &.. arches) {
+		if (arch.name == name) {
+			return arch;
 		};
 	};
 	return name: unknown_arch;

@@ -37,8 +37,8 @@ export type task = struct {
 };
 
 export fn free_task(t: *task) void = {
-	for (let i = 0z; i < len(t.rdeps); i += 1) {
-		t.rdeps[i].ndeps -= 1;
+	for (let rdep &.. t.rdeps) {
+		rdep.ndeps -= 1;
 	};
 	free(t.rdeps);
 	free(t);
@@ -96,12 +96,12 @@ export type context = struct {
 
 export fn ctx_finish(ctx: *context) void = {
 	free(ctx.ctx.tags);
-	for (let i = 0z; i < len(ctx.defines); i += 1) {
-		ast::ident_free(ctx.defines[i].ident);
-		ast::type_finish(ctx.defines[i]._type);
-		free(ctx.defines[i]._type);
-		ast::expr_finish(ctx.defines[i].init);
-		free(ctx.defines[i].init);
+	for (let define .. ctx.defines) {
+		ast::ident_free(define.ident);
+		ast::type_finish(define._type);
+		free(define._type);
+		ast::expr_finish(define.init);
+		free(define.init);
 	};
 	free(ctx.defines);
 	free(ctx.libdirs);

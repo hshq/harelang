@@ -8,9 +8,9 @@ export fn valid(c: rune) bool = c: u32 <= 0o177;
 
 // Returns true if all runes in a string are valid ASCII characters.
 export fn validstr(s: str) bool = {
-	const s = strings::toutf8(s);
-	for (let i = 0z; i < len(s); i += 1) {
-		if (s[i] >= 0o200) {
+	const bytes = strings::toutf8(s);
+	for (let byte .. bytes) {
+		if (byte >= 0o200) {
 			return false;
 		};
 	};

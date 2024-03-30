@@ -76,11 +76,11 @@ export fn import(
 			...
 		},  "use foo::bar::*;"),
 	];
-	for (let i = 0z; i < len(tests); i += 1) {
+	for (let (ast_import, str_import) .. tests) {
 		let buf = memio::dynamic();
-		import(&buf, &syn_nowrap, &tests[i].0)!;
+		import(&buf, &syn_nowrap, &ast_import)!;
 		let s = memio::string(&buf)!;
-		assert(s == tests[i].1);
+		assert(s == str_import);
 		free(s);
 	};
 };

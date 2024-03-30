@@ -10,7 +10,7 @@ fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {
 		match (next(iter)) {
 		case let r: rune =>
 			continue;
-		case void =>
+		case done =>
 			abort("index exceeds string length");
 		};
 	};

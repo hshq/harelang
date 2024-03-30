@@ -7,16 +7,16 @@ use strings;
 // Add extensions onto the end of the final path segment. The separating '.'
 // will be inserted for you. If the final path segment consists entirely of dots
 // or the path is root, this function will return [[cant_extend]].
-export fn push_ext(buf: *buffer, ext: str...) (str | error) = {
+export fn push_ext(buf: *buffer, exts: str...) (str | error) = {
 	match (peek(buf)) {
 	case void => return cant_extend;
 	case let s: str => if (strings::ltrim(s, '.') == "") return cant_extend;
 	};
-	for (let i = 0z; i < len(ext); i += 1) {
-		const newend = buf.end + 1 + len(ext[i]);
+	for (let ext .. exts) {
+		const newend = buf.end + 1 + len(ext);
 		if (MAX < newend) return too_long;
 		buf.buf[buf.end] = '.';
-		buf.buf[buf.end+1..newend] = strings::toutf8(ext[i]);
+		buf.buf[buf.end+1..newend] = strings::toutf8(ext);
 		buf.end = newend;
 	};
 	return string(buf);

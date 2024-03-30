@@ -282,10 +282,7 @@ fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 		(( 1970,  1, 99),  0, true),
 		(( 1970, 99, 99),  0, true),
 	];
-	for (let i = 0z; i < len(cases); i += 1) {
-		const params = cases[i].0;
-		const expect = cases[i].1;
-		const should_error = cases[i].2;
+	for (let (params, expect, should_error) .. cases) {
 		const actual = calc_daydate__ymd(
 			params.0, params.1, params.2,
 		);
@@ -334,9 +331,7 @@ fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 		((29349,  3, 6), 9999999),
 	];
 
-	for (let i = 0z; i < len(cases); i += 1) {
-		const ywd = cases[i].0;
-		const expected = cases[i].1;
+	for (let (ywd, expected) .. cases) {
 		const actual = calc_daydate__ywd(ywd.0, ywd.1, ywd.2)!;
 		assert(actual == expected,
 			"incorrect calc_daydate__ywd() result");
@@ -368,10 +363,7 @@ fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 		(29349, 25,  9999999),
 	];
 
-	for (let i = 0z; i < len(cases); i += 1) {
-		const y = cases[i].0;
-		const yd = cases[i].1;
-		const expected = cases[i].2;
+	for (let (y, yd, expected) .. cases) {
 		const actual = calc_daydate__yd(y, yd)!;
 		assert(expected == actual,
 			"error in date calculation from yd");
@@ -406,9 +398,7 @@ fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 		(1000000, ( 4707, 11, 29)),
 		(9999999, (29349,  1, 25)),
 	];
-	for (let i = 0z; i < len(cases); i += 1) {
-		const paramt = cases[i].0;
-		const expect = cases[i].1;
+	for (let (paramt, expect) .. cases) {
 		const actual = calc_ymd(paramt);
 		assert(expect.0 == actual.0, "year mismatch");
 		assert(expect.1 == actual.1, "month mismatch");
@@ -441,9 +431,7 @@ fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 		(( 4707, 11, 29), 333),
 		((29349,  1, 25),  25),
 	];
-	for (let i = 0z; i < len(cases); i += 1) {
-		const params = cases[i].0;
-		const expect = cases[i].1;
+	for (let (params, expect) .. cases) {
 		const actual = calc_yearday(params.0, params.1, params.2);
 		assert(expect == actual, "yearday miscalculation");
 	};
@@ -468,9 +456,7 @@ fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 		((366, 0), 53),
 	];
 
-	for (let i = 0z; i < len(cases); i += 1) {
-		const params = cases[i].0;
-		const expect = cases[i].1;
+	for (let (params, expect) .. cases) {
 		const actual = calc_week(params.0, params.1);
 		assert(expect == actual, "week miscalculation");
 	};
@@ -495,9 +481,7 @@ fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 		((366, 0), 53),
 	];
 
-	for (let i = 0z; i < len(cases); i += 1) {
-		const params = cases[i].0;
-		const expect = cases[i].1;
+	for (let (params, expect) .. cases) {
 		const actual = calc_sundayweek(params.0, params.1);
 		assert(expect == actual, "week miscalculation");
 	};
@@ -527,9 +511,7 @@ fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 		(1000000, 4), //  4707-11-29
 		(9999999, 5), // 29349-01-25
 	];
-	for (let i = 0z; i < len(cases); i += 1) {
-		const paramt = cases[i].0;
-		const expect = cases[i].1;
+	for (let (paramt, expect) .. cases) {
 		const actual = calc_weekday(paramt);
 		assert(expect == actual, "weekday miscalculation");
 	};
@@ -610,9 +592,7 @@ fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 		(2038,  4),
 		(2039,  5),
 	];
-	for (let i = 0z; i < len(cases); i += 1) {
-		const paramt = cases[i].0;
-		const expect = cases[i].1;
+	for (let (paramt, expect) .. cases) {
 		const actual = calc_janfirstweekday(paramt);
 		assert(expect == actual, "calc_janfirstweekday() miscalculation");
 	};

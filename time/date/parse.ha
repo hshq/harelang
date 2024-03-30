@@ -29,14 +29,7 @@ export fn parse(v: *virtual, layout: str, s: str) (void | parsefail) = {
 	const siter = strings::iter(s);
 	let escaped = false;
 
-	for (true) {
-		const lr: rune = match (strings::next(&liter)) {
-		case void =>
-			break;
-		case let lr: rune =>
-			yield lr;
-		};
-
+	for (let lr => strings::next(&liter)) {
 		if (!escaped && lr == '%') {
 			escaped = true;
 			continue;
@@ -44,7 +37,7 @@ export fn parse(v: *virtual, layout: str, s: str) (void | parsefail) = {
 
 		if (!escaped) {
 			const sr = match (strings::next(&siter)) {
-			case void =>
+			case done =>
 				return (liter.dec.offs, lr);
 			case let sr: rune =>
 				yield sr;
@@ -140,7 +133,7 @@ fn parse_specifier(
 
 fn eat_rune(iter: *strings::iterator, needle: rune) (uint | failure) = {
 	const rn = match (strings::next(iter)) {
-	case void =>
+	case done =>
 		return failure;
 	case let rn: rune =>
 		yield rn;
@@ -180,7 +173,7 @@ fn scan_int(iter: *strings::iterator, maxrunes: size) (int | failure) = {
 	let startfixed = false;
 	for (let i = 0z; i < maxrunes; i += 1) {
 		let rn: rune = match (strings::next(iter)) {
-		case void =>
+		case done =>
 			break;
 		case let rn: rune =>
 			yield rn;
@@ -211,7 +204,7 @@ fn scan_num(iter: *strings::iterator, maxrunes: size) (i64 | failure) = {
 	let start = *iter;
 	for (let i = 0z; i < maxrunes; i += 1) {
 		match (strings::next(iter)) {
-		case void =>
+		case done =>
 			return failure;
 		case let rn: rune =>
 			if (!ascii::isdigit(rn)) {
@@ -236,7 +229,7 @@ fn scan_decimal(iter: *strings::iterator, maxrunes: size) (i64 | failure) = {
 	let start = *iter;
 	for (let i = 0z; i < maxrunes; i += 1) {
 		let rn: rune = match (strings::next(iter)) {
-		case void =>
+		case done =>
 			break;
 		case let rn: rune =>
 			yield rn;
@@ -269,7 +262,7 @@ fn scan_decimal(iter: *strings::iterator, maxrunes: size) (i64 | failure) = {
 //
 fn scan_zo(iter: *strings::iterator) (time::duration | failure) = {
 	const first = match (strings::next(iter)) {
-	case void =>
+	case done =>
 		return failure;
 	case let first: rune =>
 		yield first;
@@ -281,7 +274,7 @@ fn scan_zo(iter: *strings::iterator) (time::duration | failure) = {
 	let zo = scan_int(iter, 2)? * time::HOUR;
 
 	match (strings::next(iter)) {
-	case void =>
+	case done =>
 		return failure;
 	case let sep: rune =>
 		if (sep != ':') {
@@ -301,15 +294,10 @@ fn scan_zo(iter: *strings::iterator) (time::duration | failure) = {
 // Scans and parses locality names, made of printable characters.
 fn scan_str(iter: *strings::iterator) (str | failure) = {
 	let start = *iter;
-	for (true) {
-		match (strings::next(iter)) {
-		case void =>
+	for (let rn => strings::next(iter)) {
+		if (!ascii::isgraph(rn)) {
+			strings::prev(iter);
 			break;
-		case let rn: rune =>
-			if (!ascii::isgraph(rn)) {
-				strings::prev(iter);
-				break;
-			};
 		};
 	};
 	return strings::slice(&start, iter);

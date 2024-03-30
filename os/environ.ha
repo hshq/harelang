@@ -31,8 +31,8 @@ let envp: []str = [];
 // Looks up an environment variable and returns its value, or void if unset.
 export fn getenv(name: const str) (str | void) = {
 	getenvs(); // populate envp
-	for (let i = 0z; i < len(envp); i += 1) {
-		let (key, value) = strings::cut(envp[i], "=");
+	for (let ent .. envp) {
+		let (key, value) = strings::cut(ent, "=");
 		if (key == name) return value;
 	};
 };

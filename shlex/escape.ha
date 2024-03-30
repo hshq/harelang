@@ -9,15 +9,7 @@ use strings;
 
 fn is_safe(s: str) bool = {
 	const iter = strings::iter(s);
-	for (true) {
-		const rn = match (strings::next(&iter)) {
-		case let rn: rune =>
-			yield rn;
-		case void =>
-			break;
-		};
-
-
+	for (let rn => strings::next(&iter)) {
 		switch (rn) {
 		case '@', '%', '+', '=', ':', ',', '.', '/', '-' =>
 			void;
@@ -42,14 +34,7 @@ export fn quote(sink: io::handle, s: str) (size | io::error) = {
 	let z = io::writeall(sink, ['\''])?;
 
 	const iter = strings::iter(s);
-	for (true) {
-		const rn = match (strings::next(&iter)) {
-		case let rn: rune =>
-			yield rn;
-		case void =>
-			break;
-		};
-
+	for (let rn => strings::next(&iter)) {
 		if (rn == '\'') {
 			z += io::writeall(sink, strings::toutf8(`'"'"'`))?;
 		} else {

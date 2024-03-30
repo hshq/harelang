@@ -33,8 +33,7 @@ export fn skip(reason: str) never = {
 // keywords. If all the keywords are present, return void. Otherwise, skip the
 // currently running test.
 export fn require(keywords: str...) void = {
-	for :keywords (let i = 0z; i < len(keywords); i += 1) {
-		let keyword = keywords[i];
+	for :keywords (let keyword .. keywords) {
 		let tokr = strings::tokenize(os::tryenv("HARETEST_INCLUDE", ""), " ");
 		for (true) {
 			match (strings::next_token(&tokr)) {
@@ -42,7 +41,7 @@ export fn require(keywords: str...) void = {
 				if (tok == keyword) {
 					continue :keywords;
 				};
-			case void =>
+			case done =>
 				skip(fmt::asprintf(
 					"Requires HARETEST_INCLUDE='{}'",
 					strings::join(" ", keywords...),

@@ -162,11 +162,9 @@ fn comment(ctx: *context, syn: *synfunc, s: str) (size | io::error) = {
 	let n = 0z;
 	let s = strings::trimsuffix(s, "\n");
 	let s = strings::tokenize(s, "\n");
-	for (true) match (strings::next_token(&s)) {
-	case void =>
-		break;
-	case let line: str =>
-		for (let j = 0z; j < ctx.indent; j += 1) {
+
+	for (let line => strings::next_token(&s)) {
+		for (let i = 0z; i < ctx.indent; i += 1) {
 			n += syn(ctx, "\t", synkind::COMMENT)?;
 			ctx.linelen += 8;
 		};

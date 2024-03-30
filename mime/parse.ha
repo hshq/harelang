@@ -40,7 +40,7 @@ export fn next_param(in: *type_params) ((str, str) | void | errors::invalid) = {
 			return errors::invalid;
 		};
 		yield s;
-	case void =>
+	case done =>
 		return;
 	};
 
@@ -81,13 +81,7 @@ fn quoted(in: str) (str | errors::invalid) = {
 
 fn typevalid(in: str) (void | errors::invalid) = {
 	const miter = strings::iter(in);
-	for (true) {
-		const rn = match (strings::next(&miter)) {
-		case let rn: rune =>
-			yield rn;
-		case void =>
-			break;
-		};
+	for (let rn => strings::next(&miter)) {
 		if (!ascii::valid(rn) || rn == ' '
 				|| ascii::iscntrl(rn)
 				|| strings::contains(tspecial, rn)) {

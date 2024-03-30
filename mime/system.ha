@@ -25,14 +25,7 @@ fn load_systemdb() (void | fs::error | io::error | utf8::invalid) = {
 	let sc = bufio::newscanner(file, types::SIZE_MAX);
 	defer bufio::finish(&sc);
 
-	for (true) {
-		let line = match (bufio::scan_line(&sc)?) {
-		case io::EOF =>
-			break;
-		case let s: const str =>
-			yield s;
-		};
-
+	for (let line => bufio::scan_line(&sc)?) {
 		line = strings::trim(line);
 		if (strings::hasprefix(line, "#") || len(line) == 0) {
 			continue;
@@ -50,13 +43,7 @@ fn load_systemdb() (void | fs::error | io::error | utf8::invalid) = {
 			mime = strings::dup(mime),
 			exts = [],
 		});
-		for (true) {
-			const ext = match (strings::next_token(&tok)) {
-			case let tok: str =>
-				yield strings::trim(tok);
-			case void =>
-				break;
-			};
+		for (let ext => strings::next_token(&tok)) {
 			append(entry.exts, strings::dup(ext));
 		};
 		register_heap(entry);

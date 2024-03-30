@@ -45,8 +45,8 @@ type token = (rune | bracket | star | question | end);
 // [[fnmatch]]. For an explanation of their meaning, see [[flag]].
 export fn fnmatch(pattern: str, string: str, flags: flag...) bool = {
 	let fl: flag = 0;
-	for (let i = 0z; i < len(flags); i += 1) {
-		fl |= flags[i];
+	for (let flag .. flags) {
+		fl |= flag;
 	};
 	let b = if (fl & flag::PATHNAME != 0) {
 		yield fnmatch_pathname(pattern, string, fl);
@@ -78,7 +78,7 @@ fn fnmatch_pathname(
 		case (question | star) => void;
 		};
 		let s = match (strings::next_token(&tok)) {
-		case void =>
+		case done =>
 			return false;
 		case let s: str =>
 			yield s;
@@ -91,13 +91,13 @@ fn fnmatch_pathname(
 		};
 	};
 	let s = match(strings::next_token(&tok)) {
-	case void =>
+	case done =>
 		return false;
 	case let s: str =>
 		yield s;
 	};
 	let p = strings::iterstr(&start);
-	return fnmatch_internal(p, s, fl)? && strings::next_token(&tok) is void;
+	return fnmatch_internal(p, s, fl)? && strings::next_token(&tok) is done;
 };
 
 // Core fnmatch function, implementing the "Sea of stars" algorithm that is also
@@ -128,7 +128,7 @@ fn fnmatch_internal(
 		case star =>
 			break;
 		case end =>
-			return rn is void;
+			return rn is done;
 		case question =>
 			yield rn is rune;
 		case bracket =>
@@ -170,7 +170,7 @@ fn fnmatch_internal(
 		let rn = strings::prev(&s);
 		let matches = match (pat_next(&p, fl)?) {
 		case end =>
-			if (rn is void) {
+			if (rn is done) {
 				break;
 			} else {
 				return false;
@@ -221,7 +221,7 @@ fn fnmatch_internal(
 			s = copy;
 		};
 		match (strings::next(&s_copy)) {
-		case void =>
+		case done =>
 			return false;
 		case rune => void;
 		};
@@ -326,7 +326,7 @@ fn match_ctype(it: *strings::iterator, c: rune) (bool | errors::invalid) = {
 
 fn pat_next(pat: *strings::iterator, fl: flag) (token | errors::invalid) = {
 	let r = match (strings::next(pat)) {
-	case void =>
+	case done =>
 		return end;
 	case let r: rune =>
 		yield r;
@@ -351,7 +351,7 @@ fn advance_or_err(it: *strings::iterator) (rune | errors::invalid) = {
 	match (strings::next(it)) {
 	case let r: rune =>
 		return r;
-	case void =>
+	case done =>
 		return errors::invalid;
 	};
 };

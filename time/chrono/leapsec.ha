@@ -56,15 +56,8 @@ fn init_utc_leapsecs() (void | utciniterror) = {
 // Parse UTC/TAI leap second data from [[UTC_LEAPSECS_PATH]].
 // See file for format details.
 fn parse_utc_leapsecs(h: io::handle) (void | utf8::invalid | io::error) = {
-	for (true) {
-		const line = match (bufio::read_line(h)) {
-		case let err: io::error =>
-			return err;
-		case io::EOF =>
-			return;
-		case let line: []u8 =>
-			yield strings::fromutf8(line)?;
-		};
+	for (let line => bufio::read_line(h)?) {
+		let line = strings::fromutf8(line)?;
 		defer free(line);
 
 		if (strings::hasprefix(line, '#')) {
@@ -87,13 +80,7 @@ fn parse_utc_leapsecs(h: io::handle) (void | utf8::invalid | io::error) = {
 fn scan_number(iter: *strings::iterator) (i64 | void) = {
 	let begin = *iter;
 
-	for (true) {
-		const rn = match (strings::next(iter)) {
-		case void =>
-			break;
-		case let rn: rune =>
-			yield rn;
-		};
+	for (let rn => strings::next(iter)) {
 		switch (rn) {
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' =>
 			continue;
@@ -107,13 +94,7 @@ fn scan_number(iter: *strings::iterator) (i64 | void) = {
 };
 
 fn scan_whitespace(iter: *strings::iterator) void = {
-	for (true) {
-		const rn = match (strings::next(iter)) {
-		case void =>
-			return;
-		case let rn: rune =>
-			yield rn;
-		};
+	for (let rn => strings::next(iter)) {
 		switch (rn) {
 		case ' ', '\t' =>
 			continue;

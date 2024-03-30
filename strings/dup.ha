@@ -23,10 +23,10 @@ export fn dup(s: const str) str = {
 
 // Creates a copy of a []str slice with all the strings duplicated. The result
 // must be freed using [[freeall]].
-export fn dupall(s: []str) []str = {
-	let newsl: []str = alloc([], len(s));
-	for (let i = 0z; i < len(s); i += 1) {
-		static append(newsl, dup(s[i]));
+export fn dupall(strs: []str) []str = {
+	let newsl: []str = alloc([], len(strs));
+	for (let s .. strs) {
+		static append(newsl, dup(s));
 	};
 	return newsl;
 };

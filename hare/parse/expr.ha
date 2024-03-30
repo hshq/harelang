@@ -549,6 +549,8 @@ fn literal(lexer: *lex::lexer) (ast::expr | error) = {
 		};
 	case ltok::VOID =>
 		yield void;
+	case ltok::DONE =>
+		yield done;
 	case ltok::TRUE =>
 		yield true;
 	case ltok::FALSE =>
@@ -684,35 +686,104 @@ fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 	} else "";
 	want(lexer, ltok::LPAREN)?;
 
-	const bindings: nullable *ast::expr =
-		match (peek(lexer, ltok::DEF, ltok::LET, ltok::CONST,
-			ltok::STATIC)?) {
-		case void =>
-			yield null;
-		case let tok: lex::token =>
-			let is_static = if (tok.0 == ltok::STATIC) {
-				want(lexer, ltok::STATIC)?;
-				match (peek(lexer, ltok::LET, ltok::CONST)?) {
-				case lex::token => void;
-				case void =>
-					want(lexer, ltok::LET, ltok::CONST)?;
-					abort(); // unreachable
+	let kind = void: (ast::for_kind | void);
+	let predicate_loc = lex::mkloc(lexer);
+
+	const bindings = match (try(lexer, ltok::LET, ltok::CONST)?) {
+	case let tok: lex::token =>
+		const binding_kind = switch (tok.0) {
+		case ltok::LET =>
+			yield ast::binding_kind::LET;
+		case ltok::CONST =>
+			yield ast::binding_kind::CONST;
+		case => abort(); // unreachable
+		};
+
+		let bindings: []ast::binding = [];
+
+		for (true) {
+			const (tok, value, _) = want(lexer,
+				ltok::NAME, ltok::LPAREN)?;
+			const binding_name = switch (tok) {
+			case ltok::NAME =>
+				yield value as str;
+			case ltok::LPAREN =>
+				yield binding_unpack(lexer)?;
+			case => abort(); // unreachable
+			};
+			const btype: nullable *ast::_type =
+				if (try(lexer, ltok::COLON)? is lex::token) {
+					yield alloc(_type(lexer)?);
+				} else null;
+
+			const (tok, _, _) = want(lexer, ltok::EQUAL,
+				ltok::DOUBLE_DOT, ltok::BAND, ltok::ARROW)?;
+
+			if (kind is void) {
+				switch (tok) {
+				case ltok::EQUAL =>
+					kind = ast::for_kind::ACCUMULATOR;
+				case ltok::DOUBLE_DOT =>
+					kind = ast::for_kind::EACH_VALUE;
+				case ltok::BAND =>
+					want(lexer, ltok::DOUBLE_DOT)?;
+					kind = ast::for_kind::EACH_POINTER;
+				case ltok::ARROW =>
+					kind = ast::for_kind::ITERATOR;
+				case => abort(); // unreachable
 				};
-				yield true;
-			} else false;
-			const bindings = alloc(binding(lexer, is_static)?);
-			want(lexer, ltok::SEMICOLON)?;
-			yield bindings;
+			} else if (kind as ast::for_kind !=
+					ast::for_kind::ACCUMULATOR
+					|| tok != ltok::EQUAL) {
+				return syntaxerr(lex::mkloc(lexer),
+					"Cannot create multiple bindings in non-c-style loop");
+			};
+
+			const init_expr = alloc(expr(lexer)?);
+
+			append(bindings, ast::binding {
+				name = binding_name,
+				_type = btype,
+				init = init_expr,
+			});
+
+			match (try(lexer, ltok::COMMA)?) {
+			case lex::token =>
+				void;
+			case void =>
+				break;
+			};
 		};
-	const cond = alloc(expr(lexer)?);
-	const afterthought: nullable *ast::expr =
-		match (peek(lexer, ltok::SEMICOLON)?) {
-		case void =>
-			yield null;
+
+		if (kind as ast::for_kind == ast::for_kind::ACCUMULATOR) {
+			want(lexer, ltok::SEMICOLON)?;
+		};
+
+		yield alloc(ast::expr {
+			start = predicate_loc,
+			end = lex::prevloc(lexer),
+			expr = ast::binding_expr {
+				is_static = false,
+				kind = binding_kind,
+				bindings = bindings,
+			},
+		});
+	case void =>
+		kind = ast::for_kind::ACCUMULATOR;
+		yield null;
+	};
+
+	const cond: nullable *ast::expr = null;
+	const afterthought: nullable *ast::expr = null;
+
+	if (kind as ast::for_kind == ast::for_kind::ACCUMULATOR) {
+		cond = alloc(expr(lexer)?);
+		match (try(lexer, ltok::SEMICOLON)) {
 		case lex::token =>
-			want(lexer, ltok::SEMICOLON)?;
-			yield alloc(expr(lexer)?);
+			afterthought = alloc(expr(lexer)?);
+		case void => void;
 		};
+	};
 
 	want(lexer, ltok::RPAREN)?;
 
@@ -721,6 +792,7 @@ fn for_expr(lexer: *lex::lexer) (ast::expr | error) = {
 		start = tok.2,
 		end = lex::prevloc(lexer),
 		expr = ast::for_expr {
+			kind = kind as ast::for_kind,
 			bindings = bindings,
 			cond = cond,
 			afterthought = afterthought,
@@ -769,12 +841,12 @@ fn indexing(lexer: *lex::lexer, lvalue: ast::expr) (ast::expr | error) = {
 	let is_slice = false;
 	let start: nullable *ast::expr = null, end: nullable *ast::expr = null;
 
-	if (try(lexer, ltok::SLICE)? is lex::token) {
+	if (try(lexer, ltok::DOUBLE_DOT)? is lex::token) {
 		is_slice = true;
 	} else {
 		start = alloc(expr(lexer)?);
 	};
-	if (!is_slice && try(lexer, ltok::SLICE)? is lex::token) {
+	if (!is_slice && try(lexer, ltok::DOUBLE_DOT)? is lex::token) {
 		is_slice = true;
 	};
 	if (is_slice && peek(lexer, ltok::RBRACKET)? is void) {
@@ -820,7 +892,7 @@ fn plain_expression(lexer: *lex::lexer) (ast::expr | error) = {
 		return literal(lexer);
 	};
 	switch (tok.0) {
-	case ltok::TRUE, ltok::FALSE, ltok::NULL, ltok::VOID =>
+	case ltok::TRUE, ltok::FALSE, ltok::NULL, ltok::VOID, ltok::DONE =>
 		return literal(lexer);
 	case ltok::LBRACKET =>
 		return plain_array(lexer)?;

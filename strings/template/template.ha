@@ -30,14 +30,7 @@ export fn compile(input: str) (template | invalid) = {
 
 	let instrs: []instruction = [];
 	const iter = strings::iter(input);
-	for (true) {
-		const rn = match (strings::next(&iter)) {
-		case void =>
-			break;
-		case let rn: rune =>
-			yield rn;
-		};
-
+	for (let rn => strings::next(&iter)) {
 		if (rn == '$') {
 			match (strings::next(&iter)) {
 			case let next_rn: rune =>
@@ -69,8 +62,8 @@ export fn compile(input: str) (template | invalid) = {
 
 // Frees resources associated with a [[template]].
 export fn finish(tmpl: *template) void = {
-	for (let i = 0z; i < len(tmpl); i += 1) {
-		match (tmpl[i]) {
+	for (let instr .. *tmpl) {
+		match (instr) {
 		case let lit: literal =>
 			free(lit);
 		case let var: variable =>
@@ -89,8 +82,8 @@ export fn execute(
 	params: param...
 ) (size | io::error) = {
 	let z = 0z;
-	for (let i = 0z; i < len(tmpl); i += 1) {
-		match (tmpl[i]) {
+	for (let instr .. *tmpl) {
+		match (instr) {
 		case let lit: literal =>
 			z += fmt::fprint(out, lit)?;
 		case let var: variable =>
@@ -103,9 +96,9 @@ export fn execute(
 
 fn get_param(name: str, params: param...) fmt::formattable = {
 	// TODO: Consider preparing a parameter map or something
-	for (let i = 0z; i < len(params); i += 1) {
-		if (params[i].0 == name) {
-			return params[i].1;
+	for (let (var_name, obj) .. params) {
+		if (var_name == name) {
+			return obj;
 		};
 	};
 	fmt::errorfln("strings::template: required parameter ${} was not provided", name)!;

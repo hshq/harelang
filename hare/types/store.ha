@@ -149,6 +149,8 @@ export fn lookup(
 			return &builtin_u64;
 		case builtin::VOID =>
 			return &builtin_void;
+		case builtin::DONE =>
+			return &builtin_done;
 		case => void;
 		};
 	case => void;
@@ -184,6 +186,9 @@ fn fromast(store: *typestore, atype: *ast::_type) (_type | deferred | error) = {
 			sz = store.arch._int;
 			_align = store.arch._int;
 			yield builtin::BOOL;
+		case ast::builtin_type::DONE =>
+			sz = 0; _align = 0;
+			yield builtin::DONE;
 		case ast::builtin_type::F32 =>
 			sz = 4; _align = 4;
 			yield builtin::F32;

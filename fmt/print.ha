@@ -31,7 +31,7 @@ export fn fprintf(
 	let n = 0z, i = 0z;
 	let it = iter(fmt, args);
 	for (true) match (next(&it)) {
-	case void => break;
+	case done => break;
 	case let s: str =>
 		n += format(h, s, &mods { ... })?;
 	case let f: (formattable, mods) =>

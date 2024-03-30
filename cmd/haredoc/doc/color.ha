@@ -41,8 +41,8 @@ fn init_colors() (void | error) = {
 	const matches = regex::findall(&expr, env_colors);
 	defer regex::result_freeall(matches);
 
-	for (let i = 0z; i < len(matches); i += 1) :colors {
-		let (k, v) = (matches[i][1].content, matches[i][2].content);
+	for (let m .. matches) {
+		let (k, v) = (m[1].content, m[2].content);
 
 		let idx = 0z;
 		let out: *str = switch (k) {

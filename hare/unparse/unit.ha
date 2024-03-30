@@ -12,8 +12,8 @@ export fn subunit(
 	s: ast::subunit,
 ) (size | io::error) = {
 	let n = 0z;
-	for (let i = 0z; i < len(s.imports); i += 1) {
-		n += import(out, syn, &s.imports[i])?;
+	for (let imp &.. s.imports) {
+		n += import(out, syn, imp)?;
 		n += fmt::fprintln(out)?;
 	};
 	if (len(s.imports) > 0) {

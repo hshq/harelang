@@ -41,18 +41,18 @@ fn hashtable_insert(item: *mimetype) void = {
 	let bucket = &mimetable[hash % len(mimetable)];
 	append(bucket, item);
 
-	for (let i = 0z; i < len(item.exts); i += 1) {
-		const hash = fnv::string(item.exts[i]);
+	for (let ext .. item.exts) {
+		const hash = fnv::string(ext);
 		let bucket = &exttable[hash % len(exttable)];
 		append(bucket, item);
 	};
 };
 
 @fini fn fini() void = {
-	for (let i = 0z; i < len(heap_db); i += 1) {
-		free(heap_db[i].mime);
-		strings::freeall(heap_db[i].exts);
-		free(heap_db[i]);
+	for (let m .. heap_db) {
+		free(m.mime);
+		strings::freeall(m.exts);
+		free(m);
 	};
 	free(heap_db);
 	free(static_db);

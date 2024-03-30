@@ -55,10 +55,10 @@ fn iter(fmt: str, args: []field) iterator = iterator {
 	checkunused = true,
 };
 
-fn next(it: *iterator) (str | (formattable, mods) | void) = {
+fn next(it: *iterator) (str | (formattable, mods) | done) = {
 	let r = match (strings::next(&it.iter)) {
-	case void =>
-		return void;
+	case done =>
+		return done;
 	case let r: rune =>
 		yield r;
 	};
@@ -66,7 +66,7 @@ fn next(it: *iterator) (str | (formattable, mods) | void) = {
 	case '{' => void; // handled below
 	case '}' =>
 		match (strings::next(&it.iter)) {
-		case void =>
+		case done =>
 			abort("Invalid format string (hanging '}')");
 		case let r: rune =>
 			assert(r == '}', "Invalid format string (hanging '}')");
@@ -75,9 +75,7 @@ fn next(it: *iterator) (str | (formattable, mods) | void) = {
 	case =>
 		strings::prev(&it.iter);
 		let start = it.iter;
-		for (true) match (strings::next(&it.iter)) {
-		case void => break;
-		case let r: rune =>
+		for (let r => strings::next(&it.iter)) {
 			if (r == '{' || r == '}') {
 				strings::prev(&it.iter);
 				break;
@@ -189,7 +187,7 @@ fn scan_sz(it: *iterator) size = {
 };
 
 fn getrune(it: *iterator) rune = match (strings::next(&it.iter)) {
-case void =>
+case done =>
 	abort("Invalid format string (unterminated '{')");
 case let r: rune =>
 	return r;

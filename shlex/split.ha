@@ -23,25 +23,15 @@ export fn split(in: const str) ([]str | syntaxerr) = {
 	let first = true;
 	let dirty = false;
 
-	for (true) {
-		const r = match (strings::next(&iter)) {
-		case let r: rune =>
-			yield r;
-		case void =>
-			break;
-		};
-
+	for (let r => strings::next(&iter)) {
 		dirty = true;
 		switch (r) {
 		case ' ', '\t', '\n' =>
-			for (true) match (strings::next(&iter)) {
-			case let r: rune =>
+			for (let r => strings::next(&iter)) {
 				if (r != ' ' && r != '\t' && r != '\n') {
 					strings::prev(&iter); // Unget
 					break;
 				};
-			case void =>
-				break;
 			};
 			if (!first) {
 				const item = memio::string(&s)!;
@@ -76,7 +66,7 @@ fn scan_backslash(out: io::handle, in: *strings::iterator) (void | syntaxerr) = 
 	const r = match (strings::next(in)) {
 	case let r: rune =>
 		yield r;
-	case void =>
+	case done =>
 		return syntaxerr;
 	};
 
@@ -96,7 +86,7 @@ fn scan_double(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
 		const r = match (strings::next(in)) {
 		case let r: rune =>
 			yield r;
-		case void =>
+		case done =>
 			return syntaxerr;
 		};
 
@@ -116,7 +106,7 @@ fn scan_single(out: io::handle, in: *strings::iterator) (void | syntaxerr) = {
 		const r = match (strings::next(in)) {
 		case let r: rune =>
 			yield r;
-		case void =>
+		case done =>
 			return syntaxerr;
 		};
 

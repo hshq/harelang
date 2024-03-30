@@ -188,14 +188,9 @@ fn lookup_open(name: str) (platform_cmd | void | error) = {
 	};
 
 	let tok = strings::tokenize(path, ":");
-	for (true) {
-		const item = match (strings::next_token(&tok)) {
-		case void =>
-			break;
-		case let s: str =>
-			yield s;
-		};
+	for (let item => strings::next_token(&tok)) {
 		path::set(&buf, item, name)!;
+
 		match (open(path::string(&buf))) {
 		case (errors::noaccess | errors::noentry) =>
 			continue;
@@ -235,14 +230,9 @@ export fn lookup(name: str) (str | void) = {
 	};
 
 	let tok = strings::tokenize(path, ":");
-	for (true) {
-		const item = match (strings::next_token(&tok)) {
-		case void =>
-			break;
-		case let s: str =>
-			yield s;
-		};
+	for (let item => strings::next_token(&tok)) {
 		path::set(&buf, item, name)!;
+
 		match (os::access(path::string(&buf), os::amode::X_OK)) {
 		case let exec: bool =>
 			if (exec) {

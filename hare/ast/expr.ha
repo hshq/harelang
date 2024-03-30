@@ -241,7 +241,7 @@ export type tuple_literal = []*expr;
 export type _null = void;
 
 // A scalar value.
-export type value = (bool | _null | str | rune | void);
+export type value = (bool | done | _null | str | rune | void);
 
 // An integer or float literal.
 export type number_literal = struct {
@@ -273,12 +273,24 @@ export type delete_expr = struct {
 	is_static: bool,
 };
 
+// The kind of for expression being used.
+export type for_kind = enum {
+	ACCUMULATOR,
+	EACH_VALUE,
+	EACH_POINTER,
+	ITERATOR,
+};
+
 // A for loop.
 //
 // 	for (let foo = 0; foo < bar; baz) quux
+// 	for (let line => next_line()) quux
+// 	for (let number .. [1, 2, 3]) quux
+// 	for (let ptr &.. [1, 2, 3]) quux
 export type for_expr = struct {
+	kind: for_kind,
 	bindings: nullable *expr,
-	cond: *expr,
+	cond: nullable *expr,
 	afterthought: nullable *expr,
 	body: *expr,
 	label: label,

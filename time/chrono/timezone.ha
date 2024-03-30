@@ -74,8 +74,8 @@ type tzname = struct {
 // Frees a [[timezone]]. A [[locality]] argument can be passed.
 export fn timezone_free(tz: *timezone) void = {
 	free(tz.name);
-	for (let i = 0z; i < len(tz.zones); i += 1) {
-		zone_finish(&tz.zones[i]);
+	for (let zone &.. tz.zones) {
+		zone_finish(zone);
 	};
 	free(tz.zones);
 	free(tz.transitions);

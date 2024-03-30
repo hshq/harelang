@@ -60,20 +60,19 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 	let tags: []str = default_tags();
 	defer free(tags);
 
-	for (let i = 0z; i < len(cmd.opts); i += 1) {
-		let opt = cmd.opts[i];
-		switch (opt.0) {
+	for (let (k, v) .. cmd.opts) {
+		switch (k) {
 		case 'F' =>
-			switch (opt.1) {
+			switch (v) {
 			case "tty" =>
 				html = false;
 			case "html" =>
 				html = true;
 			case =>
-				fmt::fatal("Invalid format", opt.1);
+				fmt::fatal("Invalid format", v);
 			};
 		case 'T' =>
-			merge_tags(&tags, opt.1)?;
+			merge_tags(&tags, v)?;
 		case 't' =>
 			template = false;
 		case 'a' =>
@@ -148,32 +147,33 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 
 	let decls: []ast::decl = [];
 	defer {
-		for (let i = 0z; i < len(decls); i += 1) {
-			ast::decl_finish(decls[i]);
+		for (let decl .. decls) {
+			ast::decl_finish(decl);
 		};
 		free(decls);
 	};
 
 	if (declpath != "") {
-		for (let i = 0z; i < len(declsrcs.ha); i += 1) {
-			let u = doc::scan(declsrcs.ha[i])?;
+		for (let ha .. declsrcs.ha) {
+			let u = doc::scan(ha)?;
 			ast::imports_finish(u.imports);
 			append(decls, u.decls...);
 		};
 
 		let matching: []ast::decl = [];
 		let notmatching: []ast::decl = [];
-		for (let i = 0z; i < len(decls); i += 1) {
-			if (has_decl(decls[i], id[len(id) - 1])) {
-				append(matching, decls[i]);
+
+		for (let decl .. decls) {
+			if (has_decl(decl, id[len(id) - 1])) {
+				append(matching, decl);
 			} else {
-				append(notmatching, decls[i]);
+				append(notmatching, decl);
 			};
 		};
 		get_init_funcs(&matching, &notmatching);
 
-		for (let i = 0z; i < len(notmatching); i += 1) {
-			ast::decl_finish(notmatching[i]);
+		for (let decl .. notmatching) {
+			ast::decl_finish(decl);
 		};
 		free(notmatching);
 		free(decls);
@@ -199,8 +199,8 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 	const ambiguous = modpath != "" && len(decls) > 0;
 
 	if (len(decls) == 0) {
-		for (let i = 0z; i < len(modsrcs.ha); i += 1) {
-			let u = doc::scan(modsrcs.ha[i])?;
+		for (let ha .. modsrcs.ha) {
+			let u = doc::scan(ha)?;
 			ast::imports_finish(u.imports);
 			append(decls, u.decls...);
 		};
@@ -343,9 +343,9 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 	};
 
 	match (decl.decl) {
-	case let d: []ast::decl_const =>
-		for (let i = 0z; i < len(d); i += 1) {
-			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
+	case let consts: []ast::decl_const =>
+		for (let d .. consts) {
+			if (len(d.ident) == 1 && d.ident[0] == name) {
 				return true;
 			};
 		};
@@ -355,25 +355,25 @@ fn has_decl(decl: ast::decl, name: str) bool = {
 		};
 		let tok = strings::rtokenize(d.symbol, ".");
 		match (strings::next_token(&tok)) {
-		case void => void;
+		case done => void;
 		case let s: str =>
 			return s == name;
 		};
-	case let d: []ast::decl_global =>
-		for (let i = 0z; i < len(d); i += 1) {
-			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
+	case let globals: []ast::decl_global =>
+		for (let d .. globals) {
+			if (len(d.ident) == 1 && d.ident[0] == name) {
 				return true;
 			};
-			let tok = strings::rtokenize(d[i].symbol, ".");
+			let tok = strings::rtokenize(d.symbol, ".");
 			match (strings::next_token(&tok)) {
-			case void => void;
+			case done => void;
 			case let s: str =>
 				return s == name;
 			};
 		};
-	case let d: []ast::decl_type =>
-		for (let i = 0z; i < len(d); i += 1) {
-			if (len(d[i].ident) == 1 && d[i].ident[0] == name) {
+	case let types: []ast::decl_type =>
+		for (let d .. types) {
+			if (len(d.ident) == 1 && d.ident[0] == name) {
 				return true;
 			};
 		};
@@ -479,8 +479,8 @@ fn is_init_type(ident: ast::ident, _type: *ast::_type) bool = {
 			return false;
 		};
 	case let repr: ast::tagged_type =>
-		for (let i = 0z; i < len(repr); i += 1) {
-			if (is_init_type(ident, repr[i])) {
+		for (let t .. repr) {
+			if (is_init_type(ident, t)) {
 				return true;
 			};
 		};

@@ -14,15 +14,9 @@ export fn ltrim(input: str, trim: rune...) str = {
 		return fromutf8_unsafe(bytes::ltrim(input, whitespace...));
 	};
 	let it = iter(input);
-	for :outer (true) {
-		const r = match (next(&it)) {
-		case let r: rune =>
-			yield r;
-		case void =>
-			break;
-		};
-		for (let i = 0z; i < len(trim); i += 1) {
-			if (r == trim[i]) {
+	for :outer (let r => next(&it)) {
+		for (let tr .. trim) {
+			if (r == tr) {
 				continue :outer;
 			};
 		};
@@ -41,15 +35,9 @@ export fn rtrim(input: str, trim: rune...) str = {
 		return fromutf8_unsafe(bytes::rtrim(input, whitespace...));
 	};
 	let it = riter(input);
-	for :outer (true) {
-		const r = match (next(&it)) {
-		case let r: rune =>
-			yield r;
-		case void =>
-			break;
-		};
-		for (let i = 0z; i < len(trim); i += 1) {
-			if (r == trim[i]) {
+	for :outer (let r => next(&it)) {
+		for (let tr .. trim) {
+			if (r == tr) {
 				continue :outer;
 			};
 		};

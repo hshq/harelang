@@ -63,10 +63,7 @@ fn _parse(sc: *bufio::scanner) (doc | ...error | utf8::invalid) = {
 	let loc = lex::location { ... };
 	let doc: doc = [];
 
-	for (true) match (bufio::scan_rune(sc)?) {
-	case io::EOF =>
-		break;
-	case let r: rune =>
+	for (let r => bufio::scan_rune(sc)?) {
 		if (r == ' ') {
 			r = match (bufio::scan_rune(sc)?) {
 			case io::EOF =>
@@ -101,10 +98,7 @@ fn scan_code_sample(
 	loc: *lex::location,
 ) (code_sample | ...error | utf8::invalid) = {
 	let s = memio::dynamic();
-	for (true) match (bufio::scan_rune(sc)?) {
-	case io::EOF =>
-		break;
-	case let r: rune =>
+	for (let r => bufio::scan_rune(sc)?) {
 		switch (r) {
 		case '\t' =>
 			loc.col += 8 - loc.col % 8;
@@ -197,10 +191,7 @@ fn scan_paragraph(
 	defer io::close(&s)!;
 	let state = state::NORMAL;
 
-	for (true) match (bufio::scan_rune(sc)?) {
-	case io::EOF =>
-		break;
-	case let r: rune =>
+	for (let r => bufio::scan_rune(sc)?) {
 		switch (r) {
 		case '\t' =>
 			if (state == state::NEWLINE && loc.col <= 1) {
@@ -314,13 +305,13 @@ fn scan_paragraph(
 
 // Frees resources associated with a [[doc]].
 export fn freeall(doc: doc) void = {
-	for (let i = 0z; i < len(doc); i += 1) {
-		match (doc[i]) {
+	for (let d .. doc) {
+		match (d) {
 		case let p: paragraph =>
 			free_paragraph(p);
 		case let l: list =>
-			for (let i = 0z; i < len(l); i += 1) {
-				free_paragraph(l[i]);
+			for (let p .. l) {
+				free_paragraph(p);
 			};
 			free(l);
 		case let c: code_sample =>
@@ -331,8 +322,8 @@ export fn freeall(doc: doc) void = {
 };
 
 fn free_paragraph(p: paragraph) void = {
-	for (let i = 0z; i < len(p); i += 1) {
-		match (p[i]) {
+	for (let entry .. p) {
+		match (entry) {
 		case let s: str =>
 			free(s);
 		case let d: decl_ref =>

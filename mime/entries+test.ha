@@ -23,8 +23,8 @@ const text_hare: mimetype = mimetype {
 	assert(len(result.exts) >= 1);
 
 	let extfound = false;
-	for (let i = 0z; i < len(result.exts); i += 1) {
-		if (result.exts[i] == "txt") {
+	for (let ext .. result.exts) {
+		if (ext == "txt") {
 			extfound = true;
 		};
 	};
@@ -35,8 +35,8 @@ const text_hare: mimetype = mimetype {
 	assert(len(result.exts) >= 1);
 
 	let extfound = false;
-	for (let i = 0z; i < len(result.exts); i += 1) {
-		if (result.exts[i] == "ha") {
+	for (let ext .. result.exts) {
+		if (ext == "ha") {
 			extfound = true;
 		};
 	};
@@ -52,8 +52,8 @@ const text_hare: mimetype = mimetype {
 	assert(result.mime == "text/plain");
 
 	let extfound = false;
-	for (let i = 0z; i < len(result.exts); i += 1) {
-		if (result.exts[i] == "txt") {
+	for (let ext .. result.exts) {
+		if (ext == "txt") {
 			extfound = true;
 		};
 	};
@@ -67,8 +67,8 @@ const text_hare: mimetype = mimetype {
 	assert(len(result.exts) >= 1);
 
 	let extfound = false;
-	for (let i = 0z; i < len(result.exts); i += 1) {
-		if (result.exts[i] == "ha") {
+	for (let ext .. result.exts) {
+		if (ext == "ha") {
 			extfound = true;
 		};
 	};
