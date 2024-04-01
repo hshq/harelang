@@ -115,9 +115,7 @@ export fn tryparse(args: []str, help: help...) (command | error) = {
 
 		let iter = strings::iter(arg);
 		assert(strings::next(&iter) as rune == '-');
-		for (true) match (strings::next(&iter)) {
-		case void => break;
-		case let r: rune =>
+		for (let r => strings::next(&iter)) {
 			let found = false;
 			for (let j = 0z; j < len(help); j += 1) match (help[j]) {
 			case let f: flag_help =>
@@ -217,26 +215,32 @@ fn _printusage(
 		z += fmt::fprint(out, " [-h")?;
 		started_flags = true;
 	};
-	for (let i = 0z; i < len(help); i += 1) match (help [i]) {
-	case let h: flag_help =>
-		if (!started_flags) {
-			z += fmt::fprint(out, " [-")?;
-			started_flags = true;
+	for (let h .. help) {
+		match (h) {
+		case let h: flag_help =>
+			if (!started_flags) {
+				z += fmt::fprint(out, " [-")?;
+				started_flags = true;
+			};
+			z += fmt::fprint(out, h.0)?;
+		case => void;
 		};
-		z += fmt::fprint(out, h.0)?;
-	case => void;
 	};
 	if (started_flags) {
 		z += fmt::fprint(out, "]")?;
 	};
 
-	for (let i = 0z; i < len(help); i += 1) if (help[i] is parameter_help) {
-		const help = help[i] as parameter_help;
-		if (indent) {
-			z += fmt::fprintf(out, "\n\t")?;
+	for (let h .. help) {
+		match (h) {
+		case let h: parameter_help =>
+			if (indent) {
+				z += fmt::fprintf(out, "\n\t")?;
+			};
+			z += fmt::fprintf(out, " [-{} <{}>]", h.0, h.1)?;
+		case => void;
 		};
-		z += fmt::fprintf(out, " [-{} <{}>]", help.0, help.1)?;
 	};
+
 	let first_arg = true;
 	for (let i = 1z; i < len(help); i += 1) if (help[i] is cmd_help) {
 		if (first_arg) {
@@ -252,8 +256,8 @@ fn _printusage(
 };
 
 fn contains_h(help: []help) bool = {
-	for (let i = 0z; i < len(help); i += 1) {
-		const r = match (help[i]) {
+	for (let h .. help) {
+		const r = match (h) {
 		case let h: flag_help => yield h.0;
 		case let h: parameter_help => yield h.0;
 		case => continue;
@@ -287,12 +291,14 @@ export fn printhelp(
 	if (!contains_h) {
 		fmt::fprintln(out, "-h: print this help text")?;
 	};
-	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
-	case let f: flag_help =>
-		fmt::fprintfln(out, "-{}: {}", f.0, f.1)?;
-	case let p: parameter_help =>
-		fmt::fprintfln(out, "-{} <{}>: {}", p.0, p.1, p.2)?;
-	case => void;
+	for (let h .. help) {
+		match (h) {
+		case let f: flag_help =>
+			fmt::fprintfln(out, "-{}: {}", f.0, f.1)?;
+		case let p: parameter_help =>
+			fmt::fprintfln(out, "-{} <{}>: {}", p.0, p.1, p.2)?;
+		case => void;
+		};
 	};
 
 	printsubcmds(out, help)?;
@@ -300,19 +306,22 @@ export fn printhelp(
 
 fn printsubcmds(out: io::handle, help: []help) (void | io::error) = {
 	let first = true;
-	for (let i = 0z; i < len(help); i += 1) match (help[i]) {
-	case let s: subcmd_help =>
-		// Only print this if there are subcommands to show
-		if (first) {
-			fmt::fprintln(out, "\nSubcommands:")?;
-			first = false;
+	for (let h .. help) {
+		match (h) {
+		case let s: subcmd_help =>
+			// Only print this if there are subcommands to show
+			if (first) {
+				fmt::fprintln(out, "\nSubcommands:")?;
+				first = false;
+			};
+			if (len(s.1) == 0 || !(s.1[0] is cmd_help)) {
+				fmt::fprintfln(out, "  {}", s.0)?;
+			} else {
+				fmt::fprintfln(out, "  {}: {}", s.0,
+					s.1[0] as cmd_help: str)?;
+			};
+		case => void;
 		};
-		if (len(s.1) == 0 || !(s.1[0] is cmd_help)) {
-			fmt::fprintfln(out, "  {}", s.0)?;
-		} else {
-			fmt::fprintfln(out, "  {}: {}", s.0, s.1[0] as cmd_help: str)?;
-		};
-	case => void;
 	};
 };
 

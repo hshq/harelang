@@ -36,7 +36,7 @@ fn index_rune(s: str, r: rune) (size | void) = {
 			if (r == n) {
 				return i;
 			};
-		case void =>
+		case done =>
 			break;
 		};
 	};
@@ -50,7 +50,7 @@ fn rindex_rune(s: str, r: rune) (size | void) = {
 			if (r == n) {
 				return i;
 			};
-		case void =>
+		case done =>
 			break;
 		};
 	};
@@ -64,17 +64,17 @@ fn index_string(s: str, needle: str) (size | void) = {
 		for (true) {
 			const rest_rune = next(&rest_iter);
 			const needle_rune = next(&needle_iter);
-			if (rest_rune is void && !(needle_rune is void)) {
+			if (rest_rune is done && !(needle_rune is done)) {
 				break;
 			};
-			if (needle_rune is void) {
+			if (needle_rune is done) {
 				return i;
 			};
 			if ((rest_rune as rune) != (needle_rune as rune)) {
 				break;
 			};
 		};
-		if (next(&s_iter) is void) {
+		if (next(&s_iter) is done) {
 			break;
 		};
 	};
@@ -88,17 +88,17 @@ fn rindex_string(s: str, needle: str) (size | void) = {
 		for (true) {
 			const rest_rune = next(&rest_iter);
 			const needle_rune = next(&needle_iter);
-			if (rest_rune is void && !(needle_rune is void)) {
+			if (rest_rune is done && !(needle_rune is done)) {
 				break;
 			};
-			if (needle_rune is void) {
+			if (needle_rune is done) {
 				return i - len(needle);
 			};
 			if ((rest_rune as rune) != (needle_rune as rune)) {
 				break;
 			};
 		};
-		if (next(&s_iter) is void) {
+		if (next(&s_iter) is done) {
 			break;
 		};
 	};

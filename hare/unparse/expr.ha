@@ -203,61 +203,7 @@ fn _expr(ctx: *context, syn: *synfunc, e: *ast::expr) (size | io::error) = {
 		z += binexprval(ctx, syn, e.rvalue, prec)?;
 		return z;
 	case let e: ast::binding_expr =>
-		let z = 0z;
-		if (e.is_static) {
-			z += syn(ctx, "static", synkind::KEYWORD)?;
-			z += space(ctx)?;
-		};
-		switch (e.kind) {
-		case ast::binding_kind::DEF =>
-			z += syn(ctx, "def", synkind::KEYWORD)?;
-		case ast::binding_kind::CONST =>
-			z += syn(ctx, "const", synkind::KEYWORD)?;
-		case ast::binding_kind::LET =>
-			z += syn(ctx, "let", synkind::KEYWORD)?;
-		};
-		z += space(ctx)?;
-		for (let i = 0z; i < len(e.bindings); i += 1) {
-			let binding = e.bindings[i];
-			match (binding.name) {
-			case let s: str =>
-				z += syn(ctx, s, synkind::IDENT)?;
-			case let u: ast::binding_unpack =>
-				z += syn(ctx, "(", synkind::PUNCTUATION)?;
-				for (let i = 0z; i < len(u); i += 1) {
-					match (u[i]) {
-					case let s: str =>
-						z += syn(ctx, s,
-							synkind::IDENT)?;
-					case void =>
-						z += syn(ctx, "_",
-							synkind::OPERATOR)?;
-					};
-					if (i + 1 < len(u)) {
-						z += syn(ctx, ",",
-							synkind::PUNCTUATION)?;
-						z += space(ctx)?;
-					};
-				};
-				z += syn(ctx, ")", synkind::PUNCTUATION)?;
-			};
-			match (binding._type) {
-			case let t: *ast::_type =>
-				z += syn(ctx, ":", synkind::PUNCTUATION)?;
-				z += space(ctx)?;
-				z += __type(ctx, syn, t)?;
-			case null => void;
-			};
-			z += space(ctx)?;
-			z += syn(ctx, "=", synkind::OPERATOR)?;
-			z += space(ctx)?;
-			z += _expr(ctx, syn, binding.init)?;
-			if (i + 1 < len(e.bindings)) {
-				z += syn(ctx, ",", synkind::PUNCTUATION)?;
-				z += space(ctx)?;
-			};
-		};
-		return z;
+		return binding_expr(ctx, syn, &e, "=")?;
 	case let e: ast::break_expr =>
 		let z = syn(ctx, "break", synkind::KEYWORD)?;
 		if (e != "") {
@@ -388,9 +334,9 @@ fn _expr(ctx: *context, syn: *synfunc, e: *ast::expr) (size | io::error) = {
 		};
 		z += syn(ctx, "{", synkind::PUNCTUATION)?;
 		ctx.indent += 1;
-		for (let i = 0z; i < len(e.exprs); i += 1) {
+		for (let expr .. e.exprs) {
 			z += newline(ctx)?;
-			z += stmt(ctx, syn, e.exprs[i])?;
+			z += stmt(ctx, syn, expr)?;
 		};
 		ctx.indent -= 1;
 		z += newline(ctx)?;
@@ -705,9 +651,9 @@ fn struct_literal(
 	z += space(ctx)?;
 	z += syn(ctx, "{", synkind::PUNCTUATION)?;
 	ctx.indent += 1;
-	for (let i = 0z; i < len(sc.fields); i += 1) {
+	for (let field .. sc.fields) {
 		z += newline(ctx)?;
-		match (sc.fields[i]) {
+		match (field) {
 		case let sv: ast::struct_value =>
 			z += syn(ctx, sv.name, synkind::SECONDARY)?;
 			match (sv._type) {
@@ -736,6 +682,70 @@ fn struct_literal(
 	return z;
 };
 
+fn binding_expr(
+	ctx: *context,
+	syn: *synfunc,
+	e: *ast::binding_expr,
+	assign_op: str
+) (size | io::error) = {
+	let z = 0z;
+	if (e.is_static) {
+		z += syn(ctx, "static", synkind::KEYWORD)?;
+		z += space(ctx)?;
+	};
+	switch (e.kind) {
+	case ast::binding_kind::DEF =>
+		z += syn(ctx, "def", synkind::KEYWORD)?;
+	case ast::binding_kind::CONST =>
+		z += syn(ctx, "const", synkind::KEYWORD)?;
+	case ast::binding_kind::LET =>
+		z += syn(ctx, "let", synkind::KEYWORD)?;
+	};
+	z += space(ctx)?;
+	for (let i = 0z; i < len(e.bindings); i += 1) {
+		let binding = e.bindings[i];
+
+		match (binding.name) {
+		case let s: str =>
+			z += syn(ctx, s, synkind::IDENT)?;
+		case let u: ast::binding_unpack =>
+			z += syn(ctx, "(", synkind::PUNCTUATION)?;
+			for (let i = 0z; i < len(u); i += 1) {
+				match (u[i]) {
+				case let s: str =>
+					z += syn(ctx, s,
+						synkind::IDENT)?;
+				case void =>
+					z += syn(ctx, "_",
+						synkind::OPERATOR)?;
+				};
+				if (i + 1 < len(u)) {
+					z += syn(ctx, ",",
+						synkind::PUNCTUATION)?;
+					z += space(ctx)?;
+				};
+			};
+			z += syn(ctx, ")", synkind::PUNCTUATION)?;
+		};
+		match (binding._type) {
+		case let t: *ast::_type =>
+			z += syn(ctx, ":", synkind::PUNCTUATION)?;
+			z += space(ctx)?;
+			z += __type(ctx, syn, t)?;
+		case null => void;
+		};
+		z += space(ctx)?;
+		z += syn(ctx, assign_op, synkind::OPERATOR)?;
+		z += space(ctx)?;
+		z += _expr(ctx, syn, binding.init)?;
+		if (i + 1 < len(e.bindings)) {
+			z += syn(ctx, ",", synkind::PUNCTUATION)?;
+			z += space(ctx)?;
+		};
+	};
+	return z;
+};
+
 fn for_expr(
 	ctx: *context,
 	syn: *synfunc,
@@ -749,22 +759,40 @@ fn for_expr(
 		z += space(ctx)?;
 	};
 	z += syn(ctx, "(", synkind::PUNCTUATION)?;
-	match (e.bindings) {
-	case null => void;
-	case let e: *ast::expr =>
-		z += _expr(ctx, syn, e)?;
-		z += syn(ctx, ";", synkind::PUNCTUATION)?;
-		z += space(ctx)?;
+
+	let assign_op = switch (e.kind) {
+	case ast::for_kind::ACCUMULATOR =>
+		yield "=";
+	case ast::for_kind::EACH_VALUE =>
+		yield "..";
+	case ast::for_kind::EACH_POINTER =>
+		yield "&..";
+	case ast::for_kind::ITERATOR =>
+		yield "=>";
 	};
 
-	z += _expr(ctx, syn, e.cond)?;
+	match (e.bindings) {
+	case let bind_expr: *ast::expr =>
+		z += binding_expr(ctx, syn,
+			&(bind_expr.expr as ast::binding_expr), assign_op)?;
 
-	match (e.afterthought) {
+		if (e.kind == ast::for_kind::ACCUMULATOR) {
+			z += syn(ctx, ";", synkind::PUNCTUATION)?;
+			z += space(ctx)?;
+		};
 	case null => void;
-	case let e: *ast::expr =>
-		z += syn(ctx, ";", synkind::PUNCTUATION)?;
-		z += space(ctx)?;
-		z += _expr(ctx, syn, e)?;
+	};
+
+	if (e.kind == ast::for_kind::ACCUMULATOR) {
+		z += _expr(ctx, syn, e.cond as *ast::expr)?;
+
+		match (e.afterthought) {
+		case null => void;
+		case let e: *ast::expr =>
+			z += syn(ctx, ";", synkind::PUNCTUATION)?;
+			z += space(ctx)?;
+			z += _expr(ctx, syn, e)?;
+		};
 	};
 
 	z += syn(ctx, ")", synkind::PUNCTUATION)?;
@@ -791,9 +819,8 @@ fn switch_expr(
 	z += space(ctx)?;
 	z += syn(ctx, "{", synkind::PUNCTUATION)?;
 
-	for (let i = 0z; i < len(e.cases); i += 1) {
+	for (let item .. e.cases) {
 		z += newline(ctx)?;
-		const item = e.cases[i];
 		z += syn(ctx, "case", synkind::KEYWORD)?;
 		z += space(ctx)?;
 		if (len(item.options) == 0) {
@@ -837,10 +864,9 @@ fn match_expr(
 	z += space(ctx)?;
 	z += syn(ctx, "{", synkind::PUNCTUATION)?;
 
-	for (let i = 0z; i < len(e.cases); i += 1) {
+	for (let item .. e.cases) {
 		z += newline(ctx)?;
 		z += syn(ctx, "case", synkind::KEYWORD)?;
-		const item = e.cases[i];
 		if (len(item.name) > 0) {
 			z += space(ctx)?;
 			z += syn(ctx, "let", synkind::KEYWORD)?;
@@ -900,9 +926,9 @@ fn case_exprs(
 	case => void;
 	};
 	ctx.indent += 1;
-	for (let j = 0z; j < len(exprs); j += 1) {
+	for (let expr .. exprs) {
 		z += newline(ctx)?;
-		z += stmt(ctx, syn, exprs[j])?;
+		z += stmt(ctx, syn, expr)?;
 	};
 	ctx.indent -= 1;
 

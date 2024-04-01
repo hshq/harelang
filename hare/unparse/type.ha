@@ -16,6 +16,8 @@ case ast::builtin_type::FCONST, ast::builtin_type::ICONST,
 	abort("ICONST, FCONST, and RCONST have no lexical representation");
 case ast::builtin_type::BOOL =>
 	yield "bool";
+case ast::builtin_type::DONE =>
+	yield "done";
 case ast::builtin_type::F32 =>
 	yield "f32";
 case ast::builtin_type::F64 =>
@@ -116,18 +118,18 @@ fn struct_union_type(
 	};
 
 	ctx.indent += 1z;
-	for (let i = 0z; i < len(membs); i += 1) {
+	for (let memb .. membs) {
 		z += fmt::fprintln(ctx.out)?;
 		ctx.linelen = 0;
-		if (membs[i].docs != "") {
-			z += comment(ctx, syn, membs[i].docs)?;
+		if (memb.docs != "") {
+			z += comment(ctx, syn, memb.docs)?;
 		};
 		for (let i = 0z; i < ctx.indent; i += 1) {
 			z += fmt::fprint(ctx.out, "\t")?;
 			ctx.linelen += 8;
 		};
 
-		match (membs[i]._offset) {
+		match (memb._offset) {
 		case null => void;
 		case let ex: *ast::expr =>
 			z += syn(ctx, "@offset(", synkind::ATTRIBUTE)?;
@@ -136,7 +138,7 @@ fn struct_union_type(
 			z += space(ctx)?;
 		};
 
-		match (membs[i].member) {
+		match (memb.member) {
 		case let se: ast::struct_embedded =>
 			z += __type(ctx, syn, se)?;
 		case let sa: ast::struct_alias =>
@@ -216,8 +218,7 @@ fn __type(ctx: *context, syn: *synfunc, t: *ast::_type) (size | io::error) = {
 		ctx.indent += 1;
 		n += fmt::fprintln(ctx.out)?;
 		ctx.linelen = 0;
-		for (let i = 0z; i < len(e.values); i += 1) {
-			let value = e.values[i];
+		for (let value .. e.values) {
 			let wrotedocs = false;
 			if (value.docs != "") {
 				// Check if comment should go above or next to

@@ -17,8 +17,7 @@ use strings;
 export fn sort_decls(decls: []ast::decl) summary = {
 	let sorted = summary { ... };
 
-	for (let i = 0z; i < len(decls); i += 1) {
-		let decl = decls[i];
+	for (let decl .. decls) {
 		if (!decl.exported) {
 			continue;
 		};
@@ -38,42 +37,42 @@ export fn sort_decls(decls: []ast::decl) summary = {
 				},
 				docs = decl.docs,
 			});
-		case let t: []ast::decl_type =>
-			for (let j = 0z; j < len(t); j += 1) {
+		case let types: []ast::decl_type =>
+			for (let t .. types) {
 				let bucket = &sorted.types;
-				if (t[j]._type.flags & ast::type_flag::ERROR == ast::type_flag::ERROR) {
+				if (t._type.flags & ast::type_flag::ERROR == ast::type_flag::ERROR) {
 					bucket = &sorted.errors;
 				};
 				append(bucket, ast::decl {
 					exported = false,
 					start = decl.start,
 					end = decl.end,
-					decl = alloc([t[j]]),
+					decl = alloc([t]),
 					docs = decl.docs,
 				});
 			};
-		case let c: []ast::decl_const =>
-			for (let j = 0z; j < len(c); j += 1) {
+		case let consts: []ast::decl_const =>
+			for (let c .. consts) {
 				append(sorted.constants, ast::decl {
 					exported = false,
 					start = decl.start,
 					end = decl.end,
-					decl = alloc([c[j]]),
+					decl = alloc([c]),
 					docs = decl.docs,
 				});
 			};
-		case let g: []ast::decl_global =>
-			for (let j = 0z; j < len(g); j += 1) {
+		case let globals: []ast::decl_global =>
+			for (let g .. globals) {
 				append(sorted.globals, ast::decl {
 					exported = false,
 					start = decl.start,
 					end = decl.end,
 					decl = alloc([ast::decl_global {
-						is_const = g[j].is_const,
-						is_threadlocal = g[j].is_threadlocal,
-						symbol = g[j].symbol,
-						ident = g[j].ident,
-						_type = g[j]._type,
+						is_const = g.is_const,
+						is_threadlocal = g.is_threadlocal,
+						symbol = g.symbol,
+						ident = g.ident,
+						_type = g._type,
 						init = null,
 					}]),
 					docs = decl.docs,

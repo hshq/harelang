@@ -41,9 +41,9 @@ const platforms: [_]platform = [
 ];
 
 export fn get_platform(name: str) (*platform | unknown_platform) = {
-	for (let i = 0z; i < len(platforms); i += 1) {
-		if (platforms[i].name == name) {
-			return &platforms[i];
+	for (let platform &.. platforms) {
+		if (platform.name == name) {
+			return platform;
 		};
 	};
 	return name: unknown_platform;

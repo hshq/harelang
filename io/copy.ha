@@ -51,16 +51,9 @@ fn copy_streams(dest: *stream, src: *stream) (size | error) = {
 fn copy_fallback(dest: handle, src: handle) (size | error) = {
 	let w = 0z;
 	let buf: [4096]u8 = [0...];
-	for (true) {
-		match (read(src, buf[..])?) {
-		case let n: size =>
-			if (n == 0) {
-				break;
-			};
-			w += writeall(dest, buf[..n])?;
-		case EOF =>
-			break;
-		};
+
+	for (let n => read(src, buf[..])?) {
+		w += writeall(dest, buf[..n])?;
 	};
 	return w;
 };

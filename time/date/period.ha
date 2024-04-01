@@ -30,18 +30,18 @@ export fn peq(pa: period, pb: period) bool = {
 
 // Returns the sum [[period]] of a set of periods.
 export fn sum(ps: period...) period = {
-	let p = period { ... };
-	for (let i = 0z; i < len(ps); i += 1) {
-		p.years       += ps[i].years;
-		p.months      += ps[i].months;
-		p.weeks       += ps[i].weeks;
-		p.days        += ps[i].days;
-		p.hours       += ps[i].hours;
-		p.minutes     += ps[i].minutes;
-		p.seconds     += ps[i].seconds;
-		p.nanoseconds += ps[i].nanoseconds;
+	let out = period { ... };
+	for (let p &.. ps) {
+		out.years       += p.years;
+		out.months      += p.months;
+		out.weeks       += p.weeks;
+		out.days        += p.days;
+		out.hours       += p.hours;
+		out.minutes     += p.minutes;
+		out.seconds     += p.seconds;
+		out.nanoseconds += p.nanoseconds;
 	};
-	return p;
+	return out;
 };
 
 // Returns a [[period]] with its fields negated.

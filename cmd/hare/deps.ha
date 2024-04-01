@@ -28,8 +28,8 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 
 	let build_dir: str = "";
 	let goal = deps_fmt::TERM;
-	for (let i = 0z; i < len(cmd.opts); i += 1) {
-		let opt = cmd.opts[i];
+
+	for (let opt .. cmd.opts) {
 		switch (opt.0) {
 		case 'd' =>
 			goal = deps_fmt::DOT;
@@ -70,11 +70,11 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 		deps_graph(&mods);
 	case deps_fmt::DOT =>
 		fmt::println("strict digraph deps {")!;
-		for (let i = 0z; i < len(mods); i += 1) {
-			for (let j = 0z; j < len(mods[i].deps); j += 1) {
-				const child = mods[mods[i].deps[j].0];
+		for (let mod .. mods) {
+			for (let dep .. mod.deps) {
+				const child = mods[dep.0];
 				fmt::printfln("\t\"{}\" -> \"{}\";",
-					mods[i].name, child.name)!;
+					mod.name, child.name)!;
 			};
 		};
 		fmt::println("}")!;

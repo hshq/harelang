@@ -9,8 +9,7 @@ use strings;
 export fn lookup_mime(mime: str) const nullable *mimetype = {
 	const hash = fnv::string(mime);
 	const bucket = &mimetable[hash % len(mimetable)];
-	for (let i = 0z; i < len(bucket); i += 1) {
-		const item = bucket[i];
+	for (let item .. *bucket) {
 		if (item.mime == mime) {
 			return item;
 		};
@@ -24,8 +23,7 @@ export fn lookup_ext(ext: str) const nullable *mimetype = {
 	ext = strings::ltrim(ext, '.');
 	const hash = fnv::string(ext);
 	const bucket = &exttable[hash % len(exttable)];
-	for (let i = 0z; i < len(bucket); i += 1) {
-		const item = bucket[i];
+	for (let item .. *bucket) {
 		for (let j = 0z; j < len(item.exts); j += 1) {
 			if (item.exts[j] == ext) {
 				return item;

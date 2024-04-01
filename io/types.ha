@@ -11,7 +11,7 @@ export type underread = !size;
 export type error = !(...errors::error | underread);
 
 // Indicates an end-of-file condition.
-export type EOF = void;
+export type EOF = done;
 
 // Converts an I/O [[error]] into a user-friendly string.
 export fn strerror(err: error) str = {

@@ -67,8 +67,8 @@ fn finish_context(ctx: *context) void = {
 	io::close(&ctx.stderr)!;
 	free(ctx.failures);
 	free(ctx.skipped);
-	for (let i = 0z; i < len(ctx.output); i += 1) {
-		finish_output(&ctx.output[i]);
+	for (let out &.. ctx.output) {
+		finish_output(out);
 	};
 	free(ctx.output);
 	free(ctx.cwd);
@@ -92,8 +92,8 @@ export @symbol("__test_main") fn main() size = {
 	if (len(os::args) == 1) {
 		append(enabled_tests, tests...);
 	} else for (let i = 0z; i < ntest; i += 1) {
-		for (let j = 1z; j < len(os::args); j += 1) {
-			if (fnmatch::fnmatch(os::args[j], tests[i].name)) {
+		for (let arg .. os::args) {
+			if (fnmatch::fnmatch(arg, tests[i].name)) {
 				append(enabled_tests, tests[i]);
 				break;
 			};
@@ -105,9 +105,9 @@ export @symbol("__test_main") fn main() size = {
 	};
 
 	let maxname = 0z;
-	for (let i = 0z; i < len(enabled_tests); i += 1) {
-		if (len(enabled_tests[i].name) > maxname) {
-			maxname = len(enabled_tests[i].name);
+	for (let test .. enabled_tests) {
+		if (len(test.name) > maxname) {
+			maxname = len(test.name);
 		};
 	};
 
@@ -123,14 +123,13 @@ export @symbol("__test_main") fn main() size = {
 
 	fmt::printfln("Running {}/{} tests:\n", len(enabled_tests), ntest)!;
 	reset(&ctx);
-	for (let i = 0z; i < len(enabled_tests); i += 1) {
-		do_test(&ctx, enabled_tests[i]);
+	for (let test .. enabled_tests) {
+		do_test(&ctx, test);
 	};
 	fmt::println()!;
 
-	for (let i = 0z; i < len(ctx.skipped); i += 1) {
-		fmt::printfln("Skipped {}: {}", ctx.skipped[i].test,
-			ctx.skipped[i].reason)!;
+	for (let skipped .. ctx.skipped) {
+		fmt::printfln("Skipped {}: {}", skipped.test, skipped.reason)!;
 	};
 	if (len(ctx.skipped) > 0) {
 		fmt::println()!;
@@ -138,19 +137,19 @@ export @symbol("__test_main") fn main() size = {
 
 	if (len(ctx.failures) > 0) {
 		fmt::println("Failures:")!;
-		for (let i = 0z; i < len(ctx.failures); i += 1) {
-			match (ctx.failures[i].reason.path) {
+		for (let failure .. ctx.failures) {
+			match (failure.reason.path) {
 			case null =>
 				fmt::printfln("{}: {}",
-					ctx.failures[i].test,
-					ctx.failures[i].reason.msg)!;
+					failure.test,
+					failure.reason.msg)!;
 			case let path: *str =>
 				fmt::printfln("{}: {}:{}:{}: {}",
-					ctx.failures[i].test,
+					failure.test,
 					*path,
-					ctx.failures[i].reason.line,
-					ctx.failures[i].reason.col,
-					ctx.failures[i].reason.msg)!;
+					failure.reason.line,
+					failure.reason.col,
+					failure.reason.msg)!;
 			};
 		};
 		fmt::println()!;
@@ -256,7 +255,7 @@ fn printable(buf: []u8) str = {
 	case let s: str =>
 		let it = strings::iter(s);
 		for (true) match (strings::next(&it)) {
-		case void =>
+		case done =>
 			return strings::dup(s);
 		case let r: rune =>
 			if (ascii::valid(r) && !ascii::isprint(r)

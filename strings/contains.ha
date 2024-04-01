@@ -7,8 +7,8 @@ use encoding::utf8;
 // Returns true if a string contains a rune or a sub-string, multiple of which
 // can be given.
 export fn contains(haystack: str, needles: (str | rune)...) bool = {
-	for (let i = 0z; i < len(needles); i += 1) {
-		const matched = match (needles[i]) {
+	for (let needle .. needles) {
+		const matched = match (needle) {
 		case let s: str =>
 			yield bytes::contains(toutf8(haystack),
 				toutf8(s));

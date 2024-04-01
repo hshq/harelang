@@ -90,8 +90,8 @@ fn fs_open_file(
 	flags: fs::flag...
 ) (io::file | fs::error) = {
 	let oflags = fs::flag::RDONLY;
-	for (let i = 0z; i < len(flags); i += 1z) {
-		oflags |= flags[i];
+	for (let flag .. flags) {
+		oflags |= flag;
 	};
 	return _fs_open(fs, path, fsflags_to_bsd(oflags)?, 0);
 };
@@ -129,8 +129,8 @@ fn fs_create_file(
 	if (len(flags) == 0z) {
 		oflags |= fs::flag::WRONLY | fs::flag::TRUNC;
 	};
-	for (let i = 0z; i < len(flags); i += 1z) {
-		oflags |= flags[i];
+	for (let flag .. flags) {
+		oflags |= flag;
 	};
 	oflags |= fs::flag::CREATE;
 	return _fs_open(fs, path, fsflags_to_bsd(oflags)?, mode)?;
@@ -169,7 +169,7 @@ type os_iterator = struct {
 	buf: []u8,
 };
 
-fn iter_next(iter: *fs::iterator) (fs::dirent | void | fs::error) = {
+fn iter_next(iter: *fs::iterator) (fs::dirent | done | fs::error) = {
 	let iter = iter: *os_iterator;
 
 	for (true) {
@@ -182,7 +182,7 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void | fs::error) = {
 				yield n;
 			};
 			if (n == 0) {
-				return;
+				return done;
 			};
 			iter.buf_end = n;
 			iter.buf_pos = 0;
@@ -190,6 +190,7 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void | fs::error) = {
 
 		let de = &iter.buf[iter.buf_pos]: *rt::dirent;
 		iter.buf_pos += de.d_reclen: int;
+
 		// getdents() may return invalid entries which will have
 		// d_fileno set to 0
 		if (de.d_fileno == 0) {

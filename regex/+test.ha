@@ -629,18 +629,12 @@ fn run_rawreplace_case(
 		// (`^([ab]*?)(?<!(a))c`, "abc", matchres::MATCH, 0, -1),
 	];
 
-	for (let i = 0z; i < len(cases); i += 1) {
-		const expr = cases[i].0;
-		const string = cases[i].1;
-		const should_match = cases[i].2;
-		const start = cases[i].3;
-		const end = if (cases[i].4 == -1) {
+	for (let (expr, string, should_match, start, end) .. cases) {
+		if (end == -1) {
 			// workaround to get the length in codepoints
 			let runes = strings::torunes(string);
 			defer free(runes);
-			yield len(runes): int;
-		} else {
-			yield cases[i].4;
+			end = len(runes): int;
 		};
 		run_find_case(expr, string, should_match, start, end);
 	};
@@ -651,11 +645,7 @@ fn run_rawreplace_case(
 			["aaa bbb ccc", "bbb", "ccc"]: []str),
 	];
 
-	for (let i = 0z; i < len(submatch_cases); i += 1) {
-		const expr = submatch_cases[i].0;
-		const string = submatch_cases[i].1;
-		const should_match = submatch_cases[i].2;
-		const targets = submatch_cases[i].3;
+	for (let (expr, string, should_match, targets) .. submatch_cases) {
 		run_submatch_case(expr, string, should_match, targets);
 	};
 };
@@ -674,11 +664,7 @@ fn run_rawreplace_case(
 			["aaa", ""]: []str),
 	];
 
-	for (let i = 0z; i < len(cases); i += 1) {
-		const expr = cases[i].0;
-		const string = cases[i].1;
-		const should_match = cases[i].2;
-		const targets = cases[i].3;
+	for (let (expr, string, should_match, targets) .. cases) {
 		run_findall_case(expr, string, should_match, targets);
 	};
 };
@@ -702,12 +688,7 @@ fn run_rawreplace_case(
 		(`([[:digit:]])([[:digit:]])`, "1234", `\2`, 1, "234"),
 	];
 
-	for (let i = 0z; i < len(cases); i += 1) {
-		const expr = cases[i].0;
-		const string = cases[i].1;
-		const target = cases[i].2;
-		const n = cases[i].3;
-		const expected = cases[i].4;
+	for (let (expr, string, target, n, expected) .. cases) {
 		run_replace_case(expr, string, target, n, expected);
 	};
 };
@@ -727,12 +708,7 @@ fn run_rawreplace_case(
 		(`.`, "blablabla", `x`, 0, "blablabla"),
 	];
 
-	for (let i = 0z; i < len(cases); i += 1) {
-		const expr = cases[i].0;
-		const string = cases[i].1;
-		const target = cases[i].2;
-		const n = cases[i].3;
-		const expected = cases[i].4;
+	for (let (expr, string, target, n, expected) .. cases) {
 		run_rawreplace_case(expr, string, target, n, expected);
 	};
 };

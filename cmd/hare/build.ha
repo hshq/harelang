@@ -53,8 +53,7 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		ctx.mode = build::output::SILENT;
 	};
 
-	for (let i = 0z; i < len(cmd.opts); i += 1) {
-		let opt = cmd.opts[i];
+	for (let opt .. cmd.opts) {
 		switch (opt.0) {
 		case 'a' =>
 			arch = get_arch(opt.1)?;

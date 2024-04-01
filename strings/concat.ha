@@ -4,12 +4,13 @@
 // Concatenates multiple strings. The caller must free the return value.
 export fn concat(strs: str...) str = {
 	let z = 0z;
-	for (let i = 0z; i < len(strs); i += 1) {
-		z += len(strs[i]);
+	for (let s .. strs) {
+		z += len(s);
 	};
+
 	let new: []u8 = alloc([], z);
-	for (let i = 0z; i < len(strs); i += 1) {
-		static append(new, toutf8(strs[i])...);
+	for (let s .. strs) {
+		static append(new, toutf8(s)...);
 	};
 	return fromutf8_unsafe(new);
 };

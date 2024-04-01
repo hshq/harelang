@@ -48,8 +48,8 @@ fn get_deps(ctx: *context, t: *task) []str = {
 	case stage::TD => abort();
 	case stage::SSA =>
 		let deps = strings::dupall(mod.srcs.ha);
-		for (let i = 0z; i < len(mod.deps); i += 1) {
-			append(deps, get_cache(ctx, mod.deps[i].0, stage::TD)!);
+		for (let (dep_idx, _) .. mod.deps) {
+			append(deps, get_cache(ctx, dep_idx, stage::TD)!);
 		};
 		return deps;
 	case stage::S =>
@@ -66,8 +66,8 @@ fn get_deps(ctx: *context, t: *task) []str = {
 				append(deps, strings::dup(srcs.sc[j]));
 			};
 			append(deps, get_cache(ctx, i, stage::O)!);
-			for (let j = 0z; j < len(srcs.o); j += 1) {
-				append(deps, strings::dup(srcs.o[j]));
+			for (let o .. srcs.o) {
+				append(deps, strings::dup(o));
 			};
 		};
 		return deps;
@@ -109,9 +109,9 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 	case stage::O =>
 		return flags;
 	case stage::BIN =>
-		for (let i = 0z; i < len(ctx.libdirs); i += 1) {
+		for (let libdir .. ctx.libdirs) {
 			append(flags, strings::dup("-L"));
-			append(flags, strings::dup(ctx.libdirs[i]));
+			append(flags, strings::dup(libdir));
 		};
 		if (ctx.libc) {
 			append(flags, strings::dup("-Wl,--gc-sections"));
@@ -154,23 +154,22 @@ fn get_flags(ctx: *context, t: *task) ([]str | error) = {
 		append(flags, strings::dup("-T"));
 	};
 
-	for (let i = 0z; i < len(ctx.defines); i += 1) {
-		let ident = ctx.defines[i].ident;
+	for (let define .. ctx.defines) {
+		let ident = define.ident;
 		let ns = ident[..len(ident) - 1];
 		if (!ast::ident_eq(ns, mod.ns)) {
 			continue;
 		};
 		let buf = memio::dynamic();
 		memio::concat(&buf, "-D", ident[len(ident) - 1])!;
-		match (ctx.defines[i]._type) {
+		match (define._type) {
 		case null => void;
 		case let t: *ast::_type =>
 			memio::concat(&buf, ":")!;
 			unparse::_type(&buf, &unparse::syn_nowrap, t)!;
 		};
 		memio::concat(&buf, "=")!;
-		unparse::expr(&buf, &unparse::syn_nowrap,
-			ctx.defines[i].init)!;
+		unparse::expr(&buf, &unparse::syn_nowrap, define.init)!;
 		append(flags, memio::string(&buf)!);
 	};
 
@@ -186,8 +185,8 @@ fn get_hash(
 	let h = sha256::sha256();
 
 	hash::write(&h, strings::toutf8(ctx.cmds[t.kind]));
-	for (let i = 0z; i < len(flags); i += 1) {
-		hash::write(&h, strings::toutf8(flags[i]));
+	for (let flag .. flags) {
+		hash::write(&h, strings::toutf8(flag));
 	};
 
 	switch (t.kind) {
@@ -197,8 +196,8 @@ fn get_hash(
 		hash::write(&h, [0]);
 		hash::write(&h, ctx.version);
 		hash::write(&h, [0]);
-		for (let i = 0z; i < len(ctx.mods[t.idx].deps); i += 1) {
-			let ns = unparse::identstr(ctx.mods[t.idx].deps[i].1);
+		for (let dep .. ctx.mods[t.idx].deps) {
+			let ns = unparse::identstr(dep.1);
 			defer free(ns);
 			let var = strings::concat("HARE_TD_", ns);
 			defer free(var);
@@ -218,14 +217,14 @@ fn get_hash(
 		hash::write(&h, [0]);
 	case stage::O => void;
 	case stage::BIN =>
-		for (let i = 0z; i < len(ctx.libs); i += 1) {
-			hash::write(&h, strings::toutf8(ctx.libs[i]));
+		for (let lib .. ctx.libs) {
+			hash::write(&h, strings::toutf8(lib));
 			hash::write(&h, [0]);
 		};
 	};
 
-	for (let i = 0z; i < len(deps); i += 1) {
-		hash::write(&h, strings::toutf8(deps[i]));
+	for (let dep .. deps) {
+		hash::write(&h, strings::toutf8(dep));
 		hash::write(&h, [0]);
 	};
 
@@ -259,13 +258,13 @@ fn get_args(ctx: *context, tmp: str, flags: []str, t: *task) []str = {
 	case stage::BIN =>
 		for (let i = 0z; i < len(ctx.mods); i += 1) {
 			let srcs = ctx.mods[i].srcs;
-			for (let i = 0z; i < len(srcs.sc); i += 1) {
+			for (let sc .. srcs.sc) {
 				append(args, strings::dup("-T"));
-				append(args, strings::dup(srcs.sc[i]));
+				append(args, strings::dup(sc));
 			};
 			append(args, get_cache(ctx, i, stage::O)!);
-			for (let i = 0z; i < len(srcs.o); i += 1) {
-				append(args, strings::dup(srcs.o[i]));
+			for (let o .. srcs.o) {
+				append(args, strings::dup(o));
 			};
 		};
 		// XXX: when dynamically linking on Linux, we have to disable
@@ -275,14 +274,14 @@ fn get_args(ctx: *context, tmp: str, flags: []str, t: *task) []str = {
 		if (ctx.libc) {
 			append(args, strings::dup("-Wl,--no-gc-sections"));
 		};
-		for (let i = 0z; i < len(ctx.libs); i += 1) {
+		for (let lib .. ctx.libs) {
 			append(args, strings::dup("-l"));
-			append(args, strings::dup(ctx.libs[i]));
+			append(args, strings::dup(lib));
 		};
 		yield [];
 	};
-	for (let i = 0z; i < len(srcs); i += 1) {
-		append(args, strings::dup(srcs[i]));
+	for (let src .. srcs) {
+		append(args, strings::dup(src));
 	};
 	return args;
 };
@@ -291,8 +290,8 @@ fn write_args(ctx: *context, out: str, args: []str, t: *task) (void | error) = {
 	let txt = os::create(out, 0o644)?;
 	defer io::close(txt)!;
 	if (t.kind == stage::SSA) {
-		for (let i = 0z; i < len(ctx.mods[t.idx].deps); i += 1) {
-			let ns = unparse::identstr(ctx.mods[t.idx].deps[i].1);
+		for (let (_, ident) .. ctx.mods[t.idx].deps) {
+			let ns = unparse::identstr(ident);
 			defer free(ns);
 			let var = strings::concat("HARE_TD_", ns);
 			defer free(var);
@@ -300,9 +299,9 @@ fn write_args(ctx: *context, out: str, args: []str, t: *task) (void | error) = {
 		};
 	};
 	fmt::fprint(txt, ctx.cmds[t.kind])?;
-	for (let i = 0z; i < len(args); i += 1) {
+	for (let arg .. args) {
 		fmt::fprint(txt, " ")?;
-		shlex::quote(txt, args[i])?;
+		shlex::quote(txt, arg)?;
 	};
 	fmt::fprintln(txt)?;
 };

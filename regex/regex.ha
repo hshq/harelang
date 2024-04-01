@@ -101,8 +101,8 @@ export type regex = struct {
 // Frees resources associated with a [[regex]].
 export fn finish(re: *regex) void = {
 	free(re.insts);
-	for (let i = 0z; i < len(re.charsets); i += 1) {
-		free(re.charsets[i]);
+	for (let charset .. re.charsets) {
+		free(charset);
 	};
 	free(re.charsets);
 };
@@ -130,13 +130,13 @@ fn handle_bracket(
 	const peek1 = strings::next(iter);
 	const peek2 = strings::next(iter);
 	const peek3 = strings::next(iter);
-	if (!(peek1 is void)) {
+	if (!(peek1 is done)) {
 		strings::prev(iter);
 	};
-	if (!(peek2 is void)) {
+	if (!(peek2 is done)) {
 		strings::prev(iter);
 	};
-	if (!(peek3 is void)) {
+	if (!(peek3 is done)) {
 		strings::prev(iter);
 	};
 
@@ -154,14 +154,14 @@ fn handle_bracket(
 	};
 
 	const is_range = peek1 is rune && peek1 as rune == '-'
-		&& !(peek2 is void) && !(peek3 is void)
+		&& !(peek2 is done) && !(peek3 is done)
 		&& !(peek2 as rune == ']');
 	const range_end = peek2;
 	const is_first_char = *bracket_idx == 0 || *bracket_idx == 1
 		&& !*is_charset_positive;
 
 	if (r == '\\') {
-		if (peek1 is void) {
+		if (peek1 is done) {
 			return `Trailing backslash '\'`: error;
 		} else {
 			append(charsets[len(charsets) - 1],
@@ -180,7 +180,7 @@ fn handle_bracket(
 		*is_charset_positive = true;
 	} else if (r == '^' && *bracket_idx == 0) {
 		*is_charset_positive = false;
-	} else if (r == '[' && !(peek1 is void)
+	} else if (r == '[' && !(peek1 is done)
 			&& peek1 as rune == ':') {
 		const rest = strings::iterstr(iter);
 		const n_cc = len(charclass_map);
@@ -239,7 +239,7 @@ export fn compile(expr: str) (regex | error) = {
 		};
 
 		if (in_bracket) {
-			if (next is void) {
+			if (next is done) {
 				return `Unmatched '['`: error;
 			};
 			const r = next: rune;
@@ -251,7 +251,7 @@ export fn compile(expr: str) (regex | error) = {
 		};
 
 		const r = match (next) {
-		case void =>
+		case done =>
 			if (n_groupstarts > 0) {
 				return `Unmatched '('`: error;
 			};
@@ -261,7 +261,7 @@ export fn compile(expr: str) (regex | error) = {
 		switch (r) {
 		case '\\' =>
 			const peek1 = strings::next(&iter);
-			if (peek1 is void) {
+			if (peek1 is done) {
 				return `Trailing backslash '\'`: error;
 			} else {
 				append(insts, (peek1 as rune): inst_lit);
@@ -477,10 +477,9 @@ fn is_consuming_inst(a: inst) bool = {
 fn add_thread(threads: *[]thread, parent_idx: size, new_pc: size) void = {
 	// Do not add this thread if there is already another thread with
 	// the same PC
-	for (let i = 0z; i < len(threads); i += 1) {
-		if (threads[i].pc == new_pc
-				&& !threads[i].matched
-				&& threads[i].start_idx
+	for (let thread &.. *threads) {
+		if (thread.pc == new_pc	&& !thread.matched
+				&& thread.start_idx
 				< threads[parent_idx].start_idx) {
 			return;
 		};
@@ -730,10 +729,9 @@ fn search(
 		// When we only want the leftmost match, delete all threads that
 		// start after the earliest non-zero-length matched thread
 		if (first_match_idx is size) {
-			for (let i = 0z; i < len(threads); i += 1) {
-				if (threads[i].start_idx
-						> first_match_idx as size) {
-					threads[i].failed = true;
+			for (let thread &.. threads) {
+				if (thread.start_idx > first_match_idx as size) {
+					thread.failed = true;
 				};
 			};
 		};
@@ -896,7 +894,7 @@ fn parse_replace_target(targetstr: str) ([]([]u8 | size) | error) = {
 	let iter = strings::iter(targetstr);
 	let start = 0z, end = 0z;
 	for (true) match (strings::next(&iter)) {
-	case void =>
+	case done =>
 		if (start != end) {
 			append(target, bytes[start..]);
 		};
@@ -908,7 +906,7 @@ fn parse_replace_target(targetstr: str) ([]([]u8 | size) | error) = {
 			};
 
 			const r = match (strings::next(&iter)) {
-			case void =>
+			case done =>
 				return "Trailing backslash": error;
 			case let r: rune =>
 				yield r;
@@ -978,8 +976,8 @@ export fn result_free(s: result) void = {
 
 // Frees a slice of [[result]]s.
 export fn result_freeall(s: []result) void = {
-	for (let i = 0z; i < len(s); i += 1) {
-		result_free(s[i]);
+	for (let res .. s) {
+		result_free(res);
 	};
 	free(s);
 };

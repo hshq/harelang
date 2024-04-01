@@ -34,10 +34,10 @@ export fn peekiter(it: *iterator) (str | void) = {
 	return strings::fromutf8_unsafe(result);
 };
 
-// Returns the next path component from an [[iterator]], or void if none
+// Returns the next path component from an [[iterator]], or done if none
 // remain. Advances the iterator.
-export fn nextiter(it: *iterator) (str | void) = {
-	if (len(it.cur) == 0) return void;
+export fn nextiter(it: *iterator) (str | done) = {
+	if (len(it.cur) == 0) return done;
 	const (result, remaining) = split_iter(it);
 	it.cur = remaining;
 	return strings::fromutf8_unsafe(result);
@@ -80,39 +80,39 @@ export fn iterrem(it: *iterator) str = strings::fromutf8_unsafe(it.cur);
 	assert(nextiter(&i) as str == "foo");
 	assert(nextiter(&i) as str == "bar");
 	assert(nextiter(&i) as str == "baz");
-	assert(nextiter(&i) is void);
+	assert(nextiter(&i) is done);
 	i = riter(&buf);
 	assert(nextiter(&i) as str == "baz");
 	assert(nextiter(&i) as str == "bar");
 	assert(nextiter(&i) as str == "foo");
 	assert(nextiter(&i) as str == local("/"));
-	assert(nextiter(&i) is void);
+	assert(nextiter(&i) is done);
 
 	set(&buf, local("foo/bar/baz"))!;
 	i = iter(&buf);
 	assert(nextiter(&i) as str == "foo");
 	assert(nextiter(&i) as str == "bar");
 	assert(nextiter(&i) as str == "baz");
-	assert(nextiter(&i) is void);
+	assert(nextiter(&i) is done);
 	i = riter(&buf);
 	assert(nextiter(&i) as str == "baz");
 	assert(nextiter(&i) as str == "bar");
 	assert(nextiter(&i) as str == "foo");
-	assert(nextiter(&i) is void);
+	assert(nextiter(&i) is done);
 
 	set(&buf, "foo")!;
 	i = iter(&buf);
 	assert(nextiter(&i) as str == "foo");
-	assert(nextiter(&i) is void);
+	assert(nextiter(&i) is done);
 	i = riter(&buf);
 	assert(nextiter(&i) as str == "foo");
-	assert(nextiter(&i) is void);
+	assert(nextiter(&i) is done);
 
 	set(&buf, local("/"))!;
 	i = iter(&buf);
 	assert(nextiter(&i) as str == local("/"));
-	assert(nextiter(&i) is void);
+	assert(nextiter(&i) is done);
 	i = riter(&buf);
 	assert(nextiter(&i) as str == local("/"));
-	assert(nextiter(&i) is void);
+	assert(nextiter(&i) is done);
 };

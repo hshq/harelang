@@ -45,13 +45,11 @@ export fn emit_tty(ctx: *context) (void | error) = {
 		let readme = bufio::init(readme, rbuf, []);
 		let sc = bufio::newscanner(&readme, types::SIZE_MAX);
 		defer bufio::finish(&sc);
-		for (true) match (bufio::scan_line(&sc)?) {
-		case io::EOF => break;
-		case let s: const str =>
+		for (let line => bufio::scan_line(&sc)?) {
 			firstline = false;
 			if (!no_color) fmt::fprintf(ctx.out, "\x1b[{}m",
 				color(unparse::synkind::COMMENT))?;
-			fmt::fprint(ctx.out, "//", s)?;
+			fmt::fprint(ctx.out, "//", line)?;
 			if (!no_color) fmt::fprint(ctx.out, "\x1b[m")?;
 			fmt::fprintln(ctx.out)?;
 		};
@@ -62,28 +60,28 @@ export fn emit_tty(ctx: *context) (void | error) = {
 
 	// XXX: Should we emit the dependencies, too?
 	let printed = false;
-	for (let i = 0z; i < len(summary.types); i += 1) {
-		if (details_tty(ctx, &summary.types[i])?) {
+	for (let t &.. summary.types) {
+		if (details_tty(ctx, t)?) {
 			printed = true;
 		};
 	};
-	for (let i = 0z; i < len(summary.constants); i += 1) {
-		if (details_tty(ctx, &summary.constants[i])?) {
+	for (let c &.. summary.constants) {
+		if (details_tty(ctx, c)?) {
 			printed = true;
 		};
 	};
-	for (let i = 0z; i < len(summary.errors); i += 1) {
-		if (details_tty(ctx, &summary.errors[i])?) {
+	for (let e &.. summary.errors) {
+		if (details_tty(ctx, e)?) {
 			printed = true;
 		};
 	};
-	for (let i = 0z; i < len(summary.globals); i += 1) {
-		if (details_tty(ctx, &summary.globals[i])?) {
+	for (let g &.. summary.globals) {
+		if (details_tty(ctx, g)?) {
 			printed = true;
 		};
 	};
-	for (let i = 0z; i < len(summary.funcs); i += 1) {
-		if (details_tty(ctx, &summary.funcs[i])?) {
+	for (let f &.. summary.funcs) {
+		if (details_tty(ctx, f)?) {
 			printed = true;
 		};
 	};
@@ -113,13 +111,13 @@ fn emit_submodules_tty(ctx: *context) (void | error) = {
 		} else {
 			fmt::fprintln(ctx.out, "// Submodules")?;
 		};
-		for (let i = 0z; i < len(ctx.submods); i += 1) {
+		for (let submodule .. ctx.submods) {
 			let submodule = if (len(ctx.ident) != 0) {
 				const s = unparse::identstr(ctx.ident);
 				defer free(s);
-				yield strings::concat(s, "::", ctx.submods[i]);
+				yield strings::concat(s, "::", submodule);
 			} else {
-				yield strings::dup(ctx.submods[i]);
+				yield strings::dup(submodule);
 			};
 			defer free(submodule);
 

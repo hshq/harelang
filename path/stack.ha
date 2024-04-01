@@ -7,8 +7,9 @@ use strings;
 // Appends path elements onto the end of a path buffer.
 // Returns the new string value of the path.
 export fn push(buf: *buffer, items: str...) (str | error) = {
-	for (let i = 0z; i < len(items); i += 1) {
-		let elem = strings::toutf8(items[i]);
+	for (let item .. items) {
+		let elem = strings::toutf8(item);
+
 		for (true) match (bytes::index(elem, SEP)) {
 		case void =>
 			buf.end = appendnorm(buf, elem)?;

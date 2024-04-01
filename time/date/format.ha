@@ -231,14 +231,7 @@ export fn format(
 	const iter = strings::iter(layout);
 	let escaped = false;
 	let n = 0z;
-	for (true) {
-		let r: rune = match (strings::next(&iter)) {
-		case void =>
-			break;
-		case let r: rune =>
-			yield r;
-		};
-
+	for (let r => strings::next(&iter)) {
 		if (escaped) {
 			escaped = false;
 			n += fmtout(h, r, d)?;
@@ -299,9 +292,7 @@ export fn format(
 		("%s", "757390625"),
 	];
 
-	for (let i = 0z; i < len(cases); i += 1) {
-		const layout = cases[i].0;
-		const expected = cases[i].1;
+	for (let (layout, expected) .. cases) {
 		const actual = asformat(layout, &d)!;
 		defer free(actual);
 		if (actual != expected) {

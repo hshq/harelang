@@ -35,13 +35,13 @@ export fn rtokenize(s: str, delim: str) tokenizer =
 	bytes::rtokenize(toutf8(s), toutf8(delim));
 
 // Returns the next string from a tokenizer, and advances the cursor. Returns
-// void if there are no tokens left.
-export fn next_token(s: *tokenizer) (str | void) = {
+// done if there are no tokens left.
+export fn next_token(s: *tokenizer) (str | done) = {
 	let s = s: *bytes::tokenizer;
 	return match (bytes::next_token(s)) {
 	case let b: []u8 =>
 		yield fromutf8_unsafe(b);
-	case void => void;
+	case void => yield done;
 	};
 };
 
@@ -78,11 +78,11 @@ export fn remaining_tokens(s: *tokenizer) str = {
 	assert(peek_token(&tok) as str == "");
 	assert(next_token(&tok) as str == "");
 	assert(peek_token(&tok) is void);
-	assert(next_token(&tok) is void);
+	assert(next_token(&tok) is done);
 
 	let tok = tokenize("", "foo");
 	assert(peek_token(&tok) is void);
-	assert(next_token(&tok) is void);
+	assert(next_token(&tok) is done);
 
 	let tok = rtokenize("Hello, my name is drew", " ");
 	assert(next_token(&tok) as str == "drew");
@@ -105,7 +105,7 @@ export fn splitn(in: str, delim: str, n: size) []str = {
 		match (next_token(&tok)) {
 		case let s: str =>
 			append(toks, s);
-		case void =>
+		case done =>
 			return toks;
 		};
 	};
@@ -129,7 +129,7 @@ export fn rsplitn(in: str, delim: str, n: size) []str = {
 		match (next_token(&tok)) {
 		case let s: str =>
 			append(toks, s);
-		case void =>
+		case done =>
 			return toks;
 		};
 	};

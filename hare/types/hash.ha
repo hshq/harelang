@@ -8,15 +8,17 @@ use strings;
 
 // Keep ordered with respect to bootstrap harec:include/types.h
 type storage = enum u8 {
-	BOOL, F32, F64, I16, I32, I64, I8, INT, NEVER, NULL, OPAQUE, RUNE, SIZE,
-	STRING, U16, U32, U64, U8, UINT, UINTPTR, VOID, ALIAS, ARRAY, ENUM,
-	FUNCTION, POINTER, SLICE, STRUCT, TAGGED, TUPLE, UNION, VALIST,
+	BOOL, DONE, F32, F64, I16, I32, I64, I8, INT, NEVER, NULL, OPAQUE, RUNE,
+	SIZE, STRING, U16, U32, U64, U8, UINT, UINTPTR, VOID, ALIAS, ARRAY,
+	ENUM, FUNCTION, POINTER, SLICE, STRUCT, TAGGED, TUPLE, UNION, VALIST,
 };
 
 fn builtin_storage(b: builtin) u8 = {
 	switch (b) {
 	case builtin::BOOL =>
 		return storage::BOOL;
+	case builtin::DONE =>
+		return storage::DONE;
 	case builtin::F32 =>
 		return storage::F32;
 	case builtin::F64 =>

@@ -315,4 +315,4 @@ export fn symlink(fs: *fs, target: str, path: str) (void | error) = {
 // not guaranteed to be complete when an error has been returned. The file stat
 // returned may only have the type bits set on the file mode; callers should
 // call [[stat]] to obtain the detailed file mode.
-export fn next(iter: *iterator) (dirent | void | error) = iter.next(iter);
+export fn next(iter: *iterator) (dirent | done | error) = iter.next(iter);

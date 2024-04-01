@@ -13,15 +13,12 @@ fn attr_symbol(lexer: *lex::lexer) (str | error) = {
 	let s = t.1 as str;
 	let d = strings::iter(s);
 	match (strings::next(&d)) {
-	case void => void;
+	case done => void;
 	case let r: rune =>
 		synassert(t.2, ascii::isalpha(r) || r == '.'
 			|| r == '_', "Invalid symbol")?;
 	};
-	for (true) match (strings::next(&d)) {
-	case void =>
-		break;
-	case let r: rune =>
+	for (let r => strings::next(&d)) {
 		synassert(t.2, ascii::isalnum(r) || r == '$'
 			|| r == '.' || r == '_', "Invalid symbol")?;
 	};
@@ -163,10 +160,9 @@ fn decl_func(lexer: *lex::lexer) (ast::decl_func | error) = {
 	let tok = want(lexer, ltok::EQUAL, ltok::SEMICOLON)?;
 	let body = switch (tok.0) {
 	case ltok::EQUAL =>
-		const params = prototype.params;
-		for (let i = 0z; i < len(params); i += 1) {
-			synassert(params[i].loc,
-				len(params[i].name) > 0,
+		for (let param &.. prototype.params) {
+			synassert(param.loc,
+				len(param.name) > 0,
 				"Expected parameter name in function declaration")?;
 		};
 		yield alloc(expr(lexer)?);

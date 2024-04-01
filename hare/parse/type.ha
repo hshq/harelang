@@ -114,6 +114,8 @@ fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 		yield builtin_type::F64;
 	case ltok::BOOL =>
 		yield builtin_type::BOOL;
+	case ltok::DONE =>
+		yield builtin_type::DONE;
 	case ltok::VALIST =>
 		yield builtin_type::VALIST;
 	case ltok::VOID =>
@@ -480,12 +482,11 @@ export fn _type(lexer: *lex::lexer) (ast::_type | error) = {
 
 	let tok = peek(lexer)? as lex::token;
 	let typ: ast::_type = switch (tok.0) {
-	case ltok::RUNE, ltok::STR, ltok::BOOL,
-			ltok::I8, ltok::I16, ltok::I32, ltok::I64,
-			ltok::U8, ltok::U16, ltok::U32, ltok::U64,
-			ltok::INT, ltok::UINT, ltok::UINTPTR, ltok::SIZE,
-			ltok::F32, ltok::F64,
-			ltok::VALIST, ltok::VOID, ltok::OPAQUE, ltok::NEVER =>
+	case ltok::RUNE, ltok::STR, ltok::BOOL, ltok::DONE, ltok::I8, ltok::I16,
+			ltok::I32, ltok::I64, ltok::U8, ltok::U16, ltok::U32,
+			ltok::U64, ltok::INT, ltok::UINT, ltok::UINTPTR,
+			ltok::SIZE, ltok::F32, ltok::F64, ltok::VALIST,
+			ltok::VOID, ltok::OPAQUE, ltok::NEVER =>
 		yield primitive_type(lexer)?;
 	case ltok::ENUM =>
 		yield enum_type(lexer)?;

@@ -55,8 +55,8 @@ fn ip_test(s: str, expected: (addr|invalid)) void = {
 		("a1:a2:a3:a4::b1:b2:b3:b4", invalid),
 		("", invalid),
 	];
-	for (let i = 0z; i < len(tests); i += 1) {
-		ip_test(tests[i].0, tests[i].1);
+	for (let (string, expected) .. tests) {
+		ip_test(string, expected);
 	};
 };
 
@@ -83,8 +83,8 @@ fn subnet_test_simple(s: str) void = {
 		"192.168.1.0/24",
 		"192.168.1.0/32",
 	];
-	for (let i = 0z; i < len(subnet_tests); i += 1) {
-		subnet_test_simple(subnet_tests[i]);
+	for (let test .. subnet_tests) {
+		subnet_test_simple(test);
 	};
 };
 
@@ -104,16 +104,14 @@ fn subnet_test_simple(s: str) void = {
 		("10.10.10.0/24", "10.10.10.0/23", false),
 		("10.10.10.0/24", "10.10.11.0/24", false),
 	];
-	for (let i = 0z; i < len(addr_tests); i += 1) {
-		const input = addr_tests[i];
-		let a = parsecidr(input.0)!;
-		let b = parse(input.1)!;
-		assert(subnet_contains(a, b) == input.2);
+	for (let (a, b, want) .. addr_tests) {
+		let a = parsecidr(a)!;
+		let b = parse(b)!;
+		assert(subnet_contains(a, b) == want);
 	};
-	for (let i = 0z; i < len(cidr_tests); i += 1) {
-		const input = cidr_tests[i];
-		let a = parsecidr(input.0)!;
-		let b = parsecidr(input.1)!;
-		assert(subnet_contains(a, b) == input.2);
+	for (let (a, b, want) .. cidr_tests) {
+		let a = parsecidr(a)!;
+		let b = parsecidr(b)!;
+		assert(subnet_contains(a, b) == want);
 	};
 };

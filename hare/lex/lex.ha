@@ -689,7 +689,7 @@ fn lex3(lex: *lexer) (token | error) = {
 			lex.require_int = true;
 			yield ltok::DOT;
 		} else if (try(lex, '.')? is void) {
-			yield ltok::SLICE;
+			yield ltok::DOUBLE_DOT;
 		} else ltok::ELLIPSIS;
 		line_comment(lex)?;
 		return (tok, void, r.1);

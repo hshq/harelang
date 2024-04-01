@@ -19,9 +19,7 @@ export fn strlower(s: str) str = {
 // to fit the entire string.
 export fn strlower_buf(s: str, buf: []u8) str = {
 	let it = strings::iter(s);
-	for (true) match (strings::next(&it)) {
-	case void => break;
-	case let r: rune =>
+	for (let r => strings::next(&it)) {
 		static append(buf, utf8::encoderune(tolower(r))...);
 	};
 	return strings::fromutf8(buf)!;
@@ -41,9 +39,7 @@ export fn strupper(s: str) str = {
 // to fit the entire string.
 export fn strupper_buf(s: str, buf: []u8) str = {
 	let it = strings::iter(s);
-	for (true) match (strings::next(&it)) {
-	case void => break;
-	case let r: rune =>
+	for (let r => strings::next(&it)) {
 		static append(buf, utf8::encoderune(toupper(r))...);
 	};
 	return strings::fromutf8(buf)!;

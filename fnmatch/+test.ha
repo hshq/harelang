@@ -185,8 +185,7 @@ const testcases: [_]testcase = [
 ];
 
 @test fn fnmatch() void = {
-	for (let i = 0z; i < len(testcases); i += 1) {
-		let tc = testcases[i];
+	for (let tc .. testcases) {
 		assert(fnmatch(tc.0, tc.1, tc.3...) == tc.2);
 	};
 

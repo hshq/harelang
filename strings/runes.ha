@@ -8,21 +8,17 @@ use encoding::utf8;
 export fn torunes(s: str) []rune = {
 	let sl: []rune = [];
 	let iter = iter(s);
-	for (true) {
-		match (next(&iter)) {
-		case void => break;
-		case let r: rune =>
-			append(sl, r);
-		};
+	for (let r => next(&iter)) {
+		append(sl, r);
 	};
 	return sl;
 };
 
 // Returns a string from a slice of runes. The caller must free the return value.
-export fn fromrunes(rs: []rune) str = {
+export fn fromrunes(runes: []rune) str = {
 	let bytes: []u8 = [];
-	for (let i = 0z; i < len(rs); i += 1) {
-		const bs = utf8::encoderune(rs[i]);
+	for (let r .. runes) {
+		const bs = utf8::encoderune(r);
 		append(bytes, bs...);
 	};
 	return fromutf8_unsafe(bytes);
@@ -41,15 +37,17 @@ export fn fromrunes(rs: []rune) str = {
 		("こんにちは世界！", ['こ', 'ん', 'に', 'ち', 'は', '世', '界', '！']),
 	];
 
-	for (let i = 0z; i < len(tests); i += 1) {
-		const s = fromrunes(tests[i].1);
+	for (let (string, runes) .. tests) {
+		const s = fromrunes(runes);
 		defer free(s);
-		assert(s == tests[i].0);
+		assert(s == string);
+
 		const rs = torunes(s);
 		defer free(rs);
-		assert(len(rs) == len(tests[i].1));
+		assert(len(rs) == len(runes));
+
 		for (let j = 0z; j < len(rs); j += 1) {
-			assert(rs[j] == tests[i].1[j]);
+			assert(rs[j] == runes[j]);
 		};
 	};
 };

@@ -30,24 +30,24 @@ export type module = struct {
 // The list will be sorted alphabetically and deduplicated.
 export fn parse_deps(files: str...) ([]ast::ident | error) = {
 	let deps: []ast::ident = [];
-	for (let i = 0z; i < len(files); i += 1) {
-		let handle = match (os::open(files[i])) {
+	for (let file .. files) {
+		let handle = match (os::open(file)) {
 		case let f: io::file =>
 			yield f;
 		case let e: fs::error =>
-			return attach(strings::dup(files[i]), e);
+			return attach(strings::dup(file), e);
 		};
 		defer io::close(handle)!;
 
 		let sc = bufio::newscanner(handle, types::SIZE_MAX);
 		defer bufio::finish(&sc);
-		let lexer = lex::init(&sc, files[i]);
+		let lexer = lex::init(&sc, file);
 		let imports = parse::imports(&lexer)?;
 		defer ast::imports_finish(imports);
 
 		// dedupe + insertion sort
-		for (let i = 0z; i < len(imports); i += 1) {
-			let id = imports[i].ident;
+		for (let import &.. imports) {
+			let id = import.ident;
 			let idx = sort::rbisect(deps, size(ast::ident), &id, &idcmp);
 			if (idx == 0 || idcmp(&deps[idx - 1], &id) != 0) {
 				insert(deps[idx], ast::ident_dup(id));
@@ -95,16 +95,13 @@ fn get_deps(cachedir: str, srcs: *srcset) ([]ast::ident | error) = {
 		deps = parse_deps(srcs.ha...)?;
 		io::trunc(depsfile, 0)?;
 		let out = bufio::init(depsfile, [], buf.buf);
-		for (let i = 0z; i < len(deps); i += 1) {
-			unparse::ident(&out, deps[i])?;
+		for (let dep .. deps) {
+			unparse::ident(&out, dep)?;
 			fmt::fprintln(&out)?;
 		};
 	} else {
 		let in = bufio::newscanner_static(depsfile, buf.buf);
-		for (true) match (bufio::scan_line(&in)?) {
-		case io::EOF =>
-			break;
-		case let s: const str =>
+		for (let s => bufio::scan_line(&in)?) {
 			append(deps, parse::identstr(s)?);
 		};
 	};
@@ -193,16 +190,16 @@ export fn finish(mod: *module) void = {
 	ast::ident_free(mod.ns);
 	free(mod.path);
 	finish_srcset(&mod.srcs);
-	for (let i = 0z; i < len(mod.deps); i += 1) {
-		ast::ident_free(mod.deps[i].1);
+	for (let (_, ident) .. mod.deps) {
+		ast::ident_free(ident);
 	};
 	free(mod.deps);
 };
 
 // Free all the [[module]]s in a slice of modules, and then the slice itself.
 export fn free_slice(mods: []module) void = {
-	for (let i = 0z; i < len(mods); i += 1) {
-		finish(&mods[i]);
+	for (let mod &.. mods) {
+		finish(mod);
 	};
 	free(mods);
 };

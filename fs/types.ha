@@ -312,7 +312,7 @@ export type fs = struct {
 };
 
 // A function which returns the next directory from an [[iterator]].
-export type nextfunc = fn(iter: *iterator) (dirent | void | error);
+export type nextfunc = fn(iter: *iterator) (dirent | done | error);
 
 // A function which frees state associated with an [[iterator]].
 export type finishfunc = fn(iter: *iterator) void;

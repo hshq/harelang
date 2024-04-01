@@ -49,11 +49,12 @@ type os_filesystem = struct {
 
 // Opens a file descriptor as an [[fs::fs]]. This file descriptor must be a
 // directory file. The file will be closed when the fs is closed.
-export fn dirfdopen(fd: io::file, resolve: resolve_flag...) *fs::fs = {
+export fn dirfdopen(fd: io::file, resolve_flags: resolve_flag...) *fs::fs = {
 	let ofs = alloc(os_filesystem { ... });
 	let fs = static_dirfdopen(fd, ofs);
-	for (let i = 0z; i < len(resolve); i += 1) {
-		ofs.resolve |= resolve[i];
+
+	for (let flag .. resolve_flags) {
+		ofs.resolve |= flag;
 	};
 	fs.close = &fs_close;
 	return fs;
@@ -90,12 +91,12 @@ fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 
 // Clones a dirfd filesystem, optionally adding additional [[resolve_flag]]
 // constraints.
-export fn dirfs_clone(fs: *fs::fs, resolve: resolve_flag...) *fs::fs = {
+export fn dirfs_clone(fs: *fs::fs, resolve_flags: resolve_flag...) *fs::fs = {
 	assert(fs.open == &fs_open);
 	let fs = fs: *os_filesystem;
 	let new = alloc(*fs);
-	for (let i = 0z; i < len(resolve); i += 1) {
-		new.resolve |= resolve[i];
+	for (let flag .. resolve_flags) {
+		fs.resolve |= flag;
 	};
 	new.dirfd = rt::fcntl(new.dirfd, rt::F_DUPFD_CLOEXEC, 0) as int;
 	return &new.fs;
@@ -177,8 +178,8 @@ fn fs_open_file(
 	flags: fs::flag...
 ) (io::file | fs::error) = {
 	let oflags = fs::flag::RDONLY: int;
-	for (let i = 0z; i < len(flags); i += 1z) {
-		oflags |= flags[i]: int;
+	for (let flag .. flags) {
+		oflags |= flag: int;
 	};
 	oflags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
 
@@ -211,8 +212,8 @@ fn fs_create_file(
 	if (len(flags) == 0) {
 		oflags |= fs::flag::WRONLY | fs::flag::TRUNC;
 	};
-	for (let i = 0z; i < len(flags); i += 1z) {
-		oflags |= flags[i]: int;
+	for (let flag .. flags) {
+		oflags |= flag: int;
 	};
 	oflags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
 	oflags |= fs::flag::CREATE: int;
@@ -431,7 +432,7 @@ fn fs_iter(fs: *fs::fs, path: str) (*fs::iterator | fs::error) = {
 	return &iter.iter;
 };
 
-fn iter_next(iter: *fs::iterator) (fs::dirent | void | fs::error) = {
+fn iter_next(iter: *fs::iterator) (fs::dirent | done | fs::error) = {
 	let iter = iter: *os_iterator;
 	if (iter.buf_pos >= iter.buf_end) {
 		let n = match (rt::getdents64(iter.fd,
@@ -442,7 +443,7 @@ fn iter_next(iter: *fs::iterator) (fs::dirent | void | fs::error) = {
 			yield n;
 		};
 		if (n == 0) {
-			return;
+			return done;
 		};
 		iter.buf_end = n;
 		iter.buf_pos = 0;

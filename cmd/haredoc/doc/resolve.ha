@@ -71,32 +71,32 @@ fn is_local(ctx: *context, what: ast::ident) bool = {
 	};
 
 	const summary = ctx.summary;
-	for (let i = 0z; i < len(summary.constants); i += 1) {
-		const name = decl_ident(&summary.constants[i])[0];
+	for (let c &.. summary.constants) {
+		const name = decl_ident(c)[0];
 		if (name == what[0]) {
 			return true;
 		};
 	};
-	for (let i = 0z; i < len(summary.errors); i += 1) {
-		const name = decl_ident(&summary.errors[i])[0];
+	for (let e &.. summary.errors) {
+		const name = decl_ident(e)[0];
 		if (name == what[0]) {
 			return true;
 		};
 	};
-	for (let i = 0z; i < len(summary.types); i += 1) {
-		const name = decl_ident(&summary.types[i])[0];
+	for (let t &.. summary.types) {
+		const name = decl_ident(t)[0];
 		if (name == what[0]) {
 			return true;
 		};
 	};
-	for (let i = 0z; i < len(summary.globals); i += 1) {
-		const name = decl_ident(&summary.globals[i])[0];
+	for (let g &.. summary.globals) {
+		const name = decl_ident(g)[0];
 		if (name == what[0]) {
 			return true;
 		};
 	};
-	for (let i = 0z; i < len(summary.funcs); i += 1) {
-		const name = decl_ident(&summary.funcs[i])[0];
+	for (let f &.. summary.funcs) {
+		const name = decl_ident(f)[0];
 		if (name == what[0]) {
 			return true;
 		};
@@ -106,8 +106,7 @@ fn is_local(ctx: *context, what: ast::ident) bool = {
 };
 
 fn lookup_local_enum(ctx: *context, what: ast::ident) (ast::ident | void) = {
-	for (let i = 0z; i < len(ctx.summary.types); i += 1) {
-		const decl = &ctx.summary.types[i];
+	for (let decl &.. ctx.summary.types) {
 		const name = decl_ident(decl)[0];
 		if (name == what[0]) {
 			const t = (decl.decl as []ast::decl_type)[0];
@@ -117,8 +116,8 @@ fn lookup_local_enum(ctx: *context, what: ast::ident) (ast::ident | void) = {
 			case =>
 				return;
 			};
-			for (let i = 0z; i < len(e.values); i += 1) {
-				if (e.values[i].name == what[1]) {
+			for (let value .. e.values) {
+				if (value.name == what[1]) {
 					return what;
 				};
 			};
@@ -143,34 +142,34 @@ fn lookup_remote_enum(ctx: *context, what: ast::ident) (ast::ident | void | erro
 	// This would take a lot of memory to load
 	let decls: []ast::decl = [];
 	defer {
-		for (let i = 0z; i < len(decls); i += 1) {
-			ast::decl_finish(decls[i]);
+		for (let decl .. decls) {
+			ast::decl_finish(decl);
 		};
 		free(decls);
 	};
-	for (let i = 0z; i < len(srcs.ha); i += 1) {
-		const in = srcs.ha[i];
+	for (let in .. srcs.ha) {
 		let u = scan(in)?;
 		append(decls, u.decls...);
 	};
 
-	for (let i = 0z; i < len(decls); i += 1) {
-		const decl = match (decls[i].decl) {
+	for (let decl .. decls) {
+		const decls = match (decl.decl) {
 		case let t: []ast::decl_type =>
 			yield t;
 		case =>
 			continue;
 		};
-		for (let i = 0z; i < len(decl); i += 1) {
-			if (decl[i].ident[0] == decl_name) {
-				const e = match (decl[i]._type.repr) {
+
+		for (let d .. decls) {
+			if (d.ident[0] == decl_name) {
+				const e = match (d._type.repr) {
 				case let e: ast::enum_type =>
 					yield e;
 				case =>
 					abort();
 				};
-				for (let i = 0z; i < len(e.values); i += 1) {
-					if (e.values[i].name == member) {
+				for (let value .. e.values) {
+					if (value.name == member) {
 						return what;
 					};
 				};

@@ -58,9 +58,10 @@ export fn convert(i: time::instant, tscs: *timescale...) (time::instant | analyt
 
 			// default to TAI intermediary
 			const convs = a.convto(&tai, t) as []time::instant;
-			for (let l = 0z; l < len(convs); l += 1) {
+
+			for (let conv .. convs) {
 				append(tmps, (
-					b.convfrom(&tai, convs[l]) as []time::instant
+					b.convfrom(&tai, conv) as []time::instant
 				)...);
 			};
 		};
@@ -506,8 +507,7 @@ fn mtc_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 		(( 1483228802i64,         0i64), [( 1483228839i64,         0i64)]),
 	];
 
-	for (let idx = 0z; idx < len(testcases); idx += 1) {
-		let testcase = testcases[idx];
+	for (let testcase .. testcases) {
 		let params = testcase.0;
 		let param = time::instant{ sec = params.0, nsec = params.1 };
 		let expect = testcase.1;
@@ -602,8 +602,7 @@ fn mtc_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 		(( 1483228839i64,         0i64), [( 1483228802i64,         0i64)]),
 	];
 
-	for (let idx = 0z; idx < len(testcases); idx += 1) {
-		let testcase = testcases[idx];
+	for (let testcase .. testcases) {
 		let params = testcase.0;
 		let param = time::instant{ sec = params.0, nsec = params.1 };
 		let expect = testcase.1;

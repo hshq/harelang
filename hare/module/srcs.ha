@@ -63,9 +63,9 @@ export fn find(ctx: *context, loc: location) ((str, srcset) | error) = {
 		case let e: error =>
 			return e;
 		};
-	case let mod: ast::ident =>
+	case let ident: ast::ident =>
 		let tok = strings::tokenize(ctx.harepath, ":");
-		let next: (str | void) = ".";
+		let next: (str | done) = ".";
 		for (next is str; next = strings::next_token(&tok)) {
 			if (!os::exists(next as str)) {
 				continue;
@@ -73,8 +73,8 @@ export fn find(ctx: *context, loc: location) ((str, srcset) | error) = {
 
 			static let buf = path::buffer { ... };
 			path::set(&buf, os::realpath(next as str)?)?;
-			for (let i = 0z; i < len(mod); i += 1) {
-				path::push(&buf, mod[i])?;
+			for (let part .. ident) {
+				path::push(&buf, part)?;
 			};
 
 			match (path_find(ctx, &buf)) {
@@ -85,7 +85,7 @@ export fn find(ctx: *context, loc: location) ((str, srcset) | error) = {
 				return attach(strings::dup(path::string(&buf)), e);
 			};
 		};
-		return attach(locstr(mod), not_found);
+		return attach(locstr(ident), not_found);
 	};
 };
 
@@ -277,10 +277,8 @@ fn _findsrcs(
 		return attach(strings::dup(pathstr), e);
 	};
 	defer fs::finish(iter);
-	for (true) match (fs::next(iter)?) {
-	case void =>
-		break;
-	case let d: fs::dirent =>
+
+	for (let d => fs::next(iter)?) {
 		path::push(buf, d.name)?;
 		defer path::pop(buf);
 
@@ -338,13 +336,16 @@ export fn parse_tags(s: str) ([]tag | error) = {
 
 // Checks if a set of tags are compatible with a tag requirement.
 export fn tags_compat(have: []str, want: []tag) bool = {
-	for (let i = 0z; i < len(want); i += 1) {
-		let t = want[i];
+	for (let t .. want) {
 		let found = false;
-		for (let j = 0z; j < len(have); j += 1) if (have[j] == t.name) {
-			found = true;
-			break;
+
+		for (let ht .. have) {
+			if (ht == t.name) {
+				found = true;
+				break;
+			};
 		};
+
 		if (t.include ^^ found) {
 			return false;
 		};
@@ -355,14 +356,17 @@ export fn tags_compat(have: []str, want: []tag) bool = {
 // same as tags_compat, but also adds any relevant tags to a seentags list
 // for use in _findsrcs.
 fn seentags_compat(have: []str, want: []tag, seen: *[]str) bool = {
-	for (let i = 0z; i < len(want); i += 1) {
-		let t = want[i];
+	for (let t .. want) {
 		let found = false;
-		for (let j = 0z; j < len(have); j += 1) if (have[j] == t.name) {
-			insert_uniq(seen, t.name);
-			found = true;
-			break;
+
+		for (let ht .. have) {
+			if (ht == t.name) {
+				insert_uniq(seen, t.name);
+				found = true;
+				break;
+			};
 		};
+
 		if (t.include ^^ found) {
 			return false;
 		};

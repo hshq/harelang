@@ -33,23 +33,22 @@ export fn outdated(target: str, deps: []str, mtime: time::instant) bool = {
 	if (time::compare(current, mtime) < 0) {
 		return true;
 	};
-	for (let i = 0z; i < len(deps); i += 1) match (os::stat(deps[i])) {
-	case fs::error =>
-		continue;
-	case let stat: fs::filestat =>
-		if (time::compare(current, stat.mtime) < 0) {
-			return true;
+	for (let dep .. deps) {
+		match (os::stat(dep)) {
+		case fs::error =>
+			continue;
+		case let stat: fs::filestat =>
+			if (time::compare(current, stat.mtime) < 0) {
+				return true;
+			};
 		};
 	};
 	return false;
 };
 
 // Wrapper for [[fs::next]] that only returns valid submodule directories.
-export fn next(it: *fs::iterator) (fs::dirent | void | fs::error) = {
-	for (true) match (fs::next(it)?) {
-	case void =>
-		return void;
-	case let d: fs::dirent =>
+export fn next(it: *fs::iterator) (fs::dirent | done | fs::error) = {
+	for (let d => fs::next(it)?) {
 		if (!fs::isdir(d.ftype)) {
 			continue;
 		};
@@ -57,18 +56,20 @@ export fn next(it: *fs::iterator) (fs::dirent | void | fs::error) = {
 			return d;
 		};
 	};
+	return done;
 };
 
 fn is_submodule(path: str) bool = {
 	let it = strings::iter(path);
-	for (let first = true; true; first = false) match (strings::next(&it)) {
-	case void =>
-		break;
-	case let r: rune =>
+
+	let first = true;
+	for (let r => strings::next(&it)) {
 		if (!ascii::isalpha(r) && r != '_'
 				&& (first || !ascii::isdigit(r))) {
 			return false;
 		};
+
+		first = false;
 	};
 	return true;
 };

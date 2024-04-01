@@ -96,24 +96,24 @@ fn platform_exec(cmd: *command) error = {
 	// We don't worry about freeing the return values from c::fromstr
 	// because once we exec(2) our heap is fried anyway
 	let argv: []nullable *const c::char = alloc([], len(cmd.argv) + 1z);
-	for (let i = 0z; i < len(cmd.argv); i += 1z) {
-		append(argv, c::fromstr(cmd.argv[i]));
+	for (let arg .. cmd.argv) {
+		append(argv, c::fromstr(arg));
 	};
 	append(argv, null);
 
 	let envp: nullable *[*]nullable *const c::char = null;
 	if (len(cmd.env) != 0) {
 		let env: []nullable *const c::char = alloc([], len(cmd.env) + 1);
-		for (let i = 0z; i < len(cmd.env); i += 1) {
-			append(env, c::fromstr(cmd.env[i]));
+		for (let e .. cmd.env) {
+			append(env, c::fromstr(e));
 		};
 		append(env, null);
 		envp = env: *[*]nullable *const c::char;
 	};
 
 	let need_devnull = false;
-	for (let i = 0z; i < len(cmd.files); i += 1) {
-		const from = match (cmd.files[i].0) {
+	for (let file &.. cmd.files) {
+		const from = match (file.0) {
 		case let file: io::file =>
 			yield file;
 		case nullfd =>
@@ -123,7 +123,7 @@ fn platform_exec(cmd: *command) error = {
 			continue;
 		};
 
-		cmd.files[i].0 = match (rt::fcntl(from, rt::F_DUPFD_CLOEXEC, 0)) {
+		file.0 = match (rt::fcntl(from, rt::F_DUPFD_CLOEXEC, 0)) {
 		case let fd: int =>
 			yield fd;
 		case let err: rt::errno =>
@@ -135,18 +135,18 @@ fn platform_exec(cmd: *command) error = {
 		yield os::open("/dev/null")!;
 	} else -1;
 
-	for (let i = 0z; i < len(cmd.files); i += 1) {
-		const from = match (cmd.files[i].0) {
+	for (let file .. cmd.files) {
+		const from = match (file.0) {
 		case let file: io::file =>
 			yield file;
 		case nullfd =>
 			yield devnull;
 		case closefd =>
-			io::close(cmd.files[i].1)?;
+			io::close(file.1)?;
 			continue;
 		};
 
-		if (cmd.files[i].1 == from) {
+		if (file.1 == from) {
 			let flags = match (rt::fcntl(from, rt::F_GETFD, 0)) {
 			case let flags: int =>
 				yield flags;
@@ -155,7 +155,7 @@ fn platform_exec(cmd: *command) error = {
 			};
 			rt::fcntl(from, rt::F_SETFD, flags & ~rt::FD_CLOEXEC)!;
 		} else {
-			match (rt::dup2(from, cmd.files[i].1)) {
+			match (rt::dup2(from, file.1)) {
 			case int => void;
 			case let e: rt::errno =>
 				return errors::errno(e);

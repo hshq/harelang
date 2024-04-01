@@ -83,8 +83,7 @@ export fn reckon(d: date, calc: calculus, ps: period...) date = {
 		calc |= calculus::CEIL;
 	};
 
-	for (let i = 0z; i < len(ps); i += 1) if (calc & calculus::REVSIG == 0) {
-		const p = ps[i];
+	for (let p .. ps) if (calc & calculus::REVSIG == 0) {
 		const fold = calculus::FOLD;
 
 		r.year = r.year as int + p.years: int;
@@ -103,7 +102,6 @@ export fn reckon(d: date, calc: calculus, ps: period...) date = {
 		reckon_seconds(&r,     p.seconds,     fold);
 		reckon_nanoseconds(&r, p.nanoseconds, fold);
 	} else {
-		const p = ps[i];
 		const fold = calculus::FOLD | calculus::REVSIG;
 
 		reckon_nanoseconds(&r, p.nanoseconds, fold);

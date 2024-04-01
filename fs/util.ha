@@ -87,23 +87,19 @@ export fn readdir(fs: *fs, path: str) ([]dirent | error) = {
 	let i = iter(fs, path)?;
 	defer finish(i);
 	let ents: []dirent = [];
-	for (true) {
-		match (next(i)) {
-		case let d: dirent =>
-			append(ents, dirent_dup(&d));
-		case void =>
-			break;
-		};
+
+	for (let d => next(i)?) {
+		append(ents, dirent_dup(&d));
 	};
 	return ents;
 };
 
 // Frees a slice of [[dirent]]s.
-export fn dirents_free(d: []dirent) void = {
-	for (let i = 0z; i < len(d); i += 1) {
-		dirent_finish(&d[i]);
+export fn dirents_free(dirents: []dirent) void = {
+	for (let d &.. dirents) {
+		dirent_finish(d);
 	};
-	free(d);
+	free(dirents);
 };
 
 // Removes a directory, and anything in it.
@@ -115,21 +111,16 @@ export fn rmdirall(fs: *fs, path: str) (void | error) = {
 fn rmdirall_path(fs: *fs, buf: *path::buffer) (void | error) = {
 	let it = iter(fs, path::string(buf))?;
 	defer finish(it);
-	for (true) {
-		match (next(it)) {
-		case let ent: dirent =>
-			path::push(buf, ent.name)!;
+	for (let ent => next(it)?) {
+		path::push(buf, ent.name)!;
 
-			switch (ent.ftype & mode::DIR) {
-			case mode::DIR =>
-				rmdirall_path(fs, buf)?;
-			case =>
-				remove(fs, path::string(buf))?;
-			};
-			path::pop(buf);
-		case void =>
-			break;
+		switch (ent.ftype & mode::DIR) {
+		case mode::DIR =>
+			rmdirall_path(fs, buf)?;
+		case =>
+			remove(fs, path::string(buf))?;
 		};
+		path::pop(buf);
 	};
 	return rmdir(fs, path::string(buf));
 };
@@ -143,15 +134,10 @@ export fn realpath(fs: *fs, path: str) (str | error) = {
 	static let pathbuf = path::buffer { ... };
 	path::set(&pathbuf, resolve(fs, path))!;
 	const iter = path::iter(&pathbuf);
-	for (true) {
-		const item = match (path::nextiter(&iter)) {
-		case let item: str =>
-			yield item;
-		case void =>
-			break;
-		};
 
+	for (let item => path::nextiter(&iter)) {
 		const item = path::push(&res, item)!;
+
 		const link = match (readlink(fs, item)) {
 		case let link: str =>
 			yield link;

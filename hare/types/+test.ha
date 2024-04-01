@@ -330,9 +330,9 @@ fn resolve(
 	assert(htype._align == 8);
 	let t = htype.repr as tagged;
 	assert(len(t) == 3);
-	assert(t[0].repr as builtin == builtin::STR);
-	assert(t[1].repr as builtin == builtin::INT);
-	assert(t[2].repr as builtin == builtin::VOID);
+	assert(t[0].repr as builtin == builtin::INT);
+	assert(t[1].repr as builtin == builtin::VOID);
+	assert(t[2].repr as builtin == builtin::STR);
 };
 
 @test fn alias() void = {
@@ -372,6 +372,7 @@ fn resolve(
 @test fn builtins() void = {
 	const builtins = [
 		(&builtin_bool, "bool"),
+		(&builtin_done, "done"),
 		(&builtin_f32, "f32"),
 		(&builtin_f64, "f64"),
 		(&builtin_i8, "i8"),

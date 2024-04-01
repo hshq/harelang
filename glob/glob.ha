@@ -68,8 +68,8 @@ export fn glob(pattern: str, flags: flag...) generator = {
 	let ss = strstack_init();
 	memio::concat(strstack_push(&ss), pattern)!;
 	let bs = flag::NONE;
-	for (let i = 0z; i < len(flags); i += 1) {
-		bs |= flags[i];
+	for (let flag .. flags) {
+		bs |= flag;
 	};
 	return generator {
 		pats = ss,
@@ -89,7 +89,7 @@ export fn finish(gen: *generator) void = {
 // is called again. If, during the search, a directory is encountered that
 // cannot be opened or read, a [[failure]] object is returned instead.
 // [[next]] can be repeatedly called until void is returned.
-export fn next(gen: *generator) (str | void | failure) = {
+export fn next(gen: *generator) (str | done | failure) = {
 	const init = strstack_size(&gen.pats) == 1
 		&& len(memio::string(&gen.tmpp.dir)!) == 0
 		&& len(memio::string(&gen.tmpp.pat)!) == 0
@@ -102,6 +102,7 @@ export fn next(gen: *generator) (str | void | failure) = {
 	if (init && gen.flgs & flag::NOCHECK != 0) {
 		return memio::string(&gen.pats.bufv[0])!;
 	};
+	return done;
 };
 
 fn next_match(gen: *generator) (str | void | failure) = {
@@ -145,7 +146,7 @@ fn next_match(gen: *generator) (str | void | failure) = {
 	defer fs::finish(it);
 
 	for (true) match (fs::next(it)) {
-	case void =>
+	case done =>
 		break;
 	case let de: fs::dirent =>
 		if (patm && !fs::isdir(de.ftype) && !fs::islink(de.ftype)) {
@@ -233,7 +234,7 @@ fn pattern_parse(p: *pattern, pstr: str, noesc: bool) void = {
 	// characters.
 	for (let brk = false, esc = false; true) {
 		const r = match (strings::next(&itdir)) {
-		case void =>
+		case done =>
 			memio::concat(&p.dir, memio::string(&p.pat)!)!;
 			memio::reset(&p.pat);
 			return;
@@ -270,14 +271,9 @@ fn pattern_parse(p: *pattern, pstr: str, noesc: bool) void = {
 	// p.pat is the first path component which contains special
 	// characters.
 	memio::reset(&p.pat);
-	for (let esc = false; true) {
-		const r = match (strings::next(&itpat)) {
-		case void =>
-			return;
-		case let r: rune =>
-			yield r;
-		};
 
+	let esc = false;
+	for (let r => strings::next(&itpat)) {
 		if (!esc && r == '\\' && !noesc) {
 			esc = true;
 			continue;
@@ -302,8 +298,8 @@ fn strstack_init() strstack = strstack {
 };
 
 fn strstack_free(ss: *strstack) void = {
-	for (let i = 0z; i < len(ss.bufv); i += 1) {
-		io::close(&ss.bufv[i])!;
+	for (let stream &.. ss.bufv) {
+		io::close(stream)!;
 	};
 	free(ss.bufv);
 };

@@ -23,23 +23,23 @@ use strings;
 		("..", flag::NONE),
 		("\\*", flag::NONE),
 	];
-	for (let i = 0z; i < len(cases); i += 1) {
-		let gen = glob(cases[i].0, cases[i].1);
+	for (let c .. cases) {
+		let gen = glob(c.0, c.1);
 		defer finish(&gen);
 		for (true) match (next(&gen)) {
-		case void =>
+		case done =>
 			break;
 		case failure =>
 			continue;
 		case let s: str =>
 			let bs = fnmatch::flag::PATHNAME;
-			if (cases[i].1 & flag::NOESCAPE != 0) {
+			if (c.1 & flag::NOESCAPE != 0) {
 				bs |= fnmatch::flag::NOESCAPE;
 			};
-			assert(fnmatch::fnmatch(cases[i].0, s, bs)
-				|| cases[i].1 & flag::MARK != 0
+			assert(fnmatch::fnmatch(c.0, s, bs)
+				|| c.1 & flag::MARK != 0
 				&& fnmatch::fnmatch(
-					cases[i].0,
+					c.0,
 					strings::rtrim(s, '/'),
 					bs
 				)
@@ -82,13 +82,13 @@ use strings;
 	];
 	let p = pattern_init();
 	defer pattern_free(&p);
-	for (let i = 0z; i < len(cases); i += 1) {
-		pattern_parse(&p, cases[i].0, cases[i].1);
+	for (let c .. cases) {
+		pattern_parse(&p, c.0, c.1);
 		const dir = pattern_dir(&p);
 		const pat = pattern_pat(&p);
 		const rem = pattern_rem(&p);
-		assert(dir == cases[i].2);
-		assert(pat == cases[i].3);
-		assert(rem == cases[i].4);
+		assert(dir == c.2);
+		assert(pat == c.3);
+		assert(rem == c.4);
 	};
 };

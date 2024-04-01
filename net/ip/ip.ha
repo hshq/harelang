@@ -76,7 +76,7 @@ export fn parsev4(st: str) (addr4 | invalid) = {
 			return invalid;
 		};
 	};
-	if (i < 4 || !(strings::next_token(&tok) is void)) {
+	if (i < 4 || !(strings::next_token(&tok) is done)) {
 		return invalid;
 	};
 	return ret;
@@ -102,7 +102,7 @@ export fn parsev6(st: str) (addr6 | invalid) = {
 		let s = match (strings::next_token(&tok)) {
 		case let s: str =>
 			yield s;
-		case void =>
+		case done =>
 			break;
 		};
 		if (s == "") {
@@ -122,7 +122,7 @@ export fn parsev6(st: str) (addr6 | invalid) = {
 			break;
 		};
 	};
-	if (!(strings::next_token(&tok) is void)) {
+	if (!(strings::next_token(&tok) is done)) {
 		return invalid;
 	};
 	if (ells >= 0) {
@@ -255,7 +255,7 @@ export fn parsecidr(st: str) (subnet | invalid) = {
 	case =>
 		return invalid;
 	};
-	if (!(strings::next_token(&tok) is void)) {
+	if (!(strings::next_token(&tok) is done)) {
 		return invalid;
 	};
 	return subnet {
@@ -299,8 +299,8 @@ fn fmtmask(s: io::handle, mask: addr) (size | io::error) = {
 	case void =>
 		// Format as hex, if zero runs are not contiguous
 		// (like golang does)
-		for (let i = 0z; i < len(slice); i += 1) {
-			ret += fmt::fprintf(s, "{:x}", slice[i])?;
+		for (let part .. slice) {
+			ret += fmt::fprintf(s, "{:x}", part)?;
 		};
 	case let n: size =>
 		// Standard CIDR integer
@@ -344,7 +344,7 @@ fn wanttoken(tok: *strings::tokenizer) (str | invalid) = {
 	match (strings::next_token(tok)) {
 	case let s: str =>
 		return s;
-	case void =>
+	case done =>
 		return invalid;
 	};
 };
@@ -382,6 +382,7 @@ export fn subnet_contains(sub: subnet, item: (addr | subnet)) bool = {
 		// Mismatched addr4 and addr6 addresses / masks.
 		return false;
 	};
+
 	for (let i = 0z; i < len(ipa); i += 1) {
 		if (ipa[i] & maska[i] != ipb[i] & maska[i] || maska[i] > maskb[i]) {
 			return false;

@@ -96,19 +96,13 @@ fn fmtaddr(out: io::handle, addr: ip::addr) (size | io::error) = {
 fn percent_encode(out: io::handle, src: str, allowed: str) (size | io::error) = {
 	let iter = strings::iter(src);
 	let n = 0z;
-	for (true) {
-		const r = match (strings::next(&iter)) {
-		case let r: rune =>
-			yield r;
-		case =>
-			break;
-		};
+	for (let r => strings::next(&iter)) {
 		if (ascii::isalnum(r) || strings::contains(allowed, r)) {
 			n += fmt::fprint(out, r)?;
 		} else {
 			const en = utf8::encoderune(r);
-			for (let i = 0z; i < len(en); i += 1) {
-				n += fmt::fprintf(out, "%{:X}", en[i])?;
+			for (let elem .. en) {
+				n += fmt::fprintf(out, "%{:X}", elem)?;
 			};
 		};
 	};

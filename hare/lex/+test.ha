@@ -136,7 +136,7 @@ fn loc(line: uint, col: uint) location = location {
 	const in = ". .. ... < << <= <<= > >> >= >>= >>";
 	const expected: [_]token = [
 		(ltok::DOT, void, loc(1, 1)),
-		(ltok::SLICE, void, loc(1, 3)),
+		(ltok::DOUBLE_DOT, void, loc(1, 3)),
 		(ltok::ELLIPSIS, void, loc(1, 6)),
 		(ltok::LESS, void, loc(1, 10)),
 		(ltok::LSHIFT, void, loc(1, 12)),
