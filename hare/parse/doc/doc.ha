@@ -9,7 +9,6 @@ use hare::parse;
 use io;
 use memio;
 use strings;
-use types;
 
 // A representation of a complete haredoc document.
 export type doc = [](paragraph | list | code_sample);
@@ -40,7 +39,7 @@ export fn strerror(err: error) const str = lex::strerror(err);
 // the top-left corner of the document, for accurate locations in error messages
 // (e.g. declaration documentation starts at col=3; READMEs start at col=1).
 export fn parse(in: io::handle, start: lex::location) (doc | error) = {
-	let sc = bufio::newscanner(in, types::SIZE_MAX);
+	let sc = bufio::newscanner(in);
 	defer bufio::finish(&sc);
 
 	match (_parse(&sc)) {

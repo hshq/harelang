@@ -8,7 +8,6 @@ use io;
 use os;
 use os::exec;
 use strings;
-use types;
 
 // Flags applicable to a [[wordexp]] operation.
 export type flag = enum uint {
@@ -42,7 +41,7 @@ export fn wordexp(s: str, flags: flag) ([]str | error) = {
 	const child = exec::start(&cmd)!;
 	io::close(wr)!;
 
-	const scan = bufio::newscanner(rd, types::SIZE_MAX);
+	const scan = bufio::newscanner(rd);
 	defer bufio::finish(&scan);
 
 	match (bufio::scan_string(&scan, "\0")?) {

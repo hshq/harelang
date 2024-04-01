@@ -18,7 +18,6 @@ use os::exec;
 use path;
 use strconv;
 use strings;
-use types;
 
 const help: []getopt::help = [
 	"reads and formats Hare documentation",
@@ -263,7 +262,7 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 // as a valid identifier.
 fn parseident(in: str) ((ast::ident, bool) | void) = {
 	let buf = memio::fixed(strings::toutf8(in));
-	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	let sc = bufio::newscanner(&buf);
 	defer bufio::finish(&sc);
 	let lexer = lex::init(&sc, "<string>");
 	let success = false;

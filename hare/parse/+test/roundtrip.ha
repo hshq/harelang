@@ -30,7 +30,7 @@ fn roundtrip_reparse(src: str) void = {
 
 fn _roundtrip(src: str) str = {
 	let buf = memio::fixed(strings::toutf8(src));
-	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	let sc = bufio::newscanner(&buf);
 	defer bufio::finish(&sc);
 	let lexer = lex::init(&sc, "<test>", lex::flag::COMMENTS);
 	let u = ast::subunit {

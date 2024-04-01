@@ -13,7 +13,7 @@ use types;
 
 fn parse_type(in: str) ast::_type = {
 	let buf = memio::fixed(strings::toutf8(in));
-	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	let sc = bufio::newscanner(&buf);
 	defer bufio::finish(&sc);
 	let lex = lex::init(&sc, "<test>");
 	return parse::_type(&lex)!;

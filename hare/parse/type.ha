@@ -28,6 +28,7 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 				loc = loc,
 				name = "",
 				_type = alloc(name_or_type),
+				default_value = void,
 			});
 		case lex::token =>
 			// Bit of a hack because we can't unlex twice.
@@ -39,7 +40,14 @@ fn prototype(lexer: *lex::lexer) (ast::func_type | error) = {
 				loc = loc,
 				name = ns[0],
 				_type = alloc(_type(lexer)?),
+				default_value = void,
 			});
+		};
+		match (try(lexer, ltok::EQUAL)?) {
+		case void =>
+			yield void;
+		case lex::token =>
+			params[len(params) - 1].default_value = expr(lexer)?;
 		};
 		match (try(lexer, ltok::ELLIPSIS)?) {
 		case lex::token =>

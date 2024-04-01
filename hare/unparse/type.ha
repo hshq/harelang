@@ -78,6 +78,15 @@ fn prototype(
 			n += space(ctx)?;
 		};
 		n += __type(ctx, syn, param._type)?;
+		match (param.default_value) {
+		case void =>
+			yield;
+		case let e: ast::expr =>
+			n += space(ctx)?;
+			n += syn(ctx, "=", synkind::PUNCTUATION)?;
+			n += space(ctx)?;
+			n += _expr(ctx, syn, &e)?;
+		};
 		if (i + 1 < len(t.params) || t.variadism == variadism::C) {
 			n += syn(ctx, ",", synkind::PUNCTUATION)?;
 			n += space(ctx)?;
@@ -396,6 +405,7 @@ fn type_test(t: *ast::_type, expected: str) void = {
 				loc = loc,
 				name = "",
 				_type = &type_int,
+				default_value = void,
 			},
 		],
 	};
@@ -408,11 +418,13 @@ fn type_test(t: *ast::_type, expected: str) void = {
 				loc = loc,
 				name = "foo",
 				_type = &type_int,
+				default_value = void,
 			},
 			ast::func_param {
 				loc = loc,
 				name = "bar",
 				_type = &type_int,
+				default_value = void,
 			},
 		],
 	};

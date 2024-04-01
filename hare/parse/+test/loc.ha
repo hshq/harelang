@@ -9,11 +9,10 @@ use io;
 use io::{mode};
 use memio;
 use strings;
-use types;
 
 fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	let buf = memio::fixed(strings::toutf8(srcs[i]));
-	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	let sc = bufio::newscanner(&buf);
 	defer bufio::finish(&sc);
 	let lexer = lex::init(&sc, "<test>");
 	let exp = match (expr(&lexer)) {
@@ -76,7 +75,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	// We want to check the location of nested expressions, so this can't
 	// use expr_testloc
 	let buf = memio::fixed(strings::toutf8("foo: bar: baz"));
-	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	let sc = bufio::newscanner(&buf);
 	defer bufio::finish(&sc);
 	let lexer = lex::init(&sc, "<test>");
 	let exp = match (expr(&lexer)) {
@@ -101,7 +100,7 @@ fn expr_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 
 fn type_testloc(srcs: str...) void = for (let i = 0z; i < len(srcs); i += 1) {
 	let buf = memio::fixed(strings::toutf8(srcs[i]));
-	let sc = bufio::newscanner(&buf, types::SIZE_MAX);
+	let sc = bufio::newscanner(&buf);
 	defer bufio::finish(&sc);
 	let lexer = lex::init(&sc, "<test>");
 	let typ = match (_type(&lexer)) {

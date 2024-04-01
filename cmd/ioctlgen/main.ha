@@ -13,7 +13,6 @@ use memio;
 use os;
 use regex;
 use strings;
-use types::{SIZE_MAX};
 
 let ioctlre: regex::regex = regex::regex { ... };
 let typedefre: regex::regex = regex::regex { ... };
@@ -87,7 +86,7 @@ export fn main() void = {
 
 fn loadtype(store: *types::typestore) void = {
 	let tee = io::tee(os::stdin, os::stdout);
-	let sc = bufio::newscanner(&tee, SIZE_MAX);
+	let sc = bufio::newscanner(&tee);
 	defer bufio::finish(&sc);
 	let lex = lex::init(&sc, "<ioctl>");
 	const decl = match (parse::decl(&lex)) {
@@ -109,7 +108,7 @@ fn loadtype(store: *types::typestore) void = {
 
 fn parseioctl(store: *types::typestore, d: dir, params: str) ioctl = {
 	let buf = memio::fixed(strings::toutf8(params));
-	let sc = bufio::newscanner(&buf, SIZE_MAX);
+	let sc = bufio::newscanner(&buf);
 	defer bufio::finish(&sc);
 	let lex = lex::init(&sc, "<ioctl>");
 

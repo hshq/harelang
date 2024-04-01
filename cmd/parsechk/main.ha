@@ -10,7 +10,6 @@ use hare::parse;
 use io;
 use os;
 use path;
-use types;
 
 export fn main() void = {
 	let buf = path::init()!;
@@ -43,7 +42,7 @@ fn iter(buf: *path::buffer, status: *int) void = {
 fn parse(path: str, status: *int) void = {
 	const f = os::open(path)!;
 	defer io::close(f)!;
-	let sc = bufio::newscanner(f, types::SIZE_MAX);
+	let sc = bufio::newscanner(f);
 	defer bufio::finish(&sc);
 	let lexer = lex::init(&sc, path);
 	match (parse::subunit(&lexer)) {
