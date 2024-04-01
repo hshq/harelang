@@ -11,12 +11,7 @@ export fn symname_to_ident(name: str) const str = {
 	let slice = buf[..0];
 
 	const iter = strings::iter(name);
-	for (true) {
-		const rn = match (strings::next(&iter)) {
-		case let rn: rune =>
-			yield rn;
-		case => break;
-		};
+	for (const rn => strings::next(&iter)) {
 		if (rn == '.') {
 			static append(slice, ':');
 			static append(slice, ':');

@@ -104,9 +104,9 @@ export fn abbrev_table_finish(table: *abbrev_table) void = {
 // Retrieves an abbreviation from an [[abbrev_table]] by its abbreviation code.
 export fn get_abbrev(table: *abbrev_table, code: u64) const nullable *abbrev = {
 	// TODO: Sort the list and do this faster
-	for (let i = 0z; i < len(table.items); i += 1) {
-		if (table.items[i].code == code) {
-			return &table.items[i];
+	for (let item &.. table.items) {
+		if (item.code == code) {
+			return item;
 		};
 	};
 	return null;

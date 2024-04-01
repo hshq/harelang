@@ -41,8 +41,7 @@ export fn addr_to_line(
 			continue;
 		};
 
-		for (let i = 0z; i < len(entry.fields); i += 1) {
-			const field = &entry.fields[i];
+		for (const field &.. entry.fields) {
 			switch (field.attr) {
 			case DW_AT_stmt_list =>
 				stmt_list = field.constant;
@@ -63,13 +62,7 @@ export fn addr_to_line(
 	defer line_program_finish(&prog);
 
 	let last = line_state { ... };
-	for (true) {
-		const state = match (line_next(&prog)?) {
-		case let state: line_state =>
-			yield state;
-		case io::EOF =>
-			break;
-		};
+	for (const state => line_next(&prog)?) {
 		defer last = state;
 
 		if (state.file == 1) {
