@@ -22,8 +22,7 @@ fn backtrace(self: *image::image, frame: stackframe) void = {
 		match (next(frame)) {
 		case let next: stackframe =>
 			frame = next;
-		case void =>
-			break;
+		case done => break;
 		};
 	};
 	frame = orig;
@@ -50,7 +49,7 @@ fn backtrace(self: *image::image, frame: stackframe) void = {
 		match (next(frame)) {
 		case let next: stackframe =>
 			frame = next;
-		case void =>
+		case done =>
 			break;
 		};
 	};

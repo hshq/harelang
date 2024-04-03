@@ -32,7 +32,7 @@ fn debug_abort(
 		match (next(frame)) {
 		case let next: stackframe =>
 			frame = next;
-		case void => halt();
+		case done => halt();
 		};
 	};
 

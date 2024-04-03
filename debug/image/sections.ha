@@ -30,8 +30,7 @@ export fn section_byname(
 		(".debug_line", &image.debug_line),
 		(".debug_str", &image.debug_str),
 	];
-	for (let i = 0z; i < len(cached); i += 1) {
-		const (cand, val) = cached[i];
+	for (const (cand, val) .. cached) {
 		if (cand == name) {
 			match (*val) {
 			case null => break;
@@ -61,10 +60,10 @@ export fn section_byname(
 	case null =>
 		return null;
 	case let sec: *elf::section64 =>
-		for (let i = 0z; i < len(cached); i += 1) {
-			const (cand, val) = cached[i];
+		for (let (cand, val) .. cached) {
 			if (cand == name) {
 				*val = sec;
+				break;
 			};
 		};
 	};

@@ -123,8 +123,7 @@ fn read_die(
 	abbrev: *abbrev,
 ) (entry | io::error) = {
 	let fields: []field = [];
-	for (let i = 0z; i < len(abbrev.fields); i += 1) {
-		const abf = &abbrev.fields[i];
+	for (const abf &.. abbrev.fields) {
 		let field = field {
 			attr = abf.attr,
 			form = abf.form,

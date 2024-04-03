@@ -25,14 +25,9 @@ export fn arange_lookup(
 		return;
 	};
 
+	// Read all arange tables in this section
 	const rd = image::section_reader(image, aranges);
-	for (true) {
-		const rd = match (new_table_reader(&rd, true)!) {
-		case io::EOF => break;
-		case let rd: table_reader =>
-			yield rd;
-		};
-
+	for (const rd => new_table_reader(&rd, true)!) {
 		match (arange_match(&rd, addr)) {
 		case void => void;
 		case let u: u64 =>

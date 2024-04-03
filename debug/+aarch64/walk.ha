@@ -13,13 +13,13 @@ export type stackframe = struct {
 export fn walk() stackframe = *getfp();
 
 // Returns the next stack frame walking the stack.
-export fn next(frame: stackframe) (stackframe | void) = {
+export fn next(frame: stackframe) (stackframe | done) = {
 	match (frame.fp) {
 	case null =>
-		return;
+		return done;
 	case let next: *stackframe =>
 		if (next.fp == null) {
-			return;
+			return done;
 		};
 		return *next;
 	};
