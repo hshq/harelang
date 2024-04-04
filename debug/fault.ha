@@ -59,6 +59,7 @@ fn signal_handler(sig: sig, info: *signal::siginfo, uctx: *opaque) void = {
 	};
 	defer image::close(&self);
 
+	fmt::errorln("Backtrace:")!;
 	backtrace(&self, frame);
 
 	halt();
