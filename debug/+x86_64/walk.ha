@@ -18,6 +18,9 @@ export fn next(frame: stackframe) (stackframe | done) = {
 	case null =>
 		return done;
 	case let next: *stackframe =>
+		if (!isaddrmapped(next)) {
+			return done;
+		};
 		if (next.fp == null) {
 			return done;
 		};
