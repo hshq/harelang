@@ -731,9 +731,9 @@ export def TCSETS: u64 = 0x5402;
 
 export def MLOCK_ONFAULT: uint = 0x01;
 
-export def MCL_CURRENT: int = 1;
-export def MCL_FUTURE: int = 2;
-export def MCL_ONFAULT: int = 4;
+export def MCL_CURRENT: uint = 1;
+export def MCL_FUTURE: uint = 2;
+export def MCL_ONFAULT: uint = 4;
 
 export def PTRACE_TRACEME: int = 0;
 export def PTRACE_PEEKTEXT: int = 1;
