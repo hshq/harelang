@@ -177,6 +177,8 @@ export type timespec = struct {
 	tv_nsec: i64,
 };
 
+export def UTIME_OMIT = -0x1;
+
 export def CLOCK_REALTIME: clockid_t = 0;
 export def CLOCK_PROCESS_CPUTIME_ID: clockid_t = 2;
 export def CLOCK_MONOTONIC: clockid_t = 3;

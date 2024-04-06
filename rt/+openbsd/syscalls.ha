@@ -581,7 +581,40 @@ export fn setpgid(pid: pid_t, pgrp: pid_t) (void | errno) = {
 
 // futex
 // utimensat
+
+@symbol("utimensat") fn libc_utimensat(
+	fd: int,
+	path: *const u8,
+	times: *const [2]timespec,
+	flag: int
+) int;
+
+export fn utimensat(
+	dirfd: int,
+	path: str,
+	ts: *[2]timespec,
+	flags: int
+) (void | errno) = {
+	let res = libc_utimensat(dirfd, cpath(path)?, ts, flags);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // futimens
+
+@symbol("futimens") fn libc_futimens(
+	fd: int,
+	times: *const [2]timespec
+) int;
+
+export fn futimens(fd: int, ts: *[2]timespec) (void | errno) = {
+	let res = libc_futimens(fd, ts);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // kbind
 // clock_gettime
 

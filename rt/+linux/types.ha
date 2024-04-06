@@ -35,6 +35,8 @@ export type timespec = struct {
 	tv_nsec: i64,
 };
 
+export def UTIME_OMIT = 0x3ffffffe;
+
 export type itimerspec = struct {
 	it_interval: timespec,
 	it_value: timespec,
