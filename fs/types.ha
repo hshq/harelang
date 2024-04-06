@@ -208,6 +208,10 @@ export type mkdirfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
 export type rmdirfunc = fn(fs: *fs, path: str) (void | error);
 export type chmodfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
 export type chownfunc = fn(fs: *fs, path: str, uid: uint, gid: uint) (void | error);
+export type chtimesfunc = fn(fs: *fs, path: str, atime: (time::instant | void),
+       mtime: (time::instant | void)) (void | error);
+export type fchtimesfunc = fn(fd: io::file, atime: (time::instant | void),
+       mtime: (time::instant | void)) (void | error);
 export type resolvefunc = fn(fs: *fs, path: str) str;
 export type readlinkfunc = fn(fs: *fs, path: str) (str | error);
 export type linkfunc = fn(fs: *fs, old: str, new: str) (void | error);
@@ -298,6 +302,12 @@ export type fs = struct {
 
 	// Changes ownership of a file.
 	chown: nullable *chownfunc,
+
+	// Changes access and modification time of a file.
+	chtimes: nullable *chtimesfunc,
+
+	// Changes access and modification time of an [[io::file]].
+	fchtimes: nullable *fchtimesfunc,
 
 	// Resolves a path to its absolute, normalized value. If the fs
 	// implementation does not provide this, [resolve] presumes that

@@ -342,6 +342,45 @@ fn fs_chown(fs: *fs::fs, path: str, uid: uint, gid: uint) (void | fs::error) = {
 	};
 };
 
+fn instant_to_timespec(time: (time::instant | void)) rt::timespec = {
+	match (time) {
+	case let t: time::instant =>
+		return time::instant_to_timespec(t);
+	case void =>
+		return rt::timespec{
+			tv_sec = rt::UTIME_OMIT,
+			tv_nsec = rt::UTIME_OMIT
+		};
+	};
+};
+
+fn fs_chtimes(fs: *fs::fs, path: str, atime: (time::instant | void),
+		mtime: (time::instant | void)) (void | fs::error) = {
+	let utimes: [2]rt::timespec = [
+		instant_to_timespec(atime),
+		instant_to_timespec(mtime),
+	];
+        let fs = fs: *os_filesystem;
+        match (rt::utimensat(fs.dirfd, path, &utimes, 0)) {
+        case let err: rt::errno =>
+                return errno_to_fs(err);
+        case void => void;
+        };
+};
+
+fn fs_fchtimes(fd: io::file, atime: (time::instant | void),
+		mtime: (time::instant | void)) (void | fs::error) = {
+	let utimes: [2]rt::timespec = [
+		instant_to_timespec(atime),
+		instant_to_timespec(mtime),
+	];
+        match (rt::futimens(fd, &utimes)) {
+        case let err: rt::errno =>
+                return errno_to_fs(err);
+        case void => void;
+        };
+};
+
 // TODO: cannot handle errors, i.e. path too long or cannot resolve.
 fn fs_resolve(fs: *fs::fs, path: str) str = {
 	let fs = fs: *os_filesystem;
@@ -410,6 +449,8 @@ fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 			rmdir = &fs_rmdir,
 			chmod = &fs_chmod,
 			chown = &fs_chown,
+			chtimes = &fs_chtimes,
+			fchtimes = &fs_fchtimes,
 			resolve = &fs_resolve,
 			link = &fs_link,
 			symlink = &fs_symlink,

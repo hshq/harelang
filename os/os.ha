@@ -4,6 +4,7 @@
 use fs;
 use io;
 use path;
+use time;
 
 // Provides an implementation of [[fs::fs]] for the current working directory.
 export let cwd: *fs::fs = null: *fs::fs;
@@ -63,6 +64,22 @@ export fn chmod(path: str, mode: fs::mode) (void | fs::error) = fs::chmod(cwd, p
 
 // Changes ownership of a file.
 export fn chown(path: str, uid: uint, gid: uint) (void | fs::error) = fs::chown(cwd, path, uid, gid);
+
+// Changes the access and modification time of a file. A void value will leave
+// the corresponding time unchanged.
+export fn chtimes(
+	path: str,
+	atime: (time::instant | void),
+	mtime: (time::instant | void)
+) (void | fs::error) = fs::chtimes(cwd, path, atime, mtime);
+
+// Changes the access and modification time of an [[io::file]]. A void value
+// will leave the corresponding time unchanged.
+export fn fchtimes(
+        fd: io::file,
+        atime: (time::instant | void),
+        mtime: (time::instant | void)
+) (void | fs::error) = fs::fchtimes(cwd, fd, atime, mtime);
 
 // Resolves a path to its absolute, normalized value. Relative paths will be
 // rooted (if supported by the host filesystem), and "." and ".." components

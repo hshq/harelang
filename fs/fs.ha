@@ -4,6 +4,7 @@
 use errors;
 use io;
 use path;
+use time;
 
 // Closes a filesystem. The fs cannot be used after this function is called.
 export fn close(fs: *fs) void = {
@@ -270,6 +271,38 @@ export fn chown(fs: *fs, path: str, uid: uint, gid: uint) (void | error) = {
 		return errors::unsupported;
 	case let f: *chownfunc =>
 		return f(fs, path, uid, gid);
+	};
+};
+
+// Changes the access and modification time of a file. A void value will leave
+// the corresponding time unchanged.
+export fn chtimes(
+	fs: *fs,
+	path: str,
+	atime: (time::instant | void),
+	mtime: (time::instant | void)
+) (void | error) = {
+	match (fs.chtimes) {
+	case null =>
+		return errors::unsupported;
+	case let f: *chtimesfunc =>
+		return f(fs, path, atime, mtime);
+	};
+};
+
+// Changes the access and modification time of an [[io::file]]. A void value
+// will leave the corresponding time unchanged.
+export fn fchtimes(
+	fs: *fs,
+	fd: io::file,
+	atime: (time::instant | void),
+	mtime: (time::instant | void)
+) (void | error) = {
+	match (fs.fchtimes) {
+	case null =>
+		return errors::unsupported;
+	case let f: *fchtimesfunc =>
+		return f(fd, atime, mtime);
 	};
 };
 
