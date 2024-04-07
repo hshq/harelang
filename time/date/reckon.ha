@@ -53,24 +53,40 @@ export type rflag = enum uint {
 // Reckons from a given [[date]] to a new one, via a given set of [[period]]s.
 // This is a chronological arithmetic operation. Each period is reckoned
 // independently in succession, applying (adding) their units from most to least
-// significant. The [[rflag]] parameter determines certain behaviours, like for
-// when encountering invalid date states (e.g. field overflows).
+// significant.
 //
-// 	let dest = date::reckon(
-// 		start, // 2000-02-29 09:00:00
-// 		0,     // rflag::DEFAULT
+// The [[rflag]] parameter handles field overflows and other behaviours.
+// The [[zflag]] parameter affects the final result. Example:
+//
+// 	// 2000-02-29 00:00:00.000000000 -1100 -11 Pacific/Apia
+// 	let a = date::new(chrono::tz("Pacific/Apia")!, -11 * time::HOUR,
+// 		2000,  2, 29)!;
+//
+// 	let b = date::reckon(a,    // starts as: 2000-Feb-29 00:00 -1100
+// 		date::zflag::GAP_END,
+// 		date::rflag::DEFAULT,
 // 		date::period {
-// 			years  =  1, // becomes: 2001-02-28 09:00:00
-// 			months = -2, // becomes: 2000-12-28 09:00:00
-// 			days   =  4, // becomes: 2001-01-01 09:00:00
+// 			years  = 11, // becomes: 2011-Feb-28 00:00 -1100
+// 			months = 10, // becomes: 2011-Dec-28 00:00 -1100
+// 			days   =  1, // becomes: 2011-Dec-29 00:00 -1100
+// 			hours  = 36, // becomes: 2011-Dec-30 12:00 -1100
 // 		},
+// 		// In Samoa, Apia, the day 2011-Dec-30 was skipped entirely.
+// 		// Thus, after applying date::zflag::GAP_END for adjustment,
+// 		// we arrive at the final date, time, and zone-offset:
+// 		// 2011-12-31 00:00:00.000000000 +1400 +14 Pacific/Apia
 // 	);
 //
 // See [[add]].
-export fn reckon(d: date, rf: rflag, ps: period...) date = {
+export fn reckon(
+	d: date,
+	zoff: (time::duration | zflag),
+	rf: rflag,
+	ps: period...
+) (date | invalid | zfunresolved) = {
 	let r = newvirtual(); // our reckoner
 	r.vloc       = d.loc;
-	r.zoff       = chrono::ozone(&d).zoff;
+	r.zoff       = zoff;
 	r.year       = _year(&d);
 	r.month      = _month(&d);
 	r.day        = _day(&d);
@@ -118,7 +134,7 @@ export fn reckon(d: date, rf: rflag, ps: period...) date = {
 		reckon_days(&r, 0, rf); // bubble up potential Feb 29 overflow
 	};
 
-	return realize(r)!;
+	return realize(r) as (date | invalid | zfunresolved);
 };
 
 fn reckon_months(r: *virtual, months: i64) void = {
@@ -270,22 +286,22 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, rf: rflag) void = {
 	let p = period { ... };
 
 	let a = new(chrono::UTC, 0)!;
-	let r = reckon(a, 0, p);
+	let r = reckon(a, zflag::CONTIG, 0, p)!;
 	assert(chrono::simultaneous(&a, &r)!, "01. incorrect result");
 
 	let a = new(chrono::UTC, 0,  2019, 12, 27,  21,  7,  8,         0)!;
-	let r = reckon(a, 0, p);
+	let r = reckon(a, zflag::CONTIG, 0, p)!;
 	assert(chrono::simultaneous(&a, &r)!, "02. incorrect result");
 
 	let a = new(chrono::UTC, 0,  1970,  1,  1,   0,  0,  0,         0)!;
-	let r = reckon(a, 0, p);
+	let r = reckon(a, zflag::CONTIG, 0, p)!;
 	assert(chrono::simultaneous(&a, &r)!, "03. incorrect result");
 
 	// generic periods, rflag::CEIL
 
 	let a = new(chrono::UTC, 0,  2019, 12, 27,  21,  7,  8,         0)!;
 
-	let r = reckon(a, 0, period {
+	let r = reckon(a, zflag::CONTIG, 0, period {
 		years       = 1,
 		months      = 1,
 		days        = 1,
@@ -294,11 +310,11 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, rf: rflag) void = {
 		seconds     = 1,
 		nanoseconds = 1,
 		...
-	});
+	})!;
 	let b = new(chrono::UTC, 0,  2021,  1, 28,  22,  8,  9,         1)!;
 	assert(chrono::simultaneous(&b, &r)!, "04. incorrect result");
 
-	let r = reckon(a, 0, period {
+	let r = reckon(a, zflag::CONTIG, 0, period {
 		years       = -1,
 		months      = -1,
 		days        = -1,
@@ -307,11 +323,11 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, rf: rflag) void = {
 		seconds     = -1,
 		nanoseconds = -1,
 		...
-	});
+	})!;
 	let b = new(chrono::UTC, 0,  2018, 11, 26,  20,  6,  6, 999999999)!;
 	assert(chrono::simultaneous(&b, &r)!, "05. incorrect result");
 
-	let r = reckon(a, 0, period {
+	let r = reckon(a, zflag::CONTIG, 0, period {
 		years       = 100,
 		months      = 100,
 		days        = 100,
@@ -320,11 +336,11 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, rf: rflag) void = {
 		seconds     = 100,
 		nanoseconds = 100,
 		...
-	});
+	})!;
 	let b = new(chrono::UTC, 0,  2128,  8, 10,   2, 48, 48,       100)!;
 	assert(chrono::simultaneous(&b, &r)!, "06. incorrect result");
 
-	let r = reckon(a, 0, period {
+	let r = reckon(a, zflag::CONTIG, 0, period {
 		years       = -100,
 		months      = -100,
 		days        = -100,
@@ -333,14 +349,14 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, rf: rflag) void = {
 		seconds     = -100,
 		nanoseconds = -100,
 		...
-	});
+	})!;
 	let b = new(chrono::UTC, 0,  1911,  5, 15,  15, 25, 27, 999999900)!;
 	assert(chrono::simultaneous(&b, &r)!, "07. incorrect result");
 
-	let r = reckon(a, 0, period {
+	let r = reckon(a, zflag::CONTIG, 0, period {
 		weeks = 100,
 		...
-	});
+	})!;
 	let b = new(chrono::UTC, 0,  2021, 11, 26,  21,  7,  8,         0)!;
 	assert(chrono::simultaneous(&b, &r)!, "08. incorrect result");
 
@@ -349,19 +365,19 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, rf: rflag) void = {
 	let a = new(chrono::UTC, 0,  2000,  1, 31)!; // leap year
 	let p = period { months = 1, ... };
 
-	let r = reckon(a, rflag::FLOOR, p);
+	let r = reckon(a, zflag::CONTIG, rflag::FLOOR, p)!;
 	let b = new(chrono::UTC, 0,  2000,  2,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "09. incorrect result");
 
-	let r = reckon(a, rflag::CEIL, p);
+	let r = reckon(a, zflag::CONTIG, rflag::CEIL, p)!;
 	let b = new(chrono::UTC, 0,  2000,  2, 29)!;
 	assert(chrono::simultaneous(&b, &r)!, "10. incorrect result");
 
-	let r = reckon(a, rflag::HOP, p);
+	let r = reckon(a, zflag::CONTIG, rflag::HOP, p)!;
 	let b = new(chrono::UTC, 0,  2000,  3,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "11. incorrect result");
 
-	let r = reckon(a, rflag::FOLD, p);
+	let r = reckon(a, zflag::CONTIG, rflag::FOLD, p)!;
 	let b = new(chrono::UTC, 0,  2000,  3,  2)!;
 	assert(chrono::simultaneous(&b, &r)!, "12. incorrect result");
 
@@ -370,19 +386,19 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, rf: rflag) void = {
 	let a = new(chrono::UTC, 0,  2000,  1, 31)!; // leap year
 	let p = period { years = 1, months = 1, ... };
 
-	let r = reckon(a, rflag::FLOOR, p);
+	let r = reckon(a, zflag::CONTIG, rflag::FLOOR, p)!;
 	let b = new(chrono::UTC, 0,  2001,  2,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "13. incorrect result");
 
-	let r = reckon(a, rflag::CEIL, p);
+	let r = reckon(a, zflag::CONTIG, rflag::CEIL, p)!;
 	let b = new(chrono::UTC, 0,  2001,  2, 28)!;
 	assert(chrono::simultaneous(&b, &r)!, "14. incorrect result");
 
-	let r = reckon(a, rflag::HOP, p);
+	let r = reckon(a, zflag::CONTIG, rflag::HOP, p)!;
 	let b = new(chrono::UTC, 0,  2001,  3,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "15. incorrect result");
 
-	let r = reckon(a, rflag::FOLD, p);
+	let r = reckon(a, zflag::CONTIG, rflag::FOLD, p)!;
 	let b = new(chrono::UTC, 0,  2001,  3,  3)!;
 	assert(chrono::simultaneous(&b, &r)!, "16. incorrect result");
 
@@ -400,35 +416,35 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, rf: rflag) void = {
 		period { hours =  1, minutes =  1, seconds =  1, ... },
 	];
 
-	let r = reckon(a, 0, ps[..1]...);
+	let r = reckon(a, zflag::CONTIG, 0, ps[..1]...)!;
 	let b = new(chrono::UTC, 0,  2002,  2,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "17. incorrect result");
 
-	let r = reckon(a, 0, ps[..2]...);
+	let r = reckon(a, zflag::CONTIG, 0, ps[..2]...)!;
 	let b = new(chrono::UTC, 0,  2000, 12, 31)!;
 	assert(chrono::simultaneous(&b, &r)!, "18. incorrect result");
 
-	let r = reckon(a, 0, ps[..3]...);
+	let r = reckon(a, zflag::CONTIG, 0, ps[..3]...)!;
 	let b = new(chrono::UTC, 0,  1999, 11, 29)!;
 	assert(chrono::simultaneous(&b, &r)!, "19. incorrect result");
 
-	let r = reckon(a, 0, ps[..4]...);
+	let r = reckon(a, zflag::CONTIG, 0, ps[..4]...)!;
 	let b = new(chrono::UTC, 0,  2000, 12, 30)!;
 	assert(chrono::simultaneous(&b, &r)!, "20. incorrect result");
 
-	let r = reckon(a, 0, ps[..5]...);
+	let r = reckon(a, zflag::CONTIG, 0, ps[..5]...)!;
 	let b = new(chrono::UTC, 0,  2000, 12, 30,   1,  1,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "21. incorrect result");
 
-	let r = reckon(a, 0, ps[..6]...);
+	let r = reckon(a, zflag::CONTIG, 0, ps[..6]...)!;
 	let b = new(chrono::UTC, 0,  2000, 12, 30)!;
 	assert(chrono::simultaneous(&b, &r)!, "22. incorrect result");
 
-	let r = reckon(a, 0, ps[..7]...);
+	let r = reckon(a, zflag::CONTIG, 0, ps[..7]...)!;
 	let b = new(chrono::UTC, 0,  2000, 12, 29,  22, 58, 59)!;
 	assert(chrono::simultaneous(&b, &r)!, "23. incorrect result");
 
-	let r = reckon(a, 0, ps[..8]...);
+	let r = reckon(a, zflag::CONTIG, 0, ps[..8]...)!;
 	let b = new(chrono::UTC, 0,  2000, 12, 30)!;
 	assert(chrono::simultaneous(&b, &r)!, "24. incorrect result");
 
@@ -446,35 +462,35 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, rf: rflag) void = {
 		period { hours =  1, minutes =  1, seconds =  1, ... },
 	];
 
-	let r = reckon(a, rflag::REVSIG, ps[..1]...);
+	let r = reckon(a, zflag::CONTIG, rflag::REVSIG, ps[..1]...)!;
 	let b = new(chrono::UTC, 0,  2002,  2,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "25. incorrect result");
 
-	let r = reckon(a, rflag::REVSIG, ps[..2]...);
+	let r = reckon(a, zflag::CONTIG, rflag::REVSIG, ps[..2]...)!;
 	let b = new(chrono::UTC, 0,  2000, 12, 31)!;
 	assert(chrono::simultaneous(&b, &r)!, "26. incorrect result");
 
-	let r = reckon(a, rflag::REVSIG, ps[..3]...);
+	let r = reckon(a, zflag::CONTIG, rflag::REVSIG, ps[..3]...)!;
 	let b = new(chrono::UTC, 0,  1999, 11, 30)!;
 	assert(chrono::simultaneous(&b, &r)!, "27. incorrect result");
 
-	let r = reckon(a, rflag::REVSIG, ps[..4]...);
+	let r = reckon(a, zflag::CONTIG, rflag::REVSIG, ps[..4]...)!;
 	let b = new(chrono::UTC, 0,  2001,  1,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "28. incorrect result");
 
-	let r = reckon(a, rflag::REVSIG, ps[..5]...);
+	let r = reckon(a, zflag::CONTIG, rflag::REVSIG, ps[..5]...)!;
 	let b = new(chrono::UTC, 0,  2001,  1,  1,   1,  1,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "29. incorrect result");
 
-	let r = reckon(a, rflag::REVSIG, ps[..6]...);
+	let r = reckon(a, zflag::CONTIG, rflag::REVSIG, ps[..6]...)!;
 	let b = new(chrono::UTC, 0,  2001,  1,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "30. incorrect result");
 
-	let r = reckon(a, rflag::REVSIG, ps[..7]...);
+	let r = reckon(a, zflag::CONTIG, rflag::REVSIG, ps[..7]...)!;
 	let b = new(chrono::UTC, 0,  2000, 12, 31,  22, 58, 59)!;
 	assert(chrono::simultaneous(&b, &r)!, "31. incorrect result");
 
-	let r = reckon(a, rflag::REVSIG, ps[..8]...);
+	let r = reckon(a, zflag::CONTIG, rflag::REVSIG, ps[..8]...)!;
 	let b = new(chrono::UTC, 0,  2001,  1,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "32. incorrect result");
 
