@@ -248,8 +248,8 @@ fn load_tzif(h: io::handle, tz: *timezone) (void | invalidtzif | io::error) = {
 	// assemble transitions
 	let transitions: []transition = [];
 	for (let i = 0z; i < timecnt; i += 1) {
-		const zoneindex = zone_indicies[i]: int;
-		if (zoneindex < 0 || zoneindex > (typecnt: int - 1)) {
+		const zoneindex = zone_indicies[i];
+		if (zoneindex < 0 || zoneindex > (typecnt - 1)) {
 			return invalidtzif;
 		};
 

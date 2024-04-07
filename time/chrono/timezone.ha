@@ -57,7 +57,7 @@ export type zone = struct {
 // A [[timezone]] transition between two [[zone]]s.
 export type transition = struct {
 	when: time::instant,
-	zoneindex: int,
+	zoneindex: size,
 };
 
 // A destructured dual std/dst POSIX timezone. See tzset(3).
