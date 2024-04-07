@@ -5,7 +5,7 @@ use fmt;
 use strings;
 
 // All possible errors returned from [[date]].
-export type error = !(insufficient | invalid | parsefail);
+export type error = !(insufficient | invalid | zfunresolved | parsefail);
 
 // Converts an [[error]] into a human-friendly string. The result may be
 // statically allocated.
@@ -26,6 +26,12 @@ export fn strerror(err: error) const str = {
 		));
 	case invalid =>
 		return "Invalid date information";
+	case let lap: zfunresolved =>
+		if (lap) {
+			return "Failed to resolve zone-offset in a timezone transition overlap";
+		} else {
+			return "Failed to resolve zone-offset in a timezone transition gap";
+		};
 	case let pf: parsefail =>
 		const (bi, rn) = pf;
 		def FMTMSG = "Date parsing failure for layout rune '{}' at byteindex {}";

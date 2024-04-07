@@ -4,6 +4,107 @@
 use time;
 use time::chrono;
 
+// Flags for resolving an absent zone-offset. Handles timezone transitions.
+//
+// The [[realize]] function, as well as other date creation functions (like
+// [[new]], [[truncate]], [[reckon]]...) accept zflags. If zflags are provided,
+// these functions normally calculate an intermediate date with a best-guess
+// numerical zone-offset. This intermediate date can be [[invalid]] if it falls
+// within the observed overlap or gap of a timezone transition, where such dates
+// are ambiguous or nonexistent. In this case, the provided zflags are
+// consulted, and a final calculation takes place before the final resultant
+// date (or [[zfunresolved]]) is returned.
+//
+// Timezone transitions create gaps and overlaps, the two causes of [[invalid]]
+// intermediate dates. Passing one "GAP_" and one "LAP_" flag covers both cases.
+//
+// 	let zf = date::zflag::LAP_EARLY | date::zflag::GAP_END;
+// 	date::new(loc, zf, fields...)!; // will never return [[zfunresolved]]
+//
+// Note that usage of "GAP_" flags will cause the resultant date to be different
+// to what is originally specified if the intermediate date falls within a gap.
+// Flags with greater value take precedent.
+//
+// The following figures exist to help understand the effect of these flags.
+//
+// 	Fig A                    2000 October 29th
+// 	                              -1 hour
+//
+// 	                                 f=02:30+0200
+// 	                                 g=02:30+0100
+// 	                             lp  | lq
+// 	                 +0200        |  |  |       +0100
+// 	  Observed time: 00    01    02  | 03    04    05
+// 	      Amsterdam:  |-----|-----|==*==|-----|-----|
+// 	                  .     .     .\ :: |.     .
+// 	                  .     .     . \: :| .     .
+// 	                  .     .     .  :  :  .     .
+// 	                  .     .     .  :\ |:  .     .
+// 	                  .     .     .  : \| :  .     .
+// 	            UTC:  |-----|-----|--*--|--*--|-----|
+// 	Contiguous time: 22    23    00  | 01  | 02    03
+// 	                                 |  |  |
+// 	                                 a tx  b
+//
+// Fig A -- A backjump timezone transition in the Europe/Amsterdam locality.
+// The transition is marked by "tx". There is an overlap in the chronology,
+// marked by "lp" and "lq". The specified local time 02:30 falls within the
+// observed overlap, and so has two valid zone-offsets and can be observed
+// twice, as dates "f" and "g". When localized to UTC, these two observations
+// correspond to UTC dates "a" and "b" respectively.
+//
+// 	Fig B                     2000 March 26th
+// 	                              +1 hour
+//
+// 	                                 f~02:30+!!!!
+// 	                             gp  | gq
+// 	                 +0100        |  |  |       +0200
+// 	  Observed time: 00    01    02  | 03    04    05
+// 	      Amsterdam:  |-----|-----|  *  |-----|-----|
+// 	                  .     .     |    /     .     .
+// 	                  .     .     |   /     .     .
+// 	                  .     .     |  /     .     .
+// 	                  .     .     | /     .     .
+// 	                  .     .     |/     .     .
+// 	            UTC:  |-----|-----|-----|-----|-----|
+// 	Contiguous time: 23    00    01    02    03    04
+// 	                              |
+// 	                             tx
+//
+// Fig B -- A forejump timezone transition in the Europe/Amsterdam locality.
+// The transition is marked by "tx". There is a gap in the chronology, marked by
+// "gp" and "gq". The specified local time 02:30 falls within the observed gap,
+// and so cannot be observed and is [[invalid]].
+export type zflag = enum u8 {
+	// Assume a contiguous chronology with no observed gaps or overlaps.
+	// Upon encountering an observed gap or overlap, fail with [[invalid]].
+	// In other words, accept one and only one zone-offset.
+	CONTIG    = 0b00000000,
+
+	// Upon encountering an observed overlap, select the earliest possible
+	// date (Fig A "f") using the most positive (eastmost) zone-offset.
+	LAP_EARLY = 0b00000001,
+	// Upon encountering an observed overlap, select the latest possible
+	// date (Fig A "g") using the most negative (westmost) zone-offset.
+	LAP_LATE  = 0b00000010,
+
+	// Upon encountering an observed gap, disregard the specified date and
+	// select the date at the start boundary of the observed gap (Fig B
+	// "gp"), corresponding to the contiguous time just before the
+	// transition (Fig B "tx").
+	GAP_START = 0b00000100,
+	// Upon encountering an observed gap, disregard the specified date and
+	// select the date at the end boundary of the observed gap (Fig B "gq"),
+	// corresponding to the contiguous time at the transition (Fig B "tx").
+	GAP_END   = 0b00001000,
+};
+
+// Failed to resolve an absent zone-offset. The provided [[zflag]]s failed to
+// account for some timezone effect and could not produce a valid zone-offset.
+// A false value signifies the occurence of a timezone transition gap.
+// A true value signifies the occurence of a timezone transition overlap.
+export type zfunresolved = !bool;
+
 // A [[virtual]] date does not have enough information from which to create a
 // valid [[date]].
 export type insufficient = !lack; // TODO: drop alias workaround

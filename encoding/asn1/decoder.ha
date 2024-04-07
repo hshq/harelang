@@ -759,7 +759,7 @@ export fn read_gtime(d: *decoder) (date::date | error) = {
 	match (date::from_str("%Y%m%d%H%M%S.%N", strings::fromutf8(time)!)) {
 	case let d: date::date =>
 		return d;
-	case let e: date::error =>
+	case =>
 		return invalid;
 	};
 };
