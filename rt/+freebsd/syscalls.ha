@@ -191,10 +191,21 @@ export fn mkdirat(dirfd: int, path: path, mode: uint) (void | errno) = {
 		dirfd: u64, path: uintptr: u64, mode: u64))?;
 };
 
+
+export fn fchmod(fd: int, mode: uint) (void | errno) = {
+	wrap_return(syscall2(SYS_fchmod,
+		fd: u64, mode: u64))?;
+};
+
 export fn fchmodat(dirfd: int, path: path, mode: uint, flags: int) (void | errno) = {
 	let path = kpath(path)?;
 	wrap_return(syscall4(SYS_fchmodat,
 		dirfd: u64, path: uintptr: u64, mode: u64, flags: u64))?;
+};
+
+export fn fchown(fd: int, uid: uint, gid: uint) (void | errno) = {
+	wrap_return(syscall3(SYS_fchown,
+		fd: u64, uid: u32, gid: u32))?;
 };
 
 export fn fchownat(dirfd: int, path: path, uid: uint, gid: uint, flags: int) (void | errno) = {
