@@ -333,9 +333,25 @@ fn fs_chmod(fs: *fs::fs, path: str, mode: fs::mode) (void | fs::error) = {
 	};
 };
 
+fn fs_fchmod(fd: io::file, mode: fs::mode) (void | fs::error) = {
+	match (rt::fchmod(fd, mode: uint)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
+	};
+};
+
 fn fs_chown(fs: *fs::fs, path: str, uid: uint, gid: uint) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::fchownat(fs.dirfd, path, uid, gid, 0)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
+	};
+};
+
+fn fs_fchown(fd: io::file, uid: uint, gid: uint) (void | fs::error) = {
+	match (rt::fchown(fd, uid, gid)) {
 	case let err: rt::errno =>
 		return errno_to_fs(err);
 	case void => void;

@@ -62,8 +62,14 @@ export fn rmdirall(path: str) (void | fs::error) = fs::rmdirall(cwd, path);
 // Changes mode flags on a file or directory. Type bits are discared.
 export fn chmod(path: str, mode: fs::mode) (void | fs::error) = fs::chmod(cwd, path, mode);
 
+// Changes mode flags on a [[io::file]]. Type bits are discared.
+export fn fchmod(fd: io::file, mode: fs::mode) (void | fs::error) = fs::fchmod(cwd, fd, mode);
+
 // Changes ownership of a file.
 export fn chown(path: str, uid: uint, gid: uint) (void | fs::error) = fs::chown(cwd, path, uid, gid);
+
+// Changes ownership of a [io::file]].
+export fn fchown(fd: io::file, uid: uint, gid: uint) (void | fs::error) = fs::fchown(cwd, fd, uid, gid);
 
 // Changes the access and modification time of a file. A void value will leave
 // the corresponding time unchanged.

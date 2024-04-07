@@ -264,6 +264,16 @@ export fn chmod(fs: *fs, path: str, mode: mode) (void | error) = {
 	};
 };
 
+// Changes mode flags on a [[io::file]].
+export fn fchmod(fs: *fs, fd: io::file, mode: mode) (void | error) = {
+	match (fs.fchmod) {
+	case null =>
+		return errors::unsupported;
+	case let f: *fchmodfunc =>
+		return f(fd, mode);
+	};
+};
+
 // Changes ownership of a file.
 export fn chown(fs: *fs, path: str, uid: uint, gid: uint) (void | error) = {
 	match (fs.chown) {
@@ -271,6 +281,16 @@ export fn chown(fs: *fs, path: str, uid: uint, gid: uint) (void | error) = {
 		return errors::unsupported;
 	case let f: *chownfunc =>
 		return f(fs, path, uid, gid);
+	};
+};
+
+// Changes ownership of a [[io::file]].
+export fn fchown(fs: *fs, fd: io::file, uid: uint, gid: uint) (void | error) = {
+	match (fs.fchown) {
+	case null =>
+		return errors::unsupported;
+	case let f: *fchownfunc =>
+		return f(fd, uid, gid);
 	};
 };
 

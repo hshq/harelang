@@ -207,7 +207,9 @@ export type fstatfunc = fn(fs: *fs, file: io::file) (filestat | error);
 export type mkdirfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
 export type rmdirfunc = fn(fs: *fs, path: str) (void | error);
 export type chmodfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
+export type fchmodfunc = fn(fd: io::file, mode: mode) (void | error);
 export type chownfunc = fn(fs: *fs, path: str, uid: uint, gid: uint) (void | error);
+export type fchownfunc = fn(fd: io::file, uid: uint, gid: uint) (void | error);
 export type chtimesfunc = fn(fs: *fs, path: str, atime: (time::instant | void),
        mtime: (time::instant | void)) (void | error);
 export type fchtimesfunc = fn(fd: io::file, atime: (time::instant | void),
@@ -300,8 +302,14 @@ export type fs = struct {
 	// Changes mode flags on a file or directory.
 	chmod: nullable *chmodfunc,
 
+	// Changes mode flags on a [[io::file]].
+	fchmod: nullable *fchmodfunc,
+
 	// Changes ownership of a file.
 	chown: nullable *chownfunc,
+
+	// Changes ownership of a [[io::file]].
+	fchown: nullable *fchownfunc,
 
 	// Changes access and modification time of a file.
 	chtimes: nullable *chtimesfunc,
