@@ -11,7 +11,7 @@ use time::chrono;
 // field's range to shrink below its current value and become invalid. For
 // example, adding 1 month to January 31st results in February 31st, a date with
 // an unresolved day field, since February permits only 28 or 29 days.
-export type calculus = enum uint {
+export type rflag = enum uint {
 	// The default behaviour. Equivalent to CEIL.
 	DEFAULT = 0,
 
@@ -53,12 +53,12 @@ export type calculus = enum uint {
 // Reckons from a given [[date]] to a new one, via a given set of [[period]]s.
 // This is a chronological arithmetic operation. Each period is reckoned
 // independently in succession, applying (adding) their units from most to least
-// significant. The [[calculus]] parameter determines certain behaviours, like
-// for when encountering invalid date states (e.g. field overflows).
+// significant. The [[rflag]] parameter determines certain behaviours, like for
+// when encountering invalid date states (e.g. field overflows).
 //
 // 	let dest = date::reckon(
 // 		start, // 2000-02-29 09:00:00
-// 		0,     // calculus::DEFAULT
+// 		0,     // rflag::DEFAULT
 // 		date::period {
 // 			years  =  1, // becomes: 2001-02-28 09:00:00
 // 			months = -2, // becomes: 2000-12-28 09:00:00
@@ -67,7 +67,7 @@ export type calculus = enum uint {
 // 	);
 //
 // See [[add]].
-export fn reckon(d: date, calc: calculus, ps: period...) date = {
+export fn reckon(d: date, rf: rflag, ps: period...) date = {
 	let r = newvirtual(); // our reckoner
 	r.vloc       = d.loc;
 	r.zoff       = chrono::ozone(&d).zoff;
@@ -79,18 +79,18 @@ export fn reckon(d: date, calc: calculus, ps: period...) date = {
 	r.second     = _second(&d);
 	r.nanosecond = _nanosecond(&d);
 
-	if (calc == calculus::DEFAULT) {
-		calc |= calculus::CEIL;
+	if (rf == rflag::DEFAULT) {
+		rf |= rflag::CEIL;
 	};
 
-	for (let p .. ps) if (calc & calculus::REVSIG == 0) {
-		const fold = calculus::FOLD;
+	for (let p .. ps) if (rf & rflag::REVSIG == 0) {
+		const fold = rflag::FOLD;
 
 		r.year = r.year as int + p.years: int;
-		reckon_days(&r, 0, calc); // bubble up potential Feb 29 overflow
+		reckon_days(&r, 0, rf); // bubble up potential Feb 29 overflow
 
 		reckon_months(&r, p.months);
-		reckon_days(&r,   0, calc); // bubble up potential overflows
+		reckon_days(&r,   0, rf); // bubble up potential overflows
 
 		reckon_days(&r, p.weeks * 7, fold);
 		reckon_days(&r, p.days,      fold);
@@ -102,7 +102,7 @@ export fn reckon(d: date, calc: calculus, ps: period...) date = {
 		reckon_seconds(&r,     p.seconds,     fold);
 		reckon_nanoseconds(&r, p.nanoseconds, fold);
 	} else {
-		const fold = calculus::FOLD | calculus::REVSIG;
+		const fold = rflag::FOLD | rflag::REVSIG;
 
 		reckon_nanoseconds(&r, p.nanoseconds, fold);
 		reckon_seconds(&r,     p.seconds,     fold);
@@ -112,10 +112,10 @@ export fn reckon(d: date, calc: calculus, ps: period...) date = {
 		reckon_days(&r,        p.weeks * 7,   fold);
 
 		reckon_months(&r, p.months);
-		reckon_days(&r,   0, calc); // bubble up potential overflows
+		reckon_days(&r,   0, rf); // bubble up potential overflows
 
 		r.year = r.year as int + p.years: int;
-		reckon_days(&r, 0, calc); // bubble up potential Feb 29 overflow
+		reckon_days(&r, 0, rf); // bubble up potential Feb 29 overflow
 	};
 
 	return realize(r)!;
@@ -141,7 +141,7 @@ fn reckon_months(r: *virtual, months: i64) void = {
 	r.month = month;
 };
 
-fn reckon_days(r: *virtual, days: i64, calc: calculus) void = {
+fn reckon_days(r: *virtual, days: i64, rf: rflag) void = {
 	let year  = r.year  as int;
 	let month = r.month as int;
 	let day   = r.day   as int;
@@ -151,11 +151,11 @@ fn reckon_days(r: *virtual, days: i64, calc: calculus) void = {
 	// day overflow
 	let monthdays = calc_days_in_month(year, month);
 	for (day > monthdays) {
-		if (calc & calculus::FLOOR != 0) {
+		if (rf & rflag::FLOOR != 0) {
 			day = 1;
-		} else if (calc & calculus::CEIL != 0) {
+		} else if (rf & rflag::CEIL != 0) {
 			day = monthdays;
-		} else if (calc & calculus::HOP != 0) {
+		} else if (rf & rflag::HOP != 0) {
 			r.year  = year;
 			r.month = month;
 
@@ -164,7 +164,7 @@ fn reckon_days(r: *virtual, days: i64, calc: calculus) void = {
 			year  = r.year  as int;
 			month = r.month as int;
 			day   = 1;
-		} else if (calc & calculus::FOLD != 0) {
+		} else if (rf & rflag::FOLD != 0) {
 			r.year  = year;
 			r.month = month;
 
@@ -192,72 +192,72 @@ fn reckon_days(r: *virtual, days: i64, calc: calculus) void = {
 	r.day   = day;
 };
 
-fn reckon_hours(r: *virtual, hours: i64, calc: calculus) void = {
+fn reckon_hours(r: *virtual, hours: i64, rf: rflag) void = {
 	let hour = r.hour as int;
 
 	hour += hours: int;
 
 	// hour overflow
 	for (hour >= 24) {
-		reckon_days(r, 1, calc);
+		reckon_days(r, 1, rf);
 		hour -= 24;
 	};
 	for (hour < 0) {
-		reckon_days(r, -1, calc);
+		reckon_days(r, -1, rf);
 		hour += 24;
 	};
 
 	r.hour = hour;
 };
 
-fn reckon_minutes(r: *virtual, mins: i64, calc: calculus) void = {
+fn reckon_minutes(r: *virtual, mins: i64, rf: rflag) void = {
 	let min = r.minute as int;
 
 	min += mins: int;
 
 	// minute overflow
 	for (min >= 60) {
-		reckon_hours(r, 1, calc);
+		reckon_hours(r, 1, rf);
 		min -= 60;
 	};
 	for (min < 0) {
-		reckon_hours(r, -1, calc);
+		reckon_hours(r, -1, rf);
 		min += 60;
 	};
 
 	r.minute = min;
 };
 
-fn reckon_seconds(r: *virtual, secs: i64, calc: calculus) void = {
+fn reckon_seconds(r: *virtual, secs: i64, rf: rflag) void = {
 	let s = r.second as int;
 
 	s += secs: int;
 
 	// second overflow
 	for (s >= 60) {
-		reckon_minutes(r, 1, calc);
+		reckon_minutes(r, 1, rf);
 		s -= 60;
 	};
 	for (s < 0) {
-		reckon_minutes(r, -1, calc);
+		reckon_minutes(r, -1, rf);
 		s += 60;
 	};
 
 	r.second = s;
 };
 
-fn reckon_nanoseconds(r: *virtual, nsecs: i64, calc: calculus) void = {
+fn reckon_nanoseconds(r: *virtual, nsecs: i64, rf: rflag) void = {
 	let ns = r.nanosecond as int;
 
 	ns += nsecs: int;
 
 	// nanosecond overflow
 	for (ns >= 1000000000) { // 1E9 nanoseconds (1 second)
-		reckon_seconds(r, 1, calc);
+		reckon_seconds(r, 1, rf);
 		ns -= 1000000000;
 	};
 	for (ns < 0) {
-		reckon_seconds(r, -1, calc);
+		reckon_seconds(r, -1, rf);
 		ns += 1000000000;
 	};
 
@@ -265,7 +265,7 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, calc: calculus) void = {
 };
 
 @test fn reckon() void = {
-	// no-op period, calculus::CEIL
+	// no-op period, rflag::CEIL
 
 	let p = period { ... };
 
@@ -281,7 +281,7 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, calc: calculus) void = {
 	let r = reckon(a, 0, p);
 	assert(chrono::simultaneous(&a, &r)!, "03. incorrect result");
 
-	// generic periods, calculus::CEIL
+	// generic periods, rflag::CEIL
 
 	let a = new(chrono::UTC, 0,  2019, 12, 27,  21,  7,  8,         0)!;
 
@@ -344,45 +344,45 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, calc: calculus) void = {
 	let b = new(chrono::UTC, 0,  2021, 11, 26,  21,  7,  8,         0)!;
 	assert(chrono::simultaneous(&b, &r)!, "08. incorrect result");
 
-	// calculus, February 29 overflows
+	// rflag, February 29 overflows
 
 	let a = new(chrono::UTC, 0,  2000,  1, 31)!; // leap year
 	let p = period { months = 1, ... };
 
-	let r = reckon(a, calculus::FLOOR, p);
+	let r = reckon(a, rflag::FLOOR, p);
 	let b = new(chrono::UTC, 0,  2000,  2,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "09. incorrect result");
 
-	let r = reckon(a, calculus::CEIL, p);
+	let r = reckon(a, rflag::CEIL, p);
 	let b = new(chrono::UTC, 0,  2000,  2, 29)!;
 	assert(chrono::simultaneous(&b, &r)!, "10. incorrect result");
 
-	let r = reckon(a, calculus::HOP, p);
+	let r = reckon(a, rflag::HOP, p);
 	let b = new(chrono::UTC, 0,  2000,  3,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "11. incorrect result");
 
-	let r = reckon(a, calculus::FOLD, p);
+	let r = reckon(a, rflag::FOLD, p);
 	let b = new(chrono::UTC, 0,  2000,  3,  2)!;
 	assert(chrono::simultaneous(&b, &r)!, "12. incorrect result");
 
-	// calculus, February 28 overflows
+	// rflag, February 28 overflows
 
 	let a = new(chrono::UTC, 0,  2000,  1, 31)!; // leap year
 	let p = period { years = 1, months = 1, ... };
 
-	let r = reckon(a, calculus::FLOOR, p);
+	let r = reckon(a, rflag::FLOOR, p);
 	let b = new(chrono::UTC, 0,  2001,  2,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "13. incorrect result");
 
-	let r = reckon(a, calculus::CEIL, p);
+	let r = reckon(a, rflag::CEIL, p);
 	let b = new(chrono::UTC, 0,  2001,  2, 28)!;
 	assert(chrono::simultaneous(&b, &r)!, "14. incorrect result");
 
-	let r = reckon(a, calculus::HOP, p);
+	let r = reckon(a, rflag::HOP, p);
 	let b = new(chrono::UTC, 0,  2001,  3,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "15. incorrect result");
 
-	let r = reckon(a, calculus::FOLD, p);
+	let r = reckon(a, rflag::FOLD, p);
 	let b = new(chrono::UTC, 0,  2001,  3,  3)!;
 	assert(chrono::simultaneous(&b, &r)!, "16. incorrect result");
 
@@ -432,7 +432,7 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, calc: calculus) void = {
 	let b = new(chrono::UTC, 0,  2000, 12, 30)!;
 	assert(chrono::simultaneous(&b, &r)!, "24. incorrect result");
 
-	// multiple periods, calculus::REVSIG
+	// multiple periods, rflag::REVSIG
 
 	let a = new(chrono::UTC, 0,  2000, 12, 31)!;
 	let ps = [
@@ -446,35 +446,35 @@ fn reckon_nanoseconds(r: *virtual, nsecs: i64, calc: calculus) void = {
 		period { hours =  1, minutes =  1, seconds =  1, ... },
 	];
 
-	let r = reckon(a, calculus::REVSIG, ps[..1]...);
+	let r = reckon(a, rflag::REVSIG, ps[..1]...);
 	let b = new(chrono::UTC, 0,  2002,  2,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "25. incorrect result");
 
-	let r = reckon(a, calculus::REVSIG, ps[..2]...);
+	let r = reckon(a, rflag::REVSIG, ps[..2]...);
 	let b = new(chrono::UTC, 0,  2000, 12, 31)!;
 	assert(chrono::simultaneous(&b, &r)!, "26. incorrect result");
 
-	let r = reckon(a, calculus::REVSIG, ps[..3]...);
+	let r = reckon(a, rflag::REVSIG, ps[..3]...);
 	let b = new(chrono::UTC, 0,  1999, 11, 30)!;
 	assert(chrono::simultaneous(&b, &r)!, "27. incorrect result");
 
-	let r = reckon(a, calculus::REVSIG, ps[..4]...);
+	let r = reckon(a, rflag::REVSIG, ps[..4]...);
 	let b = new(chrono::UTC, 0,  2001,  1,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "28. incorrect result");
 
-	let r = reckon(a, calculus::REVSIG, ps[..5]...);
+	let r = reckon(a, rflag::REVSIG, ps[..5]...);
 	let b = new(chrono::UTC, 0,  2001,  1,  1,   1,  1,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "29. incorrect result");
 
-	let r = reckon(a, calculus::REVSIG, ps[..6]...);
+	let r = reckon(a, rflag::REVSIG, ps[..6]...);
 	let b = new(chrono::UTC, 0,  2001,  1,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "30. incorrect result");
 
-	let r = reckon(a, calculus::REVSIG, ps[..7]...);
+	let r = reckon(a, rflag::REVSIG, ps[..7]...);
 	let b = new(chrono::UTC, 0,  2000, 12, 31,  22, 58, 59)!;
 	assert(chrono::simultaneous(&b, &r)!, "31. incorrect result");
 
-	let r = reckon(a, calculus::REVSIG, ps[..8]...);
+	let r = reckon(a, rflag::REVSIG, ps[..8]...);
 	let b = new(chrono::UTC, 0,  2001,  1,  1)!;
 	assert(chrono::simultaneous(&b, &r)!, "32. incorrect result");
 
