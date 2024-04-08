@@ -238,36 +238,42 @@ export fn from_instant(loc: chrono::locality, i: time::instant) date = {
 };
 
 // Creates a [[date]] from a string, parsed according to a layout format.
-// See [[parse]] and [[format]]. At least a complete calendar date has to be
-// provided. The if hour, minute, second, nanosecond, or zone offset are not
-// provided, they default to 0.
+// See [[parse]] and [[format]]. Example:
 //
 // 	let new = date::from_str(
 // 		date::STAMPLOC,
-// 		"2019-12-27 22:07:08.000000000 +0100 CET Europe/Amsterdam",
-// 		locs...
+// 		"2000-01-02 15:04:05.600000000 +0100 CET Europe/Amsterdam",
+// 		chrono::tz("Europe/Amsterdam")!
 // 	)!;
+//
+// At least a complete calendar date has to be provided. If the hour, minute,
+// second, or nanosecond values are not provided, they default to 0.
+// If the zone-offset or zone-abbreviation are not provided, the [[zflags]]s
+// LAP_EARLY and GAP_END are used.
 //
 // The date's [[time::chrono::locality]] will be selected from the provided
 // locality arguments. The 'name' field of these localities will be matched
-// against the parsed result for the %L specifier. If %L is not specified, or if
-// no locality is provided, [[time::chrono::UTC]] is used.
+// against the parsed result of the %L specifier. If %L is not specified,
+// or if no locality is provided, [[time::chrono::UTC]] is used.
 export fn from_str(
 	layout: str,
 	s: str,
 	locs: chrono::locality...
 ) (date | parsefail | insufficient | invalid) = {
 	const v = newvirtual();
-	v.zoff = 0;
+	v.zoff = zflag::LAP_EARLY | zflag::GAP_END;
 	v.hour = 0;
 	v.minute = 0;
 	v.second = 0;
 	v.nanosecond = 0;
+
 	parse(&v, layout, s)?;
+
 	if (v.locname is void || len(locs) == 0) {
 		v.vloc = chrono::UTC;
 	};
-	return realize(v, locs...)?;
+
+	return realize(v, locs...) as (date | insufficient | invalid);
 };
 
 @test fn from_str() void = {
@@ -284,9 +290,9 @@ export fn from_str(
 			new(chrono::GPS, 0, 2009, 6, 30)!),
 		("%F %T", "2009-06-30 01:02:03", [],
 			new(chrono::UTC, 0, 2009, 6, 30, 1, 2, 3)!),
-		("%FT%T%Z", "2009-06-30T18:30:00Z", [],
+		("%FT%T%z", "2009-06-30T18:30:00Z", [],
 			new(chrono::UTC, 0, 2009, 6, 30, 18, 30)!),
-		("%FT%T.%N%Z", "2009-06-30T18:30:00.987654321Z", [],
+		("%FT%T.%N%z", "2009-06-30T18:30:00.987654321Z", [],
 			new(chrono::UTC, 0, 2009, 6, 30, 18, 30, 0, 987654321)!),
 		// TODO: for the tests overhaul, when internal test timezones
 		// are available, check for %L
@@ -298,9 +304,9 @@ export fn from_str(
 	];
 
 	let buf: [64]u8 = [0...];
-	for (let t .. testcases) {
-		const expect = t.3;
-		const actual = from_str(t.0, t.1, t.2...);
+	for (let tc .. testcases) {
+		const expect = tc.3;
+		const actual = from_str(tc.0, tc.1, tc.2...);
 
 		match (expect) {
 		case let e: date =>
