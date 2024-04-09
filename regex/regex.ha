@@ -75,7 +75,7 @@ export type charset = [](charset_lit_item | charset_range_item |
 	charset_class_item),
 	charset_lit_item = rune,
 	charset_range_item = (u32, u32),
-	charset_class_item = *fn(c: rune) bool;
+	charset_class_item = (str, *fn(c: rune) bool);
 
 const charclass_map: [](str, *fn(c: rune) bool) = [
 	(":alnum:]", &ascii::isalnum),
@@ -187,7 +187,7 @@ fn handle_bracket(
 		for (let cc_idx = 0z; cc_idx < n_cc; cc_idx += 1) {
 			if (strings::hasprefix(rest, charclass_map[cc_idx].0)) {
 				append(charsets[len(charsets) - 1],
-					charclass_map[cc_idx].1);
+					charclass_map[cc_idx]);
 				*skip_charclass_rest = true;
 				break;
 			};
@@ -662,7 +662,8 @@ fn run_thread(
 				matched = cs.is_positive;
 				break;
 			};
-		case let classfn: charset_class_item =>
+		case let class_item: charset_class_item =>
+			const classfn = class_item.1;
 			if (classfn(r)) {
 				// Succeeded if positive match
 				// Failed if negative match
