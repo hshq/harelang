@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use sort;
 use time;
 use time::chrono;
 
@@ -131,13 +132,13 @@ export type lack = enum u8 {
 // by direct field assignments and/or with [[parse]]. Finish with [[realize]].
 //
 // 	let v = date::newvirtual();
-// 	v.vloc = time::chrono::UTC;
-// 	v.zoff = 0;
-// 	date::parse(&v, "Date: %Y-%m-%d", "Date: 2038-01-19")!;
-// 	v.hour = 03;
-// 	v.minute = 14;
-// 	v.second = 07;
-// 	v.nanosecond = 0;
+// 	v.vloc = chrono::tz("Europe/Amsterdam")!;
+// 	v.zoff = date::zflag::LAP_EARLY | date::zflag::GAP_END;
+// 	date::parse(&v, "Date: %Y-%m-%d", "Date: 2000-01-02")!;
+// 	v.hour = 15;
+// 	v.minute = 4;
+// 	v.second = 5;
+// 	v.nanosecond = 600000000;
 // 	let d = date::realize(v)!;
 //
 export type virtual = struct {
@@ -151,7 +152,7 @@ export type virtual = struct {
 	// locality name
 	locname:  (void | str),
 	// zone offset
-	zoff:     (void | time::duration),
+	zoff:     (void | time::duration | zflag),
 	// zone abbreviation
 	zabbr:    (void | str),
 	// all but the last two digits of the year
@@ -209,7 +210,7 @@ export fn newvirtual() virtual = virtual {
 //
 // 	let v = date::newvirtual();
 // 	v.locname = "Europe/Amsterdam";
-// 	v.zoff = 1 * time::HOUR;
+// 	v.zoff = date::zflag::LAP_EARLY | date::zflag::GAP_END;
 // 	date::parse(&v, // fills-in .year .month .day
 // 		"Date: %Y-%m-%d", "Date: 2038-01-19")!;
 // 	v.hour = 4;
@@ -259,7 +260,56 @@ export fn newvirtual() virtual = virtual {
 //
 // If not enough information was provided, [[insufficient]] is returned.
 // If invalid information was provided, [[invalid]] is returned.
+// Any [[zflag]]s assigned to the .zoff field affect the final result.
 export fn realize(
+	v: virtual,
+	locs: chrono::locality...
+) (date | insufficient | invalid | zfunresolved) = {
+	match (v.zoff) {
+	case void =>
+		return lack::ZOFF;
+	case time::duration =>
+		return realize_validzoff(v, locs...);
+	case let zf: zflag =>
+		let valid_dates = realize_validzoffs(v, locs...)?;
+		switch (len(valid_dates)) {
+		case 0 =>
+			if (0 != zf & zflag::GAP_END) {
+				return realize_gapbounds(v).1;
+			} else if (0 != zf & zflag::GAP_START) {
+				return realize_gapbounds(v).0;
+			} else {
+				return false: zfunresolved;
+			};
+		case 1 =>
+			return valid_dates[0];
+		case =>
+			if (0 != zf & zflag::LAP_LATE) {
+				return valid_dates[len(valid_dates) - 1];
+			} else if (0 != zf & zflag::LAP_EARLY) {
+				return valid_dates[0];
+			} else {
+				return true: zfunresolved;
+			};
+		};
+	};
+};
+
+fn realize_validzoff(
+	v: virtual,
+	locs: chrono::locality...
+) (date | insufficient | invalid) = {
+	let d = realize_datetimezoff(v, locs...)?;
+
+	// verify zone offset
+	if (chrono::ozone(&d).zoff != v.zoff as time::duration) {
+		return invalid;
+	};
+
+	return d;
+};
+
+fn realize_datetimezoff(
 	v: virtual,
 	locs: chrono::locality...
 ) (date | insufficient | invalid) = {
@@ -399,11 +449,134 @@ export fn realize(
 		v.daytime as i64,
 	));
 
-	// verify zone offset
-	const z = chrono::ozone(&d);
-	if (z.zoff != v.zoff as time::duration) {
+	return d;
+};
+
+fn realize_validzoffs(
+	v: virtual,
+	locs: chrono::locality...
+) ([]date | insufficient | invalid) = {
+	// check if only zoff is missing
+	v.zoff = 0o0;
+	match (realize_validzoff(v, locs...)) {
+	case (date | invalid) =>
+		void;
+	case let ins: insufficient =>
+		return ins;
+	};
+	v.zoff = void;
+
+	let dates: []date = [];
+
+	// determine .loc
+	if (v.vloc is chrono::locality) {
+		v.loc = v.vloc as chrono::locality;
+	} else if (v.locname is str) {
+		for (let loc .. locs) {
+			if (loc.name == v.locname as str) {
+				v.loc = loc;
+				v.vloc = loc;
+				break;
+			};
+		};
+	} else {
+		return insufficient::LOCALITY;
+	};
+
+	// try matching zone abbreviation
+	if (v.zabbr is str) {
+		for (let zone .. v.loc.zones) {
+			if (v.zabbr as str == zone.abbr) {
+				v.zoff = zone.zoff;
+				match (realize_validzoff(v, locs...)) {
+				case let d: date =>
+					match (sort::search(
+						dates, size(date), &d, &cmpdates,
+					)) {
+					case size =>
+						void;
+					case void =>
+						append(dates, d);
+						sort::sort(dates, size(date), &cmpdates);
+					};
+				case invalid =>
+					continue;
+				case =>
+					abort();
+				};
+			};
+		};
+
 		return invalid;
 	};
 
-	return d;
+	// try zone offsets from locality
+	for (let zone .. v.loc.zones) {
+		v.zoff = zone.zoff;
+		match (realize_validzoff(v, locs...)) {
+		case let d: date =>
+			match (sort::search(dates, size(date), &d, &cmpdates)) {
+			case size =>
+				void;
+			case void =>
+				append(dates, d);
+				sort::sort(dates, size(date), &cmpdates);
+			};
+		case invalid =>
+			continue;
+		case =>
+			abort();
+		};
+	};
+
+	return dates;
+};
+
+fn cmpdates(a: const *opaque, b: const *opaque) int = {
+	let a = a: *date;
+	let b = b: *date;
+	return chrono::compare(a, b)!: int;
+};
+
+fn realize_gapbounds(v: virtual) (date, date) = {
+	let loc = v.vloc as chrono::locality;
+
+	let zlo: time::duration =  48 * time::HOUR;
+	let zhi: time::duration = -48 * time::HOUR;
+	for (let zone .. loc.zones) {
+		if (zone.zoff > zhi) {
+			zhi = zone.zoff;
+		};
+		if (zone.zoff < zlo) {
+			zlo = zone.zoff;
+		};
+	};
+
+	v.zoff = zhi;
+	let earliest = realize_datetimezoff(v)!;
+	let earliest = *(&earliest: *time::instant);
+
+	v.zoff = zlo;
+	let latest = realize_datetimezoff(v)!;
+	let latest = *(&latest: *time::instant);
+
+	let t = time::instant{ ... };
+	for (let tr .. loc.transitions) {
+		let is_within_bounds = (
+			time::compare(earliest, tr.when) < 0
+			&& time::compare(latest, tr.when) > 0
+		);
+
+		if (is_within_bounds) {
+			t = tr.when;
+			break;
+		};
+	};
+
+	let gapstart = from_instant(loc, time::add(t, -time::NANOSECOND));
+	let gapend   = from_instant(loc, t);
+
+	// TODO: check if original v falls within gapstart & gapend?
+
+	return (gapstart, gapend);
 };
