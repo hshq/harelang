@@ -74,6 +74,8 @@ fn parse_specifier(
 		v.month = scan_for(iter, MONTHS_SHORT...)? + 1;
 	case 'B' =>
 		v.month = scan_for(iter, MONTHS...)? + 1;
+	case 'C' =>
+		v.century = scan_int(iter, 2)?;
 	case 'd', 'e' =>
 		v.day = scan_int(iter, 2)?;
 	case 'F' =>
@@ -118,6 +120,8 @@ fn parse_specifier(
 		v.weekday = scan_int(iter, 1)? - 1;
 	case 'W' =>
 		v.week = scan_int(iter, 2)?;
+	case 'y' =>
+		v.year100 = scan_int(iter, 2)?;
 	case 'Y' =>
 		v.year = scan_int(iter, 4)?;
 	case 'z' =>

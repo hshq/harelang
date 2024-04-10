@@ -52,6 +52,10 @@ export type virtual = struct {
 	zoff:     (void | time::duration),
 	// zone abbreviation
 	zabbr:    (void | str),
+	// all but the last two digits of the year
+	century:  (void | int),
+	// the last two digits of the year
+	year100:  (void | int),
 	// hour of 12 hour clock
 	hour12:   (void | int),
 	// AM/PM (false/true)
@@ -89,6 +93,8 @@ export fn newvirtual() virtual = virtual {
 	locname     = void,
 	zoff        = void,
 	zabbr       = void,
+	century     = void,
+	year100     = void,
 	hour12      = void,
 	ampm        = void,
 };
@@ -133,14 +139,18 @@ export fn newvirtual() virtual = virtual {
 //
 // An empty .daydate depends on:
 //
-// - .year, .month, .day
-// - .year, .yearday
-// - .year, .week, .weekday
+// - .year*, .month, .day
+// - .year*, .yearday
+// - .year*, .week, .weekday
 // - .isoweekyear, .isoweek, .weekday
 //
 // An empty .daytime depends on:
 //
 // - .hour*, .minute, .second, .nanosecond
+//
+// An empty .year depends on:
+//
+// - .century, .year100
 //
 // An empty .hour depends on:
 //
@@ -190,40 +200,57 @@ export fn realize(
 	// determine .daydate
 	if (v.daydate is i64) {
 		void;
-	} else if (
-		v.year is int &&
-		v.month is int &&
-		v.day is int
-	) {
-		v.daydate = calc_daydate__ymd(
-			v.year as int,
-			v.month as int,
-			v.day as int,
-		)?;
-	} else if (
-		v.year is int &&
-		v.yearday is int
-	) {
-		v.daydate = calc_daydate__yd(
-			v.year as int,
-			v.yearday as int,
-		)?;
-	} else if (
-		v.year is int &&
-		v.week is int &&
-		v.weekday is int
-	) {
-		v.daydate = calc_daydate__ywd(
-			v.year as int,
-			v.week as int,
-			v.weekday as int,
-		)?;
-	} else if (false) {
-		// TODO: calendar.ha: calc_daydate__isoywd()
-		void;
-	} else {
-		// cannot deduce daydate
-		lacking |= insufficient::DAYDATE;
+	} else :daydate {
+		const year =
+			if (v.year is int) {
+				yield v.year as int;
+			} else if (v.century is int && v.year100 is int) {
+				let cc = v.century as int;
+				let yy = v.year100 as int;
+				if (yy < 0 || yy > 99) {
+					return invalid;
+				};
+				yield cc * 100 + yy;
+			} else {
+				lacking |= lack::DAYDATE;
+				yield :daydate;
+			};
+
+		if (
+			v.year is int &&
+			v.month is int &&
+			v.day is int
+		) {
+			v.daydate = calc_daydate__ymd(
+				v.year as int,
+				v.month as int,
+				v.day as int,
+			)?;
+		} else if (
+			v.year is int &&
+			v.yearday is int
+		) {
+			v.daydate = calc_daydate__yd(
+				v.year as int,
+				v.yearday as int,
+			)?;
+		} else if (
+			v.year is int &&
+			v.week is int &&
+			v.weekday is int
+		) {
+			v.daydate = calc_daydate__ywd(
+				v.year as int,
+				v.week as int,
+				v.weekday as int,
+			)?;
+		} else if (false) {
+			// TODO: calendar.ha: calc_daydate__isoywd()
+			void;
+		} else {
+			// cannot deduce daydate
+			lacking |= insufficient::DAYDATE;
+		};
 	};
 
 	// determine .daytime
