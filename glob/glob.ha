@@ -64,17 +64,13 @@ export fn strerror(err: failure) str = {
 
 // Returns a generator of pathnames matching a pattern. The result must be
 // freed using [[finish]].
-export fn glob(pattern: str, flags: flag...) generator = {
+export fn glob(pattern: str, flags: flag = flag::NONE) generator = {
 	let ss = strstack_init();
 	memio::concat(strstack_push(&ss), pattern)!;
-	let bs = flag::NONE;
-	for (let flag .. flags) {
-		bs |= flag;
-	};
 	return generator {
 		pats = ss,
 		matc = 0,
-		flgs = bs,
+		flgs = flags,
 		tmpp = pattern_init(),
 	};
 };

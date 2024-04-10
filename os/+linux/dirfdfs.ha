@@ -49,13 +49,12 @@ type os_filesystem = struct {
 
 // Opens a file descriptor as an [[fs::fs]]. This file descriptor must be a
 // directory file. The file will be closed when the fs is closed.
-export fn dirfdopen(fd: io::file, resolve_flags: resolve_flag...) *fs::fs = {
-	let ofs = alloc(os_filesystem { ... });
+export fn dirfdopen(
+	fd: io::file,
+	resolve_flags: resolve_flag = resolve_flag::NORMAL,
+) *fs::fs = {
+	let ofs = alloc(os_filesystem { resolve = resolve_flags, ... });
 	let fs = static_dirfdopen(fd, ofs);
-
-	for (let flag .. resolve_flags) {
-		ofs.resolve |= flag;
-	};
 	fs.close = &fs_close;
 	return fs;
 };
@@ -95,13 +94,14 @@ fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 
 // Clones a dirfd filesystem, optionally adding additional [[resolve_flag]]
 // constraints.
-export fn dirfs_clone(fs: *fs::fs, resolve_flags: resolve_flag...) *fs::fs = {
+export fn dirfs_clone(
+	fs: *fs::fs,
+	resolve_flags: resolve_flag = resolve_flag::NORMAL,
+) *fs::fs = {
 	assert(fs.open == &fs_open);
 	let fs = fs: *os_filesystem;
 	let new = alloc(*fs);
-	for (let flag .. resolve_flags) {
-		fs.resolve |= flag;
-	};
+	fs.resolve |= resolve_flags;
 	new.dirfd = rt::fcntl(new.dirfd, rt::F_DUPFD_CLOEXEC, 0) as int;
 	return &new.fs;
 };
@@ -167,22 +167,18 @@ fn _fs_open(
 fn fs_open_file(
 	fs: *fs::fs,
 	path: str,
-	flags: fs::flag...
+	flags: fs::flag,
 ) (io::file | fs::error) = {
-	let oflags = fs::flag::RDONLY: int;
-	for (let flag .. flags) {
-		oflags |= flag: int;
-	};
-	oflags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
+	flags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
 
-	if ((oflags: fs::flag & fs::flag::DIRECTORY) == fs::flag::DIRECTORY) {
+	if ((flags & fs::flag::DIRECTORY) == fs::flag::DIRECTORY) {
 		// This is arch-specific
-		oflags &= ~fs::flag::DIRECTORY: int;
-		oflags |= rt::O_DIRECTORY: int;
+		flags &= ~fs::flag::DIRECTORY;
+		flags |= rt::O_DIRECTORY: fs::flag;
 	};
 
 	let oh = rt::open_how {
-		flags = oflags: u64,
+		flags = flags: u64,
 		...
 	};
 	return _fs_open(fs, path, &oh);
@@ -191,27 +187,20 @@ fn fs_open_file(
 fn fs_open(
 	fs: *fs::fs,
 	path: str,
-	flags: fs::flag...
-) (io::handle | fs::error) = fs_open_file(fs, path, flags...)?;
+	flags: fs::flag,
+) (io::handle | fs::error) = fs_open_file(fs, path, flags)?;
 
 fn fs_create_file(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
-	flags: fs::flag...
+	flags: fs::flag,
 ) (io::file | fs::error) = {
-	let oflags = 0;
-	if (len(flags) == 0) {
-		oflags |= fs::flag::WRONLY | fs::flag::TRUNC;
-	};
-	for (let flag .. flags) {
-		oflags |= flag: int;
-	};
-	oflags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
-	oflags |= fs::flag::CREATE: int;
+	flags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
+	flags |= fs::flag::CREATE;
 
 	let oh = rt::open_how {
-		flags = oflags: u64,
+		flags = flags: u64,
 		mode = mode: u64,
 		...
 	};
@@ -222,9 +211,9 @@ fn fs_create(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
-	flags: fs::flag...
+	flags: fs::flag,
 ) (io::handle | fs::error) = {
-	return fs_create_file(fs, path, mode, flags...)?;
+	return fs_create_file(fs, path, mode, flags)?;
 };
 
 fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {

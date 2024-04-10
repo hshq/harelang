@@ -26,7 +26,7 @@ export type flag = enum uint {
 //
 // Pass the return value to [[strings::freeall]] to free resources associated
 // with the return value.
-export fn wordexp(s: str, flags: flag) ([]str | error) = {
+export fn wordexp(s: str, flags: flag = flag::NONE) ([]str | error) = {
 	const (rd, wr) = exec::pipe();
 
 	// "x" is added to handle the list of expanded words being empty

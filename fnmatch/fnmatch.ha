@@ -43,15 +43,11 @@ type token = (rune | bracket | star | question | end);
 //
 // A set of flags that alter the matching behavior may be passed to
 // [[fnmatch]]. For an explanation of their meaning, see [[flag]].
-export fn fnmatch(pattern: str, string: str, flags: flag...) bool = {
-	let fl: flag = 0;
-	for (let flag .. flags) {
-		fl |= flag;
-	};
-	let b = if (fl & flag::PATHNAME != 0) {
-		yield fnmatch_pathname(pattern, string, fl);
+export fn fnmatch(pattern: str, string: str, flags: flag = flag::NONE) bool = {
+	let b = if (flags & flag::PATHNAME != 0) {
+		yield fnmatch_pathname(pattern, string, flags);
 	} else {
-		yield fnmatch_internal(pattern, string, fl);
+		yield fnmatch_internal(pattern, string, flags);
 	};
 	return b is bool && b: bool;
 };

@@ -87,20 +87,16 @@ fn _fs_open(
 fn fs_open_file(
 	fs: *fs::fs,
 	path: str,
-	flags: fs::flag...
+	flags: fs::flag,
 ) (io::file | fs::error) = {
-	let oflags = fs::flag::RDONLY;
-	for (let flag .. flags) {
-		oflags |= flag;
-	};
-	return _fs_open(fs, path, fsflags_to_bsd(oflags)?, 0);
+	return _fs_open(fs, path, fsflags_to_bsd(flags)?, 0);
 };
 
 fn fs_open(
 	fs: *fs::fs,
 	path: str,
-	flags: fs::flag...
-) (io::handle | fs::error) = fs_open_file(fs, path, flags...)?;
+	flags: fs::flag,
+) (io::handle | fs::error) = fs_open_file(fs, path, flags)?;
 
 fn fs_readlink(fs: *fs::fs, path: str) (str | fs::error) = {
 	let fs = fs: *os_filesystem;
@@ -123,25 +119,18 @@ fn fs_create_file(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
-	flags: fs::flag...
+	flags: fs::flag,
 ) (io::file | fs::error) = {
-	let oflags: fs::flag = 0;
-	if (len(flags) == 0z) {
-		oflags |= fs::flag::WRONLY | fs::flag::TRUNC;
-	};
-	for (let flag .. flags) {
-		oflags |= flag;
-	};
-	oflags |= fs::flag::CREATE;
-	return _fs_open(fs, path, fsflags_to_bsd(oflags)?, mode)?;
+	flags |= fs::flag::CREATE;
+	return _fs_open(fs, path, fsflags_to_bsd(flags)?, mode)?;
 };
 
 fn fs_create(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
-	flags: fs::flag...
-) (io::handle | fs::error) = fs_create_file(fs, path, mode, flags...)?;
+	flags: fs::flag,
+) (io::handle | fs::error) = fs_create_file(fs, path, mode, flags)?;
 
 fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {
 	let fs = fs: *os_filesystem;

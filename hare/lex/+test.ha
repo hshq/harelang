@@ -7,7 +7,7 @@ use io;
 use memio;
 use strings;
 
-fn initbuf(in: []u8, flags: flag...) lexer = {
+fn initbuf(in: []u8, flags: flag = flag::NONE) lexer = {
 	static let buf: [256]u8 = [0...];
 	static let s = memio::stream {
 		stream = null: io::stream,
@@ -21,11 +21,11 @@ fn initbuf(in: []u8, flags: flag...) lexer = {
 
 	s = memio::fixed(in);
 	sc = bufio::newscanner_static(&s, buf);
-	return init(&sc, "<test>", flags...);
+	return init(&sc, "<test>", flags);
 };
 
-fn initstr(in: str, flags: flag...) lexer = {
-	return initbuf(strings::toutf8(in), flags...);
+fn initstr(in: str, flags: flag = flag::NONE) lexer = {
+	return initbuf(strings::toutf8(in), flags);
 };
 
 @test fn unlex() void = {

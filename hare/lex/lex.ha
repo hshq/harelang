@@ -55,11 +55,11 @@ export fn strerror(err: error) const str = {
 
 // Initializes a new lexer for the given [[bufio::scanner]]. The path is
 // borrowed.
-export fn init(in: *bufio::scanner, path: str, flags: flag...) lexer = {
-	let f = flag::NONE;
-	for (let i = 0z; i < len(flags); i += 1) {
-		f |= flags[i];
-	};
+export fn init(
+	in: *bufio::scanner,
+	path: str,
+	flags: flag = flag::NONE,
+) lexer = {
 	const loc = location { path = path, line = 1, col = 1 };
 	return lexer {
 		in = in,
@@ -68,7 +68,7 @@ export fn init(in: *bufio::scanner, path: str, flags: flag...) lexer = {
 		prevrloc = (1, 1),
 		un = (ltok::EOF, void, loc),
 		prevunlocs = [((1, 1), (1, 1))...],
-		flags = f,
+		flags = flags,
 		...
 	};
 };

@@ -19,14 +19,9 @@ export type sockflag = enum int {
 // Accepts the next connection from a socket. Blocks until a new connection is
 // available. Optionally accepts NOCLOEXEC and NONBLOCK flags. If flags are
 // supplied, the [[io::file]] returned will have the supplied flags set.
-export fn accept(sock: socket, flags: sockflag...) (socket | error) = {
-	// Apply any supplied flags
-	let f = 0i;
-	for (let i = 0z; i < len(flags); i += 1) {
-		f |= flags[i];
-	};
-	f ^= rt::SOCK_CLOEXEC; // invert CLOEXEC
-	const fd = match (rt::accept4(sock, null, null, f: int)) {
+export fn accept(sock: socket, flags: sockflag = 0) (socket | error) = {
+	flags ^= rt::SOCK_CLOEXEC: sockflag; // invert CLOEXEC
+	const fd = match (rt::accept4(sock, null, null, flags)) {
 	case let err: rt::errno =>
 		return errors::errno(err);
 	case let fd: int =>

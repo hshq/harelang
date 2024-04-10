@@ -222,27 +222,27 @@ export type symlinkfunc = fn(fs: *fs, target: str, path: str) (void | error);
 export type openfunc = fn(
 	fs: *fs,
 	path: str,
-	flags: flag...
+	flags: flag,
 ) (io::handle | error);
 
 export type openfilefunc = fn(
 	fs: *fs,
 	path: str,
-	flags: flag...
+	flags: flag,
 ) (io::file | error);
 
 export type createfunc = fn(
 	fs: *fs,
 	path: str,
 	mode: mode,
-	flags: flag...
+	flags: flag,
 ) (io::handle | error);
 
 export type createfilefunc = fn(
 	fs: *fs,
 	path: str,
 	mode: mode,
-	flags: flag...
+	flags: flag,
 ) (io::file | error);
 
 // An abstract implementation of a filesystem, which provides common filesystem

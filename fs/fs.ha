@@ -17,16 +17,18 @@ export fn close(fs: *fs) void = {
 
 // Opens a file.
 //
-// If no flags are provided, [[flag::RDONLY]] is used when opening the file.
-//
 // [[flag::CREATE]] isn't very useful with this function, since the new file's
 // mode is set to zero. For this use-case, use [[create]] instead.
-export fn open(fs: *fs, path: str, flags: flag...) (io::handle | error) = {
+export fn open(
+	fs: *fs,
+	path: str,
+	flags: flag = flag::RDONLY,
+) (io::handle | error) = {
 	match (fs.open) {
 	case null =>
 		return errors::unsupported;
 	case let f: *openfunc =>
-		return f(fs, path, flags...);
+		return f(fs, path, flags);
 	};
 };
 
@@ -34,35 +36,34 @@ export fn open(fs: *fs, path: str, flags: flag...) (io::handle | error) = {
 // handle on the host operating system, which may not be possible with all
 // filesystem implementations (such cases will return [[io::unsupported]]).
 //
-// If no flags are provided, [[flag::RDONLY]] is used when opening the file.
-//
 // [[flag::CREATE]] isn't very useful with this function, since the new file's
 // mode is set to zero. For this use-case, use [[create_file]] instead.
-export fn open_file(fs: *fs, path: str, flags: flag...) (io::file | error) = {
+export fn open_file(
+	fs: *fs,
+	path: str,
+	flags: flag = flag::RDONLY,
+) (io::file | error) = {
 	match (fs.openfile) {
 	case null =>
 		return errors::unsupported;
 	case let f: *openfilefunc =>
-		return f(fs, path, flags...);
+		return f(fs, path, flags);
 	};
 };
 
 // Creates a new file with the given mode if it doesn't already exist, and opens
 // it for writing.
-//
-// If no flags are provided, [[flag::WRONLY]] and [[flag::TRUNC]] are used when
-// opening the file.
 export fn create(
 	fs: *fs,
 	path: str,
 	mode: mode,
-	flags: flag...
+	flags: flag = flag::WRONLY | flag::TRUNC,
 ) (io::handle | error) = {
 	match (fs.create) {
 	case null =>
 		return errors::unsupported;
 	case let f: *createfunc =>
-		return f(fs, path, mode, flags...);
+		return f(fs, path, mode, flags);
 	};
 };
 
@@ -70,20 +71,17 @@ export fn create(
 // it as an [[io::file]] for writing. This file will be backed by an open file
 // handle on the host operating system, which may not be possible with all
 // filesystem implementations (such cases will return [[io::unsupported]]).
-//
-// If no flags are provided, [[flag::WRONLY]] and [[flag::TRUNC]] are used when
-// opening the file.
 export fn create_file(
 	fs: *fs,
 	path: str,
 	mode: mode,
-	flags: flag...
+	flags: flag = flag::WRONLY | flag::TRUNC,
 ) (io::file | error) = {
 	match (fs.createfile) {
 	case null =>
 		return errors::unsupported;
 	case let f: *createfilefunc =>
-		return f(fs, path, mode, flags...);
+		return f(fs, path, mode, flags);
 	};
 };
 
