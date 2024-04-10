@@ -318,7 +318,7 @@ fn percent_decode_static(out: io::handle, s: str) (void | invalid) = {
 					memio::appendrune(&tmp, r)!;
 				};
 
-				match (strconv::stou8b(memio::string(&tmp)!,
+				match (strconv::stou8(memio::string(&tmp)!,
 					strconv::base::HEX)) {
 				case let ord: u8 =>
 					append(percent_data, ord);

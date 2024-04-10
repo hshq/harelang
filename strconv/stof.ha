@@ -619,14 +619,15 @@ fn special(s: str) (f32 | void) = {
 	};
 };
 
-// Converts a string to a f64 in [[base::DEC]] or [[base::HEX]]. If the string
-// is not a syntactically well-formed floating-point number, [[invalid]] is
-// returned. If the string represents a floating-point number that is larger
-// than the largest finite f64 number, [[overflow]] is returned. Zero is
-// returned if the string represents a floating-point number that is smaller
-// than the f64 number nearest to zero with respective sign.
-// Recognizes "Infinity", "+Infinity", "-Infinity", and "NaN", case insensitive.
-export fn stof64b(s: str, b: base) (f64 | invalid | overflow) = {
+// Converts a string to a f64 in [[base::DEC]] or [[base::HEX]]. If base is not
+// provided, [[base::DEC]] is used. If the string is not a syntactically
+// well-formed floating-point number, [[invalid]] is returned. If the string
+// represents a floating-point number that is larger than the largest finite
+// f64 number, [[overflow]] is returned. Zero is returned if the string
+// represents a floating-point number that is smaller than the f64 number
+// nearest to zero with respective sign. Recognizes "Infinity", "+Infinity",
+// "-Infinity", and "NaN", case insensitive.
+export fn stof64(s: str, b: base = base::DEC) (f64 | invalid | overflow) = {
 	if (b == base::DEFAULT) b = base::DEC;
 	assert(b == base::DEC || b == base::HEX);
 
@@ -660,14 +661,15 @@ export fn stof64b(s: str, b: base) (f64 | invalid | overflow) = {
 	return math::f64frombits(n);
 };
 
-// Converts a string to a f32 in [[base::DEC]] or [[base::HEX]]. If the string
-// is not a syntactically well-formed floating-point number, [[invalid]] is
-// returned. If the string represents a floating-point number that is larger
-// than the largest finite f32 number, [[overflow]] is returned. Zero is
-// returned if the string represents a floating-point number that is smaller
-// than the f32 number nearest to zero with respective sign.
-// Recognizes "Infinity", "+Infinity", "-Infinity", and "NaN", case insensitive.
-export fn stof32b(s: str, b: base) (f32 | invalid | overflow) = {
+// Converts a string to a f32 in [[base::DEC]] or [[base::HEX]]. If base is not
+// provided, [[base::DEC]] is used. If the string is not a syntactically
+// well-formed floating-point number, [[invalid]] is returned. If the string
+// represents a floating-point number that is larger than the largest finite
+// f32 number, [[overflow]] is returned. Zero is returned if the string
+// represents a floating-point number that is smaller than the f32 number
+// nearest to zero with respective sign. Recognizes "Infinity", "+Infinity",
+// "-Infinity", and "NaN", case insensitive.
+export fn stof32(s: str, b: base = base::DEC) (f32 | invalid | overflow) = {
 	if (b == base::DEFAULT) b = base::DEC;
 	assert(b == base::DEC || b == base::HEX);
 
@@ -701,24 +703,6 @@ export fn stof32b(s: str, b: base) (f32 | invalid | overflow) = {
 	return math::f32frombits(n);
 };
 
-
-// Converts a string to a f64. If the string is not a syntactically well-formed
-// floating-point number in base 10, [[invalid]] is returned. If the string
-// represents a floating-point number that is larger than the largest finite f64
-// number, [[overflow]] is returned. Zero is returned if the string represents a
-// floating-point number that is smaller than the f64 number nearest to zero
-// with respective sign.
-// Recognizes "Infinity", "+Infinity", "-Infinity", and "NaN", case insensitive.
-export fn stof64(s: str) (f64 | invalid | overflow) = stof64b(s, base::DEC);
-
-// Converts a string to a f32. If the string is not a syntactically well-formed
-// floating-point number in base 10, [[invalid]] is returned. If the string
-// represents a floating-point number that is larger than the largest finite f32
-// number, [[overflow]] is returned. Zero is returned if the string represents a
-// floating-point number that is smaller than the f32 number nearest to zero
-// with respective sign.
-// Recognizes "Infinity", "+Infinity", "-Infinity", and "NaN", case insensitive.
-export fn stof32(s: str) (f32 | invalid | overflow) = stof32b(s, base::DEC);
 
 @test fn stof64() void = {
 	assert(stof64("0"): f64 == 0.0);
@@ -781,27 +765,27 @@ export fn stof32(s: str) (f32 | invalid | overflow) = stof32b(s, base::DEC);
 };
 
 @test fn stofhex() void = {
-	assert(stof64b("0p0", base::HEX)! == 0x0.0p0);
-	assert(stof64b("1p0", base::HEX)! == 0x1.0p0);
-	assert(stof64b("-1p0", base::HEX)! == -0x1.0p0);
-	assert(stof64b("1.fp-2", base::HEX)! == 0x1.fp-2);
-	assert(stof64b("1.fffffffffffffp+1023", base::HEX)!
+	assert(stof64("0p0", base::HEX)! == 0x0.0p0);
+	assert(stof64("1p0", base::HEX)! == 0x1.0p0);
+	assert(stof64("-1p0", base::HEX)! == -0x1.0p0);
+	assert(stof64("1.fp-2", base::HEX)! == 0x1.fp-2);
+	assert(stof64("1.fffffffffffffp+1023", base::HEX)!
 		== math::F64_MAX_NORMAL);
-	assert(stof64b("1.0000000000000p-1022", base::HEX)!
+	assert(stof64("1.0000000000000p-1022", base::HEX)!
 		== math::F64_MIN_NORMAL);
-	assert(stof64b("0.0000000000001p-1022", base::HEX)!
+	assert(stof64("0.0000000000001p-1022", base::HEX)!
 		== math::F64_MIN);
-	assert(stof64b("1p+1024", base::HEX) is overflow);
-	assert(stof64b("0.00000000000001p-1022", base::HEX)! == 0.0);
+	assert(stof64("1p+1024", base::HEX) is overflow);
+	assert(stof64("0.00000000000001p-1022", base::HEX)! == 0.0);
 
-	assert(stof32b("0p0", base::HEX)! == 0x0.0p0);
-	assert(stof32b("1p0", base::HEX)! == 0x1.0p0);
-	assert(stof32b("-1p0", base::HEX)! == -0x1.0p0);
-	assert(stof32b("1.fp-2", base::HEX)! == 0x1.fp-2);
-	assert(stof32b("1.fffffd586b834p+127", base::HEX)!
+	assert(stof32("0p0", base::HEX)! == 0x0.0p0);
+	assert(stof32("1p0", base::HEX)! == 0x1.0p0);
+	assert(stof32("-1p0", base::HEX)! == -0x1.0p0);
+	assert(stof32("1.fp-2", base::HEX)! == 0x1.fp-2);
+	assert(stof32("1.fffffd586b834p+127", base::HEX)!
 		== math::F32_MAX_NORMAL);
-	assert(stof32b("1.0p-126", base::HEX)! == math::F32_MIN_NORMAL);
-	assert(stof32b("1.6p-150", base::HEX)! == math::F32_MIN);
-	assert(stof32b("1.0p+128", base::HEX) is overflow);
-	assert(stof32b("1.0p-151", base::HEX)! == 0.0);
+	assert(stof32("1.0p-126", base::HEX)! == math::F32_MIN_NORMAL);
+	assert(stof32("1.6p-150", base::HEX)! == math::F32_MIN);
+	assert(stof32("1.0p+128", base::HEX) is overflow);
+	assert(stof32("1.0p-151", base::HEX)! == 0.0);
 };

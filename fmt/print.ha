@@ -90,14 +90,13 @@ case let s: str =>
 case let b: bool =>
 	return io::write(out, strings::toutf8(if (b) "true" else "false"));
 case let p: uintptr =>
-	const s = strconv::uptrtosb(p, mod.base);
+	const s = strconv::uptrtos(p, mod.base);
 	return io::write(out, strings::toutf8(s));
 case let v: nullable *opaque =>
 	match (v) {
 	case let v: *opaque =>
 		let z = io::write(out, strings::toutf8("0x"))?;
-		const s = strconv::uptrtosb(v: uintptr,
-			strconv::base::HEX_LOWER);
+		const s = strconv::uptrtos(v: uintptr, strconv::base::HEX_LOWER);
 		z += io::write(out, strings::toutf8(s))?;
 		return z;
 	case null =>
@@ -126,7 +125,7 @@ case let i: types::integer =>
 		};
 	};
 
-	let i = strconv::integertosb(i, mod.base);
+	let i = strconv::integertos(i, mod.base);
 	let pad = if (mod.prec < len(sign) + len(i)) {
 		yield 0z;
 	} else {
