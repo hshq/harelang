@@ -49,9 +49,9 @@ export type encoder = struct {
 	out: io::handle,
 	enc: *encoding,
 	ibuf: [3]u8,
-	iavail: size,
 	obuf: [4]u8,
-	oavail: size,
+	iavail: u8,
+	oavail: u8,
 };
 
 const encoder_vtable: io::vtable = io::vtable {
@@ -129,7 +129,7 @@ fn writeavail(s: *encoder) (void | io::error) = {
 
 	for (s.oavail > 0) {
 		let n = io::write(s.out, s.obuf[len(s.obuf) - s.oavail..])?;
-		s.oavail -= n;
+		s.oavail -= n: u8;
 	};
 
 	if (s.oavail == 0) {
