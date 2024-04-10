@@ -62,8 +62,9 @@ const encoder_vtable: io::vtable = io::vtable {
 
 // Creates a stream that encodes writes as base64 before writing them to a
 // secondary stream. Afterwards [[io::close]] must be called to write any
-// unwritten bytes, in case of padding. Closing this stream will not close
-// the underlying stream.
+// unwritten bytes, in case of padding. Closing this stream will not close the
+// underlying stream. After a write returns an error, the stream must not be
+// written to again or closed.
 export fn newencoder(
 	enc: *encoding,
 	out: io::handle,
@@ -279,7 +280,8 @@ const decoder_vtable: io::vtable = io::vtable {
 
 // Creates a stream that reads and decodes base 64 data from a secondary stream.
 // This stream does not need to be closed, and closing it will not close the
-// underlying stream.
+// underlying stream. If a read returns an error, the stream must not be read
+// from again.
 export fn newdecoder(
 	enc: *encoding,
 	in: io::handle,
