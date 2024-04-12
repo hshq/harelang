@@ -17,27 +17,27 @@ use types::c;
 //
 // Note that on Linux, specifying BENEATH or IN_ROOT will also disable magic
 // symlinks.
-export type resolve_flag = enum {
-	NORMAL,
+export type resolve_flag = enum u64 {
+	NORMAL = 0,
 
 	// Does not allow symlink resolution to occur for any symlinks which
 	// would refer to any anscestor of the fd directory. This disables all
 	// absolute symlinks, and any call to open or create with an absolute
 	// path.
-	BENEATH,
+	BENEATH = rt::RESOLVE_BENEATH | rt::RESOLVE_NO_MAGICLINKS,
 
 	// Treat the directory fd as the root directory. This affects
 	// open/create for absolute paths, as well as absolute path resolution
 	// of symlinks. The effects are similar to chroot.
-	IN_ROOT,
+	IN_ROOT = rt::RESOLVE_IN_ROOT | rt::RESOLVE_NO_MAGICLINKS,
 
 	// Disables symlink resolution entirely.
-	NO_SYMLINKS,
+	NO_SYMLINKS = rt::RESOLVE_NO_SYMLINKS,
 
 	// Disallows traversal of mountpoints during path resolution. This is
 	// not recommended for general use, as bind mounts are extensively used
 	// on many systems.
-	NO_XDEV,
+	NO_XDEV = rt::RESOLVE_NO_XDEV,
 };
 
 type os_filesystem = struct {
@@ -148,19 +148,7 @@ fn _fs_open(
 ) (io::file | fs::error) = {
 	let fs = fs: *os_filesystem;
 
-	oh.resolve = 0u64;
-	if (fs.resolve & resolve_flag::BENEATH == resolve_flag::BENEATH) {
-		oh.resolve |= rt::RESOLVE_BENEATH | rt::RESOLVE_NO_MAGICLINKS;
-	};
-	if (fs.resolve & resolve_flag::IN_ROOT == resolve_flag::IN_ROOT) {
-		oh.resolve |= rt::RESOLVE_IN_ROOT | rt::RESOLVE_NO_MAGICLINKS;
-	};
-	if (fs.resolve & resolve_flag::NO_SYMLINKS == resolve_flag::NO_SYMLINKS) {
-		oh.resolve |= rt::RESOLVE_NO_SYMLINKS;
-	};
-	if (fs.resolve & resolve_flag::NO_XDEV == resolve_flag::NO_XDEV) {
-		oh.resolve |= rt::RESOLVE_NO_XDEV;
-	};
+	oh.resolve = fs.resolve;
 
 	let fd = match (rt::openat2(fs.dirfd, path, oh, size(rt::open_how))) {
 	case let err: rt::errno =>
