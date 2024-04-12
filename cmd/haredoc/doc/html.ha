@@ -235,7 +235,7 @@ fn details(ctx: *context, decl: *ast::decl) (void | error) = {
 	return;
 };
 
-fn htmlref(ctx: *context, ref: ast::ident) (void | error) = {
+fn html_decl_ref(ctx: *context, ref: ast::ident) (void | error) = {
 	const ik =
 		match (resolve(ctx, ref)?) {
 		case let ik: (ast::ident, symkind) =>
@@ -279,6 +279,16 @@ fn htmlref(ctx: *context, ref: ast::ident) (void | error) = {
 	free(ident);
 };
 
+fn html_mod_ref(ctx: *context, ref: ast::ident) (void | error) = {
+	const ident = unparse::identstr(ref);
+	defer free(ident);
+	let ipath = strings::join("/", ref...);
+	defer free(ipath);
+	fmt::fprintf(ctx.out, "<a href='/{}' class='ref'>{}::</a>",
+		ipath, ident)?;
+};
+
+
 fn html_paragraph(ctx: *context, p: doc::paragraph) (void | error) = {
 	for (let elem .. p) {
 		match (elem) {
@@ -299,9 +309,9 @@ fn html_paragraph(ctx: *context, p: doc::paragraph) (void | error) = {
 				html_escape(ctx.out, s)?;
 			};
 		case let d: doc::decl_ref =>
-			htmlref(ctx, d)?;
+			html_decl_ref(ctx, d)?;
 		case let m: doc::mod_ref =>
-			htmlref(ctx, m)?;
+			html_mod_ref(ctx, m)?;
 		};
 	};
 };
