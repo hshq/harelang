@@ -26,8 +26,7 @@ flags, then all parameters, alpha-sorted within each group by the flag rune.
 	);
 	defer getopt::finish(&cmd);
 
-	for (let i = 0z; i < len(cmd.opts); i += 1) {
-		const opt = cmd.opts[i];
+	for (let opt .. cmd.opts) {
 		switch (opt.0) {
 		case 'E' =>
 			extended = true;
@@ -45,8 +44,7 @@ flags, then all parameters, alpha-sorted within each group by the flag rune.
 		};
 	};
 
-	for (let i = 0z; i < len(cmd.args); i += 1) {
-		const arg = cmd.args[i];
+	for (let arg .. cmd.args) {
 		// ...
 	};
 
