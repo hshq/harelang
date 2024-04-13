@@ -434,7 +434,7 @@ fn parse_repetition(
 		min = match (strconv::stoi(min_str)) {
 		case let res: int =>
 			yield if (res < 0) {
-				return `Negative repitition count '{-n}'`: error;
+				return `Negative repetition count '{-n}'`: error;
 			} else {
 				yield res: size;
 			};
@@ -448,7 +448,7 @@ fn parse_repetition(
 		max = match (strconv::stoi(max_str)) {
 		case let res: int =>
 			yield if (res < 0) {
-				return `Negative repitition count '{-n}'`: error;
+				return `Negative repetition count '{-n}'`: error;
 			} else {
 				yield res: size;
 			};
