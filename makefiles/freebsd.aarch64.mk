@@ -129,7 +129,7 @@ $(HARECACHE)/types_c.ssa: $(types_c_ha) $(HARECACHE)/encoding_utf8.td $(HARECACH
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/types_c.td.tmp -N types::c $(types_c_ha)
 
-os_ha = os/+freebsd/dirfdfs.ha os/+freebsd/exit.ha os/+freebsd/fs.ha os/+freebsd/platform_environ.ha os/+freebsd/status.ha os/+freebsd/stdfd.ha os/environ.ha os/os.ha
+os_ha = os/+freebsd/dirfdfs.ha os/+freebsd/exit.ha os/+freebsd/fs.ha os/+freebsd/memfd.ha os/+freebsd/platform_environ.ha os/+freebsd/shm.ha os/+freebsd/status.ha os/+freebsd/stdfd.ha os/environ.ha os/os.ha
 $(HARECACHE)/os.ssa: $(os_ha) $(HARECACHE)/bufio.td $(HARECACHE)/encoding_utf8.td $(HARECACHE)/errors.td $(HARECACHE)/fs.td $(HARECACHE)/io.td $(HARECACHE)/path.td $(HARECACHE)/rt.td $(HARECACHE)/strings.td $(HARECACHE)/time.td $(HARECACHE)/types_c.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"

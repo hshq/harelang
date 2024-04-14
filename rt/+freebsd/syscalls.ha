@@ -22,6 +22,7 @@ fn syscall4(u64, u64, u64, u64, u64) u64;
 fn syscall5(u64, u64, u64, u64, u64, u64) u64;
 fn syscall6(u64, u64, u64, u64, u64, u64, u64) u64;
 
+export def NAME_MAX: size = 255z;
 export def PATH_MAX: size = 1024z;
 export type path = (str | []u8 | *const u8);
 let pathbuf: [PATH_MAX]u8 = [0...];
@@ -577,6 +578,34 @@ export fn posix_fallocate(fd: int, off: i64, ln: i64) (void | errno) = {
 export fn flock(fd: int, op: int) (void | errno) = {
 	wrap_return(syscall2(SYS_flock,
 		fd: u64, op: u64))?;
+};
+
+export fn shm_open(
+	shm_path: path,
+	oflags: int,
+	mode: mode_t,
+	shmflags: int,
+	anon_path: path,
+) (int | errno) = {
+	const shm_path = match (shm_path) {
+	case let string: *const u8 =>
+		if (string == SHM_ANON) yield SHM_ANON;
+		yield kpath(shm_path)?;
+	case =>
+		yield kpath(shm_path)?;
+	};
+	const anon_path = kpath(anon_path)?;
+	return wrap_return(syscall5(SYS_shm_open2,
+			shm_path: uintptr: u64,
+			oflags: u64,
+			mode: u64,
+			shmflags: u64,
+			anon_path: uintptr: u64))?: int;
+};
+
+export fn shm_unlink(shm_path: path) (void | errno) = {
+	const path = kpath(shm_path)?;
+	wrap_return(syscall1(SYS_shm_unlink, path: uintptr: u64))?;
 };
 
 export fn shmat(id: int, addr: *const opaque, flag: int) *opaque = {

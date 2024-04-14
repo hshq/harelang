@@ -1240,6 +1240,29 @@ export fn getpgid(pid: pid_t) (pid_t | errno) = {
 // issetugid
 // lchown
 
+// shm_open
+
+@symbol("shm_open") fn libc_shm_open(path: *const u8, flags: int, mode: mode_t) int;
+
+export fn shm_open(path: path, flags: int, mode: mode_t) (int | errno) = {
+	let res = libc_shm_open(cpath(path)?, flags, mode);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+	return res;
+};
+
+// shm_unlink
+
+@symbol("shm_unlink") fn libc_shm_unlink(path: *const u8) int;
+
+export fn shm_unlink(path: path) (void | errno) = {
+	let res = libc_shm_unlink(cpath(path)?);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // getsid
 
 @symbol("getsid") fn libc_getsid(pid: pid_t) pid_t;
