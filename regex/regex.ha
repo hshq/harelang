@@ -300,7 +300,12 @@ export fn compile(expr: str) (regex | error) = {
 			};
 		case '|' =>
 			append(insts, types::SIZE_MAX: inst_jump);
-			const origin = find_last_groupstart(&insts)? + 1;
+			const origin = match (find_last_groupstart(&insts)) {
+			case error =>
+				yield 0z;
+			case let sz: size =>
+				yield sz + 1;
+			};
 			const newinst = (len(insts) + 1): inst_split;
 			insert(insts[origin], newinst);
 			curr_alt_jump_idx = (len(insts) - 1): int;
@@ -392,6 +397,13 @@ export fn compile(expr: str) (regex | error) = {
 			append(insts, r: inst_lit);
 		};
 		r_idx += 1;
+	};
+
+	// handle whole expression alternation
+	if (curr_alt_jump_idx != -1) {
+		assert(insts[curr_alt_jump_idx] is inst_jump);
+		insts[curr_alt_jump_idx] = len(insts): inst_jump;
+		curr_alt_jump_idx = -1;
 	};
 
 	append(insts, anchored: inst_match);

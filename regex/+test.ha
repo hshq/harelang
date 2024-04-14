@@ -577,9 +577,10 @@ fn run_rawreplace_case(
 		(`(a|ab)(bcd|c)(d|.*)`, "abcd", matchres::MATCH, 0, -1), // POSIX: (0,4)(0,2)(2,3)(3,4)
 		(`(ab|a)(c|bcd)(d|.*)`, "abcd", matchres::MATCH, 0, -1), // POSIX: (0,4)(0,2)(2,3)(3,4)
 		(`(ab|a)(bcd|c)(d|.*)`, "abcd", matchres::MATCH, 0, -1), // POSIX: (0,4)(0,2)(2,3)(3,4)
-		// TODO: whole-expression alternation
-		// (`ab|cd`, "abc", matchres::MATCH, 0, -1),
-		// (`ab|cd`, "abcd", matchres::MATCH, 0, -1),
+		// whole-expression alternation
+		(`ab|cd`, "cd", matchres::MATCH, 0, 2),
+		(`ab|cd`, "abc", matchres::MATCH, 0, 2),
+		(`ab|cd`, "abcd", matchres::MATCH, 0, 2),
 		// TODO: multiple alternation
 		// (`a|b|c|d|e`, "e", matchres::MATCH, 0, -1),
 		// (`(a|b|c|d|e)f`, "ef", matchres::MATCH, 0, -1),
