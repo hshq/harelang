@@ -200,7 +200,7 @@ fn handle_bracket(
 		const end_b = range_end as rune: u32;
 
 		if (end_b < start_b) {
-			return `Decending bracket expression range '[z-a]'`: error;
+			return `Descending bracket expression range '[z-a]'`: error;
 		};
 
 		append(charsets[len(charsets) - 1],
