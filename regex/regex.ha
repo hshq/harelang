@@ -223,7 +223,7 @@ export fn compile(expr: str) (regex | error) = {
 	let iter = strings::iter(expr);
 	let r_idx = 0z;
 	let anchored = false;
-	let curr_alt_jump_idx = -1;
+	let jump_idxs: []size = [];
 	let in_bracket = false;
 	let skip_charclass_rest = false;
 	let bracket_idx = -1;
@@ -292,12 +292,11 @@ export fn compile(expr: str) (regex | error) = {
 			};
 			n_groupstarts -= 1;
 			append(insts, void: inst_groupend);
-			if (curr_alt_jump_idx != -1) {
-				assert(insts[curr_alt_jump_idx] is inst_jump);
-				insts[curr_alt_jump_idx] =
-					(len(insts) - 1): inst_jump;
-				curr_alt_jump_idx = -1;
+			for (let jump_idx .. jump_idxs) {
+				assert(insts[jump_idx] is inst_jump);
+				insts[jump_idx] = (len(insts) - 1): inst_jump;
 			};
+			jump_idxs = [];
 		case '|' =>
 			append(insts, types::SIZE_MAX: inst_jump);
 			const origin = match (find_last_groupstart(&insts)) {
@@ -307,8 +306,11 @@ export fn compile(expr: str) (regex | error) = {
 				yield sz + 1;
 			};
 			const newinst = (len(insts) + 1): inst_split;
-			insert(insts[origin], newinst);
-			curr_alt_jump_idx = (len(insts) - 1): int;
+			// add split after last jump (if any) or at origin
+			const split_idx = if (len(jump_idxs) > 0)
+				jump_idxs[len(jump_idxs) - 1] + 1 else origin;
+			insert(insts[split_idx], newinst);
+			append(jump_idxs, len(insts) - 1);
 		case '{' =>
 			let origin = len(insts) - 1;
 			if (insts[origin] is inst_groupend) {
@@ -400,11 +402,11 @@ export fn compile(expr: str) (regex | error) = {
 	};
 
 	// handle whole expression alternation
-	if (curr_alt_jump_idx != -1) {
-		assert(insts[curr_alt_jump_idx] is inst_jump);
-		insts[curr_alt_jump_idx] = len(insts): inst_jump;
-		curr_alt_jump_idx = -1;
+	for (let jump_idx .. jump_idxs) {
+		assert(insts[jump_idx] is inst_jump);
+		insts[jump_idx] = len(insts): inst_jump;
 	};
+	jump_idxs = [];
 
 	append(insts, anchored: inst_match);
 
