@@ -248,7 +248,7 @@ export fn from_instant(loc: chrono::locality, i: time::instant) date = {
 //
 // At least a complete calendar date has to be provided. If the hour, minute,
 // second, or nanosecond values are not provided, they default to 0.
-// If the zone-offset or zone-abbreviation are not provided, the [[zflags]]s
+// If the zone-offset or zone-abbreviation are not provided, the [[zflag]]s
 // LAP_EARLY and GAP_END are used.
 //
 // The date's [[time::chrono::locality]] will be selected from the provided

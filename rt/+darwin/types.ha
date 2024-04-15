@@ -107,6 +107,10 @@ export type timespec = struct {
     tv_nsec: i64,
 };
 
+// <sys/stat.h>
+export def UTIME_NOW  = -0x1;
+export def UTIME_OMIT = -0x2;
+
 export type timeval = struct {
     tv_sec: time_t,
     tv_usec: suseconds_t,
