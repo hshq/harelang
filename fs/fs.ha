@@ -111,9 +111,12 @@ export fn rename(fs: *fs, oldpath: str, newpath: str) (void | error) = {
 // copy and remove if necessary.
 export fn move(fs: *fs, oldpath: str, newpath: str) (void | error) = {
 	match (rename(fs, oldpath, newpath)) {
-	case (cannotrename | errors::unsupported) => void; // Fallback
 	case let err: error =>
-		return err;
+		match (err) {
+		case (cannotrename | errors::unsupported) => void; // Fallback
+		case =>
+			return err;
+		};
 	case void =>
 		return; // Success
 	};
