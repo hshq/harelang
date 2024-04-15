@@ -369,30 +369,27 @@ fn realize_datetimezoff(
 			};
 
 		if (
-			v.year is int &&
 			v.month is int &&
 			v.day is int
 		) {
 			v.daydate = calc_daydate__ymd(
-				v.year as int,
+				year,
 				v.month as int,
 				v.day as int,
 			)?;
 		} else if (
-			v.year is int &&
 			v.yearday is int
 		) {
 			v.daydate = calc_daydate__yd(
-				v.year as int,
+				year,
 				v.yearday as int,
 			)?;
 		} else if (
-			v.year is int &&
 			v.week is int &&
 			v.weekday is int
 		) {
 			v.daydate = calc_daydate__ywd(
-				v.year as int,
+				year,
 				v.week as int,
 				v.weekday as int,
 			)?;
