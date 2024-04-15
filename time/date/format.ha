@@ -128,6 +128,8 @@ fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 		return fmt::fprint(out, MONTHS_SHORT[_month(d) - 1]);
 	case 'B' =>
 		return fmt::fprint(out, MONTHS[_month(d) - 1]);
+	case 'C' =>
+		return fmt::fprintf(out, "{:.2}", _year(d) / 100);
 	case 'd' =>
 		return fmt::fprintf(out, "{:.2}", _day(d));
 	case 'e' =>
@@ -197,6 +199,7 @@ fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 // 	%A -- The full name of the day of the week.
 // 	%b -- The abbreviated name of the month.
 // 	%B -- The full name of the month.
+// 	%C -- The century digits (all but the last two digits of the year).
 // 	%d -- The day of the month (decimal, range 01 to 31).
 // 	%e -- The day of the month (decimal, range  1 to 31), left-padded space.
 // 	%F -- The full date, equivalent to %Y-%m-%d
@@ -272,6 +275,7 @@ export fn format(
 		// year
 		("%Y", "1994"),
 		("%y", "94"),
+		("%C", "19"),
 		// month name
 		("%b", "Jan"),
 		("%B", "January"),

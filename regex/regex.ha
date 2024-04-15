@@ -200,7 +200,7 @@ fn handle_bracket(
 		const end_b = range_end as rune: u32;
 
 		if (end_b < start_b) {
-			return `Decending bracket expression range '[z-a]'`: error;
+			return `Descending bracket expression range '[z-a]'`: error;
 		};
 
 		append(charsets[len(charsets) - 1],
@@ -300,7 +300,12 @@ export fn compile(expr: str) (regex | error) = {
 			};
 		case '|' =>
 			append(insts, types::SIZE_MAX: inst_jump);
-			const origin = find_last_groupstart(&insts)? + 1;
+			const origin = match (find_last_groupstart(&insts)) {
+			case error =>
+				yield 0z;
+			case let sz: size =>
+				yield sz + 1;
+			};
 			const newinst = (len(insts) + 1): inst_split;
 			insert(insts[origin], newinst);
 			curr_alt_jump_idx = (len(insts) - 1): int;
@@ -394,6 +399,13 @@ export fn compile(expr: str) (regex | error) = {
 		r_idx += 1;
 	};
 
+	// handle whole expression alternation
+	if (curr_alt_jump_idx != -1) {
+		assert(insts[curr_alt_jump_idx] is inst_jump);
+		insts[curr_alt_jump_idx] = len(insts): inst_jump;
+		curr_alt_jump_idx = -1;
+	};
+
 	append(insts, anchored: inst_match);
 
 	return regex {
@@ -434,7 +446,7 @@ fn parse_repetition(
 		min = match (strconv::stoi(min_str)) {
 		case let res: int =>
 			yield if (res < 0) {
-				return `Negative repitition count '{-n}'`: error;
+				return `Negative repetition count '{-n}'`: error;
 			} else {
 				yield res: size;
 			};
@@ -448,7 +460,7 @@ fn parse_repetition(
 		max = match (strconv::stoi(max_str)) {
 		case let res: int =>
 			yield if (res < 0) {
-				return `Negative repitition count '{-n}'`: error;
+				return `Negative repetition count '{-n}'`: error;
 			} else {
 				yield res: size;
 			};

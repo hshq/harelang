@@ -17,27 +17,27 @@ use types::c;
 //
 // Note that on Linux, specifying BENEATH or IN_ROOT will also disable magic
 // symlinks.
-export type resolve_flag = enum {
-	NORMAL,
+export type resolve_flag = enum u64 {
+	NORMAL = 0,
 
 	// Does not allow symlink resolution to occur for any symlinks which
 	// would refer to any anscestor of the fd directory. This disables all
 	// absolute symlinks, and any call to open or create with an absolute
 	// path.
-	BENEATH,
+	BENEATH = rt::RESOLVE_BENEATH | rt::RESOLVE_NO_MAGICLINKS,
 
 	// Treat the directory fd as the root directory. This affects
 	// open/create for absolute paths, as well as absolute path resolution
 	// of symlinks. The effects are similar to chroot.
-	IN_ROOT,
+	IN_ROOT = rt::RESOLVE_IN_ROOT | rt::RESOLVE_NO_MAGICLINKS,
 
 	// Disables symlink resolution entirely.
-	NO_SYMLINKS,
+	NO_SYMLINKS = rt::RESOLVE_NO_SYMLINKS,
 
 	// Disallows traversal of mountpoints during path resolution. This is
 	// not recommended for general use, as bind mounts are extensively used
 	// on many systems.
-	NO_XDEV,
+	NO_XDEV = rt::RESOLVE_NO_XDEV,
 };
 
 type os_filesystem = struct {
@@ -49,13 +49,12 @@ type os_filesystem = struct {
 
 // Opens a file descriptor as an [[fs::fs]]. This file descriptor must be a
 // directory file. The file will be closed when the fs is closed.
-export fn dirfdopen(fd: io::file, resolve_flags: resolve_flag...) *fs::fs = {
-	let ofs = alloc(os_filesystem { ... });
+export fn dirfdopen(
+	fd: io::file,
+	resolve_flags: resolve_flag = resolve_flag::NORMAL,
+) *fs::fs = {
+	let ofs = alloc(os_filesystem { resolve = resolve_flags, ... });
 	let fs = static_dirfdopen(fd, ofs);
-
-	for (let flag .. resolve_flags) {
-		ofs.resolve |= flag;
-	};
 	fs.close = &fs_close;
 	return fs;
 };
@@ -76,7 +75,11 @@ fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 			mkdir = &fs_mkdir,
 			rmdir = &fs_rmdir,
 			chmod = &fs_chmod,
+			fchmod = &fs_fchmod,
 			chown = &fs_chown,
+			fchown = &fs_fchown,
+			chtimes = &fs_chtimes,
+			fchtimes = &fs_fchtimes,
 			resolve = &fs_resolve,
 			link = &fs_link,
 			symlink = &fs_symlink,
@@ -91,13 +94,14 @@ fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 
 // Clones a dirfd filesystem, optionally adding additional [[resolve_flag]]
 // constraints.
-export fn dirfs_clone(fs: *fs::fs, resolve_flags: resolve_flag...) *fs::fs = {
+export fn dirfs_clone(
+	fs: *fs::fs,
+	resolve_flags: resolve_flag = resolve_flag::NORMAL,
+) *fs::fs = {
 	assert(fs.open == &fs_open);
 	let fs = fs: *os_filesystem;
 	let new = alloc(*fs);
-	for (let flag .. resolve_flags) {
-		fs.resolve |= flag;
-	};
+	fs.resolve |= resolve_flags;
 	new.dirfd = rt::fcntl(new.dirfd, rt::F_DUPFD_CLOEXEC, 0) as int;
 	return &new.fs;
 };
@@ -148,19 +152,7 @@ fn _fs_open(
 ) (io::file | fs::error) = {
 	let fs = fs: *os_filesystem;
 
-	oh.resolve = 0u64;
-	if (fs.resolve & resolve_flag::BENEATH == resolve_flag::BENEATH) {
-		oh.resolve |= rt::RESOLVE_BENEATH | rt::RESOLVE_NO_MAGICLINKS;
-	};
-	if (fs.resolve & resolve_flag::IN_ROOT == resolve_flag::IN_ROOT) {
-		oh.resolve |= rt::RESOLVE_IN_ROOT | rt::RESOLVE_NO_MAGICLINKS;
-	};
-	if (fs.resolve & resolve_flag::NO_SYMLINKS == resolve_flag::NO_SYMLINKS) {
-		oh.resolve |= rt::RESOLVE_NO_SYMLINKS;
-	};
-	if (fs.resolve & resolve_flag::NO_XDEV == resolve_flag::NO_XDEV) {
-		oh.resolve |= rt::RESOLVE_NO_XDEV;
-	};
+	oh.resolve = fs.resolve;
 
 	let fd = match (rt::openat2(fs.dirfd, path, oh, size(rt::open_how))) {
 	case let err: rt::errno =>
@@ -175,22 +167,18 @@ fn _fs_open(
 fn fs_open_file(
 	fs: *fs::fs,
 	path: str,
-	flags: fs::flag...
+	flags: fs::flag,
 ) (io::file | fs::error) = {
-	let oflags = fs::flag::RDONLY: int;
-	for (let flag .. flags) {
-		oflags |= flag: int;
-	};
-	oflags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
+	flags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
 
-	if ((oflags: fs::flag & fs::flag::DIRECTORY) == fs::flag::DIRECTORY) {
+	if ((flags & fs::flag::DIRECTORY) == fs::flag::DIRECTORY) {
 		// This is arch-specific
-		oflags &= ~fs::flag::DIRECTORY: int;
-		oflags |= rt::O_DIRECTORY: int;
+		flags &= ~fs::flag::DIRECTORY;
+		flags |= rt::O_DIRECTORY: fs::flag;
 	};
 
 	let oh = rt::open_how {
-		flags = oflags: u64,
+		flags = flags: u64,
 		...
 	};
 	return _fs_open(fs, path, &oh);
@@ -199,27 +187,20 @@ fn fs_open_file(
 fn fs_open(
 	fs: *fs::fs,
 	path: str,
-	flags: fs::flag...
-) (io::handle | fs::error) = fs_open_file(fs, path, flags...)?;
+	flags: fs::flag,
+) (io::handle | fs::error) = fs_open_file(fs, path, flags)?;
 
 fn fs_create_file(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
-	flags: fs::flag...
+	flags: fs::flag,
 ) (io::file | fs::error) = {
-	let oflags = 0;
-	if (len(flags) == 0) {
-		oflags |= fs::flag::WRONLY | fs::flag::TRUNC;
-	};
-	for (let flag .. flags) {
-		oflags |= flag: int;
-	};
-	oflags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
-	oflags |= fs::flag::CREATE: int;
+	flags ^= fs::flag::CTTY | fs::flag::NOCLOEXEC; // invert NOCTTY/CLOEXEC
+	flags |= fs::flag::CREATE;
 
 	let oh = rt::open_how {
-		flags = oflags: u64,
+		flags = flags: u64,
 		mode = mode: u64,
 		...
 	};
@@ -230,9 +211,9 @@ fn fs_create(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
-	flags: fs::flag...
+	flags: fs::flag,
 ) (io::handle | fs::error) = {
-	return fs_create_file(fs, path, mode, flags...)?;
+	return fs_create_file(fs, path, mode, flags)?;
 };
 
 fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {
@@ -348,6 +329,14 @@ fn fs_chmod(fs: *fs::fs, path: str, mode: fs::mode) (void | fs::error) = {
 	};
 };
 
+fn fs_fchmod(fd: io::file, mode: fs::mode) (void | fs::error) = {
+	match (rt::fchmod(fd, mode: uint)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
+	};
+};
+
 fn fs_chown(fs: *fs::fs, path: str, uid: uint, gid: uint) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::fchownat(fs.dirfd, path, uid, gid, 0)) {
@@ -355,6 +344,53 @@ fn fs_chown(fs: *fs::fs, path: str, uid: uint, gid: uint) (void | fs::error) = {
 		return errno_to_fs(err);
 	case void => void;
 	};
+};
+
+fn fs_fchown(fd: io::file, uid: uint, gid: uint) (void | fs::error) = {
+	match (rt::fchown(fd, uid, gid)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
+	};
+};
+
+fn instant_to_timespec(time: (time::instant | void)) rt::timespec = {
+	match (time) {
+	case let t: time::instant =>
+		return time::instant_to_timespec(t);
+	case void =>
+		return rt::timespec{
+			tv_sec = rt::UTIME_OMIT,
+			tv_nsec = rt::UTIME_OMIT
+		};
+	};
+};
+
+fn fs_chtimes(fs: *fs::fs, path: str, atime: (time::instant | void),
+		mtime: (time::instant | void)) (void | fs::error) = {
+	let utimes: [2]rt::timespec = [
+		instant_to_timespec(atime),
+		instant_to_timespec(mtime),
+	];
+        let fs = fs: *os_filesystem;
+        match (rt::utimensat(fs.dirfd, path, &utimes, 0)) {
+        case let err: rt::errno =>
+                return errno_to_fs(err);
+        case void => void;
+        };
+};
+
+fn fs_fchtimes(fd: io::file, atime: (time::instant | void),
+		mtime: (time::instant | void)) (void | fs::error) = {
+	let utimes: [2]rt::timespec = [
+		instant_to_timespec(atime),
+		instant_to_timespec(mtime),
+	];
+        match (rt::futimens(fd, &utimes)) {
+        case let err: rt::errno =>
+                return errno_to_fs(err);
+        case void => void;
+        };
 };
 
 fn fs_resolve(fs: *fs::fs, path: str) str = {

@@ -32,7 +32,7 @@ fn streq(a: []str, b: []str) bool = {
 
 	for (let i = 0z; i < len(cases); i += 1) {
 		const (in, out) = cases[i];
-		const words = wordexp(in, flag::NONE)!;
+		const words = wordexp(in)!;
 		defer strings::freeall(words);
 		assert(streq(words, out));
 	};

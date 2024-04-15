@@ -42,7 +42,7 @@ fn encode_writer(s: *io::stream, in: const []u8) (size | io::error) = {
 	};
 	let z = 0z;
 	for (let i = 0z; i < len(in); i += 1) {
-		const r = strconv::u8tosb(in[i], strconv::base::HEX_LOWER);
+		const r = strconv::u8tos(in[i], strconv::base::HEX_LOWER);
 		if (len(r) == 1) {
 			match(fmt::fprint(s.out, "0")) {
 			case let b: size =>
@@ -151,7 +151,7 @@ fn decode_reader(s: *io::stream, out: []u8) (size | io::EOF | io::error) = {
 	const l = nr / 2;
 	for (let i = 0z; i < l; i += 1) {
 		const oct = strings::fromutf8_unsafe(buf[i * 2..i * 2 + 2]);
-		const u = match (strconv::stou8b(oct, 16)) {
+		const u = match (strconv::stou8(oct, 16)) {
 		case (strconv::invalid | strconv::overflow) =>
 			s.state = errors::invalid;
 			return errors::invalid;

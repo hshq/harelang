@@ -88,7 +88,7 @@ fn all(d: *date) *date = {
 	return d;
 };
 
-// Creates a new [[date]]. Accepts a [[time::chrono::locality]], a zone offset,
+// Creates a new [[date]]. Accepts a [[time::chrono::locality]], a zone-offset,
 // and up to seven nominal fields applied in the following order:
 //
 // - year
@@ -102,52 +102,66 @@ fn all(d: *date) *date = {
 // 8 or more fields causes an abort. If omitted, the month and day default to 1,
 // and the rest default to 0.
 //
-// The locality and zone offset parameters discern the desired observed
-// [[time::chrono::zone]]. See [[time::chrono::fixedzone]] for custom timezones.
+// If the desired zone-offset is known, it can be given as a [[time::duration]].
+// Otherwise, use a zflag. See [[zflag]] on its effects to the result.
 //
 // An invalid combination of provided date/time/zoff values returns [[invalid]].
 //
 // Examples:
 //
 // 	// 0000-01-01 00:00:00.000000000 +0000 UTC UTC
-// 	date::new(time::chrono::UTC, 0);
+// 	date::new(time::chrono::UTC, date::zflag::CONTIG);
 //
-// 	// 2019-12-27 20:07:08.000031415 +0000 UTC UTC
+// 	// 2000-01-02 15:04:05.600000000 +0000 UTC UTC
 // 	date::new(time::chrono::UTC, 0,
-// 		2019, 12, 27,  20,  7,  8, 31415);
+// 		2000,  1,  2,  15,  4,  5, 600000000);
 //
-// 	// 2019-12-27 21:00:00.000000000 +0100 CET Europe/Amsterdam
-// 	date::new(time::chrono::tz("Europe/Amsterdam")!, 1 * time::HOUR,
-// 		2019, 12, 27,  21);
+// 	// 2000-01-02 15:00:00.000000000 +0100 CET Europe/Amsterdam
+// 	date::new(time::chrono::tz("Europe/Amsterdam")!,
+// 		1 * time::HOUR, // standard time in January
+// 		2000,  1,  2,  15);
 //
-// 	// 2019-12-27 10:00:00.000000000 -1000 HST Pacific/Honolulu
-// 	date::new(time::chrono::tz("Pacific/Honolulu")!, -10 * time::HOUR,
-// 		2019, 12, 27,  10);
+// 	// Could return [[zfunresolved]] by encountering a timezone transition.
+// 	date::new(time::chrono::tz("Europe/Amsterdam")!,
+// 		date::zflag::CONTIG,
+// 		fields...);
 //
-// 	// Invalid month, day, hour, and minute
-// 	date::new(time::chrono::UTC, 0,
-// 		2019,  0,  0,  99, -30);
+// 	// Will never return [[zfunresolved]].
+// 	date::new(time::chrono::tz("Europe/Amsterdam")!,
+// 		date::zflag::LAP_EARLY | date::zflag::GAP_END,
+// 		fields...);
 //
-// 	// Invalid zone offset
-// 	date::new(time::chrono::UTC,       -7 * time::HOUR,  2019);
-// 	date::new(time::chrono::tz("Europe/Amsterdam")!, 0,  2019);
+// 	// On this day in Amsterdam, the clock jumped +1 hour at 02:00.
+// 	// 02:30 is never observed. Note the difference in zone-offset.
+// 	//
+// 	// 2000-03-26 01:59:59.999999999 +0100 CET Europe/Amsterdam
+// 	date::new(time::chrono::tz("Europe/Amsterdam")!,
+// 		date::zflag::GAP_START,
+// 		2000,  3, 26,   2, 30);
+// 	//
+// 	// 2000-03-26 03:00:00.000000000 +0200 CET Europe/Amsterdam
+// 	date::new(time::chrono::tz("Europe/Amsterdam")!,
+// 		date::zflag::GAP_END,
+// 		2000,  3, 26,   2, 30);
 //
-// Example: Two dates, 30 physical minutes before and after a DST timezone
-// transition, observing the same date & time, but different zone offsets:
-//
-// 	// 2019-04-07 02:30:00.000000000 +1100 AUDT Australia/Sydney
-// 	date::new(time::chrono::tz("Australia/Sydney")!, 11 * time::HOUR,
-// 		2019,  4,  7,   2, 30);
-//
-// 	// 2019-04-07 02:30:00.000000000 +1000 AUST Australia/Sydney
-// 	date::new(time::chrono::tz("Australia/Sydney")!, 10 * time::HOUR,
-// 		2019,  4,  7,   2, 30);
+// 	// On this day in Amsterdam, the clock jumped -1 hour at 03:00.
+// 	// 02:30 is observed twice. Note the difference in zone-offset.
+// 	//
+// 	// 2000-10-29 02:30:00.000000000 +0200 CET Europe/Amsterdam
+// 	date::new(time::chrono::tz("Europe/Amsterdam")!,
+// 		date::zflag::LAP_EARLY,
+// 		2000, 10, 29,   2, 30);
+// 	//
+// 	// 2000-10-29 02:30:00.000000000 +0100 CET Europe/Amsterdam
+// 	date::new(time::chrono::tz("Europe/Amsterdam")!,
+// 		date::zflag::LAP_LATE,
+// 		2000, 10, 29,   2, 30);
 //
 export fn new(
 	loc: chrono::locality,
-	zoff: time::duration,
+	zoff: (time::duration | zflag),
 	fields: int...
-) (date | invalid) = {
+) (date | invalid | zfunresolved) = {
 	let _fields: [_]int = [
 		0, 1, 1,    // year month day
 		0, 0, 0, 0, // hour min sec nsec
@@ -169,20 +183,26 @@ export fn new(
 	v.second     = _fields[5];
 	v.nanosecond = _fields[6];
 
-	let d = (realize(v, loc) as (date | invalid))?;
+	let d = (realize(v, loc) as (date | invalid | zfunresolved))?;
 
+	// if zflag::GAP_START or zflag::GAP_END was not specified,
 	// check if input values are actually observed
 	if (
-		zoff != chrono::ozone(&d).zoff
-		|| _fields[0] != _year(&d)
-		|| _fields[1] != _month(&d)
-		|| _fields[2] != _day(&d)
-		|| _fields[3] != _hour(&d)
-		|| _fields[4] != _minute(&d)
-		|| _fields[5] != _second(&d)
-		|| _fields[6] != _nanosecond(&d)
+		// TODO: check observe values outside of gap?
+		zoff is zflag
+		&& zoff as zflag & (zflag::GAP_START | zflag::GAP_END) == 0
 	) {
-		return invalid;
+		if (
+			_fields[0] != _year(&d)
+			|| _fields[1] != _month(&d)
+			|| _fields[2] != _day(&d)
+			|| _fields[3] != _hour(&d)
+			|| _fields[4] != _minute(&d)
+			|| _fields[5] != _second(&d)
+			|| _fields[6] != _nanosecond(&d)
+		) {
+			return invalid;
+		};
 	};
 
 	return d;
@@ -218,33 +238,42 @@ export fn from_instant(loc: chrono::locality, i: time::instant) date = {
 };
 
 // Creates a [[date]] from a string, parsed according to a layout format.
-// See [[parse]] and [[format]]. At least a complete calendar date has to be
-// provided. The if hour, minute, second, nanosecond, or zone offset are not
-// provided, they default to 0.
+// See [[parse]] and [[format]]. Example:
 //
 // 	let new = date::from_str(
 // 		date::STAMPLOC,
-// 		"2019-12-27 22:07:08.000000000 +0100 CET Europe/Amsterdam",
-// 		locs...
+// 		"2000-01-02 15:04:05.600000000 +0100 CET Europe/Amsterdam",
+// 		chrono::tz("Europe/Amsterdam")!
 // 	)!;
+//
+// At least a complete calendar date has to be provided. If the hour, minute,
+// second, or nanosecond values are not provided, they default to 0.
+// If the zone-offset or zone-abbreviation are not provided, the [[zflags]]s
+// LAP_EARLY and GAP_END are used.
 //
 // The date's [[time::chrono::locality]] will be selected from the provided
 // locality arguments. The 'name' field of these localities will be matched
-// against the parsed result for the %L specifier. If %L is not specified, or if
-// no locality is provided, [[time::chrono::UTC]] is used.
+// against the parsed result of the %L specifier. If %L is not specified,
+// or if no locality is provided, [[time::chrono::UTC]] is used.
 export fn from_str(
 	layout: str,
 	s: str,
 	locs: chrono::locality...
 ) (date | parsefail | insufficient | invalid) = {
 	const v = newvirtual();
-	v.zoff = 0;
+	v.zoff = zflag::LAP_EARLY | zflag::GAP_END;
 	v.hour = 0;
 	v.minute = 0;
 	v.second = 0;
 	v.nanosecond = 0;
+
 	parse(&v, layout, s)?;
-	return realize(v, locs...)?;
+
+	if (v.locname is void || len(locs) == 0) {
+		v.vloc = chrono::UTC;
+	};
+
+	return realize(v, locs...) as (date | insufficient | invalid);
 };
 
 @test fn from_str() void = {
@@ -261,9 +290,9 @@ export fn from_str(
 			new(chrono::GPS, 0, 2009, 6, 30)!),
 		("%F %T", "2009-06-30 01:02:03", [],
 			new(chrono::UTC, 0, 2009, 6, 30, 1, 2, 3)!),
-		("%FT%T%Z", "2009-06-30T18:30:00Z", [],
+		("%FT%T%z", "2009-06-30T18:30:00Z", [],
 			new(chrono::UTC, 0, 2009, 6, 30, 18, 30)!),
-		("%FT%T.%N%Z", "2009-06-30T18:30:00.987654321Z", [],
+		("%FT%T.%N%z", "2009-06-30T18:30:00.987654321Z", [],
 			new(chrono::UTC, 0, 2009, 6, 30, 18, 30, 0, 987654321)!),
 		// TODO: for the tests overhaul, when internal test timezones
 		// are available, check for %L
@@ -275,9 +304,9 @@ export fn from_str(
 	];
 
 	let buf: [64]u8 = [0...];
-	for (let t .. testcases) {
-		const expect = t.3;
-		const actual = from_str(t.0, t.1, t.2...);
+	for (let tc .. testcases) {
+		const expect = tc.3;
+		const actual = from_str(tc.0, tc.1, tc.2...);
 
 		match (expect) {
 		case let e: date =>

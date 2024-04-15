@@ -8,6 +8,7 @@ use io;
 use math::{bit_size_u8};
 use os;
 use strings;
+use time::chrono;
 use time::date;
 use types;
 
@@ -700,6 +701,7 @@ export fn read_utctime(d: *decoder, maxyear: u16) (date::date | error) = {
 	};
 
 	let v = date::newvirtual();
+	v.vloc = chrono::UTC;
 	v.year = (year + cent): int;
 	v.zoff = 0;
 	v.nanosecond = 0;
@@ -757,7 +759,7 @@ export fn read_gtime(d: *decoder) (date::date | error) = {
 	match (date::from_str("%Y%m%d%H%M%S.%N", strings::fromutf8(time)!)) {
 	case let d: date::date =>
 		return d;
-	case let e: date::error =>
+	case =>
 		return invalid;
 	};
 };

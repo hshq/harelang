@@ -4,6 +4,7 @@
 use fs;
 use io;
 use path;
+use time;
 
 // Provides an implementation of [[fs::fs]] for the current working directory.
 export let cwd: *fs::fs = null: *fs::fs;
@@ -61,8 +62,30 @@ export fn rmdirall(path: str) (void | fs::error) = fs::rmdirall(cwd, path);
 // Changes mode flags on a file or directory. Type bits are discared.
 export fn chmod(path: str, mode: fs::mode) (void | fs::error) = fs::chmod(cwd, path, mode);
 
+// Changes mode flags on a [[io::file]]. Type bits are discared.
+export fn fchmod(fd: io::file, mode: fs::mode) (void | fs::error) = fs::fchmod(cwd, fd, mode);
+
 // Changes ownership of a file.
 export fn chown(path: str, uid: uint, gid: uint) (void | fs::error) = fs::chown(cwd, path, uid, gid);
+
+// Changes ownership of a [io::file]].
+export fn fchown(fd: io::file, uid: uint, gid: uint) (void | fs::error) = fs::fchown(cwd, fd, uid, gid);
+
+// Changes the access and modification time of a file. A void value will leave
+// the corresponding time unchanged.
+export fn chtimes(
+	path: str,
+	atime: (time::instant | void),
+	mtime: (time::instant | void)
+) (void | fs::error) = fs::chtimes(cwd, path, atime, mtime);
+
+// Changes the access and modification time of an [[io::file]]. A void value
+// will leave the corresponding time unchanged.
+export fn fchtimes(
+        fd: io::file,
+        atime: (time::instant | void),
+        mtime: (time::instant | void)
+) (void | fs::error) = fs::fchtimes(cwd, fd, atime, mtime);
 
 // Resolves a path to its absolute, normalized value. Relative paths will be
 // rooted (if supported by the host filesystem), and "." and ".." components
@@ -84,19 +107,15 @@ export fn symlink(target: str, path: str) (void | fs::error) =
 
 // Opens a file.
 //
-// If no flags are provided, [[fs::flag::RDONLY]] is used when opening the
-// file.
-//
 // [[fs::flag::CREATE]] isn't very useful with this function, since the new
 // file's mode is set to zero. For this use-case, use [[create]] instead.
-export fn open(path: str, flags: fs::flag...) (io::file | fs::error) =
-	fs::open_file(cwd, path, flags...);
+export fn open(
+	path: str,
+	flags: fs::flag = fs::flag::RDONLY,
+) (io::file | fs::error) = fs::open_file(cwd, path, flags);
 
 // Creates a new file with the given mode if it doesn't already exist and opens
 // it for writing.
-//
-// If no flags are provided, [[fs::flag::WRONLY]] and [[fs::flag::TRUNC]] are
-// used when opening the file.
 //
 // Only the permission bits of the mode are used. If other bits are set, they
 // are discarded.
@@ -105,7 +124,7 @@ export fn open(path: str, flags: fs::flag...) (io::file | fs::error) =
 export fn create(
 	path: str,
 	mode: fs::mode,
-	flags: fs::flag...
+	flags: fs::flag = fs::flag::WRONLY | fs::flag::TRUNC,
 ) (io::file | fs::error) = fs::create_file(cwd, path, mode, flags...);
 
 // Canonicalizes a path in this filesystem by resolving all symlinks and

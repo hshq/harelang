@@ -42,6 +42,8 @@ fn static_dirfdopen(fd: io::file, filesystem: *os_filesystem) *fs::fs = {
 			rmdir = &fs_rmdir,
 			chmod = &fs_chmod,
 			chown = &fs_chown,
+			chtimes = &fs_chtimes,
+			fchtimes = &fs_fchtimes,
 			resolve = &fs_resolve,
 			...
 		},
@@ -163,45 +165,34 @@ fn fsflags_to_bsd(flags: fs::flag) (int | errors::unsupported) = {
 fn fs_open_file(
 	fs: *fs::fs,
 	path: str,
-	flags: fs::flag...
+	flags: fs::flag,
 ) (io::file | fs::error) = {
-	let oflags = fs::flag::RDONLY;
-	for (let flag .. flags) {
-		oflags |= flag;
-	};
-	return _fs_open(fs, path, fsflags_to_bsd(oflags)?, 0);
+	return _fs_open(fs, path, fsflags_to_bsd(flags)?, 0);
 };
 
 fn fs_open(
 	fs: *fs::fs,
 	path: str,
-	flags: fs::flag...
-) (io::handle | fs::error) = fs_open_file(fs, path, flags...)?;
+	flags: fs::flag,
+) (io::handle | fs::error) = fs_open_file(fs, path, flags)?;
 
 fn fs_create_file(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
-	flags: fs::flag...
+	flags: fs::flag,
 ) (io::file | fs::error) = {
-	let oflags: fs::flag = 0;
-	if (len(flags) == 0z) {
-		oflags |= fs::flag::WRONLY | fs::flag::TRUNC;
-	};
-	for (let flag .. flags) {
-		oflags |= flag;
-	};
-	oflags |= fs::flag::CREATE;
-	return _fs_open(fs, path, fsflags_to_bsd(oflags)?, mode)?;
+	flags |= fs::flag::CREATE;
+	return _fs_open(fs, path, fsflags_to_bsd(flags)?, mode)?;
 };
 
 fn fs_create(
 	fs: *fs::fs,
 	path: str,
 	mode: fs::mode,
-	flags: fs::flag...
+	flags: fs::flag,
 ) (io::handle | fs::error) = {
-	return fs_create_file(fs, path, mode, flags...)?;
+	return fs_create_file(fs, path, mode, flags)?;
 };
 
 fn fs_remove(fs: *fs::fs, path: str) (void | fs::error) = {
@@ -307,6 +298,14 @@ fn fs_chmod(fs: *fs::fs, path: str, mode: fs::mode) (void | fs::error) = {
 	};
 };
 
+fn fs_fchmod(fd: io::file, mode: fs::mode) (void | fs::error) = {
+	match (rt::fchmod(fd, mode: uint)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
+	};
+};
+
 fn fs_chown(fs: *fs::fs, path: str, uid: uint, gid: uint) (void | fs::error) = {
 	let fs = fs: *os_filesystem;
 	match (rt::fchownat(fs.dirfd, path, uid, gid, 0)) {
@@ -314,6 +313,53 @@ fn fs_chown(fs: *fs::fs, path: str, uid: uint, gid: uint) (void | fs::error) = {
 		return errno_to_fs(err);
 	case void => void;
 	};
+};
+
+fn fs_fchown(fd: io::file, uid: uint, gid: uint) (void | fs::error) = {
+	match (rt::fchown(fd, uid, gid)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
+	};
+};
+
+fn instant_to_timespec(time: (time::instant | void)) rt::timespec = {
+	match (time) {
+	case let t: time::instant =>
+		return time::instant_to_timespec(t);
+	case void =>
+		return rt::timespec{
+			tv_sec = rt::UTIME_OMIT,
+			tv_nsec = rt::UTIME_OMIT
+		};
+	};
+};
+
+fn fs_chtimes(fs: *fs::fs, path: str, atime: (time::instant | void),
+		mtime: (time::instant | void)) (void | fs::error) = {
+	let utimes: [2]rt::timespec = [
+		instant_to_timespec(atime),
+		instant_to_timespec(mtime),
+	];
+        let fs = fs: *os_filesystem;
+        match (rt::utimensat(fs.dirfd, path, &utimes, 0)) {
+        case let err: rt::errno =>
+                return errno_to_fs(err);
+        case void => void;
+        };
+};
+
+fn fs_fchtimes(fd: io::file, atime: (time::instant | void),
+		mtime: (time::instant | void)) (void | fs::error) = {
+	let utimes: [2]rt::timespec = [
+		instant_to_timespec(atime),
+		instant_to_timespec(mtime),
+	];
+        match (rt::futimens(fd, &utimes)) {
+        case let err: rt::errno =>
+                return errno_to_fs(err);
+        case void => void;
+        };
 };
 
 fn fs_resolve(fs: *fs::fs, path: str) str = {

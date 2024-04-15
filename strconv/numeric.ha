@@ -3,75 +3,60 @@
 
 use types;
 
-// Converts any [[types::signed]] to a string in a given base. The return value is
-// statically allocated and will be overwritten on subsequent calls; see
-// [[strings::dup]] to duplicate the result.
-export fn signedtosb(n: types::signed, b: base) const str = {
+// Converts any [[types::signed]] to a string. The return value is statically
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]]
+// to duplicate the result. If base is not specified, base 10 is used.
+export fn signedtos(n: types::signed, b: base = base::DEC) const str = {
 	match (n) {
 	case let i: int =>
-		return itosb(i, b);
+		return itos(i, b);
 	case let i: i8 =>
-		return i8tosb(i, b);
+		return i8tos(i, b);
 	case let i: i16 =>
-		return i16tosb(i, b);
+		return i16tos(i, b);
 	case let i: i32 =>
-		return i32tosb(i, b);
+		return i32tos(i, b);
 	case let i: i64 =>
-		return i64tosb(i, b);
+		return i64tos(i, b);
 	};
 };
 
-// Converts any [[types::signed]] to a string in base 10. The return value is
-// statically allocated and will be overwritten on subsequent calls; see
-// [[strings::dup]] to duplicate the result.
-export fn signedtos(n: types::signed) const str = signedtosb(n, base::DEC);
-
-// Converts any [[types::unsigned]] to a string in a given base. The return value
-// is statically allocated and will be overwritten on subsequent calls; see
-// [[strings::dup]] to duplicate the result.
-export fn unsignedtosb(n: types::unsigned, b: base) const str = {
+// Converts any [[types::unsigned]] to a string. The return value is statically
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]]
+// to duplicate the result. If base is not specified, base 10 is used.
+export fn unsignedtos(n: types::unsigned, b: base = base::DEC) const str = {
 	match (n) {
 	case let u: size =>
-		return ztosb(u, b);
+		return ztos(u, b);
 	case let u: uint =>
-		return utosb(u, b);
+		return utos(u, b);
 	case let u: u8 =>
-		return u8tosb(u, b);
+		return u8tos(u, b);
 	case let u: u16 =>
-		return u16tosb(u, b);
+		return u16tos(u, b);
 	case let u: u32 =>
-		return u32tosb(u, b);
+		return u32tos(u, b);
 	case let u: u64 =>
-		return u64tosb(u, b);
+		return u64tos(u, b);
 	};
 };
 
-// Converts any [[types::unsigned]] to a string in base 10. The return value is
-// statically allocated and will be overwritten on subsequent calls; see
-// [[strings::dup]] to duplicate the result.
-export fn unsignedtos(n: types::unsigned) const str = unsignedtosb(n, base::DEC);
-
-// Converts any [[types::integer]] to a string in a given base. The return value
-// is statically allocated and will be overwritten on subsequent calls; see
-// [[strings::dup]] to duplicate the result.
-export fn integertosb(n: types::integer, b: base) const str = {
+// Converts any [[types::integer]] to a string. The return value is statically
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]]
+// to duplicate the result. If base is not specified, base 10 is used.
+export fn integertos(n: types::integer, b: base = base::DEC) const str = {
 	match (n) {
 	case let s: types::signed =>
-		return signedtosb(s, b);
+		return signedtos(s, b);
 	case let u: types::unsigned =>
-		return unsignedtosb(u, b);
+		return unsignedtos(u, b);
 	};
 };
 
-// Converts any [[types::integer]] to a string in base 10. The return value is
-// statically allocated and will be overwritten on subsequent calls; see
-// [[strings::dup]] to duplicate the result.
-export fn integertos(n: types::integer) const str = integertosb(n, base::DEC);
-
-// Converts any [[types::floating]] to a string in a given base. The return value
-// is statically allocated and will be overwritten on subsequent calls; see
-// [[strings::dup]] to duplicate the result.
-export fn floatingtosb(n: types::floating, b: base) const str = {
+// Converts any [[types::floating]] to a string. The return value is statically
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]]
+// to duplicate the result. If base is not specified, base 10 is used.
+export fn floatingtos(n: types::floating, b: base = base::DEC) const str = {
 	if (b == base::DEFAULT) {
 		b = base::DEC;
 	};
@@ -84,27 +69,17 @@ export fn floatingtosb(n: types::floating, b: base) const str = {
 	};
 };
 
-// Converts any [[types::floating]] to a string in base 10. The return value is
-// statically allocated and will be overwritten on subsequent calls; see
-// [[strings::dup]] to duplicate the result.
-export fn floatingtos(n: types::floating) const str = floatingtosb(n, base::DEC);
-
-// Converts any [[types::numeric]] to a string in a given base. The return value
-// is statically allocated and will be overwritten on subsequent calls; see
-// [[strings::dup]] to duplicate the result.
-export fn numerictosb(n: types::numeric, b: base) const str = {
+// Converts any [[types::numeric]] to a string. The return value is statically
+// allocated and will be overwritten on subsequent calls; see [[strings::dup]]
+// to duplicate the result. If base is not specified, base 10 is used.
+export fn numerictos(n: types::numeric, b: base = base::DEC) const str = {
 	match (n) {
 	case let i: types::integer =>
-		return integertosb(i, b);
+		return integertos(i, b);
 	case let f: types::floating =>
-		return floatingtosb(f, b);
+		return floatingtos(f, b);
 	};
 };
-
-// Converts any [[types::numeric]] to a string in base 10. The return value is
-// statically allocated and will be overwritten on subsequent calls; see
-// [[strings::dup]] to duplicate the result.
-export fn numerictos(n: types::numeric) const str = numerictosb(n, base::DEC);
 
 @test fn numeric() void = {
 	const cases: [_]types::numeric = [

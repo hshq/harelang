@@ -55,11 +55,11 @@ export fn strerror(err: error) const str = {
 
 // Initializes a new lexer for the given [[bufio::scanner]]. The path is
 // borrowed.
-export fn init(in: *bufio::scanner, path: str, flags: flag...) lexer = {
-	let f = flag::NONE;
-	for (let i = 0z; i < len(flags); i += 1) {
-		f |= flags[i];
-	};
+export fn init(
+	in: *bufio::scanner,
+	path: str,
+	flags: flag = flag::NONE,
+) lexer = {
 	const loc = location { path = path, line = 1, col = 1 };
 	return lexer {
 		in = in,
@@ -68,7 +68,7 @@ export fn init(in: *bufio::scanner, path: str, flags: flag...) lexer = {
 		prevrloc = (1, 1),
 		un = (ltok::EOF, void, loc),
 		prevunlocs = [((1, 1), (1, 1))...],
-		flags = f,
+		flags = flags,
 		...
 	};
 };
@@ -171,7 +171,7 @@ fn lex_unicode(lex: *lexer, loc: location, n: size) (rune | error) = {
 		buf[i] = r: u8;
 	};
 	let s = strings::fromutf8_unsafe(buf[..n]);
-	return strconv::stou32b(s, strconv::base::HEX) as u32: rune;
+	return strconv::stou32(s, strconv::base::HEX) as u32: rune;
 };
 
 fn lex_rune(lex: *lexer, loc: location) (rune | error) = {
@@ -600,9 +600,9 @@ fn lex_literal(lex: *lexer) (token | error) = {
 	let val = switch (suff) {
 	case ltok::LIT_F32, ltok::LIT_F64, ltok::LIT_FCONST =>
 		val = strings::fromutf8(chars[..floatend])!;
-		yield strconv::stof64b(val, base);
+		yield strconv::stof64(val, base);
 	case =>
-		yield strconv::stou64b(val, base);
+		yield strconv::stou64(val, base);
 	};
 	let val = match (val) {
 	case let val: u64 =>

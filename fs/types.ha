@@ -207,7 +207,13 @@ export type fstatfunc = fn(fs: *fs, file: io::file) (filestat | error);
 export type mkdirfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
 export type rmdirfunc = fn(fs: *fs, path: str) (void | error);
 export type chmodfunc = fn(fs: *fs, path: str, mode: mode) (void | error);
+export type fchmodfunc = fn(fd: io::file, mode: mode) (void | error);
 export type chownfunc = fn(fs: *fs, path: str, uid: uint, gid: uint) (void | error);
+export type fchownfunc = fn(fd: io::file, uid: uint, gid: uint) (void | error);
+export type chtimesfunc = fn(fs: *fs, path: str, atime: (time::instant | void),
+       mtime: (time::instant | void)) (void | error);
+export type fchtimesfunc = fn(fd: io::file, atime: (time::instant | void),
+       mtime: (time::instant | void)) (void | error);
 export type resolvefunc = fn(fs: *fs, path: str) str;
 export type readlinkfunc = fn(fs: *fs, path: str) (str | error);
 export type linkfunc = fn(fs: *fs, old: str, new: str) (void | error);
@@ -216,27 +222,27 @@ export type symlinkfunc = fn(fs: *fs, target: str, path: str) (void | error);
 export type openfunc = fn(
 	fs: *fs,
 	path: str,
-	flags: flag...
+	flags: flag,
 ) (io::handle | error);
 
 export type openfilefunc = fn(
 	fs: *fs,
 	path: str,
-	flags: flag...
+	flags: flag,
 ) (io::file | error);
 
 export type createfunc = fn(
 	fs: *fs,
 	path: str,
 	mode: mode,
-	flags: flag...
+	flags: flag,
 ) (io::handle | error);
 
 export type createfilefunc = fn(
 	fs: *fs,
 	path: str,
 	mode: mode,
-	flags: flag...
+	flags: flag,
 ) (io::file | error);
 
 // An abstract implementation of a filesystem, which provides common filesystem
@@ -296,8 +302,20 @@ export type fs = struct {
 	// Changes mode flags on a file or directory.
 	chmod: nullable *chmodfunc,
 
+	// Changes mode flags on a [[io::file]].
+	fchmod: nullable *fchmodfunc,
+
 	// Changes ownership of a file.
 	chown: nullable *chownfunc,
+
+	// Changes ownership of a [[io::file]].
+	fchown: nullable *fchownfunc,
+
+	// Changes access and modification time of a file.
+	chtimes: nullable *chtimesfunc,
+
+	// Changes access and modification time of an [[io::file]].
+	fchtimes: nullable *fchtimesfunc,
 
 	// Resolves a path to its absolute, normalized value. If the fs
 	// implementation does not provide this, [resolve] presumes that

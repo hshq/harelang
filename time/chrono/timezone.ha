@@ -5,6 +5,7 @@ use bufio;
 use io;
 use os;
 use path;
+use sort;
 use strings;
 use time;
 
@@ -56,7 +57,7 @@ export type zone = struct {
 // A [[timezone]] transition between two [[zone]]s.
 export type transition = struct {
 	when: time::instant,
-	zoneindex: int,
+	zoneindex: size,
 };
 
 // A destructured dual std/dst POSIX timezone. See tzset(3).
@@ -120,42 +121,35 @@ fn lookupzone(loc: locality, inst: time::instant) *zone = {
 		return &loc.zones[0];
 	};
 
-	if (
-		len(loc.transitions) == 0
-		|| time::compare(inst, loc.transitions[0].when) == -1
-	) {
+	let trs = loc.transitions[..];
+
+	if (len(trs) == 0 || time::compare(inst, trs[0].when) == -1) {
 		// TODO: special case
 		abort("lookupzone(): time is before known transitions");
 	};
 
-	let lo = 0z;
-	let hi = len(loc.transitions);
-	for (hi - lo > 1) {
-		const mid = lo + (hi - lo) / 2;
-		const middle = loc.transitions[mid].when;
-		switch (time::compare(inst, middle)) {
-		case -1 =>
-			hi = mid;
-		case 0 =>
-			lo = mid; break;
-		case 1 =>
-			lo = mid;
-		case =>
-			abort("Unreachable");
-		};
-	};
+	// index of transition which inst is equal to or greater than.
+	const idx = -1 + sort::rbisect(
+		trs, size(transition), &inst, &cmpinstants,
+	);
 
-	const z = &loc.zones[loc.transitions[lo].zoneindex];
+	const z = &loc.zones[trs[idx].zoneindex];
 
 	// if we've reached the end of the locality's transitions, try its
 	// posix_extend string
 	//
 	// TODO: Unfinished; complete.
-	if (lo == len(loc.transitions) - 1 && loc.posix_extend != "") {
+	if (idx == len(trs) - 1 && loc.posix_extend != "") {
 		void;
 	};
 
 	return z;
+};
+
+fn cmpinstants(a: const *opaque, b: const *opaque) int = {
+	let a = a: *transition;
+	let b = b: *time::instant;
+	return time::compare(a.when, *b): int;
 };
 
 // Creates a [[timezone]] with a single [[zone]]. Useful for fixed offsets.

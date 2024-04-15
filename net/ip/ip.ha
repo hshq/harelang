@@ -112,7 +112,7 @@ export fn parsev6(st: str) (addr6 | invalid) = {
 			ells = i;
 			continue;
 		};
-		match (strconv::stou16b(s, 16)) {
+		match (strconv::stou16(s, strconv::base::HEX)) {
 		case let val: u16 =>
 			endian::beputu16(ret[i..], val);
 			i += 2;

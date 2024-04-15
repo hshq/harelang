@@ -187,7 +187,7 @@ fn readstr(rd: *memio::stream, ln: size) str = {
 
 fn readoct(rd: *memio::stream, ln: size) (uint | invalid) = {
 	const string = readstr(rd, ln);
-	match (strconv::stoub(string, strconv::base::OCT)) {
+	match (strconv::stou(string, strconv::base::OCT)) {
 	case let u: uint =>
 		return u;
 	case =>
@@ -197,7 +197,7 @@ fn readoct(rd: *memio::stream, ln: size) (uint | invalid) = {
 
 fn readsize(rd: *memio::stream, ln: size) (size | invalid) = {
 	const string = readstr(rd, ln);
-	match (strconv::stozb(string, strconv::base::OCT)) {
+	match (strconv::stoz(string, strconv::base::OCT)) {
 	case let z: size =>
 		return z;
 	case =>

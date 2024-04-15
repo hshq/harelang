@@ -115,7 +115,7 @@ export fn decode(in: io::handle) (uuid | invalid | io::error) = {
 			return invalid;
 		case let z: size => void;
 		};
-		u[i] = match (strconv::stou8b(
+		u[i] = match (strconv::stou8(
 				strings::fromutf8_unsafe(buf),
 				strconv::base::HEX)) {
 		case strconv::overflow =>

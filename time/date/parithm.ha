@@ -119,61 +119,64 @@ export fn unitdiff(a: date, b: date, u: unit) i64 = {
 };
 
 // Truncates the given [[date]] at the provided nominal [[unit]].
+// The [[zflag]] parameter affects the final result. Example:
 //
-// For example, truncating to the nearest unit::MONTH will set the 'day',
-// 'hour', 'minute', 'second', and 'nanosecond' fields to their minimum values.
-export fn truncate(d: date, u: unit) date = {
-	// TODO: There exist timezones where midnight is invalid on certain
-	// days. The new()! calls will fail, but we probably don't want to '?'
-	// propagate [[invalid]] to keep this function's use simple. The minimum
-	// values (the zeroes and ones here) can't be hardcoded. They need
-	// calculation. We should either handle this here; or probably in
-	// realize(), and then use realize() here.
-	return switch (u) {
+// 	// On this day in Sao Paulo, a +1 hour jump occurs at 00:00.
+// 	// The time range 00:00..00:59 is never observed.
+// 	//
+// 	// 2000-10-08 12:00:00.000000000 -0200 -02 America/Sao_Paulo
+// 	let a = date::new(chrono::tz("America/Sao_Paulo")!, -2 * time::HOUR,
+// 		2000, 10,  8, 12)!
+// 	//
+// 	// 2000-10-08 01:00:00.000000000 -0200 -02 America/Sao_Paulo
+// 	let b = date::truncate(a, date::zflag::GAP_END, date::unit::DAY)!;
+//
+export fn truncate(d: date, zf: zflag, u: unit) (date | invalid | zfunresolved) = {
+	switch (u) {
 	case unit::ERA =>
-		yield new(d.loc, chrono::ozone(&d).zoff,
+		return new(d.loc, zf,
 			1, 1, 1,
 			0, 0, 0, 0,
-		)!;
+		);
 	case unit::YEAR =>
-		yield new(d.loc, chrono::ozone(&d).zoff,
+		return new(d.loc, zf,
 			_year(&d), 1, 1,
 			0, 0, 0, 0,
-		)!;
+		);
 	case unit::MONTH =>
-		yield new(d.loc, chrono::ozone(&d).zoff,
+		return new(d.loc, zf,
 			_year(&d), _month(&d), 1,
 			0, 0, 0, 0,
-		)!;
+		);
 	case unit::WEEK =>
 		const dd = chrono::daydate(&d) - _weekday(&d);
 		const ymd = calc_ymd(dd);
-		yield new(d.loc, chrono::ozone(&d).zoff,
+		return new(d.loc, zf,
 			ymd.0, ymd.1, ymd.2,
 			0, 0, 0, 0,
-		)!;
+		);
 	case unit::DAY =>
-		yield new(d.loc, chrono::ozone(&d).zoff,
+		return new(d.loc, zf,
 			_year(&d), _month(&d), _day(&d),
 			0, 0, 0, 0,
-		)!;
+		);
 	case unit::HOUR =>
-		yield new(d.loc, chrono::ozone(&d).zoff,
+		return new(d.loc, zf,
 			_year(&d), _month(&d), _day(&d),
 			_hour(&d), 0, 0, 0,
-		)!;
+		);
 	case unit::MINUTE =>
-		yield new(d.loc, chrono::ozone(&d).zoff,
+		return new(d.loc, zf,
 			_year(&d), _month(&d), _day(&d),
 			_hour(&d), _minute(&d), 0, 0,
-		)!;
+		);
 	case unit::SECOND =>
-		yield new(d.loc, chrono::ozone(&d).zoff,
+		return new(d.loc, zf,
 			_year(&d), _month(&d), _day(&d),
 			_hour(&d), _minute(&d), _second(&d), 0,
-		)!;
+		);
 	case unit::NANOSECOND =>
-		yield d;
+		return d;
 	};
 };
 
@@ -343,47 +346,47 @@ export fn truncate(d: date, u: unit) date = {
 	const d = new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 2)!;
 
 	assert(chrono::simultaneous(
-			&truncate(d, unit::ERA),
+			&truncate(d, zflag::CONTIG, unit::ERA)!,
 			&new(chrono::UTC, 0, 1, 1, 1, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 01");
 
 	assert(chrono::simultaneous(
-			&truncate(d, unit::YEAR),
+			&truncate(d, zflag::CONTIG, unit::YEAR)!,
 			&new(chrono::UTC, 0, 1994, 1, 1, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 02");
 
 	assert(chrono::simultaneous(
-			&truncate(d, unit::MONTH),
+			&truncate(d, zflag::CONTIG, unit::MONTH)!,
 			&new(chrono::UTC, 0, 1994, 8, 1, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 03");
 
 	assert(chrono::simultaneous(
-			&truncate(d, unit::WEEK),
+			&truncate(d, zflag::CONTIG, unit::WEEK)!,
 			&new(chrono::UTC, 0, 1994, 8, 22, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 04");
 
 	assert(chrono::simultaneous(
-			&truncate(d, unit::DAY),
+			&truncate(d, zflag::CONTIG, unit::DAY)!,
 			&new(chrono::UTC, 0, 1994, 8, 27, 0, 0, 0, 0)!)!,
 		"invalid truncate() result 05");
 
 	assert(chrono::simultaneous(
-			&truncate(d, unit::HOUR),
+			&truncate(d, zflag::CONTIG, unit::HOUR)!,
 			&new(chrono::UTC, 0, 1994, 8, 27, 11, 0, 0, 0)!)!,
 		"invalid truncate() result 06");
 
 	assert(chrono::simultaneous(
-			&truncate(d, unit::MINUTE),
+			&truncate(d, zflag::CONTIG, unit::MINUTE)!,
 			&new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 0, 0)!)!,
 		"invalid truncate() result 07");
 
 	assert(chrono::simultaneous(
-			&truncate(d, unit::SECOND),
+			&truncate(d, zflag::CONTIG, unit::SECOND)!,
 			&new(chrono::UTC, 0, 1994, 8, 27, 11, 20, 1, 0)!)!,
 		"invalid truncate() result 08");
 
 	assert(chrono::simultaneous(
-			&truncate(d, unit::NANOSECOND),
+			&truncate(d, zflag::CONTIG, unit::NANOSECOND)!,
 			&d)!,
 		"invalid truncate() result 09");
 };

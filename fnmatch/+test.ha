@@ -186,7 +186,11 @@ const testcases: [_]testcase = [
 
 @test fn fnmatch() void = {
 	for (let tc .. testcases) {
-		assert(fnmatch(tc.0, tc.1, tc.3...) == tc.2);
+		let flags = flag::NONE;
+		for (let fl .. tc.3) {
+			flags |= fl;
+		};
+		assert(fnmatch(tc.0, tc.1, flags) == tc.2);
 	};
 
 };

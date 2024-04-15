@@ -581,7 +581,40 @@ export fn setpgid(pid: pid_t, pgrp: pid_t) (void | errno) = {
 
 // futex
 // utimensat
+
+@symbol("utimensat") fn libc_utimensat(
+	fd: int,
+	path: *const u8,
+	times: *const [2]timespec,
+	flag: int
+) int;
+
+export fn utimensat(
+	dirfd: int,
+	path: str,
+	ts: *[2]timespec,
+	flags: int
+) (void | errno) = {
+	let res = libc_utimensat(dirfd, cpath(path)?, ts, flags);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // futimens
+
+@symbol("futimens") fn libc_futimens(
+	fd: int,
+	times: *const [2]timespec
+) int;
+
+export fn futimens(fd: int, ts: *[2]timespec) (void | errno) = {
+	let res = libc_futimens(fd, ts);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // kbind
 // clock_gettime
 
@@ -961,7 +994,34 @@ export fn kill(pid: int, signal: int) (void | errno) = {
 };
 
 // fchown
+
+@symbol("fchown") fn libc_fchown(
+	fd: int,
+	owner: uid_t,
+	group: gid_t
+) int;
+
+export fn fchown(fd: int, uid: uid_t, gid: gid_t) (void | errno) = {
+	let res = libc_fchown(fd, uid, gid);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // fchmod
+
+@symbol("fchmod") fn libc_fchmod(
+	fd: int,
+	mode: uint
+) int;
+
+export fn fchmod(fd: int, mode: uint) (void | errno) = {
+	let res = libc_fchmod(fd, mode);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // setreuid
 // setregid
 // rename
