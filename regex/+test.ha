@@ -581,9 +581,9 @@ fn run_rawreplace_case(
 		(`ab|cd`, "cd", matchres::MATCH, 0, 2),
 		(`ab|cd`, "abc", matchres::MATCH, 0, 2),
 		(`ab|cd`, "abcd", matchres::MATCH, 0, 2),
-		// TODO: multiple alternation
-		// (`a|b|c|d|e`, "e", matchres::MATCH, 0, -1),
-		// (`(a|b|c|d|e)f`, "ef", matchres::MATCH, 0, -1),
+		// multiple alternation
+		(`a|b|c|d|e`, "e", matchres::MATCH, 0, -1),
+		(`(a|b|c|d|e)f`, "ef", matchres::MATCH, 0, -1),
 		// TODO: nested capture groups
 		(`((a))`, "abc", matchres::ERROR, 0, -1),
 		// (`((a))`, "abc", matchres::MATCH, 0, -1),
