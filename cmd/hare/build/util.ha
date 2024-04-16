@@ -55,7 +55,7 @@ fn get_deps(ctx: *context, t: *task) []str = {
 	case stage::S =>
 		return alloc([get_cache(ctx, t.idx, stage::SSA)!]...);
 	case stage::O =>
-		let deps = strings::dupall(mod.srcs.s...);
+		let deps = strings::dupall(mod.srcs.s);
 		append(deps, get_cache(ctx, t.idx, stage::S)!);
 		return deps;
 	case stage::BIN =>

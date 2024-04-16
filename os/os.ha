@@ -125,7 +125,7 @@ export fn create(
 	path: str,
 	mode: fs::mode,
 	flags: fs::flag = fs::flag::WRONLY | fs::flag::TRUNC,
-) (io::file | fs::error) = fs::create_file(cwd, path, mode, flags...);
+) (io::file | fs::error) = fs::create_file(cwd, path, mode, flags);
 
 // Canonicalizes a path in this filesystem by resolving all symlinks and
 // collapsing any "." or ".." path components.
