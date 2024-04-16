@@ -136,7 +136,7 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 	};
 
 	if (name == "build" && len(cmd.args) > 1) {
-		getopt::printusage(os::stderr, name, cmd.help...)!;
+		getopt::printusage(os::stderr, name, cmd.help)!;
 		os::exit(os::status::FAILURE);
 	};
 
