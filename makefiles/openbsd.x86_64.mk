@@ -154,14 +154,16 @@ $(HARECACHE)/std/hare_unparse.ssa: $(hare_unparse_ha) $(HARECACHE)/std/fmt.td $(
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/hare_unparse.td.tmp -N hare::unparse $(hare_unparse_ha)
 
 time_chrono_ha = time/chrono/+openbsd.ha time/chrono/arithmetic.ha time/chrono/chronology.ha time/chrono/error.ha time/chrono/leapsec.ha time/chrono/timescale.ha time/chrono/timezone.ha time/chrono/tzdb.ha
-$(HARECACHE)/std/time_chrono.ssa: $(time_chrono_ha) $(HARECACHE)/std/bufio.td $(HARECACHE)/std/bytes.td $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)/std/endian.td $(HARECACHE)/std/fmt.td $(HARECACHE)/std/fs.td $(HARECACHE)/std/io.td $(HARECACHE)/std/os.td $(HARECACHE)/std/path.td $(HARECACHE)/std/sort.td $(HARECACHE)/std/strconv.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td
-	@mkdir -p -- "$(HARECACHE)/std"
-	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/time_chrono.td.tmp -N time::chrono $(time_chrono_ha)
+$(HARECACHE)/time_chrono.ssa: $(time_chrono_ha) $(HARECACHE)/bufio.td $(HARECACHE)/bytes.td $(HARECACHE)/encoding_utf8.td $(HARECACHE)/endian.td $(HARECACHE)/fmt.td $(HARECACHE)/fs.td $(HARECACHE)/io.td $(HARECACHE)/os.td $(HARECACHE)/path.td $(HARECACHE)/sort.td $(HARECACHE)/strconv.td $(HARECACHE)/strings.td $(HARECACHE)/time.td
+	@mkdir -p -- "$(HARECACHE)"
+	@printf 'HAREC\t%s\n' "$@"
+	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/time_chrono.td.tmp -N time::chrono $(time_chrono_ha)
 
 time_date_ha = time/date/constants.ha time/date/date.ha time/date/daydate.ha time/date/daytime.ha time/date/error.ha time/date/format.ha time/date/locality.ha time/date/observe.ha time/date/parithm.ha time/date/parse.ha time/date/period.ha time/date/reckon.ha time/date/tarithm.ha time/date/virtual.ha
-$(HARECACHE)/std/time_date.ssa: $(time_date_ha) $(HARECACHE)/std/ascii.td $(HARECACHE)/std/fmt.td $(HARECACHE)/std/io.td $(HARECACHE)/std/math.td $(HARECACHE)/std/memio.td $(HARECACHE)/std/sort.td $(HARECACHE)/std/strconv.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td $(HARECACHE)/std/time_chrono.td
-	@mkdir -p -- "$(HARECACHE)/std"
-	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/time_date.td.tmp -N time::date $(time_date_ha)
+$(HARECACHE)/time_date.ssa: $(time_date_ha) $(HARECACHE)/ascii.td $(HARECACHE)/fmt.td $(HARECACHE)/io.td $(HARECACHE)/math.td $(HARECACHE)/memio.td $(HARECACHE)/sort.td $(HARECACHE)/strconv.td $(HARECACHE)/strings.td $(HARECACHE)/time.td $(HARECACHE)/time_chrono.td
+	@mkdir -p -- "$(HARECACHE)"
+	@printf 'HAREC\t%s\n' "$@"
+	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/time_date.td.tmp -N time::date $(time_date_ha)
 
 hare_module_ha = hare/module/cache.ha hare/module/deps.ha hare/module/format.ha hare/module/srcs.ha hare/module/types.ha hare/module/util.ha
 $(HARECACHE)/std/hare_module.ssa: $(hare_module_ha) $(HARECACHE)/std/ascii.td $(HARECACHE)/std/bufio.td $(HARECACHE)/std/bytes.td $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)/std/fmt.td $(HARECACHE)/std/fs.td $(HARECACHE)/std/hare_ast.td $(HARECACHE)/std/hare_lex.td $(HARECACHE)/std/hare_parse.td $(HARECACHE)/std/hare_unparse.td $(HARECACHE)/std/io.td $(HARECACHE)/std/memio.td $(HARECACHE)/std/os.td $(HARECACHE)/std/path.td $(HARECACHE)/std/sort.td $(HARECACHE)/std/sort_cmp.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td $(HARECACHE)/std/time_chrono.td $(HARECACHE)/std/time_date.td
