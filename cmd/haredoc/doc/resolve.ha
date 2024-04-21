@@ -148,8 +148,9 @@ fn lookup_remote_enum(ctx: *context, what: ast::ident) (ast::ident | void | erro
 		free(decls);
 	};
 	for (let in .. srcs.ha) {
-		let u = scan(in)?;
-		append(decls, u.decls...);
+		let d = scan(in)?;
+		defer free(d);
+		append(decls, d...);
 	};
 
 	for (let decl .. decls) {
@@ -178,7 +179,7 @@ fn lookup_remote_enum(ctx: *context, what: ast::ident) (ast::ident | void | erro
 	};
 };
 
-export fn scan(path: str) (ast::subunit | error) = {
+export fn scan(path: str) ([]ast::decl | parse::error) = {
 	const input = match (os::open(path)) {
 	case let f: io::file =>
 		yield f;
@@ -189,5 +190,7 @@ export fn scan(path: str) (ast::subunit | error) = {
 	let sc = bufio::newscanner(input, types::SIZE_MAX);
 	defer bufio::finish(&sc);
 	let lexer = lex::init(&sc, path, lex::flag::COMMENTS);
-	return parse::subunit(&lexer)?;
+	let su = parse::subunit(&lexer)?;
+	ast::imports_finish(su.imports);
+	return su.decls;
 };

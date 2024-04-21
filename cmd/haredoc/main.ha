@@ -152,11 +152,28 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		free(decls);
 	};
 
+	let parse_errs: []lex::syntax = [];
+	defer free(parse_errs);
+
 	if (declpath != "") {
 		for (let ha .. declsrcs.ha) {
-			let u = doc::scan(ha)?;
-			ast::imports_finish(u.imports);
-			append(decls, u.decls...);
+			let d = match (doc::scan(ha)) {
+			case let d: []ast::decl =>
+				yield d;
+			case let err: parse::error =>
+				if (html) {
+					return err;
+				};
+				match (err) {
+				case let err: lex::syntax =>
+					append(parse_errs, err);
+					continue;
+				case =>
+					return err;
+				};
+			};
+			defer free(d);
+			append(decls, d...);
 		};
 
 		let matching: []ast::decl = [];
@@ -199,9 +216,23 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 
 	if (len(decls) == 0) {
 		for (let ha .. modsrcs.ha) {
-			let u = doc::scan(ha)?;
-			ast::imports_finish(u.imports);
-			append(decls, u.decls...);
+			let d = match (doc::scan(ha)) {
+			case let d: []ast::decl =>
+				yield d;
+			case let err: parse::error =>
+				if (html) {
+					return err;
+				};
+				match (err) {
+				case let err: lex::syntax =>
+					append(parse_errs, err);
+					continue;
+				case =>
+					return err;
+				};
+			};
+			defer free(d);
+			append(decls, d...);
 		};
 
 		const rpath = path::init(modpath, "README")!;
@@ -228,6 +259,7 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 		ident = id,
 		tags = tags,
 		ambiguous = ambiguous,
+		parse_errs = parse_errs,
 		srcs = srcs,
 		submods = submods,
 		summary = summary,
