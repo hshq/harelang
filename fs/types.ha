@@ -339,7 +339,7 @@ export type finishfunc = fn(iter: *iterator) void;
 // subtype this struct to store any necessary state and populate the pointers
 // with your implementation.
 export type iterator = struct {
-	// Returns the next member of the directory, or void if there are none
+	// Returns the next member of the directory, or done if there are none
 	// remaining.
 	next: *nextfunc,
 	// Frees resources associated with the iterator.
