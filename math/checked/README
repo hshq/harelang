@@ -1,2 +1,15 @@
 math::checked provides safe integer arithmetic functions that check for
 overflow.
+
+The functions add*, sub* and mul* perform wrapping integer arithmetic, with the
+same semantics as the +, -, and * operators.
+
+	const (res, overflow) = math::addi32(types::I32_MAX, 1);
+	assert(res == types::I32_MIN);
+	assert(overflow);
+
+The functions sat_* perform saturating integer arithmetic, which clamp the
+result value to the range of the type.
+
+	const res = math::sat_addi32(types::I32_MAX, 1);
+	assert(res == types::I32_MAX);
