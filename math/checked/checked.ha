@@ -274,7 +274,7 @@ export fn subu64(a: u64, b: u64) (u64, bool) = {
 
 // Multiplies 'a' and 'b' returning the result and whether overflow occurred.
 export fn muli8(a: i8, b: i8) (i8, bool) = {
-	const fullres = a: i16 * b: i16;
+	const fullres = a: int * b: int;
 	const res = fullres: i8;
 	const overflow = res != fullres;
 	return (res, overflow);
@@ -291,7 +291,7 @@ export fn muli8(a: i8, b: i8) (i8, bool) = {
 
 // Multiplies 'a' and 'b' returning the result and whether overflow occurred.
 export fn muli16(a: i16, b: i16) (i16, bool) = {
-	const fullres = a: i32 * b: i32;
+	const fullres = a: int * b: int;
 	const res = fullres: i16;
 	const overflow = res != fullres;
 	return (res, overflow);
@@ -342,7 +342,7 @@ export fn muli64(a: i64, b: i64) (i64, bool) = {
 
 // Multiplies 'a' and 'b' returning the result and whether overflow occurred.
 export fn mulu8(a: u8, b: u8) (u8, bool) = {
-	const fullres = a: u16 * b: u16;
+	const fullres = a: uint * b: uint;
 	const res = fullres: u8;
 	const overflow = res != fullres;
 	return (res, overflow);
@@ -359,7 +359,7 @@ export fn mulu8(a: u8, b: u8) (u8, bool) = {
 
 // Multiplies 'a' and 'b' returning the result and whether overflow occurred.
 export fn mulu16(a: u16, b: u16) (u16, bool) = {
-	const fullres = a: u32 * b: u32;
+	const fullres = a: uint * b: uint;
 	const res = fullres: u16;
 	const overflow = res != fullres;
 	return (res, overflow);
