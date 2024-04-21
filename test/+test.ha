@@ -128,11 +128,14 @@ export @symbol("__test_main") fn main() size = {
 	};
 	fmt::println()!;
 
+	if (len(ctx.skipped) > 0 && colored()) {
+		fmt::print("\x1b[37m")!;
+	};
 	for (let skipped .. ctx.skipped) {
 		fmt::printfln("Skipped {}: {}", skipped.test, skipped.reason)!;
 	};
 	if (len(ctx.skipped) > 0) {
-		fmt::println()!;
+		fmt::println(if (colored()) "\x1b[m" else "")!;
 	};
 
 	if (len(ctx.failures) > 0) {
