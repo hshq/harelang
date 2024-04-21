@@ -96,8 +96,8 @@ fn le30tobe8(dest: []u8, src: []u32) void = {
 	assert(bytes::equal(be8, be8result));
 };
 
-fn arsh(x: u32, n: u32) u32 = (*(&x: *i32) >> n: i32): u32;
-fn arshw(x: u64, n: u32) u64 = (*(&x: *i64) >> n: i32): u64;
+fn arsh(x: u32, n: u32) u32 = (x: i32 >> n: i32): u32;
+fn arshw(x: u64, n: u32) u64 = (x: i64 >> n: i32): u64;
 
 @test fn arsh() void = assert(arsh(0x80000000u32, 2) == 0xe0000000);
 
