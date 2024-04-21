@@ -7,5 +7,5 @@ use net;
 // available. This is a convenience wrapper around [[net::accept]].
 export fn accept(
 	sock: net::socket,
-	flags: net::sockflag,
+	flags: net::sockflag = 0,
 ) (net::socket | net::error) = net::accept(sock, flags);
