@@ -235,7 +235,7 @@ export fn compile(expr: str) (regex | error) = {
 		const next = strings::next(&iter);
 
 		if (r_idx == 0 && next is rune && next: rune != '^') {
-			append(insts, void: inst_skip);
+			append(insts, inst_skip);
 		};
 
 		if (in_bracket) {
@@ -284,14 +284,14 @@ export fn compile(expr: str) (regex | error) = {
 			if (n_groupstarts > 0) {
 				return `Nested capture groups are unsupported`: error;
 			};
-			append(insts, void: inst_groupstart);
+			append(insts, inst_groupstart);
 			n_groupstarts += 1;
 		case ')' =>
 			if (n_groupstarts == 0) {
 				return `Unmatched ')'`: error;
 			};
 			n_groupstarts -= 1;
-			append(insts, void: inst_groupend);
+			append(insts, inst_groupend);
 			for (let jump_idx .. jump_idxs) {
 				assert(insts[jump_idx] is inst_jump);
 				insts[jump_idx] = (len(insts) - 1): inst_jump;
@@ -394,7 +394,7 @@ export fn compile(expr: str) (regex | error) = {
 			};
 			append(insts, term_start_idx: inst_split);
 		case '.' =>
-			append(insts, void: inst_any);
+			append(insts, inst_any);
 		case =>
 			append(insts, r: inst_lit);
 		};
