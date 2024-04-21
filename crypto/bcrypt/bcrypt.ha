@@ -151,7 +151,7 @@ fn loadtok(tok: *bytes::tokenizer) (str | errors::invalid) = {
 		case =>
 			return errors::invalid;
 		};
-	case void =>
+	case done =>
 		return errors::invalid;
 	};
 };

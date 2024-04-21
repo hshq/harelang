@@ -38,10 +38,10 @@ export fn rtokenize(s: str, delim: str) tokenizer =
 // done if there are no tokens left.
 export fn next_token(s: *tokenizer) (str | done) = {
 	let s = s: *bytes::tokenizer;
-	return match (bytes::next_token(s)) {
+	match (bytes::next_token(s)) {
 	case let b: []u8 =>
-		yield fromutf8_unsafe(b);
-	case void => return done;
+		return fromutf8_unsafe(b);
+	case done => return done;
 	};
 };
 
@@ -51,7 +51,7 @@ export fn peek_token(s: *tokenizer) (str | done) = {
 	return match (bytes::peek_token(s)) {
 	case let b: []u8 =>
 		yield fromutf8_unsafe(b);
-	case void =>
+	case done =>
 		return done;
 	};
 };
