@@ -37,11 +37,6 @@ List of permanent trees
 List of project trees
 ---------------------
 
-OPENBSD
-T:	git ssh://anon@xha.li:/hare.git
-N:	ssh fingerprints on https://xha.li
-N:	see notes.md
-
 STAGING CRYPTO
 T:	git https://git.sr.ht/~apreiml/hare-tls
 L:	https://lists.sr.ht/~apreiml/hare-tls
