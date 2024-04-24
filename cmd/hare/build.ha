@@ -148,7 +148,7 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 		os::tryenv("AS", arch.as_cmd),
 		os::tryenv("LD", arch.ld_cmd),
 	];
-	if (len(ctx.libs) > 0 || ctx.platform.need_libc) {
+	if (!ctx.freestanding && (len(ctx.libs) > 0 || ctx.platform.need_libc)) {
 		ctx.libc = true;
 		merge_tags(&ctx.ctx.tags, "+libc")?;
 		ctx.cmds[build::stage::BIN] = os::tryenv("CC", arch.cc_cmd);
