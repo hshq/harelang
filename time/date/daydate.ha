@@ -70,6 +70,13 @@ fn calc_janfirstweekday(y: int) int = {
 	return wd;
 };
 
+// Calculates whether an ISO week-numbering year has
+// 53 weeks (long) or 52 weeks (short).
+fn islongisoyear(y: int) bool = {
+	const jan1 = calc_janfirstweekday(y);
+	return jan1 == THURSDAY || (isleapyear(y) && jan1 == WEDNESDAY);
+};
+
 // Calculates the era, given a year.
 fn calc_era(y: int) int = {
 	return if (y >= 0) {
@@ -168,23 +175,15 @@ fn calc_isoweekyear(y: int, m: int, d: int, wd: int) int = {
 };
 
 // Calculates the ISO week,
-// given a year, week, day-of-week, and day-of-year.
+// given a year, and week.
 fn calc_isoweek(y: int, w: int) int = {
-	switch (calc_janfirstweekday(y)) {
-	case MONDAY =>
-		return w;
-	case TUESDAY, WEDNESDAY, THURSDAY =>
-		return w + 1;
-	case FRIDAY =>
-		return if (w != 0) w else 53;
-	case SATURDAY =>
-		return if (w != 0) w else {
-			yield if (isleapyear(y - 1)) 53 else 52;
-		};
-	case SUNDAY =>
-		return if (w != 0) w else 52;
+	switch (w) {
+	case 0 =>
+		return if (islongisoyear(y - 1)) 53 else 52;
+	case 53 =>
+		return if (islongisoyear(y)) 53 else 1;
 	case =>
-		abort();
+		return w;
 	};
 };
 
@@ -192,7 +191,7 @@ fn calc_isoweek(y: int, w: int) int = {
 // given a day-of-year and day-of-week.
 // All days in a year before the year's first Monday belong to week 0.
 fn calc_week(yd: int, wd: int) int = {
-	return (yd + 6 - wd) / 7;
+	return (yd - wd + 9) / 7;
 };
 
 // Calculates the week within a Gregorian year [0..53],
@@ -449,20 +448,20 @@ fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 @test fn calc_week() void = {
 	const cases = [
 		((  1, 0),  1),
-		((  1, 1),  0),
-		((  1, 2),  0),
-		((  1, 3),  0),
+		((  1, 1),  1),
+		((  1, 2),  1),
+		((  1, 3),  1),
 		((  1, 4),  0),
 		((  1, 5),  0),
 		((  1, 6),  0),
-		(( 21, 1),  3),
-		(( 61, 2),  9),
-		((193, 4), 27),
-		((229, 0), 33),
-		((286, 3), 41),
-		((341, 6), 48),
-		((365, 5), 52),
-		((366, 0), 53),
+		(( 21, 1),  4),
+		(( 61, 6),  9),
+		((193, 5), 28),
+		((229, 6), 33),
+		((286, 0), 42),
+		((341, 6), 49),
+		((365, 2), 53),
+		((366, 3), 53),
 	];
 
 	for (let (params, expect) .. cases) {
