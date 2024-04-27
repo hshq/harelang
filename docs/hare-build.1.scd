@@ -33,8 +33,8 @@ working directory is built.
 	Print the help text.
 
 *-F*
-	Build for freestanding (non-hosted) environment. This allows a
-	declaration whose symbol is main to take on any form.
+	Build for freestanding (non-hosted) environment. See *FREESTANDING
+	ENVIRONMENT*.
 
 *-q*
 	Outside of errors, don't write anything to stdout while building.
@@ -99,6 +99,17 @@ from the host architecture. The following architectures are currently supported:
 The system usually provides reasonable defaults for the *AR*, *AS*, *LD*, and
 *CC* tools based on the desired target. However, you may wish to set these
 variables yourself to control the cross toolchain in use.
+
+# FREESTANDING ENVIRONMENT
+
+If run with *-F*, hare build will target a freestanding environment. This has
+the following effects:
+
+- No constraints are imposed on the signature of "main"
+- Specifying external libraries with *-l* will *not* automatically:
+	- Link with libc (add *-lc* manually if required)
+	- Add the +libc flag (add *-T+libc* manually if required)
+	- Use the C compiler for linking (use *LD=cc* if required)
 
 # ENVIRONMENT
 
