@@ -162,25 +162,24 @@ export fn format(
 	layout: str,
 	d: *date
 ) (size | io::error) = {
-	const iter = strings::iter(layout);
-	let escaped = false;
-	let n = 0z;
+	let iter = strings::iter(layout);
+	let z = 0z;
 	for (let r => strings::next(&iter)) {
-		if (escaped) {
-			escaped = false;
-			n += fmtout(h, r, d)?;
-		} else {
-			if (r == '%') {
-				escaped = true;
-			} else {
-				memio::appendrune(h, r)?;
+		if (r == '%') {
+			match (strings::next(&iter)) {
+			case let spec: rune =>
+				z += fmtspec(h, spec, d)?;
+			case done =>
+				abort("layout has dangling '%'");
 			};
+		} else {
+			z += memio::appendrune(h, r)?;
 		};
 	};
-	return n;
+	return z;
 };
 
-fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
+fn fmtspec(out: io::handle, r: rune, d: *date) (size | io::error) = {
 	switch (r) {
 	case 'a' =>
 		return fmt::fprint(out, WEEKDAYS_SHORT[_weekday(d)]);
@@ -197,7 +196,8 @@ fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 	case 'e' =>
 		return fmt::fprintf(out, "{: 2}", _day(d));
 	case 'F' =>
-		return fmt::fprintf(out, "{:.4}-{:.2}-{:.2}", _year(d), _month(d), _day(d));
+		return fmt::fprintf(out, "{:.4}-{:.2}-{:.2}",
+			_year(d), _month(d), _day(d));
 	case 'H' =>
 		return fmt::fprintf(out, "{:.2}", _hour(d));
 	case 'I' =>
@@ -215,11 +215,12 @@ fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 	case 'p' =>
 		return fmt::fprint(out, if (_hour(d) < 12) "AM" else "PM");
 	case 's' =>
-		return fmt::fprintf(out, "{:.2}", time::unix(*(d: *time::instant)));
+		return fmt::fprintf(out, "{:.2}", d.sec);
 	case 'S' =>
 		return fmt::fprintf(out, "{:.2}", _second(d));
 	case 'T' =>
-		return fmt::fprintf(out, "{:.2}:{:.2}:{:.2}", _hour(d), _minute(d), _second(d));
+		return fmt::fprintf(out, "{:.2}:{:.2}:{:.2}",
+			_hour(d), _minute(d), _second(d));
 	case 'u' =>
 		return fmt::fprintf(out, "{}", _weekday(d) + 1);
 	case 'U' =>
@@ -245,7 +246,7 @@ fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 	case '%' =>
 		return fmt::fprint(out, "%");
 	case =>
-		abort("Invalid format string provided to time::date::format");
+		abort("layout has unrecognised specifier");
 	};
 };
 
