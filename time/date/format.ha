@@ -40,6 +40,9 @@ export def STAMPZONE: str = "%Y-%m-%d %H:%M:%S.%N %z %Z";
 // zone offset, zone abbreviation, and locality.
 export def STAMPLOC: str = "%Y-%m-%d %H:%M:%S.%N %z %Z %L";
 
+// [[format]] layout for an ISO week-numbering timestamp.
+export def ISOWKSTAMP: str = "%G-W%V-%u %H:%M:%S";
+
 // [[format]] layout for a friendly, comprehensive, serializable datetime.
 export def JOURNAL: str = "%Y %b %d, %a %H:%M:%S %z %Z %L";
 
@@ -135,6 +138,8 @@ export fn asformat(layout: str, d: *date) (str | io::error) = {
 //        right-aligned, space-padded. (" 2").
 // - %F : The full Gregorian calendar date.
 //        Alias for "%Y-%m-%d". ("2000-01-02").
+// - %G : The ISO week-numbering year. At least 4 digits.
+//        ISO-years before the Common Era have a minus sign prefix. ("1999").
 // - %H : The hour of the day of a 24-hour clock. Range 00 to 23. ("15").
 // - %I : The hour of the day of a 12-hour clock. Range 01 to 12. ("03").
 // - %j : The ordinal day of the year. 3 digits, range 001 to 366. ("002").
@@ -152,6 +157,7 @@ export fn asformat(layout: str, d: *date) (str | io::error) = {
 // - %u : The day of the week. 1 digit, range 1 to 7, Monday to Sunday. ("7").
 // - %U : The sunday-week of the year. Range 00 to 53.
 //        The year's first Sunday is the first day of week 01. ("01").
+// - %V : The week of the ISO week-numbering year. Range 01 to 53. ("52").
 // - %w : The day of the sunday-week.
 //        1 digit, range 0 to 6, Sunday to Saturday. ("0").
 // - %W : The week of the year. Range 00 to 53.
@@ -202,6 +208,8 @@ fn fmtspec(out: io::handle, r: rune, d: *date) (size | io::error) = {
 	case 'F' =>
 		return fmt::fprintf(out, "{:.4}-{:.2}-{:.2}",
 			_year(d), _month(d), _day(d));
+	case 'G' =>
+		return fmt::fprintf(out, "{:.4}", _isoweekyear(d));
 	case 'H' =>
 		return fmt::fprintf(out, "{:.2}", _hour(d));
 	case 'I' =>
@@ -229,6 +237,8 @@ fn fmtspec(out: io::handle, r: rune, d: *date) (size | io::error) = {
 		return fmt::fprintf(out, "{}", _weekday(d) + 1);
 	case 'U' =>
 		return fmt::fprintf(out, "{:.2}", _sundayweek(d));
+	case 'V' =>
+		return fmt::fprintf(out, "{:.2}", _isoweek(d));
 	case 'w' =>
 		return fmt::fprintf(out, "{}", (_weekday(d) + 1) % 7);
 	case 'W' =>
