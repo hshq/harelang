@@ -121,42 +121,46 @@ export fn asformat(layout: str, d: *date) (str | io::error) = {
 // Formats a [[date]] according to a layout and writes to an [[io::handle]].
 //
 // The layout may contain any of the following format specifiers listed below.
-// Implemented are a subset of the POSIX strftime(3) format specifiers, as well
-// as some others. Use of unimplemented specifiers or an otherwise invalid
-// layout will cause an abort.
+// These specifiers emit 2 digit zero-padded decimals unless stated otherwise.
+// Use of unimplemented specifiers or an invalid layout will cause an abort.
 //
-// 	%% -- A literal '%' character.
-// 	%a -- The abbreviated name of the day of the week.
-// 	%A -- The full name of the day of the week.
-// 	%b -- The abbreviated name of the month.
-// 	%B -- The full name of the month.
-// 	%C -- The century digits (all but the last two digits of the year).
-// 	%d -- The day of the month (decimal, range 01 to 31).
-// 	%e -- The day of the month (decimal, range  1 to 31), left-padded space.
-// 	%F -- The full date, equivalent to %Y-%m-%d
-// 	%H -- The hour of the day as from a 24-hour clock (range 00 to 23).
-// 	%I -- The hour of the day as from a 12-hour clock (range 01 to 12).
-// 	%j -- The ordinal day of the year (range 001 to 366).
-// 	%L -- The locality's name (the timezone's identifier).
-// 	%m -- The month (decimal, range 01 to 12).
-// 	%M -- The minute (decimal, range 00 to 59).
-// 	%N -- The nanosecond of the second (range 000000000 to 999999999).
-// 	%p -- Either "AM" or "PM" according to the current time.
-// 	      "AM" includes midnight, and "PM" includes noon.
-// 	%s -- Number of seconds since 1970-01-01 00:00:00, the Unix epoch
-// 	%S -- The second of the minute (range 00 to 60).
-// 	%T -- The full time, equivalent to %H:%M:%S
-// 	%u -- The day of the week (decimal, range 1 to 7). 1 represents Monday.
-// 	%U -- The week number of the current year (range 00 to 53),
-// 	      starting with the first Sunday as the first day of week 01.
-// 	%w -- The day of the week (decimal, range 0 to 6). 0 represents Sunday.
-// 	%W -- The week number of the current year (range 00 to 53),
-// 	      starting with the first Monday as the first day of week 01.
-// 	%y -- The year without the century digits (range 00 to 99).
-// 	%Y -- The year.
-// 	%z -- The observed zone offset.
-// 	%Z -- The observed zone abbreviation.
-//
+// - %% : A single literal '%' character.
+// - %a : The day of the week, abbreviated name. ("Sun").
+// - %A : The day of the week, full name. ("Sunday").
+// - %b : The month, abbreviated name. ("Jan").
+// - %B : The month, full name. ("January").
+// - %C : The century (the year without the last 2 digits). ("20").
+// - %d : The day of the month. Range 01 to 31. ("02").
+// - %e : The day of the month. Range  1 to 31,
+//        right-aligned, space-padded. (" 2").
+// - %F : The full Gregorian calendar date.
+//        Alias for "%Y-%m-%d". ("2000-01-02").
+// - %H : The hour of the day of a 24-hour clock. Range 00 to 23. ("15").
+// - %I : The hour of the day of a 12-hour clock. Range 01 to 12. ("03").
+// - %j : The ordinal day of the year. 3 digits, range 001 to 366. ("002").
+// - %L : The locality's name (the timezone identifier). ("Europe/Amsterdam").
+// - %m : The month of the year. Range 01 to 12. ("01").
+// - %M : The minute of the hour. Range 00 to 59. ("04").
+// - %N : The nanosecond of the second. 9 digits,
+//        range 000000000 to 999999999. ("600000000").
+// - %p : The meridian indicator, either "AM" or "PM".
+//        "AM" includes midnight, and "PM" includes noon.
+// - %s : The number of seconds since the locality's epoch. ("946821845").
+// - %S : The second of the minute. Range 00 to 59. ("05").
+// - %T : The wall-time of a 24-hour clock without nanoseconds.
+//        Alias for "%H:%M:%S". ("15:04:05").
+// - %u : The day of the week. 1 digit, range 1 to 7, Monday to Sunday. ("7").
+// - %U : The sunday-week of the year. Range 00 to 53.
+//        The year's first Sunday is the first day of week 01. ("01").
+// - %w : The day of the sunday-week.
+//        1 digit, range 0 to 6, Sunday to Saturday. ("0").
+// - %W : The week of the year. Range 00 to 53.
+//        The year's first Monday is the first day of week 01. ("00").
+// - %y : The year's last 2 digits, no century digits. Range 00 to 99. ("00").
+// - %Y : The year. At least 4 digits.
+//        Years before the Common Era have a minus sign prefix. ("2000").
+// - %z : The observed zone offset. ("+0100").
+// - %Z : The observed zone abbreviation. ("CET").
 export fn format(
 	h: io::handle,
 	layout: str,
