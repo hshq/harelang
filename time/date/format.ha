@@ -118,6 +118,68 @@ export fn asformat(layout: str, d: *date) (str | io::error) = {
 	return memio::string(&sink)!;
 };
 
+// Formats a [[date]] according to a layout and writes to an [[io::handle]].
+//
+// The layout may contain any of the following format specifiers listed below.
+// Implemented are a subset of the POSIX strftime(3) format specifiers, as well
+// as some others. Use of unimplemented specifiers or an otherwise invalid
+// layout will cause an abort.
+//
+// 	%% -- A literal '%' character.
+// 	%a -- The abbreviated name of the day of the week.
+// 	%A -- The full name of the day of the week.
+// 	%b -- The abbreviated name of the month.
+// 	%B -- The full name of the month.
+// 	%C -- The century digits (all but the last two digits of the year).
+// 	%d -- The day of the month (decimal, range 01 to 31).
+// 	%e -- The day of the month (decimal, range  1 to 31), left-padded space.
+// 	%F -- The full date, equivalent to %Y-%m-%d
+// 	%H -- The hour of the day as from a 24-hour clock (range 00 to 23).
+// 	%I -- The hour of the day as from a 12-hour clock (range 01 to 12).
+// 	%j -- The ordinal day of the year (range 001 to 366).
+// 	%L -- The locality's name (the timezone's identifier).
+// 	%m -- The month (decimal, range 01 to 12).
+// 	%M -- The minute (decimal, range 00 to 59).
+// 	%N -- The nanosecond of the second (range 000000000 to 999999999).
+// 	%p -- Either "AM" or "PM" according to the current time.
+// 	      "AM" includes midnight, and "PM" includes noon.
+// 	%s -- Number of seconds since 1970-01-01 00:00:00, the Unix epoch
+// 	%S -- The second of the minute (range 00 to 60).
+// 	%T -- The full time, equivalent to %H:%M:%S
+// 	%u -- The day of the week (decimal, range 1 to 7). 1 represents Monday.
+// 	%U -- The week number of the current year (range 00 to 53),
+// 	      starting with the first Sunday as the first day of week 01.
+// 	%w -- The day of the week (decimal, range 0 to 6). 0 represents Sunday.
+// 	%W -- The week number of the current year (range 00 to 53),
+// 	      starting with the first Monday as the first day of week 01.
+// 	%y -- The year without the century digits (range 00 to 99).
+// 	%Y -- The year.
+// 	%z -- The observed zone offset.
+// 	%Z -- The observed zone abbreviation.
+//
+export fn format(
+	h: io::handle,
+	layout: str,
+	d: *date
+) (size | io::error) = {
+	const iter = strings::iter(layout);
+	let escaped = false;
+	let n = 0z;
+	for (let r => strings::next(&iter)) {
+		if (escaped) {
+			escaped = false;
+			n += fmtout(h, r, d)?;
+		} else {
+			if (r == '%') {
+				escaped = true;
+			} else {
+				memio::appendrune(h, r)?;
+			};
+		};
+	};
+	return n;
+};
+
 fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 	switch (r) {
 	case 'a' =>
@@ -185,68 +247,6 @@ fn fmtout(out: io::handle, r: rune, d: *date) (size | io::error) = {
 	case =>
 		abort("Invalid format string provided to time::date::format");
 	};
-};
-
-// Formats a [[date]] according to a layout and writes to an [[io::handle]].
-//
-// The layout may contain any of the following format specifiers listed below.
-// Implemented are a subset of the POSIX strftime(3) format specifiers, as well
-// as some others. Use of unimplemented specifiers or an otherwise invalid
-// layout will cause an abort.
-//
-// 	%% -- A literal '%' character.
-// 	%a -- The abbreviated name of the day of the week.
-// 	%A -- The full name of the day of the week.
-// 	%b -- The abbreviated name of the month.
-// 	%B -- The full name of the month.
-// 	%C -- The century digits (all but the last two digits of the year).
-// 	%d -- The day of the month (decimal, range 01 to 31).
-// 	%e -- The day of the month (decimal, range  1 to 31), left-padded space.
-// 	%F -- The full date, equivalent to %Y-%m-%d
-// 	%H -- The hour of the day as from a 24-hour clock (range 00 to 23).
-// 	%I -- The hour of the day as from a 12-hour clock (range 01 to 12).
-// 	%j -- The ordinal day of the year (range 001 to 366).
-// 	%L -- The locality's name (the timezone's identifier).
-// 	%m -- The month (decimal, range 01 to 12).
-// 	%M -- The minute (decimal, range 00 to 59).
-// 	%N -- The nanosecond of the second (range 000000000 to 999999999).
-// 	%p -- Either "AM" or "PM" according to the current time.
-// 	      "AM" includes midnight, and "PM" includes noon.
-// 	%s -- Number of seconds since 1970-01-01 00:00:00, the Unix epoch
-// 	%S -- The second of the minute (range 00 to 60).
-// 	%T -- The full time, equivalent to %H:%M:%S
-// 	%u -- The day of the week (decimal, range 1 to 7). 1 represents Monday.
-// 	%U -- The week number of the current year (range 00 to 53),
-// 	      starting with the first Sunday as the first day of week 01.
-// 	%w -- The day of the week (decimal, range 0 to 6). 0 represents Sunday.
-// 	%W -- The week number of the current year (range 00 to 53),
-// 	      starting with the first Monday as the first day of week 01.
-// 	%y -- The year without the century digits (range 00 to 99).
-// 	%Y -- The year.
-// 	%z -- The observed zone offset.
-// 	%Z -- The observed zone abbreviation.
-//
-export fn format(
-	h: io::handle,
-	layout: str,
-	d: *date
-) (size | io::error) = {
-	const iter = strings::iter(layout);
-	let escaped = false;
-	let n = 0z;
-	for (let r => strings::next(&iter)) {
-		if (escaped) {
-			escaped = false;
-			n += fmtout(h, r, d)?;
-		} else {
-			if (r == '%') {
-				escaped = true;
-			} else {
-				memio::appendrune(h, r)?;
-			};
-		};
-	};
-	return n;
 };
 
 @test fn format() void = {
