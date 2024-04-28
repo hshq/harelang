@@ -43,10 +43,10 @@ export def STAMPLOC: str = "%Y-%m-%d %H:%M:%S.%N %z %Z %L";
 // [[format]] layout for an ISO week-numbering timestamp.
 export def ISOWKSTAMP: str = "%G-W%V-%u %H:%M:%S";
 
-// [[format]] layout for a friendly, comprehensive, serializable datetime.
+// [[format]] layout for a friendly, comprehensive datetime.
 export def JOURNAL: str = "%Y %b %d, %a %H:%M:%S %z %Z %L";
 
-// [[format]] layout for a friendly, terse, glanceable datetime.
+// [[format]] layout for a friendly, terse datetime.
 export def WRIST: str = "%b-%d %a %H:%M %Z";
 
 // [[format]] layout for a precise timescalar second and nanosecond.
