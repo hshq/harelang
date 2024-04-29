@@ -37,7 +37,7 @@ export fn riter(src: str) iterator = {
 	return ret;
 };
 
-// Get the next rune from an iterator, or done if there are none left.
+// Gets the next rune from an iterator, or done if there are none left.
 //
 // Be aware that a rune is not the minimum lexographical unit of language in
 // Unicode strings. If you use these runes to construct a new string,
@@ -46,7 +46,7 @@ export fn riter(src: str) iterator = {
 // third-party Unicode module instead.
 export fn next(iter: *iterator) (rune | done) = move(!iter.reverse, iter);
 
-// Get the previous rune from an iterator, or done when at the start of the
+// Gets the previous rune from an iterator, or done when at the start of the
 // string.
 export fn prev(iter: *iterator) (rune | done) = move(iter.reverse, iter);
 
@@ -60,7 +60,7 @@ fn move(forward: bool, iter: *iterator) (rune | done) = {
 	};
 };
 
-// Return a substring from the next rune to the end of the string if initialized
+// Returns a substring from the next rune to the end of the string if initialized
 // with [[iter]], or the beginning of the string if initialized with [[riter]].
 export fn iterstr(iter: *iterator) str = {
 	if (iter.reverse) {
@@ -70,7 +70,7 @@ export fn iterstr(iter: *iterator) str = {
 	};
 };
 
-// Return a substring from the position of the first iterator to the position of
+// Returns a substring from the position of the first iterator to the position of
 // the second iterator. The iterators must originate from the same string and
 // the position of the second iterator must not be before the position of the
 // first one.
