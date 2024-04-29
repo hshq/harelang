@@ -28,7 +28,7 @@ export type scanner = struct {
 };
 
 // Creates a new [[scanner]] which will allocate and maintain a read buffer for
-// efficient reading of files. The scanner will read ahead only up to maxread
+// efficient reading of a handle. The scanner will read ahead only up to maxread
 // bytes, which defaults to [[types::SIZE_MAX]] if no limit is required. The
 // user must free resources associated with the scanner using [[finish]] after
 // use.
@@ -282,10 +282,10 @@ fn scan_unread(scan: *scanner, buf: []u8) void = {
 };
 
 // Reads a single byte from an [[io::handle]].
-export fn read_byte(file: io::handle) (u8 | io::EOF | io::error) = {
+export fn read_byte(h: io::handle) (u8 | io::EOF | io::error) = {
 	let buf: [1]u8 = [0...];
 
-	match (io::readall(file, buf)?) {
+	match (io::readall(h, buf)?) {
 	case size =>
 		return buf[0];
 	case io::EOF =>
@@ -294,12 +294,12 @@ export fn read_byte(file: io::handle) (u8 | io::EOF | io::error) = {
 };
 
 // Reads a slice of bytes until the delimiter. Delimiter is not included but
-// it is read from the file. The return value must be freed by the caller.
-export fn read_tok(file: io::handle, delim: u8...) ([]u8 | io::EOF | io::error) = {
+// it is read from the handle. The return value must be freed by the caller.
+export fn read_tok(h: io::handle, delim: u8...) ([]u8 | io::EOF | io::error) = {
 	let buf: []u8 = [];
 
 	for (true) {
-		match (read_byte(file)?) {
+		match (read_byte(h)?) {
 		case let res: u8 =>
 			if (bytes::contains(delim, res)) {
 				break;
@@ -317,17 +317,17 @@ export fn read_tok(file: io::handle, delim: u8...) ([]u8 | io::EOF | io::error) 
 };
 
 // Reads a slice of bytes until a newline character (\n, 0x0A). Newline itself
-// is not included but it is read from the file. The return value must be
+// is not included but it is read from the handle. The return value must be
 // freed by the caller.
-export fn read_line(file: io::handle) ([]u8 | io::EOF | io::error) =
-	read_tok(file, '\n');
+export fn read_line(h: io::handle) ([]u8 | io::EOF | io::error) =
+	read_tok(h, '\n');
 
 // Reads a rune from a UTF-8 stream.
 export fn read_rune(
-	file: io::handle,
+	h: io::handle,
 ) (rune | utf8::invalid | io::EOF | io::error) = {
 	let b: [4]u8 = [0...];
-	match (io::readall(file, b[..1])?) {
+	match (io::readall(h, b[..1])?) {
 	case let n: size => void;
 	case io::EOF =>
 		return io::EOF;
@@ -339,7 +339,7 @@ export fn read_rune(
 		return b[0]: rune;
 	};
 
-	match (io::readall(file, b[1..sz])) {
+	match (io::readall(h, b[1..sz])) {
 	case let n: size => void;
 	case io::EOF =>
 		return io::EOF;
