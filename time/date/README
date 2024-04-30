@@ -1,9 +1,10 @@
 The time::date module implements the common international Gregorian chronology,
-based on the astronomically numbered proleptic Gregorian calendar, as per ISO
-8601, and the common 24 hour clock. It provides [[date]], a representation of
-civil date/time and a optimized extension of the [[time::chrono::moment]] type.
-The [[time::chrono::]] module has many useful functions which interoperate with
-dates. Any [[time::chrono::]] function which accepts *moment also accepts *date.
+based on the astronomically numbered proleptic Gregorian calendar and the ISO
+week-numbering calendar, as per the ISO 8601 standard, and the common 24 hour
+clock. It provides [[date]], a representation of civil date/time and a optimized
+extension of the [[time::chrono::moment]] type. The [[time::chrono::]] module
+has many useful functions which interoperate with dates. Any [[time::chrono::]]
+function which accepts *moment also accepts *date.
 
 Dates are created using [[new]], [[now]], [[localnow]], or a "from_" function.
 Alternatively, the [[virtual]]/[[realize]] interface can handle uncertain or
