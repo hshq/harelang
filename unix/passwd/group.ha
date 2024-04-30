@@ -99,6 +99,50 @@ export fn getgroup(name: str) (grent | void) = {
 	};
 };
 
+// Looks up groups by user name in a Unix-like group file. It expects a such
+// file at /etc/group. Aborts if that file doesn't exist or is not properly
+// formatted.
+//
+// See [[nextgr]] for low-level parsing API.
+export fn getgroups(name: str) []grent = {
+	let file = match (os::open("/etc/group")) {
+	case let f: io::file =>
+		yield f;
+	case =>
+		abort("Unable to open /etc/group");
+	};
+	defer io::close(file)!;
+
+	let groups = []: []grent;
+
+	let rbuf: [os::BUFSZ]u8 = [0...];
+	let strm = bufio::init(file, rbuf, []);
+	for (true) {
+		let ent = match (nextgr(&strm)) {
+		case let e: grent =>
+			yield e;
+		case io::EOF =>
+			break;
+		case =>
+			abort("Invalid entry in /etc/group");
+		};
+
+		let matched = false;
+		for (let i = 0z; i < len(ent.userlist); i += 1) {
+			if (ent.userlist[i] == name) {
+				matched = true;
+				append(groups, ent);
+				break;
+			};
+		};
+		if (!matched) {
+			grent_finish(&ent);
+		};
+	};
+
+	return groups;
+};
+
 // Looks up a group by ID in a Unix-like group file. It expects a such file at
 // /etc/group. Aborts if that file doesn't exist or is not properly formatted.
 //
