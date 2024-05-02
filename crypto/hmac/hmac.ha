@@ -49,6 +49,8 @@ export fn hmac(h: *hash::hash, key: const []u8, buf: []u8) state = {
 
 fn init(h: *hash::hash, key: []u8, keypad: []u8) void = {
 	const bsz = hash::bsz(h);
+
+	keypad[..] = [0...];
 	if (len(key) > bsz) {
 		hash::write(h, key);
 		hash::sum(h, keypad);
