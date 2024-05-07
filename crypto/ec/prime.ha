@@ -697,12 +697,16 @@ const _p384: curve = curve {
 };
 
 // Size of a [[p384]] point in bytes.
-export def P384_POINTSZ = len(P384_G);
+export def P384_POINTSZ = 97;
 
 // Size of a [[p384]] scalar in bytes.
-export def P384_SCALARSZ = len(P384_N);
+export def P384_SCALARSZ = 48;
 
 // A [[curve]] implementation of P-384, also known as secp384r1;
+//
+// The point size is defined by [[P384_POINTSZ]] and the scalar size is defined
+// by [[P384_SCALARSZ]. See the documentation of [[curve]] on how to encode
+// such values.
 export const p384: *curve = &_p384;
 
 const P521_N: [_]u8 = [
@@ -759,10 +763,14 @@ const _p521: curve = curve {
 };
 
 // Size of a [[p521]] point in bytes.
-export def P521_POINTSZ = len(P521_G);
+export def P521_POINTSZ = 133;
 
 // Size of a [[p521]] scalar in bytes.
-export def P521_SCALARSZ = len(P521_N);
+export def P521_SCALARSZ = 66;
 
 // A [[curve]] implementation of P-521, also known as secp521r1;
+//
+// The point size is defined by [[P521_POINTSZ]] and the scalar size is defined
+// by [[P521_SCALARSZ]. See the documentation of [[curve]] on how to encode
+// such values.
 export const p521: *curve = &_p521;

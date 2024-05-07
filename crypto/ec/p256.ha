@@ -1242,10 +1242,14 @@ const _p256: curve = curve {
 };
 
 // Size of a [[p256]] point in bytes.
-export def P256_POINTSZ = len(P256_G);
+export def P256_POINTSZ = 65;
 
 // Size of a [[p256]] scalar in bytes.
-export def P256_SCALARSZ = len(P256_N);
+export def P256_SCALARSZ = 32;
 
 // A [[curve]] implementation of P-256, also known as secp256r1 or prime256v1.
+//
+// The point size is defined by [[P256_POINTSZ]] and the scalar size is defined
+// by [[P256_SCALARSZ]. See the documentation of [[curve]] on how to encode
+// such values.
 export const p256: *curve = &_p256;

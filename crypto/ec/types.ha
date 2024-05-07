@@ -14,14 +14,18 @@ export def MAX_SCALARSZ = P521_SCALARSZ;
 
 // Interface for common operations over a specific curve.
 //
-// The encoding of points depends on the curve. For the NIST curves
-// ([[p256]], [[p384]] and [[p521]] the point is required to be
-// uncompressed with a leading byte of value 0x04. The coordinates must be of
-// length 'pointsz' / 2, left padded by 0x0.
+// The encoding of points (e.g. public keys for dsa and dh) depends on the curve.
+// For the NIST curves ([[p256]], [[p384]] and [[p521]]) the point is required
+// to be stored according to the uncompressed format defined in RFC 8422 Chapter
+// 5.4.1. That means with a leading byte of value 0x04 that indicates the
+// format. Followed by the x and y coordinates, which must be of length
+// [[pointsz]] / 2, left padded by 0.
 //
-// Scalar values must be provided in big-endian encoding. They MUST be non zero
-// and less than the order, otherwise result values will be indeterminate and
-// an error code is not guaranteed.
+// Scalar values (e.g. private keys for dsa and dh) must be provided in
+// big-endian encoding and left-padded to fill the indicated space. They MUST be
+// non-zero and less than the curve order, otherwise result values will be
+// indeterminate and an error code is not guaranteed. The function [[scalarsz]]
+// will return the encoded scalar size of any curve implemented by this module.
 export type curve = struct {
 	// Size in bytes of an encoded point.
 	pointsz: size,
@@ -66,6 +70,12 @@ export type curve = struct {
 	// [[io::error]], if reading from 'rand' failed.
 	keygen: *fn (c: *curve, priv: []u8, rand: io::handle) (size | io::error),
 };
+
+// Returns the encoded size of any point of curve 'c'.
+export fn pointsz(c: *curve) size = c.pointsz;
+
+// Returns the encoded size of any scalar of curve 'c'.
+export fn scalarsz(c: *curve) size = len(c.order());
 
 // Invalid curve parameter.
 export type invalid = !void;
