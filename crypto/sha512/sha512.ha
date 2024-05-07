@@ -26,7 +26,10 @@ export def SZ256: size = 32;
 // The size, in bytes, of a SHA-384 checksum.
 export def SZ384: size = 48;
 
-def chunk: size = 128;
+// The internal block size.
+export def BLOCKSZ: size = 128;
+
+def chunk: size = BLOCKSZ;
 def init0: u64 = 0x6a09e667f3bcc908;
 def init1: u64 = 0xbb67ae8584caa73b;
 def init2: u64 = 0x3c6ef372fe94f82b;
