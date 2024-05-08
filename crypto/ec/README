@@ -1,4 +1,4 @@
-The crypto::ec module provides implementations for a selection of eliptic
+The crypto::ec module provides implementations for a selection of elliptic
 curves and their operations.
 
 This is a low-level module which implements cryptographic primitives. Direct use
