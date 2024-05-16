@@ -303,6 +303,39 @@ fn loc(line: uint, col: uint) location = location {
 	lextest(in, expected);
 };
 
+@test fn literals_underscores() void = {
+	const in = "1_0e5 -1_0i32 9_223_372_036_854_775_809 1_0e2z 2_55u8 0o4_2u16\n"
+		"0b100_0101u32 0xDE_AD_BE_EFu64 -0b1_0i8 -5_0e0i16 -0o1_6i32\n"
+		"0b0000_0010_0000_0110_0000_0111_0000_1111_0000_0010_0000_0110_0000_0111i64\n"
+		"1_3.3_7 1_3.3_7f32 1_3.3_7f64 6.0_2_2e23 1.6_1_6_2_5_5e-35f64 1_0e-1 0x0_1p-2";
+	const expected: [_]token = [
+		(ltok::LIT_ICONST, 10e5u64, loc(1, 1)),
+		(ltok::MINUS, void, loc(1, 7)),
+		(ltok::LIT_I32, 10u64, loc(1, 8)),
+		(ltok::LIT_ICONST, 9223372036854775809u64, loc(1, 15)),
+		(ltok::LIT_SIZE, 10e2u64, loc(1, 41)),
+		(ltok::LIT_U8, 255u64, loc(1, 48)),
+		(ltok::LIT_U16, 0o42u64, loc(1, 55)),
+		(ltok::LIT_U32, 0b1000101u64, loc(2, 1)),
+		(ltok::LIT_U64, 0xDEADBEEFu64, loc(2, 15)),
+		(ltok::MINUS, void, loc(2, 32)),
+		(ltok::LIT_I8, 0b10u64, loc(2, 33)),
+		(ltok::MINUS, void, loc(2, 41)),
+		(ltok::LIT_I16, 50e0u64, loc(2, 42)),
+		(ltok::MINUS, void, loc(2, 51)),
+		(ltok::LIT_I32, 0o16u64, loc(2, 52)),
+		(ltok::LIT_I64, 0b00000010000001100000011100001111000000100000011000000111u64, loc(3, 1)),
+		(ltok::LIT_FCONST, 13.37, loc(4, 1)),
+		(ltok::LIT_F32, 13.37, loc(4, 9)),
+		(ltok::LIT_F64, 13.37, loc(4, 20)),
+		(ltok::LIT_FCONST, 6.022e23, loc(4, 31)),
+		(ltok::LIT_F64, 1.616255e-35, loc(4, 42)),
+		(ltok::LIT_FCONST, 10e-1, loc(4, 63)),
+		(ltok::LIT_FCONST, 0x1p-2, loc(4, 70)),
+	];
+	lextest(in, expected);
+};
+
 @test fn invalid() void = {
 	// Using \x80 within a string literal will cause this to output an
 	// empty string
@@ -316,16 +349,49 @@ fn loc(line: uint, col: uint) location = location {
 	const s = lex(&lexer) as error as syntax;
 	assert(s.1 == "Source file is not valid UTF-8");
 
-	// Regression: invalid escape sequences such as "\^" used to casue a
-	// crash
-	let lexer = initstr(`"\^"`);
-	const s = lex(&lexer) as error as syntax;
-	assert(s.1 == "unknown escape sequence");
+	const invalid_tokens: [](str, str) = [
+		// Regression: invalid escape sequences such as "\^" used to
+		// cause a crash
+		(`"\^"`, "unknown escape sequence"),
 
-	// Regression: <X>e followed by another token used to cause a crash
-	let lexer = initstr("0e)");
-	const s = lex(&lexer) as error as syntax;
-	assert(s.1 == "expected exponent");
+		// Regression: <X>e followed by another token used to cause a
+		// crash
+		("0e)", "expected exponent"),
+
+		// Invalid digit separators
+		("1_", "Expected digit after separator"),
+		("100_", "Expected digit after separator"),
+		("1_000_", "Expected digit after separator"),
+		("1__0", "Expected digit after separator"),
+		("1__000_0", "Expected digit after separator"),
+		("1_000__0", "Expected digit after separator"),
+		("1___0", "Expected digit after separator"),
+		("2e_8", "Exponents may not contain separators"),
+		("2_e8", "Expected digit after separator"),
+		("2e8_", "Exponents may not contain separators"),
+		("3e1__1", "Exponents may not contain separators"),
+		("2e+_5", "Exponents may not contain separators"),
+		("2e_+5", "Exponents may not contain separators"),
+		("0x_FFFF", "Expected integer literal"),
+		("0b_1010", "Expected integer literal"),
+		("0b1111_0000_", "Expected digit after separator"),
+		("0o6__6", "Expected digit after separator"),
+		("0_b1010", "Expected digit after separator"),
+		("0_o77", "Expected digit after separator"),
+		("0_xFF", "Expected digit after separator"),
+		("2e1_6", "Exponents may not contain separators"),
+		("0x2p1_0", "Exponents may not contain separators"),
+		("2e-1_0", "Exponents may not contain separators"),
+		("100u3_2", "Suffixes may not contain separators"),
+		("100u32_", "Suffixes may not contain separators"),
+		("100u_32", "Suffixes may not contain separators"),
+		("100_u32", "Expected digit after separator"),
+	];
+	for (const invalid_token .. invalid_tokens) {
+		let lexer = initstr(invalid_token.0);
+		const s = lex(&lexer) as error as syntax;
+		assert(s.1 == invalid_token.1);
+	};
 };
 
 
