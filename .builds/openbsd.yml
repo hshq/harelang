@@ -39,10 +39,6 @@ tasks:
     cp configs/openbsd.mk config.mk
     make -j2
     doas make install
-# remove once openbsd-7.5 is out. leap-seconds.list was after 7.4
-- leapseconds: |
-    cd /usr/share/zoneinfo
-    doas ftp https://data.iana.org/time-zones/tzdb/leap-seconds.list
 - check: |
     cd hare
     make -j2 check
