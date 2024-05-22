@@ -26,8 +26,10 @@ export fn cmd(name: str, args: str...) (command | error) = {
 		yield match (open(name)) {
 		case let p: platform_cmd =>
 			yield p;
-		case let err: error=>
+		case let err: error =>
 			return err;
+		case =>
+			return nocmd;
 		};
 	} else {
 		yield match (lookup_open(name)?) {
