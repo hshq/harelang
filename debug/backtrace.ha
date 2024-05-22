@@ -104,7 +104,7 @@ fn printframe(
 	case let file: io::file =>
 		yield file;
 	};
-	defer io::close(file)!;
+	defer io::close(file): void;
 
 	static let linebuf: [1024]u8 = [0...];
 	const scan = bufio::newscanner_static(file, linebuf);
@@ -114,7 +114,7 @@ fn printframe(
 		match (bufio::scan_line(&scan)) {
 		case let s: const str =>
 			context = s;
-		case io::EOF =>
+		case =>
 			printframe_with_symbol(&sym, name, path, (line, col), pc);
 			return;
 		};

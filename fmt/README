@@ -20,12 +20,12 @@ modifier is repeated (or two conflicting modifiers are given, such as both "x"
 and "X") the one furthest to the right will be used.
 
 A format modifier can be any of the following:
-- A number N: Sets the width to N. If the value would otherwise be shorter than
+- a number N: Sets the width to N. If the value would otherwise be shorter than
   N runes, insert padding characters in order to make it N runes long. By
   default, the value is right-aligned, with padding inserted on the left side,
   and the padding character is " " (a space).
-- "-": Left-align the value, inserting padding characters inserted on the right
-  side of the value in order to meet the width requirement.
+- "-": Left-align the value, inserting padding characters on the right side of
+  the value in order to meet the width requirement.
 - "=": Center-align the value, inserting the same amount of padding on the left
   as on the right. If an odd number of padding characters need to be placed, the
   extra one will be on the left of the value.
@@ -51,8 +51,9 @@ A format modifier can be any of the following:
 - "F" followed by "2": Show at least two digits of the exponent.
 - "." followed by a number N: Sets the precision to N. Integers will be
   left-padded with "0"s between the sign and the number itself. Strings
-  will be truncated to N runes. Floats will only include up to N digits after
-  the decimal point.
+  will be truncated to N runes. Floats will include up to N digits, counted
+  as per [[strconv::ftosf]], including those before the decimal point in the
+  default case ("g"), excluding them when "f" or "e" are set.
 
 Some inline modifier examples:
 
@@ -62,6 +63,7 @@ Some inline modifier examples:
 	fmt::printf("{:-5}", 42);			// "42   "
 	fmt::printf("{:5}", 42);			// "   42"
 	fmt::printf("{:.5}", 42);			// "00042"
+	fmt::printf("{:.2f}", 42.87934);		// "42.88"
 
 A parametric format modifier is a secondary argument from the parameter list,
 which is a pointer to an instance of [[mods]]. This modifier parameter

@@ -211,9 +211,9 @@ export type fchmodfunc = fn(fd: io::file, mode: mode) (void | error);
 export type chownfunc = fn(fs: *fs, path: str, uid: uint, gid: uint) (void | error);
 export type fchownfunc = fn(fd: io::file, uid: uint, gid: uint) (void | error);
 export type chtimesfunc = fn(fs: *fs, path: str, atime: (time::instant | void),
-       mtime: (time::instant | void)) (void | error);
+	mtime: (time::instant | void)) (void | error);
 export type fchtimesfunc = fn(fd: io::file, atime: (time::instant | void),
-       mtime: (time::instant | void)) (void | error);
+	mtime: (time::instant | void)) (void | error);
 export type resolvefunc = fn(fs: *fs, path: str) str;
 export type readlinkfunc = fn(fs: *fs, path: str) (str | error);
 export type linkfunc = fn(fs: *fs, old: str, new: str) (void | error);

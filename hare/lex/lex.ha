@@ -447,90 +447,118 @@ fn lex_literal(lex: *lexer) (token | error) = {
 	let exp: (size | void) = void;
 	let end = 0z;
 	let float = false;
+	let last_rune_was_separator = false;
 	for (true) {
 		r = match (next(lex)?) {
 		case io::EOF =>
+			if (last_rune_was_separator) {
+				return syntaxerr(loc,
+					"Expected digit after separator");
+			};
 			break;
 		case let r: (rune, location) =>
 			yield r;
 		};
-		if (!strings::contains(basechrs, r.0)) switch (r.0) {
-		case '.' =>
-			if (!started) {
+		if (!strings::contains(basechrs, r.0)) {
+			if (last_rune_was_separator) {
 				return syntaxerr(loc,
-					"Expected integer literal");
+					"Expected digit after separator");
 			};
-			if (float || exp is size || suff is size
-					|| lex.require_int) {
-				unget(lex, r.0);
-				break;
-			} else {
-				r = match (next(lex)?) {
-				case io::EOF =>
-					break;
-				case let r: (rune, location) =>
-					yield r;
+			switch (r.0) {
+			case '.' =>
+				if (!started) {
+					return syntaxerr(loc,
+						"Expected integer literal");
 				};
-				if (!strings::contains(basechrs, r.0)) {
+				if (float || exp is size || suff is size
+						|| lex.require_int) {
 					unget(lex, r.0);
-					unget(lex, '.');
+					break;
+				} else {
+					r = match (next(lex)?) {
+					case io::EOF =>
+						break;
+					case let r: (rune, location) =>
+						yield r;
+					};
+					if (!strings::contains(basechrs, r.0)) {
+						unget(lex, r.0);
+						unget(lex, '.');
+						break;
+					};
+					unget(lex, r.0);
+					float = true;
+					append(chars, utf8::encoderune('.')...);
+				};
+			case 'e', 'E', 'p', 'P' =>
+				if (!started) {
+					return syntaxerr(loc,
+						"Expected integer literal");
+				};
+				if ((r.0 == 'e' || r.0 == 'E') !=
+						(base == strconv::base::DEC)) {
+					unget(lex, r.0);
 					break;
 				};
-				unget(lex, r.0);
-				float = true;
-				append(chars, utf8::encoderune('.')...);
-			};
-		case 'e', 'E', 'p', 'P' =>
-			if (!started) {
-				return syntaxerr(loc,
-					"Expected integer literal");
-			};
-			if ((r.0 == 'e' || r.0 == 'E') !=
-					(base == strconv::base::DEC)) {
-				unget(lex, r.0);
-				break;
-			};
-			if (exp is size || suff is size) {
-				unget(lex, r.0);
-				break;
-			} else {
-				if (end == 0) end = len(chars);
-				append(chars, utf8::encoderune(r.0)...);
-				exp = len(chars);
-				r = match (next(lex)?) {
-				case io::EOF =>
+				if (exp is size || suff is size) {
+					unget(lex, r.0);
 					break;
-				case let r: (rune, location) =>
-					yield r;
-				};
-				switch (r.0) {
-				case '+', '-' =>
+				} else {
+					if (end == 0) end = len(chars);
 					append(chars, utf8::encoderune(r.0)...);
-				case =>
-					unget(lex, r.0);
+					exp = len(chars);
+					r = match (next(lex)?) {
+					case io::EOF =>
+						break;
+					case let r: (rune, location) =>
+						yield r;
+					};
+					switch (r.0) {
+					case '+', '-' =>
+						append(chars, utf8::encoderune(r.0)...);
+					case =>
+						unget(lex, r.0);
+					};
+					basechrs = "0123456789";
 				};
-				basechrs = "0123456789";
-			};
-		case 'i', 'u', 'f', 'z' =>
-			if (!started) {
-				return syntaxerr(loc,
-					"Expected integer literal");
-			};
-			if (suff is size || r.0 != 'f' && float
-					|| r.0 == 'f'
-					&& base != strconv::base::DEC) {
+			case 'i', 'u', 'f', 'z' =>
+				if (!started) {
+					return syntaxerr(loc,
+						"Expected integer literal");
+				};
+				if (suff is size || r.0 != 'f' && float
+						|| r.0 == 'f'
+						&& base != strconv::base::DEC) {
+					unget(lex, r.0);
+					break;
+				} else {
+					suff = len(chars);
+					if (end == 0) end = len(chars);
+					append(chars, utf8::encoderune(r.0)...);
+					basechrs = "0123456789";
+				};
+			case '_' =>
+				if (!started) {
+					return syntaxerr(loc,
+						"Expected integer literal");
+				};
+				if (exp is size) {
+					return syntaxerr(loc,
+						"Exponents may not contain separators");
+				};
+				if (suff is size) {
+					return syntaxerr(loc,
+						"Suffixes may not contain separators");
+				};
+				last_rune_was_separator = true;
+			case =>
 				unget(lex, r.0);
 				break;
-			} else {
-				suff = len(chars);
-				if (end == 0) end = len(chars);
-				append(chars, utf8::encoderune(r.0)...);
-				basechrs = "0123456789";
 			};
-		case =>
-			unget(lex, r.0);
-			break;
-		} else append(chars, utf8::encoderune(r.0)...);
+		} else {
+			last_rune_was_separator = false;
+			append(chars, utf8::encoderune(r.0)...);
+		};
 		started = true;
 	};
 	if (!started) {

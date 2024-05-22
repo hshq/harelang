@@ -82,9 +82,9 @@ export fn chtimes(
 // Changes the access and modification time of an [[io::file]]. A void value
 // will leave the corresponding time unchanged.
 export fn fchtimes(
-        fd: io::file,
-        atime: (time::instant | void),
-        mtime: (time::instant | void)
+	fd: io::file,
+	atime: (time::instant | void),
+	mtime: (time::instant | void)
 ) (void | fs::error) = fs::fchtimes(cwd, fd, atime, mtime);
 
 // Resolves a path to its absolute, normalized value. Relative paths will be

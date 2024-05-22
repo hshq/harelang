@@ -6,6 +6,9 @@ use sort::cmp;
 // Compares two strings by their Unicode codepoint sort order. Zero is returned
 // if the strings are equal, a negative value if a is less than b, or a positive
 // value if a is greater than b.
+//
+// If you only want to check two strings for equality, then this function isn't
+// necessary; you can compare the strings directly with ==.
 export fn compare(a: str, b: str) int = {
 	return cmp::strs(&a, &b);
 };

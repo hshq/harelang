@@ -265,7 +265,7 @@ fn html_decl_ref(ctx: *context, ref: ast::ident) (void | error) = {
 	case symkind::SYMBOL =>
 		let ipath = strings::join("/", id[..len(id) - 1]...);
 		defer free(ipath);
-		fmt::fprintf(ctx.out, "<a href='/{}#{}' class='ref'>{}</a>",
+		fmt::fprintf(ctx.out, "<a href='/{}/{}' class='ref'>{}</a>",
 			ipath, id[len(id) - 1], ident)?;
 	case symkind::ENUM_LOCAL =>
 		fmt::fprintf(ctx.out, "<a href='#{}' class='ref'>{}</a>",
@@ -517,7 +517,7 @@ pre {
 }
 
 pre .keyword {
-    color: #008;
+	color: #008;
 }
 
 pre .type {

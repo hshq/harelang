@@ -25,7 +25,7 @@ fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {
 // Note that substringing runewise is not always the correct thing to do, and it
 // may cause unexpected linguistic errors to arise. You may want to use a
 // third-party Unicode module instead.
-export fn sub(s: str, start: size, end: (size | end)) str = {
+export fn sub(s: str, start: size, end: (size | end) = end) str = {
 	let iter = iter(s);
 	let starti = utf8_byte_len_bounded(&iter, start);
 	let endi = match (end) {
@@ -40,6 +40,7 @@ export fn sub(s: str, start: size, end: (size | end)) str = {
 };
 
 @test fn sub() void = {
+	assert(sub("a string", 2) == "string");
 	assert(sub("a string", 2, end) == "string");
 	assert(sub("a string", 0, 1) == "a");
 	assert(sub("a string", 0, 3) == "a s");

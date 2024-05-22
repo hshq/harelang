@@ -62,7 +62,7 @@ export type decoder = struct {
 };
 
 // Creates a new DER decoder that reads from 'src'. A buffered stream (see
-// [[bufio]]) is recommended for efficiency, as the decoder performs mostly
+// [[bufio::]]) is recommended for efficiency, as the decoder performs mostly
 // short reads.
 //
 // Each entry must be read in its entirety before the next one is attended to.

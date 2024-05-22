@@ -646,6 +646,7 @@ fn run_thread(
 		if (!matched) {
 			threads[i].failed = true;
 		};
+	case => abort(); // unreachable
 	};
 
 	threads[i].pc += 1;

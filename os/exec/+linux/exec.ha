@@ -69,7 +69,11 @@ fn open(path: str) (platform_cmd | error) = {
 	defer if (!success) rt::close(fd)!;
 	match (rt::faccessat(fd, "", rt::X_OK, rt::AT_EMPTY_PATH)) {
 	case let err: rt::errno =>
-		return errors::errno(err);
+		// not ideal, but better to do Something on old kernels rather
+		// than just breaking entirely
+		if (err != rt::ENOSYS) {
+			return errors::errno(err);
+		};
 	case let b: bool =>
 		if (!b) {
 			return errors::noaccess;

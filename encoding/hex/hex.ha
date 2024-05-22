@@ -193,14 +193,17 @@ export fn decodestr(s: str) ([]u8 | io::error) = {
 //
 // 	00000000  7f 45 4c 46 02 01 01 00  00 00 00 00 00 00 00 00  |.ELF............|
 // 	00000010  03 00 3e 00 01 00 00 00  80 70 01 00 00 00 00 00  |..>......p......|
-export fn dump(out: io::handle, data: []u8) (void | io::error) = {
-	let datalen = len(data): u32;
+//
+// If the addr parameter is provided, the address column will start from this
+// address (but the data slice will still be printed from index 0).
+export fn dump(out: io::handle, data: []u8, addr: u64 = 0) (void | io::error) = {
+	let datalen = len(data): u64;
 
-	for (let off = 0u32; off < datalen; off += 16) {
-		fmt::fprintf(out, "{:.8x}  ", off)?;
+	for (let off = 0u64; off < datalen; off += 16) {
+		fmt::fprintf(out, "{:.8x}  ", addr + off)?;
 
 		let toff = 0z;
-		for (let i = 0z; i < 16 && off + i < datalen; i += 1) {
+		for (let i = 0u64; i < 16 && off + i < datalen; i += 1) {
 			let val = data[off + i];
 			toff += fmt::fprintf(out, "{}{:.2x} ",
 				if (i == 8) " " else "", val)?;
@@ -213,7 +216,7 @@ export fn dump(out: io::handle, data: []u8) (void | io::error) = {
 		};
 
 		fmt::fprint(out, "|")?;
-		for (let i = 0z; i < 16 && off + i < datalen; i += 1) {
+		for (let i = 0u64; i < 16 && off + i < datalen; i += 1) {
 			let r = data[off + i]: rune;
 
 			fmt::fprint(out, if (ascii::isprint(r)) r else '.')?;

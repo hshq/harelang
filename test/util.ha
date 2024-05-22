@@ -15,6 +15,6 @@ export fn skip(reason: str) never = {
 // Check the $HARETEST_INCLUDE space-delimited environment variable for
 // keywords. If all the keywords are present, return void. Otherwise, skip the
 // currently running test.
-export fn require(keyword: str) void = {
+export fn require(keywords: str...) void = {
 	abort("Attempted to call test::require outside of @test function");
 };
