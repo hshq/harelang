@@ -372,12 +372,12 @@ fn fs_chtimes(fs: *fs::fs, path: str, atime: (time::instant | void),
 		instant_to_timespec(atime),
 		instant_to_timespec(mtime),
 	];
-        let fs = fs: *os_filesystem;
-        match (rt::utimensat(fs.dirfd, path, &utimes, 0)) {
-        case let err: rt::errno =>
-                return errno_to_fs(err);
-        case void => void;
-        };
+	let fs = fs: *os_filesystem;
+	match (rt::utimensat(fs.dirfd, path, &utimes, 0)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
+	};
 };
 
 fn fs_fchtimes(fd: io::file, atime: (time::instant | void),
@@ -386,11 +386,11 @@ fn fs_fchtimes(fd: io::file, atime: (time::instant | void),
 		instant_to_timespec(atime),
 		instant_to_timespec(mtime),
 	];
-        match (rt::futimens(fd, &utimes)) {
-        case let err: rt::errno =>
-                return errno_to_fs(err);
-        case void => void;
-        };
+	match (rt::futimens(fd, &utimes)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void => void;
+	};
 };
 
 fn fs_resolve(fs: *fs::fs, path: str) str = {

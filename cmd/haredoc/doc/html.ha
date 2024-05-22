@@ -517,7 +517,7 @@ pre {
 }
 
 pre .keyword {
-    color: #008;
+	color: #008;
 }
 
 pre .type {
