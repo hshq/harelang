@@ -1,0 +1,47 @@
+image: netbsd/latest
+sources:
+- https://git.sr.ht/~sircmpwn/hare
+- https://git.sr.ht/~sircmpwn/harec
+- git://c9x.me/qbe.git
+packages:
+- binutils
+- scdoc
+- git
+triggers:
+- action: email
+  condition: failure
+  to: "<~sircmpwn/hare-dev@lists.sr.ht>"
+tasks:
+- environment: |
+    cd hare
+    if [ "$BUILD_SUBMITTER" = "git.sr.ht" ]
+    then
+      if [ "$GIT_REF" != "refs/heads/master" ]
+      then
+          complete-build
+      fi
+      if [ "$(git remote get-url origin)" != "https://git.sr.ht/~sircmpwn/hare" ]
+      then
+        complete-build
+      fi
+    fi
+- ntp-leapseconds: |
+    ftp https://hpiers.obspm.fr/iers/bul/bulc/ntp/leap-seconds.list
+    doas mv leap-seconds.list /var/db/ntpd.leap-seconds.list
+- qbe: |
+    cd qbe
+    make -j2 PREFIX=/usr
+    doas make install PREFIX=/usr
+- harec: |
+    cd harec
+    cp configs/netbsd.mk config.mk
+    make -j2
+    doas make install
+- hare: |
+    cd hare
+    cp configs/netbsd.mk config.mk
+    make -j2
+    doas make install
+- check: |
+    cd hare
+    make -j2 check
