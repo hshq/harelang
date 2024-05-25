@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-fn u64tos(u: u64) (*[*]const u8, size) = {
-	static let buf: [20]u8 = [0...]; // len("18446744073709551615")
+def U64_BUFSZ = 20;
+
+fn u64tos(buf: []u8, u: u64) str = {
 	let sl = buf[..0];
 	if (u == 0) {
 		static append(sl, '0');
@@ -18,5 +19,5 @@ fn u64tos(u: u64) (*[*]const u8, size) = {
 		s += 1;
 		e -= 1;
 	};
-	return (sl: *[*]const u8, len(sl));
+	return *(&sl: *str);
 };
