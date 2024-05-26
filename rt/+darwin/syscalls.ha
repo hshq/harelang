@@ -589,8 +589,8 @@ export fn bind(sockfd: int, addr: *const sockaddr, addrlen: u32) (void | errno) 
 };
 
 export fn listen(sockfd: int, backlog: u32) (void | errno) = {
-	return wrap_return(syscall2(SYS_listen,
-		sockfd: u64, backlog: u64))?: int;
+	wrap_return(syscall2(SYS_listen,
+		sockfd: u64, backlog: u64))?;
 };
 
 export fn accept(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) (int | errno) = {
