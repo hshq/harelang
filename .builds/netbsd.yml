@@ -27,21 +27,21 @@ tasks:
     fi
 - ntp-leapseconds: |
     ftp https://hpiers.obspm.fr/iers/bul/bulc/ntp/leap-seconds.list
-    doas mv leap-seconds.list /var/db/ntpd.leap-seconds.list
+    sudo mv leap-seconds.list /usr/share/zoneinfo/leap-seconds.list
 - qbe: |
     cd qbe
     make -j2 PREFIX=/usr
-    doas make install PREFIX=/usr
+    sudo make install PREFIX=/usr
 - harec: |
     cd harec
     cp configs/netbsd.mk config.mk
     make -j2
-    doas make install
+    sudo make install
 - hare: |
     cd hare
     cp configs/netbsd.mk config.mk
     make -j2
-    doas make install
+    sudo make install
 - check: |
     cd hare
     make -j2 check
