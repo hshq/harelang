@@ -65,6 +65,10 @@ MATHEMATICAL LIBRARY
 M:	Bor Grošelj Simić <bgs@turminal.net>
 F:	math/
 
+NETBSD SUPPORT
+M:	Mallory Adams <malloryadams@fastmail.com>
+F:	*netbsd*
+
 OPENBSD SUPPORT
 M:	Lorenz (xha) <me@xha.li>
 F:	*openbsd*
