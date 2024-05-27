@@ -36,12 +36,12 @@ tasks:
     cd harec
     cp configs/netbsd.mk config.mk
     make -j2
-    sudo make install
+    sudo make install PREFIX=/usr
 - hare: |
     cd hare
     cp configs/netbsd.mk config.mk
     make -j2
-    sudo make install
+    sudo make install PREFIX=/usr
 - check: |
     cd hare
     make -j2 check
