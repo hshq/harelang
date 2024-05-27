@@ -617,6 +617,7 @@ export fn futimens(fd: int, ts: *[2]timespec) (void | errno) = {
 
 // kbind
 // clock_gettime
+// clock_settime
 
 @symbol("clock_gettime") fn libc_clock_gettime(clock: int, now: *timespec) int;
 
@@ -627,7 +628,15 @@ export fn clock_gettime(clock: int, now: *timespec) (void | errno) = {
 	};
 };
 
-// clock_settime
+@symbol("clock_settime") fn libc_clock_settime(clock: int, now: *const timespec) int;
+
+export fn clock_settime(clock: int, now: *const timespec) (void | errno) = {
+	let res = libc_clock_settime(clock, now);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+};
+
 // clock_getres
 // dup2
 

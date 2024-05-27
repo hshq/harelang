@@ -299,6 +299,11 @@ export fn clock_gettime(clock_id: int, tp: *timespec) (void | errno) = {
 		clock_id: u64, tp: uintptr: u64))?;
 };
 
+export fn clock_settime(clock_id: int, tp: *const timespec) (void | errno) = {
+	wrap_return(syscall2(SYS___clock_settime50,
+		clock_id: u64, tp: uintptr: u64))?;
+};
+
 export fn faccessat(
 	dirfd: int,
 	path: path,
