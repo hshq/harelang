@@ -55,28 +55,28 @@ export fn fchownat(dirfd: int, path: path, uid: uint, gid: uint, flags: int) (vo
 
 export fn fstatat(fd: int, path: path, _stat: *st, flag: int) (void | errno) = {
 	let path = kpath(path)?;
-	let fbstat = stat { ... };
+	let sb = stat { ... };
 	wrap_return(syscall4(SYS_fstatat, fd: u64,
-		path: uintptr: u64, &fbstat: uintptr: u64, flag: u64))?;
-	_stat.dev = fbstat.st_dev;
-	_stat.ino = fbstat.st_ino;
-	_stat.mode = fbstat.st_mode;
-	_stat.nlink = fbstat.st_nlink;
-	_stat.uid = fbstat.st_uid;
-	_stat.gid = fbstat.st_gid;
-	_stat.rdev = fbstat.st_rdev;
-	_stat.atime.tv_sec = fbstat.st_atim.tv_sec;
-	_stat.atime.tv_nsec = fbstat.st_atim.tv_nsec: i64;
-	_stat.mtime.tv_sec = fbstat.st_mtim.tv_sec;
-	_stat.mtime.tv_nsec = fbstat.st_mtim.tv_nsec: i64;
-	_stat.ctime.tv_sec = fbstat.st_ctim.tv_sec;
-	_stat.ctime.tv_nsec = fbstat.st_ctim.tv_nsec: i64;
-	_stat.btime.tv_sec = fbstat.st_birthtim.tv_sec;
-	_stat.btime.tv_nsec = fbstat.st_birthtim.tv_nsec: i64;
-	_stat.sz = fbstat.st_size;
-	_stat.blocks = fbstat.st_blocks;
-	_stat.blksz = fbstat.st_blksize;
-	_stat.flags = fbstat.st_flags;
+		path: uintptr: u64, &sb: uintptr: u64, flag: u64))?;
+	_stat.dev = sb.st_dev;
+	_stat.ino = sb.st_ino;
+	_stat.mode = sb.st_mode;
+	_stat.nlink = sb.st_nlink;
+	_stat.uid = sb.st_uid;
+	_stat.gid = sb.st_gid;
+	_stat.rdev = sb.st_rdev;
+	_stat.atime.tv_sec = sb.st_atim.tv_sec;
+	_stat.atime.tv_nsec = sb.st_atim.tv_nsec: i64;
+	_stat.mtime.tv_sec = sb.st_mtim.tv_sec;
+	_stat.mtime.tv_nsec = sb.st_mtim.tv_nsec: i64;
+	_stat.ctime.tv_sec = sb.st_ctim.tv_sec;
+	_stat.ctime.tv_nsec = sb.st_ctim.tv_nsec: i64;
+	_stat.btime.tv_sec = sb.st_birthtim.tv_sec;
+	_stat.btime.tv_nsec = sb.st_birthtim.tv_nsec: i64;
+	_stat.sz = sb.st_size;
+	_stat.blocks = sb.st_blocks;
+	_stat.blksz = sb.st_blksize;
+	_stat.flags = sb.st_flags;
 };
 
 export fn futimens(fd: int, ts: *[2]timespec) (void | errno) = {
@@ -85,7 +85,7 @@ export fn futimens(fd: int, ts: *[2]timespec) (void | errno) = {
 };
 
 export fn getdents(dirfd: int, buf: *opaque, nbytes: size) (size | errno) = {
-	return wrap_return(syscall3(SYS_compat_30_getdents, dirfd: u64,
+	return wrap_return(syscall3(SYS___getdents30, dirfd: u64,
 		buf: uintptr: u64, nbytes: u64))?: size;
 };
 
@@ -208,7 +208,7 @@ export fn wait4(
 	options: int,
 	rusage: nullable *rusage,
 ) (int | errno) = {
-	return wrap_return(syscall4(SYS_compat_50_wait4,
+	return wrap_return(syscall4(SYS___wait450,
 		pid: u64, wstatus: uintptr: u64,
 		options: u64, rusage: uintptr: u64))?: int;
 };
@@ -290,12 +290,17 @@ export fn ftruncate(fd: int, ln: off_t) (void | errno) = {
 };
 
 export fn nanosleep(req: *const timespec, rem: *timespec) (void | errno) = {
-	wrap_return(syscall2(SYS_compat_50_nanosleep,
+	wrap_return(syscall2(SYS___nanosleep50,
 		req: uintptr: u64, rem: uintptr: u64))?;
 };
 
 export fn clock_gettime(clock_id: int, tp: *timespec) (void | errno) = {
 	wrap_return(syscall2(SYS___clock_gettime50,
+		clock_id: u64, tp: uintptr: u64))?;
+};
+
+export fn clock_settime(clock_id: int, tp: *const timespec) (void | errno) = {
+	wrap_return(syscall2(SYS___clock_settime50,
 		clock_id: u64, tp: uintptr: u64))?;
 };
 
@@ -421,7 +426,7 @@ export fn sigaction(
 	act: *const sigact,
 	old: nullable *sigact,
 ) (int | errno) = {
-	return wrap_return(syscall3(SYS_compat_13_sigaction13,
+	return wrap_return(syscall3(SYS___sigaction_sigtramp,
 		signum: u64, act: uintptr: u64, old: uintptr: u64))?: int;
 };
 
@@ -430,7 +435,7 @@ export fn sigprocmask(
 	set: nullable *const sigset,
 	old: nullable *sigset,
 ) (int | errno) = {
-	return wrap_return(syscall3(SYS_compat_13_sigprocmask13,
+	return wrap_return(syscall3(SYS___sigprocmask14,
 		how: u64, set: uintptr: u64, old: uintptr: u64))?: int;
 };
 
@@ -445,28 +450,28 @@ export fn open(
 };
 
 export fn fstat(fd: int, _stat: *st) (void | errno) = {
-	let fbstat = stat43 { ... };
-	wrap_return(syscall2(SYS_compat_43_fstat43, fd: u64,
-		&fbstat: uintptr: u64))?;
-	_stat.dev = fbstat.st_dev;
-	_stat.ino = fbstat.st_ino;
-	_stat.mode = fbstat.st_mode;
-	_stat.nlink = fbstat.st_nlink;
-	_stat.uid = fbstat.st_uid;
-	_stat.gid = fbstat.st_gid;
-	_stat.rdev = fbstat.st_rdev;
-	_stat.atime.tv_sec = fbstat.st_atim.tv_sec;
-	_stat.atime.tv_nsec = fbstat.st_atim.tv_nsec: i64;
-	_stat.mtime.tv_sec = fbstat.st_mtim.tv_sec;
-	_stat.mtime.tv_nsec = fbstat.st_mtim.tv_nsec: i64;
-	_stat.ctime.tv_sec = fbstat.st_ctim.tv_sec;
-	_stat.ctime.tv_nsec = fbstat.st_ctim.tv_nsec: i64;
-	_stat.btime.tv_sec = fbstat.st_birthtim.tv_sec;
-	_stat.btime.tv_nsec = fbstat.st_birthtim.tv_nsec: i64;
-	_stat.sz = fbstat.st_size;
-	_stat.blocks = fbstat.st_blocks;
-	_stat.blksz = fbstat.st_blksize;
-	_stat.flags = fbstat.st_flags;
+	let sb = stat { ... };
+	wrap_return(syscall2(SYS___fstat50, fd: u64,
+		&sb: uintptr: u64))?;
+	_stat.dev = sb.st_dev;
+	_stat.ino = sb.st_ino;
+	_stat.mode = sb.st_mode;
+	_stat.nlink = sb.st_nlink;
+	_stat.uid = sb.st_uid;
+	_stat.gid = sb.st_gid;
+	_stat.rdev = sb.st_rdev;
+	_stat.atime.tv_sec = sb.st_atim.tv_sec;
+	_stat.atime.tv_nsec = sb.st_atim.tv_nsec: i64;
+	_stat.mtime.tv_sec = sb.st_mtim.tv_sec;
+	_stat.mtime.tv_nsec = sb.st_mtim.tv_nsec: i64;
+	_stat.ctime.tv_sec = sb.st_ctim.tv_sec;
+	_stat.ctime.tv_nsec = sb.st_ctim.tv_nsec: i64;
+	_stat.btime.tv_sec = sb.st_birthtim.tv_sec;
+	_stat.btime.tv_nsec = sb.st_birthtim.tv_nsec: i64;
+	_stat.sz = sb.st_size;
+	_stat.blocks = sb.st_blocks;
+	_stat.blksz = sb.st_blksize;
+	_stat.flags = sb.st_flags;
 };
 
 export fn fexecve(fd: int, argv: *[*]nullable *const u8,

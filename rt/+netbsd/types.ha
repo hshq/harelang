@@ -23,6 +23,9 @@ export type path = (str | []u8 | *const u8);
 // Maximum length of a file path including the NUL terminator.
 export def PATH_MAX = 1024z;
 
+// Max bytes in a file name
+export def NAME_MAX: int = 511;
+
 export def NGROUPS_MAX: size = 1023;
 export def NSIG: int = 32;
 
@@ -49,8 +52,8 @@ export type sigact = struct {
 		sa_handler: *fn (int) void,
 		sa_sigaction: *fn (int, *siginfo, *opaque) void,
 	},
-	sa_flags: int,
 	sa_mask: sigset,
+	sa_flags: int,
 };
 
 export def SIG_BLOCK: int = 1;
@@ -135,32 +138,12 @@ export type stat = struct {
 	st_spare: [2]u32,
 };
 
-export type stat43 = struct {
-	st_dev: u32,
-	st_ino: u32,
-	st_mode: mode_t,
-	st_nlink: u16,
-	st_uid: uid_t,
-	st_gid: gid_t,
-	st_rdev: u32,
-	st_atim: timespec,
-	st_mtim: timespec,
-	st_ctim: timespec,
-	st_size: off_t,
-	st_blocks: blkcnt_t,
-	st_blksize: blksize_t,
-	st_flags: fflags_t,
-	st_gen: u32,
-	st_lspare: u32,
-	st_birthtim: timespec,
-};
-
 export type dirent = struct {
-	d_fileno: u32,
-	d_reclen: u16,
-	d_type: u8,
-	d_namlen: u8,
-	d_name: [*]u8,
+	d_fileno: ino_t,	// file number of entry
+	d_reclen: u16,		// length of this record
+	d_namlen: u16,		// length of d_name
+	d_type: u8,		// file type, see below
+	d_name: [NAME_MAX + 1]u8,
 };
 
 export type iovec = struct {
@@ -291,22 +274,22 @@ export type ptmget = struct {
 };
 
 export type rusage = struct {
-	ru_utime: timeval,
-	ru_stime: timeval,
-	ru_maxrss: i64,
-	ru_ixrss: i64,
-	ru_idrss: i64,
-	ru_isrss: i64,
-	ru_minflt: i64,
-	ru_majflt: i64,
-	ru_nswap: i64,
-	ru_inblock: i64,
-	ru_oublock: i64,
-	ru_msgsnd: i64,
-	ru_msgrcv: i64,
-	ru_nsignals: i64,
-	ru_nvcsw: i64,
-	ru_nivcsw: i64,
+        ru_utime: timeval,	// user time used
+        ru_stime: timeval,	// system time used
+        ru_maxrss: i64,		// max resident set size
+        ru_ixrss: i64,		// integral shared memory size
+        ru_idrss: i64,		// integral unshared data "
+        ru_isrss: i64,		// integral unshared stack "
+        ru_minflt: i64,		// page reclaims
+        ru_majflt: i64,		// page faults
+        ru_nswap: i64,		// swaps
+        ru_inblock: i64,	// block input operations
+        ru_oublock: i64,	// block output operations
+        ru_msgsnd: i64,		// messages sent
+        ru_msgrcv: i64,		// messages received
+        ru_nsignals: i64,	// signals received
+        ru_nvcsw: i64,		// voluntary context switches
+        ru_nivcsw: i64,		// involuntary "
 };
 
 export def DT_UNKNOWN: u8 = 0;

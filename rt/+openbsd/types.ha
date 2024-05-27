@@ -25,6 +25,8 @@ export type nullpromise = void;
 // Maximum length of a file path including the NUL terminator.
 export def PATH_MAX: size = 1024;
 
+export def NAME_MAX: size = 255;
+
 export def PATH_PTMDEV: str = "/dev/ptm";
 export def PTMGET: u64 = 0x40287401;
 

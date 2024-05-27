@@ -108,7 +108,7 @@ $(HARECACHE)/std/types_c.ssa: $(types_c_ha) $(HARECACHE)/std/encoding_utf8.td $(
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/types_c.td.tmp -N types::c $(types_c_ha)
 
-os_ha = os/+darwin/dirfdfs.ha os/+darwin/exit.ha os/+darwin/fs.ha os/+darwin/platform_environ.ha os/+darwin/status.ha os/+darwin/stdfd.ha os/environ.ha os/os.ha
+os_ha = os/+darwin/dirfdfs.ha os/+darwin/exit.ha os/+darwin/fs.ha os/+darwin/platform_environ.ha os/+darwin/shm.ha os/+darwin/status.ha os/+darwin/stdfd.ha os/environ.ha os/os.ha
 $(HARECACHE)/std/os.ssa: $(os_ha) $(HARECACHE)/std/bufio.td $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)/std/errors.td $(HARECACHE)/std/fs.td $(HARECACHE)/std/io.td $(HARECACHE)/std/path.td $(HARECACHE)/std/rt.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td $(HARECACHE)/std/types_c.td
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/os.td.tmp -N os $(os_ha)

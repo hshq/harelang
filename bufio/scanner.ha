@@ -19,10 +19,10 @@ export type scanner = struct {
 	stream: io::stream,
 	src: io::handle,
 	buffer: []u8,
-	// Number of bytes available in buffer
-	pending: size,
-	// Number of bytes returned to the user
-	readout: size,
+	// Index of start of pending bytes in buffer
+	start: size,
+	// Sub-slice with pending bytes in buffer
+	pending: []u8,
 	// User-confirmed maximum size of read buffer
 	maxread: size,
 };
@@ -44,8 +44,8 @@ export fn newscanner(
 		src = src,
 		buffer = alloc([0...], BUFSZ),
 		maxread = maxread,
-		pending = 0,
-		readout = 0,
+		start = 0,
+		pending = [],
 	};
 };
 
@@ -59,13 +59,13 @@ export fn newscanner_static(src: io::handle, buffer: []u8) scanner = {
 		src = src,
 		buffer = buffer,
 		maxread = len(buffer),
-		pending = 0,
-		readout = 0,
+		start = 0,
+		pending = [],
 	};
 };
 
-// Frees resources associated associated with a [[scanner]]. Does not close the
-// underlying I/O handle.
+// Frees resources associated with a [[scanner]]. Does not close the underlying
+// I/O handle.
 export fn finish(scan: *scanner) void = {
 	free(scan.buffer);
 };
@@ -73,10 +73,7 @@ export fn finish(scan: *scanner) void = {
 fn scan_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	let scan = s: *scanner;
 
-	// Consume previous read, if any
-	scan_shift(scan);
-
-	if (scan.pending == 0) {
+	if (len(scan.pending) == 0) {
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
 			return io::EOF;
@@ -84,7 +81,7 @@ fn scan_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 		};
 	};
 
-	const n = if (len(buf) > scan.pending) scan.pending else len(buf);
+	const n = if (len(buf) > len(scan.pending)) len(scan.pending) else len(buf);
 	buf[..n] = scan_consume(scan, n)[..];
 	return n;
 };
@@ -95,52 +92,49 @@ fn scan_read(s: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 // is updated accordingly. Returns the number of bytes which had been available
 // prior to the call.
 fn scan_readahead(scan: *scanner) (size | io::EOF | io::error) = {
-	if (scan.pending >= len(scan.buffer)) {
-		let readahead = scan.pending + BUFSZ;
-		if (readahead > scan.maxread) {
-			readahead = scan.maxread;
+	let start = scan.start;
+	const pending = len(scan.pending);
+
+	if (start + pending == len(scan.buffer)) {
+		if (start > 0) {
+			// Shift buffer to the left to free space at the end
+			scan.buffer[..len(scan.buffer) - start] = scan.buffer[start..];
+			scan.pending = scan.buffer[..pending];
+			start = 0;
+			scan.start = 0;
+		} else {
+			// Buffer is full, expand it
+			let readahead = pending + BUFSZ;
+			if (readahead > scan.maxread) {
+				readahead = scan.maxread;
+			};
+			if (pending >= readahead) {
+				return errors::overflow;
+			};
+			append(scan.buffer, [0...], readahead);
 		};
-		if (scan.pending >= readahead) {
-			return errors::overflow;
-		};
-		append(scan.buffer, [0...], readahead);
 	};
 
-	const prev = scan.pending;
-	match (io::read(scan.src, scan.buffer[scan.pending..])?) {
+	match (io::read(scan.src, scan.buffer[start + pending..])?) {
 	case let z: size =>
-		scan.pending += z;
-		return prev;
+		scan.pending = scan.buffer[start..start + pending + z];
+		return pending;
 	case io::EOF =>
 		return io::EOF;
 	};
 };
 
-// Shifts the buffer towards the start, discarding bytes which were read out.
-fn scan_shift(scan: *scanner) void = {
-	const n = scan.readout;
-	if (n == 0) {
-		return;
-	};
-	scan.buffer[..len(scan.buffer) - n] = scan.buffer[n..];
-	scan.readout = 0;
-	scan.pending -= n;
-};
-
-// Consumes N bytes from the buffer, updating scan.readout. User must call
-// [[scan_shift]] before calling scan_consume again.
+// Consumes N bytes from the buffer.
 fn scan_consume(scan: *scanner, n: size) []u8 = {
-	assert(len(scan.buffer) >= n && scan.readout == 0);
-	scan.readout = n;
-	return scan.buffer[..n];
+	assert(len(scan.pending) >= n);
+	scan.start += n;
+	defer scan.pending = scan.pending[n..];
+	return scan.pending[..n];
 };
 
 // Reads one byte from a [[scanner]].
 export fn scan_byte(scan: *scanner) (u8 | io::EOF | io::error) = {
-	// Consume previous read, if any
-	scan_shift(scan);
-
-	if (scan.pending == 0) {
+	if (len(scan.pending) == 0) {
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
 			return io::EOF;
@@ -159,26 +153,24 @@ export fn scan_bytes(
 	scan: *scanner,
 	delim: (u8 | []u8),
 ) ([]u8 | io::EOF | io::error) = {
-	scan_shift(scan);
-
-	let i = 0z, nread = 0z;
+	let i = 0z;
 	for (true) {
-		match (bytes::index(scan.buffer[nread..scan.pending], delim)) {
+		match (bytes::index(scan.pending[i..], delim)) {
 		case let ix: size =>
-			i = ix;
+			i += ix;
 			break;
 		case void => void;
 		};
 
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
-			if (scan.pending == 0) {
+			if (len(scan.pending) == 0) {
 				return io::EOF;
 			};
-			return scan_consume(scan, scan.pending);
+			return scan_consume(scan, len(scan.pending));
 		case let prevpending: size =>
 			// No need to re-index the earlier part of the buffer
-			nread = prevpending;
+			i = prevpending;
 		};
 	};
 
@@ -188,36 +180,27 @@ export fn scan_bytes(
 	case let u: []u8 =>
 		yield len(u);
 	};
-	const nuser = nread + i, nconsume = nuser + ndelim;
-	return scan_consume(scan, nconsume)[..nuser];
+	const nconsume = i + ndelim;
+	return scan_consume(scan, nconsume)[..i];
 };
 
 // Reads one rune from a [[scanner]].
 export fn scan_rune(
 	scan: *scanner,
 ) (rune | io::EOF | io::error | utf8::invalid) = {
-	// Consume previous read, if any
-	scan_shift(scan);
-
-	if (scan.pending == 0) {
+	if (len(scan.pending) < 4) {
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
-			if (scan.pending == 0) {
+			if (len(scan.pending) == 0) {
 				return io::EOF;
 			};
 		case size => void;
 		};
 	};
-	const sz = utf8::utf8sz(scan.buffer[0])?;
-
-	for (scan.pending < sz) {
-		match (scan_readahead(scan)?) {
-		case io::EOF =>
-			return utf8::invalid;
-		case size => void;
-		};
+	const sz = utf8::utf8sz(scan.pending[0])?;
+	if (len(scan.pending) < sz) {
+		return utf8::invalid;
 	};
-
 	const buf = scan_consume(scan, sz);
 	const dec = utf8::decode(buf[..sz]);
 	match (utf8::next(&dec)?) {
@@ -259,25 +242,27 @@ export fn scan_line(
 // Returns the internal scanner buffer, which contains all bytes read ahead by
 // the scanner up to this point.
 export fn scan_buffer(scan: *scanner) []u8 = {
-	scan_shift(scan);
-	return scan.buffer[..scan.pending];
+	return scan.pending[..];
 };
 
 fn scan_unread(scan: *scanner, buf: []u8) void = {
 	if (len(buf) == 0) {
 		return;
 	};
-	if (len(buf) <= scan.readout) {
-		scan.buffer[scan.readout - len(buf)..scan.readout] = buf;
-		scan.readout -= len(buf);
+	if (len(buf) <= scan.start) {
+		const pending_end = scan.start + len(scan.pending);
+		scan.buffer[scan.start - len(buf)..scan.start] = buf;
+		scan.start -= len(buf);
+		scan.pending = scan.buffer[scan.start..pending_end];
 	} else {
-		const n = len(buf) - scan.readout;
-		assert(n < scan.maxread - scan.pending,
+		assert(len(buf) <= len(scan.buffer) - len(scan.pending),
 			"Attempted to unread more data than buffer has available");
-		scan.buffer[n..] = scan.buffer[..len(scan.buffer) - n];
-		scan.pending += n;
+		// Shift buffer to the right to free space at the beginning
+		scan.buffer[len(buf)..len(buf) + len(scan.pending)] =
+			scan.buffer[scan.start..scan.start + len(scan.pending)];
 		scan.buffer[..len(buf)] = buf;
-		scan.readout = 0;
+		scan.pending = scan.buffer[..len(scan.pending) + len(buf)];
+		scan.start = 0;
 	};
 };
 

@@ -128,11 +128,14 @@ export @symbol("__test_main") fn main() size = {
 	};
 	fmt::println()!;
 
+	if (len(ctx.skipped) > 0 && colored()) {
+		fmt::print("\x1b[37m")!;
+	};
 	for (let skipped .. ctx.skipped) {
 		fmt::printfln("Skipped {}: {}", skipped.test, skipped.reason)!;
 	};
 	if (len(ctx.skipped) > 0) {
-		fmt::println()!;
+		fmt::println(if (colored()) "\x1b[m" else "")!;
 	};
 
 	if (len(ctx.failures) > 0) {
@@ -200,7 +203,8 @@ fn reset(ctx: *context) void = {
 };
 
 fn do_test(ctx: *context, test: test) void = {
-	signal::handle(signal::sig::SEGV, &handle_segv, signal::flag::NODEFER);
+	signal::handle(signal::sig::SEGV, &handle_segv,
+		signal::flag::NODEFER, signal::flag::ONSTACK);
 	memio::reset(&ctx.stdout);
 	memio::reset(&ctx.stderr);
 

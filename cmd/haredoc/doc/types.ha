@@ -51,6 +51,7 @@ export type context = struct {
 	ident: ast::ident,
 	tags: []str,
 	ambiguous: bool,
+	parse_errs: []lex::syntax,
 	srcs: module::srcset,
 	submods: []str,
 	summary: summary,

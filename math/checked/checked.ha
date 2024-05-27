@@ -2,6 +2,7 @@
 // (c) Hare authors <https://harelang.org>
 
 use math;
+use types;
 
 // Adds 'a' and 'b', returning the result and whether overflow occurred.
 export fn addi8(a: i8, b: i8) (i8, bool) = {
@@ -132,7 +133,11 @@ export fn addu64(a: u64, b: u64) (u64, bool) = {
 };
 
 // Subtracts 'b' from 'a', returning the result and whether overflow occurred.
-export fn subi8(a: i8, b: i8) (i8, bool) = addi8(a, -b);
+export fn subi8(a: i8, b: i8) (i8, bool) = {
+	const res = a - b;
+	const overflow = a < 0 != b < 0 && a < 0 != res < 0;
+	return (res, overflow);
+};
 
 @test fn subi8() void = {
 	const (res, overflow) = subi8(-100, 20);
@@ -141,10 +146,17 @@ export fn subi8(a: i8, b: i8) (i8, bool) = addi8(a, -b);
 	const (res, overflow) = subi8(-100, 50);
 	assert(res == 106);
 	assert(overflow);
+	const (res, overflow) = subi8(types::I8_MAX, types::I8_MIN);
+	assert(res == -1);
+	assert(overflow);
 };
 
 // Subtracts 'b' from 'a', returning the result and whether overflow occurred.
-export fn subi16(a: i16, b: i16) (i16, bool) = addi16(a, -b);
+export fn subi16(a: i16, b: i16) (i16, bool) = {
+	const res = a - b;
+	const overflow = a < 0 != b < 0 && a < 0 != res < 0;
+	return (res, overflow);
+};
 
 @test fn subi16() void = {
 	const (res, overflow) = subi16(-32700, 60);
@@ -153,10 +165,17 @@ export fn subi16(a: i16, b: i16) (i16, bool) = addi16(a, -b);
 	const (res, overflow) = subi16(-32700, 100);
 	assert(res == 32736);
 	assert(overflow);
+	const (res, overflow) = subi16(types::I16_MAX, types::I16_MIN);
+	assert(res == -1);
+	assert(overflow);
 };
 
 // Subtracts 'b' from 'a', returning the result and whether overflow occurred.
-export fn subi32(a: i32, b: i32) (i32, bool) = addi32(a, -b);
+export fn subi32(a: i32, b: i32) (i32, bool) = {
+	const res = a - b;
+	const overflow = a < 0 != b < 0 && a < 0 != res < 0;
+	return (res, overflow);
+};
 
 @test fn subi32() void = {
 	const (res, overflow) = subi32(-2147483600, 40);
@@ -165,10 +184,17 @@ export fn subi32(a: i32, b: i32) (i32, bool) = addi32(a, -b);
 	const (res, overflow) = subi32(-2147483600, 100);
 	assert(res == 2147483596);
 	assert(overflow);
+	const (res, overflow) = subi32(types::I32_MAX, types::I32_MIN);
+	assert(res == -1);
+	assert(overflow);
 };
 
 // Subtracts 'b' from 'a', returning the result and whether overflow occurred.
-export fn subi64(a: i64, b: i64) (i64, bool) = addi64(a, -b);
+export fn subi64(a: i64, b: i64) (i64, bool) = {
+	const res = a - b;
+	const overflow = a < 0 != b < 0 && a < 0 != res < 0;
+	return (res, overflow);
+};
 
 @test fn subi64() void = {
 	const (res, overflow) = subi64(-9223372036854775800, 5);
@@ -176,6 +202,9 @@ export fn subi64(a: i64, b: i64) (i64, bool) = addi64(a, -b);
 	assert(!overflow);
 	const (res, overflow) = subi64(-9223372036854775800, 10);
 	assert(res == 9223372036854775806);
+	assert(overflow);
+	const (res, overflow) = subi64(types::I64_MAX, types::I64_MIN);
+	assert(res == -1);
 	assert(overflow);
 };
 
@@ -245,7 +274,7 @@ export fn subu64(a: u64, b: u64) (u64, bool) = {
 
 // Multiplies 'a' and 'b' returning the result and whether overflow occurred.
 export fn muli8(a: i8, b: i8) (i8, bool) = {
-	const fullres = a: i16 * b: i16;
+	const fullres = a: int * b: int;
 	const res = fullres: i8;
 	const overflow = res != fullres;
 	return (res, overflow);
@@ -262,7 +291,7 @@ export fn muli8(a: i8, b: i8) (i8, bool) = {
 
 // Multiplies 'a' and 'b' returning the result and whether overflow occurred.
 export fn muli16(a: i16, b: i16) (i16, bool) = {
-	const fullres = a: i32 * b: i32;
+	const fullres = a: int * b: int;
 	const res = fullres: i16;
 	const overflow = res != fullres;
 	return (res, overflow);
@@ -313,7 +342,7 @@ export fn muli64(a: i64, b: i64) (i64, bool) = {
 
 // Multiplies 'a' and 'b' returning the result and whether overflow occurred.
 export fn mulu8(a: u8, b: u8) (u8, bool) = {
-	const fullres = a: u16 * b: u16;
+	const fullres = a: uint * b: uint;
 	const res = fullres: u8;
 	const overflow = res != fullres;
 	return (res, overflow);
@@ -330,7 +359,7 @@ export fn mulu8(a: u8, b: u8) (u8, bool) = {
 
 // Multiplies 'a' and 'b' returning the result and whether overflow occurred.
 export fn mulu16(a: u16, b: u16) (u16, bool) = {
-	const fullres = a: u32 * b: u32;
+	const fullres = a: uint * b: uint;
 	const res = fullres: u16;
 	const overflow = res != fullres;
 	return (res, overflow);

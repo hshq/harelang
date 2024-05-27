@@ -488,3 +488,13 @@ export def RLIMIT_UMTXP: int		= 14;
 export def SHUT_RD: int = 0;
 export def SHUT_WR: int = 1;
 export def SHUT_RDWR: int = 2;
+
+export let SHM_ANON: *const u8 = 1: uintptr: *const u8;
+
+export def SHM_ALLOW_SEALING: int = 0x00000001;
+export def SHM_GROW_ON_WRITE: int = 0x00000002;
+export def SHM_LARGEPAGE: int = 0x00000004;
+
+export def SHM_LARGEPAGE_ALLOC_DEFAULT: int = 0;
+export def SHM_LARGEPAGE_ALLOC_NOWAIT: int = 1;
+export def SHM_LARGEPAGE_ALLOC_HARD: int = 2;

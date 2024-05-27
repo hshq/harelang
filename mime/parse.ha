@@ -30,9 +30,9 @@ export fn parse(in: str) ((str, type_params) | errors::invalid) = {
 };
 
 // Returns the next parameter as a (key, value) tuple from a [[type_params]]
-// object that was prepared via [[parse]], void if there are no remaining
+// object that was prepared via [[parse]], done if there are no remaining
 // parameters, and [[errors::invalid]] if a syntax error was encountered.
-export fn next_param(in: *type_params) ((str, str) | void | errors::invalid) = {
+export fn next_param(in: *type_params) ((str, str) | done | errors::invalid) = {
 	const tok = match (strings::next_token(in: *strings::tokenizer)) {
 	case let s: str =>
 		if (s == "") {
@@ -41,7 +41,7 @@ export fn next_param(in: *type_params) ((str, str) | void | errors::invalid) = {
 		};
 		yield s;
 	case done =>
-		return;
+		return done;
 	};
 
 	const items = strings::cut(tok, "=");
@@ -104,7 +104,7 @@ fn typevalid(in: str) (void | errors::invalid) = {
 	assert(param.0 == "charset" && param.1 == "utf-8");
 	const param = next_param(&params)! as (str, str);
 	assert(param.0 == "foo" && param.1 == "bar baz");
-	assert(next_param(&params) is void);
+	assert(next_param(&params) is done);
 
 	assert(parse("hi") is errors::invalid);
 	assert(parse("text/ spaces ") is errors::invalid);

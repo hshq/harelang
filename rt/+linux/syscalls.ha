@@ -479,6 +479,11 @@ export fn clock_gettime(clock_id: int, tp: *timespec) (void | errno) = {
 		clock_id: u64, tp: uintptr: u64))?;
 };
 
+export fn clock_settime(clock_id: int, tp: *const timespec) (void | errno) = {
+	wrap_return(syscall2(SYS_clock_settime,
+		clock_id: u64, tp: uintptr: u64))?;
+};
+
 export fn nanosleep(req: *const timespec, rem: *timespec) (void | errno) = {
 	wrap_return(syscall2(SYS_nanosleep,
 		req: uintptr: u64, rem: uintptr: u64))?;

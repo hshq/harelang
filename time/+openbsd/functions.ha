@@ -94,3 +94,13 @@ export fn now(clock: clock) instant = {
 		abort("Unexpected error from clock_gettime");
 	};
 };
+
+// Sets system clock to given time.
+export fn set(clock: clock, t: instant) void = {
+	let tp = instant_to_timespec(t);
+	match (rt::clock_settime(clock, &tp)) {
+	case void => yield;
+	case let err: rt::errno =>
+		abort("Unexpected error from clock_settime");
+	};
+};

@@ -43,14 +43,14 @@ export fn rtokenize(s: []u8, delim: []u8) tokenizer = {
 };
 
 // Returns the next slice from a tokenizer, and advances the cursor. Returns
-// void if there are no tokens left and on all subsequent invocations. If a
+// done if there are no tokens left and on all subsequent invocations. If a
 // string starts with, or ends with, a token, an empty slice is returned at the
 // beginning or end of the sequence, respectively.
-export fn next_token(s: *tokenizer) ([]u8 | void) = {
+export fn next_token(s: *tokenizer) ([]u8 | done) = {
 	const b = match (peek_token(s)) {
 	case let b: []u8 =>
 		yield b;
-	case => return;
+	case done => return done;
 	};
 
 	if (s.p < 0) { // reverse
@@ -76,9 +76,9 @@ export fn next_token(s: *tokenizer) ([]u8 | void) = {
 };
 
 // Same as [[next_token]], but does not advance the cursor
-export fn peek_token(s: *tokenizer) ([]u8 | void) = {
+export fn peek_token(s: *tokenizer) ([]u8 | done) = {
 	if (len(s.d) == 0) {
-		return;
+		return done;
 	};
 
 	const reverse = s.p < 0;
@@ -137,8 +137,8 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	assert(equal([3, 24], n));
 	assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
 	assert(equal([4, 5], next_token(&t) as []u8));
-	assert(peek_token(&t) is void);
-	assert(next_token(&t) is void);
+	assert(peek_token(&t) is done);
+	assert(next_token(&t) is done);
 
 	const input: [_]u8 = [24, 42, 1, 24, 42];
 	t = tokenize(input, [24, 42]);
@@ -148,22 +148,22 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	assert(equal([1], next_token(&t) as []u8));
 	assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
 	assert(equal([], next_token(&t) as []u8));
-	assert(peek_token(&t) is void);
-	assert(next_token(&t) is void);
+	assert(peek_token(&t) is done);
+	assert(next_token(&t) is done);
 
 	const input: [_]u8 = [1, 1, 1, 2, 1, 1, 2, 2];
 	t = tokenize(input, [1, 2]);
 	assert(equal([1, 1], next_token(&t) as []u8));
 	assert(equal([1], next_token(&t) as []u8));
 	assert(equal([2], next_token(&t) as []u8));
-	assert(next_token(&t) is void);
+	assert(next_token(&t) is done);
 
 	const input: [_]u8 = [1, 2];
 	t = tokenize(input, [1, 2]);
 	assert(equal([], next_token(&t) as []u8));
 	assert(equal([], next_token(&t) as []u8));
-	assert(peek_token(&t) is void);
-	assert(next_token(&t) is void);
+	assert(peek_token(&t) is done);
+	assert(next_token(&t) is done);
 
 	const input: [_]u8 = [24, 42, 1, 24, 42, 2, 3, 4];
 	t = tokenize(input, [24, 42]);
@@ -174,8 +174,8 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	assert(equal(remaining_tokens(&t), [2, 3, 4]));
 
 	t = tokenize([], [42]);
-	assert(peek_token(&t) is void);
-	assert(next_token(&t) is void);
+	assert(peek_token(&t) is done);
+	assert(next_token(&t) is done);
 
 	const input: [_]u8 = [1, 2, 24, 42, 3, 24, 24, 42, 4, 5];
 	let t = rtokenize(input, [24, 42]);
@@ -189,8 +189,8 @@ export fn remaining_tokens(s: *tokenizer) []u8 = {
 	assert(equal([3, 24], n));
 	assert(equal(peek_token(&t) as []u8, peek_token(&t) as []u8));
 	assert(equal([1, 2], next_token(&t) as []u8));
-	assert(peek_token(&t) is void);
-	assert(next_token(&t) is void);
+	assert(peek_token(&t) is done);
+	assert(next_token(&t) is done);
 
 	const input: [_]u8 = [1, 2, 3, 24, 42, 4, 24, 42];
 	t = rtokenize(input, [24, 42]);

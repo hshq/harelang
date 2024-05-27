@@ -4,6 +4,7 @@
 use bufio;
 use fmt;
 use hare::ast;
+use hare::lex;
 use hare::unparse;
 use io;
 use memio;
@@ -36,6 +37,25 @@ export fn emit_tty(ctx: *context) (void | error) = {
 			id, id)?;
 		if (!no_color) fmt::fprint(ctx.out, "\x1b[m")?;
 		fmt::fprintln(ctx.out, "\n")?;
+	};
+
+	if (len(ctx.parse_errs) > 0) {
+		if (!no_color) fmt::fprintf(ctx.out, "\x1b[{}m",
+			color(unparse::synkind::COMMENT))?;
+		fmt::fprint(ctx.out, "// ")?;
+		if (!no_color) fmt::fprint(ctx.out, "\x1b[93m")?;
+		fmt::fprint(ctx.out, "WARNING")?;
+		if (!no_color) fmt::fprintf(ctx.out, "\x1b[m" "\x1b[{}m",
+			color(unparse::synkind::COMMENT))?;
+		fmt::fprintln(ctx.out,
+			": parsing errors occurred; documentation may be incomplete")?;
+		if (!no_color) fmt::fprint(ctx.out, "\x1b[m")?;
+	};
+	for (let i = 0z; i < len(ctx.parse_errs); i += 1) {
+		fmt::fprintln(ctx.out, "//", lex::strerror(ctx.parse_errs[i]))?;
+	};
+	if (len(ctx.parse_errs) > 0) {
+		fmt::fprintln(ctx.out)?;
 	};
 
 	match (ctx.readme) {

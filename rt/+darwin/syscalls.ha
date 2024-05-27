@@ -25,7 +25,10 @@ fn syscall6(u64, u64, u64, u64, u64, u64, u64) u64;
 fn sys_pipe(u64, u64) u64;
 fn sys_fork(u64) u64;
 
+// <sys/syslimits.h>
+export def NAME_MAX: size = 255z;
 export def PATH_MAX: size = 1024z;
+
 export type path = (str | []u8 | *const u8);
 let pathbuf: [PATH_MAX]u8 = [0...];
 
@@ -473,6 +476,11 @@ export fn clock_gettime(clock_id: int, tp: *timespec) (void | errno) = {
 };
 @symbol("clock_gettime") fn c_clock_gettime(clock_id: clockid_t, tp: *timespec) int;
 
+export fn clock_settime(clock_id: int, tp: *const timespec) (void | errno) = {
+	wrap_errno_return(c_clock_settime(clock_id: clockid_t, tp))?;
+};
+@symbol("clock_settime") fn c_clock_settime(clock_id: clockid_t, tp: *const timespec) int;
+
 export fn nanosleep(req: *const timespec, rem: nullable *timespec) (void | errno) = {
 	// wrap_return(syscall2(SYS_nanosleep,
 	// 	req: uintptr: u64, rem: uintptr: u64))?;
@@ -694,6 +702,21 @@ export fn flock(fd: int, op: int) (void | errno) = {
 // 	wrap_errno_return(c_flock(fd, op))?;
 // };
 // @symbol("flock") fn c_flock(fd: int, operation: int) int;
+
+export fn shm_open(name: path, flags: int, mode: mode_t) (int | errno) = {
+	let name = kpath(name)?;
+	// return wrap_errno_return(c_shm_open(name, flags, mode))?: int;
+	return wrap_return(syscall3(SYS_shm_open,
+		name: uintptr: u64, flags: u64, mode: u64))?: int;
+};
+// @symbol("shm_open") fn c_shm_open(name: *const u8, oflag: int, mode: mode_t) int;
+
+export fn shm_unlink(name: path) (void | errno) = {
+	let name = kpath(name)?;
+	// return wrap_errno_return(c_shm_unlink(name))?: int;
+	wrap_return(syscall1(SYS_shm_unlink, name: uintptr: u64))?;
+};
+// @symbol("shm_unlink") fn c_shm_unlink(name: *const u8) int;
 
 export fn shmat(id: int, addr: *const opaque, flag: int) *opaque = {
 	return syscall3(SYS_shmat, id: u64, addr: uintptr: u64,

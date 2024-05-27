@@ -123,7 +123,7 @@ $(HARECACHE)/std/fs.ssa: $(fs_ha) $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/fs.td.tmp -N fs $(fs_ha)
 
-os_ha = os/+linux/dirfdfs.ha os/+linux/exit.ha os/+linux/fs.ha os/+linux/memory.ha os/+linux/platform_environ.ha os/+linux/status.ha os/+linux/stdfd.ha os/environ.ha os/os.ha
+os_ha = os/+linux/dirfdfs.ha os/+linux/exit.ha os/+linux/fs.ha os/+linux/memfd.ha os/+linux/memory.ha os/+linux/platform_environ.ha os/+linux/shm.ha os/+linux/status.ha os/+linux/stdfd.ha os/environ.ha os/os.ha
 $(HARECACHE)/std/os.ssa: $(os_ha) $(HARECACHE)/std/bufio.td $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)/std/errors.td $(HARECACHE)/std/fs.td $(HARECACHE)/std/io.td $(HARECACHE)/std/math.td $(HARECACHE)/std/path.td $(HARECACHE)/std/rt.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td $(HARECACHE)/std/types_c.td
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/os.td.tmp -N os $(os_ha)
