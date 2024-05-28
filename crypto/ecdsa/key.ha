@@ -134,8 +134,8 @@ export fn p521pub() p521pubkey = p521pubkey {
 	...
 };
 
-// Initializes the pubkey 'pub' from the coordinates 'r' and 's' of the public
-// point 'q'.
+// Initializes the pubkey 'pub' from the coordinates 'x' and 'y' of a public
+// point.
 //
 // Does not validate if the point is on curve. [[verify]] will fail, if such is
 // the case.
