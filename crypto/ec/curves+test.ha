@@ -78,6 +78,7 @@ fn tmuladd(c: *curve, tcs: []multc) void = {
 	];
 
 	let g = alloc(P256_G);
+	defer free(g);
 	assert(c.mul(g, priv) == 1);
 	assert(bytes::equal(g, expected));
 

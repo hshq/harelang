@@ -162,6 +162,7 @@ export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 	for (let i = 0z; i < len(expected); i += 1) {
 		assert(expected[i] == actual[i]);
 	};
+	free(actual);
 
 	const expected2 = ["Hello,", "my", "name", "is", "Drew"];
 	const actual2 = split("Hello, my name is Drew", " ");
@@ -169,6 +170,7 @@ export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 	for (let i = 0z; i < len(expected2); i += 1) {
 		assert(expected2[i] == actual2[i]);
 	};
+	free(actual2);
 
 	const expected3 = ["one"];
 	const actual3 = splitn("one", "=", 2z);
@@ -176,6 +178,7 @@ export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 	for (let i = 0z; i < len(expected3); i += 1) {
 		assert(expected3[i] == actual3[i]);
 	};
+	free(actual3);
 
 	const expected4 = ["Hello, my", "name", "is", "Drew"];
 	const actual4 = rsplitn("Hello, my name is Drew", " ", 4z);
@@ -183,6 +186,7 @@ export fn split(in: str, delim: str) []str = splitn(in, delim, types::SIZE_MAX);
 	for (let i = 0z; i < len(expected4); i += 1) {
 		assert(expected4[i] == actual4[i]);
 	};
+	free(actual4);
 };
 
 // Returns a string "cut" along the first instance of a delimiter, returning
