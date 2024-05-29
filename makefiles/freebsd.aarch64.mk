@@ -112,7 +112,7 @@ $(HARECACHE)/path.ssa: $(path_ha) $(HARECACHE)/bytes.td $(HARECACHE)/strings.td
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/path.td.tmp -N path $(path_ha)
 
 time_ha = time/+freebsd/functions.ha time/arithm.ha time/conv.ha time/types.ha
-$(HARECACHE)/time.ssa: $(time_ha) $(HARECACHE)/math.td $(HARECACHE)/rt.td $(HARECACHE)/types.td
+$(HARECACHE)/time.ssa: $(time_ha) $(HARECACHE)/errors.td $(HARECACHE)/math.td $(HARECACHE)/rt.td $(HARECACHE)/types.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/time.td.tmp -N time $(time_ha)

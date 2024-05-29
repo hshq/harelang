@@ -136,7 +136,7 @@ $(HARECACHE)/linux_vdso.ssa: $(linux_vdso_ha) $(HARECACHE)/format_elf.td $(HAREC
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/linux_vdso.td.tmp -N linux::vdso $(linux_vdso_ha)
 
 time_ha = time/+linux/+aarch64.ha time/+linux/functions.ha time/arithm.ha time/conv.ha time/types.ha
-$(HARECACHE)/time.ssa: $(time_ha) $(HARECACHE)/linux_vdso.td $(HARECACHE)/math.td $(HARECACHE)/rt.td $(HARECACHE)/types.td
+$(HARECACHE)/time.ssa: $(time_ha) $(HARECACHE)/errors.td $(HARECACHE)/linux_vdso.td $(HARECACHE)/math.td $(HARECACHE)/rt.td $(HARECACHE)/types.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/time.td.tmp -N time $(time_ha)
