@@ -553,6 +553,10 @@ fn mtc_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 				},
 			));
 		};
+		if (actual is []time::instant) {
+			free(actual as []time::instant);
+		};
+
 	};
 };
 
@@ -647,6 +651,9 @@ fn mtc_convfrom(ts: *timescale, i: time::instant) ([]time::instant | void) = {
 					nsec = insts[1].1,
 				},
 			));
+		};
+		if (actual is []time::instant) {
+			free(actual as []time::instant);
 		};
 	};
 };

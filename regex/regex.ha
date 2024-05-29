@@ -922,6 +922,7 @@ fn parse_replace_target(targetstr: str) ([]([]u8 | size) | error) = {
 
 			const r = match (strings::next(&iter)) {
 			case done =>
+				free(target);
 				return "Trailing backslash": error;
 			case let r: rune =>
 				yield r;
@@ -932,6 +933,7 @@ fn parse_replace_target(targetstr: str) ([]([]u8 | size) | error) = {
 			} else if (ascii::isdigit(r)) {
 				append(target, r: u32: size - 0x30);
 			} else {
+				free(target);
 				return "Backslash must be followed by positive decimal number or a backslash": error;
 			};
 

@@ -91,6 +91,7 @@ export fn parse(in: str) (uri | invalid) = {
 		case let s: str =>
 			yield match (ip::parse(s)) {
 			case let a: ip::addr =>
+				free(s);
 				yield a;
 			case ip::invalid =>
 				yield s;
@@ -160,6 +161,7 @@ fn parse_authority(
 			};
 
 			const addr = percent_decode(memio::string(&buf)!)?;
+			defer free(addr);
 			match (ip::parse(addr)) {
 			case let v6: ip::addr6 =>
 				host = v6;
@@ -334,6 +336,7 @@ fn percent_decode_static(out: io::handle, s: str) (void | invalid) = {
 						return invalid;
 					};
 
+					free(percent_data);
 					percent_data = [];
 				};
 
@@ -348,6 +351,7 @@ fn percent_decode_static(out: io::handle, s: str) (void | invalid) = {
 					return invalid;
 				};
 
+				free(percent_data);
 				percent_data = [];
 			};
 
