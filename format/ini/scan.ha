@@ -8,23 +8,24 @@ use io;
 use strings;
 
 export type scanner = struct {
-	in: io::handle,
-	line: str,
+	scan: bufio::scanner,
 	lineno: size,
 	section: str,
 };
 
 // Creates an INI file scanner. Use [[next]] to read entries. The caller must
 // call [[finish]] once they're done with this object.
-export fn scan(in: io::handle) scanner = scanner {
-	in = in,
-	lineno = 1,
-	...
+export fn scan(in: io::handle) scanner = {
+	return scanner {
+		scan = bufio::newscanner(in),
+		lineno = 1,
+		...
+	};
 };
 
 // Frees resources associated with a [[scanner]].
 export fn finish(sc: *scanner) void = {
-	free(sc.line);
+	bufio::finish(&sc.scan);
 	free(sc.section);
 };
 
@@ -45,24 +46,13 @@ export fn entry_finish(ent: entry) void = {
 	free(ent.2);
 };
 
-// Returns the next entry from an INI file. The return value is overwritten on
-// subsequent calls, use [[entry_dup]] or [[strings::dup]] to extend the
-// lifetime of the entry or its fields respectively.
+// Returns the next entry from an INI file. The return value is borrowed from
+// the [[scanner]]. Use [[entry_dup]] to retain a copy.
 export fn next(sc: *scanner) (entry | io::EOF | error) = {
-	for (true) {
-		const line = match (bufio::read_line(sc.in)?) {
-		case let b: []u8 =>
-			yield strings::fromutf8(b)?;
-		case io::EOF =>
-			return io::EOF;
-		};
+	for (const line => bufio::scan_line(&sc.scan)?) {
 		defer sc.lineno += 1;
 
-		free(sc.line);
-		sc.line = line;
-
-		const line = strings::trim(sc.line);
-
+		const line = strings::trim(line);
 		if (len(line) == 0 || strings::hasprefix(line, "#")) {
 			continue;
 		};
@@ -91,4 +81,6 @@ export fn next(sc: *scanner) (entry | io::EOF | error) = {
 			strings::sub(line, eq + 1, strings::end),
 		);
 	};
+
+	return io::EOF;
 };
