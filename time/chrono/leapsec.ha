@@ -56,10 +56,10 @@ fn init_utc_leapsecs() (void | utciniterror) = {
 // Parse UTC/TAI leap second data from [[UTC_LEAPSECS_PATH]].
 // See file for format details.
 fn parse_utc_leapsecs(h: io::handle) (void | utf8::invalid | io::error) = {
-	for (let line => bufio::read_line(h)?) {
-		let line = strings::fromutf8(line)?;
-		defer free(line);
+	const scan = bufio::newscanner(h);
+	defer bufio::finish(&scan);
 
+	for (let line => bufio::scan_line(&scan)?) {
 		if (strings::hasprefix(line, '#')) {
 			continue;
 		};
