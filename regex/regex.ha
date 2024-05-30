@@ -679,6 +679,8 @@ fn search(
 	let str_bytesize = 0z;
 	let last_bytesize = 0z;
 
+	const scan = bufio::newscanner(handle);
+	defer bufio::finish(&scan);
 	for (true) {
 		str_bytesize += last_bytesize;
 
@@ -718,7 +720,7 @@ fn search(
 			return res;
 		};
 
-		const r_or_end = bufio::read_rune(handle)!;
+		const r_or_end = bufio::scan_rune(&scan)!;
 		if (r_or_end is rune) {
 			last_bytesize = utf8::runesz(r_or_end as rune);
 		};
