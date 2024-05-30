@@ -24,7 +24,9 @@ use strings;
 	};
 
 	fmt::fprintln(pty.0, "hello, world")!;
-	let s = strings::fromutf8(bufio::read_line(pty.1) as []u8)!;
-	defer free(s);
+	const scan = bufio::newscanner(pty.1);
+	defer bufio::finish(&scan);
+
+	const s = bufio::scan_line(&scan) as const str;
 	assert(s == "hello, world");
 };
