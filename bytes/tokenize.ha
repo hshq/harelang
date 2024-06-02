@@ -4,22 +4,23 @@
 use types;
 
 export type tokenizer = struct {
-	s: []u8, // string being tokenized
-	d: []u8, // delimiter
-	p: i64, // p < 0 for reverse tokenizers, 0 <= p for forward ones.
+	in: []u8,	// string being tokenized
+	delim: []u8,	// delimiter
+	p: i64,		// p < 0 for reverse tokenizers, 0 <= p for forward ones.
 };
 
 // Returns a tokenizer which yields sub-slices tokenized by a delimiter, starting
 // at the beginning of the slice. The caller must ensure that 'delim' is not an
 // empty slice. Can tokenize a slice of length less than [[types::I64_MAX]].
-export fn tokenize(s: []u8, delim: []u8) tokenizer = {
+export fn tokenize(in: []u8, delim: []u8) tokenizer = {
 	assert(len(delim) > 0, "bytes::tokenize called with empty slice");
-	if (len(s) == 0) {
+	if (len(in) == 0) {
 		delim = [];
 	};
+
 	return tokenizer {
-		s = s,
-		d = delim,
+		in = in,
+		delim = delim,
 		p = types::I64_MAX, // I64_MAX means we haven't peeked the next token yet.
 	};
 };
@@ -28,17 +29,19 @@ export fn tokenize(s: []u8, delim: []u8) tokenizer = {
 // the end of the slice and moving backwards with each call to [[next_token]]. The
 // caller must ensure that 'delimiter' is not an empty slice. Can tokenize a slice
 // of length less than [[types::I64_MAX]].
-export fn rtokenize(s: []u8, delim: []u8) tokenizer = {
+export fn rtokenize(in: []u8, delim: []u8) tokenizer = {
 	assert(len(delim) > 0, "bytes::rtokenize called with empty slice");
-	if (len(s) == 0) {
+	if (len(in) == 0) {
 		delim = [];
 	};
+
 	return tokenizer {
-		s = s,
-		d = delim,
-		p = types::I64_MIN, // I64_MIN means we haven't peeked the next token yet.
-		// also note that p == -1 corresponds to an index of len(s),
-		// and p == -(1 - len(s)) corresponds to an index of 0.
+		in = in,
+		delim = delim,
+		// I64_MIN means we haven't peeked the next token yet. Note that
+		// p == -1 corresponds to an index of len(s), and
+		// p == -(1 - len(s)) corresponds to an index of 0.
+		p = types::I64_MIN,
 	};
 };
 
@@ -53,21 +56,24 @@ export fn next_token(s: *tokenizer) ([]u8 | done) = {
 	case done => return done;
 	};
 
-	if (s.p < 0) { // reverse
-		if (len(s.s): i64 + s.p + 1 == 0) {
-			s.d = s.d[..0];
-			s.s = s.s[..0];
+	const slen = len(s.in): i64;
+	const dlen = len(s.delim);
+	const reverse = s.p < 0;
+	if (reverse) {
+		if (slen + s.p + 1 == 0) {
+			s.delim = s.delim[..0];
+			s.in = s.in[..0];
 		} else {
-			const end = (len(s.s): i64 + s.p + 1): size - len(s.d);
-			s.s = s.s[..end];
+			const end = (slen + s.p + 1): size - dlen;
+			s.in = s.in[..end];
 		};
 		s.p = types::I64_MIN;
 	} else {
-		if (s.p == len(s.s): i64) {
-			s.d = s.d[..0];
-			s.s = s.s[..0];
+		if (s.p == slen) {
+			s.delim = s.delim[..0];
+			s.in = s.in[..0];
 		} else {
-			s.s = s.s[s.p: size + len(s.d)..];
+			s.in = s.in[s.p: size + dlen..];
 		};
 		s.p = types::I64_MAX;
 	};
@@ -77,23 +83,23 @@ export fn next_token(s: *tokenizer) ([]u8 | done) = {
 
 // Same as [[next_token]], but does not advance the cursor
 export fn peek_token(s: *tokenizer) ([]u8 | done) = {
-	if (len(s.d) == 0) {
+	if (len(s.delim) == 0) {
 		return done;
 	};
 
 	const reverse = s.p < 0;
 	const ifunc = if (reverse) &rindex else &index;
 
-	const known = ((s.p < 0 && s.p != types::I64_MIN) ||
-		(s.p >= 0 && s.p != types::I64_MAX));
+	const known = ((reverse && s.p != types::I64_MIN) ||
+		(!reverse && s.p != types::I64_MAX));
 	if (!known) {
 		let i = 0i64;
 		let dlen = 0i64;
-		let slen = len(s.s): i64;
+		const slen = len(s.in): i64;
 
-		match (ifunc(s.s, s.d)) {
+		match (ifunc(s.in, s.delim)) {
 		case let ix: size =>
-			dlen = len(s.d): i64;
+			dlen = len(s.delim): i64;
 			i = ix: i64;
 		case void =>
 			i = slen;
@@ -111,9 +117,9 @@ export fn peek_token(s: *tokenizer) ([]u8 | done) = {
 	};
 
 	if (reverse) {
-		return s.s[len(s.s) + s.p: size + 1..];
+		return s.in[len(s.in) + s.p: size + 1..];
 	} else {
-		return s.s[..s.p: size];
+		return s.in[..s.p: size];
 	};
 };
 
@@ -121,7 +127,7 @@ export fn peek_token(s: *tokenizer) ([]u8 | done) = {
 // Returns the remainder of the slice associated with a tokenizer, without doing
 // any further tokenization.
 export fn remaining_tokens(s: *tokenizer) []u8 = {
-	return s.s;
+	return s.in;
 };
 
 @test fn tokenize() void = {
