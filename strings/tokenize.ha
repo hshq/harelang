@@ -4,38 +4,53 @@
 use bytes;
 use types;
 
-// The state for a tokenizer.
 export type tokenizer = bytes::tokenizer;
 
-// Returns a tokenizer which yields sub-strings tokenized by a delimiter,
-// starting at the beginning of the string.
+// Tokenizes a string, returning an iterator that yields substrings separated by
+// one or more delimiters, such that the string will be split along any of the
+// characters found in "delim". If the string begins with or ends with a
+// delimiter, an empty string is returned respectively as the first and last
+// call to [[next_token]].
 //
-// 	let tok = strings::tokenize("hello, my name is drew", " ");
-// 	assert(strings::next_token(&tok) as str == "hello,");
-// 	assert(strings::next_token(&tok) as str == "my");
-// 	assert(strings::next_token(&tok) as str == "name");
-// 	assert(strings::remaining_tokens(&tok) == "is drew");
+// Each character of the delimiter string must be an ASCII character (see
+// [[ascii::valid]]).
 //
-// The caller must ensure that 'delim' is not an empty string.
-export fn tokenize(s: str, delim: str) tokenizer =
-	bytes::tokenize(toutf8(s), toutf8(delim));
+// The input string and delimiter string are borrowed from the caller for the
+// lifetime of the tokenizer.
+//
+// The caller must ensure that at least one delimiter is provided and that the
+// length of the input string is less than [[types::I64_MAX]].
+//
+// 	const tok = strings::tokenize("Hello world!\tMy name is Harriet.", " \t");
+// 	assert(next_token(&tok) as str == "Hello");
+// 	assert(next_token(&tok) as str == "world!");
+// 	assert(next_token(&tok) as str == "My");
+// 	assert(next_token(&tok) as str == "name");
+// 	assert(next_token(&tok) as str == "is");
+// 	assert(next_token(&tok) as str == "Harriet");
+// 	assert(next_token(&tok) is done);
+export fn tokenize(s: str, delim: str) tokenizer = {
+	const in = toutf8(s);
+	const delim = toutf8(delim);
+	for (let ch .. delim) {
+		assert(ch & 0x80 == 0, "strings::tokenize cannot tokenize on non-ASCII delimiters");
+	};
+	return bytes::tokenize(in, delim...);
+};
 
-// Returns a tokenizer which yields sub-strings tokenized by a delimiter,
-// starting at the end of the string and moving backwards with each call
-// to [[next_token]].
-//
-// 	let tok = strings::rtokenize("hello, my name is drew", " ");
-// 	assert(strings::next_token(&tok) as str == "drew");
-// 	assert(strings::next_token(&tok) as str == "is");
-// 	assert(strings::next_token(&tok) as str == "name");
-// 	assert(strings::remaining_tokens(&tok) == "hello, my");
-//
-// The caller must ensure that 'delim' is not an empty string.
-export fn rtokenize(s: str, delim: str) tokenizer =
-	bytes::rtokenize(toutf8(s), toutf8(delim));
+// Like [[tokenize]], but tokenizes the string in reverse, such that the first
+// call to [[next_token]] returns the last token and the last call returns the
+// first token.
+export fn rtokenize(s: str, delim: str) tokenizer = {
+	const in = toutf8(s);
+	const delim = toutf8(delim);
+	for (let ch .. delim) {
+		assert(ch & 0x80 == 0, "strings::tokenize cannot tokenize on non-ASCII delimiters");
+	};
+	return bytes::rtokenize(in, delim...);
+};
 
-// Returns the next string from a tokenizer, and advances the cursor. Returns
-// done if there are no tokens left.
+// Returns the next token from a [[tokenizer]] and advances the cursor.
 export fn next_token(s: *tokenizer) (str | done) = {
 	let s = s: *bytes::tokenizer;
 	match (bytes::next_token(s)) {
@@ -45,7 +60,7 @@ export fn next_token(s: *tokenizer) (str | done) = {
 	};
 };
 
-// Same as next_token(), but does not advance the cursor
+// Returns the next token from a [[tokenizer]] without advancing the cursor.
 export fn peek_token(s: *tokenizer) (str | done) = {
 	let s = s: *bytes::tokenizer;
 	return match (bytes::peek_token(s)) {
@@ -56,42 +71,92 @@ export fn peek_token(s: *tokenizer) (str | done) = {
 	};
 };
 
-// Returns the remainder of the string associated with a tokenizer, without doing
-// any further tokenization.
+// Returns the remainder of the input string from a [[tokenizer]] ahead of the
+// token cursor.
 export fn remaining_tokens(s: *tokenizer) str = {
 	let s = s: *bytes::tokenizer;
 	return fromutf8_unsafe(bytes::remaining_tokens(s));
 };
 
+fn tokenize_test(
+	testcase: str,
+	in: str,
+	delim: str,
+	tokens: []str,
+	iters: size = types::SIZE_MAX,
+) tokenizer = {
+	const tok = tokenize(in, delim);
+	let n = 0z;
+	for (const want .. tokens) {
+		if (n >= iters) {
+			return tok;
+		};
+		n += 1;
+
+		const p = peek_token(&tok) as str;
+		const n = next_token(&tok) as str;
+		assert(p == n, testcase);
+		assert(n == want, testcase);
+	};
+
+	if (n >= iters) {
+		return tok;
+	};
+
+	assert(peek_token(&tok) is done, testcase);
+	assert(next_token(&tok) is done, testcase);
+	return tok;
+};
+
 @test fn tokenize() void = {
-	let tok = tokenize("Hello, my name is drew", " ");
-	assert(next_token(&tok) as str == "Hello,");
-	assert(next_token(&tok) as str == "my");
-	assert(peek_token(&tok) as str == "name");
-	assert(next_token(&tok) as str == "name");
-	assert(remaining_tokens(&tok) == "is drew");
-	assert(peek_token(&tok) as str == "is");
-	assert(remaining_tokens(&tok) == "is drew");
+	tokenize_test("simple case",
+		"Hello world! My name is Harriet.", " ",
+		[
+			"Hello",
+			"world!",
+			"My",
+			"name",
+			"is",
+			"Harriet.",
+		]);
 
-	let tok = tokenize("foo", "foo");
-	assert(peek_token(&tok) as str == "");
-	assert(next_token(&tok) as str == "");
-	assert(peek_token(&tok) as str == "");
-	assert(next_token(&tok) as str == "");
-	assert(peek_token(&tok) is done);
-	assert(next_token(&tok) is done);
+	tokenize_test("multiple delimiters",
+		"/dev/sda1\t/ ext4 rw,relatime\t0 0", " \t",
+		[
+			"/dev/sda1",
+			"/",
+			"ext4",
+			"rw,relatime",
+			"0",
+			"0",
+		]);
 
-	let tok = tokenize("", "foo");
-	assert(peek_token(&tok) is done);
-	assert(next_token(&tok) is done);
+	tokenize_test("consecutive delimiters",
+		"hello    world", " ",
+		[
+			"hello",
+			"",
+			"",
+			"",
+			"world",
+		]);
 
-	let tok = rtokenize("Hello, my name is drew", " ");
-	assert(next_token(&tok) as str == "drew");
-	assert(next_token(&tok) as str == "is");
-	assert(next_token(&tok) as str == "name");
-	assert(remaining_tokens(&tok) == "Hello, my");
-	assert(peek_token(&tok) as str == "my");
-	assert(remaining_tokens(&tok) == "Hello, my");
+	tokenize_test("leading delimiters",
+		" hello world ", " ",
+		[
+			"",
+			"hello",
+			"world",
+			"",
+		]);
+
+	const tok = tokenize_test("remaining_tokens",
+		"Hello world! My name is Harriet.", " ",
+		[
+			"Hello",
+			"world!",
+		], 2);
+	assert(remaining_tokens(&tok) == "My name is Harriet.");
 };
 
 // Splits a string into tokens delimited by 'delim', starting at the beginning
