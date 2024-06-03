@@ -1,4 +1,8 @@
-unix::resolvconf provides a (basic) reader for the resolv.conf file found on
-many Unix-like operating systems. This implementation only supports the
-"nameserver" directive, and it will return a list of IP addresses to use as
-nameservers.
+[[unix::resolvconf]] implements a parser for /etc/resolv.conf files which has
+feature parity with the resolv.conf format supported by glibc 2.36. However,
+most options are not supported by Hare internally, i.e. via [[net::dns]].
+
+The user may parse a resolv.conf file manually via the [[read]] and [[next]]
+functions. Additionally, this module maintains a global copy of the local
+resolv.conf file, parsed once at runtime and cached for the lifetime of the
+process, which is available via [[load]].
