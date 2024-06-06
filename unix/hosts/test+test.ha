@@ -67,4 +67,5 @@ def HOSTS_FILE = `
 	assert(len(addrs) == 2);
 	assert(ip::equal(addrs[0], [10, 10, 10, 10]: ip::addr4));
 	assert(ip::equal(addrs[1], [10, 10, 20, 20]: ip::addr4));
+	free(addrs);
 };

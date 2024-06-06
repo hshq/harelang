@@ -72,6 +72,7 @@ use strings;
 @test fn scan_rune() void = {
 	let in = memio::fixed(strings::toutf8("hello"));
 	let scanner = newscanner(&in, 32);
+	defer finish(&scanner);
 
 	const expected: [_](rune | utf8::invalid | io::EOF | io::error) = [
 		'h', 'e', 'l', 'l', 'o', io::EOF,
@@ -95,6 +96,7 @@ use strings;
 		'a', 0xE3,
 	]);
 	let scanner = newscanner(&in, 32);
+	defer finish(&scanner);
 
 	const expected: [_](rune | utf8::invalid | io::EOF | io::error) = [
 		'a', utf8::invalid,
@@ -118,6 +120,7 @@ use strings;
 @test fn scan_byte() void = {
 	let in = memio::fixed([1, 2, 3]);
 	let scanner = newscanner(&in, 3);
+	defer finish(&scanner);
 
 	assert(scan_byte(&scanner) as u8 == 1);
 	assert(scan_byte(&scanner) as u8 == 2);

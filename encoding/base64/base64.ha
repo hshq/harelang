@@ -198,6 +198,9 @@ fn clear(e: *encoder) void = {
 	io::close(&e)!;
 
 	assert(memio::string(&buf)! == expected);
+
+	let encb = memio::buffer(&buf);
+	free(encb);
 };
 
 // Encodes a byte slice in base 64, using the given encoding, returning a slice

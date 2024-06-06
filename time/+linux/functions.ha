@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use errors;
 use linux::vdso;
 use rt;
 
@@ -130,11 +131,15 @@ export fn now(clock: clock) instant = {
 };
 
 // Sets system clock to given time.
-export fn set(clock: clock, t: instant) void = {
+export fn set(clock: clock, t: instant) (void | errors::noaccess) = {
 	let tp = instant_to_timespec(t);
-	match (rt::clock_settime(clock, &tp)) {
-	case void => yield;
+	let err = match (rt::clock_settime(clock, &tp)) {
+	case void => return;
 	case let err: rt::errno =>
-		abort("Unexpected error from clock_settime");
+		yield err;
 	};
+	if (err == rt::EPERM) {
+		return errors::noaccess;
+	};
+	abort("Unexpected error from clock_settime");
 };

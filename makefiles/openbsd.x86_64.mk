@@ -94,7 +94,7 @@ $(HARECACHE)/std/path.ssa: $(path_ha) $(HARECACHE)/std/bytes.td $(HARECACHE)/std
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/path.td.tmp -N path $(path_ha)
 
 time_ha = time/+openbsd/functions.ha time/arithm.ha time/conv.ha time/types.ha
-$(HARECACHE)/std/time.ssa: $(time_ha) $(HARECACHE)/std/math.td $(HARECACHE)/std/rt.td $(HARECACHE)/std/types.td
+$(HARECACHE)/std/time.ssa: $(time_ha) $(HARECACHE)/std/errors.td $(HARECACHE)/std/math.td $(HARECACHE)/std/rt.td $(HARECACHE)/std/types.td
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/time.td.tmp -N time $(time_ha)
 

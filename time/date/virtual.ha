@@ -272,6 +272,7 @@ export fn realize(
 		return realize_validzoff(v, locs...);
 	case let zf: zflag =>
 		let valid_dates = realize_validzoffs(v, locs...)?;
+		defer free(valid_dates);
 		switch (len(valid_dates)) {
 		case 0 =>
 			if (0 != zf & zflag::GAP_END) {
