@@ -114,9 +114,10 @@ $(HARECACHE)/std/linux_vdso.ssa: $(linux_vdso_ha) $(HARECACHE)/std/format_elf.td
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/linux_vdso.td.tmp -N linux::vdso $(linux_vdso_ha)
 
 time_ha = time/+linux/+aarch64.ha time/+linux/functions.ha time/arithm.ha time/conv.ha time/types.ha
-$(HARECACHE)/std/time.ssa: $(time_ha) $(HARECACHE)/std/errors.td $(HARECACHE)/std/linux_vdso.td $(HARECACHE)/std/math.td $(HARECACHE)/std/rt.td $(HARECACHE)/std/types.td
-	@mkdir -p -- "$(HARECACHE)/std"
-	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/time.td.tmp -N time $(time_ha)
+$(HARECACHE)/time.ssa: $(time_ha) $(HARECACHE)/errors.td $(HARECACHE)/linux_vdso.td $(HARECACHE)/math.td $(HARECACHE)/rt.td $(HARECACHE)/types.td
+	@mkdir -p -- "$(HARECACHE)"
+	@printf 'HAREC\t%s\n' "$@"
+	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/time.td.tmp -N time $(time_ha)
 
 fs_ha = fs/fs.ha fs/types.ha fs/util.ha
 $(HARECACHE)/std/fs.ssa: $(fs_ha) $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)/std/errors.td $(HARECACHE)/std/io.td $(HARECACHE)/std/path.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td
