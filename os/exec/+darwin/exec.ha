@@ -183,6 +183,11 @@ fn platform_start(cmd: *command) (process | errors::error) = {
 	case void => void;
 	};
 
+	// pipe2 above is NOT actually pipe2, but pipe.
+	// So we apply the `FD_CLOEXEC` ourselves.
+	rt::fcntl(pipe[0], rt::F_SETFD, rt::FD_CLOEXEC): void;
+	rt::fcntl(pipe[1], rt::F_SETFD, rt::FD_CLOEXEC): void;
+
 	match (rt::fork()) {
 	case let err: rt::errno =>
 		return errors::errno(err);
