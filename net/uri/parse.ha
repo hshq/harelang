@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use fmt;
 use ascii;
 use encoding::utf8;
 use io;
@@ -12,16 +13,29 @@ use strings;
 // The URI provided to [[parse]] is invalid.
 export type invalid = !void;
 
+fn free_non_empty(in: (str | ip::addr6)) void = {
+	match (in) {
+	case let s: str => if (len(s) > 0) free(s);
+	case => void;
+	};
+};
+
 // Parses a URI string into [[uri]] structure. The return value must be freed
 // using [[finish]].
 export fn parse(in: str) (uri | invalid) = {
+	let success = false;
 	let in = strings::iter(in);
 
 	const scheme = parse_scheme(&in)?;
+	defer if (!success) free(scheme);
 
 	// Determine hier-part variant
 	let path = "";
 	let authority: ((str | ip::addr6), u16, str) = ("", 0u16, "");
+	defer if (!success) {
+		free_non_empty(authority.0);
+		free_non_empty(authority.2);
+	};
 	match (strings::next(&in)) {
 	case let r: rune =>
 		switch (r) {
@@ -82,6 +96,7 @@ export fn parse(in: str) (uri | invalid) = {
 	case => void;
 	};
 
+	success = true;
 	return uri {
 		scheme = scheme,
 
@@ -133,12 +148,14 @@ fn parse_authority(
 	in: *strings::iterator,
 ) (((str | ip::addr6), u16, str) | invalid) = {
 	// Scan everything until '@' or ':' or '/', then decide what it is
+	let success = false;
 	let buf = memio::dynamic();
 	defer io::close(&buf)!;
 	let host: (str | ip::addr6) = "";
 	let port = 0u16;
 	let userinfo = "";
 	let has_userinfo = false;
+	let want_port = false;
 
 	for (let r => strings::next(in)) {
 		if (r == '[') {
@@ -176,6 +193,7 @@ fn parse_authority(
 				};
 				// This was userinfo+host[+port]
 				userinfo = percent_decode(memio::string(&buf)!)?;
+				defer if (!success) free(userinfo);
 				memio::reset(&buf);
 				has_userinfo = true;
 			case '/' =>
@@ -186,7 +204,7 @@ fn parse_authority(
 			case ':' =>
 				// This was host+port
 				host = percent_decode(memio::string(&buf)!)?;
-				port = parse_port(in)?;
+				want_port = true;
 				break;
 			case =>
 				return invalid;
@@ -194,6 +212,12 @@ fn parse_authority(
 		} else {
 			memio::appendrune(&buf, r)!;
 		};
+	};
+
+	defer if (!success) free_non_empty(host);
+
+	if (want_port) {
+		port = parse_port(in)?;
 	};
 
 	match (host) {
@@ -205,6 +229,7 @@ fn parse_authority(
 	case => void;
 	};
 
+	success = true;
 	return (host, port, userinfo);
 };
 
