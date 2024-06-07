@@ -125,8 +125,8 @@ export def SOCK_DGRAM    : int = 2;
 export def SOCK_RAW      : int = 3;
 export def SOCK_RDM      : int = 4;
 export def SOCK_SEQPACKET: int = 5;
-export def SOCK_CLOEXEC  : int = 0x10000000;
-export def SOCK_NONBLOCK : int = 0x20000000;
+export def SOCK_CLOEXEC  : int = 0;
+export def SOCK_NONBLOCK : int = 0;
 
 // <netinet/in.h>: Protocols (RFC 1700)
 export def IPPROTO_IP       : int = 0;
