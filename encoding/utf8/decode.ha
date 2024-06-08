@@ -17,11 +17,11 @@ const masks: [2][8]u8 = [
 	[0x7f, 0x1f, 0x0f, 0x0f, 0x0f, 0x07, 0x07, 0x07],
 ];
 
-// Returns the next rune from a decoder. void is returned when there are no
+// Returns the next rune from a decoder. done is returned when there are no
 // remaining codepoints.
-export fn next(d: *decoder) (rune | void | more | invalid) = {
+export fn next(d: *decoder) (rune | done | more | invalid) = {
 	if (d.offs == len(d.src)) {
-		return;
+		return done;
 	};
 
 	// from https://github.com/skeeto/scratch/blob/master/parsers/utf8_decode.c
@@ -42,11 +42,11 @@ export fn next(d: *decoder) (rune | void | more | invalid) = {
 	return more;
 };
 
-// Returns the previous rune from a decoder. void is returned when there are no
+// Returns the previous rune from a decoder. done is returned when there are no
 // previous codepoints.
-export fn prev(d: *decoder) (rune | void | more | invalid) = {
+export fn prev(d: *decoder) (rune | done | more | invalid) = {
 	if (d.offs == 0) {
-		return;
+		return done;
 	};
 	let n = d.offs;
 	d.offs -= 1;
@@ -75,23 +75,23 @@ export fn prev(d: *decoder) (rune | void | more | invalid) = {
 	let decoder = decode(input);
 	for (let i = 0z; i < len(expected); i += 1) {
 		match (next(&decoder)) {
-		case (invalid | more | void) =>
+		case (invalid | more | done) =>
 			abort();
 		case let r: rune =>
 			assert(r == expected[i]);
 		};
 	};
-	assert(next(&decoder) is void);
+	assert(next(&decoder) is done);
 	assert(decoder.offs == len(decoder.src));
 	for (let i = 0z; i < len(expected); i += 1) {
 		match (prev(&decoder)) {
-		case (invalid | more | void) =>
+		case (invalid | more | done) =>
 			abort();
 		case let r: rune =>
 			assert(r == expected[len(expected) - i - 1]);
 		};
 	};
-	assert(prev(&decoder) is void);
+	assert(prev(&decoder) is done);
 
 	const inv: [_]u8 = [0xA0, 0xA1];
 	decoder = decode(inv);

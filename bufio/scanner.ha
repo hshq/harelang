@@ -206,7 +206,7 @@ export fn scan_rune(
 	match (utf8::next(&dec)?) {
 	case let r: rune =>
 		return r;
-	case void =>
+	case done =>
 		return io::EOF;
 	case utf8::more =>
 		return utf8::invalid;
@@ -336,7 +336,7 @@ export fn read_rune(
 	match (utf8::next(&dec)?) {
 	case let r: rune =>
 		return r;
-	case void =>
+	case done =>
 		return io::EOF;
 	case utf8::more =>
 		return utf8::invalid;
