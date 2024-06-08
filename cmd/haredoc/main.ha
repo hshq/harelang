@@ -153,7 +153,12 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 	};
 
 	let parse_errs: []lex::syntax = [];
-	defer free(parse_errs);
+	defer {
+		for (const err .. parse_errs) {
+			free(err.1);
+		};
+		free(parse_errs);
+	};
 
 	if (declpath != "") {
 		for (let ha .. declsrcs.ha) {
@@ -166,7 +171,8 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 				};
 				match (err) {
 				case let err: lex::syntax =>
-					append(parse_errs, err);
+					const msg = strings::dup(err.1);
+					append(parse_errs, (err.0, msg));
 					continue;
 				case =>
 					return err;
@@ -225,7 +231,8 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 				};
 				match (err) {
 				case let err: lex::syntax =>
-					append(parse_errs, err);
+					const msg = strings::dup(err.1);
+					append(parse_errs, (err.0, msg));
 					continue;
 				case =>
 					return err;
