@@ -18,6 +18,8 @@ fn rune_to_integer(r: rune) (u64 | void) = {
 fn parseint(s: str, base: base) ((bool, u64) | invalid | overflow) = {
 	if (base == base::DEFAULT) {
 		base = base::DEC;
+	} else if (base == base::HEX_LOWER) {
+		base = base::HEX;
 	};
 	assert(base == 2 || base == 8 || base == 10 || base == 16);
 
@@ -129,6 +131,7 @@ export fn stoz(s: str, base: base = base::DEC) (size | invalid | overflow) =
 };
 
 @test fn stou_bases() void = {
+	assert(stou64("f", base::HEX_LOWER) as u64 == 0xf);
 	assert(stou64("7f", 16) as u64 == 0x7f);
 	assert(stou64("7F", 16) as u64 == 0x7f);
 	assert(stou64("37", 8) as u64 == 0o37);
