@@ -79,6 +79,11 @@ export fn fstatat(fd: int, path: path, _stat: *st, flag: int) (void | errno) = {
 	_stat.flags = sb.st_flags;
 };
 
+export fn fstatvfs1(fd: int, _statvfs: *statvfs, flag: int) (void | errno) = {
+	wrap_return(syscall3(SYS___fstatvfs190, fd: u64,
+		_statvfs: uintptr: u64, flag: u64))?;
+};
+
 export fn futimens(fd: int, ts: *[2]timespec) (void | errno) = {
 	wrap_return(syscall2(SYS_futimens,
 		fd: u64, ts: uintptr: u64))?;
@@ -148,6 +153,11 @@ export fn sysctl(name: []const u32, oldp: nullable *opaque, oldlenp: nullable *s
 		&name[0]: uintptr: u64, len(name): u64,
 		oldp: uintptr: u64, oldlenp: uintptr: u64,
 		newp: uintptr: u64, newlen: u64))?;
+};
+
+export fn unlink(path: path) (void | errno) = {
+	let path = kpath(path)?;
+	wrap_return(syscall1(SYS_unlink, path: uintptr: u64))?;
 };
 
 export fn unlinkat(dirfd: int, path: path, flags: int) (void | errno) = {
