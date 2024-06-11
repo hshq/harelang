@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use bytes;
 use encoding::utf8;
 use errors;
 use io;
-use strings;
 
 const vtable_r: io::vtable = io::vtable {
 	closer = &close_static,

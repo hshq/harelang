@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use bufio;
 use bytes;
 use endian;
 use errors;
@@ -9,7 +8,6 @@ use io;
 use math::{bit_size_u8,bit_size_u32};
 use memio;
 use strings;
-use time::date;
 use types;
 
 

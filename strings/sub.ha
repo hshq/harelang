@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use encoding::utf8;
-
 export type end = void;
 
 fn utf8_byte_len_bounded(iter: *iterator, end: size) size = {

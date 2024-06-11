@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use bytes;
-use crypto::ec;
 use crypto::sha1;
 use crypto::sha256;
 use crypto::sha512;

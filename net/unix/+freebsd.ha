@@ -2,12 +2,9 @@
 // (c) Hare authors <https://harelang.org>
 
 use errors;
-use fmt;
 use io;
 use net;
-use os;
 use rt;
-use strings;
 use types;
 
 // Opens a UNIX socket connection to the path. Blocks until the connection is

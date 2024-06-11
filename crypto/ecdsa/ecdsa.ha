@@ -27,10 +27,8 @@
 
 use crypto::ec;
 use crypto::bigint;
-use os;
 use hash;
 use crypto::bigint::{word};
-use io;
 
 def POINTSZ = 1 + ((ec::MAX_COORDBITSZ + bigint::WORD_BITSZ - 1)
 	/ bigint::WORD_BITSZ);

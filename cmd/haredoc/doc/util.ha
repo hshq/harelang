@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // (c) Hare authors <https://harelang.org>
 
-use fmt;
 use fs;
 use hare::module;
-use io;
 use memio;
 use os;
 use path;

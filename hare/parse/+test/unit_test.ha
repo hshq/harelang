@@ -7,7 +7,6 @@ use hare::lex;
 use io::{mode};
 use memio;
 use strings;
-use types;
 
 fn import_eq(i1: ast::import, i2: ast::import) bool = {
 	if (!ast::ident_eq(i1.ident, i2.ident)) {

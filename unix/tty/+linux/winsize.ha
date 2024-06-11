@@ -3,7 +3,6 @@
 
 use errors;
 use io;
-use os;
 use rt;
 
 // Returns the dimensions of underlying terminal for an [[io::file]].

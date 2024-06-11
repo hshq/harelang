@@ -10,7 +10,6 @@ use hare::module;
 use hare::parse;
 use io;
 use os;
-use path;
 use types;
 
 type symkind = enum {

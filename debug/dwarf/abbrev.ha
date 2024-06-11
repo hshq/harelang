@@ -5,8 +5,6 @@ use debug::image;
 use errors;
 use format::elf;
 use io;
-use memio;
-use sort;
 
 export type abbrev_table = struct {
 	items: []abbrev,

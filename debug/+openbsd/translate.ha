@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use rt;
-use types::c;
 
 // Tries to translate a pointer into an ELF address of the currently running
 // binary.

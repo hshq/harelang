@@ -7,7 +7,6 @@ use encoding::utf8;
 use fmt;
 use io;
 use memio;
-use os;
 use path;
 use sort;
 use sort::cmp;

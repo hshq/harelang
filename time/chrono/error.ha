@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use encoding::utf8;
 use fmt;
 use fs;
 use io;

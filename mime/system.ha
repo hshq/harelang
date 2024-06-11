@@ -3,7 +3,6 @@
 
 use bufio;
 use encoding::utf8;
-use fmt;
 use fs;
 use io;
 use os;

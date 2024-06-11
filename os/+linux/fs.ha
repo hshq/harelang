@@ -3,7 +3,6 @@
 
 use errors;
 use fs;
-use path;
 use rt;
 use types::c;
 

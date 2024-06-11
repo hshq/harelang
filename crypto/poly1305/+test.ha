@@ -3,7 +3,6 @@
 
 use bytes;
 use crypto::mac;
-use encoding::hex;
 
 // example taken from the Poly1305-AES paper from D. J. Bernstein
 @test fn example1() void = {

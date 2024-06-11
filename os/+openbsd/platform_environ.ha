@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use errors;
-use math;
 use rt;
 use strings;
 use types::c;

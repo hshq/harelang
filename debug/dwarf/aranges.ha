@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use bufio;
 use debug::image;
 use errors;
-use encoding::hex;
 use format::elf;
 use io;
-use memio;
 
 // Supported version of .debug_aranges decoder
 def ARANGES_VERSION: u16 = 2;

@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use bytes;
-use crypto::cipher;
 use io;
 use memio;
 use types;

@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use errors;
 use fs;
-use path;
 use rt;
 use types::c;
 

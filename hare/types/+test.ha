@@ -6,10 +6,8 @@ use fmt;
 use hare::ast;
 use hare::lex;
 use hare::parse;
-use io;
 use memio;
 use strings;
-use types;
 
 fn parse_type(in: str) ast::_type = {
 	let buf = memio::fixed(strings::toutf8(in));

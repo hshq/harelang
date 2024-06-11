@@ -3,7 +3,6 @@
 
 // Uses Ryū for shortest, falls back to multiprecision for fixed precision.
 
-use ascii;
 use io;
 use math;
 use memio;

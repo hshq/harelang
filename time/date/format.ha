@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use ascii;
 use fmt;
 use io;
 use memio;
 use strings;
-use time;
 use time::chrono;
 
 // [[format]] layout for the email date format.

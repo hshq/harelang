@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use io;
-use rt;
 
 let _stream_vt: io::vtable = io::vtable {
 	reader = &rand_reader,

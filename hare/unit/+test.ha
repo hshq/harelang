@@ -6,7 +6,6 @@ use hare::ast;
 use hare::lex;
 use hare::parse;
 use hare::types;
-use io;
 use memio;
 use strings;
 

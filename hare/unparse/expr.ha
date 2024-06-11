@@ -4,7 +4,6 @@
 use fmt;
 use hare::ast;
 use hare::ast::{binarithm_op};
-use hare::lex;
 use hare::lex::{ltok};
 use io;
 use strings;

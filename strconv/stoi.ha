@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use strings;
 use types;
 
 // Converts a string to an i64. Returns [[invalid]] if the string is empty or

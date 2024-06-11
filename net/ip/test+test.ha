@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use fmt;
 use strings;
 
 fn ip_test(s: str, expected: (addr|invalid)) void = {

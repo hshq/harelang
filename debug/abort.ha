@@ -3,7 +3,6 @@
 
 use debug::image;
 use fmt;
-use format::elf;
 use rt;
 
 @init fn init_abort() void = {

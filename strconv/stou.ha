@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use ascii;
-use encoding::utf8;
 use strings;
 use types;
 

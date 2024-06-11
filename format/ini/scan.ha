@@ -2,8 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use bufio;
-use encoding::utf8;
-use fmt;
 use io;
 use strings;
 

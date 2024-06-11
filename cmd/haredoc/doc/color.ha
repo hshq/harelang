@@ -3,10 +3,8 @@
 
 use fmt;
 use hare::unparse;
-use io;
 use os;
 use regex;
-use strings;
 
 // Colors/Renditions with defaults; SGR parameters for ANSI escape sequences.
 const default_colors = [

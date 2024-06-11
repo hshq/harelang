@@ -5,7 +5,6 @@ use errors;
 use io;
 use net;
 use net::ip;
-use os;
 use rt;
 
 // Opens a TCP connection to the given host and port. Blocks until the

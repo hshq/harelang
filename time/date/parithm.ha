@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use fmt;
-use math;
 use time;
 use time::chrono;
 

@@ -5,7 +5,6 @@ use errors;
 use io;
 use net;
 use net::ip;
-use os;
 use rt;
 
 // Creates a UDP socket and sets the default destination to the given address.

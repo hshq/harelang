@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use bytes;
-use crypto::math;
 use crypto::math::{xor};
 use io;
 
