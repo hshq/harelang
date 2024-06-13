@@ -589,8 +589,8 @@ export fn bind(sockfd: int, addr: *const sockaddr, addrlen: u32) (void | errno) 
 };
 
 export fn listen(sockfd: int, backlog: u32) (void | errno) = {
-	return wrap_return(syscall2(SYS_listen,
-		sockfd: u64, backlog: u64))?: int;
+	wrap_return(syscall2(SYS_listen,
+		sockfd: u64, backlog: u64))?;
 };
 
 export fn accept(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) (int | errno) = {
@@ -640,15 +640,15 @@ export fn recvmsg(fd: int, msg: *const msghdr, flags: int) (int | errno) = {
 };
 
 export fn getsockopt(sockfd: int, level: int, optname: int, optval: nullable *opaque, optlen: nullable *u32) (void | errno) = {
-	return wrap_return(syscall5(SYS_getsockopt,
+	wrap_return(syscall5(SYS_getsockopt,
 		sockfd: u64, level: u64, optname: u64,
-		optval: uintptr: u64, optlen: uintptr: u64))?: int;
+		optval: uintptr: u64, optlen: uintptr: u64))?;
 };
 
 export fn setsockopt(sockfd: int, level: int, optname: int, optval: *opaque, optlen: u32) (void | errno) = {
-	return wrap_return(syscall5(SYS_setsockopt,
+	wrap_return(syscall5(SYS_setsockopt,
 		sockfd: u64, level: u64, optname: u64,
-		optval: uintptr: u64, optlen: u64))?: int;
+		optval: uintptr: u64, optlen: u64))?;
 };
 
 export fn getsockname(sockfd: int, addr: nullable *sockaddr, addrlen: nullable *u32) (void | errno) = {

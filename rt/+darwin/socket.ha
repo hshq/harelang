@@ -9,7 +9,6 @@ export type in_addr = struct {
 };
 
 export type sockaddr_in = struct {
-	sin_len: u8,
 	sin_family: sa_family_t,
 	sin_port: u16,
 	sin_addr: in_addr,
@@ -25,7 +24,6 @@ export type in6_addr = struct {
 };
 
 export type sockaddr_in6 = struct {
-	sin6_len: u8,
 	sin6_family: sa_family_t,
 	sin6_port: u16,
 	sin6_flowinfo: u32,
@@ -36,7 +34,6 @@ export type sockaddr_in6 = struct {
 export def UNIX_PATH_MAX: size = 104;
 
 export type sockaddr_un = struct {
-	sun_len: u8,
 	sun_family: sa_family_t,
 	sun_path: [UNIX_PATH_MAX]u8,
 };
@@ -128,8 +125,8 @@ export def SOCK_DGRAM    : int = 2;
 export def SOCK_RAW      : int = 3;
 export def SOCK_RDM      : int = 4;
 export def SOCK_SEQPACKET: int = 5;
-export def SOCK_CLOEXEC  : int = 0x10000000;
-export def SOCK_NONBLOCK : int = 0x20000000;
+export def SOCK_CLOEXEC  : int = 0;
+export def SOCK_NONBLOCK : int = 0;
 
 // <netinet/in.h>: Protocols (RFC 1700)
 export def IPPROTO_IP       : int = 0;
