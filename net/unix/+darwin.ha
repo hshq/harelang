@@ -102,7 +102,6 @@ fn to_native(addr: addr) (rt::sockaddr | invalid) = {
 	};
 	let ret = rt::sockaddr {
 		un = rt::sockaddr_un {
-			sun_len = size(rt::sockaddr_un): u8,
 			sun_family = rt::AF_UNIX,
 			...
 		}
