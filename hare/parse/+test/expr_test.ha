@@ -113,7 +113,7 @@
 
 @test fn constant() void = {
 	roundtrip(`export fn main() void = {
-	2 + (-4 + void) * true / ("hello" << '?');
+	2 + (-4 + void) * true % done / ("hello" << '?');
 	[1, 2, 3, 4];
 	[1, 2, 3, 4...];
 	(1, 2, 3);

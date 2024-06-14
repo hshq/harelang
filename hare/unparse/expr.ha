@@ -552,6 +552,8 @@ fn literal(
 		case void => abort();
 		case ast::_null =>
 			return syn(ctx, "null", synkind::KEYWORD)?;
+		case done =>
+			return syn(ctx, "done", synkind::KEYWORD)?;
 		case let b: bool =>
 			return syn(ctx, if (b) "true" else "false",
 				synkind::KEYWORD)?;
