@@ -11,8 +11,8 @@ use ascii;
 use math;
 use strings;
 
-const maxshift: u8 = 60;
-const decimal_point_range: u16 = 2047;
+def maxshift: u8 = 60;
+def decimal_point_range: u16 = 2047;
 
 type decimal = struct {
 	num_digits: size,

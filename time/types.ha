@@ -25,17 +25,14 @@ export def MINUTE: duration = 60 * SECOND;
 // [[duration]] representing an hour.
 export def HOUR: duration = 60 * MINUTE;
 
-// TODO: change the following to defs when compileable.
-// https://git.sr.ht/~sircmpwn/harec/tree/211b99a/item/src/typedef.c#L169
-
 // The earliest representable [[instant]].
-export const INSTANT_MIN = instant {
+export def INSTANT_MIN = instant {
 	sec = types::I64_MIN,
 	nsec = 0,
 };
 
 // The latest representable [[instant]].
-export const INSTANT_MAX = instant {
+export def INSTANT_MAX = instant {
 	sec = types::I64_MAX,
 	nsec = SECOND - 1,
 };
