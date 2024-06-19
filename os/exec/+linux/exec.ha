@@ -2,6 +2,7 @@
 // (c) Hare authors <https://harelang.org>
 
 use errors;
+use fs;
 use io;
 use os;
 use rt;
@@ -137,7 +138,7 @@ fn platform_exec(cmd: *command) error = {
 	};
 
 	const devnull: io::file = if (need_devnull) {
-		yield os::open("/dev/null")!;
+		yield os::open("/dev/null", fs::flag::RDWR)!;
 	} else -1;
 
 	for (let file .. cmd.files) {
