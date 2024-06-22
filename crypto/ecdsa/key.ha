@@ -4,9 +4,6 @@
 use crypto::ec;
 use io;
 
-// Invalid key.
-export type invalidkey = !void;
-
 export type pubkey = struct {
 	curve: *ec::curve,
 	get_q: *fn (pub: *pubkey) []u8,
