@@ -162,7 +162,7 @@ export fn verify(pub: *pubkey, hash: []u8, sig: []u8) (void | error) = {
 	res &= ~bigint::sub(t1, r, 1);
 	res &= bigint::iszero(t1);
 
-	if (res == 0) {
+	if (res != 1) {
 		return invalidsig;
 	};
 };
