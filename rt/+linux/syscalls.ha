@@ -1076,3 +1076,12 @@ export fn getxattr(path: path, name: str, value: []u8) (u64 | errno) = {
 		len(value): u64,
 	));
 };
+
+// Removes an extended file attribute.
+export fn removexattr(path: path, name: str) (void | errno) = {
+	let path = kpath(path)?;
+	static let namebuf: [PATH_MAX]u8 = [0...];
+	let name = copy_kpath(name, namebuf)?;
+
+	wrap_return(syscall2(SYS_removexattr, path: uintptr, name: uintptr))?;
+};
