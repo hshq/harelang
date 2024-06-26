@@ -1062,3 +1062,17 @@ export fn setxattr(
 		flags: u64
 	))?;
 };
+
+// Gets an extended file attribute.
+export fn getxattr(path: path, name: str, value: []u8) (u64 | errno) = {
+	let path = kpath(path)?;
+	static let namebuf: [PATH_MAX]u8 = [0...];
+	let name = copy_kpath(name, namebuf)?;
+
+	return wrap_return(syscall4(SYS_getxattr,
+		path: uintptr,
+		name: uintptr,
+		value: *[*]u8: uintptr: u64,
+		len(value): u64,
+	));
+};
