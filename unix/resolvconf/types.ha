@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0
+// (c) Hare authors <https://harelang.org>
+
 use net::ip;
 
 // A list of [[net::ip::subnet]]s.
