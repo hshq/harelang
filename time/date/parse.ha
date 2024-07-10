@@ -82,6 +82,8 @@ fn parse_specifier(
 		v.month = scan_int(iter, 2)?;
 		eat_rune(iter, '-')?;
 		v.day = scan_int(iter, 2)?;
+	case 'G' =>
+		v.isoweekyear = scan_int(iter, 4)?;
 	case 'H' =>
 		v.hour = scan_int(iter, 2)?;
 	case 'I' =>
@@ -114,6 +116,8 @@ fn parse_specifier(
 		v.weekday = scan_int(iter, 1)? - 1;
 	case 'U' =>
 		v.week = scan_int(iter, 2)?;
+	case 'V' =>
+		v.isoweek = scan_int(iter, 2)?;
 	case 'w' =>
 		v.weekday = scan_int(iter, 1)? - 1;
 	case 'W' =>
