@@ -30,6 +30,8 @@ export fn errno(errno: rt::errno) error = {
 		return interrupted;
 	case rt::EAGAIN =>
 		return again;
+	case rt::ENETUNREACH =>
+		return netunreachable;
 	case => void;
 	};
 

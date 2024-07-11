@@ -38,6 +38,8 @@ case interrupted =>
 	yield "Operation interrupted";
 case again =>
 	yield "Try again";
+case netunreachable =>
+	yield "Network unreachable";
 case let op: opaque_ =>
 	yield op.strerror(&op.data);
 };

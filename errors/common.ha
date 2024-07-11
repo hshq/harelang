@@ -40,6 +40,9 @@ export type interrupted = !void;
 // The user should attempt an operation again.
 export type again = !void;
 
+// Network unreachable
+export type netunreachable = !void;
+
 // A tagged union of all error types.
 export type error = !(
 	busy |
@@ -55,5 +58,6 @@ export type error = !(
 	nomem |
 	interrupted |
 	again |
+	netunreachable |
 	opaque_
 );
