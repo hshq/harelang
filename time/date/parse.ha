@@ -2,11 +2,9 @@
 // (c) Hare authors <https://harelang.org>
 
 use ascii;
-use io;
 use strconv;
 use strings;
 use time;
-use time::chrono;
 
 type failure = !void;
 

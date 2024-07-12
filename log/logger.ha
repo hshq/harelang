@@ -3,7 +3,6 @@
 
 use fmt;
 use io;
-use os;
 use time::date;
 
 // Interface for implementing a logger.

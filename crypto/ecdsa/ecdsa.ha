@@ -27,10 +27,8 @@
 
 use crypto::ec;
 use crypto::bigint;
-use os;
 use hash;
 use crypto::bigint::{word};
-use io;
 
 def POINTSZ = 1 + ((ec::MAX_COORDBITSZ + bigint::WORD_BITSZ - 1)
 	/ bigint::WORD_BITSZ);
@@ -60,9 +58,11 @@ export def P384_SIGSZ = 96;
 export def P521_SIGSZ = 132;
 
 // Verifies the signature 'sig' with message 'hash' using the public key 'pub'.
-// Returns 1 on success and 0 on error. Verification is done in constant time,
-// but may return earlier if the signature format is not valid.
-export fn verify(pub: *pubkey, hash: []u8, sig: []u8) u32 = {
+// Returns [[invalidkey]] or [[invalidsig]] in case of error. An invalid key may
+// not be detected and causes an [[invalidsig]] in this case. Verification is
+// done in constant time, but may return earlier if the signature format is not
+// valid.
+export fn verify(pub: *pubkey, hash: []u8, sig: []u8) (void | error) = {
 	// IMPORTANT: this code is fit only for curves with a prime
 	// order. This is needed so that modular reduction of the X
 	// coordinate of a point can be done with a simple subtraction.
@@ -84,14 +84,14 @@ export fn verify(pub: *pubkey, hash: []u8, sig: []u8) u32 = {
 
 	// Signature length must be even.
 	if (len(sig) & 1 == 1) {
-		return 0;
+		return invalidsig;
 	};
 	let rlen = len(sig) >> 1;
 
 	let generator = pub.curve.generator();
 	// Public key point must have the proper size for this curve.
 	if (len(q) != len(generator)) {
-		return 0;
+		return invalidkey;
 	};
 
 	// Get modulus; then decode the r and s values. They must be
@@ -103,13 +103,13 @@ export fn verify(pub: *pubkey, hash: []u8, sig: []u8) u32 = {
 	bigint::encode(n, order);
 	let n0i = bigint::ninv(n[1]);
 	if (bigint::encodemod(r, sig[..rlen], n) == 0) {
-		return 0;
+		return invalidsig;
 	};
 	if (bigint::encodemod(s, sig[rlen..2 * rlen], n) == 0) {
-		return 0;
+		return invalidsig;
 	};
 	if (bigint::iszero(s) == 1) {
-		return 0;
+		return invalidsig;
 	};
 
 	// Invert s. We do that with a modular exponentiation; we use
@@ -159,13 +159,17 @@ export fn verify(pub: *pubkey, hash: []u8, sig: []u8) u32 = {
 	bigint::sub(t1, n, bigint::sub(t1, n, 0) ^ 1);
 	res &= ~bigint::sub(t1, r, 1);
 	res &= bigint::iszero(t1);
-	return res;
+
+	if (res != 1) {
+		return invalidsig;
+	};
 };
 
 def ORDER_LEN = (ec::MAX_COORDBITSZ + 7) >> 3;
 
 // Signs hashed message 'hash' with the private key and stores it into 'sig'.
-// Returns the number of bytes written to sig on success or 0 on failure.
+// Returns the number of bytes written to sig on success or [[invalidkey]]
+// otherwise.
 //
 // The signature is done in a deterministic way according to RFC 6979, hence
 // 'hashfn' and 'hashbuf' are required. 'hashfn' can be the same as the one that
@@ -180,7 +184,7 @@ export fn sign(
 	hashfn: *hash::hash,
 	hashbuf: []u8,
 	sig: []u8
-) u32 =  {
+) (u32 | invalidkey) =  {
 	// IMPORTANT: this code is fit only for curves with a prime
 	// order. This is needed so that modular reduction of the X
 	// coordinate of a point can be done with a simple subtraction.
@@ -211,10 +215,10 @@ export fn sign(
 	// private key is well-defined (not zero, and less than the
 	// curve order).
 	if (bigint::encodemod(x, priv.get_x(priv), n) == 0) {
-		return 0;
+		return invalidkey;
 	};
 	if (bigint::iszero(x) == 1) {
-		return 0;
+		return invalidkey;
 	};
 
 	// Truncate and reduce the hash value modulo the curve order.

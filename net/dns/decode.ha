@@ -3,7 +3,6 @@
 
 use ascii;
 use endian;
-use fmt;
 use net::ip;
 use strings;
 

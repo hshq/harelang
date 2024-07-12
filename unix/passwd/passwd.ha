@@ -2,6 +2,7 @@
 // (c) Hare authors <https://harelang.org>
 
 use bufio;
+use encoding::utf8;
 use io;
 use memio;
 use os;
@@ -27,37 +28,57 @@ export type pwent = struct {
 	shell: str,
 };
 
-// Reads a Unix-like password entry from an [[io::handle]]. The caller must free
-// the return value using [[pwent_finish]].
-export fn nextpw(in: io::handle) (pwent | io::EOF | io::error | invalid) = {
-	let line = match (bufio::read_line(in)?) {
+export type userreader = struct {
+	scan: bufio::scanner,
+};
+
+// Creates a parser for an /etc/passwd-formatted file. Use [[nextpw]] to
+// enumerate the users, and [[users_finish]] to free resources associated with
+// the reader.
+export fn users_read(in: io::handle) userreader = {
+	return groupreader {
+		scan = bufio::newscanner(in),
+	};
+};
+
+// Frees resources associated with a [[groupreader]].
+export fn users_finish(rd: *userreader) void = {
+	bufio::finish(&rd.scan);
+};
+
+// Reads a Unix-like password entry from an [[io::handle]]. The return value is
+// borrowed from the reader.
+export fn nextpw(rd: *userreader) (pwent | io::EOF | io::error | invalid) = {
+	const line = match (bufio::scan_line(&rd.scan)) {
 	case io::EOF =>
 		return io::EOF;
-	case let ln: []u8 =>
+	case let ln: const str =>
 		yield ln;
-	};
-	let line = match (strings::fromutf8(line)) {
-	case let s: str =>
-		yield s;
-	case =>
+	case utf8::invalid =>
 		return invalid;
+	case let err: io::error =>
+		return err;
+	};
+	const tok = strings::tokenize(line, ":");
+
+	let i = 0z;
+	let fields: [7]str = [""...];
+	for (const f => strings::next_token(&tok)) {
+		defer i += 1;
+		if (i >= len(fields)) {
+			return invalid;
+		};
+		fields[i] = f;
 	};
 
-	let fields = strings::split(line, ":");
-	defer free(fields);
-
-	if (len(fields) != 7) {
-		return invalid;
-	};
-
-	let uid = match (strconv::stou64(fields[2])) {
+	const uid = match (strconv::stou64(fields[2])) {
 	case let u: u64 =>
 		yield u: unix::uid;
 	case =>
 		return invalid;
 	};
 
-	let gid = match (strconv::stou64(fields[3])) {
+	const gid = match (strconv::stou64(fields[3])) {
 	case let u: u64 =>
 		yield u: unix::gid;
 	case =>
@@ -65,7 +86,6 @@ export fn nextpw(in: io::handle) (pwent | io::EOF | io::error | invalid) = {
 	};
 
 	return pwent {
-		// Borrows the return value of bufio::read_line
 		username = fields[0],
 		password = fields[1],
 		uid      = uid,
@@ -78,10 +98,19 @@ export fn nextpw(in: io::handle) (pwent | io::EOF | io::error | invalid) = {
 
 // Frees resources associated with a [[pwent]].
 export fn pwent_finish(ent: *pwent) void = {
-	// pwent fields are sliced from one allocated string returned by
-	// bufio::read_line. Freeing the first field frees the entire string in
-	// one go.
 	free(ent.username);
+	free(ent.password);
+	free(ent.comment);
+	free(ent.homedir);
+	free(ent.shell);
+};
+
+fn pwent_dup(ent: *pwent) void = {
+	ent.username = strings::dup(ent.username);
+	ent.password = strings::dup(ent.password);
+	ent.comment = strings::dup(ent.comment);
+	ent.homedir = strings::dup(ent.homedir);
+	ent.shell = strings::dup(ent.shell);
 };
 
 // Looks up a user by name in a Unix-like password file. It expects a password
@@ -90,7 +119,7 @@ export fn pwent_finish(ent: *pwent) void = {
 //
 // See [[nextpw]] for low-level parsing API.
 export fn getuser(username: str) (pwent | void) = {
-	let file = match (os::open("/etc/passwd")) {
+	const file = match (os::open("/etc/passwd")) {
 	case let f: io::file =>
 		yield f;
 	case =>
@@ -98,22 +127,13 @@ export fn getuser(username: str) (pwent | void) = {
 	};
 	defer io::close(file)!;
 
-	let rbuf: [os::BUFSZ]u8 = [0...];
-	let strm = bufio::init(file, rbuf, []);
-	for (true) {
-		let ent = match (nextpw(&strm)) {
-		case let e: pwent =>
-			yield e;
-		case io::EOF =>
-			break;
-		case =>
-			abort("Invalid entry in /etc/passwd");
-		};
+	const rd = users_read(file);
+	defer users_finish(&rd);
 
+	for (const ent => nextpw(&rd)!) {
 		if (ent.username == username) {
+			pwent_dup(&ent);
 			return ent;
-		} else {
-			pwent_finish(&ent);
 		};
 	};
 };
@@ -124,7 +144,7 @@ export fn getuser(username: str) (pwent | void) = {
 //
 // See [[nextpw]] for low-level parsing API.
 export fn getuid(uid: unix::uid) (pwent | void) = {
-	let file = match (os::open("/etc/passwd")) {
+	const file = match (os::open("/etc/passwd")) {
 	case let f: io::file =>
 		yield f;
 	case =>
@@ -132,53 +152,55 @@ export fn getuid(uid: unix::uid) (pwent | void) = {
 	};
 	defer io::close(file)!;
 
-	let rbuf: [os::BUFSZ]u8 = [0...];
-	let strm = bufio::init(file, rbuf, []);
-	for (true) {
-		let ent = match (nextpw(&strm)) {
-		case let e: pwent =>
-			yield e;
-		case io::EOF =>
-			break;
-		case =>
-			abort("Invalid entry in /etc/passwd");
-		};
+	const rd = users_read(file);
+	defer users_finish(&rd);
 
+	for (const ent => nextpw(&rd)!) {
 		if (ent.uid == uid) {
+			pwent_dup(&ent);
 			return ent;
-		} else {
-			pwent_finish(&ent);
 		};
 	};
 };
 
 @test fn nextpw() void = {
-	let buf = memio::fixed(strings::toutf8(
-		"sircmpwn:x:1000:1000:sircmpwn's comment:/home/sircmpwn:/bin/mrsh\n"
+	const buf = memio::fixed(strings::toutf8(
+		"sircmpwn:x:1000:1000:sircmpwn's comment:/home/sircmpwn:/bin/rc\n"
 		"alex:x:1001:1001::/home/alex:/bin/zsh"));
 
-	let ent = nextpw(&buf) as pwent;
-	defer pwent_finish(&ent);
+	const rd = users_read(&buf);
+	defer users_finish(&rd);
 
-	assert(ent.username == "sircmpwn");
-	assert(ent.password == "x");
-	assert(ent.uid == 1000);
-	assert(ent.gid == 1000);
-	assert(ent.comment == "sircmpwn's comment");
-	assert(ent.homedir == "/home/sircmpwn");
-	assert(ent.shell == "/bin/mrsh");
+	const expect = [
+		pwent {
+			username = "sircmpwn",
+			password = "x",
+			uid = 1000,
+			gid = 1000,
+			comment = "sircmpwn's comment",
+			homedir = "/home/sircmpwn",
+			shell = "/bin/rc",
+		},
+		pwent {
+			username = "alex",
+			password = "x",
+			uid = 1001,
+			gid = 1001,
+			comment = "",
+			homedir = "/home/alex",
+			shell = "/bin/zsh",
+		},
+	];
 
-	let ent = nextpw(&buf) as pwent;
-	defer pwent_finish(&ent);
-
-	assert(ent.username == "alex");
-	assert(ent.password == "x");
-	assert(ent.uid == 1001);
-	assert(ent.gid == 1001);
-	assert(ent.comment == "");
-	assert(ent.homedir == "/home/alex");
-	assert(ent.shell == "/bin/zsh");
-
-	// No more entries
-	assert(nextpw(&buf) is io::EOF);
+	let i = 0z;
+	for (const ent => nextpw(&rd)!) {
+		defer i += 1;
+		assert(ent.username == expect[i].username);
+		assert(ent.password == expect[i].password);
+		assert(ent.uid == expect[i].uid);
+		assert(ent.gid == expect[i].gid);
+		assert(ent.comment == expect[i].comment);
+		assert(ent.homedir == expect[i].homedir);
+		assert(ent.shell == expect[i].shell);
+	};
 };

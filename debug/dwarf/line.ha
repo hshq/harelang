@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use debug::image;
-use errors;
 use format::elf;
 use io;
 use memio;

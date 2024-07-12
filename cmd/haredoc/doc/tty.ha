@@ -7,7 +7,6 @@ use hare::ast;
 use hare::lex;
 use hare::unparse;
 use io;
-use memio;
 use os;
 use strings;
 

@@ -3,7 +3,6 @@
 
 use bytes;
 use encoding::hex;
-use os;
 use strings;
 use test;
 

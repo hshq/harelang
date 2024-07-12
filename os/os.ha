@@ -3,7 +3,6 @@
 
 use fs;
 use io;
-use path;
 use time;
 
 // Provides an implementation of [[fs::fs]] for the current working directory.

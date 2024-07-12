@@ -25,10 +25,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use bytes;
 use crypto::math::*;
 use crypto::bigint::*;
-use io;
 
 
 type curveparams = struct {

@@ -5,9 +5,7 @@ use bytes;
 use crypto::mac;
 use crypto::sha1;
 use crypto::sha256;
-use encoding::hex;
 use hash;
-use io;
 use strings;
 
 fn assert_hmac_sha1(keystr: str, vectors: [](str, [20]u8)) void = {

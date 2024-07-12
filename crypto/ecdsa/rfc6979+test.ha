@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use bytes;
-use crypto::ec;
 use crypto::sha1;
 use crypto::sha256;
 use crypto::sha512;
@@ -377,7 +376,7 @@ fn rfc6979_cases() []testcase = alloc([
 
 		sigbuf[..len(sig)] = sig[..];
 
-		assert(verify(pub, sum, sigbuf[..len(sig)]) == 1);
+		verify(pub, sum, sigbuf[..len(sig)])!;
 		let priv: *privkey = switch (tc.curve) {
 		case tcurveid::P256 =>
 			yield &p256priv();
@@ -391,7 +390,7 @@ fn rfc6979_cases() []testcase = alloc([
 
 		privkey_buf(priv)[..] = tc.x[..];
 
-		const n = sign(priv, sum, h, hashbuf, sigbuf);
+		const n = sign(priv, sum, h, hashbuf, sigbuf)!;
 		assert(n == sigsz(pub));
 		assert(bytes::equal(sigbuf[..n], sig));
 	};

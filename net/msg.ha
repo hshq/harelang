@@ -4,7 +4,6 @@
 // TODO:
 // - Set name field
 // - Figure out the portability mess that is this interface
-use fmt;
 use rt;
 
 export type msghdr = struct {

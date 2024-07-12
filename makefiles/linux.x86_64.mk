@@ -114,10 +114,9 @@ $(HARECACHE)/std/linux_vdso.ssa: $(linux_vdso_ha) $(HARECACHE)/std/format_elf.td
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/linux_vdso.td.tmp -N linux::vdso $(linux_vdso_ha)
 
 time_ha = time/+linux/+x86_64.ha time/+linux/functions.ha time/arithm.ha time/conv.ha time/types.ha
-$(HARECACHE)/time.ssa: $(time_ha) $(HARECACHE)/errors.td $(HARECACHE)/linux_vdso.td $(HARECACHE)/math.td $(HARECACHE)/rt.td $(HARECACHE)/types.td
-	@mkdir -p -- "$(HARECACHE)"
-	@printf 'HAREC\t%s\n' "$@"
-	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/time.td.tmp -N time $(time_ha)
+$(HARECACHE)/std/time.ssa: $(time_ha) $(HARECACHE)/std/errors.td $(HARECACHE)/std/linux_vdso.td $(HARECACHE)/std/math.td $(HARECACHE)/std/rt.td $(HARECACHE)/std/types.td
+	@mkdir -p -- "$(HARECACHE)/std"
+	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/time.td.tmp -N time $(time_ha)
 
 fs_ha = fs/fs.ha fs/types.ha fs/util.ha
 $(HARECACHE)/std/fs.ssa: $(fs_ha) $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)/std/errors.td $(HARECACHE)/std/io.td $(HARECACHE)/std/path.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td
@@ -125,12 +124,12 @@ $(HARECACHE)/std/fs.ssa: $(fs_ha) $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/fs.td.tmp -N fs $(fs_ha)
 
 os_ha = os/+linux/dirfdfs.ha os/+linux/exit.ha os/+linux/fs.ha os/+linux/memfd.ha os/+linux/memory.ha os/+linux/platform_environ.ha os/+linux/shm.ha os/+linux/status.ha os/+linux/stdfd.ha os/environ.ha os/os.ha
-$(HARECACHE)/std/os.ssa: $(os_ha) $(HARECACHE)/std/bufio.td $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)/std/errors.td $(HARECACHE)/std/fs.td $(HARECACHE)/std/io.td $(HARECACHE)/std/math.td $(HARECACHE)/std/path.td $(HARECACHE)/std/rt.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td $(HARECACHE)/std/types_c.td
+$(HARECACHE)/std/os.ssa: $(os_ha) $(HARECACHE)/std/bufio.td $(HARECACHE)/std/errors.td $(HARECACHE)/std/fs.td $(HARECACHE)/std/io.td $(HARECACHE)/std/math.td $(HARECACHE)/std/path.td $(HARECACHE)/std/rt.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td $(HARECACHE)/std/types_c.td
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/os.td.tmp -N os $(os_ha)
 
 strconv_ha = strconv/ftos.ha strconv/ftos_multiprecision.ha strconv/ftos_ryu.ha strconv/itos.ha strconv/numeric.ha strconv/stof.ha strconv/stof_data.ha strconv/stoi.ha strconv/stou.ha strconv/types.ha strconv/utos.ha
-$(HARECACHE)/std/strconv.ssa: $(strconv_ha) $(HARECACHE)/std/ascii.td $(HARECACHE)/std/bytes.td $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)/std/io.td $(HARECACHE)/std/math.td $(HARECACHE)/std/memio.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/types.td
+$(HARECACHE)/std/strconv.ssa: $(strconv_ha) $(HARECACHE)/std/ascii.td $(HARECACHE)/std/bytes.td $(HARECACHE)/std/io.td $(HARECACHE)/std/math.td $(HARECACHE)/std/memio.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/types.td
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/strconv.td.tmp -N strconv $(strconv_ha)
 
@@ -150,7 +149,7 @@ $(HARECACHE)/std/sort.ssa: $(sort_ha) $(HARECACHE)/std/math.td $(HARECACHE)/std/
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/sort.td.tmp -N sort $(sort_ha)
 
 hare_lex_ha = hare/lex/lex.ha hare/lex/token.ha
-$(HARECACHE)/std/hare_lex.ssa: $(hare_lex_ha) $(HARECACHE)/std/ascii.td $(HARECACHE)/std/bufio.td $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)/std/fmt.td $(HARECACHE)/std/io.td $(HARECACHE)/std/memio.td $(HARECACHE)/std/os.td $(HARECACHE)/std/path.td $(HARECACHE)/std/sort.td $(HARECACHE)/std/sort_cmp.td $(HARECACHE)/std/strconv.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/types.td
+$(HARECACHE)/std/hare_lex.ssa: $(hare_lex_ha) $(HARECACHE)/std/ascii.td $(HARECACHE)/std/bufio.td $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)/std/fmt.td $(HARECACHE)/std/io.td $(HARECACHE)/std/memio.td $(HARECACHE)/std/path.td $(HARECACHE)/std/sort.td $(HARECACHE)/std/sort_cmp.td $(HARECACHE)/std/strconv.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/types.td
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/hare_lex.td.tmp -N hare::lex $(hare_lex_ha)
 
@@ -175,7 +174,7 @@ $(HARECACHE)/std/time_chrono.ssa: $(time_chrono_ha) $(HARECACHE)/std/bufio.td $(
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/time_chrono.td.tmp -N time::chrono $(time_chrono_ha)
 
 time_date_ha = time/date/constants.ha time/date/date.ha time/date/daydate.ha time/date/daytime.ha time/date/error.ha time/date/format.ha time/date/locality.ha time/date/observe.ha time/date/parithm.ha time/date/parse.ha time/date/period.ha time/date/reckon.ha time/date/tarithm.ha time/date/virtual.ha
-$(HARECACHE)/std/time_date.ssa: $(time_date_ha) $(HARECACHE)/std/ascii.td $(HARECACHE)/std/fmt.td $(HARECACHE)/std/io.td $(HARECACHE)/std/math.td $(HARECACHE)/std/memio.td $(HARECACHE)/std/sort.td $(HARECACHE)/std/strconv.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td $(HARECACHE)/std/time_chrono.td
+$(HARECACHE)/std/time_date.ssa: $(time_date_ha) $(HARECACHE)/std/ascii.td $(HARECACHE)/std/fmt.td $(HARECACHE)/std/io.td $(HARECACHE)/std/memio.td $(HARECACHE)/std/sort.td $(HARECACHE)/std/strconv.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td $(HARECACHE)/std/time_chrono.td
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/time_date.td.tmp -N time::date $(time_date_ha)
 
@@ -195,7 +194,7 @@ $(HARECACHE)/std/unix_signal.ssa: $(unix_signal_ha) $(HARECACHE)/std/errors.td $
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/unix_signal.td.tmp -N unix::signal $(unix_signal_ha)
 
 os_exec_ha = os/exec/+linux/exec.ha os/exec/+linux/platform_cmd.ha os/exec/+linux/process.ha os/exec/cmd.ha os/exec/types.ha
-$(HARECACHE)/std/os_exec.ssa: $(os_exec_ha) $(HARECACHE)/std/ascii.td $(HARECACHE)/std/errors.td $(HARECACHE)/std/fmt.td $(HARECACHE)/std/fs.td $(HARECACHE)/std/io.td $(HARECACHE)/std/os.td $(HARECACHE)/std/path.td $(HARECACHE)/std/rt.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td $(HARECACHE)/std/types_c.td $(HARECACHE)/std/unix.td $(HARECACHE)/std/unix_signal.td
+$(HARECACHE)/std/os_exec.ssa: $(os_exec_ha) $(HARECACHE)/std/errors.td $(HARECACHE)/std/fmt.td $(HARECACHE)/std/fs.td $(HARECACHE)/std/io.td $(HARECACHE)/std/os.td $(HARECACHE)/std/path.td $(HARECACHE)/std/rt.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td $(HARECACHE)/std/types_c.td $(HARECACHE)/std/unix.td $(HARECACHE)/std/unix_signal.td
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/os_exec.td.tmp -N os::exec $(os_exec_ha)
 
@@ -210,7 +209,7 @@ $(HARECACHE)/std/unix_tty.ssa: $(unix_tty_ha) $(HARECACHE)/std/bufio.td $(HARECA
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/unix_tty.td.tmp -N unix::tty $(unix_tty_ha)
 
 cmd_hare_build_ha = cmd/hare/build/gather.ha cmd/hare/build/platform.ha cmd/hare/build/queue.ha cmd/hare/build/types.ha cmd/hare/build/util.ha
-$(HARECACHE)/std/cmd_hare_build.ssa: $(cmd_hare_build_ha) $(HARECACHE)/std/crypto_sha256.td $(HARECACHE)/std/encoding_hex.td $(HARECACHE)/std/errors.td $(HARECACHE)/std/fmt.td $(HARECACHE)/std/fs.td $(HARECACHE)/std/hare_ast.td $(HARECACHE)/std/hare_module.td $(HARECACHE)/std/hare_unparse.td $(HARECACHE)/std/hash.td $(HARECACHE)/std/io.td $(HARECACHE)/std/memio.td $(HARECACHE)/std/os.td $(HARECACHE)/std/os_exec.td $(HARECACHE)/std/path.td $(HARECACHE)/std/shlex.td $(HARECACHE)/std/sort.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/unix_tty.td
+$(HARECACHE)/std/cmd_hare_build.ssa: $(cmd_hare_build_ha) $(HARECACHE)/std/crypto_sha256.td $(HARECACHE)/std/encoding_hex.td $(HARECACHE)/std/fmt.td $(HARECACHE)/std/fs.td $(HARECACHE)/std/hare_ast.td $(HARECACHE)/std/hare_module.td $(HARECACHE)/std/hare_unparse.td $(HARECACHE)/std/hash.td $(HARECACHE)/std/io.td $(HARECACHE)/std/memio.td $(HARECACHE)/std/os.td $(HARECACHE)/std/os_exec.td $(HARECACHE)/std/path.td $(HARECACHE)/std/shlex.td $(HARECACHE)/std/sort.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/unix_tty.td
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/cmd_hare_build.td.tmp -N cmd::hare::build $(cmd_hare_build_ha)
 

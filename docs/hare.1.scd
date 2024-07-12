@@ -33,11 +33,13 @@ own line indented with a single tab.
 
 *hare-test*(1) compiles and runs tests for Hare code.
 
+# BUGS
+
+The quality of error messages is poor.
+
 # SEE ALSO
 
 *hare-module*(5), *haredoc*(1)
-
-# NOTES
 
 See _https://harelang.org/community/_ for information on where to ask questions,
 send patches, submit bug reports, and chat with others in the community.

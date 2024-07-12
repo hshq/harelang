@@ -11,8 +11,8 @@ use ascii;
 use math;
 use strings;
 
-const maxshift: u8 = 60;
-const decimal_point_range: u16 = 2047;
+def maxshift: u8 = 60;
+def decimal_point_range: u16 = 2047;
 
 type decimal = struct {
 	num_digits: size,
@@ -628,7 +628,11 @@ fn special(s: str) (f32 | void) = {
 // nearest to zero with respective sign. Recognizes "Infinity", "+Infinity",
 // "-Infinity", and "NaN", case insensitive.
 export fn stof64(s: str, b: base = base::DEC) (f64 | invalid | overflow) = {
-	if (b == base::DEFAULT) b = base::DEC;
+	if (b == base::DEFAULT) {
+		b = base::DEC;
+	} else if (b == base::HEX_LOWER) {
+		b = base::HEX;
+	};
 	assert(b == base::DEC || b == base::HEX);
 
 	if (len(s) == 0) {
@@ -670,7 +674,11 @@ export fn stof64(s: str, b: base = base::DEC) (f64 | invalid | overflow) = {
 // nearest to zero with respective sign. Recognizes "Infinity", "+Infinity",
 // "-Infinity", and "NaN", case insensitive.
 export fn stof32(s: str, b: base = base::DEC) (f32 | invalid | overflow) = {
-	if (b == base::DEFAULT) b = base::DEC;
+	if (b == base::DEFAULT) {
+		b = base::DEC;
+	} else if (b == base::HEX_LOWER) {
+		b = base::HEX;
+	};
 	assert(b == base::DEC || b == base::HEX);
 
 	if (len(s) == 0) {
@@ -767,7 +775,7 @@ export fn stof32(s: str, b: base = base::DEC) (f32 | invalid | overflow) = {
 @test fn stofhex() void = {
 	assert(stof64("0p0", base::HEX)! == 0x0.0p0);
 	assert(stof64("1p0", base::HEX)! == 0x1.0p0);
-	assert(stof64("-1p0", base::HEX)! == -0x1.0p0);
+	assert(stof64("-1p0", base::HEX_LOWER)! == -0x1.0p0);
 	assert(stof64("1.fp-2", base::HEX)! == 0x1.fp-2);
 	assert(stof64("1.fffffffffffffp+1023", base::HEX)!
 		== math::F64_MAX_NORMAL);

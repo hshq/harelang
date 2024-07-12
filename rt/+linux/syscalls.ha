@@ -1042,3 +1042,46 @@ export fn shutdown(sockfd: int, how: int) (void | errno) = {
 	wrap_return(syscall2(SYS_shutdown,
 		sockfd: u64, how: u64))?;
 };
+
+// Sets an extended file attribute.
+export fn setxattr(
+	path: path,
+	name: str,
+	value: []u8,
+	flags: int = 0
+) (void | errno) = {
+	let path = kpath(path)?;
+	static let namebuf: [PATH_MAX]u8 = [0...];
+	let name = copy_kpath(name, namebuf)?;
+
+	wrap_return(syscall5(SYS_setxattr,
+		path: uintptr: u64,
+		name: uintptr: u64,
+		value: *[*]u8: uintptr: u64,
+		len(value): u64,
+		flags: u64
+	))?;
+};
+
+// Gets an extended file attribute.
+export fn getxattr(path: path, name: str, value: []u8) (u64 | errno) = {
+	let path = kpath(path)?;
+	static let namebuf: [PATH_MAX]u8 = [0...];
+	let name = copy_kpath(name, namebuf)?;
+
+	return wrap_return(syscall4(SYS_getxattr,
+		path: uintptr,
+		name: uintptr,
+		value: *[*]u8: uintptr: u64,
+		len(value): u64,
+	));
+};
+
+// Removes an extended file attribute.
+export fn removexattr(path: path, name: str) (void | errno) = {
+	let path = kpath(path)?;
+	static let namebuf: [PATH_MAX]u8 = [0...];
+	let name = copy_kpath(name, namebuf)?;
+
+	wrap_return(syscall2(SYS_removexattr, path: uintptr, name: uintptr))?;
+};

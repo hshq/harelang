@@ -22,7 +22,7 @@ def timeout: time::duration = 3 * time::SECOND;
 // If no DNS servers are provided, the system default servers (if any) are used.
 export fn query(query: *message, servers: ip::addr...) (*message | error) = {
 	if (len(servers) == 0) {
-		servers = resolvconf::load();
+		servers = resolvconf::load().nameservers;
 	};
 	if (len(servers) == 0) {
 		// Fall back to localhost

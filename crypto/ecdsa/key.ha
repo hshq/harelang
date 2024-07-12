@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use bytes;
 use crypto::ec;
 use io;
-
-// Invalid key.
-export type invalidkey = !void;
 
 export type pubkey = struct {
 	curve: *ec::curve,
@@ -37,7 +35,8 @@ fn p384_get_x(priv: *privkey) []u8 = (priv: *p384privkey).x;
 fn p521_get_x(priv: *privkey) []u8 = (priv: *p521privkey).x;
 
 // Creates an unitialized p256 [[privkey]]. The curve is also known as secp256r1
-// or prime256. The key must be initialized using [[newkey]].
+// or prime256. The key must be initialized using [[newkey]]. The key must be
+// finished with [[privkey_finish]] to wipe it from memory.
 export fn p256priv() p256privkey = p256privkey {
 	priv = privkey {
 		curve = ec::p256,
@@ -47,7 +46,8 @@ export fn p256priv() p256privkey = p256privkey {
 };
 
 // Creates an unitialized p384 [[privkey]]. The curve is also known as
-// secp384r1. The key must be initialized using [[newkey]].
+// secp384r1. The key must be initialized using [[newkey]]. The key must be
+// finished with [[privkey_finish]] to wipe it from memory.
 export fn p384priv() p384privkey = p384privkey {
 	priv = privkey {
 		curve = ec::p384,
@@ -57,7 +57,8 @@ export fn p384priv() p384privkey = p384privkey {
 };
 
 // Creates an unitialized p521 [[privkey]]. The curve is also known as
-// secp521r1. The key must be initialized using [[newkey]].
+// secp521r1. The key must be initialized using [[newkey]]. The key must be
+// finished with [[privkey_finish]] to wipe it from memory.
 export fn p521priv() p521privkey = p521privkey {
 	priv = privkey {
 		curve = ec::p521,
@@ -91,6 +92,11 @@ export fn privkey_validate(priv: *privkey) (void | invalidkey) = {
 	case ec::invalid =>
 		return invalidkey;
 	};
+};
+
+// Wipes private key data from memory.
+export fn privkey_finish(priv: *privkey) void = {
+	bytes::zero(priv.get_x(priv));
 };
 
 export type p256pubkey = struct {

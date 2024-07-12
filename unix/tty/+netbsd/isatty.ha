@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use io;
-use os;
 use rt;
 
 // Returns whether the given stream is connected to a terminal.

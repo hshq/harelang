@@ -2,63 +2,73 @@
 // (c) Hare authors <https://harelang.org>
 
 use bufio;
+use fmt;
 use io;
 use memio;
 use net::ip;
 use os;
 use strings;
 
-let cache: []ip::addr = [];
-
-@fini fn fini() void = {
-	free(cache);
+let cache_valid = false;
+let cache: config = config {
+	options = DEFAULT_OPTIONS,
+	...
 };
 
-// Reads a list of nameservers from resolv.conf. Aborts the program if the file
-// does not exist, is written in an invalid format, or if any other error
-// occurs.
-export fn load() []ip::addr = {
-	// XXX: Would be cool if we could do this without allocating anything
-	if (len(cache) != 0) {
-		return cache;
+@fini fn fini() void = {
+	if (!cache_valid) {
+		return;
 	};
 
-	const file = os::open(PATH)!;
+	strings::freeall(cache.search);
+	free(cache.nameservers);
+	free(cache.sortlist);
+};
+
+// Reads /etc/resolv.conf (or the platform-specific equivalent path) and returns
+// the configuration therein. If the file does not exist, or is poorly
+// formatted, returns the default resolver configuration.
+export fn load() *config = {
+	if (cache_valid) {
+		return &cache;
+	};
+
+	const file = match (os::open("/etc/resolv.conf")) {
+	case let file: io::file =>
+		yield file;
+	case =>
+		cache_valid = true;
+		return &cache;
+	};
 	defer io::close(file)!;
 
-	for (true) {
-		const line = match (bufio::read_line(file)) {
-		case io::EOF =>
-			break;
-		case let line: []u8 =>
-			yield line;
-		};
-		defer free(line);
-		if (len(line) == 0 || line[0] == '#') {
-			continue;
-		};
-
-		const scanner = memio::fixed(line);
-		const tok = match (bufio::read_tok(&scanner, ' ', '\t')!) {
-		case io::EOF =>
-			break;
-		case let tok: []u8 =>
-			yield tok;
-		};
-		defer free(tok);
-		if (strings::fromutf8(tok)! != "nameserver") {
-			continue;
-		};
-
-		const tok = match (bufio::read_tok(&scanner, ' ')!) {
-		case io::EOF =>
-			break;
-		case let tok: []u8 =>
-			yield tok;
-		};
-		defer free(tok);
-		append(cache, ip::parse(strings::fromutf8(tok)!)!);
+	match (parse(&cache, file)) {
+	case let err: error =>
+		fmt::errorfln("Error parsing /etc/resolv.conf: {}",
+			strerror(err)): void;
+		return &cache;
+	case void =>
+		cache_valid = true;
+		return &cache;
 	};
+};
 
-	return cache;
+// Parses a resolv.conf-formatted file and populates the given config object.
+fn parse(conf: *config, in: io::handle) (void | error) = {
+	const rd = read(in);
+	for (const param => next(&rd)!) {
+		switch (param.name) {
+		case "nameserver" =>
+			append(conf.nameservers, param.value as ip::addr);
+		case "search" =>
+			strings::freeall(conf.search);
+			conf.search = strings::dupall(param.value as []str);
+		case "sortlist" =>
+			free(conf.sortlist);
+			conf.sortlist = alloc((param.value as []ip::subnet)...);
+		case "options" =>
+			conf.options = *(param.value as *options);
+		case => void;
+		};
+	};
 };

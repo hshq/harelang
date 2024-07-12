@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use ascii;
-use bufio;
 use fmt;
 use getopt;
 use os;

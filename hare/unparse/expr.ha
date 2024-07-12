@@ -4,7 +4,6 @@
 use fmt;
 use hare::ast;
 use hare::ast::{binarithm_op};
-use hare::lex;
 use hare::lex::{ltok};
 use io;
 use strings;
@@ -552,6 +551,8 @@ fn literal(
 		case void => abort();
 		case ast::_null =>
 			return syn(ctx, "null", synkind::KEYWORD)?;
+		case done =>
+			return syn(ctx, "done", synkind::KEYWORD)?;
 		case let b: bool =>
 			return syn(ctx, if (b) "true" else "false",
 				synkind::KEYWORD)?;

@@ -2,6 +2,7 @@
 // (c) Hare authors <https://harelang.org>
 
 use bufio;
+use encoding::utf8;
 use io;
 use memio;
 use os;
@@ -17,31 +18,51 @@ export type grent = struct {
 	password: str,
 	// Numerical group ID
 	gid: unix::gid,
-	// List of usernames that are members of this group
-	userlist: []str,
+	// List of usernames that are members of this group, separated by commas
+	userlist: str,
 };
 
-// Reads a Unix-like group entry from an [[io::handle]]. The caller must free
-// the return value using [[grent_finish]].
-export fn nextgr(in: io::handle) (grent | io::EOF | io::error | invalid) = {
-	let line = match (bufio::read_line(in)?) {
-	case let ln: []u8 =>
+export type groupreader = struct {
+	scan: bufio::scanner,
+};
+
+// Creates a parser for an /etc/groups-formatted file. Use [[nextgr]] to
+// enumerate the groups, and [[groups_finish]] to free resources associated with
+// the reader.
+export fn groups_read(in: io::handle) groupreader = {
+	return groupreader {
+		scan = bufio::newscanner(in),
+	};
+};
+
+// Frees resources associated with a [[groupreader]].
+export fn groups_finish(rd: *groupreader) void = {
+	bufio::finish(&rd.scan);
+};
+
+// Reads a Unix-like group entry from a [[groupreader]]. The return value is
+// borrowed from the scanner.
+export fn nextgr(rd: *groupreader) (grent | io::EOF | io::error | invalid) = {
+	const line = match (bufio::scan_line(&rd.scan)) {
+	case let ln: const str =>
 		yield ln;
+	case let err: io::error =>
+		return err;
+	case utf8::invalid =>
+		return invalid;
 	case io::EOF =>
 		return io::EOF;
 	};
-	let line = match (strings::fromutf8(line)) {
-	case let s: str =>
-		yield s;
-	case =>
-		return invalid;
-	};
+	const tok = strings::tokenize(line, ":");
 
-	let fields = strings::split(line, ":");
-	defer free(fields);
-
-	if (len(fields) != 4) {
-		return invalid;
+	let i = 0z;
+	let fields: [4]str = [""...];
+	for (const f => strings::next_token(&tok)) {
+		defer i += 1;
+		if (i >= len(fields)) {
+			return invalid;
+		};
+		fields[i] = f;
 	};
 
 	let gid = match (strconv::stou64(fields[2])) {
@@ -52,26 +73,43 @@ export fn nextgr(in: io::handle) (grent | io::EOF | io::error | invalid) = {
 	};
 
 	return grent {
-		// Borrows the return value of bufio::read_line
 		name      = fields[0],
 		password  = fields[1],
 		gid       = gid,
-		userlist  = strings::split(fields[3], ","),
+		userlist  = fields[3],
 	};
 };
 
-// Frees resources associated with [[grent]].
+// Frees resources associated with a [[grent]].
 export fn grent_finish(ent: *grent) void = {
 	free(ent.name);
+	free(ent.password);
 	free(ent.userlist);
+};
+
+// Frees resources associated with a slice of [[grent]]s.
+export fn grents_free(ents: []grent) void = {
+	for (let ent &.. ents) {
+		grent_finish(ent);
+	};
+	free(ents);
+};
+
+fn grent_dup(ent: *grent) void = {
+	ent.name = strings::dup(ent.name);
+	ent.password = strings::dup(ent.password);
+	ent.userlist = strings::dup(ent.userlist);
 };
 
 // Looks up a group by name in a Unix-like group file. It expects a such file at
 // /etc/group. Aborts if that file doesn't exist or is not properly formatted.
 //
+// The user must pass the return value to [[grent_finish]] to free resources
+// associated with the group.
+//
 // See [[nextgr]] for low-level parsing API.
 export fn getgroup(name: str) (grent | void) = {
-	let file = match (os::open("/etc/group")) {
+	const file = match (os::open("/etc/group")) {
 	case let f: io::file =>
 		yield f;
 	case =>
@@ -79,33 +117,49 @@ export fn getgroup(name: str) (grent | void) = {
 	};
 	defer io::close(file)!;
 
-	let rbuf: [os::BUFSZ]u8 = [0...];
-	let strm = bufio::init(file, rbuf, []);
-	for (true) {
-		let ent = match (nextgr(&strm)) {
-		case let e: grent =>
-			yield e;
-		case io::EOF =>
-			break;
-		case =>
-			abort("Invalid entry in /etc/group");
-		};
-
+	const rd = groups_read(file);
+	defer groups_finish(&rd);
+	for (const ent => nextgr(&rd)!) {
 		if (ent.name == name) {
+			grent_dup(&ent);
 			return ent;
-		} else {
-			grent_finish(&ent);
+		};
+	};
+};
+
+// Looks up a group by ID in a Unix-like group file. It expects a such file at
+// /etc/group. Aborts if that file doesn't exist or is not properly formatted.
+//
+// The user must pass the return value to [[grent_finish]] to free resources
+// associated with the group.
+//
+// See [[nextgr]] for low-level parsing API.
+export fn getgid(gid: unix::gid) (grent | void) = {
+	const file = match (os::open("/etc/group")) {
+	case let f: io::file =>
+		yield f;
+	case =>
+		abort("Unable to open /etc/group");
+	};
+	defer io::close(file)!;
+
+	const rd = groups_read(file);
+	defer groups_finish(&rd);
+	for (const ent => nextgr(&rd)!) {
+		if (ent.gid == gid) {
+			grent_dup(&ent);
+			return ent;
 		};
 	};
 };
 
 // Looks up groups by user name in a Unix-like group file. It expects a such
 // file at /etc/group. Aborts if that file doesn't exist or is not properly
-// formatted.
+// formatted. The caller must pass the return value to [[grents_finish]].
 //
 // See [[nextgr]] for low-level parsing API.
 export fn getgroups(name: str) []grent = {
-	let file = match (os::open("/etc/group")) {
+	const file = match (os::open("/etc/group")) {
 	case let f: io::file =>
 		yield f;
 	case =>
@@ -113,102 +167,58 @@ export fn getgroups(name: str) []grent = {
 	};
 	defer io::close(file)!;
 
-	let groups = []: []grent;
+	const rd = groups_read(file);
+	defer groups_finish(&rd);
 
-	let rbuf: [os::BUFSZ]u8 = [0...];
-	let strm = bufio::init(file, rbuf, []);
-	for (true) {
-		let ent = match (nextgr(&strm)) {
-		case let e: grent =>
-			yield e;
-		case io::EOF =>
-			break;
-		case =>
-			abort("Invalid entry in /etc/group");
-		};
-
-		let matched = false;
-		for (let i = 0z; i < len(ent.userlist); i += 1) {
-			if (ent.userlist[i] == name) {
-				matched = true;
+	let groups: []grent = [];
+	for (const ent => nextgr(&rd)!) {
+		const tok = strings::tokenize(ent.userlist, ",");
+		for (const tok => strings::next_token(&tok)) {
+			if (tok == name) {
+				grent_dup(&ent);
 				append(groups, ent);
-				break;
 			};
-		};
-		if (!matched) {
-			grent_finish(&ent);
 		};
 	};
 
 	return groups;
 };
 
-// Looks up a group by ID in a Unix-like group file. It expects a such file at
-// /etc/group. Aborts if that file doesn't exist or is not properly formatted.
-//
-// See [[nextgr]] for low-level parsing API.
-export fn getgid(gid: unix::gid) (grent | void) = {
-	let file = match (os::open("/etc/group")) {
-	case let f: io::file =>
-		yield f;
-	case =>
-		abort("Unable to open /etc/group");
-	};
-	defer io::close(file)!;
-
-	let rbuf: [os::BUFSZ]u8 = [0...];
-	let strm = bufio::init(file, rbuf, []);
-	for (true) {
-		let ent = match (nextgr(&strm)) {
-		case let e: grent =>
-			yield e;
-		case io::EOF =>
-			break;
-		case =>
-			abort("Invalid entry in /etc/group");
-		};
-
-		if (ent.gid == gid) {
-			return ent;
-		} else {
-			grent_finish(&ent);
-		};
-	};
-};
-
 @test fn nextgr() void = {
-	let buf = memio::fixed(strings::toutf8(
+	const buf = memio::fixed(strings::toutf8(
 		"root:x:0:root\n"
 		"mail:x:12:\n"
 		"video:x:986:alex,wmuser"));
+	const rd = groups_read(&buf);
+	defer groups_finish(&rd);
 
-	let ent = nextgr(&buf) as grent;
-	defer grent_finish(&ent);
+	const expect = [
+		grent {
+			name = "root",
+			password = "x",
+			gid = 0,
+			userlist = "root",
+		},
+		grent {
+			name = "mail",
+			password = "x",
+			gid = 12,
+			userlist = "",
+		},
+		grent {
+			name = "video",
+			password = "x",
+			gid = 986,
+			userlist = "alex,wmuser",
+		},
+	];
 
-	assert(ent.name == "root");
-	assert(ent.password == "x");
-	assert(ent.gid == 0);
-	assert(len(ent.userlist) == 1);
-	assert(ent.userlist[0] == "root");
-
-	let ent = nextgr(&buf) as grent;
-	defer grent_finish(&ent);
-
-	assert(ent.name == "mail");
-	assert(ent.password == "x");
-	assert(ent.gid == 12);
-	assert(len(ent.userlist) == 0);
-
-	let ent = nextgr(&buf) as grent;
-	defer grent_finish(&ent);
-
-	assert(ent.name == "video");
-	assert(ent.password == "x");
-	assert(ent.gid == 986);
-	assert(len(ent.userlist) == 2);
-	assert(ent.userlist[0] == "alex");
-	assert(ent.userlist[1] == "wmuser");
-
-	// No more entries
-	assert(nextgr(&buf) is io::EOF);
+	let i = 0z;
+	for (const ent => nextgr(&rd)!) {
+		defer i += 1;
+		assert(ent.name == expect[i].name);
+		assert(ent.password == expect[i].password);
+		assert(ent.gid == expect[i].gid);
+		assert(ent.userlist == expect[i].userlist);
+	};
 };

@@ -3,7 +3,6 @@
 
 use bytes;
 use crypto::ec;
-use crypto::random;
 use io;
 
 

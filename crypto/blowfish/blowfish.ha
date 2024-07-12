@@ -4,7 +4,6 @@
 
 use bytes;
 use crypto::cipher;
-use endian;
 
 // The block size of the Blowfish cipher in bytes.
 export def BLOCKSZ: size = 8;

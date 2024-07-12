@@ -4,7 +4,6 @@
 use encoding::utf8;
 use errors;
 use io;
-use path;
 use strings;
 use time;
 

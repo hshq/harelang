@@ -4,7 +4,6 @@
 use encoding::hex;
 use fmt;
 use hash;
-use os;
 use strings;
 use test;
 

@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use bytes;
-use errors;
 use fmt;
 use io;
 use strings;

@@ -3,9 +3,14 @@
 
 use errors;
 use fs;
-use path;
 use rt;
 use types::c;
+
+export type setxattr_flag = enum int {
+	NONE = 0,
+	XATTR_CREATE = 0x1,
+	XATTR_REPLACE = 0x2,
+};
 
 @init fn init_cwd() void = {
 	static let cwd_fs = os_filesystem { ... };
@@ -126,5 +131,50 @@ export fn access(path: str, mode: amode) (bool | fs::error) = {
 		return b;
 	case let err: rt::errno =>
 		return errno_to_fs(err);
+	};
+};
+
+// Sets an extended file attribute.
+export fn setxattr(
+	path: str,
+	name: str,
+	value: []u8,
+	flags: setxattr_flag = setxattr_flag::NONE,
+) (void | fs::error) = {
+	match (rt::setxattr(path, name, value, flags)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void =>
+		return void;
+	};
+};
+
+// Gets an extended file attribute.
+// The caller is responsible for freeing the returned slice.
+export fn getxattr(path: str, name: str) ([]u8 | fs::error) = {
+	let empty: []u8 = [];
+	let attr_size = match (rt::getxattr(path, name, empty)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case let s: u64 =>
+		yield s;
+	};
+
+	let buf: []u8 = alloc([0...], attr_size);
+	match (rt::getxattr(path, name, buf)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case let s: u64 =>
+		return buf;
+	};
+};
+
+// Removes an extended file attribute.
+export fn removexattr(path: str, name: str) (void | fs::error) = {
+	match (rt::removexattr(path, name)) {
+	case let err: rt::errno =>
+		return errno_to_fs(err);
+	case void =>
+		return void;
 	};
 };

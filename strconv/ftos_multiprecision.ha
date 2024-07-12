@@ -3,8 +3,6 @@
 
 // Multiprecision float to string based on golang's strconv/decimal.go.
 
-use ascii;
-use math;
 use strings;
 
 type mp = struct {

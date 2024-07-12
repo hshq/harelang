@@ -38,7 +38,7 @@ export type curve = struct {
 	generator: *fn () const []u8, // XXX: change to const []u8, when possible
 
 	// Multiply curve point 'p' by scalar 'x'. The result is stored in 'r'.
-	// Returns a value > 0 on success.
+	// Returns 1 on success.
 	//
 	// Point 'p' must be a valid point on the curve subgroup. If this is
 	// not the case the function fails with 0 as result.
@@ -60,7 +60,7 @@ export type curve = struct {
 	// Returns 0 in case of failure. Validates that the provided points are
 	// part of the relevant curve subgroup.
 	//
-	// Returns a value > 0 on success and 0 otherwise.
+	// Returns 1 on success.
 	muladd: *fn (a: []u8, b: []u8, x: []u8, y: []u8) u32,
 
 	// Generate a private key from given random seed 'rand'. The function

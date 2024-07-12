@@ -138,11 +138,85 @@ export type stat = struct {
 	st_spare: [2]u32,
 };
 
+export type fsid_t = struct {
+	__fsid_val: [2]u32,
+};
+
+export def VFS_NAMELEN: int = 32;
+export def VFS_MNAMELEN: int = 1024;
+
+export type statvfs = struct {
+	// copy of mount exported flags
+	f_flag:		u64,
+	// file system block size
+	f_bsize:	u64,
+	// fundamental file system block size
+	f_frsize:	u64,
+	// optimal file system block size
+	f_iosize:	u64,
+
+	// The following are in units of f_frsize
+
+	// number of blocks in file system,
+	f_blocks:	u64,
+	// free blocks avail in file system
+	f_bfree:	u64,
+	// free blocks avail to non-root
+	f_bavail:	u64,
+	// blocks reserved for root
+	f_bresvd:	u64,
+
+	// total file nodes in file system
+	f_files:	u64,
+	// free file nodes in file system
+	f_ffree:	u64,
+	// free file nodes avail to non-root
+	f_favail:	u64,
+	// file nodes reserved for root
+	f_fresvd:	u64,
+
+	// count of sync reads since mount
+	f_syncreads:	u64,
+	// count of sync writes since mount
+	f_syncwrites:	u64,
+
+	// count of async reads since mount
+	f_asyncreads:	u64,
+	// count of async writes since mount
+	f_asyncwrites:	u64,
+
+	// NetBSD compatible fsid
+	f_fsidx:	fsid_t,
+	// Posix compatible fsid
+	f_fsid:		u64,
+	// maximum filename length
+	f_namemax:	u64,
+	// user that mounted the file system
+	f_owner:	uid_t,
+	__pad0:		u32,
+
+	// spare space
+	f_spare:	[4]u64,
+
+	// fs type name
+	f_fstypename:	[VFS_NAMELEN]u8,
+	// directory on which mounted
+	f_mntonname:	[VFS_MNAMELEN]u8,
+	// mounted file system
+	f_mntfromname:	[VFS_MNAMELEN]u8,
+	// disk label name if avail
+	f_mntfromlabel:	[VFS_MNAMELEN]u8,
+};
+
 export type dirent = struct {
-	d_fileno: ino_t,	// file number of entry
-	d_reclen: u16,		// length of this record
-	d_namlen: u16,		// length of d_name
-	d_type: u8,		// file type, see below
+	// file number of entry
+	d_fileno: ino_t,
+	// length of this record
+	d_reclen: u16,
+	// length of d_name
+	d_namlen: u16,
+	// file type, see below
+	d_type: u8,
 	d_name: [NAME_MAX + 1]u8,
 };
 
@@ -274,22 +348,38 @@ export type ptmget = struct {
 };
 
 export type rusage = struct {
-        ru_utime: timeval,	// user time used
-        ru_stime: timeval,	// system time used
-        ru_maxrss: i64,		// max resident set size
-        ru_ixrss: i64,		// integral shared memory size
-        ru_idrss: i64,		// integral unshared data "
-        ru_isrss: i64,		// integral unshared stack "
-        ru_minflt: i64,		// page reclaims
-        ru_majflt: i64,		// page faults
-        ru_nswap: i64,		// swaps
-        ru_inblock: i64,	// block input operations
-        ru_oublock: i64,	// block output operations
-        ru_msgsnd: i64,		// messages sent
-        ru_msgrcv: i64,		// messages received
-        ru_nsignals: i64,	// signals received
-        ru_nvcsw: i64,		// voluntary context switches
-        ru_nivcsw: i64,		// involuntary "
+	// user time used
+	ru_utime: timeval,
+	// system time used
+	ru_stime: timeval,
+	// max resident set size
+	ru_maxrss: i64,
+	// integral shared memory size
+	ru_ixrss: i64,
+	// integral unshared data "
+	ru_idrss: i64,
+	// integral unshared stack "
+	ru_isrss: i64,
+	// page reclaims
+	ru_minflt: i64,
+	// page faults
+	ru_majflt: i64,
+	// swaps
+	ru_nswap: i64,
+	// block input operations
+	ru_inblock: i64,
+	// block output operations
+	ru_oublock: i64,
+	// messages sent
+	ru_msgsnd: i64,
+	// messages received
+	ru_msgrcv: i64,
+	// signals received
+	ru_nsignals: i64,
+	// voluntary context switches
+	ru_nvcsw: i64,
+	// involuntary "
+	ru_nivcsw: i64,
 };
 
 export def DT_UNKNOWN: u8 = 0;
@@ -324,6 +414,7 @@ export def O_EXEC: int = 0x00040000;
 export def O_TTY_INIT: int = 0x00080000;
 export def O_CLOEXEC: int = 0x00400000;
 export def O_DSYNC: int = 0x01000000;
+export def O_RSYNC: int = 0x00020000;
 
 export def AT_FDCWD: int = -100;
 export def AT_EACCESS: int = 0x0100;
@@ -332,13 +423,63 @@ export def AT_SYMLINK_FOLLOW: int = 0x0400;
 export def AT_REMOVEDIR: int = 0x0800;
 export def AT_RESOLVE_BENEATH: int = 0x2000;
 
-export def S_IFIFO: mode_t = 0o010000;
-export def S_IFCHR: mode_t = 0o020000;
-export def S_IFDIR: mode_t = 0o040000;
-export def S_IFBLK: mode_t = 0o060000;
-export def S_IFREG: mode_t = 0o100000;
-export def S_IFLNK: mode_t = 0o120000;
-export def S_IFSOCK: mode_t = 0o140000;
+// set user id on execution
+export def S_ISUID: u64 =	0o004000;
+// set group id on execution
+export def S_ISGID: u64 =	0o002000;
+// sticky bit
+export def S_ISTXT: u64 =	0o001000;
+// RWX mask for owner
+export def S_IRWXU: u64 =	0o000700;
+// R for owner
+export def S_IRUSR: u64 =	0o000400;
+// W for owner
+export def S_IWUSR: u64 =	0o000200;
+// X for owner
+export def S_IXUSR: u64 =	0o000100;
+export def S_IREAD: u64 =	S_IRUSR;
+export def S_IWRITE: u64 =	S_IWUSR;
+export def S_IEXEC: u64 =	S_IXUSR;
+// RWX mask for group
+export def S_IRWXG: u64 =	0o000070;
+// R for group
+export def S_IRGRP: u64 =	0o000040;
+// W for group
+export def S_IWGRP: u64 =	0o000020;
+// X for group
+export def S_IXGRP: u64 =	0o000010;
+// RWX mask for other
+export def S_IRWXO: u64 =	0o000007;
+// R for other
+export def S_IROTH: u64 =	0o000004;
+// W for other
+export def S_IWOTH: u64 =	0o000002;
+// X for other
+export def S_IXOTH: u64 =	0o000001;
+// type of file mask
+export def S_IFMT: u64 =	0o170000;
+// named pipe (fifo)
+export def S_IFIFO: u64 =	0o010000;
+// character special
+export def S_IFCHR: u64 =	0o020000;
+// directory
+export def S_IFDIR: u64 =	0o040000;
+// block special
+export def S_IFBLK: u64 =	0o060000;
+// regular
+export def S_IFREG: u64 =	0o100000;
+// symbolic link
+export def S_IFLNK: u64 =	0o120000;
+// save swapped text even after use
+export def S_ISVTX: u64 =	0o001000;
+// socket
+export def S_IFSOCK: u64 =	0o140000;
+// whiteout
+export def S_IFWHT: u64 =	0o160000;
+// Archive state 1, ls -l shows 'a'
+export def S_ARCH1: u64 =	0o200000;
+// Archive state 2, ls -l shows 'A'
+export def S_ARCH2: u64 =	0o400000;
 
 export def MAP_SHARED: uint = 0x0001;
 export def MAP_PRIVATE: uint = 0x0002;
@@ -492,10 +633,28 @@ export def RLIMIT_NPTS: int		= 11;
 export def RLIMIT_SWAP: int		= 12;
 export def RLIMIT_KQUEUES: int		= 13;
 export def RLIMIT_UMTXP: int		= 14;
-export def RLIMIT_NTHR: int		= 11; // number of threads
+// number of threads
+export def RLIMIT_NTHR: int		= 11;
 
 export def SHUT_RD: int = 0;
 export def SHUT_WR: int = 1;
 export def SHUT_RDWR: int = 2;
 
-export def NODEV: int = -1; // non-existent device
+// non-existent device
+export def NODEV: int = -1;
+
+// synchronously wait for I/O to complete
+export def MNT_WAIT:	int = 1;
+// start all I/O, but do not wait for it
+export def MNT_NOWAIT:	int = 2;
+// push data not written by filesystem syncer
+export def MNT_LAZY:	int = 3;
+
+// Efficient memory file-system
+export def MOUNT_TMPFS =	"tmpfs";
+export def MOUNT_SHMFS =	MOUNT_TMPFS;
+
+// Shared memory objects are supported using tmpfs.
+export def SHMFS_DIR_PATH =	"/var/shm";
+export def SHMFS_DIR_MODE =	(S_ISVTX | S_IRWXU | S_IRWXG | S_IRWXO);
+export def SHMFS_OBJ_PREFIX =	".shmobj_";

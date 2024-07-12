@@ -5,7 +5,6 @@ use bufio;
 use hare::ast;
 use hare::lex;
 use hare::lex::{ltok};
-use io;
 use io::{mode};
 use memio;
 use strings;

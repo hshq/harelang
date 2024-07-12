@@ -2,10 +2,10 @@
 // (c) Hare authors <https://harelang.org>
 
 use bufio;
+use errors;
 use encoding::utf8;
 use fs;
 use io;
-use memio;
 use net::ip;
 use os;
 use strings;
@@ -17,112 +17,97 @@ export type host = struct {
 	names: []str,
 };
 
-// Iterator through the host lines in a host file.
-export type iterator = struct {
-	handle: io::handle,
+export type reader = struct {
+	scan: bufio::scanner,
+	names: []str,
 };
 
-// Returned when an invalid host line was found.
-export type invalid = !void;
-
-// All possible errors returned from this module.
-export type error = !(io::error | invalid | utf8::invalid | ip::invalid
-	| fs::error);
-
-// Converts an [[error]] to a human-friendly representation.
-export fn strerror(err: error) const str = match (err) {
-case invalid =>
-	return "Host file format is invalid";
-case utf8::invalid =>
-	return "File is invalid UTF-8";
-case ip::invalid =>
-	return "IP address is invalid";
-case let err: io::error =>
-	return io::strerror(err);
-case let err: fs::error =>
-	return fs::strerror(err);
+// Read from an /etc/hosts-formatted file. Call [[next]] to enumerate entries
+// and [[finish]] to free state associated with the [[reader]].
+export fn read(in: io::handle) reader = {
+	return reader {
+		scan = bufio::newscanner(in),
+		names = [],
+	};
 };
 
-// Creates an [[iterator]] for a provided [[io::handle]] pointing to
-// the /etc/hosts file. The user should call [[next]] to iterate through
-// host lines.
-export fn iter(in: io::handle) iterator = iterator {
-	handle = in,
+// Frees resources associated with a [[reader]].
+export fn finish(rd: *reader) void = {
+	bufio::finish(&rd.scan);
+	free(rd.names);
 };
 
-// Returns the next host line as a [[host]] type.
-export fn next(it: *iterator) (host | void | error) = for (true) {
-	const line = match (bufio::read_line(it.handle)) {
-	case io::EOF =>
-		return void;
-	case let line: []u8 =>
-		yield line;
-	};
-	defer free(line);
-	if (len(line) == 0 || line[0] == '#') {
-		continue;
-	};
-
-	const scanner = memio::fixed(line);
-	const tok = match (bufio::read_tok(&scanner, ' ', '\t')?) {
-	case io::EOF =>
-		return void;
-	case let tok: []u8 =>
-		yield tok;
-	};
-	defer free(tok);
-	const addr = ip::parse(strings::fromutf8(tok)?)?;
-
-	let names: []str = [];
-	for (true) {
-		const tok = match (bufio::read_tok(&scanner, ' ', '\t')?) {
-		case io::EOF =>
-			break;
-		case let tok: []u8 =>
-			yield tok;
+// Returns the next host line as a [[host]] type. The host value is borrowed
+// from the [[reader]]; see [[host_dup]] to extend its lifetime.
+export fn next(rd: *reader) (host | done | error) = {
+	for (const line => bufio::scan_line(&rd.scan)?) {
+		if (len(line) == 0 || strings::hasprefix(line, "#")) {
+			continue;
 		};
-		if (len(tok) == 0) continue;
 
-		append(names, strings::fromutf8(tok)?);
-	};
-	if (len(names) == 0) {
-		return invalid;
+		const tok = strings::tokenize(line, " \t");
+		const addr = strings::next_token(&tok) as str;
+		const addr = ip::parse(addr)?;
+
+		rd.names = rd.names[..0];
+
+		for (const tok => strings::next_token(&tok)) {
+			if (len(tok) == 0) {
+				continue;
+			};
+			append(rd.names, tok);
+		};
+
+		if (len(rd.names) == 0) {
+			return invalid;
+		};
+
+		return host {
+			addr = addr,
+			names = rd.names,
+		};
 	};
 
-	return host {
-		addr = addr,
-		names = names,
-	};
+	return done;
 };
 
-// Looks up a slice of addresses from /etc/hosts.
+// Looks up a slice of addresses from /etc/hosts. The caller must free the
+// return value.
 export fn lookup(name: const str) ([]ip::addr | error) = {
 	const file = os::open(PATH)?;
 	defer io::close(file)!;
-	let it = iter(file);
-	return iter_lookup(&it, name);
+
+	const rd = read(file);
+	defer finish(&rd);
+	return _lookup(&rd, name);
 };
 
-// Looks up a slice of addresses given an [[iterator]] to /etc/hosts.
-export fn iter_lookup(it: *iterator, name: const str) ([]ip::addr | error) = {
+fn _lookup(rd: *reader, name: const str) ([]ip::addr | error) = {
 	let addrs: []ip::addr = [];
-	for (true) match(next(it)?) {
-	case void => break;
-	case let h: host =>
-		defer finish(h);
-		for (let i = 0z; i < len(h.names); i += 1) {
-			if (h.names[i] == name) {
-				append(addrs, h.addr);
+	for (const host => next(rd)?) {
+		for (const cand .. host.names) {
+			if (cand == name) {
+				append(addrs, host.addr);
 			};
 		};
 	};
-	return addrs;
+
+	if (len(addrs) != 0) {
+		return addrs;
+	};
+
+	return [];
+};
+
+// Duplicates a [[host]] value.
+export fn host_dup(src: *host) host = {
+	return host {
+		addr = src.addr,
+		names = strings::dupall(src.names),
+	};
 };
 
 // Frees resources associated with a [[host]].
-export fn finish(host: host) void = {
-	for (let i = 0z; i < len(host.names); i += 1) {
-		free(host.names[i]);
-	};
-	free(host.names);
+export fn host_finish(host: *host) void = {
+	strings::freeall(host.names);
 };

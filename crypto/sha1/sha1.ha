@@ -124,10 +124,10 @@ fn sum(h: *hash::hash, buf: []u8) void = {
 	endian::beputu32(buf[16..], h.h[4]);
 };
 
-let K0: u32 = 0x5A827999;
-let K1: u32 = 0x6ED9EBA1;
-let K2: u32 = 0x8F1BBCDC;
-let K3: u32 = 0xCA62C1D6;
+def K0: u32 = 0x5A827999;
+def K1: u32 = 0x6ED9EBA1;
+def K2: u32 = 0x8F1BBCDC;
+def K3: u32 = 0xCA62C1D6;
 
 // A generic, pure Hare version of the SHA-1 block step
 fn block(h: *state, p: []u8) void = {

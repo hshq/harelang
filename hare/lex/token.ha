@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use encoding::utf8;
-use strings;
-
 // A lexical token class.
 export type ltok = enum uint {
 	// Keep ordered with bmap

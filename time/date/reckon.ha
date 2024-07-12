@@ -41,7 +41,7 @@ export type rflag = enum uint {
 	HOP = 1 << 3,
 
 	// When a sub-significant overflow occurs, the unresolved field's
-	// maximum valid value is subtracted from it's current value, and the
+	// maximum valid value is subtracted from its current value, and the
 	// next super-significant field increments by one. This process repeats
 	// until the unresolved field's value becomes valid (falls in range).
 	//

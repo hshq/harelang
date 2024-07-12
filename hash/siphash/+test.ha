@@ -2,9 +2,7 @@
 // (c) Hare authors <https://harelang.org>
 
 use endian;
-use fmt;
 use hash;
-use io;
 use strings;
 
 @test fn siphash() void = {

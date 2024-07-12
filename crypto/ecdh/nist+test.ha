@@ -3,8 +3,6 @@
 
 use bytes;
 use crypto::ec;
-use io;
-use os;
 use test;
 
 

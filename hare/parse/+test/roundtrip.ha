@@ -6,11 +6,9 @@ use fmt;
 use hare::ast;
 use hare::lex;
 use hare::unparse;
-use io;
 use io::{mode};
 use memio;
 use strings;
-use types;
 
 fn roundtrip(src: str) void = {
 	let unsrc = _roundtrip(src);

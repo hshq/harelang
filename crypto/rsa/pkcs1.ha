@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use bufio;
 use crypto::math;
 use crypto::sha1;
 use crypto::sha256;
 use crypto::sha512;
 use errors;
-use hash;
-use io;
 
 // Supported hash algorithms for [[pkcs1_sign]] and [[pkcs1_verify]].
 export type pkcs1_hashalgo = enum {

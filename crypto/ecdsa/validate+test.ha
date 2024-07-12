@@ -41,15 +41,15 @@ const randbuf: [_]u8 = [
 
 	let sig: [P256_SIGSZ]u8 = [0...];
 
-	assert(sign(&k, msghash, &hashfn, hashbuf, sig) == len(sig));
-	assert(verify(&p, msghash, sig) == 1);
+	assert(sign(&k, msghash, &hashfn, hashbuf, sig)! == len(sig));
+	verify(&p, msghash, sig)!;
 
 	const save = sig[4];
 	sig[4] = 0xff;
-	assert(verify(&p, msghash, sig) == 0);
+	assert(verify(&p, msghash, sig) is invalidsig);
 	sig[4] = save;
 
 	pubkey_buf(&p)[1] = 0xff;
-	assert(verify(&p, msghash, sig) == 0);
+	assert(verify(&p, msghash, sig) is invalidsig);
 	assert(pubkey_validate(&p) is invalidkey);
 };

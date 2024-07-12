@@ -9,6 +9,7 @@ use net::udp;
 fn dial_tcp(addr: str, service: str) (net::socket | error) = {
 	const result = resolve("tcp", addr, service)?;
 	const addrs = result.0, port = result.1;
+	defer free(addrs);
 	for (let i = 0z; i < len(addrs); i += 1) {
 		const addr = addrs[i];
 		match (tcp::connect(addr, port)) {
@@ -26,6 +27,7 @@ fn dial_tcp(addr: str, service: str) (net::socket | error) = {
 fn dial_udp(addr: str, service: str) (net::socket | error) = {
 	const result = resolve("udp", addr, service)?;
 	const addrs = result.0, port = result.1;
+	defer free(addrs);
 	for (let i = 0z; i < len(addrs); i += 1) {
 		const addr = addrs[i];
 		match (udp::connect(addr, port)) {

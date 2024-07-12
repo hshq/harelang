@@ -2,10 +2,8 @@
 // (c) Hare authors <https://harelang.org>
 
 use errors;
-use fmt;
 use fs;
 use io;
-use os;
 use rt;
 use types::c;
 

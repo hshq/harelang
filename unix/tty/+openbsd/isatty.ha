@@ -3,7 +3,6 @@
 
 use rt;
 use io;
-use os;
 
 // Returns whether the given stream is connected to a terminal.
 export fn isatty(fd: io::file) bool = {

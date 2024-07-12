@@ -3,7 +3,6 @@
 
 use encoding::utf8;
 use endian;
-use errors;
 use io;
 use strings;
 

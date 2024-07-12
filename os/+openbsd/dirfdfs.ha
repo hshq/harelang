@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use errors;
-use encoding::utf8;
 use fs;
 use rt;
 use strings;

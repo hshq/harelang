@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use time;
 use time::chrono;
 
 // Creates an equivalent [[date]] with a different

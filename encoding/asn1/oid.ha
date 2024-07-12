@@ -7,7 +7,6 @@ use fmt;
 use io;
 use math::{divu};
 use memio;
-use strings;
 
 
 // An oid database that contains a lookup table of known oids in the DER format.

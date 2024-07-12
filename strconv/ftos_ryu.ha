@@ -6,7 +6,6 @@
 // This Hare implementation is translated from the original
 // C implementation here: https://github.com/ulfjack/ryu
 
-use ascii;
 use math;
 use types;
 

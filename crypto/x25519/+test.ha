@@ -3,7 +3,6 @@
 
 use bytes;
 use crypto::random;
-use encoding::hex;
 
 @test fn sample() void = {
 	let seed: [32]u8 = [0xff...];

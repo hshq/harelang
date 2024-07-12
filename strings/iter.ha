@@ -52,12 +52,11 @@ export fn prev(iter: *iterator) (rune | done) = move(iter.reverse, iter);
 
 fn move(forward: bool, iter: *iterator) (rune | done) = {
 	let fun = if (forward) &utf8::next else &utf8::prev;
-	return match (fun(&iter.dec)) {
-	case void => yield done;
+	match (fun(&iter.dec)) {
 	case (utf8::more | utf8::invalid) =>
 		abort("Invalid UTF-8 string (this should not happen)");
-	case let r: rune =>
-		yield r;
+	case let r: (rune | done) =>
+		return r;
 	};
 };
 
