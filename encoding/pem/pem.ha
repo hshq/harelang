@@ -4,6 +4,7 @@
 use ascii;
 use bufio;
 use encoding::base64;
+use encoding::utf8;
 use errors;
 use fmt;
 use io;
@@ -19,12 +20,11 @@ const suffix: str = "-----";
 export type decoder = struct {
 	in: b64stream,
 	label: memio::stream,
-	buf: []u8,
 };
 
 export type b64stream = struct {
 	stream: io::stream,
-	in: bufio::stream,
+	in: bufio::scanner,
 };
 
 export type pemdecoder = struct {
@@ -45,13 +45,11 @@ const b64stream_r_vt: io::vtable = io::vtable {
 // Creates a new PEM decoder. The caller must either read it until it returns
 // [[io::EOF]], or call [[finish]] to free state associated with the parser.
 export fn newdecoder(in: io::handle) decoder = {
-	let buf: []u8 = alloc([0...], os::BUFSZ);
 	return decoder {
 		in = b64stream {
 			stream = &b64stream_r_vt,
-			in = bufio::init(in, buf, []),
+			in = bufio::newscanner(in),
 		},
-		buf = buf,
 		label = memio::dynamic(),
 	};
 };
@@ -59,7 +57,7 @@ export fn newdecoder(in: io::handle) decoder = {
 // Frees state associated with this [[decoder]].
 export fn finish(dec: *decoder) void = {
 	io::close(&dec.label)!;
-	free(dec.buf);
+	bufio::finish(&dec.in.in);
 };
 
 // Converts an I/O error returned from a PEM decoder into a human-friendly
@@ -82,21 +80,15 @@ export fn strerror(err: io::error) const str = {
 // The label returned by this function is borrowed from the decoder state and
 // does not contain "-----BEGIN " or "-----".
 export fn next(dec: *decoder) ((str, pemdecoder) | io::EOF | io::error) = {
-	for (true) {
-		// XXX: This can be improved following
-		// https://todo.sr.ht/~sircmpwn/hare/562
-		const line = match (bufio::read_line(&dec.in.in)?) {
-		case io::EOF =>
-			return io::EOF;
-		case let line: []u8 =>
-			yield match (strings::fromutf8(line)) {
-			case let s: str =>
-				yield s;
-			case =>
-				return errors::invalid;
-			};
+	for (let line => bufio::scan_line(&dec.in.in)) {
+		const line = match (line) {
+		case let line: const str =>
+			yield line;
+		case utf8::invalid =>
+			return errors::invalid;
+		case let e: io::error =>
+			return e;
 		};
-		defer free(line);
 		const line = strings::rtrim(line, '\r');
 
 		if (!strings::hasprefix(line, begin)
@@ -114,6 +106,7 @@ export fn next(dec: *decoder) ((str, pemdecoder) | io::EOF | io::error) = {
 			b64 = base64::newdecoder(&base64::std_encoding, &dec.in),
 		});
 	};
+	return io::EOF;
 };
 
 fn pem_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
@@ -130,18 +123,14 @@ fn pem_read(st: *io::stream, buf: []u8) (size | io::EOF | io::error) = {
 	case io::EOF => void;
 	};
 
-	const line = match (bufio::read_line(st.b64.in)?) {
+	const line = match (bufio::scan_line(&(st.b64.in : *b64stream).in)) {
 	case io::EOF =>
 		return io::EOF;
-	case let line: []u8 =>
-		yield match (strings::fromutf8(line)) {
-		case let s: str =>
-			yield s;
-		case =>
-			return errors::invalid;
-		};
+	case utf8::invalid =>
+		return errors::invalid;
+	case let line: const str =>
+		yield line;
 	};
-	defer free(line);
 	const line = strings::rtrim(line, '\r');
 
 	if (!strings::hasprefix(line, end)
