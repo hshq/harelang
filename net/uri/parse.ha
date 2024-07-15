@@ -40,29 +40,37 @@ export fn parse(in: str) (uri | invalid) = {
 		switch (r) {
 		case '/' =>
 			// Either "//"+authority+path-abempty or path-absolute
-			switch (wantrune(&in)?) {
-			case '/' =>
-				// "//" + authority + path-abempty
-				authority = parse_authority(&in)?;
-				match (strings::next(&in)) {
-				case let r: rune =>
-					switch (r) {
-					case '?', '#' =>
-						// path-empty
-						strings::prev(&in);
-					case '/' =>
-						// path-absolute
-						strings::prev(&in);
-						path = parse_path(&in,
-							path_mode::ABSOLUTE)?;
-					case =>
-						return invalid;
+			match (wantrune(&in)) {
+			case let r: rune =>
+				switch(r) {
+				case '/' =>
+					// "//" + authority + path-abempty
+					authority = parse_authority(&in)?;
+					match (strings::next(&in)) {
+					case let r: rune =>
+						switch (r) {
+						case '?', '#' =>
+							// path-empty
+							strings::prev(&in);
+						case '/' =>
+							// path-absolute
+							strings::prev(&in);
+							path = parse_path(&in,
+								path_mode::ABSOLUTE)?;
+						case =>
+							return invalid;
+						};
+					case => void; // path-empty
 					};
-				case => void; // path-empty
+				case =>
+					// path-absolute
+					strings::prev(&in); // return current token
+					strings::prev(&in); // return leading slash
+					path = parse_path(&in, path_mode::ABSOLUTE)?;
 				};
-			case =>
-				// path-absolute
-				strings::prev(&in);
+			case invalid =>
+				// path-absolute (just '/')
+				strings::prev(&in); // return leading slash
 				path = parse_path(&in, path_mode::ABSOLUTE)?;
 			};
 		case =>
