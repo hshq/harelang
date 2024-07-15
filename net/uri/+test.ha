@@ -72,6 +72,24 @@ use net::ip;
 		},
 	)!;
 	test_uri_roundtrip(
+		"http:/foo/bar",
+		uri {
+			scheme = "http",
+			host = "",
+			path = "/foo/bar",
+			...
+		},
+	)!;
+	test_uri_roundtrip(
+		"http:/",
+		uri {
+			scheme = "http",
+			host = "",
+			path = "/",
+			...
+		},
+	)!;
+	test_uri_roundtrip(
 		"https://sr.ht/projects?search=%23risc-v&sort=longest-active#foo",
 		uri {
 			scheme = "https",
