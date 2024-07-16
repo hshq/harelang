@@ -40,7 +40,7 @@ export fn parse(in: str) (uri | invalid) = {
 		switch (r) {
 		case '/' =>
 			// Either "//"+authority+path-abempty or path-absolute
-			match (wantrune(&in)) {
+			match (strings::next(&in)) {
 			case let r: rune =>
 				switch(r) {
 				case '/' =>
@@ -68,7 +68,7 @@ export fn parse(in: str) (uri | invalid) = {
 					strings::prev(&in); // return leading slash
 					path = parse_path(&in, path_mode::ABSOLUTE)?;
 				};
-			case invalid =>
+			case =>
 				// path-absolute (just '/')
 				strings::prev(&in); // return leading slash
 				path = parse_path(&in, path_mode::ABSOLUTE)?;
