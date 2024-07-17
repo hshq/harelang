@@ -311,6 +311,10 @@ export fn compile(expr: str) (regex | error) = {
 				jump_idxs[len(jump_idxs) - 1] + 1 else origin;
 			insert(insts[split_idx], newinst);
 			append(jump_idxs, len(insts) - 1);
+			// add skip if it's a whole-expression alternation
+			if (origin == 0) {
+				append(insts, inst_skip);
+			};
 		case '{' =>
 			let origin = len(insts) - 1;
 			if (insts[origin] is inst_groupend) {
