@@ -250,7 +250,6 @@ fn run_rawreplace_case(
 		(`^(cafe|b)x$`, "cafex", matchres::MATCH, 0, 5),
 		(`^(cafe|b)x$`, "bx", matchres::MATCH, 0, 2),
 		(`^(cafe|b)x$`, "XXXx", matchres::NOMATCH, 0, 0),
-		(`^(cafe|b)x$`, "bx", matchres::MATCH, 0, 2),
 		(
 			`^(Privat|Jagd)(haftpflicht|schaden)versicherungs(police|betrag)$`,
 			"Jagdhaftpflichtversicherungsbetrag",
@@ -344,7 +343,6 @@ fn run_rawreplace_case(
 		(`^test[[:blank:]]+$`, "testa", matchres::NOMATCH, 0, -1),
 		(`^test[[:blank:]]+$`, "test ", matchres::MATCH, 0, -1),
 		(`^test[^[:blank:]]+$`, "testx", matchres::MATCH, 0, -1),
-		(`^test[[:blank:]]+$`, "test ", matchres::MATCH, 0, -1),
 		(`^test[^[:cntrl:]]+$`, "testa", matchres::MATCH, 0, -1),
 		(`^test[[:digit:]]$`, "test1", matchres::MATCH, 0, -1),
 		(`^test[[:digit:]]$`, "testa", matchres::NOMATCH, 0, -1),
